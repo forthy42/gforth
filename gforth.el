@@ -242,8 +242,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	(("immediate" "compile-only" "restrict")
 	 immediate (font-lock-keyword-face . 1))
 	(("does>") definition-starter (font-lock-keyword-face . 1))
-	((":noname" "comp:" "post:" "[:") definition-starter (font-lock-keyword-face . 1))
-	((";" ";code" ";abi-code" ";]") definition-ender (font-lock-keyword-face . 1))
+	((":noname" "comp:" "post:") definition-starter (font-lock-keyword-face . 1))
+	((";" ";code" ";abi-code") definition-ender (font-lock-keyword-face . 1))
 	(("include" "require" "needs" "use") 
 	 non-immediate (font-lock-keyword-face . 1) 
 	 "[\n\t ]" t string (font-lock-string-face . 1))
@@ -274,7 +274,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  
 	(("[if]" "[?do]" "[do]" "[for]" "[begin]" 
 	  "[endif]" "[then]" "[loop]" "[+loop]" "[next]" "[until]" "[repeat]"
-	  "[again]" "[while]" "[else]")
+	  "[again]" "[while]" "[else]" "[:" ";]")
 	 immediate (font-lock-keyword-face . 2))
 	(("[ifdef]" "[ifundef]") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
@@ -541,7 +541,7 @@ End:\" construct).")
 			)) 
 		    mapped)))
     (let ((result (cons regexp sub-list)))
-      (byte-compile 'result)
+      ;(byte-compile 'result)
       result)))
 
 (defun forth-compile-words ()

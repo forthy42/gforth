@@ -41,7 +41,7 @@ then
 	if [ "$1" != "--no-config" ]; then ./configure --host=arm-unknown-linux-android --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib || exit 1; fi
 	make # || exit 1
 	make setup-debdist || exit 1) || exit 1
-    if [ "$1" == "--no-config" ]; then shift; fi
+    if [ "$1" == "--no-config" ]; then CONFIG=no; shift; fi
 
     for i in . $*
     do
@@ -49,7 +49,7 @@ then
     done
     (cd $SRC/debian/sdcard
 	mkdir -p gforth/home
-	gforth ../../archive.fs $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
+	gforth ../../archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
 else
     shift
 fi
@@ -61,6 +61,21 @@ sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA2
 LIBCC=$SRC
 for i in $LIBCC $*
 do
+    (cd $i; test -d shlibs && \
+	(cd shlibs
+	    for j in *; do
+		(cd $j
+		    if [ "$CONFIG" == no ]
+		    then
+			make
+		    else
+			CFLAGS="-march=armv5 -mfloat-abi=softfp -mfpu=vfp" ./configure --host=arm-linux-androideabi && make clean && make
+		    fi
+		)
+	    done
+	)
+    )
+    (cd $i; test -x ./libcc.android && ./libcc.android)
     for j in $LIBCCNAMED .libs
     do
 	for k in $(cd $i/$j; echo *.so)
