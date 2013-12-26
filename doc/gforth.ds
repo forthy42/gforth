@@ -1,6 +1,16 @@
 \input texinfo   @c -*-texinfo-*-
 @comment The source is gforth.ds, from which gforth.texi is generated
 
+@iftex
+@internalpagesizes{150mm}{97mm}{-0.666in}{-0.95in}{0in}{0in}{160mm}{100mm}
+@contentsrightmargin=0pt
+@tableindent=0.1in
+@itemindent=0.2in
+@tolerance=700
+@defbodyindent=0.1in
+@lispnarrowing=0pt
+@end iftex
+
 @comment TODO: nac29jan99 - a list of things to add in the next edit:
 @comment 1. x-ref all ambiguous or implementation-defined features?
 @comment 2. Describe the use of Auser Avariable AConstant A, etc.
