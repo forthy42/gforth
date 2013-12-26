@@ -184,7 +184,7 @@ is catch
     ?DUP IF
 	[ here forthstart 9 cells + ! ]
 	first-throw @ 0= IF
-	    store-backtrace error-stack off
+	    store-backtrace \ error-stack $off
 	THEN
 	handler @ ?dup-0=-IF
 	    >stderr cr ." uncaught exception: " .error cr
