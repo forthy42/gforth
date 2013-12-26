@@ -229,6 +229,9 @@ epiper create_pipe \ create pipe for main task
 
 :noname ( -- )
     [ here throw-entry ! ]
+    first-throw @ 0= IF
+	store-backtrace \ error-stack $off
+    THEN
     handler @ ?dup-0=-IF
 	>stderr cr ." uncaught thread exception: " .error cr
 	kill-task
