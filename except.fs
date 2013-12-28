@@ -67,17 +67,16 @@ Defer store-backtrace
 
 \ !! explain handler on-stack structure
 
-Variable first-throw
+User first-throw
 : nothrow ( -- ) \ gforth
     \G Use this (or the standard sequence @code{['] false catch drop})
     \G after a @code{catch} or @code{endtry} that does not rethrow;
     \G this ensures that the next @code{throw} will record a
     \G backtrace.
-    first-throw on ;
+    first-throw $off ;
 
 : (try0) ( -- aoldhandler )
-    first-throw on
-    handler @ ;
+    nothrow handler @ ;
 
 [undefined] (try1) [if]
 : (try1) ( aoldhandler arecovery -- anewhandler )
@@ -96,7 +95,7 @@ Variable first-throw
     handler ! ;
 
 : (try) ( ahandler -- )
-    first-throw on
+    nothrow
     r>
     swap >r \ recovery address
     sp@ >r
@@ -184,9 +183,8 @@ is catch
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
 	[ here forthstart 9 cells + ! ]
-	first-throw @ IF
-	    store-backtrace error-stack off
-	    first-throw off
+	first-throw @ 0= IF
+	    store-backtrace \ error-stack $off
 	THEN
 	handler @ ?dup-0=-IF
 	    >stderr cr ." uncaught exception: " .error cr

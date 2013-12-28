@@ -3,7 +3,7 @@
 #cd  ~/proj/android-toolchain
 #~/proj/android-ndk-r8e/build/tools/make-standalone-toolchain.sh --platform=android-14 --ndk-dir=/home/bernd/proj/android-ndk-r8e --install-dir=$PWD --toolchain=arm-linux-androideabi-4.7
 #configure with
-#./configure --host=arm-unknown-android-google --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib
+#./configure --host=arm-linux-android --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib --with-ditc=gforth-ditc-x32
 #and finally create an apk in this directory
 #./build.sh
 (cd engine

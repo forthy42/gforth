@@ -31,7 +31,6 @@ c-library pthread
     \c #ifndef FIONREAD
     \c #include <sys/socket.h>
     \c #endif
-    \c #define wholepage(n) (((n)+pagesize-1)&~(pagesize-1))
     \c
     \c #ifndef HAS_BACKLINK
     \c static void *(*saved_gforth_pointers)(Cell);
@@ -44,6 +43,14 @@ c-library pthread
     \c     longjmp(*(jmp_buf*)throw_jmp_handler,-2049-(int)reason);
     \c }
     \c #endif
+    \c void create_pipe(FILE ** addr)
+    \c {
+    \c   int epipe[2];
+    \c   pipe(epipe);
+    \c   addr[0]=fdopen(epipe[0], "r");
+    \c   addr[1]=fdopen(epipe[1], "a");
+    \c   setvbuf(addr[1], NULL, _IONBF, 0);
+    \c }
     \c void *gforth_thread(user_area * t)
     \c {
     \c   void *x;
@@ -62,13 +69,13 @@ c-library pthread
     \c   gforth_LP=(Address)(t->lp0);
     \c
     \c #if HAVE_MPROBE
-    \c   mcheck(gfpthread_abortmcheck);
+    \c   /* mcheck(gfpthread_abortmcheck); */
     \c #endif
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
     \c 
     \c   throw_jmp_handler = &throw_jmp_buf;
     \c   ((Cell*)(t->sp0))[-1]=(Cell)t;
-    \c 
+    \c
     \c   while((throw_code=setjmp(*(jmp_buf*)throw_jmp_handler))) {
     \c     signal_data_stack[15]=throw_code;
     \c     ip0=(void*)(t->throw_entry);
@@ -124,14 +131,6 @@ c-library pthread
     \c   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     \c   return &attr;
     \c }
-    \c void create_pipe(FILE ** addr)
-    \c {
-    \c   int epipe[2];
-    \c   pipe(epipe);
-    \c   addr[0]=fdopen(epipe[0], "r");
-    \c   addr[1]=fdopen(epipe[1], "a");
-    \c   setvbuf(addr[1], NULL, _IONBF, 0);
-    \c }
     \c #include <sys/ioctl.h>
     \c #include <errno.h>
     \c int check_read(FILE * fid)
@@ -153,6 +152,16 @@ c-library pthread
     \c #endif
     \c   return check_read(fid);
     \c }
+    \c int gforth_pagesize()
+    \c {
+    \c #if HAVE_GETPAGESIZE
+    \c   return getpagesize(); /* Linux/GNU libc offers this */
+    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
+    \c   return sysconf(_SC_PAGESIZE); /* POSIX.4 */
+    \c #elif PAGESIZE
+    \c   return PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
+    \c #endif
+    \c }
     \c /* optional: CPU affinity
     \c #include <sched.h>
     \c int stick_to_core(int core_id) {
@@ -170,7 +179,7 @@ c-library pthread
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
-    c-function gforth_create_thread gforth_stacks n n n n -- a ( dsize rsize fsize lsize -- task )
+    c-function gforth_create_thread gforth_stacks n n n n -- a ( dsize fsize rsize lsize -- task )
     c-function pthread_create pthread_create a a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
     c-function pthread_kill pthread_kill n n -- n ( id sig -- rvalue )
@@ -191,14 +200,16 @@ c-library pthread
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n -- n ( pipefd timeout -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
+    c-function pt-pagesize getpagesize -- n ( -- size )
     \ c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
+[IFUNDEF] pagesize  pt-pagesize Constant pagesize [THEN]
+
 User pthread-id  -1 cells pthread+ uallot drop
+
 User epiper
 User epipew
-
-epiper create_pipe \ create pipe for main task
 
 : user' ( 'user' -- n )
     \G USER' computes the task offset of a user variable
@@ -210,11 +221,17 @@ comp: drop ' >body @ postpone Literal ;
 
 : >task ( user task -- user' )  + up@ - ;
 
+epiper create_pipe \ create pipe for main task
+
 : kill-task ( -- )
-    epiper @ close-file drop   epipew @ close-file drop  0 (bye) ;
+    epiper @ ?dup-if epiper off close-file drop  THEN
+    epipew @ ?dup-if epipew off close-file drop  THEN  0 (bye) ;
 
 :noname ( -- )
     [ here throw-entry ! ]
+    first-throw @ 0= IF
+	store-backtrace \ error-stack $off
+    THEN
     handler @ ?dup-0=-IF
 	>stderr cr ." uncaught thread exception: " .error cr
 	kill-task
@@ -225,7 +242,7 @@ comp: drop ' >body @ postpone Literal ;
     \G creates a task, each stack individually sized
     gforth_create_thread >r
     throw-entry r@ udp @ throw-entry up@ - /string move
-    word-pno-size chars dup allocate throw dup holdbufptr r@ >task !
+    word-pno-size chars r@ pagesize + over - dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
     epiper r@ >task create_pipe
     ['] kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
@@ -276,12 +293,12 @@ comp: drop ' >body @ postpone Literal ;
     RESTORE  r> unlock
     ENDTRY  throw ;
 
-: stacksize ( -- n ) forthstart 4 cells + @
-    sp0 @ $FFF and -$1000 or + ;
-: stacksize4 ( -- dsize rsize fsize lsize )
+: >pagealign-stack ( n addr -- n' )
+    >r 1- r> 1- pagesize negate mux 1+ ;
+: stacksize ( -- n ) forthstart 4 cells + @ ;
+: stacksize4 ( -- dsize fsize rsize lsize )
     forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP
-    2swap swap sp0 @ $FFF and -$1000 or + swap 2swap
-    swap       fp0 @ $FFF and -$1000 or + swap ;
+    2>r >r  sp0 @ >pagealign-stack r> fp0 @ >pagealign-stack 2r> ;
 
 \ event handling
 

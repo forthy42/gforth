@@ -492,15 +492,38 @@ interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
 	r> postpone ALiteral
     ELSE  r>  THEN ( xt ) ; immediate
 
+\ multiple values to and from return stack
+
+: n>r ( x1 .. xn n -- r:xn..x1 r:n )
+    r> { n ret }
+    0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
+    ret >r ;
+: nr> ( r:xn..x1 r:n -- x1 .. xn n )
+    r> r> { ret n }
+    0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
+    ret >r ;
+
 \ x:traverse-wordlist words
 
 : name>interpret ( nt -- xt|0 )
     \G \i{xt} represents the interpretation semantics \i{nt}; returns
     \G 0 if \i{nt} has no interpretation semantics
-    name>int dup ['] compile-only-error = if
-        drop 0
+    dup name>int tuck <> if \ only if it wasn't compile-only-error
+	dup ['] compile-only-error = if
+	    drop 0
+	then
     then ;
 
 ' name>comp alias name>compile ( nt -- w xt )
 \G @i{w xt} is the compilation token for the word @i{nt}.
 
+\ 2value
+
+: (2to) ( addr -- ) >body 2! ;
+comp: drop >body postpone literal postpone 2! ;
+
+: 2Value ( d "name" -- ) \ Forth200x
+    Create 2,
+    [: >body postpone Literal postpone 2@ ;] set-compiler
+    ['] (2to) set-to
+    DOES> 2@ ;

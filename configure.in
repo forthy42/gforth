@@ -20,12 +20,12 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20130821],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20131227],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release-YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1-YYYYMMDD must not exist before 0.4.1!
-UPDATED="August 21, 2013"
+UPDATED="December 27, 2013"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 
@@ -283,7 +283,7 @@ case "$host_cpu" in
 		fi
 		case "$host_os" in
 		     *android*)
-			CFLAGS="$CFLAGS -march=armv7-a -mfloat-abi=softfp -mfpu=vfp"
+			CFLAGS="$CFLAGS -march=armv5 -mfloat-abi=softfp -mfpu=vfp"
 			;;
 		esac
 		if test -z $arm_cacheflush; then
@@ -733,7 +733,7 @@ CFLAGS_1="$CFLAGS"
 LDFLAGS_1="$LDFLAGS"
 CFLAGS="$CFLAGS -pthread"
 LDFLAGS="$LDFLAGS -pthread"
-AC_TRY_COMPILE(,,ac_pthread=yes;ENGINE_FLAGS="$ENGINE_FLAGS -pthread",ac_align_jumps=no)
+AC_TRY_COMPILE(,,ac_pthread=yes;ENGINE_FLAGS="$ENGINE_FLAGS -pthread",ac_pthread=no)
 test "$ac_pthread" == yes || CFLAGS="$CFLAGS_1"
 test "$ac_pthread" == yes || LDFLAGS="$LDFLAGS_1"
 AC_MSG_RESULT($ac_pthread)
@@ -801,8 +801,12 @@ case "$host_os" in
 	*darwin*)
 		#dar*win* must be first, not to confuse with cygwin, win32 or similar
 		#Darwin uses some funny preprocessor by default; eliminate it:
-		AC_MSG_NOTICE([using -no-cpp-precomp on Darwin])
+		AC_MSG_CHECKING([if $CC understands -no-cpp-precomp on Darwin])
+		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS -no-cpp-precomp"
+		AC_TRY_COMPILE(,,ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp",ac_no_cpp_precomp=no)
+		test "$ac_no_cpp_precomp" == yes || CFLAGS="$CFLAGS_1"
+		AC_MSG_RESULT($ac_no_cpp_precomp)
 		DIRSEP="/"
 		PATHSEP=":"
 		DEFAULTSYSTEMPREFIX=""
