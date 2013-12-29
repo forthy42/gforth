@@ -5856,7 +5856,8 @@ The most common use of exception handlers is to clean up the state when
 an error happens.  E.g.,
 
 @example
-base @ >r hex \ actually the hex should be inside foo, or we h
+base @@ >r hex \ actually the HEX should be inside foo to protect
+              \ against exceptions between HEX and CATCH
 ['] foo catch ( nerror|0 )
 r> base !
 ( nerror|0 ) throw \ pass it on
