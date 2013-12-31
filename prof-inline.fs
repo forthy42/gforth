@@ -1,6 +1,6 @@
 \ get some data on potential (partial) inlining
 
-\ Copyright (C) 2004,2007,2012 Free Software Foundation, Inc.
+\ Copyright (C) 2004,2007,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,7 +1,7 @@
 #! /usr/local/lib/gforth/0.2.0/kernel.fi
 \ file hex dump
 
-\ Copyright (C) 1997,2002,2003,2004,2007,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1997,2002,2003,2004,2007,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
