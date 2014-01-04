@@ -1,6 +1,6 @@
 \ kernel.fs this is a master include file for the kernel sources 2may97jaw
 
-\ Copyright (C) 1995,1996,1997,1998,1999,2001,2003,2005,2006,2007,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,1999,2001,2003,2005,2006,2007,2011,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

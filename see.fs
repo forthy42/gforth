@@ -1,6 +1,6 @@
 \ SEE.FS       highend SEE for ANSforth                16may93jaw
 
-\ Copyright (C) 1995,2000,2003,2004,2006,2007,2008,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995,2000,2003,2004,2006,2007,2008,2010,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
