@@ -2363,11 +2363,11 @@ else
   r3 = r2;
 
 represent	( r c_addr u -- n f1 f2 )	float
-char *sig;
+char sig[0x40];
 size_t siglen;
 int flag;
 int decpt;
-sig=ecvt(r, u, &decpt, &flag);
+ecvt_r(r, u, &decpt, &flag, sig, 0x3f);
 n=(r==0. ? 1 : decpt);
 flag=signbit(r); /* not all ecvt()s do this as desired */
 f1=FLAG(flag!=0);

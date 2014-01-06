@@ -25,9 +25,8 @@ extern double floor(double);
 extern double pow10(double);
 
 #define MAXCONV 0x40
-char scratch[MAXCONV];
 
-char* ecvt(double x, int len, int* exp, int* sign)
+int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len)
 {
    int i, j;
    double z;
@@ -35,68 +34,58 @@ char* ecvt(double x, int len, int* exp, int* sign)
    if (isnan(x)) {
      *sign=0;
      *exp=0;
-     return "nan";
+     strncpy(buf, "nan", len);
+     return 0;
    }
    if (isinf(x)) {
      *sign=0; /* this mimics the glibc ecvt */
      *exp=0;
      if (x<0)
-       return "-inf";
+       strncpy(buf, "-inf", len);
      else
-       return "inf";
+       strncpy(buf, "inf", len);
+     return 0;
    }
        
-   if(len > (MAXCONV-1)) len = MAXCONV-1;
-   
-   if(x<0)
-     {
-	*sign = 1;
-	x = -x;
-     }
-   else
-     {
-	*sign = 0;
-     }
+   if(ndigits > (MAXCONV-1)) ndigits = MAXCONV-1;
+   if(ndigits >= len) ndigits = len-1;
+ 
+   if(x<0) {
+     *sign = 1;
+     x = -x;
+   } else {
+     *sign = 0;
+   }
 
-   if(x==0)
-	*exp=-1;
-   else
-     *exp=(int)floor(log10(x));
+   *exp=(x==0)?-1:(int)floor(log10(x));
    x = x / pow10((double)*exp);
    
    *exp += 1;
    
-   for(i=0; i < len; i++)
-     {
-	z=floor(x);
-	if(z<0) z = 0;
-	scratch[i]='0'+(char)((int)z);
-	x = (x-z)*10;
+   for(i=0; i < ndigits; i++) {
+     z=floor(x);
+     if(z<0) z = 0;
+     buf[i]='0'+(char)((int)z);
+     x = (x-z)*10;
+   }
+   
+   if((x >= 5) && i) {
+     for(j=i-1; j>=0; j--) {
+       if(buf[j]!='9') {
+	 buf[j]+=1; break;
+       } else {
+	 buf[j]='0';
+       }
      }
-   
-   if((x >= 5) && i)
-     {
-	for(j=i-1; j>=0; j--)
-	  {
-	     if(scratch[j]!='9')
-	       {
-		  scratch[j]+=1; break;
-	       }
-	     else
-	       {
-		  scratch[j]='0';
-	       }
-	  }
-	if(j<0)
-	  {
-	     scratch[0]='1';
-	     *exp += 1;
-	  }
+     if(j<0) {
+       buf[0]='1';
+       *exp += 1;
      }
+   }
    
-   scratch[i]='\0';
+   buf[i]='\0';
    
-   return scratch;
+   return 0;
 }
 
 #ifdef TEST
