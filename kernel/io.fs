@@ -22,9 +22,9 @@ require ./basics.fs
 \ Output                                               13feb93py
 
 has? os [IF]
-0 Value infile-id ( -- file-id ) \ gforth
+UValue infile-id ( -- file-id ) \ gforth
 UValue outfile-id ( -- file-id ) \ gforth
-0 Value debug-fid ( -- file-id ) \ gforth
+UValue debug-fid ( -- file-id ) \ gforth
     
 : (type) ( c-addr u -- ) \ gforth
     outfile-id write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?

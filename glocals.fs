@@ -83,6 +83,9 @@ require search.fs
 require float.fs
 require extend.fs \ for case
 
+User locals-size \ this is the current size of the locals stack
+		 \ frame of the current word
+
 : compile-@local ( n -- ) \ gforth compile-fetch-local
  case
     0       of postpone @local0 endof

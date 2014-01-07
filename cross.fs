@@ -3286,6 +3286,7 @@ vt: [G'] ;abi-code, gset-compiler ;vt
 Variable class-o
 
 Builder user-o
+DO: true abort" not in cross compiler!" ;DO
 Build: 0 au, dup class-o ! X , ;Build
 by User
 
