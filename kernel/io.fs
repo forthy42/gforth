@@ -23,7 +23,7 @@ require ./basics.fs
 
 has? os [IF]
 0 Value infile-id ( -- file-id ) \ gforth
-0 Value outfile-id ( -- file-id ) \ gforth
+UValue outfile-id ( -- file-id ) \ gforth
 0 Value debug-fid ( -- file-id ) \ gforth
     
 : (type) ( c-addr u -- ) \ gforth
@@ -39,6 +39,7 @@ has? os [IF]
 
 : (key?) ( -- flag ) \ gforth
     infile-id key?-file ;
+
 [THEN]
 
 user-o op-vector

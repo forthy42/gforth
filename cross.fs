@@ -2927,6 +2927,9 @@ ghost variable,
 ghost user,
 ghost defer,
 2drop
+ghost u-compile,
+ghost u-to
+2drop
 ghost field,
 ghost abi-code,
 2drop
@@ -3224,6 +3227,11 @@ T has? rom H [IF]
     by (Value)
 [THEN]
 
+Builder UValue
+Build: 0 u, T , H ;Build
+DO: X @ tup@ + X @ ;DO
+vt: [G'] u-compile, gset-compiler [G'] u-to gset-to ;vt
+
 Defer texecute
 
 Builder Defer
@@ -3372,6 +3380,9 @@ compile: g>body compile lit-perform T A, H ;compile
 
 Builder (Field)
 compile: g>body T @ H compile lit+ T here H reloff T , H ;compile
+
+Builder UValue
+compile: g>body compile useraddr T @ , H compile @ ;compile
 [THEN]
 
 \ structural conditionals                              17dec92py
@@ -3621,6 +3632,7 @@ Cond: IS        cross-record-name T ' >body H compile ALiteral compile ! ;Cond
 : IS            cross-record-name T >address ' >body ! H ;
 Cond: TO        T ' >body H compile ALiteral compile ! ;Cond
 : TO            T ' >body ! H ;
+Cond: UTO       compile useraddr T ' >body @ , H compile ! ;Cond
 [THEN]
 
 Cond: defers	T ' >body @ compile, H ;Cond

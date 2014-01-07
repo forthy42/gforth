@@ -399,6 +399,15 @@ include ./recognizer.fs
 : AValue ( w "name" -- ) \ core-ext
     (Value) A, ;
 
+: u-to >body @ next-task + ! ;
+comp: drop >body @ postpone useraddr , postpone ! ;
+: u-compile, ( xt -- )  >body @ postpone useraddr , postpone @ ;
+
+: UValue ( "name" -- )
+    Create cell uallot , ['] u-to set-to
+    ['] u-compile, set-compiler
+  DOES> @ next-task + @ ;
+
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
     Create ( w1 w2 "name" -- )
         2,

@@ -17,6 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+require ./io.fs
+
 : cstring>sstring  ( cstring -- addr n ) \ gforth	cstring-to-sstring
     -1 0 scan 0 swap 1+ /string ;
 
@@ -116,7 +118,7 @@ Variable argc ( -- addr ) \ gforth
 
 : os-boot ( path n **argv argc -- )
     stdin  TO infile-id
-    stdout TO outfile-id
+    stdout UTO outfile-id
     stderr TO debug-fid
     argc ! argv ! pathstring 2! ;
 

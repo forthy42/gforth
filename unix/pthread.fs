@@ -361,8 +361,16 @@ event: ->sleep  stop ;
 
 \ User deferred words, user values
 
+[IFUNDEF] UValue
 : u-to >body @ up@ + ! ;
 comp: drop >body @ postpone useraddr , postpone ! ;
+
+: UValue ( "name" -- )
+    Create cell uallot , ['] u-to set-to
+    [: >body @ postpone useraddr , postpone @ ;] set-compiler
+  DOES> @ up@ + @ ;
+[THEN]
+
 : udefer@ ( xt -- )
     >body @ up@ + @ ;
 
@@ -370,11 +378,6 @@ comp: drop >body @ postpone useraddr , postpone ! ;
     Create cell uallot , ['] u-to set-to ['] udefer@ set-defer@
     [: >body @ postpone useraddr , postpone perform ;] set-compiler
   DOES> @ up@ + perform ;
-
-: UValue ( "name" -- )
-    Create cell uallot , ['] u-to set-to
-    [: >body @ postpone useraddr , postpone @ ;] set-compiler
-  DOES> @ up@ + @ ;
 
 false [IF] \ event test
     <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]
