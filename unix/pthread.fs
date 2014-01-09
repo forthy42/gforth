@@ -289,9 +289,7 @@ epiper create_pipe \ create pipe for main task
 \G unlock the semaphore
 
 : c-section ( xt addr -- )  >r
-    TRY  r@ lock execute
-    RESTORE  r> unlock
-    ENDTRY  throw ;
+    r@ lock catch r> unlock throw ;
 
 : >pagealign-stack ( n addr -- n' )
     >r 1- r> 1- pagesize negate mux 1+ ;
