@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-#Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation, Inc.
+#Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -1054,7 +1054,7 @@ AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,[true],[AC_LIBOBJ(getopt) AC_LIBOBJ(getopt1)])
 AC_CHECK_FUNCS(expm1 log1p)
 AC_CHECK_FUNCS(mcheck mprobe)
-AC_REPLACE_FUNCS(rint ecvt)
+AC_REPLACE_FUNCS(rint ecvt_r)
 dnl No check for select, because our replacement is no good under
 dnl anything but DOS
 AC_CHECK_HEADERS(sys/mman.h fnmatch.h alloca.h wchar.h endian.h)

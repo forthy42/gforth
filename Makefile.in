@@ -1,6 +1,6 @@
 #Makefile for Gforth
 
-#Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation, Inc.
+#Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -318,7 +318,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	test/macros.fs \
 	bubble.fs siev.fs matrix.fs fib.fs \
 	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
-	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs \
+	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs user-object.fs \
 	add.fs lib.fs oldlib.fs sieve.fs list.fs \
 	endtry-iferror.fs recover-endtry.fs smartdots.fs \
 	unix/terminal-server.fs
@@ -442,7 +442,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/io.c engine/support.c engine/signals.c engine/libcc.h.in \
 	engine/profile.c engine/128bit.h \
 	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
-	engine/ecvt.c engine/memcmp.c engine/rint.c \
+	engine/ecvt_r.c engine/memcmp.c engine/rint.c \
 	engine/strtol.c engine/strtoul.c \
 	engine/ansidecl.h engine/memmove.c \
 	engine/pow10.c engine/atanh.c engine/cleanalign.c \

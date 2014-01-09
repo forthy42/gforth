@@ -1,6 +1,6 @@
 \ posix threads
 
-\ Copyright (C) 2012 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -289,9 +289,7 @@ epiper create_pipe \ create pipe for main task
 \G unlock the semaphore
 
 : c-section ( xt addr -- )  >r
-    TRY  r@ lock execute
-    RESTORE  r> unlock
-    ENDTRY  throw ;
+    r@ lock catch r> unlock throw ;
 
 : >pagealign-stack ( n addr -- n' )
     >r 1- r> 1- pagesize negate mux 1+ ;
@@ -361,8 +359,16 @@ event: ->sleep  stop ;
 
 \ User deferred words, user values
 
+[IFUNDEF] UValue
 : u-to >body @ up@ + ! ;
 comp: drop >body @ postpone useraddr , postpone ! ;
+
+: UValue ( "name" -- )
+    Create cell uallot , ['] u-to set-to
+    [: >body @ postpone useraddr , postpone @ ;] set-compiler
+  DOES> @ up@ + @ ;
+[THEN]
+
 : udefer@ ( xt -- )
     >body @ up@ + @ ;
 
@@ -370,11 +376,6 @@ comp: drop >body @ postpone useraddr , postpone ! ;
     Create cell uallot , ['] u-to set-to ['] udefer@ set-defer@
     [: >body @ postpone useraddr , postpone perform ;] set-compiler
   DOES> @ up@ + perform ;
-
-: UValue ( "name" -- )
-    Create cell uallot , ['] u-to set-to
-    [: >body @ postpone useraddr , postpone @ ;] set-compiler
-  DOES> @ up@ + @ ;
 
 false [IF] \ event test
     <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]

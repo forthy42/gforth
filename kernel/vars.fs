@@ -1,6 +1,6 @@
 \ VARS.FS      Kernal variables
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -225,15 +225,10 @@ has? flash [IF]
     : ram  normal-dp dpp ! ;
 [THEN]
 
-User max-name-length \ maximum length of all names defined yet
-32 max-name-length !
-    
+Variable max-name-length \ maximum length of all names defined yet
+32 max-name-length ! \ is global!
+
 \  has? peephole  [IF]
 \  0 value peeptable \ initialized in boot
 \  [THEN]
-
-has? glocals [IF]
-User locals-size \ this is the current size of the locals stack
-		 \ frame of the current word
-[THEN]
 
