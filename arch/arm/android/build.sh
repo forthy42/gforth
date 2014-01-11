@@ -69,7 +69,7 @@ do
 		    then
 			make
 		    else
-			CFLAGS="-march=armv5 -mfloat-abi=softfp -mfpu=vfp" ./configure --host=arm-linux-androideabi && make clean && make
+			CFLAGS="-O3 -march=armv5 -mfloat-abi=softfp -mfpu=vfp" ./configure --host=arm-linux-androideabi && make clean && make
 		    fi
 		)
 	    done

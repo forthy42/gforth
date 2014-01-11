@@ -42,11 +42,22 @@ static Xt akey=0;
 
 int ke_fd[2]={ 0, 0 };
 
-typedef struct { jobject event; } sendKeyEvent;
+typedef struct { int type; jobject event; } sendKeyEvent;
+
+#define KEY_EVENT 0
+#define TOUCH_EVENT 1
+#define LOCATION_EVENT 2
 
 JNIEXPORT void Java_gnu_gforth_Gforth_onKeyEventNative(JNIEnv * env, jobject  obj, jobject event)
 {
-  sendKeyEvent ke = { event };
+  sendKeyEvent ke = { KEY_EVENT, event };
+  if(ke_fd[1])
+    write(ke_fd[1], &ke, sizeof(ke));
+}
+
+JNIEXPORT void Java_gnu_gforth_Gforth_onLocationNative(JNIEnv * env, jobject  obj, jobject location)
+{
+  sendKeyEvent ke = { LOCATION_EVENT, location };
   if(ke_fd[1])
     write(ke_fd[1], &ke, sizeof(ke));
 }
@@ -54,14 +65,17 @@ JNIEXPORT void Java_gnu_gforth_Gforth_onKeyEventNative(JNIEnv * env, jobject  ob
 static JNINativeMethod GforthMethods[] = {
   {"onKeyEventNative", "(Landroid/view/KeyEvent;)V",
    (void*) Java_gnu_gforth_Gforth_onKeyEventNative},
+  {"onLocationNative", "(Landroid/location/Location;)V",
+   (void*) Java_gnu_gforth_Gforth_onLocationNative}
 };
 
 int android_kb_callback(int fd, int events, void* data)
 {
   sendKeyEvent ke;
-  read(fd, &ke, sizeof(ke));
   if(akey && gforth_SP) {
+    read(fd, &ke, sizeof(ke));
     *--gforth_SP=(Cell)ke.event;
+    *--gforth_SP=(Cell)ke.type;
     gforth_execute(akey);
   }
   return 1;

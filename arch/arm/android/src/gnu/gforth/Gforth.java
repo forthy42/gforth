@@ -24,11 +24,49 @@ import android.view.KeyEvent;
 import android.os.Bundle;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Handler;
+import java.lang.Runnable;
+import android.content.Context;
 
 public class Gforth
     extends android.app.NativeActivity
-    implements KeyEvent.Callback, OnVideoSizeChangedListener {
+    implements KeyEvent.Callback,
+	       OnVideoSizeChangedListener,
+	       LocationListener {
+    private long gpsdeltams=1000; // update every second
+    private float gpsdeltam=10;    // update every 10 meters
+    private LocationManager locationManager;
+    private Gforth gforth;
+
+    public Handler handler;
+    public Runnable startgps;
+    public Runnable stopgps;
+    public void setgps(long deltams, float deltam) {
+	gpsdeltams=deltams;
+	gpsdeltam=deltam;
+    }
+    @Override protected void onStart() {
+	super.onStart();
+	gforth=this;
+	locationManager=(LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+	handler=new Handler();
+	startgps=new Runnable() {
+		public void run() {
+		    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, gpsdeltams, gpsdeltam, (LocationListener)gforth);
+		}
+	    };
+	stopgps=new Runnable() {
+		public void run() {
+		    locationManager.removeUpdates((LocationListener)gforth);
+		}
+	    };
+    }
+
     public native void onKeyEventNative(KeyEvent event);
+    public native void onLocationNative(Location location);
     @Override
     public boolean dispatchKeyEvent (KeyEvent event) {
 	onKeyEventNative(event);
@@ -57,4 +95,13 @@ public class Gforth
     @Override
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
     }
+
+    // location requests
+    public void onLocationChanged(Location location) {
+      // Called when a new location is found by the network location provider.
+      onLocationNative(location);
+    }
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
+    public void onProviderEnabled(String provider) {}
+    public void onProviderDisabled(String provider) {}
 }
