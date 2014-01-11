@@ -395,20 +395,24 @@ previous
 : outfile-execute ( ... xt file-id -- ... ) \ gforth
     \G execute @i{xt} with the output of @code{type} etc. redirected to
     \G @i{file-id}.
-    outfile-id { oldfid } try
+    op-vector @ outfile-id { oldout oldfid } try
+	default-out op-vector !
 	to outfile-id execute 0
     restore
 	oldfid to outfile-id
+	oldout op-vector !
     endtry
     throw ;
 
 : infile-execute ( ... xt file-id -- ... ) \ gforth
     \G execute @i{xt} with the input of @code{key} etc. redirected to
     \G @i{file-id}.
-    infile-id { oldfid } try
+    ip-vector @ infile-id { oldin oldfid } try
+	default-in ip-vector !
 	to infile-id execute 0
     restore
 	oldfid to infile-id
+	oldin ip-vector !
     endtry
     throw ;
 
