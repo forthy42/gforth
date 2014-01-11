@@ -27,35 +27,44 @@ import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Handler;
+import java.lang.Object;
 import java.lang.Runnable;
+import java.lang.String;
 import android.content.Context;
 
 public class Gforth
     extends android.app.NativeActivity
     implements KeyEvent.Callback,
 	       OnVideoSizeChangedListener,
-	       LocationListener {
-    private long gpsdeltams=1000; // update every second
-    private float gpsdeltam=10;    // update every 10 meters
-    private LocationManager locationManager;
+	       LocationListener,
+	       SensorEventListener {
+    private long argj0=1000; // update every second
+    private double argf0=10;    // update every 10 meters
+    private String args0="gps";
+    private Sensor argsensor;
     private Gforth gforth;
+    private LocationManager locationManager;
+    private SensorManager sensorManager;
 
     public Handler handler;
     public Runnable startgps;
     public Runnable stopgps;
-    public void setgps(long deltams, float deltam) {
-	gpsdeltams=deltams;
-	gpsdeltam=deltam;
-    }
+    public Runnable startsensor;
+    public Runnable stopsensor;
+
     @Override protected void onStart() {
 	super.onStart();
 	gforth=this;
 	locationManager=(LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+	sensorManager=(SensorManager)this.getSystemService(Context.SENSOR_SRVICE);
 	handler=new Handler();
 	startgps=new Runnable() {
 		public void run() {
-		    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, gpsdeltams, gpsdeltam, (LocationListener)gforth);
+		    locationManager.requestLocationUpdates(args0, argj0, argf0, (LocationListener)gforth);
 		}
 	    };
 	stopgps=new Runnable() {
@@ -63,33 +72,38 @@ public class Gforth
 		    locationManager.removeUpdates((LocationListener)gforth);
 		}
 	    };
+	startsensor=new Runnable() {
+		sensorManager.registerListener((SensorEventListener)gforth, sensor, argj0)
+	    }
+	stopsensor=new Runnable() {
+		sensorManager.unregisterListener((SensorEventListener)gforth)
+	    }
     }
 
-    public native void onKeyEventNative(KeyEvent event);
-    public native void onLocationNative(Location location);
+    public native void onEventNative(Object event);
     @Override
     public boolean dispatchKeyEvent (KeyEvent event) {
-	onKeyEventNative(event);
+	onEventNative(0, event);
 	return true;
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-	onKeyEventNative(event);
+	onEventNative(0, event);
 	return true;
     }
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-	onKeyEventNative(event);
+	onEventNative(0, event);
 	return true;
     }
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-	onKeyEventNative(event);
+	onEventNative(0, event);
 	return true;
     }
     @Override
     public boolean onKeyMultiple(int keyCode, int count, KeyEvent event) {
-	onKeyEventNative(event);
+	onEventNative(0, event);
 	return true;
     }
     @Override
@@ -98,10 +112,16 @@ public class Gforth
 
     // location requests
     public void onLocationChanged(Location location) {
-      // Called when a new location is found by the network location provider.
-      onLocationNative(location);
+	// Called when a new location is found by the network location provider.
+	onEventNative(2, location);
     }
     public void onStatusChanged(String provider, int status, Bundle extras) {}
     public void onProviderEnabled(String provider) {}
     public void onProviderDisabled(String provider) {}
+
+    // sensor events
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    public void onSensorChanged(SensorEvent event) {
+	onEventNative(3, event);
+    }
 }
