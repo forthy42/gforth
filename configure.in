@@ -109,8 +109,18 @@ else
   else
     signals_o="io.o"
   fi
-  if test -f "arch/$host_cpu/${withval}/config.sh"; then
-    source "arch/$host_cpu/${withval}/config.sh"
+  cpu=$host_cpu
+  case "$cpu" in
+     i*86)
+	cpu=386
+     ;;
+     x86_64)
+        cpu=amd64
+     ;;
+  esac
+
+  if test -f "arch/${cpu}/${withval}/config.sh"; then
+    source "arch/${cpu}/${withval}/config.sh"
   fi
   GCC_PATH=$(which $CC)
   LIB_PATH=${GCC_PATH%/*/*}
@@ -139,8 +149,18 @@ AC_ARG_WITH(cross,
   echo "defining hosted system"
 else
   echo "defining cross compiled system (${withval})"
-  if test -f "arch/$host_cpu/${withval}/config.sh"; then
-    source "arch/$host_cpu/${withval}/config.sh"
+  cpu=$host_cpu
+  case "$cpu" in
+     i*86)
+	cpu=386
+     ;;
+     x86_64)
+        cpu=amd64
+     ;;
+  esac
+
+  if test -f "arch/${cpu}/${withval}/config.sh"; then
+    source "arch/${cpu}/${withval}/config.sh"
   fi
   GCC_PATH=$(which $CC)
   LIB_PATH=${GCC_PATH%/*/*}
