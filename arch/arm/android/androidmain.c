@@ -48,7 +48,7 @@ typedef struct { int type; jobject event; } sendEvent;
 #define TOUCH_EVENT 1
 #define LOCATION_EVENT 2
 
-JNIEXPORT void Java_gnu_gforth_Gforth_onEventNative(JNIEnv * env, jint type, jobject  obj, jobject event)
+JNIEXPORT void Java_gnu_gforth_Gforth_onEventNative(JNIEnv * env, jobject obj, jint type, jobject event)
 {
   sendEvent ke = { type, event };
   if(ke_fd[1])
