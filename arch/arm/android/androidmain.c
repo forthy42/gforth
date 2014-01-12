@@ -56,13 +56,13 @@ JNIEXPORT void Java_gnu_gforth_Gforth_onEventNative(JNIEnv * env, jint type, job
 }
 
 static JNINativeMethod GforthMethods[] = {
-  {"onEventNative", "(Ljava/lang/Object;)V",
+  {"onEventNative", "(ILjava/lang/Object;)V",
    (void*) Java_gnu_gforth_Gforth_onEventNative},
 };
 
 int android_kb_callback(int fd, int events, void* data)
 {
-  sendKeyEvent ke;
+  sendEvent ke;
   if(akey && gforth_SP) {
     read(fd, &ke, sizeof(ke));
     *--gforth_SP=(Cell)ke.event;

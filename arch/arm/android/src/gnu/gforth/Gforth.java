@@ -28,6 +28,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
@@ -60,11 +61,11 @@ public class Gforth
 	super.onStart();
 	gforth=this;
 	locationManager=(LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
-	sensorManager=(SensorManager)this.getSystemService(Context.SENSOR_SRVICE);
+	sensorManager=(SensorManager)this.getSystemService(Context.SENSOR_SERVICE);
 	handler=new Handler();
 	startgps=new Runnable() {
 		public void run() {
-		    locationManager.requestLocationUpdates(args0, argj0, argf0, (LocationListener)gforth);
+		    locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
 		}
 	    };
 	stopgps=new Runnable() {
@@ -73,14 +74,18 @@ public class Gforth
 		}
 	    };
 	startsensor=new Runnable() {
-		sensorManager.registerListener((SensorEventListener)gforth, sensor, argj0)
-	    }
+		public void run() {
+		    sensorManager.registerListener((SensorEventListener)gforth, argsensor, (int)argj0);
+		}
+	    };
 	stopsensor=new Runnable() {
-		sensorManager.unregisterListener((SensorEventListener)gforth)
-	    }
+		public void run() {
+		    sensorManager.unregisterListener((SensorEventListener)gforth);
+		}
+	    };
     }
 
-    public native void onEventNative(Object event);
+    public native void onEventNative(int type, Object event);
     @Override
     public boolean dispatchKeyEvent (KeyEvent event) {
 	onEventNative(0, event);
