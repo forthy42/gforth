@@ -80,7 +80,7 @@ public class Gforth
 	    };
 	stopsensor=new Runnable() {
 		public void run() {
-		    sensorManager.unregisterListener((SensorEventListener)gforth);
+		    sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
 		}
 	    };
     }
