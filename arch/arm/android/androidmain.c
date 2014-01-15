@@ -43,6 +43,7 @@ static Xt akey=0;
 int ke_fd[2]={ 0, 0 };
 
 typedef struct { int type; jobject event; } sendEvent;
+typedef struct { int type; int event; } sendInt;
 
 #define KEY_EVENT 0
 #define TOUCH_EVENT 1
@@ -50,7 +51,14 @@ typedef struct { int type; jobject event; } sendEvent;
 
 JNIEXPORT void Java_gnu_gforth_Gforth_onEventNative(JNIEnv * env, jobject obj, jint type, jobject event)
 {
-  sendEvent ke = { type, event };
+  sendEvent ke = { type, (*env)->NewGlobalRef(env, event) };
+  if(ke_fd[1])
+    write(ke_fd[1], &ke, sizeof(ke));
+}
+
+JNIEXPORT void Java_gnu_gforth_Gforth_onEventNativeInt(JNIEnv * env, jobject obj, jint type, jint event)
+{
+  sendInt ke = { type, event };
   if(ke_fd[1])
     write(ke_fd[1], &ke, sizeof(ke));
 }
@@ -58,6 +66,8 @@ JNIEXPORT void Java_gnu_gforth_Gforth_onEventNative(JNIEnv * env, jobject obj, j
 static JNINativeMethod GforthMethods[] = {
   {"onEventNative", "(ILjava/lang/Object;)V",
    (void*) Java_gnu_gforth_Gforth_onEventNative},
+  {"onEventNative", "(II)V",
+   (void*) Java_gnu_gforth_Gforth_onEventNativeInt},
 };
 
 int android_kb_callback(int fd, int events, void* data)

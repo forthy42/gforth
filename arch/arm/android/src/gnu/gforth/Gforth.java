@@ -20,8 +20,8 @@
 
 package gnu.gforth;
 
-import android.view.KeyEvent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.location.Location;
@@ -31,18 +31,28 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Handler;
+import android.content.Context;
+import android.view.View;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.InputQueue;
+import android.view.SurfaceHolder;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.app.NativeActivity;
 import java.lang.Object;
 import java.lang.Runnable;
 import java.lang.String;
-import android.content.Context;
+import java.io.File;
 
 public class Gforth
     extends android.app.NativeActivity
     implements KeyEvent.Callback,
+	       InputQueue.Callback,
 	       OnVideoSizeChangedListener,
 	       LocationListener,
-	       SensorEventListener {
+	       SensorEventListener,
+	       SurfaceHolder.Callback2,
+	       OnGlobalLayoutListener {
     private long argj0=1000; // update every second
     private double argf0=10;    // update every 10 meters
     private String args0="gps";
@@ -86,31 +96,38 @@ public class Gforth
     }
 
     public native void onEventNative(int type, Object event);
+    public native void onEventNative(int type, int event);
+
+    /*
+    private void sendKeyEvent (KeyEvent event) {
+	if(event.getAction()==2) {
+	    if(event.getKeyCode()==0) {
+		onEventNative(4, event.getCharacters());
+	    } else {
+		onEventNative(6, (int)event.getKeyCode());
+	    }
+	} else if(event.getAction()==0) {
+	    int uc = event.getUnicodeChar();
+	    if(uc>0) {
+		onEventNative(5, uc);
+	    } else {
+		onEventNative(6, (int)event.getKeyCode());
+	    }
+	}
+    }
+    */
+    
     @Override
     public boolean dispatchKeyEvent (KeyEvent event) {
 	onEventNative(0, event);
 	return true;
     }
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-	onEventNative(0, event);
+    public boolean onTouchEvent(MotionEvent event) {
+	onEventNative(7, event);
 	return true;
     }
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-	onEventNative(0, event);
-	return true;
-    }
-    @Override
-    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-	onEventNative(0, event);
-	return true;
-    }
-    @Override
-    public boolean onKeyMultiple(int keyCode, int count, KeyEvent event) {
-	onEventNative(0, event);
-	return true;
-    }
+
     @Override
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
     }
