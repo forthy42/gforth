@@ -47,6 +47,7 @@ typedef struct {
   jclass cls;
   pthread_t id;
   int ke_fd[2];
+  void* win;
 } jniargs;
 
 jniargs startargs;
@@ -155,6 +156,7 @@ void JNI_startForth(JNIEnv * env, jobject obj)
 {
   startargs.env = env;
   startargs.obj = obj;
+  startargs.win = 0; // is a native window
 
   pthread_create(&(startargs.id), pthread_detach_attr(), startForth, (void*)&startargs);
 }

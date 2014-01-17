@@ -35,11 +35,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.content.Context;
 import android.view.View;
+import android.view.Window;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
 import android.app.Activity;
 import android.util.Log;
 import java.lang.Object;
@@ -91,7 +93,13 @@ public class Gforth
     protected void onCreate(Bundle savedInstanceState) {
         ActivityInfo ai;
         String libname = "gforth";
-	Log.d(TAG, "onCreate: looking for library name");
+
+        getWindow().takeSurface(this);
+        // getWindow().setFormat(PixelFormat.RGB_565);
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
+                | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
 	try {
             ai = getPackageManager().getActivityInfo(getIntent().getComponent(), PackageManager.GET_META_DATA);
             if (ai.metaData != null) {
@@ -101,17 +109,12 @@ public class Gforth
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException("Error getting activity info", e);
         }
-	Log.d(TAG, "onCreate: Loading Library");
 	System.loadLibrary(libname);
-	Log.d(TAG, "onCreate: Calling super");
 	super.onCreate(savedInstanceState);
-	Log.d(TAG, "onCreate: done with onCreate");
     }
 
     @Override protected void onStart() {
-	Log.d(TAG, "onStart: Invoking super");
 	super.onStart();
-	Log.d(TAG, "onStart: sensor stuff");
 	gforth=this;
 	locationManager=(LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
 	sensorManager=(SensorManager)this.getSystemService(Context.SENSOR_SERVICE);
@@ -136,9 +139,7 @@ public class Gforth
 		    sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
 		}
 	    };
-	Log.d(TAG, "onStart: startForth");
 	startForth();
-	Log.d(TAG, "onStart: Forth started");
     }
    
     @Override
@@ -148,7 +149,7 @@ public class Gforth
     }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-	onEventNative(7, event);
+	onEventNative(1, event);
 	return true;
     }
 
@@ -173,7 +174,7 @@ public class Gforth
 
     // surface stuff
     public void surfaceCreated(SurfaceHolder holder) {
-	onEventNative(8, holder.getSurface());
+	onEventNative(4, holder.getSurface());
     }
     
     public class surfacech {
@@ -193,19 +194,19 @@ public class Gforth
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 	surfacech sch = new surfacech(holder.getSurface(), format, width, height);
 
-	onEventNative(9, sch);
+	onEventNative(5, sch);
     }
     
     public void surfaceRedrawNeeded(SurfaceHolder holder) {
-	onEventNative(10, holder.getSurface());
+	onEventNative(6, holder.getSurface());
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
-	onEventNative(11, holder.getSurface());
+	onEventNative(7, holder.getSurface());
     }
 
     // global layout
     public void onGlobalLayout() {
-	onEventNative(12, 0);
+	onEventNative(8, 0);
     }
 }
