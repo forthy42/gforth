@@ -42,6 +42,10 @@ require ./vars.fs
     postpone if [char] " parse postpone cliteral postpone c(abort")
     postpone then ; immediate restrict
 
+: warning" ( compilation 'ccc"' -- ; run-time f -- ) \ gforth
+    postpone if [char] " parse postpone cliteral postpone c(warning")
+    postpone then ; immediate restrict
+
 \ create s"-buffer /line chars allot
 :noname
     [char] " parse

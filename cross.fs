@@ -1745,7 +1745,7 @@ Ghost !does     Ghost !extra                    2drop
 Ghost compile,                                  drop
 Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
 Ghost (C")      Ghost c(abort") Ghost type      2drop drop
-Ghost '                                         drop
+Ghost '         Ghost c(warning")               2drop
 
 \ user ghosts
 
@@ -3619,6 +3619,8 @@ Cond: C"        ahead, there [char] " parse ht-string, X align
                 >r then, r> compile ALiteral ;Cond
 Cond: ABORT"    if, ahead, there [char] " parse ht-string, X align
                 >r then, r> compile ALiteral compile c(abort") then, ;Cond
+Cond: WARNING"  if, ahead, there [char] " parse ht-string, X align
+                >r then, r> compile ALiteral compile c(warning") then, ;Cond
 [THEN]
 
 X has? rom [IF]

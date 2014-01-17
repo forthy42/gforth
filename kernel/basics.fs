@@ -265,6 +265,12 @@ is throw
     THEN
     rdrop ;
 
+: c(warning") ( c-addr -- )
+    warnings @ IF
+	>stderr
+	"error ! -2 input-error-data 1 .error-frame
+    THEN drop ;
+
 : abort ( ?? -- ?? ) \ core,exception-ext
     \G @code{-1 throw}.
     -1 throw ;
