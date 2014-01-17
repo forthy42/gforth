@@ -191,7 +191,7 @@ c-library pthread
     c-function pthread-cond+ pthread_cond_plus a -- a ( cond -- cond' )
     c-function pthread-conds pthread_conds n -- n ( n -- n' )
     c-function pause sched_yield -- void ( -- )
-    c-function pthread_detatch_attr pthread_detach_attr -- a ( -- addr )
+    c-function pthread_detach_attr pthread_detach_attr -- a ( -- addr )
     c-function pthread_cond_signal pthread_cond_signal a -- n ( cond -- r )
     c-function pthread_cond_broadcast pthread_cond_broadcast a -- n ( cond -- r )
     c-function pthread_cond_wait pthread_cond_wait a a -- n ( cond mutex -- r )
@@ -255,7 +255,7 @@ epiper create_pipe \ create pipe for main task
 : (activate) ( task -- )
     \G activates task, the current procedure will be continued there
     r> swap >r  save-task r@ >task !
-    pthread-id r@ >task pthread_detatch_attr thread_start r> pthread_create drop ; compile-only
+    pthread-id r@ >task pthread_detach_attr thread_start r> pthread_create drop ; compile-only
 
 : activate ( task -- )
     ]] (activate) up! [[ ; immediate compile-only

@@ -22,6 +22,8 @@ package gnu.gforth;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.location.Location;
@@ -35,19 +37,19 @@ import android.content.Context;
 import android.view.View;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.InputQueue;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.app.NativeActivity;
+import android.app.Activity;
+import android.util.Log;
 import java.lang.Object;
 import java.lang.Runnable;
 import java.lang.String;
 import java.io.File;
 
 public class Gforth
-    extends android.app.NativeActivity
+    extends android.app.Activity
     implements KeyEvent.Callback,
-	       InputQueue.Callback,
 	       OnVideoSizeChangedListener,
 	       LocationListener,
 	       SensorEventListener,
@@ -67,8 +69,49 @@ public class Gforth
     public Runnable startsensor;
     public Runnable stopsensor;
 
+    private static final String META_DATA_LIB_NAME = "android.app.lib_name";
+    private static final String TAG = "Gforth";
+
+    public native void onEventNative(int type, Object event);
+    public native void onEventNative(int type, int event);
+    public native void callForth(int xt); // !! use long for 64 bits !!
+    public native void startForth();
+
+    public class RunForth implements Runnable {
+	int xt;
+	RunForth(int initxt) {
+	    xt = initxt;
+	}
+	public void run() {
+	    callForth(xt);
+	}
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        ActivityInfo ai;
+        String libname = "gforth";
+	Log.d(TAG, "onCreate: looking for library name");
+	try {
+            ai = getPackageManager().getActivityInfo(getIntent().getComponent(), PackageManager.GET_META_DATA);
+            if (ai.metaData != null) {
+                String ln = ai.metaData.getString(META_DATA_LIB_NAME);
+                if (ln != null) libname = ln;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException("Error getting activity info", e);
+        }
+	Log.d(TAG, "onCreate: Loading Library");
+	System.loadLibrary(libname);
+	Log.d(TAG, "onCreate: Calling super");
+	super.onCreate(savedInstanceState);
+	Log.d(TAG, "onCreate: done with onCreate");
+    }
+
     @Override protected void onStart() {
+	Log.d(TAG, "onStart: Invoking super");
 	super.onStart();
+	Log.d(TAG, "onStart: sensor stuff");
 	gforth=this;
 	locationManager=(LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
 	sensorManager=(SensorManager)this.getSystemService(Context.SENSOR_SERVICE);
@@ -93,30 +136,11 @@ public class Gforth
 		    sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
 		}
 	    };
+	Log.d(TAG, "onStart: startForth");
+	startForth();
+	Log.d(TAG, "onStart: Forth started");
     }
-
-    public native void onEventNative(int type, Object event);
-    public native void onEventNative(int type, int event);
-
-    /*
-    private void sendKeyEvent (KeyEvent event) {
-	if(event.getAction()==2) {
-	    if(event.getKeyCode()==0) {
-		onEventNative(4, event.getCharacters());
-	    } else {
-		onEventNative(6, (int)event.getKeyCode());
-	    }
-	} else if(event.getAction()==0) {
-	    int uc = event.getUnicodeChar();
-	    if(uc>0) {
-		onEventNative(5, uc);
-	    } else {
-		onEventNative(6, (int)event.getKeyCode());
-	    }
-	}
-    }
-    */
-    
+   
     @Override
     public boolean dispatchKeyEvent (KeyEvent event) {
 	onEventNative(0, event);
@@ -145,5 +169,43 @@ public class Gforth
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
     public void onSensorChanged(SensorEvent event) {
 	onEventNative(3, event);
+    }
+
+    // surface stuff
+    public void surfaceCreated(SurfaceHolder holder) {
+	onEventNative(8, holder.getSurface());
+    }
+    
+    public class surfacech {
+	Surface surface;
+	int format;
+	int width;
+	int height;
+
+	surfacech(Surface s, int f, int w, int h) {
+	    surface=s;
+	    format=f;
+	    width=w;
+	    height=h;
+	}
+    }
+
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+	surfacech sch = new surfacech(holder.getSurface(), format, width, height);
+
+	onEventNative(9, sch);
+    }
+    
+    public void surfaceRedrawNeeded(SurfaceHolder holder) {
+	onEventNative(10, holder.getSurface());
+    }
+
+    public void surfaceDestroyed(SurfaceHolder holder) {
+	onEventNative(11, holder.getSurface());
+    }
+
+    // global layout
+    public void onGlobalLayout() {
+	onEventNative(12, 0);
     }
 }

@@ -10,3 +10,4 @@ require gl-terminal.fs
 \ dummyinput @ to infile-id
 >screen
 : t get-connection >term ;
+t

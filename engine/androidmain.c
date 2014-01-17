@@ -26,89 +26,43 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <pthread.h>
 
 #include "forth.h"
 
-#ifdef __ANDROID__
 #include <jni.h>
 #include <android/log.h>
-#include <android/native_activity.h>
-#include <android/looper.h>
-#include "android_native_app_glue.h"
 
 static Xt ainput=0;
 static Xt acmd=0;
 static Xt akey=0;
 
-int ke_fd[2]={ 0, 0 };
-
 typedef struct { int type; jobject event; } sendEvent;
 typedef struct { int type; int event; } sendInt;
 
-#define KEY_EVENT 0
-#define TOUCH_EVENT 1
-#define LOCATION_EVENT 2
+typedef struct {
+  JavaVM * vm;
+  JNIEnv * env;
+  jobject obj;
+  jclass cls;
+  pthread_t id;
+  int ke_fd[2];
+} jniargs;
 
-JNIEXPORT void Java_gnu_gforth_Gforth_onEventNative(JNIEnv * env, jobject obj, jint type, jobject event)
+jniargs startargs;
+
+JNIEXPORT void JNI_onEventNative(JNIEnv * env, jobject obj, jint type, jobject event)
 {
   sendEvent ke = { type, (*env)->NewGlobalRef(env, event) };
-  if(ke_fd[1])
-    write(ke_fd[1], &ke, sizeof(ke));
+  if(startargs.ke_fd[1])
+    write(startargs.ke_fd[1], &ke, sizeof(ke));
 }
 
-JNIEXPORT void Java_gnu_gforth_Gforth_onEventNativeInt(JNIEnv * env, jobject obj, jint type, jint event)
+JNIEXPORT void JNI_onEventNativeInt(JNIEnv * env, jobject obj, jint type, jint event)
 {
   sendInt ke = { type, event };
-  if(ke_fd[1])
-    write(ke_fd[1], &ke, sizeof(ke));
-}
-
-static JNINativeMethod GforthMethods[] = {
-  {"onEventNative", "(ILjava/lang/Object;)V",
-   (void*) Java_gnu_gforth_Gforth_onEventNative},
-  {"onEventNative", "(II)V",
-   (void*) Java_gnu_gforth_Gforth_onEventNativeInt},
-};
-
-int android_kb_callback(int fd, int events, void* data)
-{
-  sendEvent ke;
-  if(akey && gforth_SP) {
-    read(fd, &ke, sizeof(ke));
-    *--gforth_SP=(Cell)ke.event;
-    *--gforth_SP=(Cell)ke.type;
-    gforth_execute(akey);
-  }
-  return 1;
-}
-
-void init_key_event()
-{
-  pipe(ke_fd);
-  ALooper_addFd(ALooper_forThread(), ke_fd[0],
-		ALOOPER_POLL_CALLBACK, ALOOPER_EVENT_INPUT,
-		android_kb_callback, 0);
-}
-
-static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
-{
-  if(ainput) {
-    *--gforth_SP=(Cell)event;
-    gforth_execute(ainput);
-    return 1;
-  }
-  fprintf(stderr, "Input event of type %d\n", AInputEvent_getType(event));
-  return 0;
-}
-
-static void engine_handle_cmd(struct android_app* app, int32_t cmd)
-{
-  if(acmd) {
-    *--gforth_SP=cmd;
-    gforth_execute(acmd);
-    return;
-  }
-  fprintf(stderr, "App cmd %d\n", cmd);
+  if(startargs.ke_fd[1])
+    write(startargs.ke_fd[1], &ke, sizeof(ke));
 }
 
 const char sha256sum[]="sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2";
@@ -131,34 +85,7 @@ int checksha256sum(void)
   return 1;
 }
 
-void register_natives(JavaVM* vm, jobject class,
-		      JNINativeMethod * list, int n)
-{
-  jmethodID jid;
-  int i;
-  jint val;
-  jclass clazz;
-  JNIEnv* env;
-
-  val=(*vm)->AttachCurrentThread(vm, &env, NULL);
-
-  clazz=(*env)->GetObjectClass(env, class);
-  
-  for(i=0; i<n; i++) {
-    jid=(*env)->GetMethodID(env, clazz, list[i].name, list[i].signature);
-    if(jid==0) fprintf(stderr, "Can't find method %s %s\n",
-		       list[i].name, list[i].signature);
-  }
-
-  if((*env)->RegisterNatives(env, clazz, list, n)<0) {
-    fprintf(stderr, "Register Natives failed\n");
-    fflush(stderr);
-  }
-
-  (*vm)->DetachCurrentThread(vm);
-}
-
-void android_main(struct android_app* state)
+void startForth(jniargs * startargs)
 {
   char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
   char * argv[] = { "gforth", "--", "starta.fs" };
@@ -169,16 +96,11 @@ void android_main(struct android_app* state)
 				 "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
   int retvalue, checkdir, i;
   int epipe[2];
-  JavaVM* vm=state->activity->vm;
-  jobject clazz=state->activity->clazz;
 
   for(i=0; i<=2; i++) {
     argv[1]=paths[i];
     if(!chdir(folder[i])) break;
   }
-
-  freopen("gforthout.log", "w+", stdout);
-  freopen("gfortherr.log", "w+", stderr);
 
   fprintf(stderr, "chdir(%s)\n", folder[i]);
 
@@ -186,6 +108,7 @@ void android_main(struct android_app* state)
 	  argv[0], argv[1], argv[2]);
 
   pipe(epipe);
+  pipe(startargs->ke_fd);
   fileno(stdin)=epipe[0];
 
   if(!checksha256sum()) {
@@ -195,34 +118,13 @@ void android_main(struct android_app* state)
     close(checkdir);
   }
 
-  state->onAppCmd = engine_handle_cmd;
-  state->onInputEvent = engine_handle_input;
-  
-  register_natives(vm, clazz,
-		   GforthMethods,
-		   sizeof(GforthMethods)/sizeof(GforthMethods[0]));
-  init_key_event();
-
-  snprintf(statepointer, sizeof(statepointer), "%p", state);
+  snprintf(statepointer, sizeof(statepointer), "%p", startargs);
   setenv("HOME", "/sdcard/gforth/home", 1);
   setenv("SHELL", "/system/bin/sh", 1);
   setenv("libccdir", "/data/data/gnu.gforth/lib", 1);
   setenv("LANG", "en_US.UTF-8", 1);
   setenv("APP_STATE", statepointer, 1);
   
-  app_dummy();
-
-#ifdef DOUBLY_INDIRECT
-  checkdir=open("gforth/" PACKAGE_VERSION "/gforth.fi", O_RDONLY);
-  if(checkdir==-1) {
-    chdir("gforth/" PACKAGE_VERSION);
-    retvalue=gforth_make_image(0);
-    exit(retvalue);
-  } else {
-    close(checkdir);
-  }
-#endif
-
   chdir("gforth/home");
 
   fflush(stderr);
@@ -240,9 +142,67 @@ void android_main(struct android_app* state)
   }
   exit(retvalue);
 }
-#else
-int main(int argc, char ** argv, char ** env)
+
+pthread_attr_t * pthread_detach_attr(void)
 {
-  return gforth_main(argc, argv, env);
+  static pthread_attr_t attr;
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+  return &attr;
 }
-#endif
+
+void JNI_startForth(JNIEnv * env, jobject obj)
+{
+  startargs.env = env;
+  startargs.obj = obj;
+
+  pthread_create(&(startargs.id), pthread_detach_attr(), startForth, (void*)&startargs);
+}
+
+void JNI_callForth(JNIEnv * env, jint xt)
+{
+  gforth_execute((Xt)xt);
+}
+
+static JNINativeMethod GforthMethods[] = {
+  {"onEventNative", "(ILjava/lang/Object;)V", (void*) JNI_onEventNative},
+  {"onEventNative", "(II)V",                  (void*) JNI_onEventNativeInt},
+  {"callForth",     "(I)V",                   (void*) JNI_callForth},
+  {"startForth",    "()V",                    (void*) JNI_startForth},
+};
+
+#define alen(array)  sizeof(array)/sizeof(array[0])
+
+JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
+{
+  int i, n=alen(GforthMethods);
+  jmethodID jid;
+  jclass cls;
+  JNIEnv * env;
+
+  freopen("/sdcard/gforthout.log", "w+", stdout);
+  freopen("/sdcard/gfortherr.log", "w+", stderr);
+
+  startargs.vm = vm;
+
+  if((*vm)->GetEnv(vm, (void**)&env, JNI_VERSION_1_6) != JNI_OK)
+    return -1;
+
+  cls = (*env)->FindClass(env, "gnu/gforth/Gforth");
+  startargs.cls = cls;
+
+  fprintf(stderr, "Registering native methods\n");
+
+  for(i=0; i<n; i++) {
+    jid=(*env)->GetMethodID(env, cls, GforthMethods[i].name, GforthMethods[i].signature);
+    if(jid==0) fprintf(stderr, "Can't find method %s %s\n",
+		       GforthMethods[i].name, GforthMethods[i].signature);
+  }
+
+  if((*env)->RegisterNatives(env, cls, GforthMethods, n)<0) {
+    fprintf(stderr, "Register Natives failed\n");
+    fflush(stderr);
+  }
+
+  return JNI_VERSION_1_6;
+}

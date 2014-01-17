@@ -572,6 +572,9 @@ extern char *strsignal(int sig);
 extern unsigned long int strtoul(const char *nptr, char **endptr, int base);
 #endif
 
+// For systems where you need it
+void zexpand(char * zfile);
+
 #define GROUP(x, n)
 #define GROUPADD(n)
 

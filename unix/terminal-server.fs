@@ -15,3 +15,9 @@ require unix/socket.fs
     to debug-fid
     ['] term-cr is cr
     key drop BEGIN  key? WHILE key drop REPEAT ;
+
+' (type) ' (emit) ' term-cr ' (form)  output: >term
+what's at-xy what's at-deltaxy what's page what's attr!
+>term
+IS attr! IS page IS at-deltaxy IS at-xy
+default-out op-vector !
