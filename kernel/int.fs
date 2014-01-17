@@ -836,12 +836,20 @@ Defer mark-end
     mark-start r> part-type mark-end ( c-addr4 u4 )
     type ;
 
-: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] -- throwcode )
+Defer .error-level ( n -- )
+: (.error-level) >r
+    r@ 2 = IF  ." error: "    THEN
+    r@ 1 = IF  ." warning: "  THEN
+    r@ 0 = IF  ." info: "     THEN  rdrop ;
+' (.error-level) is .error-level
+
+: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] errlevel -- throwcode )
     \ addr3 u3: filename of included file - optional
     \ n2:       line number
     \ addr2 u2: parsed lexeme (should be marked as causing the error)
     \ addr1 u1: input line
-    error-stack $@len
+    \ errlevel: 0: info, 1: warning, 2: error
+    >r error-stack $@len
     IF ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
         [ has? file [IF] ] \ !! unbalanced stack effect
 	  over IF
@@ -857,28 +865,25 @@ Defer mark-end
             cr type ." :"
             [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
 	dup 0 dec.r ." : "
-	errlevel @ 2 = IF  ." error: "  THEN
-	errlevel @ 1 = IF  ." warning: "  THEN
-	errlevel @ 0 = IF  ." info: "  THEN
+	r@ .error-level
 	5 pick .error-string
-	errlevel @ 2 = and \ only for errors print line
+	r@ 2 = and \ only for errors print line
 	IF \ if line# non-zero, there is a line
             cr .error-line
         ELSE
             2drop 2drop
         THEN
-    THEN ;
+    THEN  rdrop ;
 
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
   [ has? os [IF] ]
       >stderr
   [ [THEN] ]
-  2 errlevel !
-  input-error-data .error-frame
+  input-error-data 2 .error-frame
   error-stack $@len 0 ?DO
     error>
-    .error-frame
+    2 .error-frame
   /error +LOOP
   drop 
 [ has? backtrace [IF] ]

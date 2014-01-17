@@ -265,12 +265,10 @@ is throw
     THEN
     rdrop ;
 
-Variable errlevel           0 errlevel ! \ 0:info 1:warning 2:error
-
 : c(warning") ( c-addr -- )
     warnings @ IF
-	1 errlevel ! >stderr
-	"error ! -2 input-error-data .error-frame
+	>stderr
+	"error ! -2 input-error-data 1 .error-frame
     THEN drop ;
 
 : abort ( ?? -- ?? ) \ core,exception-ext
