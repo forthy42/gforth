@@ -9,4 +9,4 @@ require gl-terminal.fs
 \ 2Variable dummyinput  dummyinput create_pipe
 \ dummyinput @ to infile-id
 >screen
-: t get-connection >term ;
+: t get-connection ;

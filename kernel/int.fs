@@ -856,8 +856,13 @@ Defer mark-end
         [ has? file [IF] ]
             cr type ." :"
             [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
-        dup 0 dec.r ." : " 5 pick .error-string
-        IF \ if line# non-zero, there is a line
+	dup 0 dec.r ." : "
+	errlevel @ 2 = IF  ." error: "  THEN
+	errlevel @ 1 = IF  ." warning: "  THEN
+	errlevel @ 0 = IF  ." info: "  THEN
+	5 pick .error-string
+	errlevel @ 2 = and \ only for errors print line
+	IF \ if line# non-zero, there is a line
             cr .error-line
         ELSE
             2drop 2drop
@@ -868,7 +873,8 @@ Defer mark-end
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
   [ has? os [IF] ]
       >stderr
-  [ [THEN] ] 
+  [ [THEN] ]
+  2 errlevel !
   input-error-data .error-frame
   error-stack $@len 0 ?DO
     error>

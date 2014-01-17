@@ -533,7 +533,7 @@ comp: ['] set-postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sy
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     >body ! ;
 
-: value! ( xt xt-deferred -- ) \ gforth  defer-store
+: value! ( xt xt-deferred -- ) \ gforth  value-store
     >body ! ;
 comp: drop >body postpone ALiteral postpone ! ;
     
@@ -609,17 +609,14 @@ G -1 warnings T !
 
 : check-shadow  ( addr count wid -- )
     \G prints a warning if the string is already present in the wordlist
-    >r 2dup 2dup r> (search-wordlist) warnings @ and ?dup if
-	>stderr
-	." redefined " name>string 2dup type
-	str= 0= if
-	    ."  with " type
-	else
-	    2drop
-	then
-	space space EXIT
+    >r 2dup r> (search-wordlist) warnings @ and ?dup if
+	<<#
+	name>string 2over 2over str= 0=
+	IF  2over holds s"  with " holds  THEN
+	holds s" redefined " holds
+	0. #> hold 1- c(warning") #>>
     then
-    2drop 2drop ;
+    2drop ;
 
 : reveal ( -- ) \ gforth
     last?
