@@ -93,6 +93,7 @@ public class Gforth
     protected void onCreate(Bundle savedInstanceState) {
         ActivityInfo ai;
         String libname = "gforth";
+	gforth=this;
 
         getWindow().takeSurface(this);
         // getWindow().setFormat(PixelFormat.RGB_565);
@@ -115,9 +116,8 @@ public class Gforth
 
     @Override protected void onStart() {
 	super.onStart();
-	gforth=this;
-	locationManager=(LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
-	sensorManager=(SensorManager)this.getSystemService(Context.SENSOR_SERVICE);
+	locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
+	sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
 	handler=new Handler();
 	startgps=new Runnable() {
 		public void run() {
