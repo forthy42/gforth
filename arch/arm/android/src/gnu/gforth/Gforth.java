@@ -89,6 +89,15 @@ public class Gforth
 	}
     }
 
+    static class ContentView extends View {
+        Gforth mActivity;
+
+        public ContentView(Context context) {
+            super(context);
+        }
+    }
+    ContentView mContentView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ActivityInfo ai;
@@ -100,6 +109,12 @@ public class Gforth
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        mContentView = new ContentView(this);
+        mContentView.mActivity = this;
+        setContentView(mContentView);
+        mContentView.requestFocus();
+        mContentView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
 	try {
             ai = getPackageManager().getActivityInfo(getIntent().getComponent(), PackageManager.GET_META_DATA);
