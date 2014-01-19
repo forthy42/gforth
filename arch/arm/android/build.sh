@@ -74,7 +74,7 @@ do
 	    done
 	)
     )
-    (cd $i; test -x ./libcc.android && ./libcc.android)
+    (cd $i; test -x ./libcc.android && env ANDROID=${PWD%/*/*/*} ./libcc.android)
     for j in $LIBCCNAMED .libs
     do
 	for k in $(cd $i/$j; echo *.so)

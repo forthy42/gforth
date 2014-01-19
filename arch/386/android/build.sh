@@ -36,8 +36,7 @@ mkdir -p $LIBS
 
 if [ "$1" != "--no-gforthgz" ]
 then
-    (rm androidmain.o zexpand.o androidmain.lo zexpand.lo
-	cd $SRC
+    (cd $SRC
 	if [ "$1" != "--no-config" ]; then ./configure --host=i686-linux-android --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib || exit 1; fi
 	make # || exit 1
 	make setup-debdist || exit 1) || exit 1
