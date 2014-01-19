@@ -161,9 +161,31 @@ void JNI_startForth(JNIEnv * env, jobject obj)
   pthread_create(&(startargs.id), pthread_detach_attr(), startForth, (void*)&startargs);
 }
 
+#define GFSS 0x80 // 128 cells for callback stack
+
 void JNI_callForth(JNIEnv * env, jint xt)
 {
+  Cell stack[GFSS], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS];
+  Cell *oldsp=gforth_SP;
+  Cell *oldrp=gforth_RP;
+  char *oldlp=gforth_LP;
+  Float *oldfp=gforth_FP;
+  user_area *oldup=gforth_UP;
+
+  gforth_SP=stack+GFSS-1;
+  gforth_RP=rstack+GFSS;
+  gforth_LP=(char*)(lstack+GFSS);
+  gforth_FP=fstack+GFSS-1;
+  gforth_UP=gforth_main_UP;
+
   gforth_execute((Xt)xt);
+
+  gforth_SP=oldsp;
+  gforth_RP=oldrp;
+  gforth_LP=oldlp;
+  gforth_FP=oldfp;
+  gforth_UP=oldup;
+;
 }
 
 static JNINativeMethod GforthMethods[] = {

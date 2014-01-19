@@ -168,10 +168,6 @@ public class Gforth
 	return true;
     }
 
-    @Override
-    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-    }
-
     // location requests
     public void onLocationChanged(Location location) {
 	// Called when a new location is found by the network location provider.
@@ -223,5 +219,26 @@ public class Gforth
     // global layout
     public void onGlobalLayout() {
 	onEventNative(8, 0);
+    }
+
+    // media player
+    public class mpch {
+	MediaPlayer mediaPlayer;
+	int format;
+	int width;
+	int height;
+
+	mpch(MediaPlayer m, int w, int h) {
+	    mediaPlayer=m;
+	    width=w;
+	    height=h;
+	}
+    }
+
+    @Override
+    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+	mpch newmp = new mpch(mp, width, height);
+
+	onEventNative(9, newmp);
     }
 }
