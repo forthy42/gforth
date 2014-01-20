@@ -57,6 +57,8 @@ SHA256=$(sha256sum libs/armeabi/libgforthgz.so | cut -f1 -d' ')
 
 sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/lib$ENGINE.so >$LIBS/lib$ENGINE.so
 
+ANDROID=${PWD%/*/*/*}
+CFLAGS="-O3 -march=armv5 -mfloat-abi=softfp -mfpu=vfp"
 LIBCC=$SRC
 for i in $LIBCC $*
 do
@@ -68,13 +70,13 @@ do
 		    then
 			make
 		    else
-			CFLAGS="-O3 -march=armv5 -mfloat-abi=softfp -mfpu=vfp" ./configure --host=arm-linux-androideabi && make clean && make
+			./configure --host=arm-linux-androideabi && make clean && make
 		    fi
 		)
 	    done
 	)
     )
-    (cd $i; test -x ./libcc.android && env ANDROID=${PWD%/*/*/*} ./libcc.android)
+    (cd $i; test -x ./libcc.android && ./libcc.android)
     for j in $LIBCCNAMED .libs
     do
 	for k in $(cd $i/$j; echo *.so)
