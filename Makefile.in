@@ -321,7 +321,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs user-object.fs \
 	add.fs lib.fs oldlib.fs sieve.fs list.fs \
 	endtry-iferror.fs recover-endtry.fs smartdots.fs \
-	unix/terminal-server.fs
+	unix/terminal-server.fs gforthrc.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -448,7 +448,8 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/pow10.c engine/atanh.c engine/cleanalign.c \
 	engine/strerror.c engine/strsignal.c engine/dblsub.c \
 	engine/fnmatch.h engine/fnmatch.c \
-	engine/makefile.dos engine/makefile.os2
+	engine/makefile.dos engine/makefile.os2 \
+	engine/zexpand.c engine/androidmain.c
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \

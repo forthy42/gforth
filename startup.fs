@@ -84,6 +84,7 @@ require libcc.fs
 require struct0x.fs
 require prelude.fs
 require str-exec.fs
+require gforthrc.fs
 
 \ define the environmental queries for all the loaded wordsets
 \ since the blocks wordset is loaded in a single file, its queries
