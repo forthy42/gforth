@@ -155,7 +155,7 @@ pthread_attr_t * pthread_detach_attr(void)
 void JNI_startForth(JNIEnv * env, jobject obj)
 {
   startargs.env = env;
-  startargs.obj = obj;
+  startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
 
   pthread_create(&(startargs.id), pthread_detach_attr(), startForth, (void*)&startargs);
