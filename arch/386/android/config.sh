@@ -60,6 +60,6 @@ engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
-LIBS="-llog -landroid -lz"
-signals_o="io.o signals.o sigaltstack.o __set_errno.o ../arch/arm/android/androidmain.o  ../arch/arm/android/zexpand.o ../arch/arm/android/android_native_app_glue.o"
+LIBS="-llog -lz"
+signals_o="io.o signals.o sigaltstack.o __set_errno.o androidmain.o zexpand.o"
 
