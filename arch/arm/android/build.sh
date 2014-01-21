@@ -70,13 +70,13 @@ do
 		    then
 			make
 		    else
-			./configure --host=arm-linux-androideabi && make clean && make
+			./configure CFLAGS=$CFLAGS --host=arm-linux-androideabi && make clean && make
 		    fi
 		)
 	    done
 	)
     )
-    (cd $i; test -x ./libcc.android && ./libcc.android)
+    (cd $i; test -x ./libcc.android && ANDROID=$ANDROID ./libcc.android)
     for j in $LIBCCNAMED .libs
     do
 	for k in $(cd $i/$j; echo *.so)
