@@ -24,8 +24,10 @@ case "$1" in
 esac
 
 GFORTH_VERSION=$(gforth --version 2>&1 | cut -f2 -d' ')
+APP_VERSION=$[$(cat ~/.app-version)+1]
+echo $APP_VERSION >~/.app-version
 
-sed -e "s/@ENGINE@/$ENGINE/g" -e "s/@VERSION@/$GFORTH_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
+sed -e "s/@ENGINE@/$ENGINE/g" -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
 LIBS=libs/armeabi
