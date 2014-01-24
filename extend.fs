@@ -66,32 +66,35 @@ decimal
 [then]
 
 : case ( compilation  -- case-sys ; run-time  -- ) \ core-ext
-    postpone begin 0 ; immediate
+    postpone begin ['] drop 0 ; immediate restrict
 
 : ?of ( compilation  -- of-sys ; run-time  f -- ) \ gforth
-    >r POSTPONE if r> ; immediate
+    2>r POSTPONE if 2r> ; immediate restrict
 
 : of ( compilation  -- of-sys ; run-time x1 x2 -- |x1 ) \ core-ext
     \ !! the implementation does not match the stack effect
-    postpone over postpone = postpone ?of postpone drop ; immediate
+    postpone over postpone = postpone ?of postpone drop ; immediate restrict
 
 : endof ( compilation case-sys1 of-sys -- case-sys2 ; run-time  -- ) \ core-ext end-of
-    >r postpone else 1 cs-roll r> 1+ ; immediate
+    2>r postpone else 1 cs-roll 2r> 1+ ; immediate restrict
 
 : contof ( compilation case-sys1 of-sys -- case-sys2 ; run-time  -- )
     \ like @code{endof}, but loops back to the @code{case}
-    >r 1 cs-pick postpone again postpone then r> ; immediate
+    2>r 1 cs-pick postpone again postpone then 2r> ; immediate restrict
 
 : n-thens ( orig1 ... origu u -- )
     0 ?do postpone then loop ;
 
+: default: ( case-sys2 -- case-sys2' )
+    nip ['] noop swap ; immediate restrict
+
 : endcase ( compilation case-sys -- ; run-time x -- ) \ core-ext end-case
-    >r cs-drop postpone drop r> n-thens ; immediate
+    >r >r cs-drop r> compile, r> n-thens ; immediate restrict
 
 : nextcase ( compilation case-sys -- ; run-time x -- ) \ gforth-undocumented
     \ like ENDCASE, but start again from the beginning if this is
     \ reached by fallthrough
-    >r postpone drop postpone again r> n-thens ; immediate
+    >r compile, postpone again r> n-thens ; immediate restrict
 
 
 \ C"                                                    17may93jaw
