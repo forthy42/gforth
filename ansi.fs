@@ -54,6 +54,8 @@ decimal
 6 CONSTANT Cyan
 7 CONSTANT White
 
+: bright ( color -- bcolor )  8 or ;
+
 1 CONSTANT Bold
 2 CONSTANT Underline
 4 CONSTANT Blink
