@@ -23,16 +23,9 @@ c-library filestat
     \c #include <sys/time.h>
     \c #include <unistd.h>
     e? os-type s" linux-android" str= [IF]
-	\c #include <sys/syscall.h>
-	\c #include <sys/linux-syscalls.h>
-	\c #ifdef __arm__
-	\c #define __NR_utimensat (__NR_SYSCALL_BASE+348)
-	\c #endif
+	\ extern int futimens(int fd, const struct timespec times[2]);
 	\c int futimens(int fd, const struct timespec ts[2]) {
-	\c   return syscall(__NR_utimensat, fd, NULL, ts, 0);
-	\c }
-	\c int utimensat(int fd, const char* path, const struct timespec ts[2], int flags) {
-	\c   return syscall(__NR_utimensat, fd, path, ts, flags);
+	\c   utimensat(fd, NULL, ts, 0);
 	\c }
     [THEN]
     
@@ -59,8 +52,9 @@ e? os-type s" darwin" string-prefix? [IF]
     : utimens ( a a -- r )  dup cell+ @ 1000 / over cell+ ! utimes ;
     : lutimens ( a a -- r )  dup cell+ @ 1000 / over cell+ ! lutimes ;
 [ELSE]
-    : utimens ( a a -- r )  -100 -rot 0 utimensat ;
-    : lutimens ( a a -- r )  -100 -rot $100 utimensat ;
+    -100 Constant AT_FDCWD
+    : utimens ( a a -- r )  AT_FDCWD -rot 0 utimensat ;
+    : lutimens ( a a -- r ) AT_FDCWD -rot $100 utimensat ;
 [THEN]
 
 begin-structure file-stat
