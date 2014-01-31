@@ -345,16 +345,14 @@ Create alen   16 ,
 Create crlf 2 c, 13 c, 10 c,
 
 : listen ( lsocket /queue -- )
-    listen() 0< !!listen!! and throw ;
+    listen() 0< ?ior ;
 
 \ This call blocks the server until a client appears. The client uses socket to
 \ converse with the server.
 : accept-socket ( lsocket -- socket )
     16 alen !
     sockaddr-tmp alen accept() 
-    dup 0< IF  errno cr ." accept() :: error #" .  
-	!!accept!! throw
-    ENDIF   s" w+" c-string fdopen ;
+    dup 0< ?ior s" w+" c-string fdopen ;
 
 : +cr  ( c-addr1 u1 -- c-addr2 u2 ) crlf count $+ ;
 
@@ -362,7 +360,7 @@ Create crlf 2 c, 13 c, 10 c,
     f_setfl r> IF  0  
     ELSE  o_nonblock|o_rdwr  
     THEN  
-    fcntl 0< !!blocking!! and throw ;
+    fcntl 0< ?ior ;
 
 : hostname ( -- c-addr u )
     hostname$ c@ 0= IF
@@ -379,7 +377,7 @@ Create crlf 2 c, 13 c, 10 c,
     2 pick >r r@ false blocking-mode  rot fileno -rot
     over >r msg_waitall recv
     dup 0<  IF  0 max
-	errno dup 0<> swap ewouldblock <> and !!sockread!! and throw
+	errno dup 0<> swap ewouldblock <> and ?ior
     THEN
     r> swap
     r> true blocking-mode ;
@@ -397,7 +395,7 @@ Create crlf 2 c, 13 c, 10 c,
     2 pick >r  r@ false blocking-mode  rot fileno -rot
     over >r msg_waitall sockaddr-tmp alen  recvfrom
     dup 0<  IF  0 max
-	errno dup 0<> swap ewouldblock <> and !!sockread!! and throw
+	errno dup 0<> swap ewouldblock <> and ?ior
     THEN
     r> swap
     r> true blocking-mode ;
