@@ -218,10 +218,10 @@ s" sock read error"    exception Constant !!sockread!!
     PF_INET SOCK_DGRAM 0 socket dup 0<= ?ior
 [IFDEF] darwin
 \    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
-\    setsockopt drop
+\    setsockopt ?ior
 [ELSE]
     dup IPPROTO_IP IP_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4
-    setsockopt drop
+    setsockopt ?ior
 [THEN] ;
 
 : new-udp-socket6 ( -- socket )
@@ -231,18 +231,18 @@ s" sock read error"    exception Constant !!sockread!!
 \    setsockopt drop
 [ELSE]
     dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4
-    setsockopt drop
+    setsockopt ?ior
 [THEN]
-    dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
+    dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt ?ior ;
 
 : new-udp-socket46 ( -- socket )
     PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
 [IFDEF] darwin
 \    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
-\    setsockopt drop
+\    setsockopt ?ior
 [ELSE]
     dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4
-    setsockopt drop
+    setsockopt ?ior
 [THEN]
 ;
 
@@ -261,16 +261,17 @@ s" sock read error"    exception Constant !!sockread!!
 	!!noaddr!! throw  THEN
     addrres @ ;
 
+: fd>file ( fd -- file )  s\" w+\0" drop fdopen ;
+
 : get-socket ( info -- socket )  dup >r >r
     BEGIN  r@  WHILE
 	    r@ ai_family l@ r@ ai_socktype l@ r@ ai_protocol l@ socket
 	    dup 0>= IF
 		dup r@ ai_addr @ r@ ai_addrlen l@ connect
 		IF
-		    closesocket drop
+		    closesocket ?ior
 		ELSE
-		    s" w+" c-string fdopen
-		    rdrop r> freeaddrinfo  EXIT
+		    fd>file rdrop r> freeaddrinfo  EXIT
 		THEN
 	    ELSE  drop  THEN
 	    r> ai_next @ >r  REPEAT
@@ -291,40 +292,35 @@ s" sock read error"    exception Constant !!sockread!!
     sockaddr-tmp sockaddr_in %size erase
     AF_INET sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
-    new-socket
-    dup 0< !!nosock!! and throw dup reuse-addr >r
+    new-socket dup 0< ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in4 %size bind ?ior r> ;
 
 : create-server6  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
-    new-socket6
-    dup 0< !!nosock!! and throw dup reuse-addr >r
+    new-socket6 dup 0< ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
 
 : create-udp-server  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
     AF_INET sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
-    new-udp-socket
-    dup 0< !!nosock!! and throw dup reuse-addr >r
+    new-udp-socket dup 0< ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in4 %size bind ?ior r> ;
 
 : create-udp-server6  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in6 %size erase
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
-    new-udp-socket6
-    dup 0< !!nosock!! and throw >r
+    new-udp-socket6 dup 0< ?ior >r
     r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
 
 : create-udp-server46  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in6 %size erase
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
-    new-udp-socket46
-    dup 0< !!nosock!! and throw >r
+    new-udp-socket46 dup 0< ?ior >r
     r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
 
 \ from itools.frt
@@ -352,7 +348,7 @@ Create crlf 2 c, 13 c, 10 c,
 : accept-socket ( lsocket -- socket )
     16 alen !
     sockaddr-tmp alen accept() 
-    dup 0< ?ior s" w+" c-string fdopen ;
+    dup 0< ?ior fd>file ;
 
 : +cr  ( c-addr1 u1 -- c-addr2 u2 ) crlf count $+ ;
 
