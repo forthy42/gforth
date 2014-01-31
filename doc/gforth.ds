@@ -1,6 +1,16 @@
 \input texinfo   @c -*-texinfo-*-
 @comment The source is gforth.ds, from which gforth.texi is generated
 
+@iftex
+@internalpagesizes{150mm}{97mm}{-0.666in}{-0.95in}{0in}{0in}{160mm}{100mm}
+@contentsrightmargin=0pt
+@tableindent=0.1in
+@itemindent=0.2in
+@tolerance=700
+@defbodyindent=0.1in
+@lispnarrowing=0pt
+@end iftex
+
 @comment TODO: nac29jan99 - a list of things to add in the next edit:
 @comment 1. x-ref all ambiguous or implementation-defined features?
 @comment 2. Describe the use of Auser Avariable AConstant A, etc.
@@ -61,7 +71,7 @@ a fast and portable implementation of the ANS Forth language.  It
 serves as reference manual, but it also contains an introduction to
 Forth and a Forth tutorial.
 
-Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004,2005,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation, Inc.
+Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -5856,7 +5866,8 @@ The most common use of exception handlers is to clean up the state when
 an error happens.  E.g.,
 
 @example
-base @ >r hex \ actually the hex should be inside foo, or we h
+base @@ >r hex \ actually the HEX should be inside foo to protect
+              \ against exceptions between HEX and CATCH
 ['] foo catch ( nerror|0 )
 r> base !
 ( nerror|0 ) throw \ pass it on

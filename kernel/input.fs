@@ -1,6 +1,6 @@
 \ Input handling (object oriented)                      22oct00py
 
-\ Copyright (C) 2000,2003,2004,2005,2006,2007,2011 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2003,2004,2005,2006,2007,2011,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -251,7 +251,8 @@ defer line-end-hook ( -- ) \ gforth
     
 : read-loop ( i*x -- j*x ) \ gforth
     \G refill and interpret a file until EOF
-    BEGIN  refill  WHILE  interpret line-end-hook REPEAT ;
+    BEGIN  refill  WHILE  interpret line-end-hook REPEAT
+    state @ warning" EOF reached while compiling" ;
 
 : execute-parsing-named-file ( i*x wfileid filename-addr filename-u xt -- j*x )
     >r push-file \ dup 2* cells included-files 2@ drop + 2@ type

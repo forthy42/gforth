@@ -1,6 +1,6 @@
 \ posix threads
 
-\ Copyright (C) 2012 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -191,7 +191,7 @@ c-library pthread
     c-function pthread-cond+ pthread_cond_plus a -- a ( cond -- cond' )
     c-function pthread-conds pthread_conds n -- n ( n -- n' )
     c-function pause sched_yield -- void ( -- )
-    c-function pthread_detatch_attr pthread_detach_attr -- a ( -- addr )
+    c-function pthread_detach_attr pthread_detach_attr -- a ( -- addr )
     c-function pthread_cond_signal pthread_cond_signal a -- n ( cond -- r )
     c-function pthread_cond_broadcast pthread_cond_broadcast a -- n ( cond -- r )
     c-function pthread_cond_wait pthread_cond_wait a a -- n ( cond mutex -- r )
@@ -229,6 +229,9 @@ epiper create_pipe \ create pipe for main task
 
 :noname ( -- )
     [ here throw-entry ! ]
+    first-throw @ 0= IF
+	store-backtrace \ error-stack $off
+    THEN
     handler @ ?dup-0=-IF
 	>stderr cr ." uncaught thread exception: " .error cr
 	kill-task
@@ -252,7 +255,7 @@ epiper create_pipe \ create pipe for main task
 : (activate) ( task -- )
     \G activates task, the current procedure will be continued there
     r> swap >r  save-task r@ >task !
-    pthread-id r@ >task pthread_detatch_attr thread_start r> pthread_create drop ; compile-only
+    pthread-id r@ >task pthread_detach_attr thread_start r> pthread_create drop ; compile-only
 
 : activate ( task -- )
     ]] (activate) up! [[ ; immediate compile-only
@@ -286,9 +289,7 @@ epiper create_pipe \ create pipe for main task
 \G unlock the semaphore
 
 : c-section ( xt addr -- )  >r
-    TRY  r@ lock execute
-    RESTORE  r> unlock
-    ENDTRY  throw ;
+    r@ lock catch r> unlock throw ;
 
 : >pagealign-stack ( n addr -- n' )
     >r 1- r> 1- pagesize negate mux 1+ ;
@@ -358,8 +359,16 @@ event: ->sleep  stop ;
 
 \ User deferred words, user values
 
+[IFUNDEF] UValue
 : u-to >body @ up@ + ! ;
 comp: drop >body @ postpone useraddr , postpone ! ;
+
+: UValue ( "name" -- )
+    Create cell uallot , ['] u-to set-to
+    [: >body @ postpone useraddr , postpone @ ;] set-compiler
+  DOES> @ up@ + @ ;
+[THEN]
+
 : udefer@ ( xt -- )
     >body @ up@ + @ ;
 
@@ -367,11 +376,6 @@ comp: drop >body @ postpone useraddr , postpone ! ;
     Create cell uallot , ['] u-to set-to ['] udefer@ set-defer@
     [: >body @ postpone useraddr , postpone perform ;] set-compiler
   DOES> @ up@ + perform ;
-
-: UValue ( "name" -- )
-    Create cell uallot , ['] u-to set-to
-    [: >body @ postpone useraddr , postpone @ ;] set-compiler
-  DOES> @ up@ + @ ;
 
 false [IF] \ event test
     <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]

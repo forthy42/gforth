@@ -1,6 +1,6 @@
 ;;; gforth.el --- major mode for editing (G)Forth sources
 
-;; Copyright (C) 1995,1996,1997,1998,2000,2001,2003,2004,2007,2008,2010,2011,2012 Free Software Foundation, Inc.
+;; Copyright (C) 1995,1996,1997,1998,2000,2001,2003,2004,2007,2008,2010,2011,2012,2013 Free Software Foundation, Inc.
 
 ;; This file is part of Gforth.
 
@@ -447,16 +447,16 @@ INDENT1 and INDENT2 are indentation specifications of the form
 (setq forth-indent-words
       '((("if" "begin" "do" "?do" "+do" "-do" "u+do"
 	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "try" "iferror"
-	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]")
+	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]" "[:")
 	 (0 . 2) (0 . 2))
 	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" 
-	  "interface" "c-library" "c-library-name" "[:" "comp:" "post:")
+	  "interface" "c-library" "c-library-name" "comp:" "post:")
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
-	((";" ";m" ";]") (-2 . 0) (0 . -2))
+	((";" ";m") (-2 . 0) (0 . -2))
 	(("again" "then" "endif" "endtry" "endcase" "endof" 
 	  "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
-	  "[until]" "[again]" "loop")
+	  "[until]" "[again]" "loop" ";]")
 	 (-2 . 0) (0 . -2))
 	(("end-code" "end-class" "end-interface" "end-class-noname" 
 	  "end-interface-noname" "end-struct" "class;" "end-c-library")

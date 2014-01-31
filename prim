@@ -1,6 +1,6 @@
 \ Gforth primitives
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -2363,11 +2363,11 @@ else
   r3 = r2;
 
 represent	( r c_addr u -- n f1 f2 )	float
-char *sig;
+char sig[0x40];
 size_t siglen;
 int flag;
 int decpt;
-sig=ecvt(r, u, &decpt, &flag);
+ecvt_r(r, u, &decpt, &flag, sig, 0x3f);
 n=(r==0. ? 1 : decpt);
 flag=signbit(r); /* not all ecvt()s do this as desired */
 f1=FLAG(flag!=0);

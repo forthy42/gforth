@@ -1,6 +1,6 @@
 \ definitions needed for interpreter only
 
-\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -747,10 +747,8 @@ has? os [IF]
 \ \ DOERROR (DOERROR)                        		13jun93jaw
 
 has? os [IF]
-8 Constant max-errors
-5 has? file 2 and + Constant /error
-Variable error-stack  0 error-stack !
-max-errors /error * cells allot
+5 has? file 2 and + cells Constant /error
+User error-stack  0 error-stack !
 \ format of one cell:
 \ source ( c-addr u )
 \ last parsed lexeme ( c-addr u )
@@ -758,18 +756,13 @@ max-errors /error * cells allot
 \ Loadfilename ( addr u )
 
 : error> ( --  c-addr1 u1 c-addr2 u2 line# [addr u] )
-    -1 error-stack +!
-    error-stack dup @
-    /error * cells + cell+
-    /error cells bounds DO
+    error-stack $@ + /error - /error bounds DO
         I @
-    cell +LOOP ;
+    cell +LOOP error-stack dup $@len /error - /error $del ;
 
 : >error ( c-addr1 u1 c-addr2 u2 line# [addr u] -- )
-    error-stack dup @ dup 1+
-    max-errors 1- min error-stack !
-    /error * cells + cell+
-    /error 1- cells bounds swap DO
+    error-stack $@len /error + error-stack $!len
+    error-stack $@ + /error - /error cell- bounds swap DO
         I !
     -1 cells +LOOP ;
 
@@ -843,12 +836,20 @@ Defer mark-end
     mark-start r> part-type mark-end ( c-addr4 u4 )
     type ;
 
-: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] -- throwcode )
+Defer .error-level ( n -- )
+: (.error-level) >r
+    r@ 2 = IF  ." error: "    THEN
+    r@ 1 = IF  ." warning: "  THEN
+    r@ 0 = IF  ." info: "     THEN  rdrop ;
+' (.error-level) is .error-level
+
+: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] errlevel -- throwcode )
     \ addr3 u3: filename of included file - optional
     \ n2:       line number
     \ addr2 u2: parsed lexeme (should be marked as causing the error)
     \ addr1 u1: input line
-    error-stack @
+    \ errlevel: 0: info, 1: warning, 2: error
+    >r error-stack $@len
     IF ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
         [ has? file [IF] ] \ !! unbalanced stack effect
 	  over IF
@@ -863,24 +864,27 @@ Defer mark-end
         [ has? file [IF] ]
             cr type ." :"
             [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
-        dup 0 dec.r ." : " 5 pick .error-string
-        IF \ if line# non-zero, there is a line
+	dup 0 dec.r ." : "
+	r@ .error-level
+	5 pick .error-string
+	r@ 2 = and \ only for errors print line
+	IF \ if line# non-zero, there is a line
             cr .error-line
         ELSE
             2drop 2drop
         THEN
-    THEN ;
+    THEN  rdrop ;
 
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
   [ has? os [IF] ]
       >stderr
-  [ [THEN] ] 
-  input-error-data .error-frame
-  error-stack @ 0 ?DO
+  [ [THEN] ]
+  input-error-data 2 .error-frame
+  error-stack $@len 0 ?DO
     error>
-    .error-frame
-  LOOP
+    2 .error-frame
+  /error +LOOP
   drop 
 [ has? backtrace [IF] ]
   dobacktrace
@@ -933,7 +937,7 @@ Defer mark-end
 
 : gforth ( -- )
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2012 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2013 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `bye' to exit"

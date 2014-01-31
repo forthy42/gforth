@@ -1,6 +1,6 @@
 \ compiler definitions						14sep97jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -399,6 +399,15 @@ include ./recognizer.fs
 : AValue ( w "name" -- ) \ core-ext
     (Value) A, ;
 
+: u-to >body @ next-task + ! ;
+comp: drop >body @ postpone useraddr , postpone ! ;
+: u-compile, ( xt -- )  >body @ postpone useraddr , postpone @ ;
+
+: UValue ( "name" -- )
+    Create cell uallot , ['] u-to set-to
+    ['] u-compile, set-compiler
+  DOES> @ next-task + @ ;
+
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
     Create ( w1 w2 "name" -- )
         2,
@@ -524,7 +533,7 @@ comp: ['] set-postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sy
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     >body ! ;
 
-: value! ( xt xt-deferred -- ) \ gforth  defer-store
+: value! ( xt xt-deferred -- ) \ gforth  value-store
     >body ! ;
 comp: drop >body postpone ALiteral postpone ! ;
     
@@ -600,17 +609,14 @@ G -1 warnings T !
 
 : check-shadow  ( addr count wid -- )
     \G prints a warning if the string is already present in the wordlist
-    >r 2dup 2dup r> (search-wordlist) warnings @ and ?dup if
-	>stderr
-	." redefined " name>string 2dup type
-	str= 0= if
-	    ."  with " type
-	else
-	    2drop
-	then
-	space space EXIT
+    >r 2dup r> (search-wordlist) warnings @ and ?dup if
+	<<#
+	name>string 2over 2over str= 0=
+	IF  2over holds s"  with " holds  THEN
+	holds s" redefined " holds
+	0. #> hold 1- c(warning") #>>
     then
-    2drop 2drop ;
+    2drop ;
 
 : reveal ( -- ) \ gforth
     last?

@@ -1,7 +1,7 @@
 # First create a standalone toolchain directory
 #mkdir ~/proj/android-toolchain
 #cd  ~/proj/android-toolchain
-#~/proj/android-ndk-r8e/build/tools/make-standalone-toolchain.sh --platform=android-14 --ndk-dir=/home/bernd/proj/android-ndk-r8e --install-dir=$PWD --toolchain=arm-linux-androideabi-4.7
+#~/proj/android-ndk-r9c/build/tools/make-standalone-toolchain.sh --arch=arm --platform=android-14 --ndk-dir=/home/bernd/proj/android-ndk-r9c --install-dir=$PWD --toolchain=arm-linux-androideabi-4.8
 #configure with
 #./configure --host=arm-linux-android --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib --with-ditc=gforth-ditc-x32
 #and finally create an apk in this directory
@@ -59,6 +59,6 @@ engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
-LIBS="-llog -landroid -lz"
-signals_o="io.o signals.o sigaltstack.o __set_errno.o ../arch/arm/android/androidmain.o  ../arch/arm/android/zexpand.o ../arch/arm/android/android_native_app_glue.o"
+LIBS="-llog -lz"
+signals_o="io.o signals.o sigaltstack.o __set_errno.o androidmain.o zexpand.o"
 

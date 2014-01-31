@@ -24,8 +24,10 @@ case "$1" in
 esac
 
 GFORTH_VERSION=$(gforth --version 2>&1 | cut -f2 -d' ')
+APP_VERSION=$[$(cat ~/.app-version)+1]
+echo $APP_VERSION >~/.app-version
 
-sed -e "s/@ENGINE@/$ENGINE/g" -e "s/@VERSION@/$GFORTH_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
+sed -e "s/@ENGINE@/$ENGINE/g" -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
 LIBS=libs/armeabi
@@ -36,8 +38,7 @@ mkdir -p $LIBS
 
 if [ "$1" != "--no-gforthgz" ]
 then
-    (rm androidmain.o zexpand.o androidmain.lo zexpand.lo
-	cd $SRC
+    (cd $SRC
 	if [ "$1" != "--no-config" ]; then ./configure --host=arm-unknown-linux-android --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib || exit 1; fi
 	make # || exit 1
 	make setup-debdist || exit 1) || exit 1
@@ -58,6 +59,8 @@ SHA256=$(sha256sum libs/armeabi/libgforthgz.so | cut -f1 -d' ')
 
 sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/lib$ENGINE.so >$LIBS/lib$ENGINE.so
 
+ANDROID=${PWD%/*/*/*}
+CFLAGS="-O3 -march=armv5 -mfloat-abi=softfp -mfpu=vfp"
 LIBCC=$SRC
 for i in $LIBCC $*
 do
@@ -69,13 +72,13 @@ do
 		    then
 			make
 		    else
-			CFLAGS="-march=armv5 -mfloat-abi=softfp -mfpu=vfp" ./configure --host=arm-linux-androideabi && make clean && make
+			./configure CFLAGS=$CFLAGS --host=arm-linux-androideabi && make clean && make
 		    fi
 		)
 	    done
 	)
     )
-    (cd $i; test -x ./libcc.android && ./libcc.android)
+    (cd $i; test -x ./libcc.android && ANDROID=$ANDROID ./libcc.android)
     for j in $LIBCCNAMED .libs
     do
 	for k in $(cd $i/$j; echo *.so)

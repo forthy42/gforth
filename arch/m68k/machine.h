@@ -61,6 +61,12 @@ extern int cacheflush(void *, int, int, size_t);
 #  warning CODE words will not work.
 #endif
 
+#define ASM_SM_SLASH_REM(d1lo, d1hi, n1, n2, n3) \
+  asm("divs%.l %2,%1:%0": "=d"(n3),"=d"(n2) : "dmi"(n1),"0"(d1lo),"1"(d1hi):"cc")
+
+#define ASM_UM_SLASH_MOD(d1lo, d1hi, n1, n2, n3) \
+  asm("divu%.l %2,%1:%0": "=d"(n3),"=d"(n2) : "dmi"(n1),"0"(d1lo),"1"(d1hi):"cc")
+
 #ifdef FORCE_REG /* highly recommended */
 #if defined(amigaos)
 #  define IPREG asm("%a6")

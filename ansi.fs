@@ -1,6 +1,6 @@
 \ ansi.fs      Define terminal attributes              20may93jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2001,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2001,2003,2007,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -53,6 +53,8 @@ decimal
 5 CONSTANT Brown
 6 CONSTANT Cyan
 7 CONSTANT White
+
+: bright ( color -- bcolor )  8 or ;
 
 1 CONSTANT Bold
 2 CONSTANT Underline
