@@ -64,6 +64,7 @@ c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
 c-function freeaddrinfo freeaddrinfo a -- void ( res -- )
 c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
 c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
+c-function getsockname getsockname  n a a -- n ( sockfd addr *len -- r )
 end-c-library
 
 e? os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
@@ -202,18 +203,19 @@ s" accept failed"      exception Constant !!accept!!
 s" blocking-mode failed" exception Constant !!blocking!!
 s" sock read error"    exception Constant !!sockread!!
 
+: ?ior ( r -- )
+    \G use errno to generate throw when failing
+    IF  -512 errno - throw  THEN ;
+
 : new-socket ( -- socket )
-    PF_INET SOCK_STREAM 0 socket
-    dup 0<= !!nosock!! and throw ;
+    PF_INET SOCK_STREAM 0 socket dup 0<= ?ior ;
 
 : new-socket6 ( -- socket )
-    PF_INET6 SOCK_STREAM 0 socket
-    dup 0<= !!nosock!! and throw
+    PF_INET6 SOCK_STREAM 0 socket dup 0<= ?ior
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
 
 : new-udp-socket ( -- socket )
-    PF_INET SOCK_DGRAM 0 socket
-    dup 0<= !!nosock!! and throw
+    PF_INET SOCK_DGRAM 0 socket dup 0<= ?ior
 [IFDEF] darwin
 \    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 \    setsockopt drop
@@ -223,8 +225,7 @@ s" sock read error"    exception Constant !!sockread!!
 [THEN] ;
 
 : new-udp-socket6 ( -- socket )
-    PF_INET6 SOCK_DGRAM 0 socket
-    dup 0<= !!nosock!! and throw
+    PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
 [IFDEF] darwin
 \    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 \    setsockopt drop
@@ -235,8 +236,7 @@ s" sock read error"    exception Constant !!sockread!!
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
 
 : new-udp-socket46 ( -- socket )
-    PF_INET6 SOCK_DGRAM 0 socket
-    dup 0<= !!nosock!! and throw
+    PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
 [IFDEF] darwin
 \    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 \    setsockopt drop
@@ -293,8 +293,7 @@ s" sock read error"    exception Constant !!sockread!!
     htons   sockaddr-tmp port w!
     new-socket
     dup 0< !!nosock!! and throw dup reuse-addr >r
-    r@ sockaddr-tmp sockaddr_in4 %size bind 0= IF  r> exit  ENDIF
-    rdrop !!nobind!! throw ;
+    r@ sockaddr-tmp sockaddr_in4 %size bind ?ior r> ;
 
 : create-server6  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
@@ -302,8 +301,7 @@ s" sock read error"    exception Constant !!sockread!!
     htons   sockaddr-tmp port w!
     new-socket6
     dup 0< !!nosock!! and throw dup reuse-addr >r
-    r@ sockaddr-tmp sockaddr_in6 %size bind 0= IF  r> exit  ENDIF
-    rdrop !!nobind!! throw ;
+    r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
 
 : create-udp-server  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in %size erase
@@ -311,8 +309,7 @@ s" sock read error"    exception Constant !!sockread!!
     htons   sockaddr-tmp port w!
     new-udp-socket
     dup 0< !!nosock!! and throw dup reuse-addr >r
-    r@ sockaddr-tmp sockaddr_in4 %size bind 0= IF  r> exit  ENDIF
-    rdrop !!nobind!! throw ;
+    r@ sockaddr-tmp sockaddr_in4 %size bind ?ior r> ;
 
 : create-udp-server6  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in6 %size erase
@@ -320,8 +317,7 @@ s" sock read error"    exception Constant !!sockread!!
     htons   sockaddr-tmp port w!
     new-udp-socket6
     dup 0< !!nosock!! and throw >r
-    r@ sockaddr-tmp sockaddr_in6 %size bind 0= IF  r> exit  ENDIF
-    rdrop !!nobind!! throw ;
+    r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
 
 : create-udp-server46  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in6 %size erase
@@ -329,8 +325,7 @@ s" sock read error"    exception Constant !!sockread!!
     htons   sockaddr-tmp port w!
     new-udp-socket46
     dup 0< !!nosock!! and throw >r
-    r@ sockaddr-tmp sockaddr_in6 %size bind 0= IF  r> exit  ENDIF
-    rdrop !!nobind!! throw ;
+    r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
 
 \ from itools.frt
 
