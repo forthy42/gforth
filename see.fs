@@ -169,10 +169,10 @@ VARIABLE Colors Colors on
 		    dup bl 127 within if
 			cemit
 		    else
-			base @ >r try
+			base @ { oldbase } try
 			    8 base ! 0 <<# # # # '\ hold #> ctype #>> 0
 			restore
-			    r@ base !
+			    oldbase base !
 			endtry
 			rdrop throw
 		    endif
