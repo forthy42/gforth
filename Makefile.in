@@ -269,6 +269,7 @@ GFORTH_FI_SRC2=\
 	vt100.fs \
 	vt100key.fs \
 	wordinfo.fs \
+	gforthrc.fs \
 	arch/386/asm.fs arch/386/disasm.fs \
 	arch/amd64/asm.fs arch/amd64/disasm.fs \
 	arch/alpha/asm.fs arch/alpha/disasm.fs arch/alpha/testasm.fs\
@@ -321,7 +322,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs user-object.fs \
 	add.fs lib.fs oldlib.fs sieve.fs list.fs \
 	endtry-iferror.fs recover-endtry.fs smartdots.fs \
-	unix/terminal-server.fs gforthrc.fs
+	unix/terminal-server.fs date.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
