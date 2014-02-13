@@ -179,16 +179,19 @@ is catch
     cell+ dup @ ( ... ball addr sp ) -rot 2>r sp! drop 2r>
     cell+ @ perform ;
 [endif]
-    
+
+Defer kill-task ' noop IS kill-task
+
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
-	[ here forthstart 9 cells + ! ]
+	[ here forthstart 9 cells + !
+	  here throw-entry ! ]
 	first-throw @ 0= IF
 	    store-backtrace \ error-stack $off
 	THEN
 	handler @ ?dup-0=-IF
 	    >stderr cr ." uncaught exception: " .error cr
-	    2 (bye)
+	    kill-task  2 (bye)
 \	    quit
 	THEN
 	\ cr .s dup 64 dump

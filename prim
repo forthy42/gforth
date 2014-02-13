@@ -1755,6 +1755,16 @@ n=1;
 :
  1 ;
 
+debugging-method	( -- n )	gforth	debugging_method
+""true if the engine supports debugging""
+#if defined(GFORTH_DEBUGGING)
+n=-1;
+#else
+n=0;
+#endif
+:
+ 0 ;
+
 \f[THEN]
 
 \g hostos
