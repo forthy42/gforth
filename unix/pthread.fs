@@ -257,19 +257,19 @@ epiper create_pipe \ create pipe for main task
     r> swap >r  save-task r@ >task !
     pthread-id r@ >task pthread_detach_attr thread_start r> pthread_create drop ; compile-only
 
+: thread-init ( -- )
+    rp@ cell+ backtrace-rp0 !
+    tmp$ $execstr-ptr !  tmp$ off
+    current-input off create-input ;
+
 : activate ( task -- )
-    ]] (activate) up! [[ ; immediate compile-only
+    ]] (activate) up! thread-init [[ ; immediate compile-only
 
 : (pass) ( x1 .. xn n task -- )
     r> swap >r  save-task r@ >task !
     1+ dup cells negate  sp0 r@ >task @ -rot  sp0 r@ >task +!
     sp0 r@ >task @ swap 0 ?DO  tuck ! cell+  LOOP  drop
     pthread-id r@ >task 0 thread_start r> pthread_create drop ; compile-only
-
-: thread-init ( -- )
-    rp@ cell+ backtrace-rp0 !
-    tmp$ $execstr-ptr !  tmp$ off
-    current-input off create-input ;
 
 : pass ( x1 .. xn n task -- )
     \G activates task, and passes n parameters from the data stack
