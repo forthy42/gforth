@@ -699,6 +699,15 @@ AC_TRY_COMPILE(,,ac_nogcse=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-gcse",ac_nogcse=
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_nogcse)
 
+# Try if GCC understands -fwrapv
+
+AC_MSG_CHECKING([if $CC understands -fwrapv])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fwrapv"
+AC_TRY_COMPILE(,,ac_wrapv=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fwrapv",ac_wrapv=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_wrapv)
+
 # Try if GCC understands -fno-strict-aliasing
 AC_MSG_CHECKING([if $CC understands -fno-strict-aliasing])
 CFLAGS_1="$CFLAGS"
