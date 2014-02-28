@@ -540,9 +540,7 @@ End:\" construct).")
 			sub 
 			)) 
 		    mapped)))
-    (let ((result (cons regexp sub-list)))
-      ;(byte-compile 'result)
-      result)))
+    (cons regexp sub-list)))
 
 (defun forth-compile-words ()
   "Compile the the words from `forth-words' and `forth-indent-words' into
