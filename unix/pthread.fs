@@ -168,6 +168,10 @@ c-library pthread
     \c {
     \c   return __sync_fetch_and_add(p, a);
     \c }
+    \c Cell syncswap(Cell a, Cell *p)
+    \c {
+    \c   return __sync_lock_test_and_set(p, a);
+    \c }
 
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
@@ -195,6 +199,7 @@ c-library pthread
     c-function getpid getpid -- n ( -- n ) \ for completion
     c-function pt-pagesize getpagesize -- n ( -- size )
     c-function a+!@ syncadd n a -- n
+    c-function a!@ syncswap n a -- n
     \ c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
