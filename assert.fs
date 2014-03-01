@@ -81,6 +81,7 @@ comp: drop 2>r ]] ELSE [[ 2r> ;
 
 : +db ( "word" -- ) ' >body on ;
 : -db ( "word" -- ) ' >body off ;
+: ~db ( "word" -- ) ' >body dup @ 0= swap ! ;
 
 Variable debug-eval
 

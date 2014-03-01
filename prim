@@ -3051,11 +3051,21 @@ ud = (((DCell)(c_addr[7]) << 56) |
      ((DCell)(c_addr[0])));
 #endif
 
-a!@ ( u1 a_addr -- u2 )	gforth atomic_swap
+!@ ( u1 a_addr -- u2 )	gforth atomic_swap
+""load @v{u2} from @v{a_addr}, and store @v{u1} there, as atomic operation""
 u2 = __sync_lock_test_and_set(a_addr, u1);
 
-a+!@ ( u1 a_addr -- u2 )	gforth atomic_add
++!@ ( u1 a_addr -- u2 )	gforth atomic_add
+""load @v{u2} from @v{a_addr}, and increment this location by @v{u1}, as atomic operation""
 u2 = __sync_fetch_and_add(a_addr, u1);
+
+?!@ ( unew uold a_addr -- uprev )	gforth atomic_cas
+""load @v{uprev} from @v{a_addr}, compare it to @v{uold}, and if equal, store @v{unew} there, as atomic operation""
+uprev = __sync_val_compare_and_swap(a_addr, uold, unew);
+
+barrier ( -- ) gforth
+""Insert a memory barrier""
+__sync_synchronize();
 
 \+
 \g peephole
