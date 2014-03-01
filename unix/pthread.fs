@@ -164,6 +164,11 @@ c-library pthread
     \c   return pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
     \c }
     \c */
+    \c Cell syncadd(Cell a, Cell *p)
+    \c {
+    \c   return __sync_fetch_and_add(p, a);
+    \c }
+
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
@@ -189,6 +194,7 @@ c-library pthread
     c-function wait_read wait_read a n -- n ( pipefd timeout -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
     c-function pt-pagesize getpagesize -- n ( -- size )
+    c-function a+!@ syncadd n a -- n
     \ c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
