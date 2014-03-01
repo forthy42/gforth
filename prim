@@ -3051,6 +3051,12 @@ ud = (((DCell)(c_addr[7]) << 56) |
      ((DCell)(c_addr[0])));
 #endif
 
+a!@ ( u1 a_addr -- u2 )	gforth atomic_swap
+u2 = __sync_lock_test_and_set(a_addr, u1);
+
+a+!@ ( u1 a_addr -- u2 )	gforth atomic_add
+u2 = __sync_fetch_and_add(a_addr, u1);
+
 \+
 \g peephole
 
