@@ -951,7 +951,7 @@ libgforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engi
 libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) libgforth-prof$(EXT) $(MAKELINE-noll)
 
-libgforths: $(ENGINES:%$(EXT)=lib%) $(ENGINES_FAST:%$(EXT)=lib%)
+libgforths: $(ENGINES:%=lib%) $(ENGINES_FAST:%=lib%)
 
 # ------------- additional C primitives
 

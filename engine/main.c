@@ -707,21 +707,23 @@ Cell gforth_go(Xt* ip0)
       /* no rstack overflow or underflow */
       gforth_RP = rp;
       *--gforth_RP = (Cell)saved_ip;
-    }
-    else /* I love non-syntactic ifdefs :-) */
+    } else {
       gforth_RP = signal_return_stack+16;
+    }
 #else  /* !defined(GFORTH_DEBUGGING) */
     debugp(stderr,"\ncaught signal, throwing exception %d\n", throw_code);
     gforth_RP = signal_return_stack+16;
 #endif /* !defined(GFORTH_DEBUGGING) */
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
-    ip0=gforth_header->throw_entry;
+    debugp(stderr,"header=%x, UP=%x\n", gforth_header, gforth_UP);
+    ip0=gforth_UP->throw_entry;
     gforth_SP=signal_data_stack+15;
     gforth_FP=signal_fp_stack;
   }
 #endif
 
+  debugp(stderr,"run Gforth engine with ip=%p\n", ip0);
   result=((Cell)gforth_engine(ip0 sr_call));
   throw_jmp_handler = old_handler;
   return result;
@@ -2405,7 +2407,8 @@ Cell const * gforth_pointers(Cell n)
   case 8: return (Cell *)&throw_jmp_handler;
   case 9: return (Cell *)&gforth_stacks;
   case 10: return (Cell *)&gforth_free_stacks;
-  case 11: return (Cell* )&gforth_main_UP;
+  case 11: return (Cell *)&gforth_main_UP;
+  case 12: return (Cell *)&gforth_go;
   default: return NULL;
   }
 }

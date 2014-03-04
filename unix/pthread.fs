@@ -53,39 +53,27 @@ c-library pthread
     \c }
     \c void *gforth_thread(user_area * t)
     \c {
-    \c   void *x;
+    \c   Cell x;
     \c   int throw_code;
-    \c   jmp_buf throw_jmp_buf;
     \c #ifndef HAS_BACKLINK
     \c   void *(*gforth_pointers)(Cell) = saved_gforth_pointers;
     \c #endif
-    \c   Cell signal_data_stack[24];
-    \c   Cell signal_return_stack[16];
-    \c   Float signal_fp_stack[1];
     \c   void *ip0=(void*)(t->save_task);
-    \c   gforth_SP=(Cell*)(t->sp0)-1;
+    \c   gforth_SP=(Cell*)(t->sp0);
     \c   gforth_RP=(Cell*)(t->rp0);
     \c   gforth_FP=(Float*)(t->fp0);
     \c   gforth_LP=(Address)(t->lp0);
+    \c   gforth_UP=t;
+    \c
+    \c   *--gforth_SP=(Cell)t;
     \c
     \c #if HAVE_MPROBE
     \c   /* mcheck(gfpthread_abortmcheck); */
     \c #endif
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
-    \c 
-    \c   throw_jmp_handler = &throw_jmp_buf;
-    \c   ((Cell*)(t->sp0))[-1]=(Cell)t;
-    \c
-    \c   while((throw_code=setjmp(*(jmp_buf*)throw_jmp_handler))) {
-    \c     signal_data_stack[15]=throw_code;
-    \c     ip0=(void*)(t->throw_entry);
-    \c     gforth_SP=signal_data_stack+15;
-    \c     gforth_RP=signal_return_stack+16;
-    \c     gforth_FP=signal_fp_stack;
-    \c   }
-    \c   x=gforth_engine(ip0);
+    \c   x=gforth_go(ip0);
     \c   pthread_cleanup_pop(1);
-    \c   pthread_exit(x);
+    \c   pthread_exit((void*)x);
     \c }
     \c #ifdef HAS_BACKLINK
     \c void *gforth_thread_p()
@@ -176,6 +164,7 @@ c-library pthread
     \c   return pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
     \c }
     \c */
+
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
@@ -223,20 +212,10 @@ comp: drop ' >body @ postpone Literal ;
 
 epiper create_pipe \ create pipe for main task
 
-: kill-task ( -- )
+:noname ( -- )
     epiper @ ?dup-if epiper off close-file drop  THEN
     epipew @ ?dup-if epipew off close-file drop  THEN  0 (bye) ;
-
-:noname ( -- )
-    [ here throw-entry ! ]
-    first-throw @ 0= IF
-	store-backtrace \ error-stack $off
-    THEN
-    handler @ ?dup-0=-IF
-	>stderr cr ." uncaught thread exception: " .error cr
-	kill-task
-    THEN
-    (throw1) ; drop
+IS kill-task
 
 : NewTask4 ( dsize rsize fsize lsize -- task )
     \G creates a task, each stack individually sized
@@ -245,7 +224,7 @@ epiper create_pipe \ create pipe for main task
     word-pno-size chars r@ pagesize + over - dup holdbufptr r@ >task !
     + dup holdptr r@ >task !  holdend r@ >task !
     epiper r@ >task create_pipe
-    ['] kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
+    action-of kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
     handler r@ >task off
     r> ;
 
@@ -257,19 +236,19 @@ epiper create_pipe \ create pipe for main task
     r> swap >r  save-task r@ >task !
     pthread-id r@ >task pthread_detach_attr thread_start r> pthread_create drop ; compile-only
 
+: thread-init ( -- )
+    rp@ cell+ backtrace-rp0 !
+    tmp$ $execstr-ptr !  tmp$ off
+    current-input off create-input ;
+
 : activate ( task -- )
-    ]] (activate) up! [[ ; immediate compile-only
+    ]] (activate) up! thread-init [[ ; immediate compile-only
 
 : (pass) ( x1 .. xn n task -- )
     r> swap >r  save-task r@ >task !
     1+ dup cells negate  sp0 r@ >task @ -rot  sp0 r@ >task +!
     sp0 r@ >task @ swap 0 ?DO  tuck ! cell+  LOOP  drop
     pthread-id r@ >task 0 thread_start r> pthread_create drop ; compile-only
-
-: thread-init ( -- )
-    rp@ cell+ backtrace-rp0 !
-    tmp$ $execstr-ptr !  tmp$ off
-    current-input off create-input ;
 
 : pass ( x1 .. xn n task -- )
     \G activates task, and passes n parameters from the data stack
