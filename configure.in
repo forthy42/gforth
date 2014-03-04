@@ -708,6 +708,15 @@ AC_TRY_COMPILE(,,ac_wrapv=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fwrapv",ac_wrapv=no)
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_wrapv)
 
+# Try if GCC understands -fchar-unsigned
+
+AC_MSG_CHECKING([if $CC understands -fchar-unsigned])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fchar-unsigned"
+AC_TRY_COMPILE(,,ac_char_unsigned=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fchar-unsigned",ac_char_unsigned=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_char_unsigned)
+
 # Try if GCC understands -fno-strict-aliasing
 AC_MSG_CHECKING([if $CC understands -fno-strict-aliasing])
 CFLAGS_1="$CFLAGS"

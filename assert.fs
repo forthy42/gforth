@@ -75,7 +75,7 @@ variable assert-level ( -- a-addr ) \ gforth
     debug-does>
 comp:  >body
     ]] Literal @ IF [[ [: ]] THEN [[ ;] assert-canary ;
-: )else(  ]] ) ( [[ ;
+: )else(  ]] ) ( [[ ; \ )
 comp: drop 2>r ]] ELSE [[ 2r> ;
 : else( ['] noop assert-canary ; immediate
 
