@@ -711,9 +711,12 @@ useful for building executable application images on Unix, built with
 @itemx -p @i{path}
 Uses @i{path} for searching the image file and Forth source code files
 instead of the default in the environment variable @code{GFORTHPATH} or
-the path specified at installation time (e.g.,
-@file{/usr/local/share/gforth/0.2.0:.}). A path is given as a list of
-directories, separated by @samp{:} (on Unix) or @samp{;} (on other OSs).
+the path specified at installation time and the working directory
+@code{.} (e.g., @file{/usr/local/share/gforth/0.2.0:.}). A path is given
+as a list of directories, separated by @samp{:} (previous versions had
+@samp{;} for other OSes, but since Cygwin now only accepts
+@code{/cygdrive/<letter>}, and we dropped support for OS/2 and MS-DOS,
+it is @samp{:} everywhere).
 
 @cindex --dictionary-size, command-line option
 @cindex -m, command-line option
@@ -1013,8 +1016,10 @@ open/create the history file, @file{.gforth-history}. Default:
 
 @item
 @cindex @code{GFORTHPATH} -- environment variable
-@code{GFORTHPATH} -- specifies the path used when searching for the gforth image file and
-for Forth source-code files.
+@code{GFORTHPATH} -- specifies the path used when searching for the
+gforth image file and for Forth source-code files (usually @samp{.}, the
+current working directory).  Path separator is @samp{:}, a typical path
+would be @file{/usr/local/share/gforth/0.8.0:.}.
 
 @item
 @cindex @code{LANG} -- environment variable
