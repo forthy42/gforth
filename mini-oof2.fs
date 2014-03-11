@@ -1,5 +1,22 @@
 \ Mini-OOF2, using current object+Gforth primitives    09jan12py
 
+\ Copyright (C) 2012 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation, either version 3
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program. If not, see http://www.gnu.org/licenses/.
+
 \ template for methods and ivars
 
 Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
@@ -24,10 +41,10 @@ comp: >body @ cell/ postpone o#exec , ;
 : end-class  ( class methods vars "name" -- )
   , dup , here >r 0 U+DO ['] noop , cell +LOOP
   dup r@ swap >methods @ move  standard:field
-  r> Constant ;
+  r> Value ;
 : >vt ( class "name" -- addr )  ' >body @ + ;
 : :: ( class "name" -- ) >vt @ compile, ;
-0 cells , 0 cells ,  here Constant object
+0 cells , 0 cells ,  here Value object
 
 \ memory allocation
 
