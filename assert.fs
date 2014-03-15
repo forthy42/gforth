@@ -100,6 +100,9 @@ Variable debug-eval
 
 \ timing for profiling
 
+debug: profile(
++db profile(
+
 2Variable timer-tick
 2Variable last-tick
 
@@ -109,7 +112,7 @@ Variable debug-eval
 
 Variable timer-list
 : timer: Create 0. , , here timer-list !@ ,
-  DOES> +t ;
+  DOES> profile( +t )else( drop ) ;
 : map-timer { xt -- }
     timer-list BEGIN  @ dup  WHILE dup >r
 	    cell- cell- xt execute r> REPEAT drop ;
