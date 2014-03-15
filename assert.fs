@@ -97,3 +97,31 @@ Variable debug-eval
 		debug-eval $@ evaluate
 		shift-args
 	REPEAT  THEN ;
+
+\ timing for profiling
+
+2Variable timer-tick
+2Variable last-tick
+
+: 2+! ( d addr -- )  >r r@ 2@ d+ r> 2! ;
+: +t ( addr -- )
+    ntime 2dup last-tick dup 2@ 2>r 2! 2r> d- rot 2+! ;
+
+Variable timer-list
+: timer: Create 0. , , here timer-list !@ ,
+  DOES> +t ;
+: map-timer { xt -- }
+    timer-list BEGIN  @ dup  WHILE dup >r
+	    cell- cell- xt execute r> REPEAT drop ;
+
+: init-timer ( -- )
+    ntime last-tick 2! [: 0. rot 2! ;] map-timer ;
+
+: .times ( -- )
+    [: dup body> >name name>string 1 /string
+	tuck type 8 swap - 0 max spaces ." : "
+	2@ d>f 1n f* f. cr ;] map-timer ;
+
+: !time ( -- ) ntime timer-tick 2! ;
+: @time ( -- delta-f ) ntime timer-tick 2@ d- d>f 1n f* ;
+: .time ( -- ) @time 13 9 6 f.rdp ." s " ;
