@@ -110,3 +110,5 @@ tmp$ $execstr-ptr !
 : $[]map { addr xt -- }
     addr $[]# 0 ?DO  I addr $[]@ xt execute  LOOP ;
 : $[]. ( addr -- ) [: type cr ;] $[]map ;
+: $[]off ( addr -- )
+    dup $[]# 0 ?DO  I over $[] $off  LOOP  $off ;
