@@ -43,6 +43,7 @@ import android.view.SurfaceHolder;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.util.Log;
 import java.lang.Object;
 import java.lang.Runnable;
@@ -70,6 +71,7 @@ public class Gforth
     public Runnable stopgps;
     public Runnable startsensor;
     public Runnable stopsensor;
+    public ProgressDialog progress;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
     private static final String TAG = "Gforth";
@@ -98,11 +100,21 @@ public class Gforth
     }
     ContentView mContentView;
 
+    public void hideProgress() {
+	progress.dismiss();
+    }
+    public void showProgress() {
+	progress = ProgressDialog.show(this, "Unpacking files",
+				       "please wait", true);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ActivityInfo ai;
         String libname = "gforth";
 	gforth=this;
+
+	showProgress();
 
         getWindow().takeSurface(this);
         // getWindow().setFormat(PixelFormat.RGB_565);
