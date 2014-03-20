@@ -145,7 +145,7 @@ void startForth(jniargs * startargs)
   int retvalue;
   int epipe[2];
   JavaVM *vm=startargs->vm;
-  JNIEnv *env=startargs->env;
+  JNIEnv *env;
   JavaVMAttachArgs vmAA = { JNI_VERSION_1_6, "NativeThread", 0 };
 
   pipe(epipe);
@@ -205,7 +205,6 @@ pthread_attr_t * pthread_detach_attr(void)
 
 void JNI_startForth(JNIEnv * env, jobject obj)
 {
-  startargs.env = env;
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
 
