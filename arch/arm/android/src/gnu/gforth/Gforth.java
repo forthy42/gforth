@@ -71,6 +71,8 @@ public class Gforth
     public Runnable stopgps;
     public Runnable startsensor;
     public Runnable stopsensor;
+    public Runnable showprog;
+    public Runnable hideprog;
     public ProgressDialog progress;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
@@ -110,6 +112,9 @@ public class Gforth
 	progress = ProgressDialog.show(this, "Unpacking files",
 				       "please wait", true);
     }
+    public void doneProgress() {
+	progress.setMessage("Done; restart Gforth");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,8 +122,6 @@ public class Gforth
         String libname = "gforth";
 	gforth=this;
 	progress=null;
-
-	showProgress();
 
         getWindow().takeSurface(this);
         // getWindow().setFormat(PixelFormat.RGB_565);
@@ -168,6 +171,16 @@ public class Gforth
 	stopsensor=new Runnable() {
 		public void run() {
 		    sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
+		}
+	    };
+	showprog=new Runnable() {
+		public void run() {
+		    showProgress();
+		}
+	    };
+	hideprog=new Runnable() {
+		public void run() {
+		    doneProgress();
 		}
 	    };
 	startForth();

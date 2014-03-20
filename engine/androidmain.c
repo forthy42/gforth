@@ -86,13 +86,36 @@ int checksha256sum(void)
   return 1;
 }
 
+void post(char * doprog)
+{
+  JNIEnv *env=startargs.env;
+  JavaVM *vm=startargs.vm;
+  jobject clazz=startargs.obj;
+  jclass cls=startargs.cls, handlercls;
+  jfieldID handler, showprog;
+  jmethodID post;
+  
+  (*vm)->AttachCurrentThread(vm, &env, NULL);
+  handlercls=(*env)->FindClass(env, "android/os/Handler");
+  post=(*env)->GetMethodID(env, handlercls, "post", "(Ljava/lang/Runnable;)Z");
+  handler=(*env)->GetFieldID(env, cls, "handler", "Landroid/os/Handler;");
+  showprog=(*env)->GetFieldID(env, cls, doprog, "Ljava/lang/Runnable;");
+  if(showprog) {
+    (*env)->CallBooleanMethod(env, (*env)->GetObjectField(env, clazz, handler),
+			      post, (*env)->GetObjectField(env, clazz, showprog));
+  }
+  (*vm)->DetachCurrentThread(vm);
+}
+
 void unpackFiles()
 {
   int checkdir;
+  post("showprog");
   zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
   checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
   write(checkdir, sha256sum, 64);
   close(checkdir);
+  post("hideprog");
 }
 
 static char * argv[] = { "gforth", "--", "starta.fs" };
@@ -142,17 +165,28 @@ void startForth(jniargs * startargs)
   
   chdir("gforth/home");
 
+  fprintf(stderr, "Starting Gforth...\n");
   fflush(stderr);
   retvalue=gforth_start(argc, argv);
+  fprintf(stderr, "Started, rval=%d\n", retvalue);
+  fflush(stderr);
 
   ainput=gforth_find("ainput");
   acmd=gforth_find("acmd");
   akey=gforth_find("akey");
+
+  fprintf(stderr, "ainput=%p, acmd=%p, akey=%p\n", ainput, acmd, akey);
+  fflush(stderr);
   
   if(retvalue == -56) {
     Xt bootmessage=gforth_find((Char*)"bootmessage");
-    if(bootmessage != 0)
+    if(bootmessage != 0) {
+      fprintf(stderr, "bootmessage=%p\n", bootmessage);
+      fflush(stderr);
       gforth_execute(bootmessage);
+    }
+    fprintf(stderr, "starting gforth_quit\n");
+    fflush(stderr);
     retvalue = gforth_quit();
   }
   exit(retvalue);
