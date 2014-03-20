@@ -74,10 +74,10 @@ int checksha256sum(void)
   char sha256buffer[64];
   int checkread;
 
-  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION, O_RDONLY);
+  checkdir=open("gforth/" PACKAGE_VERSION, O_RDONLY);
   if(checkdir==-1) return 0; // directory not there
   close(checkdir);
-  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION "/sha256sum", O_RDONLY);
+  checkdir=open("gforth/" PACKAGE_VERSION "/sha256sum", O_RDONLY);
   if(checkdir==-1) return 0; // sha256sum not there
   checkread=read(checkdir, sha256buffer, 64);
   close(checkdir);
@@ -86,17 +86,24 @@ int checksha256sum(void)
   return 1;
 }
 
-void startForth(jniargs * startargs)
+void unpackFiles()
 {
-  char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
-  char * argv[] = { "gforth", "--", "starta.fs" };
-  const int argc=3;
-  static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
-  static const char *paths[] = { "--",
-				 "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
-				 "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
-  int retvalue, checkdir, i;
-  int epipe[2];
+  int checkdir;
+  zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
+  checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
+  write(checkdir, sha256sum, 64);
+  close(checkdir);
+}
+
+static char * argv[] = { "gforth", "--", "starta.fs" };
+static const char *paths[] = { "--",
+			       "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
+			       "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
+static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
+
+int checkFiles()
+{
+  int i;
 
   for(i=0; i<=2; i++) {
     argv[1]=paths[i];
@@ -108,16 +115,23 @@ void startForth(jniargs * startargs)
   fprintf(stderr, "Starting %s %s %s\n",
 	  argv[0], argv[1], argv[2]);
 
+  return checksha256sum();
+}
+
+void startForth(jniargs * startargs)
+{
+  char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
+  const int argc=3;
+  int retvalue;
+  int epipe[2];
+
+  if(!checkFiles()) {
+    unpackFiles();
+  }
+
   pipe(epipe);
   pipe(startargs->ke_fd);
   fileno(stdin)=epipe[0];
-
-  if(!checksha256sum()) {
-    zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
-    checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
-    write(checkdir, sha256sum, 64);
-    close(checkdir);
-  }
 
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
   setenv("HOME", "/sdcard/gforth/home", 1);
@@ -187,6 +201,8 @@ void JNI_callForth(JNIEnv * env, jint xt)
   gforth_UP=oldup;
 ;
 }
+
+int checkFile_flag=0;
 
 static JNINativeMethod GforthMethods[] = {
   {"onEventNative", "(ILjava/lang/Object;)V", (void*) JNI_onEventNative},

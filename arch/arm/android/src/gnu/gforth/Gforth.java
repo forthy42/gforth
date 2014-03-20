@@ -101,7 +101,10 @@ public class Gforth
     ContentView mContentView;
 
     public void hideProgress() {
-	progress.dismiss();
+	if(progress!=null) {
+	    progress.dismiss();
+	    progress=null;
+	}
     }
     public void showProgress() {
 	progress = ProgressDialog.show(this, "Unpacking files",
@@ -113,6 +116,7 @@ public class Gforth
         ActivityInfo ai;
         String libname = "gforth";
 	gforth=this;
+	progress=null;
 
 	showProgress();
 
