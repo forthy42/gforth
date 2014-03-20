@@ -91,12 +91,12 @@ void post(char * doprog)
   JNIEnv *env=startargs.env;
   JavaVM *vm=startargs.vm;
   jobject clazz=startargs.obj;
-  jclass cls=startargs.cls, handlercls;
+  jclass cls=(*env)->FindClass(env, "gnu/gforth/Gforth");
+  jclass handlercls=(*env)->FindClass(env, "android/os/Handler");;
   jfieldID handler, showprog;
   jmethodID post;
   
   (*vm)->AttachCurrentThread(vm, &env, NULL);
-  handlercls=(*env)->FindClass(env, "android/os/Handler");
   post=(*env)->GetMethodID(env, handlercls, "post", "(Ljava/lang/Runnable;)Z");
   handler=(*env)->GetFieldID(env, cls, "handler", "Landroid/os/Handler;");
   showprog=(*env)->GetFieldID(env, cls, doprog, "Ljava/lang/Runnable;");
