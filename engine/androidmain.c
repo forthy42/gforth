@@ -89,14 +89,12 @@ int checksha256sum(void)
 void post(char * doprog)
 {
   JNIEnv *env=startargs.env;
-  JavaVM *vm=startargs.vm;
   jobject clazz=startargs.obj;
-  jclass cls=startargs.cls, handlercls;
+  jclass cls=startargs.cls;
+  jclass handlercls=(*env)->FindClass(env, "android/os/Handler");;
   jfieldID handler, showprog;
   jmethodID post;
   
-  (*vm)->AttachCurrentThread(vm, &env, NULL);
-  handlercls=(*env)->FindClass(env, "android/os/Handler");
   post=(*env)->GetMethodID(env, handlercls, "post", "(Ljava/lang/Runnable;)Z");
   handler=(*env)->GetFieldID(env, cls, "handler", "Landroid/os/Handler;");
   showprog=(*env)->GetFieldID(env, cls, doprog, "Ljava/lang/Runnable;");
@@ -104,7 +102,6 @@ void post(char * doprog)
     (*env)->CallBooleanMethod(env, (*env)->GetObjectField(env, clazz, handler),
 			      post, (*env)->GetObjectField(env, clazz, showprog));
   }
-  (*vm)->DetachCurrentThread(vm);
 }
 
 void unpackFiles()
@@ -147,14 +144,20 @@ void startForth(jniargs * startargs)
   const int argc=3;
   int retvalue;
   int epipe[2];
+  JavaVM *vm=startargs->vm;
+  JNIEnv *env=startargs->env;
+  JavaVMAttachArgs vmAA = { JNI_VERSION_1_6, "NativeThread", 0 };
+
+  pipe(epipe);
+  fileno(stdin)=epipe[0];
+
+  (*vm)->AttachCurrentThread(vm, &env, &vmAA);
+  
+  startargs->env = env;
 
   if(!checkFiles()) {
     unpackFiles();
   }
-
-  pipe(epipe);
-  pipe(startargs->ke_fd);
-  fileno(stdin)=epipe[0];
 
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
   setenv("HOME", "/sdcard/gforth/home", 1);
@@ -257,13 +260,15 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
   freopen("/sdcard/gforthout.log", "w+", stdout);
   freopen("/sdcard/gfortherr.log", "w+", stderr);
 
+  pipe(startargs.ke_fd);
+
   startargs.vm = vm;
 
   if((*vm)->GetEnv(vm, (void**)&env, JNI_VERSION_1_6) != JNI_OK)
     return -1;
 
   cls = (*env)->FindClass(env, "gnu/gforth/Gforth");
-  startargs.cls = cls;
+  startargs.cls = (*env)->NewGlobalRef(env, cls);
 
   fprintf(stderr, "Registering native methods\n");
 
