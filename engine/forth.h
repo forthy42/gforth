@@ -129,7 +129,7 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 #define L2U(x)		(((UCell)(x))<<HALFCELL_BITS)
 #define HIGHBIT(x)	(((UCell)(x))>>(CELL_BITS-1))
 
-#define FLAG(b) (-(b))
+#define FLAG(b) (-(Cell)(b))
 #define FILEIO(error)	(FLAG(error) & -37)
 #define FILEEXIST(error)	(FLAG(error) & -38)
 
