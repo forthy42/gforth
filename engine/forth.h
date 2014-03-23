@@ -168,6 +168,7 @@ typedef struct {
 #define DLO(x) (x).lo
 #define DHI_IS(x,y) (x).hi=(y)
 #define DLO_IS(x,y) (x).lo=(y)
+#define D_IS(x,y,z) ({ (x).hi=(y); (x).lo=(z); })
 
 #define UD2D(ud)	({UDCell _ud=(ud); (DCell){_ud.hi,_ud.lo};})
 #define D2UD(d)		({DCell _d1=(d); (UDCell){_d1.hi,_d1.lo};})
@@ -202,6 +203,7 @@ typedef DOUBLE_UCELL_TYPE UDCell;
 /* beware with the assignment: x is referenced twice! */
 #define DHI_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); (x)=_d.d; })
 #define DLO_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.low =(y); (x)=_d.d; })
+#define D_IS(x,y,z) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); _d.cells.low =(z); (x)=_d.d; })
 
 #define UD2D(ud)	((DCell)(ud))
 #define D2UD(d)		((UDCell)(d))
