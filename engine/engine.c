@@ -459,13 +459,10 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 /*  prep_terminal(); */
 #ifdef NO_IP
   goto *(*(Label *)ip0);
-  before_goto:
-  goto *real_ca;
-  after_goto:;
 #else
   SET_IP(ip);
   SUPER_END; /* count the first block, too */
-  FIRST_NEXT;
+  NEXT;
 #endif
 
 #ifdef CPU_DEP3
@@ -473,8 +470,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 #endif
 
 #include PRIM_I
-  after_last: return (Label *)0;
+  after_last: 
   /*needed only to get the length of the last primitive */
-
-  return (Label *)0;
+  FIRST_NEXT;
 }
