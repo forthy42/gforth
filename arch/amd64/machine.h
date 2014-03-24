@@ -89,12 +89,18 @@ explicit register allocation and efforts to stop coalescing.
 #define RPREG asm("%r13")
 #define FPREG asm("%r12")
 #define TOSREG asm("%r14")
-#define SPREG asm("%r15")
-#define IPREG asm("%rbx")
-#if 0
-#define LPREG asm("%rbp") /* doesn't work now */
+#if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__!=6)
+# define SPREG asm("%r15")
+# define IPREG asm("%rbx")
 #endif
+#if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=7)
+#define LPREG asm("%rbp") /* works with GCC 4.7.x */
+#endif
+#if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=8)
+#define FTOSREG asm("%xmm7")
+#else
 #define FTOSREG asm("%xmm8")
+#endif
 #endif
 
 #define GOTO_ALIGN asm(".p2align 4,,7");
