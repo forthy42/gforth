@@ -445,7 +445,7 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
 #else
   SET_IP(ip);
   SUPER_END; /* count the first block, too */
-  FIRST_NEXT;
+  NEXT;
 #endif
 
 #ifdef CPU_DEP3
@@ -453,7 +453,7 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
 #endif
 
 #include PRIM_I
-  after_last: return (Label *)0;
+  after_last:   FIRST_NEXT;
   /*needed only to get the length of the last primitive */
 
   return (Label *)0;
