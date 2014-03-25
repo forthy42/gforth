@@ -15,6 +15,14 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+: spit-file ( buffer-adr u name-adr n -- )
+   r/w create-file throw dup ( fid) >r
+   write-file  throw r>
+   close-file  throw ;
+
+ALSO ASSEMBLER ALIGN
+
+CREATE START
 31 31 31 add,
 0 0 1 add,
 0 1 0 add,
@@ -92,6 +100,8 @@ break,
 0 1 1 ctcz,
 1 0 1 ctcz,
 1 1 1 ctcz,
+\ note that div opcodes are incorrectly disassembled by binutils showing 3
+\ instead of 2 operands (on Debian Wheezy mipsel)
 31 31 div,
 0 1 div,
 1 0 div,
@@ -385,3 +395,51 @@ tlbwr,
 3 5 clo,
 1 3 5 movz,
 1 3 5 movn,
+
+1 1234 2 ldl,
+1 1234 2 ldr,
+1 1234 2 ll,
+1 1234 2 lld,
+1 1234 2 ld,
+1 1234 2 sc,
+1 1234 2 scd,
+1 1234 2 sd,
+
+3 4 tge,
+3 4 tgeu,
+3 4 tlt,
+3 4 tltu,
+3 4 teq,
+3 4 tne,
+
+3 1234 tgei,
+3 1234 tgeiu,
+3 1234 tlti,
+3 1234 tltiu,
+3 1234 teqi,
+3 1234 tnei,
+
+1 2 3 dadd,
+1 2 3 daddu,
+1 2 3 dsub,
+1 2 3 dsubu,
+1 2 dmult,
+1 2 multu,
+1 2 ddiv,
+30 31 ddivu,
+
+1 2 3 dsllv,
+1 2 3 dsrlv,
+1 2 3 dsrav,
+1 2 17 dsll,
+1 2 17 dsrl,
+1 2 17 dsra,
+1 2 17 dsll32,
+1 2 17 dsrl32,
+1 2 17 dsra32,
+
+10 11 rdhwr,
+10 11 seb,
+10 11 wsbh,
+
+START HERE OVER -  s" testasm.bin" spit-file

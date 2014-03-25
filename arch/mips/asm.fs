@@ -41,10 +41,10 @@ $20 constant asm-registers
 1 constant $at
 2 constant $v0
 3 constant $v1
-\ 4 constant $a0 \ commented out to avoid shadowing hex numbers
-\ 5 constant $a1
-\ 6 constant $a2
-\ 7 constant $a3
+4 constant %a0 \ renamed to avoid shadowing hex numbers
+5 constant %a1
+6 constant %a2
+7 constant %a3
 8 constant $t0
 9 constant $t1
 10 constant $t2
@@ -72,6 +72,8 @@ $20 constant asm-registers
 
 $00 constant #asm-special
 $1C 26 lshift constant #asm-special2
+$1F 26 lshift constant #asm-special3
+$20 constant #asm-bshfl
 
 $1F constant asm-bm05
 $3F constant asm-bm06
@@ -126,8 +128,11 @@ $3FFFFFF constant asm-bm1A
 : asm-special ( code1 -- code2 )
     #asm-special asm-funct ;
 
- : asm-special2 ( code1 -- code2 )
+: asm-special2 ( code1 -- code2 )
     #asm-special2 asm-funct ;
+
+: asm-special3 ( code1 -- code2 )
+    #asm-special3 asm-funct ;
 
 \ ***** I-types
 : asm-I-rt,imm ( code -- )
@@ -140,11 +145,16 @@ does> ( rt imm -- )
 does> ( rt uimm -- )
     @ asm-uimm asm-rt l, ;
 
-: asm-I-rs,imm ( code -- )
+: asm-I-rs,rel ( code -- )
     create ,
 does> ( rs imm -- )
     @ asm-rel asm-rs l, ;
 
+: asm-I-rs,imm ( code -- )
+    create ,
+does> ( rs imm -- )
+    @ asm-imm asm-rs l, ;
+ 
 : asm-I-rt,rs,imm ( code -- )
     create ,
 does> ( rt rs imm -- )
@@ -166,6 +176,8 @@ does> ( rt offset rs -- )
     @ asm-rs asm-offset asm-rt l, ;
 
 \ ***** regimm types
+: asm-regimm-rs,rel ( funct -- )
+    $01 asm-op asm-rt asm-I-rs,rel ;
 : asm-regimm-rs,imm ( funct -- )
     $01 asm-op asm-rt asm-I-rs,imm ;
 
@@ -247,7 +259,17 @@ does> ( rs rt addr -- )
     asm-special2 create ,
 does> ( rd rs rt addr -- )
     @ asm-rt asm-rs asm-rd l, ;
- 
+
+: asm-special3-rt,rd ( funct -- )
+    asm-special3 create ,
+does> ( rt rd addr -- )
+    @ asm-rd asm-rt l, ;
+
+: asm-bshfl-rd,rt ( funct -- )
+    #asm-bshfl asm-special3 asm-shamt create ,
+does> ( rt rd addr -- )
+    @ asm-rt asm-rd l, ;
+
 \ ***** copz types 2
 : asm-copz0 ( funct -- )
     $10 $10 asm-op asm-rs asm-funct create ,
@@ -259,8 +281,9 @@ does> ( addr -- )
 does> ( rt rd z addr -- )
     @ swap asm-op or asm-rd asm-rt l, ;
 
-: nop, ( -- )
-    0 l, ;
+: nop, ( -- )  \ Like binutils we're not using opcode 0 for nop any more:
+   \ Can deadlock (old) loongson2f CPUs.
+   $200825 ,  ( 1 1 0 or,) ;
 
 include ./insts.fs
 
