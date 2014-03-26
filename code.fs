@@ -50,7 +50,7 @@ vocabulary assembler ( -- ) \ tools-ext
    \G The FP stack pointer is passed in by providing a reference to a
    \G memory location containing the FP stack pointer and is passed
    \G out by storing the changed FP stack pointer there (if necessary).
-    header  ['] noop vtcopy,
+    header  ['] (abi-code-dummy) vtcopy,
     doabicode: latest !
     defstart init-asm ;
 [endif]
