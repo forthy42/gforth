@@ -396,6 +396,10 @@ $dc4104d2 l, \ 	ld	at,1234(v0)
 $e04104d2 l, \ 	sc	at,1234(v0)
 $f04104d2 l, \ 	scd	at,1234(v0)
 $fc4104d2 l, \ 	sd	at,1234(v0)
+$50220001 l, \ 	beql	at,v0,0x608
+$54220001 l, \ 	bnel	at,v0,0x60c
+$58200001 l, \ 	blezl	at,0x610
+$5c200001 l, \ 	bgtzl	at,0x614
 $00640030 l, \ 	tge	v1,a0
 $00640031 l, \ 	tgeu	v1,a0
 $00640032 l, \ 	tlt	v1,a0
