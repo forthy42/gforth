@@ -80,6 +80,8 @@ does> ( u -- addr )
 $40 disasm-table opc-tab-entry     \ top-level decode table
 $40 disasm-table funct-tab-entry   \ special function table
 $40 disasm-table funct-tab2-entry  \ special2 function table
+$40 disasm-table funct-tab3-entry  \ special3 function table
+$20 disasm-table funct-bshfl-entry  \ BSHFL function table
 $20 disasm-table regimm-tab-entry  \ regim instructions rt table
 $20 disasm-table copz-rs-tab-entry \ COPz instructions rs table
 $20 disasm-table copz-rt-tab-entry \ COPz BC instructions rt table
@@ -114,6 +116,16 @@ definitions
     \ disassemble inst with opcode special2
     dup disasm-funct funct-tab2-entry @ execute ;
 ' disasm-special2 $1C opc-tab-entry ! \ enter it for opcode special
+
+: disasm-special3 ( addr w -- ) \ todo factor out!
+    \ disassemble inst with opcode special3
+    dup disasm-funct funct-tab3-entry @ execute ;
+' disasm-special3 $1F opc-tab-entry ! \ enter it for opcode special
+
+: disasm-bshfl ( addr w -- )
+    \ disassemble inst with opcode special3, BSHFL, function encoded in SA
+    dup disasm-shamt funct-bshfl-entry @ execute ;
+' disasm-bshfl $20 funct-tab3-entry ! \ enter it for function BSHFL
 
 : disasm-regimm ( addr w -- )
     \ disassemble regimm inst
@@ -154,10 +166,15 @@ definitions
     dup disasm-rt .
     disasm-imm disasm-relative . ;
 
-: disasm-I-rs,imm ( addr w -- )
+: disasm-I-rs,rel ( addr w -- )
     dup disasm-rs .
     disasm-imm disasm-relative . ;
 
+: disasm-I-rs,imm ( addr w -- )
+    dup disasm-rs .
+    disasm-imm .
+    drop ;
+ 
 : disasm-rt,rs,imm ( addr w -- )
     dup disasm-rt .
     dup disasm-rs .
@@ -223,6 +240,11 @@ definitions
     dup disasm-copz .
     2drop ;
 
+: disasm-rt,rd ( addr w -- )
+    dup disasm-rt .
+    dup disasm-rd .
+    2drop ;
+
 : disasm-I-imm,z ( addr w -- )
     tuck disasm-imm disasm-relative .
     disasm-copz . ;
@@ -253,7 +275,7 @@ does> ( addr w -- )
 \ all the following words have the stack effect ( u "name" )
 ' disasm-J-target    ' opc-tab-entry 	 define-format asm-J-target
 ' disasm-I-rs,rt,imm ' opc-tab-entry 	 define-format asm-I-rs,rt,imm
-' disasm-I-rs,imm    ' opc-tab-entry 	 define-format asm-I-rs,imm1
+' disasm-I-rs,rel    ' opc-tab-entry 	 define-format asm-I-rs,rel1
 ' disasm-rt,rs,imm   ' opc-tab-entry 	 define-format asm-I-rt,rs,imm
 ' disasm-rt,rs,uimm   ' opc-tab-entry 	 define-format asm-I-rt,rs,uimm
 ' disasm-rt,uimm      ' opc-tab-entry 	 define-format asm-I-rt,uimm
@@ -269,13 +291,16 @@ does> ( addr w -- )
 ' disasm-rd,rs       ' funct-tab2-entry  define-format asm-special2-rd,rs
 ' disasm-rs,rt       ' funct-tab2-entry  define-format asm-special2-rs,rt
 ' disasm-rd,rs,rt    ' funct-tab2-entry  define-format asm-special2-rd,rs,rt
+' disasm-rt,rd       ' funct-tab3-entry  define-format asm-special3-rt,rd
+' disasm-rt,rd       ' funct-bshfl-entry define-format asm-bshfl-rd,rt
+' disasm-I-rs,rel    ' regimm-tab-entry  define-format asm-regimm-rs,rel
 ' disasm-I-rs,imm    ' regimm-tab-entry  define-format asm-regimm-rs,imm
 ' 2drop              ' cp0-tab-entry     define-format asm-copz0
 ' disasm-rt,rd,z     ' copz-rs-tab-entry define-format asm-copz-rt,rd1
 ' disasm-I-imm,z     ' copz-rt-tab-entry define-format asm-copz-imm1
 
-: asm-I-rs,imm ( u1 u2 "name" -- ; compiled code: addr w -- )
-    nip asm-I-rs,imm1 ;
+: asm-I-rs,rel ( u1 u2 "name" -- ; compiled code: addr w -- )
+    nip asm-I-rs,rel1 ;
 
 : asm-copz-rt,rd ( u1 u2 "name" -- )
     drop asm-copz-rt,rd1 ;
