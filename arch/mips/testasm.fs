@@ -412,6 +412,10 @@ tlbwr,
 3 4 teq,
 3 4 tne,
 
+1 2 4 beql,
+1 2 4 bnel,
+1 4 blezl,
+1 4 bgtzl,
 3 1234 tgei,
 3 1234 tgeiu,
 3 1234 tlti,
@@ -441,5 +445,11 @@ tlbwr,
 10 11 rdhwr,
 10 11 seb,
 10 11 wsbh,
+
+1 2 eq if,
+   12 1234 li,
+else,
+   12 4321 li,
+then,
 
 START HERE OVER -  s" testasm.bin" spit-file

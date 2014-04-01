@@ -27,6 +27,11 @@ $10 constant asm-copz-C0
 $00 constant asm-copz-BCF
 $01 constant asm-copz-BCT
 
+\ MIPS1 Instructions that take an immediate argument 
+$00 asm-regimm-rs,rel			bltz,
+$01 asm-regimm-rs,rel			bgez,
+$10 asm-regimm-rs,rel			bltzal,
+$11 asm-regimm-rs,rel			bgezal,
 $04 asm-op asm-I-rs,rt,imm		beq,
 $05 asm-op asm-I-rs,rt,imm		bne,
 $00 $06 asm-op asm-rt asm-I-rs,rel	blez,
@@ -52,19 +57,31 @@ $2a asm-op asm-I-rt,offset,rs		swl,
 $2b asm-op asm-I-rt,offset,rs		sw,
 $2e asm-op asm-I-rt,offset,rs		swr,
 
+\ MIPS2 instructions with immediate argument
+$14 asm-op asm-I-rs,rt,imm		beql,
+$15 asm-op asm-I-rs,rt,imm		bnel,
+$00 $16 asm-op asm-rt asm-I-rs,rel	blezl,
+$00 $17 asm-op asm-rt asm-I-rs,rel	bgtzl,
+$08 asm-regimm-rs,imm			tgei,
+$09 asm-regimm-rs,imm			tgeiu,
+$0a asm-regimm-rs,imm			tlti,
+$0b asm-regimm-rs,imm			tltiu,
+$0c asm-regimm-rs,imm			teqi,
+$0e asm-regimm-rs,imm			tnei,
+$30 asm-op asm-I-rt,offset,rs		ll,
+$38 asm-op asm-I-rt,offset,rs		sc,
+
+\ MIPS3 instructions with immediate argument
 $18 asm-op asm-I-rt,rs,imm		daddi,
 $19 asm-op asm-I-rt,rs,imm		daddiu,
-
 $1a asm-op asm-I-rt,offset,rs		ldl,
 $1b asm-op asm-I-rt,offset,rs		ldr,
-$30 asm-op asm-I-rt,offset,rs		ll,
 $34 asm-op asm-I-rt,offset,rs		lld,
 $37 asm-op asm-I-rt,offset,rs		ld,
-$38 asm-op asm-I-rt,offset,rs		sc,
 $3c asm-op asm-I-rt,offset,rs		scd,
 $3f asm-op asm-I-rt,offset,rs		sd,
 
-
+\ MIPS1 instructions without immediate args (and immediate shifts) 
 $02 asm-op asm-J-target			j,
 $03 asm-op asm-J-target			jal,
 
@@ -76,8 +93,6 @@ $06 asm-special-rd,rt,rs		srlv,
 $07 asm-special-rd,rt,rs		srav,
 $08 asm-special-rs			jr,
 $09 asm-special-rd,rs			jalr, 
-$0a asm-special-rd,rs,rt		movz,
-$0b asm-special-rd,rs,rt		movn,
 $0c asm-special-nothing			syscall,
 $0d asm-special-nothing			break,
 $10 asm-special-rd			mfhi,
@@ -104,13 +119,8 @@ $01 asm-special2-rs,rt			maddu,
 $02 asm-special2-rd,rs,rt		mul,
 $04 asm-special2-rs,rt			msub,
 $05 asm-special2-rs,rt			msubu,
-$20 asm-special2-rd,rs			clz,
-$21 asm-special2-rd,rs			clo,
 
-$3b asm-special3-rt,rd			rdhwr,
-$10 asm-bshfl-rd,rt			seb,
-$02 asm-bshfl-rd,rt			wsbh,
-
+\ MIPS2 instructions without immediate arg
 \ todo: these take an (optional) 10-bit argument CODE for which we need
 \ to add support.
 $30 asm-special-rs,rt			tge,
@@ -120,6 +130,7 @@ $33 asm-special-rs,rt			tltu,
 $34 asm-special-rs,rt			teq,
 $36 asm-special-rs,rt			tne,
 
+\ MIPS3 Instructions without immediate (and immediate shifts)
 $2c asm-special-rd,rs,rt		dadd,
 $2d asm-special-rd,rs,rt		daddu,
 $2e asm-special-rd,rs,rt		dsub,
@@ -139,18 +150,18 @@ $3c asm-special-rd,rt,sa		dsll32,
 $3e asm-special-rd,rt,sa		dsrl32,
 $3f asm-special-rd,rt,sa		dsra32,
 
-$00 asm-regimm-rs,rel			bltz,
-$01 asm-regimm-rs,rel			bgez,
-$10 asm-regimm-rs,rel			bltzal,
-$11 asm-regimm-rs,rel			bgezal,
+\ MIPS4 instructions
+$0a asm-special-rd,rs,rt		movz,
+$0b asm-special-rd,rs,rt		movn,
 
-$08 asm-regimm-rs,imm			tgei,
-$09 asm-regimm-rs,imm			tgeiu,
-$0a asm-regimm-rs,imm			tlti,
-$0b asm-regimm-rs,imm			tltiu,
-$0c asm-regimm-rs,imm			teqi,
-$0e asm-regimm-rs,imm			tnei,
+\ (some) MIPS32 and newer instructions
+$20 asm-special2-rd,rs			clz,
+$21 asm-special2-rd,rs			clo,
+$3b asm-special3-rt,rd			rdhwr,
+$10 asm-bshfl-rd,rt			seb,
+$02 asm-bshfl-rd,rt			wsbh,
 
+\ MIPS1 coprocessor Instructions
 $30 asm-copz-rt,offset,rs		lwcz,
 $38 asm-copz-rt,offset,rs		swcz,
 $31 asm-op asm-I-rt,offset,rs		lwc1,
