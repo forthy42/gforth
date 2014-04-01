@@ -191,6 +191,10 @@ void startForth(jniargs * startargs)
     fprintf(stderr, "starting gforth_quit\n");
     fflush(stderr);
     retvalue = gforth_quit();
+  } else {
+    fprintf(stderr, "booting not successful...\n");
+    fflush(stderr);
+    unlink("../" PACKAGE_VERSION "/sha256sum");
   }
   exit(retvalue);
 }
