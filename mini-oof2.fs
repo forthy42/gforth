@@ -17,6 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+Defer default-method ' noop IS default-method
+
 \ template for methods and ivars
 
 Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
@@ -39,7 +41,7 @@ comp: >body @ cell/ postpone o#exec , ;
 : class ( class -- class methods vars )
   dup >osize 2@ ['] var IS +field ;
 : end-class  ( class methods vars "name" -- )
-  , dup , here >r 0 U+DO ['] noop , cell +LOOP
+  , dup , here >r 0 U+DO ['] default-method defer@ , cell +LOOP
   dup r@ swap >methods @ move  standard:field
   r> Value ;
 : >vt ( class "name" -- addr )  ' >body @ + ;
@@ -84,4 +86,4 @@ dynamic-a to allocater
 : class-resize ( class u -- class' ) over >methods @ umax >r
     class>count r@ 2 cells + umax resize throw
     r@ over cell+ !@ >r 2 cells + r> r> swap
-    U+DO  ['] net2o-crash over I + !  cell +LOOP ;
+    U+DO  ['] default-method defer@ over I + !  cell +LOOP ;
