@@ -15,6 +15,9 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+ALSO ASSEMBLER
+CREATE START
+
 $3FFF820 l,  \ 31 31 31 add,  
 $10020 l,    \ 0 0 1 add,     
 $200020 l,   \ 0 1 0 add,     
@@ -385,4 +388,50 @@ $70A31820 l, \ 3 5 clz,
 $70A31821 l, \ 3 5 clo,
 $65080A l, \ 1 3 5 movz
 $65080B l, \ 1 3 5 movn
+$684104d2 l, \ 	ldl	at,1234(v0)
+$6c4104d2 l, \ 	ldr	at,1234(v0)
+$c04104d2 l, \ 	ll	at,1234(v0)
+$d04104d2 l, \ 	lld	at,1234(v0)
+$dc4104d2 l, \ 	ld	at,1234(v0)
+$e04104d2 l, \ 	sc	at,1234(v0)
+$f04104d2 l, \ 	scd	at,1234(v0)
+$fc4104d2 l, \ 	sd	at,1234(v0)
+$50220001 l, \ 	beql	at,v0,0x608
+$54220001 l, \ 	bnel	at,v0,0x60c
+$58200001 l, \ 	blezl	at,0x610
+$5c200001 l, \ 	bgtzl	at,0x614
+$00640030 l, \ 	tge	v1,a0
+$00640031 l, \ 	tgeu	v1,a0
+$00640032 l, \ 	tlt	v1,a0
+$00640033 l, \ 	tltu	v1,a0
+$00640034 l, \ 	teq	v1,a0
+$00640036 l, \ 	tne	v1,a0
+$046804d2 l, \ 	tgei	v1,1234
+$046904d2 l, \ 	tgeiu	v1,1234
+$046a04d2 l, \ 	tlti	v1,1234
+$046b04d2 l, \ 	tltiu	v1,1234
+$046c04d2 l, \ 	teqi	v1,1234
+$046e04d2 l, \ 	tnei	v1,1234
+$0043082c l, \ 	dadd	at,v0,v1
+$0043082d l, \ 	daddu	at,v0,v1
+$0043082e l, \ 	dsub	at,v0,v1
+$0043082f l, \ 	dsubu	at,v0,v1
+$0022001c l, \ 	dmult	at,v0
+$00220019 l, \ 	multu	at,v0
+$0022001e l, \ 	ddiv	zero,at,v0
+$03df001f l, \ 	ddivu	zero,s8,ra
+$00620814 l, \ 	dsllv	at,v0,v1
+$00620816 l, \ 	dsrlv	at,v0,v1
+$00620817 l, \ 	dsrav	at,v0,v1
+$00020c78 l, \ 	dsll	at,v0,0x11
+$00020c7a l, \ 	dsrl	at,v0,0x11
+$00020c7b l, \ 	dsra	at,v0,0x11
+$00020c7c l, \ 	dsll32	at,v0,0x11
+$00020c7e l, \ 	dsrl32	at,v0,0x11
+$00020c7f l, \ 	dsra32	at,v0,0x11
+$7c0a583b l, \ 	rdhwr	t2,$11
+$7c0b5420 l, \ 	seb	t2,t3
+$7c0b50a0 l, \ 	wsbh	t2,t3
 
+START HERE OVER - discode
+CR

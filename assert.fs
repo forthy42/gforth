@@ -127,4 +127,4 @@ Variable timer-list
 
 : !time ( -- ) ntime timer-tick 2! ;
 : @time ( -- delta-f ) ntime timer-tick 2@ d- d>f 1n f* ;
-: .time ( -- ) @time 13 9 6 f.rdp ." s " ;
+: .time ( -- ) @time 13 9 0 f.rdp ." s " ;

@@ -74,10 +74,10 @@ int checksha256sum(void)
   char sha256buffer[64];
   int checkread;
 
-  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION, O_RDONLY);
+  checkdir=open("gforth/" PACKAGE_VERSION, O_RDONLY);
   if(checkdir==-1) return 0; // directory not there
   close(checkdir);
-  checkdir=open("/sdcard/gforth/" PACKAGE_VERSION "/sha256sum", O_RDONLY);
+  checkdir=open("gforth/" PACKAGE_VERSION "/sha256sum", O_RDONLY);
   if(checkdir==-1) return 0; // sha256sum not there
   checkread=read(checkdir, sha256buffer, 64);
   close(checkdir);
@@ -86,17 +86,44 @@ int checksha256sum(void)
   return 1;
 }
 
-void startForth(jniargs * startargs)
+void post(char * doprog)
 {
-  char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
-  char * argv[] = { "gforth", "--", "starta.fs" };
-  const int argc=3;
-  static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
-  static const char *paths[] = { "--",
-				 "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
-				 "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
-  int retvalue, checkdir, i;
-  int epipe[2];
+  JNIEnv *env=startargs.env;
+  jobject clazz=startargs.obj;
+  jclass cls=startargs.cls;
+  jclass handlercls=(*env)->FindClass(env, "android/os/Handler");;
+  jfieldID handler, showprog;
+  jmethodID post;
+  
+  post=(*env)->GetMethodID(env, handlercls, "post", "(Ljava/lang/Runnable;)Z");
+  handler=(*env)->GetFieldID(env, cls, "handler", "Landroid/os/Handler;");
+  showprog=(*env)->GetFieldID(env, cls, doprog, "Ljava/lang/Runnable;");
+  if(showprog) {
+    (*env)->CallBooleanMethod(env, (*env)->GetObjectField(env, clazz, handler),
+			      post, (*env)->GetObjectField(env, clazz, showprog));
+  }
+}
+
+void unpackFiles()
+{
+  int checkdir;
+  post("showprog");
+  zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
+  checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
+  write(checkdir, sha256sum, 64);
+  close(checkdir);
+  post("hideprog");
+}
+
+static char * argv[] = { "gforth", "--", "starta.fs" };
+static const char *paths[] = { "--",
+			       "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
+			       "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
+static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
+
+int checkFiles()
+{
+  int i;
 
   for(i=0; i<=2; i++) {
     argv[1]=paths[i];
@@ -108,15 +135,28 @@ void startForth(jniargs * startargs)
   fprintf(stderr, "Starting %s %s %s\n",
 	  argv[0], argv[1], argv[2]);
 
+  return checksha256sum();
+}
+
+void startForth(jniargs * startargs)
+{
+  char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
+  const int argc=3;
+  int retvalue;
+  int epipe[2];
+  JavaVM *vm=startargs->vm;
+  JNIEnv *env;
+  JavaVMAttachArgs vmAA = { JNI_VERSION_1_6, "NativeThread", 0 };
+
   pipe(epipe);
-  pipe(startargs->ke_fd);
   fileno(stdin)=epipe[0];
 
-  if(!checksha256sum()) {
-    zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
-    checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
-    write(checkdir, sha256sum, 64);
-    close(checkdir);
+  (*vm)->AttachCurrentThread(vm, &env, &vmAA);
+  
+  startargs->env = env;
+
+  if(!checkFiles()) {
+    unpackFiles();
   }
 
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
@@ -128,18 +168,33 @@ void startForth(jniargs * startargs)
   
   chdir("gforth/home");
 
+  fprintf(stderr, "Starting Gforth...\n");
   fflush(stderr);
   retvalue=gforth_start(argc, argv);
+  fprintf(stderr, "Started, rval=%d\n", retvalue);
+  fflush(stderr);
 
   ainput=gforth_find("ainput");
   acmd=gforth_find("acmd");
   akey=gforth_find("akey");
+
+  fprintf(stderr, "ainput=%p, acmd=%p, akey=%p\n", ainput, acmd, akey);
+  fflush(stderr);
   
   if(retvalue == -56) {
     Xt bootmessage=gforth_find((Char*)"bootmessage");
-    if(bootmessage != 0)
+    if(bootmessage != 0) {
+      fprintf(stderr, "bootmessage=%p\n", bootmessage);
+      fflush(stderr);
       gforth_execute(bootmessage);
+    }
+    fprintf(stderr, "starting gforth_quit\n");
+    fflush(stderr);
     retvalue = gforth_quit();
+  } else {
+    fprintf(stderr, "booting not successful...\n");
+    fflush(stderr);
+    unlink("../" PACKAGE_VERSION "/sha256sum");
   }
   exit(retvalue);
 }
@@ -154,7 +209,6 @@ pthread_attr_t * pthread_detach_attr(void)
 
 void JNI_startForth(JNIEnv * env, jobject obj)
 {
-  startargs.env = env;
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
 
@@ -188,6 +242,8 @@ void JNI_callForth(JNIEnv * env, jint xt)
 ;
 }
 
+int checkFile_flag=0;
+
 static JNINativeMethod GforthMethods[] = {
   {"onEventNative", "(ILjava/lang/Object;)V", (void*) JNI_onEventNative},
   {"onEventNative", "(II)V",                  (void*) JNI_onEventNativeInt},
@@ -207,13 +263,15 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
   freopen("/sdcard/gforthout.log", "w+", stdout);
   freopen("/sdcard/gfortherr.log", "w+", stderr);
 
+  pipe(startargs.ke_fd);
+
   startargs.vm = vm;
 
   if((*vm)->GetEnv(vm, (void**)&env, JNI_VERSION_1_6) != JNI_OK)
     return -1;
 
   cls = (*env)->FindClass(env, "gnu/gforth/Gforth");
-  startargs.cls = cls;
+  startargs.cls = (*env)->NewGlobalRef(env, cls);
 
   fprintf(stderr, "Registering native methods\n");
 

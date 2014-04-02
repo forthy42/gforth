@@ -72,7 +72,7 @@ do
 		    then
 			make
 		    else
-			./configure CFLAGS=$CFLAGS --host=arm-linux-androideabi && make clean && make
+			./configure CFLAGS="$CFLAGS" --host=arm-linux-androideabi && make clean && make all
 		    fi
 		)
 	    done

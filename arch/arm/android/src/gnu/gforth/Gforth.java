@@ -43,6 +43,7 @@ import android.view.SurfaceHolder;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.util.Log;
 import java.lang.Object;
 import java.lang.Runnable;
@@ -70,6 +71,9 @@ public class Gforth
     public Runnable stopgps;
     public Runnable startsensor;
     public Runnable stopsensor;
+    public Runnable showprog;
+    public Runnable hideprog;
+    public ProgressDialog progress;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
     private static final String TAG = "Gforth";
@@ -98,11 +102,26 @@ public class Gforth
     }
     ContentView mContentView;
 
+    public void hideProgress() {
+	if(progress!=null) {
+	    progress.dismiss();
+	    progress=null;
+	}
+    }
+    public void showProgress() {
+	progress = ProgressDialog.show(this, "Unpacking files",
+				       "please wait", true);
+    }
+    public void doneProgress() {
+	progress.setMessage("Done; restart Gforth");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ActivityInfo ai;
         String libname = "gforth";
 	gforth=this;
+	progress=null;
 
         getWindow().takeSurface(this);
         // getWindow().setFormat(PixelFormat.RGB_565);
@@ -152,6 +171,16 @@ public class Gforth
 	stopsensor=new Runnable() {
 		public void run() {
 		    sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
+		}
+	    };
+	showprog=new Runnable() {
+		public void run() {
+		    showProgress();
+		}
+	    };
+	hideprog=new Runnable() {
+		public void run() {
+		    doneProgress();
 		}
 	    };
 	startForth();

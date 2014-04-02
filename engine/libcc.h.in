@@ -82,7 +82,7 @@ gforth_libcc_init(void *(*gforth_pointers_init)(Cell))
 #define gforth_stacks ((user_area *(*)(Cell, Cell, Cell, Cell))gforth_pointers(9))
 #define gforth_free_stacks ((void(*)(user_area*))gforth_pointers(10))
 #define gforth_main_UP *((user_area **)(gforth_pointers(11)))
-#define gforth_go ((void(*)(Xt*))gforth_pointers(12))
+#define gforth_go ((Cell(*)(Xt*))gforth_pointers(12))
 #define GFORTH_ARGS void *(*gforth_pointers)(Cell)
 #endif
 
