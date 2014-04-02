@@ -72,3 +72,16 @@ static-a Value allocater
 
 dynamic-alloc new Constant dynamic-a
 dynamic-a to allocater
+
+\ building blocks for dynamic methods
+
+: class>count ( addr -- addr' u ) >osize dup cell+ @ 2 cells + ;
+: >dynamic ( class -- class' ) class>count save-mem drop 2 cells + ;
+: >static ( class -- class' ) here >r class>count
+    over swap dup allot r@ swap move
+    free throw r> 2 cells + ;
+: >inherit ( class1 class2 -- class' ) >dynamic swap >osize @ over >osize ! ;
+: class-resize ( class u -- class' ) over >methods @ umax >r
+    class>count r@ 2 cells + umax resize throw
+    r@ over cell+ !@ >r 2 cells + r> r> swap
+    U+DO  ['] net2o-crash over I + !  cell +LOOP ;
