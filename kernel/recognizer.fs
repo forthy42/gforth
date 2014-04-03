@@ -31,8 +31,9 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, compile it as literal.
 
-: r:fail  no.extensions ;
+: (r:fail)  no.extensions ;
 ' no.extensions dup >vtable
+' (r:fail) AConstant r:fail
 
 : lit, ( n -- ) postpone Literal ;
 
@@ -41,7 +42,7 @@
 
 : word-recognizer ( addr u -- xt | r:fail )
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
-    dup 0= IF  drop ['] r:fail  THEN ;
+    dup 0= IF  drop r:fail  THEN ;
 
 : r:num ;
 comp: ( n xt -- ) drop postpone Literal ;
@@ -58,7 +59,7 @@ post: ( d xt -- ) >r postpone 2Literal r> post, ;
     IF
 	0> IF  ['] r:2num   ELSE  ['] r:num  THEN  EXIT
     THEN
-    drop ['] r:fail ;
+    drop r:fail ;
 
 \ recognizer stack
 
@@ -86,10 +87,10 @@ Variable forth-recognizer
 : do-recognizer ( addr u rec-addr -- tokens xt )
     dup cell+ swap @ cells bounds ?DO
 	2dup I -rot 2>r
-	perform dup ['] r:fail <>  IF  2rdrop UNLOOP  EXIT  THEN  drop
+	perform dup r:fail <>  IF  2rdrop UNLOOP  EXIT  THEN  drop
 	2r>
     cell +LOOP
-    2drop ['] r:fail ;
+    2drop r:fail ;
 
 \ nested recognizer helper
 

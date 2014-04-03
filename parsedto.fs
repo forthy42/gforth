@@ -22,9 +22,9 @@ comp: drop (comp-to) ;
 post: >r lit, r> post, ;
 
 : to-recognizer ( addr u -- xt r:to | r:fail )
-    2dup s" ->" string-prefix?  0= IF  2drop ['] r:fail  EXIT  THEN
-    2 /string dup 0= IF  2drop ['] r:fail  EXIT  THEN
-    find-name dup 0= IF  drop ['] r:fail  EXIT  THEN
+    2dup s" ->" string-prefix?  0= IF  2drop  r:fail  EXIT  THEN
+    2 /string dup 0= IF  2drop  r:fail  EXIT  THEN
+    find-name dup 0= IF  drop   r:fail  EXIT  THEN
     name>comp drop ['] r:to ;
 
 ' to-recognizer

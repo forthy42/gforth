@@ -177,7 +177,7 @@ si-prefixes count 2/ + Constant zero-exp
 	IF
 	    ['] r:fnumber  EXIT
 	THEN
-	['] r:fail ;
+	r:fail ;
     
     ' fnum-recognizer
     forth-recognizer get-recognizers

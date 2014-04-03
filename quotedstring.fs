@@ -17,6 +17,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+' r:fail >code-address ' bl >code-address <> [IF]
+    ' r:fail Constant r:fail
+[THEN]
+
 : slit,  postpone sliteral ;
 
 : r:string ;
@@ -26,7 +30,7 @@ post: >r slit, r> post, ;
 : string-recognizer ( addr u -- addr u' r:string | r:fail )
     2dup s\" \"" string-prefix?
     IF    drop source drop - 1+ >in !  \"-parse save-mem ['] r:string
-    ELSE  2drop ['] r:fail  THEN ;
+    ELSE  2drop r:fail  THEN ;
 
 ' string-recognizer
 forth-recognizer get-recognizers
