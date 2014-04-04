@@ -173,6 +173,7 @@ si-prefixes count 2/ + Constant zero-exp
     :noname >r postpone Fliteral r> post, ; recognizer: r:fnumber
 
     : fnum-recognizer ( addr u -- float int-table | r:fail )
+	\G recognize floating point numbers
 	prefix-number r:fnumber r:fail rot select ;
     
     ' fnum-recognizer

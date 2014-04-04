@@ -581,6 +581,7 @@ defer ;-hook ( sys2 -- sys1 )
     reveal postpone [ ; immediate restrict
 
 : recognizer: ( int-xt comp-xt post-xt "name" -- )
+    \G create a new recognizer table
     >r >r >r :noname r> compile, postpone ;
     r> set-compiler r> set-postpone  Constant ;
 
