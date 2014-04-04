@@ -168,16 +168,12 @@ si-prefixes count 2/ + Constant zero-exp
 [THEN]
 
 [ifdef] r:fail
-    : r:fnumber ;
-    comp: drop postpone Fliteral ;
-    post: >r postpone Fliteral r> post, ;
+    ' noop
+    :noname drop postpone Fliteral ;
+    :noname >r postpone Fliteral r> post, ; recognizer: r:fnumber
 
     : fnum-recognizer ( addr u -- float int-table | r:fail )
-	prefix-number
-	IF
-	    ['] r:fnumber  EXIT
-	THEN
-	r:fail ;
+	prefix-number r:fnumber r:fail rot select ;
     
     ' fnum-recognizer
     forth-recognizer get-recognizers

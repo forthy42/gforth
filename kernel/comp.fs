@@ -562,22 +562,27 @@ defer ;-hook ( sys2 -- sys1 )
 
 0 Constant defstart
 
+: (noname->comp) ( nt -- nt xt )  ['] compile, ;
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
-    docol,
-    defstart ] :-hook ;
+    docol, defstart ] :-hook ;
 
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
     Header (:noname) ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    noname, here (:noname) ;
+    noname, here (:noname)
+    ['] noop set->int  ['] (noname->comp) set->comp ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook ?struc [compile] exit
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
+
+: recognizer: ( int-xt comp-xt post-xt "name" -- )
+    >r >r >r :noname r> compile, postpone ;
+    r> set-compiler r> set-postpone  Constant ;
 
 \ new interpret/compile:
 

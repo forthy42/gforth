@@ -17,15 +17,15 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: r:to (int-to) ;
-comp: drop (comp-to) ;
-post: >r lit, r> post, ;
+' (int-to)
+:noname drop (comp-to) ;
+:noname >r lit, r> post, ; recognizer: r:to
 
 : to-recognizer ( addr u -- xt r:to | r:fail )
     2dup s" ->" string-prefix?  0= IF  2drop  r:fail  EXIT  THEN
     2 /string dup 0= IF  2drop  r:fail  EXIT  THEN
     find-name dup 0= IF  drop   r:fail  EXIT  THEN
-    name>comp drop ['] r:to ;
+    name>comp drop r:to ;
 
 ' to-recognizer
 forth-recognizer get-recognizers
