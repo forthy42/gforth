@@ -31,8 +31,10 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, compile it as literal.
 
-: r:fail  no.extensions ;
+: (r:fail)  no.extensions ;
 ' no.extensions dup >vtable
+' (r:fail) AConstant r:fail
+\G If a recognizer fails, it returns @code{r:fail}
 
 : lit, ( n -- ) postpone Literal ;
 
@@ -40,42 +42,47 @@
     dup name>comp drop  >namevt @ >vtpostpone perform ;
 
 : word-recognizer ( addr u -- xt | r:fail )
+    \G Searches a word in the wordlist stack
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
-    dup 0= IF  drop ['] r:fail  THEN ;
+    dup 0= IF  drop r:fail  THEN ;
 
-: r:num ;
+: r:num ( n -- n ) ;
 comp: ( n xt -- ) drop postpone Literal ;
 post: ( n xt -- ) >r postpone Literal r> post, ;
 
-: r:2num ;
+: r:2num ( d -- d ) ;
 comp: ( d xt -- ) drop postpone 2Literal ;
 post: ( d xt -- ) >r postpone 2Literal r> post, ;
 
 \ snumber? should be implemented as recognizer stack
 
 : num-recognizer ( addr u -- n/d table | r:fail )
+    \G converts a number to a single/double integer
     snumber?  dup
     IF
 	0> IF  ['] r:2num   ELSE  ['] r:num  THEN  EXIT
     THEN
-    drop ['] r:fail ;
+    drop r:fail ;
 
 \ recognizer stack
 
 $10 Constant max-rec#
 
 : get-recognizers ( rec-addr -- xt1 .. xtn n )
+    \G take a recognizer stack and push the content on the stack
     dup swap @ dup >r cells bounds swap ?DO
 	I @
     cell -LOOP  r> ;
 
 : set-recognizers ( xt1 .. xtn n rec-addr -- )
+    \G set a recognizer stack from content on the stack
     over max-rec# u>= abort" Too many recognizers"
     2dup ! cell+ swap cells bounds ?DO
 	I !
     cell +LOOP ;
 
 Variable forth-recognizer
+\G The system recognizer
 
 ' word-recognizer A, ' num-recognizer A, max-rec# 2 - cells allot
 2 forth-recognizer !
@@ -84,12 +91,13 @@ Variable forth-recognizer
 \ recognizer loop
 
 : do-recognizer ( addr u rec-addr -- tokens xt )
+    \G apply a recognizer stack
     dup cell+ swap @ cells bounds ?DO
 	2dup I -rot 2>r
-	perform dup ['] r:fail <>  IF  2rdrop UNLOOP  EXIT  THEN  drop
+	perform dup r:fail <>  IF  2rdrop UNLOOP  EXIT  THEN  drop
 	2r>
     cell +LOOP
-    2drop ['] r:fail ;
+    2drop r:fail ;
 
 \ nested recognizer helper
 

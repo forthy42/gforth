@@ -17,25 +17,29 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+' r:fail >code-address ' bl >code-address <> [IF]
+    ' r:fail Constant r:fail
+[THEN]
+
 : slit,  postpone sliteral ;
 
-: r:string ;
-comp: drop slit, ;
-post: >r slit, r> post, ;
+' noop
+:noname drop slit, ;
+:noname >r slit, r> post, ; recognizer: r:string
 
 : string-recognizer ( addr u -- addr u' r:string | r:fail )
     2dup s\" \"" string-prefix?
-    IF    drop source drop - 1+ >in !  \"-parse save-mem ['] r:string
-    ELSE  2drop ['] r:fail  THEN ;
+    IF    drop source drop - 1+ >in !  \"-parse save-mem r:string
+    ELSE  2drop r:fail  THEN ;
 
 ' string-recognizer
 forth-recognizer get-recognizers
 1+ forth-recognizer set-recognizers
 
 0 [IF] \ dot-quoted strings, we don't need them
-: slit.  slit, postpone type ;
-
-' type ' slit. ' slit, recognizer: r:."
+' type
+:noname drop slit, postpone type ;
+:noname >r slit, r> post, ; recognizer: r:."
 
 : ."-recognizer  ( addr u -- addr u' r:." | addr u r:fail )
     2dup ".\"" string-prefix?

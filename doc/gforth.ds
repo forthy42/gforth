@@ -1,15 +1,16 @@
 \input texinfo   @c -*-texinfo-*-
 @comment The source is gforth.ds, from which gforth.texi is generated
 
-@iftex
-@internalpagesizes{150mm}{97mm}{-0.666in}{-0.95in}{0in}{0in}{160mm}{100mm}
-@contentsrightmargin=0pt
-@tableindent=0.1in
-@itemindent=0.2in
-@tolerance=700
-@defbodyindent=0.1in
-@lispnarrowing=0pt
-@end iftex
+@c uncomment this if you want a smartphone PDF
+@c iftex
+@c internalpagesizes{150mm}{97mm}{-0.666in}{-0.95in}{0in}{0in}{160mm}{100mm}
+@c contentsrightmargin=0pt
+@c tableindent=0.1in
+@c itemindent=0.2in
+@c tolerance=700
+@c defbodyindent=0.1in
+@c lispnarrowing=0pt
+@c end iftex
 
 @comment TODO: nac29jan99 - a list of things to add in the next edit:
 @comment 1. x-ref all ambiguous or implementation-defined features?
@@ -318,6 +319,7 @@ The Text Interpreter
 * Number Conversion::           
 * Interpret/Compile states::    
 * Interpreter Directives::      
+* Recognizers::
 
 Word Lists
 
@@ -7890,6 +7892,7 @@ doc-#tib
 * Number Conversion::           
 * Interpret/Compile states::    
 * Interpreter Directives::      
+* Recognizers::
 @end menu
 
 @node Input Sources, Number Conversion, The Text Interpreter, The Text Interpreter
@@ -8144,7 +8147,7 @@ Directives}).
 @c  doc-state
 
 
-@node Interpreter Directives,  , Interpret/Compile states, The Text Interpreter
+@node Interpreter Directives,  Recognizers, Interpret/Compile states, The Text Interpreter
 @subsection Interpreter Directives
 @cindex interpreter directives
 @cindex conditional compilation
@@ -8197,6 +8200,37 @@ doc-[AGAIN]
 doc-[WHILE]
 doc-[REPEAT]
 
+@node Recognizers, , Interpreter Directives, The Text Interpreter
+@subsection Recognizers
+@cindex recongizers
+
+The standard Forth text interpreter recognizes the following types of
+tokens: words in the dictionary, integer numbers, and floating point
+numbers.  Defining new types of tokens isn't yet standardized.  Gforth
+provides recognizers to make the text interpreter extensible as well.
+
+Recognizers take a string and return some data and a ``table'' for
+interpreting that data.  Gforth implements that table as xt (which means
+any xt is a valid result of a recognizer), but other Forth systems can
+implement it as actual table, with three xts inside.  The first xt is
+the interpretation/run-time xt, it performs the interpretation semantics
+on the data (usually, this means it just leaves the data on the stack).
+The second xt performs the compilation semantics, it gets the data and
+the run-time semantics xt.  The third xt perfoms the postpone semantics,
+it also gets the data and the run-time semantics xt.  You can use
+@code{post,} to postpone the run-time xt.
+
+Recognizers are organized as stack, so you can arrange the sequence of
+recognizers in the same way as the vocabulary stack.
+
+doc-r:fail
+doc-word-recognizer
+doc-num-recognizer
+doc-fnum-recognizer
+doc-get-recognizer
+doc-set-recognizer
+doc-forth-recognizer
+doc-recognizer:
 
 @c -------------------------------------------------------------
 @node The Input Stream, Word Lists, The Text Interpreter, Words

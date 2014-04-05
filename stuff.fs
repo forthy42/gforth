@@ -189,11 +189,9 @@ AUser CSP
 
 [ifdef] compiler-r
 : postponer-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer
-    [ifdef] recognizer: over [else] dup [then]
+    forth-recognizer do-recognizer dup
     [ s" [[" find-name ] Literal =
-    IF  [ifdef] recognizer: 2drop [else] drop [then]
-	[comp'] ] drop ELSE  ['] >postpone  THEN ;
+    IF  drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
