@@ -70,7 +70,8 @@ static-a Value allocater
 : new ( class -- o )  dup >osize @ cell+
     allocater >o :allocate o> swap over !
     cell+ dup dup cell- @ >osize @ erase ;
-: dispose ( o:o -- )  o cell- allocater >o :free o> ;
+: dispose ( o:o -- )  o cell- dup @ >osize @ cell+ erase
+    allocater >o :free o> ;
 
 dynamic-alloc new Constant dynamic-a
 dynamic-a to allocater
