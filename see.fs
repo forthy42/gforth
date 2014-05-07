@@ -730,8 +730,6 @@ c-extender !
 
 \ user words
 
-set-current
-
 : seecode ( xt -- )
     dup s" Code" .defname
     >code-address
@@ -784,6 +782,10 @@ set-current
 : seefield ( xt -- )
     dup >body ." 0 " ? ." 0 0 "
     s" Field" .defname cr ;
+
+\ user visible words
+
+set-current
 
 : xt-see ( xt -- ) \ gforth
     \G Decompile the definition represented by @i{xt}.

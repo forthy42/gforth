@@ -22,6 +22,8 @@
     swap >r dup >r extend-mem ( to addr3 u1+u2 r: addr2 u2 )
     rot r> r> rot rot chars move ;
 
+get-current also see-voc definitions
+
 defer gdb-addr-sep-char ( -- c )
 
 ',' constant #comma
@@ -42,6 +44,8 @@ defer gdb-addr-sep-char ( -- c )
 
 ' check-gdb-syntax is gdb-addr-sep-char
 
+set-current
+
 : disasm-gdb { addr u -- }
     base @ >r hex
     s\" type mktemp >/dev/null && type gdb >/dev/null && file=`mktemp -t gforthdis.XXXXXXXXXX` && file2=`mktemp -t gforthdis.XXXXXXXXXX` && echo \"set verbose off\nset logging file $file\nset logging on\ndisas " save-mem ( addr u addr1 u1 )
@@ -54,3 +58,5 @@ defer gdb-addr-sep-char ( -- c )
     endif ;
 
 ' disasm-gdb is discode
+
+previous

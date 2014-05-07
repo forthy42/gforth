@@ -19,7 +19,7 @@
 
 \ made extra 26jan97jaw
 
-get-current also see-voc
+get-current also see-voc definitions
 
 : c-loop-lp+!#  c-loop cell+ ;
 : c-?branch-lp+!#  c-?branch cell+ ;

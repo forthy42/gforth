@@ -41,6 +41,8 @@
 
 \ 3DNow instructions have opcode formed by 0F 0F and an imm byte
 
+get-current also see-voc definitions
+
 \ prelude
 : c@+ count ;
 
@@ -713,3 +715,6 @@ s" std," $fd set-noarg
 \ !! fe: Group4
 \ !! ff: Group5
 \ !! 0f: 2-byte opcodes
+
+2drop
+set-current previous
