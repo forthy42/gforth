@@ -25,6 +25,8 @@ VARIABLE dbg-ip     \ instruction pointer for debugger
 
 \ !! move to see?
 
+also see-voc
+
 : save-see-flags ( -- n* cnt )
   C-Output @
   C-Formated @ 1 ;
@@ -205,3 +207,5 @@ VARIABLE Unnest
     break:,
     postpone s"
     postpone (break") ; immediate
+
+previous

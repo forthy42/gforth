@@ -30,6 +30,10 @@ require wordinfo.fs
 
 decimal
 
+Vocabulary see-voc
+
+get-current also see-voc definitions
+
 \ Screen format words                                   16may93jaw
 
 VARIABLE C-Output   1 C-Output  !
@@ -94,9 +98,13 @@ Defer xt-see-xt ( xt -- )
     then
     space ;
 
+dup set-current
+
 Defer discode ( addr u -- ) \ gforth
 \G hook for the disassembler: disassemble u bytes of code at addr
 ' dump IS discode
+
+definitions
 
 : next-head ( addr1 -- addr2 ) \ gforth
     \G find the next header starting after addr1, up to here (unreliable).
@@ -720,6 +728,10 @@ c-extender !
 	c-stop @
     UNTIL drop ;
 
+\ user words
+
+set-current
+
 : seecode ( xt -- )
     dup s" Code" .defname
     >code-address
@@ -859,4 +871,4 @@ c-extender !
     THEN
     name-see ;
 
-
+previous

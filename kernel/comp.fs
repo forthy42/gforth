@@ -404,6 +404,7 @@ comp: drop >body @ postpone useraddr , postpone ! ;
 : u-compile, ( xt -- )  >body @ postpone useraddr , postpone @ ;
 
 : UValue ( "name" -- )
+    \G Define a per-thread value
     Create cell uallot , ['] u-to set-to
     ['] u-compile, set-compiler
   DOES> @ next-task + @ ;

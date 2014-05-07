@@ -19,6 +19,8 @@
 
 require see.fs
 
+also see-voc
+
 : simple-see-word { addr -- }
     xpos off addr hex. addr cell+ addr @ .word drop ;
 
@@ -59,3 +61,4 @@ require see.fs
 \G the inlined primitives (except for the last).
     ' >body dup next-head see-code-range ;
     
+previous

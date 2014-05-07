@@ -19,6 +19,8 @@
 
 \ made extra 26jan97jaw
 
+get-current also see-voc
+
 : c-loop-lp+!#  c-loop cell+ ;
 : c-?branch-lp+!#  c-?branch cell+ ;
 : c-branch-lp+!#   c-branch  cell+ ;
@@ -81,3 +83,5 @@ create c-extend1
 \ extend see-table
 c-extend1 c-extender @ a!
 c-extender !
+
+set-current previous
