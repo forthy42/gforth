@@ -1723,7 +1723,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	}
       }
       transitions(ts[i]);
-      if (!tpa_no_automaton)
+      if (!tpa_noautomaton)
         tpa_state_normalize(ts[i]);
       *tp = ts[i] = lookup_tpa_state(ts[i]);
       if (tpa_trace)
