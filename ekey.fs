@@ -169,6 +169,11 @@ is key
         1 -loop
     drop ;
 
+: inskeys ( addr u -- )
+    dup >r key-buffered 2@ over r> + swap move
+    key-buffered @ >r  key-buffered off
+    unkeys  r> key-buffered +! ;
+
 :noname ( -- flag )
     key-buffered 2@ nip 0<> defers key? or ;
 is key?
