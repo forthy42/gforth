@@ -65,6 +65,7 @@ public class Gforth
     private Gforth gforth;
     private LocationManager locationManager;
     private SensorManager sensorManager;
+    private boolean started=false;
 
     public Handler handler;
     public Runnable startgps;
@@ -150,40 +151,43 @@ public class Gforth
 
     @Override protected void onStart() {
 	super.onStart();
-	locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
-	sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
-	handler=new Handler();
-	startgps=new Runnable() {
-		public void run() {
-		    locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
-		}
-	    };
-	stopgps=new Runnable() {
-		public void run() {
+	if(!started) {
+	    locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
+	    sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
+	    handler=new Handler();
+	    startgps=new Runnable() {
+		    public void run() {
+			locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
+		    }
+		};
+	    stopgps=new Runnable() {
+		    public void run() {
 		    locationManager.removeUpdates((LocationListener)gforth);
-		}
-	    };
-	startsensor=new Runnable() {
-		public void run() {
-		    sensorManager.registerListener((SensorEventListener)gforth, argsensor, (int)argj0);
-		}
-	    };
-	stopsensor=new Runnable() {
-		public void run() {
-		    sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
-		}
-	    };
-	showprog=new Runnable() {
-		public void run() {
-		    showProgress();
-		}
-	    };
-	hideprog=new Runnable() {
-		public void run() {
-		    doneProgress();
-		}
-	    };
-	startForth();
+		    }
+		};
+	    startsensor=new Runnable() {
+		    public void run() {
+			sensorManager.registerListener((SensorEventListener)gforth, argsensor, (int)argj0);
+		    }
+		};
+	    stopsensor=new Runnable() {
+		    public void run() {
+			sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
+		    }
+		};
+	    showprog=new Runnable() {
+		    public void run() {
+			showProgress();
+		    }
+		};
+	    hideprog=new Runnable() {
+		    public void run() {
+			doneProgress();
+		    }
+		};
+	    startForth();
+	    started=true;
+	}
     }
    
     @Override
