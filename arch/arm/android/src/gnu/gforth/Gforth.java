@@ -106,7 +106,6 @@ public class Gforth
     static class MyInputConnection extends BaseInputConnection {
 	private SpannableStringBuilder mEditable;
 	private ContentView mView;
-	private String mtext="";
 	
 	public MyInputConnection(View targetView, boolean fullEditor) {
 	    super(targetView, fullEditor);
@@ -116,27 +115,17 @@ public class Gforth
 	public Editable getEditable() {
 	    if (mEditable == null) {
 		mEditable = (SpannableStringBuilder) Editable.Factory.getInstance()
-		    .newEditable("Placeholder");
+		    .newEditable("Gforth Terminal");
 	    }
 	    return mEditable;
 	}
-	
+
 	public boolean commitText(CharSequence text, int newCursorPosition) {
-	    if(mtext.length()>0) {
-		String delete=mtext.replaceAll(".", "\b");
-		mView.mActivity.onEventNative(12, delete);
-	    }
 	    mView.mActivity.onEventNative(12, text.toString());
-	    mtext="";
 	    return true;
 	}
 	public boolean setComposingText(CharSequence text, int newCursorPosition) {
-	    if(mtext.length()>0) {
-		String delete=mtext.replaceAll(".", "\b");
-		mView.mActivity.onEventNative(12, delete);
-	    }
-	    mtext=text.toString();
-	    mView.mActivity.onEventNative(12, mtext);
+	    mView.mActivity.onEventNative(13, text.toString());
 	    return true;
 	}
 	public boolean commitCompletion(CompletionInfo text) {
@@ -149,6 +138,7 @@ public class Gforth
         Gforth mActivity;
 	InputMethodManager mManager;
 	EditorInfo moutAttrs;
+	MyInputConnection mInputConnection;
 
         public ContentView(Gforth context) {
             super(context);
@@ -171,13 +161,14 @@ public class Gforth
 	@Override
 	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
 	    moutAttrs=outAttrs;
-	    outAttrs.inputType = InputType.TYPE_CLASS_TEXT;
-	    return new MyInputConnection(this, true);
+	    outAttrs.inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+	    mInputConnection = new MyInputConnection(this, true);
+	    return mInputConnection;
 	}
 	@Override
 	public void onSizeChanged(int w, int h, int oldw, int oldh) {
-	    mActivity.onEventNative(13, w);
-	    mActivity.onEventNative(14, h);
+	    mActivity.onEventNative(14, w);
+	    mActivity.onEventNative(15, h);
 	}
 	@Override
 	public boolean dispatchKeyEvent (KeyEvent event) {
