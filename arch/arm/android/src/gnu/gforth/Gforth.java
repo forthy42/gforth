@@ -122,15 +122,19 @@ public class Gforth
 	}
 	
 	public boolean commitText(CharSequence text, int newCursorPosition) {
-	    String delete=mtext.replaceAll(".", "\b");
-	    mView.mActivity.onEventNative(12, delete);
+	    if(mtext.length()>0) {
+		String delete=mtext.replaceAll(".", "\b");
+		mView.mActivity.onEventNative(12, delete);
+	    }
 	    mView.mActivity.onEventNative(12, text.toString());
 	    mtext="";
 	    return true;
 	}
 	public boolean setComposingText(CharSequence text, int newCursorPosition) {
-	    String delete=mtext.replaceAll(".", "\b");
-	    mView.mActivity.onEventNative(12, delete);
+	    if(mtext.length()>0) {
+		String delete=mtext.replaceAll(".", "\b");
+		mView.mActivity.onEventNative(12, delete);
+	    }
 	    mtext=text.toString();
 	    mView.mActivity.onEventNative(12, mtext);
 	    return true;
