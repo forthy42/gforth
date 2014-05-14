@@ -42,6 +42,13 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
+import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.BaseInputConnection;
+import android.view.inputmethod.InputMethodManager;
+import android.text.InputType;
+import android.text.SpannableStringBuilder;
+import android.text.Editable;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.util.Log;
@@ -84,6 +91,7 @@ public class Gforth
     public native void callForth(int xt); // !! use long for 64 bits !!
     public native void startForth();
 
+    // own subclasses
     public class RunForth implements Runnable {
 	int xt;
 	RunForth(int initxt) {
@@ -94,12 +102,94 @@ public class Gforth
 	}
     }
 
+    static class MyInputConnection extends BaseInputConnection {
+	private SpannableStringBuilder mEditable;
+	private ContentView mView;
+	
+	public MyInputConnection(View targetView, boolean fullEditor) {
+	    super(targetView, fullEditor);
+	    mView = (ContentView) targetView;
+	}
+	
+	public Editable getEditable() {
+	    if (mEditable == null) {
+		mEditable = (SpannableStringBuilder) Editable.Factory.getInstance()
+		    .newEditable("Placeholder");
+	    }
+	    return mEditable;
+	}
+	
+	public boolean commitText(CharSequence text, int newCursorPosition) {
+	    mEditable.append(text);
+	    mView.mActivity.onEventNative(12, text.toString());
+	    return true;
+	}
+    }
+
     static class ContentView extends View {
         Gforth mActivity;
+	InputMethodManager mManager;
+	EditorInfo moutAttrs;
 
-        public ContentView(Context context) {
+        public ContentView(Gforth context) {
             super(context);
+	    mActivity=context;
+	    mManager = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+	    setFocusable(true);
+	    setFocusableInTouchMode(true);
         }
+	public void showIME() {
+	    mManager.showSoftInput(this, 0);
+	}
+	public void hideIME() {
+	    mManager.hideSoftInputFromWindow(getWindowToken(), 0);
+	}
+
+	@Override
+	public boolean onCheckIsTextEditor () {
+	    return true;
+	}
+	@Override
+	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
+	    moutAttrs=outAttrs;
+	    outAttrs.inputType = InputType.TYPE_NULL;
+	    return new MyInputConnection(this, true);
+	}
+	@Override
+	public void onSizeChanged(int w, int h, int oldw, int oldh) {
+	    mActivity.onEventNative(13, w);
+	    mActivity.onEventNative(14, h);
+	}
+	@Override
+	public boolean dispatchKeyEvent (KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	}
+	@Override
+	public boolean onKeyDown (int keyCode, KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	}
+	@Override
+	public boolean onKeyUp (int keyCode, KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	}
+	@Override
+	public boolean onKeyMultiple (int keyCode, int repeatCount, KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	}
+	@Override
+	public boolean onKeyLongPress (int keyCode, KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	}
+	/* @Override
+	public boolean onKeyPreIme (int keyCode, KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	    } */
     }
     ContentView mContentView;
 
@@ -117,6 +207,13 @@ public class Gforth
 	progress.setMessage("Done; restart Gforth");
     }
 
+    public void showIME() {
+	mContentView.showIME();
+    }
+    public void hideIME() {
+	mContentView.hideIME();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ActivityInfo ai;
@@ -130,8 +227,8 @@ public class Gforth
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
+
         mContentView = new ContentView(this);
-        mContentView.mActivity = this;
         setContentView(mContentView);
         mContentView.requestFocus();
         mContentView.getViewTreeObserver().addOnGlobalLayoutListener(this);
@@ -192,6 +289,26 @@ public class Gforth
    
     @Override
     public boolean dispatchKeyEvent (KeyEvent event) {
+	onEventNative(0, event);
+	return true;
+    }
+    @Override
+    public boolean onKeyDown (int keyCode, KeyEvent event) {
+	onEventNative(0, event);
+	return true;
+    }
+    @Override
+    public boolean onKeyUp (int keyCode, KeyEvent event) {
+	onEventNative(0, event);
+	return true;
+    }
+    @Override
+    public boolean onKeyMultiple (int keyCode, int repeatCount, KeyEvent event) {
+	onEventNative(0, event);
+	return true;
+    }
+    @Override
+    public boolean onKeyLongPress (int keyCode, KeyEvent event) {
 	onEventNative(0, event);
 	return true;
     }
