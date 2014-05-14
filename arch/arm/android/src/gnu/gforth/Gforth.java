@@ -46,6 +46,7 @@ import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.InputMethodManager;
+import android.view.inputmethod.CompletionInfo;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
 import android.text.Editable;
@@ -105,6 +106,7 @@ public class Gforth
     static class MyInputConnection extends BaseInputConnection {
 	private SpannableStringBuilder mEditable;
 	private ContentView mView;
+	private String mtext="";
 	
 	public MyInputConnection(View targetView, boolean fullEditor) {
 	    super(targetView, fullEditor);
@@ -120,7 +122,20 @@ public class Gforth
 	}
 	
 	public boolean commitText(CharSequence text, int newCursorPosition) {
-	    mEditable.append(text);
+	    String delete=mtext.replaceAll(".", "\b");
+	    mView.mActivity.onEventNative(12, delete);
+	    mView.mActivity.onEventNative(12, text.toString());
+	    mtext="";
+	    return true;
+	}
+	public boolean setComposingText(CharSequence text, int newCursorPosition) {
+	    String delete=mtext.replaceAll(".", "\b");
+	    mView.mActivity.onEventNative(12, delete);
+	    mtext=text.toString();
+	    mView.mActivity.onEventNative(12, mtext);
+	    return true;
+	}
+	public boolean commitCompletion(CompletionInfo text) {
 	    mView.mActivity.onEventNative(12, text.toString());
 	    return true;
 	}
@@ -152,7 +167,7 @@ public class Gforth
 	@Override
 	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
 	    moutAttrs=outAttrs;
-	    outAttrs.inputType = InputType.TYPE_NULL;
+	    outAttrs.inputType = InputType.TYPE_CLASS_TEXT;
 	    return new MyInputConnection(this, true);
 	}
 	@Override
