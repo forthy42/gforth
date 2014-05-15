@@ -120,16 +120,48 @@ public class Gforth
 	    return mEditable;
 	}
 
-	public boolean commitText(CharSequence text, int newCursorPosition) {
-	    mView.mActivity.onEventNative(12, text.toString());
+	public boolean commitText(CharSequence text, int newcp) {
+	    if(text != null) {
+		mView.mActivity.onEventNative(12, text.toString());
+	    } else {
+		mView.mActivity.onEventNative(12, 0);
+	    }
 	    return true;
 	}
-	public boolean setComposingText(CharSequence text, int newCursorPosition) {
-	    mView.mActivity.onEventNative(13, text.toString());
+	public boolean setComposingText(CharSequence text, int newcp) {
+	    if(text != null) {
+		mView.mActivity.onEventNative(13, text.toString());
+	    } else {
+		mView.mActivity.onEventNative(13, "");
+	    }
+	    return true;
+	}
+	public boolean finishComposingText () {
+	    mView.mActivity.onEventNative(12, 0);
 	    return true;
 	}
 	public boolean commitCompletion(CompletionInfo text) {
-	    mView.mActivity.onEventNative(12, text.toString());
+	    if(text != null) {
+		mView.mActivity.onEventNative(12, text.toString());
+	    } else {
+		mView.mActivity.onEventNative(12, 0);
+	    }
+	    return true;
+	}
+	public boolean deleteSurroundingText (int before, int after) {
+	    mView.mActivity.onEventNative(11, "deleteSurroundingText");
+	    mView.mActivity.onEventNative(10, before);
+	    mView.mActivity.onEventNative(10, after);
+	    return true;
+	}
+	public boolean setComposingRegion (int start, int end) {
+	    mView.mActivity.onEventNative(11, "setComposingRegion");
+	    mView.mActivity.onEventNative(10, start);
+	    mView.mActivity.onEventNative(10, end);
+	    return true;
+	}
+	public boolean sendKeyEvent (KeyEvent event) {
+	    mView.mActivity.onEventNative(0, event);
 	    return true;
 	}
     }
@@ -162,6 +194,9 @@ public class Gforth
 	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
 	    moutAttrs=outAttrs;
 	    outAttrs.inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+	    outAttrs.initialSelStart = 1;
+	    outAttrs.initialSelEnd = 1;
+	    outAttrs.packageName = "gnu.gforth";
 	    mInputConnection = new MyInputConnection(this, true);
 	    return mInputConnection;
 	}
