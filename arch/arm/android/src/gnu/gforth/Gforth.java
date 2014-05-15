@@ -287,6 +287,7 @@ public class Gforth
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException("Error getting activity info", e);
         }
+	Log.v(TAG, "open library: " + libname);
 	System.loadLibrary(libname);
 	super.onCreate(savedInstanceState);
     }
