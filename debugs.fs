@@ -137,3 +137,17 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 \G turn on line tracing
 : -ltrace ['] noop is before-line ;
 \G turn off line tracing
+
+\ view/locate
+
+require string.fs
+
+: view ( "name" -- ) \ gforth
+    \G tell the editor to go to the source of a word
+    \G uses emacs; so you have to do M-x server-start in Emacs,
+    \G and have Forth-mode loaded.  This will ask for the tags file
+    \G on the first invocation
+    [: ." emacsclient -e '(forth-find-tag " '"' emit
+	parse-name type '"' emit ." )'" ;] $tmp system ;
+
+' view alias locate \ forth inc
