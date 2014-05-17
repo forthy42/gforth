@@ -1723,7 +1723,8 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	}
       }
       transitions(ts[i]);
-      tpa_state_normalize(ts[i]);
+      if (!tpa_noautomaton)
+        tpa_state_normalize(ts[i]);
       *tp = ts[i] = lookup_tpa_state(ts[i]);
       if (tpa_trace)
 	fprintf(stderr, "%ld %ld lb_table_entries\n", lb_labeler_steps, lb_labeler_dynprog);
