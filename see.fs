@@ -362,6 +362,9 @@ VARIABLE C-Pass
 \	maxaligned /does-handler + ; \ !! no longer needed for non-cross stuff
 [THEN]
 
+: c># ( n -- addr u ) dup abs 0 <# #S rot sign #> ;
+: c-. ( n -- ) c># 0 .string bl cemit ;
+
 : c-lit ( addr1 -- addr2 )
     dup @ dup body> dup cfaligned over = swap in-dictionary? and if
 	( addr1 addr1@ )
@@ -392,7 +395,7 @@ VARIABLE C-Pass
 	dup >name dup IF
 	    nip ." ['] " name>string
 	ELSE
-	    drop dup abs 0 <# #S rot sign #>
+	    drop c>#
 	THEN
 	0 .string bl cemit
     else  drop  then
@@ -400,7 +403,7 @@ VARIABLE C-Pass
 
 : c-lit+ ( addr1 -- addr2 )
     Display? if
-	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
+	dup @ c-.
 	s" + " 0 .string
     endif
     cell+ ;
@@ -630,6 +633,27 @@ VARIABLE C-Pass
     cell+ ;
 [THEN]
 
+[IFDEF] u#exec
+    Create u#outs ' type , ' emit , ' cr , ' form ,
+    ' page , ' at-xy , ' at-deltaxy , ' attr! ,
+    Create u#ins  ' key , ' key? ,
+
+    Create u#execs
+    ' type >body cell+ @ , u#outs ,
+    ' key  >body cell+ @ , u#ins ,
+    0 ,                    0 ,
+    
+    : c-u#exec ( addr -- addr' )
+	dup @ u#execs  BEGIN  dup @  WHILE
+		2dup @ = IF
+		    cell+ @ >r
+		    drop cell+ dup @ cells r> + @
+		    >name name>string Com# .string bl cemit  cell+
+		    EXIT  THEN
+	    2 cells +  REPEAT  2drop
+	." u#exec " dup @ c-. cell+ dup @ c-. cell+ ;
+[THEN]
+
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
 		' does-exec A,	    ' c-callxt A,
@@ -661,6 +685,7 @@ CREATE C-Table
 [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded
 [IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
+	        ' u#exec A,         ' c-u#exec A,
         	0 ,		here 0 ,
 
 avariable c-extender
