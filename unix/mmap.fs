@@ -27,6 +27,14 @@ c-library mmap
     c-function madvise madvise a n n -- n ( addr len advice -- r )
     c-function mprotect mprotect a n n -- n ( addr len prot -- r )
 
+    c-function mlock mlock a n -- n ( addr len -- r )
+    c-function munlock munlock a n -- n ( addr len -- r )
+
+    \c #include <errno.h>
+    warnings @ warnings off
+    c-value errno errno -- n ( -- value )
+    warnings !
+
 e? os-type s" linux" string-prefix? [IF]
     c-function mremap mremap a n n n -- a ( addr len newlen flags -- addr' )
     e? os-type s" linux-gnu" str= [IF]
@@ -93,16 +101,25 @@ getpagesize constant pagesize
 : >pagealign ( addr -- p-addr )
     pagesize 1- + pagesize negate and ;
 
+[IFUNDEF] ?ior
+    : ?ior ( r -- )
+	\G use errno to generate throw when failing
+	IF  -512 errno - throw  THEN ;
+[THEN]
+
 : alloc+guard ( len -- addr )
     >pagealign dup >r pagesize +
     0 swap PROT_RWX
     [ MAP_PRIVATE MAP_ANONYMOUS or ]L 0 0 mmap
-    dup r> + pagesize PROT_NONE mprotect drop ;
+    dup 0= ?ior
+    dup r> + pagesize PROT_NONE mprotect ?ior ;
+: alloc+lock ( len -- addr )
+    >pagealign dup >r alloc+guard dup r> mlock ?ior ;
 
 : free+guard ( addr len -- )
-    >pagealign pagesize + munmap drop ;
+    >pagealign pagesize + munmap ?ior ;
 
 : clearpages ( addr len -- ) >pagealign
-    2dup munmap drop
+    2dup munmap ?ior
     PROT_RWX
-    [ MAP_PRIVATE MAP_ANONYMOUS or MAP_FIXED or ]L 0 0 mmap drop ;
+    [ MAP_PRIVATE MAP_ANONYMOUS or MAP_FIXED or ]L 0 0 mmap 0= ?ior ;
