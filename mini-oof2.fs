@@ -93,7 +93,7 @@ dynamic-a to allocater
 
 :noname ( object xt -- )  swap >o execute o> ;
 :noname ( xt table -- )  postpone >o drop compile, postpone o> ;
-:noname swap lit, lit, postpone compile, ; recognizer: r:moof2
+:noname ( xt table -- )  swap lit, post, ; recognizer: r:moof2
 
 : moof2-recognizer ( addr u -- xt r:moof2 | r:fail )
     2dup s" ." string-prefix?
