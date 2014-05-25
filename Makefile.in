@@ -658,7 +658,20 @@ hpux-workaround:
 #hard to generate).
 #we rebuild gforth.fi, because it contains some path names.
 #we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
-install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim installdirs @libinstall@ gforth.fi
+install:
+		$(MAKE) preinstall
+		$(MAKE) installnodep
+		$(MAKE) postinstall
+
+preinstall:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim @libinstall@ gforth.fi
+		-$(RM) gforth.fi
+		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(subst $(package),,$(libccdir)) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		$(MAKE) install.TAGS
+
+postinstall:
+		$(RM) install.TAGS gforth.fi
+
+installnodep:	installdirs
 		$(NORMAL_INSTALL)
 		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
 		-$(RM) $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
@@ -685,16 +698,12 @@ install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim
 			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)/$$i; \
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
-		-$(RM) gforth.fi
-		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(subst $(package),,$(libccdir)) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 		$(INSTALL_DATA) include/gforth$(ARCH)/$(VERSION)/* $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
 		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf`basename $$i .fs`.la $(DESTDIR)$(libccdir)libgf`basename $$i .fs`.la; \
 		done; fi
-		$(MAKE) install.TAGS
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)/TAGS
-		$(RM) install.TAGS gforth.fi
 		$(POST_INSTALL)
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/vmgen.info
