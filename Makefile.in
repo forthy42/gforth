@@ -359,6 +359,19 @@ ARCHS =	\
 	arch/arm/machine.h \
 	arch/arm/cacheflush0.c \
 	arch/arm/cacheflush-linux.c \
+	arch/arm/android/AndroidManifest.xml.in \
+	arch/arm/android/config.sh \
+	arch/arm/android/build.sh \
+	arch/arm/android/starta.fs \
+	arch/arm/android/build.xml \
+	arch/arm/android/project.properties \
+	arch/arm/android/res/drawable-hdpi/ic_launcher.png \
+	arch/arm/android/res/drawable-ldpi/ic_launcher.png \
+	arch/arm/android/res/drawable-mdpi/ic_launcher.png \
+	arch/arm/android/res/drawable-xhdpi/ic_launcher.png \
+	arch/arm/android/res/values/strings.xml \
+	arch/arm/android/src/gnu/gforth/Gforth.java \
+	arch/arm/ev3/config.sh \
 	arch/ia64/machine.h \
 	arch/ia64/flush_icache_block.c \
 	arch/amd64/machine.h \

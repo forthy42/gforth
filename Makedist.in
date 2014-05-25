@@ -85,10 +85,10 @@ dhtmldist:	html
 #a binary distribution contains the complete source distribution,
 # the objects, the executable and the links. the objects are there for making
 # make happy.
-dbindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
+dbindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ gforth.fi $(DOCDIST) $(BINONLYDIST)
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
+		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ gforth.fi $(DOCDIST) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
 		-$(STRIP) gforth-$(VERSION){,/engine}/gforth*$(EXE)
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).bin.@host@.tar.gz
 
@@ -103,10 +103,10 @@ distfiles:
 #all the binonly packages you are interested in on the disk. The user
 #then just has to unpack the source and his favourite binonly into the
 #same directory and has a full binary distribution.
-dbinonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ $(DOCDIST) $(BINONLYDIST)
+dbinonlydist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ gforth.fi $(DOCDIST) $(BINONLYDIST)
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
-		$(TAR) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
+		$(TAR) $(BINONLYDIST) gforth.fi | (cd gforth-$(VERSION); tar xf -)
 		$(STRIP) gforth-$(VERSION)/gforth$(EXE)
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).binonly.@host@.tar.gz
 
