@@ -38,8 +38,8 @@ decimal
 
 has? OS [IF]
 : >stderr ( -- )
-    r> outfile-id >r debug-fid uto outfile-id
-    >exec  r> uto outfile-id ;
+    r> op-vector @ >r debug-vector @ op-vector !
+    >exec  r> op-vector ! ;
 [THEN]
 
 : error$ ( n -- addr u ) \ gforth

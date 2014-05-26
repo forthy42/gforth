@@ -87,6 +87,14 @@ VARIABLE Attr   -1 Attr !
 
 ' (Attr!) IS Attr!
 
+[IFDEF] debug-out
+    debug-out op-vector !
+    
+    ' (Attr!) IS Attr!
+    
+    default-out op-vector !
+[THEN]
+
 : BlackSpace    Attr @ dup BG> Black =
                 IF drop space
                 ELSE 0 attr! space attr! THEN ;

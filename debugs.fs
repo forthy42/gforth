@@ -58,13 +58,9 @@ stderr value debug-fid ( -- fid )
 
 : .debugline-directed ( nfile nline -- )
     op-vector @ { oldout }
-    try
-	default-out op-vector !
-	['] .debugline debug-fid outfile-execute
-	0
-    restore
-	oldout op-vector !
-    endtry
+    debug-vector @ op-vector !
+    ['] .debugline catch
+    oldout op-vector !
     throw ;
 
 : ~~ ( -- ) \ gforth tilde-tilde

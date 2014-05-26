@@ -205,20 +205,6 @@ Create prefix-found  0 , 0 ,
 
 require utf-8.fs
 
-[IFUNDEF] #esc  27 Constant #esc  [THEN]
-
-[IFUNDEF] at-deltaxy  Defer at-deltaxy [THEN]
-: vt100-at-deltaxy ( dx dy -- )
-    over 0< over 0= and IF  drop abs backspaces  EXIT  THEN
-    base @ >r decimal
-    ?dup IF
-	#esc emit '[ emit  dup abs 0 .r 0< IF  'A  ELSE  'B  THEN  emit
-    THEN
-    ?dup IF
-	#esc emit '[ emit  dup abs 0 .r 0< IF  'D  ELSE  'C  THEN  emit
-    THEN  r> base ! ;
-' vt100-at-deltaxy IS at-deltaxy
-
 \ : cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
 \ : at-xy? ( -- x y )
 \     key? drop \ make sure prep_terminal() is executed
