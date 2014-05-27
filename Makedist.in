@@ -87,7 +87,6 @@ dhtmldist:	html
 # the objects, the executable and the links. the objects are there for making
 # make happy.
 dbindist:	$(SOURCES) $(FORTH_GEN0) @KERNEL@ gforth.fi $(DOCDIST) $(BINONLYDIST) build-libcc-named
-		$(MAKE) preinstall
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
 		$(TAR) $(SOURCES) $(FORTH_GEN0) @KERNEL@ gforth.fi $(DOCDIST) $(BINONLYDIST) | (cd gforth-$(VERSION); tar xf -)
