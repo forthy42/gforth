@@ -435,8 +435,8 @@ create gen-wrapped-types
 	I c@
 	dup 'a' 'z' 1+ within
 	over 'A' 'Z' 1+ within or
-	over '0' '9' 1+ within or
-	swap '_' = or 0= IF  '_' I c!  THEN
+	swap '0' '9' 1+ within or
+	0= IF  '_' I c!  THEN
     LOOP ;
 
 : wrapper-function-name ( addr -- c-addr u )
@@ -628,7 +628,7 @@ Create callback-style c-val c,
     assert( c-source-file-id @ 0= )
     { d: filename }
     filename lib-filename $!
-    filename basename lib-modulename $! ;
+    filename basename lib-modulename $! lib-modulename $@ sanitize ;
    
 : c-library-name-create ( -- )
     [: lib-filename $. ." .c" ;] $tmp r/w create-file throw
@@ -683,8 +683,7 @@ Create callback-style c-val c,
 	    save-mem c-tmp-library-name
 	    lib-modulename $@ replace-modulename
 	THEN
-	." hash_128 gflibcc_hash_"
-	lib-filename $@ basename type
+	." hash_128 gflibcc_hash_" lib-modulename $.
 	.\"  = \"" c-source-hash 16 .bytes .\" \";" cr ;
     
     : hash-c-source ( -- )
@@ -693,7 +692,7 @@ Create callback-style c-val c,
 	['] .c-hash c-source-file-execute ;
 
     : check-c-hash ( -- )
-	[: ." gflibcc_hash_" lib-filename $@ basename type ;] $tmp
+	[: ." gflibcc_hash_" lib-modulename $. ;] $tmp
 	lib-handle lib-sym
 	?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
 	IF  lib-handle close-lib  lib-handle-addr @ off  THEN ;
