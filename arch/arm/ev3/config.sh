@@ -23,11 +23,12 @@ ac_cv_file___arch_arm_asm_fs=yes
 ac_cv_file___arch_arm_disasm_fs=yes
 ac_cv_func_dlopen=yes
 ac_export_dynamic=yes
-extraccdir=/data/data/gnu.gforth/lib
 asm_fs=arch/arm/asm.fs
 disasm_fs=arch/arm/disasm.fs
-CFLAGS="-mcpu=arm926ej-s -march=armv5te"
-LDLAGS="-mcpu=arm926ej-s -march=armv5te"
+CC=arm-none-linux-gnueabi-gcc
+GNU_LIBTOOL=arm-none-linux-gnueabi-libtool
+CFLAGS="-mtune=arm926ej-s -march=armv5te"
+LDLAGS="-mtune=arm926ej-s -march=armv5te"
 EC_MODE="false"
 NO_EC=""
 EC=""
