@@ -6,11 +6,13 @@ require unix/socket.fs
 
 : term-cr "\x0d\x0a" type outfile-id flush-file throw ;
 
-' (type) ' (emit) ' term-cr ' (form)  output: >term
+' (type) ' (emit) ' term-cr ' (form)  output: out>term
 what's at-xy what's at-deltaxy what's page what's attr!
->term
+out>term
 IS attr! IS page IS at-deltaxy IS at-xy
 default-out op-vector !
+
+: >term  out>term op-vector @ debug-vector ! ;
 
 : get-connection ( -- )
     gforth-port# create-server { lsocket }
