@@ -668,7 +668,7 @@ Create callback-style c-val c,
 [ELSE]
     : replace-modulename ( addr u -- ) { d: replace }
 	libcc$ $@  BEGIN  s" _replace_this_with_the_hash_code" search  WHILE
-		over replace rot swap move $10 /string  REPEAT
+		over replace rot swap move $20 /string  REPEAT
 	2drop ;
     
     Create c-source-hash 16 allot
