@@ -110,7 +110,9 @@ void unpackFiles()
   post("showprog");
   zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
   checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
+  fprintf(stderr, "sha256sum '%s'=>%d\n", "gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
   write(checkdir, sha256sum, 64);
+  fprintf(stderr, sha256sum, 64);
   close(checkdir);
   post("hideprog");
 }
