@@ -647,8 +647,10 @@ VARIABLE C-Pass
 	dup @ u#execs  BEGIN  dup @  WHILE
 		2dup @ = IF
 		    cell+ @ >r
-		    drop cell+ dup @ cells r> + @
-		    >name name>string Com# .string bl cemit  cell+
+		    drop cell+ dup @ cells r> + @  display?
+		    IF
+			>name name>string Com# .string bl cemit
+		    ELSE  drop  THEN  cell+
 		    EXIT  THEN
 	    2 cells +  REPEAT  2drop
 	." u#exec " dup @ c-. cell+ dup @ c-. cell+ ;

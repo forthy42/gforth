@@ -22,6 +22,7 @@
 \ this stuff is used by (at least) assert.fs and debugs.fs
 
 : loadfilename#>str ( n -- addr u )
+    dup 0< IF  drop s" "  EXIT  THEN
     included-files 2@ rot min 2* cells + 2@ ;
 
 : str>loadfilename# ( addr u -- n )
