@@ -34,6 +34,14 @@ UValue debug-fid ( -- file-id ) \ gforth
     outfile-id emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
 
+: (err-type) ( c-addr u -- ) \ gforth
+    debug-fid write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
+;
+
+: (err-emit) ( c -- ) \ gforth
+    debug-fid emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
+;
+
 : (key) ( -- c ) \ gforth
     infile-id key-file ;
 
@@ -110,7 +118,21 @@ here
 ' noop A, \ attr!
 A, here AConstant default-out
 
+here
+' (err-type) A,
+' (err-emit) A,
+' (cr) A,
+[IFDEF] (form) ' (form) A, [THEN]
+' noop A, \ page
+' 2drop A, \ at-xy
+' 2drop A, \ at-deltaxy
+' noop A, \ attr!
+A, here AConstant debug-out
+
 default-out op-vector !
+
+AVariable debug-vector
+debug-out debug-vector !
 
 here
 ' (key) A,
@@ -134,6 +156,7 @@ default-in ip-vector !
 07 constant #bell ( -- c ) \ gforth
 08 constant #bs ( -- c ) \ gforth
 09 constant #tab ( -- c ) \ gforth
+1B Constant #esc ( -- c ) \ gforth
 7F constant #del ( -- c ) \ gforth
 0D constant #cr   ( -- c ) \ gforth
 \ the newline key code

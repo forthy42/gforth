@@ -268,12 +268,17 @@ IS kill-task
 \G unlock the semaphore
 
 : c-section ( xt addr -- )  >r
+    \G implement a critical section that will unlock the semaphore
+    \G even in case there's an exception within.
     r@ lock catch r> unlock throw ;
 
 : >pagealign-stack ( n addr -- n' )
     >r 1- r> 1- pagesize negate mux 1+ ;
-: stacksize ( -- n ) forthstart 4 cells + @ ;
+: stacksize ( -- n )
+    \G stacksize for data stack
+    forthstart 4 cells + @ ;
 : stacksize4 ( -- dsize fsize rsize lsize )
+    \G This gives you the system stack sizes
     forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP
     2>r >r  sp0 @ >pagealign-stack r> fp0 @ >pagealign-stack 2r> ;
 
@@ -287,12 +292,13 @@ Variable event#  1 event# !
 User eventbuf# $100 uallot drop \ 256 bytes buffer for atomic event squences
 User event-start
 
-\G starts a sequence of events. Legaxy, not needed any longer.
 : 'event ( -- addr )  eventbuf# dup @ + cell+ ;
 : event+ ( n -- addr )
     dup eventbuf# @ + $100 u>= !!ebuffull!! and throw
     'event swap eventbuf# +! ;
-: <event  eventbuf# @ IF  event-start @ 1 event+ c! eventbuf# @ event-start !  THEN ;
+: <event ( -- )
+    \G starts a sequence of events.
+    eventbuf# @ IF  event-start @ 1 event+ c! eventbuf# @ event-start !  THEN ;
 : event> ( task -- )
     \G ends a sequence and sends it to the mentioned task
     eventbuf# @ event-start @ u> IF
@@ -317,16 +323,24 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 : ?events ( -- )  BEGIN  event?  WHILE  (stop)  REPEAT ;
 \G checks for events and executes them
 : stop ( -- )  (stop) ?events ;
+\G stops the current task, and waits for events (which may restart it)
 : stop-ns ( timeout -- ) epiper @ swap wait_read 0> IF  stop  THEN ;
+\G Stop with timeout (in nanoseconds), better replacement for ns
 : event-loop ( -- )  BEGIN  stop  AGAIN ;
+\G Tasks that are controlled by sending events to them should
+\G go into an event-loop
 
 event: ->lit  0  sp@ cell  epiper @ read-file throw drop ;
 event: ->flit 0e fp@ float epiper @ read-file throw drop ;
 event: ->wake ;
 event: ->sleep  stop ;
 
-: wake ( task -- )  <event ->wake event> ;
-: sleep ( task -- ) <event ->sleep event> ;
+: wake ( task -- )
+    \G Wake a task
+    <event ->wake event> ;
+: sleep ( task -- )
+    \G Stop a task
+    <event ->sleep event> ;
 
 : elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
 \G sends a literal
@@ -343,6 +357,7 @@ event: ->sleep  stop ;
 comp: drop >body @ postpone useraddr , postpone ! ;
 
 : UValue ( "name" -- )
+    \G Define a per-thread value
     Create cell uallot , ['] u-to set-to
     [: >body @ postpone useraddr , postpone @ ;] set-compiler
   DOES> @ up@ + @ ;
@@ -352,11 +367,12 @@ comp: drop >body @ postpone useraddr , postpone ! ;
     >body @ up@ + @ ;
 
 : UDefer ( "name" -- )
+    \G Define a per-thread deferred word
     Create cell uallot , ['] u-to set-to ['] udefer@ set-defer@
     [: >body @ postpone useraddr , postpone perform ;] set-compiler
   DOES> @ up@ + perform ;
 
-false [IF] \ event test
+false [IF] \ event test - send to myself
     <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]
 [THEN]
 

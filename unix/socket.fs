@@ -22,7 +22,9 @@ c-library socket
 \c #include <unistd.h>
 c-function gethostname gethostname a n -- n ( c-addr u -- ior )
 \c #include <errno.h>
+warnings @ warnings off
 c-value errno errno -- n ( -- value )
+warnings ! \ errno might be defined elsewhere
 \c #include <sys/types.h>
 \c #include <sys/socket.h>
 c-function socket socket n n n -- n ( class type proto -- fd )
@@ -203,9 +205,11 @@ s" accept failed"      exception Constant !!accept!!
 s" blocking-mode failed" exception Constant !!blocking!!
 s" sock read error"    exception Constant !!sockread!!
 
-: ?ior ( r -- )
-    \G use errno to generate throw when failing
-    IF  -512 errno - throw  THEN ;
+[IFUNDEF] ?ior
+    : ?ior ( r -- )
+	\G use errno to generate throw when failing
+	IF  -512 errno - throw  THEN ;
+[THEN]
 
 : new-socket ( -- socket )
     PF_INET SOCK_STREAM 0 socket dup 0<= ?ior ;

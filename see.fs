@@ -30,6 +30,10 @@ require wordinfo.fs
 
 decimal
 
+Vocabulary see-voc
+
+get-current also see-voc definitions
+
 \ Screen format words                                   16may93jaw
 
 VARIABLE C-Output   1 C-Output  !
@@ -94,9 +98,13 @@ Defer xt-see-xt ( xt -- )
     then
     space ;
 
+dup set-current
+
 Defer discode ( addr u -- ) \ gforth
 \G hook for the disassembler: disassemble u bytes of code at addr
 ' dump IS discode
+
+definitions
 
 : next-head ( addr1 -- addr2 ) \ gforth
     \G find the next header starting after addr1, up to here (unreliable).
@@ -354,6 +362,9 @@ VARIABLE C-Pass
 \	maxaligned /does-handler + ; \ !! no longer needed for non-cross stuff
 [THEN]
 
+: c># ( n -- addr u ) dup abs 0 <# #S rot sign #> ;
+: c-. ( n -- ) c># 0 .string bl cemit ;
+
 : c-lit ( addr1 -- addr2 )
     dup @ dup body> dup cfaligned over = swap in-dictionary? and if
 	( addr1 addr1@ )
@@ -384,7 +395,7 @@ VARIABLE C-Pass
 	dup >name dup IF
 	    nip ." ['] " name>string
 	ELSE
-	    drop dup abs 0 <# #S rot sign #>
+	    drop c>#
 	THEN
 	0 .string bl cemit
     else  drop  then
@@ -392,7 +403,7 @@ VARIABLE C-Pass
 
 : c-lit+ ( addr1 -- addr2 )
     Display? if
-	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
+	dup @ c-.
 	s" + " 0 .string
     endif
     cell+ ;
@@ -622,6 +633,29 @@ VARIABLE C-Pass
     cell+ ;
 [THEN]
 
+[IFDEF] u#exec
+    Create u#outs ' type , ' emit , ' cr , ' form ,
+    ' page , ' at-xy , ' at-deltaxy , ' attr! ,
+    Create u#ins  ' key , ' key? ,
+
+    Create u#execs
+    ' type >body cell+ @ , u#outs ,
+    ' key  >body cell+ @ , u#ins ,
+    0 ,                    0 ,
+    
+    : c-u#exec ( addr -- addr' )
+	dup @ u#execs  BEGIN  dup @  WHILE
+		2dup @ = IF
+		    cell+ @ >r
+		    drop cell+ dup @ cells r> + @  display?
+		    IF
+			>name name>string Com# .string bl cemit
+		    ELSE  drop  THEN  cell+
+		    EXIT  THEN
+	    2 cells +  REPEAT  2drop
+	." u#exec " dup @ c-. cell+ dup @ c-. cell+ ;
+[THEN]
+
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
 		' does-exec A,	    ' c-callxt A,
@@ -653,6 +687,7 @@ CREATE C-Table
 [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded
 [IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
+	        ' u#exec A,         ' c-u#exec A,
         	0 ,		here 0 ,
 
 avariable c-extender
@@ -720,6 +755,8 @@ c-extender !
 	c-stop @
     UNTIL drop ;
 
+\ user words
+
 : seecode ( xt -- )
     dup s" Code" .defname
     >code-address
@@ -772,6 +809,10 @@ c-extender !
 : seefield ( xt -- )
     dup >body ." 0 " ? ." 0 0 "
     s" Field" .defname cr ;
+
+\ user visible words
+
+set-current
 
 : xt-see ( xt -- ) \ gforth
     \G Decompile the definition represented by @i{xt}.
@@ -859,4 +900,4 @@ c-extender !
     THEN
     name-see ;
 
-
+previous

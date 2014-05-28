@@ -350,7 +350,7 @@ variable public-wordlist
 \ this/self, instance variables etc.
 
 \ rename "this" into "self" if you are a Smalltalk fiend
-0 value this ( -- object ) \ objects- objects
+uvalue this ( -- object ) \ objects- objects
 \g the receiving object of the current method (aka active object).
 : to-this ( object -- ) \ objects- objects
     \g Set @code{this} (used internally, but useful when debugging).

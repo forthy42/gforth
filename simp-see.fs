@@ -19,6 +19,8 @@
 
 require see.fs
 
+get-current also see-voc definitions
+
 : simple-see-word { addr -- }
     xpos off addr hex. addr cell+ addr @ .word drop ;
 
@@ -26,12 +28,6 @@ require see.fs
     swap u+do
 	cr i simple-see-word
     cell +loop ;
-
-: simple-see ( "name" -- ) \ gforth
-    \G a simple decompiler that's closer to @code{dump} than @code{see}.
-    \ !! at the moment NEXT-HEAD is a little too optimistic (see
-    \ comment in HEAD?)
-    ' >body dup next-head simple-see-range ;
 
 : see-code-next-inline { addr1 addr2 -- addr3 }
     \ decompile starting at addr1 until an inlined primitive is found,
@@ -54,8 +50,17 @@ require see.fs
             b
     repeat ;
 
+set-current
+
+: simple-see ( "name" -- ) \ gforth
+    \G a simple decompiler that's closer to @code{dump} than @code{see}.
+    \ !! at the moment NEXT-HEAD is a little too optimistic (see
+    \ comment in HEAD?)
+    ' >body dup next-head simple-see-range ;
+
 : see-code ( "name" -- ) \ gforth
 \G like @code{simple-see}, but also shows the dynamic native code for
 \G the inlined primitives (except for the last).
     ' >body dup next-head see-code-range ;
     
+previous

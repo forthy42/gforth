@@ -7,27 +7,13 @@ fi
 
 # takes as extra argument a directory where to look for .so-s
 
-ENGINE=gforth
-
-case "$1" in
-    -ditc|-fast)
-	EXT=$1
-	shift
-	ENGINE=gforth$EXT
-	;;
-    --ext)
-	shift
-	EXT=$1
-	shift
-	ENGINE=$EXT
-	;;
-esac
+ENGINES="gforth-fast gforth-itc"
 
 GFORTH_VERSION=$(gforth --version 2>&1 | cut -f2 -d' ')
 APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
-sed -e "s/@ENGINE@/$ENGINE/g" -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
+sed -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
 LIBS=libs/x86
@@ -57,7 +43,10 @@ fi
 
 SHA256=$(sha256sum libs/x86/libgforthgz.so | cut -f1 -d' ')
 
-sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/lib$ENGINE.so >$LIBS/lib$ENGINE.so
+for i in $ENGINES
+do
+    sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/lib$i.so >$LIBS/lib$i.so
+done
 
 ANDROID=${PWD%/*/*/*}
 CFLAGS="-O3" 
@@ -91,5 +80,5 @@ done
 strip $LIBS/*.so
 #ant debug
 ant release
-cp bin/Gforth-release.apk bin/$ENGINE.apk
+cp bin/Gforth-release.apk bin/Gforth.apk
 #jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.gnupg/bernd-release-key.keystore bin/Gforth$EXT.apk bernd

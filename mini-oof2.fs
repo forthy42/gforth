@@ -88,3 +88,18 @@ dynamic-a to allocater
     class>count r@ 2 cells + umax resize throw
     r@ over cell+ !@ >r 2 cells + r> r> swap
     U+DO  ['] default-method defer@ over I + !  cell +LOOP ;
+
+\ dot parser .foo -> >o foo o>
+
+:noname ( object xt -- )  swap >o execute o> ;
+:noname ( xt table -- )  postpone >o drop compile, postpone o> ;
+:noname ( xt table -- )  swap lit, post, ; recognizer: r:moof2
+
+: moof2-recognizer ( addr u -- xt r:moof2 | r:fail )
+    2dup s" ." string-prefix?
+    IF  1 /string word-recognizer dup r:fail <> IF  r:moof2  THEN
+    ELSE  2drop r:fail  THEN ;
+
+' moof2-recognizer
+forth-recognizer get-recognizers
+1+ forth-recognizer set-recognizers

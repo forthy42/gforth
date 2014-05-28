@@ -25,6 +25,8 @@ VARIABLE dbg-ip     \ instruction pointer for debugger
 
 \ !! move to see?
 
+get-current also see-voc definitions
+
 : save-see-flags ( -- n* cnt )
   C-Output @
   C-Formated @ 1 ;
@@ -184,24 +186,28 @@ VARIABLE Unnest
 
 : (debug) dup (_debug) ;
 
-: dbg ( "name" -- ) \ gforth 
-    ' NestXT IF EXIT THEN (debug) Leave-D ;
-
-: break:, ( -- )
-  latestxt postpone literal ;
-
 : (break:)
     r> ['] (_debug) >body >r ;
-  
-: break: ( -- ) \ gforth
-    break:, postpone (break:) ; immediate
 
 : (break")
     cr
     ." BREAK AT: " type cr
     r> ['] (_debug) >body >r ;
 
+set-current
+
+: dbg ( "name" -- ) \ gforth 
+    ' NestXT IF EXIT THEN (debug) Leave-D ;
+
+: break:, ( -- )
+  latestxt postpone literal ;
+  
+: break: ( -- ) \ gforth
+    break:, postpone (break:) ; immediate
+
 : break" ( 'ccc"' -- ) \ gforth
     break:,
     postpone s"
     postpone (break") ; immediate
+
+previous

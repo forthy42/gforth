@@ -156,7 +156,7 @@ INSTALLDIRS = kernel doc asm ec test \
 	arch/alpha arch/4stack arch/misc arch/6502 \
 	arch/8086 arch/avr arch/c165 arch/h8 \
 	arch/shboom arch/sharc arch/ia64 arch/amd64 \
-	arch/arm arch/r8c
+	arch/arm arch/r8c arch/lm32
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h
 
@@ -359,6 +359,19 @@ ARCHS =	\
 	arch/arm/machine.h \
 	arch/arm/cacheflush0.c \
 	arch/arm/cacheflush-linux.c \
+	arch/arm/android/AndroidManifest.xml.in \
+	arch/arm/android/config.sh \
+	arch/arm/android/build.sh \
+	arch/arm/android/starta.fs \
+	arch/arm/android/build.xml \
+	arch/arm/android/project.properties \
+	arch/arm/android/res/drawable-hdpi/ic_launcher.png \
+	arch/arm/android/res/drawable-ldpi/ic_launcher.png \
+	arch/arm/android/res/drawable-mdpi/ic_launcher.png \
+	arch/arm/android/res/drawable-xhdpi/ic_launcher.png \
+	arch/arm/android/res/values/strings.xml \
+	arch/arm/android/src/gnu/gforth/Gforth.java \
+	arch/arm/ev3/config.sh \
 	arch/ia64/machine.h \
 	arch/ia64/flush_icache_block.c \
 	arch/amd64/machine.h \
@@ -693,6 +706,50 @@ install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim
 			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
 		fi
 
+installnodep:	installdirs
+		$(NORMAL_INSTALL)
+		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
+		-$(RM) $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
+		-$(RM) $(DESTDIR)$(bindir)/gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT)
+		-$(RM) $(DESTDIR)$(bindir)/gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT)
+		-$(RM) $(DESTDIR)$(bindir)/gforth-ditc$(EXT) $(DESTDIR)$(bindir)/gforth-ditc-$(VERSION)$(EXT)
+		$(INSTALL_PROGRAM) gforth$(EXT) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT)
+		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-$(VERSION)$(EXT) gforth$(EXT))
+		$(INSTALL_PROGRAM) gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT)
+		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXT) gforth-fast$(EXT))
+		$(INSTALL_PROGRAM) gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EXT) gforth-itc$(EXT))
+		$(INSTALL_PROGRAM) gforth-ditc$(EXT) $(DESTDIR)$(bindir)/gforth-ditc-$(VERSION)$(EXT)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-ditc-$(VERSION)$(EXT) gforth-ditc$(EXT))
+		$(INSTALL_SCRIPT) gforthmi $(DESTDIR)$(bindir)/gforthmi-$(VERSION)
+		$(INSTALL_SCRIPT) vmgen $(DESTDIR)$(bindir)/vmgen-$(VERSION)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) gforthmi-$(VERSION) gforthmi)
+		(cd $(DESTDIR)$(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
+		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(DESTDIR)$(man1dir)
+		-for i in $(srcdir)/doc/gforth.info* $(srcdir)/doc/vmgen.info*; do $(INSTALL_DATA) $$i $(DESTDIR)$(infodir); done
+		for i in $(FORTH_SRC) $(COMPAT) envos.fs prim; do \
+			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)/$$i; \
+		done
+		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
+		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
+		$(INSTALL_DATA) include/gforth$(ARCH)/$(VERSION)/* $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
+		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
+		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf`basename $$i .fs`.la $(DESTDIR)$(libccdir)libgf`basename $$i .fs`.la; \
+		done; fi
+		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)/TAGS
+		$(POST_INSTALL)
+		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
+		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/vmgen.info
+		@if test -d "$(DESTDIR)$(emacssitelispdir)"; then \
+			for i in gforth.el @gforth_elc@; do \
+				$(INSTALL_DATA) $$i $(DESTDIR)$(emacssitelispdir); \
+			done; \
+		else \
+			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
+		fi
+
 install-strip:	install
 
 libinstall:	$(ENGINES:%$(EXT)=lib%$(EXT)) $(ENGINES_FAST:%$(EXT)=lib%$(EXT))
@@ -719,7 +776,7 @@ uninstall:	FORCE
 
 build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) FORCE
 		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
-		for i in $(LIBCC_BUILD_SRC); do ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye; done
+		@NO_FAIL@for i in $(LIBCC_BUILD_SRC); do ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye; done
 
 check:		gforths	gforth.fi 
 		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" >/dev/null 2>&1

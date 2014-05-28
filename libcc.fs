@@ -435,8 +435,8 @@ create gen-wrapped-types
 	I c@
 	dup 'a' 'z' 1+ within
 	over 'A' 'Z' 1+ within or
-	over '0' '9' 1+ within or
-	swap '_' = or 0= IF  '_' I c!  THEN
+	swap '0' '9' 1+ within or
+	0= IF  '_' I c!  THEN
     LOOP ;
 
 : wrapper-function-name ( addr -- c-addr u )
@@ -628,7 +628,7 @@ Create callback-style c-val c,
     assert( c-source-file-id @ 0= )
     { d: filename }
     filename lib-filename $!
-    filename basename lib-modulename $! ;
+    filename basename lib-modulename $! lib-modulename $@ sanitize ;
    
 : c-library-name-create ( -- )
     [: lib-filename $. ." .c" ;] $tmp r/w create-file throw
@@ -668,7 +668,7 @@ Create callback-style c-val c,
 [ELSE]
     : replace-modulename ( addr u -- ) { d: replace }
 	libcc$ $@  BEGIN  s" _replace_this_with_the_hash_code" search  WHILE
-		over replace rot swap move $10 /string  REPEAT
+		over replace rot swap move $20 /string  REPEAT
 	2drop ;
     
     Create c-source-hash 16 allot
@@ -683,8 +683,7 @@ Create callback-style c-val c,
 	    save-mem c-tmp-library-name
 	    lib-modulename $@ replace-modulename
 	THEN
-	." hash_128 gflibcc_hash_"
-	lib-filename $@ basename type
+	." hash_128 gflibcc_hash_" lib-modulename $.
 	.\"  = \"" c-source-hash 16 .bytes .\" \";" cr ;
     
     : hash-c-source ( -- )
@@ -693,7 +692,7 @@ Create callback-style c-val c,
 	['] .c-hash c-source-file-execute ;
 
     : check-c-hash ( -- )
-	[: ." gflibcc_hash_" lib-filename $@ basename type ;] $tmp
+	[: ." gflibcc_hash_" lib-modulename $. ;] $tmp
 	lib-handle lib-sym
 	?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
 	IF  lib-handle close-lib  lib-handle-addr @ off  THEN ;
@@ -718,6 +717,7 @@ clear-libs
 
 : compile-cmd ( -- )
     [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
+      s" CROSS_PREFIX" getenv $type
       libtool-cc $type s"  -I '" $type
       s" includedir" getenv tuck $type
       0= [IF]  pad $100 get-dir $type s" /include" $type  [THEN]
@@ -726,6 +726,7 @@ clear-libs
     lib-filename $. ." .lo" ;
 
 : link-cmd ( -- )
+    s" CROSS_PREFIX" getenv type
     [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=link " $type
       libtool-cc $type libtool-flags $type s"  -module -rpath " $type tmp$ $@ ] sliteral type
     lib-filename $@ dirname replace-rpath type space
