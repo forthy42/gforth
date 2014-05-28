@@ -2,8 +2,8 @@ echo -e "\033[35;48m"
 echo
 echo
 echo "Starte config.sh" 
-echo
-echo
+echo "You should configure with"
+echo "./configure --host=arm-none-linux-gnueabi --with-cross=ev3 --with-ditc=gforth-ditc-x32"
 echo -e "\033[0m"
 skipcode=".skip 4\n.skip 4\n.skip 4\n.skip 4"
 kernel_fi=kernl32l.fi
@@ -25,8 +25,8 @@ ac_cv_func_dlopen=yes
 ac_export_dynamic=yes
 asm_fs=arch/arm/asm.fs
 disasm_fs=arch/arm/disasm.fs
-CC=arm-none-linux-gnueabi-gcc
 GNU_LIBTOOL=arm-none-linux-gnueabi-libtool
+CROSS_PREFIX=arm-none-linux-gnueabi-
 CFLAGS="-mtune=arm926ej-s -march=armv5te"
 LDLAGS="-mtune=arm926ej-s -march=armv5te"
 EC_MODE="false"

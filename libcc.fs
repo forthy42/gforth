@@ -717,6 +717,7 @@ clear-libs
 
 : compile-cmd ( -- )
     [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
+      s" CROSS_PREFIX" getenv $type
       libtool-cc $type s"  -I '" $type
       s" includedir" getenv tuck $type
       0= [IF]  pad $100 get-dir $type s" /include" $type  [THEN]
@@ -725,6 +726,7 @@ clear-libs
     lib-filename $. ." .lo" ;
 
 : link-cmd ( -- )
+    s" CROSS_PREFIX" getenv type
     [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=link " $type
       libtool-cc $type libtool-flags $type s"  -module -rpath " $type tmp$ $@ ] sliteral type
     lib-filename $@ dirname replace-rpath type space

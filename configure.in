@@ -790,8 +790,10 @@ then
   CFLAGS="$CFLAGS_1"
   AC_MSG_RESULT($ac_align_jumps)
 fi
+# remove prefix for cross compilation
+LIBTOOL_CC=${LIBTOOL_CC#$CROSS_PREFIX}
 AC_SUBST(LIBTOOL_CC)
-
+AC_SUBST(CROSS_PREFIX)
 
 
 # Try if GCC understands __attribute__((unused))
@@ -1050,6 +1052,9 @@ if test -z "$GNU_LIBTOOL"; then
   AC_MSG_WARN([libcc.fs won't work until you have installed (GNU) libtool.])
   GNU_LIBTOOL=libtool
 fi
+GNU_LIBTOOL=${GNU_LIBTOOL#$CROSS_PREFIX}
+AC_SUBST(GNU_LIBTOOL)
+AC_SUBST(CONFIG_PREFIX)
 
 #check for libffi 2.x
 AC_CHECK_HEADER(ffi.h,FFI_H_NAME=ffi.h,)
