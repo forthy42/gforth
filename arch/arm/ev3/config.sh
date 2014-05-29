@@ -19,9 +19,10 @@ ac_cv_sizeof_int128_t=0
 ac_cv_c_bigendian=no
 ac_cv_func_memcmp_working=yes
 ac_cv_func_memmove=yes
+ac_cv_func_strerror=yes
 ac_cv_file___arch_arm_asm_fs=yes
 ac_cv_file___arch_arm_disasm_fs=yes
-ac_cv_func_dlopen=yes
+ac_cv_lib_ltdl_lt_dlinit=yes
 ac_export_dynamic=yes
 asm_fs=arch/arm/asm.fs
 disasm_fs=arch/arm/disasm.fs
@@ -37,4 +38,5 @@ engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
 LIBS="-ldl"
+
 echo "Ich wurde benutzt! " >erfolg.txt
