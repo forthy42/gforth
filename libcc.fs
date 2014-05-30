@@ -707,7 +707,7 @@ DEFER compile-wrapper-function ( -- )
     c-source-file-id @ if
 	compile-wrapper-function
     endif
-    here 0 , lib-handle-addr !
+    align here 0 , lib-handle-addr !
     c-libs $init
     lib-modulename $init
     libcc$ $init libcc-include ;
