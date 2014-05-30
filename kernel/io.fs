@@ -115,7 +115,7 @@ here
 ' noop A, \ page
 ' 2drop A, \ at-xy
 ' 2drop A, \ at-deltaxy
-' noop A, \ attr!
+' drop A, \ attr!
 A, here AConstant default-out
 
 here
@@ -126,7 +126,7 @@ here
 ' noop A, \ page
 ' 2drop A, \ at-xy
 ' 2drop A, \ at-deltaxy
-' noop A, \ attr!
+' drop A, \ attr!
 A, here AConstant debug-out
 
 default-out op-vector !
@@ -147,7 +147,7 @@ default-in ip-vector !
 
 : output: ( type-xt emit-xt cr-xt form-xt -- )
     Create here cell+ , swap 2swap swap , , , ,
-    ['] noop , ['] 2drop , ['] 2drop , ['] noop ,
+    ['] noop , ['] 2drop , ['] 2drop , ['] drop ,
   DOES> cell+ op-vector ! ;
 
 \ Input                                                13feb93py
