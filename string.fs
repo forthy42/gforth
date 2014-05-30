@@ -113,11 +113,12 @@ tmp$ $execstr-ptr !
     >r r/o open-file throw dup r> $[]slurp close-file throw ;
 
 : $[]map { addr xt -- }
-    \G xt is ( addr u -- ), getting one string at a time
+    \G execute @var{xt} for all elements of the string array @var{addr}.
+    \G xt is @var{( addr u -- )}, getting one string at a time
     addr $[]# 0 ?DO  I addr $[]@ xt execute  LOOP ;
 : $[]. ( addr -- )
-    \G print all entries
+    \G print all array entries
     [: type cr ;] $[]map ;
 : $[]off ( addr -- )
-    \G release all memory
+    \G release a string array
     dup $[]# 0 ?DO  I over $[] $off  LOOP  $off ;

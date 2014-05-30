@@ -9361,15 +9361,27 @@ doc-$!len
 doc-$del
 doc-$ins
 doc-$+!
+doc-c$+!
 doc-$off
 doc-$init
 doc-$split
 doc-$iter
 doc-$over
+doc-$exec
+doc-$tmp
+doc-$.
+doc-$slurp
+doc-$slurp-file
 doc-$[]
 doc-$[]!
 doc-$[]+!
 doc-$[]@
+doc-$[]#
+doc-$[]map
+doc-$[]slurp
+doc-$[]slurp-file
+doc-$[].
+doc-$[]off
 
 @node Terminal output, Single-key input, String words, Other I/O
 @subsection Terminal output
