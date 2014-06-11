@@ -13279,13 +13279,13 @@ Gforth          normal assembler      description
 123 #           #123                  immediate
 r12             r12                   register
 r12 4 #LSL      r12, LSL #4           shift left by immediate
-r12 r1 #LSL     r12, LSL r1           shift left by register
+r12 r1 LSL      r12, LSL r1           shift left by register
 r12 4 #LSR      r12, LSR #4           shift right by immediate
-r12 r1 #LSR     r12, LSR r1           shift right by register
+r12 r1 LSR      r12, LSR r1           shift right by register
 r12 4 #ASR      r12, ASR #4           arithmetic shift right
-r12 r1 #ASR     r12, ASR r1           ... by register
+r12 r1 ASR      r12, ASR r1           ... by register
 r12 4 #ROR      r12, ROR #4           rotate right by immediate
-r12 r1 #ROR     r12, ROR r1           ... by register
+r12 r1 ROR      r12, ROR r1           ... by register
 r12 RRX         r12, RRX              rotate right with extend by 1
 @end example
 
