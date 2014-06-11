@@ -1012,9 +1012,9 @@ Gforth uses these environment variables:
 @itemize @bullet
 @item
 @cindex @code{GFORTHHIST} -- environment variable
-@code{GFORTHHIST} -- (Unix systems only) specifies the directory in which to
-open/create the history file, @file{.gforth-history}. Default:
-@code{$HOME}.
+@code{GFORTHHIST} -- (Unix systems only) specifies the path for the
+history file @file{.gforth-history}. Default:
+@code{$HOME/.gforth-history}.
 
 @item
 @cindex @code{GFORTHPATH} -- environment variable
