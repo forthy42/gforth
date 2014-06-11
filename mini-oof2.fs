@@ -76,6 +76,9 @@ static-a Value allocater
 dynamic-alloc new Constant dynamic-a
 dynamic-a to allocater
 
+: with-allocater ( xt allocater -- )
+    allocater >r  to allocater  catch  r> to allocater  throw ;
+
 \ building blocks for dynamic methods
 
 : class>count ( addr -- addr' u ) >osize dup cell+ @ 2 cells + ;
