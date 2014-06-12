@@ -1,7 +1,7 @@
 /*
   This is the machine-specific part for Intel 386 compatible processors
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2012,2013 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -100,24 +100,29 @@
 /* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
 #   else /* !(gcc-2.95 or gcc-3.x) */
 #    if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2)
-#     ifndef __APPLE__
-#      define IPREG asm("%ebx")
+#     if defined(PIC) || defined(__ANDROID__)
 #      define SPREG asm("%esi")
-#      define RPREG asm("%edi")
-#      if(__GNUC_MINOR__>=6 && __GNUC_MINOR__!=8)
-#       define TOSREG asm("%ebp")
-#      else
-#       define TOSREG asm("%edx")
-#       define TOS_CLOBBERED
-#      endif
-#     else
 #      define IPREG asm("%edi")
-#      define SPREG asm("%esi")
-#      if(__GNUC_MINOR__>=6)
-#       define TOSREG asm("%ebp")
+#     else
+#      ifndef __APPLE__
+#       define IPREG asm("%ebx")
+#       define SPREG asm("%esi")
+#       define RPREG asm("%edi")
+#       if(__GNUC_MINOR__>=6)
+#        define TOSREG asm("%ebp")
+#       else
+#        define TOSREG asm("%ecx")
+#        define TOS_CLOBBERED
+#       endif
 #      else
-#       define TOSREG asm("%edx")
-#       define TOS_CLOBBERED
+#       define IPREG asm("%edi")
+#       define SPREG asm("%esi")
+#       if(__GNUC_MINOR__>=6)
+#        define TOSREG asm("%ebp")
+#       else
+#        define TOSREG asm("%ecx")
+#        define TOS_CLOBBERED
+#       endif
 #      endif
 #     endif
 #    endif /* (gcc-4.2 or later) */
