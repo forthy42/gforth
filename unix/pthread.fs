@@ -179,7 +179,12 @@ c-library pthread
     c-function pthread-mutexes pthread_mutexes n -- n ( n -- n' )
     c-function pthread-cond+ pthread_cond_plus a -- a ( cond -- cond' )
     c-function pthread-conds pthread_conds n -- n ( n -- n' )
-    c-function pause sched_yield -- void ( -- )
+    c-function pause sched_yield -- void ] ( -- ) [
+    \G voluntarily switch to the next waiting task (@code{pause} is
+    \G the traditional cooperative task switcher; in the pthread
+    \G multitasker, you don't need @code{pause} for cooperation, but
+    \G you still can use it e.g. when you have to resort to polling
+    \G for some reason.
     c-function pthread_detach_attr pthread_detach_attr -- a ( -- addr )
     c-function pthread_cond_signal pthread_cond_signal a -- n ( cond -- r )
     c-function pthread_cond_broadcast pthread_cond_broadcast a -- n ( cond -- r )
@@ -242,6 +247,8 @@ IS kill-task
     current-input off create-input ;
 
 : activate ( task -- )
+    \G activates a task. The remaining part of the word calling
+    \G @code{activate} will be executed in the context of the task.
     ]] (activate) up! thread-init [[ ; immediate compile-only
 
 : (pass) ( x1 .. xn n task -- )

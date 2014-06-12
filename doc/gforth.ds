@@ -235,6 +235,7 @@ Forth Words
 * Structures::                  
 * Object-oriented Forth::       
 * Programming Tools::           
+* Multitasker::
 * C Interface::                 
 * Assembler and Code Words::    
 * Threading Words::             
@@ -418,6 +419,10 @@ Programming Tools
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
+
+Multitasker
+
+* Pthreads::                    Native Unix multitasker
 
 C Interface
 
@@ -4418,6 +4423,7 @@ the exercises in a .fs file in the distribution.
 * Structures::                  
 * Object-oriented Forth::       
 * Programming Tools::           
+* Multitasker::
 * C Interface::                 
 * Assembler and Code Words::    
 * Threading Words::             
@@ -12051,7 +12057,7 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 
 
 @c -------------------------------------------------------------
-@node Programming Tools, C Interface, Object-oriented Forth, Words
+@node Programming Tools, Multitasker, Object-oriented Forth, Words
 @section Programming Tools
 @cindex programming tools
 
@@ -12324,15 +12330,103 @@ doc-dbg
 doc-break:
 doc-break"
 
+@c -------------------------------------------------------------
+@node Multitasker, C Interface, Programming Tools, Words
+@section Multitasker
+@cindex multitasker
+
+@menu
+* Pthreads::                    Native Unix multitasker
+@end menu
+
+Gforth offers two multitasker: a traditional, cooperative round-robin
+multitasker, and a pthread-based multitasker which allows to run several
+threads concurrently on multi-core machines.
+
+@node Pthreads, , Multitasker, Multitasker
+@subsection Ptheads
+@cindex pthread
+
+doc-newtask
+doc-stacksize
+doc-newtask4
+doc-stacksize4
+doc-activate
+doc-pass
+doc-pause
+doc-wake
+doc-sleep
+doc-stop
+doc-stop-ns
+doc-uvalue
+doc-udefer
+doc-user'
+
+A cooperative multitasker can ensure that there is no other task
+interacting between two invocations of @code{pause}.  Pthreads however
+are really concurrent tasks (at least on a multi-core CPU), and
+therefore, several techniques to avoid conflicts when accessing the same
+resources.
+
+@subsubsection{Semaphores}
+
+Semaphores can only be aquired by one thread, all other threads have to
+wait until the semapohre is released.
+
+doc-sema
+doc-lock
+doc-unlock
+
+The other approach to prevent concurrent access is the critical section.
+Here, we implement a critical section with a semaphore, so you have to
+specify the semaphore which is used for the critical section.  Only
+those critical sections which use the same semaphore are mutually
+exclusive.
+
+doc-c-section
+
+@subsubsection{Message Queues}
+
+Gforth implements executable message queues: you send instructions to
+other tasks, which they will execute as atomic sequence when they are
+enclosed in @code{<event} and @code{event>}.  You can pass integers,
+floats, and strings (only the addresses, so treat the string as
+read-only after you have send it to another task).  The instructions you
+send are defined with @code{event:} @var{name}, which, when invoked,
+will add the code for its execution to the message queue, and when
+recieved, will execute the code following.
+
+doc-<event
+doc-event>
+doc-event:
+doc-?events
+doc-event-loop
+doc-elit,
+doc-e$,
+doc-eflit,
+
+@subsubsection{Conditions}
+
+The pthreads library also provides conditional variables, which allow to
+wait for a condition.  Using the message queue is generally preferred.
+
+doc-cond
+doc-pthread_cond_signal
+doc-pthread_cond_broadcast
+doc-pthread_cond_wait
+doc-pthread_cond_timedwait
+
 @c ------------------------------------------------------------
-@node C Interface, Assembler and Code Words, Programming Tools, Words
+@node C Interface, Assembler and Code Words, Multitasker, Words
 @section C Interface
 @cindex C interface
 @cindex foreign language interface
 @cindex interface to C functions
 
-Note that the C interface is not yet complete; callbacks are missing,
-as well as a way of declaring structs, unions, and their fields.
+The C interface is now mostly complete, callbacks have been added, but
+for structs, we use Forth2012 structs, which don't have independent
+scopes.  The offsets of those structs are extracted from header files
+with a SWIG plugin, which is still not completed.
 
 @menu
 * Calling C Functions::         
@@ -12570,29 +12664,35 @@ end-c-library
 The effect of giving such a name to the interface is that the names of
 the generated files will contain that name, and when you use the
 interface a second time, it will use the existing files instead of
-generating and compiling them again, saving you time.  Note that even
-if you change the declarations, the old (stale) files will be used,
-probably leading to errors.  So, during development of the
-declarations we recommend not using @code{c-library}.  Normally these
-files are cached in @file{$HOME/.gforth/libcc-named}, so by deleting
-that directory you can get rid of stale files.
+generating and compiling them again, saving you time.  The generated
+file contains a 128 bit hash (not cryptographically safe, but good
+enough for that purpose) of the source code, so changing the
+declarations will cause a new compilation.  Normally these files are
+cached in @file{$HOME/.gforth/}@var{architecture}@file{/libcc-named}, so
+if you experience problems or have other reasons to force a
+recompilation, you can delete the files there.
 
-Note that you should use @code{c-library} before everything else
-having anything to do with that library, as it resets some setup
-stuff.  The idea is that the typical use is to put each
-@code{c-library}...@code{end-library} unit in its own file, and to be
-able to include these files in any order.
+Note that you should use @code{c-library} before everything else having
+anything to do with that library, as it resets some setup stuff.  The
+idea is that the typical use is to put each
+@code{c-library}...@code{end-c-library} unit in its own file, and to be
+able to include these files in any order.  All other words dealing with
+the C interface are hidden in the vocabulary @code{c-lib}, which is put on top o the search stack by @code{c-library} and removed by @code{end-c-library}.
 
 Note that the library name is not allocated in the dictionary and
 therefore does not shadow dictionary names.  It is used in the file
 system, so you have to use naming conventions appropriate for file
-systems.  Also, you must not call a function you declare after
-@code{c-library} before you perform @code{end-c-library}.
+systems.  The name is also used as part of the C symbols, but characters
+outside the legal C symbol names are replaced with underscores.  Also,
+you shall not call a function you declare after @code{c-library} before
+you perform @code{end-c-library}.
 
-A major benefit of these named library interfaces is that, once they
-are generated, the tools used to generated them (in particular, the C
-compiler and libtool) are no longer needed, so the interface can be
-used even on machines that do not have the tools installed.
+A major benefit of these named library interfaces is that, once they are
+generated, the tools used to generated them (in particular, the C
+compiler and libtool) are no longer needed, so the interface can be used
+even on machines that do not have the tools installed.  The build system
+of Gforth can even cross-compile these libraries, so that the libraries
+are available for plattforms on which build tools aren't installed.
 
 doc-c-library-name
 doc-c-library
