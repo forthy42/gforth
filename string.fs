@@ -46,7 +46,7 @@
 \G store a string into an array at index n
 : $[]+! ( addr u n $[]addr -- )  $[] $+! ;
 \G add a string to the string at addr n
-: $[]@ ( n $[]addr -- addr u )  $[] dup @ IF $@ ELSE drop s" " THEN ;
+: $[]@ ( n $[]addr -- addr u )  $[] $@ ;
 \G fetch a string from array index n -- return the zero string if empty
 : $[]# ( addr -- len ) dup @ IF  $@len cell/  ELSE  @  THEN ;
 \G return the number of elements in an array
