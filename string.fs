@@ -46,7 +46,7 @@
 \G store a string into an array at index n
 : $[]+! ( addr u n $[]addr -- )  $[] $+! ;
 \G add a string to the string at addr n
-: $[]@ ( n $[]addr -- addr u )  $[] dup @ IF $@ ELSE drop s" " THEN ;
+: $[]@ ( n $[]addr -- addr u )  $[] $@ ;
 \G fetch a string from array index n -- return the zero string if empty
 : $[]# ( addr -- len ) dup @ IF  $@len cell/  ELSE  @  THEN ;
 \G return the number of elements in an array
@@ -88,10 +88,13 @@ tmp$ $execstr-ptr !
 
 \ slurp in lines and files into strings and string-arrays
 
-: $slurp ( fid addr -- ) dup $init swap >r
+: $slurp ( fid addr -- )
+    \G slurp a file @var{fid} into a string @var{addr2}
+    dup $init swap >r
     r@ file-size throw drop over $!len
     dup $@ r> read-file throw swap $!len ;
 : $slurp-file ( addr1 u1 addr2 -- )
+    \G slurp a named file @var{addr1 u1} into a string @var{addr2}
     >r r/o open-file throw dup r> $slurp close-file throw ;
 
 : $slurp-line { fid addr -- flag }  addr $off  addr $init
@@ -100,15 +103,22 @@ tmp$ $execstr-ptr !
 	addr $@ sk /string fid read-line throw
 	swap dup sz = WHILE  2drop  REPEAT  sk + addr $!len ;
 : $[]slurp { fid addr -- }
+    \G slurp a file @var{fid} line by line into a string array @var{addr}
     0 { i }  BEGIN  fid i addr $[] $slurp-line  WHILE
 	    i 1+ to i   REPEAT
     \ we need to take off the last line, though
     i addr $[] $off  i cells addr $!len ;
 : $[]slurp-file ( addr u $addr -- )
+    \G slurp a named file @var{addr u} line by line into a string array @var{$addr}
     >r r/o open-file throw dup r> $[]slurp close-file throw ;
 
 : $[]map { addr xt -- }
+    \G execute @var{xt} for all elements of the string array @var{addr}.
+    \G xt is @var{( addr u -- )}, getting one string at a time
     addr $[]# 0 ?DO  I addr $[]@ xt execute  LOOP ;
-: $[]. ( addr -- ) [: type cr ;] $[]map ;
+: $[]. ( addr -- )
+    \G print all array entries
+    [: type cr ;] $[]map ;
 : $[]off ( addr -- )
+    \G release a string array
     dup $[]# 0 ?DO  I over $[] $off  LOOP  $off ;
