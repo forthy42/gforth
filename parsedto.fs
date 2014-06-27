@@ -27,6 +27,4 @@
     find-name dup 0= IF  drop   r:fail  EXIT  THEN
     name>comp drop r:to ;
 
-' to-recognizer
-forth-recognizer get-recognizers
-1+ forth-recognizer set-recognizers
+' to-recognizer get-recognizers 1+ set-recognizers

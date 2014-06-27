@@ -8235,7 +8235,7 @@ doc-num-recognizer
 doc-fnum-recognizer
 doc-get-recognizer
 doc-set-recognizer
-doc-forth-recognizer
+doc-do-recognizer
 doc-recognizer:
 
 @c -------------------------------------------------------------

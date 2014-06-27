@@ -189,7 +189,7 @@ AUser CSP
 
 [ifdef] compiler-r
 : postponer-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer dup
+    do-recognizer dup
     [ s" [[" find-name ] Literal =
     IF  drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
 

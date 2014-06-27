@@ -64,19 +64,17 @@ post: ( d xt -- ) >r postpone 2Literal r> post, ;
     THEN
     drop r:fail ;
 
-\ recognizer stack
+\ generic stack get/set
 
-$10 Constant max-rec#
+$10 Constant max-stack#
 
-: get-recognizers ( rec-addr -- xt1 .. xtn n )
-    \G take a recognizer stack and push the content on the stack
+: get-stack ( rec-addr -- xt1 .. xtn n )
     dup swap @ dup >r cells bounds swap ?DO
 	I @
     cell -LOOP  r> ;
 
-: set-recognizers ( xt1 .. xtn n rec-addr -- )
-    \G set a recognizer stack from content on the stack
-    over max-rec# u>= abort" Too many recognizers"
+: set-stack ( xt1 .. xtn n rec-addr -- )
+    over max-stack# u>= abort" Too many items"
     2dup ! cell+ swap cells bounds ?DO
 	I !
     cell +LOOP ;
@@ -84,14 +82,21 @@ $10 Constant max-rec#
 Variable forth-recognizer
 \G The system recognizer
 
-' word-recognizer A, ' num-recognizer A, max-rec# 2 - cells allot
+' word-recognizer A, ' num-recognizer A, max-stack# 2 - cells allot
 2 forth-recognizer !
 \ ' num-recognizer ' word-recognizer 2 forth-recognizer set-recognizers
 
+: get-recognizers ( -- xt1 .. xtn n )
+    \G push the content on the recognizer stack
+    forth-recognizer get-stack ;
+: set-recognizers ( xt1 .. xtn n )
+    \G set the recognizer stack from content on the stack
+    forth-recognizer set-stack ;
+
 \ recognizer loop
 
-: do-recognizer ( addr u rec-addr -- tokens xt )
-    \G apply a recognizer stack
+: map-recognizer ( addr u rec-addr -- tokens table )
+    \G apply a recognizer stack to a string, delivering a token
     dup cell+ swap @ cells bounds ?DO
 	2dup I -rot 2>r
 	perform dup r:fail <>  IF  2rdrop UNLOOP  EXIT  THEN  drop
@@ -99,18 +104,22 @@ Variable forth-recognizer
     cell +LOOP
     2drop r:fail ;
 
+: do-recognizer ( addr u -- tokens xt )
+    \G process the string @var{addr u} in the recognizer stack
+    forth-recognizer map-recognizer ;
+
 \ nested recognizer helper
 
 \ : nest-recognizer ( addr u -- token table | r:fail )
 \   xxx-recognizer do-recognizer ;
 
 : interpreter-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer name>int ;
+    do-recognizer name>int ;
 
 ' interpreter-r IS parser1
 
 : compiler-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer name>comp ;
+    do-recognizer name>comp ;
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
@@ -122,5 +131,5 @@ Variable forth-recognizer
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
-    parse-name forth-recognizer do-recognizer >postpone
+    parse-name do-recognizer >postpone
 ; immediate restrict

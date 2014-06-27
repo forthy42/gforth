@@ -103,6 +103,4 @@ dynamic-a to allocater
     IF  1 /string word-recognizer dup r:fail <> IF  r:moof2  THEN
     ELSE  2drop r:fail  THEN ;
 
-' moof2-recognizer
-forth-recognizer get-recognizers
-1+ forth-recognizer set-recognizers
+' moof2-recognizer get-recognizers 1+ set-recognizers

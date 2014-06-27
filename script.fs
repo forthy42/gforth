@@ -25,8 +25,7 @@ post: >r slit, r> post, ;
     \G evaluate string + rest of command line
     drop source drop - >in ! source >in @ /string dup >in +!
     ['] r:eval ;
-' eval-recognizer forth-recognizer get-recognizers 1+
-forth-recognizer set-recognizers
+' eval-recognizer get-recognizers 1+ set-recognizers
 
 2Variable sh$  0. sh$ 2!
 : sh-get ( addr u -- addr' u' )

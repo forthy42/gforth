@@ -177,8 +177,8 @@ si-prefixes count 2/ + Constant zero-exp
 	prefix-number r:fnumber r:fail rot select ;
     
     ' fnum-recognizer
-    forth-recognizer get-recognizers
-    1+ forth-recognizer set-recognizers
+    get-recognizers
+    1+ set-recognizers
 [else]
     [ifundef] compiler-notfound1
 	defer compiler-notfound1

@@ -32,9 +32,7 @@
     IF    drop source drop - 1+ >in !  \"-parse save-mem r:string
     ELSE  2drop r:fail  THEN ;
 
-' string-recognizer
-forth-recognizer get-recognizers
-1+ forth-recognizer set-recognizers
+' string-recognizer get-recognizers 1+ set-recognizers
 
 0 [IF] \ dot-quoted strings, we don't need them
 ' type
@@ -46,7 +44,5 @@ forth-recognizer get-recognizers
     IF    drop source drop - 2 + >in !  \"-parse save-mem r:."
     ELSE  r:fail  THEN ;
 
-' ."-recognizer
-forth-recognizer get-recognizers
-1+ forth-recognizer set-recognizers
+' ."-recognizer get-recognizers 1+ set-recognizers
 [THEN]
