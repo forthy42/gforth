@@ -41,26 +41,28 @@
 : >postpone ( token table -- )
     dup name>comp drop  >namevt @ >vtpostpone perform ;
 
-: word-recognizer ( addr u -- xt | r:fail )
+: rec:word ( addr u -- xt | r:fail )
     \G Searches a word in the wordlist stack
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
     dup 0= IF  drop r:fail  THEN ;
 
-: r:num ( n -- n ) ;
+:noname ( n -- n ) ;
 comp: ( n xt -- ) drop postpone Literal ;
 post: ( n xt -- ) >r postpone Literal r> post, ;
+AConstant r:num
 
-: r:2num ( d -- d ) ;
+:noname ( d -- d ) ;
 comp: ( d xt -- ) drop postpone 2Literal ;
 post: ( d xt -- ) >r postpone 2Literal r> post, ;
+AConstant r:dnum
 
 \ snumber? should be implemented as recognizer stack
 
-: num-recognizer ( addr u -- n/d table | r:fail )
+: rec:num ( addr u -- n/d table | r:fail )
     \G converts a number to a single/double integer
     snumber?  dup
     IF
-	0> IF  ['] r:2num   ELSE  ['] r:num  THEN  EXIT
+	0> IF  r:dnum   ELSE  r:num  THEN  EXIT
     THEN
     drop r:fail ;
 
@@ -82,7 +84,7 @@ $10 Constant max-stack#
 Variable forth-recognizer
 \G The system recognizer
 
-' word-recognizer A, ' num-recognizer A, max-stack# 2 - cells allot
+' rec:word A, ' rec:num A, max-stack# 2 - cells allot
 2 forth-recognizer !
 \ ' num-recognizer ' word-recognizer 2 forth-recognizer set-recognizers
 

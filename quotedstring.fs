@@ -27,22 +27,22 @@
 :noname drop slit, ;
 :noname >r slit, r> post, ; recognizer: r:string
 
-: string-recognizer ( addr u -- addr u' r:string | r:fail )
+: rec:string ( addr u -- addr u' r:string | r:fail )
     2dup s\" \"" string-prefix?
     IF    drop source drop - 1+ >in !  \"-parse save-mem r:string
     ELSE  2drop r:fail  THEN ;
 
-' string-recognizer get-recognizers 1+ set-recognizers
+' rec:string get-recognizers 1+ set-recognizers
 
 0 [IF] \ dot-quoted strings, we don't need them
 ' type
 :noname drop slit, postpone type ;
 :noname >r slit, r> post, ; recognizer: r:."
 
-: ."-recognizer  ( addr u -- addr u' r:." | addr u r:fail )
+: rec:."  ( addr u -- addr u' r:." | addr u r:fail )
     2dup ".\"" string-prefix?
     IF    drop source drop - 2 + >in !  \"-parse save-mem r:."
     ELSE  r:fail  THEN ;
 
-' ."-recognizer get-recognizers 1+ set-recognizers
+' rec:." get-recognizers 1+ set-recognizers
 [THEN]

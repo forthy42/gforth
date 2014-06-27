@@ -21,10 +21,10 @@
 :noname drop (comp-to) ;
 :noname >r lit, r> post, ; recognizer: r:to
 
-: to-recognizer ( addr u -- xt r:to | r:fail )
+: rec:to ( addr u -- xt r:to | r:fail )
     2dup s" ->" string-prefix?  0= IF  2drop  r:fail  EXIT  THEN
     2 /string dup 0= IF  2drop  r:fail  EXIT  THEN
     find-name dup 0= IF  drop   r:fail  EXIT  THEN
     name>comp drop r:to ;
 
-' to-recognizer get-recognizers 1+ set-recognizers
+' rec:to get-recognizers 1+ set-recognizers
