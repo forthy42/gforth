@@ -293,7 +293,8 @@ GFORTH_FI_SRC = \
 LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
 	unix/filestat.fs
 
-EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs $(LIBCC_SRC)
+EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs $(LIBCC_SRC) \
+	mkdir.fs
 
 LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC)
 

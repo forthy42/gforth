@@ -8771,6 +8771,7 @@ doc-filename-match
 doc-get-dir
 doc-set-dir
 doc-=mkdir
+doc-mkdir-parents
 
 @c ---------------------------------------------------------
 @node Search Paths, , Directories, Files
