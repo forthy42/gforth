@@ -7,7 +7,9 @@
 
     <!-- This is the platform API where NativeActivity was introduced. -->
     <!-- However, we use OpenMAX AL, so 10 doesn't work any longer -->
-    <uses-sdk android:minSdkVersion="10" />
+    <uses-sdk
+     android:minSdkVersion="14"
+     android:targetSdkVersion="18" />
 
     <!-- This .apk has no Java code itself, so set hasCode to false. -->
     <application android:icon="@drawable/ic_launcher" android:label="@string/app_name">

@@ -22,6 +22,7 @@ package gnu.gforth;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.content.ClipboardManager;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
@@ -65,7 +66,8 @@ public class Gforth
 	       LocationListener,
 	       SensorEventListener,
 	       SurfaceHolder.Callback2,
-	       OnGlobalLayoutListener {
+	       OnGlobalLayoutListener,
+	       ClipboardManager.OnPrimaryClipChangedListener {
     private long argj0=1000; // update every second
     private double argf0=10;    // update every 10 meters
     private String args0="gps";
@@ -73,6 +75,7 @@ public class Gforth
     private Gforth gforth;
     private LocationManager locationManager;
     private SensorManager sensorManager;
+    private ClipboardManager clipboardManager;
     private boolean started=false;
 
     public Handler handler;
@@ -297,6 +300,7 @@ public class Gforth
 	if(!started) {
 	    locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
 	    sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
+	    clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
 	    handler=new Handler();
 	    startgps=new Runnable() {
 		    public void run() {
@@ -436,5 +440,10 @@ public class Gforth
 	mpch newmp = new mpch(mp, width, height);
 
 	onEventNative(9, newmp);
+    }
+
+    @Override
+    public void onPrimaryClipChanged() {
+	onEventNative(16, 0);
     }
 }
