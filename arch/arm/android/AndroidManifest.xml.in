@@ -8,7 +8,7 @@
     <!-- This is the platform API where NativeActivity was introduced. -->
     <!-- However, we use OpenMAX AL, so 10 doesn't work any longer -->
     <uses-sdk
-     android:minSdkVersion="14"
+     android:minSdkVersion="10"
      android:targetSdkVersion="18" />
 
     <!-- This .apk has no Java code itself, so set hasCode to false. -->
