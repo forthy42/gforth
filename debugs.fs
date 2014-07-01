@@ -43,11 +43,12 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 \G prints the additional information with @code{printdebugdata}.
 
 : (.debugline) ( nfile nline -- )
+    info-color attr!
     cr .sourcepos ." :"
     \ it would be nice to print the name of the following word,
     \ but that's not easily possible for primitives
     printdebugdata
-    cr ;
+    cr default-color attr! ;
 
 [IFUNDEF] debug-fid
 stderr value debug-fid ( -- fid )

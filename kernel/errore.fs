@@ -65,6 +65,13 @@ has? OS [IF]
     base @ >r decimal
     s>d tuck dabs <# #s rot sign s" error #" holds #> r> base ! ;
 
+has? OS [IF]
+    $000 Value default-color
+    $100 Value err-color
+    $400 Value warn-color
+    $200 Value info-color
+[THEN]
+
 : .error ( n -- )
 [ has? OS [IF] ]
     >stderr

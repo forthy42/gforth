@@ -877,18 +877,21 @@ Defer .error-level ( n -- )
 
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
-  [ has? os [IF] ]
-      >stderr
-  [ [THEN] ]
-  input-error-data 2 .error-frame
-  error-stack $@len 0 ?DO
-    error>
-    2 .error-frame
-  /error +LOOP
-  drop 
-[ has? backtrace [IF] ]
-  dobacktrace
-[ [THEN] ]
+    [ has? os [IF] ]
+	>stderr err-color attr!
+	[ [THEN] ]
+    input-error-data 2 .error-frame
+    error-stack $@len 0 ?DO
+	error>
+	2 .error-frame
+    /error +LOOP
+    drop 
+    [ has? backtrace [IF] ]
+	dobacktrace
+	[ [THEN] ]
+    [ has? os [IF] ]
+	default-color attr!
+	[ [THEN] ]
   normal-dp dpp ! ;
 
 ' (DoError) IS DoError
