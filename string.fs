@@ -48,7 +48,7 @@
 \G add a string to the string at addr n
 : $[]@ ( n $[]addr -- addr u )  $[] $@ ;
 \G fetch a string from array index n -- return the zero string if empty
-: $[]# ( addr -- len ) dup @ IF  $@len cell/  ELSE  @  THEN ;
+: $[]# ( addr -- len )          $@len cell/ ;
 \G return the number of elements in an array
 : $+[]! ( addr u $[]addr -- ) dup $[]# swap $[]! ;
 \G add a string at the end of the array
