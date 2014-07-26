@@ -277,10 +277,10 @@ IS kill-task
 : unlock ( addr -- )  pthread_mutex_unlock drop ;
 \G unlock the semaphore
 
-: c-section ( xt addr -- )  >r
+: c-section ( xt addr -- ) 
     \G implement a critical section that will unlock the semaphore
     \G even in case there's an exception within.
-    r@ lock catch r> unlock throw ;
+    { sema } try sema lock execute 0 restore sema unlock endtry throw ;
 
 : >pagealign-stack ( n addr -- n' )
     >r 1- r> 1- pagesize negate mux 1+ ;
