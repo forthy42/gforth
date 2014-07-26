@@ -59,6 +59,7 @@ c-library pthread
     \c   void *(*gforth_pointers)(Cell) = saved_gforth_pointers;
     \c #endif
     \c   void *ip0=(void*)(t->save_task);
+    \c   sigset_t set;
     \c   gforth_SP=(Cell*)(t->sp0);
     \c   gforth_RP=(Cell*)(t->rp0);
     \c   gforth_FP=(Float*)(t->fp0);
@@ -71,6 +72,8 @@ c-library pthread
     \c   /* mcheck(gfpthread_abortmcheck); */
     \c #endif
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
+    \c   sigfillset(&set);
+    \c   pthread_sigmask(SIG_BLOCK, &set, NULL);
     \c   x=gforth_go(ip0);
     \c   pthread_cleanup_pop(1);
     \c   pthread_exit((void*)x);
