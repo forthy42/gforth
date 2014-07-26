@@ -72,7 +72,10 @@ c-library pthread
     \c   /* mcheck(gfpthread_abortmcheck); */
     \c #endif
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
-    \c   sigfillset(&set);
+    \c   sigemptyset(&set);
+    \c   sigaddset(&set, SIGINT);
+    \c   sigaddset(&set, SIGQUIT);
+    \c   sigaddset(&set, SIGTERM);
     \c   pthread_sigmask(SIG_BLOCK, &set, NULL);
     \c   x=gforth_go(ip0);
     \c   pthread_cleanup_pop(1);
