@@ -17,16 +17,16 @@
 
 \ scripting extensions
 
-: r:eval ( addr u -- ) cr system ;
+:noname ( addr u -- ) cr system ;
 comp: drop slit, ]] cr system [[ ;
 post: >r slit, r> post, ;
+Constant r:eval
 
-: eval-recognizer ( addr u -- addr u' r:string )
+: rec:eval ( addr u -- addr u' r:string )
     \G evaluate string + rest of command line
     drop source drop - >in ! source >in @ /string dup >in +!
-    ['] r:eval ;
-' eval-recognizer forth-recognizer get-recognizers 1+
-forth-recognizer set-recognizers
+    r:eval ;
+' rec:eval get-recognizers 1+ set-recognizers
 
 2Variable sh$  0. sh$ 2!
 : sh-get ( addr u -- addr' u' )

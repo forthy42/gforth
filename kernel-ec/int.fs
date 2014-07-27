@@ -29,7 +29,6 @@ require ./nio.fs	\ . <# ...
 require ./errore.fs	\ .error ...
 require kernel/version.fs \ version-string
 
-has? new-input 0= [IF]
 : tib ( -- c-addr ) \ core-ext t-i-b
     \G @i{c-addr} is the address of the Terminal Input Buffer.
     \G OBSOLESCENT: @code{source} superceeds the function of this word.
@@ -43,7 +42,6 @@ Defer source ( -- c-addr u ) \ core
 : (source) ( -- c-addr u )
     tib #tib @ ;
 ' (source) IS source
-[THEN]
 
 : (word) ( addr1 n1 char -- addr2 n2 )
   dup >r skip 2dup r> scan  nip - ;
@@ -59,10 +57,7 @@ Defer source ( -- c-addr u ) \ core
 \G parse area. If the parse area was empty, @i{u} is 0.
     >r  source  >in @ over min /string ( c-addr1 u1 )
     over  swap r>  scan >r
-    over - dup r> IF 1+ THEN  >in +!
-[ has? new-input [IF] ]
-    2dup input-lexeme!
-[ [THEN] ] ;
+    over - dup r> IF 1+ THEN  >in +! ;
 
 \ name                                                 13feb93py
 
@@ -246,21 +241,21 @@ $1f constant lcount-mask
 : compile-only-error ( ... -- )
     -&14 throw ;
 
-: (cfa>int) ( cfa -- xt )
-[ has? compiler [IF] ]
-    dup interpret/compile?
-    if
-	interpret/compile-int @
-    then 
-[ [THEN] ] ;
+: >does-code ( xt -- a_addr ) \ gforth
+\G If @i{xt} is the execution token of a child of a @code{DOES>} word,
+\G @i{a-addr} is the start of the Forth code after the @code{DOES>};
+\G Otherwise @i{a-addr} is 0.
+    dup @ dodoes: = if
+	cell+ @
+    else
+	drop 0
+    endif ;
 
 : (x>int) ( cfa w -- xt )
     \ get interpretation semantics of name
     restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
     if
 	drop ['] compile-only-error
-    else
-	(cfa>int)
     then ;
 
 : name>string ( nt -- addr count ) \ gforth     name-to-string
@@ -291,18 +286,11 @@ $1f constant lcount-mask
     (name>x) restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
     if
 	ticking-compile-only-error \ does not return
-    then
-    (cfa>int) ;
+    then ;
 
 : (name>comp) ( nt -- w +-1 ) \ gforth
     \G @i{w xt} is the compilation token for the word @i{nt}.
     (name>x) >r 
-[ has? compiler [IF] ]
-    dup interpret/compile?
-    if
-        interpret/compile-comp @
-    then 
-[ [THEN] ]
     r> immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign
     ;
 
@@ -347,16 +335,6 @@ has? standardthreading has? compiler and [IF]
 
 ' @ alias >code-address ( xt -- c_addr ) \ gforth
 \G @i{c-addr} is the code address of the word @i{xt}.
-
-: >does-code ( xt -- a_addr ) \ gforth
-\G If @i{xt} is the execution token of a child of a @code{DOES>} word,
-\G @i{a-addr} is the start of the Forth code after the @code{DOES>};
-\G Otherwise @i{a-addr} is 0.
-    dup @ dodoes: = if
-	cell+ @
-    else
-	drop 0
-    endif ;
 
 has? prims [IF]
     : flash! ! ;
@@ -451,82 +429,22 @@ Defer parser1 ( c-addr u -- ... xt)
 : parser ( c-addr u -- ... )
 \ text-interpret the word/number c-addr u, possibly producing a number
     parser1 execute ;
-has? ec [IF]
-    ' (name) Alias parse-name
-    : no.extensions  2drop -&13 throw ;
-    ' no.extensions Alias compiler-notfound1
-    ' no.extensions Alias interpreter-notfound1
-[ELSE]    
-Defer parse-name ( "name" -- c-addr u ) \ gforth
-\G Get the next word from the input buffer
-' (name) IS parse-name
 
-' parse-name alias parse-word ( -- c-addr u ) \ gforth-obsolete
-\G old name for @code{parse-name}
-    
-' parse-name alias name ( -- c-addr u ) \ gforth-obsolete
-\G old name for @code{parse-name}
-    
-: no.extensions  ( addr u -- )
-    2drop -&13 throw ;
+' (name) Alias parse-name
+: no.extensions  2drop -&13 throw ;
+' no.extensions Alias compiler-notfound1
+' no.extensions Alias interpreter-notfound1
 
-has? recognizer 0= [IF]
-Defer compiler-notfound1 ( c-addr count -- ... xt )
-Defer interpreter-notfound1 ( c-addr count -- ... xt )
-
-' no.extensions IS compiler-notfound1
-' no.extensions IS interpreter-notfound1
-[THEN]
-
-Defer before-word ( -- ) \ gforth
-\ called before the text interpreter parses the next word
-' noop IS before-word
-
-Defer before-line ( -- ) \ gforth
-\ called before the text interpreter parses the next line
-' noop IS before-line
-
-[THEN]
-
-has? backtrace [IF]
-: interpret1 ( ... -- ... )
-    rp@ backtrace-rp0 !
-    [ has? EC 0= [IF] ] before-line [ [THEN] ]
-    BEGIN
-	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
-    WHILE
-	parser1 execute
-    REPEAT
-    2drop ;
-    
-: interpret ( ?? -- ?? ) \ gforth
-    \ interpret/compile the (rest of the) input buffer
-    backtrace-rp0 @ >r	
-    ['] interpret1 catch
-    r> backtrace-rp0 !
-    throw ;
-[ELSE]
 : interpret ( ... -- ... )
     BEGIN
-	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
+	?stack parse-name dup
     WHILE
 	parser1 execute
     REPEAT
     2drop ;
-[THEN]
 
 \ interpreter                                 	30apr92py
 
-[IFDEF] prelude-mask
-: run-prelude ( nt|0 -- nt|0 )
-    \ run the prelude of the name identified by nt (if present).  This
-    \ is used in the text interpreter and similar stuff.
-    dup if
-	dup name>prelude execute
-    then ;
-[THEN]
-
-has? recognizer 0= [IF]
 \ not the most efficient implementations of interpreter and compiler
 : interpreter1 ( c-addr u -- ... xt ) 
     2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
@@ -543,20 +461,11 @@ has? recognizer 0= [IF]
     then ;
 
 ' interpreter1  IS  parser1
-[THEN]
 
 \ \ Query Evaluate                                 	07apr93py
 
-has? file 0= [IF]
 : sourceline# ( -- n )  1 ;
-[ELSE]
-has? new-input 0= [IF]
-Variable #fill-bytes
-\G number of bytes read via (read-line) by the last refill
-[THEN]
-[THEN]
 
-has? new-input 0= [IF]
 : input-start-line ( -- )  >in off ;
 : refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When
@@ -572,64 +481,17 @@ has? new-input 0= [IF]
     \G make the result the current input buffer, set @code{>IN} to 0
     \G and return true; otherwise, return false.  A successful result
     \G includes receipt of a line containing 0 characters.
-    [ has? file [IF] ]
-	blk @  IF  1 blk +!  true  EXIT  THEN
-	[ [THEN] ]
-    tib /line
-    [ has? file [IF] ]
-	loadfile @ ?dup
-	IF    (read-line) throw #fill-bytes !
-	ELSE
-	    [ [THEN] ]
-	sourceline# 0< IF 2drop false EXIT THEN
-	accept eof @ 0=
-	[ has? file [IF] ]
-	THEN
-	1 loadline +!
-	[ [THEN] ]
-    swap #tib !
+    tib /line swap #tib !
     input-start-line ;
 
 : query   ( -- ) \ core-ext
     \G Make the user input device the input source. Receive input into
     \G the Terminal Input Buffer. Set @code{>IN} to zero. OBSOLESCENT:
     \G superceeded by @code{accept}.
-    [ has? file [IF] ]
-	blk off loadfile off
-	[ [THEN] ]
     refill drop ;
-[THEN]
-
-\ save-mem extend-mem
-
-has? os [IF]
-: save-mem	( addr1 u -- addr2 u ) \ gforth
-    \g copy a memory block into a newly allocated region in the heap
-    swap >r
-    dup allocate throw
-    swap 2dup r> -rot move ;
-
-: free-mem-var ( addr -- )
-    \ addr is the address of a 2variable containing address and size
-    \ of a memory range; frees memory and clears the 2variable.
-    dup 2@ drop dup
-    if ( addr mem-start )
-	free throw
-	0 0 rot 2!
-    else
-	2drop
-    then ;
-
-: extend-mem	( addr1 u1 u -- addr addr2 u2 )
-    \ extend memory block allocated from the heap by u aus
-    \ the (possibly reallocated) piece is addr2 u2, the extension is at addr
-    over >r + dup >r resize throw
-    r> over r> + -rot ;
-[THEN]
 
 \ EVALUATE                                              17may93jaw
 
-has? file 0= has? new-input 0= and [IF]
 : push-file  ( -- )  r>
   tibstack @ >r  >tib @ >r  #tib @ >r
   >tib @ tibstack @ = IF  r@ tibstack +!  THEN
@@ -638,30 +500,18 @@ has? file 0= has? new-input 0= and [IF]
 : pop-file   ( throw-code -- throw-code )
   r>
   r> >in !  r> #tib !  r> >tib !  r> tibstack !  >r ;
-[THEN]
 
-has? new-input 0= [IF]
 : evaluate ( c-addr u -- ) \ core,block
     \G Save the current input source specification. Store @code{-1} in
     \G @code{source-id} and @code{0} in @code{blk}. Set @code{>IN} to
     \G @code{0} and make the string @i{c-addr u} the input source
     \G and input buffer. Interpret. When the parse area is empty,
     \G restore the input source specification.
-[ has? file [IF] ]
-    s" *evaluated string*" loadfilename>r
-[ [THEN] ]
     push-file #tib ! >tib !
     input-start-line
-    [ has? file [IF] ]
-	blk off loadfile off -1 loadline !
-	[ [THEN] ]
     ['] interpret catch
     pop-file
-[ has? file [IF] ]
-    r>loadfilename
-[ [THEN] ]
     throw ;
-[THEN]
 
 \ \ Quit                                            	13feb93py
 
@@ -679,8 +529,7 @@ Defer 'quit
 : (quit) ( -- )
     \ exits only through THROW etc.
     BEGIN
-	[ has? ec [IF] ] cr [ [ELSE] ]
-	.status ['] cr catch if
+	cr ['] cr catch if
 	    [ has? OS [IF] ] >stderr [ [THEN] ]
 	    cr ." Can't print to stdout, leaving" cr
 	    \ if stderr does not work either, already DoError causes a hang

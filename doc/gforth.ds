@@ -8235,7 +8235,7 @@ doc-num-recognizer
 doc-fnum-recognizer
 doc-get-recognizer
 doc-set-recognizer
-doc-forth-recognizer
+doc-do-recognizer
 doc-recognizer:
 
 @c -------------------------------------------------------------
@@ -8771,6 +8771,7 @@ doc-filename-match
 doc-get-dir
 doc-set-dir
 doc-=mkdir
+doc-mkdir-parents
 
 @c ---------------------------------------------------------
 @node Search Paths, , Directories, Files
@@ -12368,7 +12369,7 @@ are really concurrent tasks (at least on a multi-core CPU), and
 therefore, several techniques to avoid conflicts when accessing the same
 resources.
 
-@subsubsection{Semaphores}
+@subsubsection Semaphores
 
 Semaphores can only be aquired by one thread, all other threads have to
 wait until the semapohre is released.
@@ -12385,7 +12386,7 @@ exclusive.
 
 doc-c-section
 
-@subsubsection{Message Queues}
+@subsubsection Message Queues
 
 Gforth implements executable message queues: you send instructions to
 other tasks, which they will execute as atomic sequence when they are
@@ -12405,7 +12406,7 @@ doc-elit,
 doc-e$,
 doc-eflit,
 
-@subsubsection{Conditions}
+@subsubsection Conditions
 
 The pthreads library also provides conditional variables, which allow to
 wait for a condition.  Using the message queue is generally preferred.

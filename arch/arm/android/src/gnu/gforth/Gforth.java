@@ -22,8 +22,10 @@ package gnu.gforth;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.ClipboardManager;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.location.Location;
@@ -40,6 +42,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.OrientationEventListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.view.inputmethod.InputConnection;
@@ -65,7 +68,8 @@ public class Gforth
 	       LocationListener,
 	       SensorEventListener,
 	       SurfaceHolder.Callback2,
-	       OnGlobalLayoutListener {
+	       OnGlobalLayoutListener /* ,
+	       ClipboardManager.OnPrimaryClipChangedListener */ {
     private long argj0=1000; // update every second
     private double argf0=10;    // update every 10 meters
     private String args0="gps";
@@ -73,7 +77,9 @@ public class Gforth
     private Gforth gforth;
     private LocationManager locationManager;
     private SensorManager sensorManager;
+    private ClipboardManager clipboardManager;
     private boolean started=false;
+    private boolean libloaded=false;
 
     public Handler handler;
     public Runnable startgps;
@@ -263,6 +269,7 @@ public class Gforth
     protected void onCreate(Bundle savedInstanceState) {
         ActivityInfo ai;
         String libname = "gforth";
+
 	gforth=this;
 	progress=null;
 
@@ -277,6 +284,7 @@ public class Gforth
         setContentView(mContentView);
         mContentView.requestFocus();
         mContentView.getViewTreeObserver().addOnGlobalLayoutListener(this);
+	// setRetainInstance(true);
 
 	try {
             ai = getPackageManager().getActivityInfo(getIntent().getComponent(), PackageManager.GET_META_DATA);
@@ -287,8 +295,13 @@ public class Gforth
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException("Error getting activity info", e);
         }
-	Log.v(TAG, "open library: " + libname);
-	System.loadLibrary(libname);
+	if(!libloaded) {
+	    Log.v(TAG, "open library: " + libname);
+	    System.loadLibrary(libname);
+	    libloaded=true;
+	} else {
+	    Log.v(TAG, "Library already loaded");
+	}
 	super.onCreate(savedInstanceState);
     }
 
@@ -297,6 +310,7 @@ public class Gforth
 	if(!started) {
 	    locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
 	    sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
+	    clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
 	    handler=new Handler();
 	    startgps=new Runnable() {
 		    public void run() {
@@ -436,5 +450,18 @@ public class Gforth
 	mpch newmp = new mpch(mp, width, height);
 
 	onEventNative(9, newmp);
+    }
+    /*
+    @Override
+    public void onPrimaryClipChanged() {
+	onEventNative(16, 0);
+    }
+    */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+	Log.v(TAG, "Configuration changed");
+	super.onConfigurationChanged(newConfig);
+	
+	onEventNative(17, newConfig.orientation);
     }
 }

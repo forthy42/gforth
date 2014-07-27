@@ -170,15 +170,15 @@ si-prefixes count 2/ + Constant zero-exp
 [ifdef] r:fail
     ' noop
     :noname drop postpone Fliteral ;
-    :noname >r postpone Fliteral r> post, ; recognizer: r:fnumber
+    :noname >r postpone Fliteral r> post, ; recognizer: r:float
 
-    : fnum-recognizer ( addr u -- float int-table | r:fail )
+    : rec:float ( addr u -- float int-table | r:fail )
 	\G recognize floating point numbers
-	prefix-number r:fnumber r:fail rot select ;
+	prefix-number r:float r:fail rot select ;
     
-    ' fnum-recognizer
-    forth-recognizer get-recognizers
-    1+ forth-recognizer set-recognizers
+    ' rec:float
+    get-recognizers
+    1+ set-recognizers
 [else]
     [ifundef] compiler-notfound1
 	defer compiler-notfound1

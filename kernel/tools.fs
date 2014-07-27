@@ -107,10 +107,12 @@ include  ./../termsize.fs
 	REPEAT  r>
     THEN  drop rdrop ;
 
-: .word ( n nt -- n' )
+Defer word-colorize ' noop is word-colorize
+
+: .word ( n nt -- n' ) word-colorize
     name>string tuck 2>r
     1+ tuck + dup cols >=  IF  cr drop  ELSE  nip  THEN
-    2r> type space ;
+    2r> type space default-color attr! ;
 
 : wordlist-words ( wid -- ) \ gforth
     \G Display the contents of the wordlist wid.

@@ -267,8 +267,9 @@ is throw
 
 : c(warning") ( c-addr -- )
     warnings @ IF
-	>stderr
+	>stderr warn-color attr!
 	"error ! -2 input-error-data 1 .error-frame
+	default-color attr!
     THEN drop ;
 
 : abort ( ?? -- ?? ) \ core,exception-ext

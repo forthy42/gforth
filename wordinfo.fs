@@ -114,7 +114,7 @@ CREATE InfoTable
         WHILE  swap 2 cells + swap
                2 pick swap execute
         UNTIL
-        >link @ nip
+        cell- @ nip
         ELSE
         2drop drop 0
         THEN ;

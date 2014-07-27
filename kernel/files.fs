@@ -114,7 +114,9 @@ Redefinitions-start
 	IF
 	    warnings @
 	    IF
+		>stderr warn-color attr!
 		." warning: ')' missing" cr
+		default-color attr!
 	    THEN
 	    EXIT
 	THEN

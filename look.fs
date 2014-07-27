@@ -122,7 +122,7 @@ has? rom
 
 [IFDEF] forth-recognizer
     : .recs ( -- )
-	forth-recognizer get-recognizers 0 ?DO
+	get-recognizers 0 ?DO
 	    >name .name
 	LOOP ;
 [THEN]
