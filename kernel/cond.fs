@@ -248,8 +248,8 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
     >leave rdrop ; immediate restrict
 
 : LEAVE ( compilation -- ; run-time loop-sys -- ) \ core
-    POSTPONE ahead
-    >leave ; immediate restrict
+    compile-only-error ; restrict
+comp: drop POSTPONE ahead >leave ;
 
 : ?LEAVE ( compilation -- ; run-time f | f loop-sys -- ) \ gforth	question-leave
     POSTPONE 0= POSTPONE if
