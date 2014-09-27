@@ -237,8 +237,10 @@ get-current libcc-types set-current
 -1
 const+ -- \ end of arguments
 const+ n \ integer cell
+const+ u \ integer cell
 const+ a \ address cell
 const+ d \ double
+const+ ud \ double
 const+ r \ float
 const+ func \ C function pointer
 const+ void
@@ -301,10 +303,16 @@ drop
 : count-stacks-n ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     1+ ;
 
+: count-stacks-u ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
+    1+ ;
+
 : count-stacks-a ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     1+ ;
 
 : count-stacks-d ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
+    2 + ;
+
+: count-stacks-ud ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     2 + ;
 
 : count-stacks-r ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
@@ -318,8 +326,10 @@ drop
 
 create count-stacks-types
 ' count-stacks-n ,
+' count-stacks-u ,
 ' count-stacks-a ,
 ' count-stacks-d ,
+' count-stacks-ud ,
 ' count-stacks-r ,
 ' count-stacks-func ,
 ' count-stacks-void ,
@@ -346,10 +356,16 @@ create count-stacks-types
 : gen-par-n ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     type gen-par-sp ;
 
+: gen-par-u ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    type gen-par-sp ;
+
 : gen-par-a ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     dup 0= IF  2drop ." (void *)"  ELSE type  THEN s" (" gen-par-n ." )" ;
 
 : gen-par-d ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
+
+: gen-par-ud ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
 
 : gen-par-r ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
@@ -363,8 +379,10 @@ create count-stacks-types
 
 create gen-par-types
 ' gen-par-n ,
+' gen-par-u ,
 ' gen-par-a ,
 ' gen-par-d ,
+' gen-par-ud ,
 ' gen-par-r ,
 ' gen-par-func ,
 ' gen-par-void ,
@@ -406,11 +424,18 @@ create gen-call-types
 : gen-wrapped-n ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     2dup gen-par-sp 2>r ." =" gen-wrapped-call 2r> ;
 
+: gen-wrapped-u ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
+    2dup gen-par-sp 2>r ." =" gen-wrapped-call 2r> ;
+
 : gen-wrapped-a ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     2dup gen-par-sp 2>r ." =(Cell)" gen-wrapped-call 2r> ;
 
 : gen-wrapped-d ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     ." gforth_ll2d(" gen-wrapped-void
+    ." ," gen-par-sp ." ," gen-par-sp ." )" ;
+
+: gen-wrapped-ud ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
+    ." gforth_ll2ud(" gen-wrapped-void
     ." ," gen-par-sp ." ," gen-par-sp ." )" ;
 
 : gen-wrapped-r ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
@@ -421,8 +446,10 @@ create gen-call-types
 
 create gen-wrapped-types
 ' gen-wrapped-n ,
+' gen-wrapped-u ,
 ' gen-wrapped-a ,
 ' gen-wrapped-d ,
+' gen-wrapped-ud ,
 ' gen-wrapped-r ,
 ' gen-wrapped-func ,
 ' gen-wrapped-void ,
@@ -476,16 +503,20 @@ create gen-wrapped-types
 \ callbacks
 
 : gen-n ( -- ) ." Cell" ;
+: gen-u ( -- ) ." UCell" ;
 : gen-a ( -- ) ." void*" ;
 : gen-d ( -- ) ." Clongest" ;
+: gen-ud ( -- ) ." UClongest" ;
 : gen-r ( -- ) ." Float" ;
 : gen-func ( -- ) ." void(*)()" ;
 : gen-void ( -- ) ." void" ;
 
 create gen-types
 ' gen-n ,
+' gen-u ,
 ' gen-a ,
 ' gen-d ,
+' gen-ud ,
 ' gen-r ,
 ' gen-func ,
 ' gen-void ,

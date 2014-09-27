@@ -89,11 +89,25 @@ gforth_libcc_init(void *(*gforth_pointers_init)(Cell))
 #define CELL_BITS	(sizeof(Cell) * 8)
 
 #define gforth_d2ll(lo,hi) \
-  ((sizeof(Cell) < sizeof(Clongest)) \
+  (Clongest)((sizeof(Cell) < sizeof(Clongest))		\
+   ? (((UClongest)(lo))|(((UClongest)(hi))<<CELL_BITS)) \
+   : (lo))
+
+#define gforth_ud2ll(lo,hi) \
+  (UClongest)((sizeof(Cell) < sizeof(Clongest))		\
    ? (((UClongest)(lo))|(((UClongest)(hi))<<CELL_BITS)) \
    : (lo))
 
 #define gforth_ll2d(ll,lo,hi) \
+  do { \
+    Clongest _ll = (ll); \
+    (lo) = (Cell)_ll; \
+    (hi) = ((sizeof(Cell) < sizeof(Clongest)) \
+            ? (_ll >> CELL_BITS) \
+            : 0); \
+  } while (0);
+
+#define gforth_ll2ud(ll,lo,hi) \
   do { \
     UClongest _ll = (ll); \
     (lo) = (Cell)_ll; \
