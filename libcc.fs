@@ -175,6 +175,7 @@ Variable lib-filename   \ filename without extension
 variable lib-modulename \ basename of the file without extension
 variable libcc-named-dir$ \ directory for named libcc wrapper libraries
 Variable libcc-path      \ pointer to path of library directories
+Variable ptr-declare
 
 defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 ' noop is replace-rpath
@@ -490,7 +491,7 @@ create gen-wrapped-types
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
-    is-funptr? IF  .\" Cell ptr = *sp++;\n  "  THEN
+    is-funptr? IF  ptr-declare $. .\" \n  "  THEN
     pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
     dup is-funptr? or if
 	."   gforth_SP = sp+" dup .nb .\" ;\n"
@@ -741,7 +742,8 @@ DEFER compile-wrapper-function ( -- )
     align here 0 , lib-handle-addr !
     c-libs $init
     lib-modulename $init
-    libcc$ $init libcc-include ;
+    libcc$ $init libcc-include
+    s\" Cell ptr = *sp++;" ptr-declare $! ;
 clear-libs
 
 \ compilation wrapper
@@ -915,7 +917,7 @@ c-function-rt  lastxt Constant dummy-rt
     libcc-named-dir$ $init
     [: ." ~/.gforth" arch-modifier type ." /" machine type ." /libcc-named/"
     ;] libcc-named-dir$ $exec
-    libcc-path $init
+    libcc-path $init  ptr-declare $init
     clear-libs
     libcc-named-dir libcc-path also-path
     [ s" libccdir" getenv ] sliteral libcc-path also-path ;
