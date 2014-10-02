@@ -2,7 +2,7 @@
 
 INCLUDES   = -I$(NDK)/usr/include -I$(NDK)/usr/include/GLES -I$(NDK)/usr/include/EGL -I$(NDK)/usr/include/OMXAL
 SWIG       = swig
-TARGETS    = gles.fsx egl.fsx glext.fsx androidlib.fsx pnglib.fsx omxal.fsx openvg.fsx jni.fsx
+TARGETS    = gles.fs egl.fs glext.fs pnglib.fs #omxal.fs openvg.fs jni.fs androidlib.fs 
 LIBRARY    = opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
 OPTIONS    = -forth -no-sectioncomments -stackcomments $(INCLUDES)
 INSTALL	= /usr/bin/install -c

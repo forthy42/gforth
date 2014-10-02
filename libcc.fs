@@ -297,7 +297,7 @@ drop
 0 Value is-funptr?
 
 : type-letter ( n -- c )
-    chars s" nadrfv" drop + c@ ;
+    chars s" nuadUrfv" drop + c@ ;
 
 \ count-stacks
 
