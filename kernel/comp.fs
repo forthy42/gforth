@@ -581,9 +581,13 @@ defer ;-hook ( sys2 -- sys1 )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
 
+: concat ( xt1 xt2 -- xt )  >r >r
+    :noname r> compile, r> compile, postpone ; ;
+
 : recognizer: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table
-    >r >r >r :noname r> compile, postpone ;
+    ['] drop swap concat >r  ['] drop swap concat >r
+    >r :noname r> compile, postpone ;
     r> set-compiler r> set-postpone  Constant ;
 
 \ new interpret/compile:

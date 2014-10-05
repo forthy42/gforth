@@ -17,10 +17,11 @@
 
 \ scripting extensions
 
-:noname ( addr u -- ) cr system ;
-comp: drop slit, ]] cr system [[ ;
-post: >r slit, r> post, ;
-Constant r:eval
+: >system ( addr u -- ) cr system ;
+: system, slit, postpone >system ;
+' >system ' system,
+post: slit, postpone system, ;
+recognizer: r:eval
 
 : rec:eval ( addr u -- addr u' r:string )
     \G evaluate string + rest of command line
