@@ -225,8 +225,15 @@ epiper create_pipe \ create pipe for main task
 
 :noname ( -- )
     epiper @ ?dup-if epiper off close-file drop  THEN
-    epipew @ ?dup-if epipew off close-file drop  THEN  0 (bye) ;
+    epipew @ ?dup-if epipew off close-file drop  THEN
+    tmp$ $off 0 (bye) ;
 IS kill-task
+
+Defer thread-init
+:noname ( -- )
+    rp@ cell+ backtrace-rp0 !
+    tmp$ $execstr-ptr !  tmp$ off
+    current-input off create-input ; IS thread-init
 
 : NewTask4 ( dsize rsize fsize lsize -- task )
     \G creates a task, each stack individually sized
@@ -246,11 +253,6 @@ IS kill-task
     \G activates task, the current procedure will be continued there
     r> swap >r  save-task r@ >task !
     pthread-id r@ >task pthread_detach_attr thread_start r> pthread_create drop ; compile-only
-
-: thread-init ( -- )
-    rp@ cell+ backtrace-rp0 !
-    tmp$ $execstr-ptr !  tmp$ off
-    current-input off create-input ;
 
 : activate ( task -- )
     \G activates a task. The remaining part of the word calling
