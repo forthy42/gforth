@@ -31,6 +31,9 @@
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
 #endif
+#ifdef HAVE_MCHECK
+#include <mcheck.h>
+#endif
 #ifndef STANDALONE
 #include <sys/stat.h>
 #endif
