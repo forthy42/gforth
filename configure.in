@@ -1139,13 +1139,26 @@ AC_SUBST(kernel_anti_dependence)
 AC_MSG_RESULT($PREFORTH)
 AC_DEFINE_UNQUOTED(KERNEL, "$kernel_fi", [The kernel to load in the image])
 AC_DEFINE_UNQUOTED(ARCH, "$machine", [architecture to run on ])
+AC_SUBST(machine)
 
 #this breaks bindists
 #dnl replace srource directory by absolute value
 #if test $srcdir = "."; then srcdir=`pwd` 
 #fi
 
-AC_SUBST(machine)
+# swig stuff
+test x$SWIG = x && AC_PATH_PROG(SWIG, swig)
+if test -z "$SWIG"; then
+   AC_MSG_WARN([*** Could not find swig in your PATH. The library bindings cannot be built.])
+fi
+if swig -forth unix/test.i; then
+   echo "Swig works in Forth mode"   
+else
+   AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
+fi
+
+# finally create config files
+
 AC_CONFIG_FILES([
 Makefile
 Makedist
@@ -1160,6 +1173,7 @@ gforthker
 engine/Makefile
 engine/libcc.h
 doc/version.texi
+unix/Makefile
 build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
 chmod +x gforthmi
