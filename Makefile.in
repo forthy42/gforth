@@ -468,7 +468,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/makefile.dos engine/makefile.os2 \
 	engine/zexpand.c engine/androidmain.c
 
-SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
+SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp missing stamp-h.in envos.fs.in \
@@ -1154,7 +1154,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
+Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh:	Makefile.in Makedist.in engine/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
 	./config.status
 
 config.status: configure

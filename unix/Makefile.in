@@ -1,8 +1,8 @@
 # Generic makefile, for crosscompiling use make -f Makefile.<target>
 
-INCLUDES   = -I$(NDK)/usr/include -I$(NDK)/usr/include/GLES -I$(NDK)/usr/include/EGL -I$(NDK)/usr/include/OMXAL
+INCLUDES   = @SWIGINCLUDES@
 SWIG       = @SWIG@
-TARGETS    = gles.fs egl.fs glext.fs pnglib.fs #omxal.fs openvg.fs jni.fs androidlib.fs 
+TARGETS    = @SWIGMODULES@
 LIBRARY    = opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
 OPTIONS    = -forth -no-sectioncomments -stackcomments $(INCLUDES)
 INSTALL	= /usr/bin/install -c
