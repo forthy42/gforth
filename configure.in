@@ -1159,10 +1159,15 @@ if swig -forth unix/test.i; then
 
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs", ,)
    AC_CHECK_HEADER(GL/gl.h, SWIGMODULES="$SWIGMODULES gl.fs", ,)
+   AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES glext.fs", , 
+#include <GL/gl.h>
+)
    AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs", ,)
    AC_CHECK_HEADER(EGL/egl.h, SWIGMODULES="$SWIGMODULES egl.fs", ,)
    AC_CHECK_HEADER(GLES2/gl2.h, SWIGMODULES="$SWIGMODULES gles.fs", ,)
-   AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES glext.fs", ,GLES2/gl2.h)
+   AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES glext.fs", ,
+#include <GLES2/gl2.h>
+)
    AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs", ,)
    AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)
    AC_CHECK_HEADER(android/input.h, SWIGMODULES="$SWIGMODULES androidlib.fs", ,)

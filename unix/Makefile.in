@@ -47,6 +47,6 @@ run: $(DEMO)
 
 clean:
 	rm -f $(TARGETS)
-	rm -f $(patsubst %.fsx, %-fsi.c, $(TARGETS))
-	rm -f $(patsubst %.fsx, %.fs, $(TARGETS))
+	rm -f $(patsubst %.fs, %-fsi.c, $(TARGETS))
+	rm -f $(patsubst %.fs, %.fsx, $(TARGETS))
 
