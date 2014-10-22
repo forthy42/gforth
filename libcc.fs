@@ -376,7 +376,7 @@ create count-stacks-types
     gen-par-a ;
 
 : gen-par-void ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    -32 throw ;
+    2drop ;
 
 create gen-par-types
 ' gen-par-n ,
@@ -491,8 +491,10 @@ create gen-wrapped-types
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
+    pars c-name 2over count-stacks
+    .\" int MAYBE_UNUSED arg0=" dup 1- .nb .\" , farg0=" over 1- .nb .\" ;\n  "
     is-funptr? IF  ptr-declare $. .\" \n  "  THEN
-    pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
+    ret gen-wrapped-stmt .\" ;\n"
     dup is-funptr? or if
 	."   gforth_SP = sp+" dup .nb .\" ;\n"
     endif drop

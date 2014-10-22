@@ -17,6 +17,6 @@
 %apply long long { jlong };
 %apply float { jfloat };
 %apply double { jdouble };
-%apply SWIGTYPE * { jobject };
+%apply SWIGTYPE * { jobject, va_list };
 
 %include "jni.h"

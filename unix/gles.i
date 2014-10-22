@@ -2,6 +2,7 @@
 %insert("include")
 %{
 #include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 %}
 %apply float { GLfloat, GLclampf };
 %apply SWIGTYPE * { GLintptr, GLsizeiptr };
@@ -11,3 +12,4 @@
 #define GL_APIENTRY
 
 %include <GLES2/gl2.h>
+%include <GLES2/gl2ext.h>

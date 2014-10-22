@@ -1158,16 +1158,16 @@ if swig -forth unix/test.i; then
    SWIGINCLUDES=`eval $ac_compiler -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ /-I/g' | tr '\n' ' '`
 
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs", ,)
-   AC_CHECK_HEADER(GL/gl.h, SWIGMODULES="$SWIGMODULES gl.fs", ,)
-   AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES glext.fs", , 
+   AC_CHECK_HEADER(GL/gl.h, 
+   AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
+   AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs", ,), , 
 #include <GL/gl.h>
-)
-   AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs", ,)
-   AC_CHECK_HEADER(EGL/egl.h, SWIGMODULES="$SWIGMODULES egl.fs", ,)
-   AC_CHECK_HEADER(GLES2/gl2.h, SWIGMODULES="$SWIGMODULES gles.fs", ,)
-   AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES glext.fs", ,
+), ,)
+   AC_CHECK_HEADER(GLES2/gl2.h,
+   AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES gles.fs"
+   AC_CHECK_HEADER(EGL/egl.h, SWIGMODULES="$SWIGMODULES egl.fs", ,), ,
 #include <GLES2/gl2.h>
-)
+) ,)
    AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs", ,)
    AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)
    AC_CHECK_HEADER(android/input.h, SWIGMODULES="$SWIGMODULES androidlib.fs", ,)
