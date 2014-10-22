@@ -4,6 +4,8 @@
 #include <jni.h>
 %}
 
+#define SWIG_FORTH_OPTIONS "no-callbacks"
+
 #define __ANDROID__
 #define __GNUC__
 #define ANDROID

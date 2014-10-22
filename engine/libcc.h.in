@@ -27,6 +27,7 @@
 #endif
 
 typedef CELL_TYPE Cell;
+typedef unsigned CELL_TYPE UCell;
 typedef unsigned char Char;
 typedef double Float;
 typedef Char *Address;

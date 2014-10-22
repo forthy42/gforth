@@ -483,6 +483,12 @@ create gen-wrapped-types
 	lib-modulename $@ dup 0= IF 2drop s" _replace_this_with_the_hash_code" THEN type
 	." _LTX_" [ [THEN] ] ;
 
+: >ptr-declare ( c-name u1 -- addr u2 )
+    s" *sp++" 2swap \ default is fetch ptr from stack
+    ptr-declare [: ( decl u1 c-name u2 ptr-name u3 -- decl' u1' c-name u2 )
+	2>r 2dup 2r> ':' $split 2>r string-prefix?
+	IF  2nip 2r> 2swap  ELSE  2rdrop THEN ;] $[]map 2drop ;
+
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
@@ -493,7 +499,7 @@ create gen-wrapped-types
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
     pars c-name 2over count-stacks
     .\" int MAYBE_UNUSED arg0=" dup 1- .nb .\" , farg0=" over 1- .nb .\" ;\n  "
-    is-funptr? IF  ptr-declare $. .\" \n  "  THEN
+    is-funptr? IF  ." Cell ptr = " c-name >ptr-declare type .\" ;\n  "  THEN
     ret gen-wrapped-stmt .\" ;\n"
     dup is-funptr? or if
 	."   gforth_SP = sp+" dup .nb .\" ;\n"
@@ -745,7 +751,7 @@ DEFER compile-wrapper-function ( -- )
     c-libs $init
     lib-modulename $init
     libcc$ $init libcc-include
-    s\" Cell ptr = *sp++;" ptr-declare $! ;
+    ptr-declare $[]off ;
 clear-libs
 
 \ compilation wrapper
