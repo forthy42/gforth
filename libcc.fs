@@ -361,7 +361,9 @@ create count-stacks-types
     type gen-par-sp ;
 
 : gen-par-a ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    dup 0= IF  2drop ." (void *)"  ELSE type  THEN s" (" gen-par-n ." )" ;
+    dup 0= IF  2drop ." (void *)"  ELSE
+	2dup type s"   return " str= IF  ." (void *)"  THEN
+    THEN s" (" gen-par-n ." )" ;
 
 : gen-par-d ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
