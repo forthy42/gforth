@@ -293,10 +293,14 @@ GFORTH_FI_SRC = \
 LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
 	unix/filestat.fs
 
+SWiG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
+	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	\
+	unix/soil.i unix/xlib.i
+
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
 
-LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC)
+LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC)
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
 
@@ -777,8 +781,9 @@ uninstall:	FORCE
 		-$(RM) -rf $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)$(bindir)/vmgen-$(VERSION) $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
-build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) FORCE
+build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) $(SWIG_SRC) FORCE
 		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
+		(cd unix; $(MAKE))
 		@NO_FAIL@for i in $(LIBCC_BUILD_SRC); do ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye; done
 
 check:		gforths	gforth.fi 
