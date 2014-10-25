@@ -5,7 +5,8 @@
 #include <GLES2/gl2ext.h>
 %}
 %apply float { GLfloat, GLclampf };
-%apply SWIGTYPE * { GLintptr, GLsizeiptr };
+%apply long { EGLNativePixmapType };
+%apply SWIGTYPE * { GLintptr, GLsizeiptr, EGLBoolean };
 
 #define __ANDROID__
 #define GL_APICALL

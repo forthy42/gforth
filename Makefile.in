@@ -783,7 +783,7 @@ uninstall:	FORCE
 
 build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) $(SWIG_SRC) FORCE
 		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
-		(cd unix; $(MAKE))
+		(cd unix; $(MAKE) build-libcc-named)
 		@NO_FAIL@for i in $(LIBCC_BUILD_SRC); do ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye; done
 
 check:		gforths	gforth.fi 

@@ -9,7 +9,7 @@
 #define __STDC__
 
 %apply long long { GLint64, GLint64EXT, GLuint64, GLuint64EXT };
-%apply SWIGTYPE * { GLsizeiptr, GLintptr, GLsizeiptrARB, GLintptrARB };
+%apply long { GLsizeiptr, GLintptr, GLsizeiptrARB, GLintptrARB };
 
 %include <GL/gl.h>
 %include <GL/glext.h>

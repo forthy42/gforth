@@ -3,7 +3,7 @@
 INCLUDES   = @SWIGINCLUDES@
 SWIG       = @SWIG@
 TARGETS    = @SWIGMODULES@
-LIBRARY    = opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
+LIBRARY    = @SWIGLIBS@
 OPTIONS    = -forth -no-sectioncomments -stackcomments $(INCLUDES)
 INSTALL	= /usr/bin/install -c
 ARCH=
@@ -14,14 +14,14 @@ prefix =
 exec_prefix = ${prefix}
 libexecdir = $(package)${exec_prefix}/lib
 libccdir = $(subst $(DESTDIR),,$(libexecdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
-srcdir = .
+srcdir = ./unix
 DESTDIR = $(PWD)
 
 all: $(TARGETS)
 
 build-libcc-named: $(LIBRARY) $(TARGETS)
 		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
-		-for i in $(LIBRARY); do echo $$i:; ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye; done
+		-for i in $(LIBRARY); do echo $$i:; (cd ..; ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye); done
 
 libs: build-libcc-named $(LIBRARY)
 	for i in $(LIBRARY); do \

@@ -4,11 +4,12 @@ Vocabulary opengl
 get-current also opengl definitions
 
 c-library opengl
-    \c #define GL_GLEXT_PROTOTYPES
-    \c #include <GL/glx.h>
-    \c #include <GL/glext.h>
+    \c #include <GLES2/gl2.h>
+    \c #include <GLES2/gl2ext.h>
+    \c #include <EGL/egl.h>
 
-    s" GL" add-lib
+    s" GLESv2" add-lib
+    s" EGL" add-lib
     
     \ This is the missing piece:
     \ you need to get a linkable copy of libui.so
@@ -16,8 +17,8 @@ c-library opengl
     \ \c void* android_createDisplaySurface(void);
     \ c-function android_createDisplaySurface android_createDisplaySurface -- a ( -- window )
    
-    include gl.fs
-    include glx.fs
+    include gles.fs
+    include egl.fs
 
 end-c-library
 

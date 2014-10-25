@@ -1151,34 +1151,43 @@ test x$SWIG = x && AC_PATH_PROG(SWIG, swig)
 if test -z "$SWIG"; then
    AC_MSG_WARN([*** Could not find swig in your PATH. The library bindings cannot be built.])
 fi
-SWIGMODULES=""
+
 if swig -forth unix/test.i; then
    echo "Swig works in Forth mode"
    > conftest.$ac_ext
    SWIGINCLUDES=`eval $ac_compiler -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ /-I/g' | tr '\n' ' '`
-
-   AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs", ,)
+   #opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
+   AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs"
+   SWIGLIBS="$SWIGLIBS x.fs", ,)
    AC_CHECK_HEADER(GL/gl.h, 
    AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
-   AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs", ,), , 
+   AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
+   SWIGLIBS="$SWIGLIBS opengl.fs", ,), , 
 #include <GL/gl.h>
 ), ,)
    AC_CHECK_HEADER(GLES2/gl2.h,
    AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES gles.fs"
-   AC_CHECK_HEADER(EGL/egl.h, SWIGMODULES="$SWIGMODULES egl.fs", ,), ,
+   AC_CHECK_HEADER(EGL/egl.h, SWIGMODULES="$SWIGMODULES egl.fs"
+   SWIGLIBS="$SWIGLIBS opengles.fs", ,), ,
 #include <GLES2/gl2.h>
 ) ,)
-   AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs", ,)
+   AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
+   SWIGLIBS="$SWIGLIBS jnilib.fs", ,)
    AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)
-   AC_CHECK_HEADER(android/input.h, SWIGMODULES="$SWIGMODULES androidlib.fs", ,)
-   AC_CHECK_HEADER(OMXAL/OpenMAXAL.h, SWIGMODULES="$SWIGMODULES omxal.fs", ,)
-   AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES png.fs", ,)
-   AC_CHECK_HEADER(SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs", ,)
+   AC_CHECK_HEADER(android/input.h, SWIGMODULES="$SWIGMODULES androidlib.fs"
+   SWIGLIBS="$SWIGLIBS android.fs", ,)
+   AC_CHECK_HEADER(OMXAL/OpenMAXAL.h, SWIGMODULES="$SWIGMODULES omxal.fs"
+   SWIGLIBS="$SWIGLIBS openmax.fs", ,)
+   AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES pnglib.fs"
+   SWIGLIBS="$SWIGLIBS png.fs", ,)
+   AC_CHECK_HEADER(SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
+   SWIGLIBS="$SWIGLIBS soillib.fs", ,)
 else
    AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
 fi
 AC_SUBST(SWIGMODULES)
 AC_SUBST(SWIGINCLUDES)
+AC_SUBST(SWIGLIBS)
 
 # finally create config files
 
