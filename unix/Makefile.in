@@ -3,8 +3,10 @@
 INCLUDES   = @SWIGINCLUDES@
 SWIG       = @SWIG@
 TARGETS    = @SWIGMODULES@
+WRAPPERS   = $(patsubst %.fs, %.fsx, $(TARGETS))
 LIBRARY    = @SWIGLIBS@
-OPTIONS    = -forth -no-sectioncomments -use-structs -stackcomments $(INCLUDES)
+HOST_OS    = $(subst -,_,@host_os@)
+OPTIONS    = -forth -Dhost_os_$(HOST_OS) -no-sectioncomments -use-structs -stackcomments $(INCLUDES)
 INSTALL	= /usr/bin/install -c
 ARCH=
 VERSION	= "`gforth --version 2>&1 | cut -f2 -d' '`"
@@ -16,8 +18,13 @@ libexecdir = $(package)${exec_prefix}/lib
 libccdir = $(subst $(DESTDIR),,$(libexecdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
 srcdir = ./unix
 DESTDIR = $(PWD)
+LIBTOOL = @GNU_LIBTOOL@
+GCC	= @CC@
+CC	= $(GCC)
 
 all: $(TARGETS)
+
+wrappers: $(WRAPPERS)
 
 build-libcc-named: $(LIBRARY) $(TARGETS)
 		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
@@ -48,5 +55,5 @@ run: $(DEMO)
 clean:
 	rm -f $(TARGETS)
 	rm -f $(patsubst %.fs, %-fsi.c, $(TARGETS))
-	rm -f $(patsubst %.fs, %.fsx, $(TARGETS))
+	rm -f $(WRAPPERS)
 
