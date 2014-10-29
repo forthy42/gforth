@@ -12,7 +12,7 @@
 #define ANDROID
 #define __NDK_FPABI__
 #endif
-#ifdef host_os_linux
+#ifdef host_os_linux_gnu
 #define __GNUC__
 #define JNIEXPORT
 #define JNICALL
