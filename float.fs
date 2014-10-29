@@ -168,11 +168,11 @@ si-prefixes count 2/ + Constant zero-exp
 [THEN]
 
 [ifdef] r:fail
-    ' noop
-    :noname drop postpone Fliteral ;
-    :noname >r postpone Fliteral r> post, ; recognizer: r:float
+    : flit, postpone Fliteral ;
+    ' noop ' flit,
+    :noname flit, postpone flit, ; recognizer: r:float
 
-    : rec:float ( addr u -- float int-table | r:fail )
+    : rec:float ( addr u -- r r:float | r:fail )
 	\G recognize floating point numbers
 	prefix-number r:float r:fail rot select ;
     

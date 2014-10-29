@@ -1044,9 +1044,9 @@ ud = (UDCell)u1 * (UDCell)u2;
    DO
 	dup 0< I' and d2*+ drop
    LOOP ;
-: d2*+ ( ud n -- ud+n c )
-   over MINI
-   and >r >r 2dup d+ swap r> + swap r> ;
+: d2*+ ( ud u -- ud+u c )
+   over MINI and >r
+   >r 2dup d+ r> 0 d+ r> ;
 
 um/mod	( ud u1 -- u2 u3 )		core	u_m_slash_mod
 ""ud=u3*u1+u2, u1>u2>=0""
@@ -1063,9 +1063,9 @@ u3=DLO(r);
    LOOP drop swap 1 rshift or swap ;
 : /modstep ( ud c R: u -- ud-?u c R: u )
    >r over r@ u< 0= or IF r@ - 1 ELSE 0 THEN  d2*+ r> ;
-: d2*+ ( ud n -- ud+n c )
-   over MINI
-   and >r >r 2dup d+ swap r> + swap r> ;
+: d2*+ ( ud u -- ud+u c )
+   over MINI and >r 
+   >r 2dup d+ r> 0 d+ r> ;
 
 m+	( d1 n -- d2 )		double		m_plus
 #ifdef BUGGY_LL_ADD

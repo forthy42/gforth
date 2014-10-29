@@ -52,39 +52,37 @@ wordlist constant wordsets wordsets set-current
 create CORE 0 , 0 0 2,
 wordset CORE-EXT
 wordset CORE-EXT-obsolescent
+wordset CORE-EXT-2012
 wordset BLOCK
 wordset BLOCK-EXT
 wordset DOUBLE
 wordset DOUBLE-EXT
+wordset DOUBLE-EXT-2012
 wordset EXCEPTION
 wordset EXCEPTION-EXT
 wordset FACILITY
 wordset FACILITY-EXT
+wordset FACILITY-EXT-2012
 wordset FILE
 wordset FILE-EXT
+wordset FILE-EXT-2012
 wordset FLOAT
 wordset FLOAT-EXT
+wordset FLOAT-EXT-2012
 wordset LOCAL
 wordset LOCAL-EXT
+wordset LOCAL-EXT-2012
 wordset MEMORY
 wordset SEARCH
 wordset SEARCH-EXT
 wordset STRING
+wordset STRING-EXT-2012
 wordset TOOLS
 wordset TOOLS-EXT
+wordset TOOLS-EXT-2012
 wordset TOOLS-EXT-obsolescent
-
-\ www.forth200x.org CfV extension names
-wordset X:deferred
-wordset X:extension-query
-wordset X:parse-name
-wordset X:defined
-wordset X:required
-wordset X:ekeys
-wordset X:fp-stack
-wordset X:number-prefixes
-wordset X:structures
-wordset X:ftrunc
+wordset XCHAR-2012
+wordset XCHAR-EXT-2012
 
 wordset non-ANS
 
@@ -107,7 +105,7 @@ ans-report-words definitions
 table constant answords answords set-current
 warnings @ warnings off
 include ./answords.fs
-include ./xwords.fs
+include ./2012words.fs
 warnings !
 ans-report-words definitions
 

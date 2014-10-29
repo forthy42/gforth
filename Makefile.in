@@ -293,10 +293,14 @@ GFORTH_FI_SRC = \
 LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
 	unix/filestat.fs
 
+SWiG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
+	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	\
+	unix/soil.i unix/xlib.i
+
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
 
-LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC)
+LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC)
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
 
@@ -312,7 +316,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	other.fs prims2x.fs prims2x0.6.2.fs proxy.fs random.fs \
 	regexp.fs sokoban.fs string.fs table.fs tags.fs \
 	tt.fs quotations.fs \
-	unbuffer.fs wordsets.fs xwords.fs \
+	unbuffer.fs wordsets.fs 2012words.fs \
 	test/tester.fs test/ttester.fs \
 	test/coretest.fs test/postpone.fs test/dbltest.fs \
 	test/string.fs test/float.fs test/search.fs test/gforth.fs \
@@ -468,7 +472,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/makefile.dos engine/makefile.os2 \
 	engine/zexpand.c engine/androidmain.c
 
-SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
+SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp missing stamp-h.in envos.fs.in \
@@ -777,8 +781,9 @@ uninstall:	FORCE
 		-$(RM) -rf $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)$(bindir)/vmgen-$(VERSION) $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
-build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) FORCE
+build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) $(SWIG_SRC) FORCE
 		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
+		(cd unix; $(MAKE) build-libcc-named)
 		@NO_FAIL@for i in $(LIBCC_BUILD_SRC); do ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye; done
 
 check:		gforths	gforth.fi 
@@ -1154,7 +1159,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
+Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh:	Makefile.in Makedist.in engine/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
 	./config.status
 
 config.status: configure

@@ -59,6 +59,7 @@ c-library pthread
     \c   void *(*gforth_pointers)(Cell) = saved_gforth_pointers;
     \c #endif
     \c   void *ip0=(void*)(t->save_task);
+    \c   sigset_t set;
     \c   gforth_SP=(Cell*)(t->sp0);
     \c   gforth_RP=(Cell*)(t->rp0);
     \c   gforth_FP=(Float*)(t->fp0);
@@ -71,6 +72,11 @@ c-library pthread
     \c   /* mcheck(gfpthread_abortmcheck); */
     \c #endif
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
+    \c   sigemptyset(&set);
+    \c   sigaddset(&set, SIGINT);
+    \c   sigaddset(&set, SIGQUIT);
+    \c   sigaddset(&set, SIGTERM);
+    \c   pthread_sigmask(SIG_BLOCK, &set, NULL);
     \c   x=gforth_go(ip0);
     \c   pthread_cleanup_pop(1);
     \c   pthread_exit((void*)x);
@@ -129,14 +135,14 @@ c-library pthread
     \c   return (result==-1) ? -errno : chars_avail;
     \c }
     \c #include <poll.h>
-    \c int wait_read(FILE * fid, Cell timeout)
+    \c int wait_read(FILE * fid, Cell timeoutns, Cell timeouts)
     \c {
     \c   struct pollfd fds = { fileno(fid), POLLIN, 0 };
     \c #if defined(linux) && !defined(__ANDROID__)
-    \c   struct timespec tout = { timeout/1000000000, timeout%1000000000 };
+    \c   struct timespec tout = { timeouts, timeoutns };
     \c   ppoll(&fds, 1, &tout, 0);
     \c #else
-    \c   poll(&fds, 1, timeout/1000000);
+    \c   poll(&fds, 1, timeoutns/1000000+timeouts*1000);
     \c #endif
     \c   return check_read(fid);
     \c }
@@ -192,7 +198,7 @@ c-library pthread
     c-function pthread_cond_timedwait pthread_cond_timedwait a a a -- n ( cond mutex abstime -- r )
     c-function create_pipe create_pipe a -- void ( pipefd[2] -- )
     c-function check_read check_read a -- n ( pipefd -- n )
-    c-function wait_read wait_read a n -- n ( pipefd timeout -- n )
+    c-function wait_read wait_read a n n -- n ( pipefd timeoutns timeouts -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
     c-function pt-pagesize getpagesize -- n ( -- size )
     \ c-function stick-to-core stick_to_core n -- n ( core -- n )
@@ -219,8 +225,15 @@ epiper create_pipe \ create pipe for main task
 
 :noname ( -- )
     epiper @ ?dup-if epiper off close-file drop  THEN
-    epipew @ ?dup-if epipew off close-file drop  THEN  0 (bye) ;
+    epipew @ ?dup-if epipew off close-file drop  THEN
+    tmp$ $off 0 (bye) ;
 IS kill-task
+
+Defer thread-init
+:noname ( -- )
+    rp@ cell+ backtrace-rp0 !
+    tmp$ $execstr-ptr !  tmp$ off
+    current-input off create-input ; IS thread-init
 
 : NewTask4 ( dsize rsize fsize lsize -- task )
     \G creates a task, each stack individually sized
@@ -240,11 +253,6 @@ IS kill-task
     \G activates task, the current procedure will be continued there
     r> swap >r  save-task r@ >task !
     pthread-id r@ >task pthread_detach_attr thread_start r> pthread_create drop ; compile-only
-
-: thread-init ( -- )
-    rp@ cell+ backtrace-rp0 !
-    tmp$ $execstr-ptr !  tmp$ off
-    current-input off create-input ;
 
 : activate ( task -- )
     \G activates a task. The remaining part of the word calling
@@ -274,10 +282,10 @@ IS kill-task
 : unlock ( addr -- )  pthread_mutex_unlock drop ;
 \G unlock the semaphore
 
-: c-section ( xt addr -- )  >r
+: c-section ( xt addr -- ) 
     \G implement a critical section that will unlock the semaphore
     \G even in case there's an exception within.
-    r@ lock catch r> unlock throw ;
+    { sema } try sema lock execute 0 restore sema unlock endtry throw ;
 
 : >pagealign-stack ( n addr -- n' )
     >r 1- r> 1- pagesize negate mux 1+ ;
@@ -331,8 +339,12 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 \G checks for events and executes them
 : stop ( -- )  (stop) ?events ;
 \G stops the current task, and waits for events (which may restart it)
-: stop-ns ( timeout -- ) epiper @ swap wait_read 0> IF  stop  THEN ;
-\G Stop with timeout (in nanoseconds), better replacement for ns
+: stop-ns ( timeout -- ) epiper @
+    swap 0 1000000000 um/mod wait_read 0> IF  stop  THEN ;
+\G Stop with timeout (in nanoseconds), better replacement for ms
+: stop-dns ( dtimeout -- ) epiper @
+    -rot 1000000000 um/mod wait_read 0> IF  stop  THEN ;
+\G Stop with dtimeout (in nanoseconds), better replacement for ms
 : event-loop ( -- )  BEGIN  stop  AGAIN ;
 \G Tasks that are controlled by sending events to them should
 \G go into an event-loop

@@ -20,7 +20,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20140402],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20141031],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
@@ -1139,13 +1139,58 @@ AC_SUBST(kernel_anti_dependence)
 AC_MSG_RESULT($PREFORTH)
 AC_DEFINE_UNQUOTED(KERNEL, "$kernel_fi", [The kernel to load in the image])
 AC_DEFINE_UNQUOTED(ARCH, "$machine", [architecture to run on ])
+AC_SUBST(machine)
 
 #this breaks bindists
 #dnl replace srource directory by absolute value
 #if test $srcdir = "."; then srcdir=`pwd` 
 #fi
 
-AC_SUBST(machine)
+# swig stuff
+test x$SWIG = x && AC_PATH_PROG(SWIG, swig)
+if test -z "$SWIG"; then
+   AC_MSG_WARN([*** Could not find swig in your PATH. The library bindings cannot be built.])
+fi
+
+if swig -forth unix/test.i; then
+   echo "Swig works in Forth mode"
+   > conftest.$ac_ext
+   SWIGINCLUDES=`eval $ac_compiler -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ /-I/g' | tr '\n' ' '`
+   #opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
+   AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs"
+   SWIGLIBS="$SWIGLIBS x.fs", ,)
+   AC_CHECK_HEADER(GL/gl.h, 
+   AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
+   AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
+   SWIGLIBS="$SWIGLIBS opengl.fs", ,), , 
+#include <GL/gl.h>
+), ,)
+   AC_CHECK_HEADER(GLES2/gl2.h,
+   AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES gles.fs"
+   AC_CHECK_HEADER(EGL/egl.h, SWIGMODULES="$SWIGMODULES egl.fs"
+   SWIGLIBS="$SWIGLIBS opengles.fs", ,), ,
+#include <GLES2/gl2.h>
+) ,)
+   AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
+   SWIGLIBS="$SWIGLIBS jnilib.fs", ,)
+   AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)
+   AC_CHECK_HEADER(android/input.h, SWIGMODULES="$SWIGMODULES androidlib.fs"
+   SWIGLIBS="$SWIGLIBS android.fs", ,)
+   AC_CHECK_HEADER(OMXAL/OpenMAXAL.h, SWIGMODULES="$SWIGMODULES omxal.fs"
+   SWIGLIBS="$SWIGLIBS openmax.fs", ,)
+   AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES pnglib.fs"
+   SWIGLIBS="$SWIGLIBS png.fs", ,)
+   AC_CHECK_HEADER(SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
+   SWIGLIBS="$SWIGLIBS soillib.fs", ,)
+else
+   AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
+fi
+AC_SUBST(SWIGMODULES)
+AC_SUBST(SWIGINCLUDES)
+AC_SUBST(SWIGLIBS)
+
+# finally create config files
+
 AC_CONFIG_FILES([
 Makefile
 Makedist
@@ -1160,6 +1205,7 @@ gforthker
 engine/Makefile
 engine/libcc.h
 doc/version.texi
+unix/Makefile
 build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
 chmod +x gforthmi

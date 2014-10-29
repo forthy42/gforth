@@ -24,8 +24,8 @@
 : slit,  postpone sliteral ;
 
 ' noop
-:noname drop slit, ;
-:noname >r slit, r> post, ; recognizer: r:string
+' slit,
+:noname slit, postpone slit, ; recognizer: r:string
 
 : rec:string ( addr u -- addr u' r:string | r:fail )
     2dup s\" \"" string-prefix?
@@ -35,9 +35,9 @@
 ' rec:string get-recognizers 1+ set-recognizers
 
 0 [IF] \ dot-quoted strings, we don't need them
-' type
-:noname drop slit, postpone type ;
-:noname >r slit, r> post, ; recognizer: r:."
+: .slit slit, postpone type ;
+' type ' .slit
+:noname slit, postpone .slit ; recognizer: r:."
 
 : rec:."  ( addr u -- addr u' r:." | addr u r:fail )
     2dup ".\"" string-prefix?

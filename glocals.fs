@@ -464,6 +464,8 @@ new-locals-map mappedwordlist Constant new-locals-wl
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
+synonym {: {
+
 locals-types definitions
 
 : } ( latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
@@ -479,6 +481,8 @@ locals-types definitions
     previous previous
     set-current lastcfa !
     locals-list 0 wordlist-id - TO locals-wordlist ;
+
+synonym :} }
 
 : -- ( addr wid 0 ... -- ) \ gforth dash-dash
     }

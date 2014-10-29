@@ -324,6 +324,9 @@ Defer parse-line
     over c@ '\ = over 0> and IF  do-icon off  1 /string  THEN
     over c@ '* = over 0> and IF  do-expand on 1 /string  THEN ;
 
+[defined] execute-parsing [IF]
+    : parse-string ( addr u -- ) ['] parse-line execute-parsing ;
+[ELSE]
 s" Gforth" environment? [IF] s" 0.5.0" str= [IF] 
 : parse-string ( c-addr u -- ) \ core,block
     s" *evaluated string*" loadfilename>r
@@ -335,7 +338,7 @@ s" Gforth" environment? [IF] s" 0.5.0" str= [IF]
 : parse-string ( addr u -- )
     evaluate-input cell new-tib #tib ! tib !
     ['] parse-line catch pop-file throw ;
-[THEN] [THEN]
+[THEN] [THEN] [THEN]
 
 Variable expand-link
 Variable expand-prefix

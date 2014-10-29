@@ -2930,7 +2930,7 @@ ghost defer,
 ghost u-compile,
 ghost u-to
 2drop
-ghost field,
+ghost field+,
 ghost abi-code,
 2drop
 ghost ;abi-code,
@@ -3254,7 +3254,7 @@ vt: [G'] defer, gset-compiler [G'] value! gset-to ;vt
 Builder (Field)
 Build: ;Build
 by: :dofield T @ H + ;DO
-vt: [G'] field, gset-compiler ;vt
+vt: [G'] field+, gset-compiler ;vt
 
 Builder Field
 Build: ( align1 offset1 align size "name" --  align2 offset2 )
