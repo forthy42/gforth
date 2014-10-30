@@ -3,7 +3,7 @@
 Vocabulary opengl
 get-current also opengl definitions
 
-c-library opengl
+c-library opengles3
     \c #include <GLES3/gl3.h>
     \c #include <GLES3/gl3ext.h>
     \c #include <EGL/egl.h>

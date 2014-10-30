@@ -19,8 +19,10 @@ get-current also android definitions
 
 c-library android
     \c #include <android/input.h>
+    \c #include <android/keycodes.h>
     \c #include <android/native_window.h>
     \c #include <android/native_window_jni.h>
+    \c #include <android/looper.h>
 
     begin-structure app_input_state
     field: action
@@ -66,8 +68,6 @@ c-library android
     
     s" android" add-lib
     
-    include android-window.fs
-
 end-c-library
 
 require unix/socket.fs
