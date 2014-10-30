@@ -473,4 +473,5 @@ Label *gforth_engine(Xt *ip0 sr_proto)
   after_last: 
   /*needed only to get the length of the last primitive */
   FIRST_NEXT;
+  return 0;
 }

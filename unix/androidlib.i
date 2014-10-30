@@ -9,6 +9,8 @@
 
 #define __ANDROID__
 #define ANDROID
+#define __attribute__(x)
+#define __NDK_FPABI__
 
 %apply int { int32_t, uint32_t, size_t };
 %apply long long { int64_t, uint64_t };

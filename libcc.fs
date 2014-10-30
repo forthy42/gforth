@@ -406,10 +406,10 @@ create gen-par-types
     2drop ." )" ;
 
 : gen-wrapped-const { d: pars d: c-name fp-change1 sp-change1 -- }
-	." (" c-name type ." )" ;
+    ." (" c-name type ." )" ;
 
 : gen-wrapped-var { d: pars d: c-name fp-change1 sp-change1 -- }
-	." &(" c-name type ." )" ;
+    ." &(" c-name type ." )" ;
 
 create gen-call-types
 ' gen-wrapped-func ,
@@ -417,7 +417,7 @@ create gen-call-types
 ' gen-wrapped-var ,
 
 : gen-wrapped-call ( pars c-name fp-change1 sp-change1 -- )
-	5 pick 3 chars - c@ cells gen-call-types + @ execute ;
+    5 pick 3 chars - c@ cells gen-call-types + @ execute ;
 
 \ calls for various kinds of return values
 
@@ -539,7 +539,11 @@ create gen-types
     ." #define CALLBACK_" c-name type ." (I) \" cr
     ret print-type space .prefix ." gforth_cb_" c-name type ." _##I ("
     0 pars bounds u+do
-	i 1+ count dup IF  type  ELSE  2drop i c@ print-type  THEN
+	i 1+ count dup IF
+	    2dup s" *(" string-prefix? IF
+		2 /string  2 - 0 max
+	    THEN  type
+	ELSE  2drop i c@ print-type  THEN
 	."  x" dup 0 .r 1+
 	i 1+ c@ 2 + dup i + i' u< if
 	    ." , "
@@ -547,13 +551,15 @@ create gen-types
     +loop  drop .\" ) \\\n{ \\" cr ;
 
 Create callback-style c-val c,
+Create callback-&style c-var c,
 
 : callback-pushs ( descriptor -- )
     1+ count 0 { d: pars vari }
     ."   Cell*  sp=gforth_SP; \" cr
     ."   Float* fp=gforth_FP; \" cr
     0 0 pars bounds u+do
-	callback-style 3 + 1 2swap
+	I 1+ c@  IF  callback-&style  ELSE  callback-style  THEN
+	3 + 1 2swap
 	vari 0 <# #s 'x' hold #> 2swap
 	i c@ 2 spaces gen-wrapped-stmt ." ; \" cr
 	i 1+ c@ 2 +  vari 1+ to vari

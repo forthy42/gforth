@@ -1171,6 +1171,11 @@ if swig -forth unix/test.i; then
    SWIGLIBS="$SWIGLIBS opengles.fs", ,), ,
 #include <GLES2/gl2.h>
 ) ,)
+   AC_CHECK_HEADER(GLES3/gl3.h,
+   AC_CHECK_HEADER(GLES3/gl3ext.h, SWIGMODULES="$SWIGMODULES gles3.fs"
+   AC_CHECK_HEADER(EGL/egl.h, SWIGLIBS="$SWIGLIBS opengles3.fs", ,), ,
+#include <GLES3/gl3.h>
+) ,)
    AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
    SWIGLIBS="$SWIGLIBS jnilib.fs", ,)
    AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)

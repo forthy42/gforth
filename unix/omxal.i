@@ -12,5 +12,5 @@
 #define const
 
 %include <OMXAL/OpenMAXAL_Platform.h>
-%include "OpenMAXAL.h"
-%include "OpenMAXAL_Android.h"
+%include "OMXAL/OpenMAXAL.h"
+%include "OMXAL/OpenMAXAL_Android.h"
