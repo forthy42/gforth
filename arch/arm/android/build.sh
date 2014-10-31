@@ -35,6 +35,7 @@ then
 	cp $i/*.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/site-forth
     done
     (cd $SRC/debian/sdcard
+	rm -rf gforth/$GFORTH_VERSION/libcc-named
 	mkdir -p gforth/home
 	gforth ../../archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
 else

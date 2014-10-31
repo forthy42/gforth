@@ -261,6 +261,7 @@ GFORTH_FI_SRC2=\
 	string.fs \
 	struct.fs \
 	struct0x.fs \
+	struct-val.fs \
 	stuff.fs \
 	substitute.fs \
 	tasker.fs \
@@ -290,10 +291,12 @@ GFORTH_FI_SRC = \
 	envos.fs \
 	$(GFORTH_FI_SRC2)
 
-LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
-	unix/filestat.fs
+LIBCC_SWIG = @SWIGMODULES@ @SWIGLIBS@
 
-SWiG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
+LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
+	unix/filestat.fs $(patsubst %, unix/%, $(LIBCC_SWIG))
+
+SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	\
 	unix/soil.i unix/xlib.i
 

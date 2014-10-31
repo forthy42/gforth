@@ -20,7 +20,14 @@
 c-library mmap
     \c #include <unistd.h>
     \c #include <sys/mman.h>
-    
+    \c #include <limits.h>
+    \c #if HAVE_GETPAGESIZE
+    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
+    \c #define getpagesize() sysconf(_SC_PAGESIZE)
+    \c #elif PAGESIZE
+    \c #define getpagesize() PAGESIZE
+    \c #endif
+
     c-function mmap mmap a n n n n n -- a ( addr len prot flags fd off -- addr' )
     c-function munmap munmap a n -- n ( addr len -- r )
     c-function getpagesize getpagesize -- n ( -- size )
