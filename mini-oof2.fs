@@ -45,7 +45,7 @@ comp: drop @ postpone o#+ , ;
 : method ( m v size "name" -- m' v )
   Header reveal method-xt vtcopy,  over , swap cell+ swap ;
 : var ( m v size "name" -- m v' )
-  Header reveal    var-xt vtcopy,  over , + ;
+  Header reveal    var-xt vtcopy,  over , dup , ( for sizeof ) + ;
 : class ( class -- class methods vars )
   dup >osize 2@ ['] var IS +field  ['] o+field, IS +field, ;
 : end-class  ( class methods vars "name" -- )
