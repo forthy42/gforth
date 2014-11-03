@@ -8,6 +8,8 @@
 %apply long { EGLNativePixmapType };
 %apply SWIGTYPE * { GLintptr, GLsizeiptr, EGLBoolean };
 
+#define SWIG_FORTH_OPTIONS "no-callbacks"
+
 #define __ANDROID__
 #define GL_APICALL
 #define GL_APIENTRY
