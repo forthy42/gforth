@@ -11,12 +11,6 @@ c-library opengles3
     s" GLESv3" add-lib
     s" EGL" add-lib
     
-    \ This is the missing piece:
-    \ you need to get a linkable copy of libui.so
-    \ s" ui" add-lib
-    \ \c void* android_createDisplaySurface(void);
-    \ c-function android_createDisplaySurface android_createDisplaySurface -- a ( -- window )
-   
     include gles3.fs
     include egl.fs
 

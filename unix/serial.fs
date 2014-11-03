@@ -3,7 +3,12 @@
 c-library serial
     \c #include <termios.h>
     \c #include <sys/ioctl.h>
+    \c #include <sys/types.h>
+    \c #include <sys/stat.h>
     \c #include <stdio.h>
+    \c #include <unistd.h>
+    \c #include <fcntl.h>
+
     c-function tcgetattr tcgetattr n a -- n ( fd termios -- r )
     c-function tcsetattr tcsetattr n n a -- n ( fd opt termios -- r )
     c-function cfmakeraw cfmakeraw a -- void ( termios -- )

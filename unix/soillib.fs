@@ -7,7 +7,7 @@ Vocabulary soil
 
 get-current also soil definitions
 
-c-library soil
+c-library soillib
     s" soil" add-lib
     [IFDEF] android
 	s" ./.libs" add-libpath

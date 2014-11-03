@@ -3,7 +3,7 @@
 Vocabulary X11
 get-current also X11 definitions
 
-c-library xlib
+c-library x
     \c #include <X11/X.h>
     \c #include <X11/Xlib.h>
     \c #include <X11/Xutil.h>

@@ -4,7 +4,7 @@
 #include <jni.h>
 %}
 
-#define SWIG_FORTH_OPTIONS "no-callbacks"
+// #define SWIG_FORTH_OPTIONS ""
 
 #ifdef host_os_linux_android
 #define __attribute__(x)
