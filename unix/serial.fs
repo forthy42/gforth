@@ -21,6 +21,7 @@ c-library serial
     c-function fdopen fdopen n a -- a ( fd mode -- file )
     c-function read read n a n -- n ( fd addr u -- u' )
     c-function write write n a n -- n ( fd addr u -- u' )
+    c-function close close n -- n ( fd -- r )
 end-c-library
 
 [IFDEF] android
@@ -89,6 +90,8 @@ base @ 8 base !
 000000010017 Constant CBAUD
 000000000001 Constant IGNBRK
 000000000004 Constant IGNPAR
+000000000400 Constant NOCTTY
+000000004000 Constant NODELAY
 base !
 
 5 Constant VTIME
@@ -107,7 +110,42 @@ $541B Constant FIONREAD
     r> 0 t_buf tcsetattr drop ;
 
 : reset-baud ( fd -- )
-    t_old 0 rot tcsetattr drop ;
+    0 t_old tcsetattr drop ;
 
 : check-read ( fd -- n )  >r
     0 sp@ r> fileno FIONREAD rot ioctl drop ;
+
+\ get and set control lines
+
+variable io-result
+
+$5415 CONSTANT TIOCMGET
+$5418 CONSTANT TIOCMSET
+$002  CONSTANT TIOCM_DTR
+$004  CONSTANT TIOCM_RTS
+$020  CONSTANT TIOCM_CTS
+$100  CONSTANT TIOCM_DSR
+
+: get-ioctl  ( fd -- n )
+     TIOCMGET io-result ioctl 0< abort" IOCTL GET Failed." io-result @ ;
+
+: set-ioctl  ( fd n -- )
+     io-result ! TIOCMSET io-result ioctl 0< abort" IOCTL SET Failed." ;
+
+: set-dtr  ( fd -- )
+     dup get-ioctl TIOCM_DTR or set-ioctl ;
+
+: clr-dtr  ( fd -- )
+     dup get-ioctl TIOCM_DTR invert and set-ioctl ;
+
+: set-rts  ( fd -- )
+     dup get-ioctl TIOCM_RTS or set-ioctl ;
+
+: clr-rts  ( fd -- )
+     dup get-ioctl TIOCM_RTS invert and set-ioctl ;
+
+: get-cts  ( fd -- n )
+     get-ioctl TIOCM_CTS and ;
+
+: get-dsr  ( fd -- n )
+     get-ioctl TIOCM_DSR and ;
