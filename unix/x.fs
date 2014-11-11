@@ -10,10 +10,10 @@ c-library x
 
     s" X11" add-lib
 
+    0 warnings !@
     include xlib.fs
 
     \ several vararg functions have to be declared by hand
-    0 warnings !@
     c-function XVaCreateNestedList XVaCreateNestedList n a a a -- a
     c-function XVaCreateNestedList_2 XVaCreateNestedList n a a a a a -- a
     c-function XCreateIC XCreateIC a a a a -- a
@@ -21,6 +21,8 @@ c-library x
     c-function XCreateIC_3 XCreateIC a a a a a a a a -- a
     c-function XSetICValues XSetICValues a a a a -- a
     c-function XSetICValues_2 XSetICValues a a a a a a -- a
+    c-function XGetIMValues XGetIMValues a a a a -- a
+    c-function XSetIMValues XSetIMValues a a a a -- a
     warnings !
 end-c-library
 

@@ -132,7 +132,6 @@ Variable std-bg
     White >extra-colors-bg White >bg Black >fg or to default-color ;
 : >black Black std-bg! Black err-bg! White fg! Red err-fg!
     Black >extra-colors-bg Black >bg White >fg or to default-color ;
->black \ make black default
 
 128 Value videocols
 0   Value videorows
@@ -346,7 +345,7 @@ default-out op-vector !
     >screen-orientation
     create-terminal-program to terminal-program
     terminal-program terminal-init
-    s" ascii.png" term-load-textures form-chooser
+    s" minos2/ascii.png" term-load-textures form-chooser
     unit-matrix MVPMatrix set-matrix ;
 
 :noname  defers window-init term-init config-changer ; IS window-init
@@ -355,9 +354,13 @@ window-init
 
 previous previous \ remove opengl from search order
 
-\ android version for system
+\ print system and sh outputs on gl terminal
 
+0 warnings !@
 : system ( addr u -- )
     r/o open-pipe throw 0 { fd w^ string }
     fd string $[]slurp string $[]. string $[]off ;
 : sh '#' parse cr system ;
+warnings !
+
+>black \ make black default

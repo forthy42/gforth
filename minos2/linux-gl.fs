@@ -23,11 +23,15 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
 : best-im ( -- im )
     XSupportsLocale IF
 	"XMODIFIERS" getenv drop ?dup-IF
-	    XSetLocaleModifiers  0= IF
+	    XSetLocaleModifiers 0= IF
 		." Warning: Cannot set locale modifiers to '"
 		"XMODIFIERS" getenv type  ." '" cr THEN  THEN
     THEN
     dpy 0 0 0 XOpenIM dup to xim
+    ?dup-0=-IF  "@im=local\0" drop XSetLocaleModifiers drop
+	dpy 0 0 0 XOpenIM dup to xim
+	." Warning: can't open XMODIFIERS' IM, set to '@im=local' instead" cr
+    THEN
     IF  0 { w^ styles } xim "queryInputStyle\0" drop styles 0 XGetIMValues
 	0<> ?EXIT \ didn't succeed
 	0  styles @ cell+ @ styles @ w@ cells bounds ?DO
@@ -327,4 +331,10 @@ xpollfds pollfd %size xpollfd# * dup cell- uallot drop erase
     need-show on  key? IF  defers key  EXIT  THEN
     BEGIN  xpoll-timeout# #looper  key? screen-ops UNTIL  defers key ;
 
+0 warnings !@
+: bye ( -- )
+    ic ?dup-IF  XDestroyIC  THEN  0 to ic
+    xim ?dup-IF  XCloseIM drop  THEN  0 to xim
+    bye ;
+warnings !
 ' x-key IS key
