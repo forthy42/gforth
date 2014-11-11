@@ -190,7 +190,7 @@ c-library pthread
     \G the traditional cooperative task switcher; in the pthread
     \G multitasker, you don't need @code{pause} for cooperation, but
     \G you still can use it e.g. when you have to resort to polling
-    \G for some reason.
+    \G for some reason.)
     c-function pthread_detach_attr pthread_detach_attr -- a ( -- addr )
     c-function pthread_cond_signal pthread_cond_signal a -- n ( cond -- r )
     c-function pthread_cond_broadcast pthread_cond_broadcast a -- n ( cond -- r )

@@ -12,6 +12,16 @@ c-library x
 
     include xlib.fs
 
+    \ several vararg functions have to be declared by hand
+    0 warnings !@
+    c-function XVaCreateNestedList XVaCreateNestedList n a a a -- a
+    c-function XVaCreateNestedList_2 XVaCreateNestedList n a a a a a -- a
+    c-function XCreateIC XCreateIC a a a a -- a
+    c-function XCreateIC_2 XCreateIC a a a a a a -- a
+    c-function XCreateIC_3 XCreateIC a a a a a a a a -- a
+    c-function XSetICValues XSetICValues a a a a -- a
+    c-function XSetICValues_2 XSetICValues a a a a a a -- a
+    warnings !
 end-c-library
 
 previous set-current

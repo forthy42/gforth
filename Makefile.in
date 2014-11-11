@@ -150,7 +150,7 @@ PROFOBJS = @PROFOBJS@
 PROFEXES = @PROFEXES@
 
 INSTALLDIRS = kernel doc asm ec test \
-	compat unix \
+	compat unix minos2 \
 	arch arch/generic arch/m68k arch/mips \
 	arch/386 arch/hppa arch/sparc arch/power \
 	arch/alpha arch/4stack arch/misc arch/6502 \
@@ -304,14 +304,18 @@ SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
 
-LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC)
+LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC) \
+	$(patsubst %, unix/%, $(SWIGLIBS) $(SWIGMODULES))
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
 
 LIBCC_BUILD_NOEC = @NO_CHECK@ $(LIBCC_BUILD_SRC)
 
+MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs		\
+	minos2/jpeg-exif.fs minos2/linux-gl.fs minos2/soil-texture.fs
+
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
-	ans-report.fs ansi.fs answords.fs \
+	$(MINOS2_SRC) ans-report.fs ansi.fs answords.fs \
 	colorize.fs comp-i.fs complex.fs \
 	depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
 	envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs \
