@@ -19,6 +19,8 @@
 #define _CLASSPATH_JNIIMPEXP
 #endif
 
+// exec: sed -e s/JNINativeInterface_-/JNIEnv-/g -e s/JNINativeInterface-/JNIEnv-/g -e s/JNIInvokeInterface_-/JavaVM-/g -e s/JNIInvokeInterface-/JavaVM-/g
+
 %apply char { jbyte, jboolean };
 %apply short { jshort, jchar };
 %apply int { jint, jsize };

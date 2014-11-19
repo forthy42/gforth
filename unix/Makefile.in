@@ -37,7 +37,7 @@ libs: build-libcc-named $(LIBRARY)
 
 # execute compiled file
 %.fs: %.fsx
-	./$< -gforth > $@
+	./$< -gforth | ./dosed $@ > $@
 
 # compile fsi-file
 %.fsx: %-fsi.c
