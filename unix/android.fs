@@ -22,6 +22,7 @@ c-library android
     \c #include <android/keycodes.h>
     \c #include <android/native_window.h>
     \c #include <android/native_window_jni.h>
+    \c #include <android/native_activity.h>
     \c #include <android/looper.h>
 
     begin-structure app_input_state
@@ -67,6 +68,8 @@ c-library android
     end-structure
     
     s" android" add-lib
+
+    include androidlib.fs
     
 end-c-library
 
@@ -76,7 +79,7 @@ s" APP_STATE" getenv s>number drop Value app
 
 get-current also forth definitions
 
-require jni-helper.fs
+require unix/jni-helper.fs
 
 set-current previous
 

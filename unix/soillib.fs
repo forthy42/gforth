@@ -9,12 +9,7 @@ get-current also soil definitions
 
 c-library soillib
     s" soil" add-lib
-    [IFDEF] android
-	s" ./.libs" add-libpath
-	\c #include "../../../../SOIL.h"
-    [ELSE]
-	\c #include "SOIL.h"
-    [THEN]
+    \c #include "SOIL.h"
 
     include soil.fs
 end-c-library

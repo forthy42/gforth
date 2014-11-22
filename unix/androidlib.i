@@ -4,6 +4,7 @@
 #include <android/input.h>
 #include <android/keycodes.h>
 #include <android/native_window.h>
+#include <android/native_window_jni.h>
 #include <android/native_activity.h>
 #include <android/looper.h>
 %}
@@ -20,5 +21,6 @@
 %include <android/input.h>
 %include <android/keycodes.h>
 %include <android/native_window.h>
+%include <android/native_window_jni.h>
 %include <android/native_activity.h>
 %include <android/looper.h>

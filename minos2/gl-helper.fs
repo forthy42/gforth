@@ -12,12 +12,11 @@ Variable dpy-h
 
 s" os-type" environment? [IF]
     2dup s" linux-android" str= [IF] 2drop
-	require unix/opengl.fs
+	require unix/opengles.fs
 	
 	also opengl
 	
-	require android.fs
-	[IFUNDEF] android : android ; [THEN]
+	require unix/android.fs
 	also android
 
 	align here
