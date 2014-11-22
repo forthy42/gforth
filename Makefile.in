@@ -592,6 +592,7 @@ mostlyclean:	FORCE
 		doc/gforth.pg \
 		doc/gforth.toc doc/gforth.tp doc/gforth.vr html \
 		gforth-$(VERSION).tar.gz
+		(cd unix && $(MAKE) clean)
 
 # Just the stuff needed to rebuild the documentation nac03feb1999
 docclean:	FORCE

@@ -2,6 +2,10 @@
 %insert("include")
 %{
 #include <jni.h>
+#ifdef __gnu_linux__
+#undef stderr
+extern struct _IO_FILE *stderr;
+#endif
 %}
 
 // #define SWIG_FORTH_OPTIONS ""
@@ -19,7 +23,7 @@
 #define _CLASSPATH_JNIIMPEXP
 #endif
 
-// exec: sed -e s/JNINativeInterface_-/JNIEnv-/g -e s/JNINativeInterface-/JNIEnv-/g -e s/JNIInvokeInterface_-/JavaVM-/g -e s/JNIInvokeInterface-/JavaVM-/g -e s/c-function .*//g'
+// exec: sed -e s/JNINativeInterface_-/JNIEnv-/g -e s/JNINativeInterface-/JNIEnv-/g -e s/JNIInvokeInterface_-/JavaVM-/g -e s/JNIInvokeInterface-/JavaVM-/g -e 's/\(c-function .*\)/\\ \1/g'
 
 %apply char { jbyte, jboolean };
 %apply short { jshort, jchar };

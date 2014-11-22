@@ -20,7 +20,8 @@ srcdir = ./unix
 DESTDIR = $(PWD)
 LIBTOOL = @GNU_LIBTOOL@
 GCC	= @CC@
-CC	= $(GCC)
+HOSTCC	= @HOSTCC@
+CC	= $(HOSTCC-$(GCC)) $(INCLUDES)
 
 all: $(TARGETS)
 

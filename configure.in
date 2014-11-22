@@ -194,6 +194,7 @@ AC_SUBST(DITCENGINE)
 #variables mentioned in INSTALL
 AC_ARG_VAR(SH, [The shell])
 AC_ARG_VAR(CC, [The C compiler (must support GNU C 2.x).])
+AC_ARG_VAR(HOSTCC, [The C compiler on the host (must have the same byte order and word size as target CC).])
 AC_ARG_VAR(FORTHSIZES, [Gforth command line options for the default stack and dictionary sizes (see INSTALL).])
 AC_ARG_VAR(STACK_CACHE_REGS, [number of registers in the maximum stack cache state for gforth-fast and gforth-native (default platform-dependent).])
 AC_ARG_VAR(STACK_CACHE_DEFAULT_FAST, [number of registers in the default stack cache state for gforth-fast and gforth-native (default 1).])
@@ -217,6 +218,8 @@ AC_ARG_VAR(skipcode, [assembly code for skipping 16 bytes of code])
 AC_ARG_VAR(asmcomment, [assembler comment start string])
 AC_ARG_VAR(arm_cacheflush, [file containing ARM cacheflush function (without .c)])
 AC_ARG_VAR(LTDL_LIBRARY_PATH, [additional directories for libltdl (for some 64-bit platforms)])
+
+test -z "$HOSTCC" && HOSTCC='$(GCC)'
 
 #set up feature test macros, so the tests get them right:
 # turn on all POSIX, SUSv3, and GNU features if available
