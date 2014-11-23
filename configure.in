@@ -1190,6 +1190,8 @@ if swig -forth unix/test.i; then
    SWIGLIBS="$SWIGLIBS png.fs", ,)
    AC_CHECK_HEADER(SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
    SWIGLIBS="$SWIGLIBS soillib.fs", ,)
+   AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
+   SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
 else
    AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
 fi
