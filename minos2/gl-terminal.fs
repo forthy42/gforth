@@ -6,7 +6,7 @@ require ansi.fs \ we may want to support colorize.fs
 
 \ :noname source type cr stdout flush-file throw ; is before-line
 
-require gl-helper.fs
+require minos2/gl-helper.fs
 
 also [IFDEF] android android [THEN]
 

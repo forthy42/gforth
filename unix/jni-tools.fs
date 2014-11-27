@@ -1,6 +1,6 @@
 \ Java Native Interface toolkit
 
-require jni.fs
+require unix/jnilib.fs
 require mini-oof2.fs \ we only need o for now
 
 get-current also android also jni definitions
@@ -20,11 +20,11 @@ User callargs
 
 : attach ( -- ) \ jni
     \G attach the current thread to the JVM
-    vm ['] env >body vmAA JNIInvokeInterface_-AttachCurrentThread() drop
+    vm ['] env >body vmAA JavaVM-AttachCurrentThread() drop
     maxargs# floats allocate throw callargs ! ;
 : detach ( -- ) \ jni
     \G detach the current thread from the JVM
-    vm JNIInvokeInterface_-DetachCurrentThread() drop
+    vm JavaVM-DetachCurrentThread() drop
     callargs @ free throw ;
 
 attach \ apparently needs attaching again
@@ -100,7 +100,7 @@ Create 's-calls '[' 1+ 'A'
 
 : new() ( jobject jmid -- )  callenv JNIEnv-NewObjectA() ;
 
-: fieldenv ( jobject jfid -- env jobject jmid env )  env -rot env ;
+: fieldenv ( jobject jfid -- env jobject jmid env )  env -rot ;
 
 : z@f ( jobject jfid -- c )  fieldenv JNIEnv-GetBooleanField() ;
 : b@f ( jobject jfid -- c )  fieldenv JNIEnv-GetByteField() ;
@@ -113,15 +113,15 @@ Create 's-calls '[' 1+ 'A'
 : l@f ( jobject jfid -- object )  fieldenv JNIEnv-GetObjectField() ;
 ' l@f alias [@f
 
-: z!f ( c jobject jfid -- )  rot >r fieldenv r> swap JNIEnv-SetBooleanField() ;
-: b!f ( c jobject jfid -- )  rot >r fieldenv r> swap JNIEnv-SetByteField() ;
-: c!f ( utf16 jobject jfid -- )  rot >r fieldenv r> swap JNIEnv-SetCharField() ;
-: s!f ( n jobject jfid -- )  rot >r fieldenv r> swap JNIEnv-SetShortField() ;
-: i!f ( n jobject jfid -- )  rot >r fieldenv r> swap JNIEnv-SetIntField() ;
-: j!f ( d jobject jfid -- )  2swap 2>r fieldenv 2r> rot JNIEnv-SetLongField() ;
+: z!f ( c jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetBooleanField() ;
+: b!f ( c jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetByteField() ;
+: c!f ( utf16 jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetCharField() ;
+: s!f ( n jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetShortField() ;
+: i!f ( n jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetIntField() ;
+: j!f ( d jobject jfid -- )  2swap 2>r fieldenv 2r> JNIEnv-SetLongField() ;
 : f!f ( r jobject jfid -- )  fieldenv JNIEnv-SetFloatField() ;
 : d!f ( r jobject jfid -- )  fieldenv JNIEnv-SetDoubleField() ;
-: l!f ( object jobject jfid -- )  rot >r fieldenv r> swap JNIEnv-SetObjectField() ;
+: l!f ( object jobject jfid -- )  rot >r fieldenv r> JNIEnv-SetObjectField() ;
 ' l!f alias [!f
 
 Create 'field@ '[' 1+ 'A'
@@ -145,8 +145,8 @@ Create 'sfield@ '[' 1+ 'A'
 
 \ global ref handling - you should ]gref every global ref after usage
 
-: ]ref ( object -- )  env tuck JNIEnv-DeleteLocalRef() ;
-: ]gref ( object -- )  env tuck JNIEnv-DeleteGlobalRef() ;
+: ]ref ( object -- )  env swap JNIEnv-DeleteLocalRef() ;
+: ]gref ( object -- )  env swap JNIEnv-DeleteGlobalRef() ;
 : ref> ( object -- ) o ]ref r> o> >r ;
 comp: drop ]] o ]ref o> [[ ;
 : gref> ( object -- ) o ]gref r> o> >r ;
@@ -181,7 +181,7 @@ Variable jstring#
 : cstr" ( -- addr )  parse-name cstring  $0! ;
 : cstr1" ( -- addr ) parse-name cstring1 $0! ;
 : make-jstring ( c-addr -- jstring-addr )
-    env tuck JNIEnv-NewStringUTF() dup to-jstring ;
+    env swap JNIEnv-NewStringUTF() dup to-jstring ;
 : js" ( -- addr )  '"' parse cstring $0! make-jstring ;
 comp: drop '"' parse cstring $0!
     cstring>sstring 1+ ]] SLiteral drop make-jstring [[ ;
@@ -203,17 +203,17 @@ Variable iscopy
 : ?javanf ( id -- id )  dup 0= !!javanf!! and throw ;
 
 : jni-class: ( "name" -- )
-    env cstr" env JNIEnv-FindClass() ?javanf to jniclass ;
+    env cstr" JNIEnv-FindClass() ?javanf to jniclass ;
 : jni-mid ( "name" "signature" -- methodid )
-    env jniclass cstr" cstr1" env JNIEnv-GetMethodID() ?javanf ;
+    env jniclass cstr" cstr1" JNIEnv-GetMethodID() ?javanf ;
 : jni-smid ( "name" "signature" -- methodid )
-    env jniclass cstr" cstr1" env JNIEnv-GetStaticMethodID() ?javanf ;
+    env jniclass cstr" cstr1" JNIEnv-GetStaticMethodID() ?javanf ;
 : jni-new ( "signatur" -- methodid )
-    env jniclass s" <init>" cstring $0! cstr1" env JNIEnv-GetMethodID() ?javanf ;
+    env jniclass s" <init>" cstring $0! cstr1" JNIEnv-GetMethodID() ?javanf ;
 : jni-fid ( "name" "signature" -- methodid )
-    env jniclass cstr" cstr1" env JNIEnv-GetFieldID() ?javanf ;
+    env jniclass cstr" cstr1" JNIEnv-GetFieldID() ?javanf ;
 : jni-sfid ( "name" "signature" -- methodid )
-    env jniclass cstr" cstr1" env JNIEnv-GetStaticFieldID() ?javanf ;
+    env jniclass cstr" cstr1" JNIEnv-GetStaticFieldID() ?javanf ;
 
 Variable argstring
 : >argstring ( addr1 u1 -- addr2 u2 )

@@ -151,7 +151,7 @@ void startForth(jniargs * startargs)
   JavaVMAttachArgs vmAA = { JNI_VERSION_1_6, "NativeThread", 0 };
 
   pipe(epipe);
-  fileno(stdin)=epipe[0];
+  stdin->_file=epipe[0];
 
   (*vm)->AttachCurrentThread(vm, &env, &vmAA);
   

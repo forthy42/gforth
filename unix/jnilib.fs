@@ -4,7 +4,7 @@ Vocabulary jni
 
 get-current also jni definitions
 
-c-library jni
+c-library jnilib
     s" ((struct JNI:*(Cell*)(sp[arg0])" ptr-declare $+[]!
     \c #include <jni.h>
     include jni.fs

@@ -3,6 +3,10 @@
 %{
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
+#ifdef __gnu_linux__
+#undef stderr
+extern struct _IO_FILE *stderr;
+#endif
 %}
 %apply float { GLfloat, GLclampf };
 %apply long { EGLNativePixmapType };

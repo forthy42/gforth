@@ -1,6 +1,6 @@
 \ show/hide keyboard using jni tools
 
-require jni-tools.fs
+require unix/jni-tools.fs
 
 also android also jni
 
