@@ -10,8 +10,8 @@ HARFBUZZ=harfbuzz-0.9.36
 
 #get dependent files
 
-wget $FREETYPE.tar.bz2
-wget $HARFBUZZ.tar.bz2
+wget http://downloads.sourceforge.net/project/freetype/freetype2/${FREETYPE#*-}/$FREETYPE.tar.bz2
+wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.bz2
 
 # support stuff
 
