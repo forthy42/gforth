@@ -9,7 +9,8 @@
 echo "Config for x86-android"
 (cd engine
 mkdir .libs
-for i in sigaltstack.o __set_errno.o
+XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o"
+for i in $XLIBS
 do
   ar x ~/proj/android-toolchain-x86/sysroot/usr/lib/libc.a $i
   cp $i .libs
@@ -61,5 +62,5 @@ engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
 LIBS="-llog -lz"
-signals_o="io.o signals.o sigaltstack.o __set_errno.o androidmain.o zexpand.o"
+signals_o="io.o signals.o $XLIBS androidmain.o zexpand.o"
 
