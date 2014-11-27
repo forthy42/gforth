@@ -18,9 +18,13 @@ sed -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManif
 SRC=../../..
 LIBS=libs/armeabi
 LIBCCNAMED=lib/$(gforth --version 2>&1 | tr ' ' '/')/libcc-named/.libs
+TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain}
 
 rm -rf $LIBS
 mkdir -p $LIBS
+
+cp $TOOLCHAIN/sysroot/usr/lib/lib{soil,harfbuzz,freetype,freetype-gl}.so $LIBS
+strip $LIBS/lib{soil,harfbuzz,freetype,freetype-gl}.so
 
 if [ "$1" != "--no-gforthgz" ]
 then
