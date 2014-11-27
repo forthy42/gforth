@@ -60,6 +60,3 @@ git clone https://github.com/rougier/freetype-gl.git
 make
 make install
 )
-
-cp $TOOLCHAIN/sysroot/usr/lib/lib{harfbuzz,freetype,freetype-gl}.so libs/$ARCH
-strip libs/$ARCH/lib{harfbuzz,freetype,freetype-gl}.so

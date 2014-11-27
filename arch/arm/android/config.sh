@@ -8,7 +8,7 @@
 #./build.sh
 (cd engine
 mkdir .libs
-for i in sigaltstack.o __set_errno.o
+for i in sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o
 do
   ar x ~/proj/android-toolchain/sysroot/usr/lib/libc.a $i
   cp $i .libs
@@ -62,5 +62,5 @@ engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
 LIBS="-llog -lz"
-signals_o="io.o signals.o sigaltstack.o __set_errno.o androidmain.o zexpand.o"
+signals_o="io.o signals.o sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o androidmain.o zexpand.o"
 
