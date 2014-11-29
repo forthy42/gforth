@@ -11,9 +11,9 @@ get-current also freetype-gl definitions
 
 c-library freetype-gllib
     [IFDEF] android
-	s" freetype-gl" add-lib
-    [ELSE]
 	s" typeset" add-lib
+    [ELSE]
+	s" freetype-gl" add-lib
     [THEN]
     \c #include "freetype-gl.h"
     \c #include "vec234.h"

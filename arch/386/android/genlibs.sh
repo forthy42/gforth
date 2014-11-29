@@ -63,6 +63,7 @@ git clone https://github.com/forthy42/freetype-gl.git
 
 (cd freetype-gl
 ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
+patchlibtool libtool
 make
 make install
 )
