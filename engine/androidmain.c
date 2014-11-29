@@ -33,6 +33,11 @@
 #include <jni.h>
 #include <android/log.h>
 
+#define LOGI(...) \
+  __android_log_print(ANDROID_LOG_INFO, "Gforth", __VA_ARGS__);
+#define LOGE(...) \
+  __android_log_print(ANDROID_LOG_ERROR, "Gforth", __VA_ARGS__);
+
 static Xt ainput=0;
 static Xt acmd=0;
 static Xt akey=0;
@@ -110,9 +115,9 @@ void unpackFiles()
   post("showprog");
   zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
   checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
-  fprintf(stderr, "sha256sum '%s'=>%d\n", "gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
+  LOGI("sha256sum '%s'=>%d\n", "gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
   write(checkdir, sha256sum, 64);
-  fprintf(stderr, sha256sum, 64);
+  LOGI(sha256sum, 64);
   close(checkdir);
   post("hideprog");
 }
@@ -132,9 +137,9 @@ int checkFiles()
     if(!chdir(folder[i])) break;
   }
 
-  fprintf(stderr, "chdir(%s)\n", folder[i]);
+  LOGI("chdir(%s)\n", folder[i]);
 
-  fprintf(stderr, "Starting %s %s %s\n",
+  LOGI("Starting %s %s %s\n",
 	  argv[0], argv[1], argv[2]);
 
   return checksha256sum();
@@ -170,31 +175,31 @@ void startForth(jniargs * startargs)
   
   chdir("gforth/home");
 
-  fprintf(stderr, "Starting Gforth...\n");
+  LOGI("Starting Gforth...\n");
   fflush(stderr);
   retvalue=gforth_start(argc, argv);
-  fprintf(stderr, "Started, rval=%d\n", retvalue);
+  LOGI("Started, rval=%d\n", retvalue);
   fflush(stderr);
 
   ainput=gforth_find("ainput");
   acmd=gforth_find("acmd");
   akey=gforth_find("akey");
 
-  fprintf(stderr, "ainput=%p, acmd=%p, akey=%p\n", ainput, acmd, akey);
+  LOGI("ainput=%p, acmd=%p, akey=%p\n", ainput, acmd, akey);
   fflush(stderr);
   
   if(retvalue == -56) {
     Xt bootmessage=gforth_find((Char*)"bootmessage");
     if(bootmessage != 0) {
-      fprintf(stderr, "bootmessage=%p\n", bootmessage);
+      LOGI("bootmessage=%p\n", bootmessage);
       fflush(stderr);
       gforth_execute(bootmessage);
     }
-    fprintf(stderr, "starting gforth_quit\n");
+    LOGI("starting gforth_quit\n");
     fflush(stderr);
     retvalue = gforth_quit();
   } else {
-    fprintf(stderr, "booting not successful...\n");
+    LOGI("booting not successful...\n");
     fflush(stderr);
     unlink("../" PACKAGE_VERSION "/sha256sum");
   }
@@ -261,7 +266,9 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
   jmethodID jid;
   jclass cls;
   JNIEnv * env;
-
+  
+  LOGI("Enter onload\n");
+  
   freopen("/sdcard/gforthout.log", "w+", stdout);
   freopen("/sdcard/gfortherr.log", "w+", stderr);
 
@@ -275,16 +282,16 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
   cls = (*env)->FindClass(env, "gnu/gforth/Gforth");
   startargs.cls = (*env)->NewGlobalRef(env, cls);
 
-  fprintf(stderr, "Registering native methods\n");
+  LOGI("Registering native methods\n");
 
   for(i=0; i<n; i++) {
     jid=(*env)->GetMethodID(env, cls, GforthMethods[i].name, GforthMethods[i].signature);
-    if(jid==0) fprintf(stderr, "Can't find method %s %s\n",
-		       GforthMethods[i].name, GforthMethods[i].signature);
+    if(jid==0) LOGI("Can't find method %s %s\n",
+		    GforthMethods[i].name, GforthMethods[i].signature);
   }
 
   if((*env)->RegisterNatives(env, cls, GforthMethods, n)<0) {
-    fprintf(stderr, "Register Natives failed\n");
+    LOGI("Register Natives failed\n");
     fflush(stderr);
   }
 
