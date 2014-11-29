@@ -1,8 +1,10 @@
 \ soil wrapper
 
 \ dummy load for Android
-[IFDEF] android
-    s" /data/data/gnu.gforth/lib/libtypeset.so" open-lib drop
+s" os-type" environment? [IF]
+    s" linux-android" str= [IF]
+	s" /data/data/gnu.gforth/lib/libtypeset.so" open-lib drop
+    [THEN]
 [THEN]
 
 Vocabulary freetype-gl
@@ -10,8 +12,12 @@ Vocabulary freetype-gl
 get-current also freetype-gl definitions
 
 c-library freetype-gllib
-    [IFDEF] android
-	s" typeset" add-lib
+    s" os-type" environment? [IF]
+	s" linux-android" str= [IF]
+	    s" typeset" add-lib
+	[ELSE]
+	    s" freetype-gl" add-lib
+	[THEN]
     [ELSE]
 	s" freetype-gl" add-lib
     [THEN]
