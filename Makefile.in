@@ -313,7 +313,8 @@ LIBCC_BUILD_NOEC = @NO_CHECK@ $(LIBCC_BUILD_SRC)
 
 MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs minos2/ascii.png	\
 	minos2/jpeg-exif.fs minos2/linux-gl.fs minos2/soil-texture.fs \
-	minos2/gl-sample.fs minos2/gl-slideshow.fs
+	minos2/gl-sample.fs minos2/gl-slideshow.fs minos2/ftgl-helper.fs \
+	minos2/ftgl-sample.fs minos2/widgets.fs minos2/widgets-test.fs
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	$(MINOS2_SRC) ans-report.fs ansi.fs answords.fs \
