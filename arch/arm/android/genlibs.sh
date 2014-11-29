@@ -62,3 +62,5 @@ make install
 )
 
 $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath /home/bernd/proj/android-toolchain/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ freetype-gl -name '*.lo') -lm -lGLESv2 -lz -llog
+
+cp .libs/libtypeset.* $TOOLCHAIN/sysroot/usr/lib

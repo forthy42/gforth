@@ -10,7 +10,11 @@ Vocabulary freetype-gl
 get-current also freetype-gl definitions
 
 c-library freetype-gllib
-    s" freetype-gl" add-lib
+    [IFDEF] android
+	s" freetype-gl" add-lib
+    [ELSE]
+	s" typeset" add-lib
+    [THEN]
     \c #include "freetype-gl.h"
     \c #include "vec234.h"
     \c #include "vector.h"
