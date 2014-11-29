@@ -53,10 +53,12 @@ make install)
 
 #freetype GL
 
-git clone https://github.com/rougier/freetype-gl.git
+git clone https://github.com/forthy42/freetype-gl.git
 
 (cd freetype-gl
 ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
 make
 make install
 )
+
+$TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath /home/bernd/proj/android-toolchain/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ freetype-gl -name '*.lo') -lm -lGLESv2 -lz -llog

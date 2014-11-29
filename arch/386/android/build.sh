@@ -23,8 +23,9 @@ TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-x86}
 rm -rf $LIBS
 mkdir -p $LIBS
 
-cp $TOOLCHAIN/sysroot/usr/lib/lib{soil,harfbuzz,freetype,freetype-gl}.so $LIBS
-strip $LIBS/lib{soil,harfbuzz,freetype,freetype-gl}.so
+cp $TOOLCHAIN/sysroot/usr/lib/libsoil.so $LIBS
+cp .libs/libtypeset.so $LIBS
+strip $LIBS/lib{soil,typeset}.so
 
 if [ "$1" != "--no-gforthgz" ]
 then

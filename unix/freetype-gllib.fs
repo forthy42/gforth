@@ -1,7 +1,9 @@
 \ soil wrapper
 
 \ dummy load for Android
-s" /data/data/gnu.gforth/lib/libfreetype-gl.so" open-lib drop
+[IFDEF] android
+    s" /data/data/gnu.gforth/lib/libtypeset.so" open-lib drop
+[THEN]
 
 Vocabulary freetype-gl
 
