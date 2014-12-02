@@ -23,7 +23,10 @@ TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain}
 rm -rf $LIBS
 mkdir -p $LIBS
 
-cp $TOOLCHAIN/sysroot/usr/lib/libsoil.so $LIBS
+if [ ! -f $TOOLCHAIN/sysroot/usr/lib/libsoil2.a ]
+then
+    cp $TOOLCHAIN/sysroot/usr/lib/libsoil.so $LIBS
+fi
 cp .libs/libtypeset.so $LIBS
 strip $LIBS/lib{soil,typeset}.so
 
