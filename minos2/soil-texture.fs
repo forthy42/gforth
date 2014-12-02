@@ -1,7 +1,14 @@
 \ soil texture
 
 require gl-helper.fs
-require unix/soillib.fs
+s" unix/soil2.fs" open-fpath-file 0= [IF]
+    \ prefer soil2 over soil
+    2drop close-file throw
+    require unix/soil2lib.fs
+[ELSE]
+    2drop drop
+    require unix/soillib.fs
+[THEN]
 require jpeg-exif.fs
 
 also soil

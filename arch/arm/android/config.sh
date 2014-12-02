@@ -1,7 +1,7 @@
 # First create a standalone toolchain directory
 #mkdir ~/proj/android-toolchain
 #cd  ~/proj/android-toolchain
-#~/proj/android-ndk-r9c/build/tools/make-standalone-toolchain.sh --arch=arm --platform=android-14 --ndk-dir=/home/bernd/proj/android-ndk-r9c --install-dir=$PWD --toolchain=arm-linux-androideabi-4.8
+#~/proj/android-ndk-r10c/build/tools/make-standalone-toolchain.sh --arch=arm --platform=android-14 --ndk-dir=/home/bernd/proj/android-ndk-r10c --install-dir=$PWD --toolchain=arm-linux-androideabi-4.8
 #configure with
 #./configure --host=arm-linux-android --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib --with-ditc=gforth-ditc-x32
 #and finally create an apk in this directory
