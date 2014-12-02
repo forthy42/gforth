@@ -1188,8 +1188,10 @@ if swig -forth unix/test.i; then
    SWIGLIBS="$SWIGLIBS openmax.fs", ,)
    AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES pnglib.fs"
    SWIGLIBS="$SWIGLIBS png.fs", ,)
-   AC_CHECK_HEADER(SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
-   SWIGLIBS="$SWIGLIBS soillib.fs", ,)
+   AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
+   SWIGLIBS="$SWIGLIBS soil2lib.fs",
+      AC_CHECK_HEADER(SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
+      SWIGLIBS="$SWIGLIBS soillib.fs", ,), )
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
 else

@@ -62,6 +62,24 @@ make
 make install
 )
 
+# SOIL2
+
+if [ -f soil2/.hg/hgrc ]
+then
+    (cd soil2; hg pull)
+else
+    hg clone https://bitbucket.org/forthy42/soil2
+fi
+
+(cd soil2
+premake4 --platform=arm-android gmake
+(cd make/linux
+make config=release)
+(cd lib/linux
+cp libsoil2.a $TOOLCHAIN/sysroot/usr/lib)
+(cd src/SOIL2
+cp SOIL2.h $TOOLCHAIN/sysroot/usr/include))
+
 $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath /home/bernd/proj/android-toolchain/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ freetype-gl -name '*.lo') -lm -lGLESv2 -lz -llog
 
 cp .libs/libtypeset.* $TOOLCHAIN/sysroot/usr/lib
