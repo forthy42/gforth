@@ -59,7 +59,12 @@ make install)
 
 #freetype GL
 
-git clone https://github.com/forthy42/freetype-gl.git
+if [ -f freetype-gl/.git/config ]
+then
+    (cd freetype-gl; git pull)
+else
+    git clone https://github.com/forthy42/freetype-gl.git
+fi
 
 (cd freetype-gl
 ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/

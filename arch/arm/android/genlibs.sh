@@ -53,7 +53,12 @@ make install)
 
 #freetype GL
 
-git clone https://github.com/forthy42/freetype-gl.git
+if [ -f freetype-gl/.git/config ]
+then
+    (cd freetype-gl; git pull)
+else
+    git clone https://github.com/forthy42/freetype-gl.git
+fi
 
 (cd freetype-gl
 ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
@@ -66,7 +71,7 @@ make install
 
 if [ -f soil2/.hg/hgrc ]
 then
-    (cd soil2; hg pull)
+    (cd soil2; hg pull; hg up)
 else
     hg clone https://bitbucket.org/forthy42/soil2
 fi
