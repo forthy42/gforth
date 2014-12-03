@@ -6,6 +6,11 @@ get-current also soil definitions
 
 c-library soil2lib
     s" soil2" add-lib
+    [IFDEF] android
+	s" EGL" add-lib
+	s" GLESv2" add-lib
+	s" m" add-lib
+    [THEN]
     \c #include "SOIL2.h"
 
     include soil2.fs
