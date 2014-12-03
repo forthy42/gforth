@@ -19,6 +19,7 @@
 */
 
 #include <gforth/@PACKAGE_VERSION@/config.h>
+#include <signal.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__) || defined(__ANDROID__)
 #undef HAS_BACKLINK
@@ -61,6 +62,7 @@ extern user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 extern void gforth_free_stacks(user_area* t);
 extern user_area *gforth_main_UP;
 extern Cell gforth_go(Xt *ip);
+extern void gforth_sigset(sigset_t set, ...);
 gforth_libcc_init()
 {
 }
@@ -84,6 +86,7 @@ gforth_libcc_init(void *(*gforth_pointers_init)(Cell))
 #define gforth_free_stacks ((void(*)(user_area*))gforth_pointers(10))
 #define gforth_main_UP *((user_area **)(gforth_pointers(11)))
 #define gforth_go ((Cell(*)(Xt*))gforth_pointers(12))
+#define gforth_sigset ((void(*)(sigset_t*, ...))gforth_pointers(13))
 #define GFORTH_ARGS void *(*gforth_pointers)(Cell)
 #endif
 

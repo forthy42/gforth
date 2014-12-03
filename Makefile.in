@@ -299,7 +299,7 @@ LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
 
 UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
 	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs unix/freetype-gllib.fs \
-	unix/android.fs
+	unix/android.fs unix/openmax.fs
 
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	\
@@ -319,7 +319,8 @@ MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs minos2/ascii.png	\
 	minos2/jpeg-exif.fs minos2/linux-gl.fs minos2/soil-texture.fs \
 	minos2/gl-sample.fs minos2/gl-slideshow.fs minos2/ftgl-helper.fs \
 	minos2/ftgl-sample.fs minos2/widgets.fs minos2/widgets-test.fs \
-	minos2/mts-tools.fs minos2/mkv-tools.fs minos2/omx-example.fs
+	minos2/mts-tools.fs minos2/mkv-tools.fs minos2/omx-example.fs \
+	minos2/mkv-tags.fs
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	$(MINOS2_SRC) ans-report.fs ansi.fs answords.fs \

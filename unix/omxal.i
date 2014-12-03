@@ -15,6 +15,8 @@ extern struct _IO_FILE *stderr;
 #define XA_API
 #define const
 
-%include <OMXAL/OpenMAXAL_Platform.h>
+// exec: sed -e s/Itf_-/Itf-/g -e s/ID_-/ID-/g
+
+%include "OMXAL/OpenMAXAL_Platform.h"
 %include "OMXAL/OpenMAXAL.h"
 %include "OMXAL/OpenMAXAL_Android.h"

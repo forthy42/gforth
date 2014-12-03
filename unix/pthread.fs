@@ -28,6 +28,12 @@ c-library pthread
     \c #include <setjmp.h>
     \c #include <stdio.h>
     \c #include <signal.h>
+    \c #if HAVE_GETPAGESIZE
+    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
+    \c #define getpagesize() sysconf(_SC_PAGESIZE)
+    \c #elif PAGESIZE
+    \c #define getpagesize() PAGESIZE
+    \c #endif
     \c #ifndef FIONREAD
     \c #include <sys/socket.h>
     \c #endif
@@ -72,10 +78,7 @@ c-library pthread
     \c   /* mcheck(gfpthread_abortmcheck); */
     \c #endif
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
-    \c   sigemptyset(&set);
-    \c   sigaddset(&set, SIGINT);
-    \c   sigaddset(&set, SIGQUIT);
-    \c   sigaddset(&set, SIGTERM);
+    \c   gforth_sigset(&set, SIGINT, SIGQUIT, SIGTERM, 0);
     \c   pthread_sigmask(SIG_BLOCK, &set, NULL);
     \c   x=gforth_go(ip0);
     \c   pthread_cleanup_pop(1);
@@ -145,16 +148,6 @@ c-library pthread
     \c   poll(&fds, 1, timeoutns/1000000+timeouts*1000);
     \c #endif
     \c   return check_read(fid);
-    \c }
-    \c int gforth_pagesize()
-    \c {
-    \c #if HAVE_GETPAGESIZE
-    \c   return getpagesize(); /* Linux/GNU libc offers this */
-    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
-    \c   return sysconf(_SC_PAGESIZE); /* POSIX.4 */
-    \c #elif PAGESIZE
-    \c   return PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
-    \c #endif
     \c }
     \c /* optional: CPU affinity
     \c #include <sched.h>

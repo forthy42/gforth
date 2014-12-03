@@ -2413,6 +2413,7 @@ Cell const * gforth_pointers(Cell n)
   case 10: return (Cell *)&gforth_free_stacks;
   case 11: return (Cell *)&gforth_main_UP;
   case 12: return (Cell *)&gforth_go;
+  case 13: return (Cell *)&gforth_sigset;
   default: return NULL;
   }
 }

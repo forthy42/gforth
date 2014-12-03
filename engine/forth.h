@@ -438,6 +438,7 @@ Cell gforth_make_image(int debugflag);
 #endif
 int gforth_abortmcheck(int reason);
 void gforth_free(void * ptr);
+void gforth_sigset(sigset_t *set, ...);
 
 /* for ABI-CODE and ;ABI-CODE */
 typedef Cell *abifunc(Cell *sp, Float **fpp);

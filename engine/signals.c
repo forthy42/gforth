@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <termios.h>
+#include <stdarg.h>
 #include "io.h"
 
 #ifdef HAS_DEBUG
@@ -83,6 +84,18 @@ void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
   sigaction(sig, &action, NULL);
 }
 #endif
+
+void gforth_sigset(sigset_t *set, ...)
+{
+  va_list ap;
+  int sig;
+  va_start(ap, set);
+  sigemptyset(*set);
+  while(sig=va_arg(ap, int)) {
+    sigaddset(*set, sig);
+  }
+  va_end(ap);
+}
 
 Sigfunc *bsd_signal(int signo, Sigfunc *func)
 {

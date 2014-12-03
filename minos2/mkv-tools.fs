@@ -99,9 +99,6 @@ end-class mkvbuf-c
 : close-mkv ( -- )
     mkvfd @ close-file dispose throw ;
 
-: 2+! ( d addr -- )
-    dup >r 2@ d+ r> 2! ;
-
 : read-mkv ( -- )
     mkvsize @ 0= IF
 	mkvbuf mkvslice# mkvoverlap# + mkvfd @ read-file throw
