@@ -23,18 +23,18 @@ also openmax
 	~~ !!fail!! throw
     ELSE  drop  THEN [[ ; immediate
 
-: realize ( object -- ) 0 over XAObjectItf-Realize() ?success ;
+: realize ( object -- ) 0 XAObjectItf-Realize() ?success ;
 
 : create-object ( -- )
     ['] mp-object >body 0 0 0 0 0 xaCreateEngine ?success
     mp-object realize ;
 
 : create-engine ( -- )
-    mp-object XA_IID_ENGINE ['] engine >body mp-object XAObjectItf-GetInterface()
+    mp-object XA_IID_ENGINE ['] engine >body XAObjectItf-GetInterface()
     ?success ;
 
 : create-mix ( -- )
-    engine ['] mix >body  0 0 0 engine XAEngineItf-CreateOutputMix() ?success
+    engine ['] mix >body  0 0 0 XAEngineItf-CreateOutputMix() ?success
     mix realize ;
 
 : create-stuff ( -- )
@@ -85,7 +85,7 @@ Defer read-ts
     1 bq-cb# +!
     addr BUFFER_SIZE read-ts
     dup MPEG2_TS_PACKET_SIZE mod - { size }
-    caller 0 addr size 0 0 caller XAAndroidBufferQueueItf-Enqueue() ;
+    caller 0 addr size 0 0 XAAndroidBufferQueueItf-Enqueue() ;
 
 ' buffer-queue-cb xaAndroidBufferQueueCallback: Constant c-buffer-queue-cb
 
@@ -99,11 +99,11 @@ Variable eventid#
     case eventid
 	XA_STREAMCBEVENT_PROPERTYCHANGE of
 	    caller stream domain
-	    caller XAStreamInformationItf-QueryStreamType() ?success
+	    XAStreamInformationItf-QueryStreamType() ?success
 	    case domain l@
 		XA_DOMAINTYPE_VIDEO of
 		    caller stream videoinfo
-		    caller XAStreamInformationItf-QueryStreamInformation() ?success
+		    XAStreamInformationItf-QueryStreamInformation() ?success
 		endof
 	    endcase
 	endof
@@ -112,7 +112,7 @@ Variable eventid#
 
 ' stream-info-cb xaStreamEventChangeCallback: Constant c-stream-info-cb
 
-: clear-queue ( -- ) BQitf dup XAAndroidBufferQueueItf-Clear() ?success ;
+: clear-queue ( -- ) BQitf XAAndroidBufferQueueItf-Clear() ?success ;
 
 : init-enqueue { flag -- }
     flag IF  clear-queue  THEN
@@ -120,26 +120,26 @@ Variable eventid#
     dup MPEG2_TS_PACKET_SIZE mod - cache swap bounds U+DO
 	BQitf 0 I BUFFER_SIZE I' I - umin
 	flag IF  items 8  0 to flag  ELSE  0 0  THEN
-	BQitf XAAndroidBufferQueueItf-Enqueue() ?success
+	XAAndroidBufferQueueItf-Enqueue() ?success
     BUFFER_SIZE +LOOP ;
 
 : get-interfaces ( -- )
     player XA_IID_PLAY ['] playitf >body
-    player XAObjectItf-GetInterface() ?success
+    XAObjectItf-GetInterface() ?success
     player XA_IID_STREAMINFORMATION ['] infoitf >body
-    player XAObjectItf-GetInterface() ?success
+    XAObjectItf-GetInterface() ?success
     player XA_IID_VOLUME ['] volitf >body
-    player XAObjectItf-GetInterface() ?success
+    XAObjectItf-GetInterface() ?success
     player XA_IID_ANDROIDBUFFERQUEUESOURCE ['] BQItf >body
-    player XAObjectItf-GetInterface() ?success ;
+    XAObjectItf-GetInterface() ?success ;
 
 : set-callbacks ( -- )
     BQitf XA_ANDROIDBUFFERQUEUEEVENT_PROCESSED
-    BQitf XAAndroidBufferQueueItf-SetCallbackEventsMask() ?success
+    XAAndroidBufferQueueItf-SetCallbackEventsMask() ?success
     BQitf c-buffer-queue-cb 0
-    BQitf XAAndroidBufferQueueItf-RegisterCallback() ?success
+    XAAndroidBufferQueueItf-RegisterCallback() ?success
     infoitf c-stream-info-cb 0
-    infoitf XAStreamInformationItf-RegisterStreamChangeCallback() ?success ;
+    XAStreamInformationItf-RegisterStreamChangeCallback() ?success ;
 
 : create-sf ( -- )
     media-sf  >o o IF  release     THEN o>
@@ -156,11 +156,11 @@ also jni also android
     mix loc_mix cell+ !
     engine ['] player >body
     data< 0 audio> video> 0 0 NB_MAXAL_INTERFACES iidArray req
-    engine XAEngineITF-CreateMediaPlayer() ?success
+    XAEngineITF-CreateMediaPlayer() ?success
     player realize ;
 
 : destroy-player ( -- )
-    player dup XAObjectItf-Destroy()  0 to player ;
+    player XAObjectItf-Destroy()  0 to player ;
 
 previous previous
 
@@ -168,14 +168,14 @@ previous previous
     mediaplayer0 >o media-sf setSurface  mp-start o> ;
 
 Variable playstate
-: pplay? ( -- flag ) playitf playstate playitf XAPlayItf-GetPlayState() ?success
+: pplay? ( -- flag ) playitf playstate XAPlayItf-GetPlayState() ?success
     playstate @ XA_PLAYSTATE_PLAYING = ;
 : ppause ( -- )
-    playitf XA_PLAYSTATE_PAUSED playitf XAPlayItf-SetPlayState() ?success ;
+    playitf XA_PLAYSTATE_PAUSED XAPlayItf-SetPlayState() ?success ;
 : pplay ( -- )
-    playitf XA_PLAYSTATE_PLAYING playitf XAPlayItf-SetPlayState() ?success ;
+    playitf XA_PLAYSTATE_PLAYING XAPlayItf-SetPlayState() ?success ;
 : pvol ( n -- )
-    volitf swap volitf XAVolumeItf-SetVolumeLevel() ?success ;
+    volitf swap XAVolumeItf-SetVolumeLevel() ?success ;
 
 : queue-flush ( -- )
     cues>mts-run? IF
@@ -314,10 +314,11 @@ true value show-mcursor
     ppause screen-keep ;
 : play-ts ( addr u -- ) ['] read-ts-file is read-ts
     open-mts start-file play-loop ;
-: play-mkv ( addr u -- )
+: set-mkv ( addr u -- )
     ['] pull-queue is read-ts
-    <event e$, ->open-mkv 0 elit, ->cues cue-task event>
-    start-file play-loop stop-player ;
+    <event e$, ->open-mkv 0 elit, ->cues cue-task event> ;
+: play-mkv ( addr u -- )
+    set-mkv start-file play-loop stop-player ;
 : replay% ( r -- )  >pos  true init-enqueue play-loop ;
 : replay ( -- )
     cue-task IF
