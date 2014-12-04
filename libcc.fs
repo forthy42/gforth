@@ -555,6 +555,7 @@ Create callback-&style c-var c,
 
 : callback-pushs ( descriptor -- )
     1+ count 0 { d: pars vari }
+    ."   GFORTH_MAKESTACK(GFSS); \" cr
     ."   Cell*  sp=gforth_SP; \" cr
     ."   Float* fp=gforth_FP; \" cr
     0 0 pars bounds u+do
@@ -602,7 +603,7 @@ Create callback-&style c-var c,
     dup callback-pushs dup callback-call
     dup callback-adjust callback-wrapup callback-return ;
 
-8 Value callback# \ how many callbacks should be created?
+2 Value callback# \ how many callbacks should be created?
 
 : callback-instantiate ( addr u -- )
     callback# 0 ?DO
@@ -886,12 +887,14 @@ c-function-rt  lastxt Constant dummy-rt
     \G an @var{xt}, and returns the @var{addr}ess of the C function
     \G handling that callback.
     >r Create here dup ccb% %size dup allot erase
+    callback# 1- over ccb-num !
     lib-handle-addr @ swap ccb-lha !
     parse-function-types
     here lastxt name>string string, count sanitize
     r> c-source-file-execute
-  DOES> ( xt -- addr ) \ create a callback instance
-    >r r@ ccb-lha @ @ 0= IF
+  DOES> ( xt -- addr ) >r \ create a callback instance
+    r@ ccb-num @ 0< !!callbacks!! and throw
+    r@ ccb-lha @ @ 0= IF
 	compile-wrapper-function
     THEN
     r@ ccb-cfuns @ 0= IF
@@ -899,11 +902,10 @@ c-function-rt  lastxt Constant dummy-rt
 	r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
 	r@ ccb-lha @ @ lookup-c-array r@ ccb-cfuns !
     THEN
-    r@ @ callback# u>= !!callbacks!! and throw
     >r :noname r> compile, ]] 0 (bye) ; [[
     >body r@ ccb-ips @ r@ ccb-num @ cells + !
     r@ ccb-cfuns @ r@ ccb-num @ cells + @
-    1 r> ccb-num +! ;
+    -1 r> ccb-num +! ;
 
 : c-callback ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a callback instantiator with the given signature.  The

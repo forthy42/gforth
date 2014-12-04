@@ -20,6 +20,7 @@
 
 #include <gforth/@PACKAGE_VERSION@/config.h>
 #include <signal.h>
+#include <alloca.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__) || defined(__ANDROID__)
 #undef HAS_BACKLINK
@@ -54,6 +55,7 @@ extern PER_THREAD Float *gforth_FP;
 extern PER_THREAD Cell *gforth_RP;
 extern PER_THREAD char *gforth_LP;
 extern PER_THREAD user_area *gforth_UP;
+extern PER_THREAD Cell gforth_magic;
 extern void *gforth_engine(void *);
 extern char *cstr(char *from, Cell size);
 extern char *tilde_cstr(char *from, Cell size);
@@ -87,7 +89,14 @@ gforth_libcc_init(void *(*gforth_pointers_init)(Cell))
 #define gforth_main_UP *((user_area **)(gforth_pointers(11)))
 #define gforth_go ((Cell(*)(Xt*))gforth_pointers(12))
 #define gforth_sigset ((void(*)(sigset_t*, ...))gforth_pointers(13))
+#define gforth_magic *((Cell *)(gforth_pointers(14)))
 #define GFORTH_ARGS void *(*gforth_pointers)(Cell)
+#endif
+
+#if SIZEOF_CHAR_P == 4
+#define GFORTH_MAGIC 0x3B3C51D5U
+#else
+#define GFORTH_MAGIC 0x1E059AF1785E72D4ULL
 #endif
 
 #define CELL_BITS	(sizeof(Cell) * 8)
@@ -123,3 +132,12 @@ gforth_libcc_init(void *(*gforth_pointers_init)(Cell))
 typedef Char hash_128[16];
 
 #define GFSS 0x80 /* stack sizes */
+
+#define GFORTH_MAKESTACK(n) \
+  if(gforth_magic != GFORTH_MAGIC) { \
+    gforth_SP = alloca(n*sizeof(Cell)); \
+    gforth_RP = alloca(n*sizeof(Cell)); \
+    gforth_FP = alloca(n*sizeof(Float));	\
+    gforth_LP = alloca(n*sizeof(Cell)); \
+    gforth_UP = gforth_main_UP; \
+  }
