@@ -553,9 +553,11 @@ create gen-types
 Create callback-style c-val c,
 Create callback-&style c-var c,
 
+: callback-threadsafe ( -- )
+    ."   GFORTH_MAKESTACK(GFSS); \" cr ;
+
 : callback-pushs ( descriptor -- )
     1+ count 0 { d: pars vari }
-    ."   GFORTH_MAKESTACK(GFSS); \" cr
     ."   Cell*  sp=gforth_SP; \" cr
     ."   Float* fp=gforth_FP; \" cr
     0 0 pars bounds u+do
@@ -578,7 +580,7 @@ Create callback-&style c-var c,
     IF  drop 2drop  ELSE  gen-par  THEN ;
 
 : callback-wrapup ( -- )
-    ."   gforth_SP=oldsp; gforth_RP=oldrp; gforth_LP=oldlp; gforth_FP=oldfp; gforth_UP=oldup; \" cr ;
+    ."   gforth_SP=oldsp; gforth_RP=oldrp; gforth_LP=oldlp; gforth_FP=oldfp; gforth_UP=oldup; gforth_magic=old_magic; \" cr ;
 
 : callback-adjust ( descriptor -- )
     ."   sp=gforth_SP; fp=gforth_FP; \" cr
@@ -590,13 +592,15 @@ Create callback-&style c-var c,
     >r 0 0 s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
 
 : callback-define ( descriptor -- )
-    dup callback-header dup callback-pushs dup callback-call
+    dup callback-header callback-threadsafe
+    dup callback-pushs dup callback-call
     dup callback-adjust callback-return ;
 
 : callback-wrapper ( -- )
-    ."   Cell *oldsp=gforth_SP; Cell *oldrp=gforth_RP; char *oldlp=gforth_LP; Float *oldfp=gforth_FP; user_area *oldup=gforth_UP; \" cr
+    ."   Cell *oldsp=gforth_SP; Cell *oldrp=gforth_RP; char *oldlp=gforth_LP; \" cr
+    ."   Float *oldfp=gforth_FP; user_area *oldup=gforth_UP; Cell old_magic=gforth_magic; \" cr
     ."   Cell stack[GFSS], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS]; \" cr
-    ."   gforth_SP=stack+GFSS-1; gforth_RP=rstack+GFSS; gforth_LP=(char*)(lstack+GFSS); gforth_FP=fstack+GFSS-1; gforth_UP=gforth_main_UP; \" cr ;
+    ."   gforth_SP=stack+GFSS-1; gforth_RP=rstack+GFSS; gforth_LP=(char*)(lstack+GFSS); gforth_FP=fstack+GFSS-1; gforth_UP=gforth_main_UP; gforth_magic=GFORTH_MAGIC; \" cr ;
 
 : callback-thread-define ( descriptor -- )
     dup callback-header callback-wrapper
