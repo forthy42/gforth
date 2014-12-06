@@ -3,11 +3,10 @@
 #cd  ~/proj/android-toolchain
 #~/proj/android-ndk-r9c/build/tools/make-standalone-toolchain.sh --platform=android-14 --ndk-dir=/home/bernd/proj/android-ndk-r9c --install-dir=$PWD --toolchain=x86-4.8
 #configure with
-#./configure --host=arm-linux-android --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib --with-ditc=gforth-ditc-x32
+#./configure --host=aarch64-linux-android --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib --with-ditc=gforth-ditc
 #and finally create an apk in this directory
 #./build.sh
-echo "Config for x86-android"
-#XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o clrerr.o feof.o ferror.o fileno.o getc.o stubs.o putc.o rget.o wbuf.o wsetup.o fflush.o libc_logging.o refill.o findfp.o stdio.o makebuf.o fwalk.o atexit.o thread_private.o"
+echo "Config for arm64-android"
 XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o"
 (cd engine
 mkdir .libs
@@ -30,12 +29,12 @@ done
 )
 skipcode=".skip 16"
 kernel_fi=kernl64l.fi
-ac_cv_sizeof_void_p=4
-ac_cv_sizeof_char_p=4
+ac_cv_sizeof_void_p=8
+ac_cv_sizeof_char_p=8
 ac_cv_sizeof_char=1
 ac_cv_sizeof_short=2
 ac_cv_sizeof_int=4
-ac_cv_sizeof_long=4
+ac_cv_sizeof_long=8
 ac_cv_sizeof_long_long=8
 ac_cv_sizeof_intptr_t=4
 ac_cv_sizeof_int128_t=0
@@ -43,20 +42,20 @@ ac_cv_c_bigendian=no
 ac_cv_func_memcmp_working=yes
 ac_cv_func_memmove=yes
 ac_cv_func_getpagesize=no
-ac_cv_file___arch_386_asm_fs=yes
-ac_cv_file___arch_368_disasm_fs=yes
+ac_cv_file___arch_arm64_asm_fs=yes
+ac_cv_file___arch_arm64_disasm_fs=yes
 ac_cv_func_dlopen=yes
 ac_export_dynamic=yes
-CC=i686-linux-android-gcc
-HOSTCC="gcc -m32"
-GNU_LIBTOOL="i686-linux-android-libtool"
+CC=aarch64-linux-android-gcc
+HOSTCC="gcc -m64"
+GNU_LIBTOOL="aarch64-linux-android-libtool"
 build_libcc_named=build-libcc-named
 #KBOX=/data/data/kevinboone.androidterm/kbox
 #mi_prefix=$KBOX
 #mi_prefix=/data/data/gnu.gforth/lib
 extraccdir=/data/data/gnu.gforth/lib
-asm_fs=arch/386/asm.fs
-disasm_fs=arch/386/disasm.fs
+asm_fs=arch/arm64/asm.fs
+disasm_fs=arch/arm64/disasm.fs
 EC_MODE="false"
 NO_EC=""
 EC=""

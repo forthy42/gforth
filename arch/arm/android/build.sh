@@ -50,7 +50,7 @@ else
     shift
 fi
 
-SHA256=$(sha256sum libs/armeabi/libgforthgz.so | cut -f1 -d' ')
+SHA256=$(sha256sum $LIBS/libgforthgz.so | cut -f1 -d' ')
 
 for i in $ENGINES
 do

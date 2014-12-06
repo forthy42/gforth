@@ -16,9 +16,9 @@ echo $APP_VERSION >~/.app-version
 sed -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
-LIBS=libs/x86
+LIBS=libs/arm64-v8a
 LIBCCNAMED=lib/$(gforth --version 2>&1 | tr ' ' '/')/libcc-named/.libs
-TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-x86}
+TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-arm64}
 
 rm -rf $LIBS
 mkdir -p $LIBS
@@ -33,7 +33,7 @@ strip $LIBS/lib{soil,typeset}.so
 if [ "$1" != "--no-gforthgz" ]
 then
     (cd $SRC
-	if [ "$1" != "--no-config" ]; then ./configure --host=i686-linux-android --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib || exit 1; fi
+	if [ "$1" != "--no-config" ]; then ./configure --host=aarch64-linux-android --with-cross=android --with-ditc=gforth-ditc --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib || exit 1; fi
 	make || exit 1
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]; then CONFIG=no; shift; fi
@@ -49,7 +49,7 @@ else
     shift
 fi
 
-SHA256=$(sha256sum libs/x86/libgforthgz.so | cut -f1 -d' ')
+SHA256=$(sha256sum $LIBS/libgforthgz.so | cut -f1 -d' ')
 
 for i in $ENGINES
 do
@@ -69,7 +69,7 @@ do
 		    then
 			make || exit 1
 		    else
-			./configure CFLAGS="$CFLAGS" --host=i686-linux-android && make clean && make || exit 1
+			./configure CFLAGS="$CFLAGS" --host=aarch64-linux-android && make clean && make || exit 1
 		    fi
 		)
 	    done
