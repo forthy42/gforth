@@ -1,9 +1,9 @@
 #!/bin/bash
 # Generate stuff needed for android Gforth
 
-TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-x86}
-ARCH=x86
-TARGET=i686-linux-android
+TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-amd64}
+ARCH=amd64
+TARGET=aarch64-linux-android
 
 FREETYPE=freetype-2.5.3
 HARFBUZZ=harfbuzz-0.9.36

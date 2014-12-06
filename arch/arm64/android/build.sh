@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [ ! -f build.xml ]
-then
-    android update project -p . -s --target android-10
-fi
-
 # takes as extra argument a directory where to look for .so-s
 
 ENGINES="gforth-fast gforth-itc"
@@ -14,6 +9,11 @@ APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
 sed -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
+
+if [ ! -f build.xml ]
+then
+    android update project -p . -s --target android-14
+fi
 
 SRC=../../..
 LIBS=libs/arm64-v8a
