@@ -30,10 +30,12 @@ void gforth_cacheflush(void *p, size_t size)
     * and (more readable) Google V8 sources:
     * https://v8.googlecode.com/svn/branches/bleeding_edge/src/arm64/cpu-arm64.cc
     * see also ARM Architecture Reference Manual ARMv8, B2-73 and D7-1851
+    *
+    * I only assemble the special instructions, and do the rest in C
     */
   long icachez, dcachez, ctr_el0;
   void *q=p+size, *ps=p;
-  ASM( "mrs	%0, ctr_el0\n" : "=r"(ctr_el0) ::); // read CTR
+  ASM( "mrs	%0, ctr_el0\n" : "=r"(ctr_el0) ::); // read CTR_EL0
   dcachez = 4l << ((ctr_el0 >> 16) & 0xF);	// extract data cache line size
   icachez = 4l << (ctr_el0 & 0xF);		// extract icache line size
   do {
