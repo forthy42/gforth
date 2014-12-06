@@ -331,6 +331,13 @@ case "$host_cpu" in
                 #only 4-byte alignment anyway
 		test "$skipcode" || skipcode="nop"
 		;;
+	aarch64*)
+		machine=arm64
+		CFLAGS="$CFLAGS -fomit-frame-pointer"
+		if test -z $arm_cacheflush; then
+		   AC_LIBOBJ(../arch/arm64/cacheflush) 
+		fi
+		;;
 	hppa*)
 		machine=hppa
 		AC_LIBOBJ(../arch/hppa/cache)
