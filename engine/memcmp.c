@@ -20,7 +20,7 @@
 
 #include "forth.h"
 
-Cell memcmp(const void *s1, const void *s2, size_t n)
+int memcmp(const void *s1, const void *s2, size_t n)
 {
   Cell i;
 

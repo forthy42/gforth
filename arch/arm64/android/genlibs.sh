@@ -1,8 +1,8 @@
 #!/bin/bash
 # Generate stuff needed for android Gforth
 
-TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-amd64}
-ARCH=amd64
+TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-arm64}
+ARCH=arm64
 TARGET=aarch64-linux-android
 
 FREETYPE=freetype-2.5.3
@@ -83,7 +83,7 @@ else
 fi
 
 (cd soil2
-premake4 --platform=x86-android gmake
+premake4 --platform=arm64-android gmake
 (cd make/linux
 make config=release)
 (cd lib/linux

@@ -118,6 +118,9 @@ else
      x86_64)
         cpu=amd64
      ;;
+     aarch64)
+	cpu=arm64
+     ;;
   esac
 
   if test -f "arch/${cpu}/${withval}/config.sh"; then
@@ -157,6 +160,9 @@ else
      ;;
      x86_64)
         cpu=amd64
+     ;;
+     aarch64)
+	cpu=arm64
      ;;
   esac
 
