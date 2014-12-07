@@ -64,7 +64,7 @@ extern user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 extern void gforth_free_stacks(user_area* t);
 extern user_area *gforth_main_UP;
 extern Cell gforth_go(Xt *ip);
-extern void gforth_sigset(sigset_t set, ...);
+extern void gforth_sigset(sigset_t* set, ...);
 gforth_libcc_init()
 {
 }
