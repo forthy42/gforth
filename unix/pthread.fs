@@ -346,6 +346,7 @@ event: ->lit  0  sp@ cell  epiper @ read-file throw drop ;
 event: ->flit 0e fp@ float epiper @ read-file throw drop ;
 event: ->wake ;
 event: ->sleep  stop ;
+event: ->kill  kill-task ;
 
 : wake ( task -- )
     \G Wake a task
@@ -353,6 +354,9 @@ event: ->sleep  stop ;
 : sleep ( task -- )
     \G Stop a task
     <event ->sleep event> ;
+: kill ( task -- )
+    \G Stop a task
+    <event ->kill event> ;
 
 : elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
 \G sends a literal
