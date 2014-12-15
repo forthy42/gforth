@@ -189,3 +189,12 @@ DOES>   ( u -- ) spaces-loop ;
 hex
 [THEN]
 
+has? os [IF]
+    Defer ns ( dtime -- )
+    \G sleep for dtime ns or wait to absolute time dtime if
+    \G dtime>$1000000000000000
+    : kernel-ns ( dtime -- )
+	2dup $1000000000000000. d>= IF  ntime d-  THEN
+	#1000000000 um/mod (ns) ;
+    ' kernel-ns IS ns
+[THEN]

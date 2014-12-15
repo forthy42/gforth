@@ -2216,6 +2216,16 @@ time1.tv_nsec = time2.tv_usec*1000;
 #endif
 dtime = timespec2ns(&time1);
 
+(ns)    ( uns usec -- )	gforth	paren_ns
+""Wait for usec+uns, values precomuted in Forth""
+#if HAVE_PSELECT
+  struct timespec tout = { usec, uns };
+  pselect(0, NULL, NULL, NULL, &tout, NULL);
+#else
+  struct timeval tout = { usec, uns/1000 };
+  select(0, NULL, NULL, NULL, &tout);
+#endif
+
 \+
 
 \+floating
