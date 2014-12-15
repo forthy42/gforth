@@ -190,6 +190,8 @@ hex
 [THEN]
 
 has? os [IF]
+    Defer ms ( n -- )
+    ' (ms) is ms
     Defer ns ( dtime -- )
     \G sleep for dtime ns or wait to absolute time dtime if
     \G dtime>$1000000000000000

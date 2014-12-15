@@ -1899,7 +1899,7 @@ nhour =ltime->tm_hour;
 nmin  =ltime->tm_min;
 nsec  =ltime->tm_sec;
 
-ms	( u -- )	facility-ext
+(ms)	( u -- )	facility-ext	paren_ms
 ""Wait at least @i{n} milli-second.""
 gforth_ms(u);
 
