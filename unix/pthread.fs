@@ -349,8 +349,8 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     2drop 2drop ;
 ' thread-deadline is deadline
 
-event: ->lit  { w^ n } n cell epiper @ read-file throw drop n @ ;
-event: ->flit { f^ r } r float epiper @ read-file throw drop r f@ ;
+event: ->lit  0 { w^ n } n cell epiper @ read-file throw drop n @ ;
+event: ->flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
 event: ->wake ;
 event: ->sleep  stop ;
 event: ->kill  kill-task ;
