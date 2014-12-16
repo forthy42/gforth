@@ -97,13 +97,10 @@ Create killer killer A, killer A,
 : task-key   BEGIN  pause key? single-tasking? or  UNTIL  (key) ;
 : task-emit  (emit) pause ;
 : task-type  (type) pause ;
-: task-ns ( d -- ) 
-    2dup $1000000000000000. du< IF  ntime d+  THEN
-    BEGIN  pause 2dup ntime du<=  UNTIL  2drop ;
-: task-ms ( n -- ) 1000000 um* task-ns ;
+: task-deadline ( d -- ) 
+    BEGIN  pause 2dup ntime d- d0<=  UNTIL  2drop ;
 
 ' task-key  IS key
 ' task-emit IS emit
 ' task-type IS type
-' task-ms   IS ms
-' task-ns   IS ns
+' task-deadline IS deadline

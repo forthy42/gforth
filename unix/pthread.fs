@@ -341,16 +341,13 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     \G the traditional cooperative task switcher; in the pthread
     \G multitasker, you don't need @code{pause} for cooperation, but
     \G you still can use it e.g. when you have to resort to polling
-    \G for some reason.)
-    sched_yield event? IF  (stop)  THEN ;
-: thread-ns ( d -- )
-    \G wait until absolute time @var{d}, must be at least 2006-7-15; base is
-    \G 1970-1-1 0:00 UTC, if the value is smaller, wait relative time.
-    2dup $1000.0000.0000.0000. du< IF  ntime d+  THEN
-    BEGIN  2dup ntime d- stop-dns ntime du<=  UNTIL  2drop ;
-: thread-ms ( n -- )  1000000 um* ns ;
-' thread-ns is ns
-' thread-ms is ms
+    \G for some reason).  This also checks for events in the queue.
+    sched_yield ?events ;
+: thread-deadline ( d -- )
+    \G wait until absolute time @var{d}, base is 1970-1-1 0:00 UTC
+    BEGIN  2dup ntime d- 2dup d0> WHILE  stop-dns  REPEAT
+    2drop 2drop ;
+' thread-deadline is deadline
 
 event: ->lit  { w^ n } n cell epiper @ read-file throw drop n @ ;
 event: ->flit { f^ r } r float epiper @ read-file throw drop r f@ ;
