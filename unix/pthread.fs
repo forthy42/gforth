@@ -149,9 +149,10 @@ c-library pthread
     \c #endif
     \c   return check_read(fid);
     \c }
-    \c /* optional: CPU affinity
+    \c /* optional: CPU affinity */
     \c #include <sched.h>
     \c int stick_to_core(int core_id) {
+    \c #ifdef HAVE_PTHREAD_SETAFFINITY_NP
     \c   cpu_set_t cpuset;
     \c 
     \c   core_id %= sysconf(_SC_NPROCESSORS_ONLN);
@@ -161,8 +162,11 @@ c-library pthread
     \c   CPU_SET(core_id, &cpuset);
     \c   
     \c   return pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+    \c #else
+    \c   return 0;
+    \c #endif
+    \ if there's no such function, don't do anything
     \c }
-    \c */
 
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
@@ -189,7 +193,7 @@ c-library pthread
     c-function wait_read wait_read a n n -- n ( pipefd timeoutns timeouts -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
     c-function pt-pagesize getpagesize -- n ( -- size )
-    \ c-function stick-to-core stick_to_core n -- n ( core -- n )
+    c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
 [IFUNDEF] pagesize  pt-pagesize Constant pagesize [THEN]

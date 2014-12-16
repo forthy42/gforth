@@ -1122,7 +1122,7 @@ dnl anything but DOS
 AC_CHECK_HEADERS(sys/mman.h fnmatch.h alloca.h wchar.h endian.h)
 AC_FUNC_FNMATCH
 test $ac_cv_func_fnmatch_works = yes || AC_LIBOBJ(fnmatch)
-AC_CHECK_FUNCS(mmap sysconf getpagesize wcwidth pselect)
+AC_CHECK_FUNCS(mmap sysconf getpagesize wcwidth pselect pthread_setaffinity_np)
 AM_PATH_LISPDIR
 
 kernel_fi=kernl${vwordsize}${bytesex}.fi
