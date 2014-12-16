@@ -178,12 +178,7 @@ c-library pthread
     c-function pthread-mutexes pthread_mutexes n -- n ( n -- n' )
     c-function pthread-cond+ pthread_cond_plus a -- a ( cond -- cond' )
     c-function pthread-conds pthread_conds n -- n ( n -- n' )
-    c-function pause sched_yield -- void ] ( -- ) [
-    \G voluntarily switch to the next waiting task (@code{pause} is
-    \G the traditional cooperative task switcher; in the pthread
-    \G multitasker, you don't need @code{pause} for cooperation, but
-    \G you still can use it e.g. when you have to resort to polling
-    \G for some reason.)
+    c-function sched_yield sched_yield -- void ( -- )
     c-function pthread_detach_attr pthread_detach_attr -- a ( -- addr )
     c-function pthread_cond_signal pthread_cond_signal a -- n ( cond -- r )
     c-function pthread_cond_broadcast pthread_cond_broadcast a -- n ( cond -- r )
@@ -341,9 +336,24 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 : event-loop ( -- )  BEGIN  stop  AGAIN ;
 \G Tasks that are controlled by sending events to them should
 \G go into an event-loop
+: pause ( -- )
+    \G voluntarily switch to the next waiting task (@code{pause} is
+    \G the traditional cooperative task switcher; in the pthread
+    \G multitasker, you don't need @code{pause} for cooperation, but
+    \G you still can use it e.g. when you have to resort to polling
+    \G for some reason.)
+    sched_yield event? IF  (stop)  THEN ;
+: thread-ns ( d -- )
+    \G wait until absolute time @var{d}, must be at least 2006-7-15; base is
+    \G 1970-1-1 0:00 UTC, if the value is smaller, wait relative time.
+    2dup $1000.0000.0000.0000. du< IF  ntime d+  THEN
+    BEGIN  2dup ntime d- stop-dns ntime du<=  UNTIL  2drop ;
+: thread-ms ( n -- )  1000000 um* ns ;
+' thread-ns is ns
+' thread-ms is ms
 
-event: ->lit  0  sp@ cell  epiper @ read-file throw drop ;
-event: ->flit 0e fp@ float epiper @ read-file throw drop ;
+event: ->lit  { w^ n } n cell epiper @ read-file throw drop n @ ;
+event: ->flit { f^ r } r float epiper @ read-file throw drop r f@ ;
 event: ->wake ;
 event: ->sleep  stop ;
 event: ->kill  kill-task ;
@@ -355,7 +365,7 @@ event: ->kill  kill-task ;
     \G Stop a task
     <event ->sleep event> ;
 : kill ( task -- )
-    \G Stop a task
+    \G Kill a task
     <event ->kill event> ;
 
 : elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
@@ -363,7 +373,7 @@ event: ->kill  kill-task ;
 : e$, ( addr u -- )  swap elit, elit, ;
 \G sends a string (actually only the address and the count, because it's
 \G shared memory
-: eflit, ( x -- ) ->flit fp@ float event+ float move fdrop ;
+: eflit, ( x -- ) ->flit { f^ r } r float event+ float move ;
 \G sends a float
 
 \ User deferred words, user values
