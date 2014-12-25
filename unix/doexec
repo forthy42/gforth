@@ -1,0 +1,10 @@
+#!/bin/bash
+
+execs=$(grep '^// exec:' ${1%fs}i | cut -f3- -d' ')
+
+if [ -z "$execs" ]
+then
+    cat
+else
+    eval $execs
+fi

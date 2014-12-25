@@ -25,7 +25,7 @@ sieve bubble matrix  fib   fft    release; CPU; gcc
 
 ARM Cortex-A9:
   sieve bubble matrix fib   fft   release; CPU; gcc
- 0.535 0.710  0.360 0.745 0.400 2014-03-24; Exynos 4 Quad 1.6GHz; gcc-4.8.x (Android 4.3)
+ 0.405 0.525  0.275 0.560 0.295 2014-10-31; Exynos 4 Quad 1.6GHz; gcc-4.8.x (Android 4.4.2)
  0.735 0.920  0.900 1.110 0.690 2012-10-31; Exynos 4 Quad 1.6GHz; gcc-4.6.x (Android 4.1.1)
 ARM A8:
 sieve bubble matrix fib   fft   release

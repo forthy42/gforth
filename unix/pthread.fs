@@ -28,6 +28,12 @@ c-library pthread
     \c #include <setjmp.h>
     \c #include <stdio.h>
     \c #include <signal.h>
+    \c #if HAVE_GETPAGESIZE
+    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
+    \c #define getpagesize() sysconf(_SC_PAGESIZE)
+    \c #elif PAGESIZE
+    \c #define getpagesize() PAGESIZE
+    \c #endif
     \c #ifndef FIONREAD
     \c #include <sys/socket.h>
     \c #endif
@@ -72,10 +78,7 @@ c-library pthread
     \c   /* mcheck(gfpthread_abortmcheck); */
     \c #endif
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
-    \c   sigemptyset(&set);
-    \c   sigaddset(&set, SIGINT);
-    \c   sigaddset(&set, SIGQUIT);
-    \c   sigaddset(&set, SIGTERM);
+    \c   gforth_sigset(&set, SIGINT, SIGQUIT, SIGTERM, 0);
     \c   pthread_sigmask(SIG_BLOCK, &set, NULL);
     \c   x=gforth_go(ip0);
     \c   pthread_cleanup_pop(1);
@@ -146,19 +149,10 @@ c-library pthread
     \c #endif
     \c   return check_read(fid);
     \c }
-    \c int gforth_pagesize()
-    \c {
-    \c #if HAVE_GETPAGESIZE
-    \c   return getpagesize(); /* Linux/GNU libc offers this */
-    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
-    \c   return sysconf(_SC_PAGESIZE); /* POSIX.4 */
-    \c #elif PAGESIZE
-    \c   return PAGESIZE; /* in limits.h according to Gallmeister's POSIX.4 book */
-    \c #endif
-    \c }
-    \c /* optional: CPU affinity
+    \c /* optional: CPU affinity */
     \c #include <sched.h>
     \c int stick_to_core(int core_id) {
+    \c #ifdef HAVE_PTHREAD_SETAFFINITY_NP
     \c   cpu_set_t cpuset;
     \c 
     \c   core_id %= sysconf(_SC_NPROCESSORS_ONLN);
@@ -168,8 +162,11 @@ c-library pthread
     \c   CPU_SET(core_id, &cpuset);
     \c   
     \c   return pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+    \c #else
+    \c   return 0;
+    \c #endif
+    \ if there's no such function, don't do anything
     \c }
-    \c */
 
     c-function pthread+ pthread_plus a -- a ( addr -- addr' )
     c-function pthreads pthreads n -- n ( n -- n' )
@@ -185,12 +182,7 @@ c-library pthread
     c-function pthread-mutexes pthread_mutexes n -- n ( n -- n' )
     c-function pthread-cond+ pthread_cond_plus a -- a ( cond -- cond' )
     c-function pthread-conds pthread_conds n -- n ( n -- n' )
-    c-function pause sched_yield -- void ] ( -- ) [
-    \G voluntarily switch to the next waiting task (@code{pause} is
-    \G the traditional cooperative task switcher; in the pthread
-    \G multitasker, you don't need @code{pause} for cooperation, but
-    \G you still can use it e.g. when you have to resort to polling
-    \G for some reason.
+    c-function sched_yield sched_yield -- void ( -- )
     c-function pthread_detach_attr pthread_detach_attr -- a ( -- addr )
     c-function pthread_cond_signal pthread_cond_signal a -- n ( cond -- r )
     c-function pthread_cond_broadcast pthread_cond_broadcast a -- n ( cond -- r )
@@ -201,7 +193,7 @@ c-library pthread
     c-function wait_read wait_read a n n -- n ( pipefd timeoutns timeouts -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
     c-function pt-pagesize getpagesize -- n ( -- size )
-    \ c-function stick-to-core stick_to_core n -- n ( core -- n )
+    c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
 [IFUNDEF] pagesize  pt-pagesize Constant pagesize [THEN]
@@ -225,8 +217,15 @@ epiper create_pipe \ create pipe for main task
 
 :noname ( -- )
     epiper @ ?dup-if epiper off close-file drop  THEN
-    epipew @ ?dup-if epipew off close-file drop  THEN  0 (bye) ;
+    epipew @ ?dup-if epipew off close-file drop  THEN
+    tmp$ $off 0 (bye) ;
 IS kill-task
+
+Defer thread-init
+:noname ( -- )
+    rp@ cell+ backtrace-rp0 !
+    tmp$ $execstr-ptr !  tmp$ off
+    current-input off create-input ; IS thread-init
 
 : NewTask4 ( dsize rsize fsize lsize -- task )
     \G creates a task, each stack individually sized
@@ -246,11 +245,6 @@ IS kill-task
     \G activates task, the current procedure will be continued there
     r> swap >r  save-task r@ >task !
     pthread-id r@ >task pthread_detach_attr thread_start r> pthread_create drop ; compile-only
-
-: thread-init ( -- )
-    rp@ cell+ backtrace-rp0 !
-    tmp$ $execstr-ptr !  tmp$ off
-    current-input off create-input ;
 
 : activate ( task -- )
     \G activates a task. The remaining part of the word calling
@@ -346,11 +340,24 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 : event-loop ( -- )  BEGIN  stop  AGAIN ;
 \G Tasks that are controlled by sending events to them should
 \G go into an event-loop
+: pause ( -- )
+    \G voluntarily switch to the next waiting task (@code{pause} is
+    \G the traditional cooperative task switcher; in the pthread
+    \G multitasker, you don't need @code{pause} for cooperation, but
+    \G you still can use it e.g. when you have to resort to polling
+    \G for some reason).  This also checks for events in the queue.
+    sched_yield ?events ;
+: thread-deadline ( d -- )
+    \G wait until absolute time @var{d}, base is 1970-1-1 0:00 UTC
+    BEGIN  2dup ntime d- 2dup d0> WHILE  stop-dns  REPEAT
+    2drop 2drop ;
+' thread-deadline is deadline
 
-event: ->lit  0  sp@ cell  epiper @ read-file throw drop ;
-event: ->flit 0e fp@ float epiper @ read-file throw drop ;
+event: ->lit  0 { w^ n } n cell epiper @ read-file throw drop n @ ;
+event: ->flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
 event: ->wake ;
 event: ->sleep  stop ;
+event: ->kill  kill-task ;
 
 : wake ( task -- )
     \G Wake a task
@@ -358,13 +365,16 @@ event: ->sleep  stop ;
 : sleep ( task -- )
     \G Stop a task
     <event ->sleep event> ;
+: kill ( task -- )
+    \G Kill a task
+    <event ->kill event> ;
 
 : elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
 \G sends a literal
 : e$, ( addr u -- )  swap elit, elit, ;
 \G sends a string (actually only the address and the count, because it's
 \G shared memory
-: eflit, ( x -- ) ->flit fp@ float event+ float move fdrop ;
+: eflit, ( x -- ) ->flit { f^ r } r float event+ float move ;
 \G sends a float
 
 \ User deferred words, user values

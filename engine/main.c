@@ -31,6 +31,9 @@
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
 #endif
+#ifdef HAVE_MCHECK
+#include <mcheck.h>
+#endif
 #ifndef STANDALONE
 #include <sys/stat.h>
 #endif
@@ -67,6 +70,7 @@ PER_THREAD Float *gforth_FP;
 PER_THREAD user_area* gforth_UP=NULL;
 PER_THREAD Cell *gforth_RP;
 PER_THREAD Address gforth_LP;
+PER_THREAD Cell gforth_magic;
 
 user_area* gforth_main_UP=NULL;
 
@@ -2410,6 +2414,8 @@ Cell const * gforth_pointers(Cell n)
   case 10: return (Cell *)&gforth_free_stacks;
   case 11: return (Cell *)&gforth_main_UP;
   case 12: return (Cell *)&gforth_go;
+  case 13: return (Cell *)&gforth_sigset;
+  case 14: return (Cell *)&gforth_magic;
   default: return NULL;
   }
 }
@@ -2544,6 +2550,7 @@ void gforth_free_stacks(user_area * t)
 
 void gforth_setstacks()
 {
+  gforth_magic = GFORTH_MAGIC; /* mark task as maintained */
   gforth_UP->next_task = 0; /* mark user area as need-to-be-set */
 
   /* ensure that the cached elements (if any) are accessible */

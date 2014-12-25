@@ -20,7 +20,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20140402],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20141031],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
@@ -118,6 +118,9 @@ else
      x86_64)
         cpu=amd64
      ;;
+     aarch64)
+	cpu=arm64
+     ;;
   esac
 
   if test -f "arch/${cpu}/${withval}/config.sh"; then
@@ -158,6 +161,9 @@ else
      x86_64)
         cpu=amd64
      ;;
+     aarch64)
+	cpu=arm64
+     ;;
   esac
 
   if test -f "arch/${cpu}/${withval}/config.sh"; then
@@ -194,6 +200,7 @@ AC_SUBST(DITCENGINE)
 #variables mentioned in INSTALL
 AC_ARG_VAR(SH, [The shell])
 AC_ARG_VAR(CC, [The C compiler (must support GNU C 2.x).])
+AC_ARG_VAR(HOSTCC, [The C compiler on the host (must have the same byte order and word size as target CC).])
 AC_ARG_VAR(FORTHSIZES, [Gforth command line options for the default stack and dictionary sizes (see INSTALL).])
 AC_ARG_VAR(STACK_CACHE_REGS, [number of registers in the maximum stack cache state for gforth-fast and gforth-native (default platform-dependent).])
 AC_ARG_VAR(STACK_CACHE_DEFAULT_FAST, [number of registers in the default stack cache state for gforth-fast and gforth-native (default 1).])
@@ -217,6 +224,8 @@ AC_ARG_VAR(skipcode, [assembly code for skipping 16 bytes of code])
 AC_ARG_VAR(asmcomment, [assembler comment start string])
 AC_ARG_VAR(arm_cacheflush, [file containing ARM cacheflush function (without .c)])
 AC_ARG_VAR(LTDL_LIBRARY_PATH, [additional directories for libltdl (for some 64-bit platforms)])
+
+test -z "$HOSTCC" && HOSTCC='$(GCC)'
 
 #set up feature test macros, so the tests get them right:
 # turn on all POSIX, SUSv3, and GNU features if available
@@ -327,6 +336,13 @@ case "$host_cpu" in
                 #longer skipcodes lead to problems on ARM, and it uses
                 #only 4-byte alignment anyway
 		test "$skipcode" || skipcode="nop"
+		;;
+	aarch64*)
+		machine=arm64
+		CFLAGS="$CFLAGS -fomit-frame-pointer"
+		if test -z $arm_cacheflush; then
+		   AC_LIBOBJ(../arch/arm64/cacheflush) 
+		fi
 		;;
 	hppa*)
 		machine=hppa
@@ -1106,7 +1122,7 @@ dnl anything but DOS
 AC_CHECK_HEADERS(sys/mman.h fnmatch.h alloca.h wchar.h endian.h)
 AC_FUNC_FNMATCH
 test $ac_cv_func_fnmatch_works = yes || AC_LIBOBJ(fnmatch)
-AC_CHECK_FUNCS(mmap sysconf getpagesize wcwidth)
+AC_CHECK_FUNCS(mmap sysconf getpagesize wcwidth pselect pthread_setaffinity_np)
 AM_PATH_LISPDIR
 
 kernel_fi=kernl${vwordsize}${bytesex}.fi
@@ -1139,13 +1155,67 @@ AC_SUBST(kernel_anti_dependence)
 AC_MSG_RESULT($PREFORTH)
 AC_DEFINE_UNQUOTED(KERNEL, "$kernel_fi", [The kernel to load in the image])
 AC_DEFINE_UNQUOTED(ARCH, "$machine", [architecture to run on ])
+AC_SUBST(machine)
 
 #this breaks bindists
 #dnl replace srource directory by absolute value
 #if test $srcdir = "."; then srcdir=`pwd` 
 #fi
 
-AC_SUBST(machine)
+# swig stuff
+test x$SWIG = x && AC_PATH_PROG(SWIG, swig)
+if test -z "$SWIG"; then
+   AC_MSG_WARN([*** Could not find swig in your PATH. The library bindings cannot be built.])
+fi
+
+if swig -forth unix/test.i; then
+   echo "Swig works in Forth mode"
+   > conftest.$ac_ext
+   SWIGINCLUDES=`eval $ac_compiler -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ /-I/g' | tr '\n' ' '`
+   #opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
+   AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs"
+   SWIGLIBS="$SWIGLIBS x.fs", ,)
+   AC_CHECK_HEADER(GL/gl.h, 
+   AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
+   AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
+   SWIGLIBS="$SWIGLIBS opengl.fs", ,), , 
+#include <GL/gl.h>
+), ,)
+   AC_CHECK_HEADER(GLES2/gl2.h,
+   AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES gles.fs"
+   AC_CHECK_HEADER(EGL/egl.h, SWIGMODULES="$SWIGMODULES egl.fs"
+   SWIGLIBS="$SWIGLIBS opengles.fs", ,), ,
+#include <GLES2/gl2.h>
+) ,)
+   AC_CHECK_HEADER(GLES3/gl3.h,
+   AC_CHECK_HEADER(GLES3/gl3ext.h, SWIGMODULES="$SWIGMODULES gles3.fs"
+   AC_CHECK_HEADER(EGL/egl.h, SWIGLIBS="$SWIGLIBS opengles3.fs", ,), ,
+#include <GLES3/gl3.h>
+) ,)
+   AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
+   SWIGLIBS="$SWIGLIBS jnilib.fs", ,)
+   AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)
+   AC_CHECK_HEADER(android/input.h, SWIGMODULES="$SWIGMODULES androidlib.fs"
+   SWIGLIBS="$SWIGLIBS android.fs", ,)
+   AC_CHECK_HEADER(OMXAL/OpenMAXAL.h, SWIGMODULES="$SWIGMODULES omxal.fs"
+   SWIGLIBS="$SWIGLIBS openmax.fs", ,)
+   AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES pnglib.fs"
+   SWIGLIBS="$SWIGLIBS png.fs", ,)
+   AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
+   SWIGLIBS="$SWIGLIBS soil2lib.fs",
+      AC_CHECK_HEADER(SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
+      SWIGLIBS="$SWIGLIBS soillib.fs", ,), )
+   AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
+   SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
+else
+   AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
+fi
+AC_SUBST(SWIGMODULES)
+AC_SUBST(SWIGINCLUDES)
+AC_SUBST(SWIGLIBS)
+
+# finally create config files
+
 AC_CONFIG_FILES([
 Makefile
 Makedist
@@ -1160,6 +1230,7 @@ gforthker
 engine/Makefile
 engine/libcc.h
 doc/version.texi
+unix/Makefile
 build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
 chmod +x gforthmi

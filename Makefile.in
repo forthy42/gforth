@@ -150,13 +150,13 @@ PROFOBJS = @PROFOBJS@
 PROFEXES = @PROFEXES@
 
 INSTALLDIRS = kernel doc asm ec test \
-	compat unix \
+	compat unix minos2 \
 	arch arch/generic arch/m68k arch/mips \
 	arch/386 arch/hppa arch/sparc arch/power \
 	arch/alpha arch/4stack arch/misc arch/6502 \
 	arch/8086 arch/avr arch/c165 arch/h8 \
 	arch/shboom arch/sharc arch/ia64 arch/amd64 \
-	arch/arm arch/r8c arch/lm32
+	arch/arm arch/arm64 arch/r8c arch/lm32
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h
 
@@ -261,6 +261,7 @@ GFORTH_FI_SRC2=\
 	string.fs \
 	struct.fs \
 	struct0x.fs \
+	struct-val.fs \
 	stuff.fs \
 	substitute.fs \
 	tasker.fs \
@@ -274,6 +275,7 @@ GFORTH_FI_SRC2=\
 	arch/amd64/asm.fs arch/amd64/disasm.fs \
 	arch/alpha/asm.fs arch/alpha/disasm.fs arch/alpha/testasm.fs\
 	arch/arm/asm.fs arch/arm/disasm.fs \
+	arch/arm64/asm.fs arch/arm64/disasm.fs \
 	arch/arm/testdisasm.fs arch/arm/testdisasm.out arch/arm/Makefile \
 	arch/mips/asm.fs arch/mips/disasm.fs arch/mips/insts.fs \
 	arch/mips/testasm.fs arch/mips/testdisasm.fs \
@@ -290,20 +292,39 @@ GFORTH_FI_SRC = \
 	envos.fs \
 	$(GFORTH_FI_SRC2)
 
+SWIGMODULES = @SWIGMODULES@
+SWIGLIBS = @SWIGLIBS@
+
 LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
-	unix/filestat.fs
+	unix/filestat.fs $(patsubst %, unix/%, $(SWIGLIBS))
+
+UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
+	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs unix/freetype-gllib.fs \
+	unix/android.fs unix/openmax.fs
+
+SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
+	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	\
+	unix/soil.i unix/soil2.i unix/xlib.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
 
-LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC)
+LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC) \
+	$(patsubst %, unix/%, $(SWIGMODULES)) $(UNIXLIBS_SRC)
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
 
 LIBCC_BUILD_NOEC = @NO_CHECK@ $(LIBCC_BUILD_SRC)
 
+MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs minos2/ascii.png	\
+	minos2/jpeg-exif.fs minos2/linux-gl.fs minos2/soil-texture.fs \
+	minos2/gl-sample.fs minos2/gl-slideshow.fs minos2/ftgl-helper.fs \
+	minos2/ftgl-sample.fs minos2/widgets.fs minos2/widgets-test.fs \
+	minos2/mts-tools.fs minos2/mkv-tools.fs minos2/omx-example.fs \
+	minos2/mkv-tags.fs
+
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
-	ans-report.fs ansi.fs answords.fs \
+	$(MINOS2_SRC) ans-report.fs ansi.fs answords.fs \
 	colorize.fs comp-i.fs complex.fs \
 	depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
 	envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs \
@@ -312,7 +333,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	other.fs prims2x.fs prims2x0.6.2.fs proxy.fs random.fs \
 	regexp.fs sokoban.fs string.fs table.fs tags.fs \
 	tt.fs quotations.fs \
-	unbuffer.fs wordsets.fs xwords.fs \
+	unbuffer.fs wordsets.fs 2012words.fs \
 	test/tester.fs test/ttester.fs \
 	test/coretest.fs test/postpone.fs test/dbltest.fs \
 	test/string.fs test/float.fs test/search.fs test/gforth.fs \
@@ -325,7 +346,9 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs user-object.fs \
 	callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs \
 	endtry-iferror.fs recover-endtry.fs smartdots.fs \
-	unix/terminal-server.fs date.fs script.fs wf.fs
+	unix/terminal-server.fs unix/jni-helper.fs unix/jni-tools.fs \
+	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs \
+	date.fs script.fs wf.fs traceall.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -353,6 +376,12 @@ ARCHS =	\
 	arch/mips/machine.h \
 	arch/mips/check_prim.c \
 	arch/386/machine.h \
+	arch/386/android/AndroidManifest.xml.in \
+	arch/386/android/config.sh \
+	arch/386/android/build.sh \
+	arch/386/android/starta.fs \
+	arch/386/android/res \
+	arch/386/android/src \
 	arch/hppa/machine.h \
 	arch/hppa/cache.c \
 	arch/sparc/machine.h \
@@ -366,8 +395,6 @@ ARCHS =	\
 	arch/arm/android/config.sh \
 	arch/arm/android/build.sh \
 	arch/arm/android/starta.fs \
-	arch/arm/android/build.xml \
-	arch/arm/android/project.properties \
 	arch/arm/android/res/drawable-hdpi/ic_launcher.png \
 	arch/arm/android/res/drawable-ldpi/ic_launcher.png \
 	arch/arm/android/res/drawable-mdpi/ic_launcher.png \
@@ -378,6 +405,12 @@ ARCHS =	\
 	arch/ia64/machine.h \
 	arch/ia64/flush_icache_block.c \
 	arch/amd64/machine.h \
+	arch/arm64/android/AndroidManifest.xml.in \
+	arch/arm64/android/config.sh \
+	arch/arm64/android/build.sh \
+	arch/arm64/android/starta.fs \
+	arch/arm64/android/res \
+	arch/arm64/android/src \
 	arch/4stack/README \
 	arch/4stack/asm.fs \
 	arch/4stack/mach.fs \
@@ -468,7 +501,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/makefile.dos engine/makefile.os2 \
 	engine/zexpand.c engine/androidmain.c
 
-SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in \
+SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp missing stamp-h.in envos.fs.in \
@@ -578,6 +611,7 @@ mostlyclean:	FORCE
 		doc/gforth.pg \
 		doc/gforth.toc doc/gforth.tp doc/gforth.vr html \
 		gforth-$(VERSION).tar.gz
+		(cd unix && $(MAKE) clean)
 
 # Just the stuff needed to rebuild the documentation nac03feb1999
 docclean:	FORCE
@@ -777,8 +811,9 @@ uninstall:	FORCE
 		-$(RM) -rf $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)$(bindir)/vmgen-$(VERSION) $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
-build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) FORCE
+build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) $(SWIG_SRC) FORCE
 		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
+		(cd unix; $(MAKE) build-libcc-named)
 		@NO_FAIL@for i in $(LIBCC_BUILD_SRC); do ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye; done
 
 check:		gforths	gforth.fi 
@@ -1154,7 +1189,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh:	Makefile.in Makedist.in engine/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
+Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh:	Makefile.in Makedist.in engine/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
 	./config.status
 
 config.status: configure

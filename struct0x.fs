@@ -19,11 +19,17 @@
 
 : standard+field ( n1 n2 "name" -- n3 ) \ X:structures plus-field
     over if
-        (field) over ,
+        (field) over , dup ,
     else
-        create dozerofield
+        create dozerofield over , dup ,
     then
     + ;
+
+: (sizeof) ( "name" -- size ) ' >body cell+ @ ;
+: [sizeof] ( "name" -- size )
+    (sizeof) postpone Literal ; immediate compile-only
+' (sizeof) comp' [sizeof] drop
+interpret/compile: sizeof ( "field" -- size )
 
 Defer +field
 \ A number of things have field-like structure, but not

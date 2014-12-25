@@ -175,6 +175,7 @@ Variable lib-filename   \ filename without extension
 variable lib-modulename \ basename of the file without extension
 variable libcc-named-dir$ \ directory for named libcc wrapper libraries
 Variable libcc-path      \ pointer to path of library directories
+Variable ptr-declare
 
 defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 ' noop is replace-rpath
@@ -237,8 +238,10 @@ get-current libcc-types set-current
 -1
 const+ -- \ end of arguments
 const+ n \ integer cell
+const+ u \ integer cell
 const+ a \ address cell
 const+ d \ double
+const+ ud \ double
 const+ r \ float
 const+ func \ C function pointer
 const+ void
@@ -294,17 +297,23 @@ drop
 0 Value is-funptr?
 
 : type-letter ( n -- c )
-    chars s" nadrfv" drop + c@ ;
+    chars s" nuadUrfv" drop + c@ ;
 
 \ count-stacks
 
 : count-stacks-n ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     1+ ;
 
+: count-stacks-u ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
+    1+ ;
+
 : count-stacks-a ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     1+ ;
 
 : count-stacks-d ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
+    2 + ;
+
+: count-stacks-ud ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     2 + ;
 
 : count-stacks-r ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
@@ -318,8 +327,10 @@ drop
 
 create count-stacks-types
 ' count-stacks-n ,
+' count-stacks-u ,
 ' count-stacks-a ,
 ' count-stacks-d ,
+' count-stacks-ud ,
 ' count-stacks-r ,
 ' count-stacks-func ,
 ' count-stacks-void ,
@@ -346,10 +357,18 @@ create count-stacks-types
 : gen-par-n ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     type gen-par-sp ;
 
+: gen-par-u ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    type gen-par-sp ;
+
 : gen-par-a ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    dup 0= IF  2drop ." (void *)"  ELSE type  THEN s" (" gen-par-n ." )" ;
+    dup 0= IF  2drop ." (void *)"  ELSE
+	2dup type s"   return " str= IF  ." (void *)"  THEN
+    THEN s" (" gen-par-n ." )" ;
 
 : gen-par-d ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
+
+: gen-par-ud ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
 
 : gen-par-r ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
@@ -359,12 +378,14 @@ create count-stacks-types
     gen-par-a ;
 
 : gen-par-void ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    -32 throw ;
+    2drop ;
 
 create gen-par-types
 ' gen-par-n ,
+' gen-par-u ,
 ' gen-par-a ,
 ' gen-par-d ,
+' gen-par-ud ,
 ' gen-par-r ,
 ' gen-par-func ,
 ' gen-par-void ,
@@ -385,10 +406,10 @@ create gen-par-types
     2drop ." )" ;
 
 : gen-wrapped-const { d: pars d: c-name fp-change1 sp-change1 -- }
-	." (" c-name type ." )" ;
+    ." (" c-name type ." )" ;
 
 : gen-wrapped-var { d: pars d: c-name fp-change1 sp-change1 -- }
-	." &(" c-name type ." )" ;
+    ." &(" c-name type ." )" ;
 
 create gen-call-types
 ' gen-wrapped-func ,
@@ -396,7 +417,7 @@ create gen-call-types
 ' gen-wrapped-var ,
 
 : gen-wrapped-call ( pars c-name fp-change1 sp-change1 -- )
-	5 pick 3 chars - c@ cells gen-call-types + @ execute ;
+    5 pick 3 chars - c@ cells gen-call-types + @ execute ;
 
 \ calls for various kinds of return values
 
@@ -406,11 +427,18 @@ create gen-call-types
 : gen-wrapped-n ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     2dup gen-par-sp 2>r ." =" gen-wrapped-call 2r> ;
 
+: gen-wrapped-u ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
+    2dup gen-par-sp 2>r ." =" gen-wrapped-call 2r> ;
+
 : gen-wrapped-a ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     2dup gen-par-sp 2>r ." =(Cell)" gen-wrapped-call 2r> ;
 
 : gen-wrapped-d ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     ." gforth_ll2d(" gen-wrapped-void
+    ." ," gen-par-sp ." ," gen-par-sp ." )" ;
+
+: gen-wrapped-ud ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
+    ." gforth_ll2ud(" gen-wrapped-void
     ." ," gen-par-sp ." ," gen-par-sp ." )" ;
 
 : gen-wrapped-r ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
@@ -421,8 +449,10 @@ create gen-call-types
 
 create gen-wrapped-types
 ' gen-wrapped-n ,
+' gen-wrapped-u ,
 ' gen-wrapped-a ,
 ' gen-wrapped-d ,
+' gen-wrapped-ud ,
 ' gen-wrapped-r ,
 ' gen-wrapped-func ,
 ' gen-wrapped-void ,
@@ -455,6 +485,12 @@ create gen-wrapped-types
 	lib-modulename $@ dup 0= IF 2drop s" _replace_this_with_the_hash_code" THEN type
 	." _LTX_" [ [THEN] ] ;
 
+: >ptr-declare ( c-name u1 -- addr u2 )
+    s" *sp++" 2swap \ default is fetch ptr from stack
+    ptr-declare [: ( decl u1 c-name u2 ptr-name u3 -- decl' u1' c-name u2 )
+	2>r 2dup 2r> ':' $split 2>r string-prefix?
+	IF  2nip 2r> 2swap  ELSE  2rdrop THEN ;] $[]map 2drop ;
+
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
@@ -463,8 +499,10 @@ create gen-wrapped-types
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
-    is-funptr? IF  .\" Cell ptr = *sp++;\n  "  THEN
-    pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
+    pars c-name 2over count-stacks
+    .\" int MAYBE_UNUSED arg0=" dup 1- .nb .\" , farg0=" over 1- .nb .\" ;\n  "
+    is-funptr? IF  ." Cell ptr = " c-name >ptr-declare type .\" ;\n  "  THEN
+    ret gen-wrapped-stmt .\" ;\n"
     dup is-funptr? or if
 	."   gforth_SP = sp+" dup .nb .\" ;\n"
     endif drop
@@ -476,16 +514,20 @@ create gen-wrapped-types
 \ callbacks
 
 : gen-n ( -- ) ." Cell" ;
+: gen-u ( -- ) ." UCell" ;
 : gen-a ( -- ) ." void*" ;
 : gen-d ( -- ) ." Clongest" ;
+: gen-ud ( -- ) ." UClongest" ;
 : gen-r ( -- ) ." Float" ;
 : gen-func ( -- ) ." void(*)()" ;
 : gen-void ( -- ) ." void" ;
 
 create gen-types
 ' gen-n ,
+' gen-u ,
 ' gen-a ,
 ' gen-d ,
+' gen-ud ,
 ' gen-r ,
 ' gen-func ,
 ' gen-void ,
@@ -497,7 +539,11 @@ create gen-types
     ." #define CALLBACK_" c-name type ." (I) \" cr
     ret print-type space .prefix ." gforth_cb_" c-name type ." _##I ("
     0 pars bounds u+do
-	i 1+ count dup IF  type  ELSE  2drop i c@ print-type  THEN
+	i 1+ count dup IF
+	    2dup s" *(" string-prefix? IF
+		2 /string  2 - 0 max
+	    THEN  type
+	ELSE  2drop i c@ print-type  THEN
 	."  x" dup 0 .r 1+
 	i 1+ c@ 2 + dup i + i' u< if
 	    ." , "
@@ -505,13 +551,18 @@ create gen-types
     +loop  drop .\" ) \\\n{ \\" cr ;
 
 Create callback-style c-val c,
+Create callback-&style c-var c,
+
+: callback-threadsafe ( -- )
+    ."   GFORTH_MAKESTACK(GFSS); \" cr ;
 
 : callback-pushs ( descriptor -- )
     1+ count 0 { d: pars vari }
     ."   Cell*  sp=gforth_SP; \" cr
     ."   Float* fp=gforth_FP; \" cr
     0 0 pars bounds u+do
-	callback-style 3 + 1 2swap
+	I 1+ c@  IF  callback-&style  ELSE  callback-style  THEN
+	3 + 1 2swap
 	vari 0 <# #s 'x' hold #> 2swap
 	i c@ 2 spaces gen-wrapped-stmt ." ; \" cr
 	i 1+ c@ 2 +  vari 1+ to vari
@@ -529,7 +580,7 @@ Create callback-style c-val c,
     IF  drop 2drop  ELSE  gen-par  THEN ;
 
 : callback-wrapup ( -- )
-    ."   gforth_SP=oldsp; gforth_RP=oldrp; gforth_LP=oldlp; gforth_FP=oldfp; gforth_UP=oldup; \" cr ;
+    ."   gforth_SP=oldsp; gforth_RP=oldrp; gforth_LP=oldlp; gforth_FP=oldfp; gforth_UP=oldup; gforth_magic=old_magic; \" cr ;
 
 : callback-adjust ( descriptor -- )
     ."   sp=gforth_SP; fp=gforth_FP; \" cr
@@ -541,20 +592,22 @@ Create callback-style c-val c,
     >r 0 0 s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
 
 : callback-define ( descriptor -- )
-    dup callback-header dup callback-pushs dup callback-call
+    dup callback-header callback-threadsafe
+    dup callback-pushs dup callback-call
     dup callback-adjust callback-return ;
 
 : callback-wrapper ( -- )
-    ."   Cell *oldsp=gforth_SP; Cell *oldrp=gforth_RP; char *oldlp=gforth_LP; Float *oldfp=gforth_FP; user_area *oldup=gforth_UP; \" cr
+    ."   Cell *oldsp=gforth_SP; Cell *oldrp=gforth_RP; char *oldlp=gforth_LP; \" cr
+    ."   Float *oldfp=gforth_FP; user_area *oldup=gforth_UP; Cell old_magic=gforth_magic; \" cr
     ."   Cell stack[GFSS], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS]; \" cr
-    ."   gforth_SP=stack+GFSS-1; gforth_RP=rstack+GFSS; gforth_LP=(char*)(lstack+GFSS); gforth_FP=fstack+GFSS-1; gforth_UP=gforth_main_UP; \" cr ;
+    ."   gforth_SP=stack+GFSS-1; gforth_RP=rstack+GFSS; gforth_LP=(char*)(lstack+GFSS); gforth_FP=fstack+GFSS-1; gforth_UP=gforth_main_UP; gforth_magic=GFORTH_MAGIC; \" cr ;
 
 : callback-thread-define ( descriptor -- )
     dup callback-header callback-wrapper
     dup callback-pushs dup callback-call
     dup callback-adjust callback-wrapup callback-return ;
 
-8 Value callback# \ how many callbacks should be created?
+2 Value callback# \ how many callbacks should be created?
 
 : callback-instantiate ( addr u -- )
     callback# 0 ?DO
@@ -710,7 +763,8 @@ DEFER compile-wrapper-function ( -- )
     align here 0 , lib-handle-addr !
     c-libs $init
     lib-modulename $init
-    libcc$ $init libcc-include ;
+    libcc$ $init libcc-include
+    ptr-declare $[]off ;
 clear-libs
 
 \ compilation wrapper
@@ -837,12 +891,14 @@ c-function-rt  lastxt Constant dummy-rt
     \G an @var{xt}, and returns the @var{addr}ess of the C function
     \G handling that callback.
     >r Create here dup ccb% %size dup allot erase
+    callback# 1- over ccb-num !
     lib-handle-addr @ swap ccb-lha !
     parse-function-types
     here lastxt name>string string, count sanitize
     r> c-source-file-execute
-  DOES> ( xt -- addr ) \ create a callback instance
-    >r r@ ccb-lha @ @ 0= IF
+  DOES> ( xt -- addr ) >r \ create a callback instance
+    r@ ccb-num @ 0< !!callbacks!! and throw
+    r@ ccb-lha @ @ 0= IF
 	compile-wrapper-function
     THEN
     r@ ccb-cfuns @ 0= IF
@@ -850,11 +906,10 @@ c-function-rt  lastxt Constant dummy-rt
 	r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
 	r@ ccb-lha @ @ lookup-c-array r@ ccb-cfuns !
     THEN
-    r@ @ callback# u>= !!callbacks!! and throw
     >r :noname r> compile, ]] 0 (bye) ; [[
     >body r@ ccb-ips @ r@ ccb-num @ cells + !
     r@ ccb-cfuns @ r@ ccb-num @ cells + @
-    1 r> ccb-num +! ;
+    -1 r> ccb-num +! ;
 
 : c-callback ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a callback instantiator with the given signature.  The
@@ -884,7 +939,7 @@ c-function-rt  lastxt Constant dummy-rt
     libcc-named-dir$ $init
     [: ." ~/.gforth" arch-modifier type ." /" machine type ." /libcc-named/"
     ;] libcc-named-dir$ $exec
-    libcc-path $init
+    libcc-path $init  ptr-declare $init
     clear-libs
     libcc-named-dir libcc-path also-path
     [ s" libccdir" getenv ] sliteral libcc-path also-path ;

@@ -449,7 +449,7 @@ defer defer-default ( -- )
     >r ;-hook ?struc
     exit-like
     here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
-    postpone aliteral r> compile, [compile] exit
+    postpone aliteral r> compile, [exit]
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
@@ -577,13 +577,17 @@ defer ;-hook ( sys2 -- sys1 )
     ['] noop set->int  ['] (noname->comp) set->comp ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
-    ;-hook ?struc [compile] exit
+    ;-hook ?struc [exit]
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
 
+: concat ( xt1 xt2 -- xt )  >r >r
+    :noname r> compile, r> compile, postpone ; ;
+
 : recognizer: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table
-    >r >r >r :noname r> compile, postpone ;
+    ['] drop swap concat >r  ['] drop swap concat >r
+    >r :noname r> compile, postpone ;
     r> set-compiler r> set-postpone  Constant ;
 
 \ new interpret/compile:

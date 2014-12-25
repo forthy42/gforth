@@ -17,6 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+require struct-val.fs
+
 Defer default-method ' noop IS default-method
 
 \ template for methods and ivars
@@ -31,15 +33,21 @@ comp: >body @ cell/ postpone o#exec , ;
 ' m Value method-xt
 : current-o  ['] o to var-xt  ['] m to method-xt ;
 
+\ ivalues
+
+: o+field, ( addr body -- addr' )
+    @ o + ;
+comp: drop @ postpone o#+ , ;
+
 \ core system
 
 -2 cells    field: >osize    field: >methods   drop
 : method ( m v size "name" -- m' v )
   Header reveal method-xt vtcopy,  over , swap cell+ swap ;
 : var ( m v size "name" -- m v' )
-  Header reveal    var-xt vtcopy,  over , + ;
+  Header reveal    var-xt vtcopy,  over , dup , ( for sizeof ) + ;
 : class ( class -- class methods vars )
-  dup >osize 2@ ['] var IS +field ;
+  dup >osize 2@ ['] var IS +field  ['] o+field, IS +field, ;
 : end-class  ( class methods vars "name" -- )
   , dup , here >r 0 U+DO ['] default-method defer@ , cell +LOOP
   dup r@ swap >methods @ move  standard:field
@@ -94,9 +102,9 @@ dynamic-a to allocater
 
 \ dot parser .foo -> >o foo o>
 
-:noname ( object xt -- )  swap >o execute o> ;
-:noname ( xt table -- )  postpone >o drop compile, postpone o> ;
-:noname ( xt table -- )  swap lit, post, ; recognizer: r:moof2
+: >oo> ( xt table -- )  postpone >o compile, postpone o> ;
+:noname ( object xt -- )  swap >o execute o> ; ' >oo>
+:noname ( xt table -- )  lit, postpone >oo> ; recognizer: r:moof2
 
 : rec:moof2 ( addr u -- xt r:moof2 | r:fail )
     2dup s" ." string-prefix?

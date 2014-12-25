@@ -18,9 +18,17 @@ sed -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManif
 SRC=../../..
 LIBS=libs/armeabi
 LIBCCNAMED=lib/$(gforth --version 2>&1 | tr ' ' '/')/libcc-named/.libs
+TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain}
 
 rm -rf $LIBS
 mkdir -p $LIBS
+
+if [ ! -f $TOOLCHAIN/sysroot/usr/lib/libsoil2.a ]
+then
+    cp $TOOLCHAIN/sysroot/usr/lib/libsoil.so $LIBS
+fi
+cp .libs/libtypeset.so $LIBS
+strip $LIBS/lib{soil,typeset}.so
 
 if [ "$1" != "--no-gforthgz" ]
 then
@@ -35,13 +43,14 @@ then
 	cp $i/*.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/site-forth
     done
     (cd $SRC/debian/sdcard
+	rm -rf gforth/$GFORTH_VERSION/libcc-named
 	mkdir -p gforth/home
 	gforth ../../archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
 else
     shift
 fi
 
-SHA256=$(sha256sum libs/armeabi/libgforthgz.so | cut -f1 -d' ')
+SHA256=$(sha256sum $LIBS/libgforthgz.so | cut -f1 -d' ')
 
 for i in $ENGINES
 do

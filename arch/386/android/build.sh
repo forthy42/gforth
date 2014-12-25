@@ -18,15 +18,23 @@ sed -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManif
 SRC=../../..
 LIBS=libs/x86
 LIBCCNAMED=lib/$(gforth --version 2>&1 | tr ' ' '/')/libcc-named/.libs
+TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-x86}
 
 rm -rf $LIBS
 mkdir -p $LIBS
+
+if [ ! -f $TOOLCHAIN/sysroot/usr/lib/libsoil2.a ]
+then
+    cp $TOOLCHAIN/sysroot/usr/lib/libsoil.so $LIBS
+fi
+cp .libs/libtypeset.so $LIBS
+strip $LIBS/lib{soil,typeset}.so
 
 if [ "$1" != "--no-gforthgz" ]
 then
     (cd $SRC
 	if [ "$1" != "--no-config" ]; then ./configure --host=i686-linux-android --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib || exit 1; fi
-	make # || exit 1
+	make || exit 1
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]; then CONFIG=no; shift; fi
 
@@ -41,7 +49,7 @@ else
     shift
 fi
 
-SHA256=$(sha256sum libs/x86/libgforthgz.so | cut -f1 -d' ')
+SHA256=$(sha256sum $LIBS/libgforthgz.so | cut -f1 -d' ')
 
 for i in $ENGINES
 do
@@ -59,9 +67,9 @@ do
 		(cd $j
 		    if [ "$CONFIG" == no ]
 		    then
-			make
+			make || exit 1
 		    else
-			./configure CFLAGS="$CFLAGS" --host=i686-linux-android && make clean && make
+			./configure CFLAGS="$CFLAGS" --host=i686-linux-android && make clean && make || exit 1
 		    fi
 		)
 	    done
