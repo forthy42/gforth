@@ -2,6 +2,8 @@
 Agenda
 COPYING
 COPYING.DOC
+NEWS.vmgen.future
+abi-code-test.fs
 answords.fs
 blocked.fb
 bubble.fs
@@ -344,6 +346,7 @@ compat/required.fs
 compat/strcomp.fs
 compat/struct.fs
 compat/vocabulary.fs
+compat/xlocals.fs
 contrib/ansi.fs
 contrib/divspeed.fs
 contrib/serial.fs

@@ -1,6 +1,6 @@
 \ dis-gdb.fs	disassembler using gdb
 \
-\ Copyright (C) 2004,2007,2008,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 2004,2007,2008,2010,2011,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
