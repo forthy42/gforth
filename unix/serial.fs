@@ -112,12 +112,10 @@ $541B Constant FIONREAD
 : reset-baud ( fd -- )
     0 t_old tcsetattr drop ;
 
-: check-read ( fd -- n )  >r
-    0 sp@ r> fileno FIONREAD rot ioctl drop ;
+: check-read ( forth-fd -- n )  0 { w^ io-result }
+    fileno FIONREAD io-result ioctl drop io-result l@ ;
 
 \ get and set control lines
-
-variable io-result
 
 $5415 CONSTANT TIOCMGET
 $5418 CONSTANT TIOCMSET
@@ -126,11 +124,11 @@ $004  CONSTANT TIOCM_RTS
 $020  CONSTANT TIOCM_CTS
 $100  CONSTANT TIOCM_DSR
 
-: get-ioctl  ( fd -- n )
-     TIOCMGET io-result ioctl 0< abort" IOCTL GET Failed." io-result @ ;
+: get-ioctl  ( fd -- n ) 0 { w^ io-result }
+     TIOCMGET io-result ioctl 0< abort" IOCTL GET Failed." io-result l@ ;
 
-: set-ioctl  ( fd n -- )
-     io-result ! TIOCMSET io-result ioctl 0< abort" IOCTL SET Failed." ;
+: set-ioctl  ( fd n -- ) 0 { w^ io-result } io-result l!
+    TIOCMSET io-result ioctl 0< abort" IOCTL SET Failed." ;
 
 : set-dtr  ( fd -- )
      dup get-ioctl TIOCM_DTR or set-ioctl ;

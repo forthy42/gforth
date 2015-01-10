@@ -29,8 +29,8 @@
 : zdup     ( z -- z z ) fover fover ;
 : zdrop    ( z -- ) fdrop fdrop ;
 : zover    ( z1 z2 -- z1 z2 z1 ) 3 fpick 3 fpick ;
-: z>r      ( z -- r:z) f>l f>l ;
-: zr>      ( r:z -- z ) fl> fl> ;
+: z>r      ( z -- l:z )  fswap f>l f>l ;
+: zr>      ( r:z -- z )  fl> fl> fswap ;
 : zswap    ( z1 z2 -- z2 z1 ) frot f>l frot fl> ;
 : zpick    ( z1 .. zn n -- z1 .. zn z1 ) 2* 1+ >r r@ fpick r> fpick ;
 \ : zpin     2* 1+ >r r@ fpin r> fpin ;
@@ -39,6 +39,41 @@
 : z-rot    ( z1 z2 z3 -- z3 z1 z2 ) zswap z>r zswap zr> ;
 : z@       ( zaddr -- z ) dup >r f@ r> float+ f@ ;
 : z!       ( z zaddr -- ) dup >r float+ f! r> f! ;
+
+\ locals                                               10jan15py
+
+: to-z: ( -- ) -14 throw ;
+comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE z! ;
+: compile-pushlocal-z ( a-addr -- ) ( run-time: z -- )
+    locals-size @ alignlp-f float+ float+ dup locals-size !
+    swap !
+    postpone z>r ;
+: compile-z@local ( n -- )
+    case
+	0        of  postpone f@local1 postpone f@local0 endof
+	1 floats of  postpone f@local# 2 floats , postpone f@local1  endof
+	dup postpone f@local# dup float+ , postpone f@local# ,
+    endcase ;
+
+also locals-types definitions
+: z: ( "name" -- a-addr xt )
+    create-local  ['] to-z: set-to ['] compile-pushlocal-z
+does> @ lp-offset compile-z@local ;
+: z^ ( "name" -- a-addr xt )
+    create-local  ['] compile-pushlocal-z
+does> postpone laddr# @ lp-offset, ;
+previous definitions
+
+also locals-types
+
+' dummy-dict is dict-execute \ dummy for headers and vts
+
+z: some-zlocal 2drop
+z^ some-zaddr 2drop
+
+' dict-execute1 is dict-execute \ now the real thing
+
+previous
 
 \ simple operations                                    02mar05py
 : z+       ( z1 z2 -- z1+z2 ) frot f+ f>l f+ fl> ;
@@ -124,7 +159,7 @@ Defer fc.       ' f. IS fc.
            fdup f0= IF  fdrop fc. exit  THEN   fswap
            fdup f0= IF    fdrop
                     ELSE  fc.
-                          fdup f0> IF  ." +"  THEN  THEN
-           fc. ." i " ;
+                          fdup f0> IF  1 backspaces ." +"  THEN  THEN
+           fc. 1 backspaces ." i " ;
 : z.s ( z1 .. zn -- z1 .. zn )
 	   zdepth 0 ?DO  i zpick zswap z>r z. zr>  LOOP ;
