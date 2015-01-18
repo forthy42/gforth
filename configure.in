@@ -760,6 +760,14 @@ AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-reorde
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_noreorder_blocks)
 
+# Try if GCC understands -fno-toplevel-reorder
+AC_MSG_CHECKING([if $CC understands -fno-toplevel-reorder])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-no-toplevel-reorder"
+AC_TRY_COMPILE(,,ac_no_toplevel_reorder=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-toplevel-reorde",ac_no_toplevel_reorder=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_no_toplevel_reorder)
+
 # Try if GCC understands -falign-labels=1
 AC_MSG_CHECKING([if $CC understands -falign-labels=1])
 CFLAGS_1="$CFLAGS"
