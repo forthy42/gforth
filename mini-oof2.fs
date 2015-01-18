@@ -1,6 +1,6 @@
 \ Mini-OOF2, using current object+Gforth primitives    09jan12py
 
-\ Copyright (C) 2012 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
