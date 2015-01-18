@@ -1189,6 +1189,36 @@ u = f ? u1 : u2;
 :
  IF swap THEN nip ;
 
+dlshift	 ( ud1 n -- ud2 )	gforth dlshift
+""double arithmetic shift left""
+#ifdef BUGGY_LL_SHIFT
+if(n>=CELL_BITS) {
+  n &= sizeof(Cell)*8-1;
+  DHI_IS(ud2, (DLO(ud1) << n));
+  DLO_IS(ud2, 0);
+} else {
+  DHI_IS(ud2, ((DHI(ud1) << n) | (DLO(ud1) >> (sizeof(Cell)*8-n))));
+  DLO_IS(ud2, (DLO(ud1) << n));
+}
+#else
+  ud2 = ud1 << n;
+#endif
+
+drshift	 ( ud1 n -- ud2 )	gforth drshift
+""double arithmetic shift right""
+#ifdef BUGGY_LL_SHIFT
+if(n>=CELL_BITS) {
+  n &= sizeof(Cell)*8-1;
+  DHI_IS(ud2, 0);
+  DLO_IS(ud2, (DHI(ud1) >> n));
+} else {
+  DHI_IS(ud2, (DHI(ud1) >> n));
+  DLO_IS(ud2, ((DLO(ud1) >> n) | (DHI(ud1) << (sizeof(Cell)*8-n))));
+}
+#else
+  ud2 = ud1 >> n;
+#endif
+
 \g compare
 
 \ comparisons(prefix, args, prefix, arg1, arg2, wordsets...)
