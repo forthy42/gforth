@@ -21,7 +21,7 @@ Variable countif
 
 : dummy ;  immediate
 : >exec  >r ; restrict ( :-)
-: scanIF   f83find  dup 0=  IF  drop ['] dummy >head-noprim  THEN  ;
+: scanIF   f83find  dup 0=  IF  drop ['] dummy ( >head-noprim )  THEN  ;
 
 Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A, ' drop A,
 Create [struct]-voc       [struct]-search A,

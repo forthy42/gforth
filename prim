@@ -1189,34 +1189,74 @@ u = f ? u1 : u2;
 :
  IF swap THEN nip ;
 
-dlshift	 ( ud1 n -- ud2 )	gforth dlshift
+dlshift	 ( ud1 u -- ud2 )	gforth dlshift
 ""double arithmetic shift left""
 #ifdef BUGGY_LL_SHIFT
-if(n>=CELL_BITS) {
-  n &= sizeof(Cell)*8-1;
-  DHI_IS(ud2, (DLO(ud1) << n));
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DHI_IS(ud2, (DLO(ud1) << u));
   DLO_IS(ud2, 0);
 } else {
-  DHI_IS(ud2, ((DHI(ud1) << n) | (DLO(ud1) >> (sizeof(Cell)*8-n))));
-  DLO_IS(ud2, (DLO(ud1) << n));
+  DHI_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
+  DLO_IS(ud2, (DLO(ud1) << u));
 }
 #else
-  ud2 = ud1 << n;
+  ud2 = ud1 << u;
 #endif
 
-drshift	 ( ud1 n -- ud2 )	gforth drshift
+drshift	 ( ud1 u -- ud2 )	gforth drshift
 ""double arithmetic shift right""
 #ifdef BUGGY_LL_SHIFT
-if(n>=CELL_BITS) {
-  n &= sizeof(Cell)*8-1;
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
   DHI_IS(ud2, 0);
-  DLO_IS(ud2, (DHI(ud1) >> n));
+  DLO_IS(ud2, (DHI(ud1) >> u));
 } else {
-  DHI_IS(ud2, (DHI(ud1) >> n));
-  DLO_IS(ud2, ((DLO(ud1) >> n) | (DHI(ud1) << (sizeof(Cell)*8-n))));
+  DHI_IS(ud2, (DHI(ud1) >> u));
+  DLO_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
 }
 #else
-  ud2 = ud1 >> n;
+  ud2 = ud1 >> u;
+#endif
+
+rol	( u1 u -- u2 )		gforth rol
+""rotate left""
+u2 = (u1 << u) | (u1 >> (CELL_BITS-u));
+
+ror	( u1 u -- u2 )		gforth ror
+""rotate right""
+u2 = (u1 >> u) | (u1 << (CELL_BITS-u));
+
+drol	( ud1 u -- ud2 )	gforth drol
+""rotate left""
+u &= sizeof(Cell)*16-1;
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DLO_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
+  DHI_IS(ud2, ((DLO(ud1) << u) | (DHI(ud1) >> (CELL_BITS-u))));
+} else {
+  DHI_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
+  DLO_IS(ud2, ((DLO(ud1) << u) | (DHI(ud1) >> (CELL_BITS-u))));
+}
+#else
+ud2 = (ud1 << u) | (ud1 >> (2*CELL_BITS-u));
+#endif
+
+dror	( ud1 u -- ud2 )	gforth dror
+""rotate right""
+u &= sizeof(Cell)*16-1;
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DLO_IS(ud2, ((DHI(ud1) >> u) | (DLO(ud1) << (CELL_BITS-u))));
+  DHI_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+} else {
+  DHI_IS(ud2, ((DHI(ud1) >> u) | (DLO(ud1) << (CELL_BITS-u))));
+  DLO_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+}
+#else
+ud2 = (ud1 >> u) | (ud1 << (2*CELL_BITS-u));
 #endif
 
 \g compare
