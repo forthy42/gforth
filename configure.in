@@ -752,6 +752,14 @@ AC_TRY_COMPILE(,,ac_nocrossjumping=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-crossjum
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_nocrossjumping)
 
+# Try if GCC understands -fno-cse-follow-jumps
+AC_MSG_CHECKING([if $CC understands -fno-cse-follow-jumps])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-cse-follow-jumps"
+AC_TRY_COMPILE(,,ac_no_cse_follow_jumps=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-cse-follow-jumps",ac_no_cse_follow_jumps=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_no_cse_follow_jumps)
+
 # Try if GCC understands -fno-reorder-blocks
 AC_MSG_CHECKING([if $CC understands -fno-reorder-blocks])
 CFLAGS_1="$CFLAGS"
@@ -760,11 +768,19 @@ AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-reorde
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_noreorder_blocks)
 
+# Try if GCC understands -fno-reorder-blocks-and-partition
+AC_MSG_CHECKING([if $CC understands -fno-reorder-blocks-and-partition])
+CFLAGS_1="$CFLAGS"
+CFLAGS="$CFLAGS -fno-reorder-blocks-and-partition"
+AC_TRY_COMPILE(,,ac_noreorder_blocks_and_partition=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-reorder-blocks-and-partition",ac_noreorder_blocks_and_partition=no)
+CFLAGS="$CFLAGS_1"
+AC_MSG_RESULT($ac_noreorder_blocks_and_partition)
+
 # Try if GCC understands -fno-toplevel-reorder
 AC_MSG_CHECKING([if $CC understands -fno-toplevel-reorder])
 CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-no-toplevel-reorder"
-AC_TRY_COMPILE(,,ac_no_toplevel_reorder=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-toplevel-reorde",ac_no_toplevel_reorder=no)
+CFLAGS="$CFLAGS -fno-toplevel-reorder"
+AC_TRY_COMPILE(,,ac_no_toplevel_reorder=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-toplevel-reorder",ac_no_toplevel_reorder=no)
 CFLAGS="$CFLAGS_1"
 AC_MSG_RESULT($ac_no_toplevel_reorder)
 
