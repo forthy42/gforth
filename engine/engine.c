@@ -1,6 +1,6 @@
 /* Gforth virtual machine (aka inner interpreter)
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -70,6 +70,11 @@
 #ifdef HAS_FFCALL
 #include <avcall.h>
 #include <callback.h>
+#endif
+
+#ifdef HAS_DEBUG
+extern int debug;
+# define debugp(x...) do { if (debug) fprintf(x); } while (0)
 #endif
 
 #ifndef SEEK_SET
@@ -239,10 +244,10 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #define asmcomment(string) asm("")
 #endif
 
-#define DEPTHOFF 4
+#define DEPTHOFF 0
 #ifdef GFORTH_DEBUGGING
 #if DEBUG
-#define NAME(string) { saved_ip=ip; asmcomment(string); fprintf(stderr,"%08lx depth=%3ld tos=%016lx: "string"\n",(Cell)ip,sp0+DEPTHOFF-sp,sp[0]);}
+#define NAME(string) if(debug) { saved_ip=ip; asmcomment(string); fprintf(stderr,"%08lx depth=%3ld tos=%016lx: "string"\n",(Cell)ip,((user_area*)up)->sp0+DEPTHOFF-sp,sp[0]);}
 #else /* !DEBUG */
 #define NAME(string) { saved_ip=ip; asm(""); }
 /* the asm here is to avoid reordering of following stuff above the
@@ -252,23 +257,15 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
    because the stack loads may already cause a stack underflow. */
 #endif /* !DEBUG */
 #elif DEBUG
-#       define  NAME(string)    {Cell __depth=sp0+DEPTHOFF-sp; int i; fprintf(stderr,"%08lx depth=%3ld: "string,(Cell)ip,sp0+DEPTHOFF-sp); for (i=__depth-1; i>0; i--) fprintf(stderr, " $%lx",sp[i]); fprintf(stderr, " $%lx\n",spTOS); }
+#       define  NAME(string)    if(debug) {Cell __depth=((user_area*)up)->sp0+DEPTHOFF-sp; int i; fprintf(stderr,"%08lx depth=%3ld: "string,(Cell)ip,((user_area*)up)->sp0+DEPTHOFF-sp); for (i=__depth-1; i>0; i--) fprintf(stderr, " $%lx",sp[i]); fprintf(stderr, " $%lx\n",spTOS); }
 #else
 #	define	NAME(string) asmcomment(string);
 #endif
 
 #ifdef DEBUG
 #define CFA_TO_NAME(__cfa) \
-      Cell len, i; \
-      char * name = __cfa; \
-      for(i=0; i<32; i+=sizeof(Cell)) { \
-        len = ((Cell*)name)[-1]; \
-        if(len < 0) { \
-	  len &= 0x1F; \
-          if((len+sizeof(Cell)) > i) break; \
-	} len = 0; \
-	name -= sizeof(Cell); \
-      }
+  Cell len = LONGNAME_COUNT(__cfa); \
+  char * name = LONGNAME_NAME(__cfa);
 #endif
 
 #ifdef STANDALONE
@@ -289,8 +286,8 @@ void throw(int code)
 /* normal engine */
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) H_##name: asm(""); I_##name:
-#define LABEL3(name) J_##name: asm("");
+#define LABEL(name) H_##name: asm(ASMCOMMENT "I " #name); I_##name:
+#define LABEL3(name) J_##name: asm(ASMCOMMENT "J " #name);
 
 #elif ENGINE==2
 /* variant with padding between VM instructions for finding out
@@ -298,12 +295,12 @@ void throw(int code)
 #define gforth_engine gforth_engine2
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) H_##name: SKIP16; I_##name:
+#define LABEL(name) H_##name: asm(ASMCOMMENT "H " #name); SKIP16; asm(ASMCOMMENT "I " #name); I_##name:
 /* the SKIP16 after LABEL3 is there, because the ARM gcc may place
    some constants after the final branch, and may refer to them from
    the code before label3.  Since we don't copy the constants, we have
    to make sure that such code is recognized as non-relocatable. */
-#define LABEL3(name) J_##name: SKIP16;
+#define LABEL3(name) J_##name: asm(ASMCOMMENT "J " #name); SKIP16;
 
 #elif ENGINE==3
 /* variant with different immediate arguments for finding out
@@ -311,14 +308,14 @@ void throw(int code)
 #define gforth_engine gforth_engine3
 #define VARIANT(v)	((v)^0xffffffff)
 #define JUMP(target)	goto K_lit
-#define LABEL(name) H_##name: asm(""); I_##name:
-#define LABEL3(name) J_##name: asm("");
+#define LABEL(name) H_##name: asm(ASMCOMMENT "I " #name); I_##name:
+#define LABEL3(name) J_##name: asm(ASMCOMMENT "J " #name);
 #else
 #error illegal ENGINE value
 #endif /* ENGINE */
 
 /* the asm(""); is there to get a stop compiled on Itanium */
-#define LABEL2(name) K_##name: asm("");
+#define LABEL2(name) K_##name: asm(ASMCOMMENT "K " #name);
 
 Label *gforth_engine(Xt *ip0 sr_proto)
 /* executes code at ip, if ip!=NULL
@@ -355,7 +352,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
   long long llrv;
   void * prv;
 #endif
-  register Address up UPREG = gforth_UP;
+  register user_area* up UPREG = gforth_UP;
 #if !defined(GFORTH_DEBUGGING)
   register Cell MAYBE_UNUSED spTOS TOSREG;
   register Cell MAYBE_UNUSED spb spbREG;
@@ -404,29 +401,39 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 
   rp = gforth_RP;
 #ifdef DEBUG
-  fprintf(stderr,"ip=%x, sp=%x, rp=%x, fp=%x, lp=%x, up=%x\n",
-          (unsigned)ip0,(unsigned)sp,(unsigned)rp,
-	  (unsigned)fp,(unsigned)lp,(unsigned)up);
+  debugp(stderr,"ip=%lx, sp=%lx, rp=%lx, fp=%lx, lp=%lx, up=%lx\n",
+	 (Cell)ip0,(Cell)sp,(Cell)rp,
+	 (Cell)fp,(Cell)lp,(Cell)up);
 #endif
 
   if (ip0 == NULL) {
 #if defined(DOUBLY_INDIRECT)
 #define CODE_OFFSET (26*sizeof(Cell))
 #define XT_OFFSET (22*sizeof(Cell))
+#define LABEL_OFFSET (18*sizeof(Cell))
     int i;
     Cell code_offset = offset_image? CODE_OFFSET : 0;
     Cell xt_offset = offset_image? XT_OFFSET : 0;
+    Cell label_offset = offset_image? LABEL_OFFSET : 0;
+
+    debugp(stderr, "offsets code/xt/label: %lx/%lx/%lx\n",
+	   code_offset, xt_offset, label_offset);
 
     symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
     xts = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+XT_OFFSET)+xt_offset);
-    for (i=0; i<DOER_MAX+1; i++)
+    labels = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+LABEL_OFFSET)+label_offset);
+    
+    for (i=0; i<DOER_MAX+1; i++) {
+      labels[i] = routines[i];
       xts[i] = symbols[i] = (Label)routines[i];
+    }
     for (; routines[i]!=0; i++) {
       if (i>=MAX_SYMBOLS) {
 	fprintf(stderr,"gforth-ditc: more than %ld primitives\n",(long)MAX_SYMBOLS);
 	exit(1);
       }
-      xts[i] = symbols[i] = &routines[i];
+      labels[i] = routines[i];
+      xts[i] = symbols[i] = (Label)&labels[i];
     }
 #endif /* defined(DOUBLY_INDIRECT) */
 #ifdef STANDALONE
@@ -452,15 +459,10 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 /*  prep_terminal(); */
 #ifdef NO_IP
   goto *(*(Label *)ip0);
-  before_goto:
-  asm("# before goto");
-  goto *real_ca;
-  after_goto:;
-  asm("# after goto");
 #else
   SET_IP(ip);
   SUPER_END; /* count the first block, too */
-  FIRST_NEXT;
+  NEXT;
 #endif
 
 #ifdef CPU_DEP3
@@ -468,8 +470,10 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 #endif
 
 #include PRIM_I
-  after_last: return (Label *)0;
+  after_last: 
   /*needed only to get the length of the last primitive */
-
-  return (Label *)0;
+  FIRST_NEXT;
+  LABEL(return_0)
+  NEXT; /* gcc-4.9 workaround: Requires yet another dummy NEXT */
+  return 0;
 }

@@ -2,7 +2,7 @@
 
 # Procedures to build gforth from the CVS sources
 
-#Copyright (C) 2008 Free Software Foundation, Inc.
+#Copyright (C) 2008,2014 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -19,6 +19,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
+
+libtoolize --force --copy --install
 
 # makes a aclocal.m4 which includes the automake macros for autconf
 

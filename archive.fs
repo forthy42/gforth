@@ -1,6 +1,6 @@
 \ very simple archive format                          29jul2012py
 
-\ Copyright (C) 2012 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -63,7 +63,7 @@ wordlist constant dirs
     THEN ;
 
 : dump-a-file ( addr u -- )
-    2dup ?dir  'f' .entry
+    2dup ?dir  2dup + 1- c@ '/' = ?EXIT  'f' .entry
     slurp-file dup .len 2dup type drop free throw ;
 
 : dump-files ( -- )

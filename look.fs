@@ -1,6 +1,6 @@
 \ LOOK.FS      xt -> lfa                               22may93jaw
 
-\ Copyright (C) 1995,1996,1997,2000,2003,2007,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2000,2003,2007,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -32,20 +32,16 @@ decimal
 
 \ look                                                  17may93jaw
 
-\ rename to discover!!!
-
-: xt>threaded ( xt -- x )
-\G produces the threaded-code cell for the primitive xt
-    threading-method 0= if
-	@
-    then ;
+: xt= ( ca xt -- flag )
+    \G compare threaded-code cell with the primitive xt
+    @ swap threading-method 0 +DO  ['] @ catch drop  LOOP  = ;
 
 : search-name  ( xt startlfa -- nt|0 )
     \ look up name of primitive with code at xt
     swap
     >r false swap
     BEGIN
-	@ dup
+	>link @ dup
     WHILE
 	    dup name>int
 	    r@ = IF
@@ -55,17 +51,17 @@ decimal
     drop rdrop ;
 
 : threaded>xt ( ca -- xt|0 )
-\G For the code address ca of a primitive, find the xt (or 0).
+    \G For the code address ca of a primitive, find the xt (or 0).
     [IFDEF] decompile-prim
 	decompile-prim
     [THEN]
-     \ walk through the array of primitive CAs
-    >r ['] noop begin
-	dup @ while
-	    dup xt>threaded r@ = if
+    \ walk through the array of primitive CAs
+    >r ['] image-header >link @ begin
+	dup while
+	    r@ over xt= if
 		rdrop exit
 	    endif
-	    cell+
+	    >link @
     repeat
     drop rdrop 0 ;
 
@@ -88,7 +84,7 @@ has? rom
     THEN ;
 [ELSE]
 : look ( cfa -- lfa flag )
-    >head-noprim dup ??? <> ;
+    >head-noprim dup ['] ??? <> ;
 [THEN]
 
 [ELSE]
@@ -101,7 +97,7 @@ has? rom
 : look ( xt -- lfa flag )
     dup in-dictionary?
     IF
-	>head-noprim dup ??? <>
+	>head-noprim dup ['] ??? <>
     ELSE
 	prim>name dup 0<>
     THEN ;
@@ -126,7 +122,7 @@ has? rom
 
 [IFDEF] forth-recognizer
     : .recs ( -- )
-	forth-recognizer get-recognizers 0 ?DO
+	get-recognizers 0 ?DO
 	    >name .name
 	LOOP ;
 [THEN]

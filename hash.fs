@@ -1,6 +1,6 @@
 \ Hashed dictionaries                                  15jul94py
 
-\ Copyright (C) 1995,1998,2000,2003,2006,2007,2009 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2006,2007,2009,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -42,8 +42,13 @@ has? ec [IF] [IFUNDEF] hash
 [THEN] [THEN]
 
 [IFUNDEF] hash
-: hash ( addr len -- key )
-    hashbits (hashkey1) ;
+    [IFDEF] (hashkey2)
+	: hash ( addr len -- key )
+	    hashbits (hashkey2) ;
+    [ELSE]
+	: hash ( addr len -- key )
+	    hashbits (hashkey1) ;
+    [THEN]
 [THEN]
 
 Variable insRule        insRule on
@@ -96,11 +101,13 @@ Defer hash-alloc ( addr -- addr )
 : hash-reveal ( nfa wid -- )
     2dup (reveal) (reveal ;
 
+[IFUNDEF] >link ' noop Alias >link [THEN]
+
 : inithash ( wid -- )
     wordlist-extend
     insRule @ >r  insRule off  1 hash-alloc over ! 3 cells -
-    dup wordlist-id
-    BEGIN  @ dup  WHILE  2dup swap (reveal  REPEAT
+    dup wordlist-id 0 >link -
+    BEGIN  >link @ dup  WHILE  2dup swap (reveal  REPEAT
     2drop  r> insRule ! ;
 
 : addall  ( -- )

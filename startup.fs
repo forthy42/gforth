@@ -1,6 +1,6 @@
 \ startup file
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -42,11 +42,7 @@ include hash.fs
 \ include float.fs
 \ include search.fs
 require compat/strcomp.fs
-' usable-dictionary-end @ dodefer: = [if]
-    include glocals.fs
-[else]
-    include glocals-1.60.fs
-[then]
+include glocals.fs
 require float.fs
 require stuff.fs
 include wordinfo.fs
@@ -64,7 +60,7 @@ include doskey.fs
 require debugs.fs
 require assert.fs
 require blocks.fs
-require intcomp.fs
+\ require intcomp.fs
 require savesys.fs
 require table.fs
 s" os-class" environment? dup [IF] drop s" unix" str= [THEN]
@@ -88,6 +84,7 @@ require libcc.fs
 require struct0x.fs
 require prelude.fs
 require str-exec.fs
+require gforthrc.fs
 
 \ define the environmental queries for all the loaded wordsets
 \ since the blocks wordset is loaded in a single file, its queries

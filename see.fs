@@ -1,6 +1,6 @@
 \ SEE.FS       highend SEE for ANSforth                16may93jaw
 
-\ Copyright (C) 1995,2000,2003,2004,2006,2007,2008,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995,2000,2003,2004,2006,2007,2008,2010,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -29,6 +29,10 @@ require termsize.fs
 require wordinfo.fs
 
 decimal
+
+Vocabulary see-voc
+
+get-current also see-voc definitions
 
 \ Screen format words                                   16may93jaw
 
@@ -94,15 +98,19 @@ Defer xt-see-xt ( xt -- )
     then
     space ;
 
+dup set-current
+
 Defer discode ( addr u -- ) \ gforth
 \G hook for the disassembler: disassemble u bytes of code at addr
 ' dump IS discode
+
+definitions
 
 : next-head ( addr1 -- addr2 ) \ gforth
     \G find the next header starting after addr1, up to here (unreliable).
     here swap u+do
 	i head? -2 and if
-	    i unloop exit
+	    i name>string drop cell negate and unloop exit
 	then
     cell +loop
     here ;
@@ -120,7 +128,7 @@ Defer discode ( addr u -- ) \ gforth
     \G find the next primitive after addr1 (unreliable)
     1+ >r -1 primstart
     begin ( umin head R: boundary )
-	@ dup
+	>link @ dup
     while
 	tuck name>int >code-address ( head1 umin ca R: boundary )
 	r@ - umin
@@ -169,10 +177,10 @@ VARIABLE Colors Colors on
 		    dup bl 127 within if
 			cemit
 		    else
-			base @ >r try
+			base @ { oldbase } try
 			    8 base ! 0 <<# # # # '\ hold #> ctype #>> 0
 			restore
-			    r@ base !
+			    oldbase base !
 			endtry
 			rdrop throw
 		    endif
@@ -247,12 +255,14 @@ ACONSTANT MaxTable
         2drop true
         THEN ;
 
+[IFUNDEF] cell- : cell- cell - ; [THEN]
+    
 : MyBranch      ( a-addr -- a-addr a-addr2 )
 \ finds branch table entry for branch at a-addr
                 dup @
                 BranchAddr?
                 BEGIN
-                WHILE 1 cells - @
+                WHILE cell- @
                       over <>
                 WHILE dup @
                       MoreBranchAddr?
@@ -289,7 +299,7 @@ ACONSTANT MaxTable
         1 cells BranchPointer +! ;
 
 : Type!   ( u -- )
-        BranchPointer @ 1 cells - ! ;
+        BranchPointer @ cell- ! ;
 
 : Branch! ( a-addr rel -- a-addr )
     over ,Branch ,Branch 0 ,Branch ;
@@ -315,7 +325,7 @@ VARIABLE C-Pass
     \ print x as a word if possible
     dup look 0= IF
 	drop dup threaded>name dup 0= if
-	    drop over 1 cells - @ dup body> look
+	    drop over cell- @ dup body> look
 	    IF
 		nip nip dup ." <" name>string rot wordinfo .string ." > "
 	    ELSE
@@ -324,7 +334,7 @@ VARIABLE C-Pass
 	    EXIT
 	then
     THEN
-    nip dup cell+ @ immediate-mask and
+    nip dup >f+c @ immediate-mask and
     IF
 	bl cemit  ." POSTPONE "
     THEN
@@ -352,6 +362,9 @@ VARIABLE C-Pass
 \	maxaligned /does-handler + ; \ !! no longer needed for non-cross stuff
 [THEN]
 
+: c># ( n -- addr u ) dup abs 0 <# #S rot sign #> ;
+: c-. ( n -- ) c># 0 .string bl cemit ;
+
 : c-lit ( addr1 -- addr2 )
     dup @ dup body> dup cfaligned over = swap in-dictionary? and if
 	( addr1 addr1@ )
@@ -360,10 +373,10 @@ VARIABLE C-Pass
 	endif
     endif
     over 4 cells + over = if
-	over 1 cells + @ decompile-prim ['] call xt>threaded = >r
-	over 3 cells + @ decompile-prim ['] ;S xt>threaded =
+	over 1 cells + @ decompile-prim ['] call xt= >r
+	over 3 cells + @ decompile-prim ['] ;S xt=
 	r> and if
-	    over 2 cells + @ ['] !does >body = if  drop
+	    over 2 cells + @ ['] !extra >body = if  drop
 		S" DOES> " Com# ?.string 4 cells + EXIT endif
 	endif
 	[IFDEF] !;abi-code
@@ -379,13 +392,18 @@ VARIABLE C-Pass
     endif
     Display? if
 	\ !! test for cfa here, and print "['] ..."
-	dup abs 0 <# #S rot sign #> 0 .string bl cemit
+	dup >name dup IF
+	    nip ." ['] " name>string
+	ELSE
+	    drop c>#
+	THEN
+	0 .string bl cemit
     else  drop  then
     cell+ ;
 
 : c-lit+ ( addr1 -- addr2 )
     Display? if
-	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
+	dup @ c-.
 	s" + " 0 .string
     endif
     cell+ ;
@@ -393,7 +411,7 @@ VARIABLE C-Pass
 : .name-without ( addr -- addr )
     \ !! the stack effect cannot be correct
     \ prints a name without a() e.g. a(+LOOP) or (s")
-    dup 1 cells - @ threaded>name dup IF
+    dup cell- @ threaded>name dup IF
 	name>string over c@ 'a = IF
 	    1 /string
 	THEN
@@ -403,7 +421,6 @@ VARIABLE C-Pass
 	2dup + 1- c@ ') = IF 1- THEN .struc ELSE drop 
     THEN ;
 
-[ifdef] (s")
 : c-c"
 	Display? IF nl .name-without THEN
         count 2dup + aligned -rot
@@ -412,7 +429,6 @@ VARIABLE C-Pass
                 [char] " cemit bl cemit
         ELSE    2drop
         THEN ;
-[endif]
 
 : c-string? ( addr1 -- addr2 f )
     \ f is true if a string was found and decompiled.
@@ -426,13 +442,13 @@ VARIABLE C-Pass
     \ abort": if ahead X: len string then lit X c(abort") then
     dup @ back? if false exit endif
     dup @ >r
-    r@ @ decompile-prim ['] lit xt>threaded <> if rdrop false exit endif
+    r@ @ decompile-prim ['] lit xt= 0= if rdrop false exit endif
     r@ cell+ @ over cell+ <> if rdrop false exit endif
     \ we have at least C"
-    r@ 2 cells + @ decompile-prim dup ['] lit xt>threaded = if
+    r@ 2 cells + @ decompile-prim dup ['] lit xt= if
 	drop r@ 3 cells + @ over cell+ + aligned r@ = if
 	    \ we have at least s"
-	    r@ 4 cells + @ decompile-prim ['] lit-perform xt>threaded =
+	    r@ 4 cells + @ decompile-prim ['] lit-perform xt=
 	    r@ 5 cells + @ ['] type >body = and if
 		6 s\" .\\\" "
 	    else
@@ -447,7 +463,7 @@ VARIABLE C-Pass
 	    nip cells r> + true exit
 	endif
     endif
-    ['] f@ xt>threaded = if
+    ['] f@ xt= if
 	display? if
 	    r@ cell+ @ f@ 10 8 16 f>str-rdp 0 .string bl cemit
 	endif
@@ -463,7 +479,7 @@ VARIABLE C-Pass
     \ a-addr is pointer into branch table
     \ returns true when jump is a forward jump
     IF
-	dup dup @ swap 1 cells - @ u> IF
+	dup dup @ swap cell- @ u> IF
 	    true
 	ELSE
 	    drop false
@@ -475,7 +491,7 @@ VARIABLE C-Pass
 
 : RepeatCheck ( a-addr1 a-addr2 true | false -- false )
         IF  BEGIN  2dup
-                   1 cells - @ swap @
+                   cell- @ swap @
                    u<=
             WHILE  drop dup cell+
                    MoreBranchAddr? 0=
@@ -587,7 +603,7 @@ VARIABLE C-Pass
     DebugBranch cell+ ;
 
 : c-exit ( addr1 -- addr2 )
-    dup 1 cells -
+    dup cell-
     CheckEnd
     IF
 	Display? IF nlflag off S" ;" Com# .string THEN
@@ -617,9 +633,33 @@ VARIABLE C-Pass
     cell+ ;
 [THEN]
 
+[IFDEF] u#exec
+    Create u#outs ' type , ' emit , ' cr , ' form ,
+    ' page , ' at-xy , ' at-deltaxy , ' attr! ,
+    Create u#ins  ' key , ' key? ,
+
+    Create u#execs
+    ' type >body cell+ @ , u#outs ,
+    ' key  >body cell+ @ , u#ins ,
+    0 ,                    0 ,
+    
+    : c-u#exec ( addr -- addr' )
+	dup @ u#execs  BEGIN  dup @  WHILE
+		2dup @ = IF
+		    cell+ @ >r
+		    drop cell+ dup @ cells r> + @  display?
+		    IF
+			>name name>string Com# .string bl cemit
+		    ELSE  drop  THEN  cell+
+		    EXIT  THEN
+	    2 cells +  REPEAT  2drop
+	." u#exec " dup @ c-. cell+ dup @ c-. cell+ ;
+[THEN]
+
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
 		' does-exec A,	    ' c-callxt A,
+		' extra-exec A,	    ' c-callxt A,
 		' lit@ A,	    ' c-call A,
 [IFDEF] call	' call A,           ' c-call A, [THEN]
 \		' useraddr A,	    ....
@@ -647,6 +687,7 @@ CREATE C-Table
 [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded
 [IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
+	        ' u#exec A,         ' c-u#exec A,
         	0 ,		here 0 ,
 
 avariable c-extender
@@ -664,7 +705,7 @@ c-extender !
 	    THEN 
 	THEN
 	\ jump over to extender, if any 26jan97jaw
-	xt>threaded 2 pick <>
+	2 pick swap xt= 0=
     WHILE
 	    2 cells +
     REPEAT
@@ -713,6 +754,8 @@ c-extender !
 	analyse
 	c-stop @
     UNTIL drop ;
+
+\ user words
 
 : seecode ( xt -- )
     dup s" Code" .defname
@@ -767,6 +810,10 @@ c-extender !
     dup >body ." 0 " ? ." 0 0 "
     s" Field" .defname cr ;
 
+\ user visible words
+
+set-current
+
 : xt-see ( xt -- ) \ gforth
     \G Decompile the definition represented by @i{xt}.
     cr c-init
@@ -813,6 +860,17 @@ c-extender !
     then ;
 
 : name-see ( nfa -- )
+    dup >f+c @ alias-mask and 0= IF
+	dup >namevt @ >vt>int @ ['] s>int = IF
+	    ." Synonm " dup .name dup @ .name
+	ELSE
+	    dup @ name>string nip 0= IF
+		dup @ hex.
+	    ELSE
+		." ' " dup @ .name
+	    THEN ." Alias " dup .name
+	THEN
+    THEN
     dup name>int >r
     dup name>comp 
     over r@ =
@@ -842,4 +900,4 @@ c-extender !
     THEN
     name-see ;
 
-
+previous

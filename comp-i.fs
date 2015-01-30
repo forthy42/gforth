@@ -1,6 +1,6 @@
 \ Compare nonrelocatable images and produce a relocatable image
 
-\ Copyright (C) 1996,1997,1998,2002,2003,2004,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1997,1998,2002,2003,2004,2007,2010,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -18,7 +18,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 s" address-unit-bits" environment? drop constant bits/au
-7 constant dodoes-tag
+10 constant maxdoer-tag
 
 : write-cell { w^ w  file-id -- ior }
     \ write a cell to the file
@@ -47,7 +47,7 @@ s" address-unit-bits" environment? drop constant bits/au
     base offset ;
 
 : >tag ( index -- tag )
-    dup dodoes-tag 2 + > IF
+    dup maxdoer-tag > IF
 	$21 1 DO  dup tag-offsets I cells + @ < IF
 		tag-offsets I 1- cells + @ - I 1- 9 lshift + negate
 		UNLOOP  EXIT  THEN  LOOP
@@ -60,9 +60,10 @@ s" address-unit-bits" environment? drop constant bits/au
     \ hard to factor.
     image1 @ image2 @ over - { dbase doffset }
     doffset 0= abort" images have the same dictionary base address"
-    ." data offset=" doffset . cr
-    ." code" image1 image2 cell     26 cells image-data { cbase coffset }
-    ."   xt" image1 image2 13 cells 22 cells image-data { xbase xoffset }
+    ."  data offset=" doffset . cr
+    ."  code" image1 image2 cell     26 cells image-data { cbase coffset }
+    ."    xt" image1 image2 13 cells 22 cells image-data { xbase xoffset }
+    ." label" image1 image2 14 cells 18 cells image-data { lbase loffset }
     size 0
     u+do
 	image1 i th @ image2 i th @ { cell1 cell2 }
@@ -83,10 +84,17 @@ s" address-unit-bits" environment? drop constant bits/au
 		    tag >tag file-id write-cell throw
 		    i reloc-bits set-bit
 		else
-		    cell1 file-id write-cell throw
-		    cell1 cell2 <>
+		    loffset 0<> cell1 loffset + cell2 = and
 		    if
-			0 i th 9 u.r cell1 17 u.r cell2 17 u.r cr
+			cell1 lbase - cell/ { tag }
+			tag >tag $8000 xor file-id write-cell throw
+			i reloc-bits set-bit
+		    else
+			cell1 file-id write-cell throw
+			cell1 cell2 <>
+			if
+			    0 i th 9 u.r cell1 17 u.r cell2 17 u.r cr
+			endif
 		    endif
 		endif
 	    endif
@@ -95,7 +103,7 @@ s" address-unit-bits" environment? drop constant bits/au
 
 : comp-image ( "image-file1" "image-file2" "new-image" -- )
     name slurp-file { image1 size1 }
-    image1 size1 s" Gforth4" search 0= abort" not a Gforth image"
+    image1 size1 s" Gforth5" search 0= abort" not a Gforth image"
     drop 8 + image1 - { header-offset }
     size1 aligned size1 <> abort" unaligned image size"
     image1 header-offset + 2 cells + @ header-offset + size1 <> abort" header gives wrong size"

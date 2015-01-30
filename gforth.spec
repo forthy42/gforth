@@ -1,5 +1,5 @@
 #
-# spec file for package gforth (Version 0.7.0)
+# spec file for package gforth (Version 0.8.0)
 #
 # Copyright (c) 2009 SUSE LINUX Products GmbH, Nuernberg, Germany.
 #
@@ -15,25 +15,27 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
+
+
 Name:           gforth
-%if 0%{?suse_version}
-BuildRequires:  emacs-nox libffi-devel
-PreReq:         %{install_info_prereq}
+%if 0%{?rhel_version}
+BuildRequires:  emacs-nox automake autoconf libtool libtool-ltdl
 %endif
-%if 0%{?rhel_version} || 0%{?centos_version}
-BuildRequires:  emacs-nox libtool-ltdl-devel
-Requires:       libtool-libs libtool-ltdl libtool-ltdl-devel
+%if 0%{?centos_version}
+BuildRequires:  emacs-nox automake autoconf libtool libtool-ltdl libtool-ltdl-devel
 %endif
 %if 0%{?fedora}
-BuildRequires:  emacs-nox libtool-ltdl-devel libffi-devel
-Requires:       libffi libtool-libs libtool-ltdl libtool-ltdl-devel libffi-devel
+BuildRequires:  emacs-nox automake autoconf libtool libtool-ltdl
 %endif
-Url:            http://www.complang.tuwien.ac.at/forth/gforth/
+%if 0%{?suse_version}
+BuildRequires:  emacs-nox automake autoconf libtool
+%endif
+Url:            http://www.gnu.org/software/gforth/
 License:        GNU Free Documentation License, Version 1.2 (GFDL 1.2); GPL v2 or later; GPL v3 or later
 Group:          Development/Languages/Other
 AutoReqProv:    on
-Version:        0.7.9
-Release:        62.1
+Version:        0.7.9_20130214
+Release:        40.1
 Summary:        GNU Forth
 Source:         gforth-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -47,19 +49,22 @@ Authors:
 --------
     Anton Ertl <anton@mips.complang.tuwien.ac.at>
     Bernd Paysan <bernd.paysan@gmx.de>
-    Jens Wilke <wilke@jwdt.com>
+    Jens Wilke <jens.wilke@headissue.com>
 
 %prep
 %setup -q
 
 %build
-# Fixup timestamps. Can't rebuild them without working gforth
-touch engine/prim.i engine/prim_lab.i
 %{?suse_update_config}
-autoreconf -fi
+#autoreconf -fi
 CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE" \
 ./configure --prefix=/usr --mandir=%{_mandir} --infodir=%{_infodir} \
             --build=%{_target_cpu}-suse-linux
+#make stamp-h.in
+# Fixup timestamps. Can't rebuild them without working gforth
+#touch prim*.b
+#sleep 1
+#touch engine/*.i
 make
 emacs --batch --no-site-file -f batch-byte-compile gforth.el
 echo > gforth-autoloads.el
@@ -72,14 +77,14 @@ emacs --batch -l autoload --eval "(setq generated-autoload-file \"$PWD/gforth-au
   sed -n '/^;;; Generated/,/^;;;\*\*\*/p' gforth-autoloads.el
   printf '\n;;; suse-start-gforth.el ends here\n'
 } > suse-start-gforth.el
-make install.TAGS
-rm gforth.fi
+make install.TAGS gforth.fi
 
 %check
 make check
 
 %install
-make install DESTDIR=$RPM_BUILD_ROOT prefix=/usr mandir=%{_mandir} infodir=%{_infodir}
+make install package=$RPM_BUILD_ROOT prefix=/usr mandir=$RPM_BUILD_ROOT%{_mandir} \
+	     infodir=$RPM_BUILD_ROOT%{_infodir}
 install -d $RPM_BUILD_ROOT/usr/share/emacs/site-lisp
 install -m 644 gforth.el gforth.elc suse-start-gforth.el $RPM_BUILD_ROOT/usr/share/emacs/site-lisp
 
@@ -100,18 +105,16 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/gforth
 /usr/share/emacs/site-lisp/*.el*
 /usr/share/gforth
-%if 0%{?suse_version}
 %dir /usr/share/gforth/site-forth
 %config /usr/share/gforth/site-forth/siteinit.fs
-%else
-/usr/share/info/dir
-%endif
 %doc %{_infodir}/*.gz
+%if 0%{?suse_version}
+%else
+%doc %{_infodir}/dir
+%endif
 %doc %{_mandir}/man?/*
 
 %changelog
-* Thu Dec 23 2010 bernd.paysan@gmx.de
-- Started buildservice project
 * Thu Nov 06 2008 schwab@suse.de
 - Update to gforth 0.7.0.
   Requirements:
@@ -135,7 +138,7 @@ rm -rf $RPM_BUILD_ROOT
   MacOS X: better support
   Invocation:
   New flags --ignore-async-signals, --vm-commit (default overcommit)
-              --print-sequences
+	      --print-sequences
   Forth 200x:
   X:extension-query: produce true for all implemented extensions
   X:required REQUIRED etc. (not new)

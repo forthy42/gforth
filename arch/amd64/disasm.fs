@@ -1,6 +1,6 @@
 \ disasm.fs	disassembler file (for AMD64 64-bit mode)
 \
-\ Copyright (C) 2004,2005,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 2004,2005,2007,2010,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -40,6 +40,8 @@
 \ special cases of ModRM and SIB bytes.
 
 \ 3DNow instructions have opcode formed by 0F 0F and an imm byte
+
+get-current also see-voc definitions
 
 \ prelude
 : c@+ count ;
@@ -713,3 +715,6 @@ s" std," $fd set-noarg
 \ !! fe: Group4
 \ !! ff: Group5
 \ !! 0f: 2-byte opcodes
+
+2drop
+set-current previous

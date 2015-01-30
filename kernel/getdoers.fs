@@ -1,6 +1,6 @@
 \ 
 
-\ Copyright (C) 1996, 1998,1999,2003,2005,2006,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1996, 1998,1999,2003,2005,2006,2007,2010,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -39,7 +39,7 @@ doer? :dovar [IF]
     \G The code address of a @code{CREATE}d word.
     \ in rom-applications variable might be implemented with constant
     \ use really a created word!
-    ['] ??? >code-address ;
+    ['] udp >code-address ;
 [THEN]
 
 doer? :douser [IF]
@@ -64,10 +64,7 @@ doer? :dofield [IF]
 true [IF] \ !! don't know what to put here
 : dodoes: ( -- addr )	\ gforth
 \G The code address of a @code{DOES>}-defined word.
-    \ DOES> is interpret/compile: but cross' ['] gives the address of
-    \ a DOES>-defined word
-    ['] DOES> >code-address ;
-    
+    ['] spaces >code-address ;
 [THEN]
 
 
@@ -82,4 +79,10 @@ doer? :do;abicode [IF]
 (;abi-code) (;abi-code-dummy)
 : do;abicode: ( -- addr )
     ['] (;abi-code-dummy) >code-address ;
+[THEN]
+
+doer? :doextra [IF]
+\ extra>-dummy (doextra-dummy)
+: doextra: ( -- )
+    ['] (doextra-dummy) >code-address ;
 [THEN]

@@ -1,6 +1,6 @@
 /* header file for libcc-generated C code
 
-  Copyright (C) 2006,2007,2008 Free Software Foundation, Inc.
+  Copyright (C) 2006,2007,2008,2012,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -19,6 +19,8 @@
 */
 
 #include <gforth/@PACKAGE_VERSION@/config.h>
+#include <signal.h>
+#include <alloca.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__) || defined(__ANDROID__)
 #undef HAS_BACKLINK
@@ -27,6 +29,7 @@
 #endif
 
 typedef CELL_TYPE Cell;
+typedef unsigned CELL_TYPE UCell;
 typedef unsigned char Char;
 typedef double Float;
 typedef Char *Address;
@@ -47,41 +50,77 @@ typedef struct {
 } user_area;
 
 #ifdef HAS_BACKLINK
-extern __thread Cell *gforth_SP;
-extern __thread Float *gforth_FP;
-extern __thread Cell *gforth_RP;
-extern __thread char *gforth_LP;
-extern __thread char *gforth_UP;
+extern PER_THREAD Cell *gforth_SP;
+extern PER_THREAD Float *gforth_FP;
+extern PER_THREAD Cell *gforth_RP;
+extern PER_THREAD char *gforth_LP;
+extern PER_THREAD user_area *gforth_UP;
+extern PER_THREAD Cell gforth_magic;
 extern void *gforth_engine(void *);
 extern char *cstr(char *from, Cell size);
 extern char *tilde_cstr(char *from, Cell size);
-extern __thread void *throw_jmp_handler;
+extern PER_THREAD void *throw_jmp_handler;
 extern user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 extern void gforth_free_stacks(user_area* t);
+extern user_area *gforth_main_UP;
+extern Cell gforth_go(Xt *ip);
+extern void gforth_sigset(sigset_t* set, ...);
+gforth_libcc_init()
+{
+}
 #define GFORTH_ARGS void
 #else
+static void*(*gforth_pointers)(Cell);
+gforth_libcc_init(void *(*gforth_pointers_init)(Cell))
+{
+  gforth_pointers=gforth_pointers_init;
+}
 #define gforth_SP *((Cell **)(gforth_pointers(0)))
 #define gforth_FP *((Float **)(gforth_pointers(1)))
 #define gforth_LP *((char **)(gforth_pointers(2)))
 #define gforth_RP *((Cell **)(gforth_pointers(3)))
-#define gforth_UP *((char **)(gforth_pointers(4)))
+#define gforth_UP *((user_area **)(gforth_pointers(4)))
 #define gforth_engine ((char *(*)(void *))gforth_pointers(5))
 #define cstr ((char *(*)(char *, Cell))gforth_pointers(6))
 #define tilde_cstr ((char *(*)(char *, Cell))gforth_pointers(7))
 #define throw_jmp_handler *((void**)(gforth_pointers(8)))
 #define gforth_stacks ((user_area *(*)(Cell, Cell, Cell, Cell))gforth_pointers(9))
-#define gforth_free_stacks ((void(*)(user_area* t))gforth_pointers(10))
+#define gforth_free_stacks ((void(*)(user_area*))gforth_pointers(10))
+#define gforth_main_UP *((user_area **)(gforth_pointers(11)))
+#define gforth_go ((Cell(*)(Xt*))gforth_pointers(12))
+#define gforth_sigset ((void(*)(sigset_t*, ...))gforth_pointers(13))
+#define gforth_magic *((Cell *)(gforth_pointers(14)))
 #define GFORTH_ARGS void *(*gforth_pointers)(Cell)
+#endif
+
+#if SIZEOF_CHAR_P == 4
+#define GFORTH_MAGIC 0x3B3C51D5U
+#else
+#define GFORTH_MAGIC 0x1E059AF1785E72D4ULL
 #endif
 
 #define CELL_BITS	(sizeof(Cell) * 8)
 
 #define gforth_d2ll(lo,hi) \
-  ((sizeof(Cell) < sizeof(Clongest)) \
+  (Clongest)((sizeof(Cell) < sizeof(Clongest))		\
+   ? (((UClongest)(lo))|(((UClongest)(hi))<<CELL_BITS)) \
+   : (lo))
+
+#define gforth_ud2ll(lo,hi) \
+  (UClongest)((sizeof(Cell) < sizeof(Clongest))		\
    ? (((UClongest)(lo))|(((UClongest)(hi))<<CELL_BITS)) \
    : (lo))
 
 #define gforth_ll2d(ll,lo,hi) \
+  do { \
+    Clongest _ll = (ll); \
+    (lo) = (Cell)_ll; \
+    (hi) = ((sizeof(Cell) < sizeof(Clongest)) \
+            ? (_ll >> CELL_BITS) \
+            : 0); \
+  } while (0);
+
+#define gforth_ll2ud(ll,lo,hi) \
   do { \
     UClongest _ll = (ll); \
     (lo) = (Cell)_ll; \
@@ -89,3 +128,16 @@ extern void gforth_free_stacks(user_area* t);
             ? (_ll >> CELL_BITS) \
             : 0); \
   } while (0);
+
+typedef Char hash_128[16];
+
+#define GFSS 0x80 /* stack sizes */
+
+#define GFORTH_MAKESTACK(n)					   \
+  if(gforth_magic != GFORTH_MAGIC) {				   \
+    gforth_RP = alloca(n*sizeof(Cell))+sizeof(Cell)*(n);	   \
+    gforth_SP = alloca(n*sizeof(Cell))+sizeof(Cell)*(n-1);	   \
+    gforth_FP = alloca(n*sizeof(Float))+sizeof(Float)*(n-1);	   \
+    gforth_LP = alloca(n*sizeof(Cell))+sizeof(Cell)*(n);	   \
+    gforth_UP = gforth_main_UP;					   \
+  }

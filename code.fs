@@ -1,6 +1,6 @@
 \ ASSEMBLER, CODE etc.
 
-\ Copyright (C) 1995,1996,1997,1999,2003,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1999,2003,2007,2010,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -36,8 +36,8 @@ vocabulary assembler ( -- ) \ tools-ext
     \G @code{abi-code} instead of @code{code}.  You have to end a
     \G @code{code} definition with a dispatch to the next virtual
     \G machine instruction.
-    header
-    here >body cfa,
+    header ['] noop vtcopy,
+    here latest !
     defstart init-asm ;
 
 [ifdef] doabicode:
@@ -50,8 +50,8 @@ vocabulary assembler ( -- ) \ tools-ext
    \G The FP stack pointer is passed in by providing a reference to a
    \G memory location containing the FP stack pointer and is passed
    \G out by storing the changed FP stack pointer there (if necessary).
-    header  
-    doabicode: cfa,
+    header  ['] (abi-code-dummy) vtcopy,
+    doabicode: latest !
     defstart init-asm ;
 [endif]
 

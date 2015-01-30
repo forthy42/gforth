@@ -6,7 +6,7 @@
 
 \ LSIDs
 
-AVariable lsids
+Variable lsids
 0 Value lsid#
 
 : native@ ( lsid -- addr u )  cell+ cell+ dup cell+ swap @ ;
@@ -21,7 +21,7 @@ AVariable lsids
 
 : sl, ( addr u -- )  dup , here swap dup allot move align ;
 : l, ( addr u -- )
-    here lsids append-list 0 A, lsid# dup , 1+ to lsid# sl, ;
+    here lsids append-list 0 , lsid# dup , 1+ to lsid# sl, ;
 : [l,] ( addr u -- addr )  2>r
     postpone AHEAD 2r> align here >r l,
     [defined] bigFORTH [IF] 0 :r T&P [THEN]
@@ -30,20 +30,18 @@ AVariable lsids
 : LLiteral  2dup search-lsid dup  IF
         nip nip
     ELSE  drop [l,]  THEN
-    postpone ALiteral ; immediate
+    postpone Literal ; immediate
 
-: L" ( "lsid<">" -- lsid ) '"' parse
-    state @ IF  postpone LLiteral
-    ELSE  2dup search-lsid dup  IF
-            nip nip
-        ELSE  drop align here >r l, r>  THEN
-    THEN  ; immediate
+: L" ( "lsid<">" -- lsid )
+    '"' parse 2dup search-lsid dup  IF
+	nip nip
+    ELSE  drop align here >r l, r>  THEN ;
+comp: '"' parse  postpone LLiteral ;
 
 \ deliberately unique string
 : LU" ( "lsid<">" -- lsid ) '"' parse
-    state @ IF  [l,] postpone ALiteral
-    ELSE  align here >r l, r>
-    THEN  ; immediate
+    align here >r l, r> ;
+comp: '"' parse [l,] postpone Literal ; immediate
 
 : .lsids ( lsids -- )  BEGIN  @ dup  WHILE dup native@ type cr  REPEAT  drop ;
 
@@ -94,7 +92,7 @@ Variable last-namespace
 
 : locale! ( addr u lsid -- ) >r
     2dup r@ locale@ str= IF  rdrop 2drop  EXIT  THEN
-    r> id#@ here locale' append-list 0 A, , sl, ;
+    r> id#@ here locale' append-list 0 , , sl, ;
 
 : native-file ( fid -- ) >r
     BEGIN  pad $1000 r@ read-line throw  WHILE
@@ -121,10 +119,11 @@ Variable last-namespace
 
 \ easy use
 
-: x" state @ IF  postpone l" postpone locale@
-    ELSE  ['] l" execute locale@  THEN ; immediate
+: x" ( "string"<"> -- addr u )
+    ['] l" execute locale@ ;
+comp: postpone l" postpone locale@ ;
 
-l" FORTH" Aconstant forth-lx
+l" FORTH" constant forth-lx
 [defined] gforth [IF] s" Gforth" forth-lx locale! [THEN]
-[defined] bigforth [IF] s" bigFORTH" forth-lx locale! [THEN]
+\ [defined] bigforth [IF] s" bigFORTH" forth-lx locale! [THEN]
 [defined] VFXforth [IF] s" VFX FORTH" forth-lx locale! [THEN]

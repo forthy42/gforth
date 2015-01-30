@@ -1,6 +1,6 @@
 \ Load in error strings
 
-\ Copyright (C) 1995,1996,1997,1998,1999,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,1999,2003,2007,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -89,8 +89,11 @@ decimal
 
 -2048 s" Cannot tick compile-only word (try COMP' ... DROP)" rot errstring
 -2049 s" Write to broken pipe" rot errstring
+-2050 s" Double free error" rot errstring
+-2051 s" Data before memory block was modified" rot errstring
+-2052 s" Data after memory block was modified" rot errstring
 
-variable next-exception -2050 next-exception !
+variable next-exception -2053 next-exception !
 
 : exception ( addr u -- n ) \ exception- gforth
     \G @var{n} is a previously unused @code{throw} value in the range
@@ -103,4 +106,3 @@ variable next-exception -2050 next-exception !
 
 -2049 constant broken-pipe-error ( -- n ) \ gforth
 \G the error number for a broken pipe
-

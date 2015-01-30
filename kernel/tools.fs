@@ -1,6 +1,6 @@
 \ TOOLS.FS     Toolkit extentions                      2may93jaw
 
-\ Copyright (C) 1995,1998,1999,2001,2003,2006,2007,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,1999,2001,2003,2006,2007,2011,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -58,7 +58,7 @@ Variable /dump
         IF  ."    "  ELSE  dup c@ 0 <<# # # #> type #>> space  THEN
     char+ NEXT ;
 : .chars ( addr -- )
-    /dump @ bounds
+    /dump @ 0 max bounds
     ?DO I c@ dup 7f bl within
 	IF  drop [char] .  THEN  emit
     LOOP ;
@@ -87,28 +87,42 @@ Variable /dump
 
 include  ./../termsize.fs
 
+: map-wordlist ( ... wid xt -- ... )
+    \G xt: ( ... nt -- ... ) free to use the stack underneath
+    >r wordlist-id @
+    BEGIN
+	dup
+    WHILE
+	    r@ over >r execute r> >link @
+    REPEAT  drop rdrop ;
+
+: traverse-wordlist ( ... xt wid -- ... )
+    \G xt: ( ... nt -- f ... ) free to use the stack underneath
+    \G run as long as f is true
+    swap >r wordlist-id @
+    BEGIN
+	dup
+    WHILE
+	    r@ over >r execute  WHILE r> >link @
+	REPEAT  r>
+    THEN  drop rdrop ;
+
+Defer word-colorize ' noop is word-colorize
+
+: .word ( n nt -- n' ) word-colorize
+    name>string tuck 2>r
+    1+ tuck + dup cols >=  IF  cr drop  ELSE  nip  THEN
+    2r> type space default-color attr! ;
+
 : wordlist-words ( wid -- ) \ gforth
     \G Display the contents of the wordlist wid.
-    [ has? ec 0= [IF] ] wordlist-id [ [THEN] ]
-    0 swap cr
-    BEGIN
-	@ dup
-    WHILE
-	2dup name>string nip 2 + dup >r +
-	cols >=
-	IF
-	    cr nip 0 swap
-	THEN
-	dup name>string type space r> rot + swap
-    REPEAT
-    2drop ;
+    0 swap cr ['] .word map-wordlist drop ;
 
-: words
+: words ( -- )
     \G ** this will not get annotated. See other defn in search.fs .. **
     \G It does not work to use "wordset-" prefix since this file is glossed
     \G by cross.fs which doesn't have the same functionalty as makedoc.fs
-    [ has? ec 0= [IF] ] context @ [ [ELSE] ] forth-wordlist [ [THEN] ]
-    wordlist-words ;
+    context @ wordlist-words ;
 
 ' words alias vlist ( -- ) \ gforth
 \g Old (pre-Forth-83) name for @code{WORDS}.

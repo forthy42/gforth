@@ -1,6 +1,6 @@
 /* a memcmp implementation
 
-  Copyright (C) 1995,1998,2000,2003,2007 Free Software Foundation, Inc.
+  Copyright (C) 1995,1998,2000,2003,2007,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -20,12 +20,12 @@
 
 #include "forth.h"
 
-Cell memcmp(const Char *s1, const Char *s2, Cell n)
+int memcmp(const void *s1, const void *s2, size_t n)
 {
   Cell i;
 
   for (i=0; i<n; i++)
-    if (s1[i] != s2[i])
-      return s1[i]-s2[i];
+    if (((Char*)s1)[i] != ((Char*)s2)[i])
+      return ((Char*)s1)[i]-((Char*)s2)[i];
   return 0;
 }

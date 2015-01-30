@@ -1,6 +1,17 @@
 \input texinfo   @c -*-texinfo-*-
 @comment The source is gforth.ds, from which gforth.texi is generated
 
+@c uncomment this if you want a smartphone PDF
+@c iftex
+@c internalpagesizes{150mm}{97mm}{-0.666in}{-0.95in}{0in}{0in}{160mm}{100mm}
+@c contentsrightmargin=0pt
+@c tableindent=0.1in
+@c itemindent=0.2in
+@c tolerance=700
+@c defbodyindent=0.1in
+@c lispnarrowing=0pt
+@c end iftex
+
 @comment TODO: nac29jan99 - a list of things to add in the next edit:
 @comment 1. x-ref all ambiguous or implementation-defined features?
 @comment 2. Describe the use of Auser Avariable AConstant A, etc.
@@ -61,7 +72,7 @@ a fast and portable implementation of the ANS Forth language.  It
 serves as reference manual, but it also contains an introduction to
 Forth and a Forth tutorial.
 
-Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004,2005,2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -224,6 +235,7 @@ Forth Words
 * Structures::                  
 * Object-oriented Forth::       
 * Programming Tools::           
+* Multitasker::
 * C Interface::                 
 * Assembler and Code Words::    
 * Threading Words::             
@@ -308,6 +320,7 @@ The Text Interpreter
 * Number Conversion::           
 * Interpret/Compile states::    
 * Interpreter Directives::      
+* Recognizers::
 
 Word Lists
 
@@ -406,6 +419,10 @@ Programming Tools
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
+
+Multitasker
+
+* Pthreads::                    Native Unix multitasker
 
 C Interface
 
@@ -701,9 +718,12 @@ useful for building executable application images on Unix, built with
 @itemx -p @i{path}
 Uses @i{path} for searching the image file and Forth source code files
 instead of the default in the environment variable @code{GFORTHPATH} or
-the path specified at installation time (e.g.,
-@file{/usr/local/share/gforth/0.2.0:.}). A path is given as a list of
-directories, separated by @samp{:} (on Unix) or @samp{;} (on other OSs).
+the path specified at installation time and the working directory
+@code{.} (e.g., @file{/usr/local/share/gforth/0.2.0:.}). A path is given
+as a list of directories, separated by @samp{:} (previous versions had
+@samp{;} for other OSes, but since Cygwin now only accepts
+@code{/cygdrive/<letter>}, and we dropped support for OS/2 and MS-DOS,
+it is @samp{:} everywhere).
 
 @cindex --dictionary-size, command-line option
 @cindex -m, command-line option
@@ -997,14 +1017,16 @@ Gforth uses these environment variables:
 @itemize @bullet
 @item
 @cindex @code{GFORTHHIST} -- environment variable
-@code{GFORTHHIST} -- (Unix systems only) specifies the directory in which to
-open/create the history file, @file{.gforth-history}. Default:
-@code{$HOME}.
+@code{GFORTHHIST} -- (Unix systems only) specifies the path for the
+history file @file{.gforth-history}. Default:
+@code{$HOME/.gforth-history}.
 
 @item
 @cindex @code{GFORTHPATH} -- environment variable
-@code{GFORTHPATH} -- specifies the path used when searching for the gforth image file and
-for Forth source-code files.
+@code{GFORTHPATH} -- specifies the path used when searching for the
+gforth image file and for Forth source-code files (usually @samp{.}, the
+current working directory).  Path separator is @samp{:}, a typical path
+would be @file{/usr/local/share/gforth/0.8.0:.}.
 
 @item
 @cindex @code{LANG} -- environment variable
@@ -4401,6 +4423,7 @@ the exercises in a .fs file in the distribution.
 * Structures::                  
 * Object-oriented Forth::       
 * Programming Tools::           
+* Multitasker::
 * C Interface::                 
 * Assembler and Code Words::    
 * Threading Words::             
@@ -5856,7 +5879,8 @@ The most common use of exception handlers is to clean up the state when
 an error happens.  E.g.,
 
 @example
-base @ >r hex \ actually the hex should be inside foo, or we h
+base @@ >r hex \ actually the HEX should be inside foo to protect
+              \ against exceptions between HEX and CATCH
 ['] foo catch ( nerror|0 )
 r> base !
 ( nerror|0 ) throw \ pass it on
@@ -5890,7 +5914,7 @@ This performs @i{code1}.  If @i{code1} completes normally, execution
 continues with @i{code3}.  If there is an exception in @i{code1} or
 before @code{endtry}, the stacks are reset to the depth during
 @code{try}, the throw value is pushed on the data stack, and execution
-constinues at @i{code2}, and finally falls through to @i{code3}.
+continues at @i{code2}, and finally falls through to @i{code3}.
 
 doc-try
 doc-endtry
@@ -7874,6 +7898,7 @@ doc-#tib
 * Number Conversion::           
 * Interpret/Compile states::    
 * Interpreter Directives::      
+* Recognizers::
 @end menu
 
 @node Input Sources, Number Conversion, The Text Interpreter, The Text Interpreter
@@ -8128,7 +8153,7 @@ Directives}).
 @c  doc-state
 
 
-@node Interpreter Directives,  , Interpret/Compile states, The Text Interpreter
+@node Interpreter Directives,  Recognizers, Interpret/Compile states, The Text Interpreter
 @subsection Interpreter Directives
 @cindex interpreter directives
 @cindex conditional compilation
@@ -8181,6 +8206,37 @@ doc-[AGAIN]
 doc-[WHILE]
 doc-[REPEAT]
 
+@node Recognizers, , Interpreter Directives, The Text Interpreter
+@subsection Recognizers
+@cindex recongizers
+
+The standard Forth text interpreter recognizes the following types of
+tokens: words in the dictionary, integer numbers, and floating point
+numbers.  Defining new types of tokens isn't yet standardized.  Gforth
+provides recognizers to make the text interpreter extensible as well.
+
+Recognizers take a string and return some data and a ``table'' for
+interpreting that data.  Gforth implements that table as xt (which means
+any xt is a valid result of a recognizer), but other Forth systems can
+implement it as actual table, with three xts inside.  The first xt is
+the interpretation/run-time xt, it performs the interpretation semantics
+on the data (usually, this means it just leaves the data on the stack).
+The second xt performs the compilation semantics, it gets the data and
+the run-time semantics xt.  The third xt perfoms the postpone semantics,
+it also gets the data and the run-time semantics xt.  You can use
+@code{post,} to postpone the run-time xt.
+
+Recognizers are organized as stack, so you can arrange the sequence of
+recognizers in the same way as the vocabulary stack.
+
+doc-r:fail
+doc-word-recognizer
+doc-num-recognizer
+doc-fnum-recognizer
+doc-get-recognizer
+doc-set-recognizer
+doc-do-recognizer
+doc-recognizer:
 
 @c -------------------------------------------------------------
 @node The Input Stream, Word Lists, The Text Interpreter, Words
@@ -8557,6 +8613,7 @@ Files that are processed by some other program (@dfn{general files}).
 * Forth source files::          
 * General files::               
 * Redirection::                 
+* Directories::                 
 * Search Paths::                
 @end menu
 
@@ -8666,7 +8723,7 @@ doc-stdout
 doc-stderr
 
 @c ---------------------------------------------------------
-@node Redirection, Search Paths, General files, Files
+@node Redirection, Directories, General files, Files
 @subsection Redirection
 @cindex Redirection
 @cindex Input Redirection
@@ -8701,7 +8758,23 @@ exceptions yourself; also, note that for redirecting the output in
 this way, you have to redirect both @code{emit} and @code{type}.
 
 @c ---------------------------------------------------------
-@node Search Paths,  , Redirection, Files
+@node Directories, Search Paths, Redirection, Files
+@subsection Directories
+@cindex Directories
+
+You can open and read directories similar to files.  Reading gives you one directory entry at a time; you can match that to a filename (with wildcards).
+
+doc-open-dir
+doc-read-dir
+doc-close-dir
+doc-filename-match
+doc-get-dir
+doc-set-dir
+doc-=mkdir
+doc-mkdir-parents
+
+@c ---------------------------------------------------------
+@node Search Paths, , Directories, Files
 @subsection Search Paths
 @cindex path for @code{included}
 @cindex file search path
@@ -9295,15 +9368,27 @@ doc-$!len
 doc-$del
 doc-$ins
 doc-$+!
+doc-c$+!
 doc-$off
 doc-$init
 doc-$split
 doc-$iter
 doc-$over
+doc-$exec
+doc-$tmp
+doc-$.
+doc-$slurp
+doc-$slurp-file
 doc-$[]
 doc-$[]!
 doc-$[]+!
 doc-$[]@
+doc-$[]#
+doc-$[]map
+doc-$[]slurp
+doc-$[]slurp-file
+doc-$[].
+doc-$[]off
 
 @node Terminal output, Single-key input, String words, Other I/O
 @subsection Terminal output
@@ -11973,7 +12058,7 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 
 
 @c -------------------------------------------------------------
-@node Programming Tools, C Interface, Object-oriented Forth, Words
+@node Programming Tools, Multitasker, Object-oriented Forth, Words
 @section Programming Tools
 @cindex programming tools
 
@@ -12246,15 +12331,103 @@ doc-dbg
 doc-break:
 doc-break"
 
+@c -------------------------------------------------------------
+@node Multitasker, C Interface, Programming Tools, Words
+@section Multitasker
+@cindex multitasker
+
+@menu
+* Pthreads::                    Native Unix multitasker
+@end menu
+
+Gforth offers two multitasker: a traditional, cooperative round-robin
+multitasker, and a pthread-based multitasker which allows to run several
+threads concurrently on multi-core machines.
+
+@node Pthreads, , Multitasker, Multitasker
+@subsection Ptheads
+@cindex pthread
+
+doc-newtask
+doc-stacksize
+doc-newtask4
+doc-stacksize4
+doc-activate
+doc-pass
+doc-pause
+doc-wake
+doc-sleep
+doc-stop
+doc-stop-ns
+doc-uvalue
+doc-udefer
+doc-user'
+
+A cooperative multitasker can ensure that there is no other task
+interacting between two invocations of @code{pause}.  Pthreads however
+are really concurrent tasks (at least on a multi-core CPU), and
+therefore, several techniques to avoid conflicts when accessing the same
+resources.
+
+@subsubsection Semaphores
+
+Semaphores can only be aquired by one thread, all other threads have to
+wait until the semapohre is released.
+
+doc-sema
+doc-lock
+doc-unlock
+
+The other approach to prevent concurrent access is the critical section.
+Here, we implement a critical section with a semaphore, so you have to
+specify the semaphore which is used for the critical section.  Only
+those critical sections which use the same semaphore are mutually
+exclusive.
+
+doc-c-section
+
+@subsubsection Message Queues
+
+Gforth implements executable message queues: you send instructions to
+other tasks, which they will execute as atomic sequence when they are
+enclosed in @code{<event} and @code{event>}.  You can pass integers,
+floats, and strings (only the addresses, so treat the string as
+read-only after you have send it to another task).  The instructions you
+send are defined with @code{event:} @var{name}, which, when invoked,
+will add the code for its execution to the message queue, and when
+recieved, will execute the code following.
+
+doc-<event
+doc-event>
+doc-event:
+doc-?events
+doc-event-loop
+doc-elit,
+doc-e$,
+doc-eflit,
+
+@subsubsection Conditions
+
+The pthreads library also provides conditional variables, which allow to
+wait for a condition.  Using the message queue is generally preferred.
+
+doc-cond
+doc-pthread_cond_signal
+doc-pthread_cond_broadcast
+doc-pthread_cond_wait
+doc-pthread_cond_timedwait
+
 @c ------------------------------------------------------------
-@node C Interface, Assembler and Code Words, Programming Tools, Words
+@node C Interface, Assembler and Code Words, Multitasker, Words
 @section C Interface
 @cindex C interface
 @cindex foreign language interface
 @cindex interface to C functions
 
-Note that the C interface is not yet complete; callbacks are missing,
-as well as a way of declaring structs, unions, and their fields.
+The C interface is now mostly complete, callbacks have been added, but
+for structs, we use Forth2012 structs, which don't have independent
+scopes.  The offsets of those structs are extracted from header files
+with a SWIG plugin, which is still not completed.
 
 @menu
 * Calling C Functions::         
@@ -12414,17 +12587,17 @@ c-function printf-rn printf a r n -- n
 Note that with C functions declared as variadic (or if you don't
 provide a prototype), the C interface has no C type to convert to, so
 no automatic conversion happens, which may lead to portability
-problems in some cases.  In such cases you can perform the conversion
-explicitly on the C level, e.g., as follows:
+problems in some cases.  You can add the C type cast in curly braces
+after the Forth type.  This also allows to pass e.g. structs to C
+functions, which in Forth cannot live on the stack.
 
 @example
-\c #define printfll(s,ll) printf(s,(long long)ll)
-c-function printfll printfll a n -- n
+c-function printfll printf a n@{(long long)@} -- n
+c-function pass-struct pass_struct a@{*(struct foo *)@} -- n
 @end example
 
-Here, instead of calling @code{printf()} directly, we define a macro
-that casts (converts) the Forth single-cell integer into a
-C @code{long long} before calling @code{printf()}.
+This typecasting is not available to return values, as C does not
+allow typecasts for lvalues.
 
 doc-\c
 doc-c-function
@@ -12445,8 +12618,11 @@ in @file{lib.fs}.
 @cindex C function pointers, calling from Forth
 
 If you come across a C function pointer (e.g., in some C-constructed
-structure) and want to call it from your Forth program, you can also
-use the features explained until now to achieve that, as follows:
+structure) and want to call it from your Forth program, you could use
+the structures as described above by defining a macro.  Or you use
+@code{c-funptr}.
+
+doc-c-funptr
 
 Let us assume that there is a C function pointer type @code{func1}
 defined in some header file @file{func1.h}, and you know that these
@@ -12455,8 +12631,7 @@ you want to call functions through such pointers.  Just define
 
 @example
 \c #include <func1.h>
-\c #define call_func1(par1,fptr) ((func1)fptr)(par1)
-c-function call-func1 call_func1 n func -- n
+c-funptr call-func1 @{((func1)ptr)@} n -- n
 @end example
 
 and then you can call a function pointed to by, say @code{func1a} as
@@ -12466,16 +12641,11 @@ follows:
 -5 func1a call-func1 .
 @end example
 
-In the C part, @code{call_func} is defined as a macro to avoid having
-to declare the exact parameter and return types, so the C compiler
-knows them from the declaration of @code{func1}.
-
 The Forth word @code{call-func1} is similar to @code{execute}, except
 that it takes a C @code{func1} pointer instead of a Forth execution
 token, and it is specific to @code{func1} pointers.  For each type of
 function pointer you want to call from Forth, you have to define
 a separate calling word.
-
 
 @node Defining library interfaces, Declaring OS-level libraries, Calling C function pointers, C Interface
 @subsection Defining library interfaces
@@ -12495,29 +12665,35 @@ end-c-library
 The effect of giving such a name to the interface is that the names of
 the generated files will contain that name, and when you use the
 interface a second time, it will use the existing files instead of
-generating and compiling them again, saving you time.  Note that even
-if you change the declarations, the old (stale) files will be used,
-probably leading to errors.  So, during development of the
-declarations we recommend not using @code{c-library}.  Normally these
-files are cached in @file{$HOME/.gforth/libcc-named}, so by deleting
-that directory you can get rid of stale files.
+generating and compiling them again, saving you time.  The generated
+file contains a 128 bit hash (not cryptographically safe, but good
+enough for that purpose) of the source code, so changing the
+declarations will cause a new compilation.  Normally these files are
+cached in @file{$HOME/.gforth/}@var{architecture}@file{/libcc-named}, so
+if you experience problems or have other reasons to force a
+recompilation, you can delete the files there.
 
-Note that you should use @code{c-library} before everything else
-having anything to do with that library, as it resets some setup
-stuff.  The idea is that the typical use is to put each
-@code{c-library}...@code{end-library} unit in its own file, and to be
-able to include these files in any order.
+Note that you should use @code{c-library} before everything else having
+anything to do with that library, as it resets some setup stuff.  The
+idea is that the typical use is to put each
+@code{c-library}...@code{end-c-library} unit in its own file, and to be
+able to include these files in any order.  All other words dealing with
+the C interface are hidden in the vocabulary @code{c-lib}, which is put on top o the search stack by @code{c-library} and removed by @code{end-c-library}.
 
 Note that the library name is not allocated in the dictionary and
 therefore does not shadow dictionary names.  It is used in the file
 system, so you have to use naming conventions appropriate for file
-systems.  Also, you must not call a function you declare after
-@code{c-library} before you perform @code{end-c-library}.
+systems.  The name is also used as part of the C symbols, but characters
+outside the legal C symbol names are replaced with underscores.  Also,
+you shall not call a function you declare after @code{c-library} before
+you perform @code{end-c-library}.
 
-A major benefit of these named library interfaces is that, once they
-are generated, the tools used to generated them (in particular, the C
-compiler and libtool) are no longer needed, so the interface can be
-used even on machines that do not have the tools installed.
+A major benefit of these named library interfaces is that, once they are
+generated, the tools used to generated them (in particular, the C
+compiler and libtool) are no longer needed, so the interface can be used
+even on machines that do not have the tools installed.  The build system
+of Gforth can even cross-compile these libraries, so that the libraries
+are available for plattforms on which build tools aren't installed.
 
 doc-c-library-name
 doc-c-library
@@ -12566,15 +12742,27 @@ doc-add-lib
 @cindex Callback functions written in Forth
 @cindex C function pointers to Forth words
 
-Callbacks are not yet supported by the documented C interface.  You
-can use the undocumented @file{lib.fs} interface for callbacks.
-
 In some cases you have to pass a function pointer to a C function,
 i.e., the library wants to call back to your application (and the
 pointed-to function is called a callback function).  You can pass the
 address of an existing C function (that you get with @code{lib-sym},
 @pxref{Low-Level C Interface Words}), but if there is no appropriate C
 function, you probably want to define the function as a Forth word.
+Then you need to generate a callback as described below:
+
+You can generate C callbacks from Forth code with @code{c-callback}.
+
+doc-c-callback
+
+This precompiles a number of callback functions (up to the value
+@code{callback#}).  The prototype of the C function is deduced from
+its Forth signature.  If this is not sufficient, you can add types in
+curly braces after the Forth type.
+
+@example
+c-callback vector4double: f f f f -- void
+c-callback vector4single: f@{float@} f@{float@} f@{float@} f@{float@} -- void
+@end example
 
 @c I don't understand the existing callback interface from the example - anton
 
@@ -13192,13 +13380,13 @@ Gforth          normal assembler      description
 123 #           #123                  immediate
 r12             r12                   register
 r12 4 #LSL      r12, LSL #4           shift left by immediate
-r12 r1 #LSL     r12, LSL r1           shift left by register
+r12 r1 LSL      r12, LSL r1           shift left by register
 r12 4 #LSR      r12, LSR #4           shift right by immediate
-r12 r1 #LSR     r12, LSR r1           shift right by register
+r12 r1 LSR      r12, LSR r1           shift right by register
 r12 4 #ASR      r12, ASR #4           arithmetic shift right
-r12 r1 #ASR     r12, ASR r1           ... by register
+r12 r1 ASR      r12, ASR r1           ... by register
 r12 4 #ROR      r12, ROR #4           rotate right by immediate
-r12 r1 #ROR     r12, ROR r1           ... by register
+r12 r1 ROR      r12, ROR r1           ... by register
 r12 RRX         r12, RRX              rotate right with extend by 1
 @end example
 
@@ -15730,9 +15918,37 @@ Gforth. Because of the second usage, a space is required between
 @code{#!} and the path to the executable (moreover, some Unixes
 require the sequence @code{#! /}).
 
-The disadvantage of this latter technique, compared with using
-@file{gforthmi}, is that it is slightly slower; the Forth source code is
-compiled on-the-fly, each time the program is invoked.
+Most Unix systems (including Linux) support exactly one option after
+the binary name.  If that is not enough, you can use the following
+trick:
+
+@example
+#! /bin/sh
+: ## ; 0 [if]
+exec gforth -m 10M -d 1M $0 "$@@"
+[then]
+." Hello, world" cr
+bye \ caution: this prevents (further) processing of "$@@"
+@end example
+
+First this script is interpreted as shell script, which treats the
+first two lines as (mostly) comments, then performs the third line,
+which invokes gforth with this script (@code{$0}) as parameter and its
+parameters as additional parameters (@code{"$@@"}).  Then this script
+is interpreted as Forth script, which first defines a colon definition
+@code{##}, then ignores everything up to @code{[then]} and finally
+processes the following Forth code.  You can also use
+
+@example
+#0 [if]
+@end example
+
+in the second line, but this works only in Gforth-0.7.0 and later.
+
+The @file{gforthmi} approach is the fastest one, the shell-based one
+is slowest (needs to start an additional shell).  An additional
+advantage of the shell approach is that it is unnecessary to know
+where the Gforth binary resides, as long as it is in the @code{$PATH}.
 
 doc-#!
 

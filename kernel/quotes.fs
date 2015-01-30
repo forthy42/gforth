@@ -1,6 +1,6 @@
 \ quote: S" and ." words
 
-\ Copyright (C) 1996,1998,1999,2002,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1998,1999,2002,2003,2007,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -42,19 +42,19 @@ require ./vars.fs
     postpone if [char] " parse postpone cliteral postpone c(abort")
     postpone then ; immediate restrict
 
+: warning" ( compilation 'ccc"' -- ; run-time f -- ) \ gforth
+    postpone if [char] " parse postpone cliteral postpone c(warning")
+    postpone then ; immediate restrict
+
 \ create s"-buffer /line chars allot
-has? compiler 0= 
-[IF] : s" [ELSE] :noname [THEN]
-	[char] " parse
+:noname
+    [char] " parse
 [ has? OS [IF] ]
     save-mem
 [ [THEN] ]
 ;
-\    	/line min >r s"-buffer r@ cmove
-\    	s"-buffer r> ;
-has? compiler [IF]
 :noname [char] " parse postpone SLiteral ;
-interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
+interpret/compile: s" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
   \G Compilation: Parse a string @i{ccc} delimited by a @code{"}
   \G (double quote). At run-time, return the length, @i{u}, and the
   \G start address, @i{c-addr} of the string. Interpretation: parse
@@ -66,14 +66,16 @@ interpret/compile: S" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,fi
   \G @code{free} the strings.  ANS Forth only guarantees one buffer of
   \G 80 characters, so in standard programs you should assume that the
   \G string lives only until the next @code{s"}.
-[THEN]
 
-:noname    [char] " parse type ;
-:noname    [char] " parse postpone sLiteral postpone type ;
-interpret/compile: ." ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
+:noname '"' parse type ;
+:noname '"' parse postpone SLiteral postpone type ;
+interpret/compile: ."  ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
   \G Compilation: Parse a string @i{ccc} delimited by a " (double
   \G quote). At run-time, display the string. Interpretation semantics
   \G for this word are undefined in ANS Forth. Gforth's interpretation
   \G semantics are to display the string. This is the simplest way to
   \G display a string from within a definition; see examples below.
-
+\    [char] " parse type ;
+\ has? compiler [IF]
+\     comp: drop [char] " parse postpone sLiteral postpone type ;
+\ [THEN]

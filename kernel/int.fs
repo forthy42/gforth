@@ -1,6 +1,6 @@
 \ definitions needed for interpreter only
 
-\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -23,27 +23,19 @@
 
 \ \ input stream primitives                       	23feb93py
 
+has? new-does [IF]
+    : extra, ['] extra-exec peephole-compile, , ;
+    : >comp  ( xt -- ) name>comp execute ;
+    : post,  ( xt -- ) lit, postpone >comp ;
+    : no-to ( -- )  -32 throw ;
+    comp: -32 throw ;
+[THEN]
+
 require ./basics.fs 	\ bounds decimal hex ...
 require ./io.fs		\ type ...
 require ./nio.fs	\ . <# ...
 require ./errore.fs	\ .error ...
 require kernel/version.fs \ version-string
-
-has? new-input 0= [IF]
-: tib ( -- c-addr ) \ core-ext t-i-b
-    \G @i{c-addr} is the address of the Terminal Input Buffer.
-    \G OBSOLESCENT: @code{source} superceeds the function of this word.
-    >tib @ ;
-
-Defer source ( -- c-addr u ) \ core
-\ used by dodefer:, must be defer
-\G @i{c-addr} is the address of the input buffer and @i{u} is the
-\G number of characters in it.
-
-: (source) ( -- c-addr u )
-    tib #tib @ ;
-' (source) IS source
-[THEN]
 
 : (word) ( addr1 n1 char -- addr2 n2 )
   dup >r skip 2dup r> scan  nip - ;
@@ -60,9 +52,7 @@ Defer source ( -- c-addr u ) \ core
     >r  source  >in @ over min /string ( c-addr1 u1 )
     over  swap r>  scan >r
     over - dup r> IF 1+ THEN  >in +!
-[ has? new-input [IF] ]
-    2dup input-lexeme!
-[ [THEN] ] ;
+    2dup input-lexeme! ;
 
 \ name                                                 13feb93py
 
@@ -70,9 +60,7 @@ Defer source ( -- c-addr u ) \ core
 
 : (name) ( -- c-addr count ) \ gforth
     source 2dup >r >r >in @ /string (parse-white)
-[ has? new-input [IF] ]
     2dup input-lexeme!
-[ [THEN] ]
     2dup + r> - 1+ r> min >in ! ;
 \    name count ;
 [THEN]
@@ -90,6 +78,7 @@ Defer source ( -- c-addr u ) \ core
 hex
 const Create bases   0A , 10 ,   2 ,   0A ,
 \                    10   16     2     10
+decimal
 
 \ !! protect BASE saving wrapper against exceptions
 : getbase ( addr u -- addr' u' )
@@ -221,13 +210,6 @@ has? os 0= [IF]
     \G comments into documentation.
     POSTPONE \ ; immediate
 
-has? ec [IF]
-    AVariable forth-wordlist
-    : find-name ( c-addr u -- nt | 0 ) \ gforth
-	\g Find the name @i{c-addr u} in the current search
-	\g order. Return its @i{nt}, if found, otherwise 0.
-	forth-wordlist (f83find) ;
-[ELSE]
 \ \ object oriented search list                         17mar93py
 
 \ word list structure:
@@ -247,13 +229,8 @@ struct
   cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
 end-struct wordlist-struct
 
-has? f83headerstring [IF]
-: f83find      ( addr len wordlist -- nt / false )
-    wordlist-id @ (f83find) ;
-[ELSE]
 : f83find      ( addr len wordlist -- nt / false )
     wordlist-id @ (listlfind) ;
-[THEN]
 
 : initvoc		( wid -- )
   dup wordlist-map @ hash-method perform ;
@@ -297,21 +274,12 @@ forth-wordlist current !
     \g Find the name @i{c-addr u} in the current search
     \g order. Return its @i{nt}, if found, otherwise 0.
     lookup @ (search-wordlist) ;
-[THEN]
 
 \ \ header, finding, ticks                              17dec92py
 
 \ The constants are defined as 32 bits, but then erased
 \ and overwritten by the right ones
 
-has? f83headerstring [IF]
-    \ to save space, Gforth EC limits words to 31 characters
-    \ also, there's no predule concept in Gforth EC
-    $80 constant alias-mask
-    $40 constant immediate-mask
-    $20 constant restrict-mask
-    $1f constant lcount-mask
-[ELSE]
 \ 32-bit systems cannot generate large 64-bit constant in the
 \ cross-compiler, so we kludge it by generating a constant and then
 \ storing the proper value into it (and that's another kludge).
@@ -349,21 +317,11 @@ $0fffffff constant lcount-mask
 : compile-only-error ( ... -- )
     -&14 throw ;
 
-: (cfa>int) ( cfa -- xt )
-[ has? compiler [IF] ]
-    dup interpret/compile?
-    if
-	interpret/compile-int @
-    then 
-[ [THEN] ] ;
-
 : (x>int) ( cfa w -- xt )
     \ get interpretation semantics of name
     restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
     if
 	drop ['] compile-only-error
-    else
-	(cfa>int)
     then ;
 
 has? f83headerstring [IF]
@@ -382,23 +340,46 @@ has? f83headerstring [IF]
         swap @ swap
     THEN ;
 [ELSE]
-: name>string ( nt -- addr count ) \ gforth     name-to-string
-    \g @i{addr count} is the name of the word represented by @i{nt}.
-    cell+ dup cell+ swap @ lcount-mask and ;
+    ' noop Alias ((name>)) ( nfa -- cfa )
+    (field) >namevt -1 cells , \ virtual table for names
+    (field) >link   -2 cells , \ link field
+    (field) >f+c    -3 cells , \ flags+count
 
-: ((name>))  ( nfa -- cfa )
-    name>string + cfaligned ;
-
-: (name>x) ( nfa -- cfa w )
-    \ cfa is an intermediate cfa and w is the flags cell of nfa
-    dup ((name>))
-    swap cell+ @ dup alias-mask and 0=
-    IF
-        swap @ swap
-    THEN ;
+    (field) >vtlink      0 cells ,
+    (field) >vtcompile,  1 cells ,
+    (field) >vtpostpone  2 cells ,
+    (field) >vtextra     3 cells ,
+    (field) >vtto        4 cells ,
+    (field) >vt>int      5 cells ,
+    (field) >vt>comp     6 cells ,
+    (field) >vtdefer@    7 cells ,
+    8 cells Constant vtsize
+    
+    : name>string ( nt -- addr count ) \ gforth     name-to-string
+	\g @i{addr count} is the name of the word represented by @i{nt}.
+	>f+c dup @ lcount-mask and tuck - swap ;
+    
+    : (name>x) ( nfa -- cfa w )
+	\ cfa is an intermediate cfa and w is the flags cell of nfa
+	dup ((name>))
+	swap >f+c @ dup alias-mask and 0=
+	IF
+	    swap @ swap
+	THEN ;
 [THEN]
 
 : name>int ( nt -- xt ) \ gforth name-to-int
+    \G @i{xt} represents the interpretation semantics of the word
+    \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
+    \G @code{compile-only}), @i{xt} is the execution token for
+    \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
+    x#exec [ 5 , ] ;
+
+: name>comp ( nt -- w xt ) \ gforth name-to-comp
+    \G @i{w xt} is the compilation token for the word @i{nt}.
+    x#exec [ 6 , ] ;
+
+: default-name>int ( nt -- xt ) \ gforth paren-name-to-int
     \G @i{xt} represents the interpretation semantics of the word
     \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
     \G @code{compile-only}), @i{xt} is the execution token for
@@ -408,39 +389,32 @@ has? f83headerstring [IF]
 : name?int ( nt -- xt ) \ gforth name-question-int
     \G Like @code{name>int}, but perform @code{-2048 throw} if @i{nt}
     \G has no interpretation semantics.
-    (name>x) restrict-mask and [ has? rom [IF] ] 0= [ [THEN] ]
-    if
-	ticking-compile-only-error \ does not return
-    then
-    (cfa>int) ;
+    dup name>int tuck <> if
+      dup ['] compile-only-error = if execute then
+    then ;
 
-: (name>comp) ( nt -- w +-1 ) \ gforth
+: (x>comp) ( xt w -- xt +-1 )
+    immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign ;
+
+\ these transformations are used for legacy words like find
+
+: (name>comp) ( nt -- xt +-1 ) \ gforth
     \G @i{w xt} is the compilation token for the word @i{nt}.
-    (name>x) >r 
-[ has? compiler [IF] ]
-    dup interpret/compile?
-    if
-        interpret/compile-comp @
-    then 
-[ [THEN] ]
-    r> immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign
-    ;
+    name>comp ['] execute = flag-sign ;
 
 : (name>intn) ( nfa -- xt +-1 )
-    (name>x) tuck (x>int) ( w xt )
-    swap immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign ;
+    dup name>int swap name>comp nip ['] execute = flag-sign ;
 
 [IFDEF] prelude-mask
 : name>prelude ( nt -- xt )
-    dup cell+ @ prelude-mask and if
+    dup >f+c @ prelude-mask and if
 	[ -1 cells ] literal + @
     else
 	drop ['] noop
     then ;
 [THEN]
 
-const Create ???  0 , 3 , char ? c, char ? c, char ? c,
-\ ??? is used by dovar:, must be created/:dovar
+const Create ???
 
 [IFDEF] forthstart
 \ if we have a forthstart we can define head? with it
@@ -449,20 +423,20 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 : one-head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false
 \G positives; addr must be a valid address
-    dup dup aligned <>
+    dup dup maxaligned <>
     if
         drop false exit \ heads are aligned
     then
-    dup cell+ @ alias-mask and 0= >r
-    name>string dup $20 $1 within if
-        rdrop 2drop false exit \ realistically the name is short
+    dup >f+c @ alias-mask and 0= >r
+    dup name>string dup $20 $1 within if
+        rdrop 2drop drop false exit \ realistically the name is short
     then
-    over + cfaligned over - 2dup bounds ?do \ should be a printable string
+    bounds ?do \ should be a printable string
 	i c@ bl < if
-	    2drop unloop rdrop false exit
+	    unloop rdrop drop false exit
 	then
     loop
-    + r> if \ check for valid aliases
+    r> if \ check for valid aliases
 	@ dup forthstart here within
 	over ['] noop ['] lit-execute 1+ within or
 	over dup aligned = and
@@ -471,7 +445,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 	then
     then \ check for cfa - must be code field or primitive
     dup @ tuck 2 cells - = swap
-    docol:  ['] lit-execute @ 1+ within or ;
+    docol:  ['] u#+ @ 1+ within or ;
 
 : head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false
@@ -486,7 +460,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 	dup one-head? 0= if
 	    drop false unloop exit
 	endif
-	dup @ dup 0= if
+	dup >link @ dup 0= if
 	    2drop 1 unloop exit
 	else
 	    dup rot forthstart within if
@@ -496,26 +470,9 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
     loop
     drop true ;
 
-: >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
+: >head-noprim ( xt -- nt ) \ gforth  to-head-noprim
     \ also heuristic
-    dup forthstart - max-name-length @
-    [ has? float [IF] ] float+ [ [ELSE] ] cell+ [ [THEN] ] cell+ min
-    cell max cell ?do ( cfa )
-	dup i - dup @ [ alias-mask lcount-mask or ] literal
-	[ 1 bits/char 3 - lshift 1 - 1 bits/char 1 - lshift or
-	-1 cells allot bigendian [IF]   c, -1 1 cells 1- times
-	[ELSE] -1 1 cells 1- times c, [THEN] ]
-	and ( cfa len|alias )
-	swap + cell+ cfaligned over alias-mask + =
-	if ( cfa )
-	    dup i - cell - dup head?
-	    if
-		nip unloop exit
-	    then
-	    drop
-	then
-	cell +loop
-    drop ??? ( wouldn't 0 be better? ) ;
+    dup head? 0= IF  drop ['] ???  THEN ;
 
 [ELSE]
 
@@ -530,7 +487,7 @@ const Create ???  0 , 3 , char ? c, char ? c, char ? c,
 	if ( cfa ) i - cell - unloop exit
 	then
 	cell +loop
-    drop ??? ( wouldn't 0 be better? ) ;
+    drop ['] ??? ( wouldn't 0 be better? ) ;
 
 [THEN]
 
@@ -554,7 +511,11 @@ has? standardthreading has? compiler and [IF]
     dup @ dodoes: = if
 	cell+ @
     else
-	drop 0
+	dup @ doextra: = IF
+	    >namevt @ >vtextra @
+	ELSE
+	    drop 0
+	THEN
     endif ;
 
 has? prims [IF]
@@ -569,7 +530,7 @@ alias code-address! ( c_addr xt -- ) \ gforth
 : any-code! ( a-addr cfa code-addr -- )
     \ for implementing DOES> and ;ABI-CODE, maybe :
     \ code-address is stored at cfa, a-addr at cfa+cell
-    over ! cell+ ! ;
+    over !  >namevt @ >vtextra ! ;
     
 : does-code! ( a-addr xt -- ) \ gforth
 \G Create a code field at @i{xt} for a child of a @code{DOES>}-word;
@@ -577,8 +538,13 @@ alias code-address! ( c_addr xt -- ) \ gforth
     [ has? flash [IF] ]
     dodoes: over flash! cell+ flash!
     [ [ELSE] ]
-    dodoes: any-code! 
+    dodoes: over ! cell+ ! 
     [ [THEN] ] ;
+
+: extra-code! ( a-addr xt -- ) \ gforth
+\G Create a code field at @i{xt} for a child of a @code{EXTRA>}-word;
+\G @i{a-addr} is the start of the Forth code after @code{EXTRA>}.
+    doextra: any-code! ;
 
 2 cells constant /does-handler ( -- n ) \ gforth
 \G The size of a @code{DOES>}-handler (includes possible padding).
@@ -666,16 +632,8 @@ Defer parse-name ( "name" -- c-addr u ) \ gforth
 ' parse-name alias name ( -- c-addr u ) \ gforth-obsolete
 \G old name for @code{parse-name}
     
-: no.extensions  ( addr u -- )
-    2drop -&13 throw ;
-
-has? recognizer 0= [IF]
-Defer compiler-notfound1 ( c-addr count -- ... xt )
-Defer interpreter-notfound1 ( c-addr count -- ... xt )
-
-' no.extensions IS compiler-notfound1
-' no.extensions IS interpreter-notfound1
-[THEN]
+: no.extensions  ( -- )
+    -&13 throw ;
 
 Defer before-word ( -- ) \ gforth
 \ called before the text interpreter parses the next word
@@ -725,80 +683,6 @@ has? backtrace [IF]
     then ;
 [THEN]
 
-has? recognizer 0= [IF]
-\ not the most efficient implementations of interpreter and compiler
-: interpreter1 ( c-addr u -- ... xt ) 
-    2dup find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ] dup
-    if
-	nip nip name>int
-    else
-	drop
-	2dup 2>r snumber?
-	IF
-	    2rdrop ['] noop
-	ELSE
-	    2r> interpreter-notfound1
-	THEN
-    then ;
-
-' interpreter1  IS  parser1
-[THEN]
-
-\ \ Query Evaluate                                 	07apr93py
-
-has? file 0= [IF]
-: sourceline# ( -- n )  1 ;
-[ELSE]
-has? new-input 0= [IF]
-Variable #fill-bytes
-\G number of bytes read via (read-line) by the last refill
-[THEN]
-[THEN]
-
-has? new-input 0= [IF]
-: input-start-line ( -- )  >in off ;
-: refill ( -- flag ) \ core-ext,block-ext,file-ext
-    \G Attempt to fill the input buffer from the input source.  When
-    \G the input source is the user input device, attempt to receive
-    \G input into the terminal input device. If successful, make the
-    \G result the input buffer, set @code{>IN} to 0 and return true;
-    \G otherwise return false. When the input source is a block, add 1
-    \G to the value of @code{BLK} to make the next block the input
-    \G source and current input buffer, and set @code{>IN} to 0;
-    \G return true if the new value of @code{BLK} is a valid block
-    \G number, false otherwise. When the input source is a text file,
-    \G attempt to read the next line from the file. If successful,
-    \G make the result the current input buffer, set @code{>IN} to 0
-    \G and return true; otherwise, return false.  A successful result
-    \G includes receipt of a line containing 0 characters.
-    [ has? file [IF] ]
-	blk @  IF  1 blk +!  true  EXIT  THEN
-	[ [THEN] ]
-    tib /line
-    [ has? file [IF] ]
-	loadfile @ ?dup
-	IF    (read-line) throw #fill-bytes !
-	ELSE
-	    [ [THEN] ]
-	sourceline# 0< IF 2drop false EXIT THEN
-	accept eof @ 0=
-	[ has? file [IF] ]
-	THEN
-	1 loadline +!
-	[ [THEN] ]
-    swap #tib !
-    input-start-line ;
-
-: query   ( -- ) \ core-ext
-    \G Make the user input device the input source. Receive input into
-    \G the Terminal Input Buffer. Set @code{>IN} to zero. OBSOLESCENT:
-    \G superceeded by @code{accept}.
-    [ has? file [IF] ]
-	blk off loadfile off
-	[ [THEN] ]
-    refill drop ;
-[THEN]
-
 \ save-mem extend-mem
 
 has? os [IF]
@@ -824,42 +708,6 @@ has? os [IF]
     \ the (possibly reallocated) piece is addr2 u2, the extension is at addr
     over >r + dup >r resize throw
     r> over r> + -rot ;
-[THEN]
-
-\ EVALUATE                                              17may93jaw
-
-has? file 0= has? new-input 0= and [IF]
-: push-file  ( -- )  r>
-  tibstack @ >r  >tib @ >r  #tib @ >r
-  >tib @ tibstack @ = IF  r@ tibstack +!  THEN
-  tibstack @ >tib ! >in @ >r  >r ;
-
-: pop-file   ( throw-code -- throw-code )
-  r>
-  r> >in !  r> #tib !  r> >tib !  r> tibstack !  >r ;
-[THEN]
-
-has? new-input 0= [IF]
-: evaluate ( c-addr u -- ) \ core,block
-    \G Save the current input source specification. Store @code{-1} in
-    \G @code{source-id} and @code{0} in @code{blk}. Set @code{>IN} to
-    \G @code{0} and make the string @i{c-addr u} the input source
-    \G and input buffer. Interpret. When the parse area is empty,
-    \G restore the input source specification.
-[ has? file [IF] ]
-    s" *evaluated string*" loadfilename>r
-[ [THEN] ]
-    push-file #tib ! >tib !
-    input-start-line
-    [ has? file [IF] ]
-	blk off loadfile off -1 loadline !
-	[ [THEN] ]
-    ['] interpret catch
-    pop-file
-[ has? file [IF] ]
-    r>loadfilename
-[ [THEN] ]
-    throw ;
 [THEN]
 
 \ \ Quit                                            	13feb93py
@@ -899,10 +747,8 @@ has? os [IF]
 \ \ DOERROR (DOERROR)                        		13jun93jaw
 
 has? os [IF]
-8 Constant max-errors
-5 has? file 2 and + Constant /error
-Variable error-stack  0 error-stack !
-max-errors /error * cells allot
+5 has? file 2 and + cells Constant /error
+User error-stack  0 error-stack !
 \ format of one cell:
 \ source ( c-addr u )
 \ last parsed lexeme ( c-addr u )
@@ -910,18 +756,13 @@ max-errors /error * cells allot
 \ Loadfilename ( addr u )
 
 : error> ( --  c-addr1 u1 c-addr2 u2 line# [addr u] )
-    -1 error-stack +!
-    error-stack dup @
-    /error * cells + cell+
-    /error cells bounds DO
+    error-stack $@ + /error - /error bounds DO
         I @
-    cell +LOOP ;
+    cell +LOOP error-stack dup $@len /error - /error $del ;
 
 : >error ( c-addr1 u1 c-addr2 u2 line# [addr u] -- )
-    error-stack dup @ dup 1+
-    max-errors 1- min error-stack !
-    /error * cells + cell+
-    /error 1- cells bounds swap DO
+    error-stack $@len /error + error-stack $!len
+    error-stack $@ + /error - /error cell- bounds swap DO
         I !
     -1 cells +LOOP ;
 
@@ -995,12 +836,20 @@ Defer mark-end
     mark-start r> part-type mark-end ( c-addr4 u4 )
     type ;
 
-: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] -- throwcode )
+Defer .error-level ( n -- )
+: (.error-level) >r
+    r@ 2 = IF  ." error: "    THEN
+    r@ 1 = IF  ." warning: "  THEN
+    r@ 0 = IF  ." info: "     THEN  rdrop ;
+' (.error-level) is .error-level
+
+: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] errlevel -- throwcode )
     \ addr3 u3: filename of included file - optional
     \ n2:       line number
     \ addr2 u2: parsed lexeme (should be marked as causing the error)
     \ addr1 u1: input line
-    error-stack @
+    \ errlevel: 0: info, 1: warning, 2: error
+    >r error-stack $@len
     IF ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
         [ has? file [IF] ] \ !! unbalanced stack effect
 	  over IF
@@ -1015,27 +864,34 @@ Defer mark-end
         [ has? file [IF] ]
             cr type ." :"
             [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
-        dup 0 dec.r ." : " 5 pick .error-string
-        IF \ if line# non-zero, there is a line
+	dup 0 dec.r ." : "
+	r@ .error-level
+	5 pick .error-string
+	r@ 2 = and \ only for errors print line
+	IF \ if line# non-zero, there is a line
             cr .error-line
         ELSE
             2drop 2drop
         THEN
-    THEN ;
+    THEN  rdrop ;
 
 : (DoError) ( throw-code -- )
-  [ has? os [IF] ]
-      >stderr
-  [ [THEN] ] 
-  input-error-data .error-frame
-  error-stack @ 0 ?DO
-    error>
-    .error-frame
-  LOOP
-  drop 
-[ has? backtrace [IF] ]
-  dobacktrace
-[ [THEN] ]
+    dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
+    [ has? os [IF] ]
+	>stderr err-color attr!
+	[ [THEN] ]
+    input-error-data 2 .error-frame
+    error-stack $@len 0 ?DO
+	error>
+	2 .error-frame
+    /error +LOOP
+    drop 
+    [ has? backtrace [IF] ]
+	dobacktrace
+	[ [THEN] ]
+    [ has? os [IF] ]
+	default-color attr!
+	[ [THEN] ]
   normal-dp dpp ! ;
 
 ' (DoError) IS DoError
@@ -1084,7 +940,7 @@ Defer mark-end
 
 : gforth ( -- )
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2011 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2014 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `bye' to exit"
@@ -1124,7 +980,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
     process-args
     loadline off
 [ [THEN] ]
-    1 (bye) ;
+    -56 (bye) ; \ indicate QUIT
 
 has? new-input 0= [IF]
 : clear-tibstack ( -- )
@@ -1177,13 +1033,11 @@ has? new-input 0= [IF]
 [ has? os [IF] ]
     handler off
     ['] cold catch dup -&2049 <> if \ broken pipe?
-	DoError cr
+	dup >r DoError cr r>
     endif
+    (bye) \ determin exit code from throw code
 [ [ELSE] ]
     cold
-[ [THEN] ]
-[ has? os [IF] ]
-    -1 (bye) \ !! determin exit code from throw code?
 [ [THEN] ]
 ;
 

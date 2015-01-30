@@ -1,6 +1,6 @@
 \ Simple debugging aids
 
-\ Copyright (C) 1995,1997,1999,2002,2003,2004,2005,2006,2007,2009,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,1999,2002,2003,2004,2005,2006,2007,2009,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -43,11 +43,12 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 \G prints the additional information with @code{printdebugdata}.
 
 : (.debugline) ( nfile nline -- )
+    info-color attr!
     cr .sourcepos ." :"
     \ it would be nice to print the name of the following word,
     \ but that's not easily possible for primitives
     printdebugdata
-    cr ;
+    cr default-color attr! ;
 
 [IFUNDEF] debug-fid
 stderr value debug-fid ( -- fid )
@@ -57,22 +58,93 @@ stderr value debug-fid ( -- fid )
 ' (.debugline) IS .debugline
 
 : .debugline-directed ( nfile nline -- )
-    action-of type action-of emit { oldtype oldemit }
-    try
-	['] (type) is type ['] (emit) is emit
-	['] .debugline debug-fid outfile-execute
-	0
-    restore
-	oldemit is emit oldtype is type
-    endtry
+    op-vector @ { oldout }
+    debug-vector @ op-vector !
+    ['] .debugline catch
+    oldout op-vector !
     throw ;
 
-:noname ( -- )
-    current-sourcepos .debugline-directed ;
-:noname ( compilation  -- ; run-time  -- )
-    compile-sourcepos POSTPONE .debugline-directed ;
-interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
+: ~~ ( -- ) \ gforth tilde-tilde
 \G Prints the source code location of the @code{~~} and the stack
 \G contents with @code{.debugline}.
+    current-sourcepos .debugline-directed ;
+comp: ( compilation  -- ; run-time  -- ) drop
+    compile-sourcepos POSTPONE .debugline-directed ;
 
 :noname ( -- )  stderr to debug-fid  defers 'cold ; IS 'cold
+
+\ print a no-overhead backtrace
+
+: once ( -- )
+    \G do the following up to THEN only once
+    here cell+ >r ]] true if [[ r> ]] Literal off [[ ;
+    immediate compile-only
+    
+: ~~bt ( -- )
+    \G print stackdump and backtrace
+    ]] ~~ store-backtrace dobacktrace nothrow [[ ;
+    immediate compile-only
+
+: ~~1bt ( -- )
+    \G print stackdump and backtrace once
+    ]] once ~~bt then [[ ; immediate compile-only
+
+\ launch a debug shell, quit with emtpy line
+
+: ??? ( -- )
+    \G Open a debuging shell
+    create-input cr
+    BEGIN  ." dbg> " refill  WHILE  source nip WHILE
+		interpret ."  ok" cr  REPEAT  THEN
+    0 pop-file drop ;
+' ??? alias dbg-shell
+
+: WTF?? ( -- )
+    \G Open a debugging shell with backtrace and stack dump
+    ]] ~~bt ??? [[ ; immediate compile-only
+
+\ special exception for places that should never be reached
+
+s" You've reached a !!FIXME!! marker" exception constant FIXME#
+
+: !!FIXME!! ( -- )  FIXME# throw ;
+
+\ replacing one word with another
+
+: replace-word ( xt2 xt1 -- )
+  \G make xt1 do xt2, both need to be colon definitions
+  >body  here >r dp !  >r postpone AHEAD  r> >body dp !  postpone THEN
+  r> dp ! ;
+
+\ watching variables and values
+
+: watch-does> ( -- ) DOES> dup @ ~~ drop ;
+: watch-comp: ( xt -- ) comp: >body ]] Literal dup @ ~~ drop [[ ; 
+: ~~Variable ( "name" -- )
+  Create 0 , watch-does> watch-comp: ;
+
+: ~~Value ( n "name" -- )
+    Value [: ~~ >body ! ; comp: drop ]] Literal ~~ >body ! [[ ;] set-to ;
+
+\ trace lines
+
+: line-tracer ( -- )  ['] ~~ execute ;
+\G print source position and stack on every source line start
+: +ltrace ( -- ) ['] line-tracer is before-line ;
+\G turn on line tracing
+: -ltrace ['] noop is before-line ;
+\G turn off line tracing
+
+\ view/locate
+
+require string.fs
+
+: view ( "name" -- ) \ gforth
+    \G tell the editor to go to the source of a word
+    \G uses emacs; so you have to do M-x server-start in Emacs,
+    \G and have Forth-mode loaded.  This will ask for the tags file
+    \G on the first invocation
+    [: ." emacsclient -e '(forth-find-tag " '"' emit
+	parse-name type '"' emit ." )'" ;] $tmp system ;
+
+' view alias locate \ forth inc

@@ -3,7 +3,7 @@
 
 #call this at the end of each year on a GNU system
 
-#Copyright (C) 2003,2006,2007,2008,2009,2010 Free Software Foundation, Inc.
+#Copyright (C) 2003,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -20,9 +20,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
-for i in `cvs -q status|grep 'Repository revision:'|sed 's|^.*/cvs-repository/src-master/gforth/||'|sed 's/,v$//'|grep -v -x -F -f update-copyright-blacklist`; do
+for i in `git ls-files|grep -v -x -F -f update-copyright-blacklist`; do
     if grep -q "[0-9]  *Free Software Foundation" $i; then
-	year=`cvs log -rHEAD $i|grep date: |sed 's/date: //'|sed 's|-.*$||'`
+        year=`git log -1 --pretty='format:%ai' $i|sed 's/-.*//'`
 	if grep "[0-9]  *Free Software Foundation" $i|grep -q $year; then
 	    echo "up-to-date $year: $i"
 	else
@@ -33,10 +33,8 @@ for i in `cvs -q status|grep 'Repository revision:'|sed 's|^.*/cvs-repository/sr
 	    echo "update to  $year: $i"
 	fi
     else
-        author=`cvs log -rHEAD $i|grep 'author:'|sed 's/^.*author: //'|sed 's/;.*$//'`
-        awk 'BEGIN {printf "no (C) %-8s: %-30s\n","'$author'","'$i'";}'
+        author=`git log -1 --pretty='format:%aN' $i`
+        awk 'BEGIN {printf "no (C) %-8s: %-30s\n","'"$author"'","'$i'";}'
 	#echo "no copyright:    $i"
     fi
 done
-
-

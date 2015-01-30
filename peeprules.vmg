@@ -1,6 +1,6 @@
 \ Gforth superinstructions and stack caching replicas
 
-\ Copyright (C) 2003,2004,2005,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 2003,2004,2005,2007,2010,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -53,6 +53,8 @@ super25 = @ ;s
 super26 = lit @ +
 super27 = dup @
 \ super28 = lit execute \ currently not supported
+super29 = o#+ @
+super30 = o#+ !
 
 \F 0 [if]
 

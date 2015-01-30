@@ -1,4 +1,4 @@
-\ Copyright (C) 2001,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 2001,2003,2007,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -17,13 +17,17 @@
 
 \ scripting extensions
 
-: sh-eval ( addr u -- )
+: >system ( addr u -- ) cr system ;
+: system, slit, postpone >system ;
+' >system ' system,
+post: slit, postpone system, ;
+recognizer: r:eval
+
+: rec:eval ( addr u -- addr u' r:string )
     \G evaluate string + rest of command line
-    2dup 2>r >in @ >r negate
-    source >in @ 1- /string + c@ bl <> + >in +! drop sh
-    $? IF  r> >in ! 2r> defers interpreter-notfound
-    ELSE  rdrop 2rdrop  THEN ;
-' sh-eval IS interpreter-notfound
+    drop source drop - >in ! source >in @ /string dup >in +!
+    r:eval ;
+' rec:eval get-recognizers 1+ set-recognizers
 
 2Variable sh$  0. sh$ 2!
 : sh-get ( addr u -- addr' u' )
@@ -32,6 +36,6 @@
     r/o open-pipe throw dup >r slurp-fid
     r> close-pipe throw to $? 2dup sh$ 2! ;
 
-:noname '` parse sh-get ;
-:noname '` parse postpone SLiteral postpone sh-get ;
-interpret/compile: s`
+:noname '`' parse sh-get ;
+:noname '`' parse postpone SLiteral postpone sh-get ;
+interpret/compile: s` ( "eval-string" -- addr u )

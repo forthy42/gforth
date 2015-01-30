@@ -1,6 +1,6 @@
 /* Gforth support functions
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -39,6 +39,10 @@
 #endif
 #if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN) /* what else? */
 #include <dlfcn.h>
+#endif
+#ifdef HAS_DEBUG
+extern int debug;
+# define debugp(x...) do { if (debug) fprintf(x); } while (0)
 #endif
 
 #ifdef HAS_FILE
@@ -111,9 +115,9 @@ Cell opencreate_file(char *s, Cell wfam, int flags, Cell *wiorp)
 {
   Cell fd;
   Cell wfileid;
-  fd = open(s, flags|ufileattr[wfam], 0666);
+  fd = open(s, flags|ufileattr[wfam & 0x0F], (wfam >> 4) ^ 0666);
   if (fd != -1) {
-    wfileid = (Cell)fdopen(fd, fileattr[wfam]);
+    wfileid = (Cell)fdopen(fd, fileattr[wfam & 0x0F]);
     *wiorp = IOR(wfileid == 0);
   } else {
     wfileid = 0;
@@ -226,9 +230,9 @@ Cell capscompare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
 
 struct Longname *listlfind(Char *c_addr, UCell u, struct Longname *longname1)
 {
-  for (; longname1 != NULL; longname1 = (struct Longname *)(longname1->next))
+  for (; longname1 != NULL; longname1 = LONGNAME_NEXT(longname1))
     if ((UCell)LONGNAME_COUNT(longname1)==u &&
-	memcasecmp(c_addr, (Char *)(longname1->name), u)== 0 /* or inline? */)
+	memcasecmp(c_addr, LONGNAME_NAME(longname1), u)== 0 /* or inline? */)
       break;
   return longname1;
 }
@@ -241,7 +245,7 @@ struct Longname *hashlfind(Char *c_addr, UCell u, Cell *a_addr)
     longname1=(struct Longname *)(a_addr[1]);
     a_addr=(Cell *)(a_addr[0]);
     if ((UCell)LONGNAME_COUNT(longname1)==u &&
-	memcasecmp(c_addr, (Char *)(longname1->name), u)== 0 /* or inline? */) {
+	memcasecmp(c_addr, LONGNAME_NAME(longname1), u)== 0 /* or inline? */) {
       return longname1;
     }
   }
@@ -255,7 +259,7 @@ struct Longname *tablelfind(Char *c_addr, UCell u, Cell *a_addr)
     longname1=(struct Longname *)(a_addr[1]);
     a_addr=(Cell *)(a_addr[0]);
     if ((UCell)LONGNAME_COUNT(longname1)==u &&
-	memcmp(c_addr, longname1->name, u)== 0 /* or inline? */) {
+	memcmp(c_addr, LONGNAME_NAME(longname1), u)== 0 /* or inline? */) {
       return longname1;
     }
   }
@@ -280,6 +284,47 @@ UCell hashkey1(Char *c_addr, UCell u, UCell ubits)
 	     ^ toupper(*cp))
 	    & ((1<<ubits)-1));
   return ukey;
+}
+
+#define ROL(x, n) ((x << n) | (x >> (64-n)))
+
+#define MIXKEY2 \
+  a1=ROL((a+(b^x1))*c1,37)+x3; \
+  b1=ROL(((b-ROL(a,13))^x2)*c2,23)+x4;		\
+  a^=a1; b^=b1
+
+void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
+{
+  uint64_t a=h->a, b=h->b;
+  int i;
+  const uint64_t
+    c1=0x87c37b91114253d5L, c2=0x4cf5ad432745937fL,
+    x1=0x6c5f6f6cbe627173L, x2=0x7164c30603661c2fL,
+    x3=0xce5009401b441347L, x4=0x454fa335a6e63ad3L;
+  uint64_t mixin, a1, b1;
+
+  for(i=0; i<(u>>3); i++) {
+    memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
+    // printf("+%lx\n", mixin);
+    mixin |= upmask & ~(mixin >> 2);
+    a ^= mixin;
+    MIXKEY2;
+  }
+  memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
+  mixin |= upmask & ~(mixin >> 2);
+#ifdef WORDS_BIGENDIAN
+  mixin &= ~(0xffffffffffffffffL >> 8*(u&7));
+  mixin |= (uint64_t)(u&7);
+#else
+  mixin &= 0x00ffffffffffffffL >> 8*(7-(u&7));
+  mixin |= (uint64_t)(u&7) << 56;
+#endif
+  // printf("+%lx\n", mixin);
+  a ^= mixin;
+  MIXKEY2;
+  MIXKEY2; // finalizing round
+
+  h->a = a; h->b = b;
 }
 
 struct Cellpair parse_white(Char *c_addr1, UCell u1)
@@ -502,6 +547,22 @@ UCell rshift(UCell u1, UCell n)
 }
 
 #ifndef STANDALONE
+int gforth_abortmcheck(int reason)
+{
+  throw(-2049-reason);
+}
+
+void gforth_free(void * ptr)
+{
+#ifdef HAVE_MPROBE
+  int reason=mprobe(ptr);
+  debugp(stderr, "free(%08p)=%d;\n", ptr, reason);
+  if(reason>0)
+    throw(-2049-reason);
+#endif
+  free(ptr);
+}
+
 int gforth_system(Char *c_addr, UCell u)
 {
   int retval;
@@ -562,6 +623,17 @@ UCell gforth_dlopen(Char *c_addr, UCell u)
   if(lib) return lib;
 #endif
   return 0;
+}
+
+void gforth_dlclose(UCell lib)
+{
+#if defined(HAVE_LIBLTDL)
+  (UCell)lt_dlclose((lt_dlhandle)lib);
+#elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+  dlclose((void*)lib);
+#elif defined(_WIN32)
+  FreeLibrary(lib);
+#endif
 }
 
 #endif /* !defined(STANDALONE) */

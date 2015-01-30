@@ -1,6 +1,6 @@
 /* This is the machine-specific part for the 68000 and family
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2007 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2007,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -60,6 +60,12 @@ extern int cacheflush(void *, int, int, size_t);
 #  warning no FLUSH_ICACHE defined.  Dynamic native code generation disabled.
 #  warning CODE words will not work.
 #endif
+
+#define ASM_SM_SLASH_REM(d1lo, d1hi, n1, n2, n3) \
+  asm("divs%.l %2,%1:%0": "=d"(n3),"=d"(n2) : "dmi"(n1),"0"(d1lo),"1"(d1hi):"cc")
+
+#define ASM_UM_SLASH_MOD(d1lo, d1hi, n1, n2, n3) \
+  asm("divu%.l %2,%1:%0": "=d"(n3),"=d"(n2) : "dmi"(n1),"0"(d1lo),"1"(d1hi):"cc")
 
 #ifdef FORCE_REG /* highly recommended */
 #if defined(amigaos)

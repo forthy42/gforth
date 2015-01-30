@@ -1,6 +1,6 @@
 \ libffi.fs	shared library support package 		14aug05py
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2006,2007,2008,2009 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2006,2007,2008,2009,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -126,36 +126,36 @@ c-function ffi-arg-float ffi_arg_float -- r
 \c #define ffi_arg_double() (*(double *)(*gforth_clist++))
 c-function ffi-arg-double ffi_arg_double -- r
 
-: ffi-ret-void ( -- )
-    0 (bye) ;
-
 \c #define ffi_ret_int1(w) (*(int*)(gforth_ritem) = w)
 c-function ffi-ret-int1 ffi_ret_int1 n -- void
-: ffi-ret-int ( w -- ) ffi-ret-int1 ffi-ret-void ;
 
 \c #define ffi_ret_longlong1(d) (*(long long *)(gforth_ritem) = d)
 c-function ffi-ret-longlong1 ffi_ret_longlong1 d -- void
-: ffi-ret-longlong ( d -- ) ffi-ret-longlong1 ffi-ret-void ;
 
 \c #define ffi_ret_dlong1(d) (*(long *)(gforth_ritem) = d)
 c-function ffi-ret-dlong1 ffi_ret_dlong1 d -- void
-: ffi-ret-dlong ( d -- ) ffi-ret-dlong1 ffi-ret-void ;
 
 c-function ffi-ret-long1 ffi_ret_dlong1 n -- void
-: ffi-ret-long ( n -- ) ffi-ret-long1 ffi-ret-void ;
 
 \c #define ffi_ret_ptr1(w) (*(char **)(gforth_ritem) = w)
 c-function ffi-ret-ptr1 ffi_ret_ptr1 a -- void
-: ffi-ret-ptr ( a -- ) ffi-ret-ptr1 ffi-ret-void ;
 
 \c #define ffi_ret_float1(r) (*(float *)(gforth_ritem) = r)
 c-function ffi-ret-float1 ffi_ret_float1 r -- void
-: ffi-ret-float ( r -- ) ffi-ret-float1 ffi-ret-void ;
 
 \c #define ffi_ret_double1(r) (*(double *)(gforth_ritem) = r)
 c-function ffi-ret-double1 ffi_ret_double1 r -- void
-: ffi-ret-double ( r -- ) ffi-ret-double1 ffi-ret-void ;
 end-c-library
+
+: ffi-ret-void ( -- )
+    0 (bye) ;
+: ffi-ret-int ( w -- ) ffi-ret-int1 ffi-ret-void ;
+: ffi-ret-longlong ( d -- ) ffi-ret-longlong1 ffi-ret-void ;
+: ffi-ret-dlong ( d -- ) ffi-ret-dlong1 ffi-ret-void ;
+: ffi-ret-long ( n -- ) ffi-ret-long1 ffi-ret-void ;
+: ffi-ret-ptr ( a -- ) ffi-ret-ptr1 ffi-ret-void ;
+: ffi-ret-float ( r -- ) ffi-ret-float1 ffi-ret-void ;
+: ffi-ret-double ( r -- ) ffi-ret-double1 ffi-ret-void ;
 
 \ common stuff, same as fflib.fs
 

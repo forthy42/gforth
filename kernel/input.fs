@@ -1,6 +1,6 @@
 \ Input handling (object oriented)                      22oct00py
 
-\ Copyright (C) 2000,2003,2004,2005,2006,2007,2011 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2003,2004,2005,2006,2007,2011,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -19,16 +19,13 @@
 
 \ input handling structure:
 
-| : input-method ( m "name" -- m' )  Create dup , cell+
-DOES> ( ... -- ... ) @ current-input @ @ + perform ;
-| : input-var ( v size "name" -- v' )  Create  over , +
-DOES> ( -- addr ) @ current-input @ + ;
+user-o current-input
 
-0
-input-method source ( -- addr u ) \ core source
+0 0
+umethod source ( -- addr u ) \ core source
     \G Return address @i{addr} and length @i{u} of the current input
     \G buffer
-input-method refill ( -- flag ) \ core-ext,block-ext,file-ext
+umethod refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G Attempt to fill the input buffer from the input source.  When
     \G the input source is the user input device, attempt to receive
     \G input into the terminal input device. If successful, make the
@@ -42,62 +39,62 @@ input-method refill ( -- flag ) \ core-ext,block-ext,file-ext
     \G make the result the current input buffer, set @code{>IN} to 0
     \G and return true; otherwise, return false.  A successful result
     \G includes receipt of a line containing 0 characters.
-input-method source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
+umethod source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
     \G Return 0 (the input source is the user input device), -1 (the
     \G input source is a string being processed by @code{evaluate}) or
     \G a @i{fileid} (the input source is the file specified by
     \G @i{fileid}).
-| input-method (save-input) ( -- x1 .. xn n ) \ gforth
-| input-method (restore-input) ( x1 .. xn n -- ) \ gforth
-drop
+| umethod (save-input) ( -- x1 .. xn n ) \ gforth
+| umethod (restore-input) ( x1 .. xn n -- ) \ gforth
 
-cell \ the first cell points to the method table
-cell input-var >in ( -- addr ) \ core to-in
-    \G @code{input-var} variable -- @i{a-addr} is the address of a
+cell uvar >in ( -- addr ) \ core to-in
+    \G @code{uvar} variable -- @i{a-addr} is the address of a
     \G cell containing the char offset from the start of the input
     \G buffer to the start of the parse area.
-2 cells input-var input-lexeme ( -- a-addr ) \ gforth-internal
-    \G @code{input-var} variable -- @i{a-addr} is the address of two
+2 cells uvar input-lexeme ( -- a-addr ) \ gforth-internal
+    \G @code{uvar} variable -- @i{a-addr} is the address of two
     \G cells containing the string (in c-addr u form) parsed with
     \G @code{parse}, @code{parse-name} or @code{word}.  If you do your
     \G own parsing, you can set it with @code{input-lexeme!}.
-cell input-var #tib ( -- addr ) \ core-ext-obsolescent number-t-i-b
-    \G @code{input-var} variable -- @i{a-addr} is the address of a
+cell uvar #tib ( -- addr ) \ core-ext-obsolescent number-t-i-b
+    \G @code{uvar} variable -- @i{a-addr} is the address of a
     \G cell containing the number of characters in the terminal input
     \G buffer. OBSOLESCENT: @code{source} superceeds the function of
     \G this word.
-cell input-var max#tib ( -- addr ) \ gforth max-number-t-i-b
-    \G @code{input-var} variable -- This cell contains the maximum
+cell uvar max#tib ( -- addr ) \ gforth max-number-t-i-b
+    \G @code{uvar} variable -- This cell contains the maximum
     \G size of the current tib.
-cell input-var old-input ( -- addr ) \ gforth
-    \G @code{input-var} variable -- This cell contains the pointer to
+cell uvar old-input ( -- addr ) \ gforth
+    \G @code{uvar} variable -- This cell contains the pointer to
     \G the previous input buffer
-cell input-var loadline ( -- addr ) \ gforth
-    \G @code{input-var} variable -- This cell contains the line that's
+cell uvar loadline ( -- addr ) \ gforth
+    \G @code{uvar} variable -- This cell contains the line that's
     \G currently loaded from
 has? file [IF]
-cell input-var loadfile ( -- addr ) \ gforth
-    \G @code{input-var} variable -- This cell contains the file the
+cell uvar loadfile ( -- addr ) \ gforth
+    \G @code{uvar} variable -- This cell contains the file the
     \G input buffer is associated with (0 if none)
-cell input-var blk ( -- addr ) \ block b-l-k
-    \G @code{input-var} variable -- This cell contains the current
+cell uvar blk ( -- addr ) \ block b-l-k
+    \G @code{uvar} variable -- This cell contains the current
     \G block number (or 0 if the current input source is not a block).
-cell input-var #fill-bytes ( -- addr ) \ gforth
-    \G @code{input-var} variable -- number of bytes read via
+cell uvar #fill-bytes ( -- addr ) \ gforth
+    \G @code{uvar} variable -- number of bytes read via
     \G (read-line) by the last refill
-2 cells input-var loadfilename ( -- addr ) \ gforth
-    \G @code{input-var} variable -- addr u describes name of currently
+2 cells uvar loadfilename ( -- addr ) \ gforth
+    \G @code{uvar} variable -- addr u describes name of currently
     \G interpreted input (file name or somesuch)
 [THEN]
-0 input-var tib ( -- addr ) \ core-ext-obsolescent t-i-b
+0 uvar tib ( -- addr ) \ core-ext-obsolescent t-i-b
 
 Constant tib+
+drop
 
 \ helper words
 
 : input-lexeme! ( c-addr u -- )
     \ record that the current lexeme us c-addr u
-    input-lexeme 2! ;
+    input-lexeme
+    2! ;
 
 : input-start-line ( -- )
     >in off  source drop 0 input-lexeme! ;
@@ -159,11 +156,11 @@ terminal-input @       \ source -> terminal-input::source
 : new-tib ( method n -- ) \ gforth
     \G Create a new entry of the tib stack, size @i{n}, method table
     \G @i{method}.
-    dup >r tib+ + dup allocate throw tuck swap 0 fill
-    current-input @ swap current-input ! old-input ! r> max#tib !
-    current-input @ ! ;
+    dup >r tib+ + dup cell+ allocate throw tuck swap 0 fill
+    current-input @ over cell+ current-input ! old-input ! r> max#tib !
+    ! ;
 : expand-tib ( n -- )
-    dup tib+ + current-input @ swap resize throw current-input !
+    dup tib+ + current-input @ cell- swap cell+ resize throw current-input !
     max#tib ! tib max#tib @ #tib @ /string 0 fill ;
 has? file [IF]
 : push-file  ( -- ) \ gforth
@@ -175,7 +172,7 @@ has? file [IF]
     dup IF
 	input-error-data >error
     THEN
-    current-input @ old-input @ current-input ! free throw ;
+    current-input @ old-input @ current-input ! cell- free throw ;
 
 \ save-input, restore-input
 
@@ -254,7 +251,8 @@ defer line-end-hook ( -- ) \ gforth
     
 : read-loop ( i*x -- j*x ) \ gforth
     \G refill and interpret a file until EOF
-    BEGIN  refill  WHILE  interpret line-end-hook REPEAT ;
+    BEGIN  refill  WHILE  interpret line-end-hook REPEAT
+    state @ warning" EOF reached while compiling" ;
 
 : execute-parsing-named-file ( i*x wfileid filename-addr filename-u xt -- j*x )
     >r push-file \ dup 2* cells included-files 2@ drop + 2@ type

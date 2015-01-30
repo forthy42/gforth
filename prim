@@ -1,6 +1,6 @@
 \ Gforth primitives
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -153,10 +153,17 @@ undefine(`symbols')
 
 (docol)	( -- R:a_retaddr )	gforth-internal	paren_docol
 ""run-time routine for colon definitions""
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(CFA);
+      debugp(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)CFA,
+	     len,name);
+    }
+#endif
 #ifdef NO_IP
 a_retaddr = next_code;
 INST_TAIL;
-goto **(Label *)PFA(CFA);
+JUMP(PFA(CFA));
 #else /* !defined(NO_IP) */
 a_retaddr = (Cell *)IP;
 SET_IP((Xt *)PFA(CFA));
@@ -180,7 +187,7 @@ goto *next_code;
 
 (douser) ( -- a_user )	gforth-internal	paren_douser
 ""run-time routine for constants""
-a_user = (Cell *)(up+*(Cell *)PFA(CFA));
+a_user = (Cell *)(((Address)up)+*(Cell *)PFA(CFA));
 #ifdef NO_IP
 INST_TAIL;
 goto *next_code;
@@ -217,14 +224,14 @@ a_retaddr = next_code;
 a_body = PFA(CFA);
 INST_TAIL;
 #ifdef DEBUG
-fprintf(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
 #endif
 goto **(Label *)DOES_CODE1(CFA);
 #else /* !defined(NO_IP) */
 a_retaddr = (Cell *)IP;
 a_body = PFA(CFA);
 #ifdef DEBUG
-fprintf(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
 #endif
 SET_IP(DOES_CODE1(CFA));
 #endif /* !defined(NO_IP) */
@@ -244,13 +251,32 @@ goto *next_code;
 ""run-time routine for @code{;abi-code}-defined words""
 Float *fp_mem = fp;
 Address body = (Address)PFA(CFA);
-semiabifunc *f = (semiabifunc *)DOES_CODE1(CFA);
+semiabifunc *f = (semiabifunc *)EXTRA_CODE(CFA);
 sp = (*f)(sp, &fp_mem, body);
 fp = fp_mem;
 #ifdef NO_IP
 INST_TAIL;
 goto *next_code;
 #endif /* defined(NO_IP) */
+
+(doextra) ( -- a_body R:a_retaddr )	gforth-internal	paren_doextra
+""run-time routine for @code{does>}-defined words""
+#ifdef NO_IP
+a_retaddr = next_code;
+a_body = PFA(CFA);
+INST_TAIL;
+#ifdef DEBUG
+debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+#endif
+goto **(Label *)EXTRA_CODE(CFA);
+#else /* !defined(NO_IP) */
+a_retaddr = (Cell *)IP;
+a_body = PFA(CFA);
+#ifdef DEBUG
+debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+#endif
+SET_IP(EXTRA_CODE(CFA));
+#endif /* !defined(NO_IP) */
 
 \F [endif]
 
@@ -270,8 +296,8 @@ JUMP(a_callee);
 #ifdef DEBUG
     {
       CFA_TO_NAME((((Cell *)a_callee)-2));
-      fprintf(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)a_callee,
-	      len,name);
+      debugp(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)a_callee,
+	     len,name);
     }
 #endif
 a_retaddr = (Cell *)IP;
@@ -281,7 +307,7 @@ SET_IP((Xt *)a_callee);
 execute	( xt -- )		core
 ""Perform the semantics represented by the execution token, @i{xt}.""
 #ifdef DEBUG
-fprintf(stderr, "execute %08x\n", xt);
+debugp(stderr, "execute %08x\n", xt);
 #endif
 #ifndef NO_IP
 ip=IP;
@@ -331,11 +357,28 @@ nest = (Cell)IP;
 #ifdef DEBUG
     {
       CFA_TO_NAME(a_cfa);
-      fprintf(stderr,"%08lx: does %08lx %.*s\n",
-	      (Cell)ip,(Cell)a_cfa,len,name);
+      debugp(stderr,"%08lx: does %08lx %.*s\n",
+	     (Cell)ip,(Cell)a_cfa,len,name);
     }
 #endif
 SET_IP(DOES_CODE1(a_cfa));
+#endif
+
+extra-exec ( #a_cfa -- R:nest a_pfa )	new	extra_exec
+#ifdef NO_IP
+/* compiled to LIT CALL by compile_prim */
+assert(0);
+#else
+a_pfa = PFA(a_cfa);
+nest = (Cell)IP;
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(a_cfa);
+      debugp(stderr,"%08lx: does %08lx %.*s\n",
+	     (Cell)ip,(Cell)a_cfa,len,name);
+    }
+#endif
+SET_IP(EXTRA_CODE(a_cfa));
 #endif
 
 \+glocals
@@ -612,22 +655,24 @@ SET_IP((Xt *)a_target);
      cell+
  THEN  >r ;
 
-(try1)	( ... a_oldhandler a_recovery -- R:a_recovery R:a_sp R:f_fp R:c_lp R:a_oldhandler a_newhandler ) gforth paren_try1
+(try1)	( ... a_oldhandler a_recovery -- R:a_recovery R:a_sp R:a_op R:f_fp R:c_lp R:a_oldhandler a_newhandler ) gforth paren_try1
 a_sp = sp-1;
+a_op = op;
 f_fp = fp;
 c_lp = lp;
-a_newhandler = rp-5;
+a_newhandler = rp-6;
 
 (throw1) ( ... wball a_handler -- ... wball ) gforth paren_throw1
 rp = a_handler;
 lp = (Address)rp[1];
 fp = (Float *)rp[2];
-sp = (Cell *)rp[3];
+op = (Cell *)rp[3];
+sp = (Cell *)rp[4];
 #ifndef NO_IP
 ip=IP;
 #endif
 SUPER_END;
-VM_JUMP(EXEC1(*(Xt *)rp[4]));
+VM_JUMP(EXEC1(*(Xt *)rp[5]));
   
 
 \+
@@ -756,6 +801,19 @@ u2 = u1-n;
 :
  tuck - >r + r> dup 0< IF  - 0  THEN ;
 
+safe/string	( c_addr1 u1 n -- c_addr2 u2 )	string	safe_slash_string
+""Adjust the string specified by @i{c-addr1, u1} to remove @i{n}
+characters from the start of the string.  Clamps on overflow""
+c_addr2 = c_addr1+n;
+u2 = u1-n;
+if(n>=0) {
+  if(u2>u1) { c_addr2 += u2; u2 = 0; }
+} else {
+  if(u2<u1) { c_addr2 += u2+1; u2 = -1; }
+}
+:
+ tuck - >r + r> dup 0< IF  - 0  THEN ;
+
 \g arith
 
 lit	( #w -- w )		gforth
@@ -769,7 +827,7 @@ n = n1+n2;
 
 lit+	( n1 #n2 -- n )		new	lit_plus
 #ifdef DEBUG
-fprintf(stderr, "lit+ %08x\n", n2);
+debugp(stderr, "lit+ %08x\n", n2);
 #endif
 n=n1+n2;
 
@@ -986,9 +1044,9 @@ ud = (UDCell)u1 * (UDCell)u2;
    DO
 	dup 0< I' and d2*+ drop
    LOOP ;
-: d2*+ ( ud n -- ud+n c )
-   over MINI
-   and >r >r 2dup d+ swap r> + swap r> ;
+: d2*+ ( ud u -- ud+u c )
+   over MINI and >r
+   >r 2dup d+ r> 0 d+ r> ;
 
 um/mod	( ud u1 -- u2 u3 )		core	u_m_slash_mod
 ""ud=u3*u1+u2, u1>u2>=0""
@@ -1005,9 +1063,9 @@ u3=DLO(r);
    LOOP drop swap 1 rshift or swap ;
 : /modstep ( ud c R: u -- ud-?u c R: u )
    >r over r@ u< 0= or IF r@ - 1 ELSE 0 THEN  d2*+ r> ;
-: d2*+ ( ud n -- ud+n c )
-   over MINI
-   and >r >r 2dup d+ swap r> + swap r> ;
+: d2*+ ( ud u -- ud+u c )
+   over MINI and >r 
+   >r 2dup d+ r> 0 d+ r> ;
 
 m+	( d1 n -- d2 )		double		m_plus
 #ifdef BUGGY_LL_ADD
@@ -1130,6 +1188,76 @@ select ( u1 u2 f -- u )	   gforth
 u = f ? u1 : u2;
 :
  IF swap THEN nip ;
+
+dlshift	 ( ud1 u -- ud2 )	gforth dlshift
+""double arithmetic shift left""
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DHI_IS(ud2, (DLO(ud1) << u));
+  DLO_IS(ud2, 0);
+} else {
+  DHI_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
+  DLO_IS(ud2, (DLO(ud1) << u));
+}
+#else
+  ud2 = ud1 << u;
+#endif
+
+drshift	 ( ud1 u -- ud2 )	gforth drshift
+""double arithmetic shift right""
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DHI_IS(ud2, 0);
+  DLO_IS(ud2, (DHI(ud1) >> u));
+} else {
+  DHI_IS(ud2, (DHI(ud1) >> u));
+  DLO_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+}
+#else
+  ud2 = ud1 >> u;
+#endif
+
+rol	( u1 u -- u2 )		gforth rol
+""rotate left""
+u2 = (u1 << u) | (u1 >> (CELL_BITS-u));
+
+ror	( u1 u -- u2 )		gforth ror
+""rotate right""
+u2 = (u1 >> u) | (u1 << (CELL_BITS-u));
+
+drol	( ud1 u -- ud2 )	gforth drol
+""rotate left""
+u &= sizeof(Cell)*16-1;
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DLO_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
+  DHI_IS(ud2, ((DLO(ud1) << u) | (DHI(ud1) >> (CELL_BITS-u))));
+} else {
+  DHI_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
+  DLO_IS(ud2, ((DLO(ud1) << u) | (DHI(ud1) >> (CELL_BITS-u))));
+}
+#else
+ud2 = (ud1 << u) | (ud1 >> (2*CELL_BITS-u));
+#endif
+
+dror	( ud1 u -- ud2 )	gforth dror
+""rotate right""
+u &= sizeof(Cell)*16-1;
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DLO_IS(ud2, ((DHI(ud1) >> u) | (DLO(ud1) << (CELL_BITS-u))));
+  DHI_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+} else {
+  DHI_IS(ud2, ((DHI(ud1) >> u) | (DLO(ud1) << (CELL_BITS-u))));
+  DLO_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+}
+#else
+ud2 = (ud1 >> u) | (ud1 << (2*CELL_BITS-u));
+#endif
 
 \g compare
 
@@ -1257,10 +1385,10 @@ f = FLAG(u1-u2 < u3-u2);
 \g stack
 
 useraddr	( #u -- a_addr )	new
-a_addr = (Cell *)(up+u);
+a_addr = (Cell *)(((Address)up)+u);
 
 up!	( a_addr -- )	gforth	up_store
-gforth_UP=up=(Address)a_addr;
+gforth_UP=up=(user_area*)a_addr;
 :
  up ! ;
 Variable UP
@@ -1539,6 +1667,12 @@ n2 = n1 / sizeof(Cell);
  2/ dup [IF] ] 2/ [ [THEN]
  drop ] ;
 
+cell-	( a_addr1 -- a_addr2 )	core	cell_minus
+""@code{1 cells -}""
+a_addr2 = a_addr1-1;
+:
+ cell - ;
+
 \g compiler
 
 \+f83headerstring
@@ -1637,6 +1771,17 @@ Create rot-values
   7 c, 5 c, 5 c, 5 c, 5 c,  6 c, 5 c, 5 c, 5 c, 5 c,
   7 c, 5 c, 5 c,
 
+(hashkey2) ( c_addr u ubits -- ukey )		gforth	paren_hashkey2
+""This is the compatible form of the fast 64 bit hash""
+hash128 hash = { 0x7BC2F0864E7C480EL, 0x477BF466E332DDB8L };
+hashkey2(c_addr, u, 0x2020202020202020L, &hash);
+ukey=(Cell)(hash.a ^ hash.b) & ((1L<<ubits)-1);
+
+hashkey2  ( c_addr u f a_addr -- )	gforth	hashkey2
+""Compute a 128 bit hash key of the string c_addr u, starting with the
+key in a_addr.  If f is true, compute case insensitive.""
+hashkey2(c_addr, u, f ? 0x2020202020202020L : 0L, (hash128*)a_addr);
+
 \+
 
 \+
@@ -1679,6 +1824,16 @@ n=1;
 #endif
 :
  1 ;
+
+debugging-method	( -- n )	gforth	debugging_method
+""true if the engine supports debugging""
+#if defined(GFORTH_DEBUGGING)
+n=-1;
+#else
+n=0;
+#endif
+:
+ 0 ;
 
 \f[THEN]
 
@@ -1777,14 +1932,14 @@ in length.""
 char * string = cstr(c_addr1,u1);
 c_addr2 = (Char *)getenv(string);
 u2 = (c_addr2 == NULL ? 0 : strlen((char *)c_addr2));
-free(string);
+gforth_free(string);
 
 open-pipe	( c_addr u wfam -- wfileid wior )	gforth	open_pipe
 char * string = cstr(c_addr,u);
 fflush(stdout);
 wfileid=(Cell)popen(string,pfileattr[wfam]); /* ~ expansion of 1st arg? */
 wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably */
-free(string);
+gforth_free(string);
 
 close-pipe	( wfileid -- wretval wior )		gforth	close_pipe
 wretval = pclose((FILE *)wfileid);
@@ -1814,7 +1969,7 @@ nhour =ltime->tm_hour;
 nmin  =ltime->tm_min;
 nsec  =ltime->tm_sec;
 
-ms	( u -- )	facility-ext
+(ms)	( u -- )	facility-ext	paren_ms
 ""Wait at least @i{n} milli-second.""
 gforth_ms(u);
 
@@ -1825,6 +1980,7 @@ contents of the data space is undefined. If the allocation is successful,
 is 0. If the allocation fails, @i{a-addr} is undefined and @i{wior}
 is a non-zero I/O result code.""
 a_addr = (Cell *)malloc(u?u:1);
+debugp(stderr, "%8p=allocate(%08lx);\n", a_addr, u);
 wior = IOR(a_addr==NULL);
 
 free	( a_addr -- wior )		memory
@@ -1832,7 +1988,7 @@ free	( a_addr -- wior )		memory
 The region must originally have been obtained using @code{allocate} or
 @code{resize}. If the operational is successful, @i{wior} is 0.
 If the operation fails, @i{wior} is a non-zero I/O result code.""
-free(a_addr);
+gforth_free(a_addr);
 wior = 0;
 
 resize	( a_addr1 u -- a_addr2 wior )	memory
@@ -1884,6 +2040,28 @@ rp=gforth_RP;
 lp=gforth_LP;
 IF_fpTOS(fpTOS=fp[0]);
 
+call-c#	( ... #a_addr -- ... )	gforth	call_c_direct
+""Call the C function pointed to by the inline argument @i{w}. The C function
+has to access the stack itself. The stack pointers are exported in the global
+variables @code{gforth_SP} and @code{gforth_FP}.""
+/* This is a first attempt at support for calls to C. This may change in
+   the future */
+IF_fpTOS(fp[0]=fpTOS);
+gforth_FP=fp;
+gforth_SP=sp;
+gforth_RP=rp;
+gforth_LP=lp;
+#ifdef HAS_LINKBACK
+((void (*)())(*a_addr))();
+#else
+((void (*)(void *))(*a_addr))(&gforth_pointers);
+#endif
+sp=gforth_SP;
+fp=gforth_FP;
+rp=gforth_RP;
+lp=gforth_LP;
+IF_fpTOS(fpTOS=fp[0]);
+
 \+
 \+file
 
@@ -1893,17 +2071,17 @@ wior = IOR(fclose((FILE *)wfileid)==EOF);
 open-file	( c_addr u wfam -- wfileid wior )	file	open_file
 char * string = tilde_cstr(c_addr,u);
 wfileid = opencreate_file(string, wfam, 0, &wior);
-free(string);
+gforth_free(string);
 
 create-file	( c_addr u wfam -- wfileid wior )	file	create_file
 char * string = tilde_cstr(c_addr,u);
 wfileid = opencreate_file(string, wfam, O_CREAT|O_TRUNC, &wior);
-free(string);
+gforth_free(string);
 
 delete-file	( c_addr u -- wior )		file	delete_file
 char * string = tilde_cstr(c_addr,u);
 wior = IOR(unlink(string)==-1);
-free(string);
+gforth_free(string);
 
 rename-file	( c_addr1 u1 c_addr2 u2 -- wior )	file-ext	rename_file
 ""Rename file @i{c_addr1 u1} to new name @i{c_addr2 u2}""
@@ -1985,7 +2163,7 @@ and return @i{dir-id} for futher access to it.""
 char * string = tilde_cstr(c_addr,u);
 wdirid = (Cell)opendir(string);
 wior =  IOR(wdirid == 0);
-free(string);
+gforth_free(string);
 
 read-dir	( c_addr u1 wdirid -- u2 flag wior )	gforth	read_dir
 ""Attempt to read the next entry from the directory specified
@@ -1999,20 +2177,21 @@ and return @i{ior}=0, @i{flag}=true and @i{u2} equal to the size of the file nam
 If the length of the file name is greater than @i{u1}, 
 store first @i{u1} characters from file name into the buffer and
 indicate "name too long" with @i{ior}, @i{flag}=true, and @i{u2}=@i{u1}.""
-struct dirent * dent;
-dent = readdir((DIR *)wdirid);
+struct dirent dent;
+struct dirent * dresult;
+readdir_r((DIR *)wdirid, &dent, &dresult);
 wior = 0;
 flag = -1;
-if(dent == NULL) {
+if(dresult == NULL) {
   u2 = 0;
   flag = 0;
 } else {
-  u2 = strlen((char *)dent->d_name);
+  u2 = strlen((char *)dent.d_name);
   if(u2 > u1) {
     u2 = u1;
     wior = -512-ENAMETOOLONG;
   }
-  memmove(c_addr, dent->d_name, u2);
+  memmove(c_addr, dent.d_name, u2);
 }
 
 close-dir	( wdirid -- wior )	gforth	close_dir
@@ -2023,15 +2202,15 @@ filename-match	( c_addr1 u1 c_addr2 u2 -- flag )	gforth	match_file
 char * string = cstr(c_addr1, u1);
 char * pattern = cstr(c_addr2, u2);
 flag = FLAG(!fnmatch(pattern, string, 0));
-free(string);
-free(pattern);
+gforth_free(string);
+gforth_free(pattern);
 
 set-dir	( c_addr u -- wior )	gforth set_dir
 ""Change the current directory to @i{c-addr, u}.
 Return an error if this is not possible""
 char * string = tilde_cstr(c_addr, u);
 wior = IOR(chdir(string));
-free(string);
+gforth_free(string);
 
 get-dir	( c_addr1 u1 -- c_addr2 u2 )	gforth get_dir
 ""Store the current directory in the buffer specified by @i{c-addr1, u1}.
@@ -2047,7 +2226,7 @@ if(c_addr2 != NULL) {
 ""Create directory @i{c-addr u} with mode @i{wmode}.""
 char * string = tilde_cstr(c_addr,u);
 wior = IOR(mkdir(string,wmode));
-free(string);
+gforth_free(string);
 
 \+
 
@@ -2106,6 +2285,16 @@ time1.tv_sec = time2.tv_sec;
 time1.tv_nsec = time2.tv_usec*1000;
 #endif
 dtime = timespec2ns(&time1);
+
+(ns)    ( uns usec -- )	gforth	paren_ns
+""Wait for usec+uns, values precomuted in Forth""
+#if HAVE_PSELECT
+  struct timespec tout = { usec, uns };
+  pselect(0, NULL, NULL, NULL, &tout, NULL);
+#else
+  struct timeval tout = { usec, uns/1000 };
+  select(0, NULL, NULL, NULL, &tout);
+#endif
 
 \+
 
@@ -2248,7 +2437,9 @@ CLOBBER_TOS_WORKAROUND_END;
 
 fround	( r1 -- r2 )	float	f_round
 ""Round to the nearest integral value.""
+CLOBBER_TOS_WORKAROUND_START;
 r2 = rint(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fmax	( r1 r2 -- r3 )	float	f_max
 if (r1<r2)
@@ -2263,11 +2454,11 @@ else
   r3 = r2;
 
 represent	( r c_addr u -- n f1 f2 )	float
-char *sig;
+char sig[0x40];
 size_t siglen;
 int flag;
 int decpt;
-sig=ecvt(r, u, &decpt, &flag);
+ecvt_r(r, u, &decpt, &flag, sig, 0x3f);
 n=(r==0. ? 1 : decpt);
 flag=signbit(r); /* not all ecvt()s do this as desired */
 f1=FLAG(flag!=0);
@@ -2309,7 +2500,9 @@ r2 = asin(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
 fatan	( r1 -- r2 )	float-ext	f_a_tan
+CLOBBER_TOS_WORKAROUND_START;
 r2 = atan(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 fatan2	( r1 r2 -- r3 )	float-ext	f_a_tan_two
 ""@i{r1/r2}=tan(@i{r3}). ANS Forth does not require, but probably
@@ -2330,20 +2523,18 @@ CLOBBER_TOS_WORKAROUND_END;
 
 fexpm1	( r1 -- r2 )	float-ext	f_e_x_p_m_one
 ""@i{r2}=@i{e}**@i{r1}@minus{}1""
+CLOBBER_TOS_WORKAROUND_START;
 #ifdef HAVE_EXPM1
 extern double
 #ifdef NeXT
               const
 #endif
                     expm1(double);
-CLOBBER_TOS_WORKAROUND_START;
 r2 = expm1(r1);
-CLOBBER_TOS_WORKAROUND_END;
 #else
-CLOBBER_TOS_WORKAROUND_START;
 r2 = exp(r1)-1.;
-CLOBBER_TOS_WORKAROUND_END;
 #endif
+CLOBBER_TOS_WORKAROUND_END;
 
 fln	( r1 -- r2 )	float-ext	f_l_n
 CLOBBER_TOS_WORKAROUND_START;
@@ -2390,7 +2581,9 @@ sincos(r1, &r2, &r3);
 CLOBBER_TOS_WORKAROUND_END;
 
 fsqrt	( r1 -- r2 )	float-ext	f_square_root
+CLOBBER_TOS_WORKAROUND_START;
 r2 = sqrt(r1);
+CLOBBER_TOS_WORKAROUND_END;
 
 ftan	( r1 -- r2 )	float-ext	f_tan
 CLOBBER_TOS_WORKAROUND_START;
@@ -2610,7 +2803,7 @@ u3 = (Cell) GetProcAddress((HMODULE)u2, string);
 u3 = 0;
 #  endif
 #endif
-free(string);
+gforth_free(string);
 
 wcall	( ... u -- ... )	gforth
 gforth_FP=fp;
@@ -2694,6 +2887,9 @@ le-ul@ ( c_addr -- u )	gforth l_fetch_le
 ""@i{u} is the zero-extended 32-bit little endian value stored at @i{c_addr}.""
 u = ((Cell)c_addr[3] << 24) | (c_addr[2] << 16) | (c_addr[1] << 8) | (c_addr[0]);
 
+close-lib ( u -- )   gforth close_lib
+gforth_dlclose(u);
+
 \+64bit
 
 x! ( w c_addr -- )	gforth x_store
@@ -2753,6 +2949,197 @@ u = (((Cell)(c_addr[7]) << 56) |
      ((Cell)(c_addr[0])));
 
 \+
+
+xd! ( ud c_addr -- )	gforth xd_store
+""Store the bottom 64 bits of @i{ud} at 64-bit-aligned @i{c_addr}.""
+#ifdef BUGGY_LL_SIZE
+if (CELL_BITS == 32) {
+#ifdef WORDS_BIGENDIAN
+*(UTetrabyte *)(c_addr+4) = DLO(ud);
+*(UTetrabyte *)c_addr = DHI(ud);
+#else
+*(UTetrabyte *)c_addr = DLO(ud);
+*(UTetrabyte *)(c_addr+4) = DHI(ud);
+#endif
+} else {
+*(UOctabyte *)c_addr = DLO(ud);
+}
+#else
+*(UOctabyte *)c_addr = ud;
+#endif
+
+uxd@ ( c_addr -- ud )	gforth u_xd_fetch
+""@i{ud} is the zero-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
+#ifdef BUGGY_LL_SIZE
+if (CELL_BITS == 32) {
+#ifdef WORDS_BIGENDIAN
+D_IS(ud, *(Tetrabyte *)(c_addr), *(Tetrabyte *)(c_addr+4));
+#else
+D_IS(ud, *(Tetrabyte *)(c_addr+4), *(Tetrabyte *)(c_addr));
+#endif
+} else {
+D_IS(ud, 0, *(UOctabyte *)c_addr);
+}
+#else
+ud = *(UOctabyte *)c_addr;
+#endif
+
+sxd@ ( c_addr -- d )	gforth s_xd_fetch
+""@i{d} is the sign-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
+#ifdef BUGGY_LL_SIZE
+if (CELL_BITS == 32) {
+#ifdef WORDS_BIGENDIAN
+D_IS(d, *(Tetrabyte *)(c_addr), *(Tetrabyte *)(c_addr+4));
+#else
+D_IS(d, *(Tetrabyte *)(c_addr+4), *(Tetrabyte *)(c_addr));
+#endif
+} else {
+D_IS(d, -((*(Octabyte *)c_addr)<0), *(Octabyte *)c_addr);
+}
+#else
+d = *(Octabyte *)c_addr;
+#endif
+
+be-xd! ( ud c_addr -- )	gforth b_e_xd_store
+""Store the bottom 64 bits of @i{ud} at @i{c_addr} in big endian format.""
+#ifdef BUGGY_LL_SIZE
+if (CELL_BITS == 32) {
+c_addr[0] = DHI(ud) >> 24;
+c_addr[1] = DHI(ud) >> 16;
+c_addr[2] = DHI(ud) >> 8;
+c_addr[3] = DHI(ud);
+} else {
+c_addr[0] = DLO(ud) >> 56;
+c_addr[1] = DLO(ud) >> 48;
+c_addr[2] = DLO(ud) >> 40;
+c_addr[3] = DLO(ud) >> 32;
+}
+c_addr[4] = DLO(ud) >> 24;
+c_addr[5] = DLO(ud) >> 16;
+c_addr[6] = DLO(ud) >> 8;
+c_addr[7] = DLO(ud);
+#else
+c_addr[0] = ud >> 56;
+c_addr[1] = ud >> 48;
+c_addr[2] = ud >> 40;
+c_addr[3] = ud >> 32;
+c_addr[4] = ud >> 24;
+c_addr[5] = ud >> 16;
+c_addr[6] = ud >> 8;
+c_addr[7] = ud;
+#endif
+
+le-xd! ( ud c_addr -- )	gforth l_e_xd_store
+""Store the bottom 64 bits of @i{ud} at @i{c_addr} in big endian format.""
+#ifdef BUGGY_LL_SIZE
+if (CELL_BITS == 32) {
+c_addr[7] = DHI(ud) >> 24;
+c_addr[6] = DHI(ud) >> 16;
+c_addr[5] = DHI(ud) >> 8;
+c_addr[4] = DHI(ud);
+} else {
+c_addr[7] = DLO(ud) >> 56;
+c_addr[6] = DLO(ud) >> 48;
+c_addr[5] = DLO(ud) >> 40;
+c_addr[4] = DLO(ud) >> 32;
+}
+c_addr[3] = DLO(ud) >> 24;
+c_addr[2] = DLO(ud) >> 16;
+c_addr[1] = DLO(ud) >> 8;
+c_addr[0] = DLO(ud);
+#else
+c_addr[7] = ud >> 56;
+c_addr[6] = ud >> 48;
+c_addr[5] = ud >> 40;
+c_addr[4] = ud >> 32;
+c_addr[3] = ud >> 24;
+c_addr[2] = ud >> 16;
+c_addr[1] = ud >> 8;
+c_addr[0] = ud;
+#endif
+
+be-uxd@ ( c_addr -- ud )	gforth b_e_u_xd_fetch
+""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
+#ifdef BUGGY_LL_SIZE
+if (CELL_BITS == 32) {
+  D_IS(ud, (((Cell)(c_addr[0]) << 24) |
+	    ((Cell)(c_addr[1]) << 16) |
+	    ((Cell)(c_addr[2]) << 8) |
+	    ((Cell)(c_addr[3]))),
+       (((Cell)(c_addr[4]) << 24) |
+	((Cell)(c_addr[5]) << 16) |
+	((Cell)(c_addr[6]) << 8) |
+	((Cell)(c_addr[7]))));
+ } else {
+  D_IS(ud, 0, (((Cell)(c_addr[0]) << 56) |
+	       ((Cell)(c_addr[1]) << 48) |
+	       ((Cell)(c_addr[2]) << 40) |
+	       ((Cell)(c_addr[3]) << 32) |
+	       ((Cell)(c_addr[4]) << 24) |
+	       ((Cell)(c_addr[5]) << 16) |
+	       ((Cell)(c_addr[6]) << 8) |
+	       ((Cell)(c_addr[7]))));
+}
+#else
+ud = (((DCell)(c_addr[0]) << 56) |
+      ((DCell)(c_addr[1]) << 48) |
+      ((DCell)(c_addr[2]) << 40) |
+      ((DCell)(c_addr[3]) << 32) |
+      ((DCell)(c_addr[4]) << 24) |
+      ((DCell)(c_addr[5]) << 16) |
+      ((DCell)(c_addr[6]) << 8) |
+      ((DCell)(c_addr[7])));
+#endif
+
+le-uxd@ ( c_addr -- ud )	gforth l_e_u_xd_fetch
+""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
+#ifdef BUGGY_LL_SIZE
+if (CELL_BITS == 32) {
+  D_IS(ud, (((Cell)(c_addr[7]) << 24) |
+	    ((Cell)(c_addr[6]) << 16) |
+	    ((Cell)(c_addr[5]) << 8) |
+	    ((Cell)(c_addr[4]))),
+       (((Cell)(c_addr[3]) << 24) |
+	((Cell)(c_addr[2]) << 16) |
+	((Cell)(c_addr[1]) << 8) |
+	((Cell)(c_addr[0]))));
+ } else {
+  D_IS(ud, 0,(((Cell)(c_addr[7]) << 56) |
+	      ((Cell)(c_addr[6]) << 48) |
+	      ((Cell)(c_addr[5]) << 40) |
+	      ((Cell)(c_addr[4]) << 32) |
+	      ((Cell)(c_addr[3]) << 24) |
+	      ((Cell)(c_addr[2]) << 16) |
+	      ((Cell)(c_addr[1]) << 8) |
+	      ((Cell)(c_addr[0]))));
+}
+#else
+ud = (((DCell)(c_addr[7]) << 56) |
+     ((DCell)(c_addr[6]) << 48) |
+     ((DCell)(c_addr[5]) << 40) |
+     ((DCell)(c_addr[4]) << 32) |
+     ((DCell)(c_addr[3]) << 24) |
+     ((DCell)(c_addr[2]) << 16) |
+     ((DCell)(c_addr[1]) << 8) |
+     ((DCell)(c_addr[0])));
+#endif
+
+!@ ( u1 a_addr -- u2 )	gforth atomic_swap
+""load @v{u2} from @v{a_addr}, and store @v{u1} there, as atomic operation""
+u2 = __sync_lock_test_and_set(a_addr, u1);
+
++!@ ( u1 a_addr -- u2 )	gforth atomic_add
+""load @v{u2} from @v{a_addr}, and increment this location by @v{u1}, as atomic operation""
+u2 = __sync_fetch_and_add(a_addr, u1);
+
+?!@ ( unew uold a_addr -- uprev )	gforth atomic_cas
+""load @v{uprev} from @v{a_addr}, compare it to @v{uold}, and if equal, store @v{unew} there, as atomic operation""
+uprev = __sync_val_compare_and_swap(a_addr, uold, unew);
+
+barrier ( -- ) gforth
+""Insert a memory barrier""
+__sync_synchronize();
+
 \+
 \g peephole
 
@@ -2815,7 +3202,7 @@ fp = fp_mem;
 ;abi-code-exec ( #a_cfa ... -- ... ) gforth-internal semi_abi_code_exec
 /* primitive for performing ;ABI-CODE words */
 Float *fp_mem = fp;
-semiabifunc *f = (semiabifunc *)DOES_CODE1(a_cfa);
+semiabifunc *f = (semiabifunc *)EXTRA_CODE(a_cfa);
 Address body = (Address)PFA(a_cfa);
 sp = (*f)(sp, &fp_mem, body);
 fp = fp_mem;
@@ -2841,6 +3228,34 @@ op = c_addr;
 
 o#+ ( #w -- c_addr )		new	o_lit_plus
 c_addr = op + w;
+
+o#exec	( #w -- )		new	o_lit_exec
+""method invocation, use index -1 of current op as vtable""
+#ifndef NO_IP
+ip=IP;
+#endif
+SUPER_END;
+VM_JUMP(EXEC1(((Xt**)op)[-1][w]));
+
+x#exec	( c_addr #w -- c_addr )		new	x_lit_exec
+""method invocation using the stack""
+#ifndef NO_IP
+ip=IP;
+#endif
+SUPER_END;
+VM_JUMP(EXEC1(((Xt**)c_addr)[-1][w]));
+
+u#exec	( #n #w -- )		new	u_lit_exec
+""method invocation using a user address as current object""
+#ifndef NO_IP
+ip=IP;
+#endif
+SUPER_END;
+VM_JUMP(EXEC1((*(Xt***)(((Address)up)+n))[-1][w]));
+
+u#+	( #n #w -- c_addr )	new	u_lit_plus
+""instance variable using a user address as current object""
+c_addr = (*(Address*)(((Address)up)+n))+w;
 
 \+
 \g static_super

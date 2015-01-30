@@ -1,6 +1,6 @@
 \ kernel.fs    GForth kernel                        17dec92py
 
-\ Copyright (C) 1995,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -246,8 +246,8 @@ defer throw ( y1 .. ym nerror -- y1 .. ym / z1 .. zn error ) \ exception
 :noname ( y1 .. ym error -- y1 .. ym / z1 .. zn error )
     ?dup if
 	[ has? header [IF] here image-header 9 cells + ! [THEN] ]
-	cr DoError cr
-	[ has? file [IF] ] script? IF  1 (bye)  ELSE  quit  THEN
+	cr dup >r DoError cr
+	[ has? file [IF] ] script? IF  r> (bye)  ELSE  quit  THEN
 	[ [ELSE] ] quit [ [THEN] ]
     then ;
 is throw
@@ -264,6 +264,13 @@ is throw
 	r> "error ! -2 throw
     THEN
     rdrop ;
+
+: c(warning") ( c-addr -- )
+    warnings @ IF
+	>stderr warn-color attr!
+	"error ! -2 input-error-data 1 .error-frame
+	default-color attr!
+    THEN drop ;
 
 : abort ( ?? -- ?? ) \ core,exception-ext
     \G @code{-1 throw}.

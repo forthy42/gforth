@@ -35,7 +35,7 @@
 \ This code is released to the public domain Everett Carter July 1994
 
 \ CR .( FSL-UTILG.FTH    V1.17        12 Jun 1996 10:13:12      EFC )
-CR .(  fsl-utilg.fth     V2.0         Thursday 16 October 2008  )
+\ CR .(  fsl-utilg.fth     V2.0         Thursday 16 October 2008  )
 \    cgm:   reorganized file,
 \           removed words already in Gforth,
 \           Gforth DEFER and IS used for vectoring,

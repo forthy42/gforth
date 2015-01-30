@@ -1,6 +1,6 @@
 \ MAIN.FS      Kernel main load file                   20may93jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2011,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -65,6 +65,7 @@ has? kernel-size
     0 A,                \ execute entry point
     0 A,                \ find entry point
     0 ,                 \ base of DOUBLE_INDIRECT xts[], for comp-i.fs
+    0 ,                 \ base of DOUBLE_INDIRECT labels[], for comp-i.fs
 [THEN]
 
 doc-off
@@ -118,6 +119,7 @@ include ./toolsext.fs
 [THEN]
 include ./tools.fs               \ load tools ( .s dump )
 include ./getdoers.fs
+include ./copydoers.fs
 
 \ Setup                                                13feb93py
 

@@ -1,6 +1,6 @@
 \ pass.fs pass pointers from cross to target		20May99jaw
 
-\ Copyright (C) 1999,2001,2003,2006,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2001,2003,2006,2007,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -29,4 +29,6 @@ UNLOCK user-region extent nip LOCK udp !
 \ Set up last and forth-wordlist with the address of the last word's
 \ link field
 UNLOCK tlast @ LOCK
-1 cells - dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !
+dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !
+
+unlock vt, tvtable-list @ lock vtable-list !

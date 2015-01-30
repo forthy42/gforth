@@ -1,6 +1,6 @@
 \ Number IO
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2010,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -28,45 +28,10 @@ require ./io.fs
 
 \ hold <# #> sign # #s                                 25jan92py
 
-has? EC [IF]
-    : hld  ( -- addr )  pad cell - ;
-    : hold  ( char -- )  hld -1 over +! @ c! ;
-    : <#    hld dup ! ;
-    : #>   ( d -- addr +n )  2drop hld dup @ tuck - ;
-    ' <# alias <<#
-    ' noop alias #>>
-[ELSE]
-: hold    ( char -- ) \ core
-    \G Used within @code{<#} and @code{#>}. Append the character
-    \G @var{char} to the pictured numeric output string.
-    -1 chars holdptr +!
-    holdptr @ dup holdbuf u< -&17 and throw
-    c! ;
-
-: <# ( -- ) \ core	less-number-sign
-    \G Initialise/clear the pictured numeric output string.
-    holdbuf-end dup holdptr ! holdend ! ;
-
-: #>      ( xd -- addr u ) \ core	number-sign-greater
-    \G Complete the pictured numeric output string by discarding
-    \G @var{xd} and returning @var{addr u}; the address and length of
-    \G the formatted string. A Standard program may modify characters
-    \G within the string.
-    2drop holdptr @ holdend @ over - ;
-
-: <<# ( -- ) \ gforth	less-less-number-sign
-    \G Start a hold area that ends with @code{#>>}. Can be nested in
-    \G each other and in @code{<#}.  Note: if you do not match up the
-    \G @code{<<#}s with @code{#>>}s, you will eventually run out of
-    \G hold area; you can reset the hold area to empty with @code{<#}.
-    holdend @ holdptr @ - hold
-    holdptr @ holdend ! ;
-
-: #>> ( -- ) \ gforth	number-sign-greater-greater
-    \G Release the hold area started with @code{<<#}.
-    holdend @ dup holdbuf-end u>= -&11 and throw
-    count chars bounds holdptr ! holdend ! ;
-[THEN]
+: hld  ( -- addr )  pad cell - ;
+: hold  ( char -- )  hld -1 over +! @ c! ;
+: <#    hld dup ! ;
+: #>   ( d -- addr +n )  2drop hld dup @ tuck - ;
 
 : sign    ( n -- ) \ core
     \G Used within @code{<#} and @code{#>}. If @var{n} (a @var{single}
@@ -109,13 +74,13 @@ has? EC [IF]
     \G Display @var{d} right-aligned in a field @var{n} characters wide. If more than
     \G @var{n} characters are needed to display the number, all digits are displayed.
     \G If appropriate, @var{n} must include a character for a leading ``-''.
-    >r tuck  dabs  <<# #s  rot sign #>
-    r> over - spaces  type #>> ;
+    >r tuck  dabs  <# #s  rot sign #>
+    r> over - spaces  type ;
 
 : ud.r ( ud n -- ) \ gforth	u-d-dot-r
     \G Display @var{ud} right-aligned in a field @var{n} characters wide. If more than
     \G @var{n} characters are needed to display the number, all digits are displayed.
-    >r <<# #s #> r> over - spaces type #>> ;
+    >r <# #s #> r> over - spaces type ;
 
 : .r ( n1 n2 -- ) \ core-ext	dot-r
     \G Display @var{n1} right-aligned in a field @var{n2} characters wide. If more than

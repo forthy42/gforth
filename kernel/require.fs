@@ -1,6 +1,6 @@
 \ require.fs
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2010,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -22,7 +22,7 @@
 create included-files 0 , 0 , ( pointer to and count of included files )
 \ note: these names must not contain a "/" or "\"; otherwise a part of
 \ that name might be used when expanding "./" (see expandtopic).
-here ," string.fs" dup c@ swap 1 + swap , A,
+here ," *dummy entry*" dup c@ swap 1 + swap , A,
 here 2 cells -
 create image-included-files 1 , A, ( pointer to and count of included files )
 \ included-files points to ALLOCATEd space, while image-included-files

@@ -1,6 +1,6 @@
 \ Structural Conditionals, loops no extra (?do)		10May99jaw
 
-\ Copyright (C) 1995-1997,1999,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995-1997,1999,2000,2003,2007,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -54,9 +54,9 @@ Variable tleavings 0 tleavings !
    dup dup 1+ cells allocate throw dup >r swap 1+ 0 DO tuck ! cell+ LOOP drop r> ;
 : 1to ( addr -- x1 x2 xn )
 \G unpacks the elements saved by to1
-   dup @ swap over cells + swap 0 DO dup @ swap 1 cells - LOOP free throw ;
+   dup @ swap over cells + swap 0 DO dup @ swap cell- LOOP free throw ;
 
-: loop]     branchto, dup <resolve 1 cells - compile DONE ;
+: loop]     branchto, dup <resolve cell- compile DONE ;
 
 : skiploop] ?dup IF compile THEN THEN ;
 

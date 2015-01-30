@@ -1,6 +1,6 @@
 \ kernel.fs    GForth kernel                        17dec92py
 
-\ Copyright (C) 1995,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -22,7 +22,6 @@
 \ Needs:
 
 require ./vars.fs
-require ../compat/strcomp.fs
 
 hex
 
@@ -61,25 +60,11 @@ hex
 
 \ UNUSED                                                17may93jaw
 
-has? ec [IF]
 unlock ram-dictionary borders nip lock
 AConstant dictionary-end
-[ELSE]
-    has? header [IF]
-	: dictionary-end ( -- addr )
-	    forthstart [ 3 cells image-header + ] Aliteral @ + ;
-    [ELSE]
-	: forthstart 0 ;
-	: dictionary-end ( -- addr )
-	    forthstart [ has? kernel-size ] Literal + ;
-    [THEN]
-[THEN]
 
-: usable-dictionary-end1 ( -- addr )
+: usable-dictionary-end ( -- addr )
     dictionary-end [ word-pno-size pad-minsize + ] Literal - ;
-
-defer usable-dictionary-end ( -- addr )
-' usable-dictionary-end1 is usable-dictionary-end
 
 : unused ( -- u ) \ core-ext
     \G Return the amount of free space remaining (in address units) in

@@ -1,6 +1,6 @@
 \ colorize.fs  Coloured .NAME and WORDS                20may93jaw
 
-\ Copyright (C) 1995,1996,1997,1999,2001,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1999,2001,2003,2007,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -33,27 +33,20 @@ VARIABLE Color 20 Color !
 \ dictionary; see wordinfo.fs for the descriptions/definitions
 Color: Hig#
 
-<A White >FG A>             0 CT!
-<A White >FG bold A>     Ali# CT!
+<A Black >FG A>             0 CT!
+<A Black >FG bold A>     Ali# CT!
 <A Brown >FG A>          Con# CT!
 <A Green >FG A>          Var# CT!
-<A Cyan >FG A>           Def# CT!
-<A Yellow >FG A>         Val# CT!
+<A Blue >FG A>           Def# CT!
+<A Brown >FG A>          Val# CT!
 <A Brown >FG bold A>     Doe# CT!
-<A Yellow >FG bold A>    Col# CT!
+<A Cyan >FG invers A>    Col# CT!
 <A Blue >FG bold A>      Pri# CT!
 <A Red >FG bold A>       Str# CT!
 <A Green >FG bold A>     Com# CT!
 <A Red >BG A>            Hig# CT!
 
-: (.name) ( nfa -- )
-        dup wordinfo cells ct + @ attr!
-        .name blackspace ;
-
-: .name (.name) ct @ attr! ;
-
-\ nac31mar1999 fixed up for 0.4.0 to match std words
-: words  context @ wordlist-id
-         BEGIN  @ dup  WHILE  dup (.name)  REPEAT drop
-         ct @ attr! ;
+: (word-colorize) ( nfa -- nfa )
+    dup wordinfo cells ct + @ attr! ;
+' (word-colorize) is word-colorize
 

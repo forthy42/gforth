@@ -1,6 +1,6 @@
 #! @mi_prefix@/bin/bash
 # @configure_input@
-#Copyright (C) 1997,1998,2000,2002,2003,2004,2007 Free Software Foundation, Inc.
+#Copyright (C) 1997,1998,2000,2002,2003,2004,2007,2012,2013 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -39,7 +39,7 @@ if test $# = 0 || test $1 = --help || test $1 = -h; then
 elif test $1 = --version || test $1 = -v; then
   echo "gforthmi (@PACKAGE_NAME@) @PACKAGE_VERSION@"
   $GFORTH --version
-  echo 'Copyright (C) 1998,2002,2003,2004,2007 Free Software Foundation, Inc.'
+  echo 'Copyright (C) 1998,2002,2003,2004,2007,2012,2013 Free Software Foundation, Inc.'
   echo 'This program is part of Gforth'
   $GFORTH -e "license bye"
   exit 0
@@ -57,12 +57,15 @@ else
     outfile=$1; shift
     generate="$@"
 fi
+if [ ! -z "@extraccdir@" ]
+then
+    export libccdir="@extraccdir@"
+fi
 tmpfile=./temp-image.fi
 $GFORTHD --clear-dictionary --no-offset-im --die-on-signal $generate -e "savesystem $tmpfile"1" bye"
 $GFORTHD --clear-dictionary --offset-image --die-on-signal $generate -e "savesystem $tmpfile"2" bye"
-$GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
-chmod +x $outfile
-#gforth-0.2.1 -m 100000  comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye"
+$GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye" || exit 1
+chmod +x $outfile || exit 1
 rm $tmpfile"1" $tmpfile"2"
 if test x$application = xyes; then
     $GFORTH -e "s\" $outfile\"" make-app.fs

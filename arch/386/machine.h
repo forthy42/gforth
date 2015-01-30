@@ -1,7 +1,7 @@
 /*
   This is the machine-specific part for Intel 386 compatible processors
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2012,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -44,13 +44,6 @@
 
 #define ASM_UM_SLASH_MOD(d1lo, d1hi, n1, n2, n3) \
 	asm("divl %4": "=a"(n3),"=d"(n2) : "a"(d1lo),"d"(d1hi),"g"(n1):"cc");
-
-#if defined(USE_TOS)
-#define CLOBBER_TOS_WORKAROUND_START sp[0]=spTOS; __asm__ __volatile__ ("" ::: "memory");
-#define CLOBBER_TOS_WORKAROUND_END   spTOS=sp[0]
-#endif
-
-#include "../generic/machine.h"
 
 /* 386 and below have no cache, 486 has a shared cache, and the
    Pentium and later employ hardware cache consistency, so
@@ -107,15 +100,30 @@
 /* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
 #   else /* !(gcc-2.95 or gcc-3.x) */
 #    if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2)
-#     ifndef __APPLE__
-#      define IPREG asm("%ebx")
+#     if defined(PIC) || defined(__ANDROID__)
 #      define SPREG asm("%esi")
-#      define RPREG asm("%edi")
-#      define TOSREG asm("%ecx")
-#     else
 #      define IPREG asm("%edi")
-#      define SPREG asm("%esi")
-#      define TOSREG asm("%ecx")
+#     else
+#      ifndef __APPLE__
+#       define IPREG asm("%ebx")
+#       define SPREG asm("%esi")
+#       define RPREG asm("%edi")
+#       if(__GNUC_MINOR__>=6 && __GNUC_MINOR__!=8)
+#        define TOSREG asm("%ebp")
+#       else
+#        define TOSREG asm("%ecx")
+#        define TOS_CLOBBERED
+#       endif
+#      else
+#       define IPREG asm("%edi")
+#       define SPREG asm("%esi")
+#       if(__GNUC_MINOR__>=6)
+#        define TOSREG asm("%ebp")
+#       else
+#        define TOSREG asm("%ecx")
+#        define TOS_CLOBBERED
+#       endif
+#      endif
 #     endif
 #    endif /* (gcc-4.2 or later) */
 #   endif /* !(gcc-2.95 or later) */
@@ -136,3 +144,10 @@
 #endif /* defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING) */
 
 /* #define ALIGNMENT_CHECK 1 */
+
+#if defined(USE_TOS) && defined(TOS_CLOBBERED)
+#define CLOBBER_TOS_WORKAROUND_START sp[0]=spTOS; __asm__ __volatile__ ("" ::: "memory");
+#define CLOBBER_TOS_WORKAROUND_END   __asm__ __volatile__ ("" ::: "memory"); spTOS=sp[0];
+#endif
+
+#include "../generic/machine.h"

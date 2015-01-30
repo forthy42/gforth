@@ -1,6 +1,6 @@
 \ run-time routine headers
 
-\ Copyright (C) 1997,1998,2002,2003,2006,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1997,1998,2002,2003,2006,2007,2010,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -27,5 +27,7 @@
 -9 Doer: :dodoes
 -&10 Doer: :doabicode
 -&11 Doer: :do;abicode
--&2 first-primitive \ this does not work for (at least) (DODOES),
-                    \ so these routines are commented out
+-&12 Doer: :doextra
+-&2 first-primitive
+\ this does not work for (at least) (DODOES),
+\ so the following routines are commented out

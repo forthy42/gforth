@@ -1,6 +1,6 @@
 \ WORDINFO.FS  V1.0                                    17may93jaw
 
-\ Copyright (C) 1995,1996,1998,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1998,2000,2003,2007,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -29,10 +29,11 @@ require look.fs
 
 \ the old alias? did not work and it is not used, so I changed
 \ it in many respects - anton
+
 : alias? ( nfa1 -- nfa2|0 )
     \ if nfa1 is an alias, nfa2 is the name of the original word.
     \ if the original word has no name, return 0.
-    dup cell+ @ alias-mask and 0=
+    dup >f+c @ alias-mask and 0=
     IF ( nfa1 )
 	((name>)) @ >name
     ELSE
@@ -62,8 +63,9 @@ require look.fs
 \ probably make this file incompatible with cross.
 
 [IFDEF] forthstart
-: xtprim? ( xt -- flag )
-    in-dictionary? 0= ; \ !! does not work for CODE words
+    : xtprim? ( xt -- flag )
+	>code-address ['] noop >code-address
+	['] image-header >link @ >code-address 1+ within ;
 [ELSE]
 : xtprim? ( xt -- flag )
     dup >body swap >code-address = ; \ !! works only for indirect threaded code
@@ -112,7 +114,7 @@ CREATE InfoTable
         WHILE  swap 2 cells + swap
                2 pick swap execute
         UNTIL
-        1 cells - @ nip
+        cell- @ nip
         ELSE
         2drop drop 0
         THEN ;

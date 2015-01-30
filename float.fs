@@ -1,6 +1,6 @@
 \ High level floating point                            14jan94py
 
-\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -63,10 +63,19 @@
     \G @i{f} in the space.
     here 1 floats allot f! ;
 
+: comp-fval ( xt -- )  >body postpone Literal postpone f@ ;
+
 : fconstant  ( r "name" -- ) \ float f-constant
-    Create f,
+    Create f, ['] comp-fval set-compiler
 DOES> ( -- r )
     f@ ;
+
+: fvalue! ( xt xt-deferred -- ) \ gforth  defer-store
+    >body f! ;
+comp: drop >body postpone ALiteral postpone f! ;
+
+: fvalue ( r "name" -- ) \ float-ext f-value
+    fconstant ['] fvalue! set-to ['] comp-fval set-compiler ;
 
 : fdepth ( -- +n ) \ float f-depth
     \G @i{+n} is the current number of (floating-point) values on the
@@ -89,7 +98,8 @@ DOES> ( -- r )
     to precision ;
 
 : scratch ( -- addr len )
-  pad precision - precision ;
+    \G scratchpad for floating point - use space at the end of the user area
+  next-task udp @ + precision ;
 
 : zeros ( n -- )   0 max 0 ?DO  '0 emit  LOOP ;
 
@@ -132,76 +142,73 @@ DOES> ( -- r )
 : sfnumber ( c-addr u -- r true | false )
     fp-char @ >float1 ;
 
-Create si-prefixes ," PTGMk munpf"
-si-prefixes count bl scan drop Constant zero-exp
+Create si-prefixes ," P  T  G  M  k    %m  u  n  p  f"
+si-prefixes count 2/ + Constant zero-exp
 
 : prefix-number ( c-addr u -- r true | false )
     si-prefixes count bounds DO
 	2dup I c@ scan nip dup 0<> IF
 	    1 = IF  1- fp-char @  ELSE  I c@  THEN
 	    >float1
-	    dup IF  1000 s>f zero-exp I - s>f f** f*  THEN
+	    dup IF  10 s>f zero-exp I - s>f f** f*  THEN
 	    UNLOOP  EXIT  THEN  drop
     LOOP
-    sfnumber ;
+    \ ckeck for e/E/.
+    2dup fp-char @ scan nip >r
+    2dup 'e' scan nip >r 2dup 'E' scan nip r> r> or or
+    IF
+	fp-char @ >float1
+    ELSE
+	2drop false
+    THEN ;
 [ELSE]
 : sfnumber ( c-addr u -- r true | false )
     >float ;
 : prefix-number  sfnumber ;
 [THEN]
 
-[ifdef] recognizer:
-    [IFDEF] 2lit,
-	: flit, postpone Fliteral ;
-	:noname ['] noop ;
-	:noname ['] flit, ;
-    [ELSE]
-	' noop
-	:noname postpone Fliteral ;
-    [THEN]
-    dup
-    recognizer: r:fnumber
+[ifdef] r:fail
+    : flit, postpone Fliteral ;
+    ' noop ' flit,
+    :noname flit, postpone flit, ; recognizer: r:float
 
-    : fnum-recognizer ( addr u -- float int-table | addr u r:fail )
-	2dup prefix-number
-	IF
-	    2drop r:fnumber  EXIT
-	THEN
-	r:fail ;
-
-' fnum-recognizer
-forth-recognizer get-recognizers
-1+ forth-recognizer set-recognizers
+    : rec:float ( addr u -- r r:float | r:fail )
+	\G recognize floating point numbers
+	prefix-number r:float r:fail rot select ;
+    
+    ' rec:float
+    get-recognizers
+    1+ set-recognizers
 [else]
-[ifundef] compiler-notfound1
-defer compiler-notfound1
-' no.extensions IS compiler-notfound1
+    [ifundef] compiler-notfound1
+	defer compiler-notfound1
+	' no.extensions IS compiler-notfound1
+	    
+	:noname compiler-notfound1 execute ; is compiler-notfound
+	
+	defer interpreter-notfound1
+	' no.extensions IS interpreter-notfound1
 
-:noname compiler-notfound1 execute ; is compiler-notfound
-
-defer interpreter-notfound1
-' no.extensions IS interpreter-notfound1
-
-:noname interpreter-notfound1 execute ; is interpreter-notfound
-[then]
-
-:noname ( c-addr u -- ... xt )
-    2dup sfnumber
-    IF
-	2drop [comp'] FLiteral
-    ELSE
-	defers compiler-notfound1
-    ENDIF ;
-IS compiler-notfound1
-
-:noname ( c-addr u -- ... xt )
-    2dup sfnumber
-    IF
-	2drop ['] noop
-    ELSE
-	defers interpreter-notfound1
-    ENDIF ;
-IS interpreter-notfound1
+	:noname interpreter-notfound1 execute ; is interpreter-notfound
+    [then]
+    
+    :noname ( c-addr u -- ... xt )
+	2dup sfnumber
+	IF
+	    2drop [comp'] FLiteral
+	ELSE
+	    defers compiler-notfound1
+	ENDIF ;
+    IS compiler-notfound1
+    
+    :noname ( c-addr u -- ... xt )
+	2dup sfnumber
+	IF
+	    2drop ['] noop
+	ELSE
+	    defers interpreter-notfound1
+	ENDIF ;
+    IS interpreter-notfound1
 [then]
 
 : fvariable ( "name" -- ) \ float f-variable

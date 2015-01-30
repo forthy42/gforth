@@ -1,6 +1,6 @@
 \ -> (to/is replacement) recognizer
 
-\ Copyright (C) 2012 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -17,14 +17,14 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-' (int-to) ' (comp-to) ' lit, recognizer: r:to
+' (int-to)
+:noname (comp-to) ;
+:noname lit, postpone (comp-to) ; recognizer: r:to
 
-: to-recognizer ( addr u -- xt r:to | addr u r:fail )
-    2dup s" ->" string-prefix?  0= IF  r:fail  EXIT  THEN
-    2dup 2 /string dup 0= IF  2drop r:fail  EXIT  THEN
-    find-name dup 0= IF  drop r:fail  EXIT  THEN
-    name>comp drop nip nip r:to ;
+: rec:to ( addr u -- xt r:to | r:fail )
+    2dup s" ->" string-prefix?  0= IF  2drop  r:fail  EXIT  THEN
+    2 /string dup 0= IF  2drop  r:fail  EXIT  THEN
+    find-name dup 0= IF  drop   r:fail  EXIT  THEN
+    name>comp drop r:to ;
 
-' to-recognizer
-forth-recognizer get-recognizers
-1+ forth-recognizer set-recognizers
+' rec:to get-recognizers 1+ set-recognizers

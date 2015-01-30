@@ -13,3 +13,12 @@
     then ;
 
 : main 34 fib drop ;
+
+\ The problem with fib is that it really is O(1)...
+0 [IF]
+    5e fsqrt fdup 1/f fconstant /sqrt5
+    1e f+ f2/ fln     fconstant gbase
+    : fib ( n -- f )
+	dup s>f gbase f* fdup fexp fswap fnegate fexp
+	1 and IF f+ ELSE f- THEN  /sqrt5 f* ;
+[THEN]

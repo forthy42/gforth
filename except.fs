@@ -1,6 +1,6 @@
 \ catch, throw, etc.
 
-\ Copyright (C) 1999,2000,2003,2006,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2000,2003,2006,2007,2010,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -67,23 +67,23 @@ Defer store-backtrace
 
 \ !! explain handler on-stack structure
 
-Variable first-throw
+User first-throw
 : nothrow ( -- ) \ gforth
     \G Use this (or the standard sequence @code{['] false catch drop})
     \G after a @code{catch} or @code{endtry} that does not rethrow;
     \G this ensures that the next @code{throw} will record a
     \G backtrace.
-    first-throw on ;
+    first-throw $off ;
 
 : (try0) ( -- aoldhandler )
-    first-throw on
-    handler @ ;
+    nothrow handler @ ;
 
 [undefined] (try1) [if]
 : (try1) ( aoldhandler arecovery -- anewhandler )
     r>
     swap >r \ recovery address
     sp@ cell+ >r
+    o#+ [ 0 , ] >r
     fp@ >r
     lp@ >r
     swap >r \ old handler
@@ -95,10 +95,11 @@ Variable first-throw
     handler ! ;
 
 : (try) ( ahandler -- )
-    first-throw on
+    nothrow
     r>
     swap >r \ recovery address
     sp@ >r
+    o#+ [ 0 , ] >r
     fp@ >r
     lp@ >r
     handler @ >r
@@ -123,6 +124,7 @@ Variable first-throw
     r> handler !
     rdrop \ lp
     rdrop \ fp
+    rdrop \ op
     rdrop \ sp
     rdrop \ recovery address
     >r ;
@@ -173,20 +175,23 @@ is catch
     dup rp! ( ... ball frame )
     cell+ dup @ lp!
     cell+ dup @ fp!
+    cell+ dup @ >o rdrop
     cell+ dup @ ( ... ball addr sp ) -rot 2>r sp! drop 2r>
     cell+ @ perform ;
 [endif]
-    
+
+Defer kill-task ' noop IS kill-task
+
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
-	[ here forthstart 9 cells + ! ]
-	first-throw @ IF
-	    store-backtrace error-stack off
-	    first-throw off
+	[ here forthstart 9 cells + !
+	  here throw-entry ! ]
+	first-throw @ 0= IF
+	    store-backtrace \ error-stack $off
 	THEN
 	handler @ ?dup-0=-IF
 	    >stderr cr ." uncaught exception: " .error cr
-	    2 (bye)
+	    kill-task  2 (bye)
 \	    quit
 	THEN
 	\ cr .s dup 64 dump

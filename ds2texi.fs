@@ -1,6 +1,6 @@
 \ documentation source to texi format converter
 
-\ Copyright (C) 1995,1996,1997,1998,1999,2003,2005,2007,2008 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,1999,2003,2005,2007,2008,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -160,7 +160,7 @@ create description-buffer 4096 chars allot
     >r dup >r
     3 pick over str=
     if \ addr2 u2 is a prefix of addr1 u1
-	r> /string -trailing documentation search-wordlist
+	r> safe/string -trailing documentation search-wordlist
 	if \ the rest of addr1 u1 is in documentation
 	    execute r> execute true
 	else

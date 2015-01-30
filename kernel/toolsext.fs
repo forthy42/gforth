@@ -1,4 +1,4 @@
-\ Copyright (C) 1995,1998,2000,2003,2005,2007,2009,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2005,2007,2009,2010,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -21,7 +21,7 @@ Variable countif
 
 : dummy ;  immediate
 : >exec  >r ; restrict ( :-)
-: scanIF   f83find  dup 0=  IF  drop ['] dummy >head-noprim  THEN  ;
+: scanIF   f83find  dup 0=  IF  drop ['] dummy ( >head-noprim )  THEN  ;
 
 Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A, ' drop A,
 Create [struct]-voc       [struct]-search A,
@@ -62,7 +62,7 @@ UNLOCK  Tlast @ TNIL Tlast !  LOCK
 
 UNLOCK Tlast @ swap Tlast ! LOCK
 \ last @ swap last !
-1 cells - [struct]-voc cell+ !
+[struct]-voc cell+ !
 
 \ Interpretative Structuren                            30apr92py
 
@@ -134,35 +134,35 @@ User (i)
                                                       immediate
 
 : [+LOOP] ( n -- ) \ gforth bracket-question-plus-loop
-  rdrop lp+ ;                                         immediate
+  rdrop ;                                             immediate
 
 : [LOOP] ( -- ) \ gforth bracket-loop
-  1 rdrop lp+ ;                                       immediate
+  1 rdrop ;                                           immediate
 
 : [FOR] ( n -- ) \ gforth bracket-for
   0 swap postpone [DO] ;                              immediate
 
 : [NEXT] ( n -- ) \ gforth bracket-next
-  -1 rdrop lp+ ;                                      immediate
+  -1 rdrop ;                                          immediate
 
-:noname (i) @ ;
-:noname (i) @ postpone Literal ;
-interpret/compile: [I] ( -- n ) \ gforth bracket-i
+: [I] ( -- n ) \ gforth bracket-i
+    (i) @ ;
+comp: drop (i) @ postpone Literal ;
 
 : [BEGIN] ( -- ) \ gforth bracket-begin
-  >in @ >r BEGIN r@ >in ! interpret UNTIL rdrop lp+ ; immediate
+  >in @ >r BEGIN r@ >in ! interpret UNTIL rdrop ;     immediate
 
 ' [+LOOP]  Alias [UNTIL] ( flag -- ) \ gforth bracket-until
                                                       immediate
 
 : [REPEAT]  ( -- ) \ gforth bracket-repeat
-  false rdrop lp+ ;                                   immediate
+  false rdrop ;                                       immediate
 
 ' [REPEAT] Alias [AGAIN] ( -- ) \ gforth bracket-again
                                                       immediate
 
 : [WHILE]   ( flag -- ) \ gforth bracket-while
-  0= IF   postpone [ELSE] true rdrop lp+ 1 countif +!  THEN ;
+  0= IF   postpone [ELSE] true rdrop 1 countif +!  THEN ;
                                                       immediate
 
 \ Warnings on

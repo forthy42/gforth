@@ -1,6 +1,6 @@
 \ compiler definitions						14sep97jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -96,10 +96,6 @@
 [ [ELSE] ]
     here swap chars dup allot move
 [ [THEN] ] ;
-
-: longstring, ( c-addr u -- ) \ gforth
-    \G puts down string as longcstring
-    dup , here swap chars dup allot move ;
 
 [IFDEF] prelude-mask
 variable next-prelude
@@ -488,38 +484,27 @@ doer? :dodefer [IF]
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
-:noname
-    here !does ]
-    defstart :-hook ;
-:noname
-    ['] !does does>-like :-hook ;
-interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        does
+: DOES> state @ IF
+	['] !does does>-like
+    ELSE
+	here !does ]
+	defstart
+    THEN :-hook ; immediate
 
 : defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     >body [ has? rom [IF] ] @ [ [THEN] ] ! ;
     
-: <IS> ( "name" xt -- ) \ gforth
-    \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    ' defer! ;
-
-: [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth bracket-is
-    \g At run-time, changes the @code{defer}red word @var{name} to
-    \g execute @var{xt}.
-    ' postpone ALiteral postpone defer! ; immediate restrict
-
-' <IS>
-' [IS]
-interpret/compile: IS ( compilation/interpretation "name-deferred" -- ; run-time xt -- ) \ gforth
+: IS ( "name" xt -- ) \ gforth
 \G Changes the @code{defer}red word @var{name} to execute @var{xt}.
 \G Its compilation semantics parses at compile time.
+    ' state @ IF
+	postpone ALiteral postpone defer!
+    ELSE
+	defer!
+    THEN ; immediate
 
-' <IS>
-' [IS]
-interpret/compile: TO ( w "name" -- ) \ core-ext
-
-: interpret/compile? ( xt -- flag )
-    >does-code ['] DOES> >does-code = ;
+' IS alias TO
 
 \ \ : ;                                                  	24feb93py
 

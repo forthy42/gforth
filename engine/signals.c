@@ -1,6 +1,6 @@
 /* signal handling
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011,2012,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <termios.h>
+#include <stdarg.h>
 #include "io.h"
 
 #ifdef HAS_DEBUG
@@ -58,6 +59,10 @@ typedef struct sigaltstack stack_t;
 UCell cols=DEFAULTCOLS;
 UCell rows=DEFAULTROWS;
 
+UCell sigcount=0; /* count the number of signal received */
+
+#define SIGPP(sig) { if(sigcount++ && die_on_signal) graceful_exit(sig); }
+
 #ifndef SA_NODEFER
 #define SA_NODEFER 0
 /* systems that don't have SA_NODEFER hopefully don't block anyway */
@@ -79,6 +84,18 @@ void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
   sigaction(sig, &action, NULL);
 }
 #endif
+
+void gforth_sigset(sigset_t *set, ...)
+{
+  va_list ap;
+  int sig;
+  va_start(ap, set);
+  sigemptyset(set);
+  while(sig=va_arg(ap, int)) {
+    sigaddset(set, sig);
+  }
+  va_end(ap);
+}
 
 Sigfunc *bsd_signal(int signo, Sigfunc *func)
 {
@@ -113,6 +130,7 @@ static void
 signal_throw(int sig)
 {
   int code;
+  SIGPP(sig);
   debugp(stderr,"\ncaught signal %d\n", sig);
 
   switch (sig) {
@@ -151,7 +169,8 @@ static void fpe_handler(int sig, siginfo_t *info, void *_)
 {
   int code;
 
-  debugp(stderr,"\nfpe_handler %d %x %x\n", sig, info, _);
+  SIGPP(sig);
+  debugp(stderr,"\nfpe_handler %d %p %p\n", sig, info, _);
 
   switch(info->si_code) {
 #ifdef FPE_INTDIV
@@ -200,6 +219,7 @@ static void segv_handler(int sig, siginfo_t *info, void *_)
   int code=-9;
   Address addr=info->si_addr;
 
+  SIGPP(sig);
   debugp(stderr,"\nsegv_handler %d %p %p @%p\n", sig, info, _, addr);
 
   if (JUSTUNDER(addr, NEXTPAGE3(gforth_UP)))
@@ -416,7 +436,6 @@ void install_signal_handlers(void)
 #endif
   };
   int i;
-  void (*throw_handler)() = die_on_signal ? graceful_exit : signal_throw;
 #if 0
   /* sigaltstack is now called by gforth_stacks() */
 #if defined(SIGSTKSZ)
@@ -445,32 +464,30 @@ void install_signal_handlers(void)
     signal (sigs_to_ignore [i], SIG_IGN);
 */
   for (i = 0; i < DIM (sigs_to_throw); i++)
-    bsd_signal(sigs_to_throw[i], throw_handler);
+    bsd_signal(sigs_to_throw[i], signal_throw);
   for (i = 0; i < DIM (async_sigs_to_throw); i++)
     bsd_signal(async_sigs_to_throw[i], 
-               ignore_async_signals ? SIG_IGN : throw_handler);
+               ignore_async_signals ? SIG_IGN : signal_throw);
   for (i = 0; i < DIM (sigs_to_quit); i++)
     bsd_signal(sigs_to_quit [i], graceful_exit);
 #ifdef SA_SIGINFO
-  if (!die_on_signal) {
 #ifdef SIGFPE
-    install_signal_handler(SIGFPE, fpe_handler);
+  install_signal_handler(SIGFPE, fpe_handler);
 #endif
 #ifdef SIGSEGV
-    install_signal_handler(SIGSEGV, segv_handler);
+  install_signal_handler(SIGSEGV, segv_handler);
 #endif
-    /* use SA_ONSTACK for all signals that could come from executing
-       wrong code */
+  /* use SA_ONSTACK for all signals that could come from executing
+     wrong code */
 #ifdef SIGILL
-    install_signal_handler(SIGILL, sigaction_throw);
+  install_signal_handler(SIGILL, sigaction_throw);
 #endif
 #ifdef SIGBUS
-    install_signal_handler(SIGBUS, sigaction_throw);
+  install_signal_handler(SIGBUS, sigaction_throw);
 #endif
 #ifdef SIGTRAP
-    install_signal_handler(SIGTRAP, sigaction_throw);
+  install_signal_handler(SIGTRAP, sigaction_throw);
 #endif
-  }
 #endif /* defined(SA_SIGINFO) */
 #ifdef SIGCONT
     bsd_signal(SIGCONT, termprep);

@@ -1,6 +1,6 @@
 \ see-ext.fs extentions for see locals, floats
 
-\ Copyright (C) 1995,1996,1997,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2003,2007,2012,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -18,6 +18,8 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 \ made extra 26jan97jaw
+
+get-current also see-voc definitions
 
 : c-loop-lp+!#  c-loop cell+ ;
 : c-?branch-lp+!#  c-?branch cell+ ;
@@ -81,3 +83,5 @@ create c-extend1
 \ extend see-table
 c-extend1 c-extender @ a!
 c-extender !
+
+set-current previous

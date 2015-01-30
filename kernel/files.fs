@@ -1,6 +1,6 @@
 \ File specifiers                                       11jun93jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -23,6 +23,14 @@
 
 : bin ( fam1 -- fam2 ) \ file
     1 or ;
+
+\ file creation attributes
+
+\ default is rw-rw-rw-
+
+: +fmode ( fam1 rwxrwxrwx -- fam2 )
+    \G add file access mode to fam - for create-file only
+    $1B6 xor 4 lshift or ;
 
 \ BIN WRITE-LINE                                        11jun93jaw
 
@@ -106,7 +114,9 @@ Redefinitions-start
 	IF
 	    warnings @
 	    IF
+		>stderr warn-color attr!
 		." warning: ')' missing" cr
+		default-color attr!
 	    THEN
 	    EXIT
 	THEN

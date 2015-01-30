@@ -1,6 +1,6 @@
 #! /usr/local/bin/gforth
 
-\ Copyright (C) 2000,2002,2003,2004,2006,2007,2008 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2002,2003,2004,2006,2007,2008,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -258,7 +258,10 @@ Defer redirect ( addr u -- )
 : httpd  ( n -- )  dup maxnum ! 0 <# #S #> Keep-Alive $!
   maxnum @ 0 DO  ['] http catch  maxnum @ 0= or  ?LEAVE  LOOP ;
 
-script? [IF]  :noname &100 httpd bye ; is bootmessage  [THEN]
+script? [IF]
+    :noname &100 httpd stdout flush-file 0 (bye) ; is 'quit
+    ' noop IS bootmessage
+[THEN]
 
 \ Use Forth as server-side script language             26mar00py
 

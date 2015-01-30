@@ -1,6 +1,6 @@
 \ get some data on potential (partial) inlining
 
-\ Copyright (C) 2004,2007 Free Software Foundation, Inc.
+\ Copyright (C) 2004,2007,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -315,7 +315,7 @@ Defer before-word-profile ( -- )
 : note-call ( addr -- )
     \ addr is the body address of a called colon def or does handler
     dup ['] (does>2) >body = if \ adjust does handler address
-	4 cells here 1 cells - +!
+	4 cells here cell- +!
     endif
     { addr }
     current-profile-point @ { lastbb }

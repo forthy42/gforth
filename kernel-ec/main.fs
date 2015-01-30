@@ -1,6 +1,6 @@
 \ MAIN.FS      Kernel main load file                   20may93jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2011,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -85,7 +85,7 @@ has? compiler [IF]
     [THEN]
 [THEN]
 include ./quotes.fs
-include ./tools.fs               \ load tools ( .s dump )
+\ include ./tools.fs               \ load tools ( .s dump )
 include ./getdoers.fs
 
 \ Setup                                                13feb93py

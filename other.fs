@@ -1,6 +1,6 @@
 \ OTHER.FS     Ansforth extentions for CROSS           9may93jaw
 
-\ Copyright (C) 1995,1998,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2007,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -27,11 +27,10 @@
 : name bl word ;
 : on true swap ! ;
 : off false swap ! ;
-: place ( adr len adr )
-        2dup c! char+ swap move ;
-: +place ( adr len adr )
-        2dup c@ + over c!
-        dup c@ char+ + swap move ;
+: place ( adr len adr -- )
+    2dup c! char+ swap move ;
+: +place ( adr len adr -- )
+    2dup c@ dup >r  + over c!  r> char+ +  swap move ;
 : -rot  rot rot ;
 
 include toolsext.fs

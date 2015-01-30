@@ -1,6 +1,6 @@
 \ report words used from the various wordsets
 
-\ Copyright (C) 1996,1998,1999,2003,2005,2006,2007,2009 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1998,1999,2003,2005,2006,2007,2009,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -52,39 +52,37 @@ wordlist constant wordsets wordsets set-current
 create CORE 0 , 0 0 2,
 wordset CORE-EXT
 wordset CORE-EXT-obsolescent
+wordset CORE-EXT-2012
 wordset BLOCK
 wordset BLOCK-EXT
 wordset DOUBLE
 wordset DOUBLE-EXT
+wordset DOUBLE-EXT-2012
 wordset EXCEPTION
 wordset EXCEPTION-EXT
 wordset FACILITY
 wordset FACILITY-EXT
+wordset FACILITY-EXT-2012
 wordset FILE
 wordset FILE-EXT
+wordset FILE-EXT-2012
 wordset FLOAT
 wordset FLOAT-EXT
+wordset FLOAT-EXT-2012
 wordset LOCAL
 wordset LOCAL-EXT
+wordset LOCAL-EXT-2012
 wordset MEMORY
 wordset SEARCH
 wordset SEARCH-EXT
 wordset STRING
+wordset STRING-EXT-2012
 wordset TOOLS
 wordset TOOLS-EXT
+wordset TOOLS-EXT-2012
 wordset TOOLS-EXT-obsolescent
-
-\ www.forth200x.org CfV extension names
-wordset X:deferred
-wordset X:extension-query
-wordset X:parse-name
-wordset X:defined
-wordset X:required
-wordset X:ekeys
-wordset X:fp-stack
-wordset X:number-prefixes
-wordset X:structures
-wordset X:ftrunc
+wordset XCHAR-2012
+wordset XCHAR-EXT-2012
 
 wordset non-ANS
 
@@ -107,7 +105,7 @@ ans-report-words definitions
 table constant answords answords set-current
 warnings @ warnings off
 include ./answords.fs
-include ./xwords.fs
+include ./2012words.fs
 warnings !
 ans-report-words definitions
 
@@ -129,8 +127,10 @@ ans-report-words definitions
 : note-name ( nt -- )
     \ remember name in the appropriate wordset, unless already there
     \ or the word is defined in the checked program
-    dup [ here ] literal >		     \ word defined by the application
-    over locals-buffer dup 1000 + within or  \ or a local
+    dup [ here ]L forthstart within
+    [IFDEF] locals-buffer
+	over locals-buffer dup 1000 + within or  \ or a local
+    [THEN]
     if
 	drop EXIT
     endif
@@ -148,16 +148,6 @@ ans-report-words definitions
     if
 	dup note-name
     endif ;
-
-: replace-word ( xt cfa -- )
-    \ replace word at cfa with xt. !! This is quite general-purpose
-    \ and should migrate elsewhere.
-    \  the following no longer works with primitive-centric hybrid threading:
-    \    dodefer: over code-address!
-    \    >body ! ;
-    dup @ docol: <> -12 and throw \ for colon defs only
-    >body ['] branch xt>threaded over !
-    cell+ >r >body r> ! ;
 
 : print-names ( endaddr startaddr -- )
     space 1 -rot

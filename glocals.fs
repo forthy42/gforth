@@ -1,6 +1,6 @@
 \ A powerful locals implementation
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2007,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2007,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -82,6 +82,9 @@
 require search.fs
 require float.fs
 require extend.fs \ for case
+
+User locals-size \ this is the current size of the locals stack
+		 \ frame of the current word
 
 : compile-@local ( n -- ) \ gforth compile-fetch-local
  case
@@ -165,17 +168,20 @@ variable locals-mem-list \ linked list of all locals name memory in
 
 \ locals list operations
 
+[IFUNDEF] >link ' noop Alias >link [THEN]
+[IFUNDEF] >f+c  : >f+c cell+ ;     [THEN]
+
 : list-length ( list -- u )
     0 swap begin ( u1 list1 )
-	dup while
-	    @ swap 1+ swap
+       dup while
+           >link @ swap 1+ swap
     repeat
     drop ;
 
 : /list ( list1 u -- list2 )
     \ list2 is list1 with the first u elements removed
     0 ?do
-	@
+	>link @
     loop ;
 
 : common-list ( list1 list2 -- list3 )
@@ -183,9 +189,10 @@ variable locals-mem-list \ linked list of all locals name memory in
     over list-length over list-length - dup 0< if
 	negate >r swap r>
     then ( long short u )
-    rot swap /list begin ( list3 list4 )
+    rot swap /list
+    begin ( list3 list4 )
 	2dup u<> while
-	    @ swap @
+	    >link @ swap >link @
     repeat
     drop ;
 
@@ -230,7 +237,7 @@ variable locals-mem-list \ linked list of all locals name memory in
     while
 	over
 	((name>)) >body @ max
-	swap @ swap ( get next )
+	swap >link @ swap ( get next )
     repeat
     faligned nip ;
 
@@ -278,7 +285,7 @@ variable dict-execute-dp \ the special dp for DICT-EXECUTE
     dict-execute-ude ['] usable-dictionary-end defer@ 2>r
     swap to dict-execute-ude
     ['] dict-execute-ude is usable-dictionary-end
-    swap to dict-execute-dp
+    swap dict-execute-dp !
     dict-execute-dp dpp !
     catch
     2r> is usable-dictionary-end to dict-execute-ude
@@ -287,14 +294,15 @@ variable dict-execute-dp \ the special dp for DICT-EXECUTE
 
 defer dict-execute ( ... addr1 addr2 xt -- ... )
 
-:noname ( ... addr1 addr2 xt -- ... )
+: dummy-dict ( ... addr1 addr2 xt -- ... )
     \ first have a dummy routine, for SOME-CLOCAL etc. below
     nip nip execute ;
-is dict-execute
+' dummy-dict is dict-execute
 
-: create-local ( " name" -- a-addr )
+: create-local ( "name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
+    [IFDEF] vt, vt, [THEN]
     locals-name-size allocate throw
     dup locals-mem-list prepend-list
     locals-name-size cell /string over + ['] create-local1 dict-execute ;
@@ -311,58 +319,69 @@ variable locals-dp \ so here's the special dp for locals.
 \ adds it as inline argument to a preceding locals primitive
   lp-offset , ;
 
+[IFDEF] set-to
+    : to-w: ( -- )  -14 throw ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE ! ;
+    : to-d: ( -- ) -14 throw ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ;
+    : to-c: ( -- ) -14 throw ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE c! ;
+    : to-f: ( -- ) -14 throw ;
+    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE f! ;
+[THEN]
+
 vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
 
 : W: ( "name" -- a-addr xt ) \ gforth w-colon
-    create-local
-	\ xt produces the appropriate locals pushing code when executed
-	['] compile-pushlocal-w
-    does> ( Compilation: -- ) ( Run-time: -- w )
-        \ compiles a local variable access
-	@ lp-offset compile-@local ;
+    create-local [IFDEF] set-to ['] to-w: set-to [THEN]
+    \ xt produces the appropriate locals pushing code when executed
+    ['] compile-pushlocal-w
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    \ compiles a local variable access
+    @ lp-offset compile-@local ;
 
 : W^ ( "name" -- a-addr xt ) \ gforth w-caret
     create-local
-	['] compile-pushlocal-w
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, ;
+    ['] compile-pushlocal-w
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, ;
 
 : F: ( "name" -- a-addr xt ) \ gforth f-colon
-    create-local
-	['] compile-pushlocal-f
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	@ lp-offset compile-f@local ;
+    create-local [IFDEF] set-to ['] to-f: set-to [THEN]
+    ['] compile-pushlocal-f
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    @ lp-offset compile-f@local ;
 
 : F^ ( "name" -- a-addr xt ) \ gforth f-caret
     create-local
-	['] compile-pushlocal-f
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, ;
+    ['] compile-pushlocal-f
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, ;
 
 : D: ( "name" -- a-addr xt ) \ gforth d-colon
-    create-local
-	['] compile-pushlocal-d
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, postpone 2@ ;
+    create-local [IFDEF] set-to ['] to-d: set-to [THEN]
+    ['] compile-pushlocal-d
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, postpone 2@ ;
 
 : D^ ( "name" -- a-addr xt ) \ gforth d-caret
     create-local
-	['] compile-pushlocal-d
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, ;
+    ['] compile-pushlocal-d
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, ;
 
 : C: ( "name" -- a-addr xt ) \ gforth c-colon
-    create-local
-	['] compile-pushlocal-c
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, postpone c@ ;
+    create-local [IFDEF] set-to ['] to-c: set-to [THEN]
+    ['] compile-pushlocal-c
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, postpone c@ ;
 
 : C^ ( "name" -- a-addr xt ) \ gforth c-caret
     create-local
-	['] compile-pushlocal-c
-    does> ( Compilation: -- ) ( Run-time: -- w )
-	postpone laddr# @ lp-offset, ;
+    ['] compile-pushlocal-c
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, ;
 
 \ you may want to make comments in a locals definitions group:
 ' \ alias \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
@@ -383,12 +402,18 @@ immediate
 
 forth definitions
 also locals-types
-    
-\ these "locals" are used for comparison in TO
+
+\ these "locals" are used for comparison in TO/create associated vts
 c: some-clocal 2drop
 d: some-dlocal 2drop
 f: some-flocal 2drop
 w: some-wlocal 2drop
+
+\ these "locals" create the associated vts
+c^ some-caddr 2drop
+d^ some-daddr 2drop
+f^ some-faddr 2drop
+w^ some-waddr 2drop
 
 ' dict-execute1 is dict-execute \ now the real thing
     
@@ -433,6 +458,8 @@ new-locals-map mappedwordlist Constant new-locals-wl
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
+synonym {: {
+
 locals-types definitions
 
 : } ( latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
@@ -448,6 +475,8 @@ locals-types definitions
     previous previous
     set-current lastcfa !
     locals-list 0 wordlist-id - TO locals-wordlist ;
+
+synonym :} }
 
 : -- ( addr wid 0 ... -- ) \ gforth dash-dash
     }
@@ -735,6 +764,7 @@ is free-old-local-names
 	code-address!
     then ;
 
+[IFUNDEF] set-to
 : (int-to) ( xt -- ) dup >definer
     case
 	[ ' locals-wordlist ] literal >definer \ value
@@ -764,11 +794,10 @@ is free-old-local-names
 	-&32 throw
     endcase ;
 
-:noname
+: TO ( c|w|d|r "name" -- ) \ core-ext,local
     ' (int-to) ;
-:noname
-    comp' drop (comp-to) ;
-interpret/compile: TO ( c|w|d|r "name" -- ) \ core-ext,local
+comp: drop comp' drop (comp-to) ;
+[THEN]
 
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar
     \ don't use 'locals|'! use '{'! A portable and free '{'

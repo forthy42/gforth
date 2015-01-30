@@ -1,6 +1,6 @@
 \ lib.fs	shared library support package 		16aug03py
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2006,2007,2008,2009 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2006,2007,2008,2009,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -26,22 +26,14 @@ s" callback" add-lib
 \c #include <callback.h>
 \c static av_alist alist;
 \c static va_alist gforth_clist;
-\c #ifndef HAS_BACKLINK
-\c static void **saved_gforth_pointers;
-\c #endif
 \c static float frv;
 \c static int irv;
 \c static double drv;
 \c static long long llrv;
 \c static void * prv;
-\c typedef void *Label;
-\c typedef Label *Xt;
 \c 
 \c void gforth_callback_ffcall(Xt* fcall, void * alist)
 \c {
-\c #ifndef HAS_BACKLINK
-\c   void **gforth_pointers = saved_gforth_pointers;
-\c #endif
 \c   {
 \c     /* save global variables */
 \c     Cell *rp = gforth_RP;
@@ -52,7 +44,7 @@ s" callback" add-lib
 \c 
 \c     gforth_clist = (va_alist)alist;
 \c 
-\c     gforth_engine(fcall, sp, rp, fp, lp, gforth_UP);
+\c     gforth_engine(fcall);
 \c 
 \c     /* restore global variables */
 \c     gforth_RP = rp;
@@ -325,7 +317,7 @@ Variable callbacks
   DOES> 2@ compile, ;
 
 : init-callbacks ( -- )
-    defers 'cold  callbacks 1 cells -
+    defers 'cold  callbacks cell-
     BEGIN  cell+ @ dup  WHILE  dup cell+ cell+ alloc-callback over !
     REPEAT  drop ;
 

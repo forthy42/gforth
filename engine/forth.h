@@ -1,6 +1,6 @@
 /* common header file
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -22,6 +22,7 @@
 #include "128bit.h"
 #include <stdio.h>
 #include <sys/time.h>
+#include <stdint.h>
 #include <unistd.h>
 #ifndef STANDALONE
 #if defined(HAVE_LIBLTDL)
@@ -102,7 +103,8 @@
 #define DODOES	7
 #define DOABICODE	8
 #define DOSEMIABICODE   9
-#define DOER_MAX        9
+#define DOEXTRA	10
+#define DOER_MAX        10
 
 #include "machine.h"
 
@@ -127,7 +129,7 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 #define L2U(x)		(((UCell)(x))<<HALFCELL_BITS)
 #define HIGHBIT(x)	(((UCell)(x))>>(CELL_BITS-1))
 
-#define FLAG(b) (-(b))
+#define FLAG(b) (-(Cell)(b))
 #define FILEIO(error)	(FLAG(error) & -37)
 #define FILEEXIST(error)	(FLAG(error) & -38)
 
@@ -166,6 +168,7 @@ typedef struct {
 #define DLO(x) (x).lo
 #define DHI_IS(x,y) (x).hi=(y)
 #define DLO_IS(x,y) (x).lo=(y)
+#define D_IS(x,y,z) ({ (x).hi=(y); (x).lo=(z); })
 
 #define UD2D(ud)	({UDCell _ud=(ud); (DCell){_ud.hi,_ud.lo};})
 #define D2UD(d)		({DCell _d1=(d); (UDCell){_d1.hi,_d1.lo};})
@@ -200,6 +203,7 @@ typedef DOUBLE_UCELL_TYPE UDCell;
 /* beware with the assignment: x is referenced twice! */
 #define DHI_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); (x)=_d.d; })
 #define DLO_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.low =(y); (x)=_d.d; })
+#define D_IS(x,y,z) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); _d.cells.low =(z); (x)=_d.d; })
 
 #define UD2D(ud)	((DCell)(ud))
 #define D2UD(d)		((UDCell)(d))
@@ -267,6 +271,12 @@ typedef Label *Xt;
 #define DOES_CODE1(cfa)	((Xt *)(cfa[1]))
 /* MAKE_CF creates an appropriate code field at the cfa;
    ca is the code address */
+#define VTLINK 0
+#define VTCOMPILE 1
+#define VTLIT 2
+#define VTEXTRA 3
+#define VTTO 4
+#define EXTRA_CODE(cfa) ((Xt *)(((Cell **)cfa)[-1][VTEXTRA]))
 #define MAKE_CF(cfa,ca) ((*(Label *)(cfa)) = ((Label)ca))
 /* make a code field for a defining-word-defined word */
 
@@ -330,6 +340,7 @@ typedef struct {
   Xt *execute_entry;
   Xt *find_entry;
   Label *xt_base;         /* base of DOUBLE_INDIRECT xts[], for comp-i.fs */
+  Label *label_base;      /* base of DOUBLE_INDIRECT labels[], for comp-i.fs */
 } ImageHeader;
 /* the image-header is created in main.fs */
 
@@ -348,7 +359,15 @@ struct Longname {
   char		name[0];
 };
 
-#define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<4)>>4))
+#ifdef OLD_HEADER
+# define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<4)>>4))
+# define LONGNAME_NAME(np)      ((Char *)((np)->name))
+# define LONGNAME_NEXT(np)      ((np)->next)
+#else
+# define LONGNAME_COUNT(np)     ((((Cell*)np)[-3]) & (((~((UCell)0))<<4)>>4))
+# define LONGNAME_NAME(np)      ((Char *)(np)-3*sizeof(Cell)-LONGNAME_COUNT(np))
+# define LONGNAME_NEXT(np)      ((struct Longname*)(((Cell*)np)[-2]))
+#endif
 
 struct Cellpair {
   Cell n1;
@@ -361,6 +380,11 @@ struct Cellquad {
   Cell n3;
   Cell n4;
 };
+
+typedef struct _hash128 {
+  uint64_t a;
+  uint64_t b;
+} hash128;
 
 #define IOR(flag)	((flag)? -512-errno : 0)
 
@@ -395,23 +419,31 @@ Label *gforth_engine(Xt *ip sr_proto);
 Label *gforth_engine2(Xt *ip sr_proto);
 Label *gforth_engine3(Xt *ip sr_proto);
 
-
-int gforth_main(int argc, char **argv, char **env);
+Cell gforth_main(int argc, char **argv, char **env);
 void gforth_args(int argc, char ** argv, char ** path, char ** imagename);
-Address gforth_loader(char* imagename, char* path);
+ImageHeader* gforth_loader(char* imagename, char* path);
 user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 void gforth_free_stacks(user_area* t);
 void gforth_free();
 Cell gforth_go(Xt* ip0);
-int gforth_boot(int argc, char** argv, char* path);
-int gforth_start(int argc, char ** argv);
-int gforth_quit();
+Cell gforth_boot(int argc, char** argv, char* path);
+Cell gforth_start(int argc, char ** argv);
+Cell gforth_quit();
 Xt gforth_find(Char * name);
-int gforth_execute(Xt xt);
+Cell gforth_execute(Xt xt);
 void gforth_cleanup();
 void gforth_printmetrics();
 #if defined(DOUBLY_INDIRECT)
-int gforth_make_image(int debugflag);
+Cell gforth_make_image(int debugflag);
+#endif
+int gforth_abortmcheck(int reason);
+void gforth_free(void * ptr);
+void gforth_sigset(sigset_t *set, ...);
+
+#if SIZEOF_CHAR_P == 4
+#define GFORTH_MAGIC 0x3B3C51D5U
+#else
+#define GFORTH_MAGIC 0x1E059AF1785E72D4ULL
 #endif
 
 /* for ABI-CODE and ;ABI-CODE */
@@ -432,6 +464,7 @@ struct Longname *listlfind(Char *c_addr, UCell u, struct Longname *longname1);
 struct Longname *hashlfind(Char *c_addr, UCell u, Cell *a_addr);
 struct Longname *tablelfind(Char *c_addr, UCell u, Cell *a_addr);
 UCell hashkey1(Char *c_addr, UCell u, UCell ubits);
+void hashkey2(Char *c_addr, UCell u, uint64_t upmask, hash128 * h);
 struct Cellpair parse_white(Char *c_addr1, UCell u1);
 Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
 struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid);
@@ -444,6 +477,7 @@ UCell rshift(UCell u1, UCell n);
 int gforth_system(Char *c_addr, UCell u);
 void gforth_ms(UCell u);
 UCell gforth_dlopen(Char *c_addr, UCell u);
+void gforth_dlclose(UCell lib);
 Cell capscompare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
 int gf_ungetc(int c, FILE *stream);
 void gf_regetc(FILE *stream);
@@ -485,6 +519,7 @@ extern UCell pagesize;
 extern ImageHeader *gforth_header;
 extern Label *vm_prims;
 extern Label *xts;
+extern Label *labels;
 extern Cell npriminfos;
 
 #ifdef HAS_DEBUG
@@ -498,8 +533,9 @@ extern PER_THREAD Cell *gforth_RP;
 extern PER_THREAD Address gforth_LP;
 extern PER_THREAD Float *gforth_FP;
 extern PER_THREAD user_area* gforth_UP;
+extern user_area* gforth_main_UP;
 
-extern void * gforth_pointers(Cell n);
+extern Cell const * gforth_pointers(Cell n);
 
 #ifdef HAS_FFCALL
 extern void gforth_callback(Xt* fcall, void * alist);
@@ -545,6 +581,9 @@ extern char *strsignal(int sig);
 extern unsigned long int strtoul(const char *nptr, char **endptr, int base);
 #endif
 extern Cell negate(Cell n);
+
+// For systems where you need it
+void zexpand(char * zfile);
 
 #define GROUP(x, n)
 #define GROUPADD(n)

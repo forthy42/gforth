@@ -1,6 +1,6 @@
 \ libcc.fs	foreign function interface implemented using a C compiler
 
-\ Copyright (C) 2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -131,6 +131,20 @@
 
 require struct.fs
 require mkdir.fs
+require string.fs
+
+Vocabulary c-lib
+
+get-current also c-lib definitions
+
+s" libtool compile failed" exception Constant !!libcompile!!
+s" libtool link failed"    exception Constant !!liblink!!
+s" open-lib failed"        exception Constant !!openlib!!
+s" Too many callbacks!"    exception Constant !!callbacks!!
+s" Called function of unfinished named C library"
+                           exception Constant !!unfinished!!
+
+Variable libcc$ \ source string for libcc generated source
 
 \ c-function-ft word body:
 struct
@@ -145,16 +159,23 @@ struct
     \  counted string: c-name
 end-struct cff%
 
+struct
+    cell% field ccb-num
+    cell% field ccb-lha
+    cell% field ccb-ips
+    cell% field ccb-cfuns
+end-struct ccb%
+
 variable c-source-file-id \ contains the source file id of the current batch
 0 c-source-file-id !
 variable lib-handle-addr \ points to the library handle of the current batch.
                          \ the library handle is 0 if the current
                          \ batch is not yet compiled.
-  here 0 , lib-handle-addr ! \ just make sure LIB-HANDLE always works
-2variable lib-filename   \ filename without extension
-2variable lib-modulename \ basename of the file without extension
-2variable libcc-named-dir-v \ directory for named libcc wrapper libraries
+Variable lib-filename   \ filename without extension
+variable lib-modulename \ basename of the file without extension
+variable libcc-named-dir$ \ directory for named libcc wrapper libraries
 Variable libcc-path      \ pointer to path of library directories
+Variable ptr-declare
 
 defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 ' noop is replace-rpath
@@ -165,111 +186,47 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 : const+ ( n1 "name" -- n2 )
     dup constant 1+ ;
 
-: front-string { c-addr1 u1 c-addr2 u2 -- c-addr3 u3 }
-    \ insert string c-addr2 u2 in buffer c-addr1 u1; c-addr3 u3 is the
-    \ remainder of the buffer.
-    assert( u1 u2 u>= )
-    c-addr2 c-addr1 u2 move
-    c-addr1 u1 u2 /string ;
+: scan-back { c-addr u1 c -- c-addr u2 }
+    \ the last occurence of c in c-addr u1 is at u2-1; if it does not
+    \ occur, u2=0.
+    c-addr 1- c-addr u1 + 1- u-do
+	i c@ c = if
+	    c-addr i over - 1+ unloop exit endif
+    1 -loop
+    c-addr 0 ;
 
-: front-char { c-addr1 u1 c -- c-addr3 u2 }
-    \ insert c in buffer c-addr1 u1; c-addr3 u3 is the remainder of
-    \ the buffer.
-    assert( u1 0 u> )
-    c c-addr1 c!
-    c-addr1 u1 1 /string ;
-
-: s+ { addr1 u1 addr2 u2 -- addr u }
-    u1 u2 + allocate throw { addr }
-    addr1 addr u1 move
-    addr2 addr u1 + u2 move
-    addr u1 u2 +
-;
-
-: append { addr1 u1 addr2 u2 -- addr u }
-    addr1 u1 u2 + dup { u } resize throw { addr }
-    addr2 addr u1 + u2 move
-    addr u ;
-
-\ linked list stuff (should go elsewhere)
-
-struct
-    cell% field list-next
-    1 0   field list-payload
-end-struct list%
-
-: list-insert { node list -- }
-    list list-next @ node list-next !
-    node list list-next ! ;
-
-: list-append { node endlistp -- }
-    \ insert node at place pointed to by endlistp
-    node endlistp @ list-insert
-    node list-next endlistp ! ;
-
-: list-map ( ... list xt -- ... )
-    \ xt ( ... node -- ... )
-    { xt } begin { node }
-	node while
-	    node xt execute
-	    node list-next @
-    repeat ;
-
-2variable c-libs \ library names in a string (without "lib")
+Variable c-libs \ library names in a string (without "lib")
 
 : lib-prefix ( -- addr u )  s" libgf" ;
 
 : add-lib ( c-addr u -- ) \ gforth
 \G Add library lib@i{string} to the list of libraries, where
     \G @i{string} is represented by @i{c-addr u}.
-    c-libs 2@ d0= IF  0 allocate throw 0 c-libs 2!  THEN
-    c-libs 2@ s"  -l" append 2swap append c-libs 2! ;
+    [: ."  -l" type ;] c-libs $exec ;
 
 : add-libpath ( c-addr u -- ) \ gforth
 \G Add path @i{string} to the list of library search pathes, where
     \G @i{string} is represented by @i{c-addr u}.
-    c-libs 2@ d0= IF  0 allocate throw 0 c-libs 2!  THEN
-    c-libs 2@ s"  -L" append 2swap append c-libs 2! ;
+    [: ."  -L" type ;] c-libs $exec ;
 
 \ C prefix lines
 
-\ linked list of longcstrings: [ link | count-cell | characters ]
-
-list%
-    cell% field c-prefix-count
-    1 0   field c-prefix-chars
-end-struct c-prefix%
-
-variable c-prefix-lines 0 c-prefix-lines !
-variable c-prefix-lines-end c-prefix-lines c-prefix-lines-end !
-
-: print-c-prefix-line ( node -- )
-    dup c-prefix-chars swap c-prefix-count @ type cr ;
-
-: print-c-prefix-lines ( -- )
-    c-prefix-lines @ ['] print-c-prefix-line list-map ;
+: c-source-file-execute ( ... xt -- ... )
+    libcc$ $exec ;
 
 : write-c-prefix-line ( c-addr u -- )
-    c-source-file-id @ dup if
-	write-line throw
-    else
-	drop 2drop
-    then ;
+    [: type cr ;] c-source-file-execute ;
 
-: save-c-prefix-line1 ( c-addr u -- )
-    2dup write-c-prefix-line
-    align here 0 , c-prefix-lines-end list-append ( c-addr u )
-    longstring, ;
-
-defer save-c-prefix-line ( c-addr u -- )
-' save-c-prefix-line1 is save-c-prefix-line
+: save-c-prefix-line ( addr u -- )  write-c-prefix-line ;
 
 : \c ( "rest-of-line" -- ) \ gforth backslash-c
     \G One line of C declarations for the C interface
-    -1 parse save-c-prefix-line ;
+    -1 parse write-c-prefix-line ;
 
-s" #include <gforth" arch-modifier s+ s" /" append version-string append s" /libcc.h>" append ( c-addr u )
-  2dup save-c-prefix-line drop free throw
+: libcc-include ( -- )
+    [: ." #include <gforth"
+    arch-modifier type ." /"
+    version-string type ." /libcc.h>" cr ;] c-source-file-execute ;
 
 \ Types (for parsing)
 
@@ -281,8 +238,10 @@ get-current libcc-types set-current
 -1
 const+ -- \ end of arguments
 const+ n \ integer cell
+const+ u \ integer cell
 const+ a \ address cell
 const+ d \ double
+const+ ud \ double
 const+ r \ float
 const+ func \ C function pointer
 const+ void
@@ -298,18 +257,30 @@ const+ c-var
 drop
 
 : libcc-type ( c-addr u -- u2 )
-	libcc-types search-wordlist 0= -13 and throw execute ;
+    libcc-types search-wordlist 0= -13 and throw execute ;
 
-: parse-libcc-type ( "libcc-type" -- u )  parse-name libcc-type ;
+: parse-libcc-type ( "libcc-type" -- u )
+    parse-name 2dup '{' scan-back
+    dup IF  2nip 1- 2dup + source drop - >in !  ELSE  2drop  THEN
+    libcc-type ;
+
+: parse-libcc-cast ( "<{>cast<}>" -- addr u )
+    source >in @ /string IF  c@ '{' =  IF
+	    '{' parse 2drop '}' parse
+	ELSE  s" "  THEN
+    ELSE  drop  s" "  THEN ;
+
+: libcc-cast, ( "<{>cast<}>" -- )
+    parse-libcc-cast string, ;
 
 : parse-return-type ( "libcc-type" -- u )
-	parse-libcc-type dup 0< -32 and throw ;
+    parse-libcc-type dup 0< -32 and throw ;
 
 : parse-function-types ( "{libcc-type}" "--" "libcc-type" -- addr )
     c-func c, here
     dup 2 chars allot here begin
 	parse-libcc-type dup 0>= while
-	    c,
+	    c, libcc-cast, \ cast string
     repeat
     drop here swap - over char+ c!
     parse-return-type swap c! ;
@@ -317,28 +288,32 @@ drop
 : parse-value-type ( "{--}" "libcc-type" -- addr )
     c-val c, here
     parse-libcc-type  dup 0< if drop parse-return-type then
-    c,  0 c, ;
+    c,  0 c, ( terminator ) ;
 
 : parse-variable-type ( -- addr )
     c-var c, here
     s" a" libcc-type c,  0 c, ;
 
 0 Value is-funptr?
-: parse-funptr-types ( "{libcc-type}" "--" "libcc-type" -- addr )
-    true to is-funptr?  parse-function-types ;
 
 : type-letter ( n -- c )
-    chars s" nadrfv" drop + c@ ;
+    chars s" nuadUrfv" drop + c@ ;
 
 \ count-stacks
 
 : count-stacks-n ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     1+ ;
 
+: count-stacks-u ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
+    1+ ;
+
 : count-stacks-a ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     1+ ;
 
 : count-stacks-d ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
+    2 + ;
+
+: count-stacks-ud ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     2 + ;
 
 : count-stacks-r ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
@@ -352,8 +327,10 @@ drop
 
 create count-stacks-types
 ' count-stacks-n ,
+' count-stacks-u ,
 ' count-stacks-a ,
 ' count-stacks-d ,
+' count-stacks-ud ,
 ' count-stacks-r ,
 ' count-stacks-func ,
 ' count-stacks-void ,
@@ -362,37 +339,58 @@ create count-stacks-types
     \ pars is an addr u pair
     0 0 2swap over + swap u+do
 	i c@ cells count-stacks-types + @ execute
-    loop ;
+    i 1+ c@ 2 + +loop ;
 
 \ gen-pars
 
-: gen-par-n ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    ." sp[" 1- dup .nb ." ]" ;
+: .gen ( n -- n' )  1- dup .nb ;
 
-: gen-par-a ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    ." (void *)(" gen-par-n ." )" ;
+: gen-par-sp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+    ." sp[" .gen ." ]" ;
 
-: gen-par-d ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    ." gforth_d2ll(" gen-par-n ." ," gen-par-n ." )" ;
+: gen-par-sp+ ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+    ." sp+" .gen ;
 
-: gen-par-r ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    swap 1- tuck ." fp[" .nb ." ]" ;
+: gen-par-fp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+    swap ." fp[" .gen ." ]" swap ;
 
-: gen-par-func ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+: gen-par-n ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    type gen-par-sp ;
+
+: gen-par-u ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    type gen-par-sp ;
+
+: gen-par-a ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    dup 0= IF  2drop ." (void *)"  ELSE
+	2dup type s"   return " str= IF  ." (void *)"  THEN
+    THEN s" (" gen-par-n ." )" ;
+
+: gen-par-d ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
+
+: gen-par-ud ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
+
+: gen-par-r ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop gen-par-fp ;
+
+: gen-par-func ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     gen-par-a ;
 
-: gen-par-void ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    -32 throw ;
+: gen-par-void ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop ;
 
 create gen-par-types
 ' gen-par-n ,
+' gen-par-u ,
 ' gen-par-a ,
 ' gen-par-d ,
+' gen-par-ud ,
 ' gen-par-r ,
 ' gen-par-func ,
 ' gen-par-void ,
 
-: gen-par ( fp-depth1 sp-depth1 partype -- fp-depth2 sp-depth2 )
+: gen-par ( fp-depth1 sp-depth1 cast-addr u partype -- fp-depth2 sp-depth2 )
     cells gen-par-types + @ execute ;
 
 \ the call itself
@@ -400,18 +398,18 @@ create gen-par-types
 : gen-wrapped-func { d: pars d: c-name fp-change1 sp-change1 -- }
     c-name type ." ("
     fp-change1 sp-change1 pars over + swap u+do 
-	i c@ gen-par
-	i 1+ i' < if
+	i 1+ count i c@ gen-par
+	i 1+ c@ 2 + dup i + i' u< if
 	    ." ,"
 	endif
-    loop
+    +loop
     2drop ." )" ;
 
 : gen-wrapped-const { d: pars d: c-name fp-change1 sp-change1 -- }
-	." (" c-name type ." )" ;
+    ." (" c-name type ." )" ;
 
 : gen-wrapped-var { d: pars d: c-name fp-change1 sp-change1 -- }
-	." &(" c-name type ." )" ;
+    ." &(" c-name type ." )" ;
 
 create gen-call-types
 ' gen-wrapped-func ,
@@ -419,7 +417,7 @@ create gen-call-types
 ' gen-wrapped-var ,
 
 : gen-wrapped-call ( pars c-name fp-change1 sp-change1 -- )
-	5 pick 3 chars - c@ cells gen-call-types + @ execute ;
+    5 pick 3 chars - c@ cells gen-call-types + @ execute ;
 
 \ calls for various kinds of return values
 
@@ -427,25 +425,34 @@ create gen-call-types
     2dup 2>r gen-wrapped-call 2r> ;
 
 : gen-wrapped-n ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    2dup gen-par-n 2>r ." =" gen-wrapped-call 2r> ;
+    2dup gen-par-sp 2>r ." =" gen-wrapped-call 2r> ;
+
+: gen-wrapped-u ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
+    2dup gen-par-sp 2>r ." =" gen-wrapped-call 2r> ;
 
 : gen-wrapped-a ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    2dup gen-par-n 2>r ." =(Cell)" gen-wrapped-call 2r> ;
+    2dup gen-par-sp 2>r ." =(Cell)" gen-wrapped-call 2r> ;
 
 : gen-wrapped-d ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     ." gforth_ll2d(" gen-wrapped-void
-    ." ," gen-par-n ." ," gen-par-n ." )" ;
+    ." ," gen-par-sp ." ," gen-par-sp ." )" ;
+
+: gen-wrapped-ud ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
+    ." gforth_ll2ud(" gen-wrapped-void
+    ." ," gen-par-sp ." ," gen-par-sp ." )" ;
 
 : gen-wrapped-r ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
-    2dup gen-par-r 2>r ." =" gen-wrapped-call 2r> ;
+    2dup gen-par-fp 2>r ." =" gen-wrapped-call 2r> ;
 
 : gen-wrapped-func ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     gen-wrapped-a ;
 
 create gen-wrapped-types
 ' gen-wrapped-n ,
+' gen-wrapped-u ,
 ' gen-wrapped-a ,
 ' gen-wrapped-d ,
+' gen-wrapped-ud ,
 ' gen-wrapped-r ,
 ' gen-wrapped-func ,
 ' gen-wrapped-void ,
@@ -458,52 +465,181 @@ create gen-wrapped-types
 	I c@
 	dup 'a' 'z' 1+ within
 	over 'A' 'Z' 1+ within or
-	over '0' '9' 1+ within or
-	swap '_' = or 0= IF  '_' I c!  THEN
+	swap '0' '9' 1+ within or
+	0= IF  '_' I c!  THEN
     LOOP ;
 
 : wrapper-function-name ( addr -- c-addr u )
     \ addr points to the return type index of a c-function descriptor
+    [: ." gforth_c_"
     count { r-type } count { d: pars }
-    pars + count { d: c-name }
-    s" gforth_c_" { d: prefix }
-    prefix nip c-name nip + pars nip + 3 + { u }
-    u allocate throw { c-addr }
-    c-addr u
-    prefix front-string c-name front-string '_ front-char
+    pars + count type '_' emit
     pars bounds u+do
-	i c@ type-letter front-char
-    loop
-    '_ front-char r-type type-letter front-char assert( dup 0= )
-    2drop c-addr u 2dup sanitize ;
+	i c@ type-letter emit
+    i 1+ c@ 2 + +loop
+    '_' emit r-type type-letter emit
+    ;] $tmp 2dup sanitize ;
+
+: .prefix ( -- )
+    [ lib-suffix s" .la" str= [IF] ] lib-prefix type
+	lib-modulename $@ dup 0= IF 2drop s" _replace_this_with_the_hash_code" THEN type
+	." _LTX_" [ [THEN] ] ;
+
+: >ptr-declare ( c-name u1 -- addr u2 )
+    s" *sp++" 2swap \ default is fetch ptr from stack
+    ptr-declare [: ( decl u1 c-name u2 ptr-name u3 -- decl' u1' c-name u2 )
+	2>r 2dup 2r> ':' $split 2>r string-prefix?
+	IF  2nip 2r> 2swap  ELSE  2rdrop THEN ;] $[]map 2drop ;
 
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
-    ." void "
-    [ lib-suffix s" .la" str= [IF] ] lib-prefix type lib-modulename 2@ type ." _LTX_" [ [THEN] ]
-    descriptor wrapper-function-name 2dup type drop free throw
+    ." void " .prefix
+    descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
     .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
-    is-funptr? IF  .\" Cell ptr = *sp++;\n  "  0 to is-funptr?  THEN
-    pars c-name 2over count-stacks ret gen-wrapped-stmt .\" ;\n"
+    pars c-name 2over count-stacks
+    .\" int MAYBE_UNUSED arg0=" dup 1- .nb .\" , farg0=" over 1- .nb .\" ;\n  "
+    is-funptr? IF  ." Cell ptr = " c-name >ptr-declare type .\" ;\n  "  THEN
+    ret gen-wrapped-stmt .\" ;\n"
+    dup is-funptr? or if
+	."   gforth_SP = sp+" dup .nb .\" ;\n"
+    endif drop
     ?dup-if
-	."   gforth_SP = sp+" .nb .\" ;\n"
-    endif
-    ?dup-if
-	."   gforth_FP = fp+" .nb .\" ;\n"
+	."   gforth_FP = fp+"     .nb .\" ;\n"
     endif
     .\" }\n" ;
 
-: scan-back { c-addr u1 c -- c-addr u2 }
-    \ the last occurence of c in c-addr u1 is at u2-1; if it does not
-    \ occur, u2=0.
-    c-addr 1- c-addr u1 + 1- u-do
-	i c@ c = if
-	    c-addr i over - 1+ unloop exit endif
-    1 -loop
-    c-addr 0 ;
+\ callbacks
+
+: gen-n ( -- ) ." Cell" ;
+: gen-u ( -- ) ." UCell" ;
+: gen-a ( -- ) ." void*" ;
+: gen-d ( -- ) ." Clongest" ;
+: gen-ud ( -- ) ." UClongest" ;
+: gen-r ( -- ) ." Float" ;
+: gen-func ( -- ) ." void(*)()" ;
+: gen-void ( -- ) ." void" ;
+
+create gen-types
+' gen-n ,
+' gen-u ,
+' gen-a ,
+' gen-d ,
+' gen-ud ,
+' gen-r ,
+' gen-func ,
+' gen-void ,
+
+: print-type ( n -- ) cells gen-types + perform ;
+
+: callback-header ( descriptor -- )
+    count { ret } count 2dup { d: pars } chars + count { d: c-name }
+    ." #define CALLBACK_" c-name type ." (I) \" cr
+    ret print-type space .prefix ." gforth_cb_" c-name type ." _##I ("
+    0 pars bounds u+do
+	i 1+ count dup IF
+	    2dup s" *(" string-prefix? IF
+		2 /string  2 - 0 max
+	    THEN  type
+	ELSE  2drop i c@ print-type  THEN
+	."  x" dup 0 .r 1+
+	i 1+ c@ 2 + dup i + i' u< if
+	    ." , "
+	endif
+    +loop  drop .\" ) \\\n{ \\" cr ;
+
+Create callback-style c-val c,
+Create callback-&style c-var c,
+
+: callback-threadsafe ( -- )
+    ."   GFORTH_MAKESTACK(GFSS); \" cr ;
+
+: callback-pushs ( descriptor -- )
+    1+ count 0 { d: pars vari }
+    ."   Cell*  sp=gforth_SP; \" cr
+    ."   Float* fp=gforth_FP; \" cr
+    0 0 pars bounds u+do
+	I 1+ c@  IF  callback-&style  ELSE  callback-style  THEN
+	3 + 1 2swap
+	vari 0 <# #s 'x' hold #> 2swap
+	i c@ 2 spaces gen-wrapped-stmt ." ; \" cr
+	i 1+ c@ 2 +  vari 1+ to vari
+    +loop
+    ?dup-if  ."   sp+=" .nb ." ; \" cr  then
+    ?dup-if  ."   fp+=" .nb ." ; \" cr  then ;
+
+: callback-call ( descriptor -- )
+    1+ count + count \ callback C name
+    ."   gforth_SP=sp; gforth_FP=fp; gforth_engine(" .prefix ." gforth_cbips_" type
+    ." [I]); \" cr ;
+
+: gen-par-callback ( sp-change1 sp-change1 addr u type -- fp-change sp-change )
+    dup [ libcc-types >order ] void [ previous ] =
+    IF  drop 2drop  ELSE  gen-par  THEN ;
+
+: callback-wrapup ( -- )
+    ."   gforth_SP=oldsp; gforth_RP=oldrp; gforth_LP=oldlp; gforth_FP=oldfp; gforth_UP=oldup; gforth_magic=old_magic; \" cr ;
+
+: callback-adjust ( descriptor -- )
+    ."   sp=gforth_SP; fp=gforth_FP; \" cr
+    1 count-stacks
+    ?dup-if  ."   sp=gforth_SP+=" .nb ." ; \" cr  then
+    ?dup-if  ."   fp=gforth_FP+=" .nb ." ; \" cr  then ;
+
+: callback-return ( descriptor -- )
+    >r 0 0 s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
+
+: callback-define ( descriptor -- )
+    dup callback-header callback-threadsafe
+    dup callback-pushs dup callback-call
+    dup callback-adjust callback-return ;
+
+: callback-wrapper ( -- )
+    ."   Cell *oldsp=gforth_SP; Cell *oldrp=gforth_RP; char *oldlp=gforth_LP; \" cr
+    ."   Float *oldfp=gforth_FP; user_area *oldup=gforth_UP; Cell old_magic=gforth_magic; \" cr
+    ."   Cell stack[GFSS], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS]; \" cr
+    ."   gforth_SP=stack+GFSS-1; gforth_RP=rstack+GFSS; gforth_LP=(char*)(lstack+GFSS); gforth_FP=fstack+GFSS-1; gforth_UP=gforth_main_UP; gforth_magic=GFORTH_MAGIC; \" cr ;
+
+: callback-thread-define ( descriptor -- )
+    dup callback-header callback-wrapper
+    dup callback-pushs dup callback-call
+    dup callback-adjust callback-wrapup callback-return ;
+
+2 Value callback# \ how many callbacks should be created?
+
+: callback-instantiate ( addr u -- )
+    callback# 0 ?DO
+	." CALLBACK_" 2dup type ." (" I .nb ." )" cr
+    LOOP 2drop ;
+
+: callback-ip-array ( addr u -- )
+    ." Address " .prefix ." gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
+    space callback# 0 ?DO ."  0," LOOP ." };" cr 2drop ;
+
+: callback-c-array ( addr u -- )
+    ." const Address " .prefix ." gforth_callbacks_" 2dup type ." [" callback# .nb ." ] = {" cr
+    callback# 0 ?DO
+	."   (Address)" .prefix ." gforth_cb_" 2dup type ." _" I .nb ." ," cr
+    LOOP
+    ." };" cr 2drop ;
+
+: callback-gen ( descriptor -- )
+    dup callback-define  1+ count + count \ c-name u
+    2dup callback-ip-array 2dup callback-instantiate callback-c-array ;
+
+: callback-thread-gen ( descriptor -- )
+    dup callback-thread-define  1+ count + count \ c-name u
+    2dup callback-ip-array 2dup callback-instantiate callback-c-array ;
+
+: lookup-ip-array ( addr u lib -- addr ) >r
+    [: ." gforth_cbips_" type ;] $tmp r> lib-sym ;
+
+: lookup-c-array ( addr u lib -- addr ) >r
+    [: ." gforth_callbacks_" type ;] $tmp r> lib-sym ;
+
+\ file stuff
 
 : dirname ( c-addr1 u1 -- c-addr2 u2 )
     \ directory name of the file name c-addr1 u1, including the final "/".
@@ -513,94 +649,63 @@ create gen-wrapped-types
     \ file name without directory component
     2dup dirname nip /string ;
 
-: gen-filename ( x -- c-addr u )
-    \ generates a file basename for lib-handle-addr X
-    0 <<# ['] #s $10 base-execute #> 
-    s" gforth_c_" 2swap s+ #>> ;
-
 : libcc-named-dir ( -- c-addr u )
-    libcc-named-dir-v 2@ ;
+    libcc-named-dir$ $@ ;
+
+: >libcc-named-dir ( addr u -- )
+    libcc-named-dir$ $! ;
 
 : libcc-tmp-dir ( -- c-addr u )
-    s" ~/.gforth" arch-modifier s+ s" /libcc-tmp/" s+ ;
+    [: ." ~/.gforth" arch-modifier type ." /" machine type
+    ." /libcc-tmp/" ;] $tmp ;
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
-    2over s+ 2swap drop free throw ;
+    [: type type ;] $tmp ;
 
 : open-wrappers ( -- addr|0 )
-    lib-filename 2@ dirname lib-prefix s+
-    lib-filename 2@ basename append lib-suffix append
+    [: lib-filename $@ dirname type lib-prefix type
+       lib-filename $@ basename type lib-suffix type ;] $tmp
     2dup libcc-named-dir string-prefix? if ( c-addr u )
 	\ see if we can open it in the path
 	libcc-named-dir nip /string
 	libcc-path open-path-file if
+\	    ." Failed to find library '" lib-filename $. ." ' in '"
+\	    libcc-path .path ." ', need compiling" cr
 	    0 exit endif
 	( wfile-id c-addr2 u2 ) rot close-file throw save-mem ( c-addr2 u2 )
     endif
     \ 2dup cr type
-    2dup open-lib >r
-    drop free throw r> ;
+    open-lib ;
 
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
     { d: filename }
-    here 0 , lib-handle-addr ! filename lib-filename 2!
-    filename basename lib-modulename 2!
-    ['] write-c-prefix-line is save-c-prefix-line ;
+    filename lib-filename $!
+    filename basename lib-modulename $! lib-modulename $@ sanitize ;
    
 : c-library-name-create ( -- )
-    lib-filename 2@ s" .c" s+ 2dup w/o create-file throw
-    c-source-file-id !
-    drop free throw ;
+    [: lib-filename $. ." .c" ;] $tmp r/w create-file throw
+    c-source-file-id ! ;
 
 : c-named-library-name ( c-addr u -- )
     \ set up filenames for a (possibly new) library; c-addr u is the
     \ basename of the library
-    libcc-named-dir prepend-dirname c-library-name-setup
-    open-wrappers dup if
-	lib-handle-addr @ !
-    else
-        libcc-named-dir $1ff mkdir-parents drop
-	drop c-library-name-create
-	c-prefix-lines @ ['] print-c-prefix-line \ first line only
-	c-source-file-id @ outfile-execute
-    endif ;
+    libcc-named-dir 2dup  $1ff mkdir-parents drop
+    prepend-dirname c-library-name-setup
+    open-wrappers lib-handle-addr @ ! ;
 
 : c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
     \ the library
     libcc-tmp-dir 2dup $1ff mkdir-parents drop
-    prepend-dirname c-library-name-setup c-library-name-create
-    ['] print-c-prefix-lines c-source-file-id @ outfile-execute ;
+    prepend-dirname c-library-name-setup
+    open-wrappers lib-handle-addr @ ! ;
 
 : lib-handle ( -- addr )
     lib-handle-addr @ @ ;
 
-: init-c-source-file ( -- )
-    lib-handle 0= if
-	c-source-file-id @ 0= if
-	    here gen-filename c-tmp-library-name
-	endif
-    endif ;
-
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
-
-: notype-execute ( ... xt -- ... )
-    what's type { oldtype } try
-	['] 2drop is type execute 0
-    restore
-	oldtype is type
-    endtry
-    throw ;
-
-: c-source-file-execute ( ... xt -- ... )
-    \ direct the output of xt to c-source-file, or nothing
-    lib-handle if
-	notype-execute
-    else
-	c-source-file outfile-execute
-    endif ;
 
 : .lib-error ( -- )
     [ifdef] lib-error
@@ -608,59 +713,135 @@ create gen-wrapped-types
         lib-error ['] type stderr outfile-execute
     [then] ;
 
+\ hashing
+
+[IFUNDEF] hashkey2
+    : hash-c-source ( -- ) ;
+    : check-c-hash ( -- ) ;
+[ELSE]
+    : replace-modulename ( addr u -- ) { d: replace }
+	libcc$ $@  BEGIN  s" _replace_this_with_the_hash_code" search  WHILE
+		over replace rot swap move $20 /string  REPEAT
+	2drop ;
+    
+    Create c-source-hash 16 allot
+
+    : .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
+    : .bytes ( addr u -- ) bounds ?DO
+	    ." \x" I c@ .xx
+	LOOP ;
+    : .c-hash ( -- )
+	lib-filename @ 0= IF
+	    [: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] $tmp
+	    save-mem c-tmp-library-name
+	    lib-modulename $@ replace-modulename
+	THEN
+	." hash_128 gflibcc_hash_" lib-modulename $.
+	.\"  = \"" c-source-hash 16 .bytes .\" \";" cr ;
+    
+    : hash-c-source ( -- )
+	c-source-hash 16 erase
+	libcc$ $@ false c-source-hash hashkey2
+	['] .c-hash c-source-file-execute ;
+
+    : check-c-hash ( -- )
+	[: ." gflibcc_hash_" lib-modulename $. ;] $tmp
+	lib-handle lib-sym
+	?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
+	IF  lib-handle close-lib  lib-handle-addr @ off  THEN ;
+[THEN]
+
+\ clear library
+
 DEFER compile-wrapper-function ( -- )
+
+: clear-libs ( -- ) \ gforth
+\G Clear the list of libs
+    c-source-file-id @ if
+	compile-wrapper-function
+    endif
+    align here 0 , lib-handle-addr !
+    c-libs $init
+    lib-modulename $init
+    libcc$ $init libcc-include
+    ptr-declare $[]off ;
+clear-libs
+
+\ compilation wrapper
+
+: compile-cmd ( -- )
+    [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
+      s" CROSS_PREFIX" getenv $type
+      libtool-cc $type s"  -I '" $type
+      s" includedir" getenv tuck $type
+      0= [IF]  pad $100 get-dir $type s" /include" $type  [THEN]
+      s" '" $type tmp$ $@ ] sliteral type
+    ."  -O -c " lib-filename $. ." .c -o "
+    lib-filename $. ." .lo" ;
+
+: link-cmd ( -- )
+    s" CROSS_PREFIX" getenv type
+    [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=link " $type
+      libtool-cc $type libtool-flags $type s"  -module -rpath " $type tmp$ $@ ] sliteral type
+    lib-filename $@ dirname replace-rpath type space
+    lib-filename $. ." .lo -o "
+    lib-filename $@ dirname type lib-prefix type
+    lib-filename $@ basename type ." .la"
+    c-libs $.  c-libs $off ;
+
 : compile-wrapper-function1 ( -- )
+    hash-c-source check-c-hash
     lib-handle 0= if
+	c-library-name-create
+	libcc$ $@ c-source-file write-file throw  libcc$ $off
 	c-source-file close-file throw
-	0 c-source-file-id !
-	[ libtool-command s"  --silent --tag=CC --mode=compile " s+
-	  libtool-cc append s"  -I '" append
-	  s" includedir" getenv append  s" '" append ] sliteral
-	s"  -O -c " s+ lib-filename 2@ append s" .c -o " append
-	lib-filename 2@ append s" .lo" append ( c-addr u )
-	\    2dup type cr
-	2dup system drop free throw $? abort" libtool compile failed"
-	[ libtool-command s"  --silent --tag=CC --mode=link " s+
-	  libtool-cc append libtool-flags append s"  -module -rpath " s+ ] sliteral
-	lib-filename 2@ dirname replace-rpath s+ s"  " append
-	lib-filename 2@ append s" .lo -o " append
-	lib-filename 2@ dirname append lib-prefix append
-	lib-filename 2@ basename append s" .la" append ( c-addr u )
-	c-libs 2@ append
-	\    2dup type cr
-	2dup system drop free throw $? abort" libtool link failed"
+	['] compile-cmd $tmp system $? 0<> !!libcompile!! and throw
+	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
 	open-wrappers dup 0= if
-	    .lib-error true abort" open-lib failed"
+	    .lib-error !!openlib!! throw
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
-    lib-filename 2@ drop free throw 0 0 lib-filename 2! ;
+    s" gforth_libcc_init" lib-handle lib-sym  ?dup-if  call-c  endif
+    0 c-source-file-id !
+    lib-filename $off clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
-\    s" ar rcs xxx.a xxx.o" system
-\    $? abort" ar generated error" ;
 
 : link-wrapper-function { cff -- sym }
-    cff cff-rtype wrapper-function-name { d: wrapper-name }
-    wrapper-name cff cff-lha @ @ assert( dup ) lib-sym dup 0= if
+    cff cff-rtype wrapper-function-name
+    cff cff-lha @ @ assert( dup ) lib-sym dup 0= if
         .lib-error -&32 throw
-    endif
-    wrapper-name drop free throw ;
+    endif ;
+
+: parse-c-name ( -- addr u )
+    is-funptr? IF
+	'{' parse 2drop '}' parse
+    ELSE
+	parse-name
+    THEN ;
+
+: ?compile-wrapper ( addr -- addr )
+    dup cff-lha @ @ 0= if
+	compile-wrapper-function
+    endif ;
+
+: ?link-wrapper ( addr -- xf-cfr )
+    dup 2@ { xt-defer xt-cfr }
+    xt-defer defer@ xt-cfr <> IF
+	link-wrapper-function
+	xt-cfr >body !
+	xt-cfr xt-defer defer!  THEN
+    xt-cfr ;
 
 : c-function-ft ( xt-defr xt-cfr xt-parse "c-name" "type signature" -- )
     \ build time/first time action for c-function
-    { xt-parse-types } init-c-source-file
+    { xt-parse-types }
     noname create 2, lib-handle-addr @ ,
-    parse-name { d: c-name }
+    parse-c-name { d: c-name }
     xt-parse-types execute c-name string,
     ['] gen-wrapper-function c-source-file-execute
   does> ( ... -- ... )
-    dup 2@ { xt-defer xt-cfr }
-    dup cff-lha @ @ 0= if
-	compile-wrapper-function
-    endif
-    link-wrapper-function xt-cfr >body !
-    xt-cfr xt-defer defer!
-    xt-cfr execute ;
+    ?compile-wrapper ?link-wrapper execute ;
 
 : c-function-rt ( -- )
     \ run-time definition for c function; addr is the address where
@@ -669,8 +850,14 @@ DEFER compile-wrapper-function ( -- )
   does> ( ... -- ... )
     @ call-c ;
 
+c-function-rt  lastxt Constant dummy-rt
+
 : (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
-    { xt-parse-types } defer lastxt dup c-function-rt
+    { xt-parse-types } defer
+    [: defer@ dup >does-code dummy-rt >does-code <>
+    IF  >body ?compile-wrapper ?link-wrapper  THEN
+    postpone call-c# >body , ;] set-compiler
+    lastxt dup c-function-rt
     lastxt xt-parse-types c-function-ft
     lastxt swap defer! ;
 
@@ -689,22 +876,58 @@ DEFER compile-wrapper-function ( -- )
     \G address of @code{c-name}.
     ['] parse-variable-type (c-function) ;
 
-: c-funptr ( "forth-name" "c-typecast" "@{type@}" "---" "type" -- ) \ gforth
+: c-funptr ( "forth-name" <@{>"c-typecast"<@}> "@{type@}" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
-    \G specified stack effect and calls the C function pointer
-    \G ptr using the typecast or struct access @code{c-typecast}.
-    ['] parse-funptr-types (c-function) ;
+    \G specified stack effect plus the called pointer on top of stack,
+    \G i.e. @code{( @{type@} ptr -- type )} and calls the C function
+    \G pointer @code{ptr} using the typecast or struct access
+    \G @code{c-typecast}.
+    true to is-funptr? ['] parse-function-types (c-function)
+    false to is-funptr? ;
 
-: clear-libs ( -- ) \ gforth
-\G Clear the list of libs
-    c-source-file-id @ if
+: (c-callback) ( xt "forth-name" "@{type@}" "---" "type" -- ) \ gforth
+    \G Define a callback instantiator with the given signature.  The
+    \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
+    \G an @var{xt}, and returns the @var{addr}ess of the C function
+    \G handling that callback.
+    >r Create here dup ccb% %size dup allot erase
+    callback# 1- over ccb-num !
+    lib-handle-addr @ swap ccb-lha !
+    parse-function-types
+    here lastxt name>string string, count sanitize
+    r> c-source-file-execute
+  DOES> ( xt -- addr ) >r \ create a callback instance
+    r@ ccb-num @ 0< !!callbacks!! and throw
+    r@ ccb-lha @ @ 0= IF
 	compile-wrapper-function
-    endif
-    0. c-libs 2! ;
-clear-libs
+    THEN
+    r@ ccb-cfuns @ 0= IF
+	r@ cff% %size + 2 + count + count 2dup
+	r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
+	r@ ccb-lha @ @ lookup-c-array r@ ccb-cfuns !
+    THEN
+    >r :noname r> compile, ]] 0 (bye) ; [[
+    >body r@ ccb-ips @ r@ ccb-num @ cells + !
+    r@ ccb-cfuns @ r@ ccb-num @ cells + @
+    -1 r> ccb-num +! ;
+
+: c-callback ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
+    \G Define a callback instantiator with the given signature.  The
+    \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
+    \G an @var{xt}, and returns the @var{addr}ess of the C function
+    \G handling that callback.
+    [: callback-gen ;] (c-callback) ;
+
+: c-callback-thread ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
+    \G Define a callback instantiator with the given signature.  The
+    \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
+    \G an @var{xt}, and returns the @var{addr}ess of the C function
+    \G handling that callback.  This callback is save when called from
+    \G another thread
+    [: callback-thread-gen ;] (c-callback) ;
 
 : c-library-incomplete ( -- )
-    true abort" Called function of unfinished named C library" ;
+    !!unfinished!! throw ;
 
 : c-library-name ( c-addr u -- ) \ gforth
 \G Start a C library interface with name @i{c-addr u}.
@@ -712,24 +935,14 @@ clear-libs
     ['] c-library-incomplete is compile-wrapper-function
     c-named-library-name ;
 
-: c-library ( "name" -- ) \ gforth
-\G Parsing version of @code{c-library-name}
-    parse-name save-mem c-library-name ;
-
-: end-c-library ( -- ) \ gforth
-\G Finish and (if necessary) build the latest C library interface.
-    ['] save-c-prefix-line1 is save-c-prefix-line
-    ['] compile-wrapper-function1 is compile-wrapper-function
-    compile-wrapper-function1 ;
-
 : init-libcc ( -- )
-    s" ~/.gforth" arch-modifier s+ s" /libcc-named/" s+ libcc-named-dir-v 2!
-[IFDEF] $init
-    libcc-path $init
+    libcc-named-dir$ $init
+    [: ." ~/.gforth" arch-modifier type ." /" machine type ." /libcc-named/"
+    ;] libcc-named-dir$ $exec
+    libcc-path $init  ptr-declare $init
+    clear-libs
     libcc-named-dir libcc-path also-path
-    [ s" libccdir" getenv ] sliteral libcc-path also-path
-[THEN]
-;
+    [ s" libccdir" getenv ] sliteral libcc-path also-path ;
 
 init-libcc
 
@@ -737,3 +950,17 @@ init-libcc
     defers 'cold
     init-libcc ;
 is 'cold
+
+set-current
+
+: c-library ( "name" -- ) \ gforth
+\G Parsing version of @code{c-library-name}
+    parse-name save-mem c-library-name also c-lib ;
+
+: end-c-library ( -- ) \ gforth
+    \G Finish and (if necessary) build the latest C library interface.
+    previous
+    ['] compile-wrapper-function1 is compile-wrapper-function
+    compile-wrapper-function1 ;
+
+previous

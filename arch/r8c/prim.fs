@@ -1,6 +1,6 @@
 \ r8c/m16c primitives
 
-\ Copyright (C) 2006,2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 2006,2007,2010,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -629,14 +629,14 @@ end-code
     THEN   #  0 , tos mov.w:q   next,
    End-Code
 
-  Code (key)    ( -- char ) \ get character
+  Code key    ( -- char ) \ get character
       tos push.w:g
       BEGIN  3 , $AD  btst:g  0<> UNTIL
       $AE  , tos mov.w:g  r0h , r0h xor.b
     next,
    End-Code
 
-  Code (emit)     ( char -- ) \ output character
+  Code emit     ( char -- ) \ output character
       BEGIN  1 , $AD  btst:g  0<> UNTIL
       tos.b , $AA  mov.b:g
       tos pop.w:g
@@ -644,7 +644,7 @@ end-code
   End-Code
 
  \ additon io routines
-  Code (key?)     ( -- f ) \ check for read sio character
+  Code key?     ( -- f ) \ check for read sio character
       tos push.w:g
       3 , $AD  btst:g
       0<> IF  # -1 , tos mov.w:q   next,

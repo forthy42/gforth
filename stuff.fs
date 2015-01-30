@@ -1,6 +1,6 @@
 \ miscelleneous words
 
-\ Copyright (C) 1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -21,12 +21,7 @@
     here swap dup allot ( addr1 addr2 u )
     2dup 2>r move 2r> ;
 
-' usable-dictionary-end @ dodefer: = [if]
-    require glocals.fs
-[else]
-    require glocals-1.60.fs
-[then]
-
+require glocals.fs
 
 ' require alias needs ( ... "name" -- ... ) \ gforth
 \G An alias for @code{require}; exists on other systems (e.g., Win32Forth).
@@ -194,9 +189,9 @@ AUser CSP
 
 [ifdef] compiler-r
 : postponer-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer
-    over [ s" [[" find-name ] Literal =
-    IF  2drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
+    do-recognizer dup
+    [ s" [[" find-name ] Literal =
+    IF  drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
@@ -353,13 +348,11 @@ comp' sliteral drop alias postpone-sliteral
 
 [ifundef] defer@ : defer@ >body @ ; [then]
 
-:noname    ' defer@ ;
-:noname    postpone ['] postpone defer@ ;
+:noname ' defer@ ;
+:noname  postpone ['] postpone defer@ ;  2dup
 interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
-' action-of
-comp' action-of drop
 interpret/compile: what's ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
 \G Old name of @code{action-of}
 
@@ -400,20 +393,24 @@ previous
 : outfile-execute ( ... xt file-id -- ... ) \ gforth
     \G execute @i{xt} with the output of @code{type} etc. redirected to
     \G @i{file-id}.
-    outfile-id { oldfid } try
+    op-vector @ outfile-id { oldout oldfid } try
+	default-out op-vector !
 	to outfile-id execute 0
     restore
 	oldfid to outfile-id
+	oldout op-vector !
     endtry
     throw ;
 
 : infile-execute ( ... xt file-id -- ... ) \ gforth
     \G execute @i{xt} with the input of @code{key} etc. redirected to
     \G @i{file-id}.
-    infile-id { oldfid } try
+    ip-vector @ infile-id { oldin oldfid } try
+	default-in ip-vector !
 	to infile-id execute 0
     restore
 	oldfid to infile-id
+	oldin ip-vector !
     endtry
     throw ;
 
@@ -429,6 +426,9 @@ previous
 	oldbase base !
     endtry
     throw ;
+
+: dump ( addr u -- ) ['] dump $10 base-execute ;
+\ wrap dump into base-execute
 
 \ th
 
@@ -476,7 +476,7 @@ previous
 \ quotations
 
 :noname  false :noname ;
-:noname  locals-wordlist last @ lastcfa @
+:noname  locals-wordlist last @ lastcfa @ leave-sp @
     postpone AHEAD
     locals-list @ locals-list off
     postpone SCOPE
@@ -490,6 +490,42 @@ interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
 	]  postpone ENDSCOPE
 	locals-list !
 	postpone THEN
-	lastcfa ! last ! to locals-wordlist
+	leave-sp ! lastcfa ! last ! to locals-wordlist
 	r> postpone ALiteral
     ELSE  r>  THEN ( xt ) ; immediate
+
+\ multiple values to and from return stack
+
+: n>r ( x1 .. xn n -- r:xn..x1 r:n )
+    r> { n ret }
+    0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
+    ret >r ;
+: nr> ( r:xn..x1 r:n -- x1 .. xn n )
+    r> r> { ret n }
+    0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
+    ret >r ;
+
+\ x:traverse-wordlist words
+
+: name>interpret ( nt -- xt|0 )
+    \G \i{xt} represents the interpretation semantics \i{nt}; returns
+    \G 0 if \i{nt} has no interpretation semantics
+    dup name>int tuck <> if \ only if it wasn't compile-only-error
+	dup ['] compile-only-error = if
+	    drop 0
+	then
+    then ;
+
+' name>comp alias name>compile ( nt -- w xt )
+\G @i{w xt} is the compilation token for the word @i{nt}.
+
+\ 2value
+
+: (2to) ( addr -- ) >body 2! ;
+comp: drop >body postpone literal postpone 2! ;
+
+: 2Value ( d "name" -- ) \ Forth200x
+    Create 2,
+    [: >body postpone Literal postpone 2@ ;] set-compiler
+    ['] (2to) set-to
+    DOES> 2@ ;

@@ -1,6 +1,6 @@
 \ various tests, especially for bugs that have been fixed
 
-\ Copyright (C) 1997,1998,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1997,1998,2000,2003,2007,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -71,8 +71,8 @@ throw \ if the TOS is not 0, throw an error
 
 \ look for primitives
 
-' + xt>threaded threaded>name dup 0= throw ( nt )
-s" +" find-name <> throw
+\ ' + xt>threaded threaded>name dup 0= throw ( nt )
+\ s" +" find-name <> throw
 
 \ represent
 
@@ -104,6 +104,8 @@ test-only
 
 \ create-interpret/compile
 
+[IFDEF] interpretation>
+
 : my-constant ( n "name" -- )
     create-interpret/compile
     ,
@@ -118,6 +120,8 @@ compilation>
 five 5 <> throw
 : five' five ;
 five' 5 <> throw
+
+[THEN]
 
 \ structs and alignment
 
