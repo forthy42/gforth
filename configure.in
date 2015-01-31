@@ -292,16 +292,16 @@ AC_MSG_RESULT($make_type)
 AC_SUBST(GNUMAKE)
 
 if test "$ac_export_dynamic" != yes; then
-  AC_MSG_CHECKING([whether the linker accepts -export-dynamic])
+  AC_MSG_CHECKING([whether the linker accepts -Wl,--export-dynamic])
   OLDLDFLAGS=$LDFLAGS
-  LDFLAGS="$LDFLAGS -export-dynamic"
+  LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
   dnl AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
   dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
   AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
   test $ac_export_dynamic = yes|| LDFLAGS=$OLDLDFLAGS
   AC_MSG_RESULT($ac_export_dynamic)
 else
-  LDFLAGS="$LDFLAGS -export-dynamic"
+  LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
 fi
 
 #terminology is a bit unusual here: The host is the system on which
