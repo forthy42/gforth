@@ -1429,19 +1429,19 @@ rdrop	( R:w -- )		gforth
 :
  r> r> drop >r ;
 
-2>r	( d -- R:d )	core-ext	two_to_r
+2>r	( w1 w2 -- R:w1 R:w2 )	core-ext	two_to_r
 :
  swap r> swap >r swap >r >r ;
 
-2r>	( R:d -- d )	core-ext	two_r_from
+2r>	( R:w1 R:w2 -- w1 w2 )	core-ext	two_r_from
 :
  r> r> swap r> swap >r swap ;
 
-2r@	( R:d -- R:d d )	core-ext	two_r_fetch
+2r@	( R:w1 R:w2 -- R:w1 R:w2 w1 w2 )	core-ext	two_r_fetch
 :
  i' j ;
 
-2rdrop	( R:d -- )		gforth	two_r_drop
+2rdrop	( R:w1 R:w2 -- )		gforth	two_r_drop
 :
  r> r> drop r> drop >r ;
 
