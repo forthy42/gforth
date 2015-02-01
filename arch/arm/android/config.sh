@@ -1,14 +1,14 @@
 # First create a standalone toolchain directory
 #mkdir ~/proj/android-toolchain
 #cd  ~/proj/android-toolchain
-#~/proj/android-ndk-r9c/build/tools/make-standalone-toolchain.sh --arch=arm --platform=android-14 --ndk-dir=/home/bernd/proj/android-ndk-r9c --install-dir=$PWD --toolchain=arm-linux-androideabi-4.8
+#~/proj/android-ndk-r10c/build/tools/make-standalone-toolchain.sh --arch=arm --platform=android-14 --ndk-dir=/home/bernd/proj/android-ndk-r10c --install-dir=$PWD --toolchain=arm-linux-androideabi-4.8
 #configure with
 #./configure --host=arm-linux-android --with-cross=android --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib --with-ditc=gforth-ditc-x32
 #and finally create an apk in this directory
 #./build.sh
 (cd engine
 mkdir .libs
-for i in sigaltstack.o __set_errno.o
+for i in sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o
 do
   ar x ~/proj/android-toolchain/sysroot/usr/lib/libc.a $i
   cp $i .libs
@@ -39,11 +39,13 @@ ac_cv_sizeof_int128_t=0
 ac_cv_c_bigendian=no
 ac_cv_func_memcmp_working=yes
 ac_cv_func_memmove=yes
+ac_cv_func_getpagesize=no
 ac_cv_file___arch_arm_asm_fs=yes
 ac_cv_file___arch_arm_disasm_fs=yes
 ac_cv_func_dlopen=yes
 ac_export_dynamic=yes
 CC=arm-linux-androideabi-gcc
+HOSTCC="gcc -m32"
 GNU_LIBTOOL=arm-linux-androideabi-libtool
 build_libcc_named=build-libcc-named
 #KBOX=/data/data/kevinboone.androidterm/kbox
@@ -60,5 +62,5 @@ engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
 LIBS="-llog -lz"
-signals_o="io.o signals.o sigaltstack.o __set_errno.o androidmain.o zexpand.o"
+signals_o="io.o signals.o sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o androidmain.o zexpand.o"
 

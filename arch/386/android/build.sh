@@ -7,40 +7,34 @@ fi
 
 # takes as extra argument a directory where to look for .so-s
 
-ENGINE=gforth
-
-case "$1" in
-    -ditc|-fast)
-	EXT=$1
-	shift
-	ENGINE=gforth$EXT
-	;;
-    --ext)
-	shift
-	EXT=$1
-	shift
-	ENGINE=$EXT
-	;;
-esac
+ENGINES="gforth-fast gforth-itc"
 
 GFORTH_VERSION=$(gforth --version 2>&1 | cut -f2 -d' ')
 APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
-sed -e "s/@ENGINE@/$ENGINE/g" -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
+sed -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
 LIBS=libs/x86
 LIBCCNAMED=lib/$(gforth --version 2>&1 | tr ' ' '/')/libcc-named/.libs
+TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-x86}
 
 rm -rf $LIBS
 mkdir -p $LIBS
+
+if [ ! -f $TOOLCHAIN/sysroot/usr/lib/libsoil2.a ]
+then
+    cp $TOOLCHAIN/sysroot/usr/lib/libsoil.so $LIBS
+fi
+cp .libs/libtypeset.so $LIBS
+strip $LIBS/lib{soil,typeset}.so
 
 if [ "$1" != "--no-gforthgz" ]
 then
     (cd $SRC
 	if [ "$1" != "--no-config" ]; then ./configure --host=i686-linux-android --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib || exit 1; fi
-	make # || exit 1
+	make || exit 1
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]; then CONFIG=no; shift; fi
 
@@ -55,9 +49,12 @@ else
     shift
 fi
 
-SHA256=$(sha256sum libs/x86/libgforthgz.so | cut -f1 -d' ')
+SHA256=$(sha256sum $LIBS/libgforthgz.so | cut -f1 -d' ')
 
-sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/lib$ENGINE.so >$LIBS/lib$ENGINE.so
+for i in $ENGINES
+do
+    sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/lib$i.so >$LIBS/lib$i.so
+done
 
 ANDROID=${PWD%/*/*/*}
 CFLAGS="-O3" 
@@ -70,9 +67,9 @@ do
 		(cd $j
 		    if [ "$CONFIG" == no ]
 		    then
-			make
+			make || exit 1
 		    else
-			./configure CFLAGS="$CFLAGS" --host=i686-linux-android && make clean && make
+			./configure CFLAGS="$CFLAGS" --host=i686-linux-android && make clean && make || exit 1
 		    fi
 		)
 	    done
@@ -91,5 +88,5 @@ done
 strip $LIBS/*.so
 #ant debug
 ant release
-cp bin/Gforth-release.apk bin/$ENGINE.apk
+cp bin/Gforth-release.apk bin/Gforth.apk
 #jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.gnupg/bernd-release-key.keystore bin/Gforth$EXT.apk bernd

@@ -1,6 +1,6 @@
 /* a strerror implemenation
 
-  Copyright (C) 1995,2000,2003,2007 Free Software Foundation, Inc.
+  Copyright (C) 1995,2000,2003,2007,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <stdio.h>
 
-extern char *sys_errlist[];
+extern const char *const sys_errlist[];
 extern int sys_nerr;
 
 char *strerror(int err)

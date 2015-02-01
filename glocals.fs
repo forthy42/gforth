@@ -1,6 +1,6 @@
 \ A powerful locals implementation
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2007,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2007,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -294,12 +294,12 @@ variable dict-execute-dp \ the special dp for DICT-EXECUTE
 
 defer dict-execute ( ... addr1 addr2 xt -- ... )
 
-:noname ( ... addr1 addr2 xt -- ... )
+: dummy-dict ( ... addr1 addr2 xt -- ... )
     \ first have a dummy routine, for SOME-CLOCAL etc. below
     nip nip execute ;
-is dict-execute
+' dummy-dict is dict-execute
 
-: create-local ( " name" -- a-addr )
+: create-local ( "name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
     [IFDEF] vt, vt, [THEN]
@@ -322,16 +322,10 @@ variable locals-dp \ so here's the special dp for locals.
 [IFDEF] set-to
     : to-w: ( -- )  -14 throw ;
     comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE ! ;
-[THEN]
-[IFDEF] set-to
     : to-d: ( -- ) -14 throw ;
     comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ;
-[THEN]
-[IFDEF] set-to
     : to-c: ( -- ) -14 throw ;
     comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE c! ;
-[THEN]
-[IFDEF] set-to
     : to-f: ( -- ) -14 throw ;
     comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE f! ;
 [THEN]
@@ -464,6 +458,8 @@ new-locals-map mappedwordlist Constant new-locals-wl
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
+synonym {: {
+
 locals-types definitions
 
 : } ( latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
@@ -479,6 +475,8 @@ locals-types definitions
     previous previous
     set-current lastcfa !
     locals-list 0 wordlist-id - TO locals-wordlist ;
+
+synonym :} }
 
 : -- ( addr wid 0 ... -- ) \ gforth dash-dash
     }

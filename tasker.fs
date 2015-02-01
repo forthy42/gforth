@@ -1,6 +1,6 @@
 \ Multitasker                                          19aug94py
 
-\ Copyright (C) 1995,1996,1997,2001,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2001,2003,2007,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -67,10 +67,10 @@ Create killer killer A, killer A,
     dup killer link-task  killer dup dup 2!
     user' normal-dp + @ free throw ;
 
-: kill-task ( -- )
+:noname ( -- )
     \G kills the current task, also on bottom of return stack of a new task
     next-task @ up! save-task @ sp!
-    lp! fp! rp! prev-task @ kill ;
+    lp! fp! rp! prev-task @ kill ; IS kill-task
 
 : (pass) ( x1 .. xn n task -- )  rdrop
   [ ' kill-task >body ] ALiteral r>
@@ -97,7 +97,10 @@ Create killer killer A, killer A,
 : task-key   BEGIN  pause key? single-tasking? or  UNTIL  (key) ;
 : task-emit  (emit) pause ;
 : task-type  (type) pause ;
+: task-deadline ( d -- ) 
+    BEGIN  pause 2dup ntime d- d0<=  UNTIL  2drop ;
 
 ' task-key  IS key
 ' task-emit IS emit
 ' task-type IS type
+' task-deadline IS deadline

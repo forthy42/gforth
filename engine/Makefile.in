@@ -1,6 +1,6 @@
 #Makefile for the C part of Gforth
 
-#Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2009,2011,2012,2013 Free Software Foundation, Inc.
+#Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2009,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -92,7 +92,7 @@ XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) $(OPTDEFINES)
 #use -fno-inline to avoid register problems with asinh, atanh on gcc-3.3 on 386
-ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves -fno-inline
+ENGINE_FLAGS = @ENGINE_FLAGS@
 DEBUGFLAG = @DEBUGFLAG@
 CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"' $(LTDLINCL)
 CPPFLAGS=@CPPFLAGS@
@@ -212,7 +212,7 @@ libgforth$(EXE):	libgforth.la libmain.lo
 	$(LTLD) $(LDFLAGS) $(patsubst lib%,-l%,$@) libmain.lo -o $@
 
 engine.s:	$(ENGINE_FAST_DEPS)
-		$(GCC) $(CFLAGS) $(CPPFLAGS) $(ENGINE_FLAGS) -S $(srcdir)/engine.c
+		$(COMPILER) -DFORCE_LL -DFORCE_REG -DGFORTH_DEBUGGING $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
 engine$(OPT).o engine$(OPT).lo:	$(ENGINE_DEPS)
 		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c
@@ -277,10 +277,10 @@ profile$(OPT).o profile$(OPT).lo:	profile.c profile.i $(DEPS)
 
 # engine_ditc:	$(OBJECTS_DITC) $(OBJECTS0) ;
 
-#NeXTstep hack
+#NeXTstep hack, can't be done that way...
 
-termios.o:	/usr/lib/libposix.a
-	ar x /usr/lib/libposix.a termios.o
+#termios.o:	/usr/lib/libposix.a
+#	ar x /usr/lib/libposix.a termios.o
 
 config.h:	stamp-h
 stamp-h:	config.h.in ../config.status ../stamp-h.in

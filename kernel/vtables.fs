@@ -1,6 +1,6 @@
 \ vtables.fs does the intelligent compile, vtable handling
 
-\ Copyright (C) 2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -26,7 +26,7 @@
 : variable, >body ['] lit peephole-compile, , ;
 : user, >body @ ['] useraddr peephole-compile, , ;
 : defer, >body ['] lit-perform peephole-compile, , ;
-: field, >body @ ['] lit+ peephole-compile, , ;
+: field+, >body @ ['] lit+ peephole-compile, , ;
 : abi-code, >body ['] abi-call peephole-compile, , ;
 : ;abi-code, ['] ;abi-code-exec peephole-compile, , ;
 : does, ['] does-exec peephole-compile, , ;

@@ -1,6 +1,6 @@
 \ Simple debugging aids
 
-\ Copyright (C) 1995,1997,1999,2002,2003,2004,2005,2006,2007,2009,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,1999,2002,2003,2004,2005,2006,2007,2009,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -43,11 +43,12 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 \G prints the additional information with @code{printdebugdata}.
 
 : (.debugline) ( nfile nline -- )
+    info-color attr!
     cr .sourcepos ." :"
     \ it would be nice to print the name of the following word,
     \ but that's not easily possible for primitives
     printdebugdata
-    cr ;
+    cr default-color attr! ;
 
 [IFUNDEF] debug-fid
 stderr value debug-fid ( -- fid )
@@ -58,13 +59,9 @@ stderr value debug-fid ( -- fid )
 
 : .debugline-directed ( nfile nline -- )
     op-vector @ { oldout }
-    try
-	default-out op-vector !
-	['] .debugline debug-fid outfile-execute
-	0
-    restore
-	oldout op-vector !
-    endtry
+    debug-vector @ op-vector !
+    ['] .debugline catch
+    oldout op-vector !
     throw ;
 
 : ~~ ( -- ) \ gforth tilde-tilde
@@ -137,3 +134,17 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 \G turn on line tracing
 : -ltrace ['] noop is before-line ;
 \G turn off line tracing
+
+\ view/locate
+
+require string.fs
+
+: view ( "name" -- ) \ gforth
+    \G tell the editor to go to the source of a word
+    \G uses emacs; so you have to do M-x server-start in Emacs,
+    \G and have Forth-mode loaded.  This will ask for the tags file
+    \G on the first invocation
+    [: ." emacsclient -e '(forth-find-tag " '"' emit
+	parse-name type '"' emit ." )'" ;] $tmp system ;
+
+' view alias locate \ forth inc

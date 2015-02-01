@@ -1,6 +1,6 @@
 \ ansi.fs      Define terminal attributes              20may93jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2001,2003,2007,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2001,2003,2007,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -86,6 +86,14 @@ VARIABLE Attr   -1 Attr !
                         [char] m emit ;
 
 ' (Attr!) IS Attr!
+
+[IFDEF] debug-out
+    debug-out op-vector !
+    
+    ' (Attr!) IS Attr!
+    
+    default-out op-vector !
+[THEN]
 
 : BlackSpace    Attr @ dup BG> Black =
                 IF drop space

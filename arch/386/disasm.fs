@@ -10,8 +10,6 @@
 
 \ Gforth stuff
 
-260 chars constant maxstring
-
 128 CONSTANT SPCS-MAX  ( optimization for SPACES )
 
 CREATE SPCS         SPCS-MAX ALLOT
@@ -58,6 +56,8 @@ vocabulary disassembler
 disassembler also definitions
 
 decimal
+
+260 chars constant maxstring
 
 create s-buf MAXSTRING allot
 

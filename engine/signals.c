@@ -1,6 +1,6 @@
 /* signal handling
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011,2012,2013 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011,2012,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <termios.h>
+#include <stdarg.h>
 #include "io.h"
 
 #ifdef HAS_DEBUG
@@ -83,6 +84,18 @@ void install_signal_handler(int sig, void (*handler)(int, siginfo_t *, void *))
   sigaction(sig, &action, NULL);
 }
 #endif
+
+void gforth_sigset(sigset_t *set, ...)
+{
+  va_list ap;
+  int sig;
+  va_start(ap, set);
+  sigemptyset(set);
+  while(sig=va_arg(ap, int)) {
+    sigaddset(set, sig);
+  }
+  va_end(ap);
+}
 
 Sigfunc *bsd_signal(int signo, Sigfunc *func)
 {

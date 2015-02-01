@@ -1,6 +1,6 @@
 \ input output basics				(extra since)	02mar97jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -32,6 +32,14 @@ UValue debug-fid ( -- file-id ) \ gforth
 
 : (emit) ( c -- ) \ gforth
     outfile-id emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
+;
+
+: (err-type) ( c-addr u -- ) \ gforth
+    debug-fid write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
+;
+
+: (err-emit) ( c -- ) \ gforth
+    debug-fid emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
 
 : (key) ( -- c ) \ gforth
@@ -107,10 +115,24 @@ here
 ' noop A, \ page
 ' 2drop A, \ at-xy
 ' 2drop A, \ at-deltaxy
-' noop A, \ attr!
+' drop A, \ attr!
 A, here AConstant default-out
 
+here
+' (err-type) A,
+' (err-emit) A,
+' (cr) A,
+[IFDEF] (form) ' (form) A, [THEN]
+' noop A, \ page
+' 2drop A, \ at-xy
+' 2drop A, \ at-deltaxy
+' drop A, \ attr!
+A, here AConstant debug-out
+
 default-out op-vector !
+
+AVariable debug-vector
+debug-out debug-vector !
 
 here
 ' (key) A,
@@ -125,7 +147,7 @@ default-in ip-vector !
 
 : output: ( type-xt emit-xt cr-xt form-xt -- )
     Create here cell+ , swap 2swap swap , , , ,
-    ['] noop , ['] 2drop , ['] 2drop , ['] noop ,
+    ['] noop , ['] 2drop , ['] 2drop , ['] drop ,
   DOES> cell+ op-vector ! ;
 
 \ Input                                                13feb93py
@@ -134,6 +156,7 @@ default-in ip-vector !
 07 constant #bell ( -- c ) \ gforth
 08 constant #bs ( -- c ) \ gforth
 09 constant #tab ( -- c ) \ gforth
+1B Constant #esc ( -- c ) \ gforth
 7F constant #del ( -- c ) \ gforth
 0D constant #cr   ( -- c ) \ gforth
 \ the newline key code
@@ -166,3 +189,12 @@ DOES>   ( u -- ) spaces-loop ;
 hex
 [THEN]
 
+has? os [IF]
+    Defer deadline ( d -- )
+    \G wait to absolute time @var{d} in ns since 1970-1-1 0:00:00+000
+    : kernel-deadline ( d -- )
+	ntime d- #1000000000 um/mod (ns) ;
+    ' kernel-deadline IS deadline
+    : ns ( d -- ) ntime d+ deadline ;
+    : ms ( n -- ) #1000000 um* ns ;
+[THEN]

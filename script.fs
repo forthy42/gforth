@@ -1,4 +1,4 @@
-\ Copyright (C) 2001,2003,2007,2013 Free Software Foundation, Inc.
+\ Copyright (C) 2001,2003,2007,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -17,16 +17,17 @@
 
 \ scripting extensions
 
-: r:eval ( addr u -- ) cr system ;
-comp: drop slit, ]] cr system [[ ;
-post: >r slit, r> post, ;
+: >system ( addr u -- ) cr system ;
+: system, slit, postpone >system ;
+' >system ' system,
+post: slit, postpone system, ;
+recognizer: r:eval
 
-: eval-recognizer ( addr u -- addr u' r:string )
+: rec:eval ( addr u -- addr u' r:string )
     \G evaluate string + rest of command line
     drop source drop - >in ! source >in @ /string dup >in +!
-    ['] r:eval ;
-' eval-recognizer forth-recognizer get-recognizers 1+
-forth-recognizer set-recognizers
+    r:eval ;
+' rec:eval get-recognizers 1+ set-recognizers
 
 2Variable sh$  0. sh$ 2!
 : sh-get ( addr u -- addr' u' )

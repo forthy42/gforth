@@ -1,6 +1,6 @@
 \ compiler definitions						14sep97jaw
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -404,6 +404,7 @@ comp: drop >body @ postpone useraddr , postpone ! ;
 : u-compile, ( xt -- )  >body @ postpone useraddr , postpone @ ;
 
 : UValue ( "name" -- )
+    \G Define a per-thread value
     Create cell uallot , ['] u-to set-to
     ['] u-compile, set-compiler
   DOES> @ next-task + @ ;
@@ -448,7 +449,7 @@ defer defer-default ( -- )
     >r ;-hook ?struc
     exit-like
     here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
-    postpone aliteral r> compile, [compile] exit
+    postpone aliteral r> compile, [exit]
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
@@ -562,22 +563,32 @@ defer ;-hook ( sys2 -- sys1 )
 
 0 Constant defstart
 
+: (noname->comp) ( nt -- nt xt )  ['] compile, ;
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
-    docol,
-    defstart ] :-hook ;
+    docol, defstart ] :-hook ;
 
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
     Header (:noname) ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    noname, here (:noname) ;
+    noname, here (:noname)
+    ['] noop set->int  ['] (noname->comp) set->comp ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
-    ;-hook ?struc [compile] exit
+    ;-hook ?struc [exit]
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
+
+: concat ( xt1 xt2 -- xt )  >r >r
+    :noname r> compile, r> compile, postpone ; ;
+
+: recognizer: ( int-xt comp-xt post-xt "name" -- )
+    \G create a new recognizer table
+    ['] drop swap concat >r  ['] drop swap concat >r
+    >r :noname r> compile, postpone ;
+    r> set-compiler r> set-postpone  Constant ;
 
 \ new interpret/compile:
 

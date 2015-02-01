@@ -1,6 +1,6 @@
 \ socket interface
 
-\ Copyright (C) 1998,2000,2003,2005,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1998,2000,2003,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -22,7 +22,9 @@ c-library socket
 \c #include <unistd.h>
 c-function gethostname gethostname a n -- n ( c-addr u -- ior )
 \c #include <errno.h>
+warnings @ warnings off
 c-value errno errno -- n ( -- value )
+warnings ! \ errno might be defined elsewhere
 \c #include <sys/types.h>
 \c #include <sys/socket.h>
 c-function socket socket n n n -- n ( class type proto -- fd )
@@ -146,7 +148,6 @@ sockaddr-tmp sockaddr_in %size dup allot erase
 Create hints
 hints addrinfo %size dup allot erase
 Variable addrres
-Variable sockopt-on
 
 : c-string ( addr u -- addr' )
     tuck pad swap move pad + 0 swap c! pad ;
@@ -203,47 +204,52 @@ s" accept failed"      exception Constant !!accept!!
 s" blocking-mode failed" exception Constant !!blocking!!
 s" sock read error"    exception Constant !!sockread!!
 
-: ?ior ( r -- )
-    \G use errno to generate throw when failing
-    IF  -512 errno - throw  THEN ;
+[IFUNDEF] ?ior
+    : ?ior ( r -- )
+	\G use errno to generate throw when failing
+	IF  -512 errno - throw  THEN ;
+[THEN]
 
 : new-socket ( -- socket )
     PF_INET SOCK_STREAM 0 socket dup 0<= ?ior ;
 
-: new-socket6 ( -- socket )
+: new-socket6 ( -- socket )  true { w^ sockopt }
     PF_INET6 SOCK_STREAM 0 socket dup 0<= ?ior
-    dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt drop ;
+    dup IPPROTO_IPV6 IPV6_V6ONLY sockopt 4 setsockopt drop ;
 
 : new-udp-socket ( -- socket )
     PF_INET SOCK_DGRAM 0 socket dup 0<= ?ior
-[IFDEF] darwin
-\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
-\    setsockopt ?ior
-[ELSE]
-    dup IPPROTO_IP IP_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4
-    setsockopt ?ior
-[THEN] ;
+    [IFDEF] darwin
+	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
+	\    setsockopt ?ior
+    [ELSE]
+	IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
+	dup IPPROTO_IP IP_MTU_DISCOVER sockopt 4
+	setsockopt ?ior
+    [THEN] ;
 
-: new-udp-socket6 ( -- socket )
+: new-udp-socket6 ( -- socket ) 0 { w^ sockopt }
     PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
-[IFDEF] darwin
-\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
-\    setsockopt drop
-[ELSE]
-    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4
-    setsockopt ?ior
-[THEN]
-    dup IPPROTO_IPV6 IPV6_V6ONLY sockopt-on dup on 4 setsockopt ?ior ;
+    [IFDEF] darwin
+	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
+	\    setsockopt drop
+    [ELSE]
+	IP_PMTUDISC_DO sockopt l!
+	dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
+	setsockopt ?ior
+    [THEN]
+    dup IPPROTO_IPV6 IPV6_V6ONLY sockopt dup on 4 setsockopt ?ior ;
 
 : new-udp-socket46 ( -- socket )
     PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
-[IFDEF] darwin
-\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
-\    setsockopt ?ior
-[ELSE]
-    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt-on IP_PMTUDISC_DO over l! 4
-    setsockopt ?ior
-[THEN]
+    [IFDEF] darwin
+	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
+	\    setsockopt ?ior
+    [ELSE]
+	IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
+	dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
+	setsockopt ?ior
+    [THEN]
 ;
 
 \ getaddrinfo based open-socket
@@ -283,8 +289,8 @@ s" sock read error"    exception Constant !!sockread!!
 : open-udp-socket ( addr u port -- fid )
     SOCK_DGRAM >hints  get-info  get-socket ;
 
-: reuse-addr ( socket -- )
-    SOL_SOCKET SO_REUSEADDR sockopt-on 1 over l! 4 setsockopt drop ;
+: reuse-addr ( socket -- ) 0 { w^ sockopt } 1 sockopt l!
+    SOL_SOCKET SO_REUSEADDR sockopt 4 setsockopt drop ;
 \ : reuse-port ( socket -- ) \ only on BSD for now...
 \     SOL_SOCKET SO_REUSEPORT sockopt-on 1 over l! 4 setsockopt drop ;
 
@@ -313,14 +319,14 @@ s" sock read error"    exception Constant !!sockread!!
     sockaddr-tmp sockaddr_in6 %size erase
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
-    new-udp-socket6 dup 0< ?ior >r
+    new-udp-socket6 dup 0< ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
 
 : create-udp-server46  ( port# -- lsocket )
     sockaddr-tmp sockaddr_in6 %size erase
     AF_INET6 sockaddr-tmp family w!
     htons   sockaddr-tmp port w!
-    new-udp-socket46 dup 0< ?ior >r
+    new-udp-socket46 dup 0< ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
 
 \ from itools.frt

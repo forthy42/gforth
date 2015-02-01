@@ -1,6 +1,6 @@
 \ source location handling
 
-\ Copyright (C) 1995,1997,2003,2004,2007,2009,2011 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,2003,2004,2007,2009,2011,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -22,6 +22,7 @@
 \ this stuff is used by (at least) assert.fs and debugs.fs
 
 : loadfilename#>str ( n -- addr u )
+    dup 0< IF  drop s" "  EXIT  THEN
     included-files 2@ rot min 2* cells + 2@ ;
 
 : str>loadfilename# ( addr u -- n )

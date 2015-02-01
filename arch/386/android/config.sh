@@ -7,9 +7,11 @@
 #and finally create an apk in this directory
 #./build.sh
 echo "Config for x86-android"
+#XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o clrerr.o feof.o ferror.o fileno.o getc.o stubs.o putc.o rget.o wbuf.o wsetup.o fflush.o libc_logging.o refill.o findfp.o stdio.o makebuf.o fwalk.o atexit.o thread_private.o"
+XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o"
 (cd engine
 mkdir .libs
-for i in sigaltstack.o __set_errno.o
+for i in $XLIBS
 do
   ar x ~/proj/android-toolchain-x86/sysroot/usr/lib/libc.a $i
   cp $i .libs
@@ -40,11 +42,13 @@ ac_cv_sizeof_int128_t=0
 ac_cv_c_bigendian=no
 ac_cv_func_memcmp_working=yes
 ac_cv_func_memmove=yes
+ac_cv_func_getpagesize=no
 ac_cv_file___arch_386_asm_fs=yes
 ac_cv_file___arch_368_disasm_fs=yes
 ac_cv_func_dlopen=yes
 ac_export_dynamic=yes
 CC=i686-linux-android-gcc
+HOSTCC="gcc -m32"
 GNU_LIBTOOL="i686-linux-android-libtool"
 build_libcc_named=build-libcc-named
 #KBOX=/data/data/kevinboone.androidterm/kbox
@@ -60,6 +64,6 @@ engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
-LIBS="-llog -lz"
-signals_o="io.o signals.o sigaltstack.o __set_errno.o androidmain.o zexpand.o"
+LIBS="-llog -lz -lc"
+signals_o="io.o signals.o $XLIBS androidmain.o zexpand.o"
 

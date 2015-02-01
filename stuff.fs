@@ -1,6 +1,6 @@
 \ miscelleneous words
 
-\ Copyright (C) 1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -189,11 +189,9 @@ AUser CSP
 
 [ifdef] compiler-r
 : postponer-r ( addr u -- ... xt )
-    forth-recognizer do-recognizer
-    [ifdef] recognizer: over [else] dup [then]
+    do-recognizer dup
     [ s" [[" find-name ] Literal =
-    IF  [ifdef] recognizer: 2drop [else] drop [then]
-	[comp'] ] drop ELSE  ['] >postpone  THEN ;
+    IF  drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state

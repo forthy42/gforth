@@ -1,6 +1,6 @@
 \ definitions needed for interpreter only
 
-\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -445,7 +445,7 @@ const Create ???
 	then
     then \ check for cfa - must be code field or primitive
     dup @ tuck 2 cells - = swap
-    docol:  ['] lit-execute @ 1+ within or ;
+    docol:  ['] u#+ @ 1+ within or ;
 
 : head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false
@@ -877,18 +877,21 @@ Defer .error-level ( n -- )
 
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
-  [ has? os [IF] ]
-      >stderr
-  [ [THEN] ]
-  input-error-data 2 .error-frame
-  error-stack $@len 0 ?DO
-    error>
-    2 .error-frame
-  /error +LOOP
-  drop 
-[ has? backtrace [IF] ]
-  dobacktrace
-[ [THEN] ]
+    [ has? os [IF] ]
+	>stderr err-color attr!
+	[ [THEN] ]
+    input-error-data 2 .error-frame
+    error-stack $@len 0 ?DO
+	error>
+	2 .error-frame
+    /error +LOOP
+    drop 
+    [ has? backtrace [IF] ]
+	dobacktrace
+	[ [THEN] ]
+    [ has? os [IF] ]
+	default-color attr!
+	[ [THEN] ]
   normal-dp dpp ! ;
 
 ' (DoError) IS DoError
@@ -937,7 +940,7 @@ Defer .error-level ( n -- )
 
 : gforth ( -- )
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2013 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2014 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `bye' to exit"

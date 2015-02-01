@@ -1,6 +1,6 @@
 \ VT100.STR     VT100 excape sequences                  20may93jaw
 
-\ Copyright (C) 1995,1999,2000,2003,2007,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1999,2000,2003,2007,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -19,9 +19,11 @@
 
 decimal
 
+[IFUNDEF] #esc  27 Constant #esc  [THEN]
+
 : pn    base @ swap decimal 0 u.r base ! ;
 : ;pn   [char] ; emit pn ;
-: ESC[  27 emit [char] [ emit ;
+: ESC[  #esc emit [char] [ emit ;
 
 : vt100-at-xy ( u1 u2 -- ) \ facility at-x-y
   \G Position the cursor so that subsequent text output will take
@@ -29,10 +31,35 @@ decimal
   \G row 0 is the top left-hand corner of the display).
   1+ swap 1+ swap ESC[ pn ;pn [char] H emit ;
 
+[IFUNDEF] at-deltaxy  Defer at-deltaxy [THEN]
+: vt100-at-deltaxy ( x y -- )
+    \G position the cursor relative to the current cursor position
+    \G by adding @var{x} to the column and @var{y} to the row, negative
+    \G numbers move up and left, positive down and right.
+    over 0< over 0= and IF  drop abs backspaces  EXIT  THEN
+    base @ >r decimal
+    ?dup IF
+	#esc emit '[ emit  dup abs 0 .r 0< IF  'A  ELSE  'B  THEN  emit
+    THEN
+    ?dup IF
+	#esc emit '[ emit  dup abs 0 .r 0< IF  'D  ELSE  'C  THEN  emit
+    THEN  r> base ! ;
+
 : vt100-page ( -- ) \ facility
   \G Clear the display and set the cursor to the top left-hand
   \G corner.
   ESC[ ." 2J" 0 0 at-xy ;
 
 ' vt100-at-xy IS at-xy
+' vt100-at-deltaxy IS at-deltaxy
 ' vt100-page IS page
+
+[IFDEF] debug-out
+    debug-out op-vector !
+    
+    ' vt100-at-xy IS at-xy
+    ' vt100-at-deltaxy IS at-deltaxy
+    ' vt100-page IS page
+    
+    default-out op-vector !
+[THEN]

@@ -1,7 +1,7 @@
 /*
   This is the machine-specific part for the AMD64 (née x86-64) architecture.
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2011,2013 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2011,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -97,9 +97,13 @@ explicit register allocation and efforts to stop coalescing.
 #define LPREG asm("%rbp") /* works with GCC 4.7.x */
 #endif
 #if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=8)
-#define FTOSREG asm("%xmm7")
+#define FTOSREG asm("%xmm15")
 #else
 #define FTOSREG asm("%xmm8")
+#endif
+#ifdef __clang__
+/* maybe we need some other options for clang */
+/* but so far, clang doesn't support manual register allocation */
 #endif
 #endif
 

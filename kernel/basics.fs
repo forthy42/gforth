@@ -1,6 +1,6 @@
 \ kernel.fs    GForth kernel                        17dec92py
 
-\ Copyright (C) 1995,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -267,8 +267,9 @@ is throw
 
 : c(warning") ( c-addr -- )
     warnings @ IF
-	>stderr
+	>stderr warn-color attr!
 	"error ! -2 input-error-data 1 .error-frame
+	default-color attr!
     THEN drop ;
 
 : abort ( ?? -- ?? ) \ core,exception-ext

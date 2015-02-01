@@ -1,6 +1,6 @@
 /* uncompress using zlib
 
-  Copyright (C) 2012,2013 Free Software Foundation, Inc.
+  Copyright (C) 2012,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -22,6 +22,17 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#ifdef __ANDROID__
+#include <android/log.h>
+
+#define LOGI(...) \
+  __android_log_print(ANDROID_LOG_INFO, "Gforth", __VA_ARGS__);
+#define LOGE(...) \
+  __android_log_print(ANDROID_LOG_ERROR, "Gforth", __VA_ARGS__);
+#else
+#define LOGI(...) fprintf(stderr, __VA_ARGS__);
+#define LOGE(...) fprintf(stderr, __VA_ARGS__);
+#endif
 
 void zexpand(char * zfile)
 {
@@ -33,7 +44,7 @@ void zexpand(char * zfile)
     char filename[sizebuf];
     int len1=gzread(file, filename, sizebuf);
     int len2=gzread(file, &filesize, sizeof(int32_t));
-    // fprintf(stderr, "File %c: %s size %d\n", filename[0], filename+1, filesize);
+    // LOGI("File %c: %s size %d\n", filename[0], filename+1, filesize);
 
     if((len1==sizebuf) && (len2==sizeof(int32_t))) {
       char filebuf[filesize];
@@ -42,21 +53,21 @@ void zexpand(char * zfile)
       if((len3==filesize)) {
 	switch(filename[0]) {
 	case 'f': // file
-	  fprintf(stderr, "file %s, size %d\n", filename+1, filesize);
+	  LOGI("file %s, size %d\n", filename+1, filesize);
 	  out=fopen(filename+1, "w+");
 	  fwrite(filebuf, filesize, 1, out);
 	  fclose(out);
 	  break;
 	case 'd': // directory
-	  fprintf(stderr, "dir %s\n", filename+1);
+	  LOGI("dir %s\n", filename+1);
 	  mkdir(filename+1, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	  break;
 	case 'h': // hard link
-	  fprintf(stderr, "hardlink %s\n", filename+1);
+	  LOGI("hardlink %s\n", filename+1);
 	  link(filebuf, filename+1);
 	  break;
 	case 's': // symlink
-	  fprintf(stderr, "symlink %s\n", filename+1);
+	  LOGI("symlink %s\n", filename+1);
 	  symlink(filebuf, filename+1);
 	  break;
 	}

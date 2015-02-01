@@ -1,6 +1,6 @@
 \ Gforth primitives
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -1044,9 +1044,9 @@ ud = (UDCell)u1 * (UDCell)u2;
    DO
 	dup 0< I' and d2*+ drop
    LOOP ;
-: d2*+ ( ud n -- ud+n c )
-   over MINI
-   and >r >r 2dup d+ swap r> + swap r> ;
+: d2*+ ( ud u -- ud+u c )
+   over MINI and >r
+   >r 2dup d+ r> 0 d+ r> ;
 
 um/mod	( ud u1 -- u2 u3 )		core	u_m_slash_mod
 ""ud=u3*u1+u2, u1>u2>=0""
@@ -1063,9 +1063,9 @@ u3=DLO(r);
    LOOP drop swap 1 rshift or swap ;
 : /modstep ( ud c R: u -- ud-?u c R: u )
    >r over r@ u< 0= or IF r@ - 1 ELSE 0 THEN  d2*+ r> ;
-: d2*+ ( ud n -- ud+n c )
-   over MINI
-   and >r >r 2dup d+ swap r> + swap r> ;
+: d2*+ ( ud u -- ud+u c )
+   over MINI and >r 
+   >r 2dup d+ r> 0 d+ r> ;
 
 m+	( d1 n -- d2 )		double		m_plus
 #ifdef BUGGY_LL_ADD
@@ -1188,6 +1188,76 @@ select ( u1 u2 f -- u )	   gforth
 u = f ? u1 : u2;
 :
  IF swap THEN nip ;
+
+dlshift	 ( ud1 u -- ud2 )	gforth dlshift
+""double arithmetic shift left""
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DHI_IS(ud2, (DLO(ud1) << u));
+  DLO_IS(ud2, 0);
+} else {
+  DHI_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
+  DLO_IS(ud2, (DLO(ud1) << u));
+}
+#else
+  ud2 = ud1 << u;
+#endif
+
+drshift	 ( ud1 u -- ud2 )	gforth drshift
+""double arithmetic shift right""
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DHI_IS(ud2, 0);
+  DLO_IS(ud2, (DHI(ud1) >> u));
+} else {
+  DHI_IS(ud2, (DHI(ud1) >> u));
+  DLO_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+}
+#else
+  ud2 = ud1 >> u;
+#endif
+
+rol	( u1 u -- u2 )		gforth rol
+""rotate left""
+u2 = (u1 << u) | (u1 >> (CELL_BITS-u));
+
+ror	( u1 u -- u2 )		gforth ror
+""rotate right""
+u2 = (u1 >> u) | (u1 << (CELL_BITS-u));
+
+drol	( ud1 u -- ud2 )	gforth drol
+""rotate left""
+u &= sizeof(Cell)*16-1;
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DLO_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
+  DHI_IS(ud2, ((DLO(ud1) << u) | (DHI(ud1) >> (CELL_BITS-u))));
+} else {
+  DHI_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
+  DLO_IS(ud2, ((DLO(ud1) << u) | (DHI(ud1) >> (CELL_BITS-u))));
+}
+#else
+ud2 = (ud1 << u) | (ud1 >> (2*CELL_BITS-u));
+#endif
+
+dror	( ud1 u -- ud2 )	gforth dror
+""rotate right""
+u &= sizeof(Cell)*16-1;
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DLO_IS(ud2, ((DHI(ud1) >> u) | (DLO(ud1) << (CELL_BITS-u))));
+  DHI_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+} else {
+  DHI_IS(ud2, ((DHI(ud1) >> u) | (DLO(ud1) << (CELL_BITS-u))));
+  DLO_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+}
+#else
+ud2 = (ud1 >> u) | (ud1 << (2*CELL_BITS-u));
+#endif
 
 \g compare
 
@@ -1359,19 +1429,19 @@ rdrop	( R:w -- )		gforth
 :
  r> r> drop >r ;
 
-2>r	( d -- R:d )	core-ext	two_to_r
+2>r	( w1 w2 -- R:w1 R:w2 )	core-ext	two_to_r
 :
  swap r> swap >r swap >r >r ;
 
-2r>	( R:d -- d )	core-ext	two_r_from
+2r>	( R:w1 R:w2 -- w1 w2 )	core-ext	two_r_from
 :
  r> r> swap r> swap >r swap ;
 
-2r@	( R:d -- R:d d )	core-ext	two_r_fetch
+2r@	( R:w1 R:w2 -- R:w1 R:w2 w1 w2 )	core-ext	two_r_fetch
 :
  i' j ;
 
-2rdrop	( R:d -- )		gforth	two_r_drop
+2rdrop	( R:w1 R:w2 -- )		gforth	two_r_drop
 :
  r> r> drop r> drop >r ;
 
@@ -1899,7 +1969,7 @@ nhour =ltime->tm_hour;
 nmin  =ltime->tm_min;
 nsec  =ltime->tm_sec;
 
-ms	( u -- )	facility-ext
+(ms)	( u -- )	facility-ext	paren_ms
 ""Wait at least @i{n} milli-second.""
 gforth_ms(u);
 
@@ -1910,7 +1980,7 @@ contents of the data space is undefined. If the allocation is successful,
 is 0. If the allocation fails, @i{a-addr} is undefined and @i{wior}
 is a non-zero I/O result code.""
 a_addr = (Cell *)malloc(u?u:1);
-debugp(stderr, "%08p=allocate(%08x);\n", a_addr, u);
+debugp(stderr, "%8p=allocate(%08lx);\n", a_addr, u);
 wior = IOR(a_addr==NULL);
 
 free	( a_addr -- wior )		memory
@@ -2107,20 +2177,21 @@ and return @i{ior}=0, @i{flag}=true and @i{u2} equal to the size of the file nam
 If the length of the file name is greater than @i{u1}, 
 store first @i{u1} characters from file name into the buffer and
 indicate "name too long" with @i{ior}, @i{flag}=true, and @i{u2}=@i{u1}.""
-struct dirent * dent;
-dent = readdir((DIR *)wdirid);
+struct dirent dent;
+struct dirent * dresult;
+readdir_r((DIR *)wdirid, &dent, &dresult);
 wior = 0;
 flag = -1;
-if(dent == NULL) {
+if(dresult == NULL) {
   u2 = 0;
   flag = 0;
 } else {
-  u2 = strlen((char *)dent->d_name);
+  u2 = strlen((char *)dent.d_name);
   if(u2 > u1) {
     u2 = u1;
     wior = -512-ENAMETOOLONG;
   }
-  memmove(c_addr, dent->d_name, u2);
+  memmove(c_addr, dent.d_name, u2);
 }
 
 close-dir	( wdirid -- wior )	gforth	close_dir
@@ -2214,6 +2285,16 @@ time1.tv_sec = time2.tv_sec;
 time1.tv_nsec = time2.tv_usec*1000;
 #endif
 dtime = timespec2ns(&time1);
+
+(ns)    ( uns usec -- )	gforth	paren_ns
+""Wait for usec+uns, values precomuted in Forth""
+#if HAVE_PSELECT
+  struct timespec tout = { usec, uns };
+  pselect(0, NULL, NULL, NULL, &tout, NULL);
+#else
+  struct timeval tout = { usec, uns/1000 };
+  select(0, NULL, NULL, NULL, &tout);
+#endif
 
 \+
 
@@ -2892,15 +2973,12 @@ uxd@ ( c_addr -- ud )	gforth u_xd_fetch
 #ifdef BUGGY_LL_SIZE
 if (CELL_BITS == 32) {
 #ifdef WORDS_BIGENDIAN
-DLO_IS(ud, *(Tetrabyte *)(c_addr+4));
-DHI_IS(ud, *(Tetrabyte *)(c_addr));
+D_IS(ud, *(Tetrabyte *)(c_addr), *(Tetrabyte *)(c_addr+4));
 #else
-DLO_IS(ud, *(Tetrabyte *)(c_addr));
-DHI_IS(ud, *(Tetrabyte *)(c_addr+4));
+D_IS(ud, *(Tetrabyte *)(c_addr+4), *(Tetrabyte *)(c_addr));
 #endif
 } else {
-DLO_IS(ud, *(UOctabyte *)c_addr);
-DHI_IS(ud, 0);
+D_IS(ud, 0, *(UOctabyte *)c_addr);
 }
 #else
 ud = *(UOctabyte *)c_addr;
@@ -2911,15 +2989,12 @@ sxd@ ( c_addr -- d )	gforth s_xd_fetch
 #ifdef BUGGY_LL_SIZE
 if (CELL_BITS == 32) {
 #ifdef WORDS_BIGENDIAN
-DLO_IS(d, *(Tetrabyte *)(c_addr+4));
-DHI_IS(d, *(Tetrabyte *)(c_addr));
+D_IS(d, *(Tetrabyte *)(c_addr), *(Tetrabyte *)(c_addr+4));
 #else
-DLO_IS(d, *(Tetrabyte *)(c_addr));
-DHI_IS(d, *(Tetrabyte *)(c_addr+4));
+D_IS(d, *(Tetrabyte *)(c_addr+4), *(Tetrabyte *)(c_addr));
 #endif
 } else {
-DLO_IS(d, *(Octabyte *)c_addr);
-DHI_IS(d, -((*(Octabyte *)c_addr)<0));
+D_IS(d, -((*(Octabyte *)c_addr)<0), *(Octabyte *)c_addr);
 }
 #else
 d = *(Octabyte *)c_addr;
@@ -2987,58 +3062,56 @@ be-uxd@ ( c_addr -- ud )	gforth b_e_u_xd_fetch
 ""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
 if (CELL_BITS == 32) {
-DLO_IS(ud, (((Cell)(c_addr[4]) << 24) |
-     ((Cell)(c_addr[5]) << 16) |
-     ((Cell)(c_addr[6]) << 8) |
-     ((Cell)(c_addr[7]))));
-DHI_IS(ud, ((Cell)(c_addr[0]) << 24) |
-     ((Cell)(c_addr[1]) << 16) |
-     ((Cell)(c_addr[2]) << 8) |
-     ((Cell)(c_addr[3])));
-} else {
-DLO_IS(ud, (((Cell)(c_addr[0]) << 56) |
-     ((Cell)(c_addr[1]) << 48) |
-     ((Cell)(c_addr[2]) << 40) |
-     ((Cell)(c_addr[3]) << 32) |
-     ((Cell)(c_addr[4]) << 24) |
-     ((Cell)(c_addr[5]) << 16) |
-     ((Cell)(c_addr[6]) << 8) |
-     ((Cell)(c_addr[7]))));
-DHI_IS(ud, 0);
+  D_IS(ud, (((Cell)(c_addr[0]) << 24) |
+	    ((Cell)(c_addr[1]) << 16) |
+	    ((Cell)(c_addr[2]) << 8) |
+	    ((Cell)(c_addr[3]))),
+       (((Cell)(c_addr[4]) << 24) |
+	((Cell)(c_addr[5]) << 16) |
+	((Cell)(c_addr[6]) << 8) |
+	((Cell)(c_addr[7]))));
+ } else {
+  D_IS(ud, 0, (((Cell)(c_addr[0]) << 56) |
+	       ((Cell)(c_addr[1]) << 48) |
+	       ((Cell)(c_addr[2]) << 40) |
+	       ((Cell)(c_addr[3]) << 32) |
+	       ((Cell)(c_addr[4]) << 24) |
+	       ((Cell)(c_addr[5]) << 16) |
+	       ((Cell)(c_addr[6]) << 8) |
+	       ((Cell)(c_addr[7]))));
 }
 #else
 ud = (((DCell)(c_addr[0]) << 56) |
-     ((DCell)(c_addr[1]) << 48) |
-     ((DCell)(c_addr[2]) << 40) |
-     ((DCell)(c_addr[3]) << 32) |
-     ((DCell)(c_addr[4]) << 24) |
-     ((DCell)(c_addr[5]) << 16) |
-     ((DCell)(c_addr[6]) << 8) |
-     ((DCell)(c_addr[7])));
+      ((DCell)(c_addr[1]) << 48) |
+      ((DCell)(c_addr[2]) << 40) |
+      ((DCell)(c_addr[3]) << 32) |
+      ((DCell)(c_addr[4]) << 24) |
+      ((DCell)(c_addr[5]) << 16) |
+      ((DCell)(c_addr[6]) << 8) |
+      ((DCell)(c_addr[7])));
 #endif
 
 le-uxd@ ( c_addr -- ud )	gforth l_e_u_xd_fetch
 ""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
 if (CELL_BITS == 32) {
-DLO_IS(ud,(((Cell)(c_addr[3]) << 24) |
-     ((Cell)(c_addr[2]) << 16) |
-     ((Cell)(c_addr[1]) << 8) |
-     ((Cell)(c_addr[0]))));
-DHI_IS(ud, ((Cell)(c_addr[7]) << 24) |
-     ((Cell)(c_addr[6]) << 16) |
-     ((Cell)(c_addr[5]) << 8) |
-     ((Cell)(c_addr[4])));
-} else {
-DLO_IS(ud,(((Cell)(c_addr[7]) << 56) |
-     ((Cell)(c_addr[6]) << 48) |
-     ((Cell)(c_addr[5]) << 40) |
-     ((Cell)(c_addr[4]) << 32) |
-     ((Cell)(c_addr[3]) << 24) |
-     ((Cell)(c_addr[2]) << 16) |
-     ((Cell)(c_addr[1]) << 8) |
-     ((Cell)(c_addr[0]))));
-DHI_IS(ud, 0);
+  D_IS(ud, (((Cell)(c_addr[7]) << 24) |
+	    ((Cell)(c_addr[6]) << 16) |
+	    ((Cell)(c_addr[5]) << 8) |
+	    ((Cell)(c_addr[4]))),
+       (((Cell)(c_addr[3]) << 24) |
+	((Cell)(c_addr[2]) << 16) |
+	((Cell)(c_addr[1]) << 8) |
+	((Cell)(c_addr[0]))));
+ } else {
+  D_IS(ud, 0,(((Cell)(c_addr[7]) << 56) |
+	      ((Cell)(c_addr[6]) << 48) |
+	      ((Cell)(c_addr[5]) << 40) |
+	      ((Cell)(c_addr[4]) << 32) |
+	      ((Cell)(c_addr[3]) << 24) |
+	      ((Cell)(c_addr[2]) << 16) |
+	      ((Cell)(c_addr[1]) << 8) |
+	      ((Cell)(c_addr[0]))));
 }
 #else
 ud = (((DCell)(c_addr[7]) << 56) |

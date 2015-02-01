@@ -1,6 +1,6 @@
 \ LOOK.FS      xt -> lfa                               22may93jaw
 
-\ Copyright (C) 1995,1996,1997,2000,2003,2007,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2000,2003,2007,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -34,8 +34,7 @@ decimal
 
 : xt= ( ca xt -- flag )
     \G compare threaded-code cell with the primitive xt
-    threading-method 1 +DO  @  LOOP  @ swap
-    threading-method 0 +DO  @  LOOP  = ;
+    @ swap threading-method 0 +DO  ['] @ catch drop  LOOP  = ;
 
 : search-name  ( xt startlfa -- nt|0 )
     \ look up name of primitive with code at xt
@@ -123,7 +122,7 @@ has? rom
 
 [IFDEF] forth-recognizer
     : .recs ( -- )
-	forth-recognizer get-recognizers 0 ?DO
+	get-recognizers 0 ?DO
 	    >name .name
 	LOOP ;
 [THEN]

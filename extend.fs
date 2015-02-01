@@ -1,6 +1,6 @@
 \ EXTEND.FS    CORE-EXT Word not fully tested!         12may93jaw
 
-\ Copyright (C) 1995,1998,2000,2003,2005,2007,2009,2010,2011,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2005,2007,2009,2010,2011,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -109,12 +109,7 @@ decimal
 \ [COMPILE]                                             17may93jaw
 
 : [compile] ( compilation "name" -- ; run-time ? -- ? ) \ core-ext bracket-compile
-    comp' drop
-    dup [ comp' exit drop ] literal = if
-	execute \ EXIT has default compilation semantics, perform them
-    else
-	compile,
-    then ; immediate
+    comp' drop compile, ; immediate
 
 \ CONVERT                                               17may93jaw
 

@@ -1,7 +1,7 @@
 /*
   This is the machine-specific part for Intel 386 compatible processors
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2012,2013 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2012,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -108,7 +108,7 @@
 #       define IPREG asm("%ebx")
 #       define SPREG asm("%esi")
 #       define RPREG asm("%edi")
-#       if(__GNUC_MINOR__>=6)
+#       if(__GNUC_MINOR__>=6 && __GNUC_MINOR__!=8)
 #        define TOSREG asm("%ebp")
 #       else
 #        define TOSREG asm("%ecx")

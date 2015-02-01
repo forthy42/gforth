@@ -1,6 +1,6 @@
 /* Gforth support functions
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -54,6 +54,11 @@ char *cstr(Char *from, UCell size)
   memcpy(string,from,size);
   string[size]='\0';
   return string;
+}
+
+Cell negate(Cell n)
+{
+  return -n;
 }
 
 char *tilde_cstr(Char *from, UCell size)
@@ -625,7 +630,7 @@ void gforth_dlclose(UCell lib)
 #if defined(HAVE_LIBLTDL)
   (UCell)lt_dlclose((lt_dlhandle)lib);
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
-  dlclose(lib);
+  dlclose((void*)lib);
 #elif defined(_WIN32)
   FreeLibrary(lib);
 #endif

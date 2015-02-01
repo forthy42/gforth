@@ -1,6 +1,6 @@
 \ WORDINFO.FS  V1.0                                    17may93jaw
 
-\ Copyright (C) 1995,1996,1998,2000,2003,2007,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1998,2000,2003,2007,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -114,7 +114,7 @@ CREATE InfoTable
         WHILE  swap 2 cells + swap
                2 pick swap execute
         UNTIL
-        >link @ nip
+        cell- @ nip
         ELSE
         2drop drop 0
         THEN ;

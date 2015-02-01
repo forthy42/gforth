@@ -1,7 +1,7 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
 \ Idea and implementation: Bernd Paysan (py)
 
-\ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -2930,7 +2930,7 @@ ghost defer,
 ghost u-compile,
 ghost u-to
 2drop
-ghost field,
+ghost field+,
 ghost abi-code,
 2drop
 ghost ;abi-code,
@@ -3254,7 +3254,7 @@ vt: [G'] defer, gset-compiler [G'] value! gset-to ;vt
 Builder (Field)
 Build: ;Build
 by: :dofield T @ H + ;DO
-vt: [G'] field, gset-compiler ;vt
+vt: [G'] field+, gset-compiler ;vt
 
 Builder Field
 Build: ( align1 offset1 align size "name" --  align2 offset2 )

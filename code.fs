@@ -1,6 +1,6 @@
 \ ASSEMBLER, CODE etc.
 
-\ Copyright (C) 1995,1996,1997,1999,2003,2007,2010,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1999,2003,2007,2010,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -50,7 +50,7 @@ vocabulary assembler ( -- ) \ tools-ext
    \G The FP stack pointer is passed in by providing a reference to a
    \G memory location containing the FP stack pointer and is passed
    \G out by storing the changed FP stack pointer there (if necessary).
-    header  ['] noop vtcopy,
+    header  ['] (abi-code-dummy) vtcopy,
     doabicode: latest !
     defstart init-asm ;
 [endif]

@@ -1,6 +1,6 @@
 \ ekey etc.
 
-\ Copyright (C) 1999,2002,2003,2004,2005,2006,2007,2008,2009,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2002,2003,2004,2005,2006,2007,2008,2009,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -143,51 +143,46 @@ k-f12 k-shift-mask or constant s-k12 ( -- u ) \ gforth-obsolete
     again ;
 [THEN]
 
-create key-buffer 8 chars allot
-2variable key-buffered  key-buffer 0 key-buffered 2!
+Variable key-buffer
+1 buffer: ins-char
 
 : char-append-buffer ( c addr -- )
-    tuck 2@ chars + c!
-    dup 2@ 1+ rot 2! ;
+    >r ins-char c!  ins-char 1 r> 0 $ins ;
 
 :noname ( -- c )
     \ buffered key
-    key-buffered 2@ dup if
-        1- 2dup key-buffered 2!
-        chars + c@
+    key-buffer $@len if
+	key-buffer $@ drop c@
+	key-buffer 0 1 $del
     else
-        2drop defers key
+	defers key
     then ;
 is key
 
-: unkey ( c -- )
-    key-buffered char-append-buffer ;
+: unkey ( c -- )  key-buffer char-append-buffer ;
     
-: unkeys ( addr u -- )
-    -1 swap 1- -do
-        dup i chars + c@ unkey
-        1 -loop
-    drop ;
+: unkeys ( addr u -- )  key-buffer 0 $ins ;
+
+: inskeys ( addr u -- )  key-buffer $+! ;
 
 :noname ( -- flag )
-    key-buffered 2@ nip 0<> defers key? or ;
+    key-buffer $@len 0<> defers key? or ;
 is key?
 
 table constant esc-sequences \ and prefixes
 
-create ekey-buffer 8 chars allot
-2variable ekey-buffered
+Variable ekey-buffer
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
 : esc-prefix ( -- u )
     key? if
-        key ekey-buffered char-append-buffer
-        ekey-buffered 2@ esc-sequences search-wordlist
+        key ekey-buffer c$+!
+        ekey-buffer $@ esc-sequences search-wordlist
         if
             execute exit
         endif
     endif
-    ekey-buffered 2@ unkeys #esc ;
+    ekey-buffer $@ unkeys #esc ;
 
 : esc-sequence ( u1 addr u -- ; name execution: -- u2 ) recursive
     \ define escape sequence addr u (=name) to have value u1; if u1=0,
@@ -347,26 +342,27 @@ set-current
 [ENDIF]
 
 : clear-ekey-buffer ( -- )
-    ekey-buffer 0 ekey-buffered 2! ;
+    ekey-buffer $off ;
 
 [IFDEF] max-single-byte
     : read-xkey ( key -- flag )
 	clear-ekey-buffer
-	ekey-buffered char-append-buffer
-	ekey-buffer 1 u8addrlen 1 +do
+	ekey-buffer c$+!
+	ekey-buffer $@ u8addrlen 1 +do
 	    key? 0= ?leave
-	    key ekey-buffered char-append-buffer
+	    key ekey-buffer c$+!
 	loop
-	ekey-buffer 1 u8addrlen ekey-buffered @ = ;
+	ekey-buffer $@ u8addrlen ekey-buffer $@len u>= ;
     : get-xkey ( u -- xc )
 	dup max-single-byte u>= if
 	    read-xkey if
-		ekey-buffer xc@+ nip         else
-		ekey-buffered 2@ unkeys key  then
+		ekey-buffer $@ drop xc@+ nip  else
+		ekey-buffer $@ unkeys key     then
+	    clear-ekey-buffer
 	then ;
     : xkey? ( -- flag )
 	key? dup if
-	    drop key read-xkey ekey-buffered 2@ unkeys
+	    drop key read-xkey ekey-buffer $@ unkeys
 	    clear-ekey-buffer  then ;
 [THEN]
 

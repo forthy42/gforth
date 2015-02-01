@@ -1,6 +1,6 @@
 \ High level floating point                            14jan94py
 
-\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -168,20 +168,17 @@ si-prefixes count 2/ + Constant zero-exp
 [THEN]
 
 [ifdef] r:fail
-    : r:fnumber ;
-    comp: drop postpone Fliteral ;
-    post: >r postpone Fliteral r> post, ;
+    : flit, postpone Fliteral ;
+    ' noop ' flit,
+    :noname flit, postpone flit, ; recognizer: r:float
 
-    : fnum-recognizer ( addr u -- float int-table | r:fail )
-	prefix-number
-	IF
-	    ['] r:fnumber  EXIT
-	THEN
-	['] r:fail ;
+    : rec:float ( addr u -- r r:float | r:fail )
+	\G recognize floating point numbers
+	prefix-number r:float r:fail rot select ;
     
-    ' fnum-recognizer
-    forth-recognizer get-recognizers
-    1+ forth-recognizer set-recognizers
+    ' rec:float
+    get-recognizers
+    1+ set-recognizers
 [else]
     [ifundef] compiler-notfound1
 	defer compiler-notfound1

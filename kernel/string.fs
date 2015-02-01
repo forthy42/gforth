@@ -1,6 +1,6 @@
 \ dynamic string handling                              10aug99py
 
-\ Copyright (C) 2000,2005,2007,2010,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2005,2007,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -18,25 +18,25 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 [IFUNDEF] $!
-: delete   ( buffer size n -- ) \ gforth-string
-    \G deletes the first @var{n} bytes from a buffer and fills the
+: delete   ( buffer size u -- ) \ gforth-string
+    \G deletes the first @var{u} bytes from a buffer and fills the
     \G rest at the end with blanks.
-    over min >r  r@ - ( left over )  dup 0>
-    IF  2dup swap dup  r@ +  -rot swap move  THEN  + r> bl fill ;
+    over umin >r  r@ - ( left over )
+    2dup swap dup  r@ +  -rot swap move  + r> bl fill ;
 : insert   ( string length buffer size -- ) \ gforth-string
     \G inserts a string at the front of a buffer. The remaining
     \G bytes are moved on.
-    rot over min >r  r@ - ( left over )
+    rot over umin >r  r@ - ( left over )
     over dup r@ +  rot move   r> move  ;
 
 : $padding ( n -- n' ) \ gforth-string
-    [ 6 cells ] Literal + [ -4 cells ] Literal and ;
+    [ 7 cells ] Literal + [ -4 cells ] Literal and ;
 : $! ( addr1 u addr2 -- ) \ gforth-string string-store
     \G stores a string at an address, If there was a string there
     \G already, that string will be lost.
     dup @ IF  dup @ free throw  THEN
     over $padding allocate throw over ! @
-    over >r  rot over cell+  r> move ! ( 2dup ! + cell+ bl swap c! ) ;
+    over >r  rot over cell+  r> move ! ;
 : $@len ( addr -- u ) \ gforth-string string-fetch-len
     \G returns the length of the stored string.
     @ dup IF  @  THEN ;
@@ -58,7 +58,7 @@
 
 : $ins ( addr1 u addr2 off -- ) \ gforth-string string-ins
     \G inserts a string at offset @var{off}.
-    >r 2dup dup $@len rot + swap $!len  $@ 1+ r> safe/string insert ;
+    >r 2dup dup $@len rot + swap $!len  $@ r> safe/string insert ;
 : $del ( addr off u -- ) \ gforth-string string-del
     \G deletes @var{u} bytes from a string with offset @var{off}.
     >r >r dup $@ r> safe/string r@ delete

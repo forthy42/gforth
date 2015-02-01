@@ -1,6 +1,6 @@
 /* a memcmp implementation
 
-  Copyright (C) 1995,1998,2000,2003,2007 Free Software Foundation, Inc.
+  Copyright (C) 1995,1998,2000,2003,2007,2014 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -20,7 +20,7 @@
 
 #include "forth.h"
 
-Cell memcmp(const void *s1, const void *s2, size_t n)
+int memcmp(const void *s1, const void *s2, size_t n)
 {
   Cell i;
 

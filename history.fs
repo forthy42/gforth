@@ -1,6 +1,6 @@
 \ command line edit and history support                 16oct94py
 
-\ Copyright (C) 1995,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -204,20 +204,6 @@ Create prefix-found  0 , 0 ,
 \ UTF-8 support
 
 require utf-8.fs
-
-[IFUNDEF] #esc  27 Constant #esc  [THEN]
-
-[IFUNDEF] at-deltaxy  Defer at-deltaxy [THEN]
-: vt100-at-deltaxy ( dx dy -- )
-    over 0< over 0= and IF  drop abs backspaces  EXIT  THEN
-    base @ >r decimal
-    ?dup IF
-	#esc emit '[ emit  dup abs 0 .r 0< IF  'A  ELSE  'B  THEN  emit
-    THEN
-    ?dup IF
-	#esc emit '[ emit  dup abs 0 .r 0< IF  'D  ELSE  'C  THEN  emit
-    THEN  r> base ! ;
-' vt100-at-deltaxy IS at-deltaxy
 
 \ : cygwin? ( -- flag ) s" TERM" getenv s" cygwin" str= ;
 \ : at-xy? ( -- x y )

@@ -1,6 +1,6 @@
 \ ERRORE.FS English error strings                      9may93jaw
 
-\ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2006,2007,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2006,2007,2012,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -38,8 +38,8 @@ decimal
 
 has? OS [IF]
 : >stderr ( -- )
-    r> outfile-id >r debug-fid uto outfile-id
-    >exec  r> uto outfile-id ;
+    r> op-vector @ >r debug-vector @ op-vector !
+    >exec  r> op-vector ! ;
 [THEN]
 
 : error$ ( n -- addr u ) \ gforth
@@ -64,6 +64,13 @@ has? OS [IF]
 [ [THEN] ]
     base @ >r decimal
     s>d tuck dabs <# #s rot sign s" error #" holds #> r> base ! ;
+
+has? OS [IF]
+    $000 Value default-color
+    $100 Value err-color
+    $400 Value warn-color
+    $200 Value info-color
+[THEN]
 
 : .error ( n -- )
 [ has? OS [IF] ]
