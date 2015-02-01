@@ -1,6 +1,6 @@
 \ quote: S" and ." words
 
-\ Copyright (C) 1996,1998,1999,2002,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1996,1998,1999,2002,2003,2007,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -40,6 +40,10 @@ require ./vars.fs
 \G displaying the string @i{ccc} if there is no exception frame on the
 \G exception stack.
     postpone if [char] " parse postpone cliteral postpone c(abort")
+    postpone then ; immediate restrict
+
+: warning" ( compilation 'ccc"' -- ; run-time f -- ) \ gforth
+    postpone if [char] " parse postpone cliteral postpone c(warning")
     postpone then ; immediate restrict
 
 \ create s"-buffer /line chars allot

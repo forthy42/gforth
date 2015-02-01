@@ -1,1 +1,2 @@
-redefined {  
+
+test/tester.fs:8: warning: redefined {

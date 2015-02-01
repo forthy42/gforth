@@ -1,6 +1,6 @@
 \ SEE.FS       highend SEE for ANSforth                16may93jaw
 
-\ Copyright (C) 1995,2000,2003,2004,2006,2007,2008,2010 Free Software Foundation, Inc.
+\ Copyright (C) 1995,2000,2003,2004,2006,2007,2008,2010,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -169,10 +169,10 @@ VARIABLE Colors Colors on
 		    dup bl 127 within if
 			cemit
 		    else
-			base @ >r try
+			base @ { oldbase } try
 			    8 base ! 0 <<# # # # '\ hold #> ctype #>> 0
 			restore
-			    r@ base !
+			    oldbase base !
 			endtry
 			rdrop throw
 		    endif

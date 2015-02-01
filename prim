@@ -1,6 +1,6 @@
 \ Gforth primitives
 
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -1755,6 +1755,16 @@ n=1;
 :
  1 ;
 
+debugging-method	( -- n )	gforth	debugging_method
+""true if the engine supports debugging""
+#if defined(GFORTH_DEBUGGING)
+n=-1;
+#else
+n=0;
+#endif
+:
+ 0 ;
+
 \f[THEN]
 
 \g hostos
@@ -2363,11 +2373,11 @@ else
   r3 = r2;
 
 represent	( r c_addr u -- n f1 f2 )	float
-char *sig;
+char sig[0x40];
 size_t siglen;
 int flag;
 int decpt;
-sig=ecvt(r, u, &decpt, &flag);
+ecvt_r(r, u, &decpt, &flag, sig, 0x3f);
 n=(r==0. ? 1 : decpt);
 flag=signbit(r); /* not all ecvt()s do this as desired */
 f1=FLAG(flag!=0);
@@ -3040,6 +3050,22 @@ ud = (((DCell)(c_addr[7]) << 56) |
      ((DCell)(c_addr[1]) << 8) |
      ((DCell)(c_addr[0])));
 #endif
+
+!@ ( u1 a_addr -- u2 )	gforth atomic_swap
+""load @v{u2} from @v{a_addr}, and store @v{u1} there, as atomic operation""
+u2 = __sync_lock_test_and_set(a_addr, u1);
+
++!@ ( u1 a_addr -- u2 )	gforth atomic_add
+""load @v{u2} from @v{a_addr}, and increment this location by @v{u1}, as atomic operation""
+u2 = __sync_fetch_and_add(a_addr, u1);
+
+?!@ ( unew uold a_addr -- uprev )	gforth atomic_cas
+""load @v{uprev} from @v{a_addr}, compare it to @v{uold}, and if equal, store @v{unew} there, as atomic operation""
+uprev = __sync_val_compare_and_swap(a_addr, uold, unew);
+
+barrier ( -- ) gforth
+""Insert a memory barrier""
+__sync_synchronize();
 
 \+
 \g peephole

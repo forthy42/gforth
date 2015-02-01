@@ -1,6 +1,6 @@
 \ assertions
 
-\ Copyright (C) 1995,1996,1997,1999,2002,2003,2007,2010,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1999,2002,2003,2007,2010,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -75,12 +75,13 @@ variable assert-level ( -- a-addr ) \ gforth
     debug-does>
 comp:  >body
     ]] Literal @ IF [[ [: ]] THEN [[ ;] assert-canary ;
-: )else(  ]] ) ( [[ ;
+: )else(  ]] ) ( [[ ; \ )
 comp: drop 2>r ]] ELSE [[ 2r> ;
 : else( ['] noop assert-canary ; immediate
 
 : +db ( "word" -- ) ' >body on ;
 : -db ( "word" -- ) ' >body off ;
+: ~db ( "word" -- ) ' >body dup @ 0= swap ! ;
 
 Variable debug-eval
 
@@ -96,3 +97,34 @@ Variable debug-eval
 		debug-eval $@ evaluate
 		shift-args
 	REPEAT  THEN ;
+
+\ timing for profiling
+
+debug: profile(
++db profile(
+
+2Variable timer-tick
+2Variable last-tick
+
+: 2+! ( d addr -- )  >r r@ 2@ d+ r> 2! ;
+: +t ( addr -- )
+    ntime 2dup last-tick dup 2@ 2>r 2! 2r> d- rot 2+! ;
+
+Variable timer-list
+: timer: Create 0. , , here timer-list !@ ,
+  DOES> profile( +t )else( drop ) ;
+: map-timer { xt -- }
+    timer-list BEGIN  @ dup  WHILE dup >r
+	    cell- cell- xt execute r> REPEAT drop ;
+
+: init-timer ( -- )
+    ntime last-tick 2! [: 0. rot 2! ;] map-timer ;
+
+: .times ( -- )
+    [: dup body> >name name>string 1 /string
+	tuck type 8 swap - 0 max spaces ." : "
+	2@ d>f 1n f* f. cr ;] map-timer ;
+
+: !time ( -- ) ntime timer-tick 2! ;
+: @time ( -- delta-f ) ntime timer-tick 2@ d- d>f 1n f* ;
+: .time ( -- ) @time 13 9 0 f.rdp ." s " ;

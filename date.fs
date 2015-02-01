@@ -1,4 +1,5 @@
 \ convert day since 0-3-1 to ymd
+\ public domain
  
 : /mod3 ( n1 n2 -- r q )
     dup >r /mod dup 4 = IF  drop r@ + 3  THEN  rdrop ;

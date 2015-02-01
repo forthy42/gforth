@@ -1,6 +1,6 @@
 \ High level floating point                            14jan94py
 
-\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -142,15 +142,15 @@ comp: drop >body postpone ALiteral postpone f! ;
 : sfnumber ( c-addr u -- r true | false )
     fp-char @ >float1 ;
 
-Create si-prefixes ," PTGMk munpf"
-si-prefixes count bl scan drop Constant zero-exp
+Create si-prefixes ," P  T  G  M  k    %m  u  n  p  f"
+si-prefixes count 2/ + Constant zero-exp
 
 : prefix-number ( c-addr u -- r true | false )
     si-prefixes count bounds DO
 	2dup I c@ scan nip dup 0<> IF
 	    1 = IF  1- fp-char @  ELSE  I c@  THEN
 	    >float1
-	    dup IF  1000 s>f zero-exp I - s>f f** f*  THEN
+	    dup IF  10 s>f zero-exp I - s>f f** f*  THEN
 	    UNLOOP  EXIT  THEN  drop
     LOOP
     \ ckeck for e/E/.
