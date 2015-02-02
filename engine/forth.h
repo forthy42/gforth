@@ -568,6 +568,12 @@ extern double acosh(double r1);
 #ifndef HAVE_MEMMOVE
 /* extern char *memmove(char *dest, const char *src, long n); */
 #endif
+#ifndef HAVE_SINCOS
+extern void sincos(double x, double *s, double *c);
+#endif
+#ifndef HAVE_ECVT_R
+extern int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len);
+#endif
 #ifndef HAVE_POW10
 extern double pow10(double x);
 #endif
