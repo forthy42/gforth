@@ -44,6 +44,9 @@
 extern int debug;
 # define debugp(x...) do { if (debug) fprintf(x); } while (0)
 #endif
+#ifdef HAVE_MPROBE
+#include <mcheck.h>
+#endif
 
 #ifdef HAS_FILE
 char *cstr(Char *from, UCell size)
@@ -550,13 +553,14 @@ UCell rshift(UCell u1, UCell n)
 int gforth_abortmcheck(int reason)
 {
   throw(-2049-reason);
+  return 0;
 }
 
 void gforth_free(void * ptr)
 {
 #ifdef HAVE_MPROBE
   int reason=mprobe(ptr);
-  debugp(stderr, "free(%08p)=%d;\n", ptr, reason);
+  debugp(stderr, "free(%8p)=%d;\n", ptr, reason);
   if(reason>0)
     throw(-2049-reason);
 #endif

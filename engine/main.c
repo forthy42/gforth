@@ -547,7 +547,7 @@ static Address alloc_mmap(Cell size)
   void *r;
 
 #if defined(MAP_ANON)
-  debugp(stderr,"try mmap(%p, $%lx, ..., MAP_ANON, ...); ", 0, size);
+  debugp(stderr,"try mmap(%p, $%lx, ..., MAP_ANON, ...); ", NULL, size);
   r = mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, -1, 0);
 #else /* !defined(MAP_ANON) */
   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
@@ -561,7 +561,7 @@ static Address alloc_mmap(Cell size)
     debugp(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
 	      strerror(errno));
   } else {
-    debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FILE, dev_zero, ...); ", 0, size);
+    debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FILE, dev_zero, ...); ", NULL, size);
     r=mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE|map_noreserve, dev_zero, 0);
   }
 #endif /* !defined(MAP_ANON) */
@@ -720,7 +720,7 @@ Cell gforth_go(Xt* ip0)
 #endif /* !defined(GFORTH_DEBUGGING) */
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
-    debugp(stderr,"header=%x, UP=%x\n", gforth_header, gforth_UP);
+    debugp(stderr,"header=%p, UP=%p\n", gforth_header, gforth_UP);
     ip0=gforth_UP->throw_entry;
     gforth_SP=signal_data_stack+15;
     gforth_FP=signal_fp_stack;
@@ -1038,8 +1038,8 @@ static void check_prims(Label symbols1[])
       pi->length = endlabel-symbols1[i];
       pi->restlength = 0;
 #ifndef BURG_FORMAT
-      debugp(stderr,"\n   adjust restlen: len/restlen < 0, %d/%d",
-	     pi->length, pi->restlength);
+      debugp(stderr,"\n   adjust restlen: len/restlen < 0, %ld/%ld",
+	     (long)pi->length, (long)pi->restlength);
 #endif
     };
     while (j<(pi->length+pi->restlength)) {

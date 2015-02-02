@@ -91,7 +91,7 @@ void gforth_sigset(sigset_t *set, ...)
   int sig;
   va_start(ap, set);
   sigemptyset(set);
-  while(sig=va_arg(ap, int)) {
+  while((sig=va_arg(ap, int))) {
     sigaddset(set, sig);
   }
   va_end(ap);

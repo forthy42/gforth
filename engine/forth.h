@@ -203,7 +203,7 @@ typedef DOUBLE_UCELL_TYPE UDCell;
 /* beware with the assignment: x is referenced twice! */
 #define DHI_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); (x)=_d.d; })
 #define DLO_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.low =(y); (x)=_d.d; })
-#define D_IS(x,y,z) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); _d.cells.low =(z); (x)=_d.d; })
+#define D_IS(x,y,z) ({ Double_Store _d; _d.cells.high=(y); _d.cells.low =(z); (x)=_d.d; })
 
 #define UD2D(ud)	((DCell)(ud))
 #define D2UD(d)		((UDCell)(d))
