@@ -120,9 +120,9 @@ extern void dummy();
 #define EXEC(XT) do { real_ca=EXEC1(XT); DO_GOTO;} while (0)
 #define VM_JUMP(target) do {GOTO(target);} while (0)
 #define NEXT do {DEF_CA NEXT_P1; NEXT_P2;} while(0)
-#define FIRST_NEXT_P2 LABEL2(first_goto) NEXT_P1_5; LABEL3(first_goto) GOTO_ALIGN;	\
+#define FIRST_NEXT_P2 LABEL2_UU(first_goto) NEXT_P1_5; LABEL3_UU(first_goto) GOTO_ALIGN;	\
 before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCOMMENT "after_goto"); 
-#define FIRST_NEXT LABEL(first_goto) do {DEF_CA NEXT_P1; FIRST_NEXT_P2;} while(0)
+#define FIRST_NEXT LABEL_UU(first_goto) do {DEF_CA NEXT_P1; FIRST_NEXT_P2;} while(0)
 #define IPTOS NEXT_INST
 
 
