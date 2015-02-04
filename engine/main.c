@@ -244,7 +244,7 @@ typedef struct {
 PrimInfo *priminfos;
 PrimInfo **decomp_prims;
 
-const char const* const prim_names[]={
+const char * const prim_names[]={
 #include PRIM_NAMES_I
 };
 

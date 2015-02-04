@@ -195,15 +195,16 @@ VARIABLE Colors Colors on
 
 \ CODES (Branchtypes)                                    15may93jaw
 
-21 CONSTANT RepeatCode
-22 CONSTANT AgainCode
-23 CONSTANT UntilCode
+21 Constant RepeatCode
+22 Constant AgainCode
+23 Constant UntilCode
+24 Constant LoopCode
 \ 09 CONSTANT WhileCode
-10 CONSTANT ElseCode
-11 CONSTANT AheadCode
-13 CONSTANT WhileCode2
-14 CONSTANT Disable
-15 CONSTANT LeaveCode
+10 Constant ElseCode
+11 Constant AheadCode
+13 Constant WhileCode2
+14 Constant Disable
+15 Constant LeaveCode
 
 
 \ FORMAT WORDS                                          13jun93jaw
@@ -580,9 +581,10 @@ VARIABLE C-Pass
         cell+ ;
 
 : c-for
-        Display? IF nl S" FOR" .struc level+ THEN ;
+    Display? IF nl S" FOR" .struc level+ THEN ;
 
 : c-loop
+        scan? IF  dup @ Branch!  LoopCode Type! THEN
         Display? IF level- nl .name-without nl bl cemit THEN
         DebugBranch cell+ 
 	Scan? 
@@ -594,11 +596,20 @@ VARIABLE C-Pass
 	cell+ ;
 
 : c-do
-        Display? IF nl .name-without level+ THEN ;
+    Display? IF
+	dup BranchAddr?
+	IF  cell+ dup @ LoopCode =
+	    IF
+		Disable swap !
+		nl .name-without level+
+	    ELSE  drop ." 2>r "  THEN
+	ELSE  ." 2>r "  THEN
+    THEN ;
 
 : c-?do ( addr1 -- addr2 )
     Display? IF
 	nl .name-without level+
+	dup cell+ BranchAddr?  IF  Disable swap !  THEN
     THEN
     DebugBranch cell+ ;
 
@@ -714,21 +725,23 @@ c-extender !
 ;
 
 : BranchTo? ( a-addr -- a-addr )
-        Display?  IF    dup BranchAddr?
-                        IF
-				BEGIN cell+ @ dup 20 u>
-                                IF drop nl S" BEGIN " .struc level+
-                                ELSE
-                                  dup Disable <> over LeaveCode <> and
-                                  IF   WhileCode2 =
-                                       IF nl S" THEN " .struc nl ELSE
-                                       level- nl S" THEN " .struc nl THEN
-                                  ELSE drop THEN
-                                THEN
-                                  dup MoreBranchAddr? 0=
-                           UNTIL
-                        THEN
-                  THEN ;
+    Display?  IF    dup BranchAddr?
+	IF
+	    BEGIN cell+ @ dup 20 u>
+		IF drop nl S" BEGIN " .struc level+
+		ELSE
+		    dup Disable <>
+		    over LeaveCode <> and
+		    over LoopCode <> and
+		    IF   WhileCode2 =
+			IF nl S" THEN " .struc nl ELSE
+			    level- nl S" THEN " .struc nl THEN
+		    ELSE drop THEN
+		THEN
+		dup MoreBranchAddr? 0=
+	    UNTIL
+	THEN
+    THEN ;
 
 : analyse ( a-addr1 -- a-addr2 )
     Branches @ IF BranchTo? THEN
