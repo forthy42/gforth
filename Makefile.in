@@ -499,7 +499,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/strerror.c engine/strsignal.c engine/dblsub.c \
 	engine/fnmatch.h engine/fnmatch.c \
 	engine/makefile.dos engine/makefile.os2 \
-	engine/zexpand.c engine/androidmain.c
+	engine/zexpand.c engine/androidmain.c engine/sincos.c
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
