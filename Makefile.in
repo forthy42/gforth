@@ -309,7 +309,7 @@ SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
 
-LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC) \
+LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC) unix/test.i \
 	$(patsubst %, unix/%, $(SWIGMODULES)) $(UNIXLIBS_SRC)
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
