@@ -9,8 +9,8 @@ extern struct _IO_FILE *stderr;
 #endif
 %}
 %apply float { GLfloat, GLclampf };
-%apply long { EGLNativePixmapType };
-%apply SWIGTYPE * { GLintptr, GLsizeiptr, EGLBoolean };
+%apply long { EGLNativePixmapType, GLintptr, GLsizeiptr };
+%apply SWIGTYPE * { EGLBoolean };
 
 #define SWIG_FORTH_OPTIONS "no-callbacks"
 
