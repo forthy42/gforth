@@ -816,6 +816,7 @@ case "$host_os" in
 		then
 			CFLAGS="$CFLAGS -I/opt/X11/include"
 		fi
+		host_os=darwin # remove version number
                 #the following magic value was suggested by
                 #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
                 AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.3",[an environment variable value needed by libtool on some MacOS X versions])

@@ -22,7 +22,7 @@ extern struct _IO_FILE *stderr;
 #define JNICALL
 #define _CLASSPATH_JNIIMPEXP
 #endif
-#ifdef host_os_darwin14.0.0
+#ifdef host_os_darwin
 #define __GNUC__
 #define JNIEXPORT
 #define JNICALL
