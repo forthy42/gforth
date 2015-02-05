@@ -1112,7 +1112,7 @@ fi
 if swig -forth unix/test.i; then
    echo "Swig works in Forth mode"
    > conftest.$ac_ext
-   SWIGINCLUDES=`eval $ac_compiler -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ /-I/g' | tr '\n' ' '`
+   SWIGINCLUDES=`eval $ac_compiler $CFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ /-I/g' -e 's/ (framework directory)$//g' | tr '\n' ' '`
    #opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs"
    SWIGLIBS="$SWIGLIBS x.fs", ,)
