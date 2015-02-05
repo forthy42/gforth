@@ -810,6 +810,12 @@ case "$host_os" in
 		DIRSEP="/"
 		PATHSEP=":"
 		DEFAULTSYSTEMPREFIX=""
+		# Mac OS X hides the X stuff in /opt, if you installed
+		# XQuartz
+		if [ -d /opt/X11/include ]
+		then
+			CFLAGS="$CFLAGS -I/opt/X11/include"
+		fi
                 #the following magic value was suggested by
                 #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
                 AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.3",[an environment variable value needed by libtool on some MacOS X versions])
