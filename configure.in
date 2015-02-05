@@ -812,10 +812,7 @@ case "$host_os" in
 		DEFAULTSYSTEMPREFIX=""
 		# Mac OS X hides the X stuff in /opt, if you installed
 		# XQuartz
-		if [ -d /opt/X11/include ]
-		then
-			CFLAGS="$CFLAGS -I/opt/X11/include"
-		fi
+		test -d /opt/X11/include && CFLAGS="$CFLAGS -I/opt/X11/include"
 		host_os=darwin # remove version number
                 #the following magic value was suggested by
                 #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
