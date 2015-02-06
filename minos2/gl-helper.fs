@@ -121,7 +121,7 @@ Variable eglformat
     Variable val
     : glXVisual? ( visinfo attrib -- flag ) true { flag }
 	BEGIN  dup l@  WHILE
-		2dup dpy -rot l@ val glXGetConfig drop
+		2dup dpy -rot l@ val glXGetConfig 0= flag and to flag
 		dup 4 + l@ val @ u<= flag and to flag
 		8 +
 	REPEAT  2drop flag ;
