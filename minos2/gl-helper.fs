@@ -128,7 +128,7 @@ Variable eglformat
     
     : glXChooseVisual' ( dpy screen attrib -- visinfo ) { attrib }
 	pad nitems XGetVisualInfo nitems @ XVisualInfo * bounds ?DO
-	    I attrib glXVisual?  IF  I @ unloop  EXIT  THEN
+	    I attrib glXVisual?  IF  I unloop  EXIT  THEN
 	XVisualInfo +LOOP 0 ;
     
     : choose-config ( -- ) \ visual ?EXIT
