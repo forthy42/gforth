@@ -42,7 +42,7 @@ s" os-type" environment? [IF]
 	: add-precision
 	    s" precision mediump float;        // required for GLES 2.0" ;
     [ELSE]
-	s" linux-gnu" str= [IF]
+	2dup s" darwin" str= >r s" linux-gnu" str= r> or [IF]
 	    require unix/opengl.fs
 	    
 	    also opengl
