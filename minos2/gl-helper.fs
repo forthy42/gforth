@@ -115,6 +115,7 @@ Variable eglformat
 [IFDEF] linux
     fpath+ gles2
     0 Value visual
+    0 Value visuals
 
     \ I have no luck with glXChooseVisual - this is a replacement:
     Variable nitems
@@ -126,24 +127,26 @@ Variable eglformat
 		8 +
 	REPEAT  2drop flag ;
     
-    : glXChooseVisual' ( dpy screen attrib -- visinfo ) { attrib }
-	pad nitems XGetVisualInfo nitems @ XVisualInfo * bounds ?DO
+    : glXChooseVisual' ( visinfo n attrib -- visinfo ) { attrib }
+	XVisualInfo * bounds ?DO
 	    I attrib glXVisual?  IF  I unloop  EXIT  THEN
 	XVisualInfo +LOOP 0 ;
     
     : choose-config ( -- ) \ visual ?EXIT
 	get-display dpy-h ! dpy-w !
-	dpy screen attrib3 glXChooseVisual' dup 0= IF  drop
-	    dpy screen attrib2 glXChooseVisual' dup 0= IF  drop
-		dpy screen attrib glXChooseVisual' dup
+	dpy screen pad nitems XGetVisualInfo dup to visuals nitems @
+	2dup attrib3 glXChooseVisual' dup 0= IF  drop
+	    2dup attrib2 glXChooseVisual' dup 0= IF  drop
+		2dup attrib glXChooseVisual' dup
 		0= abort" Unable to choose Visual"
 	    THEN
-	THEN  to visual ;
+	THEN  to visual 2drop ;
 
     : create-context ( -- ) \ win ?EXIT
 	default-events "GL-Window\0" drop dpy-w @ dpy-h @ simple-win
 	dpy visual 0 1 glXCreateContext to ctx
-	dpy win ctx glXMakeCurrent drop ;
+	dpy win ctx glXMakeCurrent drop
+	visuals Xfree drop 0 to visuals 0 to visual ;
 
     : >screen-orientation ;
 
