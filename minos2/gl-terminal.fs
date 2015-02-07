@@ -211,7 +211,7 @@ videocols videorows * sfloats allocate throw Value videomem
 
 : gl-form ( -- h w ) gl-wh 2@ ;
 
-User gl-emit-buf
+Variable gl-emit-buf
 
 : (gl-emit) ( char color -- )  over 7 = IF  2drop  EXIT  THEN  >r
     gl-emit-buf c$+!  gl-emit-buf $@ tuck x-size u< IF  rdrop  EXIT  THEN

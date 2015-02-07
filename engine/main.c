@@ -585,12 +585,12 @@ static void page_noaccess(void *a)
   }
   debugp(stderr, "failed: %s\n", strerror(errno));
 }  
+#endif
 
 static size_t wholepage(size_t n)
 {
   return (n+pagesize-1)&~(pagesize-1);
 }
-#endif
 
 Address gforth_alloc(Cell size)
 {
