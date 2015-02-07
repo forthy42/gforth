@@ -1,5 +1,5 @@
 #configure with
-#./configure --host=aarch64-darwin --with-cross=darwin --prefix=/usr --enable-lib --with-ditc=gforth-ditc
+#./configure --host=aarch64-darwin --with-cross=darwin --prefix=/usr --with-ditc=gforth-ditc
 #and finally create an apk in this directory
 #./build.sh
 echo "Config for arm64-darwin"
