@@ -22,7 +22,7 @@
 #include <stdio.h>
 
 extern const char *const sys_errlist[];
-extern int sys_nerr;
+extern const int sys_nerr;
 
 char *strerror(int err)
 {
