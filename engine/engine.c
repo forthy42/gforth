@@ -258,8 +258,10 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #endif /* !DEBUG */
 #elif DEBUG
 #       define  NAME(string)    if(debug) {Cell __depth=((user_area*)up)->sp0+DEPTHOFF-sp; int i; fprintf(stderr,"%08lx depth=%3ld: "string,(Cell)ip,((user_area*)up)->sp0+DEPTHOFF-sp); for (i=__depth-1; i>0; i--) fprintf(stderr, " $%lx",sp[i]); fprintf(stderr, " $%lx\n",spTOS); }
-#else
+#elif ASMNAME
 #	define	NAME(string) asmcomment(string);
+#else
+#	define  NAME(string)
 #endif
 
 #ifdef DEBUG

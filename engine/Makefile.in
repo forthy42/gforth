@@ -212,7 +212,7 @@ libgforth$(EXE):	libgforth.la libmain.lo
 	$(LTLD) $(LDFLAGS) $(patsubst lib%,-l%,$@) libmain.lo -o $@
 
 engine.s:	$(ENGINE_FAST_DEPS)
-		$(COMPILER) -DFORCE_LL -DFORCE_REG -DGFORTH_DEBUGGING $(ENGINE_FLAGS) -S $(srcdir)/engine.c
+		$(COMPILER) -DFORCE_LL -DFORCE_REG -DGFORTH_DEBUGGING -DASMNAME $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
 engine$(OPT).o engine$(OPT).lo:	$(ENGINE_DEPS)
 		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c
