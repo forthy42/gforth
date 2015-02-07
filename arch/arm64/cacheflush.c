@@ -32,7 +32,15 @@ void gforth_cacheflush(void *p, size_t size)
     * see also ARM Architecture Reference Manual ARMv8, B2-73 and D7-1851
     *
     * I only assemble the special instructions, and do the rest in C
+    *
+    * iOS and GCC builtin version inspired by FFI
+    * https://github.com/atgreen/libffi/blob/master/src/aarch64/ffi.c
     */
+#if defined (__clang__) && defined (__APPLE__)
+  sys_icache_invalidate (start, (char *)end - (char *)start);
+#elif defined (__GNUC__)
+  __builtin___clear_cache (start, end);
+#else
   long icachez, dcachez, ctr_el0;
   void *q=p+size, *ps=p;
   ASM( "mrs	%0, ctr_el0\n" : "=r"(ctr_el0) ::); // read CTR_EL0
@@ -48,4 +56,5 @@ void gforth_cacheflush(void *p, size_t size)
   } while((p += icachez) < q);
   ASM("dsb     ish\n" :::);	// barrier, let icache operations retire
   ASM("isb\n" :::);                             // instruction barrier
+#endif
 }
