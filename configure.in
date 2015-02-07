@@ -99,7 +99,7 @@ else
   EC_MODE="true"
   EC="-ec"
   NO_EC="#"
-  NO_CHECK="#"
+  NO_CHECK="true ||"
   NO_CROSS="#"
   engine2=""
   engine_fast2=""
@@ -173,8 +173,8 @@ else
   LIB_PATH=${GCC_PATH%/*/*}
   platform=${withval}
   NO_EC=""
-  NO_CHECK="test &&"
-  NO_CROSS="test &&"
+  NO_CHECK="true ||"
+  NO_CROSS="#"
   NO_FAIL="-"
 fi])
 
