@@ -26,8 +26,12 @@ AMD64:
 sieve bubble matrix  fib   fft    release; CPU; gcc
  0.284 0.436  0.204 0.516         2012-01-11; AMD E-450 1650MHz; gcc-4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3)
 
+ARM64
+ sieve bubble matrix fib   fft   release; CPU; gcc
+ 0.283 0.404  0.169 0.330 0.179 2014-10-31; Apple A7 1,3GHz, clang 3.5 (iOS 8.1.1)
+
 ARM Cortex-A9:
-  sieve bubble matrix fib   fft   release; CPU; gcc
+ sieve bubble matrix fib   fft   release; CPU; gcc
  0.405 0.525  0.275 0.560 0.295 2014-10-31; Exynos 4 Quad 1.6GHz; gcc-4.8.x (Android 4.4.2)
  0.520 0.680  0.390 0.780 0.410 2014-10-31; Freescale i.MX6 Quad/DualLite 1.2GHz; gcc-4.9.1 -mthumb (Debian)
  0.480 0.670  0.390 0.730 0.390 2014-10-31; Freescale i.MX6 Quad/DualLite 1.2GHz; gcc-4.9.1 -marm (Debian)
