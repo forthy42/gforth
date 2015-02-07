@@ -37,9 +37,9 @@ void gforth_cacheflush(void *p, size_t size)
     * https://github.com/atgreen/libffi/blob/master/src/aarch64/ffi.c
     */
 #if defined (__clang__) && defined (__APPLE__)
-  sys_icache_invalidate (start, (char *)end - (char *)start);
+  sys_icache_invalidate (p, size);
 #elif defined (__GNUC__)
-  __builtin___clear_cache (start, end);
+  __builtin___clear_cache (p, p+size);
 #else
   long icachez, dcachez, ctr_el0;
   void *q=p+size, *ps=p;
