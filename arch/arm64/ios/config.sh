@@ -1,8 +1,8 @@
 #configure with
-#./configure --host=aarch64-darwin --with-cross=darwin --prefix=/usr --with-ditc=gforth-ditc
+#./configure --host=arm64-ios --with-cross=ios --prefix=/usr --with-ditc=gforth-ditc
 #and finally create an apk in this directory
 #./build.sh
-echo "Config for arm64-darwin"
+echo "Config for arm64-ios"
 skipcode=".skip 16"
 kernel_fi=kernl64l.fi
 ac_cv_sizeof_void_p=8
@@ -17,12 +17,10 @@ ac_cv_sizeof_int128_t=16
 ac_cv_c_bigendian=no
 ac_cv_func_memcmp_working=yes
 ac_cv_func_memmove=yes
-ac_cv_func_getpagesize=no
+#ac_cv_func_getpagesize=no
 ac_cv_file___arch_arm64_asm_fs=yes
 ac_cv_file___arch_arm64_disasm_fs=yes
 ac_cv_func_dlopen=yes
-ac_export_dynamic=no
-CC="xcrun -sdk iphoneos clang -arch arm64"
 HOSTCC="gcc -m64"
 GNU_LIBTOOL="libtool"
 build_libcc_named=build-libcc-named

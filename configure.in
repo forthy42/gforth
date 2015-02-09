@@ -118,7 +118,7 @@ else
      x86_64)
         cpu=amd64
      ;;
-     aarch64)
+     arm64|aarch64)
 	cpu=arm64
      ;;
   esac
@@ -161,7 +161,7 @@ else
      x86_64)
         cpu=amd64
      ;;
-     aarch64)
+     arm64|aarch64)
 	cpu=arm64
      ;;
   esac
@@ -337,7 +337,7 @@ case "$host_cpu" in
                 #only 4-byte alignment anyway
 		test "$skipcode" || skipcode="nop"
 		;;
-	aarch64*)
+	arm64*|aarch64*)
 		machine=arm64
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
 		if test -z $arm_cacheflush; then
@@ -798,6 +798,25 @@ AC_SUBST(disasm_fs)
 AC_PATH_PROG(INSTALL_INFO,install-info,[echo '>>>>Please make info dir entry:'],$PATH:/sbin:/usr/sbin:/usr/local/sbin)
 
 case "$host_os" in
+	*ios*)
+		#Darwin uses some funny preprocessor by default; eliminate it:
+		AC_MSG_CHECKING([if $CC understands -no-cpp-precomp on Darwin])
+		CFLAGS_1="$CFLAGS"
+		CFLAGS="$CFLAGS -no-cpp-precomp"
+		AC_TRY_COMPILE(,,ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp",ac_no_cpp_precomp=no)
+		test "$ac_no_cpp_precomp" == yes || CFLAGS="$CFLAGS_1"
+		AC_MSG_RESULT($ac_no_cpp_precomp)
+		DIRSEP="/"
+		PATHSEP=":"
+		DEFAULTSYSTEMPREFIX=""
+		# Mac OS X hides the X stuff in /opt, if you installed
+		# XQuartz
+		host_os=ios # remove version number
+		CC=${CC-xcrun -sdk iphoneos clang -arch $cpu -framework OpenGLES}
+                #the following magic value was suggested by
+                #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
+                AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.10",[an environment variable value needed by libtool on some MacOS X versions])
+		;;
 	*darwin*)
 		#dar*win* must be first, not to confuse with cygwin, win32 or similar
 		#Darwin uses some funny preprocessor by default; eliminate it:
@@ -817,7 +836,7 @@ case "$host_os" in
 		host_os=darwin # remove version number
                 #the following magic value was suggested by
                 #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
-                AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.3",[an environment variable value needed by libtool on some MacOS X versions])
+                AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.10",[an environment variable value needed by libtool on some MacOS X versions])
 		;;
 	*win*)
 		# !!!FIXME!!! problems with cygwin and ';' as path separator
@@ -1137,6 +1156,15 @@ if swig -forth unix/test.i; then
    AC_CHECK_HEADER(GLES3/gl3ext.h, SWIGMODULES="$SWIGMODULES gles3.fs"
    AC_CHECK_HEADER(EGL/egl.h, SWIGLIBS="$SWIGLIBS opengles3.fs", ,), ,
 #include <GLES3/gl3.h>
+) ,)
+# iOS varaint
+   AC_CHECK_HEADER(ES2/gl.h,
+   AC_CHECK_HEADER(ES2/glext.h, SWIGMODULES="$SWIGMODULES gles.fs", ,
+#include <ES2/gl.h>
+) ,)
+   AC_CHECK_HEADER(ES3/gl.h,
+   AC_CHECK_HEADER(ES3/glext.h, SWIGMODULES="$SWIGMODULES gles3.fs", ,
+#include <ES3/gl.h>
 ) ,)
    AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
    SWIGLIBS="$SWIGLIBS jnilib.fs", ,)
