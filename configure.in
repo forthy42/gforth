@@ -811,8 +811,6 @@ case "$host_os" in
 		DEFAULTSYSTEMPREFIX=""
 		# Mac OS X hides the X stuff in /opt, if you installed
 		# XQuartz
-		host_os=ios # remove version number
-		CC=${CC-xcrun -sdk iphoneos clang -arch $cpu -framework OpenGLES}
                 #the following magic value was suggested by
                 #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
                 AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.10",[an environment variable value needed by libtool on some MacOS X versions])
@@ -831,9 +829,17 @@ case "$host_os" in
 		DEFAULTSYSTEMPREFIX=""
 		# Mac OS X hides the X stuff in /opt, if you installed
 		# XQuartz
-		test -d /opt/X11/include && CFLAGS="$CFLAGS -I/opt/X11/include"
-		test -d /opt/X11/lib && CFLAGS="$CFLAGS -L/opt/X11/lib"
-		host_os=darwin # remove version number
+		case $platform in
+			ios)
+				host_os=ios # remove version number
+				CC=${CC-xcrun -sdk iphoneos clang -arch $cpu -framework OpenGLES}
+			;;
+			*)
+				host_os=darwin # remove version number
+				test -d /opt/X11/include && CFLAGS="$CFLAGS -I/opt/X11/include"
+				test -d /opt/X11/lib && CFLAGS="$CFLAGS -L/opt/X11/lib"
+			;;
+		esac
                 #the following magic value was suggested by
                 #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
                 AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.10",[an environment variable value needed by libtool on some MacOS X versions])

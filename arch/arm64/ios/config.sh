@@ -1,5 +1,5 @@
 #configure with
-#./configure --host=arm64-ios --with-cross=ios --prefix=/usr --with-ditc=gforth-ditc
+#./configure --host=aarc64-darwin --with-cross=ios --prefix=/usr --with-ditc=gforth-ditc
 #and finally create an apk in this directory
 #./build.sh
 echo "Config for arm64-ios"
