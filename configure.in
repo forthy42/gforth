@@ -1142,7 +1142,7 @@ fi
 if swig -forth unix/test.i; then
    echo "Swig works in Forth mode"
    > conftest.$ac_ext
-   SWIGINCLUDES=`eval $ac_compiler $CFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ /-I/g' -e 's/ (framework directory)$//g' | tr '\n' ' '`
+   SWIGINCLUDES=`eval $ac_compiler $CFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ \(.*\) (framework directory)$/-F\1/g' -e 's/^ /-I/g' | tr '\n' ' '`
    #opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs"
    SWIGLIBS="$SWIGLIBS x.fs", ,)
@@ -1164,13 +1164,13 @@ if swig -forth unix/test.i; then
 #include <GLES3/gl3.h>
 ) ,)
 # iOS varaint
-   AC_CHECK_HEADER(ES2/gl.h,
-   AC_CHECK_HEADER(ES2/glext.h, SWIGMODULES="$SWIGMODULES gles.fs", ,
-#include <ES2/gl.h>
+   AC_CHECK_HEADER(OpenGLES/ES2/gl.h,
+   AC_CHECK_HEADER(OpenGLES/ES2/glext.h, SWIGMODULES="$SWIGMODULES ios-gles.fs", ,
+#include <OpenGLES/ES2/gl.h>
 ) ,)
-   AC_CHECK_HEADER(ES3/gl.h,
-   AC_CHECK_HEADER(ES3/glext.h, SWIGMODULES="$SWIGMODULES gles3.fs", ,
-#include <ES3/gl.h>
+   AC_CHECK_HEADER(OpenGLES/ES3/gl.h,
+   AC_CHECK_HEADER(OpenGLES/ES3/glext.h, SWIGMODULES="$SWIGMODULES ios-gles3.fs", ,
+#include <OpenGLES/ES3/gl.h>
 ) ,)
    AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
    SWIGLIBS="$SWIGLIBS jnilib.fs", ,)
