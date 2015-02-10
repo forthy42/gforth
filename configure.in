@@ -1168,11 +1168,11 @@ if swig -forth unix/test.i; then
 ) ,)
 # iOS varaint
    AC_CHECK_HEADER(OpenGLES/ES2/gl.h,
-   AC_CHECK_HEADER(OpenGLES/ES2/glext.h, SWIGMODULES="$SWIGMODULES ios-gles.fs", ,
+   AC_CHECK_HEADER(OpenGLES/ES2/glext.h, SWIGMODULES="$SWIGMODULES ios-gles.fs" SWIGLIBS="$SWIGLIBS opengles.fs", ,
 #include <OpenGLES/ES2/gl.h>
 ) ,)
    AC_CHECK_HEADER(OpenGLES/ES3/gl.h,
-   AC_CHECK_HEADER(OpenGLES/ES3/glext.h, SWIGMODULES="$SWIGMODULES ios-gles3.fs", ,
+   AC_CHECK_HEADER(OpenGLES/ES3/glext.h, SWIGMODULES="$SWIGMODULES ios-gles3.fs" SWIGLIBS="$SWIGLIBS opengles3.fs", ,
 #include <OpenGLES/ES3/gl.h>
 ) ,)
    AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
