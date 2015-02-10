@@ -314,7 +314,7 @@ LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC) unix/test.i \
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
 
-LIBCC_BUILD_NOEC = @NO_CHECK@ $(LIBCC_BUILD_SRC)
+LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
 MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs minos2/ascii.png	\
 	minos2/jpeg-exif.fs minos2/linux-gl.fs minos2/soil-texture.fs \
@@ -569,7 +569,7 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-all: kernel/version.fs more @NO_CHECK@ check
+all: kernel/version.fs more @NO_CHECKX@ check
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;

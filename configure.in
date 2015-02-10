@@ -99,7 +99,8 @@ else
   EC_MODE="true"
   EC="-ec"
   NO_EC="#"
-  NO_CHECK="true ||"
+  NO_CHECK="true"
+  NO_CHECKX="#"
   NO_CROSS="#"
   engine2=""
   engine_fast2=""
@@ -173,7 +174,8 @@ else
   LIB_PATH=${GCC_PATH%/*/*}
   platform=${withval}
   NO_EC=""
-  NO_CHECK="true ||"
+  NO_CHECK="true"
+  NO_CHECKX="#"
   NO_CROSS="#"
   NO_FAIL="-"
 fi])
@@ -270,6 +272,7 @@ AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC)
 AC_SUBST(NO_EC)
 AC_SUBST(NO_CHECK)
+AC_SUBST(NO_CHECKX)
 AC_SUBST(NO_FAIL)
 AC_SUBST(NO_CROSS)
 AC_SUBST(EC_MODE)
