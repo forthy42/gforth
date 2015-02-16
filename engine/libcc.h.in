@@ -21,13 +21,13 @@
 #include <gforth/@PACKAGE_VERSION@/config.h>
 #include <signal.h>
 #include <alloca.h>
-
+/*
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__) || defined(__ANDROID__)
 #undef HAS_BACKLINK
 #else
 #define HAS_BACKLINK 1
 #endif
-
+*/
 typedef CELL_TYPE Cell;
 typedef unsigned CELL_TYPE UCell;
 typedef unsigned char Char;

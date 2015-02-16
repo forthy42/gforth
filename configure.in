@@ -302,9 +302,11 @@ if test "$ac_export_dynamic" != yes; then
   dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
   AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
   test $ac_export_dynamic = yes|| LDFLAGS=$OLDLDFLAGS
+  test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
   AC_MSG_RESULT($ac_export_dynamic)
 else
   LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
+  AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
 fi
 
 #terminology is a bit unusual here: The host is the system on which
