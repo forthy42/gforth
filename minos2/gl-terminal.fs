@@ -110,11 +110,21 @@ bl dup $70 and 5 lshift or $F0F and 4 lshift
 dup color-index ! err-color-index !
 Variable std-bg
 
-: fg! ( index -- ) 4 lshift color-index 2 + c! ;
-: bg! ( index -- ) 4 lshift color-index 3 + c! ;
-: err-fg! ( index -- ) 4 lshift err-color-index 2 + c! ;
-: err-bg! ( index -- ) 4 lshift err-color-index 3 + c! ;
-: bg>clear ( index -- )
+: ?default-fg ( n -- color ) dup 6 <= IF
+	drop default-color fg>  THEN  $F xor ;
+: ?default-bg ( n -- color ) dup 6 <= IF
+	drop default-color bg>  THEN  $F xor ;
+: fg! ( index -- )
+    dup 0= IF  drop  EXIT  THEN  ?default-fg
+    4 lshift color-index 2 + c! ;
+: bg! ( index -- )
+    dup 0= IF  drop  EXIT  THEN  ?default-bg
+    4 lshift color-index 3 + c! ;
+: err-fg! ( index -- ) ?default-fg
+    4 lshift err-color-index 2 + c! ;
+: err-bg! ( index -- ) ?default-bg
+    4 lshift err-color-index 3 + c! ;
+: bg>clear ( index -- ) $F xor
     $F and sfloats color-matrix +
     count s>f $FF fm/
     count s>f $FF fm/

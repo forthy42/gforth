@@ -45,14 +45,15 @@ require vt100.fs
 
 decimal
 
-0 CONSTANT Black
-1 CONSTANT Red
-2 CONSTANT Green
-3 CONSTANT Yellow
-4 CONSTANT Blue
-5 CONSTANT Brown
-6 CONSTANT Cyan
-7 CONSTANT White
+0 $F xor Constant Black
+1 $F xor Constant Red
+2 $F xor Constant Green
+3 $F xor Constant Yellow
+4 $F xor Constant Blue
+5 $F xor Constant Brown
+6 $F xor Constant Cyan
+7 $F xor Constant White
+9 $F xor Constant defaultcolor
 
 : bright ( color -- bcolor )  8 or ;
 
@@ -64,7 +65,7 @@ decimal
 \ For portable programs don't use invers and underline
 
 : >BG    4 lshift ;
-: >FG    >BG >BG ;
+: >FG    8 lshift ;
 
 : BG>    4 rshift 15 and ;
 : FG>    8 rshift 15 and ;
@@ -77,8 +78,8 @@ VARIABLE Attr   -1 Attr !
 : (Attr!)       ( attr -- ) dup Attr @ = IF drop EXIT THEN
                 dup Attr !
                 ESC[    0 pn
-                        dup FG> ?dup IF 30 + ;pn THEN
-                        dup BG> ?dup IF 40 + ;pn THEN
+                        dup FG> ?dup IF $F xor 30 + ;pn THEN
+                        dup BG> ?dup IF $F xor 40 + ;pn THEN
                         dup Bold and IF 1 ;pn THEN
                         dup Underline and IF 4 ;pn THEN
                         dup Blink and IF 5 ;pn THEN
