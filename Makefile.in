@@ -201,7 +201,16 @@ KERN_SRC = \
 	kernel/xchars.fs \
 	kernel/string.fs
 
-EC_SRC = \
+KERN_EC_SRC = kernel-ec/args.fs kernel-ec/basics.fs kernel-ec/cbr.fs	\
+	kernel-ec/cbrpi.fs kernel-ec/cloop.fs kernel-ec/comp.fs		\
+	kernel-ec/cond.fs kernel-ec/doers.fs kernel-ec/errore.fs	\
+	kernel-ec/getdoers.fs kernel-ec/int.fs kernel-ec/io.fs		\
+	kernel-ec/kernel.fs kernel-ec/license.fs kernel-ec/main.fs	\
+	kernel-ec/nio.fs kernel-ec/pass.fs kernel-ec/quotes.fs		\
+	kernel-ec/saccept.fs kernel-ec/toolsext.fs kernel-ec/tools.fs	\
+	kernel-ec/vars.fs kernel-ec/version.fs
+
+EC_SRC = $(KERN_EC_SRC) \
 	asm/README \
 	asm/bitmask.fs \
 	asm/numref.fs \
