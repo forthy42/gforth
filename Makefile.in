@@ -149,7 +149,7 @@ STACK_CACHE_DEFAULT_FAST = @STACK_CACHE_DEFAULT_FAST@
 PROFOBJS = @PROFOBJS@
 PROFEXES = @PROFEXES@
 
-INSTALLDIRS = kernel doc asm ec test \
+INSTALLDIRS = kernel kernel-ec doc asm ec test \
 	compat unix minos2 \
 	arch arch/generic arch/m68k arch/mips \
 	arch/386 arch/hppa arch/sparc arch/power \
@@ -532,7 +532,8 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
 	test/coretest.out test/checkans.out test/gforth.out \
-	cache*.vmg peeprules.vmg prim
+	cache*.vmg peeprules.vmg prim \
+	debian.rules debian.control debian.changelog
 
 RCS_FILES =  ToDo model high-level
 
