@@ -122,7 +122,7 @@ dsetup-debdist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ $(DOCDIST) $(BINONLYDIST) deb
 ddebdist:	dsetup-debdist
 		mkdir debian/DEBIAN
 		(cd debian; find . -name '*' -exec md5sum '{}' ';') >debian/DEBIAN/md5sums	
-		sed -e s/any/@machine@/g debian.control >debian/DEBIAN/control
-		dpkg-deb --build debian
-		mv debian.deb gforth_$(VERSION)_@machine@.deb
+		sed -e s/_arch_/$(machine)/g -e s/_version_/$(subst _,-,$(VERSION))/g debian.control >debian/DEBIAN/control
+		fakeroot dpkg-deb --build debian
+		mv debian.deb gforth_$(VERSION)_$(machine).deb
 		rm -rf md5sums debian
