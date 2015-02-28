@@ -3,6 +3,7 @@
 %insert("include")
 %{
 #define GL_GLEXT_PROTOTYPES
+#include <stdint.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
 %}

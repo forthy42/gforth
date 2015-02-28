@@ -632,7 +632,7 @@ UCell gforth_dlopen(Char *c_addr, UCell u)
 void gforth_dlclose(UCell lib)
 {
 #if defined(HAVE_LIBLTDL)
-  (UCell)lt_dlclose((lt_dlhandle)lib);
+  (void)lt_dlclose((lt_dlhandle)lib);
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
   dlclose((void*)lib);
 #elif defined(_WIN32)
