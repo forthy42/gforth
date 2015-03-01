@@ -1229,33 +1229,39 @@ u2 = (u1 >> u) | (u1 << (CELL_BITS-u));
 
 drol	( ud1 u -- ud2 )	gforth drol
 ""rotate left""
-u &= sizeof(Cell)*16-1;
 #ifdef BUGGY_LL_SHIFT
-if(u>=CELL_BITS) {
-  u &= CELL_BITS-1;
-  DLO_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
-  DHI_IS(ud2, ((DLO(ud1) << u) | (DHI(ud1) >> (CELL_BITS-u))));
+unsigned int u1 = u & (CELL_BITS-1);
+UCell uh, ul;
+uh=u1 ? ((DHI(ud1) << u1) | ((UCell)(DLO(ud1)) >> (CELL_BITS-u1))) : DHI(ud1);
+ul=u1 ? ((DLO(ud1) << u1) | ((UCell)(DHI(ud1)) >> (CELL_BITS-u1))) : DLO(ud1);
+if(u & CELL_BITS) {
+  DHI_IS(ud2, ul);
+  DLO_IS(ud2, uh);
 } else {
-  DHI_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
-  DLO_IS(ud2, ((DLO(ud1) << u) | (DHI(ud1) >> (CELL_BITS-u))));
+  DHI_IS(ud2, uh);
+  DLO_IS(ud2, ul);
 }
 #else
+u &= 2*CELL_BITS-1;
 ud2 = (ud1 << u) | (ud1 >> (2*CELL_BITS-u));
 #endif
 
 dror	( ud1 u -- ud2 )	gforth dror
 ""rotate right""
-u &= sizeof(Cell)*16-1;
 #ifdef BUGGY_LL_SHIFT
-if(u>=CELL_BITS) {
-  u &= CELL_BITS-1;
-  DLO_IS(ud2, ((DHI(ud1) >> u) | (DLO(ud1) << (CELL_BITS-u))));
-  DHI_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+unsigned int u1 = u & (CELL_BITS-1);
+UCell uh, ul;
+uh=u1 ? (((UCell)(DHI(ud1)) >> u1) | (DLO(ud1) << (CELL_BITS-u1))) : DHI(ud1);
+ul=u1 ? (((UCell)(DLO(ud1)) >> u1) | (DHI(ud1) << (CELL_BITS-u1))) : DLO(ud1);
+if(u & CELL_BITS) {
+  DHI_IS(ud2, ul);
+  DLO_IS(ud2, uh);
 } else {
-  DHI_IS(ud2, ((DHI(ud1) >> u) | (DLO(ud1) << (CELL_BITS-u))));
-  DLO_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+  DHI_IS(ud2, uh);
+  DLO_IS(ud2, ul);
 }
 #else
+u &= 2*CELL_BITS-1;
 ud2 = (ud1 >> u) | (ud1 << (2*CELL_BITS-u));
 #endif
 
