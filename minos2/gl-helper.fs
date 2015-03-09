@@ -116,10 +116,10 @@ Variable eglformat
     fpath+ gles2
     0 Value visual
     0 Value visuals
+    Variable nitems
 
     \ I once had no luck with glXChooseVisual - this is a replacement:
-    0 [IF]
-	Variable nitems
+    true [IF]
 	Variable val
 	: glXVisual? ( visinfo attrib -- flag ) true { flag }
 	    BEGIN  dup l@  WHILE
@@ -132,17 +132,28 @@ Variable eglformat
 	    XVisualInfo * bounds ?DO
 		I attrib glXVisual?  IF  I unloop  EXIT  THEN
 	    XVisualInfo +LOOP 0 ;
-    [THEN]
-    : choose-config ( -- ) \ visual ?EXIT
-	get-display dpy-h ! dpy-w !
-	dpy screen pad nitems XGetVisualInfo dup to visuals nitems @
-	2dup attrib3 glXChooseVisual dup 0= IF  drop
-	    2dup attrib2 glXChooseVisual dup 0= IF  drop
-		2dup attrib glXChooseVisual dup
-		0= abort" Unable to choose Visual"
-	    THEN
-	THEN  to visual 2drop ;
 
+	: choose-config ( -- ) \ visual ?EXIT
+	    get-display dpy-h ! dpy-w !
+	    dpy screen pad nitems XGetVisualInfo dup to visuals nitems @
+	    2dup attrib3 glXChooseVisual' dup 0= IF  drop
+		2dup attrib2 glXChooseVisual' dup 0= IF  drop
+		    2dup attrib glXChooseVisual' dup
+		    0= abort" Unable to choose Visual"
+		THEN
+	    THEN  to visual 2drop ;
+    [ELSE]
+	: choose-config ( -- ) \ visual ?EXIT
+	    get-display dpy-h ! dpy-w !
+	    dpy screen
+	    2dup attrib3 glXChooseVisual dup 0= IF  drop
+		2dup attrib2 glXChooseVisual dup 0= IF  drop
+		    2dup attrib glXChooseVisual dup
+		    0= abort" Unable to choose Visual"
+		THEN
+	    THEN  to visual 2drop ;
+    [THEN]
+    
     : create-context ( -- ) \ win ?EXIT
 	default-events "GL-Window\0" drop dpy-w @ dpy-h @ simple-win
 	dpy visual 0 1 glXCreateContext to ctx
