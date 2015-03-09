@@ -114,8 +114,12 @@ User locals-size \ this is the current size of the locals stack
     then then then then drop ;
 
 : adjust-locals-size ( n -- ) \ gforth
-    \ sets locals-size to n and generates an appropriate lp+!
+    \g sets locals-size to n and generates an appropriate lp+!
     locals-size @ swap - compile-lp+! ;
+
+: unlocal ( n -- ) \ gforth
+    \g adjust local stack by n at run-time
+    faligned lp@ + lp! ;
 
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,

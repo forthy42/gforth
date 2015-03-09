@@ -117,27 +117,28 @@ Variable eglformat
     0 Value visual
     0 Value visuals
 
-    \ I have no luck with glXChooseVisual - this is a replacement:
-    Variable nitems
-    Variable val
-    : glXVisual? ( visinfo attrib -- flag ) true { flag }
-	BEGIN  dup l@  WHILE
-		2dup dpy -rot l@ val glXGetConfig 0= flag and to flag
-		dup 4 + l@ val @ u<= flag and to flag
-		8 +
-	REPEAT  2drop flag ;
-    
-    : glXChooseVisual' ( visinfo n attrib -- visinfo ) { attrib }
-	XVisualInfo * bounds ?DO
-	    I attrib glXVisual?  IF  I unloop  EXIT  THEN
-	XVisualInfo +LOOP 0 ;
-    
+    \ I once had no luck with glXChooseVisual - this is a replacement:
+    0 [IF]
+	Variable nitems
+	Variable val
+	: glXVisual? ( visinfo attrib -- flag ) true { flag }
+	    BEGIN  dup l@  WHILE
+		    2dup dpy -rot l@ val glXGetConfig 0= flag and to flag
+		    dup 4 + l@ val @ u<= flag and to flag
+		    8 +
+	    REPEAT  2drop flag ;
+	
+	: glXChooseVisual' ( visinfo n attrib -- visinfo ) { attrib }
+	    XVisualInfo * bounds ?DO
+		I attrib glXVisual?  IF  I unloop  EXIT  THEN
+	    XVisualInfo +LOOP 0 ;
+    [THEN]
     : choose-config ( -- ) \ visual ?EXIT
 	get-display dpy-h ! dpy-w !
 	dpy screen pad nitems XGetVisualInfo dup to visuals nitems @
-	2dup attrib3 glXChooseVisual' dup 0= IF  drop
-	    2dup attrib2 glXChooseVisual' dup 0= IF  drop
-		2dup attrib glXChooseVisual' dup
+	2dup attrib3 glXChooseVisual dup 0= IF  drop
+	    2dup attrib2 glXChooseVisual dup 0= IF  drop
+		2dup attrib glXChooseVisual dup
 		0= abort" Unable to choose Visual"
 	    THEN
 	THEN  to visual 2drop ;
