@@ -492,7 +492,9 @@ synonym :} }
 
 : -- ( addr wid 0 ... -- ) \ gforth dash-dash
     }
-    [char] } parse 2drop ;
+    BEGIN  [char] } parse dup WHILE
+	    + 1- c@ dup bl = swap ':' = or  UNTIL
+	ELSE  2drop  THEN ;
 
 forth definitions
 
