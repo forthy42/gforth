@@ -91,8 +91,8 @@ variable backedge-locals
  rdrop
  dup cs-item? ; 
 
-: CS-DROP ( dest -- ) \ gforth
-    dest? 2drop ;
+: CS-DROP ( dest/orig -- ) \ gforth
+    drop 2drop ;
 
 : cs-push-part ( -- list addr )
  locals-list @ here ;
@@ -122,7 +122,9 @@ defer other-control-flow ( -- )
 : BUT
     1 cs-roll ;                      immediate restrict
 : YET
-    0 cs-pick ;                       immediate restrict
+    0 cs-pick ;                      immediate restrict
+: NOPE
+    cs-drop ;                        immediate restrict
 
 \ Structural Conditionals                              12dec92py
 
