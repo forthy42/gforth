@@ -50,6 +50,7 @@
 \ F^		Float	address
 \ C:		Char	value
 \ C^		Char	address
+\ |             nothing switches to zero-initialized values
 
 \ The local variables are initialized with values from the appropriate
 \ stack. In contrast to the examples in the standard document our locals
@@ -163,12 +164,14 @@ variable locals-mem-list \ linked list of all locals name memory in
 \ righmost local; the names are already created earlier, the
 \ compile-pushlocal just inserts the offsets from the frame base.
 
+Variable val-part
+
 : compile-pushlocal-w ( a-addr -- ) ( run-time: w -- )
 \ compiles a push of a local variable, and adjusts locals-size
 \ stores the offset of the local variable to a-addr
     locals-size @ alignlp-w cell+ dup locals-size !
     swap !
-    postpone >l ;
+    val-part @ IF  postpone false  THEN  postpone >l ;
 
 \ locals list operations
 
@@ -260,17 +263,17 @@ variable locals-mem-list \ linked list of all locals name memory in
 : compile-pushlocal-f ( a-addr -- ) ( run-time: f -- )
     locals-size @ alignlp-f float+ dup locals-size !
     swap !
-    postpone f>l ;
+    val-part @ IF  postpone 0e  THEN  postpone f>l ;
 
 : compile-pushlocal-d ( a-addr -- ) ( run-time: w1 w2 -- )
     locals-size @ alignlp-w cell+ cell+ dup locals-size !
     swap !
-    postpone swap postpone >l postpone >l ;
+    val-part @ IF  postpone 0.  THEN  postpone swap postpone >l postpone >l ;
 
 : compile-pushlocal-c ( a-addr -- ) ( run-time: w -- )
     -1 chars compile-lp+!
     locals-size @ swap !
-    postpone lp@ postpone c! ;
+    val-part @ IF  postpone false  THEN  postpone lp@ postpone c! ;
 
 7 cells 32 + constant locals-name-size \ 32-char name + fields + wiggle room
 
@@ -334,6 +337,8 @@ variable locals-dp \ so here's the special dp for locals.
     comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE f! ;
 [THEN]
 
+: val-part-off ( -- ) val-part off ;
+
 vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
 
@@ -386,6 +391,8 @@ locals-types definitions
     ['] compile-pushlocal-c
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
+
+: | val-part on ['] val-part-off ;
 
 \ you may want to make comments in a locals definitions group:
 ' \ alias \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
@@ -459,6 +466,7 @@ new-locals-map mappedwordlist Constant new-locals-wl
     latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
+    val-part off
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
