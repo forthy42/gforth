@@ -1,6 +1,6 @@
 \ OpenMAX AL example
 
-require openmax.fs
+require unix/openmax.fs
 require mkv-tools.fs
 require jni-media.fs
 
