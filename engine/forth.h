@@ -136,6 +136,11 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 #define F_TRUE (FLAG(0==0))
 #define F_FALSE (FLAG(0!=0))
 
+typedef struct {
+  Cell* sp;
+  Float* fp;
+} ptrpair;
+
 /* define this false if you want native division */
 #ifdef FORCE_CDIV
 #define FLOORED_DIV 0

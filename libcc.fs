@@ -29,13 +29,14 @@
 \ #include <gforth.h>
 \ #include <unistd.h>
 \ 
-\ void gforth_c_lseek_ndn_d(void)
+\ ptrpair gforth_c_lseek_ndn_d(ptrpair x)
 \ {
-\   Cell *sp = gforth_SP;
-\   Float *fp = gforth_FP;
+\   Cell *sp = x.sp;
+\   Float *fp = x.fp;
 \   long long result;  /* longest type in C */
 \   gforth_ll2d(lseek(sp[3],gforth_d2ll(sp[2],sp[1]),sp[0]),sp[3],sp[2]);
-\   gforth_SP = sp+2;
+\   x.sp= = sp+2;
+\   return x;
 \ }
 
 \ Then it compiles this code and dynamically links it into the Gforth
@@ -495,21 +496,21 @@ create gen-wrapped-types
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
-    ." void " .prefix
+    ." ptrpair " .prefix
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n"
-    .\" {\n  Cell MAYBE_UNUSED *sp = gforth_SP;\n  Float MAYBE_UNUSED *fp = gforth_FP;\n  "
+    .\" {\n  Cell MAYBE_UNUSED *sp = x.sp;\n  Float MAYBE_UNUSED *fp = x.fp;\n  "
     pars c-name 2over count-stacks
     .\" int MAYBE_UNUSED arg0=" dup 1- .nb .\" , farg0=" over 1- .nb .\" ;\n  "
     is-funptr? IF  ." Cell ptr = " c-name >ptr-declare type .\" ;\n  "  THEN
     ret gen-wrapped-stmt .\" ;\n"
     dup is-funptr? or if
-	."   gforth_SP = sp+" dup .nb .\" ;\n"
+	."   x.sp = sp+" dup .nb .\" ;\n"
     endif drop
     ?dup-if
-	."   gforth_FP = fp+"     .nb .\" ;\n"
+	."   x.fp = fp+"     .nb .\" ;\n"
     endif
-    .\" }\n" ;
+    .\"   return x;\n}\n" ;
 
 \ callbacks
 
@@ -591,7 +592,7 @@ Create callback-&style c-var c,
 : callback-return ( descriptor -- )
     >r 0 0 s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
 
-: callback-define ( descriptor -- )
+: callback-old-define ( descriptor -- )
     dup callback-header callback-threadsafe
     dup callback-pushs dup callback-call
     dup callback-adjust callback-return ;
@@ -606,6 +607,8 @@ Create callback-&style c-var c,
     dup callback-header callback-wrapper
     dup callback-pushs dup callback-call
     dup callback-adjust callback-wrapup callback-return ;
+
+' callback-thread-define alias callback-define
 
 2 Value callback# \ how many callbacks should be created?
 
@@ -802,7 +805,10 @@ clear-libs
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
-    s" gforth_libcc_init" lib-handle lib-sym  ?dup-if  call-c  endif
+    s" gforth_libcc_init" lib-handle lib-sym  ?dup-if
+	[IFDEF] gforth-pointers
+	    gforth-pointers swap
+	[THEN]  call-c  endif
     0 c-source-file-id !
     lib-filename $off clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function

@@ -2028,33 +2028,30 @@ call-c	( ... w -- ... )	gforth	call_c
 ""Call the C function pointed to by @i{w}. The C function has to
 access the stack itself. The stack pointers are exported in the global
 variables @code{gforth_SP} and @code{gforth_FP}.""
+ptrpair x;
 IF_fpTOS(fp[0]=fpTOS);
-gforth_FP=fp;
-gforth_SP=sp;
-#ifdef HAS_LINKBACK
-((void (*)())w)();
-#else
-((void (*)(void *))w)(&gforth_pointers);
-#endif
-sp=gforth_SP;
-fp=gforth_FP;
+x.fp=fp;
+x.sp=sp;
+x=((ptrpair (*)(ptrpair))(w))(x);
+sp=x.sp;
+fp=x.fp;
 IF_fpTOS(fpTOS=fp[0]);
 
 call-c#	( ... #a_addr -- ... )	gforth	call_c_direct
 ""Call the C function pointed to by the inline argument @i{w}. The C function
 has to access the stack itself. The stack pointers are exported in the global
 variables @code{gforth_SP} and @code{gforth_FP}.""
+ptrpair x;
 IF_fpTOS(fp[0]=fpTOS);
-gforth_FP=fp;
-gforth_SP=sp;
-#ifdef HAS_LINKBACK
-((void (*)())(*a_addr))();
-#else
-((void (*)(void *))(*a_addr))(&gforth_pointers);
-#endif
-sp=gforth_SP;
-fp=gforth_FP;
+x.fp=fp;
+x.sp=sp;
+x=((ptrpair (*)(ptrpair))(*a_addr))(x);
+sp=x.sp;
+fp=x.fp;
 IF_fpTOS(fpTOS=fp[0]);
+
+gforth-pointers ( -- a_addr )  gforth get_gforth_pointers
+a_addr = gforth_pointers;
 
 \+
 \+file
