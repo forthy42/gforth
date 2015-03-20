@@ -6,7 +6,6 @@ s" unix/soil2.fs" open-fpath-file 0= [IF]
     2drop close-file throw
     require unix/soil2lib.fs
 [ELSE]
-    2drop drop
     require unix/soillib.fs
 [THEN]
 require jpeg-exif.fs

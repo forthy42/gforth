@@ -42,7 +42,7 @@ s" os-type" environment? [IF]
 	: add-precision
 	    s" precision mediump float;        // required for GLES 2.0" ;
     [ELSE]
-	s" linux-gnu" str= [IF]
+	2dup s" darwin" str= >r s" linux-gnu" str= r> or [IF]
 	    require unix/opengl.fs
 	    
 	    also opengl
@@ -115,35 +115,50 @@ Variable eglformat
 [IFDEF] linux
     fpath+ gles2
     0 Value visual
-
-    \ I have no luck with glXChooseVisual - this is a replacement:
+    0 Value visuals
     Variable nitems
-    Variable val
-    : glXVisual? ( visinfo attrib -- flag ) true { flag }
-	BEGIN  dup l@  WHILE
-		2dup dpy -rot l@ val glXGetConfig drop
-		dup 4 + l@ val @ u<= flag and to flag
-		8 +
-	REPEAT  2drop flag ;
-    
-    : glXChooseVisual' ( dpy screen attrib -- ) { attrib }
-	pad nitems XGetVisualInfo nitems @ XVisualInfo * bounds ?DO
-	    I attrib glXVisual?  IF  I unloop  EXIT  THEN
-	XVisualInfo +LOOP 0 ;
-    
-    : choose-config ( -- ) \ visual ?EXIT
-	get-display dpy-h ! dpy-w !
-	dpy screen attrib3 glXChooseVisual' dup 0= IF  drop
-	    dpy screen attrib2 glXChooseVisual' dup 0= IF  drop
-		dpy screen attrib glXChooseVisual' dup
-		0= abort" Unable to choose Visual"
-	    THEN
-	THEN  to visual ;
 
+    \ I once had no luck with glXChooseVisual - this is a replacement:
+    true [IF]
+	Variable val
+	: glXVisual? ( visinfo attrib -- flag ) true { flag }
+	    BEGIN  dup l@  WHILE
+		    2dup dpy -rot l@ val glXGetConfig 0= flag and to flag
+		    dup 4 + l@ val @ u<= flag and to flag
+		    8 +
+	    REPEAT  2drop flag ;
+	
+	: glXChooseVisual' ( visinfo n attrib -- visinfo ) { attrib }
+	    XVisualInfo * bounds ?DO
+		I attrib glXVisual?  IF  I unloop  EXIT  THEN
+	    XVisualInfo +LOOP 0 ;
+
+	: choose-config ( -- ) \ visual ?EXIT
+	    get-display dpy-h ! dpy-w !
+	    dpy screen pad nitems XGetVisualInfo dup to visuals nitems @
+	    2dup attrib3 glXChooseVisual' dup 0= IF  drop
+		2dup attrib2 glXChooseVisual' dup 0= IF  drop
+		    2dup attrib glXChooseVisual' dup
+		    0= abort" Unable to choose Visual"
+		THEN
+	    THEN  to visual 2drop ;
+    [ELSE]
+	: choose-config ( -- ) \ visual ?EXIT
+	    get-display dpy-h ! dpy-w !
+	    dpy screen
+	    2dup attrib3 glXChooseVisual dup 0= IF  drop
+		2dup attrib2 glXChooseVisual dup 0= IF  drop
+		    2dup attrib glXChooseVisual dup
+		    0= abort" Unable to choose Visual"
+		THEN
+	    THEN  to visual 2drop ;
+    [THEN]
+    
     : create-context ( -- ) \ win ?EXIT
 	default-events "GL-Window\0" drop dpy-w @ dpy-h @ simple-win
 	dpy visual 0 1 glXCreateContext to ctx
-	dpy win ctx glXMakeCurrent drop ;
+	dpy win ctx glXMakeCurrent drop
+	visuals Xfree drop 0 to visuals 0 to visual ;
 
     : >screen-orientation ;
 

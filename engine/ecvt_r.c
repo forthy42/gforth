@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include "config.h"
 #include <math.h>
+#include <string.h>
 extern double floor(double);
 extern double pow10(double);
 

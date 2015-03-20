@@ -258,8 +258,10 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #endif /* !DEBUG */
 #elif DEBUG
 #       define  NAME(string)    if(debug) {Cell __depth=((user_area*)up)->sp0+DEPTHOFF-sp; int i; fprintf(stderr,"%08lx depth=%3ld: "string,(Cell)ip,((user_area*)up)->sp0+DEPTHOFF-sp); for (i=__depth-1; i>0; i--) fprintf(stderr, " $%lx",sp[i]); fprintf(stderr, " $%lx\n",spTOS); }
-#else
+#elif ASMNAME
 #	define	NAME(string) asmcomment(string);
+#else
+#	define  NAME(string)
 #endif
 
 #ifdef DEBUG
@@ -286,8 +288,12 @@ void throw(int code)
 /* normal engine */
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) H_##name: asm("# I " #name); I_##name:
-#define LABEL3(name) J_##name: asm("# J " #name);
+#define LABEL(name) H_##name: asm(ASMCOMMENT "I " #name); \
+     I_##name:
+#define LABEL_UU(name) H_##name: MAYBE_UNUSED asm(ASMCOMMENT "I " #name); \
+     I_##name: MAYBE_UNUSED
+#define LABEL3(name) J_##name: asm(ASMCOMMENT "J " #name);
+#define LABEL3_UU(name) J_##name: MAYBE_UNUSED asm(ASMCOMMENT "J " #name);
 
 #elif ENGINE==2
 /* variant with padding between VM instructions for finding out
@@ -295,12 +301,16 @@ void throw(int code)
 #define gforth_engine gforth_engine2
 #define VARIANT(v)	(v)
 #define JUMP(target)	goto I_noop
-#define LABEL(name) H_##name: asm("# H " #name); SKIP16; asm("# I " #name); I_##name:
+#define LABEL(name) H_##name: asm(ASMCOMMENT "H " #name); SKIP16; \
+    asm(ASMCOMMENT "I " #name); I_##name:
+#define LABEL_UU(name) H_##name: MAYBE_UNUSED asm(ASMCOMMENT "H " #name); SKIP16; \
+    asm(ASMCOMMENT "I " #name); I_##name: MAYBE_UNUSED
 /* the SKIP16 after LABEL3 is there, because the ARM gcc may place
    some constants after the final branch, and may refer to them from
    the code before label3.  Since we don't copy the constants, we have
    to make sure that such code is recognized as non-relocatable. */
-#define LABEL3(name) J_##name: asm("# J " #name); SKIP16;
+#define LABEL3(name) J_##name: asm(ASMCOMMENT "J " #name); SKIP16;
+#define LABEL3_UU(name) J_##name: MAYBE_UNUSED asm(ASMCOMMENT "J " #name); SKIP16;
 
 #elif ENGINE==3
 /* variant with different immediate arguments for finding out
@@ -308,14 +318,19 @@ void throw(int code)
 #define gforth_engine gforth_engine3
 #define VARIANT(v)	((v)^0xffffffff)
 #define JUMP(target)	goto K_lit
-#define LABEL(name) H_##name: asm("# I " #name); I_##name:
-#define LABEL3(name) J_##name: asm("# J " #name);
+#define LABEL(name) H_##name: asm(ASMCOMMENT "I " #name); \
+    I_##name:
+#define LABEL_UU(name) H_##name: MAYBE_UNUSED asm(ASMCOMMENT "I " #name); \
+    I_##name: MAYBE_UNUSED 
+#define LABEL3(name) J_##name: asm(ASMCOMMENT "J " #name);
+#define LABEL3_UU(name) J_##name: MAYBE_UNUSED asm(ASMCOMMENT "J " #name);
 #else
 #error illegal ENGINE value
 #endif /* ENGINE */
 
 /* the asm(""); is there to get a stop compiled on Itanium */
-#define LABEL2(name) K_##name: asm("# K " #name);
+#define LABEL2(name) K_##name: asm(ASMCOMMENT "K " #name);
+#define LABEL2_UU(name) K_##name: MAYBE_UNUSED asm(ASMCOMMENT "K " #name);
 
 Label *gforth_engine(Xt *ip0 sr_proto)
 /* executes code at ip, if ip!=NULL
@@ -473,7 +488,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
   after_last: 
   /*needed only to get the length of the last primitive */
   FIRST_NEXT;
-  LABEL(return_0)
-  NEXT;
+  LABEL_UU(return_0)
+  NEXT; /* gcc-4.9 workaround: Requires yet another dummy NEXT */
   return 0;
 }

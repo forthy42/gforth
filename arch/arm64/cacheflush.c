@@ -20,8 +20,9 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 */
 #include <stddef.h>
-
-#define ASM __asm__ __volatile__
+#if __APPLE__
+# include <libkern/OSCacheControl.h>
+#endif
 
 void gforth_cacheflush(void *p, size_t size) 
 {
@@ -32,7 +33,16 @@ void gforth_cacheflush(void *p, size_t size)
     * see also ARM Architecture Reference Manual ARMv8, B2-73 and D7-1851
     *
     * I only assemble the special instructions, and do the rest in C
+    *
+    * iOS and GCC builtin version inspired by FFI
+    * https://github.com/atgreen/libffi/blob/master/src/aarch64/ffi.c
     */
+#if defined (__clang__) && defined (__APPLE__)
+  sys_icache_invalidate (p, size);
+#elif defined (__GNUC__)
+  __builtin___clear_cache (p, p+size);
+#else
+# define ASM __asm__ __volatile__
   long icachez, dcachez, ctr_el0;
   void *q=p+size, *ps=p;
   ASM( "mrs	%0, ctr_el0\n" : "=r"(ctr_el0) ::); // read CTR_EL0
@@ -48,4 +58,5 @@ void gforth_cacheflush(void *p, size_t size)
   } while((p += icachez) < q);
   ASM("dsb     ish\n" :::);	// barrier, let icache operations retire
   ASM("isb\n" :::);                             // instruction barrier
+#endif
 }

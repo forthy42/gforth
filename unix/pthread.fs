@@ -37,10 +37,6 @@ c-library pthread
     \c #ifndef FIONREAD
     \c #include <sys/socket.h>
     \c #endif
-    \c
-    \c #ifndef HAS_BACKLINK
-    \c static void *(*saved_gforth_pointers)(Cell);
-    \c #endif
     \c 
     \c #if HAVE_MPROBE
     \c void gfpthread_abortmcheck(enum mcheck_status reason)
@@ -61,9 +57,6 @@ c-library pthread
     \c {
     \c   Cell x;
     \c   int throw_code;
-    \c #ifndef HAS_BACKLINK
-    \c   void *(*gforth_pointers)(Cell) = saved_gforth_pointers;
-    \c #endif
     \c   void *ip0=(void*)(t->save_task);
     \c   sigset_t set;
     \c   gforth_SP=(Cell*)(t->sp0);
@@ -84,40 +77,31 @@ c-library pthread
     \c   pthread_cleanup_pop(1);
     \c   pthread_exit((void*)x);
     \c }
-    \c #ifdef HAS_BACKLINK
-    \c void *gforth_thread_p()
+    \c static inline void *gforth_thread_p()
     \c {
     \c   return (void*)&gforth_thread;
     \c }
-    \c #else
-    \c #define gforth_thread_p() gforth_thread_ptr(gforth_pointers)
-    \c void *gforth_thread_ptr(GFORTH_ARGS)
-    \c {
-    \c   saved_gforth_pointers=gforth_pointers;
-    \c   return (void*)&gforth_thread;
-    \c }
-    \c #endif
-    \c void *pthread_plus(void * thread)
+    \c static inline void *pthread_plus(void * thread)
     \c {
     \c   return thread+sizeof(pthread_t);
     \c }
-    \c Cell pthreads(Cell thread)
+    \c static inline Cell pthreads(Cell thread)
     \c {
     \c   return thread*(int)sizeof(pthread_t);
     \c }
-    \c void *pthread_mutex_plus(void * thread)
+    \c static inline void *pthread_mutex_plus(void * thread)
     \c {
     \c   return thread+sizeof(pthread_mutex_t);
     \c }
-    \c Cell pthread_mutexes(Cell thread)
+    \c static inline Cell pthread_mutexes(Cell thread)
     \c {
     \c   return thread*(int)sizeof(pthread_mutex_t);
     \c }
-    \c void *pthread_cond_plus(void * thread)
+    \c static inline void *pthread_cond_plus(void * thread)
     \c {
     \c   return thread+sizeof(pthread_cond_t);
     \c }
-    \c Cell pthread_conds(Cell thread)
+    \c static inline Cell pthread_conds(Cell thread)
     \c {
     \c   return thread*(int)sizeof(pthread_cond_t);
     \c }

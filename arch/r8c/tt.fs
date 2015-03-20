@@ -1,5 +1,13 @@
 \ tt.pfe
-\ see ../../tt.fs
+\ Written 05Apr94 by Dirk Uwe Zoller,
+\	e-mail duz@roxi.rz.fht-mannheim.de.
+\ Look&feel stolen from Mike Taylor's "TETRIS FOR TERMINALS"
+\
+\ Please copy and share this program, modify it for your system
+\ and improve it as you like. But don't remove this notice.
+\
+\ Thank you.
+\
 rom
 
 bl bl 2constant empt

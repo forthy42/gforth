@@ -1,6 +1,6 @@
 \ Open GL slide show demo
 
-require unix/gl-helper.fs
+require minos2/gl-helper.fs
 require minos2/jpeg-exif.fs
 
 also [IFDEF] android android [THEN]

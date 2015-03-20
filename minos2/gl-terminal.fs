@@ -6,7 +6,7 @@ require ansi.fs \ we may want to support colorize.fs
 
 \ :noname source type cr stdout flush-file throw ; is before-line
 
-require minos2/gl-helper.fs
+require gl-helper.fs
 
 also [IFDEF] android android [THEN]
 
@@ -110,11 +110,21 @@ bl dup $70 and 5 lshift or $F0F and 4 lshift
 dup color-index ! err-color-index !
 Variable std-bg
 
-: fg! ( index -- ) 4 lshift color-index 2 + c! ;
-: bg! ( index -- ) 4 lshift color-index 3 + c! ;
-: err-fg! ( index -- ) 4 lshift err-color-index 2 + c! ;
-: err-bg! ( index -- ) 4 lshift err-color-index 3 + c! ;
-: bg>clear ( index -- )
+: ?default-fg ( n -- color ) dup 6 <= IF
+	drop default-color fg>  THEN  $F xor ;
+: ?default-bg ( n -- color ) dup 6 <= IF
+	drop default-color bg>  THEN  $F xor ;
+: fg! ( index -- )
+    dup 0= IF  drop  EXIT  THEN  ?default-fg
+    4 lshift color-index 2 + c! ;
+: bg! ( index -- )
+    dup 0= IF  drop  EXIT  THEN  ?default-bg
+    4 lshift color-index 3 + c! ;
+: err-fg! ( index -- ) ?default-fg
+    4 lshift err-color-index 2 + c! ;
+: err-bg! ( index -- ) ?default-bg
+    4 lshift err-color-index 3 + c! ;
+: bg>clear ( index -- ) $F xor
     $F and sfloats color-matrix +
     count s>f $FF fm/
     count s>f $FF fm/
@@ -211,13 +221,22 @@ videocols videorows * sfloats allocate throw Value videomem
 
 : gl-form ( -- h w ) gl-wh 2@ ;
 
+Variable gl-emit-buf
+
 : (gl-emit) ( char color -- )  over 7 = IF  2drop  EXIT  THEN  >r
+    gl-emit-buf c$+!  gl-emit-buf $@ tuck x-size u< IF  rdrop  EXIT  THEN
+    gl-emit-buf $@ drop xc@ $7F umin
+    gl-emit-buf $@ x-width { n }
+    gl-emit-buf $off
+    
     resize-screen  need-sync on
     dup $70 and 5 lshift or $F0F and 4 lshift r> $FFFF0000 and or
-    gl-char' l!
-    gl-xy 2@ >r 1+ dup cols = dup gl-lineend !
-    IF  drop 0 r> 1+ >r  THEN
-    r> gl-xy 2! ;
+    n 0 ?DO
+	dup gl-char' l!
+	gl-xy 2@ >r 1+ dup cols = dup gl-lineend !
+	IF  drop 0 r> 1+ >r  THEN
+	r> gl-xy 2!
+    LOOP  drop ;
 
 : gl-emit ( char -- )  color-index @ (gl-emit) ;
 : gl-emit-err ( char -- )  err-color-index @ (gl-emit) ;

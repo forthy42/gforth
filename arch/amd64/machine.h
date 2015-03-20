@@ -101,6 +101,10 @@ explicit register allocation and efforts to stop coalescing.
 #else
 #define FTOSREG asm("%xmm8")
 #endif
+#ifdef __clang__
+/* maybe we need some other options for clang */
+/* but so far, clang doesn't support manual register allocation */
+#endif
 #endif
 
 #define GOTO_ALIGN asm(".p2align 4,,7");

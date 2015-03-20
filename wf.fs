@@ -706,6 +706,9 @@ Variable _favicon
     s" html" >env cr s" head" >env cr
     s" Content-Type" s" http-equiv" opt
     content $@ s" content" opt
+    s" meta" tag/ cr
+    s" viewport" s" name" opt
+    S" width=device-width, initial-scale=1" s" content" opt
     s" meta" tag/ cr .css .print
     _favicon @ IF
 	s" shortcut icon" s" rel" opt

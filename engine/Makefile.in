@@ -92,7 +92,7 @@ XCFLAGS	= @CFLAGS@
 XDEFINES = @DEFS@
 SWITCHES = $(XCFLAGS) $(XDEFINES) $(OPTDEFINES)
 #use -fno-inline to avoid register problems with asinh, atanh on gcc-3.3 on 386
-ENGINE_FLAGS = @ENGINE_FLAGS@ -fno-defer-pop -fcaller-saves -fno-inline
+ENGINE_FLAGS = @ENGINE_FLAGS@
 DEBUGFLAG = @DEBUGFLAG@
 CFLAGS	= $(DEBUGFLAG) -I$(srcdir)/../arch/$(machine) -I. -Wall $(SWITCHES) -DDEFAULTPATH='"$(FORTHPATH)"' $(LTDLINCL)
 CPPFLAGS=@CPPFLAGS@
@@ -212,7 +212,7 @@ libgforth$(EXE):	libgforth.la libmain.lo
 	$(LTLD) $(LDFLAGS) $(patsubst lib%,-l%,$@) libmain.lo -o $@
 
 engine.s:	$(ENGINE_FAST_DEPS)
-		$(COMPILER) -DFORCE_LL -DFORCE_REG -DGFORTH_DEBUGGING $(ENGINE_FLAGS) -S $(srcdir)/engine.c
+		$(COMPILER) -DFORCE_LL -DFORCE_REG -DGFORTH_DEBUGGING -DASMNAME $(ENGINE_FLAGS) -S $(srcdir)/engine.c
 
 engine$(OPT).o engine$(OPT).lo:	$(ENGINE_DEPS)
 		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c

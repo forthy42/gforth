@@ -1,4 +1,5 @@
 #!/bin/bash
+# this file is in the public domain
 
 execs=$(grep '^// exec:' ${1%fs}i | cut -f3- -d' ')
 

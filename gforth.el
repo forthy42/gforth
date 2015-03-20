@@ -265,7 +265,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[\"\n]" nil string (font-lock-string-face . 1))
 	(("abort\"") compile-only (font-lock-keyword-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
-	(("{") compile-only (font-lock-variable-name-face . 1)
+	(("{" "{:") compile-only (font-lock-variable-name-face . 1)
 	 "[\n}]" nil name (font-lock-variable-name-face . 1))
 	((".(" "(") immediate (font-lock-comment-face . 1)
 	  ")" nil comment (font-lock-comment-face . 1))
@@ -274,7 +274,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  
 	(("[if]" "[?do]" "[do]" "[for]" "[begin]" 
 	  "[endif]" "[then]" "[loop]" "[+loop]" "[next]" "[until]" "[repeat]"
-	  "[again]" "[while]" "[else]" "[:" ";]")
+	  "[again]" "[while]" "[else]" "[:" ";]" "nope")
 	 immediate (font-lock-keyword-face . 2))
 	(("[ifdef]" "[ifundef]") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
@@ -309,7 +309,9 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 
 	(("create" "variable" "constant" "2variable" "2constant" "fvariable"
 	  "fconstant" "value" "field" "user" "vocabulary" 
-	  "create-interpret/compile" "interpret/compile:")
+	  "create-interpret/compile" "interpret/compile:"
+	  "debug:" "field:" "2field:" "ffield:" "sffield:" "dffield:"
+	  "uvar" "uvalue")
 	 non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 	("\\S-+%" non-immediate (font-lock-type-face . 2))
@@ -342,6 +344,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 immediate (font-lock-constant-face . 3))
 	("-?\\([&#][0-9]+\\|\\(0x\\|\\$\\)[0-9a-f]+\\|%[01]+\\)"
 	 immediate (font-lock-constant-face . 3))
+	("[a-z\-0-9]+(" immediate (font-lock-comment-face . 1)
+	 ")" nil comment (font-lock-comment-face . 1))
 	))
 
 (defvar forth-use-objects nil 
@@ -456,7 +460,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	((";" ";m") (-2 . 0) (0 . -2))
 	(("again" "then" "endif" "endtry" "endcase" "endof" 
 	  "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
-	  "[until]" "[again]" "loop" ";]")
+	  "[until]" "[again]" "loop" ";]" "nope")
 	 (-2 . 0) (0 . -2))
 	(("end-code" "end-class" "end-interface" "end-class-noname" 
 	  "end-interface-noname" "end-struct" "class;" "end-c-library")
@@ -767,7 +771,8 @@ End:\" construct).")
 (defvar forth-defining-words 
   '("VARIABLE" "CONSTANT" "2VARIABLE" "2CONSTANT" "FVARIABLE" "FCONSTANT"
    "USER" "VALUE" "field" "end-struct" "VOCABULARY" "CREATE" ":" "CODE"
-   "DEFER" "ALIAS" "interpret/compile:")
+   "DEFER" "ALIAS" "interpret/compile:" "debug:" "field:" "2field:" "ffield:"
+   "sffield:" "dffield:" "uvar" "uvalue")
   "List of words, that define the following word.
 Used for imenu index generation.")
 

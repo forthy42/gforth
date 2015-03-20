@@ -655,9 +655,9 @@ SET_IP((Xt *)a_target);
      cell+
  THEN  >r ;
 
-(try1)	( ... a_oldhandler a_recovery -- R:a_recovery R:a_sp R:a_op R:f_fp R:c_lp R:a_oldhandler a_newhandler ) gforth paren_try1
+(try1)	( ... a_oldhandler a_recovery -- R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler a_newhandler ) gforth paren_try1
 a_sp = sp-1;
-a_op = op;
+c_op = op;
 f_fp = fp;
 c_lp = lp;
 a_newhandler = rp-6;
@@ -666,7 +666,7 @@ a_newhandler = rp-6;
 rp = a_handler;
 lp = (Address)rp[1];
 fp = (Float *)rp[2];
-op = (Cell *)rp[3];
+op = (Char *)rp[3];
 sp = (Cell *)rp[4];
 #ifndef NO_IP
 ip=IP;
@@ -1229,33 +1229,39 @@ u2 = (u1 >> u) | (u1 << (CELL_BITS-u));
 
 drol	( ud1 u -- ud2 )	gforth drol
 ""rotate left""
-u &= sizeof(Cell)*16-1;
 #ifdef BUGGY_LL_SHIFT
-if(u>=CELL_BITS) {
-  u &= CELL_BITS-1;
-  DLO_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
-  DHI_IS(ud2, ((DLO(ud1) << u) | (DHI(ud1) >> (CELL_BITS-u))));
+unsigned int u1 = u & (CELL_BITS-1);
+UCell uh, ul;
+uh=u1 ? ((DHI(ud1) << u1) | ((UCell)(DLO(ud1)) >> (CELL_BITS-u1))) : DHI(ud1);
+ul=u1 ? ((DLO(ud1) << u1) | ((UCell)(DHI(ud1)) >> (CELL_BITS-u1))) : DLO(ud1);
+if(u & CELL_BITS) {
+  DHI_IS(ud2, ul);
+  DLO_IS(ud2, uh);
 } else {
-  DHI_IS(ud2, ((DHI(ud1) << u) | (DLO(ud1) >> (CELL_BITS-u))));
-  DLO_IS(ud2, ((DLO(ud1) << u) | (DHI(ud1) >> (CELL_BITS-u))));
+  DHI_IS(ud2, uh);
+  DLO_IS(ud2, ul);
 }
 #else
+u &= 2*CELL_BITS-1;
 ud2 = (ud1 << u) | (ud1 >> (2*CELL_BITS-u));
 #endif
 
 dror	( ud1 u -- ud2 )	gforth dror
 ""rotate right""
-u &= sizeof(Cell)*16-1;
 #ifdef BUGGY_LL_SHIFT
-if(u>=CELL_BITS) {
-  u &= CELL_BITS-1;
-  DLO_IS(ud2, ((DHI(ud1) >> u) | (DLO(ud1) << (CELL_BITS-u))));
-  DHI_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+unsigned int u1 = u & (CELL_BITS-1);
+UCell uh, ul;
+uh=u1 ? (((UCell)(DHI(ud1)) >> u1) | (DLO(ud1) << (CELL_BITS-u1))) : DHI(ud1);
+ul=u1 ? (((UCell)(DLO(ud1)) >> u1) | (DHI(ud1) << (CELL_BITS-u1))) : DLO(ud1);
+if(u & CELL_BITS) {
+  DHI_IS(ud2, ul);
+  DLO_IS(ud2, uh);
 } else {
-  DHI_IS(ud2, ((DHI(ud1) >> u) | (DLO(ud1) << (CELL_BITS-u))));
-  DLO_IS(ud2, ((DLO(ud1) >> u) | (DHI(ud1) << (CELL_BITS-u))));
+  DHI_IS(ud2, uh);
+  DLO_IS(ud2, ul);
 }
 #else
+u &= 2*CELL_BITS-1;
 ud2 = (ud1 >> u) | (ud1 << (2*CELL_BITS-u));
 #endif
 
@@ -1429,19 +1435,19 @@ rdrop	( R:w -- )		gforth
 :
  r> r> drop >r ;
 
-2>r	( d -- R:d )	core-ext	two_to_r
+2>r	( w1 w2 -- R:w1 R:w2 )	core-ext	two_to_r
 :
  swap r> swap >r swap >r >r ;
 
-2r>	( R:d -- d )	core-ext	two_r_from
+2r>	( R:w1 R:w2 -- w1 w2 )	core-ext	two_r_from
 :
  r> r> swap r> swap >r swap ;
 
-2r@	( R:d -- R:d d )	core-ext	two_r_fetch
+2r@	( R:w1 R:w2 -- R:w1 R:w2 w1 w2 )	core-ext	two_r_fetch
 :
  i' j ;
 
-2rdrop	( R:d -- )		gforth	two_r_drop
+2rdrop	( R:w1 R:w2 -- )		gforth	two_r_drop
 :
  r> r> drop r> drop >r ;
 
@@ -2022,45 +2028,30 @@ call-c	( ... w -- ... )	gforth	call_c
 ""Call the C function pointed to by @i{w}. The C function has to
 access the stack itself. The stack pointers are exported in the global
 variables @code{gforth_SP} and @code{gforth_FP}.""
-/* This is a first attempt at support for calls to C. This may change in
-   the future */
+ptrpair x;
 IF_fpTOS(fp[0]=fpTOS);
-gforth_FP=fp;
-gforth_SP=sp;
-gforth_RP=rp;
-gforth_LP=lp;
-#ifdef HAS_LINKBACK
-((void (*)())w)();
-#else
-((void (*)(void *))w)(&gforth_pointers);
-#endif
-sp=gforth_SP;
-fp=gforth_FP;
-rp=gforth_RP;
-lp=gforth_LP;
+x.fp=fp;
+x.sp=sp;
+x=((ptrpair (*)(ptrpair))(w))(x);
+sp=x.sp;
+fp=x.fp;
 IF_fpTOS(fpTOS=fp[0]);
 
 call-c#	( ... #a_addr -- ... )	gforth	call_c_direct
 ""Call the C function pointed to by the inline argument @i{w}. The C function
 has to access the stack itself. The stack pointers are exported in the global
 variables @code{gforth_SP} and @code{gforth_FP}.""
-/* This is a first attempt at support for calls to C. This may change in
-   the future */
+ptrpair x;
 IF_fpTOS(fp[0]=fpTOS);
-gforth_FP=fp;
-gforth_SP=sp;
-gforth_RP=rp;
-gforth_LP=lp;
-#ifdef HAS_LINKBACK
-((void (*)())(*a_addr))();
-#else
-((void (*)(void *))(*a_addr))(&gforth_pointers);
-#endif
-sp=gforth_SP;
-fp=gforth_FP;
-rp=gforth_RP;
-lp=gforth_LP;
+x.fp=fp;
+x.sp=sp;
+x=((ptrpair (*)(ptrpair))(*a_addr))(x);
+sp=x.sp;
+fp=x.fp;
 IF_fpTOS(fpTOS=fp[0]);
+
+gforth-pointers ( -- a_addr )  gforth get_gforth_pointers
+a_addr = gforth_pointers;
 
 \+
 \+file
@@ -2840,11 +2831,11 @@ lib-error ( -- c_addr u )       gforth  lib_error
 c_addr = (Char *)lt_dlerror();
 u = (c_addr == NULL) ? 0 : strlen((char *)c_addr);
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
-c_addr = dlerror();
-u = strlen(c_addr);
+c_addr = (Char *)dlerror();
+u = strlen((char *)c_addr);
 #else
 c_addr = "libltdl is not configured";
-u = strlen(c_addr);
+u = strlen((char *)c_addr);
 #endif
 
 be-w! ( w c_addr -- )	gforth w_store_be

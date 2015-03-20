@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-needs ansi.fs
+require ansi.fs
 
 decimal
 
@@ -33,14 +33,14 @@ VARIABLE Color 20 Color !
 \ dictionary; see wordinfo.fs for the descriptions/definitions
 Color: Hig#
 
-<A Black >FG A>             0 CT!
-<A Black >FG bold A>     Ali# CT!
+<A white >bg Black >FG A>             0 CT!
+<A white >bg Black >FG bold A>     Ali# CT!
 <A Brown >FG A>          Con# CT!
 <A Green >FG A>          Var# CT!
 <A Blue >FG A>           Def# CT!
 <A Brown >FG A>          Val# CT!
 <A Brown >FG bold A>     Doe# CT!
-<A Cyan >FG invers A>    Col# CT!
+<A black >bg Cyan >FG A> Col# CT!
 <A Blue >FG bold A>      Pri# CT!
 <A Red >FG bold A>       Str# CT!
 <A Green >FG bold A>     Com# CT!

@@ -44,6 +44,9 @@
 extern int debug;
 # define debugp(x...) do { if (debug) fprintf(x); } while (0)
 #endif
+#ifdef HAVE_MPROBE
+#include <mcheck.h>
+#endif
 
 #ifdef HAS_FILE
 char *cstr(Char *from, UCell size)
@@ -54,6 +57,11 @@ char *cstr(Char *from, UCell size)
   memcpy(string,from,size);
   string[size]='\0';
   return string;
+}
+
+Cell negate(Cell n)
+{
+  return -n;
 }
 
 char *tilde_cstr(Char *from, UCell size)
@@ -545,13 +553,14 @@ UCell rshift(UCell u1, UCell n)
 int gforth_abortmcheck(int reason)
 {
   throw(-2049-reason);
+  return 0;
 }
 
 void gforth_free(void * ptr)
 {
 #ifdef HAVE_MPROBE
   int reason=mprobe(ptr);
-  debugp(stderr, "free(%08p)=%d;\n", ptr, reason);
+  debugp(stderr, "free(%8p)=%d;\n", ptr, reason);
   if(reason>0)
     throw(-2049-reason);
 #endif
@@ -623,7 +632,7 @@ UCell gforth_dlopen(Char *c_addr, UCell u)
 void gforth_dlclose(UCell lib)
 {
 #if defined(HAVE_LIBLTDL)
-  (UCell)lt_dlclose((lt_dlhandle)lib);
+  (void)lt_dlclose((lt_dlhandle)lib);
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
   dlclose((void*)lib);
 #elif defined(_WIN32)

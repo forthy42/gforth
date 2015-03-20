@@ -244,7 +244,7 @@ typedef struct {
 PrimInfo *priminfos;
 PrimInfo **decomp_prims;
 
-const char const* const prim_names[]={
+const char * const prim_names[]={
 #include PRIM_NAMES_I
 };
 
@@ -547,7 +547,7 @@ static Address alloc_mmap(Cell size)
   void *r;
 
 #if defined(MAP_ANON)
-  debugp(stderr,"try mmap(%p, $%lx, ..., MAP_ANON, ...); ", 0, size);
+  debugp(stderr,"try mmap(%p, $%lx, ..., MAP_ANON, ...); ", NULL, size);
   r = mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, -1, 0);
 #else /* !defined(MAP_ANON) */
   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
@@ -561,7 +561,7 @@ static Address alloc_mmap(Cell size)
     debugp(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
 	      strerror(errno));
   } else {
-    debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FILE, dev_zero, ...); ", 0, size);
+    debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FILE, dev_zero, ...); ", NULL, size);
     r=mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE|map_noreserve, dev_zero, 0);
   }
 #endif /* !defined(MAP_ANON) */
@@ -585,12 +585,12 @@ static void page_noaccess(void *a)
   }
   debugp(stderr, "failed: %s\n", strerror(errno));
 }  
+#endif
 
 static size_t wholepage(size_t n)
 {
   return (n+pagesize-1)&~(pagesize-1);
 }
-#endif
 
 Address gforth_alloc(Cell size)
 {
@@ -720,7 +720,7 @@ Cell gforth_go(Xt* ip0)
 #endif /* !defined(GFORTH_DEBUGGING) */
     /* fprintf(stderr, "rp=$%x\n",rp0);*/
     
-    debugp(stderr,"header=%x, UP=%x\n", gforth_header, gforth_UP);
+    debugp(stderr,"header=%p, UP=%p\n", gforth_header, gforth_UP);
     ip0=gforth_UP->throw_entry;
     gforth_SP=signal_data_stack+15;
     gforth_FP=signal_fp_stack;
@@ -955,7 +955,8 @@ static void check_prims(Label symbols1[])
   goto_len = goto_p[1]-goto_p[0];
   debugp(stderr, "goto * %p %p len=%ld\n",
 	 goto_p[0],symbols2[goto_p-symbols1],(long)goto_len);
-  if (memcmp(goto_p[0],symbols2[goto_p-symbols1],goto_len)!=0) { /* unequal */
+  if ((goto_len < 0) ||
+      memcmp(goto_p[0],symbols2[goto_p-symbols1],goto_len)!=0) { /* unequal */
     no_dynamic=1;
     debugp(stderr,"  not relocatable, disabling dynamic code generation\n");
     init_ss_cost();
@@ -1033,8 +1034,14 @@ static void check_prims(Label symbols1[])
       nonrelocs++;
       continue;
     }
-    assert(pi->length>=0);
-    assert(pi->restlength >=0);
+    if((pi->length<0) || (pi->restlength<0)) {
+      pi->length = endlabel-symbols1[i];
+      pi->restlength = 0;
+#ifndef BURG_FORMAT
+      debugp(stderr,"\n   adjust restlen: len/restlen < 0, %ld/%ld",
+	     (long)pi->length, (long)pi->restlength);
+#endif
+    };
     while (j<(pi->length+pi->restlength)) {
       if (s1[j]==s3[j]) {
 	if (s1[j] != s2[j]) {
@@ -1116,8 +1123,10 @@ static void append_jump(void)
   if (last_jump) {
     PrimInfo *pi = &priminfos[last_jump];
     
+    /* debugp(stderr, "Copy code %p<=%p+%x,%d\n", code_here, pi->start, pi->length, pi->restlength); */
     memcpy(code_here, pi->start+pi->length, pi->restlength);
     code_here += pi->restlength;
+    /* debugp(stderr, "Copy goto %p<=%p,%d\n", code_here, goto_start, goto_len); */
     memcpy(code_here, goto_start, goto_len);
     code_here += goto_len;
     align_code();
@@ -1140,6 +1149,7 @@ struct code_block_list {
 
 static void reserve_code_space(UCell size)
 {
+  if(((Cell)size)<0) size=100;
   if (code_area+code_area_size < code_here+size) {
     struct code_block_list *p;
     append_jump();
@@ -1166,6 +1176,7 @@ static Address append_prim(Cell p)
   PrimInfo *pi = &priminfos[p];
   Address old_code_here;
   reserve_code_space(pi->length+pi->restlength+goto_len+CODE_ALIGNMENT-1);
+  /* debugp(stderr, "Copy code %p<=%p,%d\n", code_here, pi->start, pi->length); */
   memcpy(code_here, pi->start, pi->length);
   old_code_here = code_here;
   code_here += pi->length;
@@ -2655,9 +2666,9 @@ Cell gforth_main(int argc, char **argv, char **env)
 
 Cell gforth_make_image(int debugflag)
 {
-  char *argv0[] = { "gforth", "--clear-dictionary", "--no-offset-im", "--die-on-signal", "-i", KERNEL, "exboot.fs", "startup.fs", "arch/" ARCH "/asm.fs", "arch/" ARCH "/disasm.fs", "-e", "savesystem temp-file.fi1 bye" };
-  char *argv1[] = { "gforth", "--clear-dictionary", "--offset-image", "--die-on-signal", "-i", KERNEL, "exboot.fs", "startup.fs", "arch/" ARCH "/asm.fs", "arch/" ARCH "/disasm.fs", "-e", "savesystem temp-file.fi2 bye" };
-  char *argv2[] = { "gforth", "--die-on-signal", "-i", KERNEL, "exboot.fs", "startup.fs", "comp-i.fs", "-e", "comp-image temp-file.fi1 temp-file.fi2 gforth.fi bye" };
+  char *argv0[] = { "gforth", "--clear-dictionary", "--no-offset-im", "--die-on-signal", "-i", GKERNEL, "exboot.fs", "startup.fs", "arch/" ARCH "/asm.fs", "arch/" ARCH "/disasm.fs", "-e", "savesystem temp-file.fi1 bye" };
+  char *argv1[] = { "gforth", "--clear-dictionary", "--offset-image", "--die-on-signal", "-i", GKERNEL, "exboot.fs", "startup.fs", "arch/" ARCH "/asm.fs", "arch/" ARCH "/disasm.fs", "-e", "savesystem temp-file.fi2 bye" };
+  char *argv2[] = { "gforth", "--die-on-signal", "-i", GKERNEL, "exboot.fs", "startup.fs", "comp-i.fs", "-e", "comp-image temp-file.fi1 temp-file.fi2 gforth.fi bye" };
   const int argc0 = sizeof(argv0)/sizeof(char*);
   const int argc1 = sizeof(argv1)/sizeof(char*);
   const int argc2 = sizeof(argv2)/sizeof(char*);

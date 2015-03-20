@@ -136,6 +136,11 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 #define F_TRUE (FLAG(0==0))
 #define F_FALSE (FLAG(0!=0))
 
+typedef struct {
+  Cell* sp;
+  Float* fp;
+} ptrpair;
+
 /* define this false if you want native division */
 #ifdef FORCE_CDIV
 #define FLOORED_DIV 0
@@ -203,7 +208,7 @@ typedef DOUBLE_UCELL_TYPE UDCell;
 /* beware with the assignment: x is referenced twice! */
 #define DHI_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); (x)=_d.d; })
 #define DLO_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.low =(y); (x)=_d.d; })
-#define D_IS(x,y,z) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); _d.cells.low =(z); (x)=_d.d; })
+#define D_IS(x,y,z) ({ Double_Store _d; _d.cells.high=(y); _d.cells.low =(z); (x)=_d.d; })
 
 #define UD2D(ud)	((DCell)(ud))
 #define D2UD(d)		((UDCell)(d))
@@ -568,6 +573,12 @@ extern double acosh(double r1);
 #ifndef HAVE_MEMMOVE
 /* extern char *memmove(char *dest, const char *src, long n); */
 #endif
+#ifndef HAVE_SINCOS
+extern void sincos(double x, double *s, double *c);
+#endif
+#ifndef HAVE_ECVT_R
+extern int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len);
+#endif
 #ifndef HAVE_POW10
 extern double pow10(double x);
 #endif
@@ -580,6 +591,7 @@ extern char *strsignal(int sig);
 #ifndef HAVE_STRTOUL
 extern unsigned long int strtoul(const char *nptr, char **endptr, int base);
 #endif
+extern Cell negate(Cell n);
 
 // For systems where you need it
 void zexpand(char * zfile);

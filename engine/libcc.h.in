@@ -24,8 +24,6 @@
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__) || defined(__ANDROID__)
 #undef HAS_BACKLINK
-#else
-#define HAS_BACKLINK 1
 #endif
 
 typedef CELL_TYPE Cell;
@@ -49,6 +47,11 @@ typedef struct {
   Xt *throw_entry;
 } user_area;
 
+typedef struct {
+  Cell* sp;
+  Float* fp;
+} ptrpair;
+
 #ifdef HAS_BACKLINK
 extern PER_THREAD Cell *gforth_SP;
 extern PER_THREAD Float *gforth_FP;
@@ -65,15 +68,18 @@ extern void gforth_free_stacks(user_area* t);
 extern user_area *gforth_main_UP;
 extern Cell gforth_go(Xt *ip);
 extern void gforth_sigset(sigset_t* set, ...);
-gforth_libcc_init()
+ptrpair gforth_libcc_init(ptrpair x)
 {
+  x.sp++;
+  return x;
 }
-#define GFORTH_ARGS void
+#define GFORTH_ARGS ptrpair x
 #else
 static void*(*gforth_pointers)(Cell);
-gforth_libcc_init(void *(*gforth_pointers_init)(Cell))
+ptrpair gforth_libcc_init(ptrpair x)
 {
-  gforth_pointers=gforth_pointers_init;
+  gforth_pointers=*x.sp++;
+  return x;
 }
 #define gforth_SP *((Cell **)(gforth_pointers(0)))
 #define gforth_FP *((Float **)(gforth_pointers(1)))
@@ -90,7 +96,7 @@ gforth_libcc_init(void *(*gforth_pointers_init)(Cell))
 #define gforth_go ((Cell(*)(Xt*))gforth_pointers(12))
 #define gforth_sigset ((void(*)(sigset_t*, ...))gforth_pointers(13))
 #define gforth_magic *((Cell *)(gforth_pointers(14)))
-#define GFORTH_ARGS void *(*gforth_pointers)(Cell)
+#define GFORTH_ARGS ptrpair x
 #endif
 
 #if SIZEOF_CHAR_P == 4

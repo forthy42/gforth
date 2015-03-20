@@ -20,12 +20,12 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20141031],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20150221],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="April 2, 2014"
+UPDATED="February 21, 2015"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 
@@ -99,7 +99,8 @@ else
   EC_MODE="true"
   EC="-ec"
   NO_EC="#"
-  NO_CHECK="#"
+  NO_CHECK="true"
+  NO_CHECKX="#"
   NO_CROSS="#"
   engine2=""
   engine_fast2=""
@@ -118,7 +119,7 @@ else
      x86_64)
         cpu=amd64
      ;;
-     aarch64)
+     arm64|aarch64)
 	cpu=arm64
      ;;
   esac
@@ -161,7 +162,7 @@ else
      x86_64)
         cpu=amd64
      ;;
-     aarch64)
+     arm64|aarch64)
 	cpu=arm64
      ;;
   esac
@@ -173,7 +174,8 @@ else
   LIB_PATH=${GCC_PATH%/*/*}
   platform=${withval}
   NO_EC=""
-  NO_CHECK="#"
+  NO_CHECK="true"
+  NO_CHECKX="#"
   NO_CROSS="#"
   NO_FAIL="-"
 fi])
@@ -270,6 +272,7 @@ AC_SUBST(DEBUGFLAG)
 AC_SUBST(EC)
 AC_SUBST(NO_EC)
 AC_SUBST(NO_CHECK)
+AC_SUBST(NO_CHECKX)
 AC_SUBST(NO_FAIL)
 AC_SUBST(NO_CROSS)
 AC_SUBST(EC_MODE)
@@ -292,16 +295,18 @@ AC_MSG_RESULT($make_type)
 AC_SUBST(GNUMAKE)
 
 if test "$ac_export_dynamic" != yes; then
-  AC_MSG_CHECKING([whether the linker accepts -export-dynamic])
+  AC_MSG_CHECKING([whether the linker accepts -Wl,--export-dynamic])
   OLDLDFLAGS=$LDFLAGS
-  LDFLAGS="$LDFLAGS -export-dynamic"
+  LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
   dnl AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
   dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
   AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
   test $ac_export_dynamic = yes|| LDFLAGS=$OLDLDFLAGS
+  test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
   AC_MSG_RESULT($ac_export_dynamic)
 else
-  LDFLAGS="$LDFLAGS -export-dynamic"
+  LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
+  AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
 fi
 
 #terminology is a bit unusual here: The host is the system on which
@@ -337,7 +342,7 @@ case "$host_cpu" in
                 #only 4-byte alignment anyway
 		test "$skipcode" || skipcode="nop"
 		;;
-	aarch64*)
+	arm64*|aarch64*)
 		machine=arm64
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
 		if test -z $arm_cacheflush; then
@@ -711,102 +716,19 @@ AC_SUBST(ENGINE_FLAGS)
 
 # Try if GCC understands -fno-gcse
 
-AC_MSG_CHECKING([if $CC understands -fno-gcse])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-gcse"
-AC_TRY_COMPILE(,,ac_nogcse=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-gcse",ac_nogcse=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_nogcse)
+CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder align-labels=1 align-loops=1 align-jumps=1"
 
-# Try if GCC understands -fwrapv
-
-AC_MSG_CHECKING([if $CC understands -fwrapv])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fwrapv"
-AC_TRY_COMPILE(,,ac_wrapv=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fwrapv",ac_wrapv=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_wrapv)
-
-# Try if GCC understands -fchar-unsigned
-
-AC_MSG_CHECKING([if $CC understands -fchar-unsigned])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fchar-unsigned"
-AC_TRY_COMPILE(,,ac_char_unsigned=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fchar-unsigned",ac_char_unsigned=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_char_unsigned)
-
-# Try if GCC understands -fno-strict-aliasing
-AC_MSG_CHECKING([if $CC understands -fno-strict-aliasing])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-strict-aliasing"
-AC_TRY_COMPILE(,,ac_nostrictaliasing=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-strict-aliasing",ac_nostrictaliasing=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_nostrictaliasing)
-
-# Try if GCC understands -fno-crossjumping
-AC_MSG_CHECKING([if $CC understands -fno-crossjumping])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-crossjumping"
-AC_TRY_COMPILE(,,ac_nocrossjumping=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-crossjumping",ac_nocrossjumping=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_nocrossjumping)
-
-# Try if GCC understands -fno-cse-follow-jumps
-AC_MSG_CHECKING([if $CC understands -fno-cse-follow-jumps])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-cse-follow-jumps"
-AC_TRY_COMPILE(,,ac_no_cse_follow_jumps=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-cse-follow-jumps",ac_no_cse_follow_jumps=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_no_cse_follow_jumps)
-
-# Try if GCC understands -fno-reorder-blocks
-AC_MSG_CHECKING([if $CC understands -fno-reorder-blocks])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-reorder-blocks"
-AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-reorder-blocks",ac_noreorder_blocks=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_noreorder_blocks)
-
-# Try if GCC understands -fno-reorder-blocks-and-partition
-AC_MSG_CHECKING([if $CC understands -fno-reorder-blocks-and-partition])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-reorder-blocks-and-partition"
-AC_TRY_COMPILE(,,ac_noreorder_blocks_and_partition=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-reorder-blocks-and-partition",ac_noreorder_blocks_and_partition=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_noreorder_blocks_and_partition)
-
-# Try if GCC understands -fno-toplevel-reorder
-AC_MSG_CHECKING([if $CC understands -fno-toplevel-reorder])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-toplevel-reorder"
-AC_TRY_COMPILE(,,ac_no_toplevel_reorder=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-toplevel-reorder",ac_no_toplevel_reorder=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_no_toplevel_reorder)
-
-# Try if GCC understands -falign-labels=1
-AC_MSG_CHECKING([if $CC understands -falign-labels=1])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -falign-labels=1"
-AC_TRY_COMPILE(,,ac_align_labels=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-labels=1",ac_align_labels=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_align_labels)
-
-# Try if GCC understands -falign-loops=1
-AC_MSG_CHECKING([if $CC understands -falign-loops=1])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -falign-loops=1"
-AC_TRY_COMPILE(,,ac_align_loops=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-loops=1",ac_align_loops=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_align_loops)
-
-# Try if GCC understands -falign-jumps=1
-AC_MSG_CHECKING([if $CC understands -falign-jumps=1])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -falign-jumps=1"
-AC_TRY_COMPILE(,,ac_align_jumps=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-jumps=1",ac_align_jumps=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_align_jumps)
+for i in $CHECKFLAGS
+do
+    AC_MSG_CHECKING([if $CC understands -f$i])
+    ac_i=$(echo ac_$i | tr '=\-' '__')
+    CFLAGS_1="$CFLAGS"
+    CFLAGS="$CFLAGS -f$i"
+    AC_TRY_COMPILE(,,eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS -f$i",eval ac_$ibar=no)
+    CFLAGS="$CFLAGS_1"
+    ac_result=$(eval echo "\$$ac_i")
+    AC_MSG_RESULT($ac_result)
+done
 
 # Try if GCC understands -pthread
 AC_MSG_CHECKING([if $CC understands -pthread])
@@ -881,6 +803,23 @@ AC_SUBST(disasm_fs)
 AC_PATH_PROG(INSTALL_INFO,install-info,[echo '>>>>Please make info dir entry:'],$PATH:/sbin:/usr/sbin:/usr/local/sbin)
 
 case "$host_os" in
+	*ios*)
+		#Darwin uses some funny preprocessor by default; eliminate it:
+		AC_MSG_CHECKING([if $CC understands -no-cpp-precomp on Darwin])
+		CFLAGS_1="$CFLAGS"
+		CFLAGS="$CFLAGS -no-cpp-precomp"
+		AC_TRY_COMPILE(,,ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp",ac_no_cpp_precomp=no)
+		test "$ac_no_cpp_precomp" == yes || CFLAGS="$CFLAGS_1"
+		AC_MSG_RESULT($ac_no_cpp_precomp)
+		DIRSEP="/"
+		PATHSEP=":"
+		DEFAULTSYSTEMPREFIX=""
+		# Mac OS X hides the X stuff in /opt, if you installed
+		# XQuartz
+                #the following magic value was suggested by
+                #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
+                AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.10",[an environment variable value needed by libtool on some MacOS X versions])
+		;;
 	*darwin*)
 		#dar*win* must be first, not to confuse with cygwin, win32 or similar
 		#Darwin uses some funny preprocessor by default; eliminate it:
@@ -893,9 +832,22 @@ case "$host_os" in
 		DIRSEP="/"
 		PATHSEP=":"
 		DEFAULTSYSTEMPREFIX=""
+		# Mac OS X hides the X stuff in /opt, if you installed
+		# XQuartz
+		case $platform in
+			ios)
+				host_os=ios # remove version number
+				CC=${CC-xcrun -sdk iphoneos clang -arch $cpu -framework OpenGLES}
+			;;
+			*)
+				host_os=darwin # remove version number
+				test -d /opt/X11/include && CFLAGS="$CFLAGS -I/opt/X11/include"
+				test -d /opt/X11/lib && CFLAGS="$CFLAGS -L/opt/X11/lib"
+			;;
+		esac
                 #the following magic value was suggested by
                 #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
-                AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.3",[an environment variable value needed by libtool on some MacOS X versions])
+                AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.10",[an environment variable value needed by libtool on some MacOS X versions])
 		;;
 	*win*)
 		# !!!FIXME!!! problems with cygwin and ';' as path separator
@@ -970,14 +922,14 @@ LINK_KERNL=""
 
 dnl the following macro produces a warning with autoconf-2.1
 AC_C_BIGENDIAN
-AC_SUBST(KERNEL)
+AC_SUBST(GKERNEL)
 dnl ac_cv_c_bigendian is an undocumented variable of autoconf-2.1
 if test $ac_cv_c_bigendian != no; then
   bytesex=b
-  KERNEL="kernl32b.fi kernl32l.fi kernl64b.fi kernl64l.fi"
+  GKERNEL="kernl32b.fi kernl32l.fi kernl64b.fi kernl64l.fi"
 else
   bytesex=l
-  KERNEL="kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi"
+  GKERNEL="kernl32l.fi kernl32b.fi kernl64l.fi kernl64b.fi"
 fi
 
 #check how to do asm(".skip 16")
@@ -1002,12 +954,12 @@ main()
 }
 int foo(int x, int y, int z)
 {
-  static void *labels[]={&&label1, &&label2};
+  static void *labels[]={&&label1, &&label2, &&label3};
   if (x) {
     y++; /* workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12108 */
-  label1:
-    asm("$i"); /* or ".space 16" or somesuch */
-  label2: ;
+  label1: asm("$i"); /* or ".space 16" or somesuch */
+  label2: asm("$i"); /* or ".space 16" or somesuch */
+  label3: ; /* workaround clang */
   }
   {
   if (y) goto *labels[z]; /* workaround for gcc PR12108 */
@@ -1177,7 +1129,7 @@ AC_SUBST(PREFORTH)
 AC_SUBST(GFORTHKER)
 AC_SUBST(kernel_anti_dependence)
 AC_MSG_RESULT($PREFORTH)
-AC_DEFINE_UNQUOTED(KERNEL, "$kernel_fi", [The kernel to load in the image])
+AC_DEFINE_UNQUOTED(GKERNEL, "$kernel_fi", [The kernel to load in the image])
 AC_DEFINE_UNQUOTED(ARCH, "$machine", [architecture to run on ])
 AC_SUBST(machine)
 
@@ -1195,7 +1147,7 @@ fi
 if swig -forth unix/test.i; then
    echo "Swig works in Forth mode"
    > conftest.$ac_ext
-   SWIGINCLUDES=`eval $ac_compiler -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ /-I/g' | tr '\n' ' '`
+   SWIGINCLUDES=`eval $ac_compiler $CFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ \(.*\) (framework directory)$/-F\1/g' -e 's/^ /-I/g' | tr '\n' ' '`
    #opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs"
    SWIGLIBS="$SWIGLIBS x.fs", ,)
@@ -1215,6 +1167,15 @@ if swig -forth unix/test.i; then
    AC_CHECK_HEADER(GLES3/gl3ext.h, SWIGMODULES="$SWIGMODULES gles3.fs"
    AC_CHECK_HEADER(EGL/egl.h, SWIGLIBS="$SWIGLIBS opengles3.fs", ,), ,
 #include <GLES3/gl3.h>
+) ,)
+# iOS varaint
+   AC_CHECK_HEADER(OpenGLES/ES2/gl.h,
+   AC_CHECK_HEADER(OpenGLES/ES2/glext.h, SWIGMODULES="$SWIGMODULES ios-gles.fs" SWIGLIBS="$SWIGLIBS opengles.fs", ,
+#include <OpenGLES/ES2/gl.h>
+) ,)
+   AC_CHECK_HEADER(OpenGLES/ES3/gl.h,
+   AC_CHECK_HEADER(OpenGLES/ES3/glext.h, SWIGMODULES="$SWIGMODULES ios-gles3.fs" SWIGLIBS="$SWIGLIBS opengles3.fs", ,
+#include <OpenGLES/ES3/gl.h>
 ) ,)
    AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
    SWIGLIBS="$SWIGLIBS jnilib.fs", ,)

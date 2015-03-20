@@ -118,8 +118,8 @@ User first-throw
 ; immediate compile-only
 
 
-: (endtry) ( -- )
-    \ normal end of try block: restore handler, forget rest
+: uncatch ( -- ) \ gforth
+    \g unwind an exception frame
     r>
     r> handler !
     rdrop \ lp
@@ -150,7 +150,7 @@ User first-throw
 
 : endtry ( compilation  -- ; run-time  R:sys1 -- ) \ gforth
     \G End an exception-catching region.
-    POSTPONE (endtry)
+    POSTPONE uncatch
 ; immediate compile-only
 
 : endtry-iferror ( compilation  orig1 -- orig2 ; run-time  R:sys1 -- ) \ gforth
@@ -159,7 +159,7 @@ User first-throw
     \G is an exception between @code{try} and @code{endtry-iferror}).
     \G This part has to be finished with @code{then} (or
     \G @code{else}...@code{then}).
-    POSTPONE (endtry) POSTPONE iferror POSTPONE (endtry)
+    POSTPONE uncatch POSTPONE iferror POSTPONE uncatch
 ; immediate compile-only
 
 :noname ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception

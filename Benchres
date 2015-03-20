@@ -16,6 +16,9 @@ All times are given in seconds of user time.
 After 0.7.0:
 AMD64:
   sieve bubble matrix fib   fft   release; CPU; gcc
+ 0.118  0.171  0.061 0.166 0.050  2015-02-01; Intel Core i7-3517U 3.0GHz; gcc-4.9.0 (SUSE Linux)
+ 0.127  0.170  0.062 0.172 0.050  2015-02-01; Intel Core i7-3517U 3.0GHz; gcc-4.8.3 20140627 (SUSE Linux)
+ 0.126  0.198  0.078 0.191 0.085  2015-02-01; Intel Core i7-3517U 3.0GHz; clang 3.5.0
  0.087  0.134  0.047 0.129 0.039  2014-03-24; Intel Core i7-3770 3.40GHz; gcc-4.7.2 20130108 (SUSE Linux)
  0.088  0.138  0.048 0.132 0.042  2013-04-08; Intel Core i7-3770 3.40GHz; gcc-4.7.2 20130108 (SUSE Linux)
  0.156  0.232  0.084 0.236 0.080  2012-10-31; Intel Xeon E5620 2.40GHz; gcc-4.7.1 (Debian 4.7.1-7)
@@ -23,9 +26,15 @@ AMD64:
 sieve bubble matrix  fib   fft    release; CPU; gcc
  0.284 0.436  0.204 0.516         2012-01-11; AMD E-450 1650MHz; gcc-4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3)
 
+ARM64
+ sieve bubble matrix fib   fft   release; CPU; gcc
+ 0.283 0.404  0.169 0.330 0.179 2014-10-31; Apple A7 1,3GHz, clang 3.5 (iOS 8.1.1)
+
 ARM Cortex-A9:
-  sieve bubble matrix fib   fft   release; CPU; gcc
+ sieve bubble matrix fib   fft   release; CPU; gcc
  0.405 0.525  0.275 0.560 0.295 2014-10-31; Exynos 4 Quad 1.6GHz; gcc-4.8.x (Android 4.4.2)
+ 0.520 0.680  0.390 0.780 0.410 2014-10-31; Freescale i.MX6 Quad/DualLite 1.2GHz; gcc-4.9.1 -mthumb (Debian)
+ 0.480 0.670  0.390 0.730 0.390 2014-10-31; Freescale i.MX6 Quad/DualLite 1.2GHz; gcc-4.9.1 -marm (Debian)
  0.735 0.920  0.900 1.110 0.690 2012-10-31; Exynos 4 Quad 1.6GHz; gcc-4.6.x (Android 4.1.1)
 ARM A8:
 sieve bubble matrix fib   fft   release

@@ -32,7 +32,7 @@ c-library filestat
     c-function stat stat a a -- n ( path buf -- r )
     c-function fstat fstat n a -- n ( fd buf -- r )
     c-function lstat lstat a a -- n ( path buf -- r )
-    e? os-type s" darwin" string-prefix? [IF]
+    e? os-type 2dup s" darwin" string-prefix? -rot s" ios" str= or [IF]
 	c-function utimes utimes a a -- n ( fd times -- r )
 	c-function lutimes lutimes a a -- n ( fd times -- r )
 	c-function futimes futimes n a -- n ( fd times -- r )

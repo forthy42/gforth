@@ -1,7 +1,9 @@
+// this file is in the public domain
 %module gl
 %insert("include")
 %{
 #define GL_GLEXT_PROTOTYPES
+#include <stdint.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
 %}

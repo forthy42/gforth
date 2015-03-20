@@ -1,3 +1,4 @@
+// this file is in the public domain
 %module jni
 %insert("include")
 %{
@@ -17,6 +18,12 @@ extern struct _IO_FILE *stderr;
 #define __NDK_FPABI__
 #endif
 #ifdef host_os_linux_gnu
+#define __GNUC__
+#define JNIEXPORT
+#define JNICALL
+#define _CLASSPATH_JNIIMPEXP
+#endif
+#ifdef host_os_darwin
 #define __GNUC__
 #define JNIEXPORT
 #define JNICALL

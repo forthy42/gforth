@@ -149,7 +149,7 @@ STACK_CACHE_DEFAULT_FAST = @STACK_CACHE_DEFAULT_FAST@
 PROFOBJS = @PROFOBJS@
 PROFEXES = @PROFEXES@
 
-INSTALLDIRS = kernel doc asm ec test \
+INSTALLDIRS = kernel kernel-ec doc asm ec test \
 	compat unix minos2 \
 	arch arch/generic arch/m68k arch/mips \
 	arch/386 arch/hppa arch/sparc arch/power \
@@ -201,7 +201,16 @@ KERN_SRC = \
 	kernel/xchars.fs \
 	kernel/string.fs
 
-EC_SRC = \
+KERN_EC_SRC = kernel-ec/args.fs kernel-ec/basics.fs kernel-ec/cbr.fs	\
+	kernel-ec/cbrpi.fs kernel-ec/cloop.fs kernel-ec/comp.fs		\
+	kernel-ec/cond.fs kernel-ec/doers.fs kernel-ec/errore.fs	\
+	kernel-ec/getdoers.fs kernel-ec/int.fs kernel-ec/io.fs		\
+	kernel-ec/kernel.fs kernel-ec/license.fs kernel-ec/main.fs	\
+	kernel-ec/nio.fs kernel-ec/pass.fs kernel-ec/quotes.fs		\
+	kernel-ec/saccept.fs kernel-ec/toolsext.fs kernel-ec/tools.fs	\
+	kernel-ec/vars.fs kernel-ec/version.fs
+
+EC_SRC = $(KERN_EC_SRC) \
 	asm/README \
 	asm/bitmask.fs \
 	asm/numref.fs \
@@ -304,17 +313,19 @@ UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
 
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	\
-	unix/soil.i unix/soil2.i unix/xlib.i
+	unix/soil.i unix/soil2.i unix/xlib.i unix/ios-gles.i unix/ios-gles3.i \
+	unix/freetype-gl.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
 
-LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC) \
-	$(patsubst %, unix/%, $(SWIGMODULES)) $(UNIXLIBS_SRC)
+LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC) unix/test.i \
+	$(patsubst %, unix/%, $(SWIGMODULES)) $(UNIXLIBS_SRC) unix/Makefile.in \
+	unix/doexec
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
 
-LIBCC_BUILD_NOEC = @NO_CHECK@ $(LIBCC_BUILD_SRC)
+LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
 MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs minos2/ascii.png	\
 	minos2/jpeg-exif.fs minos2/linux-gl.fs minos2/soil-texture.fs \
@@ -450,6 +461,7 @@ ARCHS =	\
 	arch/r8c/lauflicht.fs \
 	arch/r8c/tasker.fs \
 	arch/r8c/terminal.fs \
+	arch/r8c/tt.fs \
 	arch/sharc/unistd.h \
 	arch/lm32/mach.fs \
 	arch/lm32/mach.sh \
@@ -499,12 +511,12 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/strerror.c engine/strsignal.c engine/dblsub.c \
 	engine/fnmatch.h engine/fnmatch.c \
 	engine/makefile.dos engine/makefile.os2 \
-	engine/zexpand.c engine/androidmain.c
+	engine/zexpand.c engine/androidmain.c engine/sincos.c
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
-	elisp-comp missing stamp-h.in envos.fs.in \
+	elisp-comp stamp-h.in envos.fs.in \
 	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
 	BUILD-FROM-SCRATCH model \
 	COPYING COPYING.LIB COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \
@@ -520,7 +532,8 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
 	test/coretest.out test/checkans.out test/gforth.out \
-	cache*.vmg peeprules.vmg prim
+	cache*.vmg peeprules.vmg prim \
+	debian.rules debian.control debian.changelog
 
 RCS_FILES =  ToDo model high-level
 
@@ -542,7 +555,7 @@ FORTH_GEN_ENGINE_FAST= \
 	engine/costs-fast.i engine/super2-fast.i
 FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
-FORTH_GEN =  $(FORTH_GEN0) @KERNEL@ gforth.fi
+FORTH_GEN =  $(FORTH_GEN0) @GKERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
 
@@ -569,7 +582,7 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-all: kernel/version.fs more @NO_CHECK@ check
+all: kernel/version.fs more @NO_CHECKX@ check
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
