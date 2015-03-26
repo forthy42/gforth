@@ -92,6 +92,7 @@ tmp$ $execstr-ptr !
     \G slurp a file @var{fid} into a string @var{addr2}
     dup $init swap >r
     r@ file-size throw drop over $!len
+    0. r@ reposition-file throw
     dup $@ r> read-file throw swap $!len ;
 : $slurp-file ( addr1 u1 addr2 -- )
     \G slurp a named file @var{addr1 u1} into a string @var{addr2}
