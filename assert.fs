@@ -85,7 +85,7 @@ comp: drop 2>r ]] ELSE [[ 2r> ;
 
 Variable debug-eval
 
-: +-? ( addr u -- flag )  0= IF  drop  EXIT  THEN
+: +-? ( addr u -- flag )  0= IF  drop false  EXIT  THEN
     c@ ',' - abs 1 = ; \ ',' is in the middle between '+' and '-'
 
 : +debug ( -- )
