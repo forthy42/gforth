@@ -160,6 +160,7 @@ c-library pthread
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
     c-function pthread_kill pthread_kill n n -- n ( id sig -- rvalue )
     c-function pthread_mutex_init pthread_mutex_init a a -- n ( mutex addr -- r )
+    c-function pthread_mutex_destroy pthread_mutex_destroy a -- n ( mutex -- r )
     c-function pthread_mutex_lock pthread_mutex_lock a -- n ( mutex -- r )
     c-function pthread_mutex_unlock pthread_mutex_unlock a -- n ( mutex -- r )
     c-function pthread-mutex+ pthread_mutex_plus a -- a ( mutex -- mutex' )
