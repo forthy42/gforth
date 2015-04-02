@@ -593,7 +593,7 @@ static size_t wholepage(size_t n)
 
 Address gforth_alloc(Cell size)
 {
-#if defined(HAVE_MMAP) // && !(defined(__CYGWIN__) && defined(__x86_64))
+#if defined(HAVE_MMAP)
   Address r;
 
   r=alloc_mmap(size);
@@ -610,7 +610,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
 {
   void *image = MAP_FAILED;
 
-#if defined(HAVE_MMAP) && !(defined(__CYGWIN__) && defined(__x86_64))
+#if defined(HAVE_MMAP)
   if (offset==0) {
     image=alloc_mmap(dictsize);
     if (image != (void *)MAP_FAILED) {
