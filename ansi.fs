@@ -73,7 +73,7 @@ decimal
 : <A    -1 0 ;
 : A>    BEGIN over -1 <> WHILE or REPEAT nip ;
 
-User Attr   $660 Attr !
+VARIABLE Attr   -1 Attr !
 
 : (Attr!)       ( attr -- ) dup Attr @ = IF drop EXIT THEN
                 dup Attr !
