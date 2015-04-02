@@ -120,7 +120,6 @@ Software Foundation raise funds for GNU development.''
 @top Gforth
 
 @insertcopying
-@end ifnottex
 
 @menu
 * Goals::                       About the Gforth Project
@@ -577,6 +576,7 @@ Licenses
 
 @end detailmenu
 @end menu
+@end ifnottex
 
 @c ----------------------------------------------------------
 @iftex
