@@ -52,7 +52,11 @@ set-current
     addr 0 <<# gdb-addr-sep-char hold # #s 'x hold # #> append-extend-string #>>
     addr u + 0 <<# # #s 'x hold # #> append-extend-string #>>
     r> base ! cr
-    s\" \nset logging off\nquit\n\" >$file2 && gdb -nx -q -p `ps -p $$ -o ppid=` -x $file2 2>/dev/null >/dev/null && rm $file2 && grep -v \"of assembler\" $file && rm $file" append-extend-string
+    [ e? os-type s" cygwin" str= ] [IF]
+	s\" \nset logging off\nquit\n\" >$file2 && gdb -nx -q -p `ps -p $$ | grep -v PPID | cut -c 10-17` -x $file2 2>/dev/null >/dev/null && rm $file2 && grep -v \"of assembler\" $file && rm $file"
+    [ELSE]
+	s\" \nset logging off\nquit\n\" >$file2 && gdb -nx -q -p `ps -p $$ -o ppid=` -x $file2 2>/dev/null >/dev/null && rm $file2 && grep -v \"of assembler\" $file && rm $file"
+    [THEN]  append-extend-string
     2dup (system) 2swap drop free throw throw if
 	addr u dump
     endif ;

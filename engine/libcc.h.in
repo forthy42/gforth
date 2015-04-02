@@ -78,7 +78,7 @@ ptrpair gforth_libcc_init(ptrpair x)
 static void*(*gforth_pointers)(Cell);
 ptrpair gforth_libcc_init(ptrpair x)
 {
-  gforth_pointers=*x.sp++;
+  gforth_pointers=(void*(*)(Cell))*x.sp++;
   return x;
 }
 #define gforth_SP *((Cell **)(gforth_pointers(0)))
