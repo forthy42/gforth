@@ -859,6 +859,9 @@ case "$host_os" in
 		# the ./ is there, because the bash does not recognize
 		# absolute DOS filenames
 		DEFAULTSYSTEMPREFIX="" #"./${COMSPEC//\\/\\\\\\\\} /c "
+		if test "$machine" = amd64; then
+		   no_dynamic_default=1
+		fi
 		;;
 	*linux*)
 		DIRSEP="/"

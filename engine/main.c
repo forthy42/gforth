@@ -512,7 +512,7 @@ static Address verbose_malloc(Cell size)
     exit(1);
   }
   r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
-  debugp(stderr, "malloc succeeds, address=%p\n", r);
+  debugp(stderr, "verbose malloc($%lx) succeeds, address=%p\n", (long)size, r);
   return r;
 }
 
@@ -598,8 +598,10 @@ Address gforth_alloc(Cell size)
   Address r;
 
   r=alloc_mmap(size);
-  if (r!=(Address)MAP_FAILED)
+  if (r!=(Address)MAP_FAILED) {
+    debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)size, r);
     return r;
+  }
 #endif /* HAVE_MMAP */
   /* use malloc as fallback */
   return verbose_malloc(size);
@@ -613,6 +615,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
   if (offset==0) {
     image=alloc_mmap(dictsize);
     if (image != (void *)MAP_FAILED) {
+      debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
       void *image1;
       debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
       image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
@@ -2147,7 +2150,7 @@ Address gforth_alloc(Cell size)
     exit(1);
   }
   r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
-  debugp(stderr, "malloc succeeds, address=%p\n", r);
+  debugp(stderr, "malloc($%lx) succeeds, address=%p\n", (long)size, r);
   return r;
 }
 #endif
