@@ -90,7 +90,7 @@ Source: "c:\\$CYGWIN\\bin\\cygiconv-2.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygltdl-7.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygreadline7.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygncursesw-10.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygffi-6dll"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\cygffi-6.dll"; DestDir: "{app}"
 Source: "gforthmi.sh"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
