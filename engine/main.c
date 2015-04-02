@@ -175,11 +175,10 @@ int optind = 1;
 #ifndef MAP_NORESERVE
 #define MAP_NORESERVE 0
 #endif
-/* IF you have an old Cygwin, this may help:
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__) && defined(__x86_64)
 #define MAP_NORESERVE 0
 #endif
-*/
+
 static int map_noreserve=MAP_NORESERVE;
 
 #define CODE_BLOCK_SIZE (512*1024) /* !! overflow handling for -native */
@@ -594,7 +593,7 @@ static size_t wholepage(size_t n)
 
 Address gforth_alloc(Cell size)
 {
-#if defined(HAVE_MMAP) && !(defined(__CYGWIN__) && defined(__x86_64))
+#if defined(HAVE_MMAP) // && !(defined(__CYGWIN__) && defined(__x86_64))
   Address r;
 
   r=alloc_mmap(size);
