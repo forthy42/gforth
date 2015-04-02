@@ -65,7 +65,7 @@ tmpfile=./temp-image.fi
 $GFORTHD --clear-dictionary --no-offset-im --die-on-signal $generate -e "savesystem $tmpfile"1" bye"
 $GFORTHD --clear-dictionary --offset-image --die-on-signal $generate -e "savesystem $tmpfile"2" bye"
 $GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye" || exit 1
-chmod +x $outfile || exit 1
+@no_chmod@chmod +x $outfile || exit 1
 rm $tmpfile"1" $tmpfile"2"
 if test x$application = xyes; then
     $GFORTH -e "s\" $outfile\"" make-app.fs
