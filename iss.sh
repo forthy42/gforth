@@ -122,11 +122,7 @@ Name: "{group}\Bash"; Filename: "{app}\sh.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforthmi.sh || read"""
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth fixpath.fs gforth-fast.exe || read"""
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth fixpath.fs gforth-ditc.exe || read"""
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth fixpath.fs gforth-itc.exe || read"""
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth-fast fixpath.fs gforth.exe || read"""
+Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh || (echo "An error occured, pess any key to quit"; read)"""
 
 [UninstallDelete]
 Type: files; Name: "{app}\gforth.fi"
