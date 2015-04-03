@@ -21,8 +21,6 @@
 
 : "search s" .:/usr/local" ;
 
-include string.fs
-
 Variable path$  pad $1000 get-dir path$ $!
 Variable pathes$  pad $1000 get-dir pathes$ $!
 Variable exe$
