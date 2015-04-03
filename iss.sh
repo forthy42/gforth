@@ -122,7 +122,7 @@ Name: "{group}\Bash"; Filename: "{app}\sh.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh || (echo "An error occured, pess any key to quit"; read)"""
+Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh || (echo 'An error occured, pess any key to quit'; read)"""
 
 [UninstallDelete]
 Type: files; Name: "{app}\gforth.fi"
