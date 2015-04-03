@@ -47,7 +47,7 @@ Variable macro$
     2>r $substitute -rot
     2r> rot umin 2dup 2>r move 2r> rot ;
 
-: unescapes ( addr1 u1 dest -- dest u2 )
+: unescape ( addr1 u1 dest -- dest u2 )
     \G double all delimiters in @var{addr1 u1}, so that substitute
     \G will result in the original text.  Note that the buffer
     \G @var{dest} does not have a size, as in worst case, it will need
