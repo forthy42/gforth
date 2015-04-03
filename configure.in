@@ -802,6 +802,8 @@ AC_SUBST(disasm_fs)
 
 AC_PATH_PROG(INSTALL_INFO,install-info,[echo '>>>>Please make info dir entry:'],$PATH:/sbin:/usr/sbin:/usr/local/sbin)
 
+RM=rm # usually, rm is called rm
+
 case "$host_os" in
 	*ios*)
 		#Darwin uses some funny preprocessor by default; eliminate it:
@@ -860,6 +862,7 @@ case "$host_os" in
 		# absolute DOS filenames
 		DEFAULTSYSTEMPREFIX="" #"./${COMSPEC//\\/\\\\\\\\} /c "
 		no_chmod="#"
+		RM=del # on Windows, RM is del
 		;;
 	*linux*)
 		DIRSEP="/"
@@ -876,6 +879,7 @@ case "$host_os" in
 		;;
 esac
 AC_SUBST(no_chmod)
+AC_SUBST(RM)
 AC_SUBST(DIRSEP)
 AC_DEFINE_UNQUOTED(DIRSEP,'$DIRSEP',[a directory separator character])
 AC_SUBST(PATHSEP)
