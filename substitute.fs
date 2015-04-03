@@ -17,16 +17,16 @@ wordlist AConstant macros-wordlist
 	r> set-current
     THEN ;
 
-Variable macro$
+User macro$
 
 : $substitute ( addr1 len1 -- addr2 len2 n )
     \G substitute all macros in text @var{addr1 len1}.
     \G @var{n} is the number of substitutions, @var{addr2 len2} the result.
-    s" " macro$ $! 0 >r
+    macro$ $off 0 >r
     BEGIN  dup  WHILE  '%' $split
 	    2swap macro$ $+! dup IF
 		over c@ '%' = IF
-		    over dup 1+ over - macro$ $+! 1 /string
+		    '%' macro$ c$+! 1 /string
 		ELSE
 		    '%' $split 2swap dup 0= IF
 			2drop s" %" macro$ $+! r> 1+ >r
