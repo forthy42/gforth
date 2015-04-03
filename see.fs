@@ -285,7 +285,7 @@ ACONSTANT MaxTable
 : CheckWhile ( a-addrw a-addrt -- true | false )
         BranchTable >r
         BEGIN   r@ BranchPointer @ u<
-        WHILE   over r@ @ u<  over r@ @ u> and
+        WHILE   2dup r@ @ within
                 IF  over r@ cell+ @ u>
                         IF 2drop rdrop true EXIT THEN
                 THEN
