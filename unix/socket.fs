@@ -115,7 +115,7 @@ struct
     int% field ai_socktype
     int% field ai_protocol
     size_t% field ai_addrlen
-[defined] android [defined] darwin or [IF]
+[defined] android [defined] darwin [defined] cygwin or or [IF]
     cell% field ai_canonname
     cell% field ai_addr
 [ELSE]
