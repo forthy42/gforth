@@ -234,7 +234,7 @@ s" sock read error"    exception Constant !!sockread!!
 
 : new-udp-socket ( -- socket )
     PF_INET SOCK_DGRAM 0 socket dup 0<= ?ior
-    [IFDEF] darwin
+    [defined] darwin [defined] cygwin [ or ] [IF]
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt ?ior
     [ELSE]
