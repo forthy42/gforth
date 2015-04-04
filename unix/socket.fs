@@ -71,6 +71,7 @@ end-c-library
 
 e? os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
 e? os-type s" linux-android" str= [IF] : android ; [THEN]
+e? os-type s" Cygwin" string-prefix? [IF] : cygwin ; [THEN]
 
 4 4 2Constant int%
 2 2 2Constant short%
@@ -167,6 +168,19 @@ Variable addrres
      4 Constant SO_REUSEADDR
  $FFFF Constant SOL_SOCKET
 [ELSE]
+    [IFDEF] Cygwin
+    23 Constant PF_INET6
+     2 Constant AF_INET
+    23 Constant AF_INET6
+    27 Constant IPV6_V6ONLY
+    11 Constant EWOULDBLOCK
+   $10 Constant MSG_DONTWAIT
+    $8 Constant MSG_WAITALL
+ $4002 Constant O_NONBLOCK|O_RDWR
+ $1006 Constant SO_RCVTIMEO
+ $0004 Constant SO_REUSEADDR
+ $FFFF Constant SOL_SOCKET
+    [ELSE]
     10 Constant PF_INET6
      2 Constant AF_INET
     10 Constant AF_INET6
@@ -179,6 +193,7 @@ $10000 Constant MSG_WAITFORONE
     20 Constant SO_RCVTIMEO
      2 Constant SO_REUSEADDR
      1 Constant SOL_SOCKET
+    [THEN]
 [THEN]
    1 Constant SOCK_STREAM
    2 Constant SOCK_DGRAM
