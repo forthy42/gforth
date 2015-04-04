@@ -71,7 +71,7 @@ end-c-library
 
 e? os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
 e? os-type s" linux-android" str= [IF] : android ; [THEN]
-e? os-type s" Cygwin" string-prefix? [IF] : cygwin ; [THEN]
+e? os-type s" cygwin" string-prefix? [IF] : cygwin ; [THEN]
 
 4 4 2Constant int%
 2 2 2Constant short%
