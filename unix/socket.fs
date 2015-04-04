@@ -245,7 +245,7 @@ s" sock read error"    exception Constant !!sockread!!
 
 : new-udp-socket6 ( -- socket ) 0 { w^ sockopt }
     PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
-    [IFDEF] darwin
+    [defined] darwin [defined] cygwin [ or ] [IF]
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt drop
     [ELSE]
@@ -257,7 +257,7 @@ s" sock read error"    exception Constant !!sockread!!
 
 : new-udp-socket46 ( -- socket )
     PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
-    [IFDEF] darwin
+    [defined] darwin [defined] cygwin [ or ] [IF]
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt ?ior
     [ELSE]
