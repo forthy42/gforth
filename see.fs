@@ -283,16 +283,15 @@ ACONSTANT MaxTable
 \
 
 : CheckWhile ( a-addrw a-addrt -- true | false )
-        BranchTable
-        BEGIN   dup BranchPointer @ u<
-        WHILE   dup @ 3 pick u>
-                over @ 3 pick u< and
-                IF dup cell+ @ 3 pick u<
-                        IF 2drop drop true EXIT THEN
+        BranchTable >r
+        BEGIN   r@ BranchPointer @ u<
+        WHILE   2dup r@ @ within
+                IF  over r@ cell+ @ u>
+                        IF 2drop rdrop true EXIT THEN
                 THEN
-                3 cells +
+                r> 3 cells + >r
         REPEAT
-        2drop drop false ;
+        2drop rdrop false ;
 
 : ,Branch ( a-addr -- )
         BranchPointer @ dup MaxTable u> ABORT" SEE: Table overflow"
@@ -561,7 +560,7 @@ VARIABLE C-Pass
         Display?
         IF      dup @ Back?
                 IF      level- nl S" UNTIL " .struc nl
-                ELSE    dup    dup @ over +
+                ELSE    dup    dup @
                         CheckWhile
                         IF      MyBranch
                                 cell+ dup @ 0=

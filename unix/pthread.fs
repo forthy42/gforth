@@ -156,9 +156,10 @@ c-library pthread
     c-function pthreads pthreads n -- n ( n -- n' )
     c-function thread_start gforth_thread_p -- a ( -- addr )
     c-function gforth_create_thread gforth_stacks n n n n -- a ( dsize fsize rsize lsize -- task )
-    c-function pthread_create pthread_create a a a a -- n ( thread attr start arg )
+    c-function pthread_create pthread_create a{(pthread_t*)} a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
-    c-function pthread_kill pthread_kill n n -- n ( id sig -- rvalue )
+    c-function pthread_kill pthread_kill a{*(pthread_t*)} n -- n ( id sig -- rvalue )
+    c-function pthread_cancel pthread_cancel a{*(pthread_t*)} -- n ( addr -- r )
     c-function pthread_mutex_init pthread_mutex_init a a -- n ( mutex addr -- r )
     c-function pthread_mutex_destroy pthread_mutex_destroy a -- n ( mutex -- r )
     c-function pthread_mutex_lock pthread_mutex_lock a -- n ( mutex -- r )
@@ -342,7 +343,6 @@ event: ->lit  0 { w^ n } n cell epiper @ read-file throw drop n @ ;
 event: ->flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
 event: ->wake ;
 event: ->sleep  stop ;
-event: ->kill  kill-task ;
 
 : wake ( task -- )
     \G Wake a task
@@ -352,7 +352,7 @@ event: ->kill  kill-task ;
     <event ->sleep event> ;
 : kill ( task -- )
     \G Kill a task
-    <event ->kill event> ;
+    user' pthread-id + pthread_cancel drop ;
 
 : elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
 \G sends a literal

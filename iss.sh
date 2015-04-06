@@ -26,6 +26,8 @@
 # of Gforth, and start the setup compiler there.
 
 VERSION=$(cat version)
+CYGWIN=cygwin$(./gforth -e 'cell 8 = [IF] ." 64" [THEN] bye')
+SEH=$(./gforth -e 'cell 8 = [IF] ." seh-" [THEN] bye')
 
 for i in lib/gforth/$VERSION/libcc-named/*.la
 do
@@ -80,15 +82,15 @@ Name: "{app}\include\gforth\\$VERSION"
 ; Parameter quick reference:
 ;   "Source filename", "Dest. filename", Copy mode, Flags
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
-Source: "c:\cygwin\bin\sh.exe"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygwin1.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cyggcc_s-1.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygintl-8.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygiconv-2.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygltdl-7.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygreadline7.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygncursesw-10.dll"; DestDir: "{app}"
-Source: "c:\cygwin\bin\cygffi-4.dll"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\sh.exe"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\cygwin1.dll"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\cyggcc_s-${SEH}1.dll"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\cygintl-8.dll"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\cygiconv-2.dll"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\cygltdl-7.dll"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\cygreadline7.dll"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\cygncursesw-10.dll"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\cygffi-6.dll"; DestDir: "{app}"
 Source: "gforthmi.sh"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
@@ -120,11 +122,7 @@ Name: "{group}\Bash"; Filename: "{app}\sh.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforthmi.sh || read"""
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth fixpath.fs gforth-fast.exe || read"""
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth fixpath.fs gforth-ditc.exe || read"""
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth fixpath.fs gforth-itc.exe || read"""
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./gforth-fast fixpath.fs gforth.exe || read"""
+Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh || (echo 'An error occured, pess any key to quit'; read)"""
 
 [UninstallDelete]
 Type: files; Name: "{app}\gforth.fi"
@@ -166,6 +164,67 @@ begin
   Result := Pos(';' + UpperCase(Param) + ';', ';' + UpperCase(OrigPath) + ';') = 0;  
   if Result = True then
      Result := Pos(';' + UpperCase(Param) + '\;', ';' + UpperCase(OrigPath) + ';') = 0; 
+end;
+
+// Utility functions for Inno Setup
+//   used to add/remove programs from the windows firewall rules
+// Code originally from http://news.jrsoftware.org/news/innosetup/msg43799.html
+
+const
+  NET_FW_SCOPE_ALL = 0;
+  NET_FW_IP_VERSION_ANY = 2;
+
+procedure SetFirewallException(AppName,FileName:string);
+var
+  FirewallObject: Variant;
+  FirewallManager: Variant;
+  FirewallProfile: Variant;
+begin
+  try
+    FirewallObject := CreateOleObject('HNetCfg.FwAuthorizedApplication');
+    FirewallObject.ProcessImageFileName := FileName;
+    FirewallObject.Name := AppName;
+    FirewallObject.Scope := NET_FW_SCOPE_ALL;
+    FirewallObject.IpVersion := NET_FW_IP_VERSION_ANY;
+    FirewallObject.Enabled := True;
+    FirewallManager := CreateOleObject('HNetCfg.FwMgr');
+    FirewallProfile := FirewallManager.LocalPolicy.CurrentProfile;
+    FirewallProfile.AuthorizedApplications.Add(FirewallObject);
+  except
+  end;
+end;
+
+procedure RemoveFirewallException( FileName:string );
+var
+  FirewallManager: Variant;
+  FirewallProfile: Variant;
+begin
+  try
+    FirewallManager := CreateOleObject('HNetCfg.FwMgr');
+    FirewallProfile := FirewallManager.LocalPolicy.CurrentProfile;
+    FireWallProfile.AuthorizedApplications.Remove(FileName);
+  except
+  end;
+end;
+
+// event called at install
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep=ssPostInstall then
+     SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth.exe');
+     SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-fast.exe');
+     SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-itc.exe');
+     SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-ditc.exe');
+end;
+
+// event called at uninstall
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep=usPostUninstall then
+     RemoveFirewallException(ExpandConstant('{app}')+'\gforth.exe');
+     RemoveFirewallException(ExpandConstant('{app}')+'\gforth-fast.exe');
+     RemoveFirewallException(ExpandConstant('{app}')+'\gforth-itc.exe');
+     RemoveFirewallException(ExpandConstant('{app}')+'\gforth-ditc.exe');
 end;
 EOT
 

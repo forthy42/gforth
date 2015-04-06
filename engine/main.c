@@ -175,11 +175,10 @@ int optind = 1;
 #ifndef MAP_NORESERVE
 #define MAP_NORESERVE 0
 #endif
-/* IF you have an old Cygwin, this may help:
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__) && defined(__x86_64)
 #define MAP_NORESERVE 0
 #endif
-*/
+
 static int map_noreserve=MAP_NORESERVE;
 
 #define CODE_BLOCK_SIZE (512*1024) /* !! overflow handling for -native */
@@ -512,7 +511,7 @@ static Address verbose_malloc(Cell size)
     exit(1);
   }
   r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
-  debugp(stderr, "malloc succeeds, address=%p\n", r);
+  debugp(stderr, "verbose malloc($%lx) succeeds, address=%p\n", (long)size, r);
   return r;
 }
 
@@ -594,12 +593,14 @@ static size_t wholepage(size_t n)
 
 Address gforth_alloc(Cell size)
 {
-#if defined(HAVE_MMAP) && !(defined(__CYGWIN__) && defined(__x86_64))
+#if defined(HAVE_MMAP)
   Address r;
 
   r=alloc_mmap(size);
-  if (r!=(Address)MAP_FAILED)
+  if (r!=(Address)MAP_FAILED) {
+    debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)size, r);
     return r;
+  }
 #endif /* HAVE_MMAP */
   /* use malloc as fallback */
   return verbose_malloc(size);
@@ -609,10 +610,11 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
 {
   void *image = MAP_FAILED;
 
-#if defined(HAVE_MMAP) && !(defined(__CYGWIN__) && defined(__x86_64))
+#if defined(HAVE_MMAP)
   if (offset==0) {
     image=alloc_mmap(dictsize);
     if (image != (void *)MAP_FAILED) {
+      debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
       void *image1;
       debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
       image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
@@ -2147,7 +2149,7 @@ Address gforth_alloc(Cell size)
     exit(1);
   }
   r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
-  debugp(stderr, "malloc succeeds, address=%p\n", r);
+  debugp(stderr, "malloc($%lx) succeeds, address=%p\n", (long)size, r);
   return r;
 }
 #endif

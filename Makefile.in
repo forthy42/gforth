@@ -517,7 +517,7 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp stamp-h.in envos.fs.in \
-	iss.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
+	iss.sh wininst.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
 	BUILD-FROM-SCRATCH model \
 	COPYING COPYING.LIB COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \
 	doc/gforth.ds doc/gforth.1 doc/version.texi.in \
