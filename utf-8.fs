@@ -19,7 +19,7 @@
 
 \ short: u8 means utf-8 encoded address
 
-s" malformed UTF-8 character" exception Constant UTF-8-err
+-77 Constant UTF-8-err
 
 $80 Value max-single-byte
 

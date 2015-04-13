@@ -29,13 +29,22 @@ User macro$
 		    '%' macro$ c$+! 1 /string
 		ELSE
 		    '%' $split 2swap dup 0= IF
-			2drop s" %" macro$ $+! r> 1+ >r
+			2drop '%' macro$ c$+!
 		    ELSE
-			macros-wordlist search-wordlist  IF
-			    -rot 2>r execute macro$ $+! 2r> r> 1+ >r
+			2over drop 1- c@ '%' = IF
+			    2dup macros-wordlist search-wordlist  IF
+				nip nip -rot
+				2>r execute macro$ $+! 2r> r> 1+ >r
+			    ELSE
+				'%' macro$ c$+! macro$ $+! '%' macro$ c$+!
+			    THEN
+			ELSE
+			    '%' macro$ c$+! macro$ $+!
 			THEN
 		    THEN
 		THEN
+	    ELSE
+		over 1- c@ '%' = IF  '%' macro$ c$+!  THEN
 	    THEN
     REPEAT  2drop macro$ $@ r> ;
 
@@ -44,7 +53,7 @@ User macro$
     \G result to @var{addr2 len2}.  @var{n} is the number of
     \G substitutions, @var{addr2 len3} the result.  If
     \G @var{len2}=@var{len3}, it is likely that the string did not fit.
-    2>r $substitute -rot
+    2>r $substitute over r@ u<= -78 swap select -rot
     2r> rot umin 2dup 2>r move 2r> rot ;
 
 : unescape ( addr1 u1 dest -- dest u2 )
