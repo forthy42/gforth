@@ -73,7 +73,7 @@ User first-throw
     \G after a @code{catch} or @code{endtry} that does not rethrow;
     \G this ensures that the next @code{throw} will record a
     \G backtrace.
-    first-throw $off ;
+    first-throw $off  error-stack $off ;
 
 : (try0) ( -- aoldhandler )
     nothrow handler @ ;
