@@ -48,16 +48,17 @@ wordlist AConstant macros-wordlist
 	    THEN
     REPEAT 2drop r> ;
 
-: $substitute ( addr1 len1 -- addr2 len2 n )
-    \G substitute all macros in text @var{addr1 len1}.
-    \G @var{n} is the number of substitutions, @var{addr2 len2} the result.
+: $substitute ( addr1 len1 -- addr2 len2 n/ior )
+    \G substitute all macros in text @var{addr1 len1}.  @var{n} is the
+    \G number of substitutions, if negative, it's a throwable @{ior},
+    \G @var{addr2 len2} the result.
     ['] .substitute $tmp rot ;
 
-: substitute ( addr1 len1 addr2 len2 -- addr2 len3 n )
+: substitute ( addr1 len1 addr2 len2 -- addr2 len3 n/ior )
     \G substitute all macros in text @var{addr1 len1}, and copy the
     \G result to @var{addr2 len2}.  @var{n} is the number of
-    \G substitutions, @var{addr2 len3} the result.  If
-    \G @var{len2}=@var{len3}, it is likely that the string did not fit.
+    \G substitutions or, if negative, a throwable @var{ior},
+    \G @var{addr2 len3} the result.
     tmp$ @ >r tmp$ off
     2>r $substitute over r@ u<= -78 swap select -rot
     2r> rot umin 2dup 2>r move 2r> rot tmp$ $off r> tmp$ ! ;
