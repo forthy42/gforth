@@ -17,34 +17,36 @@ wordlist AConstant macros-wordlist
 	r> set-current
     THEN ;
 
+: .% ( -- ) '%' emit ;
 : .substitute ( addr1 len1 -- n / ior )
-    \G substitute all macros in text @var{addr1 len1} and print the result.
-    \G @var{n} is the number of substitutions or, if negative, an @var{ior}.
+    \G substitute all macros in text @var{addr1 len1} and print the
+    \G result.  @var{n} is the number of substitutions or, if
+    \G negative, a throwable @var{ior}.
     0 >r
     BEGIN  dup  WHILE  '%' $split
 	    2swap type dup IF
 		over c@ '%' = IF
-		    '%' emit 1 /string
+		    .% 1 /string
 		ELSE
 		    '%' $split 2swap dup 0= IF
-			2drop '%' emit
+			2drop .%
 		    ELSE
 			2over drop 1- c@ '%' = IF
-			    2dup macros-wordlist search-wordlist  IF
+			    2dup macros-wordlist search-wordlist IF
 				nip nip -rot
 				2>r execute type 2r> r> 1+ >r
 			    ELSE
-				'%' emit type '%' emit
+				.% type .%
 			    THEN
 			ELSE
-			    '%' emit type
+			    .% type
 			THEN
 		    THEN
 		THEN
 	    ELSE
-		over 1- c@ '%' = IF  '%' emit  THEN
+		over 1- c@ '%' = IF  .%  THEN
 	    THEN
-    REPEAT  2drop r> ;
+    REPEAT 2drop r> ;
 
 : $substitute ( addr1 len1 -- addr2 len2 n )
     \G substitute all macros in text @var{addr1 len1}.
