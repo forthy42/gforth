@@ -84,8 +84,9 @@ CREATE ACTUAL-RESULTS 32 CELLS ALLOT
 VARIABLE START-DEPTH
 VARIABLE XCURSOR      \ for ...}T
 VARIABLE ERROR-XT
+VARIABLE #ERRORS 0 #ERRORS !
 
-: ERROR ERROR-XT @ EXECUTE ;   \ for vectoring of error reporting
+: ERROR 1 #ERRORS +! ERROR-XT @ EXECUTE ;   \ for vectoring of error reporting
 
 : "FLOATING" S" FLOATING" ;    \ only compiled S" in CORE
 : "FLOATING-STACK" S" FLOATING-STACK" ;

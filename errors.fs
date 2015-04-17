@@ -84,6 +84,27 @@ decimal
 -56 s" QUIT" rot errstring
 -57 s" Error in sending or receiving a character" rot errstring
 -58 s" [IF], [ELSE], [THEN] error" rot errstring
+-59 s" ALLOCATE" rot errstring
+-60 s" FREE" rot errstring
+-61 s" RESIZE" rot errstring
+-62 s" CLOSE-FILE" rot errstring
+-63 s" CREATE-FILE" rot errstring
+-64 s" DELETE-FILE" rot errstring
+-65 s" FILE-POSITION" rot errstring
+-66 s" FILE-SIZE" rot errstring
+-67 s" FILE-STATUS" rot errstring
+-68 s" FLUSH-FILE" rot errstring
+-69 s" OPEN-FILE" rot errstring
+-70 s" READ-FILE" rot errstring
+-71 s" READ-LINE" rot errstring
+-72 s" RENAME-FILE" rot errstring
+-73 s" REPOSITION-FILE" rot errstring
+-74 s" RESIZE-FILE" rot errstring
+-75 s" WRITE-FILE" rot errstring
+-76 s" WRITE-LINE" rot errstring
+-77 s" Malformed xchar" rot errstring
+-78 s" SUBSTITUTE" rot errstring
+-79 s" REPLACES" rot errstring
 
 \ Gforth's errors:
 

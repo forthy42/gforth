@@ -17,35 +17,51 @@ wordlist AConstant macros-wordlist
 	r> set-current
     THEN ;
 
-User macro$
-
-: $substitute ( addr1 len1 -- addr2 len2 n )
-    \G substitute all macros in text @var{addr1 len1}.
-    \G @var{n} is the number of substitutions, @var{addr2 len2} the result.
-    macro$ $off 0 >r
+: .% ( -- ) '%' emit ;
+: .substitute ( addr1 len1 -- n / ior )
+    \G substitute all macros in text @var{addr1 len1} and print the
+    \G result.  @var{n} is the number of substitutions or, if
+    \G negative, a throwable @var{ior}.
+    0 >r
     BEGIN  dup  WHILE  '%' $split
-	    2swap macro$ $+! dup IF
+	    2swap type dup IF
 		over c@ '%' = IF
-		    '%' macro$ c$+! 1 /string
+		    .% 1 /string
 		ELSE
 		    '%' $split 2swap dup 0= IF
-			2drop s" %" macro$ $+! r> 1+ >r
+			2drop .%
 		    ELSE
-			macros-wordlist search-wordlist  IF
-			    -rot 2>r execute macro$ $+! 2r> r> 1+ >r
+			2over drop 1- c@ '%' = IF
+			    2dup macros-wordlist search-wordlist IF
+				nip nip -rot
+				2>r execute type 2r> r> 1+ >r
+			    ELSE
+				.% type .%
+			    THEN
+			ELSE
+			    .% type
 			THEN
 		    THEN
 		THEN
+	    ELSE
+		over 1- c@ '%' = IF  .%  THEN
 	    THEN
-    REPEAT  2drop macro$ $@ r> ;
+    REPEAT 2drop r> ;
 
-: substitute ( addr1 len1 addr2 len2 -- addr2 len3 n )
+: $substitute ( addr1 len1 -- addr2 len2 n/ior )
+    \G substitute all macros in text @var{addr1 len1}.  @var{n} is the
+    \G number of substitutions, if negative, it's a throwable @{ior},
+    \G @var{addr2 len2} the result.
+    ['] .substitute $tmp rot ;
+
+: substitute ( addr1 len1 addr2 len2 -- addr2 len3 n/ior )
     \G substitute all macros in text @var{addr1 len1}, and copy the
     \G result to @var{addr2 len2}.  @var{n} is the number of
-    \G substitutions, @var{addr2 len3} the result.  If
-    \G @var{len2}=@var{len3}, it is likely that the string did not fit.
-    2>r $substitute -rot
-    2r> rot umin 2dup 2>r move 2r> rot ;
+    \G substitutions or, if negative, a throwable @var{ior},
+    \G @var{addr2 len3} the result.
+    tmp$ @ >r tmp$ off
+    2>r $substitute over r@ u<= -78 swap select -rot
+    2r> rot umin 2dup 2>r move 2r> rot tmp$ $off r> tmp$ ! ;
 
 : unescape ( addr1 u1 dest -- dest u2 )
     \G double all delimiters in @var{addr1 u1}, so that substitute

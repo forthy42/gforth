@@ -1,6 +1,6 @@
 \ xchar word test suite - UTF-8 only
 
-hex
+base @ hex
 
 { 0 xc-size -> 1 }
 { 7f xc-size -> 1 }
@@ -31,3 +31,5 @@ hex
 { 41 xc-width -> 1 }
 { 2060 xc-width -> 0 }
 { test-string x-width -> 9 }
+
+base !
