@@ -180,11 +180,10 @@ c-library pthread
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n n -- n ( pipefd timeoutns timeouts -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
-    c-function pt-pagesize getpagesize -- n ( -- size )
     c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
-[IFUNDEF] pagesize  pt-pagesize Constant pagesize [THEN]
+require libc.fs
 
 User pthread-id  -1 cells pthread+ uallot drop
 
@@ -394,6 +393,26 @@ comp: drop >body @ postpone useraddr , postpone ! ;
 false [IF] \ event test - send to myself
     <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]
 [THEN]
+
+\ key for pthreads
+
+User keypollfds pollfd 2* cell- uallot drop
+
+: prep-key ( -- )
+    keypollfds >r
+    stdin fileno    POLLIN r> fds!+ >r
+    epiper @ fileno POLLIN r> fds!+ drop ;
+
+: thread-key ( -- key )
+    prep-key
+    BEGIN  keypollfds 2 -1 poll drop
+	keypollfds pollfd + revents w@ POLLIN and IF  ?events  THEN
+    keypollfds revents w@ POLLIN and  UNTIL
+    (key) ;
+
+' thread-key is key
+
+\ a simple test (not commented in)
 
 false [IF] \ test
     sema testsem

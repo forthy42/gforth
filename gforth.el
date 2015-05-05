@@ -311,7 +311,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  "fconstant" "value" "field" "user" "vocabulary" 
 	  "create-interpret/compile" "interpret/compile:"
 	  "debug:" "field:" "2field:" "ffield:" "sffield:" "dffield:"
-	  "uvar" "uvalue")
+	  "uvar" "uvalue" "cfield:" "wfield:" "lfield:")
 	 non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 	("\\S-+%" non-immediate (font-lock-type-face . 2))
@@ -320,9 +320,9 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("end-struct") non-immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-type-face . 3))
-	(("struct" "end-c-library" "c-library-name") 
+	(("struct" "end-c-library" "c-library-name" "end-structure") 
 	 non-immediate (font-lock-keyword-face . 2))
-	(("c-library") non-immediate (font-lock-keyword-face . 2)
+	(("c-library" "begin-structure") non-immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 	(("c-variable") non-immediate (font-lock-type-face . 1)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3)
@@ -454,7 +454,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]" "[:")
 	 (0 . 2) (0 . 2))
 	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" 
-	  "interface" "c-library" "c-library-name" "comp:" "post:")
+	  "interface" "c-library" "c-library-name" "comp:" "post:" "begin-structure")
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))
@@ -463,7 +463,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "[until]" "[again]" "loop" ";]" "nope")
 	 (-2 . 0) (0 . -2))
 	(("end-code" "end-class" "end-interface" "end-class-noname" 
-	  "end-interface-noname" "end-struct" "class;" "end-c-library")
+	  "end-interface-noname" "end-struct" "class;" "end-c-library" "end-structure")
 	 (-2 . 0) (0 . -2) non-immediate)
 	(("protected" "public" "how:") (-1 . 1) (0 . 0) non-immediate)
 	(("+loop" "-loop" "until") (-2 . 0) (-2 . 0))

@@ -305,7 +305,7 @@ SWIGMODULES = @SWIGMODULES@
 SWIGLIBS = @SWIGLIBS@
 
 LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
-	unix/filestat.fs $(patsubst %, unix/%, $(SWIGLIBS))
+	unix/filestat.fs unix/libc.fs $(patsubst %, unix/%, $(SWIGLIBS))
 
 UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
 	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs unix/freetype-gllib.fs \

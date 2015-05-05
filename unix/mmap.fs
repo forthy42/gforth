@@ -30,17 +30,11 @@ c-library mmap
 
     c-function mmap mmap a n n n n n -- a ( addr len prot flags fd off -- addr' )
     c-function munmap munmap a n -- n ( addr len -- r )
-    c-function getpagesize getpagesize -- n ( -- size )
     c-function madvise madvise a n n -- n ( addr len advice -- r )
     c-function mprotect mprotect a n n -- n ( addr len prot -- r )
 
     c-function mlock mlock a n -- n ( addr len -- r )
     c-function munlock munlock a n -- n ( addr len -- r )
-
-    \c #include <errno.h>
-    warnings @ warnings off
-    c-value errno errno -- n ( -- value )
-    warnings !
 
 e? os-type s" linux" string-prefix? [IF]
     c-function mremap mremap a n n n -- a ( addr len newlen flags -- addr' )
@@ -49,6 +43,8 @@ e? os-type s" linux" string-prefix? [IF]
     [THEN]
 [THEN]
 end-c-library
+
+require libc.fs
 
 $0 Constant PROT_NONE		\ Page can not be accessed. 
 $1 Constant PROT_READ		\ Page can be read. 
@@ -102,8 +98,6 @@ s" os-type" environment? [IF]
 #14 Constant MADV_HUGEPAGE	\ Worth backing with hugepages.
 #15 Constant MADV_NOHUGEPAGE	\ Not worth backing with hugepages.
 #100 Constant MADV_HWPOISON	\ Poison a page for testing.
-
-getpagesize constant pagesize
 
 : >pagealign ( addr -- p-addr )
     pagesize 1- + pagesize negate and ;

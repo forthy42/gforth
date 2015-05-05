@@ -21,10 +21,6 @@ c-library socket
 \c #include <netdb.h>
 \c #include <unistd.h>
 c-function gethostname gethostname a n -- n ( c-addr u -- ior )
-\c #include <errno.h>
-warnings @ warnings off
-c-value errno errno -- n ( -- value )
-warnings ! \ errno might be defined elsewhere
 \c #include <sys/types.h>
 \c #include <sys/socket.h>
 c-function socket socket n n n -- n ( class type proto -- fd )
@@ -37,30 +33,10 @@ c-function sendto sendto n a n n a n -- n ( socket buffer count flags srcaddr ad
 c-function listen() listen n n -- n ( socket backlog -- err )
 c-function bind bind n a n -- n ( socket sockaddr socklen --- err )
 c-function accept() accept n a a -- n ( socket sockaddr addrlen -- fd )
-\c #include <stdio.h>
-c-function fdopen fdopen n a -- a ( fd fileattr -- file )
-\c #include <fcntl.h>
-c-function fcntl fcntl n n n -- n ( fd n1 n2 -- ior )
 \c #include <arpa/inet.h>
 c-function htonl htonl n -- n ( x -- x' )
 c-function htons htons n -- n ( x -- x' )
 c-function ntohl ntohl n -- n ( x -- x' )
-c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
-\c #include <poll.h>
-c-function poll poll a n n -- n ( fds nfds timeout -- r )
-e? os-type s" linux-gnu" str= [IF]
-    c-function ppoll ppoll a n a a -- n ( fds nfds timeout_ts sigmask -- r )
-    \c #include <sys/epoll.h>
-    c-function epoll_create epoll_create n -- n ( n -- epfd )
-    c-function epoll_ctl epoll_ctl n n n a -- n ( epfd op fd event -- r )
-    c-function epoll_wait epoll_wait n a n n -- n ( epfd events maxevs timeout -- r )
-    s" uname -r" r/o open-pipe throw
-    dup >r slurp-fid r> close-pipe throw drop
-    2dup s" 3." string-prefix? >r drop free throw r> [IF]
-	c-function recvmmsg recvmmsg n a n n a -- n ( sockfd hdr vlen flag timeout -- r )
-	c-function sendmmsg sendmmsg n a n n -- n ( sockfd hdr vlen flag -- r )
-    [THEN]
-[THEN]
 \c #include <netdb.h>
 c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
 c-function freeaddrinfo freeaddrinfo a -- void ( res -- )
@@ -69,85 +45,76 @@ c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval op
 c-function getsockname getsockname  n a a -- n ( sockfd addr *len -- r )
 end-c-library
 
+require libc.fs
+
 e? os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
 e? os-type s" linux-android" str= [IF] : android ; [THEN]
 e? os-type s" cygwin" string-prefix? [IF] : cygwin ; [THEN]
 
-4 4 2Constant int%
-2 2 2Constant short%
-int% 2Constant size_t%
+begin-structure hostent
+    field: h_name
+    field: h_aliases
+    lfield: h_addrtype
+    lfield: h_length
+    field: h_addr_list
+end-structure
 
-struct
-    cell% field h_name
-    cell% field h_aliases
-    int% field h_addrtype
-    int% field h_length
-    cell% field h_addr_list
-end-struct hostent
+begin-structure sockaddr_in4
+    wfield: family
+    wfield: port
+    lfield: sin_addr
+    8 +
+end-structure
 
-struct
-    short% field family
-    short% field port
-    int% field sin_addr
-    int% 2* field padding
-end-struct sockaddr_in4
+begin-structure sockaddr_in6
+    wfield: sin6_family
+    wfield: sin6_port
+    lfield: sin6_flowinfo
+    $10 +field sin6_addr
+    lfield: sin6_scope_id
+end-structure
 
-struct
-    short% field sin6_family
-    short% field sin6_port
-    int% field sin6_flowinfo
-    int% 4 * field sin6_addr
-    int% field sin6_scope_id
-end-struct sockaddr_in6
+sockaddr_in4 sockaddr_in6 max Constant sockaddr_in
 
-sockaddr_in4 %alignment sockaddr_in6 %alignment max
-sockaddr_in4 %size sockaddr_in6 %size max 2Constant sockaddr_in
-
-struct
-    int% field fd
-    short% field events
-    short% field revents
-end-struct pollfd
-
-struct
-    int% field ai_flags
-    int% field ai_family
-    int% field ai_socktype
-    int% field ai_protocol
-    size_t% field ai_addrlen
+begin-structure addrinfo
+    lfield: ai_flags
+    lfield: ai_family
+    lfield: ai_socktype
+    lfield: ai_protocol
+    field: ai_addrlen
 [defined] android [defined] darwin [defined] cygwin or or [IF]
-    cell% field ai_canonname
-    cell% field ai_addr
+    field: ai_canonname
+    field: ai_addr
 [ELSE]
-    cell% field ai_addr
-    cell% field ai_canonname
+    field: ai_addr
+    field: ai_canonname
 [THEN]
-    cell% field ai_next
-end-struct addrinfo
+    field: ai_next
+end-structure
 
 e? os-type s" linux" string-prefix? [IF]
-    struct
-	cell% field iov_base
-	cell% field iov_len
-    end-struct iovec
-    struct
-	cell% field msg_name
-	cell% field msg_namelen
-	cell% field msg_iov \ iovec structures
-	cell% field msg_iovlen
-	cell% field msg_control
-	cell% field msg_controllen
-	cell% field msg_flags
-	cell% field msg_len
-    end-struct mmsghdr
+    begin-structure iovec
+	field: iov_base
+	field: iov_len
+    end-structure
+    begin-structure mmsghdr
+	field: msg_name
+	field: msg_namelen
+	field: msg_iov \ iovec structures
+	field: msg_iovlen
+	field: msg_control
+	field: msg_controllen
+	field: msg_flags
+	field: msg_len
+    end-structure
 [THEN]
 
 ' family alias family+port \ 0.6.2 32-bit field; used by itools
 
 Create sockaddr-tmp
-sockaddr-tmp sockaddr_in %size dup allot erase
+sockaddr-tmp sockaddr_in dup allot erase
 Create hints
-hints addrinfo %size dup allot erase
+hints addrinfo dup allot erase
 Variable addrres
 
 : c-string ( addr u -- addr' )
@@ -204,9 +171,6 @@ $10000 Constant MSG_WAITFORONE
   67 Constant IP_DONTFRAG
    2 Constant IP_PMTUDISC_DO
    4 Constant F_SETFL
-$001 Constant POLLIN
-$002 Constant POLLPRI
-$004 Constant POLLOUT
 
 2variable socket-timeout-d 2000. socket-timeout-d 2!
 
@@ -270,7 +234,7 @@ s" sock read error"    exception Constant !!sockread!!
 \ getaddrinfo based open-socket
 
 : >hints ( socktype -- )
-    hints addrinfo %size erase
+    hints addrinfo erase
     PF_UNSPEC hints ai_family l!
     hints ai_socktype l! ;
 
@@ -309,40 +273,35 @@ s" sock read error"    exception Constant !!sockread!!
 \ : reuse-port ( socket -- ) \ only on BSD for now...
 \     SOL_SOCKET SO_REUSEPORT sockopt-on 1 over l! 4 setsockopt drop ;
 
+: port+family ( port# family -- )
+    sockaddr-tmp sockaddr_in erase
+    sockaddr-tmp family w!
+    sockaddr-tmp port be-w! ;
+
 : create-server  ( port# -- lsocket )
-    sockaddr-tmp sockaddr_in %size erase
-    AF_INET sockaddr-tmp family w!
-    htons   sockaddr-tmp port w!
+    AF_INET port+family
     new-socket dup 0< ?ior dup reuse-addr >r
-    r@ sockaddr-tmp sockaddr_in4 %size bind ?ior r> ;
+    r@ sockaddr-tmp sockaddr_in4 bind ?ior r> ;
 
 : create-server6  ( port# -- lsocket )
-    sockaddr-tmp sockaddr_in %size erase
-    AF_INET6 sockaddr-tmp family w!
-    htons   sockaddr-tmp port w!
+    AF_INET6 port+family
     new-socket6 dup 0< ?ior dup reuse-addr >r
-    r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
+    r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
 : create-udp-server  ( port# -- lsocket )
-    sockaddr-tmp sockaddr_in %size erase
-    AF_INET sockaddr-tmp family w!
-    htons   sockaddr-tmp port w!
+    AF_INET port+family
     new-udp-socket dup 0< ?ior dup reuse-addr >r
-    r@ sockaddr-tmp sockaddr_in4 %size bind ?ior r> ;
+    r@ sockaddr-tmp sockaddr_in4 bind ?ior r> ;
 
 : create-udp-server6  ( port# -- lsocket )
-    sockaddr-tmp sockaddr_in6 %size erase
-    AF_INET6 sockaddr-tmp family w!
-    htons   sockaddr-tmp port w!
+    AF_INET6 port+family
     new-udp-socket6 dup 0< ?ior dup reuse-addr >r
-    r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
+    r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
 : create-udp-server46  ( port# -- lsocket )
-    sockaddr-tmp sockaddr_in6 %size erase
-    AF_INET6 sockaddr-tmp family w!
-    htons   sockaddr-tmp port w!
+    AF_INET6 port+family
     new-udp-socket46 dup 0< ?ior dup reuse-addr >r
-    r@ sockaddr-tmp sockaddr_in6 %size bind ?ior r> ;
+    r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
 \ from itools.frt
 

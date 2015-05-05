@@ -26,45 +26,45 @@ c-library android
     \c #include <android/looper.h>
 
     begin-structure app_input_state
-    field: action
-    field: flags
-    field: metastate
-    field: edgeflags
-    field: pressure
-    field: size
-    2field: downtime
-    field: tcount
-    field: x0
-    field: y0
-    field: x1
-    field: y1
-    field: x2
-    field: y2
-    field: x3
-    field: y3
-    field: x4
-    field: y4
-    field: x5
-    field: y5
-    field: x6
-    field: y6
-    field: x7
-    field: y7
-    field: x8
-    field: y8
-    field: x9
-    field: y9
+	field: action
+	field: flags
+	field: metastate
+	field: edgeflags
+	field: pressure
+	field: size
+	2field: downtime
+	field: tcount
+	field: x0
+	field: y0
+	field: x1
+	field: y1
+	field: x2
+	field: y2
+	field: x3
+	field: y3
+	field: x4
+	field: y4
+	field: x5
+	field: y5
+	field: x6
+	field: y6
+	field: x7
+	field: y7
+	field: x8
+	field: y8
+	field: x9
+	field: y9
     end-structure
-
+    
     begin-structure startargs
-    field: app-vm
-    field: app-env
-    field: obj
-    field: cls
-    field: thread-id
-    field: ke-fd0
-    field: ke-fd1
-    field: window \ native window
+	field: app-vm
+	field: app-env
+	field: obj
+	field: cls
+	field: thread-id
+	field: ke-fd0
+	field: ke-fd1
+	field: window \ native window
     end-structure
     
     s" android" add-lib
@@ -74,6 +74,7 @@ c-library android
 end-c-library
 
 require unix/socket.fs
+require unix/pthread.fs
 
 s" APP_STATE" getenv s>number drop Value app
 
@@ -165,17 +166,17 @@ false value wake-lock \ doesn't work, why?
 2Variable loop-event
 0 Value poll-file
 
-variable looperfds pollfd %size 8 * allot
+variable looperfds pollfd 8 * allot
 : +fds ( fileno flag -- )
-    looperfds dup @ pollfd %size * + cell+
-    >r r@ events w!  r> fd l!
+    looperfds dup @ pollfd * + cell+ fds!+ drop
     1 looperfds +! ;
     
 : ?poll-file ( -- )
     poll-file 0= IF  app ke-fd0 @ "r\0" drop fdopen to poll-file  THEN ;
 : looper-init ( -- )  looperfds off
-    app ke-fd0 @  POLLIN +fds
-    stdin fileno  POLLIN +fds
+    app ke-fd0 @    POLLIN +fds
+    stdin fileno    POLLIN +fds
+    epiper @ fileno POLLIN +fds
     ?poll-file ;
 
 : get-event ( -- )
@@ -184,8 +185,11 @@ variable looperfds pollfd %size 8 * allot
 
 : poll? ( ms -- flag )  looperfds dup cell+ swap @
     rot poll 0>
-    IF	looperfds cell+ revents w@ POLLIN = dup >r
-	IF  get-event  THEN  r>
+    IF	looperfds cell+ revents w@ POLLIN and dup >r
+	IF  get-event  THEN
+	looperfds cell+ pollfd 2* + revents w@ POLLIN and
+	IF  ?events  THEN
+	r>
     ELSE  false
     THEN ;
 
