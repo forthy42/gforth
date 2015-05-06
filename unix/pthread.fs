@@ -402,7 +402,7 @@ User keypollfds pollfd 2* cell- uallot drop
     prep-key
     BEGIN  keypollfds 2 -1 poll drop
 	keypollfds pollfd + revents w@ POLLIN and IF  ?events  THEN
-    keypollfds revents w@ POLLIN and  UNTIL
+    key?  UNTIL
     defers key ;
 
 ' thread-key is key
