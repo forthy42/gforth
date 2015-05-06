@@ -284,22 +284,25 @@ DOES> ( x-key -- addr u )
 
 \ polling of FDs
 
+get-current also forth definitions
+
 require unix/socket.fs
+require unix/pthread.fs
+
+previous set-current
 
 User xptimeout  cell uallot drop
 #10000000 Value xpoll-timeout# \ 10ms, don't sleep too long
 xpoll-timeout# 0 xptimeout 2!
-2 Value xpollfd#
+3 Value xpollfd#
 User xpollfds
-xpollfds pollfd %size xpollfd# * dup cell- uallot drop erase
-
-: xfds!+ ( fileno flag addr -- addr' )
-    >r r@ events w!  r@ fd l!  r> pollfd %size + ; 
+xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 : >poll-events ( -- n )
-    stdin fileno POLLIN  xpollfds xfds!+ >r
-    dpy IF  dpy XConnectionNumber POLLIN  r> xfds!+  ELSE  r>  THEN
-    xpollfds - pollfd %size / ;
+    stdin fileno POLLIN  xpollfds fds!+ >r
+    epiper @ fileno POLLIN r> fds!+ >r
+    dpy IF  dpy XConnectionNumber POLLIN  r> fds!+  ELSE  r>  THEN
+    xpollfds - pollfd / ;
 
 : #looper ( delay -- )
     >poll-events >r
@@ -311,7 +314,8 @@ xpollfds pollfd %size xpollfd# * dup cell- uallot drop erase
 	xptimeout cell+ @ #1000000 / poll 0>
     [THEN]
     IF
-	xpollfds pollfd %size + revents w@ POLLIN = IF  get-events  THEN
+	xpollfds pollfd    + revents w@ POLLIN and IF  ?events  THEN
+	xpollfds pollfd 2* + revents w@ POLLIN and IF  get-events  THEN
     THEN ;
 
 : >looper ( -- )  xpoll-timeout# #looper ;

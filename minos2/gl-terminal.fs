@@ -223,7 +223,15 @@ videocols videorows * sfloats allocate throw Value videomem
 
 Variable gl-emit-buf
 
-: (gl-emit) ( char color -- )  over 7 = IF  2drop  EXIT  THEN  >r
+: gl-cr ( -- )
+    gl-lineend @ 0= IF
+	gl-xy 2@ 1+ nip 0 swap gl-xy 2! THEN
+    resize-screen  need-sync on ;
+
+: (gl-emit) ( char color -- )
+    over 7 = IF  2drop  EXIT  THEN
+    over #lf = IF  2drop gl-cr  EXIT  THEN
+    >r
     gl-emit-buf c$+!  gl-emit-buf $@ tuck x-size u< IF  rdrop  EXIT  THEN
     gl-emit-buf $@ drop xc@ $7F umin
     gl-emit-buf $@ x-width { n }
@@ -240,11 +248,6 @@ Variable gl-emit-buf
 
 : gl-emit ( char -- )  color-index @ (gl-emit) ;
 : gl-emit-err ( char -- )  err-color-index @ (gl-emit) ;
-
-: gl-cr ( -- )
-    gl-lineend @ 0= IF
-	gl-xy 2@ 1+ nip 0 swap gl-xy 2! THEN
-    resize-screen  need-sync on ;
 
 : gl-type ( addr u -- )
     bounds ?DO  I c@ gl-emit  LOOP ;
