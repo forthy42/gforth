@@ -398,11 +398,12 @@ User keypollfds pollfd 2* cell- uallot drop
     epiper @ fileno POLLIN r> fds!+ drop ;
 
 : thread-key ( -- key )
+    key? IF  defers key  EXIT  THEN
     prep-key
     BEGIN  keypollfds 2 -1 poll drop
 	keypollfds pollfd + revents w@ POLLIN and IF  ?events  THEN
     keypollfds revents w@ POLLIN and  UNTIL
-    (key) ;
+    defers key ;
 
 ' thread-key is key
 
