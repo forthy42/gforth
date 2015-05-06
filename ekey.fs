@@ -144,10 +144,9 @@ k-f12 k-shift-mask or constant s-k12 ( -- u ) \ gforth-obsolete
 [THEN]
 
 Variable key-buffer
-1 buffer: ins-char
 
 : char-append-buffer ( c addr -- )
-    >r ins-char c!  ins-char 1 r> 0 $ins ;
+    >r { c^ ins-char }  ins-char 1 r> 0 $ins ;
 
 :noname ( -- c )
     \ buffered key
