@@ -73,13 +73,12 @@ c-library android
     
 end-c-library
 
-require unix/socket.fs
-require unix/pthread.fs
-
 s" APP_STATE" getenv s>number drop Value app
 
 get-current also forth definitions
 
+require unix/socket.fs
+require unix/pthread.fs
 require unix/jni-helper.fs
 
 set-current previous
