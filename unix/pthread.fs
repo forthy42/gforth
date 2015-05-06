@@ -28,12 +28,6 @@ c-library pthread
     \c #include <setjmp.h>
     \c #include <stdio.h>
     \c #include <signal.h>
-    \c #if HAVE_GETPAGESIZE
-    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
-    \c #define getpagesize() sysconf(_SC_PAGESIZE)
-    \c #elif PAGESIZE
-    \c #define getpagesize() PAGESIZE
-    \c #endif
     \c #ifndef FIONREAD
     \c #include <sys/socket.h>
     \c #endif

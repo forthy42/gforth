@@ -23,6 +23,12 @@ c-library libc
     \c #include <unistd.h>
     \c #include <poll.h>
     \c #include <fcntl.h>
+    \c #if HAVE_GETPAGESIZE
+    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
+    \c #define getpagesize() sysconf(_SC_PAGESIZE)
+    \c #elif PAGESIZE
+    \c #define getpagesize() PAGESIZE
+    \c #endif
     c-value errno errno -- n ( -- value )
     c-function getpagesize getpagesize -- n ( -- size )
     c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
