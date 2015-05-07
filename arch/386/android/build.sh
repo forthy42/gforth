@@ -56,6 +56,7 @@ do
     sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/lib$i.so >$LIBS/lib$i.so
 done
 
+FULLLIBS=$PWD/$LIBS
 ANDROID=${PWD%/*/*/*}
 CFLAGS="-O3" 
 LIBCC=$SRC
@@ -69,7 +70,7 @@ do
 		    then
 			make || exit 1
 		    else
-			./configure CFLAGS="$CFLAGS" --host=i686-linux-android && make clean && make || exit 1
+			./configure CFLAGS="$CFLAGS" --host=i686-linux-android && make clean && make && cp .libs/*.so $FULLLIBS || exit 1
 		    fi
 		)
 	    done

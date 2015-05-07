@@ -55,6 +55,12 @@ standard:field
 : cfield: ( u1 "name" -- u2 ) \ X:structures
     1 +field ;
 
+: wfield: ( u1 "name" -- u2 ) \ X:structures
+    1 + -2 and 2 +field ;
+
+: lfield: ( u1 "name" -- u2 ) \ X:structures
+    3 + -4 and 4 +field ;
+
 : field: ( u1 "name" -- u2 ) \ X:structures
     aligned cell +field ;
 

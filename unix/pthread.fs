@@ -28,12 +28,6 @@ c-library pthread
     \c #include <setjmp.h>
     \c #include <stdio.h>
     \c #include <signal.h>
-    \c #if HAVE_GETPAGESIZE
-    \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
-    \c #define getpagesize() sysconf(_SC_PAGESIZE)
-    \c #elif PAGESIZE
-    \c #define getpagesize() PAGESIZE
-    \c #endif
     \c #ifndef FIONREAD
     \c #include <sys/socket.h>
     \c #endif
@@ -159,7 +153,9 @@ c-library pthread
     c-function pthread_create pthread_create a{(pthread_t*)} a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
     c-function pthread_kill pthread_kill a{*(pthread_t*)} n -- n ( id sig -- rvalue )
-    c-function pthread_cancel pthread_cancel a{*(pthread_t*)} -- n ( addr -- r )
+    e? os-type s" linux-android" str= 0= [IF]
+	c-function pthread_cancel pthread_cancel a{*(pthread_t*)} -- n ( addr -- r )
+    [THEN]
     c-function pthread_mutex_init pthread_mutex_init a a -- n ( mutex addr -- r )
     c-function pthread_mutex_destroy pthread_mutex_destroy a -- n ( mutex -- r )
     c-function pthread_mutex_lock pthread_mutex_lock a -- n ( mutex -- r )
@@ -178,11 +174,10 @@ c-library pthread
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n n -- n ( pipefd timeoutns timeouts -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
-    c-function pt-pagesize getpagesize -- n ( -- size )
     c-function stick-to-core stick_to_core n -- n ( core -- n )
 end-c-library
 
-[IFUNDEF] pagesize  pt-pagesize Constant pagesize [THEN]
+require libc.fs
 
 User pthread-id  -1 cells pthread+ uallot drop
 
@@ -352,7 +347,12 @@ event: ->sleep  stop ;
     <event ->sleep event> ;
 : kill ( task -- )
     \G Kill a task
-    user' pthread-id + pthread_cancel drop ;
+    user' pthread-id +
+    [IFDEF] pthread_cancel
+	pthread_cancel drop
+    [ELSE]
+	15 pthread_kill drop
+    [THEN] ;
 
 : elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
 \G sends a literal
@@ -387,6 +387,27 @@ comp: drop >body @ postpone useraddr , postpone ! ;
 false [IF] \ event test - send to myself
     <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]
 [THEN]
+
+\ key for pthreads
+
+User keypollfds pollfd 2* cell- uallot drop
+
+: prep-key ( -- )
+    keypollfds >r
+    stdin fileno    POLLIN r> fds!+ >r
+    epiper @ fileno POLLIN r> fds!+ drop ;
+
+: thread-key ( -- key )
+    key? IF  defers key  EXIT  THEN
+    prep-key
+    BEGIN  keypollfds 2 -1 poll drop
+	keypollfds pollfd + revents w@ POLLIN and IF  ?events  THEN
+    key?  UNTIL
+    defers key ;
+
+' thread-key is key
+
+\ a simple test (not commented in)
 
 false [IF] \ test
     sema testsem

@@ -360,7 +360,7 @@ include ./recognizer.fs
     Header reveal dovar, ;
 
 : buffer: ( u "name" -- ) \ core ext
-    Create allot ;
+    Create here over 0 fill allot ;
 
 : Variable ( "name" -- ) \ core
     Create 0 , ;

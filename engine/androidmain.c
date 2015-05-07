@@ -80,13 +80,22 @@ int checksha256sum(void)
   int checkread;
 
   checkdir=open("gforth/" PACKAGE_VERSION, O_RDONLY);
-  if(checkdir==-1) return 0; // directory not there
+  if(checkdir==-1) {
+    LOGI("cksha256: directory '%s' not here\n", "gforth/" PACKAGE_VERSION);
+    return 0; // directory not there
+  }
   close(checkdir);
   checkdir=open("gforth/" PACKAGE_VERSION "/sha256sum", O_RDONLY);
-  if(checkdir==-1) return 0; // sha256sum not there
+  if(checkdir==-1) {
+    LOGI("cksha256: file '%s' not here\n", "gforth/" PACKAGE_VERSION "/sha256sum");
+    return 0; // sha256sum not there
+  }
   checkread=read(checkdir, sha256buffer, 64);
   close(checkdir);
-  if(checkread!=64) return 0;
+  if(checkread!=64) {
+    LOGI("cksha256: size %d wrong\n", checkread);
+    return 0;
+  }
   if(memcmp(sha256buffer, sha256sum, 64)) return 0;
   return 1;
 }
@@ -117,7 +126,7 @@ void unpackFiles()
   checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
   LOGI("sha256sum '%s'=>%d\n", "gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
   write(checkdir, sha256sum, 64);
-  LOGI(sha256sum, 64);
+  LOGI("sha256sum: '%64s'\n", sha256sum);
   close(checkdir);
   post("hideprog");
 }
