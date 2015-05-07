@@ -152,6 +152,8 @@ getopt1.o getopt1.lo: getopt1.c getopt.h
 
 getopt.o getopt.lo: getopt.c getopt.h
 
+androidmain.o androidmain.lo: androidmain.c config.h forth.h
+
 GFORTHDEPS = $(AOBJECTS) $(LTDLDEPS) libmain.o
 GFORTHOBJS = $(AOBJECTS) $(LDLIBS) libmain.o
 
