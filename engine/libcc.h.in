@@ -55,22 +55,22 @@ typedef struct {
 
 typedef struct {
   Cell magic;
-  Cell *sp;
-  Cell *rp;
-  Address lp;
-  Float *fp;
-  user_area* up;
+  Cell *spx;
+  Cell *rpx;
+  Address lpx;
+  Float *fpx;
+  user_area* upx;
   Cell *s_ip;
   Cell *s_rp;
   jmp_buf * throw_jumpptr;
 } stackpointers;
 
 #define gforth_magic (gforth_SPs.magic)
-#define gforth_SP (gforth_SPs.sp)
-#define gforth_RP (gforth_SPs.rp)
-#define gforth_LP (gforth_SPs.lp)
-#define gforth_FP (gforth_SPs.fp)
-#define gforth_UP (gforth_SPs.up)
+#define gforth_SP (gforth_SPs.spx)
+#define gforth_RP (gforth_SPs.rpx)
+#define gforth_LP (gforth_SPs.lpx)
+#define gforth_FP (gforth_SPs.fpx)
+#define gforth_UP (gforth_SPs.upx)
 #define saved_ip (gforth_SPs.s_ip)
 #define saved_rp (gforth_SPs.s_rp)
 #define throw_jmp_handler (gforth_SPs.throw_jumpptr)
@@ -98,7 +98,7 @@ ptrpair gforth_libcc_init(ptrpair x)
   gforth_pointers=(Cell const *(*)(Cell))*x.sp++;
   return x;
 }
-#define gforth_SPs *((stackpointers *)(gforth_pointers(0)))
+#define gforth_SPs (*(stackpointers *)(gforth_pointers(0)))
 #define gforth_engine ((char *(*)(void *))gforth_pointers(1))
 #define cstr ((char *(*)(char *, Cell))gforth_pointers(2))
 #define tilde_cstr ((char *(*)(char *, Cell))gforth_pointers(3))
