@@ -211,10 +211,12 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep=ssPostInstall then
+  begin
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-fast.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-itc.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-ditc.exe');
+  end;
 end;
 
 // event called at uninstall
