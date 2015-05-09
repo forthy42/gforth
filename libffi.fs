@@ -28,8 +28,8 @@ s" ffi" add-lib
 \c #define MACOSX
 include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
 \c #include <stdio.h>
-\c static void **gforth_clist;
-\c static void *gforth_ritem;
+\c static PER_THREAD void **gforth_clist;
+\c static PER_THREAD void *gforth_ritem;
 \c typedef void *Label;
 \c static void gforth_callback_ffi(ffi_cif * cif, void * resp, void ** args, void * ip)
 \c {
