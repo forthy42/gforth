@@ -391,34 +391,22 @@ typedef struct _hash128 {
   uint64_t b;
 } hash128;
 
-#define IOR(flag)	((flag)? -512-errno : 0)
+typedef struct {
+  Cell magic;
+  Cell *spx;
+  Cell *rpx;
+  Address lpx;
+  Float *fpx;
+  user_area* upx;
+  Xt *s_ip;
+  Cell *s_rp;
+} stackpointers;
 
-#ifdef GFORTH_DEBUGGING
-#if defined(GLOBALS_NONRELOC)
-/* if globals cause non-relocatable primitives, keep saved_ip and rp
-   in a structure and access it through locals */
-typedef struct saved_regs {
-  Xt *sr_saved_ip;
-  Cell *sr_rp;
-} saved_regs;
-extern saved_regs saved_regs_v;
-extern PER_THREAD saved_regs *saved_regs_p;
-#define saved_ip (saved_regs_p->sr_saved_ip)
-#define rp       (saved_regs_p->sr_rp)
-/* for use in gforth_engine header */
-#error sr_proto not passed in fflib.fs callbacks (solution: disable GLOBALS_NONRELOC)
-#define sr_proto , struct saved_regs *saved_regs_p0
-#define sr_call  , saved_regs_p
-#else /* !defined(GLOBALS_NONRELOC) */
-extern PER_THREAD Xt *saved_ip;
-extern PER_THREAD Cell *rp;
-#define sr_proto
-#define sr_call
-#endif /* !defined(GLOBALS_NONRELOC) */
-#else /* !defined(GFORTH_DEBUGGING) */
-#define sr_proto
-#define sr_call
-#endif /* !defined(GFORTH_DEBUGGING) */
+extern PER_THREAD stackpointers gforth_SPs;
+
+#define IOR(flag)	((flag)? -512-errno : 0)
+#define sr_proto , stackpointers *in_SPs
+#define sr_call  , &gforth_SPs
 
 Label *gforth_engine(Xt *ip sr_proto);
 Label *gforth_engine2(Xt *ip sr_proto);
@@ -533,11 +521,15 @@ extern int debug;
 # define debug 0
 #endif
 
-extern PER_THREAD Cell *gforth_SP;
-extern PER_THREAD Cell *gforth_RP;
-extern PER_THREAD Address gforth_LP;
-extern PER_THREAD Float *gforth_FP;
-extern PER_THREAD user_area* gforth_UP;
+#define gforth_SP (gforth_SPs.spx)
+#define gforth_RP (gforth_SPs.rpx)
+#define gforth_LP (gforth_SPs.lpx)
+#define gforth_FP (gforth_SPs.fpx)
+#define gforth_UP (gforth_SPs.upx)
+#define gforth_magic (gforth_SPs.magic)
+#define saved_ip (gforth_SPs.s_ip)
+#define saved_rp (gforth_SPs.s_rp)
+
 extern user_area* gforth_main_UP;
 
 extern Cell const * gforth_pointers(Cell n);
