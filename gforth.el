@@ -276,7 +276,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  "[endif]" "[then]" "[loop]" "[+loop]" "[next]" "[until]" "[repeat]"
 	  "[again]" "[while]" "[else]" "[:" ";]" "nope")
 	 immediate (font-lock-keyword-face . 2))
-	(("[ifdef]" "[ifundef]") immediate (font-lock-keyword-face . 2)
+	(("[ifdef]" "[ifundef]" "[defined]" "[undefined]") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("if" "begin" "ahead" "do" "?do" "+do" "u+do" "-do" "u-do" "for" 
 	  "case" "of" "?dup-if" "?dup-0=-if" "then" "endif" "until"
@@ -308,7 +308,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 
 	(("create" "variable" "constant" "2variable" "2constant" "fvariable"
-	  "fconstant" "value" "field" "user" "vocabulary" 
+	  "fconstant" "value" "2value" "field" "user" "vocabulary" 
 	  "create-interpret/compile" "interpret/compile:"
 	  "debug:" "field:" "2field:" "ffield:" "sffield:" "dffield:"
 	  "uvar" "uvalue" "cfield:" "wfield:" "lfield:")
@@ -770,7 +770,7 @@ End:\" construct).")
 ;;;
 (defvar forth-defining-words 
   '("VARIABLE" "CONSTANT" "2VARIABLE" "2CONSTANT" "FVARIABLE" "FCONSTANT"
-   "USER" "VALUE" "field" "end-struct" "VOCABULARY" "CREATE" ":" "CODE"
+   "USER" "VALUE" "2Value" "field" "end-struct" "VOCABULARY" "CREATE" ":" "CODE"
    "DEFER" "ALIAS" "interpret/compile:" "debug:" "field:" "2field:" "ffield:"
    "sffield:" "dffield:" "uvar" "uvalue")
   "List of words, that define the following word.

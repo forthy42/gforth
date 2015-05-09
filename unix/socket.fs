@@ -115,7 +115,6 @@ Create sockaddr-tmp
 sockaddr-tmp sockaddr_in dup allot erase
 Create hints
 hints addrinfo dup allot erase
-Variable addrres
 
 : c-string ( addr u -- addr' )
     tuck pad swap move pad + 0 swap c! pad ;
@@ -140,9 +139,12 @@ Variable addrres
      2 Constant AF_INET
     23 Constant AF_INET6
     27 Constant IPV6_V6ONLY
-    11 Constant EWOULDBLOCK
-   $10 Constant MSG_DONTWAIT
+	11 Constant EWOULDBLOCK
+    $1 Constant MSG_OOB
+    $2 Constant MSG_PEEK
+    $4 Constant MSG_DONTROUTE
     $8 Constant MSG_WAITALL
+   $10 Constant MSG_DONTWAIT
  $4002 Constant O_NONBLOCK|O_RDWR
  $1006 Constant SO_RCVTIMEO
  $0004 Constant SO_REUSEADDR
@@ -238,7 +240,7 @@ s" sock read error"    exception Constant !!sockread!!
     PF_UNSPEC hints ai_family l!
     hints ai_socktype l! ;
 
-: get-info ( addr u port -- info )
+: get-info ( addr u port -- info ) 0 { w^ addrres }
     base @ >r  decimal  0 <<# 0 hold #s #>  r> base ! drop
     >r c-string r> hints addrres getaddrinfo #>>
     ?dup IF
