@@ -30,15 +30,9 @@ include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
 \c #include <stdio.h>
 \c static void **gforth_clist;
 \c static void *gforth_ritem;
-\c #ifndef HAS_BACKLINK
-\c static void *(*saved_gforth_pointers)(Cell);
-\c #endif
 \c typedef void *Label;
 \c static void gforth_callback_ffi(ffi_cif * cif, void * resp, void ** args, void * ip)
 \c {
-\c #ifndef HAS_BACKLINK
-\c   void *(*gforth_pointers)(Cell) = saved_gforth_pointers;
-\c #endif
 \c   {
 \c     Cell *rp1 = gforth_RP;
 \c     Cell *sp = gforth_SP;
@@ -88,7 +82,6 @@ c-function ffi-prep-cif ffi_prep_cif1 a n a a -- n
 \c                      (void *)a_rvalue, (void **)a_avalues)
 \c #else
 \c #define ffi_call1(a_avalues, a_rvalue ,a_ip ,a_cif) \
-\c             (saved_gforth_pointers = gforth_pointers), \
 \c             ffi_call((ffi_cif *)a_cif, (void(*)())a_ip, \
 \c                      (void *)a_rvalue, (void **)a_avalues)
 \c #endif
