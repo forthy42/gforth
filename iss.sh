@@ -42,7 +42,7 @@ cat <<EOT
 [Setup]
 AppName=Gforth
 AppVerName=Gforth $VERSION
-AppCopyright=Copyright © 1995,1996,1997,1998,2000,2003,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation
+AppCopyright=Copyright © 1995-2015 Free Software Foundation
 DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
 AllowNoIcons=1
@@ -221,10 +221,12 @@ end;
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep=usPostUninstall then
+  begin
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-fast.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-itc.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-ditc.exe');
+  end;
 end;
 EOT
 
