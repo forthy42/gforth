@@ -35,11 +35,11 @@ Color: Hig#
 
 <A white >bg Black >FG A>             0 CT!
 <A white >bg Black >FG bold A>     Ali# CT!
-<A Brown >FG A>          Con# CT!
+<A Magenta >FG A>        Con# CT!
 <A Green >FG A>          Var# CT!
 <A Blue >FG A>           Def# CT!
-<A Brown >FG A>          Val# CT!
-<A Brown >FG bold A>     Doe# CT!
+<A Magenta >FG A>        Val# CT!
+<A Magenta >FG bold A>   Doe# CT!
 <A black >bg Cyan >FG A> Col# CT!
 <A Blue >FG bold A>      Pri# CT!
 <A Red >FG bold A>       Str# CT!
