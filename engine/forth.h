@@ -29,6 +29,7 @@
 #include <ltdl.h>
 #endif
 #endif
+#include <setjmp.h>
 
 #if !defined(FORCE_LL) && !defined(BUGGY_LONG_LONG)
 #define BUGGY_LONG_LONG
@@ -400,6 +401,7 @@ typedef struct {
   user_area* upx;
   Xt *s_ip;
   Cell *s_rp;
+  jmp_buf * throw_jumpptr;
 } stackpointers;
 
 extern PER_THREAD stackpointers gforth_SPs;
@@ -529,6 +531,7 @@ extern int debug;
 #define gforth_magic (gforth_SPs.magic)
 #define saved_ip (gforth_SPs.s_ip)
 #define saved_rp (gforth_SPs.s_rp)
+#define throw_jmp_handler (gforth_SPs.throw_jumpptr)
 
 extern user_area* gforth_main_UP;
 

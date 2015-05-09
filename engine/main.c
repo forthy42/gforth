@@ -2394,18 +2394,17 @@ void data_abort_C(void)
 Cell const * gforth_pointers(Cell n)
 {
   switch(n) {
-  case 0: return (Cell *)&gforth_SPs;
+  case 0: return (Cell *)&gforth_SPs; // per thread pointer structure
   case 1: return (Cell *)&gforth_engine;
 #ifdef HAS_FILE
   case 2: return (Cell *)&cstr;
   case 3: return (Cell *)&tilde_cstr;
 #endif
-  case 4: return (Cell *)&throw_jmp_handler;
-  case 5: return (Cell *)&gforth_stacks;
-  case 6: return (Cell *)&gforth_free_stacks;
-  case 7: return (Cell *)&gforth_main_UP;
-  case 8: return (Cell *)&gforth_go;
-  case 9: return (Cell *)&gforth_sigset;
+  case 4: return (Cell *)&gforth_stacks;
+  case 5: return (Cell *)&gforth_free_stacks;
+  case 6: return (Cell *)&gforth_main_UP;
+  case 7: return (Cell *)&gforth_go;
+  case 8: return (Cell *)&gforth_sigset;
   default: return NULL;
   }
 }

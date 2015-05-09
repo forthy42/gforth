@@ -20,8 +20,6 @@
 
 #include <setjmp.h>
 
-extern PER_THREAD jmp_buf * throw_jmp_handler;
-
 #if defined(MSDOS) || defined(SHARC)
 #  define prep_terminal()
 #  define deprep_terminal()
