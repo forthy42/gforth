@@ -266,6 +266,7 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #else
 #	define  NAME(string)
 #endif
+#define	NAME1(string) asmcomment(string);
 
 #ifdef DEBUG
 #define CFA_TO_NAME(__cfa) \
