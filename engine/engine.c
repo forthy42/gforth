@@ -241,7 +241,7 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #ifdef ASMCOMMENT
 /* an individualized asm statement so that (hopefully) gcc's optimizer
    does not do cross-jumping */
-#define asmcomment(string) asm(ASMCOMMENT string)
+#define asmcomment(string) asm volatile(ASMCOMMENT string)
 #else
 /* we don't know how to do an asm comment, so we just do an empty asm */
 #define asmcomment(string) asm("")
