@@ -113,7 +113,7 @@ done) | sed \
 ;   "Custom icon filename (leave blank to use the default icon)", Icon index
 Name: "{group}\Gforth"; Filename: "{app}\gforth.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth-fast"; Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"
-Name: "{group}\Gforth-dict"; Filename: "{app}\gforth-ditc.exe"; WorkingDir: "{app}"
+Name: "{group}\Gforth-ditc"; Filename: "{app}\gforth-ditc.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth-itc"; Filename: "{app}\gforth-itc.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth Manual"; Filename: "{app}\doc\gforth\index.html"; WorkingDir: "{app}"; Components: help
 Name: "{group}\Gforth Manual (PDF)"; Filename: "{app}\doc\gforth.pdf"; WorkingDir: "{app}"; Components: help
