@@ -252,7 +252,7 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #if DEBUG
 #define NAME(string) if(debug) { saved_ip=ip; asmcomment(string); fprintf(stderr,"%08lx depth=%3ld tos=%016lx: "string"\n",(Cell)ip,((user_area*)up)->sp0+DEPTHOFF-sp,sp[0]);}
 #else /* !DEBUG */
-#define NAME(string) { saved_ip=ip; asm(""); }
+#define NAME(string) { saved_ip=ip; asmcomment(string); }
 /* the asm here is to avoid reordering of following stuff above the
    assignment; this is an old-style asm (no operands), and therefore
    is treated like "asm volatile ..."; i.e., it prevents most
