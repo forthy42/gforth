@@ -18,7 +18,7 @@
   along with this program. If not, see http://www.gnu.org/licenses/.
 */
 
-#include <gforth/@PACKAGE_VERSION@@ARCH@/config.h>
+#include <gforth@ARCH@/@PACKAGE_VERSION@/config.h>
 #include <signal.h>
 #include <alloca.h>
 #include <setjmp.h>
