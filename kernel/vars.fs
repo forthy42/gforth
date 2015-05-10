@@ -162,7 +162,7 @@ has? file [IF]
                         \ is in a textfile
                         \ the first line is 1
 
-2User linestart         \ starting file postition of
+User linestart         \ starting file postition of
                         \ the current interpreted line (in TIB)
 [THEN]
 [THEN]

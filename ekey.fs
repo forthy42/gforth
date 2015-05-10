@@ -347,11 +347,11 @@ set-current
     : read-xkey ( key -- flag )
 	clear-ekey-buffer
 	ekey-buffer c$+!
-	ekey-buffer $@ u8addrlen 1 +do
+	ekey-buffer $@ x-size 1 +do
 	    key? 0= ?leave
 	    key ekey-buffer c$+!
 	loop
-	ekey-buffer $@ u8addrlen ekey-buffer $@len u>= ;
+	ekey-buffer $@ x-size ekey-buffer $@len u>= ;
     : get-xkey ( u -- xc )
 	dup max-single-byte u>= if
 	    read-xkey if

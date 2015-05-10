@@ -107,10 +107,8 @@ const Create bases   0A , 10 ,   2 ,   0A ,
         dnegate
     then ;
 
-has? os 0= [IF]
 : x@+/string ( addr u -- addr' u' c )
     over c@ >r 1 /string r> ;
-[THEN]
 
 : s'>unumber? ( addr u -- ud flag )
     \ convert string "C" or "C'" to character code
@@ -197,13 +195,6 @@ has? os 0= [IF]
     \G ** this will not get annotated. The alias in glocals.fs will instead ** 
     \G It does not work to use "wordset-" prefix since this file is glossed
     \G by cross.fs which doesn't have the same functionalty as makedoc.fs
-    [ has? file [IF] ]
-    blk @
-    IF
-	>in @ c/l / 1+ c/l * >in !
-	EXIT
-    THEN
-    [ [THEN] ]
     source >in ! drop ; immediate
 
 : \G ( compilation 'ccc<newline>' -- ; run-time -- ) \ gforth backslash-gee
@@ -528,17 +519,8 @@ Defer 'quit
 
 : (quit) ( -- )
     \ exits only through THROW etc.
-    BEGIN
-	cr ['] cr catch if
-	    [ has? OS [IF] ] >stderr [ [THEN] ]
-	    cr ." Can't print to stdout, leaving" cr
-	    \ if stderr does not work either, already DoError causes a hang
-	    -2 (bye)
-	endif [ [THEN] ]
-	refill  WHILE
-	    interpret prompt
-    REPEAT
-    bye ;
+    BEGIN  cr refill  WHILE  interpret prompt
+    REPEAT  bye ;
 
 ' (quit) IS 'quit
 
@@ -610,33 +592,11 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 [THEN]
 
 : cold ( -- ) \ gforth
-[ has? backtrace [IF] ]
-    rp@ backtrace-rp0 !
-[ [THEN] ]
-[ has? file [IF] ]
-    os-cold
-[ [THEN] ]
-[ has? os [IF] ]
-    set-encoding-fixed-width
-    'cold
-[ [THEN] ]
-[ has? file [IF] ]
-    process-args
-    loadline off
-[ [THEN] ]
-    1 (bye) ;
+    bootmessage quit ;
 
 has? new-input 0= [IF]
 : clear-tibstack ( -- )
-[ has? glocals [IF] ]
-    lp@ forthstart 7 cells + @ - 
-[ [ELSE] ]
-    [ has? os [IF] ]
-    r0 @ forthstart 6 cells + @ -
-    [ [ELSE] ]
     sp@ cell+
-    [ [THEN] ]
-[ [THEN] ]
     dup >tib ! tibstack ! #tib off
     input-start-line ;
 [THEN]
@@ -652,50 +612,19 @@ has? new-input 0= [IF]
 	THEN
     THEN
 [ [THEN] ]
-[ has? os [IF] ]
-    os-boot
-[ [THEN] ]
 [ has? rom [IF] ]
     ram-shadow dup @ dup -1 <> >r u> r> and IF
 	ram-shadow 2@  ELSE
 	ram-mirror ram-size  THEN  ram-start swap move
 [ [THEN] ]
     sp@ sp0 !
-[ has? peephole [IF] ]
-    \ only needed for greedy static superinstruction selection
-    \ primtable prepare-peephole-table TO peeptable
-[ [THEN] ]
-[ has? new-input [IF] ]
-    current-input off
-[ [THEN] ]
     clear-tibstack
-    0 0 includefilename 2!
     rp@ rp0 !
 [ has? floating [IF] ]
     fp@ fp0 !
 [ [THEN] ]
-[ has? os [IF] ]
-    handler off
-    ['] cold catch dup -&2049 <> if \ broken pipe?
-	DoError cr
-    endif
-[ [ELSE] ]
     cold
-[ [THEN] ]
-[ has? os [IF] ]
-    -1 (bye) \ !! determin exit code from throw code?
-[ [THEN] ]
 ;
-
-has? os [IF]
-: bye ( -- ) \ tools-ext
-[ has? file [IF] ]
-    script? 0= IF  cr  THEN
-[ [ELSE] ]
-    cr
-[ [THEN] ]
-    0 (bye) ;
-[THEN]
 
 \ **argv may be scanned by the C starter to get some important
 \ information, as -display and -geometry for an X client FORTH
