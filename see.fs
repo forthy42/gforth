@@ -647,10 +647,14 @@ VARIABLE C-Pass
     Create u#outs ' type , ' emit , ' cr , ' form ,
     ' page , ' at-xy , ' at-deltaxy , ' attr! ,
     Create u#ins  ' key , ' key? ,
+    Create u#xchars ' xemit , ' xkey , ' xchar+ , ' xchar- , 
+    ' +x/string , ' x\string- , ' xc@ , ' xc!+ , ' xc!+? , 
+    ' xc@+ , ' xc-size , ' x-size , ' x-width , ' -trailing-garbage , 
 
     Create u#execs
-    ' type >body cell+ @ , u#outs ,
-    ' key  >body cell+ @ , u#ins ,
+    ' type  >body cell+ @ , u#outs ,
+    ' key   >body cell+ @ , u#ins ,
+    ' xemit >body cell+ @ , u#xchars ,
     0 ,                    0 ,
     
     : c-u#exec ( addr -- addr' )
