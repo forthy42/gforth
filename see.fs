@@ -825,6 +825,17 @@ c-extender !
 : seefield ( xt -- )
     dup >body ." 0 " ? ." 0 0 "
     s" Field" .defname cr ;
+: seeumethod ( xt -- )
+    dup s" umethod" .defname cr
+    dup defer@ xt-see-xt cr
+    >name ?dup-if
+	." IS " .name cr
+    else
+	." latestxt >body !"
+    then ;
+: umethod? ( xt -- flag )
+    >body dup @ decompile-prim ['] u#exec xt= swap
+    3 cells + @ decompile-prim ['] ;S xt= and ;
 
 \ user visible words
 
@@ -847,7 +858,7 @@ set-current
 [IFDEF] dovalue:
         dovalue: of seevalue endof
 [THEN]
-	docol: of seecol endof
+	docol: of dup umethod? IF  seeumethod  ELSE  seecol  THEN  endof
 	dovar: of seevar endof
 [IFDEF] douser:
 	douser: of seeuser endof
