@@ -91,25 +91,9 @@ AUser rp0 ( -- a-addr ) \ gforth
 \    ' rp0 Alias r0 ( -- a-addr ) \ gforth
 \G OBSOLETE alias of @code{rp0}
 
-has? floating [IF]
-AUser fp0 ( -- a-addr ) \ gforth
-\G @code{User} variable -- initial value of the floating-point stack pointer.
-\ no f0, because this leads to unexpected results when using hex
-[THEN]
-
-has? glocals [IF]
-AUser lp0 ( -- a-addr ) \ gforth
-\G @code{User} variable -- initial value of the locals stack pointer.
-\    ' lp0 Alias l0 ( -- a-addr ) \ gforth
-\G OBSOLETE alias of @code{lp0}
-[THEN]
-
 AUser throw-entry  \ pointer to task-specific signal handler
 
 AUser handler	\ pointer to last throw frame
-has? backtrace [IF]
-AUser backtrace-rp0 \ rp at last call of interpret
-[THEN]
 \ AUser output
 \ AUser input
 
@@ -117,58 +101,20 @@ AUser errorhandler
 
 AUser "error            0 "error !
 
-has? EC 0= [IF]
-    auser holdbufptr
-    here word-pno-size chars allot dup holdbufptr !
-    word-pno-size chars +
-    : holdbuf ( -- addr ) holdbufptr @ ;
-    : holdbuf-end   holdbuf word-pno-size chars + ;
-    auser holdptr dup holdptr a!
-    auser holdend     holdend a!
-[THEN]
-
-has? new-input [IF]
-    User current-input
-[ELSE]
-    [IFUNDEF] #tib		\ in ec-Version we may define this ourself
-	User tibstack		\ saves >tib in execute
-	User >tib		\ pointer to terminal input buffer
-	User #tib ( -- a-addr ) \ core-ext number-t-i-b
-	\G @code{User} variable -- @i{a-addr} is the address of a cell containing
+[IFUNDEF] #tib		\ in ec-Version we may define this ourself
+    User tibstack		\ saves >tib in execute
+    User >tib		\ pointer to terminal input buffer
+    User #tib ( -- a-addr ) \ core-ext number-t-i-b
+    \G @code{User} variable -- @i{a-addr} is the address of a cell containing
 	\G the number of characters in the terminal input buffer.
-	\G OBSOLESCENT: @code{source} superceeds the function of this word.
+    \G OBSOLESCENT: @code{source} superceeds the function of this word.
 	
-	User >in ( -- a-addr ) \ core to-in
-	\G @code{User} variable -- @i{a-addr} is the address of a cell containing the
-	\G char offset from the start of the input buffer to the start of the
-	\G parse area.
-	0 >in ! \ char number currently processed in tib
-    [THEN]
-
-has? file [IF]
- User blk ( -- a-addr ) \ block b-l-k
- \G @code{User} variable -- @i{a-addr} is the address of a cell containing zero
- \G (in which case the input source is not a block and can be identified
- \G by @code{source-id}) or the number of the block currently being
- \G interpreted. A Standard program should not alter @code{blk} directly.
-			0 blk !
-
- User loadfile          0 loadfile !
-
- 2user loadfilename	0 0 loadfilename 2! \ addr u for sourcefilename
-     
- User loadline          \ number of the currently interpreted
-                        \ (in TIB) line if the interpretation
-                        \ is in a textfile
-                        \ the first line is 1
-
-2User linestart         \ starting file postition of
-                        \ the current interpreted line (in TIB)
+    User >in ( -- a-addr ) \ core to-in
+    \G @code{User} variable -- @i{a-addr} is the address of a cell containing the
+    \G char offset from the start of the input buffer to the start of the
+    \G parse area.
+    0 >in ! \ char number currently processed in tib
 [THEN]
-[THEN]
-
- 2user includefilename  0 0 includefilename 2! \ innermost included file
-
 
 User base ( -- a-addr ) \ core
 \G @code{User} variable -- @i{a-addr} is the address of a cell that
@@ -214,9 +160,7 @@ AUser dpp		normal-dp dpp !
 			\ the pointer to the current dictionary pointer
                         \ ist reset to normal-dp on (doerror)
                         \  (i.e. any throw caught by quit)
-has? ec [IF]
-    AUser LastCFA
-[THEN]
+AUser LastCFA
 AUser Last
 
 has? flash [IF]
@@ -227,13 +171,3 @@ has? flash [IF]
 
 User max-name-length \ maximum length of all names defined yet
 32 max-name-length !
-    
-\  has? peephole  [IF]
-\  0 value peeptable \ initialized in boot
-\  [THEN]
-
-has? glocals [IF]
-User locals-size \ this is the current size of the locals stack
-		 \ frame of the current word
-[THEN]
-

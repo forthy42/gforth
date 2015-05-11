@@ -216,6 +216,9 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #ifndef OPREG
 #define OPREG
 #endif
+#ifndef SPSREG
+#define SPSREG
+#endif
 
 #ifndef CPU_DEP1
 # define CPU_DEP1 0
@@ -238,7 +241,7 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #ifdef ASMCOMMENT
 /* an individualized asm statement so that (hopefully) gcc's optimizer
    does not do cross-jumping */
-#define asmcomment(string) asm(ASMCOMMENT string)
+#define asmcomment(string) asm volatile(ASMCOMMENT string)
 #else
 /* we don't know how to do an asm comment, so we just do an empty asm */
 #define asmcomment(string) asm("")
@@ -249,7 +252,7 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #if DEBUG
 #define NAME(string) if(debug) { saved_ip=ip; asmcomment(string); fprintf(stderr,"%08lx depth=%3ld tos=%016lx: "string"\n",(Cell)ip,((user_area*)up)->sp0+DEPTHOFF-sp,sp[0]);}
 #else /* !DEBUG */
-#define NAME(string) { saved_ip=ip; asm(""); }
+#define NAME(string) { saved_ip=ip; asmcomment(string); }
 /* the asm here is to avoid reordering of following stuff above the
    assignment; this is an old-style asm (no operands), and therefore
    is treated like "asm volatile ..."; i.e., it prevents most
@@ -263,6 +266,7 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #else
 #	define  NAME(string)
 #endif
+#define	NAME1(string) asmcomment(string);
 
 #ifdef DEBUG
 #define CFA_TO_NAME(__cfa) \
@@ -337,12 +341,23 @@ Label *gforth_engine(Xt *ip0 sr_proto)
    returns array of machine code labels (for use in a loader), if ip==NULL
 */
 {
+  register stackpointers * SPs SPSREG = in_SPs;
+#undef gforth_SP
+#undef gforth_RP
+#undef gforth_LP
+#undef gforth_UP
+#define gforth_SP (SPs->spx)
+#define gforth_RP (SPs->rpx)
+#define gforth_LP (SPs->lpx)
+#define gforth_UP (SPs->upx)
 #if defined(GFORTH_DEBUGGING)
-#if defined(GLOBALS_NONRELOC)
-  register saved_regs *saved_regs_p TOSREG = saved_regs_p0;
-#endif /* defined(GLOBALS_NONRELOC) */
+# undef saved_ip
+# define rp (SPs->s_rp)
+# define saved_ip (SPs->s_ip)
 #else /* !defined(GFORTH_DEBUGGING) */
   register Cell *rp RPREG;
+# undef saved_ip
+  Xt* MAYBE_UNUSED saved_ip;
 #endif /* !defined(GFORTH_DEBUGGING) */
 #ifndef NO_IP
   register Xt *ip IPREG = ip0;
@@ -414,7 +429,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
   CPU_DEP2
 #endif
 
-  rp = gforth_RP;
+  rp = SPs->rpx;
 #ifdef DEBUG
   debugp(stderr,"ip=%lx, sp=%lx, rp=%lx, fp=%lx, lp=%lx, up=%lx\n",
 	 (Cell)ip0,(Cell)sp,(Cell)rp,

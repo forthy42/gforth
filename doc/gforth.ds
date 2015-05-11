@@ -4822,9 +4822,15 @@ how to avoid them), you might start with @cite{David Goldberg,
 Computer Scientist Should Know About Floating-Point Arithmetic}, ACM
 Computing Surveys 23(1):5@minus{}48, March 1991}.
 
+Conversion between integers and floating-point:
 
+doc-s>f
 doc-d>f
+doc-f>s
 doc-f>d
+
+Arithmetics:
+
 doc-f+
 doc-f-
 doc-f*
@@ -4846,8 +4852,6 @@ doc-falog
 doc-f2*
 doc-f2/
 doc-1/f
-doc-precision
-doc-set-precision
 
 @cindex angles in trigonometric operations
 @cindex trigonometric operations
@@ -9082,6 +9086,8 @@ doc-ud.r
 doc-f.
 doc-fe.
 doc-fs.
+doc-precision
+doc-set-precision
 doc-f.rdp
 
 Examples of printing the number 1234.5678E23 in the different floating-point output

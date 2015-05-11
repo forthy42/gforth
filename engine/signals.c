@@ -118,8 +118,6 @@ graceful_exit (int sig)
   exit (0x80|sig);
 }
 
-PER_THREAD jmp_buf * throw_jmp_handler;
-
 void throw(int code)
 {
   debugp(stderr,"\nthrow code %d to %p\n", code, *throw_jmp_handler);

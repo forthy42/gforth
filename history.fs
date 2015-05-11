@@ -48,7 +48,14 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 	nip nip
     THEN ;
 
-s" os-class" environment? [IF] s" unix" str= [ELSE] true [THEN] 
+s" os-type" environment?
+[IF] s" cygwin" str=
+    [IF] false
+    [ELSE] s" os-class" environment?
+	[IF] s" unix" str= [ELSE] true [THEN]
+    [THEN]
+[ELSE] true
+[THEN]
 [IF]
 : history-file ( -- addr u )
     s" GFORTHHIST" getenv dup 0= IF
@@ -90,11 +97,14 @@ Variable screenw
 \ : clear-tib ( max span addr pos -- max 0 addr 0 false )
 \   clear-line 0 tuck dup ;
 
-: hist-pos    ( -- ud )  history file-position drop ( throw ) ;
-: hist-setpos ( ud -- )  history reposition-file drop ( throw ) ;
+: hist-pos    ( -- ud )
+    history ?dup-IF  file-position drop  ELSE  backward^ 2@  THEN ;
+: hist-setpos ( ud -- )
+    history ?dup-IF  reposition-file drop  ELSE  2drop  THEN ;
 
 : get-line ( addr len -- len' flag )
-  swap history read-line throw ;
+    swap history ?dup IF  read-line throw
+    ELSE  2drop 0 false  THEN ;
 
 : next-line  ( max span addr pos1 -- max span addr pos2 false )
   clear-line
@@ -120,7 +130,9 @@ Variable screenw
 : (enter)  ( max span addr pos1 -- max span addr pos2 true )
     >r 2dup swap -trailing nip IF
 	end^ 2@ hist-setpos
-	2dup swap history write-line drop
+	2dup swap history
+	?dup-IF  write-line drop \ don't worry about errors
+	ELSE  2drop  THEN
 	hist-pos 2dup backward^ 2! end^ 2!
     THEN  r> (ret) ;
 
@@ -275,7 +287,9 @@ require utf-8.fs
 : (xenter)  ( max span addr pos1 -- max span addr pos2 true )
     >r 2dup swap -trailing nip IF
 	end^ 2@ hist-setpos
-	2dup swap history write-line drop ( throw ) \ don't worry about errors
+	2dup swap history
+	?dup-IF  write-line drop \ don't worry about errors
+	ELSE  2drop  THEN
 	hist-pos 2dup backward^ 2! end^ 2!
     THEN  r> .all space true ;
 
@@ -311,8 +325,8 @@ require utf-8.fs
     ['] xfirst-pos   ctrl A bindkey
     ['] xend-pos     ctrl E bindkey
     ['] xretype      ctrl L bindkey
-    history IF  ['] (xenter)     #lf    bindkey  THEN
-    history IF  ['] (xenter)     #cr    bindkey  THEN
+    ['] (xenter)     #lf    bindkey
+    ['] (xenter)     #cr    bindkey
     ['] xtab-expand  #tab   bindkey
     ['] (xins)       IS insert-char
     ['] kill-prefix  IS everychar

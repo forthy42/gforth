@@ -18,9 +18,10 @@
   along with this program. If not, see http://www.gnu.org/licenses/.
 */
 
-#include <gforth/@PACKAGE_VERSION@/config.h>
+#include <gforth@ARCH@/@PACKAGE_VERSION@/config.h>
 #include <signal.h>
 #include <alloca.h>
+#include <setjmp.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__) || defined(__ANDROID__)
 #undef HAS_BACKLINK
@@ -52,17 +53,33 @@ typedef struct {
   Float* fp;
 } ptrpair;
 
+typedef struct {
+  Cell magic;
+  Cell *spx;
+  Cell *rpx;
+  Address lpx;
+  Float *fpx;
+  user_area* upx;
+  Cell *s_ip;
+  Cell *s_rp;
+  jmp_buf * throw_jumpptr;
+} stackpointers;
+
+#define gforth_magic (gforth_SPs.magic)
+#define gforth_SP (gforth_SPs.spx)
+#define gforth_RP (gforth_SPs.rpx)
+#define gforth_LP (gforth_SPs.lpx)
+#define gforth_FP (gforth_SPs.fpx)
+#define gforth_UP (gforth_SPs.upx)
+#define saved_ip (gforth_SPs.s_ip)
+#define saved_rp (gforth_SPs.s_rp)
+#define throw_jmp_handler (gforth_SPs.throw_jumpptr)
+
 #ifdef HAS_BACKLINK
-extern PER_THREAD Cell *gforth_SP;
-extern PER_THREAD Float *gforth_FP;
-extern PER_THREAD Cell *gforth_RP;
-extern PER_THREAD char *gforth_LP;
-extern PER_THREAD user_area *gforth_UP;
-extern PER_THREAD Cell gforth_magic;
+extern PER_THREAD stackpointers gforth_SPs;
 extern void *gforth_engine(void *);
 extern char *cstr(char *from, Cell size);
 extern char *tilde_cstr(char *from, Cell size);
-extern PER_THREAD void *throw_jmp_handler;
 extern user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 extern void gforth_free_stacks(user_area* t);
 extern user_area *gforth_main_UP;
@@ -75,27 +92,21 @@ ptrpair gforth_libcc_init(ptrpair x)
 }
 #define GFORTH_ARGS ptrpair x
 #else
-static void*(*gforth_pointers)(Cell);
+static Cell const *(*gforth_pointers)(Cell);
 ptrpair gforth_libcc_init(ptrpair x)
 {
-  gforth_pointers=(void*(*)(Cell))*x.sp++;
+  gforth_pointers=(Cell const *(*)(Cell))*x.sp++;
   return x;
 }
-#define gforth_SP *((Cell **)(gforth_pointers(0)))
-#define gforth_FP *((Float **)(gforth_pointers(1)))
-#define gforth_LP *((char **)(gforth_pointers(2)))
-#define gforth_RP *((Cell **)(gforth_pointers(3)))
-#define gforth_UP *((user_area **)(gforth_pointers(4)))
-#define gforth_engine ((char *(*)(void *))gforth_pointers(5))
-#define cstr ((char *(*)(char *, Cell))gforth_pointers(6))
-#define tilde_cstr ((char *(*)(char *, Cell))gforth_pointers(7))
-#define throw_jmp_handler *((void**)(gforth_pointers(8)))
-#define gforth_stacks ((user_area *(*)(Cell, Cell, Cell, Cell))gforth_pointers(9))
-#define gforth_free_stacks ((void(*)(user_area*))gforth_pointers(10))
-#define gforth_main_UP *((user_area **)(gforth_pointers(11)))
-#define gforth_go ((Cell(*)(Xt*))gforth_pointers(12))
-#define gforth_sigset ((void(*)(sigset_t*, ...))gforth_pointers(13))
-#define gforth_magic *((Cell *)(gforth_pointers(14)))
+#define gforth_SPs (*(stackpointers *)(gforth_pointers(0)))
+#define gforth_engine ((char *(*)(void *))gforth_pointers(1))
+#define cstr ((char *(*)(char *, Cell))gforth_pointers(2))
+#define tilde_cstr ((char *(*)(char *, Cell))gforth_pointers(3))
+#define gforth_stacks ((user_area *(*)(Cell, Cell, Cell, Cell))gforth_pointers(4))
+#define gforth_free_stacks ((void(*)(user_area*))gforth_pointers(5))
+#define gforth_main_UP *((user_area **)(gforth_pointers(6)))
+#define gforth_go ((Cell(*)(Xt*))gforth_pointers(7))
+#define gforth_sigset ((void(*)(sigset_t*, ...))gforth_pointers(8))
 #define GFORTH_ARGS ptrpair x
 #endif
 

@@ -647,10 +647,14 @@ VARIABLE C-Pass
     Create u#outs ' type , ' emit , ' cr , ' form ,
     ' page , ' at-xy , ' at-deltaxy , ' attr! ,
     Create u#ins  ' key , ' key? ,
+    Create u#xchars ' xemit , ' xkey , ' xchar+ , ' xchar- , 
+    ' +x/string , ' x\string- , ' xc@ , ' xc!+ , ' xc!+? , 
+    ' xc@+ , ' xc-size , ' x-size , ' x-width , ' -trailing-garbage , 
 
     Create u#execs
-    ' type >body cell+ @ , u#outs ,
-    ' key  >body cell+ @ , u#ins ,
+    ' type  >body cell+ @ , u#outs ,
+    ' key   >body cell+ @ , u#ins ,
+    ' xemit >body cell+ @ , u#xchars ,
     0 ,                    0 ,
     
     : c-u#exec ( addr -- addr' )
@@ -821,6 +825,17 @@ c-extender !
 : seefield ( xt -- )
     dup >body ." 0 " ? ." 0 0 "
     s" Field" .defname cr ;
+: seeumethod ( xt -- )
+    dup s" umethod" .defname cr
+    dup defer@ xt-see-xt cr
+    >name ?dup-if
+	." IS " .name cr
+    else
+	." latestxt >body !"
+    then ;
+: umethod? ( xt -- flag )
+    >body dup @ decompile-prim ['] u#exec xt= swap
+    3 cells + @ decompile-prim ['] ;S xt= and ;
 
 \ user visible words
 
@@ -843,7 +858,7 @@ set-current
 [IFDEF] dovalue:
         dovalue: of seevalue endof
 [THEN]
-	docol: of seecol endof
+	docol: of dup umethod? IF  seeumethod  ELSE  seecol  THEN  endof
 	dovar: of seevar endof
 [IFDEF] douser:
 	douser: of seeuser endof

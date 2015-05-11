@@ -65,12 +65,7 @@ typedef enum prim_num {
 /* global variables for engine.c 
    We put them here because engine.c is compiled several times in
    different ways for the same engine. */
-PER_THREAD Cell *gforth_SP;
-PER_THREAD Float *gforth_FP;
-PER_THREAD user_area* gforth_UP=NULL;
-PER_THREAD Cell *gforth_RP;
-PER_THREAD Address gforth_LP;
-PER_THREAD Cell gforth_magic;
+PER_THREAD stackpointers gforth_SPs;
 
 user_area* gforth_main_UP=NULL;
 
@@ -101,19 +96,6 @@ void gforth_callback(Xt* fcall, void * alist)
   gforth_clist = clist;
 }
 #endif
-
-#ifdef GFORTH_DEBUGGING
-/* define some VM registers as global variables, so they survive exceptions;
-   global register variables are not up to the task (according to the 
-   GNU C manual) */
-#if defined(GLOBALS_NONRELOC)
-saved_regs saved_regs_v;
-PER_THREAD saved_regs *saved_regs_p = &saved_regs_v;
-#else /* !defined(GLOBALS_NONRELOC) */
-PER_THREAD Xt *saved_ip;
-PER_THREAD Cell *rp;
-#endif /* !defined(GLOBALS_NONRELOC) */
-#endif /* !defined(GFORTH_DEBUGGING) */
 
 #ifdef NO_IP
 Label next_code;
@@ -707,11 +689,11 @@ Cell gforth_go(Xt* ip0)
 
 #ifdef GFORTH_DEBUGGING
     debugp(stderr,"\ncaught signal, throwing exception %d, ip=%p rp=%p\n",
-	      throw_code, saved_ip, rp);
-    if ((rp > NEXTPAGE2(gforth_UP->sp0)) &&
-	(rp < NEXTPAGE(gforth_UP->rp0))) {
+	   throw_code, saved_ip, saved_rp);
+    if ((saved_rp > NEXTPAGE2(gforth_UP->sp0)) &&
+	(saved_rp < NEXTPAGE(gforth_UP->rp0))) {
       /* no rstack overflow or underflow */
-      gforth_RP = rp;
+      gforth_RP = saved_rp;
       *--gforth_RP = (Cell)saved_ip;
     } else {
       gforth_RP = signal_return_stack+16;
@@ -2412,23 +2394,17 @@ void data_abort_C(void)
 Cell const * gforth_pointers(Cell n)
 {
   switch(n) {
-  case 0: return (Cell *)&gforth_SP;
-  case 1: return (Cell *)&gforth_FP;
-  case 2: return (Cell *)&gforth_LP;
-  case 3: return (Cell *)&gforth_RP;
-  case 4: return (Cell *)&gforth_UP;
-  case 5: return (Cell *)&gforth_engine;
+  case 0: return (Cell *)&gforth_SPs; // per thread pointer structure
+  case 1: return (Cell *)&gforth_engine;
 #ifdef HAS_FILE
-  case 6: return (Cell *)&cstr;
-  case 7: return (Cell *)&tilde_cstr;
+  case 2: return (Cell *)&cstr;
+  case 3: return (Cell *)&tilde_cstr;
 #endif
-  case 8: return (Cell *)&throw_jmp_handler;
-  case 9: return (Cell *)&gforth_stacks;
-  case 10: return (Cell *)&gforth_free_stacks;
-  case 11: return (Cell *)&gforth_main_UP;
-  case 12: return (Cell *)&gforth_go;
-  case 13: return (Cell *)&gforth_sigset;
-  case 14: return (Cell *)&gforth_magic;
+  case 4: return (Cell *)&gforth_stacks;
+  case 5: return (Cell *)&gforth_free_stacks;
+  case 6: return (Cell *)&gforth_main_UP;
+  case 7: return (Cell *)&gforth_go;
+  case 8: return (Cell *)&gforth_sigset;
   default: return NULL;
   }
 }

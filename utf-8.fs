@@ -21,7 +21,7 @@
 
 -77 Constant UTF-8-err
 
-$80 Value max-single-byte
+$80 Constant max-single-byte
 
 : u8len ( u8 -- n )
     dup      max-single-byte u< IF  drop 1  EXIT  THEN \ special case ASCII
@@ -286,34 +286,25 @@ here wc-table - Constant #wc-table
         I xc@+ swap >r xc-width +
     r> I - +LOOP ;
 
+here
+' u8emit ,
+' u8key ,
+' u8>> ,
+' u8<< ,
+' +u8/string ,
+' u8\string- ,
+' u8@ ,
+' u8!+ ,
+' u8!+? ,
+' u8@+ ,
+' u8len ,
+' u8addrlen ,
+' u8width ,
+' -u8trailing-garbage ,
+, here Constant utf-8
+
 : set-encoding-utf-8 ( -- )
-    ['] u8emit is xemit
-    ['] u8key is xkey
-    ['] u8>> is xchar+
-    ['] u8<< is xchar-
-[ [IFDEF] xstring+ ]
-    ['] u8\string- is xstring-
-    ['] +u8/string is +xstring
-[ [THEN] ]
-[ [IFDEF] +x/string ]
-    ['] u8\string- is x\string-
-    ['] +u8/string is +x/string
-[ [THEN] ]
-    ['] u8@ is xc@
-[ [IFDEF] xc!+ ]
-    ['] u8!+ is xc!+
-[ [THEN] ]
-    ['] u8!+? is xc!+?
-    ['] u8@+ is xc@+
-    ['] u8len is xc-size
-[ [IFDEF] x-width ]
-    ['] u8width is x-width
-[ [THEN] ]
-[ [IFDEF] x-size ]
-    ['] u8addrlen is x-size
-[ [THEN] ]
-    ['] -u8trailing-garbage is -trailing-garbage
-;
+    utf-8 set-encoding ;
 
 : utf-8-cold ( -- )
     s" LC_ALL" getenv 2dup d0= IF  2drop
@@ -321,7 +312,7 @@ here wc-table - Constant #wc-table
 	    s" LANG" getenv 2dup d0= IF  2drop
 		s" C"  THEN THEN THEN
     s" UTF-8" search nip nip
-    IF  set-encoding-utf-8  ELSE  set-encoding-fixed-width  THEN ;
+    IF  utf-8  ELSE  fixed-width  THEN  set-encoding ;
 
 environment-wordlist set-current
 : xchar-encoding ( -- addr u ) \ xchar-ext
@@ -330,9 +321,9 @@ environment-wordlist set-current
     \G @url{http://www.iana.org/assignments/character-sets} like
     \G ``ISO-LATIN-1'' or ``UTF-8'', with the exception of ``ASCII'', where
     \G we prefer the alias ``ASCII''.
-    max-single-byte $80 = IF s" UTF-8" ELSE s" ISO-LATIN-1" THEN ;
+    xc-vector @ utf-8 = IF s" UTF-8" ELSE s" ISO-LATIN-1" THEN ;
 : max-xchar ( -- xchar )
-    max-single-byte $80 = IF $7FFFFFFF  ELSE  $FF  THEN ;
+    xc-vector @ utf-8 = IF $7FFFFFFF  ELSE  $FF  THEN ;
 ' noop Alias X:xchar
 forth definitions
 

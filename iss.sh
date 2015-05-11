@@ -42,7 +42,7 @@ cat <<EOT
 [Setup]
 AppName=Gforth
 AppVerName=Gforth $VERSION
-AppCopyright=Copyright © 1995,1996,1997,1998,2000,2003,2006,2007,2008,2009,2010,2011,2012 Free Software Foundation
+AppCopyright=Copyright © 1995-2015 Free Software Foundation
 DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
 AllowNoIcons=1
@@ -113,7 +113,7 @@ done) | sed \
 ;   "Custom icon filename (leave blank to use the default icon)", Icon index
 Name: "{group}\Gforth"; Filename: "{app}\gforth.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth-fast"; Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"
-Name: "{group}\Gforth-dict"; Filename: "{app}\gforth-dict.exe"; WorkingDir: "{app}"
+Name: "{group}\Gforth-ditc"; Filename: "{app}\gforth-ditc.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth-itc"; Filename: "{app}\gforth-itc.exe"; WorkingDir: "{app}"
 Name: "{group}\Gforth Manual"; Filename: "{app}\doc\gforth\index.html"; WorkingDir: "{app}"; Components: help
 Name: "{group}\Gforth Manual (PDF)"; Filename: "{app}\doc\gforth.pdf"; WorkingDir: "{app}"; Components: help
@@ -211,20 +211,24 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep=ssPostInstall then
+  begin
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-fast.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-itc.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-ditc.exe');
+  end;
 end;
 
 // event called at uninstall
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep=usPostUninstall then
+  begin
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-fast.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-itc.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-ditc.exe');
+  end;
 end;
 EOT
 
