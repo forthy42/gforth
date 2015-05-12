@@ -72,6 +72,7 @@ s" os-type" environment? [IF]
 	$10000 Constant MAP_NONBLOCK		\ Do not block on IO.
 	$20000 Constant MAP_STACK		\ Allocation is for a stack.
 	$40000 Constant MAP_HUGETLB		\ Create huge page mapping.
+	MAP_ANONYMOUS Constant MAP_ANON
     [THEN]
 [THEN]
 
@@ -87,9 +88,9 @@ s" os-type" environment? [IF]
 	-1    Constant MAP_FAILED \ [MF|SHM] mmap failed
 	$0000 Constant MAP_FILE \ map from file (default)
 	$1000 Constant MAP_ANON \ allocated from memory, swap space
+	MAP_ANON Constant MAP_ANONYMOUS
     [THEN]
 [THEN]
-MAP_ANONYMOUS Constant MAP_ANON
 
 1 Constant MREMAP_MAYMOVE
 2 Constant MREMAP_FIXED
