@@ -51,18 +51,18 @@ $01000000 Constant PROT_GROWSDOWN	\ Extend change to start of
 $02000000 Constant PROT_GROWSUP	\ Extend change to start of
 					\ growsup vma (mprotect only). 
 
-\ Sharing types (must choose one and only one of these). 
 $01 Constant MAP_SHARED		\ Share changes. 
 $02 Constant MAP_PRIVATE		\ Changes are private. 
-
 $10 Constant MAP_FIXED		\ Interpret addr exactly.
-0 Constant MAP_FILE
-$20 Constant MAP_ANONYMOUS		\ Don't use a file.
-MAP_ANONYMOUS Constant MAP_ANON
-$40 Constant MAP_32BIT		\ Only give out 32-bit addresses.
 
 s" os-type" environment? [IF]
     s" linux" string-prefix? [IF]
+	\ Sharing types (must choose one and only one of these). 
+	
+	0 Constant MAP_FILE
+	$20 Constant MAP_ANONYMOUS		\ Don't use a file.
+	$40 Constant MAP_32BIT		\ Only give out 32-bit addresses.
+
 	$00100 Constant MAP_GROWSDOWN		\ Stack-like segment.
 	$00800 Constant MAP_DENYWRITE		\ ETXTBSY
 	$01000 Constant MAP_EXECUTABLE		\ Mark it as an executable.
@@ -74,6 +74,22 @@ s" os-type" environment? [IF]
 	$40000 Constant MAP_HUGETLB		\ Create huge page mapping.
     [THEN]
 [THEN]
+
+s" os-type" environment? [IF]
+    s" darwin" string-prefix? [IF]
+	$0020 Constant MAP_RENAME \ Sun: rename private pages to file
+	$0040 Constant MAP_NORESERVE \ Sun: don't reserve needed swap area
+	$0080 Constant MAP_RESERVED0080 \ previously unimplemented MAP_INHERIT
+	$0100 Constant MAP_NOEXTEND \ for MAP_FILE, don't change file size
+	$0200 Constant MAP_HASSEMAPHORE \ region may contain semaphores
+	$0400 Constant MAP_NOCACHE \ don't cache pages for this mapping
+	$0800 Constant MAP_JIT \ Allocate a region that will be used for JIT purposes
+	-1    Constant MAP_FAILED \ [MF|SHM] mmap failed
+	$0000 Constant MAP_FILE \ map from file (default)
+	$1000 Constant MAP_ANON \ allocated from memory, swap space
+    [THEN]
+[THEN]
+MAP_ANONYMOUS Constant MAP_ANON
 
 1 Constant MREMAP_MAYMOVE
 2 Constant MREMAP_FIXED
