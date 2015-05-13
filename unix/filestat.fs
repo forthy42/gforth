@@ -60,28 +60,28 @@ e? os-type s" darwin" string-prefix? [IF]
 begin-structure file-stat
 e? os-type s" darwin" string-prefix? [IF]
     cell 8 = [IF]
-	drop 0 4 +field st_dev
+	drop 0 lfield: st_dev
 	drop 8 8 +field st_ino
-	drop 6 2 +field st_mode
-	drop 16 4 +field st_uid
-	drop 20 4 +field st_gid
-	drop 24 4 +field st_rdev
+	drop 6 wfield: st_mode
+	drop 16 lfield: st_uid
+	drop 20 lfield: st_gid
+	drop 24 lfield: st_rdev
 	drop 96 8 +field st_size
-	drop 112 4 +field st_blksize
+	drop 112 lfield: st_blksize
 	drop 104 8 +field st_blocks
 	drop 32 16 +field st_atime
 	drop 48 16 +field st_mtime
 	drop 64 16 +field st_ctime
 	drop 144
     [ELSE]
-	drop 0 4 +field st_dev
+	drop 0 lfield: st_dev
 	drop 8 8 +field st_ino
-	drop 6 2 +field st_mode
-	drop 16 4 +field st_uid
-	drop 20 4 +field st_gid
-	drop 24 4 +field st_rdev
+	drop 6 wfield: st_mode
+	drop 16 lfield: st_uid
+	drop 20 lfield: st_gid
+	drop 24 lfield: st_rdev
 	drop 60 8 +field st_size
-	drop 76 4 +field st_blksize
+	drop 76 lfield: st_blksize
 	drop 68 8 +field st_blocks
 	drop 28 8 +field st_atime
 	drop 36 8 +field st_mtime
@@ -92,9 +92,9 @@ e? os-type s" darwin" string-prefix? [IF]
     cell 8 = [IF]
 	drop 0 8 +field st_dev
 	drop 8 field: st_ino
-	drop 24 4 +field st_mode
-	drop 28 4 +field st_uid
-	drop 32 4 +field st_gid
+	drop 24 lfield: st_mode
+	drop 28 lfield: st_uid
+	drop 32 lfield: st_gid
 	drop 40 8 +field st_rdev
 	drop 48 field: st_size
 	drop 56 field: st_blksize
@@ -106,9 +106,9 @@ e? os-type s" darwin" string-prefix? [IF]
     [ELSE]
 	drop 0 8 +field st_dev
 	drop 12 field: st_ino
-	drop 16 4 +field st_mode
-	drop 24 4 +field st_uid
-	drop 28 4 +field st_gid
+	drop 16 lfield: st_mode
+	drop 24 lfield: st_uid
+	drop 28 lfield: st_gid
 	drop 32 8 +field st_rdev
 	drop 44 field: st_size
 	drop 48 field: st_blksize
