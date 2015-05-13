@@ -1,16 +1,16 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <stddef.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stddef.h>
 
-void main()
+int main()
 {
   printf("cell %lu = [IF]\n", sizeof(long));
   printf("  drop %lu %lu +field st_dev\n", offsetof(struct stat, st_dev), sizeof(dev_t));
   printf("  drop %lu %lu +field st_ino\n", offsetof(struct stat, st_ino), sizeof(ino_t));
-  printf("  drop %lu %lu +field st_mode\n", offsetof(struct stat, st_nlink), sizeof(nlink_t));
+  printf("  drop %lu %lu +field st_mode\n", offsetof(struct stat, st_mode), sizeof(mode_t));
   printf("  drop %lu %lu +field st_uid\n", offsetof(struct stat, st_uid), sizeof(uid_t));
   printf("  drop %lu %lu +field st_gid\n", offsetof(struct stat, st_gid), sizeof(gid_t));
   printf("  drop %lu %lu +field st_rdev\n", offsetof(struct stat, st_rdev), sizeof(dev_t));
@@ -23,4 +23,5 @@ void main()
 struct timespec));
   printf("  drop %lu end-structure file-stat\n", sizeof(struct stat));
   printf("[THEN]\n");
+  return 0;
 }
