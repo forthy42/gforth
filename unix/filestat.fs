@@ -62,7 +62,7 @@ e? os-type s" darwin" string-prefix? [IF]
     cell 8 = [IF]
 	drop 0 lfield: st_dev
 	drop 8 8 +field st_ino
-	drop 6 wfield: st_mode
+	drop 4 wfield: st_mode
 	drop 16 lfield: st_uid
 	drop 20 lfield: st_gid
 	drop 24 lfield: st_rdev
@@ -76,7 +76,7 @@ e? os-type s" darwin" string-prefix? [IF]
     [ELSE]
 	drop 0 lfield: st_dev
 	drop 8 8 +field st_ino
-	drop 6 wfield: st_mode
+	drop 4 wfield: st_mode
 	drop 16 lfield: st_uid
 	drop 20 lfield: st_gid
 	drop 24 lfield: st_rdev
