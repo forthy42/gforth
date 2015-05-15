@@ -1,6 +1,6 @@
 \ time interface
 
-\ Copyright (C) 1998,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 2015 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -17,17 +17,41 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+c-library time
+    \c #include <time.h>
+    c-function localtime_r localtime_r a a -- a ( time-addr tmaddr -- tmaddr )
+    c-function tzset tzset -- void
+    c-value tzname tzname -- a ( -- tzname[2] )
+    c-value timezone timezone -- n ( -- n )
+    c-value daylight daylight -- n ( -- n )
+end-c-library
 
-\ lib libc.so.5
+begin-structure tm
+    lfield: tm_sec
+    lfield: tm_min
+    lfield: tm_hour
+    lfield: tm_mday
+    lfield: tm_mon
+    lfield: tm_year
+    lfield: tm_wday
+    lfield: tm_yday
+    lfield: tm_isdst
+    field: tm_gmtoff
+    field: tm_zone
+end-structure
 
-\ libc.so.5 1 1 proc time ( returns seconds after 1.1.70 utc... )
+tm buffer: tm1
 
-library libc libc.so.5
-library libm libm.so.5
-1 (int) libc time time ( ptr/0 -- seconds_after_1.1.70 )
-1 (void) libc printf0 printf ( ptr -- )
-2 (void) libc printf1 printf ( ptr n1 -- )
-3 (void) libc printf2 printf ( ptr n1 n2 -- )
-1 (int...) libc printf printf ( ptr n1 .. nm m -- len )
-2 (float) libm cos cos ( float -- cos )
-(addr) libc errno errno
+: >date&time ( sec -- sec min hour mday mon year )
+    { w^ sec } sec tm1 localtime_r drop
+    [ tm1 tm_sec  ]L l@
+    [ tm1 tm_min  ]L l@
+    [ tm1 tm_hour ]L l@
+    [ tm1 tm_mday ]L l@
+    [ tm1 tm_mon  ]L l@ 1+
+    [ tm1 tm_year ]L l@ 1900 + ;
+
+: tz? ( daylight -- addr u )
+    0<> negate >r tzname r> cells + @ cstring>sstring ;
+
+tzset \ needs to run once
