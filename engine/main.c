@@ -2624,6 +2624,8 @@ Cell gforth_start(int argc, char ** argv)
   return gforth_boot(argc, argv, path);
 }
 
+Xt do_winsize = NULL;
+
 Cell gforth_main(int argc, char **argv, char **env)
 {
   Cell retvalue=gforth_start(argc, argv);
@@ -2631,8 +2633,10 @@ Cell gforth_main(int argc, char **argv, char **env)
 
   if(retvalue == -56) { /* throw-code for quit */
     Xt bootmessage=gforth_find((Char*)"bootmessage");
-    if(bootmessage != 0)
+    do_winsize=gforth_find((Char*)"do-winsize");
+    if(bootmessage != 0) {
       gforth_execute(bootmessage);
+    }
     retvalue = gforth_quit();
   }
   gforth_cleanup();

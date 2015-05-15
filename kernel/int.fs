@@ -931,7 +931,7 @@ Defer .error-level ( n -- )
 
 : do-execute ( xt -- ) \ Gforth
     \G C calling us
-    catch dup IF  DoError cr  THEN  (bye) ;
+    execute ( catch dup IF  DoError cr  THEN ) 0 (bye) ;
 
 : do-find ( addr u -- )
     find-name dup IF  name>int  THEN  (bye) ;

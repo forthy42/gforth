@@ -242,10 +242,9 @@ require utf-8.fs
     linew @ xback-restore >r 2dup swap type 2dup swap cur-correct r> ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
-    .all cols screenw @ >r screenw !
-    linew @ screenw @ / linew @ r@ / max
-    screenw @ r> - * 0 max
-    dup spaces linew +! .rest false ;
+    linew @ dup screenw @ mod 0= IF  1+  THEN  xback-restore
+    cols dup screenw !@ - >r 2 pick dup screenw @ / r> * 0 max +
+    dup spaces linew !  .all .rest false ;
 
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
