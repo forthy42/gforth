@@ -1954,26 +1954,16 @@ wior = IOR(wretval==-1);
 time&date	( -- nsec nmin nhour nday nmonth nyear )	facility-ext	time_and_date
 ""Report the current time of day. Seconds, minutes and hours are numbered from 0.
 Months are numbered from 1.""
-#if 1
 time_t now;
-struct tm *ltime;
+struct tm ltime;
 time(&now);
-ltime=localtime(&now);
-#else
-struct timeval time1;
-struct timezone zone1;
-struct tm *ltime;
-gettimeofday(&time1,&zone1);
-/* !! Single Unix specification: 
-   If tzp is not a null pointer, the behaviour is unspecified. */
-ltime=localtime((time_t *)&time1.tv_sec);
-#endif
-nyear =ltime->tm_year+1900;
-nmonth=ltime->tm_mon+1;
-nday  =ltime->tm_mday;
-nhour =ltime->tm_hour;
-nmin  =ltime->tm_min;
-nsec  =ltime->tm_sec;
+localtime_r(&now, &ltime); /* thread save version */
+nyear =ltime.tm_year+1900;
+nmonth=ltime.tm_mon+1;
+nday  =ltime.tm_mday;
+nhour =ltime.tm_hour;
+nmin  =ltime.tm_min;
+nsec  =ltime.tm_sec;
 
 (ms)	( u -- )	facility-ext	paren_ms
 ""Wait at least @i{n} milli-second.""
