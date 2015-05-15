@@ -251,6 +251,8 @@ require utf-8.fs
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
 
+Variable vt100-modifier
+
 : <xins>  ( max span addr pos1 xc -- max span addr pos2 )
     >r  2over r@ xc-size + u< IF  ( max span addr pos1 R:xc )
 	rdrop bell  EXIT  THEN
@@ -260,10 +262,28 @@ require utf-8.fs
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
     <xins> key? 0= IF  .all .rest  THEN ;
 : xback  ( max span addr pos1 -- max span addr pos2 f )
-    dup  IF  over + xchar- over -  0 max .all .rest
+    dup  IF
+	vt100-modifier @ IF
+	    BEGIN  2dup + 1- c@ bl = over 0> and  WHILE
+		    over + xchar- over -  REPEAT
+	    BEGIN  2dup + 1- c@ bl <> over 0> and  WHILE
+		    over + xchar- over -  REPEAT
+	ELSE
+	    over + xchar- over -
+	THEN
+	0 max .all .rest
     ELSE  bell  THEN 0 ;
 : xforw  ( max span addr pos1 -- max span addr pos2 f )
-    2 pick over <> IF  over + xc@+ xemit over -  ELSE  bell  THEN
+    2 pick over <> IF
+	vt100-modifier @ IF
+	    BEGIN  2 pick over u> >r 2dup + c@ bl = r> and  WHILE
+		    over + xc@+ xemit over -  REPEAT
+	    BEGIN  2 pick over u> >r 2dup + c@ bl <> r> and  WHILE
+		    over + xc@+ xemit over -  REPEAT
+	ELSE
+	    over + xc@+ xemit over -
+	THEN
+    ELSE  bell  THEN
     2dup cur-correct 0 ;
 : (xdel)  ( max span addr pos1 -- max span addr pos2 )
     over + dup xchar- tuck - >r over -
@@ -333,6 +353,8 @@ require utf-8.fs
     ['] xfirst-pos   ctrl A bindkey
     ['] xend-pos     ctrl E bindkey
     ['] xretype      ctrl L bindkey
+    ['] next-line    ctrl N bindkey
+    ['] prev-line    ctrl P bindkey
     ['] (xenter)     #lf    bindkey
     ['] (xenter)     #cr    bindkey
     ['] xtab-expand  #tab   bindkey
@@ -355,17 +377,11 @@ xchar-history
 	\ !! >stderr
         \ history-file type ." : " .error cr
 	drop 2drop 0 to history
-	['] false ['] false ['] (ret)
     else
 	to history
 	history file-size throw
 	2dup forward^ 2! 2dup backward^ 2! end^ 2!
-	['] next-line ['] prev-line ['] (enter)
     endif
-    dup #lf bindkey
-        #cr bindkey
-     ctrl P bindkey
-     ctrl N bindkey
 ;
 
 : history-cold ( -- )
