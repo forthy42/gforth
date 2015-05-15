@@ -232,17 +232,19 @@ require utf-8.fs
 
 ' xcur-correct IS cur-correct
 
+: xback-restore-rest ( u -- )
+    screenw @ /mod negate swap negate swap at-deltaxy ;
 : xback-restore ( u -- )
     dup screenw @ mod 0= IF  1- 0 max  THEN
     \ correction for line=screenw, no wraparound then!
-    screenw @ /mod negate swap negate swap at-deltaxy ;
+    xback-restore-rest ;
 : .rest ( addr pos1 -- addr pos1 )
     linew @ xback-restore 2dup type 2dup cur-correct ;
 : .all ( span addr pos1 -- span addr pos1 )
     linew @ xback-restore >r 2dup swap type 2dup swap cur-correct r> ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
-    linew @ dup screenw @ mod 0= IF  1+  THEN  xback-restore
+    linew @ xback-restore-rest
     cols dup screenw !@ - >r 2 pick dup screenw @ / r> * 0 max +
     dup spaces linew !  .all .rest false ;
 
