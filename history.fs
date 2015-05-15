@@ -248,6 +248,10 @@ require utf-8.fs
     cols dup screenw !@ - >r 2 pick dup screenw @ / r> * 0 max +
     dup spaces linew !  .all .rest false ;
 
+: xhide ( max span addr pos1 -- max span addr pos1 f )
+    linew @ xback-restore 2 pick dup spaces xback-restore
+    linew off  false ;
+
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
 
@@ -295,7 +299,7 @@ Variable vt100-modifier
   2 pick over <>
     IF  xforw drop (xdel) .all 2 spaces 2 linew +! .rest
     ELSE  bell  THEN  0 ;
-: xeof  2 pick over or 0=  IF  bye  ELSE  <xdel>  THEN ;
+: xeof  2 pick over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
 
 : xfirst-pos  ( max span addr pos1 -- max span addr 0 0 )
   drop 0 .all .rest 0 ;
@@ -355,6 +359,7 @@ Variable vt100-modifier
     ['] xretype      ctrl L bindkey
     ['] next-line    ctrl N bindkey
     ['] prev-line    ctrl P bindkey
+    ['] xhide        ctrl Z bindkey \ press ctrl-L to reshow
     ['] (xenter)     #lf    bindkey
     ['] (xenter)     #cr    bindkey
     ['] xtab-expand  #tab   bindkey

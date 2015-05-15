@@ -737,7 +737,7 @@ has? os [IF]
 	    \ if stderr does not work either, already DoError causes a hang
 	    -2 (bye)
 	endif [ [THEN] ]
-	refill  WHILE
+	get-input  WHILE
 	    interpret prompt
     REPEAT
     bye ;
