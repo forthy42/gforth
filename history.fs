@@ -283,7 +283,13 @@ require utf-8.fs
   drop over .all 0 ;
 
 : xclear-rest ( max span addr pos -- max pos addr pos false )
-     rot >r tuck 2dup r> swap /string u8width dup spaces linew +! .all 0 ;
+    rot >r tuck 2dup r> swap /string x-width dup spaces linew +! .all 0 ;
+
+: xclear-first ( max span addr pos -- max pos addr pos false )
+    linew @ xback-restore >r
+    2dup swap x-width dup spaces xback-restore
+    2dup swap r@ /string 2 pick swap move
+    swap r> - swap 0 .all .rest 0 ;
 
 : (xenter)  ( max span addr pos1 -- max span addr pos2 true )
     >r 2dup swap -trailing nip IF
@@ -323,6 +329,7 @@ require utf-8.fs
     ['] xeof         ctrl D bindkey
     ['] <xdel>       ctrl X bindkey
     ['] xclear-rest  ctrl K bindkey
+    ['] xclear-first ctrl U bindkey
     ['] xfirst-pos   ctrl A bindkey
     ['] xend-pos     ctrl E bindkey
     ['] xretype      ctrl L bindkey
