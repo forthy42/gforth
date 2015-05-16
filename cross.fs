@@ -1115,6 +1115,7 @@ Ghost does-exec drop
 Ghost extra-exec drop
 Ghost no-to drop
 Ghost post, drop
+Ghost refill drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop

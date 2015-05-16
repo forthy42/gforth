@@ -254,6 +254,10 @@ defer line-end-hook ( -- ) \ gforth
     BEGIN  refill  WHILE  interpret line-end-hook REPEAT
     state @ warning" EOF reached while compiling" ;
 
+: get-input ( -- flag ) \ gforth
+    \G read a line of input
+    ['] refill catch -56 = IF  bye  THEN ;
+    
 : execute-parsing-named-file ( i*x wfileid filename-addr filename-u xt -- j*x )
     >r push-file \ dup 2* cells included-files 2@ drop + 2@ type
     loadfilename 2!  loadfile !

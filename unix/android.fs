@@ -101,6 +101,8 @@ require string.fs
 
 : $, ( addr u -- )  here over 1+ allot place ;
 
+Create unknown-key#
+
 Create akey>ekey
 AKEYCODE_HOME c, "\e[H" $,
 AKEYCODE_BACK c, "\b" $,
@@ -115,15 +117,16 @@ AKEYCODE_ENTER c, "\r" $,
 AKEYCODE_DEL c, "\b" $, \ is not delete, is backspace!
 AKEYCODE_PAGE_UP c, "\e[5~" $,
 AKEYCODE_PAGE_DOWN c, "\e[6~" $,
-AKEYCODE_ALT_LEFT c, 0 c,
-AKEYCODE_ALT_RIGHT c, 0 c,
-AKEYCODE_SHIFT_LEFT c, 0 c,
-AKEYCODE_SHIFT_RIGHT c, 0 c,
-0 c, 0 c,
+AKEYCODE_ALT_LEFT c, "\e[1;3D" $,
+AKEYCODE_ALT_RIGHT c, "\e[1;3C" $,
+AKEYCODE_SHIFT_LEFT c, "\e[1;2D" $,
+AKEYCODE_SHIFT_RIGHT c, "\e[1;2C" $,
+0 c,
 DOES> ( akey -- addr u )
   swap >r
-  BEGIN  count dup r@ <> and WHILE  count +  REPEAT
-  count rdrop ;
+  BEGIN  count dup r@ <> and WHILE  count +
+      dup c@ 0=  UNTIL  r@ unknown-key# !
+  THEN  count rdrop ;
 
 \ ainput implementation
 

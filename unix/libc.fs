@@ -47,9 +47,9 @@ end-c-library
 getpagesize constant pagesize
 
 begin-structure pollfd
-    4 +field fd
-    2 +field events
-    2 +field revents
+    lfield: fd
+    wfield: events
+    wfield: revents
 end-structure
 
 $001 Constant POLLIN
@@ -57,4 +57,4 @@ $002 Constant POLLPRI
 $004 Constant POLLOUT
 
 : fds!+ ( fileno flag addr -- addr' )
-    >r r@ events w!  0 r@ revents w!  r@ fd l!  r> pollfd + ; 
+    >r r@ events w!  r@ fd l!  r> pollfd + ; 
