@@ -115,15 +115,6 @@ definitions
     cell +loop
     here ;
 
-[ifundef] umin \ !! bootstrapping help
-: umin ( u1 u2 -- u )
-    2dup u>
-    if
-	swap
-    then
-    drop ;
-[then]
-
 : next-prim ( addr1 -- addr2 ) \ gforth
     \G find the next primitive after addr1 (unreliable)
     1+ >r -1 primstart
@@ -670,6 +661,14 @@ VARIABLE C-Pass
 	." u#exec " dup @ c-. cell+ dup @ c-. cell+ ;
 [THEN]
 
+[IFDEF] call-c#
+    : c-call-c# ( addr -- addr' )
+	display? IF
+	    dup @ 7 cells - name>string com# .string bl cemit
+	THEN  cell+ ;
+	
+[THEN]
+
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
 		' does-exec A,	    ' c-callxt A,
@@ -701,7 +700,9 @@ CREATE C-Table
 [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded
 [IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
-	        ' u#exec A,         ' c-u#exec A,
+[IFDEF] u#exec  ' u#exec A,         ' c-u#exec A, [THEN]
+[IFDEF] call-c# ' call-c# A,        ' c-call-c# A, [THEN]
+
         	0 ,		here 0 ,
 
 avariable c-extender
