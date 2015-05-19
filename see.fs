@@ -635,25 +635,30 @@ VARIABLE C-Pass
 [THEN]
 
 [IFDEF] u#exec
-    : search-u#exec ( 0 offset1 offset2 nt -- xt/0 offset1 offset2 flag )
+    Variable u#what \ global variable to specify what to search for
+    : search-u#gen ( 0 offset1 offset2 nt -- xt/0 offset1 offset2 flag )
 	name>int dup @ docol: = IF
-	    dup >body @ decompile-prim ['] u#exec xt=
+	    dup >body @ decompile-prim u#what @ xt=
 	    over >body 3 cells + @ decompile-prim ['] ;S xt= and
 	    IF  >r 2dup r@ >body cell+ 2@ d=
 		IF  r> -rot 2>r nip 2r> false  EXIT  THEN
 		r>
 	    THEN
 	THEN  drop true ;
-    : c-u#exec ( addr -- addr' )
+    : c-u#gen ( addr -- addr' )
 	display? IF
 	    0 over 2@
-	    [: ['] search-u#exec swap traverse-wordlist ;] map-vocs
+	    [: ['] search-u#gen swap traverse-wordlist ;] map-vocs
 	    2drop
 	    ?dup-IF
 		>name name>string Com# .string bl cemit
 		2 cells + EXIT  THEN
-	    ." u#exec " dup @ c-. cell+ dup @ c-. cell+
+	    u#what @ name>string com# .string bl cemit
+	    dup @ c-. cell+ dup @ c-. cell+
 	ELSE  2 cells +  THEN ;
+
+    : c-u#exec ( addr -- addr' )  ['] u#exec u#what ! c-u#gen ;
+    : c-u#+    ( addr -- addr' )  ['] u#+    u#what ! c-u#gen ;
 [THEN]
 
 [IFDEF] call-c#
@@ -714,6 +719,7 @@ CREATE C-Table
 \ only defined if compiler is loaded
 [IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
 [IFDEF] u#exec  ' u#exec A,         ' c-u#exec A, [THEN]
+[IFDEF] u#+     ' u#+ A,            ' c-u#+ A, [THEN]
 [IFDEF] call-c# ' call-c# A,        ' c-call-c# A, [THEN]
 [IFDEF] useraddr ' useraddr A,      ' c-useraddr A, [THEN]
         	0 ,		here 0 ,

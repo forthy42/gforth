@@ -18,31 +18,33 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 c-library socket
-\c #include <netdb.h>
-\c #include <unistd.h>
-c-function gethostname gethostname a n -- n ( c-addr u -- ior )
-\c #include <sys/types.h>
-\c #include <sys/socket.h>
-c-function socket socket n n n -- n ( class type proto -- fd )
-c-function closesocket close n -- n ( fd -- ior )
-c-function connect connect n a n -- n ( fd sock size -- err )
-c-function send send n a n n -- n ( socket buffer count flags -- size )
-c-function recv recv n a n n -- n ( socket buffer count flags -- size )
-c-function recvfrom recvfrom n a n n a a -- n ( socket buffer count flags srcaddr addrlen -- size )
-c-function sendto sendto n a n n a n -- n ( socket buffer count flags srcaddr addrlen -- size )
-c-function listen() listen n n -- n ( socket backlog -- err )
-c-function bind bind n a n -- n ( socket sockaddr socklen --- err )
-c-function accept() accept n a a -- n ( socket sockaddr addrlen -- fd )
-\c #include <arpa/inet.h>
-c-function htonl htonl n -- n ( x -- x' )
-c-function htons htons n -- n ( x -- x' )
-c-function ntohl ntohl n -- n ( x -- x' )
-\c #include <netdb.h>
-c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
-c-function freeaddrinfo freeaddrinfo a -- void ( res -- )
-c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
-c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
-c-function getsockname getsockname  n a a -- n ( sockfd addr *len -- r )
+    \c #include <netdb.h>
+    \c #include <unistd.h>
+    c-function gethostname gethostname a n -- n ( c-addr u -- ior )
+    \c #include <sys/types.h>
+    \c #include <sys/socket.h>
+    c-function socket socket n n n -- n ( class type proto -- fd )
+    c-function closesocket close n -- n ( fd -- ior )
+    c-function connect connect n a n -- n ( fd sock size -- err )
+    c-function send send n a n n -- n ( socket buffer count flags -- size )
+    c-function recv recv n a n n -- n ( socket buffer count flags -- size )
+    c-function recvfrom recvfrom n a n n a a -- n ( socket buffer count flags srcaddr addrlen -- size )
+    c-function sendto sendto n a n n a n -- n ( socket buffer count flags srcaddr addrlen -- size )
+    c-function listen() listen n n -- n ( socket backlog -- err )
+    c-function bind bind n a n -- n ( socket sockaddr socklen --- err )
+    c-function accept() accept n a a -- n ( socket sockaddr addrlen -- fd )
+    \c #include <arpa/inet.h>
+    c-function htonl htonl n -- n ( x -- x' )
+    c-function htons htons n -- n ( x -- x' )
+    c-function ntohl ntohl n -- n ( x -- x' )
+    \c #include <netdb.h>
+    c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
+    c-function freeaddrinfo freeaddrinfo a -- void ( res -- )
+    c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
+    c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
+    c-function getsockname getsockname  n a a -- n ( sockfd addr *len -- r )
+    c-function getifaddrs getifaddrs a -- n ( addr -- n )
+    c-function freeifaddrs freeifaddrs a -- void ( addr -- )
 end-c-library
 
 require libc.fs
@@ -90,6 +92,16 @@ begin-structure addrinfo
     field: ai_canonname
 [THEN]
     field: ai_next
+end-structure
+
+begin-structure ifaddrs
+    field: ifa_next
+    field: ifa_name
+    lfield: ifa_flags
+    field: ifa_addr
+    field: ifa_netmask
+    field: ifa_ifu
+    field: ifa_data
 end-structure
 
 e? os-type s" linux" string-prefix? [IF]
