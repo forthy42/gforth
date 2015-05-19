@@ -43,8 +43,6 @@ c-library socket
     c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
     c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
     c-function getsockname getsockname  n a a -- n ( sockfd addr *len -- r )
-    c-function getifaddrs getifaddrs a -- n ( addr -- n )
-    c-function freeifaddrs freeifaddrs a -- void ( addr -- )
 end-c-library
 
 require libc.fs
@@ -92,16 +90,6 @@ begin-structure addrinfo
     field: ai_canonname
 [THEN]
     field: ai_next
-end-structure
-
-begin-structure ifaddrs
-    field: ifa_next
-    field: ifa_name
-    lfield: ifa_flags
-    field: ifa_addr
-    field: ifa_netmask
-    field: ifa_ifu
-    field: ifa_data
 end-structure
 
 e? os-type s" linux" string-prefix? [IF]
