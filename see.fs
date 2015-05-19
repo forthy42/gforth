@@ -646,7 +646,8 @@ VARIABLE C-Pass
 	THEN  drop true ;
     : c-u#exec ( addr -- addr' )
 	display? IF
-	    0 over 2@ ['] search-u#exec ['] forth >body @ traverse-wordlist
+	    0 over 2@
+	    [: ['] search-u#exec swap traverse-wordlist ;] map-vocs
 	    2drop
 	    ?dup-IF
 		>name name>string Com# .string bl cemit
@@ -663,6 +664,7 @@ VARIABLE C-Pass
 [THEN]
 
 [IFDEF] useraddr
+    vocs
     : search-uservar ( offset nt -- offset flag )
 	name>int dup @ douser: = IF
 	    2dup >body @ = IF  -rot nip false  EXIT
@@ -670,7 +672,7 @@ VARIABLE C-Pass
     : c-useraddr ( addr -- addr' )
 	display? IF
 	    0 over @
-	    ['] search-uservar ['] forth >body traverse-wordlist drop
+	    [: ['] search-uservar swap traverse-wordlist ;] map-vocs drop
 	    display? IF
 		?dup-IF  name>string com# .string bl cemit
 		ELSE  s" uservar " com# .string

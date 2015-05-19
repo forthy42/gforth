@@ -249,15 +249,20 @@ lookup ! \ our dictionary search order becomes the law ( -- )
     LOOP
     4 spaces get-current .voc ;
 
-: vocs ( -- ) \ gforth
-    \G List vocabularies and wordlists defined in the system.
-    voclink
+: map-vocs ( ... xt -- ... ) \ gforth
+    \G xt: ( ... wid -- ... ) free to use the stack underneath
+    \G run as long as f is true
+    >r voclink
     BEGIN
 	@ dup
     WHILE
-	dup 0 wordlist-link - .voc
+	dup >r 0 wordlist-link - i' execute r>
     REPEAT
-    drop ;
+    drop rdrop ;
+
+: vocs ( -- ) \ gforth
+    \G List vocabularies and wordlists defined in the system.
+    ['] .voc map-vocs ;
 
 Root definitions
 
