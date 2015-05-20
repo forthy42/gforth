@@ -669,7 +669,6 @@ VARIABLE C-Pass
 [THEN]
 
 [IFDEF] useraddr
-    vocs
     : search-uservar ( offset nt -- offset flag )
 	name>int dup @ douser: = IF
 	    2dup >body @ = IF  -rot nip false  EXIT
