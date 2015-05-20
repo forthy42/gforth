@@ -25,4 +25,4 @@
 	THEN
     THEN  drop 2drop r:fail ;
 
-' rec:scope get-recognizers 1+ set-recognizers
+get-recognizers 1+ ' rec:scope -rot set-recognizers
