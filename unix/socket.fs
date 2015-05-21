@@ -296,27 +296,27 @@ s" sock read error"    exception Constant !!sockread!!
 
 : create-server  ( port# -- server )
     AF_INET port+family
-    new-socket dup 0< ?ior dup reuse-addr >r
+    new-socket dup ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in4 bind ?ior r> ;
 
 : create-server6  ( port# -- server )
     AF_INET6 port+family
-    new-socket6 dup 0< ?ior dup reuse-addr >r
+    new-socket6 dup ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
 : create-udp-server  ( port# -- server )
     AF_INET port+family
-    new-udp-socket dup 0< ?ior dup reuse-addr >r
+    new-udp-socket dup ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in4 bind ?ior r> ;
 
 : create-udp-server6  ( port# -- server )
     AF_INET6 port+family
-    new-udp-socket6 dup 0< ?ior dup reuse-addr >r
+    new-udp-socket6 dup ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
 : create-udp-server46  ( port# -- server )
     AF_INET6 port+family
-    new-udp-socket46 dup 0< ?ior dup reuse-addr >r
+    new-udp-socket46 dup ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
 \ from itools.frt
@@ -337,14 +337,14 @@ Create alen   16 ,
 Create crlf 2 c, 13 c, 10 c,
 
 : listen ( server /queue -- )
-    listen() 0< ?ior ;
+    listen() ?ior ;
 
 \ This call blocks the server until a client appears. The client uses socket to
 \ converse with the server.
 : accept-socket ( server -- socket )
     sockaddr_in alen !
     sockaddr-tmp alen accept() 
-    dup 0< ?ior fd>file ;
+    dup ?ior fd>file ;
 
 : +cr  ( c-addr1 u1 -- c-addr2 u2 ) crlf count $+ ;
 
@@ -352,7 +352,7 @@ Create crlf 2 c, 13 c, 10 c,
     f_setfl r> IF  0  
     ELSE  o_nonblock|o_rdwr  
     THEN  
-    fcntl 0< ?ior ;
+    fcntl ?ior ;
 
 : hostname ( -- c-addr u )
     hostname$ c@ 0= IF

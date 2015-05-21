@@ -45,7 +45,7 @@ c-library libc
     c-function open open a n n -- n ( path flags mode -- fd )
     c-function read read n a n -- n ( fd addr u -- u' )
     c-function write write n a n -- n ( fd addr u -- u' )
-    c-function close close n -- r ( fd -- r )
+    c-function close close n -- n ( fd -- r )
 end-c-library
 
 getpagesize constant pagesize
@@ -65,6 +65,6 @@ $004 Constant POLLOUT
 
 : ?ior ( r -- )
     \G use errno to generate throw when failing
-    IF  -512 errno - throw  THEN ;
+    0< IF  -512 errno - throw  THEN ;
 
 : fd>file ( fd -- file )  s\" w+\0" drop fdopen ;
