@@ -64,13 +64,10 @@ do
 done
 
 FULLLIBS=$PWD/$LIBS
-ANDROID=${PWD%/*/*/*}
-CFLAGS="-O3 -march=armv5 -mfloat-abi=softfp -mfpu=vfp"
 LIBCC=$SRC
 for i in $LIBCC $*
 do
     (cd $i; test -d shlibs && cp shlibs/*/.libs/*.so $FULLLIBS)
-    (cd $i; test -x ./libcc.android && ANDROID=$ANDROID ./libcc.android)
     for j in $LIBCCNAMED .libs
     do
 	for k in $(cd $i/$j; echo *.so)
