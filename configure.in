@@ -190,6 +190,15 @@ else
 fi])
 AC_SUBST(ARCH)
 
+EXTRAS=""
+AC_ARG_WITH(extras,
+	AC_HELP_STRING([--with-extras=<path>],
+			[  add extra stuff from <path>]),
+[if test "$withval" != "no"; then
+  EXTRAS+="${withval} "
+fi])
+AC_SUBST(EXTRAS)
+
 DITCENGINE="./gforth-ditc"
 AC_ARG_WITH(ditc,
 	AC_HELP_STRING([--with-ditc=<engine>],
@@ -1204,6 +1213,18 @@ fi
 AC_SUBST(SWIGMODULES)
 AC_SUBST(SWIGINCLUDES)
 AC_SUBST(SWIGLIBS)
+
+case $CC
+in
+	*-*)
+		HOSTPREFIX=${CC%-*}
+		;;
+	*)
+		HOSTPREFIX=""
+		;;
+esac
+
+AC_SUBST(HOSTPREFIX)
 
 # finally create config files
 
