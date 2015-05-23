@@ -51,6 +51,7 @@ EXT = $(EC)$(ARCH)$(EXE)
 LA = $(EC)$(ARCH).la
 EXTRAS= @EXTRAS@
 HOST= @HOSTPREFIX@
+EXTRAPREFIX= @EXTRAPREFIX@
 
 # ------------	Install Directories
 
@@ -880,7 +881,7 @@ all-bench allbench:
 	./gforth-ditc$(EXT) onebench.fs
 
 extras: $(EXTRAS)
-	for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile all "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)"); done
+	for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile all "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTAPREFIX)"); done
 
 # -------------	Make forth images
 

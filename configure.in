@@ -1226,6 +1226,9 @@ esac
 
 AC_SUBST(HOSTPREFIX)
 
+EXTRAPREFIX=${EXTRAPREFIX-$prefix}
+AC_SUBST(EXTRAPREFIX)
+
 # finally create config files
 
 AC_CONFIG_FILES([
