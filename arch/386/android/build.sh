@@ -30,10 +30,16 @@ fi
 cp .libs/libtypeset.so $LIBS
 strip $LIBS/lib{soil,typeset}.so
 
+EXTRAS=""
+for i in $@
+do
+    EXTRAS+=" -with-extras=$i"
+done
+
 if [ "$1" != "--no-gforthgz" ]
 then
     (cd $SRC
-	if [ "$1" != "--no-config" ]; then ./configure --host=i686-linux-android --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib || exit 1; fi
+	if [ "$1" != "--no-config" ]; then ./configure --host=i686-linux-android --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib $EXTRAS || exit 1; fi
 	make || exit 1
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]; then CONFIG=no; shift; fi
@@ -43,6 +49,7 @@ then
 	cp $i/*.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/site-forth
     done
     (cd $SRC/debian/sdcard
+	rm -rf gforth/$GFORTH_VERSION/libcc-named
 	mkdir -p gforth/home
 	gforth ../../archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
 else
@@ -57,26 +64,10 @@ do
 done
 
 FULLLIBS=$PWD/$LIBS
-ANDROID=${PWD%/*/*/*}
-CFLAGS="-O3" 
 LIBCC=$SRC
 for i in $LIBCC $*
 do
-    (cd $i; test -d shlibs && \
-	(cd shlibs
-	    for j in *; do
-		(cd $j
-		    if [ "$CONFIG" == no ]
-		    then
-			make || exit 1
-		    else
-			./configure CFLAGS="$CFLAGS" --host=i686-linux-android && make clean && make && cp .libs/*.so $FULLLIBS || exit 1
-		    fi
-		)
-	    done
-	)
-    )
-    (cd $i; test -x ./libcc.android && ANDROID=$ANDROID ./libcc.android)
+    (cd $i; test -d shlibs && cp shlibs/*/.libs/*.so $FULLLIBS)
     for j in $LIBCCNAMED .libs
     do
 	for k in $(cd $i/$j; echo *.so)
