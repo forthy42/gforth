@@ -41,6 +41,7 @@ then
     (cd $SRC
 	if [ "$1" != "--no-config" ]; then ./configure --host=aarch64-linux-android --with-cross=android --with-ditc=gforth-ditc --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib $EXTRAS || exit 1; fi
 	make || exit 1
+	make extras || exit 1
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]; then CONFIG=no; shift; fi
 
