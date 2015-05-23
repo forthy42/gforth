@@ -153,7 +153,7 @@ c-library pthread
     c-function pthread_create pthread_create a{(pthread_t*)} a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
     c-function pthread_kill pthread_kill a{*(pthread_t*)} n -- n ( id sig -- rvalue )
-    e? os-type s" linux-android" str= 0= [IF]
+    e? os-type s" linux-android" string-prefix? 0= [IF]
 	c-function pthread_cancel pthread_cancel a{*(pthread_t*)} -- n ( addr -- r )
     [THEN]
     c-function pthread_mutex_init pthread_mutex_init a a -- n ( mutex addr -- r )
