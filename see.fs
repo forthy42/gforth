@@ -115,15 +115,6 @@ definitions
     cell +loop
     here ;
 
-[ifundef] umin \ !! bootstrapping help
-: umin ( u1 u2 -- u )
-    2dup u>
-    if
-	swap
-    then
-    drop ;
-[then]
-
 : next-prim ( addr1 -- addr2 ) \ gforth
     \G find the next primitive after addr1 (unreliable)
     1+ >r -1 primstart
@@ -644,30 +635,55 @@ VARIABLE C-Pass
 [THEN]
 
 [IFDEF] u#exec
-    Create u#outs ' type , ' emit , ' cr , ' form ,
-    ' page , ' at-xy , ' at-deltaxy , ' attr! ,
-    Create u#ins  ' key , ' key? ,
-    Create u#xchars ' xemit , ' xkey , ' xchar+ , ' xchar- , 
-    ' +x/string , ' x\string- , ' xc@ , ' xc!+ , ' xc!+? , 
-    ' xc@+ , ' xc-size , ' x-size , ' x-width , ' -trailing-garbage , 
+    Variable u#what \ global variable to specify what to search for
+    : search-u#gen ( 0 offset1 offset2 nt -- xt/0 offset1 offset2 flag )
+	name>int dup @ docol: = IF
+	    dup >body @ decompile-prim u#what @ xt=
+	    over >body 3 cells + @ decompile-prim ['] ;S xt= and
+	    IF  >r 2dup r@ >body cell+ 2@ d=
+		IF  r> -rot 2>r nip 2r> false  EXIT  THEN
+		r>
+	    THEN
+	THEN  drop true ;
+    : c-u#gen ( addr -- addr' )
+	display? IF
+	    0 over 2@
+	    [: ['] search-u#gen swap traverse-wordlist ;] map-vocs
+	    2drop
+	    ?dup-IF
+		>name name>string Com# .string bl cemit
+		2 cells + EXIT  THEN
+	    u#what @ name>string com# .string bl cemit
+	    dup @ c-. cell+ dup @ c-. cell+
+	ELSE  2 cells +  THEN ;
 
-    Create u#execs
-    ' type  >body cell+ @ , u#outs ,
-    ' key   >body cell+ @ , u#ins ,
-    ' xemit >body cell+ @ , u#xchars ,
-    0 ,                    0 ,
-    
-    : c-u#exec ( addr -- addr' )
-	dup @ u#execs  BEGIN  dup @  WHILE
-		2dup @ = IF
-		    cell+ @ >r
-		    drop cell+ dup @ cells r> + @  display?
-		    IF
-			>name name>string Com# .string bl cemit
-		    ELSE  drop  THEN  cell+
-		    EXIT  THEN
-	    2 cells +  REPEAT  2drop
-	." u#exec " dup @ c-. cell+ dup @ c-. cell+ ;
+    : c-u#exec ( addr -- addr' )  ['] u#exec u#what ! c-u#gen ;
+    : c-u#+    ( addr -- addr' )  ['] u#+    u#what ! c-u#gen ;
+[THEN]
+
+[IFDEF] call-c#
+    : c-call-c# ( addr -- addr' )
+	display? IF
+	    dup @ 7 cells - name>string com# .string bl cemit
+	THEN  cell+ ;
+[THEN]
+
+[IFDEF] useraddr
+    : search-uservar ( offset nt -- offset flag )
+	name>int dup @ douser: = IF
+	    2dup >body @ = IF  -rot nip false  EXIT
+	    THEN  THEN  drop true ;
+    : c-useraddr ( addr -- addr' )
+	display? IF
+	    0 over @
+	    [: ['] search-uservar swap traverse-wordlist ;] map-vocs drop
+	    display? IF
+		?dup-IF  name>string com# .string bl cemit
+		ELSE  s" uservar " com# .string
+		    dup @ c-. bl cemit
+		THEN
+	    THEN
+	THEN  cell+ ;
 [THEN]
 
 CREATE C-Table
@@ -701,7 +717,10 @@ CREATE C-Table
 [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded
 [IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
-	        ' u#exec A,         ' c-u#exec A,
+[IFDEF] u#exec  ' u#exec A,         ' c-u#exec A, [THEN]
+[IFDEF] u#+     ' u#+ A,            ' c-u#+ A, [THEN]
+[IFDEF] call-c# ' call-c# A,        ' c-call-c# A, [THEN]
+[IFDEF] useraddr ' useraddr A,      ' c-useraddr A, [THEN]
         	0 ,		here 0 ,
 
 avariable c-extender

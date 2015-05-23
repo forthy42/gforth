@@ -18,38 +18,40 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 c-library socket
-\c #include <netdb.h>
-\c #include <unistd.h>
-c-function gethostname gethostname a n -- n ( c-addr u -- ior )
-\c #include <sys/types.h>
-\c #include <sys/socket.h>
-c-function socket socket n n n -- n ( class type proto -- fd )
-c-function closesocket close n -- n ( fd -- ior )
-c-function connect connect n a n -- n ( fd sock size -- err )
-c-function send send n a n n -- n ( socket buffer count flags -- size )
-c-function recv recv n a n n -- n ( socket buffer count flags -- size )
-c-function recvfrom recvfrom n a n n a a -- n ( socket buffer count flags srcaddr addrlen -- size )
-c-function sendto sendto n a n n a n -- n ( socket buffer count flags srcaddr addrlen -- size )
-c-function listen() listen n n -- n ( socket backlog -- err )
-c-function bind bind n a n -- n ( socket sockaddr socklen --- err )
-c-function accept() accept n a a -- n ( socket sockaddr addrlen -- fd )
-\c #include <arpa/inet.h>
-c-function htonl htonl n -- n ( x -- x' )
-c-function htons htons n -- n ( x -- x' )
-c-function ntohl ntohl n -- n ( x -- x' )
-\c #include <netdb.h>
-c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
-c-function freeaddrinfo freeaddrinfo a -- void ( res -- )
-c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
-c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
-c-function getsockname getsockname  n a a -- n ( sockfd addr *len -- r )
+    \c #include <netdb.h>
+    \c #include <unistd.h>
+    c-function gethostname gethostname a n -- n ( c-addr u -- ior )
+    \c #include <sys/types.h>
+    \c #include <sys/socket.h>
+    c-function socket socket n n n -- n ( class type proto -- fd )
+    c-function connect connect n a n -- n ( fd sock size -- err )
+    c-function send send n a n n -- n ( socket buffer count flags -- size )
+    c-function recv recv n a n n -- n ( socket buffer count flags -- size )
+    c-function recvfrom recvfrom n a n n a a -- n ( socket buffer count flags srcaddr addrlen -- size )
+    c-function sendto sendto n a n n a n -- n ( socket buffer count flags srcaddr addrlen -- size )
+    c-function listen() listen n n -- n ( socket backlog -- err )
+    c-function bind bind n a n -- n ( socket sockaddr socklen --- err )
+    c-function accept() accept n a a -- n ( socket sockaddr addrlen -- fd )
+    \c #include <arpa/inet.h>
+    c-function htonl htonl n -- n ( x -- x' )
+    c-function htons htons n -- n ( x -- x' )
+    c-function ntohl ntohl n -- n ( x -- x' )
+    \c #include <netdb.h>
+    c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
+    c-function freeaddrinfo freeaddrinfo a -- void ( res -- )
+    c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
+    c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
+    c-function getsockname getsockname  n a a -- n ( sockfd addr *len -- r )
 end-c-library
 
 require libc.fs
 
-e? os-type s" darwin" string-prefix? [IF] : darwin ; [THEN]
-e? os-type s" linux-android" str= [IF] : android ; [THEN]
-e? os-type s" cygwin" string-prefix? [IF] : cygwin ; [THEN]
+' close alias closesocket
+
+e? os-type s" darwin" string-prefix? [IF] : darwin ;  [THEN]
+e? os-type s" linux-android" string-prefix? [IF] : android ; [THEN]
+e? os-type s" cygwin" string-prefix? [IF] : cygwin ;  [THEN]
+e? os-type s" linux-gnu"        str= [IF] : linux ;   [THEN]
 
 begin-structure hostent
     field: h_name
@@ -63,7 +65,7 @@ begin-structure sockaddr_in4
     wfield: family
     wfield: port
     lfield: sin_addr
-    8 +
+    8 + \ padding
 end-structure
 
 begin-structure sockaddr_in6
@@ -82,14 +84,24 @@ begin-structure addrinfo
     lfield: ai_socktype
     lfield: ai_protocol
     field: ai_addrlen
-[defined] android [defined] darwin [defined] cygwin or or [IF]
-    field: ai_canonname
+[defined] linux [IF] \ linux has it the wrong way round
     field: ai_addr
+    field: ai_canonname
 [ELSE]
-    field: ai_addr
     field: ai_canonname
+    field: ai_addr
 [THEN]
     field: ai_next
+end-structure
+
+begin-structure ifaddrs
+    field: ifa_next
+    field: ifa_name
+    lfield: ifa_flags
+    field: ifa_addr
+    field: ifa_netmask
+    field: ifa_ifu
+    field: ifa_data
 end-structure
 
 e? os-type s" linux" string-prefix? [IF]
@@ -140,7 +152,7 @@ hints addrinfo dup allot erase
      2 Constant AF_INET
     23 Constant AF_INET6
     27 Constant IPV6_V6ONLY
-	11 Constant EWOULDBLOCK
+    11 Constant EWOULDBLOCK
     $1 Constant MSG_OOB
     $2 Constant MSG_PEEK
     $4 Constant MSG_DONTROUTE
@@ -188,20 +200,18 @@ s" accept failed"      exception Constant !!accept!!
 s" blocking-mode failed" exception Constant !!blocking!!
 s" sock read error"    exception Constant !!sockread!!
 
-[IFUNDEF] ?ior
-    : ?ior ( r -- )
-	\G use errno to generate throw when failing
-	IF  -512 errno - throw  THEN ;
-[THEN]
+: close-server ( server -- )
+    \G close raw server socket
+    close ?ior ;
 
-: new-socket ( -- socket )
+: new-socket ( -- server )
     PF_INET SOCK_STREAM 0 socket dup 0<= ?ior ;
 
-: new-socket6 ( -- socket )  true { w^ sockopt }
+: new-socket6 ( -- server )  true { w^ sockopt }
     PF_INET6 SOCK_STREAM 0 socket dup 0<= ?ior
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt 4 setsockopt drop ;
 
-: new-udp-socket ( -- socket )
+: new-udp-socket ( -- server )
     PF_INET SOCK_DGRAM 0 socket dup 0<= ?ior
     [defined] darwin [defined] cygwin [ or ] [IF]
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
@@ -212,7 +222,7 @@ s" sock read error"    exception Constant !!sockread!!
 	setsockopt ?ior
     [THEN] ;
 
-: new-udp-socket6 ( -- socket ) 0 { w^ sockopt }
+: new-udp-socket6 ( -- server ) 0 { w^ sockopt }
     PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
     [defined] darwin [defined] cygwin [ or ] [IF]
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
@@ -224,7 +234,7 @@ s" sock read error"    exception Constant !!sockread!!
     [THEN]
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt dup on 4 setsockopt ?ior ;
 
-: new-udp-socket46 ( -- socket )
+: new-udp-socket46 ( -- server )
     PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
     [defined] darwin [defined] cygwin [ or ] [IF]
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
@@ -251,15 +261,13 @@ s" sock read error"    exception Constant !!sockread!!
 	!!noaddr!! throw  THEN
     addrres @ ;
 
-: fd>file ( fd -- file )  s\" w+\0" drop fdopen ;
-
 : get-socket ( info -- socket )  dup >r >r
     BEGIN  r@  WHILE
 	    r@ ai_family l@ r@ ai_socktype l@ r@ ai_protocol l@ socket
 	    dup 0>= IF
 		dup r@ ai_addr @ r@ ai_addrlen l@ connect
 		IF
-		    closesocket ?ior
+		    close-server
 		ELSE
 		    fd>file rdrop r> freeaddrinfo  EXIT
 		THEN
@@ -283,29 +291,29 @@ s" sock read error"    exception Constant !!sockread!!
     sockaddr-tmp family w!
     sockaddr-tmp port be-w! ;
 
-: create-server  ( port# -- lsocket )
+: create-server  ( port# -- server )
     AF_INET port+family
-    new-socket dup 0< ?ior dup reuse-addr >r
+    new-socket dup ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in4 bind ?ior r> ;
 
-: create-server6  ( port# -- lsocket )
+: create-server6  ( port# -- server )
     AF_INET6 port+family
-    new-socket6 dup 0< ?ior dup reuse-addr >r
+    new-socket6 dup ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
-: create-udp-server  ( port# -- lsocket )
+: create-udp-server  ( port# -- server )
     AF_INET port+family
-    new-udp-socket dup 0< ?ior dup reuse-addr >r
+    new-udp-socket dup ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in4 bind ?ior r> ;
 
-: create-udp-server6  ( port# -- lsocket )
+: create-udp-server6  ( port# -- server )
     AF_INET6 port+family
-    new-udp-socket6 dup 0< ?ior dup reuse-addr >r
+    new-udp-socket6 dup ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
-: create-udp-server46  ( port# -- lsocket )
+: create-udp-server46  ( port# -- server )
     AF_INET6 port+family
-    new-udp-socket46 dup 0< ?ior dup reuse-addr >r
+    new-udp-socket46 dup ?ior dup reuse-addr >r
     r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
 \ from itools.frt
@@ -325,15 +333,15 @@ Create hostname$ 0 c, 255 chars allot
 Create alen   16 ,
 Create crlf 2 c, 13 c, 10 c,
 
-: listen ( lsocket /queue -- )
-    listen() 0< ?ior ;
+: listen ( server /queue -- )
+    listen() ?ior ;
 
 \ This call blocks the server until a client appears. The client uses socket to
 \ converse with the server.
-: accept-socket ( lsocket -- socket )
-    16 alen !
+: accept-socket ( server -- socket )
+    sockaddr_in alen !
     sockaddr-tmp alen accept() 
-    dup 0< ?ior fd>file ;
+    dup ?ior fd>file ;
 
 : +cr  ( c-addr1 u1 -- c-addr2 u2 ) crlf count $+ ;
 
@@ -341,7 +349,7 @@ Create crlf 2 c, 13 c, 10 c,
     f_setfl r> IF  0  
     ELSE  o_nonblock|o_rdwr  
     THEN  
-    fcntl 0< ?ior ;
+    fcntl ?ior ;
 
 : hostname ( -- c-addr u )
     hostname$ c@ 0= IF
@@ -352,7 +360,7 @@ Create crlf 2 c, 13 c, 10 c,
 : set-socket-timeout ( u -- ) 200 + s>d socket-timeout-d 2! ;
 : get-socket-timeout ( -- u ) socket-timeout-d 2@ drop 200 - ;
 : write-socket ( c-addr size socket -- ) fileno -rot 0 send 0< throw ;
-: close-socket ( socket -- ) fileno closesocket drop ;
+: close-socket ( socket -- ) close-file throw ;
 
 : (rs)  ( socket c-addr maxlen -- c-addr size ) 
     2 pick >r r@ false blocking-mode  rot fileno -rot

@@ -125,12 +125,6 @@ s" os-type" environment? [IF]
 : >pagealign ( addr -- p-addr )
     pagesize 1- + pagesize negate and ;
 
-[IFUNDEF] ?ior
-    : ?ior ( r -- )
-	\G use errno to generate throw when failing
-	IF  -512 errno - throw  THEN ;
-[THEN]
-
 : alloc+guard ( len -- addr )
     >pagealign dup >r pagesize +
     0 swap PROT_RWX

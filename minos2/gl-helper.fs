@@ -11,7 +11,7 @@ Variable dpy-h
 0 Value ctx
 
 s" os-type" environment? [IF]
-    2dup s" linux-android" str= [IF] 2drop
+    2dup s" linux-android" string-prefix? [IF] 2drop
 	require unix/opengles.fs
 	
 	also opengl

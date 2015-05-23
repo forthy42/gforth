@@ -11,7 +11,7 @@ c-library soil2lib
 	    s" GL" add-lib
 	    s" m" add-lib
         [THEN]
-        2dup s" linux-android" str= [IF]
+        2dup s" linux-android" string-prefix? [IF]
 	    s" EGL" add-lib
 	    s" GLESv2" add-lib
 	    s" m" add-lib
