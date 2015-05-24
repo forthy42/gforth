@@ -134,9 +134,10 @@ hints addrinfo dup allot erase
      0 Constant PF_UNSPEC
      2 Constant PF_INET
 [IFDEF] darwin
+     2 Constant PF_INET
     30 Constant PF_INET6
-     2 Constant AF_INET
-    30 Constant AF_INET6
+ $0210 Constant AF_INET
+ $1E1C Constant AF_INET6
     27 Constant IPV6_V6ONLY
     35 Constant EWOULDBLOCK
    $40 Constant MSG_WAITALL
@@ -148,6 +149,7 @@ hints addrinfo dup allot erase
     35 Constant EAGAIN
 [ELSE]
     [IFDEF] Cygwin
+     2 Constant PF_INET
     23 Constant PF_INET6
      2 Constant AF_INET
     23 Constant AF_INET6
@@ -164,6 +166,7 @@ hints addrinfo dup allot erase
  $FFFF Constant SOL_SOCKET
     11 Constant EAGAIN
     [ELSE]
+     2 Constant PF_INET
     10 Constant PF_INET6
      2 Constant AF_INET
     10 Constant AF_INET6
