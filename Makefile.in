@@ -49,6 +49,9 @@ EC = @EC@
 ARCH= @ARCH@
 EXT = $(EC)$(ARCH)$(EXE)
 LA = $(EC)$(ARCH).la
+EXTRAS= @EXTRAS@
+HOST= @HOSTPREFIX@
+EXTRAPREFIX= @EXTRAPREFIX@
 
 # ------------	Install Directories
 
@@ -359,7 +362,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	endtry-iferror.fs recover-endtry.fs smartdots.fs \
 	unix/terminal-server.fs unix/jni-helper.fs unix/jni-tools.fs \
 	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs \
-	date.fs script.fs wf.fs traceall.fs
+	date.fs script.fs wf.fs traceall.fs rec-scope.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -582,7 +585,7 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-all: kernel/version.fs more @NO_CHECKX@ check
+all: kernel/version.fs more @NO_CHECKX@ check extras
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
@@ -827,7 +830,7 @@ uninstall:	FORCE
 build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) $(SWIG_SRC) FORCE
 		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
 		(cd unix; $(MAKE) build-libcc-named)
-		@NO_FAIL@for i in $(LIBCC_BUILD_SRC); do ./libforth -e "also c-lib s\" `pwd`/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye; done
+		@NO_FAIL@for i in $(LIBCC_BUILD_SRC); do ./libforth -e "also c-lib s\" $(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye; done
 
 check:		gforths	gforth.fi 
 		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" >/dev/null 2>&1
@@ -870,12 +873,15 @@ onebench one-bench:
 	$(FORTH_FAST) onebench.fs
 
 all-bench allbench:
-	./gforth-fast --dynamic onebench.fs
-	./gforth-fast --no-dynamic onebench.fs
-	./gforth --dynamic onebench.fs
-	./gforth --no-dynamic onebench.fs
-	./gforth-itc onebench.fs
-	./gforth-ditc onebench.fs
+	./gforth-fast$(EXT) --dynamic onebench.fs
+	./gforth-fast$(EXT) --no-dynamic onebench.fs
+	./gforth$(EXT) --dynamic onebench.fs
+	./gforth$(EXT) --no-dynamic onebench.fs
+	./gforth-itc$(EXT) onebench.fs
+	./gforth-ditc$(EXT) onebench.fs
+
+extras: $(EXTRAS) gforth.fi
+	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile all "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)"); done
 
 # -------------	Make forth images
 

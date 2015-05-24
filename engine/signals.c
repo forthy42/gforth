@@ -271,6 +271,8 @@ void get_winsize()
 }
 
 #ifdef SIGWINCH
+extern Xt do_winsize;
+
 static void change_winsize(int sig)
 {
   /* signal(sig,change_winsize); should not be necessary with bsd_signal */

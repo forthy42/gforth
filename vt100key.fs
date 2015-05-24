@@ -24,13 +24,17 @@ transcode $100 erase
 
 : trans: ( char 'index' -- ) char translate + c! ;
 : tcode  ( char index -- ) transcode + c! ;
+: key# ( -- n lastkey )
+    0  BEGIN  key dup digit?  WHILE  nip swap &10 * +  REPEAT ;
 
 : vt100-decode ( max span addr pos1 -- max span addr pos2 flag )
-    key '[ = IF  0  base @ >r  &10 base !
-	BEGIN  key dup digit?  WHILE  nip swap &10 * +  REPEAT
+    vt100-modifier off
+    key '[ = IF   base @ >r  &10 base !
+	key#  dup ';' = IF  2drop key#  THEN
 	r> base !
-	dup '~ =  IF  drop transcode  ELSE  nip translate  THEN
-	+ c@ dup  IF  decode  THEN
+	dup '~' =  IF  drop transcode  ELSE
+	    swap 1- 0 max vt100-modifier ! translate  THEN
+	+ c@ dup  IF  decode  THEN  vt100-modifier off
     ELSE  0  THEN ;
 
 ctrl B trans: D

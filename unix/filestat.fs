@@ -22,7 +22,7 @@ c-library filestat
     \c #include <sys/stat.h>
     \c #include <sys/time.h>
     \c #include <unistd.h>
-    e? os-type s" linux-android" str= [IF]
+    e? os-type s" linux-android" string-prefix? [IF]
 	\ extern int futimens(int fd, const struct timespec times[2]);
 	\c int futimens(int fd, const struct timespec ts[2]) {
 	\c   utimensat(fd, NULL, ts, 0);

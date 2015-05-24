@@ -155,9 +155,15 @@ public class Gforth
 	    return true;
 	}
 	public boolean deleteSurroundingText (int before, int after) {
-	    mView.mActivity.onEventNative(11, "deleteSurroundingText");
-	    mView.mActivity.onEventNative(10, before);
-	    mView.mActivity.onEventNative(10, after);
+	    int i;
+	    String send="";
+	    for(i=0; i<before; i++) {
+		send+="\b";
+	    }
+	    for(i=0; i<after; i++) {
+		send+="\033[3~";
+	    }
+	    mView.mActivity.onEventNative(12, send); 
 	    return true;
 	}
 	public boolean setComposingRegion (int start, int end) {

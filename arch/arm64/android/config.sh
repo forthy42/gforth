@@ -57,6 +57,7 @@ extraccdir=/data/data/gnu.gforth/lib
 asm_fs=arch/arm64/asm.fs
 disasm_fs=arch/arm64/disasm.fs
 EC_MODE="false"
+EXTRAPREFIX="\$(shell which \$(GCC) | sed -e s,/bin/\$(GCC),/sysroot/usr,g)"
 NO_EC=""
 EC=""
 engine2='engine2$(OPT).o'

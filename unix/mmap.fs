@@ -77,6 +77,18 @@ s" os-type" environment? [IF]
 [THEN]
 
 s" os-type" environment? [IF]
+    s" cygwin" string-prefix? [IF]
+	\ Sharing types (must choose one and only one of these). 
+	
+	0 Constant MAP_FILE
+	$20 Constant MAP_ANONYMOUS		\ Don't use a file.
+	$4000 Constant MAP_NORESERVE            \ Don't reserve swap space for this mapping.
+	$8000 Constant MAP_AUTOGROW             \ Grow underlying object to mapping size.
+	MAP_ANONYMOUS Constant MAP_ANON
+    [THEN]
+[THEN]
+
+s" os-type" environment? [IF]
     s" darwin" string-prefix? [IF]
 	$0020 Constant MAP_RENAME \ Sun: rename private pages to file
 	$0040 Constant MAP_NORESERVE \ Sun: don't reserve needed swap area
@@ -112,12 +124,6 @@ s" os-type" environment? [IF]
 
 : >pagealign ( addr -- p-addr )
     pagesize 1- + pagesize negate and ;
-
-[IFUNDEF] ?ior
-    : ?ior ( r -- )
-	\G use errno to generate throw when failing
-	IF  -512 errno - throw  THEN ;
-[THEN]
 
 : alloc+guard ( len -- addr )
     >pagealign dup >r pagesize +

@@ -232,23 +232,30 @@ require utf-8.fs
 
 ' xcur-correct IS cur-correct
 
+: xback-restore-rest ( u -- )
+    screenw @ /mod negate swap negate swap at-deltaxy ;
 : xback-restore ( u -- )
     dup screenw @ mod 0= IF  1- 0 max  THEN
     \ correction for line=screenw, no wraparound then!
-    screenw @ /mod negate swap negate swap at-deltaxy ;
+    xback-restore-rest ;
 : .rest ( addr pos1 -- addr pos1 )
     linew @ xback-restore 2dup type 2dup cur-correct ;
 : .all ( span addr pos1 -- span addr pos1 )
     linew @ xback-restore >r 2dup swap type 2dup swap cur-correct r> ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
-    .all cols screenw @ >r screenw !
-    linew @ screenw @ / linew @ r@ / max
-    screenw @ r> - * 0 max
-    dup spaces linew +! .rest false ;
+    linew @ xback-restore-rest
+    cols dup screenw !@ - >r 2 pick dup screenw @ / r> * 0 max +
+    dup spaces linew !  .all .rest false ;
+
+: xhide ( max span addr pos1 -- max span addr pos1 f )
+    linew @ xback-restore 2 pick dup spaces xback-restore
+    linew off  false ;
 
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
+
+Variable vt100-modifier
 
 : <xins>  ( max span addr pos1 xc -- max span addr pos2 )
     >r  2over r@ xc-size + u< IF  ( max span addr pos1 R:xc )
@@ -259,10 +266,28 @@ require utf-8.fs
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
     <xins> key? 0= IF  .all .rest  THEN ;
 : xback  ( max span addr pos1 -- max span addr pos2 f )
-    dup  IF  over + xchar- over -  0 max .all .rest
+    dup  IF
+	vt100-modifier @ IF
+	    BEGIN  2dup + 1- c@ bl = over 0> and  WHILE
+		    over + xchar- over -  REPEAT
+	    BEGIN  2dup + 1- c@ bl <> over 0> and  WHILE
+		    over + xchar- over -  REPEAT
+	ELSE
+	    over + xchar- over -
+	THEN
+	0 max .all .rest
     ELSE  bell  THEN 0 ;
 : xforw  ( max span addr pos1 -- max span addr pos2 f )
-    2 pick over <> IF  over + xc@+ xemit over -  ELSE  bell  THEN
+    2 pick over <> IF
+	vt100-modifier @ IF
+	    BEGIN  2 pick over u> >r 2dup + c@ bl = r> and  WHILE
+		    over + xc@+ xemit over -  REPEAT
+	    BEGIN  2 pick over u> >r 2dup + c@ bl <> r> and  WHILE
+		    over + xc@+ xemit over -  REPEAT
+	ELSE
+	    over + xc@+ xemit over -
+	THEN
+    ELSE  bell  THEN
     2dup cur-correct 0 ;
 : (xdel)  ( max span addr pos1 -- max span addr pos2 )
     over + dup xchar- tuck - >r over -
@@ -274,7 +299,7 @@ require utf-8.fs
   2 pick over <>
     IF  xforw drop (xdel) .all 2 spaces 2 linew +! .rest
     ELSE  bell  THEN  0 ;
-: xeof  2 pick over or 0=  IF  bye  ELSE  <xdel>  THEN ;
+: xeof  2 pick over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
 
 : xfirst-pos  ( max span addr pos1 -- max span addr 0 0 )
   drop 0 .all .rest 0 ;
@@ -282,7 +307,13 @@ require utf-8.fs
   drop over .all 0 ;
 
 : xclear-rest ( max span addr pos -- max pos addr pos false )
-     rot >r tuck 2dup r> swap /string u8width dup spaces linew +! .all 0 ;
+    rot >r tuck 2dup r> swap /string x-width dup spaces linew +! .all 0 ;
+
+: xclear-first ( max span addr pos -- max pos addr pos false )
+    linew @ xback-restore >r
+    2dup swap x-width dup spaces xback-restore
+    2dup swap r@ /string 2 pick swap move
+    swap r> - swap 0 .all .rest 0 ;
 
 : (xenter)  ( max span addr pos1 -- max span addr pos2 true )
     >r 2dup swap -trailing nip IF
@@ -322,9 +353,13 @@ require utf-8.fs
     ['] xeof         ctrl D bindkey
     ['] <xdel>       ctrl X bindkey
     ['] xclear-rest  ctrl K bindkey
+    ['] xclear-first ctrl U bindkey
     ['] xfirst-pos   ctrl A bindkey
     ['] xend-pos     ctrl E bindkey
     ['] xretype      ctrl L bindkey
+    ['] next-line    ctrl N bindkey
+    ['] prev-line    ctrl P bindkey
+    ['] xhide        ctrl Z bindkey \ press ctrl-L to reshow
     ['] (xenter)     #lf    bindkey
     ['] (xenter)     #cr    bindkey
     ['] xtab-expand  #tab   bindkey
@@ -347,17 +382,11 @@ xchar-history
 	\ !! >stderr
         \ history-file type ." : " .error cr
 	drop 2drop 0 to history
-	['] false ['] false ['] (ret)
     else
 	to history
 	history file-size throw
 	2dup forward^ 2! 2dup backward^ 2! end^ 2!
-	['] next-line ['] prev-line ['] (enter)
     endif
-    dup #lf bindkey
-        #cr bindkey
-     ctrl P bindkey
-     ctrl N bindkey
 ;
 
 : history-cold ( -- )

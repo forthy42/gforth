@@ -16,22 +16,16 @@ c-library serial
     c-function cfsetospeed cfsetospeed a n -- n ( termios speed -- r )
     c-function tcflow tcflow n n -- n ( fd action -- n )
     c-function ioctl ioctl n n a -- n ( fd cmd ptr -- n )
-    c-function open open a n n -- n ( path flags mode -- fd )
-    c-function read read n a n -- n ( fd addr u -- u' )
-    c-function write write n a n -- n ( fd addr u -- u' )
-    c-function close close n -- n ( fd -- r )
 end-c-library
 
 require libc.fs
 
 [IFDEF] android
-    : flagfield: ( offset -- offset' )
-	1+ -2 and 2 +field ;
+    ' wfield: alias flagfield: ( offset -- offset' )
     ' w@ alias flag@
     ' w! alias flag!
 [ELSE]
-    : flagfield: ( offset -- offset' )
-	3 + -4 and 4 +field ;
+    ' lfield: alias flagfield: ( offset -- offset' )
     ' l@ alias flag@
     ' l! alias flag!
 [THEN]

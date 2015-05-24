@@ -30,11 +30,18 @@ fi
 cp .libs/libtypeset.so $LIBS
 strip $LIBS/lib{soil,typeset}.so
 
+EXTRAS=""
+for i in $@
+do
+    EXTRAS+=" -with-extras=$i"
+done
+
 if [ "$1" != "--no-gforthgz" ]
 then
     (cd $SRC
-	if [ "$1" != "--no-config" ]; then ./configure --host=arm-unknown-linux-android --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib || exit 1; fi
-	make # || exit 1
+	if [ "$1" != "--no-config" ]; then ./configure --host=arm-linux-androideabi --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib $EXTRAS || exit 1; fi
+	make || exit 1
+	make extras || exit 1
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]; then CONFIG=no; shift; fi
 
@@ -58,26 +65,10 @@ do
 done
 
 FULLLIBS=$PWD/$LIBS
-ANDROID=${PWD%/*/*/*}
-CFLAGS="-O3 -march=armv5 -mfloat-abi=softfp -mfpu=vfp"
 LIBCC=$SRC
 for i in $LIBCC $*
 do
-    (cd $i; test -d shlibs && \
-	(cd shlibs
-	    for j in *; do
-		(cd $j
-		    if [ "$CONFIG" == no ]
-		    then
-			make
-		    else
-			./configure CFLAGS="$CFLAGS" --host=arm-linux-androideabi && make clean && make && cp .libs/*.so $FULLLIBS || exit 1
-		    fi
-		)
-	    done
-	)
-    )
-    (cd $i; test -x ./libcc.android && ANDROID=$ANDROID ./libcc.android)
+    (cd $i; test -d shlibs && cp shlibs/*/.libs/*.so $FULLLIBS)
     for j in $LIBCCNAMED .libs
     do
 	for k in $(cd $i/$j; echo *.so)
