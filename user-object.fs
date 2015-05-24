@@ -15,3 +15,6 @@ Variable class-o
 : uvar ( m v size -- m v' )
     over >r : postpone u#+ class-o @ , r> , postpone ; +
     ['] uvar, set-compiler ;
+
+: uclass ( c "name" -- c m v )
+    ' execute next-task - class-o ! class ;
