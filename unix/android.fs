@@ -117,10 +117,10 @@ AKEYCODE_ENTER c, "\r" $,
 AKEYCODE_DEL c, "\b" $, \ is not delete, is backspace!
 AKEYCODE_PAGE_UP c, "\e[5~" $,
 AKEYCODE_PAGE_DOWN c, "\e[6~" $,
-AKEYCODE_ALT_LEFT c, "\e[1;3D" $,
-AKEYCODE_ALT_RIGHT c, "\e[1;3C" $,
-AKEYCODE_SHIFT_LEFT c, "\e[1;2D" $,
-AKEYCODE_SHIFT_RIGHT c, "\e[1;2C" $,
+\ AKEYCODE_ALT_LEFT c, "\e[1;3D" $,
+\ AKEYCODE_ALT_RIGHT c, "\e[1;3C" $,
+\ AKEYCODE_SHIFT_LEFT c, "\e[1;2D" $,
+\ AKEYCODE_SHIFT_RIGHT c, "\e[1;2C" $,
 0 c,
 DOES> ( akey -- addr u )
   swap >r
