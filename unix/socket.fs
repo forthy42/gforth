@@ -135,8 +135,8 @@ hints addrinfo dup allot erase
      2 Constant PF_INET
 [IFDEF] darwin
     30 Constant PF_INET6
- $0210 Constant AF_INET
- $1E1C Constant AF_INET6
+     2 Constant AF_INET
+    30 Constant AF_INET6
     27 Constant IPV6_V6ONLY
     35 Constant EWOULDBLOCK
    $40 Constant MSG_WAITALL
