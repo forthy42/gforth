@@ -1,16 +1,12 @@
 \ png library
 
-\ we preload the library, because it is in our own path
-e? os-type s" linux-android" string-prefix? [IF]
-    s" libpng.so" open-path-lib drop
-[THEN]
-
 Vocabulary pnglib
 get-current also pnglib definitions
 
 c-library png
-    [IFDEF] android
-	s" ./libpng/.libs" add-libpath
+    e? os-type s" linux-android" string-prefix? [IF]
+	s" libpng.so" open-path-lib drop
+
 	s" png" add-lib
 	\c #include <zlib.h>
 	\c #include "../../../../libpng/pngconf.h"

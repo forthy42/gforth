@@ -122,7 +122,7 @@ void unpackFiles()
 {
   int checkdir;
   post("showprog");
-  zexpand(EXTRACCDIR "libgforthgz.so");
+  zexpand(EXTRACCDIR "/libgforthgz.so");
   checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
   LOGI("sha256sum '%s'=>%d\n", "gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
   write(checkdir, sha256sum, 64);
