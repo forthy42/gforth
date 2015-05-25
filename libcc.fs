@@ -675,10 +675,14 @@ Create callback-&style c-var c,
 \	    ." Failed to find library '" lib-filename $. ." ' in '"
 \	    libcc-path .path ." ', need compiling" cr
 	    0 exit endif
-	( wfile-id c-addr2 u2 ) rot close-file throw save-mem ( c-addr2 u2 )
+	( wfile-id c-addr2 u2 ) rot close-file throw ( c-addr2 u2 )
     endif
     \ 2dup cr type
     open-lib ;
+
+: open-path-lib ( addr u -- addr/0 )
+    libcc-path open-path-file IF  0
+    ELSE  rot close-file throw open-lib  THEN ;
 
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )

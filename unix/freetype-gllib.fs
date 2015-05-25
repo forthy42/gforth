@@ -1,10 +1,8 @@
 \ soil wrapper
 
 \ dummy load for Android
-s" os-type" environment? [IF]
-    s" linux-android" string-prefix? [IF]
-	s" /data/data/gnu.gforth/lib/libtypeset.so" open-lib drop
-    [THEN]
+e? os-type s" linux-android" string-prefix? [IF]
+    s" libtypeset.so" open-path-lib drop
 [THEN]
 
 Vocabulary freetype-gl

@@ -1,7 +1,9 @@
 \ soil wrapper
 
 \ dummy load for Android
-s" /data/data/gnu.gforth/lib/libsoil.so" open-lib drop
+e? os-type s" linux-android" string-prefix? [IF]
+    s" libsoil.so" open-path-lib drop
+[THEN]
 
 Vocabulary soil
 

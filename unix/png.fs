@@ -1,7 +1,9 @@
 \ png library
 
 \ we preload the library, because it is in our own path
-s" /data/data/gnu.gforth/lib/libpng.so" open-lib drop
+e? os-type s" linux-android" string-prefix? [IF]
+    s" libpng.so" open-path-lib drop
+[THEN]
 
 Vocabulary pnglib
 get-current also pnglib definitions

@@ -292,6 +292,7 @@ AC_SUBST(image_i)
 AC_SUBST(signals_o)
 AC_SUBST(mi_prefix)
 AC_SUBST(extraccdir)
+AC_DEFINE(EXTRACCDIR, "$extraccdir", [Extra directory where to look for shared libraries])
 
 #this is used to disable some (not generally essential) part of the
 #Makefile that some makes don't grok.  It would be better to test for
