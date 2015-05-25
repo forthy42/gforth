@@ -122,7 +122,7 @@ void unpackFiles()
 {
   int checkdir;
   post("showprog");
-  zexpand("/data/data/gnu.gforth/lib/libgforthgz.so");
+  zexpand(EXTRACCDIR "/libgforthgz.so");
   checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
   LOGI("sha256sum '%s'=>%d\n", "gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
   write(checkdir, sha256sum, 64);
@@ -178,7 +178,7 @@ void startForth(jniargs * startargs)
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
   setenv("HOME", "/sdcard/gforth/home", 1);
   setenv("SHELL", "/system/bin/sh", 1);
-  setenv("libccdir", "/data/data/gnu.gforth/lib", 1);
+  setenv("libccdir", EXTRACCDIR, 1);
   setenv("LANG", "en_US.UTF-8", 1);
   setenv("APP_STATE", statepointer, 1);
   
