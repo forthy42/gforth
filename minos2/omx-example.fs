@@ -2,7 +2,7 @@
 
 require unix/openmax.fs
 require mkv-tools.fs
-require jni-media.fs
+require unix/jni-media.fs
 
 also jni
 
