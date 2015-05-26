@@ -304,20 +304,21 @@ test "$make_type" = "GNU Make" && GNUMAKE=''
 AC_MSG_RESULT($make_type)
 AC_SUBST(GNUMAKE)
 
-if test "$ac_export_dynamic" != yes; then
-  AC_MSG_CHECKING([whether the linker accepts -Wl,--export-dynamic])
-  OLDLDFLAGS=$LDFLAGS
-  LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
-  dnl AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
-  dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
-  AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
-  test $ac_export_dynamic = yes|| LDFLAGS=$OLDLDFLAGS
-  test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
-  AC_MSG_RESULT($ac_export_dynamic)
-else
-  LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
-  AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
+if test "$ac_export_dynamic" != no; then
+  if test "$ac_export_dynamic" != yes; then
+    AC_MSG_CHECKING([whether the linker accepts -Wl,--export-dynamic])
+    OLDLDFLAGS=$LDFLAGS
+    LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
+    dnl AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
+    dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
+    AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
+    LDFLAGS=$OLDLDFLAGS
+  fi
 fi
+
+test $ac_export_dynamic = yes && LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
+test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
+AC_MSG_RESULT($ac_export_dynamic)
 
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
