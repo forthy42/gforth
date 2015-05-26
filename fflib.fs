@@ -19,41 +19,42 @@
 
 \ replacements for former primitives
 c-library fflib
-s" avcall" add-lib
-s" callback" add-lib
-
-\c #include <avcall.h>
-\c #include <callback.h>
-\c static av_alist alist;
-\c static va_alist gforth_clist;
-\c static float frv;
-\c static int irv;
-\c static double drv;
-\c static long long llrv;
-\c static void * prv;
-\c 
-\c void gforth_callback_ffcall(Xt* fcall, void * alist)
-\c {
-\c   {
-\c     /* save global variables */
-\c     Cell *rp = gforth_RP;
-\c     Cell *sp = gforth_SP;
-\c     Float *fp = gforth_FP;
-\c     char *lp = gforth_LP;
-\c     va_alist clist = gforth_clist;
-\c 
-\c     gforth_clist = (va_alist)alist;
-\c 
-\c     gforth_engine(fcall);
-\c 
-\c     /* restore global variables */
-\c     gforth_RP = rp;
-\c     gforth_SP = sp;
-\c     gforth_FP = fp;
-\c     gforth_LP = lp;
-\c     gforth_clist = clist;
-\c   }
-\c }
+    s" avcall" add-lib
+    s" callback" add-lib
+    
+    \c #include <avcall.h>
+    \c #include <callback.h>
+    \c static av_alist alist;
+    \c static va_alist gforth_clist;
+    \c static float frv;
+    \c static int irv;
+    \c static double drv;
+    \c static long long llrv;
+    \c static void * prv;
+    \c 
+    \c void gforth_callback_ffcall(Xt* fcall, void * alist)
+    \c {
+    \c   {
+    \c     /* save global variables */
+    \c     stackpointers *SPs=get_gforth_SPs();
+    \c     Cell *rp = SPs->rpx;
+    \c     Cell *sp = SPs->spx;
+    \c     Float *fp = SPs->fpx;
+    \c     char *lp = SPs->lpx;
+    \c     va_alist clist = gforth_clist;
+    \c 
+    \c     gforth_clist = (va_alist)alist;
+    \c 
+    \c     gforth_engine(fcall, SPs);
+    \c 
+    \c     /* restore global variables */
+    \c     SPs->rpx = rp;
+    \c     SPs->spx = sp;
+    \c     SPs->fpx = fp;
+    \c     SPs->lpx = lp;
+    \c     gforth_clist = clist;
+    \c   }
+    \c }
 
 \c #define av_start_void1(c_addr) av_start_void(alist, c_addr)
 c-function av-start-void av_start_void1 a -- void
