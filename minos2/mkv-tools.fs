@@ -416,7 +416,6 @@ Create aac-rates
     THEN ;
 
 : aac-header ( len -- addr u )
-    aac-flag 0= IF  drop ""  EXIT  THEN
     7 + dup 5 lshift $1F or aac-template 5 + c!
     3 rshift aac-template 4 + c!
     aac-template 7 ;
@@ -437,7 +436,7 @@ Create aac-rates
     random-access off ( 1 vidcnt +! ) ;
 : .audio ( addr end time-off -- addr' ) >pts ( 'a' emit )
     $101 pid, pcr+ f+ $40 afield, pts+ f+ 2dup swap - 8 +
-    aac-flag IF  2 pick be-uw@ $FFF1 <> aac-flag and dup >r 7 and + 0 audio,
+    aac-flag IF  2 pick be-uw@ $FFF1 <> dup >r 7 and + 0 audio,
 	r> IF  2dup - negate aac-header ts-data,  THEN
     ELSE  0 audio,  THEN
     $101 fill-mts packup ;
