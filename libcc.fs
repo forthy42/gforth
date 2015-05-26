@@ -608,7 +608,7 @@ Create callback-&style c-var c,
     LOOP 2drop ;
 
 : callback-ip-array ( addr u -- )
-    ." Address " .prefix ." gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
+    ." Xt* " .prefix ." gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
     space callback# 0 ?DO ."  0," LOOP ." };" cr 2drop ;
 
 : callback-c-array ( addr u -- )
