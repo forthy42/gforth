@@ -62,8 +62,8 @@ c-library android
 	field: obj
 	field: cls
 	field: thread-id
-	field: ke-fd0
-	field: ke-fd1
+	lfield: ke-fd0
+	lfield: ke-fd1
 	field: window \ native window
     end-structure
     
@@ -174,9 +174,9 @@ variable looperfds pollfd 8 * allot
     1 looperfds +! ;
     
 : ?poll-file ( -- )
-    poll-file 0= IF  app ke-fd0 @ "r\0" drop fdopen to poll-file  THEN ;
+    poll-file 0= IF  app ke-fd0 l@ "r\0" drop fdopen to poll-file  THEN ;
 : looper-init ( -- )  looperfds off
-    app ke-fd0 @    POLLIN +fds
+    app ke-fd0 l@   POLLIN +fds
     stdin fileno    POLLIN +fds
     epiper @ fileno POLLIN +fds
     ?poll-file ;

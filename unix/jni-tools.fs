@@ -100,7 +100,7 @@ Create 's-calls '[' 1+ 'A'
 
 : new() ( jobject jmid -- )  callenv JNIEnv-NewObjectA() ;
 
-: fieldenv ( jobject jfid -- env jobject jmid env )  env -rot ;
+: fieldenv ( jobject jfid -- env jobject jmid )  env -rot ;
 
 : z@f ( jobject jfid -- c )  fieldenv JNIEnv-GetBooleanField() ;
 : b@f ( jobject jfid -- c )  fieldenv JNIEnv-GetByteField() ;
