@@ -65,6 +65,7 @@ typedef struct {
   jmp_buf * throw_jumpptr;
 } stackpointers;
 
+#ifdef HAS_BACKLINK
 #define gforth_magic (gforth_SPs.magic)
 #define gforth_SP (gforth_SPs.spx)
 #define gforth_RP (gforth_SPs.rpx)
@@ -75,9 +76,10 @@ typedef struct {
 #define saved_rp (gforth_SPs.s_rp)
 #define throw_jmp_handler (gforth_SPs.throw_jumpptr)
 
-#ifdef HAS_BACKLINK
 extern PER_THREAD stackpointers gforth_SPs;
-extern void *gforth_engine(void *);
+#define get_gforth_SPs() (&gforth_SPs)
+#define sr_call , get_gforth_SPs()
+extern void *gforth_engine(Xt *, stackpointers *);
 extern char *cstr(char *from, Cell size);
 extern char *tilde_cstr(char *from, Cell size);
 extern user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
@@ -92,14 +94,27 @@ ptrpair gforth_libcc_init(ptrpair x)
 }
 #define GFORTH_ARGS ptrpair x
 #else
-static Cell const *(*gforth_pointers)(Cell);
+static Cell *(*gforth_pointers)(Cell);
 ptrpair gforth_libcc_init(ptrpair x)
 {
-  gforth_pointers=(Cell const *(*)(Cell))*x.sp++;
+  gforth_pointers=(Cell *(*)(Cell))*x.sp++;
   return x;
 }
-#define gforth_SPs (*(stackpointers *)(gforth_pointers(0)))
-#define gforth_engine ((char *(*)(void *))gforth_pointers(1))
+#define gforth_SPs ((stackpointers *)(gforth_pointers(0)))
+#define get_gforth_SPs() ((stackpointers *)(gforth_pointers(0)))
+#define sr_call , get_gforth_SPs()
+
+#define gforth_magic (gforth_SPs->magic)
+#define gforth_SP (gforth_SPs->spx)
+#define gforth_RP (gforth_SPs->rpx)
+#define gforth_LP (gforth_SPs->lpx)
+#define gforth_FP (gforth_SPs->fpx)
+#define gforth_UP (gforth_SPs->upx)
+#define saved_ip (gforth_SPs->s_ip)
+#define saved_rp (gforth_SPs->s_rp)
+#define throw_jmp_handler (gforth_SPs->throw_jumpptr)
+
+#define gforth_engine ((char *(*)(Xt*, stackpointers *))gforth_pointers(1))
 #define cstr ((char *(*)(char *, Cell))gforth_pointers(2))
 #define tilde_cstr ((char *(*)(char *, Cell))gforth_pointers(3))
 #define gforth_stacks ((user_area *(*)(Cell, Cell, Cell, Cell))gforth_pointers(4))
