@@ -54,6 +54,7 @@ jni-method: getUnicodeChar getUnicodeChar ()I
 jni-method: getKeyCode getKeyCode ()I
 jni-method: getCharacters getCharacters ()Ljava/lang/String;
 jni-method: getAction getAction ()I
+jni-method: getMetaState getMetaState ()I
 jni-method: isLongPress isLongPress ()Z
 
 jni-class: android/view/MotionEvent
