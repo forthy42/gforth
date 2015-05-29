@@ -160,7 +160,7 @@ false value wake-lock \ doesn't work, why?
 : keycode>keys ( keycode -- addr u )
     case
 	AKEYCODE_MENU of  togglekb s" "  endof
-	AKEYCODE_BACK of  aback s" "   endof
+	AKEYCODE_BACK of  aback    s" "   endof
 	akey>ekey 0
     endcase ;
 
@@ -249,6 +249,7 @@ Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; I
     endcase ; is acmd
 
 Variable setstring
+Variable meta
 : insstring ( -- )  setstring $@ inskeys setstring $off ;
 
 : android-characters ( string -- )  jstring>sstring
@@ -257,7 +258,8 @@ Variable setstring
 	jstring>sstring inskeys jfree setstring $off  THEN ;
 : android-setstring  ( string -- )  jstring>sstring setstring $! jfree ;
 : android-unicode    ( uchar -- )   insstring  >xstring inskeys ;
-: android-keycode    ( keycode -- ) insstring  keycode>keys inskeys ;
+: android-keycode    ( keycode meta -- ) insstring
+    meta ! keycode>keys inskeys ;
 
 JValue key-event
 JValue touch-event
@@ -269,7 +271,7 @@ JValue sensor
 	getKeyCode dup 0= IF
 	    drop getCharacters android-characters
 	ELSE
-	    android-keycode
+	    getMetaState android-keycode
 	THEN
     ELSE
 	0= IF  getUnicodeChar dup 0>
