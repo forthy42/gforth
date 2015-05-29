@@ -86,7 +86,7 @@ has? EC [IF]
     \G converted, @var{ud1} will be 0 and @code{#} will append a ``0''
     \G to the string.
     base @ ud/mod rot dup 9 u>
-    [ char A char 9 - 1- ] Literal and +
+    [ char A char 9 1+ - ] Literal and +
     [char] 0 + hold ;
 
 : #s      ( ud -- 0 0 ) \ core	number-sign-s

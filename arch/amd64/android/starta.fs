@@ -1,1 +1,1 @@
-../../arm64/android/starta.fs
+../../arm/android/starta.fs
