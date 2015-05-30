@@ -88,6 +88,8 @@ public class Gforth
     public Runnable stopsensor;
     public Runnable showprog;
     public Runnable hideprog;
+    public Runnable errprog;
+    public Runnable appexit;
     public ProgressDialog progress;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
@@ -95,13 +97,13 @@ public class Gforth
 
     public native void onEventNative(int type, Object event);
     public native void onEventNative(int type, int event);
-    public native void callForth(int xt); // !! use long for 64 bits !!
-    public native void startForth();
+    public native void callForth(long xt); // !! use long for 64 bits !!
+    public native void startForth(String libdir);
 
     // own subclasses
     public class RunForth implements Runnable {
-	int xt;
-	RunForth(int initxt) {
+	long xt;
+	RunForth(long initxt) {
 	    xt = initxt;
 	}
 	public void run() {
@@ -263,6 +265,9 @@ public class Gforth
     public void doneProgress() {
 	progress.setMessage("Done; restart Gforth");
     }
+    public void errProgress() {
+	progress.setMessage("error: no space left");
+    }
 
     public void showIME() {
 	mContentView.showIME();
@@ -348,7 +353,17 @@ public class Gforth
 			doneProgress();
 		    }
 		};
-	    startForth();
+	    errprog=new Runnable() {
+		    public void run() {
+			errProgress();
+		    }
+		};
+	    appexit=new Runnable() {
+		    public void run() {
+			finish;
+		    }
+		};
+	    startForth(getApplicationInfo().nativeLibraryDir);
 	    started=true;
 	}
     }

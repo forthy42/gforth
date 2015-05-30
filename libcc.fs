@@ -942,7 +942,9 @@ c-function-rt  lastxt Constant dummy-rt
     libcc-path $init  ptr-declare $init
     clear-libs
     libcc-named-dir libcc-path also-path
-    [ s" libccdir" getenv ] sliteral libcc-path also-path ;
+    s" libccdir" getenv 2dup d0= IF
+	2drop [ s" libccdir" getenv ] SLiteral
+    THEN  libcc-path also-path ;
 
 init-libcc
 

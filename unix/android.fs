@@ -101,7 +101,8 @@ require string.fs
 
 : $, ( addr u -- )  here over 1+ allot place ;
 
-Create unknown-key#
+Variable unknown-key#
+Variable meta-key#
 
 Create akey>ekey
 AKEYCODE_HOME c, "\e[H" $,
@@ -117,10 +118,6 @@ AKEYCODE_ENTER c, "\r" $,
 AKEYCODE_DEL c, "\b" $, \ is not delete, is backspace!
 AKEYCODE_PAGE_UP c, "\e[5~" $,
 AKEYCODE_PAGE_DOWN c, "\e[6~" $,
-\ AKEYCODE_ALT_LEFT c, "\e[1;3D" $,
-\ AKEYCODE_ALT_RIGHT c, "\e[1;3C" $,
-\ AKEYCODE_SHIFT_LEFT c, "\e[1;2D" $,
-\ AKEYCODE_SHIFT_RIGHT c, "\e[1;2C" $,
 0 c,
 DOES> ( akey -- addr u )
   swap >r
@@ -157,7 +154,14 @@ false value wake-lock \ doesn't work, why?
 
 \ event handling
 
+Create ctrl-key# 0 c,
+
 : keycode>keys ( keycode -- addr u )
+    dup AKEYCODE_A AKEYCODE_Z 1+ within IF
+	meta-key# @ AMETA_CTRL_ON and IF
+	    AKEYCODE_A - ctrl A + ctrl-key# c!
+	    ctrl-key# 1 EXIT  THEN
+    THEN
     case
 	AKEYCODE_MENU of  togglekb s" "  endof
 	AKEYCODE_BACK of  aback    s" "   endof
@@ -249,7 +253,7 @@ Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; I
     endcase ; is acmd
 
 Variable setstring
-Variable meta
+
 : insstring ( -- )  setstring $@ inskeys setstring $off ;
 
 : android-characters ( string -- )  jstring>sstring
@@ -258,25 +262,26 @@ Variable meta
 	jstring>sstring inskeys jfree setstring $off  THEN ;
 : android-setstring  ( string -- )  jstring>sstring setstring $! jfree ;
 : android-unicode    ( uchar -- )   insstring  >xstring inskeys ;
-: android-keycode    ( keycode meta -- ) insstring
-    meta ! keycode>keys inskeys ;
+: android-keycode    ( keycode -- ) insstring  keycode>keys inskeys ;
 
 JValue key-event
 JValue touch-event
 JValue location
 JValue sensor
 
-: android-key ( event -- ) dup to key-event
-    >o getAction dup 2 = IF  drop
+: android-key ( event -- )
+    dup to key-event >o
+    ke_getMetaState meta-key# !
+    getAction dup 2 = IF  drop
 	getKeyCode dup 0= IF
 	    drop getCharacters android-characters
 	ELSE
-	    getMetaState android-keycode
+	    android-keycode
 	THEN
     ELSE
 	0= IF  getUnicodeChar dup 0>
 	    IF    android-unicode
-	    ELSE  drop  getKeyCode  android-keycode
+	    ELSE  drop  getKeyCode android-keycode
 	    THEN
 	THEN
     THEN o> ;

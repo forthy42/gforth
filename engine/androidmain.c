@@ -53,6 +53,7 @@ typedef struct {
   pthread_t id;
   int ke_fd[2];
   void* win;
+  char* libdir;
 } jniargs;
 
 jniargs startargs;
@@ -120,15 +121,22 @@ void post(char * doprog)
 
 void unpackFiles()
 {
-  int checkdir;
+  int checkdir, writeout;
+  int libdirlen=strlen(startargs.libdir)+strlen("/libgforthgz.so")+1;
+  char libdir[libdirlen];
   post("showprog");
-  zexpand(EXTRACCDIR "/libgforthgz.so");
+  snprintf(libdir, libdirlen, "%s%s", startargs.libdir, "/libgforthgz.so");
+  zexpand(libdir);
   checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
   LOGI("sha256sum '%s'=>%d\n", "gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
-  write(checkdir, sha256sum, 64);
+  writeout=write(checkdir, sha256sum, 64);
   LOGI("sha256sum: '%64s'\n", sha256sum);
   close(checkdir);
-  post("hideprog");
+  if(writeout==64) {
+    post("hideprog");
+  } else {
+    post("errprog");
+  }
 }
 
 static char * argv[] = { "gforth", "--", "starta.fs" };
@@ -178,7 +186,7 @@ void startForth(jniargs * startargs)
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
   setenv("HOME", "/sdcard/gforth/home", 1);
   setenv("SHELL", "/system/bin/sh", 1);
-  setenv("libccdir", EXTRACCDIR, 1);
+  setenv("libccdir", startargs->libdir, 1);
   setenv("LANG", "en_US.UTF-8", 1);
   setenv("APP_STATE", statepointer, 1);
   
@@ -212,6 +220,8 @@ void startForth(jniargs * startargs)
     fflush(stderr);
     unlink("../" PACKAGE_VERSION "/sha256sum");
   }
+  post("appexit");
+
   exit(retvalue);
 }
 
@@ -223,17 +233,23 @@ pthread_attr_t * pthread_detach_attr(void)
   return &attr;
 }
 
-void JNI_startForth(JNIEnv * env, jobject obj)
+void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir)
 {
+  char* getlibdir;
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
+  getlibdir = (*env)->GetStringUTFChars(env, libdir, NULL);
+  // Java's string lifetime is unknown, better copy the string and release it
+  startargs.libdir = malloc(strlen(getlibdir)+1);
+  strncpy(startargs.libdir, getlibdir, strlen(getlibdir)+1);
+  (*env)->ReleaseStringUTFChars(env, libdir, getlibdir);
 
   pthread_create(&(startargs.id), pthread_detach_attr(), startForth, (void*)&startargs);
 }
 
 #define GFSS 0x80 // 128 cells for callback stack
 
-void JNI_callForth(JNIEnv * env, jint xt)
+void JNI_callForth(JNIEnv * env, jlong xt)
 {
   Cell stack[GFSS], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS];
   Cell *oldsp=gforth_SP;
@@ -263,8 +279,8 @@ int checkFile_flag=0;
 static JNINativeMethod GforthMethods[] = {
   {"onEventNative", "(ILjava/lang/Object;)V", (void*) JNI_onEventNative},
   {"onEventNative", "(II)V",                  (void*) JNI_onEventNativeInt},
-  {"callForth",     "(I)V",                   (void*) JNI_callForth},
-  {"startForth",    "()V",                    (void*) JNI_startForth},
+  {"callForth",     "(J)V",                   (void*) JNI_callForth},
+  {"startForth",    "(Ljava/lang/String;)V",  (void*) JNI_startForth},
 };
 
 #define alen(array)  sizeof(array)/sizeof(array[0])
