@@ -360,7 +360,7 @@ public class Gforth
 		};
 	    appexit=new Runnable() {
 		    public void run() {
-			finish;
+			finish();
 		    }
 		};
 	    startForth(getApplicationInfo().nativeLibraryDir);
