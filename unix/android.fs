@@ -168,7 +168,7 @@ false value wake-lock \ doesn't work, why?
 
 Create ctrl-key# 0 c,
 
-: meta@ ( -- n ) \ return meta in vt100 form
+: meta@ ( -- char ) \ return meta in vt100 form
     0
     meta-key# @ AMETA_SHIFT_ON and 0<> 1 and  or
     meta-key# @ AMETA_ALT_ON   and 0<> 2 and  or
@@ -193,7 +193,7 @@ Create ctrl-key# 0 c,
     case
 	AKEYCODE_MENU of  togglekb s" "  endof
 	AKEYCODE_BACK of  aback    s" "   endof
-	akey>ekey 0
+	akey>ekey +meta 0
     endcase ;
 
 16 Value looper-to#
