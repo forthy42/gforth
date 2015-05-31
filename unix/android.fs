@@ -118,6 +118,19 @@ AKEYCODE_ENTER c, "\r" $,
 AKEYCODE_DEL c, "\b" $, \ is not delete, is backspace!
 AKEYCODE_PAGE_UP c, "\e[5~" $,
 AKEYCODE_PAGE_DOWN c, "\e[6~" $,
+AKEYCODE_F1  c, "\eOP"  $,
+AKEYCODE_F2  c, "\eOQ"  $,
+AKEYCODE_F3  c, "\eOR"  $,
+AKEYCODE_F4  c, "\eOS"  $,
+AKEYCODE_F5  c, "\e[15~" $,
+AKEYCODE_F6  c, "\e[17~" $,
+AKEYCODE_F7  c, "\e[18~" $,
+AKEYCODE_F8  c, "\e[19~" $,
+AKEYCODE_F9  c, "\e[20~" $,
+AKEYCODE_F10 c, "\e[21~" $,
+AKEYCODE_F11 c, "\e[23~" $,
+AKEYCODE_F12 c, "\e[24~" $,
+
 0 c,
 DOES> ( akey -- addr u )
   swap >r

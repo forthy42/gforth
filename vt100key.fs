@@ -35,7 +35,7 @@ transcode $100 erase
 	r> base !
 	dup '~' =  IF  drop transcode  ELSE  nip translate  THEN
 	+ c@ dup  IF  decode  THEN  vt100-modifier off
-    ELSE  'O' = IF  key drop  THEN  0  THEN ;
+    ELSE  'O' = IF  key# 2drop  THEN  0  THEN ;
 
 ctrl B trans: D
 ctrl F trans: C
