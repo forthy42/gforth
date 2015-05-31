@@ -130,7 +130,6 @@ AKEYCODE_F9  c, "\e[20~" $,
 AKEYCODE_F10 c, "\e[21~" $,
 AKEYCODE_F11 c, "\e[23~" $,
 AKEYCODE_F12 c, "\e[24~" $,
-
 0 c,
 DOES> ( akey -- addr u )
   swap >r
@@ -168,6 +167,22 @@ false value wake-lock \ doesn't work, why?
 \ event handling
 
 Create ctrl-key# 0 c,
+
+: meta@ ( -- n ) \ return meta in vt100 form
+    0
+    meta-key# @ AMETA_SHIFT_ON and 0<> 1 and  or
+    meta-key# @ AMETA_ALT_ON   and 0<> 2 and  or
+    meta-key# @ AMETA_CTRL_ON  and 0<> 4 and  or  '1' + ;
+
+: +meta ( addr u -- addr' u' ) \ insert meta information
+    over c@ #esc <> ?EXIT
+    meta@ dup '1' = IF  drop  EXIT  THEN \ no meta, don't insert
+    [: >r 1- 2dup + c@ >r
+	over 1+ c@ '[' = IF
+	    2dup 1- + c@ '9' 1+ '0' within
+	    IF  type ." 1;"  ELSE  type ." ;"  THEN
+	ELSE  type  THEN
+    r> r> emit emit ;] $tmp ;
 
 : keycode>keys ( keycode -- addr u )
     dup AKEYCODE_A AKEYCODE_Z 1+ within IF
