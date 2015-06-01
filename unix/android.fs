@@ -116,8 +116,12 @@ AKEYCODE_DPAD_RIGHT c, "\e[C" $,
 AKEYCODE_TAB c, "\t" $,
 AKEYCODE_ENTER c, "\r" $,
 AKEYCODE_DEL c, "\b" $, \ is not delete, is backspace!
+AKEYCODE_FORWARD_DEL c, "\e[3~" $, \ this is the real delete
 AKEYCODE_PAGE_UP c, "\e[5~" $,
 AKEYCODE_PAGE_DOWN c, "\e[6~" $,
+AKEYCODE_MOVE_HOME c, "\e[H" $,
+AKEYCODE_MOVE_END c, "\e[F" $,
+AKEYCODE_INSERT c, "\e[2~" $,
 AKEYCODE_F1  c, "\eOP"  $,
 AKEYCODE_F2  c, "\eOQ"  $,
 AKEYCODE_F3  c, "\eOR"  $,
