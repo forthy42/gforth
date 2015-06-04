@@ -46,15 +46,17 @@ text new value f8
 
 also freetype-gl
 48e FConstant fontsize#
-atlas [IFDEF] android  "/system/fonts/DroidSans.ttf\0" drop
+atlas fontsize#
+[IFDEF] android  "/system/fonts/DroidSans.ttf\0" drop
 [ELSE] "/usr/share/fonts/truetype/LiberationSans-Regular.ttf\0" drop 
 [THEN]
-fontsize# texture_font_new Value font1
+texture_font_new_from_file Value font1
 
-atlas [IFDEF] android  "/system/fonts/DroidSansFallback.ttf\0" drop
+atlas fontsize#
+[IFDEF] android  "/system/fonts/DroidSansFallback.ttf\0" drop
 [ELSE] "/usr/share/fonts/truetype/gkai00mp.ttf\0" drop
 [THEN]
-fontsize# texture_font_new Value font2
+texture_font_new_from_file Value font2
 previous
 
 : !f7 ( -- )  f7 >o
@@ -86,3 +88,5 @@ also [IFDEF] android android [THEN]
     level# @ 0= UNTIL  need-sync on ;
 
 previous
+
+script? [IF] widgets-demo bye [THEN]

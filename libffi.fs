@@ -22,39 +22,43 @@
 \ deviations.
 
 c-library libffi
-s" ffi" add-lib
-
-\ The ffi.h of XCode needs the following line, and it should not hurt elsewhere
-\c #define MACOSX
-include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
-\c #include <stdio.h>
-\c static PER_THREAD void **gforth_clist;
-\c static PER_THREAD void *gforth_ritem;
-\c typedef void *Label;
-\c static void gforth_callback_ffi(ffi_cif * cif, void * resp, void ** args, void * ip)
-\c {
-\c   {
-\c     Cell *rp1 = gforth_RP;
-\c     Cell *sp = gforth_SP;
-\c     Float *fp = gforth_FP;
-\c     unsigned char *lp = gforth_LP;
-\c     void ** clist = gforth_clist;
-\c     void * ritem = gforth_ritem;
-\c
-\c     gforth_clist = args;
-\c     gforth_ritem = resp;
-\c
-\c     gforth_engine((Xt *)ip);
-\c 
-\c     /* restore global variables */
-\c     gforth_RP = rp1;
-\c     gforth_SP = sp;
-\c     gforth_FP = fp;
-\c     gforth_LP = lp;
-\c     gforth_clist = clist;
-\c     gforth_ritem = ritem;
-\c   }
-\c }
+    s" ffi" add-lib
+    
+    \ The ffi.h of XCode needs the following line, and it should not hurt elsewhere
+    \c #ifdef __APPLE__
+    \c # define MACOSX
+    \c #endif
+    include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
+    \c #include <stdio.h>
+    \c static PER_THREAD void **gforth_clist;
+    \c static PER_THREAD void *gforth_ritem;
+    \c typedef void *Label;
+    \c static void gforth_callback_ffi(ffi_cif * cif, void * resp, void ** args, void * ip)
+    \c {
+    \c   {
+    \c     /* save global variables */
+    \c     stackpointers *SPs=get_gforth_SPs();
+    \c     Cell *rp = SPs->rpx;
+    \c     Cell *sp = SPs->spx;
+    \c     Float *fp = SPs->fpx;
+    \c     char *lp = SPs->lpx;
+    \c     void ** clist = gforth_clist;
+    \c     void * ritem = gforth_ritem;
+    \c
+    \c     gforth_clist = args;
+    \c     gforth_ritem = resp;
+    \c
+    \c     gforth_engine((Xt *)ip, SPs);
+    \c 
+    \c     /* restore global variables */
+    \c     SPs->rpx = rp;
+    \c     SPs->spx = sp;
+    \c     SPs->fpx = fp;
+    \c     SPs->lpx = lp;
+    \c     gforth_clist = clist;
+    \c     gforth_ritem = ritem;
+    \c   }
+    \c }
 
 \c static void* ffi_types[] =
 \c     { &ffi_type_void,

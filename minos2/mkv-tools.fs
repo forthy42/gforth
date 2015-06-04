@@ -52,9 +52,6 @@ cell 8 = [IF]
     : ds@+ ( addr -- addr' ddatasize )
 	dup be-ux@ over c@ cells ds@-table + perform 0 ;
 [ELSE]
-    : drshift ( u64 u -- u64' )  >r swap
-	r@ rshift over 8 cells r@ - lshift or
-	swap r> rshift ;
     : ds@+ ( addr -- addr' ddatasize )
 	dup be-ul@
 	dup $80000000 and IF  24 rshift     $7F and >r 1+  r> 0 EXIT  THEN
@@ -414,13 +411,11 @@ Create aac-rates
 
 : aac-init ( -- )
     2 codec $[]@ "A_AAC" str= to aac-flag aac-flag IF
-	2 sample-frequency $[] cf@ f>s >aac-rate 2 lshift $40 or
-	2 audio-channels $[] @ dup 8 = + tuck 2 rshift or aac-template 2 + c!
-	6 lshift aac-template 3 + c!
+	2 sample-frequency $[] cf@ f>s >aac-rate 10 lshift $4000 or
+	2 audio-channels $[] @ dup 8 = + 6 lshift or aac-template 2 + be-w!
     THEN ;
 
 : aac-header ( len -- addr u )
-    aac-flag 0= IF  drop ""  EXIT  THEN
     7 + dup 5 lshift $1F or aac-template 5 + c!
     3 rshift aac-template 4 + c!
     aac-template 7 ;
@@ -441,8 +436,9 @@ Create aac-rates
     random-access off ( 1 vidcnt +! ) ;
 : .audio ( addr end time-off -- addr' ) >pts ( 'a' emit )
     $101 pid, pcr+ f+ $40 afield, pts+ f+ 2dup swap - 8 +
-    aac-flag 7 and + 0 audio,
-    2dup - negate aac-header ts-data,
+    aac-flag IF  2 pick be-uw@ $FFF1 <> dup >r 7 and + 0 audio,
+	r> IF  2dup - negate aac-header ts-data,  THEN
+    ELSE  0 audio,  THEN
     $101 fill-mts packup ;
 
 :noname drop 2dup + { end }
@@ -532,7 +528,11 @@ Variable first-cue
 : codec-init ( -- vcodec acodec )
     1 codec $[]@ "V_MPEG4/ISO/AVC" str= IF $1B ELSE 0 THEN
     2 codec $[]@ "A_AAC" str= IF  $0F  aac-init  ELSE
-	2 codec $[]@ "A_MPEG/L3" str= IF $03 ELSE 0 THEN THEN ;
+	2 codec $[]@ "A_MPEG/L3" str= IF $03 ELSE
+	    ." unknown codec: " 2 codec $[]@ type cr
+	    0
+	THEN
+    THEN ;
 
 : mkv2mts ( addr-mkv u-mkv addr-mts u-mts -- )  create-mts
     new-mkv-file >o

@@ -559,8 +559,8 @@ Create callback-&style c-var c,
 
 : callback-pushs ( descriptor -- )
     1+ count 0 { d: pars vari }
-    ."   Cell*  sp=gforth_SP; \" cr
-    ."   Float* fp=gforth_FP; \" cr
+    ."   Cell*  sp=SPs->spx; \" cr
+    ."   Float* fp=SPs->fpx; \" cr
     0 0 pars bounds u+do
 	I 1+ c@  IF  callback-&style  ELSE  callback-style  THEN
 	3 + 1 2swap
@@ -573,40 +573,30 @@ Create callback-&style c-var c,
 
 : callback-call ( descriptor -- )
     1+ count + count \ callback C name
-    ."   gforth_SP=sp; gforth_FP=fp; gforth_engine(" .prefix ." gforth_cbips_" type
-    ." [I]); \" cr ;
+    ."   SPs->spx=sp; SPs->fpx=fp; gforth_engine(" .prefix ." gforth_cbips_" type
+    ." [I], SPs); \" cr ;
 
 : gen-par-callback ( sp-change1 sp-change1 addr u type -- fp-change sp-change )
     dup [ libcc-types >order ] void [ previous ] =
     IF  drop 2drop  ELSE  gen-par  THEN ;
 
 : callback-wrapup ( -- )
-    ."   gforth_SP=oldsp; gforth_RP=oldrp; gforth_LP=oldlp; gforth_FP=oldfp; gforth_UP=oldup; gforth_magic=old_magic; \" cr ;
-
-: callback-adjust ( descriptor -- )
-    ."   sp=gforth_SP; fp=gforth_FP; \" cr
-    1 count-stacks
-    ?dup-if  ."   sp=gforth_SP+=" .nb ." ; \" cr  then
-    ?dup-if  ."   fp=gforth_FP+=" .nb ." ; \" cr  then ;
+    ."   SPs->spx=oldsp; SPs->rpx=oldrp; SPs->lpx=oldlp; SPs->fpx=oldfp; SPs->upx=oldup; SPs->magic=old_magic; \" cr ;
 
 : callback-return ( descriptor -- )
     >r 0 0 s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
 
-: callback-old-define ( descriptor -- )
-    dup callback-header callback-threadsafe
-    dup callback-pushs dup callback-call
-    dup callback-adjust callback-return ;
-
 : callback-wrapper ( -- )
-    ."   Cell *oldsp=gforth_SP; Cell *oldrp=gforth_RP; char *oldlp=gforth_LP; \" cr
-    ."   Float *oldfp=gforth_FP; user_area *oldup=gforth_UP; Cell old_magic=gforth_magic; \" cr
+    ."   stackpointers * SPs = get_gforth_SPs(); \" cr
+    ."   Cell *oldsp=SPs->spx; Cell *oldrp=SPs->rpx; char *oldlp=SPs->lpx; \" cr
+    ."   Float *oldfp=SPs->fpx; user_area *oldup=SPs->upx; Cell old_magic=SPs->magic; \" cr
     ."   Cell stack[GFSS], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS]; \" cr
-    ."   gforth_SP=stack+GFSS-1; gforth_RP=rstack+GFSS; gforth_LP=(char*)(lstack+GFSS); gforth_FP=fstack+GFSS-1; gforth_UP=gforth_main_UP; gforth_magic=GFORTH_MAGIC; \" cr ;
+    ."   SPs->spx=stack+GFSS-1; SPs->rpx=rstack+GFSS; SPs->lpx=(char*)(lstack+GFSS); SPs->fpx=fstack+GFSS-1; SPs->upx=gforth_main_UP; SPs->magic=GFORTH_MAGIC; \" cr ;
 
 : callback-thread-define ( descriptor -- )
     dup callback-header callback-wrapper
     dup callback-pushs dup callback-call
-    dup callback-adjust callback-wrapup callback-return ;
+    callback-wrapup callback-return ;
 
 ' callback-thread-define alias callback-define
 
@@ -618,7 +608,7 @@ Create callback-&style c-var c,
     LOOP 2drop ;
 
 : callback-ip-array ( addr u -- )
-    ." Address " .prefix ." gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
+    ." Xt* " .prefix ." gforth_cbips_" 2dup type ." [" callback# .nb ." ] = {" cr
     space callback# 0 ?DO ."  0," LOOP ." };" cr 2drop ;
 
 : callback-c-array ( addr u -- )
@@ -675,10 +665,14 @@ Create callback-&style c-var c,
 \	    ." Failed to find library '" lib-filename $. ." ' in '"
 \	    libcc-path .path ." ', need compiling" cr
 	    0 exit endif
-	( wfile-id c-addr2 u2 ) rot close-file throw save-mem ( c-addr2 u2 )
+	( wfile-id c-addr2 u2 ) rot close-file throw ( c-addr2 u2 )
     endif
     \ 2dup cr type
     open-lib ;
+
+: open-path-lib ( addr u -- addr/0 )
+    libcc-path open-path-file IF  0
+    ELSE  rot close-file throw open-lib  THEN ;
 
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
@@ -948,7 +942,9 @@ c-function-rt  lastxt Constant dummy-rt
     libcc-path $init  ptr-declare $init
     clear-libs
     libcc-named-dir libcc-path also-path
-    [ s" libccdir" getenv ] sliteral libcc-path also-path ;
+    s" libccdir" getenv 2dup d0= IF
+	2drop [ s" libccdir" getenv ] SLiteral
+    THEN  libcc-path also-path ;
 
 init-libcc
 

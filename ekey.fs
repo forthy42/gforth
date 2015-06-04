@@ -148,7 +148,7 @@ Variable key-buffer
 : char-append-buffer ( c addr -- )
     >r { c^ ins-char }  ins-char 1 r> 0 $ins ;
 
-:noname ( -- c )
+: buf-key ( -- c )
     \ buffered key
     key-buffer $@len if
 	key-buffer $@ drop c@
@@ -156,7 +156,7 @@ Variable key-buffer
     else
 	defers key
     then ;
-is key
+' buf-key is key
 
 : unkey ( c -- )  key-buffer char-append-buffer ;
     
@@ -164,22 +164,49 @@ is key
 
 : inskeys ( addr u -- )  key-buffer $+! ;
 
-:noname ( -- flag )
+: buf-key? ( -- flag )
     key-buffer $@len 0<> defers key? or ;
-is key?
+' buf-key? is key?
 
 table constant esc-sequences \ and prefixes
 
 Variable ekey-buffer
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
+Create esc-masks#
+0 ,
+k-shift-mask ,
+k-alt-mask ,
+k-shift-mask k-alt-mask or ,
+k-ctrl-mask ,
+k-shift-mask k-ctrl-mask or ,
+k-alt-mask k-ctrl-mask or ,
+k-shift-mask k-alt-mask or k-ctrl-mask or ,
+
+: esc-mask ( addr u -- addr' u' mask )
+    ';' $split dup IF
+	0. 2swap >number  2swap drop 1- 0 max >r
+	[: 2swap 2dup 1 safe/string s" 1" str= + type type ;] $tmp
+	r> 7 and cells esc-masks# + @
+	EXIT
+    ELSE  2drop over c@ 'O' = IF
+	    1 /string
+	    0. 2swap >number  2swap drop 1- 0 max >r
+	    [: 'O' emit type ;] $tmp
+	    r> 7 and cells esc-masks# + @
+	EXIT  THEN
+    THEN
+    0 ;
+
 : esc-prefix ( -- u )
     key? if
-        key ekey-buffer c$+!
-        ekey-buffer $@ esc-sequences search-wordlist
+	key ekey-buffer c$+!
+	ekey-buffer $@ esc-mask >r
+        esc-sequences search-wordlist
         if
-            execute exit
-        endif
+            execute r> or exit
+	endif
+	rdrop
     endif
     ekey-buffer $@ unkeys #esc ;
 
@@ -222,39 +249,6 @@ k-next   s" [6~" esc-sequence
 k-insert s" [2~" esc-sequence
 k-delete s" [3~" esc-sequence
 
-k-left   k-shift-mask or s" [1;2D" esc-sequence
-k-right  k-shift-mask or s" [1;2C" esc-sequence
-k-up     k-shift-mask or s" [1;2A" esc-sequence
-k-down   k-shift-mask or s" [1;2B" esc-sequence
-k-home   k-shift-mask or s" [1;2H" esc-sequence
-k-end    k-shift-mask or s" [1;2F" esc-sequence
-k-prior  k-shift-mask or s" [5;2~" esc-sequence
-k-next   k-shift-mask or s" [6;2~" esc-sequence
-k-insert k-shift-mask or s" [2;2~" esc-sequence
-k-delete k-shift-mask or s" [3;2~" esc-sequence
-
-k-left   k-ctrl-mask  or s" [1;5D" esc-sequence
-k-right  k-ctrl-mask  or s" [1;5C" esc-sequence
-k-up     k-ctrl-mask  or s" [1;5A" esc-sequence
-k-down   k-ctrl-mask  or s" [1;5B" esc-sequence
-k-home   k-ctrl-mask  or s" [1;5H" esc-sequence
-k-end    k-ctrl-mask  or s" [1;5F" esc-sequence
-k-prior  k-ctrl-mask  or s" [5;5~" esc-sequence
-k-next   k-ctrl-mask  or s" [6;5~" esc-sequence
-k-insert k-ctrl-mask  or s" [2;5~" esc-sequence
-k-delete k-ctrl-mask  or s" [3;5~" esc-sequence
-
-k-left   k-alt-mask   or s" [1;3D" esc-sequence
-k-right  k-alt-mask   or s" [1;3C" esc-sequence
-k-up     k-alt-mask   or s" [1;3A" esc-sequence
-k-down   k-alt-mask   or s" [1;3B" esc-sequence
-k-home   k-alt-mask   or s" [1;3H" esc-sequence
-k-end    k-alt-mask   or s" [1;3F" esc-sequence
-k-prior  k-alt-mask   or s" [5;3~" esc-sequence
-k-next   k-alt-mask   or s" [6;3~" esc-sequence
-k-insert k-alt-mask   or s" [2;3~" esc-sequence
-k-delete k-alt-mask   or s" [3;3~" esc-sequence
-
 k-enter  k-shift-mask or s" OM" esc-sequence
 k-enter  k-alt-mask or   s" x" over #cr swap c! esc-sequence
 k-enter  k-alt-mask or k-shift-mask or s" eOM" over #esc swap c! esc-sequence
@@ -271,45 +265,6 @@ k9      s" [20~" esc-sequence
 k10     s" [21~" esc-sequence
 k11     s" [23~" esc-sequence
 k12     s" [24~" esc-sequence
-
-s-k1    s" [1;2P" esc-sequence
-s-k2    s" [1;2Q" esc-sequence
-s-k3    s" [1;2R" esc-sequence
-s-k4    s" [1;2S" esc-sequence
-s-k5    s" [15;2~" esc-sequence
-s-k6    s" [17;2~" esc-sequence
-s-k7    s" [18;2~" esc-sequence
-s-k8    s" [19;2~" esc-sequence
-s-k9    s" [20;2~" esc-sequence
-s-k10   s" [21;2~" esc-sequence
-s-k11   s" [23;2~" esc-sequence
-s-k12   s" [24;2~" esc-sequence
-
-k-f1  k-ctrl-mask or  s" [1;5P" esc-sequence
-k-f2  k-ctrl-mask or  s" [1;5Q" esc-sequence
-k-f3  k-ctrl-mask or  s" [1;5R" esc-sequence
-k-f4  k-ctrl-mask or  s" [1;5S" esc-sequence
-k-f5  k-ctrl-mask or  s" [15;5~" esc-sequence
-k-f6  k-ctrl-mask or  s" [17;5~" esc-sequence
-k-f7  k-ctrl-mask or  s" [18;5~" esc-sequence
-k-f8  k-ctrl-mask or  s" [19;5~" esc-sequence
-k-f9  k-ctrl-mask or  s" [20;5~" esc-sequence
-k-f10 k-ctrl-mask or  s" [21;5~" esc-sequence
-k-f11 k-ctrl-mask or  s" [23;5~" esc-sequence
-k-f12 k-ctrl-mask or  s" [24;5~" esc-sequence
-
-k-f1  k-alt-mask  or  s" [1;3P" esc-sequence
-k-f2  k-alt-mask  or  s" [1;3Q" esc-sequence
-k-f3  k-alt-mask  or  s" [1;3R" esc-sequence
-k-f4  k-alt-mask  or  s" [1;3S" esc-sequence
-k-f5  k-alt-mask  or  s" [15;3~" esc-sequence
-k-f6  k-alt-mask  or  s" [17;3~" esc-sequence
-k-f7  k-alt-mask  or  s" [18;3~" esc-sequence
-k-f8  k-alt-mask  or  s" [19;3~" esc-sequence
-k-f9  k-alt-mask  or  s" [20;3~" esc-sequence
-k-f10 k-alt-mask  or  s" [21;3~" esc-sequence
-k-f11 k-alt-mask  or  s" [23;3~" esc-sequence
-k-f12 k-alt-mask  or  s" [24;3~" esc-sequence
 
 \ esc sequences from Linux console:
 

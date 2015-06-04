@@ -17,8 +17,9 @@ extern struct _IO_FILE *stderr;
 #define ANDROID
 #define __attribute__(x)
 #define __NDK_FPABI__
+#define SWIG_FORTH_OPTIONS "no-funptrs"
 
-// exec: sed -e 's/\(c-function ANativeActivity_onCreate.*\)/\\ \1/g'
+// exec: sed -e 's/\(c-function ANativeActivity_onCreate.*\)/\\ \1/g' -e 's/\(c-function AMotionEvent_getHistorical.*\)/\\ \1/g'
 
 %apply int { int32_t, uint32_t, size_t };
 %apply long long { int64_t, uint64_t };

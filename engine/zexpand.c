@@ -22,6 +22,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
 #ifdef __ANDROID__
 #include <android/log.h>
 
@@ -56,6 +58,9 @@ void zexpand(char * zfile)
 	  LOGI("file %s, size %d\n", filename+1, filesize);
 	  out=fopen(filename+1, "w+");
 	  fwrite(filebuf, filesize, 1, out);
+	  if(ferror(out)) {
+	    LOGE("write error on file %s: %s\n", filename+1, strerror(errno));
+	  }
 	  fclose(out);
 	  break;
 	case 'd': // directory

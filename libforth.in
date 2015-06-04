@@ -17,6 +17,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
+ARCH=@ARCH@
+VERSION=@PACKAGE_VERSION@
+DEST=$1
+shift
 export CROSS_PREFIX=@CROSS_PREFIX@
 @NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth@ARCH@
 @NO_CROSS@test -f "gforth.fi" && KERNEL="gforth.fi"
@@ -24,5 +28,6 @@ if test -f "$ENGINE" -a -f "$KERNEL"; then
   $ENGINE --die-on-signal "$@"
 else
   export includedir=`pwd`/include
-  @GFORTHKER@ -p ".@PATHSEP@~+@PATHSEP@@srcdir@" exboot.fs startup.fs "$@"
+  @GFORTHKER@ -p ".@PATHSEP@~+@PATHSEP@@srcdir@" exboot.fs startup.fs \
+  -e "also c-lib s\" $PWD/lib/gforth$ARCH/$VERSION/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $DEST\" ; is replace-rpath previous" "$@"
 fi

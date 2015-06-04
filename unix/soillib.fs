@@ -1,13 +1,15 @@
 \ soil wrapper
 
 \ dummy load for Android
-s" /data/data/gnu.gforth/lib/libsoil.so" open-lib drop
-
 Vocabulary soil
 
 get-current also soil definitions
 
 c-library soillib
+    e? os-type s" linux-android" string-prefix? [IF]
+	s" libsoil.so" open-path-lib drop
+    [THEN]
+    
     s" soil" add-lib
     \c #include "SOIL.h"
 

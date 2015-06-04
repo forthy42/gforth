@@ -62,8 +62,8 @@ c-library android
 	field: obj
 	field: cls
 	field: thread-id
-	field: ke-fd0
-	field: ke-fd1
+	lfield: ke-fd0
+	lfield: ke-fd1
 	field: window \ native window
     end-structure
     
@@ -101,7 +101,8 @@ require string.fs
 
 : $, ( addr u -- )  here over 1+ allot place ;
 
-Create unknown-key#
+Variable unknown-key#
+Variable meta-key#
 
 Create akey>ekey
 AKEYCODE_HOME c, "\e[H" $,
@@ -115,12 +116,24 @@ AKEYCODE_DPAD_RIGHT c, "\e[C" $,
 AKEYCODE_TAB c, "\t" $,
 AKEYCODE_ENTER c, "\r" $,
 AKEYCODE_DEL c, "\b" $, \ is not delete, is backspace!
+AKEYCODE_FORWARD_DEL c, "\e[3~" $, \ this is the real delete
 AKEYCODE_PAGE_UP c, "\e[5~" $,
 AKEYCODE_PAGE_DOWN c, "\e[6~" $,
-AKEYCODE_ALT_LEFT c, "\e[1;3D" $,
-AKEYCODE_ALT_RIGHT c, "\e[1;3C" $,
-AKEYCODE_SHIFT_LEFT c, "\e[1;2D" $,
-AKEYCODE_SHIFT_RIGHT c, "\e[1;2C" $,
+AKEYCODE_MOVE_HOME c, "\e[H" $,
+AKEYCODE_MOVE_END c, "\e[F" $,
+AKEYCODE_INSERT c, "\e[2~" $,
+AKEYCODE_F1  c, "\eOP"  $,
+AKEYCODE_F2  c, "\eOQ"  $,
+AKEYCODE_F3  c, "\eOR"  $,
+AKEYCODE_F4  c, "\eOS"  $,
+AKEYCODE_F5  c, "\e[15~" $,
+AKEYCODE_F6  c, "\e[17~" $,
+AKEYCODE_F7  c, "\e[18~" $,
+AKEYCODE_F8  c, "\e[19~" $,
+AKEYCODE_F9  c, "\e[20~" $,
+AKEYCODE_F10 c, "\e[21~" $,
+AKEYCODE_F11 c, "\e[23~" $,
+AKEYCODE_F12 c, "\e[24~" $,
 0 c,
 DOES> ( akey -- addr u )
   swap >r
@@ -157,11 +170,34 @@ false value wake-lock \ doesn't work, why?
 
 \ event handling
 
+Create ctrl-key# 0 c,
+
+: meta@ ( -- char ) \ return meta in vt100 form
+    0
+    meta-key# @ AMETA_SHIFT_ON and 0<> 1 and  or
+    meta-key# @ AMETA_ALT_ON   and 0<> 2 and  or
+    meta-key# @ AMETA_CTRL_ON  and 0<> 4 and  or  '1' + ;
+
+: +meta ( addr u -- addr' u' ) \ insert meta information
+    over c@ #esc <> ?EXIT
+    meta@ dup '1' = IF  drop  EXIT  THEN \ no meta, don't insert
+    [: >r 1- 2dup + c@ >r
+	over 1+ c@ '[' = IF
+	    2dup 1- + c@ '9' 1+ '0' within
+	    IF  type ." 1;"  ELSE  type ." ;"  THEN
+	ELSE  type  THEN
+    r> r> emit emit ;] $tmp ;
+
 : keycode>keys ( keycode -- addr u )
+    dup AKEYCODE_A AKEYCODE_Z 1+ within IF
+	meta-key# @ AMETA_CTRL_ON and IF
+	    AKEYCODE_A - ctrl A + ctrl-key# c!
+	    ctrl-key# 1 EXIT  THEN
+    THEN
     case
 	AKEYCODE_MENU of  togglekb s" "  endof
-	AKEYCODE_BACK of  aback s" "   endof
-	akey>ekey 0
+	AKEYCODE_BACK of  aback    s" "   endof
+	akey>ekey +meta 0
     endcase ;
 
 16 Value looper-to#
@@ -174,9 +210,9 @@ variable looperfds pollfd 8 * allot
     1 looperfds +! ;
     
 : ?poll-file ( -- )
-    poll-file 0= IF  app ke-fd0 @ "r\0" drop fdopen to poll-file  THEN ;
+    poll-file 0= IF  app ke-fd0 l@ "r\0" drop fdopen to poll-file  THEN ;
 : looper-init ( -- )  looperfds off
-    app ke-fd0 @    POLLIN +fds
+    app ke-fd0 l@   POLLIN +fds
     stdin fileno    POLLIN +fds
     epiper @ fileno POLLIN +fds
     ?poll-file ;
@@ -249,6 +285,7 @@ Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; I
     endcase ; is acmd
 
 Variable setstring
+
 : insstring ( -- )  setstring $@ inskeys setstring $off ;
 
 : android-characters ( string -- )  jstring>sstring
@@ -264,8 +301,10 @@ JValue touch-event
 JValue location
 JValue sensor
 
-: android-key ( event -- ) dup to key-event
-    >o getAction dup 2 = IF  drop
+: android-key ( event -- )
+    dup to key-event >o
+    ke_getMetaState meta-key# !
+    getAction dup 2 = IF  drop
 	getKeyCode dup 0= IF
 	    drop getCharacters android-characters
 	ELSE
@@ -274,7 +313,7 @@ JValue sensor
     ELSE
 	0= IF  getUnicodeChar dup 0>
 	    IF    android-unicode
-	    ELSE  drop  getKeyCode  android-keycode
+	    ELSE  drop  getKeyCode android-keycode
 	    THEN
 	THEN
     THEN o> ;

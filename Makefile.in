@@ -327,15 +327,17 @@ LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC) unix/test.i \
 	unix/doexec
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
+LIBCC_BUILD_LA = $(patsubst %.fs,lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf%.la,$(shell echo $(LIBCC_BUILD_SRC) | sed -e s,unix/,,g))
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
-MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs minos2/ascii.png	\
+MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs \
 	minos2/jpeg-exif.fs minos2/linux-gl.fs minos2/soil-texture.fs \
 	minos2/gl-sample.fs minos2/gl-slideshow.fs minos2/ftgl-helper.fs \
 	minos2/ftgl-sample.fs minos2/widgets.fs minos2/widgets-test.fs \
 	minos2/mts-tools.fs minos2/mkv-tools.fs minos2/omx-example.fs \
-	minos2/mkv-tags.fs
+	minos2/mkv-tags.fs minos2/ascii.png minos2/button.png \
+	minos2/button2.png minos2/button3.png
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	$(MINOS2_SRC) ans-report.fs ansi.fs answords.fs \
@@ -581,6 +583,10 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 	doc/vmgen.dvi doc/vmgen.ps \
 	Makefile Makedist engine/Makefile configure
 
+#search path patterhn
+
+vpath %.fs $(srcdir) $(srcdir)/unix
+
 #standards.info recommends this:
 .SUFFIXES:
 .SUFFIXES: .c .o
@@ -645,6 +651,7 @@ clean:		mostlyclean
 	gforth-prof-noll$(EXT) engine/gforth-prof-noll$(EXT) \
 	engine/prim-s.i
 	for i in gforth gforth-fast gforth-native; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EXT) $$i$${j}$(EXT); done; done
+	-$(RM) -rf lib/gforth$(ARCH)/$(VERSION)/libcc-named
 
 distclean:	clean
 		-$(RM) -rf config.cache config.log config.status \
@@ -827,10 +834,13 @@ uninstall:	FORCE
 		-$(RM) -rf $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi-$(VERSION) $(DESTDIR)$(bindir)/vmgen-$(VERSION) $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
-build-libcc-named: $(LIBCC_BUILD_SRC) $(FORTH_GEN) $(GEN) $(SWIG_SRC) FORCE
-		$(RMTREE) lib/gforth$(ARCH)/$(VERSION)/libcc-named/
-		(cd unix; $(MAKE) build-libcc-named)
-		@NO_FAIL@for i in $(LIBCC_BUILD_SRC); do ./libforth -e "also c-lib s\" $(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $(DESTDIR)$(libccdir)\" ; is replace-rpath previous" $(srcdir)/$$i -e bye; done
+lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(SWIG_SRC)
+		@NO_FAIL@-./libforth $(DESTDIR)$(libccdir) $< -e bye
+
+build-libcc-named: build-libcc-swig $(LIBCC_BUILD_LA)
+
+build-libcc-swig:
+		(cd unix; $(MAKE))
 
 check:		gforths	gforth.fi 
 		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" >/dev/null 2>&1
@@ -881,7 +891,7 @@ all-bench allbench:
 	./gforth-ditc$(EXT) onebench.fs
 
 extras: $(EXTRAS) gforth.fi
-	for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile all "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)"); done
+	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile all "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)"); done
 
 # -------------	Make forth images
 

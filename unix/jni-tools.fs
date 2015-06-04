@@ -39,8 +39,8 @@ attach \ apparently needs attaching again
 : >b ( c addr -- addr )  arg- tuck c! ;
 : >c ( utf16 addr -- addr )  arg- tuck w! ;
 : >s ( n addr -- addr )  arg- tuck w! ;
-: >i ( n addr -- addr )  arg- tuck ! ;
-: >j ( d addr -- addr )  arg- >r swap r@ 2! r> ;
+: >i ( n addr -- addr )  arg- tuck l! ;
+: >j ( d addr -- addr )  arg- >r r@ xd! r> ;
 : >f ( r addr -- addr )  arg- dup sf! ;
 : >d ( r addr -- addr )  arg- dup df! ;
 : >l ( object addr -- addr )  arg- tuck ! ;
@@ -100,7 +100,7 @@ Create 's-calls '[' 1+ 'A'
 
 : new() ( jobject jmid -- )  callenv JNIEnv-NewObjectA() ;
 
-: fieldenv ( jobject jfid -- env jobject jmid env )  env -rot ;
+: fieldenv ( jobject jfid -- env jobject jmid )  env -rot ;
 
 : z@f ( jobject jfid -- c )  fieldenv JNIEnv-GetBooleanField() ;
 : b@f ( jobject jfid -- c )  fieldenv JNIEnv-GetByteField() ;
