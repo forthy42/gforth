@@ -148,7 +148,7 @@ Variable key-buffer
 : char-append-buffer ( c addr -- )
     >r { c^ ins-char }  ins-char 1 r> 0 $ins ;
 
-:noname ( -- c )
+: buf-key ( -- c )
     \ buffered key
     key-buffer $@len if
 	key-buffer $@ drop c@
@@ -156,7 +156,7 @@ Variable key-buffer
     else
 	defers key
     then ;
-is key
+' buf-key is key
 
 : unkey ( c -- )  key-buffer char-append-buffer ;
     
@@ -164,9 +164,9 @@ is key
 
 : inskeys ( addr u -- )  key-buffer $+! ;
 
-:noname ( -- flag )
+: buf-key? ( -- flag )
     key-buffer $@len 0<> defers key? or ;
-is key?
+' buf-key? is key?
 
 table constant esc-sequences \ and prefixes
 
