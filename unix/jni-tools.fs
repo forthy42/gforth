@@ -147,10 +147,23 @@ Create 'sfield@ '[' 1+ 'A'
 
 : ]ref ( object -- )  env swap JNIEnv-DeleteLocalRef() ;
 : ]gref ( object -- )  env swap JNIEnv-DeleteGlobalRef() ;
+: ]wgref ( object -- )  env swap JNIEnv-DeleteWeakGlobalRef() ;
+
+Create ]ref-table ' drop , ' ]ref , ' ]gref , ' ]wgref ,
+
+: ]xref ( object -- )
+    \G do away with any ref, regardless of ref type
+    env over JNIEnv-GetObjectRefType()
+    dup 4 < and cells ]ref-table + perform ;
+
 : ref> ( object -- ) o ]ref r> o> >r ;
 comp: drop ]] o ]ref o> [[ ;
 : gref> ( object -- ) o ]gref r> o> >r ;
 comp: drop ]] o ]gref o> [[ ;
+: wgref> ( object -- ) o ]wgref r> o> >r ;
+comp: drop ]] o ]wgref o> [[ ;
+: xref> ( object -- ) o ]xref r> o> >r ;
+comp: drop ]] o ]xref o> [[ ;
 
 : gref! ( gref addr -- )  dup @ ?dup-IF  ]gref  THEN ! ;
 : jvalue! ( gref xt -- )  >body gref! ;
@@ -190,7 +203,7 @@ Variable iscopy
 2Variable to-release
 : jfree ( -- )
     to-release 2@ 2dup d0= IF  2drop  EXIT  THEN  0. to-release 2!
-    over >r fieldenv JNIEnv-ReleaseStringUTFChars() r> ]ref ;
+    over >r fieldenv JNIEnv-ReleaseStringUTFChars() r> ]xref ;
 : jstring>sstring ( string -- addr u )  jfree
     dup >r iscopy fieldenv JNIEnv-GetStringUTFChars()
     r> over to-release 2! cstring>sstring ;
@@ -272,20 +285,20 @@ Variable jnibuffer
 : buffer@ ( -- addr u )  jnibuffer $@ ;
 
 : [z@ ( array -- addr n )  >r env r@ 0 r@ [len dup >buffer
-    JNIEnv-GetBooleanArrayRegion() buffer@ r> ]ref ;
+    JNIEnv-GetBooleanArrayRegion() buffer@ r> ]xref ;
 : [b@ ( array -- addr n )  >r env r@ 0 r@ [len dup >buffer
-    JNIEnv-GetByteArrayRegion() buffer@ r> ]ref ;
+    JNIEnv-GetByteArrayRegion() buffer@ r> ]xref ;
 : [c@ ( array -- addr n )  >r env r@ 0 r@ [len dup 2* >buffer
-    JNIEnv-GetCharArrayRegion() buffer@ r> ]ref ;
+    JNIEnv-GetCharArrayRegion() buffer@ r> ]xref ;
 : [s@ ( array -- addr n )  >r env r@ 0 r@ [len dup 2* >buffer
-    JNIEnv-GetShortArrayRegion() buffer@ r> ]ref ;
+    JNIEnv-GetShortArrayRegion() buffer@ r> ]xref ;
 : [i@ ( array -- addr n )  >r env r@ 0 r@ [len dup sfloats >buffer
-    JNIEnv-GetIntArrayRegion() buffer@ r> ]ref ;
+    JNIEnv-GetIntArrayRegion() buffer@ r> ]xref ;
 : [j@ ( array -- addr n )  >r env r@ 0 r@ [len dup dfloats >buffer
-    JNIEnv-GetLongArrayRegion() buffer@ r> ]ref ;
+    JNIEnv-GetLongArrayRegion() buffer@ r> ]xref ;
 : [f@ ( array -- addr n )  >r env r@ 0 r@ [len dup sfloats >buffer
-    JNIEnv-GetFloatArrayRegion() buffer@ r> ]ref ;
+    JNIEnv-GetFloatArrayRegion() buffer@ r> ]xref ;
 : [d@ ( array -- addr n )  >r env r@ 0 r@ [len dup dfloats >buffer
-    JNIEnv-GetDoubleArrayRegion() buffer@ r> ]ref ;
+    JNIEnv-GetDoubleArrayRegion() buffer@ r> ]xref ;
 
 previous previous set-current
