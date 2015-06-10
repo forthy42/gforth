@@ -67,6 +67,7 @@ datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
 libccdir = $(subst $(DESTDIR),,$(libdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
+buildccdir = lib/gforth$(ARCH)/$(VERSION)/libcc-named/
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
 htmldir = $(package)@htmldir@
@@ -85,6 +86,7 @@ RMTREE	= rm -rf
 CP	= cp -p
 MV	= mv
 TAR	= tar cf -
+MKDIR	= mkdir
 INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 MASSAGE_EXE = @MASSAGE_EXE@
@@ -837,7 +839,12 @@ uninstall:	FORCE
 lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(SWIG_SRC)
 		@NO_FAIL@-./libforth $(DESTDIR)$(libccdir) $< -e bye
 
-build-libcc-named: build-libcc-swig $(LIBCC_BUILD_LA)
+build-libcc-named: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
+
+libccdir:	$(buildccdir)
+
+$(buildccdir):
+		$(MKDIR) -p $(buildccdir)
 
 build-libcc-swig:
 		(cd unix; $(MAKE))
