@@ -188,6 +188,7 @@ static int nonrelocs = 0;
 
 #ifdef HAS_DEBUG
 int debug=0;
+int debug_mcheck=0;
 # define debugp(x...) do { if (debug) fprintf(x); } while (0)
 #else
 # define perror(x...)
@@ -2279,6 +2280,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"no-offset-im", no_argument, &offset_image, 0},
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
       {"debug", no_argument, &debug, 1},
+      {"debug-mcheck", no_argument, &debug_mcheck, 1},
       {"diag", no_argument, NULL, 'D'},
       {"die-on-signal", no_argument, &die_on_signal, 1},
       {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
@@ -2341,6 +2343,7 @@ Engine Options:\n\
   --code-block-size=SIZE            size of native code blocks [512KB]\n\
   -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
   --debug			    Print debugging information during startup\n\
+  --debug-mcheck		    Diagnostics for malloc/free (don't use with pthreads!)\n\
   -D, --diag			    Print diagnostic information during startup\n\
   --die-on-signal		    Exit instead of THROWing some signals\n\
   --dynamic			    Use dynamic native code\n\
@@ -2614,10 +2617,11 @@ Cell gforth_start(int argc, char ** argv)
 {
   char *path, *imagename;
 
-#ifdef HAVE_MCHECK
-  /* mcheck(gforth_abortmcheck); */
-#endif
   gforth_args(argc, argv, &path, &imagename);
+#ifdef HAVE_MCHECK
+  if(debug_mcheck)
+    mcheck(gforth_abortmcheck);
+#endif
   gforth_header = gforth_loader(imagename, path);
   gforth_main_UP = gforth_UP = gforth_stacks(dsize, fsize, rsize, lsize);
   gforth_setstacks();
