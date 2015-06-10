@@ -550,10 +550,12 @@ UCell rshift(UCell u1, UCell n)
 }
 
 #ifndef STANDALONE
+#ifdef HAVE_MPROBE
 void gforth_abortmcheck(enum mcheck_status reason)
 {
   throw(-2049-reason);
 }
+#endif
 
 void gforth_free(void * ptr)
 {
