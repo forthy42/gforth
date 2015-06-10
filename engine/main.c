@@ -2280,7 +2280,9 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"no-offset-im", no_argument, &offset_image, 0},
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
       {"debug", no_argument, &debug, 1},
+#ifdef HAVE_MCHECK
       {"debug-mcheck", no_argument, &debug_mcheck, 1},
+#endif
       {"diag", no_argument, NULL, 'D'},
       {"die-on-signal", no_argument, &die_on_signal, 1},
       {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
@@ -2342,9 +2344,11 @@ Engine Options:\n\
   --clear-dictionary		    Initialize the dictionary with 0 bytes\n\
   --code-block-size=SIZE            size of native code blocks [512KB]\n\
   -d SIZE, --data-stack-size=SIZE   Specify data stack size\n\
-  --debug			    Print debugging information during startup\n\
-  --debug-mcheck		    Diagnostics for malloc/free (don't use with pthreads!)\n\
-  -D, --diag			    Print diagnostic information during startup\n\
+  --debug			    Print debugging information during startup\n"
+#ifdef HAVE_MCHECK
+"  --debug-mcheck		    Diagnostics for malloc/free (thread unsafe)\n"
+#endif
+"  -D, --diag			    Print diagnostic information during startup\n\
   --die-on-signal		    Exit instead of THROWing some signals\n\
   --dynamic			    Use dynamic native code\n\
   -f SIZE, --fp-stack-size=SIZE	    Specify floating point stack size\n\
