@@ -550,19 +550,21 @@ UCell rshift(UCell u1, UCell n)
 }
 
 #ifndef STANDALONE
-int gforth_abortmcheck(int reason)
+void gforth_abortmcheck(enum mcheck_status reason)
 {
   throw(-2049-reason);
-  return 0;
 }
 
 void gforth_free(void * ptr)
 {
 #ifdef HAVE_MPROBE
-  int reason=mprobe(ptr);
-  debugp(stderr, "free(%8p)=%d;\n", ptr, reason);
-  if(reason>0)
-    throw(-2049-reason);
+  if(debug_mcheck) {
+    int reason=mprobe(ptr);
+    debugp(stderr, "free(%8p)=%d;\n", ptr, reason);
+    if(reason > 0) {
+      throw(-2049-reason);
+    }
+  }
 #endif
   free(ptr);
 }

@@ -1976,7 +1976,8 @@ contents of the data space is undefined. If the allocation is successful,
 is 0. If the allocation fails, @i{a-addr} is undefined and @i{wior}
 is a non-zero I/O result code.""
 a_addr = (Cell *)malloc(u?u:1);
-debugp(stderr, "%8p=allocate(%08lx);\n", a_addr, u);
+if(debug_mcheck)
+  debugp(stderr, "%8p=allocate(%08lx);\n", a_addr, u);
 wior = IOR(a_addr==NULL);
 
 free	( a_addr -- wior )		memory

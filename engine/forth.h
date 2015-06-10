@@ -26,10 +26,13 @@
 #include <unistd.h>
 #ifndef STANDALONE
 #if defined(HAVE_LIBLTDL)
-#include <ltdl.h>
+# include <ltdl.h>
 #endif
 #endif
 #include <setjmp.h>
+#ifdef HAVE_MCHECK
+# include <mcheck.h>
+#endif
 
 #if !defined(FORCE_LL) && !defined(BUGGY_LONG_LONG)
 #define BUGGY_LONG_LONG
@@ -431,7 +434,9 @@ void gforth_printmetrics();
 #if defined(DOUBLY_INDIRECT)
 Cell gforth_make_image(int debugflag);
 #endif
-int gforth_abortmcheck(int reason);
+#ifdef HAVE_MCHECK
+void gforth_abortmcheck(enum mcheck_status reason);
+#endif
 void gforth_free(void * ptr);
 void gforth_sigset(sigset_t *set, ...);
 
@@ -518,9 +523,10 @@ extern Label *labels;
 extern Cell npriminfos;
 
 #ifdef HAS_DEBUG
-extern int debug;
+extern int debug, debug_mcheck;
 #else
 # define debug 0
+# define debug_mcheck 0
 #endif
 
 #define gforth_SP (gforth_SPs.spx)
