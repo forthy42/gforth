@@ -75,7 +75,7 @@ jni-class: java/util/List
 jni-method: l-get get (I)Ljava/lang/Object;
 jni-method: l-size size ()I
 
-cell 8 = machine "mips" str= or [IF] false [ELSE] SDK_INT 10 u<= [THEN] [IF] \ 2.3.x uses a different clipboard manager
+machine "arm" str= [IF] SDK_INT 10 u<= [ELSE] false [THEN] [IF] \ 2.3.x uses a different clipboard manager
     jni-class: android/text/ClipboardManager
 
     jni-method: hasText hasText ()Z
@@ -97,7 +97,7 @@ cell 8 = machine "mips" str= or [IF] false [ELSE] SDK_INT 10 u<= [THEN] [IF] \ 2
     jni-method: getIntent getIntent ()Landroid/content/Intent;
     jni-method: getUri getUri ()Landroid/net/Uri;
     jni-method: coerceToText coerceToText (Landroid/content/Context;)Ljava/lang/CharSequence;
-    cell 8 = [IF] true [ELSE] machine "mips" str= [IF] false [ELSE] SDK_INT 16 u>= [THEN] [THEN] [IF]
+    cell 8 = [IF] true [ELSE] machine "arm" str= [IF] SDK_INT 16 u>= [ELSE] false [THEN] [THEN] [IF]
 	jni-method: getHtmlText getHtmlText ()Ljava/lang/String;
     [THEN]
 [THEN]
@@ -120,7 +120,7 @@ Variable kbflag kbflag on
 : togglekb ( -- )
     kbflag @ IF  hidekb  ELSE  showkb  THEN ;
 
-cell 8 = machine "mips" str= or [IF] false [ELSE] SDK_INT 10 u<= [THEN] [IF]
+machine "arm" str= [IF] SDK_INT 10 u<= [ELSE] false [THEN] [IF]
     : getclip? ( -- addr u / 0 0 )
 	clazz .clipboardManager >o
 	hasText IF
