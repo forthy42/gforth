@@ -1,9 +1,7 @@
 #!/bin/bash
 # Generate stuff needed for android Gforth
 
-TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain}
-ARCH=armeabi
-TARGET=arm-linux-androideabi
+. build.local
 
 FREETYPE=freetype-2.5.3
 HARFBUZZ=harfbuzz-0.9.36
