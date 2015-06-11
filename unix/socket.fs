@@ -173,14 +173,26 @@ hints addrinfo dup allot erase
   $100 Constant MSG_WAITALL
 $10000 Constant MSG_WAITFORONE
   $802 Constant O_NONBLOCK|O_RDWR
+	machine "mips" str= [IF]
+	    .( running on MIPS gives us different numbers) cr
+ $1006 Constant SO_RCVTIMEO
+ $0004 Constant SO_REUSEADDR
+ $FFFF Constant SOL_SOCKET
+	[ELSE]
     20 Constant SO_RCVTIMEO
      2 Constant SO_REUSEADDR
      1 Constant SOL_SOCKET
+	[THEN]
     11 Constant EAGAIN
     [THEN]
 [THEN]
+machine "mips" str= [IF]
+   2 Constant SOCK_STREAM
+   1 Constant SOCK_DGRAM
+[ELSE]
    1 Constant SOCK_STREAM
    2 Constant SOCK_DGRAM
+[THEN]
    0 Constant IPPROTO_IP
   41 Constant IPPROTO_IPV6
   10 Constant IP_MTU_DISCOVER

@@ -77,7 +77,7 @@ else
 fi
 
 (cd soil2
-premake4 --platform=arm-android gmake
+premake4 --platform=mips-android gmake
 (cd make/linux
 make config=release)
 (cd lib/linux
