@@ -30,7 +30,7 @@
     over dup r@ +  rot move   r> move  ;
 
 : $padding ( n -- n' ) \ gforth-string
-    [ 7 cells ] Literal + [ -4 cells ] Literal and ;
+    [ 6 cells ] Literal + [ -4 cells ] Literal and ;
 : $! ( addr1 u addr2 -- ) \ gforth-string string-store
     \G stores a string at an address, If there was a string there
     \G already, that string will be lost.
