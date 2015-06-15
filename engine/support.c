@@ -293,7 +293,7 @@ UCell hashkey1(Char *c_addr, UCell u, UCell ubits)
 
 #define MIXKEY2 \
   a1=ROL((a+(b^x1))*c1,37)+x3; \
-  b1=ROL(((b-ROL(a,13))^x2)*c2,23)+x4;		\
+  b1=ROL(((b-ROL(a,13))^x2)*c2,23)+x4; \
   a^=a1; b^=b1
 
 void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
@@ -313,12 +313,18 @@ void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
     a ^= mixin;
     MIXKEY2;
   }
+  if(u&7) {
+    memcpy(&mixin, c_addr+u-sizeof(uint64_t), sizeof(uint64_t));
+  } else {
+    mixin = 0ULL;
+  }
 #ifdef WORDS_BIGENDIAN
-  mixin = (uint64_t)(u&7);
+  mixin <<= 64 - (u&7)*8;
+  mixin |= (uint64_t)(u&7);
 #else
-  mixin = (uint64_t)(u&7) << 56;
+  mixin >>= 64 - (u&7)*8;
+  mixin |= (uint64_t)(u&7) << 56;
 #endif
-  memcpy(&mixin, c_addr+i*sizeof(uint64_t), u&7);
   mixin |= upmask & ~(mixin >> 2);
   // printf("+%lx\n", mixin);
   a ^= mixin;
