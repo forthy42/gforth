@@ -17,7 +17,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: trace-name .s ." | " source >in @ /string type cr (name) ;
+: trace-name
+    op-vector @ >r debug-vector @ op-vector !
+    [: .s ." | " source >in @ /string type cr ;]
+    catch r> op-vector ! throw (name) ;
 
 : traceall  ['] trace-name IS name ;
 : notrace   [ what's name ] Literal IS name ;
