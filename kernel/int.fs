@@ -689,7 +689,7 @@ has? os [IF]
 : save-mem	( addr1 u -- addr2 u ) \ gforth
     \g copy a memory block into a newly allocated region in the heap
     swap >r
-    dup allocate throw
+    dup dfaligned allocate throw
     swap 2dup r> -rot move ;
 
 : free-mem-var ( addr -- )

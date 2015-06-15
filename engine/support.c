@@ -314,16 +314,16 @@ void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
     MIXKEY2;
   }
   if(u&7) {
-    memcpy(&mixin, c_addr+u-sizeof(uint64_t), sizeof(uint64_t));
+    memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
   } else {
     mixin = 0ULL;
   }
 #ifdef WORDS_BIGENDIAN
-  mixin <<= 64 - (u&7)*8;
-  mixin |= (uint64_t)(u&7);
-#else
   mixin >>= 64 - (u&7)*8;
   mixin |= (uint64_t)(u&7) << 56;
+#else
+  mixin <<= 64 - (u&7)*8;
+  mixin |= (uint64_t)(u&7);
 #endif
   mixin |= upmask & ~(mixin >> 2);
   // printf("+%lx\n", mixin);
