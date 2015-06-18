@@ -22,6 +22,7 @@ package gnu.gforth;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Build;
 import android.text.ClipboardManager;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -484,5 +485,9 @@ public class Gforth
 	super.onConfigurationChanged(newConfig);
 	
 	onEventNative(17, newConfig.orientation);
+    }
+
+    public int get_SDK() {
+	return Build.VERSION.SDK_INT;
     }
 }

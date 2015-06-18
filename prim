@@ -1779,8 +1779,8 @@ Create rot-values
 
 (hashkey2) ( c_addr u ubits -- ukey )		gforth	paren_hashkey2
 ""This is the compatible form of the fast 64 bit hash""
-hash128 hash = { 0x7BC2F0864E7C480EL, 0x477BF466E332DDB8L };
-hashkey2(c_addr, u, 0x2020202020202020L, &hash);
+hash128 hash = { 0x7BC2F0864E7C480EULL, 0x477BF466E332DDB8ULL };
+hashkey2(c_addr, u, 0x2020202020202020ULL, &hash);
 ukey=(Cell)(hash.a ^ hash.b) & ((1L<<ubits)-1);
 
 hashkey2  ( c_addr u f a_addr -- )	gforth	hashkey2
@@ -1976,7 +1976,8 @@ contents of the data space is undefined. If the allocation is successful,
 is 0. If the allocation fails, @i{a-addr} is undefined and @i{wior}
 is a non-zero I/O result code.""
 a_addr = (Cell *)malloc(u?u:1);
-debugp(stderr, "%8p=allocate(%08lx);\n", a_addr, u);
+if(debug_mcheck)
+  debugp(stderr, "%8p=allocate(%08lx);\n", a_addr, u);
 wior = IOR(a_addr==NULL);
 
 free	( a_addr -- wior )		memory

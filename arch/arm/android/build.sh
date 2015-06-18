@@ -1,8 +1,48 @@
 #!/bin/bash
+#Copyright (C) 2011,2012,2013,2014 Free Software Foundation, Inc.
+
+#This file is part of Gforth.
+
+#Gforth is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation, either version 3
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.#See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see http://www.gnu.org/licenses/.
+
+. build.local
+
+while [ "${1%%[^\+]*}" == '+' ]
+do
+    arch+=" ${1#+}"
+    shift
+done
+
+if [ ! -z "$arch" ]
+then
+    echo "Extra build in $arch"
+fi
+
+for i in $arch
+do
+    newdir=../../../../android-$i/arch/$i/android
+    if [ -d $newdir ]
+    then
+	(cd $newdir && git pull && ./build.sh "$@")
+    else
+	echo "Can't cd to $newdir"
+    fi
+done
 
 if [ ! -f build.xml ]
 then
-    android update project -p . -s --target android-10
+    android update project -p . -s --target android-14
 fi
 
 # takes as extra argument a directory where to look for .so-s
@@ -16,9 +56,7 @@ echo $APP_VERSION >~/.app-version
 sed -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
-LIBS=libs/armeabi
 LIBCCNAMED=lib/$(gforth --version 2>&1 | tr ' ' '/')/libcc-named/.libs
-TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain}
 
 rm -rf $LIBS
 mkdir -p $LIBS
@@ -28,7 +66,6 @@ then
     cp $TOOLCHAIN/sysroot/usr/lib/libsoil.so $LIBS
 fi
 cp .libs/libtypeset.so $LIBS
-strip $LIBS/lib{soil,typeset}.so
 
 EXTRAS=""
 for i in $@
@@ -39,9 +76,9 @@ done
 if [ "$1" != "--no-gforthgz" ]
 then
     (cd $SRC
-	if [ "$1" != "--no-config" ]; then ./configure --host=arm-linux-androideabi --with-cross=android --with-ditc=gforth-ditc-x32 --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib $EXTRAS || exit 1; fi
+	if [ "$1" != "--no-config" ]; then ./configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib $EXTRAS || exit 1; fi
 	make || exit 1
-	make extras || exit 1
+	if [ "$1" != "--no-config" ]; then make extras || exit 1; fi
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]; then CONFIG=no; shift; fi
 
@@ -82,4 +119,3 @@ strip $LIBS/*.so
 #ant debug
 ant release
 cp bin/Gforth-release.apk bin/Gforth.apk
-#jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.gnupg/bernd-release-key.keystore bin/Gforth$EXT.apk bernd

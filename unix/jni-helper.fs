@@ -9,10 +9,6 @@ app obj @ Value clazz
 : gforth-class: ( -- )
     clazz env swap JNIEnv-getObjectClass() to jniclass ;
 
-jni-class: android/os/Build$VERSION
-
-jni-sfield: SDK_INT SDK_INT I
-
 gforth-class:
 
 \ jni-sfield: INPUT_METHOD_SERVICE INPUT_METHOD_SERVICE Ljava/lang/String;
@@ -25,7 +21,10 @@ jni-method: getWindow getWindow ()Landroid/view/Window;
 jni-method: hideProgress hideProgress ()V
 jni-method: showIME showIME ()V
 jni-method: hideIME hideIME ()V
+jni-method: get_SDK get_SDK ()I
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
+
+: SDK_INT clazz >o get_SDK o> ;
 
 jni-class: android/app/Activity
 jni-method: getWindowManager getWindowManager ()Landroid/view/WindowManager;
@@ -75,7 +74,7 @@ jni-class: java/util/List
 jni-method: l-get get (I)Ljava/lang/Object;
 jni-method: l-size size ()I
 
-cell 8 = [IF] false [ELSE] SDK_INT 10 u<= [THEN] [IF] \ 2.3.x uses a different clipboard manager
+SDK_INT 10 u<= [IF] \ 2.3.x uses a different clipboard manager
     jni-class: android/text/ClipboardManager
 
     jni-method: hasText hasText ()Z
@@ -97,7 +96,7 @@ cell 8 = [IF] false [ELSE] SDK_INT 10 u<= [THEN] [IF] \ 2.3.x uses a different c
     jni-method: getIntent getIntent ()Landroid/content/Intent;
     jni-method: getUri getUri ()Landroid/net/Uri;
     jni-method: coerceToText coerceToText (Landroid/content/Context;)Ljava/lang/CharSequence;
-    cell 8 = [IF] true [ELSE] SDK_INT 16 u>= [THEN] [IF]
+    SDK_INT 16 u>= [IF]
 	jni-method: getHtmlText getHtmlText ()Ljava/lang/String;
     [THEN]
 [THEN]
@@ -120,7 +119,7 @@ Variable kbflag kbflag on
 : togglekb ( -- )
     kbflag @ IF  hidekb  ELSE  showkb  THEN ;
 
-cell 8 = [IF] false [ELSE] SDK_INT 10 u<= [THEN] [IF]
+SDK_INT 10 u<= [IF]
     : getclip? ( -- addr u / 0 0 )
 	clazz .clipboardManager >o
 	hasText IF

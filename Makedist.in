@@ -117,6 +117,7 @@ dbinonlydist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ gforth.fi $(DOCDIST) $(BINONLYD
 dsetup-debdist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ $(DOCDIST) $(BINONLYDIST) debian.control
 		-rm -rf debian
 		mkdir debian
+		mkdir -p debian/$(DESTDIR)$(emacssitelispdir)
 		make package=$$PWD/debian install
 
 ddebdist:	dsetup-debdist

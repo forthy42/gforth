@@ -20,24 +20,24 @@ s" os-type" environment? [IF]
 	also android
 
 	align here
-	EGL_SAMPLE_BUFFERS , 1 , \ multisample buffer
-	EGL_SAMPLES , 4 , \ 4 samples antialiasing
-	EGL_STENCIL_SIZE , $10 ,
+	EGL_SAMPLE_BUFFERS l, 1 l, \ multisample buffer
+	EGL_SAMPLES l, 4 l, \ 4 samples antialiasing
+	EGL_STENCIL_SIZE l, $10 l,
 	here
-	EGL_SURFACE_TYPE , EGL_WINDOW_BIT , \ this is default
-	EGL_RENDERABLE_TYPE , EGL_OPENGL_ES2_BIT ,
-	EGL_BLUE_SIZE , 8 ,
-	EGL_GREEN_SIZE , 8 ,
-	EGL_RED_SIZE , 8 ,
+	EGL_SURFACE_TYPE l, EGL_WINDOW_BIT l, \ this is default
+	EGL_RENDERABLE_TYPE l, EGL_OPENGL_ES2_BIT l,
+	EGL_BLUE_SIZE l, 8 l,
+	EGL_GREEN_SIZE l, 8 l,
+	EGL_RED_SIZE l, 8 l,
 	here
-	EGL_NONE ,
+	EGL_NONE l,
 	Constant attribs
 	Constant attribs2
 	Constant attribs3
 
 	Create eglattribs
-	EGL_CONTEXT_CLIENT_VERSION , 2 ,
-	EGL_NONE ,
+	EGL_CONTEXT_CLIENT_VERSION l, 2 l,
+	EGL_NONE l,
 
 	: add-precision
 	    s" precision mediump float;        // required for GLES 2.0" ;

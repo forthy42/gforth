@@ -60,18 +60,31 @@ s" os-type" environment? [IF]
 	\ Sharing types (must choose one and only one of these). 
 	
 	0 Constant MAP_FILE
-	$20 Constant MAP_ANONYMOUS		\ Don't use a file.
+	machine "mips" str= [IF]
+	    $800  Constant MAP_ANONYMOUS
+	    $01000 Constant MAP_GROWSDOWN	\ Stack-like segment.
+	    $02000 Constant MAP_DENYWRITE	\ ETXTBSY
+	    $04000 Constant MAP_EXECUTABLE	\ Mark it as an executable.
+	    $08000 Constant MAP_LOCKED		\ Lock the mapping.
+	    $90400 Constant MAP_NORESERVE	\ Don't check for reservations.
+	    $10000 Constant MAP_POPULATE	\ Populate (prefault) pagetables
+	    $20000 Constant MAP_NONBLOCK	\ Do not block on IO.
+	    $40000 Constant MAP_STACK		\ Allocation is for a stack.
+	    $80000 Constant MAP_HUGETLB		\ Create huge page mapping.
+	[ELSE]
+	    $20 Constant MAP_ANONYMOUS		\ Don't use a file.
+	    $00100 Constant MAP_GROWSDOWN	\ Stack-like segment.
+	    $00800 Constant MAP_DENYWRITE	\ ETXTBSY
+	    $01000 Constant MAP_EXECUTABLE	\ Mark it as an executable.
+	    $02000 Constant MAP_LOCKED		\ Lock the mapping.
+	    $04000 Constant MAP_NORESERVE	\ Don't check for reservations.
+	    $08000 Constant MAP_POPULATE	\ Populate (prefault) pagetables
+	    $10000 Constant MAP_NONBLOCK	\ Do not block on IO.
+	    $20000 Constant MAP_STACK		\ Allocation is for a stack.
+	    $40000 Constant MAP_HUGETLB		\ Create huge page mapping.
+	[THEN]
 	$40 Constant MAP_32BIT		\ Only give out 32-bit addresses.
 
-	$00100 Constant MAP_GROWSDOWN		\ Stack-like segment.
-	$00800 Constant MAP_DENYWRITE		\ ETXTBSY
-	$01000 Constant MAP_EXECUTABLE		\ Mark it as an executable.
-	$02000 Constant MAP_LOCKED		\ Lock the mapping.
-	$04000 Constant MAP_NORESERVE		\ Don't check for reservations.
-	$08000 Constant MAP_POPULATE		\ Populate (prefault) pagetables.
-	$10000 Constant MAP_NONBLOCK		\ Do not block on IO.
-	$20000 Constant MAP_STACK		\ Allocation is for a stack.
-	$40000 Constant MAP_HUGETLB		\ Create huge page mapping.
 	MAP_ANONYMOUS Constant MAP_ANON
     [THEN]
 [THEN]

@@ -616,7 +616,7 @@ forth definitions
 
 [IFDEF] free-old-local-names
 :noname ( -- )
-    locals-mem-list @ free-list
+    vt, locals-mem-list @ free-list
     0 locals-mem-list ! ;
 is free-old-local-names
 [THEN]

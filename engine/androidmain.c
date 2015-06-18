@@ -42,8 +42,8 @@ static Xt ainput=0;
 static Xt acmd=0;
 static Xt akey=0;
 
-typedef struct { int type; jobject event; } sendEvent;
-typedef struct { int type; int event; } sendInt;
+typedef struct { long type; jobject event; } sendEvent;
+typedef struct { long type; long event; } sendInt;
 
 typedef struct {
   JavaVM * vm;
