@@ -275,7 +275,7 @@ Variable val-part
     locals-size @ swap !
     val-part @ IF  postpone false  THEN  postpone lp@ postpone c! ;
 
-7 cells 32 + constant locals-name-size \ 32-char name + fields + wiggle room
+(field) locals-name-size+ 10 cells , \ fields + wiggle room, name size must be added
 
 : create-local1 ( "name" -- a-addr )
     create
@@ -309,10 +309,12 @@ defer dict-execute ( ... addr1 addr2 xt -- ... )
 : create-local ( "name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
-    [IFDEF] vt, vt, [THEN]
-    locals-name-size allocate throw
+    nextname-string 2@ dup 0= IF
+	2drop >in @ >r parse-name r> >in !  THEN  nip
+    dfaligned locals-name-size+ >r
+    r@ allocate throw
     dup locals-mem-list prepend-list
-    locals-name-size cell /string over + ['] create-local1 dict-execute ;
+    r> cell /string over + ['] create-local1 dict-execute ;
 
 variable locals-dp \ so here's the special dp for locals.
 
