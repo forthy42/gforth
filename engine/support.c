@@ -300,6 +300,7 @@ void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
 {
   uint64_t a=h->a, b=h->b;
   int i;
+  size_t pagesize=0x1000; /* may be smaller, but may not be larger than real pagesize */
   const uint64_t
     c1=0x87c37b91114253d5ULL, c2=0x4cf5ad432745937fULL,
     x1=0x6c5f6f6cbe627173ULL, x2=0x7164c30603661c2fULL,
