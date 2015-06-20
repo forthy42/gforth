@@ -314,7 +314,17 @@ void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
     MIXKEY2;
   }
   if(u&7) {
-    memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
+    if(((intptr_t)(c_addr+u-1) & (pagesize-1)) >=
+       (pagesize-sizeof(uint64_t))) {
+      memcpy(&mixin, c_addr+u-sizeof(uint64_t), sizeof(uint64_t));
+#ifdef WORDS_BIGENDIAN
+      mixin <<= 64 - (u&7)*8;
+#else
+      mixin >>= 64 - (u&7)*8;
+#endif
+    } else {
+      memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
+    }
   } else {
     mixin = 0ULL;
   }
