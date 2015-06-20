@@ -299,7 +299,7 @@ UCell hashkey1(Char *c_addr, UCell u, UCell ubits)
 void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
 {
   uint64_t a=h->a, b=h->b;
-  int i;
+  size_t i;
   size_t pagesize=0x1000; /* may be smaller, but may not be larger than real pagesize */
   const uint64_t
     c1=0x87c37b91114253d5ULL, c2=0x4cf5ad432745937fULL,
@@ -307,8 +307,8 @@ void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
     x3=0xce5009401b441347ULL, x4=0x454fa335a6e63ad3ULL;
   uint64_t mixin, a1, b1;
 
-  for(i=0; i<(u>>3); i++) {
-    memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
+  for(i=0; i<(u&-sizeof(uint64_t)); i+=sizeof(uint64_t)) {
+    memcpy(&mixin, c_addr+i, sizeof(uint64_t));
     // printf("+%lx\n", mixin);
     mixin |= upmask & ~(mixin >> 2);
     a ^= mixin;
@@ -324,7 +324,7 @@ void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
       mixin >>= 64 - (u&7)*8;
 #endif
     } else {
-      memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
+      memcpy(&mixin, c_addr+i, sizeof(uint64_t));
     }
   } else {
     mixin = 0ULL;
