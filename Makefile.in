@@ -721,7 +721,7 @@ hpux-workaround:
 #hard to generate).
 #we rebuild gforth.fi, because it contains some path names.
 #we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
-install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim installdirs @libinstall@ gforth.fi
+install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim installdirs @libinstall@ gforth.fi extras-install
 		$(NORMAL_INSTALL)
 		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
 		-$(RM) $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
@@ -901,7 +901,7 @@ all-bench allbench:
 extras: $(EXTRAS) gforth.fi
 	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile all $(EXTRAVARS)); done
 
-extra-installs: $(EXTRAS) gforth.fi
+extra-install: $(EXTRAS) gforth.fi
 	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile install $(EXTRAVARS)); done
 
 # -------------	Make forth images
