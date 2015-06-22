@@ -76,16 +76,19 @@ done
 if [ "$1" != "--no-gforthgz" ]
 then
     (cd $SRC
-	if [ "$1" != "--no-config" ]; then ./configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib $EXTRAS || exit 1; fi
+	if [ "$1" != "--no-config" ]
+	then
+	    ./configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib $EXTRAS || exit 1
+	fi
 	make || exit 1
 	if [ "$1" != "--no-config" ]; then make extras || exit 1; fi
 	make setup-debdist || exit 1) || exit 1
-    if [ "$1" == "--no-config" ]; then CONFIG=no; shift; fi
+    if [ "$1" == "--no-config" ]
+    then
+	CONFIG=no; shift
+    fi
 
-    for i in . $*
-    do
-	cp $i/*.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/site-forth
-    done
+    cp *.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/site-forth
     (cd $SRC/debian/sdcard
 	rm -rf gforth/$GFORTH_VERSION/libcc-named
 	mkdir -p gforth/home
