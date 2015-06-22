@@ -317,7 +317,7 @@ void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
   }
   u &= sizeof(uint64_t)-1;
   // read last word
-  int shift    = 64 - u*8;
+  int shift    = (sizeof(uint64_t)-u)*8;
   int lastshift= 0;
   if(((intptr_t)(endp1+sizeof(uint64_t)-1) & (pagesize-1)) >= (pagesize-sizeof(uint64_t))) {
     // last access might cross page size
@@ -334,7 +334,7 @@ void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
 #ifdef WORDS_BIGENDIAN
   mixin <<= lastshift;
   mixin >>= shift;
-  mixin |= (uint64_t)u << 56;
+  mixin |= (uint64_t)u << sizeof(uint64_t)*7
 #else
   mixin >>= lastshift;
   mixin <<= shift;
