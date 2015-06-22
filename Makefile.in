@@ -52,7 +52,7 @@ LA = $(EC)$(ARCH).la
 EXTRAS= @EXTRAS@
 HOST= @HOSTPREFIX@
 EXTRAPREFIX= @EXTRAPREFIX@
-EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)" "ARCH=$(ARCH)"
+EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)" "package=$(package)"ARCH=$(ARCH)"
 
 # ------------	Install Directories
 
@@ -721,7 +721,7 @@ hpux-workaround:
 #hard to generate).
 #we rebuild gforth.fi, because it contains some path names.
 #we delete $build/gforth.fi and $build/install.TAGS after installation because of ownership.
-install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim installdirs @libinstall@ gforth.fi extras-install
+install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim installdirs @libinstall@ gforth.fi extra-install
 		$(NORMAL_INSTALL)
 		touch $(DESTDIR)$(siteforthdir)/siteinit.fs
 		-$(RM) $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
