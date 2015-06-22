@@ -292,19 +292,20 @@ UCell hashkey1(Char *c_addr, UCell u, UCell ubits)
 #define ROL(x, n) ((x << n) | (x >> (64-n)))
 
 #define MIXKEY2 \
-  a1=ROL((a+(b^x1))*c1,37)+x3; \
-  b1=ROL(((b-ROL(a,13))^x2)*c2,23)+x4; \
+  a1=ROL((a+(b^hashx[2]))*hashx[0],37)+hashx[4]; \
+  b1=ROL(((b-ROL(a,13))^hashx[3])*hashx[1],23)+hashx[5]; \
   a^=a1; b^=b1
+
+uint64_t hashx[6] =
+  { 0x87c37b91114253d5ULL, 0x4cf5ad432745937fULL,
+    0x6c5f6f6cbe627173ULL, 0x7164c30603661c2fULL,
+    0xce5009401b441347ULL, 0x454fa335a6e63ad3ULL };
 
 void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
 {
   // upmask is 0 for case sensitive, and 0x2020202020202020ULL for case insensitive
   uint64_t a=h->a, b=h->b;
   size_t pagesize=0x1000; /* may be smaller, but may not be larger than real pagesize */
-  const uint64_t
-    c1=0x87c37b91114253d5ULL, c2=0x4cf5ad432745937fULL,
-    x1=0x6c5f6f6cbe627173ULL, x2=0x7164c30603661c2fULL,
-    x3=0xce5009401b441347ULL, x4=0x454fa335a6e63ad3ULL;
   uint64_t mixin, a1, b1;
   Char* endp = c_addr+(u&-sizeof(uint64_t)), *endp1=c_addr+u-sizeof(uint64_t);
   // read all full words
