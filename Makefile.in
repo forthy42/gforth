@@ -900,11 +900,11 @@ all-bench allbench:
 
 extras: $(EXTRAS) gforth.fi
 	echo "Extravars: '$(EXTRAVARS)'"
-	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile $(EXTRAVARS) all); done
+	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile all $(EXTRAVARS)); done
 
 extra-install: $(EXTRAS) gforth.fi
 	echo "Extravars: '$(EXTRAVARS)'"
-	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile $(EXTRAVARS) install); done
+	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile install $(EXTRAVARS)); done
 
 # -------------	Make forth images
 
