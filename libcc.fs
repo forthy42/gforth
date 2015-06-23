@@ -743,9 +743,13 @@ Create callback-&style c-var c,
 
     : check-c-hash ( -- )
 	[: ." gflibcc_hash_" lib-modulename $. ;] $tmp
-	lib-handle lib-sym
+	lib-handle lib-sym dup { sym }
 	?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
-	IF  lib-handle close-lib  lib-handle-addr @ off  THEN ;
+	IF  lib-handle close-lib  lib-handle-addr @ off
+	ELSE  ." lib hash mismatch:"
+	    c-source-hash $10 dump
+	    sym $10 dump
+	THEN ;
 [THEN]
 
 \ clear library
