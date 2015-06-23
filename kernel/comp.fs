@@ -600,8 +600,8 @@ defer ;-hook ( sys2 -- sys1 )
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     Header reveal
     ['] on vtcopy \ vtable template from normal colon definition
-    ['] i/c>int  set->int   \ special name>interpret
-    ['] i/c>comp set->comp  \ special name>compile
+    ['] i/c>int  set->int   \ special name>interpret method
+    ['] i/c>comp set->comp  \ special name>compile method
     swap , , ;
 
 \ \ Search list handling: reveal words, recursive		23feb93py
