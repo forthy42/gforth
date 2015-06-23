@@ -340,15 +340,21 @@ include ./recognizer.fs
 ' restrict alias compile-only ( -- ) \ gforth
 \G Remove the interpretation semantics of a word.
 
+\ !!FIXME!! new flagless versions:
+\ : immediate [: name>int ['] execute ;] set->comp ;
+\ : compile-only [: drop ['] compile-only-error ;] set->int ;
+
 \ \ Create Variable User Constant                        	17mar93py
+
+\ : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
+
+: s>int ( nt -- xt )  @ name>int ;
+: s>comp ( nt -- xt1 xt2 )  @ name>comp ;
 
 : Alias    ( xt "name" -- ) \ gforth
     Header reveal ['] on vtcopy
     alias-mask lastflags creset
     dup A, lastcfa ! ;
-
-: s>int ( nt -- xt )  @ name>int ;
-: s>comp ( nt -- xt1 xt2 )  @ name>comp ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
     Header  ['] on vtcopy
