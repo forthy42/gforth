@@ -352,7 +352,6 @@ include ./recognizer.fs
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
     Header  ['] on vtcopy
-    alias-mask lastflags creset
     parse-name find-name dup A, name>int lastcfa !
     ['] s>int set->int ['] s>comp set->comp reveal ;
 
