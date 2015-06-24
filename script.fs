@@ -20,7 +20,7 @@
 : >system ( addr u -- ) cr system ;
 : system, slit, postpone >system ;
 ' >system ' system,
-post: slit, postpone system, ;
+:noname slit, postpone system, ;
 recognizer: r:eval
 
 : rec:eval ( addr u -- addr u' r:string )
