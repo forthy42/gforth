@@ -328,7 +328,7 @@ Defer exit-like ( -- )
 \G forcing an early return from a definition. Before
 \G @code{EXIT}ing you must clean up the return stack and
 \G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
-    rdrop ; restrict
+    rdrop ;
 comp: drop [exit] ;
 
 : ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
