@@ -20,7 +20,7 @@ Warnings off
 Variable countif
 
 : dummy ;  immediate
-: >exec  >r ; restrict ( :-)
+: >exec  >r ;
 : scanIF   f83find  dup 0=  IF  drop ['] dummy ( >head-noprim )  THEN  ;
 
 Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A, ' drop A,
