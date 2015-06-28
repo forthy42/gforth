@@ -122,6 +122,11 @@ User locals-size \ this is the current size of the locals stack
     \g adjust local stack by n at run-time
     faligned lp@ + lp! ;
 
+: lp-push ( -- r:lp r:lp-pop ) \ gforth
+    \g create a trampoline for locals so that ;S or a outer exit
+    \g (rdrop in a called word) will also clean up the locals.
+    r> lp@ >r >exec r> lp! ; compile-only
+
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,
 \ i.e. by going onto the locals stack the order is reversed.
