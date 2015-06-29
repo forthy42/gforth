@@ -278,6 +278,36 @@ debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
 SET_IP(EXTRA_CODE(CFA));
 #endif /* !defined(NO_IP) */
 
+(docolloc) ( -- R:a_retaddr R:a_lp R:a_trampoline )	new	paren_docolloc
+""Call a word with locals and create a trampoline to restore the LP at EXIT""
+static Cell* trampoline[] = { (Cell)&&I_lp_trampoline };
+#if defined(DIRECT_THREADED)
+a_trampoline = trampoline;
+#else
+# if defined(DOUBLY_INDIRECT)
+static Cell* trampoline_i[] = { (Cell)trampoline };
+a_trampoline = &trampoline_i;
+# else // indirect
+a_trampoline = &trampoline;
+# endif
+#endif
+a_lp = lp;
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(CFA);
+      debugp(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)CFA,
+	     len,name);
+    }
+#endif
+#ifdef NO_IP
+a_retaddr = next_code;
+INST_TAIL;
+JUMP(PFA(CFA));
+#else /* !defined(NO_IP) */
+a_retaddr = (Cell *)IP;
+SET_IP((Xt *)PFA(CFA));
+#endif /* !defined(NO_IP) */
+
 \F [endif]
 
 \g control
@@ -3166,6 +3196,46 @@ assert(0);
 tag-offsets ( -- a_addr ) gforth tag_offsets
 extern Cell groups[32];
 a_addr = groups;
+
+lp-trampoline	( R:w R:a_lp -- )	gforth	lp_trampoline
+""The primitive used for the call-loc trampoline.""
+lp = a_lp;
+#ifdef NO_IP
+INST_TAIL;
+goto *(void *)w;
+#else
+SET_IP((Xt *)w);
+#endif
+
+call-loc ( #a_callee -- R:a_retaddr R:a_lp R:a_trampoline )	new	call_loc
+""Call a word with locals and create a trampoline to restore the LP at EXIT""
+static Cell* trampoline[] = { (Cell)&&I_lp_trampoline };
+#if defined(DIRECT_THREADED)
+a_trampoline = trampoline;
+#else
+# if defined(DOUBLY_INDIRECT)
+static Cell* trampoline_i[] = { (Cell)trampoline };
+a_trampoline = &trampoline_i;
+# else // indirect
+a_trampoline = &trampoline;
+# endif
+#endif
+a_lp = lp;
+#ifdef NO_IP
+assert(0);
+INST_TAIL;
+JUMP(a_callee);
+#else
+#ifdef DEBUG
+    {
+      CFA_TO_NAME((((Cell *)a_callee)-2));
+      debugp(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)a_callee,
+	     len,name);
+    }
+#endif
+a_retaddr = (Cell *)IP;
+SET_IP((Xt *)a_callee);
+#endif
 
 \+
 

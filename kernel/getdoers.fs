@@ -83,6 +83,11 @@ doer? :do;abicode [IF]
 
 doer? :doextra [IF]
 \ extra>-dummy (doextra-dummy)
-: doextra: ( -- )
+: doextra: ( -- addr )
     ['] (doextra-dummy) >code-address ;
+[THEN]
+
+doer? :docolloc [IF]
+    : docolloc: ( -- addr )
+	['] (docolloc-dummy) >code-address ;
 [THEN]

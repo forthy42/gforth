@@ -1120,6 +1120,7 @@ Ghost refill drop
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop
 Ghost :doextra  Ghost doextra-vt Ghost extra,   2drop drop
+Ghost :docolloc drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -2956,6 +2957,8 @@ ghost u#exec
 ghost u#+
 ghost uvar,
 2drop drop
+ghost :loc,
+drop
 
 Create vttemplate
 0 ,
@@ -3098,6 +3101,11 @@ Builder extra>-dummy
 Build: ;Build
 by: :doextra ;DO
 vt: [G'] extra, gset-compiler ;vt
+
+Builder docolloc-dummy
+Build: ;Build
+by: :docolloc ;DO
+vt: [G'] :loc, gset-compiler ;vt
 
 \ Variables and Constants                              05dec92py
 

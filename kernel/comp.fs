@@ -474,6 +474,10 @@ extra>-dummy (doextra-dummy)
     cfalign 0 , here !extra ] defstart :-hook ;
 comp: drop  ['] !extra does>-like :-hook ;
 
+\ call with locals
+
+docolloc-dummy (docolloc-dummy)
+
 \ comp: to define compile, action
 
 Create vttemplate

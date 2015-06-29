@@ -127,6 +127,12 @@ User locals-size \ this is the current size of the locals stack
     \g (rdrop in a called word) will also clean up the locals.
     r> lp@ >r >exec r> lp! ; compile-only
 
+: >docolloc ( -- )  latestxt @ docol: <> ?EXIT
+    \ docolloc: latestxt !
+    ['] :loc, set-compiler ;
+
+: docolloc-dummy ( -- ) ; >docolloc
+
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,
 \ i.e. by going onto the locals stack the order is reversed.
@@ -469,11 +475,11 @@ new-locals-map mappedwordlist Constant new-locals-wl
 \ new-locals-map ' new-locals >body wordlist-map A! \ !! use special access words
 
 \ and now, finally, the user interface words
-: { ( -- latestxt wid 0 ) \ gforth open-brace
-    latestxt get-current
+: { ( -- vtaddr u latestxt wid 0 ) \ gforth open-brace
+    vttemplate vtsize save-mem latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
-    val-part off
+    val-part off  vttemplate off
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
@@ -481,7 +487,7 @@ synonym {: {
 
 locals-types definitions
 
-: } ( latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
+: } ( vtaddr u latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
     \ ends locals definitions
     ]
     begin
@@ -489,10 +495,11 @@ locals-types definitions
     while
 	execute
     repeat
-    drop
+    drop vt,
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
     previous previous
     set-current lastcfa !
+    over >r vttemplate swap move r> free throw
     locals-list 0 wordlist-id - TO locals-wordlist ;
 
 synonym :} }
@@ -623,7 +630,7 @@ forth definitions
 
 [IFDEF] free-old-local-names
 :noname ( -- )
-    vt, locals-mem-list @ free-list
+    locals-mem-list @ free-list
     0 locals-mem-list ! ;
 is free-old-local-names
 [THEN]

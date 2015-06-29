@@ -878,6 +878,7 @@ set-current
         dovalue: of seevalue endof
 [THEN]
 	docol: of dup umethod? IF  seeumethod  ELSE  seecol  THEN  endof
+	docolloc: of  seecol  endof
 	dovar: of seevar endof
 [IFDEF] douser:
 	douser: of seeuser endof
