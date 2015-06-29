@@ -108,7 +108,8 @@
 #define DOABICODE	8
 #define DOSEMIABICODE   9
 #define DOEXTRA	10
-#define DOER_MAX        10
+#define DOCOLLOC 11
+#define DOER_MAX        11
 
 #include "machine.h"
 

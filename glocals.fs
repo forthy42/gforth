@@ -128,7 +128,7 @@ User locals-size \ this is the current size of the locals stack
     r> lp@ >r >exec r> lp! ; compile-only
 
 : >docolloc ( -- )  latestxt @ docol: <> ?EXIT
-    \ docolloc: latestxt !
+    docolloc: latestxt !
     ['] :loc, set-compiler ;
 
 : docolloc-dummy ( -- ) ; >docolloc
@@ -476,7 +476,9 @@ new-locals-map mappedwordlist Constant new-locals-wl
 
 \ and now, finally, the user interface words
 : { ( -- vtaddr u latestxt wid 0 ) \ gforth open-brace
-    vttemplate vtsize save-mem latestxt get-current
+    \ >docolloc
+    vttemplate vtsize save-mem
+    latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
     val-part off  vttemplate off
