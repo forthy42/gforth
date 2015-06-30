@@ -428,6 +428,18 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 #ifdef CPU_DEP2
   CPU_DEP2
 #endif
+#if defined(DIRECT_THREADED)
+Cell* trampoline = (Cell*)&&I_lp_trampoline;
+#else
+# if defined(DOUBLY_INDIRECT)
+static Cell* trampoline0 = (Cell*)&&I_lp_trampoline;
+static Cell* trampoline1 = (Cell*)&trampoline0;
+Cell* trampoline = (Cell*)&trampoline1;
+# else // indirect
+static Cell* trampoline0 = (Cell*)&&I_lp_trampoline;
+Cell* trampoline = (Cell*)&trampoline0;
+# endif
+#endif
 
   rp = SPs->rpx;
 #ifdef DEBUG

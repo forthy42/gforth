@@ -129,9 +129,8 @@ User locals-size \ this is the current size of the locals stack
 
 : >docolloc ( -- )  latestxt @ docol: <> ?EXIT
     docolloc: latestxt !
-    ['] :loc, set-compiler ;
-
-: docolloc-dummy ( -- ) ; >docolloc
+    ['] :loc, set-compiler
+;
 
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,
@@ -476,12 +475,11 @@ new-locals-map mappedwordlist Constant new-locals-wl
 
 \ and now, finally, the user interface words
 : { ( -- vtaddr u latestxt wid 0 ) \ gforth open-brace
-    \ >docolloc
-    vttemplate vtsize save-mem
+    vttemplate vtsize save-mem  vttemplate off
     latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
-    val-part off  vttemplate off
+    val-part off
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
@@ -506,7 +504,7 @@ locals-types definitions
 
 synonym :} }
 
-: -- ( addr wid 0 ... -- ) \ gforth dash-dash
+: -- ( vtaddr u latestxt wid 0 ... -- ) \ gforth dash-dash
     }
     BEGIN  [char] } parse dup WHILE
 	    + 1- c@ dup bl = swap ':' = or  UNTIL
@@ -640,8 +638,9 @@ is free-old-local-names
 : locals-;-hook ( sys addr xt sys -- sys )
     def?
     0 TO locals-wordlist
+    locals-size @ >r
     0 adjust-locals-size ( not every def ends with an exit )
-    lastcfa ! last !
+    lastcfa ! last ! r> IF  >docolloc  THEN
     DEFERS ;-hook ;
 
 \ THEN (another control flow from before joins the current one):

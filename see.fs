@@ -692,6 +692,7 @@ CREATE C-Table
 		' extra-exec A,	    ' c-callxt A,
 		' lit@ A,	    ' c-call A,
 [IFDEF] call	' call A,           ' c-call A, [THEN]
+[IFDEF] call-loc ' call-loc A,      ' c-call A, [THEN]
 \		' useraddr A,	    ....
 		' lit-perform A,    ' c-call A,
 		' lit+ A,	    ' c-lit+ A,

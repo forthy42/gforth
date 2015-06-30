@@ -280,18 +280,8 @@ SET_IP(EXTRA_CODE(CFA));
 
 (docolloc) ( -- R:a_retaddr R:a_lp R:a_trampoline )	new	paren_docolloc
 ""Call a word with locals and create a trampoline to restore the LP at EXIT""
-static Cell* trampoline[] = { (Cell)&&I_lp_trampoline };
-#if defined(DIRECT_THREADED)
-a_trampoline = trampoline;
-#else
-# if defined(DOUBLY_INDIRECT)
-static Cell* trampoline_i[] = { (Cell)trampoline };
-a_trampoline = &trampoline_i;
-# else // indirect
 a_trampoline = &trampoline;
-# endif
-#endif
-a_lp = lp;
+a_lp = (Cell*)lp;
 #ifdef DEBUG
     {
       CFA_TO_NAME(CFA);
@@ -3199,7 +3189,7 @@ a_addr = groups;
 
 lp-trampoline	( R:w R:a_lp -- )	gforth	lp_trampoline
 ""The primitive used for the call-loc trampoline.""
-lp = a_lp;
+lp = (Address)a_lp;
 #ifdef NO_IP
 INST_TAIL;
 goto *(void *)w;
@@ -3209,18 +3199,8 @@ SET_IP((Xt *)w);
 
 call-loc ( #a_callee -- R:a_retaddr R:a_lp R:a_trampoline )	new	call_loc
 ""Call a word with locals and create a trampoline to restore the LP at EXIT""
-static Cell* trampoline[] = { (Cell)&&I_lp_trampoline };
-#if defined(DIRECT_THREADED)
-a_trampoline = trampoline;
-#else
-# if defined(DOUBLY_INDIRECT)
-static Cell* trampoline_i[] = { (Cell)trampoline };
-a_trampoline = &trampoline_i;
-# else // indirect
 a_trampoline = &trampoline;
-# endif
-#endif
-a_lp = lp;
+a_lp = (Cell*)lp;
 #ifdef NO_IP
 assert(0);
 INST_TAIL;
