@@ -122,12 +122,9 @@ User locals-size \ this is the current size of the locals stack
     \g adjust local stack by n at run-time
     faligned lp@ + lp! ;
 
-: lp-push ( -- r:lp r:lp-pop ) \ gforth
-    \g create a trampoline for locals so that ;S or a outer exit
-    \g (rdrop in a called word) will also clean up the locals.
-    r> lp@ >r >exec r> lp! ; compile-only
-
-: >docolloc ( -- )  latestxt @ docol: <> ?EXIT
+: >docolloc ( -- )
+    \g turn colon definition into lp restoring trampoline
+    latestxt @ docol: <> ?EXIT
     docolloc: latestxt !
     ['] :loc, set-compiler
 ;
