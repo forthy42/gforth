@@ -1684,7 +1684,7 @@ c_addr2 = c_addr1+1;
 
 cell/ ( n1 -- n2 )	gforth cell_divide
 ""@i{n2} is the number of cells that fit into @i{n1}""
-n2 = n1 / sizeof(Cell);
+n2 = n1 >> (sizeof(Cell) == 8 ? 3 : 2);
 :
  [ cell
  2/ dup [IF] ] 2/ [ [THEN]
@@ -3216,6 +3216,9 @@ JUMP(a_callee);
 a_retaddr = (Cell *)IP;
 SET_IP((Xt *)a_callee);
 #endif
+
+unlocal	( R:a_lp R:w -- )	gforth	unlocal
+lp = (Address)a_lp;
 
 \+
 
