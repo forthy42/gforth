@@ -130,4 +130,6 @@ t{ s" abcdef" 2dup 'g' myscan 2swap 6 /string d= -> true }
 t{ 48 42 gcd -> 6 }
 t{ 42 48 gcd -> 6 }
 
-    
+: foo true if 1 {: a :} ['] exit execute then ;
+: bar 2 {: b :} foo b ;
+t{ bar -> 2 }
