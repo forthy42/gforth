@@ -167,6 +167,7 @@ variable locals-mem-list \ linked list of all locals name memory in
 \ compile-pushlocal just inserts the offsets from the frame base.
 
 Variable val-part
+Variable has-locals \ true at ; if word has locals
 
 : compile-pushlocal-w ( a-addr -- ) ( run-time: w -- )
 \ compiles a push of a local variable, and adjusts locals-size
@@ -471,7 +472,7 @@ new-locals-map mappedwordlist Constant new-locals-wl
     latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
-    val-part off
+    val-part off  has-locals on
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
@@ -618,6 +619,7 @@ forth definitions
     0 locals-size !
     0 locals-list !
     dead-code off
+    has-locals off
     defstart ;
 
 [IFDEF] free-old-local-names
@@ -630,9 +632,8 @@ is free-old-local-names
 : locals-;-hook ( sys addr xt sys -- sys )
     def?
     0 TO locals-wordlist
-    locals-size @ >r
     0 adjust-locals-size ( not every def ends with an exit )
-    lastcfa ! last ! r> IF  >docolloc  THEN
+    lastcfa ! last ! has-locals @ IF  >docolloc  THEN
     DEFERS ;-hook ;
 
 \ THEN (another control flow from before joins the current one):
