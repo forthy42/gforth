@@ -467,6 +467,7 @@ new-locals-map mappedwordlist Constant new-locals-wl
 
 \ and now, finally, the user interface words
 : { ( -- vtaddr u latestxt wid 0 ) \ gforth open-brace
+    >docolloc \ convert the current definition to one with locals
     vttemplate vtsize save-mem  vttemplate off
     latestxt get-current
     get-order new-locals-wl swap 1+ set-order
@@ -630,9 +631,8 @@ is free-old-local-names
 : locals-;-hook ( sys addr xt sys -- sys )
     def?
     0 TO locals-wordlist
-    locals-size @ >r
     0 adjust-locals-size ( not every def ends with an exit )
-    lastcfa ! last ! r> IF  >docolloc  THEN
+    lastcfa ! last !
     DEFERS ;-hook ;
 
 \ THEN (another control flow from before joins the current one):
