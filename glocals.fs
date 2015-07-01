@@ -118,16 +118,11 @@ User locals-size \ this is the current size of the locals stack
     \g sets locals-size to n and generates an appropriate lp+!
     locals-size @ swap - compile-lp+! ;
 
-: unlocal ( n -- ) \ gforth
-    \g adjust local stack by n at run-time
-    faligned lp@ + lp! ;
-
 : >docolloc ( -- )
     \g turn colon definition into lp restoring trampoline
     latestxt @ docol: <> ?EXIT
     docolloc: latestxt !
-    ['] :loc, set-compiler
-;
+    ['] :loc, set-compiler ;
 
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,
