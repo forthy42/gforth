@@ -3187,14 +3187,14 @@ tag-offsets ( -- a_addr ) gforth tag_offsets
 extern Cell groups[32];
 a_addr = groups;
 
-lp-trampoline	( R:w R:a_lp -- )	gforth	lp_trampoline
+lp-trampoline	( R:a_retaddr R:a_lp -- )	gforth	lp_trampoline
 ""The primitive used for the call-loc trampoline.""
 lp = (Address)a_lp;
 #ifdef NO_IP
 INST_TAIL;
-goto *(void *)w;
+goto *(void *)a_retaddr;
 #else
-SET_IP((Xt *)w);
+SET_IP((Xt *)a_retaddr);
 #endif
 
 call-loc ( #a_callee -- R:a_retaddr R:a_lp R:a_trampoline )	new	call_loc

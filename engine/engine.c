@@ -429,15 +429,15 @@ Label *gforth_engine(Xt *ip0 sr_proto)
   CPU_DEP2
 #endif
 #if defined(DIRECT_THREADED)
-const Cell* trampoline = (Cell*)&&I_lp_trampoline;
+Cell trampoline = (Cell)&&I_lp_trampoline;
 #else
 # if defined(DOUBLY_INDIRECT)
 const static Cell* trampoline0 = (Cell*)&&I_lp_trampoline;
 const static Cell* trampoline1 = (Cell*)&trampoline0;
-const Cell* trampoline = (Cell*)&trampoline1;
+Cell trampoline = (Cell)&trampoline1;
 # else // indirect
 const static Cell* trampoline0 = (Cell*)&&I_lp_trampoline;
-const Cell* trampoline = (Cell*)&trampoline0;
+Cell trampoline = (Cell)&trampoline0;
 # endif
 #endif
 
