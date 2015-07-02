@@ -467,7 +467,7 @@ new-locals-map mappedwordlist Constant new-locals-wl
 
 \ and now, finally, the user interface words
 : { ( -- vtaddr u latestxt wid 0 ) \ gforth open-brace
-    >docolloc vtsave \ as locals will mess with their on vttemplate
+    >docolloc vtsave \ as locals will mess with their own vttemplate
     latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
