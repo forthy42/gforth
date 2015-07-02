@@ -18,7 +18,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 s" address-unit-bits" environment? drop constant bits/au
-11 constant maxdoer-tag
+12 constant maxdoer-tag
 
 : write-cell { w^ w  file-id -- ior }
     \ write a cell to the file

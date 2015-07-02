@@ -298,6 +298,28 @@ a_retaddr = (Cell *)IP;
 SET_IP((Xt *)PFA(CFA));
 #endif /* !defined(NO_IP) */
 
+(dodoesloc) ( -- a_body R:a_retaddr R:a_lp R:a_trampoline )	gforth-internal	paren_dodoesloc
+""run-time routine for @code{does>}-defined words, 
+  where der code after the DOES> contains locals""
+a_trampoline = &trampoline;
+a_lp = (Cell*)lp;
+#ifdef NO_IP
+a_retaddr = next_code;
+a_body = PFA(CFA);
+INST_TAIL;
+#ifdef DEBUG
+debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+#endif
+goto **(Label *)DOES_CODE1(CFA);
+#else /* !defined(NO_IP) */
+a_retaddr = (Cell *)IP;
+a_body = PFA(CFA);
+#ifdef DEBUG
+debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
+#endif
+SET_IP(DOES_CODE1(CFA));
+#endif /* !defined(NO_IP) */
+
 \F [endif]
 
 \g control
@@ -367,13 +389,13 @@ ip=IP;
 SUPER_END;
 VM_JUMP(EXEC1(*(Xt *)a_addr));
 
-does-exec ( #a_cfa -- R:nest a_pfa )	new	does_exec
+does-exec ( #a_cfa -- R:a_retaddr a_body )	new	does_exec
 #ifdef NO_IP
 /* compiled to LIT CALL by compile_prim */
 assert(0);
 #else
-a_pfa = PFA(a_cfa);
-nest = (Cell)IP;
+a_body = PFA(a_cfa);
+a_retaddr = (Cell *)IP;
 #ifdef DEBUG
     {
       CFA_TO_NAME(a_cfa);
@@ -384,13 +406,13 @@ nest = (Cell)IP;
 SET_IP(DOES_CODE1(a_cfa));
 #endif
 
-extra-exec ( #a_cfa -- R:nest a_pfa )	new	extra_exec
+extra-exec ( #a_cfa -- R:a_retaddr a_body )	new	extra_exec
 #ifdef NO_IP
 /* compiled to LIT CALL by compile_prim */
 assert(0);
 #else
-a_pfa = PFA(a_cfa);
-nest = (Cell)IP;
+a_body = PFA(a_cfa);
+a_retaddr = (Cell *)IP;
 #ifdef DEBUG
     {
       CFA_TO_NAME(a_cfa);
@@ -3215,6 +3237,25 @@ JUMP(a_callee);
 #endif
 a_retaddr = (Cell *)IP;
 SET_IP((Xt *)a_callee);
+#endif
+
+does-exec-loc ( #a_cfa -- R:a_retaddr  R:a_lp R:a_trampoline a_body )	new	does_exec_loc
+a_trampoline = &trampoline;
+a_lp = (Cell*)lp;
+#ifdef NO_IP
+/* compiled to LIT CALL by compile_prim */
+assert(0);
+#else
+a_body = PFA(a_cfa);
+a_retaddr = (Cell *)IP;
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(a_cfa);
+      debugp(stderr,"%08lx: does %08lx %.*s\n",
+	     (Cell)ip,(Cell)a_cfa,len,name);
+    }
+#endif
+SET_IP(DOES_CODE1(a_cfa));
 #endif
 
 unlocal	( R:a_lp R:w -- )	gforth	unlocal
