@@ -497,13 +497,15 @@ interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
 \ multiple values to and from return stack
 
 : n>r ( x1 .. xn n -- r:xn..x1 r:n )
-    r> { n ret }
+    scope r> { n ret }
     0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
-    ret >r ;
+    ret >r endscope ;
+' :, set-compiler  docol: latestxt code-address!
 : nr> ( r:xn..x1 r:n -- x1 .. xn n )
-    r> r> { ret n }
+    scope r> r> { ret n }
     0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
-    ret >r ;
+    ret >r endscope ;
+' :, set-compiler  docol: latestxt code-address!
 
 \ x:traverse-wordlist words
 
