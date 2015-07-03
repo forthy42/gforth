@@ -459,7 +459,10 @@ defer defer-default ( -- )
     defstart ;
 
 : !does    ( addr -- ) \ gforth	store-does
-    ['] spaces >namevt @ >vtcompile, @ set-compiler
+    vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
+    IF
+	['] spaces >namevt @ >vtcompile, @ set-compiler
+    THEN
     latestxt does-code! ;
 
 extra>-dummy (doextra-dummy)
@@ -472,7 +475,7 @@ extra>-dummy (doextra-dummy)
 
 :noname cfalign 0 , here !does ] defstart :-hook ;
 :noname ['] !does does>-like :-hook ;
-interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
+interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core
 
 \ call with locals
 
