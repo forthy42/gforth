@@ -500,6 +500,14 @@ Create vttemplate
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
     dup vtcopy >code-address cfa, ;
 
+: vtsave ( -- addr u ) \ gforth
+    \g save vttemplate for nested definitions
+    vttemplate vtsize save-mem  vttemplate off ;
+
+: vtrestore ( addr u -- ) \ gforth
+    \g restore vttemplate
+    over >r vttemplate swap move r> free throw ;
+
 : vt= ( vt1 vt2 -- flag )
     cell+ swap vtsize cell /string tuck compare 0= ;
 

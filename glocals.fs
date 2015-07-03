@@ -167,7 +167,6 @@ variable locals-mem-list \ linked list of all locals name memory in
 \ compile-pushlocal just inserts the offsets from the frame base.
 
 Variable val-part
-Variable has-locals \ true at ; if word has locals
 
 : compile-pushlocal-w ( a-addr -- ) ( run-time: w -- )
 \ compiles a push of a local variable, and adjusts locals-size
@@ -468,11 +467,11 @@ new-locals-map mappedwordlist Constant new-locals-wl
 
 \ and now, finally, the user interface words
 : { ( -- vtaddr u latestxt wid 0 ) \ gforth open-brace
-    vttemplate vtsize save-mem  vttemplate off
+    >docolloc vtsave \ as locals will mess with their own vttemplate
     latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
-    val-part off  has-locals on
+    val-part off
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
@@ -492,7 +491,7 @@ locals-types definitions
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
     previous previous
     set-current lastcfa !
-    over >r vttemplate swap move r> free throw
+    vtrestore
     locals-list 0 wordlist-id - TO locals-wordlist ;
 
 synonym :} }
@@ -619,7 +618,6 @@ forth definitions
     0 locals-size !
     0 locals-list !
     dead-code off
-    has-locals off
     defstart ;
 
 [IFDEF] free-old-local-names
@@ -633,7 +631,7 @@ is free-old-local-names
     def?
     0 TO locals-wordlist
     0 adjust-locals-size ( not every def ends with an exit )
-    lastcfa ! last ! has-locals @ IF  >docolloc  THEN
+    lastcfa ! last !
     DEFERS ;-hook ;
 
 \ THEN (another control flow from before joins the current one):
