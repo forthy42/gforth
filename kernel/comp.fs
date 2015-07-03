@@ -538,7 +538,7 @@ Create vttemplate
 : set-defer@    ( xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
-: set-does>     ( xt -- ) >body !extra ; \ more work than the aboves
+: set-does>     ( xt -- ) >body !does ; \ more work than the aboves
 
 : comp: ( -- colon-sys )
     start-xt  set-compiler ;
