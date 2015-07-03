@@ -2747,7 +2747,7 @@ X has? primcentric [IF]
 
 Cond: DOES>
         T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
-        H + alit, compile !extra compile ;s
+        H + alit, compile !does compile ;s
         doeshandler, resolve-does>-part
         ;Cond
 

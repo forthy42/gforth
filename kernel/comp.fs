@@ -458,9 +458,9 @@ defer defer-default ( -- )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
-\ : !does    ( addr -- ) \ gforth	store-does
-\     ['] spaces >namevt @ >vtcompile, @ set-compiler
-\     latestxt does-code! ;
+: !does    ( addr -- ) \ gforth	store-does
+    ['] spaces >namevt @ >vtcompile, @ set-compiler
+    latestxt does-code! ;
 
 extra>-dummy (doextra-dummy)
 : !extra   ( addr -- ) \ gforth store-extra
@@ -470,9 +470,9 @@ extra>-dummy (doextra-dummy)
     THEN
     latestxt extra-code! ;
 
-: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
-    cfalign 0 , here !extra ] defstart :-hook ;
-comp: drop  ['] !extra does>-like :-hook ;
+:noname cfalign 0 , here !does ] defstart :-hook ;
+:noname ['] !does does>-like :-hook ;
+interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
 
 \ call with locals
 
