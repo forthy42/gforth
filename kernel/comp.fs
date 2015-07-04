@@ -406,6 +406,8 @@ include ./recognizer.fs
 
 : u-to >body @ next-task + ! ;
 comp: drop >body @ postpone useraddr , postpone ! ;
+\g u-to is the to-method for user values; it's xt is only
+\g there to be consumed by @code{set-to}.
 : u-compile, ( xt -- )  >body @ postpone useraddr , postpone @ ;
 
 : UValue ( "name" -- )
@@ -530,7 +532,7 @@ Create vttemplate
 : start-xt ( -- colonsys xt ) \ incomplete, will not be a full xt
     here >r docol: cfa, defstart ] :-hook r> ;
 : start-xt-like ( colonsys xt -- colonsys )
-    nip reveal does>-like drop start-xt drop ;
+    reveal does>-like drop start-xt drop ;
 
 : set-compiler  ( xt -- ) vttemplate >vtcompile, ! ;
 : set-postpone  ( xt -- ) vttemplate >vtpostpone ! ;
@@ -540,13 +542,17 @@ Create vttemplate
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
 : set-does>     ( xt -- ) >body !does ; \ more work than the aboves
 
-: comp: ( -- colon-sys )
+:noname ( -- colon-sys )
     start-xt  set-compiler ;
-comp: ['] set-compiler start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+:noname ['] set-compiler start-xt-like ;
+interpret/compile: comp:
+( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
-: post: ( -- colon-sys )
+:noname ( -- colon-sys )
     start-xt  set-postpone ;
-comp: ['] set-postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
+:noname ['] set-postpone start-xt-like ;
+interpret/compile: post:
+( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
 \ defer and friends
 
@@ -555,6 +561,8 @@ comp: ['] set-postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sy
     >body ! ;
 
 : value! ( xt xt-deferred -- ) \ gforth  value-store
+    \g this is the TO-method for normal values; it's tickable, but
+    \g the only purpose of its xt is to be consumed by @code{set-to}.
     >body ! ;
 comp: drop >body postpone ALiteral postpone ! ;
     
