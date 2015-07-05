@@ -503,7 +503,7 @@ Create vttemplate
     here >namevt vttemplate ! ;
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
-    dup vtcopy >code-address cfa, ;
+    dup vtcopy here >r dup >code-address cfa, >does-code r> cell+ ! ;
 
 : vtsave ( -- addr u ) \ gforth
     \g save vttemplate for nested definitions
