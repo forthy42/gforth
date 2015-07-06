@@ -335,7 +335,8 @@ $0fffffff constant lcount-mask
 (field) >vt>comp     6 cells ,
 (field) >vtdefer@    7 cells ,
 
-1 cells -3 cells \ class declaration with methods
+1 cells -3 cells \ mini-oof class declaration with methods
+\ the offsets are a bit odd to keep the xt as point of reference
 cell var >f+c
 cell var >link
 cell var >namevt
