@@ -2959,6 +2959,8 @@ ghost uvar,
 2drop drop
 ghost :loc,
 drop
+ghost x#exec
+drop
 
 Create vttemplate
 0 ,
@@ -3315,10 +3317,11 @@ by User
 
 \ Mini-OOF
 
-Builder method
-Build: ( m v -- m' v )  over T , swap cell+ swap H ;Build
-DO:  abort" Not in cross mode" ;DO
-vtghost: do-moof-method-vt
+>TARGET
+: method ( m v -- m' v )
+    over >r no-loop on T : H compile x#exec
+    r> tcell / T , (;) swap cell+ swap H ;
+>CROSS
 
 Builder var
 Build: ( m v size -- m v+size )  over T , H + ;Build

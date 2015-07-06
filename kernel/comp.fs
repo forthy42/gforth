@@ -250,8 +250,6 @@ has? primcentric [IF]
     [ELSE]
 	: peephole-compile, ( xt -- addr ) @ , ;
     [THEN]
-
-    : compile, ( xt -- ) x#exec [ 1 , ] ;
 [ELSE]
 ' , is compile,
 [THEN]
@@ -575,7 +573,6 @@ comp: drop >body postpone ALiteral postpone ! ;
     \g execute @var{xt}.
     record-name ' postpone ALiteral postpone defer! ; immediate restrict
 
-: (int-to) ( val xt -- ) x#exec [ 4 , ] ;
 : (comp-to) ( xt -- ) dup >namevt @ >vtto @ compile, ;
 
 :noname ( value "name" -- ) (') (name>x) drop (int-to) ;

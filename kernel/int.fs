@@ -325,9 +325,6 @@ $0fffffff constant lcount-mask
     then ;
 
 ' noop Alias ((name>)) ( nfa -- cfa )
-(field) >namevt -1 cells , \ virtual table for names
-(field) >link   -2 cells , \ link field
-(field) >f+c    -3 cells , \ flags+count
 
 (field) >vtlink      0 cells ,
 (field) >vtcompile,  1 cells ,
@@ -337,7 +334,34 @@ $0fffffff constant lcount-mask
 (field) >vt>int      5 cells ,
 (field) >vt>comp     6 cells ,
 (field) >vtdefer@    7 cells ,
-8 cells Constant vtsize
+
+1 cells -3 cells \ class declaration with methods
+cell var >f+c
+cell var >link
+cell var >namevt
+
+method compile, ( xt -- )
+swap
+cell+ \ postpone action has no simple method
+cell+ \ extra has no simple method
+swap
+
+method (int-to) ( val xt -- ) \ gforth paren-int-to
+\G direct call performs the interpretation semantics of to
+
+method name>int ( nt -- xt ) \ gforth name-to-int
+\G @i{xt} represents the interpretation semantics of the word
+\G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
+\G @code{compile-only}), @i{xt} is the execution token for
+\G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
+
+method name>comp ( nt -- w xt ) \ gforth name-to-comp
+\G @i{w xt} is the compilation token for the word @i{nt}.
+
+method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
+\G @i{xt} represents the word currently associated with the deferred
+\G word @i{xt-deferred}.
+drop Constant vtsize \ vtable size
 
 : name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
@@ -349,17 +373,6 @@ $0fffffff constant lcount-mask
     IF
 	swap @ swap
     THEN ;
-
-: name>int ( nt -- xt ) \ gforth name-to-int
-    \G @i{xt} represents the interpretation semantics of the word
-    \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
-    \G @code{compile-only}), @i{xt} is the execution token for
-    \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
-    x#exec [ 5 , ] ;
-
-: name>comp ( nt -- w xt ) \ gforth name-to-comp
-    \G @i{w xt} is the compilation token for the word @i{nt}.
-    x#exec [ 6 , ] ;
 
 : default-name>int ( nt -- xt ) \ gforth paren-name-to-int
     \G @i{xt} represents the interpretation semantics of the word
