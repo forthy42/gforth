@@ -449,7 +449,9 @@ defer defer-default ( -- )
     \G binding as if @i{name} was not deferred.
     ' defer@ compile, ; immediate
 
-\ does>
+\ No longer used for DOES>; integrate does>-like with ;abi-code, and
+\ eliminate the extra stuff?
+
 : does>-like ( xt -- defstart )
     \ xt ( addr -- ) is !does or !;abi-code etc, addr is the address
     \ that should be stored right after the code address.
@@ -460,13 +462,6 @@ defer defer-default ( -- )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
-: !does    ( addr -- ) \ gforth	store-does
-    vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
-    IF
-	['] spaces >namevt @ >vtcompile, @ set-compiler
-    THEN
-    latestxt does-code! ;
-
 extra>-dummy (doextra-dummy)
 : !extra   ( addr -- ) \ gforth store-extra
     vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
@@ -474,13 +469,6 @@ extra>-dummy (doextra-dummy)
 	['] extra, set-compiler
     THEN
     latestxt extra-code! ;
-
-
-
-
-:noname cfalign 0 , here !does ] colon-sys :-hook ;
-:noname ['] !does does>-like :-hook ;
-interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core
 
 \ call with locals
 
@@ -637,6 +625,37 @@ defer ;-hook ( sys2 -- sys1 )
     ['] drop swap concat >r  ['] drop swap concat >r
     >r :noname r> compile, postpone ;
     r> set-compiler r> set-postpone  Constant ;
+
+\ does>
+
+: !does    ( addr -- ) \ gforth	store-does
+    vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
+    IF
+	['] spaces >namevt @ >vtcompile, @ set-compiler
+    THEN
+    latestxt does-code! ;
+
+: comp-does>; ( some-sys flag lastxt -- )
+    \ used as colon-sys xt; this is executed after ";" has removed the
+    \ colon-sys produced by [:
+    nip (;]) postpone set-does> postpone ; ;
+
+: comp-does> ( compilation colon-sys1 -- colon-sys2 )
+    state @ >r
+    comp-[:
+    r> 0= if postpone [ then \ don't change state
+    ['] comp-does>; colon-sys-xt-offset stick \ replace noop with comp-does>;
+; immediate
+
+: int-does>; ( latestxt flag lastxt -- )
+    nip swap lastcfa ! set-does> ;
+
+: int-does> ( -- colon-sys )
+    latestxt int-[:
+    ['] int-does>; colon-sys-xt-offset stick \ replace noop with :does>;
+;
+
+' int-does> ' comp-does> interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 )
 
 \ new interpret/compile:
 
