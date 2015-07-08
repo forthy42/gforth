@@ -107,8 +107,11 @@ variable backedge-locals
 defer other-control-flow ( -- )
 \ hook for control-flow stuff that's not handled by begin-like etc.
 
-: ?struc      ( flag -- )
+: ?struc      ( tag -- )
     defstart <> &-22 and throw ;
+: ?colon-sys  ( ... xt tag -- )
+    ?struc execute ;
+
 : >mark ( -- orig )
  cs-push-orig 0 , other-control-flow ;
 : >resolve    ( addr -- )
