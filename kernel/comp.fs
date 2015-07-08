@@ -402,8 +402,9 @@ include ./recognizer.fs
 : AValue ( w "name" -- ) \ core-ext
     (Value) A, ;
 
-: u-to >body @ next-task + ! ;
-comp: drop >body @ postpone useraddr , postpone ! ;
+: u-to ( n uvalue-xt -- ) >body @ next-task + ! ;
+comp: ( uvalue-xt to-xt -- )
+    drop >body @ postpone useraddr , postpone ! ;
 \g u-to is the to-method for user values; it's xt is only
 \g there to be consumed by @code{set-to}.
 : u-compile, ( xt -- )  >body @ postpone useraddr , postpone @ ;
@@ -562,11 +563,21 @@ interpret/compile: post:
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     >body ! ;
 
-: value! ( xt xt-deferred -- ) \ gforth  value-store
+: (comp-to) ( xt -- )
+    \g TO uses the TO-xt for interpretation and compilation.
+    \g Interpretation is straight-forward execute with ( value xt -- )
+    \g on the stack, so a normal >BODY ! (with the appropriate !) does
+    \g the TO action.  Compilation uses the compile,-Method of this
+    \g xt, i.e. that method will see ( value-xt to-xt -- ) as stack
+    \g effect.
+    dup >namevt @ >vtto @ compile, ;
+
+: value! ( n value-xt -- ) \ gforth  value-store
     \g this is the TO-method for normal values; it's tickable, but
     \g the only purpose of its xt is to be consumed by @code{set-to}.
     >body ! ;
-comp: drop >body postpone ALiteral postpone ! ;
+comp: ( value-xt to-xt -- )
+    drop >body postpone ALiteral postpone ! ;
     
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -576,8 +587,6 @@ comp: drop >body postpone ALiteral postpone ! ;
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
     record-name ' postpone ALiteral postpone defer! ; immediate restrict
-
-: (comp-to) ( xt -- ) dup >namevt @ >vtto @ compile, ;
 
 :noname ( value "name" -- ) (') (name>x) drop (int-to) ;
 :noname ( value "name" -- ) (') (name>x) drop (comp-to) ; over over
