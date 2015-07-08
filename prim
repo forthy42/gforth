@@ -278,6 +278,34 @@ debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
 SET_IP(EXTRA_CODE(CFA));
 #endif /* !defined(NO_IP) */
 
+(docolloc) ( -- R:a_retaddr R:a_lp R:a_trampoline ) gforth-internal paren_docolloc
+""Call a word with locals and create a trampoline to restore the LP at EXIT""
+a_trampoline = &trampoline;
+a_lp = (Cell*)lp;
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(CFA);
+      debugp(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)CFA,
+	     len,name);
+    }
+#endif
+#ifdef NO_IP
+a_retaddr = next_code;
+INST_TAIL;
+JUMP(PFA(CFA));
+#else /* !defined(NO_IP) */
+a_retaddr = (Cell *)IP;
+SET_IP((Xt *)PFA(CFA));
+#endif /* !defined(NO_IP) */
+
+(dodoesxt) ( -- a_body )  gforth-internal       paren_dodoesxt
+a_body = PFA(CFA);
+#ifndef NO_IP
+ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
+#endif /* !defined(NO_IP) */
+SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
+VM_JUMP(EXEC1((Xt)DOES_CODEXT(CFA)));
+
 \F [endif]
 
 \g control
@@ -347,13 +375,13 @@ ip=IP;
 SUPER_END;
 VM_JUMP(EXEC1(*(Xt *)a_addr));
 
-does-exec ( #a_cfa -- R:nest a_pfa )	new	does_exec
+does-exec ( #a_cfa -- R:a_retaddr a_body )	new	does_exec
 #ifdef NO_IP
 /* compiled to LIT CALL by compile_prim */
 assert(0);
 #else
-a_pfa = PFA(a_cfa);
-nest = (Cell)IP;
+a_body = PFA(a_cfa);
+a_retaddr = (Cell *)IP;
 #ifdef DEBUG
     {
       CFA_TO_NAME(a_cfa);
@@ -364,13 +392,13 @@ nest = (Cell)IP;
 SET_IP(DOES_CODE1(a_cfa));
 #endif
 
-extra-exec ( #a_cfa -- R:nest a_pfa )	new	extra_exec
+extra-exec ( #a_cfa -- R:a_retaddr a_body )	new	extra_exec
 #ifdef NO_IP
 /* compiled to LIT CALL by compile_prim */
 assert(0);
 #else
-a_pfa = PFA(a_cfa);
-nest = (Cell)IP;
+a_body = PFA(a_cfa);
+a_retaddr = (Cell *)IP;
 #ifdef DEBUG
     {
       CFA_TO_NAME(a_cfa);
@@ -1664,7 +1692,7 @@ c_addr2 = c_addr1+1;
 
 cell/ ( n1 -- n2 )	gforth cell_divide
 ""@i{n2} is the number of cells that fit into @i{n1}""
-n2 = n1 / sizeof(Cell);
+n2 = n1 >> (sizeof(Cell) == 8 ? 3 : 2);
 :
  [ cell
  2/ dup [IF] ] 2/ [ [THEN]
@@ -3166,6 +3194,39 @@ assert(0);
 tag-offsets ( -- a_addr ) gforth tag_offsets
 extern Cell groups[32];
 a_addr = groups;
+
+lp-trampoline	( R:a_retaddr R:a_lp -- )	gforth	lp_trampoline
+""The primitive used for the call-loc trampoline.""
+lp = (Address)a_lp;
+#ifdef NO_IP
+INST_TAIL;
+goto *(void *)a_retaddr;
+#else
+SET_IP((Xt *)a_retaddr);
+#endif
+
+call-loc ( #a_callee -- R:a_retaddr R:a_lp R:a_trampoline )	new	call_loc
+""Call a word with locals and create a trampoline to restore the LP at EXIT""
+a_trampoline = &trampoline;
+a_lp = (Cell*)lp;
+#ifdef NO_IP
+assert(0);
+INST_TAIL;
+JUMP(a_callee);
+#else
+#ifdef DEBUG
+    {
+      CFA_TO_NAME((((Cell *)a_callee)-2));
+      debugp(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)a_callee,
+	     len,name);
+    }
+#endif
+a_retaddr = (Cell *)IP;
+SET_IP((Xt *)a_callee);
+#endif
+
+unlocal	( R:a_lp R:w -- )	gforth	unlocal
+lp = (Address)a_lp;
 
 \+
 

@@ -20,7 +20,7 @@
 here 0 , \ just a dummy, the real value of locals-list is patched into it in glocals.fs
 AConstant locals-list \ acts like a variable that contains
 		      \ a linear list of locals names
-
+0 value locals-wordlist
 
 variable dead-code \ true if normal code at "here" would be dead
 variable backedge-locals
@@ -55,9 +55,6 @@ variable backedge-locals
 3 constant dest \ the loopback branch is always assumed live
 4 constant do-dest
 5 constant scopestart
-
-: def? ( n -- )
-    defstart <> abort" unstructured " ;
 
 : orig? ( n -- )
  dup live-orig <> swap dead-orig <> and abort" expected orig " ;
@@ -110,8 +107,11 @@ variable backedge-locals
 defer other-control-flow ( -- )
 \ hook for control-flow stuff that's not handled by begin-like etc.
 
-: ?struc      ( flag -- )       abort" unstructured " ;
-: sys?        ( sys -- )        dup 0= ?struc ;
+: ?struc      ( tag -- )
+    defstart <> &-22 and throw ;
+: ?colon-sys  ( ... xt tag -- )
+    ?struc execute ;
+
 : >mark ( -- orig )
  cs-push-orig 0 , other-control-flow ;
 : >resolve    ( addr -- )
@@ -208,9 +208,9 @@ IS until-like
 \ special stack.
 
 \ !! remove the fixed size limit. 'Tis not hard.
-20 constant leave-stack-size
-create leave-stack  60 cells allot
-Avariable leave-sp  leave-stack 3 cells + leave-sp !
+40 constant leave-stack-size
+create leave-stack  leave-stack-size cs-item-size * cells allot
+Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
 
 : clear-leave-stack ( -- )
     leave-stack leave-sp ! ;
@@ -221,7 +221,7 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 : >leave ( orig -- )
     \ push on leave-stack
     leave-sp @
-    dup [ leave-stack 60 cells + ] Aliteral
+    dup [ leave-stack leave-stack-size cs-item-size * cells + ] Aliteral
     >= abort" leave-stack full"
     tuck ! cell+
     tuck ! cell+
@@ -328,9 +328,47 @@ Defer exit-like ( -- )
 \G forcing an early return from a definition. Before
 \G @code{EXIT}ing you must clean up the return stack and
 \G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
-    rdrop ; restrict
+    rdrop ;
 comp: drop [exit] ;
 
 : ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
-     POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
+    POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
+
+\ scope endscope
+
+: scope ( compilation  -- scope ; run-time  -- ) \ gforth
+    cs-push-part scopestart ; immediate
+
+defer adjust-locals-list ( wid -- )
+' drop is adjust-locals-list
+
+: endscope ( compilation scope -- ; run-time  -- ) \ gforth
+    scope?
+    drop  adjust-locals-list ; immediate
+ 
+ \ quotations
+: int-[: ( -- flag colon-sys )
+  false :noname ;
+: comp-[: ( -- quotation-sys flag colon-sys )
+    vtsave locals-wordlist last @ lastcfa @ leave-sp @
+    postpone AHEAD
+    locals-list @ locals-list off
+    postpone SCOPE
+    true  :noname  ;
+' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
+\G Starts a quotation
+
+: (;]) ( some-sys lastxt -- )
+    >r
+    ] postpone ENDSCOPE
+    locals-list !
+    postpone THEN
+    leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore
+    r> postpone ALiteral ;
+
+: ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
+    \g ends a quotation
+    POSTPONE ; swap IF
+        (;])
+    ELSE  r>  THEN ( xt ) ; immediate
 

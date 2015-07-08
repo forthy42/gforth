@@ -292,43 +292,56 @@ UCell hashkey1(Char *c_addr, UCell u, UCell ubits)
 #define ROL(x, n) ((x << n) | (x >> (64-n)))
 
 #define MIXKEY2 \
-  a1=ROL((a+(b^x1))*c1,37)+x3; \
-  b1=ROL(((b-ROL(a,13))^x2)*c2,23)+x4; \
+  a1=ROL((a+(b^hashx[2]))*hashx[0],37)+hashx[4]; \
+  b1=ROL(((b-ROL(a,13))^hashx[3])*hashx[1],23)+hashx[5]; \
   a^=a1; b^=b1
+
+uint64_t hashx[6] =
+  { 0x87c37b91114253d5ULL, 0x4cf5ad432745937fULL,
+    0x6c5f6f6cbe627173ULL, 0x7164c30603661c2fULL,
+    0xce5009401b441347ULL, 0x454fa335a6e63ad3ULL };
 
 void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
 {
+  // upmask is 0 for case sensitive, and 0x2020202020202020ULL for case insensitive
   uint64_t a=h->a, b=h->b;
-  int i;
-  const uint64_t
-    c1=0x87c37b91114253d5ULL, c2=0x4cf5ad432745937fULL,
-    x1=0x6c5f6f6cbe627173ULL, x2=0x7164c30603661c2fULL,
-    x3=0xce5009401b441347ULL, x4=0x454fa335a6e63ad3ULL;
+  size_t pagesize=0x1000; /* may be smaller, but may not be larger than real pagesize */
   uint64_t mixin, a1, b1;
-
-  for(i=0; i<(u>>3); i++) {
-    memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
+  Char* endp = c_addr+(u&-sizeof(uint64_t)), *endp1=c_addr+u-sizeof(uint64_t);
+  // read all full words
+  for(; c_addr<endp; c_addr+=sizeof(uint64_t)) {
+    memcpy(&mixin, c_addr, sizeof(uint64_t));
     // printf("+%lx\n", mixin);
-    mixin |= upmask & ~(mixin >> 2);
+    mixin |= upmask & ~(mixin >> 2); // case insensitive trick
     a ^= mixin;
     MIXKEY2;
   }
-  if(u&7) {
-    memcpy(&mixin, c_addr+i*sizeof(uint64_t), sizeof(uint64_t));
-  } else {
-    mixin = 0ULL;
-  }
+  u &= sizeof(uint64_t)-1;
+  if(u) {
+    // read last word
+    int shift    = (sizeof(uint64_t)-u)*8;
+    int lastshift= 0;
+    if(((intptr_t)(endp1+sizeof(uint64_t)-1) & (pagesize-1)) >= (pagesize-sizeof(uint64_t))) {
+      // last access might cross page size
+      endp = endp1;
+      lastshift= shift;
+    }
+    memcpy(&mixin, endp, sizeof(uint64_t));
+    // strip off parts read after the string end
+    // and mix in length of remaining fragment
 #ifdef WORDS_BIGENDIAN
-  mixin >>= 64 - (u&7)*8;
-  mixin |= (uint64_t)(u&7) << 56;
+    mixin <<= lastshift;
+    mixin >>= shift;
 #else
-  mixin <<= 64 - (u&7)*8;
-  mixin |= (uint64_t)(u&7);
+    mixin >>= lastshift;
+    mixin <<= shift;
 #endif
-  mixin |= upmask & ~(mixin >> 2);
-  // printf("+%lx\n", mixin);
-  a ^= mixin;
-  MIXKEY2;
+    mixin |= upmask & ~(mixin >> 2); // case insensitive trick
+    // printf("+%lx\n", mixin);
+    a ^= mixin;
+    b ^= (uint64_t)u; // distinguisher for last block size goes into b
+    MIXKEY2;
+  }
   MIXKEY2; // finalizing round
 
   h->a = a; h->b = b;

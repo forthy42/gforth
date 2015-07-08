@@ -714,7 +714,7 @@ Create callback-&style c-var c,
 
 [IFUNDEF] hashkey2
     : hash-c-source ( -- ) ;
-    : check-c-hash ( -- ) ;
+    : check-c-hash ( -- flag ) true ;
 [ELSE]
     : replace-modulename ( addr u -- ) { d: replace }
 	libcc$ $@  BEGIN  s" _replace_this_with_the_hash_code" search  WHILE
@@ -741,11 +741,12 @@ Create callback-&style c-var c,
 	libcc$ $@ false c-source-hash hashkey2
 	['] .c-hash c-source-file-execute ;
 
-    : check-c-hash ( -- )
+    : check-c-hash ( -- flag )
 	[: ." gflibcc_hash_" lib-modulename $. ;] $tmp
 	lib-handle lib-sym
 	?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
-	IF  lib-handle close-lib  lib-handle-addr @ off  THEN ;
+	IF  lib-handle close-lib  lib-handle-addr @ off false
+	ELSE  true  THEN ;
 [THEN]
 
 \ clear library
@@ -788,7 +789,7 @@ clear-libs
 
 : compile-wrapper-function1 ( -- )
     hash-c-source check-c-hash
-    lib-handle 0= if
+    0= if
 	c-library-name-create
 	libcc$ $@ c-source-file write-file throw  libcc$ $off
 	c-source-file close-file throw

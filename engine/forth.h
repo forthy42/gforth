@@ -108,7 +108,9 @@
 #define DOABICODE	8
 #define DOSEMIABICODE   9
 #define DOEXTRA	10
-#define DOER_MAX        10
+#define DOCOLLOC 11
+#define DODOESXT 12
+#define DOER_MAX        12
 
 #include "machine.h"
 
@@ -275,9 +277,9 @@ typedef Label *Xt;
 #  define DOES_CA ((Label)&xts[DODOES])
 #endif /* defined(DOUBLY_INDIRECT) */
 
+#define DOES_CODE1(cfa)	 ((Xt *)(cfa[1]))
+#define DOES_CODEXT(cfa) ((Xt)(cfa[1]))
 
-
-#define DOES_CODE1(cfa)	((Xt *)(cfa[1]))
 /* MAKE_CF creates an appropriate code field at the cfa;
    ca is the code address */
 #define VTLINK 0

@@ -324,60 +324,56 @@ $0fffffff constant lcount-mask
 	drop ['] compile-only-error
     then ;
 
-has? f83headerstring [IF]
+' noop Alias ((name>)) ( nfa -- cfa )
+
+(field) >vtlink      0 cells ,
+(field) >vtcompile,  1 cells ,
+(field) >vtpostpone  2 cells ,
+(field) >vtextra     3 cells ,
+(field) >vtto        4 cells ,
+(field) >vt>int      5 cells ,
+(field) >vt>comp     6 cells ,
+(field) >vtdefer@    7 cells ,
+
+1 cells -3 cells \ mini-oof class declaration with methods
+\ the offsets are a bit odd to keep the xt as point of reference
+cell var >f+c
+cell var >link
+cell var >namevt
+
+method compile, ( xt -- )
+swap
+cell+ \ postpone action has no simple method
+cell+ \ extra has no simple method
+swap
+
+method (int-to) ( val xt -- ) \ gforth paren-int-to
+\G direct call performs the interpretation semantics of to
+
+method name>int ( nt -- xt ) \ gforth name-to-int
+\G @i{xt} represents the interpretation semantics of the word
+\G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
+\G @code{compile-only}), @i{xt} is the execution token for
+\G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
+
+method name>comp ( nt -- w xt ) \ gforth name-to-comp
+\G @i{w xt} is the compilation token for the word @i{nt}.
+
+method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
+\G @i{xt} represents the word currently associated with the deferred
+\G word @i{xt-deferred}.
+drop Constant vtsize \ vtable size
+
 : name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
-    cell+ count lcount-mask and ;
-
-: ((name>))  ( nfa -- cfa )
-    name>string + cfaligned ;
+    >f+c dup @ lcount-mask and tuck - swap ;
 
 : (name>x) ( nfa -- cfa w )
     \ cfa is an intermediate cfa and w is the flags cell of nfa
-    dup ((name>))
-    swap cell+ c@ dup alias-mask and 0=
+    dup >f+c @ dup alias-mask and 0=
     IF
-        swap @ swap
+	swap @ swap
     THEN ;
-[ELSE]
-    ' noop Alias ((name>)) ( nfa -- cfa )
-    (field) >namevt -1 cells , \ virtual table for names
-    (field) >link   -2 cells , \ link field
-    (field) >f+c    -3 cells , \ flags+count
-
-    (field) >vtlink      0 cells ,
-    (field) >vtcompile,  1 cells ,
-    (field) >vtpostpone  2 cells ,
-    (field) >vtextra     3 cells ,
-    (field) >vtto        4 cells ,
-    (field) >vt>int      5 cells ,
-    (field) >vt>comp     6 cells ,
-    (field) >vtdefer@    7 cells ,
-    8 cells Constant vtsize
-    
-    : name>string ( nt -- addr count ) \ gforth     name-to-string
-	\g @i{addr count} is the name of the word represented by @i{nt}.
-	>f+c dup @ lcount-mask and tuck - swap ;
-    
-    : (name>x) ( nfa -- cfa w )
-	\ cfa is an intermediate cfa and w is the flags cell of nfa
-	dup ((name>))
-	swap >f+c @ dup alias-mask and 0=
-	IF
-	    swap @ swap
-	THEN ;
-[THEN]
-
-: name>int ( nt -- xt ) \ gforth name-to-int
-    \G @i{xt} represents the interpretation semantics of the word
-    \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
-    \G @code{compile-only}), @i{xt} is the execution token for
-    \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
-    x#exec [ 5 , ] ;
-
-: name>comp ( nt -- w xt ) \ gforth name-to-comp
-    \G @i{w xt} is the compilation token for the word @i{nt}.
-    x#exec [ 6 , ] ;
 
 : default-name>int ( nt -- xt ) \ gforth paren-name-to-int
     \G @i{xt} represents the interpretation semantics of the word
@@ -390,11 +386,11 @@ has? f83headerstring [IF]
     \G Like @code{name>int}, but perform @code{-2048 throw} if @i{nt}
     \G has no interpretation semantics.
     dup name>int tuck <> if
-      dup ['] compile-only-error = if execute then
+      dup ['] compile-only-error = -2048 and throw
     then ;
 
 : (x>comp) ( xt w -- xt +-1 )
-    immediate-mask and [ has? rom [IF] ] 0= [ [THEN] ] flag-sign ;
+    immediate-mask and flag-sign ;
 
 \ these transformations are used for legacy words like find
 
@@ -415,10 +411,6 @@ has? f83headerstring [IF]
 [THEN]
 
 const Create ???
-
-[IFDEF] forthstart
-\ if we have a forthstart we can define head? with it
-\ otherwise leave out the head? check
 
 : one-head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false
@@ -474,23 +466,6 @@ const Create ???
     \ also heuristic
     dup head? 0= IF  drop ['] ???  THEN ;
 
-[ELSE]
-
-: >head-noprim ( cfa -- nt ) \ gforth  to-head-noprim
-    $25 cell do ( cfa )
-	dup i - dup @ [ alias-mask lcount-mask or ] literal
-	[ 1 bits/char 3 - lshift 1 - 1 bits/char 1 - lshift or
-	-1 cells allot bigendian [IF]   c, -1 1 cells 1- times
-	[ELSE] -1 1 cells 1- times c, [THEN] ]
-	and ( cfa len|alias )
-	swap + cell + cfaligned over alias-mask + =
-	if ( cfa ) i - cell - unloop exit
-	then
-	cell +loop
-    drop ['] ??? ( wouldn't 0 be better? ) ;
-
-[THEN]
-
 cell% 2* 0 0 field >body ( xt -- a_addr ) \ core to-body
 \G Get the address of the body of the word represented by @i{xt} (the
 \G address of the word's data field).
@@ -498,8 +473,6 @@ drop drop
 
 cell% -2 * 0 0 field body> ( xt -- a_addr )
     drop drop
-
-has? standardthreading has? compiler and [IF]
 
 ' @ alias >code-address ( xt -- c_addr ) \ gforth
 \G @i{c-addr} is the code address of the word @i{xt}.
@@ -518,13 +491,7 @@ has? standardthreading has? compiler and [IF]
 	THEN
     endif ;
 
-has? prims [IF]
-    : flash! ! ;
-    : flashc! c! ;
-[THEN]
-
-has? flash [IF] ' flash! [ELSE] ' ! [THEN]
-alias code-address! ( c_addr xt -- ) \ gforth
+' ! alias code-address! ( c_addr xt -- ) \ gforth
 \G Create a code field with code address @i{c-addr} at @i{xt}.
 
 : any-code! ( a-addr cfa code-addr -- )
@@ -535,11 +502,7 @@ alias code-address! ( c_addr xt -- ) \ gforth
 : does-code! ( a-addr xt -- ) \ gforth
 \G Create a code field at @i{xt} for a child of a @code{DOES>}-word;
 \G @i{a-addr} is the start of the Forth code after @code{DOES>}.
-    [ has? flash [IF] ]
-    dodoes: over flash! cell+ flash!
-    [ [ELSE] ]
-    dodoes: over ! cell+ ! 
-    [ [THEN] ] ;
+    dodoes: over ! cell+ ! ;
 
 : extra-code! ( a-addr xt -- ) \ gforth
 \G Create a code field at @i{xt} for a child of a @code{EXTRA>}-word;
@@ -548,8 +511,6 @@ alias code-address! ( c_addr xt -- ) \ gforth
 
 2 cells constant /does-handler ( -- n ) \ gforth
 \G The size of a @code{DOES>}-handler (includes possible padding).
-
-[THEN]	
 
 : sfind ( c-addr u -- 0 / xt +-1  ) \ gforth-obsolete
     find-name dup
@@ -599,13 +560,6 @@ alias code-address! ( c_addr xt -- ) \ gforth
     \g interpretation semantics.
     (') name?int ;
 
-has? compiler 0= [IF]	\ interpreter only version of IS and TO
-
-: IS ' >body ! ;
-' IS Alias TO
-
-[THEN]
-
 \ \ the interpreter loop				  mar92py
 
 \ interpret                                            10mar92py
@@ -616,12 +570,6 @@ Defer parser1 ( c-addr u -- ... xt)
 : parser ( c-addr u -- ... )
 \ text-interpret the word/number c-addr u, possibly producing a number
     parser1 execute ;
-has? ec [IF]
-    ' (name) Alias parse-name
-    : no.extensions  2drop -&13 throw ;
-    ' no.extensions Alias compiler-notfound1
-    ' no.extensions Alias interpreter-notfound1
-[ELSE]    
 Defer parse-name ( "name" -- c-addr u ) \ gforth
 \G Get the next word from the input buffer
 ' (name) IS parse-name
@@ -643,9 +591,6 @@ Defer before-line ( -- ) \ gforth
 \ called before the text interpreter parses the next line
 ' noop IS before-line
 
-[THEN]
-
-has? backtrace [IF]
 : interpret1 ( ... -- ... )
     rp@ backtrace-rp0 !
     [ has? EC 0= [IF] ] before-line [ [THEN] ]
@@ -662,15 +607,6 @@ has? backtrace [IF]
     ['] interpret1 catch
     r> backtrace-rp0 !
     throw ;
-[ELSE]
-: interpret ( ... -- ... )
-    BEGIN
-	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
-    WHILE
-	parser1 execute
-    REPEAT
-    2drop ;
-[THEN]
 
 \ interpreter                                 	30apr92py
 
@@ -685,7 +621,6 @@ has? backtrace [IF]
 
 \ save-mem extend-mem
 
-has? os [IF]
 : save-mem	( addr1 u -- addr2 u ) \ gforth
     \g copy a memory block into a newly allocated region in the heap
     swap >r
@@ -708,22 +643,11 @@ has? os [IF]
     \ the (possibly reallocated) piece is addr2 u2, the extension is at addr
     over >r + dup >r resize throw
     r> over r> + -rot ;
-[THEN]
 
 \ \ Quit                                            	13feb93py
 
 Defer 'quit
-
-has? os [IF]
-    Defer .status
-[ELSE]
-    [IFUNDEF] bye
-	: (bye)     ( 0 -- ) \ back to DOS
-	    drop 5 emit ;
-	
-	: bye ( -- )  0 (bye) ;
-    [THEN]
-[THEN]
+Defer .status
 
 : prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;
 

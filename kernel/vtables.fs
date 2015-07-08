@@ -32,12 +32,13 @@
 : does, ['] does-exec peephole-compile, , ;
 : umethod, >body cell+ 2@ ['] u#exec peephole-compile, , , ;
 : uvar, >body cell+ 2@ ['] u#+ peephole-compile, , , ;
-
+: :loc, >body ['] call-loc peephole-compile, , ;
 
 : (uv!) ( xt addr -- ) 2@ next-task + @ cell- @ swap cells + ! ;
 : umethod! ( xt xt-method -- )
     >body cell+ (uv!) ;
-comp: drop >body cell+ postpone Aliteral postpone (uv!) ;
+comp: ( xt-method xt-to --)
+    drop >body cell+ postpone Aliteral postpone (uv!) ;
 : umethod@ ( addr -- xt ) >body cell+ 2@ next-task + @ cell- @ swap cells + @ ;
 
 AVariable vtable-list

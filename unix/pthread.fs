@@ -175,11 +175,15 @@ c-library pthread
     c-function wait_read wait_read a n n -- n ( pipefd timeoutns timeouts -- n )
     c-function getpid getpid -- n ( -- n ) \ for completion
     c-function stick-to-core stick_to_core n -- n ( core -- n )
+    \c #define get_pthread_id(addr) *(pthread_t*)(addr) = pthread_self()
+    c-function pthread_self get_pthread_id a -- void ( pthread-id -- )
 end-c-library
 
 require libc.fs
 
 User pthread-id  -1 cells pthread+ uallot drop
+
+pthread-id pthread_self
 
 User epiper
 User epipew

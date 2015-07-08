@@ -475,35 +475,45 @@ previous
 
 \ quotations
 
-:noname  false :noname ;
-:noname  locals-wordlist last @ lastcfa @ leave-sp @
+[ifundef] [:
+: int-[: ( -- flag colon-sys )
+  false :noname ;
+: comp-[: ( -- quotation-sys flag colon-sys )
+    vtsave locals-wordlist last @ lastcfa @ leave-sp @
     postpone AHEAD
     locals-list @ locals-list off
     postpone SCOPE
     true  :noname  ;
-interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
+' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
 \G Starts a quotation
+
+: (;]) ( some-sys lastxt -- )
+    >r
+    ] postpone ENDSCOPE
+    locals-list !
+    postpone THEN
+    leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore
+    r> postpone ALiteral ;
 
 : ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
     \g ends a quotation
-    POSTPONE ; >r IF
-	]  postpone ENDSCOPE
-	locals-list !
-	postpone THEN
-	leave-sp ! lastcfa ! last ! to locals-wordlist
-	r> postpone ALiteral
+    POSTPONE ; swap IF
+        (;])
     ELSE  r>  THEN ( xt ) ; immediate
+[then]
 
 \ multiple values to and from return stack
 
 : n>r ( x1 .. xn n -- r:xn..x1 r:n )
-    r> { n ret }
+    scope r> { n ret }
     0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
-    ret >r ;
+    ret >r endscope ;
+' :, set-compiler  docol: latestxt code-address!
 : nr> ( r:xn..x1 r:n -- x1 .. xn n )
-    r> r> { ret n }
+    scope r> r> { ret n }
     0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
-    ret >r ;
+    ret >r endscope ;
+' :, set-compiler  docol: latestxt code-address!
 
 \ x:traverse-wordlist words
 

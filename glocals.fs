@@ -118,9 +118,11 @@ User locals-size \ this is the current size of the locals stack
     \g sets locals-size to n and generates an appropriate lp+!
     locals-size @ swap - compile-lp+! ;
 
-: unlocal ( n -- ) \ gforth
-    \g adjust local stack by n at run-time
-    faligned lp@ + lp! ;
+: >docolloc ( -- )
+    \g turn colon definition into lp restoring trampoline
+    latestxt @ docol: <> ?EXIT
+    docolloc: latestxt code-address!
+    ['] :loc, set-compiler ;
 
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,
@@ -275,7 +277,7 @@ Variable val-part
     locals-size @ swap !
     val-part @ IF  postpone false  THEN  postpone lp@ postpone c! ;
 
-7 cells 32 + constant locals-name-size \ 32-char name + fields + wiggle room
+(field) locals-name-size+ 10 cells , \ fields + wiggle room, name size must be added
 
 : create-local1 ( "name" -- a-addr )
     create
@@ -309,10 +311,12 @@ defer dict-execute ( ... addr1 addr2 xt -- ... )
 : create-local ( "name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
-    [IFDEF] vt, vt, [THEN]
-    locals-name-size allocate throw
+    nextname-string 2@ dup 0= IF
+	2drop >in @ >r parse-name r> >in !  THEN  nip
+    dfaligned locals-name-size+ >r
+    r@ allocate throw
     dup locals-mem-list prepend-list
-    locals-name-size cell /string over + ['] create-local1 dict-execute ;
+    r> cell /string over + ['] create-local1 dict-execute ;
 
 variable locals-dp \ so here's the special dp for locals.
 
@@ -462,7 +466,8 @@ new-locals-map mappedwordlist Constant new-locals-wl
 \ new-locals-map ' new-locals >body wordlist-map A! \ !! use special access words
 
 \ and now, finally, the user interface words
-: { ( -- latestxt wid 0 ) \ gforth open-brace
+: { ( -- vtaddr u latestxt wid 0 ) \ gforth open-brace
+    >docolloc vtsave \ as locals will mess with their own vttemplate
     latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
@@ -474,7 +479,7 @@ synonym {: {
 
 locals-types definitions
 
-: } ( latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
+: } ( vtaddr u latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
     \ ends locals definitions
     ]
     begin
@@ -482,19 +487,20 @@ locals-types definitions
     while
 	execute
     repeat
-    drop
+    drop vt,
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
     previous previous
     set-current lastcfa !
+    vtrestore
     locals-list 0 wordlist-id - TO locals-wordlist ;
 
 synonym :} }
 
-: -- ( addr wid 0 ... -- ) \ gforth dash-dash
+: -- ( vtaddr u latestxt wid 0 ... -- ) \ gforth dash-dash
     }
     BEGIN  [char] } parse dup WHILE
-	    + 1- c@ dup bl = swap ':' = or  UNTIL
-	ELSE  2drop  THEN ;
+        + 1- c@ dup bl = swap ':' = or  UNTIL
+    ELSE  2drop  THEN ;
 
 forth definitions
 
@@ -590,17 +596,22 @@ forth definitions
 
 \ explicit scoping
 
+[ifundef] scope
 : scope ( compilation  -- scope ; run-time  -- ) \ gforth
     cs-push-part scopestart ; immediate
 
-: adjust-locals-list ( wid -- )
-    locals-list @ common-list
-    dup list-size adjust-locals-size
-    locals-list ! ;
+defer adjust-locals-list ( wid -- )
 
 : endscope ( compilation scope -- ; run-time  -- ) \ gforth
     scope?
     drop  adjust-locals-list ; immediate
+[then]
+
+:noname ( wid -- )
+    locals-list @ common-list
+    dup list-size adjust-locals-size
+    locals-list ! ;
+is adjust-locals-list
 
 \ adapt the hooks
 
@@ -616,13 +627,13 @@ forth definitions
 
 [IFDEF] free-old-local-names
 :noname ( -- )
-    vt, locals-mem-list @ free-list
+    locals-mem-list @ free-list
     0 locals-mem-list ! ;
 is free-old-local-names
 [THEN]
 
 : locals-;-hook ( sys addr xt sys -- sys )
-    def?
+    ?struc
     0 TO locals-wordlist
     0 adjust-locals-size ( not every def ends with an exit )
     lastcfa ! last !
@@ -699,7 +710,9 @@ is free-old-local-names
 
 ' locals-:-hook IS :-hook
 ' locals-;-hook IS ;-hook
-
+[ifdef] colon-sys-xt-offset
+colon-sys-xt-offset 3 + to colon-sys-xt-offset
+[then]
 
 ' (then-like)  IS then-like
 ' (begin-like) IS begin-like

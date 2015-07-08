@@ -28,6 +28,8 @@
 -&10 Doer: :doabicode
 -&11 Doer: :do;abicode
 -&12 Doer: :doextra
+-&13 Doer: :docolloc
+-&14 Doer: :dodoesxt
 -&2 first-primitive
 \ this does not work for (at least) (DODOES),
 \ so the following routines are commented out

@@ -250,8 +250,6 @@ has? primcentric [IF]
     [ELSE]
 	: peephole-compile, ( xt -- addr ) @ , ;
     [THEN]
-
-    : compile, ( xt -- ) x#exec [ 1 , ] ;
 [ELSE]
 ' , is compile,
 [THEN]
@@ -340,19 +338,24 @@ include ./recognizer.fs
 ' restrict alias compile-only ( -- ) \ gforth
 \G Remove the interpretation semantics of a word.
 
+\ !!FIXME!! new flagless versions:
+\ : immediate [: name>int ['] execute ;] set->comp ;
+\ : compile-only [: drop ['] compile-only-error ;] set->int ;
+
 \ \ Create Variable User Constant                        	17mar93py
+
+\ : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
+
+: s>int ( nt -- xt )  @ name>int ;
+: s>comp ( nt -- xt1 xt2 )  @ name>comp ;
 
 : Alias    ( xt "name" -- ) \ gforth
     Header reveal ['] on vtcopy
     alias-mask lastflags creset
     dup A, lastcfa ! ;
 
-: s>int ( nt -- xt )  @ name>int ;
-: s>comp ( nt -- xt1 xt2 )  @ name>comp ;
-
 : Synonym ( "name" "oldname" -- ) \ Forth200x
     Header  ['] on vtcopy
-    alias-mask lastflags creset
     parse-name find-name dup A, name>int lastcfa !
     ['] s>int set->int ['] s>comp set->comp reveal ;
 
@@ -399,8 +402,11 @@ include ./recognizer.fs
 : AValue ( w "name" -- ) \ core-ext
     (Value) A, ;
 
-: u-to >body @ next-task + ! ;
-comp: drop >body @ postpone useraddr , postpone ! ;
+: u-to ( n uvalue-xt -- ) >body @ next-task + ! ;
+comp: ( uvalue-xt to-xt -- )
+    drop >body @ postpone useraddr , postpone ! ;
+\g u-to is the to-method for user values; it's xt is only
+\g there to be consumed by @code{set-to}.
 : u-compile, ( xt -- )  >body @ postpone useraddr , postpone @ ;
 
 : UValue ( "name" -- )
@@ -443,6 +449,9 @@ defer defer-default ( -- )
     \G binding as if @i{name} was not deferred.
     ' defer@ compile, ; immediate
 
+\ No longer used for DOES>; integrate does>-like with ;abi-code, and
+\ eliminate the extra stuff?
+
 : does>-like ( xt -- defstart )
     \ xt ( addr -- ) is !does or !;abi-code etc, addr is the address
     \ that should be stored right after the code address.
@@ -453,10 +462,6 @@ defer defer-default ( -- )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
-\ : !does    ( addr -- ) \ gforth	store-does
-\     ['] spaces >namevt @ >vtcompile, @ set-compiler
-\     latestxt does-code! ;
-
 extra>-dummy (doextra-dummy)
 : !extra   ( addr -- ) \ gforth store-extra
     vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
@@ -465,9 +470,9 @@ extra>-dummy (doextra-dummy)
     THEN
     latestxt extra-code! ;
 
-: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core        extra
-    cfalign 0 , here !extra ] defstart :-hook ;
-comp: drop  ['] !extra does>-like :-hook ;
+\ call with locals
+
+docolloc-dummy (docolloc-dummy)
 
 \ comp: to define compile, action
 
@@ -489,7 +494,15 @@ Create vttemplate
     here >namevt vttemplate ! ;
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
-    dup vtcopy >code-address cfa, ;
+    dup vtcopy here >r dup >code-address cfa, >does-code r> cell+ ! ;
+
+: vtsave ( -- addr u ) \ gforth
+    \g save vttemplate for nested definitions
+    vttemplate vtsize save-mem  vttemplate off ;
+
+: vtrestore ( addr u -- ) \ gforth
+    \g restore vttemplate
+    over >r vttemplate swap move r> free throw ;
 
 : vt= ( vt1 vt2 -- flag )
     cell+ swap vtsize cell /string tuck compare 0= ;
@@ -508,9 +521,9 @@ Create vttemplate
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
 : start-xt ( -- colonsys xt ) \ incomplete, will not be a full xt
-    here >r docol: cfa, defstart ] :-hook r> ;
+    here >r docol: cfa, colon-sys ] :-hook r> ;
 : start-xt-like ( colonsys xt -- colonsys )
-    nip reveal does>-like drop start-xt drop ;
+    reveal does>-like drop start-xt drop ;
 
 : set-compiler  ( xt -- ) vttemplate >vtcompile, ! ;
 : set-postpone  ( xt -- ) vttemplate >vtpostpone ! ;
@@ -518,15 +531,19 @@ Create vttemplate
 : set-defer@    ( xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
-: set-does>     ( xt -- ) >body !extra ; \ more work than the aboves
+: set-does>     ( xt -- ) >body !does ; \ more work than the aboves
 
-: comp: ( -- colon-sys )
+:noname ( -- colon-sys )
     start-xt  set-compiler ;
-comp: ['] set-compiler start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        compile-to
+:noname ['] set-compiler start-xt-like ;
+interpret/compile: comp:
+( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
-: post: ( -- colon-sys )
+:noname ( -- colon-sys )
     start-xt  set-postpone ;
-comp: ['] set-postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth        lit-to
+:noname ['] set-postpone start-xt-like ;
+interpret/compile: post:
+( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
 \ defer and friends
 
@@ -534,9 +551,21 @@ comp: ['] set-postpone     start-xt-like ;  ( compilation colon-sys1 -- colon-sy
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
     >body ! ;
 
-: value! ( xt xt-deferred -- ) \ gforth  value-store
+: (comp-to) ( xt -- )
+    \g TO uses the TO-xt for interpretation and compilation.
+    \g Interpretation is straight-forward execute with ( value xt -- )
+    \g on the stack, so a normal >BODY ! (with the appropriate !) does
+    \g the TO action.  Compilation uses the compile,-Method of this
+    \g xt, i.e. that method will see ( value-xt to-xt -- ) as stack
+    \g effect.
+    dup >namevt @ >vtto @ compile, ;
+
+: value! ( n value-xt -- ) \ gforth  value-store
+    \g this is the TO-method for normal values; it's tickable, but
+    \g the only purpose of its xt is to be consumed by @code{set-to}.
     >body ! ;
-comp: drop >body postpone ALiteral postpone ! ;
+comp: ( value-xt to-xt -- )
+    drop >body postpone ALiteral postpone ! ;
     
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -546,9 +575,6 @@ comp: drop >body postpone ALiteral postpone ! ;
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
     record-name ' postpone ALiteral postpone defer! ; immediate restrict
-
-: (int-to) ( val xt -- ) x#exec [ 4 , ] ;
-: (comp-to) ( xt -- ) dup >namevt @ >vtto @ compile, ;
 
 :noname ( value "name" -- ) (') (name>x) drop (int-to) ;
 :noname ( value "name" -- ) (') (name>x) drop (comp-to) ; over over
@@ -560,13 +586,23 @@ interpret/compile: IS ( value "name" -- )
 defer :-hook ( sys1 -- sys2 )
 defer free-old-local-names ( -- )
 defer ;-hook ( sys2 -- sys1 )
+1 value colon-sys-xt-offset
+\ you get get the xt in a colon-sys with COLON-SYS-XT-OFFSET PICK
 
 0 Constant defstart
+: colon-sys ( -- colon-sys )
+    \ a colon-sys consists of an xt for an action to be executed at
+    \ the end of the definition, possibly some data consumed by the xt
+    \ below that, and a DEFSTART tag on top; the stack effect of xt is
+    \ ( ... -- ), where the ... is the additional data in the
+    \ colon-sys.  The :-hook may add more stuff (which is then removed
+    \ by ;-hook before this stuff here is processed).
+    ['] noop defstart ;
 
 : (noname->comp) ( nt -- nt xt )  ['] compile, ;
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
-    docol, defstart ] :-hook ;
+    docol, colon-sys ] :-hook ;
 
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
@@ -577,7 +613,7 @@ defer ;-hook ( sys2 -- sys1 )
     ['] noop set->int  ['] (noname->comp) set->comp ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
-    ;-hook ?struc [exit]
+    ;-hook [exit] ?colon-sys
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
 
@@ -590,17 +626,50 @@ defer ;-hook ( sys2 -- sys1 )
     >r :noname r> compile, postpone ;
     r> set-compiler r> set-postpone  Constant ;
 
-\ new interpret/compile:
+\ does>
 
-: interpret/compile? ( xt -- flag ) drop false ;
+: !does    ( addr -- ) \ gforth	store-does
+    vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
+    IF
+	['] spaces >namevt @ >vtcompile, @ set-compiler
+    THEN
+    latestxt does-code! ;
+
+: comp-does>; ( some-sys flag lastxt -- )
+    \ used as colon-sys xt; this is executed after ";" has removed the
+    \ colon-sys produced by [:
+    nip (;]) postpone set-does> postpone ; ;
+
+: comp-does> ( compilation colon-sys1 -- colon-sys2 )
+    state @ >r
+    comp-[:
+    r> 0= if postpone [ then \ don't change state
+    ['] comp-does>; colon-sys-xt-offset stick \ replace noop with comp-does>;
+; immediate
+
+: int-does>; ( vtaddr vtu latestxt flag lastxt -- )
+    nip >r lastcfa ! vtrestore r> set-does> ;
+
+: int-does> ( -- colon-sys )
+    vtsave latestxt int-[:
+    ['] int-does>; colon-sys-xt-offset stick \ replace noop with :does>;
+;
+
+' int-does> ' comp-does> interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 )
+
+\ new interpret/compile:
 
 : i/c>int ( nt -- xt )  @ ;
 : i/c>comp ( nt -- xt1 xt2 ) cell+ @ ['] execute ;
 
+\ : interpret/compile? ( xt -- flag ) >namevt @ >vt>int @ ['] i/c>int = ;
+
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
-    Header reveal ['] on vtcopy alias-mask lastflags cset
-    ['] i/c>int set->int  ['] i/c>comp set->comp
-    swap dup A, lastcfa ! A, ;
+    Header reveal
+    ['] on vtcopy \ vtable template from normal colon definition
+    ['] i/c>int  set->int   \ special name>interpret method
+    ['] i/c>comp set->comp  \ special name>compile method
+    swap , , ;
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 

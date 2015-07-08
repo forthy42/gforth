@@ -1120,6 +1120,7 @@ Ghost refill drop
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop
 Ghost :doextra  Ghost doextra-vt Ghost extra,   2drop drop
+Ghost :docolloc drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -2746,7 +2747,7 @@ X has? primcentric [IF]
 
 Cond: DOES>
         T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
-        H + alit, compile !extra compile ;s
+        H + alit, compile !does compile ;s
         doeshandler, resolve-does>-part
         ;Cond
 
@@ -2956,6 +2957,10 @@ ghost u#exec
 ghost u#+
 ghost uvar,
 2drop drop
+ghost :loc,
+drop
+ghost x#exec
+drop
 
 Create vttemplate
 0 ,
@@ -3098,6 +3103,11 @@ Builder extra>-dummy
 Build: ;Build
 by: :doextra ;DO
 vt: [G'] extra, gset-compiler ;vt
+
+Builder docolloc-dummy
+Build: ;Build
+by: :docolloc ;DO
+vt: [G'] :loc, gset-compiler ;vt
 
 \ Variables and Constants                              05dec92py
 
@@ -3307,10 +3317,11 @@ by User
 
 \ Mini-OOF
 
-Builder method
-Build: ( m v -- m' v )  over T , swap cell+ swap H ;Build
-DO:  abort" Not in cross mode" ;DO
-vtghost: do-moof-method-vt
+>TARGET
+: method ( m v -- m' v )
+    over >r no-loop on T : H compile x#exec
+    r> tcell / T , (;) swap cell+ swap H ;
+>CROSS
 
 Builder var
 Build: ( m v size -- m v+size )  over T , H + ;Build
