@@ -475,24 +475,32 @@ previous
 
 \ quotations
 
-:noname  false :noname ;
-:noname  vtsave locals-wordlist last @ lastcfa @ leave-sp @
+[ifundef] [:
+: int-[: ( -- flag colon-sys )
+  false :noname ;
+: comp-[: ( -- quotation-sys flag colon-sys )
+    vtsave locals-wordlist last @ lastcfa @ leave-sp @
     postpone AHEAD
     locals-list @ locals-list off
     postpone SCOPE
     true  :noname  ;
-interpret/compile: [: ( compile-time: -- quotation-sys ) \ gforth bracket-colon
+' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
 \G Starts a quotation
+
+: (;]) ( some-sys lastxt -- )
+    >r
+    ] postpone ENDSCOPE
+    locals-list !
+    postpone THEN
+    leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore
+    r> postpone ALiteral ;
 
 : ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
     \g ends a quotation
-    POSTPONE ; >r IF
-	]  postpone ENDSCOPE
-	locals-list !
-	postpone THEN
-	leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore
-	r> postpone ALiteral
+    POSTPONE ; swap IF
+        (;])
     ELSE  r>  THEN ( xt ) ; immediate
+[then]
 
 \ multiple values to and from return stack
 

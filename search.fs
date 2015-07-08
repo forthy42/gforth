@@ -103,7 +103,9 @@ Variable slowvoc   0 slowvoc !
     drop 1 -loop
     2drop false ;
 
-0 value locals-wordlist
+[ifundef] locals-wordlist
+    0 value locals-wordlist
+[then]
 
 : (localsvocfind)  ( addr count wid -- nfa|false )
     \ !! use generalized (vocfind)

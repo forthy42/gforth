@@ -448,6 +448,7 @@ defer defer-default ( -- )
     \G binding as if @i{name} was not deferred.
     ' defer@ compile, ; immediate
 
+\ does>
 : does>-like ( xt -- defstart )
     \ xt ( addr -- ) is !does or !;abi-code etc, addr is the address
     \ that should be stored right after the code address.
@@ -473,7 +474,10 @@ extra>-dummy (doextra-dummy)
     THEN
     latestxt extra-code! ;
 
-:noname cfalign 0 , here !does ] defstart :-hook ;
+
+
+
+:noname cfalign 0 , here !does ] colon-sys :-hook ;
 :noname ['] !does does>-like :-hook ;
 interpret/compile: DOES>  ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ core
 
@@ -528,7 +532,7 @@ Create vttemplate
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
 : start-xt ( -- colonsys xt ) \ incomplete, will not be a full xt
-    here >r docol: cfa, defstart ] :-hook r> ;
+    here >r docol: cfa, colon-sys ] :-hook r> ;
 : start-xt-like ( colonsys xt -- colonsys )
     reveal does>-like drop start-xt drop ;
 
@@ -585,13 +589,23 @@ interpret/compile: IS ( value "name" -- )
 defer :-hook ( sys1 -- sys2 )
 defer free-old-local-names ( -- )
 defer ;-hook ( sys2 -- sys1 )
+1 value colon-sys-xt-offset
+\ you get get the xt in a colon-sys with COLON-SYS-XT-OFFSET PICK
 
 0 Constant defstart
+: colon-sys ( -- colon-sys )
+    \ a colon-sys consists of an xt for an action to be executed at
+    \ the end of the definition, possibly some data consumed by the xt
+    \ below that, and a DEFSTART tag on top; the stack effect of xt is
+    \ ( ... -- ), where the ... is the additional data in the
+    \ colon-sys.  The :-hook may add more stuff (which is then removed
+    \ by ;-hook before this stuff here is processed).
+    ['] noop defstart ;
 
 : (noname->comp) ( nt -- nt xt )  ['] compile, ;
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
-    docol, defstart ] :-hook ;
+    docol, colon-sys ] :-hook ;
 
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
@@ -602,7 +616,7 @@ defer ;-hook ( sys2 -- sys1 )
     ['] noop set->int  ['] (noname->comp) set->comp ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
-    ;-hook ?struc [exit]
+    ;-hook [exit] ?colon-sys
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
 
