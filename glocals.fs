@@ -628,7 +628,7 @@ is free-old-local-names
 [THEN]
 
 : locals-;-hook ( sys addr xt sys -- sys )
-    def?
+    ?struc
     0 TO locals-wordlist
     0 adjust-locals-size ( not every def ends with an exit )
     lastcfa ! last !

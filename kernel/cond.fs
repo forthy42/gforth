@@ -56,9 +56,6 @@ variable backedge-locals
 4 constant do-dest
 5 constant scopestart
 
-: def? ( n -- )
-    defstart <> abort" unstructured " ;
-
 : orig? ( n -- )
  dup live-orig <> swap dead-orig <> and abort" expected orig " ;
 
@@ -110,7 +107,8 @@ variable backedge-locals
 defer other-control-flow ( -- )
 \ hook for control-flow stuff that's not handled by begin-like etc.
 
-: ?struc      ( flag -- )       0<> &-22 and throw ;
+: ?struc      ( flag -- )
+    defstart <> &-22 and throw ;
 : >mark ( -- orig )
  cs-push-orig 0 , other-control-flow ;
 : >resolve    ( addr -- )
