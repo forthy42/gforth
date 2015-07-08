@@ -110,8 +110,7 @@ variable backedge-locals
 defer other-control-flow ( -- )
 \ hook for control-flow stuff that's not handled by begin-like etc.
 
-: ?struc      ( flag -- )       abort" unstructured " ;
-: sys?        ( sys -- )        dup 0= ?struc ;
+: ?struc      ( flag -- )       0<> &-22 and throw ;
 : >mark ( -- orig )
  cs-push-orig 0 , other-control-flow ;
 : >resolve    ( addr -- )
@@ -208,9 +207,9 @@ IS until-like
 \ special stack.
 
 \ !! remove the fixed size limit. 'Tis not hard.
-20 constant leave-stack-size
-create leave-stack  60 cells allot
-Avariable leave-sp  leave-stack 3 cells + leave-sp !
+40 constant leave-stack-size
+create leave-stack  leave-stack-size cs-item-size * cells allot
+Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
 
 : clear-leave-stack ( -- )
     leave-stack leave-sp ! ;
@@ -221,7 +220,7 @@ Avariable leave-sp  leave-stack 3 cells + leave-sp !
 : >leave ( orig -- )
     \ push on leave-stack
     leave-sp @
-    dup [ leave-stack 60 cells + ] Aliteral
+    dup [ leave-stack leave-stack-size cs-item-size * cells + ] Aliteral
     >= abort" leave-stack full"
     tuck ! cell+
     tuck ! cell+
