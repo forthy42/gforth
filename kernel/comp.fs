@@ -448,6 +448,7 @@ defer defer-default ( -- )
     \G binding as if @i{name} was not deferred.
     ' defer@ compile, ; immediate
 
+\ does>
 : does>-like ( xt -- defstart )
     \ xt ( addr -- ) is !does or !;abi-code etc, addr is the address
     \ that should be stored right after the code address.
@@ -472,6 +473,9 @@ extra>-dummy (doextra-dummy)
 	['] extra, set-compiler
     THEN
     latestxt extra-code! ;
+
+
+
 
 :noname cfalign 0 , here !does ] colon-sys :-hook ;
 :noname ['] !does does>-like :-hook ;
@@ -585,6 +589,8 @@ interpret/compile: IS ( value "name" -- )
 defer :-hook ( sys1 -- sys2 )
 defer free-old-local-names ( -- )
 defer ;-hook ( sys2 -- sys1 )
+1 value colon-sys-xt-offset
+\ you get get the xt in a colon-sys with COLON-SYS-XT-OFFSET PICK
 
 0 Constant defstart
 : colon-sys ( -- colon-sys )

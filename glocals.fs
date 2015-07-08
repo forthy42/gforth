@@ -499,8 +499,8 @@ synonym :} }
 : -- ( vtaddr u latestxt wid 0 ... -- ) \ gforth dash-dash
     }
     BEGIN  [char] } parse dup WHILE
-	    + 1- c@ dup bl = swap ':' = or  UNTIL
-	ELSE  2drop  THEN ;
+        + 1- c@ dup bl = swap ':' = or  UNTIL
+    ELSE  2drop  THEN ;
 
 forth definitions
 
@@ -596,17 +596,22 @@ forth definitions
 
 \ explicit scoping
 
+[ifundef] scope
 : scope ( compilation  -- scope ; run-time  -- ) \ gforth
     cs-push-part scopestart ; immediate
 
-: adjust-locals-list ( wid -- )
-    locals-list @ common-list
-    dup list-size adjust-locals-size
-    locals-list ! ;
+defer adjust-locals-list ( wid -- )
 
 : endscope ( compilation scope -- ; run-time  -- ) \ gforth
     scope?
     drop  adjust-locals-list ; immediate
+[then]
+
+:noname ( wid -- )
+    locals-list @ common-list
+    dup list-size adjust-locals-size
+    locals-list ! ;
+is adjust-locals-list
 
 \ adapt the hooks
 
@@ -705,7 +710,9 @@ is free-old-local-names
 
 ' locals-:-hook IS :-hook
 ' locals-;-hook IS ;-hook
-
+[ifdef] colon-sys-xt-offset
+colon-sys-xt-offset 3 + to colon-sys-xt-offset
+[then]
 
 ' (then-like)  IS then-like
 ' (begin-like) IS begin-like

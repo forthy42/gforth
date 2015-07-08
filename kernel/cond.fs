@@ -20,7 +20,7 @@
 here 0 , \ just a dummy, the real value of locals-list is patched into it in glocals.fs
 AConstant locals-list \ acts like a variable that contains
 		      \ a linear list of locals names
-
+0 value locals-wordlist
 
 variable dead-code \ true if normal code at "here" would be dead
 variable backedge-locals
@@ -332,5 +332,43 @@ Defer exit-like ( -- )
 comp: drop [exit] ;
 
 : ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
-     POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
+    POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
+
+\ scope endscope
+
+: scope ( compilation  -- scope ; run-time  -- ) \ gforth
+    cs-push-part scopestart ; immediate
+
+defer adjust-locals-list ( wid -- )
+' drop is adjust-locals-list
+
+: endscope ( compilation scope -- ; run-time  -- ) \ gforth
+    scope?
+    drop  adjust-locals-list ; immediate
+ 
+ \ quotations
+: int-[: ( -- flag colon-sys )
+  false :noname ;
+: comp-[: ( -- quotation-sys flag colon-sys )
+    vtsave locals-wordlist last @ lastcfa @ leave-sp @
+    postpone AHEAD
+    locals-list @ locals-list off
+    postpone SCOPE
+    true  :noname  ;
+' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
+\G Starts a quotation
+
+: (;]) ( some-sys lastxt -- )
+    >r
+    ] postpone ENDSCOPE
+    locals-list !
+    postpone THEN
+    leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore
+    r> postpone ALiteral ;
+
+: ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
+    \g ends a quotation
+    POSTPONE ; swap IF
+        (;])
+    ELSE  r>  THEN ( xt ) ; immediate
 

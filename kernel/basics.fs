@@ -126,6 +126,11 @@ has? ec has? primcentric 0= and [IF]
 	swap >r 1- recurse r> swap 
     then ;
 
+: stick ( x0 x1 ... xu x u -- x x1 ... xu ) \ gforth-internal
+    \ replace x0 with x; e.g., 5 PICK 1+ 5 STICK increments the 6th
+    \ stack element (not recommended).
+    2 + cells sp@ + ! ;
+
 \ place bounds                                         13feb93py
 
 : place  ( addr len to -- ) \ gforth
