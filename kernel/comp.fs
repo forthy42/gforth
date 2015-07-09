@@ -494,7 +494,7 @@ Create vttemplate
     here >namevt vttemplate ! ;
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
-    dup vtcopy here >r dup >code-address cfa, >does-code r> cell+ ! ;
+    dup vtcopy here >r dup >code-address cfa, cell+ @ r> cell+ ! ;
 
 : vtsave ( -- addr u ) \ gforth
     \g save vttemplate for nested definitions
@@ -531,7 +531,8 @@ Create vttemplate
 : set-defer@    ( xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
-: set-does>     ( xt -- ) >body !does ; \ more work than the aboves
+\ : set-does>     ( xt -- ) >body !does ; \ more work than the aboves
+: set-does>     ( xt -- ) !doesxt ; \ more work than the aboves
 
 :noname ( -- colon-sys )
     start-xt  set-compiler ;
@@ -627,6 +628,13 @@ defer ;-hook ( sys2 -- sys1 )
     r> set-compiler r> set-postpone  Constant ;
 
 \ does>
+
+: doesxt, ( xt -- )
+    dup >body postpone literal  cell+ @ compile, ;
+
+: !doesxt ( xt -- ) \ gforth store-doesxt
+    latestxt doesxt-code!
+    ['] doesxt, set-compiler ;
 
 : !does    ( addr -- ) \ gforth	store-does
     vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =

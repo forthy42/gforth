@@ -789,6 +789,7 @@ Plugin doer,
 Plugin fini,      \ compiles end of definition ;s
 Plugin doeshandler,
 Plugin dodoes,
+Plugin dodoesxt,
 
 Plugin colon-start
 ' noop plugin-of colon-start
@@ -1120,7 +1121,7 @@ Ghost refill drop
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop
 Ghost :doextra  Ghost doextra-vt Ghost extra,   2drop drop
-Ghost :docolloc drop
+Ghost :docolloc Ghost :dodoesxt 2drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -2483,6 +2484,11 @@ T 2 cells H Value xt>body
   addr,
   2 fillcfa ;						' (dodoes,) plugin-of dodoes,
 
+: (dodoesxt,) ( does-action-ghost -- )
+  ]comp [G'] :dodoesxt addr, comp[
+  addr,
+  2 fillcfa ;						' (dodoesxt,) plugin-of dodoesxt,
+
 : (dlit,) ( n -- ) compile lit td, ;			' (dlit,) plugin-of dlit,
 
 : (lit,) ( n -- )  s>d dlit, ;				' (lit,) plugin-of lit,
@@ -2708,6 +2714,7 @@ Cond: [ ( -- ) interpreting-state ;Cond
 0 Value created
 
 Ghost does, drop
+Ghost doesxt, drop
 
 Defer gset-compiler
 	
@@ -3098,6 +3105,12 @@ Build: ;Build
 by: :dodoes ;DO
 vt: [G'] does, gset-compiler ;vt
 \ vtghost: dodoes-vt
+
+Builder doesxt>-dummy
+Build: ;Build
+by: :dodoesxt ;DO
+vt: [G'] doesxt, gset-compiler ;vt
+\ vtghost: dodoesxt-vt
 
 Builder extra>-dummy
 Build: ;Build
