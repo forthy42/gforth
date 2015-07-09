@@ -348,7 +348,7 @@ defer adjust-locals-list ( wid -- )
  
  \ quotations
 : int-[: ( -- flag colon-sys )
-  false :noname ;
+    false :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
     vtsave locals-wordlist last @ lastcfa @ leave-sp @
     postpone AHEAD
@@ -360,7 +360,7 @@ defer adjust-locals-list ( wid -- )
 
 : (;]) ( some-sys lastxt -- )
     >r
-    ] postpone ENDSCOPE
+    ] postpone ENDSCOPE vt,
     locals-list !
     postpone THEN
     leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore
