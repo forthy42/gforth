@@ -373,5 +373,5 @@ defer adjust-locals-list ( wid -- )
 
 : ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
     \g ends a quotation
-    POSTPONE ; swap IF (;]) ELSE wrap! THEN ( xt ) ; immediate
+    POSTPONE ; swap IF (;]) ELSE >r wrap! r> THEN ( xt ) ; immediate
 
