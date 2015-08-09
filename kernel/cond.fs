@@ -349,7 +349,7 @@ defer adjust-locals-list ( wid -- )
 \ quotations
 : wrap@ ( -- wrap-sys )
     vtsave locals-wordlist last @ lastcfa @ leave-sp @ ;
-: wrap! ( wrap-sys )
+: wrap! ( wrap-sys -- )
     leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore ;
 
 : int-[: ( -- flag colon-sys )
@@ -373,5 +373,5 @@ defer adjust-locals-list ( wid -- )
 
 : ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
     \g ends a quotation
-    POSTPONE ; swap IF (;]) ELSE >r wrap! r> THEN ( xt ) ; immediate
+    POSTPONE ; swap IF (;]) ELSE >r vt, wrap! r> THEN ( xt ) ; immediate
 

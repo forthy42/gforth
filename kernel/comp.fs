@@ -655,11 +655,11 @@ defer ;-hook ( sys2 -- sys1 )
     ['] comp-does>; colon-sys-xt-offset stick \ replace noop with comp-does>;
 ; immediate
 
-: int-does>; ( vtaddr vtu latestxt flag lastxt -- )
-    nip >r lastcfa ! vtrestore r> set-does> ;
+: int-does>; ( flag lastxt -- )
+    nip >r vt, wrap! r> set-does> ;
 
 : int-does> ( -- colon-sys )
-    vtsave latestxt int-[:
+    int-[:
     ['] int-does>; colon-sys-xt-offset stick \ replace noop with :does>;
 ;
 
