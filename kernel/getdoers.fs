@@ -67,6 +67,12 @@ true [IF] \ !! don't know what to put here
     ['] spaces >code-address ;
 [THEN]
 
+doer? :dodoesxt [if]
+    doesxt>-dummy (doesxt>-dummy)
+    : dodoesxt: ( -- addr )
+        \G the code address of a @code{set-does>}-defined word.
+        ['] (doesxt>-dummy) >code-address ;
+[then]
 
 doer? :doabicode [IF]
 (ABI-CODE) (abi-code-dummy)

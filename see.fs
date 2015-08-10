@@ -835,6 +835,7 @@ c-extender !
     ScanMode c-pass ! dup makepass
     DisplayMode c-pass ! makepass ;
 : seedoes ( xt -- )
+    \ !! make it work for general xt set-does> words
     dup s" create" .defname cr
     S" DOES> " Com# .string XPos @ Level !
     >does-code see-threaded ;

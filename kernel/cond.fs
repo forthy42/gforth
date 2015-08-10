@@ -346,11 +346,16 @@ defer adjust-locals-list ( wid -- )
     scope?
     drop  adjust-locals-list ; immediate
  
- \ quotations
+\ quotations
+: wrap@ ( -- wrap-sys )
+    vtsave locals-wordlist last @ lastcfa @ leave-sp @ ;
+: wrap! ( wrap-sys -- )
+    leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore ;
+
 : int-[: ( -- flag colon-sys )
-  false :noname ;
+    wrap@ false :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
-    vtsave locals-wordlist last @ lastcfa @ leave-sp @
+    wrap@
     postpone AHEAD
     locals-list @ locals-list off
     postpone SCOPE
@@ -360,15 +365,13 @@ defer adjust-locals-list ( wid -- )
 
 : (;]) ( some-sys lastxt -- )
     >r
-    ] postpone ENDSCOPE
+    ] postpone ENDSCOPE vt,
     locals-list !
     postpone THEN
-    leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore
+    wrap!
     r> postpone ALiteral ;
 
 : ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
     \g ends a quotation
-    POSTPONE ; swap IF
-        (;])
-    ELSE  r>  THEN ( xt ) ; immediate
+    POSTPONE ; swap IF (;]) ELSE >r vt, wrap! r> THEN ( xt ) ; immediate
 
