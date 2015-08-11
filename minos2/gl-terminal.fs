@@ -257,7 +257,9 @@ Variable gl-emit-buf
 
 : gl-atxy ( x y -- )  gl-xy 2! ;
 
-: gl-at-deltaxy ( x y -- )  gl-xy 2@ rot + >r + r> gl-atxy ;
+: gl-at-deltaxy ( x y -- )
+    >r s>d gl-wh @ sm/rem r> +
+    gl-xy 2@ rot + >r + r> gl-atxy ;
 
 : gl-page ( -- )  0 0 gl-atxy  0 to videorows
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!

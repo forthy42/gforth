@@ -232,15 +232,10 @@ require utf-8.fs
 
 ' xcur-correct IS cur-correct
 
-: xback-restore-rest ( u -- )
-    screenw @ /mod negate swap negate swap at-deltaxy ;
 : xback-restore ( u -- )
     \ correction for line=screenw, no wraparound then!
-    [ e? os-type s" linux-android" str= 0= ] [IF]
-	dup screenw @ mod 0= over 0> and IF
-	    1- screenw @ /mod negate swap 1+ negate swap
-	    at-deltaxy  EXIT  THEN [THEN]
-    xback-restore-rest ;
+    dup screenw @ mod 0= over 0> and \ flag, true=-1
+    dup >r + screenw @ /mod negate swap r> - negate swap at-deltaxy ;
 : .rest ( addr pos1 -- addr pos1 )
     linew @ xback-restore 2dup type 2dup cur-correct ;
 : .all ( span addr pos1 -- span addr pos1 )
