@@ -35,6 +35,8 @@ do
     mv $i+ $i
 done
 
+make doc pdf install.TAGS makefile.dos makefile.os2 >&2
+
 cat <<EOT
 ; This is the setup script for Gforth on Windows
 ; Setup program is Inno Setup
