@@ -235,8 +235,11 @@ require utf-8.fs
 : xback-restore-rest ( u -- )
     screenw @ /mod negate swap negate swap at-deltaxy ;
 : xback-restore ( u -- )
-    dup screenw @ mod 0= IF  1- 0 max  THEN
     \ correction for line=screenw, no wraparound then!
+    [ e? os-type s" linux-android" str= 0= ] [IF]
+	dup screenw @ mod 0= over 0> and IF
+	    1- screenw @ /mod negate swap 1+ negate swap
+	    at-deltaxy  EXIT  THEN [THEN]
     xback-restore-rest ;
 : .rest ( addr pos1 -- addr pos1 )
     linew @ xback-restore 2dup type 2dup cur-correct ;
@@ -244,7 +247,7 @@ require utf-8.fs
     linew @ xback-restore >r 2dup swap type 2dup swap cur-correct r> ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
-    linew @ xback-restore-rest
+    linew @ xback-restore
     cols dup screenw !@ - >r 2 pick dup screenw @ / r> * 0 max +
     dup spaces linew !  .all .rest false ;
 
