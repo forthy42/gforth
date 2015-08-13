@@ -5,20 +5,27 @@ get-current also opengl definitions
 
 c-library opengl
     \c #define GL_GLEXT_PROTOTYPES
-    \c #include <GL/glx.h>
-    \c #include <GL/glext.h>
-
-    s" GL" add-lib
+    e? os-type s" cygwin" str= [IF]
+	\c #include <w32api/GL/gl.h>
+	\c #include <w32api/GL/glext.h>
+	\c #include <w32api/GL/wglext.h>
+    [ELSE]
+	\c #include <GL/glx.h>
+	\c #include <GL/glext.h>
+    [THEN]
     
-    \ This is the missing piece:
-    \ you need to get a linkable copy of libui.so
-    \ s" ui" add-lib
-    \ \c void* android_createDisplaySurface(void);
-    \ c-function android_createDisplaySurface android_createDisplaySurface -- a ( -- window )
-   
-    include gl.fs
-    include glx.fs
-
+    e? os-type s" cygwin" str= [IF]
+	s" opengl32" add-lib
+    
+	include glwin.fs
+	include wgl.fs
+    [ELSE]
+	s" GL" add-lib
+    
+	include gl.fs
+	include glx.fs
+    [THEN]
+    
 end-c-library
 
 previous set-current

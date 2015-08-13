@@ -48,32 +48,10 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 	nip nip
     THEN ;
 
-s" os-type" environment?
-[IF] s" cygwin" str=
-    [IF] false
-    [ELSE] s" os-class" environment?
-	[IF] s" unix" str= [ELSE] true [THEN]
-    [THEN]
-[ELSE] true
-[THEN]
-[IF]
 : history-file ( -- addr u )
     s" GFORTHHIST" getenv dup 0= IF
 	2drop s" ~/.gforth-history"
     THEN ;
-[ELSE]
-
-: history-dir ( -- addr u )
-  s" TMP" getenv ?dup ?EXIT drop
-  s" TEMP" getenv ?dup ?EXIT drop
-  s" c:/" ;
-
-: history-file ( -- addr u )
-  s" GFORTHHIST" getenv ?dup ?EXIT
-  drop
-  history-dir pad place
-  s" /ghist.fs" pad +place pad count ;
-[THEN]
 
 \ moving in history file                               16oct94py
 

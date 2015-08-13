@@ -43,7 +43,7 @@ cat <<EOT
 
 [Setup]
 AppName=Gforth
-AppVerName=Gforth $VERSION
+AppVersion=$VERSION
 AppCopyright=Copyright © 1995-2015 Free Software Foundation
 DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
@@ -53,6 +53,8 @@ Compression=lzma
 DisableStartupPrompt=yes
 ChangesEnvironment=yes
 OutputBaseFilename=gforth-$VERSION
+AppPublisher=Free Software Foundation, Gforth team
+AppPublisherURL=http://bernd-paysan.de/gforth.html
 
 [Messages]
 WizardInfoBefore=License Agreement
@@ -85,6 +87,11 @@ Name: "{app}\include\gforth\\$VERSION"
 ;   "Source filename", "Dest. filename", Copy mode, Flags
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
 Source: "c:\\$CYGWIN\\bin\\sh.exe"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\bash.exe"; DestDir: "{app}\\usr\\bin"
+Source: "c:\\$CYGWIN\\bin\\mintty.exe"; DestDir: "{app}\\usr\\bin"
+Source: "c:\\$CYGWIN\\bin\\run.exe"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\cygwin-console-helper.exe"; DestDir: "{app}\\usr\\bin"
+Source: "c:\\$CYGWIN\\bin\\env.exe"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygwin1.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cyggcc_s-${SEH}1.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygintl-8.dll"; DestDir: "{app}"
@@ -113,14 +120,14 @@ done) | sed \
 ; Parameter quick reference:
 ;   "Icon title", "File name", "Parameters", "Working dir (can leave blank)",
 ;   "Custom icon filename (leave blank to use the default icon)", Icon index
-Name: "{group}\Gforth"; Filename: "{app}\gforth.exe"; WorkingDir: "{app}"
-Name: "{group}\Gforth-fast"; Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"
-Name: "{group}\Gforth-ditc"; Filename: "{app}\gforth-ditc.exe"; WorkingDir: "{app}"
-Name: "{group}\Gforth-itc"; Filename: "{app}\gforth-itc.exe"; WorkingDir: "{app}"
+Name: "{group}\Gforth"; Filename: "{app}\run.exe"; Parameters: "env HOME=%HOMEDRIVE%%HOMEPATH% ./usr/bin/mintty gforth"; WorkingDir: "{app}"
+Name: "{group}\Gforth-fast"; Filename: "{app}\run.exe"; Parameters: "env HOME=%HOMEDRIVE%%HOMEPATH% ./usr/bin/mintty gforth-fast"; WorkingDir: "{app}"
+Name: "{group}\Gforth-ditc"; Filename: "{app}\run.exe"; Parameters: "env HOME=%HOMEDRIVE%%HOMEPATH% ./usr/bin/mintty gforth-ditc"; WorkingDir: "{app}"
+Name: "{group}\Gforth-itc"; Filename: "{app}\run.exe"; Parameters: "env HOME=%HOMEDRIVE%%HOMEPATH% ./usr/bin/mintty gforth-itc"; WorkingDir: "{app}"
 Name: "{group}\Gforth Manual"; Filename: "{app}\doc\gforth\index.html"; WorkingDir: "{app}"; Components: help
 Name: "{group}\Gforth Manual (PDF)"; Filename: "{app}\doc\gforth.pdf"; WorkingDir: "{app}"; Components: help
 Name: "{group}\VMgen Manual"; Filename: "{app}\doc\vmgen\index.html"; WorkingDir: "{app}"; Components: help
-Name: "{group}\Bash"; Filename: "{app}\sh.exe"; WorkingDir: "{app}"
+Name: "{group}\Bash"; Filename: "{app}\run.exe"; Parameters: "env HOME=%HOMEDRIVE%%HOMEPATH% ./usr/bin/mintty sh"; WorkingDir: "{app}"; Flags: runminimized
 Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
 [Run]
