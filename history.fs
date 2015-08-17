@@ -269,12 +269,14 @@ Variable vt100-modifier
     over + dup xchar- tuck - >r over -
     >string over r@ + -rot move
     rot r> - -rot ;
+: xdel ( max span addr pos1 -- max span addr pos2 )
+    2dup + dup xchar- tuck - x-width >r
+    (xdel) .all r@ spaces r> linew +! .rest ;
 : ?xdel ( max span addr pos1 -- max span addr pos2 0 )
-  dup  IF  (xdel) .all 2 spaces 2 linew +! .rest  THEN  0 ;
+    dup  IF  xdel  THEN  0 ;
 : <xdel> ( max span addr pos1 -- max span addr pos2 0 )
-  2 pick over <>
-    IF  xforw drop (xdel) .all 2 spaces 2 linew +! .rest
-    ELSE  bell  THEN  0 ;
+    2 pick over <>
+    IF  xforw drop xdel  ELSE  bell  THEN  0 ;
 : xeof  2 pick over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
 
 : xfirst-pos  ( max span addr pos1 -- max span addr 0 0 )
