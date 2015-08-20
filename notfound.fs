@@ -19,13 +19,14 @@
 
 : no.extension -13 throw ;
 
-Defer interpret-notfound1 ' no.extension is interpret-notfound1
-Defer compiler-notfound1  ' no.extension is compiler-notfound1
-Defer postpone-notfound1  ' no.extension is postpone-notfound1
+Defer interpret-notfound1 ( addr u -- ) ' no.extension is interpret-notfound1
+\g Legacy hook for words not found during interpretation
+Defer compiler-notfound1 ( addr u -- )  ' no.extension is compiler-notfound1
+\g Legacy hook for words not found during compilation
+Defer postpone-notfound1 ( addr u -- )  ' no.extension is postpone-notfound1
+\g Legacy hook for words not found during postpone
 
-: r:notfound ( addr u -- ) interpret-notfound1 ;
-comp: ( addr u <xt> -- ) drop compiler-notfound1 ;
-post: ( addr u <xt> -- ) drop postpone-notfound1 ;
-' r:notfound Constant rec:notfound
+' interpret-notfound1 ' compiler-notfound1 ' postpone-notfound1
+recognizer: rec:notfound
 
 ' rec:notfound get-recognizers 1+ set-recognizers

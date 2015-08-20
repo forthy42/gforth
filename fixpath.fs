@@ -17,29 +17,32 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: "search s" .:/usr/local" ;
+Variable pathes$  3 arg pathes$ $!
 
-Variable pathes$  2 arg pathes$ $!
+: fixslash ( addr u -- )
+    bounds ?DO  I c@ '\' = IF  '/' I c!  THEN  LOOP ;
+: fixsemi ( addr u -- )
+    bounds ?DO  I c@ ';' = IF  ':' I c!  THEN  LOOP ;
+: cygpath ( path -- ) >r
+    BEGIN  r@ $@ ':' scan  WHILE
+	    r@ $@ drop - { index }
+	    r@ index 1 $del
+	    s" /cygdrive/" r@ index 1- $ins
+    REPEAT  drop r@ $@ fixslash  r@ $@ fixsemi
+    0 r> c$+! ;
+pathes$ cygpath
 
-pathes$ 1 1 $del s" /cygdrive/" pathes$ 0 $ins
-: fixpathes ( addr u -- )
-  bounds ?DO  I c@ '\ = IF  '/ I c!  THEN  LOOP ;
-pathes$ $@ fixpathes
-s" .:" pathes$ 0 $ins
+." In " 1 arg type ." replace " 2 arg type ."  with " pathes$ $. cr 200 ms
 
-." Fixing " 1 arg type ."  with " pathes$ $. cr 200 ms
+Variable $file
 
-0 Value #size
-0 Value #file
 : fix-exe ( addr u -- )
-  r/w bin open-file throw >r
-  r@ file-size throw drop to #size
-  #size allocate throw to #file
-  #file #size r@ read-file throw drop
-  #file #size "search search 2drop #file -
-  0 r@ reposition-file throw
-  pathes$ $@ 2dup + 0 swap c! 1+ r@ write-file throw
-  r> close-file throw ;
+    r/w bin open-file throw >r
+    $file r@ $slurp
+    $file $@ 2 arg search 2drop $file $@ drop -
+    0 r@ reposition-file throw
+    pathes$ $@ r@ write-file throw
+    r> close-file throw ;
 
 1 arg fix-exe
 
