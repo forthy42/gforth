@@ -24,8 +24,8 @@ Defer compiler-notfound1  ' no.extension is compiler-notfound1
 Defer postpone-notfound1  ' no.extension is postpone-notfound1
 
 : r:notfound ( addr u -- ) interpret-notfound1 ;
-comp: drop compiler-notfound1 ;
-post: drop postpone-notfound1 ;
+comp: ( addr u <xt> -- ) drop compiler-notfound1 ;
+post: ( addr u <xt> -- ) drop postpone-notfound1 ;
 ' r:notfound Constant rec:notfound
 
 ' rec:notfound get-recognizers 1+ set-recognizers
