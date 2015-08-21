@@ -873,7 +873,7 @@ case "$host_os" in
 		# absolute DOS filenames
 		DEFAULTSYSTEMPREFIX="" #"./${COMSPEC//\\/\\\\\\\\} /c "
 		no_chmod="#"
-		RM=Delete # on Windows, RM is Delete
+		RM='$GFORTH -e ": rm BEGIN  argc @ 1 >  WHILE  next-arg delete-file throw REPEAT ; rm bye"' # on Windows, use Gforth to delete files
 		;;
 	*linux*)
 		DIRSEP="/"

@@ -37,11 +37,11 @@ done
 
 make doc pdf install.TAGS makefile.dos makefile.os2 >&2
 
-cp /bin/cygwin1.dll cygwin-copy.dll
-./gforth fixpath.fs cygwin-copy.dll "/bin/cygwin-console-helper.exe" "./cygwin-console-helper.exe" 1>&2
-./gforth fixpath.fs cygwin-copy.dll "/usr/bin/sh" "./sh" 1>&2
-./gforth fixpath.fs cygwin-copy.dll "/bin/sh" "./sh" 1>&2
-./gforth fixpath.fs cygwin-copy.dll "/bin/sh" "./sh" 1>&2
+#cp /bin/cygwin1.dll cygwin-copy.dll
+#./gforth fixpath.fs cygwin-copy.dll "/bin/cygwin-console-helper.exe" "./cygwin-console-helper.exe" 1>&2
+#./gforth fixpath.fs cygwin-copy.dll "/usr/bin/sh" "./sh" 1>&2
+#./gforth fixpath.fs cygwin-copy.dll "/bin/sh" "./sh" 1>&2
+#./gforth fixpath.fs cygwin-copy.dll "/bin/sh" "./sh" 1>&2
 
 cat <<EOT
 ; This is the setup script for Gforth on Windows
@@ -83,21 +83,22 @@ $(make distfiles -f Makedist | tr ' ' '\n' | grep -v CVS | (while read i; do
 done) | sort -u | sed \
   -e 's:/:\\:g' \
   -e 's,^\(..*\)$,Name: "{app}\\\1",g')
-Name: "{app}\doc\gforth"
-Name: "{app}\doc\vmgen"
-Name: "{app}\lib\gforth\\$VERSION\libcc-named"
-Name: "{app}\include\gforth\\$VERSION"
+Name: "{app}\\doc\\gforth"
+Name: "{app}\\doc\\vmgen"
+Name: "{app}\\lib\\gforth\\$VERSION\libcc-named"
+Name: "{app}\\include\\gforth\\$VERSION"
+Name: "{pf}\\tmp"; Permissions: users-modify
 
 [Files]
 ; Parameter quick reference:
 ;   "Source filename", "Dest. filename", Copy mode, Flags
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
-Source: "c:\\$CYGWIN\\bin\\sh.exe"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\sh.exe"; DestDir: "{pf}\\bin"
+Source: "c:\\$CYGWIN\\bin\\cygwin-console-helper.exe"; DestDir: "{pf}\\bin"
 Source: "c:\\$CYGWIN\\bin\\mintty.exe"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\run.exe"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygwin-console-helper.exe"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\env.exe"; DestDir: "{app}"
-Source: "cygwin-copy.dll"; DestDir: "{app}"; DestName: "cygwin1.dll"
+Source: "c:\\$CYGWIN\\bin\\cygwin1.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cyggcc_s-${SEH}1.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygintl-8.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygiconv-2.dll"; DestDir: "{app}"
@@ -132,11 +133,11 @@ Name: "{group}\Gforth-itc"; Filename: "{app}\run.exe"; Parameters: "env HOME='%H
 Name: "{group}\Gforth Manual"; Filename: "{app}\doc\gforth\index.html"; WorkingDir: "{app}"; Components: help
 Name: "{group}\Gforth Manual (PDF)"; Filename: "{app}\doc\gforth.pdf"; WorkingDir: "{app}"; Components: help
 Name: "{group}\VMgen Manual"; Filename: "{app}\doc\vmgen\index.html"; WorkingDir: "{app}"; Components: help
-Name: "{group}\Bash"; Filename: "{app}\run.exe"; Parameters: "env HOME='%HOMEDRIVE%%HOMEPATH%' mintty sh"; WorkingDir: "{app}"; Flags: runminimized
+Name: "{group}\Bash"; Filename: "{app}\\run.exe"; Parameters: "env HOME='%HOMEDRIVE%%HOMEPATH%' mintty /bin/sh"; WorkingDir: "{app}"; Flags: runminimized
 Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh '{app}' || (printf '\e[0;31;49mAn error occured, pess return to quit'; read)"""
+Filename: "{pf}\\bin\\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh '{app}' || (printf '\e[0;31;49mAn error occured, pess return to quit'; read)"""
 
 [UninstallDelete]
 Type: files; Name: "{app}\gforth.fi"
