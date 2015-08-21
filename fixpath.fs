@@ -32,7 +32,7 @@ Variable pathes$  3 arg pathes$ $!
     0 r> c$+! ;
 pathes$ cygpath
 
-." In " 1 arg type ."  replace " 2 arg type ."  with " pathes$ $. cr 200 ms
+." In " 1 arg type ."  replace " 2 arg type ."  with " pathes$ $. space
 
 Variable $file
 
@@ -40,7 +40,7 @@ Variable $file
     r/w bin open-file throw >r
     r@ $file $slurp
     $file $@ 2 arg search 2drop $file $@ drop -
-    ." replace at: " dup hex. cr
+    ." at: " dup hex. cr
     0 r@ reposition-file throw
     pathes$ $@ r@ write-file throw
     r> close-file throw ;

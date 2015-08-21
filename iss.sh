@@ -37,8 +37,8 @@ done
 
 make doc pdf install.TAGS makefile.dos makefile.os2 >&2
 
-cp /bin/cygwin1.dll .
-./gforth fixpath.fs cygwin1.dll "/bin/cygwin-console-helper.exe" "./cygwin-console-helper.exe" 1>&2
+cp /bin/cygwin1.dll cygwin-copy.dll
+./gforth fixpath.fs cygwin-copy.dll "/bin/cygwin-console-helper.exe" "./cygwin-console-helper.exe" 1>&2
 
 cat <<EOT
 ; This is the setup script for Gforth on Windows
@@ -94,7 +94,7 @@ Source: "c:\\$CYGWIN\\bin\\mintty.exe"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\run.exe"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygwin-console-helper.exe"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\env.exe"; DestDir: "{app}"
-Source: "cygwin1.dll"; DestDir: "{app}"
+Source: "cygwin-copy.dll"; DestDir: "{app}\\cygwin1.dll"
 Source: "c:\\$CYGWIN\\bin\\cyggcc_s-${SEH}1.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygintl-8.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygiconv-2.dll"; DestDir: "{app}"
