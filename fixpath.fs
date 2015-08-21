@@ -32,7 +32,7 @@ Variable pathes$  3 arg pathes$ $!
     0 r> c$+! ;
 pathes$ cygpath
 
-." In " 1 arg type ." replace " 2 arg type ."  with " pathes$ $. cr 200 ms
+." In " 1 arg type ."  replace " 2 arg type ."  with " pathes$ $. cr
 
 Variable $file
 
