@@ -38,7 +38,7 @@ done
 make doc pdf install.TAGS makefile.dos makefile.os2 >&2
 
 cp /bin/cygwin1.dll .
-./gforth fixpath.fs cygwin1.dll "/bin/cygwin-console-helper.exe" "./cygwin-console-helper.exe"
+./gforth fixpath.fs cygwin1.dll "/bin/cygwin-console-helper.exe" "./cygwin-console-helper.exe" 1>&2
 
 cat <<EOT
 ; This is the setup script for Gforth on Windows
