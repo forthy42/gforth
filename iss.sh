@@ -127,15 +127,15 @@ done) | sed \
 ; Parameter quick reference:
 ;   "Icon title", "File name", "Parameters", "Working dir (can leave blank)",
 ;   "Custom icon filename (leave blank to use the default icon)", Icon index
-Name: "{group}\Gforth"; Filename: "{app}\run.exe"; Parameters: "env HOME=%HOMEDRIVE%%HOMEPATH% mintty gforth"; WorkingDir: "{app}"
-Name: "{group}\Gforth-fast"; Filename: "{app}\run.exe"; Parameters: "env HOME='%HOMEDRIVE%%HOMEPATH%' mintty gforth-fast"; WorkingDir: "{app}"
-Name: "{group}\Gforth-ditc"; Filename: "{app}\run.exe"; Parameters: "env HOME='%HOMEDRIVE%%HOMEPATH%' mintty gforth-ditc"; WorkingDir: "{app}"
-Name: "{group}\Gforth-itc"; Filename: "{app}\run.exe"; Parameters: "env HOME='%HOMEDRIVE%%HOMEPATH%' mintty gforth-itc"; WorkingDir: "{app}"
+Name: "{group}\Gforth"; Filename: "{app}\\run.exe"; Parameters: "./env HOME=%HOMEDRIVE%%HOMEPATH% ./mintty ./gforth"; WorkingDir: "{app}"
+Name: "{group}\Gforth-fast"; Filename: "{app}\\run.exe"; Parameters: "./env HOME='%HOMEDRIVE%%HOMEPATH%' ./mintty ./gforth-fast"; WorkingDir: "{app}"
+Name: "{group}\Gforth-ditc"; Filename: "{app}\\run.exe"; Parameters: "./env HOME='%HOMEDRIVE%%HOMEPATH%' ./mintty ./gforth-ditc"; WorkingDir: "{app}"
+Name: "{group}\Gforth-itc"; Filename: "{app}\\run.exe"; Parameters: "./env HOME='%HOMEDRIVE%%HOMEPATH%' ./mintty ./gforth-itc"; WorkingDir: "{app}"
 Name: "{group}\Gforth Manual"; Filename: "{app}\doc\gforth\index.html"; WorkingDir: "{app}"; Components: help
 Name: "{group}\Gforth Manual (PDF)"; Filename: "{app}\doc\gforth.pdf"; WorkingDir: "{app}"; Components: help
 Name: "{group}\VMgen Manual"; Filename: "{app}\doc\vmgen\index.html"; WorkingDir: "{app}"; Components: help
-Name: "{group}\Bash"; Filename: "{app}\\run.exe"; Parameters: "env HOME='%HOMEDRIVE%%HOMEPATH%' mintty /bin/sh"; WorkingDir: "{app}"; Flags: runminimized
-Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
+Name: "{group}\Bash"; Filename: "{app}\\run.exe"; Parameters: "./env HOME='%HOMEDRIVE%%HOMEPATH%' ./mintty /bin/sh"; WorkingDir: "{app}"; Flags: runminimized
+Name: "{group}\Uninstall Gforth$SF"; Filename: "{uninstallexe}"
 
 [Run]
 Filename: "{pf}\\bin\\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh '{app}' || (printf '\e[0;31;49mAn error occured, pess return to quit'; read)"""
