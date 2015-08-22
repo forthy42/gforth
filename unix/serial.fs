@@ -1,5 +1,22 @@
 \ serial interface for Gforth under Unix
 
+\ Copyright (C) 2015 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation, either version 3
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program. If not, see http://www.gnu.org/licenses/.
+
 c-library serial
     \c #include <termios.h>
     \c #include <sys/ioctl.h>
@@ -16,6 +33,7 @@ c-library serial
     c-function cfsetospeed cfsetospeed a n -- n ( termios speed -- r )
     c-function tcflow tcflow n n -- n ( fd action -- n )
     c-function ioctl ioctl n n a -- n ( fd cmd ptr -- n )
+    c-function setvbuf setvbuf a a n n -- n ( file* buf mode size -- r )
 end-c-library
 
 require libc.fs
@@ -94,20 +112,23 @@ base !
 $5409 Constant TCSBRK
 $540B Constant TCFLSH
 $541B Constant FIONREAD
+    2 Constant _IONBF
 
-: set-baud ( baud fd -- )  >r
-    r@ t_old tcgetattr drop
+: set-baud ( baud port -- )
+    dup 0 _IONBF 0 setvbuf ?ior \ no buffering on serial IO
+    fileno >r
+    r@ t_old tcgetattr ?ior
     t_old t_buf termios move
     t_buf cfmakeraw
-    t_buf over cfsetispeed drop
-    t_buf swap cfsetospeed drop
-    r> 0 t_buf tcsetattr drop ;
+    t_buf over cfsetispeed ?ior
+    t_buf swap cfsetospeed ?ior
+    r> 0 t_buf tcsetattr ?ior ;
 
-: reset-baud ( fd -- )
-    0 t_old tcsetattr drop ;
+: reset-baud ( port -- ) fileno
+    0 t_old tcsetattr ?ior ;
 
-: check-read ( forth-fd -- n )  0 { w^ io-result }
-    fileno FIONREAD io-result ioctl drop io-result l@ ;
+: check-read ( port -- n )  0 { w^ io-result }
+    fileno FIONREAD io-result ioctl ?ior io-result l@ ;
 
 \ get and set control lines
 
@@ -118,26 +139,26 @@ $004  CONSTANT TIOCM_RTS
 $020  CONSTANT TIOCM_CTS
 $100  CONSTANT TIOCM_DSR
 
-: get-ioctl  ( fd -- n ) 0 { w^ io-result }
-     TIOCMGET io-result ioctl 0< abort" IOCTL GET Failed." io-result l@ ;
+: get-ioctl  ( port -- n ) 0 { w^ io-result }
+    fileno TIOCMGET io-result ioctl ?ior io-result l@ ;
 
-: set-ioctl  ( fd n -- ) 0 { w^ io-result } io-result l!
-    TIOCMSET io-result ioctl 0< abort" IOCTL SET Failed." ;
+: set-ioctl  ( port n -- ) 0 { w^ io-result } io-result l!
+    fileno TIOCMSET io-result ioctl ?ior ;
 
-: set-dtr  ( fd -- )
-     dup get-ioctl TIOCM_DTR or set-ioctl ;
+: set-dtr  ( port -- )
+    dup get-ioctl TIOCM_DTR or set-ioctl ;
 
-: clr-dtr  ( fd -- )
-     dup get-ioctl TIOCM_DTR invert and set-ioctl ;
+: clr-dtr  ( port -- )
+    dup get-ioctl TIOCM_DTR invert and set-ioctl ;
 
-: set-rts  ( fd -- )
-     dup get-ioctl TIOCM_RTS or set-ioctl ;
+: set-rts  ( port -- )
+    dup get-ioctl TIOCM_RTS or set-ioctl ;
 
-: clr-rts  ( fd -- )
-     dup get-ioctl TIOCM_RTS invert and set-ioctl ;
+: clr-rts  ( port -- )
+    dup get-ioctl TIOCM_RTS invert and set-ioctl ;
 
-: get-cts  ( fd -- n )
-     get-ioctl TIOCM_CTS and ;
+: get-cts  ( port -- n )
+    get-ioctl TIOCM_CTS and ;
 
-: get-dsr  ( fd -- n )
-     get-ioctl TIOCM_DSR and ;
+: get-dsr  ( port -- n )
+    get-ioctl TIOCM_DSR and ;
