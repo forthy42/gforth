@@ -26,7 +26,8 @@
 # of Gforth, and start the setup compiler there.
 
 VERSION=$(cat version)
-CYGWIN=cygwin$(./gforth -e 'cell 8 = [IF] ." 64" [THEN] bye')
+SF=$(./gforth -e 'cell 8 = [IF] ." 64" [THEN] bye')
+CYGWIN=cygwin$SF
 SEH=$(./gforth -e 'cell 8 = [IF] ." seh-" [THEN] bye')
 
 for i in lib/gforth/$VERSION/libcc-named/*.la
@@ -48,17 +49,17 @@ cat <<EOT
 ; Setup program is Inno Setup
 
 [Setup]
-AppName=Gforth
+AppName=Gforth$SF
 AppVersion=$VERSION
 AppCopyright=Copyright © 1995-2015 Free Software Foundation
-DefaultDirName={pf}\gforth
-DefaultGroupName=Gforth
+DefaultDirName={pf}\gforth$SF
+DefaultGroupName=Gforth$SF
 AllowNoIcons=1
 InfoBeforeFile=COPYING
 Compression=lzma
 DisableStartupPrompt=yes
 ChangesEnvironment=yes
-OutputBaseFilename=gforth-$VERSION
+OutputBaseFilename=gforth$SF-$VERSION
 AppPublisher=Free Software Foundation, Gforth team
 AppPublisherURL=http://bernd-paysan.de/gforth.html
 
