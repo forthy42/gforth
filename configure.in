@@ -1168,7 +1168,7 @@ if swig -forth unix/test.i; then
    #opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs"
    SWIGLIBS="$SWIGLIBS x.fs", ,)
-   if [ "$host_os" == "cygwin" ]
+   if test "$host_os" == "cygwin"
    then
       AC_CHECK_HEADER(w32api/GL/gl.h, 
       AC_CHECK_HEADER(w32api/GL/glext.h, SWIGMODULES="$SWIGMODULES glwin.fs"
