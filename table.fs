@@ -31,3 +31,6 @@ Create tablesearch-map ( -- wordlist-map )
     \g Create a case-sensitive wordlist.
     tablesearch-map mappedwordlist ;
 
+: voctable ( "name" -- ) \ gforth
+    \g Create a case-senisitve vocabulary
+    Vocabulary tablesearch-map lastxt >body ! ;
