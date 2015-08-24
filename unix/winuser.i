@@ -43,7 +43,7 @@
      DRAWSTATEPROC, FARPROC, SENDASYNCPROC, PDWORD_PTR, PSECURITY_DESCRIPTOR,
      PSECURITY_INFORMATION, HWINSTA, LPSECURITY_ATTRIBUTES, HDESK, va_list };
 
-// exec: sed -e 's/c-function .*Shutdown/\\ &/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g'
+// exec: sed -e 's/c-function \(.*Shutdown\|DisableProcessWindowsGhosting\|IsWow64Message\|GetWindowRgnBox\|RegisterShellHookWindow\)/\\ &/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g'
 
 %include <w32api/windef.h>
 %include <w32api/winuser.h>
