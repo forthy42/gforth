@@ -318,7 +318,7 @@ UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	\
 	unix/soil.i unix/soil2.i unix/xlib.i unix/ios-gles.i unix/ios-gles3.i \
-	unix/freetype-gl.i unix/glwin.i unix/wgl.i
+	unix/freetype-gl.i unix/wingdi.i unix/winuser.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
@@ -364,8 +364,8 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs \
 	endtry-iferror.fs recover-endtry.fs smartdots.fs \
 	unix/terminal-server.fs unix/jni-helper.fs unix/jni-tools.fs \
-	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs \
-	date.fs script.fs wf.fs traceall.fs rec-scope.fs notfound.fs
+	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs unix/gdi.fs \
+	unix/user.fs date.fs script.fs wf.fs traceall.fs rec-scope.fs notfound.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \

@@ -1170,19 +1170,23 @@ if swig -forth unix/test.i; then
    SWIGLIBS="$SWIGLIBS x.fs", ,)
    if test "$host_os" == "cygwin"
    then
-      AC_CHECK_HEADER(w32api/GL/gl.h, 
-      AC_CHECK_HEADER(w32api/GL/glext.h, SWIGMODULES="$SWIGMODULES glwin.fs"
-      AC_CHECK_HEADER(w32api/GL/wglext.h, SWIGMODULES="$SWIGMODULES wgl.fs"
-      SWIGLIBS="$SWIGLIBS opengl.fs", ,), , 
-#include <w32api/GL/gl.h>
-), ,)
+      AC_CHECK_HEADER(w32api/wtypes.h,
+      AC_CHECK_HEADER(w32api/wingdi.h, SWIGMODULES="$SWIGMODULES wingdi.fs"
+      				       SWIGLIBS="$SWIGLIBS gdi.fs", ,
+#include <w32api/wtypes.h>
+) ,)
+      AC_CHECK_HEADER(w32api/wtypes.h,
+      AC_CHECK_HEADER(w32api/winuser.h, SWIGMODULES="$SWIGMODULES winuser.fs"
+      				        SWIGLIBS="$SWIGLIBS user.fs", ,
+#include <w32api/wtypes.h>
+) ,)
    else
       AC_CHECK_HEADER(GL/gl.h, 
       AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
       AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
       SWIGLIBS="$SWIGLIBS opengl.fs", ,), , 
 #include <GL/gl.h>
-), ,)
+) ,)
    fi
    AC_CHECK_HEADER(GLES2/gl2.h,
    AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES gles.fs"

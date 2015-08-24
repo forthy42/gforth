@@ -14,7 +14,11 @@ c-library opengles3
 	\c #include <GLES3/gl3ext.h>
 	\c #include <EGL/egl.h>
 	
-	s" GLESv3" add-lib
+	e? os-type s" cygwin" str= [IF]
+	    s" GLESv2" add-lib
+	[ELSE]
+	    s" GLESv3" add-lib
+	[THEN]
 	s" EGL" add-lib
 	
 	include gles3.fs
