@@ -31,6 +31,6 @@
      LPLOGFONTW, HBRUSH, LPLOGFONTA, LPDEVMODE, HWND, HMODULE, HGLOBAL,
      LPPIXELFORMATDESCRIPTOR };
 
-// exec: sed -e 's/AlphaBlend a n n n n a n n n n u/&{*(BLENDFUNCTION*)\&}/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W/\1/g'
+// exec: sed -e 's/AlphaBlend a n n n n a n n n n u/&{*(BLENDFUNCTION*)\&}/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g'
 
 %include <w32api/wingdi.h>
