@@ -278,6 +278,7 @@ GFORTH_FI_SRC2=\
 	stuff.fs \
 	substitute.fs \
 	tasker.fs \
+	table.fs \
 	termsize.fs \
 	utf-8.fs \
 	vt100.fs \

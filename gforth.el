@@ -308,7 +308,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 
 	(("create" "variable" "constant" "2variable" "2constant" "fvariable"
-	  "fconstant" "value" "2value" "field" "user" "vocabulary" 
+	  "fconstant" "value" "2value" "field" "user" "vocabulary" "voctable" 
 	  "create-interpret/compile" "interpret/compile:"
 	  "debug:" "field:" "2field:" "ffield:" "sffield:" "dffield:"
 	  "uvar" "uvalue" "cfield:" "wfield:" "lfield:")
@@ -773,7 +773,7 @@ End:\" construct).")
   '("VARIABLE" "CONSTANT" "2VARIABLE" "2CONSTANT" "FVARIABLE" "FCONSTANT"
    "USER" "VALUE" "2Value" "field" "end-struct" "VOCABULARY" "CREATE" ":" "CODE"
    "DEFER" "ALIAS" "interpret/compile:" "debug:" "field:" "2field:" "ffield:"
-   "sffield:" "dffield:" "uvar" "uvalue")
+   "sffield:" "dffield:" "uvar" "uvalue" "voctable")
   "List of words, that define the following word.
 Used for imenu index generation.")
 
