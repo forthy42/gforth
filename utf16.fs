@@ -17,7 +17,7 @@
     bounds ?DO
 	I uw@ dup $D800 $DC00 within IF
 	    $3FF and 10 lshift I 2 + uw@
-	    $3FF and or xemit 4 \ no check for sanity
+	    $3FF and or $10000 + xemit 4 \ no check for sanity
 	ELSE  xemit 2  THEN
     +LOOP ;
 : $utf8 ( addr1 u1 -- addr2 u2 )
