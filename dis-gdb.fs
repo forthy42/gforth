@@ -47,11 +47,11 @@ defer gdb-addr-sep-char ( -- c )
 set-current
 
 : disasm-gdb { addr u -- }
-    base @ >r hex
-    s\" type mktemp >/dev/null && type gdb >/dev/null && file=`mktemp -t gforthdis.XXXXXXXXXX` && file2=`mktemp -t gforthdis.XXXXXXXXXX` && echo \"set verbose off\nset logging file $file\nset logging on\ndisas " save-mem ( addr u addr1 u1 )
-    addr 0 <<# gdb-addr-sep-char hold # #s 'x hold # #> append-extend-string #>>
-    addr u + 0 <<# # #s 'x hold # #> append-extend-string #>>
-    r> base ! cr
+    addr u
+    [:  { addr u } s\" type mktemp >/dev/null && type gdb >/dev/null && file=`mktemp -t gforthdis.XXXXXXXXXX` && file2=`mktemp -t gforthdis.XXXXXXXXXX` && echo \"set verbose off\nset logging file $file\nset logging on\ndisas " save-mem ( addr u addr1 u1 )
+        addr 0 <<# gdb-addr-sep-char hold # #s 'x hold # #> append-extend-string #>>
+        addr u + 0 <<# # #s 'x hold # #> append-extend-string #>>
+    ;] $10 base-execute cr
     [ e? os-type s" cygwin" str= ] [IF]
 	s\" \nset logging off\nquit\n\" >$file2 && gdb -nx -q -p `ps -p $$ | grep -v PPID | cut -c 10-17` -x $file2 2>/dev/null >/dev/null && rm $file2 && grep -v \"of assembler\" $file && rm $file"
     [ELSE]
