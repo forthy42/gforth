@@ -76,7 +76,7 @@ char *tilde_cstr(Char *from, UCell size)
   if (size<2 || from[1]=='/') {
     s1 = (char *)getenv ("HOME");
     if((s1 == NULL) || access(s1, W_OK))
-#if defined(_WIN32) || defined (MSDOS)
+#if defined(_WIN32) || defined (MSDOS) || defined(__CYGWIN__)
       {
 	s1 = NULL;
 	s2 = (char *)getenv("HOMEDRIVE");
