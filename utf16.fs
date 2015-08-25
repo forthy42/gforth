@@ -44,3 +44,14 @@
 : >utf8 ( addr1 u1 -- addr2 u2 )
     \g convert UTF-16 string to UTF-8
     [: typeu8 0 emit ;] $tmp 1- ;
+
+$1000 Value max16z#
+: scan16z ( addr -- addr u )
+    \g scan UTF-16 string for zero
+    dup max16z# bounds DO
+	I w@ 0= IF  I over -  UNLOOP  EXIT  THEN
+    2 +LOOP  max16z# ;
+
+: wc0>utf8 ( addr -- addr2 u )
+    \g convert zero terminated wide char string to UTF-8
+    scan16z >utf8 ;
