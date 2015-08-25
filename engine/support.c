@@ -67,20 +67,30 @@ Cell negate(Cell n)
 char *tilde_cstr(Char *from, UCell size)
 /* like cstr(), but perform tilde expansion on the string */
 {
-  char *s1,*s2;
-  int s1_len, s2_len;
+  char *s1,*s2,*s3;
+  int s1_len, s2_len, allocs1=0;
   struct passwd *getpwnam (), *user_entry;
 
   if (size<1 || from[0]!='~')
     return cstr(from, size);
   if (size<2 || from[1]=='/') {
     s1 = (char *)getenv ("HOME");
-    if(s1 == NULL)
+    if((s1 == NULL) || access(s1, W_OK))
 #if defined(_WIN32) || defined (MSDOS)
+      {
+	s1 = NULL;
+	s2 = (char *)getenv("HOMEDRIVE");
+	s3 = (char *)getenv("HOMEPATH");
+	if((s2 != NULL) && (s3 != NULL)) {
+	  asprintf(&s1, "%s%s", s2, s3);
+	  allocs1=1;
+	}
+      }
+    if((s1 == NULL) || access(s1, W_OK))
       s1 = (char *)getenv ("TEMP");
-      if(s1 == NULL)
-         s1 = (char *)getenv ("TMP");
-         if(s1 == NULL)
+    if((s1 == NULL) || access(s1, W_OK))
+      s1 = (char *)getenv ("TMP");
+    if((s1 == NULL) || access(s1, W_OK))
 #endif
       s1 = "";
     s2 = (char *)from+1;
@@ -110,6 +120,7 @@ char *tilde_cstr(Char *from, UCell size)
     char path[s1_len+s2_len];
     memcpy(path,s1,s1_len);
     memcpy(path+s1_len,s2,s2_len);
+    if(allocs1) free(s1);
     return cstr((Char *)path,s1_len+s2_len);
   }
 }
