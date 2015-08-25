@@ -310,7 +310,11 @@ here
     s" LC_ALL" getenv 2dup d0= IF  2drop
 	s" LC_CTYPE" getenv 2dup d0= IF  2drop
 	    s" LANG" getenv 2dup d0= IF  2drop
-		s" C"  THEN THEN THEN
+		[ e? os-type s" cygwin" str= ] [IF]
+		    s" UTF-8" \ assume UTF-8 in Cygwin
+		[ELSE]
+		    s" C"
+		[THEN] THEN THEN THEN
     s" UTF-8" search nip nip
     IF  utf-8  ELSE  fixed-width  THEN  set-encoding ;
 

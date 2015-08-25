@@ -120,6 +120,9 @@ umethod -trailing-garbage ( xc-addr u1 -- addr u2 ) \ xchar-ext
 : c-size ( c -- 1 )
     drop 1 ;
 
+: ca-size ( addr u -- 1 )
+    2drop 1 ;
+
 here
 ' emit A,
 ' key A,
@@ -132,7 +135,7 @@ here
 ' c!+? A,
 ' count A,
 ' c-size A,
-' c-size A,
+' ca-size A,
 ' nip A,
 ' noop A,
 A, here AConstant fixed-width
