@@ -162,13 +162,13 @@ ptrpair gforth_libcc_init(ptrpair x)
   } while (0);
 
 static int gforth_strs_i;
-static char * gforth_strs[0x10] = { 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0 };
+static void * gforth_strs[0x10] = { 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0 };
 
 #define ROLLSTR(type,size)					   \
   type * str= malloc(sizeof(type)*(size));			   \
   gforth_strs_i++; gforth_strs_i &= 0x0F; 			   \
   if(gforth_strs[gforth_strs_i]) free(gforth_strs[gforth_strs_i]); \
-  gforth_strs[gforth_strs_i]=str;
+  gforth_strs[gforth_strs_i]=(void*)str;
 
 static Char * gforth_str2c(Char* addr, UCell u)
 {
