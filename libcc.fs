@@ -245,7 +245,9 @@ const+ d \ double
 const+ ud \ double
 const+ r \ float
 const+ func \ C function pointer
-const+ void
+const+ void \ no return value
+const+ s \ string
+const+ ws \ wide string
 drop
 
 set-current
@@ -298,7 +300,7 @@ drop
 0 Value is-funptr?
 
 : type-letter ( n -- c )
-    chars s" nuadUrfv" drop + c@ ;
+    chars s" nuadUrfvsS" drop + c@ ;
 
 \ count-stacks
 
@@ -326,6 +328,12 @@ drop
 : count-stacks-void ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
 ;
 
+: count-stacks-s ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
+    2 + ;
+
+: count-stacks-ws ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
+    2 + ;
+
 create count-stacks-types
 ' count-stacks-n ,
 ' count-stacks-u ,
@@ -335,6 +343,8 @@ create count-stacks-types
 ' count-stacks-r ,
 ' count-stacks-func ,
 ' count-stacks-void ,
+' count-stacks-s ,
+' count-stacks-ws ,
 
 : count-stacks ( pars -- fp-change sp-change )
     \ pars is an addr u pair
@@ -367,10 +377,10 @@ create count-stacks-types
     THEN s" (" gen-par-n ." )" ;
 
 : gen-par-d ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
+    2drop s" gforth_d2ll(" gen-par-n s" ," gen-par-n ." )" ;
 
 : gen-par-ud ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    2drop s" gforth_d2ll(" gen-par-n ." ," gen-par-sp ." )" ;
+    2drop s" gforth_d2ll(" gen-par-n s" ," gen-par-n ." )" ;
 
 : gen-par-r ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     2drop gen-par-fp ;
@@ -381,6 +391,12 @@ create count-stacks-types
 : gen-par-void ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     2drop ;
 
+: gen-par-s ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop s" gforth_str2c((Char*)" gen-par-n s" ," gen-par-n ." )" ;
+
+: gen-par-ws ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop s" gforth_str2wc((Char*)" gen-par-n s" ," gen-par-n ." )" ;
+
 create gen-par-types
 ' gen-par-n ,
 ' gen-par-u ,
@@ -390,6 +406,8 @@ create gen-par-types
 ' gen-par-r ,
 ' gen-par-func ,
 ' gen-par-void ,
+' gen-par-s ,
+' gen-par-ws ,
 
 : gen-par ( fp-depth1 sp-depth1 cast-addr u partype -- fp-depth2 sp-depth2 )
     cells gen-par-types + @ execute ;
@@ -457,6 +475,8 @@ create gen-wrapped-types
 ' gen-wrapped-r ,
 ' gen-wrapped-func ,
 ' gen-wrapped-void ,
+' gen-wrapped-a ,
+' gen-wrapped-a ,
 
 : gen-wrapped-stmt ( pars c-name fp-change1 sp-change1 ret -- fp-change sp-change )
     cells gen-wrapped-types + @ execute ;
@@ -532,6 +552,8 @@ create gen-types
 ' gen-r ,
 ' gen-func ,
 ' gen-void ,
+' gen-a ,
+' gen-a ,
 
 : print-type ( n -- ) cells gen-types + perform ;
 

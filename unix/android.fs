@@ -268,17 +268,19 @@ drop
 Defer config-changed :noname [: ." App config changed" cr ;] $err ; IS config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
 
+Variable rendering
+
 :noname ( cmd -- )
     case
-	APP_CMD_INIT_WINDOW of  window-init  endof
+	APP_CMD_INIT_WINDOW of  window-init rendering on  endof
 	APP_CMD_CONFIG_CHANGED of config-changed endof
 	APP_CMD_SAVE_STATE of [: ." app save" cr ;] $err endof
 	APP_CMD_TERM_WINDOW of app window off [: ." app window closed" cr ;] $err endof
 	APP_CMD_GAINED_FOCUS of [: ." app window focus" cr ;] $err endof
 	APP_CMD_LOST_FOCUS of [: ." app window lost focus" cr ;] $err endof
 	APP_CMD_DESTROY of [: ." app window destroyed" cr ;] $err bye endof
-	APP_CMD_PAUSE of [: ." app pause" cr ;] $err endof
-	APP_CMD_RESUME of [: ." app resume" cr ;] $err endof
+	APP_CMD_PAUSE of [: rendering off ;] $err endof
+	APP_CMD_RESUME of [: rendering on ;] $err endof
 	APP_CMD_START of [: ." app start" cr ;] $err endof
 	APP_CMD_STOP of [: ." app stop" cr ;] $err endof
 	dup [: ." app cmd " . cr ;] $err
