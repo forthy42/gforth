@@ -30,7 +30,7 @@ extern struct _IO_FILE *stderr;
 #define _CLASSPATH_JNIIMPEXP
 #endif
 
-// exec: sed -e s/JNINativeInterface_-/JNIEnv-/g -e s/JNINativeInterface-/JNIEnv-/g -e s/JNIInvokeInterface_-/JavaVM-/g -e s/JNIInvokeInterface-/JavaVM-/g -e 's/\(c-function .*\)/\\ \1/g'
+// exec: sed -e s/JNINativeInterface_-/JNIEnv-/g -e s/JNINativeInterface-/JNIEnv-/g -e s/JNIInvokeInterface_-/JavaVM-/g -e s/JNIInvokeInterface-/JavaVM-/g -e 's/\(c-function .*\)/\\ \1/g' -e 's/\(ReleaseStringUTFChars.*\) a a s/\1 a a a/g'
 
 %apply char { jbyte, jboolean };
 %apply short { jshort, jchar };
