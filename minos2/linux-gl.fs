@@ -22,13 +22,14 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
 
 : best-im ( -- im )
     XSupportsLocale IF
-	"XMODIFIERS" getenv drop ?dup-IF
+	"XMODIFIERS" getenv dup IF
 	    XSetLocaleModifiers 0= IF
 		." Warning: Cannot set locale modifiers to '"
-		"XMODIFIERS" getenv type  ." '" cr THEN  THEN
+		"XMODIFIERS" getenv type  ." '" cr THEN
+	ELSE  2drop  THEN
     THEN
     dpy 0 0 0 XOpenIM dup to xim
-    ?dup-0=-IF  "@im=local\0" drop XSetLocaleModifiers drop
+    ?dup-0=-IF  "@im=local" XSetLocaleModifiers drop
 	dpy 0 0 0 XOpenIM dup to xim
 	." Warning: can't open XMODIFIERS' IM, set to '@im=local' instead" cr
     THEN
@@ -42,12 +43,12 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     ELSE  0  THEN ;
 
 : set-fontset ( -- )
-    "-*-FreeSans-*-r-*-*-*-120-*-*-*-*-*-*,-misc-fixed-*-r-*-*-*-130-*-*-*-*-*-*\0" drop 0 0 0 { w^ misslist w^ miss# w^ defstring }
-    dpy swap misslist miss# defstring XCreateFontSet to fontset
+    dpy "-*-FreeSans-*-r-*-*-*-120-*-*-*-*-*-*,-misc-fixed-*-r-*-*-*-130-*-*-*-*-*-*" 0 0 0 { w^ misslist w^ miss# w^ defstring }
+    misslist miss# defstring XCreateFontSet to fontset
     misslist @ XFreeStringList ;
 
 : get-display ( -- w h )
-    "DISPLAY" getenv drop XOpenDisplay to dpy
+    "DISPLAY" getenv XOpenDisplay to dpy
     dpy XDefaultScreenOfDisplay to screen-struct
     dpy XDefaultScreen to screen
     best-im to im  set-fontset
@@ -136,6 +137,8 @@ field: y9
 end-structure
 
 app_input_state buffer: *input
+
+Variable rendering rendering on
 
 Variable level#
 
@@ -322,10 +325,10 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 : >exposed  ( -- )  exposed off  BEGIN  >looper exposed @  UNTIL ;
 : ?looper ( -- )  ;
 
-: simple-win ( events cstring w h -- )
+: simple-win ( events string len w h -- )
     2>r dpy dup XDefaultRootWindow
     0 0 2r> 1 0 0 XCreateSimpleWindow  to win
-    dpy win rot XStoreName drop
+    dpy win 2swap XStoreName drop
     dpy win rot XSelectInput drop
     dpy win XMapWindow drop
     win get-ic
