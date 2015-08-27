@@ -369,6 +369,16 @@ public class Gforth
 	}
     }
    
+    @Override protected void onPause() {
+	super.onPause();
+	onEventNative(18, 0);
+    }
+
+    @Override protected void onResume() {
+	super.onResume();
+	onEventNative(18, -1);
+    }
+
     @Override
     public boolean dispatchKeyEvent (KeyEvent event) {
 	onEventNative(0, event);

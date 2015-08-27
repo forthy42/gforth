@@ -38,9 +38,9 @@
 #define LOGE(...) \
   __android_log_print(ANDROID_LOG_ERROR, "Gforth", __VA_ARGS__);
 
-static Xt ainput=0;
-static Xt acmd=0;
-static Xt akey=0;
+// static Xt ainput=0;
+// static Xt acmd=0;
+// static Xt akey=0;
 
 typedef struct { long type; jobject event; } sendEvent;
 typedef struct { long type; long event; } sendInt;
@@ -198,11 +198,11 @@ void startForth(jniargs * startargs)
   LOGI("Started, rval=%d\n", retvalue);
   fflush(stderr);
 
-  ainput=gforth_find("ainput");
-  acmd=gforth_find("acmd");
-  akey=gforth_find("akey");
+  //  ainput=gforth_find("ainput");
+  //  acmd=gforth_find("acmd");
+  //  akey=gforth_find("akey");
 
-  LOGI("ainput=%p, acmd=%p, akey=%p\n", ainput, acmd, akey);
+  //  LOGI("ainput=%p, acmd=%p, akey=%p\n", ainput, acmd, akey);
   fflush(stderr);
   
   if(retvalue == -56) {
