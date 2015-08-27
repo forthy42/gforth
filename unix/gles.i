@@ -9,6 +9,7 @@
 extern struct _IO_FILE *stderr;
 #endif
 %}
+#define const
 %apply float { GLfloat, GLclampf };
 %apply long { EGLNativePixmapType, GLintptr, GLsizeiptr };
 %apply SWIGTYPE * { EGLBoolean };
