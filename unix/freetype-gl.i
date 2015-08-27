@@ -13,7 +13,7 @@ extern struct _IO_FILE *stderr;
 %apply int { size_t };
 %apply SWIGTYPE * { unsigned char const *const };
 
-// exec: sed -e 's/c-function texture_atlas_get_region.*/\\c #define texture_atlas_get_regionp(self, w, h, x) { ivec4* _x=x; *_x=texture_atlas_get_region(self,w,h); }\nc-function texture_atlas_get_region texture_atlas_get_regionp a n n a -- void/g'
+// exec: sed -e 's/c-function texture_atlas_get_region.*/\\c #define texture_atlas_get_regionp(self, w, h, x) { ivec4* _x=x; *_x=texture_atlas_get_region(self,w,h); }\nc-function texture_atlas_get_region texture_atlas_get_regionp a n n a -- void/g' -e 's/ ws / a /g'
 
 
 %include "freetype-gl.h"
