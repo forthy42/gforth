@@ -94,8 +94,8 @@ Name: "{pf}\\tmp"; Permissions: users-modify
 ; Parameter quick reference:
 ;   "Source filename", "Dest. filename", Copy mode, Flags
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
-Source: "c:\\$CYGWIN\\bin\\sh.exe"; DestDir: "{pf}\\bin"
-Source: "c:\\$CYGWIN\\bin\\cygwin-console-helper.exe"; DestDir: "{pf}\\bin"
+Source: "c:\\$CYGWIN\\bin\\sh.exe"; DestDir: "{app}\\..\\bin"
+Source: "c:\\$CYGWIN\\bin\\cygwin-console-helper.exe"; DestDir: "{app}\\..\\bin"
 Source: "c:\\$CYGWIN\\bin\\mintty.exe"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\run.exe"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\env.exe"; DestDir: "{app}"
@@ -138,15 +138,12 @@ Name: "{group}\Bash"; Filename: "{app}\\run.exe"; Parameters: "./env HOME='%HOME
 Name: "{group}\Uninstall Gforth$SF"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "{pf}\\bin\\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh '{app}' || (printf '\e[0;31;49mAn error occured, pess return to quit'; read)"""
+Filename: "{app}\\..\\bin\\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh '{app}' || (printf '\e[0;31;49mAn error occured, pess return to quit'; read)"""
 
 [UninstallDelete]
 Type: files; Name: "{app}\gforth.fi"
 Type: files; Name: "{app}\temp-image.fi1"
 Type: files; Name: "{app}\temp-image.fi2"
-
-[Registry]
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Check: NeedsAddPath(ExpandConstant('{app}'))
 
 ;[Registry]
 ;registry commented out
@@ -165,23 +162,10 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 ;HKCR, "forthblock", "EditFlags", DWORD, "00000000",
 ;HKCR, "forthblock\DefaultIcon"; STRING, "{sys}\System32\shell32.dll,61"
 
-[Code]
-function NeedsAddPath(Param: string): boolean;
-var
-  OrigPath: string;
-begin
-  if not RegQueryStringValue(HKEY_LOCAL_MACHINE,'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', OrigPath)
-  then begin
-    Result := True;
-    exit;
-  end;
-  // look for the path with leading and trailing semicolon
-  // Pos() returns 0 if not found
-  Result := Pos(';' + UpperCase(Param) + ';', ';' + UpperCase(OrigPath) + ';') = 0;  
-  if Result = True then
-     Result := Pos(';' + UpperCase(Param) + '\;', ';' + UpperCase(OrigPath) + ';') = 0; 
-end;
+[Tasks]
+Name: modifypath; Description: Add application directory to your environmental path; Flags: unchecked
 
+[Code]
 // Utility functions for Inno Setup
 //   used to add/remove programs from the windows firewall rules
 // Code originally from http://news.jrsoftware.org/news/innosetup/msg43799.html
@@ -246,6 +230,17 @@ begin
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-ditc.exe');
   end;
 end;
+
+const
+    ModPathName = 'modifypath';
+    ModPathType = 'user';
+
+function ModPathDir(): TArrayOfString;
+begin
+    setArrayLength(Result, 1)
+    Result[0] := ExpandConstant('{app}');
+end;
+#include "modpath.iss"
 EOT
 
 sed -e 's/$/\r/' <README >README.txt

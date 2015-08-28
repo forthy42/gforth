@@ -109,7 +109,7 @@ version-string 2constant gforth ( -- c-addr u ) \ gforth-environment
     [ forthstart 5 cells + ] literal @
     [IFDEF] float/  float/  [ELSE]  [ 1 floats ] Literal / [THEN] ;
 
-15 constant #locals \ 1000 64 /
+16 constant #locals
     \ One local can take up to 64 bytes, the size of locals-buffer is 1000
 maxvp constant wordlists
 
