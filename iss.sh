@@ -172,41 +172,18 @@ Name: modifypath; Description: Add application directory to your environmental p
 // Code originally from http://news.jrsoftware.org/news/innosetup/msg43799.html
 
 const
-  NET_FW_SCOPE_ALL = 0;
-  NET_FW_IP_VERSION_ANY = 2;
+    ModPathName = 'modifypath';
+    ModPathType = 'user';
+    NET_FW_SCOPE_ALL = 0;
+    NET_FW_IP_VERSION_ANY = 2;
 
-procedure SetFirewallException(AppName,FileName:string);
-var
-  FirewallObject: Variant;
-  FirewallManager: Variant;
-  FirewallProfile: Variant;
+function ModPathDir(): TArrayOfString;
 begin
-  try
-    FirewallObject := CreateOleObject('HNetCfg.FwAuthorizedApplication');
-    FirewallObject.ProcessImageFileName := FileName;
-    FirewallObject.Name := AppName;
-    FirewallObject.Scope := NET_FW_SCOPE_ALL;
-    FirewallObject.IpVersion := NET_FW_IP_VERSION_ANY;
-    FirewallObject.Enabled := True;
-    FirewallManager := CreateOleObject('HNetCfg.FwMgr');
-    FirewallProfile := FirewallManager.LocalPolicy.CurrentProfile;
-    FirewallProfile.AuthorizedApplications.Add(FirewallObject);
-  except
-  end;
+    setArrayLength(Result, 1)
+    Result[0] := ExpandConstant('{app}');
 end;
-
-procedure RemoveFirewallException( FileName:string );
-var
-  FirewallManager: Variant;
-  FirewallProfile: Variant;
-begin
-  try
-    FirewallManager := CreateOleObject('HNetCfg.FwMgr');
-    FirewallProfile := FirewallManager.LocalPolicy.CurrentProfile;
-    FireWallProfile.AuthorizedApplications.Remove(FileName);
-  except
-  end;
-end;
+#include "modpath.iss"
+#include "firewall.iss"
 
 // event called at install
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -217,6 +194,7 @@ begin
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-fast.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-itc.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-ditc.exe');
+     CurStepChangedPath();
   end;
 end;
 
@@ -229,19 +207,10 @@ begin
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-fast.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-itc.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-ditc.exe');
+     CurUninstallStepChangedPath();
   end;
 end;
 
-const
-    ModPathName = 'modifypath';
-    ModPathType = 'user';
-
-function ModPathDir(): TArrayOfString;
-begin
-    setArrayLength(Result, 1)
-    Result[0] := ExpandConstant('{app}');
-end;
-#include "modpath.iss"
 EOT
 
 sed -e 's/$/\r/' <README >README.txt

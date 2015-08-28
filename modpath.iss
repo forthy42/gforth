@@ -1,3 +1,5 @@
+// -*- mode: pascal -*-
+
 // ----------------------------------------------------------------------------
 //
 // Inno Setup Ver:	5.4.2
@@ -164,17 +166,16 @@ begin
 end;
 
 
-procedure CurStepChanged(CurStep: TSetupStep);
+procedure CurStepChangedPath();
 var
-	taskname:	String;
+   taskname:	String;
 begin
-	taskname := ModPathName;
-	if CurStep = ssPostInstall then
-		if IsTaskSelected(taskname) then
-			ModPath();
+   taskname := ModPathName;
+   if IsTaskSelected(taskname) then
+      ModPath();
 end;
 
-procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+procedure CurUninstallStepChangedPath();
 var
 	aSelectedTasks:	TArrayOfString;
 	i:				Integer;
@@ -184,7 +185,7 @@ var
 	appid:			String;
 begin
 	// only run during actual uninstall
-	if CurUninstallStep = usUninstall then begin
+	begin
 		// get list of selected tasks saved in registry at install time
 		appid := '{#emit SetupSetting("AppId")}';
 		if appid = '' then appid := '{#emit SetupSetting("AppName")}';
