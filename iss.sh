@@ -88,7 +88,8 @@ Name: "{app}\\doc\\gforth"
 Name: "{app}\\doc\\vmgen"
 Name: "{app}\\lib\\gforth\\$VERSION\libcc-named"
 Name: "{app}\\include\\gforth\\$VERSION"
-Name: "{pf}\\tmp"; Permissions: users-modify
+Name: "{app}\\..\bin"
+Name: "{app}\\..\\tmp"; Permissions: users-modify
 
 [Files]
 ; Parameter quick reference:
