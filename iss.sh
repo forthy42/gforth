@@ -188,8 +188,7 @@ end;
 // event called at install
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  if CurStep=ssPostInstall then
-  begin
+  if CurStep=ssPostInstall then begin
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-fast.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-itc.exe');
@@ -201,13 +200,14 @@ end;
 // event called at uninstall
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
-  if CurUninstallStep=usPostUninstall then
-  begin
+  if CurUninstallStep = usUninstall then begin
+     CurUninstallStepChangedPath();
+  end;
+  if CurUninstallStep=usPostUninstall then begin
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-fast.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-itc.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-ditc.exe');
-     CurUninstallStepChangedPath();
   end;
 end;
 

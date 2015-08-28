@@ -43,126 +43,126 @@
 
 procedure ModPath();
 var
-	oldpath:	String;
-	newpath:	String;
-	updatepath:	Boolean;
-	pathArr:	TArrayOfString;
-	aExecFile:	String;
-	aExecArr:	TArrayOfString;
-	i, d:		Integer;
-	pathdir:	TArrayOfString;
-	regroot:	Integer;
-	regpath:	String;
-
+   oldpath:	String;
+   newpath:	String;
+   updatepath:	Boolean;
+   pathArr:	TArrayOfString;
+   aExecFile:	String;
+   aExecArr:	TArrayOfString;
+   i, d:		Integer;
+   pathdir:	TArrayOfString;
+   regroot:	Integer;
+   regpath:	String;
+   
 begin
-	// Get constants from main script and adjust behavior accordingly
-	// ModPathType MUST be 'system' or 'user'; force 'user' if invalid
-	if ModPathType = 'system' then begin
-		regroot := HKEY_LOCAL_MACHINE;
-		regpath := 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
-	end else begin
-		regroot := HKEY_CURRENT_USER;
-		regpath := 'Environment';
-	end;
+   // Get constants from main script and adjust behavior accordingly
+   // ModPathType MUST be 'system' or 'user'; force 'user' if invalid
+   if ModPathType = 'system' then begin
+      regroot := HKEY_LOCAL_MACHINE;
+      regpath := 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
+   end else begin
+      regroot := HKEY_CURRENT_USER;
+      regpath := 'Environment';
+   end;
 
-	// Get array of new directories and act on each individually
-	pathdir := ModPathDir();
-	for d := 0 to GetArrayLength(pathdir)-1 do begin
-		updatepath := true;
+   // Get array of new directories and act on each individually
+   pathdir := ModPathDir();
+   for d := 0 to GetArrayLength(pathdir)-1 do begin
+      updatepath := true;
+      
+      // Modify WinNT path
+      if UsingWinNT() = true then begin
 
-		// Modify WinNT path
-		if UsingWinNT() = true then begin
+	 // Get current path, split into an array
+	 RegQueryStringValue(regroot, regpath, 'Path', oldpath);
+	 oldpath := oldpath + ';';
+	 i := 0;
+	 
+	 while (Pos(';', oldpath) > 0) do begin
+	    SetArrayLength(pathArr, i+1);
+	    pathArr[i] := Copy(oldpath, 0, Pos(';', oldpath)-1);
+	    oldpath := Copy(oldpath, Pos(';', oldpath)+1, Length(oldpath));
+	    i := i + 1;
 
-			// Get current path, split into an array
-			RegQueryStringValue(regroot, regpath, 'Path', oldpath);
-			oldpath := oldpath + ';';
-			i := 0;
-
-			while (Pos(';', oldpath) > 0) do begin
-				SetArrayLength(pathArr, i+1);
-				pathArr[i] := Copy(oldpath, 0, Pos(';', oldpath)-1);
-				oldpath := Copy(oldpath, Pos(';', oldpath)+1, Length(oldpath));
-				i := i + 1;
-
-				// Check if current directory matches app dir
-				if pathdir[d] = pathArr[i-1] then begin
-					// if uninstalling, remove dir from path
-					if IsUninstaller() = true then begin
-						continue;
-					// if installing, flag that dir already exists in path
-					end else begin
-						updatepath := false;
-					end;
-				end;
-
-				// Add current directory to new path
-				if i = 1 then begin
-					newpath := pathArr[i-1];
-				end else begin
-					newpath := newpath + ';' + pathArr[i-1];
-				end;
-			end;
-
-			// Append app dir to path if not already included
-			if (IsUninstaller() = false) AND (updatepath = true) then
-				newpath := newpath + ';' + pathdir[d];
-
-			// Write new path
-			RegWriteStringValue(regroot, regpath, 'Path', newpath);
-
-		// Modify Win9x path
-		end else begin
-
-			// Convert to shortened dirname
-			pathdir[d] := GetShortName(pathdir[d]);
-
-			// If autoexec.bat exists, check if app dir already exists in path
-			aExecFile := 'C:\AUTOEXEC.BAT';
-			if FileExists(aExecFile) then begin
-				LoadStringsFromFile(aExecFile, aExecArr);
-				for i := 0 to GetArrayLength(aExecArr)-1 do begin
-					if IsUninstaller() = false then begin
-						// If app dir already exists while installing, skip add
-						if (Pos(pathdir[d], aExecArr[i]) > 0) then
-							updatepath := false;
-							break;
-					end else begin
-						// If app dir exists and = what we originally set, then delete at uninstall
-						if aExecArr[i] = 'SET PATH=%PATH%;' + pathdir[d] then
-							aExecArr[i] := '';
-					end;
-				end;
-			end;
-
-			// If app dir not found, or autoexec.bat didn't exist, then (create and) append to current path
-			if (IsUninstaller() = false) AND (updatepath = true) then begin
-				SaveStringToFile(aExecFile, #13#10 + 'SET PATH=%PATH%;' + pathdir[d], True);
-
-			// If uninstalling, write the full autoexec out
-			end else begin
+	    // Check if current directory matches app dir
+	    if pathdir[d] = pathArr[i-1] then begin
+	       // if uninstalling, remove dir from path
+	       if IsUninstaller() = true then begin
+		  continue;
+		  // if installing, flag that dir already exists in path
+	       end else begin
+		  updatepath := false;
+	       end;
+	    end;
+	    
+	    // Add current directory to new path
+	    if i = 1 then begin
+	       newpath := pathArr[i-1];
+	    end else begin
+	       newpath := newpath + ';' + pathArr[i-1];
+	    end;
+	 end;
+	 
+	 // Append app dir to path if not already included
+	 if (IsUninstaller() = false) AND (updatepath = true) then
+	    newpath := newpath + ';' + pathdir[d];
+	 
+	 // Write new path
+	 RegWriteStringValue(regroot, regpath, 'Path', newpath);
+	 
+	 // Modify Win9x path
+      end else begin
+	 
+	 // Convert to shortened dirname
+	 pathdir[d] := GetShortName(pathdir[d]);
+	 
+	 // If autoexec.bat exists, check if app dir already exists in path
+	 aExecFile := 'C:\AUTOEXEC.BAT';
+	 if FileExists(aExecFile) then begin
+	    LoadStringsFromFile(aExecFile, aExecArr);
+	    for i := 0 to GetArrayLength(aExecArr)-1 do begin
+	       if IsUninstaller() = false then begin
+		  // If app dir already exists while installing, skip add
+		  if (Pos(pathdir[d], aExecArr[i]) > 0) then
+		     updatepath := false;
+		  break;
+	       end else begin
+		  // If app dir exists and = what we originally set, then delete at uninstall
+		  if aExecArr[i] = 'SET PATH=%PATH%;' + pathdir[d] then
+		     aExecArr[i] := '';
+	       end;
+	    end;
+	 end;
+	 
+	 // If app dir not found, or autoexec.bat didn't exist, then (create and) appendto current path
+	 if (IsUninstaller() = false) AND (updatepath = true) then begin
+	    SaveStringToFile(aExecFile, #13#10 + 'SET PATH=%PATH%;' + pathdir[d], True);
+	    
+	    // If uninstalling, write the full autoexec out
+	 end else begin
 				SaveStringsToFile(aExecFile, aExecArr, False);
-			end;
-		end;
-	end;
+	 end;
+      end;
+   end;
 end;
 
 // Split a string into an array using passed delimeter
 procedure MPExplode(var Dest: TArrayOfString; Text: String; Separator: String);
 var
-	i: Integer;
+   i: Integer;
 begin
-	i := 0;
-	repeat
-		SetArrayLength(Dest, i+1);
-		if Pos(Separator,Text) > 0 then	begin
-			Dest[i] := Copy(Text, 1, Pos(Separator, Text)-1);
-			Text := Copy(Text, Pos(Separator,Text) + Length(Separator), Length(Text));
-			i := i + 1;
-		end else begin
-			 Dest[i] := Text;
-			 Text := '';
-		end;
-	until Length(Text)=0;
+   i := 0;
+   repeat
+      SetArrayLength(Dest, i+1);
+      if Pos(Separator,Text) > 0 then	begin
+	 Dest[i] := Copy(Text, 1, Pos(Separator, Text)-1);
+	 Text := Copy(Text, Pos(Separator,Text) + Length(Separator), Length(Text));
+	 i := i + 1;
+      end else begin
+	 Dest[i] := Text;
+	 Text := '';
+      end;
+   until Length(Text)=0;
 end;
 
 
@@ -177,44 +177,41 @@ end;
 
 procedure CurUninstallStepChangedPath();
 var
-	aSelectedTasks:	TArrayOfString;
-	i:				Integer;
-	taskname:		String;
-	regpath:		String;
-	regstring:		String;
-	appid:			String;
+   aSelectedTasks:	TArrayOfString;
+   i:			Integer;
+   taskname:		String;
+   regpath:		String;
+   regstring:		String;
+   appid:		String;
 begin
-	// only run during actual uninstall
-	begin
-		// get list of selected tasks saved in registry at install time
-		appid := '{#emit SetupSetting("AppId")}';
-		if appid = '' then appid := '{#emit SetupSetting("AppName")}';
-		regpath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\'+appid+'_is1');
-		RegQueryStringValue(HKLM, regpath, 'Inno Setup: Selected Tasks', regstring);
-		if regstring = '' then RegQueryStringValue(HKCU, regpath, 'Inno Setup: Selected Tasks', regstring);
-
-		// check each task; if matches modpath taskname, trigger patch removal
-		if regstring <> '' then begin
-			taskname := ModPathName;
-			MPExplode(aSelectedTasks, regstring, ',');
-			if GetArrayLength(aSelectedTasks) > 0 then begin
-				for i := 0 to GetArrayLength(aSelectedTasks)-1 do begin
-					if comparetext(aSelectedTasks[i], taskname) = 0 then
-						ModPath();
-				end;
-			end;
-		end;
-	end;
+   // get list of selected tasks saved in registry at install time
+   appid := '{#emit SetupSetting("AppId")}';
+   if appid = '' then appid := '{#emit SetupSetting("AppName")}';
+   regpath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\'+appid+'_is1');
+   RegQueryStringValue(HKLM, regpath, 'Inno Setup: Selected Tasks', regstring);
+   if regstring = '' then RegQueryStringValue(HKCU, regpath, 'Inno Setup: SelectedTasks', regstring);
+   
+   // check each task; if matches modpath taskname, trigger patch removal
+   if regstring <> '' then begin
+      taskname := ModPathName;
+      MPExplode(aSelectedTasks, regstring, ',');
+      if GetArrayLength(aSelectedTasks) > 0 then begin
+	 for i := 0 to GetArrayLength(aSelectedTasks)-1 do begin
+	    if comparetext(aSelectedTasks[i], taskname) = 0 then
+	       ModPath();
+	 end;
+      end;
+   end;
 end;
 
 function NeedRestart(): Boolean;
 var
-	taskname:	String;
+   taskname:	String;
 begin
-	taskname := ModPathName;
-	if IsTaskSelected(taskname) and not UsingWinNT() then begin
-		Result := True;
-	end else begin
-		Result := False;
-	end;
+   taskname := ModPathName;
+   if IsTaskSelected(taskname) and not UsingWinNT() then begin
+      Result := True;
+   end else begin
+      Result := False;
+   end;
 end;
