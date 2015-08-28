@@ -542,7 +542,7 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	timings.sc \
 	test/coretest.out test/checkans.out test/gforth.out \
 	cache*.vmg peeprules.vmg prim \
-	debian.rules debian.control debian.changelog
+	debian.rules debian.control debian.changelog gforth.ico
 
 RCS_FILES =  ToDo model high-level
 
