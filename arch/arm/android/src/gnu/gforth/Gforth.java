@@ -371,16 +371,16 @@ public class Gforth
    
     @Override protected void onResume() {
 	super.onResume();
-	onEventNative(18, -1);
+	onEventNative(18, -2);
     }
 
     @Override protected void onPause() {
 	super.onPause();
-	onEventNative(18, 0);
+	onEventNative(18, -1);
     }
 
     @Override protected void onStop() {
-	super.onPause();
+	super.onStop();
 	onEventNative(18, 0);
     }
 
