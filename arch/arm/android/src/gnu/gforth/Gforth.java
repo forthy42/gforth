@@ -360,13 +360,15 @@ public class Gforth
 		    finish();
 		}
 	    };
-	startForth(getApplicationInfo().nativeLibraryDir);
     }
 
     @Override protected void onStart() {
 	super.onStart();
+	if(!started) {
+	    startForth(getApplicationInfo().nativeLibraryDir);
+	    started=true;
+	}
 	onEventNative(18, -1);
-	started=true;
     }
    
     @Override protected void onResume() {
