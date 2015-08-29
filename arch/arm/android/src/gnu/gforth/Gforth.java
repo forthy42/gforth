@@ -315,68 +315,73 @@ public class Gforth
 	    Log.v(TAG, "Library already loaded");
 	}
 	super.onCreate(savedInstanceState);
+
+	locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
+	sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
+	clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+	handler=new Handler();
+	startgps=new Runnable() {
+		public void run() {
+		    locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
+		}
+	    };
+	stopgps=new Runnable() {
+		public void run() {
+		    locationManager.removeUpdates((LocationListener)gforth);
+		}
+	    };
+	startsensor=new Runnable() {
+		public void run() {
+		    sensorManager.registerListener((SensorEventListener)gforth, argsensor, (int)argj0);
+		}
+	    };
+	stopsensor=new Runnable() {
+		public void run() {
+		    sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
+		}
+	    };
+	showprog=new Runnable() {
+		public void run() {
+		    showProgress();
+		}
+	    };
+	hideprog=new Runnable() {
+		public void run() {
+		    doneProgress();
+		}
+	    };
+	errprog=new Runnable() {
+		public void run() {
+		    errProgress();
+		}
+	    };
+	appexit=new Runnable() {
+		public void run() {
+		    finish();
+		}
+	    };
+	startForth(getApplicationInfo().nativeLibraryDir);
     }
 
     @Override protected void onStart() {
 	super.onStart();
-	if(!started) {
-	    locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
-	    sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
-	    clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
-	    handler=new Handler();
-	    startgps=new Runnable() {
-		    public void run() {
-			locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
-		    }
-		};
-	    stopgps=new Runnable() {
-		    public void run() {
-		    locationManager.removeUpdates((LocationListener)gforth);
-		    }
-		};
-	    startsensor=new Runnable() {
-		    public void run() {
-			sensorManager.registerListener((SensorEventListener)gforth, argsensor, (int)argj0);
-		    }
-		};
-	    stopsensor=new Runnable() {
-		    public void run() {
-			sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
-		    }
-		};
-	    showprog=new Runnable() {
-		    public void run() {
-			showProgress();
-		    }
-		};
-	    hideprog=new Runnable() {
-		    public void run() {
-			doneProgress();
-		    }
-		};
-	    errprog=new Runnable() {
-		    public void run() {
-			errProgress();
-		    }
-		};
-	    appexit=new Runnable() {
-		    public void run() {
-			finish();
-		    }
-		};
-	    startForth(getApplicationInfo().nativeLibraryDir);
-	    started=true;
-	}
+	onEventNative(18, -1);
+	started=true;
     }
    
+    @Override protected void onResume() {
+	super.onResume();
+	onEventNative(18, -1);
+    }
+
     @Override protected void onPause() {
 	super.onPause();
 	onEventNative(18, 0);
     }
 
-    @Override protected void onResume() {
-	super.onResume();
-	onEventNative(18, -1);
+    @Override protected void onStop() {
+	super.onPause();
+	onEventNative(18, 0);
     }
 
     @Override

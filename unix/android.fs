@@ -266,7 +266,7 @@ drop
 Defer config-changed :noname [: ." App config changed" cr ;] $err ; IS config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
 
-Variable rendering  rendering on
+Variable rendering
 
 Variable setstring
 
