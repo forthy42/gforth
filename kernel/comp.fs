@@ -570,17 +570,15 @@ comp: ( value-xt to-xt -- )
     
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    record-name ' defer! ;
+    record-name (') (name>x) drop (int-to) ;
 
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
-    record-name ' postpone ALiteral postpone defer! ; immediate restrict
+    record-name (') (name>x) drop (comp-to) ; immediate restrict
 
-:noname ( value "name" -- ) (') (name>x) drop (int-to) ;
-:noname ( value "name" -- ) (') (name>x) drop (comp-to) ; over over
-interpret/compile: TO ( value "name" -- )
-interpret/compile: IS ( value "name" -- )
+' <IS> ' [IS] interpret/compile: TO ( value "name" -- )
+' <IS> ' [IS] interpret/compile: IS ( value "name" -- )
 
 \ \ : ;                                                  	24feb93py
 
