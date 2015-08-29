@@ -1127,19 +1127,35 @@ AC_SUBST(include_fi)
 AC_MSG_CHECKING([for gforth])
 GFORTH="`cd / && which gforth 2>/dev/null`"
 #the "$srcdir" = "." test defends agains the "../" bug in gforth-0.6.2
-(cd / && $GFORTH -e bye >/dev/null 2>/dev/null  && test "$srcdir" = ".") || GFORTH=""
+(cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null  && test "$srcdir" = ".") || GFORTH=""
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
   GFORTHKER='echo "You need to configure with a gforth in \$PATH to build this part" && false'
   kernel_anti_dependence=''
 else
-  GFORTH_FI=`cd / && $GFORTH --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`
-  PREFORTH="$GFORTH -i $GFORTH_FI" ;
-  KERNLX_FI1=$(echo $GFORTH_FI | sed -e s/lib[[64]]*/share/g -e s/gforth.fi/kernl*.fi/g)
-  KERNLX_FI2=$(echo $GFORTH_FI | sed -e s/gforth.fi/kernl*.fi/g)
-  test -f $KERNLX_FI1 && KERNLX_FI=$KERNLX_FI1
-  test -f $KERNLX_FI2 && KERNLX_FI=$KERNLX_FI2
-  GFORTHKER="$GFORTH -i `echo $KERNLX_FI`" ;
+  GFORTH_MAGIC="`cd / && "$GFORTH" --debug -e bye 2>&1 |grep \"Magic found:\"`"
+  case "$GFORTH_MAGIC" in
+        *little\ endian,\ cell=8*)
+                KERNL=kernl64l.fi
+                ;;
+        *little\ endian,\ cell=4*)
+                KERNL=kernl32l.fi
+                ;;
+        *big\ endian,\ cell=8*)
+                KERNL=kernl64b.fi
+                ;;
+        *big\ endian,\ cell=4*)
+                KERNL=kernl32b.fi
+                ;;
+  esac
+  GFORTH_FI="`cd / && "$GFORTH" --debug -e bye 2>&1 |grep \"Opened image file: \"|sed 's/Opened image file: //'`"
+  PREFORTH="\"$GFORTH\" -i \"$GFORTH_FI\"" ;
+  KERNLX_FI1="$(echo $GFORTH_FI | sed -e s/lib[[64]]*/share/g -e s/gforth.fi/$KERNL/g)"
+  KERNLX_FI2="$(echo $GFORTH_FI | sed -e s/gforth.fi/$KERNL/g)"
+  "$GFORTH" -i "$KERNL" -e bye && KERNLX_FI="$KERNL" || \
+  "$GFORTH" -i "$KERNLX_FI1" -e bye && KERNLX_FI="$KERNLX_FI1" || \
+  "$GFORTH" -i "$KERNLX_FI2" -e bye && KERNLX_FI="$KERNLX_FI2"
+  GFORTHKER="\"$GFORTH\" -i \"$KERNLX_FI\"" ;
   kernel_anti_dependence='$(kernel_fi)'
 fi
 AC_SUBST(PREFORTH)
