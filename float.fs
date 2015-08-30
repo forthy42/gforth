@@ -131,7 +131,7 @@ comp: drop >body postpone ALiteral postpone f! ;
   '. emit scratch r> /string type
   'E emit r> . ;
 
-: fs. ( r -- ) \ float-ext f-s-dot
+: fs. ( r -- ) \ gforth f-s-dot
 \G Display @i{r} using scientific notation (with exponent), followed
 \G by a space.
   f$ 1-
@@ -142,7 +142,7 @@ comp: drop >body postpone ALiteral postpone f! ;
 : sfnumber ( c-addr u -- r true | false )
     fp-char @ >float1 ;
 
-Create si-prefixes ," P  T  G  M  k    %m  u  n  p  f"
+Create si-prefixes ," Y  Z  X  P  T  G  M  k    %m  u  n  p  f  a  z  y"
 si-prefixes count 2/ + Constant zero-exp
 
 : prefix-number ( c-addr u -- r true | false )
@@ -161,6 +161,16 @@ si-prefixes count 2/ + Constant zero-exp
     ELSE
 	2drop false
     THEN ;
+
+: fp. ( r -- ) \ float-ext f-e-dot
+\G Display @i{r} using SI prefix notation (with exponent dividable
+\G by 3, converted into SI prefixes if available), followed by a space.
+    f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
+    scratch r@ tuck min tuck - >r type r> zeros
+    '. emit scratch r> /string type
+    r@ abs [ zero-exp si-prefixes 1+ - ] Literal <= IF
+	zero-exp r> - c@ emit space
+    ELSE  'E emit r> .  THEN ;
 [ELSE]
 : sfnumber ( c-addr u -- r true | false )
     >float ;

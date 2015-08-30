@@ -331,7 +331,7 @@ Defer clipboard! ( 0 -- ) ' drop is recurse
 
 : android-active ( flag -- )
     \ >stderr ." active: " dup . cr
-    dup rendering !  IF  screen-ops  THEN ;
+    dup rendering !  IF  need-show on screen-ops  THEN ;
 
 Create aevents
 ' android-key ,
