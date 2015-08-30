@@ -131,7 +131,7 @@ comp: drop >body postpone ALiteral postpone f! ;
   '. emit scratch r> /string type
   'E emit r> . ;
 
-: fs. ( r -- ) \ float-ext f-s-dot
+: fs. ( r -- ) \ gforth f-s-dot
 \G Display @i{r} using scientific notation (with exponent), followed
 \G by a space.
   f$ 1-
@@ -164,7 +164,7 @@ si-prefixes count 2/ + Constant zero-exp
 
 : fp. ( r -- ) \ float-ext f-e-dot
 \G Display @i{r} using SI prefix notation (with exponent dividable
-\G by 3, converted into SI prefixes), followed by a space.
+\G by 3, converted into SI prefixes if available), followed by a space.
     f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
     scratch r@ tuck min tuck - >r type r> zeros
     '. emit scratch r> /string type
