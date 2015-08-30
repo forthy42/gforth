@@ -243,26 +243,6 @@ Defer screen-ops ' noop IS screen-ops
     defers key dup #cr = key? and IF  key ?dup-IF unkey THEN THEN ;
 IS key
 
-: enum dup Constant 1+ ;
-0
-enum APP_CMD_INPUT_CHANGED
-enum APP_CMD_INIT_WINDOW
-enum APP_CMD_TERM_WINDOW
-enum APP_CMD_WINDOW_RESIZED
-enum APP_CMD_WINDOW_REDRAW_NEEDED
-enum APP_CMD_CONTENT_RECT_CHANGED
-enum APP_CMD_GAINED_FOCUS
-enum APP_CMD_LOST_FOCUS
-enum APP_CMD_CONFIG_CHANGED
-enum APP_CMD_LOW_MEMORY
-enum APP_CMD_START
-enum APP_CMD_RESUME
-enum APP_CMD_SAVE_STATE
-enum APP_CMD_PAUSE
-enum APP_CMD_STOP
-enum APP_CMD_DESTROY
-drop
-
 Defer config-changed :noname [: ." App config changed" cr ;] $err ; IS config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
 
@@ -350,6 +330,7 @@ Defer clipboard! ( 0 -- ) ' drop is recurse
 : android-config! ( n -- ) to screen-orientation config-changed ;
 
 : android-active ( flag -- )
+    \ >stderr ." active: " dup . cr
     dup rendering !  IF  screen-ops  THEN ;
 
 Create aevents

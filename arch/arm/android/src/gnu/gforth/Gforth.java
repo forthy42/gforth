@@ -81,6 +81,8 @@ public class Gforth
     private ClipboardManager clipboardManager;
     private boolean started=false;
     private boolean libloaded=false;
+    private boolean surfaced=false;
+    private int activated;
 
     public Handler handler;
     public Runnable startgps;
@@ -368,22 +370,26 @@ public class Gforth
 	    startForth(getApplicationInfo().nativeLibraryDir);
 	    started=true;
 	}
-	onEventNative(18, -1);
+	activated = -1;
+	if(surfaced) onEventNative(18, activated);
     }
    
     @Override protected void onResume() {
 	super.onResume();
-	onEventNative(18, -2);
+	activated = -2;
+	if(surfaced) onEventNative(18, activated);
     }
 
     @Override protected void onPause() {
 	super.onPause();
-	onEventNative(18, -1);
+	activated = -1;
+	if(surfaced) onEventNative(18, activated);
     }
 
     @Override protected void onStop() {
 	super.onStop();
-	onEventNative(18, 0);
+	activated = 0;
+	onEventNative(18, activated);
     }
 
     @Override
@@ -435,6 +441,8 @@ public class Gforth
     // surface stuff
     public void surfaceCreated(SurfaceHolder holder) {
 	onEventNative(4, holder.getSurface());
+	surfaced=true;
+	onEventNative(18, activated);
     }
     
     public class surfacech {
@@ -462,6 +470,7 @@ public class Gforth
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
+	surfaced=false;
 	onEventNative(7, holder.getSurface());
     }
 
