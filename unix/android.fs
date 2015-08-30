@@ -350,7 +350,7 @@ Defer clipboard! ( 0 -- ) ' drop is recurse
 : android-config! ( n -- ) to screen-orientation config-changed ;
 
 : android-active ( flag -- )
-    dup rendering !  IF  screen-ops  THEN ;
+    dup rendering !  IF  need-show on screen-ops  THEN ;
 
 Create aevents
 ' android-key ,

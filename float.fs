@@ -142,11 +142,11 @@ comp: drop >body postpone ALiteral postpone f! ;
 : sfnumber ( c-addr u -- r true | false )
     fp-char @ >float1 ;
 
-Create si-prefixes ," P  T  G  M  k    %m  u  n  p  f"
-si-prefixes count 2/ + Constant zero-exp
+Create si-suffixes ," Y  Z  X  P  T  G  M  k    %m  u  n  p  f  a  z  y"
+si-suffixes count 2/ + Constant zero-exp
 
-: prefix-number ( c-addr u -- r true | false )
-    si-prefixes count bounds DO
+: suffix-number ( c-addr u -- r true | false )
+    si-suffixes count bounds DO
 	2dup I c@ scan nip dup 0<> IF
 	    1 = IF  1- fp-char @  ELSE  I c@  THEN
 	    >float1
@@ -161,10 +161,20 @@ si-prefixes count 2/ + Constant zero-exp
     ELSE
 	2drop false
     THEN ;
+
+: fx. ( r -- ) \ float-ext f-e-dot
+\G Display @i{r} using suffiX engineering notation (with exponent dividable
+\G by 3, converted into suffixes), followed by a space.
+    f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
+    scratch r@ tuck min tuck - >r type r> zeros
+    '. emit scratch r> /string type
+    r@ abs [ zero-exp si-suffixes 1+ - ] Literal <= IF
+	zero-exp r> - c@ emit space
+    ELSE  'E emit r> .  THEN ;
 [ELSE]
 : sfnumber ( c-addr u -- r true | false )
     >float ;
-: prefix-number  sfnumber ;
+: suffix-number  sfnumber ;
 [THEN]
 
 [ifdef] r:fail
@@ -174,7 +184,7 @@ si-prefixes count 2/ + Constant zero-exp
 
     : rec:float ( addr u -- r r:float | r:fail )
 	\G recognize floating point numbers
-	prefix-number r:float r:fail rot select ;
+	suffix-number r:float r:fail rot select ;
     
     ' rec:float
     get-recognizers
