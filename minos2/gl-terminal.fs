@@ -311,7 +311,8 @@ Variable gl-emit-buf
 info-color Value setstring-color
 
 : gl.all ( span addr pos1 -- span addr pos1 )
-    linew @ xback-restore 2dup type
+    linew @ xback-restore linew @ spaces linew @ xback-restore
+    2dup type
     setstring-color attr! setstring $@ type default-color attr!
     >r 2dup swap r@ /string type
     2dup swap cur-correct setstring $@ x-width linew +! r> ;
