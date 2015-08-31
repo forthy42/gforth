@@ -240,7 +240,7 @@ variable looperfds pollfd 8 * allot
 Defer screen-ops ' noop IS screen-ops
 :noname
     need-show on  BEGIN  >looper key? screen-ops  UNTIL
-    defers key dup #cr = key? and IF  key ?dup-IF unkey THEN THEN ;
+    defers key dup #cr = key? and IF  key ?dup-IF inskey THEN THEN ;
 IS key
 
 Defer config-changed :noname [: ." App config changed" cr ;] $err ; IS config-changed
@@ -252,11 +252,11 @@ Variable rendering  rendering on
 : insstring ( -- )  setstring $@ inskeys nostring ;
 
 : android-characters ( string -- )  jstring>sstring
-    ( insstring ) inskeys jfree  nostring ;
+    nostring inskeys jfree ;
 : android-commit     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
 	jstring>sstring inskeys jfree setstring $off  THEN ;
 : android-setstring  ( string -- ) jstring>sstring setstring $! jfree
-    ctrl L unkey ;
+    ctrl L inskey ;
 : android-unicode    ( uchar -- )   nostring  >xstring inskeys ;
 : android-keycode    ( keycode -- ) nostring  keycode>keys inskeys ;
 
