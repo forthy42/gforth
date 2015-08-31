@@ -133,6 +133,7 @@ public class Gforth
 	}
 
 	public void setEditLine(String line, int curpos) {
+	    Log.v(TAG, "IC.setEditLine: \"" + line + "\" at: " + curpos);
 	    getEditable().clear();
 	    getEditable().append(line);
 	    setSelection(curpos, curpos);
@@ -287,6 +288,7 @@ public class Gforth
 	mContentView.hideIME();
     }
     public void setEditLine(String line, int curpos) {
+	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
 	mContentView.mInputConnection.setEditLine(line, curpos);
     }
 
