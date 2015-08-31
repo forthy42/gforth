@@ -83,6 +83,7 @@ public class Gforth
     private boolean libloaded=false;
     private boolean surfaced=false;
     private int activated;
+    private String beforec="", afterc="";
 
     public Handler handler;
     public Runnable startgps;
@@ -126,9 +127,15 @@ public class Gforth
 	public Editable getEditable() {
 	    if (mEditable == null) {
 		mEditable = (SpannableStringBuilder) Editable.Factory.getInstance()
-		    .newEditable("Gforth Terminal");
+		    .newEditable("");
 	    }
 	    return mEditable;
+	}
+
+	public void setEditLine(String line, int curpos) {
+	    getEditable().clear();
+	    getEditable().append(String);
+	    setSelection(curpos, curpos);
 	}
 
 	public boolean commitText(CharSequence text, int newcp) {
@@ -278,6 +285,9 @@ public class Gforth
     }
     public void hideIME() {
 	mContentView.hideIME();
+    }
+    public void setEditLine(String line, int curpos) {
+	mContentView.mInputConnection.setEditLine(line, curpos);
     }
 
     @Override

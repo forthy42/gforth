@@ -17,6 +17,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+Defer edit-update ( span addr pos1 -- span addr pos1 )
+\G deferred word to keep an editor informed about the command line content
+' noop is edit-update
+
 : ctrl-i ( "<char>" -- c )
     char toupper $40 xor ;
 
@@ -90,7 +94,7 @@ Variable screenw
   forward^ 2@ 2dup hist-setpos backward^ 2!
   2dup get-line drop
   hist-pos  forward^ 2!
-  tuck 2dup type 2dup cur-correct 0 ;
+  tuck 2dup type 2dup cur-correct edit-update 0 ;
 
 : find-prev-line ( max addr -- max span addr pos2 )
   backward^ 2@ forward^ 2!
@@ -102,7 +106,7 @@ Variable screenw
   REPEAT  2drop  THEN  tuck ;
 
 : prev-line  ( max span addr pos1 -- max span addr pos2 false )
-    clear-line find-prev-line 2dup type 2dup cur-correct 0 ;
+    clear-line find-prev-line 2dup type 2dup cur-correct edit-update 0 ;
 
 \ Create lfpad #lf c,
 
@@ -333,7 +337,8 @@ Variable vt100-modifier
 	2>r >string r@ + 2r> 2swap insert
 	r@ + rot r> + -rot
     THEN
-    prefix-found @ IF  bl (xins)  ELSE  .all .rest  THEN  0 ;
+    prefix-found @ IF  bl (xins)  ELSE  .all .rest  THEN
+    edit-update  0 ;
 
 : xchar-history ( -- )
     ['] xforw        ctrl F bindkey

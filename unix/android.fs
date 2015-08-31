@@ -260,6 +260,15 @@ Variable rendering  rendering on
 : android-unicode    ( uchar -- )   nostring  >xstring inskeys ;
 : android-keycode    ( keycode -- ) nostring  keycode>keys inskeys ;
 
+: xcs ( addr u -- n )
+    \G number of xchars in a string;
+    0 -rot bounds ?DO  1+ I I' over - x-size +LOOP ;
+
+: android-edit-update ( span addr pos1 -- span addr pos1 )
+    2dup xcs swap >r >r
+    2dup swap make-jstring r> clazz >o setEditLine o> r> ;
+' android-edit-update is edit-update
+
 JValue key-event
 JValue touch-event
 JValue location
