@@ -267,7 +267,7 @@ Variable rendering  rendering on
 : android-edit-update ( span addr pos1 -- span addr pos1 )
     2dup xcs swap >r >r
     2dup swap make-jstring r> clazz >o setEditLine o> r> ;
-' android-edit-update is edit-update
+\ ' android-edit-update is edit-update
 
 JValue key-event
 JValue touch-event
