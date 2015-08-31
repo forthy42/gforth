@@ -256,7 +256,8 @@ Variable setstring
     insstring  inskeys jfree ;
 : android-commit     ( string/0 -- )   ?dup-0=-IF  insstring  ELSE
 	jstring>sstring inskeys jfree setstring $off  THEN ;
-: android-setstring  ( string -- )  jstring>sstring setstring $! jfree ;
+: android-setstring  ( string -- )  jstring>sstring setstring $! jfree
+    ctrl l unkey ;
 : android-unicode    ( uchar -- )   insstring  >xstring inskeys ;
 : android-keycode    ( keycode -- ) insstring  keycode>keys inskeys ;
 
