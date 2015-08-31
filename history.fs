@@ -67,11 +67,13 @@ defer cur-correct ( addr u -- )
 Variable linew
 Variable linew-all
 Variable screenw
+Variable setstring \ additional string at cursor for IME
 : linew-off  linew off cols screenw ! ;
 
 [IFDEF] x-width
 : clear-line ( max span addr pos1 -- max addr )
-    drop linew @ back-restore over over swap x-width
+    drop linew @ back-restore
+    2dup swap x-width setstring $@ x-width +
     dup spaces back-restore nip linew off ;
 [ELSE]
 : clear-line ( max span addr pos1 -- max addr )
@@ -215,7 +217,6 @@ require utf-8.fs
 
 ' xcur-correct IS cur-correct
 
-Variable setstring \ additional string at cursor for IME
 info-color Value setstring-color
 
 : color-execute ( color xt -- )
