@@ -253,7 +253,7 @@ Variable setstring
 : insstring ( -- )  setstring $@ inskeys setstring $off ;
 
 : android-characters ( string -- )  jstring>sstring
-    insstring  inskeys jfree ;
+    ( insstring ) setstring $off  inskeys jfree ;
 : android-commit     ( string/0 -- )   ?dup-0=-IF  insstring  ELSE
 	jstring>sstring inskeys jfree setstring $off  THEN ;
 : android-setstring  ( string -- )  jstring>sstring setstring $! jfree
