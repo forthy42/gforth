@@ -248,16 +248,17 @@ Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; I
 
 Variable rendering  rendering on
 
-: insstring ( -- )  setstring $@ inskeys setstring $off ;
+: nostring ( -- ) setstring $off ;
+: insstring ( -- )  setstring $@ inskeys nostring ;
 
 : android-characters ( string -- )  jstring>sstring
-    ( insstring ) setstring $off  inskeys jfree ;
-: android-commit     ( string/0 -- )   ?dup-0=-IF  insstring  ELSE
+    ( insstring ) inskeys jfree  nostring ;
+: android-commit     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
 	jstring>sstring inskeys jfree setstring $off  THEN ;
-: android-setstring  ( string -- )  jstring>sstring setstring $! jfree
-    ctrl l unkey ;
-: android-unicode    ( uchar -- )   insstring  >xstring inskeys ;
-: android-keycode    ( keycode -- ) insstring  keycode>keys inskeys ;
+: android-setstring  ( string -- ) jstring>sstring setstring $! jfree
+    ctrl L unkey ;
+: android-unicode    ( uchar -- )   nostring  >xstring inskeys ;
+: android-keycode    ( keycode -- ) nostring  keycode>keys inskeys ;
 
 JValue key-event
 JValue touch-event

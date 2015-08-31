@@ -232,8 +232,7 @@ info-color Value setstring-color
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore
-    linew-all @ dup spaces back-restore
-    cols dup screenw !@ - >r linew @ dup screenw @ / r> * 0 max +
+    cols dup screenw !@ - >r linew-all @ dup screenw @ / r> * 0 max +
     dup spaces linew !  .all .rest false ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
