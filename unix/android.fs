@@ -257,8 +257,8 @@ Variable rendering  rendering on
 	jstring>sstring inskeys jfree setstring $off  THEN ;
 : android-setstring  ( string -- ) jstring>sstring setstring $! jfree
     ctrl L inskey ;
-: android-unicode    ( uchar -- )   nostring  >xstring inskeys ;
-: android-keycode    ( keycode -- ) nostring  keycode>keys inskeys ;
+: android-unicode    ( uchar -- )   insstring  >xstring inskeys ;
+: android-keycode    ( keycode -- ) insstring  keycode>keys inskeys ;
 
 : xcs ( addr u -- n )
     \G number of xchars in a string;
@@ -267,7 +267,7 @@ Variable rendering  rendering on
 : android-edit-update ( span addr pos1 -- span addr pos1 )
     2dup xcs swap >r >r
     2dup swap make-jstring r> clazz >o setEditLine o> r> ;
-\ ' android-edit-update is edit-update
+' android-edit-update is edit-update
 
 JValue key-event
 JValue touch-event
