@@ -134,7 +134,7 @@ public class Gforth
 
 	public void setEditLine(String line, int curpos) {
 	    getEditable().clear();
-	    getEditable().append(String);
+	    getEditable().append(line);
 	    setSelection(curpos, curpos);
 	}
 
