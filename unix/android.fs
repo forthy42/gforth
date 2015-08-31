@@ -257,7 +257,7 @@ Variable rendering  rendering on
 	jstring>sstring inskeys jfree setstring $off  THEN ;
 : android-setstring  ( string -- ) jstring>sstring setstring $! jfree
     ctrl L inskey ;
-: android-unicode    ( uchar -- )   insstring  >xstring inskeys ;
+: android-unicode    ( uchar -- )   nostring  >xstring inskeys ;
 : android-keycode    ( keycode -- ) insstring  keycode>keys inskeys ;
 
 : xcs ( addr u -- n )
