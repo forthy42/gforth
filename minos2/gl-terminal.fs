@@ -312,9 +312,9 @@ info-color Value setstring-color
 
 : gl.all ( span addr pos1 -- span addr pos1 )
     linew @ xback-restore 2dup type
-    info-color attr! setstring $@ type default-color attr!
-    >r 2dup swap r> /string type
-    >r 2dup 2dup swap cur-correct r> setstring $@ x-width linew +! ;
+    setstring-color attr! setstring $@ type default-color attr!
+    >r 2dup swap r@ /string type
+    2dup swap cur-correct setstring $@ x-width linew +! r> ;
 ' gl.all IS .all
 
 \ Google is stupid: This event comes too early
