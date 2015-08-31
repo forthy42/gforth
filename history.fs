@@ -223,7 +223,7 @@ Defer .all
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore
-    cols dup screenw !@ - >r 2 pick dup screenw @ / r> * 0 max +
+    cols dup screenw !@ - >r linew @ dup screenw @ / r> * 0 max +
     dup spaces linew !  .all .rest false ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
