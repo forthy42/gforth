@@ -209,6 +209,7 @@ require utf-8.fs
 : xcur-correct  ( addr u -- )  x-width linew ! ;
 
 ' xcur-correct IS cur-correct
+Defer .all
 
 : xback-restore ( u -- )
     \ correction for line=screenw, no wraparound then!
@@ -216,8 +217,9 @@ require utf-8.fs
     dup >r + screenw @ /mod negate swap r> - negate swap at-deltaxy ;
 : .rest ( addr pos1 -- addr pos1 )
     linew @ xback-restore 2dup type 2dup cur-correct ;
-: .all ( span addr pos1 -- span addr pos1 )
+: x.all ( span addr pos1 -- span addr pos1 )
     linew @ xback-restore >r 2dup swap type 2dup swap cur-correct r> ;
+' x.all IS .all
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore
