@@ -306,18 +306,6 @@ Variable gl-emit-buf
     need-sync on ;
 \    ." config changed to: " w ? h ? cr
 
-\ put the prelimited stuff into view, too
-
-info-color Value setstring-color
-
-: gl.all ( span addr pos1 -- span addr pos1 )
-    linew @ dup xback-restore dup spaces xback-restore
-    2dup type
-    setstring-color attr! setstring $@ type default-color attr!
-    >r 2dup swap r@ /string type
-    2dup swap cur-correct setstring $@ x-width linew +! r> ;
-' gl.all IS .all
-
 \ Google is stupid: This event comes too early
 \ Make Gforth sync the screen up to four times till the config really changes
 :noname

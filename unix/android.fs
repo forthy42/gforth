@@ -248,8 +248,6 @@ Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; I
 
 Variable rendering  rendering on
 
-Variable setstring
-
 : insstring ( -- )  setstring $@ inskeys setstring $off ;
 
 : android-characters ( string -- )  jstring>sstring

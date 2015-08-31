@@ -61,6 +61,7 @@ defer cur-correct ( addr u -- )
 ' 2drop IS cur-correct
 
 Variable linew
+Variable linew-all
 Variable screenw
 : linew-off  linew off cols screenw ! ;
 
@@ -209,7 +210,12 @@ require utf-8.fs
 : xcur-correct  ( addr u -- )  x-width linew ! ;
 
 ' xcur-correct IS cur-correct
-Defer .all
+
+Variable setstring \ additional string at cursor for IME
+info-color Value setstring-color
+
+: color-execute ( color xt -- )
+    attr! catch default-color attr! throw ;
 
 : xback-restore ( u -- )
     \ correction for line=screenw, no wraparound then!
@@ -217,12 +223,16 @@ Defer .all
     dup >r + screenw @ /mod negate swap r> - negate swap at-deltaxy ;
 : .rest ( addr pos1 -- addr pos1 )
     linew @ xback-restore 2dup type 2dup cur-correct ;
-: x.all ( span addr pos1 -- span addr pos1 )
-    linew @ xback-restore >r 2dup swap type 2dup swap cur-correct r> ;
-' x.all IS .all
+: .all ( span addr pos1 -- span addr pos1 )
+    linew @ xback-restore
+    2dup type [: setstring $@ type ;] setstring-color color-execute
+    >r 2dup swap r@ /string type
+    2dup swap cur-correct setstring $@ x-width linew +! r>
+    linew @ linew-all ! ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore
+    linew-all @ dup spaces back-restore
     cols dup screenw !@ - >r linew @ dup screenw @ / r> * 0 max +
     dup spaces linew !  .all .rest false ;
 
@@ -259,14 +269,14 @@ Variable vt100-modifier
     2 pick over <> IF
 	vt100-modifier @ IF
 	    BEGIN  2 pick over u> >r 2dup + c@ bl = r> and  WHILE
-		    over + xc@+ xemit over -  REPEAT
+		    over + xchar+ over -  REPEAT
 	    BEGIN  2 pick over u> >r 2dup + c@ bl <> r> and  WHILE
-		    over + xc@+ xemit over -  REPEAT
+		    over + xchar+ over -  REPEAT
 	ELSE
-	    over + xc@+ xemit over -
+	    over + xchar+ over -
 	THEN
-    ELSE  bell  THEN
-    2dup cur-correct 0 ;
+	.all .rest
+    ELSE  bell  THEN 0 ;
 : (xdel)  ( max span addr pos1 -- max span addr pos2 )
     over + dup xchar- tuck - >r over -
     >string over r@ + -rot move
