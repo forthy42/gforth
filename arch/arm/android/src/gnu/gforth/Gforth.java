@@ -180,7 +180,6 @@ public class Gforth
 	    return true;
 	}
 	public boolean setComposingRegion (int start, int end) {
-	    super.setComposingRegion(start, end);
 	    end-=start;
 	    if(end < 0) {
 		start+=end;
@@ -188,7 +187,7 @@ public class Gforth
 	    }
 	    mView.mActivity.onEventNative(19, start);
 	    mView.mActivity.onEventNative(20, end);
-	    return true;
+	    return super.setComposingRegion(start, start+end);
 	}
 	public boolean sendKeyEvent (KeyEvent event) {
 	    mView.mActivity.onEventNative(0, event);

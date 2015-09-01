@@ -269,10 +269,10 @@ Variable rendering  rendering on
     2dup swap make-jstring r> clazz >o setEditLine o> r> ;
 ' android-edit-update is edit-update
 
-: ins-esc ( n char -- ) swap
-    [: .\" \e[;" 1+ 0 .r emit ;] $tmp inskeys ;
-: android-setcur ( n -- ) 'H' ins-esc ;
-: android-setsel ( n -- ) 'S' ins-esc ;
+: ins-esc# ( n char -- ) swap 0 max 1+
+    [: .\" \e[;" 0 .r emit ;] $tmp inskeys ;
+: android-setcur ( n -- ) 'H' ins-esc# ;
+: android-setsel ( n -- ) 'S' ins-esc# ;
 
 JValue key-event
 JValue touch-event
