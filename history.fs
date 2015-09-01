@@ -234,11 +234,13 @@ info-color Value setstring-color
     >r 2dup swap r@ /string type
     2dup swap cur-correct setstring $@ x-width linew +! r>
     linew @ linew-all ! ;
+: .redraw ( span addr pos1 -- span addr pos1 )
+    .all .rest ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore
     cols dup screenw !@ - >r linew-all @ dup screenw @ / r> * 0 max +
-    dup spaces linew !  .all .rest false ;
+    dup spaces linew !  .redraw false ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore 2 pick dup spaces xback-restore
@@ -256,7 +258,7 @@ Variable vt100-modifier
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
-    <xins> key? 0= IF  .all .rest  THEN ;
+    <xins> key? 0= IF  .redraw  THEN ;
 : xback  ( max span addr pos1 -- max span addr pos2 f )
     dup  IF
 	vt100-modifier @ IF
@@ -267,7 +269,7 @@ Variable vt100-modifier
 	ELSE
 	    over + xchar- over -
 	THEN
-	0 max .all .rest
+	0 max .redraw
     ELSE  bell  THEN 0 ;
 : xforw  ( max span addr pos1 -- max span addr pos2 f )
     2 pick over <> IF
@@ -279,7 +281,7 @@ Variable vt100-modifier
 	ELSE
 	    over + xchar+ over -
 	THEN
-	.all .rest
+	.redraw
     ELSE  bell  THEN 0 ;
 : (xdel)  ( max span addr pos1 -- max span addr pos2 )
     over + dup xchar- tuck - >r over -
@@ -296,7 +298,7 @@ Variable vt100-modifier
 : xeof  2 pick over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
 
 : xfirst-pos  ( max span addr pos1 -- max span addr 0 0 )
-  drop 0 .all .rest 0 ;
+  drop 0 .redraw 0 ;
 : xend-pos  ( max span addr pos1 -- max span addr span 0 )
   drop over .all 0 ;
 
@@ -307,7 +309,7 @@ Variable vt100-modifier
     linew @ xback-restore >r
     2dup swap x-width dup spaces xback-restore
     2dup swap r@ /string 2 pick swap move
-    swap r> - swap 0 .all .rest 0 ;
+    swap r> - swap 0 .redraw 0 ;
 
 : (xenter)  ( max span addr pos1 -- max span addr pos2 true )
     >r 2dup swap -trailing nip IF
@@ -338,26 +340,34 @@ Variable vt100-modifier
 	2>r >string r@ + 2r> 2swap insert
 	r@ + rot r> + -rot
     THEN
-    prefix-found @ IF  bl (xins)  ELSE  .all .rest  THEN
+    prefix-found @ IF  bl (xins)  ELSE  .redraw  THEN
     edit-update  0 ;
 
+: setcur ( max span addr pos1 -- max span addr pos2 0 )
+    drop over vt100-modifier @ umin .redraw 0 ;
+: setsel ( max span addr pos1 -- max span addr pos2 0 ) >r
+    2dup swap r@ /string 2dup vt100-modifier @ umin setstring $!
+    vt100-modifier @ over umin >r r@ - over r@ + -rot move
+    swap r> - swap r> .redraw 0 ;
+
 : xchar-history ( -- )
-    ['] xforw        ctrl F bindkey
+    ['] setcur       ctrl A bindkey
     ['] xback        ctrl B bindkey
-    ['] ?xdel        ctrl H bindkey
     ['] xeof         ctrl D bindkey
-    ['] <xdel>       ctrl X bindkey
-    ['] xclear-rest  ctrl K bindkey
-    ['] xclear-first ctrl U bindkey
-    ['] xfirst-pos   ctrl A bindkey
     ['] xend-pos     ctrl E bindkey
+    ['] xforw        ctrl F bindkey
+    ['] ?xdel        ctrl H bindkey
+    ['] xtab-expand  #tab   bindkey \ ctrl I
+    ['] (xenter)     #lf    bindkey \ ctrl J
+    ['] xclear-rest  ctrl K bindkey
     ['] xretype      ctrl L bindkey
     ['] next-line    ctrl N bindkey
+    ['] (xenter)     #cr    bindkey \ ctrl M
     ['] prev-line    ctrl P bindkey
+    ['] setsel       ctrl S bindkey
+    ['] xclear-first ctrl U bindkey
+    ['] <xdel>       ctrl X bindkey
     ['] xhide        ctrl Z bindkey \ press ctrl-L to reshow
-    ['] (xenter)     #lf    bindkey
-    ['] (xenter)     #cr    bindkey
-    ['] xtab-expand  #tab   bindkey
     ['] (xins)       IS insert-char
     ['] kill-prefix  IS everychar
 [ifdef] everyline

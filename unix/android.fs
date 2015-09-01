@@ -269,6 +269,12 @@ Variable rendering  rendering on
     2dup swap make-jstring r> clazz >o setEditLine o> r> ;
 ' android-edit-update is edit-update
 
+: android-setcur ( n -- )
+    [: .\" \e[;" 1+ 0 .r 'H' emit ;] $tmp inskeys ;
+
+: android-setsel ( n -- )
+    [: .\" \e[;" 1+ 0 .r 'S' emit ;] $tmp inskeys ;
+
 JValue key-event
 JValue touch-event
 JValue location
@@ -362,6 +368,8 @@ Create aevents
 ' clipboard! , \ primary clipboard changed
 ' android-config! ,
 ' android-active ,
+' android-setcur ,
+' android-setsel ,
 here aevents - cell/
 ' drop ,
 Constant max-event#
