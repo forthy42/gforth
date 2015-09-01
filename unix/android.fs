@@ -194,7 +194,7 @@ Create ctrl-key# 0 c,
     THEN
     case
 	AKEYCODE_MENU of  togglekb s" "  endof
-	AKEYCODE_BACK of  aback    s" "   endof
+	AKEYCODE_BACK of  aback    s" "  endof
 	akey>ekey +meta 0
     endcase ;
 
@@ -257,8 +257,8 @@ Variable rendering  rendering on
 	jstring>sstring inskeys jfree setstring $off  THEN ;
 : android-setstring  ( string -- ) jstring>sstring setstring $! jfree
     ctrl L inskey ;
-: android-unicode    ( uchar -- )   nostring  >xstring inskeys ;
-: android-keycode    ( keycode -- ) insstring  keycode>keys inskeys ;
+: android-unicode    ( uchar -- )   >xstring inskeys ;
+: android-keycode    ( keycode -- ) keycode>keys inskeys ;
 
 : xcs ( addr u -- n )
     \G number of xchars in a string;
@@ -269,11 +269,10 @@ Variable rendering  rendering on
     2dup swap make-jstring r> clazz >o setEditLine o> r> ;
 ' android-edit-update is edit-update
 
-: android-setcur ( n -- )
-    [: .\" \e[;" 1+ 0 .r 'H' emit ;] $tmp inskeys ;
-
-: android-setsel ( n -- )
-    [: .\" \e[;" 1+ 0 .r 'S' emit ;] $tmp inskeys ;
+: ins-esc ( n char -- ) swap
+    [: .\" \e[;" 1+ 0 .r emit ;] $tmp inskeys ;
+: android-setcur ( n -- ) 'H' ins-esc ;
+: android-setsel ( n -- ) 'S' ins-esc ;
 
 JValue key-event
 JValue touch-event

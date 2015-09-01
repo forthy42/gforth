@@ -188,7 +188,7 @@ public class Gforth
 	    }
 	    mView.mActivity.onEventNative(19, start);
 	    mView.mActivity.onEventNative(20, end);
-	    return false;
+	    return true;
 	}
 	public boolean sendKeyEvent (KeyEvent event) {
 	    mView.mActivity.onEventNative(0, event);
