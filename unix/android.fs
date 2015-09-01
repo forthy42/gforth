@@ -261,7 +261,7 @@ Variable rendering  rendering on
 : android-keycode    ( keycode -- ) keycode>keys inskeys ;
 
 : xcs ( addr u -- n )
-    \G number of xchars in a string;
+    \G number of xchars in a string
     0 -rot bounds ?DO  1+ I I' over - x-size +LOOP ;
 
 : android-edit-update ( span addr pos1 -- span addr pos1 )
