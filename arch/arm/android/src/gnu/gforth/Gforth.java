@@ -61,6 +61,7 @@ import java.lang.Object;
 import java.lang.Runnable;
 import java.lang.String;
 import java.io.File;
+import java.util.Locale;
 
 public class Gforth
     extends android.app.Activity
@@ -102,7 +103,7 @@ public class Gforth
     public native void onEventNative(int type, Object event);
     public native void onEventNative(int type, int event);
     public native void callForth(long xt); // !! use long for 64 bits !!
-    public native void startForth(String libdir);
+    public native void startForth(String libdir, String locale);
 
     // own subclasses
     public class RunForth implements Runnable {
@@ -383,7 +384,8 @@ public class Gforth
     @Override protected void onStart() {
 	super.onStart();
 	if(!started) {
-	    startForth(getApplicationInfo().nativeLibraryDir);
+	    startForth(getApplicationInfo().nativeLibraryDir,
+		       Locale.getDefault().toString() + ".UTF-8");
 	    started=true;
 	}
 	activated = -1;
