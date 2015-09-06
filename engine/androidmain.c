@@ -237,7 +237,7 @@ pthread_attr_t * pthread_detach_attr(void)
 
 void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale)
 {
-  char* getlibdir, char *getlocale;
+  char *getlibdir, *getlocale;
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
   getlibdir = (*env)->GetStringUTFChars(env, libdir, NULL);

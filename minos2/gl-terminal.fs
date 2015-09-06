@@ -228,12 +228,19 @@ Variable gl-emit-buf
 	gl-xy 2@ 1+ nip 0 swap gl-xy 2! THEN
     resize-screen  need-sync on ;
 
+: xchar>glascii ( xchar -- 0..7F )
+    case
+	'▀' of 0 endof
+	'⬤' of 1 endof
+	dup
+    endcase $7F umin ;
+
 : (gl-emit) ( char color -- )
     over 7 = IF  2drop  EXIT  THEN
     over #lf = IF  2drop gl-cr  EXIT  THEN
     >r
     gl-emit-buf c$+!  gl-emit-buf $@ tuck x-size u< IF  rdrop  EXIT  THEN
-    gl-emit-buf $@ drop xc@ $7F umin
+    gl-emit-buf $@ drop xc@ xchar>glascii
     gl-emit-buf $@ x-width { n }
     gl-emit-buf $off
     
