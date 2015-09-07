@@ -1239,6 +1239,11 @@ if swig -forth unix/test.i; then
       SWIGLIBS="$SWIGLIBS soillib.fs", ,), )
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
+   if test "$host_os" == "linux-android"
+   then
+	SWIGMODULES="$SWIGMODULES cpufeatures.fs"
+	SWIGLIB="$SWIGLIB cpufeatureslib.fs"
+   fi
 else
    AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
 fi

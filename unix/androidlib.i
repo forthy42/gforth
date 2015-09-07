@@ -1,3 +1,4 @@
+// this file is in the public domain
 %module androidlib
 %insert("include")
 %{

@@ -17,6 +17,9 @@
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
 . build.local
+NDK=${NDK-~/proj/android-ndk-r10e}
+
+cp $NDK/sources/android/cpufeatures/*.[ch] ../../../unix
 
 while [ "${1%%[^\+]*}" == '+' ]
 do
