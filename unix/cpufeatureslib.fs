@@ -18,6 +18,6 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 c-library cpufeatures
-    \c #include "cpu-features.c"
-    include cpufeatureslib.fs
+    \c #include "../../../../unix/cpu-features.c"
+    include cpufeatures.fs
 end-c-library
