@@ -230,7 +230,8 @@ info-color Value setstring-color
     linew @ xback-restore 2dup type 2dup cur-correct ;
 : .all ( span addr pos1 -- span addr pos1 )
     linew @ xback-restore
-    2dup type [: setstring $@ type ;] setstring-color color-execute
+    2dup type setstring $@
+    dup IF  ['] type setstring-color color-execute  ELSE  2drop  THEN
     >r 2dup swap r@ /string type
     2dup swap cur-correct setstring $@ x-width linew +! r>
     linew @ linew-all ! ;
