@@ -314,12 +314,12 @@ LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
 
 UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
 	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs unix/freetype-gllib.fs \
-	unix/android.fs unix/openmax.fs unix/cpufeatures.fs
+	unix/android.fs unix/openmax.fs unix/cpufeatureslib.fs
 
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	\
 	unix/soil.i unix/soil2.i unix/xlib.i unix/ios-gles.i unix/ios-gles3.i \
-	unix/freetype-gl.i unix/wingdi.i unix/winuser.i unix/cpufeatureslib.i
+	unix/freetype-gl.i unix/wingdi.i unix/winuser.i unix/cpufeatures.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
