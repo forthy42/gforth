@@ -5,7 +5,7 @@
 #include "cpu-features.h"
 %}
 
-#define __BEGIN_CDECLS
-#define __END_CDECLS
+#define __BEGIN_DECLS
+#define __END_DECLS
 
 %include "cpu-features.h"

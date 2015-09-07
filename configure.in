@@ -1242,7 +1242,7 @@ if swig -forth unix/test.i; then
    if test "$host_os" == "linux-android"
    then
 	SWIGMODULES="$SWIGMODULES cpufeatures.fs"
-	SWIGLIB="$SWIGLIB cpufeatureslib.fs"
+	SWIGLIBS="$SWIGLIBS cpufeatureslib.fs"
    fi
 else
    AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
