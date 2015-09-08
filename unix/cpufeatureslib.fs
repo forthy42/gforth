@@ -21,3 +21,15 @@ c-library cpufeatureslib
     \c #include "../../../../unix/cpu-features.c"
     include cpufeatures.fs
 end-c-library
+
+android_getCpuFeatures drop
+android_getCpuFamily ANDROID_CPU_FAMILY_ARM = [IF]
+    ANDROID_CPU_ARM_FEATURE_NEON and
+[ELSE]
+    android_getCpuFamily ANDROID_CPU_FAMILY_X86 = [IF]
+	ANDROID_CPU_X86_FEATURE_SSSE3 and
+    [ELSE]
+	drop false
+    [THEN]
+[THEN]
+0<> constant fast-lib
