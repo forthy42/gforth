@@ -27,7 +27,7 @@ c-library filestat
 	\c #include <sys/syscall.h>
 	\c #include <sys/glibc-syscalls.h>
 	\c int futimens(int fd, const struct timespec ts[2]) {
-	\c   syscall(SYS_UTIMENSAT, fd, NULL, ts, 0);
+	\c   syscall(SYS_utimensat, fd, NULL, ts, 0);
 	\c }
     [THEN]
     
