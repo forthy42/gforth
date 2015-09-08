@@ -127,4 +127,8 @@ Variable timer-list
 
 : !time ( -- ) ntime timer-tick 2! ;
 : @time ( -- delta-f ) ntime timer-tick 2@ d- d>f 1n f* ;
-: .time ( -- ) @time 13 9 0 f.rdp ." s " ;
+: .time ( -- ) @time
+    fdup 1e f>= IF  13 9 0 f.rdp ." s "   EXIT  THEN  1000 fm*
+    fdup 1e f>= IF  10 6 0 f.rdp ." ms "  EXIT  THEN  1000 fm*
+    fdup 1e f>= IF   7 3 0 f.rdp ." µs "  EXIT  THEN  1000 fm*
+    f>s 3 .r ." ns " ;
