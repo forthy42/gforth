@@ -320,6 +320,7 @@ test $ac_export_dynamic = yes && LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
 test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
 AC_MSG_RESULT($ac_export_dynamic)
 
+FAST=no
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
 case "$host_cpu" in
@@ -332,6 +333,7 @@ case "$host_cpu" in
 		case "$host_os" in
 		     *android*)
 			CFLAGS="$CFLAGS -march=armv5 -mfloat-abi=softfp -mfpu=vfp"
+			FAST="yes" # build extra fast libraries
 			;;
 		esac
 		if test -z $arm_cacheflush; then
@@ -473,6 +475,7 @@ case "$host_cpu" in
 		fi
 esac
 AC_SUBST(host)
+AC_SUBST(FAST)
 
 MAKEINC=""
 GFORTH_EXE="true"
