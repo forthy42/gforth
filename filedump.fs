@@ -21,14 +21,15 @@
 Create buf $10 allot
 
 : dumpline ( addr handle -- flag )
-  buf $10 rot read-file throw
-  dup /dump !  $10 <> swap 6 u.r ." : "  buf .line cr ;
+    buf $10 rot read-file throw
+    dup /dump !  $10 <> swap 6 u.r ." : "  buf .line cr ;
 
 : init  cr $10 base ! ;
 
-: filedump  ( addr count -- )  init r/o bin open-file throw >r
-  0  BEGIN  $10 bounds  r@ dumpline  UNTIL  drop
-  r> close-file throw ;
+: filedump  ( addr count -- )
+    init r/o bin open-file throw >r
+    0  BEGIN  $10 bounds  r@ dumpline  UNTIL  drop
+    r> close-file throw ;
 
 script? [IF]
    : alldump argc @ 1 ?DO I arg 2dup type ." :" filedump LOOP ;

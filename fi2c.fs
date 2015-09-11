@@ -65,7 +65,8 @@ ENVIRON>
 
 s" NULL" groups @ cell+ $!
 
-: scan-ifs ( fd -- ) >r 1
+: scan-ifs ( fd -- )
+    >r 1
     BEGIN  pad $100 r@ read-line throw  WHILE
 	    pad swap
 	    2dup s" #ifdef HAS_" prefix? >r
@@ -111,7 +112,8 @@ Variable au
     THEN
     dup 1 8 tcell @ * 1- lshift and negate or ;
 
-: search-magic ( fd -- )  >r
+: search-magic ( fd -- )
+    >r
     BEGIN  magicbuf 8 r@ read-file throw  8 =  WHILE
 	magicbuf s" Gforth4" tuck str=  UNTIL
     ELSE  true abort" No magic found"  THEN
@@ -134,11 +136,11 @@ Variable bitmap-chars
     image-cells @ tcell @ * allocate throw to image
     bitmap-chars @ allocate throw to bitmap ;
 
-: read-dictionary ( fd -- )  >r
-    image image-cells @ tcell @ * r> read-file throw drop ;
+: read-dictionary ( fd -- )
+    >r image image-cells @ tcell @ * r> read-file throw drop ;
 
-: read-bitmap ( fd -- )  >r
-    bitmap bitmap-chars @ tchars @ * r> read-file throw drop ;
+: read-bitmap ( fd -- )
+    >r bitmap bitmap-chars @ tchars @ * r> read-file throw drop ;
 
 : .08x ( n -- ) 0 <# tcell  @ 0 ?DO # # LOOP 'x hold '0 hold #> type ;
 : .02x ( n -- ) 0 <# tchars @ 0 ?DO # # LOOP 'x hold '0 hold #> type ;
@@ -196,8 +198,8 @@ Variable bitmap-chars
 : .relocsize ( -- )
     bitmap-chars @ .08x ;
 
-: fi2c ( addr u -- )  base @ >r hex
-    read-image
+: fi2c ( addr u -- )
+    base @ >r hex read-image
     \    .\" const static __attribute__ ((__section__ (\".rodata\"))) void* image[" .imagesize ." ] = {" cr .image ." };" cr
     .\" static void* image[" .imagesize ." ] = {" cr .image ." };" cr
     ." #ifdef USE_RELOC" cr

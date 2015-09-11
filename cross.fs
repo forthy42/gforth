@@ -1553,23 +1553,31 @@ variable constflag constflag off
 
 bigendian
 [IF]
-   : DS!  ( d addr -- )  tcell bounds swap 1-
-     DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
-   : DS@  ( addr -- d )  >r 0 0 r> tcell bounds
-     DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP ;
-   : Sc!  ( n addr -- )  >r s>d r> tchar bounds swap 1-
-     DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
-   : Sc@  ( addr -- n )  >r 0 0 r> tchar bounds
-     DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP d>s ;
+    : DS!  ( d addr -- )
+	tcell bounds swap 1-
+	DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
+    : DS@  ( addr -- d )
+	>r 0 0 r> tcell bounds
+	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP ;
+    : Sc!  ( n addr -- )
+	>r s>d r> tchar bounds swap 1-
+	DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
+    : Sc@  ( addr -- n )
+	>r 0 0 r> tchar bounds
+	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP d>s ;
 [ELSE]
-   : DS!  ( d addr -- )  tcell bounds
-     DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
-   : DS@  ( addr -- n )  >r 0 0 r> tcell bounds swap 1-
-     DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP ;
-   : Sc!  ( n addr -- )  >r s>d r> tchar bounds
-     DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
-   : Sc@  ( addr -- n )  >r 0 0 r> tchar bounds swap 1-
-     DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP d>s ;
+    : DS!  ( d addr -- )
+	tcell bounds
+	DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
+    : DS@  ( addr -- n )
+	>r 0 0 r> tcell bounds swap 1-
+	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP ;
+    : Sc!  ( n addr -- )
+	>r s>d r> tchar bounds
+	DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
+    : Sc@  ( addr -- n )
+	>r 0 0 r> tchar bounds swap 1-
+	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP d>s ;
 [THEN]
 
 : S! ( n addr -- ) >r s>d r> DS! ;
@@ -2010,8 +2018,7 @@ variable ResolveFlag
 
 \ ?touched                                             11may93jaw
 
-: ?touched ( ghost -- flag ) dup forward? swap >link @
-                               0 <> and ;
+: ?touched ( ghost -- flag ) dup forward? swap >link @ 0<> and ;
 
 : .forwarddefs ( ghost -- )
   ."  appeared in:"
@@ -2106,9 +2113,10 @@ $20 constant restrict-mask
 
 >TARGET
 X has? f83headerstring [IF]
-: name,  ( "name" -- )  bl word count ht-header, X cfalign ;
+    : name,  ( "name" -- )  bl word count ht-header, X cfalign ;
 [ELSE]
-    : name,  ( "name" -- )  bl word count
+    : name,  ( "name" -- )
+	bl word count
 	dup T cell+ cfoddalign H ht-nlstring, X cfalign ;
 [THEN]
 : view,   ( -- ) ( dummy ) ;
@@ -2906,7 +2914,8 @@ Cond: DOES>
   Ghost do:ghost!
   :noname postpone gdoes> ;
 
-: vtghost:  ( ghost -- )  Ghost >r
+: vtghost:  ( ghost -- )
+    Ghost >r
     :noname r> postpone Literal postpone addr, postpone ;
     built >do:ghost @ >exec2 ! ;
 
@@ -3007,7 +3016,8 @@ End-Struct vtable-struct
 	I @ ,
     cell +LOOP ;
 
-:noname ( -- )  vttemplate @ 0= IF EXIT THEN
+:noname ( -- )
+    vttemplate @ 0= IF EXIT THEN
     gvtable-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF

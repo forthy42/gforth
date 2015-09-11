@@ -120,10 +120,12 @@ Variable loops  $40 3 * cells allot
 Variable vars   &18 cells allot
 Variable varstack 9 cells allot
 Variable varsmax
-: >var ( -- addr ) vars @+ swap 2* cells +
+: >var ( -- addr )
+    vars @+ swap 2* cells +
     vars @ varstack @+ swap cells + !
     1 vars +! 1 varstack +! ;
-: var> ( -- addr ) -1 varstack +!
+: var> ( -- addr )
+    -1 varstack +!
     varstack @+ swap cells + @
     1+ 2* cells vars + ;
 Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
@@ -286,7 +288,8 @@ Variable >>string
     '" parse postpone SLiteral postpone << ; immediate
 : >>string@ ( -- addr u )
     >>string $@ ;
-: >>string0 ( addr u -- addr u )  s" " >>string $!
+: >>string0 ( addr u -- addr u )
+    s" " >>string $!
     0 to >>ptr  over to <<ptr ;
 : >>next ( -- addr u ) <<ptr end$ over - ;
 : >>rest ( -- ) >>next >>string $+! ;

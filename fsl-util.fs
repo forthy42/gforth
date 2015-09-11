@@ -155,9 +155,8 @@ TRUE  VALUE is-static?     \ TRUE for statically allocated structs and arrays
 \    | data_ptr | cell_size |
 \    ------------------------
 
-: DMARRAY   ( cell_size -- )  CREATE  0 , ,
-                              DOES>
-                                    @ CELL+
+: DMARRAY   ( cell_size -- )
+    CREATE  0 , ,  DOES> @ CELL+
 ;
 
 \ Structures
@@ -165,10 +164,10 @@ TRUE  VALUE is-static?     \ TRUE for statically allocated structs and arrays
 \    | data_ptr | cell_size | id |
 \    ----------------------------
 
-: DSARRAY   ( cell_size -- )  CREATE  0 , , TYPE-ID ,
-                              DOES>
-                                    DUP [ 2 CELLS ] LITERAL + @ SWAP
-                                    @ CELL+
+: DSARRAY   ( cell_size -- )
+    CREATE  0 , , TYPE-ID ,
+  DOES> DUP [ 2 CELLS ] LITERAL + @ SWAP
+    @ CELL+
 ;
 
 : DARRAY   ( cell_size -- )
@@ -313,8 +312,9 @@ VARIABLE print-width      6 print-width !
 : |FRAME ( -- ) POSTPONE R> POSTPONE  (unframe) ; IMMEDIATE
 
 \ use a defining word to build locals   cgm
-: lcl  ( n -- ) CREATE ,
-                DOES>  @ FLOATS NEGATE HERE +
+: lcl  ( n -- )
+    CREATE ,
+  DOES>  @ FLOATS NEGATE HERE +
 ;
 
 8 lcl &a      7 lcl &b      6 lcl &c      5 lcl &d

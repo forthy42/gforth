@@ -9,7 +9,8 @@ require fft.fs
 : main setup fft rfft normalize ;
 
 Variable pass
-: test ( -- )  main pass on
+: test ( -- )
+    main pass on
     #points 0 ?DO
 	i values z@ fround f>s fround f>s
 	I $aa and I $55 and d<> IF i . i values z@ z. cr pass off THEN

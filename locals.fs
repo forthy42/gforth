@@ -19,32 +19,38 @@
 
 Variable loffset   0 loffset !
 Variable locals  here locals !  100 ( some) cells allot
-: local, ( offset -- )  postpone rp@ loffset @ swap -
-  postpone Literal postpone + ;
-: delocal, ( offset -- ) local, postpone rp! ;
+: local, ( offset -- )
+    postpone rp@ loffset @ swap -
+    postpone Literal postpone + ;
+: delocal, ( offset -- )
+    local, postpone rp! ;
 : (local  DOES>  @ local, postpone @ ;
 : f>r  r> rp@ 1 floats - dup rp! f! >r ;
 : (flocal DOES>  @ local, postpone f@ ;
 
 : do-nothing ;
 : ralign  r>
-  BEGIN  rp@ [ 1 floats 1- ] Literal and
-         WHILE  [ ' do-nothing >body ] ALiteral >r
-  REPEAT  >r ;
+    BEGIN  rp@ [ 1 floats 1- ] Literal and
+    WHILE  [ ' do-nothing >body ] ALiteral >r
+    REPEAT  >r ;
 
-: <local ( -- sys1 )  current @ @ loffset @ locals @
-  over 0= IF  postpone  ralign  THEN  ;                 immediate
-: local: ( -- )  postpone >r  latest latestxt here locals @ dp !
-  cell loffset +! Create  loffset @ , immediate (local
-  here locals !  dp !  lastcfa ! last ! ;               immediate
-: flocal: ( -- )  latest latestxt here locals @ dp !
-  BEGIN  loffset @ 0 1 floats fm/mod drop  WHILE
-         0 postpone Literal postpone >r  1 cells  loffset +!  REPEAT
-  postpone f>r  Create  loffset @ , immediate (flocal
-  here locals !  dp !  lastcfa ! last ! ;               immediate
+: <local ( -- sys1 )
+    current @ @ loffset @ locals @
+    over 0= IF  postpone  ralign  THEN  ;                 immediate
+: local: ( -- )
+    postpone >r  latest latestxt here locals @ dp !
+    cell loffset +! Create  loffset @ , immediate (local
+    here locals !  dp !  lastcfa ! last ! ;               immediate
+: flocal: ( -- )
+    latest latestxt here locals @ dp !
+    BEGIN  loffset @ 0 1 floats fm/mod drop  WHILE
+	    0 postpone Literal postpone >r  1 cells  loffset +!  REPEAT
+    postpone f>r  Create  loffset @ , immediate (flocal
+    here locals !  dp !  lastcfa ! last ! ;               immediate
 : local> ( sys1 -- sys2 ) ;                             immediate
-: local; ( sys2 -- ) locals ! dup delocal,
-  loffset ! current @ ! ;                               immediate
+: local; ( sys2 -- )
+    locals ! dup delocal,
+    loffset ! current @ ! ;                               immediate
 : TO  >in @ ' dup @ [ ' (local >body cell+ ] ALiteral =
   IF    >body @ local, postpone ! drop
   ELSE  dup @ [ ' (flocal >body cell+ ] ALiteral =
@@ -79,26 +85,28 @@ Variable locals  here locals !  100 ( some) cells allot
 \ ANS Locals                                           19aug93py
 
 Create inlocal  5 cells allot  inlocal off
-: (local)  ( addr u -- )  inlocal @ 0=
-  IF  postpone <local inlocal on
-      inlocal 3 cells + 2!  inlocal cell+ 2! THEN
-  dup IF    linestart @ >r sourceline# >r loadfile @ >r
-            blk @ >r >tib @ >r  #tib @ dup >r  >in @ >r
+: (local)  ( addr u -- )
+    inlocal @ 0=
+    IF  postpone <local inlocal on
+	inlocal 3 cells + 2!  inlocal cell+ 2! THEN
+    dup IF    linestart @ >r sourceline# >r loadfile @ >r
+	blk @ >r >tib @ >r  #tib @ dup >r  >in @ >r
+	
+	>tib +! dup #tib ! >tib @ swap move
+	>in off blk off loadfile off -1 linestart !
+	
+	postpone local:
+	
+	r> >in !  r> #tib !  r> >tib ! r> blk !
+	r> loadfile ! r> loadline ! r> linestart !
+    ELSE  2drop  inlocal cell+ 2@  inlocal 3 cells + 2@
+	postpone local>
+	inlocal 2 cells + 2! inlocal cell+ ! THEN ;
 
-            >tib +! dup #tib ! >tib @ swap move
-            >in off blk off loadfile off -1 linestart !
-
-            postpone local:
-
-            r> >in !  r> #tib !  r> >tib ! r> blk !
-            r> loadfile ! r> loadline ! r> linestart !
-      ELSE  2drop  inlocal cell+ 2@  inlocal 3 cells + 2@
-            postpone local>
-            inlocal 2 cells + 2! inlocal cell+ ! THEN ;
-
-: ?local;  inlocal @
-  IF  inlocal cell+ @ inlocal 2 cells + 2@
-      postpone local; inlocal off  THEN ;
+: ?local;
+    inlocal @
+    IF  inlocal cell+ @ inlocal 2 cells + 2@
+	postpone local; inlocal off  THEN ;
 
 : ;      ?local; postpone ; ;                 immediate restrict
 : DOES>  ?local; postpone DOES> ;             immediate

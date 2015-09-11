@@ -99,16 +99,17 @@ comp: drop >body postpone ALiteral postpone f! ;
 
 : scratch ( -- addr len )
     \G scratchpad for floating point - use space at the end of the user area
-  next-task udp @ + precision ;
+    next-task udp @ + precision ;
 
 : zeros ( n -- )   0 max 0 ?DO  '0 emit  LOOP ;
 
 : -zeros ( addr u -- addr' u' )
-  BEGIN  dup  WHILE  1- 2dup + c@ '0 <>  UNTIL  1+  THEN ;
+    BEGIN  dup  WHILE  1- 2dup + c@ '0 <>  UNTIL  1+  THEN ;
 
-: f$ ( f -- n )  scratch represent 0=
-  IF  2drop  scratch 3 min type  rdrop  EXIT  THEN
-  IF  '- emit  THEN ;
+: f$ ( f -- n )
+    scratch represent 0=
+    IF  2drop  scratch 3 min type  rdrop  EXIT  THEN
+    IF  '- emit  THEN ;
 
 : f.  ( r -- ) \ float-ext f-dot
 \G Display (the floating-point number) @i{r} without exponent,

@@ -121,9 +121,10 @@ Variable setstring \ additional string at cursor for IME
 	hist-pos 2dup backward^ 2! end^ 2!
     THEN  r> (ret) ;
 
-: extract-word ( addr len -- addr' len' )  dup >r
-  BEGIN  1- dup 0>=  WHILE  2dup + c@ bl =  UNTIL  THEN  1+
-  tuck + r> rot - ;
+: extract-word ( addr len -- addr' len' )
+    dup >r
+    BEGIN  1- dup 0>=  WHILE  2dup + c@ bl =  UNTIL  THEN  1+
+    tuck + r> rot - ;
 
 Create prefix-found  0 , 0 ,
 
@@ -346,8 +347,8 @@ Variable vt100-modifier
 
 : setcur ( max span addr pos1 -- max span addr pos2 0 )
     drop over vt100-modifier @ umin .redraw 0 ;
-: setsel ( max span addr pos1 -- max span addr pos2 0 ) >r
-    2dup swap r@ /string 2dup vt100-modifier @ umin setstring $!
+: setsel ( max span addr pos1 -- max span addr pos2 0 )
+    >r 2dup swap r@ /string 2dup vt100-modifier @ umin setstring $!
     vt100-modifier @ over umin >r r@ - over r@ + -rot move
     swap r> - swap r> .redraw 0 ;
 

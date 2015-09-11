@@ -172,9 +172,7 @@ KERN_SRC = \
 	kernel/aliases0.fs \
 	kernel/aliases.fs \
 	kernel/args.fs \
-	kernel/cloop.fs \
 	kernel/cond.fs \
-	kernel/cond-old.fs \
 	cross.fs \
 	kernel/errore.fs \
 	kernel/files.fs \

@@ -131,7 +131,8 @@ variable next-prelude
     next-prelude off
     cfalign ;
 
-defer record-name ( -- ) ' noop is record-name
+defer record-name ( -- )
+' noop is record-name
 \ record next name in tags file
 defer (header)
 defer header ( -- ) \ gforth
@@ -512,7 +513,8 @@ Create vttemplate
     vtable-list @ over !  dup vtable-list !
     vttemplate @ !  vttemplate off ;
 
-: vt, ( -- )  vttemplate @ 0= IF EXIT THEN
+: vt, ( -- )
+    vttemplate @ 0= IF EXIT THEN
     vtable-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
@@ -616,8 +618,9 @@ defer ;-hook ( sys2 -- sys1 )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
 
-: concat ( xt1 xt2 -- xt )  >r >r
-    :noname r> compile, r> compile, postpone ; ;
+: concat ( xt1 xt2 -- xt )
+    \ concat two xts into one
+    >r >r :noname r> compile, r> compile, postpone ; ;
 
 : recognizer: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table

@@ -21,7 +21,6 @@ require ./basics.fs
 
 \ Output                                               13feb93py
 
-has? os [IF]
 UValue infile-id ( -- file-id ) \ gforth
 UValue outfile-id ( -- file-id ) \ gforth
 UValue debug-fid ( -- file-id ) \ gforth
@@ -47,8 +46,6 @@ UValue debug-fid ( -- file-id ) \ gforth
 
 : (key?) ( -- flag ) \ gforth
     infile-id key?-file ;
-
-[THEN]
 
 user-o op-vector
 0 0
@@ -169,32 +166,24 @@ default-in ip-vector !
   \G Display one space.
   bl emit ;
 
-has? os 0= [IF]
-: spaces ( n -- ) \ core
-  \G If n > 0, display n spaces. 
-  0 max 0 ?DO space LOOP ;
-: backspaces  0 max 0 ?DO  #bs emit  LOOP ;
-[ELSE]
 \ space spaces		                                21mar93py
+
 decimal
-: spaces-loop ( n addr -- )  swap
-  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
+: spaces-loop ( n addr -- )
+    swap  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
 Create spaces ( u -- ) \ core
-  \G Display @var{n} spaces. 
-  bl 80 times \ times from target compiler! 11may93jaw
+\G Display @var{n} spaces. 
+bl 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- ) spaces-loop ;
 Create backspaces
-  08 80 times \ times from target compiler! 11may93jaw
+08 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- ) spaces-loop ;
 hex
-[THEN]
 
-has? os [IF]
-    Defer deadline ( d -- )
-    \G wait to absolute time @var{d} in ns since 1970-1-1 0:00:00+000
-    : kernel-deadline ( d -- )
-	ntime d- #1000000000 um/mod (ns) ;
-    ' kernel-deadline IS deadline
-    : ns ( d -- ) ntime d+ deadline ;
-    : ms ( n -- ) #1000000 um* ns ;
-[THEN]
+Defer deadline ( d -- )
+\G wait to absolute time @var{d} in ns since 1970-1-1 0:00:00+000
+: kernel-deadline ( d -- )
+    ntime d- #1000000000 um/mod (ns) ;
+' kernel-deadline IS deadline
+: ns ( d -- ) ntime d+ deadline ;
+: ms ( n -- ) #1000000 um* ns ;

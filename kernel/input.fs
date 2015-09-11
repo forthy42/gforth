@@ -105,8 +105,8 @@ drop
                        \ restore-input
 :noname ( -- in 1 ) >in @ 1 ;     \ save-input
 ' false                \ source-id
-:noname ( -- flag ) [ has? file [IF] ] 
-    stdin file-eof?  IF  false  EXIT  THEN [ [THEN] ]
+:noname ( -- flag )
+    [ has? file [IF] ] stdin file-eof?  IF  false  EXIT  THEN [ [THEN] ]
     tib max#tib @ accept #tib !
     input-start-line true 1 loadline +! ;     \ refill
 :noname ( -- addr u ) tib #tib @ ;   \ source
@@ -126,11 +126,13 @@ has? file [IF]
 : read-line ( c_addr u1 wfileid -- u2 flag wior ) \ file
     (read-line) nip ;
 
-:noname  ( in line# udpos 4 -- ) 4 <> -12 and throw
+:noname  ( in line# udpos 4 -- )
+    4 <> -12 and throw
     loadfile @ reposition-file throw
     refill 0= -36 and throw \ should never throw
     loadline ! >in ! ; \ restore-input
-:noname  ( -- in line# udpos 4 ) >in @ sourceline#
+:noname  ( -- in line# udpos 4 )
+    >in @ sourceline#
     loadfile @ file-position throw #fill-bytes @ 0 d-
     4 ;                \ save-input
 :noname  ( -- file ) loadfile @ ;  \ source-id
