@@ -41,64 +41,6 @@
     THEN
     newline r> write-file ;
 
-\ include-file                                         07apr93py
-
-has? new-input 0= [IF]
-: loadfilename>r ( addr1 u1 -- R: addr2 u2 )
-    r> loadfilename 2@ 2>r >r
-    loadfilename 2! ;
-
-: r>loadfilename ( R: addr u -- )
-    r> 2r> loadfilename 2! >r ;
-
-: push-file  ( -- )  r>
-    #fill-bytes @ >r
-    loadline @    >r
-    loadfile @    >r
-    blk @         >r
-    tibstack @    >r
-    >tib @        >r
-    #tib @        >r
-    >in @         >r  >r
-    >tib @ tibstack @ = IF  #tib @ tibstack +!  THEN
-    tibstack @ >tib ! ;
-
-: pop-file   ( throw-code -- throw-code )
-  dup IF
-      input-error-data >error
-  THEN
-  r>
-  r> >in         !
-  r> #tib        !
-  r> >tib        !
-  r> tibstack    !
-  r> blk         !
-  r> loadfile    !
-  r> loadline    !
-  r> #fill-bytes !  >r ;
-
-: read-loop ( i*x -- j*x )
-  BEGIN  refill  WHILE  interpret  REPEAT ;
-
-: include-file1 ( i*x wfileid -- j*x ior1 ior2 )
-    \G Interpret (process using the text interpreter) the contents of
-    \G the file @var{wfileid}.
-    push-file  loadfile !
-    0 loadline ! blk off  ['] read-loop catch
-    loadfile @ close-file swap 2dup or
-    pop-file  drop ;
-
-: include-file2 ( i*x wfileid -- j*x )
-    \ like include-file, but does not update loadfile#
-    include-file1 throw throw ;
-
-: include-file ( i*x wfileid -- j*x ) \ file
-    s" *a file*" loadfilename>r
-    include-file1
-    r>loadfilename
-    throw throw ;
-[THEN]
-    
 \ additional words only needed if there is file support
 
 Redefinitions-start

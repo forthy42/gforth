@@ -1,6 +1,6 @@
-\ Structural Conditionals                              12dec92py
+\ wrapper around cpufeatures for Android
 
-\ Copyright (C) 1995,1996,1997,1999,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 2015 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -17,5 +17,19 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-include ./cbr.fs
-include ./cloop.fs
+c-library cpufeatureslib
+    \c #include "../../../../unix/cpu-features.c"
+    include cpufeatures.fs
+end-c-library
+
+android_getCpuFeatures drop
+android_getCpuFamily ANDROID_CPU_FAMILY_ARM = [IF]
+    ANDROID_CPU_ARM_FEATURE_NEON and
+[ELSE]
+    android_getCpuFamily ANDROID_CPU_FAMILY_X86 = [IF]
+	ANDROID_CPU_X86_FEATURE_SSSE3 and
+    [ELSE]
+	drop false
+    [THEN]
+[THEN]
+0<> constant fast-lib

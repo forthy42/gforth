@@ -48,7 +48,8 @@ get-current also see-voc definitions
 
 : .n ( n -- )    0 <# # # # # #S #> ctype bl cemit ;
 
-: d.s   ( .. -- .. )  ." [ " depth . ." ] "
+: d.s   ( .. -- .. )
+    ." [ " depth . ." ] "
     depth 4 min dup 0 ?DO dup i - pick .n LOOP drop ;
 
 : NoFine ( -- )

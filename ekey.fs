@@ -162,6 +162,7 @@ Variable key-buffer
     
 : unkeys ( addr u -- )  key-buffer 0 $ins ;
 
+: inskey ( key -- )  key-buffer c$+! ;
 : inskeys ( addr u -- )  key-buffer $+! ;
 
 : buf-key? ( -- flag )

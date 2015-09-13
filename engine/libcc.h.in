@@ -19,9 +19,12 @@
 */
 
 #include <gforth@ARCH@/@PACKAGE_VERSION@/config.h>
+#include <stddef.h>
 #include <signal.h>
 #include <alloca.h>
 #include <setjmp.h>
+#include <string.h>
+#include <stdlib.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__) || defined(__ANDROID__)
 #undef HAS_BACKLINK
@@ -160,6 +163,60 @@ ptrpair gforth_libcc_init(ptrpair x)
             ? (_ll >> CELL_BITS) \
             : 0); \
   } while (0);
+
+static int gforth_strs_i;
+static void * gforth_strs[0x10] = { 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0 };
+
+#define ROLLSTR(type,size)					   \
+  type * str= malloc(sizeof(type)*(size));			   \
+  gforth_strs_i++; gforth_strs_i &= 0x0F; 			   \
+  if(gforth_strs[gforth_strs_i]) free(gforth_strs[gforth_strs_i]); \
+  gforth_strs[gforth_strs_i]=(void*)str;
+
+static Char * gforth_str2c(Char* addr, UCell u)
+{
+  ROLLSTR(Char, u+1);
+  memmove(str, addr, u);
+  str[u]='\0'; // add zero terminator
+  return str;
+}
+
+static wchar_t * gforth_str2wc(Char* addr, UCell u)
+{
+  UCell i=0, c;
+  Char x, y, z; // for further parts of the UTF-8 char
+  Char* end=addr+u;
+  ROLLSTR(wchar_t,u+1);
+  while(addr<end) {
+    switch((c=*addr++)) {
+    case 0xC2 ... 0xDF: x = *addr++;
+      c = ((c & 0x1F) << 6) | (x & 0x3F);
+      // fprintf(stderr, "2c[%d]: %03x\n", i, c);
+      str[i++] = c; break;
+    case 0xE0 ... 0xEF: x = *addr++; y = *addr++;
+      c = ((c & 0x0F) << 12) | ((x & 0x3F) << 6) | (y & 0x3F);
+      // fprintf(stderr, "3c[%d]: %04x\n", i, c);
+      str[i++] = c; break;
+    case 0xF0 ... 0xF7: x = *addr++; y = *addr++; z = *addr++;
+      c = ((c & 0x07) << 18) | ((x & 0x3F) << 12) | ((y & 0x3F) << 6) | (z & 0x3F);
+      // fprintf(stderr, "4c[%d]: %05x\n", i, c);
+      if(sizeof(wchar_t) > 2) {
+	str[i++] = c;
+      } else {
+	/* this is surrogate territory; if the UTF-8 is well-formed,
+         * it's a surrogate in UTF-16 */
+	c -= 0x10000;
+	str[i++] = 0xD800 | ((c >> 10) & 0x3FF);
+	str[i++] = 0xDC00 | (c & 0x3FF);
+      } break;
+    default:
+      // fprintf(stderr, "1c[%d]: %02x\n", i, c);
+      str[i++] = c; break; // ASCII or invalid character
+    }
+  }
+  str[i]=0; // add zero terminator
+  return str;
+}
 
 typedef Char hash_128[16];
 

@@ -52,6 +52,7 @@ LA = $(EC)$(ARCH).la
 EXTRAS= @EXTRAS@
 HOST= @HOSTPREFIX@
 EXTRAPREFIX= @EXTRAPREFIX@
+FAST= @FAST@
 
 # ------------	Install Directories
 
@@ -171,9 +172,7 @@ KERN_SRC = \
 	kernel/aliases0.fs \
 	kernel/aliases.fs \
 	kernel/args.fs \
-	kernel/cloop.fs \
 	kernel/cond.fs \
-	kernel/cond-old.fs \
 	cross.fs \
 	kernel/errore.fs \
 	kernel/files.fs \
@@ -278,6 +277,7 @@ GFORTH_FI_SRC2=\
 	stuff.fs \
 	substitute.fs \
 	tasker.fs \
+	table.fs \
 	termsize.fs \
 	utf-8.fs \
 	vt100.fs \
@@ -313,12 +313,12 @@ LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
 
 UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
 	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs unix/freetype-gllib.fs \
-	unix/android.fs unix/openmax.fs
+	unix/android.fs unix/openmax.fs unix/cpufeatureslib.fs
 
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gl.i	\
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	\
 	unix/soil.i unix/soil2.i unix/xlib.i unix/ios-gles.i unix/ios-gles3.i \
-	unix/freetype-gl.i
+	unix/freetype-gl.i unix/wingdi.i unix/winuser.i unix/cpufeatures.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
@@ -364,8 +364,9 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs \
 	endtry-iferror.fs recover-endtry.fs smartdots.fs \
 	unix/terminal-server.fs unix/jni-helper.fs unix/jni-tools.fs \
-	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs \
-	date.fs script.fs wf.fs traceall.fs rec-scope.fs
+	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs unix/gdi.fs \
+	unix/user.fs date.fs script.fs wf.fs traceall.fs rec-scope.fs \
+	notfound.fs utf16.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -523,7 +524,8 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
 	elisp-comp stamp-h.in envos.fs.in \
-	iss.sh wininst.sh install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
+	iss.sh wininst.sh modpath.iss \
+	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
 	BUILD-FROM-SCRATCH model \
 	COPYING COPYING.LIB COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \
 	doc/gforth.ds doc/gforth.1 doc/version.texi.in \
@@ -539,7 +541,7 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	timings.sc \
 	test/coretest.out test/checkans.out test/gforth.out \
 	cache*.vmg peeprules.vmg prim \
-	debian.rules debian.control debian.changelog
+	debian.rules debian.control debian.changelog gforth.ico
 
 RCS_FILES =  ToDo model high-level
 
@@ -898,10 +900,10 @@ all-bench allbench:
 	./gforth-ditc$(EXT) onebench.fs
 
 extras: $(EXTRAS) gforth.fi
-	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile all "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)"); done
+	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile all "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"); done
 
 extra-install: $(EXTRAS) gforth.fi
-	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile install "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)"); done
+	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile install "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"); done
 
 # -------------	Make forth images
 

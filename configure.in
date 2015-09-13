@@ -20,12 +20,12 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl We use some automake macros here,
 dnl but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20150610],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20150825],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="June 10, 2015"
+UPDATED="August 25, 2015"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 
@@ -320,6 +320,7 @@ test $ac_export_dynamic = yes && LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
 test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
 AC_MSG_RESULT($ac_export_dynamic)
 
+FAST=no
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
 case "$host_cpu" in
@@ -332,6 +333,7 @@ case "$host_cpu" in
 		case "$host_os" in
 		     *android*)
 			CFLAGS="$CFLAGS -march=armv5 -mfloat-abi=softfp -mfpu=vfp"
+			FAST="yes" # build extra fast libraries
 			;;
 		esac
 		if test -z $arm_cacheflush; then
@@ -473,6 +475,7 @@ case "$host_cpu" in
 		fi
 esac
 AC_SUBST(host)
+AC_SUBST(FAST)
 
 MAKEINC=""
 GFORTH_EXE="true"
@@ -873,7 +876,7 @@ case "$host_os" in
 		# absolute DOS filenames
 		DEFAULTSYSTEMPREFIX="" #"./${COMSPEC//\\/\\\\\\\\} /c "
 		no_chmod="#"
-		RM=Delete # on Windows, RM is Delete
+		RM='$GFORTH -e ": rm BEGIN  argc @ 1 >  WHILE  next-arg delete-file throw REPEAT ; rm bye"' # on Windows, use Gforth to delete files
 		;;
 	*linux*)
 		DIRSEP="/"
@@ -1127,19 +1130,35 @@ AC_SUBST(include_fi)
 AC_MSG_CHECKING([for gforth])
 GFORTH="`cd / && which gforth 2>/dev/null`"
 #the "$srcdir" = "." test defends agains the "../" bug in gforth-0.6.2
-(cd / && $GFORTH -e bye >/dev/null 2>/dev/null  && test "$srcdir" = ".") || GFORTH=""
+(cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null  && test "$srcdir" = ".") || GFORTH=""
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
   GFORTHKER='echo "You need to configure with a gforth in \$PATH to build this part" && false'
   kernel_anti_dependence=''
 else
-  GFORTH_FI=`cd / && $GFORTH --debug -e bye 2>&1 |grep "Opened image file: "|sed 's/Opened image file: //'`
-  PREFORTH="$GFORTH -i $GFORTH_FI" ;
-  KERNLX_FI1=$(echo $GFORTH_FI | sed -e s/lib[[64]]*/share/g -e s/gforth.fi/kernl*.fi/g)
-  KERNLX_FI2=$(echo $GFORTH_FI | sed -e s/gforth.fi/kernl*.fi/g)
-  test -f $KERNLX_FI1 && KERNLX_FI=$KERNLX_FI1
-  test -f $KERNLX_FI2 && KERNLX_FI=$KERNLX_FI2
-  GFORTHKER="$GFORTH -i `echo $KERNLX_FI`" ;
+  GFORTH_MAGIC="`cd / && "$GFORTH" --debug -e bye 2>&1 |grep \"Magic found:\"`"
+  case "$GFORTH_MAGIC" in
+        *little\ endian,\ cell=8*)
+                KERNL=kernl64l.fi
+                ;;
+        *little\ endian,\ cell=4*)
+                KERNL=kernl32l.fi
+                ;;
+        *big\ endian,\ cell=8*)
+                KERNL=kernl64b.fi
+                ;;
+        *big\ endian,\ cell=4*)
+                KERNL=kernl32b.fi
+                ;;
+  esac
+  GFORTH_FI="`cd / && "$GFORTH" --debug -e bye 2>&1 |grep \"Opened image file: \"|sed 's/Opened image file: //'`"
+  PREFORTH="\"$GFORTH\" -i \"$GFORTH_FI\"" ;
+  KERNLX_FI1="$(echo $GFORTH_FI | sed -e s/lib[[64]]*/share/g -e s/gforth.fi/$KERNL/g)"
+  KERNLX_FI2="$(echo $GFORTH_FI | sed -e s/gforth.fi/$KERNL/g)"
+  "$GFORTH" -i "$KERNL" -e bye && KERNLX_FI="$KERNL" || \
+  "$GFORTH" -i "$KERNLX_FI1" -e bye && KERNLX_FI="$KERNLX_FI1" || \
+  "$GFORTH" -i "$KERNLX_FI2" -e bye && KERNLX_FI="$KERNLX_FI2"
+  GFORTHKER="\"$GFORTH\" -i \"$KERNLX_FI\"" ;
   kernel_anti_dependence='$(kernel_fi)'
 fi
 AC_SUBST(PREFORTH)
@@ -1168,12 +1187,26 @@ if swig -forth unix/test.i; then
    #opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs"
    SWIGLIBS="$SWIGLIBS x.fs", ,)
-   AC_CHECK_HEADER(GL/gl.h, 
-   AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
-   AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
-   SWIGLIBS="$SWIGLIBS opengl.fs", ,), , 
+   if test "$host_os" == "cygwin"
+   then
+      AC_CHECK_HEADER(w32api/wtypes.h,
+      AC_CHECK_HEADER(w32api/wingdi.h, SWIGMODULES="$SWIGMODULES wingdi.fs"
+      				       SWIGLIBS="$SWIGLIBS gdi.fs", ,
+#include <w32api/wtypes.h>
+) ,)
+      AC_CHECK_HEADER(w32api/wtypes.h,
+      AC_CHECK_HEADER(w32api/winuser.h, SWIGMODULES="$SWIGMODULES winuser.fs"
+      				        SWIGLIBS="$SWIGLIBS user.fs", ,
+#include <w32api/wtypes.h>
+) ,)
+   else
+      AC_CHECK_HEADER(GL/gl.h, 
+      AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
+      AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
+      SWIGLIBS="$SWIGLIBS opengl.fs", ,), , 
 #include <GL/gl.h>
-), ,)
+) ,)
+   fi
    AC_CHECK_HEADER(GLES2/gl2.h,
    AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES gles.fs"
    AC_CHECK_HEADER(EGL/egl.h, SWIGMODULES="$SWIGMODULES egl.fs"
@@ -1209,6 +1242,11 @@ if swig -forth unix/test.i; then
       SWIGLIBS="$SWIGLIBS soillib.fs", ,), )
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
+   if test "$host_os" == "linux-android"
+   then
+	SWIGMODULES="$SWIGMODULES cpufeatures.fs"
+	SWIGLIBS="$SWIGLIBS cpufeatureslib.fs"
+   fi
 else
    AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
 fi

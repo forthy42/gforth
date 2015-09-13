@@ -155,7 +155,7 @@ Variable eglformat
     [THEN]
     
     : create-context ( -- ) \ win ?EXIT
-	default-events "GL-Window\0" drop dpy-w @ dpy-h @ simple-win
+	default-events "GL-Window" dpy-w @ dpy-h @ simple-win
 	dpy visual 0 1 glXCreateContext to ctx
 	dpy win ctx glXMakeCurrent drop
 	visuals Xfree drop 0 to visuals 0 to visual ;

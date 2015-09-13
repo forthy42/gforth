@@ -22,6 +22,7 @@ jni-method: hideProgress hideProgress ()V
 jni-method: showIME showIME ()V
 jni-method: hideIME hideIME ()V
 jni-method: get_SDK get_SDK ()I
+jni-method: setEditLine setEditLine (Ljava/lang/String;I)V
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 
 : SDK_INT clazz >o get_SDK o> ;

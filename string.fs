@@ -31,8 +31,9 @@
 
 \ string array words
 
-: $[] ( n addr -- addr' ) >r
+: $[] ( n addr -- addr' )
     \G index into the string array and return the address at index n
+    >r
     r@ @ 0= IF  s" " r@ $!  THEN
     r@ $@ 2 pick cells /string
     dup cell < IF
@@ -53,9 +54,16 @@
 : $+[]! ( addr u $[]addr -- ) dup $[]# swap $[]! ;
 \G add a string at the end of the array
 
-User tmp$ \ temporary string buffer
+User tmp$[] \ temporary string buffers
+User tmp$#  \ temporary string buffer counter
+$10 Value tmps# \ how many temporary strings
+
+: tmp$ ( -- addr )
+    tmp$# @ tmp$[] $[] ;
+
 User $execstr-ptr
 tmp$ $execstr-ptr !
+
 : $type ( addr u -- )  $execstr-ptr @ $+! ;
 : $emit ( char -- )    $execstr-ptr @ c$+! ;
 : $cr   ( -- ) newline $type ;
@@ -82,9 +90,10 @@ tmp$ $execstr-ptr !
 
 : $tmp ( xt -- addr u )
     \G generate a temporary string from the output of a word
+    1 tmp$# @ + tmps# mod tmp$# !
     s" " tmp$ $!  tmp$ $exec  tmp$ $@ ;
 
-:noname ( -- )  defers 'cold  tmp$ off ;  is 'cold
+:noname ( -- )  defers 'cold  tmp$[] off ;  is 'cold
 
 \ slurp in lines and files into strings and string-arrays
 

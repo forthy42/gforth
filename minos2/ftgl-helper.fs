@@ -1,14 +1,5 @@
 \ freetype GL example
 
-\ needs wide char arguments
-
-Variable wide$
-Variable widec
-
-: >widec ( char -- ) widec l! widec 4 wide$ $+! ;
-: >wide$ ( addr u -- addr' )  s" " wide$ $!
-    bounds ?DO  I xc@+ >widec  I - +LOOP  0 >widec  wide$ $@ drop ;
-
 \ freetype stuff
 
 require unix/freetype-gllib.fs
@@ -92,8 +83,7 @@ Variable color $FFC0A0FF color !
 	I xc@+ swap >r xchar@xy r>
     I - +LOOP  drop ;
 
-: load-glyph$ ( addr u -- ) >wide$
-    font swap texture_font_load_glyphs drop ;
+: load-glyph$ ( addr u -- ) font -rot texture_font_load_glyphs drop ;
 
 : load-ascii ( -- )
     "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" load-glyph$ ;

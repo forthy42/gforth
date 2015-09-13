@@ -318,7 +318,8 @@ comp: drop POSTPONE ahead >leave ;
 Defer exit-like ( -- )
 ' noop IS exit-like
 
-: [exit] ( -- ) exit-like
+: [exit] ( -- )
+    exit-like
     POSTPONE ;s
     basic-block-end
     POSTPONE unreachable ;

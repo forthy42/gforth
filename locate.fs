@@ -27,7 +27,8 @@ Variable line-buf
 Defer do-location
 
 Variable sys-buf
-: invoke-vi ( filename u line -- ) base @ >r decimal
+: invoke-vi ( filename u line -- )
+    base @ >r decimal
     s" vi " sys-buf $!
     0 <# bl hold #S '+ hold #> sys-buf $+!
     sys-buf $+!
@@ -36,7 +37,8 @@ Variable sys-buf
 
 \ scan file
 
-: tag-line ( fid -- flag ) >r
+: tag-line ( fid -- flag )
+    >r
     s" " line-buf $!
     $100 line-buf $!len
     line-buf $@ r> read-line throw
@@ -46,11 +48,12 @@ Variable sys-buf
     2swap search nip nip ;
 : get-file ( fid -- )
     tag-line drop line-buf $@ ', $split 2drop last-file $! ;
-: print-location ( -- ) base @ >r decimal
-    last-file $@ line-buf $@ ctrl A $split 2nip ', $split 2drop
-    0. 2swap >number 2drop drop r> base !
+: print-location ( -- )
+    [: last-file $@ line-buf $@ ctrl A $split 2nip ', $split 2drop
+	0. 2swap >number 2drop drop ;] #10 base-execute
     do-location ;
-: locate ( "name" -- )  s" " last-file $!  bl sword
+: locate ( "name" -- )
+    s" " last-file $!  bl sword
     s" TAGS" r/o open-file throw >r
     BEGIN  r@ tag-line  WHILE
         s" " line-buf $@ str=

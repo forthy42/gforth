@@ -75,16 +75,18 @@ decimal
 
 User Attr   $660 Attr !
 
-: (Attr!)       ( attr -- ) dup Attr @ = IF drop EXIT THEN
-                dup Attr !
-                ESC[    0 pn
-                        dup FG> ?dup IF $F xor 30 + ;pn THEN
-                        dup BG> ?dup IF $F xor 40 + ;pn THEN
-                        dup Bold and IF 1 ;pn THEN
-                        dup Underline and IF 4 ;pn THEN
-                        dup Blink and IF 5 ;pn THEN
-                        Invers and IF 7 ;pn THEN
-                        [char] m emit ;
+: (Attr!) ( attr -- )
+    \G set attribute
+    dup Attr @ = IF drop EXIT THEN
+    dup Attr !
+    ESC[    0 pn
+    dup FG> ?dup IF $F xor 30 + ;pn THEN
+    dup BG> ?dup IF $F xor 40 + ;pn THEN
+    dup Bold and IF 1 ;pn THEN
+    dup Underline and IF 4 ;pn THEN
+    dup Blink and IF 5 ;pn THEN
+    Invers and IF 7 ;pn THEN
+    [char] m emit ;
 
 ' (Attr!) IS Attr!
 
@@ -96,7 +98,8 @@ User Attr   $660 Attr !
     default-out op-vector !
 [THEN]
 
-: BlackSpace    Attr @ dup BG> Black =
-                IF drop space
-                ELSE 0 attr! space attr! THEN ;
+: BlackSpace ( -- )
+    Attr @ dup BG> Black =
+    IF drop space
+    ELSE 0 attr! space attr! THEN ;
 

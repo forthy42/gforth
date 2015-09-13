@@ -60,15 +60,16 @@ Variable command?
 wordlist constant values
 wordlist constant commands
 
-: value:  ( -- )  name
-  Forth definitions 2dup 1- nextname Variable
+: value:  ( -- )
+  name Forth definitions 2dup 1- nextname Variable
   values set-current nextname here cell - Create ,
   DOES> @ get-rest ;
 : >values  values 1 set-order command? off ;
 
 \ HTTP protocol commands                               26mar00py
 
-: rework-% ( add -- ) { url }  base @ >r hex
+: rework-% ( add -- )
+    { url }  base @ >r hex
     0 url $@len 0 ?DO
 	url $@ drop I + c@ dup '% = IF
 	    drop 0. url $@ I 1+ /string
@@ -80,7 +81,8 @@ wordlist constant commands
 : rework-? ( addr -- )
     dup >r $@ '? $split url-args $! nip r> $!len ;
 
-: get-url ( -- ) url get protocol get-rest
+: get-url ( -- )
+    url get protocol get-rest
     url rework-? url rework-% >values ;
 
 commands set-current
@@ -115,7 +117,8 @@ Variable maxnum
 
 : ?cr ( -- )
   #tib @ 1 >= IF  source 1- + c@ #cr = #tib +!  THEN ;
-: refill-loop ( -- flag ) base @ >r base off
+: refill-loop ( -- flag )
+  base @ >r base off
   BEGIN  refill ?cr  WHILE  ['] interpret catch drop  >in @ 0=  UNTIL
   true  ELSE  maxnum off false  THEN  r> base ! ;
 : get-input ( -- flag ior )
@@ -147,7 +150,8 @@ Variable htmldir
 
 \ MIME type handling                                   26mar00py
 
-: >mime ( addr u -- mime u' )  2dup tuck over + 1- ?DO
+: >mime ( addr u -- mime u' )
+  2dup tuck over + 1- ?DO
   I c@ '. = ?LEAVE  1-  -1 +LOOP  /string ;
 
 : >file ( addr u -- size fd )
@@ -155,8 +159,8 @@ Variable htmldir
   r@ file-size throw drop
   ." Accept-Ranges: bytes" cr
   ." Content-Length: " dup 0 .r cr r> ;
-: transparent ( size fd -- ) { fd }
-    $4000 allocate throw swap dup 0 ?DO
+: transparent ( size fd -- )
+    { fd } $4000 allocate throw swap dup 0 ?DO
 	2dup over swap $4000 min fd read-file throw type
 	$4000 - $4000 +LOOP  drop
     free fd close-file throw throw ;
@@ -170,7 +174,8 @@ Variable htmldir
       ." Keep-Alive: timeout=15, max=" maxnum @ 0 .r cr
       -1 maxnum +!  ELSE  ." close" cr maxnum off  THEN ;
 
-: transparent: ( addr u -- ) Create  here over 1+ allot place
+: transparent: ( addr u -- )
+  Create  here over 1+ allot place
   DOES>  >r  >file
   .connection
   ." Content-Type: "  r> count type cr cr
@@ -178,7 +183,8 @@ Variable htmldir
 
 \ mime types                                           26mar00py
 
-: mime-read ( addr u -- )  r/o open-file throw
+: mime-read ( addr u -- )
+    r/o open-file throw
     push-file loadfile !  0 loadline ! blk off
     BEGIN  refill  WHILE
 	char '# <> >in off name nip 0<> and  IF
@@ -196,7 +202,8 @@ Variable htmldir
 wordlist constant mime
 mime set-current
 
-: shtml ( addr u -- )  lastrequest
+: shtml ( addr u -- )
+    lastrequest
     data @ IF  also forth included previous  ELSE  2drop  THEN ;
 
 s" application/pgp-signature" transparent: sig
@@ -217,7 +224,8 @@ s" text/plain" transparent: txt
 
 \ http errors                                          26mar00py
 
-: .server ( -- )  ." Server: Gforth httpd/1.0 ("
+: .server ( -- )
+    ." Server: Gforth httpd/1.0 ("
     s" os-class" environment? IF  type  THEN  ." )" cr ;
 : .ok  ( -- ) ." HTTP/1.1 200 OK" cr .server ;
 : html-error ( n addr u -- )
@@ -230,14 +238,16 @@ s" text/plain" transparent: txt
 : .trailer ( -- )
     ." <HR><ADDRESS>Gforth httpd 1.0</ADDRESS>" cr
     ." </BODY></HTML>" cr ;
-: .nok ( -- ) command? @ IF  &405 s" Method Not Allowed"
+: .nok ( -- )
+    command? @ IF  &405 s" Method Not Allowed"
     ELSE  &400 s" Bad Request"  THEN  html-error
     ." <P>Your browser sent a request that this server "
     ." could not understand.</P>" cr
     ." <P>Invalid request in: <CODE>"
     error-stack cell+ 2@ swap type
     ." </CODE></P>" cr .trailer ;
-: .nofile ( -- ) &404 s" Not Found" html-error
+: .nofile ( -- )
+    &404 s" Not Found" html-error
     ." <P>The requested URL <CODE>" url $@ type
     ." </CODE> was not found on this server</P>" cr .trailer ;
 
@@ -247,7 +257,8 @@ Defer redirect?  ( addr u -- addr' u' t / f )
 Defer redirect ( addr u -- )
 :noname 2drop false ; IS redirect?
 
-: http ( -- )  get-input  IF  .nok  ELSE
+: http ( -- )
+    get-input  IF  .nok  ELSE
     IF  url $@ 1 /string 2dup redirect? IF  redirect 2drop  ELSE
 	rework-htmldir
 	dup 0< IF  drop .nofile
@@ -255,7 +266,8 @@ Defer redirect ( addr u -- )
 	    0= IF  ['] txt  THEN  catch IF  maxnum off THEN
 	THEN  THEN  THEN  THEN  outfile-id flush-file throw ;
 
-: httpd  ( n -- )  dup maxnum ! 0 <# #S #> Keep-Alive $!
+: httpd  ( n -- )
+  dup maxnum ! 0 <# #S #> Keep-Alive $!
   maxnum @ 0 DO  ['] http catch  maxnum @ 0= or  ?LEAVE  LOOP ;
 
 script? [IF]

@@ -228,12 +228,19 @@ Variable gl-emit-buf
 	gl-xy 2@ 1+ nip 0 swap gl-xy 2! THEN
     resize-screen  need-sync on ;
 
+: xchar>glascii ( xchar -- 0..7F )
+    case
+	'▀' of 0 endof
+	'⬤' of 1 endof
+	dup
+    endcase $7F umin ;
+
 : (gl-emit) ( char color -- )
     over 7 = IF  2drop  EXIT  THEN
     over #lf = IF  2drop gl-cr  EXIT  THEN
     >r
     gl-emit-buf c$+!  gl-emit-buf $@ tuck x-size u< IF  rdrop  EXIT  THEN
-    gl-emit-buf $@ drop xc@ $7F umin
+    gl-emit-buf $@ drop xc@ xchar>glascii
     gl-emit-buf $@ x-width { n }
     gl-emit-buf $off
     
@@ -257,7 +264,9 @@ Variable gl-emit-buf
 
 : gl-atxy ( x y -- )  gl-xy 2! ;
 
-: gl-at-deltaxy ( x y -- )  gl-xy 2@ rot + >r + r> gl-atxy ;
+: gl-at-deltaxy ( x y -- )
+    >r s>d gl-wh @ sm/rem r> +
+    gl-xy 2@ rot + >r + r> gl-atxy ;
 
 : gl-page ( -- )  0 0 gl-atxy  0 to videorows
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!
@@ -295,7 +304,8 @@ Variable gl-emit-buf
     THEN  rdrop  need-show off ;
 
 [IFUNDEF] win : win app window @ ; [THEN]
-: screen-sync ( -- )  need-sync @ win and level# @ 0<= and IF
+: screen-sync ( -- )  rendering @ 0= ?EXIT \ don't render if paused
+    need-sync @ win and level# @ 0<= and IF
 	show-cursor screen->gl need-sync off  THEN ;
 
 : config-changer ( -- )

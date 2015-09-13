@@ -26,7 +26,8 @@
 # of Gforth, and start the setup compiler there.
 
 VERSION=$(cat version)
-CYGWIN=cygwin$(./gforth -e 'cell 8 = [IF] ." 64" [THEN] bye')
+SF=$(./gforth -e 'cell 8 = [IF] ." 64" [THEN] bye')
+CYGWIN=cygwin$SF
 SEH=$(./gforth -e 'cell 8 = [IF] ." seh-" [THEN] bye')
 
 for i in lib/gforth/$VERSION/libcc-named/*.la
@@ -35,22 +36,32 @@ do
     mv $i+ $i
 done
 
+make doc pdf install.TAGS makefile.dos makefile.os2 >&2
+
+#cp /bin/cygwin1.dll cygwin-copy.dll
+#./gforth fixpath.fs cygwin-copy.dll "/bin/cygwin-console-helper.exe" "./cygwin-console-helper.exe" 1>&2
+#./gforth fixpath.fs cygwin-copy.dll "/usr/bin/sh" "./sh" 1>&2
+#./gforth fixpath.fs cygwin-copy.dll "/bin/sh" "./sh" 1>&2
+#./gforth fixpath.fs cygwin-copy.dll "/bin/sh" "./sh" 1>&2
+
 cat <<EOT
 ; This is the setup script for Gforth on Windows
 ; Setup program is Inno Setup
 
 [Setup]
-AppName=Gforth
-AppVerName=Gforth $VERSION
+AppName=Gforth$SF
+AppVersion=$VERSION
 AppCopyright=Copyright © 1995-2015 Free Software Foundation
-DefaultDirName={pf}\gforth
-DefaultGroupName=Gforth
+DefaultDirName={pf}\gforth$SF
+DefaultGroupName=Gforth$SF
 AllowNoIcons=1
 InfoBeforeFile=COPYING
 Compression=lzma
 DisableStartupPrompt=yes
 ChangesEnvironment=yes
-OutputBaseFilename=gforth-$VERSION
+OutputBaseFilename=gforth$SF-$VERSION
+AppPublisher=Free Software Foundation, Gforth team
+AppPublisherURL=http://bernd-paysan.de/gforth.html
 
 [Messages]
 WizardInfoBefore=License Agreement
@@ -73,16 +84,22 @@ $(make distfiles -f Makedist | tr ' ' '\n' | grep -v CVS | (while read i; do
 done) | sort -u | sed \
   -e 's:/:\\:g' \
   -e 's,^\(..*\)$,Name: "{app}\\\1",g')
-Name: "{app}\doc\gforth"
-Name: "{app}\doc\vmgen"
-Name: "{app}\lib\gforth\\$VERSION\libcc-named"
-Name: "{app}\include\gforth\\$VERSION"
+Name: "{app}\\doc\\gforth"
+Name: "{app}\\doc\\vmgen"
+Name: "{app}\\lib\\gforth\\$VERSION\libcc-named"
+Name: "{app}\\include\\gforth\\$VERSION"
+Name: "{app}\\..\bin"
+Name: "{app}\\..\\tmp"; Permissions: users-modify
 
 [Files]
 ; Parameter quick reference:
 ;   "Source filename", "Dest. filename", Copy mode, Flags
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
-Source: "c:\\$CYGWIN\\bin\\sh.exe"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\sh.exe"; DestDir: "{app}\\..\\bin"
+Source: "c:\\$CYGWIN\\bin\\cygwin-console-helper.exe"; DestDir: "{app}\\..\\bin"
+Source: "c:\\$CYGWIN\\bin\\mintty.exe"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\run.exe"; DestDir: "{app}"
+Source: "c:\\$CYGWIN\\bin\\env.exe"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygwin1.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cyggcc_s-${SEH}1.dll"; DestDir: "{app}"
 Source: "c:\\$CYGWIN\\bin\\cygintl-8.dll"; DestDir: "{app}"
@@ -111,26 +128,23 @@ done) | sed \
 ; Parameter quick reference:
 ;   "Icon title", "File name", "Parameters", "Working dir (can leave blank)",
 ;   "Custom icon filename (leave blank to use the default icon)", Icon index
-Name: "{group}\Gforth"; Filename: "{app}\gforth.exe"; WorkingDir: "{app}"
-Name: "{group}\Gforth-fast"; Filename: "{app}\gforth-fast.exe"; WorkingDir: "{app}"
-Name: "{group}\Gforth-ditc"; Filename: "{app}\gforth-ditc.exe"; WorkingDir: "{app}"
-Name: "{group}\Gforth-itc"; Filename: "{app}\gforth-itc.exe"; WorkingDir: "{app}"
+Name: "{group}\Gforth"; Filename: "{app}\\run.exe"; Parameters: "./env HOME=%HOMEDRIVE%%HOMEPATH% ./mintty ./gforth"; WorkingDir: "{app}"; IconFilename: "{app}\\gforth.ico"
+Name: "{group}\Gforth-fast"; Filename: "{app}\\run.exe"; Parameters: "./env HOME='%HOMEDRIVE%%HOMEPATH%' ./mintty ./gforth-fast"; WorkingDir: "{app}"; IconFilename: "{app}\\gforth.ico"
+Name: "{group}\Gforth-ditc"; Filename: "{app}\\run.exe"; Parameters: "./env HOME='%HOMEDRIVE%%HOMEPATH%' ./mintty ./gforth-ditc"; WorkingDir: "{app}"; IconFilename: "{app}\\gforth.ico"
+Name: "{group}\Gforth-itc"; Filename: "{app}\\run.exe"; Parameters: "./env HOME='%HOMEDRIVE%%HOMEPATH%' ./mintty ./gforth-itc"; WorkingDir: "{app}"; IconFilename: "{app}\\gforth.ico"
 Name: "{group}\Gforth Manual"; Filename: "{app}\doc\gforth\index.html"; WorkingDir: "{app}"; Components: help
 Name: "{group}\Gforth Manual (PDF)"; Filename: "{app}\doc\gforth.pdf"; WorkingDir: "{app}"; Components: help
 Name: "{group}\VMgen Manual"; Filename: "{app}\doc\vmgen\index.html"; WorkingDir: "{app}"; Components: help
-Name: "{group}\Bash"; Filename: "{app}\sh.exe"; WorkingDir: "{app}"
-Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
+Name: "{group}\Bash"; Filename: "{app}\\run.exe"; Parameters: "./env HOME='%HOMEDRIVE%%HOMEPATH%' ./mintty /bin/sh"; WorkingDir: "{app}"; Flags: runminimized
+Name: "{group}\Uninstall Gforth$SF"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "{app}\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh || (echo 'An error occured, pess any key to quit'; read)"""
+Filename: "{app}\\..\\bin\\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh '{app}' || (printf '\e[0;31;49mAn error occured, pess return to quit'; read)"""
 
 [UninstallDelete]
 Type: files; Name: "{app}\gforth.fi"
 Type: files; Name: "{app}\temp-image.fi1"
 Type: files; Name: "{app}\temp-image.fi2"
-
-[Registry]
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Check: NeedsAddPath(ExpandConstant('{app}'))
 
 ;[Registry]
 ;registry commented out
@@ -149,87 +163,54 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 ;HKCR, "forthblock", "EditFlags", DWORD, "00000000",
 ;HKCR, "forthblock\DefaultIcon"; STRING, "{sys}\System32\shell32.dll,61"
 
-[Code]
-function NeedsAddPath(Param: string): boolean;
-var
-  OrigPath: string;
-begin
-  if not RegQueryStringValue(HKEY_LOCAL_MACHINE,'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', OrigPath)
-  then begin
-    Result := True;
-    exit;
-  end;
-  // look for the path with leading and trailing semicolon
-  // Pos() returns 0 if not found
-  Result := Pos(';' + UpperCase(Param) + ';', ';' + UpperCase(OrigPath) + ';') = 0;  
-  if Result = True then
-     Result := Pos(';' + UpperCase(Param) + '\;', ';' + UpperCase(OrigPath) + ';') = 0; 
-end;
+[Tasks]
+Name: modifypath; Description: Add application directory to your environmental path; Flags: unchecked
 
+[Code]
 // Utility functions for Inno Setup
 //   used to add/remove programs from the windows firewall rules
 // Code originally from http://news.jrsoftware.org/news/innosetup/msg43799.html
 
 const
-  NET_FW_SCOPE_ALL = 0;
-  NET_FW_IP_VERSION_ANY = 2;
+    ModPathName = 'modifypath';
+    ModPathType = 'user';
+    NET_FW_SCOPE_ALL = 0;
+    NET_FW_IP_VERSION_ANY = 2;
 
-procedure SetFirewallException(AppName,FileName:string);
-var
-  FirewallObject: Variant;
-  FirewallManager: Variant;
-  FirewallProfile: Variant;
+function ModPathDir(): TArrayOfString;
 begin
-  try
-    FirewallObject := CreateOleObject('HNetCfg.FwAuthorizedApplication');
-    FirewallObject.ProcessImageFileName := FileName;
-    FirewallObject.Name := AppName;
-    FirewallObject.Scope := NET_FW_SCOPE_ALL;
-    FirewallObject.IpVersion := NET_FW_IP_VERSION_ANY;
-    FirewallObject.Enabled := True;
-    FirewallManager := CreateOleObject('HNetCfg.FwMgr');
-    FirewallProfile := FirewallManager.LocalPolicy.CurrentProfile;
-    FirewallProfile.AuthorizedApplications.Add(FirewallObject);
-  except
-  end;
+    setArrayLength(Result, 1)
+    Result[0] := ExpandConstant('{app}');
 end;
-
-procedure RemoveFirewallException( FileName:string );
-var
-  FirewallManager: Variant;
-  FirewallProfile: Variant;
-begin
-  try
-    FirewallManager := CreateOleObject('HNetCfg.FwMgr');
-    FirewallProfile := FirewallManager.LocalPolicy.CurrentProfile;
-    FireWallProfile.AuthorizedApplications.Remove(FileName);
-  except
-  end;
-end;
+#include "modpath.iss"
+#include "firewall.iss"
 
 // event called at install
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  if CurStep=ssPostInstall then
-  begin
+  if CurStep=ssPostInstall then begin
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-fast.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-itc.exe');
      SetFirewallException('Gforth', ExpandConstant('{app}')+'\gforth-ditc.exe');
+     CurStepChangedPath();
   end;
 end;
 
 // event called at uninstall
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
-  if CurUninstallStep=usPostUninstall then
-  begin
+  if CurUninstallStep = usUninstall then begin
+     CurUninstallStepChangedPath();
+  end;
+  if CurUninstallStep=usPostUninstall then begin
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-fast.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-itc.exe');
      RemoveFirewallException(ExpandConstant('{app}')+'\gforth-ditc.exe');
   end;
 end;
+
 EOT
 
 sed -e 's/$/\r/' <README >README.txt

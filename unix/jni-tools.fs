@@ -171,7 +171,6 @@ comp: drop >body postpone ALiteral postpone gref! ;
 
 : JValue ( "name" -- ) 0 Value ['] jvalue! set-to ;
 
-Variable cstring
 Variable cstring1
 
 \ round robin store for four active jstrings
@@ -189,15 +188,12 @@ Variable jstring#
 	3 of  to jstring3  endof
     endcase ;
 
-: $0! ( addr u string -- addr' ) >r
-    r@ $! 0 r@ c$+! r> $@ drop ;
-: cstr" ( -- addr )  parse-name cstring  $0! ;
-: cstr1" ( -- addr ) parse-name cstring1 $0! ;
-: make-jstring ( c-addr -- jstring-addr )
-    env swap JNIEnv-NewStringUTF() dup to-jstring ;
-: js" ( -- addr )  '"' parse cstring $0! make-jstring ;
-comp: drop '"' parse cstring $0!
-    cstring>sstring 1+ ]] SLiteral drop make-jstring [[ ;
+: cstr" ( -- addr )  parse-name ;
+: cstr1" ( -- addr ) parse-name 2dup cstring1 $! ;
+: make-jstring ( addr u -- jstring-addr )
+    env -rot JNIEnv-NewStringUTF() dup to-jstring ;
+: js" ( -- addr )  '"' parse make-jstring ;
+comp: drop '"' parse ]] SLiteral make-jstring [[ ;
 
 Variable iscopy
 2Variable to-release
@@ -222,7 +218,7 @@ Variable iscopy
 : jni-smid ( "name" "signature" -- methodid )
     env jniclass cstr" cstr1" JNIEnv-GetStaticMethodID() ?javanf ;
 : jni-new ( "signatur" -- methodid )
-    env jniclass s" <init>" cstring $0! cstr1" JNIEnv-GetMethodID() ?javanf ;
+    env jniclass s" <init>" cstr1" JNIEnv-GetMethodID() ?javanf ;
 : jni-fid ( "name" "signature" -- methodid )
     env jniclass cstr" cstr1" JNIEnv-GetFieldID() ?javanf ;
 : jni-sfid ( "name" "signature" -- methodid )

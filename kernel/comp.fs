@@ -131,7 +131,8 @@ variable next-prelude
     next-prelude off
     cfalign ;
 
-defer record-name ( -- ) ' noop is record-name
+defer record-name ( -- )
+' noop is record-name
 \ record next name in tags file
 defer (header)
 defer header ( -- ) \ gforth
@@ -512,7 +513,8 @@ Create vttemplate
     vtable-list @ over !  dup vtable-list !
     vttemplate @ !  vttemplate off ;
 
-: vt, ( -- )  vttemplate @ 0= IF EXIT THEN
+: vt, ( -- )
+    vttemplate @ 0= IF EXIT THEN
     vtable-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
@@ -570,17 +572,15 @@ comp: ( value-xt to-xt -- )
     
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    record-name ' defer! ;
+    record-name (') (name>x) drop (int-to) ;
 
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
-    record-name ' postpone ALiteral postpone defer! ; immediate restrict
+    record-name (') (name>x) drop (comp-to) ; immediate restrict
 
-:noname ( value "name" -- ) (') (name>x) drop (int-to) ;
-:noname ( value "name" -- ) (') (name>x) drop (comp-to) ; over over
-interpret/compile: TO ( value "name" -- )
-interpret/compile: IS ( value "name" -- )
+' <IS> ' [IS] interpret/compile: TO ( value "name" -- )
+' <IS> ' [IS] interpret/compile: IS ( value "name" -- )
 
 \ \ : ;                                                  	24feb93py
 
@@ -618,8 +618,9 @@ defer ;-hook ( sys2 -- sys1 )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
 
-: concat ( xt1 xt2 -- xt )  >r >r
-    :noname r> compile, r> compile, postpone ; ;
+: concat ( xt1 xt2 -- xt )
+    \ concat two xts into one
+    >r >r :noname r> compile, r> compile, postpone ; ;
 
 : recognizer: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table

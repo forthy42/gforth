@@ -10,6 +10,7 @@
 #define GL_GLEXT_PROTOTYPES
 #define __STDC__
 #define SWIG_FORTH_OPTIONS "no-callbacks"
+#define const
 
 %apply long long { GLint64, GLint64EXT, GLuint64, GLuint64EXT };
 %apply long { GLsizeiptr, GLintptr, GLsizeiptrARB, GLintptrARB };

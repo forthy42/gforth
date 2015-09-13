@@ -110,15 +110,17 @@ previous
 : zln      ( z -- ln[z] ) >polar fswap fln fswap ;
 
 : z0=      ( z -- flag ) f0= >r f0= r> and ;
-: zsqrt    ( z -- sqrt[z] ) zdup z0= 0= IF
-    fdup f0= IF  fdrop fsqrt 0e  EXIT  THEN
-    zln z2/ zexp  THEN ;
+: zsqrt    ( z -- sqrt[z] )
+    zdup z0= 0= IF
+	fdup f0= IF  fdrop fsqrt 0e  EXIT  THEN
+	zln z2/ zexp  THEN ;
 : z**      ( z1 z2 -- z1**z2 ) zswap zln z* zexp ;
 \ Test: Fibonacci-Zahlen
 1e 5e fsqrt f+ f2/ fconstant g  1e g f- fconstant -h
-: zfib     ( z1 -- fib[z1] ) zdup z>r g 0e zswap z**
-  zr> zswap z>r -h 0e zswap z** znegate zr> z+
-  [ g -h f- 1/f ] FLiteral zscale ;
+: zfib     ( z1 -- fib[z1] )
+    zdup z>r g 0e zswap z**
+    zr> zswap z>r -h 0e zswap z** znegate zr> z+
+    [ g -h f- 1/f ] FLiteral zscale ;
 
 \ complexe Operationen                                 02mar05py
 
@@ -139,8 +141,8 @@ previous
 \ complexe Operationen                                 02mar05py
 
 : zasinh    ( z -- asinh[z] ) zdup 1e f+   zover 1e f-   z* zsqrt z+ pln ;
-: zacosh    ( z -- acosh[z] ) zdup 1e x- z2/ zsqrt  zswap 1e x+ z2/ zsqrt z+
-  pln z2* ;
+: zacosh    ( z -- acosh[z] )
+    zdup 1e x- z2/ zsqrt  zswap 1e x+ z2/ zsqrt z+ pln z2* ;
 : zatanh    ( z -- atanh[z] ) zdup  1e x+ zln  zswap 1e x- znegate pln  z- z2/ ;
 : zacoth    ( z -- acoth[z] ) znegate zdup 1e x- pln  zswap 1e x+ pln   z- z2/ ;
 

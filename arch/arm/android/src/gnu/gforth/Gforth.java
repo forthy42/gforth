@@ -61,6 +61,7 @@ import java.lang.Object;
 import java.lang.Runnable;
 import java.lang.String;
 import java.io.File;
+import java.util.Locale;
 
 public class Gforth
     extends android.app.Activity
@@ -81,6 +82,9 @@ public class Gforth
     private ClipboardManager clipboardManager;
     private boolean started=false;
     private boolean libloaded=false;
+    private boolean surfaced=false;
+    private int activated;
+    private String beforec="", afterc="";
 
     public Handler handler;
     public Runnable startgps;
@@ -99,7 +103,7 @@ public class Gforth
     public native void onEventNative(int type, Object event);
     public native void onEventNative(int type, int event);
     public native void callForth(long xt); // !! use long for 64 bits !!
-    public native void startForth(String libdir);
+    public native void startForth(String libdir, String locale);
 
     // own subclasses
     public class RunForth implements Runnable {
@@ -124,9 +128,16 @@ public class Gforth
 	public Editable getEditable() {
 	    if (mEditable == null) {
 		mEditable = (SpannableStringBuilder) Editable.Factory.getInstance()
-		    .newEditable("Gforth Terminal");
+		    .newEditable("");
 	    }
 	    return mEditable;
+	}
+
+	public void setEditLine(String line, int curpos) {
+	    Log.v(TAG, "IC.setEditLine: \"" + line + "\" at: " + curpos);
+	    getEditable().clear();
+	    getEditable().append(line);
+	    setSelection(curpos, curpos);
 	}
 
 	public boolean commitText(CharSequence text, int newcp) {
@@ -170,10 +181,14 @@ public class Gforth
 	    return true;
 	}
 	public boolean setComposingRegion (int start, int end) {
-	    mView.mActivity.onEventNative(11, "setComposingRegion");
-	    mView.mActivity.onEventNative(10, start);
-	    mView.mActivity.onEventNative(10, end);
-	    return true;
+	    end-=start;
+	    if(end < 0) {
+		start+=end;
+		end = -end;
+	    }
+	    mView.mActivity.onEventNative(19, start);
+	    mView.mActivity.onEventNative(20, end);
+	    return super.setComposingRegion(start, start+end);
 	}
 	public boolean sendKeyEvent (KeyEvent event) {
 	    mView.mActivity.onEventNative(0, event);
@@ -276,6 +291,10 @@ public class Gforth
     public void hideIME() {
 	mContentView.hideIME();
     }
+    public void setEditLine(String line, int curpos) {
+	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
+	mContentView.mInputConnection.setEditLine(line, curpos);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -315,60 +334,82 @@ public class Gforth
 	    Log.v(TAG, "Library already loaded");
 	}
 	super.onCreate(savedInstanceState);
+
+	locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
+	sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
+	clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+	handler=new Handler();
+	startgps=new Runnable() {
+		public void run() {
+		    locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
+		}
+	    };
+	stopgps=new Runnable() {
+		public void run() {
+		    locationManager.removeUpdates((LocationListener)gforth);
+		}
+	    };
+	startsensor=new Runnable() {
+		public void run() {
+		    sensorManager.registerListener((SensorEventListener)gforth, argsensor, (int)argj0);
+		}
+	    };
+	stopsensor=new Runnable() {
+		public void run() {
+		    sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
+		}
+	    };
+	showprog=new Runnable() {
+		public void run() {
+		    showProgress();
+		}
+	    };
+	hideprog=new Runnable() {
+		public void run() {
+		    doneProgress();
+		}
+	    };
+	errprog=new Runnable() {
+		public void run() {
+		    errProgress();
+		}
+	    };
+	appexit=new Runnable() {
+		public void run() {
+		    finish();
+		}
+	    };
     }
 
     @Override protected void onStart() {
 	super.onStart();
 	if(!started) {
-	    locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
-	    sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
-	    clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
-	    handler=new Handler();
-	    startgps=new Runnable() {
-		    public void run() {
-			locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
-		    }
-		};
-	    stopgps=new Runnable() {
-		    public void run() {
-		    locationManager.removeUpdates((LocationListener)gforth);
-		    }
-		};
-	    startsensor=new Runnable() {
-		    public void run() {
-			sensorManager.registerListener((SensorEventListener)gforth, argsensor, (int)argj0);
-		    }
-		};
-	    stopsensor=new Runnable() {
-		    public void run() {
-			sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
-		    }
-		};
-	    showprog=new Runnable() {
-		    public void run() {
-			showProgress();
-		    }
-		};
-	    hideprog=new Runnable() {
-		    public void run() {
-			doneProgress();
-		    }
-		};
-	    errprog=new Runnable() {
-		    public void run() {
-			errProgress();
-		    }
-		};
-	    appexit=new Runnable() {
-		    public void run() {
-			finish();
-		    }
-		};
-	    startForth(getApplicationInfo().nativeLibraryDir);
+	    startForth(getApplicationInfo().nativeLibraryDir,
+		       Locale.getDefault().toString() + ".UTF-8");
 	    started=true;
 	}
+	activated = -1;
+	if(surfaced) onEventNative(18, activated);
     }
    
+    @Override protected void onResume() {
+	super.onResume();
+	activated = -2;
+	if(surfaced) onEventNative(18, activated);
+    }
+
+    @Override protected void onPause() {
+	super.onPause();
+	activated = -1;
+	if(surfaced) onEventNative(18, activated);
+    }
+
+    @Override protected void onStop() {
+	super.onStop();
+	activated = 0;
+	onEventNative(18, activated);
+    }
+
     @Override
     public boolean dispatchKeyEvent (KeyEvent event) {
 	onEventNative(0, event);
@@ -418,6 +459,8 @@ public class Gforth
     // surface stuff
     public void surfaceCreated(SurfaceHolder holder) {
 	onEventNative(4, holder.getSurface());
+	surfaced=true;
+	onEventNative(18, activated);
     }
     
     public class surfacech {
@@ -445,6 +488,7 @@ public class Gforth
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
+	surfaced=false;
 	onEventNative(7, holder.getSurface());
     }
 

@@ -229,7 +229,8 @@ has? os 0= [IF]
     : catch  ( ... xt -- ... 0 )
 	handler @ >r sp@ >r
 	rp@ handler ! execute 0 r> drop r> handler ! ;
-    : throw  ( error -- error )  dup 0= IF  drop EXIT  THEN
+    : throw  ( error -- error )
+	dup 0= IF  drop EXIT  THEN
 	handler @ rp! r> swap >r sp! r> r> handler ! ;
 [ELSE]
 defer catch ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception

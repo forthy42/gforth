@@ -1,12 +1,14 @@
 \ png library
 
+e? os-type s" linux-android" string-prefix? [IF]
+    s" libpng.so" also c-lib open-path-lib drop previous
+[THEN]
+
 Vocabulary pnglib
 get-current also pnglib definitions
 
 c-library png
     e? os-type s" linux-android" string-prefix? [IF]
-	s" libpng.so" open-path-lib drop
-
 	s" png" add-lib
 	\c #include <zlib.h>
 	\c #include "../../../../libpng/pngconf.h"

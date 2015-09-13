@@ -24,6 +24,12 @@ c-library filestat
     \c #include <unistd.h>
     e? os-type s" linux-android" string-prefix? [IF]
 	\ extern int futimens(int fd, const struct timespec times[2]);
+	\c #include <sys/syscall.h>
+	\c #include <sys/glibc-syscalls.h>
+	\c int utimensat(int fd, const char *pathname,
+	\c               const struct timespec ts[2], int flags) {
+	\c   syscall(SYS_utimensat, fd, pathname, ts, flags);
+	\c }
 	\c int futimens(int fd, const struct timespec ts[2]) {
 	\c   utimensat(fd, NULL, ts, 0);
 	\c }
