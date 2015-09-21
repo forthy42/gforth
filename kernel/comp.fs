@@ -527,18 +527,19 @@ Create vttemplate
 : start-xt-like ( colonsys xt -- colonsys )
     reveal does>-like drop start-xt drop ;
 
-: set-compiler  ( xt -- ) vttemplate >vtcompile, ! ;
+: set-optimizer ( xt -- ) vttemplate >vtcompile, ! ;
+' set-optimizer alias set-compiler
 : set-postpone  ( xt -- ) vttemplate >vtpostpone ! ;
 : set-to        ( xt -- ) vttemplate >vtto ! ;
 : set-defer@    ( xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
-\ : set-does>     ( xt -- ) >body !does ; \ more work than the aboves
 : set-does>     ( xt -- ) !doesxt ; \ more work than the aboves
 
-:noname ( -- colon-sys )
-    start-xt  set-compiler ;
+:noname ( -- colon-sys ) start-xt  set-compiler ;
 :noname ['] set-compiler start-xt-like ;
+over over
+interpret/compile: opt:
 interpret/compile: comp:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 

@@ -324,13 +324,11 @@ Defer exit-like ( -- )
     basic-block-end
     POSTPONE unreachable ;
 
-: EXIT ( compilation -- ; run-time nest-sys -- ) \ core
+' ;s alias exit ( compilation -- ; run-time nest-sys -- ) \ core
 \G Return to the calling definition; usually used as a way of
 \G forcing an early return from a definition. Before
 \G @code{EXIT}ing you must clean up the return stack and
 \G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
-    rdrop ;
-comp: drop [exit] ;
 
 : ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
     POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict

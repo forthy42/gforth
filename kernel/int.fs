@@ -570,7 +570,7 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
     \g @i{xt} represents @i{name}'s interpretation
     \g semantics. Perform @code{-14 throw} if the word has no
     \g interpretation semantics.
-    (') name?int ;
+    parse-name interpreter-r ;
 
 \ \ the interpreter loop				  mar92py
 
