@@ -230,8 +230,17 @@ Variable gl-emit-buf
 
 : xchar>glascii ( xchar -- 0..7F )
     case
-	'▀' of 0 endof
+	'▄' of $0 endof
 	'⬤' of 1 endof
+	'°' of 2 endof
+	'ß' of 3 endof
+	'Ä' of 4 endof
+	'Ö' of 5 endof
+	'Ü' of 6 endof
+	'ä' of 7 endof
+	'ö' of 8 endof
+	'ü' of 9 endof
+	'▀' of $10 endof
 	dup
     endcase $7F umin ;
 

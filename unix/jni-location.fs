@@ -109,11 +109,16 @@ also android
     sensorManager >o getDefaultSensor dup ref> to argsensor ]ref
     stopsensor gforth-handler >o post ref> drop o> ;
 
-: .deg ( degree -- )
-    fdup f0< IF ." -" fnegate THEN
-    fdup floor fdup f>s 0 .r '^' xemit f-  60e f*
-    fdup floor fdup f>s 0 .r ''' xemit f-  60e f*
-    7 4 0 f.rdp ;
+[IFUNDEF] .deg
+    : .2 ( n -- ) s>d <# # # #> type ;
+    : fsplit ( r -- r n )  fdup floor fdup f>s f- ;
+    : .deg ( degree -- )
+	fdup f0< IF ." -" fnegate THEN
+	fsplit 0 .r '°' xemit  60e f*
+	fsplit .2   ''' xemit  60e f*
+	fsplit .2   '"' xemit 100e f*
+	f>s .2 ;
+[THEN]
 
 : .location ( -- )  location >o
     o 0= IF  ." unknown" cr
