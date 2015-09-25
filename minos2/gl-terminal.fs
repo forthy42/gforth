@@ -313,7 +313,7 @@ Variable gl-emit-buf
     THEN  rdrop  need-show off ;
 
 [IFUNDEF] win : win app window @ ; [THEN]
-: screen-sync ( -- )  rendering @ 0= ?EXIT \ don't render if paused
+: screen-sync ( -- )  rendering @ -2 > ?EXIT \ don't render if paused
     need-sync @ win and level# @ 0<= and IF
 	show-cursor screen->gl need-sync off  THEN ;
 
