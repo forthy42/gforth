@@ -318,17 +318,35 @@ comp: drop POSTPONE ahead >leave ;
 Defer exit-like ( -- )
 ' noop IS exit-like
 
-: [exit] ( -- )
-    exit-like
-    POSTPONE ;s
-    basic-block-end
-    POSTPONE unreachable ;
+\ exit optimization: when there is locals-stuff on the return stack,
+\ (UNLOCAL) ;S is faster than ;S and also correct, but you must not
+\ insert (UNLOCAL) before ;S if there is no locals-stuff on the return
+\ stack.  If there is an UNLOCAL explicitly in the word, we do not
+\ insert (UNLOCAL) in front of any further EXITs.
 
-' ;s alias exit ( compilation -- ; run-time nest-sys -- ) \ core
+variable unlocal-state \ 0: no locals, 1: locals, but no unlocal, >1: unlocal
+
+: unlocal ( run-time old-lp nest-sys -- ) \ gforth
+    \G Remove locals information from return and locals stack.  You
+    \G use this for writing a return-address manipulating word; you
+    \G call this right before removing a nest-sys (return address) of
+    \G a word that contains locals.
+    postpone (unlocal) 2 unlocal-state cset ; immediate compile-only
+
+: exit ( compilation -- ; run-time nest-sys -- ) \ core
 \G Return to the calling definition; usually used as a way of
 \G forcing an early return from a definition. Before
 \G @code{EXIT}ing you must clean up the return stack and
 \G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
+    rdrop ;
+comp: drop unlocal-state @ 1 = if
+        postpone (unlocal) then
+    postpone ;s ;    
+
+: [exit] ( -- )
+    POSTPONE exit
+    basic-block-end
+    POSTPONE unreachable ;
 
 : ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
     POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
@@ -347,9 +365,9 @@ defer adjust-locals-list ( wid -- )
  
 \ quotations
 : wrap@ ( -- wrap-sys )
-    vtsave locals-wordlist last @ lastcfa @ leave-sp @ ;
+    vtsave locals-wordlist last @ lastcfa @ leave-sp @ unlocal-state @ ;
 : wrap! ( wrap-sys -- )
-    leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore ;
+    unlocal-state ! leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore ;
 
 : int-[: ( -- flag colon-sys )
     wrap@ false :noname ;

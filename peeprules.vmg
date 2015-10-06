@@ -26,7 +26,8 @@
 \E ' noop is output-c-prim-num
 
 super1 = lit +
-\ super2 = lit call
+super2 = lit call
+super2a = lit call-loc
 super3 = lit @
 \ super4 = lit @ call
 \ super5 = @ call
@@ -55,6 +56,7 @@ super27 = dup @
 \ super28 = lit execute \ currently not supported
 super29 = o#+ @
 super30 = o#+ !
+super31 = (unlocal) ;s
 
 \F 0 [if]
 

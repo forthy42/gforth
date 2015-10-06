@@ -604,7 +604,7 @@ defer ;-hook ( sys2 -- sys1 )
 : (noname->comp) ( nt -- nt xt )  ['] compile, ;
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
-    docol, colon-sys ] :-hook ;
+    docol, colon-sys ] :-hook unlocal-state off ;
 
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names

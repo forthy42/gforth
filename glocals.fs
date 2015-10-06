@@ -120,9 +120,10 @@ User locals-size \ this is the current size of the locals stack
 
 : >docolloc ( -- )
     \g turn colon definition into lp restoring trampoline
-    latestxt @ docol: <> ?EXIT
+    latestxt @ docol: <> ?EXIT \ !! delete this
     docolloc: latestxt code-address!
-    ['] :loc, set-compiler ;
+    ['] :loc, set-compiler
+    1 unlocal-state cset ;
 
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,

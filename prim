@@ -3225,7 +3225,7 @@ a_retaddr = (Cell *)IP;
 SET_IP((Xt *)a_callee);
 #endif
 
-unlocal	( R:a_lp R:w -- )	gforth	unlocal
+(unlocal)	( R:a_lp R:w -- )	gforth-internal	paren_unlocal
 lp = (Address)a_lp;
 
 \+
