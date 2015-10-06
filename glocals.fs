@@ -636,7 +636,6 @@ is free-old-local-names
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
     0 TO locals-wordlist
-    0 adjust-locals-size ( not every def ends with an exit )
     lastcfa ! last !
     DEFERS ;-hook ;
 
@@ -711,6 +710,9 @@ is free-old-local-names
 
 ' locals-:-hook IS :-hook
 ' locals-;-hook IS ;-hook
+[ifdef] 0-adjust-locals-size
+    :noname 0 adjust-locals-size ; is 0-adjust-locals-size
+[then]
 [ifdef] colon-sys-xt-offset
 colon-sys-xt-offset 3 + to colon-sys-xt-offset
 [then]
