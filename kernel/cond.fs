@@ -333,15 +333,17 @@ variable unlocal-state \ 0: no locals, 1: locals, but no unlocal, >1: unlocal
     \G a word that contains locals.
     postpone (unlocal) 2 unlocal-state cset ; immediate compile-only
 
-: exit ( compilation -- ; run-time nest-sys -- ) \ core
+defer exit ( compilation -- ; run-time nest-sys -- ) \ core
 \G Return to the calling definition; usually used as a way of
 \G forcing an early return from a definition. Before
 \G @code{EXIT}ing you must clean up the return stack and
 \G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
-    rdrop ;
+' ;s is exit
 comp: drop unlocal-state @ 1 = if
         postpone (unlocal) then
-    postpone ;s ;    
+    postpone ;s ;
+\ exit is not defined as alias, because OPT: does not work on aliases
+\ as intended.
 
 : [exit] ( -- )
     POSTPONE exit
