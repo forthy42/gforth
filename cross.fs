@@ -2383,14 +2383,10 @@ Variable prim#
 : first-primitive ( n -- )  prim# ! ;
 : group 0 word drop prim# @ 1- -$200 and prim# ! ;
 : groupadd  ( n -- )  drop ;
-: Primitive  ( -- ) \ name
-  >in @ skip? IF  drop  EXIT  THEN  >in !
-  s" prims" T $has? H 0=
-  IF
-     .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
-  THEN
-  prim-ghost executed-ghost !  prim# @ (THeader ( S xt ghost )
-  prim# @ over >exec2 !
+: #primitive ( n "name" -- )
+  prim-ghost executed-ghost !
+  (THeader ( S xt ghost )
+  2dup >exec2 !
   ['] prim-resolved over >comp !
   dup >ghost-flags <primitive> set-flag
   s" EC" T $has? H 0=
@@ -2399,7 +2395,14 @@ Variable prim#
 \      alias-mask flag!
   ELSE
       T here H resolve-noforwards T A, H
+  THEN ;
+: Primitive  ( -- ) \ name
+  >in @ skip? IF  drop  EXIT  THEN  >in !
+  s" prims" T $has? H 0=
+  IF
+     .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
   THEN
+  prim# @ #primitive
   -1 prim# +! ;
 >CROSS
 
@@ -4134,6 +4137,7 @@ previous
 : - - ;
 : and and ;
 : or or ;
+: xor xor ;
 : 2* 2* ;
 : * * ;
 : / / ;
