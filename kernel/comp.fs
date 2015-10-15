@@ -489,10 +489,11 @@ Create vttemplate
 
 \ initialize to one known vt
 
+: (make-latest) ( xt1 xt2 -- )
+    swap >namevt @ vttemplate vtsize move
+    >namevt vttemplate over ! vttemplate ! ;
 : vtcopy ( xt -- ) \ gforth vtcopy
-    vttemplate here >namevt !
-    >namevt @ vttemplate vtsize move
-    here >namevt vttemplate ! ;
+    here (make-latest) ;
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
     dup vtcopy here >r dup >code-address cfa, cell+ @ r> cell+ ! ;
@@ -519,6 +520,9 @@ Create vttemplate
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
     REPEAT  drop (vt,) ;
+
+: make-latest ( xt -- )
+    vt, dup last ! dup lastcfa ! dup (make-latest) ;
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
