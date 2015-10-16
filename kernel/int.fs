@@ -328,7 +328,7 @@ $0fffffff constant lcount-mask
 
 (field) >vtlink      0 cells ,
 (field) >vtcompile,  1 cells ,
-(field) >vtpostpone  2 cells ,
+(field) >vtlit,      2 cells ,
 (field) >vtextra     3 cells ,
 (field) >vtto        4 cells ,
 (field) >vt>int      5 cells ,

@@ -242,7 +242,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	(("immediate" "compile-only" "restrict")
 	 immediate (font-lock-keyword-face . 1))
 	(("does>") definition-starter (font-lock-keyword-face . 1))
-	((":noname" "comp:" "post:") definition-starter (font-lock-keyword-face . 1))
+	((":noname" "comp:" "post:" "lit,:") definition-starter (font-lock-keyword-face . 1))
 	((";" ";code" ";abi-code") definition-ender (font-lock-keyword-face . 1))
 	(("include" "require" "needs" "use") 
 	 non-immediate (font-lock-keyword-face . 1) 

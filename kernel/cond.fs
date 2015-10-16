@@ -338,11 +338,6 @@ variable unlocal-state \ 0: no locals, 1: locals, but no unlocal, >1: unlocal
 \G forcing an early return from a definition. Before
 \G @code{EXIT}ing you must clean up the return stack and
 \G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
-comp: drop unlocal-state @ 1 = if
-        postpone (unlocal) then
-    postpone ;s ;
-\ exit is not defined as alias, because OPT: does not work on aliases
-\ as intended.
 
 : [exit] ( -- )
     POSTPONE exit
@@ -366,9 +361,9 @@ defer adjust-locals-list ( wid -- )
  
 \ quotations
 : wrap@ ( -- wrap-sys )
-    vtsave locals-wordlist last @ lastcfa @ leave-sp @ unlocal-state @ ;
+    vtsave last @ lastcfa @ leave-sp @ locals-wordlist unlocal-state @ ;
 : wrap! ( wrap-sys -- )
-    unlocal-state ! leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore ;
+    unlocal-state ! to locals-wordlist leave-sp ! lastcfa ! last ! vtrestore ;
 
 : int-[: ( -- flag colon-sys )
     wrap@ false :noname ;

@@ -480,7 +480,7 @@ docolloc-dummy (docolloc-dummy)
 Create vttemplate
 0 A,                   \ link field
 ' peephole-compile, A, \ compile, field
-' post, A,             \ post, field
+' noop A,              \ post, field
 0 A,                   \ extra field
 ' no-to A,             \ to field
 ' default-name>int A,  \ name>int field
@@ -533,7 +533,7 @@ Create vttemplate
 
 : set-optimizer ( xt -- ) vttemplate >vtcompile, ! ;
 ' set-optimizer alias set-compiler
-: set-postpone  ( xt -- ) vttemplate >vtpostpone ! ;
+: set-lit,      ( xt -- ) vttemplate >vtlit, ! ;
 : set-to        ( xt -- ) vttemplate >vtto ! ;
 : set-defer@    ( xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
@@ -548,9 +548,9 @@ interpret/compile: comp:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
 :noname ( -- colon-sys )
-    start-xt  set-postpone ;
-:noname ['] set-postpone start-xt-like ;
-interpret/compile: post:
+    start-xt  set-lit, ;
+:noname ['] set-lit, start-xt-like ;
+interpret/compile: lit,:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
 \ defer and friends
@@ -630,9 +630,9 @@ defer 0-adjust-locals-size ( -- )
 
 : recognizer: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table
-    ['] drop swap concat >r  ['] drop swap concat >r
+    >r  ['] drop swap concat >r
     >r :noname r> compile, postpone ;
-    r> set-compiler r> set-postpone  Constant ;
+    r> set-compiler r> set-lit,  Constant ;
 
 \ does>
 

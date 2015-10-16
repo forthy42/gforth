@@ -38,8 +38,9 @@
 
 : lit, ( n -- ) postpone Literal ;
 
+: do-lit, ( .. xt -- .. ) >namevt @ >vtlit, perform ;
 : >postpone ( token table -- )
-    dup name>comp drop  >namevt @ >vtpostpone perform ;
+    dup >r name>comp drop do-lit, r> post, ;
 
 : rec:word ( addr u -- xt | r:fail )
     \G Searches a word in the wordlist stack
@@ -47,13 +48,13 @@
     dup 0= IF  drop r:fail  THEN ;
 
 :noname ( n -- n ) ;
-comp: ( n xt -- ) drop postpone Literal ;
-post: ( n xt -- ) >r postpone Literal r> post, ;
+comp: ( n xt -- ) do-lit, ;
+lit,: ( n -- ) postpone Literal ;
 AConstant r:num
 
 :noname ( d -- d ) ;
-comp: ( d xt -- ) drop postpone 2Literal ;
-post: ( d xt -- ) >r postpone 2Literal r> post, ;
+comp: ( d xt -- ) do-lit, ;
+lit,: ( d -- ) postpone 2Literal ;
 AConstant r:dnum
 
 \ snumber? should be implemented as recognizer stack

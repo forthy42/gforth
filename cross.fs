@@ -2979,12 +2979,13 @@ ghost uvar,
 ghost :loc,
 drop
 ghost x#exec
-drop
+ghost noop
+2drop
 
 Create vttemplate
 0 ,
 findghost :, ,
-findghost post, ,
+findghost noop ,
 0 ,
 findghost no-to ,
 findghost default-name>int ,
@@ -2994,7 +2995,7 @@ findghost >body@ ,
 Struct
     cell% field >vtlink
     cell% field >vtcompile,
-    cell% field >vtpostpone
+    cell% field >vtlit,
     cell% field >vtextra
     cell% field >vtto
     cell% field >vt>int
@@ -3031,7 +3032,7 @@ End-Struct vtable-struct
     T here 0 A, H vttemplate ! ;
 : vt-populate ( -- )
     [ findghost :,         ]L vttemplate >vtcompile, !
-    [ findghost post,      ]L vttemplate >vtpostpone !
+    [ findghost noop       ]L vttemplate >vtlit, !
     0                         vttemplate >vtextra !
     [ findghost no-to      ]L vttemplate >vtto !
     [ findghost default-name>int ]L vttemplate >vt>int !
@@ -3039,12 +3040,12 @@ End-Struct vtable-struct
     [ findghost >body@     ]L vttemplate >vtdefer@ ! ;
 
 :noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-compiler
-: gset-postpone ( ghost -- )  vttemplate >vtpostpone ! ;
+: gset-lit,     ( ghost -- )  vttemplate >vtlit, ! ;
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
 : gset-defer@   ( ghost -- )  vttemplate >vtdefer@ ! ;
 
 : set-compiler ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
-: set-postpone ( xt -- )  xt>ghost vttemplate >vtpostpone ! ;
+: set-lit,     ( xt -- )  xt>ghost vttemplate >vtlit, ! ;
 : set-to       ( xt -- )  xt>ghost vttemplate >vtto ! ;
 : set-defer@   ( xt -- )  xt>ghost vttemplate >vtdefer@ ! ;
 
@@ -3062,10 +3063,10 @@ End-Struct vtable-struct
     [G'] i/c>comp vttemplate >vt>comp ! ;
 
 : >vtable ( compile-xt tokenize-xt -- )
-    set-postpone set-compiler ;
+    set-lit, set-compiler ;
 
 : comp: ( -- colon-sys )  gstart-xt set-compiler ;
-: post: ( -- colon-sys )  gstart-xt set-postpone ;
+: lit,: ( -- colon-sys )  gstart-xt set-lit, ;
 \    T 0 cell+ cfoddalign here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
 >CROSS
 
