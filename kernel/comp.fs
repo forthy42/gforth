@@ -351,12 +351,12 @@ include ./recognizer.fs
 : s>comp ( nt -- xt1 xt2 )  @ name>comp ;
 
 : Alias    ( xt "name" -- ) \ gforth
-    Header reveal ['] on vtcopy
+    Header reveal ['] compile-only vtcopy
     alias-mask lastflags creset
     dup A, lastcfa ! ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
-    Header  ['] on vtcopy
+    Header  ['] compile-only vtcopy
     parse-name find-name dup A, name>int lastcfa !
     ['] s>int set->int ['] s>comp set->comp reveal ;
 

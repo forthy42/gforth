@@ -42,7 +42,7 @@
 : >postpone ( token table -- )
     dup >r name>comp drop do-lit, r> post, ;
 
-: rec:word ( addr u -- xt | r:fail )
+: rec:name ( addr u -- xt | r:fail )
     \G Searches a word in the wordlist stack
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
     dup 0= IF  drop r:fail  THEN ;
@@ -85,7 +85,7 @@ $10 Constant max-stack#
 Variable forth-recognizer
 \G The system recognizer
 
-' rec:word A, ' rec:num A, max-stack# 2 - cells allot
+' rec:name A, ' rec:num A, max-stack# 2 - cells allot
 2 forth-recognizer !
 \ ' num-recognizer ' word-recognizer 2 forth-recognizer set-recognizers
 
