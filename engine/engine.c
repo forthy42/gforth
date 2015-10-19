@@ -238,7 +238,7 @@ extern Char *gforth_memcpy(Char * dest, const Char* src, Cell n);
 #endif
 #define SUPER_CONTINUE
 
-#ifdef ASMCOMMENT
+#if defined(ASMCOMMENT) && !defined(__clang__)
 /* an individualized asm statement so that (hopefully) gcc's optimizer
    does not do cross-jumping */
 #define asmcomment(string) asm volatile(ASMCOMMENT string)
