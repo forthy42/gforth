@@ -46,6 +46,7 @@ c-library libc
     c-function read read n a n -- n ( fd addr u -- u' )
     c-function write write n a n -- n ( fd addr u -- u' )
     c-function close close n -- n ( fd -- r )
+    c-function setlocale setlocale n s -- a ( category locale -- locale )
 end-c-library
 
 getpagesize constant pagesize
@@ -59,6 +60,20 @@ end-structure
 $001 Constant POLLIN
 $002 Constant POLLPRI
 $004 Constant POLLOUT
+
+0 Constant LC_CTYPE
+1 Constant LC_NUMERIC
+2 Constant LC_TIME
+3 Constant LC_COLLATE
+4 Constant LC_MONETARY
+5 Constant LC_MESSAGES
+6 Constant LC_ALL
+7 Constant LC_PAPER
+8 Constant LC_NAME
+9 Constant LC_ADDRESS
+10 Constant LC_TELEPHONE
+11 Constant LC_MEASUREMENT
+12 Constant LC_IDENTIFICATION
 
 : fds!+ ( fileno flag addr -- addr' )
     >r r@ events w!  r@ fd l!  r> pollfd + ; 
