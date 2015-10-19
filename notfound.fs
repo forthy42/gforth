@@ -17,19 +17,17 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: no.extension -13 throw ;
-
 Defer interpret-notfound1 ( addr u -- )
 \g Legacy hook for words not found during interpretation
 Defer compiler-notfound1 ( addr u -- )
 \g Legacy hook for words not found during compilation
 Defer postpone-notfound1 ( addr u -- )
 \g Legacy hook for words not found during postpone
-' no.extension is interpret-notfound1
-' no.extension is compiler-notfound1
-' no.extension is postpone-notfound1
+' no.extensions is interpret-notfound1
+' no.extensions is compiler-notfound1
+' no.extensions is postpone-notfound1
 
 ' interpret-notfound1 ' compiler-notfound1 ' postpone-notfound1
-recognizer: rec:notfound
+recognizer: r:notfound
 
-' rec:notfound get-recognizers 1+ set-recognizers
+r:notfound get-recognizers 1+ set-recognizers

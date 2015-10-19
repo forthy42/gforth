@@ -566,11 +566,21 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 	drop -&13 throw
     THEN  ;
 
+: comp'-error ( xt -- xt )
+    \g may fail if there's an error
+    dup r:fail = -#13 and throw
+    dup >namevt @ >vtlit, @ ['] noop <> -#2053 and throw ;
+
+: '-error ( xt -- xt )
+    \g may fail if there's an error
+    dup ['] compile-only-error = -#14 and throw
+    comp'-error ;
+
 : '    ( "name" -- xt ) \ core	tick
     \g @i{xt} represents @i{name}'s interpretation
     \g semantics. Perform @code{-14 throw} if the word has no
     \g interpretation semantics.
-    parse-name interpreter-r ;
+    parse-name interpreter-r '-error ;
 
 \ \ the interpreter loop				  mar92py
 

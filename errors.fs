@@ -113,8 +113,9 @@ decimal
 -2050 s" Double free error" rot errstring
 -2051 s" Data before memory block was modified" rot errstring
 -2052 s" Data after memory block was modified" rot errstring
+-2053 s" Can't tick literal" rot errstring
 
-variable next-exception -2053 next-exception !
+variable next-exception -2054 next-exception !
 
 : exception ( addr u -- n ) \ exception- gforth
     \G @var{n} is a previously unused @code{throw} value in the range

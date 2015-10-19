@@ -521,7 +521,7 @@ previous
     \G \i{xt} represents the interpretation semantics \i{nt}; returns
     \G 0 if \i{nt} has no interpretation semantics
     dup name>int tuck <> if \ only if it wasn't compile-only-error
-	dup ['] compile-only-error = if
+	dup [comp'] compile-only-error drop = if
 	    drop 0
 	then
     then ;
