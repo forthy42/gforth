@@ -43,6 +43,7 @@ ac_cv_c_bigendian=no
 ac_cv_func_memcmp_working=yes
 ac_cv_func_memmove=yes
 ac_cv_func_getpagesize=no
+ac_cv_func_wcwidth=no
 ac_cv_file___arch_386_asm_fs=yes
 ac_cv_file___arch_368_disasm_fs=yes
 ac_cv_func_dlopen=yes

@@ -1927,11 +1927,7 @@ ucols=cols;
 
 wcwidth	( u -- n )	gforth
 ""The number of fixed-width characters per unicode character u""
-#ifdef HAVE_WCWIDTH
 n = wcwidth(u);
-#else
-n = 1;
-#endif
 
 flush-icache	( c_addr u -- )	gforth	flush_icache
 ""Make sure that the instruction cache of the processor (if there is
