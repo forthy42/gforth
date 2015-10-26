@@ -125,11 +125,13 @@ Variable maxnum
   s" /nosuchfile" url $!  s" HTTP/1.0" protocol $!
   s" close" connection $!
   infile-id push-file loadfile !  loadline off  blk off
-  commands 1 set-order  command? on  ['] refill-loop catch
+  get-order n>r get-recognizers n>r
+  commands 1 set-order  ['] rec:word 1 set-recognizers
+  command? on  ['] refill-loop catch
   Keep-Alive $@ snumber? dup 0> IF  nip  THEN  IF  maxnum !  THEN
   active @ IF  s" " posted $! Content-Length $@ snumber? drop
       posted $!len  posted $@ infile-id read-file throw drop
-  THEN  only forth also  pop-file ;
+  THEN  nr> set-recognizers nr> set-order  pop-file ;
 
 \ Rework HTML directory                                26mar00py
 

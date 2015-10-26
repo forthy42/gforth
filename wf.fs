@@ -724,6 +724,7 @@ Variable public-key
 Variable mail
 Variable mail-name
 Variable orig-date
+Variable impressum-url
 
 : .lastmod
     ." Last modified: " time&date rot 0 u.r swap 1-
@@ -740,6 +741,10 @@ Variable orig-date
 	public-key $@ href=  s" a" tag
 	s" PGP key|-@/gpg-asc.gif" .img s" a" /tag
     THEN
+    impressum-url @ IF
+	impressum-url $@ href= s" a" tag
+	."  Impressum" s" a" /tag
+    THEN
     -envs ;
 
 \ top word
@@ -750,6 +755,8 @@ Variable orig-date
     bl sword -trailing public-key $! ;
 : charset ( -- )  s" application/xhtml+xml; charset=" content $!
     bl sword -trailing 2dup content $+! _charset $! ;
+: impressum ( -- )
+    0 parse impressum-url $! ;
 
 charset iso-8859-1
 
