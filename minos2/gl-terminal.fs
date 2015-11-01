@@ -284,8 +284,8 @@ Variable gl-emit-buf
 
 : ?invers ( attr -- attr' ) dup invers and IF  $778 xor  THEN ;
 : >default ( attr -- attr' )
-    dup  bg> 6 < $F and >bg
-    over fg> 6 < $F and >fg or
+    dup  bg> 6 <= $F and >bg
+    over fg> 6 <= $F and >fg or
     default-color -rot mux ;
 : gl-attr! ( attribute -- )
     >default ?invers  dup bg> bg! fg> fg! ;
