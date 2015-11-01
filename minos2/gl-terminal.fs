@@ -282,8 +282,15 @@ Variable gl-emit-buf
     videomem videocols sfloats resize throw to videomem
     resize-screen need-sync on ;
 
-: gl-attr! ( attribute -- )  dup bg> bg! fg> fg! ;
-: gl-err-attr! ( attribute -- )  dup bg> err-bg! fg> err-fg! ;
+: ?invers ( attr -- attr' ) dup invers and IF  $778 xor  THEN ;
+: >default ( attr -- attr' )
+    dup  bg> 6 < $F and >bg
+    over fg> 6 < $F and >fg or
+    default-color -rot mux ;
+: gl-attr! ( attribute -- )
+    >default ?invers  dup bg> bg! fg> fg! ;
+: gl-err-attr! ( attribute -- )
+    >default ?invers  dup bg> err-bg! fg> err-fg! ;
 
 0.25e FConstant scroll-deltat
 : >scroll-pos ( -- 0..1 )

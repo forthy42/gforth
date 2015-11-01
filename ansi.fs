@@ -55,8 +55,6 @@ decimal
 7 $F xor Constant White
 9 $F xor Constant defaultcolor
 
-: bright ( color -- bcolor )  8 or ;
-
 1 CONSTANT Bold
 2 CONSTANT Underline
 4 CONSTANT Blink
@@ -73,7 +71,7 @@ decimal
 : <A    -1 0 ;
 : A>    BEGIN over -1 <> WHILE or REPEAT nip ;
 
-User Attr   $660 Attr !
+User Attr   0 Attr !
 
 : (Attr!) ( attr -- )
     \G set attribute
