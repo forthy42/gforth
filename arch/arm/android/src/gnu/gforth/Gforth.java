@@ -56,6 +56,9 @@ import android.text.SpannableStringBuilder;
 import android.text.Editable;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.app.AlarmManager;
+import android.app.IntentService;
+import android.app.PendingIntent;
 import android.util.Log;
 import java.lang.Object;
 import java.lang.Runnable;
@@ -80,6 +83,10 @@ public class Gforth
     private LocationManager locationManager;
     private SensorManager sensorManager;
     private ClipboardManager clipboardManager;
+    private AlarmManager alarmManager;
+    private BroadcastReceiver receiver;
+    private PendingIntent pintent;
+
     private boolean started=false;
     private boolean libloaded=false;
     private boolean surfaced=false;
@@ -338,6 +345,7 @@ public class Gforth
 	locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
 	sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
 	clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+	alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
 	handler=new Handler();
 	startgps=new Runnable() {
 		public void run() {
@@ -379,6 +387,16 @@ public class Gforth
 		    finish();
 		}
 	    };
+	receiver=new BroadcastReceiver() {
+		@Override public void onReceive( Context context, Intent _ )
+		{
+		    Log.v(TAG, "alarm received");
+		}
+	    };
+	
+	this.registerReceiver(receiver, new IntentFilter("gnu.gforth.keepalive") );
+	
+	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0 );
     }
 
     @Override protected void onStart() {
@@ -399,15 +417,19 @@ public class Gforth
     }
 
     @Override protected void onPause() {
-	super.onPause();
 	activated = -1;
 	if(surfaced) onEventNative(18, activated);
+	super.onPause();
     }
 
     @Override protected void onStop() {
-	super.onStop();
 	activated = 0;
 	onEventNative(18, activated);
+	super.onStop();
+    }
+    @Override protected void onDestroy() {
+	this.unregisterReceiver(receiver);
+	super.onDestroy();
     }
 
     @Override
@@ -533,5 +555,9 @@ public class Gforth
 
     public int get_SDK() {
 	return Build.VERSION.SDK_INT;
+    }
+
+    public void set_alarm(long when) {
+	alarmManager.set(AlarmManager.RTC_WAKEUP, when, pintent);
     }
 }
