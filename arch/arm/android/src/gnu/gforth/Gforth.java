@@ -24,6 +24,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Build;
 import android.text.ClipboardManager;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -57,7 +60,6 @@ import android.text.Editable;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.AlarmManager;
-import android.app.IntentService;
 import android.app.PendingIntent;
 import android.util.Log;
 import java.lang.Object;
@@ -388,7 +390,7 @@ public class Gforth
 		}
 	    };
 	receiver=new BroadcastReceiver() {
-		@Override public void onReceive( Context context, Intent _ )
+		@Override public void onReceive(Context context, Intent foo)
 		{
 		    Log.v(TAG, "alarm received");
 		}
