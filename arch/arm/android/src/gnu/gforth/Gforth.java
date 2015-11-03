@@ -61,6 +61,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.net.ConnectivityManager;
 import android.util.Log;
 import java.lang.Object;
 import java.lang.Runnable;
@@ -86,7 +87,8 @@ public class Gforth
     private SensorManager sensorManager;
     private ClipboardManager clipboardManager;
     private AlarmManager alarmManager;
-    private BroadcastReceiver receiver;
+    private ConnectivityManager connectivityManager;
+
     private PendingIntent pintent;
 
     private boolean started=false;
@@ -348,6 +350,8 @@ public class Gforth
 	sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
 	clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
 	alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
+	connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
 	handler=new Handler();
 	startgps=new Runnable() {
 		public void run() {
@@ -389,17 +393,23 @@ public class Gforth
 		    finish();
 		}
 	    };
-	receiver=new BroadcastReceiver() {
+	
+	registerReceiver(new BroadcastReceiver() {
 		@Override public void onReceive(Context context, Intent foo)
 		{
 		    // Log.v(TAG, "alarm received");
 		    onEventNative(21, 0);
 		}
-	    };
+	    }, new IntentFilter("gnu.gforth.keepalive") );
 	
-	this.registerReceiver(receiver, new IntentFilter("gnu.gforth.keepalive") );
-	
-	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0 );
+	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
+
+	registerReceiver(new BroadcastReceiver() {
+		public void onReceive(Context context, Intent intent) {
+		    bool metered = connectivityManager.isActiveNetworkMetered();
+		    onEventNative(22, metered);
+		}
+	    }, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     }
 
     @Override protected void onStart() {

@@ -367,6 +367,7 @@ Defer clipboard! ( 0 -- ) ' drop is recurse
     dup rendering !  IF  need-show on screen-ops  THEN ;
 
 Defer android-alarm ( 0 -- ) ' drop is recurse
+Defer android-network ( metered -- ) ' drop is recurse
 
 Create aevents
 ' android-key ,
@@ -391,6 +392,7 @@ Create aevents
 ' android-setcur ,
 ' android-setsel ,
 ' android-alarm ,
+' android-network ,
 here aevents - cell/
 ' drop ,
 Constant max-event#
