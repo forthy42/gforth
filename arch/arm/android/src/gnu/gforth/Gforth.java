@@ -408,8 +408,8 @@ public class Gforth
 
 	recConnectivity = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
-		    boolean metered = connectivityManager.isActiveNetworkMetered();
-		    onEventNative(22, metered);
+		    // boolean metered = connectivityManager.isActiveNetworkMetered();
+		    onEventNative(22, 0);
 		}
 	    };
 
