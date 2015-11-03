@@ -55,7 +55,6 @@ jni-method: getName getName ()Ljava/lang/String;
 jni-method: getResolution getResolution ()F
 jni-method: getType getType ()I
 jni-method: getPower getPower ()F
-jni-method: toString toString ()Ljava/lang/String;
 
 jni-class: android/hardware/SensorManager
 

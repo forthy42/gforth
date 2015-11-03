@@ -103,7 +103,7 @@ SDK_INT 10 u<= [IF] \ 2.3.x uses a different clipboard manager
     [THEN]
 [THEN]
 
-jni-class: java/lang/CharSequence
+jni-class: java/lang/Object
 
 jni-method: toString toString ()Ljava/lang/String;
 
