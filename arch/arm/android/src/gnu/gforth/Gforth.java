@@ -88,6 +88,7 @@ public class Gforth
     private ClipboardManager clipboardManager;
     private AlarmManager alarmManager;
     private ConnectivityManager connectivityManager;
+    private BroadcastReceiver recKeepalive, recConnectivity;
 
     private PendingIntent pintent;
 
@@ -394,22 +395,25 @@ public class Gforth
 		}
 	    };
 	
-	registerReceiver(new BroadcastReceiver() {
+	recKeepalive = new BroadcastReceiver() {
 		@Override public void onReceive(Context context, Intent foo)
 		{
 		    // Log.v(TAG, "alarm received");
 		    onEventNative(21, 0);
 		}
-	    }, new IntentFilter("gnu.gforth.keepalive") );
+	    };
+	registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive") );
 	
 	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
 
-	registerReceiver(new BroadcastReceiver() {
+	recConnectivity = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
-		    bool metered = connectivityManager.isActiveNetworkMetered();
+		    boolean metered = connectivityManager.isActiveNetworkMetered();
 		    onEventNative(22, metered);
 		}
-	    }, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+	    };
+
+	registerReceiver(recConnectivity, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     }
 
     @Override protected void onStart() {
@@ -441,7 +445,8 @@ public class Gforth
 	super.onStop();
     }
     @Override protected void onDestroy() {
-	this.unregisterReceiver(receiver);
+	this.unregisterReceiver(recKeepalive);
+	this.unregisterReceiver(recConnectivity);
 	super.onDestroy();
     }
 
