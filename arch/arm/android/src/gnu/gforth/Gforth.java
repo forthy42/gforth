@@ -392,7 +392,8 @@ public class Gforth
 	receiver=new BroadcastReceiver() {
 		@Override public void onReceive(Context context, Intent foo)
 		{
-		    Log.v(TAG, "alarm received");
+		    // Log.v(TAG, "alarm received");
+		    onEventNative(21, 0);
 		}
 	    };
 	
@@ -560,6 +561,7 @@ public class Gforth
     }
 
     public void set_alarm(long when) {
+	// Log.v(TAG, "set alarm");
 	alarmManager.set(AlarmManager.RTC_WAKEUP, when, pintent);
     }
 }

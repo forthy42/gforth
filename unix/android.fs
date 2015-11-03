@@ -366,6 +366,8 @@ Defer clipboard! ( 0 -- ) ' drop is recurse
     \ >stderr ." active: " dup . cr
     dup rendering !  IF  need-show on screen-ops  THEN ;
 
+Defer android-alarm ( 0 -- ) ' drop is recurse
+
 Create aevents
 ' android-key ,
 ' android-touch ,
@@ -388,6 +390,7 @@ Create aevents
 ' android-active ,
 ' android-setcur ,
 ' android-setsel ,
+' android-alarm ,
 here aevents - cell/
 ' drop ,
 Constant max-event#
