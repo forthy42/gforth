@@ -379,7 +379,7 @@ Defer clipboard! ( 0 -- ) ' drop is recurse
 
 Defer android-alarm ( 0 -- ) ' drop is recurse
 Defer android-network ( metered -- )
-:noname drop .network cr ; is android-network
+( :noname drop .network cr ; ) ' drop is android-network
 
 Create aevents
 ' android-key ,
