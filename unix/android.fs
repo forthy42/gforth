@@ -100,8 +100,8 @@ require unix/jni-helper.fs
 
 set-current previous
 
-Variable need-sync
-Variable need-show
+Variable need-sync need-sync on
+Variable need-show need-show on
 
 app_input_state buffer: *input
 
@@ -364,7 +364,7 @@ Defer clipboard! ( 0 -- ) ' drop is recurse
 
 : android-active ( flag -- )
     \ >stderr ." active: " dup . cr
-    dup rendering !  IF  need-show on screen-ops  THEN ;
+    dup rendering !  IF  need-show on need-sync on screen-ops  THEN ;
 
 Defer android-alarm ( 0 -- ) ' drop is recurse
 Defer android-network ( metered -- ) ' drop is recurse
