@@ -364,7 +364,9 @@ Defer clipboard! ( 0 -- ) ' drop is recurse
 
 : android-active ( flag -- )
     \ >stderr ." active: " dup . cr
-    dup rendering !  IF  need-show on need-sync on screen-ops  THEN ;
+    dup rendering !  IF
+	gl-xy @ s>f set-scroll
+	need-show on need-sync on screen-ops  THEN ;
 
 Defer android-alarm ( 0 -- ) ' drop is recurse
 Defer android-network ( metered -- ) ' drop is recurse
