@@ -303,7 +303,8 @@ JValue cmanager
 
 : .network ( -- )
     cmanager 0= IF  clazz .connectivityManager to cmanager  THEN
-    cmanager .getActiveNetworkInfo >o toString xref> .jstring ;
+    cmanager .getActiveNetworkInfo
+    ?dup-IF  >o toString xref> .jstring  ELSE  ." no active network"  THEN ;
 
 : android-key ( event -- )
     dup to key-event >o
