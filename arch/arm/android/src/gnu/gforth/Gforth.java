@@ -424,21 +424,19 @@ public class Gforth
 	    started=true;
 	}
 	activated = -1;
-	// if(surfaced)
-	onEventNative(18, activated);
+	if(surfaced) onEventNative(18, activated);
+	set_alarm(System.currentTimeMillis()+100);
     }
    
     @Override protected void onResume() {
 	super.onResume();
 	activated = -2;
-	// if(surfaced)
-	onEventNative(18, activated);
+	if(surfaced) onEventNative(18, activated);
     }
 
     @Override protected void onPause() {
 	activated = -1;
-	// if(surfaced)
-	onEventNative(18, activated);
+	if(surfaced) onEventNative(18, activated);
 	super.onPause();
     }
 
