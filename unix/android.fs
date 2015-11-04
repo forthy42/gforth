@@ -287,7 +287,7 @@ Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 
 : android-edit-update ( span addr pos1 -- span addr pos1 )
     2dup xcs swap >r >r
-    2dup swap make-jstring r> clazz >o setEditLine o> r> ;
+    2dup swap make-jstring r> clazz .setEditLine r> ;
 ' android-edit-update is edit-update
 
 : ins-esc# ( n char -- ) swap 0 max 1+
@@ -299,6 +299,11 @@ JValue key-event
 JValue touch-event
 JValue location
 JValue sensor
+JValue cmanager
+
+: .network ( -- )
+    cmanager 0= IF  clazz .connectivityManager to cmanager  THEN
+    cm .getActiveNetworkInfo >o toString xref> .jstring ;
 
 : android-key ( event -- )
     dup to key-event >o
@@ -372,7 +377,8 @@ Defer clipboard! ( 0 -- ) ' drop is recurse
     ELSE  16000 to looper-to#  THEN ;
 
 Defer android-alarm ( 0 -- ) ' drop is recurse
-Defer android-network ( metered -- ) ' drop is recurse
+Defer android-network ( metered -- )
+:noname drop .network cr ; is android-network
 
 Create aevents
 ' android-key ,

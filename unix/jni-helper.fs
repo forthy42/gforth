@@ -25,6 +25,7 @@ jni-method: get_SDK get_SDK ()I
 jni-method: setEditLine setEditLine (Ljava/lang/String;I)V
 jni-method: set_alarm set_alarm (J)V
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
+jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
 
 : SDK_INT clazz >o get_SDK o> ;
 
@@ -75,6 +76,15 @@ jni-class: java/util/List
 
 jni-method: l-get get (I)Ljava/lang/Object;
 jni-method: l-size size ()I
+
+jni-class: android/net/ConnectivityManager
+jni-method: getActiveNetworkInfo getActiveNetworkInfo ()Landroid/net/NetworkInfo;
+
+jni-class: android/net/NetworkInfo
+jni-method: getState getState ()Landroid/net/NetworkInfo$State;
+jni-method: getType getType ()I
+jni-method: getTypeName getTypeName ()Ljava/lang/String;
+jni-method: isConnected isConnected ()Z
 
 SDK_INT 10 u<= [IF] \ 2.3.x uses a different clipboard manager
     jni-class: android/text/ClipboardManager
