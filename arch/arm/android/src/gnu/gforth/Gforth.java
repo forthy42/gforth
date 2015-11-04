@@ -322,7 +322,6 @@ public class Gforth
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-
         mContentView = new ContentView(this);
         setContentView(mContentView);
         mContentView.requestFocus();
@@ -425,7 +424,6 @@ public class Gforth
 	}
 	activated = -1;
 	if(surfaced) onEventNative(18, activated);
-	set_alarm(System.currentTimeMillis()+100);
     }
    
     @Override protected void onResume() {

@@ -64,6 +64,8 @@ JNIEXPORT void JNI_onEventNative(JNIEnv * env, jobject obj, jint type, jobject e
   sendEvent ke = { type, (*env)->NewGlobalRef(env, event) };
   if(startargs.ke_fd[1])
     write(startargs.ke_fd[1], &ke, sizeof(ke));
+  else
+    LOGE("pipe not opened\n");
 }
 
 JNIEXPORT void JNI_onEventNativeInt(JNIEnv * env, jobject obj, jint type, jint event)
@@ -71,6 +73,8 @@ JNIEXPORT void JNI_onEventNativeInt(JNIEnv * env, jobject obj, jint type, jint e
   sendInt ke = { type, event };
   if(startargs.ke_fd[1])
     write(startargs.ke_fd[1], &ke, sizeof(ke));
+  else
+    LOGE("pipe not opened\n");
 }
 
 const char sha256sum[]="sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2";

@@ -238,7 +238,9 @@ variable looperfds pollfd 8 * allot
     loop-event 2 cells poll-file read-file throw drop
     loop-event 2@ akey ;
 
-: poll? ( ms -- flag )  looperfds dup cell+ swap @
+: poll? ( ms -- flag )
+    poll-file key?-file IF  get-event drop true  EXIT  THEN
+    looperfds dup cell+ swap @
     rot poll 0>
     IF	looperfds cell+ revents w@ POLLIN and dup >r
 	IF  get-event  THEN
@@ -365,8 +367,9 @@ Defer clipboard! ( 0 -- ) ' drop is recurse
 : android-active ( flag -- )
     \ >stderr ." active: " dup . cr
     dup rendering !  IF
-	gl-xy @ s>f set-scroll
-	need-show on need-sync on screen-ops  THEN ;
+	16 to looper-to#
+	need-show on need-sync on screen-ops
+    ELSE  16000 to looper-to#  THEN ;
 
 Defer android-alarm ( 0 -- ) ' drop is recurse
 Defer android-network ( metered -- ) ' drop is recurse
