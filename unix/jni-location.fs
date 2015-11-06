@@ -53,7 +53,7 @@ $14 Constant TYPE_GEOMAGNETIC_ROTATION_VECTOR
 
 jni-method: getName getName ()Ljava/lang/String;
 jni-method: getResolution getResolution ()F
-jni-method: getType getType ()I
+jni-method: sensor-getType getType ()I
 jni-method: getPower getPower ()F
 
 jni-class: android/hardware/SensorManager
@@ -141,6 +141,6 @@ also android
     THEN cr o> ;
 
 : .sensors ( -- )  clazz >o sensorManager >o TYPE_ALL getSensorList >o
-    [: cr getType . getName .jstring ;] o l-map ref> ref> o> ;
+    [: cr sensor-getType . getName .jstring ;] o l-map ref> ref> o> ;
 
 previous previous

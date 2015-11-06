@@ -90,7 +90,7 @@ public class Gforth
     private ConnectivityManager connectivityManager;
     private BroadcastReceiver recKeepalive, recConnectivity;
 
-    private PendingIntent pintent;
+    private PendingIntent pintent, gforthintent;
 
     private boolean started=false;
     private boolean libloaded=false;
@@ -404,6 +404,10 @@ public class Gforth
 	registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive") );
 	
 	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
+	gforthintent = PendingIntent.getActivity(this,
+						 1, new Intent(this, Gforth.class),
+						 PendingIntent.FLAG_UPDATE_CURRENT);
+
 
 	recConnectivity = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {

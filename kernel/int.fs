@@ -573,7 +573,7 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 
 : '-error ( xt -- xt )
     \g may fail if there's an error
-    dup ['] compile-only-error = -#14 and throw
+    dup ['] compile-only-error = -#2048 and throw
     comp'-error ;
 
 : '    ( "name" -- xt ) \ core	tick
