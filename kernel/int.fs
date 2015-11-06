@@ -559,28 +559,27 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 
 \ ticks in interpreter
 
-: (') ( "name" -- nt ) \ gforth
-    parse-name name-too-short?
-    find-name dup 0=
-    IF
-	drop -&13 throw
-    THEN  ;
+: name>int/comp ( nt -- xt )
+    \g converts nt to an xt.  If the nt is compile-only, the compilation
+    \g xt is returned.
+    dup >r name>int dup ['] compile-only-error =
+    IF  drop
+	<<# r@ name>string holds s" ' compile only word " holds
+	0. #> hold 1- c(warning") #>>
+	r> name>comp drop  ELSE  rdrop  THEN ;
 
-: comp'-error ( xt -- xt )
-    \g may fail if there's an error
+: '-error ( nt -- nt )
     dup r:fail = -#13 and throw
     dup >namevt @ >vtlit, @ ['] noop <> -#2053 and throw ;
 
-: '-error ( xt -- xt )
-    \g may fail if there's an error
-    dup ['] compile-only-error = -#2048 and throw
-    comp'-error ;
+: (') ( "name" -- nt ) \ gforth
+    parse-name name-too-short? do-recognizer '-error ;
 
 : '    ( "name" -- xt ) \ core	tick
     \g @i{xt} represents @i{name}'s interpretation
     \g semantics. Perform @code{-14 throw} if the word has no
     \g interpretation semantics.
-    parse-name interpreter-r '-error ;
+    (') name>int/comp ;
 
 \ \ the interpreter loop				  mar92py
 
