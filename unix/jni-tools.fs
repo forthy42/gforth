@@ -24,7 +24,7 @@ User attached-up
     vm ['] env >body vmAA JavaVM-AttachCurrentThread() drop
     maxargs# floats allocate throw callargs ! ;
 : ?attach ( -- )
-    up@ attached-up @ = ?EXIT  attach up attached-up ! ;
+    up@ attached-up @ = ?EXIT  attach up@ attached-up ! ;
 : detach ( -- ) \ jni
     \G detach the current thread from the JVM
     vm JavaVM-DetachCurrentThread() drop
