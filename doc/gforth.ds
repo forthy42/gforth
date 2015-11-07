@@ -2318,7 +2318,7 @@ there (thus its name).  Programmers can also use this stack:
 @end example
 
 @code{>r} takes an element from the data stack and pushes it onto the
-return stack; conversely, @code{r>} moves an elementm from the return to
+return stack; conversely, @code{r>} moves an element from the return to
 the data stack; @code{r@@} pushes a copy of the top of the return stack
 on the data stack.
 
