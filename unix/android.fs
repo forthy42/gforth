@@ -229,9 +229,9 @@ variable looperfds pollfd 8 * allot
 : ?poll-file ( -- )
     poll-file 0= IF  app ke-fd0 l@ "r\0" drop fdopen to poll-file  THEN ;
 : looper-init ( -- )  looperfds off
-    app ke-fd0 l@   POLLIN +fds
-    stdin fileno    POLLIN +fds
-    epiper @ fileno POLLIN +fds
+    app ke-fd0 l@    POLLIN +fds
+    infile-id fileno POLLIN +fds
+    epiper @ fileno  POLLIN +fds
     ?poll-file ;
 
 : get-event ( -- )
