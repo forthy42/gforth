@@ -170,9 +170,9 @@ comp: drop ]] o ]wgref o> [[ ;
 : xref> ( object -- ) o ]xref r> o> >r ;
 comp: drop ]] o ]xref o> [[ ;
 
-: gref! ( gref addr -- )  dup @ ?dup-IF  ]gref  THEN ! ;
-: jvalue! ( gref xt -- )  >body gref! ;
-comp: drop >body postpone ALiteral postpone gref! ;
+: xref! ( xref addr -- )  dup @ ?dup-IF  ]xref  THEN ! ;
+: jvalue! ( xref xt -- )  >body xref! ;
+comp: drop >body postpone ALiteral postpone xref! ;
 
 : JValue ( "name" -- ) 0 Value ['] jvalue! set-to ;
 
