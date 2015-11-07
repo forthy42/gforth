@@ -20,6 +20,11 @@
 require ./tester.fs
 decimal
 
+\ test whether FILL corrupts FTOS (regression)
+
+variable x
+T{ 3e x 1 cells 'a' fill -> 3e }T
+
 \ f>str-rdp (then f.rdp and f>buf-rdb should also be ok)
 
 {  12.3456789e 7 3 1 f>str-rdp s"  12.346" str= -> true }
