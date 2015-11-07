@@ -17,17 +17,20 @@ app app-env @ value env
 16 Constant maxargs#
 
 User callargs
+User attached-up
 
 : attach ( -- ) \ jni
     \G attach the current thread to the JVM
     vm ['] env >body vmAA JavaVM-AttachCurrentThread() drop
     maxargs# floats allocate throw callargs ! ;
+: ?attach ( -- )
+    up@ attached-up @ = ?EXIT  attach up attached-up ! ;
 : detach ( -- ) \ jni
     \G detach the current thread from the JVM
     vm JavaVM-DetachCurrentThread() drop
     callargs @ free throw ;
 
-attach \ apparently needs attaching again
+?attach \ attach this thread
 
 \ call java
 
