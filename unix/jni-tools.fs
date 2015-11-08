@@ -21,16 +21,18 @@ User attached-up
 
 : attach ( -- ) \ jni
     \G attach the current thread to the JVM
+    up@ attached-up @ = ?EXIT
     vm ['] env >body vmAA JavaVM-AttachCurrentThread() drop
-    maxargs# floats allocate throw callargs ! ;
-: ?attach ( -- )
-    up@ attached-up @ = ?EXIT  attach up@ attached-up ! ;
+    maxargs# floats allocate throw callargs !
+    up@ attached-up ! ;
 : detach ( -- ) \ jni
     \G detach the current thread from the JVM
+    up@ attached-up @ <> ?EXIT
     vm JavaVM-DetachCurrentThread() drop
+    attached-up off
     callargs @ free throw ;
 
-?attach \ attach this thread
+attach \ attach this thread
 
 \ call java
 
@@ -168,9 +170,9 @@ comp: drop ]] o ]wgref o> [[ ;
 : xref> ( object -- ) o ]xref r> o> >r ;
 comp: drop ]] o ]xref o> [[ ;
 
-: gref! ( gref addr -- )  dup @ ?dup-IF  ]gref  THEN ! ;
-: jvalue! ( gref xt -- )  >body gref! ;
-comp: drop >body postpone ALiteral postpone gref! ;
+: xref! ( xref addr -- )  dup @ ?dup-IF  ]xref  THEN ! ;
+: jvalue! ( xref xt -- )  >body xref! ;
+comp: drop >body postpone ALiteral postpone xref! ;
 
 : JValue ( "name" -- ) 0 Value ['] jvalue! set-to ;
 
