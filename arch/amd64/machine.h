@@ -86,15 +86,14 @@ explicit register allocation and efforts to stop coalescing.
 */
 
 #if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
+/* tested with gcc 4.4, 4.6, 4.7, 4.8, 5.2 */
 #define RPREG asm("%r13")
 #define FPREG asm("%r12")
 #define TOSREG asm("%r14")
-#if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__!=6)
 # define SPREG asm("%r15")
 # define IPREG asm("%rbx")
-#endif
-#if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=7)
-#define LPREG asm("%rbp") /* works with GCC 4.7.x */
+#if ((__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=6) || (__GNUC__>=5))
+#define LPREG asm("%rbp") /* inefficient wit gcc-4.4 */
 #endif
 #define FTOSREG asm("%xmm15")
 #ifdef __clang__
