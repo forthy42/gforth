@@ -407,7 +407,7 @@ public class Gforth
 	gforthintent = PendingIntent.getActivity(this,
 						 1, new Intent(this, Gforth.class),
 						 PendingIntent.FLAG_UPDATE_CURRENT);
-
+	gforthintent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
 	recConnectivity = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
