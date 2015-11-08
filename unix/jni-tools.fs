@@ -12,7 +12,8 @@ JNI_VERSION_1_6        vmAA JavaVMAttachArgs-version !
 0                      vmAA JavaVMAttachArgs-group !
 
 app app-vm @ value vm
-app app-env @ uvalue env
+uvalue env
+app app-env @ to env
 
 16 Constant maxargs#
 
