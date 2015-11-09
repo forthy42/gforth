@@ -231,7 +231,7 @@ void startForth(jniargs * startargs)
   chdir("gforth/home");
 
   addarg(ADDRLEN("gforth"));
-  addfileargs("options");
+  addfileargs(".options");
   addarg(ADDRLEN(patharg));
   addarg(ADDRLEN("starta.fs"));
 
