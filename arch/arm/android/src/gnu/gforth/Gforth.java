@@ -404,10 +404,11 @@ public class Gforth
 	registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive") );
 	
 	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
-	gforthintent = PendingIntent.getActivity(this,
-						 1, new Intent(this, Gforth.class),
+	Intent startgforth = new Intent(this, Gforth.class);
+	startgforth.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+	gforthintent = PendingIntent.getActivity(this, 1, startgforth,
 						 PendingIntent.FLAG_UPDATE_CURRENT);
-	gforthintent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
 	recConnectivity = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
