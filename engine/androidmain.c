@@ -167,17 +167,15 @@ void addfileargs(char* filename)
 {
   FILE *argfile=fopen(filename, "r");
   char *line=NULL, *arg;
-  int n=0;
-  ssize_t ret;
+  size_t n=0;
 
   if(argfile==NULL) return; // no file, nothing to do
 
-  while((ret=getline(&line, &n, argfile))>=0) {
-    if(ret > 0 && line[ret-1]=='\n') {
-      line[--ret]='\0';
-    }
-    arg=malloc(ret+1);
-    strncpy(arg, line, ret+1);
+  while((line=fgetln(argfile, &n))) {
+    if(n > 0 && line[n-1]=='\n') n--;
+    arg=malloc(n+1);
+    memcpy(arg, line, n);
+    arg[n]='\0';
     addarg(arg, ret);
   }
 }
