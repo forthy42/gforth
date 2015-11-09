@@ -21,7 +21,8 @@
                 android:windowAnimationStyle="@android:style/Animation.Activity"
 		android:windowSoftInputMode="stateVisible|adjustResize"
                 android:configChanges="orientation|screenSize|keyboardHidden"
-                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                android:launchMode="singleTop">
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
                     android:value="gforth-fast" />
@@ -36,7 +37,8 @@
                 android:windowAnimationStyle="@android:style/Animation.Activity"
 		android:windowSoftInputMode="stateVisible|adjustResize"
                 android:configChanges="orientation|screenSize|keyboardHidden"
-                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen""
+                android:launchMode="singleTop">
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
                     android:value="gforth-itc" />

@@ -405,7 +405,8 @@ public class Gforth
 	
 	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
 	Intent startgforth = new Intent(this, Gforth.class);
-	startgforth.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+	startgforth.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
+			     Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
 	gforthintent = PendingIntent.getActivity(this, 1, startgforth,
 						 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -430,7 +431,14 @@ public class Gforth
 	activated = -1;
 	if(surfaced) onEventNative(18, activated);
     }
-   
+
+    @Override protected void onNewIntent (Intent intent) {
+	super.onNewIntent(intent);
+	setIntent(intent);
+	activated = -1;
+	if(surfaced) onEventNative(18, activated);
+    }
+
     @Override protected void onResume() {
 	super.onResume();
 	activated = -2;
