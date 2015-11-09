@@ -144,25 +144,60 @@ void unpackFiles()
   }
 }
 
-static char * argv[] = { "gforth", "--", "starta.fs" };
+char ** argv=NULL;
+int argc=0;
+
+void addarg(char* arg, size_t len)
+{
+  char * newarg = malloc(len+1);
+  strncpy(newarg, arg, len+1);
+  argc++;
+
+  if(argv==NULL) {
+    argv=malloc(argc*sizeof(char*));
+  } else {
+    argv=realloc(argv, argc*sizeof(char*));
+  }
+  argv[argc-1] = newarg;
+}
+
+#define ADDRLEN(x) x, strlen(x)
+
+void addfileargs(char* filename)
+{
+  FILE *argfile=fopen(filename, "r");
+  char *line=NULL, *arg;
+  int n=0;
+  ssize_t ret;
+
+  if(argfile==NULL) return; // no file, nothing to do
+
+  while((ret=getline(&line, &n, argfile))>=0) {
+    if(ret > 0 && line[ret-1]=='\n') {
+      line[--ret]='\0';
+    }
+    arg=malloc(ret+1);
+    strncpy(arg, line, ret+1);
+    addarg(arg, ret);
+  }
+}
+
 static const char *paths[] = { "--",
 			       "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
 			       "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
 static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
 
-int checkFiles()
+int checkFiles(char ** patharg)
 {
   int i;
 
   for(i=0; i<=2; i++) {
-    argv[1]=paths[i];
+    *patharg=paths[i];
     if(!chdir(folder[i])) break;
   }
 
   LOGI("chdir(%s)\n", folder[i]);
-
-  LOGI("Starting %s %s %s\n",
-	  argv[0], argv[1], argv[2]);
+  LOGI("Extra arg: %s\n", *patharg);
 
   return checksha256sum();
 }
@@ -170,7 +205,7 @@ int checkFiles()
 void startForth(jniargs * startargs)
 {
   char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
-  const int argc=3;
+  char* patharg;
   int retvalue;
   int epipe[2];
   JavaVM *vm=startargs->vm;
@@ -184,7 +219,7 @@ void startForth(jniargs * startargs)
   
   startargs->env = env;
 
-  if(!checkFiles()) {
+  if(!checkFiles(&patharg)) {
     unpackFiles();
   }
 
@@ -197,6 +232,11 @@ void startForth(jniargs * startargs)
   setenv("APP_STATE", statepointer, 1);
   
   chdir("gforth/home");
+
+  addarg(ADDRLEN("gforth"));
+  addfileargs("options");
+  addarg(ADDRLEN(patharg));
+  addarg(ADDRLEN("starta.fs"));
 
   LOGI("Starting Gforth...\n");
   fflush(stderr);
