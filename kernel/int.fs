@@ -367,7 +367,7 @@ drop Constant vtsize \ vtable size
 : ?compile-only ( nt -- nt )
     dup >f+c @ restrict-mask and IF
 	<<# s"  is compile-only" holds dup name>string holds 0. #>
-	hold 1- c(warning")
+	hold 1- c(warning") #>>
     THEN ;
 
 : name>string ( nt -- addr count ) \ gforth     name-to-string
