@@ -23,6 +23,6 @@
     2dup s" ->" string-prefix?  0= IF  2drop  r:fail  EXIT  THEN
     2 /string dup 0= IF  2drop  r:fail  EXIT  THEN
     do-recognizer dup r:fail = ?EXIT
-    name>int/comp r:to ;
+    ?compile-only name>int r:to ;
 
 ' rec:to get-recognizers 1+ set-recognizers
