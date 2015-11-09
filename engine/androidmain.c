@@ -150,7 +150,9 @@ int argc=0;
 void addarg(char* arg, size_t len)
 {
   char * newarg = malloc(len+1);
-  strncpy(newarg, arg, len+1);
+
+  memcpy(newarg, arg, len);
+  newarg[len]='\0';
   argc++;
 
   if(argv==NULL) {
@@ -173,10 +175,7 @@ void addfileargs(char* filename)
 
   while((line=fgetln(argfile, &n))) {
     if(n > 0 && line[n-1]=='\n') n--;
-    arg=malloc(n+1);
-    memcpy(arg, line, n);
-    arg[n]='\0';
-    addarg(arg, ret);
+    addarg(line, n);
   }
 }
 
