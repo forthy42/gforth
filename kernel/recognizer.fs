@@ -117,7 +117,7 @@ Variable forth-recognizer
 \   xxx-recognizer do-recognizer ;
 
 : interpreter-r ( addr u -- ... xt )
-    do-recognizer name>int ?compile-only ;
+    do-recognizer ?compile-only name>int ;
 
 ' interpreter-r IS parser1
 
