@@ -371,6 +371,11 @@ drop Constant vtsize \ vtable size
 	hold 1- c(warning") #>>
     THEN ;
 
+: name?int ( nt -- xt ) \ gforth-obsolete name-question-int
+\G Like @code{name>int}, but warns when encountering a word marked
+\G compile-only
+    ?compile-only name>int ;
+
 : name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
     >f+c dup @ lcount-mask and tuck - swap ;
@@ -570,7 +575,7 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
     \g @i{xt} represents @i{name}'s interpretation
     \g semantics. Perform @code{-14 throw} if the word has no
     \g interpretation semantics.
-    (') ?compile-only name>int ;
+    (') name?int ;
 
 \ \ the interpreter loop				  mar92py
 

@@ -7394,7 +7394,6 @@ doc-find-name
 doc-latest
 doc->name
 doc-name>int
-doc-name?int
 doc-name>comp
 doc-name>string
 doc-id.
