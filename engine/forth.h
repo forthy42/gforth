@@ -467,6 +467,7 @@ struct Longname *hashlfind(Char *c_addr, UCell u, Cell *a_addr);
 struct Longname *tablelfind(Char *c_addr, UCell u, Cell *a_addr);
 UCell hashkey1(Char *c_addr, UCell u, UCell ubits);
 void hashkey2(Char *c_addr, UCell u, uint64_t upmask, hash128 * h);
+UCell hashkey2a(Char *s, UCell n);
 struct Cellpair parse_white(Char *c_addr1, UCell u1);
 Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2);
 struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid);
