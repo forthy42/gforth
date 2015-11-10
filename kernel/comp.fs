@@ -165,7 +165,7 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname, ( -- )
-    0 last ! vt,  here 3 cells + dup maxaligned >align alias-mask , 0 , ;
+    0 last ! vt,  here cell+ dup cfaligned >align alias-mask , 0 , 0 , ;
 : noname-header ( -- )
     noname, input-stream ;
 
