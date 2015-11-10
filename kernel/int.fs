@@ -564,13 +564,13 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
     dup >namevt @ >vtlit, @ ['] noop <> -#2053 and throw ;
 
 : (') ( "name" -- nt ) \ gforth
-    parse-name name-too-short? do-recognizer '-error ?compile-only ;
+    parse-name name-too-short? do-recognizer '-error ;
 
 : '    ( "name" -- xt ) \ core	tick
     \g @i{xt} represents @i{name}'s interpretation
     \g semantics. Perform @code{-14 throw} if the word has no
     \g interpretation semantics.
-    (') name>int ;
+    (') ?compile-only name>int ;
 
 \ \ the interpreter loop				  mar92py
 
