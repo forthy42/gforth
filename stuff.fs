@@ -517,14 +517,9 @@ previous
 
 \ x:traverse-wordlist words
 
-: name>interpret ( nt -- xt|0 )
+' name>int alias name>interpret ( nt -- xt|0 )
     \G \i{xt} represents the interpretation semantics \i{nt}; returns
     \G 0 if \i{nt} has no interpretation semantics
-    dup name>int tuck <> if \ only if it wasn't compile-only-error
-	dup [comp'] compile-only-error drop = if
-	    drop 0
-	then
-    then ;
 
 ' name>comp alias name>compile ( nt -- w xt )
 \G @i{w xt} is the compilation token for the word @i{nt}.

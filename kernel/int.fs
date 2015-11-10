@@ -364,6 +364,13 @@ method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
 \G word @i{xt-deferred}.
 drop Constant vtsize \ vtable size
 
+: compile-only? ( nt -- flag ) >f+c @ restrict-mask and ;
+: ?compile-only ( nt -- nt )
+    dup compile-only? IF
+	<<# s"  is compile-only" holds dup name>string holds 0. #>
+	hold 1- c(warning") #>>
+    THEN ;
+
 : name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
     >f+c dup @ lcount-mask and tuck - swap ;
@@ -380,14 +387,7 @@ drop Constant vtsize \ vtable size
     \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
     \G @code{compile-only}), @i{xt} is the execution token for
     \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
-    (name>x) (x>int) ;
-
-: name?int ( nt -- xt ) \ gforth name-question-int
-    \G Like @code{name>int}, but perform @code{-2048 throw} if @i{nt}
-    \G has no interpretation semantics.
-    dup name>int tuck <> if
-      dup ['] compile-only-error = -2048 and throw
-    then ;
+    (name>x) drop ;
 
 : (x>comp) ( xt w -- xt +-1 )
     immediate-mask and flag-sign ;
@@ -559,15 +559,6 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 
 \ ticks in interpreter
 
-: name>int/comp ( nt -- xt )
-    \g converts nt to an xt.  If the nt is compile-only, the compilation
-    \g xt is returned.
-    dup >r name>int dup ['] compile-only-error =
-    IF  drop
-	<<# r@ name>string holds s" ' compile only word " holds
-	0. #> hold 1- c(warning") #>>
-	r> name>comp drop  ELSE  rdrop  THEN ;
-
 : '-error ( nt -- nt )
     dup r:fail = -#13 and throw
     dup >namevt @ >vtlit, @ ['] noop <> -#2053 and throw ;
@@ -579,7 +570,7 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
     \g @i{xt} represents @i{name}'s interpretation
     \g semantics. Perform @code{-14 throw} if the word has no
     \g interpretation semantics.
-    (') name>int/comp ;
+    (') ?compile-only name>int ;
 
 \ \ the interpreter loop				  mar92py
 

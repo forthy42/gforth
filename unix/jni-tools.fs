@@ -12,24 +12,20 @@ JNI_VERSION_1_6        vmAA JavaVMAttachArgs-version !
 0                      vmAA JavaVMAttachArgs-group !
 
 app app-vm @ value vm
-app app-env @ value env
+uvalue env
+app app-env @ to env
 
 16 Constant maxargs#
 
 User callargs
-User attached-up
 
 : attach ( -- ) \ jni
     \G attach the current thread to the JVM
-    up@ attached-up @ = ?EXIT
-    vm ['] env >body vmAA JavaVM-AttachCurrentThread() drop
-    maxargs# floats allocate throw callargs !
-    up@ attached-up ! ;
+    vm [ user' env ]l up@ + vmAA JavaVM-AttachCurrentThread() drop
+    maxargs# floats allocate throw callargs ! ;
 : detach ( -- ) \ jni
     \G detach the current thread from the JVM
-    up@ attached-up @ <> ?EXIT
     vm JavaVM-DetachCurrentThread() drop
-    attached-up off
     callargs @ free throw ;
 
 attach \ attach this thread

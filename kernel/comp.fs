@@ -165,7 +165,7 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname, ( -- )
-    0 last ! vt,  here 3 cells + dup maxaligned >align alias-mask , 0 , ;
+    0 last ! vt,  here cell+ dup cfaligned >align alias-mask , 0 , 0 , ;
 : noname-header ( -- )
     noname, input-stream ;
 
@@ -351,13 +351,14 @@ include ./recognizer.fs
 : s>comp ( nt -- xt1 xt2 )  @ name>comp ;
 
 : Alias    ( xt "name" -- ) \ gforth
-    Header reveal ['] compile-only vtcopy
+    Header reveal ['] on vtcopy
     alias-mask lastflags creset
     dup A, lastcfa ! ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
-    Header  ['] compile-only vtcopy
-    parse-name find-name dup A, name>int lastcfa !
+    Header  ['] on vtcopy
+    parse-name find-name dup A,
+    dup compile-only? IF  compile-only  THEN  name>int lastcfa !
     ['] s>int set->int ['] s>comp set->comp reveal ;
 
 : Create ( "name" -- ) \ core

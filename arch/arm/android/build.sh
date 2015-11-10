@@ -123,5 +123,5 @@ do
 done
 strip $LIBS/*.so
 #ant debug
-ant release
+ant release || exit 1
 cp bin/Gforth-release.apk bin/Gforth.apk
