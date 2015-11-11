@@ -1200,6 +1200,10 @@ if swig -forth unix/test.i; then
       				        SWIGLIBS="$SWIGLIBS user.fs", ,
 #include <w32api/wtypes.h>
 ) ,)
+      AC_CHECK_HEADER(w32api/wtypes.h,
+      AC_CHECK_HEADER(w32api/winbase.h, SWIGLIBS="$SWIGLIBS win32.fs", ,
+#include <w32api/wtypes.h>
+) ,)
    else
       AC_CHECK_HEADER(GL/gl.h, 
       AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"

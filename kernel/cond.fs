@@ -250,8 +250,7 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
     >leave rdrop ; immediate restrict
 
 : LEAVE ( compilation -- ; run-time loop-sys -- ) \ core
-    compile-only-error ; restrict
-comp: drop POSTPONE ahead >leave ;
+    POSTPONE ahead >leave ; immediate compile-only
 
 : ?LEAVE ( compilation -- ; run-time f | f loop-sys -- ) \ gforth	question-leave
     POSTPONE 0= POSTPONE if
