@@ -17,7 +17,9 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: load-rc ( -- )  s" ~/.gforthrc" open-fpath-file
+: load-rc ( -- )
+    \G if available, load ~/.gforthrc
+    s" ~/.gforthrc" open-fpath-file
     0= IF  included1  ELSE  drop  THEN ;
 
 :noname  load-rc defers bootmessage ; is bootmessage

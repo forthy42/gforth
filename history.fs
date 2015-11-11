@@ -17,6 +17,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+Defer edit-update ( span addr pos1 -- span addr pos1 )
+\G deferred word to keep an editor informed about the command line content
+' noop is edit-update
+
 : ctrl-i ( "<char>" -- c )
     char toupper $40 xor ;
 
@@ -61,12 +65,15 @@ defer cur-correct ( addr u -- )
 ' 2drop IS cur-correct
 
 Variable linew
+Variable linew-all
 Variable screenw
+Variable setstring \ additional string at cursor for IME
 : linew-off  linew off cols screenw ! ;
 
 [IFDEF] x-width
 : clear-line ( max span addr pos1 -- max addr )
-    drop linew @ back-restore over over swap x-width
+    drop linew @ back-restore
+    2dup swap x-width setstring $@ x-width +
     dup spaces back-restore nip linew off ;
 [ELSE]
 : clear-line ( max span addr pos1 -- max addr )
@@ -89,7 +96,7 @@ Variable screenw
   forward^ 2@ 2dup hist-setpos backward^ 2!
   2dup get-line drop
   hist-pos  forward^ 2!
-  tuck 2dup type 2dup cur-correct 0 ;
+  tuck 2dup type 2dup cur-correct edit-update 0 ;
 
 : find-prev-line ( max addr -- max span addr pos2 )
   backward^ 2@ forward^ 2!
@@ -101,7 +108,7 @@ Variable screenw
   REPEAT  2drop  THEN  tuck ;
 
 : prev-line  ( max span addr pos1 -- max span addr pos2 false )
-    clear-line find-prev-line 2dup type 2dup cur-correct 0 ;
+    clear-line find-prev-line 2dup type 2dup cur-correct edit-update 0 ;
 
 \ Create lfpad #lf c,
 
@@ -114,9 +121,10 @@ Variable screenw
 	hist-pos 2dup backward^ 2! end^ 2!
     THEN  r> (ret) ;
 
-: extract-word ( addr len -- addr' len' )  dup >r
-  BEGIN  1- dup 0>=  WHILE  2dup + c@ bl =  UNTIL  THEN  1+
-  tuck + r> rot - ;
+: extract-word ( addr len -- addr' len' )
+    dup >r
+    BEGIN  1- dup 0>=  WHILE  2dup + c@ bl =  UNTIL  THEN  1+
+    tuck + r> rot - ;
 
 Create prefix-found  0 , 0 ,
 
@@ -210,6 +218,11 @@ require utf-8.fs
 
 ' xcur-correct IS cur-correct
 
+info-color Value setstring-color
+
+: color-execute ( color xt -- )
+    attr! catch default-color attr! throw ;
+
 : xback-restore ( u -- )
     \ correction for line=screenw, no wraparound then!
     dup screenw @ mod 0= over 0> and \ flag, true=-1
@@ -217,12 +230,19 @@ require utf-8.fs
 : .rest ( addr pos1 -- addr pos1 )
     linew @ xback-restore 2dup type 2dup cur-correct ;
 : .all ( span addr pos1 -- span addr pos1 )
-    linew @ xback-restore >r 2dup swap type 2dup swap cur-correct r> ;
+    linew @ xback-restore
+    2dup type setstring $@
+    dup IF  ['] type setstring-color color-execute  ELSE  2drop  THEN
+    >r 2dup swap r@ /string type
+    2dup swap cur-correct setstring $@ x-width linew +! r>
+    linew @ linew-all ! ;
+: .redraw ( span addr pos1 -- span addr pos1 )
+    .all .rest ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore
-    cols dup screenw !@ - >r 2 pick dup screenw @ / r> * 0 max +
-    dup spaces linew !  .all .rest false ;
+    cols dup screenw !@ - >r linew-all @ dup screenw @ / r> * 0 max +
+    dup spaces linew !  .redraw false ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore 2 pick dup spaces xback-restore
@@ -240,7 +260,7 @@ Variable vt100-modifier
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
-    <xins> key? 0= IF  .all .rest  THEN ;
+    <xins> key? 0= IF  .redraw  THEN ;
 : xback  ( max span addr pos1 -- max span addr pos2 f )
     dup  IF
 	vt100-modifier @ IF
@@ -251,20 +271,20 @@ Variable vt100-modifier
 	ELSE
 	    over + xchar- over -
 	THEN
-	0 max .all .rest
+	0 max .redraw
     ELSE  bell  THEN 0 ;
 : xforw  ( max span addr pos1 -- max span addr pos2 f )
     2 pick over <> IF
 	vt100-modifier @ IF
 	    BEGIN  2 pick over u> >r 2dup + c@ bl = r> and  WHILE
-		    over + xc@+ xemit over -  REPEAT
+		    over + xchar+ over -  REPEAT
 	    BEGIN  2 pick over u> >r 2dup + c@ bl <> r> and  WHILE
-		    over + xc@+ xemit over -  REPEAT
+		    over + xchar+ over -  REPEAT
 	ELSE
-	    over + xc@+ xemit over -
+	    over + xchar+ over -
 	THEN
-    ELSE  bell  THEN
-    2dup cur-correct 0 ;
+	.redraw
+    ELSE  bell  THEN 0 ;
 : (xdel)  ( max span addr pos1 -- max span addr pos2 )
     over + dup xchar- tuck - >r over -
     >string over r@ + -rot move
@@ -280,7 +300,7 @@ Variable vt100-modifier
 : xeof  2 pick over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
 
 : xfirst-pos  ( max span addr pos1 -- max span addr 0 0 )
-  drop 0 .all .rest 0 ;
+  drop 0 .redraw 0 ;
 : xend-pos  ( max span addr pos1 -- max span addr span 0 )
   drop over .all 0 ;
 
@@ -291,7 +311,7 @@ Variable vt100-modifier
     linew @ xback-restore >r
     2dup swap x-width dup spaces xback-restore
     2dup swap r@ /string 2 pick swap move
-    swap r> - swap 0 .all .rest 0 ;
+    swap r> - swap 0 .redraw 0 ;
 
 : (xenter)  ( max span addr pos1 -- max span addr pos2 true )
     >r 2dup swap -trailing nip IF
@@ -322,25 +342,34 @@ Variable vt100-modifier
 	2>r >string r@ + 2r> 2swap insert
 	r@ + rot r> + -rot
     THEN
-    prefix-found @ IF  bl (xins)  ELSE  .all .rest  THEN  0 ;
+    prefix-found @ IF  bl (xins)  ELSE  .redraw  THEN
+    edit-update  0 ;
+
+: setcur ( max span addr pos1 -- max span addr pos2 0 )
+    drop over vt100-modifier @ umin .redraw 0 ;
+: setsel ( max span addr pos1 -- max span addr pos2 0 )
+    >r 2dup swap r@ /string 2dup vt100-modifier @ umin setstring $!
+    vt100-modifier @ over umin >r r@ - over r@ + -rot move
+    swap r> - swap r> .redraw 0 ;
 
 : xchar-history ( -- )
-    ['] xforw        ctrl F bindkey
+    ['] setcur       ctrl A bindkey
     ['] xback        ctrl B bindkey
-    ['] ?xdel        ctrl H bindkey
     ['] xeof         ctrl D bindkey
-    ['] <xdel>       ctrl X bindkey
-    ['] xclear-rest  ctrl K bindkey
-    ['] xclear-first ctrl U bindkey
-    ['] xfirst-pos   ctrl A bindkey
     ['] xend-pos     ctrl E bindkey
+    ['] xforw        ctrl F bindkey
+    ['] ?xdel        ctrl H bindkey
+    ['] xtab-expand  #tab   bindkey \ ctrl I
+    ['] (xenter)     #lf    bindkey \ ctrl J
+    ['] xclear-rest  ctrl K bindkey
     ['] xretype      ctrl L bindkey
     ['] next-line    ctrl N bindkey
+    ['] (xenter)     #cr    bindkey \ ctrl M
     ['] prev-line    ctrl P bindkey
+    ['] setsel       ctrl S bindkey
+    ['] xclear-first ctrl U bindkey
+    ['] <xdel>       ctrl X bindkey
     ['] xhide        ctrl Z bindkey \ press ctrl-L to reshow
-    ['] (xenter)     #lf    bindkey
-    ['] (xenter)     #cr    bindkey
-    ['] xtab-expand  #tab   bindkey
     ['] (xins)       IS insert-char
     ['] kill-prefix  IS everychar
 [ifdef] everyline

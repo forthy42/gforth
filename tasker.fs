@@ -48,8 +48,9 @@ Create sleepers  sleepers A, sleepers A, 0 ,
 interpret/compile: user' ( 'user' -- n )
 \G USER' computes the task offset of a user variable
 
-: NewTask ( stacksize -- Task )  dup 2* 2* udp @ + dup
+: NewTask ( stacksize -- Task )
     \G NEWTASK creates a new, sleeping task
+    dup 2* 2* udp @ + dup
     allocate throw  + >r
     r@ over - udp @ - next-task over udp @ move
     r> over user' rp0 + ! dup >r
@@ -72,7 +73,8 @@ Create killer killer A, killer A,
     next-task @ up! save-task @ sp!
     lp! fp! rp! prev-task @ kill ; IS kill-task
 
-: (pass) ( x1 .. xn n task -- )  rdrop
+: (pass) ( x1 .. xn n task -- )
+  rdrop
   [ ' kill-task >body ] ALiteral r>
   rot >r r@ user' rp0 + @ 2 cells - dup >r 2!
   r>              swap 1+

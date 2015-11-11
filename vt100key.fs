@@ -43,6 +43,7 @@ ctrl P trans: A
 ctrl N trans: B
 ctrl A trans: H
 ctrl E trans: F
+ctrl S trans: S
 
 ctrl A 1 tcode
 ctrl X 3 tcode

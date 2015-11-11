@@ -120,9 +120,18 @@ User locals-size \ this is the current size of the locals stack
 
 : >docolloc ( -- )
     \g turn colon definition into lp restoring trampoline
-    latestxt @ docol: <> ?EXIT
+    latestxt @ docol: <> ?EXIT \ !! delete this
     docolloc: latestxt code-address!
-    ['] :loc, set-compiler ;
+    ['] :loc, set-compiler
+    1 unlocal-state cset ;
+
+\ change EXIT's compilation action
+\ beware: because we need EXIT at the end of the definition, it can't
+\ be done with opt: ... ;
+:noname unlocal-state @ 1 = if
+	postpone (unlocal) then
+    peephole-compile, ;
+' exit make-latest set-optimizer
 
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,
@@ -635,7 +644,6 @@ is free-old-local-names
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
     0 TO locals-wordlist
-    0 adjust-locals-size ( not every def ends with an exit )
     lastcfa ! last !
     DEFERS ;-hook ;
 
@@ -710,6 +718,9 @@ is free-old-local-names
 
 ' locals-:-hook IS :-hook
 ' locals-;-hook IS ;-hook
+[ifdef] 0-adjust-locals-size
+    :noname 0 adjust-locals-size ; is 0-adjust-locals-size
+[then]
 [ifdef] colon-sys-xt-offset
 colon-sys-xt-offset 3 + to colon-sys-xt-offset
 [then]
@@ -792,38 +803,40 @@ colon-sys-xt-offset 3 + to colon-sys-xt-offset
     then ;
 
 [IFUNDEF] set-to
-: (int-to) ( xt -- ) dup >definer
-    case
-	[ ' locals-wordlist ] literal >definer \ value
-	of  >body ! endof
-	[ ' parse-name ] literal >definer \ defer
-	of  defer! endof
-	-&32 throw
-    endcase ;
+    : (int-to) ( xt -- )
+	dup >definer
+	case
+	    [ ' locals-wordlist ] literal >definer \ value
+	    of  >body ! endof
+	    [ ' parse-name ] literal >definer \ defer
+	    of  defer! endof
+	    -&32 throw
+	endcase ;
 
-: (comp-to) ( xt -- ) dup >definer
-    case
-	[ ' locals-wordlist ] literal >definer \ value
-	OF >body POSTPONE Aliteral POSTPONE ! ENDOF
-	[ ' parse-name ] literal >definer \ defer
-	OF POSTPONE Aliteral POSTPONE defer! ENDOF
-	\ !! dependent on c: etc. being does>-defining words
-	\ this works, because >definer uses >does-code in this case,
-	\ which produces a relocatable address
-	[ comp' some-clocal drop ] literal >definer
-	OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
-	[ comp' some-wlocal drop ] literal >definer
-	OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
-	[ comp' some-dlocal drop ] literal >definer
-	OF POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ENDOF
-	[ comp' some-flocal drop ] literal >definer
-	OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
-	-&32 throw
-    endcase ;
-
-: TO ( c|w|d|r "name" -- ) \ core-ext,local
-    ' (int-to) ;
-comp: drop comp' drop (comp-to) ;
+    : (comp-to) ( xt -- )
+	dup >definer
+	case
+	    [ ' locals-wordlist ] literal >definer \ value
+	    OF >body POSTPONE Aliteral POSTPONE ! ENDOF
+	    [ ' parse-name ] literal >definer \ defer
+	    OF POSTPONE Aliteral POSTPONE defer! ENDOF
+	    \ !! dependent on c: etc. being does>-defining words
+	    \ this works, because >definer uses >does-code in this case,
+	    \ which produces a relocatable address
+	    [ comp' some-clocal drop ] literal >definer
+	    OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
+	    [ comp' some-wlocal drop ] literal >definer
+	    OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
+	    [ comp' some-dlocal drop ] literal >definer
+	    OF POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ENDOF
+	    [ comp' some-flocal drop ] literal >definer
+	    OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
+	    -&32 throw
+	endcase ;
+    
+    : TO ( c|w|d|r "name" -- ) \ core-ext,local
+	' (int-to) ;
+    comp: drop comp' drop (comp-to) ;
 [THEN]
 
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar

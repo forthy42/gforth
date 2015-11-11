@@ -2318,7 +2318,7 @@ there (thus its name).  Programmers can also use this stack:
 @end example
 
 @code{>r} takes an element from the data stack and pushes it onto the
-return stack; conversely, @code{r>} moves an elementm from the return to
+return stack; conversely, @code{r>} moves an element from the return to
 the data stack; @code{r@@} pushes a copy of the top of the return stack
 on the data stack.
 
@@ -2824,9 +2824,8 @@ Two conventions to mark words with non-default compilation semantics are
 names with brackets (more frequently used) and to write them all in
 upper case (less frequently used).
 
-In Gforth (and many other systems) you can also remove the
-interpretation semantics with @code{compile-only} (the compilation
-semantics is derived from the original interpretation semantics):
+For some words, such as @code{if}, using their interpretation
+semantics is usually a mistake, so we mark them as @code{compile-only}, and you get a warning when you interpret them.
 
 @example
 : flip ( -- )
@@ -2838,8 +2837,11 @@ flip
 flop
 @end example
 
-In this example the interpretation semantics of @code{flop} is equal to
-the original interpretation semantics of @code{flip}.
+In this example, first the interpretation semantics of @code{flip} is
+used (and you get a warning); the second use of @code{flip} uses the
+compilation semantics (and you get no warning).  You can also see in
+this example that compile-only is a property that is evaluated at text
+interpretation time, not at run-time.
 
 The text interpreter has two states: in interpret state, it performs the
 interpretation semantics of words it encounters; in compile state, it
@@ -4156,18 +4158,20 @@ The @dfn{compilation semantics} of the word are to do something useful
 (and actually the same thing); i.e., it is executed during compilation.
 @end itemize
 
-Marking a word as @dfn{compile-only} prohibits the text interpreter from
-performing the interpretation semantics of the word directly; an attempt
-to do so will generate an error. It is never necessary to use
-@code{compile-only} (and it is not even part of ANS Forth, though it is
-provided by many implementations) but it is good etiquette to apply it
-to a word that will not behave correctly (and might have unexpected
-side-effects) in interpret state. For example, it is only legal to use
-the conditional word @code{IF} within a definition. If you forget this
-and try to use it elsewhere, the fact that (in Gforth) it is marked as
+Marking a word as @dfn{compile-only} means that the text interpreter
+produces a warning when encountering this word in interpretation
+state; ticking the word (with @code{'} or @code{[']} also produces a
+warning.
+
+It is never necessary to use @code{compile-only} (and it is not even
+part of Standard Forth, though it is provided by many implementations)
+but it is good etiquette to apply it to a word that will not behave
+correctly (and might have unexpected side-effects) in interpret
+state. For example, it is only legal to use the conditional word
+@code{IF} within a definition. If you forget this and try to use it
+elsewhere, the fact that (in Gforth) it is marked as
 @code{compile-only} allows the text interpreter to generate a helpful
-error message rather than subjecting you to the consequences of your
-folly.
+warning.
 
 This example shows the difference between an immediate and a
 non-immediate word:
@@ -7129,8 +7133,8 @@ By convention, words with non-default compilation semantics (e.g.,
 immediate words) often have names surrounded with brackets (e.g.,
 @code{[']}, @pxref{Execution token}).
 
-Note that ticking (@code{'}) a compile-only word gives an error
-(``Interpreting a compile-only word'').
+Note that ticking (@code{'}) a compile-only word gives a warning
+(``<word> is compile-only'').
 
 @menu
 * Combined words::              
@@ -7310,11 +7314,20 @@ doc-[']
 
 If you want the execution token of @i{word}, write @code{['] @i{word}}
 in compiled code and @code{' @i{word}} in interpreted code.  Gforth's
-@code{'} and @code{[']} behave somewhat unusually by complaining about
-compile-only words (because these words have no interpretation
-semantics).  You might get what you want by using @code{COMP' @i{word}
-DROP} or @code{[COMP'] @i{word} DROP} (for details @pxref{Compilation
-token}).
+@code{'} and @code{[']} warns when you use them on compile-only words,
+because such usage may be non-portable between different Forth
+systems.  
+
+You can avoid that warning as well as the portability problems by
+defining an immediate variant of the word, e.g.:
+
+@example
+: if postpone if ; immediate
+: test [ ' if execute ] ." test" then ;
+@end example
+
+The resulting execution token performs the compilation semantics of
+@code{if} when @code{execute}d.
 
 Another way to get an XT is @code{:noname} or @code{latestxt}
 (@pxref{Anonymous Definitions}).  For anonymous words this gives an xt
@@ -7394,7 +7407,6 @@ doc-find-name
 doc-latest
 doc->name
 doc-name>int
-doc-name?int
 doc-name>comp
 doc-name>string
 doc-id.
@@ -7650,9 +7662,9 @@ pass an execution token and @code{compile,} it:
 
 doc-compile,
 
-An alternative available in Gforth, that allows you to pass compile-only
-words as parameters is to use the compilation token (@pxref{Compilation
-token}).  The same example in this technique:
+An alternative available in Gforth, that allows you to pass the
+compilation semantics as parameters is to use the compilation token
+(@pxref{Compilation token}).  The same example in this technique:
 
 @example
 : twice ( ... ct -- ... ) \ compiled code: ... -- ...
@@ -7772,9 +7784,7 @@ stack for integers, the floating-point stack for floating-point
 numbers).
 @end itemize
 
-If both attempts fail, or if the word is found in the dictionary but has
-no interpretation semantics@footnote{This happens if the word was
-defined as @code{COMPILE-ONLY}.} the text interpreter discards the
+If both attempts fail, the text interpreter discards the
 remainder of the input buffer, issues an error message and waits for
 more input. If one of the attempts succeeds, the text interpreter
 repeats the parsing process until the whole of the input buffer has been
@@ -9086,6 +9096,7 @@ doc-ud.r
 doc-f.
 doc-fe.
 doc-fs.
+doc-fp.
 doc-precision
 doc-set-precision
 doc-f.rdp
@@ -14155,11 +14166,17 @@ flow words, and issue a @code{ABORT"} or @code{-12 THROW} (Argument type
 mismatch).
 
 @item attempting to obtain the execution token of a word with undefined execution semantics:
-@cindex Interpreting a compile-only word, for @code{'} etc.
+@cindex compile-only warning, for @code{'} etc.
 @cindex execution token of words with undefined execution semantics
-@code{-14 throw} (Interpreting a compile-only word). In some cases, you
-get an execution token for @code{compile-only-error} (which performs a
-@code{-14 throw} when executed).
+The execution token represents the interpretation semantics of the
+word.  Gforth defines interpretation semantics for all words; for
+words where the standard does not define interpretation semantics, but
+defines the execution semantics (except @code{LEAVE}), the
+interpretation semantics are to perform the execution semantics.  For
+words where the standard defines no interprtation semantics, but
+defined compilation semantics (plus @code{LEAVE}), the interpretation
+semantics are to perform the compilation semantics.  Some words are
+marked as compile-only, and @code{'} gives a warning for these words.
 
 @item dividing by zero:
 @cindex dividing by zero
@@ -14201,8 +14218,13 @@ similar to stack overflows.
 @item interpreting a word with undefined interpretation semantics:
 @cindex interpreting a word with undefined interpretation semantics
 @cindex Interpreting a compile-only word
-For some words, we have defined interpretation semantics. For the
-others: @code{-14 throw} (Interpreting a compile-only word).
+Gforth defines interpretation semantics for all words; for words where
+the standard defines execution semantics (except @code{LEAVE}), the
+interpretation semantics are to perform the execution semantics.  For
+words where the standard defines no interprtation semantics, but
+defined compilation semantics (plus @code{LEAVE}), the interpretation
+semantics are to perform the compilation semantics.  Some words are
+marked as compile-only, and text-interpreting them gives a warning.
 
 @item modifying the contents of the input buffer or a string literal:
 @cindex modifying the contents of the input buffer or a string literal
@@ -14960,10 +14982,9 @@ of locals-buffer, which contains the names of the locals.
 @item executing a named local in interpretation state:
 @cindex local in interpretation state
 @cindex Interpreting a compile-only word, for a local
-Locals have no interpretation semantics. If you try to perform the
-interpretation semantics, you will get a @code{-14 throw} somewhere
-(Interpreting a compile-only word). If you perform the compilation
-semantics, the locals access will be compiled (irrespective of state).
+Compiles the local into the current definition (just as in compile
+state); in addition text-interpreting a local in interpretation state
+gives an ``is compile-only'' warning.
 
 @item @i{name} not defined by @code{VALUE} or @code{(LOCAL)} (@code{TO}):
 @cindex name not defined by @code{VALUE} or @code{(LOCAL)} used by @code{TO}

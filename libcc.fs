@@ -648,11 +648,11 @@ Create callback-&style c-var c,
     dup callback-thread-define  1+ count + count \ c-name u
     2dup callback-ip-array 2dup callback-instantiate callback-c-array ;
 
-: lookup-ip-array ( addr u lib -- addr ) >r
-    [: ." gforth_cbips_" type ;] $tmp r> lib-sym ;
+: lookup-ip-array ( addr u lib -- addr )
+    >r [: ." gforth_cbips_" type ;] $tmp r> lib-sym ;
 
-: lookup-c-array ( addr u lib -- addr ) >r
-    [: ." gforth_callbacks_" type ;] $tmp r> lib-sym ;
+: lookup-c-array ( addr u lib -- addr )
+    >r [: ." gforth_callbacks_" type ;] $tmp r> lib-sym ;
 
 \ file stuff
 
@@ -738,17 +738,16 @@ Create callback-&style c-var c,
     : hash-c-source ( -- ) ;
     : check-c-hash ( -- flag ) true ;
 [ELSE]
-    : replace-modulename ( addr u -- ) { d: replace }
+    : replace-modulename { addr u -- }
 	libcc$ $@  BEGIN  s" _replace_this_with_the_hash_code" search  WHILE
-		over replace rot swap move $20 /string  REPEAT
+		addr 2 pick u move $20 /string  REPEAT
 	2drop ;
     
     Create c-source-hash 16 allot
 
     : .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
-    : .bytes ( addr u -- ) bounds ?DO
-	    ." \x" I c@ .xx
-	LOOP ;
+    : .bytes ( addr u -- )
+	bounds ?DO  ." \x" I c@ .xx  LOOP ;
     : .c-hash ( -- )
 	lib-filename @ 0= IF
 	    [: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] $tmp

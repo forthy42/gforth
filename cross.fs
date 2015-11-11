@@ -1553,23 +1553,31 @@ variable constflag constflag off
 
 bigendian
 [IF]
-   : DS!  ( d addr -- )  tcell bounds swap 1-
-     DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
-   : DS@  ( addr -- d )  >r 0 0 r> tcell bounds
-     DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP ;
-   : Sc!  ( n addr -- )  >r s>d r> tchar bounds swap 1-
-     DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
-   : Sc@  ( addr -- n )  >r 0 0 r> tchar bounds
-     DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP d>s ;
+    : DS!  ( d addr -- )
+	tcell bounds swap 1-
+	DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
+    : DS@  ( addr -- d )
+	>r 0 0 r> tcell bounds
+	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP ;
+    : Sc!  ( n addr -- )
+	>r s>d r> tchar bounds swap 1-
+	DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
+    : Sc@  ( addr -- n )
+	>r 0 0 r> tchar bounds
+	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP d>s ;
 [ELSE]
-   : DS!  ( d addr -- )  tcell bounds
-     DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
-   : DS@  ( addr -- n )  >r 0 0 r> tcell bounds swap 1-
-     DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP ;
-   : Sc!  ( n addr -- )  >r s>d r> tchar bounds
-     DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
-   : Sc@  ( addr -- n )  >r 0 0 r> tchar bounds swap 1-
-     DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP d>s ;
+    : DS!  ( d addr -- )
+	tcell bounds
+	DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
+    : DS@  ( addr -- n )
+	>r 0 0 r> tcell bounds swap 1-
+	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP ;
+    : Sc!  ( n addr -- )
+	>r s>d r> tchar bounds
+	DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
+    : Sc@  ( addr -- n )
+	>r 0 0 r> tchar bounds swap 1-
+	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP d>s ;
 [THEN]
 
 : S! ( n addr -- ) >r s>d r> DS! ;
@@ -2010,8 +2018,7 @@ variable ResolveFlag
 
 \ ?touched                                             11may93jaw
 
-: ?touched ( ghost -- flag ) dup forward? swap >link @
-                               0 <> and ;
+: ?touched ( ghost -- flag ) dup forward? swap >link @ 0<> and ;
 
 : .forwarddefs ( ghost -- )
   ."  appeared in:"
@@ -2106,9 +2113,10 @@ $20 constant restrict-mask
 
 >TARGET
 X has? f83headerstring [IF]
-: name,  ( "name" -- )  bl word count ht-header, X cfalign ;
+    : name,  ( "name" -- )  bl word count ht-header, X cfalign ;
 [ELSE]
-    : name,  ( "name" -- )  bl word count
+    : name,  ( "name" -- )
+	bl word count
 	dup T cell+ cfoddalign H ht-nlstring, X cfalign ;
 [THEN]
 : view,   ( -- ) ( dummy ) ;
@@ -2375,14 +2383,10 @@ Variable prim#
 : first-primitive ( n -- )  prim# ! ;
 : group 0 word drop prim# @ 1- -$200 and prim# ! ;
 : groupadd  ( n -- )  drop ;
-: Primitive  ( -- ) \ name
-  >in @ skip? IF  drop  EXIT  THEN  >in !
-  s" prims" T $has? H 0=
-  IF
-     .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
-  THEN
-  prim-ghost executed-ghost !  prim# @ (THeader ( S xt ghost )
-  prim# @ over >exec2 !
+: #primitive ( n "name" -- )
+  prim-ghost executed-ghost !
+  (THeader ( S xt ghost )
+  2dup >exec2 !
   ['] prim-resolved over >comp !
   dup >ghost-flags <primitive> set-flag
   s" EC" T $has? H 0=
@@ -2391,7 +2395,14 @@ Variable prim#
 \      alias-mask flag!
   ELSE
       T here H resolve-noforwards T A, H
+  THEN ;
+: Primitive  ( -- ) \ name
+  >in @ skip? IF  drop  EXIT  THEN  >in !
+  s" prims" T $has? H 0=
+  IF
+     .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
   THEN
+  prim# @ #primitive
   -1 prim# +! ;
 >CROSS
 
@@ -2906,7 +2917,8 @@ Cond: DOES>
   Ghost do:ghost!
   :noname postpone gdoes> ;
 
-: vtghost:  ( ghost -- )  Ghost >r
+: vtghost:  ( ghost -- )
+    Ghost >r
     :noname r> postpone Literal postpone addr, postpone ;
     built >do:ghost @ >exec2 ! ;
 
@@ -2967,12 +2979,13 @@ ghost uvar,
 ghost :loc,
 drop
 ghost x#exec
-drop
+ghost noop
+2drop
 
 Create vttemplate
 0 ,
 findghost :, ,
-findghost post, ,
+findghost noop ,
 0 ,
 findghost no-to ,
 findghost default-name>int ,
@@ -2982,7 +2995,7 @@ findghost >body@ ,
 Struct
     cell% field >vtlink
     cell% field >vtcompile,
-    cell% field >vtpostpone
+    cell% field >vtlit,
     cell% field >vtextra
     cell% field >vtto
     cell% field >vt>int
@@ -3007,7 +3020,8 @@ End-Struct vtable-struct
 	I @ ,
     cell +LOOP ;
 
-:noname ( -- )  vttemplate @ 0= IF EXIT THEN
+:noname ( -- )
+    vttemplate @ 0= IF EXIT THEN
     gvtable-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF
@@ -3018,7 +3032,7 @@ End-Struct vtable-struct
     T here 0 A, H vttemplate ! ;
 : vt-populate ( -- )
     [ findghost :,         ]L vttemplate >vtcompile, !
-    [ findghost post,      ]L vttemplate >vtpostpone !
+    [ findghost noop       ]L vttemplate >vtlit, !
     0                         vttemplate >vtextra !
     [ findghost no-to      ]L vttemplate >vtto !
     [ findghost default-name>int ]L vttemplate >vt>int !
@@ -3026,12 +3040,12 @@ End-Struct vtable-struct
     [ findghost >body@     ]L vttemplate >vtdefer@ ! ;
 
 :noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-compiler
-: gset-postpone ( ghost -- )  vttemplate >vtpostpone ! ;
+: gset-lit,     ( ghost -- )  vttemplate >vtlit, ! ;
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
 : gset-defer@   ( ghost -- )  vttemplate >vtdefer@ ! ;
 
 : set-compiler ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
-: set-postpone ( xt -- )  xt>ghost vttemplate >vtpostpone ! ;
+: set-lit,     ( xt -- )  xt>ghost vttemplate >vtlit, ! ;
 : set-to       ( xt -- )  xt>ghost vttemplate >vtto ! ;
 : set-defer@   ( xt -- )  xt>ghost vttemplate >vtdefer@ ! ;
 
@@ -3043,16 +3057,16 @@ End-Struct vtable-struct
 >TARGET
 
 : interpret/compile: ( xt1 xt2 "name" -- )
-    (THeader drop swap T A, A, H  alias-mask flag!
+    (THeader drop swap T A, A, H [ T has? ec H ] [IF] alias-mask flag! [THEN]
     vt-populate
     [G'] i/c>int vttemplate >vt>int !
     [G'] i/c>comp vttemplate >vt>comp ! ;
 
 : >vtable ( compile-xt tokenize-xt -- )
-    set-postpone set-compiler ;
+    set-lit, set-compiler ;
 
 : comp: ( -- colon-sys )  gstart-xt set-compiler ;
-: post: ( -- colon-sys )  gstart-xt set-postpone ;
+: lit,: ( -- colon-sys )  gstart-xt set-lit, ;
 \    T 0 cell+ cfoddalign here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
 >CROSS
 
@@ -4124,6 +4138,7 @@ previous
 : - - ;
 : and and ;
 : or or ;
+: xor xor ;
 : 2* 2* ;
 : * * ;
 : / / ;

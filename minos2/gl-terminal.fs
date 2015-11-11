@@ -148,6 +148,7 @@ Variable std-bg
 
 2Variable gl-xy  0 0 gl-xy 2!
 2Variable gl-wh 24 80 gl-wh 2!
+Variable gl-scaler  1 gl-scaler !
 Variable gl-lineend
 Variable scroll-y
 FVariable scroll-dest
@@ -155,7 +156,9 @@ FVariable scroll-source
 FVariable scroll-time
 
 : form-chooser ( -- )
-    dpy-w @ dpy-h @ > IF  24 80  ELSE  40 48  THEN  gl-wh 2! ;
+    dpy-w @ dpy-h @ > IF  24 80  ELSE  40 48  THEN
+    gl-scaler @ tuck / >r / r>
+    gl-wh 2! ;
 
 : show-rows ( -- n ) videorows scroll-y @ - rows 1+ min ;
 : nextpow2 ( n -- n' )
@@ -228,12 +231,28 @@ Variable gl-emit-buf
 	gl-xy 2@ 1+ nip 0 swap gl-xy 2! THEN
     resize-screen  need-sync on ;
 
+: xchar>glascii ( xchar -- 0..7F )
+    case
+	'▄' of $0 endof
+	'⬤' of 1 endof
+	'°' of 2 endof
+	'ß' of 3 endof
+	'Ä' of 4 endof
+	'Ö' of 5 endof
+	'Ü' of 6 endof
+	'ä' of 7 endof
+	'ö' of 8 endof
+	'ü' of 9 endof
+	'▀' of $10 endof
+	dup
+    endcase $7F umin ;
+
 : (gl-emit) ( char color -- )
     over 7 = IF  2drop  EXIT  THEN
     over #lf = IF  2drop gl-cr  EXIT  THEN
     >r
     gl-emit-buf c$+!  gl-emit-buf $@ tuck x-size u< IF  rdrop  EXIT  THEN
-    gl-emit-buf $@ drop xc@ $7F umin
+    gl-emit-buf $@ drop xc@ xchar>glascii
     gl-emit-buf $@ x-width { n }
     gl-emit-buf $off
     
@@ -266,8 +285,15 @@ Variable gl-emit-buf
     videomem videocols sfloats resize throw to videomem
     resize-screen need-sync on ;
 
-: gl-attr! ( attribute -- )  dup bg> bg! fg> fg! ;
-: gl-err-attr! ( attribute -- )  dup bg> err-bg! fg> err-fg! ;
+: ?invers ( attr -- attr' ) dup invers and IF  $778 xor  THEN ;
+: >default ( attr -- attr' )
+    dup  bg> 6 <= $F and >bg
+    over fg> 6 <= $F and >fg or
+    default-color -rot mux ;
+: gl-attr! ( attribute -- )
+    >default ?invers  dup bg> bg! fg> fg! ;
+: gl-err-attr! ( attribute -- )
+    >default ?invers  dup bg> err-bg! fg> err-fg! ;
 
 0.25e FConstant scroll-deltat
 : >scroll-pos ( -- 0..1 )
@@ -297,7 +323,7 @@ Variable gl-emit-buf
     THEN  rdrop  need-show off ;
 
 [IFUNDEF] win : win app window @ ; [THEN]
-: screen-sync ( -- )  rendering @ 0= ?EXIT \ don't render if paused
+: screen-sync ( -- )  rendering @ -2 > ?EXIT \ don't render if paused
     need-sync @ win and level# @ 0<= and IF
 	show-cursor screen->gl need-sync off  THEN ;
 
@@ -312,8 +338,14 @@ Variable gl-emit-buf
     [IFDEF] android 4 [ELSE] 1 [THEN] 0 DO
 	dpy-w @ dpy-h @ config-changer dpy-w @ dpy-h @ d<> screen-sync ?LEAVE
     LOOP
-    config-changer form-chooser screen-sync ;
+    config-changer form-chooser need-sync on screen-sync ;
 is config-changed
+
+: gl-scale ( n -- ) gl-scaler ! form-chooser need-sync on screen-sync ;
+
+: 1*scale   1 gl-scale ;
+: 2*scale   2 gl-scale ;
+: 4*scale   4 gl-scale ;
 
 : scroll-yr ( -- float )  scroll-y @ s>f
     y-pos sf@ f2/ rows fm* f+ ;

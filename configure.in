@@ -320,6 +320,7 @@ test $ac_export_dynamic = yes && LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
 test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
 AC_MSG_RESULT($ac_export_dynamic)
 
+FAST=no
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
 case "$host_cpu" in
@@ -332,6 +333,7 @@ case "$host_cpu" in
 		case "$host_os" in
 		     *android*)
 			CFLAGS="$CFLAGS -march=armv5 -mfloat-abi=softfp -mfpu=vfp"
+			FAST="yes" # build extra fast libraries
 			;;
 		esac
 		if test -z $arm_cacheflush; then
@@ -473,6 +475,7 @@ case "$host_cpu" in
 		fi
 esac
 AC_SUBST(host)
+AC_SUBST(FAST)
 
 MAKEINC=""
 GFORTH_EXE="true"
@@ -727,7 +730,7 @@ AC_SUBST(ENGINE_FLAGS)
 
 # Try if GCC understands -fno-gcse
 
-CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder align-labels=1 align-loops=1 align-jumps=1"
+CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1"
 
 for i in $CHECKFLAGS
 do
@@ -1113,9 +1116,10 @@ AC_REPLACE_FUNCS(rint ecvt_r)
 dnl No check for select, because our replacement is no good under
 dnl anything but DOS
 AC_CHECK_HEADERS(sys/mman.h fnmatch.h alloca.h wchar.h endian.h)
+AC_REPLACE_FUNCS(wcwidth)
 AC_FUNC_FNMATCH
 test $ac_cv_func_fnmatch_works = yes || AC_LIBOBJ(fnmatch)
-AC_CHECK_FUNCS(mmap sysconf getpagesize wcwidth pselect pthread_setaffinity_np)
+AC_CHECK_FUNCS(mmap sysconf getpagesize pselect pthread_setaffinity_np)
 AM_PATH_LISPDIR
 
 kernel_fi=kernl${vwordsize}${bytesex}.fi
@@ -1243,6 +1247,11 @@ if swig -forth unix/test.i; then
       SWIGLIBS="$SWIGLIBS soillib.fs", ,), )
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
+   if test "$host_os" == "linux-android"
+   then
+	SWIGMODULES="$SWIGMODULES cpufeatures.fs"
+	SWIGLIBS="$SWIGLIBS cpufeatureslib.fs"
+   fi
 else
    AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
 fi

@@ -131,7 +131,8 @@ variable next-prelude
     next-prelude off
     cfalign ;
 
-defer record-name ( -- ) ' noop is record-name
+defer record-name ( -- )
+' noop is record-name
 \ record next name in tags file
 defer (header)
 defer header ( -- ) \ gforth
@@ -164,7 +165,7 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname, ( -- )
-    0 last ! vt,  here 3 cells + dup maxaligned >align alias-mask , 0 , ;
+    0 last ! vt,  here cell+ dup cfaligned >align alias-mask , 0 , 0 , ;
 : noname-header ( -- )
     noname, input-stream ;
 
@@ -276,7 +277,7 @@ has? primcentric [IF]
 
 : COMP'    ( "name" -- w xt ) \ gforth  comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
-    (') name>comp ;
+    parse-name do-recognizer '-error name>comp ;
 
 : [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth bracket-comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
@@ -336,7 +337,8 @@ include ./recognizer.fs
     restrict-mask lastflags cset ;
 
 ' restrict alias compile-only ( -- ) \ gforth
-\G Remove the interpretation semantics of a word.
+\G Mark the last definition as compile-only; as a result, the text
+\G interpreter and @code{'} will warn when they encounter such a word.
 
 \ !!FIXME!! new flagless versions:
 \ : immediate [: name>int ['] execute ;] set->comp ;
@@ -356,7 +358,8 @@ include ./recognizer.fs
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
     Header  ['] on vtcopy
-    parse-name find-name dup A, name>int lastcfa !
+    parse-name find-name dup A,
+    dup compile-only? IF  compile-only  THEN  name>int lastcfa !
     ['] s>int set->int ['] s>comp set->comp reveal ;
 
 : Create ( "name" -- ) \ core
@@ -479,7 +482,7 @@ docolloc-dummy (docolloc-dummy)
 Create vttemplate
 0 A,                   \ link field
 ' peephole-compile, A, \ compile, field
-' post, A,             \ post, field
+' noop A,              \ post, field
 0 A,                   \ extra field
 ' no-to A,             \ to field
 ' default-name>int A,  \ name>int field
@@ -488,10 +491,11 @@ Create vttemplate
 
 \ initialize to one known vt
 
+: (make-latest) ( xt1 xt2 -- )
+    swap >namevt @ vttemplate vtsize move
+    >namevt vttemplate over ! vttemplate ! ;
 : vtcopy ( xt -- ) \ gforth vtcopy
-    vttemplate here >namevt !
-    >namevt @ vttemplate vtsize move
-    here >namevt vttemplate ! ;
+    here (make-latest) ;
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
     dup vtcopy here >r dup >code-address cfa, cell+ @ r> cell+ ! ;
@@ -512,11 +516,15 @@ Create vttemplate
     vtable-list @ over !  dup vtable-list !
     vttemplate @ !  vttemplate off ;
 
-: vt, ( -- )  vttemplate @ 0= IF EXIT THEN
+: vt, ( -- )
+    vttemplate @ 0= IF EXIT THEN
     vtable-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
     REPEAT  drop (vt,) ;
+
+: make-latest ( xt -- )
+    vt, dup last ! dup lastcfa ! dup (make-latest) ;
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
@@ -525,25 +533,26 @@ Create vttemplate
 : start-xt-like ( colonsys xt -- colonsys )
     reveal does>-like drop start-xt drop ;
 
-: set-compiler  ( xt -- ) vttemplate >vtcompile, ! ;
-: set-postpone  ( xt -- ) vttemplate >vtpostpone ! ;
+: set-optimizer ( xt -- ) vttemplate >vtcompile, ! ;
+' set-optimizer alias set-compiler
+: set-lit,      ( xt -- ) vttemplate >vtlit, ! ;
 : set-to        ( xt -- ) vttemplate >vtto ! ;
 : set-defer@    ( xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
-\ : set-does>     ( xt -- ) >body !does ; \ more work than the aboves
 : set-does>     ( xt -- ) !doesxt ; \ more work than the aboves
 
-:noname ( -- colon-sys )
-    start-xt  set-compiler ;
+:noname ( -- colon-sys ) start-xt  set-compiler ;
 :noname ['] set-compiler start-xt-like ;
+over over
+interpret/compile: opt:
 interpret/compile: comp:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
 :noname ( -- colon-sys )
-    start-xt  set-postpone ;
-:noname ['] set-postpone start-xt-like ;
-interpret/compile: post:
+    start-xt  set-lit, ;
+:noname ['] set-lit, start-xt-like ;
+interpret/compile: lit,:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
 \ defer and friends
@@ -585,6 +594,7 @@ comp: ( value-xt to-xt -- )
 defer :-hook ( sys1 -- sys2 )
 defer free-old-local-names ( -- )
 defer ;-hook ( sys2 -- sys1 )
+defer 0-adjust-locals-size ( -- )
 1 value colon-sys-xt-offset
 \ you get get the xt in a colon-sys with COLON-SYS-XT-OFFSET PICK
 
@@ -601,7 +611,7 @@ defer ;-hook ( sys2 -- sys1 )
 : (noname->comp) ( nt -- nt xt )  ['] compile, ;
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
-    docol, colon-sys ] :-hook ;
+    docol, colon-sys ] :-hook unlocal-state off ;
 
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
@@ -616,14 +626,15 @@ defer ;-hook ( sys2 -- sys1 )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
 
-: concat ( xt1 xt2 -- xt )  >r >r
-    :noname r> compile, r> compile, postpone ; ;
+: concat ( xt1 xt2 -- xt )
+    \ concat two xts into one
+    >r >r :noname r> compile, r> compile, postpone ; ;
 
 : recognizer: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table
-    ['] drop swap concat >r  ['] drop swap concat >r
+    >r  ['] drop swap concat >r
     >r :noname r> compile, postpone ;
-    r> set-compiler r> set-postpone  Constant ;
+    r> set-compiler r> set-lit,  Constant ;
 
 \ does>
 

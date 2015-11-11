@@ -103,8 +103,7 @@ dynamic-a to allocater
 \ dot parser .foo -> >o foo o>
 
 : >oo> ( xt table -- )  postpone >o compile, postpone o> ;
-:noname ( object xt -- )  swap >o execute o> ; ' >oo>
-:noname ( xt table -- )  lit, postpone >oo> ; recognizer: r:moof2
+:noname ( object xt -- ) swap >o execute o> ; ' >oo> ' lit, recognizer: r:moof2
 
 : rec:moof2 ( addr u -- xt r:moof2 | r:fail )
     2dup s" ." string-prefix?

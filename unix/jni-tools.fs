@@ -12,7 +12,8 @@ JNI_VERSION_1_6        vmAA JavaVMAttachArgs-version !
 0                      vmAA JavaVMAttachArgs-group !
 
 app app-vm @ value vm
-app app-env @ value env
+uvalue env
+app app-env @ to env
 
 16 Constant maxargs#
 
@@ -20,14 +21,14 @@ User callargs
 
 : attach ( -- ) \ jni
     \G attach the current thread to the JVM
-    vm ['] env >body vmAA JavaVM-AttachCurrentThread() drop
+    vm [ user' env ]l up@ + vmAA JavaVM-AttachCurrentThread() drop
     maxargs# floats allocate throw callargs ! ;
 : detach ( -- ) \ jni
     \G detach the current thread from the JVM
     vm JavaVM-DetachCurrentThread() drop
     callargs @ free throw ;
 
-attach \ apparently needs attaching again
+attach \ attach this thread
 
 \ call java
 
@@ -165,9 +166,9 @@ comp: drop ]] o ]wgref o> [[ ;
 : xref> ( object -- ) o ]xref r> o> >r ;
 comp: drop ]] o ]xref o> [[ ;
 
-: gref! ( gref addr -- )  dup @ ?dup-IF  ]gref  THEN ! ;
-: jvalue! ( gref xt -- )  >body gref! ;
-comp: drop >body postpone ALiteral postpone gref! ;
+: xref! ( xref addr -- )  dup @ ?dup-IF  ]xref  THEN ! ;
+: jvalue! ( xref xt -- )  >body xref! ;
+comp: drop >body postpone ALiteral postpone xref! ;
 
 : JValue ( "name" -- ) 0 Value ['] jvalue! set-to ;
 
@@ -191,7 +192,7 @@ Variable jstring#
 : cstr" ( -- addr )  parse-name ;
 : cstr1" ( -- addr ) parse-name 2dup cstring1 $! ;
 : make-jstring ( addr u -- jstring-addr )
-    env swap JNIEnv-NewStringUTF() dup to-jstring ;
+    env -rot JNIEnv-NewStringUTF() dup to-jstring ;
 : js" ( -- addr )  '"' parse make-jstring ;
 comp: drop '"' parse ]] SLiteral make-jstring [[ ;
 

@@ -8,7 +8,7 @@
 #./build.sh
 echo "Config for x86-android"
 #XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o clrerr.o feof.o ferror.o fileno.o getc.o stubs.o putc.o rget.o wbuf.o wsetup.o fflush.o libc_logging.o refill.o findfp.o stdio.o makebuf.o fwalk.o atexit.o thread_private.o"
-XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o"
+XLIBS="sigaltstack.o __set_errno.o"
 (cd engine
 mkdir .libs
 for i in $XLIBS
@@ -43,6 +43,7 @@ ac_cv_c_bigendian=no
 ac_cv_func_memcmp_working=yes
 ac_cv_func_memmove=yes
 ac_cv_func_getpagesize=no
+ac_cv_func_wcwidth=no
 ac_cv_file___arch_386_asm_fs=yes
 ac_cv_file___arch_368_disasm_fs=yes
 ac_cv_func_dlopen=yes

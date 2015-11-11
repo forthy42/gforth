@@ -138,7 +138,7 @@ end-structure
 
 app_input_state buffer: *input
 
-Variable rendering rendering on
+Variable rendering -2 rendering !
 
 Variable level#
 

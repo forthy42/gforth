@@ -907,12 +907,14 @@ set-current
     ['] execute = if
 	."  immediate"
     then ;
+: (.compile-only) ( nt -- )
+    compile-only? IF  ."  compile-only"  THEN ;
 
 : name-see ( nfa -- )
-    dup >f+c @ alias-mask and 0= IF
-	dup >namevt @ >vt>int @ ['] s>int = IF
-	    ." Synonm " dup .name dup @ .name
-	ELSE
+    dup >namevt @ >vt>int @ ['] s>int = IF
+	." Synonym " dup .name dup @ .name
+    ELSE
+	dup >f+c @ alias-mask and 0= IF
 	    dup @ name>string nip 0= IF
 		dup @ hex.
 	    ELSE
@@ -920,20 +922,17 @@ set-current
 	    THEN ." Alias " dup .name
 	THEN
     THEN
-    dup name>int >r
+    dup >r
     dup name>comp 
-    over r@ =
+    over r@ name>int =
     if \ normal or immediate word
 	swap xt-see (.immediate)
+	r@ (.compile-only)
     else
-	r@ ['] ticking-compile-only-error =
-	if \ compile-only word
-	    swap xt-see (.immediate) ."  compile-only"
-	else \ interpret/compile word
-	    r@ xt-see-xt cr
-	    swap xt-see-xt cr
-	    ." interpret/compile: " over .name drop
-	then
+	\ interpret/compile word
+	r@ name>int xt-see-xt cr
+	swap xt-see-xt cr
+	." interpret/compile: " r@ .name drop
     then
     rdrop drop ;
 

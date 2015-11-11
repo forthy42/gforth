@@ -21,7 +21,8 @@
                 android:windowAnimationStyle="@android:style/Animation.Activity"
 		android:windowSoftInputMode="stateVisible|adjustResize"
                 android:configChanges="orientation|screenSize|keyboardHidden"
-                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                android:launchMode="singleTop">
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
                     android:value="gforth-fast" />
@@ -36,7 +37,8 @@
                 android:windowAnimationStyle="@android:style/Animation.Activity"
 		android:windowSoftInputMode="stateVisible|adjustResize"
                 android:configChanges="orientation|screenSize|keyboardHidden"
-                android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                android:launchMode="singleTop">
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
                     android:value="gforth-itc" />
@@ -54,6 +56,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />

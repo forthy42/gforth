@@ -17,7 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: .utf16 ( xchar -- )  0 { w^ ucs16 }
+: .utf16 ( xchar -- )
+    0 { w^ ucs16 }
     dup $10000 u>= IF
 	$10000 - >r r@ 10 rshift $3FF and $D800 +
 	ucs16 w! ucs16 2 type \ high surrogate

@@ -328,7 +328,7 @@ $0fffffff constant lcount-mask
 
 (field) >vtlink      0 cells ,
 (field) >vtcompile,  1 cells ,
-(field) >vtpostpone  2 cells ,
+(field) >vtlit,      2 cells ,
 (field) >vtextra     3 cells ,
 (field) >vtto        4 cells ,
 (field) >vt>int      5 cells ,
@@ -352,9 +352,7 @@ method (int-to) ( val xt -- ) \ gforth paren-int-to
 
 method name>int ( nt -- xt ) \ gforth name-to-int
 \G @i{xt} represents the interpretation semantics of the word
-\G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
-\G @code{compile-only}), @i{xt} is the execution token for
-\G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
+\G @i{nt}.
 
 method name>comp ( nt -- w xt ) \ gforth name-to-comp
 \G @i{w xt} is the compilation token for the word @i{nt}.
@@ -363,6 +361,18 @@ method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
 \G @i{xt} represents the word currently associated with the deferred
 \G word @i{xt-deferred}.
 drop Constant vtsize \ vtable size
+
+: compile-only? ( nt -- flag ) >f+c @ restrict-mask and ;
+: ?compile-only ( nt -- nt )
+    dup compile-only? IF
+	<<# s"  is compile-only" holds dup name>string holds 0. #>
+	hold 1- c(warning") #>>
+    THEN ;
+
+: name?int ( nt -- xt ) \ gforth-obsolete name-question-int
+\G Like @code{name>int}, but warns when encountering a word marked
+\G compile-only
+    ?compile-only name>int ;
 
 : name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
@@ -380,14 +390,7 @@ drop Constant vtsize \ vtable size
     \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
     \G @code{compile-only}), @i{xt} is the execution token for
     \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
-    (name>x) (x>int) ;
-
-: name?int ( nt -- xt ) \ gforth name-question-int
-    \G Like @code{name>int}, but perform @code{-2048 throw} if @i{nt}
-    \G has no interpretation semantics.
-    dup name>int tuck <> if
-      dup ['] compile-only-error = -2048 and throw
-    then ;
+    (name>x) drop ;
 
 : (x>comp) ( xt w -- xt +-1 )
     immediate-mask and flag-sign ;
@@ -559,12 +562,12 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 
 \ ticks in interpreter
 
+: '-error ( nt -- nt )
+    dup r:fail = -#13 and throw
+    dup >namevt @ >vtlit, @ ['] noop <> -#2053 and throw ;
+
 : (') ( "name" -- nt ) \ gforth
-    parse-name name-too-short?
-    find-name dup 0=
-    IF
-	drop -&13 throw
-    THEN  ;
+    parse-name name-too-short? do-recognizer '-error ;
 
 : '    ( "name" -- xt ) \ core	tick
     \g @i{xt} represents @i{name}'s interpretation

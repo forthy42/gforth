@@ -23,7 +23,8 @@ Variable pathes$  3 arg pathes$ $!
     bounds ?DO  I c@ '\' = IF  '/' I c!  THEN  LOOP ;
 : fixsemi ( addr u -- )
     bounds ?DO  I c@ ';' = IF  ':' I c!  THEN  LOOP ;
-: cygpath ( path -- ) >r
+: cygpath ( path -- )
+    >r
     BEGIN  r@ $@ ':' scan  WHILE
 	    r@ $@ drop - { index }
 	    r@ index 1 $del

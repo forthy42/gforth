@@ -32,8 +32,6 @@
 \ program is ANS FORTH with environmental dependency of case-insensitiv
 \ source. Tested with gforth, bigFORTH and pfe
 
-\ bell (7) is replaced with "Wuff!" ;-)
-\ (this is a german joke)
 \ I don't like the keyboard interpreting CASE-statement either, but
 \ was to lazy to use a table.
 \ I could have used blocks as level tables, but as I don't have a good
@@ -56,7 +54,8 @@ Variable score     0 score !  \ total number of scores
 : new-maze ( n -- addr ) \ add a new level
     here mazes rot 1 ?DO  @  LOOP  !
     0 , 0 , here >maze ! 0 , ;
-: count-$ ( addr u -- n )  0 rot rot
+: count-$ ( addr u -- n )
+    0 rot rot
     over + swap ?DO  I c@ [char] $ = -  LOOP ;
 : m: ( "string" -- )  \ add a level line (top first!)
     -1 parse tuck 2dup count-$ >maze @ cell- +!

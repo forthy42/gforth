@@ -1,5 +1,22 @@
 \ wrapper to load Swig-generated libraries
 
+\ Copyright (C) 2015 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation, either version 3
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program. If not, see http://www.gnu.org/licenses/.
+
 require struct0x.fs
 
 \ public interface, C calls us through these
@@ -71,6 +88,8 @@ c-library android
     
 end-c-library
 
+require unix/cpufeatureslib.fs \ load into Android vocabulary
+
 s" APP_STATE" getenv s>number drop Value app
 
 get-current also forth definitions
@@ -81,8 +100,8 @@ require unix/jni-helper.fs
 
 set-current previous
 
-Variable need-sync
-Variable need-show
+Variable need-sync need-sync on
+Variable need-show need-show on
 
 app_input_state buffer: *input
 
@@ -194,7 +213,7 @@ Create ctrl-key# 0 c,
     THEN
     case
 	AKEYCODE_MENU of  togglekb s" "  endof
-	AKEYCODE_BACK of  aback    s" "   endof
+	AKEYCODE_BACK of  aback    s" "  endof
 	akey>ekey +meta 0
     endcase ;
 
@@ -210,16 +229,18 @@ variable looperfds pollfd 8 * allot
 : ?poll-file ( -- )
     poll-file 0= IF  app ke-fd0 l@ "r\0" drop fdopen to poll-file  THEN ;
 : looper-init ( -- )  looperfds off
-    app ke-fd0 l@   POLLIN +fds
-    stdin fileno    POLLIN +fds
-    epiper @ fileno POLLIN +fds
+    app ke-fd0 l@    POLLIN +fds
+    infile-id fileno POLLIN +fds
+    epiper @ fileno  POLLIN +fds
     ?poll-file ;
 
 : get-event ( -- )
     loop-event 2 cells poll-file read-file throw drop
     loop-event 2@ akey ;
 
-: poll? ( ms -- flag )  looperfds dup cell+ swap @
+: poll? ( ms -- flag )
+    poll-file key?-file IF  get-event drop true  EXIT  THEN
+    looperfds dup cell+ swap @
     rot poll 0>
     IF	looperfds cell+ revents w@ POLLIN and dup >r
 	IF  get-event  THEN
@@ -240,50 +261,50 @@ variable looperfds pollfd 8 * allot
 Defer screen-ops ' noop IS screen-ops
 :noname
     need-show on  BEGIN  >looper key? screen-ops  UNTIL
-    defers key dup #cr = key? and IF  key ?dup-IF unkey THEN THEN ;
+    defers key dup #cr = key? and IF  key ?dup-IF inskey THEN THEN ;
 IS key
-
-: enum dup Constant 1+ ;
-0
-enum APP_CMD_INPUT_CHANGED
-enum APP_CMD_INIT_WINDOW
-enum APP_CMD_TERM_WINDOW
-enum APP_CMD_WINDOW_RESIZED
-enum APP_CMD_WINDOW_REDRAW_NEEDED
-enum APP_CMD_CONTENT_RECT_CHANGED
-enum APP_CMD_GAINED_FOCUS
-enum APP_CMD_LOST_FOCUS
-enum APP_CMD_CONFIG_CHANGED
-enum APP_CMD_LOW_MEMORY
-enum APP_CMD_START
-enum APP_CMD_RESUME
-enum APP_CMD_SAVE_STATE
-enum APP_CMD_PAUSE
-enum APP_CMD_STOP
-enum APP_CMD_DESTROY
-drop
 
 Defer config-changed :noname [: ." App config changed" cr ;] $err ; IS config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
 
-Variable rendering  rendering on
+Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 
-Variable setstring
-
-: insstring ( -- )  setstring $@ inskeys setstring $off ;
+: nostring ( -- ) setstring $off ;
+: insstring ( -- )  setstring $@ inskeys nostring ;
 
 : android-characters ( string -- )  jstring>sstring
-    insstring  inskeys jfree ;
-: android-commit     ( string/0 -- )   ?dup-0=-IF  insstring  ELSE
+    nostring inskeys jfree ;
+: android-commit     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
 	jstring>sstring inskeys jfree setstring $off  THEN ;
-: android-setstring  ( string -- )  jstring>sstring setstring $! jfree ;
-: android-unicode    ( uchar -- )   insstring  >xstring inskeys ;
-: android-keycode    ( keycode -- ) insstring  keycode>keys inskeys ;
+: android-setstring  ( string -- ) jstring>sstring setstring $! jfree
+    ctrl L inskey ;
+: android-unicode    ( uchar -- )   >xstring inskeys ;
+: android-keycode    ( keycode -- ) keycode>keys inskeys ;
+
+: xcs ( addr u -- n )
+    \G number of xchars in a string
+    0 -rot bounds ?DO  1+ I I' over - x-size +LOOP ;
+
+: android-edit-update ( span addr pos1 -- span addr pos1 )
+    2dup xcs swap >r >r
+    2dup swap make-jstring r> clazz .setEditLine r> ;
+' android-edit-update is edit-update
+
+: ins-esc# ( n char -- ) swap 0 max 1+
+    [: .\" \e[;" 0 .r emit ;] $tmp inskeys ;
+: android-setcur ( n -- ) 'H' ins-esc# ;
+: android-setsel ( n -- ) 'S' ins-esc# ;
 
 JValue key-event
 JValue touch-event
 JValue location
 JValue sensor
+JValue cmanager
+
+: .network ( -- )
+    cmanager 0= IF  clazz .connectivityManager to cmanager  THEN
+    cmanager .getActiveNetworkInfo
+    ?dup-IF  >o toString xref> .jstring  ELSE  ." no active network"  THEN ;
 
 : android-key ( event -- )
     dup to key-event >o
@@ -349,7 +370,16 @@ Defer android-h! ( n -- ) ' drop is recurse
 Defer clipboard! ( 0 -- ) ' drop is recurse
 : android-config! ( n -- ) to screen-orientation config-changed ;
 
-: android-active ( flag -- )  rendering ! ;
+: android-active ( flag -- )
+    \ >stderr ." active: " dup . cr
+    dup rendering !  IF
+	16 to looper-to#
+	need-show on need-sync on screen-ops
+    ELSE  16000 to looper-to#  THEN ;
+
+Defer android-alarm ( 0 -- ) ' drop is recurse
+Defer android-network ( metered -- )
+( :noname drop .network cr ; ) ' drop is android-network
 
 Create aevents
 ' android-key ,
@@ -371,6 +401,10 @@ Create aevents
 ' clipboard! , \ primary clipboard changed
 ' android-config! ,
 ' android-active ,
+' android-setcur ,
+' android-setsel ,
+' android-alarm ,
+' android-network ,
 here aevents - cell/
 ' drop ,
 Constant max-event#

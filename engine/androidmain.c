@@ -54,6 +54,7 @@ typedef struct {
   int ke_fd[2];
   void* win;
   char* libdir;
+  char* locale;
 } jniargs;
 
 jniargs startargs;
@@ -63,6 +64,8 @@ JNIEXPORT void JNI_onEventNative(JNIEnv * env, jobject obj, jint type, jobject e
   sendEvent ke = { type, (*env)->NewGlobalRef(env, event) };
   if(startargs.ke_fd[1])
     write(startargs.ke_fd[1], &ke, sizeof(ke));
+  else
+    LOGE("pipe not opened\n");
 }
 
 JNIEXPORT void JNI_onEventNativeInt(JNIEnv * env, jobject obj, jint type, jint event)
@@ -70,6 +73,8 @@ JNIEXPORT void JNI_onEventNativeInt(JNIEnv * env, jobject obj, jint type, jint e
   sendInt ke = { type, event };
   if(startargs.ke_fd[1])
     write(startargs.ke_fd[1], &ke, sizeof(ke));
+  else
+    LOGE("pipe not opened\n");
 }
 
 const char sha256sum[]="sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2";
@@ -139,25 +144,57 @@ void unpackFiles()
   }
 }
 
-static char * argv[] = { "gforth", "--", "starta.fs" };
+char ** argv=NULL;
+int argc=0;
+
+void addarg(char* arg, size_t len)
+{
+  char * newarg = malloc(len+1);
+
+  memcpy(newarg, arg, len);
+  newarg[len]='\0';
+  argc++;
+
+  if(argv==NULL) {
+    argv=malloc(argc*sizeof(char*));
+  } else {
+    argv=realloc(argv, argc*sizeof(char*));
+  }
+  argv[argc-1] = newarg;
+}
+
+#define ADDRLEN(x) x, strlen(x)
+
+void addfileargs(char* filename)
+{
+  FILE *argfile=fopen(filename, "r");
+  char *line=NULL, *arg;
+  size_t n=0;
+
+  if(argfile==NULL) return; // no file, nothing to do
+
+  while((line=fgetln(argfile, &n))) {
+    if(n > 0 && line[n-1]=='\n') n--;
+    addarg(line, n);
+  }
+}
+
 static const char *paths[] = { "--",
 			       "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
 			       "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
 static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
 
-int checkFiles()
+int checkFiles(char ** patharg)
 {
   int i;
 
   for(i=0; i<=2; i++) {
-    argv[1]=paths[i];
+    *patharg=paths[i];
     if(!chdir(folder[i])) break;
   }
 
   LOGI("chdir(%s)\n", folder[i]);
-
-  LOGI("Starting %s %s %s\n",
-	  argv[0], argv[1], argv[2]);
+  LOGI("Extra arg: %s\n", *patharg);
 
   return checksha256sum();
 }
@@ -165,7 +202,7 @@ int checkFiles()
 void startForth(jniargs * startargs)
 {
   char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
-  const int argc=3;
+  char* patharg;
   int retvalue;
   int epipe[2];
   JavaVM *vm=startargs->vm;
@@ -179,7 +216,7 @@ void startForth(jniargs * startargs)
   
   startargs->env = env;
 
-  if(!checkFiles()) {
+  if(!checkFiles(&patharg)) {
     unpackFiles();
   }
 
@@ -187,10 +224,16 @@ void startForth(jniargs * startargs)
   setenv("HOME", "/sdcard/gforth/home", 1);
   setenv("SHELL", "/system/bin/sh", 1);
   setenv("libccdir", startargs->libdir, 1);
-  setenv("LANG", "en_US.UTF-8", 1);
+  setenv("LANG", startargs->locale, 1);
+  setenv("LC_ALL", startargs->locale, 1);
   setenv("APP_STATE", statepointer, 1);
   
   chdir("gforth/home");
+
+  addarg(ADDRLEN("gforth"));
+  addfileargs(".options");
+  addarg(ADDRLEN(patharg));
+  addarg(ADDRLEN("starta.fs"));
 
   LOGI("Starting Gforth...\n");
   fflush(stderr);
@@ -233,16 +276,20 @@ pthread_attr_t * pthread_detach_attr(void)
   return &attr;
 }
 
-void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir)
+void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale)
 {
-  char* getlibdir;
+  char *getlibdir, *getlocale;
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
   getlibdir = (*env)->GetStringUTFChars(env, libdir, NULL);
+  getlocale = (*env)->GetStringUTFChars(env, locale, NULL);
   // Java's string lifetime is unknown, better copy the string and release it
   startargs.libdir = malloc(strlen(getlibdir)+1);
+  startargs.locale = malloc(strlen(getlocale)+1);
   strncpy(startargs.libdir, getlibdir, strlen(getlibdir)+1);
+  strncpy(startargs.locale, getlocale, strlen(getlocale)+1);
   (*env)->ReleaseStringUTFChars(env, libdir, getlibdir);
+  (*env)->ReleaseStringUTFChars(env, locale, getlocale);
 
   pthread_create(&(startargs.id), pthread_detach_attr(), startForth, (void*)&startargs);
 }
@@ -280,7 +327,7 @@ static JNINativeMethod GforthMethods[] = {
   {"onEventNative", "(ILjava/lang/Object;)V", (void*) JNI_onEventNative},
   {"onEventNative", "(II)V",                  (void*) JNI_onEventNativeInt},
   {"callForth",     "(J)V",                   (void*) JNI_callForth},
-  {"startForth",    "(Ljava/lang/String;)V",  (void*) JNI_startForth},
+  {"startForth",    "(Ljava/lang/String;Ljava/lang/String;)V",  (void*) JNI_startForth},
 };
 
 #define alen(array)  sizeof(array)/sizeof(array[0])

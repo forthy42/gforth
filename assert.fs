@@ -71,11 +71,12 @@ variable assert-level ( -- a-addr ) \ gforth
 
 : debug-does>  DOES>  @
     IF ['] noop assert-canary  ELSE  postpone (  THEN ;
-: debug: ( -- ) Create false ,
-    debug-does>
+: debug: ( -- )
+    Create false , debug-does>
 comp:  >body
     ]] Literal @ IF [[ [: ]] THEN [[ ;] assert-canary ;
-: )else(  ]] ) ( [[ ; \ )
+: )else( ( --)
+    ]] ) ( [[ ; \ )
 comp: drop 2>r ]] ELSE [[ 2r> ;
 : else( ['] noop assert-canary ; immediate
 
@@ -85,8 +86,8 @@ comp: drop 2>r ]] ELSE [[ 2r> ;
 
 Variable debug-eval
 
-: +-? ( addr u -- flag )  0= IF  drop false  EXIT  THEN
-    c@ ',' - abs 1 = ; \ ',' is in the middle between '+' and '-'
+: +-? ( addr u -- flag )
+    0<> swap c@ ',' - abs 1 = and ; \ ',' is in the middle between '+' and '-'
 
 : +debug ( -- )
     BEGIN  argc @ 1 > WHILE
@@ -127,4 +128,10 @@ Variable timer-list
 
 : !time ( -- ) ntime timer-tick 2! ;
 : @time ( -- delta-f ) ntime timer-tick 2@ d- d>f 1n f* ;
-: .time ( -- ) @time 13 9 0 f.rdp ." s " ;
+: (.time) ( delta-f -- )
+    fdup 1e f>= IF  13 9 0 f.rdp ." s "   EXIT  THEN  1000 fm*
+    fdup 1e f>= IF  10 6 0 f.rdp ." ms "  EXIT  THEN  1000 fm*
+    fdup 1e f>= IF   7 3 0 f.rdp ." µs "  EXIT  THEN  1000 fm*
+    f>s 3 .r ." ns " ;
+: .time ( -- )
+    @time (.time) ;

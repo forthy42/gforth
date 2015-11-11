@@ -31,8 +31,9 @@
 
 \ string array words
 
-: $[] ( n addr -- addr' ) >r
+: $[] ( n addr -- addr' )
     \G index into the string array and return the address at index n
+    >r
     r@ @ 0= IF  s" " r@ $!  THEN
     r@ $@ 2 pick cells /string
     dup cell < IF

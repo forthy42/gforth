@@ -507,24 +507,19 @@ previous
 : n>r ( x1 .. xn n -- r:xn..x1 r:n )
     scope r> { n ret }
     0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
-    ret >r endscope ;
+    ret >r endscope [ unlocal-state off ] ;
 ' :, set-compiler  docol: latestxt code-address!
 : nr> ( r:xn..x1 r:n -- x1 .. xn n )
     scope r> r> { ret n }
     0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
-    ret >r endscope ;
+    ret >r endscope [ unlocal-state off ] ;
 ' :, set-compiler  docol: latestxt code-address!
 
 \ x:traverse-wordlist words
 
-: name>interpret ( nt -- xt|0 )
+' name>int alias name>interpret ( nt -- xt|0 )
     \G \i{xt} represents the interpretation semantics \i{nt}; returns
     \G 0 if \i{nt} has no interpretation semantics
-    dup name>int tuck <> if \ only if it wasn't compile-only-error
-	dup ['] compile-only-error = if
-	    drop 0
-	then
-    then ;
 
 ' name>comp alias name>compile ( nt -- w xt )
 \G @i{w xt} is the compilation token for the word @i{nt}.

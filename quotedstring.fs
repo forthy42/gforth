@@ -23,9 +23,7 @@
 
 : slit,  postpone sliteral ;
 
-' noop
-' slit,
-:noname slit, postpone slit, ; recognizer: r:string
+' noop ' slit, dup recognizer: r:string
 
 : rec:string ( addr u -- addr u' r:string | r:fail )
     2dup s\" \"" string-prefix?
@@ -36,8 +34,7 @@
 
 0 [IF] \ dot-quoted strings, we don't need them
 : .slit slit, postpone type ;
-' type ' .slit
-:noname slit, postpone .slit ; recognizer: r:."
+' type ' .slit ' slit, recognizer: r:."
 
 : rec:."  ( addr u -- addr u' r:." | addr u r:fail )
     2dup ".\"" string-prefix?

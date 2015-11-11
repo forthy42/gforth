@@ -31,7 +31,8 @@ here TLS-heartbleed - Constant heartbleed#
 
 Variable buggy?
 
-: get-heartbleed ( addr u port -- ) >r 2dup r>  buggy? off
+: get-heartbleed ( addr u port -- )
+    >r 2dup r>  buggy? off
     1000000 set-socket-timeout  >random
     open-socket >r
     TLS-header header# r@ write-socket

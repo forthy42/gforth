@@ -358,6 +358,58 @@ void hashkey2(Char* c_addr, UCell u, uint64_t upmask, hash128 *h)
   h->a = a; h->b = b;
 }
 
+UCell hashkey2a(Char *s, UCell n)
+{
+  UCell seed=n;
+  size_t w=sizeof(UCell);
+#define rotl(x,r) ((x << r) | (x >> (8*w - r)));
+  int rot1 = w*4-1;
+  size_t pagesize=4096; /* a power-of-2 that's at most as large as a page */
+  UCell k0 = w==8 ? 0xb64d532aaaaaaad5 : 0xb653aad5;
+  /* the 64-bit k0 gives not-so-catastrophic avalanche results on a
+     case-insensitive version; the 32-bit version is based on that */
+  UCell upmask = w==8 ? 0x2020202020202020L : 0x20202020L;
+  
+  UCell h,h1;
+  if (n<=w) {
+    UCell erase=(w-n)*8; /* bits to erase */
+    if (n==0)
+      return seed;
+    if (((((UCell)(s+n-1))^((UCell)(s+w-1)))&(-pagesize)) != 0) {
+      /* cell access would cross page boundary, but byte access wouldn't */
+      /* so cell access to s might incur a SIGSEGV */
+      h = *((UCell *)(((UCell)s)&(-w)));
+      memcpy(&h,(char *)(((UCell)s)&(-w)),w);
+      UCell erase2 = ((w-(((UCell)s)+n))&(w-1))*8;
+      h = (h<<erase2)>>erase;
+    } else {
+      memcpy(&h,s,w);
+      h = (h<<erase)>>erase;
+    }
+    h |= upmask & ~(h >> 2); // case insensitive trick
+    h = (h+seed)*k0;
+    h = rotl(h,rot1);
+    return h*k0;
+  } else {
+    Char *p = s;
+    h = seed;
+    do {
+      memcpy(&h1,p,w);
+      h1 |= upmask & ~(h1 >> 2); // case insensitive trick
+      h = (h+h1)*k0;
+      h = rotl(h,rot1);
+      p += w;
+    } while (p<s+n-w);
+    p = s+n-w;
+    memcpy(&h1,p,w);
+    h1 |= upmask & ~(h1 >> 2); // case insensitive trick
+    h += h1;
+    h = h*k0;
+    h = rotl(h,rot1);
+    return h*k0;
+  }
+}
+
 struct Cellpair parse_white(Char *c_addr1, UCell u1)
 {
   /* use !isgraph instead of isspace? */

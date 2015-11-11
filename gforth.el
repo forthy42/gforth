@@ -242,7 +242,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	(("immediate" "compile-only" "restrict")
 	 immediate (font-lock-keyword-face . 1))
 	(("does>") definition-starter (font-lock-keyword-face . 1))
-	((":noname" "comp:" "post:") definition-starter (font-lock-keyword-face . 1))
+	((":noname" "comp:" "post:" "lit,:") definition-starter (font-lock-keyword-face . 1))
 	((";" ";code" ";abi-code") definition-ender (font-lock-keyword-face . 1))
 	(("include" "require" "needs" "use") 
 	 non-immediate (font-lock-keyword-face . 1) 
@@ -342,7 +342,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[\n]" nil string (font-lock-string-face . 1))
 	("-?[0-9]+\\(\\.[0-9]*e\\(-?[0-9]+\\)?\\|\\.?[0-9a-f]*\\)" 
 	 immediate (font-lock-constant-face . 3))
-	("-?\\([&#][0-9]+\\|\\(0x\\|\\$\\)[0-9a-f.]+\\|%[01]+\\)"
+	("-?\\([&#][0-9.]+\\|\\(0x\\|\\$\\)[0-9a-f.]+\\|%[01]+\\)"
 	 immediate (font-lock-constant-face . 3))
 	("[a-z\-0-9]+(" immediate (font-lock-comment-face . 1)
 	 ")" nil comment (font-lock-comment-face . 1))

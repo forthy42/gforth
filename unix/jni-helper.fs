@@ -15,6 +15,7 @@ gforth-class:
 \ jni-sfield: POWER_SERVICE POWER_SERVICE Ljava/lang/String;
 : INPUT_METHOD_SERVICE js" input_method" ;
 : POWER_SERVICE        js" power" ;
+: NOTIFICATION_SERVICE js" notification" ;
 
 jni-method: getSystemService getSystemService (Ljava/lang/String;)Ljava/lang/Object;
 jni-method: getWindow getWindow ()Landroid/view/Window;
@@ -22,9 +23,13 @@ jni-method: hideProgress hideProgress ()V
 jni-method: showIME showIME ()V
 jni-method: hideIME hideIME ()V
 jni-method: get_SDK get_SDK ()I
+jni-method: setEditLine setEditLine (Ljava/lang/String;I)V
+jni-method: set_alarm set_alarm (J)V
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
+jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
+jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
 
-: SDK_INT clazz >o get_SDK o> ;
+: SDK_INT clazz .get_SDK ;
 
 jni-class: android/app/Activity
 jni-method: getWindowManager getWindowManager ()Landroid/view/WindowManager;
@@ -74,6 +79,40 @@ jni-class: java/util/List
 jni-method: l-get get (I)Ljava/lang/Object;
 jni-method: l-size size ()I
 
+jni-class: android/net/ConnectivityManager
+jni-method: getActiveNetworkInfo getActiveNetworkInfo ()Landroid/net/NetworkInfo;
+
+jni-class: android/net/NetworkInfo
+jni-method: getState getState ()Landroid/net/NetworkInfo$State;
+jni-method: getType getType ()I
+jni-method: getTypeName getTypeName ()Ljava/lang/String;
+jni-method: isConnected isConnected ()Z
+
+SDK_INT 11 >= [IF]
+    jni-class: android/app/Notification$Builder
+    jni-new: newNotification.Builder (Landroid/content/Context;)V
+    jni-method: setContentTitle setContentTitle (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
+    jni-method: setContentText setContentText (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
+    jni-method: setTicker setTicker (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
+    SDK_INT 21 >= [IF]
+	jni-method: addPerson addPerson (Ljava/lang/String;)Landroid/app/Notification$Builder;
+    [THEN]
+    jni-method: setAutoCancel setAutoCancel (Z)Landroid/app/Notification$Builder;
+    jni-method: setSmallIcon setSmallIcon (I)Landroid/app/Notification$Builder;
+    jni-method: setLights setLights (III)Landroid/app/Notification$Builder;
+    jni-method: setDefaults setDefaults (I)Landroid/app/Notification$Builder;
+    jni-method: setSound setSound (Landroid/net/Uri;I)Landroid/app/Notification$Builder;
+    jni-method: setContentIntent setContentIntent (Landroid/app/PendingIntent;)Landroid/app/Notification$Builder;
+    SDK_INT 16 >= [IF]
+	jni-method: build build ()Landroid/app/Notification;
+    [ELSE]
+	jni-method: build getNotification ()Landroid/app/Notification;
+    [THEN]
+
+    jni-class: android/app/NotificationManager
+    jni-method: notify notify (ILandroid/app/Notification;)V
+[THEN]
+
 SDK_INT 10 u<= [IF] \ 2.3.x uses a different clipboard manager
     jni-class: android/text/ClipboardManager
 
@@ -101,7 +140,7 @@ SDK_INT 10 u<= [IF] \ 2.3.x uses a different clipboard manager
     [THEN]
 [THEN]
 
-jni-class: java/lang/CharSequence
+jni-class: java/lang/Object
 
 jni-method: toString toString ()Ljava/lang/String;
 

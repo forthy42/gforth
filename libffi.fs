@@ -287,7 +287,8 @@ Variable args args off
 : arg, ( xt -- )
     dup ['] noop = IF  drop  EXIT  THEN  compile, ;
 
-: start, ( n -- )  cifbuf cell+ cifbuf !
+: start, ( n -- )
+    cifbuf cell+ cifbuf !
     revarg @ IF  drop 0  ELSE  2* cells  THEN  argbuf +
     postpone Literal ;
 
@@ -307,7 +308,8 @@ Variable ind-call  ind-call off
 : cif@ ( -- addr u )
     cifbuf cell+ cifbuf @ over - ;
 
-: create-cif ( rtype -- addr ) cif,
+: create-cif ( rtype -- addr )
+    cif,
     cif@ cifs search-wordlist
     IF  execute  EXIT  THEN
     get-current >r cifs set-current
@@ -315,7 +317,8 @@ Variable ind-call  ind-call off
     cif@ 1- bounds ?DO  I c@ ffi-type ,  LOOP  r>
     r> set-current ;
 
-: make-cif ( rtype -- addr )  create-cif
+: make-cif ( rtype -- addr )
+    create-cif
     cif@ 1- tuck + c@ ffi-type here 0 ffi-size allot
     dup >r ffi-prep-cif throw r> ;
 

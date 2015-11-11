@@ -24,6 +24,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Build;
 import android.text.ClipboardManager;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -56,11 +59,15 @@ import android.text.SpannableStringBuilder;
 import android.text.Editable;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.net.ConnectivityManager;
 import android.util.Log;
 import java.lang.Object;
 import java.lang.Runnable;
 import java.lang.String;
 import java.io.File;
+import java.util.Locale;
 
 public class Gforth
     extends android.app.Activity
@@ -79,8 +86,17 @@ public class Gforth
     private LocationManager locationManager;
     private SensorManager sensorManager;
     private ClipboardManager clipboardManager;
+    private AlarmManager alarmManager;
+    private ConnectivityManager connectivityManager;
+    private BroadcastReceiver recKeepalive, recConnectivity;
+
+    private PendingIntent pintent, gforthintent;
+
     private boolean started=false;
     private boolean libloaded=false;
+    private boolean surfaced=false;
+    private int activated;
+    private String beforec="", afterc="";
 
     public Handler handler;
     public Runnable startgps;
@@ -99,7 +115,7 @@ public class Gforth
     public native void onEventNative(int type, Object event);
     public native void onEventNative(int type, int event);
     public native void callForth(long xt); // !! use long for 64 bits !!
-    public native void startForth(String libdir);
+    public native void startForth(String libdir, String locale);
 
     // own subclasses
     public class RunForth implements Runnable {
@@ -124,9 +140,16 @@ public class Gforth
 	public Editable getEditable() {
 	    if (mEditable == null) {
 		mEditable = (SpannableStringBuilder) Editable.Factory.getInstance()
-		    .newEditable("Gforth Terminal");
+		    .newEditable("");
 	    }
 	    return mEditable;
+	}
+
+	public void setEditLine(String line, int curpos) {
+	    Log.v(TAG, "IC.setEditLine: \"" + line + "\" at: " + curpos);
+	    getEditable().clear();
+	    getEditable().append(line);
+	    setSelection(curpos, curpos);
 	}
 
 	public boolean commitText(CharSequence text, int newcp) {
@@ -170,10 +193,14 @@ public class Gforth
 	    return true;
 	}
 	public boolean setComposingRegion (int start, int end) {
-	    mView.mActivity.onEventNative(11, "setComposingRegion");
-	    mView.mActivity.onEventNative(10, start);
-	    mView.mActivity.onEventNative(10, end);
-	    return true;
+	    end-=start;
+	    if(end < 0) {
+		start+=end;
+		end = -end;
+	    }
+	    mView.mActivity.onEventNative(19, start);
+	    mView.mActivity.onEventNative(20, end);
+	    return super.setComposingRegion(start, start+end);
 	}
 	public boolean sendKeyEvent (KeyEvent event) {
 	    mView.mActivity.onEventNative(0, event);
@@ -276,6 +303,10 @@ public class Gforth
     public void hideIME() {
 	mContentView.hideIME();
     }
+    public void setEditLine(String line, int curpos) {
+	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
+	mContentView.mInputConnection.setEditLine(line, curpos);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -290,7 +321,6 @@ public class Gforth
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-
 
         mContentView = new ContentView(this);
         setContentView(mContentView);
@@ -315,68 +345,121 @@ public class Gforth
 	    Log.v(TAG, "Library already loaded");
 	}
 	super.onCreate(savedInstanceState);
+
+	locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
+	sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
+	clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+	alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
+	connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+	handler=new Handler();
+	startgps=new Runnable() {
+		public void run() {
+		    locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
+		}
+	    };
+	stopgps=new Runnable() {
+		public void run() {
+		    locationManager.removeUpdates((LocationListener)gforth);
+		}
+	    };
+	startsensor=new Runnable() {
+		public void run() {
+		    sensorManager.registerListener((SensorEventListener)gforth, argsensor, (int)argj0);
+		}
+	    };
+	stopsensor=new Runnable() {
+		public void run() {
+		    sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
+		}
+	    };
+	showprog=new Runnable() {
+		public void run() {
+		    showProgress();
+		}
+	    };
+	hideprog=new Runnable() {
+		public void run() {
+		    doneProgress();
+		}
+	    };
+	errprog=new Runnable() {
+		public void run() {
+		    errProgress();
+		}
+	    };
+	appexit=new Runnable() {
+		public void run() {
+		    finish();
+		}
+	    };
+	
+	recKeepalive = new BroadcastReceiver() {
+		@Override public void onReceive(Context context, Intent foo)
+		{
+		    // Log.v(TAG, "alarm received");
+		    onEventNative(21, 0);
+		}
+	    };
+	registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive") );
+	
+	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
+	Intent startgforth = new Intent(this, Gforth.class);
+	startgforth.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
+			     Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+	gforthintent = PendingIntent.getActivity(this, 1, startgforth,
+						 PendingIntent.FLAG_UPDATE_CURRENT);
+
+	recConnectivity = new BroadcastReceiver() {
+		public void onReceive(Context context, Intent intent) {
+		    // boolean metered = connectivityManager.isActiveNetworkMetered();
+		    onEventNative(22, 0);
+		}
+	    };
+
+	registerReceiver(recConnectivity, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     }
 
     @Override protected void onStart() {
 	super.onStart();
 	if(!started) {
-	    locationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
-	    sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
-	    clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
-	    handler=new Handler();
-	    startgps=new Runnable() {
-		    public void run() {
-			locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
-		    }
-		};
-	    stopgps=new Runnable() {
-		    public void run() {
-		    locationManager.removeUpdates((LocationListener)gforth);
-		    }
-		};
-	    startsensor=new Runnable() {
-		    public void run() {
-			sensorManager.registerListener((SensorEventListener)gforth, argsensor, (int)argj0);
-		    }
-		};
-	    stopsensor=new Runnable() {
-		    public void run() {
-			sensorManager.unregisterListener((SensorEventListener)gforth, argsensor);
-		    }
-		};
-	    showprog=new Runnable() {
-		    public void run() {
-			showProgress();
-		    }
-		};
-	    hideprog=new Runnable() {
-		    public void run() {
-			doneProgress();
-		    }
-		};
-	    errprog=new Runnable() {
-		    public void run() {
-			errProgress();
-		    }
-		};
-	    appexit=new Runnable() {
-		    public void run() {
-			finish();
-		    }
-		};
-	    startForth(getApplicationInfo().nativeLibraryDir);
+	    startForth(getApplicationInfo().nativeLibraryDir,
+		       Locale.getDefault().toString() + ".UTF-8");
 	    started=true;
 	}
+	activated = -1;
+	if(surfaced) onEventNative(18, activated);
     }
-   
-    @Override protected void onPause() {
-	super.onPause();
-	onEventNative(18, 0);
+
+    @Override protected void onNewIntent (Intent intent) {
+	super.onNewIntent(intent);
+	setIntent(intent);
+	activated = -1;
+	if(surfaced) onEventNative(18, activated);
     }
 
     @Override protected void onResume() {
 	super.onResume();
-	onEventNative(18, -1);
+	activated = -2;
+	if(surfaced) onEventNative(18, activated);
+    }
+
+    @Override protected void onPause() {
+	activated = -1;
+	if(surfaced) onEventNative(18, activated);
+	super.onPause();
+    }
+
+    @Override protected void onStop() {
+	activated = 0;
+	onEventNative(18, activated);
+	super.onStop();
+    }
+    @Override protected void onDestroy() {
+	this.unregisterReceiver(recKeepalive);
+	this.unregisterReceiver(recConnectivity);
+	super.onDestroy();
     }
 
     @Override
@@ -428,6 +511,8 @@ public class Gforth
     // surface stuff
     public void surfaceCreated(SurfaceHolder holder) {
 	onEventNative(4, holder.getSurface());
+	surfaced=true;
+	onEventNative(18, activated);
     }
     
     public class surfacech {
@@ -455,6 +540,7 @@ public class Gforth
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
+	surfaced=false;
 	onEventNative(7, holder.getSurface());
     }
 
@@ -499,5 +585,10 @@ public class Gforth
 
     public int get_SDK() {
 	return Build.VERSION.SDK_INT;
+    }
+
+    public void set_alarm(long when) {
+	// Log.v(TAG, "set alarm");
+	alarmManager.set(AlarmManager.RTC_WAKEUP, when, pintent);
     }
 }

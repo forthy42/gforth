@@ -109,9 +109,9 @@ Defer check-xy  ' noop IS check-xy
 	>r u8!+ r> r> swap - true
     then ;
 
-: u8addrlen ( u8-addr u -- u1 )  drop
+: u8addrlen ( u8-addr u -- u1 )
     \ length of UTF-8 char starting at u8-addr (accesses only u8-addr)
-    c@
+    drop c@
     dup $80 u< if drop 1 exit endif
     dup $c0 u< if UTF-8-err throw endif
     dup $e0 u< if drop 2 exit endif
@@ -274,7 +274,7 @@ here wc-table - Constant #wc-table
 \ inefficient table walk:
 
 : xc-width ( xc -- n )
-    wc-table #wc-table over + swap ?DO
+    wc-table #wc-table bounds ?DO
 	dup I 2@ within IF  I 2 cells + @  UNLOOP EXIT  THEN
     3 cells +LOOP  1 ;
 [ELSE]
@@ -282,7 +282,7 @@ here wc-table - Constant #wc-table
 [THEN]
     
 : u8width ( xcaddr u -- n )
-    0 rot rot over + swap ?DO
+    0 rot rot bounds ?DO
         I xc@+ swap >r xc-width +
     r> I - +LOOP ;
 

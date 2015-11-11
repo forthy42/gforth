@@ -49,15 +49,17 @@ wordlist Constant response-values
 Variable response-string
 Variable maxnum
 
-: get-rest ( addr -- )  source >in @ /string dup >in +! rot $! ;
+: get-rest ( addr -- )
+    source >in @ /string dup >in +! rot $! ;
 : ?cr ( -- )
-  #tib @ 1 >= IF  source 1- + c@ #cr = #tib +!  THEN ;
-: refill-loop ( -- flag ) base @ >r base off
-  BEGIN  refill ?cr  WHILE  ['] interpret catch drop  >in @ 0=  UNTIL
-  true  ELSE  maxnum off false  THEN  r> base ! ;
+    #tib @ 1 >= IF  source 1- + c@ #cr = #tib +!  THEN ;
+: refill-loop ( -- flag )
+    base @ >r base off
+    BEGIN  refill ?cr  WHILE  ['] interpret catch drop  >in @ 0=  UNTIL
+	true  ELSE  maxnum off false  THEN  r> base ! ;
 
-: response:  ( -- )  name
-    Forth definitions 2dup 1- nextname Variable
+: response:  ( -- )
+    name Forth definitions 2dup 1- nextname Variable
     response-values set-current nextname here cell - Create ,
 DOES> @ get-rest ;
 : >response  response-values 1 set-order ;
@@ -128,13 +130,15 @@ Variable data-buffer
 : read-to-end ( fid -- )
     >r BEGIN  $1000 r@ add-chunk $1000 <> UNTIL  rdrop ;
 
-: read-chunked ( fid -- ) base @ >r hex >r
+: read-chunked ( fid -- )
+    base @ >r hex >r
     BEGIN  pad $100 r@ read-line throw  WHILE
 	pad swap s>number drop dup WHILE  r@ add-chunk drop
 	pad 1 r@ read-line throw  nip 0= UNTIL
     ELSE  drop  THEN  THEN  rdrop r> base ! ;
 
-: read-data ( fid -- ) clear-data >r
+: read-data ( fid -- )
+    clear-data >r
     Content-Length @ IF
 	Content-Length $@ s>number drop r> read-sized  EXIT  THEN
     Transfer-Encoding @ IF

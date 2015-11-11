@@ -1806,10 +1806,8 @@ Create rot-values
   7 c, 5 c, 5 c,
 
 (hashkey2) ( c_addr u ubits -- ukey )		gforth	paren_hashkey2
-""This is the compatible form of the fast 64 bit hash""
-hash128 hash = { 0x7BC2F0864E7C480EULL, 0x477BF466E332DDB8ULL };
-hashkey2(c_addr, u, 0x2020202020202020ULL, &hash);
-ukey=(Cell)(hash.a ^ hash.b) & ((1L<<ubits)-1);
+""A faster replacement for @code{(hashkey1)}""
+ukey = hashkey2a(c_addr,u) >> (8*sizeof(UCell) - ubits);
 
 hashkey2  ( c_addr u f a_addr -- )	gforth	hashkey2
 ""Compute a 128 bit hash key of the string c_addr u, starting with the
@@ -1927,11 +1925,7 @@ ucols=cols;
 
 wcwidth	( u -- n )	gforth
 ""The number of fixed-width characters per unicode character u""
-#ifdef HAVE_WCWIDTH
 n = wcwidth(u);
-#else
-n = 1;
-#endif
 
 flush-icache	( c_addr u -- )	gforth	flush_icache
 ""Make sure that the instruction cache of the processor (if there is
@@ -3225,7 +3219,7 @@ a_retaddr = (Cell *)IP;
 SET_IP((Xt *)a_callee);
 #endif
 
-unlocal	( R:a_lp R:w -- )	gforth	unlocal
+(unlocal)	( R:a_lp R:w -- )	gforth-internal	paren_unlocal
 lp = (Address)a_lp;
 
 \+
