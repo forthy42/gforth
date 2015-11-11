@@ -7393,7 +7393,10 @@ implemented as the address of that count field.
 doc-find-name
 doc-latest
 doc->name
+doc-name>interpret
+doc-name>compile
 doc-name>int
+doc-name?int
 doc-name>comp
 doc-name>string
 doc-id.
