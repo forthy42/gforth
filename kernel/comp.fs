@@ -337,7 +337,8 @@ include ./recognizer.fs
     restrict-mask lastflags cset ;
 
 ' restrict alias compile-only ( -- ) \ gforth
-\G Remove the interpretation semantics of a word.
+\G Mark the last definition as compile-only; as a result, the text
+\G interpreter and @code{'} will warn when they encounter such a word.
 
 \ !!FIXME!! new flagless versions:
 \ : immediate [: name>int ['] execute ;] set->comp ;

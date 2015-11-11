@@ -352,9 +352,7 @@ method (int-to) ( val xt -- ) \ gforth paren-int-to
 
 method name>int ( nt -- xt ) \ gforth name-to-int
 \G @i{xt} represents the interpretation semantics of the word
-\G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
-\G @code{compile-only}), @i{xt} is the execution token for
-\G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
+\G @i{nt}.
 
 method name>comp ( nt -- w xt ) \ gforth name-to-comp
 \G @i{w xt} is the compilation token for the word @i{nt}.
