@@ -518,8 +518,8 @@ previous
 \ x:traverse-wordlist words
 
 ' name>int alias name>interpret ( nt -- xt|0 )
-    \G \i{xt} represents the interpretation semantics \i{nt}; returns
-    \G 0 if \i{nt} has no interpretation semantics
+    \G @i{xt} represents the interpretation semantics @i{nt}; returns
+    \G 0 if @i{nt} has no interpretation semantics
 
 ' name>comp alias name>compile ( nt -- w xt )
 \G @i{w xt} is the compilation token for the word @i{nt}.
