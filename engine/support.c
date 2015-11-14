@@ -378,13 +378,19 @@ UCell hashkey2a(Char *s, UCell n)
     if (((((UCell)(s+n-1))^((UCell)(s+w-1)))&(-pagesize)) != 0) {
       /* cell access would cross page boundary, but byte access wouldn't */
       /* so cell access to s might incur a SIGSEGV */
-      h = *((UCell *)(((UCell)s)&(-w)));
-      memcpy(&h,(char *)(((UCell)s)&(-w)),w);
-      UCell erase2 = ((w-(((UCell)s)+n))&(w-1))*8;
-      h = (h<<erase2)>>erase;
+      memcpy(&h,(char *)(s+n-w),w);
+#ifdef WORDS_BIGENDIAN
+      h = (h<<erase)>>erase;
+#else
+      h = h>>erase;
+#endif
     } else {
       memcpy(&h,s,w);
+#ifdef WORDS_BIGENDIAN
+      h = h>>erase;
+#else
       h = (h<<erase)>>erase;
+#endif
     }
     h |= upmask & ~(h >> 2); // case insensitive trick
     h = (h+seed)*k0;
