@@ -1,6 +1,7 @@
 \ Linux bindings for GLES
 
 require unix/x.fs
+require mini-oof2.fs
 
 also x11
 
@@ -233,7 +234,7 @@ DOES> ( x-key -- addr u )
 :noname  ic event look_chars $FF look_key comp_stat  XUtf8LookupString
     ?dup-IF  look_chars swap
     ELSE   look_key l@ x-key>ekey  THEN
-    2dup "\e" str= IF  2drop -1 level# +!  ELSE  unkeys  THEN
+    2dup "\e" str= IF  2drop -1 level# +!  ELSE  inskeys  THEN
 ; handler-class to DoKeyPress
 :noname ; handler-class to DoKeyRelease
 :noname  0 *input action ! 1 *input pressure !
@@ -302,13 +303,14 @@ User xpollfds
 xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 : >poll-events ( -- n )
-    stdin fileno POLLIN  xpollfds fds!+ >r
-    epiper @ fileno POLLIN r> fds!+ >r
-    dpy IF  dpy XConnectionNumber POLLIN  r> fds!+  ELSE  r>  THEN
-    xpollfds - pollfd / ;
+    epiper @ fileno POLLIN  xpollfds fds!+ >r
+    dpy IF  dpy XConnectionNumber POLLIN  r> fds!+ >r  THEN
+    infile-id fileno POLLIN  r> fds!+ >r
+    r> xpollfds - pollfd / ;
 
 : #looper ( delay -- )
     >poll-events >r
+    dpy XPending 0= and
     0 xptimeout 2!
     xpollfds r>
     [IFDEF] ppoll
@@ -317,8 +319,10 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 	xptimeout cell+ @ #1000000 / poll 0>
     [THEN]
     IF
-	xpollfds pollfd    + revents w@ POLLIN and IF  ?events  THEN
-	xpollfds pollfd 2* + revents w@ POLLIN and IF  get-events  THEN
+	xpollfds          revents w@ POLLIN and IF  ?events  THEN
+	xpollfds pollfd + revents w@ POLLIN and IF  get-events  THEN
+    ELSE
+	dpy XPending IF  get-events   THEN
     THEN ;
 
 : >looper ( -- )  xpoll-timeout# #looper ;
@@ -336,7 +340,7 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 : x-key ( -- key )
     need-show on  key? IF  defers key  EXIT  THEN
-    BEGIN  xpoll-timeout# #looper  key? screen-ops UNTIL  defers key ;
+    BEGIN  >looper  key? screen-ops UNTIL  defers key ;
 
 0 warnings !@
 : bye ( -- )
