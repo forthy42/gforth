@@ -26,7 +26,7 @@ variable (hashkey2)-broken
     \ test keys of length u; max length 32
     (hashkey2)-broken off
     s" abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=" { sa sl }
-    sa 8 + u 8 cells (hashkey2) 1+ { key }
+    sa 8 + u 8 cells (hashkey2) { key }
     4100 0 do \ at least as many as given in the "pagesize" in hashkey2a()
         sa (hashkey2)-buffer i + tuck sl move ( addr )
         8 + u 8 cells (hashkey2) key <> if
