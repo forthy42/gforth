@@ -380,7 +380,7 @@ UCell hashkey2a(Char *s, UCell n)
       /* so cell access to s might incur a SIGSEGV */
       memcpy(&h,(char *)(s+n-w),w);
 #ifdef WORDS_BIGENDIAN
-      h = (h<<erase)>>erase;
+      h = h & ((~(UCell)0) >> erase);
 #else
       h = h>>erase;
 #endif
@@ -389,7 +389,7 @@ UCell hashkey2a(Char *s, UCell n)
 #ifdef WORDS_BIGENDIAN
       h = h>>erase;
 #else
-      h = (h<<erase)>>erase;
+      h = h & ((~(UCell)0) >> erase);
 #endif
     }
     h |= upmask & ~(h >> 2); // case insensitive trick
