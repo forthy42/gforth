@@ -130,14 +130,14 @@ public class Gforth
 	    callForth(xt);
 	}
     }
-
+    /*
     static class MyInputConnection extends BaseInputConnection {
 	private SpannableStringBuilder mEditable;
-	private ContentView mView;
+	private View mView;
 	
 	public MyInputConnection(View targetView, boolean fullEditor) {
 	    super(targetView, fullEditor);
-	    mView = (ContentView) targetView;
+	    mView = targetView;
 	}
 	
 	public Editable getEditable() {
@@ -210,7 +210,7 @@ public class Gforth
 	    return true;
 	}
     }
-
+    */
     public void hideProgress() {
 	if(progress!=null) {
 	    progress.dismiss();
