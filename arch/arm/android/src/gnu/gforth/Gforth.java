@@ -331,8 +331,8 @@ public class Gforth
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-	mContentView = (ContentView)findViewById(R.layout.main);
         setContentView(R.layout.main);
+	mContentView = (ContentView)findViewById(R.id.outer);
         SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
         surfaceView.getHolder().addCallback(this);
         // mContentView.requestFocus();
