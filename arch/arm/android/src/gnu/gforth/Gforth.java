@@ -133,7 +133,7 @@ public class Gforth
     
     static class MyInputConnection extends BaseInputConnection {
 	private SpannableStringBuilder mEditable;
-	private View mView;
+	private GforthView mView;
 	
 	public MyInputConnection(View targetView, boolean fullEditor) {
 	    super(targetView, fullEditor);
