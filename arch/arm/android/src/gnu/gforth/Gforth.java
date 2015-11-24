@@ -50,7 +50,6 @@ import android.view.SurfaceHolder;
 import android.view.OrientationEventListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
-import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.CompletionInfo;
 import android.text.InputType;
