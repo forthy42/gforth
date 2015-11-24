@@ -36,6 +36,7 @@ class GforthView extends SurfaceView {
     Gforth mActivity;
     EditorInfo moutAttrs;
     MyInputConnection mInputConnection;
+    private static final String TAG = "GforthView";
     
     static class MyInputConnection extends BaseInputConnection {
 	private SpannableStringBuilder mEditable;
