@@ -51,7 +51,6 @@ import android.view.OrientationEventListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.view.inputmethod.CompletionInfo;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.AlarmManager;
