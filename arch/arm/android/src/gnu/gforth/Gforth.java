@@ -135,7 +135,7 @@ public class Gforth
 	private SpannableStringBuilder mEditable;
 	private GforthView mView;
 	
-	public MyInputConnection(View targetView, boolean fullEditor) {
+	public MyInputConnection(GforthView targetView, boolean fullEditor) {
 	    super(targetView, fullEditor);
 	    mView = targetView;
 	}
