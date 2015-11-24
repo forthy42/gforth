@@ -213,10 +213,14 @@ public class Gforth
 	InputMethodManager mManager;
 	EditorInfo moutAttrs;
 	MyInputConnection mInputConnection;
+	int inputType;
 
         public ContentView(Gforth context) {
             super(context);
 	    mActivity=context;
+	    inputType = InputType.TYPE_CLASS_TEXT |
+		InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE |
+		InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 	    mManager = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
 	    setFocusable(true);
 	    setFocusableInTouchMode(true);
@@ -234,11 +238,11 @@ public class Gforth
 	}
 	@Override
 	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
-	    moutAttrs=outAttrs;
-	    outAttrs.inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+	    outAttrs.inputType = inputType;
 	    outAttrs.initialSelStart = 1;
 	    outAttrs.initialSelEnd = 1;
 	    outAttrs.packageName = "gnu.gforth";
+	    moutAttrs=outAttrs;
 	    mInputConnection = new MyInputConnection(this, true);
 	    return mInputConnection;
 	}
@@ -303,6 +307,10 @@ public class Gforth
     public void hideIME() {
 	mContentView.hideIME();
     }
+    public void setIMEtype(int type) {
+	mContentView.inputType = type;
+	mContentView.moutAttrs.inputType = type;
+    }
     public void setEditLine(String line, int curpos) {
 	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
 	mContentView.mInputConnection.setEditLine(line, curpos);
@@ -316,16 +324,19 @@ public class Gforth
 	gforth=this;
 	progress=null;
 
-        getWindow().takeSurface(this);
-        // getWindow().setFormat(PixelFormat.RGB_565);
+        // getWindow().takeSurface(this);
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
-        mContentView = new ContentView(this);
+	mContentView = findViewById(R.layout.main);
         setContentView(mContentView);
+        SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
+        surfaceView.getHolder().addCallback(this);
         mContentView.requestFocus();
-        mContentView.getViewTreeObserver().addOnGlobalLayoutListener(this);
+
+        // mContentView = new ContentView(this);
+        // mContentView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 	// setRetainInstance(true);
 
 	try {
