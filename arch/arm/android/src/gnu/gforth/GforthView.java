@@ -30,9 +30,10 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
+import android.util.AttributeSet;
 import gnu.gforth.Gforth;
 
-class GforthView extends SurfaceView {
+public class GforthView extends SurfaceView {
     Gforth mActivity;
     EditorInfo moutAttrs;
     MyInputConnection mInputConnection;
@@ -118,12 +119,27 @@ class GforthView extends SurfaceView {
 	}
     }
 
-    public GforthView(Gforth context) {
-	super(context);
+    private init(Gforth context) {
 	mActivity=context;
 	setFocusable(true);
 	setFocusableInTouchMode(true);
     }
+
+    public GforthView(Gforth context) {
+	super(context);
+	init(context);
+    }
+
+    public GforthView(Gforth context, AttributeSet attrs) {
+	super(context, attrs);
+	init(context);
+    }
+
+    public GforthView(Gforth context, AttributeSet attrs, int defStyle) {
+	super(context, attrs, defStyle);
+	init(context);
+    }
+
     @Override
     public boolean onCheckIsTextEditor () {
 	    return true;
