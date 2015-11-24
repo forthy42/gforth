@@ -335,7 +335,7 @@ public class Gforth
         setContentView(R.layout.main);
         SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
         surfaceView.getHolder().addCallback(this);
-        mContentView.requestFocus();
+        // mContentView.requestFocus();
 
         // mContentView = new ContentView(this);
         // mContentView.getViewTreeObserver().addOnGlobalLayoutListener(this);
