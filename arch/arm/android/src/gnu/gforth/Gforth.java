@@ -90,9 +90,10 @@ public class Gforth
     private ClipboardManager clipboardManager;
     private AlarmManager alarmManager;
     private ConnectivityManager connectivityManager;
+    private InputMethodManager inputMethodManager;
     private BroadcastReceiver recKeepalive, recConnectivity;
-
     private PendingIntent pintent, gforthintent;
+    private View mView;
 
     private boolean started=false;
     private boolean libloaded=false;
@@ -210,82 +211,6 @@ public class Gforth
 	}
     }
 
-    static class ContentView extends View {
-        Gforth mActivity;
-	InputMethodManager mManager;
-	EditorInfo moutAttrs;
-	MyInputConnection mInputConnection;
-	int inputType;
-
-        public ContentView(Gforth context) {
-            super(context);
-	    mActivity=context;
-	    inputType = InputType.TYPE_CLASS_TEXT |
-		InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE |
-		InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
-	    mManager = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-	    setFocusable(true);
-	    setFocusableInTouchMode(true);
-        }
-	public void showIME() {
-	    mManager.showSoftInput(this, 0);
-	}
-	public void hideIME() {
-	    mManager.hideSoftInputFromWindow(getWindowToken(), 0);
-	}
-
-	@Override
-	public boolean onCheckIsTextEditor () {
-	    return true;
-	}
-	@Override
-	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
-	    outAttrs.inputType = inputType;
-	    outAttrs.initialSelStart = 1;
-	    outAttrs.initialSelEnd = 1;
-	    outAttrs.packageName = "gnu.gforth";
-	    moutAttrs=outAttrs;
-	    mInputConnection = new MyInputConnection(this, true);
-	    return mInputConnection;
-	}
-	@Override
-	public void onSizeChanged(int w, int h, int oldw, int oldh) {
-	    mActivity.onEventNative(14, w);
-	    mActivity.onEventNative(15, h);
-	}
-	@Override
-	public boolean dispatchKeyEvent (KeyEvent event) {
-	    mActivity.onEventNative(0, event);
-	    return true;
-	}
-	@Override
-	public boolean onKeyDown (int keyCode, KeyEvent event) {
-	    mActivity.onEventNative(0, event);
-	    return true;
-	}
-	@Override
-	public boolean onKeyUp (int keyCode, KeyEvent event) {
-	    mActivity.onEventNative(0, event);
-	    return true;
-	}
-	@Override
-	public boolean onKeyMultiple (int keyCode, int repeatCount, KeyEvent event) {
-	    mActivity.onEventNative(0, event);
-	    return true;
-	}
-	@Override
-	public boolean onKeyLongPress (int keyCode, KeyEvent event) {
-	    mActivity.onEventNative(0, event);
-	    return true;
-	}
-	/* @Override
-	public boolean onKeyPreIme (int keyCode, KeyEvent event) {
-	    mActivity.onEventNative(0, event);
-	    return true;
-	    } */
-    }
-    ContentView mContentView;
-
     public void hideProgress() {
 	if(progress!=null) {
 	    progress.dismiss();
@@ -304,18 +229,14 @@ public class Gforth
     }
 
     public void showIME() {
-	mContentView.showIME();
+	inputMethodManager.showSoftInput(mView, 0);
     }
     public void hideIME() {
-	mContentView.hideIME();
-    }
-    public void setIMEtype(int type) {
-	mContentView.inputType = type;
-	mContentView.moutAttrs.inputType = type;
+	inputMethodManager.hideSoftInputFromWindow(mView.getWindowToken(), 0);
     }
     public void setEditLine(String line, int curpos) {
 	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
-	mContentView.mInputConnection.setEditLine(line, curpos);
+	// mContentView.mInputConnection.setEditLine(line, curpos);
     }
 
     @Override
@@ -332,14 +253,9 @@ public class Gforth
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         setContentView(R.layout.main);
-	mContentView = (ContentView)findViewById(R.id.outer);
+	mView = (View)getWindow().getDecorView();
         SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
         surfaceView.getHolder().addCallback(this);
-        // mContentView.requestFocus();
-
-        // mContentView = new ContentView(this);
-        // mContentView.getViewTreeObserver().addOnGlobalLayoutListener(this);
-	// setRetainInstance(true);
 
 	try {
             ai = getPackageManager().getActivityInfo(getIntent().getComponent(), PackageManager.GET_META_DATA);
@@ -364,6 +280,7 @@ public class Gforth
 	clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
 	alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
 	connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 
 	handler=new Handler();
 	startgps=new Runnable() {

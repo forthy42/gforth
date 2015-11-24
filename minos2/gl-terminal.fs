@@ -317,7 +317,7 @@ Variable gl-emit-buf
     sync ;
 
 : show-cursor ( -- )  need-show @ 0= ?EXIT
-    rows kbflag @ IF  dup 10 / - 14 -  THEN >r
+    rows ( kbflag @ IF  dup 10 / - 14 -  THEN ) >r
     gl-xy @ scroll-y @ dup r@ + within 0= IF
        gl-xy @ 1+ r@ - 0 max s>f set-scroll
     THEN  rdrop  need-show off ;
