@@ -119,7 +119,7 @@ public class GforthView extends SurfaceView {
 	}
     }
 
-    private init(Gforth context) {
+    private void init(Gforth context) {
 	mActivity=context;
 	setFocusable(true);
 	setFocusableInTouchMode(true);
