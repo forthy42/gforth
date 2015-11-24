@@ -311,7 +311,7 @@ public class Gforth
 
         setContentView(R.layout.main);
 	mView = (View)getWindow().getDecorView();
-        GforthView surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
+        GforthView surfaceView = (GforthView)findViewById(R.id.surfaceview);
         surfaceView.getHolder().addCallback(this);
 
 	try {
