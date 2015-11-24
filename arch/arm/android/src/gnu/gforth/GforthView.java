@@ -20,11 +20,14 @@
 
 package gnu.gforth;
 
-import android.view.SurfaceView;
 import android.view.KeyEvent;
+import android.view.SurfaceView;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.SpannableStringBuilder;
 import gnu.gforth.Gforth;
 
 class GforthView extends SurfaceView {
