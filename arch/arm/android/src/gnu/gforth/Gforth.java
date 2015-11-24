@@ -52,7 +52,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.CompletionInfo;
 import android.text.InputType;
@@ -132,86 +131,6 @@ public class Gforth
 	}
     }
     
-    static class MyInputConnection extends BaseInputConnection {
-	private SpannableStringBuilder mEditable;
-	private GforthView mView;
-	
-	public MyInputConnection(GforthView targetView, boolean fullEditor) {
-	    super(targetView, fullEditor);
-	    mView = targetView;
-	}
-	
-	public Editable getEditable() {
-	    if (mEditable == null) {
-		mEditable = (SpannableStringBuilder) Editable.Factory.getInstance()
-		    .newEditable("");
-	    }
-	    return mEditable;
-	}
-
-	public void setEditLine(String line, int curpos) {
-	    Log.v(TAG, "IC.setEditLine: \"" + line + "\" at: " + curpos);
-	    getEditable().clear();
-	    getEditable().append(line);
-	    setSelection(curpos, curpos);
-	}
-
-	public boolean commitText(CharSequence text, int newcp) {
-	    if(text != null) {
-		mView.mActivity.onEventNative(12, text.toString());
-	    } else {
-		mView.mActivity.onEventNative(12, 0);
-	    }
-	    return true;
-	}
-	public boolean setComposingText(CharSequence text, int newcp) {
-	    if(text != null) {
-		mView.mActivity.onEventNative(13, text.toString());
-	    } else {
-		mView.mActivity.onEventNative(13, "");
-	    }
-	    return true;
-	}
-	public boolean finishComposingText () {
-	    mView.mActivity.onEventNative(12, 0);
-	    return true;
-	}
-	public boolean commitCompletion(CompletionInfo text) {
-	    if(text != null) {
-		mView.mActivity.onEventNative(12, text.toString());
-	    } else {
-		mView.mActivity.onEventNative(12, 0);
-	    }
-	    return true;
-	}
-	public boolean deleteSurroundingText (int before, int after) {
-	    int i;
-	    String send="";
-	    for(i=0; i<before; i++) {
-		send+="\b";
-	    }
-	    for(i=0; i<after; i++) {
-		send+="\033[3~";
-	    }
-	    mView.mActivity.onEventNative(12, send); 
-	    return true;
-	}
-	public boolean setComposingRegion (int start, int end) {
-	    end-=start;
-	    if(end < 0) {
-		start+=end;
-		end = -end;
-	    }
-	    mView.mActivity.onEventNative(19, start);
-	    mView.mActivity.onEventNative(20, end);
-	    return super.setComposingRegion(start, start+end);
-	}
-	public boolean sendKeyEvent (KeyEvent event) {
-	    mView.mActivity.onEventNative(0, event);
-	    return true;
-	}
-    }
-
     public void hideProgress() {
 	if(progress!=null) {
 	    progress.dismiss();
