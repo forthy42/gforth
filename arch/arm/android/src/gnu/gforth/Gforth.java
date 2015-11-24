@@ -70,6 +70,7 @@ import java.lang.Runnable;
 import java.lang.String;
 import java.io.File;
 import java.util.Locale;
+import gnu.gforth.GforthView;
 
 public class Gforth
     extends android.app.Activity
@@ -207,63 +208,6 @@ public class Gforth
 	}
 	public boolean sendKeyEvent (KeyEvent event) {
 	    mView.mActivity.onEventNative(0, event);
-	    return true;
-	}
-    }
-
-    static class GforthView extends SurfaceView {
-        Gforth mActivity;
-	EditorInfo moutAttrs;
-	MyInputConnection mInputConnection;
-
-        public GforthView(Gforth context) {
-            super(context);
-	    mActivity=context;
-	    setFocusable(true);
-	    setFocusableInTouchMode(true);
-        }
-	@Override
-	public boolean onCheckIsTextEditor () {
-	    return true;
-	}
-	@Override
-	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
-	    moutAttrs=outAttrs;
-	    outAttrs.inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
-	    outAttrs.initialSelStart = 1;
-	    outAttrs.initialSelEnd = 1;
-	    outAttrs.packageName = "gnu.gforth";
-	    mInputConnection = new MyInputConnection(this, true);
-	    return mInputConnection;
-	}
-	@Override
-	public void onSizeChanged(int w, int h, int oldw, int oldh) {
-	    mActivity.onEventNative(14, w);
-	    mActivity.onEventNative(15, h);
-	}
-	@Override
-	public boolean dispatchKeyEvent (KeyEvent event) {
-	    mActivity.onEventNative(0, event);
-	    return true;
-	}
-	@Override
-	public boolean onKeyDown (int keyCode, KeyEvent event) {
-	    mActivity.onEventNative(0, event);
-	    return true;
-	}
-	@Override
-	public boolean onKeyUp (int keyCode, KeyEvent event) {
-	    mActivity.onEventNative(0, event);
-	    return true;
-	}
-	@Override
-	public boolean onKeyMultiple (int keyCode, int repeatCount, KeyEvent event) {
-	    mActivity.onEventNative(0, event);
-	    return true;
-	}
-	@Override
-	public boolean onKeyLongPress (int keyCode, KeyEvent event) {
-	    mActivity.onEventNative(0, event);
 	    return true;
 	}
     }
