@@ -130,7 +130,7 @@ public class Gforth
 	    callForth(xt);
 	}
     }
-    /*
+    
     static class MyInputConnection extends BaseInputConnection {
 	private SpannableStringBuilder mEditable;
 	private View mView;
@@ -210,7 +210,64 @@ public class Gforth
 	    return true;
 	}
     }
-    */
+
+    static class GforthView extends SurfaceView {
+        Gforth mActivity;
+	EditorInfo moutAttrs;
+	MyInputConnection mInputConnection;
+
+        public GforthView(Gforth context) {
+            super(context);
+	    mActivity=context;
+	    setFocusable(true);
+	    setFocusableInTouchMode(true);
+        }
+	@Override
+	public boolean onCheckIsTextEditor () {
+	    return true;
+	}
+	@Override
+	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
+	    moutAttrs=outAttrs;
+	    outAttrs.inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+	    outAttrs.initialSelStart = 1;
+	    outAttrs.initialSelEnd = 1;
+	    outAttrs.packageName = "gnu.gforth";
+	    mInputConnection = new MyInputConnection(this, true);
+	    return mInputConnection;
+	}
+	@Override
+	public void onSizeChanged(int w, int h, int oldw, int oldh) {
+	    mActivity.onEventNative(14, w);
+	    mActivity.onEventNative(15, h);
+	}
+	@Override
+	public boolean dispatchKeyEvent (KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	}
+	@Override
+	public boolean onKeyDown (int keyCode, KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	}
+	@Override
+	public boolean onKeyUp (int keyCode, KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	}
+	@Override
+	public boolean onKeyMultiple (int keyCode, int repeatCount, KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	}
+	@Override
+	public boolean onKeyLongPress (int keyCode, KeyEvent event) {
+	    mActivity.onEventNative(0, event);
+	    return true;
+	}
+    }
+
     public void hideProgress() {
 	if(progress!=null) {
 	    progress.dismiss();
@@ -254,7 +311,7 @@ public class Gforth
 
         setContentView(R.layout.main);
 	mView = (View)getWindow().getDecorView();
-        SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
+        GforthView surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
         surfaceView.getHolder().addCallback(this);
 
 	try {
