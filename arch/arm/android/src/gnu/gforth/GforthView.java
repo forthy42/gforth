@@ -22,6 +22,7 @@ package gnu.gforth;
 
 import android.view.SurfaceView;
 import android.view.inputmethod.BaseInputConnection;
+import android.view.inputmethod.EditorInfo;
 import gnu.gforth.Gforth;
 
 class GforthView extends SurfaceView {
