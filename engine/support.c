@@ -364,7 +364,8 @@ UCell hashkey2a(Char *s, UCell n)
   size_t w=sizeof(UCell);
 #define rotl(x,r) ((x << r) | (x >> (8*w - r)));
   int rot1 = w*4-1;
-  size_t pagesize=4096; /* a power-of-2 that's at most as large as a page */
+  size_t pagesize=4096; /* a power-of-2 that's at most as large as a page
+                           if you change this, change test/other.fs */
   UCell k0 = w==8 ? 0xb64d532aaaaaaad5 : 0xb653aad5;
   /* the 64-bit k0 gives not-so-catastrophic avalanche results on a
      case-insensitive version; the 32-bit version is based on that */
@@ -378,16 +379,22 @@ UCell hashkey2a(Char *s, UCell n)
     if (((((UCell)(s+n-1))^((UCell)(s+w-1)))&(-pagesize)) != 0) {
       /* cell access would cross page boundary, but byte access wouldn't */
       /* so cell access to s might incur a SIGSEGV */
-      h = *((UCell *)(((UCell)s)&(-w)));
-      memcpy(&h,(char *)(((UCell)s)&(-w)),w);
-      UCell erase2 = ((w-(((UCell)s)+n))&(w-1))*8;
-      h = (h<<erase2)>>erase;
+      memcpy(&h,(char *)(s+n-w),w);
+#ifdef WORDS_BIGENDIAN
+      h = h & ((~(UCell)0) >> erase);
+#else
+      h = h>>erase;
+#endif
     } else {
       memcpy(&h,s,w);
-      h = (h<<erase)>>erase;
+#ifdef WORDS_BIGENDIAN
+      h = h>>erase;
+#else
+      h = h & ((~(UCell)0) >> erase);
+#endif
     }
     h |= upmask & ~(h >> 2); // case insensitive trick
-    h = (h+seed)*k0;
+    h = (h^seed)*k0;
     h = rotl(h,rot1);
     return h*k0;
   } else {
@@ -396,15 +403,14 @@ UCell hashkey2a(Char *s, UCell n)
     do {
       memcpy(&h1,p,w);
       h1 |= upmask & ~(h1 >> 2); // case insensitive trick
-      h = (h+h1)*k0;
+      h = (h^h1)*k0;
       h = rotl(h,rot1);
       p += w;
     } while (p<s+n-w);
     p = s+n-w;
     memcpy(&h1,p,w);
     h1 |= upmask & ~(h1 >> 2); // case insensitive trick
-    h += h1;
-    h = h*k0;
+    h = (h^h1)*k0;
     h = rotl(h,rot1);
     return h*k0;
   }

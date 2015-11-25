@@ -1,4 +1,5 @@
 \ various tests, especially for bugs that have been fixed
+\ or where we don't use the testing framework
 
 \ Copyright (C) 1997,1998,2000,2003,2007,2013 Free Software Foundation, Inc.
 
@@ -16,6 +17,28 @@
 
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
+
+\ (hashkey2)
+
+create (hashkey2)-buffer 5000 allot
+variable (hashkey2)-broken
+: test1-(hashkey2) { u -- }
+    \ test keys of length u; max length 32
+    (hashkey2)-broken off
+    s" abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=" { sa sl }
+    sa 8 + u 8 cells (hashkey2) { key }
+    4100 0 do \ at least as many as given in the "pagesize" in hashkey2a()
+        sa (hashkey2)-buffer i + tuck sl move ( addr )
+        8 + u 8 cells (hashkey2) key <> if
+            cr ." wrong hash at " sa i + 8 + hex. u hex.
+            (hashkey2)-broken on then
+    loop ;
+
+: test-(hashkey2) ( -- )
+    26 0 do i test1-(hashkey2) loop
+    (hashkey2)-broken @ abort" (hashkey2) broken" ;
+
+test-(hashkey2)
 
 \ combination of marker and locals
 marker foo1
