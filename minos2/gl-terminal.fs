@@ -155,10 +155,13 @@ FVariable scroll-dest
 FVariable scroll-source
 FVariable scroll-time
 
+80 Value hcols
+48 Value vcols
+
 : form-chooser ( -- )
-    dpy-w @ dpy-h @ > IF  24 80  ELSE  40 48  THEN
-    gl-scaler @ tuck / >r / r>
-    gl-wh 2! ;
+    screen-orientation 1 and  IF  hcols  ELSE  vcols  THEN
+    dup dpy-h @ dpy-w @ 2* */ swap
+    gl-scaler @ tuck / >r / r> gl-wh 2! ;
 
 : show-rows ( -- n ) videorows scroll-y @ - rows 1+ min ;
 : nextpow2 ( n -- n' )

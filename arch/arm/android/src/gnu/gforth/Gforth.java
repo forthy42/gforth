@@ -95,7 +95,7 @@ public class Gforth
     private InputMethodManager inputMethodManager;
     private BroadcastReceiver recKeepalive, recConnectivity;
     private PendingIntent pintent, gforthintent;
-    private View mView;
+    private GforthView mView;
 
     private boolean started=false;
     private boolean libloaded=false;
@@ -125,6 +125,7 @@ public class Gforth
     // own subclasses
     static class GforthView extends SurfaceView implements SurfaceHolder.Callback2 {
 	Gforth mActivity;
+	InputMethodManager mManager;
 	EditorInfo moutAttrs;
 	MyInputConnection mInputConnection;
 	
@@ -210,6 +211,8 @@ public class Gforth
 	
 	public void init(Context context) {
 	    mActivity=(Gforth)context;
+	    mManager=(InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+
 	    setFocusable(true);
 	    setFocusableInTouchMode(true);
 	}
@@ -291,6 +294,12 @@ public class Gforth
 	public void surfaceDestroyed(SurfaceHolder holder) {
 	    mActivity.surfaceDestroyed(holder);
 	}
+	public void showIME() {
+	    mManager.showSoftInput(this, 0);
+	}
+	public void hideIME() {
+	    mManager.hideSoftInputFromWindow(getWindowToken(), 0);
+	}
     }
 
     public class RunForth implements Runnable {
@@ -321,14 +330,14 @@ public class Gforth
     }
 
     public void showIME() {
-	inputMethodManager.showSoftInput(mView, 0);
+	mView.showIME();
     }
     public void hideIME() {
-	inputMethodManager.hideSoftInputFromWindow(mView.getWindowToken(), 0);
+	mView.hideIME();
     }
     public void setEditLine(String line, int curpos) {
 	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
-	// mContentView.mInputConnection.setEditLine(line, curpos);
+	mView.mInputConnection.setEditLine(line, curpos);
     }
 
     @Override
@@ -345,9 +354,10 @@ public class Gforth
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         setContentView(R.layout.main);
-	mView = (View)getWindow().getDecorView();
-        GforthView surfaceView = (GforthView)findViewById(R.id.surfaceview);
-        surfaceView.getHolder().addCallback(this);
+        mView = (GforthView)findViewById(R.id.surfaceview);
+        mView.getHolder().addCallback(this);
+        mView.requestFocus();
+        mView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
 	try {
             ai = getPackageManager().getActivityInfo(getIntent().getComponent(), PackageManager.GET_META_DATA);
