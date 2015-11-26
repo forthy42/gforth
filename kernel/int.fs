@@ -362,7 +362,8 @@ method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
 \G word @i{xt-deferred}.
 drop Constant vtsize \ vtable size
 
-: compile-only? ( nt -- flag ) >f+c @ restrict-mask and ;
+: immediate? ( nt -- flag ) >f+c @ immediate-mask and 0<> ;
+: compile-only? ( nt -- flag ) >f+c @ restrict-mask and 0<> ;
 : ?compile-only ( nt -- nt )
     dup compile-only? IF
 	<<# s"  is compile-only" holds dup name>string holds 0. #>
