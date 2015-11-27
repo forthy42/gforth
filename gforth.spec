@@ -28,8 +28,19 @@ Source1:         http://www.complang.tuwien.ac.at/forth/gforth/gforth-%{version}
 Source2:	 http://savannah.gnu.org/people/viewgpg.php?user_id=9629#/%{name}.keyring
 BuildRequires:   emacs-nox
 BuildRequires:   libffi-devel
+%if 0%{?rhel_version}
+BuildRequires:   libtool libtool-ltdl libtool-ltdl-devel
+%endif
+%if 0%{?centos_version}
+BuildRequires:   libtool libtool-ltdl libtool-ltdl-devel
+%endif
+%if 0%{?fedora}
+BuildRequires:   libtool libtool-ltdl libtool-ltdl-devel
+%endif
+%if 0%{?suse_version}
 Requires(post):  %{install_info_prereq}
 Requires(preun): %{install_info_prereq}
+%endif
 BuildRoot:       %{_tmppath}/%{name}-%{version}-build
 
 %description
@@ -61,6 +72,9 @@ make check --jobs 1
 make DESTDIR=%{buildroot} install %{?_smp_mflags}
 install -d %{buildroot}%{_datadir}/emacs/site-lisp
 install -m 644 gforth.el gforth.elc suse-start-gforth.el %{buildroot}%{_datadir}/emacs/site-lisp
+%if 0%{?centos_version}
+rm -f %{buildroot}%{_infodir}/dir
+%endif
 
 %post
 %install_info --info-dir=%{_infodir} %{_infodir}/gforth.info.gz
