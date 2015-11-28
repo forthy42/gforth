@@ -40,10 +40,11 @@ Variable $file
 : fix-exe ( addr u -- )
     r/w bin open-file throw >r
     r@ $file $slurp
-    $file $@ 2 arg search 2drop $file $@ drop -
-    ." at: " dup hex. cr
-    0 r@ reposition-file throw
-    pathes$ $@ r@ write-file throw
+    $file $@ 2 arg search IF  drop $file $@ drop -
+	." at: " dup hex. cr
+	0 r@ reposition-file throw
+	pathes$ $@ r@ write-file throw
+    ELSE  2drop  THEN
     r> close-file throw ;
 
 1 arg fix-exe
