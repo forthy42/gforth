@@ -338,9 +338,6 @@ Variable gl-emit-buf
 \ Google is stupid: This event comes too early
 \ Make Gforth sync the screen up to four times till the config really changes
 :noname
-    [IFDEF] android 4 [ELSE] 1 [THEN] 0 DO
-	dpy-w @ dpy-h @ config-changer dpy-w @ dpy-h @ d<> screen-sync ?LEAVE
-    LOOP
     config-changer form-chooser need-sync on screen-sync ;
 is config-changed
 
