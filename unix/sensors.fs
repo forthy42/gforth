@@ -4,7 +4,7 @@ require jni-location.fs
 
 also jni also android
 
-: .sensor-at ( -- ) 0 sensor >o se-sensor >o getType ref> o> at-xy
+: .sensor-at ( -- ) 0 sensor >o se-sensor >o sensor-getType ref> o> at-xy
     .sensor ;
 
 : .location-at ( -- )  0 15 at-xy .location ;
@@ -13,7 +13,7 @@ also jni also android
 :noname  to location .location-at ; is android-location
 
 : +sensors ( -- )  clazz >o sensorManager >o TYPE_ALL getSensorList >o
-    [: getType 1000000 start-sensor 10 ms ;] o l-map ref> ref> o> ;
+    [: sensor-getType 1000000 start-sensor 10 ms ;] o l-map ref> ref> o> ;
 
 page start-gps +sensors
 
