@@ -227,7 +227,9 @@ DOES> ( x-key -- addr u )
   count rdrop ;
 
 : getwh ( -- )
-	0 0 dpy-w @ dpy-h @ glViewport ;
+    0 0 dpy-w @ dpy-h @ glViewport ;
+: screen-orientation ( -- 0/1 )
+    dpy-w @ dpy-h @ > negate ;
 
 :noname ; handler-class to DoNull \ doesn't exist
 :noname ; handler-class to DoOne  \ doesn't exit, either
