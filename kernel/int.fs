@@ -255,7 +255,10 @@ Defer context ( -- addr ) \ gforth
 ' lookup is context
 forth-wordlist current !
 
-: (search-wordlist)  ( addr count wid -- nt | false )
+: find-name-in  ( addr count wid -- nt | false )
+    \G search the word list identified by @i{wid} for the definition
+    \G named by the string at @i{c-addr count}. Return its @i{nt}, if
+    \G found, otherwise 0.
     dup wordlist-map @ find-method perform ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
@@ -266,14 +269,14 @@ forth-wordlist current !
     \G immediate) together with the @i{xt}.  In Gforth, the @i{xt}
     \G returned represents the interpretation semantics.  ANS Forth
     \G does not specify clearly what @i{xt} represents.
-    (search-wordlist) dup if
+    find-name-in dup if
 	(name>intn)
     then ;
 
 : find-name ( c-addr u -- nt | 0 ) \ gforth
     \g Find the name @i{c-addr u} in the current search
     \g order. Return its @i{nt}, if found, otherwise 0.
-    lookup @ (search-wordlist) ;
+    lookup @ find-name-in ;
 
 \ \ header, finding, ticks                              17dec92py
 

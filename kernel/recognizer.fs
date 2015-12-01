@@ -38,7 +38,11 @@
 
 : lit, ( n -- ) postpone Literal ;
 
-: do-lit, ( .. xt -- .. ) >namevt @ >vtlit, perform ;
+' name?int alias r>int
+' name>comp alias r>comp
+: r>post ( r:table -- xt ) >namevt @ >vtlit, @ ;
+
+: do-lit, ( .. xt -- .. ) r>post execute ;
 : >postpone ( token table -- )
     dup >r name>comp drop do-lit, r> post, ;
 
@@ -48,12 +52,12 @@
     dup 0= IF  drop r:fail  THEN ;
 
 :noname ( n -- n ) ;
-comp: ( n xt -- ) do-lit, ;
+' do-lit, set-compiler
 lit,: ( n -- ) postpone Literal ;
 AConstant r:num
 
 :noname ( d -- d ) ;
-comp: ( d xt -- ) do-lit, ;
+' do-lit, set-compiler
 lit,: ( d -- ) postpone 2Literal ;
 AConstant r:dnum
 

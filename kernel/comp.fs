@@ -706,7 +706,7 @@ G -1 warnings T !
 
 : check-shadow  ( addr count wid -- )
     \G prints a warning if the string is already present in the wordlist
-    >r 2dup r> (search-wordlist) warnings @ and ?dup if
+    >r 2dup r> find-name-in warnings @ and ?dup if
 	<<#
 	name>string 2over 2over str= 0=
 	IF  2over holds s"  with " holds  THEN

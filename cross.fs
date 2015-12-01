@@ -4183,6 +4183,8 @@ previous
 
 : times 0 ?DO dup X c, LOOP drop ; \ used for space table creation
 
+: set-compiler set-compiler ;
+
 \ only forth also cross also minimal definitions order
 
 \ cross-compiler words

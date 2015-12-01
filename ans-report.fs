@@ -144,7 +144,7 @@ ans-report-words definitions
 
 : find&note-name ( c-addr u -- nt/0 )
     \ find-name replacement. Takes note of all the words used.
-    lookup @ (search-wordlist) dup
+    lookup @ find-name-in dup
     if
 	dup note-name
     endif ;

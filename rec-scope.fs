@@ -20,7 +20,7 @@
 : rec:scope ( addr u -- xt | r:fail )
     ':' $split 2swap find-name dup IF
 	dup >does-code [ ' forth >does-code ]L = IF
-	    >body (search-wordlist) dup 0= IF  drop  r:fail  THEN
+	    >body find-name-in dup 0= IF  drop  r:fail  THEN
 	    EXIT
 	THEN
     THEN  drop 2drop r:fail ;

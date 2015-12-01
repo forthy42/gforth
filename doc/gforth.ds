@@ -7404,6 +7404,7 @@ name in Gforth has a cell-wide count-and-flags field, and the nt is not
 implemented as the address of that count field.
 
 doc-find-name
+doc-find-name-in
 doc-latest
 doc->name
 doc-name>interpret

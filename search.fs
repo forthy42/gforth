@@ -98,7 +98,7 @@ Variable slowvoc   0 slowvoc !
 : (vocfind)  ( addr count wid -- nfa|false )
     \ !! generalize this to be independent of vp
     drop 0 vp @ -DO ( addr count ) \ note that the loop does not reach 0
-        2dup vp i cells + @ (search-wordlist) dup if ( addr count nt )
+        2dup vp i cells + @ find-name-in dup if ( addr count nt )
             nip nip unloop exit then
     drop 1 -loop
     2drop false ;
@@ -110,7 +110,7 @@ Variable slowvoc   0 slowvoc !
 : (localsvocfind)  ( addr count wid -- nfa|false )
     \ !! use generalized (vocfind)
     drop locals-wordlist
-    IF 2dup locals-wordlist (search-wordlist) dup
+    IF 2dup locals-wordlist find-name-in dup
 	IF nip nip
 	    EXIT
 	THEN drop
