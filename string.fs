@@ -44,13 +44,14 @@
     THEN  drop nip rdrop ;
 
 : $[]! ( addr u n $[]addr -- )  $[] $! ;
-\G store a string into an array at index n
+\G store a string into an array at index @i{n}
 : $[]+! ( addr u n $[]addr -- )  $[] $+! ;
-\G add a string to the string at addr n
-: $[]@ ( n $[]addr -- addr u )  $[] $@ ;
-\G fetch a string from array index n -- return the zero string if empty
+\G add a string to the string at index @i{n}
 : $[]# ( addr -- len )          $@len cell/ ;
 \G return the number of elements in an array
+: $[]@ ( n $[]addr -- addr u ) 2dup $[]# u< IF $[] $@ ELSE 2drop 0. THEN ;
+\G fetch a string from array index @i{n} --- return the zero string if
+\G empty, and don't accidentally grow the array.
 : $+[]! ( addr u $[]addr -- ) dup $[]# swap $[]! ;
 \G add a string at the end of the array
 
