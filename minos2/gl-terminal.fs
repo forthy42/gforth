@@ -246,9 +246,12 @@ Variable gl-emit-buf
 	'ä' of 7 endof
 	'ö' of 8 endof
 	'ü' of 9 endof
+	'µ' of 10 endof
+	'✔' of 11 endof
+	'✘' of 12 endof
 	'▀' of $10 endof
 	dup
-    endcase $7F umin ;
+    endcase dup wcwidth 2 = IF  drop  13  ELSE  $7F umin  THEN ;
 
 : (gl-emit) ( char color -- )
     over 7 = IF  2drop  EXIT  THEN
@@ -265,7 +268,7 @@ Variable gl-emit-buf
 	dup gl-char' l!
 	gl-xy 2@ >r 1+ dup cols = dup gl-lineend !
 	IF  drop 0 r> 1+ >r  THEN
-	r> gl-xy 2!
+	r> gl-xy 2!  $10 +
     LOOP  drop ;
 
 : gl-emit ( char -- )  color-index @ (gl-emit) ;
