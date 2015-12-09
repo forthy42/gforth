@@ -23,6 +23,7 @@ c-library libc
     \c #include <unistd.h>
     \c #include <poll.h>
     \c #include <fcntl.h>
+    \c #include <locale.h>
     \c #if HAVE_GETPAGESIZE
     \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
     \c #define getpagesize() sysconf(_SC_PAGESIZE)
@@ -40,13 +41,16 @@ c-library libc
 	c-function epoll_ctl epoll_ctl n n n a -- n ( epfd op fd event -- r )
 	c-function epoll_wait epoll_wait n a n n -- n ( epfd events maxevs timeout -- r )
     [THEN]
-    c-function fdopen fdopen n a -- a ( fd fileattr -- file )
+    c-function fdopen fdopen n s -- a ( fd fileattr len -- file )
     c-function fcntl fcntl n n n -- n ( fd n1 n2 -- ior )
     c-function open open a n n -- n ( path flags mode -- fd )
     c-function read read n a n -- n ( fd addr u -- u' )
     c-function write write n a n -- n ( fd addr u -- u' )
     c-function close close n -- n ( fd -- r )
     c-function setlocale setlocale n s -- a ( category locale -- locale )
+    c-function fork fork -- n ( -- pid_t )
+    c-function execve execve s a a -- n ( filename len argv envp -- ret )
+    c-value environ environ -- a ( -- env )
 end-c-library
 
 getpagesize constant pagesize
@@ -82,4 +86,7 @@ $004 Constant POLLOUT
     \G use errno to generate throw when failing
     0< IF  -512 errno - throw  THEN ;
 
-: fd>file ( fd -- file )  s\" w+\0" drop fdopen ;
+: fd>file ( fd -- file )  s" w+" fdopen ;
+
+: fork+exec ( filename len argv -- )
+    fork 0= IF [: environ execve ;] catch drop (bye) ELSE drop 2drop THEN ;
