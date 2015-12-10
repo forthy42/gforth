@@ -1,0 +1,9 @@
+os:
+  - linux
+  # osx
+language: c
+install: sudo apt-get install gforth libffi-dev
+script:
+  - ./autogen.sh
+  - ./configure
+  - make
