@@ -1,6 +1,6 @@
 os:
   - linux
-  - osx
+  # osx
 env:
   - TARGET=c M32=
   - TARGET=c M32=-m32
