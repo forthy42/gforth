@@ -5,7 +5,7 @@ language: c
 compiler: gcc
 sudo: true
 before_install:
-  - sudo apt-get install gforth libffi-dev yodl
+  - sudo apt-get install gforth libffi-dev libsoil-dev yodl
   - ./install-swig.sh
 script:
   - ./autogen.sh
