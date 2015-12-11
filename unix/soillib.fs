@@ -11,7 +11,7 @@ get-current also soil definitions
 
 c-library soillib
     s" soil" add-lib
-    \c #include "SOIL.h"
+    \c #include "SOIL/SOIL.h"
 
     include soil.fs
 end-c-library

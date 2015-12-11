@@ -2,7 +2,7 @@
 %module soil
 %insert("include")
 %{
-#include <SOIL.h>
+#include <SOIL/SOIL.h>
 #ifdef __gnu_linux__
 #undef stderr
 extern struct _IO_FILE *stderr;
@@ -11,4 +11,4 @@ extern struct _IO_FILE *stderr;
 
 %apply SWIGTYPE * { unsigned char const *const };
 
-%include <SOIL.h>
+%include <SOIL/SOIL.h>
