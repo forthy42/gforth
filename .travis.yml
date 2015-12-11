@@ -9,5 +9,5 @@ before_install:
   - ./install-swig.sh
 script:
   - ./autogen.sh
-  - ./configure
+  - ./configure --enable-lib
   - make
