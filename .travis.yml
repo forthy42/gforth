@@ -3,7 +3,12 @@ os:
   # osx
 language: c
 compiler: gcc
+sudo: false
 install: sudo apt-get install gforth libffi-dev
+before_script:
+  - git clone https://github.com/GeraldWodni/swig.git
+  - cd swig && ./configure --prefix=$HOME && make && make install
+  - export PATH=$PATH:$HOME/bin
 script:
   - ./autogen.sh
   - ./configure
