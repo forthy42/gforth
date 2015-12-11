@@ -17,8 +17,9 @@ compiler: gcc
 sudo: true
 before_install:
   - sudo apt-get update
-  - sudo apt-get install gforth libffi-dev libsoil-dev yodl
-  - if [ `uname -m` = x86_64 ]; then sudo apt-get --fix-missing install gcc-multilib; fi
+  - sudo apt-get install gforth libffi-dev libltdl7 libsoil-dev yodl
+  - if [ `uname -m`$M32 = x86_64-m32 ]; then sudo dpkg --add-architecture i386; fi
+  - if [ `uname -m`$M32 = x86_64-m32 ]; then sudo apt-get --fix-missing install gcc-multilib libltdl7:386 ; fi
   - ./install-swig.sh
 script:
   - ./autogen.sh
