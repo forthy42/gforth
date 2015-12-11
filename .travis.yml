@@ -4,7 +4,7 @@ os:
 language: c
 compiler: gcc
 sudo: true
-install:
+before_install:
   - sudo apt-get install gforth libffi-dev yodl
   - git clone https://github.com/GeraldWodni/swig.git
   - cd swig && ./autogen.sh && ./configure && make && sudo make install
