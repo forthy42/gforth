@@ -4,9 +4,7 @@ os:
 language: c
 compiler: gcc
 sudo: false
-addons:
-  apt:
-    packages: install gforth libffi-dev
+addons: {apt: {packages: install gforth libffi-dev } }
 install:
   - git clone https://github.com/GeraldWodni/swig.git
   - cd swig && ./configure --prefix=$HOME && make && make install
