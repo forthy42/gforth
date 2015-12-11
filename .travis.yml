@@ -2,16 +2,8 @@ os:
   - linux
   # osx
 env:
-  - TARGET=c M32=
-  - TARGET=c M32=-m32
-  - TARGET=x86 M32=
-  - TARGET=x86 M32=-m32
-matrix:
-  exclude:
-    - os: osx
-      env: TARGET=x86 M32=
-    - os: osx
-      env: TARGET=x86 M32=-m32
+  - M32=
+  - M32=-m32
 language: c
 compiler: gcc
 sudo: true
