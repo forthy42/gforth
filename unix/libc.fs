@@ -43,7 +43,7 @@ c-library libc
     [THEN]
     c-function fdopen fdopen n s -- a ( fd fileattr len -- file )
     c-function fcntl fcntl n n n -- n ( fd n1 n2 -- ior )
-    c-function open open a n n -- n ( path flags mode -- fd )
+    c-function open open s n n -- n ( path len flags mode -- fd )
     c-function read read n a n -- n ( fd addr u -- u' )
     c-function write write n a n -- n ( fd addr u -- u' )
     c-function close close n -- n ( fd -- r )
