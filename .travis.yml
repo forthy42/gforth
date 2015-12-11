@@ -3,12 +3,11 @@ os:
   # osx
 language: c
 compiler: gcc
-sudo: false
+sudo: true
 addons: {apt: {packages: install gforth libffi-dev yodl } }
 install:
   - git clone https://github.com/GeraldWodni/swig.git
-  - cd swig && ./autogen.sh && ./configure --prefix=$HOME && make && make install
-  - export PATH=$PATH:$HOME/bin
+  - cd swig && ./autogen.sh && ./configure && make && sudo make install
 script:
   - ./autogen.sh
   - ./configure
