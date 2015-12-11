@@ -10,7 +10,7 @@ Vocabulary soil
 get-current also soil definitions
 
 c-library soillib
-    s" soil" add-lib
+    s" SOIL" add-lib
     \c #include "SOIL/SOIL.h"
 
     include soil.fs

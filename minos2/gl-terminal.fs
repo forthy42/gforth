@@ -194,13 +194,15 @@ videocols videorows * sfloats allocate throw Value videomem
 
 : resize-screen ( -- )
     gl-xy @ videorows >= IF
-	videomem videocols gl-xy @ rows nextpow2 + * sfloats resize throw
+	videomem videocols gl-xy @ 1+ nextpow2 * sfloats resize throw
 	to videomem
-	color-index @ videomem videocols videorows * sfloats +
-	videocols gl-xy @ 1+ videorows - * sfloats bounds ?DO
+	color-index @
+	videomem
+	videocols gl-xy @ 1+ nextpow2 * sfloats
+	videocols videorows * sfloats /string bounds ?DO
 	    dup I l!
 	1 sfloats +LOOP drop
-	gl-xy @ 1+ to videorows
+	gl-xy @ 1+ nextpow2 to videorows
     THEN ;
 
 2 sfloats buffer: texsize.xy
@@ -250,16 +252,20 @@ Variable gl-emit-buf
 	'✔' of 11 endof
 	'✘' of 12 endof
 	'▀' of $10 endof
-	dup
-    endcase dup wcwidth 2 = IF  drop  13  ELSE  $7F umin  THEN ;
+	default:
+	dup wcwidth -1 = IF  drop $7F
+	ELSE  dup wcwidth 2 = IF  drop  13  ELSE  $7F umin  THEN
+	THEN
+    endcase ;
 
 : (gl-emit) ( char color -- )
     over 7 = IF  2drop  EXIT  THEN
     over #lf = IF  2drop gl-cr  EXIT  THEN
+    over #cr = IF  2drop gl-cr  EXIT  THEN
     >r
     gl-emit-buf c$+!  gl-emit-buf $@ tuck x-size u< IF  rdrop  EXIT  THEN
     gl-emit-buf $@ drop xc@ xchar>glascii
-    gl-emit-buf $@ x-width { n }
+    gl-emit-buf $@ x-width abs { n }
     gl-emit-buf $off
     
     resize-screen  need-sync on
