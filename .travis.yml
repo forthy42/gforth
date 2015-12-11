@@ -16,8 +16,9 @@ language: c
 compiler: gcc
 sudo: true
 before_install:
+  - sudo apt-get update
   - sudo apt-get install gforth libffi-dev libsoil-dev yodl
-  - if [ `uname -m` = x86_64 ]; then sudo apt-get install gcc-multilib; fi
+  - if [ `uname -m` = x86_64 ]; then sudo apt-get --fix-missing install gcc-multilib; fi
   - ./install-swig.sh
 script:
   - ./autogen.sh
