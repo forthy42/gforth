@@ -14,6 +14,7 @@ build-ec
 doc/version.texi
 libforth
 preforth
+engine/*.i
 engine/Makefile
 engine/libcc.h
 engine/config.h
@@ -26,11 +27,14 @@ machpc.fs
 envos.fs
 libltdl/m4/ltversion
 libltdl/config-h
+ltmain.sh
 Makedist
 aclocal.m4
 autom4te.cache/
+config.guess
 config.log
 config.status
+config.sub
 doc/crossdoc.fd
 TAGS
 compat.zip
@@ -87,3 +91,4 @@ prim.b
 stamp-h.in
 version
 /.project
+install-sh
