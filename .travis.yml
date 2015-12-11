@@ -8,7 +8,7 @@ before_install:
   - sudo apt-get install gforth libffi-dev yodl
   - git clone https://github.com/GeraldWodni/swig.git
   - cd swig && ./autogen.sh && ./configure --prefix=$HOME && make
-  - make install
+  - cd swig && make install
   - export PATH=$PATH:$HOME/bin
 script:
   - ./autogen.sh
