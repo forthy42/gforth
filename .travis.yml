@@ -1,18 +1,15 @@
 os:
   - linux
-  # osx
+  - osx
 env:
   - M32=
   - M32=-m32
 language: c
 compiler: gcc
 sudo: true
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install gforth libffi-dev libltdl7 libsoil-dev yodl
-  - if [ `uname -m`$M32 = x86_64-m32 ]; then sudo apt-get --fix-missing install gcc-multilib libltdl7:i386 ; fi
-  - ./install-swig.sh
+before_install: ./install-deps.sh
 script:
   - ./autogen.sh
-  - ./configure --enable-lib CC="gcc $M32"
+  - if [ "${TRAVIS_OS_NAME}" = osx ]; then export CC=gcc-4.8; fi
+  - ./configure --enable-lib CC="$CC $M32"
   - make
