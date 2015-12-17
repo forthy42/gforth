@@ -51,7 +51,7 @@ c-library libc
     c-function read read n a n -- n ( fd addr u -- u' )
     c-function write write n a n -- n ( fd addr u -- u' )
     c-function close close n -- n ( fd -- r )
-    c-function setlocale setlocale n s -- a ( category locale -- locale )
+    c-function setlocale setlocale n s -- a ( category locale len -- locale )
     c-function fork fork -- n ( -- pid_t )
     c-function execve execve s a a -- n ( filename len argv envp -- ret )
     c-value environ environ -- a ( -- env )
