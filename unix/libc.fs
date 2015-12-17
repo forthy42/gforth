@@ -32,7 +32,7 @@ c-library libc
     \c #endif
     \c #ifdef __APPLE__
     \c #include <crt_externs.h>
-    \c #define environ _NSGetEnviron()
+    \c #define environ (*_NSGetEnviron())
     \c #endif
     c-value errno errno -- n ( -- value )
     c-function getpagesize getpagesize -- n ( -- size )
