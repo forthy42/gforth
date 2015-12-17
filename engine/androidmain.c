@@ -55,6 +55,7 @@ typedef struct {
   void* win;
   char* libdir;
   char* locale;
+  char* startfile;
 } jniargs;
 
 jniargs startargs;
@@ -233,7 +234,7 @@ void startForth(jniargs * startargs)
   addarg(ADDRLEN("gforth"));
   addfileargs(".options");
   addarg(ADDRLEN(patharg));
-  addarg(ADDRLEN("starta.fs"));
+  addarg(ADDRLEN(startargs->startfile));
 
   LOGI("Starting Gforth...\n");
   fflush(stderr);
@@ -276,20 +277,24 @@ pthread_attr_t * pthread_detach_attr(void)
   return &attr;
 }
 
-void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale)
+void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale, jstring startfile)
 {
-  char *getlibdir, *getlocale;
+  char *getlibdir, *getlocale, *getstartfile;
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
   getlibdir = (*env)->GetStringUTFChars(env, libdir, NULL);
   getlocale = (*env)->GetStringUTFChars(env, locale, NULL);
+  getstartfile = (*env)->GetStringUTFChars(env, startfile, NULL);
   // Java's string lifetime is unknown, better copy the string and release it
   startargs.libdir = malloc(strlen(getlibdir)+1);
   startargs.locale = malloc(strlen(getlocale)+1);
+  startargs.startfile= malloc(strlen(getstartfile)+1);
   strncpy(startargs.libdir, getlibdir, strlen(getlibdir)+1);
   strncpy(startargs.locale, getlocale, strlen(getlocale)+1);
+  strncpy(startargs.startfile, getstartfile, strlen(getstartfile)+1);
   (*env)->ReleaseStringUTFChars(env, libdir, getlibdir);
   (*env)->ReleaseStringUTFChars(env, locale, getlocale);
+  (*env)->ReleaseStringUTFChars(env, startfile, getstartfile);
 
   pthread_create(&(startargs.id), pthread_detach_attr(), startForth, (void*)&startargs);
 }
@@ -327,7 +332,7 @@ static JNINativeMethod GforthMethods[] = {
   {"onEventNative", "(ILjava/lang/Object;)V", (void*) JNI_onEventNative},
   {"onEventNative", "(II)V",                  (void*) JNI_onEventNativeInt},
   {"callForth",     "(J)V",                   (void*) JNI_callForth},
-  {"startForth",    "(Ljava/lang/String;Ljava/lang/String;)V",  (void*) JNI_startForth},
+  {"startForth",    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",  (void*) JNI_startForth},
 };
 
 #define alen(array)  sizeof(array)/sizeof(array[0])
