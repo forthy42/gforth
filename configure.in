@@ -858,9 +858,9 @@ case "$host_os" in
 			*)
 				host_os=darwin # remove version number
 				test -d /opt/X11/include && CFLAGS="$CFLAGS -I/opt/X11/include"
-				test -d /opt/X11/lib && CFLAGS="$CFLAGS -L/opt/X11/lib"
+				test -d /opt/X11/lib && LDFLAGS="$LDFLAGS -L/opt/X11/lib"
 				test -d /sw/include && CFLAGS="$CFLAGS -I/sw/include"
-				test -d /sw/lib && CFLAGS="$CFLAGS -L/sw/lib"
+				test -d /sw/lib && LDFLAGS="$LDFLAGS -L/sw/lib"
 			;;
 		esac
                 #the following magic value was suggested by
