@@ -102,6 +102,7 @@ public class Gforth
     private boolean surfaced=false;
     private int activated;
     private String beforec="", afterc="";
+    private String startfile = "starta.fs";
 
     public Handler handler;
     public Runnable startgps;
@@ -115,12 +116,13 @@ public class Gforth
     public ProgressDialog progress;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
+    private static final String META_DATA_STARTFILE = "android.app.startfile";
     private static final String TAG = "Gforth";
 
     public native void onEventNative(int type, Object event);
     public native void onEventNative(int type, int event);
     public native void callForth(long xt); // !! use long for 64 bits !!
-    public native void startForth(String libdir, String locale);
+    public native void startForth(String libdir, String locale, String startfile);
 
     // own subclasses
     static class GforthView extends SurfaceView implements SurfaceHolder.Callback2 {
@@ -364,6 +366,8 @@ public class Gforth
             if (ai.metaData != null) {
                 String ln = ai.metaData.getString(META_DATA_LIB_NAME);
                 if (ln != null) libname = ln;
+                String sf = ai.metaData.getString(META_DATA_STARTFILE);
+                if (sf != null) startfile = sf;
             }
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException("Error getting activity info", e);
@@ -457,7 +461,8 @@ public class Gforth
 	super.onStart();
 	if(!started) {
 	    startForth(getApplicationInfo().nativeLibraryDir,
-		       Locale.getDefault().toString() + ".UTF-8");
+		       Locale.getDefault().toString() + ".UTF-8",
+		       startfile);
 	    started=true;
 	}
 	activated = -1;

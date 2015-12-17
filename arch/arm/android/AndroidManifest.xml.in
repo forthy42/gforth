@@ -26,6 +26,8 @@
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
                     android:value="gforth-fast" />
+            <meta-data android:name="android.app.startfile"
+                    android:value="starta.fs" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.DEFAULT" />
@@ -42,6 +44,8 @@
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
                     android:value="gforth-itc" />
+            <meta-data android:name="android.app.startfile"
+                    android:value="starta.fs" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
