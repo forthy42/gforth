@@ -17,12 +17,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
-TEXI2DVI = @TEXI2DVI@ -I @srcdir@
-TEXI2PDF = @TEXI2DVI@ -I @srcdir@ --pdf
+SRCINC = -I @srcdir@
+TEXI2DVI = @TEXI2DVI@ $(SRCINC)
+TEXI2PDF = @TEXI2DVI@ $(SRCINC) --pdf
 DVI2PS	= dvips -t letterSize -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
-MAKEINFO = makeinfo -I @srcdir@
-TEXI2HTML = texi2html -I @srcdir@
+MAKEINFO = makeinfo $(SRCINC)
+TEXI2HTML = texi2html $(SRCINC)
 
 VPATH = @srcdir@:.
 
