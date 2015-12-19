@@ -607,16 +607,16 @@ FORCE: ;
 
 #this rule avoids remaking everything after minor changes in Makefile.in
 #disabled now, as it doesn't have the wanted effect
-version:	Makefile.in configure.in
-		echo $(VERSION) > $@
+#version:	Makefile.in configure.in
+#		echo $(VERSION) > $@
 
 # With dos we use normal dos echo
 # we cannot pipe the output to engine/version.h directly because
 # of the "/ and \" problem. Copying works because we use the
 # shell und file utilities.
 
-kernel/version.fs:	version
-	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
+#kernel/version.fs:	version
+#	echo ": version-string s\" $(VERSION)\" ;" > kernel/version.fs
 
 more:	$(ENGINES) $(FORTH_GEN) $(GEN) @libengines@ @build_libcc_named@
 
@@ -652,7 +652,7 @@ docclean:	FORCE
 
 clean:		mostlyclean
 	-$(RM) -rf $(GEN) *.o engine/*.o engine/*.lo engine/*.la \
-	engine/.libs engine/libgforth* libgforth* arch/*/*.o version \
+	engine/.libs engine/libgforth* libgforth* arch/*/*.o \
 	gforth-itc-noll$(EXT)  engine/gforth-itc-noll$(EXT)  \
 	gforth-ditc-noll$(EXT) engine/gforth-ditc-noll$(EXT) \
 	gforth-prof-noll$(EXT) engine/gforth-prof-noll$(EXT) \
@@ -1234,7 +1234,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh:	Makefile.in Makedist.in engine/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
+Makefile Makedist engine/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh kernel/version.fs:	Makefile.in Makedist.in engine/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
 	./config.status
 
 config.status: configure

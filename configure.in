@@ -1291,6 +1291,7 @@ envos.fs
 preforth
 libforth
 gforthker
+kernel/version.fs
 engine/Makefile
 engine/libcc.h
 doc/version.texi
