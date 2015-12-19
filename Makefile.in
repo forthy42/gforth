@@ -127,12 +127,6 @@ FORTHK	= ./gforthker -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 # in exboot.fs
 STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@
 STRIP	= strip
-TEXI2DVI = @TEXI2DVI@
-TEXI2PDF = @TEXI2DVI@ --pdf
-DVI2PS	= dvips -t letterSize -Z
-#you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
-MAKEINFO = makeinfo
-TEXI2HTML = texi2html
 
 # -------------	Compiler Flags
 
@@ -827,7 +821,6 @@ installdirs:	mkinstalldirs
 		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth$(ARCH)/$(VERSION) $(datadir)/gforth$(ARCH)/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth$(ARCH)/$(VERSION) $(libccdir); do \
 			$(srcdir)/mkinstalldirs $(DESTDIR)$$i; \
 		done
-		#
 		for i in $(INSTALLDIRS); do \
 			$(srcdir)/mkinstalldirs $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)/$$i; \
 		done
@@ -1128,9 +1121,6 @@ prim.TAGS: 	prim.b prims2x.fs
 		$(RM) $@-
 
 prim.tags: 	prim.b prims2x.fs
-		#echo '2c\' >prim.TAGS.sed
-		#echo $(srcdir)/prim >>prim.TAGS.sed
-		#$(PREFORTH) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye" | sed -f prim.TAGS.sed >$@-
 		$(PREFORTH) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-vi-tag dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
@@ -1164,52 +1154,8 @@ checkdoc:	doc/gforth.ds prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd 
 		-grep unknown doc/gforth.texi
 		-grep doc- doc/gforth.texi| grep -v '^@c'
 
-dvi:		doc/gforth.dvi doc/vmgen.dvi
-
-pdf:		doc/gforth.pdf doc/vmgen.pdf
-
-doc/gforth.dvi doc/gforth.fns:	$(GFORTH_TEXI)
-		cd doc; $(TEXI2DVI) gforth.texi
-
-doc/gforth.pdf:	$(GFORTH_TEXI)
-		cd doc; $(TEXI2PDF) gforth.texi
-
-doc/vmgen.dvi:	$(VMGEN_TEXI)
-		cd doc; $(TEXI2DVI) vmgen.texi
-
-doc/vmgen.pdf:	$(VMGEN_TEXI)
-		cd doc; $(TEXI2PDF) vmgen.texi
-
-doc/gforth.ps:	doc/gforth.dvi
-		$(DVI2PS) doc/gforth.dvi -o $@
-
-doc/vmgen.ps:	doc/vmgen.dvi
-		$(DVI2PS) doc/vmgen.dvi -o $@
-
-info:		doc/gforth.info doc/vmgen.info
-
-doc/gforth.info: $(GFORTH_TEXI)
-		cd doc; $(MAKEINFO) gforth.texi
-
-doc/vmgen.info: $(VMGEN_TEXI)
-		cd doc; $(MAKEINFO) vmgen.texi
-
-
-### need makeinfo 4.2 to generate html with these rules
-doc/gforth: $(GFORTH_TEXI)
-	cd doc; $(MAKEINFO) --html gforth.texi
-
-doc/vmgen: $(VMGEN_TEXI)
-	cd doc; $(MAKEINFO) --html vmgen.texi
-
-doc/gforth.txt:	$(GFORTH_TEXI)
-		-cd doc; $(MAKEINFO) --no-headers --no-split gforth.texi >gforth.txt
-
-doc/vmgen.txt:	$(VMGEN_TEXI)
-		-cd doc; $(MAKEINFO) --no-headers --no-split vmgen.texi >vmgen.txt
-
-doc:		gforth.fi TAGS $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
-		-cd doc; $(MAKE) doc
+doc pdf dvi txt ps:	gforth.fi TAGS $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
+		-cd doc; $(MAKE) $@
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.

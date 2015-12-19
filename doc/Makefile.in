@@ -76,7 +76,9 @@ info:		gforth.info vmgen.info
 
 txt:		gforth.txt vmgen.txt
 
-doc:		info gforth vmgen ps txt
+html:		gforth vmgen
+
+doc:		info html ps txt
 
 Makefile: Makefile.in ../config.status ../configure.in
 	cd .. && $(MAKE) doc/Makefile.in
