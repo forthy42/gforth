@@ -750,7 +750,7 @@ cmove	( c_from c_to u -- )	string	c_move
 ""Copy the contents of @i{ucount} characters from data space at
 @i{c-from} to @i{c-to}. The copy proceeds @code{char}-by-@code{char}
 from low address to high address; i.e., for overlapping areas it is
-safe if @i{c-to}=<@i{c-from}.""
+safe if @i{c-to}<=@i{c-from}.""
 cmove(c_from,c_to,u);
 :
  bounds ?DO  dup c@ I c! 1+  LOOP  drop ;
@@ -1405,7 +1405,7 @@ dcomparisons(du, ud1 ud2, d_u_, ud1, ud2, gforth, gforth, double-ext, gforth)
 \+
 
 within	( u1 u2 u3 -- f )		core-ext
-""u2=<u1<u3 or: u3=<u2 and u1 is not in [u3,u2).  This works for
+""u2<u3 and u1 in [u2,u3) or: u2>=u3 and u1 not in [u3,u2).  This works for
 unsigned and signed numbers (but not a mixture).  Another way to think
 about this word is to consider the numbers as a circle (wrapping
 around from @code{max-u} to 0 for unsigned, and from @code{max-n} to

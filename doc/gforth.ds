@@ -1908,8 +1908,8 @@ In this example @code{@{ a b -- b a @}} is the locals definition; it
 takes two cells from the stack, puts the top of stack in @code{b} and
 the next stack element in @code{a}.  @code{--} starts a comment ending
 with @code{@}}.  After the locals definition, using the name of the
-local will push its value on the stack.  You can leave the comment
-part (@code{-- b a}) away:
+local will push its value on the stack.  You can omit the comment
+part (@code{-- b a}):
 
 @example
 : swap ( x1 x2 -- x2 x1 )
@@ -2669,11 +2669,11 @@ This section gives a short introduction into how to use files inside
 Forth. It's broken up into five easy steps:
 
 @enumerate 1
-@item Opened an ASCII text file for input
-@item Opened a file for output
-@item Read input file until string matched (or some other condition matched)
-@item Wrote some lines from input ( modified or not) to output
-@item Closed the files.
+@item Open an ASCII text file for input
+@item Open a file for output
+@item Read input file until string matches (or some other condition is met)
+@item Write some lines from input (modified or not) to output
+@item Close the files.
 @end enumerate
 
 Reference: @ref{General files}.
@@ -2924,7 +2924,7 @@ broken ones, use
 
 : foo1 ( n1 n2 -- n )
    [ ' + ] [compile,] ;
-see foo
+see foo1
 @end example
 
 @code{'} is a word with default compilation semantics; it parses the
@@ -3353,9 +3353,9 @@ This example uses @code{compile-map-array} to show off, but you could
 also use @code{map-array} instead (try it now!).
 
 You can use this technique for efficient multiplication of large
-matrices.  In matrix multiplication, you multiply every line of one
+matrices.  In matrix multiplication, you multiply every row of one
 matrix with every column of the other matrix.  You can generate the code
-for one line once, and use it for every column.  The only downside of
+for one row once, and use it for every column.  The only downside of
 this technique is that it is cumbersome to recover the memory consumed
 by the generated code when you are done (and in more complicated cases
 it is not possible portably).
@@ -3464,7 +3464,7 @@ Yes, the order of wordlists in the output of @code{order} is reversed
 from stack comments and the output of @code{.s} and thus unintuitive.
 
 @quotation Assignment
-Define @code{>order ( wid -- )} with adds @code{wid} as first searched
+Define @code{>order ( wid -- )} which adds @code{wid} as first searched
 wordlist to the search order.  Define @code{previous ( -- )}, which
 removes the first searched wordlist from the search order.  Experiment
 with boundary conditions (you will see some crashes or situations that
@@ -3597,7 +3597,7 @@ group of characters in turn, it makes two attempts to do something:
 It tries to treat it as a command. It does this by searching a @dfn{name
 dictionary}. If the group of characters matches an entry in the name
 dictionary, the name dictionary provides the text interpreter with
-information that allows the text interpreter perform some actions. In
+information that allows the text interpreter to perform some actions. In
 Forth jargon, we say that the group
 @cindex word
 @cindex definition
@@ -3727,9 +3727,9 @@ is often abbreviated to @dfn{TOS}.
 To understand how parameters are passed in Forth, consider the
 behaviour of the definition @code{+} (pronounced ``plus''). You will not
 be surprised to learn that this definition performs addition. More
-precisely, it adds two number together and produces a result. Where does
+precisely, it adds two numbers together and produces a result. Where does
 it get the two numbers from? It takes the top two numbers off the
-stack. Where does it place the result? On the stack. You can act-out the
+stack. Where does it place the result? On the stack. You can act out the
 behaviour of @code{+} with your playing cards like this:
 
 @itemize @bullet
@@ -3756,13 +3756,14 @@ without affecting the stack. Type:
 @end example
 
 The text interpreter looks up the word @code{clearstacks} and executes
-it; it tidies up the stacks and removes any entries that may have been
-left on it by earlier examples. The text interpreter pushes each of the
-three numbers in turn onto the stack. Finally, the text interpreter
-looks up the word @code{.s} and executes it. The effect of executing
-@code{.s} is to print the ``<3>'' (the total number of items on the stack)
-followed by a list of all the items on the stack; the item on the far
-right-hand side is the TOS.
+it; it tidies up the stacks (data and floating point stack) and
+removes any entries that may have been left on them by earlier
+examples. The text interpreter pushes each of the three numbers in
+turn onto the stack. Finally, the text interpreter looks up the word
+@code{.s} and executes it. The effect of executing @code{.s} is to
+print the ``<3>'' (the total number of items on the stack) followed by
+a list of all the items on the stack; the item on the far right-hand
+side is the TOS.
 
 You can now type:
 
@@ -3961,7 +3962,7 @@ will already have a definition called @code{add-two}. Lets try modifying
 it by typing in a new definition:
 
 @example
-@kbd{: add-two dup . ." + 2 =" 2 + . ;@key{RET}} redefined add-two  ok
+@kbd{: add-two dup . ." + 2 = " 2 + . ;@key{RET}} redefined add-two  ok
 @end example
 
 Forth recognised that we were defining a word that already exists, and
@@ -3969,7 +3970,7 @@ printed a message to warn us of that fact. Let's try out the new
 definition:
 
 @example
-@kbd{9 add-two@key{RET}} 9 + 2 =11  ok
+@kbd{9 add-two@key{RET}} 9 + 2 = 11  ok
 @end example
 
 @noindent
@@ -4045,7 +4046,7 @@ define @code{add-two}:
 
 The reason that this didn't happen is bound up in the way that @code{:}
 works. The word @code{:} does two special things. The first special
-thing that it does prevents the text interpreter from ever seeing the
+thing that it does is to prevent the text interpreter from ever seeing the
 characters @code{add-two}. The text interpreter uses a variable called
 @cindex modifying >IN
 @code{>IN} (pronounced ``to-in'') to keep track of where it is in the
@@ -4083,7 +4084,7 @@ pushed onto the stack when @code{add-two} is @dfn{executed}. Similarly,
 the behaviours of @code{+} and @code{.} are also compiled into the
 definition.
 
-One category of words don't get compiled. These so-called @dfn{immediate
+Certain kinds of words do not get compiled. These so-called @dfn{immediate
 words} get executed (performed @i{now}) regardless of whether the text
 interpreter is interpreting or compiling. The word @code{;} is an
 immediate word. Rather than being compiled into the definition, it
@@ -4127,7 +4128,7 @@ semantics until the run-time of the definition that it is being compiled
 into.)
 @end itemize
 
-Words don't behave in such a regular way, but most have @i{default
+Words don't always behave in such a regular way, but most have @i{default
 semantics} which means that they behave like this:
 
 @itemize @bullet
@@ -4196,7 +4197,7 @@ definition of @code{word1}, it encountered @code{show-state} whose
 compilation semantics are to append its interpretation semantics to the
 current definition. When you execute @code{word1}, it performs the
 interpretation semantics of @code{show-state}.  At the time that @code{word1}
-(and therefore @code{show-state}) are executed, the system is
+(and therefore @code{show-state}) is executed, the system is
 interpreting.
 
 When you pressed @key{RET} after entering the definition of @code{word2},
@@ -4206,7 +4207,7 @@ ok}''. When the text interpreter compiled the definition of
 whose compilation semantics are therefore to perform its interpretation
 semantics. It is executed straight away (even before the text
 interpreter has moved on to process another group of characters; the
-@code{;} in this example). The effect of executing it are to display the
+@code{;} in this example). The effect of executing it is to display the
 value of @code{state} @i{at the time that the definition of}
 @code{word2} @i{is being defined}. Printing -1 demonstrates that the
 system is compiling at this time. If you execute @code{word2} it does
@@ -4308,7 +4309,7 @@ semantics} of a word that it encounters.
 @item
 The relationship between the @dfn{interpretation semantics} and
 @dfn{compilation semantics} for a word
-depend upon the way in which the word was defined (for example, whether
+depends upon the way in which the word was defined (for example, whether
 it is an @dfn{immediate} word).
 @item
 Forth definitions can be implemented in Forth (called @dfn{high-level
@@ -14902,15 +14903,15 @@ an infinity.
 @cindex floating-point unidentified fault, @code{FACOSH}
 Platform-dependent; on IEEE-FP systems typically produces a NaN.
 
-@item @i{float}=<-1 (@code{FLNP1}):
-@cindex @code{FLNP1}, @i{float}=<-1
+@item @i{float}<=-1 (@code{FLNP1}):
+@cindex @code{FLNP1}, @i{float}<=-1
 @cindex floating-point unidentified fault, @code{FLNP1}
 Platform-dependent; on IEEE-FP systems typically produces a NaN (or a
 negative infinity for @i{float}=-1).
 
-@item @i{float}=<0 (@code{FLN}, @code{FLOG}):
-@cindex @code{FLN}, @i{float}=<0
-@cindex @code{FLOG}, @i{float}=<0
+@item @i{float}<=0 (@code{FLN}, @code{FLOG}):
+@cindex @code{FLN}, @i{float}<=0
+@cindex @code{FLOG}, @i{float}<=0
 @cindex floating-point unidentified fault, @code{FLN} or @code{FLOG}
 Platform-dependent; on IEEE-FP systems typically produces a NaN (or a
 negative infinity for @i{float}=0).

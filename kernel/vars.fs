@@ -83,13 +83,9 @@ AUser save-task        0 save-task !
 AUser sp0 ( -- a-addr ) \ gforth
 \G @code{User} variable -- initial value of the data stack pointer.
 \ sp0 is used by douser:, must be user
-\    ' sp0 Alias s0 ( -- a-addr ) \ gforth
-\G OBSOLETE alias of @code{sp0}
 
 AUser rp0 ( -- a-addr ) \ gforth
 \G @code{User} variable -- initial value of the return stack pointer.
-\    ' rp0 Alias r0 ( -- a-addr ) \ gforth
-\G OBSOLETE alias of @code{rp0}
 
 has? floating [IF]
 AUser fp0 ( -- a-addr ) \ gforth
@@ -100,8 +96,6 @@ AUser fp0 ( -- a-addr ) \ gforth
 has? glocals [IF]
 AUser lp0 ( -- a-addr ) \ gforth
 \G @code{User} variable -- initial value of the locals stack pointer.
-\    ' lp0 Alias l0 ( -- a-addr ) \ gforth
-\G OBSOLETE alias of @code{lp0}
 [THEN]
 
 AUser throw-entry  \ pointer to task-specific signal handler
