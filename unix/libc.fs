@@ -30,10 +30,6 @@ c-library libc
     \c #elif PAGESIZE
     \c #define getpagesize() PAGESIZE
     \c #endif
-    \c #ifdef __APPLE__
-    \c #include <crt_externs.h>
-    \c #define environ (*_NSGetEnviron())
-    \c #endif
     c-value errno errno -- n ( -- value )
     c-function getpagesize getpagesize -- n ( -- size )
     c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
@@ -53,8 +49,8 @@ c-library libc
     c-function close close n -- n ( fd -- r )
     c-function setlocale setlocale n s -- a ( category locale len -- locale )
     c-function fork fork -- n ( -- pid_t )
-    c-function execve execve s a a -- n ( filename len argv envp -- ret )
-    c-value environ environ -- a ( -- env )
+    c-function execvp execvp s a -- n ( filename len argv -- ret )
+    c-function exit() exit n -- void ( ret -- )
 end-c-library
 
 getpagesize constant pagesize
@@ -93,4 +89,4 @@ $004 Constant POLLOUT
 : fd>file ( fd -- file )  s" w+" fdopen ;
 
 : fork+exec ( filename len argv -- )
-    fork 0= IF [: environ execve ;] catch drop (bye) ELSE drop 2drop THEN ;
+    fork 0= IF  ['] exit() is throw  execvp exit()  ELSE  drop 2drop  THEN ;

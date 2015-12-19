@@ -606,8 +606,9 @@ FORCE: ;
 .DELETE_ON_ERROR:
 
 #this rule avoids remaking everything after minor changes in Makefile.in
+#disabled now, as it doesn't have the wanted effect
 version:	Makefile.in configure.in
-		if test -r $@ && test x'$(VERSION)' = x`cat $@` ; then true ; else echo $(VERSION) > $@ ; fi
+		echo $(VERSION) > $@
 
 # With dos we use normal dos echo
 # we cannot pipe the output to engine/version.h directly because
