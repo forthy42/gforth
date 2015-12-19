@@ -519,7 +519,6 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/pow10.c engine/atanh.c engine/cleanalign.c \
 	engine/strerror.c engine/strsignal.c engine/dblsub.c \
 	engine/fnmatch.h engine/fnmatch.c \
-	engine/makefile.dos engine/makefile.os2 \
 	engine/zexpand.c engine/androidmain.c engine/sincos.c
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
@@ -534,11 +533,9 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	doc/vmgen.texi doc/fdl.texi doc/gpl.texi \
 	gforth.el \
 	$(ARCHS) \
-	INSTALL.DOS makefile.dos mkdosmf.sed config.bat \
-	dosconf.h gforthmi.bat mkinstalldirs siteinit.fs \
+	mkinstalldirs siteinit.fs \
 	versions.bsh \
-	configure.cmd mkos2mf.sed os2conf.h makefile.os2 \
-	gforthmi.cmd glosgen.glo doc/glossaries.doc \
+	glosgen.glo doc/glossaries.doc \
 	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
 	test/coretest.out test/checkans.out test/gforth.out \
@@ -1211,7 +1208,7 @@ doc/gforth.txt:	$(GFORTH_TEXI)
 doc/vmgen.txt:	$(VMGEN_TEXI)
 		-cd doc; $(MAKEINFO) --no-headers --no-split vmgen.texi >vmgen.txt
 
-doc:		gforth.fi TAGS
+doc:		gforth.fi TAGS $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
 		-cd doc; $(MAKE) doc
 
 # For an explanation of the following Makefile rules, see node
@@ -1235,25 +1232,9 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile doc/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh kernel/version.fs:	Makefile.in Makedist.in engine/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
+Makefile Makedist engine/Makefile doc/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh kernel/version.fs:	Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
 	./config.status
 
 config.status: configure
 	./config.status --recheck
 
-#create files for DOS, because DOS cannot do it itself
-makefile.dos: mkdosmf.sed Makefile.in
-	sed -f mkdosmf.sed <Makefile.in >makefile.dos
-
-engine/makefile.dos: mkdosmf.sed engine/Makefile.in
-	sed -f mkdosmf.sed <engine/Makefile.in >engine/makefile.dos
-
-makefile.os2: mkos2mf.sed Makefile.in
-	sed -f mkos2mf.sed <Makefile.in >makefile.os2
-	echo '%.o:      %.c' >>makefile.os2
-	echo '          $$(GCC) $$(CFLAGS) $$(CPPFLAGS) -c $$<' >>makefile.os2
-
-engine/makefile.os2: mkos2mf.sed engine/Makefile.in
-	sed -f mkos2mf.sed <engine/Makefile.in >engine/makefile.os2
-	echo '%.o:      %.c' >>engine/makefile.os2
-	echo '          $$(GCC) $$(CFLAGS) $$(CPPFLAGS) -c $$<' >>engine/makefile.os2

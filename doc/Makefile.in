@@ -17,14 +17,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
-TEXI2DVI = @TEXI2DVI@
-TEXI2PDF = @TEXI2DVI@ --pdf
+TEXI2DVI = @TEXI2DVI@ -I @srcdir@
+TEXI2PDF = @TEXI2DVI@ -I @srcdir@ --pdf
 DVI2PS	= dvips -t letterSize -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
-MAKEINFO = makeinfo
-TEXI2HTML = texi2html
+MAKEINFO = makeinfo -I @srcdir@
+TEXI2HTML = texi2html -I @srcdir@
 
-VPATH = @srcdir@/doc:.
+VPATH = @srcdir@:.
 
 GFORTH_TEXI =  gforth.texi version.texi
 
@@ -37,10 +37,10 @@ gforth.pdf:	$(GFORTH_TEXI)
 		$(TEXI2PDF) gforth.texi
 
 vmgen.dvi:	$(VMGEN_TEXI)
-		$(TEXI2DVI) vmgen.texi
+		$(TEXI2DVI) $<
 
 vmgen.pdf:	$(VMGEN_TEXI)
-		$(TEXI2PDF) vmgen.texi
+		$(TEXI2PDF) $<
 
 gforth.ps:	gforth.dvi
 		$(DVI2PS) gforth.dvi -o $@
@@ -49,22 +49,22 @@ vmgen.ps:	vmgen.dvi
 		$(DVI2PS) vmgen.dvi -o $@
 
 gforth.info:	$(GFORTH_TEXI)
-		$(MAKEINFO) gforth.texi
+		$(MAKEINFO) $<
 
 vmgen.info:	$(VMGEN_TEXI)
-		$(MAKEINFO) vmgen.texi
+		$(MAKEINFO) $<
 
 gforth:		$(GFORTH_TEXI)
-		$(MAKEINFO) --html gforth.texi
+		$(MAKEINFO) --html $<
 
 vmgen:		$(VMGEN_TEXI)
-		$(MAKEINFO) --html vmgen.texi
+		$(MAKEINFO) --html $<
 
 gforth.txt:	$(GFORTH_TEXI)
-		-$(MAKEINFO) --no-headers --no-split gforth.texi >gforth.txt
+		-$(MAKEINFO) --no-headers --no-split $< >gforth.txt
 
 vmgen.txt:	$(VMGEN_TEXI)
-		-$(MAKEINFO) --no-headers --no-split vmgen.texi >vmgen.txt
+		-$(MAKEINFO) --no-headers --no-split $< >vmgen.txt
 
 dvi:		gforth.dvi vmgen.dvi
 

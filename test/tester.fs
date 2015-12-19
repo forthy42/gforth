@@ -5,7 +5,9 @@
 
 S" ./ttester.fs" INCLUDED
 
+warnings off
 : { T{ ;
+warnings on
 
 : } }T ;
 

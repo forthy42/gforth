@@ -35,7 +35,7 @@ do
     mv $i+ $i
 done
 
-make doc pdf install.TAGS makefile.dos makefile.os2 >&2
+make doc pdf install.TAGS >&2
 
 #cp /bin/cygwin1.dll cygwin-copy.dll
 #./gforth fixpath.fs cygwin-copy.dll "/bin/cygwin-console-helper.exe" "./cygwin-console-helper.exe" 1>&2
