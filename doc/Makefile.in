@@ -1,0 +1,84 @@
+#Makefile for Gforth
+
+#Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
+
+#This file is part of Gforth.
+
+#Gforth is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation, either version 3
+#of the License, or (at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see http://www.gnu.org/licenses/.
+
+TEXI2DVI = @TEXI2DVI@
+TEXI2PDF = @TEXI2DVI@ --pdf
+DVI2PS	= dvips -t letterSize -Z
+#you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
+MAKEINFO = makeinfo
+TEXI2HTML = texi2html
+
+VPATH = @srcdir@/doc:.
+
+GFORTH_TEXI =  gforth.texi version.texi
+
+VMGEN_TEXI = vmgen.texi version.texi fdl.texi
+
+gforth.dvi gforth.fns:	$(GFORTH_TEXI)
+		$(TEXI2DVI) gforth.texi
+
+gforth.pdf:	$(GFORTH_TEXI)
+		$(TEXI2PDF) gforth.texi
+
+vmgen.dvi:	$(VMGEN_TEXI)
+		$(TEXI2DVI) vmgen.texi
+
+vmgen.pdf:	$(VMGEN_TEXI)
+		$(TEXI2PDF) vmgen.texi
+
+gforth.ps:	gforth.dvi
+		$(DVI2PS) gforth.dvi -o $@
+
+vmgen.ps:	vmgen.dvi
+		$(DVI2PS) vmgen.dvi -o $@
+
+gforth.info:	$(GFORTH_TEXI)
+		$(MAKEINFO) gforth.texi
+
+vmgen.info:	$(VMGEN_TEXI)
+		$(MAKEINFO) vmgen.texi
+
+gforth:		$(GFORTH_TEXI)
+		$(MAKEINFO) --html gforth.texi
+
+vmgen:		$(VMGEN_TEXI)
+		$(MAKEINFO) --html vmgen.texi
+
+gforth.txt:	$(GFORTH_TEXI)
+		-$(MAKEINFO) --no-headers --no-split gforth.texi >gforth.txt
+
+vmgen.txt:	$(VMGEN_TEXI)
+		-$(MAKEINFO) --no-headers --no-split vmgen.texi >vmgen.txt
+
+dvi:		gforth.dvi vmgen.dvi
+
+pdf:		gforth.pdf vmgen.pdf
+
+ps:		gforth.ps vmgen.ps
+
+info:		gforth.info vmgen.info
+
+txt:		gforth.txt vmgen.txt
+
+doc:		info gforth vmgen ps txt
+
+Makefile: Makefile.in ../config.status ../configure.in
+	cd .. && $(MAKE) doc/Makefile.in
+
+all:		Makefile doc

@@ -1295,6 +1295,7 @@ kernel/version.fs
 engine/Makefile
 engine/libcc.h
 doc/version.texi
+doc/Makefile
 unix/Makefile
 build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
