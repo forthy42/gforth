@@ -301,10 +301,14 @@ JValue location
 JValue sensor
 JValue cmanager
 
-: .network ( -- )
+: network-info ( -- o/0 )
     cmanager 0= IF  clazz .connectivityManager to cmanager  THEN
-    cmanager .getActiveNetworkInfo
-    ?dup-IF  >o toString xref> .jstring  ELSE  ." no active network"  THEN ;
+    cmanager .getActiveNetworkInfo ;
+
+: .network-info ( o -- ) >o toString xref> .jstring ;
+
+: .network ( -- )  network-info
+    ?dup-IF  .network-info  ELSE  ." no active network"  THEN ;
 
 : android-key ( event -- )
     dup to key-event >o
