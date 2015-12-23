@@ -308,7 +308,7 @@ JValue cmanager
 : .network-info ( o -- ) >o toString xref> .jstring ;
 
 : .network ( -- )  network-info
-    ?dup-IF  .network-info  ELSE  ." no active network"  THEN ;
+    ?dup-IF  .network-info  ELSE  ." no active network"  THEN cr ;
 
 : android-key ( event -- )
     dup to key-event >o

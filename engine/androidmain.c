@@ -237,31 +237,19 @@ void startForth(jniargs * startargs)
   addarg(ADDRLEN(startargs->startfile));
 
   LOGI("Starting Gforth...\n");
-  fflush(stderr);
   retvalue=gforth_start(argc, argv);
   LOGI("Started, rval=%d\n", retvalue);
-  fflush(stderr);
 
-  //  ainput=gforth_find("ainput");
-  //  acmd=gforth_find("acmd");
-  //  akey=gforth_find("akey");
-
-  //  LOGI("ainput=%p, acmd=%p, akey=%p\n", ainput, acmd, akey);
-  fflush(stderr);
-  
   if(retvalue == -56) {
     Xt bootmessage=gforth_find((Char*)"bootmessage");
     if(bootmessage != 0) {
       LOGI("bootmessage=%p\n", bootmessage);
-      fflush(stderr);
       gforth_execute(bootmessage);
     }
     LOGI("starting gforth_quit\n");
-    fflush(stderr);
     retvalue = gforth_quit();
   } else {
     LOGI("booting not successful...\n");
-    fflush(stderr);
     unlink("../" PACKAGE_VERSION "/sha256sum");
   }
   post("appexit");
@@ -277,24 +265,25 @@ pthread_attr_t * pthread_detach_attr(void)
   return &attr;
 }
 
+char *getjstring(JNIEnv * env, jstring string)
+{
+  char* s1, s2;
+  // Java's string lifetime is unknown, better copy the string and release it
+  s1=(*env)->GetStringUTFChars(env, string, NULL);
+  s2=malloc(strlen(s1)+1);
+  strncpy(s2, s1, strlen(s1)+1);
+  (*env)->ReleaseStringUTFChars(env, string, s1);
+  return s2;
+}
+
 void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale, jstring startfile)
 {
   char *getlibdir, *getlocale, *getstartfile;
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
-  getlibdir = (*env)->GetStringUTFChars(env, libdir, NULL);
-  getlocale = (*env)->GetStringUTFChars(env, locale, NULL);
-  getstartfile = (*env)->GetStringUTFChars(env, startfile, NULL);
-  // Java's string lifetime is unknown, better copy the string and release it
-  startargs.libdir = malloc(strlen(getlibdir)+1);
-  startargs.locale = malloc(strlen(getlocale)+1);
-  startargs.startfile= malloc(strlen(getstartfile)+1);
-  strncpy(startargs.libdir, getlibdir, strlen(getlibdir)+1);
-  strncpy(startargs.locale, getlocale, strlen(getlocale)+1);
-  strncpy(startargs.startfile, getstartfile, strlen(getstartfile)+1);
-  (*env)->ReleaseStringUTFChars(env, libdir, getlibdir);
-  (*env)->ReleaseStringUTFChars(env, locale, getlocale);
-  (*env)->ReleaseStringUTFChars(env, startfile, getstartfile);
+  startargs.libdir = getjstring(env, libdir);
+  startargs.locale = getjstring(env, locale);
+  startargs.startfile = getjstring(env, startfile);
 
   pthread_create(&(startargs.id), pthread_detach_attr(), startForth, (void*)&startargs);
 }
