@@ -59,7 +59,7 @@ echo $APP_VERSION >~/.app-version
 sed -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
-LIBCCNAMED=lib/$(gforth --version 2>&1 | tr ' ' '/')/libcc-named/.libs
+LIBCCNAMED=lib/$(gforth --version 2>&1 | cut -f1-2 -d' ' | tr ' ' '/')/libcc-named/.libs
 
 rm -rf $LIBS
 mkdir -p $LIBS
