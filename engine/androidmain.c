@@ -267,7 +267,7 @@ pthread_attr_t * pthread_detach_attr(void)
 
 char *getjstring(JNIEnv * env, jstring string)
 {
-  char* s1, s2;
+  char *s1, *s2;
   // Java's string lifetime is unknown, better copy the string and release it
   s1=(*env)->GetStringUTFChars(env, string, NULL);
   s2=malloc(strlen(s1)+1);
