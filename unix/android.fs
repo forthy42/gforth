@@ -374,12 +374,13 @@ Defer android-h! ( n -- ) ' drop is recurse
 Defer clipboard! ( 0 -- ) ' drop is recurse
 : android-config! ( n -- ) to screen-orientation config-changed ;
 
-: android-active ( flag -- )
+Defer android-active
+:noname ( flag -- )
     \ >stderr ." active: " dup . cr
     dup rendering !  IF
 	16 to looper-to#
 	need-show on need-sync on screen-ops
-    ELSE  16000 to looper-to#  THEN ;
+    ELSE  16000 to looper-to#  THEN ; is android-active
 
 Defer android-alarm ( 0 -- ) ' drop is recurse
 Defer android-network ( metered -- )
