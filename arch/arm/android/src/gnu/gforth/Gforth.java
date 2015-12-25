@@ -392,7 +392,7 @@ public class Gforth
 	connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 	inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 	powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
-	wl = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
+	wl = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
 	wl_cpu = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyCpuLock");
 	
 	handler=new Handler();
@@ -614,12 +614,6 @@ public class Gforth
 
 	onEventNative(9, newmp);
     }
-    /*
-    @Override
-    public void onPrimaryClipChanged() {
-	onEventNative(16, 0);
-    }
-    */
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
 	Log.v(TAG, "Configuration changed");
