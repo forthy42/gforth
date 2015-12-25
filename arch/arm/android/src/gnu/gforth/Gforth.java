@@ -391,7 +391,7 @@ public class Gforth
 	alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
 	connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 	inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-	powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+	powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
 	wl = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
 	wl_cpu = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyCpuLock");
 	
