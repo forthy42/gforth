@@ -151,6 +151,7 @@ strip $LIBS/*.so
 for i in $EXTRADIRS
 do
     test -d $i/res && (cd $i/res; tar cf - .) | (cd res; tar xf -)
+    test -d $i/src && (cd $i/src; tar cf - .) | (cd src; tar xf -)
 done
 
 #ant debug
