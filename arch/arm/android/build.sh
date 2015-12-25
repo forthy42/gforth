@@ -150,7 +150,7 @@ strip $LIBS/*.so
 
 for i in $EXTRADIRS
 do
-    test -d $i/res && cp -r $i/res ./res
+    test -d $i/res && cp -r $i/res .
 done
 
 #ant debug
