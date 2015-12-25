@@ -65,7 +65,7 @@ $(extra_apps)
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.RECORD_VIDEO" />
-    <!-- uses-permission android:name="android.permission.WAKE_LOCK" / -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 $(extra_perms)
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />

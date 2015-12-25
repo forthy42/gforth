@@ -23,6 +23,8 @@ package gnu.gforth;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Build;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.text.ClipboardManager;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
@@ -95,6 +97,8 @@ public class Gforth
     private InputMethodManager inputMethodManager;
     private BroadcastReceiver recKeepalive, recConnectivity;
     private PendingIntent pintent, gforthintent;
+    private PowerManager powerManager;
+    private WakeLock wl, wl_cpu;
     private GforthView mView;
 
     private boolean started=false;
@@ -387,7 +391,10 @@ public class Gforth
 	alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
 	connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 	inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-
+	powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+	wl = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
+	wl_cpu = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyCpuLock");
+	
 	handler=new Handler();
 	startgps=new Runnable() {
 		public void run() {
@@ -434,6 +441,7 @@ public class Gforth
 		@Override public void onReceive(Context context, Intent foo)
 		{
 		    // Log.v(TAG, "alarm received");
+		    wl_cpu.acquire(100); // 100 ms wakelock to handle the alarm
 		    onEventNative(21, 0);
 		}
 	    };
@@ -627,5 +635,14 @@ public class Gforth
     public void set_alarm(long when) {
 	// Log.v(TAG, "set alarm");
 	alarmManager.set(AlarmManager.RTC_WAKEUP, when, pintent);
+    }
+
+    public void screen_on(int ms) {
+	boolean isScreenOn = powerManager.isScreenOn();
+	
+	if(isScreenOn==false) {
+	    wl.acquire(ms);
+	    wl_cpu.acquire(ms);
+	}
     }
 }

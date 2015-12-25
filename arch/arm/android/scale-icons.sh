@@ -16,13 +16,32 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
-for i in $@
-do
-    while read dpi size
-    do
-	mkdir -p res/drawable-$dpi
-	convert -resize ${size}x${size} $i res/drawable-$dpi/$(basename $i)
-    done <<EOF
+case $1 in
+    -small)
+	shift
+	for i in $@
+	do
+	    while read dpi size
+	    do
+		mkdir -p res/drawable-$dpi
+		convert -resize ${size}x${size} $i res/drawable-$dpi/$(basename $i)
+	    done <<EOF
+mdpi 24
+hdpi 36
+xhdpi 48
+xxhdpi 72
+xxxhdpi 96
+EOF
+	done
+	;;
+    *)
+	for i in $@
+	do
+	    while read dpi size
+	    do
+		mkdir -p res/drawable-$dpi
+		convert -resize ${size}x${size} $i res/drawable-$dpi/$(basename $i)
+	    done <<EOF
 ldpi 32
 mdpi 48
 hdpi 72
@@ -30,5 +49,6 @@ xhdpi 96
 xxhdpi 144
 xxxhdpi 192
 EOF
-done
-
+	done
+	;;
+esac

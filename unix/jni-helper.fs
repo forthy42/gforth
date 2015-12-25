@@ -26,6 +26,7 @@ jni-method: hideIME hideIME ()V
 jni-method: get_SDK get_SDK ()I
 jni-method: setEditLine setEditLine (Ljava/lang/String;I)V
 jni-method: set_alarm set_alarm (J)V
+jni-method: screen_on screen_on (I)V
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
