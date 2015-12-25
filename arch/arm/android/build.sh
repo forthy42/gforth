@@ -77,8 +77,6 @@ GFORTH_VERSION=$(gforth --version 2>&1 | cut -f2 -d' ')
 APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
-. ./AndroidManifest.xml.in >AndroidManifest.xml
-
 SRC=../../..
 LIBCCNAMED=lib/$(gforth --version 2>&1 | cut -f1-2 -d' ' | tr ' ' '/')/libcc-named/.libs
 
@@ -98,6 +96,8 @@ do
     EXTRAS+=" -with-extras=$i"
     EXTRADIRS+=" $i"
 done
+
+. ./AndroidManifest.xml.in >AndroidManifest.xml
 
 if [ "$1" != "--no-gforthgz" ]
 then
