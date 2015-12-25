@@ -19,6 +19,7 @@ gforth-class:
 
 jni-method: getSystemService getSystemService (Ljava/lang/String;)Ljava/lang/Object;
 jni-method: getWindow getWindow ()Landroid/view/Window;
+jni-method: getResources getResources ()Landroid/content/res/Resources;
 jni-method: hideProgress hideProgress ()V
 jni-method: showIME showIME ()V
 jni-method: hideIME hideIME ()V
@@ -141,8 +142,13 @@ SDK_INT 10 u<= [IF] \ 2.3.x uses a different clipboard manager
 [THEN]
 
 jni-class: java/lang/Object
-
 jni-method: toString toString ()Ljava/lang/String;
+
+jni-class: android/content/res/Resources
+jni-method: getIdentifier getIdentifier (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+
+jvalue res clazz .getResources to res
+: R.id ( addr u -- id ) make-jstring 0 0 res .getIdentifier ;
 
 : l[] ( n list -- object )  >o l-get o> ;
 : l# ( list -- n )  >o l-size o> ;
