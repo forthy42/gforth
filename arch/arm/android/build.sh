@@ -16,6 +16,27 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
+function extra_apps {
+    for i in $EXTRADIRS
+    do
+	test -f $i/AndroidManifest/apps && cat $i/AndroidManifest/apps
+    done
+}
+
+function extra_perms {
+    for i in $EXTRADIRS
+    do
+	test -f $i/AndroidManifest/perms && cat $i/AndroidManifest/perms
+    done
+}
+
+function extra_features {
+    for i in $EXTRADIRS
+    do
+	test -f $i/AndroidManifest/app && cat $i/AndroidManifest/features
+    done
+}
+
 . build.local
 NDK=${NDK-~/proj/android-ndk-r10e}
 
@@ -56,7 +77,7 @@ GFORTH_VERSION=$(gforth --version 2>&1 | cut -f2 -d' ')
 APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
-sed -e "s/@VERSION@/$GFORTH_VERSION/g" -e "s/@APP@/$APP_VERSION/g" <AndroidManifest.xml.in >AndroidManifest.xml
+. ./AndroidManifest.xml.in >AndroidManifest.xml
 
 SRC=../../..
 LIBCCNAMED=lib/$(gforth --version 2>&1 | cut -f1-2 -d' ' | tr ' ' '/')/libcc-named/.libs
@@ -71,9 +92,11 @@ fi
 cp .libs/libtypeset.so $LIBS
 
 EXTRAS=""
+EXTRADIRS=""
 for i in $@
 do
     EXTRAS+=" -with-extras=$i"
+    EXTRADIRS+=" $i"
 done
 
 if [ "$1" != "--no-gforthgz" ]
@@ -122,6 +145,14 @@ do
     shift
 done
 strip $LIBS/*.so
+
+#copy resources
+
+for i in $EXTRADIRS
+do
+    test -d $i/res && cp -r $i/res ./res
+done
+
 #ant debug
 ant release || exit 1
 cp bin/Gforth-release.apk bin/Gforth.apk

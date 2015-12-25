@@ -1,9 +1,10 @@
+cat <<EOF
 <?xml version="1.0" encoding="utf-8"?>
 <!-- BEGIN_INCLUDE(manifest) -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         package="gnu.gforth"
-        android:versionCode="@APP@"
-        android:versionName="@VERSION@">
+        android:versionCode="${APP_VERSION}"
+        android:versionName="${GFORTH_VERSION}">
 
     <!-- This is the platform API where NativeActivity was introduced. -->
     <!-- However, we use OpenMAX AL, so 10 doesn't work any longer -->
@@ -11,7 +12,6 @@
      android:minSdkVersion="10"
      android:targetSdkVersion="18" />
 
-    <!-- This .apk has no Java code itself, so set hasCode to false. -->
     <application android:icon="@drawable/ic_launcher" android:label="@string/app_name">
 
         <!-- Our activity is a homebrewn variant of the NativeAcitivity.
@@ -52,6 +52,7 @@
             </intent-filter>
         </activity>
     </application>
+$(extra_apps)
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -61,6 +62,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.RECORD_VIDEO" />
+    <!-- uses-permission android:name="android.permission.WAKE_LOCK" / -->
+$(extra_perms)
+
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
@@ -69,8 +75,7 @@
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <uses-feature android:name="android.hardware.location.network" android:required="false" />
     <uses-feature android:glEsVersion="0x00020000" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.RECORD_VIDEO" />
-    <!-- uses-permission android:name="android.permission.WAKE_LOCK" / -->
+$(extra_features)
 </manifest> 
 <!-- END_INCLUDE(manifest) -->
+EOF
