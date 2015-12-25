@@ -12,12 +12,12 @@ cat <<EOF
      android:minSdkVersion="10"
      android:targetSdkVersion="18" />
 
-    <application android:icon="@drawable/ic_launcher" android:label="@string/app_name">
-
+    <application>
         <!-- Our activity is a homebrewn variant of the NativeAcitivity.
              This will take care of integrating with our NDK code. -->
-        <activity android:name="Gforth"
+        <activity android:name="gnu.gforth.Gforth"
                 android:label="@string/app_name"
+                android:icon="@drawable/ic_launcher"
                 android:windowAnimationStyle="@android:style/Animation.Activity"
 		android:windowSoftInputMode="stateVisible|adjustResize"
                 android:configChanges="orientation|screenSize|keyboardHidden"
@@ -34,8 +34,9 @@ cat <<EOF
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="Gforth_itc"
+        <activity android:name="gnu.gforth.Gforth_itc"
                 android:label="@string/app_name_itc"
+                android:icon="@drawable/ic_launcher"
                 android:windowAnimationStyle="@android:style/Animation.Activity"
 		android:windowSoftInputMode="stateVisible|adjustResize"
                 android:configChanges="orientation|screenSize|keyboardHidden"
@@ -51,8 +52,8 @@ cat <<EOF
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 $(extra_apps)
+    </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
