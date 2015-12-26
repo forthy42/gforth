@@ -329,21 +329,21 @@ public class Gforth
 				       "please wait", true);
     }
     public void doneProgress() {
-	progress.setMessage("Done; restart Gforth");
+	if(progress!=null) progress.setMessage("Done; restart Gforth");
     }
     public void errProgress() {
-	progress.setMessage("error: no space left");
+	if(progress!=null) progress.setMessage("error: no space left");
     }
 
     public void showIME() {
-	mView.showIME();
+	if(mView!=null) mView.showIME();
     }
     public void hideIME() {
-	mView.hideIME();
+	if(mView!=null) mView.hideIME();
     }
     public void setEditLine(String line, int curpos) {
 	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
-	mView.mInputConnection.setEditLine(line, curpos);
+	if(mView!=null) mView.mInputConnection.setEditLine(line, curpos);
     }
 
     @Override
