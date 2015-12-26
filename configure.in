@@ -375,6 +375,11 @@ case "$host_cpu" in
 	i386)
 		machine=386
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
+		case "$host_os" in
+		     *android*)
+			FAST="yes" # build extra fast libraries
+			;;
+		esac
 		;;
 	i486)
 		machine=386
