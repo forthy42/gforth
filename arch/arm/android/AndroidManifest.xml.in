@@ -12,7 +12,7 @@ cat <<EOF
      android:minSdkVersion="10"
      android:targetSdkVersion="18" />
 
-    <application>
+    <application android:icon="@drawable/ic_launcher">
         <!-- Our activity is a homebrewn variant of the NativeAcitivity.
              This will take care of integrating with our NDK code. -->
         <activity android:name="gnu.gforth.Gforth"
