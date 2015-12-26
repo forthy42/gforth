@@ -388,6 +388,11 @@ case "$host_cpu" in
 		CFLAGS="$CFLAGS -march=i486"
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
+		case "$host_os" in
+		     *android*)
+			FAST="yes" # build extra fast libraries
+			;;
+		esac
 		;;
 	i*86)
 		machine=386
@@ -397,6 +402,11 @@ case "$host_cpu" in
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -march=pentium")
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
+		case "$host_os" in
+		     *android*)
+			FAST="yes" # build extra fast libraries
+			;;
+		esac
 		;;
 	x86_64)
 		case $CC
