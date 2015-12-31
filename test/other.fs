@@ -1,7 +1,7 @@
 \ various tests, especially for bugs that have been fixed
 \ or where we don't use the testing framework
 
-\ Copyright (C) 1997,1998,2000,2003,2007,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1997,1998,2000,2003,2007,2013,2015 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
