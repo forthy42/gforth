@@ -21,11 +21,11 @@
 : system, slit, postpone >system ;
 ' >system ' system, ' slit, recognizer: r:eval
 
-: rec:eval ( addr u -- addr u' r:string )
+: rec:shell ( addr u -- addr u' r:string )
     \G evaluate string + rest of command line
     drop source drop - >in ! source >in @ /string dup >in +!
     r:eval ;
-' rec:eval get-recognizers 1+ set-recognizers
+' rec:shell get-recognizers 1+ set-recognizers
 
 2Variable sh$  0. sh$ 2!
 : sh-get ( addr u -- addr' u' )
