@@ -361,7 +361,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
 	unix/terminal-server.fs unix/jni-helper.fs unix/jni-tools.fs \
 	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs \
 	unix/gdi.fs unix/user.fs unix/win32.fs \
-	date.fs script.fs wf.fs traceall.fs rec-scope.fs \
+	date.fs script.fs wf.fs traceall.fs rec-scope.fs rec-env.fs \
 	notfound.fs utf16.fs
 
 COMPAT = compat/README \

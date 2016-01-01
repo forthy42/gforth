@@ -40,6 +40,10 @@ has? OS [IF]
 : >stderr ( -- )
     r> op-vector @ >r debug-vector @ op-vector !
     >exec  r> op-vector ! ;
+
+: do-debug ( xt -- )
+    op-vector @ >r debug-vector @ op-vector !
+    catch  r> op-vector !  throw ;
 [THEN]
 
 : error$ ( n -- addr u ) \ gforth

@@ -17,10 +17,9 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: trace-name
-    op-vector @ >r debug-vector @ op-vector !
-    [: .s ." | " source >in @ /string type cr ;]
-    catch r> op-vector ! throw (name) ;
+: rec:trace
+    [: drop >r .s ." | " r> source + over - type cr ;] do-debug r:fail ;
 
-: traceall  ['] trace-name IS name ;
-: notrace   [ what's name ] Literal IS name ;
+: traceall  get-recognizers ['] rec:trace swap 1+ set-recognizers ;
+: notrace   get-recognizers over ['] rec:trace = IF  nip 1-  THEN
+    set-recognizers ;
