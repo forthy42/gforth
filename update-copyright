@@ -21,6 +21,7 @@
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
 for i in `git ls-files|grep -v -x -F -f update-copyright-blacklist`; do
+  if test -f $i; then
     if grep -q "[0-9]  *Free Software Foundation" $i; then
         year=`git log -1 --pretty='format:%ai' $i|sed 's/-.*//'`
 	if grep "[0-9]  *Free Software Foundation" $i|grep -q $year; then
@@ -37,4 +38,5 @@ for i in `git ls-files|grep -v -x -F -f update-copyright-blacklist`; do
         awk 'BEGIN {printf "no (C) %-8s: %-30s\n","'"$author"'","'$i'";}'
 	#echo "no copyright:    $i"
     fi
+  fi
 done

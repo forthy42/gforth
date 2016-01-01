@@ -1,6 +1,6 @@
 \ Local primitives                                      17jan92py
 
-\ Copyright (C) 1995,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,2000,2003,2007,2015 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
