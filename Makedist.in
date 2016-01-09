@@ -22,6 +22,7 @@ include Makefile
 
 #!! redundancy with engine/Makefile.in
 DOBJECTS=engine/*.o
+DEBARCH=
 
 #stuff in a binonly distribution 
 BINONLYDIST = config.status Makefile Makedist \
@@ -120,5 +121,5 @@ dsetup-debdist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ $(DOCDIST) $(BINONLYDIST) deb
 		make package=$$PWD/debian install
 
 ddebdist:
-		dpkg-buildpackage -d
+		dpkg-buildpackage -d $(DEBARCH)
 
