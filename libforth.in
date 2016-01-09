@@ -27,9 +27,9 @@ export CROSS_PREFIX=@CROSS_PREFIX@
 LIBCCDIR=$PWD/lib/gforth$ARCH/$VERSION/libcc-named/
 EXTRAPATH="also c-lib s\" $LIBCCDIR\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $DEST\" ; is replace-rpath previous"
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
-  $ENGINE --die-on-signal -e "$EXTRAPATH" "$@"
+  $ENGINE -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" --die-on-signal -e "$EXTRAPATH" "$@"
 else
   export includedir=`pwd`/include
-  @GFORTHKER@ -p ".@PATHSEP@~+@PATHSEP@@srcdir@" exboot.fs startup.fs \
+  @GFORTHKER@ -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" exboot.fs startup.fs \
       -e "$EXTRAPATH" "$@"
 fi

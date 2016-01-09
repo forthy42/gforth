@@ -797,7 +797,7 @@ install-strip:	install
 
 libinstall:	$(ENGINES:%$(EXT)=lib%$(EXT)) $(ENGINES_FAST:%$(EXT)=lib%$(EXT))
 		for i in $(ENGINES:%$(EXT)=lib%$(EXT)) $(ENGINES_FAST:%$(EXT)=lib%$(EXT)); do \
-		   $(LIBTOOL) --silent --mode=install $(INSTALL) engine/$$i.la $(libdir)/$$i.la; \
+		   $(LIBTOOL) --silent --mode=install $(INSTALL) engine/$$i.la $(DESTDIR)$(libdir)/$$i.la; \
 		done
 
 installdirs:	mkinstalldirs
