@@ -906,7 +906,7 @@ extras: $(EXTRAS) gforth.fi
 	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile configs all "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"); done
 
 extra-install: $(EXTRAS) gforth.fi
-	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile install "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"); done
+	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile extra-install "GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "LIBCCDEST=$(DESTDIR)$(libccdir)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"); done
 
 # -------------	Make forth images
 
