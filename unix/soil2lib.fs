@@ -20,7 +20,7 @@ c-library soil2lib
     [THEN]
     \c #include "SOIL2.h"
 
-    include soil2.fs
+    include unix/soil2.fs
 end-c-library
 
 previous set-current

@@ -19,7 +19,7 @@
 
 c-library cpufeatureslib
     \c #include "../../../../unix/cpu-features.c"
-    include cpufeatures.fs
+    include unix/cpufeatures.fs
 end-c-library
 
 android_getCpuFeatures drop

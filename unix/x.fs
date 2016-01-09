@@ -11,7 +11,7 @@ c-library x
     s" X11" add-lib
 
     0 warnings !@
-    include xlib.fs
+    include unix/xlib.fs
 
     \ several vararg functions have to be declared by hand
     c-function XVaCreateNestedList_2 XVaCreateNestedList n a a a a a -- a

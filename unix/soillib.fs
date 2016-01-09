@@ -13,7 +13,7 @@ c-library soillib
     s" SOIL" add-lib
     \c #include "SOIL/SOIL.h"
 
-    include soil.fs
+    include unix/soil.fs
 end-c-library
 
 previous set-current

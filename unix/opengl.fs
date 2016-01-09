@@ -34,13 +34,13 @@ c-library opengl
     e? os-type s" cygwin" str= [IF]
 	s" opengl32" add-lib
     
-	include glwin.fs
-	include wgl.fs
+	include unix/glwin.fs
+	include unix/wgl.fs
     [ELSE]
 	s" GL" add-lib
     
-	include gl.fs
-	include glx.fs
+	include unix/gl.fs
+	include unix/glx.fs
     [THEN]
     
 end-c-library

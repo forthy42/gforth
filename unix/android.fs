@@ -84,7 +84,7 @@ c-library android
     
     s" android" add-lib
 
-    include androidlib.fs
+    include unix/androidlib.fs
     
 end-c-library
 

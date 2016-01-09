@@ -21,7 +21,7 @@ c-library png
 	    \c #include <libpng12/png.h>
 	[THEN]
     [THEN]
-    include pnglib.fs
+    include unix/pnglib.fs
 
 end-c-library
 

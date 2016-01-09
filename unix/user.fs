@@ -24,7 +24,7 @@ c-library user
     \c #include <w32api/wtypes.h>
     \c #include <w32api/winuser.h>
     s" user32" add-lib
-    include winuser.fs
+    include unix/winuser.fs
 end-c-library
 
 previous set-current

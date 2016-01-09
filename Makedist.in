@@ -114,16 +114,11 @@ dbinonlydist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ gforth.fi $(DOCDIST) $(BINONLYD
 		$(STRIP) gforth-$(VERSION)/gforth$(EXE)
 		$(TAR) gforth-$(VERSION)|gzip -9 >gforth-$(VERSION).binonly.@host@.tar.gz
 
-dsetup-debdist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ $(DOCDIST) $(BINONLYDIST) debian.control
-		-rm -rf debian
-		mkdir debian
+dsetup-debdist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ $(DOCDIST) $(BINONLYDIST) debian/control
+		-rm -rf debian/gforth
 		mkdir -p debian/$(DESTDIR)$(emacssitelispdir)
 		make package=$$PWD/debian install
 
-ddebdist:	dsetup-debdist
-		mkdir debian/DEBIAN
-		(cd debian; find . -name '*' -exec md5sum '{}' ';') >debian/DEBIAN/md5sums	
-		sed -e s/_arch_/$(machine)/g -e s/_version_/$(subst _,-,$(VERSION))/g debian.control >debian/DEBIAN/control
-		fakeroot dpkg-deb --build debian
-		mv debian.deb gforth_$(VERSION)_$(machine).deb
-		rm -rf md5sums debian
+ddebdist:
+		dpkg-buildpackage -d
+

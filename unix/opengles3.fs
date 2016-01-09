@@ -8,7 +8,7 @@ c-library opengles3
 	\c #include <OpenGLES/ES3/gl.h>
 	\c #include <OpenGLES/ES3/glext.h>
 
-	include ios-gles3.fs
+	include unix/ios-gles3.fs
     [ELSE]
 	\c #include <GLES3/gl3.h>
 	\c #include <GLES3/gl3ext.h>
@@ -21,8 +21,8 @@ c-library opengles3
 	[THEN]
 	s" EGL" add-lib
 	
-	include gles3.fs
-	include egl.fs
+	include unix/gles3.fs
+	include unix/egl.fs
     [THEN]
 end-c-library
 

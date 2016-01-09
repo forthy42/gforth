@@ -157,6 +157,7 @@ INSTALLDIRS = kernel kernel-ec doc asm ec test \
 	arch/8086 arch/avr arch/c165 arch/h8 \
 	arch/shboom arch/sharc arch/ia64 arch/amd64 \
 	arch/arm arch/arm64 arch/r8c arch/lm32
+INSTALL_LIBDIRS = unix
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h
 
@@ -318,9 +319,10 @@ SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i	\
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
 
-LIBCC_DIST_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(SWIG_SRC) unix/test.i \
-	$(patsubst %, unix/%, $(SWIGMODULES)) $(UNIXLIBS_SRC) unix/Makefile.in \
-	unix/doexec
+LIBCC_DIST_SRC = $(SWIG_SRC) unix/test.i unix/Makefile.in unix/doexec
+
+LIBCC_FORTH_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(UNIXLIBS_SRC)
+LIBCC_GEN_SRC = $(patsubst %, unix/%, $(SWIGMODULES))
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
 LIBCC_BUILD_LA = $(patsubst %.fs,lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf%.la,$(shell echo $(LIBCC_BUILD_SRC) | sed -e s,unix/,,g))
@@ -335,7 +337,7 @@ MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs \
 	minos2/mkv-tags.fs minos2/ascii.png minos2/button.png \
 	minos2/button2.png minos2/button3.png
 
-FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_DIST_SRC) \
+FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC) \
 	$(MINOS2_SRC) ans-report.fs ansi.fs answords.fs \
 	colorize.fs comp-i.fs complex.fs \
 	depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
@@ -518,7 +520,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
 	autogen.sh configure.in configure config.sub config.guess \
-	elisp-comp stamp-h.in envos.fs.in \
+	elisp-comp stamp-h.in envos.fs.in kernel/version.fs.in \
 	iss.sh wininst.sh modpath.iss \
 	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
 	BUILD-FROM-SCRATCH model \
@@ -530,12 +532,13 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	mkinstalldirs siteinit.fs \
 	versions.bsh \
 	glosgen.glo doc/glossaries.doc \
-	$(INCLUDES) $(FORTH_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
+	$(INCLUDES) $(FORTH_SRC) $(LIBCC_DIST_SRC) $(LIBCC_GEN_SRC) \
+	$(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
 	test/coretest.out test/checkans.out test/gforth.out \
 	cache*.vmg peeprules.vmg prim \
-	debian.rules debian.control debian.changelog gforth.ico \
-	.travis.yml install-swig.sh
+	debian/rules debian/control debian/changelog debian/compat \
+	gforth.ico .travis.yml install-swig.sh
 
 RCS_FILES =  ToDo model high-level
 
@@ -740,12 +743,15 @@ install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim
 		(cd $(DESTDIR)$(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(DESTDIR)$(man1dir)
 		-for i in $(srcdir)/doc/gforth.info* $(srcdir)/doc/vmgen.info*; do $(INSTALL_DATA) $$i $(DESTDIR)$(infodir); done
-		for i in $(FORTH_SRC) $(COMPAT) envos.fs prim; do \
+		for i in $(FORTH_SRC) $(COMPAT) prim; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)/$$i; \
+		done
+		for i in $(LIBCC_GEN_SRC) envos.fs; do \
+			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)/$$i; \
 		done
 		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 		-$(RM) gforth.fi
-		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(subst $(package),,$(libccdir)) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(subst $(package),,$(libccdir)) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 		$(INSTALL_DATA) include/gforth$(ARCH)/$(VERSION)/* $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
@@ -823,6 +829,9 @@ installdirs:	mkinstalldirs
 		done
 		for i in $(INSTALLDIRS); do \
 			$(srcdir)/mkinstalldirs $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)/$$i; \
+		done
+		for i in $(INSTALL_LIBDIRS); do \
+			$(srcdir)/mkinstalldirs $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)/$$i; \
 		done
 
 #deinstall all files specific to this version of gforth
@@ -1178,7 +1187,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile doc/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh kernel/version.fs:	Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in
+Makefile Makedist engine/Makefile doc/Makefile gforthmi vmgen preforth machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh kernel/version.fs:	Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in kernel/version.fs.in
 	./config.status
 
 config.status: configure

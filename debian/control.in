@@ -3,9 +3,10 @@ Section: programming
 Priority: optional
 Maintainer: Bernd Paysan <bernd.paysan@gmx.de>
 Build-Depends: debhelper (>= 4.1.16), build-essential, gcc, autoconf, automake, autotools-dev, libffi-dev, libtool, libtool-bin, libltdl7-dev
+
 Package: gforth
-Version: _version_
-Architecture: _arch_
+Version: @DEBVERSION@
+Architecture: any
 Depends: libltdl7, libffi6, build-essential, gcc, libtool, libtool-bin
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all

@@ -20,7 +20,7 @@ c-library freetype-gllib
     \c #include "texture-atlas.h"
     \c #include "texture-font.h"
 
-    include freetype-gl.fs
+    include unix/freetype-gl.fs
 end-c-library
 
 previous set-current

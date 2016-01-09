@@ -1293,6 +1293,9 @@ AC_SUBST(HOSTPREFIX)
 EXTRAPREFIX=${EXTRAPREFIX-$prefix}
 AC_SUBST(EXTRAPREFIX)
 
+DEBVERSION=${PACKAGE_VERSION/_/-}
+AC_SUBST(DEBVERSION)
+
 # finally create config files
 
 AC_CONFIG_FILES([
@@ -1312,6 +1315,8 @@ engine/libcc.h
 doc/version.texi
 doc/Makefile
 unix/Makefile
+debian/changelog
+debian/control
 build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
 chmod +x gforthmi

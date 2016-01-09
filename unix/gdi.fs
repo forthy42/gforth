@@ -27,7 +27,7 @@ c-library gdi
     s" opengl32" add-lib
     s" msimg32" add-lib
     s" winspool" add-lib
-    include wingdi.fs
+    include unix/wingdi.fs
 end-c-library
 
 previous set-current

@@ -11,7 +11,7 @@ c-library openmax
     \c #include <OMXAL/OpenMAXAL.h>
     \c #include <OMXAL/OpenMAXAL_Android.h>
 
-    include omxal.fs
+    include unix/omxal.fs
     
 0	constant XA_BOOLEAN_FALSE
 1	constant XA_BOOLEAN_TRUE

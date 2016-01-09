@@ -25,7 +25,7 @@ c-library opengles
 	\c #include <OpenGLES/ES2/gl.h>
 	\c #include <OpenGLES/ES2/glext.h>
 
-	include ios-gles.fs
+	include unix/ios-gles.fs
     [ELSE]
         \c #include <GLES2/gl2.h>
         \c #include <GLES2/gl2ext.h>
@@ -34,8 +34,8 @@ c-library opengles
 	s" GLESv2" add-lib
 	s" EGL" add-lib
     
-	include gles.fs
-	include egl.fs
+	include unix/gles.fs
+	include unix/egl.fs
     [THEN]
 end-c-library
 
