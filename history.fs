@@ -128,15 +128,12 @@ Variable setstring \ additional string at cursor for IME
 
 Create prefix-found  0 , 0 ,
 
-: sgn ( n -- -1/0/1 )
- dup 0= IF EXIT THEN  0< 2* 1+ ;
-
-: capscomp  ( c_addr1 u c_addr2 -- n )
- swap bounds
- ?DO  dup c@ I c@ <>
-     IF  dup c@ toupper I c@ toupper =
-     ELSE  true  THEN  WHILE  1+  LOOP  drop 0
- ELSE  c@ toupper I c@ toupper - unloop  THEN  sgn ;
+: capscomp  ( c_addr1 u c_addr2 -- -1|0|1 )
+    swap bounds ?DO
+	count toupper i c@ toupper - ?dup-IF
+	    nip 0< 2* 1+ unloop exit THEN
+    LOOP
+    drop 0 ;
 
 : word-lex ( nfa1 nfa2 -- -1/0/1 )
     dup 0=
