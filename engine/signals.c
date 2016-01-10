@@ -271,13 +271,15 @@ void get_winsize()
 }
 
 #ifdef SIGWINCH
-extern Xt do_winsize;
+extern Cell *winch_addr;
 
 static void change_winsize(int sig)
 {
   /* signal(sig,change_winsize); should not be necessary with bsd_signal */
 #ifdef TIOCGWINSZ
   get_winsize();
+  if(winch_addr)
+    *winch_addr=-1;
 #endif
 }
 #endif

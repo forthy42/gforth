@@ -1871,17 +1871,18 @@ n=0;
 
 \g hostos
 
-key-file	( wfileid -- c )		gforth	paren_key_file
-""Read one character @i{c} from @i{wfileid}.  This word disables
+key-file	( wfileid -- n )		gforth	paren_key_file
+""Read one character @i{n} from @i{wfileid}.  This word disables
 buffering for @i{wfileid}.  If you want to read characters from a
 terminal in non-canonical (raw) mode, you have to put the terminal in
 non-canonical mode yourself (using the C interface); the exception is
-@code{stdin}: Gforth automatically puts it into non-canonical mode.""
+@code{stdin}: Gforth automatically puts it into non-canonical mode.  If
+an error occurred, a negative ior is returned instead of a positive byte.""
 #ifdef HAS_FILE
 fflush(stdout);
-c = key((FILE*)wfileid);
+n = key((FILE*)wfileid);
 #else
-c = key(stdin);
+n = key(stdin);
 #endif
 
 key?-file	( wfileid -- f )	        gforth	key_q_file

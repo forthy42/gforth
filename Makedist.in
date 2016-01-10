@@ -1,3 +1,5 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
 #make dist targets (workaround for broken makes)
 #use GNU make if your make does not grok this.
 

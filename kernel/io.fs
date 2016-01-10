@@ -41,8 +41,13 @@ UValue debug-fid ( -- file-id ) \ gforth
     debug-fid emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
 
+Variable winch?
+
 : (key) ( -- c ) \ gforth
-    infile-id key-file ;
+    BEGIN  winch? @ 0= WHILE  infile-id key-file
+	    dup #-516 = over #-523 = or WHILE  drop  REPEAT
+    dup 0< IF  drop #4  THEN
+    ELSE  #12  winch? off  THEN ;
 
 : (key?) ( -- flag ) \ gforth
     infile-id key?-file ;

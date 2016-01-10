@@ -239,7 +239,7 @@ info-color Value setstring-color
 : xretype ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore
     cols dup screenw !@ - >r linew-all @ dup screenw @ / r> * 0 max +
-    dup spaces linew !  .redraw false ;
+    1+ dup spaces linew !  .redraw false ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore 2 pick dup spaces xback-restore
@@ -306,7 +306,7 @@ Variable vt100-modifier
 
 : xclear-first ( max span addr pos -- max pos addr pos false )
     linew @ xback-restore >r
-    2dup swap x-width dup spaces xback-restore
+    2dup swap x-width dup spaces xback-restore  linew off
     2dup swap r@ /string 2 pick swap move
     swap r> - swap 0 .redraw 0 ;
 

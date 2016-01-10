@@ -2634,7 +2634,7 @@ Cell gforth_start(int argc, char ** argv)
   return gforth_boot(argc, argv, path);
 }
 
-Xt do_winsize = NULL;
+Cell* winch_addr=0;
 
 Cell gforth_main(int argc, char **argv, char **env)
 {
@@ -2643,9 +2643,13 @@ Cell gforth_main(int argc, char **argv, char **env)
 
   if(retvalue == -56) { /* throw-code for quit */
     Xt bootmessage=gforth_find((Char*)"bootmessage");
-    do_winsize=gforth_find((Char*)"do-winsize");
+    Xt winch_query=gforth_find((Char*)"winch?");
     if(bootmessage != 0) {
       gforth_execute(bootmessage);
+    }
+    if(winch_query != 0) {
+      gforth_execute(winch_query);
+      winch_addr = (Cell*)*gforth_SP++;
     }
     retvalue = gforth_quit();
   }

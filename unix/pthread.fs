@@ -310,7 +310,8 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     Create event# @ ,  event-does
     here 0 , >r  noname : lastxt dup event# @ cells event-table + !
     r> ! 1 event# +! ;
-: (stop) ( -- )  epiper @ key-file cells event-table + perform ;
+: (stop) ( -- )  epiper @ key-file
+    dup 0>= IF  cells event-table + perform  ELSE  drop  THEN ;
 : event? ( -- flag )  epiper @ check_read 0> ;
 : ?events ( -- )  BEGIN  event?  WHILE  (stop)  REPEAT ;
 \G checks for events and executes them
@@ -403,10 +404,9 @@ User keypollfds pollfd 2* cell- uallot drop
 
 : thread-key ( -- key )
     prep-key
-    BEGIN  key? 0= WHILE  keypollfds 2 -1 poll drop
+    BEGIN  key? winch? @ or 0= WHILE  keypollfds 2 -1 poll drop
 	    keypollfds pollfd + revents w@ POLLIN and IF  ?events  THEN
-    REPEAT
-    defers key ;
+    REPEAT  winch? @ IF  ctrl L  winch? off  ELSE  defers key  THEN ;
 
 ' thread-key is key
 

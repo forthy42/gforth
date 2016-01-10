@@ -360,6 +360,11 @@ set-current
 ' key? alias ekey? ( -- flag ) \ facility-ext e-key-question
 [THEN]
 
+Variable winsize-changed
+: do-winsize ( -- ) \ gforth do-winsize
+    \G insert ctrl L if a window size change occurred
+    ctrl L inskey ;
+
 \G True if a keyboard event is available.
 
 \  : esc? ( -- flag ) recursive

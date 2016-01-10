@@ -710,10 +710,11 @@ Cell getkey(FILE * stream)
   if(!terminal_prepped && stream == stdin)
     prep_terminal();
 
+  errno=0;
   result = fread(&c, sizeof(c), 1, stream);
   if (result>0)
     gf_regetc(stream);
-  return result==0 ? (errno == EINTR ? 12 : 4) : c;
+  return result==0 ? IOR(1) : c;
 }
 
 #ifdef STANDALONE
