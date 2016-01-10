@@ -83,31 +83,8 @@ umethod key? ( -- flag ) \ facility key-question
 \G also return true.
 2drop
 
-undef-words
-
-[IFDEF] write-file
-: (type) 0 write-file drop ;
-[ELSE]
-: (type) BEGIN dup WHILE
-    >r dup c@ (emit) 1+ r> 1- REPEAT 2drop ;
-[THEN]
-
-: (emit) ( c -- ) \ gforth
-    0 emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
-;
-
-: (key) ( -- c ) \ gforth
-    infile-id key-file ;
-: infile-id  stdin ;
-
-: (key?) ( -- flag ) \ gforth
-    infile-id key?-file ;
-: infile-id  stdin ;
-
 : (cr) ( -- )
     newline type ;
-
-all-words
 
 here
 ' (type) A,
