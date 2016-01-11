@@ -225,9 +225,7 @@ Variable c-libs \ library names in a string (without "lib")
     -1 parse write-c-prefix-line ;
 
 : libcc-include ( -- )
-    [: ." #include <gforth"
-    arch-modifier type ." /"
-    version-string type ." /libcc.h>" cr ;] c-source-file-execute ;
+    [: ." #include <libcc.h>" cr ;] c-source-file-execute ;
 
 \ Types (for parsing)
 

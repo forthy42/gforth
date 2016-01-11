@@ -1187,6 +1187,10 @@ AC_DEFINE_UNQUOTED(GKERNEL, "$kernel_fi", [The kernel to load in the image])
 AC_DEFINE_UNQUOTED(ARCH, "$machine", [architecture to run on ])
 AC_SUBST(machine)
 
+test "x$prefix" = xNONE && prefix=$ac_default_prefix
+incdir=`eval echo $includedir`
+AC_SUBST(incdir)
+
 #this breaks bindists
 #dnl replace srource directory by absolute value
 #if test $srcdir = "."; then srcdir=`pwd` 
