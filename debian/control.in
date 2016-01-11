@@ -7,7 +7,8 @@ Build-Depends: debhelper (>= 4.1.16), build-essential, gcc, autoconf, automake, 
 Package: gforth
 Version: @DEBVERSION@
 Architecture: any
-Depends: libltdl7, libffi6, build-essential, gcc, libtool, libtool-bin
+Depends: libltdl7
+Suggests: libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.
