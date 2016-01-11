@@ -880,13 +880,13 @@ all-bench allbench:
 	./gforth-itc$(EXT) onebench.fs
 	./gforth-ditc$(EXT) onebench.fs
 
-EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "DESTDIR=$(DESTDIR)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"
+EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE)" "KERNEL=-i $(kernel_fi) exboot.fs startup.fs" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "DESTDIR=$(package)$(DESTDIR)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"
 
 extras: $(EXTRAS) gforth.fi
-	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile configs all $(EXTRAVARS)); done
+	for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile configs all $(EXTRAVARS)); done
 
 extra-install: $(EXTRAS) gforth.fi
-	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile extra-install $(EXTRAVARS)); done
+	for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile extra-install $(EXTRAVARS)); done
 
 # -------------	Make forth images
 
