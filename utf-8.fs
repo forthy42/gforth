@@ -315,7 +315,7 @@ here
 		[ELSE]
 		    s" C"
 		[THEN] THEN THEN THEN
-    s" UTF-8" search nip nip
+    2dup s" UTF-8" search >r 2drop s" utf8" search nip nip r> or
     IF  utf-8  ELSE  fixed-width  THEN  set-encoding ;
 
 environment-wordlist set-current
