@@ -802,7 +802,7 @@ libinstall:	$(ENGINES:%$(EXT)=lib%$(EXT)) $(ENGINES_FAST:%$(EXT)=lib%$(EXT))
 
 installdirs:	mkinstalldirs
 		$(NORMAL_INSTALL)
-		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth$(ARCH)/$(VERSION) $(datadir)/gforth$(ARCH)/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth$(ARCH)/$(VERSION) $(libccdir); do \
+		for i in $(bindir) $(man1dir) $(infodir) $(libdir)/gforth$(ARCH)/$(VERSION) $(datadir)/gforth$(ARCH)/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth$(ARCH)/$(VERSION) $(package)$(libccdir); do \
 			$(srcdir)/mkinstalldirs $(DESTDIR)$$i; \
 		done
 		for i in $(INSTALLDIRS); do \
@@ -820,7 +820,7 @@ uninstall:	FORCE
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
 lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(SWIG_SRC)
-		@NO_FAIL@-./libforth $(DESTDIR)$(libccdir) $< -e bye
+		@NO_FAIL@-./libforth $(package)$(DESTDIR)$(libccdir) $< -e bye
 
 build-libcc-named: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
 
