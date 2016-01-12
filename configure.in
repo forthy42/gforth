@@ -1139,6 +1139,29 @@ test $ac_cv_func_fnmatch_works = yes || AC_LIBOBJ(fnmatch)
 AC_CHECK_FUNCS(mmap sysconf getpagesize pselect pthread_setaffinity_np)
 AM_PATH_LISPDIR
 
+# Sanitzie broken AM_PATH_LIBDIR result
+lispdir=$(prefix=$ac_default_prefix
+lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir)))
+test -d $lispdirtest && echo $lispdir && exit
+for prefix in /usr /usr/local
+do
+    lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir)))
+    test -d $lispdirtest && echo $lispdirtest && exit
+done)
+
+elispstartdir=$(for i in /etc/emacs/site-start.d $lispdir/site-start.d/
+do
+    test -d $i && echo $i && exi
+done)
+
+AC_ARG_WITH(elispstartdir,
+	AC_HELP_STRING([--with-elispstartdir=<dir>],
+			[  Use this directory to store the autoload file]),
+[if test $"withval" != "no"; then
+  elispstartdir=${withval}
+fi])
+AC_SUBST(elispstartdir)
+
 kernel_fi=kernl${vwordsize}${bytesex}.fi
 include_fi=kernl${wordsize}${bytesex}${EC}.fi
 AC_SUBST(kernel_fi)

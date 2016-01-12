@@ -1730,4 +1730,13 @@ processes.")
 
 (provide 'forth-mode)
 
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.fs\\'" . forth-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.fb\\'" . forth-block-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.fth\\'" . forth-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.4th\\'" . forth-mode))
+
 ;;; gforth.el ends here

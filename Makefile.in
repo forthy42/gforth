@@ -77,6 +77,7 @@ man1dir= $(mandir)/man1
 man1ext= .1
 #older emacses have their site-lisp in $(libdir)/emacs/
 emacssitelispdir=$(package)@lispdir@
+emacssitestartdir=$(package)@elispstartdir@
 siteforthdir=$(datadir)/gforth/site-forth
 
 # -------------	Utility programs
@@ -775,12 +776,19 @@ install-tags:
 		$(INSTALL_DATA) install.TAGS $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)/TAGS
 
 install-elc:
-		@if test -d "$(DESTDIR)$(emacssitelispdir)"; then \
+		@if test -n "@lispdir@"; then \
 			for i in gforth.el @gforth_elc@; do \
 				$(INSTALL_DATA) $$i $(DESTDIR)$(emacssitelispdir); \
 			done; \
 		else \
 			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
+		fi
+		@if test -n "@elispstartdir@"; then \
+			for i in start-gforth.el; do \
+				$(INSTALL_DATA) $$i $(DESTDIR)$(emacssitestartdir); \
+			done; \
+		else \
+			echo '>>>>>Please install start-gforth.{el,elc} in your .../emacs/.../site-start.d directory'; \
 		fi
 
 install-seq:	extra-install normal-install rm-install install-progs install-sources install-images install-libcc @libinstall@ install-info install-tags install-elc
@@ -883,7 +891,7 @@ all-bench allbench:
 EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "libccdir=$(libccdir)" "DESTDIR=$(DESTDIR)$(package)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"
 
 extras: $(EXTRAS) gforth.fi
-	for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile configs all $(EXTRAVARS)); done
+	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile configs all $(EXTRAVARS)); done
 
 extra-install: $(EXTRAS) gforth.fi
 	for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile extra-install $(EXTRAVARS)); done
@@ -1123,6 +1131,10 @@ kernel.tags:
 #elc files
 gforth.elc:	gforth.el
 		-$(EMACS) -batch -f batch-byte-compile gforth.el
+
+start-gforth.el:	gforth.el
+		echo > $@
+		$(EMACS) --batch -l autoload --eval "(setq generated-autoload-file \"$$PWD/$@\")" -f batch-update-autoloads $(dir $<)
 
 #Documentation
 

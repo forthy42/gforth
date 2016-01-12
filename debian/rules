@@ -8,3 +8,5 @@
 
 override_dh_auto_test:
 override_dh_shlibdeps:
+override_dh_auto_configure:
+	dh_auto_configure -- --with-elispstartdir=/etc/emacs/site-start.d
