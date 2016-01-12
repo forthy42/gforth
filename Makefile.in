@@ -67,7 +67,7 @@ datarootdir = @datarootdir@
 datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
-libccdir = $(subst $(DESTDIR),,$(libdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
+libccdir = $(subst $(package)$(DESTDIR),,$(libdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
 buildccdir = lib/gforth$(ARCH)/$(VERSION)/libcc-named/
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
@@ -757,7 +757,7 @@ install-sources:
 
 install-images:
 		-$(RM) gforth.fi
-		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(subst $(package),,$(libccdir)) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 
@@ -880,7 +880,7 @@ all-bench allbench:
 	./gforth-itc$(EXT) onebench.fs
 	./gforth-ditc$(EXT) onebench.fs
 
-EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "libccdir=$(patsubst $(DESTDIR)%,%,$(libccdir))" "DESTDIR=$(package)$(DESTDIR)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"
+EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "libccdir=$(libccdir)" "DESTDIR=$(package)$(DESTDIR)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"
 
 extras: $(EXTRAS) gforth.fi
 	for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile configs all $(EXTRAVARS)); done
