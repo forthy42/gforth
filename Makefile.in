@@ -67,7 +67,7 @@ datarootdir = @datarootdir@
 datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
-libccdir = $(subst $(package)$(DESTDIR),,$(libdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
+libccdir = $(subst $(DESTDIR)$(package),,$(libdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
 buildccdir = lib/gforth$(ARCH)/$(VERSION)/libcc-named/
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
@@ -757,14 +757,14 @@ install-sources:
 
 install-images:
 		-$(RM) gforth.fi
-		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)$(DESTDIR)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		GFORTHD="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(DESTDIR)$(libdir)/gforth/site-forth$(PATHSEP)$(DESTDIR)$(siteforthdir)$(PATHSEP)$(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)$(PATHSEP)$(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(DESTDIR)$(package)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 		$(INSTALL_DATA) $(kernel_fi) $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)
 
 install-libcc:
 		$(INSTALL_DATA) include/gforth$(ARCH)/$(VERSION)/* $(DESTDIR)$(includedir)/gforth$(ARCH)/$(VERSION)
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
-		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf`basename $$i .fs`.la $(DESTDIR)$(libccdir)libgf`basename $$i .fs`.la; \
+		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf`basename $$i .fs`.la $(DESTDIR)$(package)$(libccdir)libgf`basename $$i .fs`.la; \
 		done; fi
 
 install-info:
@@ -820,7 +820,7 @@ uninstall:	FORCE
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen $(DESTDIR)$(man1dir)/gforth.1 $(DESTDIR)$(infodir)/gforth.info* $(DESTDIR)$(datadir)/gforth $(DESTDIR)$(libdir)/gforth"
 
 lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(SWIG_SRC)
-		@NO_FAIL@-./libforth $(package)$(DESTDIR)$(libccdir) $< -e bye
+		@NO_FAIL@-./libforth $(DESTDIR)$(package)$(libccdir) $< -e bye
 
 build-libcc-named: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
 
@@ -880,7 +880,7 @@ all-bench allbench:
 	./gforth-itc$(EXT) onebench.fs
 	./gforth-ditc$(EXT) onebench.fs
 
-EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "libccdir=$(libccdir)" "DESTDIR=$(package)$(DESTDIR)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"
+EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/lib/gforth$(ARCH)/$(VERSION)/libcc-named/" "libccdir=$(libccdir)" "DESTDIR=$(DESTDIR)$(package)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=$(ARCH)" "FAST=$(FAST)"
 
 extras: $(EXTRAS) gforth.fi
 	for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile configs all $(EXTRAVARS)); done
