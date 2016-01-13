@@ -65,8 +65,8 @@
 \ wrapper again.  This is all done by loading the index file(s?),
 \ which define words for the wrappers in a separate wordlist.
 
-\ The files are built in .../lib/gforth$ARCH/$VERSION/libcc/ or
-\ ~/.gforth$ARCH/libcc/$HOST/.
+\ The files are built in .../lib/gforth/$VERSION/$machine/libcc/ or
+\ ~/.gforth/libcc/$machine/.
 
 \ Todo: conversion between function pointers and xts (both directions)
 

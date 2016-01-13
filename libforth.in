@@ -22,7 +22,7 @@ VERSION=@PACKAGE_VERSION@
 DEST=$1
 shift
 export CROSS_PREFIX=@CROSS_PREFIX@
-@NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth-@machine@
+@NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth
 @NO_CROSS@test -f "gforth.fi" && KERNEL="gforth.fi"
 LIBCCDIR=$PWD/lib/gforth/$VERSION/$machine/libcc-named/
 EXTRAPATH="also c-lib s\" $LIBCCDIR\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $DEST\" ; is replace-rpath previous"
