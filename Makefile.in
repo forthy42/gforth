@@ -746,11 +746,12 @@ install-progs:
 		(cd $(DESTDIR)$(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
 
 install-sources:
-		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(DESTDIR)$(man1dir)
 		-for i in $(srcdir)/doc/gforth.info* $(srcdir)/doc/vmgen.info*; do $(INSTALL_DATA) $$i $(DESTDIR)$(infodir); done
 		for i in $(FORTH_SRC) $(COMPAT) prim; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(datadir)/gforth$(ARCH)/$(VERSION)/$$i; \
 		done
+
+install-gensources:
 		for i in $(LIBCC_GEN_SRC) envos.fs; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(libdir)/gforth$(ARCH)/$(VERSION)/$$i; \
 		done
@@ -767,6 +768,9 @@ install-libcc:
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
 		   $(LIBTOOL) --silent --mode=install $(INSTALL) lib/gforth$(ARCH)/$(VERSION)/libcc-named/libgf`basename $$i .fs`.la $(DESTDIR)$(package)$(libccdir)libgf`basename $$i .fs`.la; \
 		done; fi
+
+install-man:
+		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(DESTDIR)$(man1dir)
 
 install-info:
 		$(INSTALL_INFO) --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/gforth.info
@@ -793,15 +797,15 @@ install-elc:
 			echo '>>>>>Please install start-gforth.{el,elc} in your .../emacs/.../site-start.d directory'; \
 		fi
 
-install-seq:	extra-install normal-install rm-install install-progs install-sources install-images install-libcc @libinstall@ install-info install-tags install-elc
+install-seq:	extra-install normal-install rm-install install-progs install-sources install-gensources install-images install-libcc @libinstall@ install-man install-info install-tags install-elc
 
-install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim installdirs gforth.fi install.TAGS install-seq
-		$(RM) install.TAGS gforth.fi
+post-inst:
+		$(RM) install.TAGS gforth.fi start-gforth.el
 		$(POST_INSTALL)
 
-installnodep:	installdirs install-seq
-		$(RM) install.TAGS gforth.fi
-		$(POST_INSTALL)
+install:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim installdirs gforth.fi install.TAGS start-gforth.el install-seq post-inst
+
+installnodep:	installdirs install-seq post-inst
 
 install-strip:	install
 
