@@ -723,26 +723,34 @@ hpux-workaround:
 normal-install:
 		$(NORMAL_INSTALL)
 
+INSTEXES=gforth gforth-fast gforth-itc gforth-ditc
+INSTSCRIPTS=gforthmi vmgen
+INSTSUFFIX="" -$(VERSION) -$(machine) -$(VERSION)-$(machine)
+
 rm-install:
-		-$(RM) $(DESTDIR)$(bindir)/gforth$(EXT) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT) $(DESTDIR)$(bindir)/gforthmi $(DESTDIR)$(bindir)/vmgen
-		-$(RM) $(DESTDIR)$(bindir)/gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT)
-		-$(RM) $(DESTDIR)$(bindir)/gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT)
-		-$(RM) $(DESTDIR)$(bindir)/gforth-ditc$(EXT) $(DESTDIR)$(bindir)/gforth-ditc-$(VERSION)$(EXT)
+		-for i in $(INSTEXES); do \
+		    for j in $(INSTSUFFIX); do \
+		        $(RM) $(DESTDIR)$(bindir)/$$i$$j$(EXT); \
+		    done \
+		done
+		-for i in $(INSTSCRIPTS); do \
+		    for j in $(INSTSUFFIX); do \
+		        $(RM) $(DESTDIR)$(bindir)/$$i$$j; \
+		    done \
+		done
 
 install-progs:
-		$(INSTALL_PROGRAM) gforth$(EXT) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT)
-		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-$(VERSION)$(EXT)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-$(VERSION)$(EXT) gforth$(EXT))
-		$(INSTALL_PROGRAM) gforth-fast$(EXT) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT)
-		-$(MASSAGE_EXE) $(DESTDIR)$(bindir)/gforth-fast-$(VERSION)$(EXT)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-fast-$(VERSION)$(EXT) gforth-fast$(EXT))
-		$(INSTALL_PROGRAM) gforth-itc$(EXT) $(DESTDIR)$(bindir)/gforth-itc-$(VERSION)$(EXT)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-itc-$(VERSION)$(EXT) gforth-itc$(EXT))
-		$(INSTALL_PROGRAM) gforth-ditc$(EXT) $(DESTDIR)$(bindir)/gforth-ditc-$(VERSION)$(EXT)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforth-ditc-$(VERSION)$(EXT) gforth-ditc$(EXT))
-		$(INSTALL_SCRIPT) gforthmi $(DESTDIR)$(bindir)/gforthmi-$(VERSION)
+		for i in $(INSTEXES); do \
+		    $(INSTALL_PROGRAM) $$i$(EXT) $(DESTDIR)$(bindir)/$$i-$(VERSION)-$(machine)$(EXT); \
+		    $(MASSAGE_EXE) $(DESTDIR)$(bindir)/$$i-$(VERSION)-$(machine)$(EXT) || true; \
+		done
+		$(INSTALL_SCRIPT) gforthmi $(DESTDIR)$(bindir)/gforthmi-$(VERSION)-$(machine)
 		$(INSTALL_SCRIPT) vmgen $(DESTDIR)$(bindir)/vmgen-$(VERSION)
-		(cd $(DESTDIR)$(bindir) && $(LN_S) gforthmi-$(VERSION) gforthmi)
+		for i in $(INSTEXES) gforthmi; do \
+		    for j in "" -$(VERSION) -$(machine); do \
+		        (cd $(DESTDIR)$(bindir) && $(LN_S) $$i-$(VERSION)-$(machine)$(EXT) $$i$$j$(EXT)); \
+		    done \
+		done
 		(cd $(DESTDIR)$(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
 
 install-sources:

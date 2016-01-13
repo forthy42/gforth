@@ -1151,7 +1151,7 @@ done)
 
 elispstartdir=$(for i in /etc/emacs/site-start.d $lispdir/site-start.d/
 do
-    test -d $i && echo $i && exi
+    test -d $i && echo $i && exit
 done)
 
 AC_ARG_WITH(elispstartdir,
