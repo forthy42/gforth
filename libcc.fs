@@ -669,8 +669,7 @@ Create callback-&style c-var c,
     libcc-named-dir$ $! ;
 
 : libcc-tmp-dir ( -- c-addr u )
-    [: ." ~/.gforth" arch-modifier type ." /" machine type
-    ." /libcc-tmp/" ;] $tmp ;
+    [: ." ~/.gforth/" machine type ." /libcc-tmp/" ;] $tmp ;
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     [: type type ;] $tmp ;
@@ -957,7 +956,7 @@ c-function-rt  lastxt Constant dummy-rt
 
 : init-libcc ( -- )
     libcc-named-dir$ $init
-    [: ." ~/.gforth" arch-modifier type ." /" machine type ." /libcc-named/"
+    [: ." ~/.gforth/" machine type ." /libcc-named/"
     ;] libcc-named-dir$ $exec
     libcc-path $init  ptr-declare $init
     clear-libs

@@ -30,10 +30,6 @@ set-current
 \G the suffix for loading shared objects
     s" @LIB_SUFFIX@" ;
 
-: arch-modifier ( -- c-addr u ) \ gforth
-\G the file name or directory modifier for the architecture
-    s" @ARCH@" ;
-
 : machine ( -- c-addr u ) \ gforth
     \G the machine we are running on
     s" @machine@" ;
@@ -44,7 +40,7 @@ set-current
 
 : libtool-cc ( -- c-addr u ) \ gforth
 \G invocation string of the C compiler used for libtool
-    s" @LIBTOOL_CC@ @CFLAGS@ -I@incdir@/gforth@ARCH@/@PACKAGE_VERSION@ @LDFLAGS@" ;
+    s" @LIBTOOL_CC@ @CFLAGS@ -I@incdir@/gforth/@PACKAGE_VERSION@/@machine@ -I./include/gforth/@PACKAGE_VERSION@/@machine@ @LDFLAGS@" ;
 
 : libtool-flags ( -- c-addr u ) \ gforth
 \G force no undefined for cygwin

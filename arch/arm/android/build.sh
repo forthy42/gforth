@@ -73,12 +73,12 @@ fi
 
 ENGINES="gforth-fast gforth-itc"
 
-GFORTH_VERSION=$(gforth --version 2>&1 | cut -f2 -d' ')
+GFORTH_VERSION=$($GFORTH_DITC --version 2>&1 | cut -f2 -d' ')
 APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
 SRC=../../..
-LIBCCNAMED=lib/$(gforth --version 2>&1 | cut -f1-2 -d' ' | tr ' ' '/')/libcc-named/.libs
+LIBCCNAMED=lib/$($GFORTH_DITC --version 2>&1 | tr ' ' '/')/libcc-named/.libs
 
 rm -rf $LIBS
 mkdir -p $LIBS

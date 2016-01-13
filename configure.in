@@ -180,16 +180,6 @@ else
   NO_FAIL="-"
 fi])
 
-AC_ARG_WITH(arch,
-	AC_HELP_STRING([--with-arch=<arch>],
-			[  Build gforth binaries with <arch> postfix]),
-[if test "$withval" = "no"; then
-  ARCH=""
-else
-  ARCH=-${withval}
-fi])
-AC_SUBST(ARCH)
-
 EXTRAS=""
 AC_ARG_WITH(extras,
 	AC_HELP_STRING([--with-extras=<path>],
@@ -1354,10 +1344,9 @@ chmod +x libforth
 chmod +x gforthker
 test -d kernel||mkdir kernel
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
-$srcdir/mkinstalldirs include/gforth$ARCH/$PACKAGE_VERSION
+$srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION/$machine
 $srcdir/mkinstalldirs arch/$machine
-ln -sf ../../../engine/config.h ../../../engine/libcc.h include/gforth$ARCH/$PACKAGE_VERSION]],
+ln -sf $PWD/engine/config.h $PWD/engine/libcc.h include/gforth/$PACKAGE_VERSION/$machine]],
 [PACKAGE_VERSION=$PACKAGE_VERSION
- machine=$machine
- ARCH=$ARCH])
+ machine=$machine])
 AC_OUTPUT
