@@ -21,4 +21,4 @@
 LIBS=libs/armeabi
 TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain}
 TARGET=arm-linux-android
-GFORTH_DITC=gforth-ditc-x32
+GFORTH_DITC=gforth-ditc-386

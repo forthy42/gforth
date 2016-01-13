@@ -21,4 +21,4 @@
 LIBS=libs/mips
 TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-mips}
 TARGET=mipsel-linux-android
-GFORTH_DITC=gforth-ditc-x32
+GFORTH_DITC=gforth-ditc-386
