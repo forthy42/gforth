@@ -861,9 +861,7 @@ $(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_SRC)
 
 build-libcc-named: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
 
-libccdir:	$(buildccdir)
-
-$(buildccdir):
+libccdir:
 		$(MKDIR) -p $(buildccdir)
 
 build-libcc-swig:
