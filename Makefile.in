@@ -770,8 +770,10 @@ install-images:
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
 
-install-libcc:
+install-include:
 		$(INSTALL_DATA) include/gforth/$(VERSION)/$(machine)/* $(includedir)/gforth/$(VERSION)/$(machine)
+
+install-libcc:
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
 		   $(LIBTOOL) --silent --mode=install $(INSTALL) $(buildccdir)/libgf`basename $$i .fs`.la `(cd $(package)$(libccdir); pwd)`/libgf`basename $$i .fs`.la; \
 		done; fi
@@ -808,7 +810,7 @@ installdeps:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 
 
 install-indep:	installdeps installdirs-indep install-sources install-man install-info install-elc
 
-install-arch:	installdeps installdirs-arch extra-install normal-install rm-install install-progs install-gensources install-images install-libcc install-tags @libinstall@
+install-arch:	installdeps installdirs-arch extra-install normal-install rm-install install-progs install-gensources install-images install-include install-libcc install-tags @libinstall@
 
 install-seq:	install-indep install-arch
 

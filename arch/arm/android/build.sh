@@ -107,6 +107,7 @@ then
 	    ./configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib $EXTRAS || exit 1
 	fi
 	make || exit 1
+	make prefix=$TOOLCHAIN/sysroot/usr install-include
 	if [ "$1" != "--no-config" ]; then make extras || exit 1; fi
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]
