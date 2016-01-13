@@ -777,6 +777,7 @@ install-tags:
 
 install-elc:
 		@if test -n "@lispdir@"; then \
+			$(MKDIR) -p $(DESTDIR)$(emacssitelispdir); \
 			for i in gforth.el @gforth_elc@; do \
 				$(INSTALL_DATA) $$i $(DESTDIR)$(emacssitelispdir); \
 			done; \
@@ -784,6 +785,7 @@ install-elc:
 			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
 		fi
 		@if test -n "@elispstartdir@"; then \
+			$(MKDIR) -p $(DESTDIR)$(emacssitestartdir); \
 			for i in start-gforth.el; do \
 				$(INSTALL_DATA) $$i $(DESTDIR)$(emacssitestartdir); \
 			done; \
