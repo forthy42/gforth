@@ -32,7 +32,7 @@ BINONLYDIST = config.status Makefile Makedist \
 	$(DOBJECTS) engine/config.h engine/Makefile \
 	$(wildcard engine/gforth*$(EXE)) \
 	stamp-h kernel/version.fs envos.fs build-ec INSTALL.BINDIST \
-	lib/gforth/$(VERSION)/libcc-named \
+	$(buildccdir) \
 	include/gforth/$(VERSION) engine/config.h engine/libcc.h \
 	install.TAGS
 
