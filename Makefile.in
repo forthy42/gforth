@@ -67,7 +67,7 @@ datarootdir = @datarootdir@
 datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
-libccdir = $(subst $(DESTDIR)$(package),,$(libdir)/gforth/$(VERSION)/libcc-named/)
+libccdir = $(subst $(DESTDIR)$(package),,$(libdir)/gforth/$(VERSION)/$(machine)/libcc-named/)
 buildccdir = lib/gforth/$(VERSION)/$(machine)/libcc-named/
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
