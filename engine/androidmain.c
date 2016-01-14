@@ -241,11 +241,8 @@ void startForth(jniargs * startargs)
   LOGI("Started, rval=%d\n", retvalue);
 
   if(retvalue == -56) {
-    Xt bootmessage=gforth_find((Char*)"bootmessage");
-    if(bootmessage != 0) {
-      LOGI("bootmessage=%p\n", bootmessage);
-      gforth_execute(bootmessage);
-    }
+    gforth_setwinch();
+    gforth_bootmessage();
     LOGI("starting gforth_quit\n");
     retvalue = gforth_quit();
   } else {
