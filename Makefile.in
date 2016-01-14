@@ -766,9 +766,9 @@ install-gensources:
 
 install-images:
 		-$(RM) gforth.fi
+		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
 		GFORTHD="$(DITCENGINE)$(EXT) -p $(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
-		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
 
 install-include:
 		$(INSTALL_DATA) include/gforth/$(VERSION)/$(machine)/* $(includedir)/gforth/$(VERSION)/$(machine)
