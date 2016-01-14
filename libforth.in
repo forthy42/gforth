@@ -25,6 +25,7 @@ export CROSS_PREFIX=@CROSS_PREFIX@
 @NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth
 @NO_CROSS@test -f "gforth.fi" && KERNEL="gforth.fi"
 LIBCCDIR=$PWD/lib/gforth/$VERSION/$machine/libcc-named/
+export C_INCLUDE_PATH=@srcdir@/include/gforth/$VERSION/$machine
 EXTRAPATH="also c-lib s\" $LIBCCDIR\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $DEST\" ; is replace-rpath previous"
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
   $ENGINE -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" --die-on-signal -e "$EXTRAPATH" "$@"
