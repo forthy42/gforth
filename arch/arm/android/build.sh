@@ -78,7 +78,7 @@ APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
 SRC=../../..
-LIBCCNAMED=lib/$($GFORTH_DITC --version 2>&1 | tr ' ' '/')/*/libcc-named/.libs
+LIBCCNAMED=lib/$($GFORTH_DITC --version 2>&1 | cut -f1-2 -d ' ' | tr ' ' '/')/*/libcc-named/.libs
 
 rm -rf $LIBS
 mkdir -p $LIBS
