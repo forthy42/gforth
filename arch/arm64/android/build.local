@@ -22,3 +22,4 @@ LIBS=libs/arm64-v8a
 TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-arm64}
 TARGET=aarch64-linux-android
 GFORTH_DITC=gforth-ditc-amd64
+machine=arm64
