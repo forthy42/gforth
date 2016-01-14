@@ -25,11 +25,12 @@
 # copy the resulting *.iss to the location of your Windows installation
 # of Gforth, and start the setup compiler there.
 
-VERSION=$(cat version)
+VERSION=$(./gforth --version 2>&1 | cut -f2 -d' ')
+machine=$(./gforth --version 2>&1 | cut -f3 -d' ')
 SF=$(./gforth -e 'cell 8 = [IF] ." 64" [THEN] bye')
 CYGWIN=cygwin$SF
 
-for i in lib/gforth/$VERSION/libcc-named/*.la
+for i in lib/gforth/$VERSION/$machine/libcc-named/*.la
 do
     sed "s/dependency_libs='.*'/dependency_libs=''/g" <$i >$i+
     mv $i+ $i
@@ -85,7 +86,7 @@ done) | sort -u | sed \
   -e 's,^\(..*\)$,Name: "{app}\\\1",g')
 Name: "{app}\\doc\\gforth"
 Name: "{app}\\doc\\vmgen"
-Name: "{app}\\lib\\gforth\\$VERSION\libcc-named"
+Name: "{app}\\lib\\gforth\\$VERSION\\$machine\\libcc-named"
 Name: "{app}\\include\\gforth\\$VERSION"
 Name: "{app}\\..\bin"
 Name: "{app}\\..\\tmp"; Permissions: users-modify
@@ -140,9 +141,9 @@ Source: "c:\\$CYGWIN\\bin\\env.exe"; DestDir: "{app}"
 Source: "gforthmi.sh"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
-$(ls lib/gforth/$VERSION/libcc-named | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\libcc-named\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\libcc-named",g')
-$(ls lib/gforth/$VERSION/libcc-named/.libs | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\libcc-named\\.libs\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\libcc-named\\.libs",g')
-$(ls include/gforth/$VERSION | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "engine\\\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'",g')
+$(ls lib/gforth/$VERSION/$machine/libcc-named | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\'$machine'\\libcc-named\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\'$machine'\\libcc-named",g')
+$(ls lib/gforth/$VERSION/$machine/libcc-named/.libs | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\'$machine'\\libcc-named\\.libs\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\'$machine'\\libcc-named\\.libs",g')
+$(ls include/gforth/$VERSION/$machine | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "engine\\\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\'$machine'",g')
 $(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | grep -v engine.*exe | (while read i; do
   if [ ! -d $i ]; then echo $i; fi
 done) | sed \
