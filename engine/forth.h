@@ -427,6 +427,8 @@ void gforth_free_stacks(user_area* t);
 void gforth_free();
 Cell gforth_go(Xt* ip0);
 Cell gforth_boot(int argc, char** argv, char* path);
+void gforth_bootmessage();
+void gforth_setwinch();
 Cell gforth_start(int argc, char ** argv);
 Cell gforth_quit();
 Xt gforth_find(Char * name);

@@ -2619,6 +2619,25 @@ Xt gforth_find(Char * name)
   return xt;
 }
 
+Cell* winch_addr=0;
+
+void gforth_setwinch()
+{
+  Xt winch_query=gforth_find((Char*)"winch?");
+  if(winch_query != 0) {
+    gforth_execute(winch_query);
+    winch_addr = (Cell*)*gforth_SP++;
+  }
+}
+
+void gforth_bootmessage()
+{
+  Xt bootmessage=gforth_find((Char*)"bootmessage");
+  if(bootmessage != 0) {
+    gforth_execute(bootmessage);
+  }
+}
+
 Cell gforth_start(int argc, char ** argv)
 {
   char *path, *imagename;
@@ -2634,23 +2653,14 @@ Cell gforth_start(int argc, char ** argv)
   return gforth_boot(argc, argv, path);
 }
 
-Cell* winch_addr=0;
-
 Cell gforth_main(int argc, char **argv, char **env)
 {
   Cell retvalue=gforth_start(argc, argv);
   debugp(stderr, "Start returned %ld\n", retvalue);
 
   if(retvalue == -56) { /* throw-code for quit */
-    Xt bootmessage=gforth_find((Char*)"bootmessage");
-    Xt winch_query=gforth_find((Char*)"winch?");
-    if(bootmessage != 0) {
-      gforth_execute(bootmessage);
-    }
-    if(winch_query != 0) {
-      gforth_execute(winch_query);
-      winch_addr = (Cell*)*gforth_SP++;
-    }
+    gforth_setwinch();
+    gforth_bootmessage();
     retvalue = gforth_quit();
   }
   gforth_cleanup();
