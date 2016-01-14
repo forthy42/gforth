@@ -52,7 +52,7 @@ elif test $1 = --system; then
     shift
     generate=$startup
     outfile="@libdir@/gforth/@PACKAGE_VERSION@/gforth.fi"
-    export libccdir="@libexecdir@/gforth/@PACKAGE_VERSION@/libcc-named"
+    export libccdir="@libexecdir@/gforth/@PACKAGE_VERSION@/@machine@/libcc-named"
 else
     outfile=$1; shift
     generate="$@"
