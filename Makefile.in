@@ -825,7 +825,7 @@ installnodep:	installdirs install-seq post-inst
 install-strip:	install
 
 libinstall:	$(ENGINES:%$(EXT)=lib%$(EXT)) $(ENGINES_FAST:%$(EXT)=lib%$(EXT))
-		for i in $(ENGINES:%$(EXT)=lib%$(EXT)) $(ENGINES_FAST:%$(EXT)=lib%$(EXT)); do \
+		for i in $(ENGINES:%$(EXT)=lib%$(EC)) $(ENGINES_FAST:%$(EXT)=lib%$(EC)); do \
 		   $(LIBTOOL) --silent --mode=install $(INSTALL) engine/$$i.la `(cd $(libdir); pwd)`/$$i.la; \
 		done
 
