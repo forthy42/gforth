@@ -810,7 +810,7 @@ installdeps:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 
 
 install-indep:	installdeps installdirs-indep install-sources install-man install-info install-elc
 
-install-arch:	installdeps installdirs-arch extra-install normal-install rm-install install-progs install-gensources install-images install-include install-libcc install-tags @libinstall@
+install-arch:	installdeps installdirs-arch normal-install rm-install install-progs install-gensources install-images install-include install-libcc install-tags @libinstall@ extra-install
 
 install-seq:	install-indep install-arch
 
