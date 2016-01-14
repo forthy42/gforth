@@ -785,7 +785,7 @@ install-info:
 		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/gforth.info
 		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/vmgen.info
 
-install-tags:
+install-tags:	install.TAGS
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
 
 install-elc:
@@ -806,7 +806,7 @@ install-elc:
 			echo '>>>>>Please install start-gforth.{el,elc} in your .../emacs/.../site-start.d directory'; \
 		fi
 
-installdeps:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim gforth.fi install.TAGS start-gforth.el
+installdeps:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim gforth.fi start-gforth.el
 
 install-indep:	installdeps installdirs-indep install-sources install-man install-info install-elc
 
