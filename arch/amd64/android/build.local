@@ -22,3 +22,4 @@ LIBS=libs/x86_64
 TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-x86_64}
 TARGET=x86_64-linux-android
 GFORTH_DITC=gforth-ditc-amd64
+machine=amd64

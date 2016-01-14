@@ -78,7 +78,7 @@ APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
 SRC=../../..
-LIBCCNAMED=lib/$($GFORTH_DITC --version 2>&1 | cut -f1-2 -d ' ' | tr ' ' '/')/*/libcc-named/.libs
+LIBCCNAMED=lib/$($GFORTH_DITC --version 2>&1 | cut -f1-2 -d ' ' | tr ' ' '/')/$machine/libcc-named/.libs
 
 rm -rf $LIBS
 mkdir -p $LIBS
@@ -117,7 +117,7 @@ then
 
     cp *.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/site-forth
     (cd $SRC/debian/sdcard
-	rm -rf gforth/$GFORTH_VERSION/libcc-named
+	rm -rf gforth/$GFORTH_VERSION/$machine/libcc-named
 	mkdir -p gforth/home
 	gforth ../../archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
 else
