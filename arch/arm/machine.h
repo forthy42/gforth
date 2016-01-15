@@ -49,9 +49,9 @@ R11: frame pointer
 R13: stack pointer
 */
 /* works with gcc-2.95.2 */
-#define RPREG asm("r7")
-#define LPREG asm("r8")
-#define FPREG asm("r9")
+#define RPREG asm("r6")
+#define LPREG asm("r7")
+#define FPREG asm("r8")
 #define SPREG asm("r10")
-#define TOSREG asm("r11")
+#define TOSREG asm("r5")
 #endif
