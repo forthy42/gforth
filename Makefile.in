@@ -911,11 +911,17 @@ onebench one-bench:
 
 all-bench allbench:
 	./gforth-fast$(EXT) --dynamic onebench.fs
+	@libbench@./libgforth-fast$(EXT) --dynamic onebench.fs
 	./gforth-fast$(EXT) --no-dynamic onebench.fs
+	@libbench@./libgforth-fast$(EXT) --no-dynamic onebench.fs
 	./gforth$(EXT) --dynamic onebench.fs
+	@libbench@./libgforth$(EXT) --dynamic onebench.fs
 	./gforth$(EXT) --no-dynamic onebench.fs
+	@libbench@./libgforth$(EXT) --no-dynamic onebench.fs
 	./gforth-itc$(EXT) onebench.fs
+	@libbench@./libgforth-itc$(EXT) onebench.fs
 	./gforth-ditc$(EXT) onebench.fs
+	@libbench@./libgforth-ditc$(EXT) onebench.fs
 
 EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=" "FAST=$(FAST)"
 
@@ -1100,12 +1106,18 @@ optlibgforth-fast2:
 
 libgforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) libgforth-itc$(EXT) $(MAKELINE-noll)
+		$(LN_S) engine/$@ $@
+		-$(MASSAGE_EXE) $@
 
 libgforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) libgforth-ditc$(EXT) $(MAKELINE-noll)
+		$(LN_S) engine/$@ $@
+		-$(MASSAGE_EXE) $@
 
 libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) libgforth-prof$(EXT) $(MAKELINE-noll)
+		$(LN_S) engine/$@ $@
+		-$(MASSAGE_EXE) $@
 
 libgforths: $(ENGINES:%=lib%) $(ENGINES_FAST:%=lib%)
 
