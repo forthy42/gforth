@@ -133,6 +133,7 @@ else
   platform=${withval}
 fi])
 
+libbench='#'
 AC_ARG_ENABLE(lib,
 	AC_HELP_STRING([--enable-lib],
 		       [  Compile Gforth as shared library (default enabled).]),
@@ -141,10 +142,12 @@ if test "$enable_lib" != "no"; then
    AC_DEFINE(HAS_LIB,,[Define if you want to build as shared library])
    libengines=libgforths
    libinstall=libinstall
+   libbench=''
    LIB_VERSION=0:8:0
 fi
 AC_SUBST(libengines)
 AC_SUBST(libinstall)
+AC_SUBST(libbench)
 AC_SUBST(LIB_VERSION)
 
 AC_ARG_WITH(cross,
