@@ -6,7 +6,9 @@
 \#*#
 *-
 gforth
+libgforth
 gforth-*
+libgforth-*
 Makefile
 vmgen
 netlib/Makefile
@@ -19,6 +21,9 @@ engine/*.i
 engine/Makefile
 engine/libcc.h
 engine/config.h
+engine/.libs
+engine/libgforth
+engine/libgforth-*
 configure
 gforthker
 gforthmi.sh
