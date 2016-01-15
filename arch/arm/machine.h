@@ -44,6 +44,7 @@ according to http://mail-index.netbsd.org/port-arm/2003/05/17/0000.html:
 
 R0-R3: argument passing/caller-saved
 R4-R10: callee-saved
+R9: platform dependent
 R12, R14: caller-saved
 R11: frame pointer
 R13: stack pointer
