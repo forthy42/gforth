@@ -108,6 +108,7 @@ then
 	fi
 	make || exit 1
 	make prefix=$TOOLCHAIN/sysroot/usr install-include
+	rm -rf debian/sdcard
 	if [ "$1" != "--no-config" ]; then make extras || exit 1; fi
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]
@@ -120,7 +121,7 @@ then
      mkdir -p gforth/home
      gforth archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
     (cd $SRC/debian/sdcard
-     rm -rf gforth-$machine/$GFORTH_VERSION/$machine/libcc-named
+     rm -rf gforth-$machine/gforth/$GFORTH_VERSION/$machine/libcc-named
      gforth archive.fs $(find gforth-$machine/gforth -type f)) | gzip -9 >$LIBS/libgforth-${machine}gz.so
 else
     shift

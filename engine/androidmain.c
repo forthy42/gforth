@@ -196,8 +196,8 @@ void addfileargs(char* filename)
 }
 
 static const char *paths[] = { "--path=/sdcard/gforth/" PACKAGE_VERSION ":/sdcard/gforth" ARCH "/gforth/" PACKAGE_VERSION ":/sdcard/gforth/site-forth",
-			       "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth" ARCH "/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
-			       "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth" ARCH "/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
+			       "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth-" ARCH "/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
+			       "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth-" ARCH "/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
 static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
 
 int checkFiles(char ** patharg)
