@@ -116,7 +116,7 @@ then
 	CONFIG=no; shift
     fi
 
-    cp *.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth-$machine/site-forth
+    cp *.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth-$machine/gforth/site-forth
     (cd $SRC/debian/sdcard
      mkdir -p gforth/home
      gforth archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
