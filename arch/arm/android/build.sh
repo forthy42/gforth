@@ -104,7 +104,7 @@ then
     (cd $SRC
 	if [ "$1" != "--no-config" ]
 	then
-	    ./configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard --libexecdir=/lib --enable-lib $EXTRAS || exit 1
+	    ./configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard/gforth-$machine --libexecdir=/lib --enable-lib $EXTRAS || exit 1
 	fi
 	make || exit 1
 	make prefix=$TOOLCHAIN/sysroot/usr install-include
@@ -120,15 +120,17 @@ then
 	rm -rf gforth/$GFORTH_VERSION/$machine/libcc-named
 	mkdir -p gforth/home
 	gforth ../../archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
+	gforth ../../archive.fs gforth-$machine $(find gforth -type f)) | gzip -9 >$LIBS/libgforth-${machine}gz.so
 else
     shift
 fi
 
 SHA256=$(sha256sum $LIBS/libgforthgz.so | cut -f1 -d' ')
+SHA256ARCH=$(sha256sum $LIBS/libgforth-${machine}gz.so | cut -f1 -d' ')
 
 for i in $ENGINES
 do
-    sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" $SRC/engine/.libs/lib$i.so >$LIBS/lib$i.so
+    sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" -e "s/sha256archsum-sha256archsum-sha256archsum-sha256archsum-sha256ar/$SHA256ARCH/" $SRC/engine/.libs/lib$i.so >$LIBS/lib$i.so
 done
 
 FULLLIBS=$PWD/$LIBS

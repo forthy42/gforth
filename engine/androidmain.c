@@ -79,22 +79,17 @@ JNIEXPORT void JNI_onEventNativeInt(JNIEnv * env, jobject obj, jint type, jint e
 }
 
 const char sha256sum[]="sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2";
+const char sha256arch[]="sha256archsum-sha256archsum-sha256archsum-sha256archsum-sha256ar";
 
-int checksha256sum(void)
+int checksha256sum(char * sha256, char* sha256file)
 {
   int checkdir;
   char sha256buffer[64];
   int checkread;
 
-  checkdir=open("gforth/" PACKAGE_VERSION, O_RDONLY);
+  checkdir=open(sha256file, O_RDONLY);
   if(checkdir==-1) {
-    LOGI("cksha256: directory '%s' not here\n", "gforth/" PACKAGE_VERSION);
-    return 0; // directory not there
-  }
-  close(checkdir);
-  checkdir=open("gforth/" PACKAGE_VERSION "/sha256sum", O_RDONLY);
-  if(checkdir==-1) {
-    LOGI("cksha256: file '%s' not here\n", "gforth/" PACKAGE_VERSION "/sha256sum");
+    LOGI("cksha256: file '%s' not here\n", sha256file);
     return 0; // sha256sum not there
   }
   checkread=read(checkdir, sha256buffer, 64);
@@ -103,7 +98,7 @@ int checksha256sum(void)
     LOGI("cksha256: size %d wrong\n", checkread);
     return 0;
   }
-  if(memcmp(sha256buffer, sha256sum, 64)) return 0;
+  if(memcmp(sha256buffer, sha256, 64)) return 0;
   return 1;
 }
 
@@ -137,6 +132,26 @@ void unpackFiles()
   LOGI("sha256sum '%s'=>%d\n", "gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
   writeout=write(checkdir, sha256sum, 64);
   LOGI("sha256sum: '%64s'\n", sha256sum);
+  close(checkdir);
+  if(writeout==64) {
+    post("hideprog");
+  } else {
+    post("errprog");
+  }
+}
+
+void unpackArchFiles()
+{
+  int checkdir, writeout;
+  int libdirlen=strlen(startargs.libdir)+strlen("/libgforth-" ARCH "gz.so")+1;
+  char libdir[libdirlen];
+  post("showprog");
+  snprintf(libdir, libdirlen, "%s%s", startargs.libdir, "/libgforth-" ARCH "gz.so");
+  zexpand(libdir);
+  checkdir=creat("gforth-" ARCH "/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
+  LOGI("sha256sum '%s'=>%d\n", "gforth-" ARCH "/" PACKAGE_VERSION "/sha256sum", checkdir);
+  writeout=write(checkdir, sha256arch, 64);
+  LOGI("sha256sum: '%64s'\n", sha256arch);
   close(checkdir);
   if(writeout==64) {
     post("hideprog");
@@ -197,7 +212,8 @@ int checkFiles(char ** patharg)
   LOGI("chdir(%s)\n", folder[i]);
   LOGI("Extra arg: %s\n", *patharg);
 
-  return checksha256sum();
+  return checksha256sum(sha256sum, "gforth/" PACKAGE_VERSION "/sha256sum") &
+    checksha256sum(sha256arch, "gforth-" ARCH "/" PACKAGE_VERSION "/sha256sum");
 }
 
 void startForth(jniargs * startargs)
@@ -219,6 +235,7 @@ void startForth(jniargs * startargs)
 
   if(!checkFiles(&patharg)) {
     unpackFiles();
+    unpackArchFiles();
   }
 
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
