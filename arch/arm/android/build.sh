@@ -119,9 +119,9 @@ then
     (cd $SRC/debian/sdcard
      rm -rf gforth/$GFORTH_VERSION/$machine/libcc-named
      mkdir -p gforth/home
-     gforth ../../archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
+     gforth archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
     (cd $SRC/debian/sdcard
-     gforth ../../archive.fs gforth-$machine $(find gforth -type f)) | gzip -9 >$LIBS/libgforth-${machine}gz.so
+     gforth archive.fs $(find gforth-$machine -type f)) | gzip -9 >$LIBS/libgforth-${machine}gz.so
 else
     shift
 fi
