@@ -81,7 +81,7 @@ JNIEXPORT void JNI_onEventNativeInt(JNIEnv * env, jobject obj, jint type, jint e
 const char sha256sum[]="sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2";
 const char sha256arch[]="sha256archsum-sha256archsum-sha256archsum-sha256archsum-sha256ar";
 
-int checksha256sum(char * sha256, char* sha256file)
+int checksha256sum(const char * sha256, const char* sha256file)
 {
   int checkdir;
   char sha256buffer[64];
@@ -120,44 +120,49 @@ void post(char * doprog)
   }
 }
 
-void unpackFiles()
+char *getjstring(JNIEnv * env, jstring string)
 {
-  int checkdir, writeout;
-  int libdirlen=strlen(startargs.libdir)+strlen("/libgforthgz.so")+1;
-  char libdir[libdirlen];
-  post("showprog");
-  snprintf(libdir, libdirlen, "%s%s", startargs.libdir, "/libgforthgz.so");
-  zexpand(libdir);
-  checkdir=creat("gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
-  LOGI("sha256sum '%s'=>%d\n", "gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
-  writeout=write(checkdir, sha256sum, 64);
-  LOGI("sha256sum: '%64s'\n", sha256sum);
-  close(checkdir);
-  if(writeout==64) {
-    post("doneprog");
-  } else {
-    post("errprog");
-  }
+  char *s1, *s2;
+  // Java's string lifetime is unknown, better copy the string and release it
+  s1=(*env)->GetStringUTFChars(env, string, NULL);
+  s2=malloc(strlen(s1)+1);
+  strncpy(s2, s1, strlen(s1)+1);
+  (*env)->ReleaseStringUTFChars(env, string, s1);
+  return s2;
 }
 
-void unpackArchFiles()
+char *get_gforth_gz()
 {
-  int checkdir, writeout;
-  int libdirlen=strlen(startargs.libdir)+strlen("/libgforth-" ARCH "gz.so")+1;
-  char libdir[libdirlen];
+  JNIEnv *env=startargs.env;
+  jobject clazz=startargs.obj;
+  jclass cls=startargs.cls;
+  jmethodID get_it;
+  jstring filename;
+  char *fname;
+
+  get_it=(*env)->GetMethodID(env, cls, "get_gforth_gz", "()Ljava/lang/String;");
+  fprintf(stderr, "gforthgz: get get_gforth_gz=%p\n", (char*)get_it);
+  filename=(*env)->CallObjectMethod(env, clazz, get_it);
+  fprintf(stderr, "gforthgz: get filename=%p\n", (char*)filename);
+  fname=getjstring(env, filename);
+  fprintf(stderr, "gforthgz: get filename=%s\n", fname);
+  return fname;
+}
+
+int unpackFiles(const char* zipfile, const char* sumfile, const char* shasum)
+{
+  int csfd, writeout;
   post("showprog");
-  snprintf(libdir, libdirlen, "%s%s", startargs.libdir, "/libgforth-" ARCH "gz.so");
-  zexpand(libdir);
-  checkdir=creat("gforth/" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
-  LOGI("sha256sum '%s'=>%d\n", "gforth/" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
-  writeout=write(checkdir, sha256arch, 64);
-  LOGI("sha256sum: '%64s'\n", sha256arch);
-  close(checkdir);
-  if(writeout==64) {
-    post("hideprog");
-  } else {
+  zexpand(zipfile);
+  csfd=creat(sumfile, O_WRONLY);
+  writeout=write(csfd, shasum, 64);
+  fprintf(stderr, "sha256sum: '%64s'\n", shasum);
+  close(csfd);
+  if(writeout!=64) {
     post("errprog");
+    return 0;
   }
+  return 1;
 }
 
 char ** argv=NULL;
@@ -212,7 +217,7 @@ int checkFiles(char ** patharg)
   LOGI("chdir(%s)\n", folder[i]);
   LOGI("Extra arg: %s\n", *patharg);
 
-  return checksha256sum(sha256sum, "gforth/" PACKAGE_VERSION "/sha256sum") &
+  return checksha256sum(sha256sum, "gforth/" PACKAGE_VERSION "/sha256sum") &&
     checksha256sum(sha256arch, "gforth/" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum");
 }
 
@@ -234,8 +239,19 @@ void startForth(jniargs * startargs)
   startargs->env = env;
 
   if(!checkFiles(&patharg)) {
-    unpackFiles();
-    unpackArchFiles();
+    char *dir = startargs->libdir;
+    const char *zip = "libgforth-" ARCH "gz.so";
+    int  dirlen=strlen(dir)+strlen(zip)+2;
+    char dirbuf[dirlen];
+    char *gforth_gz=get_gforth_gz();
+    snprintf(dirbuf, dirlen, "%s/%s", dir, zip);
+
+    if(unpackFiles(gforth_gz, "gforth/" PACKAGE_VERSION "/sha256sum", sha256sum) &&
+       unpackFiles(dirbuf, "gforth/" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum", sha256arch)) {
+      post("doneprog");
+    }
+    unlink(gforth_gz); // remove temporary copy of gforth.gz
+    free(gforth_gz);
   }
 
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
@@ -279,20 +295,8 @@ pthread_attr_t * pthread_detach_attr(void)
   return &attr;
 }
 
-char *getjstring(JNIEnv * env, jstring string)
-{
-  char *s1, *s2;
-  // Java's string lifetime is unknown, better copy the string and release it
-  s1=(*env)->GetStringUTFChars(env, string, NULL);
-  s2=malloc(strlen(s1)+1);
-  strncpy(s2, s1, strlen(s1)+1);
-  (*env)->ReleaseStringUTFChars(env, string, s1);
-  return s2;
-}
-
 void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale, jstring startfile)
 {
-  char *getlibdir, *getlocale, *getstartfile;
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
   startargs.libdir = getjstring(env, libdir);
