@@ -148,8 +148,8 @@ void unpackArchFiles()
   post("showprog");
   snprintf(libdir, libdirlen, "%s%s", startargs.libdir, "/libgforth-" ARCH "gz.so");
   zexpand(libdir);
-  checkdir=creat("gforth-" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
-  LOGI("sha256sum '%s'=>%d\n", "gforth-" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
+  checkdir=creat("gforth/" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum", O_WRONLY);
+  LOGI("sha256sum '%s'=>%d\n", "gforth/" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum", checkdir);
   writeout=write(checkdir, sha256arch, 64);
   LOGI("sha256sum: '%64s'\n", sha256arch);
   close(checkdir);
@@ -196,8 +196,8 @@ void addfileargs(char* filename)
 }
 
 static const char *paths[] = { "--",
-			       "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth-" ARCH "/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
-			       "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth-" ARCH "/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
+			       "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/" ARCH "/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
+			       "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/" ARCH "/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
 static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
 
 int checkFiles(char ** patharg)
@@ -213,7 +213,7 @@ int checkFiles(char ** patharg)
   LOGI("Extra arg: %s\n", *patharg);
 
   return checksha256sum(sha256sum, "gforth/" PACKAGE_VERSION "/sha256sum") &
-    checksha256sum(sha256arch, "gforth-" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum");
+    checksha256sum(sha256arch, "gforth/" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum");
 }
 
 void startForth(jniargs * startargs)

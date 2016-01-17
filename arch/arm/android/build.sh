@@ -104,7 +104,7 @@ then
     (cd $SRC
 	if [ "$1" != "--no-config" ]
 	then
-	    ./configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard/gforth-$machine --libexecdir=/lib --enable-lib $EXTRAS || exit 1
+	    ./configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard/gforth/$machine --libexecdir=/lib --enable-lib $EXTRAS || exit 1
 	fi
 	make || exit 1
 	make prefix=$TOOLCHAIN/sysroot/usr install-include
@@ -116,13 +116,13 @@ then
 	CONFIG=no; shift
     fi
 
-    cp *.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth-$machine/gforth/site-forth
+    cp *.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/$machine/gforth/site-forth
     (cd $SRC/debian/sdcard
      mkdir -p gforth/home
      gforth archive.fs gforth/home/ $(find gforth -type f)) | gzip -9 >$LIBS/libgforthgz.so
     (cd $SRC/debian/sdcard
-     rm -rf gforth-$machine/gforth/$GFORTH_VERSION/$machine/libcc-named
-     gforth archive.fs $(find gforth-$machine/gforth -type f)) | gzip -9 >$LIBS/libgforth-${machine}gz.so
+     rm -rf gforth/$machine/gforth/$GFORTH_VERSION/$machine/libcc-named
+     gforth archive.fs $machine/gforth/site-forth $(find gforth/$machine/gforth -type f)) | gzip -9 >$LIBS/libgforth-${machine}gz.so
 else
     shift
 fi
