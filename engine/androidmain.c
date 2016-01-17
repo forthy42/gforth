@@ -134,7 +134,7 @@ void unpackFiles()
   LOGI("sha256sum: '%64s'\n", sha256sum);
   close(checkdir);
   if(writeout==64) {
-    post("hideprog");
+    post("doneprog");
   } else {
     post("errprog");
   }
