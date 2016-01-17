@@ -115,6 +115,7 @@ public class Gforth
     public Runnable stopsensor;
     public Runnable showprog;
     public Runnable hideprog;
+    public Runnable doneprog;
     public Runnable errprog;
     public Runnable appexit;
     public ProgressDialog progress;
@@ -331,8 +332,6 @@ public class Gforth
     public void doneProgress() {
 	if(progress!=null) {
 	    progress.setMessage("Done; restart Gforth");
-	    progress.dismiss();
-	    progress=null;
 	}
     }
     public void errProgress() {
@@ -426,6 +425,11 @@ public class Gforth
 		}
 	    };
 	hideprog=new Runnable() {
+		public void run() {
+		    hideProgress();
+		}
+	    };
+	doneprog=new Runnable() {
 		public void run() {
 		    doneProgress();
 		}
