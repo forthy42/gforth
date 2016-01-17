@@ -329,7 +329,11 @@ public class Gforth
 				       "please wait", true);
     }
     public void doneProgress() {
-	if(progress!=null) progress.setMessage("Done; restart Gforth");
+	if(progress!=null) {
+	    progress.setMessage("Done; restart Gforth");
+	    progress.dismiss();
+	    progress=null;
+	}
     }
     public void errProgress() {
 	if(progress!=null) progress.setMessage("error: no space left");
