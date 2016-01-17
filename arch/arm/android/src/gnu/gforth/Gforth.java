@@ -326,16 +326,25 @@ public class Gforth
 	}
     }
     public void showProgress() {
-	progress = ProgressDialog.show(this, "Unpacking files",
-				       "please wait", true);
+	if(progress!=null) {
+	    progress.setTitle("Unpacking more files");
+	    progress.setMessage("please wait a little longer");
+	} else {
+	    progress = ProgressDialog.show(this, "Unpacking files",
+					   "please wait", true, true);
+	}
     }
     public void doneProgress() {
 	if(progress!=null) {
+	    Log.v(TAG, "Done spinner");
 	    progress.setMessage("Done; restart Gforth");
 	}
     }
     public void errProgress() {
-	if(progress!=null) progress.setMessage("error: no space left");
+	if(progress!=null) {
+	    Log.v(TAG, "Error spinner");
+	    progress.setMessage("error: no space left");
+	}
     }
 
     public void showIME() {
