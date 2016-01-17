@@ -408,7 +408,7 @@ default-out op-vector !
 
 : term-init ( -- )
     [IFDEF] clazz [ also jni ]
-	clazz >o hideprog dup handler >o post drop xref> ]xref o>
+	clazz >o hideprog handler >o post drop o> o>
 	[ previous ] [THEN]
     >screen-orientation
     create-terminal-program to terminal-program
