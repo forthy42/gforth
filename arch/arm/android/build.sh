@@ -119,8 +119,8 @@ then
     mkdir -p $SRC/debian/sdcard/gforth/$machine/gforth/site-forth
     cp *.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/$machine/gforth/site-forth
     (cd $SRC/debian/sdcard
-     mkdir -p gforth/home
-     gforth archive.fs gforth/home/ gforth/site-forth $(find gforth/$GFORTH_VERSION -type f) $(find gforth/site-forth -type f)) | gzip -9 >$LIBS/libgforthgz.so
+     mkdir -p gforth/home gforth/site-forth
+     gforth archive.fs gforth/home/ gforth/site-forth/ $(find gforth/$GFORTH_VERSION -type f) $(find gforth/site-forth -type f)) | gzip -9 >$LIBS/libgforthgz.so
     (cd $SRC/debian/sdcard
      rm gforth/$machine/lib*
      rm -rf gforth/$machine/gforth/$GFORTH_VERSION/$machine/libcc-named
