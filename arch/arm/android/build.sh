@@ -130,7 +130,7 @@ else
     shift
 fi
 
-SHA256=$(sha256sum $LIBS/libgforthgz.so | cut -f1 -d' ')
+SHA256=$(sha256sum res/raw/gforth | cut -f1 -d' ')
 SHA256ARCH=$(sha256sum $LIBS/libgforth-${machine}gz.so | cut -f1 -d' ')
 
 for i in $ENGINES
@@ -152,10 +152,7 @@ do
     done
     shift
 done
-for i in $LIBS/*.so
-do
-    test "$i" = "$LIBS/libgforth-${machine}gz.so" || $TARGET-strip $i
-done
+$TARGET-strip $LIBS/*.so
 
 #copy resources
 
