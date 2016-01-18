@@ -165,3 +165,4 @@ done
 #ant debug
 ant release || exit 1
 cp bin/Gforth-release.apk bin/Gforth.apk
+cp bin/Gforth-release.apk bin/Gforth-$(date +%Y%m%d).apk
