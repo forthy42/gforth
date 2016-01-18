@@ -30,12 +30,15 @@ jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
 jni-field: hideprog hideprog Ljava/lang/Runnable;
-jni-field: handler handler Landroid/os/Handler;
+jni-field: gforth-handler handler Landroid/os/Handler;
 
 : SDK_INT clazz .get_SDK ;
 
 jni-class: android/os/Handler
 jni-method: post post (Ljava/lang/Runnable;)Z
+
+: post-it ( runable-xt -- )
+    clazz >o execute gforth-handler >o post ref> drop o> ;
 
 jni-class: android/app/Activity
 jni-method: getWindowManager getWindowManager ()Landroid/view/WindowManager;

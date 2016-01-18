@@ -465,7 +465,7 @@ public class Gforth
 		@Override public void onReceive(Context context, Intent foo)
 		{
 		    // Log.v(TAG, "alarm received");
-		    wl_cpu.acquire(100); // 100 ms wakelock to handle the alarm
+		    wl_cpu.acquire(500); // 500 ms wakelock to handle the alarm
 		    onEventNative(21, 0);
 		}
 	    };
