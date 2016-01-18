@@ -152,8 +152,10 @@ do
     done
     shift
 done
-strip -S $LIBS/*.so
-strip $LIBS/*.so
+for i in $LIBS/*.so
+do
+    test "$i" = "$LIBS/libgforth-${machine}gz.so" || $TARGET-strip $i
+done
 
 #copy resources
 
