@@ -141,11 +141,8 @@ char *get_gforth_gz()
   char *fname;
 
   get_it=(*env)->GetMethodID(env, cls, "get_gforth_gz", "()Ljava/lang/String;");
-  fprintf(stderr, "gforthgz: get get_gforth_gz=%p\n", (char*)get_it);
   filename=(*env)->CallObjectMethod(env, clazz, get_it);
-  fprintf(stderr, "gforthgz: get filename=%p\n", (char*)filename);
   fname=getjstring(env, filename);
-  fprintf(stderr, "gforthgz: get filename=%s\n", fname);
   return fname;
 }
 

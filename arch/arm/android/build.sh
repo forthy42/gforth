@@ -152,7 +152,8 @@ do
     done
     shift
 done
-$TARGET-strip $LIBS/*.so
+strip -S $LIBS/*.so
+strip $LIBS/*.so
 
 #copy resources
 
