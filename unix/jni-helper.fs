@@ -164,7 +164,7 @@ jvalue res clazz .getResources to res
 : l-map ( xt list -- )  >o { xt } ( -- )
     l-size 0 ?DO  I l-get >o xt execute ref>  LOOP o> ;
 
-Variable kbflag kbflag on
+Variable kbflag kbflag off
 
 : hidekb ( -- )  clazz >o hideIME o> kbflag off ;
 : showkb ( -- )  clazz >o showIME o> kbflag on ;

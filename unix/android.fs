@@ -259,7 +259,10 @@ variable looperfds pollfd 8 * allot
 
 :noname  0 poll? drop  defers key? ; IS key?
 Defer screen-ops ' noop IS screen-ops
+
+true Value firstkey
 :noname
+    firstkey IF  showkb false to firstkey  THEN
     need-show on  BEGIN  >looper key? screen-ops  UNTIL
     defers key dup #cr = key? and IF  key ?dup-IF inskey THEN THEN ;
 IS key
