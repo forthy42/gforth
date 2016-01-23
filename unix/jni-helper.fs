@@ -20,7 +20,6 @@ gforth-class:
 jni-method: getSystemService getSystemService (Ljava/lang/String;)Ljava/lang/Object;
 jni-method: getWindow getWindow ()Landroid/view/Window;
 jni-method: getResources getResources ()Landroid/content/res/Resources;
-jni-method: hideProgress hideProgress ()V
 jni-method: showIME showIME ()V
 jni-method: hideIME hideIME ()V
 jni-method: get_SDK get_SDK ()I
@@ -30,8 +29,16 @@ jni-method: screen_on screen_on (I)V
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
+jni-field: hideprog hideprog Ljava/lang/Runnable;
+jni-field: gforth-handler handler Landroid/os/Handler;
 
 : SDK_INT clazz .get_SDK ;
+
+jni-class: android/os/Handler
+jni-method: post post (Ljava/lang/Runnable;)Z
+
+: post-it ( runable-xt -- )
+    clazz >o execute gforth-handler >o post ref> drop o> ;
 
 jni-class: android/app/Activity
 jni-method: getWindowManager getWindowManager ()Landroid/view/WindowManager;

@@ -32,6 +32,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.location.Location;
@@ -72,6 +73,9 @@ import java.lang.Object;
 import java.lang.Runnable;
 import java.lang.String;
 import java.io.File;
+import java.io.InputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Locale;
 import gnu.gforth.R;
 
@@ -100,6 +104,7 @@ public class Gforth
     private PowerManager powerManager;
     private WakeLock wl, wl_cpu;
     private GforthView mView;
+    private InputStream gforthfd;
 
     private boolean started=false;
     private boolean libloaded=false;
@@ -115,6 +120,7 @@ public class Gforth
     public Runnable stopsensor;
     public Runnable showprog;
     public Runnable hideprog;
+    public Runnable doneprog;
     public Runnable errprog;
     public Runnable appexit;
     public ProgressDialog progress;
@@ -320,19 +326,32 @@ public class Gforth
     
     public void hideProgress() {
 	if(progress!=null) {
+	    Log.v(TAG, "Dismiss spinner");
 	    progress.dismiss();
 	    progress=null;
 	}
     }
     public void showProgress() {
-	progress = ProgressDialog.show(this, "Unpacking files",
-				       "please wait", true);
+	if(progress!=null) {
+	    progress.setTitle("Unpacking more files");
+	    progress.setMessage("please wait a little longer");
+	} else {
+	    progress = ProgressDialog.show(this, "Unpacking files",
+					   "please wait", true, true);
+	}
     }
     public void doneProgress() {
-	if(progress!=null) progress.setMessage("Done; restart Gforth");
+	if(progress!=null) {
+	    Log.v(TAG, "Done spinner");
+	    progress.setTitle("Unpacked files");
+	    progress.setMessage("Done; restart Gforth");
+	}
     }
     public void errProgress() {
-	if(progress!=null) progress.setMessage("error: no space left");
+	if(progress!=null) {
+	    Log.v(TAG, "Error spinner");
+	    progress.setMessage("error: no space left");
+	}
     }
 
     public void showIME() {
@@ -423,6 +442,11 @@ public class Gforth
 	    };
 	hideprog=new Runnable() {
 		public void run() {
+		    hideProgress();
+		}
+	    };
+	doneprog=new Runnable() {
+		public void run() {
 		    doneProgress();
 		}
 	    };
@@ -441,7 +465,7 @@ public class Gforth
 		@Override public void onReceive(Context context, Intent foo)
 		{
 		    // Log.v(TAG, "alarm received");
-		    wl_cpu.acquire(100); // 100 ms wakelock to handle the alarm
+		    // wl_cpu.acquire(500); // 500 ms wakelock to handle the alarm
 		    onEventNative(21, 0);
 		}
 	    };
@@ -463,6 +487,10 @@ public class Gforth
 	    };
 
 	registerReceiver(recConnectivity, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+
+	Log.v(TAG, "Open resource input stream");
+	gforthfd=getResources().openRawResource(R.raw.gforth);
+	Log.v(TAG, "onCreate done");
     }
 
     @Override protected void onStart() {
@@ -638,5 +666,27 @@ public class Gforth
 	    wl.acquire(ms);
 	    wl_cpu.acquire(ms);
 	}
+    }
+
+    public String get_gforth_gz() {
+	String filename=getFilesDir() + "/gforth.gz";
+	try {
+	    Log.v(TAG, "filename="+filename);
+	    FileOutputStream gforthgz=openFileOutput("gforth.gz", Context.MODE_PRIVATE);
+	    Log.v(TAG, "Open output stream");
+	    int gforthlen = gforthfd.available();
+	    Log.v(TAG, "Available bytes="+gforthlen);
+	    byte buffer[] = new byte[gforthlen];
+	    Log.v(TAG, "read "+gforthlen+" bytes");
+	    gforthfd.read(buffer, 0, gforthlen);
+	    Log.v(TAG, "write "+gforthlen+" bytes");
+	    gforthgz.write(buffer, 0, gforthlen);
+	    Log.v(TAG, "close output");
+	    gforthgz.close();
+	} catch(IOException ex) {
+	    Log.v(TAG, "IO Exception "+ex.toString());
+	}
+	Log.v(TAG, "Return back");
+	return filename;
     }
 }

@@ -407,7 +407,7 @@ default-out op-vector !
 \ initialize
 
 : term-init ( -- )
-    [IFDEF] clazz clazz >o hideProgress o> [THEN]
+    [IFDEF] clazz [ also jni ] ['] hideprog post-it [ previous ] [THEN]
     >screen-orientation
     create-terminal-program to terminal-program
     terminal-program terminal-init

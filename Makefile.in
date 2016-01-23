@@ -78,7 +78,7 @@ man1ext= .1
 #older emacses have their site-lisp in $(libdir)/emacs/
 emacssitelispdir=$(package)@lispdir@
 emacssitestartdir=$(package)@elispstartdir@
-siteforthdir=$(datadir)/gforth/site-forth
+siteforthdir=$(libdir)/gforth/site-forth
 
 # -------------	Utility programs
 
@@ -103,7 +103,7 @@ LIBTOOL = @GNU_LIBTOOL@
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
 EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gforth/site-forth
-FORTHPATH = .$(PATHSEP)$(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(EXTRAPATH)
+FORTHPATH = .$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(EXTRAPATH)
 FORTHSIZES = @FORTHSIZES@
 FORTHS_ARGS =  -p "$(FORTHPATH)$(PATHSEP)$(srcdir)"
 FORTH_ARGS = --die-on-signal $(FORTHS_ARGS)
@@ -364,7 +364,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC) \
 	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs \
 	unix/gdi.fs unix/user.fs unix/win32.fs \
 	date.fs script.fs wf.fs traceall.fs rec-scope.fs rec-env.fs \
-	notfound.fs utf16.fs
+	notfound.fs utf16.fs archive.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -767,7 +767,7 @@ install-gensources:
 install-images:
 		-$(RM) gforth.fi
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
-		GFORTHD="$(DITCENGINE)$(EXT) -p $(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(libdir)/gforth/site-forth$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 
 install-include:
@@ -833,7 +833,7 @@ installdirs:	installdirs-arch installdirs-indep
 
 installdirs-arch: 	mkinstalldirs
 		$(NORMAL_INSTALL)
-		for i in $(bindir) $(libdir)/gforth/$(VERSION) $(libdir)/gforth/site-forth $(siteforthdir) $(includedir)/gforth/$(VERSION)/$(machine) $(package)$(libccdir); do \
+		for i in $(bindir) $(libdir)/gforth/$(VERSION) $(siteforthdir) $(siteforthdir) $(includedir)/gforth/$(VERSION)/$(machine) $(package)$(libccdir); do \
 			$(srcdir)/mkinstalldirs $$i; \
 		done
 		for i in $(INSTALL_LIBDIRS); do \
@@ -842,7 +842,7 @@ installdirs-arch: 	mkinstalldirs
 
 installdirs-indep: 	mkinstalldirs
 		$(NORMAL_INSTALL)
-		for i in $(man1dir) $(infodir) $(datadir)/gforth/$(VERSION); do \
+		for i in $(man1dir) $(infodir) $(datadir)/gforth/$(VERSION) $(datadir)/gforth/site-forth; do \
 			$(srcdir)/mkinstalldirs $$i; \
 		done
 		for i in $(INSTALLDIRS); do \

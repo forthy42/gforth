@@ -51,7 +51,7 @@ require libc.fs
 e? os-type s" darwin" string-prefix? [IF] [IFUNDEF] darwin : darwin ; [THEN] [THEN]
 e? os-type s" linux-android" string-prefix? [IF] [IFUNDEF] android : android ; [THEN] [THEN]
 e? os-type s" cygwin" string-prefix? [IF] [IFUNDEF] cygwin : cygwin ; [THEN] [THEN]
-e? os-type s" linux-gnu"        str= [IF] [IFUNDEF] linux : linux ; [THEN] [THEN]
+e? os-type s" linux-gnu" string-prefix? [IF] [IFUNDEF] linux : linux ; [THEN] [THEN]
 
 begin-structure hostent
     field: h_name

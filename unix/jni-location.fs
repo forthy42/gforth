@@ -68,13 +68,8 @@ jni-field: se-sensor sensor Landroid/hardware/Sensor;
 jni-field: se-timestamp timestamp J
 jni-field: se-values values [F
 
-jni-class: android/os/Handler
-
-jni-method: post post (Ljava/lang/Runnable;)Z
-
 gforth-class:
 
-jni-field: gforth-handler handler Landroid/os/Handler;
 jni-field: startgps startgps Ljava/lang/Runnable;
 jni-field: stopgps stopgps Ljava/lang/Runnable;
 jni-field: startsensor startsensor Ljava/lang/Runnable;
@@ -88,25 +83,23 @@ jni-field: sensorManager sensorManager Landroid/hardware/SensorManager;
 
 also android
 
-: start-gps ( -- )
-    clazz >o startgps gforth-handler >o post ref> drop o> ;
+: start-gps ( -- ) ['] startgps post-it ;
 
-: stop-gps ( -- )
-    clazz >o stopgps  gforth-handler >o post ref> drop o> ;
+: stop-gps ( -- ) ['] stopgps post-it ;
 
 : start-sensor ( type delayus -- )
     clazz >o
     argj0 2>r
     0 to argj0
     sensorManager >o getDefaultSensor dup ref> to argsensor ]ref
-    startsensor gforth-handler >o post ref> drop
+    ['] startsensor post-it
     2r> to argj0
     o> ;
 
 : stop-sensor ( type -- )
     clazz >o
-    sensorManager >o getDefaultSensor dup ref> to argsensor ]ref
-    stopsensor gforth-handler >o post ref> drop o> ;
+    sensorManager >o getDefaultSensor dup ref> to argsensor ]ref o>
+    ['] stopsensor post-it ;
 
 [IFUNDEF] .deg
     : .2 ( n -- ) s>d <# # # #> type ;
