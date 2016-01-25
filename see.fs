@@ -181,8 +181,9 @@ VARIABLE Colors Colors on
     repeat
     2drop ;
 
+Variable struct-pre
 : .struc        
-	uppercase on Str# .string ;
+	uppercase on Str# struct-pre $@ Str# .string .string struct-pre $off ;
 
 \ CODES (Branchtypes)                                    15may93jaw
 
@@ -570,6 +571,9 @@ VARIABLE C-Pass
         DebugBranch
         cell+ ;
 
+: c-?dup-?branch Scan? 0= IF  s" ?dup-" struct-pre $!  THEN
+	c-?branch ;
+    
 : c-for
     Display? IF nl S" FOR" .struc level+ THEN ;
 
@@ -708,6 +712,7 @@ CREATE C-Table
         	' (?do) A,          ' c-?do A,
         	' (for) A,          ' c-for A,
         	' ?branch A,        ' c-?branch A,
+        	' ?dup-?branch A,   ' c-?dup-?branch A,
         	' branch A,         ' c-branch A,
         	' (loop) A,         ' c-loop A,
         	' (+loop) A,        ' c-loop A,

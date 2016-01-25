@@ -317,7 +317,7 @@ SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i	\
 	unix/wingdi.i unix/winuser.i unix/cpufeatures.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
-	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs
+	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs cilk.fs
 
 LIBCC_DIST_SRC = $(SWIG_SRC) unix/test.i unix/Makefile.in unix/doexec
 
@@ -364,7 +364,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC) \
 	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs \
 	unix/gdi.fs unix/user.fs unix/win32.fs \
 	date.fs script.fs wf.fs traceall.fs rec-scope.fs rec-env.fs \
-	notfound.fs utf16.fs archive.fs
+	notfound.fs utf16.fs archive.fs cilk.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
