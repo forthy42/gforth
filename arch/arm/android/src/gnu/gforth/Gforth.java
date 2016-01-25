@@ -257,6 +257,7 @@ public class Gforth
 	    outAttrs.initialSelStart = 1;
 	    outAttrs.initialSelEnd = 1;
 	    outAttrs.packageName = "gnu.gforth";
+	    outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN;
 	    mInputConnection = new MyInputConnection(this, true);
 	    return mInputConnection;
 	}
