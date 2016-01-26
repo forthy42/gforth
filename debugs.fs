@@ -139,12 +139,30 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 
 require string.fs
 
-: view ( "name" -- ) \ gforth
-    \G tell the editor to go to the source of a word
-    \G uses emacs; so you have to do M-x server-start in Emacs,
-    \G and have Forth-mode loaded.  This will ask for the tags file
-    \G on the first invocation
+: esc'type ( addr u -- )
+    bounds ?DO
+	I c@ ''' = IF  ''' emit '"' emit ''' emit '"' emit ''' emit
+	ELSE  I c@ emit  THEN  LOOP ;
+
+: esc'"type ( addr u -- )
+    bounds ?DO
+	I c@ ''' = IF  ''' emit '"' emit ''' emit '"' emit ''' emit
+	ELSE  I c@ '"' = IF  '\' emit '"' emit
+	    ELSE  I c@ emit  THEN  THEN  LOOP ;
+
+: view-emacs ( "name" -- ) \ gforth
     [: ." emacsclient -e '(forth-find-tag " '"' emit
-	parse-name type '"' emit ." )'" ;] $tmp system ;
+      parse-name esc'"type
+      '"' emit ." )'" ;] $tmp system ;
+
+: view-vi ( "name" -- ) \ gforth
+    [: ." vi -t '" parse-name esc'type ." '" ;] $tmp system ;
+
+Defer view ( "name" -- ) \ gforth
+\G tell the editor to go to the source of a word
+\G uses emacs; so you have to do M-x server-start in Emacs,
+\G and have Forth-mode loaded.  This will ask for the tags file
+\G on the first invocation
+' view-emacs IS view
 
 ' view alias locate \ forth inc
