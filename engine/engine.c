@@ -461,22 +461,23 @@ Cell trampoline = (Cell)&trampoline0;
     debugp(stderr, "offsets code/xt/label: %lx/%lx/%lx\n",
 	   code_offset, xt_offset, label_offset);
 
-    symbols = (Label *)(calloc(1, MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
-    xts = (Label *)(calloc(1, MAX_SYMBOLS*sizeof(Cell)+XT_OFFSET)+xt_offset);
-    labels = (Label *)(calloc(1, MAX_SYMBOLS*sizeof(Cell)+LABEL_OFFSET)+label_offset);
+    symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
+    xts = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+XT_OFFSET)+xt_offset);
+    labels = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+LABEL_OFFSET)+label_offset);
     
     for (i=0; i<DOER_MAX+1; i++) {
       labels[i] = routines[i];
       xts[i] = symbols[i] = (Label)routines[i];
     }
     for (; routines[i]!=0; i++) {
-      if (i>=MAX_SYMBOLS) {
+      if (i+1>=MAX_SYMBOLS) {
 	fprintf(stderr,"gforth-ditc: more than %ld primitives\n",(long)MAX_SYMBOLS);
 	exit(1);
       }
       labels[i] = routines[i];
       xts[i] = symbols[i] = (Label)&labels[i];
     }
+    labels[i] = xts[i] = symbols[i] = 0;
 #endif /* defined(DOUBLY_INDIRECT) */
 #ifdef STANDALONE
     return image;

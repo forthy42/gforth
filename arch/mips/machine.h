@@ -28,7 +28,7 @@
 /* cache flush stuff */
 #if defined(ultrix)
 #include <mips/cachectl.h>
-#elif defined(__OpenBSD__)
+#elif (defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__))
 # if (SIZEOF_VOID_P == 4)
 #  include <mips/sysarch.h>
 # else
