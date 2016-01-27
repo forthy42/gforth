@@ -35,7 +35,7 @@
 #  include <mips64/sysarch.h>
 # endif
 #else
-/* works on Irix */
+/* works on Irix and Android */
 #include <sys/cachectl.h>
 #endif
 
