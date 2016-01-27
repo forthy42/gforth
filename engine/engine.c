@@ -461,9 +461,9 @@ Cell trampoline = (Cell)&trampoline0;
     debugp(stderr, "offsets code/xt/label: %lx/%lx/%lx\n",
 	   code_offset, xt_offset, label_offset);
 
-    symbols = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
-    xts = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+XT_OFFSET)+xt_offset);
-    labels = (Label *)(malloc(MAX_SYMBOLS*sizeof(Cell)+LABEL_OFFSET)+label_offset);
+    symbols = (Label *)(calloc(1, MAX_SYMBOLS*sizeof(Cell)+CODE_OFFSET)+code_offset);
+    xts = (Label *)(calloc(1, MAX_SYMBOLS*sizeof(Cell)+XT_OFFSET)+xt_offset);
+    labels = (Label *)(calloc(1, MAX_SYMBOLS*sizeof(Cell)+LABEL_OFFSET)+label_offset);
     
     for (i=0; i<DOER_MAX+1; i++) {
       labels[i] = routines[i];
