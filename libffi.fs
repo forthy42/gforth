@@ -25,7 +25,9 @@ c-library libffi
 s" ffi" add-lib
 
 \ The ffi.h of XCode needs the following line, and it should not hurt elsewhere
-\c #define MACOSX
+\c #ifdef __APPLE__
+\c # define MACOSX
+\c #endif
 include-ffi.h-string save-c-prefix-line \ #include <ffi.h>
 \c #include <stdio.h>
 \c static void **gforth_clist;

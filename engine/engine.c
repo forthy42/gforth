@@ -409,12 +409,13 @@ Label *gforth_engine(Xt *ip0, Cell *sp0, Cell *rp0, Float *fp0, Address lp0 sr_p
     for (i=0; i<DOESJUMP+1; i++)
       xts[i] = symbols[i] = (Label)routines[i];
     for (; routines[i]!=0; i++) {
-      if (i>=MAX_SYMBOLS) {
+      if (i+1>=MAX_SYMBOLS) {
 	fprintf(stderr,"gforth-ditc: more than %ld primitives\n",(long)MAX_SYMBOLS);
 	exit(1);
       }
       xts[i] = symbols[i] = &routines[i];
     }
+    xts[i] = symbols[i] = 0;
 #endif /* defined(DOUBLY_INDIRECT) */
 #ifdef STANDALONE
     return image;

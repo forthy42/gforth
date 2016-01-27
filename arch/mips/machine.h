@@ -28,8 +28,14 @@
 /* cache flush stuff */
 #ifdef ultrix
 #include <mips/cachectl.h>
+#elif (defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__))
+# if (SIZEOF_VOID_P == 4)
+#  include <mips/sysarch.h>
+# else
+#  include <mips64/sysarch.h>
+# endif
 #else
-/* works on Irix */
+/* works on Irix and Android */
 #include <sys/cachectl.h>
 #endif
 
