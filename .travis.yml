@@ -1,0 +1,15 @@
+os:
+  - linux
+  - osx
+env:
+  - M32=
+  - M32=-m32
+language: c
+compiler: gcc
+sudo: true
+before_install: ./install-deps.sh
+script:
+  - ./autogen.sh
+  - if [ "${TRAVIS_OS_NAME}" = osx ]; then export CC=gcc-4.8; fi
+  - ./configure --enable-lib CC="$CC $M32"
+  - make
