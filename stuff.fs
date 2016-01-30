@@ -439,7 +439,7 @@ previous
 
 : \\\ ( -- ) \ gforth
     \G skip remaining source file
-    source-id dup 1+ 2 u>= IF
+    source-id dup 1 -1 within IF
 	>r r@ file-size throw r> reposition-file throw
 	BEGIN  refill 0= UNTIL  postpone \  THEN ; immediate
 
