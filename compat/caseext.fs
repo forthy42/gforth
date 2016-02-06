@@ -28,8 +28,8 @@ variable case-depth \ contains the stack depth after old-case-depth was pushed
     POSTPONE IF ; immediate compile-only
 
 : of ( compilation  -- of-sys ; run-time x1 x2 -- |x1 ) \ core-ext
-    \g If x1=x2, continue; otherwise, jump behind @code{endof} or
-    \g @code{contof}.
+    \g If x1=x2, continue (dropping both); otherwise, leave x1 on the
+    \g stack and jump behind @code{endof} or @code{contof}.
     postpone over postpone = postpone ?of postpone drop ; immediate compile-only
 
 : endof ( compilation case-sys1 of-sys -- case-sys2 ; run-time  -- ) \ core-ext end-of

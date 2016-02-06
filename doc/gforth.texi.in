@@ -140,7 +140,7 @@ Software Foundation raise funds for GNU development.''
 * Bugs::                        How to report them
 * Origin::                      Authors and ancestors of Gforth
 * Forth-related information::   Books and places to look on the WWW
-* Licenses::                    
+* Licenses::
 * Word Index::                  An item for each Forth word
 * Concept Index::               A menu covering many topics
 
@@ -151,156 +151,158 @@ Gforth Environment
 
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
-* Command-line editing::        
+* Command-line editing::
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
-* Gforth in pipes::             
+* Gforth in pipes::
 * Startup speed::               When 14ms is not fast enough ...
 
 Forth Tutorial
 
-* Starting Gforth Tutorial::    
-* Syntax Tutorial::             
-* Crash Course Tutorial::       
-* Stack Tutorial::              
-* Arithmetics Tutorial::        
-* Stack Manipulation Tutorial::  
-* Using files for Forth code Tutorial::  
-* Comments Tutorial::           
-* Colon Definitions Tutorial::  
-* Decompilation Tutorial::      
-* Stack-Effect Comments Tutorial::  
-* Types Tutorial::              
-* Factoring Tutorial::          
-* Designing the stack effect Tutorial::  
-* Local Variables Tutorial::    
-* Conditional execution Tutorial::  
-* Flags and Comparisons Tutorial::  
-* General Loops Tutorial::      
-* Counted loops Tutorial::      
-* Recursion Tutorial::          
-* Leaving definitions or loops Tutorial::  
-* Return Stack Tutorial::       
-* Memory Tutorial::             
-* Characters and Strings Tutorial::  
-* Alignment Tutorial::          
-* Floating Point Tutorial::     
-* Files Tutorial::              
-* Interpretation and Compilation Semantics and Immediacy Tutorial::  
-* Execution Tokens Tutorial::   
-* Exceptions Tutorial::         
-* Defining Words Tutorial::     
-* Arrays and Records Tutorial::  
-* POSTPONE Tutorial::           
-* Literal Tutorial::            
-* Advanced macros Tutorial::    
-* Compilation Tokens Tutorial::  
-* Wordlists and Search Order Tutorial::  
+* Starting Gforth Tutorial::
+* Syntax Tutorial::
+* Crash Course Tutorial::
+* Stack Tutorial::
+* Arithmetics Tutorial::
+* Stack Manipulation Tutorial::
+* Using files for Forth code Tutorial::
+* Comments Tutorial::
+* Colon Definitions Tutorial::
+* Decompilation Tutorial::
+* Stack-Effect Comments Tutorial::
+* Types Tutorial::
+* Factoring Tutorial::
+* Designing the stack effect Tutorial::
+* Local Variables Tutorial::
+* Conditional execution Tutorial::
+* Flags and Comparisons Tutorial::
+* General Loops Tutorial::
+* Counted loops Tutorial::
+* Recursion Tutorial::
+* Leaving definitions or loops Tutorial::
+* Return Stack Tutorial::
+* Memory Tutorial::
+* Characters and Strings Tutorial::
+* Alignment Tutorial::
+* Floating Point Tutorial::
+* Files Tutorial::
+* Interpretation and Compilation Semantics and Immediacy Tutorial::
+* Execution Tokens Tutorial::
+* Exceptions Tutorial::
+* Defining Words Tutorial::
+* Arrays and Records Tutorial::
+* POSTPONE Tutorial::
+* Literal Tutorial::
+* Advanced macros Tutorial::
+* Compilation Tokens Tutorial::
+* Wordlists and Search Order Tutorial::
 
 An Introduction to ANS Forth
 
-* Introducing the Text Interpreter::  
-* Stacks and Postfix notation::  
-* Your first definition::       
-* How does that work?::         
-* Forth is written in Forth::   
-* Review - elements of a Forth system::  
-* Where to go next::            
-* Exercises::                   
+* Introducing the Text Interpreter::
+* Stacks and Postfix notation::
+* Your first definition::
+* How does that work?::
+* Forth is written in Forth::
+* Review - elements of a Forth system::
+* Where to go next::
+* Exercises::
 
 Forth Words
 
-* Notation::                    
-* Case insensitivity::          
-* Comments::                    
-* Boolean Flags::               
-* Arithmetic::                  
-* Stack Manipulation::          
-* Memory::                      
-* Control Structures::          
-* Defining Words::              
-* Interpretation and Compilation Semantics::  
-* Tokens for Words::            
-* Compiling words::             
-* The Text Interpreter::        
-* The Input Stream::            
-* Word Lists::                  
-* Environmental Queries::       
-* Files::                       
-* Blocks::                      
-* Other I/O::                   
-* OS command line arguments::   
-* Locals::                      
-* Structures::                  
-* Object-oriented Forth::       
-* Programming Tools::           
+* Notation::
+* Case insensitivity::
+* Comments::
+* Boolean Flags::
+* Arithmetic::
+* Stack Manipulation::
+* Memory::
+* Control Structures::
+* Defining Words::
+* Interpretation and Compilation Semantics::
+* Tokens for Words::
+* Compiling words::
+* The Text Interpreter::
+* The Input Stream::
+* Word Lists::
+* Environmental Queries::
+* Files::
+* Blocks::
+* Other I/O::
+* OS command line arguments::
+* Locals::
+* Structures::
+* Object-oriented Forth::
+* Programming Tools::
 * Multitasker::
-* C Interface::                 
-* Assembler and Code Words::    
-* Threading Words::             
-* Passing Commands to the OS::  
-* Keeping track of Time::       
-* Miscellaneous Words::         
+* C Interface::
+* Assembler and Code Words::
+* Threading Words::
+* Passing Commands to the OS::
+* Keeping track of Time::
+* Miscellaneous Words::
 
 Arithmetic
 
-* Single precision::            
+* Single precision::
 * Double precision::            Double-cell integer arithmetic
-* Bitwise operations::          
-* Numeric comparison::          
+* Bitwise operations::
+* Numeric comparison::
 * Mixed precision::             Operations with single and double-cell integers
-* Floating Point::              
+* Floating Point::
 
 Stack Manipulation
 
-* Data stack::                  
-* Floating point stack::        
-* Return stack::                
-* Locals stack::                
-* Stack pointer manipulation::  
+* Data stack::
+* Floating point stack::
+* Return stack::
+* Locals stack::
+* Stack pointer manipulation::
 
 Memory
 
-* Memory model::                
-* Dictionary allocation::       
-* Heap Allocation::             
-* Memory Access::               
-* Address arithmetic::          
-* Memory Blocks::               
+* Memory model::
+* Dictionary allocation::
+* Heap Allocation::
+* Memory Access::
+* Address arithmetic::
+* Memory Blocks::
 
 Control Structures
 
 * Selection::                   IF ... ELSE ... ENDIF
 * Simple Loops::                BEGIN ...
 * Counted Loops::               DO
-* Arbitrary control structures::  
-* Calls and returns::           
-* Exception Handling::          
+* BEGIN loops with multiple exits::
+* General control structures with CASE::
+* Arbitrary control structures::
+* Calls and returns::
+* Exception Handling::
 
 Defining Words
 
-* CREATE::                      
+* CREATE::
 * Variables::                   Variables and user variables
-* Constants::                   
+* Constants::
 * Values::                      Initialised variables
-* Colon Definitions::           
+* Colon Definitions::
 * Anonymous Definitions::       Definitions without names
-* Quotations::                  
+* Quotations::
 * Supplying names::             Passing definition names as strings
-* User-defined Defining Words::  
+* User-defined Defining Words::
 * Deferred Words::              Allow forward references
-* Aliases::                     
+* Aliases::
 
 User-defined Defining Words
 
-* CREATE..DOES> applications::  
-* CREATE..DOES> details::       
-* Advanced does> usage example::  
-* Const-does>::                 
+* CREATE..DOES> applications::
+* CREATE..DOES> details::
+* Advanced does> usage example::
+* Const-does>::
 
 Interpretation and Compilation Semantics
 
-* Combined words::              
+* Combined words::
 
 Tokens for Words
 
@@ -315,29 +317,30 @@ Compiling words
 
 The Text Interpreter
 
-* Input Sources::               
-* Number Conversion::           
-* Interpret/Compile states::    
-* Interpreter Directives::      
+* Input Sources::
+* Number Conversion::
+* Interpret/Compile states::
+* Interpreter Directives::
 * Recognizers::
 
 Word Lists
 
-* Vocabularies::                
-* Why use word lists?::         
-* Word list example::           
+* Vocabularies::
+* Why use word lists?::
+* Word list example::
 
 Files
 
-* Forth source files::          
-* General files::               
-* Redirection::                 
-* Search Paths::                
+* Forth source files::
+* General files::
+* Redirection::
+* Directories::
+* Search Paths::
 
 Search Paths
 
-* Source Search Paths::         
-* General Search Paths::        
+* Source Search Paths::
+* General Search Paths::
 
 Other I/O
 
@@ -347,69 +350,69 @@ Other I/O
 * Displaying characters and strings::  Other stuff
 * String words::                Gforth's little string library
 * Terminal output::             Cursor positioning etc.
-* Single-key input::            
-* Line input and conversion::   
+* Single-key input::
+* Line input and conversion::
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
 
 Locals
 
-* Gforth locals::               
-* ANS Forth locals::            
+* Gforth locals::
+* ANS Forth locals::
 
 Gforth locals
 
-* Where are locals visible by name?::  
-* How long do locals live?::    
-* Locals programming style::    
-* Locals implementation::       
+* Where are locals visible by name?::
+* How long do locals live?::
+* Locals programming style::
+* Locals implementation::
 
 Structures
 
-* Why explicit structure support?::  
-* Structure Usage::             
-* Structure Naming Convention::  
-* Structure Implementation::    
-* Structure Glossary::          
-* Forth200x Structures::        
+* Why explicit structure support?::
+* Structure Usage::
+* Structure Naming Convention::
+* Structure Implementation::
+* Structure Glossary::
+* Forth200x Structures::
 
 Object-oriented Forth
 
-* Why object-oriented programming?::  
-* Object-Oriented Terminology::  
-* Objects::                     
-* OOF::                         
-* Mini-OOF::                    
-* Comparison with other object models::  
+* Why object-oriented programming?::
+* Object-Oriented Terminology::
+* Objects::
+* OOF::
+* Mini-OOF::
+* Comparison with other object models::
 
 The @file{objects.fs} model
 
-* Properties of the Objects model::  
-* Basic Objects Usage::         
-* The Objects base class::      
-* Creating objects::            
-* Object-Oriented Programming Style::  
-* Class Binding::               
-* Method conveniences::         
-* Classes and Scoping::         
-* Dividing classes::            
-* Object Interfaces::           
-* Objects Implementation::      
-* Objects Glossary::            
+* Properties of the Objects model::
+* Basic Objects Usage::
+* The Objects base class::
+* Creating objects::
+* Object-Oriented Programming Style::
+* Class Binding::
+* Method conveniences::
+* Classes and Scoping::
+* Dividing classes::
+* Object Interfaces::
+* Objects Implementation::
+* Objects Glossary::
 
 The @file{oof.fs} model
 
-* Properties of the OOF model::  
-* Basic OOF Usage::             
-* The OOF base class::          
-* Class Declaration::           
-* Class Implementation::        
+* Properties of the OOF model::
+* Basic OOF Usage::
+* The OOF base class::
+* Class Declaration::
+* Class Implementation::
 
 The @file{mini-oof.fs} model
 
-* Basic Mini-OOF Usage::        
-* Mini-OOF Example::            
-* Mini-OOF Implementation::     
+* Basic Mini-OOF Usage::
+* Mini-OOF Example::
+* Mini-OOF Implementation::
 
 Programming Tools
 
@@ -425,22 +428,22 @@ Multitasker
 
 C Interface
 
-* Calling C Functions::         
-* Declaring C Functions::       
-* Calling C function pointers::  
-* Defining library interfaces::  
-* Declaring OS-level libraries::  
-* Callbacks::                   
-* C interface internals::       
-* Low-Level C Interface Words::  
+* Calling C Functions::
+* Declaring C Functions::
+* Calling C function pointers::
+* Defining library interfaces::
+* Declaring OS-level libraries::
+* Callbacks::
+* C interface internals::
+* Low-Level C Interface Words::
 
 Assembler and Code Words
 
 * Assembler Definitions::       Definitions in assembly language
 * Common Assembler::            Assembler Syntax
-* Common Disassembler::         
+* Common Disassembler::
 * 386 Assembler::               Deviations and special cases
-* AMD64 Assembler::             
+* AMD64 Assembler::
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
 * PowerPC assembler::           Deviations and special cases
@@ -454,17 +457,17 @@ Tools
 
 ANS conformance
 
-* The Core Words::              
-* The optional Block word set::  
-* The optional Double Number word set::  
-* The optional Exception word set::  
-* The optional Facility word set::  
-* The optional File-Access word set::  
-* The optional Floating-Point word set::  
-* The optional Locals word set::  
-* The optional Memory-Allocation word set::  
-* The optional Programming-Tools word set::  
-* The optional Search-Order word set::  
+* The Core Words::
+* The optional Block word set::
+* The optional Double Number word set::
+* The optional Exception word set::
+* The optional Facility word set::
+* The optional File-Access word set::
+* The optional Floating-Point word set::
+* The optional Locals word set::
+* The optional Memory-Allocation word set::
+* The optional Programming-Tools word set::
+* The optional Search-Order word set::
 
 The Core Words
 
@@ -546,28 +549,28 @@ Fully Relocatable Image Files
 
 Engine
 
-* Portability::                 
-* Threading::                   
-* Primitives::                  
-* Performance::                 
+* Portability::
+* Threading::
+* Primitives::
+* Performance::
 
 Threading
 
-* Scheduling::                  
-* Direct or Indirect Threaded?::  
-* Dynamic Superinstructions::   
-* DOES>::                       
+* Scheduling::
+* Direct or Indirect Threaded?::
+* Dynamic Superinstructions::
+* DOES>::
 
 Primitives
 
-* Automatic Generation::        
-* TOS Optimization::            
-* Produced code::               
+* Automatic Generation::
+* TOS Optimization::
+* Produced code::
 
 Cross Compiler
 
-* Using the Cross Compiler::    
-* How the Cross Compiler Works::  
+* Using the Cross Compiler::
+* How the Cross Compiler Works::
 
 Licenses
 
@@ -576,6 +579,7 @@ Licenses
 
 @end detailmenu
 @end menu
+
 @end ifnottex
 
 @c ----------------------------------------------------------
@@ -647,10 +651,10 @@ material in this chapter.
 @menu
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
-* Command-line editing::        
+* Command-line editing::
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
-* Gforth in pipes::             
+* Gforth in pipes::
 * Startup speed::               When 14ms is not fast enough ...
 @end menu
 
@@ -1263,43 +1267,43 @@ e.g., a loop is.
 @c !! explain compat library
 
 @menu
-* Starting Gforth Tutorial::    
-* Syntax Tutorial::             
-* Crash Course Tutorial::       
-* Stack Tutorial::              
-* Arithmetics Tutorial::        
-* Stack Manipulation Tutorial::  
-* Using files for Forth code Tutorial::  
-* Comments Tutorial::           
-* Colon Definitions Tutorial::  
-* Decompilation Tutorial::      
-* Stack-Effect Comments Tutorial::  
-* Types Tutorial::              
-* Factoring Tutorial::          
-* Designing the stack effect Tutorial::  
-* Local Variables Tutorial::    
-* Conditional execution Tutorial::  
-* Flags and Comparisons Tutorial::  
-* General Loops Tutorial::      
-* Counted loops Tutorial::      
-* Recursion Tutorial::          
-* Leaving definitions or loops Tutorial::  
-* Return Stack Tutorial::       
-* Memory Tutorial::             
-* Characters and Strings Tutorial::  
-* Alignment Tutorial::          
-* Floating Point Tutorial::     
-* Files Tutorial::              
-* Interpretation and Compilation Semantics and Immediacy Tutorial::  
-* Execution Tokens Tutorial::   
-* Exceptions Tutorial::         
-* Defining Words Tutorial::     
-* Arrays and Records Tutorial::  
-* POSTPONE Tutorial::           
-* Literal Tutorial::            
-* Advanced macros Tutorial::    
-* Compilation Tokens Tutorial::  
-* Wordlists and Search Order Tutorial::  
+* Starting Gforth Tutorial::
+* Syntax Tutorial::
+* Crash Course Tutorial::
+* Stack Tutorial::
+* Arithmetics Tutorial::
+* Stack Manipulation Tutorial::
+* Using files for Forth code Tutorial::
+* Comments Tutorial::
+* Colon Definitions Tutorial::
+* Decompilation Tutorial::
+* Stack-Effect Comments Tutorial::
+* Types Tutorial::
+* Factoring Tutorial::
+* Designing the stack effect Tutorial::
+* Local Variables Tutorial::
+* Conditional execution Tutorial::
+* Flags and Comparisons Tutorial::
+* General Loops Tutorial::
+* Counted loops Tutorial::
+* Recursion Tutorial::
+* Leaving definitions or loops Tutorial::
+* Return Stack Tutorial::
+* Memory Tutorial::
+* Characters and Strings Tutorial::
+* Alignment Tutorial::
+* Floating Point Tutorial::
+* Files Tutorial::
+* Interpretation and Compilation Semantics and Immediacy Tutorial::
+* Execution Tokens Tutorial::
+* Exceptions Tutorial::
+* Defining Words Tutorial::
+* Arrays and Records Tutorial::
+* POSTPONE Tutorial::
+* Literal Tutorial::
+* Advanced macros Tutorial::
+* Compilation Tokens Tutorial::
+* Wordlists and Search Order Tutorial::
 @end menu
 
 @node Starting Gforth Tutorial, Syntax Tutorial, Tutorial, Tutorial
@@ -3522,14 +3526,14 @@ edit-compile-test cycle used by conventional programming languages can
 lead to great productivity improvements.
 
 @menu
-* Introducing the Text Interpreter::  
-* Stacks and Postfix notation::  
-* Your first definition::       
-* How does that work?::         
-* Forth is written in Forth::   
-* Review - elements of a Forth system::  
-* Where to go next::            
-* Exercises::                   
+* Introducing the Text Interpreter::
+* Stacks and Postfix notation::
+* Your first definition::
+* How does that work?::
+* Forth is written in Forth::
+* Review - elements of a Forth system::
+* Where to go next::
+* Exercises::
 @end menu
 
 @comment ----------------------------------------------
@@ -4404,37 +4408,37 @@ the exercises in a .fs file in the distribution.
 @cindex words
 
 @menu
-* Notation::                    
-* Case insensitivity::          
-* Comments::                    
-* Boolean Flags::               
-* Arithmetic::                  
-* Stack Manipulation::          
-* Memory::                      
-* Control Structures::          
-* Defining Words::              
-* Interpretation and Compilation Semantics::  
-* Tokens for Words::            
-* Compiling words::             
-* The Text Interpreter::        
-* The Input Stream::            
-* Word Lists::                  
-* Environmental Queries::       
-* Files::                       
-* Blocks::                      
-* Other I/O::                   
-* OS command line arguments::   
-* Locals::                      
-* Structures::                  
-* Object-oriented Forth::       
-* Programming Tools::           
+* Notation::
+* Case insensitivity::
+* Comments::
+* Boolean Flags::
+* Arithmetic::
+* Stack Manipulation::
+* Memory::
+* Control Structures::
+* Defining Words::
+* Interpretation and Compilation Semantics::
+* Tokens for Words::
+* Compiling words::
+* The Text Interpreter::
+* The Input Stream::
+* Word Lists::
+* Environmental Queries::
+* Files::
+* Blocks::
+* Other I/O::
+* OS command line arguments::
+* Locals::
+* Structures::
+* Object-oriented Forth::
+* Programming Tools::
 * Multitasker::
-* C Interface::                 
-* Assembler and Code Words::    
-* Threading Words::             
-* Passing Commands to the OS::  
-* Keeping track of Time::       
-* Miscellaneous Words::         
+* C Interface::
+* Assembler and Code Words::
+* Threading Words::
+* Passing Commands to the OS::
+* Keeping track of Time::
+* Miscellaneous Words::
 @end menu
 
 @node Notation, Case insensitivity, Words, Words
@@ -4648,12 +4652,12 @@ former, @pxref{Mixed precision}).
 @comment TODO discuss the different division forms and the std approach
 
 @menu
-* Single precision::            
+* Single precision::
 * Double precision::            Double-cell integer arithmetic
-* Bitwise operations::          
-* Numeric comparison::          
+* Bitwise operations::
+* Numeric comparison::
 * Mixed precision::             Operations with single and double-cell integers
-* Floating Point::              
+* Floating Point::
 @end menu
 
 @node Single precision, Double precision, Arithmetic, Arithmetic
@@ -4935,11 +4939,11 @@ A locals stack -- for holding local variables.
 @end itemize
 
 @menu
-* Data stack::                  
-* Floating point stack::        
-* Return stack::                
-* Locals stack::                
-* Stack pointer manipulation::  
+* Data stack::
+* Floating point stack::
+* Return stack::
+* Locals stack::
+* Stack pointer manipulation::
 @end menu
 
 @node Data stack, Floating point stack, Stack Manipulation, Stack Manipulation
@@ -5048,12 +5052,12 @@ doc-lp!
 @cindex memory words
 
 @menu
-* Memory model::                
-* Dictionary allocation::       
-* Heap Allocation::             
-* Memory Access::               
-* Address arithmetic::          
-* Memory Blocks::               
+* Memory model::
+* Dictionary allocation::
+* Heap Allocation::
+* Memory Access::
+* Address arithmetic::
+* Memory Blocks::
 @end menu
 
 In addition to the standard Forth memory allocation words, there is also
@@ -5328,9 +5332,11 @@ yet, although many schemes have been proposed.
 * Selection::                   IF ... ELSE ... ENDIF
 * Simple Loops::                BEGIN ...
 * Counted Loops::               DO
-* Arbitrary control structures::  
-* Calls and returns::           
-* Exception Handling::          
+* BEGIN loops with multiple exits::
+* General control structures with CASE::
+* Arbitrary control structures::
+* Calls and returns::
+* Exception Handling::
 @end menu
 
 @node Selection, Simple Loops, Control Structures, Control Structures
@@ -5480,7 +5486,8 @@ AGAIN
 
 This is an endless loop.
 
-@node Counted Loops, Arbitrary control structures, Simple Loops, Control Structures
+
+@node Counted Loops, BEGIN loops with multiple exits, Simple Loops, Control Structures
 @subsection Counted Loops
 @cindex counted loops
 @cindex loops, counted
@@ -5643,7 +5650,157 @@ defined in ANS Forth. In Gforth, this loop iterates @i{n+1} times;
 Forth systems may behave differently, even if they support @code{FOR}
 loops. To avoid problems, don't use @code{FOR} loops.
 
-@node Arbitrary control structures, Calls and returns, Counted Loops, Control Structures
+@node BEGIN loops with multiple exits, General control structures with CASE, Counted Loops, Control Structures
+@subsection @code{Begin} loops with multiple exits
+@cindex Multiple exits from @code{begin}
+
+For counted loops, you can use @code{leave} in several places.  For
+@code{begin} loops, you have the following options:
+
+Use @code{exit} (possibly several times) in the loop to leave not just
+the loop, but the whole colon definition.  E.g.,:
+
+@example
+: foo
+  begin
+    condition1 while
+      condition2 if
+        exit-code2 exit then
+      condition3 if
+        exit-code3 exit then
+    ...
+  repeat
+  exit-code1 ;
+@end example
+  
+The disadvantage of this approach is that, if you want to have some
+common code afterwards, you either have to wrap @code{foo} in another
+word that contains the common code, or you have to call the common
+code several times, from each exit-code.
+
+Another approach is to use several @code{while}s in a @code{begin}
+loop.  You have to append a @code{then} behind the loop for every
+additional @code{while}.  E.g.,;
+
+@example
+begin
+  condition1 while
+    condition2 while
+      condition3 while
+again then then then
+@end example
+
+Here I used @code{again} at the end of the loop so that I would have a
+@code{then} for each @code{while}; @code{repeat} would result in one
+less @code{then}, but otherwise the same behaviour.  For an
+explanation of why this works, @xref{Arbitrary control structures}.
+
+We can have common code afterwards, but, as presented above, we cannot
+have different exit-codes for the different exits.  You can have these
+different exit-codes, as follows:
+
+@example
+begin
+  condition1 while
+    condition2 while
+      condition3 while
+again then exit-code3
+else exit-code2 then
+else exit-code1 then
+@end example
+
+This is relatively hard to comprehend, because the exit-codes are
+relatively far from the exit conditions (it does not help that we are
+not used to such control structures, either).
+
+@node General control structures with CASE, Arbitrary control structures, BEGIN loops with multiple exits, Control Structures
+@subsection  General control structures with @code{case}
+@cindex @code{case} as generalized control structure
+@cindex general control structures (@code{case})
+
+Gforth provides an extended @code{case} that solves the problems of
+the multi-exit loops discussed above, and offers additional options.
+You can find a portable implementation of this extended @code{case} in
+@file{compat/caseext.fs}.
+
+There are three additional words in the extension.  The first is
+@code{?of} which allows general tests (rather than just testing for
+equality) in a @code{case};  e.g.,
+
+@example
+: sgn ( n -- -1|0|1 )
+  ( n ) case
+    dup 0 < ?of drop -1 endof
+    dup 0 > ?of drop 1  endof
+    \ otherwise leave the 0 on the stack
+  0 endcase ;
+@end example
+
+Note that @code{endcase} drops a value, which works fine much of the
+time with @code{of}, but usually not with @code{?of}, so we leave a 0
+on the stack for @code{endcase} to drop.  The n that is passed into
+@code{sgn} is also 0 if neither @code{?of} triggers, and that is then
+passed out.
+
+The second additional word is @code{next-case}, which allows turning
+@code{case} into a loop.  Our triple-exit loop becomes:
+
+@example
+case
+  condition1 ?of exit-code1 endof
+  condition2 ?of exit-code2 endof
+  condition3 ?of exit-code3 endof
+  ...
+nextcase
+common code afterwards
+@end example
+
+As you can see, this solves both problems of the variants discussed
+above (@pxref{BEGIN loops with multiple exits}).  Note that
+@code{next-case} does not drop a value, unlike
+@code{endcase}.@footnote{@code{Next-case} has a @code{-}, unlike the
+other @code{case} words, because VFX Forth contains a @code{nextcase}
+that drops a value.}
+
+The last additional word is @code{contof}, which is used instead of
+@code{endof} and starts the next iteration instead of leaving the
+loop.  This can be used in ways similar to Dijkstra's guarded command
+@i{do}, e.g.:
+
+@example
+: gcd ( n1 n2 -- n )
+    case
+        2dup > ?of tuck - contof
+        2dup < ?of over - contof
+    endcase ;
+@end example
+
+Here the two @code{?of}s have different ways of continuing the loop;
+when neither @code{?of} triggers, the two numbers are equal and are
+the gcd.  @code{Endcase} drops one of them, leaving the other as n.
+
+You can also combine these words.  Here's an example that uses each of
+the @code{case} words once, except @code{endcase}:
+
+@example
+: collatz ( u -- )
+    \ print the 3n+1 sequence starting at u until we reach 1
+    case
+        dup .
+        1 of endof
+        dup 1 and ?of 3 * 1+ contof
+        2/
+    next-case ;
+@end example
+
+This example keeps the current value of the sequence on the stack.  If
+it is 1, the @code{of} triggers, drops the value, and leaves the
+@code{case} structure.  For odd numbers, the @code{?of} triggers,
+computes 3n+1, and starts the next iteration with @code{contof}.
+Otherwise, if the number is even, it is divided by 2, and the loop is
+restarted with @code{next-case}.
+
+@node Arbitrary control structures, Calls and returns, General control structures with CASE, Control Structures
 @subsection Arbitrary control structures
 @cindex control structures, user-defined
 
@@ -5728,13 +5885,15 @@ Another group of control structure words are:
 
 doc-case
 doc-endcase
+doc-next-case
 doc-of
-doc-?ofx
+doc-?of
 doc-endof
+doc-contof
 
-
-@i{case-sys} and @i{of-sys} cannot be processed using @code{CS-PICK} and
-@code{CS-ROLL}.
+Internally, @i{of-sys} is an @code{orig}; and @i{case-sys} is a cell
+and some stack-depth information, 0 or more @code{orig}s, and a
+@code{dest}.
 
 @subsubsection Programming Style
 @cindex control structures programming style
@@ -6054,17 +6213,17 @@ doc-abort
 Defining words are used to extend Forth by creating new entries in the dictionary.
 
 @menu
-* CREATE::                      
+* CREATE::
 * Variables::                   Variables and user variables
-* Constants::                   
+* Constants::
 * Values::                      Initialised variables
-* Colon Definitions::           
+* Colon Definitions::
 * Anonymous Definitions::       Definitions without names
-* Quotations::                  
+* Quotations::
 * Supplying names::             Passing definition names as strings
-* User-defined Defining Words::  
+* User-defined Defining Words::
 * Deferred Words::              Allow forward references
-* Aliases::                     
+* Aliases::
 @end menu
 
 @node CREATE, Variables, Defining Words, Defining Words
@@ -6656,10 +6815,10 @@ the convention that I use and recommend (it clashes a bit with using
 locals declarations for stack effect specification, though).
 
 @menu
-* CREATE..DOES> applications::  
-* CREATE..DOES> details::       
-* Advanced does> usage example::  
-* Const-does>::                 
+* CREATE..DOES> applications::
+* CREATE..DOES> details::
+* Advanced does> usage example::
+* Const-does>::
 @end menu
 
 @node CREATE..DOES> applications, CREATE..DOES> details, User-defined Defining Words, User-defined Defining Words
@@ -7138,7 +7297,7 @@ Note that ticking (@code{'}) a compile-only word gives a warning
 (``<word> is compile-only'').
 
 @menu
-* Combined words::              
+* Combined words::
 @end menu
 
 
@@ -7913,10 +8072,10 @@ doc-#tib
 
 
 @menu
-* Input Sources::               
-* Number Conversion::           
-* Interpret/Compile states::    
-* Interpreter Directives::      
+* Input Sources::
+* Number Conversion::
+* Interpret/Compile states::
+* Interpreter Directives::
 * Recognizers::
 @end menu
 
@@ -8172,7 +8331,7 @@ Directives}).
 @c  doc-state
 
 
-@node Interpreter Directives,  Recognizers, Interpret/Compile states, The Text Interpreter
+@node Interpreter Directives, Recognizers, Interpret/Compile states, The Text Interpreter
 @subsection Interpreter Directives
 @cindex interpreter directives
 @cindex conditional compilation
@@ -8225,7 +8384,7 @@ doc-[AGAIN]
 doc-[WHILE]
 doc-[REPEAT]
 
-@node Recognizers, , Interpreter Directives, The Text Interpreter
+@node Recognizers,  , Interpreter Directives, The Text Interpreter
 @subsection Recognizers
 @cindex recongizers
 
@@ -8377,9 +8536,9 @@ doc-context
 
 
 @menu
-* Vocabularies::                
-* Why use word lists?::         
-* Word list example::           
+* Vocabularies::
+* Why use word lists?::
+* Word list example::
 @end menu
 
 @node Vocabularies, Why use word lists?, Word Lists, Word Lists
@@ -8629,11 +8788,11 @@ Files that are processed by some other program (@dfn{general files}).
 @end itemize
 
 @menu
-* Forth source files::          
-* General files::               
-* Redirection::                 
-* Directories::                 
-* Search Paths::                
+* Forth source files::
+* General files::
+* Redirection::
+* Directories::
+* Search Paths::
 @end menu
 
 @c -------------------------------------------------------------
@@ -8793,7 +8952,7 @@ doc-=mkdir
 doc-mkdir-parents
 
 @c ---------------------------------------------------------
-@node Search Paths, , Directories, Files
+@node Search Paths,  , Directories, Files
 @subsection Search Paths
 @cindex path for @code{included}
 @cindex file search path
@@ -8829,8 +8988,8 @@ Use @file{~+} to refer to the current working directory (as in the
 @c anton: fold the following subsubsections into this subsection?
 
 @menu
-* Source Search Paths::         
-* General Search Paths::        
+* Source Search Paths::
+* General Search Paths::
 @end menu
 
 @c ---------------------------------------------------------
@@ -9072,8 +9231,8 @@ doc-block-included
 * Displaying characters and strings::  Other stuff
 * String words::                Gforth's little string library
 * Terminal output::             Cursor positioning etc.
-* Single-key input::            
-* Line input and conversion::   
+* Single-key input::
+* Line input and conversion::
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
 @end menu
@@ -9717,8 +9876,8 @@ The ideas in this section have also been published in M. Anton Ertl,
 Automatic Scoping of Local Variables}}, EuroForth '94.
 
 @menu
-* Gforth locals::               
-* ANS Forth locals::            
+* Gforth locals::
+* ANS Forth locals::
 @end menu
 
 @node Gforth locals, ANS Forth locals, Locals, Locals
@@ -9799,10 +9958,10 @@ Gforth allows defining locals everywhere in a colon definition. This
 poses the following questions:
 
 @menu
-* Where are locals visible by name?::  
-* How long do locals live?::    
-* Locals programming style::    
-* Locals implementation::       
+* Where are locals visible by name?::
+* How long do locals live?::
+* Locals programming style::
+* Locals implementation::
 @end menu
 
 @node Where are locals visible by name?, How long do locals live?, Gforth locals, Gforth locals
@@ -10284,12 +10443,12 @@ Another Forth Structures Package}, Forth Dimensions 19(3), pages
 13--16. Marcel Hendrix provided helpful comments.
 
 @menu
-* Why explicit structure support?::  
-* Structure Usage::             
-* Structure Naming Convention::  
-* Structure Implementation::    
-* Structure Glossary::          
-* Forth200x Structures::        
+* Why explicit structure support?::
+* Structure Usage::
+* Structure Naming Convention::
+* Structure Implementation::
+* Structure Glossary::
+* Forth200x Structures::
 @end menu
 
 @node Why explicit structure support?, Structure Usage, Structures, Structures
@@ -10632,12 +10791,12 @@ in @ref{Comparison with other object models}. All packages are written
 in ANS Forth and can be used with any other ANS Forth.
 
 @menu
-* Why object-oriented programming?::  
-* Object-Oriented Terminology::  
-* Objects::                     
-* OOF::                         
-* Mini-OOF::                    
-* Comparison with other object models::  
+* Why object-oriented programming?::
+* Object-Oriented Terminology::
+* Objects::
+* OOF::
+* Mini-OOF::
+* Comparison with other object models::
 @end menu
 
 @c ----------------------------------------------------------------
@@ -10767,18 +10926,18 @@ case-sensitive or not, special-purpose word lists for locals etc.).
 
 
 @menu
-* Properties of the Objects model::  
-* Basic Objects Usage::         
-* The Objects base class::      
-* Creating objects::            
-* Object-Oriented Programming Style::  
-* Class Binding::               
-* Method conveniences::         
-* Classes and Scoping::         
-* Dividing classes::            
-* Object Interfaces::           
-* Objects Implementation::      
-* Objects Glossary::            
+* Properties of the Objects model::
+* Basic Objects Usage::
+* The Objects base class::
+* Creating objects::
+* Object-Oriented Programming Style::
+* Class Binding::
+* Method conveniences::
+* Classes and Scoping::
+* Dividing classes::
+* Object Interfaces::
+* Objects Implementation::
+* Objects Glossary::
 @end menu
 
 Marcel Hendrix provided helpful comments on this section.
@@ -11482,11 +11641,11 @@ oriented bigFORTH} by Bernd Paysan, published in @cite{Vierte Dimension}
 10(2), 1994.
 
 @menu
-* Properties of the OOF model::  
-* Basic OOF Usage::             
-* The OOF base class::          
-* Class Declaration::           
-* Class Implementation::        
+* Properties of the OOF model::
+* Basic OOF Usage::
+* The OOF base class::
+* Class Declaration::
+* Class Implementation::
 @end menu
 
 @node Properties of the OOF model, Basic OOF Usage, OOF, OOF
@@ -11761,9 +11920,9 @@ and reduces to the bare minimum of features. This is based on a posting
 of Bernd Paysan in comp.lang.forth.
 
 @menu
-* Basic Mini-OOF Usage::        
-* Mini-OOF Example::            
-* Mini-OOF Implementation::     
+* Basic Mini-OOF Usage::
+* Mini-OOF Example::
+* Mini-OOF Implementation::
 @end menu
 
 @c -------------------------------------------------------------
@@ -12366,7 +12525,7 @@ Gforth offers two multitasker: a traditional, cooperative round-robin
 multitasker, and a pthread-based multitasker which allows to run several
 threads concurrently on multi-core machines.
 
-@node Pthreads, , Multitasker, Multitasker
+@node Pthreads,  , Multitasker, Multitasker
 @subsection Ptheads
 @cindex pthread
 
@@ -12452,14 +12611,14 @@ scopes.  The offsets of those structs are extracted from header files
 with a SWIG plugin, which is still not completed.
 
 @menu
-* Calling C Functions::         
-* Declaring C Functions::       
-* Calling C function pointers::  
-* Defining library interfaces::  
-* Declaring OS-level libraries::  
-* Callbacks::                   
-* C interface internals::       
-* Low-Level C Interface Words::  
+* Calling C Functions::
+* Declaring C Functions::
+* Calling C function pointers::
+* Defining library interfaces::
+* Declaring OS-level libraries::
+* Callbacks::
+* C interface internals::
+* Low-Level C Interface Words::
 @end menu
 
 @node Calling C Functions, Declaring C Functions, C Interface, C Interface
@@ -12851,9 +13010,9 @@ doc-call-c
 @menu
 * Assembler Definitions::       Definitions in assembly language
 * Common Assembler::            Assembler Syntax
-* Common Disassembler::         
+* Common Disassembler::
 * 386 Assembler::               Deviations and special cases
-* AMD64 Assembler::             
+* AMD64 Assembler::
 * Alpha Assembler::             Deviations and special cases
 * MIPS assembler::              Deviations and special cases
 * PowerPC assembler::           Deviations and special cases
@@ -13864,17 +14023,17 @@ change during the maintenance of Gforth.
 @comment The framework for the rest has been taken from pfe.
 
 @menu
-* The Core Words::              
-* The optional Block word set::  
-* The optional Double Number word set::  
-* The optional Exception word set::  
-* The optional Facility word set::  
-* The optional File-Access word set::  
-* The optional Floating-Point word set::  
-* The optional Locals word set::  
-* The optional Memory-Allocation word set::  
-* The optional Programming-Tools word set::  
-* The optional Search-Order word set::  
+* The Core Words::
+* The optional Block word set::
+* The optional Double Number word set::
+* The optional Exception word set::
+* The optional Facility word set::
+* The optional File-Access word set::
+* The optional Floating-Point word set::
+* The optional Locals word set::
+* The optional Memory-Allocation word set::
+* The optional Programming-Tools word set::
+* The optional Search-Order word set::
 @end menu
 
 
@@ -16059,10 +16218,10 @@ Threaded code variations and optimizations (extended version)}},
 Forth-Tagung '02.
 
 @menu
-* Portability::                 
-* Threading::                   
-* Primitives::                  
-* Performance::                 
+* Portability::
+* Threading::
+* Primitives::
+* Performance::
 @end menu
 
 @node Portability, Threading, Engine, Engine
@@ -16163,10 +16322,10 @@ Of course we have packaged the whole thing neatly in macros called
 @code{NEXT} and @code{NEXT1} (the part of @code{NEXT} after fetching the cfa).
 
 @menu
-* Scheduling::                  
-* Direct or Indirect Threaded?::  
-* Dynamic Superinstructions::   
-* DOES>::                       
+* Scheduling::
+* Direct or Indirect Threaded?::
+* Dynamic Superinstructions::
+* DOES>::
 @end menu
 
 @node Scheduling, Direct or Indirect Threaded?, Threading, Threading
@@ -16414,9 +16573,9 @@ targeting this is hardly a problem.
 @cindex virtual machine instructions, implementation
 
 @menu
-* Automatic Generation::        
-* TOS Optimization::            
-* Produced code::               
+* Automatic Generation::
+* TOS Optimization::
+* Produced code::
 @end menu
 
 @node Automatic Generation, TOS Optimization, Primitives, Primitives
@@ -16700,8 +16859,8 @@ started. The cross compiler allows to create new images for other
 architectures, even running under another Forth system.
 
 @menu
-* Using the Cross Compiler::    
-* How the Cross Compiler Works::  
+* Using the Cross Compiler::
+* How the Cross Compiler Works::
 @end menu
 
 @node Using the Cross Compiler, How the Cross Compiler Works, Cross Compiler, Cross Compiler
