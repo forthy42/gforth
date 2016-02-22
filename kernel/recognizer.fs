@@ -76,7 +76,7 @@ AConstant r:dnum
 $10 Constant max-stack#
 
 : get-stack ( rec-addr -- xt1 .. xtn n )
-    dup swap @ dup >r cells bounds swap ?DO
+    dup @ dup >r cells bounds swap ?DO
 	I @
     cell -LOOP  r> ;
 
