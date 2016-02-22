@@ -33,6 +33,7 @@ include environ.fs
 include envos.fs
 include errors.fs
 include extend.fs              \ load core-extended
+include compat/caseext.fs
 include hash.fs
 
 [ifundef] xemit

@@ -119,7 +119,7 @@ t{  0 mysgn ->  0 }
 	dup 0= ?of endof
         over c@ r@ = ?of endof
         1 /string
-        dup nextcase
+        next-case
     rdrop ;
 
 t{ s" dhfa;jfsdk" 2dup ';' myscan 2swap 4 /string d= -> true }
@@ -134,6 +134,20 @@ t{ s" abcdef" 2dup 'g' myscan 2swap 6 /string d= -> true }
 
 t{ 48 42 gcd -> 6 }
 t{ 42 48 gcd -> 6 }
+
+
+: x1 ( u -- u u1 ... un )
+    case
+	dup
+	1 of endof
+        dup 1 and ?of 3 * 1+ contof
+        2/
+    next-case ;
+
+t{ 7 x1 -> 7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1 }t
+
+
+\ tickable exit
 
 : foo true if 1 {: a :} ['] exit execute then ;
 : bar 2 {: b :} foo b ;
