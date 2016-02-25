@@ -320,6 +320,12 @@ case "$host_cpu" in
 	arm*)
 		machine=arm
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
+		case "$host" in
+		    *gnueabihf)
+			# don't build for thumb
+			CFLAGS="$CFLAGS -marm"
+			;;
+		esac
 		if test x$platform = xnxt; then
 		   CFLAGS="$CFLAGS -mthumb -mthumb-interwork"
 		fi

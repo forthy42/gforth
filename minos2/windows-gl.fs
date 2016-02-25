@@ -24,9 +24,9 @@ Variable sIcon
 	WM_NCACTIVATE of  ." ncactivate " w . cr drop 0  endof
 	WM_GETICON of ." GetIcon: " w . drop
 	    w 1 = IF lIcon @ ELSE sIcon @ THEN dup . cr endof
-	default: ." MSG: " dup .
+	." MSG: " dup .
 	drop wnd msg w l DefWindowProc dup . cr
-    endcase ;
+	0 endcase ;
 
 ' gl-window-proc WNDPROC: Constant gl-window-proc-cb
 

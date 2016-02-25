@@ -252,11 +252,10 @@ Variable gl-emit-buf
 	'✔' of 11 endof
 	'✘' of 12 endof
 	'▀' of $10 endof
-	default:
 	dup wcwidth -1 = IF  drop $7F
 	ELSE  dup wcwidth 2 = IF  drop  13  ELSE  $7F umin  THEN
 	THEN
-    endcase ;
+    0 endcase ;
 
 : (gl-emit) ( char color -- )
     over 7 = IF  2drop  EXIT  THEN
