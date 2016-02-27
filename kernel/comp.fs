@@ -350,6 +350,8 @@ include ./recognizer.fs
 
 : s>int ( nt -- xt )  @ name>int ;
 : s>comp ( nt -- xt1 xt2 )  @ name>comp ;
+: s-to ( val nt -- )  @ (int-to) ;
+comp: drop @ (comp-to) ;
 
 : Alias    ( xt "name" -- ) \ gforth
     Header reveal ['] on vtcopy
@@ -360,7 +362,7 @@ include ./recognizer.fs
     Header  ['] on vtcopy
     parse-name find-name dup A,
     dup compile-only? IF  compile-only  THEN  name>int lastcfa !
-    ['] s>int set->int ['] s>comp set->comp reveal ;
+    ['] s>int set->int ['] s>comp set->comp ['] s-to set-to reveal ;
 
 : Create ( "name" -- ) \ core
     Header reveal dovar, ;
