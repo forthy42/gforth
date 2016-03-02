@@ -2115,7 +2115,8 @@ do {
   u2 += fread(c_addr+u2, sizeof(Char), u1-u2, (FILE *)wfileid);
   if (u2>0)
     gf_regetc((FILE *)wfileid);
-  if((wior = FILEIO(u2<u1 && ferror((FILE *)wfileid)))) clearerr((FILE *)wfileid);
+  if((wior = FILEIO(u2<u1 && ferror((FILE *)wfileid))))
+    clearerr((FILE *)wfileid);
 } while(wior==TOIOR(EINTR));
 
 (read-line)	( c_addr u1 wfileid -- u2 flag u3 wior ) file	paren_read_line
@@ -2130,21 +2131,23 @@ wior = r.n4;
 write-file	( c_addr u1 wfileid -- wior )	file	write_file
 /* !! fwrite does not guarantee enough */
 #ifdef HAS_FILE
-{
-  UCell u2 = fwrite(c_addr, sizeof(Char), u1, (FILE *)wfileid);
-  wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
-  if (wior)
+UCell u2 = 0;
+do {
+  u2 += fwrite(c_addr+u2, sizeof(Char), u1-u2, (FILE *)wfileid);
+  if((wior = FILEIO(u2<u1 && ferror((FILE *)wfileid))))
     clearerr((FILE *)wfileid);
-}
+} while(wior==TOIOR(EINTR));
 #else
 TYPE(c_addr, u1);
 #endif
 
 emit-file	( c wfileid -- wior )	gforth	emit_file
 #ifdef HAS_FILE
-wior = FILEIO(putc(c, (FILE *)wfileid)==EOF);
-if (wior)
-  clearerr((FILE *)wfileid);
+do {
+  wior = FILEIO(putc(c, (FILE *)wfileid)==EOF);
+  if (wior)
+    clearerr((FILE *)wfileid);
+} while(wior==TOIOR(EINTR));
 #else
 PUTC(c);
 #endif
@@ -2291,15 +2294,19 @@ time1.tv_nsec = time2.tv_usec*1000;
 #endif
 dtime = timespec2ns(&time1);
 
-(ns)    ( uns usec -- )	gforth	paren_ns
+(ns)    ( uns nsec -- wior )	gforth	paren_ns
 ""Wait for usec+uns, values precomuted in Forth""
+if(nsec >= 0) {
 #if HAVE_PSELECT
-  struct timespec tout = { usec, uns };
-  pselect(0, NULL, NULL, NULL, &tout, NULL);
+  struct timespec tout = { nsec, uns };
+  wior=IOR(pselect(0, NULL, NULL, NULL, &tout, NULL) < 0);
 #else
-  struct timeval tout = { usec, uns/1000 };
-  select(0, NULL, NULL, NULL, &tout);
+  struct timeval tout = { nsec, uns/1000 };
+  wior=IOR(select(0, NULL, NULL, NULL, &tout) < 0);
 #endif
+} else {
+  wior = 0;
+}
 
 \+
 
