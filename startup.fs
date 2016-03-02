@@ -51,25 +51,15 @@ include vt100.fs
 \ include colorize.fs
 include bufio.fs
 require utf-8.fs
-include history.fs
-s" os-class" environment? dup [IF] drop s" unix" str= [THEN]
-[IF]
 include vt100key.fs
-[ELSE]
-include doskey.fs
-[THEN]
 require debugs.fs
 require assert.fs
 require blocks.fs
 \ require intcomp.fs
 require savesys.fs
 require table.fs
-s" os-class" environment? dup [IF] drop s" unix" str= [THEN]
-[IF]
 require ekey.fs
-[ELSE]
-require dosekey.fs
-[THEN]
+include history.fs
 require quotes.fs
 require quotedstring.fs
 require parsedto.fs

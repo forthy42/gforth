@@ -21,14 +21,6 @@ Defer edit-update ( span addr pos1 -- span addr pos1 )
 \G deferred word to keep an editor informed about the command line content
 ' noop is edit-update
 
-: ctrl-i ( "<char>" -- c )
-    char toupper $40 xor ;
-
-' ctrl-i
-:noname
-    ctrl-i postpone Literal ;
-interpret/compile: ctrl  ( "<char>" -- ctrl-code )
-
 \ command line editing                                  16oct94py
 
 : >string  ( span addr pos1 -- span addr pos1 addr2 len )
@@ -247,8 +239,6 @@ info-color Value setstring-color
 
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
-
-Variable vt100-modifier
 
 : <xins>  ( max span addr pos1 xc -- max span addr pos2 )
     >r  2over r@ xc-size + u< IF  ( max span addr pos1 R:xc )

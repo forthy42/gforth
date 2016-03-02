@@ -17,6 +17,16 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+Variable vt100-modifier
+
+: ctrl-i ( "<char>" -- c )
+    char toupper $40 xor ;
+
+' ctrl-i
+:noname
+    ctrl-i postpone Literal ;
+interpret/compile: ctrl  ( "<char>" -- ctrl-code )
+
 Create translate $100 allot
 translate $100 erase
 Create transcode $100 allot
