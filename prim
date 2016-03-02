@@ -2110,13 +2110,13 @@ wior = IOR(ftruncate(fileno((FILE *)wfileid), UD2OFF(ud))==-1);
 
 read-file	( c_addr u1 wfileid -- u2 wior )	file	read_file
 /* !! fread does not guarantee enough */
-u2 = fread(c_addr, sizeof(Char), u1, (FILE *)wfileid);
-if (u2>0)
-   gf_regetc((FILE *)wfileid);
-wior = FILEIO(u2<u1 && ferror((FILE *)wfileid));
-/* !! is the value of ferror errno-compatible? */
-if (wior)
-  clearerr((FILE *)wfileid);
+u2 = 0;
+do {
+  u2 += fread(c_addr+u2, sizeof(Char), u1-u2, (FILE *)wfileid);
+  if (u2>0)
+    gf_regetc((FILE *)wfileid);
+  if((wior = FILEIO(u2<u1 && ferror((FILE *)wfileid)))) clearerr((FILE *)wfileid);
+} while(wior==TOIOR(EINTR));
 
 (read-line)	( c_addr u1 wfileid -- u2 flag u3 wior ) file	paren_read_line
 struct Cellquad r = read_line(c_addr, u1, (FILE *)wfileid);
