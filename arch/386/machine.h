@@ -25,7 +25,7 @@
 #endif
 #endif
 
-#if (((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__==3) || (__GNUC__==5))) && defined(FORCE_REG)
+#if (((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>=3))) && defined(FORCE_REG)
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
 #endif
