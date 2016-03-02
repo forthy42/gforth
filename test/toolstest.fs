@@ -214,7 +214,9 @@ T{ 4567 to new-syn4 syn4 new-syn4 -> 4567 4567 }T
 Defer syn5
 T{ synonym new-syn5 syn5 -> }T
 T{ ' syn2 is new-syn5 syn5 new-syn5 -> syn2 syn2 }T
+T{ ' new-syn5 defer@ ' syn5 defer@ -> ' syn2 ' syn2 }T
 T{ ' syn3 is new-syn5 syn5 new-syn5 -> syn3 syn3 }T
+T{ ' new-syn5 defer@ ' syn5 defer@ -> ' syn3 ' syn3 }T
 
 \ ------------------------------------------------------------------------------
 TESTING TRAVERSE-WORDLIST NAME>COMPILE NAME>INTERPRET NAME>STRING
