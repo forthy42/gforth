@@ -44,14 +44,10 @@ UValue debug-fid ( -- file-id ) \ gforth
 Variable winch?
 
 #-516 Constant EINTR
-#-523 Constant EAGAIN
-
-: again? ( ior -- flag )
-    dup EINTR = swap EAGAIN = or ;
 
 : (key) ( -- c ) \ gforth
     BEGIN  winch? @ 0= WHILE  infile-id key-file
-	    dup again? WHILE  drop  REPEAT
+	    dup EINTR = WHILE  drop  REPEAT
     dup 0< IF  drop #4  THEN
     ELSE  #12  winch? off  THEN ;
 
