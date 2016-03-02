@@ -458,11 +458,20 @@ struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
   if (u1>0)
     gf_regetc(wfileid);
   for(u2=0; u2<u1; u2++) {
-    c = getc(wfileid);
+    do{
+      c = getc(wfileid);
+      if((wior=FILEIO(ferror(wfileid)))) clearerr(wfileid);
+    } while (wior == TOIOR(EINTR));
+    if(wior) break;
     u3++;
     if (c=='\n') break;
     if (c=='\r') {
-      if ((c = getc(wfileid))!='\n')
+      do {
+	c = getc(wfileid);
+	if((wior=FILEIO(ferror(wfileid)))) clearerr(wfileid);
+      } while(wior==TOIOR(EINTR));
+      if(wior) break;
+      if (c!='\n')
 	gf_ungetc(c,wfileid);
       else
 	u3++;
@@ -474,7 +483,6 @@ struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
     }
     c_addr[u2] = (Char)c;
   }
-  wior=FILEIO(ferror(wfileid));
   r.n1 = u2;
   r.n2 = flag;
   r.n3 = u3;

@@ -407,9 +407,10 @@ typedef struct {
 
 extern PER_THREAD stackpointers gforth_SPs;
 
-#define IOR(flag)	((flag)? -512-errno : 0)
+#define TOIOR(err)      (-512-(err))
+#define IOR(flag)	((flag)? TOIOR(errno) : 0)
 #define FLAG(b) (-(Cell)(b))
-#define FILEIO(error)	((error) ? -512-errno : 0)
+#define FILEIO(error)	((error) ? TOIOR(errno) : 0)
 #define FILEEXIST(error)	(FLAG(error) & -38)
 
 #define sr_proto , stackpointers *in_SPs
