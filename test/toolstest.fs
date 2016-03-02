@@ -207,6 +207,14 @@ T{ new-syn1 -> 1234 }T
 T{ SYNONYM new-syn2 syn2 -> }T
 T{ new-syn2 -> 2345 }T
 T{ : syn3 syn2 LITERAL ; syn3 -> 2345 }T
+3456 value syn4
+T{ SYNONYM new-syn4 syn4 -> }T
+T{ new-syn4 -> 3456 }T
+T{ 4567 to new-syn4 syn4 new-syn4 -> 4567 4567 }T
+Defer syn5
+T{ synonym new-syn5 syn5 -> }T
+T{ ' syn2 is new-syn5 syn5 new-syn5 -> syn2 syn2 }T
+T{ ' syn3 is new-syn5 syn5 new-syn5 -> syn3 syn3 }T
 
 \ ------------------------------------------------------------------------------
 TESTING TRAVERSE-WORDLIST NAME>COMPILE NAME>INTERPRET NAME>STRING
@@ -286,7 +294,10 @@ T{ S" trav3" trav-wl get-name-token NAME>INTERPRET EXECUTE -> 3 }T
 \ doesn't work in a given system choose another word for that system.
 \ FORTH-WORDLIST is needed
 
+[defined] gforth 0= [IF]
+    \ in Gforth current, all words have interpretation semantics
 T{ S" [']" FORTH-WORDLIST get-name-token NAME>INTERPRET -> 0 }T
+[THEN]
 
 \ Test NAME>COMPILE
 : n>c  ( caddr u -- )  trav-wl get-name-token NAME>COMPILE EXECUTE ; IMMEDIATE
