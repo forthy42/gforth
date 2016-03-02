@@ -135,10 +135,6 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 #define L2U(x)		(((UCell)(x))<<HALFCELL_BITS)
 #define HIGHBIT(x)	(((UCell)(x))>>(CELL_BITS-1))
 
-#define FLAG(b) (-(Cell)(b))
-#define FILEIO(error)	(FLAG(error) & -37)
-#define FILEEXIST(error)	(FLAG(error) & -38)
-
 #define F_TRUE (FLAG(0==0))
 #define F_FALSE (FLAG(0!=0))
 
@@ -412,6 +408,10 @@ typedef struct {
 extern PER_THREAD stackpointers gforth_SPs;
 
 #define IOR(flag)	((flag)? -512-errno : 0)
+#define FLAG(b) (-(Cell)(b))
+#define FILEIO(error)	((error) ? -512-errno : 0)
+#define FILEEXIST(error)	(FLAG(error) & -38)
+
 #define sr_proto , stackpointers *in_SPs
 #define sr_call  , &gforth_SPs
 
