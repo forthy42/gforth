@@ -32,7 +32,7 @@
 \ The keycode names are compatible with pfe-0.9.14
 
 $80000000 constant keycode-start
-$80000017 constant keycode-limit
+$80000018 constant keycode-limit
 
 create keycode-table keycode-limit keycode-start - cells allot
 
@@ -98,6 +98,8 @@ keycode k-f9  ( -- u ) \ X:ekeys
 keycode k-f10 ( -- u ) \ X:ekeys
 keycode k-f11 ( -- u ) \ X:ekeys
 keycode k-f12 ( -- u ) \ X:ekeys
+
+keycode k-winch ( -- u ) \ gforth
 drop
     
 ' k-f1  alias k1  ( -- u ) \ gforth-obsolete

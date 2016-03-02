@@ -1871,7 +1871,7 @@ n=0;
 
 \g hostos
 
-key-file	( wfileid -- n )		gforth	paren_key_file
+(key-file)	( wfileid -- n )		gforth	paren_key_file
 ""Read one character @i{n} from @i{wfileid}.  This word disables
 buffering for @i{wfileid}.  If you want to read characters from a
 terminal in non-canonical (raw) mode, you have to put the terminal in

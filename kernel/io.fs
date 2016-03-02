@@ -45,8 +45,18 @@ Variable winch?
 
 #-516 Constant EINTR
 
+: key-file ( fd -- key )
+    \G Read one character @i{n} from @i{wfileid}.  This word disables
+    \G buffering for @i{wfileid}.  If you want to read characters from a
+    \G terminal in non-canonical (raw) mode, you have to put the terminal
+    \G in non-canonical mode yourself (using the C interface); the
+    \G exception is @code{stdin}: Gforth automatically puts it into
+    \G non-canonical mode.
+    BEGIN  dup (key-file) dup EINTR =  WHILE  drop  REPEAT
+    dup 0< IF  throw  THEN  nip ;
+
 : (key) ( -- c ) \ gforth
-    BEGIN  winch? @ 0= WHILE  infile-id key-file
+    BEGIN  winch? @ 0= WHILE  infile-id (key-file)
 	    dup EINTR = WHILE  drop  REPEAT
     dup 0< IF  drop #4  THEN
     ELSE  #12  winch? off  THEN ;
