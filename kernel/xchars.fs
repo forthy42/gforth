@@ -145,3 +145,5 @@ A, here AConstant fixed-width
     fixed-width set-encoding ;
 
 fixed-width xc-vector !
+
+' xkey is edit-key

@@ -58,13 +58,15 @@ defer everyline
     \ check for end reached
     insert-char 0 ;
 
+Defer edit-key
+
 : edit-line ( c-addr n1 n2 -- n3 ) \ gforth
     \G edit the string with length @var{n2} in the buffer @var{c-addr
     \G n1}, like @code{accept}.
     everyline
     rot over
     2dup type
-    BEGIN  xkey decode  UNTIL
+    BEGIN  edit-key decode  UNTIL
     2drop nip ;
     
 : accept   ( c-addr +n1 -- +n2 ) \ core
