@@ -381,7 +381,7 @@ ctrl P k-up     ekey-bind
 ctrl N k-down   ekey-bind
 ctrl A k-home   ekey-bind
 ctrl E k-end    ekey-bind
-ctrl D k-delete ekey-bind
+ctrl X k-delete ekey-bind
 ctrl L k-winch  ekey-bind
 
 : edit-ekey ( -- key )
