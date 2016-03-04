@@ -346,7 +346,7 @@ Variable gl-emit-buf
 \ Google is stupid: This event comes too early
 \ Make Gforth sync the screen up to four times till the config really changes
 :noname
-    config-changer form-chooser need-sync on screen-sync ;
+    config-changer form-chooser need-sync on  winch? on  screen-sync ;
 is config-changed
 
 : gl-scale ( n -- ) gl-scaler ! form-chooser need-sync on screen-sync ;
