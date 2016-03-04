@@ -264,8 +264,8 @@ true Value firstkey
 :noname
     firstkey IF  showkb false to firstkey  THEN
     need-show on  BEGIN  >looper key? screen-ops  UNTIL
-    defers key dup #cr = key? and IF  key ?dup-IF inskey THEN THEN ;
-IS key
+    defers key-ior dup #cr = key? and IF  key-ior ?dup-IF inskey THEN THEN ;
+IS key-ior
 
 Defer config-changed :noname [: ." App config changed" cr ;] $err ; IS config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init

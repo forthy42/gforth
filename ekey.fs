@@ -45,9 +45,11 @@ create keycode-table keycode-limit keycode-start - cells allot
 \ most of the keys are also in pfe, except:
 \ k-insert, k-delete, k11, k12, s-k11, s-k12
 
-$40000000 constant k-shift-mask ( -- u ) \ X:ekeys
-$20000000 constant k-ctrl-mask ( -- u )  \ X:ekeys
-$10000000 constant k-alt-mask ( -- u )   \ X:ekeys
+28 constant mask-shift# ( n -- shift ) 
+
+$1 mask-shift# lshift constant k-shift-mask ( -- u ) \ X:ekeys
+$2 mask-shift# lshift constant k-alt-mask ( -- u )   \ X:ekeys
+$4 mask-shift# lshift constant k-ctrl-mask ( -- u )  \ X:ekeys
 
 : simple-fkey-string ( u1 -- c-addr u ) \ gforth
     \G @i{c-addr u} is the string name of the function key @i{u1}.
@@ -156,9 +158,9 @@ Variable key-buffer
 	key-buffer $@ drop c@
 	key-buffer 0 1 $del
     else
-	defers key
+	defers key-ior
     then ;
-' buf-key is key
+' buf-key is key-ior
 
 : unkey ( c -- )  key-buffer char-append-buffer ;
     
@@ -176,27 +178,17 @@ table constant esc-sequences \ and prefixes
 Variable ekey-buffer
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
-Create esc-masks#
-0 ,
-k-shift-mask ,
-k-alt-mask ,
-k-shift-mask k-alt-mask or ,
-k-ctrl-mask ,
-k-shift-mask k-ctrl-mask or ,
-k-alt-mask k-ctrl-mask or ,
-k-shift-mask k-alt-mask or k-ctrl-mask or ,
-
 : esc-mask ( addr u -- addr' u' mask )
     ';' $split dup IF
 	0. 2swap >number  2swap drop 1- 0 max >r
 	[: 2swap 2dup 1 safe/string s" 1" str= + type type ;] $tmp
-	r> 7 and cells esc-masks# + @
+	r> 7 and mask-shift# lshift
 	EXIT
     ELSE  2drop over c@ 'O' = IF
 	    1 /string
 	    0. 2swap >number  2swap drop 1- 0 max >r
 	    [: 'O' emit type ;] $tmp
-	    r> 7 and cells esc-masks# + @
+	    r> 7 and mask-shift# lshift
 	EXIT  THEN
     THEN
     0 ;
@@ -325,7 +317,11 @@ set-current
 
 : ekey ( -- u ) \ facility-ext e-key
     \G Receive a keyboard event @var{u} (encoding implementation-defined).
-    key dup #esc =
+    BEGIN  winch? @ 0= WHILE  key-ior dup EINTR = WHILE  drop  REPEAT
+    ELSE
+	winch? off  k-winch  EXIT
+    THEN
+    dup #esc =
     if
         drop clear-ekey-buffer
         esc-prefix  exit
@@ -362,10 +358,39 @@ set-current
 ' key? alias ekey? ( -- flag ) \ facility-ext e-key-question
 [THEN]
 
-Variable winsize-changed
-: do-winsize ( -- ) \ gforth do-winsize
-    \G insert ctrl L if a window size change occurred
-    ctrl L inskey ;
+\ integrate ekey into line editor
+
+Variable vt100-modifier
+
+: ctrl-i ( "<char>" -- c )
+    char toupper $40 xor ;
+
+' ctrl-i
+:noname
+    ctrl-i postpone Literal ;
+interpret/compile: ctrl  ( "<char>" -- ctrl-code )
+
+keycode-limit keycode-start - buffer: ekey>ctrl
+
+: ekey-bind ( ctrl-key ekey -- )
+    keycode-start - ekey>ctrl + c! ;
+
+ctrl B k-left   ekey-bind
+ctrl F k-right  ekey-bind
+ctrl P k-up     ekey-bind
+ctrl N k-down   ekey-bind
+ctrl A k-home   ekey-bind
+ctrl E k-end    ekey-bind
+ctrl D k-delete ekey-bind
+ctrl L k-winch  ekey-bind
+
+: edit-ekey ( -- key )
+    ekey dup k-left u>= IF
+	dup [ 1 mask-shift# lshift 1- ]l and ekey>ctrl + c@
+	swap mask-shift# rshift 7 and vt100-modifier !
+    THEN ;
+
+' edit-ekey is edit-key
 
 \G True if a keyboard event is available.
 

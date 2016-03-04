@@ -51,7 +51,7 @@ include vt100.fs
 \ include colorize.fs
 include bufio.fs
 require utf-8.fs
-include vt100key.fs
+\ include vt100key.fs \ ekey.fs now does the same
 require debugs.fs
 require assert.fs
 require blocks.fs

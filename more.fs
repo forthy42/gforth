@@ -41,8 +41,8 @@ variable last-#lines 0 last-#lines !
 
 :noname ( -- c )
     1 last-#lines !
-    defers key ;
-is key
+    defers key-ior ;
+is key-ior
 
 :noname ( c -- )
     dup defers emit

@@ -56,10 +56,7 @@ Variable winch?
     dup 0< IF  throw  THEN  nip ;
 
 : (key) ( -- c ) \ gforth
-    BEGIN  winch? @ 0= WHILE  infile-id (key-file)
-	    dup EINTR = WHILE  drop  REPEAT
-    dup 0< IF  drop #4  THEN
-    ELSE  #12  winch? off  THEN ;
+    infile-id (key-file) ;
 
 : (key?) ( -- flag ) \ gforth
     infile-id key?-file ;
@@ -85,8 +82,9 @@ umethod attr! ( attr -- )
 
 user-o ip-vector
 0 0
-umethod key ( -- char ) \ core
-\G Receive (but do not display) one character, @var{char}.
+umethod key-ior ( -- char / ior ) \ core
+\G Receive (but do not display) one character, @var{char}, in case of an
+\G error or interrupt, return the negative @var{ior} instead.
 umethod key? ( -- flag ) \ facility key-question
 \G Determine whether a character is available. If a character is
 \G available, @var{flag} is true; the next call to @code{key} will
@@ -97,6 +95,11 @@ umethod key? ( -- flag ) \ facility key-question
 
 : (cr) ( -- )
     newline type ;
+
+: key ( -- char )
+\G Receive (but do not display) one character, @var{char}.
+    BEGIN  key-ior dup EINTR =  WHILE  drop  REPEAT
+    dup 0< IF  throw  THEN ;
 
 here
 ' (type) A,
