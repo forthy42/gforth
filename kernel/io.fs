@@ -43,6 +43,7 @@ UValue debug-fid ( -- file-id ) \ gforth
 
 Variable winch?
 
+#-512 Constant EOK
 #-516 Constant EINTR
 
 : key-file ( fd -- key )
@@ -53,9 +54,10 @@ Variable winch?
     \G exception is @code{stdin}: Gforth automatically puts it into
     \G non-canonical mode.
     BEGIN  dup (key-file) dup EINTR =  WHILE  drop  REPEAT
+    dup EOK = IF  2drop -1  EXIT  THEN \ eof = -1
     dup 0< IF  throw  THEN  nip ;
 
-: (key) ( -- c ) \ gforth
+: (key) ( -- c / ior ) \ gforth
     infile-id (key-file) ;
 
 : (key?) ( -- flag ) \ gforth

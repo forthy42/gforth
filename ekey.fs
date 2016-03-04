@@ -32,7 +32,7 @@
 \ The keycode names are compatible with pfe-0.9.14
 
 $80000000 constant keycode-start
-$80000018 constant keycode-limit
+$80000019 constant keycode-limit
 
 create keycode-table keycode-limit keycode-start - cells allot
 
@@ -102,6 +102,7 @@ keycode k-f11 ( -- u ) \ X:ekeys
 keycode k-f12 ( -- u ) \ X:ekeys
 
 keycode k-winch ( -- u ) \ gforth
+keycode k-eof ( -- u ) \ gforth
 drop
     
 ' k-f1  alias k1  ( -- u ) \ gforth-obsolete
@@ -321,6 +322,7 @@ set-current
     ELSE
 	winch? off  k-winch  EXIT
     THEN
+    dup EOK = IF  drop k-eof  EXIT  THEN
     dup #esc =
     if
         drop clear-ekey-buffer
@@ -383,6 +385,7 @@ ctrl A k-home   ekey-bind
 ctrl E k-end    ekey-bind
 ctrl X k-delete ekey-bind
 ctrl L k-winch  ekey-bind
+ctrl D k-eof    ekey-bind
 
 : edit-ekey ( -- key )
     ekey dup k-left u>= IF
