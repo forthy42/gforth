@@ -8,7 +8,8 @@ Package: gforth
 Version: @DEBVERSION@
 Architecture: any
 Depends: libltdl7, gforth-common (= @DEBVERSION@)
-Recommends: gforth-lib (= @DEBVERSION@), gforth-bin (= @DEBVERSION@), libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc
+Recommends: gforth-lib (= @DEBVERSION@)
+Suggests: gforth-bin (= @DEBVERSION@), libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.
