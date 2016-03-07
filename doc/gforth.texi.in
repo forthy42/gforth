@@ -14451,7 +14451,7 @@ The next invocation of a parsing word returns a string with length 0.
 
 @item @code{RECURSE} appears after @code{DOES>}:
 @cindex @code{RECURSE} appears after @code{DOES>}
-Compiles a recursive call to the defining word, not to the defined word.
+Compiles a recursive call to the code after @code{DOES>}.
 
 @item argument input source different than current input source for @code{RESTORE-INPUT}:
 @cindex argument input source different than current input source for @code{RESTORE-INPUT}
@@ -14761,11 +14761,12 @@ undefined OS errors produce a message with a strange number; e.g.,
 @item encoding of keyboard events (@code{EKEY}):
 @cindex keyboard events, encoding in @code{EKEY}
 @cindex @code{EKEY}, encoding of keyboard events
-Keys corresponding to ASCII characters are encoded as ASCII characters.
-Other keys are encoded with the constants @code{k-left}, @code{k-right},
-@code{k-up}, @code{k-down}, @code{k-home}, @code{k-end}, @code{k1},
-@code{k2}, @code{k3}, @code{k4}, @code{k5}, @code{k6}, @code{k7},
-@code{k8}, @code{k9}, @code{k10}, @code{k11}, @code{k12}.
+Keys corresponding to ASCII characters are encoded as ASCII
+characters.  Other keys are encoded with the constants @code{k-left},
+@code{k-right}, @code{k-up}, @code{k-down}, @code{k-home},
+@code{k-end}, @code{k1}, @code{k2}, @code{k3}, @code{k4}, @code{k5},
+@code{k6}, @code{k7}, @code{k8}, @code{k9}, @code{k10}, @code{k11},
+@code{k12}, @code{k-winch}, @code{k-eof}.
 
 
 @item duration of a system clock tick:
@@ -14886,7 +14887,8 @@ current working directory. The file can be switched with @code{USE}.
 
 @item number of string buffers provided by @code{S"}:
 @cindex @code{S"}, number of string buffers
-1
+As many as memory available; the strings are stored in memory blocks
+allocated with ALLOCATE indefinitely.
 
 @item size of string buffer used by @code{S"}:
 @cindex @code{S"}, size of string buffer

@@ -3,10 +3,40 @@
 # Simple debian/rules that uses debhelper.
 # Created by Bernd Paysan, in the public domain
 
+GFORTH_VER = `sed -e 's/^[^ ]\+ (\([^)]\+\).*/\1/; 1q' debian/changelog | tr '-' '_'`
+D = $(CURDIR)/debian/gforth
+DC = $(CURDIR)/debian/gforth-common
+DL = $(CURDIR)/debian/gforth-lib
+DB = $(CURDIR)/debian/gforth-bin
+DH = $(CURDIR)/debian/gforth-html
+DP = $(CURDIR)/debian/gforth-pdf
+USHARE = $(D)/usr/share/gforth/$(GFORTH_VER)
+ULIB = $(D)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)
+
 %:
-	dh $@ 
+	dh $@
 
 override_dh_auto_test:
 override_dh_shlibdeps:
 override_dh_auto_configure:
 	dh_auto_configure -- --with-elispstartdir=/etc/emacs/site-start.d
+
+override_dh_auto_install:
+	mkdir -p $(D)/usr/lib/gforth/site-forth
+	touch $(D)/usr/lib/gforth/site-forth/site-init.fs
+	dh_auto_install -- DESTDIR=$(D)
+	chmod 755 $(USHARE)/filedump.fs $(USHARE)/httpd.fs $(USHARE)/sieve.fs \
+	$(ULIB)/kernl*.fi $(ULIB)/gforth.fi
+	mkdir -p $(DC)/usr/share
+	mv $(D)/usr/share $(DC)/usr/share
+	mkdir -p $(DC)/usr/bin
+	mv $(D)/usr/bin/vmgen* $(DC)/usr/bin
+	mkdir -p $(DL)/usr/lib
+	mv $(D)/usr/lib/$(DEB_HOST_MULTIARCH) $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)
+	mkdir -p $(D)/usr/lib/$(DEB_HOST_MULTIARCH)
+	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth $(D)/usr/lib/$(DEB_HOST_MULTIARCH)
+	mkdir -p $(DB)/usr/bin
+	mv $(D)/usr/bin/gforth $(D)/usr/bin/gforth-fast $(D)/usr/bin/gforth-itc $(D)/usr/bin/gforth-ditc $(D)/usr/bin/gforthmi $(DB)/usr/bin
+
+override_dh_installchangelogs:
+	git log --date=format:%Y-%m-%d --pretty=format:'%cd  %cN  <%cE>%n%n%x09* %s%n' | gzip >$(D)/usr/share/doc/gforth/changelog.gz
