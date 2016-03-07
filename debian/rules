@@ -37,7 +37,7 @@ override_dh_auto_install:
 	mkdir -p $(D)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth $(D)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mkdir -p $(DB)/usr/bin
-	mv $(D)/usr/bin/gforth $(D)/usr/bin/gforth-fast $(D)/usr/bin/gforth-itc $(D)/usr/bin/gforth-ditc $(D)/usr/bin/gforthmi $(DB)/usr/bin
+	mv $(D)/usr/bin/gforth $(D)/usr/bin/gforth-fast $(D)/usr/bin/gforth-itc $(D)/usr/bin/gforth-ditc $(D)/usr/bin/gforthmi $(D)/usr/bin/gforthmi-$(GFORTH_VER) $(DB)/usr/bin
 
 override_dh_installchangelogs:
 	git log --date=format:%Y-%m-%d --pretty=format:'%cd  %cN  <%cE>%n%n%x09* %s%n' | gzip >$(DC)/usr/share/doc/gforth-common/changelog.gz
