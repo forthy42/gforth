@@ -4,13 +4,13 @@ Priority: optional
 Maintainer: Bernd Paysan <bernd.paysan@gmx.de>
 Build-Depends: debhelper (>= 4.1.16), build-essential, gcc, autoconf, automake, autotools-dev, libffi-dev, libtool, libtool-bin, libltdl7-dev
 
-Package: gforth
+Package: gforth-bin
 Version: @DEBVERSION@
 Architecture: any
 Multi-Arch: same
 Depends: libltdl7, gforth-common (= @DEBVERSION@)
 Recommends: gforth-lib (= @DEBVERSION@)
-Suggests: gforth-bin (= @DEBVERSION@), libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc
+Suggests: libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.
@@ -38,10 +38,11 @@ Description: GNU Forth
  .
  These are the engines as shared librarys for embedding in C programs
 
-Package: gforth-bin
+Package: gforth
 Version: @DEBVERSION@
 Architecture: any
 Multi-Arch: foreign
+Depends: gforth-bin (= @DEBVERSION@)
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.

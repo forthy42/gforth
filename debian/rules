@@ -4,10 +4,10 @@
 # Created by Bernd Paysan, in the public domain
 
 GFORTH_VER = `sed -e 's/^[^ ]\+ (\([^)]\+\).*/\1/; 1q' debian/changelog | tr '-' '_'`
-D = $(CURDIR)/debian/gforth
+D = $(CURDIR)/debian/gforth-bin
 DC = $(CURDIR)/debian/gforth-common
 DL = $(CURDIR)/debian/gforth-lib
-DB = $(CURDIR)/debian/gforth-bin
+DB = $(CURDIR)/debian/gforth
 DH = $(CURDIR)/debian/gforth-html
 DP = $(CURDIR)/debian/gforth-pdf
 USHARE = $(D)/usr/share/gforth/$(GFORTH_VER)
@@ -22,22 +22,22 @@ override_dh_auto_configure:
 	dh_auto_configure -- --with-elispstartdir=/etc/emacs/site-start.d
 
 override_dh_auto_install:
-	mkdir -p $(D)/usr/lib/gforth/site-forth
-	touch $(D)/usr/lib/gforth/site-forth/site-init.fs
-	dh_auto_install -- DESTDIR=$(D)
+	mkdir -p $(DB)/usr/lib/gforth/site-forth
+	touch $(DB)/usr/lib/gforth/site-forth/site-init.fs
+	dh_auto_install -- DESTDIR=$(DB)
 	chmod 755 $(USHARE)/filedump.fs $(USHARE)/httpd.fs $(USHARE)/sieve.fs \
 	$(ULIB)/kernl*.fi $(ULIB)/gforth.fi
 	mkdir -p $(DC)/usr
-	mv $(D)/usr/share $(DC)/usr
-	mv $(D)/etc $(DC)
+	mv $(DB)/usr/share $(DC)/usr
+	mv $(DB)/etc $(DC)
 	mkdir -p $(DC)/usr/bin
-	mv $(D)/usr/bin/vmgen* $(DC)/usr/bin
+	mv $(DB)/usr/bin/vmgen* $(DC)/usr/bin
 	mkdir -p $(DL)/usr/lib
-	mv $(D)/usr/lib/$(DEB_HOST_MULTIARCH) $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)
-	mkdir -p $(D)/usr/lib/$(DEB_HOST_MULTIARCH)
-	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth $(D)/usr/lib/$(DEB_HOST_MULTIARCH)
-	mkdir -p $(DB)/usr/bin
-	mv $(D)/usr/bin/gforth $(D)/usr/bin/gforth-fast $(D)/usr/bin/gforth-itc $(D)/usr/bin/gforth-ditc $(D)/usr/bin/gforthmi $(D)/usr/bin/gforth-$(GFORTH_VER) $(D)/usr/bin/gforth-fast-$(GFORTH_VER) $(D)/usr/bin/gforth-itc-$(GFORTH_VER) $(D)/usr/bin/gforth-ditc-$(GFORTH_VER) $(D)/usr/bin/gforthmi-$(GFORTH_VER) $(DB)/usr/bin
+	mv $(DB)/usr/lib/$(DEB_HOST_MULTIARCH) $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)
+	mkdir -p $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)
+	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)
+	mkdir -p $(D)/usr/bin
+	mv $(DB)/usr/bin/gforth $(DB)/usr/bin/gforth-fast $(DB)/usr/bin/gforth-itc $(DB)/usr/bin/gforth-ditc $(DB)/usr/bin/gforthmi $(DB)/usr/bin/gforth-$(GFORTH_VER) $(DB)/usr/bin/gforth-fast-$(GFORTH_VER) $(DB)/usr/bin/gforth-itc-$(GFORTH_VER) $(DB)/usr/bin/gforth-ditc-$(GFORTH_VER) $(DB)/usr/bin/gforthmi-$(GFORTH_VER) $(D)/usr/bin
 
 override_dh_installchangelogs:
 	git log --date=format:%Y-%m-%d --pretty=format:'%cd  %cN  <%cE>%n%n%x09* %s%n' | gzip >$(DC)/usr/share/doc/gforth-common/changelog.gz
