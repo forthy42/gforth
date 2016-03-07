@@ -10,8 +10,8 @@ DL = $(CURDIR)/debian/gforth-lib
 DB = $(CURDIR)/debian/gforth-bin
 DH = $(CURDIR)/debian/gforth-html
 DP = $(CURDIR)/debian/gforth-pdf
-USHARE = $(D)/usr/share/gforth/$(GFORTH_VER)
-ULIB = $(D)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)
+USHARE = $(DB)/usr/share/gforth/$(GFORTH_VER)
+ULIB = $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)
 
 %:
 	dh $@
