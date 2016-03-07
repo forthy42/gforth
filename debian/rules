@@ -39,7 +39,7 @@ override_dh_auto_install:
 	mv $(D)/usr/bin/gforth $(D)/usr/bin/gforth-fast $(D)/usr/bin/gforth-itc $(D)/usr/bin/gforth-ditc $(D)/usr/bin/gforthmi $(DB)/usr/bin
 
 override_dh_installchangelogs:
-	git log --date=format:%Y-%m-%d --pretty=format:'%cd  %cN  <%cE>%n%n%x09* %s%n' | gzip >$(DC)/usr/share/doc/gforth/changelog.gz
+	git log --date=format:%Y-%m-%d --pretty=format:'%cd  %cN  <%cE>%n%n%x09* %s%n' | gzip >$(DC)/usr/share/doc/gforth-common/changelog.gz
 	rm -rf $(D)/usr/share/doc
 	rm -rf $(DL)/usr/share/doc
 	rm -rf $(DB)/usr/share/doc
