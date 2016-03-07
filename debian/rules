@@ -29,6 +29,7 @@ override_dh_auto_install:
 	$(ULIB)/kernl*.fi $(ULIB)/gforth.fi
 	mkdir -p $(DC)/usr
 	mv $(D)/usr/share $(DC)/usr
+	mv $(D)/etc $(DC)
 	mkdir -p $(DC)/usr/bin
 	mv $(D)/usr/bin/vmgen* $(DC)/usr/bin
 	mkdir -p $(DL)/usr/lib
