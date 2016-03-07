@@ -41,7 +41,7 @@ Description: GNU Forth
 Package: gforth
 Version: @DEBVERSION@
 Architecture: any
-Multi-Arch: foreign
+Multi-Arch: same
 Depends: gforth-bin (= @DEBVERSION@)
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
