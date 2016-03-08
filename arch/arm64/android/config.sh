@@ -62,6 +62,6 @@ engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
-LIBS="-llog -lz -lc"
+LIBS="-llog -lz"
 signals_o="io.o signals.o $XLIBS androidmain.o zexpand.o"
 
