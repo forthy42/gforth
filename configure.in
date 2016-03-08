@@ -124,8 +124,8 @@ else
      ;;
   esac
 
-  if test -f "arch/${cpu}/${withval}/config.sh"; then
-    source "arch/${cpu}/${withval}/config.sh"
+  if test -f "$srcdir/arch/${cpu}/${withval}/config.sh"; then
+    source "$srcdir/arch/${cpu}/${withval}/config.sh"
   fi
   GCC_PATH=$(which $CC)
   LIB_PATH=${GCC_PATH%/*/*}
@@ -170,8 +170,8 @@ else
      ;;
   esac
 
-  if test -f "arch/${cpu}/${withval}/config.sh"; then
-    source "arch/${cpu}/${withval}/config.sh"
+  if test -f "$srcdir/arch/${cpu}/${withval}/config.sh"; then
+    source "$srcdir/arch/${cpu}/${withval}/config.sh"
   fi
   GCC_PATH=$(which $CC)
   LIB_PATH=${GCC_PATH%/*/*}
@@ -1224,7 +1224,7 @@ if test -z "$SWIG"; then
    AC_MSG_WARN([*** Could not find swig in your PATH. The library bindings cannot be built.])
 fi
 
-if swig -forth unix/test.i; then
+if swig -forth $srcdir/unix/test.i; then
    echo "Swig works in Forth mode"
    > conftest.$ac_ext
    SWIGINCLUDES=`eval $ac_compiler $CFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ \(.*\) (framework directory)$/-F\1/g' -e 's/^ /-I/g' | tr '\n' ' '`

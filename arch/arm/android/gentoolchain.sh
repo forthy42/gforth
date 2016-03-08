@@ -57,9 +57,9 @@ do
     ABIX=${ABIX-$ABI}
     mkdir -p ~/proj/android-toolchain-$ARCH
     (cd ~/proj/android-toolchain-$ARCH
-     ~/proj/android-ndk-r$NDK/build/tools/make-standalone-toolchain.sh --arch=$ARCH --platform=android-21 --ndk-dir=/home/bernd/proj/android-ndk-r$NDK --install-dir=$PWD --toolchain=$i$ABI-$CCVER)
+     ~/proj/android-ndk-r$NDK/build/tools/make-standalone-toolchain.sh --platform=android-21 --ndk-dir=/home/bernd/proj/android-ndk-r$NDK --install-dir=$PWD --toolchain=$i$ABI-$CCVER)
     (cd ~/proj/libtool-$LIBT
-     ./configure --host=$ARCHX$ABIX --program-prefix=$ARCHX$ABIX- --prefix=$HOME/proj/android-toolchain-$ARCH host_alias=$CPU-linux-gnu
+     ./configure --host=$ARCHX$ABIX --program-prefix=$ARCHX$ABIX- --prefix=$HOME/proj/android-toolchain-$ARCH --includedir=$HOME/proj/android-toolchain-$ARCH/sysroot/usr/include host_alias=$CPU-linux-gnu
      make && make install && make clean
     )
 done

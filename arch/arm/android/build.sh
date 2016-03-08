@@ -77,7 +77,8 @@ GFORTH_VERSION=$($GFORTH_DITC --version 2>&1 | cut -f2 -d' ')
 APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
-SRC=../../..
+SRC=$(cd ../../..; pwd)
+mkdir -p build
 LIBCCNAMED=lib/$($GFORTH_DITC --version 2>&1 | cut -f1-2 -d ' ' | tr ' ' '/')/$machine/libcc-named/.libs
 
 rm -rf $LIBS
@@ -101,10 +102,10 @@ done
 
 if [ "$1" != "--no-gforthgz" ]
 then
-    (cd $SRC
+    (cd build
 	if [ "$1" != "--no-config" ]
 	then
-	    ./configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard/gforth/$machine --libexecdir=/lib --enable-lib $EXTRAS || exit 1
+	    $SRC/configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard/gforth/$machine --libexecdir=/lib --enable-lib $EXTRAS || exit 1
 	fi
 	make || exit 1
 	make prefix=$TOOLCHAIN/sysroot/usr install-include
@@ -116,13 +117,13 @@ then
 	CONFIG=no; shift
     fi
     
-    mkdir -p $SRC/debian/sdcard/gforth/$machine/gforth/site-forth
+    mkdir -p build/debian/sdcard/gforth/$machine/gforth/site-forth
     mkdir -p res/raw
-    cp *.{fs,fi,png,jpg} $SRC/debian/sdcard/gforth/$machine/gforth/site-forth
-    (cd $SRC/debian/sdcard
+    cp *.{fs,fi,png,jpg} build/debian/sdcard/gforth/$machine/gforth/site-forth
+    (cd build/debian/sdcard
      mkdir -p gforth/home gforth/site-forth
      gforth archive.fs gforth/home/ gforth/site-forth/ $(find gforth/$GFORTH_VERSION -type f) $(find gforth/site-forth -type f)) | gzip -9 >res/raw/gforth
-    (cd $SRC/debian/sdcard
+    (cd build/debian/sdcard
      rm gforth/$machine/lib*
      rm -rf gforth/$machine/gforth/$GFORTH_VERSION/$machine/libcc-named
      gforth archive.fs $machine/gforth/site-forth/ $(find gforth/$machine/gforth -type f)) | gzip -9 >$LIBS/libgforth-${machine}gz.so
@@ -139,7 +140,7 @@ do
 done
 
 FULLLIBS=$PWD/$LIBS
-LIBCC=$SRC
+LIBCC=build
 for i in $LIBCC $*
 do
     (cd $i; test -d shlibs && cp shlibs/*/.libs/*.so $FULLLIBS)
