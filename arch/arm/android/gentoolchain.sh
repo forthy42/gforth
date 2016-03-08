@@ -24,9 +24,10 @@ then
      tar zxvf ~/Downloads/libtool-$LIBT.tar.gz)
 fi
 
-for i in arm aarch64 x86 x86_64 mipsel mips64el
+for i in arm aarch64 i686 x86_64 mipsel mips64el
 do
     ARCH=$i
+    ABI=""
     case $i in
 	arm)
 	    ABI=-linux-androideabi
@@ -39,15 +40,20 @@ do
 	    ARCH=${i%el}
 	    ABI=-linux-android
 	    ;;
-	*)
-	    ABI=""
+	i686)
+	    ARCH=x86
+	    ABIX=-linux-android
+	    ;;
+	x86_64)
+	    ABIX=-linux-android
 	    ;;
     esac
+    ABIX=${ABIX-$ABI}
     mkdir -p ~/proj/android-toolchain-$ARCH
     (cd ~/proj/android-toolchain-$ARCH
      ~/proj/android-ndk-r$NDK/build/tools/make-standalone-toolchain.sh --arch=$ARCH --platform=android-21 --ndk-dir=/home/bernd/proj/android-ndk-r$NDK --install-dir=$PWD --toolchain=$i$ABI-$CCVER)
     (cd ~/proj/libtool-$LIBT
-     ./configure --host=$i$ABI --program-prefix=$i$ABI- --prefix=$HOME/proj/android-toolchain-$ARCH host_alias=$CPU-linux-gnu
+     ./configure --host=$i$ABIX --program-prefix=$i$ABIX- --prefix=$HOME/proj/android-toolchain-$ARCH host_alias=$CPU-linux-gnu
      make && make install && make clean
     )
 done
