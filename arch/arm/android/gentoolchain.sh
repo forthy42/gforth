@@ -5,7 +5,12 @@ CPU=$(uname -p)
 
 if [ ! -d ~/proj/android-ndk-r$NDK ]
 then
-    http://dl.google.com/android/ndk/android-ndk-r$NDK-linux-$CPU.bin
+    (cd ~/Downloads
+     wget http://dl.google.com/android/ndk/android-ndk-r$NDK-linux-$CPU.bin
+     chmod +x android-ndk-r$NDK-linux-$CPU.bin
+     mkdir -p ~/proj
+     cd ~/proj
+     ~/Downloads/android-ndk-r$NDK-linux-$CPU.bin)
 fi
 
 for i in arm arm64 386 amd64 mips
