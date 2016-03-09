@@ -56,7 +56,7 @@ libs: build-libcc-named $(LIBRARY)
 
 # execute compiled file
 %.fs: %.fsx
-	./$< -gforth | $(srcdir)/doexec $@ > $@
+	./$< -gforth | $(srcdir)/doexec $@ $(srcdir) > $@
 
 # compile fsi-file
 %.fsx: %-fsi.c
