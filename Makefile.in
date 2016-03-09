@@ -539,7 +539,7 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	$(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc \
 	test/coretest.out test/checkans.out test/gforth.out \
-	cache*.vmg peeprules.vmg prim \
+	$(wildcard cache*.vmg) peeprules.vmg prim \
 	debian/rules debian/control debian/changelog debian/compat \
 	gforth.ico .travis.yml install-swig.sh
 
@@ -571,7 +571,7 @@ FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
 KERN_DEPS = $(KERN_SRC) kernel/version.fs machpc.fs $(FORTH_GEN0) compat/strcomp.fs
 
 #distributed documentation
-DOCDIST = doc/gforth.info doc/gforth.info-* doc/gforth.ps \
+DOCDIST = doc/gforth.info $(wildcard doc/gforth.info-*) doc/gforth.ps \
 	  doc/vmgen.info doc/vmgen.ps
 
 BKERNLS = kernl32b$(EC).fi kernl32l$(EC).fi \
@@ -706,7 +706,7 @@ binonlydist:	Makedist FORCE
 debdist:	Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
-setup-debdist:	Makedist FORCE
+setup-debdist:	doc Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
 #HPUX make breaks the cycle differently when the dates are equal, so
@@ -756,14 +756,14 @@ install-progs:
 		(cd $(bindir) && $(LN_S) vmgen-$(VERSION) vmgen)
 
 install-sources:
-		-for i in $(srcdir)/doc/gforth.info* $(srcdir)/doc/vmgen.info*; do $(INSTALL_DATA) $$i $(infodir); done
+		-for i in doc/gforth.info* doc/vmgen.info*; do $(INSTALL_DATA) $$i $(infodir); done
 		for i in $(FORTH_SRC) $(COMPAT) prim; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 
 install-gensources:
 		for i in $(LIBCC_GEN_SRC) envos.fs; do \
-			$(INSTALL_DATA) $(srcdir)/$$i $(libdir)/gforth/$(VERSION)/$$i; \
+			$(INSTALL_DATA) $$i $(libdir)/gforth/$(VERSION)/$$i; \
 		done
 		touch $(siteforthdir)/siteinit.fs
 
@@ -774,7 +774,7 @@ install-images:
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 
 install-include:
-		$(INSTALL_DATA) include/gforth/$(VERSION)/$(machine)/* $(includedir)/gforth/$(VERSION)/$(machine)
+		$(INSTALL_DATA) engine/config.h engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
 
 install-libcc:
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
@@ -889,7 +889,7 @@ checkone test: gforth.fi engine/prim-s.i
 		$(FORTHS) test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/gforth.out
 		$(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -c - $(srcdir)/test/checkans.out
 		$(FORTH) prims2x.fs -e \
-		  "c-flag on s\" prim.i\" out-filename 2! s\" $(srcdir)/prim.b\" ' output-c ' output-c-combined process-file bye"| \
+		  "c-flag on s\" prim.i\" out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -c - engine/prim-s.i
 
 check-nofast: gforth.fi
@@ -1010,13 +1010,13 @@ engine/prim-s.i: engine/prim.i
 	grep -v '^#line ' $(srcdir)/engine/prim.i >$@
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
-		$(CP) kernel/aliases0.fs $@-
+		$(CP) $(srcdir)/kernel/aliases0.fs $@-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias ' noop process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
-		$(CP) kernel/prim0.fs kernel/prim.fs-
+		$(CP) $(srcdir)/kernel/prim0.fs kernel/prim.fs-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
@@ -1157,12 +1157,12 @@ gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) prim.tags kernel.tags
 		rm tags
 
 prim.TAGS: 	prim.b prims2x.fs
-		$(PREFORTH) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-tag dup process-file bye"|sed 's#^./prim#prim#' >$@-
+		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-tag dup process-file bye"|sed 's#^./prim#prim#' >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 prim.tags: 	prim.b prims2x.fs
-		$(PREFORTH) prims2x.fs -e "s\" $(srcdir)/prim.b\" ' output-vi-tag dup process-file bye" >$@-
+		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-vi-tag dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
@@ -1190,12 +1190,12 @@ doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd
-		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" >$@-
+		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd answords.fs doc/gforth.texi
-		$(FORTH) ds2texi.fs prims2x.fs -e "s\" $(srcdir)/prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye
+		$(FORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye
 		-grep unknown doc/gforth.texi
 		-grep doc- doc/gforth.texi| grep -v '^@c'
 

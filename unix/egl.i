@@ -10,28 +10,14 @@ extern struct _IO_FILE *stderr;
 %}
 %apply int { EGLint };
 
-#ifdef host_os_linux_android
+#if defined(host_os_linux_android) || defined(host_os_linux_androideabi)
 #define __ANDROID__
 #define ANDROID
 #define EGLAPI
 #define EGLAPIENTRY
 %apply SWIGTYPE * { EGLNativeDisplayType, EGLNativeWindowType, EGLNativePixmapType };
 #endif
-#ifdef host_os_linux_gnu
-#define __unix__
-#define EGLAPI
-#define EGLAPIENTRY
-%apply SWIGTYPE * { EGLNativeDisplayType };
-%apply long { EGLNativeWindowType, EGLNativePixmapType };
-#endif
-#ifdef host_os_linux_gnueabi
-#define __unix__
-#define EGLAPI
-#define EGLAPIENTRY
-%apply SWIGTYPE * { EGLNativeDisplayType };
-%apply long { EGLNativeWindowType, EGLNativePixmapType };
-#endif
-#ifdef host_os_linux_gnueabihf
+#if defined(host_os_linux_gnu) || defined(host_os_linux_gnueabi) || defined(host_os_linux_gnueabihf)
 #define __unix__
 #define EGLAPI
 #define EGLAPIENTRY

@@ -64,7 +64,7 @@ do
     fi
 done
 
-if [ ! -f build.xml ]
+if [ ! -f local.properties ]
 then
     android update project -p . -s --target android-14
 fi
@@ -78,8 +78,14 @@ APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
 SRC=$(cd ../../..; pwd)
-mkdir -p build
 LIBCCNAMED=lib/$($GFORTH_DITC --version 2>&1 | cut -f1-2 -d ' ' | tr ' ' '/')/$machine/libcc-named/.libs
+
+mkdir -p build
+
+if [ ! -f $SRC/configure ]
+then
+    (cd $SRC; ./autogen.sh)
+fi
 
 rm -rf $LIBS
 mkdir -p $LIBS
@@ -105,7 +111,7 @@ then
     (cd build
 	if [ "$1" != "--no-config" ]
 	then
-	    $SRC/configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard/gforth/$machine --libexecdir=/lib --enable-lib $EXTRAS || exit 1
+	    $SRC/configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard/gforth/$machine --libexecdir=/lib --includedir=$PWD/include --enable-lib $EXTRAS || exit 1
 	fi
 	make || exit 1
 	make prefix=$TOOLCHAIN/sysroot/usr install-include

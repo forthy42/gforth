@@ -24,8 +24,7 @@ then
      tar zxvf ~/Downloads/libtool-$LIBT.tar.gz)
 fi
 
-for i in arm aarch64 x86 x86_64 mipsel mips64el
-do
+function set_abix {
     unset ABIX
     unset ARCHX
     ARCH=$i
@@ -55,11 +54,22 @@ do
 	    ;;
     esac
     ABIX=${ABIX-$ABI}
+}
+
+for i in arm aarch64 x86 x86_64 mipsel mips64el
+do
+    set_abix
     mkdir -p ~/proj/android-toolchain-$ARCH
     (cd ~/proj/android-toolchain-$ARCH
      ~/proj/android-ndk-r$NDK/build/tools/make-standalone-toolchain.sh --platform=android-21 --ndk-dir=/home/bernd/proj/android-ndk-r$NDK --install-dir=$PWD --toolchain=$i$ABI-$CCVER)
+done
+
+for i in arm aarch64 x86 x86_64 mipsel mips64el
+do
+    set_abix
+    PREFIX=$HOME/proj/android-toolchain-$ARCH
     (cd ~/proj/libtool-$LIBT
-     ./configure --host=$ARCHX$ABIX --program-prefix=$ARCHX$ABIX- --prefix=$HOME/proj/android-toolchain-$ARCH --includedir=$HOME/proj/android-toolchain-$ARCH/sysroot/usr/include host_alias=$CPU-linux-gnu
+     ./configure --host=$ARCHX$ABIX --program-prefix=$ARCHX$ABIX- --prefix=$PREFIX --includedir=$PREFIX/sysroot/usr/include --libdir=$PREFIX/sysroot/usr/lib host_alias=$ARCHX$ABIX build_alias=$CPU-linux-gnu
      make && make install && make clean
     )
 done

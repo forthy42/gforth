@@ -11,13 +11,13 @@ extern struct _IO_FILE *stderr;
 
 // #define SWIG_FORTH_OPTIONS ""
 
-#ifdef host_os_linux_android
+#if defined(host_os_linux_android) || defined(host_os_linux_androideabi)
 #define __attribute__(x)
 #define __ANDROID__
 #define ANDROID
 #define __NDK_FPABI__
 #endif
-#ifdef host_os_linux_gnu
+#if defined(host_os_linux_gnu) || defined(host_os_linux_gnueabi) || defined(host_os_linux_gnueabihf)
 #define __GNUC__
 #define JNIEXPORT
 #define JNICALL

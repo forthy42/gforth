@@ -30,7 +30,7 @@ require except.fs \ included on command line
 warnings off
 include search.fs
 include environ.fs
-include envos.fs
+include ~+/envos.fs
 include errors.fs
 include extend.fs              \ load core-extended
 include compat/caseext.fs

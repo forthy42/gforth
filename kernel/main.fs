@@ -70,7 +70,7 @@ has? kernel-size
 
 doc-off
 has? prims [IF]
-    include ./aliases.fs             \ primitive aliases
+    include kernel/aliases.fs             \ primitive aliases
 [ELSE]
     prims-include
     undef-words

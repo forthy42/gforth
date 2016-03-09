@@ -33,7 +33,8 @@ prefix =
 exec_prefix = ${prefix}
 libexecdir = $(package)${exec_prefix}/lib
 libccdir = $(subst $(DESTDIR),,$(libexecdir)/gforth$(ARCH)/$(VERSION)/libcc-named/)
-srcdir = ./unix
+VPATH = @srcdir@:.
+srcdir = @srcdir@
 DESTDIR = $(PWD)
 LIBTOOL = @GNU_LIBTOOL@
 GCC	= @CC@
@@ -55,15 +56,15 @@ libs: build-libcc-named $(LIBRARY)
 
 # execute compiled file
 %.fs: %.fsx
-	./$< -gforth | ./doexec $@ > $@
+	./$< -gforth | $(srcdir)/doexec $@ > $@
 
 # compile fsi-file
 %.fsx: %-fsi.c
 	$(CC) -o $@ $<
 
 # use swig to create the fsi file
-%-fsi.c: %.i
-	$(SWIG) $(OPTIONS) -o $@ $(patsubst %-fsi.c, %.i, $@)
+%-fsi.c: $(srcdir)/%.i
+	$(SWIG) $(OPTIONS) -o $@ $(srcdir)/$(patsubst %-fsi.c,%.i,$@)
 
 run: $(DEMO)
 	gforth $(DEMO)

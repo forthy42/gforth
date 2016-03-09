@@ -68,7 +68,7 @@ ac_cv_file___arch_arm_disasm_fs=yes
 ac_cv_func_dlopen=yes
 ac_export_dynamic=no
 HOSTCC="gcc -m32"
-GNU_LIBTOOL=arm-linux-androideabi-libtool
+GNU_LIBTOOL="arm-linux-androideabi-libtool --tag=CC"
 build_libcc_named=build-libcc-named
 #KBOX=/data/data/kevinboone.androidterm/kbox
 #mi_prefix=$KBOX

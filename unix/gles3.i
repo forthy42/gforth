@@ -17,7 +17,10 @@ extern struct _IO_FILE *stderr;
 
 #define SWIG_FORTH_OPTIONS "no-callbacks"
 
+#if defined(host_os_linux_android) || defined(host_os_linux_androideabi)
 #define __ANDROID__
+#define ANDROID
+#endif
 #define GL_APICALL
 #define GL_APIENTRY
 
