@@ -42,7 +42,9 @@ TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 NDK=${NDK-~/proj/android-ndk-r10e}
 SRC=$(cd ../../..; pwd)
 
-cp $NDK/sources/android/cpufeatures/*.[ch] unix
+mkdir -p build
+
+cp $NDK/sources/android/cpufeatures/*.[ch] build/unix
 
 while [ "${1%%[^\+]*}" == '+' ]
 do
@@ -75,8 +77,6 @@ APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
 LIBCCNAMED=lib/$($GFORTH_DITC --version 2>&1 | cut -f1-2 -d ' ' | tr ' ' '/')/$machine/libcc-named/.libs
-
-mkdir -p build
 
 if [ ! -f $SRC/configure ]
 then
@@ -138,7 +138,7 @@ SHA256ARCH=$(sha256sum $LIBS/libgforth-${machine}gz.so | cut -f1 -d' ')
 
 for i in $ENGINES
 do
-    sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" -e "s/sha256archsum-sha256archsum-sha256archsum-sha256archsum-sha256ar/$SHA256ARCH/" $SRC/engine/.libs/lib$i.so >$LIBS/lib$i.so
+    sed -e "s/sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha256sum-sha2/$SHA256/" -e "s/sha256archsum-sha256archsum-sha256archsum-sha256archsum-sha256ar/$SHA256ARCH/" build/engine/.libs/lib$i.so >$LIBS/lib$i.so
 done
 
 FULLLIBS=$PWD/$LIBS
