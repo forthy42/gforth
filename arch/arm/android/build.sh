@@ -38,9 +38,11 @@ function extra_features {
 }
 
 . build.local
+TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 NDK=${NDK-~/proj/android-ndk-r10e}
+SRC=$(cd ../../..; pwd)
 
-cp $NDK/sources/android/cpufeatures/*.[ch] ../../../unix
+cp $NDK/sources/android/cpufeatures/*.[ch] $SRC/unix
 
 while [ "${1%%[^\+]*}" == '+' ]
 do
@@ -55,13 +57,8 @@ fi
 
 for i in $arch
 do
-    newdir=../../../../android-$i/arch/$i/android
-    if [ -d $newdir ]
-    then
-	(cd $newdir && git pull && ./build.sh "$@")
-    else
-	echo "Can't cd to $newdir"
-    fi
+    newdir=$SRC/arch/$i/android
+    (cd $newdir && ./build.sh "$@")
 done
 
 if [ ! -f local.properties ]
@@ -77,7 +74,6 @@ GFORTH_VERSION=$($GFORTH_DITC --version 2>&1 | cut -f2 -d' ')
 APP_VERSION=$[$(cat ~/.app-version)+1]
 echo $APP_VERSION >~/.app-version
 
-SRC=$(cd ../../..; pwd)
 LIBCCNAMED=lib/$($GFORTH_DITC --version 2>&1 | cut -f1-2 -d ' ' | tr ' ' '/')/$machine/libcc-named/.libs
 
 mkdir -p build

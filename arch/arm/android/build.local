@@ -19,7 +19,6 @@
 #plattform specific variables for build.sh
 
 LIBS=libs/armeabi
-TOOLCHAIN=$(which arm-linux-androideabi-gcc | sed -e s,/bin/.*-gcc,,g)
 TARGET=arm-linux-androideabi
 GFORTH_DITC=gforth-ditc-386
 machine=arm
