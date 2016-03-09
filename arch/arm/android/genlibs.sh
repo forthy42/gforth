@@ -19,41 +19,45 @@
 # Generate stuff needed for android Gforth
 
 . build.local
+TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 
-FREETYPE=freetype-2.5.3
-HARFBUZZ=harfbuzz-0.9.36
+FREETYPE=freetype-2.6.3
+HARFBUZZ=harfbuzz-1.2.3
+
+fine=yes
+for i in git wget ragel hg
+do
+    which $i >/dev/null 2>/dev/null || fine=no && echo install $i please
+done
+if [ $fine = no ]
+then
+    Missing stuff, exiting
+    exit 1
+fi
 
 #get dependent files
 
-wget http://downloads.sourceforge.net/project/freetype/freetype2/${FREETYPE#*-}/$FREETYPE.tar.bz2
-wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.bz2
+(cd ~/Downloads
+ test -f $FREETYPE.tar.bz2 || wget http://downloads.sourceforge.net/project/freetype/freetype2/${FREETYPE#*-}/$FREETYPE.tar.bz2
+ test -f $HARFBUZZ.tar.bz2 || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.bz2)
+
+tar jxvf ~/Downloads/$FREETYPE.tar.bz2
+tar jxvf ~/Downloads/$HARFBUZZ.tar.bz2
 
 # support stuff
 
-function patchlibtool {
-    sed -e s/version_type=linux/version_type=none/g <$1 >$1+
-    mv $1 $1~
-    mv $1+ $1
-    chmod +x $1
-}
-
 #make and install freetype, part 1 (no harfbuzz)
-tar jxvf $FREETYPE.tar.bz2
 
 (cd $FREETYPE
 ./autogen.sh # get fresh libtool&co
 ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=no --with-bzip2=no --with-zlib=no --with-harfbuzz=no 
-#for android, we don't need a library version
-patchlibtool builds/unix/libtool
 make -j4
 make install)
 
 #make and install harfbuzz
-tar jxvf $HARFBUZZ.tar.bz2
 
 (cd $HARFBUZZ
 ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-glib=no --with-icu=no --with-uniscribe=no --with-cairo=no
-patchlibtool libtool
 make -j4
 make install)
 
@@ -61,7 +65,6 @@ make install)
 
 (cd $FREETYPE
 ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=no --with-bzip2=no --with-zlib=no --with-harfbuzz=yes
-patchlibtool builds/unix/libtool
 make clean
 make -j4
 make install)
@@ -77,7 +80,6 @@ fi
 
 (cd freetype-gl
 ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
-patchlibtool libtool
 make
 make install
 )
@@ -92,7 +94,7 @@ else
 fi
 
 (cd soil2
-premake4 --platform=arm-android gmake
+premake4 --platform=$machine-android gmake
 (cd make/linux
 make config=release)
 (cd lib/linux
