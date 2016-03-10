@@ -540,7 +540,7 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	timings.sc \
 	test/coretest.out test/checkans.out test/gforth.out \
 	$(wildcard cache*.vmg) peeprules.vmg prim \
-	debian/rules debian/control debian/changelog debian/compat \
+	debian/rules debian/control.in debian/changelog.in debian/compat \
 	gforth.ico .travis.yml install-swig.sh
 
 RCS_FILES =  ToDo model high-level
