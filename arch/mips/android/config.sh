@@ -8,11 +8,13 @@
 #./build.sh
 echo "Config for android-mips"
 
-TOOLCHAIN=$(which mipsel-linux-android-gcc | sed -e s,/bin/.*-gcc,,g)
+CC=mipsel-linux-android-gcc
+TOOLCHAIN=$(which $CC | sed -e s,/bin/.*-gcc,,g)
 
+XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o"
 (mkdir -p engine/.libs
  cd engine
- for i in sigaltstack.o __set_errno.o #sigemptyset.o sigaddset.o termios.o
+ for i in $XLIBS
  do
      ar x $TOOLCHAIN/sysroot/usr/lib/libc.a $i
      cp $i .libs
@@ -48,8 +50,8 @@ ac_cv_func_wcwidth=no
 ac_cv_file___arch_mips_asm_fs=yes
 ac_cv_file___arch_mips_disasm_fs=yes
 ac_cv_func_dlopen=yes
+ac_cv_lib_ltdl_lt_dlinit=no
 ac_export_dynamic=no
-CC=mipsel-linux-android-gcc
 HOSTCC="gcc -m32 -D_MIPS_SZLONG=32"
 GNU_LIBTOOL=mipsel-linux-android-libtool
 build_libcc_named=build-libcc-named
@@ -68,5 +70,5 @@ engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
 LIBS="-llog -lz"
-signals_o="io.o signals.o sigaltstack.o __set_errno.o androidmain.o zexpand.o"
+signals_o="io.o signals.o $XLIBS androidmain.o zexpand.o"
 

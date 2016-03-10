@@ -18,8 +18,8 @@ dnl Process this file with autoconf to produce a configure script.
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
 
-dnl We use some automake macros here,
-dnl but don't use automake for creating Makefile.in
+#We use some automake macros here,
+#but don't use automake for creating Makefile.in
 AC_INIT([gforth],[0.7.9_20160306],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 #snapshots have numbers major.minor.release_YYYYMMDD
@@ -234,18 +234,18 @@ test -z "$HOSTCC" && HOSTCC='$(GCC)'
 #set up feature test macros, so the tests get them right:
 # turn on all POSIX, SUSv3, and GNU features if available
 AC_GNU_SOURCE
-dnl AC_DEFINE_UNQUOTED([_GNU_SOURCE],1,[feature test macro])
+#AC_DEFINE_UNQUOTED([_GNU_SOURCE],1,[feature test macro])
 
-dnl Don't define _POSIX_SOURCE etc. because some OSs (in particular
-dnl MacOSX) disable some features then (MacOSX checks for _POSIX_SOURCE,
-dnl but not for _XOPEN_SOURCE)
-dnl AC_DEFINE_UNQUOTED([_POSIX_SOURCE],1,[feature test macro])
-dnl AC_DEFINE_UNQUOTED([_POSIX_C_SOURCE],199506L,[feature test macro])
-dnl AC_DEFINE_UNQUOTED([_XOPEN_SOURCE],600,[feature test macro])
+#Don't define _POSIX_SOURCE etc. because some OSs (in particular
+#MacOSX) disable some features then (MacOSX checks for _POSIX_SOURCE,
+#but not for _XOPEN_SOURCE)
+#AC_DEFINE_UNQUOTED([_POSIX_SOURCE],1,[feature test macro])
+#AC_DEFINE_UNQUOTED([_POSIX_C_SOURCE],199506L,[feature test macro])
+#AC_DEFINE_UNQUOTED([_XOPEN_SOURCE],600,[feature test macro])
 # turn on large file support with 64-bit off_t where available
 AC_SYS_LARGEFILE
-dnl AC_DEFINE_UNQUOTED([_LARGEFILE_SOURCE],1,[feature test macro])
-dnl AC_DEFINE_UNQUOTED([_FILE_OFFSET_BITS],64,[feature test macro])
+#AC_DEFINE_UNQUOTED([_LARGEFILE_SOURCE],1,[feature test macro])
+#AC_DEFINE_UNQUOTED([_FILE_OFFSET_BITS],64,[feature test macro])
 
 #currently we force direct threading this way.  Eventually we should
 #setup in the arch and engine files right
@@ -302,8 +302,8 @@ if test "$ac_export_dynamic" != no; then
     AC_MSG_CHECKING([whether the linker accepts -Wl,--export-dynamic])
     OLDLDFLAGS=$LDFLAGS
     LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
-    dnl AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
-    dnl AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
+    #AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
+    #AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
     AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
     LDFLAGS=$OLDLDFLAGS
   fi
@@ -526,7 +526,7 @@ test x$GCC_PR15242_WORKAROUND = x ||
 AC_DEFINE_UNQUOTED(GCC_PR15242_WORKAROUND, $GCC_PR15242_WORKAROUND,
                    [force (1) or forbid (0) use of a workaround for a gcc performance bug])
 
-dnl the following macro produces a warning with autoconf-2.1
+#the following macro produces a warning with autoconf-2.1
 AC_CHECK_SIZEOF(char *)
 case "$ac_cv_sizeof_char_p" in
   2)
@@ -812,7 +812,7 @@ AC_MSG_RESULT($M4)
 
 #echo "machine='$machine'"
 
-dnl AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
+#AC_CHECK_PROG(asm_fs,asm.fs,arch/$machine/asm.fs,,$srcdir/arch/$machine)
 if test x$EC_MODE = xfalse
 then
   AS_IF([test -f $srcdir/arch/$machine/asm.fs],
@@ -820,7 +820,7 @@ then
 fi
 AC_SUBST(asm_fs)
 
-dnl AC_CHECK_PROG(disasm_fs,disasm.fs,arch/$machine/disasm.fs,,$srcdir/arch/$machine)
+#AC_CHECK_PROG(disasm_fs,disasm.fs,arch/$machine/disasm.fs,,$srcdir/arch/$machine)
 if test x$EC_MODE = xfalse
 then
   AS_IF([test -f $srcdir/arch/$machine/disasm.fs],
@@ -924,7 +924,7 @@ fi
 #This magic incantation  seems to be completely undocumented.
 AC_CHECK_PROG([MASSAGE_EXE],[chcon],[chcon -t unconfined_execmem_exec_t],[true])
 
-dnl Now a little support for DOS/DJGCC
+#Now a little support for DOS/DJGCC
 GFORTHFAST_EXE="$GFORTH_EXE"
 GFORTHITC_EXE="$GFORTH_EXE"
 GFORTHDITC_EXE="$GFORTH_EXE"
@@ -935,17 +935,17 @@ AC_SUBST(GFORTHDITC_EXE)
 
 AC_SUBST(FORTHSIZES)
 
-dnl if test "$PEEPHOLE" = "yes"
-dnl then
-dnl    PEEPHOLEFLAG="true"
-dnl    AC_DEFINE(HAS_PEEPHOLE,,[Define if you want to use peephole optimization])
-dnl else
-dnl    PEEPHOLEFLAG="false"
-dnl fi
+#if test "$PEEPHOLE" = "yes"
+#then
+#   PEEPHOLEFLAG="true"
+#   AC_DEFINE(HAS_PEEPHOLE,,[Define if you want to use peephole optimization])
+#else
+#   PEEPHOLEFLAG="false"
+#fi
 PEEPHOLEFLAG="true"
 AC_SUBST(PEEPHOLEFLAG)
 
-dnl copy commands for systems that don't have links
+#copy commands for systems that don't have links
 AC_SUBST(LINK_KERNL)
 LINK_KERNL=""
 
@@ -956,10 +956,10 @@ LINK_KERNL=""
 #  LINK_KERNL='$(CP) kernl32l.fi kernel.fi'
 #fi
 
-dnl the following macro produces a warning with autoconf-2.1
+#the following macro produces a warning with autoconf-2.1
 AC_C_BIGENDIAN
 AC_SUBST(GKERNEL)
-dnl ac_cv_c_bigendian is an undocumented variable of autoconf-2.1
+#ac_cv_c_bigendian is an undocumented variable of autoconf-2.1
 if test $ac_cv_c_bigendian != no; then
   bytesex=b
   GKERNEL="kernl32b.fi kernl32l.fi kernl64b.fi kernl64l.fi"
@@ -1040,25 +1040,25 @@ fi
 test "$no_dynamic_default" || no_dynamic_default=0
 AC_DEFINE_UNQUOTED(NO_DYNAMIC_DEFAULT,$no_dynamic_default,default value for no_dynamic)
 
-dnl Checks for programs.
+#Checks for programs.
 AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
 
-dnl check for the presence of Emacs
+#check for the presence of Emacs
 AC_CHECK_PROGS(EMACS,emacs xemacs)
 test -n "$EMACS" && gforth_elc=gforth.elc
 AC_SUBST(gforth_elc)
 
-dnl MacOS X has a libtool that does something else
+#MacOS X has a libtool that does something else
 AC_CHECK_PROGS(GNU_LIBTOOL,"glibtool --tag=CC" libtool)
 
-dnl Checks for library functions
-dnl This check is just for making later checks link with libm.
-dnl using sin here is no good idea since it is built-into gcc and typechecked
+#Checks for library functions
+#This check is just for making later checks link with libm.
+#using sin here is no good idea since it is built-into gcc and typechecked
 AC_CHECK_LIB(m,asin)
 AC_CHECK_LIB(ltdl,lt_dlinit)
-dnl ,LIB_SUFFIX=.la,LIB_SUFFIX=.so)
+#,LIB_SUFFIX=.la,LIB_SUFFIX=.so)
 if test "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
   LIB_SUFFIX=.la
 else
@@ -1078,6 +1078,7 @@ AC_SUBST(build_libcc_named)
 if test -z "$GNU_LIBTOOL"; then
   AC_MSG_WARN([No GNU_LIBTOOL found, using "libtool" as name.])
   AC_MSG_WARN([libcc.fs won't work until you have installed (GNU) libtool.])
+  #'
   GNU_LIBTOOL=libtool
 fi
 GNU_LIBTOOL=${GNU_LIBTOOL#$CROSS_PREFIX}
@@ -1101,9 +1102,9 @@ fi
 #check for ffcall libraries
 #unfortunately, these four calls are separated out into a library each.
 AC_CHECK_LIB(avcall,__builtin_avcall,LIBS="$LIBS")
-dnl AC_CHECK_LIB(callback,__vacall_r)
-dnl AC_CHECK_LIB(vacall,vacall)
-dnl AC_CHECK_LIB(trampoline,alloc_trampoline)
+#AC_CHECK_LIB(callback,__vacall_r)
+#AC_CHECK_LIB(vacall,vacall)
+#AC_CHECK_LIB(trampoline,alloc_trampoline)
 if test $ac_cv_lib_avcall___builtin_avcall = yes; then
   FFCALLFLAG="true"
   LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC fflib.fs"
@@ -1129,8 +1130,8 @@ AC_CHECK_FUNC(getopt_long,[true],[AC_LIBOBJ(getopt) AC_LIBOBJ(getopt1)])
 AC_CHECK_FUNCS(expm1 log1p)
 AC_CHECK_FUNCS(mcheck mprobe)
 AC_REPLACE_FUNCS(rint ecvt_r)
-dnl No check for select, because our replacement is no good under
-dnl anything but DOS
+#No check for select, because our replacement is no good under
+#anything but DOS
 AC_CHECK_HEADERS(sys/mman.h fnmatch.h alloca.h wchar.h endian.h)
 AC_REPLACE_FUNCS(wcwidth)
 AC_FUNC_FNMATCH
@@ -1213,7 +1214,7 @@ incdir=`eval echo $includedir`
 AC_SUBST(incdir)
 
 #this breaks bindists
-#dnl replace srource directory by absolute value
+## replace srource directory by absolute value
 #if test $srcdir = "."; then srcdir=`pwd` 
 #fi
 
@@ -1291,11 +1292,12 @@ if swig -forth $srcdir/unix/test.i; then
       SWIGLIBS="$SWIGLIBS soillib.fs", ,), )
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
-   if test "$host_os" == "linux-android"
-   then
-	SWIGMODULES="$SWIGMODULES cpufeatures.fs"
-	SWIGLIBS="$SWIGLIBS cpufeatureslib.fs"
-   fi
+   case "$host_os" in
+      	linux-android*)
+	    SWIGMODULES="$SWIGMODULES cpufeatures.fs"
+	    SWIGLIBS="$SWIGLIBS cpufeatureslib.fs"
+	    ;;
+   esac
 else
    AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
 fi

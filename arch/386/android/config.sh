@@ -8,9 +8,10 @@
 #./build.sh
 echo "config for android-386"
 
-TOOLCHAIN=$(which i686-linux-android-gcc | sed -e s,/bin/.*-gcc,,g)
+CC=i686-linux-android-gcc
+TOOLCHAIN=$(which $CC | sed -e s,/bin/.*-gcc,,g)
 
-XLIBS="sigaltstack.o __set_errno.o"
+XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o"
 (mkdir -p engine/.libs
  cd engine
  for i in $XLIBS
@@ -49,8 +50,8 @@ ac_cv_func_wcwidth=no
 ac_cv_file___arch_386_asm_fs=yes
 ac_cv_file___arch_368_disasm_fs=yes
 ac_cv_func_dlopen=yes
+ac_cv_lib_ltdl_lt_dlinit=no
 ac_export_dynamic=no
-CC=i686-linux-android-gcc
 HOSTCC="gcc -m32"
 GNU_LIBTOOL="i686-linux-android-libtool"
 build_libcc_named=build-libcc-named

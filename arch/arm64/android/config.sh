@@ -8,7 +8,8 @@
 #./build.sh
 echo "Config for android-arm64"
 
-TOOLCHAIN=$(which arm64-linux-android-gcc | sed -e s,/bin/.*-gcc,,g)
+CC=aarch64-linux-android-gcc
+TOOLCHAIN=$(which $CC | sed -e s,/bin/.*-gcc,,g)
 
 XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o"
 (mkdir -p engine/.libs
@@ -49,8 +50,8 @@ ac_cv_func_wcwidth=no
 ac_cv_file___arch_arm64_asm_fs=yes
 ac_cv_file___arch_arm64_disasm_fs=yes
 ac_cv_func_dlopen=yes
+ac_cv_lib_ltdl_lt_dlinit=no
 ac_export_dynamic=no
-CC=aarch64-linux-android-gcc
 HOSTCC="gcc -m64"
 GNU_LIBTOOL="aarch64-linux-android-libtool"
 build_libcc_named=build-libcc-named

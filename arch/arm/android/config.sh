@@ -28,9 +28,10 @@ echo "config for android-arm"
 CC=arm-linux-androideabi-gcc
 TOOLCHAIN=$(which $CC | sed -e s,/bin/.*-gcc,,g)
 
+XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o"
 (mkdir -p engine/.libs
  cd engine
- for i in sigaltstack.o __set_errno.o #sigemptyset.o sigaddset.o termios.o
+ for i in $XLIBS
  do
      ar x $TOOLCHAIN/sysroot/usr/lib/libc.a $i
      cp $i .libs
@@ -66,6 +67,7 @@ ac_cv_func_wcwidth=no
 ac_cv_file___arch_arm_asm_fs=yes
 ac_cv_file___arch_arm_disasm_fs=yes
 ac_cv_func_dlopen=yes
+ac_cv_lib_ltdl_lt_dlinit=no
 ac_export_dynamic=no
 HOSTCC="gcc -m32"
 GNU_LIBTOOL="arm-linux-androideabi-libtool --tag=CC"
@@ -85,5 +87,5 @@ engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
 image_i=""
 LIBS="-llog -lz"
-signals_o="io.o signals.o sigaltstack.o __set_errno.o androidmain.o zexpand.o"
+signals_o="io.o signals.o $XLIBS androidmain.o zexpand.o"
 

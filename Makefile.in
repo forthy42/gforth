@@ -774,6 +774,7 @@ install-images:
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 
 install-include:
+		$(srcdir)/mkinstalldirs $(includedir)/gforth/$(VERSION)/$(machine)
 		$(INSTALL_DATA) engine/config.h engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
 
 install-libcc:
@@ -836,7 +837,7 @@ installdirs:	installdirs-arch installdirs-indep
 
 installdirs-arch: 	mkinstalldirs
 		$(NORMAL_INSTALL)
-		for i in $(bindir) $(libdir)/gforth/$(VERSION) $(siteforthdir) $(siteforthdir) $(includedir)/gforth/$(VERSION)/$(machine) $(package)$(libccdir); do \
+		for i in $(bindir) $(libdir)/gforth/$(VERSION) $(siteforthdir) $(siteforthdir) $(package)$(libccdir); do \
 			$(srcdir)/mkinstalldirs $$i; \
 		done
 		for i in $(INSTALL_LIBDIRS); do \

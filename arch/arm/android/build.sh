@@ -42,7 +42,7 @@ TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 NDK=${NDK-~/proj/android-ndk-r10e}
 SRC=$(cd ../../..; pwd)
 
-mkdir -p build
+mkdir -p build/unix
 
 cp $NDK/sources/android/cpufeatures/*.[ch] build/unix
 
@@ -54,14 +54,19 @@ done
 
 if [ ! -z "$arch" ]
 then
-    echo "Extra build in $arch"
+    echo "Extra build in$arch"
 fi
 
+APP_VERSION=$[$(cat ~/.app-version)+1]
 for i in $arch
 do
-    newdir=$SRC/arch/$i/android
-    (cd $newdir && ./build.sh "$@")
+    (cd $SRC/arch/$i/android && ./build.sh "$@" || printf "\e[31mFailed to build for $i\e[0m\n")
 done
+echo $APP_VERSION >~/.app-version
+
+# Create log file from here on
+
+exec 3>&1 1>build.log 2>&1
 
 if [ ! -f local.properties ]
 then
@@ -73,8 +78,6 @@ fi
 ENGINES="gforth-fast gforth-itc"
 
 GFORTH_VERSION=$($GFORTH_DITC --version 2>&1 | cut -f2 -d' ')
-APP_VERSION=$[$(cat ~/.app-version)+1]
-echo $APP_VERSION >~/.app-version
 
 LIBCCNAMED=lib/$($GFORTH_DITC --version 2>&1 | cut -f1-2 -d ' ' | tr ' ' '/')/$machine/libcc-named/.libs
 
@@ -107,12 +110,16 @@ then
     (cd build
 	if [ "$1" != "--no-config" ]
 	then
+	    echo -n "$machine: configure" 1>&3
 	    $SRC/configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard/gforth/$machine --libexecdir=/lib --includedir=$PWD/include --enable-lib $EXTRAS || exit 1
 	fi
+	echo -n " make" 1>&3
 	make || exit 1
 	make prefix=$TOOLCHAIN/sysroot/usr install-include
 	rm -rf debian/sdcard
+	echo -n " extras" 1>&3
 	if [ "$1" != "--no-config" ]; then make extras || exit 1; fi
+	echo -n " debdist" 1>&3
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]
     then
@@ -155,7 +162,11 @@ do
     done
     shift
 done
-strip $LIBS/*.so
+
+for i in $LIBS/*.so
+do
+    echo "strip $i: $(stat --print=%s $i) -> $($TARGET-strip $i && stat --print=%s $i)"
+done
 
 #copy resources
 
@@ -165,7 +176,11 @@ do
     test -d $i/src && (cd $i/src; tar cf - .) | (cd src; tar xf -)
 done
 
+echo -n " ant " 1>&3
+
 #ant debug
 ant release || exit 1
 cp bin/Gforth-release.apk bin/Gforth.apk
 cp bin/Gforth-release.apk bin/Gforth-$(date +%Y%m%d).apk
+
+printf '\e[32msuccess!\e[0m\n' 1>&3
