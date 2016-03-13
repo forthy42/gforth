@@ -28,20 +28,16 @@ require ./io.fs
 
 \ hold <# #> sign # #s                                 25jan92py
 
-has? EC [IF]
-    : hld  ( -- addr )  pad cell - ;
-    : hold  ( char -- )  hld -1 over +! @ c! ;
-    : <#    hld dup ! ;
-    : #>   ( d -- addr +n )  2drop hld dup @ tuck - ;
-    ' <# alias <<#
-    ' noop alias #>>
-[ELSE]
+: +hold ( n -- addr )
+    \G Reserve space for n chars in the pictured numeric buffer.
+    \G -17 THROW if no space
+    negate holdptr +!
+    holdptr @ dup holdbuf u< -&17 and throw ;
+
 : hold    ( char -- ) \ core
     \G Used within @code{<#} and @code{#>}. Append the character
     \G @var{char} to the pictured numeric output string.
-    -1 chars holdptr +!
-    holdptr @ dup holdbuf u< -&17 and throw
-    c! ;
+    1 +hold c! ;
 
 : <# ( -- ) \ core	less-number-sign
     \G Initialise/clear the pictured numeric output string.
@@ -66,7 +62,6 @@ has? EC [IF]
     \G Release the hold area started with @code{<<#}.
     holdend @ dup holdbuf-end u>= -&11 and throw
     count chars bounds holdptr ! holdend ! ;
-[THEN]
 
 : sign    ( n -- ) \ core
     \G Used within @code{<#} and @code{#>}. If @var{n} (a @var{single}
@@ -99,7 +94,9 @@ has? EC [IF]
     UNTIL ;
 
 : holds ( addr u -- )
-    BEGIN  dup  WHILE  1- 2dup + c@ hold  REPEAT  2drop ;
+    \G Used within @code{<#} and @code{#>}. Append the string @code{addr u}
+    \G to the pictured numeric output string.
+    dup +hold swap move ;
 
 \ print numbers                                        07jun92py
 

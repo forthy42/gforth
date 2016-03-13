@@ -67,7 +67,7 @@ Cell negate(Cell n)
 char *tilde_cstr(Char *from, UCell size)
 /* like cstr(), but perform tilde expansion on the string */
 {
-  char *s1,*s2,*s3;
+  char *s1,*s2;
   int s1_len, s2_len, allocs1=0;
   struct passwd *getpwnam (), *user_entry;
 
@@ -78,6 +78,7 @@ char *tilde_cstr(Char *from, UCell size)
     if((s1 == NULL) || access(s1, W_OK))
 #if defined(_WIN32) || defined (MSDOS) || defined(__CYGWIN__)
       {
+	char *s3;
 	s1 = NULL;
 	s2 = (char *)getenv("HOMEDRIVE");
 	s3 = (char *)getenv("HOMEPATH");
