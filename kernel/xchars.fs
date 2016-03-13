@@ -90,9 +90,7 @@ umethod -trailing-garbage ( xc-addr u1 -- addr u2 ) \ xchar-ext
 
 : xhold ( xc -- )
     \G Put xc into the pictured numeric output
-    dup xc-size negate chars holdptr +!
-    holdptr @ dup holdbuf u< -&17 and throw
-    8 xc!+? 2drop drop ;
+    dup xc-size dup +hold swap xc!+? 2drop drop ;
 
 : xc, ( xchar -- ) here unused xc!+? 2drop dp ! ;
 
