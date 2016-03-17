@@ -24,7 +24,8 @@ Defer edit-update ( span addr pos1 -- span addr pos1 )
 \ command line editing                                  16oct94py
 
 : >string  ( span addr pos1 -- span addr pos1 addr2 len )
-  over 3 pick 2 pick chars /string ;
+    \G get rest of the string
+    over 3 pick 2 pick chars /string ;
 
 : bindkey ( xt key -- )  cells ctrlkeys + ! ;
 
@@ -242,7 +243,7 @@ info-color Value setstring-color
 
 : <xins>  ( max span addr pos1 xc -- max span addr pos2 )
     >r  2over r@ xc-size + u< IF  ( max span addr pos1 R:xc )
-	rdrop bell  EXIT  THEN
+	rdrop bell 0  EXIT  THEN
     >string over r@ xc-size + swap move
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
@@ -291,11 +292,14 @@ info-color Value setstring-color
 : xend-pos  ( max span addr pos1 -- max span addr span 0 )
   drop over .all 0 ;
 
+Variable paste$
+
 : xclear-rest ( max span addr pos -- max pos addr pos false )
-    rot >r tuck 2dup r> swap /string x-width dup spaces linew +! .all 0 ;
+    rot >r tuck 2dup r> swap /string 2dup paste$ $!
+    x-width dup spaces linew +! .all 0 ;
 
 : xclear-first ( max span addr pos -- max pos addr pos false )
-    linew @ xback-restore >r
+    2dup paste$ $! linew @ xback-restore >r
     2dup swap x-width dup spaces xback-restore  linew off
     2dup swap r@ /string 2 pick swap move
     swap r> - swap 0 .redraw 0 ;
@@ -332,6 +336,12 @@ info-color Value setstring-color
     prefix-found @ IF  bl (xins)  ELSE  .redraw  THEN
     edit-update  0 ;
 
+: xpaste ( max span addr pos -- max span' addr pos' false )
+    2over paste$ $@len + u< IF
+	rdrop bell  0 EXIT  THEN
+    >string paste$ $@ 2swap paste$ $@len + insert
+    paste$ $@len + 2>r paste$ $@len + 2r> .redraw  0 ;
+
 : setcur ( max span addr pos1 -- max span addr pos2 0 )
     drop over vt100-modifier @ umin .redraw 0 ;
 : setsel ( max span addr pos1 -- max span addr pos2 0 )
@@ -356,6 +366,7 @@ info-color Value setstring-color
     ['] setsel       ctrl S bindkey
     ['] xclear-first ctrl U bindkey
     ['] <xdel>       ctrl X bindkey
+    ['] xpaste       ctrl Y bindkey
     ['] xhide        ctrl Z bindkey \ press ctrl-L to reshow
     ['] (xins)       IS insert-char
     ['] kill-prefix  IS everychar
