@@ -139,7 +139,7 @@ SDK_INT 10 u<= [IF] \ 2.3.x uses a different clipboard manager
 
     jni-method: getItemCount getItemCount ()I
     jni-method: getItemAt getItemAt (I)Landroid/content/ClipData$Item;
-    jni-method: newPlainText newPlainText (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Landroid/content/ClipData;
+    jni-static: newPlainText newPlainText (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Landroid/content/ClipData;
     
     jni-class: android/content/ClipData$Item
     
