@@ -85,21 +85,21 @@ s" Java Exception" exception Constant !!jni!!
 Create 'calls '[' 1+ 'A'
 [DO] "x()" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
 
-: z()s ( jobject jmid -- c )  callenv JNIEnv-CallStaticBooleanMethodA() ?jnithrow ;
-: b()s ( jobject jmid -- c )  callenv JNIEnv-CallStaticByteMethodA() ?jnithrow ;
-: c()s ( jobject jmid -- utf16 )  callenv JNIEnv-CallStaticCharMethodA() ?jnithrow ;
-: s()s ( jobject jmid -- n )  callenv JNIEnv-CallStaticShortMethodA() ?jnithrow ;
-: i()s ( jobject jmid -- n )  callenv JNIEnv-CallStaticIntMethodA() ?jnithrow ;
-: j()s ( jobject jmid -- d )  callenv JNIEnv-CallStaticLongMethodA() ?jnithrow ;
-: f()s ( jobject jmid -- r )  callenv JNIEnv-CallStaticFloatMethodA() ?jnithrow ;
-: d()s ( jobject jmid -- r )  callenv JNIEnv-CallStaticDoubleMethodA() ?jnithrow ;
-: l()s ( jobject jmid -- object )  callenv JNIEnv-CallStaticObjectMethodA() ?jnithrow ;
-: v()s ( jobject jmid -- )  callenv JNIEnv-CallStaticVoidMethodA() ?jnithrow ;
+: z()s ( jclass jmid -- c )  callenv JNIEnv-CallStaticBooleanMethodA() ?jnithrow ;
+: b()s ( jclass jmid -- c )  callenv JNIEnv-CallStaticByteMethodA() ?jnithrow ;
+: c()s ( jclass jmid -- utf16 )  callenv JNIEnv-CallStaticCharMethodA() ?jnithrow ;
+: s()s ( jclass jmid -- n )  callenv JNIEnv-CallStaticShortMethodA() ?jnithrow ;
+: i()s ( jclass jmid -- n )  callenv JNIEnv-CallStaticIntMethodA() ?jnithrow ;
+: j()s ( jclass jmid -- d )  callenv JNIEnv-CallStaticLongMethodA() ?jnithrow ;
+: f()s ( jclass jmid -- r )  callenv JNIEnv-CallStaticFloatMethodA() ?jnithrow ;
+: d()s ( jclass jmid -- r )  callenv JNIEnv-CallStaticDoubleMethodA() ?jnithrow ;
+: l()s ( jclass jmid -- object )  callenv JNIEnv-CallStaticObjectMethodA() ?jnithrow ;
+: v()s ( jclass jmid -- )  callenv JNIEnv-CallStaticVoidMethodA() ?jnithrow ;
 
 Create 's-calls '[' 1+ 'A'
 [DO] "x()s" over [i] swap c! current @ search-wordlist 0= [IF] ' 2drop [THEN] , [LOOP]
 
-: new() ( jobject jmid -- )  callenv JNIEnv-NewObjectA() ;
+: new() ( jclass jmid -- )  callenv JNIEnv-NewObjectA() ;
 
 : fieldenv ( jobject jfid -- env jobject jmid )  env -rot ;
 
@@ -213,7 +213,8 @@ Variable iscopy
 : ?javanf ( id -- id )  dup 0= !!javanf!! and throw ;
 
 : jni-class: ( "name" -- )
-    env cstr" JNIEnv-FindClass() ?javanf to jniclass ;
+    env cstr" JNIEnv-FindClass() ?javanf
+    env swap JNIEnv-NewGlobalRef() to jniclass ;
 : jni-mid ( "name" "signature" -- methodid )
     env jniclass cstr" cstr1" JNIEnv-GetMethodID() ?javanf ;
 : jni-smid ( "name" "signature" -- methodid )
