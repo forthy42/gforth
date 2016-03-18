@@ -215,20 +215,20 @@ Variable iscopy
 
 : jni-class: ( "name" -- )
     env cstr" JNIEnv-FindClass() ?javanf to jniclass  0 to gjniclass ;
-: jniclass, ( -- class )
+: jniclass@ ( -- class )
     gjniclass 0= IF
 	env jniclass JNIEnv-NewGlobalRef() to gjniclass  THEN
-    gjniclass postpone Literal ;
+    gjniclass ;
 : jni-mid ( "name" "signature" -- methodid )
     env jniclass cstr" cstr1" JNIEnv-GetMethodID() ?javanf ;
 : jni-smid ( "name" "signature" -- methodid )
-    env jniclass cstr" cstr1" JNIEnv-GetStaticMethodID() ?javanf ;
+    env jniclass@ cstr" cstr1" JNIEnv-GetStaticMethodID() ?javanf ;
 : jni-new ( "signatur" -- methodid )
     env jniclass s" <init>" cstr1" JNIEnv-GetMethodID() ?javanf ;
 : jni-fid ( "name" "signature" -- methodid )
     env jniclass cstr" cstr1" JNIEnv-GetFieldID() ?javanf ;
 : jni-sfid ( "name" "signature" -- methodid )
-    env jniclass cstr" cstr1" JNIEnv-GetStaticFieldID() ?javanf ;
+    env jniclass@ cstr" cstr1" JNIEnv-GetStaticFieldID() ?javanf ;
 
 Variable argstring
 : >argstring ( addr1 u1 -- addr2 u2 )
@@ -245,36 +245,36 @@ Variable argstring
 
 : jni-method: ( "forth-name" "name" "signature" -- )
     : ( o:jobject args -- retval ) jni-mid >r
-    cstring1 $@ >argstring args, postpone o r> postpone literal
+    cstring1 $@ >argstring args, postpone o r> lit,
     cstring1 $@ >retchar 'A' - cells 'calls + @ compile, postpone ; ;
 
 : jni-static: ( "forth-name" "name" "signature" -- )
     : ( args -- retval ) jni-smid >r
-    cstring1 $@ >argstring args, jniclass, r> postpone literal
+    cstring1 $@ >argstring args, jniclass@ lit, r> lit,
     cstring1 $@ >retchar 'A' - cells 's-calls + @ compile, postpone ; ;
 
 : jni-new: ( "forth-name" "signature" -- )
     : ( args -- jobject ) jni-new >r
     cstring1 $@ >argstring args,
-    jniclass, r> postpone literal
+    jniclass@ lit, r> lit,
     postpone new() postpone ; ;
 
 : cstring@1 ( -- index ) cstring1 $@ drop c@ 'A' - cells ;
 
-: field-to, ( xt1 xt2 -- ) >r postpone literal r> :, ;
+: field-to, ( xt1 xt2 -- ) >r lit, r> :, ;
 
 : jni-field: ( "forth-name" "name" "signature" -- )
     >in @ parse-name 2drop jni-fid >in @ { old-in fid new-in }
-    :noname postpone drop postpone o fid postpone Literal
+    :noname postpone drop postpone o fid lit,
     cstring@1 'field! + @ compile, postpone ; >r ['] field-to, set-compiler
     old-in >in !
-    : ( o:jobject -- retval ) postpone o fid postpone Literal
+    : ( o:jobject -- retval ) postpone o fid lit,
     cstring@1 'field@ + @ compile, postpone ;
     r> set-to  new-in >in ! ;
 
 : jni-sfield: ( "forth-name" "name" "signature" -- )
     : ( o:jobject -- retval )
-    jniclass, jni-sfid postpone Literal
+    jniclass@ lit, jni-sfid lit,
     cstring@1 'sfield@ + @ compile, postpone ; ;
 
 \ array access: you can access one array at a time
