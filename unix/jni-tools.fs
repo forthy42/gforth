@@ -207,14 +207,18 @@ Variable iscopy
 : .jstring ( string -- ) jstring>sstring type jfree ;
 
 0 Value jniclass
+0 Value gjniclass \ global reference, only created when needed
 
 "Java identifier not found" exception Constant !!javanf!!
 
 : ?javanf ( id -- id )  dup 0= !!javanf!! and throw ;
 
 : jni-class: ( "name" -- )
-    env cstr" JNIEnv-FindClass() ?javanf
-    env swap JNIEnv-NewGlobalRef() to jniclass ;
+    env cstr" JNIEnv-FindClass() ?javanf to jniclass  0 to gjniclass ;
+: jniclass, ( -- class )
+    gjniclass 0= IF
+	env jniclass JNIEnv-NewGlobalRef() to gjniclass  THEN
+    gjniclass postpone Literal ;
 : jni-mid ( "name" "signature" -- methodid )
     env jniclass cstr" cstr1" JNIEnv-GetMethodID() ?javanf ;
 : jni-smid ( "name" "signature" -- methodid )
@@ -246,13 +250,13 @@ Variable argstring
 
 : jni-static: ( "forth-name" "name" "signature" -- )
     : ( args -- retval ) jni-smid >r
-    cstring1 $@ >argstring args, jniclass postpone literal r> postpone literal
+    cstring1 $@ >argstring args, jniclass, r> postpone literal
     cstring1 $@ >retchar 'A' - cells 's-calls + @ compile, postpone ; ;
 
 : jni-new: ( "forth-name" "signature" -- )
     : ( args -- jobject ) jni-new >r
     cstring1 $@ >argstring args,
-    jniclass postpone Literal r> postpone literal
+    jniclass, r> postpone literal
     postpone new() postpone ; ;
 
 : cstring@1 ( -- index ) cstring1 $@ drop c@ 'A' - cells ;
@@ -270,7 +274,7 @@ Variable argstring
 
 : jni-sfield: ( "forth-name" "name" "signature" -- )
     : ( o:jobject -- retval )
-    postpone o jni-sfid postpone Literal
+    jniclass, jni-sfid postpone Literal
     cstring@1 'sfield@ + @ compile, postpone ; ;
 
 \ array access: you can access one array at a time
