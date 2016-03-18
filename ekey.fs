@@ -391,6 +391,7 @@ ctrl D k-eof    ekey-bind
     ekey dup k-left u>= IF
 	dup [ 1 mask-shift# lshift 1- ]l and ekey>ctrl + c@
 	swap mask-shift# rshift 7 and vt100-modifier !
+    ELSE  vt100-modifier off
     THEN ;
 
 ' edit-ekey is edit-key

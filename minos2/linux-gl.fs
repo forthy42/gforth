@@ -102,8 +102,6 @@ Defer config-changed ' noop is config-changed
 Defer screen-ops     ' noop IS screen-ops
 
 : term-cr defers cr ;
-: screen-key  screen-ops defers key ;
-' screen-key is key
 
 begin-structure app_input_state
 field: action
@@ -341,8 +339,8 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
     dpy 0 XSync drop >exposed ;
 
 : x-key ( -- key )
-    need-show on  key? IF  defers key  EXIT  THEN
-    BEGIN  >looper  key? screen-ops UNTIL  defers key ;
+    need-show on  key? IF  defers key-ior  EXIT  THEN
+    BEGIN  >looper  key? screen-ops UNTIL  defers key-ior ;
 
 0 warnings !@
 : bye ( -- )
@@ -350,4 +348,4 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
     xim ?dup-IF  XCloseIM drop  THEN  0 to xim
     bye ;
 warnings !
-' x-key IS key
+' x-key IS key-ior

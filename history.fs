@@ -225,7 +225,7 @@ info-color Value setstring-color
     dup IF  ['] type setstring-color color-execute  ELSE  2drop  THEN
     >r 2dup swap r@ /string type
     2dup swap cur-correct setstring $@ x-width linew +! r>
-    linew @ linew-all ! ;
+    linew @ linew-all ! edit-update ;
 : .redraw ( span addr pos1 -- span addr pos1 )
     .all .rest ;
 
@@ -294,12 +294,17 @@ info-color Value setstring-color
 
 Variable paste$
 
+Defer paste!
+: xpaste! ( addr u -- )
+    paste$ $! ;
+' xpaste! is paste!
+
 : xclear-rest ( max span addr pos -- max pos addr pos false )
-    rot >r tuck 2dup r> swap /string 2dup paste$ $!
+    rot >r tuck 2dup r> swap /string 2dup paste!
     x-width dup spaces linew +! .all 0 ;
 
 : xclear-first ( max span addr pos -- max pos addr pos false )
-    2dup paste$ $! linew @ xback-restore >r
+    2dup paste! linew @ xback-restore >r
     2dup swap x-width dup spaces xback-restore  linew off
     2dup swap r@ /string 2 pick swap move
     swap r> - swap 0 .redraw 0 ;
@@ -333,8 +338,7 @@ Variable paste$
 	2>r >string r@ + 2r> 2swap insert
 	r@ + rot r> + -rot
     THEN
-    prefix-found @ IF  bl (xins)  ELSE  .redraw  THEN
-    edit-update  0 ;
+    prefix-found @ IF  bl (xins)  ELSE  .redraw  THEN  0 ;
 
 : xpaste ( max span addr pos -- max span' addr pos' false )
     2over paste$ $@len + u< IF
@@ -342,11 +346,18 @@ Variable paste$
     >string paste$ $@ 2swap paste$ $@len + insert
     paste$ $@len + 2>r paste$ $@len + 2r> .redraw  0 ;
 
+: xtranspose ( max span addr pos -- max span' addr pos' false )
+    dup IF
+	2 pick over = IF  over + xchar- over -  THEN
+	2dup + xchar- xc@ >r (xdel)
+	over + xchar+ over - r> (xins)
+    THEN 0 ;
+
 : setcur ( max span addr pos1 -- max span addr pos2 0 )
-    drop over vt100-modifier @ umin .redraw 0 ;
+    drop 0 .redraw 0 ;
 : setsel ( max span addr pos1 -- max span addr pos2 0 )
-    >r 2dup swap r@ /string 2dup vt100-modifier @ umin setstring $!
-    vt100-modifier @ over umin >r r@ - over r@ + -rot move
+    >r 2dup swap r@ /string 2dup setstring $!
+    dup >r r@ - over r@ + -rot move
     swap r> - swap r> .redraw 0 ;
 
 : xchar-history ( -- )
@@ -360,10 +371,11 @@ Variable paste$
     ['] (xenter)     #lf    bindkey \ ctrl J
     ['] xclear-rest  ctrl K bindkey
     ['] xretype      ctrl L bindkey
-    ['] next-line    ctrl N bindkey
     ['] (xenter)     #cr    bindkey \ ctrl M
+    ['] next-line    ctrl N bindkey
     ['] prev-line    ctrl P bindkey
     ['] setsel       ctrl S bindkey
+    ['] xtranspose   ctrl T bindkey
     ['] xclear-first ctrl U bindkey
     ['] <xdel>       ctrl X bindkey
     ['] xpaste       ctrl Y bindkey

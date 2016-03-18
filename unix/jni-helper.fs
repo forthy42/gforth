@@ -127,16 +127,19 @@ SDK_INT 10 u<= [IF] \ 2.3.x uses a different clipboard manager
 
     jni-method: hasText hasText ()Z
     jni-method: getText getText ()Ljava/lang/CharSequence;
+    jni-method: setText setText (Ljava/lang/CharSequence;)V
 [ELSE]
     jni-class: android/content/ClipboardManager
     
     jni-method: getPrimaryClip getPrimaryClip ()Landroid/content/ClipData;
     jni-method: hasPrimaryClip hasPrimaryClip ()Z
+    jni-method: setPrimaryClip setPrimaryClip (Landroid/content/ClipData;)V
     
     jni-class: android/content/ClipData
 
     jni-method: getItemCount getItemCount ()I
     jni-method: getItemAt getItemAt (I)Landroid/content/ClipData$Item;
+    jni-method: newPlainText newPlainText (Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Landroid/content/ClipData;
     
     jni-class: android/content/ClipData$Item
     
@@ -178,6 +181,8 @@ SDK_INT 10 u<= [IF]
 	hasText IF
 	    getText >o toString jstring>sstring ref>
 	ELSE  0 0  THEN  ref> ;
+    : setclip ( addr u -- )
+	make-jstring clazz .clipboardManager >o setText ref> ;
 [ELSE]
     : getclip? ( -- addr u / 0 0 )
 	clazz .clipboardManager >o
@@ -192,9 +197,16 @@ SDK_INT 10 u<= [IF]
 	    ELSE  0 0  THEN
 	    ref>
 	ELSE 0 0 THEN ref> ;
+    : setclip ( addr u -- )
+	make-jstring clazz .clipboardManager >o
+	js" text" swap newPlainText setPrimaryClip
+	ref> ;
 [THEN]
 : paste ( -- )
-    getclip? dup IF  inskeys  ELSE  2drop  THEN ;
+    getclip? dup IF  paste$ $! ctrl Y inskey  ELSE  2drop  THEN ;
+: android-paste! ( addr u -- )
+    2dup defers paste! setclip ;
+' android-paste! is paste!
 
 0 [IF]
 jni-class: android/os/PowerManager
