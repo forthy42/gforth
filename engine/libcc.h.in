@@ -52,9 +52,13 @@ typedef struct {
 } user_area;
 
 typedef struct {
-  Cell* sp;
-  Float* fp;
+  Cell* spx;
+  Float* fpx;
 } ptrpair;
+
+#define sp x.spx
+#define fp x.fpx
+#define ARGN(s, f) int MAYBE_UNUSED arg0=s, farg0=f
 
 typedef struct {
   Cell magic;
@@ -90,19 +94,13 @@ extern void gforth_free_stacks(user_area* t);
 extern user_area *gforth_main_UP;
 extern Cell gforth_go(Xt *ip);
 extern void gforth_sigset(sigset_t* set, ...);
-ptrpair gforth_libcc_init(ptrpair x)
+#define GFORTH_ARGS ptrpair x, void* a_addr
+ptrpair gforth_libcc_init(GFORTH_ARGS)
 {
-  x.sp++;
+  sp++;
   return x;
 }
-#define GFORTH_ARGS ptrpair x
 #else
-static Cell *(*gforth_pointers)(Cell);
-ptrpair gforth_libcc_init(ptrpair x)
-{
-  gforth_pointers=(Cell *(*)(Cell))*x.sp++;
-  return x;
-}
 #define gforth_SPs ((stackpointers *)(gforth_pointers(0)))
 #define get_gforth_SPs() ((stackpointers *)(gforth_pointers(0)))
 #define sr_call , get_gforth_SPs()
@@ -125,7 +123,14 @@ ptrpair gforth_libcc_init(ptrpair x)
 #define gforth_main_UP *((user_area **)(gforth_pointers(6)))
 #define gforth_go ((Cell(*)(Xt*))gforth_pointers(7))
 #define gforth_sigset ((void(*)(sigset_t*, ...))gforth_pointers(8))
-#define GFORTH_ARGS ptrpair x
+#define GFORTH_ARGS ptrpair x, void* a_addr
+
+static Cell *(*gforth_pointers)(Cell);
+ptrpair gforth_libcc_init(GFORTH_ARGS)
+{
+  gforth_pointers=(Cell *(*)(Cell))*sp++;
+  return x;
+}
 #endif
 
 #if SIZEOF_CHAR_P == 4

@@ -139,8 +139,8 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 #define F_FALSE (FLAG(0!=0))
 
 typedef struct {
-  Cell* sp;
-  Float* fp;
+  Cell* spx;
+  Float* fpx;
 } ptrpair;
 
 /* define this false if you want native division */

@@ -29,13 +29,11 @@
 \ #include <gforth.h>
 \ #include <unistd.h>
 \ 
-\ ptrpair gforth_c_lseek_ndn_d(ptrpair x)
+\ ptrpair gforth_c_lseek_ndn_d(ptrpair x, void* addr)
 \ {
-\   Cell *sp = x.sp;
-\   Float *fp = x.fp;
 \   long long result;  /* longest type in C */
 \   gforth_ll2d(lseek(sp[3],gforth_d2ll(sp[2],sp[1]),sp[0]),sp[3],sp[2]);
-\   x.sp= = sp+2;
+\   sp += 2;
 \   return x;
 \ }
 
@@ -516,17 +514,16 @@ create gen-wrapped-types
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
     ." ptrpair " .prefix
     descriptor wrapper-function-name type
-    .\" (GFORTH_ARGS)\n"
-    .\" {\n  Cell MAYBE_UNUSED *sp = x.sp;\n  Float MAYBE_UNUSED *fp = x.fp;\n  "
+    .\" (GFORTH_ARGS)\n{\n"
     pars c-name 2over count-stacks
-    .\" int MAYBE_UNUSED arg0=" dup 1- .nb .\" , farg0=" over 1- .nb .\" ;\n  "
+    .\"   ARGN(" dup 1- .nb .\" ," over 1- .nb .\" );\n  "
     is-funptr? IF  ." Cell ptr = " c-name >ptr-declare type .\" ;\n  "  THEN
     ret gen-wrapped-stmt .\" ;\n"
     dup is-funptr? or if
-	."   x.sp = sp+" dup .nb .\" ;\n"
+	."   sp += " dup .nb .\" ;\n"
     endif drop
     ?dup-if
-	."   x.fp = fp+"     .nb .\" ;\n"
+	."   fp += "     .nb .\" ;\n"
     endif
     .\"   return x;\n}\n" ;
 
@@ -579,8 +576,9 @@ Create callback-&style c-var c,
 
 : callback-pushs ( descriptor -- )
     1+ count 0 { d: pars vari }
-    ."   Cell*  sp=SPs->spx; \" cr
-    ."   Float* fp=SPs->fpx; \" cr
+    ."   ptrpair x; \" cr
+    ."   sp=SPs->spx; \" cr
+    ."   fp=SPs->fpx; \" cr
     0 0 pars bounds u+do
 	I 1+ c@  IF  callback-&style  ELSE  callback-style  THEN
 	3 + 1 2swap

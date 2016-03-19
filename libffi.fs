@@ -38,12 +38,13 @@ c-library libffi
     \c   {
     \c     /* save global variables */
     \c     stackpointers *SPs=get_gforth_SPs();
+    \c     ptrpair x;
     \c     Cell *rp = SPs->rpx;
-    \c     Cell *sp = SPs->spx;
-    \c     Float *fp = SPs->fpx;
     \c     char *lp = SPs->lpx;
     \c     void ** clist = gforth_clist;
     \c     void * ritem = gforth_ritem;
+    \c     sp = SPs->spx;
+    \c     fp = SPs->fpx;
     \c
     \c     gforth_clist = args;
     \c     gforth_ritem = resp;
