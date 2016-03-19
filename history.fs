@@ -230,9 +230,9 @@ info-color Value setstring-color
     .all .rest ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
-    linew @ xback-restore
-    cols dup screenw !@ - >r linew-all @ dup screenw @ / r> * 0 max +
-    1+ dup spaces linew !  .redraw false ;
+    linew @ dup xback-restore  screenw @ /mod
+    cols dup screenw ! * + dup spaces linew !
+    .redraw false ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
     linew @ xback-restore 2 pick dup spaces xback-restore
