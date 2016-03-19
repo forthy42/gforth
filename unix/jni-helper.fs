@@ -7,7 +7,7 @@ also android also jni
 app obj @ Value clazz
 
 : gforth-class: ( -- )
-    clazz env swap JNIEnv-getObjectClass() to jniclass ;
+    clazz env swap JNIEnv-getObjectClass() to jniclass  0 to gjniclass ;
 
 gforth-class:
 
@@ -134,6 +134,7 @@ SDK_INT 10 u<= [IF] \ 2.3.x uses a different clipboard manager
     jni-method: getPrimaryClip getPrimaryClip ()Landroid/content/ClipData;
     jni-method: hasPrimaryClip hasPrimaryClip ()Z
     jni-method: setPrimaryClip setPrimaryClip (Landroid/content/ClipData;)V
+    jni-method: setText setText (Ljava/lang/CharSequence;)V
     
     jni-class: android/content/ClipData
 
@@ -198,9 +199,10 @@ SDK_INT 10 u<= [IF]
 	    ref>
 	ELSE 0 0 THEN ref> ;
     : setclip ( addr u -- )
-	make-jstring clazz .clipboardManager >o
-	js" text" swap newPlainText setPrimaryClip
-	ref> ;
+	make-jstring clazz .clipboardManager >o setText ref> ;
+\	make-jstring clazz .clipboardManager >o
+\	js" text" swap newPlainText setPrimaryClip
+\	ref> ;
 [THEN]
 : paste ( -- )
     getclip? dup IF  paste$ $! ctrl Y inskey  ELSE  2drop  THEN ;
