@@ -695,12 +695,14 @@ void gforth_ms(UCell u)
   struct timespec time_req;
   time_req.tv_sec=u/1000;
   time_req.tv_nsec=1000000*(u%1000);
-  while(nanosleep(&time_req, &time_req));
+  do { errno=0; }
+  while(nanosleep(&time_req, &time_req) && errno==EINTR);
 #else /* !defined(HAVE_NANOSLEEP) */
   struct timeval timeout;
   timeout.tv_sec=u/1000;
   timeout.tv_usec=1000*(u%1000);
-  (void)select(0,0,0,0,&timeout);
+  do { errno=0; }
+  while(select(0,0,0,0,&timeout) && errno==EINTR);
 #endif /* !defined(HAVE_NANOSLEEP) */
 }
 

@@ -2295,7 +2295,7 @@ time1.tv_nsec = time2.tv_usec*1000;
 dtime = timespec2ns(&time1);
 
 (ns)    ( uns nsec -- wior )	gforth	paren_ns
-""Wait for usec+uns, values precomuted in Forth""
+""Wait for usec+uns, values precomputed in Forth""
 if(nsec >= 0) {
 #if HAVE_PSELECT
   struct timespec tout = { nsec, uns };
