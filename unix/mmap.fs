@@ -54,6 +54,7 @@ $02000000 Constant PROT_GROWSUP	\ Extend change to start of
 $01 Constant MAP_SHARED		\ Share changes. 
 $02 Constant MAP_PRIVATE		\ Changes are private. 
 $10 Constant MAP_FIXED		\ Interpret addr exactly.
+-1  Constant MAP_FAILED \ [MF|SHM] mmap failed
 
 s" os-type" environment? [IF]
     s" linux" string-prefix? [IF]
@@ -110,7 +111,6 @@ s" os-type" environment? [IF]
 	$0200 Constant MAP_HASSEMAPHORE \ region may contain semaphores
 	$0400 Constant MAP_NOCACHE \ don't cache pages for this mapping
 	$0800 Constant MAP_JIT \ Allocate a region that will be used for JIT purposes
-	-1    Constant MAP_FAILED \ [MF|SHM] mmap failed
 	$0000 Constant MAP_FILE \ map from file (default)
 	$1000 Constant MAP_ANON \ allocated from memory, swap space
 	MAP_ANON Constant MAP_ANONYMOUS
@@ -141,8 +141,8 @@ s" os-type" environment? [IF]
 : alloc+guard ( len -- addr )
     >pagealign dup >r pagesize +
     0 swap PROT_RWX
-    [ MAP_PRIVATE MAP_ANONYMOUS or ]L 0 0 mmap
-    dup -1 = ?ior
+    [ MAP_PRIVATE MAP_ANONYMOUS or ]L -1 0 mmap
+    dup MAP_FAILED = ?ior
     dup r> + pagesize PROT_NONE mprotect ?ior ;
 : alloc+lock ( len -- addr )
     >pagealign dup >r alloc+guard dup r> mlock ?ior ;
