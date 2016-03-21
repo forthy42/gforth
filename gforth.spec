@@ -55,7 +55,6 @@ Gforth is a fast and portable implementation of the ANS Forth language.
 %configure
 make --jobs 1
 emacs --batch --no-site-file -f batch-byte-compile gforth.el
-make start-gforth.el
 make install.TAGS gforth.fi
 
 %check
@@ -64,6 +63,7 @@ make check --jobs 1
 %install
 make DESTDIR=%{buildroot} install --jobs 1
 install -d %{buildroot}%{_datadir}/emacs/site-lisp
+make start-gforth.el
 install -m 644 gforth.el gforth.elc start-gforth.el %{buildroot}%{_datadir}/emacs/site-lisp
 %if 0%{?centos_version}
 rm -f %{buildroot}%{_infodir}/dir
@@ -80,12 +80,10 @@ rm -f %{buildroot}%{_infodir}/dir
 %doc README BUGS NEWS
 %{_bindir}/*
 %{_includedir}/gforth
-%{_libdir}/gforth
-%{_datadir}/emacs/site-lisp/*.el*
+%{_libdir}/*
+%{_datadir}/emacs/site-lisp/*
 %dir %{_datadir}/gforth
 %{_datadir}/gforth/%{version}
-%dir %{_datadir}/gforth/site-forth
-%config %{_datadir}/gforth/site-forth/siteinit.fs
 %doc %{_infodir}/*.gz
 %doc %{_mandir}/man?/*
 

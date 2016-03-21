@@ -102,7 +102,7 @@ s" os-type" environment? [IF]
 [THEN]
 
 s" os-type" environment? [IF]
-    s" darwin" string-prefix? [IF]
+    2dup s" darwin" string-prefix? -rot s" bsd" search nip nip or [IF]
 	$0020 Constant MAP_RENAME \ Sun: rename private pages to file
 	$0040 Constant MAP_NORESERVE \ Sun: don't reserve needed swap area
 	$0080 Constant MAP_RESERVED0080 \ previously unimplemented MAP_INHERIT
@@ -142,7 +142,7 @@ s" os-type" environment? [IF]
     >pagealign dup >r pagesize +
     0 swap PROT_RWX
     [ MAP_PRIVATE MAP_ANONYMOUS or ]L 0 0 mmap
-    dup 0= ?ior
+    dup -1 = ?ior
     dup r> + pagesize PROT_NONE mprotect ?ior ;
 : alloc+lock ( len -- addr )
     >pagealign dup >r alloc+guard dup r> mlock ?ior ;
