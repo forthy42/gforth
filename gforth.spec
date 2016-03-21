@@ -17,27 +17,29 @@
 
 
 Name:            gforth
-Version:         0.7.9_20151126
+Version:         0.7.9_20160306
 Release:         0
 Summary:         GNU Forth
 License:         GFDL-1.2 and GPL-2.0+ and GPL-3.0+
 Group:           Development/Languages/Other
 Url:             http://www.gnu.org/software/gforth/
-Source0:         http://www.complang.tuwien.ac.at/forth/gforth/gforth-%{version}.tar.gz
-Source1:         http://www.complang.tuwien.ac.at/forth/gforth/gforth-%{version}.tar.gz.sig
+Source0:         http://www.complang.tuwien.ac.at/forth/gforth/%{version}/gforth-%{version}.tar.xz
+Source1:         http://www.complang.tuwien.ac.at/forth/gforth/%{version}/gforth-%{version}.tar.xz.sig
 Source2:	 http://savannah.gnu.org/people/viewgpg.php?user_id=9629#/%{name}.keyring
 BuildRequires:   emacs-nox
 BuildRequires:   libffi-devel
+BuildRequires:   libtool
 %if 0%{?rhel_version}
-BuildRequires:   libtool libtool-ltdl libtool-ltdl-devel
+BuildRequires:   libtool-ltdl libtool-ltdl-devel
 %endif
 %if 0%{?centos_version}
-BuildRequires:   libtool libtool-ltdl libtool-ltdl-devel
+BuildRequires:   libtool-ltdl libtool-ltdl-devel
 %endif
 %if 0%{?fedora}
-BuildRequires:   libtool libtool-ltdl libtool-ltdl-devel
+BuildRequires:   libtool-ltdl libtool-ltdl-devel
 %endif
 %if 0%{?suse_version}
+BuildRequires:   libltdl7
 Requires(post):  %{install_info_prereq}
 Requires(preun): %{install_info_prereq}
 %endif
@@ -53,25 +55,16 @@ Gforth is a fast and portable implementation of the ANS Forth language.
 %configure
 make --jobs 1
 emacs --batch --no-site-file -f batch-byte-compile gforth.el
-echo > gforth-autoloads.el
-emacs --batch -l autoload --eval "(setq generated-autoload-file \"$PWD/gforth-autoloads.el\")" -f batch-update-autoloads .
-{
-  printf ';;; suse-start-gforth.el
-;;
-;;; Code:\n
-(add-to-list '\''auto-mode-alist '\''("\\\\.fs\\\\'\''" . forth-mode))\n\n'
-  sed -n '/^;;; Generated/,/^;;;\*\*\*/p' gforth-autoloads.el
-  printf '\n;;; suse-start-gforth.el ends here\n'
-} > suse-start-gforth.el
+make start-gforth.el
 make install.TAGS gforth.fi
 
 %check
 make check --jobs 1
 
 %install
-make DESTDIR=%{buildroot} install %{?_smp_mflags}
+make DESTDIR=%{buildroot} install --jobs 1
 install -d %{buildroot}%{_datadir}/emacs/site-lisp
-install -m 644 gforth.el gforth.elc suse-start-gforth.el %{buildroot}%{_datadir}/emacs/site-lisp
+install -m 644 gforth.el gforth.elc start-gforth.el %{buildroot}%{_datadir}/emacs/site-lisp
 %if 0%{?centos_version}
 rm -f %{buildroot}%{_infodir}/dir
 %endif

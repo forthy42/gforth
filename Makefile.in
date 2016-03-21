@@ -1175,7 +1175,7 @@ kernel.tags:
 
 #elc files
 gforth.elc:	gforth.el
-		-$(EMACS) -batch -f batch-byte-compile gforth.el
+		-$(EMACS) --batch --no-site-file -f batch-byte-compile gforth.el
 
 start-gforth.el:	gforth.el
 		echo > $@
