@@ -61,10 +61,14 @@ make install.TAGS gforth.fi
 make check --jobs 1
 
 %install
-make DESTDIR=%{buildroot} install --jobs 1
-install -d %{buildroot}%{_datadir}/emacs/site-lisp
+make --jobs 1 DESTDIR=%{buildroot} install
 make start-gforth.el
-install -m 644 gforth.el gforth.elc start-gforth.el %{buildroot}%{_datadir}/emacs/site-lisp
+touch siteinit.fs
+install -d %{buildroot}%{_datadir}/emacs/site-lisp
+install -m 644 gforth.el gforth.elc %{buildroot}%{_datadir}/emacs/site-lisp
+install -d %{buildroot}%{_datadir}/emacs/site-lisp/site-start.d
+install -m 644 start-gforth.el %{buildroot}%{_datadir}/emacs/site-lisp/site-start.d
+install -m 644 siteinit.fs %{buildroot}%{_datadir}/gforth/site-forth
 %if 0%{?centos_version}
 rm -f %{buildroot}%{_infodir}/dir
 %endif
@@ -81,9 +85,12 @@ rm -f %{buildroot}%{_infodir}/dir
 %{_bindir}/*
 %{_includedir}/gforth
 %{_libdir}/*
-%{_datadir}/emacs/site-lisp/*
+%{_datadir}/emacs/site-lisp/*.el*
+%{_datadir}/emacs/site-lisp/site-start.d/*.el*
 %dir %{_datadir}/gforth
 %{_datadir}/gforth/%{version}
+%dir %{_datadir}/gforth/site-forth
+%config %{_datadir}/gforth/site-forth/siteinit.fs
 %doc %{_infodir}/*.gz
 %doc %{_mandir}/man?/*
 

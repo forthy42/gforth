@@ -153,4 +153,4 @@ s" os-type" environment? [IF]
 : clearpages ( addr len -- ) >pagealign
     2dup munmap ?ior
     PROT_RWX
-    [ MAP_PRIVATE MAP_ANONYMOUS or MAP_FIXED or ]L 0 0 mmap 0= ?ior ;
+    [ MAP_PRIVATE MAP_ANONYMOUS or MAP_FIXED or ]L -1 0 mmap 0= ?ior ;
