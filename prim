@@ -2000,7 +2000,7 @@ is 0. If the allocation fails, @i{a-addr} is undefined and @i{wior}
 is a non-zero I/O result code.""
 a_addr = (Cell *)malloc(u?u:1);
 if(debug_mcheck)
-  debugp(stderr, "%8p=allocate(%08lx);\n", a_addr, u);
+  debugp(stderr, "%8p=allocate(%8p);\n", a_addr, (void*)u);
 wior = IOR(a_addr==NULL);
 
 free	( a_addr -- wior )		memory
@@ -2918,10 +2918,14 @@ n = *(Octabyte *)c_addr;
 
 be-x! ( w c_addr -- )	gforth b_e_x_store
 ""Store the bottom 64 bits of @i{w} at @i{c_addr} in big endian format.""
+#if (SIZEOF_CHAR_P == 8)
 c_addr[0] = w >> 56;
 c_addr[1] = w >> 48;
 c_addr[2] = w >> 40;
 c_addr[3] = w >> 32;
+#else
+c_addr[0] = c_addr[1] = c_addr[2] = c_addr[3] = 0;
+#endif
 c_addr[4] = w >> 24;
 c_addr[5] = w >> 16;
 c_addr[6] = w >> 8;
@@ -2929,10 +2933,14 @@ c_addr[7] = w;
 
 le-x! ( w c_addr -- )	gforth l_e_x_store
 ""Store the bottom 64 bits of @i{w} at @i{c_addr} in big endian format.""
+#if (SIZEOF_CHAR_P == 8)
 c_addr[7] = w >> 56;
 c_addr[6] = w >> 48;
 c_addr[5] = w >> 40;
 c_addr[4] = w >> 32;
+#else
+c_addr[7] = c_addr[6] = c_addr[5] = c_addr[4] = 0;
+#endif
 c_addr[3] = w >> 24;
 c_addr[2] = w >> 16;
 c_addr[1] = w >> 8;
@@ -2940,10 +2948,13 @@ c_addr[0] = w;
 
 be-ux@ ( c_addr -- u )	gforth b_e_u_x_fetch
 ""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
-u = (((Cell)(c_addr[0]) << 56) |
+u = (
+#if (SIZEOF_CHAR_P == 8)
+     ((Cell)(c_addr[0]) << 56) |
      ((Cell)(c_addr[1]) << 48) |
      ((Cell)(c_addr[2]) << 40) |
      ((Cell)(c_addr[3]) << 32) |
+#endif
      ((Cell)(c_addr[4]) << 24) |
      ((Cell)(c_addr[5]) << 16) |
      ((Cell)(c_addr[6]) << 8) |
@@ -2951,10 +2962,13 @@ u = (((Cell)(c_addr[0]) << 56) |
 
 le-ux@ ( c_addr -- u )	gforth l_e_u_x_fetch
 ""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
-u = (((Cell)(c_addr[7]) << 56) |
+u = (
+#if (SIZEOF_CHAR_P == 8)
+     ((Cell)(c_addr[7]) << 56) |
      ((Cell)(c_addr[6]) << 48) |
      ((Cell)(c_addr[5]) << 40) |
      ((Cell)(c_addr[4]) << 32) |
+#endif
      ((Cell)(c_addr[3]) << 24) |
      ((Cell)(c_addr[2]) << 16) |
      ((Cell)(c_addr[1]) << 8) |
@@ -2965,17 +2979,17 @@ u = (((Cell)(c_addr[7]) << 56) |
 xd! ( ud c_addr -- )	gforth xd_store
 ""Store the bottom 64 bits of @i{ud} at 64-bit-aligned @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
-if (CELL_BITS == 32) {
-#ifdef WORDS_BIGENDIAN
+# if (SIZEOF_CHAR_P == 4)
+#  ifdef WORDS_BIGENDIAN
 *(UTetrabyte *)(c_addr+4) = DLO(ud);
 *(UTetrabyte *)c_addr = DHI(ud);
-#else
+#  else
 *(UTetrabyte *)c_addr = DLO(ud);
 *(UTetrabyte *)(c_addr+4) = DHI(ud);
-#endif
-} else {
+#  endif
+# else
 *(UOctabyte *)c_addr = DLO(ud);
-}
+# endif
 #else
 *(UOctabyte *)c_addr = ud;
 #endif
@@ -2983,15 +2997,15 @@ if (CELL_BITS == 32) {
 uxd@ ( c_addr -- ud )	gforth u_xd_fetch
 ""@i{ud} is the zero-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
-if (CELL_BITS == 32) {
-#ifdef WORDS_BIGENDIAN
+# if (SIZEOF_CHAR_P == 4)
+#  ifdef WORDS_BIGENDIAN
 D_IS(ud, *(Tetrabyte *)(c_addr), *(Tetrabyte *)(c_addr+4));
-#else
+#  else
 D_IS(ud, *(Tetrabyte *)(c_addr+4), *(Tetrabyte *)(c_addr));
-#endif
-} else {
+#  endif
+# else
 D_IS(ud, 0, *(UOctabyte *)c_addr);
-}
+# endif
 #else
 ud = *(UOctabyte *)c_addr;
 #endif
@@ -2999,15 +3013,15 @@ ud = *(UOctabyte *)c_addr;
 sxd@ ( c_addr -- d )	gforth s_xd_fetch
 ""@i{d} is the sign-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
-if (CELL_BITS == 32) {
-#ifdef WORDS_BIGENDIAN
+# if (SIZEOF_CHAR_P == 4)
+#  ifdef WORDS_BIGENDIAN
 D_IS(d, *(Tetrabyte *)(c_addr), *(Tetrabyte *)(c_addr+4));
-#else
+#  else
 D_IS(d, *(Tetrabyte *)(c_addr+4), *(Tetrabyte *)(c_addr));
-#endif
-} else {
+#  endif
+# else
 D_IS(d, -((*(Octabyte *)c_addr)<0), *(Octabyte *)c_addr);
-}
+# endif
 #else
 d = *(Octabyte *)c_addr;
 #endif
@@ -3015,26 +3029,30 @@ d = *(Octabyte *)c_addr;
 be-xd! ( ud c_addr -- )	gforth b_e_xd_store
 ""Store the bottom 64 bits of @i{ud} at @i{c_addr} in big endian format.""
 #ifdef BUGGY_LL_SIZE
-if (CELL_BITS == 32) {
+# if (SIZEOF_CHAR_P == 4)
 c_addr[0] = DHI(ud) >> 24;
 c_addr[1] = DHI(ud) >> 16;
 c_addr[2] = DHI(ud) >> 8;
 c_addr[3] = DHI(ud);
-} else {
+# else
 c_addr[0] = DLO(ud) >> 56;
 c_addr[1] = DLO(ud) >> 48;
 c_addr[2] = DLO(ud) >> 40;
 c_addr[3] = DLO(ud) >> 32;
-}
+# endif
 c_addr[4] = DLO(ud) >> 24;
 c_addr[5] = DLO(ud) >> 16;
 c_addr[6] = DLO(ud) >> 8;
 c_addr[7] = DLO(ud);
 #else
+# if (SIZEOF_CHAR_P == 8)
 c_addr[0] = ud >> 56;
 c_addr[1] = ud >> 48;
 c_addr[2] = ud >> 40;
 c_addr[3] = ud >> 32;
+# else
+c_addr[0] = c_addr[1] = c_addr[2] = c_addr[3] = 0;
+# endif
 c_addr[4] = ud >> 24;
 c_addr[5] = ud >> 16;
 c_addr[6] = ud >> 8;
@@ -3044,26 +3062,30 @@ c_addr[7] = ud;
 le-xd! ( ud c_addr -- )	gforth l_e_xd_store
 ""Store the bottom 64 bits of @i{ud} at @i{c_addr} in big endian format.""
 #ifdef BUGGY_LL_SIZE
-if (CELL_BITS == 32) {
+#if (SIZEOF_CHAR_P == 4)
 c_addr[7] = DHI(ud) >> 24;
 c_addr[6] = DHI(ud) >> 16;
 c_addr[5] = DHI(ud) >> 8;
 c_addr[4] = DHI(ud);
-} else {
+#else
 c_addr[7] = DLO(ud) >> 56;
 c_addr[6] = DLO(ud) >> 48;
 c_addr[5] = DLO(ud) >> 40;
 c_addr[4] = DLO(ud) >> 32;
-}
+#endif
 c_addr[3] = DLO(ud) >> 24;
 c_addr[2] = DLO(ud) >> 16;
 c_addr[1] = DLO(ud) >> 8;
 c_addr[0] = DLO(ud);
 #else
+#if (SIZEOF_CHAR_P == 8)
 c_addr[7] = ud >> 56;
 c_addr[6] = ud >> 48;
 c_addr[5] = ud >> 40;
 c_addr[4] = ud >> 32;
+#else
+c_addr[7] = c_addr[6] = c_addr[5] = c_addr[4] = 0;
+#endif
 c_addr[3] = ud >> 24;
 c_addr[2] = ud >> 16;
 c_addr[1] = ud >> 8;
@@ -3073,7 +3095,7 @@ c_addr[0] = ud;
 be-uxd@ ( c_addr -- ud )	gforth b_e_u_xd_fetch
 ""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
-if (CELL_BITS == 32) {
+#if (SIZEOF_CHAR_P == 4)
   D_IS(ud, (((Cell)(c_addr[0]) << 24) |
 	    ((Cell)(c_addr[1]) << 16) |
 	    ((Cell)(c_addr[2]) << 8) |
@@ -3082,7 +3104,7 @@ if (CELL_BITS == 32) {
 	((Cell)(c_addr[5]) << 16) |
 	((Cell)(c_addr[6]) << 8) |
 	((Cell)(c_addr[7]))));
- } else {
+#else
   D_IS(ud, 0, (((Cell)(c_addr[0]) << 56) |
 	       ((Cell)(c_addr[1]) << 48) |
 	       ((Cell)(c_addr[2]) << 40) |
@@ -3091,7 +3113,7 @@ if (CELL_BITS == 32) {
 	       ((Cell)(c_addr[5]) << 16) |
 	       ((Cell)(c_addr[6]) << 8) |
 	       ((Cell)(c_addr[7]))));
-}
+#endif
 #else
 ud = (((DCell)(c_addr[0]) << 56) |
       ((DCell)(c_addr[1]) << 48) |
@@ -3106,7 +3128,7 @@ ud = (((DCell)(c_addr[0]) << 56) |
 le-uxd@ ( c_addr -- ud )	gforth l_e_u_xd_fetch
 ""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
-if (CELL_BITS == 32) {
+#if (SIZEOF_CHAR_P == 4)
   D_IS(ud, (((Cell)(c_addr[7]) << 24) |
 	    ((Cell)(c_addr[6]) << 16) |
 	    ((Cell)(c_addr[5]) << 8) |
@@ -3115,7 +3137,7 @@ if (CELL_BITS == 32) {
 	((Cell)(c_addr[2]) << 16) |
 	((Cell)(c_addr[1]) << 8) |
 	((Cell)(c_addr[0]))));
- } else {
+#else
   D_IS(ud, 0,(((Cell)(c_addr[7]) << 56) |
 	      ((Cell)(c_addr[6]) << 48) |
 	      ((Cell)(c_addr[5]) << 40) |
@@ -3124,7 +3146,7 @@ if (CELL_BITS == 32) {
 	      ((Cell)(c_addr[2]) << 16) |
 	      ((Cell)(c_addr[1]) << 8) |
 	      ((Cell)(c_addr[0]))));
-}
+#endif
 #else
 ud = (((DCell)(c_addr[7]) << 56) |
      ((DCell)(c_addr[6]) << 48) |

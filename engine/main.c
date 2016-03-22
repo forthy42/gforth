@@ -493,7 +493,7 @@ static Address verbose_malloc(Cell size)
   /* leave a little room (64B) for stack underflows */
   if ((r = malloc(size+64))==NULL) {
     perror(progname);
-    exit(1);
+    return r;
   }
   r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
   debugp(stderr, "verbose malloc($%lx) succeeds, address=%p\n", (long)size, r);
@@ -610,13 +610,15 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
   }
 #endif /* defined(HAVE_MMAP) */
   if (image == (void *)MAP_FAILED) {
-    image = gforth_alloc(dictsize+offset)+offset;
+    if((image = gforth_alloc(dictsize+offset)+offset) == NULL)
+      return NULL;
   read_image:
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
     debugp(stderr,"try fread(%p, 1, %lx, file); ", image, imagesize);
     fread(image, 1, imagesize, file);
     if(ferror(file)) {
       debugp(stderr, "failed\n");
+      return NULL;
     } else {
       debugp(stderr, "succeeded\n");
     }
@@ -1134,7 +1136,7 @@ struct code_block_list {
   Cell size;
 } *code_block_list=NULL, **next_code_blockp=&code_block_list;
 
-static void reserve_code_space(UCell size)
+static int reserve_code_space(UCell size)
 {
   if(((Cell)size)<0) size=100;
   if (code_area+code_area_size < code_here+size) {
@@ -1144,7 +1146,8 @@ static void reserve_code_space(UCell size)
            (long)(code_area+code_area_size-code_here));
     flush_to_here();
     if (*next_code_blockp == NULL) {
-      code_here = start_flush = code_area = gforth_alloc(code_area_size);
+      if((code_here = start_flush = code_area = gforth_alloc(code_area_size)) == NULL)
+	return 1;
       p = (struct code_block_list *)malloc(sizeof(struct code_block_list));
       *next_code_blockp = p;
       p->next = NULL;
@@ -1156,13 +1159,15 @@ static void reserve_code_space(UCell size)
     }
     next_code_blockp = &(p->next);
   }
+  return 0;
 }
 
 static Address append_prim(Cell p)
 {
   PrimInfo *pi = &priminfos[p];
   Address old_code_here;
-  reserve_code_space(pi->length+pi->restlength+goto_len+CODE_ALIGNMENT-1);
+  if(reserve_code_space(pi->length+pi->restlength+goto_len+CODE_ALIGNMENT-1))
+    return NULL;
   /* debugp(stderr, "Copy code %p<=%p,%d\n", code_here, pi->start, pi->length); */
   memcpy(code_here, pi->start, pi->length);
   old_code_here = code_here;
@@ -1286,6 +1291,8 @@ static void register_branchinfo(Label source, Cell *targetpp)
 static Address compile_prim1arg(PrimNum p, Cell **argp)
 {
   Address old_code_here=append_prim(p);
+  if(old_code_here==NULL)
+    return NULL;
 
   assert(vm_prims[p]==priminfos[p].start);
   *argp = (Cell*)(old_code_here+priminfos[p].immargs[0].offset);
@@ -1296,6 +1303,8 @@ static Address compile_call2(Cell *targetpp, Cell **next_code_targetp)
 {
   PrimInfo *pi = &priminfos[N_call2];
   Address old_code_here = append_prim(N_call2);
+  if(old_code_here==NULL)
+    return NULL;
 
   *next_code_targetp = (Cell *)(old_code_here + pi->immargs[0].offset);
   register_branchinfo(old_code_here + pi->immargs[1].offset, targetpp);
@@ -1341,15 +1350,18 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
   
   assert(p<npriminfos);
   if (p==N_execute || p==N_perform || p==N_lit_perform) {
-    codeaddr = compile_prim1arg(N_set_next_code, &next_code_target);
+    if((codeaddr = compile_prim1arg(N_set_next_code, &next_code_target)) == NULL)
+      return 0;
     primstart = append_prim(p);
     goto other_prim;
   } else if (p==N_call) {
-    codeaddr = compile_call2(tcp+1, &next_code_target);
+    if((codeaddr = compile_call2(tcp+1, &next_code_target)) == NULL)
+      return 0;
   } else if (p==N_does_exec) {
     struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
     Cell *arg;
-    codeaddr = compile_prim1arg(N_lit,&arg);
+    if((codeaddr = compile_prim1arg(N_lit,&arg)) == NULL)
+      return 0;
     *arg = (Cell)PFA(tcp[1]);
     /* we cannot determine the callee now (last_start[1] may be a
        forward reference), so just register an arbitrary target, and
@@ -1357,11 +1369,14 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
        branches */
     dei->branchinfo = nbranchinfos;
     dei->xt = (Cell *)(tcp[1]);
-    compile_call2(0, &next_code_target);
+    if(compile_call2(0, &next_code_target)==NULL)
+      return 0;
   } else if (!is_relocatable(p)) {
     Cell *branch_target;
-    codeaddr = compile_prim1arg(N_set_next_code, &next_code_target);
-    compile_prim1arg(N_branch,&branch_target);
+    if((codeaddr = compile_prim1arg(N_set_next_code, &next_code_target)) == NULL)
+      return 0;
+    if(compile_prim1arg(N_branch,&branch_target)==NULL)
+      return 0;
     set_rel_target(branch_target,vm_prims[p]);
   } else {
     unsigned j;
@@ -1864,7 +1879,7 @@ void compile_prim1(Cell *start)
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 }
 
-void gforth_init()
+int gforth_init()
 {
 #if 0 && defined(__i386)
   /* disabled because the drawbacks may be worse than the benefits */
@@ -1898,7 +1913,7 @@ void gforth_init()
 #ifdef HAVE_LIBLTDL
   if (lt_dlinit()!=0) {
     fprintf(stderr,"%s: lt_dlinit failed", progname);
-    exit(1);
+    return 1;
   }
 #endif
 #ifdef HAS_OS
@@ -1912,6 +1927,8 @@ void gforth_init()
   get_winsize();
    
   install_signal_handlers(); /* right place? */
+
+  return 0;
 }
 
 /* pointer to last '/' or '\' in file, 0 if there is none. */
@@ -1974,7 +1991,7 @@ static FILE *checkimage(char *path, int len, char *imagename)
     if(fread(magic,sizeof(Char),8,imagefile) < 8) {
       fprintf(stderr,"%s: image %s doesn't seem to be a Gforth (>=0.8) image.\n",
 	      progname, imagename);
-      exit(1);
+      return NULL;
     }
     preamblesize+=8;
   } while(memcmp(magic,"Gforth5",7));
@@ -2023,7 +2040,7 @@ static FILE * open_image_file(char * imagename, char * path)
   if (!image_file) {
     fprintf(stderr,"%s: cannot open image file %s in path %s for reading\n",
 	    progname, imagename, path);
-    exit(1);
+    return NULL;
   }
 
   return image_file;
@@ -2032,7 +2049,7 @@ static FILE * open_image_file(char * imagename, char * path)
 #ifdef STANDALONE
 ImageHeader* gforth_loader(char* imagename, char* path)
 {
-  gforth_init();
+  if(gforth_init()) return NULL;
   return gforth_engine(0 sr_call);
 }
 #else
@@ -2046,7 +2063,8 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   UCell check_sum;
   FILE* imagefile=open_image_file(imagename, path);
 
-  gforth_init();
+  if(imagefile == NULL) return NULL;
+  if(gforth_init()) return NULL;
 
   vm_prims = gforth_engine(0 sr_call);
   check_prims(vm_prims);
@@ -2078,6 +2096,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
 
   image = dict_alloc_read(imagefile, preamblesize+header.image_size,
 			  dictsize, data_offset);
+  if(image==NULL) return NULL;
   imp=image+preamblesize;
 
   set_stack_sizes((ImageHeader*)imp);
@@ -2101,14 +2120,14 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   else if(header.base!=imp) {
     fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address %p) at address %p\n",
 	    progname, header.base, imp);
-    exit(1);
+    return NULL;
   }
   if (header.checksum==0)
     ((ImageHeader *)imp)->checksum=check_sum;
   else if (header.checksum != check_sum) {
     fprintf(stderr,"%s: Checksum of image ($%lx) does not match the executable ($%lx)\n",
 	    progname, header.checksum, check_sum);
-    exit(1);
+    return NULL;
   }
 #ifdef DOUBLY_INDIRECT
   ((ImageHeader *)imp)->xt_base = xts;
@@ -2131,7 +2150,7 @@ Address gforth_alloc(Cell size)
   /* leave a little room (64B) for stack underflows */
   if ((r = malloc(size+64))==NULL) {
     perror(progname);
-    exit(1);
+    return NULL;
   }
   r = (Address)((((Cell)r)+(sizeof(Float)-1))&(-sizeof(Float)));
   debugp(stderr, "malloc($%lx) succeeds, address=%p\n", (long)size, r);
@@ -2164,11 +2183,11 @@ static UCell convsize(char *s, UCell elemsize)
       m=1024L*1024*1024*1024;
 #else
       fprintf(stderr,"%s: size specification \"%s\" too large for this machine\n", progname, endp);
-      exit(1);
+      return -1;
 #endif
     } else if (strcmp(endp,"e")!=0 && strcmp(endp,"")!=0) {
       fprintf(stderr,"%s: cannot grok size specification %s: invalid unit \"%s\"\n", progname, s, endp);
-      exit(1);
+      return -1;
     }
   }
   return n*m;
@@ -2241,7 +2260,7 @@ static void print_diag()
 }
 
 #ifdef STANDALONE
-void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
+int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
 {
 #ifdef HAS_OS
   *path = getenv("GFORTHPATH") ? : DEFAULTPATH;
@@ -2249,9 +2268,10 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
   *path = DEFAULTPATH;
 #endif
   *imagename="gforth.fi";
+  return 0;
 }
 #else
-void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
+int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
 {
   int c;
 #ifdef HAS_OS
@@ -2313,15 +2333,15 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     c = getopt_long(argc, argv, "+i:m:d:r:f:l:p:vhoncsxD", opts, &option_index);
     
     switch (c) {
-    case EOF: return;
-    case '?': optind--; return;
-    case 'a': *imagename = optarg; return;
+    case EOF: return 0;
+    case '?': optind--; return 0;
+    case 'a': *imagename = optarg; return 0;
     case 'i': *imagename = optarg; break;
-    case 'm': dictsize = convsize(optarg,sizeof(Cell)); break;
-    case 'd': dsize = convsize(optarg,sizeof(Cell)); break;
-    case 'r': rsize = convsize(optarg,sizeof(Cell)); break;
-    case 'f': fsize = convsize(optarg,sizeof(Float)); break;
-    case 'l': lsize = convsize(optarg,sizeof(Cell)); break;
+    case 'm': if((dictsize = convsize(optarg,sizeof(Cell)))==-1L) return 1; break;
+    case 'd': if((dsize = convsize(optarg,sizeof(Cell)))==-1L) return 1; break;
+    case 'r': if((rsize = convsize(optarg,sizeof(Cell)))==-1L) return 1; break;
+    case 'f': if((fsize = convsize(optarg,sizeof(Float)))==-1L) return 1; break;
+    case 'l': if((lsize = convsize(optarg,sizeof(Cell)))==-1L) return 1; break;
     case 'p': *path = optarg; break;
     case 'o': offset_image = 1; break;
     case 'n': offset_image = 0; break;
@@ -2329,7 +2349,7 @@ void gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 's': die_on_signal = 1; break;
     case 'x': debug = 1; break;
     case 'D': print_diag(); break;
-    case 'v': fputs(PACKAGE_STRING" "ARCH"\n", stderr); exit(0);
+    case 'v': fputs(PACKAGE_STRING" "ARCH"\n", stderr); return 1;
     case opt_code_block_size: code_area_size = atoi(optarg); break;
     case ss_number: static_super_number = atoi(optarg); break;
     case ss_states: maxstates = max(min(atoi(optarg),MAX_STATE),1); break;
@@ -2383,9 +2403,10 @@ SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
 	      argv[0]);
       optind--;
-      return;
+      return 0;
     }
   }
+  return 0;
 }
 #endif
 #endif
@@ -2642,12 +2663,15 @@ Cell gforth_start(int argc, char ** argv)
 {
   char *path, *imagename;
 
-  gforth_args(argc, argv, &path, &imagename);
+  if(gforth_args(argc, argv, &path, &imagename))
+    return -24; /* Invalid numeric argument */
 #ifdef HAVE_MCHECK
   if(debug_mcheck)
     mcheck(gforth_abortmcheck);
 #endif
   gforth_header = gforth_loader(imagename, path);
+  if(gforth_header==NULL)
+    return -59; /* allocate error */
   gforth_main_UP = gforth_UP = gforth_stacks(dsize, fsize, rsize, lsize);
   gforth_setstacks();
   return gforth_boot(argc, argv, path);
