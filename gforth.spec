@@ -26,7 +26,7 @@ Url:             http://www.gnu.org/software/gforth/
 Source0:         http://www.complang.tuwien.ac.at/forth/gforth/%{version}/gforth-%{version}.tar.xz
 Source1:         http://www.complang.tuwien.ac.at/forth/gforth/%{version}/gforth-%{version}.tar.xz.sig
 Source2:	 http://savannah.gnu.org/people/viewgpg.php?user_id=9629#/%{name}.keyring
-Source3:         gforth-rpmlint
+Source3:         gforth-rpmlintrc
 BuildRequires:   emacs-nox
 BuildRequires:   libffi-devel
 BuildRequires:   libtool
