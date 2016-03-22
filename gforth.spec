@@ -26,6 +26,7 @@ Url:             http://www.gnu.org/software/gforth/
 Source0:         http://www.complang.tuwien.ac.at/forth/gforth/%{version}/gforth-%{version}.tar.xz
 Source1:         http://www.complang.tuwien.ac.at/forth/gforth/%{version}/gforth-%{version}.tar.xz.sig
 Source2:	 http://savannah.gnu.org/people/viewgpg.php?user_id=9629#/%{name}.keyring
+Source3:         gforth-rpmlint
 BuildRequires:   emacs-nox
 BuildRequires:   libffi-devel
 BuildRequires:   libtool
@@ -80,18 +81,20 @@ rm -f %{buildroot}%{_infodir}/dir
 %install_info_delete --info-dir=%{_infodir} %{_infodir}/gforth.info.gz
 
 %files
+%define _unpackaged_files_terminate_build 0
 %defattr(-,root,root)
 %doc README BUGS NEWS
 %{_bindir}/*
 %{_includedir}/gforth
 %{_libdir}/*
-%{_datadir}/emacs/site-lisp/*.el*
-%{_datadir}/emacs/site-lisp/site-start.d/*.el*
+%dir %{_datadir}/emacs
 %dir %{_datadir}/gforth
 %{_datadir}/gforth/%{version}
-%dir %{_datadir}/gforth/site-forth
-%config %{_datadir}/gforth/site-forth/siteinit.fs
 %doc %{_infodir}/*.gz
 %doc %{_mandir}/man?/*
+%dir %{_datadir}/emacs/site-lisp
+%{_datadir}/emacs/site-lisp/gforth.el
+%{_datadir}/emacs/site-lisp/gforth.elc
+%{_datadir}/emacs/site-lisp/site-start.d/start-gforth.el
 
 %changelog

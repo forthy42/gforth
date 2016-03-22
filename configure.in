@@ -1139,7 +1139,7 @@ test $ac_cv_func_fnmatch_works = yes || AC_LIBOBJ(fnmatch)
 AC_CHECK_FUNCS(mmap sysconf getpagesize pselect pthread_setaffinity_np)
 AM_PATH_LISPDIR
 
-# Sanitzie broken AM_PATH_LIBDIR result
+# Sanitzie broken AM_PATH_LISPDIR result
 lispdir=$(prefix=$ac_default_prefix
 lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir)))
 test -d $lispdirtest && echo $lispdir && exit
