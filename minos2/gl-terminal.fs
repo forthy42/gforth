@@ -143,12 +143,11 @@ Variable std-bg
 : >black Black std-bg! Black err-bg! White fg! Red err-fg!
     Black >extra-colors-bg Black >bg White >fg or to default-color ;
 
-128 Value videocols
+256 Value videocols
 0   Value videorows
 
 2Variable gl-xy  0 0 gl-xy 2!
 2Variable gl-wh 24 80 gl-wh 2!
-Variable gl-scaler  1 gl-scaler !
 Variable gl-lineend
 Variable scroll-y
 FVariable scroll-dest
@@ -160,8 +159,7 @@ FVariable scroll-time
 
 : form-chooser ( -- )
     screen-orientation 1 and  IF  hcols  ELSE  vcols  THEN
-    dup dpy-h @ dpy-w @ 2* */ swap
-    gl-scaler @ tuck / >r / r> gl-wh 2! ;
+    dup dpy-h @ dpy-w @ 2* */ swap gl-wh 2! ;
 
 : show-rows ( -- n ) videorows scroll-y @ - rows 1+ min ;
 : nextpow2 ( n -- n' )
@@ -184,7 +182,7 @@ FVariable scroll-time
     tx 0e >st v+
     tx ty >st v+ v> ;
 
-videocols videorows * sfloats allocate throw Value videomem
+0 Value videomem
 
 \ : blank-screen ( -- )
 \     color-index @ videomem videocols videorows * sfloats bounds ?DO
@@ -193,16 +191,17 @@ videocols videorows * sfloats allocate throw Value videomem
 \ blank-screen
 
 : resize-screen ( -- )
-    gl-xy @ videorows >= IF
-	videomem videocols gl-xy @ 1+ nextpow2 * sfloats resize throw
+    gl-wh @ videocols >= gl-xy @ videorows >= or IF
+	gl-wh @ nextpow2 videocols max to videocols
+	videomem videocols gl-xy @ 1+ nextpow2 * sfloats dup >r
+	resize throw
 	to videomem
 	color-index @
-	videomem
-	videocols gl-xy @ 1+ nextpow2 * sfloats
+	videomem r>
 	videocols videorows * sfloats /string bounds ?DO
 	    dup I l!
 	1 sfloats +LOOP drop
-	gl-xy @ 1+ nextpow2 to videorows
+	gl-xy @ 1+ to videorows
     THEN ;
 
 2 sfloats buffer: texsize.xy
@@ -344,13 +343,14 @@ Variable gl-emit-buf
     need-sync on ;
 \    ." config changed to: " w ? h ? cr
 
-\ Google is stupid: This event comes too early
-\ Make Gforth sync the screen up to four times till the config really changes
 :noname
-    config-changer form-chooser need-sync on  winch? on  screen-sync ;
+    config-changer form-chooser  winch? on  screen-sync ;
 is config-changed
 
-: gl-scale ( n -- ) gl-scaler ! form-chooser need-sync on screen-sync ;
+: gl-fscale ( f -- )
+    1/f 80 fdup fm* f>s to hcols 48 fm* f>s to vcols
+    resize-screen config-changed ;
+: gl-scale ( n -- ) s>f gl-fscale ;
 
 : 1*scale   1 gl-scale ;
 : 2*scale   2 gl-scale ;
@@ -359,7 +359,7 @@ is config-changed
 : scroll-yr ( -- float )  scroll-y @ s>f
     y-pos sf@ f2/ rows fm* f+ ;
 
-: +scroll ( -- )
+: +scroll ( f -- f' )
     scroll-yr f+ videorows 1 - s>f fmin
     0e fmax screen-scroll ;
 
