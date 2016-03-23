@@ -9,7 +9,7 @@ function get_ndk {
     if [ ! -d ~/proj/android-ndk-r$NDK ]
     then
 	(cd ~/Downloads
-	 wget -c http://dl.google.com/android/ndk/android-ndk-r$NDK-linux-$CPU.zip
+	 wget -c http://dl.google.com/android/repository/android-ndk-r$NDK-linux-$CPU.zip
 	 mkdir -p ~/proj
 	 cd ~/proj
 	 unzip ~/Downloads/android-ndk-r$NDK-linux-$CPU.zip)
