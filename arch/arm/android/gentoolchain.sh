@@ -9,7 +9,7 @@ function get_ndk {
     if [ ! -d ~/proj/android-ndk-r$NDK ]
     then
 	(cd ~/Downloads
-	 wget http://dl.google.com/android/ndk/android-ndk-r$NDK-linux-$CPU.zip
+	 wget -c http://dl.google.com/android/ndk/android-ndk-r$NDK-linux-$CPU.zip
 	 mkdir -p ~/proj
 	 cd ~/proj
 	 unzip ~/Downloads/android-ndk-r$NDK-linux-$CPU.zip)
@@ -20,7 +20,7 @@ function get_libtool {
     if [ ! -d ~/proj/libtool-$LIBT ]
     then
 	(cd ~/Downloads
-	 wget http://ftpmirror.gnu.org/libtool/libtool-$LIBT.tar.gz
+	 wget -c http://ftpmirror.gnu.org/libtool/libtool-$LIBT.tar.gz
 	 mkdir -p ~/proj
 	 cd ~/proj
 	 tar zxvf ~/Downloads/libtool-$LIBT.tar.gz)
