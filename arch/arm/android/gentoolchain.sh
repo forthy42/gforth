@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NDK=${NDK-10e}
+NDK=${NDK-11b}
 LIBT=${LIBT-2.4.6}
 CPU=$(uname -p)
 CCVER=${CCVER-4.9}
@@ -9,11 +9,10 @@ function get_ndk {
     if [ ! -d ~/proj/android-ndk-r$NDK ]
     then
 	(cd ~/Downloads
-	 wget http://dl.google.com/android/ndk/android-ndk-r$NDK-linux-$CPU.bin
-	 chmod +x android-ndk-r$NDK-linux-$CPU.bin
+	 wget http://dl.google.com/android/ndk/android-ndk-r$NDK-linux-$CPU.zip
 	 mkdir -p ~/proj
 	 cd ~/proj
-	 ~/Downloads/android-ndk-r$NDK-linux-$CPU.bin)
+	 unzip ~/Downloads/android-ndk-r$NDK-linux-$CPU.zip)
     fi
 }
 

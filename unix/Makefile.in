@@ -21,6 +21,7 @@ INCLUDES   = @SWIGINCLUDES@
 SWIG       = @SWIG@
 TARGETS    = @SWIGMODULES@
 WRAPPERS   = $(patsubst %.fs, %.fsx, $(TARGETS))
+GENWRAPPERS   = $(patsubst %.fs, %-fsi.c, $(TARGETS))
 LIBRARY    = @SWIGLIBS@
 HOST_OS    = $(subst -,_,@host_os@)
 OPTIONS    = -forth -Dhost_os_$(HOST_OS) -no-sectioncomments -use-structs -stackcomments $(subst -F,-I, $(INCLUDES))
@@ -41,7 +42,7 @@ GCC	= @CC@
 HOSTCC	= @HOSTCC@
 CC	= $(HOSTCC) $(INCLUDES) -I.
 
-all: $(TARGETS)
+all: $(GENWRAPPERS) $(TARGETS)
 
 wrappers: $(WRAPPERS)
 
@@ -73,6 +74,6 @@ run: $(DEMO)
 
 clean:
 	rm -f $(TARGETS)
-	rm -f $(patsubst %.fs, %-fsi.c, $(TARGETS))
+	rm -f $(GENWRAPPERS)
 	rm -f $(WRAPPERS)
 

@@ -304,6 +304,7 @@ GFORTH_FI_SRC = \
 
 SWIGMODULES = @SWIGMODULES@
 SWIGLIBS = @SWIGLIBS@
+SWIG_WRAP = $(patsubst %.fs, unix/%-fsi.c, $(SWIGMODULES))
 
 LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
 	unix/filestat.fs unix/libc.fs unix/time.fs $(patsubst %, unix/%, $(SWIGLIBS))
@@ -541,7 +542,7 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	test/coretest.out test/checkans.out test/gforth.out \
 	$(wildcard cache*.vmg) peeprules.vmg prim \
 	debian/rules debian/control.in debian/changelog.in debian/compat \
-	gforth.ico .travis.yml install-swig.sh
+	gforth.ico .travis.yml install-swig.sh $(SWIG_WRAP)
 
 RCS_FILES =  ToDo model high-level
 

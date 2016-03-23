@@ -1224,37 +1224,53 @@ if test -z "$SWIG"; then
    AC_MSG_WARN([*** Could not find swig in your PATH. The library bindings cannot be built.])
 fi
 
+has_swig=no
 if swig -forth $srcdir/unix/test.i; then
-   echo "Swig works in Forth mode"
+    echo "Swig works in Forth mode"
+    has_swig=yes
+fi
+
+if test x$has_swig = xyes; then
    > conftest.$ac_ext
    SWIGINCLUDES=`eval $ac_compiler $CFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ \(.*\) (framework directory)$/-F\1/g' -e 's/^ /-I/g' | tr '\n' ' '`
-   #opengl.fs android.fs png.fs soillib.fs openvglib.fs openmax.fs jni.fs freetype-gl.fs
+fi
+
+if test x$has_swig = xyes || test -f $srcdir/unix/xlib-fsi.c; then
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs"
-   SWIGLIBS="$SWIGLIBS x.fs", ,)
-   if test "$host_os" == "cygwin"
-   then
+		   SWIGLIBS="$SWIGLIBS x.fs", ,)
+fi
+
+if test "$host_os" == "cygwin"
+then
+    if test x$has_swig = xyes || test -f $srcdir/unix/wingdi-fsi.c; then
       AC_CHECK_HEADER(w32api/wtypes.h,
       AC_CHECK_HEADER(w32api/wingdi.h, SWIGMODULES="$SWIGMODULES wingdi.fs"
       				       SWIGLIBS="$SWIGLIBS gdi.fs", ,
 #include <w32api/wtypes.h>
 ) ,)
+    fi
+    if test x$has_swig = xyes || test -f $srcdir/unix/winuser-fsi.c; then
       AC_CHECK_HEADER(w32api/wtypes.h,
       AC_CHECK_HEADER(w32api/winuser.h, SWIGMODULES="$SWIGMODULES winuser.fs"
       				        SWIGLIBS="$SWIGLIBS user.fs", ,
 #include <w32api/wtypes.h>
 ) ,)
+    fi
       AC_CHECK_HEADER(w32api/wtypes.h,
       AC_CHECK_HEADER(w32api/winbase.h, SWIGLIBS="$SWIGLIBS win32.fs", ,
 #include <w32api/wtypes.h>
 ) ,)
    else
+    if test x$has_swig = xyes || test -f $srcdir/unix/gl-fsi.c; then
       AC_CHECK_HEADER(GL/gl.h, 
       AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
       AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
       SWIGLIBS="$SWIGLIBS opengl.fs", ,), , 
 #include <GL/gl.h>
 ) ,)
-   fi
+    fi
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/gles-fsi.c; then
    AC_CHECK_LIB(GLESv2,glClear,
    AC_CHECK_HEADER(GLES2/gl2.h,
    AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES gles.fs"
@@ -1262,6 +1278,8 @@ if swig -forth $srcdir/unix/test.i; then
    SWIGLIBS="$SWIGLIBS opengles.fs", ,), ,
 #include <GLES2/gl2.h>
 ) ,))
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/gles3-fsi.c; then
    AC_CHECK_LIB(GLESv3,glClear,
    AC_CHECK_HEADER(GLES3/gl3.h,
    AC_CHECK_HEADER(GLES3/gl3ext.h, SWIGMODULES="$SWIGMODULES gles3.fs"
@@ -1269,37 +1287,58 @@ if swig -forth $srcdir/unix/test.i; then
 #include <GLES3/gl3.h>
 ) ,))
 # iOS varaint
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/ios-gles-fsi.c; then
    AC_CHECK_HEADER(OpenGLES/ES2/gl.h,
    AC_CHECK_HEADER(OpenGLES/ES2/glext.h, SWIGMODULES="$SWIGMODULES ios-gles.fs" SWIGLIBS="$SWIGLIBS opengles.fs", ,
 #include <OpenGLES/ES2/gl.h>
 ) ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/ios-gles3-fsi.c; then
    AC_CHECK_HEADER(OpenGLES/ES3/gl.h,
    AC_CHECK_HEADER(OpenGLES/ES3/glext.h, SWIGMODULES="$SWIGMODULES ios-gles3.fs" SWIGLIBS="$SWIGLIBS opengles3.fs", ,
 #include <OpenGLES/ES3/gl.h>
 ) ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/jni-fsi.c; then
    AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
    SWIGLIBS="$SWIGLIBS jnilib.fs", ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/openvg-fsi.c; then
    AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/androidlib-fsi.c; then
    AC_CHECK_HEADER(android/input.h, SWIGMODULES="$SWIGMODULES androidlib.fs"
    SWIGLIBS="$SWIGLIBS android.fs", ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/omxal-fsi.c; then
    AC_CHECK_HEADER(OMXAL/OpenMAXAL.h, SWIGMODULES="$SWIGMODULES omxal.fs"
    SWIGLIBS="$SWIGLIBS openmax.fs", ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/pnglib-fsi.c; then
    AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES pnglib.fs"
    SWIGLIBS="$SWIGLIBS png.fs", ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/soil2-fsi.c; then
    AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
    SWIGLIBS="$SWIGLIBS soil2lib.fs",
       AC_CHECK_HEADER(SOIL/SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
       SWIGLIBS="$SWIGLIBS soillib.fs", ,), )
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/freetype-gl-fsi.c; then
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/cpufeatures-fsi.c; then
    case "$host_os" in
       	linux-android*)
 	    SWIGMODULES="$SWIGMODULES cpufeatures.fs"
 	    SWIGLIBS="$SWIGLIBS cpufeatureslib.fs"
 	    ;;
    esac
-else
-   AC_MSG_WARN([*** Swig without -forth. The library bindings cannot be built.])
+fi
+if test x$has_swig = xno; then
+   AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])
 fi
 AC_SUBST(SWIGMODULES)
 AC_SUBST(SWIGINCLUDES)
