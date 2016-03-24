@@ -1879,6 +1879,8 @@ void compile_prim1(Cell *start)
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 }
 
+static int gforth_ltdlinited=0;
+
 int gforth_init()
 {
 #if 0 && defined(__i386)
@@ -1915,6 +1917,7 @@ int gforth_init()
     fprintf(stderr,"%s: lt_dlinit failed", progname);
     return 1;
   }
+  gforth_ltdlinited=1;
 #endif
 #ifdef HAS_OS
 #ifndef NO_DYNAMIC
@@ -2475,8 +2478,9 @@ void gforth_cleanup()
   deprep_terminal();
 #ifndef STANDALONE
 #ifdef HAVE_LIBLTDL
-  if (lt_dlexit()!=0)
-    fprintf(stderr,"%s: lt_dlexit failed", progname);
+  if (gforth_ltdlinited)
+    if (lt_dlexit()!=0)
+      fprintf(stderr,"%s: lt_dlexit failed", progname);
 #endif
 #endif
 }
