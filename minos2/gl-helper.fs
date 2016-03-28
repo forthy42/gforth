@@ -86,7 +86,10 @@ Variable eglformat
 	0 0 dpy-w @ dpy-h @ glViewport ;
 
     : >screen-orientation ( -- )
-	screen-orientation@ to screen-orientation ;
+	screen-metric@ \ returns nothing
+	screen-orientation@ dup
+	dmetrics >o heightPixels widthPixels o> < xor 1 and xor
+	to screen-orientation ;
     
     : choose-config ( -- )
 	0 eglGetDisplay to egldpy

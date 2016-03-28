@@ -167,10 +167,20 @@ Defer aback
 also jni
 
 0 Value screen-orientation
+JValue psize
+newPoint to psize
+JValue dmetrics
+newDisplayMetrics to dmetrics
 
 : screen-orientation@ ( -- 0..3 )
     clazz >o getWindowManager >o getDefaultDisplay >o
     getRotation ref> ref> o> ;
+: screen-size@ ( -- w h )
+    clazz >o getWindowManager >o getDefaultDisplay >o
+    psize getSize ref> ref> o>  psize >o x y o> ;
+: screen-metric@ ( -- )
+    clazz >o getWindowManager >o getDefaultDisplay >o
+    dmetrics getMetrics ref> ref> o> ;
 
 $80 Constant FLAG_KEEP_SCREEN_ON
 

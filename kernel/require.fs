@@ -78,6 +78,16 @@ create image-included-files 1 , A, ( pointer to and count of included files )
     ['] read-loop execute-parsing-named-file
     2r> includefilename 2! ;
 
+Defer open-filename ( c-addr1 u1 -- c-addr2 u2 )
+' noop is open-filename
+Defer included-filename ( c-addr1 u1 -- c-addr2 u2 )
+' noop is included-filename
+
+: open-file ( c-addr u wfam -- wfileid wior )
+    \G open the file @var{c-addr u} with access mode @var{wfam}.
+    \G the file name is massaged by open-filename
+    >r open-filename r> (open-file) ;
+
 : included ( i*x c-addr u -- j*x ) \ file
     \G @code{include-file} the file whose name is given by the string
     \G @var{c-addr u}.

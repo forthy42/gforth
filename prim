@@ -2073,7 +2073,7 @@ a_addr = (Cell*)gforth_pointers;
 close-file	( wfileid -- wior )		file	close_file
 wior = IOR(fclose((FILE *)wfileid)==EOF);
 
-open-file	( c_addr u wfam -- wfileid wior )	file	open_file
+(open-file)	( c_addr u wfam -- wfileid wior )	file	open_file
 char * string = tilde_cstr(c_addr,u);
 wfileid = opencreate_file(string, wfam, 0, &wior);
 gforth_free(string);

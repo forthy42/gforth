@@ -48,6 +48,23 @@ jni-method: getDefaultDisplay getDefaultDisplay ()Landroid/view/Display;
 
 jni-class: android/view/Display
 jni-method: getRotation getRotation ()I
+jni-method: getSizeD getSize (Landroid/graphics/Point;)V
+jni-method: getMetrics getMetrics (Landroid/util/DisplayMetrics;)V
+
+jni-class: android/graphics/Point
+jni-new: newPoint ()V
+jni-field: x x I
+jni-field: y y I
+
+jni-class: android/util/DisplayMetrics
+jni-new: newDisplayMetrics ()V
+jni-field: heightPixels heightPixels I
+jni-field: widthPixels widthPixels I
+jni-field: densityDpi densityDpi I
+jni-field: xdpi xdpi F
+jni-field: ydpi ydpi F
+jni-field: density density F
+jni-field: scaledDensity scaledDensity F
 
 jni-class: android/view/inputmethod/InputMethodManager
 
