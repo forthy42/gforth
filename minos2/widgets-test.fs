@@ -69,15 +69,19 @@ previous
 
 : !widgets ( -- ) !f1 !f2 !f3 !f4 !f5 !f6 !f7 !f8 ;
 
-: widgets-draw ( -- )
-    f1 >o draw o> f7 >o draw o> f2 >o draw o> f3 >o draw o>
-    f8 >o draw o> f4 >o draw o> f5 >o draw o> f6 >o draw o> ;
+: widgets-draw { xt -- }
+    f1 >o xt execute o> f7 >o xt execute o>
+    f2 >o xt execute o> f3 >o xt execute o>
+    f8 >o xt execute o> f4 >o xt execute o>
+    f5 >o xt execute o> f6 >o xt execute o> ;
 
 : widgets-test
-    <draw0 draw0>
-    <draw1 widgets-draw draw1>
-    <draw2 widgets-draw draw2>
-    <draw3 widgets-draw draw3>
+    <draw-init      ['] draw-init      widgets-draw draw-init>
+    <draw-bg        ['] draw-bg        widgets-draw render>
+    <draw-icon      ['] draw-icon      widgets-draw render>
+    <draw-thumbnail ['] draw-thumbnail widgets-draw render>
+    <draw-image     ['] draw-image     widgets-draw draw-image>
+    <draw-text      ['] draw-text      widgets-draw render>
     sync ;
 
 also [IFDEF] android android [THEN]

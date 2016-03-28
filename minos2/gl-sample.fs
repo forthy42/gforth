@@ -58,7 +58,7 @@ FVariable motion 0.01e motion f!
 
 : draw-tri { f: angle -- angle' }
     angle draw-tri-angle
-    >looper
+    >looper default>ap
     *input >r r@ IF
 	r@ action @ abs 1 <> IF
 	    \ ." Touch at " r@ x0 ? r@ y0 ? cr

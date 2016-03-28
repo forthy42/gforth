@@ -434,6 +434,8 @@ ap-matrix 13 sfloats + Constant y-apos
     \ cr ap-matrix .matrix
     ap-set ;
 : >apxy ( xoff yoff -- )  y-apos sf!  x-apos sf! ;
+: default>ap ( -- )
+    .01e 100e dpy-w @ dpy-h @ min s>f f2/ 100 fm* >ap ;
 
 \ textures
 
@@ -528,8 +530,7 @@ require soil-texture.fs
     Texture 0 glUniform1i
     Ambient 1 ambient% glUniform1fv
     LightPos 0.0e 0.0e -0.3e glUniform3f
-    z-bias set-color+
-    .01e 100e dpy-w @ dpy-h @ min s>f f2/ 100 fm* >ap ;
+    z-bias set-color+ default>ap ;
 
 \ glDrawElements helper
 

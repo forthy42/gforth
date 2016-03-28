@@ -3,7 +3,7 @@
 \ A MINOS2 widget is composed of drawable elements, boxes and actors.
 \ to make things easier, neither drawable elements nor boxes need an actor.
 
-require gl-helper.fs
+require gl-terminal.fs
 ctx 0= [IF] window-init [THEN]
 
 require ftgl-helper.fs
@@ -39,7 +39,12 @@ object class
     field: w
     field: h \ above baseline
     field: d \ below baseline
-    method draw ( -- )
+    method draw-init ( -- ) \ init draw
+    method draw-bg ( -- ) \ button background draw
+    method draw-icon ( -- ) \ icons draw
+    method draw-thumbnail ( -- ) \ thumbnails draw
+    method draw-image ( -- ) \ image draw
+    method draw-text ( -- ) \ text draw
     method hglue ( -- typ sub add )
     method dglue ( -- typ sub add )
     method vglue ( -- typ sub add )
@@ -88,12 +93,12 @@ end-class tile
     x2 y1 >xy frame-color @ rgba>c n> 1e 0e frame# @ #>st v+
     x1 y1 >xy frame-color @ rgba>c n> 0e 0e frame# @ #>st v+
     v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i, ;
-: tile-draw ( -- ) layer 1 <> ?EXIT
+: tile-draw ( -- )
     xywh { x y w h }
     x s>f y s>f x w + s>f y h + s>f
     draw-rectangle GL_TRIANGLES draw-elements ;
 
-' tile-draw tile is draw
+' tile-draw tile is draw-bg
 
 \ frame widget
 
@@ -109,7 +114,7 @@ DOES>  swap sfloats + sf@ ;
     r@ 1 and 0= IF drop 0       THEN
     r> 2 and    IF negate r@ +  THEN  + s>f  rdrop ;
 
-: frame-draw ( -- ) layer 1 <> ?EXIT
+: frame-draw ( -- )
     frame# @ frame-color @ border @ xywh { f c b x y w h }
     i>off >v
     4 0 DO
@@ -123,7 +128,7 @@ DOES>  swap sfloats + sf@ ;
     9 0  DO
 	4 quad  1 I 3 mod 2 = - i-off +!
     LOOP
-; ' frame-draw frame to draw
+; ' frame-draw frame is draw-bg
 
 \ text widget
 
@@ -135,39 +140,39 @@ end-class text
 
 Variable glyphs$
 
-: text-draw ( -- )
-    layer 2 = IF
-	text-font @ to font text-string $@ glyphs$ $+!
-	EXIT  THEN
-    layer 3 = IF
-	x @ s>f penxy sf!  y @ s>f penxy sfloat+ sf!
-	text-font @ to font  text-color @ color !
-	text-string $@ render-string THEN ;
+: text-init ( -- )
+    text-font @ to font text-string $@ glyphs$ $+! ;
+: text-text ( -- )
+    x @ s>f penxy sf!  y @ s>f penxy sfloat+ sf!
+    text-font @ to font  text-color @ color !
+    text-string $@ render-string ;
 : text-!size ( -- )
     text-string $@ layout-string
     f>s d ! f>s h ! f>s w ! ;
-' text-draw text to draw
+' text-init text to draw-init
+' text-text text to draw-text
 ' text-!size text to !size
 
 \ draw wrapper
 
-: <draw0 ( -- )  0 to layer
+: <draw-init ( -- )
     -1e 1e >apxy
     .01e 100e 100e >ap
+    s" " glyphs$ $!
     0.01e 0.02e 0.15e 1.0e glClearColor
     Ambient 1 ambient% glUniform1fv ;
-: draw0> ( -- ) clear v0 i0 ;
+: draw-init> ( -- ) clear
+    glyphs$ $@ load-glyph$ ;
 
-: <draw1 ( -- )  1 to layer
+: <draw-bg ( -- ) v0 i0
     z-bias set-color+
     program glUseProgram  style-tex ;
-: draw1> ( -- )  GL_TRIANGLES draw-elements v0 i0 ;
 
-: <draw2 ( -- )  2 to layer s" " glyphs$ $! ;
-: draw2> ( -- )  glyphs$ $@ load-glyph$ ;
-: <draw3 ( -- )  3 to layer
-    <render ;
-: draw3> ( -- )  render> v0 i0 ;
+: <draw-icon ( -- )  ; \ icon draw, one draw call in total
+: <draw-thumbnail ( -- )  ; \ icon draw, one draw call in total
+: <draw-image ( -- )  ; \ image draw, one draw call per image
+: draw-image> ( -- ) ;
+: <draw-text ( -- )  <render ; \ text draw, one draw call in total
 
 Variable style-i#
 
@@ -216,7 +221,12 @@ end-class box
     dglue dglue-c glue!
     vglue vglue-c glue! ; box to !size
 
-:noname ( -- ) ['] draw do-childs ; box to draw
+:noname ( -- ) ['] draw-init      do-childs ; box to draw-init
+:noname ( -- ) ['] draw-bg        do-childs ; box to draw-bg
+:noname ( -- ) ['] draw-icon      do-childs ; box to draw-icon
+:noname ( -- ) ['] draw-thumbnail do-childs ; box to draw-thumbnail
+:noname ( -- ) ['] draw-image     do-childs ; box to draw-image
+:noname ( -- ) ['] draw-text      do-childs ; box to draw-text
 
 : +child ( o -- ) child-w @ over >o next-w ! o> child-w ! ;
 : +childs ( o1 .. on n -- ) 0 +DO  +child  LOOP ;
