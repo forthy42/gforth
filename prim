@@ -1023,20 +1023,29 @@ n2 = n1>>1;
 
 fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
 ""Floored division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, @i{n1}>@i{n2}>=0 or 0>=@i{n2}>@i{n1}.""
-#ifdef ASM_SM_SLASH_REM
-ASM_SM_SLASH_REM(DLO(d1), DHI(d1), n1, n2, n3);
-{
-  Cell correct = -(((DHI(d1)^n1)<0) & (n2!=0));
-  if (CHECK_DIVISION && correct && n3 == CELL_MIN)
-    throw(BALL_RESULTRANGE);
-  n3 += correct;
-  n2 += correct & n1;
+Cell sign = n1<0;
+if(sign) {
+  n1 = -n1;
+#ifdef BUGGY_LL_ADD
+  d1 = dnegate(d1);
+#else
+  d1 = -d1;
+#endif
 }
-#else /* !defined(ASM_SM_SLASH_REM) */
-DCell r = fmdiv(d1,n1);
+{
+  Cell up = DHI(d1);
+  Cell correct = -(up < 0);
+  up += correct & n1;
+  DHI_IS(d1, up);
+}
+#ifdef ASM_UM_SLASH_MOD
+ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n1, n2, n3);
+#else /* !defined(ASM_UM_SLASH_MOD) */
+UDCell r = umdiv(d1,n1);
 n2=DHI(r);
 n3=DLO(r);
-#endif /* !defined(ASM_SM_SLASH_REM) */
+#endif
+if(sign) n2 = -n2;
 :
  dup >r dup 0< IF  negate >r dnegate r>  THEN
  over       0< IF  tuck + swap  THEN
@@ -1313,7 +1322,7 @@ ASM_UM_SLASH_MOD(DLO(d), DHI(d), u, n, u1);
 #else /* !defined(ASM_UM_SLASH_MOD) */
 UDCell r = umdiv(d,u);
 n=DHI(r);
-u=DLO(r);
+u1=DLO(r);
 #endif /* !defined(ASM_UM_SLASH_MOD) */
 :
  >r dup 0< r@ and + r> um/mod ;
