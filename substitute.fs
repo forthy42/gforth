@@ -4,6 +4,10 @@ require string.fs
 
 wordlist AConstant macros-wordlist
 
+get-current macros-wordlist set-current
+: idir ( -- addr u ) includefilename 2@ extractpath ;
+set-current
+
 : macro: ( addr u -- ) Create here 0 , $! DOES> $@ ;
 
 : replaces ( addr1 len1 addr2 len2 -- )

@@ -78,20 +78,29 @@ create image-included-files 1 , A, ( pointer to and count of included files )
     ['] read-loop execute-parsing-named-file
     2r> includefilename 2! ;
 
-Defer open-filename ( c-addr1 u1 -- c-addr2 u2 )
-' noop is open-filename
-Defer included-filename ( c-addr1 u1 -- c-addr2 u2 )
-' noop is included-filename
+Defer >filename ( c-addr1 u1 -- c-addr2 u2 )
+' noop is >filename
+Defer >included ( c-addr1 u1 -- fd c-addr2 u2 wior )
+' open-fpath-file is >included
 
-: open-file ( c-addr u wfam -- wfileid wior )
+: open-file ( c-addr u wfam -- wfileid wior ) \ file
     \G open the file @var{c-addr u} with access mode @var{wfam}.
     \G the file name is massaged by open-filename
-    >r open-filename r> (open-file) ;
+    >r >filename r> (open-file) ;
+
+: create-file ( c_addr u wfam -- wfileid wior ) \ file
+    >r >filename r> (create-file) ;
+
+: delete-file ( c_addr u -- wior ) \ file
+    >filename (delete-file) ;
+
+: rename-file ( c_addr1 u1 c_addr2 u2 -- wior ) \ file-ext
+    >filename 2swap >filename 2swap (rename-file) ;
 
 : included ( i*x c-addr u -- j*x ) \ file
     \G @code{include-file} the file whose name is given by the string
     \G @var{c-addr u}.
-    open-fpath-file throw included1 ;
+    >included throw included1 ;
 
 : required ( i*x addr u -- i*x ) \ gforth
     \G @code{include-file} the file with the name given by @var{addr
@@ -103,7 +112,7 @@ Defer included-filename ( c-addr1 u1 -- c-addr2 u2 )
     \ problems with several paths to the same file (e.g., due to
     \ links) and we would catch files included with include-file and
     \ write a require-file.
-    open-fpath-file throw 2dup included?
+    >included throw 2dup included?
     if
 	2drop close-file throw
     else

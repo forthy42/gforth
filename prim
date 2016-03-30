@@ -2078,17 +2078,17 @@ char * string = tilde_cstr(c_addr,u);
 wfileid = opencreate_file(string, wfam, 0, &wior);
 gforth_free(string);
 
-create-file	( c_addr u wfam -- wfileid wior )	file	create_file
+(create-file)	( c_addr u wfam -- wfileid wior )	file	create_file
 char * string = tilde_cstr(c_addr,u);
 wfileid = opencreate_file(string, wfam, O_CREAT|O_TRUNC, &wior);
 gforth_free(string);
 
-delete-file	( c_addr u -- wior )		file	delete_file
+(delete-file)	( c_addr u -- wior )		file	delete_file
 char * string = tilde_cstr(c_addr,u);
 wior = IOR(unlink(string)==-1);
 gforth_free(string);
 
-rename-file	( c_addr1 u1 c_addr2 u2 -- wior )	file-ext	rename_file
+(rename-file)	( c_addr1 u1 c_addr2 u2 -- wior )	file-ext	rename_file
 ""Rename file @i{c_addr1 u1} to new name @i{c_addr2 u2}""
 wior = rename_file(c_addr1, u1, c_addr2, u2);
 
