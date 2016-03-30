@@ -922,8 +922,10 @@ if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
-if (FLOORED_DIV && ((n1^n2) < 0) && (n1%n2 != 0))
-  n--;
+if (FLOORED_DIV) {
+  Cell correct = -(((n1^n2) < 0) & (n1%n2 != 0));
+  n += correct;
+}
 :
  /mod nip ;
 
@@ -933,7 +935,10 @@ if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
-if(FLOORED_DIV && ((n1^n2) < 0) && n!=0) n += n2;
+if(FLOORED_DIV) {
+  Cell correct = -(((n1^n2) < 0) & (n!=0));
+  n += correct & n2;
+}
 :
  /mod drop ;
 
@@ -944,9 +949,10 @@ if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
-if (FLOORED_DIV && ((n1^n2) < 0) && n3!=0) {
-  n4--;
-  n3+=n2;
+if (FLOORED_DIV) {
+  Cell correct = -(((n1^n2) < 0) & (n3!=0));
+  n4 += correct;
+  n3 += correct & n2;
 }
 :
  >r s>d r> fm/mod ;
@@ -960,11 +966,12 @@ DCell d = (DCell)n1 * (DCell)n2;
 #endif
 #ifdef ASM_SM_SLASH_REM
 ASM_SM_SLASH_REM(DLO(d), DHI(d), n3, n4, n5);
-if (FLOORED_DIV && ((DHI(d)^n3)<0) && n4!=0) {
-  if (CHECK_DIVISION && n5 == CELL_MIN)
+if (FLOORED_DIV) {
+  Cell correct=-(((DHI(d)^n3)<0) & (n4!=0));
+  if (CHECK_DIVISION && correct && n5 == CELL_MIN)
     throw(BALL_RESULTRANGE);
-  n5--;
-  n4+=n3;
+  n5 += correct;
+  n4 += correct & n3;
 }
 #else
 DCell r = FLOORED_DIV ? fmdiv(d,n3) : smdiv(d,n3);
@@ -984,10 +991,11 @@ DCell d = (DCell)n1 * (DCell)n2;
 #ifdef ASM_SM_SLASH_REM
 Cell remainder;
 ASM_SM_SLASH_REM(DLO(d), DHI(d), n3, remainder, n4);
-if (FLOORED_DIV && ((DHI(d)^n3)<0) && remainder!=0) {
-  if (CHECK_DIVISION && n4 == CELL_MIN)
+if (FLOORED_DIV) {
+  Cell correct = -(((DHI(d)^n3)<0) & (remainder!=0));
+  if (CHECK_DIVISION && correct && n4 == CELL_MIN)
     throw(BALL_RESULTRANGE);
-  n4--;
+  n4 += correct;
 }
 #else
 DCell r = FLOORED_DIV ? fmdiv(d,n3) : smdiv(d,n3);
@@ -1017,11 +1025,12 @@ fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
 ""Floored division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, @i{n1}>@i{n2}>=0 or 0>=@i{n2}>@i{n1}.""
 #ifdef ASM_SM_SLASH_REM
 ASM_SM_SLASH_REM(DLO(d1), DHI(d1), n1, n2, n3);
-if (((DHI(d1)^n1)<0) && n2!=0) {
-  if (CHECK_DIVISION && n3 == CELL_MIN)
+{
+  Cell correct = -(((DHI(d1)^n1)<0) & (n2!=0));
+  if (CHECK_DIVISION && correct && n3 == CELL_MIN)
     throw(BALL_RESULTRANGE);
-  n3--;
-  n2+=n1;
+  n3 += correct;
+  n2 += correct & n1;
 }
 #else /* !defined(ASM_SM_SLASH_REM) */
 DCell r = fmdiv(d1,n1);

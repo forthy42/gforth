@@ -176,7 +176,7 @@ hints addrinfo dup allot erase
 $10000 Constant MSG_WAITFORONE
   $802 Constant O_NONBLOCK|O_RDWR
 	machine "mips" str= [IF]
-	    .( running on MIPS gives us different numbers) cr
+	    \ running on MIPS gives us different numbers
  $1006 Constant SO_RCVTIMEO
  $0004 Constant SO_REUSEADDR
  $FFFF Constant SOL_SOCKET
