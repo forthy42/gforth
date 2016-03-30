@@ -47,23 +47,26 @@ elif test $1 = --application; then
     application=yes
     shift
     outfile=$1; shift
-    generate="$@"
 elif test $1 = --system; then
+    system=yes
     shift
-    generate=$startup
     outfile="@libdir@/gforth/@PACKAGE_VERSION@/gforth.fi"
     export libccdir="@libexecdir@/gforth/@PACKAGE_VERSION@/@machine@/libcc-named"
 else
     outfile=$1; shift
-    generate="$@"
 fi
 if [ ! -z "@extraccdir@" ]
 then
     export libccdir="@extraccdir@"
 fi
 tmpfile=./temp-image.fi
-$GFORTHD --clear-dictionary --no-offset-im --die-on-signal $generate -e "savesystem $tmpfile"1" bye"
-$GFORTHD --clear-dictionary --offset-image --die-on-signal $generate -e "savesystem $tmpfile"2" bye"
+if test x$system = xyes; then
+    $GFORTHD --clear-dictionary --no-offset-im --die-on-signal $startup -e "savesystem $tmpfile"1" bye"
+    $GFORTHD --clear-dictionary --offset-image --die-on-signal $startup -e "savesystem $tmpfile"2" bye"
+else
+    $GFORTHD --clear-dictionary --no-offset-im --die-on-signal "$@" -e "savesystem $tmpfile"1" bye"
+    $GFORTHD --clear-dictionary --offset-image --die-on-signal "$@" -e "savesystem $tmpfile"2" bye"
+fi
 $GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye" || exit 1
 @no_chmod@chmod +x $outfile || exit 1
 @RM@ $tmpfile"1" $tmpfile"2"
