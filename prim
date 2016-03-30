@@ -1302,6 +1302,22 @@ u &= 2*CELL_BITS-1;
 ud2 = (ud1 >> u) | (ud1 << (2*CELL_BITS-u));
 #endif
 
+du/mod	( d u -- n u1 )	gforth du_div_mod
+""d=n*u+u1, u>u1>=0""
+Cell up = DHI(d);
+Cell correct = -(up < 0);
+up += correct & u;
+DHI_IS(d, up);
+#ifdef ASM_UM_SLASH_MOD
+ASM_UM_SLASH_MOD(DLO(d), DHI(d), u, n, u1);
+#else /* !defined(ASM_UM_SLASH_MOD) */
+UDCell r = umdiv(d,u);
+n=DHI(r);
+u=DLO(r);
+#endif /* !defined(ASM_UM_SLASH_MOD) */
+:
+ >r dup 0< r@ and + r> um/mod ;
+
 \g compare
 
 \ comparisons(prefix, args, prefix, arg1, arg2, wordsets...)
