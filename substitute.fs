@@ -77,3 +77,12 @@ set-current
     bounds ?DO
 	I c@ dup '%' = IF  dup c,  THEN  c,
     LOOP  r> here over -  r> dp ! ;
+
+\ file name replacements
+
+: subst>filename ['] .substitute $tmp rot 0 min throw ;
+' subst>filename is >filename
+
+: open-subst-fpath-file ( addr u -- fd addr2 u2 ior )
+    subst>filename open-fpath-file ;
+' open-subst-fpath-file is >included

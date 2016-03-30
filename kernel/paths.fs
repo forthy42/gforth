@@ -214,7 +214,7 @@ Variable tfile
 : open-ofile ( -- fid ior )
     \G opens the file whose name is in ofile
     expandtopic reworkdir
-    ofile $@ r/o open-file ;
+    ofile $@ r/o (open-file) ;
 
 : check-path ( adr1 len1 adr2 len2 -- fid 0 | 0 ior )
   >r >r ofile $! need/

@@ -783,6 +783,8 @@ clear-libs
 
 \ compilation wrapper
 
+tmp$ $execstr-ptr !
+
 : compile-cmd ( -- )
     [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
       s" CROSS_PREFIX" getenv $type
