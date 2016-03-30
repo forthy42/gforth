@@ -56,21 +56,21 @@ Variable color $FFC0A0FF color !
 
 0 Value font
 
-: xchar+xy ( prev-xchar xchar -- xchar )
+: xchar+xy ( xc-addrp xc-addr -- xc-addr )
     tuck font swap texture_font_get_glyph >r
-    dup 0> IF  r@ swap texture_glyph_get_kerning
+    dup IF  r@ swap texture_glyph_get_kerning
 	penxy sf@ f+ penxy sf!
     ELSE  drop  THEN
     r> glyph+xy ;
 
 : render-string ( addr u -- )
     0 -rot  bounds ?DO
-	I xc@+ swap >r xchar+xy r>
-    I - +LOOP  drop ;
+	I xchar+xy
+    I I' over - x-size +LOOP  drop ;
 
 : xchar@xy ( fw fd fh prev-xchar xchar -- xchar )
     tuck font swap texture_font_get_glyph >r
-    dup 0> IF  r@ swap texture_glyph_get_kerning  f+
+    dup IF  r@ swap texture_glyph_get_kerning  f+
     ELSE  drop  THEN
     { f: fd f: fh }
     r@ texture_glyph_t-advance_x sf@ f+
@@ -80,8 +80,8 @@ Variable color $FFC0A0FF color !
 
 : layout-string ( addr u -- fw fh fd ) \ depth is ow far it goes down
     0 -rot  0e 0e 0e  bounds ?DO
-	I xc@+ swap >r xchar@xy r>
-    I - +LOOP  drop ;
+	I xchar@xy
+    I I' over - x-size +LOOP  drop ;
 
 : load-glyph$ ( addr u -- ) font -rot texture_font_load_glyphs drop ;
 

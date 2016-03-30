@@ -1260,7 +1260,7 @@ then
       AC_CHECK_HEADER(w32api/winbase.h, SWIGLIBS="$SWIGLIBS win32.fs", ,
 #include <w32api/wtypes.h>
 ) ,)
-   else
+else
     if test x$has_swig = xyes || test -f $srcdir/unix/gl-fsi.c; then
       AC_CHECK_HEADER(GL/gl.h, 
       AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
@@ -1302,40 +1302,42 @@ if test x$has_swig = xyes || test -f $srcdir/unix/ios-gles3-fsi.c; then
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/jni-fsi.c; then
    AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
-   SWIGLIBS="$SWIGLIBS jnilib.fs", ,)
+		   SWIGLIBS="$SWIGLIBS jnilib.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/openvg-fsi.c; then
    AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/androidlib-fsi.c; then
-   AC_CHECK_HEADER(android/input.h, SWIGMODULES="$SWIGMODULES androidlib.fs"
-   SWIGLIBS="$SWIGLIBS android.fs", ,)
+    AC_CHECK_HEADER(android/input.h, SWIGMODULES="$SWIGMODULES androidlib.fs"
+		    SWIGLIBS="$SWIGLIBS android.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/omxal-fsi.c; then
-   AC_CHECK_HEADER(OMXAL/OpenMAXAL.h, SWIGMODULES="$SWIGMODULES omxal.fs"
-   SWIGLIBS="$SWIGLIBS openmax.fs", ,)
+    AC_CHECK_HEADER(OMXAL/OpenMAXAL.h, SWIGMODULES="$SWIGMODULES omxal.fs"
+		    SWIGLIBS="$SWIGLIBS openmax.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/pnglib-fsi.c; then
-   AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES pnglib.fs"
-   SWIGLIBS="$SWIGLIBS png.fs", ,)
+    AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES pnglib.fs"
+		    SWIGLIBS="$SWIGLIBS png.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/soil2-fsi.c; then
-   AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
-   SWIGLIBS="$SWIGLIBS soil2lib.fs",
-      AC_CHECK_HEADER(SOIL/SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
-      SWIGLIBS="$SWIGLIBS soillib.fs", ,), )
+    AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
+		    SWIGLIBS="$SWIGLIBS soil2lib.fs", ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/soil-fsi.c; then
+    AC_CHECK_HEADER(SOIL/SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
+		    SWIGLIBS="$SWIGLIBS soillib.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/freetype-gl-fsi.c; then
-   AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
-   SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
+    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
+		    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/cpufeatures-fsi.c; then
-   case "$host_os" in
+    case "$host_os" in
       	linux-android*)
 	    SWIGMODULES="$SWIGMODULES cpufeatures.fs"
 	    SWIGLIBS="$SWIGLIBS cpufeatureslib.fs"
 	    ;;
-   esac
+    esac
 fi
 if test x$has_swig = xno; then
    AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])
