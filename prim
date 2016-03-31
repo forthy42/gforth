@@ -917,6 +917,7 @@ n = n1*n2;
  um* drop ;
 
 /	( n1 n2 -- n )		core	slash
+#ifndef ASM_UM_SLASH_MOD
 n = n1/n2;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
@@ -926,19 +927,57 @@ if (FLOORED_DIV) {
   Cell correct = -(((n1^n2) < 0) & (n1%n2 != 0));
   n += correct;
 }
+#else
+DCell d1;
+MAYBE_UNUSED Cell n3;
+Cell sign = n2 < 0;
+if(sign) {
+  n2 = -n2;
+  DHI_IS(d1, (n1<0 ? 0: n2-1));
+  n1 = -n1;
+} else {
+  DHI_IS(d1, (n1<0 ? n2-1 : 0));
+}
+DLO_IS(d1, n1);
+ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n3, n);
+if (CHECK_DIVISION_SW && n2 == 0)
+  throw(BALL_DIVZERO);
+if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
+  throw(BALL_RESULTRANGE);
+#endif
 :
  /mod nip ;
 
 mod	( n1 n2 -- n )		core
+#ifndef ASM_UM_SLASH_MOD
 n = n1%n2;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
-if(FLOORED_DIV) {
-  Cell correct = -(((n1^n2) < 0) & (n!=0));
-  n += correct & n2;
+if (FLOORED_DIV) {
+  Cell correct = -(((n1^n2) < 0) & (n1%n2 != 0));
+  n += correct;
 }
+#else
+DCell d1;
+MAYBE_UNUSED Cell n3;
+Cell sign = n2 < 0;
+if(sign) {
+  n2 = -n2;
+  DHI_IS(d1, (n1<0 ? 0: n2-1));
+  n1 = -n1;
+} else {
+  DHI_IS(d1, (n1<0 ? n2-1 : 0));
+}
+DLO_IS(d1, n1);
+ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n, n3);
+if(sign) n = -n;
+if (CHECK_DIVISION_SW && n2 == 0)
+  throw(BALL_DIVZERO);
+if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
+  throw(BALL_RESULTRANGE);
+#endif
 :
  /mod drop ;
 
@@ -1023,33 +1062,46 @@ n2 = n1>>1;
 
 fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
 ""Floored division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, @i{n1}>@i{n2}>=0 or 0>=@i{n2}>@i{n1}.""
-Cell sign = n1<0;
-if(sign) {
-  n1 = -n1;
+if(CHECK_DIVISION_SW) {
+  /* branchless signed division based fm/mod with propper checks */
+#ifdef ASM_SM_SLASH_REM
+  ASM_SM_SLASH_REM(DLO(d1), DHI(d1), n1, n2, n3);
+  Cell correct = -(((DHI(d1)^n1)<0) & (n2!=0));
+  if (CHECK_DIVISION && correct && n3 == CELL_MIN)
+    throw(BALL_RESULTRANGE);
+  n3 += correct;
+  n2 += correct & n1;
+#else /* !defined(ASM_SM_SLASH_REM) */
+  DCell r = fmdiv(d1,n1);
+  n2=DHI(r);
+  n3=DLO(r);
+#endif /* !defined(ASM_SM_SLASH_REM) */
+} else {
+  /* unsigned division based fm/mod without propper checks */
+  Cell sign = n1<0;
+  if(sign) {
+    n1 = -n1;
 #ifdef BUGGY_LL_ADD
-  d1 = dnegate(d1);
+    d1 = dnegate(d1);
 #else
-  d1 = -d1;
+    d1 = -d1;
 #endif
-}
-{
+  }
   Cell up = DHI(d1);
-  Cell correct = -(up < 0);
-  up += correct & n1;
-  DHI_IS(d1, up);
-}
+  Cell correct = (up < 0);
+  DHI_IS(d1, up + ((-correct) & n1));
 #ifdef ASM_UM_SLASH_MOD
-ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n1, n2, n3);
+  ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n1, n2, n3);
 #else /* !defined(ASM_UM_SLASH_MOD) */
-UDCell r = umdiv(d1,n1);
-n2=DHI(r);
-n3=DLO(r);
+  UDCell r = umdiv(d1,n1);
+  n2=DHI(r);
+  n3=DLO(r);
 #endif
-if(sign) n2 = -n2;
+  if(sign) n2 = -n2;
+}
 :
  dup >r dup 0< IF  negate >r dnegate r>  THEN
- over       0< IF  tuck + swap  THEN
- um/mod
+ >r dup 0< r@ and + r> um/mod
  r> 0< IF  swap negate swap  THEN ;
 
 sm/rem	( d1 n1 -- n2 n3 )		core		s_m_slash_rem
