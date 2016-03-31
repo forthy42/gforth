@@ -933,12 +933,10 @@ MAYBE_UNUSED Cell n3;
 Cell sign = n2 < 0;
 if(sign) {
   n2 = -n2;
-  DHI_IS(d1, (n1<0 ? 0: n2-1));
-  n1 = -n1;
+  D_IS(d1, (n1<0 ? 0: n2-1), -n1);
 } else {
-  DHI_IS(d1, (n1<0 ? n2-1 : 0));
+  D_IS(d1, (n1<0 ? n2-1 : 0), n1);
 }
-DLO_IS(d1, n1);
 ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n3, n);
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
@@ -965,12 +963,10 @@ MAYBE_UNUSED Cell n3;
 Cell sign = n2 < 0;
 if(sign) {
   n2 = -n2;
-  DHI_IS(d1, (n1<0 ? 0: n2-1));
-  n1 = -n1;
+  D_IS(d1, (n1<0 ? 0: n2-1), -n1);
 } else {
-  DHI_IS(d1, (n1<0 ? n2-1 : 0));
+  D_IS(d1, (n1<0 ? n2-1 : 0), n1);
 }
-DLO_IS(d1, n1);
 ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n, n3);
 if(sign) n = -n;
 if (CHECK_DIVISION_SW && n2 == 0)
@@ -982,6 +978,7 @@ if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
  /mod drop ;
 
 /mod	( n1 n2 -- n3 n4 )		core		slash_mod
+#ifndef ASM_UM_SLASH_MOD
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
 if (CHECK_DIVISION_SW && n2 == 0)
@@ -993,6 +990,22 @@ if (FLOORED_DIV) {
   n4 += correct;
   n3 += correct & n2;
 }
+#else
+DCell d1;
+Cell sign = n2 < 0;
+if(sign) {
+  n2 = -n2;
+  D_IS(d1, (n1<0 ? 0: n2-1), -n1);
+} else {
+  D_IS(d1, (n1<0 ? n2-1 : 0), n1);
+}
+ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n3, n4);
+if(sign) n3 = -n3;
+if (CHECK_DIVISION_SW && n2 == 0)
+  throw(BALL_DIVZERO);
+if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
+  throw(BALL_RESULTRANGE);
+#endif
 :
  >r s>d r> fm/mod ;
 
