@@ -917,7 +917,7 @@ n = n1*n2;
  um* drop ;
 
 /	( n1 n2 -- n )		core	slash
-#ifndef ASM_UM_SLASH_MOD
+#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0)
 n = n1/n2;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
@@ -940,7 +940,7 @@ if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
  /mod nip ;
 
 mod	( n1 n2 -- n )		core
-#ifndef ASM_UM_SLASH_MOD
+#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0)
 n = n1%n2;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
@@ -964,7 +964,7 @@ if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
  /mod drop ;
 
 /mod	( n1 n2 -- n3 n4 )		core		slash_mod
-#ifndef ASM_UM_SLASH_MOD
+#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0)
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
 if (CHECK_DIVISION_SW && n2 == 0)
@@ -1356,7 +1356,7 @@ ud2 = (ud1 >> u) | (ud1 << (2*CELL_BITS-u));
 #endif
 
 du/mod	( d u -- n u1 )	gforth du_div_mod
-""d=n*u+u1, u>u1>=0""
+""d=n*u+u1, u>u1>=0; PolyForth style mixed division""
 Cell up = DHI(d);
 Cell correct = -(up < 0);
 up += correct & u;
