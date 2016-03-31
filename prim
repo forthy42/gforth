@@ -928,15 +928,8 @@ if (FLOORED_DIV) {
   n += correct;
 }
 #else
-DCell d1;
 MAYBE_UNUSED Cell n3;
-Cell sign = n2 < 0;
-if(sign) {
-  n2 = -n2;
-  D_IS(d1, (n1<0 ? 0: n2-1), -n1);
-} else {
-  D_IS(d1, (n1<0 ? n2-1 : 0), n1);
-}
+DIV_SETUP(d1, n1, n2);
 ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n3, n);
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
@@ -958,15 +951,8 @@ if (FLOORED_DIV) {
   n += correct;
 }
 #else
-DCell d1;
 MAYBE_UNUSED Cell n3;
-Cell sign = n2 < 0;
-if(sign) {
-  n2 = -n2;
-  D_IS(d1, (n1<0 ? 0: n2-1), -n1);
-} else {
-  D_IS(d1, (n1<0 ? n2-1 : 0), n1);
-}
+DIV_SETUP(d1, n1, n2);
 ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n, n3);
 if(sign) n = -n;
 if (CHECK_DIVISION_SW && n2 == 0)
@@ -991,14 +977,7 @@ if (FLOORED_DIV) {
   n3 += correct & n2;
 }
 #else
-DCell d1;
-Cell sign = n2 < 0;
-if(sign) {
-  n2 = -n2;
-  D_IS(d1, (n1<0 ? 0: n2-1), -n1);
-} else {
-  D_IS(d1, (n1<0 ? n2-1 : 0), n1);
-}
+DIV_SETUP(d1, n1, n2);
 ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n3, n4);
 if(sign) n3 = -n3;
 if (CHECK_DIVISION_SW && n2 == 0)

@@ -223,6 +223,16 @@ typedef DOUBLE_UCELL_TYPE UDCell;
 
 #endif /* !defined(BUGGY_LONG_LONG) */
 
+#define DIV_SETUP(d1, n1, n2) \
+DCell d1; \
+Cell sign = n2 < 0; \
+if(sign) { \
+  n2 = -n2; \
+  D_IS(d1, (n1<0 ? 0: n2-1), -n1); \
+} else { \
+  D_IS(d1, (n1<0 ? n2-1 : 0), n1); \
+}
+
 typedef union {
   struct {
 #if defined(WORDS_BIGENDIAN)||defined(BUGGY_LONG_LONG)
