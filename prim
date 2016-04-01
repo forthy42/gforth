@@ -3123,14 +3123,10 @@ c_addr[5] = DLO(ud) >> 16;
 c_addr[6] = DLO(ud) >> 8;
 c_addr[7] = DLO(ud);
 #else
-# if (SIZEOF_CHAR_P == 8)
 c_addr[0] = ud >> 56;
 c_addr[1] = ud >> 48;
 c_addr[2] = ud >> 40;
 c_addr[3] = ud >> 32;
-# else
-c_addr[0] = c_addr[1] = c_addr[2] = c_addr[3] = 0;
-# endif
 c_addr[4] = ud >> 24;
 c_addr[5] = ud >> 16;
 c_addr[6] = ud >> 8;
@@ -3156,14 +3152,10 @@ c_addr[2] = DLO(ud) >> 16;
 c_addr[1] = DLO(ud) >> 8;
 c_addr[0] = DLO(ud);
 #else
-#if (SIZEOF_CHAR_P == 8)
 c_addr[7] = ud >> 56;
 c_addr[6] = ud >> 48;
 c_addr[5] = ud >> 40;
 c_addr[4] = ud >> 32;
-#else
-c_addr[7] = c_addr[6] = c_addr[5] = c_addr[4] = 0;
-#endif
 c_addr[3] = ud >> 24;
 c_addr[2] = ud >> 16;
 c_addr[1] = ud >> 8;
