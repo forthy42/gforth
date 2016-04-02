@@ -1085,7 +1085,7 @@ if(CHECK_DIVISION_SW) {
 #ifdef ASM_UM_SLASH_MOD
   ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n1, n2, n3);
 #else /* !defined(ASM_UM_SLASH_MOD) */
-  UDCell r = umdiv(d1,n1);
+  UDCell r = umdiv(*(UDCell*)&d1,n1);
   n2=DHI(r);
   n3=DLO(r);
 #endif
@@ -1364,7 +1364,7 @@ DHI_IS(d, up);
 #ifdef ASM_UM_SLASH_MOD
 ASM_UM_SLASH_MOD(DLO(d), DHI(d), u, n, u1);
 #else /* !defined(ASM_UM_SLASH_MOD) */
-UDCell r = umdiv(d,u);
+UDCell r = umdiv(*(UDCell*)&d,u);
 n=DHI(r);
 u1=DLO(r);
 #endif /* !defined(ASM_UM_SLASH_MOD) */
