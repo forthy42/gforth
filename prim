@@ -3028,29 +3028,29 @@ be-ux@ ( c_addr -- u )	gforth b_e_u_x_fetch
 ""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
 u = (
 #if (SIZEOF_CHAR_P == 8)
-     ((Cell)(c_addr[0]) << 56) |
-     ((Cell)(c_addr[1]) << 48) |
-     ((Cell)(c_addr[2]) << 40) |
-     ((Cell)(c_addr[3]) << 32) |
+     (((Cell)(c_addr[0])) << 56) |
+     (((Cell)(c_addr[1])) << 48) |
+     (((Cell)(c_addr[2])) << 40) |
+     (((Cell)(c_addr[3])) << 32) |
 #endif
-     ((Cell)(c_addr[4]) << 24) |
-     ((Cell)(c_addr[5]) << 16) |
-     ((Cell)(c_addr[6]) << 8) |
-     ((Cell)(c_addr[7])));
+     (((Cell)(c_addr[4])) << 24) |
+     (((Cell)(c_addr[5])) << 16) |
+     (((Cell)(c_addr[6])) << 8) |
+     (((Cell)(c_addr[7]))));
 
 le-ux@ ( c_addr -- u )	gforth l_e_u_x_fetch
 ""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
 u = (
 #if (SIZEOF_CHAR_P == 8)
-     ((Cell)(c_addr[7]) << 56) |
-     ((Cell)(c_addr[6]) << 48) |
-     ((Cell)(c_addr[5]) << 40) |
-     ((Cell)(c_addr[4]) << 32) |
+     (((Cell)(c_addr[7])) << 56) |
+     (((Cell)(c_addr[6])) << 48) |
+     (((Cell)(c_addr[5])) << 40) |
+     (((Cell)(c_addr[4])) << 32) |
 #endif
-     ((Cell)(c_addr[3]) << 24) |
-     ((Cell)(c_addr[2]) << 16) |
-     ((Cell)(c_addr[1]) << 8) |
-     ((Cell)(c_addr[0])));
+     (((Cell)(c_addr[3])) << 24) |
+     (((Cell)(c_addr[2])) << 16) |
+     (((Cell)(c_addr[1])) << 8) |
+     (((Cell)(c_addr[0]))));
 
 \+
 
@@ -3166,66 +3166,66 @@ be-uxd@ ( c_addr -- ud )	gforth b_e_u_xd_fetch
 ""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
 #if (SIZEOF_CHAR_P == 4)
-  D_IS(ud, (((Cell)(c_addr[0]) << 24) |
-	    ((Cell)(c_addr[1]) << 16) |
-	    ((Cell)(c_addr[2]) << 8) |
-	    ((Cell)(c_addr[3]))),
-       (((Cell)(c_addr[4]) << 24) |
-	((Cell)(c_addr[5]) << 16) |
-	((Cell)(c_addr[6]) << 8) |
-	((Cell)(c_addr[7]))));
+  D_IS(ud, ((((Cell)(c_addr[0])) << 24) |
+	    (((Cell)(c_addr[1])) << 16) |
+	    (((Cell)(c_addr[2])) << 8) |
+	    (((Cell)(c_addr[3])))),
+       ((((Cell)(c_addr[4])) << 24) |
+	(((Cell)(c_addr[5])) << 16) |
+	(((Cell)(c_addr[6])) << 8) |
+	(((Cell)(c_addr[7])))));
 #else
-  D_IS(ud, 0, (((Cell)(c_addr[0]) << 56) |
-	       ((Cell)(c_addr[1]) << 48) |
-	       ((Cell)(c_addr[2]) << 40) |
-	       ((Cell)(c_addr[3]) << 32) |
-	       ((Cell)(c_addr[4]) << 24) |
-	       ((Cell)(c_addr[5]) << 16) |
-	       ((Cell)(c_addr[6]) << 8) |
-	       ((Cell)(c_addr[7]))));
+  D_IS(ud, 0, ((((Cell)(c_addr[0])) << 56) |
+	       (((Cell)(c_addr[1])) << 48) |
+	       (((Cell)(c_addr[2])) << 40) |
+	       (((Cell)(c_addr[3])) << 32) |
+	       (((Cell)(c_addr[4])) << 24) |
+	       (((Cell)(c_addr[5])) << 16) |
+	       (((Cell)(c_addr[6])) << 8) |
+	       (((Cell)(c_addr[7])))));
 #endif
 #else
-ud = (((DCell)(c_addr[0]) << 56) |
-      ((DCell)(c_addr[1]) << 48) |
-      ((DCell)(c_addr[2]) << 40) |
-      ((DCell)(c_addr[3]) << 32) |
-      ((DCell)(c_addr[4]) << 24) |
-      ((DCell)(c_addr[5]) << 16) |
-      ((DCell)(c_addr[6]) << 8) |
-      ((DCell)(c_addr[7])));
+ud = ((((DCell)(c_addr[0])) << 56) |
+      (((DCell)(c_addr[1])) << 48) |
+      (((DCell)(c_addr[2])) << 40) |
+      (((DCell)(c_addr[3])) << 32) |
+      (((DCell)(c_addr[4])) << 24) |
+      (((DCell)(c_addr[5])) << 16) |
+      (((DCell)(c_addr[6])) << 8) |
+      (((DCell)(c_addr[7]))));
 #endif
 
 le-uxd@ ( c_addr -- ud )	gforth l_e_u_xd_fetch
 ""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
 #if (SIZEOF_CHAR_P == 4)
-  D_IS(ud, (((Cell)(c_addr[7]) << 24) |
-	    ((Cell)(c_addr[6]) << 16) |
-	    ((Cell)(c_addr[5]) << 8) |
-	    ((Cell)(c_addr[4]))),
-       (((Cell)(c_addr[3]) << 24) |
-	((Cell)(c_addr[2]) << 16) |
-	((Cell)(c_addr[1]) << 8) |
-	((Cell)(c_addr[0]))));
+  D_IS(ud, ((((Cell)(c_addr[7])) << 24) |
+	    (((Cell)(c_addr[6])) << 16) |
+	    (((Cell)(c_addr[5])) << 8) |
+	    (((Cell)(c_addr[4])))),
+       ((((Cell)(c_addr[3])) << 24) |
+	(((Cell)(c_addr[2])) << 16) |
+	(((Cell)(c_addr[1])) << 8) |
+	(((Cell)(c_addr[0])))));
 #else
-  D_IS(ud, 0,(((Cell)(c_addr[7]) << 56) |
-	      ((Cell)(c_addr[6]) << 48) |
-	      ((Cell)(c_addr[5]) << 40) |
-	      ((Cell)(c_addr[4]) << 32) |
-	      ((Cell)(c_addr[3]) << 24) |
-	      ((Cell)(c_addr[2]) << 16) |
-	      ((Cell)(c_addr[1]) << 8) |
-	      ((Cell)(c_addr[0]))));
+  D_IS(ud, 0,((((Cell)(c_addr[7])) << 56) |
+	      (((Cell)(c_addr[6])) << 48) |
+	      (((Cell)(c_addr[5])) << 40) |
+	      (((Cell)(c_addr[4])) << 32) |
+	      (((Cell)(c_addr[3])) << 24) |
+	      (((Cell)(c_addr[2])) << 16) |
+	      (((Cell)(c_addr[1])) << 8) |
+	      (((Cell)(c_addr[0])))));
 #endif
 #else
-ud = (((DCell)(c_addr[7]) << 56) |
-     ((DCell)(c_addr[6]) << 48) |
-     ((DCell)(c_addr[5]) << 40) |
-     ((DCell)(c_addr[4]) << 32) |
-     ((DCell)(c_addr[3]) << 24) |
-     ((DCell)(c_addr[2]) << 16) |
-     ((DCell)(c_addr[1]) << 8) |
-     ((DCell)(c_addr[0])));
+ud = ((((DCell)(c_addr[7])) << 56) |
+      (((DCell)(c_addr[6])) << 48) |
+      (((DCell)(c_addr[5])) << 40) |
+      (((DCell)(c_addr[4])) << 32) |
+      (((DCell)(c_addr[3])) << 24) |
+      (((DCell)(c_addr[2])) << 16) |
+      (((DCell)(c_addr[1])) << 8) |
+      (((DCell)(c_addr[0]))));
 #endif
 
 !@ ( u1 a_addr -- u2 )	gforth atomic_swap
