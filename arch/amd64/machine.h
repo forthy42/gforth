@@ -48,8 +48,6 @@
 #define ASM_UM_SLASH_MOD(d1lo, d1hi, n1, n2, n3) \
 	asm("divq %4": "=a"(n3),"=d"(n2) : "a"(d1lo),"d"(d1hi),"g"(n1):"cc");
 
-#define SLOW_UM_SLASH_MOD
-
 #include "../generic/machine.h"
 
 /* The architecture requires hardware consistency */

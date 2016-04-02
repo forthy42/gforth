@@ -917,7 +917,7 @@ n = n1*n2;
  um* drop ;
 
 /	( n1 n2 -- n )		core	slash
-#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0) || defined(SLOW_UM_SLASH_MOD)
+#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0) || !defined(FAST_UM_SLASH_MOD)
 n = n1/n2;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
@@ -940,7 +940,7 @@ if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
  /mod nip ;
 
 mod	( n1 n2 -- n )		core
-#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0) || defined(SLOW_UM_SLASH_MOD)
+#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0) || !defined(FAST_UM_SLASH_MOD)
 n = n1%n2;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
@@ -964,7 +964,7 @@ if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
  /mod drop ;
 
 /mod	( n1 n2 -- n3 n4 )		core		slash_mod
-#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0) || defined(SLOW_UM_SLASH_MOD)
+#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0) || !defined(FAST_UM_SLASH_MOD)
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
 if (CHECK_DIVISION_SW && n2 == 0)
@@ -1054,7 +1054,7 @@ n2 = n1>>1;
 
 fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
 ""Floored division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, @i{n1}>@i{n2}>=0 or 0>=@i{n2}>@i{n1}.""
-#if (CHECK_DIVISION_SW == 1) || defined(SLOW_UM_SLASH_MOD)
+#if (CHECK_DIVISION_SW == 1) || !defined(FAST_UM_SLASH_MOD)
   /* branchless signed division based fm/mod with propper checks */
 #ifdef ASM_SM_SLASH_REM
   ASM_SM_SLASH_REM(DLO(d1), DHI(d1), n1, n2, n3);
