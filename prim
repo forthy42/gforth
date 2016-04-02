@@ -924,7 +924,7 @@ if (CHECK_DIVISION_SW && n2 == 0)
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (FLOORED_DIV) {
-  Cell correct = -(((n1^n2) < 0) & (n1%n2 != 0));
+  Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n1%n2 != 0));
   n += correct;
 }
 #else
@@ -947,7 +947,7 @@ if (CHECK_DIVISION_SW && n2 == 0)
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (FLOORED_DIV) {
-  Cell correct = -(((n1^n2) < 0) & (n1%n2 != 0));
+  Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n1%n2 != 0));
   n += correct & n2;
 }
 #else
@@ -972,7 +972,7 @@ if (CHECK_DIVISION_SW && n2 == 0)
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (FLOORED_DIV) {
-  Cell correct = -(((n1^n2) < 0) & (n3!=0));
+  Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n3!=0));
   n4 += correct;
   n3 += correct & n2;
 }
@@ -998,7 +998,7 @@ DCell d = (DCell)n1 * (DCell)n2;
 #ifdef ASM_SM_SLASH_REM
 ASM_SM_SLASH_REM(DLO(d), DHI(d), n3, n4, n5);
 if (FLOORED_DIV) {
-  Cell correct=-(((DHI(d)^n3)<0) & (n4!=0));
+  Cell correct=-((Cell)((DHI(d)^n3)<0) & (Cell)(n4!=0));
   if (CHECK_DIVISION && correct && n5 == CELL_MIN)
     throw(BALL_RESULTRANGE);
   n5 += correct;
@@ -1058,7 +1058,7 @@ fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
   /* branchless signed division based fm/mod with propper checks */
 #ifdef ASM_SM_SLASH_REM
   ASM_SM_SLASH_REM(DLO(d1), DHI(d1), n1, n2, n3);
-  Cell correct = -(((DHI(d1)^n1)<0) & (n2!=0));
+  Cell correct = -((Cell)((DHI(d1)^n1)<0) & (Cell)(n2!=0));
   if (CHECK_DIVISION && correct && n3 == CELL_MIN)
     throw(BALL_RESULTRANGE);
   n3 += correct;
