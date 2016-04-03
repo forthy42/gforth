@@ -24,7 +24,7 @@ libtoolize --force --copy --install || glibtoolize --force --copy --install
 
 # makes a aclocal.m4 which includes the automake macros for autconf
 
-aclocal &&
+aclocal -I m4 &&
 
 # generate configure script
 

@@ -82,7 +82,7 @@ html:		gforth vmgen
 
 doc:		info html ps txt
 
-Makefile: Makefile.in ../config.status ../configure.in
+Makefile: Makefile.in ../config.status ../configure.ac
 	cd .. && $(MAKE) doc/Makefile.in
 
 all:		Makefile doc

@@ -288,7 +288,7 @@ stamp-h:	config.h.in ../config.status ../stamp-h.in
 		cd .. && CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
 		echo timestamp > stamp-h
 
-Makefile: Makefile.in ../config.status ../configure.in
+Makefile: Makefile.in ../config.status ../configure.ac
 	cd .. && $(MAKE) engine/Makefile.in
 
 image.i:	../fi2c.fs ../$(include_fi)

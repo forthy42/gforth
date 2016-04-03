@@ -89,6 +89,7 @@ CP	= cp -p
 MV	= mv
 TAR	= tar cf -
 MKDIR	= mkdir
+ACLOCAL_AMFLAGS = -I m4
 INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 MASSAGE_EXE = @MASSAGE_EXE@
@@ -523,7 +524,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
-	autogen.sh configure.in configure config.sub config.guess \
+	autogen.sh configure.ac configure config.sub config.guess \
 	elisp-comp stamp-h.in envos.fs.in kernel/version.fs.in \
 	iss.sh wininst.sh modpath.iss \
 	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
@@ -605,7 +606,7 @@ FORCE: ;
 
 #this rule avoids remaking everything after minor changes in Makefile.in
 #disabled now, as it doesn't have the wanted effect
-#version:	Makefile.in configure.in
+#version:	Makefile.in configure.ac
 #		echo $(VERSION) > $@
 
 # With dos we use normal dos echo
@@ -1209,15 +1210,15 @@ doc pdf dvi txt ps:	gforth.fi TAGS $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
 
 #Note: no target "$(srcdir)/configure", because that does not trigger 
 #unless $(srcdir)!="."
-configure: configure.in aclocal.m4
+configure: configure.ac aclocal.m4
 	cd $(srcdir) && autoconf
 
-aclocal.m4:	configure.in
-		aclocal
+aclocal.m4:	configure.ac
+		aclocal $(ACLOCAL_AMFLAGS)
 
 # autoheader might not change config.h.in, so touch a stamp file.
 engine/config.h.in: stamp-h.in
-stamp-h.in: configure.in aclocal.m4
+stamp-h.in: configure.ac aclocal.m4
 	cd $(srcdir) && autoheader
 	echo timestamp > $(srcdir)/stamp-h.in
 
@@ -1225,7 +1226,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile doc/Makefile gforthmi vmgen preforth libforth gforthker machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh kernel/version.fs:	Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.in envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in kernel/version.fs.in
+Makefile Makedist engine/Makefile doc/Makefile gforthmi vmgen preforth libforth gforthker machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh kernel/version.fs:	Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in kernel/version.fs.in
 	./config.status
 
 config.status: configure

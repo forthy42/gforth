@@ -27,7 +27,10 @@ AC_PREREQ(2.54)
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
 UPDATED="March 30, 2016"
 AC_SUBST(UPDATED)
+AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_HEADERS(engine/config.h)
+AC_USE_SYSTEM_EXTENSIONS
+LT_INIT([disable-static])
 
 #remnants from having ltdl as convenience library
 LTDLDEPS=""
