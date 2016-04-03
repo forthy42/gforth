@@ -22,7 +22,7 @@
 TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 
 FREETYPE=freetype-2.6.3
-HARFBUZZ=harfbuzz-1.2.3
+HARFBUZZ=harfbuzz-1.2.4
 
 fine=yes
 for i in git wget ragel hg
