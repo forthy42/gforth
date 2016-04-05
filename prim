@@ -917,74 +917,43 @@ n = n1*n2;
  um* drop ;
 
 /	( n1 n2 -- n )		core	slash
-#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0) || !defined(FAST_UM_SLASH_MOD)
 n = n1/n2;
-if (CHECK_DIVISION_SW && n2 == 0)
-  throw(BALL_DIVZERO);
-if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
-  throw(BALL_RESULTRANGE);
 if (FLOORED_DIV) {
   Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n1%n2 != 0));
   n += correct;
 }
-#else
-MAYBE_UNUSED Cell n3;
-DIV_SETUP(d1, n1, n2);
-ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n3, n);
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
-if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
+if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
-#endif
 :
  /mod nip ;
 
 mod	( n1 n2 -- n )		core
-#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0) || !defined(FAST_UM_SLASH_MOD)
 n = n1%n2;
+if (FLOORED_DIV) {
+  Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n != 0));
+  n += correct & n2;
+}
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
-if (FLOORED_DIV) {
-  Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n1%n2 != 0));
-  n += correct & n2;
-}
-#else
-MAYBE_UNUSED Cell n3;
-DIV_SETUP(d1, n1, n2);
-ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n, n3);
-if(sign) n = -n;
-if (CHECK_DIVISION_SW && n2 == 0)
-  throw(BALL_DIVZERO);
-if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
-  throw(BALL_RESULTRANGE);
-#endif
 :
  /mod drop ;
 
 /mod	( n1 n2 -- n3 n4 )		core		slash_mod
-#if !defined(ASM_UM_SLASH_MOD) || (FLOORED_DIV==0) || !defined(FAST_UM_SLASH_MOD)
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
-if (CHECK_DIVISION_SW && n2 == 0)
-  throw(BALL_DIVZERO);
-if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
-  throw(BALL_RESULTRANGE);
 if (FLOORED_DIV) {
   Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n3!=0));
   n4 += correct;
   n3 += correct & n2;
 }
-#else
-DIV_SETUP(d1, n1, n2);
-ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n2, n3, n4);
-if(sign) n3 = -n3;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
-if (CHECK_DIVISION_SW && sign && n2 == 1 && n1 == CELL_MIN)
+if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
-#endif
 :
  >r s>d r> fm/mod ;
 
@@ -1054,8 +1023,6 @@ n2 = n1>>1;
 
 fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
 ""Floored division: @i{d1} = @i{n3}*@i{n1}+@i{n2}, @i{n1}>@i{n2}>=0 or 0>=@i{n2}>@i{n1}.""
-#if (CHECK_DIVISION_SW == 1) || !defined(FAST_UM_SLASH_MOD)
-  /* branchless signed division based fm/mod with propper checks */
 #ifdef ASM_SM_SLASH_REM
   ASM_SM_SLASH_REM(DLO(d1), DHI(d1), n1, n2, n3);
   Cell correct = -((Cell)((DHI(d1)^n1)<0) & (Cell)(n2!=0));
@@ -1068,29 +1035,6 @@ fm/mod	( d1 n1 -- n2 n3 )		core		f_m_slash_mod
   n2=DHI(r);
   n3=DLO(r);
 #endif /* !defined(ASM_SM_SLASH_REM) */
-#else
-  /* unsigned division based fm/mod without propper checks */
-  Cell sign = n1<0;
-  if(sign) {
-    n1 = -n1;
-#ifdef BUGGY_LL_ADD
-    d1 = dnegate(d1);
-#else
-    d1 = -d1;
-#endif
-  }
-  Cell up = DHI(d1);
-  Cell correct = (up < 0);
-  DHI_IS(d1, up + ((-correct) & n1));
-#ifdef ASM_UM_SLASH_MOD
-  ASM_UM_SLASH_MOD(DLO(d1), DHI(d1), n1, n2, n3);
-#else /* !defined(ASM_UM_SLASH_MOD) */
-  UDCell r = umdiv(*(UDCell*)&d1,n1);
-  n2=DHI(r);
-  n3=DLO(r);
-#endif
-  if(sign) n2 = -n2;
-#endif
 :
  dup >r dup 0< IF  negate >r dnegate r>  THEN
  >r dup 0< r@ and + r> um/mod
