@@ -6,6 +6,8 @@ get-current also jni definitions
 
 c-library jnilib
     s" ((struct JNI:*(Cell*)(sp[arg0])" ptr-declare $+[]!
+    \c #define JNINativeInterface_ JNINativeInterface
+    \c #define JNIInvokeInterface_ JNIInvokeInterface
     \c #include <jni.h>
     include unix/jni.fs
     

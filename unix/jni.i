@@ -2,6 +2,8 @@
 %module jni
 %insert("include")
 %{
+#define JNINativeInterface_ JNINativeInterface
+#define JNIInvokeInterface_ JNIInvokeInterface
 #include <jni.h>
 #ifdef __gnu_linux__
 #undef stderr
@@ -29,12 +31,10 @@ extern struct _IO_FILE *stderr;
 #define JNICALL
 #define _CLASSPATH_JNIIMPEXP
 #endif
-#define JNINativeInterface_ JNIEnv
-#define JNINativeInterface JNIEnv
-#define JNIInvokeInterface_ JavaVM
-#define JNIInvokeInterface JavaVM
+#define JNINativeInterface_ JNINativeInterface
+#define JNIInvokeInterface_ JNIInvokeInterface
 
-// exec: sed -e 's/\(c-function .*\)/\\ \1/g' -e 's/\(ReleaseStringUTFChars.*\) a a s/\1 a a a/g'
+// exec: sed -e s/JNINativeInterface-/JNIEnv-/g -e s/JNIInvokeInterface-/JavaVM-/g -e 's/\(c-function .*\)/\\ \1/g' -e 's/\(ReleaseStringUTFChars.*\) a a s/\1 a a a/g'
 
 %apply char { jbyte, jboolean };
 %apply short { jshort, jchar };
