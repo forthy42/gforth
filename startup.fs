@@ -29,6 +29,7 @@ require except.fs \ included on command line
 
 warnings off
 include search.fs
+include options.fs
 include environ.fs
 include ~+/envos.fs
 include errors.fs

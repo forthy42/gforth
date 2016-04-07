@@ -17,9 +17,22 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+Variable load-rc?
+:noname  defers 'cold load-rc? on ; is 'cold
+
+also options definitions
+: --no-rc ( -- )  load-rc? off ;
+previous definitions
+
+:noname ( -- ) defers image-options
+    ."   --no-rc			    don't load ~/.gforthrc" cr
+; is image-options
+
 : load-rc ( -- )
     \G if available, load ~/.gforthrc
-    s" ~/.gforthrc" open-fpath-file
-    0= IF  included1  ELSE  drop  THEN ;
+    load-rc? @ IF
+	s" ~/.gforthrc" open-fpath-file
+	0= IF  included1  ELSE  drop  THEN
+    THEN ;
 
 :noname  load-rc defers bootmessage ; is bootmessage

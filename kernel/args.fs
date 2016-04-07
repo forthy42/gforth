@@ -89,20 +89,15 @@ Variable argc ( -- addr ) \ gforth
 
 \ main words
 
-: process-option ( addr u -- )
+: (process-option) ( addr u -- )
     \ process option, possibly consuming further arguments
     2dup s" -e"         str= >r
     2dup s" --evaluate" str= r> or if
 	2drop next-arg args-evaluate exit endif
-    2dup s" -h"         str= >r
-    2dup s" --help"     str= r> or if
-	." Image Options:" cr
-	."   FILE				    load FILE (with `require')" cr
-	."   -e STRING, --evaluate STRING      interpret STRING (with `EVALUATE')" cr
-	." Report bugs on <https://savannah.gnu.org/bugs/?func=addbug&group=gforth>" cr
-	bye
-    THEN
     ." Unknown option: " type cr ;
+
+Defer process-option
+' (process-option) IS process-option
 
 : (process-args) ( -- )
     true to script?

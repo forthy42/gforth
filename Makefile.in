@@ -280,6 +280,7 @@ GFORTH_FI_SRC2=\
 	vt100key.fs \
 	wordinfo.fs \
 	gforthrc.fs \
+	options.fs \
 	arch/386/asm.fs arch/386/disasm.fs \
 	arch/amd64/asm.fs arch/amd64/disasm.fs \
 	arch/alpha/asm.fs arch/alpha/disasm.fs arch/alpha/testasm.fs\

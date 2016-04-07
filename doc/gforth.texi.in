@@ -912,15 +912,10 @@ invokes a specific version. If your environment contains the variable
 @code{GFORTHPATH}, you may want to override it by using the
 @code{--path} option.
 
-Not yet implemented:
-On startup the system first executes the system initialization file
-(unless the option @code{--no-init-file} is given; note that the system
-resulting from using this option may not be ANS Forth conformant). Then
-the user initialization file @file{.gforth.fs} is executed, unless the
-option @code{--no-rc} is given; this file is searched for in @file{.},
-then in @file{~}, then in the normal path (see above).
-
-
+On startup, after processing all the image options and just before
+printing the boot message, the user initialization file
+@file{~/.gforthrc} from your home directory is included, unless the
+option @code{--no-rc} is given.
 
 @comment ----------------------------------------------
 @node Leaving Gforth, Command-line editing, Invoking Gforth, Gforth Environment
