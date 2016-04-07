@@ -42,6 +42,9 @@ c-library socket
     c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
     c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
     c-function getsockname getsockname  n a a -- n ( sockfd addr *len -- r )
+    \c #include <ifaddrs.h>
+    c-function getifaddrs getifaddrs a -- n ( ifap -- r )
+    c-function freeifaddrs freeifaddrs a -- void ( ifa -- )
 end-c-library
 
 require libc.fs
