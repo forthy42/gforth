@@ -1039,7 +1039,7 @@ gforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kerne
 	else \
 		( cd engine && $(MAKE) $@ ) && \
 		$(CP) engine/$@ $@ && \
-		$(MASSAGE_EXE) $@ || true; \
+		($(MASSAGE_EXE) $@ || true); \
 		@GFORTH_EXE@; \
 		@NO_CHECK@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
 	fi
@@ -1053,7 +1053,7 @@ gforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/confi
 	else \
 		(cd engine && $(MAKE) $@ ) && \
 		$(CP) engine/$@ $@ && \
-		$(MASSAGE_EXE) $@ || true; \
+		($(MASSAGE_EXE) $@ || true); \
 		@GFORTHFAST_EXE@; \
 		@NO_CHECK@ $(MAKE) checkone ENGINE=./engine/$@; \
 	fi
