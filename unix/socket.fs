@@ -193,7 +193,61 @@ $10000 Constant MSG_WAITFORONE
     11 Constant EAGAIN
     [THEN]
 [THEN]
+[IFDEF] linux
+    \ netlink socket stuff
+    16 Constant PF_NETLINK
+    PF_NETLINK Constant AF_NETLINK
+    0 Constant NETLINK_ROUTE
+
+    begin-structure sockaddr_nl
+	wfield: nl_family	\ AF_NETLINK
+	wfield: nl_pad		\ zero
+	lfield: nl_pid		\ port ID
+	lfield: nl_groups	\ multicast groups mask
+    end-structure
+
+    begin-structure nlmsghdr
+	lfield: nlmsg_len	\ Length of message including header
+	wfield: nlmsg_type	\ Message content
+	wfield: nlmsg_flags	\ Additional flags
+	lfield: nlmsg_seq	\ Sequence number
+	lfield: nlmsg_pid	\ Sending process port ID
+    end-structure
+
+    \ message types:
+    16 Constant RTM_NEWLINK
+    17 Constant RTM_DELLINK
+    20 Constant RTM_NEWADDR
+    21 Constant RTM_DELADDR
+
+    \ message address
+    begin-structure ifaddrmsg
+	cfield: ifam_family    \ Address type
+	cfield: ifam_prefixlen \ Prefixlength of address
+	cfield: ifam_flags     \ Address flags
+	cfield: ifam_scope     \ Address scope
+	lfield: ifam_index     \ Interface index
+    end-structure
+
+    $01 Constant IFA_F_SECONDARY
+    $02 Constant IFA_F_NODAD
+    $04 Constant IFA_F_OPTIMISTIC
+    $08 Constant IFA_F_DADFAILED
+    $10 Constant IFA_F_HOMEADDRESS
+    $20 Constant IFA_F_DEPRECATED
+    $40 Constant IFA_F_TENTATIVE
+    $80 Constant IFA_F_PERMANENT
+    : ifa-f$ ( -- addr u ) s" snofhdtp" ;
+
+    \ message attribute
+    begin-structure rtattr
+	wfield: rta_len
+	wfield: rta_type
+    end-structure
+
+[THEN]
 machine "mips" str= [IF]
+    \ Linux on mips is weird again...
    2 Constant SOCK_STREAM
    1 Constant SOCK_DGRAM
 [ELSE]
