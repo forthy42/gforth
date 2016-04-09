@@ -1315,6 +1315,28 @@ u1=DLO(r);
 :
  >r dup 0< r@ and + r> um/mod ;
 
+u/	( u1 u2 -- u )		gforth	u_slash
+u = u1/u2;
+if (CHECK_DIVISION_SW && u2 == 0)
+  throw(BALL_DIVZERO);
+:
+ u/mod nip ;
+
+umod	( u1 u2 -- u )		gforth
+u = u1%u2;
+if (CHECK_DIVISION_SW && u2 == 0)
+  throw(BALL_DIVZERO);
+:
+ u/mod drop ;
+
+u/mod	( u1 u2 -- u3 u4 )		gfprtj		u_slash_mod
+u4 = u1/u2;
+u3 = u1%u2;
+if (CHECK_DIVISION_SW && u2 == 0)
+  throw(BALL_DIVZERO);
+:
+ 0 swap um/mod ;
+
 \g compare
 
 \ comparisons(prefix, args, prefix, arg1, arg2, wordsets...)
