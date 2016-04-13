@@ -62,15 +62,15 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
 : get-ic ( win -- ) xim 0= IF  drop  EXIT  THEN
     ic IF  >r ic "focusWindow\0" drop r> 0 XSetICValues drop
 	EXIT  THEN
-    0 "fontSet\0" drop fontset "spotLocation\0" drop spot 0
+    0 "fontSet\0" drop fontset "spotLocation\0" drop spot
     XVaCreateNestedList_2 { win list }
     xim "inputStyle\0" drop im "preeditAttributes\0" drop list
-    "focusWindow\0" drop win 0 XCreateIC_3 dup to ic
+    "focusWindow\0" drop win XCreateIC_3 dup to ic
     list XFree drop
     ?dup-IF  XSetICFocus  THEN ;
 
 : focus-ic ( win -- )  ic IF
-	>r ic "focusWindow\0" drop r@ "clientWindow\0" drop r> 0
+	>r ic "focusWindow\0" drop r@ "clientWindow\0" drop r>
 	XSetICValues_2 drop  ic XSetICFocus
     THEN ;
 

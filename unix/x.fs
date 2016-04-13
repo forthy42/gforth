@@ -14,10 +14,10 @@ c-library x
     include unix/xlib.fs
 
     \ several vararg functions have to be declared by hand
-    c-function XVaCreateNestedList_2 XVaCreateNestedList n a a a a a -- a
-    c-function XCreateIC_2 XCreateIC a a a a a a -- a
-    c-function XCreateIC_3 XCreateIC a a a a a a a a -- a
-    c-function XSetICValues_2 XSetICValues a a a a a a -- a
+    c-function XVaCreateNestedList_2 XVaCreateNestedList n a a a a 0 -- a
+    c-function XCreateIC_2 XCreateIC a a a a a 0 -- a
+    c-function XCreateIC_3 XCreateIC a a a a a a a 0 -- a
+    c-function XSetICValues_2 XSetICValues a a a a a 0 -- a
     warnings !
 end-c-library
 

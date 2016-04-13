@@ -244,6 +244,7 @@ const+ func \ C function pointer
 const+ void \ no return value
 const+ s \ string
 const+ ws \ wide string
+const+ 0 \ NULL pointer (sentinel)
 drop
 
 set-current
@@ -341,6 +342,7 @@ create count-stacks-types
 ' count-stacks-void ,
 ' count-stacks-s ,
 ' count-stacks-ws ,
+' noop ,
 
 : count-stacks ( pars -- fp-change sp-change )
     \ pars is an addr u pair
@@ -393,6 +395,9 @@ create count-stacks-types
 : gen-par-ws ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     2drop s" gforth_str2wc((Char*)" gen-par-n s" ," gen-par-n ." )" ;
 
+: gen-par-0 ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    2drop ." NULL" ;
+
 create gen-par-types
 ' gen-par-n ,
 ' gen-par-u ,
@@ -404,6 +409,7 @@ create gen-par-types
 ' gen-par-void ,
 ' gen-par-s ,
 ' gen-par-ws ,
+' gen-par-0 ,
 
 : gen-par ( fp-depth1 sp-depth1 cast-addr u partype -- fp-depth2 sp-depth2 )
     cells gen-par-types + @ execute ;
@@ -473,6 +479,7 @@ create gen-wrapped-types
 ' gen-wrapped-void ,
 ' gen-wrapped-a ,
 ' gen-wrapped-a ,
+' gen-wrapped-void ,
 
 : gen-wrapped-stmt ( pars c-name fp-change1 sp-change1 ret -- fp-change sp-change )
     cells gen-wrapped-types + @ execute ;
@@ -547,6 +554,7 @@ create gen-types
 ' gen-r ,
 ' gen-func ,
 ' gen-void ,
+' gen-a ,
 ' gen-a ,
 ' gen-a ,
 
