@@ -34,7 +34,7 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
 	dpy 0 0 0 XOpenIM dup to xim
 	." Warning: can't open XMODIFIERS' IM, set to '@im=local' instead" cr
     THEN
-    IF  0 { w^ styles } xim "queryInputStyle\0" drop styles 0 XGetIMValues
+    IF  0 { w^ styles } xim "queryInputStyle\0" drop styles XGetIMValues
 	0<> ?EXIT \ didn't succeed
 	0  styles @ cell+ @ styles @ w@ cells bounds ?DO
 	    I @ dup XIMPreedit and 0<> swap XIMStatusNothing and 0<> and
@@ -60,7 +60,7 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
 4 buffer: spot \ spot location, two shorts
 
 : get-ic ( win -- ) xim 0= IF  drop  EXIT  THEN
-    ic IF  >r ic "focusWindow\0" drop r> 0 XSetICValues drop
+    ic IF  >r ic "focusWindow\0" drop r> XSetICValues drop
 	EXIT  THEN
     0 "fontSet\0" drop fontset "spotLocation\0" drop spot
     XVaCreateNestedList_2 { win list }
