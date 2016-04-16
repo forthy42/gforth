@@ -31,12 +31,15 @@
 
 : $padding ( n -- n' ) \ gforth-string
     [ 6 cells ] Literal + [ -4 cells ] Literal and ;
+: $off ( addr -- ) \ gforth-string string-off
+    \G releases a string.
+    0 swap !@ dup IF  free throw  ELSE  drop  THEN ;
 : $! ( addr1 u addr2 -- ) \ gforth-string string-store
     \G stores a string at an address, If there was a string there
     \G already, that string will be lost.
-    dup @ IF  dup @ free throw  THEN
-    over $padding allocate throw over ! @
-    over >r  rot over cell+  r> move ! ;
+    >r dup $padding allocate throw 2dup !
+    dup >r cell+ swap move r>
+    BEGIN  r@ $off dup 0 r@ ?!@ 0= UNTIL  drop rdrop ;
 : $@len ( addr -- u ) \ gforth-string string-fetch-len
     \G returns the length of the stored string.
     @ dup IF  @  THEN ;
@@ -47,7 +50,7 @@
     \G changes the length of the stored string.  Therefore we must
     \G change the memory area and adjust address and count cell as
     \G well.
-    dup @ 0= IF  s" " 2 pick $!  THEN
+    dup @ 0= IF  >r dup $padding allocate throw tuck ! r> ! EXIT  THEN
     over $padding over @ swap resize throw over ! @ ! ;
 : $+! ( addr1 u addr2 -- ) \ gforth-string string-plus-store
     \G appends a string to another.
@@ -64,9 +67,6 @@
     >r >r dup $@ r> safe/string r@ delete
     dup $@len r> - 0 max swap $!len ;
 
-: $off ( addr -- ) \ gforth-string string-off
-    \G releases a string.
-    dup @ dup IF  free throw off  ELSE  2drop  THEN ;
 : $init ( addr -- ) \ gforth-string string-init
     \G initializes a string to empty (doesn't look at what was there before).
     >r r@ off s" " r> $! ;
