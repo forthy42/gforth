@@ -26,8 +26,8 @@ then
 else
   helper="$startup"
 fi
-test "x$GFORTHD" != x || GFORTHD="@bindir@/gforth-ditc-@PACKAGE_VERSION@@ARCH@ --die-on-signal"
-test "x$GFORTH" != x || GFORTH="@bindir@/gforth-@PACKAGE_VERSION@@ARCH@ --die-on-signal $helper"
+test "x$GFORTHD" != x || GFORTHD="@bindir@/gforth-ditc-@PACKAGE_VERSION@-@machine@ --die-on-signal"
+test "x$GFORTH" != x || GFORTH="@bindir@/gforth-@PACKAGE_VERSION@-@machine@ --die-on-signal $helper"
 if test $# = 0 || test $1 = --help || test $1 = -h; then
   echo "usage: `basename $0` [--application] target-name [gforth-options]"
   echo "creates a relocatable image 'target-name'"
@@ -37,7 +37,7 @@ if test $# = 0 || test $1 = --help || test $1 = -h; then
   test $# != 0 || exit 1
   exit 0
 elif test $1 = --version || test $1 = -v; then
-  echo "gforthmi (@PACKAGE_NAME@) @PACKAGE_VERSION@"
+  echo "gforthmi (@PACKAGE_NAME@) @PACKAGE_VERSION@ @machine@"
   $GFORTH --version
   echo 'Copyright (C) 1998,2002,2003,2004,2007,2012,2013,2015 Free Software Foundation, Inc.'
   echo 'This program is part of Gforth'
