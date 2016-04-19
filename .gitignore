@@ -7,7 +7,7 @@
 *-
 gforth
 libgforth
-gforth-*
+gforth-[dfi]*
 libgforth-*
 Makefile
 vmgen
