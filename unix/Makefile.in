@@ -56,12 +56,13 @@ libs: build-libcc-named $(LIBRARY)
 	done
 
 # execute compiled file
-%.fs: %.fsx
-	./$< -gforth | $(srcdir)/doexec $@ $(srcdir) > $@
+%.fs: %-fsi.c
+	$(CC) -o $@x $<
+	./$@x -gforth | $(srcdir)/doexec $@ $(srcdir) > $@
 
 # compile fsi-file
-%.fsx: %-fsi.c
-	$(CC) -o $@ $<
+#%.fsx: %-fsi.c
+#	$(CC) -o $@ $<
 
 # use swig to create the fsi file
 %-fsi.c: $(srcdir)/%.i

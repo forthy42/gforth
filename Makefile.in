@@ -129,6 +129,7 @@ FORTHK	= ./gforthker -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 # in exboot.fs
 STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@
 STRIP	= strip
+DOSTRIP = true
 
 # -------------	Compiler Flags
 
@@ -546,11 +547,18 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	debian/rules debian/control.in debian/changelog.in debian/compat \
 	gforth.ico .travis.yml install-swig.sh $(SWIG_WRAP)
 
+CONFIG_GEN = Makefile Makedist engine/Makefile doc/Makefile gforthmi	\
+	vmgen preforth libforth gforthker machpc.fs doc/version.texi	\
+	envos.fs build-ec gforthmi.sh kernel/version.fs
+
 RCS_FILES =  ToDo model high-level
 
 ENGINES = gforth$(EXT) @NO_EC@ gforth-ditc$(EXT) gforth-itc$(EXT) $(PROFEXES)
 
 ENGINES_FAST = @NO_EC@ gforth-fast$(OPT)$(EXT) #gforth-native$(OPT)$(EXT) 
+
+LIBENGINES = $(ENGINES:%=lib%)
+LiBENGINES_FAST = $(ENGINES_FAST:%=lib%)
 
 GEN = $(ENGINES) $(ENGINES_FAST) @gforth_elc@
 
@@ -566,6 +574,7 @@ FORTH_GEN_ENGINE_FAST= \
 	engine/costs-fast.i engine/super2-fast.i
 FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
+FORTH_GEN_FAST = prim-fast.b $(FORTH_GEN_ENGINE_FAST)
 FORTH_GEN =  $(FORTH_GEN0) @GKERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
@@ -587,7 +596,7 @@ KERNLS = kernl32b$(EC).fi- kernl32l$(EC).fi- \
 GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 	doc/gforth.texi doc/gforth.dvi doc/gforth.ps \
 	doc/vmgen.dvi doc/vmgen.ps \
-	Makefile Makedist engine/Makefile configure
+	$(CONFIG_GEN) configure
 
 #search path patterhn
 
@@ -1035,59 +1044,65 @@ MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
 gforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
 	if test -z "$(OPT)"; then \
-		for i in $(OPTS); do $(MAKE) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
+		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
 	else \
-		( cd engine && $(MAKE) $@ ) && \
+		( cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) $@ ) && \
 		$(CP) engine/$@ $@ && \
 		($(MASSAGE_EXE) $@ || true); \
 		@GFORTH_EXE@; \
 		@NO_CHECK@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
 	fi
+	$(DOSTRIP) $@
 
 optgforth:
 	$(MAKE) gforth$(OPT)$(EXT) $(MAKELINE$(OPT))
 
 gforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
 	if test -z "$(OPT)"; then \
-		for i in $(OPTS); do $(MAKE) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
+		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
 	else \
-		(cd engine && $(MAKE) $@ ) && \
+		(cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) $@ ) && \
 		$(CP) engine/$@ $@ && \
 		($(MASSAGE_EXE) $@ || true); \
 		@GFORTHFAST_EXE@; \
 		@NO_CHECK@ $(MAKE) checkone ENGINE=./engine/$@; \
 	fi
+	$(DOSTRIP) $@
 
 optgforth-fast:
-	$(MAKE) gforth-fast$(OPT)$(EXT) $(MAKELINE$(OPT))
+	$(MAKE) DOSTRIP=$(DOSTRIP) gforth-fast$(OPT)$(EXT) $(MAKELINE$(OPT))
 
 gforth-native$(OPT)$(EXT):	engines-fast
-		$(CP) engine/$@ $@
-		-$(MASSAGE_EXE) $@
+	$(CP) engine/$@ $@
+	-$(MASSAGE_EXE) $@
+	$(DOSTRIP) $@
 #@GFORTHX_EXE@
 
 gforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
-		cd engine && $(MAKE) gforth-itc-noll$(EXT) $(MAKELINE-noll)
-		$(CP) engine/gforth-itc-noll$(EXT) $@
-		@GFORTHITC_EXE@
+	cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) gforth-itc-noll$(EXT) $(MAKELINE-noll)
+	$(CP) engine/gforth-itc-noll$(EXT) $@
+	$(DOSTRIP) $@
+	@GFORTHITC_EXE@
 
 gforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
-		cd engine && $(MAKE) gforth-ditc-noll$(EXT) $(MAKELINE-noll)
-		$(CP) engine/gforth-ditc-noll$(EXT) $@
-		@GFORTHDITC_EXE@
+	cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) gforth-ditc-noll$(EXT) $(MAKELINE-noll)
+	$(CP) engine/gforth-ditc-noll$(EXT) $@
+	$(DOSTRIP) $@
+	@GFORTHDITC_EXE@
 
 gforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
-		cd engine && $(MAKE) gforth-prof-noll$(EXT) $(MAKELINE-noll)
-		$(CP) engine/gforth-prof-noll$(EXT) $@
+	cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) gforth-prof-noll$(EXT) $(MAKELINE-noll)
+	$(CP) engine/gforth-prof-noll$(EXT) $@
+	$(DOSTRIP) $@
 
 gforths: $(ENGINES) $(ENGINES_FAST)
 
 #For now, we have no way to check if the engines build correctly
 libgforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
 	if test -z "$(OPT)"; then \
-		for i in $(OPTS); do $(MAKE) optlibgforth OPT=$$i && $(MAKE) optlibgforth2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
+		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth OPT=$$i && $(MAKE) optlibgforth2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
-		(cd engine && $(MAKE) $@ ); \
+		(cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) $@ ); \
 		@NO_CHECK@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
 	fi
 
@@ -1099,9 +1114,9 @@ optlibgforth2:
 
 libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
 	if test -z "$(OPT)"; then \
-		for i in $(OPTS); do $(MAKE) optlibgforth-fast OPT=$$i && $(MAKE) optlibgforth-fast2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
+		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth-fast OPT=$$i && $(MAKE) optlibgforth-fast2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
-		(cd engine && $(MAKE) $@ ); \
+		(cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) $@ ); \
 		@NO_CHECK@ $(MAKE) checkone ENGINE=./engine/$@; \
 	fi
 
@@ -1126,7 +1141,7 @@ libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engi
 		$(LN_S) engine/$@ $@
 		-$(MASSAGE_EXE) $@
 
-libgforths: $(ENGINES:%=lib%) $(ENGINES_FAST:%=lib%)
+libgforths:	$(LIBENGINES) $(LIBENGINES_FAST)
 
 # ------------- additional C primitives
 
@@ -1227,7 +1242,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-Makefile Makedist engine/Makefile doc/Makefile gforthmi vmgen preforth libforth gforthker machpc.fs doc/version.texi envos.fs build-ec gforthmi.sh kernel/version.fs:	Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in kernel/version.fs.in
+$(CONFIG_GEN):	Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in kernel/version.fs.in
 	./config.status
 
 config.status: configure

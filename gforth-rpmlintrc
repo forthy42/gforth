@@ -1,2 +1,0 @@
-# files required for Gforth's C bindings
-addFilter("gforth.*devel-file-in-non-devel-package")

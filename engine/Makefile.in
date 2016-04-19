@@ -51,6 +51,7 @@ CC	= $(GCC)
 LD	= $(GCC:gcc=ld)
 AS	= $(GCC:gcc=as)
 STRIP	= strip
+DOSTRIP = true
 GCCLD	= @GCC_LD@
 LIBTOOL = @GNU_LIBTOOL@ --tag=CC
 LTLD = $(LIBTOOL) --mode=link $(GCCLD) -version-info $(LIBVERSION) -rpath $(libdir)
@@ -161,24 +162,31 @@ LINKER=$(GCCLD) $(LDFLAGS)
 
 gforth$(OPT)$(EC)$(EXE):	$(OBJECTS) $(GFORTHDEPS)
 	$(LINKER) $(OBJECTS) $(GFORTHOBJS) -o $@
+	$(DOSTRIP) $@
 
 gforth-native$(OPT)$(EC)$(EXE):	$(OBJECTS_NATIVE) $(GFORTHDEPS)
 	$(LINKER) $(OBJECTS_NATIVE) $(GFORTHOBJS) -o $@
+	$(DOSTRIP) $@
 
 gforth-fast$(OPT)$(EC)$(EXE):	$(OBJECTS_FAST) $(GFORTHDEPS)
 	$(LINKER) $(OBJECTS_FAST) $(GFORTHOBJS) -o $@
+	$(DOSTRIP) $@
 
 gforth-itc$(OPT)$(EC)$(EXE):	$(OBJECTS_ITC) $(GFORTHDEPS)
 	$(LINKER) $(OBJECTS_ITC) $(GFORTHOBJS) -o $@
+	$(DOSTRIP) $@
 
 gforth-ditc$(OPT)$(EC)$(EXE): $(OBJECTS_DITC) $(GFORTHDEPS)
 	$(LINKER) $(OBJECTS_DITC) $(GFORTHOBJS) -o $@
+	$(DOSTRIP) $@
 
 gforth-prof$(OPT)$(EC)$(EXE): $(OBJECTS_PROF) profile$(OPT).o $(GFORTHDEPS)
 	$(LINKER) $(OBJECTS_PROF) $(AOBJECTS) profile$(OPT).o $(LDLIBS) -o $@
+	$(DOSTRIP) $@
 
 gforth-fi$(OPT)$(EC)$(EXE):	$(OBJECTS_FI) $(GFORTHDEPS)
 	$(LINKER) $(OBJECTS_FI) $(GFORTHOBJS) -o $@
+	$(DOSTRIP) $@
 
 LIBGFORTHDEPS = $(AOBJECTS:%.o=%.lo) $(LTDLDEPS)
 LIBGFORTHOBJS = $(AOBJECTS:%.o=%.lo) $(LDLIBS)
