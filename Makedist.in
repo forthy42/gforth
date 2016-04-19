@@ -93,7 +93,7 @@ dhtmldist:	html
 # the objects, the executable and the links. the objects are there for making
 # make happy.
 dbindist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ gforth.fi $(DOCDIST) $(BINONLYDIST) build-libcc-named
-		-$(RM) -f gforth gforth-* engine/gforth-*
+		-$(RM) -f gforth gforth-[dfi]* engine/gforth-*
 		-$(RM) -f libgforth libgforth-* engine/libgforth*
 		$(MAKE) DOSTRIP=$(STRIP) all
 		-$(RMTREE) gforth-$(VERSION)
@@ -113,7 +113,8 @@ distfiles:
 #then just has to unpack the source and his favourite binonly into the
 #same directory and has a full binary distribution.
 dbinonlydist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ gforth.fi $(DOCDIST) $(BINONLYDIST)
-		-$(RM) -f gforth gforth-* engine/gforth-*
+		-$(RM) -f gforth gforth-[dfi]* engine/gforth-*
+		-$(RM) -f libgforth libgforth-* engine/libgforth*
 		$(MAKE) DOSTRIP=$(STRIP) all
 		-$(RMTREE) gforth-$(VERSION)
 		mkdir gforth-$(VERSION)
