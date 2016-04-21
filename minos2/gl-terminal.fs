@@ -320,6 +320,7 @@ Variable gl-emit-buf
     fdup scroll-dest f@ f* 1e frot f- scroll-source f@ f* f+ screen-scroll ;
 
 : screen->gl ( -- )
+    videomem 0= IF  resize-screen  THEN
     std-bg @ bg>clear clear
     terminal-program glUseProgram
     gl-char' 2 + dup be-uw@ swap le-w!
