@@ -310,7 +310,7 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 : #looper ( delay -- )
     >poll-events >r
-    dpy XPending 0= and
+    dpy XPending IF  drop get-events ?events  rdrop EXIT  THEN
     0 xptimeout 2!
     xpollfds r>
     [IFDEF] ppoll
