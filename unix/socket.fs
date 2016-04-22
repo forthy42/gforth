@@ -154,6 +154,7 @@ hints addrinfo dup allot erase
  $FFFF Constant SOL_SOCKET
     35 Constant EAGAIN
     47 Constant EAFNOSUPPORT
+    49 Constant EADDRNOTAVAIL
 [ELSE]
     [IFDEF] Cygwin
     23 Constant PF_INET6
@@ -172,6 +173,7 @@ hints addrinfo dup allot erase
  $FFFF Constant SOL_SOCKET
     11 Constant EAGAIN
    106 Constant EAFNOSUPPORT
+   125 Constant EADDRNOTAVAIL
     [ELSE]
     10 Constant PF_INET6
      2 Constant AF_INET
@@ -194,6 +196,7 @@ $10000 Constant MSG_WAITFORONE
 	[THEN]
 	11 Constant EAGAIN
 	97 Constant EAFNOSUPPORT
+	99 Constant EADDRNOTAVAIL
     [THEN]
 [THEN]
 [IFDEF] linux
