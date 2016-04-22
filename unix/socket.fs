@@ -153,6 +153,7 @@ hints addrinfo dup allot erase
      4 Constant SO_REUSEADDR
  $FFFF Constant SOL_SOCKET
     35 Constant EAGAIN
+    47 Constant EAFNOSUPPORT
 [ELSE]
     [IFDEF] Cygwin
     23 Constant PF_INET6
@@ -170,6 +171,7 @@ hints addrinfo dup allot erase
  $0004 Constant SO_REUSEADDR
  $FFFF Constant SOL_SOCKET
     11 Constant EAGAIN
+   106 Constant EAFNOSUPPORT
     [ELSE]
     10 Constant PF_INET6
      2 Constant AF_INET
@@ -181,7 +183,7 @@ hints addrinfo dup allot erase
 $10000 Constant MSG_WAITFORONE
   $802 Constant O_NONBLOCK|O_RDWR
 	machine "mips" str= [IF]
-	    \ running on MIPS gives us different numbers
+	    \ MIPS uses different numbers for some constants
  $1006 Constant SO_RCVTIMEO
  $0004 Constant SO_REUSEADDR
  $FFFF Constant SOL_SOCKET
@@ -190,7 +192,8 @@ $10000 Constant MSG_WAITFORONE
      2 Constant SO_REUSEADDR
      1 Constant SOL_SOCKET
 	[THEN]
-    11 Constant EAGAIN
+	11 Constant EAGAIN
+	97 Constant EAFNOSUPPORT
     [THEN]
 [THEN]
 [IFDEF] linux
