@@ -153,8 +153,10 @@ hints addrinfo dup allot erase
      4 Constant SO_REUSEADDR
  $FFFF Constant SOL_SOCKET
     35 Constant EAGAIN
-    47 Constant EAFNOSUPPORT
-    49 Constant EADDRNOTAVAIL
+    46 Constant EPFNOSUPPORT
+    EPFNOSUPPORT 1 + Constant EAFNOSUPPORT
+    EPFNOSUPPORT 3 + Constant EADDRNOTAVAIL
+    EPFNOSUPPORT 5 + Constant ENETUNREACH
 [ELSE]
     [IFDEF] Cygwin
     23 Constant PF_INET6
@@ -172,7 +174,9 @@ hints addrinfo dup allot erase
  $0004 Constant SO_REUSEADDR
  $FFFF Constant SOL_SOCKET
     11 Constant EAGAIN
+    96 Constant EPFNOSUPPORT
    106 Constant EAFNOSUPPORT
+   114 Constant ENETUNREACH
    125 Constant EADDRNOTAVAIL
     [ELSE]
     10 Constant PF_INET6
@@ -189,14 +193,25 @@ $10000 Constant MSG_WAITFORONE
  $1006 Constant SO_RCVTIMEO
  $0004 Constant SO_REUSEADDR
  $FFFF Constant SOL_SOCKET
+   122 Constant EPFNOSUPPORT
 	[ELSE]
     20 Constant SO_RCVTIMEO
      2 Constant SO_REUSEADDR
      1 Constant SOL_SOCKET
+	    machine "hppa" str= [IF]
+		224 Constant EPFNOSUPPORT
+	    [ELSE]
+		machine "sparc" str= [IF]
+		    46 Constant EPFNOSUPPORT
+		[ELSE]
+		    96 Constant EPFNOSUPPORT
+		[THEN]
+	    [THEN]
 	[THEN]
 	11 Constant EAGAIN
-	97 Constant EAFNOSUPPORT
-	99 Constant EADDRNOTAVAIL
+	EPFNOSUPPORT 1 + Constant EAFNOSUPPORT
+	EPFNOSUPPORT 3 + Constant EADDRNOTAVAIL
+	EPFNOSUPPORT 5 + Constant ENETUNREACH
     [THEN]
 [THEN]
 [IFDEF] linux
