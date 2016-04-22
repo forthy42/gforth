@@ -379,7 +379,7 @@ comp: drop @ (comp-to) ;
 : 2Variable ( "name" -- ) \ double two-variable
     Create 0 , 0 , ;
 
-: uallot ( n -- ) \ gforth
+: uallot ( n -- n' ) \ gforth
     udp @ swap udp +! ;
 
 : User ( "name" -- ) \ gforth
