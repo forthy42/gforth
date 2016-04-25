@@ -38,14 +38,12 @@ super6 = lit !
 \ super10 = lit ! lit
 super11 = ! ;s
 super12 = lit + @
-\ super13 = 0= ?branch
 \ super14 = dup call
 super15 = useraddr @
 super16 = + @
 \ super17 = lit @ ?branch
 super18 = lit ! ;s
 super19 = lit @ and
-\ super20 = = ?branch
 \ super21 = lit lit !
 \ super22 = @ ?branch
 super23 = useraddr !
@@ -57,6 +55,30 @@ super27 = dup @
 super29 = o#+ @
 super30 = o#+ !
 super31 = (unlocal) ;s
+
+\ compare-and-branch; comment them out if we take up work on gforth-native again
+cb1 = 0< ?branch
+cb2 = 0<= ?branch
+cb3 = 0<> ?branch
+cb4 = 0= ?branch
+cb5 = 0> ?branch
+cb6 = 0>= ?branch
+cb7 = < ?branch
+cb8 = <= ?branch
+cb9 = <> ?branch
+cb10 = = ?branch
+cb11 = > ?branch
+cb12 = >= ?branch
+cb13 = d0= ?branch
+cb14 = d< ?branch
+cb15 = d= ?branch
+cb16 = f< ?branch
+cb17 = f= ?branch
+cb18 = u< ?branch
+cb19 = u<= ?branch
+cb20 = u> ?branch
+cb21 = u>= ?branch
+cb22 = within ?branch
 
 \F 0 [if]
 
