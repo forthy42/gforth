@@ -352,7 +352,8 @@ xpoll-timeout# 0 xptimeout 2!
 User xpollfds
 xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
-: >poll-events ( -- n )
+: >poll-events ( delay -- n )
+    0 xptimeout 2!
     stdin fileno POLLIN  xpollfds fds!+ >r
     epiper @ fileno POLLIN r> fds!+ >r
     dpy IF  dpy XConnectionNumber POLLIN  r> fds!+  ELSE  r>  THEN
@@ -360,7 +361,6 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 : #looper ( delay -- )
     >poll-events >r
-    0 xptimeout 2!
     xpollfds r>
     [IFDEF] ppoll
 	xptimeout 0 ppoll 0>
