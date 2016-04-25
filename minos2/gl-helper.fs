@@ -59,7 +59,7 @@ s" os-type" environment? [IF]
 	    GLX_ALPHA_SIZE      l, 8 l,
 	    GLX_DOUBLEBUFFER    l, 1 l,
 	    here
-	    GL_NONE l,
+	    0 l,
 	    Constant attrib
 	    Constant attrib2
 	    Constant attrib3

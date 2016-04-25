@@ -296,7 +296,7 @@ require unix/pthread.fs
 previous set-current
 
 User xptimeout  cell uallot drop
-#10000000 Value xpoll-timeout# \ 10ms, don't sleep too long
+#16000000 Value xpoll-timeout# \ 16ms, don't sleep too long
 xpoll-timeout# 0 xptimeout 2!
 3 Value xpollfd#
 User xpollfds
@@ -308,21 +308,22 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
     infile-id fileno POLLIN  r> fds!+ >r
     r> xpollfds - pollfd / ;
 
-: #looper ( delay -- )
-    >poll-events >r
-    dpy XPending IF  drop get-events ?events  rdrop EXIT  THEN
-    0 xptimeout 2!
-    xpollfds r>
+: xpoll ( -- flag )
     [IFDEF] ppoll
 	xptimeout 0 ppoll 0>
     [ELSE]
-	xptimeout cell+ @ #1000000 / poll 0>
-    [THEN]
+	xptimeout 2@ #1000 * swap #1000000 / + poll 0>
+    [THEN] ;
+
+: #looper ( delay -- )
+    0 xptimeout 2!  >poll-events >r
+    dpy IF  dpy XPending IF  get-events ?events  rdrop EXIT  THEN  THEN
+    xpollfds r> xpoll
     IF
 	xpollfds          revents w@ POLLIN and IF  ?events  THEN
-	xpollfds pollfd + revents w@ POLLIN and IF  get-events  THEN
-    ELSE
-	dpy XPending IF  get-events   THEN
+	dpy IF
+	    xpollfds pollfd + revents w@ POLLIN and IF  get-events  THEN
+	THEN
     THEN ;
 
 : >looper ( -- )  xpoll-timeout# #looper ;
