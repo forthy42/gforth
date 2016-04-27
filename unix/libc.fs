@@ -48,7 +48,7 @@ c-library libc
     c-function write write n a n -- n ( fd addr u -- u' )
     c-function close close n -- n ( fd -- r )
     c-function setlocale setlocale n s -- a ( category locale len -- locale )
-    c-function fork fork -- n ( -- pid_t )
+    c-function fork() fork -- n ( -- pid_t )
     c-function execvp execvp s a -- n ( filename len argv -- ret )
     c-function exit() exit n -- void ( ret -- )
 end-c-library
@@ -89,4 +89,4 @@ $004 Constant POLLOUT
 : fd>file ( fd -- file )  s" w+" fdopen ;
 
 : fork+exec ( filename len argv -- )
-    fork 0= IF  ['] exit() is throw  execvp exit()  ELSE  drop 2drop  THEN ;
+    fork() 0= IF  ['] exit() is throw  execvp exit()  ELSE  drop 2drop  THEN ;
