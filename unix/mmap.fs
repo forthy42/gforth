@@ -32,7 +32,7 @@ c-library mmap
 
 e? os-type s" linux" string-prefix? [IF]
     c-function mremap mremap a n n n -- a ( addr len newlen flags -- addr' )
-    e? os-type s" linux-gnu" str= [IF]
+    e? os-type s" linux-gnu" string-prefix? [IF]
 	c-function mremapf mremap a n n n a -- a ( addr len newlen flags newaddr -- addr' )
     [THEN]
 [THEN]

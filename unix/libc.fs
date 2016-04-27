@@ -34,7 +34,7 @@ c-library libc
     c-function getpagesize getpagesize -- n ( -- size )
     c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
     c-function poll poll a n n -- n ( fds nfds timeout -- r )
-    e? os-type s" linux-gnu" str= [IF]
+    e? os-type s" linux-gnu" string-prefix? [IF]
 	c-function ppoll ppoll a n a a -- n ( fds nfds timeout_ts sigmask -- r )
 	\c #include <sys/epoll.h>
 	c-function epoll_create epoll_create n -- n ( n -- epfd )
