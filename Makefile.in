@@ -434,6 +434,7 @@ ARCHS =	\
 	arch/arm64/android/starta.fs \
 	arch/arm64/android/res \
 	arch/arm64/android/src \
+	arch/arm64/machine.h \
 	arch/4stack/README \
 	arch/4stack/asm.fs \
 	arch/4stack/mach.fs \
