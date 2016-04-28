@@ -19,53 +19,64 @@ s" os-type" environment? [IF]
 	require unix/android.fs
 	also android
 
-	align here
-	EGL_SAMPLE_BUFFERS l, 1 l, \ multisample buffer
-	EGL_SAMPLES l, 4 l, \ 4 samples antialiasing
-	EGL_STENCIL_SIZE l, $10 l,
-	here
-	EGL_SURFACE_TYPE l, EGL_WINDOW_BIT l, \ this is default
-	EGL_RENDERABLE_TYPE l, EGL_OPENGL_ES2_BIT l,
-	EGL_BLUE_SIZE l, 8 l,
-	EGL_GREEN_SIZE l, 8 l,
-	EGL_RED_SIZE l, 8 l,
-	here
-	EGL_NONE l,
-	Constant attribs
-	Constant attribs2
-	Constant attribs3
-
-	Create eglattribs
-	EGL_CONTEXT_CLIENT_VERSION l, 2 l,
-	EGL_NONE l,
-
-	: add-precision
-	    s" precision mediump float;        // required for GLES 2.0" ;
+	: use-egl ;
     [ELSE]
 	2dup s" darwin" str= >r s" linux-gnu" string-prefix? r> or [IF]
-	    require unix/opengl.fs
-	    
+	    [IFDEF] use-egl
+		require unix/opengles.fs
+	    [ELSE]
+		require unix/opengl.fs
+		: use-glx ;
+	    [THEN]
 	    also opengl
-	
-	    require minos2/linux-gl.fs \ same voc stack effect as on android
 
-	    align here
-	    GLX_SAMPLE_BUFFERS  l, 1 l,
-	    GLX_SAMPLES         l, 4 l,
-	    here
-	    GLX_RED_SIZE        l, 8 l,
-	    GLX_GREEN_SIZE      l, 8 l,
-	    GLX_BLUE_SIZE       l, 8 l,
-	    GLX_ALPHA_SIZE      l, 8 l,
-	    GLX_DOUBLEBUFFER    l, 1 l,
-	    here
-	    0 l,
-	    Constant attrib
-	    Constant attrib2
-	    Constant attrib3
+	    require minos2/linux-gl.fs \ same voc stack effect as on android
 	[THEN]
-	: add-precision s" " ;
     [THEN]
+[THEN]
+
+[IFDEF] use-egl
+    align here
+    EGL_SAMPLE_BUFFERS  l, 1 l, \ multisample buffer
+    EGL_SAMPLES         l, 4 l, \ 4 samples antialiasing
+    EGL_STENCIL_SIZE    l, $10 l,
+    here
+    EGL_SURFACE_TYPE    l, EGL_WINDOW_BIT l, \ this is default
+    EGL_RENDERABLE_TYPE l, EGL_OPENGL_ES2_BIT l,
+    EGL_BLUE_SIZE       l, 8 l,
+    EGL_GREEN_SIZE      l, 8 l,
+    EGL_RED_SIZE        l, 8 l,
+    here
+    EGL_NONE l,
+    Constant attribs
+    Constant attribs2
+    Constant attribs3
+
+    Create eglattribs
+    EGL_CONTEXT_CLIENT_VERSION l, 2 l,
+    EGL_NONE l,
+
+    : add-precision
+	s" precision mediump float;        // required for GLES 2.0" ;
+[THEN]
+
+[IFDEF] use-glx
+    align here
+    GLX_SAMPLE_BUFFERS  l, 1 l,
+    GLX_SAMPLES         l, 4 l,
+    here
+    GLX_RED_SIZE        l, 8 l,
+    GLX_GREEN_SIZE      l, 8 l,
+    GLX_BLUE_SIZE       l, 8 l,
+    GLX_ALPHA_SIZE      l, 8 l,
+    GLX_DOUBLEBUFFER    l, 1 l,
+    here
+    0 l,
+    Constant attrib
+    Constant attrib2
+    Constant attrib3
+
+    : add-precision s" " ;
 [THEN]
 
 Variable configs
@@ -114,59 +125,88 @@ Variable eglformat
 [THEN]
 
 [IFDEF] linux
-    fpath+ gles2
-    0 Value visual
-    0 Value visuals
-    Variable nitems
-
-    \ I once had no luck with glXChooseVisual - this is a replacement:
-    true [IF]
-	Variable val
-	: glXVisual? ( visinfo attrib -- flag ) true { flag }
-	    BEGIN  dup l@  WHILE
-		    2dup dpy -rot l@ val glXGetConfig 0= flag and to flag
-		    dup 4 + l@ val @ u<= flag and to flag
-		    8 +
-	    REPEAT  2drop flag ;
+    [IFDEF] use-egl
+	0 Value egldpy
+	0 Value surface
 	
-	: glXChooseVisual' ( visinfo n attrib -- visinfo ) { attrib }
-	    XVisualInfo * bounds ?DO
-		I attrib glXVisual?  IF  I unloop  EXIT  THEN
-	    XVisualInfo +LOOP 0 ;
+	: choose-config ( -- )
+	    get-display dpy-h ! dpy-w !
+	    dpy eglGetDisplay to egldpy
+	    egldpy 0 0 eglInitialize drop
+	    egldpy attribs3 configs 1 numconfigs eglChooseConfig drop
+	    numconfigs @ 0= IF
+		egldpy attribs2 configs 1 numconfigs eglChooseConfig drop
+		numconfigs @ 0= IF
+		    egldpy attribs configs 1 numconfigs eglChooseConfig drop
+		    ." default config only" EXIT
+		THEN
+	    THEN ;
 
-	: choose-config ( -- ) \ visual ?EXIT
-	    get-display dpy-h ! dpy-w !
-	    dpy screen pad nitems XGetVisualInfo dup to visuals nitems @
-	    2dup attrib3 glXChooseVisual' dup 0= IF  drop
-		2dup attrib2 glXChooseVisual' dup 0= IF  drop
-		    2dup attrib glXChooseVisual' dup
-		    0= abort" Unable to choose Visual"
-		THEN
-	    THEN  to visual 2drop ;
-    [ELSE]
-	: choose-config ( -- ) \ visual ?EXIT
-	    get-display dpy-h ! dpy-w !
-	    dpy screen
-	    2dup attrib3 glXChooseVisual dup 0= IF  drop
-		2dup attrib2 glXChooseVisual dup 0= IF  drop
-		    2dup attrib glXChooseVisual dup
-		    0= abort" Unable to choose Visual"
-		THEN
-	    THEN  to visual 2drop ;
+	: create-context ( -- )
+	    default-events "EGL-Window" dpy-w @ dpy-h @ simple-win
+	    egldpy configs @ win 0 eglCreateWindowSurface to surface
+	    egldpy configs @ 0 eglattribs eglCreateContext to ctx
+	    egldpy surface dup ctx eglMakeCurrent drop ;
+
+	: >screen-orientation ;
+
+	: sync ( -- )
+	    egldpy surface eglSwapBuffers drop ;
     [THEN]
-    
-    : create-context ( -- ) \ win ?EXIT
-	default-events "GL-Window" dpy-w @ dpy-h @ simple-win
-	dpy visual 0 1 glXCreateContext to ctx
-	dpy win ctx glXMakeCurrent drop
-	visuals Xfree drop 0 to visuals 0 to visual ;
 
-    : >screen-orientation ;
+    [IFDEF] use-glx
+	0 Value visual
+	0 Value visuals
+	Variable nitems
 
-    : sync ( -- )
-	dpy win glXSwapBuffers ;
+	\ I once had no luck with glXChooseVisual - this is a replacement:
+	true [IF]
+	    Variable val
+	    : glXVisual? ( visinfo attrib -- flag ) true { flag }
+		BEGIN  dup l@  WHILE
+			2dup dpy -rot l@ val glXGetConfig 0= flag and to flag
+			dup 4 + l@ val @ u<= flag and to flag
+			8 +
+		REPEAT  2drop flag ;
+
+	    : glXChooseVisual' ( visinfo n attrib -- visinfo ) { attrib }
+		XVisualInfo * bounds ?DO
+		    I attrib glXVisual?  IF  I unloop  EXIT  THEN
+		XVisualInfo +LOOP 0 ;
+
+	    : choose-config ( -- ) \ visual ?EXIT
+		get-display dpy-h ! dpy-w !
+		dpy screen pad nitems XGetVisualInfo dup to visuals nitems @
+		2dup attrib3 glXChooseVisual' dup 0= IF  drop
+		    2dup attrib2 glXChooseVisual' dup 0= IF  drop
+			2dup attrib glXChooseVisual' dup
+			0= abort" Unable to choose Visual"
+		    THEN
+		THEN  to visual 2drop ;
+	[ELSE]
+	    : choose-config ( -- ) \ visual ?EXIT
+		get-display dpy-h ! dpy-w !
+		dpy screen
+		2dup attrib3 glXChooseVisual dup 0= IF  drop
+		    2dup attrib2 glXChooseVisual dup 0= IF  drop
+			2dup attrib glXChooseVisual dup
+			0= abort" Unable to choose Visual"
+		    THEN
+		THEN  to visual 2drop ;
+	[THEN]
+
+	: create-context ( -- ) \ win ?EXIT
+	    default-events "GL-Window" dpy-w @ dpy-h @ simple-win
+	    dpy visual 0 1 glXCreateContext to ctx
+	    dpy win ctx glXMakeCurrent drop
+	    visuals Xfree drop 0 to visuals 0 to visual ;
+
+	: >screen-orientation ;
+
+	: sync ( -- )
+	    dpy win glXSwapBuffers ;
+    [THEN]
 [THEN]
-
 : init-opengl ( -- )
     choose-config create-context getwh ;
 
