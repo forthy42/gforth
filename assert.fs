@@ -89,13 +89,16 @@ Variable debug-eval
 : +-? ( addr u -- flag )
     0<> swap c@ ',' - abs 1 = and ; \ ',' is in the middle between '+' and '-'
 
+: set-debug ( addr u -- )
+    debug-eval $!
+    s" db " debug-eval 1 $ins
+    s" (" debug-eval $+!
+    debug-eval $@ evaluate ;
+
 : +debug ( -- )
     BEGIN  argc @ 1 > WHILE
 	    1 arg +-?  WHILE
-		1 arg debug-eval $!
-		s" db " debug-eval 1 $ins
-		s" (" debug-eval $+!
-		debug-eval $@ evaluate
+		1 arg set-debug
 		shift-args
 	REPEAT  THEN ;
 

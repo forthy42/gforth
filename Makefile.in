@@ -435,6 +435,7 @@ ARCHS =	\
 	arch/arm64/android/res \
 	arch/arm64/android/src \
 	arch/arm64/machine.h \
+	arch/arm64/cacheflush.c \
 	arch/4stack/README \
 	arch/4stack/asm.fs \
 	arch/4stack/mach.fs \
