@@ -229,6 +229,8 @@ Variable c-libs \ library names in a string (without "lib")
 
 wordlist constant libcc-types
 
+Variable vararg$
+
 get-current libcc-types set-current
 
 \ index values
@@ -245,6 +247,7 @@ const+ void \ no return value
 const+ s \ string
 const+ ws \ wide string
 const+ 0 \ NULL pointer (sentinel)
+const+ ... \ varargs (programmable)
 drop
 
 set-current
@@ -259,10 +262,13 @@ drop
 : libcc-type ( c-addr u -- u2 )
     libcc-types search-wordlist 0= -13 and throw execute ;
 
-: parse-libcc-type ( "libcc-type" -- u )
-    parse-name 2dup '{' scan-back
+: >libcc-type ( c-addr u -- u2 )
+    2dup '{' scan-back
     dup IF  2nip 1- 2dup + source drop - >in !  ELSE  2drop  THEN
     libcc-type ;
+
+: parse-libcc-type ( "libcc-type" -- u )
+    parse-name >libcc-type ;
 
 : parse-libcc-cast ( "<{>cast<}>" -- addr u )
     source >in @ /string IF  c@ '{' =  IF
@@ -276,13 +282,27 @@ drop
 : parse-return-type ( "libcc-type" -- u )
     parse-libcc-type dup 0< -32 and throw ;
 
+: ...-types, ( -- )
+    vararg$ $@ [:
+	BEGIN  parse-name dup WHILE
+		>libcc-type c, libcc-cast,  REPEAT
+	2drop ;] execute-parsing ;
+
+: function-types, ( "{libcc-type}" "--" -- )
+    begin
+	parse-libcc-type dup 0>= while
+	    dup [ libcc-types >order ... previous ]L =
+	    IF
+		drop ...-types,
+	    ELSE
+		c, libcc-cast, \ cast string
+	    THEN
+    repeat drop ;
+
 : parse-function-types ( "{libcc-type}" "--" "libcc-type" -- addr )
     c-func c, here
-    dup 2 chars allot here begin
-	parse-libcc-type dup 0>= while
-	    c, libcc-cast, \ cast string
-    repeat
-    drop here swap - over char+ c!
+    dup 2 chars allot here function-types,
+    here swap - over char+ c!
     parse-return-type swap c! ;
 
 : parse-value-type ( "{--}" "libcc-type" -- addr )
@@ -785,6 +805,7 @@ DEFER compile-wrapper-function ( -- )
     align here 0 , lib-handle-addr !
     c-libs $init
     lib-modulename $init
+    vararg$ $init
     libcc$ $init libcc-include
     ptr-declare $[]off ;
 clear-libs

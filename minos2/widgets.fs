@@ -283,7 +283,13 @@ box class end-class zbox \ overlay alignment
     rg xa + gp ga */ rd - dup rd + rg xa +
     rot xmin +  dup x @ - w ! ;
 
-: hbox-resize { x h d -- x h d } x y @ w @ h d resize  x h d ;
+: hbox-resize1 { y h d -- y h d } x @ y w @ h d resize  y h d ;
+: hbox-resize { x y w h d -- }
+    hglue g3>2 { wmin a }
+    w wmin - a 0 0 x ['] hglue-step do-childs 2drop 2drop drop
+    y h d ['] hbox-resize1 do-childs drop 2drop ;
+
+' hbox-resize hbox is resize
 
 \ add glues up for vboxes
 
@@ -291,6 +297,12 @@ box class end-class zbox \ overlay alignment
     gp ga baseglue
     vglue@ td sd ad glue+ glue* g3>2 { ymin ya }
     rg ya + gp ga */ rd - dup rd + rg ya +
-    rot ymin +  dup ry !  dglue@ ;
+    rot ymin baseline @ max +  dup ry !  dglue@ ;
+
+: vbox-resize1 { x w -- x w } x y @ w h @ d @ resize  x w ;
+: vbox-resize { x y w h d -- }
+    vglue g3>2 { hmin a }
+    h hmin - a 0 0 y 0 0 0 ['] vglue-step do-childs 2drop 2drop 2drop 2drop
+    x w ['] vbox-resize1 do-childs 2drop ;
 
 previous previous previous set-current

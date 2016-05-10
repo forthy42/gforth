@@ -34,7 +34,7 @@ extern struct _IO_FILE *stderr;
 #define JNINativeInterface_ JNINativeInterface
 #define JNIInvokeInterface_ JNIInvokeInterface
 
-// exec: sed -e s/JNINativeInterface-/JNIEnv-/g -e s/JNIInvokeInterface-/JavaVM-/g -e 's/\(c-function .*\)/\\ \1/g' -e 's/\(ReleaseStringUTFChars.*\) a a s/\1 a a a/g'
+// exec: sed -e s/JNINativeInterface-/JNIEnv-/g -e s/JNIInvokeInterface-/JavaVM-/g -e 's/\(c-function .*\)/\\ \1/g' -e 's/\(ReleaseStringUTFChars.*\) a a s/\1 a a a/g' | grep -v '\.\.\. --'
 
 %apply char { jbyte, jboolean };
 %apply short { jshort, jchar };

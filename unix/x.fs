@@ -9,6 +9,7 @@ c-library x
     \c #include <X11/Xutil.h>
 
     s" X11" add-lib
+    s" a a 0" vararg$ $! \ vararg is two pointers plus sentinel
 
     0 warnings !@
     include unix/xlib.fs
