@@ -1342,6 +1342,10 @@ if test x$has_swig = xyes || test -f $srcdir/unix/cpufeatures-fsi.c; then
 	    ;;
     esac
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
+   AC_CHECK_HEADER(wayland/wayland-egl.h, SWIGMODULES="$SWIGMODULES wayland.fs"
+		   SWIGLIBS="$SWIGLIBS waylandlib.fs", ,)
+fi
 if test x$has_swig = xno; then
    AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])
 fi
