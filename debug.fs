@@ -144,14 +144,16 @@ VARIABLE Nesting
 
 VARIABLE Unnest
 
+s" debugger aborted" exception Constant end-debug#
+
 : D-KEY         ( -- flag )
         BEGIN
                 Unnest @ IF 0 ELSE key THEN
                 CASE    [char] n OF     dbg-ip @ @ nestXT EXIT ENDOF
                         [char] s OF     Leave-D
-                                        -128 THROW ENDOF
+                                        end-debug# THROW ENDOF
                         [char] a OF     Leave-D
-                                        -128 THROW ENDOF
+                                        end-debug# THROW ENDOF
                         [char] d OF     Leave-D
                                         cr ." Done..." cr
                                         Nesting off
@@ -185,7 +187,7 @@ VARIABLE Unnest
                 dup
         AGAIN ;
 
-: (debug) dup (_debug) ;
+: (debug) dup ['] (_debug) catch restore-bp throw ;
 
 : (break:)
     r> ['] (_debug) >body >r ;
