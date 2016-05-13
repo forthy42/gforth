@@ -48,7 +48,12 @@ jni-method: getDefaultDisplay getDefaultDisplay ()Landroid/view/Display;
 
 jni-class: android/view/Display
 jni-method: getRotation getRotation ()I
-jni-method: getSizeD getSize (Landroid/graphics/Point;)V
+SDK_INT 13 >= [IF]
+    jni-method: getSizeD getSize (Landroid/graphics/Point;)V
+[ELSE]
+    jni-method: getWidth getWidth ()I
+    jni-method: getHeight getHeight ()I
+[THEN]
 jni-method: getMetrics getMetrics (Landroid/util/DisplayMetrics;)V
 
 jni-class: android/graphics/Point
