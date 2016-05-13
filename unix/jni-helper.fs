@@ -120,29 +120,29 @@ jni-method: getTypeName getTypeName ()Ljava/lang/String;
 jni-method: isConnected isConnected ()Z
 
 SDK_INT 10 <= [IF]
-    jni-class: android/app/Notification
-    jni-new: newNotification (ILjava/lang/CharSequence;J)V
+    jni-class: android/support/v4/app/NotificationCompat$Builder
 [ELSE]
     jni-class: android/app/Notification$Builder
-    jni-new: newNotification.Builder (Landroid/content/Context;)V
-    jni-method: setContentTitle setContentTitle (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
-    jni-method: setContentText setContentText (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
-    jni-method: setTicker setTicker (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
-    SDK_INT 21 >= [IF]
-	jni-method: addPerson addPerson (Ljava/lang/String;)Landroid/app/Notification$Builder;
-    [THEN]
-    jni-method: setAutoCancel setAutoCancel (Z)Landroid/app/Notification$Builder;
-    jni-method: setSmallIcon setSmallIcon (I)Landroid/app/Notification$Builder;
-    jni-method: setLights setLights (III)Landroid/app/Notification$Builder;
-    jni-method: setDefaults setDefaults (I)Landroid/app/Notification$Builder;
-    jni-method: setSound setSound (Landroid/net/Uri;I)Landroid/app/Notification$Builder;
-    jni-method: setContentIntent setContentIntent (Landroid/app/PendingIntent;)Landroid/app/Notification$Builder;
-    SDK_INT 16 >= [IF]
-	jni-method: build build ()Landroid/app/Notification;
-    [ELSE]
-	jni-method: build getNotification ()Landroid/app/Notification;
-    [THEN]
 [THEN]
+jni-new: newNotification.Builder (Landroid/content/Context;)V
+jni-method: setContentTitle setContentTitle (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
+jni-method: setContentText setContentText (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
+jni-method: setTicker setTicker (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
+SDK_INT 21 >= [IF]
+    jni-method: addPerson addPerson (Ljava/lang/String;)Landroid/app/Notification$Builder;
+[THEN]
+jni-method: setAutoCancel setAutoCancel (Z)Landroid/app/Notification$Builder;
+jni-method: setSmallIcon setSmallIcon (I)Landroid/app/Notification$Builder;
+jni-method: setLights setLights (III)Landroid/app/Notification$Builder;
+jni-method: setDefaults setDefaults (I)Landroid/app/Notification$Builder;
+jni-method: setSound setSound (Landroid/net/Uri;I)Landroid/app/Notification$Builder;
+jni-method: setContentIntent setContentIntent (Landroid/app/PendingIntent;)Landroid/app/Notification$Builder;
+SDK_INT 16 >= [IF]
+    jni-method: build build ()Landroid/app/Notification;
+[ELSE]
+    jni-method: build getNotification ()Landroid/app/Notification;
+[THEN]
+
 jni-class: android/app/NotificationManager
 jni-method: notify notify (ILandroid/app/Notification;)V
 

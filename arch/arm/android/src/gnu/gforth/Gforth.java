@@ -78,6 +78,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 import gnu.gforth.R;
+import android.support.v4.app.NotificationCompat;
 
 public class Gforth
     extends android.app.Activity
@@ -86,8 +87,7 @@ public class Gforth
 	       LocationListener,
 	       SensorEventListener,
 	       SurfaceHolder.Callback2,
-	       OnGlobalLayoutListener /* ,
-	       ClipboardManager.OnPrimaryClipChangedListener */ {
+	       OnGlobalLayoutListener {
     private long argj0=1000; // update every second
     private double argf0=10;    // update every 10 meters
     private String args0="gps";
@@ -690,5 +690,9 @@ public class Gforth
 	}
 	Log.v(TAG, "Return back");
 	return filename;
+    }
+
+    public NotificationCompat.Builder nf_builder() {
+	return new NotificationCompat.Builder(this);
     }
 }
