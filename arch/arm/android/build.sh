@@ -73,10 +73,10 @@ then
     android update project -p . -s --target android-14
 fi
 
-eval $(grep ^sdk.dir= local.properties| sed -e 's/^sdk.dir=/sdk_dir=/g')
-
-mkdir -p libs
-ln -fs ${sdk_dir}/extras/android/support/v7/appcompat/libs/android-support-v4.jar libs
+#eval $(grep ^sdk.dir= local.properties| sed -e 's/^sdk.dir=/sdk_dir=/g')
+#
+#mkdir -p libs
+#ln -fs ${sdk_dir}/extras/android/support/v7/appcompat/libs/android-support-v4.jar libs
 
 # takes as extra argument a directory where to look for .so-s
 
