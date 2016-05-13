@@ -114,7 +114,10 @@ jni-method: getType getType ()I
 jni-method: getTypeName getTypeName ()Ljava/lang/String;
 jni-method: isConnected isConnected ()Z
 
-SDK_INT 11 >= [IF]
+SDK_INT 10 <= [IF]
+    jni-class: android/app/Notification
+    jni-new: newNotification (ILjava/lang/CharSequence;J)V
+[ELSE]
     jni-class: android/app/Notification$Builder
     jni-new: newNotification.Builder (Landroid/content/Context;)V
     jni-method: setContentTitle setContentTitle (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
@@ -134,12 +137,11 @@ SDK_INT 11 >= [IF]
     [ELSE]
 	jni-method: build getNotification ()Landroid/app/Notification;
     [THEN]
-
-    jni-class: android/app/NotificationManager
-    jni-method: notify notify (ILandroid/app/Notification;)V
 [THEN]
+jni-class: android/app/NotificationManager
+jni-method: notify notify (ILandroid/app/Notification;)V
 
-SDK_INT 10 u<= [IF] \ 2.3.x uses a different clipboard manager
+SDK_INT 10 <= [IF] \ 2.3.x uses a different clipboard manager
     jni-class: android/text/ClipboardManager
 
     jni-method: hasText hasText ()Z
