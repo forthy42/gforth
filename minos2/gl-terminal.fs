@@ -337,14 +337,18 @@ Variable gl-emit-buf
 [IFUNDEF] win : win app window @ ; [THEN]
 : screen-sync ( -- )  rendering @ -2 > ?EXIT \ don't render if paused
     need-sync @ win and level# @ 0<= and IF
-	getwh  show-cursor screen->gl need-sync off  THEN ;
+	show-cursor screen->gl need-sync off  THEN ;
 
 : config-changer ( -- )
-    >screen-orientation need-sync on ;
+    getwh  >screen-orientation  need-sync on ;
 \    ." config changed to: " w ? h ? cr
 
+2 Value config-change#
+
 :noname
-    config-changer form-chooser  winch? on  screen-sync ;
+    config-change# 0 DO
+	config-changer form-chooser  winch? on  screen-sync
+    LOOP ;
 is config-changed
 
 : gl-fscale ( f -- )
