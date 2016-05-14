@@ -180,7 +180,7 @@ newDisplayMetrics to dmetrics
     dmetrics getMetrics ref> ref> o> ;
 : screen-size@ ( -- w h )
     screen-metric@
-    dmetrics >o widthPixel heightPixel o> ;
+    dmetrics >o widthPixels heightPixels o> ;
 
 $80 Constant FLAG_KEEP_SCREEN_ON
 
