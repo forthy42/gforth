@@ -324,7 +324,7 @@ case "$host_cpu" in
 		machine=arm
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
 		case "$host" in
-		    *gnueabihf)
+		    *gnueabi*)
 			# don't build for thumb
 			CFLAGS="$CFLAGS -marm"
 			;;
