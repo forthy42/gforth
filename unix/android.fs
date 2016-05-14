@@ -179,12 +179,8 @@ newDisplayMetrics to dmetrics
     clazz >o getWindowManager >o getDefaultDisplay >o
     dmetrics getMetrics ref> ref> o> ;
 : screen-size@ ( -- w h )
-    clazz >o getWindowManager >o getDefaultDisplay >o
-    [ SDK_INT 13 >= ] [IF]
-	psize getSize ref> ref> o>  psize >o x y o>
-    [ELSE]
-	getWidth getHeight ref> ref> o>
-    [THEN] ;
+    screen-metric@
+    dmetrics >o widthPixel heightPixel o> ;
 
 $80 Constant FLAG_KEEP_SCREEN_ON
 

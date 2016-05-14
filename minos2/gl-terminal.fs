@@ -337,11 +337,10 @@ Variable gl-emit-buf
 [IFUNDEF] win : win app window @ ; [THEN]
 : screen-sync ( -- )  rendering @ -2 > ?EXIT \ don't render if paused
     need-sync @ win and level# @ 0<= and IF
-	show-cursor screen->gl need-sync off  THEN ;
+	getwh  show-cursor screen->gl need-sync off  THEN ;
 
 : config-changer ( -- )
-    getwh  >screen-orientation
-    need-sync on ;
+    >screen-orientation need-sync on ;
 \    ." config changed to: " w ? h ? cr
 
 :noname
