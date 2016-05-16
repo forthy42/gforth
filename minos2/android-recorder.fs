@@ -56,7 +56,7 @@ also jni
         2dup swap . . cr setPreviewSize
         ." Video sizes:" cr
         getSupportedVideoSizes >o max-size o> to cam-h to cam-w
-        js" continuous-video" setFocusMode
+        js" continuous-picture" setFocusMode
       o o>
     setParameters o> ;
 
