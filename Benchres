@@ -35,6 +35,8 @@ ARM64
  0.283 0.404  0.169 0.330 0.179 2014-10-31; Apple A7 1.3GHz, clang 3.5 (iOS 8.1.1)
  0.390 0.490  0.270 0.520 0.260 2016-04-27; Odroid C2 Cortex A53 2.0GHz, gcc 5.3.1 (Ubuntu Mate 16.04 LTS)
 
+ARM Cortex A53, 32 bit:
+ 0.600  0.650  0.310 0.870 0.450 2016-04-27; Odroid C2 Cortex A53 2.0GHz, gcc 5.3.1 (Ubuntu Mate 16.04 LTS)
 ARM Cortex-A9:
  sieve bubble matrix fib   fft   release; CPU; gcc
  0.410 0.520  0.260 0.635 0.280 2016-01-13; Exynos 4 Quad 1.6GHz; gcc-4.8.x (Android 4.4.2)
