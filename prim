@@ -2069,10 +2069,8 @@ I/O result code. If @i{a-addr1} is 0, Gforth's (but not the Standard)
 if (a_addr1==NULL)
   a_addr2 = (Cell *)malloc(u);
 else
-  a_addr2 = (Cell *)realloc(a_addr1, u ? u : 1); /* resize to 0 is free */
+  a_addr2 = (Cell *)realloc(a_addr1, u);
 wior = IOR(a_addr2==NULL);	/* !! Define a return code */
-if (a_addr2==NULL)
-  a_addr2 = a_addr1;
 
 strerror	( n -- c_addr u )	gforth
 c_addr = (Char *)strerror(n);
