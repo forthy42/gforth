@@ -84,7 +84,7 @@ $004 Constant POLLOUT
 
 : ?ior ( r -- )
     \G use errno to generate throw when failing
-    0< IF  -512 errno - throw  THEN ;
+    0< IF  errno ?dup-IF  -512 swap - throw  THEN  THEN ;
 
 : fd>file ( fd -- file )  s" w+" fdopen ;
 
