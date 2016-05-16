@@ -1,8 +1,8 @@
 \ video recorder, can be used to capture a video stream
 \ or just the preview image
 
-require gl-helper.fs
-require jni-media.fs
+require minos2/gl-helper.fs
+require unix/jni-media.fs
 
 also opengl
 also android
