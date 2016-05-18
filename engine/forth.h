@@ -417,7 +417,7 @@ typedef struct {
 
 extern PER_THREAD stackpointers gforth_SPs;
 
-#define TOIOR(err)      ((err) ? -512-(err) : 0)
+#define TOIOR(err)      (-512-(err))
 #define IOR(flag)	((flag)? TOIOR(errno) : 0)
 #define FLAG(b) (-(Cell)(b))
 #define FILEIO(error)	((error) ? TOIOR(errno) : 0)
