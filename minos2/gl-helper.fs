@@ -1,5 +1,22 @@
 \ opengl common stuff
 
+\ Copyright (C) 2014,2016 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation, either version 3
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program. If not, see http://www.gnu.org/licenses/.
+
 require unix/mmap.fs
 require mini-oof2.fs
 
@@ -496,10 +513,8 @@ Create white-texture \ aabbggrr
     GL_RGBA GL_UNSIGNED_BYTE addr glTexSubImage2D ;
 
 : rgba-newtex { w h -- }
-    w h * 2* 2* dup allocate throw { len addr }  addr len erase
     GL_TEXTURE_2D 0 GL_RGBA w h
-    0 GL_RGBA GL_UNSIGNED_BYTE addr glTexImage2D
-    addr free throw ;
+    0 GL_RGBA GL_UNSIGNED_BYTE 0 glTexImage2D ;
 
 : wrap ( -- )
     GL_TEXTURE_2D GL_TEXTURE_WRAP_S GL_REPEAT glTexParameteri
@@ -526,18 +541,56 @@ Create white-texture \ aabbggrr
 \ use texture
 
 $100 Constant max-texture#
-max-texture# cells buffer: textureID
+max-texture# sfloats buffer: textureID
 Variable tex-index
 
 : texture-init max-texture# textureId glGenTextures ;
 
-: tex@ ( index -- texture )  cells textureID + @ dup to current-tex ;
+: tex@ ( index -- texture )  sfloats textureID + l@ dup to current-tex ;
 : tex[] ( index -- )  tex@ GL_TEXTURE_2D swap glBindTexture ;
 : tex: ( "name" -- )
-    Create tex-index @ ,  1 tex-index +!
+    Create 1 tex-index +!@ ,
     DOES> @ tex[] ;
 
 tex: none-tex
+
+\ framebuffer + rendering into framebuffer
+
+: gen-framebuffer ( -- buffer-name )
+    0 { w^ fb-name }
+    1 fb-name glGenFramebuffers
+    GL_FRAMEBUFFER fb-name glBindFramebuffer
+    fb-name l@ ;
+
+: gen-renderbuffer ( w h -- buffer-name )
+    0 { w^ rb-name }
+    1 rb-name glGenRenderbuffers
+    GL_FRAMEBUFFER rb-name glBindRenderbuffer
+    GL_RENDERBUFFER GL_DEPTH_COMPONENT 2swap glRenderbufferStorage
+    GL_FRAMEBUFFER GL_DEPTH_ATTACHMENT GL_RENDERBUFFER rb-name l@
+    glFramebufferRenderbuffer
+    rb-name l@ ;
+
+Create drawbuffers GL_COLOR_ATTACHMENT0 l,
+
+: new-textbuffer { w h -- fb }
+    \G create new texture buffer to render into
+    gen-framebuffer { fb }
+    1 tex-index +!@ tex[] current-tex { rt }
+    w h rgba-newtex nearest
+    w h gen-renderbuffer { rb }
+    GL_FRAMEBUFFER GL_COLOR_ATTACHMENT0 rt 0 glFramebufferTexture
+    1 drawbuffers glDrawBuffers
+    fb ;
+
+: >framebuffer ( w h fb -- )
+    GL_FRAMEBUFFER swap glBindFramebuffer
+    0 0 2swap glViewport ;
+
+: 0>framebuffer ( -- )
+    dpy-w @ dpy-h @ 0 >framebuffer ;
+
+\ external textures
 
 \ require png-texture.fs
 require soil-texture.fs
@@ -549,6 +602,8 @@ require soil-texture.fs
 [THEN]
 
 1 sfloats buffer: ambient%  1.0e ambient% sf!
+
+\ init program
 
 : init { program -- }
     GL_DITHER glEnable
@@ -572,8 +627,9 @@ require soil-texture.fs
 
 \ glDrawElements helper
 
-$8 cells buffer: gl-buffers
-: buf@ ( n -- buf ) cells gl-buffers + @ ;
+$8 Constant max-buf#
+max-buf# sfloats buffer: gl-buffers
+: buf@ ( n -- buf ) sfloats gl-buffers + l@ ;
 : bind-buf ( type n -- ) buf@ glBindBuffer ;
 
 0 Value array-buf
@@ -619,7 +675,7 @@ vertex-c >osize @ Constant vertex#
 : buffer-init ( -- )
     index-buf 0= IF  points# 2* alloc+guard to index-buf  THEN
     array-buf 0= IF  points# vertex# * alloc+guard to array-buf  THEN
-    gl-buffers @ 0= IF  4 gl-buffers glGenBuffers  THEN
+    gl-buffers @ 0= IF  max-buf# gl-buffers glGenBuffers  THEN
     GL_ELEMENT_ARRAY_BUFFER 1 bind-buf
     GL_ELEMENT_ARRAY_BUFFER points# 2* index-buf GL_DYNAMIC_DRAW
     glBufferData
