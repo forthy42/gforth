@@ -516,6 +516,10 @@ Create white-texture \ aabbggrr
     GL_TEXTURE_2D 0 GL_RGBA w h
     0 GL_RGBA GL_UNSIGNED_BYTE 0 glTexImage2D ;
 
+: grey-newtex { w h -- }
+    GL_TEXTURE_2D 0 GL_LUMINANCE w h
+    0 GL_RGBA GL_UNSIGNED_BYTE 0 glTexImage2D ;
+
 : wrap ( -- )
     GL_TEXTURE_2D GL_TEXTURE_WRAP_S GL_REPEAT glTexParameteri
     GL_TEXTURE_2D GL_TEXTURE_WRAP_T GL_REPEAT glTexParameteri ;
@@ -573,13 +577,20 @@ tex: none-tex
 
 Create drawbuffers GL_COLOR_ATTACHMENT0 l,
 
+: rgba-textbuffer { w h -- }
+    GL_TEXTURE_2D current-tex glBindTexture
+    w h rgba-newtex nearest ;
+
+: grey-textbuffer { w h -- }
+    GL_TEXTURE_2D current-tex glBindTexture
+    w h grey-newtex nearest ;
+
 : new-textbuffer { w h -- fb }
     \G create new texture buffer to render into
     gen-framebuffer { fb }
-    1 tex-index +!@ tex[] current-tex { rt }
-    w h rgba-newtex nearest
     w h gen-renderbuffer { rb }
-    GL_FRAMEBUFFER GL_COLOR_ATTACHMENT0 rt 0 glFramebufferTexture
+    GL_FRAMEBUFFER GL_COLOR_ATTACHMENT0 GL_TEXTURE_2D
+    current-tex 0 glFramebufferTexture2D
     1 drawbuffers glDrawBuffers
     fb ;
 
