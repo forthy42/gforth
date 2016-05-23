@@ -498,12 +498,6 @@ Create white-texture \ aabbggrr
   $ffffffff l,  $ffffffff l,
   $ffffffff l,  $ffffffff l,
 
-: rgba-texture { addr w h -- }
-    GL_TEXTURE_2D 0 GL_RGBA w h
-    0 GL_RGBA GL_UNSIGNED_BYTE addr glTexImage2D
-    GL_TEXTURE_2D GL_TEXTURE_WRAP_S GL_REPEAT glTexParameteri
-    GL_TEXTURE_2D GL_TEXTURE_WRAP_T GL_REPEAT glTexParameteri ;
-
 : rgba-map { addr w h -- }
     GL_TEXTURE_2D 0 GL_RGBA w h
     0 GL_RGBA GL_UNSIGNED_BYTE addr glTexImage2D ;
@@ -512,17 +506,19 @@ Create white-texture \ aabbggrr
     GL_TEXTURE_2D 0 x y w h
     GL_RGBA GL_UNSIGNED_BYTE addr glTexSubImage2D ;
 
-: rgba-newtex { w h -- }
-    GL_TEXTURE_2D 0 GL_RGBA w h
-    0 GL_RGBA GL_UNSIGNED_BYTE 0 glTexImage2D ;
-
-: grey-newtex { w h -- }
+: grey-map { addr w h -- }
     GL_TEXTURE_2D 0 GL_LUMINANCE w h
-    0 GL_RGBA GL_UNSIGNED_BYTE 0 glTexImage2D ;
+    0 GL_LUMINANCE GL_UNSIGNED_BYTE addr glTexImage2D ;
+
+: rgba-newtex ( w h -- ) 0 -rot rgba-map ;
+: grey-newtex ( w h -- ) 0 -rot grey-map ;
 
 : wrap ( -- )
     GL_TEXTURE_2D GL_TEXTURE_WRAP_S GL_REPEAT glTexParameteri
     GL_TEXTURE_2D GL_TEXTURE_WRAP_T GL_REPEAT glTexParameteri ;
+: edge ( -- )
+    GL_TEXTURE_2D GL_TEXTURE_WRAP_S GL_CLAMP_TO_EDGE glTexParameteri
+    GL_TEXTURE_2D GL_TEXTURE_WRAP_T GL_CLAMP_TO_EDGE glTexParameteri ;
 : mipmap ( -- )  GL_TEXTURE_2D glGenerateMipmap ;
 : linear ( -- )
     GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR glTexParameteri
@@ -537,6 +533,8 @@ Create white-texture \ aabbggrr
     GL_TEXTURE_EXTERNAL_OES GL_TEXTURE_WRAP_S GL_CLAMP_TO_EDGE glTexParameteri
     GL_TEXTURE_EXTERNAL_OES GL_TEXTURE_WRAP_T GL_CLAMP_TO_EDGE glTexParameteri ;
 [THEN]
+
+: rgba-texture ( addr w h -- )  rgba-map wrap ;
 
 : no-texture ( -- )  white-texture 2 2 rgba-texture wrap nearest ;
 
@@ -563,19 +561,19 @@ tex: none-tex
 : gen-framebuffer ( -- buffer-name )
     0 { w^ fb-name }
     1 fb-name glGenFramebuffers
-    GL_FRAMEBUFFER fb-name glBindFramebuffer
+    GL_FRAMEBUFFER fb-name l@ glBindFramebuffer
+    GL_FRAMEBUFFER GL_COLOR_ATTACHMENT0 GL_TEXTURE_2D
+    current-tex 0 glFramebufferTexture2D
     fb-name l@ ;
 
 : gen-renderbuffer ( w h -- buffer-name )
     0 { w^ rb-name }
     1 rb-name glGenRenderbuffers
-    GL_FRAMEBUFFER rb-name glBindRenderbuffer
+    GL_RENDERBUFFER rb-name l@ glBindRenderbuffer
     GL_RENDERBUFFER GL_DEPTH_COMPONENT 2swap glRenderbufferStorage
     GL_FRAMEBUFFER GL_DEPTH_ATTACHMENT GL_RENDERBUFFER rb-name l@
     glFramebufferRenderbuffer
     rb-name l@ ;
-
-Create drawbuffers GL_COLOR_ATTACHMENT0 l,
 
 : rgba-textbuffer { w h -- }
     GL_TEXTURE_2D current-tex glBindTexture
@@ -589,9 +587,6 @@ Create drawbuffers GL_COLOR_ATTACHMENT0 l,
     \G create new texture buffer to render into
     gen-framebuffer { fb }
     w h gen-renderbuffer { rb }
-    GL_FRAMEBUFFER GL_COLOR_ATTACHMENT0 GL_TEXTURE_2D
-    current-tex 0 glFramebufferTexture2D
-    1 drawbuffers glDrawBuffers
     fb ;
 
 : >framebuffer ( w h fb -- )
