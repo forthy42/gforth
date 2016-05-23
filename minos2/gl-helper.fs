@@ -498,17 +498,17 @@ Create white-texture \ aabbggrr
   $ffffffff l,  $ffffffff l,
   $ffffffff l,  $ffffffff l,
 
-: rgba-map { addr w h -- }
-    GL_TEXTURE_2D 0 GL_RGBA w h
-    0 GL_RGBA GL_UNSIGNED_BYTE addr glTexImage2D ;
+: texture-map { addr w h mode -- }
+    GL_TEXTURE_2D 0 mode w h
+    0 mode GL_UNSIGNED_BYTE addr glTexImage2D ;
+
+: rgba-map ( addr w h -- )  GL_RGBA  texture-map ;
 
 : rgba-subtex { addr x y w h -- }
     GL_TEXTURE_2D 0 x y w h
     GL_RGBA GL_UNSIGNED_BYTE addr glTexSubImage2D ;
 
-: grey-map { addr w h -- }
-    GL_TEXTURE_2D 0 GL_LUMINANCE w h
-    0 GL_LUMINANCE GL_UNSIGNED_BYTE addr glTexImage2D ;
+: grey-map ( addr w h -- ) GL_LUMINANCE texture-map ;
 
 : rgba-newtex ( w h -- ) 0 -rot rgba-map ;
 : grey-newtex ( w h -- ) 0 -rot grey-map ;
@@ -583,8 +583,10 @@ tex: none-tex
     GL_TEXTURE_2D current-tex glBindTexture
     w h grey-newtex nearest ;
 
-: new-textbuffer { w h -- fb }
+: new-textbuffer { w h mode -- fb }
     \G create new texture buffer to render into
+    \G uses the current active texture
+    0 w h mode texture-map linear edge
     w h gen-renderbuffer { rb }
     current-tex rb gen-framebuffer { fb }
     fb ;
