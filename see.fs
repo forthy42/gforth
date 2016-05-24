@@ -169,11 +169,11 @@ VARIABLE Colors Colors on
 			cemit
 		    else
 			base @ { oldbase } try
-			    8 base ! 0 <<# # # # '\ hold #> ctype #>> 0
+			    $10 base ! 0 <<# # # 'x' hold '\' hold #> ctype #>> 0
 			restore
 			    oldbase base !
 			endtry
-			rdrop throw
+			throw
 		    endif
 		endif
 		1 /string
