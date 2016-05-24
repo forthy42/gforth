@@ -154,7 +154,7 @@ VARIABLE Colors Colors on
 ' (.string) IS .string
 
 : c-\emit ( c -- )
-    \ show control char in printable form; note that newlines can have
+    \ show char in \-escaped form; note that newlines can have
     \ two chars, so they need to be handled at the string level.
     dup '" = over '\ = or if
 	'\ cemit cemit
