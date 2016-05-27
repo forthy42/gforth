@@ -320,6 +320,14 @@ FAST=no
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
 case "$host_cpu" in
+	arm64*|aarch64*)
+		machine=arm64
+		CFLAGS="$CFLAGS -fomit-frame-pointer"
+                test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
+		if test -z $arm_cacheflush; then
+		   AC_LIBOBJ(../arch/arm64/cacheflush) 
+		fi
+		;;
 	arm*)
 		machine=arm
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
@@ -356,13 +364,6 @@ case "$host_cpu" in
                 #longer skipcodes lead to problems on ARM, and it uses
                 #only 4-byte alignment anyway
 		test "$skipcode" || skipcode="nop"
-		;;
-	arm64*|aarch64*)
-		machine=arm64
-		CFLAGS="$CFLAGS -fomit-frame-pointer"
-		if test -z $arm_cacheflush; then
-		   AC_LIBOBJ(../arch/arm64/cacheflush) 
-		fi
 		;;
 	hppa*)
 		machine=hppa
@@ -472,7 +473,7 @@ case "$host_cpu" in
 		test x$ac_cv_sizeof_long_long = x && 
 		($CC -v 2>&1 |grep 'gcc version 2.95' >/dev/null) &&
                      ac_cv_sizeof_long_long=0
-                #The only architecture with enough callee-saved registers
+                #One of the few architectures with enough callee-saved registers
                 test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
                 #or use 2, hardly slower at run-time and starts up faster
 
