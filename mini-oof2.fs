@@ -108,7 +108,8 @@ dynamic-a to allocater
 
 : rec:moof2 ( addr u -- xt r:moof2 | r:fail )
     2dup s" ." string-prefix?
-    IF  1 /string rec:scope dup r:fail <> IF  r:moof2  THEN
+    IF  1 /string 2dup rec:scope dup r:fail <> IF  nip nip r:moof2
+	ELSE  rec:word dup rfail <> IF  r:moof2  THEN  THEN
     ELSE  2drop r:fail  THEN ;
 
 ' rec:moof2 get-recognizers 1+ set-recognizers
