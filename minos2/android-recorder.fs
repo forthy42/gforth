@@ -38,7 +38,7 @@ also jni
 
 : rot>st ( n -- n' )  dup 2 and 2/ s>f dup 1- 2 and 2/ s>f >st 1+ ;
 
-: cam-rectangle ( -- )  screen-orientation
+: cam-rectangle ( orientation -- )
     >v
     -1e  1e >xy n> rot>st  $000000FF rgba>c v+
      1e  1e >xy n> rot>st  $000000FF rgba>c v+
@@ -55,7 +55,7 @@ also jni
     Ambient 1 ambient% glUniform1fv
     media-tex nearest-oes ;
 : camera-frame ( -- ) camera-init
-    v0 i0 cam-rectangle
+    v0 i0 screen-orientation cam-rectangle
     GL_TRIANGLES draw-elements ;
 
 : max-area ( w h o:size -- w' h' )

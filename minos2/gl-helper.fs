@@ -587,9 +587,7 @@ tex: none-tex
     \G create new texture buffer to render into
     \G uses the current active texture
     0 w h mode texture-map linear edge
-    w h gen-renderbuffer { rb }
-    current-tex rb gen-framebuffer { fb }
-    fb ;
+    current-tex  w h gen-renderbuffer  gen-framebuffer ;
 
 : >framebuffer ( w h fb -- )
     GL_FRAMEBUFFER swap glBindFramebuffer
