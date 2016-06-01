@@ -153,6 +153,24 @@ VARIABLE Colors Colors on
 
 ' (.string) IS .string
 
+: c-\emit ( c -- )
+    \ show char in \-escaped form; note that newlines can have
+    \ two chars, so they need to be handled at the string level.
+    dup '" = over '\ = or if
+	'\ cemit cemit
+    else
+	dup bl 127 within if
+	    cemit
+	else
+	    base @ { oldbase } try
+		$10 base ! 0 <<# # # 'x' hold '\' hold #> ctype #>> 0
+	    restore
+		oldbase base !
+	    endtry
+	    throw
+	endif
+    endif ;
+
 : c-\type ( c-addr u -- )
     \ type string in \-escaped form
     begin
@@ -161,22 +179,7 @@ VARIABLE Colors Colors on
 		'\ cemit 'n cemit
 		newline nip /string
 	    else
-		over c@
-		dup '" = over '\ = or if
-		    '\ cemit cemit
-		else
-		    dup bl 127 within if
-			cemit
-		    else
-			base @ { oldbase } try
-			    8 base ! 0 <<# # # # '\ hold #> ctype #>> 0
-			restore
-			    oldbase base !
-			endtry
-			rdrop throw
-		    endif
-		endif
-		1 /string
+		over c@ c-\emit 1 /string
 	    endif
     repeat
     2drop ;
