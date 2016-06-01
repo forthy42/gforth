@@ -74,7 +74,8 @@ storage class end-class dynamic-alloc
 :noname  ( addr -- )      free throw ;     dynamic-alloc to :free
 
 static-alloc dup >osize @ cell+ here swap allot swap over ! cell+ Constant static-a
-static-a UValue allocater
+UValue allocater
+static-a to allocater
 
 : new ( class -- o )  dup >osize @ cell+
     allocater >o :allocate o> swap over !
