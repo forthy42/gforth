@@ -18,7 +18,6 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require struct-val.fs
-require rec-scope.fs
 
 Defer default-method ' noop IS default-method
 
@@ -108,9 +107,10 @@ dynamic-a to allocater
 :noname ( object xt -- ) swap >o execute o> ; ' >oo> ' lit, recognizer: r:moof2
 
 : rec:moof2 ( addr u -- xt r:moof2 | r:fail )
-    2dup s" ." string-prefix?
-    IF  1 /string 2dup rec:scope dup r:fail <> IF  nip nip r:moof2
-	ELSE  drop rec:word dup r:fail <> IF  r:moof2  THEN  THEN
+    over c@ '.' = over 1 > and
+    IF  1 /string do-recognizer
+	dup r:fail <> over >namevt @ >vtlit, @ ['] noop <> and
+	IF  r:moof2  THEN
     ELSE  2drop r:fail  THEN ;
 
 ' rec:moof2 get-recognizers 1+ set-recognizers
