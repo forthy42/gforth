@@ -63,10 +63,4 @@ void gforth_cacheflush(void *p, size_t size);
    significant bits.  Unlike AArch32 S1 is not packed into D0,
    etc.  */
 
-#define TOSREG asm("x24")
-#define SPREG asm("x25")
-#define IPREG asm("x26")
-#define RPREG asm("x22")
-#define FPREG asm("x19")
-#define LPREG asm("x23")
 #endif
