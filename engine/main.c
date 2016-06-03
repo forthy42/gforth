@@ -456,7 +456,7 @@ void gforth_relocate(Cell *image, const Char *bitstring,
       }
     }
   }
-  free_l(targets);
+  free(targets);
   finish_code();
   ((ImageHeader*)(image))->base = (Address) image;
 }
@@ -636,7 +636,7 @@ void gforth_free_dict()
     debugp(stderr,"ok\n");
   }
 #else
-  free_l((void*)image);
+  free((void*)image);
 #endif
 }
 
@@ -1522,7 +1522,7 @@ static void init_waypoints(struct waypoint ws[])
 
 static struct tpa_state *empty_tpa_state()
 {
-  struct tpa_state *s = malloc_l(sizeof(struct tpa_state));
+  struct tpa_state *s = malloc(sizeof(struct tpa_state));
 
   s->inst  = calloc(maxstates,sizeof(struct waypoint));
   init_waypoints(s->inst);
@@ -1659,9 +1659,9 @@ static struct tpa_state *lookup_tpa_state(struct tpa_state *t)
     for (; te!=NULL; te = te->next) {
       if (tpa_state_equivalent(t, te->state)) {
 	lb_newstate_equiv++;
-	free_l(t->inst);
-	free_l(t->trans);
-	free_l(t);
+	free(t->inst);
+	free(t->trans);
+	free(t);
 	return te->state;
       }
     }
@@ -1948,7 +1948,7 @@ static FILE *openimage(char *fullfilename)
   image_file=fopen(expfilename,"rb");
   if (image_file!=NULL && debug)
     fprintf(stderr, "Opened image file: %s\n", expfilename);
-  free_l(expfilename);
+  free(expfilename);
   return image_file;
 }
 
@@ -2667,11 +2667,11 @@ Cell gforth_start(int argc, char ** argv)
 {
   char *path, *imagename;
 
-  if(gforth_args(argc, argv, &path, &imagename))
-    return -24; /* Invalid numeric argument */
 #ifdef HAVE_MCHECK
   mcheck_init(debug_mcheck);
 #endif
+  if(gforth_args(argc, argv, &path, &imagename))
+    return -24; /* Invalid numeric argument */
   gforth_header = gforth_loader(imagename, path);
   if(gforth_header==NULL)
     return -59; /* allocate error */

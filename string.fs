@@ -57,10 +57,10 @@
 
 User tmp$[] \ temporary string buffers
 User tmp$#  \ temporary string buffer counter
-$10 Value tmps# \ how many temporary strings
+$F Value tmps# \ how many temporary strings -1 (pow of 2!)
 
 : tmp$ ( -- addr )
-    tmp$# @ tmp$[] $[] ;
+    tmp$# @ tmps# and tmp$[] $[] ;
 
 User $execstr-ptr
 tmp$ $execstr-ptr !
@@ -91,7 +91,7 @@ tmp$ $execstr-ptr !
 
 : $tmp ( xt -- addr u )
     \G generate a temporary string from the output of a word
-    1 tmp$# @ + tmps# mod tmp$# !
+    1 tmp$# +!@ drop
     s" " tmp$ $!  tmp$ $exec  tmp$ $@ ;
 
 :noname ( -- )  defers 'cold  tmp$[] off ;  is 'cold
