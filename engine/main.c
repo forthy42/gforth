@@ -2667,11 +2667,11 @@ Cell gforth_start(int argc, char ** argv)
 {
   char *path, *imagename;
 
+  if(gforth_args(argc, argv, &path, &imagename))
+    return -24; /* Invalid numeric argument */
 #ifdef HAVE_MCHECK
   mcheck_init(debug_mcheck);
 #endif
-  if(gforth_args(argc, argv, &path, &imagename))
-    return -24; /* Invalid numeric argument */
   gforth_header = gforth_loader(imagename, path);
   if(gforth_header==NULL)
     return -59; /* allocate error */
