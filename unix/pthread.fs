@@ -208,8 +208,7 @@ IS kill-task
 
 Defer thread-init
 :noname ( -- )
-    rp@ cell+ backtrace-rp0 !
-    tmp$ $execstr-ptr !  tmp$ off
+    rp@ cell+ backtrace-rp0 !  tmp$[] off
     current-input off create-input ; IS thread-init
 
 : NewTask4 ( dsize rsize fsize lsize -- task )
