@@ -203,7 +203,7 @@ epiper create_pipe \ create pipe for main task
 :noname ( -- )
     epiper @ ?dup-if epiper off close-file drop  THEN
     epipew @ ?dup-if epipew off close-file drop  THEN
-    tmp$ $off 0 (bye) ;
+    tmp$[] $[]off 0 (bye) ;
 IS kill-task
 
 Defer thread-init
