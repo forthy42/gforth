@@ -46,6 +46,9 @@ extern int debug;
 #endif
 #ifdef HAVE_MCHECK
 pthread_mutex_t memlock = PTHREAD_MUTEX_INITIALIZER;
+void* (*malloc_l)(size_t size)=malloc;
+void (*free_l)(void* addr)=free;
+void* (*realloc_l)(void* addr, size_t size)=realloc;
 
 void gforth_abortmcheck(enum mcheck_status reason)
 {
@@ -53,12 +56,7 @@ void gforth_abortmcheck(enum mcheck_status reason)
   throw(-2049-reason);
 }
 
-void mcheck_init(int flag)
-{
-  if(flag) mcheck(gforth_abortmcheck);
-}
-
-void* malloc_l(size_t size)
+void* malloc_ll(size_t size)
 {
   void* addr;
   pthread_mutex_lock(&memlock);
@@ -69,7 +67,7 @@ void* malloc_l(size_t size)
   return addr;
 }
 
-void free_l(void* addr)
+void free_ll(void* addr)
 {
 #ifdef HAVE_MPROBE
   if(debug_mcheck) {
@@ -87,17 +85,28 @@ void free_l(void* addr)
   pthread_mutex_unlock(&memlock);
 }
 
-void* realloc_l(void* addr, size_t size)
+void* realloc_ll(void* addr, size_t size)
 {
   pthread_mutex_lock(&memlock);
   addr=realloc(addr, size);
   pthread_mutex_unlock(&memlock);
   return addr;
 }
+
+void mcheck_init(int flag)
+{
+  if(flag) {
+    mcheck(gforth_abortmcheck);
+    malloc_l=malloc_ll;
+    free_l=free_ll;
+    realloc_l=realloc_ll;
+  }
+}
 #else
 #define malloc_l(size) malloc(size)
 #define free_l(addr) free(addr)
 #define realloc_l(addr, size) realloc(addr, size)
+#define mcheck_init(flag)
 #endif
 
 #ifdef HAS_FILE
