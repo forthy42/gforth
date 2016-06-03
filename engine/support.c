@@ -102,11 +102,6 @@ void mcheck_init(int flag)
     realloc_l=realloc_ll;
   }
 }
-#else
-#define malloc_l(size) malloc(size)
-#define free_l(addr) free(addr)
-#define realloc_l(addr, size) realloc(addr, size)
-#define mcheck_init(flag)
 #endif
 
 #ifdef HAS_FILE

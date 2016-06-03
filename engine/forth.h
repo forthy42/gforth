@@ -37,6 +37,11 @@ extern void mcheck_init(int flag);
 extern void* (*malloc_l)(size_t size);
 extern void (*free_l)(void* addr);
 extern void* (*realloc_l)(void* addr, size_t size);
+#else
+# define malloc_l(size) malloc(size)
+# define free_l(addr) free(addr)
+# define realloc_l(addr, size) realloc(addr, size)
+# define mcheck_init(flag)
 #endif
 
 #if !defined(FORCE_LL) && !defined(BUGGY_LONG_LONG)
