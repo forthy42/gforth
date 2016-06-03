@@ -32,6 +32,11 @@
 #include <setjmp.h>
 #ifdef HAVE_MCHECK
 # include <mcheck.h>
+# include <pthread.h>
+extern void mcheck_init();
+extern void* malloc_l(size_t size);
+extern void free_l(void* addr);
+extern void* realloc_l(void* addr, size_t size);
 #endif
 
 #if !defined(FORCE_LL) && !defined(BUGGY_LONG_LONG)

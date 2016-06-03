@@ -44,8 +44,60 @@
 extern int debug;
 # define debugp(x...) do { if (debug) fprintf(x); } while (0)
 #endif
+#ifdef HAVE_MCHECK
+pthread_mutex_t memlock = PTHREAD_MUTEX_INITIALIZER;
+
+void gforth_abortmcheck(enum mcheck_status reason)
+{
+  pthread_mutex_unlock(&memlock);
+  throw(-2049-reason);
+}
+
+void mcheck_init(int flag)
+{
+  if(flag) mcheck(gforth_abortmcheck);
+}
+
+void* malloc_l(size_t size)
+{
+  void* addr;
+  pthread_mutex_lock(&memlock);
+  addr=malloc(size);
+  if(debug_mcheck)
+    debugp(stderr, "%8p=allocate(%8p);\n", addr, (void*)size);
+  pthread_mutex_unlock(&memlock);
+  return addr;
+}
+
+void free_l(void* addr)
+{
 #ifdef HAVE_MPROBE
-#include <mcheck.h>
+  if(debug_mcheck) {
+    pthread_mutex_lock(&memlock);
+    int reason=mprobe(addr);
+    pthread_mutex_unlock(&memlock);
+    debugp(stderr, "free(%8p)=%d;\n", addr, reason);
+    if(reason > 0) {
+      throw(-2049-reason);
+    }
+  }
+#endif
+  pthread_mutex_lock(&memlock);
+  free(addr);
+  pthread_mutex_unlock(&memlock);
+}
+
+void* realloc_l(void* addr, size_t size)
+{
+  pthread_mutex_lock(&memlock);
+  addr=realloc(addr, size);
+  pthread_mutex_unlock(&memlock);
+  return addr;
+}
+#else
+#define malloc_l(size) malloc(size)
+#define free_l(addr) free(addr)
+#define realloc_l(addr, size) realloc(addr, size)
 #endif
 
 #ifdef HAS_FILE
@@ -53,7 +105,7 @@ char *cstr(Char *from, UCell size)
 /* return a C-string corresponding to the Forth string ( FROM SIZE ).
    the C-string lives until free */
 {
-  char * string = malloc(size+1);
+  char * string = malloc_l(size+1);
   memcpy(string,from,size);
   string[size]='\0';
   return string;
@@ -83,7 +135,13 @@ char *tilde_cstr(Char *from, UCell size)
 	s2 = (char *)getenv("HOMEDRIVE");
 	s3 = (char *)getenv("HOMEPATH");
 	if((s2 != NULL) && (s3 != NULL)) {
+#ifdef HAVE_MCHECK
+	  pthread_mutex_lock(&memlock);
+#endif
 	  asprintf(&s1, "%s%s", s2, s3);
+#ifdef HAVE_MCHECK
+	  pthread_mutex_unlock(&memlock);
+#endif
 	  allocs1=1;
 	}
       }
@@ -121,7 +179,7 @@ char *tilde_cstr(Char *from, UCell size)
     char path[s1_len+s2_len];
     memcpy(path,s1,s1_len);
     memcpy(path+s1_len,s2,s2_len);
-    if(allocs1) free(s1);
+    if(allocs1) free_l(s1);
     return cstr((Char *)path,s1_len+s2_len);
   }
 }
@@ -443,8 +501,8 @@ Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
   char *s1=tilde_cstr(c_addr2, u2);
   char *s2=tilde_cstr(c_addr1, u1);
   return IOR(rename(s2, s1)==-1);
-  free(s1);
-  free(s2);
+  free_l(s1);
+  free_l(s2);
 }
 
 struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
@@ -522,7 +580,7 @@ struct Cellpair file_status(Char *c_addr, UCell u)
   }
   r.n1 = wfam;
   r.n2 = wior;
-  free(filename);
+  free_l(filename);
   return r;
 }
 
@@ -645,27 +703,6 @@ UCell rshift(UCell u1, UCell n)
 }
 
 #ifndef STANDALONE
-#ifdef HAVE_MPROBE
-void gforth_abortmcheck(enum mcheck_status reason)
-{
-  throw(-2049-reason);
-}
-#endif
-
-void gforth_free(void * ptr)
-{
-#ifdef HAVE_MPROBE
-  if(debug_mcheck) {
-    int reason=mprobe(ptr);
-    debugp(stderr, "free(%8p)=%d;\n", ptr, reason);
-    if(reason > 0) {
-      throw(-2049-reason);
-    }
-  }
-#endif
-  free(ptr);
-}
-
 int gforth_system(Char *c_addr, UCell u)
 {
   int retval;
@@ -712,19 +749,19 @@ UCell gforth_dlopen(Char *c_addr, UCell u)
   UCell lib;
 #if defined(HAVE_LIBLTDL)
   lib = (UCell)lt_dlopen(file);
-  free(file);
+  free_l(file);
   if(lib) return lib;
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
 #ifndef RTLD_GLOBAL
 #define RTLD_GLOBAL 0
 #endif
   lib = (UCell)dlopen(file, RTLD_GLOBAL);
-  free(file);
+  free_l(file);
   if(lib) return lib;
   fprintf(stderr, "%s\n", dlerror());
 #elif defined(_WIN32)
   lib = (UCell) GetModuleHandle(file);
-  free(file);
+  free_l(file);
   if(lib) return lib;
 #endif
   return 0;

@@ -60,12 +60,12 @@ block_count *block_insert(Xt *ip)
 
   if (b != NULL)
     return b;
-  new = (block_count *)malloc(sizeof(block_count));
+  new = (block_count *)malloc_l(sizeof(block_count));
   new->next = blocks[hash(ip)];
   new->fallthrough = NULL;
   new->ip = ip;
   new->count = 0LL;
-  new->insts = malloc(0);
+  new->insts = malloc_l(0);
   assert(new->insts != NULL);
   new->ninsts = 0;
   blocks[hash(ip)] = new;

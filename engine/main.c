@@ -327,7 +327,7 @@ static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring
   int i=0, j, k, steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
   Cell token;
   unsigned char bits;
-  unsigned char *result=malloc(steps);
+  unsigned char *result=malloc_l(steps);
 
   memset(result, 0, steps);
   for(k=0; k<steps; k++) {
@@ -456,7 +456,7 @@ void gforth_relocate(Cell *image, const Char *bitstring,
       }
     }
   }
-  free(targets);
+  free_l(targets);
   finish_code();
   ((ImageHeader*)(image))->base = (Address) image;
 }
@@ -491,7 +491,7 @@ static Address verbose_malloc(Cell size)
 {
   Address r;
   /* leave a little room (64B) for stack underflows */
-  if ((r = malloc(size+64))==NULL) {
+  if ((r = malloc_l(size+64))==NULL) {
     perror(progname);
     return r;
   }
@@ -636,7 +636,7 @@ void gforth_free_dict()
     debugp(stderr,"ok\n");
   }
 #else
-  free((void*)image);
+  free_l((void*)image);
 #endif
 }
 
@@ -809,7 +809,7 @@ static void prepare_super_table()
     if ((c->length < 2 || nsupers < static_super_number) &&
 	c->state_in < maxstates && c->state_out < maxstates) {
       struct super_state **ss_listp= lookup_super(super2+c->offset, c->length);
-      struct super_state *ss = malloc(sizeof(struct super_state));
+      struct super_state *ss = malloc_l(sizeof(struct super_state));
       ss->super= i;
       if (c->offset==N_noop && i != N_noop) {
 	if (is_relocatable(i)) {
@@ -822,7 +822,7 @@ static void prepare_super_table()
       } else {
 	int hash = hash_super(super2+c->offset, c->length);
 	struct super_table_entry **p = &super_table[hash];
-	struct super_table_entry *e = malloc(sizeof(struct super_table_entry));
+	struct super_table_entry *e = malloc_l(sizeof(struct super_table_entry));
 	ss->next = NULL;
 	e->next = *p;
 	e->start = super2 + c->offset;
@@ -1148,7 +1148,7 @@ static int reserve_code_space(UCell size)
     if (*next_code_blockp == NULL) {
       if((code_here = start_flush = code_area = gforth_alloc(code_area_size)) == NULL)
 	return 1;
-      p = (struct code_block_list *)malloc(sizeof(struct code_block_list));
+      p = (struct code_block_list *)malloc_l(sizeof(struct code_block_list));
       *next_code_blockp = p;
       p->next = NULL;
       p->block = code_here;
@@ -1522,7 +1522,7 @@ static void init_waypoints(struct waypoint ws[])
 
 static struct tpa_state *empty_tpa_state()
 {
-  struct tpa_state *s = malloc(sizeof(struct tpa_state));
+  struct tpa_state *s = malloc_l(sizeof(struct tpa_state));
 
   s->inst  = calloc(maxstates,sizeof(struct waypoint));
   init_waypoints(s->inst);
@@ -1600,7 +1600,7 @@ static struct tpa_state **lookup_tpa(PrimNum p, struct tpa_state *t2)
     if (p == te->inst && t2 == te->state_behind)
       return &(te->state_infront);
   }
-  te = (struct tpa_entry *)malloc(sizeof(struct tpa_entry));
+  te = (struct tpa_entry *)malloc_l(sizeof(struct tpa_entry));
   te->next = tpa_table[hash];
   te->inst = p;
   te->state_behind = t2;
@@ -1659,13 +1659,13 @@ static struct tpa_state *lookup_tpa_state(struct tpa_state *t)
     for (; te!=NULL; te = te->next) {
       if (tpa_state_equivalent(t, te->state)) {
 	lb_newstate_equiv++;
-	free(t->inst);
-	free(t->trans);
-	free(t);
+	free_l(t->inst);
+	free_l(t->trans);
+	free_l(t);
 	return te->state;
       }
     }
-    tn = (struct tpa_state_entry *)malloc(sizeof(struct tpa_state_entry));
+    tn = (struct tpa_state_entry *)malloc_l(sizeof(struct tpa_state_entry));
     tn->next = te;
     tn->state = t;
     tpa_state_table[hash] = tn;
@@ -1948,7 +1948,7 @@ static FILE *openimage(char *fullfilename)
   image_file=fopen(expfilename,"rb");
   if (image_file!=NULL && debug)
     fprintf(stderr, "Opened image file: %s\n", expfilename);
-  free(expfilename);
+  free_l(expfilename);
   return image_file;
 }
 
@@ -2151,7 +2151,7 @@ Address gforth_alloc(Cell size)
 {
   Address r;
   /* leave a little room (64B) for stack underflows */
-  if ((r = malloc(size+64))==NULL) {
+  if ((r = malloc_l(size+64))==NULL) {
     perror(progname);
     return NULL;
   }
@@ -2594,7 +2594,7 @@ void gforth_setstacks()
 
 Cell gforth_boot(int argc, char** argv, char* path)
 {
-  char *path2=malloc(strlen(path)+1);
+  char *path2=malloc_l(strlen(path)+1);
   char *p1, *p2;
   
   argv[optind-1] = progname;
@@ -2670,8 +2670,7 @@ Cell gforth_start(int argc, char ** argv)
   if(gforth_args(argc, argv, &path, &imagename))
     return -24; /* Invalid numeric argument */
 #ifdef HAVE_MCHECK
-  if(debug_mcheck)
-    mcheck(gforth_abortmcheck);
+  mcheck_init(debug_mcheck);
 #endif
   gforth_header = gforth_loader(imagename, path);
   if(gforth_header==NULL)

@@ -2005,14 +2005,14 @@ in length.""
 char * string = cstr(c_addr1,u1);
 c_addr2 = (Char *)getenv(string);
 u2 = (c_addr2 == NULL ? 0 : strlen((char *)c_addr2));
-gforth_free(string);
+free_l(string);
 
 open-pipe	( c_addr u wfam -- wfileid wior )	gforth	open_pipe
 char * string = cstr(c_addr,u);
 fflush(stdout);
 wfileid=(Cell)popen(string,pfileattr[wfam]); /* ~ expansion of 1st arg? */
 wior = IOR(wfileid==0); /* !! the man page says that errno is not set reliably */
-gforth_free(string);
+free_l(string);
 
 close-pipe	( wfileid -- wretval wior )		gforth	close_pipe
 wretval = pclose((FILE *)wfileid);
@@ -2042,9 +2042,7 @@ contents of the data space is undefined. If the allocation is successful,
 @i{a-addr} is the start address of the allocated region and @i{wior}
 is 0. If the allocation fails, @i{a-addr} is undefined and @i{wior}
 is a non-zero I/O result code.""
-a_addr = (Cell *)malloc(u?u:1);
-if(debug_mcheck)
-  debugp(stderr, "%8p=allocate(%8p);\n", a_addr, (void*)u);
+a_addr = (Cell *)malloc_l(u?u:1);
 wior = IOR(a_addr==NULL);
 
 free	( a_addr -- wior )		memory
@@ -2052,7 +2050,7 @@ free	( a_addr -- wior )		memory
 The region must originally have been obtained using @code{allocate} or
 @code{resize}. If the operational is successful, @i{wior} is 0.
 If the operation fails, @i{wior} is a non-zero I/O result code.""
-gforth_free(a_addr);
+free_l(a_addr);
 wior = 0;
 
 resize	( a_addr1 u -- a_addr2 wior )	memory
@@ -2067,9 +2065,9 @@ I/O result code. If @i{a-addr1} is 0, Gforth's (but not the Standard)
    on SunOS 4.1.2. */
 /* close ' to keep fontify happy */
 if (a_addr1==NULL)
-  a_addr2 = (Cell *)malloc(u);
+  a_addr2 = (Cell *)malloc_l(u);
 else
-  a_addr2 = (Cell *)realloc(a_addr1, (u ? u : 1));
+  a_addr2 = (Cell *)realloc_l(a_addr1, (u ? u : 1));
 wior = IOR(a_addr2==NULL);	/* !! Define a return code */
 if(wior)
   a_addr2 = a_addr1; /* in case of an error, keep a_addr1 */
@@ -2120,17 +2118,17 @@ wior = IOR(fclose((FILE *)wfileid)==EOF);
 (open-file)	( c_addr u wfam -- wfileid wior )	file	open_file
 char * string = tilde_cstr(c_addr,u);
 wfileid = opencreate_file(string, wfam, 0, &wior);
-gforth_free(string);
+free_l(string);
 
 (create-file)	( c_addr u wfam -- wfileid wior )	file	create_file
 char * string = tilde_cstr(c_addr,u);
 wfileid = opencreate_file(string, wfam, O_CREAT|O_TRUNC, &wior);
-gforth_free(string);
+free_l(string);
 
 (delete-file)	( c_addr u -- wior )		file	delete_file
 char * string = tilde_cstr(c_addr,u);
 wior = IOR(unlink(string)==-1);
-gforth_free(string);
+free_l(string);
 
 (rename-file)	( c_addr1 u1 c_addr2 u2 -- wior )	file-ext	rename_file
 ""Rename file @i{c_addr1 u1} to new name @i{c_addr2 u2}""
@@ -2215,7 +2213,7 @@ and return @i{dir-id} for futher access to it.""
 char * string = tilde_cstr(c_addr,u);
 wdirid = (Cell)opendir(string);
 wior =  IOR(wdirid == 0);
-gforth_free(string);
+free_l(string);
 
 read-dir	( c_addr u1 wdirid -- u2 flag wior )	gforth	read_dir
 ""Attempt to read the next entry from the directory specified
@@ -2254,15 +2252,15 @@ filename-match	( c_addr1 u1 c_addr2 u2 -- flag )	gforth	match_file
 char * string = cstr(c_addr1, u1);
 char * pattern = cstr(c_addr2, u2);
 flag = FLAG(!fnmatch(pattern, string, 0));
-gforth_free(string);
-gforth_free(pattern);
+free_l(string);
+free_l(pattern);
 
 set-dir	( c_addr u -- wior )	gforth set_dir
 ""Change the current directory to @i{c-addr, u}.
 Return an error if this is not possible""
 char * string = tilde_cstr(c_addr, u);
 wior = IOR(chdir(string));
-gforth_free(string);
+free_l(string);
 
 get-dir	( c_addr1 u1 -- c_addr2 u2 )	gforth get_dir
 ""Store the current directory in the buffer specified by @i{c-addr1, u1}.
@@ -2278,7 +2276,7 @@ if(c_addr2 != NULL) {
 ""Create directory @i{c-addr u} with mode @i{wmode}.""
 char * string = tilde_cstr(c_addr,u);
 wior = IOR(mkdir(string,wmode));
-gforth_free(string);
+free_l(string);
 
 \+
 
@@ -2859,7 +2857,7 @@ u3 = (Cell) GetProcAddress((HMODULE)u2, string);
 u3 = 0;
 #  endif
 #endif
-gforth_free(string);
+free_l(string);
 
 wcall	( ... u -- ... )	gforth
 gforth_FP=fp;

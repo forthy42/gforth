@@ -118,7 +118,7 @@ Cell prepare_peephole_table(Inst insts[])
 
   for (i=0; i<sizeof(peephole_table)/sizeof(peephole_table[0]); i++) {
     Combination *c = &peephole_table[i];
-    Peeptable_entry *p = (Peeptable_entry *)malloc(sizeof(Peeptable_entry));
+    Peeptable_entry *p = (Peeptable_entry *)malloc_l(sizeof(Peeptable_entry));
     Cell h;
     p->prefix =           insts[c->prefix];
     p->lastprim =         insts[c->lastprim];
