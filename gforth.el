@@ -1275,7 +1275,7 @@ Variables controlling indentation style:
  forth-indent-level
     Indentation increment/decrement of Forth statements.
  forth-minor-indent-level
-    Minor indentation increment/decrement of Forth statemens.
+    Minor indentation increment/decrement of Forth statements.
 
 Variables controlling block-file editing:
  forth-show-screen
