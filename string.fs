@@ -92,7 +92,7 @@ tmp$ $execstr-ptr !
 : $tmp ( xt -- addr u )
     \G generate a temporary string from the output of a word
     1 tmp$# +!@ drop
-    s" " tmp$ $!  tmp$ $exec  tmp$ $@ ;
+    tmp$ $off  tmp$ $exec  tmp$ $@ ;
 
 :noname ( -- )  defers 'cold  tmp$[] off ;  is 'cold
 
