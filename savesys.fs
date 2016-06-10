@@ -47,6 +47,7 @@
     w/o bin create-file throw >r
     update-image-included-files
     update-image-order
+    default-recognizer $save
     update-maintask
     here forthstart - forthstart 2 cells + !
     forthstart

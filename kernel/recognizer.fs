@@ -71,40 +71,40 @@ AConstant r:dnum
     THEN
     drop r:fail ;
 
-\ generic stack get/set
+\ generic deque get/set
 
-$10 Constant max-stack#
+: deque@ ( deque -- x1 .. xn n )
+    \G fetch everything from the generic deque to the data stack
+    $@ dup cell/ >r bounds cell- swap cell- -DO  I @  cell -LOOP  r> ;
+: deque! ( x1 .. xn n deque -- )
+    \G set the generic deque with values from the data stack
+    >r cells r@ $!len
+    r> $@ bounds DO  I !  cell +LOOP ;
 
-: get-stack ( rec-addr -- xt1 .. xtn n )
-    dup @ dup >r cells bounds swap ?DO
-	I @
-    cell -LOOP  r> ;
+: deque: ( n "name" -- )
+    \G create a named deque with n cells space
+    drop Variable ;
 
-: set-stack ( xt1 .. xtn n rec-addr -- )
-    over max-stack# u>= abort" Too many items"
-    2dup ! cell+ swap cells bounds ?DO
-	I !
-    cell +LOOP ;
-
-Variable forth-recognizer
+AVariable default-recognizer
 \G The system recognizer
 
-' rec:word A, ' rec:num A, max-stack# 2 - cells allot
-2 forth-recognizer !
-\ ' num-recognizer ' word-recognizer 2 forth-recognizer set-recognizers
+here default-recognizer !
+2 cells , ' rec:word A, ' rec:num A,
+
+default-recognizer AValue forth-recognizer
 
 : get-recognizers ( -- xt1 .. xtn n )
     \G push the content on the recognizer stack
-    forth-recognizer get-stack ;
+    forth-recognizer deque@ ;
 : set-recognizers ( xt1 .. xtn n )
     \G set the recognizer stack from content on the stack
-    forth-recognizer set-stack ;
+    forth-recognizer deque! ;
 
 \ recognizer loop
 
 : map-recognizer ( addr u rec-addr -- tokens table )
     \G apply a recognizer stack to a string, delivering a token
-    dup cell+ swap @ cells bounds ?DO
+    $@ bounds ?DO
 	2dup I -rot 2>r
 	perform dup r:fail <>  IF  2rdrop UNLOOP  EXIT  THEN  drop
 	2r>
