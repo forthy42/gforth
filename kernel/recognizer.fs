@@ -82,7 +82,7 @@ AConstant r:dnum
     r> $@ bounds DO  I !  cell +LOOP ;
 
 : deque: ( n "name" -- )
-    \G create a named deque with n cells space
+    \G create a named deque with at least n cells space
     drop Variable ;
 
 AVariable default-recognizer
