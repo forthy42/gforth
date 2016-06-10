@@ -19,11 +19,25 @@
 
 require struct.fs
 
-$10 Value maxvp		\ current size of search order stack
-$400 Value maxvp-limit	\ upper limit for resizing search order stack
-0 AValue vp		\ will be initialized later (dynamic)
-\ the first cell at vp contains the search order depth, the others
-\ contain the wordlists, starting with the last-searched one.
+$10 deque: vocstack
+
+: >deque ( x deque -- )
+    \G push to top of deque
+    >r r@ $@len cell+ r@ $!len
+    r@ $@ cell- over cell+ swap move
+    r> $@ drop ! ;
+: deque> ( deque -- x )
+    \G pop from top of deque
+    >r r@ $@ IF  @ r@ 0 cell $del  ELSE  drop 0  THEN
+    rdrop ;
+: deque< ( x deque -- )
+    \G push to bottom of deque
+    >r r@ $@len cell+ r@ $!len
+    r> $@ + cell- ! ;
+: <deque ( deque -- x )
+    \G pop from bottom of deque
+    >r r@ $@ ?dup-IF  + cell- @ r@ $@len cell- r> $!len
+    ELSE  drop rdrop  THEN ;
 
 : get-current  ( -- wid ) \ search
   \G @i{wid} is the identifier of the current compilation word list.
@@ -34,11 +48,9 @@ $400 Value maxvp-limit	\ upper limit for resizing search order stack
   current ! ;
 
 :noname ( -- addr )
-    vp dup @ cells + ;
+    vocstack $@ drop ;
 is context
 
-: vp! ( u -- )
-    vp ! ;
 : definitions  ( -- ) \ search
   \G Set the compilation word list to be the same as the word list
   \G that is currently at the top of the search order.
@@ -72,16 +84,9 @@ Variable slowvoc   0 slowvoc !
   \G word list.
   Create wordlist drop  DOES> context ! ;
 
-: check-maxvp ( n -- )
-   dup maxvp-limit > -49 and throw
-   dup maxvp > IF
-      BEGIN  dup  maxvp 2* dup TO maxvp  <= UNTIL
-      vp  maxvp 1+ cells resize throw TO vp
-   THEN drop ;
-
 : >order ( wid -- ) \ gforth to-order
     \g Push @var{wid} on the search order.
-    vp @ 1+ dup check-maxvp vp! context ! ;
+    vocstack >deque ;
 
 : also  ( -- ) \ search-ext
   \G Like @code{DUP} for the search order. Usually used before a
@@ -91,16 +96,17 @@ Variable slowvoc   0 slowvoc !
 
 : previous ( -- ) \ search-ext
   \G Drop the wordlist at the top of the search order.
-  vp @ 1- dup 0= -50 and throw vp! ;
+  vocstack deque> drop ;
 
 \ vocabulary find                                      14may93py
 
 : (vocfind)  ( addr count wid -- nfa|false )
     \ !! generalize this to be independent of vp
-    drop 0 vp @ -DO ( addr count ) \ note that the loop does not reach 0
-        2dup vp i cells + @ find-name-in dup if ( addr count nt )
+    drop vocstack $@ bounds ?DO
+	( addr count ) \ note that the loop does not reach 0
+        2dup I @ find-name-in dup if ( addr count nt )
             nip nip unloop exit then
-    drop 1 -loop
+    drop cell +loop
     2drop false ;
 
 [ifundef] locals-wordlist
@@ -149,27 +155,20 @@ Vocabulary Root ( -- ) \ gforth
 : Only ( -- ) \ search-ext
   \G Set the search order to the implementation-defined minimum search
   \G order (for Gforth, this is the word list @code{Root}).
-  1 vp! Root also ;
+  0 1 vocstack deque! Root also ;
 
 : update-image-order ( -- )
-    \ save search order here, let vp point there
-    here vp over vp @ 1+ cells
-    dup allot move
-    to vp ;
+    \ save search order here
+    vocstack $save ;
 
 : init-vp  ( -- )
-    vp @ $10 max to maxvp
-    maxvp 1+ cells allocate throw
-    vp over vp @ 1+ cells move
-    TO vp ;
+    vocstack $boot ;
 
 :noname
    init-vp DEFERS 'cold ;
 IS 'cold
 
-here 0 , to vp
-
-init-vp Only Forth also definitions
+Only Forth also definitions
 
 \ set initial search order                             14may93py
 
@@ -188,7 +187,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
   \G that is searched first (the word list at the top of the search
   \G order) and @i{widn} represents the wordlist that is searched
   \G last.
-  vp @ 0 ?DO vp cell+ I cells + @ LOOP vp @ ;
+    vocstack deque@ ;
 
 : set-order  ( widn .. wid1 n -- ) \ search
     \G If @var{n}=0, empty the search order.  If @var{n}=-1, set the
@@ -201,11 +200,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
     dup -1 = IF
 	drop only exit
     THEN
-    dup check-maxvp
-    dup vp!
-    0 swap -DO ( wid1 ... widi )
-        vp i cells + ! \ note that the loop does not reach 0
-    1 -loop ;
+    vocstack deque! ;
 
 : seal ( -- ) \ gforth
   \G Remove all word lists from the search order stack other than the word

@@ -111,7 +111,7 @@ version-string 2constant gforth ( -- c-addr u ) \ gforth-environment
 
 16 constant #locals
     \ One local can take up to 64 bytes, the size of locals-buffer is 1000
-maxvp constant wordlists
+$400 constant wordlists
 
 forth definitions
 previous

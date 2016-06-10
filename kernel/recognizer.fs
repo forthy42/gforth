@@ -79,7 +79,7 @@ AConstant r:dnum
 : deque! ( x1 .. xn n deque -- )
     \G set the generic deque with values from the data stack
     >r cells r@ $!len
-    r> $@ bounds DO  I !  cell +LOOP ;
+    r> $@ bounds ?DO  I !  cell +LOOP ;
 
 : deque: ( n "name" -- )
     \G create a named deque with at least n cells space
