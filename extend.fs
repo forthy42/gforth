@@ -245,11 +245,11 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
 [THEN]
     dup @ udp !  cell+ @ vtable-list !  dp !
     \ clean up vocabulary stack
-    0 vocstack $@ bounds
-    DO
+    0 vocstack $@ bounds cell- swap cell-
+    -DO
 	I @ dup here u>
 	IF  drop  ELSE  swap 1+  THEN
-    cell +LOOP
+    cell -LOOP
     dup 0= or set-order \ -1 set-order if order is empty
     get-current here > IF
 	forth-wordlist set-current

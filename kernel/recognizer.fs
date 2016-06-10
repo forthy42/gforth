@@ -75,21 +75,21 @@ AConstant r:dnum
 
 : deque@ ( deque -- x1 .. xn n )
     \G fetch everything from the generic deque to the data stack
-    $@ dup cell/ >r bounds cell- swap cell- -DO  I @  cell -LOOP  r> ;
+    $@ dup cell/ >r bounds ?DO  I @  cell +LOOP  r> ;
 : deque! ( x1 .. xn n deque -- )
     \G set the generic deque with values from the data stack
     >r cells r@ $!len
-    r> $@ bounds ?DO  I !  cell +LOOP ;
+    r> $@ bounds cell- swap cell- -DO  I !  cell -LOOP ;
 
 : deque: ( n "name" -- )
-    \G create a named deque with at least n cells space
+    \G create a named deque with at least @var{n} cells space
     drop Variable ;
 
 AVariable default-recognizer
 \G The system recognizer
 
 here default-recognizer !
-2 cells , ' rec:word A, ' rec:num A,
+2 cells , ' rec:num A, ' rec:word A,
 
 default-recognizer AValue forth-recognizer
 
@@ -104,11 +104,11 @@ default-recognizer AValue forth-recognizer
 
 : map-recognizer ( addr u rec-addr -- tokens table )
     \G apply a recognizer stack to a string, delivering a token
-    $@ bounds ?DO
+    $@ bounds cell- swap cell- -DO
 	2dup I -rot 2>r
 	perform dup r:fail <>  IF  2rdrop UNLOOP  EXIT  THEN  drop
 	2r>
-    cell +LOOP
+    cell -LOOP
     2drop r:fail ;
 
 : do-recognizer ( addr u -- tokens xt )

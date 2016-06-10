@@ -24,20 +24,20 @@ $10 deque: vocstack
 : >deque ( x deque -- )
     \G push to top of deque
     >r r@ $@len cell+ r@ $!len
-    r@ $@ cell- over cell+ swap move
-    r> $@ drop ! ;
+    r> $@ + cell- ! ;
 : deque> ( deque -- x )
     \G pop from top of deque
-    >r r@ $@ IF  @ r@ 0 cell $del  ELSE  drop 0  THEN
-    rdrop ;
+    >r r@ $@ ?dup-IF  + cell- @ r@ $@len cell- r> $!len
+    ELSE  drop rdrop  THEN ;
 : deque< ( x deque -- )
     \G push to bottom of deque
     >r r@ $@len cell+ r@ $!len
-    r> $@ + cell- ! ;
+    r@ $@ cell- over cell+ swap move
+    r> $@ drop ! ;
 : <deque ( deque -- x )
     \G pop from bottom of deque
-    >r r@ $@ ?dup-IF  + cell- @ r@ $@len cell- r> $!len
-    ELSE  drop rdrop  THEN ;
+    >r r@ $@ IF  @ r@ 0 cell $del  ELSE  drop 0  THEN
+    rdrop ;
 
 : get-current  ( -- wid ) \ search
   \G @i{wid} is the identifier of the current compilation word list.
@@ -48,7 +48,7 @@ $10 deque: vocstack
   current ! ;
 
 :noname ( -- addr )
-    vocstack $@ drop ;
+    vocstack $@ + cell- ;
 is context
 
 : definitions  ( -- ) \ search
@@ -102,11 +102,13 @@ Variable slowvoc   0 slowvoc !
 
 : (vocfind)  ( addr count wid -- nfa|false )
     \ !! generalize this to be independent of vp
-    drop vocstack $@ bounds ?DO
+    drop vocstack $@ bounds cell- swap cell- -DO
 	( addr count ) \ note that the loop does not reach 0
-        2dup I @ find-name-in dup if ( addr count nt )
-            nip nip unloop exit then
-    drop cell +loop
+	I cell- 2@ <> IF \ skip if equal
+	    2dup I @ find-name-in dup IF ( addr count nt )
+		nip nip unloop exit THEN
+	    drop THEN
+    cell -loop
     2drop false ;
 
 [ifundef] locals-wordlist

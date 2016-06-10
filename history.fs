@@ -177,10 +177,10 @@ Create prefix-found  0 , 0 ,
     THEN ;
 
 : search-prefix  ( addr1 len1 -- addr2 len2 )
-    0 vocstack $@ bounds
-    DO  I 2@ <>
+    0 vocstack $@ bounds cell- swap cell-
+    -DO  I cell- 2@ <>
         IF  I @ wordlist-id @ swap  search-voc  THEN
-    cell +LOOP
+    cell -LOOP
     prefix-string ;
 
 : tib-full? ( max span addr pos addr' len' -- max span addr pos addr1 u flag )
