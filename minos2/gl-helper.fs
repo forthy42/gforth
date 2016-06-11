@@ -410,7 +410,7 @@ void main() {
     float diffuse = max(dot(v_Normal, lightVector), 0.0);
     diffuse = diffuse * (1.0 / (1.0 + (0.10 * distance)));
     diffuse = (diffuse * ( 1.0 - u_Ambient )) + u_Ambient;
-    gl_FragColor = (diffuse * (v_Color * texture2D(u_Texture, v_TexCoordinate)));
+    gl_FragColor = (diffuse * (v_Color + texture2D(u_Texture, v_TexCoordinate)));
 }
 
 : create-oes-program ( -- program )
