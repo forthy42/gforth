@@ -104,11 +104,12 @@ Variable slowvoc   0 slowvoc !
     \ !! generalize this to be independent of vp
     drop vocstack $@ bounds cell- swap cell- -DO
 	( addr count ) \ note that the loop does not reach 0
-	I cell- 2@ <> IF \ skip if equal
-	    2dup I @ find-name-in dup IF ( addr count nt )
-		nip nip unloop exit THEN
-	    drop THEN
-    cell -loop
+	2dup I @ find-name-in ?dup-IF ( addr count nt )
+	    nip nip unloop exit THEN
+	cell [ 2 cells ] Literal I cell- 2@ <> select \ skip double entries
+	\ note that we search first and then skip, because the first search
+	\ has a very likely hit.  So doubles will be skipped, tripples not
+    -loop
     2drop false ;
 
 [ifundef] locals-wordlist
