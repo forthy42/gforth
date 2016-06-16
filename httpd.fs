@@ -34,7 +34,8 @@
 \         protocol        = tcp
 \         wait            = no
 \         user            = wwwrun
-\         server          = /home/bernd/bin/httpd
+\         server          = /usr/local/bin/gforth
+\         server_args     = /usr/local/share/gforth/<version>/httpd.fs
 \ }
 
 \ If you want port 80, replace the service "gforth" with "http"
