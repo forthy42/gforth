@@ -98,15 +98,20 @@ tmp$ $execstr-ptr !
 
 \ slurp in lines and files into strings and string-arrays
 
+: $+slurp ( fid addr -- )
+    \G slurp a file @var{fid} into a string @var{addr2}, append mode
+    swap >r r@ file-size throw drop
+    over $@len dup >r + over $!len
+    $@ r> /string r> read-file throw drop ;
 : $slurp ( fid addr -- )
     \G slurp a file @var{fid} into a string @var{addr2}
-    dup $init swap >r
-    r@ file-size throw drop over $!len
-    0. r@ reposition-file throw
-    dup $@ r> read-file throw swap $!len ;
+    dup $init $+slurp ;
+: $+slurp-file ( addr1 u1 addr2 -- )
+    \G slurp a named file @var{addr1 u1} into a string @var{addr2}, append mode
+    >r r/o open-file throw dup r> $+slurp close-file throw ;
 : $slurp-file ( addr1 u1 addr2 -- )
     \G slurp a named file @var{addr1 u1} into a string @var{addr2}
-    >r r/o open-file throw dup r> $slurp close-file throw ;
+    dup $init $+slurp-file ;
 
 : $slurp-line { fid addr -- flag }  addr $off  addr $init
     BEGIN
