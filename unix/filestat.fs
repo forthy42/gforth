@@ -35,9 +35,9 @@ c-library filestat
 	\c }
     [THEN]
     
-    c-function stat stat a a -- n ( path buf -- r )
+    c-function stat stat s a -- n ( path len buf -- r )
     c-function fstat fstat n a -- n ( fd buf -- r )
-    c-function lstat lstat a a -- n ( path buf -- r )
+    c-function lstat lstat s a -- n ( path len buf -- r )
     e? os-type 2dup s" darwin" string-prefix? -rot s" ios" str= or [IF]
 	c-function utimes utimes a a -- n ( fd times -- r )
 	c-function lutimes lutimes a a -- n ( fd times -- r )
