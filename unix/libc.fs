@@ -51,6 +51,8 @@ c-library libc
     c-function fork() fork -- n ( -- pid_t )
     c-function execvp execvp s a -- n ( filename len argv -- ret )
     c-function exit() exit n -- void ( ret -- )
+    c-function symlink symlink s s -- n ( target len1 path len2 -- ret )
+    c-function link link s s -- n ( target len1 path len2 -- ret )
 end-c-library
 
 getpagesize constant pagesize

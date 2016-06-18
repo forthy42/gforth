@@ -31,8 +31,8 @@
 \ type is:
 \ 'f' for file,
 \ 'd' for directory,
-\ 's' for symlink (can't create now),
-\ 'h' for hardlink (can't create now)
+\ 's' for symlink,
+\ 'h' for hardlink
 \ rules for directories are: Specify each before first use
 
 4 buffer: fsize
