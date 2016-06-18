@@ -39,8 +39,8 @@ c-library filestat
     c-function fstat fstat n a -- n ( fd buf -- r )
     c-function lstat lstat s a -- n ( path len buf -- r )
     e? os-type 2dup s" darwin" string-prefix? -rot s" ios" str= or [IF]
-	c-function utimes utimes a a -- n ( fd times -- r )
-	c-function lutimes lutimes a a -- n ( fd times -- r )
+	c-function utimes utimes s a -- n ( path len times -- r )
+	c-function lutimes lutimes s a -- n ( path len times -- r )
 	c-function futimes futimes n a -- n ( fd times -- r )
     [ELSE] \ linux stuff
 	c-function utimensat utimensat n s a n -- n ( fd path len times flags -- r )
@@ -59,8 +59,8 @@ e? os-type s" darwin" string-prefix? [IF]
     : lutimens ( a a -- r )  dup cell+ @ 1000 / over cell+ ! lutimes ;
 [ELSE]
     -100 Constant AT_FDCWD
-    : utimens ( a a -- r )  AT_FDCWD -rot 0 utimensat ;
-    : lutimens ( a a -- r ) AT_FDCWD -rot $100 utimensat ;
+    : utimens ( addr u a -- r )  >r AT_FDCWD -rot r> 0 utimensat ;
+    : lutimens ( addr u a -- r ) >r AT_FDCWD -rot r> $100 utimensat ;
 [THEN]
 
 begin-structure file-stat
