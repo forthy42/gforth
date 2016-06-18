@@ -43,14 +43,14 @@ c-library filestat
 	c-function lutimes lutimes a a -- n ( fd times -- r )
 	c-function futimes futimes n a -- n ( fd times -- r )
     [ELSE] \ linux stuff
-	c-function utimensat utimensat n a a n -- n ( fd path times flags -- r )
+	c-function utimensat utimensat n s a n -- n ( fd path len times flags -- r )
 	c-function futimens futimens n a -- n ( fd times -- r )
     [THEN]
-    c-function chmod chmod a n -- n ( path mode -- r )
+    c-function chmod chmod s n -- n ( path len mode -- r )
     c-function fchmod fchmod n n -- n ( fd mode -- r )
-    c-function chown chown a n n -- n ( path uid git -- r )
+    c-function chown chown s n n -- n ( path len uid git -- r )
     c-function fchown fchown n n n -- n ( fd uid git -- r )
-    c-function lchown lchown a n n -- n ( path uid git -- r )
+    c-function lchown lchown s n n -- n ( path len uid git -- r )
 end-c-library
 
 e? os-type s" darwin" string-prefix? [IF]
@@ -126,6 +126,19 @@ e? os-type s" darwin" string-prefix? [IF]
     [THEN]
 [THEN]
 end-structure
+
+base @ 8 base !
+
+0170000 Constant S_IFMT \ bit mask for the file type bit field
+0140000 Constant S_IFSOCK \ socket
+0120000 Constant S_IFLNK \ symbolic link
+0100000 Constant S_IFREG \ regular file
+0060000 Constant S_IFBLK \ block device
+0040000 Constant S_IFDIR \ directory
+0020000 Constant S_IFCHR \ character device
+0010000 Constant S_IFIFO \ FIFO
+
+base !
 
 : ntime@ ( addr -- ud )  2@ 1000000000 um* rot 0 d+ ;
 : utime@ ( addr -- ud )  2@ 1000000 um* rot 1000 / 0 d+ ;
