@@ -39,10 +39,6 @@ $10 deque: vocstack
     >r r@ $@ IF  @ r@ 0 cell $del  ELSE  drop 0  THEN
     rdrop ;
 
-: get-current  ( -- wid ) \ search
-  \G @i{wid} is the identifier of the current compilation word list.
-  current @ ;
-
 : set-current  ( wid -- )  \ search
   \G Set the compilation word list to the word list identified by @i{wid}.
   current ! ;

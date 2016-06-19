@@ -118,13 +118,20 @@ variable next-prelude
     then ;
 [THEN]
 
+: get-current  ( -- wid ) \ search
+  \G @i{wid} is the identifier of the current compilation word list.
+  current @ ;
+
+Defer wlscope ' get-current is wlscope
+
 : header, ( c-addr u -- ) \ gforth
     name-too-long?  vt,
+    wlscope >r
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
     dup here + 3 cells + dup maxaligned >align
     nlstring,
-    current @ 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
+    r> 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     alias-mask lastflags cset
     next-prelude @ 0<> prelude-mask and lastflags cset
