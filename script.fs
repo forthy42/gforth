@@ -27,7 +27,7 @@
     r:eval ;
 ' rec:shell get-recognizers 1+ set-recognizers
 
-2Variable sh$  0. sh$ 2!
+User sh$  cell uallot drop
 : sh-get ( addr u -- addr' u' )
     \G open command addr u, and read in the result
     sh$ free-mem-var
