@@ -68,7 +68,7 @@ tmp$ $execstr-ptr !
 : $type ( addr u -- )  $execstr-ptr @ $+! ;
 : $emit ( char -- )    $execstr-ptr @ c$+! ;
 : $cr   ( -- ) newline $type ;
-24 80 2Constant $form
+1 -1 1 rshift 2Constant $form
 
 ' $type ' $emit ' $cr ' $form output: $-out
 
