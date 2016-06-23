@@ -63,9 +63,8 @@ set-current
     \G result to @var{addr2 len2}.  @var{n} is the number of
     \G substitutions or, if negative, a throwable @var{ior},
     \G @var{addr2 len3} the result.
-    tmp$ @ >r tmp$ off
     2>r $substitute over r@ u<= -78 swap select -rot
-    2r> rot umin 2dup 2>r move 2r> rot tmp$ $off r> tmp$ ! ;
+    2r> rot umin 2dup 2>r move 2r> rot -1 tmp$# +! drop  ;
 
 : unescape ( addr1 u1 dest -- dest u2 )
     \G double all delimiters in @var{addr1 u1}, so that substitute
@@ -77,6 +76,9 @@ set-current
     bounds ?DO
 	I c@ dup '%' = IF  dup c,  THEN  c,
     LOOP  r> here over -  r> dp ! ;
+
+: $unescape ( addr1 u1 -- addr2 u2 )
+    [: bounds ?DO  I c@ dup emit '%' = IF '%' emit  THEN  LOOP ;] $tmp ;
 
 \ file name replacements
 
