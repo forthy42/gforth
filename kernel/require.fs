@@ -94,6 +94,9 @@ Defer >included ( c-addr1 u1 -- fd c-addr2 u2 wior )
 : delete-file ( c_addr u -- wior ) \ file
     >filename (delete-file) ;
 
+: file-status ( c_addr u -- wfam wior ) \ file
+    >filename (file-status) ;
+
 : rename-file ( c_addr1 u1 c_addr2 u2 -- wior ) \ file-ext
     >filename 2swap >filename 2swap (rename-file) ;
 

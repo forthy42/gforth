@@ -2199,7 +2199,7 @@ PUTC(c);
 flush-file	( wfileid -- wior )		file-ext	flush_file
 wior = IOR(fflush((FILE *) wfileid)==EOF);
 
-file-status	( c_addr u -- wfam wior )	file-ext	file_status
+(file-status)	( c_addr u -- wfam wior )	file-ext	file_status
 struct Cellpair r = file_status(c_addr, u);
 wfam = r.n1;
 wior = r.n2;
