@@ -205,10 +205,6 @@ Variable htmldir
 wordlist constant mime
 mime set-current
 
-: shtml ( addr u -- )
-    lastrequest
-    data @ IF  also forth included previous  ELSE  2drop  THEN ;
-
 s" application/pgp-signature" transparent: sig
 s" application/x-bzip2" transparent: bz2
 s" application/x-gzip" transparent: gz
@@ -220,6 +216,9 @@ s" /etc/mime.types" ' mime-read catch [IF]  2drop
     s" image/png" transparent: png
     s" image/jpg" transparent: jpg
 [THEN]
+: shtml ( addr u -- )
+    lastrequest
+    data @ IF  also forth included previous  ELSE  2drop  THEN ;
 
 definitions
 
