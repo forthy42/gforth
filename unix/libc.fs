@@ -55,6 +55,7 @@ c-library libc
     c-function link link s s -- n ( target len1 path len2 -- ret )
     c-function readlink readlink s a n -- n ( path len buf len2 -- ret )
     c-function rmdir rmdir s -- n ( path len -- ret )
+    c-function mknod mknod s n n -- n ( path mode dev -- ret )
 end-c-library
 
 getpagesize constant pagesize
