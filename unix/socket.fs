@@ -283,7 +283,7 @@ machine "mips" str= [IF]
    2 Constant IP_PMTUDISC_DO
    4 Constant F_SETFL
 
-2variable socket-timeout-d 2000. socket-timeout-d 2!
+2variable socket-timeout-d #2000. socket-timeout-d 2!
 
 s" no free socket"     exception Constant !!nosock!!
 s" bind failed"        exception Constant !!nobind!!

@@ -77,8 +77,8 @@ Create ReasonPhrase 100 chars allot
 
 : -? usage ;
 : -h arg? hostname place ;
-: -p 0.0 arg? >number 2drop d>s port ! ;
-: -t 0.0 arg? >number 2drop d>s port ! ;
+: -p #0. arg? >number 2drop d>s port ! ;
+: -t #0. arg? >number 2drop d>s port ! ;
 : -s silent-flag on ;
 : -r result-flag on ;
 : -b arg? r/w bin create-file throw to data-fd ;
