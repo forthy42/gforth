@@ -36,24 +36,35 @@ function set_abix {
 	arm)
 	    ABI=-linux-androideabi
 	    ARCHX=$i
+	    API=19
 	    ;;
 	aarch64)
 	    ABI=-linux-android
 	    ARCH=arm64
-	    ARCHX=$i
+	    ARCHX=arm64
+	    API=21
 	    ;;
-	mipsel|mips64el)
+	mipsel)
 	    ARCH=${i%el}
 	    ABI=-linux-android
-	    ARCHX=$i
+	    ARCHX=${i%el}
+	    API=19
+	    ;;
+	mips64el)
+	    ARCH=${i%el}
+	    ABI=-linux-android
+	    ARCHX=${i%el}
+	    API=21
 	    ;;
 	x86)
-	    ARCHX=i686
+	    ARCHX=$i
 	    ABIX=-linux-android
+	    API=19
 	    ;;
 	x86_64)
 	    ABIX=-linux-android
 	    ARCHX=$i
+	    API=21
 	    ;;
     esac
     ABIX=${ABIX-$ABI}
@@ -65,7 +76,7 @@ function gen_toolchain {
 	set_abix
 	mkdir -p ~/proj/android-toolchain-$ARCH
 	(cd ~/proj/android-toolchain-$ARCH
-	 ~/proj/android-ndk-r$NDK/build/tools/make-standalone-toolchain.sh --platform=android-19 --ndk-dir=/home/bernd/proj/android-ndk-r$NDK --install-dir=$PWD --toolchain=$i$ABI-$CCVER)
+	 ~/proj/android-ndk-r$NDK/build/tools/make_standalone_toolchain.py --arch $ARCHX --api $API --install-dir $PWD --force)
     done
 }
 
