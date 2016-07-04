@@ -65,7 +65,7 @@ function gen_toolchain {
 	set_abix
 	mkdir -p ~/proj/android-toolchain-$ARCH
 	(cd ~/proj/android-toolchain-$ARCH
-	 ~/proj/android-ndk-r$NDK/build/tools/make-standalone-toolchain.sh --platform=android-21 --ndk-dir=/home/bernd/proj/android-ndk-r$NDK --install-dir=$PWD --toolchain=$i$ABI-$CCVER)
+	 ~/proj/android-ndk-r$NDK/build/tools/make-standalone-toolchain.sh --platform=android-19 --ndk-dir=/home/bernd/proj/android-ndk-r$NDK --install-dir=$PWD --toolchain=$i$ABI-$CCVER)
     done
 }
 
