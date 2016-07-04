@@ -36,34 +36,40 @@ function set_abix {
 	arm)
 	    ABI=-linux-androideabi
 	    ARCHX=$i
+	    ARCHY=$i
 	    API=19
 	    ;;
 	aarch64)
 	    ABI=-linux-android
 	    ARCH=arm64
 	    ARCHX=arm64
+	    ARCHY=$i
 	    API=21
 	    ;;
 	mipsel)
 	    ARCH=${i%el}
 	    ABI=-linux-android
 	    ARCHX=${i%el}
+	    ARCHY=$i
 	    API=19
 	    ;;
 	mips64el)
 	    ARCH=${i%el}
 	    ABI=-linux-android
 	    ARCHX=${i%el}
+	    ARCHY=$i
 	    API=21
 	    ;;
 	x86)
 	    ARCHX=$i
 	    ABIX=-linux-android
+	    ARCHY=i686
 	    API=19
 	    ;;
 	x86_64)
 	    ABIX=-linux-android
 	    ARCHX=$i
+	    ARCHY=$i
 	    API=21
 	    ;;
     esac
@@ -86,7 +92,7 @@ function gen_libtool {
 	set_abix
 	PREFIX=$HOME/proj/android-toolchain-$ARCH
 	(cd ~/proj/libtool-$LIBT
-	 ./configure --host=$ARCHX$ABIX --program-prefix=$ARCHX$ABIX- --prefix=$PREFIX --includedir=$PREFIX/sysroot/usr/include --libdir=$PREFIX/sysroot/usr/lib host_alias=$ARCHX$ABIX build_alias=$CPU-linux-gnu
+	 ./configure --host=$ARCHY$ABIX --program-prefix=$ARCHY$ABIX- --prefix=$PREFIX --includedir=$PREFIX/sysroot/usr/include --libdir=$PREFIX/sysroot/usr/lib host_alias=$ARCHY$ABIX build_alias=$CPU-linux-gnu
 	 make && make install && make clean
 	)
     done
