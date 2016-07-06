@@ -24,7 +24,7 @@
 
 \ !!
 
-!! under construction
+\ !! under construction
 
 : up/ ( u ud -- u2 )
     >r over um* nip 0 rot r> um* d+ nip ;
@@ -34,4 +34,16 @@
     >r 0 1 r@ um/mod ( m qh )
     r@ 1- rot r> um/mod nip swap ;
 
-    
+: ]u/ ( compilation: u1 -- ; run-time: u2 -- u3 )
+    ] uprepare/ postpone 2literal postpone up/ ;
+
+: benchmark
+    0 100000000 0 ?do
+        i [ 9876543 ]u/ +
+    loop . ;
+
+: benchmark2
+    0 100000000 0 ?do
+        i 9876543 / +
+    loop . ;
+
