@@ -21,18 +21,20 @@
 \ particular the definitions or usages of FORTHSTART,
 \ USABLE-DICTIONARY-END, DPP; and the usage for locals
 
+\ Deal with MARKERs and the native code thingies
+
 0
 field: section-start \ during run-time
 field: section-end
 field: section-dp
 field: section-relocated \ section-start after relocation/savesystem
-constant section-header
+constant section-desc
 
 0 value sections
 variable #sections
 variable current-section \ index
 
-section-header allocate throw to sections
+section-desc allocate throw to sections
 0 current-section !
 1 #sections !
 
@@ -43,16 +45,38 @@ sections section-dp dpp !
 
 256 1024 * value section-size
 
+: hex.r ( u1 u2 -- )
+    ['] .r #16 base-execute ;
+
+: .sections ( -- )
+    cr sections #16 hex.r ."  start              end               dp"
+    
+    #sections @ 0 u+do
+        cr i current-section @ = if '>' else bl then emit
+        sections i section-desc * +
+        dup section-start @ #21 hex.r
+        dup section-end   @ #17 hex.r
+        section-dp        @ #17 hex.r
+    loop ;
+
+: current-section-addr ( -- addr )
+    sections current-section @ section-desc * + ;
+
+:noname ( -- addr )
+    current-section-addr section-end @ ;
+is usable-dictionary-end
+
 : new-section ( -- )
-    sections #sections @ section-header extend-mem drop to sections >r
+    sections #sections @ section-desc * section-desc extend-mem drop to sections >r
     section-size allocate throw ( section-addr )
     dup r@ section-start !
     dup r@ section-dp !
     dup section-size + r> section-end !
     1 #sections +! ;
 
-: set-dp ( -- )
-    sections current-section @ th section-dp dpp ! ;
+: set-section ( -- )
+    \ any changes to other things after changing the section
+    current-section-addr section-dp dpp ! ;
 
 : next-section ( -- )
     \ switch to the next section, creating it if necessary
@@ -61,9 +85,19 @@ sections section-dp dpp !
 	new-section
     then
     assert( current-section @ #sections @ < )
-    set-dp ;
+    set-section ;
 
 : previous-section ( -- )
     \ switch to previous section
     assert( current-section @ 0> )
-    -1 current-section +! set-dp ;
+    -1 current-section +! set-section ;
+
+
+.sections
+cr next-section .sections
+cr next-section .sections
+cr previous-section .sections
+cr previous-section .sections
+cr
+        
+        
