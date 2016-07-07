@@ -373,7 +373,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC) \
 	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs \
 	unix/gdi.fs unix/user.fs unix/win32.fs \
 	date.fs script.fs wf.fs traceall.fs rec-scope.fs rec-env.fs \
-	notfound.fs utf16.fs archive.fs cilk.fs
+	notfound.fs utf16.fs archive.fs cilk.fs sections.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -388,7 +388,8 @@ COMPAT = compat/README \
 	compat/required.fs \
 	compat/strcomp.fs \
 	compat/struct.fs \
-	compat/vocabulary.fs
+	compat/vocabulary.fs \
+	compat/stagediv.fs
 
 GFORTH_TEXI =  doc/gforth.texi doc/version.texi
 
