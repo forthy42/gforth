@@ -1,0 +1,11 @@
+#!/bin/sh
+# this file is in the public domain
+
+execs=$(grep '^// prep:' $2/${1%-fsi.c+}.i | cut -f3- -d' ')
+
+if [ -z "$execs" ]
+then
+    cat $2/$1
+else
+    eval $execs $2/$1
+fi

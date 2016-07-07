@@ -21,9 +21,8 @@ Voctable wayland \ needs to be case sensitive
 get-current also wayland definitions
 
 c-library waylandlib
-	\c #include <wayland/wayland-client.h>
-	\c #include <wayland/wayland-egl.h>
-    [THEN]
+    \c #include <wayland/wayland-client.h>
+    \c #include <wayland/wayland-egl.h>
     s" wayland-egl" add-lib
     s" wayland-client" add-lib
     s" n" vararg$ $!
