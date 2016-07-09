@@ -20,6 +20,13 @@
 s" address-unit-bits" environment? drop constant bits/au
 12 constant maxdoer-tag
 
+0 value image1
+0 value size1
+0 value image2
+0 value size2
+0 value reloc-bits
+0 value reloc-size
+
 : write-cell { w^ w  file-id -- ior }
     \ write a cell to the file
     w cell file-id write-file ;
@@ -33,7 +40,7 @@ s" address-unit-bits" environment? drop constant bits/au
     >r 1 bits/au 1- rot - lshift
     r> addr +  bset ;
 
-: image-data { image1 image2 i-field expected-offset -- base offset }
+: image-data { i-field expected-offset -- base offset }
     image1 i-field + @ image2 i-field + @ over - { base offset }
     offset 0=
     if
@@ -53,7 +60,7 @@ s" address-unit-bits" environment? drop constant bits/au
 		UNLOOP  EXIT  THEN  LOOP
     THEN  -2 swap - ;
 
-: compare-images { image1 image2 reloc-bits size file-id -- }
+: compare-images { size file-id -- }
     \G compares image1 and image2 (of size cells) and sets reloc-bits.
     \G offset is the difference for relocated addresses
     \ this definition is certainly to long and too complex, but is
@@ -61,9 +68,9 @@ s" address-unit-bits" environment? drop constant bits/au
     image1 @ image2 @ over - { dbase doffset }
     doffset 0= abort" images have the same dictionary base address"
     ."  data offset=" doffset . cr
-    ."  code" image1 image2 cell     26 cells image-data { cbase coffset }
-    ."    xt" image1 image2 13 cells 22 cells image-data { xbase xoffset }
-    ." label" image1 image2 14 cells 18 cells image-data { lbase loffset }
+    ."  code" cell     26 cells image-data { cbase coffset }
+    ."    xt" 13 cells 22 cells image-data { xbase xoffset }
+    ." label" 14 cells 18 cells image-data { lbase loffset }
     size 0
     u+do
 	image1 i th @ image2 i th @ { cell1 cell2 }
@@ -102,21 +109,21 @@ s" address-unit-bits" environment? drop constant bits/au
     loop ;
 
 : comp-image ( "image-file1" "image-file2" "new-image" -- )
-    name slurp-file { image1 size1 }
-    image1 size1 s" Gforth5" search 0= abort" not a Gforth image"
-    drop 8 + image1 - { header-offset }
+    name slurp-file { file1 fsize1 }
+    file1 fsize1 s" Gforth5" search 0= abort" not a Gforth image"
+    drop 8 + file1 - { header-offset }
+    file1 fsize1 header-offset /string is size1 is image1
     size1 aligned size1 <> abort" unaligned image size"
-    image1 header-offset + 2 cells + @ header-offset + size1 <> abort" header gives wrong size"
-    name slurp-file { image2 size2 }
+    image1 2 cells + @ size1 <> abort" header gives wrong size"
+    name slurp-file header-offset /string is size2 is image2
     size1 size2 <> abort" image sizes differ"
     name ( "new-image" ) w/o bin create-file throw { outfile }
-    size1 header-offset - 1- cell/ bits/au / 1+ { reloc-size }
-    reloc-size allocate throw { reloc-bits }
+    size1 1- cell/ bits/au / 1+ is reloc-size
+    reloc-size allocate throw is reloc-bits
     reloc-bits reloc-size erase
-    image1 header-offset outfile write-file throw
+    file1 header-offset outfile write-file throw
     base @ hex
-    image1 header-offset +  image2 header-offset +  reloc-bits
-    size1 header-offset - aligned cell/  outfile  compare-images
+    size1 aligned cell/  outfile  compare-images
     base !
     reloc-bits reloc-size outfile write-file throw
     outfile close-file throw ;
