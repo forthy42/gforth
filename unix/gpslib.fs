@@ -17,17 +17,26 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Voctable wayland \ needs to be case sensitive
-get-current also wayland definitions
+Voctable gps \ needs to be case sensitive
+get-current also gps definitions
 
-c-library waylandlib
-    \c #include <wayland/wayland-client.h>
-    \c #include <wayland/wayland-egl.h>
-    s" wayland-egl" add-lib
-    s" wayland-client" add-lib
+c-library gpslib
+    \c #include <gps.h>
+
+    s" gps" add-lib
     s" n" vararg$ $!
     
-    include unix/wayland.fs
+    include unix/gps.fs
 end-c-library
 
-previous set-current
+set-current
+
+gps_data_t buffer: gps-data
+
+: gps-local-open ( -- flag )
+    s" shared memory" s" 2947" gps-data gps_open ;
+
+: gps-fix ( -- addr )
+    gps-data gps_read drop gps-data gps_data_t-fix ;
+
+previous
