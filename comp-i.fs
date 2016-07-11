@@ -17,6 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+require sections.fs
+
 s" address-unit-bits" environment? drop constant bits/au
 12 constant maxdoer-tag
 
@@ -26,6 +28,16 @@ s" address-unit-bits" environment? drop constant bits/au
 0 value size2
 0 value reloc-bits
 0 value reloc-size
+0 value im-sects1 \ image sections
+0 value im-sects2
+0 value #im-sects
+
+synonym section-offset section-end
+\ reused here: section-offset is the number you have to add to an
+\ address that points into [section-start,section-dp] to get an offset
+\ from forthstart in the current image
+synonym section-end abort immediate
+\ only use the new name
 
 : write-cell { w^ w  file-id -- ior }
     \ write a cell to the file
@@ -67,7 +79,7 @@ s" address-unit-bits" environment? drop constant bits/au
     \ hard to factor.
     image1 @ image2 @ over - { dbase doffset }
     doffset 0= abort" images have the same dictionary base address"
-    ."  data offset=" doffset . cr
+    cr ."  data offset=" doffset . cr
     ."  code" cell     26 cells image-data { cbase coffset }
     ."    xt" 13 cells 22 cells image-data { xbase xoffset }
     ." label" 14 cells 18 cells image-data { lbase loffset }
@@ -108,18 +120,53 @@ s" address-unit-bits" environment? drop constant bits/au
 	endif
     loop ;
 
+: old-image-format ( -- )
+    ;
+    
+: process-sections { im-sects #im-sects image -- }
+    \ im-sects #im-sects an.sections
+    0 im-sects #im-sects section-desc * + im-sects u+do ( sect-offset )
+	dup i section-start @ - i section-offset !
+	i section-dp @ i section-start @ - +
+    section-desc +loop
+    assert( dup image 2 cells + @ = )
+    im-sects #im-sects an.sections
+    drop ;
+
+: image-sections { image size -- im-sects #im-sects size' }
+    \ process the sections (in particular, compute offsets) and 
+    image size + cell- dup @ { #im-sects } ( addr )
+    #im-sects section-desc * - { im-sects }
+    im-sects image - { size' }
+    assert( image 2 cells + @ size' = )
+    assert( im-sects section-start @ image @ = )
+    im-sects #im-sects image process-sections
+    im-sects #im-sects size' ;
+
+: new-image-format ( -- )
+    image1 size1 image-sections to size1 to #im-sects to im-sects1
+    image2 size2 image-sections to size2         swap to im-sects2
+    #im-sects <> abort" image misfit: #sections" ;
+
+: prepare-sections ( -- )
+    image1 2 cells + @ size1 = if
+	old-image-format
+    else
+	new-image-format
+    then ;
+
 : comp-image ( "image-file1" "image-file2" "new-image" -- )
     name slurp-file { file1 fsize1 }
     file1 fsize1 s" Gforth5" search 0= abort" not a Gforth image"
     drop 8 + file1 - { header-offset }
-    file1 fsize1 header-offset /string is size1 is image1
+    file1 fsize1 header-offset /string to size1 to image1
     size1 aligned size1 <> abort" unaligned image size"
-    image1 2 cells + @ size1 <> abort" header gives wrong size"
-    name slurp-file header-offset /string is size2 is image2
+    name slurp-file header-offset /string to size2 to image2
     size1 size2 <> abort" image sizes differ"
+    prepare-sections
     name ( "new-image" ) w/o bin create-file throw { outfile }
-    size1 1- cell/ bits/au / 1+ is reloc-size
-    reloc-size allocate throw is reloc-bits
+    size1 1- cell/ bits/au / 1+ to reloc-size
+    reloc-size allocate throw to reloc-bits
     reloc-bits reloc-size erase
     file1 header-offset outfile write-file throw
     base @ hex

@@ -53,17 +53,22 @@ sections section-dp dpp !
 : hex.r ( u1 u2 -- )
     ['] .r #16 base-execute ;
 
-: .sections ( -- )
-    cr sections #16 hex.r ."  start              end               dp"
-    
-    #sections @ 0 u+do
-        cr i current-section @ = if '>' else bl then emit
-        i section-addr
+: ann.sections { sections u curr-sect -- }
+    cr sections #16 hex.r ."  start       end/offset               dp"
+    u 0 u+do
+        cr i curr-sect = if '>' else bl then emit
+        i section-desc * sections +
         dup section-start @ #21 hex.r
         dup section-end   @ #17 hex.r
         section-dp        @ #17 hex.r
     loop ;
 
+: .sections ( -- )
+    sections #sections @ current-section @ ann.sections ;
+
+: an.sections ( sections u -- )
+    -1 ann.sections ;
+    
 :noname ( -- addr )
     current-section-addr section-end @ ;
 is usable-dictionary-end
@@ -99,20 +104,23 @@ is usable-dictionary-end
 : dump-fi ( c-addr u -- )
     prepare-for-dump
     0 current-section ! set-section
-    maxalign
+    maxalign here { sect0-here }
     #sections @ 1 u+do
 	i section-addr >r
 	r@ section-start @ assert( dup dup maxaligned = )
 	r@ section-dp @ maxaligned dup r> section-dp !
 	over - save-mem-dict 2drop loop
     here forthstart - forthstart 2 cells + !
-    here normal-dp !
+    here normal-dp ! 
     w/o bin create-file throw >r
     preamble-start here over - r@ write-file throw
+    sect0-here sections section-dp !
     sections #sections @ section-desc * r@ write-file throw
+    .sections cr
     #sections 1 cells r@ write-file throw
     r> close-file throw ;
 
+[defined] testing [if]
 .sections
 cr next-section .sections
 cr next-section .sections
@@ -125,4 +133,5 @@ previous-section
 : bar ." bar" ;
 cr .sections
 cr     
-s" xxxsections" dump-fi
+\ s" xxxsections" dump-fi
+[then]
