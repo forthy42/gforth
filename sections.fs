@@ -27,7 +27,6 @@
 field: section-start \ during run-time
 field: section-end
 field: section-dp
-field: section-relocated \ section-start after relocation/savesystem
 constant section-desc
 
 0 value sections
@@ -40,28 +39,36 @@ section-desc allocate throw to sections
 
 forthstart            sections section-start !
 usable-dictionary-end sections section-end !
-here                  sections section-dp !
+here                  sections section-dp ! \ !! is reset to normal-dp on throw
 sections section-dp dpp !
 
 256 1024 * value section-size
 
+: section-addr ( i -- addr )
+    section-desc * sections + ;
+
+: current-section-addr ( -- addr )
+    current-section @ section-addr ;
+
 : hex.r ( u1 u2 -- )
     ['] .r #16 base-execute ;
 
-: .sections ( -- )
-    cr sections #16 hex.r ."  start              end               dp"
-    
-    #sections @ 0 u+do
-        cr i current-section @ = if '>' else bl then emit
-        sections i section-desc * +
+: ann.sections { sections u curr-sect -- }
+    cr sections #16 hex.r ."  start       end/offset               dp"
+    u 0 u+do
+        cr i curr-sect = if '>' else bl then emit
+        i section-desc * sections +
         dup section-start @ #21 hex.r
         dup section-end   @ #17 hex.r
         section-dp        @ #17 hex.r
     loop ;
 
-: current-section-addr ( -- addr )
-    sections current-section @ section-desc * + ;
+: .sections ( -- )
+    sections #sections @ current-section @ ann.sections ;
 
+: an.sections ( sections u -- )
+    -1 ann.sections ;
+    
 :noname ( -- addr )
     current-section-addr section-end @ ;
 is usable-dictionary-end
@@ -71,7 +78,7 @@ is usable-dictionary-end
     section-size allocate throw ( section-addr )
     dup r@ section-start !
     dup r@ section-dp !
-    dup section-size + r> section-end !
+    section-size + r> section-end !
     1 #sections +! ;
 
 : set-section ( -- )
@@ -92,12 +99,39 @@ is usable-dictionary-end
     assert( current-section @ 0> )
     -1 current-section +! set-section ;
 
+\ savesystem
 
+: dump-fi ( c-addr u -- )
+    prepare-for-dump
+    0 current-section ! set-section
+    maxalign here { sect0-here }
+    #sections @ 1 u+do
+	i section-addr >r
+	r@ section-start @ assert( dup dup maxaligned = )
+	r@ section-dp @ maxaligned dup r> section-dp !
+	over - save-mem-dict 2drop loop
+    here forthstart - forthstart 2 cells + !
+    here normal-dp ! 
+    w/o bin create-file throw >r
+    preamble-start here over - r@ write-file throw
+    sect0-here sections section-dp !
+    sections #sections @ section-desc * r@ write-file throw
+    .sections cr
+    #sections 1 cells r@ write-file throw
+    r> close-file throw ;
+
+[defined] testing [if]
 .sections
 cr next-section .sections
 cr next-section .sections
 cr previous-section .sections
 cr previous-section .sections
-cr
-        
-        
+
+next-section
+: foo ." foo" ;
+previous-section
+: bar ." bar" ;
+cr .sections
+cr     
+\ s" xxxsections" dump-fi
+[then]

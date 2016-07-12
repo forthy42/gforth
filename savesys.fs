@@ -43,19 +43,24 @@
 : update-maintask ( -- )
     throw-entry main-task udp @ throw-entry next-task - /string move ;
 
-: dump-fi ( addr u -- )
-    w/o bin create-file throw >r
+: prepare-for-dump ( -- )
     update-image-included-files
     update-image-order
     default-recognizer $save
-    update-maintask
-    here forthstart - forthstart 2 cells + !
-    forthstart
-    begin \ search for start of file ("#! " at a multiple of 8)
+    update-maintask ;
+
+: preamble-start ( -- addr )
+    \ dump the part from "#! /..." to FORTHSTART
+    forthstart begin \ search for start of file ("#! " at a multiple of 8)
 	8 -
-	dup 3 s" #! " str=
-    until ( imagestart )
-    here over - r@ write-file throw
+	dup 4 s" #! /" str=
+    until ( imagestart ) ;
+    
+: dump-fi ( c-addr u -- )
+    prepare-for-dump
+    here forthstart - forthstart 2 cells + !
+    w/o bin create-file throw >r
+    preamble-start here over - r@ write-file throw
     r> close-file throw ;
 
 : savesystem ( "name" -- ) \ gforth

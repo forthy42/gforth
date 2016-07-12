@@ -17,8 +17,27 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+require sections.fs
+
 s" address-unit-bits" environment? drop constant bits/au
 12 constant maxdoer-tag
+
+0 value image1
+0 value size1
+0 value image2
+0 value size2
+0 value reloc-bits
+0 value reloc-size
+0 value im-sects1 \ image sections
+0 value im-sects2
+0 value #im-sects
+
+synonym section-offset section-end
+\ reused here: section-offset is the number you have to add to an
+\ address that points into [section-start,section-dp] to get an offset
+\ from forthstart in the current image
+synonym section-end abort immediate
+\ only use the new name
 
 : write-cell { w^ w  file-id -- ior }
     \ write a cell to the file
@@ -33,7 +52,7 @@ s" address-unit-bits" environment? drop constant bits/au
     >r 1 bits/au 1- rot - lshift
     r> addr +  bset ;
 
-: image-data { image1 image2 i-field expected-offset -- base offset }
+: image-data { i-field expected-offset -- base offset }
     image1 i-field + @ image2 i-field + @ over - { base offset }
     offset 0=
     if
@@ -53,17 +72,17 @@ s" address-unit-bits" environment? drop constant bits/au
 		UNLOOP  EXIT  THEN  LOOP
     THEN  -2 swap - ;
 
-: compare-images { image1 image2 reloc-bits size file-id -- }
+: compare-images { size file-id -- }
     \G compares image1 and image2 (of size cells) and sets reloc-bits.
     \G offset is the difference for relocated addresses
     \ this definition is certainly to long and too complex, but is
     \ hard to factor.
     image1 @ image2 @ over - { dbase doffset }
     doffset 0= abort" images have the same dictionary base address"
-    ."  data offset=" doffset . cr
-    ."  code" image1 image2 cell     26 cells image-data { cbase coffset }
-    ."    xt" image1 image2 13 cells 22 cells image-data { xbase xoffset }
-    ." label" image1 image2 14 cells 18 cells image-data { lbase loffset }
+    cr ."  data offset=" doffset . cr
+    ."  code" cell     26 cells image-data { cbase coffset }
+    ."    xt" 13 cells 22 cells image-data { xbase xoffset }
+    ." label" 14 cells 18 cells image-data { lbase loffset }
     size 0
     u+do
 	image1 i th @ image2 i th @ { cell1 cell2 }
@@ -101,22 +120,57 @@ s" address-unit-bits" environment? drop constant bits/au
 	endif
     loop ;
 
+: old-image-format ( -- )
+    ;
+    
+: process-sections { im-sects #im-sects image -- }
+    \ im-sects #im-sects an.sections
+    0 im-sects #im-sects section-desc * + im-sects u+do ( sect-offset )
+	dup i section-start @ - i section-offset !
+	i section-dp @ i section-start @ - +
+    section-desc +loop
+    assert( dup image 2 cells + @ = )
+    im-sects #im-sects an.sections
+    drop ;
+
+: image-sections { image size -- im-sects #im-sects size' }
+    \ process the sections (in particular, compute offsets) and 
+    image size + cell- dup @ { #im-sects } ( addr )
+    #im-sects section-desc * - { im-sects }
+    im-sects image - { size' }
+    assert( image 2 cells + @ size' = )
+    assert( im-sects section-start @ image @ = )
+    im-sects #im-sects image process-sections
+    im-sects #im-sects size' ;
+
+: new-image-format ( -- )
+    image1 size1 image-sections to size1 to #im-sects to im-sects1
+    image2 size2 image-sections to size2         swap to im-sects2
+    #im-sects <> abort" image misfit: #sections" ;
+
+: prepare-sections ( -- )
+    image1 2 cells + @ size1 = if
+	old-image-format
+    else
+	new-image-format
+    then ;
+
 : comp-image ( "image-file1" "image-file2" "new-image" -- )
-    name slurp-file { image1 size1 }
-    image1 size1 s" Gforth5" search 0= abort" not a Gforth image"
-    drop 8 + image1 - { header-offset }
+    name slurp-file { file1 fsize1 }
+    file1 fsize1 s" Gforth5" search 0= abort" not a Gforth image"
+    drop 8 + file1 - { header-offset }
+    file1 fsize1 header-offset /string to size1 to image1
     size1 aligned size1 <> abort" unaligned image size"
-    image1 header-offset + 2 cells + @ header-offset + size1 <> abort" header gives wrong size"
-    name slurp-file { image2 size2 }
+    name slurp-file header-offset /string to size2 to image2
     size1 size2 <> abort" image sizes differ"
+    prepare-sections
     name ( "new-image" ) w/o bin create-file throw { outfile }
-    size1 header-offset - 1- cell/ bits/au / 1+ { reloc-size }
-    reloc-size allocate throw { reloc-bits }
+    size1 1- cell/ bits/au / 1+ to reloc-size
+    reloc-size allocate throw to reloc-bits
     reloc-bits reloc-size erase
-    image1 header-offset outfile write-file throw
+    file1 header-offset outfile write-file throw
     base @ hex
-    image1 header-offset +  image2 header-offset +  reloc-bits
-    size1 header-offset - aligned cell/  outfile  compare-images
+    size1 aligned cell/  outfile  compare-images
     base !
     reloc-bits reloc-size outfile write-file throw
     outfile close-file throw ;
