@@ -1205,7 +1205,7 @@ gforth.elc:	gforth.el
 
 start-gforth.el:	gforth.el
 		echo > $@
-		$(EMACS) --batch -l autoload --eval "(setq generated-autoload-file \"$$PWD/$@\")" -f batch-update-autoloads $(dir $<)
+		-$(EMACS) --batch -l autoload --eval "(setq generated-autoload-file \"$$PWD/$@\")" -f batch-update-autoloads $(dir $<)
 
 #Documentation
 
