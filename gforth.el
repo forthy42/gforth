@@ -347,6 +347,10 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 immediate (font-lock-constant-face . 3))
 	("\\([&#]-?[0-9.]+\\|\\(0x-?\\|\\$-?\\)[0-9a-f.]+\\|%-?[01]+\\)"
 	 immediate (font-lock-constant-face . 3))
+	("\"[^\"]**" immediate (font-lock-string-face . 1)
+	 "[\"\n]" nil string (font-lock-string-face . 1))
+	("\".*\""
+	 immediate (font-lock-string-face . 3))
 	("[a-z\-0-9]+(" immediate (font-lock-comment-face . 1)
 	 ")" nil comment (font-lock-comment-face . 1))
 	))
