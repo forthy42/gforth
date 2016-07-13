@@ -72,56 +72,66 @@ synonym section-end abort immediate
 		UNLOOP  EXIT  THEN  LOOP
     THEN  -2 swap - ;
 
+: sect-reloc {: x1 sects -- x2 :}
+    \ check if x1 is in any of the sections decribed by sects2; if so,
+    \ x2 is the relocated x1, otherwise x2=x1; there may be addresses
+    \ at the end of a section, so we include that in our section check
+    \ (the "1+" below).
+    sects #im-sects section-desc * bounds u+do
+	x1 i section-start @ i section-dp @ 1+ within if
+	    x1 i section-offset @ + unloop exit then
+    section-desc +loop
+    x1 ;
+
 : compare-images { size file-id -- }
     \G compares image1 and image2 (of size cells) and sets reloc-bits.
     \G offset is the difference for relocated addresses
     \ this definition is certainly to long and too complex, but is
     \ hard to factor.
-    image1 @ image2 @ over - { dbase doffset }
-    doffset 0= abort" images have the same dictionary base address"
-    cr ."  data offset=" doffset . cr
-    ."  code" cell     26 cells image-data { cbase coffset }
+    cr ."  code" cell     26 cells image-data { cbase coffset }
     ."    xt" 13 cells 22 cells image-data { xbase xoffset }
     ." label" 14 cells 18 cells image-data { lbase loffset }
-    size 0
-    u+do
+    size 0 u+do
 	image1 i th @ image2 i th @ { cell1 cell2 }
-	cell1 doffset + cell2 =
-	if
-	    cell1 dbase - file-id write-cell throw
-	    i reloc-bits set-bit
-	else
-	    coffset 0<> cell1 coffset + cell2 = and
-	    if
+	case 
+	    cell1 cell2 = ?of
+		cell1 file-id write-cell throw endof
+	    cell1 im-sects1 sect-reloc cell2 im-sects2 sect-reloc over = ?of
+		file-id write-cell throw
+		i reloc-bits set-bit endof
+	    drop
+	    cell1 coffset + cell2 = ?of
 		cell1 cbase - cell/ { tag }
 		tag >tag $4000 xor file-id write-cell throw
-		i reloc-bits set-bit
-	    else
-		xoffset 0<> cell1 xoffset + cell2 = and
-		if
-		    cell1 xbase - cell/ { tag }
-		    tag >tag file-id write-cell throw
-		    i reloc-bits set-bit
-		else
-		    loffset 0<> cell1 loffset + cell2 = and
-		    if
-			cell1 lbase - cell/ { tag }
-			tag >tag $8000 xor file-id write-cell throw
-			i reloc-bits set-bit
-		    else
-			cell1 file-id write-cell throw
-			cell1 cell2 <>
-			if
-			    0 i th 9 u.r cell1 17 u.r cell2 17 u.r cr
-			endif
-		    endif
-		endif
+		i reloc-bits set-bit endof
+	    cell1 xoffset + cell2 = ?of
+		cell1 xbase - cell/ { tag }
+		tag >tag file-id write-cell throw
+		i reloc-bits set-bit endof
+	    cell1 loffset + cell2 = ?of
+		cell1 lbase - cell/ { tag }
+		tag >tag $8000 xor file-id write-cell throw
+		i reloc-bits set-bit endof
+	    cell1 file-id write-cell throw
+	    cell1 cell2 <> if
+		0 i th 9 u.r cell1 17 u.r cell2 17 u.r cr
 	    endif
-	endif
+	0 endcase
     loop ;
 
+: gen-section {: image -- im-sect :}
+    \ generate a section for an old-style image (without sections)
+    section-desc allocate throw {: sect :}
+    image @ sect section-start !
+    image @ negate sect section-offset !
+    image 2 cells + @ image @ + sect section-dp !
+    sect 1 an.sections
+    sect ;
+
 : old-image-format ( -- )
-    ;
+    image1 gen-section to im-sects1
+    image2 gen-section to im-sects2
+    1 to #im-sects ;
     
 : process-sections { im-sects #im-sects image -- }
     \ im-sects #im-sects an.sections
@@ -134,7 +144,7 @@ synonym section-end abort immediate
     drop ;
 
 : image-sections { image size -- im-sects #im-sects size' }
-    \ process the sections (in particular, compute offsets) and 
+    \ process the sections (in particular, compute offsets)
     image size + cell- dup @ { #im-sects } ( addr )
     #im-sects section-desc * - { im-sects }
     im-sects image - { size' }
@@ -143,10 +153,18 @@ synonym section-end abort immediate
     im-sects #im-sects image process-sections
     im-sects #im-sects size' ;
 
+: check-sections ( -- )
+    #im-sects section-desc * 0 +do
+	assert( im-sects1 i + section-start @ im-sects2 i + section-start @ <> )
+	assert( im-sects1 i + dup section-start @ swap section-offset @ +
+	        im-sects2 i + dup section-start @ swap section-offset @ + = )
+    section-desc +loop ;	
+
 : new-image-format ( -- )
     image1 size1 image-sections to size1 to #im-sects to im-sects1
     image2 size2 image-sections to size2         swap to im-sects2
-    #im-sects <> abort" image misfit: #sections" ;
+    #im-sects <> abort" image misfit: #sections"
+    check-sections ;
 
 : prepare-sections ( -- )
     image1 2 cells + @ size1 = if

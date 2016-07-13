@@ -33,15 +33,6 @@ constant section-desc
 variable #sections
 variable current-section \ index
 
-section-desc allocate throw to sections
-0 current-section !
-1 #sections !
-
-forthstart            sections section-start !
-usable-dictionary-end sections section-end !
-here                  sections section-dp ! \ !! is reset to normal-dp on throw
-sections section-dp dpp !
-
 256 1024 * value section-size
 
 : section-addr ( i -- addr )
@@ -69,10 +60,6 @@ sections section-dp dpp !
 : an.sections ( sections u -- )
     -1 ann.sections ;
     
-:noname ( -- addr )
-    current-section-addr section-end @ ;
-is usable-dictionary-end
-
 : new-section ( -- )
     sections #sections @ section-desc * section-desc extend-mem drop to sections >r
     section-size allocate throw ( section-addr )
@@ -98,6 +85,28 @@ is usable-dictionary-end
     \ switch to previous section
     assert( current-section @ 0> )
     -1 current-section +! set-section ;
+
+\ initialization
+
+: sections-ude ( -- addr )
+    current-section-addr section-end @ ;
+
+: init-sections ( -- )
+    section-desc allocate throw to sections
+    0 current-section !
+    1 #sections !
+    forthstart            sections section-start !
+    usable-dictionary-end sections section-end !
+    here                  sections section-dp !
+    sections section-dp dpp ! \ !! dpp is reset to normal-dp on throw
+    ['] sections-ude is usable-dictionary-end ;
+
+:noname ( -- )
+    init-sections
+    defers 'cold ;
+is 'cold
+
+init-sections
 
 \ savesystem
 
