@@ -255,6 +255,11 @@ Defer context ( -- addr ) \ gforth
 ' lookup is context
 forth-wordlist current !
 
+\ FIND-based recognizers (experimental)
+: no-recognizer2 ( c-addr u -- nt|0 ) 2drop 0 ; 
+Defer do-recognizer2 ( c-addr u -- nt|0 )
+' no-recognizer2 is do-recognizer2
+
 : find-name-in  ( addr count wid -- nt | false )
     \G search the word list identified by @i{wid} for the definition
     \G named by the string at @i{c-addr count}. Return its @i{nt}, if
@@ -276,7 +281,11 @@ forth-wordlist current !
 : find-name ( c-addr u -- nt | 0 ) \ gforth
     \g Find the name @i{c-addr u} in the current search
     \g order. Return its @i{nt}, if found, otherwise 0.
-    lookup @ find-name-in ;
+    2dup lookup @ find-name-in dup if
+	nip nip
+    else
+	drop do-recognizer2
+    then ;
 
 \ \ header, finding, ticks                              17dec92py
 
