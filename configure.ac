@@ -1348,12 +1348,14 @@ if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
 		   SWIGLIBS="$SWIGLIBS waylandlib.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gps-fsi.c; then
+   AC_CHECK_LIB(gps,gps_open,
    AC_CHECK_HEADER(gps.h, SWIGMODULES="$SWIGMODULES gps.fs"
-		   SWIGLIBS="$SWIGLIBS gpslib.fs", ,)
+		   SWIGLIBS="$SWIGLIBS gpslib.fs", ,))
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/vulkan-fsi.c; then
+   AC_CHECK_LIB(vulkan,vkGetPhysicalDeviceFeatures,
    AC_CHECK_HEADER(vulkan/vulkan.h, SWIGMODULES="$SWIGMODULES vulkan.fs"
-		   SWIGLIBS="$SWIGLIBS vulkanlib.fs", ,)
+		   SWIGLIBS="$SWIGLIBS vulkanlib.fs", ,))
 fi
 
 if test x$has_swig = xno; then
