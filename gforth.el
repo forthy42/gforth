@@ -279,9 +279,10 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	(("[ifdef]" "[ifundef]" "[defined]" "[undefined]") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("if" "begin" "ahead" "do" "?do" "+do" "u+do" "-do" "u-do" "for" 
-	  "case" "of" "?dup-if" "?dup-0=-if" "then" "endif" "until"
+	  "case" "of" "?of" "?dup-if" "?dup-0=-if" "then" "endif" "until"
 	  "repeat" "again" "leave" "?leave"
-	  "loop" "+loop" "-loop" "next" "endcase" "endof" "else" "while" "try"
+	  "loop" "+loop" "-loop" "next" "endcase" "nextcase" "endof" "contof"
+	  "else" "while" "try"
 	  "recover" "endtry" "iferror" "restore" "endtry-iferror"
 	  "assert(" "assert0(" "assert1(" "assert2("
 	  "assert3(" ")" "<interpretation" "<compilation" "interpretation>" 
@@ -456,7 +457,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 
 (setq forth-indent-words
       '((("if" "begin" "do" "?do" "+do" "-do" "u+do"
-	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "try" "iferror"
+	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "?of" "try" "iferror"
 	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]" "[:")
 	 (0 . 2) (0 . 2))
 	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" 
@@ -465,7 +466,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))
-	(("again" "then" "endif" "endtry" "endcase" "endof" 
+	(("again" "then" "endif" "endtry" "endcase" "nextcase" "endof" "contof"
 	  "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
 	  "[until]" "[again]" "loop" ";]" "nope")
 	 (-2 . 0) (0 . -2))
