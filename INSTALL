@@ -1,6 +1,14 @@
 Read this for installing from the tarball and for cross-installation.
 For installing from git, read INSTALL.md.
 
+                TL;DR
+
+./configure
+make
+sudo make install
+
+
+
 		Prerequisites
 
 You need gcc version 2.0 or later to compile gforth.
