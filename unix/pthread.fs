@@ -211,7 +211,7 @@ Defer thread-init
     rp@ cell+ backtrace-rp0 !  tmp$[] off
     current-input off create-input ; IS thread-init
 
-: NewTask4 ( dsize rsize fsize lsize -- task )
+: newtask4 ( dsize rsize fsize lsize -- task )
     \G creates a task, each stack individually sized
     gforth_create_thread >r
     throw-entry r@ udp @ throw-entry up@ - /string move
@@ -222,8 +222,12 @@ Defer thread-init
     handler r@ >task off
     r> ;
 
-: NewTask ( stacksize -- task )  dup 2dup NewTask4 ;
-    \G creates a task, uses stacksize for stack, rstack, fpstack, locals
+: newtask ( stacksize -- task )  dup 2dup newtask4 ;
+\G creates a task, uses stacksize for stack, rstack, fpstack, locals
+
+: task ( stacksize "name" -- ) \ SwiftForth
+    \G create a named task with stacksize @var{stacksize}
+    newtask constant ;
 
 : (activate) ( task -- )
     \G activates task, the current procedure will be continued there
@@ -245,23 +249,35 @@ Defer thread-init
     \G activates task, and passes n parameters from the data stack
     ]] (pass) up! sp0 ! thread-init [[ ; immediate compile-only
 
-: sema ( "name" -- ) \ gforth
-    \G create a named semaphore
+: initiate ( xt task -- )
+    \G pass an @var{xt} to a task (VFX compatible)
+    1 swap pass execute ;
+
+: execute-task ( xt -- task )
+    \G create a new task @var{task} and initiate it with @var{xt}
+    stacksize4 newtask4 tuck initiate ;
+
+: semaphore ( "name" -- ) \ gforth
+    \G create a named semaphore @var{"name"}
+    \G
+    \G "name"-execution: @var{( -- semaphore )}
     Create here 1 pthread-mutexes allot 0 pthread_mutex_init drop ;
+synonym sema semaphore
 
 : cond ( "name" -- ) \ gforth
     \G create a named condition
     Create here 1 pthread-conds dup allot erase ;
 
-: lock ( addr -- )  pthread_mutex_lock drop ;
+: lock ( semaphore -- )  pthread_mutex_lock drop ;
 \G lock the semaphore
-: unlock ( addr -- )  pthread_mutex_unlock drop ;
+: unlock ( semaphore -- )  pthread_mutex_unlock drop ;
 \G unlock the semaphore
 
-: c-section ( xt addr -- ) 
+: critical-section ( xt semaphore -- ) 
     \G implement a critical section that will unlock the semaphore
     \G even in case there's an exception within.
     { sema } try sema lock execute 0 restore sema unlock endtry throw ;
+synonym c-section critical-section
 
 : >pagealign-stack ( n addr -- n' )
     >r 1- r> 1- pagesize negate mux 1+ ;
@@ -343,12 +359,14 @@ event: ->flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
 event: ->wake ;
 event: ->sleep  stop ;
 
-: wake ( task -- )
+: restart ( task -- )
     \G Wake a task
     <event ->wake event> ;
-: sleep ( task -- )
+synonym wake restart ( task -- )
+: halt ( task -- )
     \G Stop a task
     <event ->sleep event> ;
+synonym sleep halt ( task -- )
 : kill ( task -- )
     \G Kill a task
     user' pthread-id +
