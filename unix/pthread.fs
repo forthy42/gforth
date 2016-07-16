@@ -253,13 +253,8 @@ Defer thread-init
     \G pass an @var{xt} to a task (VFX compatible)
     1 swap pass execute ;
 
-: execute-task ( xt -- task )
-    \G create a new task @var{task} and initiate it with @var{xt}
-    stacksize4 newtask4 tuck initiate ;
-
 : semaphore ( "name" -- ) \ gforth
-    \G create a named semaphore @var{"name"}
-    \G
+    \G create a named semaphore @var{"name"} \\
     \G "name"-execution: @var{( -- semaphore )}
     Create here 1 pthread-mutexes allot 0 pthread_mutex_init drop ;
 synonym sema semaphore
@@ -288,6 +283,10 @@ synonym c-section critical-section
     \G This gives you the system stack sizes
     forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP
     2>r >r  sp0 @ >pagealign-stack r> fp0 @ >pagealign-stack 2r> ;
+
+: execute-task ( xt -- task )
+    \G create a new task @var{task} and initiate it with @var{xt}
+    stacksize4 newtask4 tuck initiate ;
 
 \ event handling
 
