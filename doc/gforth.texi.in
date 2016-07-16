@@ -12525,14 +12525,17 @@ threads concurrently on multi-core machines.
 @cindex pthread
 
 doc-newtask
+doc-task
+doc-execute-task
 doc-stacksize
 doc-newtask4
 doc-stacksize4
 doc-activate
 doc-pass
+doc-initiate
 doc-pause
-doc-wake
-doc-sleep
+doc-restart
+doc-halt
 doc-stop
 doc-stop-ns
 doc-uvalue
@@ -12550,7 +12553,7 @@ resources.
 Semaphores can only be aquired by one thread, all other threads have to
 wait until the semapohre is released.
 
-doc-sema
+doc-semaphore
 doc-lock
 doc-unlock
 
@@ -12560,7 +12563,16 @@ specify the semaphore which is used for the critical section.  Only
 those critical sections which use the same semaphore are mutually
 exclusive.
 
-doc-c-section
+doc-critical-section
+
+@subsubsection Atomic operations
+
+Experimental atomic operations
+
+doc-!@
+doc-+!@
+doc-?!@
+doc-barrier
 
 @subsubsection Message Queues
 

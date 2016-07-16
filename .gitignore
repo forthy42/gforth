@@ -4,6 +4,7 @@
 *.fi
 *~
 \#*#
+.*.swp
 *-
 gforth
 libgforth
@@ -124,3 +125,13 @@ unix/wgl.fs
 unix/wingdi.fs
 unix/winuser.fs
 unix/xlib.fs
+debian/changelog
+debian/control
+engine/gforth-ll
+engine/gforth-ll-reg
+engine/gforth-noll
+engine/gforth-noll-reg
+gforth-ll-reg
+libtool
+libtool.dump
+m4/

@@ -41,8 +41,6 @@
 
 \ To do:        Make <A A> State smart and only compile literals!
 
-require vt100.fs
-
 decimal
 
 0 $F xor Constant Black
