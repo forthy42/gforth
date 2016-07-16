@@ -119,13 +119,22 @@ synonym section-end abort immediate
 	0 endcase
     loop ;
 
+: an.sections { sections u -- }
+    cr sections #16 hex.r ."  start           offset               dp"
+    u 0 u+do
+        i section-desc * sections +
+        dup section-start @ #21 hex.r
+        dup section-end   @ #17 hex.r
+        section-dp        @ #17 hex.r
+    loop ;
+
 : gen-section {: image -- im-sect :}
     \ generate a section for an old-style image (without sections)
     section-desc allocate throw {: sect :}
     image @ sect section-start !
     image @ negate sect section-offset !
     image 2 cells + @ image @ + sect section-dp !
-    sect 1 an.sections
+    \ sect 1 an.sections
     sect ;
 
 : old-image-format ( -- )
