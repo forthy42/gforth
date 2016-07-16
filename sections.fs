@@ -27,13 +27,19 @@
 field: section-start \ during run-time
 field: section-end
 field: section-dp
+field: section-name \ nt, for named sections
 constant section-desc
 
 0 value sections
 variable #sections
 variable current-section \ index
+variable #-extra-sections
 
 256 1024 * value section-size
+
+s" at first section" exception constant first-section-error
+s" extra sections have no previous or next section" exception
+constant extra-section-error
 
 : section-addr ( i -- addr )
     section-desc * sections + ;
@@ -44,28 +50,30 @@ variable current-section \ index
 : hex.r ( u1 u2 -- )
     ['] .r #16 base-execute ;
 
-: ann.sections { sections u curr-sect -- }
-    cr sections #16 hex.r ."  start       end/offset               dp"
-    u 0 u+do
-        cr i curr-sect = if '>' else bl then emit
+: .sections ( -- )
+    cr ."             start              end               dp "
+    sections hex. 
+    #sections @ #-extra-sections @ u+do
+        cr i current-section @ = if '>' else bl then emit
         i section-desc * sections +
-        dup section-start @ #21 hex.r
+        dup section-start @ #16 hex.r
         dup section-end   @ #17 hex.r
-        section-dp        @ #17 hex.r
+        dup section-dp    @ #17 hex.r
+        space section-name @ id.
     loop ;
 
-: .sections ( -- )
-    sections #sections @ current-section @ ann.sections ;
-
-: an.sections ( sections u -- )
-    -1 ann.sections ;
-    
-: new-section ( -- )
-    sections #sections @ section-desc * section-desc extend-mem drop to sections >r
-    section-size allocate throw ( section-addr )
+: init-section ( section size -- )
+    \ initialize section descriptor 
+    swap >r
+    dup allocate throw
     dup r@ section-start !
     dup r@ section-dp !
-    section-size + r> section-end !
+    + r@ section-end !
+    [ ' noname >name ]L r> section-name ! ;
+
+: new-section ( -- )
+    sections #sections @ section-desc * section-desc extend-mem drop to sections
+    section-size init-section
     1 #sections +! ;
 
 : set-section ( -- )
@@ -74,6 +82,7 @@ variable current-section \ index
 
 : next-section ( -- )
     \ switch to the next section, creating it if necessary
+    current-section @ 0< extra-section-error and throw 
     1 current-section +!
     current-section @ #sections @ = if
 	new-section
@@ -83,8 +92,11 @@ variable current-section \ index
 
 : previous-section ( -- )
     \ switch to previous section
-    assert( current-section @ 0> )
+    current-section @ 0< extra-section-error and throw
+    current-section @ 0= first-section-error and throw
     -1 current-section +! set-section ;
+
+\ extra sections
 
 \ initialization
 
@@ -98,6 +110,7 @@ variable current-section \ index
     forthstart            sections section-start !
     usable-dictionary-end sections section-end !
     here                  sections section-dp !
+    [ ' noname >name ]L   sections section-name !
     sections section-dp dpp ! \ !! dpp is reset to normal-dp on throw
     ['] sections-ude is usable-dictionary-end ;
 
