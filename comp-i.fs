@@ -134,7 +134,7 @@ synonym section-end abort immediate
     image @ sect section-start !
     image @ negate sect section-offset !
     image 2 cells + @ image @ + sect section-dp !
-    sect 1 an.sections
+    \ sect 1 an.sections
     sect ;
 
 : old-image-format ( -- )
