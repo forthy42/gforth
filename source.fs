@@ -21,6 +21,8 @@
 
 \ this stuff is used by (at least) assert.fs and debugs.fs
 
+\ 1-cell encoded position: filenameno9b:lineno15b:charno8b
+
 : loadfilename#>str ( n -- addr u )
     dup 0< IF  drop s" "  EXIT  THEN
     included-files 2@ rot min 2* cells + 2@ ;
@@ -44,6 +46,21 @@
 : current-sourcepos ( -- nfile npos )
     sourcefilename  str>loadfilename# sourceline# >in @ encode-pos ;
 
+: current-sourcepos1 ( -- xpos )
+    current-sourcepos $7fffff min swap 23 lshift + ; 
+
+: decode-pos1 ( xpos -- nfile nline nchar )
+    dup 23 rshift swap decode-pos ;
+
+: .sourcepos3 (  nfile nline nchar -- )
+    rot loadfilename#>str type ': emit
+    base @ decimal
+    rot 0 .r ': emit swap 0 .r
+    base ! ;
+
+: .sourcepos1 ( xpos -- )
+    decode-pos1 .sourcepos3 ;
+    
 : compile-sourcepos ( compile-time: -- ; run-time: -- nfile npos )
     \ compile the current source position as literals: nfile is the
     \ source file index, nline the line number within the file.
@@ -53,10 +70,7 @@
 
 : .sourcepos ( nfile npos -- )
     \ print source position
-    swap loadfilename#>str type ': emit
-    base @ decimal
-    swap decode-pos swap 0 .r ': emit 0 .r
-    base ! ;
+    decode-pos .sourcepos3 ;
 
 : save-source-filename ( c-addr1 u1 -- c-addr2 u2 )
     \ c-addr1 u1 is a temporary string for a file name, c-addr2 u2 is
