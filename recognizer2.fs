@@ -29,13 +29,15 @@ require sections.fs
 
 : rec2-wrapper {: c-addr u xt -- nt|0 :}
     \ xt ( c-addr u -- nt|0 )
-    wrap@ next-section c-addr u xt catch 2>r previous-section wrap! 2r> throw ;
+    wrap@ next-section vtsave
+    c-addr u xt catch vt,
+    2>r vtrestore previous-section wrap! 2r> throw ;
 
 : single-rec2 ( c-addr u -- nt|0 )
     \ !! compilation does not work for some reason
     0. 2swap >number 0= if \ it is a number
 	2drop noname constant lastxt exit then
-    -13 throw \ don't fallback to the other recognizers in this demo
+    \ -13 throw \ don't fallback to the other recognizers in this demo
     2drop drop 0 ;
 
 \ or (to get nicer decompilation for ['] and POSTPONE):
