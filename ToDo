@@ -1,3 +1,32 @@
+-*- RoadMap for gforth 1.0 -*-
+ABGO Anton, Bernd, Gerald, Others welcome!
+ B   [ ] Multithreading API
+  G      [ ] Examples
+ B       [ ] Use sections to allow compilation in every threading
+ B   [ ] Images sichern, die C-Bindings enthalten
+A    [ ] Recognizer Documentation & Examples
+A        [x] simplify API
+A        [ ] Document section-using recognizer2 (Scetch)
+ABGO [ ] Documentation for Undocumented features
+ B       [ ] Document so far, that other programmers can understand the code and complete the documentation
+A    [ ] Sections
+A        [ ] integrate for: quotations, strings, locals
+AB   [ ] locate, view & edit
+A    [ ] 2012 Implementieren
+A        [ ] update ansreport
+ B   [ ] Configure Scripts
+ B       [ ] make -j
+ B       [ ] ./BUILD-FROM-SCRATCH for android
+ B       [ ] libtool-Fehler when it cannot be found (why is ./libtool not enough?)
+ B       [ ] sudo make install does not clean up stuff
+  G      [x] hash -r show or document
+AB   [ ] bin-utils disassembler
+  G  [ ] theforth.net - client
+  G  [ ] swig
+A    [ ] changelog
+A    [ ] update this ToDo file
+
+
 -*- outline -*-
 
 This file describes all the things left to do on GNU Forth. The list

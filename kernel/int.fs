@@ -830,6 +830,9 @@ Defer .error-level ( n -- )
         THEN
     THEN  rdrop ;
 
+defer reset-dpp
+:noname normal-dp dpp ! ; is reset-dpp
+
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
     [ has? os [IF] ]
@@ -847,7 +850,7 @@ Defer .error-level ( n -- )
     [ has? os [IF] ]
 	default-color attr!
 	[ [THEN] ]
-  normal-dp dpp ! ;
+  reset-dpp ;
 
 ' (DoError) IS DoError
 

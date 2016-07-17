@@ -841,6 +841,8 @@ install-seq:	install-indep install-arch
 post-inst:
 		$(RM) install.TAGS gforth.fi start-gforth.el
 		$(POST_INSTALL)
+		@echo "\n\n============= INSTALL SUCCEEDED ============="
+		@echo "Bash users: type 'hash -r' to empty the cache"
 
 install:	installdeps install-seq post-inst
 

@@ -203,7 +203,7 @@ User state ( -- a-addr ) \ core,tools-ext
 \ version: Don't use @code{state}!
 0 state !
 
-AUser normal-dp		\ the usual dictionary pointer
+AVariable normal-dp     \ default dictionary pointer before sections
 AUser dpp		normal-dp dpp !
 			\ the pointer to the current dictionary pointer
                         \ ist reset to normal-dp on (doerror)
