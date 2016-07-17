@@ -5746,7 +5746,7 @@ case
   condition2 ?of exit-code2 endof
   condition3 ?of exit-code3 endof
   ...
-nextcase
+next-case
 common code afterwards
 @end example
 
