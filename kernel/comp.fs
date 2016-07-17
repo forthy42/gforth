@@ -132,8 +132,10 @@ Defer sourcepos1 ' false is sourcepos1
     wlscope >r
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
-    dup here + 4 cells + dup maxaligned >align
-    view, nlstring,
+    dup aligned 4 cells + here + dup maxaligned >align
+    view,
+    dup 3 cells + here + dup maxaligned >align
+    nlstring,
     r> 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     alias-mask lastflags cset
