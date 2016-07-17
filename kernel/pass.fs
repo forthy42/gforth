@@ -19,7 +19,6 @@
 
 
 \ Set up dictionary pointer
->ram here normal-dp !
 
 \ set udp
 has? no-userspace 0= [IF]
@@ -32,3 +31,6 @@ UNLOCK tlast @ LOCK
 dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !
 
 unlock vt, tvtable-list @ lock vtable-list !
+unlock included-files, lock included-files !
+
+>ram here normal-dp !

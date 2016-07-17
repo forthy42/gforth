@@ -69,6 +69,7 @@ has? kernel-size
 [THEN]
 
 doc-off
+reset-included
 has? prims [IF]
     include kernel/aliases.fs             \ primitive aliases
 [ELSE]

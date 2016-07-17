@@ -809,7 +809,7 @@ Code /modstep ( ud c R: u -- ud-?u 0/1 )
 		"d2*+" , jmp ,
 end-code
 
-Code (key)      
+Code key      
 		SP , accu ,
 		#1 , sub ,
 		accu , SP ,
@@ -829,7 +829,7 @@ Code (key?)
 		"Next" , jmp ,
 end-code
 
-Code (emit)      
+Code emit      
 		SP , accu ,
                 *accu , txd ,
 		#1 , add ,

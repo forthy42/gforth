@@ -380,21 +380,11 @@ struct F83Name {
 
 #define F83NAME_COUNT(np)	((np)->countetc & 0x1f)
 #endif
-struct Longname {
-  struct Longname *next;  /* the link field for old hands */
-  Cell		countetc;
-  char		name[0];
-};
 
-#ifdef OLD_HEADER
-# define LONGNAME_COUNT(np)	((np)->countetc & (((~((UCell)0))<<4)>>4))
-# define LONGNAME_NAME(np)      ((Char *)((np)->name))
-# define LONGNAME_NEXT(np)      ((np)->next)
-#else
-# define LONGNAME_COUNT(np)     ((((Cell*)np)[-3]) & (((~((UCell)0))<<4)>>4))
-# define LONGNAME_NAME(np)      ((Char *)(np)-3*sizeof(Cell)-LONGNAME_COUNT(np))
-# define LONGNAME_NEXT(np)      ((struct Longname*)(((Cell*)np)[-2]))
-#endif
+#define LONGNAME_OFF 3
+#define LONGNAME_COUNT(np)     ((((Cell*)np)[-LONGNAME_OFF]) & (((~((UCell)0))<<4)>>4))
+#define LONGNAME_NAME(np)      ((Char *)(np)-LONGNAME_OFF*sizeof(Cell)-LONGNAME_COUNT(np))
+#define LONGNAME_NEXT(np)      ((struct Longname*)(((Cell*)np)[-2]))
 
 struct Cellpair {
   Cell n1;

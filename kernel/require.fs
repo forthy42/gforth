@@ -19,14 +19,7 @@
 
 \ Now: Kernel Module, Reloadable
 
-create included-files 0 , 0 , ( pointer to and count of included files )
-\ note: these names must not contain a "/" or "\"; otherwise a part of
-\ that name might be used when expanding "./" (see expandtopic).
-here ," *dummy entry*" dup c@ swap 1 + swap , A,
-here 2 cells -
-create image-included-files 1 , A, ( pointer to and count of included files )
-\ included-files points to ALLOCATEd space, while image-included-files
-\ points to ALLOTed objects, so it survives a save-system
+AVariable included-files
 
 : sourcefilename ( -- c-addr u ) \ gforth
     \G The name of the source file which is currently the input
@@ -44,8 +37,7 @@ create image-included-files 1 , A, ( pointer to and count of included files )
     loadline @ ;
 
 : init-included-files ( -- ) \ gforth-internal
-    image-included-files 2@ 2* cells save-mem drop ( addr )
-    image-included-files 2@ nip included-files 2! ;
+    included-files $boot ;
 
 : included? ( c-addr u -- f ) \ gforth
     \G True only if the file @var{c-addr u} is in the list of earlier
@@ -54,29 +46,26 @@ create image-included-files 1 , A, ( pointer to and count of included files )
     \G Forth search path. To return @code{true} from @code{included?},
     \G you must specify the exact path to the file, even if that is
     \G @file{./foo.fs}
-    included-files 2@ 0
+    included-files $@ bounds
     ?do ( c-addr u addr )
-	dup >r 2@ 2over str=
+	2dup I $@ str=
 	if
-	    2drop rdrop unloop
+	    2drop unloop
 	    true EXIT
 	then
-	r> cell+ cell+
-    loop
-    2drop drop false ;
+    cell +loop
+    2drop false ;
 
 : add-included-file ( c-addr u -- ) \ gforth
     \G add name c-addr u to included-files
-    included-files 2@ 2* cells 2 cells extend-mem
-    2/ cell/ included-files 2!
-    2! ;
+    $make included-files >deque ;
 
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
 \G Include the file file-id with the name given by @var{c-addr u}.
-    save-mem 2dup add-included-file
-    includefilename 2@ 2>r 2dup includefilename 2!
-    ['] read-loop execute-parsing-named-file
-    2r> includefilename 2! ;
+    add-included-file  included-files $@ + cell- @
+    includefilename @ >r  includefilename !
+    includefilename $@ ['] read-loop execute-parsing-named-file
+    r> includefilename ! ;
 
 Defer >filename ( c-addr1 u1 -- c-addr2 u2 )
 ' noop is >filename
@@ -159,4 +148,6 @@ Defer >included ( c-addr1 u1 -- fd c-addr2 u2 wior )
 
 : .included ( -- ) \ gforth
     \G list the names of the files that have been @code{included}
-    included-files 2@ .strings ;
+    included-files $@ bounds ?DO
+	cr I $@ type
+    cell +LOOP ;

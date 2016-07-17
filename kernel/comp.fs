@@ -123,14 +123,17 @@ variable next-prelude
   current @ ;
 
 Defer wlscope ' get-current is wlscope
+Defer sourcepos1 ' false is sourcepos1
+
+: view, ( -- ) sourcepos1 , ;
 
 : header, ( c-addr u -- ) \ gforth
     name-too-long?  vt,
     wlscope >r
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
-    dup here + 3 cells + dup maxaligned >align
-    nlstring,
+    dup here + 4 cells + dup maxaligned >align
+    view, nlstring,
     r> 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     alias-mask lastflags cset

@@ -17,28 +17,15 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: delete-prefix ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
-    \ if c-addr2 u2 is a prefix of c-addr1 u1, delete it
-    2over 2over string-prefix? if
-        nip /string
-    else
-        2drop
-    endif ;
-
 : update-image-included-files ( -- )
-    included-files 2@ { addr cnt }
-    image-included-files 2@ { old-addr old-cnt }
-    align here { new-addr }
-    cnt 2* cells allot
-    new-addr cnt image-included-files 2!
-    old-addr new-addr old-cnt 2* cells move
-    cnt old-cnt
-    U+DO
-        addr i 2* cells + 2@
-        s" GFORTHDESTDIR" getenv delete-prefix save-mem-dict
-	new-addr i 2* cells + 2!
-    LOOP
-    maxalign ;
+    included-files $save
+    s" GFORTHDESTDIR" getenv  included-files $@ bounds ?DO
+	I @ in-dictionary? 0= IF
+	    2dup I $@ string-prefix? IF
+		I 0 2 pick $del  THEN
+	    I $save
+	THEN
+    cell +LOOP  2drop maxalign ;
 
 : update-maintask ( -- )
     throw-entry main-task udp @ throw-entry next-task - /string move ;

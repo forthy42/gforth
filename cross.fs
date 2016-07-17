@@ -1738,9 +1738,9 @@ T has? relocate H
 : c,    ( char -- )     T here H tchar T allot c! H ;
 : >align ( n -- )       0 ?DO  bl T c, H tchar +LOOP ;
 : align ( -- )          T here H align+ T >align H ;
-: cfoddalign ( n -- )
+: cfalign# ( n -- )
 	T here H + cfalign+ 0 ?DO  bl T c, H  tchar +LOOP ;
-: cfalign ( -- ) 0 T cfoddalign H ;
+: cfalign ( -- ) 0 T cfalign# H ;
 
 : >address		dup 0>= IF tbyte / THEN ; \ ?? jaw 
 : A!                    swap >address swap dup relon T ! H ;
@@ -2120,9 +2120,21 @@ X has? f83headerstring [IF]
 [ELSE]
     : name,  ( "name" -- )
 	bl word count
-	dup T cell+ cfoddalign H ht-nlstring, X cfalign ;
+	dup T cell+ cfalign# H ht-nlstring, ;
 [THEN]
-: view,   ( -- ) ( dummy ) ;
+: reset-included ( -- )
+[IFDEF] current-sourcepos1    included-files $off [THEN] ;
+[IFUNDEF] current-sourcepos1  0 constant current-sourcepos1  [THEN]
+: tsourcepos1 ( -- n ) [IFDEF] current-sourcepos1
+	current-sourcepos1 \ sourcepos format
+    [ELSE] 0 [THEN] ;
+: view,   ( -- ) tsourcepos1 T 0 cfalign# , H ;
+: included-files, ( -- addr )  0 { w^ array }
+    current-sourcepos1 #23 rshift  0 ?DO
+	T here H array >deque
+	I included-files $[]@ ht-lstring, T align H
+    LOOP  T here H  array $@
+    T dup , H bounds ?DO  I @ T A, H  cell +LOOP ;
 >CROSS
 
 \ Target Document Creation (goes to crossdoc.fd)       05jul95py
@@ -2295,7 +2307,7 @@ Defer vt, \ forward rference only
 	    T align H tlast @ T A, H
 	    >in @ T name, H >in !
 	[ELSE]
-	    T align H view,
+	    T align view, H
 	    >in @ T name, H >in !
 	    tlast @ T A, H
 	    executed-ghost @ ?dup IF
@@ -2680,7 +2692,7 @@ ghost :-dummy Constant :-ghost
 : :noname ( -- xt colon-sys )
     switchrom vt,
     [ X has? f83headerstring 0= ] [IF]
-	T 0 cell+ cfoddalign 0 , 0 , here cell+ H
+	T 0 cell+ cfalign# 0 , 0 , here cell+ H
 	t>flag >r alias-mask T r@ c@ xor r> c! H
 	:-ghost >do:ghost @ >exec2 @ execute
     [ELSE]
@@ -3070,7 +3082,7 @@ End-Struct vtable-struct
 
 : comp: ( -- colon-sys )  gstart-xt set-compiler ;
 : lit,: ( -- colon-sys )  gstart-xt set-lit, ;
-\    T 0 cell+ cfoddalign here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
+\    T 0 cell+ cfalign# here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
 >CROSS
 
 \ instantiate deferred extra, now

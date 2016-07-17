@@ -391,6 +391,9 @@ drop Constant vtsize \ vtable size
     \g @i{addr count} is the name of the word represented by @i{nt}.
     >f+c dup @ lcount-mask and tuck - swap ;
 
+: name>view ( nt -- ) \ gforth   name-to-view
+    name>string drop cell negate and cell- ;
+
 : (name>x) ( nfa -- cfa w )
     \ cfa is an intermediate cfa and w is the flags cell of nfa
     dup >f+c @ dup alias-mask and 0=
@@ -977,7 +980,7 @@ has? new-input 0= [IF]
     current-input off
 [ [THEN] ]
     clear-tibstack
-    0 0 includefilename 2!
+    0 includefilename !
     rp@ rp0 !
 [ has? floating [IF] ]
     fp@ fp0 !

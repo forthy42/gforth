@@ -5,7 +5,7 @@ require string.fs
 wordlist AConstant macros-wordlist
 
 get-current macros-wordlist set-current
-: idir ( -- addr u ) includefilename 2@ extractpath ;
+: idir ( -- addr u ) includefilename $@ extractpath ;
 set-current
 
 : macro: ( addr u -- ) Create here 0 , $! DOES> $@ ;

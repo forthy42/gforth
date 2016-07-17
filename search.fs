@@ -21,14 +21,6 @@ require struct.fs
 
 $10 deque: vocstack
 
-: >deque ( x deque -- )
-    \G push to top of deque
-    >r r@ $@len cell+ r@ $!len
-    r> $@ + cell- ! ;
-: deque> ( deque -- x )
-    \G pop from top of deque
-    >r r@ $@ ?dup-IF  + cell- @ r@ $@len cell- r> $!len
-    ELSE  drop rdrop  THEN ;
 : deque< ( x deque -- )
     \G push to bottom of deque
     >r r@ $@len cell+ r@ $!len

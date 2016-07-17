@@ -161,7 +161,7 @@ User linestart         \ starting file postition of
 [THEN]
 [THEN]
 
- 2user includefilename  0 0 includefilename 2! \ innermost included file
+user includefilename  0 includefilename ! \ innermost included file
 
 
 User base ( -- a-addr ) \ core

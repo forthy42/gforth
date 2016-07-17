@@ -78,6 +78,11 @@
     \G push string to dictionary for savesys
     dup >r $@ here r> ! dup , here swap dup aligned allot move ;
 
+: $make ( addr1 u -- $addr )
+    \G create a string as address on stack, which can be stored into
+    \G a variable
+    0 >r rp@ $! r> ;
+
 \ dynamic string handling                              12dec99py
 
 : $split ( addr u char -- addr1 u1 addr2 u2 ) \ gforth-string string-split

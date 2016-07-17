@@ -189,7 +189,7 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
 \ defined afterwards) when executing the mark.
 
 : included-files-mark ( -- u )
-    included-files @ ;
+    included-files $@len ;
 
 \ hmm, most of the saving appears to be pretty unnecessary: we could
 \ derive the wordlists and the words that have to be kept from the
@@ -217,7 +217,8 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
 
 : marker! ( mark -- )
     \ reset included files count; resize will happen on next add-included-file
-    included-files @ over @ min included-files ! cell+
+    dup @ dup >r included-files $@ r> /string bounds +DO  I $off  cell +LOOP
+    included-files $!len cell+
     \ rest of marker!
     dup @ swap cell+ ( here rest-of-marker )
     dup @ voclink ! cell+

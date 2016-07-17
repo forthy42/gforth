@@ -85,6 +85,15 @@ AConstant r:dnum
     \G create a named deque with at least @var{n} cells space
     drop Variable ;
 
+: >deque ( x deque -- )
+    \G push to top of deque
+    >r r@ $@len cell+ r@ $!len
+    r> $@ + cell- ! ;
+: deque> ( deque -- x )
+    \G pop from top of deque
+    >r r@ $@ ?dup IF  + cell- @ r@ $@len cell- r> $!len
+    ELSE  drop rdrop  THEN ;
+
 AVariable default-recognizer
 \G The system recognizer
 

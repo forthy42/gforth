@@ -23,18 +23,19 @@
 
 \ 1-cell encoded position: filenameno9b:lineno15b:charno8b
 
+require string.fs
+
 : loadfilename#>str ( n -- addr u )
     dup 0< IF  drop s" "  EXIT  THEN
-    included-files 2@ rot min 2* cells + 2@ ;
+    included-files $[]@ ;
 
 : str>loadfilename# ( addr u -- n )
-    included-files 2@ 0 ?do ( addr u included-files )
-	i over >r 2* cells + 2@
-	2over str= if
-	    rdrop 2drop i unloop exit
+    included-files $@ bounds ?do ( addr u included-files )
+	2dup I $@ str= if
+	    2drop I included-files $@ drop - cell/ unloop exit
 	endif
-	r> loop
-    drop 2drop -1 ;
+    cell +loop
+    2drop -1 ;
 
 \ we encode line and character in one cell to keep the interface the same
 : encode-pos ( nline nchar -- npos )
@@ -44,10 +45,12 @@
     dup 8 rshift swap $ff and ;
 
 : current-sourcepos ( -- nfile npos )
-    sourcefilename  str>loadfilename# sourceline# >in @ encode-pos ;
+    sourcefilename str>loadfilename# sourceline# >in @ encode-pos ;
 
 : current-sourcepos1 ( -- xpos )
-    current-sourcepos $7fffff min swap 23 lshift + ; 
+    current-sourcepos $7fffff min swap 23 lshift + ;
+
+' current-sourcepos1 is sourcepos1
 
 : decode-pos1 ( xpos -- nfile nline nchar )
     dup 23 rshift swap decode-pos ;
