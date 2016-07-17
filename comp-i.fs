@@ -36,8 +36,8 @@ synonym section-offset section-end
 \ reused here: section-offset is the number you have to add to an
 \ address that points into [section-start,section-dp] to get an offset
 \ from forthstart in the current image
-synonym section-end abort immediate
-\ only use the new name
+(') section-end name>string erase
+\ only use the new name, make old name unfindable
 
 : write-cell { w^ w  file-id -- ior }
     \ write a cell to the file
@@ -120,12 +120,12 @@ synonym section-end abort immediate
     loop ;
 
 : an.sections { sections u -- }
-    cr sections #16 hex.r ."  start           offset               dp"
+    cr ."            start           offset               dp " sections hex.
     u 0 u+do
-        i section-desc * sections +
-        dup section-start @ #21 hex.r
-        dup section-end   @ #17 hex.r
-        section-dp        @ #17 hex.r
+        cr i section-desc * sections +
+        dup section-start  @ #16 hex.r
+        dup section-offset @ #17 hex.r
+        section-dp         @ #17 hex.r
     loop ;
 
 : gen-section {: image -- im-sect :}
@@ -134,7 +134,7 @@ synonym section-end abort immediate
     image @ sect section-start !
     image @ negate sect section-offset !
     image 2 cells + @ image @ + sect section-dp !
-    \ sect 1 an.sections
+    sect 1 an.sections
     sect ;
 
 : old-image-format ( -- )
