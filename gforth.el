@@ -281,7 +281,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	(("if" "begin" "ahead" "do" "?do" "+do" "u+do" "-do" "u-do" "for" 
 	  "case" "of" "?of" "?dup-if" "?dup-0=-if" "then" "endif" "until"
 	  "repeat" "again" "leave" "?leave"
-	  "loop" "+loop" "-loop" "next" "endcase" "nextcase" "endof" "contof"
+	  "loop" "+loop" "-loop" "next" "endcase" "next-case" "endof" "contof"
 	  "else" "while" "try"
 	  "recover" "endtry" "iferror" "restore" "endtry-iferror"
 	  "assert(" "assert0(" "assert1(" "assert2("
@@ -466,7 +466,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))
-	(("again" "then" "endif" "endtry" "endcase" "nextcase" "endof" "contof"
+	(("again" "then" "endif" "endtry" "endcase" "next-case" "endof" "contof"
 	  "[then]" "[endif]" "[loop]" "[+loop]" "[next]" 
 	  "[until]" "[again]" "loop" ";]" "nope")
 	 (-2 . 0) (0 . -2))
