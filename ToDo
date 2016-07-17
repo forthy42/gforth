@@ -16,6 +16,7 @@ A    [ ] 2012 Implementieren
 A        [ ] update ansreport
  B   [ ] Configure Scripts
  B       [ ] make -j
+ B       [ ] ./BUILD-FROM-SCRATCH for android
  B       [ ] libtool-Fehler when it cannot be found (why is ./libtool not enough?)
  B       [ ] sudo make install does not clean up stuff
   G      [x] hash -r show or document
