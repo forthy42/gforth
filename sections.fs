@@ -21,6 +21,7 @@
 \ particular the definitions or usages of FORTHSTART,
 \ USABLE-DICTIONARY-END, DPP; and the usage for locals
 
+\ anpassen: in-dictionary? one-head? head? dictionary-end allot
 \ Deal with MARKERs and the native code thingies
 
 0
@@ -30,10 +31,10 @@ field: section-dp
 field: section-name \ nt, for named sections
 constant section-desc
 
-0 value sections
-variable #sections
-variable current-section \ index
-variable #-extra-sections
+uvalue sections \ address base of descriptor table (grows in both dirs)
+user #sections
+user current-section \ index
+user #extra-sections \ counts up, but the extra sections are below SECTIONS
 
 256 1024 * value section-size
 
@@ -53,7 +54,7 @@ constant extra-section-error
 : .sections ( -- )
     cr ."             start              end               dp "
     sections hex. 
-    #sections @ #-extra-sections @ u+do
+    #sections @ #extra-sections @ negate +do
         cr i current-section @ = if '>' else bl then emit
         i section-desc * sections +
         dup section-start @ #16 hex.r
@@ -72,13 +73,19 @@ constant extra-section-error
     [ ' noname >name ]L r> section-name ! ;
 
 : new-section ( -- )
-    sections #sections @ section-desc * section-desc extend-mem drop to sections
+    sections #extra-sections @ section-desc * -
+    #sections @ #extra-sections @ + section-desc * section-desc extend-mem drop
+    #extra-sections @ section-desc * + to sections
     section-size init-section
     1 #sections +! ;
 
 : set-section ( -- )
     \ any changes to other things after changing the section
     current-section-addr section-dp dpp ! ;
+
+:noname ( -- )
+    0 current-section ! set-section ;
+is reset-dpp
 
 : next-section ( -- )
     \ switch to the next section, creating it if necessary
@@ -98,6 +105,27 @@ constant extra-section-error
 
 \ extra sections
 
+: add-extra-section ( -- section )
+    sections #extra-sections @ section-desc * -
+    #sections @ #extra-sections @ + {: #total-sections :}
+    #total-sections 1+ section-desc * resize throw {: sections-base :}
+    sections-base dup section-desc + #total-sections section-desc * move
+    1 #extra-sections +!
+    sections-base #extra-sections @ section-desc * + to sections
+    set-section sections-base ;
+
+: extra-section ( size "name" -- )
+    add-extra-section dup rot init-section
+    create #extra-sections @ negate ,
+    latest swap section-name !
+  does> ( xt -- )
+    \ execute xt with the current section being in the extra section
+    current-section @ {: old-section :} try
+         ( xt addr ) @ current-section ! set-section execute 0
+    restore
+        old-section current-section ! set-section endtry
+    throw ;
+    
 \ initialization
 
 : sections-ude ( -- addr )
@@ -107,6 +135,7 @@ constant extra-section-error
     section-desc allocate throw to sections
     0 current-section !
     1 #sections !
+    0 #extra-sections !
     forthstart            sections section-start !
     usable-dictionary-end sections section-end !
     here                  sections section-dp !
@@ -143,6 +172,9 @@ init-sections
     r> close-file throw ;
 
 [defined] testing [if]
+section-size extra-section bla
+cr .sections
+:noname 50 allot ; bla
 .sections
 cr next-section .sections
 cr next-section .sections
@@ -154,6 +186,6 @@ next-section
 previous-section
 : bar ." bar" ;
 cr .sections
-cr     
+cr
 \ s" xxxsections" dump-fi
 [then]
