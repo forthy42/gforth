@@ -2129,12 +2129,15 @@ X has? f83headerstring [IF]
 	current-sourcepos1 \ sourcepos format
     [ELSE] 0 [THEN] ;
 : view,   ( -- ) tsourcepos1 T 0 cfalign# , H ;
-: included-files, ( -- addr )  0 { w^ array }
-    current-sourcepos1 #23 rshift  0 ?DO
-	T here H array >deque
-	I included-files $[]@ ht-lstring, T align H
-    LOOP  T here H  array $@
-    T dup , H bounds ?DO  I @ T A, H  cell +LOOP ;
+: included-files, ( -- addr )
+    [IFDEF] >deque
+	0 { w^ array }
+	current-sourcepos1 #23 rshift  0 ?DO
+	    T here H array >deque
+	    I included-files $[]@ ht-lstring, T align H
+	LOOP  T here H  array $@
+	T dup , H bounds ?DO  I @ T A, H  cell +LOOP
+    [ELSE] 0 [THEN] ;
 >CROSS
 
 \ Target Document Creation (goes to crossdoc.fd)       05jul95py
