@@ -40,7 +40,7 @@
         dup lineno = ?of charno nt locate-highlight-line contof
         dup lineno before-locate - >= ?of locate-print-line contof
         locate-next-line
-    nextcase
+    next-case
     2drop drop c-addr free throw ;
 
 : locate ( "name" -- )
