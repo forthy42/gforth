@@ -2116,10 +2116,9 @@ $20 constant restrict-mask
 
 >TARGET
 X has? f83headerstring [IF]
-    : name,  ( "name" -- )  bl word count ht-header, X cfalign ;
+    : name,  ( addr u -- )  ht-header, X cfalign ;
 [ELSE]
     : name,  ( "name" -- )
-	bl word count
 	dup T cell+ cfalign# H ht-nlstring, ;
 [THEN]
 : reset-included ( -- )
@@ -2133,7 +2132,7 @@ X has? f83headerstring [IF]
 : view,   ( -- ) tsourcepos1 T 0 cfalign# , H ;
 : included-files, ( -- addr )
     cell allocate throw { w^ array }  0 array @ !
-    current-sourcepos1 #23 rshift  0 ~~ ?DO
+    current-sourcepos1 #23 rshift  0 ?DO
 	T here H
 	array @ I 2 + cells resize throw array !
 	cell array @ +!
@@ -2312,10 +2311,9 @@ Defer vt, \ forward rference only
     ELSE
 	[ X has? f83headerstring ] [IF]
 	    T align H tlast @ T A, H
-	    >in @ T name, H >in !
+	    >in @ parse-name T name, H >in !
 	[ELSE]
-	    T align view, H
-	    >in @ T name, H >in !
+	    >in @ parse-name T align view, name, H >in !
 	    tlast @ T A, H
 	    executed-ghost @ ?dup IF
 		>do:ghost @ >exec2 @ execute
