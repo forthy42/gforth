@@ -841,7 +841,7 @@ install-arch:	installdeps installdirs-arch normal-install rm-install install-pro
 install-seq:	install-indep install-arch
 
 post-inst:
-		$(RM) install.TAGS gforth.fi start-gforth.el
+		$(RM) install.TAGS prim.TAGS gforth.fi start-gforth.el*
 		$(POST_INSTALL)
 		@echo
 		@echo
