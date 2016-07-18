@@ -37,6 +37,8 @@ function extra_features {
     done
 }
 
+(cd ../../..; ./autogen.sh)
+
 . build.local
 TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 NDK=${NDK-~/proj/android-ndk-r10e}
