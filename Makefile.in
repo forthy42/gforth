@@ -1023,9 +1023,9 @@ prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CA
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
-$(FORTH_GEN_ENGINE_FAST): engine/prim_fast.i
+$(FORTH_GEN_ENGINE_FAST): engine/prim-fast.i
 
-engine/prim_fast.i: prim-fast.b prims2x.fs preforth
+engine/prim-fast.i: prim-fast.b prims2x.fs preforth
 		GFORTH="$(PREFORTH)" $(srcdir)/gfgen -fast
 		touch $(FORTH_GEN_ENGINE_FAST)
 
@@ -1159,6 +1159,7 @@ libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engi
 
 .PHONY: libgforths
 libgforths:	$(LIBENGINES) $(LIBENGINES_FAST)
+		echo $(LIBENGINES) $(LIBENGINES_FAST)
 
 # ------------- additional C primitives
 
