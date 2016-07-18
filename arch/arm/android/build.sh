@@ -37,8 +37,6 @@ function extra_features {
     done
 }
 
-(cd ../../..; ./autogen.sh)
-
 . build.local
 TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 NDK=${NDK-~/proj/android-ndk-r10e}
@@ -56,7 +54,8 @@ done
 
 if [ ! -z "$arch" ]
 then
-    echo "Extra build in$arch"
+    (cd $SRC; ./autogen.sh) >autogen.log
+    echo "Extra builds in$arch"
 fi
 
 APP_VERSION=$[$(cat ~/.app-version)+1]
