@@ -584,7 +584,7 @@ FORTH_GEN_ENGINE_FAST= \
 	engine/costs-fast.i engine/super2-fast.i
 FORTH_GEN_PRIMB = engine/prim.i $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
-FORTH_GEN_FAST = prim-fast.b engine/prim_fast.i $(FORTH_GEN_ENGINE_FAST)
+FORTH_GEN_FAST = prim-fast.b engine/prim-fast.i $(FORTH_GEN_ENGINE_FAST)
 FORTH_GEN =  $(FORTH_GEN0) @GKERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
@@ -684,7 +684,7 @@ distclean:	clean
 		engine/config.h Makefile Makedist engine/Makefile \
 		stamp-h engine/stamp-h \
 		doc/version.texi gforthmi vmgen preforth \
-		prim-fast.b engine/prim.i engine/prim_fast.i $(FORTH_GEN_ENGINE_FAST)
+		prim-fast.b engine/prim.i engine/prim-fast.i $(FORTH_GEN_ENGINE_FAST)
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
