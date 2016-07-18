@@ -565,10 +565,10 @@ RCS_FILES =  ToDo model high-level
 
 ENGINES = gforth$(EXT) @NO_EC@ gforth-ditc$(EXT) gforth-itc$(EXT) $(PROFEXES)
 
-ENGINES_FAST = @NO_EC@ gforth-fast$(OPT)$(EXT) #gforth-native$(OPT)$(EXT) 
+ENGINES_FAST = @NO_EC@ gforth-fast$(EXT) #gforth-native$(OPT)$(EXT) 
 
 LIBENGINES = $(ENGINES:%=lib%)
-LiBENGINES_FAST = $(ENGINES_FAST:%=lib%)
+LIBENGINES_FAST = $(ENGINES_FAST:%=lib%)
 
 GEN = $(ENGINES) $(ENGINES_FAST) @gforth_elc@
 
@@ -1157,6 +1157,7 @@ libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engi
 		$(LN_S) engine/$@ $@
 		-$(MASSAGE_EXE) $@
 
+.PHONY: libgforths
 libgforths:	$(LIBENGINES) $(LIBENGINES_FAST)
 
 # ------------- additional C primitives
