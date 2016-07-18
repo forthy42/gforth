@@ -364,7 +364,7 @@ Variable gl-emit-buf
 
 :noname
     config-change# 0 DO
-	config-changer form-chooser  winch? on  screen-sync
+	config-changer form-chooser  winch? on  need-sync on
     LOOP ;
 is config-changed
 

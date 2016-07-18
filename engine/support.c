@@ -963,7 +963,7 @@ DCell smdiv (DCell num, Cell denom)
   vm_twoCell2d(q,r,res);
 #else
   UDCell ures;
-  UCell l, q, r;
+  UCell MAYBE_UNUSED l, q, r;
   Cell h;
   Cell denomsign=denom;
 

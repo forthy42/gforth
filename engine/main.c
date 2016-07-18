@@ -615,8 +615,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
   read_image:
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
     debugp(stderr,"try fread(%p, 1, %lx, file); ", image, imagesize);
-    fread(image, 1, imagesize, file);
-    if(ferror(file)) {
+    if(imagesize!=fread(image, 1, imagesize, file) || ferror(file)) {
       debugp(stderr, "failed\n");
       return NULL;
     } else {
@@ -2084,7 +2083,9 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   termstate = make_termstate();
 #endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
 
-  fread((void *)&header,sizeof(ImageHeader),1,imagefile);
+  if(sizeof(ImageHeader)!=fread((void *)&header, 1, sizeof(ImageHeader), imagefile)) {
+    fprintf(stderr, "ImageHeader read failed\n");
+  }
 
   set_stack_sizes(&header);
   
@@ -2110,7 +2111,9 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     Cell reloc_size=((header.image_size-1)/sizeof(Cell))/8+1;
     Char reloc_bits[reloc_size];
     fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
-    fread(reloc_bits, 1, reloc_size, imagefile);
+    if(reloc_size != fread(reloc_bits, 1, reloc_size, imagefile)) {
+      fprintf(stderr, "Image reloc bits read terminated early\n");
+    }
     gforth_relocate((Cell *)imp, reloc_bits, header.image_size, (Cell)header.base, vm_prims);
 #if 0
     { /* let's see what the relocator did */

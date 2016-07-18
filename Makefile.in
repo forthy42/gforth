@@ -1166,7 +1166,6 @@ libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engi
 
 .PHONY: libgforths
 libgforths:	$(LIBENGINES) $(LIBENGINES_FAST)
-		echo $(LIBENGINES) $(LIBENGINES_FAST)
 
 # ------------- additional C primitives
 
