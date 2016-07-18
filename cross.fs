@@ -2123,21 +2123,25 @@ X has? f83headerstring [IF]
 	dup T cell+ cfalign# H ht-nlstring, ;
 [THEN]
 : reset-included ( -- )
-[IFDEF] current-sourcepos1    included-files $off [THEN] ;
-[IFUNDEF] current-sourcepos1  0 constant current-sourcepos1  [THEN]
-: tsourcepos1 ( -- n ) [IFDEF] current-sourcepos1
-	current-sourcepos1 \ sourcepos format
-    [ELSE] 0 [THEN] ;
+    [IFDEF] current-sourcepos1    included-files $off
+    [ELSE] 0 allocate throw 0 included-files 2! [THEN] ;
+[IFUNDEF] current-sourcepos1
+: current-sourcepos1 ( -- xpos )
+    current-sourcepos $7fffff min swap #23 lshift + ;
+[THEN]
+: tsourcepos1 ( -- n ) current-sourcepos1 ;
 : view,   ( -- ) tsourcepos1 T 0 cfalign# , H ;
 : included-files, ( -- addr )
-    [IFDEF] >deque
-	0 { w^ array }
-	current-sourcepos1 #23 rshift  0 ?DO
-	    T here H array >deque
-	    I included-files $[]@ ht-lstring, T align H
-	LOOP  T here H  array $@
-	T dup , H bounds ?DO  I @ T A, H  cell +LOOP
-    [ELSE] 0 [THEN] ;
+    cell allocate throw { w^ array }  0 array @ !
+    current-sourcepos1 #23 rshift  0 ~~ ?DO
+	T here H
+	array @ I 2 + cells resize throw array !
+	cell array @ +!
+	array @ dup @ + !
+	I loadfilename#>str ht-lstring, T align H
+    LOOP  T here H  array @ dup cell+ swap @
+    T dup , H bounds ?DO  I @ T A, H  cell +LOOP
+    array @ free throw ;
 >CROSS
 
 \ Target Document Creation (goes to crossdoc.fd)       05jul95py
