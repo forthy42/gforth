@@ -54,6 +54,7 @@ ac_cv_lib_ltdl_lt_dlinit=no
 ac_export_dynamic=no
 HOSTCC="gcc -m64"
 GNU_LIBTOOL="x86_64-linux-android-libtool"
+LIBTOOL="x86_64-linux-android-libtool"
 build_libcc_named=build-libcc-named
 extraccdir=/data/app/gnu.gforth-1/lib/x86_64
 asm_fs=arch/amd64/asm.fs

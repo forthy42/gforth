@@ -54,6 +54,7 @@ ac_cv_lib_ltdl_lt_dlinit=no
 ac_export_dynamic=no
 HOSTCC="gcc -m32"
 GNU_LIBTOOL="i686-linux-android-libtool"
+LIBTOOL="i686-linux-android-libtool"
 build_libcc_named=build-libcc-named
 #KBOX=/data/data/kevinboone.androidterm/kbox
 #mi_prefix=$KBOX
