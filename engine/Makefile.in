@@ -53,7 +53,7 @@ AS	= $(GCC:gcc=as)
 STRIP	= strip
 DOSTRIP = true
 GCCLD	= @GCC_LD@
-LIBTOOL = @GNU_LIBTOOL@ --tag=CC
+LIBTOOL = @LIBTOOL@ --tag=CC
 LTLD = $(LIBTOOL) --mode=link $(GCCLD) -version-info $(LIBVERSION) -rpath $(libdir)
 EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gforth/site-forth
 
@@ -207,7 +207,7 @@ libgforth-ditc$(EC).la libgforth-ditc$(OPT)$(EC).la: $(OBJECTS_DITC:%.o=%.lo) $(
 	$(LINKER) $(OBJECTS_DITC:%.o=%.lo) $(LIBGFORTHOBJS) -o $@
 
 libgforth-prof$(EC).la libgforth-prof$(OPT)$(EC).la: $(OBJECTS_PROF:%.o=%.lo) profile$(OPT).o $(LIBGFORTHDEPS)
-	$(LINKER) $(OBJECTS_PROF:%.o=%.lo) $(AOBJECTS) profile$(OPT).o $(LDLIBS) -o $@
+	$(LINKER) $(OBJECTS_PROF:%.o=%.lo) $(LIBGFORTHOBJS) profile$(OPT).lo $(LDLIBS:%o=%.lo) -o $@
 
 libgforth-fi$(EC).la libgforth-fi$(OPT)$(EC).la:	$(OBJECTS_FI:%.o=%.lo) $(LIBGFORTHDEPS)
 	$(LINKER) $(OBJECTS_FI:%.o=%.lo) $(LIBGFORTHOBJS) -o $@

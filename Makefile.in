@@ -100,7 +100,7 @@ LN_S	= @LN_S@ -f
 M4      = @M4@
 GCC	= @CC@
 EMACS   = @EMACS@
-LIBTOOL = @GNU_LIBTOOL@
+LIBTOOL = @LIBTOOL@
 PREFORTH	= ./preforth -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 CC	= $(GCC)
 EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gforth/site-forth
@@ -557,7 +557,7 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 
 CONFIG_GEN = Makefile Makedist engine/Makefile doc/Makefile gforthmi	\
 	vmgen preforth libforth gforthker machpc.fs doc/version.texi	\
-	envos.fs build-ec gforthmi.sh kernel/version.fs
+	envos.fs build-ec gforthmi.sh
 
 RCS_FILES =  ToDo model high-level
 
@@ -571,18 +571,18 @@ LiBENGINES_FAST = $(ENGINES_FAST:%=lib%)
 GEN = $(ENGINES) $(ENGINES_FAST) @gforth_elc@
 
 # things that need a working forth system to be generated
-FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
+FORTH_GEN_ENGINE=engine/prim_lab.i engine/prim_names.i \
 	engine/prim_superend.i engine/profile.i \
 	engine/prim_num.i engine/prim_grp.i \
 	engine/costs.i engine/super2.i
 FORTH_GEN_ENGINE_FAST= \
-	engine/prim-fast.i engine/prim_lab-fast.i engine/prim_names-fast.i \
+	engine/prim_lab-fast.i engine/prim_names-fast.i \
 	engine/prim_superend-fast.i engine/profile-fast.i \
 	engine/prim_num-fast.i engine/prim_grp-fast.i \
 	engine/costs-fast.i engine/super2-fast.i
-FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
+FORTH_GEN_PRIMB = engine/prim.i $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
-FORTH_GEN_FAST = prim-fast.b $(FORTH_GEN_ENGINE_FAST)
+FORTH_GEN_FAST = prim-fast.b engine/prim_fast.i $(FORTH_GEN_ENGINE_FAST)
 FORTH_GEN =  $(FORTH_GEN0) @GKERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
@@ -682,7 +682,7 @@ distclean:	clean
 		engine/config.h Makefile Makedist engine/Makefile \
 		stamp-h engine/stamp-h \
 		doc/version.texi gforthmi vmgen preforth \
-		prim-fast.b $(FORTH_GEN_ENGINE_FAST)
+		prim-fast.b engine/prim.i engine/prim_fast.i $(FORTH_GEN_ENGINE_FAST)
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
@@ -884,7 +884,7 @@ uninstall:	FORCE
 		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)$(EXT) $(bindir)/gforth-fast-$(VERSION)$(EXT) $(bindir)/gforth-itc-$(VERSION)$(EXT) $(bindir)/gforthmi-$(VERSION) $(bindir)/vmgen-$(VERSION) $(includedir)/gforth/$(VERSION)/$(machine)
 		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXT) $(bindir)/gforth-fast$(EXT) $(bindir)/gforth-itc$(EXT) $(bindir)/gforthmi $(bindir)/vmgen $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
 
-$(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_SRC)
+$(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_SRC) libforth
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
 
 build-libcc-named: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
@@ -897,7 +897,7 @@ $(buildccdir):
 build-libcc-swig:
 		(cd unix; $(MAKE))
 
-check:		gforths	gforth.fi 
+check:		gforths	gforth.fi more
 		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth-itc$(EXT)" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc$(EXT)" >/dev/null 2>&1
@@ -969,20 +969,36 @@ extra-install: $(EXTRAS) gforth.fi
 # 3. copy new kernels to kernlXYZ.fi
 #    these are the ones we want to use now
 
-kernl32l$(EC).fi-:	$(KERN_DEPS) mach32l.fs
-		$(PREFORTH) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+kernl32l$(EC).fi-:	$(KERN_DEPS) mach32l.fs preforth
+		-$(CP) kernl32l$(EC).fi kernl32l$(EC).fi~
+		$(PREFORTH) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l$(EC).fi $(bindir)/gforth-$(VERSION) bye"
 
-kernl32b$(EC).fi-:	$(KERN_DEPS) mach32b.fs
+kernl32b$(EC).fi-:	$(KERN_DEPS) mach32b.fs preforth
+		-$(CP) kernl32b$(EC).fi kernl32b$(EC).fi~
 		$(PREFORTH) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64l$(EC).fi-:	$(KERN_DEPS) mach64l.fs
+kernl64l$(EC).fi-:	$(KERN_DEPS) mach64l.fs preforth
+		-$(CP) kernl64l$(EC).fi kernl64l$(EC).fi~
 		$(PREFORTH) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs
+kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs preforth
+		-$(CP) kernl64b$(EC).fi kernl64b$(EC).fi~
 		$(PREFORTH) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
+kernl32l$(EC).fi:	$(KERNLS)
+		-$(CP) kernl32l$(EC).fi- kernl32l$(EC).fi
+
+kernl32b$(EC).fi:	$(KERNLS)
+		-$(CP) kernl32b$(EC).fi- kernl32b$(EC).fi
+
+kernl64l$(EC).fi:	$(KERNLS)
+		-$(CP) kernl64l$(EC).fi- kernl64l$(EC).fi
+
+kernl64b$(EC).fi:	$(KERNLS)
+		-$(CP) kernl64b$(EC).fi- kernl64b$(EC).fi
+
 #Solaris make does not like that:
-@GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
+@GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0) preforth
 @GNUMAKE@		$(PREFORTH) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
 @GNUMAKE@		if [ -f `echo $< | sed s/fs/sh/` ]; \
 @GNUMAKE@		then sh `echo $< | sed s/fs/sh/` $@; \
@@ -991,26 +1007,6 @@ kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs
 
 #SunOS make does not like that
 #arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
-
-kernl32b$(EC).fi:	$(KERNLS)
-		-$(CP) kernl32b$(EC).fi kernl32b$(EC).fi~
-		-$(CP) kernl32b$(EC).fi- kernl32b$(EC).fi
-
-kernl32l$(EC).fi:	$(KERNLS)
-		-$(CP) kernl32l$(EC).fi kernl32l$(EC).fi~
-		-$(CP) kernl32l$(EC).fi- kernl32l$(EC).fi
-
-kernl64b$(EC).fi:	$(KERNLS)
-		-$(CP) kernl64b$(EC).fi kernl64b$(EC).fi~
-		-$(CP) kernl64b$(EC).fi- kernl64b$(EC).fi
-
-kernl64l$(EC).fi:	$(KERNLS)
-		-$(CP) kernl64l$(EC).fi kernl64l$(EC).fi~
-		-$(CP) kernl64l$(EC).fi- kernl64l$(EC).fi
-
-#kernl%.fi:	kernl%.fi- $(KERNLS)
-#		-$(CP) $@ $@~
-#		-$(CP) $< $@
 
 gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
 		GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal -p .$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include bindir=`pwd` libccdir=`pwd`/$(buildccdir) ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
@@ -1025,22 +1021,28 @@ prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CA
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@
 		sleep 1 #should make hpux-workaround unnecessary
 
-$(FORTH_GEN_ENGINE_FAST): prim-fast.b prims2x.fs
-		GFORTH="$(PREFORTH)" $(srcdir)/gfgen -fast
+$(FORTH_GEN_ENGINE_FAST): engine/prim_fast.i
 
-$(FORTH_GEN_ENGINE): prim.b prims2x.fs
+engine/prim_fast.i: prim-fast.b prims2x.fs preforth
+		GFORTH="$(PREFORTH)" $(srcdir)/gfgen -fast
+		touch $(FORTH_GEN_ENGINE_FAST)
+
+$(FORTH_GEN_ENGINE): engine/prim.i
+
+engine/prim.i: prim.b prims2x.fs preforth
 		GFORTH="$(PREFORTH)" $(srcdir)/gfgen
+		touch $(FORTH_GEN_ENGINE)
 
 engine/prim-s.i: engine/prim.i
-	grep -v '^#line ' $(srcdir)/engine/prim.i >$@
+		grep -v '^#line ' $(srcdir)/engine/prim.i >$@
 
-kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs
+kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs preforth
 		$(CP) $(srcdir)/kernel/aliases0.fs $@-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias ' noop process-file bye" >>$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
-kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs
+kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs preforth
 		$(CP) $(srcdir)/kernel/prim0.fs kernel/prim.fs-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
 		$(CP) $@- $@
@@ -1174,7 +1176,7 @@ TAGS:		gforth.fi gforth.TAGS
 tags:		gforth.fi gforth.tags
 		$(CP) gforth.tags $@
 
-install.TAGS:	TAGS install-tags.fs
+install.TAGS:	TAGS install-tags.fs preforth
 		sed 's;^\$(srcdir)/;;' TAGS|$(PREFORTH) -e 's" '@datadir@/gforth/$(VERSION)/'"' $(srcdir)/install-tags.fs -e bye >install.TAGS
 
 gforth.TAGS:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_BUILD_SRC) prim.TAGS kernel.TAGS
@@ -1187,21 +1189,21 @@ gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) prim.tags kernel.tags
 		cat tags prim.tags kernel.tags >gforth.tags
 		rm tags
 
-prim.TAGS: 	prim.b prims2x.fs
+prim.TAGS: 	prim.b prims2x.fs preforth
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-tag dup process-file bye"|sed 's#^./prim#prim#' >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
-prim.tags: 	prim.b prims2x.fs
+prim.tags: 	prim.b prims2x.fs preforth
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-vi-tag dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
 kernel.TAGS:
-		$(RM) kernl32l$(EC).fi-; $(MAKE) @kernel_fi@
+		$(MAKE) @kernel_fi@
 
 kernel.tags:
-		$(RM) kernl32l$(EC).fi-; $(MAKE) @kernel_fi@
+		$(MAKE) @kernel_fi@
 
 #elc files
 gforth.elc:	gforth.el
@@ -1220,7 +1222,7 @@ doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs"' kernel/main.fs -e bye
 
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
-		doc/doc.fd doc/crossdoc.fd
+		doc/doc.fd doc/crossdoc.fd preforth
 		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
@@ -1254,8 +1256,11 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-$(CONFIG_GEN):	Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in kernel/version.fs.in
+kernel/version.fs: Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in kernel/version.fs.in
 	./config.status
+	touch $(CONFIG_GEN)
+
+$(CONFIG_GEN): kernel/version.fs
 
 config.status: configure
 	./config.status --recheck

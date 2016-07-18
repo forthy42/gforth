@@ -1055,7 +1055,7 @@ test -n "$EMACS" && gforth_elc=gforth.elc
 AC_SUBST(gforth_elc)
 
 #MacOS X has a libtool that does something else
-AC_CHECK_PROGS(GNU_LIBTOOL,"glibtool --tag=CC" libtool)
+#AC_CHECK_PROGS(GNU_LIBTOOL,"glibtool --tag=CC" libtool)
 
 #Checks for library functions
 #This check is just for making later checks link with libm.
