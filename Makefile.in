@@ -973,7 +973,7 @@ extra-install: $(EXTRAS) gforth.fi
 
 kernl32l$(EC).fi-:	$(KERN_DEPS) mach32l.fs preforth
 		-$(CP) kernl32l$(EC).fi kernl32l$(EC).fi~
-		$(PREFORTH) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l$(EC).fi $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32b$(EC).fi-:	$(KERN_DEPS) mach32b.fs preforth
 		-$(CP) kernl32b$(EC).fi kernl32b$(EC).fi~
@@ -1062,7 +1062,7 @@ gforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kerne
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
 	else \
-		( cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) $@ ) && \
+		(cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) $@ ) && \
 		$(CP) engine/$@ $@ && \
 		($(MASSAGE_EXE) $@ || true); \
 		@GFORTH_EXE@; \
