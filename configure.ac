@@ -141,17 +141,6 @@ AC_ARG_ENABLE(lib,
 	AC_HELP_STRING([--enable-lib],
 		       [  Compile Gforth as shared library (default enabled).]),
 	,enable_lib=yes)
-if test "$enable_lib" != "no"; then
-   AC_DEFINE(HAS_LIB,,[Define if you want to build as shared library])
-   libengines=libgforths
-   libinstall=libinstall
-   libbench=''
-   LIB_VERSION=0:8:0
-fi
-AC_SUBST(libengines)
-AC_SUBST(libinstall)
-AC_SUBST(libbench)
-AC_SUBST(LIB_VERSION)
 
 AC_ARG_WITH(cross,
 	AC_HELP_STRING([--with-cross=<arch>],
@@ -1055,7 +1044,15 @@ test -n "$EMACS" && gforth_elc=gforth.elc
 AC_SUBST(gforth_elc)
 
 #MacOS X has a libtool that does something else
-#AC_CHECK_PROGS(GNU_LIBTOOL,"glibtool --tag=CC" libtool)
+AC_CHECK_PROGS(GNU_LIBTOOL,"glibtool --tag=CC" libtool)
+if test -z "$GNU_LIBTOOL"; then
+  AC_MSG_WARN([No GNU_LIBTOOL found, using "libtool" as name.])
+  AC_MSG_WARN([libcc.fs won't work until you have installed (GNU) libtool.])
+  #'
+  GNU_LIBTOOL=libtool
+fi
+GNU_LIBTOOL=${GNU_LIBTOOL#$CROSS_PREFIX}
+AC_SUBST(GNU_LIBTOOL)
 
 #Checks for library functions
 #This check is just for making later checks link with libm.
@@ -1071,23 +1068,26 @@ fi
 AC_SUBST(LIB_SUFFIX)
 AC_CHECK_LIB(rt,clock_gettime)
 
-if test -n "$GNU_LIBTOOL" -a $ac_cv_lib_ltdl_lt_dlinit = yes; then
+if test -n "LIBTOOL" -a $ac_cv_lib_ltdl_lt_dlinit = yes; then
   build_libcc_named=build-libcc-named
 else
-  AC_MSG_WARN([No GNU_LIBTOOL found, skip pre-building libcc-based libraries])
+  AC_MSG_WARN([No LIBTOOL found, skip pre-building libcc-based libraries])
+  AC_MSG_WARN([No LIBTOOL found, skip building library])
+  enable_lib=no
 fi
 AC_SUBST(build_libcc_named)
-
-
-if test -z "$GNU_LIBTOOL"; then
-  AC_MSG_WARN([No GNU_LIBTOOL found, using "libtool" as name.])
-  AC_MSG_WARN([libcc.fs won't work until you have installed (GNU) libtool.])
-  #'
-  GNU_LIBTOOL=libtool
-fi
-GNU_LIBTOOL=${GNU_LIBTOOL#$CROSS_PREFIX}
-AC_SUBST(GNU_LIBTOOL)
 AC_SUBST(CONFIG_PREFIX)
+if test "$enable_lib" != "no"; then
+   AC_DEFINE(HAS_LIB,,[Define if you want to build as shared library])
+   libengines=libgforths
+   libinstall=libinstall
+   libbench=''
+   LIB_VERSION=0:8:0
+fi
+AC_SUBST(libengines)
+AC_SUBST(libinstall)
+AC_SUBST(libbench)
+AC_SUBST(LIB_VERSION)
 
 #check for libffi 2.x
 AC_CHECK_HEADER(ffi.h,FFI_H_NAME=ffi.h,)

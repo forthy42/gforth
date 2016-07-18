@@ -142,7 +142,7 @@ COMPILER = $(COMPILE.c)
 	$(COMPILER) -o $@ $<
 
 support$(OPT).o support$(OPT).lo: support.c config.h forth.h longlong.h
-	$(COMPILER) -o $@ $(srcdir)/support.c
+	$(COMPILER) -o $@ $<
 
 strtol.o strtol.lo: strtol.c ansidecl.h
 
@@ -181,7 +181,7 @@ gforth-ditc$(OPT)$(EC)$(EXE): $(OBJECTS_DITC) $(GFORTHDEPS)
 	$(DOSTRIP) $@
 
 gforth-prof$(OPT)$(EC)$(EXE): $(OBJECTS_PROF) profile$(OPT).o $(GFORTHDEPS)
-	$(LINKER) $(OBJECTS_PROF) $(AOBJECTS) profile$(OPT).o $(LDLIBS) -o $@
+	$(LINKER) $(OBJECTS_PROF) $(GFORTHOBJS) profile$(OPT).o $(LDLIBS) -o $@
 	$(DOSTRIP) $@
 
 gforth-fi$(OPT)$(EC)$(EXE):	$(OBJECTS_FI) $(GFORTHDEPS)
