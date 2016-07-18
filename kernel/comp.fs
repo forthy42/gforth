@@ -123,9 +123,25 @@ variable next-prelude
   current @ ;
 
 Defer wlscope ' get-current is wlscope
-Defer sourcepos1 ' false is sourcepos1
 
-: view, ( -- ) sourcepos1 , ;
+: str>loadfilename# ( addr u -- n )
+    included-files $@ bounds ?do ( addr u )
+	2dup I $@ str= if
+	    2drop I included-files $@ drop - cell/ unloop exit
+	endif
+    cell +loop
+    2drop -1 ;
+
+: encode-pos ( nline nchar -- npos )
+    $ff min swap 8 lshift + ;
+
+: current-sourcepos ( -- nfile npos )
+    sourcefilename str>loadfilename# sourceline# >in @ encode-pos ;
+
+: current-sourcepos1 ( -- xpos )
+    current-sourcepos $7fffff min swap 23 lshift + ;
+
+: view, ( -- ) current-sourcepos1 , ;
 
 : header, ( c-addr u -- ) \ gforth
     name-too-long?  vt,

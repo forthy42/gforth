@@ -26,34 +26,16 @@
 require string.fs
 
 : loadfilename#>str ( n -- addr u )
-    dup 0< IF  drop s" "  EXIT  THEN
+    dup 0< IF  drop s" *terminal*"  EXIT  THEN
     included-files $[]@ ;
 
-: str>loadfilename# ( addr u -- n )
-    included-files $@ bounds ?do ( addr u included-files )
-	2dup I $@ str= if
-	    2drop I included-files $@ drop - cell/ unloop exit
-	endif
-    cell +loop
-    2drop -1 ;
-
 \ we encode line and character in one cell to keep the interface the same
-: encode-pos ( nline nchar -- npos )
-    $ff min swap 8 lshift + ;
 
 : decode-pos ( npos -- nline nchar )
     dup 8 rshift swap $ff and ;
 
-: current-sourcepos ( -- nfile npos )
-    sourcefilename str>loadfilename# sourceline# >in @ encode-pos ;
-
-: current-sourcepos1 ( -- xpos )
-    current-sourcepos $7fffff min swap 23 lshift + ;
-
-' current-sourcepos1 is sourcepos1
-
 : decode-pos1 ( xpos -- nfile nline nchar )
-    dup 23 rshift swap decode-pos ;
+    dup 23 arshift swap $7fffff and decode-pos ;
 
 : .sourcepos3 (  nfile nline nchar -- )
     rot loadfilename#>str type ': emit
@@ -64,11 +46,10 @@ require string.fs
 : .sourcepos1 ( xpos -- )
     decode-pos1 .sourcepos3 ;
     
-: compile-sourcepos ( compile-time: -- ; run-time: -- nfile npos )
+: compile-sourcepos ( compile-time: -- ; run-time: -- xpos )
     \ compile the current source position as literals: nfile is the
     \ source file index, nline the line number within the file.
-    current-sourcepos
-    swap postpone literal
+    current-sourcepos1
     postpone literal ;
 
 : .sourcepos ( nfile npos -- )

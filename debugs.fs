@@ -42,9 +42,9 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 \G additional debugging information; the default @code{.debugline}
 \G prints the additional information with @code{printdebugdata}.
 
-: (.debugline) ( nfile nline -- )
+: (.debugline) ( xpos -- )
     info-color attr!
-    cr .sourcepos ." :"
+    cr .sourcepos1 ." :"
     \ it would be nice to print the name of the following word,
     \ but that's not easily possible for primitives
     printdebugdata
@@ -57,7 +57,7 @@ stderr value debug-fid ( -- fid )
 
 ' (.debugline) IS .debugline
 
-: .debugline-directed ( nfile nline -- )
+: .debugline-directed ( xpos -- )
     op-vector @ { oldout }
     debug-vector @ op-vector !
     ['] .debugline catch

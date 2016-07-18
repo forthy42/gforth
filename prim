@@ -1239,7 +1239,7 @@ if(u>=CELL_BITS) {
 #endif
 
 drshift	 ( ud1 u -- ud2 )	gforth drshift
-""double arithmetic shift right""
+""double logic shift right""
 #ifdef BUGGY_LL_SHIFT
 if(u>=CELL_BITS) {
   u &= CELL_BITS-1;
@@ -1336,6 +1336,27 @@ if (CHECK_DIVISION_SW && u2 == 0)
   throw(BALL_DIVZERO);
 :
  0 swap um/mod ;
+
+arshift	( n1 n -- n2 )		core	ar_shift
+""signed shift right by @i{n} bits.""
+n2 = n1 >> n;
+:
+ 0 ?DO 2/ LOOP ;
+
+darshift ( d1 u -- d2 )	gforth darshift
+""double arithmetic shift right""
+#ifdef BUGGY_LL_SHIFT
+if(u>=CELL_BITS) {
+  u &= CELL_BITS-1;
+  DHI_IS(d2, 0);
+  DLO_IS(d2, (DHI(d1) >> u));
+} else {
+  DHI_IS(d2, (DHI(d1) >> u));
+  DLO_IS(d2, ((DLO(d1) >> u) | (DHI(d1) << (CELL_BITS-u))));
+}
+#else
+  d2 = d1 >> u;
+#endif
 
 \g compare
 
