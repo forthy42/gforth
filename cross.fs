@@ -2118,7 +2118,7 @@ $20 constant restrict-mask
 X has? f83headerstring [IF]
     : name,  ( addr u -- )  ht-header, X cfalign ;
 [ELSE]
-    : name,  ( "name" -- )
+    : name,  ( addr u -- )
 	dup T cell+ cfalign# H ht-nlstring, ;
 [THEN]
 : reset-included ( -- )
@@ -2129,7 +2129,7 @@ X has? f83headerstring [IF]
     current-sourcepos $7fffff min swap #23 lshift + ;
 [THEN]
 : tsourcepos1 ( -- n ) current-sourcepos1 ;
-: view,   ( -- ) tsourcepos1 T 0 cfalign# , H ;
+: view,   ( -- ) tsourcepos1 T , H ;
 : included-files, ( -- addr )
     cell allocate throw { w^ array }  0 array @ !
     current-sourcepos1 #23 rshift  0 ?DO
@@ -2313,7 +2313,7 @@ Defer vt, \ forward rference only
 	    T align H tlast @ T A, H
 	    >in @ parse-name T name, H >in !
 	[ELSE]
-	    >in @ parse-name T align view, name, H >in !
+	    >in @ parse-name dup T aligned cfalign# view, name, H >in !
 	    tlast @ T A, H
 	    executed-ghost @ ?dup IF
 		>do:ghost @ >exec2 @ execute

@@ -148,9 +148,9 @@ Defer wlscope ' get-current is wlscope
     wlscope >r
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
-    dup aligned 4 cells + here + dup maxaligned >align
+    dup aligned here + dup maxaligned >align
     view,
-    dup 3 cells + here + dup maxaligned >align
+    dup cell+ here + dup maxaligned >align
     nlstring,
     r> 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
