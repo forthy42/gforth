@@ -89,6 +89,7 @@ RM	= rm
 RMTREE	= rm -rf
 CP	= cp -p
 MV	= mv
+TOUCH   = touch -c
 TAR	= tar cf -
 MKDIR	= mkdir
 ACLOCAL_AMFLAGS = -I m4
@@ -377,7 +378,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC) \
 	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs \
 	unix/gdi.fs unix/user.fs unix/win32.fs \
 	date.fs script.fs wf.fs traceall.fs rec-scope.fs rec-env.fs \
-	notfound.fs utf16.fs archive.fs cilk.fs sections.fs
+	notfound.fs utf16.fs archive.fs cilk.fs sections.fs fixfiles.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -734,7 +735,7 @@ setup-debdist:	doc Makedist FORCE
 #HPUX make breaks the cycle differently when the dates are equal, so
 # touch some of the files if it acts up
 hpux-workaround:
-	touch $(FORTH_GEN_PRIMB)
+	$(TOUCH) $(FORTH_GEN_PRIMB)
 
 #strip gforth, because the debugging stuff is hardly useful once
 # gforth manages to execute more than a few primitives.
@@ -779,7 +780,7 @@ install-progs:
 
 install-sources:
 		-for i in doc/gforth.info* doc/vmgen.info*; do $(INSTALL_DATA) $$i $(infodir); done
-		for i in $(FORTH_SRC) $(COMPAT) prim; do \
+		for i in $(FORTH_SRC) $(COMPAT) prim kernel/version.fs; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 
@@ -787,12 +788,12 @@ install-gensources:
 		for i in $(LIBCC_GEN_SRC) envos.fs; do \
 			$(INSTALL_DATA) $$i $(libdir)/gforth/$(VERSION)/$$i; \
 		done
-		touch $(siteforthdir)/siteinit.fs
+		$(TOUCH) $(siteforthdir)/siteinit.fs
 
 install-images:
 		-$(RM) gforth.fi
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
-		GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP)
+		GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi $(FORTHSIZES) $(STARTUP) fixfiles.fs
 		$(INSTALL_DATA) gforth.fi $(libdir)/gforth/$(VERSION)
 
 install-include:
@@ -894,7 +895,7 @@ $(buildccdir)/libgfsocket.la: $(buildccdir)/libgflibc.la
 
 $(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_SRC) libforth
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
-		-touch -c $@
+		-$(TOUCH) $@
 
 build-libcc-named: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
 
@@ -908,13 +909,20 @@ build-libcc-swig:
 
 check:		gforths	gforth.fi more
 		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" >/dev/null 2>&1
+		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT) --no-dynamic" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth-itc$(EXT)" >/dev/null 2>&1
+		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth-itc$(EXT)" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc$(EXT)" >/dev/null 2>&1
+		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth-ditc$(EXT)" >/dev/null 2>&1
 		$(MAKE) checkone ENGINE="./gforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
+		@libbench@$(MAKE) checkone ENGINE="./libgforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
 		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT)" >/dev/null 2>&1
+		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT)" >/dev/null 2>&1
 		$(MAKE) checkone ENGINE="./gforth-fast$(EXT)" >/dev/null 2>&1
+		@libbench@$(MAKE) checkone ENGINE="./libgforth-fast$(EXT)" >/dev/null 2>&1
 		@echo "*** Check successful ***"
-		./gforth-fast$(EXT) --diag -e bye
+		./gforth-fast$(EXT) --diag -e '."     in gforth-fast" cr bye'
+		@libbench@./libgforth-fast$(EXT) --diag -e '."     in libgforth-fast" cr bye'
 
 checkone test: gforth.fi engine/prim-s.i
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
@@ -994,9 +1002,11 @@ kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs preforth
 		-$(CP) kernl64b$(EC).fi kernl64b$(EC).fi~
 		$(PREFORTH) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
+# Atomic copy, as kernel might be loaded concurrently
 kernl%$(EC).fi:	kernl%$(EC).fi-
-		-$(CP) $< $@
-		-touch -c $@
+		-$(CP) $< $@+
+		-$(MV) $@+ $@
+		-$(TOUCH) $@
 
 #Solaris make does not like that:
 @GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0) preforth @kernel_fi@
