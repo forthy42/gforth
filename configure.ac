@@ -314,7 +314,8 @@ case "$host_cpu" in
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
                 test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
 		if test -z $arm_cacheflush; then
-		   AC_LIBOBJ(../arch/arm64/cacheflush) 
+		   AC_LIBOBJ(cacheflush)
+		   (cd engine; ln -fs $srcdir/arch/arm64/cacheflush.c .)
 		fi
 		;;
 	arm*)
@@ -338,16 +339,19 @@ case "$host_cpu" in
 		if test -z $arm_cacheflush; then
 		   case "$host_os" in
 		     *linux*)
-			AC_LIBOBJ(../arch/arm/cacheflush-linux) 
+			AC_LIBOBJ(cacheflush-linux)
+			(cd engine; ln -fs $srcdir/arch/arm/cacheflush-linux.c .)
 			;;
 		     *)   
 			no_dynamic_default=1
-			AC_LIBOBJ(../arch/arm/cacheflush0)
+			AC_LIBOBJ(cacheflush0)
+			(cd engine; ln -fs $srcdir/arch/arm/cacheflush0.c .)
 			AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
 			;;
                    esac
                 else
-                   AC_LIBOBJ(../$arm_cacheflush)
+                   AC_LIBOBJ(`basename $arm_cacheflush`)
+		   (cd engine; ln -fs $srcdir/$arm_cacheflish .)
                    test $srcdir = . || AC_MSG_WARN([setting arm_cacheflush requires building in the source directory])
 		fi
                 #longer skipcodes lead to problems on ARM, and it uses
@@ -356,7 +360,8 @@ case "$host_cpu" in
 		;;
 	hppa*)
 		machine=hppa
-		AC_LIBOBJ(../arch/hppa/cache)
+		AC_LIBOBJ(cache)
+		(cd engine; ln -fs $srcdir/arch/hppa/cache.c .)
 		#-N needed for --dynamic <M4U3b.3790$9d.317@news.cpqcorp.net>
 		LDFLAGS="$LDFLAGS -Xlinker -N"
 		LIBS="$LIBS -L/lib/pa1.1/"
@@ -416,7 +421,8 @@ case "$host_cpu" in
 		;;
 	ia64*)
 		machine=ia64
-		AC_LIBOBJ(../arch/ia64/flush_icache_block)
+		AC_LIBOBJ(flush_icache_block)
+		(cd engine; ln -fs $srcdir/arch/ia64/flush_icache_block.c .)
 		test "$skipcode" || skipcode="nop.i 0"
 		#".skip 16" passes the test below,
 		# but gives an assembler error in engine
@@ -431,7 +437,8 @@ case "$host_cpu" in
 		;;
 	mips*)
 		machine=mips
-		AC_LIBOBJ(../arch/mips/check_prim) 
+		AC_LIBOBJ(check_prim)
+		(cd engine; ln -fs ../arch/mips/check_prim.c)
 		#dynamic native code has the following problems on MIPS:
 		#
 		#1) J/JAL seems relocatable, but is are only
@@ -457,7 +464,8 @@ case "$host_cpu" in
 		;;
 	power*|rs6000)
 		machine=power
-		AC_CHECK_FUNC(_sync_cache_range,[true],[AC_LIBOBJ(../arch/power/_sync_cache_range)])
+		AC_CHECK_FUNC(_sync_cache_range,[true],[AC_LIBOBJ(_sync_cache_range)])
+		(cd engine; ln -fs $srcdir/arch/power/_sync_cache_range.c .)
 		#long long is broken on (at least) gcc-2.95.* for PPC
 		test x$ac_cv_sizeof_long_long = x && 
 		($CC -v 2>&1 |grep 'gcc version 2.95' >/dev/null) &&
