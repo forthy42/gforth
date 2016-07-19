@@ -288,8 +288,8 @@ Variable gl-emit-buf
     n 0 ?DO
 	dup gl-char' l!
 	gl-xy 2@ >r 1+ dup cols = dup gl-lineend !
-	IF  drop 0 r> 1+ >r  THEN
-	r> gl-xy 2!  $10 +
+	IF  drop 0 r> 1+ gl-xy 2! resize-screen
+	ELSE  r> gl-xy 2!  THEN  $10 +
     LOOP  drop ;
 
 : gl-emit ( char -- )  color-index @ (gl-emit) ;
