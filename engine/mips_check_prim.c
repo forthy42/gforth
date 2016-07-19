@@ -1,0 +1,1 @@
+../arch/mips/check_prim.c

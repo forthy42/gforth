@@ -314,8 +314,7 @@ case "$host_cpu" in
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
                 test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
 		if test -z $arm_cacheflush; then
-		   AC_LIBOBJ(cacheflush)
-		   (cd engine; ln -fs $srcdir/arch/arm64/cacheflush.c .)
+		   AC_LIBOBJ(arm64-cacheflush)
 		fi
 		;;
 	arm*)
@@ -336,32 +335,23 @@ case "$host_cpu" in
 			FAST="yes" # build extra fast libraries
 			;;
 		esac
-		if test -z $arm_cacheflush; then
-		   case "$host_os" in
+		case "$host_os" in
 		     *linux*)
-			AC_LIBOBJ(cacheflush-linux)
-			(cd engine; ln -fs $srcdir/arch/arm/cacheflush-linux.c .)
+			AC_LIBOBJ(arm-cacheflush-linux)
 			;;
 		     *)   
 			no_dynamic_default=1
-			AC_LIBOBJ(cacheflush0)
-			(cd engine; ln -fs $srcdir/arch/arm/cacheflush0.c .)
+			AC_LIBOBJ(arm-cacheflush0)
 			AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
 			;;
-                   esac
-                else
-                   AC_LIBOBJ(`basename $arm_cacheflush`)
-		   (cd engine; ln -fs $srcdir/$arm_cacheflish .)
-                   test $srcdir = . || AC_MSG_WARN([setting arm_cacheflush requires building in the source directory])
-		fi
+                esac
                 #longer skipcodes lead to problems on ARM, and it uses
                 #only 4-byte alignment anyway
 		test "$skipcode" || skipcode="nop"
 		;;
 	hppa*)
 		machine=hppa
-		AC_LIBOBJ(cache)
-		(cd engine; ln -fs $srcdir/arch/hppa/cache.c .)
+		AC_LIBOBJ(hppa-cache)
 		#-N needed for --dynamic <M4U3b.3790$9d.317@news.cpqcorp.net>
 		LDFLAGS="$LDFLAGS -Xlinker -N"
 		LIBS="$LIBS -L/lib/pa1.1/"
@@ -421,8 +411,7 @@ case "$host_cpu" in
 		;;
 	ia64*)
 		machine=ia64
-		AC_LIBOBJ(flush_icache_block)
-		(cd engine; ln -fs $srcdir/arch/ia64/flush_icache_block.c .)
+		AC_LIBOBJ(ia64_flush_icache_block)
 		test "$skipcode" || skipcode="nop.i 0"
 		#".skip 16" passes the test below,
 		# but gives an assembler error in engine
@@ -464,8 +453,7 @@ case "$host_cpu" in
 		;;
 	power*|rs6000)
 		machine=power
-		AC_CHECK_FUNC(_sync_cache_range,[true],[AC_LIBOBJ(_sync_cache_range)])
-		(cd engine; ln -fs $srcdir/arch/power/_sync_cache_range.c .)
+		AC_CHECK_FUNC(_sync_cache_range,[true],[AC_LIBOBJ(power_sync_cache_range)])
 		#long long is broken on (at least) gcc-2.95.* for PPC
 		test x$ac_cv_sizeof_long_long = x && 
 		($CC -v 2>&1 |grep 'gcc version 2.95' >/dev/null) &&
