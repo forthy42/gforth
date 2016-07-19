@@ -1326,9 +1326,8 @@ if test x$has_swig = xyes || test -f $srcdir/unix/pnglib-fsi.c; then
 		    SWIGLIBS="$SWIGLIBS png.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/soil2-fsi.c; then
-    AC_CHECK_LIB(soil2,SOIL_load_image,
     AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
-		    SWIGLIBS="$SWIGLIBS soil2lib.fs", ,))
+		    SWIGLIBS="$SWIGLIBS soil2lib.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/soil-fsi.c; then
     AC_CHECK_LIB(SOIL,SOIL_load_image,
