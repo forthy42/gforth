@@ -16,7 +16,7 @@ XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o"
  cd engine
  for i in $XLIBS
  do
-     ar x $TOOLCHAIN/sysroot/usr/lib/libc.a $i
+     ar x $TOOLCHAIN/sysroot/usr/lib64/libc.a $i
      cp $i .libs/lib$i
      cp $i lib$i
      echo "# lib${i%o}lo - a libtool object file

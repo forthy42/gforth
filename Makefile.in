@@ -171,7 +171,6 @@ KERN_SRC = \
 	mach32b.fs mach32l.fs mach64b.fs mach64l.fs \
 	machpc.fs.in \
 	kernel/aliases0.fs \
-	kernel/aliases.fs \
 	kernel/args.fs \
 	kernel/cond.fs \
 	cross.fs \
@@ -591,7 +590,8 @@ FORTH_GEN =  $(FORTH_GEN0) @GKERNEL@ gforth.fi
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
 
 #kernel dependencies
-KERN_DEPS = $(KERN_SRC) kernel/version.fs machpc.fs $(FORTH_GEN0) compat/strcomp.fs
+KERN_DEPS = $(KERN_SRC) kernel/aliases.fs kernel/version.fs machpc.fs	\
+	$(FORTH_GEN0) compat/strcomp.fs
 
 #distributed documentation
 DOCDIST = doc/gforth.info $(wildcard doc/gforth.info-*) doc/gforth.ps \
@@ -780,12 +780,12 @@ install-progs:
 
 install-sources:
 		-for i in doc/gforth.info* doc/vmgen.info*; do $(INSTALL_DATA) $$i $(infodir); done
-		for i in $(FORTH_SRC) $(COMPAT) prim kernel/version.fs; do \
+		for i in $(FORTH_SRC) $(COMPAT) prim; do \
 			$(INSTALL_DATA) $(srcdir)/$$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 
 install-gensources:
-		for i in $(LIBCC_GEN_SRC) envos.fs; do \
+		for i in $(LIBCC_GEN_SRC) envos.fs kernel/aliases.fs kernel/prim.fs kernel/version.fs; do \
 			$(INSTALL_DATA) $$i $(libdir)/gforth/$(VERSION)/$$i; \
 		done
 		echo "\\ empty site-init" > $(siteforthdir)/siteinit.fs
