@@ -894,6 +894,7 @@ $(buildccdir)/libgfsocket.la: $(buildccdir)/libgflibc.la
 
 $(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_SRC) libforth
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
+		-touch -c $@
 
 build-libcc-named: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
 
@@ -1021,25 +1022,23 @@ gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
 
 # -------------	Make c-engine
 
-prim.b:		prim cache0.vmg
+prim.b:		prim cache0.vmg Makefile kernel/version.fs
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=0 prim) >$@
-		sleep 1 #should make hpux-workaround unnecessary
+#		sleep 1 #should make hpux-workaround unnecessary
 
-prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile
+prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile kernel/version.fs
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@
-		sleep 1 #should make hpux-workaround unnecessary
+#		sleep 1 #should make hpux-workaround unnecessary
 
 $(FORTH_GEN_ENGINE_FAST): engine/prim-fast.i
 
-engine/prim-fast.i: prim-fast.b prims2x.fs preforth
+engine/prim-fast.i: prim-fast.b prims2x.fs preforth gfgen
 		GFORTH="$(PREFORTH)" $(srcdir)/gfgen -fast
-		touch $(FORTH_GEN_ENGINE_FAST)
 
 $(FORTH_GEN_ENGINE): engine/prim.i
 
-engine/prim.i: prim.b prims2x.fs preforth
+engine/prim.i: prim.b prims2x.fs preforth gfgen
 		GFORTH="$(PREFORTH)" $(srcdir)/gfgen
-		touch $(FORTH_GEN_ENGINE)
 
 engine/prim-s.i: engine/prim.i
 		grep -v '^#line ' $(srcdir)/engine/prim.i >$@
@@ -1066,7 +1065,7 @@ MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
 gforth$(EXT): $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
 
-gforth$(OPT)$(EXT): $(ENGINE_SOURCES)
+gforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
 	else \
@@ -1078,12 +1077,14 @@ gforth$(OPT)$(EXT): $(ENGINE_SOURCES)
 	fi
 	$(DOSTRIP) $@
 
+.PHONY: optgforth optgforth-fast
+
 optgforth:
 	$(MAKE) gforth$(OPT)$(EXT) $(MAKELINE$(OPT))
 
 gforth-fast$(EXT): $(FORTH_GEN_ENGINE_FAST) engine/config.h
 
-gforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES)
+gforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
 	else \
@@ -1272,9 +1273,8 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-kernel/version.fs: Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in kernel/version.fs.in
+kernel/version.fs: Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in kernel/version.fs.in engine/config.h.in
 	./config.status
-	touch $(CONFIG_GEN)
 
 $(CONFIG_GEN): kernel/version.fs
 

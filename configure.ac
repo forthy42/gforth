@@ -1388,6 +1388,7 @@ AC_SUBST(DEBVERSION)
 # finally create config files
 
 AC_CONFIG_FILES([
+kernel/version.fs
 Makefile
 Makedist
 gforthmi
@@ -1398,7 +1399,6 @@ envos.fs
 preforth
 libforth
 gforthker
-kernel/version.fs
 engine/Makefile
 engine/libcc.h
 doc/version.texi

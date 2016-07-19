@@ -291,14 +291,6 @@ profile$(OPT).o profile$(OPT).lo:	profile.c profile.i $(DEPS)
 #termios.o:	/usr/lib/libposix.a
 #	ar x /usr/lib/libposix.a termios.o
 
-config.h:	stamp-h
-stamp-h:	config.h.in ../config.status ../stamp-h.in
-		cd .. && CONFIG_FILES=$@ CONFIG_HEADERS=engine/config.h ./config.status
-		echo timestamp > stamp-h
-
-Makefile: Makefile.in ../config.status ../configure.ac
-	cd .. && $(MAKE) engine/Makefile.in
-
 image.i:	../fi2c.fs ../$(include_fi)
 		$(BOOTFORTH) ../fi2c.fs -e "s\" ../$(include_fi)\" fi2c bye" >$@
 
