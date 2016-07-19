@@ -90,4 +90,4 @@ no_dynamic=""
 image_i=""
 LIBS="-llog -lz"
 signals_o="io.o signals.o $XLIBS androidmain.o zexpand.o"
-
+GFORTH=`which gforth-386`

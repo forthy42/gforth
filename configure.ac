@@ -1170,8 +1170,11 @@ AC_SUBST(include_fi)
 
 # Find installed Gforth
 AC_MSG_CHECKING([for gforth])
-GFORTH="`cd / && which gforth 2>/dev/null`"
-(cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null) || GFORTH=""
+if test -z "$GFORTH"
+then
+    GFORTH="`cd / && which gforth 2>/dev/null`"
+    (cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null) || GFORTH=""
+fi
 if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
   GFORTHKER='echo "You need to configure with a gforth in \$PATH to build this part" && false'
