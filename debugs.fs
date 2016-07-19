@@ -158,11 +158,42 @@ require string.fs
 : view-vi ( "name" -- ) \ gforth
     [: ." vi -t '" parse-name esc'type ." '" ;] $tmp system ;
 
+\ lines to show before and after locate
+3 value before-locate
+12 value after-locate
+
+Variable locate-file[]
+
+: view-name {: nt -- :}
+    nt name>view @ dup cr .sourcepos1
+    decode-pos1  nt name>string nip {: lineno charno offset :}
+    loadfilename#>str locate-file[] $[]slurp-file
+    lineno after-locate + 1+ locate-file[] $[]# umin
+    lineno before-locate 1+ - 0 max +DO  cr
+	I 4 .r ." : "
+	I 1+ lineno = IF
+	    warn-color attr!
+	    I locate-file[] $[]@
+	    2dup charno <> charno + offset - dup >r type r> /string
+	    info-color attr!
+	    over nt name>string nip dup >r type r> /string
+	    warn-color attr!
+	    type
+	    default-color attr!
+	ELSE
+	    I locate-file[] $[]@ type
+	THEN
+    LOOP
+    locate-file[] $[]off ;
+
+: view-native ( "name" -- )
+    (') locate-name ;
+
 Defer view ( "name" -- ) \ gforth
 \G tell the editor to go to the source of a word
 \G uses emacs; so you have to do M-x server-start in Emacs,
 \G and have Forth-mode loaded.  This will ask for the tags file
 \G on the first invocation
-' view-emacs IS view
+' view-native IS view
 
 ' view alias locate \ forth inc
