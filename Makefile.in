@@ -356,7 +356,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC) \
 	depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
 	envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs \
 	fsl-util.4th fsl-util.fs glosgen.fs gray.fs httpd.fs install-tags.fs \
-	make-app.fs doc/makedoc.fs locate.fs more.fs onebench.fs fft-bench.fs \
+	make-app.fs doc/makedoc.fs locate.fs locate1.fs more.fs onebench.fs fft-bench.fs \
 	other.fs prims2x.fs prims2x0.6.2.fs proxy.fs random.fs \
 	regexp.fs sokoban.fs string.fs table.fs tags.fs \
 	tt.fs quotations.fs \
