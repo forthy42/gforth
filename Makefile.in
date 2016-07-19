@@ -994,20 +994,12 @@ kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs preforth
 		-$(CP) kernl64b$(EC).fi kernl64b$(EC).fi~
 		$(PREFORTH) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
-kernl32l$(EC).fi:	$(KERNLS)
-		-$(CP) kernl32l$(EC).fi- kernl32l$(EC).fi
-
-kernl32b$(EC).fi:	$(KERNLS)
-		-$(CP) kernl32b$(EC).fi- kernl32b$(EC).fi
-
-kernl64l$(EC).fi:	$(KERNLS)
-		-$(CP) kernl64l$(EC).fi- kernl64l$(EC).fi
-
-kernl64b$(EC).fi:	$(KERNLS)
-		-$(CP) kernl64b$(EC).fi- kernl64b$(EC).fi
+kernl%$(EC).fi:	kernl%$(EC).fi-
+		-$(CP) $< $@
+		-touch -c $@
 
 #Solaris make does not like that:
-@GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0) preforth
+@GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0) preforth @kernel_fi@
 @GNUMAKE@		$(PREFORTH) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
 @GNUMAKE@		if [ -f `echo $< | sed s/fs/sh/` ]; \
 @GNUMAKE@		then sh `echo $< | sed s/fs/sh/` $@; \
@@ -1193,7 +1185,7 @@ TAGS:		gforth.fi gforth.TAGS
 tags:		gforth.fi gforth.tags
 		$(CP) gforth.tags $@
 
-install.TAGS:	TAGS install-tags.fs preforth
+install.TAGS:	TAGS install-tags.fs preforth @kernel_fi@
 		sed 's;^\$(srcdir)/;;' TAGS|$(PREFORTH) -e 's" '@datadir@/gforth/$(VERSION)/'"' $(srcdir)/install-tags.fs -e bye >install.TAGS
 
 gforth.TAGS:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_BUILD_SRC) prim.TAGS kernel.TAGS
@@ -1206,12 +1198,12 @@ gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) prim.tags kernel.tags
 		cat tags prim.tags kernel.tags >gforth.tags
 		rm tags
 
-prim.TAGS: 	prim.b prims2x.fs preforth
+prim.TAGS: 	prim.b prims2x.fs preforth @kernel_fi@
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-tag dup process-file bye"|sed 's#^./prim#prim#' >$@-
 		$(CP) $@- $@
 		$(RM) $@-
 
-prim.tags: 	prim.b prims2x.fs preforth
+prim.tags: 	prim.b prims2x.fs preforth @kernel_fi@
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-vi-tag dup process-file bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
@@ -1239,7 +1231,7 @@ doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs"' kernel/main.fs -e bye
 
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
-		doc/doc.fd doc/crossdoc.fd preforth
+		doc/doc.fd doc/crossdoc.fd preforth @kernel_fi@
 		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" >$@-
 		$(CP) $@- $@
 		$(RM) $@-
