@@ -426,8 +426,7 @@ case "$host_cpu" in
 		;;
 	mips*)
 		machine=mips
-		AC_LIBOBJ(check_prim)
-		(cd engine; ln -fs ../arch/mips/check_prim.c)
+		AC_LIBOBJ(mips_check_prim)
 		#dynamic native code has the following problems on MIPS:
 		#
 		#1) J/JAL seems relocatable, but is are only
