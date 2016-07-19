@@ -2130,6 +2130,11 @@ X has? f83headerstring [IF]
 [THEN]
 : tsourcepos1 ( -- n ) current-sourcepos1 ;
 : view,   ( -- ) tsourcepos1 T , H ;
+: shorten-path ( addr u -- addr' u' )  2>r
+    fpath path>string  BEGIN  next-path dup  WHILE
+	    2r@ 2over string-prefix? IF  2r> 2 pick 1+ /string 2>r  THEN
+	    2drop  REPEAT
+    2drop 2drop  2r> compact-filename ;
 : included-files, ( -- addr )
     cell allocate throw { w^ array }  0 array @ !
     current-sourcepos1 #23 rshift  0 ?DO
@@ -2137,7 +2142,8 @@ X has? f83headerstring [IF]
 	array @ I 2 + cells resize throw array !
 	cell array @ +!
 	array @ dup @ + !
-	I loadfilename#>str ht-lstring, T align H
+	I loadfilename#>str shorten-path
+	ht-lstring, T align H
     LOOP  T here H  array @ dup cell+ swap @
     dup cell/ T cells , H bounds ?DO  I @ T A, H  cell +LOOP
     array @ free throw ;
