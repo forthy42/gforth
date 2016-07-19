@@ -17,5 +17,5 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-s" GFORTHDESTDIR" getenv
-included-files $[]# 0 [?DO]  [I] included-files $[]@ over [IF] open-fpath-file 0= [IF] rot close-file throw 2over 2over string-prefix? [IF] 2 pick /string [THEN] [I] included-files $[] off [I] included-files $[]! [THEN] [ELSE] 2drop [THEN] [LOOP] 2drop
+s" GFORTHDESTDIR" getenv ." Fix prefix: '" 2dup type ." '" cr
+included-files $[]# 0 [?DO]  [I] included-files $[]@ over [IF] open-fpath-file 0= [IF] rot close-file throw 2over 2over 2swap string-prefix? [IF] 2 pick /string ." rework to: " 2dup type cr [THEN] [I] included-files $[] off [I] included-files $[]! [THEN] [ELSE] 2drop [THEN] [LOOP] 2drop
