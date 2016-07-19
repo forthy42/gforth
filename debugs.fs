@@ -187,7 +187,7 @@ Variable locate-file[]
     locate-file[] $[]off ;
 
 : view-native ( "name" -- )
-    (') locate-name ;
+    (') view-name ;
 
 Defer view ( "name" -- ) \ gforth
 \G tell the editor to go to the source of a word
