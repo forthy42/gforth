@@ -788,7 +788,7 @@ install-gensources:
 		for i in $(LIBCC_GEN_SRC) envos.fs; do \
 			$(INSTALL_DATA) $$i $(libdir)/gforth/$(VERSION)/$$i; \
 		done
-		echo "\ empty site-init" > $(siteforthdir)/siteinit.fs
+		echo "\\ empty site-init" > $(siteforthdir)/siteinit.fs
 
 install-images:
 		-$(RM) gforth.fi
