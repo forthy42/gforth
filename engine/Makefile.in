@@ -53,7 +53,7 @@ AS	= $(GCC:gcc=as)
 STRIP	= strip
 DOSTRIP = true
 GCCLD	= @GCC_LD@
-LIBTOOL = @LIBTOOL@
+LIBTOOL = @GNU_LIBTOOL@ --tag=CC
 LTLD = $(LIBTOOL) --mode=link $(GCCLD) -version-info $(LIBVERSION) -rpath $(libdir)
 EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gforth/site-forth
 
