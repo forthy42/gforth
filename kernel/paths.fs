@@ -193,7 +193,7 @@ Variable tfile
     over swap preserve-root skip-..-prefixes
     ( start current-addr u )
     over swap '/ scan dup if ( start addr3 addr4 u4 )
-	1 /string del-./s recurse
+	1 /string del-./s compact-filename
 	2dup s" ../" string-prefix? if ( start addr3 addr4 u4 )
 	    3 /string ( start to from count )
 	    >r swap 2dup r@ move r>
