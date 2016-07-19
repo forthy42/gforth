@@ -18,4 +18,4 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 s" GFORTHDESTDIR" getenv
-included-files $[]# 0 [?DO]  [I] included-files $[]@ open-fpath-file 0= [IF] rot close-file throw 2over 2over string-prefix? [IF] 2 pick /string [THEN] [I] included-files $[] off [I] included-files $[]! [THEN] [LOOP] 2drop
+included-files $[]# 0 [?DO]  [I] included-files $[]@ over [IF] open-fpath-file 0= [IF] rot close-file throw 2over 2over string-prefix? [IF] 2 pick /string [THEN] [I] included-files $[] off [I] included-files $[]! [THEN] [ELSE] 2drop [THEN] [LOOP] 2drop
