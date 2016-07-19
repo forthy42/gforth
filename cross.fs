@@ -2139,7 +2139,7 @@ X has? f83headerstring [IF]
 	array @ dup @ + !
 	I loadfilename#>str ht-lstring, T align H
     LOOP  T here H  array @ dup cell+ swap @
-    T dup , H bounds ?DO  I @ T A, H  cell +LOOP
+    dup cell/ T cells , H bounds ?DO  I @ T A, H  cell +LOOP
     array @ free throw ;
 >CROSS
 
