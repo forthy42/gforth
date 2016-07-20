@@ -21,29 +21,27 @@
 3 value before-locate
 12 value after-locate
 
-Variable locate-file[]
+: locate-next-line ( c-addr1 u1 lineno -- c-addr2 u2 lineno+1 )
+    ... ;
 
+: locate-highlight-line ( c-addr1 u1 lineno charno nt --  c-addr2 u2 lineno+1 )
+    ... ;
+
+: locate-print-line ( c-addr1 u1 lineno -- c-addr2 u2 lineno+1 )
+    ... ;
+    
 : locate-name {: nt -- :}
-    nt name>view @ dup cr .sourcepos1
-    decode-pos1  nt name>string nip {: lineno charno offset :}
-    loadfilename#>str locate-file[] $[]slurp-file
-    lineno after-locate + 1+ locate-file[] $[]# umin
-    lineno before-locate 1+ - 0 max ?DO  cr
-	I 4 .r ." : "
-	I 1+ lineno = IF
-	    warn-color attr!
-	    I locate-file[] $[]@
-	    2dup charno <> charno + offset - dup >r type r> /string
-	    info-color attr!
-	    over nt name>string nip dup >r type r> /string
-	    warn-color attr!
-	    type
-	    default-color attr!
-	ELSE
-	    I locate-file[] $[]@ type
-	THEN
-    LOOP
-    locate-file[] $[]off ;
+    nt name>view dup cr .sourcepos1
+    decode-pos1 {: lineno charno :}
+    loadfilename#>str slurp-file over {: c-addr :}
+    1 case ( c-addr u lineno1 )
+        dup lineno after-locate + >= ?of endof
+        over 0= ?of endof
+        dup lineno = ?of charno nt locate-highlight-line contof
+        dup lineno before-locate - >= ?of locate-print-line contof
+        locate-next-line
+    nextcase
+    2drop drop c-addr free throw ;
 
 : locate ( "name" -- )
     (') locate-name ;
