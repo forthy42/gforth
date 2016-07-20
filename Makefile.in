@@ -573,18 +573,18 @@ LIBENGINES_FAST = $(ENGINES_FAST:%=lib%)
 GEN = $(ENGINES) $(ENGINES_FAST) @gforth_elc@
 
 # things that need a working forth system to be generated
-FORTH_GEN_ENGINE=engine/prim_lab.i engine/prim_names.i \
+FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
 	engine/prim_superend.i engine/profile.i \
 	engine/prim_num.i engine/prim_grp.i \
 	engine/costs.i engine/super2.i
-FORTH_GEN_ENGINE_FAST= \
+FORTH_GEN_ENGINE_FAST= engine/prim-fast.i \
 	engine/prim_lab-fast.i engine/prim_names-fast.i \
 	engine/prim_superend-fast.i engine/profile-fast.i \
 	engine/prim_num-fast.i engine/prim_grp-fast.i \
 	engine/costs-fast.i engine/super2-fast.i
-FORTH_GEN_PRIMB = engine/prim.i $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
+FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
-FORTH_GEN_FAST = prim-fast.b engine/prim-fast.i $(FORTH_GEN_ENGINE_FAST)
+FORTH_GEN_FAST = prim-fast.b $(FORTH_GEN_ENGINE_FAST)
 FORTH_GEN =  $(FORTH_GEN0) @GKERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
@@ -685,7 +685,7 @@ distclean:	clean
 		engine/config.h Makefile Makedist engine/Makefile \
 		stamp-h engine/stamp-h \
 		doc/version.texi gforthmi vmgen preforth \
-		prim-fast.b engine/prim.i engine/prim-fast.i $(FORTH_GEN_ENGINE_FAST)
+		$(FORTH_GEN0) $(FORTH_GEN_FAST)
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
@@ -702,34 +702,7 @@ maintainer-clean: realclean
 #Makefile if it contains our dist rules.  Therefore we have put these
 #rules in Makedist (you can use them with GNU make on these systems).
 
-dist:		Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-dosdist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-srcdist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-srconlydist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-docdist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-htmldist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-bindist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-binonlydist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-debdist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-setup-debdist:	doc Makedist FORCE
+dist srcdist srconlydist docdist htmldist bindist binonlydist debdist setup-debdist:		Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
 #HPUX make breaks the cycle differently when the dates are equal, so
@@ -1040,6 +1013,8 @@ engine/prim.i:	prim.b prims2x.fs preforth
 
 engine/prim-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
+
+# pattern rules for gmake only now...
 
 engine/prim_lab%.i:	prim%.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-label dup process-file bye" >$@
