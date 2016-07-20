@@ -535,7 +535,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/zexpand.c engine/androidmain.c engine/sincos.c
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
-	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
+	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in README.vmgen NEWS.vmgen \
 	autogen.sh configure.ac configure config.sub config.guess \
 	elisp-comp stamp-h.in envos.fs.in kernel/version.fs.in \
 	iss.sh wininst.sh modpath.iss \
@@ -1035,15 +1035,35 @@ prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CA
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@
 #		sleep 1 #should make hpux-workaround unnecessary
 
-$(FORTH_GEN_ENGINE_FAST): engine/prim-fast.i
+engine/prim.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
 
-engine/prim-fast.i: prim-fast.b prims2x.fs preforth gfgen
-		GFORTH="$(PREFORTH)" $(srcdir)/gfgen -fast
+engine/prim-fast.i:	prim-fast.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
 
-$(FORTH_GEN_ENGINE): engine/prim.i
+engine/prim_lab%.i:	prim%.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-label dup process-file bye" >$@
 
-engine/prim.i: prim.b prims2x.fs preforth gfgen
-		GFORTH="$(PREFORTH)" $(srcdir)/gfgen
+engine/prim_grp%.i:	prim%.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
+
+engine/prim_names%.i:	prim%.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname dup process-file bye" >$@
+
+engine/prim_superend%.i:	prim%.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
+
+engine/profile%.i:	prim%.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-profile ' output-profile-combined process-file bye" >$@
+
+engine/super2%.i:	prim%.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
+
+engine/cost%.i:	prim%.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
+
+engine/prim_num%.i:	prim%.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
 
 engine/prim-s.i: engine/prim.i
 		grep -v '^#line ' $(srcdir)/engine/prim.i >$@
