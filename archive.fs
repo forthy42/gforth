@@ -35,7 +35,11 @@
 \ 'h' for hardlink
 \ rules for directories are: Specify each before first use
 
+require unix/filestat.fs
+require unix/libc.fs
+
 4 buffer: fsize
+file-stat buffer: statbuf
 
 : .len ( n -- )  fsize le-l! fsize 4 type ;
 : .z ( -- )  0 .len ;
@@ -62,9 +66,14 @@ wordlist constant dirs
 	drop 2drop
     THEN ;
 
+: ?symlink ( addr u -- flag )
+    statbuf lstat ?ior  statbuf st_mode w@ S_IFMT and S_IFLNK = ;
+
 : dump-a-file ( addr u -- )
-    2dup ?dir  2dup + 1- c@ '/' = ?EXIT  'f' .entry
-    slurp-file dup .len 2dup type drop free throw ;
+    2dup ?dir  2dup + 1- c@ '/' = ?EXIT
+    2dup ?symlink IF  's' .entry  pad $200 readlink dup ?ior
+	pad swap dup .len type  EXIT  THEN
+    'f' .entry slurp-file dup .len 2dup type drop free throw ;
 
 : dump-files ( -- )
     BEGIN  argc @ 1 >  WHILE
