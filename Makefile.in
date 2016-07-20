@@ -1011,33 +1011,59 @@ prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CA
 engine/prim.i:	prim.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
 
+# normal prim rules
+
+engine/prim_lab.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-label dup process-file bye" >$@
+
+engine/prim_grp.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
+
+engine/prim_names.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname dup process-file bye" >$@
+
+engine/prim_superend.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
+
+engine/profile.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-profile ' output-profile-combined process-file bye" >$@
+
+engine/super2.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
+
+engine/cost.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
+
+engine/prim_num.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
+
+# fast prim rules...
+
 engine/prim-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
 
-# pattern rules for gmake only now...
-
-engine/prim_lab%.i:	prim%.b prims2x.fs preforth
+engine/prim_lab-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-label dup process-file bye" >$@
 
-engine/prim_grp%.i:	prim%.b prims2x.fs preforth
+engine/prim_grp-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
 
-engine/prim_names%.i:	prim%.b prims2x.fs preforth
+engine/prim_names-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname dup process-file bye" >$@
 
-engine/prim_superend%.i:	prim%.b prims2x.fs preforth
+engine/prim_superend-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
 
-engine/profile%.i:	prim%.b prims2x.fs preforth
+engine/profile-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-profile ' output-profile-combined process-file bye" >$@
 
-engine/super2%.i:	prim%.b prims2x.fs preforth
+engine/super2-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
 
-engine/cost%.i:	prim%.b prims2x.fs preforth
+engine/cost-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
 
-engine/prim_num%.i:	prim%.b prims2x.fs preforth
+engine/prim_num-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
 
 engine/prim-s.i: engine/prim.i
@@ -1046,14 +1072,12 @@ engine/prim-s.i: engine/prim.i
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs preforth
 		$(CP) $(srcdir)/kernel/aliases0.fs $@-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias ' noop process-file bye" >>$@-
-		$(CP) $@- $@
-		$(RM) $@-
+		$(MV) $@- $@
 
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs preforth
 		$(CP) $(srcdir)/kernel/prim0.fs kernel/prim.fs-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
-		$(CP) $@- $@
-		$(RM) $@-
+		$(MV) $@- $@
 
 
 OPTS = @OPTS@
@@ -1208,13 +1232,11 @@ gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) prim.tags kernel.tags
 
 prim.TAGS: 	prim.b prims2x.fs preforth @kernel_fi@
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-tag dup process-file bye"|sed 's#^./prim#prim#' >$@-
-		$(CP) $@- $@
-		$(RM) $@-
+		$(MV) $@- $@
 
 prim.tags: 	prim.b prims2x.fs preforth @kernel_fi@
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-vi-tag dup process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
+		$(MV) $@- $@
 
 kernel.TAGS:
 		$(MAKE) @kernel_fi@
@@ -1241,8 +1263,7 @@ doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd preforth @kernel_fi@
 		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
+		$(MV) $@- $@
 
 checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd answords.fs doc/gforth.texi
 		$(FORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye
