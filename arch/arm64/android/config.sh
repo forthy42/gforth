@@ -11,7 +11,7 @@ echo "Config for android-arm64"
 CC=aarch64-linux-android-gcc
 TOOLCHAIN=$(which $CC | sed -e s,/bin/.*-gcc,,g)
 
-XLIBS="sigaltstack.o __set_errno.o sigemptyset.o sigaddset.o termios.o"
+XLIBS="sigaltstack.o __set_errno.o" # sigemptyset.o sigaddset.o termios.o"
 (mkdir -p engine/.libs
  cd engine
  for i in $XLIBS

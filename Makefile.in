@@ -702,6 +702,8 @@ maintainer-clean: realclean
 #Makefile if it contains our dist rules.  Therefore we have put these
 #rules in Makedist (you can use them with GNU make on these systems).
 
+debdist docdist htmldist: doc
+
 dist srcdist srconlydist docdist htmldist bindist binonlydist debdist setup-debdist:		Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
