@@ -198,9 +198,11 @@ Variable locate-file[]
 : editor-cmd ( soucepos1 -- )
     s" EDITOR" getenv 2dup 2>r type space
     decode-pos1
-    2r@ s" vi" search nip nip  IF  vi-l:c  ELSE
+    2r@ s" emacs" search nip nip  2r@ s" gedit" str= or  IF  emacs-l:c  ELSE
 	2r@ s" kate" string-prefix? IF  kate-l:c  ELSE
-	    emacs-l:c  THEN  THEN
+	    vi-l:c  \ also works for joe, mcedit, nano, and is de facto standard
+	THEN
+    THEN
     loadfilename#>str type  2rdrop ;
 : external-edit ( "name" )
     (') name>view @ ['] editor-cmd $tmp system ;
@@ -211,10 +213,10 @@ Defer edit ( "name" -- ) \ gforth
 \G uses $EDITOR, and adjusts goto line command depending
 \G on vi-, kate-, or emacs-style (default)
 \G @example
-\G EDITOR='emacslient -n' #if you like emacs, M-x server-start in your emacs
-\G EDITOR=kate            #if you like kate
-\G EDITOR=vi|vim|gvim     #if you like vi variants
-\G EDITOR=gedit           #if you like gedit
+\G EDITOR='emacsclient -n' #if you like emacs, M-x server-start in your emacs
+\G EDITOR=kate             #if you like kate
+\G EDITOR=vi|vim|gvim      #if you like vi variants
+\G EDITOR=gedit            #if you like gedit
 \G @end example
 
 Defer view ( "name" -- ) \ gforth
