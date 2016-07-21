@@ -108,6 +108,7 @@ comp: ( compilation  -- ; run-time  -- ) drop
 s" You've reached a !!FIXME!! marker" exception constant FIXME#
 
 : !!FIXME!! ( -- )  FIXME# throw ;
+\G word that should never be reached
 
 \ replacing one word with another
 
@@ -121,9 +122,11 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 : watch-does> ( -- ) DOES> dup @ ~~ drop ;
 : watch-comp: ( xt -- ) comp: >body ]] Literal dup @ ~~ drop [[ ; 
 : ~~Variable ( "name" -- )
+    \G Variable that will be watched on every access
   Create 0 , watch-does> watch-comp: ;
 
 : ~~Value ( n "name" -- )
+    \G Value that will be watched on every access
     Value [: ~~ >body ! ; comp: drop ]] Literal ~~ >body ! [[ ;] set-to ;
 
 \ trace lines
@@ -213,7 +216,7 @@ Defer edit ( "name" -- ) \ gforth
 \G uses $EDITOR, and adjusts goto line command depending
 \G on vi-, kate-, or emacs-style (default)
 \G @example
-\G EDITOR='emacsclient -n' #if you like emacs, M-x server-start in your emacs
+\G EDITOR='emacsclient -n' #if you like emacs, M-x server-start in emacs
 \G EDITOR=kate             #if you like kate
 \G EDITOR=vi|vim|gvim      #if you like vi variants
 \G EDITOR=gedit            #if you like gedit
@@ -223,4 +226,5 @@ Defer view ( "name" -- ) \ gforth
 \G directly view the source in the curent terminal
 ' view-native IS view
 
-' view alias locate \ forth inc
+' view alias locate ( "name" -- ) \ forth inc
+\G directly view the source in the curent terminal

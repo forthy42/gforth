@@ -12360,6 +12360,20 @@ marker is executed in the same file after their occurance.  They will
 print @samp{*somewhere*} as file name if a marker is executed in the
 same file before their occurance.
 
+doc-once
+doc-~~bt
+doc-~~1bt
+doc-???
+doc-WTF??
+doc-!!FiXME!!
+doc-replace-word
+doc-~~Variable
+doc-~~Value
+doc-+ltrace
+doc--ltrace
+doc-view
+doc-locate
+doc-edit
 
 @node Assertions, Singlestep Debugger, Debugging, Programming Tools
 @subsection Assertions
