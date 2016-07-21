@@ -70,7 +70,7 @@ datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
 libccdir = $(subst $(package),,$(libdir)/gforth/$(VERSION)/$(machine)/libcc-named/)
-buildccdir = lib/gforth/$(VERSION)/$(machine)/libcc-named/
+buildccdir = lib/gforth/$(VERSION)/$(machine)/libcc-named
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
 htmldir = $(package)@htmldir@
@@ -1031,7 +1031,7 @@ engine/profile.i:	prim.b prims2x.fs preforth
 engine/super2.i:	prim.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
 
-engine/cost.i:	prim.b prims2x.fs preforth
+engine/costs.i:	prim.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
 
 engine/prim_num.i:	prim.b prims2x.fs preforth
@@ -1060,7 +1060,7 @@ engine/profile-fast.i:	prim-fast.b prims2x.fs preforth
 engine/super2-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
 
-engine/cost-fast.i:	prim-fast.b prims2x.fs preforth
+engine/costs-fast.i:	prim-fast.b prims2x.fs preforth
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
 
 engine/prim_num-fast.i:	prim-fast.b prims2x.fs preforth
