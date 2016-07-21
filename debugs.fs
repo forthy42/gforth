@@ -165,22 +165,23 @@ require string.fs
 Variable locate-file[]
 
 : view-name {: nt -- :}
-    nt name>view @ dup cr .sourcepos1
+    warn-color attr!  nt name>view @ dup cr .sourcepos1  default-color attr!
     decode-pos1  nt name>string nip {: lineno charno offset :}
     loadfilename#>str locate-file[] $[]slurp-file
     lineno after-locate + 1+ locate-file[] $[]# umin
     lineno before-locate 1+ - 0 max +DO  cr
-	I 4 .r ." : "
 	I 1+ lineno = IF
-	    warn-color attr!
+	    err-color attr!
+	    '*' emit  I 3 .r ." : "
 	    I locate-file[] $[]@
 	    2dup charno <> charno + offset - dup >r type r> /string
 	    info-color attr!
 	    over nt name>string nip dup >r type r> /string
-	    warn-color attr!
+	    err-color attr!
 	    type
 	    default-color attr!
 	ELSE
+	    I 4 .r ." : "
 	    I locate-file[] $[]@ type
 	THEN
     LOOP
@@ -189,11 +190,35 @@ Variable locate-file[]
 : view-native ( "name" -- )
     (') view-name ;
 
-Defer view ( "name" -- ) \ gforth
+: kate-l:c ( line pos -- )
+    swap ." -l " . ." -c " . ;
+: emacs-l:c ( line pos -- )
+    ." +" swap 0 .r ." :" . ;
+: vi-l:c ( line pos -- )  ." +" drop . ;
+: editor-cmd ( soucepos1 -- )
+    s" EDITOR" getenv 2dup 2>r type space
+    decode-pos1
+    2r@ s" vi" search nip nip  IF  vi-l:c  ELSE
+	2r@ s" kate" string-prefix? IF  kate-l:c  ELSE
+	    emacs-l:c  THEN  THEN
+    loadfilename#>str type  2rdrop ;
+: external-edit ( "name" )
+    (') name>view @ ['] editor-cmd $tmp system ;
+
+Defer edit ( "name" -- ) \ gforth
+' external-edit IS edit
 \G tell the editor to go to the source of a word
-\G uses emacs; so you have to do M-x server-start in Emacs,
-\G and have Forth-mode loaded.  This will ask for the tags file
-\G on the first invocation
+\G uses $EDITOR, and adjusts goto line command depending
+\G on vi-, kate-, or emacs-style (default)
+\G @example
+\G EDITOR='emacslient -n' #if you like emacs, M-x server-start in your emacs
+\G EDITOR=kate            #if you like kate
+\G EDITOR=vi|vim|gvim     #if you like vi variants
+\G EDITOR=gedit           #if you like gedit
+\G @end example
+
+Defer view ( "name" -- ) \ gforth
+\G directly view the source in the curent terminal
 ' view-native IS view
 
 ' view alias locate \ forth inc
