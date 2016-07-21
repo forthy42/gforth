@@ -48,7 +48,7 @@ disassembler also definitions
     #5 rshift $7FFFF and 2* 2* over + . ;
 : .imm26 ( addr opcode -- addr ) \ print 19 bit branch target
     $3FFFFFF and 2* 2* over + . ;
-: .cond ( n -- )
+: .cond ( n -- ) $F and
     s" eqnecsccmiplvsvchilsgeltgtlealnv" rot 2* /string 2 min type ;
 
 : .addsub ( opcode -- )
@@ -97,7 +97,7 @@ forth definitions
 	begin
 	    dup r@ u<
 	while
-		cr dup l@ inst 4 +
+		cr dup 10 .r ." : " dup l@ inst 4 +
 	repeat
 	cr rdrop drop ;] $10 base-execute ;
 
