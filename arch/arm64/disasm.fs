@@ -21,9 +21,11 @@ vocabulary disassembler
 
 disassembler also definitions
 
-: ., ( -- ) ',' emit space ;
-: .[ ( -- ) '[' emit ;
-: .] ( -- ) ']' emit ;
+Variable ,space ,space on
+
+: ., ( -- ) ',' emit ,space @ IF space THEN ;
+: .[ ( -- ) '[' emit ,space off ;
+: .] ( -- ) ']' emit ,space on ;
 : .# ( -- ) '#' emit ;
 : tab ( -- ) #tab emit ;
 
@@ -59,6 +61,8 @@ disassembler also definitions
     #12 rshift $1FF and $100 b>sign .# 0 .r ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
     #10 rshift dup $FFF and swap #22 rshift 3 and #12 * lshift .# . ;
+: .imm12' ( opcode -- ) \ print 12 bit immediate with 2 bit shift
+    #10 rshift dup $FFF and swap #30 rshift 3 and #12 * lshift .# . ;
 : .imm14 ( addr opcode -- addr ) \ print 19 bit branch target
     #5 rshift $3FFF and 2* 2* over + . ;
 : .imm16 ( opcode -- ) \ print 16 bit immediate
@@ -159,6 +163,13 @@ disassembler also definitions
 	    3 of .[ dup .rn ., .imm9 .] '!' emit  endof
 	endcase
     THEN ;
+: ldustr# ( opcode -- )
+    dup v? IF
+    ELSE
+	s" stldldld" 2 pick #22 rshift $3 and .2"
+	s"   ss" 2 pick #22 rshift $3 and .1"
+	s" bhw " 2 pick #30 rshift .1" tab dup .rd .,
+	.[ dup .rn ., .imm12' .] ;
 
 \ instruction table
 
@@ -184,7 +195,8 @@ $D61F0000 , $FE1FFC1F , ' ucbranch ,
 $08000000 , $3F000000 , ' ldstex ,
 $18000000 , $3A000000 , ' ldr# ,
 $28000000 , $3A000000 , ' ldstp ,
-$38000000 , $3A000000 , ' ldstr# ,
+$38000000 , $3B000000 , ' ldstr# ,
+$39000000 , $3B000000 , ' ldustr# ,
 
 \ catch all
 $00000000 , $00000000 , ' unallocated ,
