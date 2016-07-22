@@ -21,12 +21,16 @@ vocabulary disassembler
 
 disassembler also definitions
 
-: .2" ( addr u opcode -- ) \ print substring by 4
+: .1" ( addr u opcode -- ) \ print substring by 1
+    safe/string 1 min type ;
+: .2" ( addr u opcode -- ) \ print substring by 2
     2* safe/string 2 min type ;
-: .3" ( addr u opcode -- ) \ print substring by 4
+: .3" ( addr u opcode -- ) \ print substring by 3
     3 * safe/string 3 min type ;
 : .4" ( addr u opcode -- ) \ print substring by 4
     4 * safe/string 4 min type ;
+: .5" ( addr u opcode -- ) \ print substring by 5
+    5 * safe/string 5 min type ;
 : .op4 ( opcode addr u -- ) \ select one of four opcodes
     rot #29 rshift 3 and .4" ;
 : .op2 ( opcode addr u -- )
@@ -118,6 +122,24 @@ disassembler also definitions
 : bitfield# unallocated ;
 : extract# unallocated ;
 
+\ load store
+
+: .rd/smd ( opcode -- )
+    dup $04000000 and IF
+	dup #30 rshift s" sdq?" rot .1" $1F and #.r
+    ELSE
+	dup $1F and swap -$20 and 2* or .rd
+    THEN ;
+
+: ldstex  unallocated ;
+: ldr# ( opcode -- )
+    dup #30 rshift s" ldr  ldr  ldrswprfm " rot .5" space
+    dup .rd/smd ., .imm19 ;
+: ldstp unallocated ;
+: ldstr# unallocated ;
+
+\ instruction table
+
 Create inst-table
 \ data processing, immediate
 $10000000 , $1F000000 , ' pcrel ,
@@ -136,6 +158,13 @@ $D4000000 , $FF000000 , ' exceptions ,
 \ $D5000000 , $FF000000 , ' system ,
 $D61F0000 , $FE1FFC1F , ' ucbranch ,
 
+\ load store
+$08000000 , $3F000000 , ' ldstex ,
+$18000000 , $3B000000 , ' ldr# ,
+$28000000 , $3A000000 , ' ldstp ,
+$38000000 , $3B200000 , ' ldstr# ,
+
+\ catch all
 $00000000 , $00000000 , ' unallocated ,
 
 : inst ( opcode -- )  inst-table
