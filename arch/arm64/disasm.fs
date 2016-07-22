@@ -150,7 +150,7 @@ Variable ,space ,space on
     dup .rd/smd ., .imm19 ;
 : ldstp unallocated ;
 : ldstr# ( opcode -- )
-    dup v? IF
+    dup v? IF  unallocated
     ELSE
 	s" stldldld" 2 pick #22 rshift $3 and .2"
 	s" u t " 2 pick #10 rshift $3 and .1" 'r' emit
@@ -164,12 +164,13 @@ Variable ,space ,space on
 	endcase
     THEN ;
 : ldustr# ( opcode -- )
-    dup v? IF
+    dup v? IF  unallocated
     ELSE
 	s" stldldld" 2 pick #22 rshift $3 and .2"
 	s"   ss" 2 pick #22 rshift $3 and .1"
 	s" bhw " 2 pick #30 rshift .1" tab dup .rd .,
-	.[ dup .rn ., .imm12' .] ;
+	.[ dup .rn ., .imm12' .]
+    THEN  ;
 
 \ instruction table
 
