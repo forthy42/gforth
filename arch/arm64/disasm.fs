@@ -57,9 +57,6 @@ disassembler also definitions
 : .cond ( n -- ) $F and
     s" eqnecsccmiplvsvchilsgeltgtlealnv" rot .2" ;
 
-: .addsub ( opcode -- )
-    dup s" addsub" .op2 .ops ;
-
 : unallocated ( opcode -- )
     ." <" 0 .r ." >" ;
 
@@ -96,7 +93,29 @@ disassembler also definitions
     dup >opc dup #5 u> IF  drop unallocated
     ELSE  s" br  blr ret eretdrps" rot .4" space .rn  THEN ;
 
+\ data processing, immediate
+
+: pcrel ( addr opcode -- )
+    ." adr" dup $80000000 and IF  'p' emit #12  ELSE  0  THEN  >r
+    space dup $1F and .rd .,
+    dup $FFFFE0 and #3 rshift swap #29 rshift 3 and or r> lshift
+    over + . ;
+: addsub# ( opcode -- )
+    dup s" addsub" .op2 .ops space dup .rd ., dup .rn ., .imm12 ;
+: logic# unallocated ;
+: movw# unallocated ;
+: bitfield# unallocated ;
+: extract# unallocated ;
+
 Create inst-table
+\ data processing, immediate
+$10000000 , $1F000000 , ' pcrel ,
+$11000000 , $1F000000 , ' addsub# ,
+$12000000 , $1F800000 , ' logic# ,
+$12800000 , $1F800000 , ' movw# ,
+$13000000 , $1F800000 , ' bitfield# ,
+$13800000 , $1F800000 , ' extract# ,
+
 \ branches
 $14000000 , $7C000000 , ' ucbranch# ,
 $34000000 , $7E000000 , ' c&branch# ,
