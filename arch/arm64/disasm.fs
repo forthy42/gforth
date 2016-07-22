@@ -25,6 +25,7 @@ disassembler also definitions
 : .[ ( -- ) '[' emit ;
 : .] ( -- ) ']' emit ;
 : .# ( -- ) '#' emit ;
+: tab ( -- ) #tab emit ;
 
 : .1" ( addr u opcode -- ) \ print substring by 1
     safe/string 1 min -trailing type ;
@@ -82,20 +83,20 @@ disassembler also definitions
     dup #18 rshift $1F and dup #24 rshift $20 and or #.r ',' emit ;
 
 : c&branch# ( opcode -- )
-    ." cb" dup .?nz space dup .rd ., .imm19 ;
+    ." cb" dup .?nz tab dup .rd ., .imm19 ;
 : condbranch# ( opcode -- )
-    ." cb" dup .cond space .imm19 ;
+    ." cb" dup .cond tab .imm19 ;
 : ucbranch# ( opcode -- )
-    ." b" dup $80000000 and IF 'l' emit  THEN space .imm26 ;
+    ." b" dup $80000000 and IF 'l' emit  THEN tab .imm26 ;
 : t&branch# ( opcode -- )
-    ." tb" dup .?nz space dup .rd ., dup .b40 .imm14 ;
+    ." tb" dup .?nz tab dup .rd ., dup .b40 .imm14 ;
 : >opc ( opcode -- opc ) #21 rshift $7 and ;
 : exceptions ( opcode -- )
     case  dup >opc
 	0 of
 	    dup $1F and dup 1 4 within IF
 		s" svchvcsmc" rot 1- .3"
-		space  .imm16
+		tab  .imm16
 	    ELSE  unallocated  THEN  endof
 	1 of  dup $1F and 0= IF  ." brk " .imm16  ELSE  unallocated  THEN  endof
 	2 of  dup $1F and 0= IF  ." hlt " .imm16  ELSE  unallocated  THEN  endof
@@ -105,7 +106,7 @@ disassembler also definitions
     endcase ;
 : ucbranch ( opcode -- )
     dup >opc dup #5 u> IF  drop unallocated
-    ELSE  s" br  blr ret eretdrps" rot .4" space .rn  THEN ;
+    ELSE  s" br  blr ret eretdrps" rot .4" tab .rn  THEN ;
 
 \ data processing, immediate
 
@@ -116,16 +117,16 @@ disassembler also definitions
 
 : pcrel ( addr opcode -- )
     ." adr" dup $80000000 and IF  'p' emit #12  ELSE  0  THEN  >r
-    space dup $1F and .rd .,
+    tab dup $1F and .rd .,
     dup $FFFFE0 and #3 rshift swap #29 rshift 3 and or r> lshift
     over + . ;
 : addsub# ( opcode -- )
-    dup s" addsub" .op2 dup .ops space dup .rd ., dup .rn ., .imm12 ;
+    dup s" addsub" .op2 dup .ops tab dup .rd ., dup .rn ., .imm12 ;
 : logic# ( opcode -- )
-    dup s" and orr eor ands" .op4 space
+    dup s" and orr eor ands" .op4 tab
     dup .rd ., dup .rn ., .immrs ;
 : movw# ( opcode -- )
-    dup s" movnmov?movzmovk" .op4 space
+    dup s" movnmov?movzmovk" .op4 tab
     dup .rd ., dup .imm16 .lsl ;
 : bitfield# unallocated ;
 : extract# unallocated ;
@@ -141,7 +142,7 @@ disassembler also definitions
 
 : ldstex  unallocated ;
 : ldr# ( opcode -- )
-    dup #30 rshift s" ldr  ldr  ldrswprfm " rot .5" space
+    dup #30 rshift s" ldr  ldr  ldrswprfm " rot .5" tab
     dup .rd/smd ., .imm19 ;
 : ldstp unallocated ;
 : ldstr# ( opcode -- )
@@ -150,7 +151,7 @@ disassembler also definitions
 	s" stldldld" 2 pick #22 rshift $3 and .2"
 	s" u t " 2 pick #10 rshift $3 and .1" 'r' emit
 	s"   ss" 2 pick #22 rshift $3 and .1"
-	s" bhw " 2 pick #30 rshift .1" space dup .rd .,
+	s" bhw " 2 pick #30 rshift .1" tab dup .rd .,
 	case dup #10 rshift $3 and
 	    0 of .[ dup .rn ., .imm9 .]  endof
 	    1 of .[ dup .rn .] ., .imm9  endof
@@ -199,7 +200,7 @@ forth definitions
 	begin
 	    dup r@ u<
 	while
-		cr dup 10 .r ." : " dup l@ inst 4 +
+		cr dup 14 .r ." : " dup l@ inst 4 +
 	repeat
 	cr rdrop drop ;] $10 base-execute ;
 
