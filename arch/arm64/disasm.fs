@@ -60,19 +60,19 @@ Variable ,space ,space on
 : .imm9 ( opcode -- ) \ print 9 bit immediate, sign extended
     #12 rshift $1FF and $100 b>sign .# 0 .r ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
-    #10 rshift dup $FFF and swap #22 rshift 3 and #12 * lshift .# . ;
+    #10 rshift dup $FFF and swap #12 rshift 3 and #12 * lshift .# 0 .r ;
 : .imm12' ( opcode -- ) \ print 12 bit immediate with 2 bit shift
-    #10 rshift dup $FFF and swap #30 rshift 3 and #12 * lshift .# . ;
+    #10 rshift dup $FFF and swap #20 rshift 3 and lshift .# 0 .r ;
 : .imm14 ( addr opcode -- addr ) \ print 19 bit branch target
-    #5 rshift $3FFF and 2* 2* over + . ;
+    #5 rshift $3FFF and 2* 2* over + 0 .r ;
 : .imm16 ( opcode -- ) \ print 16 bit immediate
     #5 rshift $FFFF and .# . ;
 : .lsl ( opcode -- ) \ print shift
-    #21 rshift $3 and #4 lshift ?dup-IF  ." , lsl #$" .  THEN ;
+    #21 rshift $3 and #4 lshift ?dup-IF  ." , lsl #$" 0 .r  THEN ;
 : .imm19 ( addr opcode -- addr ) \ print 19 bit branch target
-    #5 rshift $7FFFF and $40000 b>sign 2* 2* over + . ;
+    #5 rshift $7FFFF and $40000 b>sign 2* 2* over + 0 .r ;
 : .imm26 ( addr opcode -- addr ) \ print 19 bit branch target
-    $3FFFFFF and $2000000 b>sign 2* 2* over + . ;
+    $3FFFFFF and $2000000 b>sign 2* 2* over + 0 .r ;
 : .cond ( n -- ) $F and
     s" eqnecsccmiplvsvchilsgeltgtlealnv" rot .2" ;
 
