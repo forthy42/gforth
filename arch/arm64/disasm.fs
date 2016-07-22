@@ -47,6 +47,8 @@ disassembler also definitions
     #10 rshift dup $FFF and swap #22 rshift 3 and #12 * lshift '#' emit . ;
 : .imm16 ( opcode -- ) \ print 16 bit immediate
     #5 rshift $FFFF and '#' emit . ;
+: .lsl ( opcode -- ) \ print shift
+    #21 rshift $3 and #4 lshift ?dup-IF  ." , lsl #$" .  THEN ;
 
 : .imm14 ( addr opcode -- addr ) \ print 19 bit branch target
     #5 rshift $3FFF and 2* 2* over + . ;
@@ -95,6 +97,11 @@ disassembler also definitions
 
 \ data processing, immediate
 
+: .immrs ( opcode -- )
+    '#' emit dup #22 rshift 1 and 0 .r .,
+    dup #16 rshift $3F and 0 .r .,
+    dup #10 rshift $3F and 0 .r ;
+
 : pcrel ( addr opcode -- )
     ." adr" dup $80000000 and IF  'p' emit #12  ELSE  0  THEN  >r
     space dup $1F and .rd .,
@@ -102,8 +109,12 @@ disassembler also definitions
     over + . ;
 : addsub# ( opcode -- )
     dup s" addsub" .op2 dup .ops space dup .rd ., dup .rn ., .imm12 ;
-: logic# unallocated ;
-: movw# unallocated ;
+: logic# ( opcode -- )
+    dup s" and orr eor ands" .op4 space
+    dup .rd ., dup .rn ., .immrs ;
+: movw# ( opcode -- )
+    dup s" movnmov?movzmovk" .op4 space
+    dup .rd ., dup .imm16 .lsl ;
 : bitfield# unallocated ;
 : extract# unallocated ;
 
