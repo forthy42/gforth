@@ -21,7 +21,7 @@ vocabulary disassembler
 
 disassembler also definitions
 
-: ., ( -- ) ',' emit ;
+: ., ( -- ) ',' emit space ;
 : .[ ( -- ) '[' emit ;
 : .] ( -- ) ']' emit ;
 : .# ( -- ) '#' emit ;
@@ -44,7 +44,7 @@ disassembler also definitions
 : s? ( opcode -- flag )  $80000000 and ;
 : v? ( opcode -- flag )  $04000000 and ;
 : .regsize ( opcode -- )
-    s? 'X' 'W' rot select emit ;
+    s? 'x' 'w' rot select emit ;
 : #.r ( n -- ) \ print decimal
     0 ['] .r #10 base-execute ;
 : b>sign ( u m -- n ) over and negate or ;
@@ -171,11 +171,11 @@ $13000000 , $1F800000 , ' bitfield# ,
 $13800000 , $1F800000 , ' extract# ,
 
 \ branches
+$54000000 , $FE000000 , ' condbranch# ,
+$D4000000 , $FF000000 , ' exceptions ,
 $14000000 , $7C000000 , ' ucbranch# ,
 $34000000 , $7E000000 , ' c&branch# ,
 $35000000 , $7E000000 , ' t&branch# ,
-$54000000 , $FE000000 , ' condbranch# ,
-$D4000000 , $FF000000 , ' exceptions ,
 \ $D5000000 , $FF000000 , ' system ,
 $D61F0000 , $FE1FFC1F , ' ucbranch ,
 
