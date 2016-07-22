@@ -77,7 +77,7 @@ disassembler also definitions
 : ucbranch# ( opcode -- )
     ." b" dup $80000000 and IF 'l' emit  THEN space .imm26 ;
 : t&branch# ( opcode -- )
-    ." tb" dup .?nz space dup .rt ., dup .b40 .imm14 ;
+    ." tb" dup .?nz space dup .rd ., dup .b40 .imm14 ;
 : >opc ( opcode -- opc ) #21 rshift $7 and ;
 : exceptions ( opcode -- )
     case  dup >opc
