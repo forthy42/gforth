@@ -176,6 +176,18 @@ Variable ,space ,space on
 
 : mov ( opcode -- ) \ is a special orr variant
     ." mov" tab dup .rd ., .rm ;
+: 1source ( opcode -- ) \ other one source operations
+    dup #10 rshift $3F and
+    s" rbit rev16rev32rev  clz  cls  " rot .5" tab dup .rd ., .rn ;
+: 2source ( opcode -- ) \ other two source operations
+    dup #10 rshift $7 and  over #13 rshift $7 and
+    case
+	0 of  s" xx  xx  udivsdiv" rot .4"  endof
+	1 of  s" lslvlsrvasrvrorv" rot .4"  endof
+	2 of ." crc32" s" b h w x cbchcwcx" rot .4"  endof
+	drop unallocated  EXIT
+    endcase
+    tab  dup .rd ., dup .rn ., .rm ;
 
 \ instruction table
 
@@ -187,6 +199,11 @@ $12000000 , $1F800000 , ' logic# ,
 $12800000 , $1F800000 , ' movw# ,
 $13000000 , $1F800000 , ' bitfield# ,
 $13800000 , $1F800000 , ' extract# ,
+
+\ data processing, register
+$2A0003E0 , $7FE0FFE0 , ' mov ,
+$5AC00000 , $5FFF0000 , ' 1source ,
+$1AC00000 , $5FC00000 , ' 2source ,    
 
 \ branches
 $54000000 , $FE000000 , ' condbranch# ,
@@ -203,9 +220,6 @@ $18000000 , $3A000000 , ' ldr# ,
 $28000000 , $3A000000 , ' ldstp ,
 $38000000 , $3B000000 , ' ldstr# ,
 $39000000 , $3B000000 , ' ldustr# ,
-
-\ data processing
-$2A0003E0 , $7FE0FFE0 , ' mov ,
 
 \ catch all
 $00000000 , $00000000 , ' unallocated ,
