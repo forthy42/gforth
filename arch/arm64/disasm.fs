@@ -94,7 +94,7 @@ disassembler also definitions
     endcase ;
 : ucbranch ( opcode -- )
     dup >opc dup #5 u> IF  drop unallocated
-    ELSE  nip s" br  blr ret eretdrps" rot .4" space .rn  THEN ;
+    ELSE  s" br  blr ret eretdrps" rot .4" space $1F and .rn  THEN ;
 
 Create inst-table
 \ branches
