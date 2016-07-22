@@ -55,7 +55,7 @@ disassembler also definitions
 : .rm ( opcode -- )
     dup .regsize #14 rshift $1F and dup $1F = IF  ." ZR"  ELSE  #.r  THEN ;
 : .imm9 ( opcode -- ) \ print 9 bit immediate, sign extended
-    #12 rshift $1FF and $100 b>sign ., .# 0 .r ;
+    #12 rshift $1FF and $100 b>sign .# 0 .r ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
     #10 rshift dup $FFF and swap #22 rshift 3 and #12 * lshift .# . ;
 : .imm14 ( addr opcode -- addr ) \ print 19 bit branch target
@@ -152,10 +152,10 @@ disassembler also definitions
 	s"   ss" 2 pick #23 rshift $3 and .1"
 	s" bhw " 2 pick #30 rshift .1" space dup .rd .,
 	case dup #10 rshift $3 and
-	    0 of .[ .rn ., .imm9 .]  endof
-	    1 of .[ .rn .] ., .imm9  endof
-	    2 of .[ .rn ., .imm9 .]  endof
-	    3 of .[ .rn ., .imm9 .] '!' emit  endof
+	    0 of .[ dup .rn ., .imm9 .]  endof
+	    1 of .[ dup .rn .] ., .imm9  endof
+	    2 of .[ dup .rn ., .imm9 .]  endof
+	    3 of .[ dup .rn ., .imm9 .] '!' emit  endof
 	endcase
     THEN ;
 
