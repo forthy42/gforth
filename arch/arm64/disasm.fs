@@ -81,9 +81,9 @@ disassembler also definitions
 : .b40 ( opcode -- )  .#
     dup #18 rshift $1F and dup #24 rshift $20 and or #.r ',' emit ;
 
-: condbranch# ( opcode -- )
-    ." cb" dup .?nz space dup .rd ., .imm19 ;
 : c&branch# ( opcode -- )
+    ." cb" dup .?nz space dup .rd ., .imm19 ;
+: condbranch# ( opcode -- )
     ." cb" dup .cond space .imm19 ;
 : ucbranch# ( opcode -- )
     ." b" dup $80000000 and IF 'l' emit  THEN space .imm26 ;
@@ -147,9 +147,9 @@ disassembler also definitions
 : ldstr# ( opcode -- )
     dup v? IF
     ELSE
-	s" stldldld" 2 pick #23 rshift $3 and .2"
+	s" stldldld" 2 pick #22 rshift $3 and .2"
 	s" u t " 2 pick #10 rshift $3 and .1" 'r' emit
-	s"   ss" 2 pick #23 rshift $3 and .1"
+	s"   ss" 2 pick #22 rshift $3 and .1"
 	s" bhw " 2 pick #30 rshift .1" space dup .rd .,
 	case dup #10 rshift $3 and
 	    0 of .[ dup .rn ., .imm9 .]  endof
