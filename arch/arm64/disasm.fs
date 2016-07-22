@@ -21,45 +21,53 @@ vocabulary disassembler
 
 disassembler also definitions
 
+: ., ( -- ) ',' emit ;
+: .[ ( -- ) '[' emit ;
+: .] ( -- ) ']' emit ;
+: .# ( -- ) '#' emit ;
+
 : .1" ( addr u opcode -- ) \ print substring by 1
-    safe/string 1 min type ;
+    safe/string 1 min -trailing type ;
 : .2" ( addr u opcode -- ) \ print substring by 2
-    2* safe/string 2 min type ;
+    2* safe/string 2 min -trailing type ;
 : .3" ( addr u opcode -- ) \ print substring by 3
-    3 * safe/string 3 min type ;
+    3 * safe/string 3 min -trailing type ;
 : .4" ( addr u opcode -- ) \ print substring by 4
-    4 * safe/string 4 min type ;
+    4 * safe/string 4 min -trailing type ;
 : .5" ( addr u opcode -- ) \ print substring by 5
-    5 * safe/string 5 min type ;
+    5 * safe/string 5 min -trailing type ;
 : .op4 ( opcode addr u -- ) \ select one of four opcodes
     rot #29 rshift 3 and .4" ;
 : .op2 ( opcode addr u -- )
-    rot #30 rshift 1 and IF  dup 2/ /string  ELSE  2/  THEN  type ;
+    rot #30 rshift 1 and IF  dup 2/ /string  ELSE  2/  THEN  -trailing type ;
 : .ops ( opcode -- )  #29 rshift 1 and IF  ." s"  THEN ;
+: s? ( opcode -- flag )  $80000000 and ;
+: v? ( opcode -- flag )  $04000000 and ;
 : .regsize ( opcode -- )
-    $80000000 and 'X' 'W' rot select emit ;
+    s? 'X' 'W' rot select emit ;
 : #.r ( n -- ) \ print decimal
     0 ['] .r #10 base-execute ;
-: ., ( -- ) ',' emit ;
+: b>sign ( u m -- n ) over and negate or ;
 : .rd ( opcode -- )
     dup .regsize $1F and dup $1F = IF  ." SP"  ELSE  #.r  THEN ;
 : .rn ( opcode -- )
     dup .regsize #5 rshift $1F and dup $1F = IF  ." SP"  ELSE  #.r  THEN ;
 : .rm ( opcode -- )
     dup .regsize #14 rshift $1F and dup $1F = IF  ." ZR"  ELSE  #.r  THEN ;
+: .imm9 ( opcode -- ) \ print 9 bit immediate, sign extended
+    #12 rshift $1FF and $100 b>sign ., .# 0 .r ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
-    #10 rshift dup $FFF and swap #22 rshift 3 and #12 * lshift '#' emit . ;
-: .imm16 ( opcode -- ) \ print 16 bit immediate
-    #5 rshift $FFFF and '#' emit . ;
-: .lsl ( opcode -- ) \ print shift
-    #21 rshift $3 and #4 lshift ?dup-IF  ." , lsl #$" .  THEN ;
-
+    #10 rshift dup $FFF and swap #22 rshift 3 and #12 * lshift .# . ;
 : .imm14 ( addr opcode -- addr ) \ print 19 bit branch target
     #5 rshift $3FFF and 2* 2* over + . ;
+: .imm16 ( opcode -- ) \ print 16 bit immediate
+    #5 rshift $FFFF and .# . ;
+: .lsl ( opcode -- ) \ print shift
+    #21 rshift $3 and #4 lshift ?dup-IF  ." , lsl #$" .  THEN ;
 : .imm19 ( addr opcode -- addr ) \ print 19 bit branch target
-    #5 rshift $7FFFF and 2* 2* over + . ;
+    #5 rshift $7FFFF and $40000 b>sign 2* 2* over + . ;
 : .imm26 ( addr opcode -- addr ) \ print 19 bit branch target
-    $3FFFFFF and 2* 2* over + . ;
+    $3FFFFFF and $2000000 b>sign 2* 2* over + . ;
 : .cond ( n -- ) $F and
     s" eqnecsccmiplvsvchilsgeltgtlealnv" rot .2" ;
 
@@ -70,7 +78,7 @@ disassembler also definitions
 
 : .?nz ( opcode -- )
     $01000000 and IF  'n' emit  THEN  'z' emit ;
-: .b40 ( opcode -- )  '#' emit
+: .b40 ( opcode -- )  .#
     dup #18 rshift $1F and dup #24 rshift $20 and or #.r ',' emit ;
 
 : condbranch# ( opcode -- )
@@ -102,7 +110,7 @@ disassembler also definitions
 \ data processing, immediate
 
 : .immrs ( opcode -- )
-    '#' emit dup #22 rshift 1 and 0 .r .,
+    .# dup #22 rshift 1 and 0 .r .,
     dup #16 rshift $3F and 0 .r .,
     dup #10 rshift $3F and 0 .r ;
 
@@ -125,7 +133,7 @@ disassembler also definitions
 \ load store
 
 : .rd/smd ( opcode -- )
-    dup $04000000 and IF
+    dup v? IF
 	dup #30 rshift s" sdq?" rot .1" $1F and #.r
     ELSE
 	dup $1F and swap -$20 and 2* or .rd
@@ -136,7 +144,20 @@ disassembler also definitions
     dup #30 rshift s" ldr  ldr  ldrswprfm " rot .5" space
     dup .rd/smd ., .imm19 ;
 : ldstp unallocated ;
-: ldstr# unallocated ;
+: ldstr# ( opcode -- )
+    dup v? IF
+    ELSE
+	s" stldldld" 2 pick #23 rshift $3 and .2"
+	s" u t " 2 pick #10 rshift $3 and .1" 'r' emit
+	s"   ss" 2 pick #23 rshift $3 and .1"
+	s" bhw " 2 pick #30 rshift .1" space dup .rd .,
+	case dup #10 rshift $3 and
+	    0 of .[ .rn ., .imm9 .]  endof
+	    1 of .[ .rn .] ., .imm9  endof
+	    2 of .[ .rn ., .imm9 .]  endof
+	    3 of .[ .rn ., .imm9 .] '!' emit  endof
+	endcase
+    THEN ;
 
 \ instruction table
 
