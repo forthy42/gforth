@@ -21,8 +21,14 @@ vocabulary disassembler
 
 disassembler also definitions
 
+: .2" ( addr u opcode -- ) \ print substring by 4
+    2* safe/string 2 min type ;
+: .3" ( addr u opcode -- ) \ print substring by 4
+    3 * safe/string 3 min type ;
+: .4" ( addr u opcode -- ) \ print substring by 4
+    4 * safe/string 4 min type ;
 : .op4 ( opcode addr u -- ) \ select one of four opcodes
-    rot #29 rshift 3 and 4 * /string 4 min type ;
+    rot #29 rshift 3 and .4" ;
 : .op2 ( opcode addr u -- )
     rot #30 rshift 1 and over 2/ * dup >r /string r> min type ;
 : .ops ( opcode -- )  #29 rshift 1 and IF  ." s"  THEN ;
@@ -30,17 +36,17 @@ disassembler also definitions
     $80000000 and 'X' 'W' rot select emit ;
 : #.r ( n -- ) \ print decimal
     0 ['] .r #10 base-execute ;
+: ., ( -- ) ',' emit ;
 : .rd ( opcode -- )
     dup .regsize $1F and dup $1F = IF  ." SP"  ELSE  #.r  THEN ;
-: .rt ( opcode -- ) .rd ',' emit ;
 : .rn ( opcode -- )
-    dup .regsize #5 rshift $1F and dup $1F = IF  ." SP"  ELSE  #.r  THEN
-    ',' emit ;
+    dup .regsize #5 rshift $1F and dup $1F = IF  ." SP"  ELSE  #.r  THEN ;
 : .rm ( opcode -- )
-    dup .regsize #14 rshift $1F and dup $1F = IF  ." ZR"  ELSE  #.r  THEN
-    ',' emit ;
+    dup .regsize #14 rshift $1F and dup $1F = IF  ." ZR"  ELSE  #.r  THEN ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
     #10 rshift dup $FFF and swap #22 rshift 3 and #12 * lshift '#' emit . ;
+: .imm16 ( opcode -- ) \ print 16 bit immediate
+    #5 rshift $FFFF and '#' emit . ;
 
 : .imm14 ( addr opcode -- addr ) \ print 19 bit branch target
     #5 rshift $3FFF and 2* 2* over + . ;
@@ -49,7 +55,7 @@ disassembler also definitions
 : .imm26 ( addr opcode -- addr ) \ print 19 bit branch target
     $3FFFFFF and 2* 2* over + . ;
 : .cond ( n -- ) $F and
-    s" eqnecsccmiplvsvchilsgeltgtlealnv" rot 2* /string 2 min type ;
+    s" eqnecsccmiplvsvchilsgeltgtlealnv" rot .2" ;
 
 : .addsub ( opcode -- )
     dup s" addsub" .op2 .ops ;
@@ -65,14 +71,30 @@ disassembler also definitions
     dup #18 rshift $1F and dup #24 rshift $20 and or #.r ',' emit ;
 
 : condbranch# ( opcode -- )
-    ." cb" dup .?nz space dup .rt .imm19 ;
+    ." cb" dup .?nz space dup .rd ., .imm19 ;
 : c&branch# ( opcode -- )
-    ." b." dup .cond space .imm19 ;
+    ." cb" dup .cond space .imm19 ;
 : ucbranch# ( opcode -- )
     ." b" dup $80000000 and IF 'l' emit  THEN space .imm26 ;
 : t&branch# ( opcode -- )
-    ." tb" dup .?nz space dup .rt dup .b40 .imm14 ;
-    
+    ." tb" dup .?nz space dup .rt ., dup .b40 .imm14 ;
+: >opc ( opcode -- opc ) #21 rshift $7 and ;
+: exceptions ( opcode -- )
+    case  dup >opc
+	0 of
+	    dup $1F and dup 1 4 within IF
+		s" svchvcsmc" rot 1- .3"
+		space  .imm16
+	    ELSE  unallocated  THEN  endof
+	1 of  dup $1F and 0= IF  ." brk " .imm16  ELSE  unallocated  THEN  endof
+	2 of  dup $1F and 0= IF  ." hlt " .imm16  ELSE  unallocated  THEN  endof
+	5 of  dup $1F and 1 4 within IF  ." dcps" dup $1F and . .imm16
+	    ELSE  unallocated  THEN  endof
+	swap unallocated
+    endcase ;
+: ucbranch ( opcode -- )
+    dup >opc dup #5 u> IF  drop unallocated
+    ELSE  nip s" br  blr ret eretdrps" rot .4" space .rn  THEN
 
 Create inst-table
 \ branches
@@ -80,9 +102,9 @@ $14000000 , $7C000000 , ' ucbranch# ,
 $34000000 , $7E000000 , ' c&branch# ,
 $35000000 , $7E000000 , ' t&branch# ,
 $54000000 , $FE000000 , ' condbranch# ,
-\ $D4000000 , $FF000000 , ' exceptions ,
+$D4000000 , $FF000000 , ' exceptions ,
 \ $D5000000 , $FF000000 , ' system ,
-\ $D6000000 , $FE000000 , ' ucbranch ,
+$D61F0000 , $FE1FFC1F , ' ucbranch ,
 
 $00000000 , $00000000 , ' unallocated ,
 
