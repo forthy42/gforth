@@ -172,6 +172,11 @@ Variable ,space ,space on
 	.[ dup .rn ., .imm12' .]
     THEN  ;
 
+\ data processing
+
+: mov ( opcode -- ) \ is a special orr variant
+    ." mov" tab dup .rd ., .rm ;
+
 \ instruction table
 
 Create inst-table
@@ -198,6 +203,9 @@ $18000000 , $3A000000 , ' ldr# ,
 $28000000 , $3A000000 , ' ldstp ,
 $38000000 , $3B000000 , ' ldstr# ,
 $39000000 , $3B000000 , ' ldustr# ,
+
+\ data processing
+$2A0003E0 , $7FE0FFE0 , ' mov ,
 
 \ catch all
 $00000000 , $00000000 , ' unallocated ,
