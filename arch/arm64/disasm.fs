@@ -30,7 +30,7 @@ disassembler also definitions
 : .op4 ( opcode addr u -- ) \ select one of four opcodes
     rot #29 rshift 3 and .4" ;
 : .op2 ( opcode addr u -- )
-    rot #30 rshift 1 and over 2/ * dup >r /string r> min type ;
+    rot #30 rshift 1 and IF  dup 2/ /string  ELSE  2/  THEN  type ;
 : .ops ( opcode -- )  #29 rshift 1 and IF  ." s"  THEN ;
 : .regsize ( opcode -- )
     $80000000 and 'X' 'W' rot select emit ;
@@ -101,7 +101,7 @@ disassembler also definitions
     dup $FFFFE0 and #3 rshift swap #29 rshift 3 and or r> lshift
     over + . ;
 : addsub# ( opcode -- )
-    dup s" addsub" .op2 .ops space dup .rd ., dup .rn ., .imm12 ;
+    dup s" addsub" .op2 dup .ops space dup .rd ., dup .rn ., .imm12 ;
 : logic# unallocated ;
 : movw# unallocated ;
 : bitfield# unallocated ;
