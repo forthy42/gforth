@@ -53,16 +53,22 @@ Variable ,space ,space on
 : #.r ( n -- ) \ print decimal
     0 ['] .r #10 base-execute ;
 : b>sign ( u m -- n ) over and negate or ;
+: .spreg ( opcodeshift -- )
+    $1F and dup $1F = IF  drop ." sp"  ELSE  #.r  THEN ;
+: .zrreg ( opcodeshift -- )
+    $1F and dup $1F = IF  drop ." zr"  ELSE  #.r  THEN ;
 : .rd ( opcode -- )
-    dup .regsize $1F and dup $1F = IF  drop ." sp"  ELSE  #.r  THEN ;
+    dup .regsize .spreg ;
 : .rd' ( opcode -- )
-    dup .regsize $1F and dup $1F = IF  drop ." zr"  ELSE  #.r  THEN ;
+    dup .regsize .zrreg ;
 : .rn ( opcode -- )
-    dup .regsize #5 rshift $1F and dup $1F = IF  drop ." sp"  ELSE  #.r  THEN ;
+    dup .regsize #5 rshift .spreg ;
+: .rn' ( opcode -- )
+    dup .regsize #5 rshift .zrreg ;
 : .rm ( opcode -- )
-    dup .regsize #16 rshift $1F and dup $1F = IF  drop ." zr"  ELSE  #.r  THEN ;
+    dup .regsize #16 rshift .zrreg ;
 : .ra ( opcode -- )
-    dup .regsize #10 rshift $1F and dup $1F = IF  drop ." zr"  ELSE  #.r  THEN ;
+    dup .regsize #10 rshift .zrreg ;
 : .imm9 ( opcode -- ) \ print 9 bit immediate, sign extended
     #12 rshift $1FF and $100 b>sign .# 0 .r ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
@@ -120,11 +126,34 @@ Variable ,space ,space on
 
 \ data processing, immediate
 
-: .immrs ( opcode -- )  ,space off
-    .# dup #22 rshift 1 and 0 .r .,
-    dup #16 rshift $3F and 0 .r .,
-    #10 rshift $3F and 0 .r
-    ,space on ;
+: .immrs ( opcode -- )
+    dup #22 rshift 1 and { N }
+    dup #16 rshift $3F and { R }
+    #10 rshift $3F and { S }
+    N IF  64 -1
+    ELSE
+	case
+	    S $00 $20 within ?of  #32  endof
+	    S $20 $30 within ?of  #16  S $F and to S  endof
+	    S $30 $38 within ?of  #08  S $7 and to S  endof
+	    S $38 $3C within ?of  #04  S $3 and to S  endof
+	    S $3C $3E within ?of  #02  S $1 and to S  endof
+	    0 0
+	endcase
+	1 over lshift 1- { simd_size mask }
+	simd_size 1- R and to R
+	S simd_size 1- = IF  0
+	ELSE
+	    1 S 1+ lshift 1-
+	    R IF  dup simd_size R - lshift swap R rshift or  THEN
+	    simd_size #02 = IF  dup #02 lshift or  THEN
+	    simd_size #04 = IF  dup #04 lshift or  THEN
+	    simd_size #08 = IF  dup #08 lshift or  THEN
+	    simd_size #16 = IF  dup #16 lshift or  THEN
+	    simd_size #32 = IF  dup #32 lshift or  THEN
+	THEN
+    THEN  .# 0 .r ;
+
 
 : pcrel ( addr opcode -- )
     ." adr" dup $80000000 and IF  'p' emit #12  ELSE  0  THEN  >r
@@ -209,7 +238,7 @@ Variable ,space ,space on
 : logshift# ( opcode -- ) \ logical with shifted operand
     dup #28 rshift $6 and over #21 rshift $1 and or
     s" and bic orr orn eor eon andsbics" rot .4" tab
-    dup .rd ., dup .rn ., dup .rm .shift ;
+    dup .rd' ., dup .rn' ., dup .rm .shift ;
 
 \ instruction table
 
