@@ -9530,10 +9530,8 @@ definition of @code{my-char}.
 @cindex string words
 
 The following string library stores strings in ordinary variables,
-which then contain a pointer to a counted string stored allocated from
-the heap.  Instead of a count byte, there's a whole count cell,
-sufficient for all normal use.  The string library originates from
-bigFORTH.
+which then contain a pointer to a cell-counted string allocated from
+the heap.  The string library originates from bigFORTH.
 
 doc-delete
 doc-insert
