@@ -136,7 +136,8 @@ Defer wlscope ' get-current is wlscope
     $ff min swap 8 lshift + ;
 
 : current-sourcepos ( -- nfile npos )
-    sourcefilename str>loadfilename# sourceline# >in @ encode-pos ;
+    sourcefilename str>loadfilename# sourceline#
+    input-lexeme 2@ drop source drop - encode-pos ;
 
 : current-sourcepos1 ( -- xpos )
     current-sourcepos $7fffff min swap 23 lshift + ;

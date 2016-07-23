@@ -174,7 +174,7 @@ Variable locate-file[]
 	I 1+ lineno = IF
 	    warn-color attr!
 	    I locate-file[] $[]@
-	    2dup charno <> charno + offset - dup >r type r> /string
+	    over charno type charno /string
 	    info-color attr!
 	    over nt name>string nip dup >r type r> /string
 	    warn-color attr!
