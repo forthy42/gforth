@@ -39,6 +39,8 @@ Variable ,space ,space on
     4 * safe/string 4 min -trailing type ;
 : .5" ( addr u opcode -- ) \ print substring by 5
     5 * safe/string 5 min -trailing type ;
+: .6" ( addr u opcode -- ) \ print substring by 6
+    6 * safe/string 6 min -trailing type ;
 : .op4 ( opcode addr u -- ) \ select one of four opcodes
     rot #29 rshift 3 and .4" ;
 : .op2 ( opcode addr u -- )
@@ -57,6 +59,10 @@ Variable ,space ,space on
     dup .regsize #5 rshift $1F and dup $1F = IF  ." SP"  ELSE  #.r  THEN ;
 : .rm ( opcode -- )
     dup .regsize #14 rshift $1F and dup $1F = IF  ." ZR"  ELSE  #.r  THEN ;
+: .rm' ( opcode -- )
+    dup .regsize #16 rshift $1F and dup $1F = IF  ." ZR"  ELSE  #.r  THEN ;
+: .ra ( opcode -- )
+    dup .regsize #10 rshift $1F and dup $1F = IF  ." ZR"  ELSE  #.r  THEN ;
 : .imm9 ( opcode -- ) \ print 9 bit immediate, sign extended
     #12 rshift $1FF and $100 b>sign .# 0 .r ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
@@ -187,7 +193,12 @@ Variable ,space ,space on
 	2 of ." crc32" s" b h w x cbchcwcx" rot .4"  endof
 	drop unallocated  EXIT
     endcase
-    tab  dup .rd ., dup .rn ., .rm ;
+    tab  dup .rd ., dup .rn ., .rm' ;
+
+: 3source ( opcode -- ) \ three source operations
+    dup #20 rshift $E and over #15 rshift 1 and or
+    s" madd  msub  smaddlsmsublumaddlsmulhumsubllumulh" rot .6" tab
+    dup .rd ., dup .rn ., dup .rm' ., .ra ;
 
 \ instruction table
 
@@ -203,7 +214,8 @@ $13800000 , $1F800000 , ' extract# ,
 \ data processing, register
 $2A0003E0 , $7FE0FFE0 , ' mov ,
 $5AC00000 , $5FFF0000 , ' 1source ,
-$1AC00000 , $5FC00000 , ' 2source ,    
+$1AC00000 , $5FC00000 , ' 2source ,
+$1B000000 , $7F000000 , ' 3source ,
 
 \ branches
 $54000000 , $FE000000 , ' condbranch# ,
