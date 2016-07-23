@@ -1,6 +1,6 @@
 \ disasm.fs	disassembler file (for ARM64 64-bit mode)
 \
-\ Copyright (C) 2014 Free Software Foundation, Inc.
+\ Copyright (C) 2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -126,7 +126,7 @@ Variable ,space ,space on
 
 \ data processing, immediate
 
-: .immrs ( opcode -- )
+: .immrs ( opcode -- ) \ ugly decoder for flag immediate
     dup s? >r
     dup #22 rshift 1 and { N }
     dup #16 rshift $3F and { R }
@@ -282,7 +282,7 @@ $00000000 , $00000000 , ' unallocated ,
     BEGIN  2dup 2@ >r and r> <>  WHILE  3 cells +  REPEAT
     2 cells + perform ;
 
-forth definitions
+Forth definitions
 
 : disasm ( addr u -- ) \ gforth
     [: over + >r
@@ -297,3 +297,4 @@ previous
 
 ' disasm is discode
 
+Forth
