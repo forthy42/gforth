@@ -64,12 +64,13 @@ stderr value debug-fid ( -- fid )
     oldout op-vector !
     throw ;
 
-: ~~ ( -- ) \ gforth tilde-tilde
+:noname ( -- )
+    current-sourcepos1 .debugline-directed ;
+:noname ( compilation  -- ; run-time  -- )
+    compile-sourcepos POSTPONE .debugline-directed ;
+interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 \G Prints the source code location of the @code{~~} and the stack
 \G contents with @code{.debugline}.
-    current-sourcepos .debugline-directed ;
-comp: ( compilation  -- ; run-time  -- ) drop
-    compile-sourcepos POSTPONE .debugline-directed ;
 
 :noname ( -- )  stderr to debug-fid  defers 'cold ; IS 'cold
 
@@ -177,7 +178,7 @@ Variable locate-file[]
 	    err-color attr!
 	    '*' emit  I 3 .r ." : "
 	    I locate-file[] $[]@
-	    2dup charno <> charno + offset - dup >r type r> /string
+	    over charno type charno /string
 	    info-color attr!
 	    over nt name>string nip dup >r type r> /string
 	    err-color attr!
@@ -200,13 +201,14 @@ Variable locate-file[]
 : vi-l:c ( line pos -- )  ." +" drop . ;
 : editor-cmd ( soucepos1 -- )
     s" EDITOR" getenv 2dup 2>r type space
-    decode-pos1
+    decode-pos1 1+
     2r@ s" emacs" search nip nip  2r@ s" gedit" str= or  IF  emacs-l:c  ELSE
 	2r@ s" kate" string-prefix? IF  kate-l:c  ELSE
 	    vi-l:c  \ also works for joe, mcedit, nano, and is de facto standard
 	THEN
     THEN
     loadfilename#>str type  2rdrop ;
+
 : external-edit ( "name" )
     (') name>view @ ['] editor-cmd $tmp system ;
 
@@ -216,7 +218,7 @@ Defer edit ( "name" -- ) \ gforth
 \G uses $EDITOR, and adjusts goto line command depending
 \G on vi-, kate-, or emacs-style (default)
 \G @example
-\G EDITOR='emacsclient -n' #if you like emacs, M-x server-start in emacs
+\G EDITOR=emacsclient      #if you like emacs, M-x server-start in emacs
 \G EDITOR=kate             #if you like kate
 \G EDITOR=vi|vim|gvim      #if you like vi variants
 \G EDITOR=gedit            #if you like gedit
