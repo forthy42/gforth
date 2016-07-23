@@ -5,7 +5,7 @@ execs=$(grep '^// prep:' $2/${1%-fsi.c+}.i | cut -f3- -d' ')
 
 if [ -z "$execs" ]
 then
-    cat $2/$1
+    cat $1
 else
-    eval $execs $2/$1
+    eval $execs $1
 fi

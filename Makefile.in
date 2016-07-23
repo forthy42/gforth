@@ -70,7 +70,7 @@ datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
 libccdir = $(subst $(package),,$(libdir)/gforth/$(VERSION)/$(machine)/libcc-named/)
-buildccdir = lib/gforth/$(VERSION)/$(machine)/libcc-named/
+buildccdir = lib/gforth/$(VERSION)/$(machine)/libcc-named
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
 htmldir = $(package)@htmldir@
@@ -535,7 +535,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
 	engine/zexpand.c engine/androidmain.c engine/sincos.c
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
-	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in gfgen README.vmgen NEWS.vmgen \
+	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in README.vmgen NEWS.vmgen \
 	autogen.sh configure.ac configure config.sub config.guess \
 	elisp-comp stamp-h.in envos.fs.in kernel/version.fs.in \
 	iss.sh wininst.sh modpath.iss \
@@ -573,18 +573,18 @@ LIBENGINES_FAST = $(ENGINES_FAST:%=lib%)
 GEN = $(ENGINES) $(ENGINES_FAST) @gforth_elc@
 
 # things that need a working forth system to be generated
-FORTH_GEN_ENGINE=engine/prim_lab.i engine/prim_names.i \
+FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
 	engine/prim_superend.i engine/profile.i \
 	engine/prim_num.i engine/prim_grp.i \
 	engine/costs.i engine/super2.i
-FORTH_GEN_ENGINE_FAST= \
+FORTH_GEN_ENGINE_FAST= engine/prim-fast.i \
 	engine/prim_lab-fast.i engine/prim_names-fast.i \
 	engine/prim_superend-fast.i engine/profile-fast.i \
 	engine/prim_num-fast.i engine/prim_grp-fast.i \
 	engine/costs-fast.i engine/super2-fast.i
-FORTH_GEN_PRIMB = engine/prim.i $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
+FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
-FORTH_GEN_FAST = prim-fast.b engine/prim-fast.i $(FORTH_GEN_ENGINE_FAST)
+FORTH_GEN_FAST = prim-fast.b $(FORTH_GEN_ENGINE_FAST)
 FORTH_GEN =  $(FORTH_GEN0) @GKERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
@@ -685,7 +685,7 @@ distclean:	clean
 		engine/config.h Makefile Makedist engine/Makefile \
 		stamp-h engine/stamp-h \
 		doc/version.texi gforthmi vmgen preforth \
-		prim-fast.b engine/prim.i engine/prim-fast.i $(FORTH_GEN_ENGINE_FAST)
+		$(FORTH_GEN0) $(FORTH_GEN_FAST)
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
@@ -702,34 +702,9 @@ maintainer-clean: realclean
 #Makefile if it contains our dist rules.  Therefore we have put these
 #rules in Makedist (you can use them with GNU make on these systems).
 
-dist:		Makedist FORCE
-		$(MAKE) -f Makedist d$@
+debdist setup-debdist docdist htmldist: doc
 
-dosdist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-srcdist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-srconlydist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-docdist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-htmldist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-bindist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-binonlydist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-debdist:	Makedist FORCE
-		$(MAKE) -f Makedist d$@
-
-setup-debdist:	doc Makedist FORCE
+dist srcdist srconlydist docdist htmldist bindist binonlydist debdist setup-debdist:		Makedist FORCE
 		$(MAKE) -f Makedist d$@
 
 #HPUX make breaks the cycle differently when the dates are equal, so
@@ -1035,15 +1010,63 @@ prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CA
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@
 #		sleep 1 #should make hpux-workaround unnecessary
 
-$(FORTH_GEN_ENGINE_FAST): engine/prim-fast.i
+engine/prim.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
 
-engine/prim-fast.i: prim-fast.b prims2x.fs preforth gfgen
-		GFORTH="$(PREFORTH)" $(srcdir)/gfgen -fast
+# normal prim rules
 
-$(FORTH_GEN_ENGINE): engine/prim.i
+engine/prim_lab.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-label dup process-file bye" >$@
 
-engine/prim.i: prim.b prims2x.fs preforth gfgen
-		GFORTH="$(PREFORTH)" $(srcdir)/gfgen
+engine/prim_grp.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
+
+engine/prim_names.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname dup process-file bye" >$@
+
+engine/prim_superend.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
+
+engine/profile.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-profile ' output-profile-combined process-file bye" >$@
+
+engine/super2.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
+
+engine/costs.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
+
+engine/prim_num.i:	prim.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
+
+# fast prim rules...
+
+engine/prim-fast.i:	prim-fast.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
+
+engine/prim_lab-fast.i:	prim-fast.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-label dup process-file bye" >$@
+
+engine/prim_grp-fast.i:	prim-fast.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
+
+engine/prim_names-fast.i:	prim-fast.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname dup process-file bye" >$@
+
+engine/prim_superend-fast.i:	prim-fast.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
+
+engine/profile-fast.i:	prim-fast.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-profile ' output-profile-combined process-file bye" >$@
+
+engine/super2-fast.i:	prim-fast.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
+
+engine/costs-fast.i:	prim-fast.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
+
+engine/prim_num-fast.i:	prim-fast.b prims2x.fs preforth
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
 
 engine/prim-s.i: engine/prim.i
 		grep -v '^#line ' $(srcdir)/engine/prim.i >$@
@@ -1051,14 +1074,12 @@ engine/prim-s.i: engine/prim.i
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs preforth
 		$(CP) $(srcdir)/kernel/aliases0.fs $@-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias ' noop process-file bye" >>$@-
-		$(CP) $@- $@
-		$(RM) $@-
+		$(MV) $@- $@
 
 kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs preforth
 		$(CP) $(srcdir)/kernel/prim0.fs kernel/prim.fs-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
-		$(CP) $@- $@
-		$(RM) $@-
+		$(MV) $@- $@
 
 
 OPTS = @OPTS@
@@ -1213,13 +1234,11 @@ gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) prim.tags kernel.tags
 
 prim.TAGS: 	prim.b prims2x.fs preforth @kernel_fi@
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-tag dup process-file bye"|sed 's#^./prim#prim#' >$@-
-		$(CP) $@- $@
-		$(RM) $@-
+		$(MV) $@- $@
 
 prim.tags: 	prim.b prims2x.fs preforth @kernel_fi@
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-vi-tag dup process-file bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
+		$(MV) $@- $@
 
 kernel.TAGS:
 		$(MAKE) @kernel_fi@
@@ -1246,8 +1265,7 @@ doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd preforth @kernel_fi@
 		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" >$@-
-		$(CP) $@- $@
-		$(RM) $@-
+		$(MV) $@- $@
 
 checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd answords.fs doc/gforth.texi
 		$(FORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye

@@ -46,19 +46,6 @@ ddist:		$(SOURCES) $(FORTH_GEN0) @GKERNEL@ $(DOCDIST)
 		$(TAR) gforth-$(VERSION)|$(COMPRESS) >gforth-$(VERSION).tar$(COMPEXT)
 		-$(RMTREE) gforth-$(VERSION)
 
-#use dist targets only when srcdir=.
-ddosdist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ $(DOCDIST)
-		-$(RMTREE) gforth.$(DOSVERSION)
-		mkdir gforth.$(DOSVERSION)
-		$(TAR) $(SOURCES) $(FORTH_GEN0) @GKERNEL@ $(DOCDIST) | \
-			(cd gforth.$(DOSVERSION); tar xf -)
-		$(MV) gforth.$(DOSVERSION)/engine/strsignal.c gforth.$(DOSVERSION)/engine/strsig.c
-		for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14; do \
-			$(MV) gforth.$(DOSVERSION)/doc/gforth.info-$$i gforth.$(DOSVERSION)/doc/gforth.i$$i; \
-		done
-		zip -r9 gf$(DOSVERSION)dos.zip gforth.$(DOSVERSION)/*
-		-$(RMTREE) gforth.$(DOSVERSION)
-
 #A source distribution contains only the things needed to install gforth,
 #without the documents.
 dsrcdist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@
