@@ -37,6 +37,15 @@ require string.fs
 : decode-pos1 ( xpos -- nfile nline nchar )
     dup 23 arshift swap $7fffff and decode-pos ;
 
+: xpos>file# ( xpos -- u )
+    23 rshift ;
+
+: xpos>line ( xpos -- u )
+    8 rshift $7fff and ;
+
+: xpos>char ( xpos -- u )
+    $ff and ;
+
 : .sourcepos3 (  nfile nline nchar -- )
     rot loadfilename#>str type ': emit
     base @ decimal
