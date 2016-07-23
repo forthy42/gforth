@@ -56,13 +56,13 @@ Variable ,space ,space on
 : .rd ( opcode -- )
     dup .regsize $1F and dup $1F = IF  ." SP"  ELSE  #.r  THEN ;
 : .rn ( opcode -- )
-    dup .regsize #5 rshift $1F and dup $1F = IF  ." SP"  ELSE  #.r  THEN ;
+    dup .regsize #5 rshift $1F and dup $1F = IF  drop ." SP"  ELSE  #.r  THEN ;
 : .rm ( opcode -- )
-    dup .regsize #14 rshift $1F and dup $1F = IF  ." ZR"  ELSE  #.r  THEN ;
+    dup .regsize #14 rshift $1F and dup $1F = IF  drop ." ZR"  ELSE  #.r  THEN ;
 : .rm' ( opcode -- )
-    dup .regsize #16 rshift $1F and dup $1F = IF  ." ZR"  ELSE  #.r  THEN ;
+    dup .regsize #16 rshift $1F and dup $1F = IF  drop ." ZR"  ELSE  #.r  THEN ;
 : .ra ( opcode -- )
-    dup .regsize #10 rshift $1F and dup $1F = IF  ." ZR"  ELSE  #.r  THEN ;
+    dup .regsize #10 rshift $1F and dup $1F = IF  drop ." ZR"  ELSE  #.r  THEN ;
 : .imm9 ( opcode -- ) \ print 9 bit immediate, sign extended
     #12 rshift $1FF and $100 b>sign .# 0 .r ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
@@ -197,7 +197,7 @@ Variable ,space ,space on
 
 : 3source ( opcode -- ) \ three source operations
     dup #20 rshift $E and over #15 rshift 1 and or
-    s" madd  msub  smaddlsmsublumaddlsmulhumsubllumulh" rot .6" tab
+    s" madd  msub  smaddlsmsublumaddlsmulh                              umsubllumulh" rot .6" tab
     dup .rd ., dup .rn ., dup .rm' ., .ra ;
 
 \ instruction table
