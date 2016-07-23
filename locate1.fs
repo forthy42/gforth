@@ -17,9 +17,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-variable located-xpos \ contains xpos
-variable located-len \ contains the length of the word
-variable located-top \ first line to display with l
+variable located-xpos \ contains xpos of LOCATEd/EDITed word
+variable located-len  \ contains the length of the word
+variable bn-xpos      \ first contains located-xpos, but is updated by B and N
+variable located-top  \ first line to display with l
 variable located-bottom \ last line to display with l
 2variable located-slurped \ the contents of the file in located-xpos, or 0 0
 
@@ -28,10 +29,13 @@ variable located-bottom \ last line to display with l
 	located-slurped 2@ drop ?dup-if
 	    free throw then
 	0 0 located-slurped 2! then
-    located-len ! dup located-xpos !
+    located-len ! dup located-xpos ! dup bn-xpos !
     xpos>line
     dup before-locate - 0 max located-top !
     after-locate + located-bottom ! ;
+
+: set-bn-xpos ( -- )
+    bn-xpos @ xpos>file# located-top @ 0 encode-pos1 bn-xpos ! ;
 
 : slurp-located ( -- )
     located-slurped 2@ drop 0= if
@@ -83,24 +87,30 @@ variable located-bottom \ last line to display with l
     located-top @ dec.
     l1 ;
 
+: name-set-located-xpos ( nt -- )
+    dup name>view @ swap name>string nip set-located-xpos ;
+
 : locate-name ( nt -- )
-    dup name>view @ swap name>string nip set-located-xpos l ;
+     name-set-located-xpos l ;
 
 : locate ( "name" -- )
     (') locate-name ;
 
 : n ( -- )
     \g Display next lines after locate or error
-    located-bottom @ dup located-top ! form drop 2/ + located-bottom ! l1 ;
+    located-bottom @ dup located-top ! form drop 2/ + located-bottom !
+    set-bn-xpos l1 ;
 
 : b ( -- )
     \g Display previous lines after locate.
-    located-top @ dup located-bottom ! form drop 2/ - 0 max located-top ! l ;
+    located-top @ dup located-bottom ! form drop 2/ - 0 max located-top !
+    set-bn-xpos l ;
 
 : g ( -- )
-    \g Enter the editor at the place of the latest error or locate
-;
+    \g Enter the editor at the place of the latest error, @code{locate},
+    \g @code{n} or @code{b}.
+    bn-xpos @ ['] editor-cmd >string-execute 2dup system drop free throw ;
 
 : edit ( "name" -- )
     \g Enter the editor at the place of "name"
-;
+    (') name-set-located-xpos g ;
