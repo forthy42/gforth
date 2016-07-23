@@ -58,8 +58,6 @@ Variable ,space ,space on
 : .rn ( opcode -- )
     dup .regsize #5 rshift $1F and dup $1F = IF  drop ." SP"  ELSE  #.r  THEN ;
 : .rm ( opcode -- )
-    dup .regsize #14 rshift $1F and dup $1F = IF  drop ." ZR"  ELSE  #.r  THEN ;
-: .rm' ( opcode -- )
     dup .regsize #16 rshift $1F and dup $1F = IF  drop ." ZR"  ELSE  #.r  THEN ;
 : .ra ( opcode -- )
     dup .regsize #10 rshift $1F and dup $1F = IF  drop ." ZR"  ELSE  #.r  THEN ;
@@ -181,7 +179,7 @@ Variable ,space ,space on
 \ data processing
 
 : mov ( opcode -- ) \ is a special orr variant
-    ." mov" tab dup .rd ., .rm' ;
+    ." mov" tab dup .rd ., .rm ;
 : 1source ( opcode -- ) \ other one source operations
     dup #10 rshift $3F and
     s" rbit rev16rev32rev  clz  cls  " rot .5" tab dup .rd ., .rn ;
@@ -193,12 +191,22 @@ Variable ,space ,space on
 	2 of ." crc32" s" b h w x cbchcwcx" rot .4"  endof
 	drop unallocated  EXIT
     endcase
-    tab  dup .rd ., dup .rn ., .rm' ;
+    tab  dup .rd ., dup .rn ., .rm ;
 
 : 3source ( opcode -- ) \ three source operations
     dup #20 rshift $E and over #15 rshift 1 and or
     s" madd  msub  smaddlsmsublumaddlsmulh                              umsubllumulh" rot .6" tab
-    dup .rd ., dup .rn ., dup .rm' ., .ra ;
+    dup .rd ., dup .rn ., dup .rm ., .ra ;
+
+: .shift ( opcode -- )
+    dup #10 rshift $3F and ?dup-0=-IF  drop EXIT  THEN  >r
+    ., #22 rshift $3 and s" lsllsrasrror" rot .3" space
+    .# r> 0 .r ;
+
+: logshift# ( opcode -- ) \ logical with shifted operand
+    dup #28 rshift $6 and over #21 rshift $1 and or
+    s" and bic orr orn eor eon andsbics" rot .4" tab
+    dup .rd ., dup .rn ., dup .rm .shift ;
 
 \ instruction table
 
@@ -216,6 +224,7 @@ $2A0003E0 , $7FE0FFE0 , ' mov ,
 $5AC00000 , $5FFF0000 , ' 1source ,
 $1AC00000 , $5FC00000 , ' 2source ,
 $1B000000 , $7F000000 , ' 3source ,
+$0A000000 , $1F000000 , ' logshift# ,
 
 \ branches
 $54000000 , $FE000000 , ' condbranch# ,
