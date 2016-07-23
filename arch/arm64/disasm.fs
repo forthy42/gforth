@@ -181,7 +181,7 @@ Variable ,space ,space on
 \ data processing
 
 : mov ( opcode -- ) \ is a special orr variant
-    ." mov" tab dup .rd ., .rm ;
+    ." mov" tab dup .rd ., .rm' ;
 : 1source ( opcode -- ) \ other one source operations
     dup #10 rshift $3F and
     s" rbit rev16rev32rev  clz  cls  " rot .5" tab dup .rd ., .rn ;
