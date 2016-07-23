@@ -118,10 +118,11 @@ Variable ,space ,space on
 
 \ data processing, immediate
 
-: .immrs ( opcode -- )
+: .immrs ( opcode -- )  ,space off
     .# dup #22 rshift 1 and 0 .r .,
     dup #16 rshift $3F and 0 .r .,
-    dup #10 rshift $3F and 0 .r ;
+    #10 rshift $3F and 0 .r
+    ,space on ;
 
 : pcrel ( addr opcode -- )
     ." adr" dup $80000000 and IF  'p' emit #12  ELSE  0  THEN  >r
