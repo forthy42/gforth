@@ -49,7 +49,7 @@ require string.fs
 : .sourcepos3 (  nfile nline nchar -- )
     rot loadfilename#>str type ': emit
     base @ decimal
-    rot 0 .r ': emit swap 0 .r
+    rot 0 .r ': emit swap 1+ 0 .r
     base ! ;
 
 : .sourcepos1 ( xpos -- )
