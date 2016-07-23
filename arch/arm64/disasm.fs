@@ -54,13 +54,15 @@ Variable ,space ,space on
     0 ['] .r #10 base-execute ;
 : b>sign ( u m -- n ) over and negate or ;
 : .rd ( opcode -- )
-    dup .regsize $1F and dup $1F = IF  ." SP"  ELSE  #.r  THEN ;
+    dup .regsize $1F and dup $1F = IF  drop ." sp"  ELSE  #.r  THEN ;
+: .rd' ( opcode -- )
+    dup .regsize $1F and dup $1F = IF  drop ." zr"  ELSE  #.r  THEN ;
 : .rn ( opcode -- )
-    dup .regsize #5 rshift $1F and dup $1F = IF  drop ." SP"  ELSE  #.r  THEN ;
+    dup .regsize #5 rshift $1F and dup $1F = IF  drop ." sp"  ELSE  #.r  THEN ;
 : .rm ( opcode -- )
-    dup .regsize #16 rshift $1F and dup $1F = IF  drop ." ZR"  ELSE  #.r  THEN ;
+    dup .regsize #16 rshift $1F and dup $1F = IF  drop ." zr"  ELSE  #.r  THEN ;
 : .ra ( opcode -- )
-    dup .regsize #10 rshift $1F and dup $1F = IF  drop ." ZR"  ELSE  #.r  THEN ;
+    dup .regsize #10 rshift $1F and dup $1F = IF  drop ." zr"  ELSE  #.r  THEN ;
 : .imm9 ( opcode -- ) \ print 9 bit immediate, sign extended
     #12 rshift $1FF and $100 b>sign .# 0 .r ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
@@ -130,7 +132,7 @@ Variable ,space ,space on
     dup $FFFFE0 and #3 rshift swap #29 rshift 3 and or r> lshift
     over + . ;
 : addsub# ( opcode -- )
-    dup s" addsub" .op2 dup .ops tab dup .rd ., dup .rn ., .imm12 ;
+    dup s" addsub" .op2 dup .ops tab dup .rd' ., dup .rn ., .imm12 ;
 : logic# ( opcode -- )
     dup s" and orr eor ands" .op4 tab
     dup .rd ., dup .rn ., .immrs ;
