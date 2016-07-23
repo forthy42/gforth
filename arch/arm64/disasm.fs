@@ -127,6 +127,7 @@ Variable ,space ,space on
 \ data processing, immediate
 
 : .immrs ( opcode -- )
+    dup s? >r
     dup #22 rshift 1 and { N }
     dup #16 rshift $3F and { R }
     #10 rshift $3F and { S }
@@ -152,7 +153,7 @@ Variable ,space ,space on
 	    simd_size #16 = IF  dup #16 lshift or  THEN
 	    simd_size #32 = IF  dup #32 lshift or  THEN
 	THEN
-    THEN  .# 0 .r ;
+    THEN  r> 0= IF  $FFFFFFFF and  THEN  .# 0 .r ;
 
 
 : pcrel ( addr opcode -- )
