@@ -1,6 +1,6 @@
 \ disasm.fs	disassembler file (for ARM64 64-bit mode)
 \
-\ Copyright (C) 2016 Free Software Foundation, Inc.
+\ Copyright (C) 2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -26,6 +26,7 @@ Variable ,space ,space on
 : ., ( -- ) ',' emit ,space @ IF space THEN ;
 : .[ ( -- ) '[' emit ,space off ;
 : .] ( -- ) ']' emit ,space on ;
+: .]' ( -- ) ']' emit ;
 : .# ( -- ) '#' emit ;
 : tab ( -- ) #tab emit ;
 
@@ -66,9 +67,21 @@ Variable ,space ,space on
 : .rn' ( opcode -- )
     dup .regsize #5 rshift .zrreg ;
 : .rm ( opcode -- )
+    dup .regsize #16 rshift .spreg ;
+: .rm' ( opcode -- )
     dup .regsize #16 rshift .zrreg ;
 : .ra ( opcode -- )
     dup .regsize #10 rshift .zrreg ;
+: .imm5 ( opcode -- ) \ print 5 bit immediate
+    #16 rshift $1F and .# 0 .r ;
+: .imm6 ( opcode -- ) \ print 6 bit immediate
+    #10 rshift $3F and .# 0 .r ;
+: .imm6' ( opcode -- ) \ print 6 bit immediate
+    #16 rshift $3F and .# 0 .r ;
+: .imm7 ( opcode -- ) \ print 7 bit immediate
+    dup #15 rshift $7F and $40 b>sign
+    swap s? IF  dfloats  ELSE  sfloats  THEN
+    .# 0 .r ;
 : .imm9 ( opcode -- ) \ print 9 bit immediate, sign extended
     #12 rshift $1FF and $100 b>sign .# 0 .r ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
@@ -126,7 +139,7 @@ Variable ,space ,space on
 
 \ data processing, immediate
 
-: .immrs ( opcode -- ) \ ugly decoder for flag immediate
+: .immrs ( opcode -- )
     dup s? >r
     dup #22 rshift 1 and { N }
     dup #16 rshift $3F and { R }
@@ -141,19 +154,21 @@ Variable ,space ,space on
 	    S $3C $3E within ?of  #02  S $1 and to S  endof
 	    0 0
 	endcase
-	1 over lshift 1- { simd_size mask }
-	simd_size 1- R and to R
-	S simd_size 1- = IF  0
-	ELSE
-	    1 S 1+ lshift 1-
-	    R IF  dup simd_size R - lshift swap R rshift or  THEN
-	    simd_size #02 = IF  dup #02 lshift or  THEN
-	    simd_size #04 = IF  dup #04 lshift or  THEN
-	    simd_size #08 = IF  dup #08 lshift or  THEN
-	    simd_size #16 = IF  dup #16 lshift or  THEN
-	    simd_size #32 = IF  dup #32 lshift or  THEN
-	THEN
-    THEN  r> 0= IF  $FFFFFFFF and  THEN  .# 0 .r ;
+	1 over lshift 1-
+    THEN
+    { simd_size mask }
+    simd_size 1- R and to R
+    S simd_size 1- = IF  0
+    ELSE
+	1 S 1+ lshift 1-
+	R IF  dup simd_size R - lshift swap R rshift or  THEN
+	simd_size #02 = IF  dup #02 lshift or  THEN
+	simd_size #04 = IF  dup #04 lshift or  THEN
+	simd_size #08 = IF  dup #08 lshift or  THEN
+	simd_size #16 = IF  dup #16 lshift or  THEN
+	simd_size #32 = IF  dup #32 lshift or  THEN
+    THEN
+    r> 0= IF  $FFFFFFFF and  THEN  .# 0 .r ;
 
 
 : pcrel ( addr opcode -- )
@@ -166,17 +181,31 @@ Variable ,space ,space on
 : logic# ( opcode -- )
     dup s" and orr eor ands" .op4 tab
     dup .rd ., dup .rn ., .immrs ;
+: tst# ( opcode -- )
+    ." tst" tab dup .rn ., .immrs ;
 : movw# ( opcode -- )
     dup s" movnmov?movzmovk" .op4 tab
     dup .rd ., dup .imm16 .lsl ;
-: bitfield# unallocated ;
-: extract# unallocated ;
+: bitfield# ( opcode -- )
+    dup #29 rshift $3 and s" sbfmbfm ubfmxxxx" rot .4" tab
+    dup .rd' ., dup .rn' ., dup .imm6' ., .imm6 ;
+: extract# ( opcode -- )
+    ." extr" tab dup .rd' ., dup .rn' ., dup .rm' ., .imm6 ;
 
 \ load store
 
+: .sname ( opcode -- )
+    #30 rshift s" sdq?" rot .1" ;
+: .sname' ( opcode -- )
+    #22 rshift 3 and s" sdq?" rot .1" ;
+: .srd ( opcode -- )
+    dup .sname $1F and #.r ;
+: .sra ( opcode -- )
+    dup .sname #10 rshift $1F and #.r ;
+
 : .rd/smd ( opcode -- )
     dup v? IF
-	dup #30 rshift s" sdq?" rot .1" $1F and #.r
+	dup .srd
     ELSE
 	dup $1F and swap -$20 and 2* or .rd
     THEN ;
@@ -185,34 +214,57 @@ Variable ,space ,space on
 : ldr# ( opcode -- )
     dup #30 rshift s" ldr  ldr  ldrswprfm " rot .5" tab
     dup .rd/smd ., .imm19 ;
-: ldstp unallocated ;
+: ldstp ( opcode -- ) \ missing: vector encoding
+    dup #22 rshift 1 and s" stld" rot .2"
+    dup #23 rshift $3 and s" npp p p " rot .2" tab
+    dup v? IF \ simd/fp
+	dup .srd ., dup .sra .,
+    ELSE \ normal
+	dup .rd ., dup .ra .,
+    THEN
+    case dup #23 rshift $3 and
+	0 of .[ dup .rn ., .imm7 .]  endof
+	1 of .[ dup .rn .]' ., .imm7 ,space on  endof
+	2 of .[ dup .rn ., .imm7 .]  endof
+	3 of .[ dup .rn ., .imm7 .] '!' emit  endof
+	nip endcase ;
+
+: .smd-size ( opcode -- opcode )
+    dup #30 rshift $3 and over #21 rshift 4 and or
+    s" bhsdq   " rot .1" ;
+
 : ldstr# ( opcode -- )
-    dup v? IF  unallocated
+    dup v? IF
+	s" stld" 2 pick #22 rshift $1 and .2"
+	s" u t " 2 pick #10 rshift $3 and .1" 'r' emit tab
+	.smd-size dup $1F and #.r
     ELSE
 	s" stldldld" 2 pick #22 rshift $3 and .2"
 	s" u t " 2 pick #10 rshift $3 and .1" 'r' emit
 	s"   ss" 2 pick #22 rshift $3 and .1"
-	s" bhw " 2 pick #30 rshift .1" tab dup .rd .,
-	case dup #10 rshift $3 and
-	    0 of .[ dup .rn ., .imm9 .]  endof
-	    1 of .[ dup .rn .] ., .imm9  endof
-	    2 of .[ dup .rn ., .imm9 .]  endof
-	    3 of .[ dup .rn ., .imm9 .] '!' emit  endof
-	endcase
-    THEN ;
+	s" bhw " 2 pick #30 rshift .1" tab dup .rd
+    THEN  .,
+    case dup #10 rshift $3 and
+	0 of .[ dup .rn ., .imm9 .]  endof
+	1 of .[ dup .rn .]' ., .imm9 ,space on  endof
+	2 of .[ dup .rn ., .imm9 .]  endof
+	3 of .[ dup .rn ., .imm9 .] '!' emit  endof
+    endcase ;
 : ldustr# ( opcode -- )
-    dup v? IF  unallocated
+    dup v? IF
+	s" stld" 2 pick #22 rshift $1 and .2" tab
+	.smd-size dup $1F and #.r
     ELSE
 	s" stldldld" 2 pick #22 rshift $3 and .2"
 	s"   ss" 2 pick #22 rshift $3 and .1"
-	s" bhw " 2 pick #30 rshift .1" tab dup .rd .,
-	.[ dup .rn ., .imm12' .]
-    THEN  ;
+	s" bhw " 2 pick #30 rshift .1" tab dup .rd
+    THEN  .,
+    .[ dup .rn ., .imm12' .] ;
 
 \ data processing
 
 : mov ( opcode -- ) \ is a special orr variant
-    ." mov" tab dup .rd ., .rm ;
+    ." mov" tab dup .rd ., .rm' ;
 : 1source ( opcode -- ) \ other one source operations
     dup #10 rshift $3F and
     s" rbit rev16rev32rev  clz  cls  " rot .5" tab dup .rd ., .rn ;
@@ -220,26 +272,102 @@ Variable ,space ,space on
     dup #10 rshift $7 and  over #13 rshift $7 and
     case
 	0 of  s" xx  xx  udivsdiv" rot .4"  endof
-	1 of  s" lslvlsrvasrvrorv" rot .4"  endof
+	1 of  s" lsllsrasrror" rot .3"  endof
 	2 of ." crc32" s" b h w x cbchcwcx" rot .4"  endof
 	drop unallocated  EXIT
     endcase
-    tab  dup .rd ., dup .rn ., .rm ;
+    tab  dup .rd ., dup .rn ., .rm' ;
 
 : 3source ( opcode -- ) \ three source operations
     dup #20 rshift $E and over #15 rshift 1 and or
     s" madd  msub  smaddlsmsublumaddlsmulh                              umsubllumulh" rot .6" tab
-    dup .rd ., dup .rn ., dup .rm ., .ra ;
+    dup .rd ., dup .rn ., dup .rm' ., .ra ;
 
 : .shift ( opcode -- )
     dup #10 rshift $3F and ?dup-0=-IF  drop EXIT  THEN  >r
     ., #22 rshift $3 and s" lsllsrasrror" rot .3" space
     .# r> 0 .r ;
 
+: ltst# ( opcode -- ) \ logical with shifted operand, tst case
+    ." tst" tab dup .rn' ., dup .rm' .shift ;
+
 : logshift# ( opcode -- ) \ logical with shifted operand
     dup #28 rshift $6 and over #21 rshift $1 and or
     s" and bic orr orn eor eon andsbics" rot .4" tab
-    dup .rd' ., dup .rn' ., dup .rm .shift ;
+    dup .rd' ., dup .rn' ., dup .rm' .shift ;
+
+: tstshift# ( opcode -- ) \ logical with shifted operand
+    ." tst" tab dup .rn' ., dup .rm' .shift ;
+
+: addshift# ( opcode -- ) \ logical with shifted operand
+    dup s" addsub" .op2 dup .ops tab
+    dup .rd' ., dup .rn' ., dup .rm' .shift ;
+
+: .ext ( opcode -- )
+    #10 rshift dup $7 and >r .,
+    #3 rshift $7 and s" uxtbuxthuxtwuxtxsxtbsxthsxtwxstx" rot .4" space
+    .# r> 0 .r ;
+
+: addext# ( opcode -- ) \ addsub with shifted operand
+    dup s" addsub" .op2 dup .ops tab
+    dup .rd ., dup .rn ., dup .rm .ext ;
+
+: addc# ( opcode -- ) \ addsub with carry
+    dup s" adcsbc" .op2 dup .ops tab
+    dup .rd' ., dup .rn' ., .rm' ;
+
+: .nzcv ( n -- ) .#
+    dup $8 and 'n' '-' rot select emit
+    dup $4 and 'z' '-' rot select emit
+    dup $2 and 'c' '-' rot select emit
+    $1     and 'v' '-' rot select emit ;
+
+: ccmp ( opcode -- )
+    ." ccm" dup #30 rshift 1 and 'p' 'n' rot select emit tab
+    dup .rn' ., dup .rm' ., dup $F and .nzcv ., #12 rshift .cond ;
+
+: ccmp# ( opcode -- )
+    ." ccm" dup #30 rshift 1 and 'p' 'n' rot select emit tab
+    dup .rn' ., dup .imm5 ., dup $F and .nzcv ., #12 rshift .cond ;
+
+: csel ( opcode -- )
+    ." cs" dup #29 rshift $2 and over #10 rshift 1 and or
+    s" el incinvneg" rot .3" tab
+    dup .rd' ., dup .rn' ., dup .rm' ., #12 rshift .cond ;
+
+\ floating point
+
+: .sd ( opcode -- )
+    dup .sname' $1F and #.r ;
+: .sn ( opcode -- )
+    dup .sname' #5 rshift $1F and #.r ;
+: .sm ( opcode -- )
+    dup .sname' #16 rshift $1F and #.r ;
+Fvariable fxx
+: .f8 ( float8 -- )
+    dup $80 and #8 lshift swap $7F and
+    $40 b>sign $7FFF and $4000 xor or fxx 6 + w! fxx f@ .# f. ;
+
+: .fimm8 ( opcode -- )
+    #13 rshift $FF and .# .f8 ;
+
+: fp1source ( opcode -- )
+    'f' emit  dup #15 rshift $3F and
+    s" mov  abs  neg  sqrt cvt  cvt  cvt  cvt  rintnrintprintmrintzrinta???  rintxrinti" rot .5" tab
+    dup .sd ., .sn ;
+: fp2source ( opcode -- )
+    'f' emit  dup #12 rshift $F and
+    s" mul  div  add  sub  max  min  maxnmminnmnmul " rot .5" tab
+    dup .sd ., dup .sn ., .sm ;
+: fpcmp ( opcode -- )
+    ." fcmp" dup $10 and IF  'e' emit  THEN tab
+    dup .sn ., dup $8 and IF  ." #0.0" drop  ELSE  .sm  THEN ;
+: fp#  ( opcode -- )
+    ." fmov" tab dup .sd ., .fimm8 ;
+: fpccmp ." fccmp "   unallocated ;
+: fpcsel  ( opcode -- )
+    ." fcsel" tab dup .sd ., dup .sn ., dup .sm ., #12 rshift .cond ;
+: fp3source  unallocated ;
 
 \ instruction table
 
@@ -247,6 +375,7 @@ Create inst-table
 \ data processing, immediate
 $10000000 , $1F000000 , ' pcrel ,
 $11000000 , $1F000000 , ' addsub# ,
+$7200001F , $7F80001F , ' tst# ,
 $12000000 , $1F800000 , ' logic# ,
 $12800000 , $1F800000 , ' movw# ,
 $13000000 , $1F800000 , ' bitfield# ,
@@ -257,7 +386,14 @@ $2A0003E0 , $7FE0FFE0 , ' mov ,
 $5AC00000 , $5FFF0000 , ' 1source ,
 $1AC00000 , $5FC00000 , ' 2source ,
 $1B000000 , $7F000000 , ' 3source ,
+$6A00001F , $7F00001F , ' tstshift# ,
 $0A000000 , $1F000000 , ' logshift# ,
+$0B000000 , $1F200000 , ' addshift# ,
+$0B200000 , $1F200000 , ' addext# ,
+$1A000000 , $1FE0F800 , ' addc# ,
+$3A400000 , $3FE00C10 , ' ccmp ,
+$3A400800 , $3FE00C10 , ' ccmp# ,
+$1A800000 , $3FE00800 , ' csel ,
 
 \ branches
 $54000000 , $FE000000 , ' condbranch# ,
@@ -275,6 +411,15 @@ $28000000 , $3A000000 , ' ldstp ,
 $38000000 , $3B000000 , ' ldstr# ,
 $39000000 , $3B000000 , ' ldustr# ,
 
+\ simd
+$1E204000 , $FF207C00 , ' fp1source ,
+$1E202000 , $FF203C00 , ' fpcmp ,
+$1E201000 , $FF201C00 , ' fp# ,
+$1E200400 , $FF200C00 , ' fpccmp ,
+$1E200800 , $FF200C00 , ' fp2source ,
+$1E200C00 , $FF200C00 , ' fpcsel ,
+$1F000000 , $FF000000 , ' fp3source ,
+
 \ catch all
 $00000000 , $00000000 , ' unallocated ,
 
@@ -282,7 +427,7 @@ $00000000 , $00000000 , ' unallocated ,
     BEGIN  2dup 2@ >r and r> <>  WHILE  3 cells +  REPEAT
     2 cells + perform ;
 
-Forth definitions
+forth definitions
 
 : disasm ( addr u -- ) \ gforth
     [: over + >r
@@ -296,5 +441,3 @@ Forth definitions
 previous
 
 ' disasm is discode
-
-Forth
