@@ -147,16 +147,18 @@ Create si-prefixes ," Y  Z  X  P  T  G  M  k    %m  u  n  p  f  a  z  y"
 si-prefixes count 2/ + Constant zero-exp
 
 : prefix-number ( c-addr u -- r true | false )
-    si-prefixes count bounds DO
-	2dup I c@ scan nip dup 0<> IF
-	    1 = IF  1- fp-char @  ELSE  I c@  THEN
-	    >float1
-	    dup IF  10 s>f zero-exp I - s>f f** f*  THEN
-	    UNLOOP  EXIT  THEN  drop
-    LOOP
+    2dup 'e' scan nip >r 2dup 'E' scan nip r> or >r
+    r@ 0= IF
+	si-prefixes count bounds DO
+	    2dup 1 safe/string I c@ scan nip dup 0<> IF
+		1 = IF  1- fp-char @  ELSE  I c@  THEN
+		>float1
+		dup IF  10 s>f zero-exp I - s>f f** f*  THEN
+		UNLOOP  rdrop EXIT  THEN  drop
+	LOOP
+    THEN
     \ ckeck for e/E/.
-    2dup fp-char @ scan nip >r
-    2dup 'e' scan nip >r 2dup 'E' scan nip r> r> or or
+    2dup fp-char @ scan nip r> or
     IF
 	fp-char @ >float1
     ELSE
