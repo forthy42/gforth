@@ -41,7 +41,7 @@ event: ->spawn ( xt task -- )
     stacksize4 newtask4 activate [ up@ ]l invoker !
     BEGIN  invoker @ +worker stop  AGAIN ;
 
-cores 1 max 0 [DO] worker-thread [LOOP] 1 ms sync# off
+: start-workers cores 1 max 0 ?DO worker-thread LOOP 1 ms sync# off ;
 
 : sync ( -- )
     \G wait for all spawned tasks to complete
@@ -60,5 +60,5 @@ cores 1 max 0 [DO] worker-thread [LOOP] 1 ms sync# off
 
 0 warnings !@
 : bye ( -- )
-    sync cores 0 ?DO worker@ kill LOOP 1 ms bye ;
+    sync workers $@len cell/ 0 ?DO worker@ kill LOOP 1 ms bye ;
 warnings !
