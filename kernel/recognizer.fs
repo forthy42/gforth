@@ -111,11 +111,14 @@ default-recognizer AValue forth-recognizer
 
 \ recognizer loop
 
+Defer trace-recognizer  ' drop is trace-recognizer
+
 : map-recognizer ( addr u rec-addr -- tokens table )
     \G apply a recognizer stack to a string, delivering a token
     $@ bounds cell- swap cell- -DO
 	2dup I -rot 2>r
-	perform dup r:fail <>  IF  2rdrop UNLOOP  EXIT  THEN  drop
+	perform dup r:fail <>  IF
+	    2rdrop I @ trace-recognizer  UNLOOP  EXIT  THEN  drop
 	2r>
     cell -LOOP
     2drop r:fail ;
