@@ -817,6 +817,7 @@ Defer .error-level ( n -- )
           [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
     ELSE ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
         [ has? file [IF] ]
+	    set-current-xpos
             cr type ." :"
             [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
 	dup 0 dec.r ." : "
@@ -832,6 +833,8 @@ Defer .error-level ( n -- )
 
 defer reset-dpp
 :noname normal-dp dpp ! ; is reset-dpp
+
+defer set-current-xpos ( -- )
 
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!

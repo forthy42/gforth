@@ -34,6 +34,12 @@ variable located-bottom \ last line to display with l
     dup before-locate - 0 max located-top !
     after-locate + located-bottom ! ;
 
+:noname {: uline c-addr1 u1 -- uline c-addr1 u1 :}
+    c-addr1 u1 str>loadfilename# uline
+    input-lexeme 2@ >r source drop - encode-pos1 r> set-located-xpos
+    uline c-addr1 u1
+; is set-current-xpos
+
 : set-bn-xpos ( -- )
     bn-xpos @ xpos>file# located-top @ 0 encode-pos1 bn-xpos ! ;
 
