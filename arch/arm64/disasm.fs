@@ -51,6 +51,8 @@ Variable ,space ,space on
 : v? ( opcode -- flag )  $04000000 and ;
 : .regsize ( opcode -- )
     s? 'x' 'w' rot select emit ;
+: .regsize' ( opcode -- )
+    #30 rshift 3 = 'x' 'w' rot select emit ;
 : #.r ( n -- ) \ print decimal
     0 ['] .r #10 base-execute ;
 : b>sign ( u m -- n ) over and negate or ;
@@ -60,10 +62,14 @@ Variable ,space ,space on
     $1F and dup $1F = IF  drop ." zr"  ELSE  #.r  THEN ;
 : .rd ( opcode -- )
     dup .regsize .spreg ;
+: .rt ( opcode -- )
+    dup .regsize' .zrreg ;
+: .rt2 ( opcode -- )
+    dup .regsize' #16 rshift .zrreg ;
 : .rd' ( opcode -- )
     dup .regsize .zrreg ;
 : .rn ( opcode -- )
-    dup .regsize #5 rshift .spreg ;
+    'x' emit #5 rshift .spreg ;
 : .rn' ( opcode -- )
     dup .regsize #5 rshift .zrreg ;
 : .rm ( opcode -- )
@@ -72,6 +78,8 @@ Variable ,space ,space on
     dup .regsize #16 rshift .zrreg ;
 : .ra ( opcode -- )
     dup .regsize #10 rshift .zrreg ;
+: .ra' ( opcode -- )
+    dup .regsize' #10 rshift .zrreg ;
 : .imm5 ( opcode -- ) \ print 5 bit immediate
     #16 rshift $1F and .# 0 .r ;
 : .imm6 ( opcode -- ) \ print 6 bit immediate
@@ -177,12 +185,12 @@ Variable ,space ,space on
     dup $FFFFE0 and #3 rshift swap #29 rshift 3 and or r> lshift
     over + . ;
 : addsub# ( opcode -- )
-    dup s" addsub" .op2 dup .ops tab dup .rd' ., dup .rn ., .imm12 ;
+    dup s" addsub" .op2 dup .ops tab dup .rd' ., dup .rn' ., .imm12 ;
 : logic# ( opcode -- )
     dup s" and orr eor ands" .op4 tab
-    dup .rd ., dup .rn ., .immrs ;
+    dup .rd ., dup .rn' ., .immrs ;
 : tst# ( opcode -- )
-    ." tst" tab dup .rn ., .immrs ;
+    ." tst" tab dup .rn' ., .immrs ;
 : movw# ( opcode -- )
     dup s" movnmov?movzmovk" .op4 tab
     dup .rd ., dup .imm16 .lsl ;
@@ -207,20 +215,33 @@ Variable ,space ,space on
     dup v? IF
 	dup .srd
     ELSE
-	dup $1F and swap -$20 and 2* or .rd
+	dup $1F and swap -$20 and 2* or .rt
     THEN ;
 
-: ldstex  unallocated ;
+: .st/ld ( opcode -- opcode )
+    s" stld" 2 pick #22 rshift $1 and .2" ;
+: .st/ld3 ( opcode -- opcode )
+    s" stldldld" 2 pick #22 rshift $3 and .2" ;    
+: .bhw ( opcode -- opcode )
+    s" bhw " 2 pick #30 rshift .1" ;
+: ldstex  ( opcode -- )
+    .st/ld
+    dup #22 rshift $1 and 'a' 'l' rot select
+    over #15 rshift $1 and IF  emit  ELSE  drop  THEN
+    'r' emit .bhw tab
+    dup #22 rshift $1 and 0= IF  dup .rt2 .,  THEN
+    dup .rt ., .[ .rn .] ;
+    
 : ldr# ( opcode -- )
     dup #30 rshift s" ldr  ldr  ldrswprfm " rot .5" tab
     dup .rd/smd ., .imm19 ;
 : ldstp ( opcode -- ) \ missing: vector encoding
-    dup #22 rshift 1 and s" stld" rot .2"
+    .st/ld
     dup #23 rshift $3 and s" npp p p " rot .2" tab
     dup v? IF \ simd/fp
 	dup .srd ., dup .sra .,
     ELSE \ normal
-	dup .rd ., dup .ra .,
+	dup .rt ., dup .ra' .,
     THEN
     case dup #23 rshift $3 and
 	0 of .[ dup .rn ., .imm7 .]  endof
@@ -235,14 +256,15 @@ Variable ,space ,space on
 
 : ldstr# ( opcode -- )
     dup v? IF
-	s" stld" 2 pick #22 rshift $1 and .2"
+	.st/ld
 	s" u t " 2 pick #10 rshift $3 and .1" 'r' emit tab
 	.smd-size dup $1F and #.r
     ELSE
-	s" stldldld" 2 pick #22 rshift $3 and .2"
+	.st/ld3
 	s" u t " 2 pick #10 rshift $3 and .1" 'r' emit
 	s"   ss" 2 pick #22 rshift $3 and .1"
-	s" bhw " 2 pick #30 rshift .1" tab dup .rd
+	.bhw
+	tab dup .rt
     THEN  .,
     case dup #10 rshift $3 and
 	0 of .[ dup .rn ., .imm9 .]  endof
@@ -252,12 +274,12 @@ Variable ,space ,space on
     endcase ;
 : ldustr# ( opcode -- )
     dup v? IF
-	s" stld" 2 pick #22 rshift $1 and .2" tab
+	.st/ld tab
 	.smd-size dup $1F and #.r
     ELSE
-	s" stldldld" 2 pick #22 rshift $3 and .2"
+	.st/ld3
 	s"   ss" 2 pick #22 rshift $3 and .1"
-	s" bhw " 2 pick #30 rshift .1" tab dup .rd
+	.bhw tab dup .rt
     THEN  .,
     .[ dup .rn ., .imm12' .] ;
 
@@ -267,7 +289,7 @@ Variable ,space ,space on
     ." mov" tab dup .rd ., .rm' ;
 : 1source ( opcode -- ) \ other one source operations
     dup #10 rshift $3F and
-    s" rbit rev16rev32rev  clz  cls  " rot .5" tab dup .rd ., .rn ;
+    s" rbit rev16rev32rev  clz  cls  " rot .5" tab dup .rd ., .rn' ;
 : 2source ( opcode -- ) \ other two source operations
     dup #10 rshift $7 and  over #13 rshift $7 and
     case
@@ -276,12 +298,12 @@ Variable ,space ,space on
 	2 of ." crc32" s" b h w x cbchcwcx" rot .4"  endof
 	drop unallocated  EXIT
     endcase
-    tab  dup .rd ., dup .rn ., .rm' ;
+    tab  dup .rd ., dup .rn' ., .rm' ;
 
 : 3source ( opcode -- ) \ three source operations
     dup #20 rshift $E and over #15 rshift 1 and or
     s" madd  msub  smaddlsmsublumaddlsmulh                              umsubllumulh" rot .6" tab
-    dup .rd ., dup .rn ., dup .rm' ., .ra ;
+    dup .rd ., dup .rn' ., dup .rm' ., .ra ;
 
 : .shift ( opcode -- )
     dup #10 rshift $3F and ?dup-0=-IF  drop EXIT  THEN  >r
@@ -368,6 +390,7 @@ Fvariable fxx
 : fpcsel  ( opcode -- )
     ." fcsel" tab dup .sd ., dup .sn ., dup .sm ., #12 rshift .cond ;
 : fp3source  unallocated ;
+: simdsc3  unallocated ;
 
 \ instruction table
 
@@ -411,7 +434,8 @@ $28000000 , $3A000000 , ' ldstp ,
 $38000000 , $3B000000 , ' ldstr# ,
 $39000000 , $3B000000 , ' ldustr# ,
 
-\ simd
+\ simd+fp
+$5E200400 , $DF200400 , ' simdsc3 ,
 $1E204000 , $FF207C00 , ' fp1source ,
 $1E202000 , $FF203C00 , ' fpcmp ,
 $1E201000 , $FF201C00 , ' fp# ,
