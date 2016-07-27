@@ -1,7 +1,7 @@
 func fib(n)
   var r;
   if n<2 then
-    r:=1;
+    r:=n;
   else
     r:=fib(n-1)+fib(n-2);
   end if;
