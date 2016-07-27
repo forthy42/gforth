@@ -80,24 +80,30 @@ const Create bases   0A , 10 ,   2 ,   0A ,
 \                    10   16     2     10
 decimal
 
+Variable base-used
+Variable sign-used
+
 \ !! protect BASE saving wrapper against exceptions
 : getbase ( addr u -- addr' u' )
+    base-used off
     2dup s" 0x" string-prefix? >r
     2dup s" 0X" string-prefix? r> or
     base @ &34 < and if
 	hex 2 /string
+	base-used on  EXIT
     endif
     over c@ [char] # - dup 4 u<
     IF
 	cells bases + @ base ! 1 /string
+	base-used on
     ELSE
 	drop
     THEN ;
 
 : sign? ( addr u -- addr1 u1 flag )
-    over c@ [char] - =  dup >r
+    over c@ [char] - = sign-used @ 0= and  dup >r
     IF
-	1 /string
+	1 /string  sign-used on
     THEN
     r> ;
 
@@ -118,6 +124,8 @@ has? os 0= [IF]
     endif
     x@+/string 0 s" '" 2rot string-prefix? ;
 
+Defer ?warn#  ' noop is ?warn#
+
 : s>unumber? ( c-addr u -- ud flag ) \ gforth
     \G converts string c-addr u into ud, flag indicates success
     dpl on
@@ -126,7 +134,9 @@ has? os 0= [IF]
     endif
     base @ >r  getbase sign?
     over if
-        >r 0. 2swap
+	>r 0. 2swap
+	over c@ dp-char @ = IF  1 /string dup dpl !  THEN
+	\ allow an initial '.' to shadow all floating point without 'e'
         BEGIN ( d addr len )
             dup >r >number dup
         WHILE \ there are characters left
@@ -136,13 +146,13 @@ has? os 0= [IF]
                 WHILE \ the current char is '.'
                         1 /string
                 REPEAT  THEN \ there are unparseable characters left
-            2drop rdrop false
+            2drop rdrop false  dpl on
         ELSE
             rdrop 2drop r> ?dnegate true
         THEN
     ELSE
-        drop 2drop 0. false THEN
-    r> base ! ;
+        drop 2drop 0. false  dpl on  THEN
+    r> base ! sign-used off ?warn# ;
 
 \ ouch, this is complicated; there must be a simpler way - anton
 : s>number? ( addr u -- d f ) \ gforth
@@ -823,7 +833,8 @@ Defer .error-level ( n -- )
 	dup 0 dec.r ." : "
 	r@ .error-level
 	5 pick .error-string
-	r@ 2 = and \ only for errors print line
+	r@ 2 = and warnings @ abs 1 > or
+	\ only for errors or novice warnings print line
 	IF \ if line# non-zero, there is a line
             cr .error-line
         ELSE

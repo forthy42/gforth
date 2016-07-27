@@ -265,6 +265,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[\"\n]" nil string (font-lock-string-face . 1))
 	(("abort\"") compile-only (font-lock-keyword-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
+	(("warning\"") compile-only (font-lock-keyword-face . 1)
+	 "[\"\n]" nil string (font-lock-string-face . 1))
 	(("{" "{:") compile-only (font-lock-variable-name-face . 1)
 	 "[\n}]" nil name (font-lock-variable-name-face . 1))
 	((".(" "(") immediate (font-lock-comment-face . 1)

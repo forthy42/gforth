@@ -20,7 +20,9 @@
 Defer image-options
 :noname ( -- )
     ."   FILE				    load FILE (with `require')" cr
-    ."   -e STRING, --evaluate STRING	    interpret STRING (with `EVALUATE')" cr ; is image-options
+    ."   -e STRING, --evaluate STRING	    interpret STRING (with `EVALUATE')" cr
+    ."   --Werror, --Wall, --W              set non-default warning levels" cr
+; is image-options
 
 Vocabulary options
 
@@ -34,6 +36,10 @@ options also definitions
     ." Report bugs on <https://savannah.gnu.org/bugs/?func=addbug&group=gforth>" cr
     bye ;
 ' --help alias -h
+
+: --Werror ( -- )  -3 warnings ! ;
+: --Wall ( -- )    -2 warnings ! ;
+: --W ( -- )        warnings off ;
 
 previous forth definitions
 

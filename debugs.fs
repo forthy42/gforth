@@ -111,6 +111,16 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 : !!FIXME!! ( -- )  FIXME# throw ;
 \G word that should never be reached
 
+\ warn beginners that double numbers clash with floating points
+
+: ?warn-dp ( -- )
+    warnings @ abs 1 > IF
+	base-used @ 0= dpl @ 0>= and
+	warning" number with embedded '.'s converted to double integers, not float. Use base prefix for doubles and exponent for floats to disambiguate"
+	dpl @ 0> warning" Non-standard double; '.' not in the last position"
+    THEN ;
+' ?warn-dp is ?warn#
+
 \ replacing one word with another
 
 : replace-word ( xt2 xt1 -- )

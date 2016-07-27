@@ -153,7 +153,9 @@ si-prefixes count 2/ + Constant zero-exp
 	    2dup 1 safe/string I c@ scan nip dup 0<> IF
 		1 = IF  1- fp-char @  ELSE  I c@  THEN
 		>float1
-		dup IF  10 s>f zero-exp I - s>f f** f*  THEN
+		dup IF  10 s>f zero-exp I - s>f f** f*
+		    warnings @ abs 1 > warning" use of scientific notation is non-standard"
+		THEN
 		UNLOOP  rdrop EXIT  THEN  drop
 	LOOP
     THEN
