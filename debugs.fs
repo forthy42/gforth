@@ -217,7 +217,7 @@ Variable locate-file[]
 	    vi-l:c  \ also works for joe, mcedit, nano, and is de facto standard
 	THEN
     THEN
-    loadfilename#>str type  2rdrop ;
+    ''' emit loadfilename#>str esc'type ''' emit  2rdrop ;
 
 : external-edit ( "name" )
     (') name>view @ ['] editor-cmd $tmp system ;
