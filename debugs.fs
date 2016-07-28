@@ -115,7 +115,7 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 
 : ?warn-dp ( -- )
     warnings @ abs 1 > IF
-	base-used @ 0= dpl @ 0>= and
+	>num-state @ 1 and 0= dpl @ 0>= and  >num-state off
 	warning" number with embedded '.'s converted to double integers, not float. Use base prefix for doubles and exponent for floats to disambiguate"
 	dpl @ 0> warning" Non-standard double; '.' not in the last position"
     THEN ;
@@ -226,12 +226,13 @@ Defer edit ( "name" -- ) \ gforth
 ' external-edit IS edit
 \G tell the editor to go to the source of a word
 \G uses $EDITOR, and adjusts goto line command depending
-\G on vi-, kate-, or emacs-style (default)
+\G on vi- (default), kate-, or emacs-style
 \G @example
 \G EDITOR=emacsclient      #if you like emacs, M-x server-start in emacs
-\G EDITOR=kate             #if you like kate
 \G EDITOR=vi|vim|gvim      #if you like vi variants
+\G EDITOR=kate             #if you like kate
 \G EDITOR=gedit            #if you like gedit
+\G EDITOR=joe|mcedit|nano  #if you like other simple editors
 \G @end example
 
 Defer view ( "name" -- ) \ gforth

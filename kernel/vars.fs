@@ -188,6 +188,10 @@ User fp-char ( -- a-addr ) \ VFX
 \G decimal point character for floating point number conversion
 '.' fp-char !
 
+User >num-state ( -- a-addr ) \ Gforth
+\G Internal state of the number conversion
+0 >num-state !
+
 User state ( -- a-addr ) \ core,tools-ext
 \G @code{User} variable -- @i{a-addr} is the address of a cell
 \G containing the compilation state flag. 0 => interpreting, -1 =>

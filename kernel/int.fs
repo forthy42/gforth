@@ -80,30 +80,26 @@ const Create bases   0A , 10 ,   2 ,   0A ,
 \                    10   16     2     10
 decimal
 
-Variable base-used
-Variable sign-used
-
 \ !! protect BASE saving wrapper against exceptions
 : getbase ( addr u -- addr' u' )
-    base-used off
     2dup s" 0x" string-prefix? >r
     2dup s" 0X" string-prefix? r> or
     base @ &34 < and if
 	hex 2 /string
-	base-used on  EXIT
+	1 >num-state @ or >num-state !  EXIT
     endif
     over c@ [char] # - dup 4 u<
     IF
 	cells bases + @ base ! 1 /string
-	base-used on
+	1 >num-state @ or >num-state !
     ELSE
 	drop
     THEN ;
 
 : sign? ( addr u -- addr1 u1 flag )
-    over c@ [char] - = sign-used @ 0= and  dup >r
+    over c@ [char] - = >num-state @ 2 and 0= and  dup >r
     IF
-	1 /string  sign-used on
+	1 /string  2 >num-state +!
     THEN
     r> ;
 
@@ -152,7 +148,7 @@ Defer ?warn#  ' noop is ?warn#
         THEN
     ELSE
         drop 2drop 0. false  dpl on  THEN
-    r> base ! sign-used off ?warn# ;
+    r> base !  ?warn#  >num-state off ;
 
 \ ouch, this is complicated; there must be a simpler way - anton
 : s>number? ( addr u -- d f ) \ gforth
