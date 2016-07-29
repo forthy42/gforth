@@ -231,7 +231,9 @@ Variable locate-pos
     ." +" swap 0 .r ." :" . ;
 : vi-l:c ( line pos -- )  ." +" drop . ;
 : editor-cmd ( soucepos1 -- )
-    s" EDITOR" getenv dup 0= IF  2drop s" vi"  THEN
+    s" EDITOR" getenv dup 0= IF
+	2drop s" vi" \ if you don't set EDITOR, use vi as default
+    THEN
     2dup 2>r type space
     decode-pos1 1+
     2r@ s" emacs" search nip nip  2r@ s" gedit" str= or  IF  emacs-l:c  ELSE
