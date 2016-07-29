@@ -21,7 +21,7 @@ Defer image-options
 :noname ( -- )
     ."   FILE				    load FILE (with `require')" cr
     ."   -e STRING, --evaluate STRING	    interpret STRING (with `EVALUATE')" cr
-    ."   --Werror, --Wall, --W              set non-default warning levels" cr
+    ."   -Werror, -Wall, -Won, -W           set warning levels" cr
 ; is image-options
 
 Vocabulary options
@@ -37,15 +37,16 @@ options also definitions
     bye ;
 ' --help alias -h
 
-: --Werror ( -- )  -3 warnings ! ;
-: --Wall ( -- )    -2 warnings ! ;
-: --W ( -- )        warnings off ;
+: -Werror ( -- )  -3 warnings ! ;
+: -Wall ( -- )    -2 warnings ! ;
+: -Won ( -- )     -1 warnings ! ;
+: -W ( -- )        warnings off ;
 
 previous forth definitions
 
-: process-voc-option ( addr u -- )
+: process-voc-option ( addr u -- true / addr u false )
     2dup [ ' options >body ] Literal search-wordlist
-    IF    nip nip execute
-    ELSE  ." Unknown option: " type cr  THEN ;
+    IF    nip nip execute true
+    ELSE  false  THEN ;
 
 ' process-voc-option is process-option

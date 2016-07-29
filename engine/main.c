@@ -2290,7 +2290,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
 
   opterr=0;
   while (1) {
-    int option_index=0;
+    int option_index=0, oldoptind=optind;
     static struct option opts[] = {
       {"appl-image", required_argument, NULL, 'a'},
       {"image-file", required_argument, NULL, 'i'},
@@ -2340,7 +2340,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     
     switch (c) {
     case EOF: return 0;
-    case '?': optind--; return 0;
+    case '?': optind=oldoptind; return 0;
     case 'a': *imagename = optarg; return 0;
     case 'i': *imagename = optarg; break;
     case 'm': if((dictsize = convsize(optarg,sizeof(Cell)))==-1L) return 1; break;
@@ -2408,7 +2408,7 @@ Engine Options:\n\
 SIZE arguments consist of an integer followed by a unit. The unit can be\n\
   `b' (byte), `e' (element; default), `k' (KB), `M' (MB), `G' (GB) or `T' (TB).\n",
 	      argv[0]);
-      optind--;
+      optind=oldoptind;
       return 0;
     }
   }

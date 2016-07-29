@@ -177,9 +177,9 @@ require string.fs
 12 value after-locate
 
 Variable locate-file[]
+Variable locate-pos
 
-: view-name {: nt -- :}
-    warn-color attr!  nt name>view @ dup cr .sourcepos1  default-color attr!
+: show-pos1 ( pos1 nt -- ) {: nt :}
     decode-pos1  nt name>string nip {: lineno charno offset :}
     loadfilename#>str locate-file[] $[]slurp-file
     lineno after-locate + 1+ locate-file[] $[]# umin
@@ -198,8 +198,29 @@ Variable locate-file[]
 	    I 4 .r ." : "
 	    I locate-file[] $[]@ type
 	THEN
-    LOOP
-    locate-file[] $[]off ;
+    LOOP ;
+: scroll-pos1 ( pos1 -- )
+    decode-pos1 drop nip {: lineno :}
+    lineno after-locate + 1+ locate-file[] $[]# umin
+    lineno before-locate 1+ - 0 max +DO  cr
+	I 4 .r ." : "
+	I locate-file[] $[]@ type
+    LOOP ;
+
+: view-name {: nt -- :}
+    locate-file[] $[]off
+    warn-color attr!  nt name>view @ dup cr .sourcepos1  default-color attr!
+    dup locate-pos ! nt show-pos1 ;
+
+: +locate-lines ( n -- pos )
+    >r locate-pos @ decode-pos1 swap r> + swap encode-pos1 ;
+
+: n ( -- )
+    before-locate after-locate + 2 +
+    +locate-lines dup locate-pos ! scroll-pos1 ;
+: b ( -- )
+    before-locate after-locate + 2 + negate
+    +locate-lines dup locate-pos ! scroll-pos1 ;
 
 : view-native ( "name" -- )
     (') view-name ;
@@ -210,7 +231,8 @@ Variable locate-file[]
     ." +" swap 0 .r ." :" . ;
 : vi-l:c ( line pos -- )  ." +" drop . ;
 : editor-cmd ( soucepos1 -- )
-    s" EDITOR" getenv 2dup 2>r type space
+    s" EDITOR" getenv dup 0= IF  2drop s" vi"  THEN
+    2dup 2>r type space
     decode-pos1 1+
     2r@ s" emacs" search nip nip  2r@ s" gedit" str= or  IF  emacs-l:c  ELSE
 	2r@ s" kate" string-prefix? IF  kate-l:c  ELSE
@@ -219,8 +241,11 @@ Variable locate-file[]
     THEN
     ''' emit loadfilename#>str esc'type ''' emit  2rdrop ;
 
+: g ( -- )
+    locate-pos @ ['] editor-cmd $tmp system ;
+
 : external-edit ( "name" )
-    (') name>view @ ['] editor-cmd $tmp system ;
+    (') name>view @ locate-pos ! g ;
 
 Defer edit ( "name" -- ) \ gforth
 ' external-edit IS edit

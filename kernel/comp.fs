@@ -723,7 +723,7 @@ defer 0-adjust-locals-size ( -- )
     latest ?dup ;
 
 Variable warnings ( -- addr ) \ gforth
-G -1 warnings T !
+G -1 warnings T ! \ default to -Won
 
 : (reveal) ( nt wid -- )
     wordlist-id dup >r

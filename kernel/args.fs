@@ -89,12 +89,12 @@ Variable argc ( -- addr ) \ gforth
 
 \ main words
 
-: (process-option) ( addr u -- )
+: (process-option) ( addr u -- true / addr u false )
     \ process option, possibly consuming further arguments
     2dup s" -e"         str= >r
     2dup s" --evaluate" str= r> or if
-	2drop next-arg args-evaluate exit endif
-    ." Unknown option: " type cr ;
+	2drop next-arg args-evaluate  true  exit endif
+    false ;
 
 Defer process-option
 ' (process-option) IS process-option
@@ -103,10 +103,8 @@ Defer process-option
     true to script?
     BEGIN
 	argc @ 1 > WHILE
-	    next-arg over c@ [char] - <> IF
+	    next-arg process-option 0= IF
                 args-required
-	    else
-		process-option
 	    then
     repeat
     false to script? ;
