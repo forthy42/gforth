@@ -177,7 +177,7 @@ Create .16disp  ' noop , ' +8b , ' +16b ,
 : .rmod ( addr -- addr' )  mod@ >r .addr r> ., .r/reg ;
 
 : .imm  ( addr -- addr' )  length @
-  dup 0= IF  drop  dup @  .$ds 4 + exit  THEN
+  dup 0= IF  drop  dup l@  .$ds 4 + exit  THEN
   1 =    IF  wcount .$ds exit  THEN  count .$bs ;
 
 \ .ari                                                 07feb93py
