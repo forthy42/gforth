@@ -2127,7 +2127,7 @@ X has? f83headerstring [IF]
 : tsourcepos1 ( -- xpos )
     sourcefilename str>loadfilename# sourceline#
     input-lexeme 2@ drop source drop -
-    $ff min swap 8 lshift + $7fffff min swap 23 lshift or ;
+    $ff min swap 8 lshift + $7fffff min swap #23 lshift or ;
 : view,   ( -- ) tsourcepos1 T , H ;
 : shorten-path ( addr u -- addr' u' )  2>r
     fpath path>string  BEGIN  next-path dup  WHILE
