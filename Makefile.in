@@ -1002,11 +1002,11 @@ gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
 
 # -------------	Make c-engine
 
-prim.b:		prim cache0.vmg Makefile kernel/version.fs
+prim.b:		prim cache0.vmg Makefile
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=0 prim) >$@
 #		sleep 1 #should make hpux-workaround unnecessary
 
-prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile kernel/version.fs
+prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@
 #		sleep 1 #should make hpux-workaround unnecessary
 
@@ -1041,32 +1041,32 @@ engine/prim_num.i:	prim.b prims2x.fs preforth
 
 # fast prim rules...
 
-engine/prim-fast.i:	prim-fast.b prims2x.fs preforth
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
+engine/prim-fast.i:	prim-fast.b prims2x.fs gforth gforth.fi
+	./gforth prims2x.fs -e "c-flag on s\" prim-fast.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
 
-engine/prim_lab-fast.i:	prim-fast.b prims2x.fs preforth
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-label dup process-file bye" >$@
+engine/prim_lab-fast.i:	prim-fast.b prims2x.fs gforth gforth.fi
+	./gforth prims2x.fs -e "c-flag on s\" "$<"\" ' output-label dup process-file bye" >$@
 
-engine/prim_grp-fast.i:	prim-fast.b prims2x.fs preforth
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
+engine/prim_grp-fast.i:	prim-fast.b prims2x.fs gforth gforth.fi
+	./gforth prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
 
-engine/prim_names-fast.i:	prim-fast.b prims2x.fs preforth
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname dup process-file bye" >$@
+engine/prim_names-fast.i:	prim-fast.b prims2x.fs gforth gforth.fi
+	./gforth prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname dup process-file bye" >$@
 
-engine/prim_superend-fast.i:	prim-fast.b prims2x.fs preforth
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
+engine/prim_superend-fast.i:	prim-fast.b prims2x.fs gforth gforth.fi
+	./gforth prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
 
-engine/profile-fast.i:	prim-fast.b prims2x.fs preforth
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-profile ' output-profile-combined process-file bye" >$@
+engine/profile-fast.i:	prim-fast.b prims2x.fs gforth gforth.fi
+	./gforth prims2x.fs -e "c-flag on s\" "$<"\" ' output-profile ' output-profile-combined process-file bye" >$@
 
-engine/super2-fast.i:	prim-fast.b prims2x.fs preforth
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
+engine/super2-fast.i:	prim-fast.b prims2x.fs gforth gforth.fi
+	./gforth prims2x.fs -e "c-flag on s\" "$<"\" ' output-super2-simple ' output-super2-combined process-file bye" >$@
 
-engine/costs-fast.i:	prim-fast.b prims2x.fs preforth
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
+engine/costs-fast.i:	prim-fast.b prims2x.fs gforth gforth.fi
+	./gforth prims2x.fs -e "c-flag on s\" "$<"\" ' output-costs-gforth-simple ' output-costs-gforth-combined process-file bye" >$@
 
-engine/prim_num-fast.i:	prim-fast.b prims2x.fs preforth
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
+engine/prim_num-fast.i:	prim-fast.b prims2x.fs gforth gforth.fi
+	./gforth prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
 
 engine/prim-s.i: engine/prim.i
 		grep -v '^#line ' $(srcdir)/engine/prim.i >$@
@@ -1089,9 +1089,9 @@ MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
 MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
 MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-gforth$(EXT): $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
+gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
 
-gforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
+gforth$(OPT)$(EXT): $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
 	else \
@@ -1108,9 +1108,9 @@ gforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kerne
 optgforth:
 	$(MAKE) gforth$(OPT)$(EXT) $(MAKELINE$(OPT))
 
-gforth-fast$(EXT): $(FORTH_GEN_ENGINE_FAST) engine/config.h
+gforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
 
-gforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
+gforth-fast$(OPT)$(EXT): $(FORTH_GEN_ENGINE_FAST) engine/config.h
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
 	else \

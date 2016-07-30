@@ -2124,11 +2124,10 @@ X has? f83headerstring [IF]
 : reset-included ( -- )
     [IFDEF] current-sourcepos1    included-files $off
     [ELSE] 0 allocate throw 0 included-files 2! [THEN] ;
-[IFUNDEF] current-sourcepos1
-: current-sourcepos1 ( -- xpos )
-    current-sourcepos $7fffff min swap #23 lshift + ;
-[THEN]
-: tsourcepos1 ( -- n ) current-sourcepos1 ;
+: tsourcepos1 ( -- xpos )
+    sourcefilename str>loadfilename# sourceline#
+    input-lexeme 2@ drop source drop -
+    encode-pos $7fffff min swap 23 lshift or ;
 : view,   ( -- ) tsourcepos1 T , H ;
 : shorten-path ( addr u -- addr' u' )  2>r
     fpath path>string  BEGIN  next-path dup  WHILE

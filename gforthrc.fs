@@ -29,10 +29,15 @@ previous definitions
 ; is image-options
 
 : load-rc ( -- )
-    \G if available, load ~/.gforthrc
+    \G if available, load ~/.gforthrc after processing args
     load-rc? @ IF
 	s" ~/.gforthrc" open-fpath-file
 	0= IF  included1  ELSE  drop  THEN
     THEN ;
+: load-rc0 ( -- )
+    \G if available, load ~/.gforthrc0 before processing args
+    s" ~/.gforthrc0" open-fpath-file
+    0= IF  included1  ELSE  drop  THEN ;
 
-:noname  load-rc defers bootmessage ; is bootmessage
+:noname  load-rc  defers bootmessage  ; is bootmessage
+:noname  load-rc0 defers process-args ; is process-args

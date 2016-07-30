@@ -43,7 +43,7 @@ Variable cp?
 
 \ signed / unsigned byte, word and long output         07aug10py
 
-: .lformat   ( addr -- )  $8 u.r ." :" ;
+: .lformat   ( addr -- )  $C u.r ." :" ;
 
 : .du   ( n -- )       0  <<# #s #> type #>> ;
 : .$du  ( n -- )       .$ .du ;
@@ -65,7 +65,7 @@ Variable length
 Variable alength
 Variable .length
 Variable .alength
-Variable .amd64mode
+Variable .amd64mode  .amd64mode on
 Variable seg: seg: on
 Variable rex
 
@@ -79,7 +79,9 @@ Variable rex
 : t,   swap align c, c, align ' ,   '" parse here over 1+ allot place align ;
 
 \ Strings                                              07feb93py
-Create "regs ," AXCXDXBXSPBPSIDIALCLDLBLAHCHDHBH"
+Create "regs  ," AXCXDXBXSPBPSIDI8 9 101112131415"
+Create "breg  ," AL  CL  DL  BL  AH  CH  DH  BH  R8L R9L R10LR11LR12LR13LR14LR15L"
+Create "breg2 ," AL  CL  DL  BL  SPL BPL SIL DIL R8L R9L R10LR11LR12LR13LR14LR15L"
 Create "16ri ," BX+SIBX+DIBP+SIBP+DISI   DI   BP   BX   "
 Create "ptrs ," DWORDWORD BYTE "
 Create "idx  ,"   *2*4*8"
@@ -93,21 +95,42 @@ Create grp8 ," ???? src"
 2 "regs c!      5 "16ri c!      5 "ptrs c!      2 "idx  c!
 2 "seg  c!      2 "seg1 c!      2 "jmp  c!      3 grp1  c!
 4 grp3  c!      5 grp4  c!      4 grp6  c!      1 grp8  c!
+4 "breg c!      4 "breg2 c!
+
+\ rex handling
+
+: rex? ( n -- flag )  rex @ and 0<> ;
+: p? ( -- flag ) 100 rex? ; 
+: w? ( -- flag )  10 rex? ;
+Defer >reg
+: >r? ( reg -- reg' )   4 rex? 10 and or ; 
+: >x? ( reg -- reg' )   2 rex? 10 and or ; 
+: >b? ( reg -- reg' )   1 rex? 10 and or ;
+' >r? is >reg
+
 \ Register display                                     05dec92py
 
 : *."  ( n addr -- )  count >r swap r@ * + r> -trailing type ;
+: .regsize ( -- ) 'R' 'E' w? select emit ;
 : .(reg ( n l -- )
-  dup 0= IF  drop 'E emit  ELSE  2 = IF  $8 +  THEN  THEN
-  "regs *." ;
+    dup 0= IF  drop .regsize "regs ( " )  ELSE  2 = IF
+	    "breg2 "breg p? select  ELSE  "regs ( " ) THEN  THEN
+    >r >reg r> *." ;
 : .reg  ( n -- )  length @ .(reg ;
-: .ereg ( n -- )  'E emit  "regs *." ;
+: .r/reg  ( n -- )    ['] >r? is >reg length @ .(reg ;
+: .m/reg  ( n -- )    ['] >x? is >reg length @ .(reg ;
+: .ereg ( n -- )  .regsize >reg "regs *." ;
+: .mi/reg  ( n -- )   ['] >x? is >reg .ereg ;
+: .sib/reg  ( n -- )  ['] >b? is >reg .ereg ;
 : .seg  ( n -- )  "seg *." ;
 
 : mod@ ( addr -- addr' r/m reg )
   count dup 70 and 3 rshift swap 307 and swap ;
 : .8b  ( addr -- addr' )  count .$bs ;
-: .32b ( addr -- addr' )  dup @  .$ds 4 + ;
-: .32u ( addr -- addr' )  dup @  .$du 4 + ;
+: .32b ( addr -- addr' )  dup l@  .$ds 4 + ;
+: .32u ( addr -- addr' )  dup l@  .$du 4 + ;
+: .64b ( addr -- addr' )  dup @   .$ds $8 + ;
+: .64u ( addr -- addr' )  dup @   .$du $8 + ;
 
 \ Register display                                     05dec92py
 
@@ -115,16 +138,16 @@ Create .disp ' noop ,  ' .8b ,   ' .32b ,
 
 : .sib  ( addr mod -- addr' ) >r count  dup 7 and 5 = r@ 0= and
   IF    rdrop >r .32b r>
-  ELSE  swap r> cells .disp + perform swap dup 7 and .[ .ereg .]
+  ELSE  swap r> cells .disp + perform swap dup 7 and .[ .sib/reg .]
   THEN  3 rshift dup 7 and 4 = 0=
-  IF    .[ dup 7 and .ereg 3 rshift "idx *." .]
+  IF    .[ dup 7 and .mi/reg 3 rshift "idx *." .]
   ELSE  drop  THEN ;
 
 : .32a  ( addr r/m -- addr' ) dup 7 and >r 6 rshift
-  dup 3 =            IF  drop r>       .reg    exit  THEN
+  dup 3 =            IF  drop r>       .m/reg    exit  THEN
   dup 0= r@ 5 = and  IF  drop rdrop .[ .32u .] exit  THEN
   r@  4 =            IF       rdrop    .sib    exit  THEN
-  cells .disp + perform  r> .[ .ereg .] ;
+  cells .disp + perform  r> .[ .sib/reg .] ;
 \ Register display                                     29may10py
 
 : wcount ( addr -- addr' w ) dup uw@ >r 2 + r> ;
@@ -137,7 +160,7 @@ Create .16disp  ' noop , ' +8b , ' +16b ,
 : .16r  ( reg -- ) .[ "16ri *." .] ;
 : .16a  ( addr r/m -- addr' ) 307 and
   dup 006 =  IF  drop wcount .[ .$du .] exit  THEN
-  dup 7 and >r 6 rshift  dup 3 =  IF  drop r> .reg exit  THEN
+  dup 7 and >r 6 rshift  dup 3 =  IF  drop r> .m/reg exit  THEN
   cells .16disp + perform r> .16r  ;
 
 
@@ -150,8 +173,8 @@ Create .16disp  ' noop , ' +8b , ' +16b ,
 : .ptr  ( addr r/m -- addr' )
   dup 300 < IF  length @ "ptrs *." ."  PTR "  THEN  .addr ;
 
-: .mod  ( addr -- addr' )  mod@ .reg ., .addr ;
-: .rmod ( addr -- addr' )  mod@ >r .addr r> ., .reg ;
+: .mod  ( addr -- addr' )  mod@ .r/reg ., .addr ;
+: .rmod ( addr -- addr' )  mod@ >r .addr r> ., .r/reg ;
 
 : .imm  ( addr -- addr' )  length @
   dup 0= IF  drop  dup @  .$ds 4 + exit  THEN
@@ -163,13 +186,13 @@ Defer .code
 
 : .b? ( -- ) opcode @ 1 and 0= IF  2 length !  THEN ;
 : .ari   .b? tab
-  opcode @ dup 4 and  IF  drop 0 .reg ., .imm exit  THEN
+  opcode @ dup 4 and  IF  drop 0 .r/reg ., .imm exit  THEN
   2 and  IF  .mod  ELSE  .rmod  THEN ;
 : .modt  tab .mod ;
-: .gr    tab  opcode @ 7 and .reg ;
-: .rexinc  .amd64mode @ IF  opcode @ $F and rex !  .code  EXIT  THEN
+: .gr    tab  opcode @ 7 and .r/reg ;
+: .rexinc  .amd64mode @ IF  opcode @ rex !  .code  rex off  EXIT  THEN
     ." inc" .gr ;
-: .rexdec  .amd64mode @ IF  opcode @ $F and rex !  .code  EXIT  THEN
+: .rexdec  .amd64mode @ IF  opcode @ rex !  .code  rex off  EXIT  THEN
     ." dec" .gr ;
 
 : .igrv  .gr ., .imm ;
@@ -177,14 +200,14 @@ Defer .code
 : .igr   .b? .igrv ;
 : .modb  .b? tab .rmod ;
 
-: .xcha  .gr ., 0 .reg ;
+: .xcha  .gr ., 0 .m/reg ;
 \ .conds modifier                                      29may10py
 
 : .cond ( -- ) opcode @
   17 and  dup 1 and  IF  'n' emit  THEN  2/ "jmp *." ;
 : .jb   tab count dup $80 and IF -$80 or THEN over + .$du ;
 : .jv   tab  alength @  IF  wxcount over
-  ELSE  dup @  swap 4 + tuck  THEN + .$du ;
+  ELSE  dup sl@  swap 4 + tuck  THEN + .$du ;
 : .js   .cond .jb ;
 : .jl   .cond .jv ;
 : .set  .cond tab mod@ drop 2 length ! .ptr ;
@@ -200,7 +223,7 @@ Defer .code
 : .grp2   .b? mod@ $8 + grp1 *." tab .ptr .,
   opcode @ 2 and IF ." CL" ELSE ." 1" THEN ;
 : .grp3   .b? mod@ dup >r grp3 *." tab
-  r@ 3 > IF  0 .reg .,  THEN
+  r@ 3 > IF  0 .r/reg .,  THEN
   r@ 2 4 within  IF  .ptr  ELSE  .addr  THEN
   r> 2 < IF  ., .imm  THEN ;
 : .grp4   .b? mod@ dup grp4 *." tab
@@ -212,9 +235,9 @@ Defer .code
   .: swap alength @ IF  wcount .$du  ELSE  .32u  THEN .] drop ;
 \ .movo .movx .str                                     23jan93py
 : .movo   tab .b?
-  opcode @ 2 and 0= IF  0 .reg .,  THEN  $05 alength @ - .addr
-  opcode @ 2 and    IF  ., 0 .reg  THEN ;
-: .movx   tab mod@ .reg ., 1 length ! .b? .ptr ;
+  opcode @ 2 and 0= IF  0 .r/reg .,  THEN  $05 alength @ - .addr
+  opcode @ 2 and    IF  ., 0 .r/reg  THEN ;
+: .movx   tab mod@ .r/reg ., 1 length ! .b? .ptr ;
 : .movi   .b? tab mod@ drop .ptr ., .imm ;
 : .movs   tab mod@  opcode @ 2 and
   IF  .seg ., .addr  ELSE  >r .addr ., r> .seg  THEN ;
@@ -228,8 +251,8 @@ Defer .code
 : .arpl   tab  1 length !  .rmod ;
 \ .mne                                                 16nov97py
 
-: .io   tab .b? 0 .reg ., 1 length ! 2 .reg ;
-: .io#  tab .b? 0 .reg ., count .$bu ;
+: .io   tab .b? 0 .r/reg ., 1 length ! 2 .m/reg ;
+: .io#  tab .b? 0 .r/reg ., count .$bu ;
 : .ret  opcode @ 1 and 0= IF tab wcount .$du THEN ;
 : .enter  tab wcount .$du ., count .$bu ;
 : .stcl opcode @ 1 and IF ." st" ELSE ." cl" THEN
@@ -251,12 +274,12 @@ Defer .code
 : .bt     opcode @ 3 rshift 7 and grp8 *." tab .rmod ;
 Create  lbswap  0 c, 3 c, 3 c, 0 c,
 : .movrx  tab  opcode @ dup 3 and lbswap + c@ xor 7 and >r
-  mod@ r@ 1 and  IF  swap 7 and .reg .,  THEN
+  mod@ r@ 1 and  IF  swap 7 and .r/reg .,  THEN
   r@ 2/ " CDT?" + 1+ c@ swap 0 <<# # 'R hold rot hold #> type
-  #>> r> 1 and  0= IF  ., 7 and .reg  THEN ;
+  #>> r> 1 and  0= IF  ., 7 and .m/reg  THEN ;
 : .lxs  opcode @ 7 and "seg1 *." .modt ;
 : .shd  tab .rmod ., 2 length ! opcode @ 1 and
-  IF  1 .reg  ELSE  .imm  THEN ;
+  IF  1 .r/reg  ELSE  .imm  THEN ;
 
 
 \ .esc                                                 22may93py
@@ -436,19 +459,6 @@ FF F5 t, noop cmc"              FE F6 t, .grp3 "
 FE FE t, .grp4 "                F8 F8 t, .stcl "
 00 00 t, noop ???"
 \ addr! dis disw disline                               13may95py
-: disline [: dup .lformat tab dup .code
-	tab swap 2dup - .dump ;]
-    $10 base-execute ;
-
-: dis    &20  BEGIN   cr dup 0>= WHILE >r disline r>
-              REPEAT  cr 2drop ;
-: disw   ' dup ."  Adresse : " u.  cr  &20
-         BEGIN  BEGIN  cr dup 0>= WHILE >r disline r>
-                       opcode @ $C3 = UNTIL THEN  drop &20
-         key   $FF and  #esc = UNTIL
-         cr 2drop ;
-: disline       ( addr -- addr' )
-         [: .code ;] $10 base-execute ;
 
 : .86    1 .length !  .alength on  len! ;
 : .386   .length off  .alength off len! ;
@@ -457,5 +467,16 @@ FE FE t, .grp4 "                F8 F8 t, .stcl "
 base !
 
 Forth definitions
+
+: disline ( addr -- addr' )
+    [: dup .lformat tab .code ;]
+    $10 base-execute ;
+
+: disasm ( addr u -- ) \ gforth
+    [: over + >r
+	begin  dup r@ u<  while  cr disline  repeat
+	cr rdrop drop ;] $10 base-execute ;
+
+' disasm is discode
 
 previous Forth
