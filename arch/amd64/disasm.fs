@@ -1,6 +1,8 @@
-\ disasm.fs	disassembler file (for AMD64 64-bit mode)
-\
-\ Copyright (C) 2004,2005,2007,2010,2014 Free Software Foundation, Inc.
+\ *** Disassembler for amd64 ***
+
+\ Copyright (C) 1992-2000 by Bernd Paysan (486 disassemlber)
+
+\ Copyright (C) 2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -16,705 +18,444 @@
 
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
-
-\ This architecture has very funny instruction encodings, all
-\ documented nicely in
-\ http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/24594.pdf
-
-\ Here's an even more condensed version:
-
-\ legacy-prefix* REX (Opcode1 | OF Opcode2) ( modrm sib? )? disp? imm?
-
-\ where the legacy prefixes are:
-\ 66 67 2e 3e 26 64 65 36 f0 f3 f2
-\ The 66 f2 f3 prefix are also used as part of the opcode for MMX, SSE, SSE2
-
-\ 67 changes the size of implicit operands of some instructions (e.g. LOOP)
-\ see table 1-4
-
-\ The REX prefixes supply 4 bits to the operands: WRXB; W=operand
-\ width; R=ModRM reg field ext; X=SIB index field ext; B=ModRM r/m
-\ field, SIB base field, or opcode reg field; also, the presence of a
-\ REX prefix makes the difference between SIL/DIL/BPL/SPL (present)
-\ and AH/BH/CH/DH (absent); the additional bits are ignored for the
-\ special cases of ModRM and SIB bytes.
-
-\ 3DNow instructions have opcode formed by 0F 0F and an imm byte
-
-get-current also see-voc definitions
-
-\ prelude
-: c@+ count ;
-
-: cell-fill ( addr u w -- )
-    rot rot 0 ?do
-	2dup i th !
-    loop
-    2drop ;
-
-: save-mem-here ( addr1 u -- addr2 u )
-    here >r
-    dup chars allot
-    tuck r@ swap chars move
-    r> swap ;
-
-: string-table ( n n*"string" -- addr )
-    here over 2* cells allot
-    swap 0 ?do
-	parse-word save-mem-here 2 pick i 2* cells + 2!
-    loop ;
-
-\ : bounds over + swap ;
-\ : rdrop postpone r> postpone drop ; immediate
-
-\ state coming from prefixes:
-variable operand-size \ true if prefix
-variable address-size \ true if prefix
-variable repeat-prefix \ 0, f2 or f3, depending on prefix
-variable rex-prefix \ 0 or 40-4f, depending on prefix
-
-: clear-prefixes ( -- )
-    operand-size off
-    address-size off
-    repeat-prefix off
-    rex-prefix off ;
-
-create opcode1-table \ xt table for decoding first opcode byte
-$100 cells allot
-
-: def-opcode1 ( xt opcode -- )
-    opcode1-table swap th ! ;
-
-: disasm-addr1 ( addr1 -- addr2 )
-    \ disassemble instruction with some prefixes set
-    opcode1-table over c@ th perform ;
-
-: disasm-addr ( addr1 -- addr2 )
-    dup clear-prefixes disasm-addr1
-    ."  \ " dup rot
-\     2drop ;
-    ?do
-	i c@ hex.
-    loop ;
-
-: disasm ( addr u -- ) \ gforth
-\G disassemble u aus starting at addr
-    over + >r begin
-	dup r@ u< while
-	    cr ." ( " dup hex. ." ) " disasm-addr
-    repeat
-    drop rdrop ;
-
-\ ' disasm is discode \ disable it while it's not working
-
-
-: print-rep ( -- )
-    repeat-prefix @ case
-	$f2 of ." repnz " endof
-	$f3 of ." repz " endof
-    endcase ;
-
-: illegal-inst ( addr1 -- addr2 )
-    print-rep dup c@ hex. 1+ ;
-   
-opcode1-table $100 ' illegal-inst cell-fill
-
-: repeat-prefix-disasm ( addr1 -- addr2 )
-    dup c@ repeat-prefix !
-    1+ disasm-addr1 ;
-
-' repeat-prefix-disasm $f2 def-opcode1
-' repeat-prefix-disasm $f3 def-opcode1
-
-: rex-prefix-disasm ( addr1 -- addr2 )
-    dup c@ rex-prefix !
-    1+ disasm-addr1 ;
-
-opcode1-table $40 th $10 ' rex-prefix-disasm cell-fill
-
-: immediate-prefix ( c "name" -- )
-    \ prefix that can be printed immediately and then forgotten
-    :noname
-    parse-word postpone sliteral postpone type postpone space postpone 1+
-    postpone disasm-addr1
-    postpone ;
-    swap def-opcode1 ;
-
-$2e immediate-prefix cs:
-$3e immediate-prefix ds:
-$26 immediate-prefix es:
-$64 immediate-prefix fs:
-$65 immediate-prefix gs:
-$36 immediate-prefix ss:
-$f0 immediate-prefix lock
-
-: operand-size-disasm  ( addr1 -- addr2 )
-    operand-size on
-    1+ disasm-addr1 ;
-
-' operand-size-disasm $66 def-opcode1
-
-: address-size-disasm ( addr1 -- addr2 )
-    address-size on
-    1+ disasm-addr1 ;
-
-' address-size-disasm $67 def-opcode1
-
-
-create reg8-names
-8 string-table al cl dl bl spl bpl sil dil drop
-
-create reg8-names-norex
-8 string-table al cl dl bl ah ch dh bh drop
-
-create reg16-names
-8 string-table ax cx dx bx sp bp si di drop
-
-create sreg-names
-8 string-table es cs ss ds fs gs reserved reserved
-
-: dec.- ( u -- )
-    base @ decimal swap 0 .r base ! ;
-
-: .regn ( u -- )
-    \ print r#
-    'r emit dec.- ;
-
-: .reg8 ( u -- )
-    dup 8 < if
-	2* cells
-	rex-prefix @ if
-	    reg8-names
-	else
-	    reg8-names-norex
-	endif
-	+ 2@ type
-    else
-	.regn 'b emit
-    endif ;
-
-: .reg16 ( u -- )
-    dup 8 < if
-	2* cells reg16-names + 2@ type
-    else
-	.regn 'w emit
-    endif ;
-
-: .reg32 ( u -- )
-    dup 8 < if
-	'e emit 2* cells reg16-names + 2@ type
-    else
-	.regn 'd emit
-    endif ;
-
-: .reg64 ( u -- )
-    dup 8 < if
-	'r emit 2* cells reg16-names + 2@ type
-    else
-	.regn
-    endif ;
-
-: .sreg ( u -- )
-    \ segment registers
-    2* cells sreg-names + 2@ type ;
-
-: .invalid ( u -- )
-    drop ." invalid" ;
-
-: Gnum ( addr -- u )
-    \ decode modRM reg field
-    c@ 3 rshift 7 and rex-prefix @ 4 and 2* + ;
-    
-: Gb ( addr -- )
-    \ decode and print modRM reg field as reg8
-    Gnum .reg8 ;
-
-: Sw ( addr -- )
-    \ decode and print modRM reg fueld as sreg
-    Gnum .sreg ;
-
-: .regv ( u -- )
-    \ print register according to operand width
-    rex-prefix c@ 8 and if
-	.reg64
-    else
-	operand-size @ if
-	    .reg16
-	else
-	    .reg32
-	endif
-    endif ;
-
-: .width ( -- )
-    \ print [wdq] according to operand width
-    rex-prefix c@ 8 and if
-	'q
-    else
-	operand-size @ if
-	    'w
-	else
-	    'd
-	endif
-    endif
-    emit ;
-
-: .width/2 ( -- )
-    \ print [bwd] according to operand width/2
-    rex-prefix c@ 8 and if
-	'd
-    else
-	operand-size @ if
-	    'b
-	else
-	    'w
-	endif
-    endif
-    emit ;
-
-: .width*2 ( -- )
-    \ print [dqo] according to operand width*2
-    rex-prefix c@ 8 and if
-	'o
-    else
-	operand-size @ if
-	    'd
-	else
-	    'q
-	endif
-    endif
-    emit ;
-
-: Gv ( addr -- )
-    \ decode and print modRM reg field according to operand width
-    Gnum .regv ;
-
-: Ox ( addr -- )
-    \ absolute addressing without modRM or SIB
-    dup @ hex. ." d[]" 8 + ; \ !! address-size override?
-
-create displacement-info
-  0 0 2,  1 $ff 2,  4 $ffffffff 2, \ size mask
-
-: masksx ( w1 mask -- w2 )
-    \ apply the mask of the form 0..01..1 in a sign-extending way
-    2dup dup 1 rshift invert and and 0<> ( w1 mask fneg )
-    over invert and ( w1 mask highbits )
-    rot rot and or ;
-
-: base-regnum ( modRM/SIB/opcode -- u )
-    \ extract modRM r/m or SIB base or opcode register number
-    7 and rex-prefix @ 1 and 3 lshift + ;
-
-: print-base ( sib -- )
-    '[ emit base-regnum .reg64 '] emit ;
-
-: mem-SIB ( dispsize mask addr1 -- addr2 )
-    \ decode memory operand described by SIB (mask gives the displacement size)
-    \ !! change output to stuff like 5 eax edx d[r][r*8]
-    >r
-    r@ c@ 7 and 5 = over 0= and if
-	2drop 4 $ffff ['] drop
-    else
-	['] print-base
-    endif
-    if ( dispsize mask xt-base )
-	r@ 1+ @ 2 pick masksx . 'd emit
-    endif
-    r@ c@ swap execute \ print base ( dispsize mask )
-    r@ c@ 3 rshift 7 and rex-prefix @ 2 and 2 lshift + ( d m index-reg )
-    dup 4 <> if
-	'[ emit .reg64 '* emit
-	1 r@ c@ 6 rshift lshift dec.- '] emit
-    endif
-    2drop r@ 1+ + ;
-
-: mem-modRM ( addr1 -- addr2 )
-    \ decode memory operand described by modRM
-    >r
-    \ get the displacement mask
-    displacement-info r@ c@ 6 rshift 2* th 2@ ( dispsize mask r: addr1 )
-    r@ c@ 7 and 4 = if
-	r> 1+ mem-SIB exit
-    endif
-    r@ c@ $c7 and 5 = if \ rip+disp32
-	2drop 4 $ffffffff r@ 1+ @ swap masksx . ."  d[rip] "
-    else dup if
-	    r@ 1+ @ swap masksx .
-	    r@ c@ base-regnum .reg64 ."  d[r] "
-	else
-	    drop
-	    r@ c@ base-regnum .reg64 ."  [r] "
-	endif endif
-    r> 1+ + ;
-
-: Ext ( addr1 xt -- addr2 )
-    \ decode and print modRM mod and r/m fields as r/m with width given by xt
-    >r dup c@ $c0 and $c0 = if
-	c@+ base-regnum r> execute exit
-    endif
-    rdrop mem-modRM ;
-
-: Eb ( addr1 -- addr2 )
-    \ decode and print modRM mod and r/m fields as r/m8
-    ['] .reg8 Ext ;
-
-: Ed ( addr1 -- addr2 )
-    ['] .reg32 Ext ;
-
-: Ev ( addr1 -- addr2 )
-    \ decode and print modRM mod and r/m fields as r/m8
-    ['] .regv Ext ;
-
-: Ib ( addr1 -- addr2 )
-    c@+ $ff masksx . ." # " ;
-
-: Jb ( addr1 -- addr2 )
-    c@+ $ff masksx over + hex. ;
-
-: immz ( addr1 -- addr2 imm mask )
-    >r
-    rex-prefix c@ 8 and 0= operand-size @ and if
-	$ffff 2
-    else
-	$ffffffff 4
-    endif
-    r@ +
-    r> @ rot ;
-
-: Iz ( addr1 -- addr2 )
-    \ print immediate operand
-    immz masksx . ."  # " ;
-
-: Jz ( addr1 -- addr2 )
-    immz masksx over + hex. ;
-
-: Iv ( addr1 -- addr2 )
-    >r
-    rex-prefix c@ 8 and if
-	$ffffffffffffffff 8
-    else
-	operand-size @ if
-	    $ffff 2
-	else
-	    $ffffffff 4
-	endif
-    endif
-    r@ +
-    r> @ rot
-    masksx . ."  # " ;
-
-\ add-like instruction types
-
-: Eb,Gb ( addr1 addr u -- addr2 )
-    2>r 1+ dup Eb space swap Gb space
-    2r> type ." b," ;
-
-: Ev,Gv ( addr1 addr u -- addr2 )
-    2>r 1+ dup Ev space swap Gv space
-    2r> type .width ', emit ;
-
-: Gb,Eb ( addr1 addr u -- addr2 )
-    2>r 1+ dup Gb space Eb space
-    2r> type ." b," ;
-
-: Gv,Ev ( addr1 addr u -- addr2 )
-    2>r 1+ dup Gv space Ev space
-    2r> type .width ', emit ;
-
-: AL,Ib ( addr1 addr u -- addr2 )
-    2>r 0 .reg8 space 1+ Ib 2r> type ." b," ;
-
-: rAX,Iz ( addr1 addr u -- addr2 )
-    2>r 0 .regv space 1+ Iz 2r> type .width ', emit ;
-
-: set-noarg ( addr u opcode -- )
-    >r 2>r :noname postpone 1+ 2r> postpone sliteral postpone type postpone ;
-    r> def-opcode1 ;
-
-: set-add-like ( addr u type-xt opcode -- )
-    >r >r 2>r
-    :noname 2r> postpone sliteral r> compile, postpone ;
-    r> def-opcode1 ;
-
-: set-add-likes ( addr u base-opcode -- )
-    >r
-    2dup ['] Eb,Gb  r@ 0 + set-add-like
-    2dup ['] Ev,Gv  r@ 1 + set-add-like
-    2dup ['] Gb,Eb  r@ 2 + set-add-like
-    2dup ['] Gv,Ev  r@ 3 + set-add-like
-    2dup ['] AL,Ib  r@ 4 + set-add-like
-    2dup ['] rAX,Iz r@ 5 + set-add-like
-    2drop rdrop ;
-
-s" add" $00 set-add-likes
-s" adc" $10 set-add-likes
-s" and" $20 set-add-likes
-s" xor" $30 set-add-likes
-s" or"  $08 set-add-likes
-s" sbb" $18 set-add-likes
-s" sub" $28 set-add-likes
-s" cmp" $38 set-add-likes
-
-: push-reg ( addr1 -- addr2 )
-    c@+ base-regnum .reg64 space ." pushq," ;
-
-opcode1-table $50 th 8 ' push-reg cell-fill
-
-: pop-reg ( addr1 -- addr2 )
-    c@+ base-regnum .reg64 space ." popq," ;
-
-opcode1-table $58 th 8 ' push-reg cell-fill
-
-:noname \ movsxd ( addr1 -- addr2 )
-    1+ dup Gv space swap Ed ."  movsxd," ;
-$63 def-opcode1
-
-:noname \ push-Iz ( addr1 -- addr2 )
-    1+ Iz ." # push" .width ', emit ;
-$68 def-opcode1
-
-:noname \ imul-Gv,Ev,Iz ( addr1 -- addr2 )
-    1+ dup Gv space Ev Iz ."  imul" .width ', emit ;
-$69 def-opcode1
-
-:noname \ push-Ib ( addr1 -- addr2 )
-    1+ Ib ." # pushb," ;
-$6a def-opcode1
-
-:noname \ imul-Gb,Eb,Ib ( addr1 -- addr2 )
-    1+ dup Gb space Eb Ib ."  imulb," ;
-$6b def-opcode1
-
-s" insb," $6c set-noarg
-
-:noname ( addr1 -- addr2 )
-    ." ins" .width ', emit 1+ ;
-$6d def-opcode1
-
-s" outsb," $6e set-noarg
-
-:noname ( addr1 -- addr2 )
-    ." outs" .width ', emit 1+ ;
-$6f def-opcode1
-
-create conditions
-16 string-table o no c nc z nz na a s ns p np l ge le g
-
-: jcc-short ( addr1 -- addr2 )
-    dup 1+ Jb swap
-    'j emit c@ $f and 2* cells conditions + 2@ type ', emit ;
-
-opcode1-table $70 th $10 ' jcc-short cell-fill
-
-s" test" ' Eb,Gb $84 set-add-like
-s" test" ' Ev,Gv $85 set-add-like
-s" xchg" ' Eb,Gb $86 set-add-like
-s" xchg" ' Ev,Gv $87 set-add-like
-s" mov"  ' Eb,Gb $88 set-add-like
-s" mov"  ' Ev,Gv $89 set-add-like
-s" mov"  ' Gb,Eb $8a set-add-like
-s" mov"  ' Gv,Ev $8b set-add-like
-
-:noname \ mov-Mw/Rv,Sw ( addr1 -- addr2 )
-    1+ dup Ev space swap Sw ."  movw," ;
-$8c def-opcode1
-
-:noname \ lea-Gv,M ( addr1 -- addr2 )
-    1+ dup Gv space ['] .invalid Ext ."  lea," ;
-$8d def-opcode1
-
-:noname \ mov-Sw,Ew ( addr1 -- addr2 )
-    1+ dup Sw space Ev ." movw," ;
-$8e def-opcode1
-
-: xchg-ax ( addr1 -- addr2 )
-    c@+ base-regnum dup 0= if
-	drop ." nop," exit
-    endif
-    .regv space 0 .regv ."  xchg," ;
-
-opcode1-table $90 th 8 ' xchg-ax cell-fill
-
-:noname \ Cx/2-x
-    'c emit .width/2 .width ." e," ;
-$98 def-opcode1
-
-:noname \ Cx/2-x
-    ." ," .width .width*2 ." ," ;
-$99 def-opcode1
-
-s" fwait," $9b set-noarg
-
-:noname ( addr1 -- addr2 )
-    ." pushfq," 1+ ; \ !! deal with 16-bit prefix
-$9c def-opcode1
-
-:noname ( addr1 -- addr2 )
-    ." popfq," 1+ ; \ !! deal with 16-bit prefix
-$9d def-opcode1
-
-s" sahf," $9e set-noarg
-s" lahf," $9f set-noarg
-
-:noname \ mov-al,Ob ( addr1 -- addr2 )
-    0 .reg8 space 1+ Ox ." movb," ;
-$a0 def-opcode1
-
-:noname \ mov-xAx,Ov ( addr1 -- addr2 )
-    0 .regv space 1+ Ox ." mov" .width ', emit ;
-$a1 def-opcode1
-
-:noname \ mov-Ob,al ( addr1 -- addr2 )
-    1+ Ox 0 .reg8 space ." movb," ;
-$a2 def-opcode1
-
-:noname \ mov-Ov,xAx ( addr1 -- addr2 )
-    1+ Ox 0 .regv space ." mov" .width ', emit ;
-$a3 def-opcode1
-
-s" movsb," $a4 set-noarg
-    
-:noname ( addr1 -- addr2 )
-    ." movs" .width ', emit 1+ ;
-$a5 def-opcode1
-
-s" cmpsb," $a6 set-noarg
-    
-:noname ( addr1 -- addr2 )
-    ." cmps" .width ', emit 1+ ;
-$a7 def-opcode1
-
-s" test" ' Al,Ib  $a8 set-add-like
-s" test" ' rAX,Iz $a9 set-add-like
-s" stosb," $aa set-noarg
-    
-:noname ( addr1 -- addr2 )
-    ." stos" .width ', emit 1+ ;
-$ab def-opcode1
-
-s" lodsb," $ac set-noarg
-    
-:noname ( addr1 -- addr2 )
-    ." lods" .width ', emit 1+ ;
-$ad def-opcode1
-
-s" scasb," $ae set-noarg
-    
-:noname ( addr1 -- addr2 )
-    ." scas" .width ', emit 1+ ;
-$af def-opcode1
-
-: mov-reg8-Ib ( addr1 -- addr2 )
-    c@+ base-regnum .reg8 Ib ."  movb," ;
-
-opcode1-table $b0 th 8 ' mov-reg8-Ib cell-fill
-
-: mov-regv-Iv ( addr1 -- addr2 )
-    c@+ base-regnum .regv Iv ."  mov" .width ." ," ;
-
-opcode1-table $b8 th 8 ' mov-regv-Iv cell-fill
-
-:noname ( addr1 -- addr2 )
-    1+ dup @ $ffff masksx . ." ret#," 2 + ;
-$c2 def-opcode1
-
-s" ret," $c3 set-noarg
-
-:noname ( addr1 -- addr2 )
-    1+ dup @ $ffff and u. 2 + c@+ . ." enter," ;
-$c8 def-opcode1
-
-s" leave," $c9 set-noarg
-
-:noname ( addr1 -- addr2 )
-    1+ dup @ $ffff masksx . ." retfar#," 2 + ;
-$ca def-opcode1
-
-s" retfar," $cb set-noarg
-s" int3," $cc set-noarg
-
-:noname ( addr1 -- addr2 )
-    1+ Ib ." int," ;
-$cd def-opcode1
-
-s" iret," $cf set-noarg
-s" xlatb," $d7 set-noarg
-
-:noname ( addr1 -- addr2 )
-    1+ Jb ." loopnz," ;
-$e0 def-opcode1
-
-:noname ( addr1 -- addr2 )
-    1+ Jb ." loopz," ;
-$e1 def-opcode1
-
-:noname ( addr1 -- addr2 )
-    1+ Jb ." loop," ;
-$e2 def-opcode1
-
-:noname ( addr1 -- addr2 )
-    1+ Jb 'j emit 1 .regv ." z," ;
-$e3 def-opcode1
-
-:noname ( addr1 -- addr2 )
-    1+ c@+ hex. ." inb#," ;
-$e4 def-opcode1
-
-:noname ( addr1 -- addr2 )
-    1+ c@+ hex. ." in" .width ." #," ;
-$e5 def-opcode1
-
-:noname ( addr1 -- addr2 )
-    1+ c@+ hex. ." outb#," ;
-$e6 def-opcode1
-
-:noname ( addr1 -- addr2 )
-    1+ c@+ hex. ." out" .width ." #," ;
-$e7 def-opcode1
-
-:noname ( addr1 -- addr2 )
-    1+ Jz ."  call," ;
-$e8 def-opcode1
-
-:noname ( addr1 -- addr2 )
-    1+ Jz ."  jmp," ;
-$e9 def-opcode1
-
-:noname ( addr1 -- addr2 )
-    1+ Jb ."  jmp," ;
-$eb def-opcode1
-
-s" inb," $ec set-noarg
-
-:noname ( addr1 -- addr2 )
-    1+ ." in" .width ." ," ;
-$ed def-opcode1
-
-s" outb," $ee set-noarg
-
-:noname ( addr1 -- addr2 )
-    1+ ." out" .width ." ," ;
-$ef def-opcode1
-
-s" int1," $f1 set-noarg
-s" hlt," $f4 set-noarg
-s" cmc," $f5 set-noarg
-s" clc," $f8 set-noarg
-s" stc," $f9 set-noarg
-s" cli," $fa set-noarg
-s" sti," $fb set-noarg
-s" cld," $fc set-noarg
-s" std," $fd set-noarg
-
-\ !! 80-83: Group1
-\ !! 8f: Group1a
-\ !! c0,c1,d0-d3: Group2
-\ !! c6,c7: Group11
-\ !! d8-df: x87
-\ !! f6,f7: Group3
-\ !! fe: Group4
-\ !! ff: Group5
-\ !! 0f: 2-byte opcodes
-
-2drop
-set-current previous
+\
+\ amd disassembler loadscreen                         19may97py
+
+Vocabulary disassembler
+
+disassembler also definitions
+
+base @ $8 base !
+
+Variable cp?
+
+\ long words and presigns                              31dec92py
+
+: .#    '# emit ;
+: .$    '$ emit ;
+: .,    ', emit ;
+: .+    '+ emit ;
+: .-    '- emit ;
+: ..    '. emit ;
+: .:    ': emit ;
+: .[    '[ emit ;
+: .]    '] emit ;
+
+\ signed / unsigned byte, word and long output         07aug10py
+
+: .lformat   ( addr -- )  $8 u.r ." :" ;
+
+: .du   ( n -- )       0  <<# #s #> type #>> ;
+: .$du  ( n -- )       .$ .du ;
+: .$ds  ( n -- )       dup 0< IF  .- negate  THEN  .$du ;
+
+: .by   ( 8b -- )      0  <<#  # #  #>  type #>> ;
+: .$bu  ( 8b -- )      .$ .by ;
+: .$bs  ( 8b -- )      $FF and dup $7F >
+                           IF .- $100 swap - THEN .$bu  ;
+
+: .dump ( addr len -- )   bounds DO  i c@ .by  LOOP ;
+
+
+\ Variables and tabs                                   16nov97py
+
+Variable opcode
+Variable mode
+Variable length
+Variable alength
+Variable .length
+Variable .alength
+Variable .amd64mode
+Variable seg: seg: on
+Variable rex
+
+  &36 constant  bytfld
+  &10 constant  mnefld
+  &18 constant  addrfld
+: tab #tab emit ;
+
+: len!  .length @ length !  .alength @ alength !  seg: on ;
+
+: t,   swap align c, c, align ' ,   '" parse here over 1+ allot place align ;
+
+\ Strings                                              07feb93py
+Create "regs ," AXCXDXBXSPBPSIDIALCLDLBLAHCHDHBH"
+Create "16ri ," BX+SIBX+DIBP+SIBP+DISI   DI   BP   BX   "
+Create "ptrs ," DWORDWORD BYTE "
+Create "idx  ,"   *2*4*8"
+Create "seg  ," ESCSSSDSFSGS"   Create "seg1 ," escsssdsfsgs"
+Create "jmp ," o b z bes p l le"
+Create grp1 ," addor adcsbbandsubxorcmprolrorrclrcrshlshrsalsar"
+Create grp3 ," testtestnot neg mul imuldiv idiv"
+Create grp4 ," inc  dec  call callfjmp  jmpf push g4?? "
+Create grp6  ," sldtstr lldtltr verrverwg6??g6??sgdtsidtlgdtlidtsmswg7??lmswg7??"
+Create grp8 ," ???? src"
+2 "regs c!      5 "16ri c!      5 "ptrs c!      2 "idx  c!
+2 "seg  c!      2 "seg1 c!      2 "jmp  c!      3 grp1  c!
+4 grp3  c!      5 grp4  c!      4 grp6  c!      1 grp8  c!
+\ Register display                                     05dec92py
+
+: *."  ( n addr -- )  count >r swap r@ * + r> -trailing type ;
+: .(reg ( n l -- )
+  dup 0= IF  drop 'E emit  ELSE  2 = IF  $8 +  THEN  THEN
+  "regs *." ;
+: .reg  ( n -- )  length @ .(reg ;
+: .ereg ( n -- )  'E emit  "regs *." ;
+: .seg  ( n -- )  "seg *." ;
+
+: mod@ ( addr -- addr' r/m reg )
+  count dup 70 and 3 rshift swap 307 and swap ;
+: .8b  ( addr -- addr' )  count .$bs ;
+: .32b ( addr -- addr' )  dup @  .$ds 4 + ;
+: .32u ( addr -- addr' )  dup @  .$du 4 + ;
+
+\ Register display                                     05dec92py
+
+Create .disp ' noop ,  ' .8b ,   ' .32b ,
+
+: .sib  ( addr mod -- addr' ) >r count  dup 7 and 5 = r@ 0= and
+  IF    rdrop >r .32b r>
+  ELSE  swap r> cells .disp + perform swap dup 7 and .[ .ereg .]
+  THEN  3 rshift dup 7 and 4 = 0=
+  IF    .[ dup 7 and .ereg 3 rshift "idx *." .]
+  ELSE  drop  THEN ;
+
+: .32a  ( addr r/m -- addr' ) dup 7 and >r 6 rshift
+  dup 3 =            IF  drop r>       .reg    exit  THEN
+  dup 0= r@ 5 = and  IF  drop rdrop .[ .32u .] exit  THEN
+  r@  4 =            IF       rdrop    .sib    exit  THEN
+  cells .disp + perform  r> .[ .ereg .] ;
+\ Register display                                     29may10py
+
+: wcount ( addr -- addr' w ) dup uw@ >r 2 + r> ;
+: wxcount ( addr -- addr' w ) dup sw@ >r 2 + r> ;
+: +8b  ( addr -- addr' )  count  .$bs ;
+: +16b ( addr -- addr' )  wcount .$ds ;
+
+Create .16disp  ' noop , ' +8b , ' +16b ,
+
+: .16r  ( reg -- ) .[ "16ri *." .] ;
+: .16a  ( addr r/m -- addr' ) 307 and
+  dup 006 =  IF  drop wcount .[ .$du .] exit  THEN
+  dup 7 and >r 6 rshift  dup 3 =  IF  drop r> .reg exit  THEN
+  cells .16disp + perform r> .16r  ;
+
+
+\ Register display                                     01jan93py
+
+: .addr ( addr r/m -- addr' )
+  seg: @ 0< 0= IF  seg: @ .seg ': emit  THEN
+  alength @  IF  .16a  ELSE  .32a  THEN ;
+
+: .ptr  ( addr r/m -- addr' )
+  dup 300 < IF  length @ "ptrs *." ."  PTR "  THEN  .addr ;
+
+: .mod  ( addr -- addr' )  mod@ .reg ., .addr ;
+: .rmod ( addr -- addr' )  mod@ >r .addr r> ., .reg ;
+
+: .imm  ( addr -- addr' )  length @
+  dup 0= IF  drop  dup @  .$ds 4 + exit  THEN
+  1 =    IF  wcount .$ds exit  THEN  count .$bs ;
+
+\ .ari                                                 07feb93py
+
+Defer .code
+
+: .b? ( -- ) opcode @ 1 and 0= IF  2 length !  THEN ;
+: .ari   .b? tab
+  opcode @ dup 4 and  IF  drop 0 .reg ., .imm exit  THEN
+  2 and  IF  .mod  ELSE  .rmod  THEN ;
+: .modt  tab .mod ;
+: .gr    tab  opcode @ 7 and .reg ;
+: .rexinc  .amd64mode @ IF  opcode @ $F and rex !  .code  EXIT  THEN
+    ." inc" .gr ;
+: .rexdec  .amd64mode @ IF  opcode @ $F and rex !  .code  EXIT  THEN
+    ." dec" .gr ;
+
+: .igrv  .gr ., .imm ;
+: .igrb  2 length ! .igrv ;
+: .igr   .b? .igrv ;
+: .modb  .b? tab .rmod ;
+
+: .xcha  .gr ., 0 .reg ;
+\ .conds modifier                                      29may10py
+
+: .cond ( -- ) opcode @
+  17 and  dup 1 and  IF  'n' emit  THEN  2/ "jmp *." ;
+: .jb   tab count dup $80 and IF -$80 or THEN over + .$du ;
+: .jv   tab  alength @  IF  wxcount over
+  ELSE  dup @  swap 4 + tuck  THEN + .$du ;
+: .js   .cond .jb ;
+: .jl   .cond .jv ;
+: .set  .cond tab mod@ drop 2 length ! .ptr ;
+
+: asize   alength @ invert alength ! .code ;
+: osize   length @ 1 xor   length ! .code ;
+: .seg:   opcode @ 3 rshift 3 and seg: ! .code ;
+: .segx   opcode @ 1 and 4 +   seg: ! .code ;
+: .pseg   tab opcode @ 3 rshift 7 and .seg ;
+\ .grp1 .grp4 .adj .arpl                               05dec92py
+: .grp1   .b? mod@ grp1 *." tab .ptr .,
+  opcode @ 3 and 3 = IF  2 length !  THEN  .imm ;
+: .grp2   .b? mod@ $8 + grp1 *." tab .ptr .,
+  opcode @ 2 and IF ." CL" ELSE ." 1" THEN ;
+: .grp3   .b? mod@ dup >r grp3 *." tab
+  r@ 3 > IF  0 .reg .,  THEN
+  r@ 2 4 within  IF  .ptr  ELSE  .addr  THEN
+  r> 2 < IF  ., .imm  THEN ;
+: .grp4   .b? mod@ dup grp4 *." tab
+  2 + 7 and 4 < IF  .ptr  ELSE  .addr  THEN ;
+: .adj    opcode @ dup $10 and
+  IF  'a'  ELSE  'd'  THEN  emit  'a' emit  $8 and
+  IF  's'  ELSE  'a'  THEN  emit ;
+: .seg#   .[ dup alength @ 2* 4 + + wcount .$du
+  .: swap alength @ IF  wcount .$du  ELSE  .32u  THEN .] drop ;
+\ .movo .movx .str                                     23jan93py
+: .movo   tab .b?
+  opcode @ 2 and 0= IF  0 .reg .,  THEN  $05 alength @ - .addr
+  opcode @ 2 and    IF  ., 0 .reg  THEN ;
+: .movx   tab mod@ .reg ., 1 length ! .b? .ptr ;
+: .movi   .b? tab mod@ drop .ptr ., .imm ;
+: .movs   tab mod@  opcode @ 2 and
+  IF  .seg ., .addr  ELSE  >r .addr ., r> .seg  THEN ;
+: .str    .b? " dwb" 1+ length @ + c@ emit ;
+: .far    tab .seg# ;
+: .modiv   .modt ., .imm ;
+: .modib   .modt ., 2 length ! .imm ;
+: .iv     tab .imm ;
+: .ib     2 length ! .iv ;
+: .ev     tab mod@ drop .ptr ;
+: .arpl   tab  1 length !  .rmod ;
+\ .mne                                                 16nov97py
+
+: .io   tab .b? 0 .reg ., 1 length ! 2 .reg ;
+: .io#  tab .b? 0 .reg ., count .$bu ;
+: .ret  opcode @ 1 and 0= IF tab wcount .$du THEN ;
+: .enter  tab wcount .$du ., count .$bu ;
+: .stcl opcode @ 1 and IF ." st" ELSE ." cl" THEN
+  " cid " 1+ opcode @ 2/ 3 and + c@ emit ;
+
+: .mne ( addr field -- addr' )  >r count dup opcode ! r>
+    BEGIN  2dup c@  and  over 1+ c@ = 0= WHILE
+	    cell+ cell+ count + aligned  REPEAT
+  nip dup cell+ cell+  count type  cell+ perform len! ;
+
+0 Value mntbl
+:noname  mntbl .mne ; is .code
+
+\ .grp6 .grp7                                          07aug10py
+
+: .grp6  1 length ! mod@ opcode @ 3 lshift + grp6 *." tab .addr ;
+: .grp2i  .b? mod@ $8 + grp1 *." tab .ptr ., 2 length ! .imm ;
+: .grp8   mod@ grp8 *." tab .addr ., 2 length ! .imm ;
+: .bt     opcode @ 3 rshift 7 and grp8 *." tab .rmod ;
+Create  lbswap  0 c, 3 c, 3 c, 0 c,
+: .movrx  tab  opcode @ dup 3 and lbswap + c@ xor 7 and >r
+  mod@ r@ 1 and  IF  swap 7 and .reg .,  THEN
+  r@ 2/ " CDT?" + 1+ c@ swap 0 <<# # 'R hold rot hold #> type
+  #>> r> 1 and  0= IF  ., 7 and .reg  THEN ;
+: .lxs  opcode @ 7 and "seg1 *." .modt ;
+: .shd  tab .rmod ., 2 length ! opcode @ 1 and
+  IF  1 .reg  ELSE  .imm  THEN ;
+
+
+\ .esc                                                 22may93py
+: flt,  c, bl parse here over 1+ allot place ;
+Create fop1table hex
+80 flt, chs     81 flt, abs     84 flt, tst     85 flt, xam
+08 flt, ld1     09 flt, ldl2t   0A flt, ldl2e   0B flt, ldpi
+0C flt, ldlg2   0D flt, ldln2   0E flt, ldz
+90 flt, 2xm1    D1 flt, yl2x    92 flt, ptan    D3 flt, patan
+94 flt, xtract  D5 flt, prem1   16 flt, decstp  17 flt, incstp
+D8 flt, prem    D9 flt, yl2xp1  9A flt, sqrt    9B flt, sincos
+9C flt, rndint  DD flt, scale   9E flt, sin     9F flt, cos
+: .st   ." ST"  ?dup IF  ." (" 1 .r ." )"  THEN ;
+: .st?  dup 40 and IF 1 .st ., THEN  80 and IF 0 .st THEN ;
+: .fop1 ( IP opcode -- IP )  1F and >r fop1table
+  BEGIN  count 1F and r@ <  WHILE  count +  REPEAT
+  dup 1- c@ dup 1F and r> =
+  IF  swap count type tab  .st?  ELSE  ." ??" 2drop  THEN ;
+\ .esc                                                 18dec93py
+Create fopbtable
+00 flt, add     01 flt, mul     02 flt, com     03 flt, comp
+04 flt, sub     05 flt, subr    06 flt, div     07 flt, divr
+08 flt, ld      09 flt, xch     0A flt, st      0B flt, stp
+Create "fptrs ," SFLOATDWORD DFLOATWORD  "      6 "fptrs c!
+: .modst  count type dup 200 and IF  ." p"  THEN  tab
+  dup 400 and IF  dup 7 and .st .,  THEN  0 .st
+  dup 400 and 0= IF  dup 7 and ., .st  THEN  drop ;
+: .fmodm  over 9 rshift dup >r 1 and IF ." i" THEN  count type tab
+  r> "fptrs *." ."  PTR " FF and .addr ;
+: .modfb ( IP opcode -- IP' )  dup 1D0 = IF drop ." nop" exit THEN
+  dup 7F8 and 5C0 = IF ." free" tab 7 and .st exit  THEN
+  dup dup 38 and 3 rshift swap 100 and 5 rshift or >r fopbtable
+  BEGIN  count 1F and r@ <  WHILE  count +  REPEAT  rdrop
+  over C0 and C0 =  IF  .modst  ELSE  .fmodm  THEN  ;
+\ .esc                                                 22may93py
+Create fopatable
+00 flt, ldenv   01 flt, ldcw    02 flt, stenv   03 flt, stcw
+                05 flt, ld                      07 flt, stp
+08 flt, rstor                   0A flt, save    0B flt, stsw
+0C flt, bld     0D flt, ild     0E flt, bstp    0F flt, istp
+
+: .modfa  ( IP opcode -- IP' )
+    dup 7E0 = IF  drop ." stsw" tab ." AX" exit  THEN
+    dup 600 and 7 rshift over 18 and 3 rshift or >r fopatable
+    BEGIN  count 1F and r@ <  WHILE  count +  REPEAT
+    dup 1- c@ r> = 0= IF  drop  " ??"  THEN
+    count type tab FF and .addr ;
+
+
+
+\ .esc                                                 02mar97py
+
+: .fop2   1F and  dup 2 = IF  drop ." clex" exit  THEN
+  dup 3 = IF  drop ." init" exit THEN ." ??" .  ;
+: .esc  ( ip -- ip' )  count opcode @ 7 and 8 lshift or
+  dup 7E0 and 1E0 = IF  .fop1  exit  THEN
+  dup 7E0 and 3E0 = IF  .fop2  exit  THEN
+  dup 120 and 120 = IF  .modfa exit  THEN  .modfb ;
+
+
+
+
+
+
+
+
+\ .mmi                                                 02mar97py
+
+: .mmr ( reg -- )  ." MM" 7 and 0 .r ;
+: .mma ( r/m -- )  dup $C0 <
+  IF ." QUAD PTR " .addr  ELSE  .mmr  THEN ;
+: .mmq ( ip -- ip' )  tab mod@ .mmr ., .mma ;
+: .mms ( -- )  opcode @ 3 and s" bwdq" drop + c@ emit ;
+: .mmx ( ip -- ip' )  .mms  .mmq ;
+: .mmi ( ip -- ip' )  mod@ 2/ 3 and
+  s" ??rlrall" drop swap 2* + 2 type .mms tab .mmr ., .8b ;
+
+
+
+
+
+
+\ 0Ffld                                                16nov97py
+Create 0Ftbl
+FE 00 t, .grp6 "
+FF 02 t, .modt lar"             FF 03 t, .modt lsl"
+FF 06 t, noop clts"             F8 20 t, .movrx mov"
+FF 08 t, noop invd"             FF 09 t, noop wbinvd"
+F0 80 t, .jl j"                 F0 90 t, .set set"
+F7 A0 t, .pseg push"            F7 A1 t, .pseg pop"
+FE A4 t, .shd shld"             FE AC t, .shd shrd"
+E7 A3 t, .bt bt"                FE A6 t, .modb cmpxchg"
+FE B6 t, .movx movzx"           FF BA t, .grp8 bt"
+F8 B0 t, .lxs l"                FE BE t, .movx movsx"
+FE C0 t, .modb xadd"            F8 C8 t, .gr bswap"
+FF AF t, .modt imul"            FF BC t, .modt bsf"
+FF BD t, .modt bsr"             FF C7 t, .ev cmpxchg8b"
+
+\ 0Ffld                                                12apr98py
+
+FC 70 t, .mmi ps"
+FF 30 t, noop wrmsr"            FF 32 t, noop rdmsr"
+
+
+FF D5 t, .mmq pmullw"           FF E5 t, .mmq pmulhw"
+FF F5 t, .mmq pmaddwd"
+FF DB t, .mmq pand"             FF $DF t, .mmq pandn"
+FF EB t, .mmq por"              FF EF t, .mmq pxor"
+FC D0 t, .mmx psrl"             FC D8 t, .mmx psubu"
+FC E0 t, .mmx psra"             FC E8 t, .mmx psubs"
+FC F0 t, .mmx psll"             FC F8 t, .mmx psub"
+FC DC t, .mmx paddu"            FC EC t, .mmx padds"
+FC FC t, .mmx padd"             00 00 t, noop 0F???"
+: .0f     0Ftbl  .mne ;
+\ disassembler table                                   22may93py
+align here to mntbl
+FF 0F t, .0f "
+E7 06 t, .pseg push"            E7 07 t, .pseg pop"
+F8 00 t, .ari add"              F8 08 t, .ari or"
+F8 10 t, .ari adc"              F8 18 t, .ari sbb"
+E7 26 t, .seg: "                E7 27 t, .adj "
+F8 20 t, .ari and"              F8 28 t, .ari sub"
+F8 30 t, .ari xor"              F8 38 t, .ari cmp"
+F8 40 t, .rexinc "              F8 48 t, .rexdec "
+F8 50 t, .gr push"              F8 58 t, .gr pop"
+FF 60 t, noop pusha"            FF 61 t, noop popa"
+FF 62 t, .modt bound"           FF 63 t, .arpl arpl"
+FE 64 t, .segx "
+FF 66 t, osize "                FF 67 t, asize "
+
+\ disassembler table                                   21may94py
+
+FF 68 t, .iv push"              FF 69 t, .modiv imul"
+FF 6A t, .ib push"              FF 6B t, .modib imul"
+FE 6C t, .str ins"              FE 6E t, .str outs"
+F0 70 t, .js j"                 FF 82 t, noop ???"
+FC 80 t, .grp1 "                FE 84 t, .modb test"
+FE 86 t, .modb xchg"            FC 88 t, .ari mov"
+FD 8C t, .movs mov"             FF 8D t, .modt lea"
+FF 8F t, .ev pop"
+FF 90 t, noop nop"              F8 90 t, .xcha xchg"
+FF 98 t, noop cbw"              FF 99 t, noop cwd"
+FF 9A t, .far callf"            FF 9B t, noop wait"
+FF 9C t, noop pushf"            FF 9D t, noop popf"
+FF 9E t, noop sahf"             FF 9F t, noop lahf"
+
+\ disassembler table                                   22may93py
+
+FC A0 t, .movo mov"             FE A4 t, .str movs"
+FE A6 t, .str cmps"             FE A8 t, .igr test"
+FE AA t, .str stos"             FE AC t, .str lods"
+FE AE t, .str scas"
+F8 B0 t, .igrb mov"             F8 B8 t, .igrv mov"
+FE C0 t, .grp2i "               FE C2 t, .ret ret"
+FF C4 t, .modt les"             FF C5 t, .modt lds"
+FE C6 t, .movi mov"
+FF C8 t, .enter enter"          FF C9 t, noop leave"
+FE CA t, .ret retf"
+FF CC t, noop int3"            FF 0CD t, .ib int"
+FF CE t, noop into"             FF CF t, noop iret"
+
+
+\ disassembler table                                   12aug00py
+FC D0 t, .grp2 "
+FF D4 t, noop aam"              FF D5 t, noop aad"
+FF D6 t, noop salc"
+FF D7 t, noop xlat"             F8 D8 t, .esc f"
+FF E0 t, .jb loopne"            FF E1 t, .jb loope"
+FF E2 t, .jb loop"              FF E3 t, .jb jcxz"
+FE E4 t, .io# in"               FE E6 t, .io# out"
+FF E8 t, .jv call"              FF E9 t, .jv jmp"
+FF EA t, .far jmpf"             FF EB t, .jb jmp"
+FE EC t, .io in"                FE EE t, .io out"
+FF F0 t, .code lock "           FF F2 t, .code rep "
+FF F3 t, .code repe "           FF F4 t, noop hlt"
+FF F5 t, noop cmc"              FE F6 t, .grp3 "
+FE FE t, .grp4 "                F8 F8 t, .stcl "
+00 00 t, noop ???"
+\ addr! dis disw disline                               13may95py
+: disline [: dup .lformat tab dup .code
+	tab swap 2dup - .dump ;]
+    $10 base-execute ;
+
+: dis    &20  BEGIN   cr dup 0>= WHILE >r disline r>
+              REPEAT  cr 2drop ;
+: disw   ' dup ."  Adresse : " u.  cr  &20
+         BEGIN  BEGIN  cr dup 0>= WHILE >r disline r>
+                       opcode @ $C3 = UNTIL THEN  drop &20
+         key   $FF and  #esc = UNTIL
+         cr 2drop ;
+: disline       ( addr -- addr' )
+         [: .code ;] $10 base-execute ;
+
+: .86    1 .length !  .alength on  len! ;
+: .386   .length off  .alength off len! ;
+: .amd64 .386 .amd64mode on ;
+
+base !
+
+Forth definitions
+
+previous Forth
