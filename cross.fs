@@ -2136,7 +2136,7 @@ X has? f83headerstring [IF]
     2drop 2drop  2r> compact-filename ;
 : included-files, ( -- addr )
     cell allocate throw { w^ array }  0 array @ !
-    current-sourcepos1 #23 rshift  0 ?DO
+    tsourcepos1 #23 rshift  0 ?DO
 	T here H
 	array @ I 2 + cells resize throw array !
 	cell array @ +!
