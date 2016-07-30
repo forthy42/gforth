@@ -1091,7 +1091,7 @@ MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
 gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
 
-gforth$(OPT)$(EXT): $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
+gforth$(OPT)$(EXT):
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
 	else \
@@ -1110,7 +1110,7 @@ optgforth:
 
 gforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
 
-gforth-fast$(OPT)$(EXT): $(FORTH_GEN_ENGINE_FAST) engine/config.h
+gforth-fast$(OPT)$(EXT):
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
 	else \
