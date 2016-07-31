@@ -215,7 +215,7 @@ FVariable scroll-time
 	to videomem
 	color-index @
 	videomem r>
-	videocols videorows * sfloats /string bounds ?DO
+	videocols videorows * sfloats /string bounds +DO
 	    dup I l!
 	1 sfloats +LOOP drop
 	gl-xy @ 1+ to videorows
@@ -333,7 +333,7 @@ Variable gl-emit-buf
 4e FConstant scroll-deltat
 : >scroll-pos ( -- 0..1 )
     ftime scroll-time f@ f- scroll-deltat f*
-    1e fmin 0.5e f- pi f* fsin 1e f+ f2/ ;
+    1e fmin 0e fmax 0.5e f- pi f* fsin 1e f+ f2/ ;
 
 : set-scroll ( r -- )
     scroll-y @ s>f y-pos sf@ f2/ rows fm* f+ scroll-source f!
