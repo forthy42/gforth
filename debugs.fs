@@ -186,7 +186,7 @@ Variable locate-pos
     lineno before-locate 1+ - 0 max +DO  cr
 	I 1+ lineno = IF
 	    err-color attr!
-	    '*' emit  I 1+ 3 .r ." : "
+	    '*' emit  I 1+ 5 .r ." : "
 	    I locate-file[] $[]@
 	    over charno type charno /string
 	    info-color attr!
@@ -195,7 +195,7 @@ Variable locate-pos
 	    type
 	    default-color attr!
 	ELSE
-	    I 1+ 4 .r ." : "
+	    I 1+ 6 .r ." : "
 	    I locate-file[] $[]@ type
 	THEN
     LOOP ;
@@ -203,7 +203,7 @@ Variable locate-pos
     decode-pos1 drop nip {: lineno :}
     lineno after-locate + 1+ locate-file[] $[]# umin
     lineno before-locate 1+ - 0 max +DO  cr
-	I 1+ 4 .r ." : "
+	I 1+ 6 .r ." : "
 	I locate-file[] $[]@ type
     LOOP ;
 

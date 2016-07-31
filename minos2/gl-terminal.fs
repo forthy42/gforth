@@ -277,11 +277,14 @@ Variable gl-emit-buf
     over 7 = IF  2drop  EXIT  THEN
     over #lf = IF  2drop gl-cr  EXIT  THEN
     over #cr = IF  2drop gl-cr  EXIT  THEN
-    >r
-    gl-emit-buf c$+!  gl-emit-buf $@ tuck x-size u< IF  rdrop  EXIT  THEN
-    gl-emit-buf $@ drop xc@ xchar>glascii
-    gl-emit-buf $@ x-width abs { n }
-    gl-emit-buf $off
+    over #tab = IF  >r drop bl gl-xy cell+ @ dup 1+ dfaligned swap - 0
+    ELSE
+	>r
+	gl-emit-buf c$+!  gl-emit-buf $@ tuck x-size u< IF  rdrop  EXIT  THEN
+	gl-emit-buf $@ drop xc@ xchar>glascii
+	gl-emit-buf $@ x-width abs
+	gl-emit-buf $off $10
+    THEN  { n m }
     
     resize-screen  need-sync on
     dup $70 and 5 lshift or $F0F and 4 lshift r> $FFFF0000 and or
@@ -289,7 +292,7 @@ Variable gl-emit-buf
 	dup gl-char' l!
 	gl-xy 2@ >r 1+ dup cols = dup gl-lineend !
 	IF  drop 0 r> 1+ gl-xy 2! resize-screen
-	ELSE  r> gl-xy 2!  THEN  $10 +
+	ELSE  r> gl-xy 2!  THEN  m +
     LOOP  drop ;
 
 : gl-emit ( char -- )  color-index @ (gl-emit) ;
