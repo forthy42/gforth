@@ -296,7 +296,11 @@ Variable gl-emit-buf
     LOOP  drop ;
 
 : gl-emit ( char -- )  color-index @ (gl-emit) ;
-: gl-emit-err ( char -- )  err-color-index @ (gl-emit) ;
+: gl-emit-err ( char -- )
+    dup (err-emit) \ errors also go to the error log
+    err-color-index @ (gl-emit) ;
+: gl-cr-err ( -- )
+    #lf (err-emit)  gl-cr ;
 
 : gl-type ( addr u -- )
     bounds ?DO  I c@ gl-emit  LOOP ;
@@ -414,8 +418,8 @@ is config-changed
 :noname ( flag -- flag ) level# @ 0> ?EXIT
     screen-sync screen-slide scroll-slide ; IS screen-ops
 
-' gl-type     ' gl-emit     ' gl-cr ' gl-form output: out>screen
-' gl-type-err ' gl-emit-err ' gl-cr ' gl-form output: err>screen
+' gl-type     ' gl-emit     ' gl-cr     ' gl-form output: out>screen
+' gl-type-err ' gl-emit-err ' gl-cr-err ' gl-form output: err>screen
 
 out>screen
 ' gl-atxy IS at-xy
