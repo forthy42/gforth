@@ -395,7 +395,7 @@ is config-changed
 	r@ action @ \ dup -1 <> IF  dup .  THEN
 	case
 	    1 of
-		eventtime 2@ eventtime' 2@ d- #500. d>
+		r@ eventtime 2@ r@ eventtime' 2@ d- #500. d>
 		IF  ?toggle  THEN
 		r@ action on  endof
 	    3 of r@ action on  endof \ cancel

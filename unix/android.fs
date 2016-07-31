@@ -352,8 +352,8 @@ Variable new-touch
     getEdgeFlags *input edgeflags !
     0 getPressure f>s *input pressure !
     0 getSize f>s *input size !
-    eventtime 2@ eventtime' 2!
-    getEventTime 2dup eventtime 2!
+    *input eventtime 2@ *input eventtime' 2!
+    getEventTime 2dup *input eventtime 2!
     getDownTime d- *input downtime 2!
     getPointerCount dup *input tcount !
     *input x0 swap
