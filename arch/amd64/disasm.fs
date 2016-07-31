@@ -40,6 +40,8 @@ Variable cp?
 : .:    ': emit ;
 : .[    '[ emit ;
 : .]    '] emit ;
+: #.r ( n -- ) \ print decimal
+    0 ['] .r #10 base-execute ;
 
 \ signed / unsigned byte, word and long output         07aug10py
 
@@ -68,6 +70,8 @@ Variable .alength
 Variable .amd64mode  .amd64mode on
 Variable seg: seg: on
 Variable rex
+Variable map-select
+Variable vvvv
 
   &36 constant  bytfld
   &10 constant  mnefld
@@ -102,26 +106,34 @@ Create grp8 ," ???? src"
 : rex? ( n -- flag )  rex @ and 0<> ;
 : p? ( -- flag ) 100 rex? ; 
 : w? ( -- flag )  10 rex? ;
-Defer >reg
+: ss? ( -- flag ) $20 rex? ;
+: sd? ( -- flag ) $10 rex? ;
+: s? ( -- flag ) $30 rex? ;
+: l? ( -- flag ) $80 rex? ;
+: vex? ( -- flag ) $100 rex? ;
 : >r? ( reg -- reg' )   4 rex? 10 and or ; 
 : >x? ( reg -- reg' )   2 rex? 10 and or ; 
 : >b? ( reg -- reg' )   1 rex? 10 and or ;
-' >r? is >reg
 
 \ Register display                                     05dec92py
 
 : *."  ( n addr -- )  count >r swap r@ * + r> -trailing type ;
-: .regsize ( -- ) 'R' 'E' w? select emit ;
+: .regsize ( reg -- reg )
+    dup 7 <= IF  'R' 'E' w? select emit  ELSE  'R' emit  THEN  ;
 : .(reg ( n l -- )
-    dup 0= IF  drop .regsize "regs ( " )  ELSE  2 = IF
+    >r r@ 0= IF  .regsize "regs ( " )  ELSE  r@ 2 = IF
 	    "breg2 "breg p? select  ELSE  "regs ( " ) THEN  THEN
-    >r >reg r> *." ;
+    over >r *." r> 7 > IF  case r@
+	    0 of  w? 0= IF 'D' emit  THEN  endof
+	    1 of  'W' emit                 endof
+	    2 of  'B' emit                 endof
+	endcase  THEN  rdrop ;
 : .reg  ( n -- )  length @ .(reg ;
-: .r/reg  ( n -- )    ['] >r? is >reg length @ .(reg ;
-: .m/reg  ( n -- )    ['] >x? is >reg length @ .(reg ;
-: .ereg ( n -- )  .regsize >reg "regs *." ;
-: .mi/reg  ( n -- )   ['] >x? is >reg .ereg ;
-: .sib/reg  ( n -- )  ['] >b? is >reg .ereg ;
+: .r/reg  ( n -- )    >r? length @ .(reg ;
+: .m/reg  ( n -- )    >x? length @ .(reg ;
+: .ereg ( n -- )  .regsize "regs *." ;
+: .mi/reg  ( n -- )   >x? .ereg ;
+: .sib/reg  ( n -- )  >b? .ereg ;
 : .seg  ( n -- )  "seg *." ;
 
 : mod@ ( addr -- addr' r/m reg )
@@ -189,7 +201,7 @@ Defer .code
   opcode @ dup 4 and  IF  drop 0 .r/reg ., .imm exit  THEN
   2 and  IF  .mod  ELSE  .rmod  THEN ;
 : .modt  tab .mod ;
-: .gr    tab  opcode @ 7 and .r/reg ;
+: .gr    tab  opcode @ 7 and .sib/reg ;
 : .rexinc  .amd64mode @ IF  opcode @ rex !  .code  rex off  EXIT  THEN
     ." inc" .gr ;
 : .rexdec  .amd64mode @ IF  opcode @ rex !  .code  rex off  EXIT  THEN
@@ -238,6 +250,7 @@ Defer .code
   opcode @ 2 and 0= IF  0 .r/reg .,  THEN  $05 alength @ - .addr
   opcode @ 2 and    IF  ., 0 .r/reg  THEN ;
 : .movx   tab mod@ .r/reg ., 1 length ! .b? .ptr ;
+: .movdx   tab mod@ .r/reg ., 0 length ! .b? .ptr ;
 : .movi   .b? tab mod@ drop .ptr ., .imm ;
 : .movs   tab mod@  opcode @ 2 and
   IF  .seg ., .addr  ELSE  >r .addr ., r> .seg  THEN ;
@@ -248,7 +261,9 @@ Defer .code
 : .iv     tab .imm ;
 : .ib     2 length ! .iv ;
 : .ev     tab mod@ drop .ptr ;
-: .arpl   tab  1 length !  .rmod ;
+: .arpl
+    .amd64mode @ IF  0 length ! ." movsx" .movdx
+    ELSE  ." arpl" tab  1 length !  .rmod  THEN ;
 \ .mne                                                 16nov97py
 
 : .io   tab .b? 0 .r/reg ., 1 length ! 2 .m/reg ;
@@ -256,7 +271,7 @@ Defer .code
 : .ret  opcode @ 1 and 0= IF tab wcount .$du THEN ;
 : .enter  tab wcount .$du ., count .$bu ;
 : .stcl opcode @ 1 and IF ." st" ELSE ." cl" THEN
-  " cid " 1+ opcode @ 2/ 3 and + c@ emit ;
+  s" cid " drop opcode @ 2/ 3 and + c@ emit ;
 
 : .mne ( addr field -- addr' )  >r count dup opcode ! r>
     BEGIN  2dup c@  and  over 1+ c@ = 0= WHILE
@@ -264,7 +279,9 @@ Defer .code
   nip dup cell+ cell+  count type  cell+ perform len! ;
 
 0 Value mntbl
+0 Value 0Ftbl
 :noname  mntbl .mne ; is .code
+: .0f     0Ftbl  .mne ;
 
 \ .grp6 .grp7                                          07aug10py
 
@@ -339,12 +356,45 @@ Create fopatable
   dup 7E0 and 3E0 = IF  .fop2  exit  THEN
   dup 120 and 120 = IF  .modfa exit  THEN  .modfb ;
 
+\ extra stuff for SSE
 
+: .rep ( ip -- ip' )
+    dup c@ $F0 and $40 = IF
+	dup 1+ c@ 0F = IF
+	    count  10 + rex !  .code  EXIT
+	ELSE  dup c@ 0F = IF  10 rex !  .code  EXIT  THEN  THEN  THEN
+    ." rep " .code  ;
+: .repe ( ip -- ip' )
+    dup c@ $F0 and $40 = IF
+	dup 1+ c@ 0F = IF
+	    count  20 + rex !  .code  EXIT
+	ELSE  dup c@ 0F = IF  20 rex !  .code  EXIT  THEN  THEN  THEN
+    ." repe " .code  ;
 
+\ vex SSE codes (les/lds in 16/32 bit mode)
 
+: vex-rest ( byte -- )
+	dup 3 and case
+	    1 of  length @ 1 xor length !  endof
+	    2 of  \ equals F3 prefix, repe
+		20 rex +!  endof
+	    3 of  \ equals F2 prefix, rep
+		10 rex +!  endof
+	endcase
+	dup 4 and 5 lshift rex +!  100 rex +!
+	dup 3 rshift 0F and 0F xor vvvv ! ;
 
+: .vexC4 ( ip -- ip' )
+    .amd64mode @ IF
+	count dup 1F and map-select ! 5 rshift 7 xor 40 or rex !
+	count dup 4 rshift 8 and rex +! vex-rest  'v' emit .0f  rex off
+    ELSE  ." les" .modt  THEN ;
 
-
+: .vexC5 ( ip -- ip' )
+    .amd64mode @ IF
+	count dup 5 rshift 4 and 4 xor 40 or rex !
+	1 map-select !  vex-rest  'v' emit .0f  rex off
+    ELSE  ." lds" .modt  THEN ;
 
 \ .mmi                                                 02mar97py
 
@@ -357,17 +407,55 @@ Create fopatable
 : .mmi ( ip -- ip' )  mod@ 2/ 3 and
   s" ??rlrall" drop swap 2* + 2 type .mms tab .mmr ., .8b ;
 
+\ sse instructions
 
+: .s/p ( -- ) 's' 'p' s? select emit ;
+: .s/d ( -- ) 's' 'd' s? IF ss? ELSE length @ 0= THEN select emit ;
 
+: .sse-suff ( -- ) .s/p .s/d ;
+: .ssereg ( n -- n ) 'y' 'x' l? select emit ." mm" #.r ;
 
+: .sseaddr ( addr r/m -- addr' ) dup 7 and >r 6 rshift
+  dup 3 =            IF  drop r> >b? .ssereg    exit  THEN
+  dup 0= r@ 5 = and  IF  drop rdrop .[ .32u .] exit  THEN
+  r@  4 =            IF       rdrop    .sib    exit  THEN
+  cells .disp + perform  r> .[ .sib/reg .] ;
 
+: .sse ( ip -- ip' )
+    .sse-suff tab mod@ >r? .ssereg .,
+    vex? IF vvvv @ .ssereg ., THEN
+    .sseaddr ;
+: .ssea ( ip -- ip' )
+    .sse-suff tab mod@ >r? >r .sseaddr ., r> .ssereg
+    vex? IF ., vvvv @ .ssereg  THEN ;
+: .cvt ( ip -- ip' ) .s/p ." i2" .sse-suff tab mod@ >r? .ssereg .,
+    vex? IF vvvv @ .ssereg ., THEN
+    .sseaddr ;
+: .cvta ( ip -- ip' ) .sse-suff '2' emit .s/p 'i' emit tab mod@ >r?
+    >r .sseaddr ., r> .reg
+    vex? IF vvvv @ .ssereg ., THEN ;
+: .cvtb ( ip -- ip' ) .sse-suff '2' emit .s/p 'i' emit tab mod@ >r?
+    >r .sseaddr ., r> .ssereg
+    vex? IF vvvv @ .ssereg ., THEN ;
+: .ssec ( ip -- ip' )
+    .s/d tab mod@ >r? .ssereg .,
+    vex? IF vvvv @ .ssereg ., THEN
+    .sseaddr ;
 
 \ 0Ffld                                                16nov97py
-Create 0Ftbl
+align here to 0Ftbl
 FE 00 t, .grp6 "
 FF 02 t, .modt lar"             FF 03 t, .modt lsl"
 FF 06 t, noop clts"             F8 20 t, .movrx mov"
 FF 08 t, noop invd"             FF 09 t, noop wbinvd"
+FF 10 t, .sse mov"              FF 11 t, .ssea mov"
+FF 28 t, .sse mova"             FF 29 t, .ssea mova"
+FF 2A t, .cvt cvt"              FF 2B t, .ssea movnt"
+FF 2C t, .cvta cvtt"            FF 2D t, .cvta cvt"
+FF 2E t, .ssec ucomis"          FF 2F t, .ssec comis"
+FF 58 t, .sse add"              FF 59 t, .sse mul"
+FF 5C t, .sse sub"              FF 5D t, .sse min"
+FF 5E t, .sse div"              FF 5F t, .sse max"
 F0 80 t, .jl j"                 F0 90 t, .set set"
 F7 A0 t, .pseg push"            F7 A1 t, .pseg pop"
 FE A4 t, .shd shld"             FE AC t, .shd shrd"
@@ -393,7 +481,7 @@ FC E0 t, .mmx psra"             FC E8 t, .mmx psubs"
 FC F0 t, .mmx psll"             FC F8 t, .mmx psub"
 FC DC t, .mmx paddu"            FC EC t, .mmx padds"
 FC FC t, .mmx padd"             00 00 t, noop 0F???"
-: .0f     0Ftbl  .mne ;
+
 \ disassembler table                                   22may93py
 align here to mntbl
 FF 0F t, .0f "
@@ -406,7 +494,7 @@ F8 30 t, .ari xor"              F8 38 t, .ari cmp"
 F8 40 t, .rexinc "              F8 48 t, .rexdec "
 F8 50 t, .gr push"              F8 58 t, .gr pop"
 FF 60 t, noop pusha"            FF 61 t, noop popa"
-FF 62 t, .modt bound"           FF 63 t, .arpl arpl"
+FF 62 t, .modt bound"           FF 63 t, .arpl "
 FE 64 t, .segx "
 FF 66 t, osize "                FF 67 t, asize "
 
@@ -434,7 +522,7 @@ FE AA t, .str stos"             FE AC t, .str lods"
 FE AE t, .str scas"
 F8 B0 t, .igrb mov"             F8 B8 t, .igrv mov"
 FE C0 t, .grp2i "               FE C2 t, .ret ret"
-FF C4 t, .modt les"             FF C5 t, .modt lds"
+FF C4 t, .vexC4 "               FF C5 t, .vexC5 "
 FE C6 t, .movi mov"
 FF C8 t, .enter enter"          FF C9 t, noop leave"
 FE CA t, .ret retf"
@@ -453,8 +541,8 @@ FE E4 t, .io# in"               FE E6 t, .io# out"
 FF E8 t, .jv call"              FF E9 t, .jv jmp"
 FF EA t, .far jmpf"             FF EB t, .jb jmp"
 FE EC t, .io in"                FE EE t, .io out"
-FF F0 t, .code lock "           FF F2 t, .code rep "
-FF F3 t, .code repe "           FF F4 t, noop hlt"
+FF F0 t, .code lock "           FF F2 t, .rep "
+FF F3 t, .repe "                FF F4 t, noop hlt"
 FF F5 t, noop cmc"              FE F6 t, .grp3 "
 FE FE t, .grp4 "                F8 F8 t, .stcl "
 00 00 t, noop ???"
@@ -468,7 +556,7 @@ base !
 
 Forth definitions
 
-: disline ( addr -- addr' )
+: disline ( ip -- ip' )
     [: dup .lformat tab .code ;]
     $10 base-execute ;
 
