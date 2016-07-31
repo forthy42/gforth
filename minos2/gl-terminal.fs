@@ -323,9 +323,9 @@ Variable gl-emit-buf
 : gl-err-attr! ( attribute -- )
     >default ?invers  dup bg> err-bg! fg> err-fg! ;
 
-0.25e FConstant scroll-deltat
+4e FConstant scroll-deltat
 : >scroll-pos ( -- 0..1 )
-    ftime scroll-time f@ f- scroll-deltat f/
+    ftime scroll-time f@ f- scroll-deltat f*
     1e fmin 0.5e f- pi f* fsin 1e f+ f2/ ;
 
 : set-scroll ( r -- )
@@ -394,9 +394,12 @@ is config-changed
     r@ IF
 	r@ action @ \ dup -1 <> IF  dup .  THEN
 	case
-	    1 of  ?toggle  r@ action on  endof
-	    3 of           r@ action on  endof \ cancel
-	    9 of           r@ action on  endof \ hover
+	    1 of
+		eventtime 2@ eventtime' 2@ d- #500. d>
+		IF  ?toggle  THEN
+		r@ action on  endof
+	    3 of r@ action on  endof \ cancel
+	    9 of r@ action on  endof \ hover
 	    abs 1 <> IF  r@ y0 @ scrolling  
 	    ELSE  last-y0 motion-y0 ['] +scroll drag-motion  THEN
 	    0
