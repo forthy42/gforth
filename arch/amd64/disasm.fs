@@ -442,6 +442,9 @@ Create fopatable
     vex? IF vvvv @ .ssereg ., THEN
     .sseaddr ;
 
+: .cmov ( ip -- ip' )
+    .cond .modt ;
+
 \ 0Ffld                                                16nov97py
 align here to 0Ftbl
 FE 00 t, .grp6 "
@@ -453,6 +456,10 @@ FF 28 t, .sse mova"             FF 29 t, .ssea mova"
 FF 2A t, .cvt cvt"              FF 2B t, .ssea movnt"
 FF 2C t, .cvta cvtt"            FF 2D t, .cvta cvt"
 FF 2E t, .ssec ucomis"          FF 2F t, .ssec comis"
+F0 40 t, .cmov cmov"            FF 51 t, .sse sqrt"
+FF 52 t, .sse rsqrt"            FF 53 t, .sse rcp"
+FF 54 t, .sse and"              FF 55 t, .sse andn"
+FF 56 t, .sse or"               FF 57 t, .sse xor"
 FF 58 t, .sse add"              FF 59 t, .sse mul"
 FF 5C t, .sse sub"              FF 5D t, .sse min"
 FF 5E t, .sse div"              FF 5F t, .sse max"
