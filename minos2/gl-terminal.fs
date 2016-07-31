@@ -180,7 +180,7 @@ FVariable scroll-time
 
 : show-rows ( -- n ) videorows scroll-y @ - rows 1+ min ;
 : nextpow2 ( n -- n' )
-    1 BEGIN  2dup u>  WHILE 2*  REPEAT  nip ;
+    $20 BEGIN  2dup u>  WHILE 2*  REPEAT  nip ;
 
 : >rectangle ( -- )
     show-rows s>f rows fm/ -2e f* 1e f+
@@ -389,13 +389,15 @@ is config-changed
     long? IF  kbflag @ IF  togglekb  THEN  THEN
     need-show off ;
 
+#20. 2Value glitch#
+
 : screen-slide ( -- )
     *input >r
     r@ IF
 	r@ action @ \ dup -1 <> IF  dup .  THEN
 	case
 	    1 of
-		r@ eventtime 2@ r@ eventtime' 2@ d- #500. d>
+		r@ eventtime 2@ r@ eventtime' 2@ d- glitch# d>
 		IF  ?toggle  THEN
 		r@ action on  endof
 	    3 of r@ action on  endof \ cancel

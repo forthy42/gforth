@@ -127,8 +127,9 @@ field: metastate
 field: edgeflags
 field: pressure
 field: size
-2field: starttime
 2field: downtime
+2field: eventtime
+2field: eventtime'
 field: tcount
 field: x0
 field: y0
@@ -255,15 +256,18 @@ DOES> ( x-key -- addr u )
 ; handler-class to DoKeyPress
 :noname ; handler-class to DoKeyRelease
 :noname  0 *input action ! 1 *input pressure !
-    e.time @ s>d *input starttime 2!  0. *input downtime 2!
+    *input eventtime 2@ *input eventtime' 2!
+    e.time @ s>d *input eventtime 2!  0. *input downtime 2!
     e.x l@ e.y l@ *input y0 ! *input x0 ! ; handler-class to DoButtonPress
 :noname  1 *input action ! 0 *input pressure !
-    e.time l@ s>d *input starttime 2@ d- *input downtime 2!
+    *input eventtime 2@ *input eventtime' 2!
+    e.time l@ s>d *input eventtime 2@ d- *input downtime 2!
+    e.time @ s>d *input eventtime 2!
     e.x l@ *input x0 ! e.y l@ *input y0 ! ; handler-class to DoButtonRelease
 :noname
     *input pressure @ IF
 	2 *input action !
-	e.time @ s>d *input starttime 2@ d- *input downtime 2!
+	e.time @ s>d *input eventtime 2@ d- *input downtime 2!
 	e.x l@ e.y l@ *input y0 ! *input x0 !
     THEN ; handler-class to DoMotionNotify
 :noname ; handler-class to DoEnterNotify
