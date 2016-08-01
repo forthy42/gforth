@@ -119,6 +119,6 @@ true constant string-ext
 ' noop alias X:xchar
 set-current
 
-warnings on
+-2 warnings !
 
 require siteinit.fs

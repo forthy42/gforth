@@ -29,15 +29,18 @@ previous definitions
 ; is image-options
 
 : load-rc ( -- )
-    \G if available, load ~/.gforthrc after processing args
+    \G if available, load @file{~/.gforthrc} after processing args
     load-rc? @ IF
 	s" ~/.gforthrc" open-fpath-file
 	0= IF  included1  ELSE  drop  THEN
     THEN ;
 : load-rc0 ( -- )
-    \G if available, load ~/.gforthrc0 before processing args
-    s" ~/.gforthrc0" open-fpath-file
-    0= IF  included1  ELSE  drop  THEN ;
+    \G if available, load @file{~/.gforthrc0} or whatever is in the
+    \G environment varialbe @code{GFORTH_ENV} before processing args.
+    \G disable loading by setting @code{GFORTH_ENV} to @file{off}.
+    s" GFORTH_ENV" getenv 2dup d0= IF  2drop s" ~/.gforthrc0"  THEN
+    2dup s" off" str= IF  2drop EXIT  THEN
+    open-fpath-file 0= IF  included1  ELSE  drop  THEN ;
 
 :noname  load-rc  defers bootmessage  ; is bootmessage
 :noname  load-rc0 defers process-args ; is process-args

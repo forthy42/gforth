@@ -723,6 +723,17 @@ defer 0-adjust-locals-size ( -- )
     latest ?dup ;
 
 Variable warnings ( -- addr ) \ gforth
+\G set warnings level to
+\G @table @code
+\G @item 0
+\G turns warnings off
+\G @item -1
+\G turns normal warnings on
+\G @item -2
+\G turns beginner warnngs on
+\G @item -3
+\G turns warnings into errors (including beginner warnings)
+\G @end table
 G -2 warnings T ! \ default to -Won
 
 : (reveal) ( nt wid -- )

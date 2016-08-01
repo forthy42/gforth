@@ -912,7 +912,11 @@ invokes a specific version. If your environment contains the variable
 @code{GFORTHPATH}, you may want to override it by using the
 @code{--path} option.
 
-On startup, after processing all the image options and just before
+On startup, before processing any of the image option, the user
+initialization file either specified in the environment variable
+@code{GFORTH_ENV} or, if not set, @file{~/.gforthrc0} is included, if
+it exists.  If @code{GFORTH_ENV} is ``@code{off},'' nothing is
+included.  After processing all the image options and just before
 printing the boot message, the user initialization file
 @file{~/.gforthrc} from your home directory is included, unless the
 option @code{--no-rc} is given.
@@ -6198,7 +6202,12 @@ exception handlers.
 doc-abort"
 doc-abort
 
+For problems that are not that awful that you need to abort execution,
+you can just display a warning.  The variable @code{warnings} allows
+to tune how many warnings you see.
 
+doc-warning"
+doc-warnings
 
 @c -------------------------------------------------------------
 @node Defining Words, Interpretation and Compilation Semantics, Control Structures, Words
