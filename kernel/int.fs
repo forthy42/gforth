@@ -908,10 +908,10 @@ defer set-current-xpos ( -- )
 
 : gforth ( -- )
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2015 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2016 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
-     cr ." Type `bye' to exit"
+     cr ." Type `help' for basic help"
 [ [THEN] ] ;
 
 defer bootmessage ( -- ) \ gforth

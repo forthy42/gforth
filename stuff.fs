@@ -533,4 +533,11 @@ comp: drop >body postpone literal postpone 2! ;
     Create 2,
     [: >body postpone Literal postpone 2@ ;] set-compiler
     ['] (2to) set-to
-    DOES> 2@ ;
+  DOES> 2@ ;
+
+s" help.txt" slurp-file save-mem-dict
+
+2>r : help ( -- ) [ 2r> ] 2literal type ; \ gforth
+\G Print some help for the first steps
+
+    

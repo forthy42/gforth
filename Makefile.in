@@ -251,6 +251,7 @@ GFORTH_FI_SRC2=\
 	float.fs \
 	glocals.fs \
 	hash.fs \
+	help.txt \
 	history.fs \
 	intcomp.fs \
 	i18n.fs \

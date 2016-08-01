@@ -115,8 +115,11 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 
 : ?warn-dp ( -- )
     warnings @ abs 1 > IF
-	>num-state @ 1 and 0= dpl @ 0>= and  >num-state off
-	warning" number with embedded '.'s converted to double integers, not float. Use base prefix for doubles and exponent for floats to disambiguate"
+	>num-state @ 1 and 0= dpl @ 0>= and  >num-state off if
+	    \ !! add WARNING" stuff
+	    '' emit input-lexeme 2@ type
+	    ." ' is a double-cell integer; type `help' for more info"
+	then
 	dpl @ 0> warning" Non-standard double; '.' not in the last position"
     THEN ;
 ' ?warn-dp is ?warn#

@@ -1,0 +1,7 @@
+
+The Gforth manual is available on
+https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/
+or through your favourite info reader (e.g., "info gforth" from the shell).
+To leave Gforth, type "bye", or use Ctrl-D at the start of a line.
+To input floating-point numbers, use an exponent, e.g. "1e".
+To input double-cell integers without warning, use a base-prefix, e.g. "#1.".
