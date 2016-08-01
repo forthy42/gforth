@@ -130,7 +130,7 @@ Defer ?warn#  ' noop is ?warn#
     endif
     base @ >r  getbase sign?
     over if
-	>r 0. 2swap
+	>r #0. 2swap
 	over c@ dp-char @ = IF  1 /string dup dpl !  THEN
 	\ allow an initial '.' to shadow all floating point without 'e'
         BEGIN ( d addr len )
@@ -147,7 +147,7 @@ Defer ?warn#  ' noop is ?warn#
             rdrop 2drop r> ?dnegate true
         THEN
     ELSE
-        drop 2drop 0. false  dpl on  THEN
+        drop 2drop #0. false  dpl on  THEN
     r> base !  ?warn#  >num-state off ;
 
 \ ouch, this is complicated; there must be a simpler way - anton
@@ -384,7 +384,7 @@ drop Constant vtsize \ vtable size
 : compile-only? ( nt -- flag ) >f+c @ restrict-mask and 0<> ;
 : ?compile-only ( nt -- nt )
     dup compile-only? IF
-	<<# s"  is compile-only" holds dup name>string holds 0. #>
+	<<# s"  is compile-only" holds dup name>string holds #0. #>
 	hold 1- c(warning") #>>
     THEN ;
 
