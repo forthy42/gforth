@@ -99,10 +99,10 @@ tex: color-tex
 Create color-matrix \ vt100 colors
 \ RGBA, but this is little endian, so write ABGR ,
 $ff000000 l, \ Black
-$ff0000ff l, \ Red
-$ff00ff00 l, \ Green
+$ff3030ff l, \ Red
+$ff20ff20 l, \ Green
 $ff00ffff l, \ Yellow
-$ffff0000 l, \ Blue
+$ffff6020 l, \ Blue - complete blue is too dark
 $ffff00ff l, \ Magenta
 $ffffff00 l, \ Cyan
 $ffffffff l, \ White
