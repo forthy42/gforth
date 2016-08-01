@@ -272,7 +272,7 @@ is throw
     rdrop ;
 
 : c(warning") ( c-addr -- )
-    warnings @ abs 2 > IF  "error ! -2 throw  THEN
+    warnings @ abs 3 > IF  "error ! -2 throw  THEN
     warnings @ IF
 	>stderr warn-color attr!
 	"error ! -2 input-error-data 1 .error-frame

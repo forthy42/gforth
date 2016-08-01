@@ -117,7 +117,8 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
     warnings @ abs 1 > IF
 	>num-state @ 1 and 0= dpl @ 0>= and  >num-state off
 	warning" double-cell integer; type `help' for more info"
-	\ dpl @ 0> warning" Non-standard double; '.' not in the last position"
+	dpl @ 0> warnings @ abs 2 > and
+	warning" Non-standard double; '.' not in the last position"
     THEN ;
 ' ?warn-dp is ?warn#
 

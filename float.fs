@@ -155,18 +155,19 @@ si-prefixes count 2/ + Constant zero-exp
 		1 = IF  1- fp-char @  ELSE  I c@  THEN
 		>float1
 		dup IF  #10 s>f zero-exp I - s>f f** f*
-		    warnings @ abs 1 > warning" use of scientific notation is non-standard"
+		    warnings @ abs 2 > warning" use of engineering notation is non-standard"
 		THEN
 		UNLOOP  rdrop EXIT  THEN  drop
 	LOOP
     THEN
-    \ ckeck for e/E/.
-    2dup fp-char @ scan nip r> or
+    \ check for e/E/.
+    2dup fp-char @ scan nip r@ or
     IF
+	r@ 0= warnings @ abs 2 > and warning" float without 'e' is non-standard"
 	fp-char @ >float1
     ELSE
 	2drop false
-    THEN ;
+    THEN  rdrop ;
 
 : fp. ( r -- ) \ float-ext f-e-dot
 \G Display @i{r} using SI prefix notation (with exponent dividable
