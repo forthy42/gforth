@@ -147,16 +147,16 @@ Defer wlscope ' get-current is wlscope
 
 : view, ( -- ) current-sourcepos1 , ;
 
+: shadow-warning ( c-addr u nt -- c-addr u 0 )
+    name>string ." redefined " 2dup type ( c-addr u c-addr2 u2 )
+    2over str= 0= if
+	."  with " 2dup type then
+    0 ;
+
 : check-shadow  ( addr count wid -- )
     \G prints a warning if the string is already present in the wordlist
-    >r 2dup r> find-name-in warnings @ and ?dup if
-	<<#
-	name>string 2over 2over str= 0=
-	IF  2over holds s"  with " holds  THEN
-	holds s" redefined " holds
-	#0. #> hold 1- c(warning") #>>
-    then
-    2drop ;
+    >r 2dup r> find-name-in warnings @ and dup
+    ['] shadow-warning ?warning drop 2drop ;
 
 : header, ( c-addr u -- ) \ gforth
     name-too-long?  vt,
