@@ -113,6 +113,10 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 
 \ warn beginners that double numbers clash with floating points
 
+[IFUNDEF] ?warning \ fix compilation problem
+    Defer ?warning
+[THEN]
+
 :noname ( f xt -- )
     \ if f, output a warning by EXECUTEing xt
     swap warnings @ and if
