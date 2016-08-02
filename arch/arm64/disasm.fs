@@ -451,7 +451,7 @@ $00000000 , $00000000 , ' unallocated ,
     BEGIN  2dup 2@ >r and r> <>  WHILE  3 cells +  REPEAT
     2 cells + perform ;
 
-forth definitions
+Forth definitions
 
 : disasm ( addr u -- ) \ gforth
     [: over + >r
@@ -462,6 +462,6 @@ forth definitions
 	repeat
 	cr rdrop drop ;] $10 base-execute ;
 
-previous
-
 ' disasm is discode
+
+previous Forth
