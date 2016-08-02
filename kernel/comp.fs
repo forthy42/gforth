@@ -147,9 +147,20 @@ Defer wlscope ' get-current is wlscope
 
 : view, ( -- ) current-sourcepos1 , ;
 
+: check-shadow  ( addr count wid -- )
+    \G prints a warning if the string is already present in the wordlist
+    >r 2dup r> find-name-in warnings @ and ?dup if
+	<<#
+	name>string 2over 2over str= 0=
+	IF  2over holds s"  with " holds  THEN
+	holds s" redefined " holds
+	#0. #> hold 1- c(warning") #>>
+    then
+    2drop ;
+
 : header, ( c-addr u -- ) \ gforth
     name-too-long?  vt,
-    wlscope >r
+    wlscope >r  2dup r@ check-shadow
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
     dup aligned here + dup maxaligned >align
@@ -732,6 +743,8 @@ Variable warnings ( -- addr ) \ gforth
 \G @item -2
 \G turns beginner warnngs on
 \G @item -3
+\G pedantic warnings on
+\G @item -4
 \G turns warnings into errors (including beginner warnings)
 \G @end table
 G -2 warnings T ! \ default to -Won
@@ -744,24 +757,12 @@ G -2 warnings T ! \ default to -Won
 \ make entry in wordlist-map
 ' (reveal) f83search reveal-method !
 
-: check-shadow  ( addr count wid -- )
-    \G prints a warning if the string is already present in the wordlist
-    >r 2dup r> find-name-in warnings @ and ?dup if
-	<<#
-	name>string 2over 2over str= 0=
-	IF  2over holds s"  with " holds  THEN
-	holds s" redefined " holds
-	0. #> hold 1- c(warning") #>>
-    then
-    2drop ;
-
 : reveal ( -- ) \ gforth
     last?
     if \ the last word has a header
 	dup >link @ 1 and
 	if \ it is still hidden
 	    dup >link @ 1 xor		( nt wid )
-	    2dup >r name>string r> check-shadow ( nt wid )
 	    dup wordlist-map @ reveal-method perform
 	else
 	    drop

@@ -99,3 +99,10 @@ User Attr   0 Attr !
     IF drop space
     ELSE 0 attr! space attr! THEN ;
 
+Variable mark-attr
+: m>>> ( -- )
+    attr @ dup mark-attr ! Invers xor attr! ;
+: <<<m ( -- )
+    mark-attr @ attr! ;
+' m>>> is mark-start
+' <<<m is mark-end

@@ -21,7 +21,7 @@ Defer image-options
 :noname ( -- )
     ."   FILE				    load FILE (with `require')" cr
     ."   -e STRING, --evaluate STRING	    interpret STRING (with `EVALUATE')" cr
-    ."   -Werror, -Wall, -Won, -W           set warning levels" cr
+    ."   -Werror|pedantic|all|on|           set warning levels" cr
 ; is image-options
 
 Vocabulary options
@@ -37,10 +37,11 @@ options also definitions
     bye ;
 ' --help alias -h
 
-: -Werror ( -- )  -3 warnings ! ;
-: -Wall ( -- )    -2 warnings ! ;
-: -Won ( -- )     -1 warnings ! ;
-: -W ( -- )        warnings off ;
+: -Werror ( -- )    -4 warnings ! ;
+: -Wpedantic ( -- ) -3 warnings ! ;
+: -Wall ( -- )      -2 warnings ! ;
+: -Won ( -- )       -1 warnings ! ;
+: -W ( -- )          warnings off ;
 
 previous forth definitions
 

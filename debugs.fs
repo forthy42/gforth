@@ -130,7 +130,8 @@ is ?warning
 	[: '' emit input-lexeme 2@ type
 	    ." ' is a double-cell integer; type `help' for more info" ;]
 	?warning
-	dpl @ 0> warning" Non-standard double; '.' not in the last position"
+	dpl @ 0> warnings @ abs 2 > and
+	warning" Non-standard double; '.' not in the last position"
     THEN ;
 ' ?warn-dp is ?warn#
 

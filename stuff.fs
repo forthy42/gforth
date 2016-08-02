@@ -539,5 +539,3 @@ s" help.txt" slurp-file save-mem-dict
 
 2>r : help ( -- ) [ 2r> ] 2literal type ; \ gforth
 \G Print some help for the first steps
-
-    
