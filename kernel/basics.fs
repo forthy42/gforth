@@ -271,13 +271,14 @@ is throw
     THEN
     rdrop ;
 
-: c(warning") ( c-addr -- )
-    warnings @ abs 2 > IF  "error ! -2 throw  THEN
-    warnings @ IF
-	>stderr warn-color attr!
-	"error ! -2 input-error-data 1 .error-frame
-	default-color attr!
-    THEN drop ;
+defer ?warning ( f xt -- )
+
+:noname ( f xt -- )
+    \ just a very basic version
+    swap if
+	>stderr ." warning:" execute exit then
+    drop ;
+is ?warning
 
 : abort ( ?? -- ?? ) \ core,exception-ext
     \G @code{-1 throw}.

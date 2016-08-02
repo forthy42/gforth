@@ -36,6 +36,9 @@ decimal
 \ error numbers between -512 and -2047 are for OS errors and are
 \ handled with strerror
 
+: c(warning") ( c-addr -- )
+    count true ['] type ?warning ;
+
 has? OS [IF]
 : >stderr ( -- )
     r> op-vector @ >r debug-vector @ op-vector !

@@ -114,8 +114,9 @@ decimal
 -2051 s" Data before memory block was modified" rot errstring
 -2052 s" Data after memory block was modified" rot errstring
 -2053 s" Can't tick literal" rot errstring
+-2054 s" Warning treated as error" rot errstring
 
-variable next-exception -2054 next-exception !
+variable next-exception -2055 next-exception !
 
 : exception ( addr u -- n ) \ exception- gforth
     \G @var{n} is a previously unused @code{throw} value in the range
@@ -128,3 +129,5 @@ variable next-exception -2054 next-exception !
 
 -2049 constant broken-pipe-error ( -- n ) \ gforth
 \G the error number for a broken pipe
+
+-2054 constant warning-error ( -- n )

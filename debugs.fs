@@ -113,13 +113,23 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 
 \ warn beginners that double numbers clash with floating points
 
+:noname ( f xt -- )
+    \ if f, output a warning by EXECUTEing xt
+    swap warnings @ and if
+	[: warn-color attr!
+	    cr current-sourcepos3 .sourcepos3 ." : " execute
+	    default-color attr! ;] stderr outfile-execute
+	warnings @ abs 4 >= warning-error and throw
+	exit then
+    drop ;
+is ?warning
+
 : ?warn-dp ( -- )
     warnings @ abs 1 > IF
-	>num-state @ 1 and 0= dpl @ 0>= and  >num-state off if
-	    \ !! add WARNING" stuff
-	    '' emit input-lexeme 2@ type
-	    ." ' is a double-cell integer; type `help' for more info"
-	then
+	>num-state @ 1 and 0= dpl @ 0>= and  >num-state off
+	[: '' emit input-lexeme 2@ type
+	    ." ' is a double-cell integer; type `help' for more info" ;]
+	?warning
 	dpl @ 0> warning" Non-standard double; '.' not in the last position"
     THEN ;
 ' ?warn-dp is ?warn#
