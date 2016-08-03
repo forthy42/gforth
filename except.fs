@@ -181,6 +181,11 @@ is catch
 [endif]
 
 Defer kill-task ' noop IS kill-task
+Variable located-xpos
+Variable located-len
+
+: set-current-xpos ( -- )
+    input-lexeme @ located-len ! current-sourcepos1 located-xpos ! ;
 
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF
@@ -188,6 +193,7 @@ Defer kill-task ' noop IS kill-task
 	  here throw-entry ! ]
 	first-throw @ 0= IF
 	    store-backtrace \ error-stack $off
+	    set-current-xpos
 	THEN
 	handler @ ?dup-0=-IF
 	    >stderr cr ." uncaught exception: " .error cr

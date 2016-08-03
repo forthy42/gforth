@@ -196,8 +196,8 @@ require string.fs
 Variable locate-file[]
 Variable locate-pos
 
-: show-pos1 ( pos1 nt -- ) {: nt :}
-    decode-pos1  nt name>string nip {: lineno charno offset :}
+: show-pos1 ( pos1 u -- ) {: u :}
+    decode-pos1  {: lineno charno :}
     loadfilename#>str locate-file[] $[]slurp-file
     lineno after-locate + 1+ locate-file[] $[]# umin
     lineno before-locate 1+ - 0 max +DO  cr
@@ -207,7 +207,7 @@ Variable locate-pos
 	    I locate-file[] $[]@
 	    over charno type charno /string
 	    info-color attr!
-	    over nt name>string nip dup >r type r> /string
+	    over u dup >r type r> /string
 	    err-color attr!
 	    type
 	    default-color attr!
@@ -227,7 +227,7 @@ Variable locate-pos
 : view-name {: nt -- :}
     locate-file[] $[]off
     warn-color attr!  nt name>view @ dup cr .sourcepos1  default-color attr!
-    dup locate-pos ! nt show-pos1 ;
+    dup locate-pos ! nt name>string nip show-pos1 ;
 
 : +locate-lines ( n -- pos )
     >r locate-pos @ decode-pos1 swap r> + swap encode-pos1 ;
@@ -238,6 +238,9 @@ Variable locate-pos
 : b ( -- )
     before-locate after-locate + 2 + negate
     +locate-lines dup locate-pos ! scroll-pos1 ;
+: l ( -- )
+    located-xpos @ dup cr .sourcepos1  default-color attr!
+    located-len @ show-pos1 ;
 
 : view-native ( "name" -- )
     (') view-name ;
