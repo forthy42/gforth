@@ -195,7 +195,8 @@ Variable ekey-buffer
     0 ;
 
 : esc-prefix ( -- u )
-    key? if
+    key? ?dup-0=-if  1 ms key?  endif \ wait 1 ms to let keys through
+    if
 	key ekey-buffer c$+!
 	ekey-buffer $@ esc-mask >r
         esc-sequences search-wordlist
