@@ -58,7 +58,10 @@ e? os-type s" bsd" search nip nip [IF] [IFUNDEF] darwin : darwin ; [THEN]
     [IFUNDEF] bsd : bsd ; [THEN] [THEN]
 e? os-type s" linux-android" string-prefix? [IF] [IFUNDEF] android : android ; [THEN] [THEN]
 e? os-type s" cygwin" string-prefix? [IF] [IFUNDEF] cygwin : cygwin ; [THEN] [THEN]
-e? os-type s" linux-gnu" string-prefix? [IF] [IFUNDEF] linux : linux ; [THEN] [THEN]
+e? os-type s" linux-gnu" string-prefix? [IF]
+    [IFUNDEF] linux : linux ; [THEN]
+    s" /proc/kcore" file-status nip 0< [IF] : mslinux ; [THEN]
+[THEN]
 
 begin-structure hostent
     field: h_name
@@ -311,9 +314,11 @@ s" sock read error"    exception Constant !!sockread!!
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt ?ior
     [ELSE]
-	IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
-	dup IPPROTO_IP IP_MTU_DISCOVER sockopt 4
-	setsockopt ?ior
+	[defined] mslinux [ 0= ] [IF]
+	    IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
+	    dup IPPROTO_IP IP_MTU_DISCOVER sockopt 4
+	    setsockopt ?ior
+	[THEN]
     [THEN] ;
 
 : new-udp-socket6 ( -- server ) 0 { w^ sockopt }
@@ -322,9 +327,11 @@ s" sock read error"    exception Constant !!sockread!!
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt drop
     [ELSE]
-	IP_PMTUDISC_DO sockopt l!
-	dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
-	setsockopt ?ior
+	[defined] mslinux [ 0= ] [IF]
+	    IP_PMTUDISC_DO sockopt l!
+	    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
+	    setsockopt ?ior
+	[THEN]
     [THEN]
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt dup on 4 setsockopt ?ior ;
 
@@ -334,9 +341,11 @@ s" sock read error"    exception Constant !!sockread!!
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt ?ior
     [ELSE]
-	IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
-	dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
-	setsockopt ?ior
+	[defined] mslinux [ 0= ] [IF]
+	    IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
+	    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
+	    setsockopt ?ior
+	[THEN]
     [THEN]
 ;
 

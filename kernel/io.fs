@@ -182,7 +182,8 @@ hex
 Defer deadline ( d -- )
 \G wait to absolute time @var{d} in ns since 1970-1-1 0:00:00+000
 : kernel-deadline ( d -- )
-    BEGIN  2dup ntime d- #1000000000 um/mod (ns) EINTR <> UNTIL
+    BEGIN  2dup ntime d- 2dup d0< IF  2drop #0.  THEN
+    #1000000000 um/mod (ns) EINTR <> UNTIL
     2drop ;
 ' kernel-deadline IS deadline
 : ns ( d -- ) ntime d+ deadline ;
