@@ -324,7 +324,7 @@ VARIABLE C-Pass
 	    IF
 		nip nip dup ." <" name>string rot wordinfo .string ." > "
 	    ELSE
-		2drop ." <" 0 .r ." > "
+		2drop ." <$" 0 ['] .r $10 base-execute ." > "
 	    THEN
 	    EXIT
 	then
