@@ -535,7 +535,7 @@ comp: drop >body postpone literal postpone 2! ;
     ['] (2to) set-to
   DOES> 2@ ;
 
-s" help.txt" slurp-file save-mem-dict
+s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 
 2>r : help ( -- ) [ 2r> ] 2literal type ; \ gforth
 \G Print some help for the first steps
