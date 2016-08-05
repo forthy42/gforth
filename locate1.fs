@@ -131,10 +131,13 @@ variable code-locations 0 code-locations !
 	    bl-next @ repeat
     2drop 0 ;
 
+40 value bt-pos-width
+
 [ifdef] .backtrace-pos
 : .backtrace-pos1 ( addr -- )
     cell- lookup-location dup if
-	.sourcepos1 space then ;
+	.sourcepos1 then
+    bt-pos-width out @ - 1 max spaces ;
 ' .backtrace-pos1 is .backtrace-pos
 [then]
 
@@ -166,6 +169,6 @@ variable code-locations 0 code-locations !
 : foo 0 @ ;
 
 : foo1 foo ;
-: foo2 foo1 ;
+: foo2 ['] foo1 execute ;
 
 foo2
