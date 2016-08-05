@@ -24,20 +24,26 @@ require ./basics.fs
 UValue infile-id ( -- file-id ) \ gforth
 UValue outfile-id ( -- file-id ) \ gforth
 UValue debug-fid ( -- file-id ) \ gforth
-    
+User out ( -- addr ) \ gforth
+\g counts number of characters TYPEd or EMITed; CR resets it
+
 : (type) ( c-addr u -- ) \ gforth
+    dup out +!
     outfile-id write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
 
 : (emit) ( c -- ) \ gforth
+    1 out +!
     outfile-id emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
 
 : (err-type) ( c-addr u -- ) \ gforth
+    dup out +!
     debug-fid write-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
 
 : (err-emit) ( c -- ) \ gforth
+    1 out +!
     debug-fid emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
 
@@ -96,7 +102,7 @@ umethod key? ( -- flag ) \ facility key-question
 2drop
 
 : (cr) ( -- )
-    newline type ;
+    newline type 0 out ! ;
 
 : key ( -- char )
 \G Receive (but do not display) one character, @var{char}.
