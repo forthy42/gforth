@@ -48,9 +48,6 @@ constant extra-section-error
 : current-section-addr ( -- addr )
     current-section @ section-addr ;
 
-: hex.r ( u1 u2 -- )
-    ['] .r #16 base-execute ;
-
 : .sections ( -- )
     cr ."             start              end               dp "
     sections hex. 
