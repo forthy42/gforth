@@ -156,7 +156,7 @@ is ?warning
     >num-state @ >num-state off 1 and 0= dpl @ 0>= and warnings @ abs 1 > and
     [: '' emit input-lexeme 2@ type
 	." ' is a double-cell integer; type `help' for more info" ;] ?warning
-    warnings @ abs 2 > input-lexeme 2@ '. scan nip 1 > and
+    warnings @ abs 2 > input-lexeme 2@ '. scan nip 1 > and dpl @ 0>= and
     [: '' emit input-lexeme 2@ type
 	." ' is a non-standard double: only trailing '.' standard" ;] ?warning ;
 
