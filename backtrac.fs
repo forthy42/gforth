@@ -63,9 +63,10 @@ defer .backtrace-pos ( addr -- )
 : print-backtrace ( addr1 addr2 -- )
     \G print a backtrace for the return stack addr1..addr2
     2dup u< IF  cr ." Backtrace:"  THEN
-    swap u+do
-	cr i @ dup .backtrace-pos dup hex. print-bt-entry
-	cell +loop ;
+    0 swap rot u+do
+	cr i @ dup .backtrace-pos over 2 .r space dup hex. print-bt-entry 1+
+    cell +loop
+    drop ;
 
 : bt ( -- )
     \G backtrace for interactive use
