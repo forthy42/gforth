@@ -148,6 +148,10 @@ Vocabulary Root ( -- ) \ gforth
   \G order (for Gforth, this is the word list @code{Root}).
   0 1 vocstack deque! Root also ;
 
+[ifundef] 'image
+defer 'image ( -- ) ' noop is 'image
+[then]
+
 :noname ( -- )
     \ save search order here
     defers 'image vocstack $save ; is 'image
