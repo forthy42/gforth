@@ -163,8 +163,9 @@ si-prefixes count 2/ + Constant zero-exp
     \ check for e/E/.
     2dup fp-char @ scan nip r@ or
     IF
-	r@ 0= warnings @ abs 2 > and warning" float without 'e' is non-standard"
 	fp-char @ >float1
+	dup r@ 0= and warnings @ abs 2 > and
+	warning" float without 'e' is non-standard"
     ELSE
 	2drop false
     THEN  rdrop ;

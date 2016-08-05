@@ -128,11 +128,35 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
     drop ;
 is ?warning
 
+: shadow-warning ( c-addr u nt -- c-addr u nt )
+    dup >r name>string ." redefined " 2dup type ( c-addr u c-addr2 u2 )
+    2over str= 0= if
+	."  with " 2dup type then
+    r> ;
+: shadow-num-warning ( c-addr u -- c-addr u )
+    ." defined literal " 2dup type ."  as word" ;
+
+10 deque: warning-recs
+' rec:float ' rec:num 2 warning-recs deque!
+
+:noname  ( addr count wid -- )
+    \G prints a warning if the string is already present in the wordlist
+    >r 2dup r> find-name-in warnings @ 0<> and dup
+    ['] shadow-warning ?warning IF  2drop  EXIT  THEN
+    warnings @ >r warnings off
+    sp@ fp@ 2>r 2dup warning-recs map-recognizer 2r> rot >r
+    fp! sp! r> r:fail <>  r> dup warnings ! 0<> and
+    ['] shadow-num-warning ?warning  2drop
+; is check-shadow
+
+:noname defers 'cold  warning-recs $boot ; is 'cold
+:noname defers 'image warning-recs $save ; is 'image
+
 : ?warn-dp ( -- )
     >num-state @ >num-state off 1 and 0= dpl @ 0>= and warnings @ abs 1 > and
     [: '' emit input-lexeme 2@ type
 	." ' is a double-cell integer; type `help' for more info" ;] ?warning
-    warnings @ abs 2 > input-lexeme 2@ '. scan nip 1 > and
+    warnings @ abs 2 > input-lexeme 2@ '. scan nip 1 > and dpl @ 0>= and
     [: '' emit input-lexeme 2@ type
 	." ' is a non-standard double: only trailing '.' standard" ;] ?warning ;
 

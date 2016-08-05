@@ -382,7 +382,8 @@ struct F83Name {
 #endif
 
 #define LONGNAME_OFF 3
-#define LONGNAME_COUNT(np)     ((((Cell*)np)[-LONGNAME_OFF]) & (((~((UCell)0))<<4)>>4))
+#define RESERVED_BITS 8
+#define LONGNAME_COUNT(np)     ((((Cell*)np)[-LONGNAME_OFF]) & (((~((UCell)0))<<RESERVED_BITS)>>RESERVED_BITS))
 #define LONGNAME_NAME(np)      ((Char *)(np)-LONGNAME_OFF*sizeof(Cell)-LONGNAME_COUNT(np))
 #define LONGNAME_NEXT(np)      ((struct Longname*)(((Cell*)np)[-2]))
 

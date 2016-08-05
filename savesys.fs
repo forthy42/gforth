@@ -32,8 +32,7 @@
 
 : prepare-for-dump ( -- )
     update-image-included-files
-    update-image-order
-    default-recognizer $save
+    'image
     update-maintask ;
 
 : preamble-start ( -- addr )

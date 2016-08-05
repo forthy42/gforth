@@ -148,9 +148,9 @@ Vocabulary Root ( -- ) \ gforth
   \G order (for Gforth, this is the word list @code{Root}).
   0 1 vocstack deque! Root also ;
 
-: update-image-order ( -- )
+:noname ( -- )
     \ save search order here
-    vocstack $save ;
+    defers 'image vocstack $save ; is 'image
 
 : init-vp  ( -- )
     vocstack $boot ;
