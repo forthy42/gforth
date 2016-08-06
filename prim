@@ -3097,9 +3097,9 @@ uxd@ ( c_addr -- ud )	gforth u_xd_fetch
 UTetrabyte tb[2];
 memcpy(tb, (UOctabyte *)c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
-D_IS(ud, tb[0], tb[1]));
+D_IS(ud, tb[0], tb[1]);
 #  else
-D_IS(ud, tb[1], tb[0]));
+D_IS(ud, tb[1], tb[0]);
 #  endif
 # else
 UOctabyte ob;
@@ -3119,9 +3119,9 @@ sxd@ ( c_addr -- d )	gforth s_xd_fetch
 UTetrabyte tb[2];
 memcpy(tb, (UOctabyte *)c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
-D_IS(d, tb[0], tb[1]));
+D_IS(d, tb[0], tb[1]);
 #  else
-D_IS(d, tb[1], tb[0]));
+D_IS(d, tb[1], tb[0]);
 #  endif
 # else
 UOctabyte ob;
