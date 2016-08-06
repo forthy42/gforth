@@ -37,7 +37,7 @@
 IS store-backtrace
 
 : print-bt-entry ( return-stack-item -- )
-    cell - dup in-dictionary? over dup aligned = and
+    cell- dup in-dictionary? over dup aligned = and
     if
 	@ dup threaded>name dup if
 	    .name drop
@@ -57,14 +57,16 @@ IS store-backtrace
 	drop
     then ;
 
+defer .backtrace-pos ( addr -- )
+' drop is .backtrace-pos
+
 : print-backtrace ( addr1 addr2 -- )
     \G print a backtrace for the return stack addr1..addr2
     2dup u< IF  cr ." Backtrace:"  THEN
-    swap u+do
-	cr
-	i @ dup hex. ( return-addr? )
-	print-bt-entry
-	cell +loop ;
+    0 swap rot u+do
+	cr i @ dup .backtrace-pos over 2 .r space dup hex. print-bt-entry 1+
+    cell +loop
+    drop ;
 
 : bt ( -- )
     \G backtrace for interactive use

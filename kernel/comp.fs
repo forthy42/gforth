@@ -277,12 +277,16 @@ defer basic-block-end ( -- )
     0 compile-prim1 ;
 is basic-block-end
 
+defer xt-location ( addr -- addr )
+\ note that an xt was compiled at addr, for backtrace-locate functionality
+' noop is xt-location
+
 has? primcentric [IF]
     has? peephole [IF]
 	\ dynamic only    
 	: peephole-compile, ( xt -- )
 	    \ compile xt, appending its code to the current dynamic superinstruction
-	    here swap , compile-prim1 ;
+	    here swap , xt-location compile-prim1 ;
     [ELSE]
 	: peephole-compile, ( xt -- addr ) @ , ;
     [THEN]

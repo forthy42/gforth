@@ -183,9 +183,36 @@ is catch
 Defer kill-task ' noop IS kill-task
 Variable located-xpos
 Variable located-len
+variable bn-xpos      \ first contains located-xpos, but is updated by B and N
+variable located-top  \ first line to display with l
+variable located-bottom \ last line to display with l
+2variable located-slurped \ the contents of the file in located-xpos, or 0 0
+
+\ lines to show before and after locate
+3 value before-locate
+12 value after-locate
+
+: xpos>file# ( xpos -- u )
+    23 rshift ;
+
+: xpos>line ( xpos -- u )
+    8 rshift $7fff and ;
+
+: set-located-xpos ( xpos len -- )
+    over xpos>file# located-xpos @ xpos>file# <> if
+	located-slurped 2@ drop ?dup-if
+	    free throw then
+	0 0 located-slurped 2! then
+    located-len ! dup located-xpos ! dup bn-xpos !
+    xpos>line
+    dup before-locate - 0 max located-top !
+    after-locate + located-bottom ! ;
 
 : set-current-xpos ( -- )
-    input-lexeme @ located-len ! current-sourcepos1 located-xpos ! ;
+    current-sourcepos1 input-lexeme @ set-located-xpos ;
+
+\ : set-current-xpos ( -- )
+\    input-lexeme @ located-len ! current-sourcepos1 located-xpos ! ;
 
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP IF

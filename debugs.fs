@@ -139,6 +139,7 @@ is ?warning
 10 deque: warning-recs
 ' rec:float ' rec:num 2 warning-recs deque!
 
+' check-shadow >code-address dodefer: = [if]
 :noname  ( addr count wid -- )
     \G prints a warning if the string is already present in the wordlist
     >r 2dup r> find-name-in warnings @ 0<> and dup
@@ -148,6 +149,7 @@ is ?warning
     fp! sp! r> r:fail <>  r> dup warnings ! 0<> and
     ['] shadow-num-warning ?warning  2drop
 ; is check-shadow
+[then]
 
 :noname defers 'cold  warning-recs $boot ; is 'cold
 :noname defers 'image warning-recs $save ; is 'image
@@ -212,10 +214,6 @@ require string.fs
 
 : view-vi ( "name" -- ) \ gforth
     [: ." vi -t '" parse-name esc'type ." '" ;] $tmp system ;
-
-\ lines to show before and after locate
-3 value before-locate
-12 value after-locate
 
 Variable locate-file[]
 Variable locate-pos

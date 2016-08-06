@@ -427,6 +427,9 @@ previous
     endtry
     throw ;
 
+: hex.r ( u1 u2 -- )
+    ['] .r #16 base-execute ;
+
 : dump ( addr u -- ) ['] dump $10 base-execute ;
 \ wrap dump into base-execute
 

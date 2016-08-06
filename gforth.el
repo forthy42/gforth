@@ -314,7 +314,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  "fconstant" "value" "2value" "field" "user" "vocabulary" "voctable" 
 	  "create-interpret/compile" "interpret/compile:"
 	  "debug:" "field:" "2field:" "ffield:" "sffield:" "dffield:"
-	  "uvar" "uvalue" "cfield:" "wfield:" "lfield:")
+	  "uvar" "uvalue" "cfield:" "wfield:" "lfield:" "+field")
 	 non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 	("\\S-+%" non-immediate (font-lock-type-face . 2))

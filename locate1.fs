@@ -17,29 +17,6 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-variable located-xpos \ contains xpos of LOCATEd/EDITed word
-variable located-len  \ contains the length of the word
-variable bn-xpos      \ first contains located-xpos, but is updated by B and N
-variable located-top  \ first line to display with l
-variable located-bottom \ last line to display with l
-2variable located-slurped \ the contents of the file in located-xpos, or 0 0
-
-: set-located-xpos ( xpos len -- )
-    over xpos>file# located-xpos @ xpos>file# <> if
-	located-slurped 2@ drop ?dup-if
-	    free throw then
-	0 0 located-slurped 2! then
-    located-len ! dup located-xpos ! dup bn-xpos !
-    xpos>line
-    dup before-locate - 0 max located-top !
-    after-locate + located-bottom ! ;
-
-:noname {: uline c-addr1 u1 -- uline c-addr1 u1 :}
-    c-addr1 u1 str>loadfilename# uline
-    input-lexeme 2@ >r source drop - encode-pos1 r> set-located-xpos
-    uline c-addr1 u1
-; is set-current-xpos
-
 : set-bn-xpos ( -- )
     bn-xpos @ xpos>file# located-top @ 0 encode-pos1 bn-xpos ! ;
 
@@ -120,3 +97,78 @@ variable located-bottom \ last line to display with l
 : edit ( "name" -- )
     \g Enter the editor at the place of "name"
     (') name-set-located-xpos g ;
+
+\ backtrace locate stuff:
+
+256 1024 * constant bl-data-size
+
+0
+2field:  bl-bounds
+field:   bl-next
+bl-data-size cell+ +field bl-data
+constant bl-size
+
+variable code-locations 0 code-locations !
+
+: .bl {: bl -- :}
+    cr bl bl-bounds 2@ swap 16 hex.r 17 hex.r
+    bl bl-data 17 hex.r
+    bl bl-next @ 17 hex.r ;
+
+: .bls ( -- )
+    cr ."       code-start         code-end          bl-data          bl-next"
+    code-locations @ begin
+	dup while
+	    dup .bl
+	    bl-next @ repeat
+    drop ;
+
+: lookup-location ( addr -- pos1|0 )
+    code-locations @ begin ( addr bl )
+	dup while
+	    2dup bl-bounds 2@ within if
+		tuck bl-bounds 2@ drop  - + bl-data @ exit then
+	    bl-next @ repeat
+    2drop 0 ;
+
+40 value bt-pos-width
+
+[ifdef] .backtrace-pos
+: .backtrace-pos1 ( addr -- )
+    cell- lookup-location dup if
+	dup .sourcepos1 then
+    drop bt-pos-width out @ - 1 max spaces ;
+' .backtrace-pos1 is .backtrace-pos
+[then]
+
+: xt-location2 ( addr bl -- addr )
+    \ knowing that addr is within bl, record the current source
+    \ position for addr
+    2dup bl-bounds 2@ drop - + bl-data ( addr addr' )
+    current-sourcepos1 swap 2dup ! cell+ ! ;
+
+: new-bl ( addr blp -- )
+    bl-size allocate throw >r
+    swap dup bl-data-size + r@ bl-bounds 2!
+    dup @ r@ bl-next !
+    r@ bl-data bl-data-size cell+ erase
+    r> swap ! ;
+    
+: xt-location1 ( addr -- addr )
+    code-locations begin ( addr blp )
+	dup @ 0= if
+	    2dup new-bl then
+	@ 2dup bl-bounds 2@ within 0= while ( addr bl )
+	    bl-next repeat
+    xt-location2 ;
+
+' xt-location1 is xt-location
+
+\ test
+
+: foo 0 @ ;
+
+: foo1 10 0 do foo loop ;
+: foo2 foo1 ;
+
+foo2

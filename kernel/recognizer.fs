@@ -100,8 +100,8 @@ AVariable default-recognizer
 here default-recognizer !
 2 cells , ' rec:num A, ' rec:word A,
 
-Defer 'image
-:noname
+Defer 'image ( -- )
+:noname ( -- )
     default-recognizer $save ; IS 'image
 
 default-recognizer AValue forth-recognizer
