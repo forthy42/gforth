@@ -385,7 +385,7 @@ previous
 \ Open firmware names
 ' uw@ alias w@ ( addr -- u )
 ' ul@ alias l@ ( addr -- u )
-' ux@ alias x@ ( addr -- u )
+[IFDEF] ux@ ' ux@ alias x@ ( addr -- u )
 ' uxd@ alias xd@ ( addr -- u )
 \ ' sw@ alias <w@ ( addr -- n )
 [then]
