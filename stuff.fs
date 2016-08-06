@@ -385,7 +385,7 @@ previous
 \ Open firmware names
 ' uw@ alias w@ ( addr -- u )
 ' ul@ alias l@ ( addr -- u )
-[IFDEF] ux@ ' ux@ alias x@ ( addr -- u )
+[IFDEF] ux@ ' ux@ alias x@ ( addr -- u ) [THEN]
 ' uxd@ alias xd@ ( addr -- u )
 \ ' sw@ alias <w@ ( addr -- n )
 [then]
@@ -413,6 +413,19 @@ previous
     ' noop alias wbe immediate
     ' noop alias lbe immediate
 [THEN]
+
+: w, ( w -- )  here w!  2 allot ;
+: l, ( l -- )  here l!  4 allot ;
+[IFDEF] x!  : x, ( l -- )  here x!  8 allot ;  [THEN]
+
+: *aligned ( addr n -- addr' )  tuck 1- + swap negate and ;
+: *align ( n -- )  here swap *aligned dp ! ;
+: walign ( -- )  2 *align ;
+: waligned ( addr -- addr' )  2 *aligned ;
+: lalign ( -- )  4 *align ;
+: laligned ( addr -- addr' )  4 *aligned ;
+: xalign ( -- )  8 *align ;
+: xaligned ( addr -- addr' )  8 *aligned ;
 
 \ safe output redirection
 

@@ -61,6 +61,9 @@ standard:field
 : lfield: ( u1 "name" -- u2 ) \ X:structures
     3 + -4 and 4 +field ;
 
+: xfield: ( offset -- offset' )
+    7 + -8 and 8 +field ;
+
 : field: ( u1 "name" -- u2 ) \ X:structures
     aligned cell +field ;
 
