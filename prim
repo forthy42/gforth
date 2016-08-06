@@ -3161,7 +3161,7 @@ UOctabyte ob;
 # ifdef WORDS_BIGENDIAN
 ob=ud;
 # else
-ob=__builtin_bswap64(w);
+ob=__builtin_bswap64(ud);
 # endif
 memcpy((UOctabyte *)c_addr, &ob, 8);
 #endif
