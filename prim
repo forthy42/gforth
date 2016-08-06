@@ -3202,7 +3202,7 @@ be-uxd@ ( c_addr -- ud )	gforth b_e_u_xd_fetch
 ""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
-UTetabyte tb[2];
+UTetrabyte tb[2];
 memcpy(tb, (UOctabyte *)c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
 D_IS(ud, tb[0], tb[1]);
@@ -3232,7 +3232,7 @@ le-uxd@ ( c_addr -- ud )	gforth l_e_u_xd_fetch
 ""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
-UTetabyte tb[2];
+UTetrabyte tb[2];
 memcpy(tb, (UOctabyte *)c_addr, 8);
 #  ifndef WORDS_BIGENDIAN
 D_IS(ud, tb[1], tb[9]);
