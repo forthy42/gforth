@@ -2937,7 +2937,7 @@ be-w! ( w c_addr -- )	gforth w_store_be
 #ifdef WORDS_BIGENDIAN
 UWyde wy=w;
 #else
-UWyde wy=__builtin_bswap16(w);
+UWyde wy=BSWAP16(w);
 #endif
 memcpy((Wyde*)(c_addr), &wy, 2);
 
@@ -2955,7 +2955,7 @@ le-w! ( w c_addr -- )	gforth w_store_le
 #ifndef WORDS_BIGENDIAN
 UWyde wy=w;
 #else
-UWyde wy=__builtin_bswap16(w);
+UWyde wy=BSWAP16(w);
 #endif
 memcpy((Wyde*)(c_addr), &wy, 2);
 
@@ -2975,7 +2975,7 @@ memcpy(&wy, (UWyde*)(c_addr), 4);
 #ifdef WORDS_BIGENDIAN
 u = wy;
 #else
-u = __builtin_bswap16(wy);
+u = BSWAP16(wy);
 #endif
 
 be-ul@ ( c_addr -- u )	gforth l_fetch_be
@@ -2995,7 +2995,7 @@ memcpy(&wy, (UWyde*)(c_addr), 4);
 #ifndef WORDS_BIGENDIAN
 u = wy;
 #else
-u = __builtin_bswap16(wy);
+u = BSWAP16(wy);
 #endif
 
 le-ul@ ( c_addr -- u )	gforth l_fetch_le
@@ -3015,73 +3015,60 @@ gforth_dlclose(u);
 
 x! ( w c_addr -- )	gforth x_store
 ""Store the bottom 64 bits of @i{w} at 64-bit-aligned @i{c_addr}.""
-*(UOctabyte *)c_addr = w;
+UOctabyte ob=w;
+memcpy((UOctabyte *)c_addr, &ob, 8);
 
 ux@ ( c_addr -- u )	gforth u_x_fetch
 ""@i{u} is the zero-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
-u = *(UOctabyte *)c_addr;
+UOctabyte ob;
+memcpy(&ob, (UOctabyte *)c_addr, 8);
+u = ob;
 
 sx@ ( c_addr -- n )	gforth s_x_fetch
 ""@i{u} is the sign-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
-n = *(Octabyte *)c_addr;
+Octabyte ob;
+memcpy(&ob, (UOctabyte *)c_addr, 8);
+n = ob;
 
 be-x! ( w c_addr -- )	gforth b_e_x_store
 ""Store the bottom 64 bits of @i{w} at @i{c_addr} in big endian format.""
-#if (SIZEOF_CHAR_P == 8)
-c_addr[0] = w >> 56;
-c_addr[1] = w >> 48;
-c_addr[2] = w >> 40;
-c_addr[3] = w >> 32;
+UOctabyte ob;
+#ifdef WORDS_BIGENDIAN
+ob=w;
 #else
-c_addr[0] = c_addr[1] = c_addr[2] = c_addr[3] = 0;
+ob=__builtin_bswap64(w);
 #endif
-c_addr[4] = w >> 24;
-c_addr[5] = w >> 16;
-c_addr[6] = w >> 8;
-c_addr[7] = w;
+memcpy((UOctabyte *)c_addr, &ob, 8);
 
 le-x! ( w c_addr -- )	gforth l_e_x_store
 ""Store the bottom 64 bits of @i{w} at @i{c_addr} in big endian format.""
-#if (SIZEOF_CHAR_P == 8)
-c_addr[7] = w >> 56;
-c_addr[6] = w >> 48;
-c_addr[5] = w >> 40;
-c_addr[4] = w >> 32;
+UOctabyte ob;
+#ifndef WORDS_BIGENDIAN
+ob=w;
 #else
-c_addr[7] = c_addr[6] = c_addr[5] = c_addr[4] = 0;
+ob=__builtin_bswap64(w);
 #endif
-c_addr[3] = w >> 24;
-c_addr[2] = w >> 16;
-c_addr[1] = w >> 8;
-c_addr[0] = w;
+memcpy((UOctabyte *)c_addr, &ob, 8);
 
 be-ux@ ( c_addr -- u )	gforth b_e_u_x_fetch
 ""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
-u = (
-#if (SIZEOF_CHAR_P == 8)
-     (((Cell)(c_addr[0])) << 56) |
-     (((Cell)(c_addr[1])) << 48) |
-     (((Cell)(c_addr[2])) << 40) |
-     (((Cell)(c_addr[3])) << 32) |
+UOctabyte ob;
+memcpy(&ob, (UOctabyte *)c_addr, 8);
+#ifdef WORDS_BIGENDIAN
+u = ob;
+#else
+u=__builtin_bswap64(ob);
 #endif
-     (((Cell)(c_addr[4])) << 24) |
-     (((Cell)(c_addr[5])) << 16) |
-     (((Cell)(c_addr[6])) << 8) |
-     (((Cell)(c_addr[7]))));
 
 le-ux@ ( c_addr -- u )	gforth l_e_u_x_fetch
 ""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
-u = (
-#if (SIZEOF_CHAR_P == 8)
-     (((Cell)(c_addr[7])) << 56) |
-     (((Cell)(c_addr[6])) << 48) |
-     (((Cell)(c_addr[5])) << 40) |
-     (((Cell)(c_addr[4])) << 32) |
+UOctabyte ob;
+memcpy(&ob, (UOctabyte *)c_addr, 8);
+#ifndef WORDS_BIGENDIAN
+u = ob;
+#else
+u=__builtin_bswap64(ob);
 #endif
-     (((Cell)(c_addr[3])) << 24) |
-     (((Cell)(c_addr[2])) << 16) |
-     (((Cell)(c_addr[1])) << 8) |
-     (((Cell)(c_addr[0]))));
 
 \+
 
@@ -3276,7 +3263,7 @@ barrier ( -- ) gforth
 __sync_synchronize();
 
 w>< ( u1 -- u2 )  gforth wordswap
-u2=__builtin_bswap16(u1);
+u2=BSWAP16(u1);
 
 l>< ( u1 -- u2 )  gforth longswap
 u2=__builtin_bswap32(u1);

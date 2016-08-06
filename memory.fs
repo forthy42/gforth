@@ -179,29 +179,34 @@ pad off 1 pad ! pad c@ 1 = [IF] \ little endian
 \ tests
 
 [defined] test-it [IF]
+Create readpad $01 c, $23 c, $45 c, $67 c, $89 c, $ab c, $cd c, $ef c,
+$10 buffer: writepad
+require test/ttester.fs
+T{ readpad w@ wbe -> $0123 }T
+T{ readpad w@ wle -> $2301 }T
+1 cells 4 >= [IF]
+    T{ readpad l@ lbe -> $01234567 }T
+    T{ readpad l@ lle -> $67452301 }T
     1 cells 8 >= [IF]
-	: dd>q ( d1 d2 -- q )
-	    #32 dlshift rot or >r or r> #0. ;
-    [ELSE]
-	synonym dd>q noop
-    [THEN]
-    Create readpad $01 c, $23 c, $45 c, $67 c, $89 c, $ab c, $cd c, $ef c,
-    $10 buffer: writepad
-    require test/ttester.fs
-    T{ readpad w@ wbe -> $0123 }T
-    T{ readpad w@ wle -> $2301 }T
-    1 cells 4 >= [IF]
-	T{ readpad l@ lbe -> $01234567 }T
-	T{ readpad l@ lle -> $67452301 }T
-	1 cells 8 >= [IF]
-	    T{ readpad x@ xbe -> $0123456789ABCDEF }T
-	    T{ readpad x@ xle -> $EFCDAB8967452301 }T
+	T{ readpad x@ xbe -> $0123456789ABCDEF }T
+	T{ readpad x@ xle -> $EFCDAB8967452301 }T
 	[THEN]
 	T{ readpad xd@ xdbe -> $0123456789ABCDEF. }T
 	T{ readpad xd@ xdle -> $EFCDAB8967452301. }T
     [THEN]    
     T{ readpad ld@ ldbe -> $01234567. }T
     T{ readpad ld@ ldle -> $67452301. }T
-    T{ readpad xq@ xqbe -> $89ABCDEF. $01234567. dd>q }T
-    T{ readpad xq@ xqle -> $67452301. $EFCDAB89. dd>q }T
+    1 cells 4 >= [IF]
+	T{ readpad xq@ xqbe -> $0123456789ABCDEF. $0. }T
+	T{ readpad xq@ xqle -> $EFCDAB8967452301. $0. }T
+    [ELSE]
+	T{ readpad xq@ xqbe -> $89ABCDEF. $01234567. }T
+	T{ readpad xq@ xqle -> $67452301. $EFCDAB89. }T
+    [THEN]
+[ELSE]
+    T{ readpad ld@ ldbe -> $01234567. }T
+    T{ readpad ld@ ldle -> $67452301. }T
+    T{ readpad xq@ xqbe -> $89ABCDEF. $01234567. }T
+    T{ readpad xq@ xqle -> $67452301. $EFCDAB89. }T
+[THEN]
 [THEN]

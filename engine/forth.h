@@ -160,6 +160,23 @@ typedef struct {
 #define FLOORED_DIV ((1%-3)>0)
 #endif
 
+// prior to 4.8, gcc did not provide __builtin_bswap16 on some platforms so we emulate it
+// see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
+// Clang has a similar problem, but their feature test macros make it easier to detect
+#ifdef __clang__
+# if __has_builtin(__builtin_bswap16)
+#  define BSWAP16(x) __builtin_bswap16(x)
+# else
+#  define BSWAP16(x) __builtin_bswap32((x) << 16)
+# endif
+#else
+# if(defined(__GNUC__) &&(__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)))
+#  define BSWAP16(x) __builtin_bswap16(x)
+# else
+#  define BSWAP16(x) __builtin_bswap32((x) << 16)
+# endif
+#endif
+
 #if defined(BUGGY_LONG_LONG)
 
 #define BUGGY_LL_CMP    /* compares not possible */
@@ -170,6 +187,7 @@ typedef struct {
 #define BUGGY_LL_D2F    /* to float not possible */
 #define BUGGY_LL_F2D    /* from float not possible */
 #define BUGGY_LL_SIZE   /* long long "too short", so we use something else */
+#define BUGGY_LL_SWAP   /* byteswap not possible */
 
 typedef struct {
   Cell hi;

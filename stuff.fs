@@ -388,6 +388,28 @@ previous
 \ ' sw@ alias <w@ ( addr -- n )
 [then]
 
+1 pad ! pad c@ 1 = [IF] \ little endian
+    [IFDEF] w>< synonym wbe w>< [THEN]
+    [IFDEF] l>< synonym lbe l>< [THEN]
+    [IFDEF] x>< synonym xbe x><
+	' noop alias xle immediate
+    [ELSE] : xdbe l>< swap l>< ;
+	' noop alias xdle immediate
+    [THEN]
+    ' noop alias wle immediate
+    ' noop alias lle immediate
+[ELSE]
+    [IFDEF] w>< synonym wle w>< [THEN]
+    [IFDEF] l>< synonym lle l>< [THEN]
+    [IFDEF] x>< synonym xle x><
+	' noop alias xbe immediate
+    [ELSE] : xdle l>< swap l>< ;
+	' noop alias xdbe immediate
+    [THEN]
+    ' noop alias wbe immediate
+    ' noop alias lbe immediate
+[THEN]
+
 \ safe output redirection
 
 : outfile-execute ( ... xt file-id -- ... ) \ gforth
