@@ -80,9 +80,9 @@ pad off 1 pad ! pad c@ 1 = [IF] \ little endian
 	[THEN]
     [ELSE]
 	synonym ww>ld swap ( l1 l2 -- dx )
-	synonym ld>ww swap ( l1 l2 -- dx )
+	synonym ld>ww swap ( dx -- l1 l2 )
 	synonym ll>xq 2swap ( dl1 dl2 -- qx )
-	synonym xq>ll 2swap ( dl1 dl2 -- qx )
+	synonym xq>ll 2swap ( qx -- dl1 dl2 )
 	synonym ldle ld><
 	synonym xqle xq><
 	synonym ldbe noop
