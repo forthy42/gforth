@@ -385,6 +385,8 @@ previous
 \ Open firmware names
 ' uw@ alias w@ ( addr -- u )
 ' ul@ alias l@ ( addr -- u )
+' ux@ alias x@ ( addr -- u )
+' uxd@ alias xd@ ( addr -- u )
 \ ' sw@ alias <w@ ( addr -- n )
 [then]
 
@@ -393,9 +395,10 @@ previous
     [IFDEF] l>< synonym lbe l>< [THEN]
     [IFDEF] x>< synonym xbe x><
 	' noop alias xle immediate
-    [ELSE] : xdbe l>< swap l>< ;
-	' noop alias xdle immediate
     [THEN]
+    [IFDEF] xd>< synonym xdbe xd><
+    [ELSE] : xdbe l>< swap l>< ; [THEN]
+    ' noop alias xdle immediate
     ' noop alias wle immediate
     ' noop alias lle immediate
 [ELSE]
@@ -403,9 +406,10 @@ previous
     [IFDEF] l>< synonym lle l>< [THEN]
     [IFDEF] x>< synonym xle x><
 	' noop alias xbe immediate
-    [ELSE] : xdle l>< swap l>< ;
-	' noop alias xdbe immediate
     [THEN]
+    [IFDEF] xd>< synonym xdle xd><
+    [ELSE] : xdle l>< swap l>< ; [THEN]
+    ' noop alias xdbe immediate
     ' noop alias wbe immediate
     ' noop alias lbe immediate
 [THEN]
