@@ -15472,8 +15472,6 @@ which internal structures you can rely.
 @node Integrating Gforth, Emacs and Gforth, Model, Top
 @chapter Integrating Gforth into C programs
 
-This is not yet implemented.
-
 Several people like to use Forth as scripting language for applications
 that are otherwise written in C, C++, or some other language.
 
@@ -15490,34 +15488,85 @@ standardized interface. Such a standard interface would allow you to
 replace the Forth system without having to rewrite C code.
 
 You embed the Gforth interpreter by linking with the library
-@code{libgforth.a} (give the compiler the option @code{-lgforth}).  All
-global symbols in this library that belong to the interface, have the
-prefix @code{forth_}. (Global symbols that are used internally have the
-prefix @code{gforth_}).
+@code{libgforth.a} or @code{libgforth.so} (give the compiler the
+option @code{-lgforth}, or for one of the other engines
+@code{-lgforth-fast}, @code{-lgforth-itc}, or @code{-lgforth-ditc}).
+All global symbols in this library that belong to the interface, have
+the prefix @code{gforth_}; if a common interface emerges, the
+functions may also be available through @code{#define}s with the
+prefix @code{forth_}.
 
-You can include the declarations of Forth types and the functions and
-variables of the interface with @code{#include <forth.h>}.
+You can include the declarations of Forth types, the functions and
+variables of the interface with @code{#include <gforth.h>}.
 
-Types.
+You can now run a Gforth session by either calling @code{gforth_main}
+or using the components:
 
-Variables.
+@example
+Cell gforth_main(int argc, char **argv, char **env)
+{
+  Cell retvalue=gforth_start(argc, argv);
 
-Data and FP Stack pointer. Area sizes.
+  if(retvalue == -56) { /* throw-code for quit */
+    gforth_setwinch();        // set winch signal handler
+    gforth_bootmessage();     // show boot message
+    retvalue = gforth_quit(); // run quit loop
+  }
+  gforth_cleanup();
+  gforth_printmetrics();
+  // gforth_free_dict(); // if you want to restart, do this
 
-functions.
+  return retvalue;
+}
+@end example
 
-forth_init(imagefile)
-forth_evaluate(string) exceptions?
-forth_goto(address) (or forth_execute(xt)?)
-forth_continue() (a corountining mechanism)
+To interact with the Forth interpreter, there's @code{Xt
+gforth_find(Char * name)} and @code{Cell gforth_execute(Xt xt)}.
 
-Adding primitives.
+More documentation needs to be put here.
 
-No checking.
+@section Types
 
-Signals?
+@code{Cell}, @code{UCell}: data stack elements.
 
-Accessing the Stacks
+@code{Float}: float stack element.
+
+@code{Address}, @code{Xt}, @code{Label}: pointer typies to memory,
+Forth words, and Forth instructions inside the VM.
+
+@section Variables
+
+Data and FP Stack pointer. Area sizes. Accessing the Stacks
+
+@code{gforth_SP}, @code{gforth_FP}.
+
+@section Functions
+
+@example
+void *gforth_engine(Xt *, stackpointers *);
+Cell gforth_main(int argc, char **argv, char **env);
+int gforth_args(int argc, char **argv, char **path, char **imagename);
+ImageHeader* gforth_loader(char* imagename, char* path);
+user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
+void gforth_free_stacks(user_area* t);
+void gforth_setstacks(user_area * t);
+void gforth_free_dict();
+Cell gforth_go(Xt* ip0);
+Cell gforth_boot(int argc, char** argv, char* path);
+void gforth_bootmessage();
+Cell gforth_start(int argc, char ** argv);
+Cell gforth_quit();
+Xt gforth_find(Char * name);
+Cell gforth_execute(Xt xt);
+void gforth_cleanup();
+void gforth_printmetrics();
+void gforth_setwinch();
+@end example
+
+@section Signals
+
+Gforth sets up signal handlers to catch exceptions and window size
+changes.  This may interfere with your C program.
 
 @c ******************************************************************
 @node Emacs and Gforth, Image Files, Integrating Gforth, Top

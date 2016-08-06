@@ -1400,6 +1400,7 @@ libforth
 gforthker
 engine/Makefile
 engine/libcc.h
+engine/gforth.h
 doc/version.texi
 doc/Makefile
 unix/Makefile

@@ -522,17 +522,16 @@ VMGEN_EX = vmgen-ex/Makefile vmgen-ex/README vmgen-ex/disasm.c \
 
 VMGEN_EX2 = $(VMGEN_EX:vmgen-ex/%=vmgen-ex2/%)
 
-ENGINE_SOURCES = engine/Makefile.in engine/config.h.in \
-	engine/engine.c engine/main.c engine/libmain.c \
-	engine/io.c engine/support.c engine/signals.c engine/libcc.h.in \
-	engine/profile.c engine/128bit.h \
-	engine/getopt.c engine/getopt1.c engine/getopt.h engine/select.c \
-	engine/ecvt_r.c engine/memcmp.c engine/rint.c \
-	engine/strtol.c engine/strtoul.c \
-	engine/ansidecl.h engine/memmove.c \
-	engine/pow10.c engine/atanh.c engine/cleanalign.c \
-	engine/strerror.c engine/strsignal.c engine/dblsub.c \
-	engine/fnmatch.h engine/fnmatch.c \
+ENGINE_SOURCES = engine/Makefile.in engine/config.h.in			\
+	engine/engine.c engine/main.c engine/libmain.c engine/io.c	\
+	engine/support.c engine/signals.c engine/libcc.h.in		\
+	engine/gforth.h.in engine/profile.c engine/128bit.h		\
+	engine/getopt.c engine/getopt1.c engine/getopt.h		\
+	engine/select.c engine/ecvt_r.c engine/memcmp.c engine/rint.c	\
+	engine/strtol.c engine/strtoul.c engine/ansidecl.h		\
+	engine/memmove.c engine/pow10.c engine/atanh.c			\
+	engine/cleanalign.c engine/strerror.c engine/strsignal.c	\
+	engine/dblsub.c engine/fnmatch.h engine/fnmatch.c		\
 	engine/zexpand.c engine/androidmain.c engine/sincos.c
 
 SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
@@ -558,9 +557,10 @@ SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
 	debian/rules debian/control.in debian/changelog.in debian/compat \
 	gforth.ico .travis.yml install-swig.sh $(SWIG_WRAP)
 
-CONFIG_GEN = Makefile Makedist engine/Makefile doc/Makefile gforthmi	\
-	vmgen preforth libforth gforthker machpc.fs doc/version.texi	\
-	envos.fs build-ec gforthmi.sh
+CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen machpc.fs	\
+	envos.fs preforth libforth gforthker engine/Makefile		\
+	engine/libcc.h engine/gforth.h doc/version.texi doc/Makefile	\
+	unix/Makefile debian/changelog debian/control build-ec
 
 RCS_FILES =  ToDo model high-level
 
@@ -777,6 +777,7 @@ install-images:
 install-include:
 		$(srcdir)/mkinstalldirs $(includedir)/gforth/$(VERSION)/$(machine)
 		$(INSTALL_DATA) engine/config.h engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
+		$(INSTALL_DATA) engine/gforth.h $(includedir)
 
 install-libcc:
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
@@ -1296,7 +1297,7 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-kernel/version.fs: Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/libcc.h.in gforthmi.sh.in kernel/version.fs.in engine/config.h.in
+kernel/version.fs: Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/libcc.h.in engine/gforth.h.in gforthmi.sh.in kernel/version.fs.in engine/config.h.in
 	./config.status
 
 $(CONFIG_GEN): kernel/version.fs

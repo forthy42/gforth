@@ -83,11 +83,11 @@ Variable vvvv
 : t,   swap align c, c, align ' ,   '" parse here over 1+ allot place align ;
 
 \ Strings                                              07feb93py
-Create "regs  ," AXCXDXBXSPBPSIDI8 9 101112131415"
-Create "breg  ," AL  CL  DL  BL  AH  CH  DH  BH  R8L R9L R10LR11LR12LR13LR14LR15L"
-Create "breg2 ," AL  CL  DL  BL  SPL BPL SIL DIL R8L R9L R10LR11LR12LR13LR14LR15L"
-Create "16ri ," BX+SIBX+DIBP+SIBP+DISI   DI   BP   BX   "
-Create "ptrs ," DWORDWORD BYTE "
+Create "regs  ," axcxdxbxspbpsidi8 9 101112131415"
+Create "breg  ," al  cl  dl  bl  ah  ch  dh  bh  r8l r9l r10lr11lr12lr13lr14lr15l"
+Create "breg2 ," al  cl  dl  bl  spl bpl sil dil r8l r9l r10lr11lr12lr13lr14lr15l"
+Create "16ri ," bx+sibx+dibp+sibp+disi   di   bp   bx   "
+Create "ptrs ," dwordword byte "
 Create "idx  ,"   *2*4*8"
 Create "seg  ," ESCSSSDSFSGS"   Create "seg1 ," escsssdsfsgs"
 Create "jmp ," o b z bes p l le"
@@ -119,14 +119,14 @@ Create grp8 ," ???? src"
 
 : *."  ( n addr -- )  count >r swap r@ * + r> -trailing type ;
 : .regsize ( reg -- reg )
-    dup 7 <= IF  'R' 'E' w? select emit  ELSE  'R' emit  THEN  ;
+    dup 7 <= IF  'r' 'e' w? select emit  ELSE  'r' emit  THEN  ;
 : .(reg ( n l -- )
     >r r@ 0= IF  .regsize "regs ( " )  ELSE  r@ 2 = IF
 	    "breg2 "breg p? select  ELSE  "regs ( " ) THEN  THEN
     over >r *." r> 7 > IF  case r@
-	    0 of  w? 0= IF 'D' emit  THEN  endof
-	    1 of  'W' emit                 endof
-	    2 of  'B' emit                 endof
+	    0 of  w? 0= IF 'd' emit  THEN  endof
+	    1 of  'w' emit                 endof
+	    2 of  'b' emit                 endof
 	endcase  THEN  rdrop ;
 : .reg  ( n -- )  length @ .(reg ;
 : .r/reg  ( n -- )    >r? length @ .(reg ;
@@ -134,6 +134,7 @@ Create grp8 ," ???? src"
 : .ereg ( n -- )  .regsize "regs *." ;
 : .mi/reg  ( n -- )   >x? .ereg ;
 : .sib/reg  ( n -- )  >b? .ereg ;
+: .s/reg  ( n -- )  >b? length @ .(reg ;
 : .seg  ( n -- )  "seg *." ;
 
 : mod@ ( addr -- addr' r/m reg )
@@ -156,7 +157,7 @@ Create .disp ' noop ,  ' .8b ,   ' .32b ,
   ELSE  drop  THEN ;
 
 : .32a  ( addr r/m -- addr' ) dup 7 and >r 6 rshift
-  dup 3 =            IF  drop r>       .m/reg    exit  THEN
+  dup 3 =            IF  drop r>       .s/reg    exit  THEN
   dup 0= r@ 5 = and  IF  drop rdrop .[ .32u .] exit  THEN
   r@  4 =            IF       rdrop    .sib    exit  THEN
   cells .disp + perform  r> .[ .sib/reg .] ;
@@ -201,7 +202,7 @@ Defer .code
   opcode @ dup 4 and  IF  drop 0 .r/reg ., .imm exit  THEN
   2 and  IF  .mod  ELSE  .rmod  THEN ;
 : .modt  tab .mod ;
-: .gr    tab  opcode @ 7 and .sib/reg ;
+: .gr    tab  opcode @ 7 and .s/reg ;
 : .rexinc  .amd64mode @ IF  opcode @ rex !  .code  rex off  EXIT  THEN
     ." inc" .gr ;
 : .rexdec  .amd64mode @ IF  opcode @ rex !  .code  rex off  EXIT  THEN

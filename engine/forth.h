@@ -431,6 +431,7 @@ Label *gforth_engine(Xt *ip sr_proto);
 Label *gforth_engine2(Xt *ip sr_proto);
 Label *gforth_engine3(Xt *ip sr_proto);
 
+
 Cell gforth_main(int argc, char **argv, char **env);
 int gforth_args(int argc, char ** argv, char ** path, char ** imagename);
 ImageHeader* gforth_loader(char* imagename, char* path);
@@ -440,13 +441,14 @@ void gforth_free();
 Cell gforth_go(Xt* ip0);
 Cell gforth_boot(int argc, char** argv, char* path);
 void gforth_bootmessage();
-void gforth_setwinch();
 Cell gforth_start(int argc, char ** argv);
 Cell gforth_quit();
 Xt gforth_find(Char * name);
 Cell gforth_execute(Xt xt);
 void gforth_cleanup();
 void gforth_printmetrics();
+void gforth_setwinch();
+void gforth_setstacks(user_area * t);
 #if defined(DOUBLY_INDIRECT)
 Cell gforth_make_image(int debugflag);
 #endif

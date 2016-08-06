@@ -2441,6 +2441,7 @@ Cell const * gforth_pointers(Cell n)
   case 6: return (Cell *)&gforth_main_UP;
   case 7: return (Cell *)&gforth_go;
   case 8: return (Cell *)&gforth_sigset;
+  case 9: return (Cell *)&gforth_setstacks;
   default: return NULL;
   }
 }
@@ -2514,15 +2515,24 @@ user_area* gforth_stacks(Cell dsize, Cell fsize, Cell rsize, Cell lsize)
     page_noaccess((void*)a); a+=pagesize; up0->fp0=(Float*)(a+fsize); a+=fsizep;
     page_noaccess((void*)a); a+=pagesize; up0->lp0=(Address)(a+lsize); a+=lsizep;
     page_noaccess((void*)a); a+=pagesize;
-#ifdef SIGSTKSZ
+# ifdef SIGSTKSZ
     sigstack.ss_sp=(void*)a+SIGSTKSZ;
     sigstack.ss_size=SIGSTKSZ;
     sigstack.ss_flags=0;
     sas_retval=sigaltstack(&sigstack,(stack_t *)0);
-#if defined(HAS_FILE) || !defined(STANDALONE)
+# if defined(HAS_FILE) || !defined(STANDALONE)
     if(sas_retval)
       debugp(stderr,"sigaltstack: %s\n",strerror(errno));
+# endif
 #endif
+  /* ensure that the cached elements (if any) are accessible */
+#if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
+    up0->sp0 -= 8; /* make stuff below bottom accessible for stack caching */
+    up0->fp0--;
+#else
+# ifdef DEBUG
+    up0->sp0--; // debug will print TOS even if the stack is empty
+# endif
 #endif
     return up0;
   }
@@ -2574,25 +2584,15 @@ void gforth_free_stacks(user_area * t)
     debugp(stderr,"sucess\n");
 }
 
-void gforth_setstacks()
+void gforth_setstacks(user_area * t)
 {
   gforth_magic = GFORTH_MAGIC; /* mark task as maintained */
-  gforth_UP->next_task = 0; /* mark user area as need-to-be-set */
+  t->next_task = 0; /* mark user area as need-to-be-set */
 
-  /* ensure that the cached elements (if any) are accessible */
-#if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
-  gforth_UP->sp0 -= 8; /* make stuff below bottom accessible for stack caching */
-  gforth_UP->fp0--;
-#else
-#ifdef DEBUG
-  gforth_UP->sp0--; // debug will print TOS even if the stack is empty
-#endif
-#endif
-
-  gforth_SP = gforth_UP->sp0;
-  gforth_RP = gforth_UP->rp0;
-  gforth_FP = gforth_UP->fp0;
-  gforth_LP = gforth_UP->lp0;
+  gforth_SP = t->sp0;
+  gforth_RP = t->rp0;
+  gforth_FP = t->fp0;
+  gforth_LP = t->lp0;
 }
 
 Cell gforth_boot(int argc, char** argv, char* path)
@@ -2679,7 +2679,7 @@ Cell gforth_start(int argc, char ** argv)
   if(gforth_header==NULL)
     return -59; /* allocate error */
   gforth_main_UP = gforth_UP = gforth_stacks(dsize, fsize, rsize, lsize);
-  gforth_setstacks();
+  gforth_setstacks(gforth_UP);
   return gforth_boot(argc, argv, path);
 }
 

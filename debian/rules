@@ -10,6 +10,7 @@ DL = $(CURDIR)/debian/gforth-lib
 DB = $(CURDIR)/debian/gforth-bin
 DH = $(CURDIR)/debian/gforth-html
 DP = $(CURDIR)/debian/gforth-pdf
+DV = $(CURDIR)/debian/gforth-dev
 USHARE = $(DB)/usr/share/gforth/$(GFORTH_VER)
 ULIB = $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)
 
@@ -27,13 +28,12 @@ override_dh_auto_install:
 	dh_auto_install -- DESTDIR=$(DB)
 	chmod 755 $(USHARE)/filedump.fs $(USHARE)/httpd.fs $(USHARE)/sieve.fs \
 	$(ULIB)/kernl*.fi $(ULIB)/gforth.fi
-	mkdir -p $(DC)/usr
+	mkdir -p $(DC)/usr $(DC)/usr/bin $(DL)/usr/lib $(DV)/usr/include
 	mv $(DB)/usr/share $(DC)/usr
 	mv $(DB)/etc $(DC)
-	mkdir -p $(DC)/usr/bin
 	mv $(DB)/usr/bin/vmgen* $(DC)/usr/bin
-	mkdir -p $(DL)/usr/lib
 	mv $(DB)/usr/lib/$(DEB_HOST_MULTIARCH) $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)
+	mv $(DB)/usr/include/gforth.h $(DV)/usr/include
 	mkdir -p $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mkdir -p $(D)/usr/bin
@@ -44,3 +44,4 @@ override_dh_installchangelogs:
 	rm -rf $(D)/usr/share/doc
 	rm -rf $(DL)/usr/share/doc
 	rm -rf $(DB)/usr/share/doc
+	rm -rf $(DV)/usr/share/doc

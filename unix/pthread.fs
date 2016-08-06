@@ -19,9 +19,6 @@
 
 c-library pthread
     \c #include <pthread.h>
-    \c #if HAVE_MPROBE
-    \c #include <mcheck.h>
-    \c #endif
     \c #include <limits.h>
     \c #include <sys/mman.h>
     \c #include <unistd.h>
@@ -32,13 +29,6 @@ c-library pthread
     \c #include <sys/socket.h>
     \c #endif
     \c 
-    \c #if HAVE_MPROBE
-    \c void gfpthread_abortmcheck(enum mcheck_status reason)
-    \c {
-    \c   if((int)reason > 0)
-    \c     longjmp(*(jmp_buf*)throw_jmp_handler,-2049-(int)reason);
-    \c }
-    \c #endif
     \c void create_pipe(FILE ** addr)
     \c {
     \c   int epipe[2];
@@ -53,17 +43,11 @@ c-library pthread
     \c   int throw_code;
     \c   void *ip0=(void*)(t->save_task);
     \c   sigset_t set;
-    \c   gforth_SP=(Cell*)(t->sp0);
-    \c   gforth_RP=(Cell*)(t->rp0);
-    \c   gforth_FP=(Float*)(t->fp0);
-    \c   gforth_LP=(Address)(t->lp0);
     \c   gforth_UP=t;
+    \c   gforth_setstacks(t);
     \c
     \c   *--gforth_SP=(Cell)t;
     \c
-    \c #if HAVE_MPROBE
-    \c   /* mcheck(gfpthread_abortmcheck); */
-    \c #endif
     \c   pthread_cleanup_push((void (*)(void*))gforth_free_stacks, (void*)t);
     \c   gforth_sigset(&set, SIGINT, SIGQUIT, SIGTERM, SIGWINCH, 0);
     \c   pthread_sigmask(SIG_BLOCK, &set, NULL);

@@ -2887,27 +2887,37 @@ fp=gforth_FP;
 
 uw@ ( c_addr -- u )	gforth u_w_fetch
 ""@i{u} is the zero-extended 16-bit value stored at @i{c_addr}.""
-u = *(UWyde*)(c_addr);
+UWyde wy;
+memcpy(&wy, (UWyde*)(c_addr), 4);
+u = wy;
 
 sw@ ( c_addr -- n )	gforth s_w_fetch
 ""@i{n} is the sign-extended 16-bit value stored at @i{c_addr}.""
-n = *(Wyde*)(c_addr);
+Wyde wy;
+memcpy(&wy, (Wyde*)(c_addr), 4);
+n = wy;
 
 w! ( w c_addr -- )	gforth w_store
 ""Store the bottom 16 bits of @i{w} at @i{c_addr}.""
-*(Wyde*)(c_addr) = w;
+UWyde wy=w;
+memcpy((Wyde*)(c_addr), &wy, 2);
 
 ul@ ( c_addr -- u )	gforth u_l_fetch
 ""@i{u} is the zero-extended 32-bit value stored at @i{c_addr}.""
-u = *(UTetrabyte*)(c_addr);
+UTetrabyte tb;
+memcpy(&tb, (UTetrabyte*)(c_addr), 4);
+u = tb;
 
 sl@ ( c_addr -- n )	gforth s_l_fetch
 ""@i{n} is the sign-extended 32-bit value stored at @i{c_addr}.""
-n = *(Tetrabyte*)(c_addr);
+Tetrabyte tb;
+memcpy(&tb, (Tetrabyte*)(c_addr), 4);
+n = tb;
 
 l! ( w c_addr -- )	gforth l_store
 ""Store the bottom 32 bits of @i{w} at @i{c_addr}.""
-*(Tetrabyte*)(c_addr) = w;
+UTetrabyte tb=w;
+memcpy((Tetrabyte*)(c_addr), &tb, 4);
 
 lib-error ( -- c_addr u )       gforth  lib_error
 ""Error message for last failed @code{open-lib} or @code{lib-sym}.""
@@ -2924,43 +2934,79 @@ u = strlen((char *)c_addr);
 
 be-w! ( w c_addr -- )	gforth w_store_be
 ""Store the bottom 16 bits of @i{w} at @i{c_addr} in big endian format.""
-c_addr[0] = w >> 8;
-c_addr[1] = w;
+#ifdef WORDS_BIGENDIAN
+UWyde wy=w;
+#else
+UWyde wy=__builtin_bswap16(w);
+#endif
+memcpy((Wyde*)(c_addr), &wy, 2);
 
 be-l! ( w c_addr -- )	gforth l_store_be
 ""Store the bottom 32 bits of @i{w} at @i{c_addr} in big endian format.""
-c_addr[0] = w >> 24;
-c_addr[1] = w >> 16;
-c_addr[2] = w >> 8;
-c_addr[3] = w;
+#ifdef WORDS_BIGENDIAN
+UTetrabyte tb=w;
+#else
+UTetrabyte tb=__builtin_bswap32(w);
+#endif
+memcpy((Tetrabyte*)(c_addr), &tb, 4);
 
 le-w! ( w c_addr -- )	gforth w_store_le
 ""Store the bottom 16 bits of @i{w} at @i{c_addr} in big endian format.""
-c_addr[1] = w >> 8;
-c_addr[0] = w;
+#ifndef WORDS_BIGENDIAN
+UWyde wy=w;
+#else
+UWyde wy=__builtin_bswap16(w);
+#endif
+memcpy((Wyde*)(c_addr), &wy, 2);
 
 le-l! ( w c_addr -- )	gforth l_store_le
 ""Store the bottom 32 bits of @i{w} at @i{c_addr} in big endian format.""
-c_addr[3] = w >> 24;
-c_addr[2] = w >> 16;
-c_addr[1] = w >> 8;
-c_addr[0] = w;
+#ifndef WORDS_BIGENDIAN
+UTetrabyte tb=w;
+#else
+UTetrabyte tb=__builtin_bswap32(w);
+#endif
+memcpy((Tetrabyte*)(c_addr), &tb, 4);
 
 be-uw@ ( c_addr -- u )	gforth w_fetch_be
 ""@i{u} is the zero-extended 16-bit big endian value stored at @i{c_addr}.""
-u = (c_addr[0] << 8) | (c_addr[1]);
+UWyde wy;
+memcpy(&wy, (UWyde*)(c_addr), 4);
+#ifdef WORDS_BIGENDIAN
+u = wy;
+#else
+u = __builtin_bswap16(wy);
+#endif
 
 be-ul@ ( c_addr -- u )	gforth l_fetch_be
 ""@i{u} is the zero-extended 32-bit big endian value stored at @i{c_addr}.""
-u = ((Cell)c_addr[0] << 24) | (c_addr[1] << 16) | (c_addr[2] << 8) | (c_addr[3]);
+UTetrabyte tb;
+memcpy(&tb, (UTetrabyte*)(c_addr), 4);
+#ifdef WORDS_BIGENDIAN
+u = tb;
+#else
+u = __builtin_bswap32(tb);
+#endif
 
 le-uw@ ( c_addr -- u )	gforth w_fetch_le
 ""@i{u} is the zero-extended 16-bit little endian value stored at @i{c_addr}.""
-u = (c_addr[1] << 8) | (c_addr[0]);
+UWyde wy;
+memcpy(&wy, (UWyde*)(c_addr), 4);
+#ifndef WORDS_BIGENDIAN
+u = wy;
+#else
+u = __builtin_bswap16(wy);
+#endif
 
 le-ul@ ( c_addr -- u )	gforth l_fetch_le
 ""@i{u} is the zero-extended 32-bit little endian value stored at @i{c_addr}.""
-u = ((Cell)c_addr[3] << 24) | (c_addr[2] << 16) | (c_addr[1] << 8) | (c_addr[0]);
+UTetrabyte tb;
+memcpy(&tb, (UTetrabyte*)(c_addr), 4);
+#ifndef WORDS_BIGENDIAN
+u = tb;
+#else
+u = __builtin_bswap32(tb);
+#endif
 
 close-lib ( u -- )   gforth close_lib
 gforth_dlclose(u);
@@ -3228,6 +3274,35 @@ uprev = __sync_val_compare_and_swap(a_addr, uold, unew);
 barrier ( -- ) gforth
 ""Insert a memory barrier""
 __sync_synchronize();
+
+w>< ( u1 -- u2 )  gforth wordswap
+u2=__builtin_bswap16(u1);
+
+l>< ( u1 -- u2 )  gforth longswap
+u2=__builtin_bswap32(u1);
+
+x>< ( u1 -- u2 )  gforth extralongswap
+u2=__builtin_bswap64((uint64_t)u1);
+
+xd>< ( ud1 -- ud2 )  gforth extralongdswap
+#if SIZEOF_CHAR_P == 8
+D_IS(ud2, 0LL, __builtin_bswap64(DLO(ud1)));
+#else
+# ifdef BUGGY_LL_SWAP
+D_IS(ud2, __builtin_bswap32(DLO(ud1)), __builtin_bswap32(DHI(ud1)));
+# else
+ud2=__builtin_bswap64(ud1);
+# endif
+#endif
+
+c>s ( w1 -- n2 )  gforth char_sext
+n2=(signed char)w1;
+
+w>s ( w1 -- n2 )  gforth word_sext
+n2=(Wyde)w1;
+
+l>s ( w1 -- n2 )  gforth long_sext
+n2=(Tetrabyte)w1;
 
 \+
 \g peephole
