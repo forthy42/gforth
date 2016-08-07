@@ -141,6 +141,19 @@ variable code-locations 0 code-locations !
 ' .backtrace-pos1 is .backtrace-pos
 [then]
 
+: bt-location ( u -- f )
+    \ locate-setup backtrace entry with index u; returns true iff successful
+    cells >r stored-backtrace $@ r@ u> if ( addr1 r: offset )
+	r> + @ cell- lookup-location dup if ( xpos )
+	    1 set-located-xpos true exit then
+    else
+	rdrop then
+    drop ." no location for this backtrace index" false ;
+
+: lb ( u -- )
+    bt-location if
+	l then ;
+
 : xt-location2 ( addr bl -- addr )
     \ knowing that addr is within bl, record the current source
     \ position for addr

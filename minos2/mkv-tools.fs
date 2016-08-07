@@ -315,7 +315,7 @@ also mkv-tags
 
 \ seekhead will terminate after doing the head
 :noname  tag-pos 2@ seek-pos 2!
-    mkv-recurse first-throw off !!ebml-early!! throw ; mkv-file to SeekHead
+    mkv-recurse nothrow !!ebml-early!! throw ; mkv-file to SeekHead
 \ segment will catch early termination
 :noname  mkvlevel @ >r ['] mkv-recurse catch r> mkvlevel !
     dup !!ebml-early!! = IF  2drop noThrow
@@ -538,7 +538,7 @@ $1F43B675 Constant cluster-id
 Variable first-cue
 
 : cues>mts ( index -- )  first-cue !  cues>mts-run?
-    IF  first-throw off !!cueterm!! throw  THEN
+    IF  nothrow !!cueterm!! throw  THEN
     BEGIN  first-cue @ ['] cues>mts-loop catch dup !!cueterm!! <> and throw
     nothrow cues>mts-run? 0= UNTIL ;
 
@@ -606,7 +606,7 @@ event: ->open-mkv ( addr u -- ) new-mkv-file >o rdrop
 event: ->close-mkv ( -- )  close-mkv 0 >o rdrop ;
 event: ->cues ( index -- )  cues>mts ;
 event: ->cue-abort ( -- )  false to cues>mts-run?
-    first-throw off !!cueterm!! throw ;
+    nothrow !!cueterm!! throw ;
 event: ->cue-pause ( -- )  false to cue-cont? BEGIN  stop cue-cont?  UNTIL ;
 event: ->cue-cont ( -- ) true to cue-cont? ;
 

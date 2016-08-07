@@ -67,13 +67,17 @@ Defer store-backtrace
 
 \ !! explain handler on-stack structure
 
-User first-throw
+User not-first-throw  \ contains false iff the next throw is the first throw
+User stored-backtrace ( addr -- )
+\ contains the address of a cell-counted string that contains a copy
+\ of the return stack at the throw
+
 : nothrow ( -- ) \ gforth
     \G Use this (or the standard sequence @code{['] false catch drop})
     \G after a @code{catch} or @code{endtry} that does not rethrow;
     \G this ensures that the next @code{throw} will record a
     \G backtrace.
-    first-throw $off  error-stack $off ;
+    not-first-throw off error-stack $off ;
 
 : (try0) ( -- aoldhandler )
     nothrow handler @ ;
@@ -218,7 +222,7 @@ variable located-bottom \ last line to display with l
     ?DUP IF
 	[ here forthstart 9 cells + !
 	  here throw-entry ! ]
-	first-throw @ 0= IF
+	not-first-throw @ 0= IF
 	    store-backtrace \ error-stack $off
 	    set-current-xpos
 	THEN

@@ -31,12 +31,14 @@
 
 : $padding ( n -- n' ) \ gforth-string
     [ 6 cells ] Literal + [ -4 cells ] Literal and ;
-: $off ( addr -- ) \ gforth-string string-off
-    \G releases a string.
+: $free ( addr -- ) \ gforth-string string-free
+    \G free the string pointed to by addr, and set addr to 0
     0 swap !@ dup IF  free throw  ELSE  drop  THEN ;
+' $free alias $off \ don't ask, don't use
 : $! ( addr1 u addr2 -- ) \ gforth-string string-store
     \G stores a string at an address, If there was a string there
-    \G already, that string will be lost.
+    \G already, that string will be lost.  (!! no, I don't understand
+    \G what that means, either, and the code is incomprehensible)
     >r dup $padding allocate throw 2dup !
     dup >r cell+ swap move r>
     BEGIN  r@ $off dup 0 r@ ?!@ 0= UNTIL  drop rdrop ;

@@ -581,3 +581,27 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 
 2>r : help ( -- ) [ 2r> ] 2literal type ; \ gforth
 \G Print some help for the first steps
+
+
+\ growing buffers that need not be full
+
+struct
+    cell% 0 * field buffer-descriptor \ addr u
+    cell% field buffer-length
+    cell% field buffer-address
+    cell% field buffer-maxlength \ >=length
+end-struct buffer%
+
+: init-buffer ( addr -- )
+    buffer% %size erase ;
+
+: adjust-buffer ( u addr -- )
+    \G adjust buffer% at addr to length u
+    \ this may grow the allocated area, but never shrinks it
+    dup >r buffer-maxlength @ over < if ( u )
+	r@ buffer-address @ over resize throw r@ buffer-address !
+	dup r@ buffer-maxlength ! then
+    r> buffer-length ! ;
+	
+	
+

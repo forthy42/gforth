@@ -15504,20 +15504,20 @@ or using the components:
 
 @example
 Cell gforth_main(int argc, char **argv, char **env)
-{
+@{
   Cell retvalue=gforth_start(argc, argv);
 
-  if(retvalue == -56) { /* throw-code for quit */
+  if(retvalue == -56) @{ /* throw-code for quit */
     gforth_setwinch();        // set winch signal handler
     gforth_bootmessage();     // show boot message
     retvalue = gforth_quit(); // run quit loop
-  }
+  @}
   gforth_cleanup();
   gforth_printmetrics();
   // gforth_free_dict(); // if you want to restart, do this
 
   return retvalue;
-}
+@}
 @end example
 
 To interact with the Forth interpreter, there's @code{Xt
