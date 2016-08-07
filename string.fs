@@ -135,6 +135,7 @@ tmp$ $execstr-ptr !
 : $[]. ( addr -- )
     \G print all array entries
     [: type cr ;] $[]map ;
+[IFUNDEF] $free  ' $off alias $free [THEN]
 : $[]free ( addr -- )
     \G addr contains the address of a cell-counted string that contains the
     \G addresses of a number of cell-counted strings; $[]free frees
