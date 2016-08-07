@@ -36,18 +36,18 @@
     backtrace-return-stack first-throw $! ;
 IS store-backtrace
 
-: print-bt-entry ( return-stack-item -- )
+: >bt-entry ( return-stack-item -- nt )
     cell- dup in-dictionary? over dup aligned = and
     if
 	@ dup threaded>name dup if
-	    .name drop
+	    nip EXIT
 	else
 	    drop dup look if
-		.name drop
+		nip EXIT
 	    else
 		drop body> look \ !! check for "call" in cell before?
 		if
-		    .name
+		    EXIT
 		else
 		    drop
 		then
@@ -55,7 +55,10 @@ IS store-backtrace
 	then
     else
 	drop
-    then ;
+    then  0 ;
+
+: print-bt-entry ( return-stack-item -- )
+    >bt-entry ?dup-IF  .name  THEN ;
 
 defer .backtrace-pos ( addr -- )
 ' drop is .backtrace-pos
@@ -81,4 +84,19 @@ IS dobacktrace
 :noname
     r@ >stderr cr ." deferred word " print-bt-entry ." is uninitialized" ;
 is defer-default
+[then]
+
+\ locate position in backtrace
+
+40 value bt-pos-width
+
+[ifdef] .backtrace-pos
+: .backtrace-pos1 ( addr -- )
+    >bt-entry dup if
+	name>view @ ['] .sourcepos1 $tmp
+    else
+	drop s" "
+    then
+    2dup type x-width bt-pos-width swap - 1 max spaces ;
+' .backtrace-pos1 is .backtrace-pos
 [then]

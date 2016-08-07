@@ -397,7 +397,7 @@ drop Constant vtsize \ vtable size
     \g @i{addr count} is the name of the word represented by @i{nt}.
     >f+c dup @ lcount-mask and tuck - swap ;
 
-: name>view ( nt -- ) \ gforth   name-to-view
+: name>view ( nt -- addr ) \ gforth   name-to-view
     name>string drop cell negate and cell- ;
 
 : (name>x) ( nfa -- cfa w )
