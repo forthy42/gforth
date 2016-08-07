@@ -33,7 +33,8 @@
     backtrace-rp0 @ [ 1 cells ]L - over - 0 max ;
 
 :noname ( -- )
-    backtrace-return-stack first-throw $! ;
+    stored-backtrace $free
+    backtrace-return-stack stored-backtrace $! not-first-throw on ;
 IS store-backtrace
 
 : print-bt-entry ( return-stack-item -- )
@@ -74,7 +75,7 @@ defer .backtrace-pos ( addr -- )
 comp: drop ]] store-backtrace dobacktrace nothrow [[ ;
 
 :noname ( -- )
-    first-throw $@ over + print-backtrace ;
+    stored-backtrace $@ over + print-backtrace ;
 IS dobacktrace
 
 [ifdef] defer-default

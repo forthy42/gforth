@@ -143,7 +143,7 @@ variable code-locations 0 code-locations !
 
 : bt-location ( u -- f )
     \ locate-setup backtrace entry with index u; returns true iff successful
-    cells >r first-throw $@ r@ u> if ( addr1 r: offset )
+    cells >r stored-backtrace $@ r@ u> if ( addr1 r: offset )
 	r> + @ cell- lookup-location dup if ( xpos )
 	    1 set-located-xpos true exit then
     else
