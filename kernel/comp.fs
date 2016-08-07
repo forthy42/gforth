@@ -403,6 +403,9 @@ comp: drop @ (comp-to) ;
     dup compile-only? IF  compile-only  THEN  name>int lastcfa !
     ['] s>int set->int ['] s>comp set->comp ['] s-to set-to reveal ;
 
+: synonym? ( nt -- flag )
+    >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;
+
 : Create ( "name" -- ) \ core
     Header reveal dovar, ;
 

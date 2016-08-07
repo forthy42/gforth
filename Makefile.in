@@ -394,7 +394,8 @@ COMPAT = compat/README \
 	compat/strcomp.fs \
 	compat/struct.fs \
 	compat/vocabulary.fs \
-	compat/stagediv.fs
+	compat/stagediv.fs \
+	compat/memory.4th
 
 GFORTH_TEXI =  doc/gforth.texi doc/version.texi
 

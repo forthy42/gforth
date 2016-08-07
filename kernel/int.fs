@@ -461,8 +461,9 @@ const Create ???
 	    drop false exit
 	then
     then \ check for cfa - must be code field or primitive
+    dup synonym? swap
     dup @ tuck 2 cells - = swap
-    docol:  ['] u#+ @ 1+ within or ;
+    docol:  ['] u#+ @ 1+ within or or ;
 
 : head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false

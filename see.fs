@@ -919,7 +919,7 @@ set-current
     compile-only? IF  ."  compile-only"  THEN ;
 
 : name-see ( nfa -- )
-    dup >namevt @ >vt>int @ ['] s>int = IF
+    dup synonym? IF
 	." Synonym " dup .name dup @ .name
     ELSE
 	dup >f+c @ alias-mask and 0= IF
