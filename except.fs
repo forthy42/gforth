@@ -77,7 +77,7 @@ User stored-backtrace ( addr -- )
     \G after a @code{catch} or @code{endtry} that does not rethrow;
     \G this ensures that the next @code{throw} will record a
     \G backtrace.
-    not-first-throw off error-stack $off ;
+    not-first-throw off error-stack $free ;
 
 : (try0) ( -- aoldhandler )
     nothrow handler @ ;
@@ -235,3 +235,7 @@ variable located-bottom \ last line to display with l
         (throw1)
     THEN ;
 is throw
+
+\ throw is heavy-weight due to error handling;
+\ if you want to use throw as control structure, use fast-throw
+: fast-throw ( n -- ) handler @ (throw1) ;

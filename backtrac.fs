@@ -33,7 +33,6 @@
     backtrace-rp0 @ [ 1 cells ]L - over - 0 max ;
 
 :noname ( -- )
-    stored-backtrace $free
     backtrace-return-stack stored-backtrace $! not-first-throw on ;
 IS store-backtrace
 

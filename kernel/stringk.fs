@@ -35,16 +35,26 @@
     \G free the string pointed to by addr, and set addr to 0
     0 swap !@ dup IF  free throw  ELSE  drop  THEN ;
 ' $free alias $off \ don't ask, don't use
+
+: $make ( addr1 u -- $addr )
+    \G create a string as address on stack, which can be stored into
+    \G a variable
+    dup $padding allocate throw 2dup !
+    dup >r cell+ swap move r> ;
+: $@len ( addr -- u ) \ gforth-string string-fetch-len
+    \G returns the length of the stored string.
+    @ dup IF  @  THEN ;
 : $! ( addr1 u addr2 -- ) \ gforth-string string-store
     \G stores a string at an address, If there was a string there
     \G already, that string will be lost.  (!! no, I don't understand
     \G what that means, either, and the code is incomprehensible)
-    >r dup $padding allocate throw 2dup !
-    dup >r cell+ swap move r>
-    BEGIN  r@ $off dup 0 r@ ?!@ 0= UNTIL  drop rdrop ;
-: $@len ( addr -- u ) \ gforth-string string-fetch-len
-    \G returns the length of the stored string.
-    @ dup IF  @  THEN ;
+    dup @ IF
+	over $padding over $@len $padding = IF
+	    @ 2dup ! cell+ swap move  EXIT
+	THEN  THEN
+    >r $make
+    BEGIN  r@ $free dup 0 r@ ?!@ 0= UNTIL \ prevent memory leak
+    drop rdrop ;
 : $@ ( addr1 -- addr2 u ) \ gforth-string string-fetch
     \G returns the stored string.
     @ dup IF  dup cell+ swap @  ELSE  0  THEN ;
@@ -79,11 +89,6 @@
 : $save ( addr -- )
     \G push string to dictionary for savesys
     dup >r $@ here r> ! dup , here swap dup aligned allot move ;
-
-: $make ( addr1 u -- $addr )
-    \G create a string as address on stack, which can be stored into
-    \G a variable
-    0 >r rp@ $! r> ;
 
 \ dynamic string handling                              12dec99py
 
