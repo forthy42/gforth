@@ -60,7 +60,6 @@
     \G changes the length of the stored string.  Therefore we must
     \G change the memory area and adjust address and count cell as
     \G well.
-    dup @ 0= IF  >r dup $padding allocate throw tuck ! r> ! EXIT  THEN
     over $padding over @ swap resize throw over ! @ ! ;
 : $+! ( addr1 u addr2 -- ) \ gforth-string string-plus-store
     \G appends a string to another.
