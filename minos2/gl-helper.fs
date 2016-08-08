@@ -20,9 +20,6 @@
 require unix/mmap.fs
 require mini-oof2.fs
 
-: w, ( n -- )  here 2 allot w! ;
-: l, ( n -- )  here 4 allot l! ;
-
 Variable dpy-w
 Variable dpy-h
 0 Value ctx

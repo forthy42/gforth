@@ -46,9 +46,6 @@ standard:field
     :noname ]] >r [[ xt-align compile, ]] r> create+value ; [[
     Create set-does> , , , , ;
 
-: waligned ( addr -- waddr ) 1+ -2 and ;
-: laligned ( addr -- waddr ) 3 + -4 and ;
-
 cell      ' aligned   ' @   ' !   wrap+value: value: ( u1 "name" -- u2 )
 1         ' noop      ' c@  ' c!  wrap+value: cvalue: ( u1 "name" -- u2 )
 2         ' waligned  ' w@  ' w!  wrap+value: wvalue: ( u1 "name" -- u2 )

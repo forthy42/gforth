@@ -733,6 +733,7 @@ Plugin branch, ( target-addr -- )	\ compiles a branch
 Plugin ?branch, ( target-addr -- )	\ compiles a ?branch
 Plugin branchmark, ( -- branch-addr )	\ reserves room for a branch
 Plugin ?branchmark, ( -- branch-addr )	\ reserves room for a ?branch
+Plugin ?dup-?branchmark, ( -- branch-addr )	\ reserves room for a ?branch
 Plugin ?domark, ( -- branch-addr )	\ reserves room for a ?do branch
 Plugin branchto, ( -- )			\ actual program position is target of a branch (do e.g. alignment)
 ' NOOP plugin-of branchto, 
@@ -749,6 +750,7 @@ Plugin doer-resolve ( ghost res-pnt target-addr addr -- ghost res-pnt )
 
 Plugin ncontrols? ( [ xn ... x1 ] n -- ) \ checks wheter n control structures are open
 Plugin if, 	( -- if-token )
+Plugin ?dup-if, 	( -- if-token )
 Plugin else,	( if-token -- if-token )
 Plugin then,	( if-token -- )
 Plugin ahead,
@@ -1098,6 +1100,7 @@ Ghost - drop \ need a ghost otherwise "-" would be treated as a number
 
 Ghost 0=                                        drop
 Ghost branch    Ghost ?branch                   2drop
+Ghost ?dup-?branch drop
 Ghost unloop    Ghost ;S                        2drop
 Ghost lit       Ghost !                         2drop
 Ghost noop                                      drop
@@ -3482,6 +3485,8 @@ X has? abranch [IF]
   IS branchmark, ( -- branchtoken )
 :noname compile ?branch T here 0 H offset, ;
   IS ?branchmark, ( -- branchtoken )
+:noname compile ?dup-?branch T here 0 H offset, ;
+  IS ?dup-?branchmark, ( -- branchtoken )
 :noname T here 0 H offset, ;
   IS ?domark, ( -- branchtoken )
 :noname dup X @ ?struc X here over branchoffset swap X ! ;
@@ -3571,6 +3576,8 @@ Cond: ?LEAVE    ?leave, ;Cond
 
 : (if,) ?branchmark, ; 				' (if,) plugin-of if,
 
+: (?dup-if,) ?dup-?branchmark, ; 		' (?dup-if,) plugin-of ?dup-if,
+
 : (then,) branchto, branchtoresolve, ; 		' (then,) plugin-of then,
 
 : (else,) ( ahead ) branchmark, 
@@ -3606,6 +3613,7 @@ Cond: ?LEAVE    ?leave, ;Cond
 >TARGET
 Cond: AHEAD     ahead, ;Cond
 Cond: IF        if,  ;Cond
+Cond: ?dup-IF   ?dup-if,  ;Cond
 Cond: THEN      1 ncontrols? then, ;Cond
 Cond: ENDIF     1 ncontrols? then, ;Cond
 Cond: ELSE      1 ncontrols? else, ;Cond

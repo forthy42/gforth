@@ -17,8 +17,6 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require ansi.fs \ we may want to support colorize.fs
-
 \ opengl common stuff
 
 \ :noname source type cr stdout flush-file throw ; is before-line
@@ -250,7 +248,7 @@ Variable gl-emit-buf
 : gl-cr ( -- )
     gl-lineend @ 0= IF
 	gl-xy 2@ 1+ nip 0 swap gl-xy 2! THEN
-    resize-screen  need-sync on ;
+    resize-screen  need-sync on  out off ;
 
 : xchar>glascii ( xchar -- 0..7F )
     case
@@ -273,8 +271,17 @@ Variable gl-emit-buf
 	THEN
     0 endcase ;
 
+: gl-atxy ( x y -- )
+    >r gl-wh @ min 0 max r> gl-xy 2!
+    gl-xy cell+ @ out ! ;
+
+: gl-at-deltaxy ( x y -- )
+    >r s>d screenw @ sm/rem r> +
+    gl-xy 2@ rot + >r + r> gl-atxy ;
+
 : (gl-emit) ( char color -- )
     over 7 = IF  2drop  EXIT  THEN
+    over #bs = IF  2drop -1 0 gl-at-deltaxy  EXIT  THEN
     over #lf = IF  2drop gl-cr  EXIT  THEN
     over #cr = IF  2drop gl-cr  EXIT  THEN
     over #tab = IF  >r drop bl gl-xy cell+ @ dup 1+ dfaligned swap - 0
@@ -285,7 +292,8 @@ Variable gl-emit-buf
 	gl-emit-buf $@ x-width abs
 	gl-emit-buf $off $10
     THEN  { n m }
-    
+
+    n out +!
     resize-screen  need-sync on
     dup $70 and 5 lshift or $F0F and 4 lshift r> $FFFF0000 and or
     n 0 ?DO
@@ -307,13 +315,6 @@ Variable gl-emit-buf
 
 : gl-type-err ( addr u -- )
     bounds ?DO  I c@ gl-emit-err  LOOP ;
-
-: gl-atxy ( x y -- )
-    >r gl-wh @ min 0 max r> gl-xy 2! ;
-
-: gl-at-deltaxy ( x y -- )
-    >r s>d screenw @ sm/rem r> +
-    gl-xy 2@ rot + >r + r> gl-atxy ;
 
 : gl-page ( -- )  0 0 gl-atxy  0 to videorows
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!

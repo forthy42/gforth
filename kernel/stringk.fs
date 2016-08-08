@@ -33,7 +33,7 @@
     [ 6 cells ] Literal + [ -4 cells ] Literal and ;
 : $free ( addr -- ) \ gforth-string string-free
     \G free the string pointed to by addr, and set addr to 0
-    0 swap !@ dup IF  free throw  ELSE  drop  THEN ;
+    0 swap !@ ?dup-IF  free throw  THEN ;
 ' $free alias $off \ don't ask, don't use
 
 : $make ( addr1 u -- $addr )
@@ -50,9 +50,7 @@
 	over $padding over $@len $padding = IF
 	    @ 2dup ! cell+ swap move  EXIT
 	THEN  THEN
-    >r $make
-    BEGIN  r@ $free dup 0 r@ ?!@ 0= UNTIL \ prevent memory leak
-    drop rdrop ;
+    >r $make r> !@ ?dup-IF  free throw  THEN ;
 : $@ ( addr1 -- addr2 u ) \ gforth-string string-fetch
     \G returns the stored string.
     @ dup IF  dup cell+ swap @  ELSE  0  THEN ;
