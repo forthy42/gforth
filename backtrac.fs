@@ -89,15 +89,26 @@ is defer-default
 
 \ locate position in backtrace
 
-40 value bt-pos-width
-
 [ifdef] .backtrace-pos
-: .backtrace-pos1 ( addr -- )
-    >bt-entry dup if
-	name>view @ ['] .sourcepos1 $tmp
-    else
-	drop s" "
-    then
-    2dup type x-width bt-pos-width swap - 1 max spaces ;
-' .backtrace-pos1 is .backtrace-pos
+    40 value bt-pos-width
+    0 Value locs-start
+    Variable locs[]
+    : xt-location1 ( addr -- addr )
+	dup locs-start - cell/ >r
+	current-sourcepos1 dup r> 1+ locs[] $[] cell- 2! ;
+    : record-locs ( -- )
+	\G record locations to annotate backtraces with source locations
+	here to locs-start  locs[] $free
+	['] xt-location1 is xt-location ;
+    : addr>pos1 ( addr -- pos1 / 0 )
+	dup cell- locs-start here within locs-start and ?dup-IF
+	    over cell- swap - cell/ locs[] $[] @
+	    ?dup-IF  nip  EXIT  THEN
+	THEN  drop 0 ;
+
+    : .backtrace-pos1 ( addr -- )
+	addr>pos1 dup IF
+	    ['] .sourcepos1 $tmp 2dup type x-width  THEN
+	bt-pos-width swap - 1 max spaces ;
+    ' .backtrace-pos1 is .backtrace-pos
 [then]
