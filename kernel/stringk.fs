@@ -39,16 +39,14 @@
 : $make ( addr1 u -- $addr )
     \G create a string as address on stack, which can be stored into
     \G a variable
-    dup $padding allocate throw 2dup !
-    dup >r cell+ swap move r> ;
+    dup $padding allocate throw dup >r
+    2dup ! cell+ swap move r> ;
 : $@len ( addr -- u ) \ gforth-string string-fetch-len
     \G returns the length of the stored string.
     @ dup IF  @  THEN ;
 : $! ( addr1 u addr2 -- ) \ gforth-string string-store
-    \G stores a string at an address, If there was a string there
-    \G already, that string will be lost.  (!! no, I don't understand
-    \G what that means, either, and the code is incomprehensible)
-    dup @ IF
+    \G stores a string at an address.
+    dup @ IF  \ fast path for strings with similar buffer size
 	over $padding over $@len $padding = IF
 	    @ 2dup ! cell+ swap move  EXIT
 	THEN  THEN
