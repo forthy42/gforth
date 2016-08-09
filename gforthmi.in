@@ -62,15 +62,16 @@ then
 fi
 tmpfile=./temp-image.fi
 if test x$system = xyes; then
-    $GFORTHD --clear-dictionary --no-offset-im --die-on-signal $startup -e "savesystem $tmpfile"1" bye"
-    $GFORTHD --clear-dictionary --offset-image --die-on-signal $startup -e "savesystem $tmpfile"2" bye"
+    $GFORTHD --clear-dictionary --no-offset-im --die-on-signal $startup -e "savesystem $tmpfile"1+$$" bye"
+    $GFORTHD --clear-dictionary --offset-image --die-on-signal $startup -e "savesystem $tmpfile"2+$$" bye"
 else
-    $GFORTHD --clear-dictionary --no-offset-im --die-on-signal "$@" -e "savesystem $tmpfile"1" bye"
-    $GFORTHD --clear-dictionary --offset-image --die-on-signal "$@" -e "savesystem $tmpfile"2" bye"
+    $GFORTHD --clear-dictionary --no-offset-im --die-on-signal "$@" -e "savesystem $tmpfile"1+$$" bye"
+    $GFORTHD --clear-dictionary --offset-image --die-on-signal "$@" -e "savesystem $tmpfile"2+$$" bye"
 fi
-$GFORTH comp-i.fs -e "comp-image $tmpfile"1" $tmpfile"2" $outfile bye" || exit 1
-@no_chmod@chmod +x $outfile || exit 1
-@RM@ $tmpfile"1" $tmpfile"2"
+$GFORTH comp-i.fs -e "comp-image $tmpfile"1+$$" $tmpfile"2+$$" $outfile"$$" bye" || exit 1
+@no_chmod@chmod +x $outfile$$ || exit 1
+mv $outfile$$ $outfile || exit 1
+@RM@ $tmpfile"1+$$" $tmpfile"2+$$"
 if test x$application = xyes; then
     $GFORTH -e "s\" $outfile\"" make-app.fs
 else

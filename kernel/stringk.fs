@@ -45,7 +45,8 @@
     \G returns the length of the stored string.
     @ dup IF  @  THEN ;
 : $! ( addr1 u addr2 -- ) \ gforth-string string-store
-    \G stores a string at an address.
+    \G stores an allocated string buffer at an address,
+    \G the previous string buffer in that address is freed.
     dup @ IF  \ fast path for strings with similar buffer size
 	over $padding over $@len $padding = IF
 	    @ 2dup ! cell+ swap move  EXIT
