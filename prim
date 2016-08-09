@@ -3077,14 +3077,19 @@ xd! ( ud c_addr -- )	gforth xd_store
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 #  ifdef WORDS_BIGENDIAN
-memcpy(c_addr+4, &ud.lo, 4);
-memcpy(c_addr, &ud.hi, 4);
+UTetrabyte tb[2];
+tb[0]=DHI(ud);
+tb[1]=DLO(ud);
+memcpy(c_addr, (char*)tb, 8);
 #  else
-memcpy(c_addr, &ud.lo, 4);
-memcpy(c_addr+4, &ud.hi, 4);
+UTetrabyte tb[2];
+tb[1]=DHI(ud);
+tb[0]=DLO(ud);
+memcpy(c_addr, (char*)tb, 8);
 #  endif
 # else
-memcpy(c_addr, &ud.lo, 8);
+UOctabyte ob=DLO(ud);
+memcpy(c_addr, (char*)&ob, 8);
 # endif
 #else
 UOctabyte ob=ud;
