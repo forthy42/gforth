@@ -3087,8 +3087,8 @@ memcpy(c_addr+4, &ud.hi, 4);
 memcpy(c_addr, &ud.lo, 8);
 # endif
 #else
-Octabyte ob=ud;
-memcpy(c_addr, (char*)&ob, 8)
+UOctabyte ob=ud;
+memcpy(c_addr, (char*)&ob, 8);
 #endif
 
 uxd@ ( c_addr -- ud )	gforth u_xd_fetch
