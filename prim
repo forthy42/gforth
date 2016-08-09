@@ -2888,36 +2888,36 @@ fp=gforth_FP;
 uw@ ( c_addr -- u )	gforth u_w_fetch
 ""@i{u} is the zero-extended 16-bit value stored at @i{c_addr}.""
 UWyde wy;
-memcpy(&wy, (UWyde*)(c_addr), 2);
+memcpy((char*)&wy, c_addr, 2);
 u = wy;
 
 sw@ ( c_addr -- n )	gforth s_w_fetch
 ""@i{n} is the sign-extended 16-bit value stored at @i{c_addr}.""
 Wyde wy;
-memcpy(&wy, (Wyde*)(c_addr), 2);
+memcpy((char*)&wy, c_addr, 2);
 n = wy;
 
 w! ( w c_addr -- )	gforth w_store
 ""Store the bottom 16 bits of @i{w} at @i{c_addr}.""
 UWyde wy=w;
-memcpy((Wyde*)(c_addr), &wy, 2);
+memcpy(c_addr, (char*)&wy, 2);
 
 ul@ ( c_addr -- u )	gforth u_l_fetch
 ""@i{u} is the zero-extended 32-bit value stored at @i{c_addr}.""
 UTetrabyte tb;
-memcpy(&tb, (UTetrabyte*)(c_addr), 4);
+memcpy((char*)&tb, c_addr, 4);
 u = tb;
 
 sl@ ( c_addr -- n )	gforth s_l_fetch
 ""@i{n} is the sign-extended 32-bit value stored at @i{c_addr}.""
 Tetrabyte tb;
-memcpy(&tb, (Tetrabyte*)(c_addr), 4);
+memcpy((char*)&tb, c_addr, 4);
 n = tb;
 
 l! ( w c_addr -- )	gforth l_store
 ""Store the bottom 32 bits of @i{w} at @i{c_addr}.""
 UTetrabyte tb=w;
-memcpy((Tetrabyte*)(c_addr), &tb, 4);
+memcpy(c_addr, (char*)&tb, 4);
 
 lib-error ( -- c_addr u )       gforth  lib_error
 ""Error message for last failed @code{open-lib} or @code{lib-sym}.""
@@ -2939,7 +2939,7 @@ UWyde wy=w;
 #else
 UWyde wy=BSWAP16(w);
 #endif
-memcpy((Wyde*)(c_addr), &wy, 2);
+memcpy(c_addr, (char*)&wy, 2);
 
 be-l! ( w c_addr -- )	gforth l_store_be
 ""Store the bottom 32 bits of @i{w} at @i{c_addr} in big endian format.""
@@ -2948,7 +2948,7 @@ UTetrabyte tb=w;
 #else
 UTetrabyte tb=__builtin_bswap32(w);
 #endif
-memcpy((Tetrabyte*)(c_addr), &tb, 4);
+memcpy(c_addr, (char*)&tb, 4);
 
 le-w! ( w c_addr -- )	gforth w_store_le
 ""Store the bottom 16 bits of @i{w} at @i{c_addr} in big endian format.""
@@ -2957,7 +2957,7 @@ UWyde wy=w;
 #else
 UWyde wy=BSWAP16(w);
 #endif
-memcpy((Wyde*)(c_addr), &wy, 2);
+memcpy(c_addr, (char*)&wy, 2);
 
 le-l! ( w c_addr -- )	gforth l_store_le
 ""Store the bottom 32 bits of @i{w} at @i{c_addr} in big endian format.""
@@ -2966,12 +2966,12 @@ UTetrabyte tb=w;
 #else
 UTetrabyte tb=__builtin_bswap32(w);
 #endif
-memcpy((Tetrabyte*)(c_addr), &tb, 4);
+memcpy(c_addr, (char*)&tb, 4);
 
 be-uw@ ( c_addr -- u )	gforth w_fetch_be
 ""@i{u} is the zero-extended 16-bit big endian value stored at @i{c_addr}.""
 UWyde wy;
-memcpy(&wy, (UWyde*)(c_addr), 2);
+memcpy((char*)&wy, c_addr, 2);
 #ifdef WORDS_BIGENDIAN
 u = wy;
 #else
@@ -2981,7 +2981,7 @@ u = BSWAP16(wy);
 be-ul@ ( c_addr -- u )	gforth l_fetch_be
 ""@i{u} is the zero-extended 32-bit big endian value stored at @i{c_addr}.""
 UTetrabyte tb;
-memcpy(&tb, (UTetrabyte*)(c_addr), 4);
+memcpy((char*)&tb, c_addr, 4);
 #ifdef WORDS_BIGENDIAN
 u = tb;
 #else
@@ -2991,7 +2991,7 @@ u = __builtin_bswap32(tb);
 le-uw@ ( c_addr -- u )	gforth w_fetch_le
 ""@i{u} is the zero-extended 16-bit little endian value stored at @i{c_addr}.""
 UWyde wy;
-memcpy(&wy, (UWyde*)(c_addr), 2);
+memcpy((char*)&wy, c_addr, 2);
 #ifndef WORDS_BIGENDIAN
 u = wy;
 #else
@@ -3001,7 +3001,7 @@ u = BSWAP16(wy);
 le-ul@ ( c_addr -- u )	gforth l_fetch_le
 ""@i{u} is the zero-extended 32-bit little endian value stored at @i{c_addr}.""
 UTetrabyte tb;
-memcpy(&tb, (UTetrabyte*)(c_addr), 4);
+memcpy((char*)&tb, c_addr, 4);
 #ifndef WORDS_BIGENDIAN
 u = tb;
 #else
@@ -3016,18 +3016,18 @@ gforth_dlclose(u);
 x! ( w c_addr -- )	gforth x_store
 ""Store the bottom 64 bits of @i{w} at 64-bit-aligned @i{c_addr}.""
 UOctabyte ob=w;
-memcpy((UOctabyte *)c_addr, &ob, 8);
+memcpy(c_addr, (char*)&ob, 8);
 
 ux@ ( c_addr -- u )	gforth u_x_fetch
 ""@i{u} is the zero-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy((char*)&ob, c_addr, 8);
 u = ob;
 
 sx@ ( c_addr -- n )	gforth s_x_fetch
 ""@i{u} is the sign-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
 Octabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy((char*)&ob, c_addr, 8);
 n = ob;
 
 be-x! ( w c_addr -- )	gforth b_e_x_store
@@ -3038,7 +3038,7 @@ ob=w;
 #else
 ob=__builtin_bswap64(w);
 #endif
-memcpy((UOctabyte *)c_addr, &ob, 8);
+memcpy(c_addr, (char*)&ob, 8);
 
 le-x! ( w c_addr -- )	gforth l_e_x_store
 ""Store the bottom 64 bits of @i{w} at @i{c_addr} in big endian format.""
@@ -3048,12 +3048,12 @@ ob=w;
 #else
 ob=__builtin_bswap64(w);
 #endif
-memcpy((UOctabyte *)c_addr, &ob, 8);
+memcpy(c_addr, (char*)&ob, 8);
 
 be-ux@ ( c_addr -- u )	gforth b_e_u_x_fetch
 ""@i{u} is the zero-extended 64-bit big endian value stored at @i{c_addr}.""
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy((char*)&ob, c_addr, 8);
 #ifdef WORDS_BIGENDIAN
 u = ob;
 #else
@@ -3063,7 +3063,7 @@ u=__builtin_bswap64(ob);
 le-ux@ ( c_addr -- u )	gforth l_e_u_x_fetch
 ""@i{u} is the zero-extended 64-bit little endian value stored at @i{c_addr}.""
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy((char*)&ob, c_addr, 8);
 #ifndef WORDS_BIGENDIAN
 u = ob;
 #else
@@ -3077,17 +3077,18 @@ xd! ( ud c_addr -- )	gforth xd_store
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 #  ifdef WORDS_BIGENDIAN
-*(UTetrabyte *)(c_addr+4) = DLO(ud);
-*(UTetrabyte *)c_addr = DHI(ud);
+memcpy(c_addr+4, &ud.lo, 4);
+memcpy(c_addr, &ud.hi, 4);
 #  else
-*(UTetrabyte *)c_addr = DLO(ud);
-*(UTetrabyte *)(c_addr+4) = DHI(ud);
+memcpy(c_addr, &ud.lo, 4);
+memcpy(c_addr+4, &ud.hi, 4);
 #  endif
 # else
-*(UOctabyte *)c_addr = DLO(ud);
+memcpy(c_addr, &ud.lo, 8);
 # endif
 #else
-*(UOctabyte *)c_addr = ud;
+Octabyte ob=ud;
+memcpy(c_addr, (char*)&ob, 8)
 #endif
 
 uxd@ ( c_addr -- ud )	gforth u_xd_fetch
@@ -3103,12 +3104,12 @@ D_IS(ud, tb[1], tb[0]);
 #  endif
 # else
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy((char*)&ob, c_addr, 8);
 D_IS(ud, 0, ob);
 # endif
 #else
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy((char*)&ob, c_addr, 8);
 ud = ob;
 #endif
 
@@ -3117,7 +3118,7 @@ sxd@ ( c_addr -- d )	gforth s_xd_fetch
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 UTetrabyte tb[2];
-memcpy(tb, (UOctabyte *)c_addr, 8);
+memcpy((char*)tb, c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
 D_IS(d, tb[0], tb[1]);
 #  else
@@ -3125,12 +3126,12 @@ D_IS(d, tb[1], tb[0]);
 #  endif
 # else
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy((char*)&ob, c_addr, 8);
 D_IS(d, -(ob<0), ob);
 # endif
 #else
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy((char*)&ob, c_addr, 8);
 d = ob;
 #endif
 
@@ -3146,7 +3147,7 @@ tb[1]=DLO(ud);
 tb[0]=__builtin_bswap32(DHI(ud));
 tb[1]=__builtin_bswap32(DLO(ud));
 #  endif
-memcpy((UOctabyte *)c_addr, tb, 8);
+memcpy(c_addr, (char*)tb, 8);
 # else
 UOctabyte ob;
 #  ifdef WORDS_BIGENDIAN
@@ -3154,7 +3155,7 @@ ob=DLO(ud);
 #  else
 ob=__builtin_bswap64(DLO(ud));
 #  endif
-memcpy((UOctabyte *)c_addr, &ob, 8);
+memcpy(c_addr, (char*)&ob, 8);
 # endif
 #else
 UOctabyte ob;
@@ -3163,7 +3164,7 @@ ob=ud;
 # else
 ob=__builtin_bswap64(ud);
 # endif
-memcpy((UOctabyte *)c_addr, &ob, 8);
+memcpy(c_addr, (char*)&ob, 8);
 #endif
 
 le-xd! ( ud c_addr -- )	gforth l_e_xd_store
@@ -3178,7 +3179,7 @@ tb[0]=DLO(ud);
 tb[1]=__builtin_bswap32(DHI(ud));
 tb[0]=__builtin_bswap32(DLO(ud));
 #  endif
-memcpy((UOctabyte *)c_addr, tb, 8);
+memcpy(c_addr, (char*)tb, 8);
 # else
 UOctabyte ob;
 #  ifndef WORDS_BIGENDIAN
@@ -3186,7 +3187,7 @@ ob=DLO(ud);
 #  else
 ob=__builtin_bswap64(DLO(ud));
 #  endif
-memcpy((UOctabyte *)c_addr, &ob, 8);
+memcpy(c_addr, (char*)&ob, 8);
 # endif
 #else
 UOctabyte ob;
@@ -3195,7 +3196,7 @@ ob=ud;
 # else
 ob=__builtin_bswap64(ud);
 # endif
-memcpy((UOctabyte *)c_addr, &ob, 8);
+memcpy(c_addr, (char*)&ob, 8);
 #endif
 
 be-uxd@ ( c_addr -- ud )	gforth b_e_u_xd_fetch
@@ -3203,7 +3204,7 @@ be-uxd@ ( c_addr -- ud )	gforth b_e_u_xd_fetch
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 UTetrabyte tb[2];
-memcpy(tb, (UOctabyte *)c_addr, 8);
+memcpy(tb, c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
 D_IS(ud, tb[0], tb[1]);
 #  else
@@ -3211,7 +3212,7 @@ D_IS(ud, __builtin_bswap32(tb[0]), __builtin_bswap32(tb[1]));
 #  endif
 # else
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy(&ob, c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
 D_IS(ud, 0, ob);
 #  else
@@ -3220,7 +3221,7 @@ D_IS(ud, 0, __builtin_bswap64(ob));
 # endif
 #else
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy(&ob, c_addr, 8);
 # ifdef WORDS_BIGENDIAN
 ud=ob;
 # else
@@ -3233,7 +3234,7 @@ le-uxd@ ( c_addr -- ud )	gforth l_e_u_xd_fetch
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 UTetrabyte tb[2];
-memcpy(tb, (UOctabyte *)c_addr, 8);
+memcpy(tb, c_addr, 8);
 #  ifndef WORDS_BIGENDIAN
 D_IS(ud, tb[1], tb[9]);
 #  else
@@ -3241,7 +3242,7 @@ D_IS(ud, __builtin_bswap32(tb[1]), __builtin_bswap32(tb[0]));
 #  endif
 # else
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy(&ob, c_addr, 8);
 #  ifndef WORDS_BIGENDIAN
 D_IS(ud, 0, ob);
 #  else
@@ -3250,7 +3251,7 @@ D_IS(ud, 0, __builtin_bswap64(ob));
 # endif
 #else
 UOctabyte ob;
-memcpy(&ob, (UOctabyte *)c_addr, 8);
+memcpy(&ob, c_addr, 8);
 # ifndef WORDS_BIGENDIAN
 ud=ob;
 # else
