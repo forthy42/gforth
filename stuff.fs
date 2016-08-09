@@ -390,9 +390,9 @@ previous
 [THEN]
 
 [IFDEF] ux@ ' ux@ alias x@ ( addr -- u )
-[ELSE] ' x@ alias ux@ [THEN]
+[ELSE] [IFDEF] x@ ' x@ alias ux@ [THEN] [THEN]
 [IFDEF] uxd@ ' uxd@ alias xd@ ( addr -- u )
-[ELSE] ' xd@ alias uxd@ [THEN]
+[ELSE] [IFDEF] xd@ ' xd@ alias uxd@ [THEN] [THEN]
 
 1 pad ! pad c@ 1 = [IF] \ little endian
     [IFDEF] w>< synonym wbe w>< [THEN]
