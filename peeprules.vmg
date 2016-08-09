@@ -84,6 +84,11 @@ cb22 = within ?branch
 cscfetch = c@ c>s
 cswfetch = uw@ w>s
 cslfetch = ul@ l>s
+swapwfetch = uw@ w><
+swaplfetch = ul@ l><
+cswapxfatch = ux@ x><
+csswapwfetch = uw@ w>< w>s
+csswaplfetch = ul@ l>< l>s
 
 \F 0 [if]
 
