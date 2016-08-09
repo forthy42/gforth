@@ -86,7 +86,7 @@ cswfetch = uw@ w>s
 cslfetch = ul@ l>s
 swapwfetch = uw@ w><
 swaplfetch = ul@ l><
-cswapxfatch = ux@ x><
+\ cswapxfatch = ux@ x>< \ only on 64 bits
 csswapwfetch = uw@ w>< w>s
 csswaplfetch = ul@ l>< l>s
 
