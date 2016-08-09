@@ -3209,7 +3209,7 @@ be-uxd@ ( c_addr -- ud )	gforth b_e_u_xd_fetch
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 UTetrabyte tb[2];
-memcpy(tb, c_addr, 8);
+memcpy((Char*)tb, c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
 D_IS(ud, tb[0], tb[1]);
 #  else
@@ -3217,7 +3217,7 @@ D_IS(ud, __builtin_bswap32(tb[0]), __builtin_bswap32(tb[1]));
 #  endif
 # else
 UOctabyte ob;
-memcpy(&ob, c_addr, 8);
+memcpy((Char*)&ob, c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
 D_IS(ud, 0, ob);
 #  else
@@ -3226,7 +3226,7 @@ D_IS(ud, 0, __builtin_bswap64(ob));
 # endif
 #else
 UOctabyte ob;
-memcpy(&ob, c_addr, 8);
+memcpy((Char*)&ob, c_addr, 8);
 # ifdef WORDS_BIGENDIAN
 ud=ob;
 # else
@@ -3239,7 +3239,7 @@ le-uxd@ ( c_addr -- ud )	gforth l_e_u_xd_fetch
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 UTetrabyte tb[2];
-memcpy(tb, c_addr, 8);
+memcpy((Char*)tb, c_addr, 8);
 #  ifndef WORDS_BIGENDIAN
 D_IS(ud, tb[1], tb[9]);
 #  else
@@ -3247,7 +3247,7 @@ D_IS(ud, __builtin_bswap32(tb[1]), __builtin_bswap32(tb[0]));
 #  endif
 # else
 UOctabyte ob;
-memcpy(&ob, c_addr, 8);
+memcpy((Char*)&ob, c_addr, 8);
 #  ifndef WORDS_BIGENDIAN
 D_IS(ud, 0, ob);
 #  else
@@ -3256,7 +3256,7 @@ D_IS(ud, 0, __builtin_bswap64(ob));
 # endif
 #else
 UOctabyte ob;
-memcpy(&ob, c_addr, 8);
+memcpy((Char*)&ob, c_addr, 8);
 # ifndef WORDS_BIGENDIAN
 ud=ob;
 # else
