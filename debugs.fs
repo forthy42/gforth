@@ -218,32 +218,30 @@ require string.fs
 Variable locate-file[]
 Variable locate-pos
 
+: type-prefix ( c-addr1 u1 u -- c-addr2 u2 )
+    \ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
+    >r 2dup r> umin tuck type /string ;
+
 : show-pos1 ( pos1 u -- ) {: u :}
     decode-pos1  {: lineno charno :}
     loadfilename#>str locate-file[] $[]slurp-file
     lineno after-locate + 1+ locate-file[] $[]# umin
     lineno before-locate 1+ - 0 max +DO  cr
+	I locate-file[] $[]@
 	I 1+ lineno = IF
-	    err-color attr!
-	    '*' emit  I 1+ 5 .r ." : "
-	    I locate-file[] $[]@
-	    over charno type charno /string
-	    info-color attr!
-	    over u dup >r type r> /string
-	    err-color attr!
-	    type
+	    warn-color attr! '*' emit  I 1+ 5 .r ." : "  charno type-prefix
+	    err-color attr!                                   u type-prefix
+	    warn-color attr!                                    type
 	    default-color attr!
 	ELSE
-	    I 1+ 6 .r ." : "
-	    I locate-file[] $[]@ type
+	    I 1+ 6 .r ." : "  type
 	THEN
     LOOP ;
 : scroll-pos1 ( pos1 -- )
     decode-pos1 drop nip {: lineno :}
     lineno after-locate + 1+ locate-file[] $[]# umin
     lineno before-locate 1+ - 0 max +DO  cr
-	I 1+ 6 .r ." : "
-	I locate-file[] $[]@ type
+	I 1+ 6 .r ." : "  I locate-file[] $[]@ type
     LOOP ;
 
 : view-name {: nt -- :}

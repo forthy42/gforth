@@ -2888,13 +2888,13 @@ fp=gforth_FP;
 uw@ ( c_addr -- u )	gforth u_w_fetch
 ""@i{u} is the zero-extended 16-bit value stored at @i{c_addr}.""
 UWyde wy;
-memcpy(&wy, (UWyde*)(c_addr), 4);
+memcpy(&wy, (UWyde*)(c_addr), 2);
 u = wy;
 
 sw@ ( c_addr -- n )	gforth s_w_fetch
 ""@i{n} is the sign-extended 16-bit value stored at @i{c_addr}.""
 Wyde wy;
-memcpy(&wy, (Wyde*)(c_addr), 4);
+memcpy(&wy, (Wyde*)(c_addr), 2);
 n = wy;
 
 w! ( w c_addr -- )	gforth w_store
@@ -2971,7 +2971,7 @@ memcpy((Tetrabyte*)(c_addr), &tb, 4);
 be-uw@ ( c_addr -- u )	gforth w_fetch_be
 ""@i{u} is the zero-extended 16-bit big endian value stored at @i{c_addr}.""
 UWyde wy;
-memcpy(&wy, (UWyde*)(c_addr), 4);
+memcpy(&wy, (UWyde*)(c_addr), 2);
 #ifdef WORDS_BIGENDIAN
 u = wy;
 #else
@@ -2991,7 +2991,7 @@ u = __builtin_bswap32(tb);
 le-uw@ ( c_addr -- u )	gforth w_fetch_le
 ""@i{u} is the zero-extended 16-bit little endian value stored at @i{c_addr}.""
 UWyde wy;
-memcpy(&wy, (UWyde*)(c_addr), 4);
+memcpy(&wy, (UWyde*)(c_addr), 2);
 #ifndef WORDS_BIGENDIAN
 u = wy;
 #else

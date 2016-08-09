@@ -79,8 +79,10 @@ User stored-backtrace ( addr -- )
     \G backtrace.
     not-first-throw off error-stack $free ;
 
+' nothrow is .status
+
 : (try0) ( -- aoldhandler )
-    nothrow handler @ ;
+    handler @ ;
 
 [undefined] (try1) [if]
 : (try1) ( aoldhandler arecovery -- anewhandler )
@@ -99,7 +101,6 @@ User stored-backtrace ( addr -- )
     handler ! ;
 
 : (try) ( ahandler -- )
-    nothrow
     r>
     swap >r \ recovery address
     sp@ >r

@@ -77,7 +77,7 @@ defer .backtrace-pos ( addr -- )
 comp: drop ]] store-backtrace dobacktrace nothrow [[ ;
 
 :noname ( -- )
-    stored-backtrace $@ over + print-backtrace ;
+    stored-backtrace $@ over + print-backtrace  nothrow ;
 IS dobacktrace
 
 [ifdef] defer-default

@@ -184,4 +184,4 @@ variable code-locations 0 code-locations !
 : foo1 10 0 do foo loop ;
 : foo2 foo1 ;
 
-foo2
+\ foo2

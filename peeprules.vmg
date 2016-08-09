@@ -80,6 +80,11 @@ cb20 = u> ?branch
 cb21 = u>= ?branch
 cb22 = within ?branch
 
+\ memory access combinations
+cscfetch = c@ c>s
+cswfetch = uw@ w>s
+cslfetch = ul@ l>s
+
 \F 0 [if]
 
 \ \E prim-states ;s                   \ 2950159

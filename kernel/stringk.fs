@@ -29,8 +29,18 @@
     rot over umin >r  r@ - ( left over )
     over dup r@ +  rot move   r> move  ;
 
+: >pow2 ( n -- pow2 )
+    dup 2/ or \ next power of 2
+    dup 2 rshift or
+    dup 4 rshift or
+    dup 8 rshift or
+    dup #16 rshift or
+    [ cell 8 = [IF] ]
+	dup #32 rshift or
+    [ [THEN] ] 1+ ;
+
 : $padding ( n -- n' ) \ gforth-string
-    [ 6 cells ] Literal + [ -4 cells ] Literal and ;
+    [ 6 cells ] Literal +  >pow2  [ -4 cells ] Literal and ;
 : $free ( addr -- ) \ gforth-string string-free
     \G free the string pointed to by addr, and set addr to 0
     0 swap !@ ?dup-IF  free throw  THEN ;
@@ -75,16 +85,15 @@
     >r >r dup $@ r> safe/string r@ delete
     dup $@len r> - 0 max swap $!len ;
 
-: $init ( addr -- ) \ gforth-string string-init
-    \G initializes a string to empty (doesn't look at what was there before).
-    >r r@ off s" " r> $! ;
-
 : $boot ( addr -- )
     \G take string from dictionary to allocated memory
     dup >r $@ r@ off r> $! ;
 : $save ( addr -- )
     \G push string to dictionary for savesys
     dup >r $@ here r> ! dup , here swap dup aligned allot move ;
+: $init ( addr -- )
+    \G store an empty string there, regardless of what was in before
+    s" " $make swap ! ;
 
 \ dynamic string handling                              12dec99py
 

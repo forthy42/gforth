@@ -381,14 +381,18 @@ environment-wordlist >order
 
 previous
 
-[ifdef] uw@
-\ Open firmware names
-' uw@ alias w@ ( addr -- u )
-' ul@ alias l@ ( addr -- u )
-[IFDEF] ux@ ' ux@ alias x@ ( addr -- u ) [THEN]
-' uxd@ alias xd@ ( addr -- u )
-\ ' sw@ alias <w@ ( addr -- n )
-[then]
+[ifdef] uw@ \ Open firmware names
+    ' uw@ alias w@ ( addr -- u )
+    ' ul@ alias l@ ( addr -- u )
+[ELSE] \ gforth names
+    ' w@ alias uw@ ( addr -- u )
+    ' l@ alias ul@ ( addr -- u )
+[THEN]
+
+[IFDEF] ux@ ' ux@ alias x@ ( addr -- u )
+[ELSE] ' x@ alias ux@ [THEN]
+[IFDEF] uxd@ ' uxd@ alias xd@ ( addr -- u )
+[ELSE] ' xd@ alias uxd@ [THEN]
 
 1 pad ! pad c@ 1 = [IF] \ little endian
     [IFDEF] w>< synonym wbe w>< [THEN]
