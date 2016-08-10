@@ -218,7 +218,7 @@ variable located-bottom \ last line to display with l
     current-sourcepos1 input-lexeme @ set-located-xpos ;
 
 [IFDEF] ?set-current-xpos
-    :noname first-throw @ IF  set-current-xpos  THEN ;
+    :noname error-stack $@len 0= IF  set-current-xpos  THEN ;
     is ?set-current-xpos
 [THEN]
 
