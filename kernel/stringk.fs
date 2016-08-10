@@ -75,7 +75,10 @@
     \G changes the length of the stored string.  Therefore we must
     \G change the memory area and adjust address and count cell as
     \G well.
-    over $padding over @ swap resize throw over ! @ ! ;
+    over $padding  over @ IF  \ fast path for unneeded size change
+	over $@len $padding over = IF  drop @ !  EXIT  THEN
+    THEN
+    over @ swap resize throw over ! @ ! ;
 : $+! ( addr1 u $addr -- ) \ gforth-string string-plus-store
     \G appends a string to another.
     >r r@ $@len 2dup + r@ $!len r> $@ rot /string rot umin move ;
