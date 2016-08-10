@@ -164,11 +164,11 @@ terminal-input @       \ source -> terminal-input::source
 : expand-tib ( n -- )
     dup tib+ + current-input @ cell- swap cell+ resize throw current-input !
     max#tib ! tib max#tib @ #tib @ /string 0 fill ;
-has? file [IF]
+
 : push-file  ( -- ) \ gforth
     \G Create a new file input buffer
     file-input def#tib new-tib ;
-[THEN]
+
 : pop-file ( throw-code -- throw-code ) \ gforth
     \G pop and free the current top input buffer
     dup IF
@@ -245,7 +245,6 @@ has? file [IF]
 
 \ load a file
 
-has? file [IF]
 defer line-end-hook ( -- ) \ gforth
 \G called at every end-of-line when text-interpreting from a file    
 \ alternatively we could use a wrapper for REFILL
@@ -260,10 +259,12 @@ defer line-end-hook ( -- ) \ gforth
     \G read a line of input
     ['] refill catch -56 = IF  bye  THEN ;
     
+Defer ?set-current-xpos  ' noop is ?set-current-xpos
+
 : execute-parsing-named-file ( i*x wfileid filename-addr filename-u xt -- j*x )
     >r push-file \ dup 2* cells included-files 2@ drop + 2@ type
-    loadfilename 2!  loadfile !
-    r> catch
+    loadfilename 2!  loadfile !  error-stack $free
+    r> catch  dup IF  ?set-current-xpos  THEN
     loadfile @ close-file swap 2dup or
     pop-file  drop throw throw ;
 
@@ -276,4 +277,3 @@ defer line-end-hook ( -- ) \ gforth
     \G Interpret (process using the text interpreter) the contents of
     \G the file @var{wfileid}.
     ['] read-loop execute-parsing-file ;
-[THEN]

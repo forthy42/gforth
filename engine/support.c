@@ -44,7 +44,7 @@
 extern int debug;
 # define debugp(x...) do { if (debug) fprintf(x); } while (0)
 #endif
-#ifdef HAVE_MCHECK
+#if defined(HAVE_MCHECK)
 pthread_mutex_t memlock = PTHREAD_MUTEX_INITIALIZER;
 void* (*malloc_l)(size_t size)=malloc;
 void (*free_l)(void* addr)=free;

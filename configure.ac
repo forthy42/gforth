@@ -1139,6 +1139,10 @@ AC_FUNC_FNMATCH
 test $ac_cv_func_fnmatch_works = yes || AC_LIBOBJ(fnmatch)
 AC_CHECK_FUNCS(mmap sysconf getpagesize pselect pthread_setaffinity_np)
 AM_PATH_LISPDIR
+AX_GCC_BUILTIN(__builtin_clzl)
+AX_GCC_BUILTIN(__builtin_bswap16)
+AX_GCC_BUILTIN(__builtin_bswap32)
+AX_GCC_BUILTIN(__builtin_bswap64)
 
 # Sanitzie broken AM_PATH_LISPDIR result
 lispdir=$(prefix=$ac_default_prefix
