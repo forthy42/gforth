@@ -741,13 +741,15 @@ rm-install:
 		    done \
 		done
 
-install-progs:
+install-prog-bins:
 		for i in $(INSTEXES); do \
 		    $(INSTALL_PROGRAM) $$i$(EXT) $(bindir)/$$i-$(VERSION)-$(machine)$(EXT); \
 		    $(MASSAGE_EXE) $(bindir)/$$i-$(VERSION)-$(machine)$(EXT) || true; \
 		done
 		$(INSTALL_SCRIPT) gforthmi $(bindir)/gforthmi-$(VERSION)-$(machine)
 		$(INSTALL_SCRIPT) vmgen $(bindir)/vmgen-$(VERSION)
+
+install-progs:
 		for i in $(INSTEXES) gforthmi; do \
 		    for j in "" -$(VERSION) -$(machine); do \
 		        (cd $(bindir) && $(LN_S) $$i-$(VERSION)-$(machine)$(EXT) $$i$$j$(EXT)); \
@@ -817,7 +819,7 @@ installdeps:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 
 
 install-indep:	installdeps installdirs-indep install-sources install-man install-info install-elc
 
-install-arch:	installdeps installdirs-arch normal-install rm-install install-progs install-gensources install-images install-include install-libcc install-tags @libinstall@ extra-install
+install-arch:	installdeps installdirs-arch normal-install rm-install install-prog-bins install-gensources install-images install-include install-libcc install-tags @libinstall@ extra-install
 
 install-seq:	install-indep install-arch
 
@@ -829,9 +831,9 @@ post-inst:
 		@echo "============= INSTALL SUCCEEDED ============="
 		@echo "Bash users: type 'hash -r' to empty the cache"
 
-install:	installdeps install-seq post-inst
+install:	installdeps install-seq install-progs post-inst
 
-installnodep:	installdirs install-seq post-inst
+installnodep:	installdirs install-seq install-progs post-inst
 
 install-strip:	install
 

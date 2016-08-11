@@ -1143,6 +1143,14 @@ AX_GCC_BUILTIN(__builtin_clzl)
 AX_GCC_BUILTIN(__builtin_bswap16)
 AX_GCC_BUILTIN(__builtin_bswap32)
 AX_GCC_BUILTIN(__builtin_bswap64)
+AC_COMPILE_IFELSE([
+void test(char* addr, long val, long val2) {
+   __sync_lock_test_and_set(addr, val);
+   __sync_fetch_and_add(addr, val);
+   __sync_val_compare_and_swap(addr, val, val2);
+   __sync_synchronize();
+}],[ATOMIC=true; AC_DEFINE(HAS_ATOMIC,,[Define if has atomic operations])],[ATOMIC=false])
+AC_SUBST(ATOMIC)
 
 # Sanitzie broken AM_PATH_LISPDIR result
 lispdir=$(prefix=$ac_default_prefix

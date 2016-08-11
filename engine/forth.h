@@ -646,9 +646,6 @@ void zexpand(char * zfile);
 #ifdef HAVE_ENDIAN_H
 #include <endian.h>
 #else
-#define BSWAP16(x) ((((x) >> 8) & 0xff | (((x) & 0xff) << 8)))
-#define BSWAP32(x) ((BSWAP16((x) >> 16) | (BSWAP16(x) << 16)))
-#define BSWAP64(x) ((BSWAP32((x) >> 32) | (BSWAP32(x) << 32)))
 #ifdef WORDS_BIGENDIAN
 #define htobe16(x) (x)
 #define htobe32(x) (x)
