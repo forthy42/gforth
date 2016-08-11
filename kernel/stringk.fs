@@ -64,7 +64,7 @@
     \G stores a newly allocated string buffer at an address,
     \G frees the previous buffer if necessary.
     dup @ IF  \ fast path for strings with similar buffer size
-	over $padding over $@len $padding = IF
+	over $padding over @ @ $padding = IF
 	    @ 2dup ! cell+ swap move  EXIT
 	THEN  THEN
     >r $make r> $!buf ;
@@ -76,7 +76,7 @@
     \G change the memory area and adjust address and count cell as
     \G well.
     over $padding  over @ IF  \ fast path for unneeded size change
-	over $@len $padding over = IF  drop @ !  EXIT  THEN
+	over @ @ $padding over = IF  drop @ !  EXIT  THEN
     THEN
     over @ swap resize throw over ! @ ! ;
 : $+! ( addr1 u $addr -- ) \ gforth-string string-plus-store
