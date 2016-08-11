@@ -67,7 +67,7 @@ Defer store-backtrace
 
 \ !! explain handler on-stack structure
 
-User not-first-throw  \ contains false iff the next throw is the first throw
+User first-throw  \ contains true if the next throw is the first throw
 User stored-backtrace ( addr -- )
 \ contains the address of a cell-counted string that contains a copy
 \ of the return stack at the throw
@@ -77,12 +77,12 @@ User stored-backtrace ( addr -- )
     \G after a @code{catch} or @code{endtry} that does not rethrow;
     \G this ensures that the next @code{throw} will record a
     \G backtrace.
-    not-first-throw off error-stack $free ;
+    first-throw on ;
 
 ' nothrow is .status
 
 : (try0) ( -- aoldhandler )
-    handler @ ;
+    nothrow handler @ ;
 
 [undefined] (try1) [if]
 : (try1) ( aoldhandler arecovery -- anewhandler )
@@ -101,6 +101,7 @@ User stored-backtrace ( addr -- )
     handler ! ;
 
 : (try) ( ahandler -- )
+    nothrow
     r>
     swap >r \ recovery address
     sp@ >r
@@ -167,9 +168,11 @@ User stored-backtrace ( addr -- )
     POSTPONE uncatch POSTPONE iferror POSTPONE uncatch
 ; immediate compile-only
 
+0 Value catch-frame
+
 :noname ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
     try
-	execute 0
+	execute [ here to catch-frame ] 0
     iferror
 	nip
     then endtry ;
@@ -216,6 +219,11 @@ variable located-bottom \ last line to display with l
 : set-current-xpos ( -- )
     current-sourcepos1 input-lexeme @ set-located-xpos ;
 
+[IFDEF] ?set-current-xpos
+    :noname error-stack $@len 0= IF  set-current-xpos  THEN ;
+    is ?set-current-xpos
+[THEN]
+
 \ : set-current-xpos ( -- )
 \    input-lexeme @ located-len ! current-sourcepos1 located-xpos ! ;
 
@@ -223,16 +231,13 @@ variable located-bottom \ last line to display with l
     ?DUP IF
 	[ here forthstart 9 cells + !
 	  here throw-entry ! ]
-	not-first-throw @ 0= IF
-	    store-backtrace \ error-stack $off
-	    set-current-xpos
+	first-throw @ IF
+	    store-backtrace
 	THEN
 	handler @ ?dup-0=-IF
 	    >stderr cr ." uncaught exception: " .error cr
 	    kill-task  2 (bye)
-\	    quit
 	THEN
-	\ cr .s dup 64 dump
         (throw1)
     THEN ;
 is throw

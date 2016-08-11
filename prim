@@ -2946,7 +2946,7 @@ be-l! ( w c_addr -- )	gforth l_store_be
 #ifdef WORDS_BIGENDIAN
 UTetrabyte tb=w;
 #else
-UTetrabyte tb=__builtin_bswap32(w);
+UTetrabyte tb=BSWAP32(w);
 #endif
 memcpy(c_addr, (Char*)&tb, 4);
 
@@ -2964,7 +2964,7 @@ le-l! ( w c_addr -- )	gforth l_store_le
 #ifndef WORDS_BIGENDIAN
 UTetrabyte tb=w;
 #else
-UTetrabyte tb=__builtin_bswap32(w);
+UTetrabyte tb=BSWAP32(w);
 #endif
 memcpy(c_addr, (Char*)&tb, 4);
 
@@ -2985,7 +2985,7 @@ memcpy((Char*)&tb, c_addr, 4);
 #ifdef WORDS_BIGENDIAN
 u = tb;
 #else
-u = __builtin_bswap32(tb);
+u = BSWAP32(tb);
 #endif
 
 le-uw@ ( c_addr -- u )	gforth w_fetch_le
@@ -3005,7 +3005,7 @@ memcpy((Char*)&tb, c_addr, 4);
 #ifndef WORDS_BIGENDIAN
 u = tb;
 #else
-u = __builtin_bswap32(tb);
+u = BSWAP32(tb);
 #endif
 
 close-lib ( u -- )   gforth close_lib
@@ -3036,7 +3036,7 @@ UOctabyte ob;
 #ifdef WORDS_BIGENDIAN
 ob=w;
 #else
-ob=__builtin_bswap64(w);
+ob=BSWAP64(w);
 #endif
 memcpy(c_addr, (Char*)&ob, 8);
 
@@ -3046,7 +3046,7 @@ UOctabyte ob;
 #ifndef WORDS_BIGENDIAN
 ob=w;
 #else
-ob=__builtin_bswap64(w);
+ob=BSWAP64(w);
 #endif
 memcpy(c_addr, (Char*)&ob, 8);
 
@@ -3057,7 +3057,7 @@ memcpy((Char*)&ob, c_addr, 8);
 #ifdef WORDS_BIGENDIAN
 u = ob;
 #else
-u=__builtin_bswap64(ob);
+u=BSWAP64(ob);
 #endif
 
 le-ux@ ( c_addr -- u )	gforth l_e_u_x_fetch
@@ -3067,7 +3067,7 @@ memcpy((Char*)&ob, c_addr, 8);
 #ifndef WORDS_BIGENDIAN
 u = ob;
 #else
-u=__builtin_bswap64(ob);
+u=BSWAP64(ob);
 #endif
 
 \+
@@ -3149,8 +3149,8 @@ UTetrabyte tb[2];
 tb[0]=DHI(ud);
 tb[1]=DLO(ud);
 #  else
-tb[0]=__builtin_bswap32(DHI(ud));
-tb[1]=__builtin_bswap32(DLO(ud));
+tb[0]=BSWAP32(DHI(ud));
+tb[1]=BSWAP32(DLO(ud));
 #  endif
 memcpy(c_addr, (Char*)tb, 8);
 # else
@@ -3158,7 +3158,7 @@ UOctabyte ob;
 #  ifdef WORDS_BIGENDIAN
 ob=DLO(ud);
 #  else
-ob=__builtin_bswap64(DLO(ud));
+ob=BSWAP64(DLO(ud));
 #  endif
 memcpy(c_addr, (Char*)&ob, 8);
 # endif
@@ -3167,7 +3167,7 @@ UOctabyte ob;
 # ifdef WORDS_BIGENDIAN
 ob=ud;
 # else
-ob=__builtin_bswap64(ud);
+ob=BSWAP64(ud);
 # endif
 memcpy(c_addr, (Char*)&ob, 8);
 #endif
@@ -3181,8 +3181,8 @@ UTetrabyte tb[2];
 tb[1]=DHI(ud);
 tb[0]=DLO(ud);
 #  else
-tb[1]=__builtin_bswap32(DHI(ud));
-tb[0]=__builtin_bswap32(DLO(ud));
+tb[1]=BSWAP32(DHI(ud));
+tb[0]=BSWAP32(DLO(ud));
 #  endif
 memcpy(c_addr, (Char*)tb, 8);
 # else
@@ -3190,7 +3190,7 @@ UOctabyte ob;
 #  ifndef WORDS_BIGENDIAN
 ob=DLO(ud);
 #  else
-ob=__builtin_bswap64(DLO(ud));
+ob=BSWAP64(DLO(ud));
 #  endif
 memcpy(c_addr, (Char*)&ob, 8);
 # endif
@@ -3199,7 +3199,7 @@ UOctabyte ob;
 # ifndef WORDS_BIGENDIAN
 ob=ud;
 # else
-ob=__builtin_bswap64(ud);
+ob=BSWAP64(ud);
 # endif
 memcpy(c_addr, (Char*)&ob, 8);
 #endif
@@ -3213,7 +3213,7 @@ memcpy((Char*)tb, c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
 D_IS(ud, tb[0], tb[1]);
 #  else
-D_IS(ud, __builtin_bswap32(tb[0]), __builtin_bswap32(tb[1]));
+D_IS(ud, BSWAP32(tb[0]), BSWAP32(tb[1]));
 #  endif
 # else
 UOctabyte ob;
@@ -3221,7 +3221,7 @@ memcpy((Char*)&ob, c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
 D_IS(ud, 0, ob);
 #  else
-D_IS(ud, 0, __builtin_bswap64(ob));
+D_IS(ud, 0, BSWAP64(ob));
 #  endif
 # endif
 #else
@@ -3230,7 +3230,7 @@ memcpy((Char*)&ob, c_addr, 8);
 # ifdef WORDS_BIGENDIAN
 ud=ob;
 # else
-ud=__builtin_bswap64(ob);
+ud=BSWAP64(ob);
 # endif
 #endif
 
@@ -3243,7 +3243,7 @@ memcpy((Char*)tb, c_addr, 8);
 #  ifndef WORDS_BIGENDIAN
 D_IS(ud, tb[1], tb[9]);
 #  else
-D_IS(ud, __builtin_bswap32(tb[1]), __builtin_bswap32(tb[0]));
+D_IS(ud, BSWAP32(tb[1]), BSWAP32(tb[0]));
 #  endif
 # else
 UOctabyte ob;
@@ -3251,7 +3251,7 @@ memcpy((Char*)&ob, c_addr, 8);
 #  ifndef WORDS_BIGENDIAN
 D_IS(ud, 0, ob);
 #  else
-D_IS(ud, 0, __builtin_bswap64(ob));
+D_IS(ud, 0, BSWAP64(ob));
 #  endif
 # endif
 #else
@@ -3260,7 +3260,7 @@ memcpy((Char*)&ob, c_addr, 8);
 # ifndef WORDS_BIGENDIAN
 ud=ob;
 # else
-ud=__builtin_bswap64(ob);
+ud=BSWAP64(ob);
 # endif
 #endif
 
@@ -3284,19 +3284,19 @@ w>< ( u1 -- u2 )  gforth wordswap
 u2=BSWAP16(u1);
 
 l>< ( u1 -- u2 )  gforth longswap
-u2=__builtin_bswap32(u1);
+u2=BSWAP32(u1);
 
 x>< ( u1 -- u2 )  gforth extralongswap
-u2=__builtin_bswap64((uint64_t)u1);
+u2=BSWAP64((uint64_t)u1);
 
 xd>< ( ud1 -- ud2 )  gforth extralongdswap
 #if SIZEOF_CHAR_P == 8
-D_IS(ud2, 0LL, __builtin_bswap64(DLO(ud1)));
+D_IS(ud2, 0LL, BSWAP64(DLO(ud1)));
 #else
 # ifdef BUGGY_LL_SWAP
-D_IS(ud2, __builtin_bswap32(DLO(ud1)), __builtin_bswap32(DHI(ud1)));
+D_IS(ud2, BSWAP32(DLO(ud1)), BSWAP32(DHI(ud1)));
 # else
-ud2=__builtin_bswap64(ud1);
+ud2=BSWAP64(ud1);
 # endif
 #endif
 
@@ -3308,6 +3308,23 @@ n2=(Wyde)w1;
 
 l>s ( w1 -- n2 )  gforth long_sext
 n2=(Tetrabyte)w1;
+
+>pow2 ( u1 -- u2 )  gforth to_pow2
+#ifdef HAVE___BUILTIN_CLZL
+u2=(u1 == 1) ? u1 : // widely found bug for scanning 0
+(((UCell)-1)>>__builtin_clzl(u1-1))+1;
+#else
+u1--;
+u1 |= u1>>1;
+u1 |= u1>>2;
+u1 |= u1>>4;
+u1 |= u1>>8;
+u1 |= u1>>16;
+#if SIZEOF_CHAR_P == 8
+u1 |= u1>>32;
+#endif
+u2 = u1+1;
+#endif
 
 \+
 \g peephole

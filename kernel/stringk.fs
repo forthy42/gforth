@@ -29,55 +29,64 @@
     rot over umin >r  r@ - ( left over )
     over dup r@ +  rot move   r> move  ;
 
-: >pow2 ( n -- pow2 )
-    dup 2/ or \ next power of 2
-    dup 2 rshift or
-    dup 4 rshift or
-    dup 8 rshift or
-    dup #16 rshift or
-    [ cell 8 = [IF] ]
-	dup #32 rshift or
-    [ [THEN] ] 1+ ;
+[IFUNDEF] >pow2
+    : >pow2 ( n -- pow2 )
+	1-
+	dup 2/ or \ next power of 2
+	dup 2 rshift or
+	dup 4 rshift or
+	dup 8 rshift or
+	dup #16 rshift or
+	[ cell 8 = [IF] ]
+	    dup #32 rshift or
+	    [ [THEN] ] 1+ ;
+[THEN]
 
 : $padding ( n -- n' ) \ gforth-string
     [ 6 cells ] Literal +  >pow2  [ -4 cells ] Literal and ;
-: $free ( addr -- ) \ gforth-string string-free
+: $free ( $addr -- ) \ gforth-string string-free
     \G free the string pointed to by addr, and set addr to 0
     0 swap !@ ?dup-IF  free throw  THEN ;
-' $free alias $off \ don't ask, don't use
+' $free alias $off \ set the string to the neutral element
 
-: $make ( addr1 u -- $addr )
-    \G create a string as address on stack, which can be stored into
-    \G a variable
+: $!buf ( $buf $addr -- ) \ gforth-string string-store-buf
+    \G stores a buffer in a string variable and frees the previous buffer
+    !@ ?dup-IF  free throw  THEN ;
+: $make ( addr1 u -- $buf )
+    \G create a string buffer as address on stack, which can be stored into
+    \G a string variable, internal factor
     dup $padding allocate throw dup >r
     2dup ! cell+ swap move r> ;
-: $@len ( addr -- u ) \ gforth-string string-fetch-len
+: $@len ( $addr -- u ) \ gforth-string string-fetch-len
     \G returns the length of the stored string.
     @ dup IF  @  THEN ;
-: $! ( addr1 u addr2 -- ) \ gforth-string string-store
-    \G stores an allocated string buffer at an address,
-    \G the previous string buffer in that address is freed.
+: $! ( addr1 u $addr -- ) \ gforth-string string-store
+    \G stores a newly allocated string buffer at an address,
+    \G frees the previous buffer if necessary.
     dup @ IF  \ fast path for strings with similar buffer size
-	over $padding over $@len $padding = IF
+	over $padding over @ @ $padding = IF
 	    @ 2dup ! cell+ swap move  EXIT
 	THEN  THEN
-    >r $make r> !@ ?dup-IF  free throw  THEN ;
-: $@ ( addr1 -- addr2 u ) \ gforth-string string-fetch
+    >r $make r> $!buf ;
+: $@ ( $addr -- addr2 u ) \ gforth-string string-fetch
     \G returns the stored string.
     @ dup IF  dup cell+ swap @  ELSE  0  THEN ;
-: $!len ( u addr -- ) \ gforth-string string-store-len
+: $!len ( u $addr -- ) \ gforth-string string-store-len
     \G changes the length of the stored string.  Therefore we must
     \G change the memory area and adjust address and count cell as
     \G well.
-    over $padding over @ swap resize throw over ! @ ! ;
-: $+! ( addr1 u addr2 -- ) \ gforth-string string-plus-store
+    over $padding  over @ IF  \ fast path for unneeded size change
+	over @ @ $padding over = IF  drop @ !  EXIT  THEN
+    THEN
+    over @ swap resize throw over ! @ ! ;
+: $+! ( addr1 u $addr -- ) \ gforth-string string-plus-store
     \G appends a string to another.
     >r r@ $@len 2dup + r@ $!len r> $@ rot /string rot umin move ;
-: c$+! ( char addr -- ) \ gforth-string c-string-plus-store
+: c$+! ( char $addr -- ) \ gforth-string c-string-plus-store
     \G append a character to a string.
     dup $@len 1+ over $!len $@ + 1- c! ;
 
-: $ins ( addr1 u addr2 off -- ) \ gforth-string string-ins
+: $ins ( addr1 u $addr off -- ) \ gforth-string string-ins
     \G inserts a string at offset @var{off}.
     >r 2dup dup $@len rot + swap $!len  $@ r> safe/string insert ;
 : $del ( addr off u -- ) \ gforth-string string-del
@@ -85,13 +94,13 @@
     >r >r dup $@ r> safe/string r@ delete
     dup $@len r> - 0 max swap $!len ;
 
-: $boot ( addr -- )
+: $boot ( $addr -- )
     \G take string from dictionary to allocated memory
     dup >r $@ r@ off r> $! ;
-: $save ( addr -- )
+: $save ( $addr -- )
     \G push string to dictionary for savesys
     dup >r $@ here r> ! dup , here swap dup aligned allot move ;
-: $init ( addr -- )
+: $init ( $addr -- )
     \G store an empty string there, regardless of what was in before
     s" " $make swap ! ;
 

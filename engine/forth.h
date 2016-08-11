@@ -163,18 +163,24 @@ typedef struct {
 // prior to 4.8, gcc did not provide __builtin_bswap16 on some platforms so we emulate it
 // see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
 // Clang has a similar problem, but their feature test macros make it easier to detect
-#ifdef __clang__
-# if __has_builtin(__builtin_bswap16)
-#  define BSWAP16(x) __builtin_bswap16(x)
-# else
-#  define BSWAP16(x) __builtin_bswap32((x) << 16)
-# endif
+#ifdef HAVE___BUILTIN_BSWAP16
+# define BSWAP16(x) __builtin_bswap16(x)
 #else
-# if(defined(__GNUC__) &&(__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)))
-#  define BSWAP16(x) __builtin_bswap16(x)
-# else
+# ifdef HAVE___BUILTIN_BSWAP32
 #  define BSWAP16(x) __builtin_bswap32((x) << 16)
+# else
+#  define BSWAP16(x) ((((x)>>8) & 0xff) | ((x)<<8) & 0xff00)
 # endif
+#endif
+#ifdef HAVE___BUILTIN_BSWAP32
+# define BSWAP32(x) __builtin_bswap32(x)
+#else
+# define BSWAP32(x) ((BSWAP16(x)<<16) | (BSWAP16((x)>>16)))
+#endif
+#ifdef HAVE___BUILTIN_BSWAP64
+# define BSWAP64(x) __builtin_bswap64(x)
+#else
+# define BSWAP64(x) ((BSWAP32(x)<<32) | (BSWAP32((x)>>32)))
 #endif
 
 #if defined(BUGGY_LONG_LONG)

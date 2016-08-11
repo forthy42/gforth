@@ -33,7 +33,7 @@
     backtrace-rp0 @ [ 1 cells ]L - over - 0 max ;
 
 :noname ( -- )
-    backtrace-return-stack stored-backtrace $! not-first-throw on ;
+    backtrace-return-stack stored-backtrace $! first-throw off ;
 IS store-backtrace
 
 : >bt-entry ( return-stack-item -- nt )
@@ -67,14 +67,16 @@ defer .backtrace-pos ( addr -- )
     \G print a backtrace for the return stack addr1..addr2
     2dup u< IF  cr ." Backtrace:"  THEN
     0 swap rot u+do
-	cr i @ dup .backtrace-pos over 2 .r space dup hex. print-bt-entry 1+
-    cell +loop
+	cr i @ dup .backtrace-pos over 2 .r space
+	dup hex. dup print-bt-entry
+	catch-frame = IF  ."  [catch frame]" 1+  7 cells  ELSE  1+ cell  THEN
+    +loop
     drop ;
 
 : bt ( -- )
     \G backtrace for interactive use
     backtrace-rp0 @ #10 cells + dup 3 cells - @ cell- print-backtrace ;
-comp: drop ]] store-backtrace dobacktrace nothrow [[ ;
+comp: drop ]] store-backtrace dobacktrace [[ ;
 
 :noname ( -- )
     stored-backtrace $@ over + print-backtrace  nothrow ;

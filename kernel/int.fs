@@ -708,7 +708,6 @@ Defer .status
 
 \ \ DOERROR (DOERROR)                        		13jun93jaw
 
-has? os [IF]
 5 has? file 2 and + cells Constant /error
 User error-stack  0 error-stack !
 \ format of one cell:
@@ -857,14 +856,6 @@ defer reset-dpp
   reset-dpp ;
 
 ' (DoError) IS DoError
-
-[ELSE]
-    : dec.  base @ >r decimal . r> base ! ;
-    : DoError ( throw-code -- )
-	cr source drop >in @ type ." <<< "
-	dup -2 =  IF  "error @ type  drop  EXIT  THEN
-	.error ;
-[THEN]
 
 : quit ( ?? -- ?? ) \ core
     \G Empty the return stack, make the user input device
