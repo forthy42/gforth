@@ -599,8 +599,8 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
   if (offset==0) {
     image=alloc_mmap(dictsize);
     if (image != (void *)MAP_FAILED) {
-      debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
       void *image1;
+      debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
       debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
       image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
       after_alloc(image1,dictsize);

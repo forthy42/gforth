@@ -64,9 +64,9 @@ interpret/compile: s" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,fi
   \G not a problem; the exception is if you create strings containing
   \G @code{S"} and @code{evaluate} them; then the leak is not bounded
   \G by the size of the interpreted files and you may want to
-  \G @code{free} the strings.  ANS Forth only guarantees one buffer of
-  \G 80 characters, so in standard programs you should assume that the
-  \G string lives only until the next @code{s"}.
+  \G @code{free} the strings.  Forth-2012 only guarantees two buffers of
+  \G 80 characters each, so in standard programs you should assume that the
+  \G string lives only until the next-but-one @code{s"}.
 
 :noname '"' parse type ;
 :noname '"' parse postpone SLiteral postpone type ;
