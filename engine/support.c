@@ -71,8 +71,9 @@ void free_ll(void* addr)
 {
 #ifdef HAVE_MPROBE
   if(debug_mcheck) {
-    int reason=mprobe(addr);
+    int reason;
     pthread_mutex_lock(&memlock);
+    reason=mprobe(addr);
     pthread_mutex_unlock(&memlock);
     debugp(stderr, "free(%8p)=%d;\n", addr, reason);
     if(reason > 0) {
