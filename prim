@@ -1308,9 +1308,11 @@ DHI_IS(d, up);
 #ifdef ASM_UM_SLASH_MOD
 ASM_UM_SLASH_MOD(DLO(d), DHI(d), u, n, u1);
 #else /* !defined(ASM_UM_SLASH_MOD) */
+{
 UDCell r = umdiv(*(UDCell*)&d,u);
 n=DHI(r);
 u1=DLO(r);
+}
 #endif /* !defined(ASM_UM_SLASH_MOD) */
 :
  >r dup 0< r@ and + r> um/mod ;
@@ -2598,13 +2600,13 @@ CLOBBER_TOS_WORKAROUND_END;
 
 fexpm1	( r1 -- r2 )	float-ext	f_e_x_p_m_one
 ""@i{r2}=@i{e}**@i{r1}@minus{}1""
-CLOBBER_TOS_WORKAROUND_START;
 #ifdef HAVE_EXPM1
 extern double
 #ifdef NeXT
               const
 #endif
                     expm1(double);
+CLOBBER_TOS_WORKAROUND_START;
 r2 = expm1(r1);
 #else
 r2 = exp(r1)-1.;
@@ -2618,13 +2620,13 @@ CLOBBER_TOS_WORKAROUND_END;
 
 flnp1	( r1 -- r2 )	float-ext	f_l_n_p_one
 ""@i{r2}=ln(@i{r1}+1)""
-CLOBBER_TOS_WORKAROUND_START;
 #ifdef HAVE_LOG1P
 extern double
 #ifdef NeXT
               const
 #endif
                     log1p(double);
+CLOBBER_TOS_WORKAROUND_START;
 r2 = log1p(r1);
 #else
 r2 = log(r1+1.);
