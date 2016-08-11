@@ -19,7 +19,7 @@
 
 : env$, ( addr u -- )  slit, postpone getenv ;
 
-' getenv ' env$, ' slit, recognizer: r:env
+' getenv ' env$, ' slit, recognizer r:env
 
 : rec:env ( addr u -- addr u r:env | r:fail )
     over c@ '$' <> IF  2drop  r:fail  EXIT  THEN
