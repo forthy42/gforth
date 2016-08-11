@@ -67,8 +67,10 @@ defer .backtrace-pos ( addr -- )
     \G print a backtrace for the return stack addr1..addr2
     2dup u< IF  cr ." Backtrace:"  THEN
     0 swap rot u+do
-	cr i @ dup .backtrace-pos over 2 .r space dup hex. print-bt-entry 1+
-    cell +loop
+	cr i @ dup .backtrace-pos over 2 .r space
+	dup hex. dup print-bt-entry
+	catch-frame = IF  ."  [catch frame]" 1+  7 cells  ELSE  1+ cell  THEN
+    +loop
     drop ;
 
 : bt ( -- )

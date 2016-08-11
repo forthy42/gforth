@@ -168,9 +168,11 @@ User stored-backtrace ( addr -- )
     POSTPONE uncatch POSTPONE iferror POSTPONE uncatch
 ; immediate compile-only
 
+0 Value catch-frame
+
 :noname ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
     try
-	execute 0
+	execute [ here to catch-frame ] 0
     iferror
 	nip
     then endtry ;
