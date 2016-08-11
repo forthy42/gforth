@@ -1095,7 +1095,7 @@ gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h @kernel_anti_depen
 
 gforth$(OPT)$(EXT):
 	if test -z "$(OPT)"; then \
-		for i in $(OPTS); do $(RM) gforth$(OPT)$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
+		for i in $(OPTS); do $(RM) gforth$${i}$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
 	else \
 		(cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) $@ ) && \
 		$(CP) engine/$@ $@ && \
@@ -1114,7 +1114,7 @@ gforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_FAST) engine/config.h
 
 gforth-fast$(OPT)$(EXT):
 	if test -z "$(OPT)"; then \
-		for i in $(OPTS); do $(RM) gforth-fast$(OPT)$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
+		for i in $(OPTS); do $(RM) gforth-fast$${i}$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
 	else \
 		(cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) $@ ) && \
 		$(CP) engine/$@ $@ && \
