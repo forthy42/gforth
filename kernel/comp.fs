@@ -669,11 +669,13 @@ defer 0-adjust-locals-size ( -- )
     \ concat two xts into one
     >r >r :noname r> compile, r> compile, postpone ; ;
 
-: recognizer: ( int-xt comp-xt post-xt "name" -- )
+: recognizer ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table
     >r  ['] drop swap concat >r
     >r :noname r> compile, postpone ;
     r> set-compiler r> set-lit,  Constant ;
+
+' recognizer alias recognizer: \ old name, deprecated
 
 \ does>
 

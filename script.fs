@@ -19,7 +19,7 @@
 
 : >system ( addr u -- ) cr system ;
 : system, slit, postpone >system ;
-' >system ' system, ' slit, recognizer: r:eval
+' >system ' system, ' slit, recognizer r:eval
 
 : rec:shell ( addr u -- addr u' r:string )
     \G evaluate string + rest of command line

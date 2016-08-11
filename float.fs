@@ -187,7 +187,7 @@ si-prefixes count 2/ + Constant zero-exp
 
 [ifdef] r:fail
     : flit, postpone Fliteral ;
-    ' noop ' flit, ' flit, recognizer: r:float
+    ' noop ' flit, ' flit, recognizer r:float
 
     : rec:float ( addr u -- r r:float | r:fail )
 	\G recognize floating point numbers
