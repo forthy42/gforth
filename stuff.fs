@@ -586,6 +586,17 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 2>r : help ( -- ) [ 2r> ] 2literal type ; \ gforth
 \G Print some help for the first steps
 
+\ r:word and r:name
+
+:noname drop execute ;
+:noname 0> IF execute ELSE compile, THEN ;
+:noname postpone 2literal ;
+recognizer r:word ( takes xt +/-1, i.e. result of find and search-wordlist )
+
+:noname r>int execute ;
+:noname r>comp execute ;
+' lit,
+recognizer r:name ( takes nt, i.e. result of find-name and find-name-in )
 
 \ growing buffers that need not be full
 
