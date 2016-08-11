@@ -13865,7 +13865,7 @@ happens; which @code{throw} should be used for the stack dump?).
 Gforth presents the return stack dump for the first @code{throw} after
 the last executed (not returned-to) @code{catch} or @code{nothrow};
 this works well in the usual case. To get the right backtrace, you
-usually want to insert @code{nothrow} or @code{['] false catch drop}
+usually want to insert @code{nothrow} or @code{['] false catch 2drop}
 after a @code{catch} if the error is not rethrown.
 
 @cindex @code{gforth-fast} and backtraces

@@ -73,7 +73,7 @@ User stored-backtrace ( addr -- )
 \ of the return stack at the throw
 
 : nothrow ( -- ) \ gforth
-    \G Use this (or the standard sequence @code{['] false catch drop})
+    \G Use this (or the standard sequence @code{['] false catch 2drop})
     \G after a @code{catch} or @code{endtry} that does not rethrow;
     \G this ensures that the next @code{throw} will record a
     \G backtrace.
