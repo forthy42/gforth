@@ -2125,6 +2125,7 @@ X has? f83headerstring [IF]
 	dup T cell+ cfalign# H ht-nlstring, ;
 [THEN]
 : reset-included ( -- )
+    [IFDEF] loadfilename#  loadfilename# off
     [IFDEF] current-sourcepos1    included-files $off
     [ELSE] 0 allocate throw 0 included-files 2! [THEN] ;
 : tsourcepos1 ( -- xpos )

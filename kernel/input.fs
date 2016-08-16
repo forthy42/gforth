@@ -80,9 +80,9 @@ cell uvar blk ( -- addr ) \ block b-l-k
 cell uvar #fill-bytes ( -- addr ) \ gforth
     \G @code{uvar} variable -- number of bytes read via
     \G (read-line) by the last refill
-2 cells uvar loadfilename ( -- addr ) \ gforth
-    \G @code{uvar} variable -- addr u describes name of currently
-    \G interpreted input (file name or somesuch)
+cell uvar loadfilename# ( -- addr ) \ gforth
+    \G @code{uvar} variable -- n describes index of currently
+    \G interpreted input into loaded filenames
 [THEN]
 0 uvar tib ( -- addr ) \ core-ext-obsolescent t-i-b
 
@@ -201,15 +201,14 @@ terminal-input @       \ source -> terminal-input::source
 
 : create-input ( -- )
     \G create a new terminal input
-    terminal-input def#tib new-tib ;
-    \ s" *the terminal*" loadfilename 2!
+    terminal-input def#tib new-tib  -1 loadfilename# ! ;
 
 : execute-parsing-wrapper ( ... addr1 u1 xt addr2 u2 -- ... ) \ gforth-internal
     \ addr1 u1 is the string to be processed, xt is the word for
     \ processing it, addr2 u2 is the name of the input source
     rot >r 2>r evaluate-input cell new-tib 2r> 
 [ has? file [IF] ]
-    loadfilename 2!
+    str>loadfilename# loadfilename# !
 [ [ELSE] ]
     2drop
 [ [THEN] ]
@@ -263,7 +262,7 @@ Defer ?set-current-xpos  ' noop is ?set-current-xpos
 
 : execute-parsing-named-file ( i*x wfileid filename-addr filename-u xt -- j*x )
     >r push-file \ dup 2* cells included-files 2@ drop + 2@ type
-    loadfilename 2!  loadfile !  error-stack $free
+    str>loadfilename# loadfilename# !  loadfile !  error-stack $free
     r> catch  dup IF  ?set-current-xpos  THEN
     loadfile @ close-file swap 2dup or
     pop-file  drop throw throw ;
