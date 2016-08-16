@@ -250,7 +250,8 @@ Variable locate-pos
     dup locate-pos ! nt name>string nip dup located-len ! show-pos1 ;
 
 : +locate-lines ( n -- pos )
-    >r locate-pos @ decode-pos1 swap r> + swap encode-pos1 ;
+    >r locate-pos @ decode-pos1 swap r> + 0 max
+    locate-file[] $[]# 1- min swap encode-pos1 ;
 
 : n ( -- )
     before-locate after-locate + 2 +
