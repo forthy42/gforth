@@ -2125,7 +2125,7 @@ X has? f83headerstring [IF]
 	dup T cell+ cfalign# H ht-nlstring, ;
 [THEN]
 : reset-included ( -- )
-    [IFDEF] loadfilename#  loadfilename# off
+    [IFDEF] loadfilename#  loadfilename# off  [THEN]
     [IFDEF] current-sourcepos1    included-files $off
     [ELSE] 0 allocate throw 0 included-files 2! [THEN] ;
 : tsourcepos1 ( -- xpos )
@@ -4014,6 +4014,9 @@ Variable outfile-fd
 
 \ \ minimal definitions
 	   
+: upcase ( addr u -- )
+    bounds ?DO I c@ toupper I c! LOOP ;
+
 >MINIMAL also minimal
 
 \ Useful words                                        13feb93py
@@ -4026,9 +4029,6 @@ Variable outfile-fd
 \ on the words in the host system
 \ The words in the host system might be defined with vocabularies
 \ this doesn't work with our self-made compile-loop
-
-: upcase ( addr u -- )
-    bounds ?DO I c@ toupper I c! LOOP ;
 
 : [ELSE]
     1 BEGIN
