@@ -4027,16 +4027,13 @@ Variable outfile-fd
 \ The words in the host system might be defined with vocabularies
 \ this doesn't work with our self-made compile-loop
 
-Create parsed 20 chars allot	\ store word we parsed
-
-: upcase
-    parsed count bounds
-    ?DO I c@ toupper I c! LOOP ;
+: upcase ( addr u -- )
+    bounds ?DO I c@ toupper I c! LOOP ;
 
 : [ELSE]
     1 BEGIN
 	BEGIN bl word count dup WHILE
-	    comment? 20 umin parsed place upcase parsed count
+	    comment? 20 umin 2dup upcase
 	    2dup s" [IF]" str= >r 
 	    2dup s" [IFUNDEF]" str= >r
 	    2dup s" [IFDEF]" str= r> or r> or
