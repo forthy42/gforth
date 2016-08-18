@@ -74,7 +74,7 @@ tmp$ $execstr-ptr !
 
 : $exec ( xt addr -- )
     \G execute xt while the standard output (TYPE, EMIT, and everything
-    \G that uses them) is redirected to the string variable addr.
+    \G that uses them) is appended to the string variable addr.
     $execstr-ptr @ op-vector @
     { oldstr oldout }
     try
