@@ -1308,9 +1308,11 @@ DHI_IS(d, up);
 #ifdef ASM_UM_SLASH_MOD
 ASM_UM_SLASH_MOD(DLO(d), DHI(d), u, n, u1);
 #else /* !defined(ASM_UM_SLASH_MOD) */
+{
 UDCell r = umdiv(*(UDCell*)&d,u);
 n=DHI(r);
 u1=DLO(r);
+}
 #endif /* !defined(ASM_UM_SLASH_MOD) */
 :
  >r dup 0< r@ and + r> um/mod ;
@@ -2598,13 +2600,13 @@ CLOBBER_TOS_WORKAROUND_END;
 
 fexpm1	( r1 -- r2 )	float-ext	f_e_x_p_m_one
 ""@i{r2}=@i{e}**@i{r1}@minus{}1""
-CLOBBER_TOS_WORKAROUND_START;
 #ifdef HAVE_EXPM1
 extern double
 #ifdef NeXT
               const
 #endif
                     expm1(double);
+CLOBBER_TOS_WORKAROUND_START;
 r2 = expm1(r1);
 #else
 r2 = exp(r1)-1.;
@@ -2618,13 +2620,13 @@ CLOBBER_TOS_WORKAROUND_END;
 
 flnp1	( r1 -- r2 )	float-ext	f_l_n_p_one
 ""@i{r2}=ln(@i{r1}+1)""
-CLOBBER_TOS_WORKAROUND_START;
 #ifdef HAVE_LOG1P
 extern double
 #ifdef NeXT
               const
 #endif
                     log1p(double);
+CLOBBER_TOS_WORKAROUND_START;
 r2 = log1p(r1);
 #else
 r2 = log(r1+1.);
@@ -3011,6 +3013,10 @@ u = BSWAP32(tb);
 close-lib ( u -- )   gforth close_lib
 gforth_dlclose(u);
 
+\+
+
+\g 64bit
+
 \+64bit
 
 x! ( w c_addr -- )	gforth x_store
@@ -3071,6 +3077,8 @@ u=BSWAP64(ob);
 #endif
 
 \+
+
+\g memory
 
 xd! ( ud c_addr -- )	gforth xd_store
 ""Store the bottom 64 bits of @i{ud} at 64-bit-aligned @i{c_addr}.""
@@ -3264,22 +3272,6 @@ ud=BSWAP64(ob);
 # endif
 #endif
 
-!@ ( u1 a_addr -- u2 )	gforth store_fetch
-""load @v{u2} from @v{a_addr}, and store @v{u1} there, as atomic operation""
-u2 = __sync_lock_test_and_set(a_addr, u1);
-
-+!@ ( u1 a_addr -- u2 )	gforth add_store_fetch
-""load @v{u2} from @v{a_addr}, and increment this location by @v{u1}, as atomic operation""
-u2 = __sync_fetch_and_add(a_addr, u1);
-
-?!@ ( unew uold a_addr -- uprev )	gforth question_store_fetch
-""load @v{uprev} from @v{a_addr}, compare it to @v{uold}, and if equal, store @v{unew} there, as atomic operation""
-uprev = __sync_val_compare_and_swap(a_addr, uold, unew);
-
-barrier ( -- ) gforth
-""Insert a memory barrier""
-__sync_synchronize();
-
 w>< ( u1 -- u2 )  gforth wordswap
 u2=BSWAP16(u1);
 
@@ -3326,7 +3318,41 @@ u1 |= u1>>32;
 u2 = u1+1;
 #endif
 
-\+
+\g atomic
+
+!@ ( u1 a_addr -- u2 )	gforth store_fetch
+""load @v{u2} from @v{a_addr}, and store @v{u1} there, as atomic operation""
+#ifdef HAS_ATOMIC
+u2 = __sync_lock_test_and_set(a_addr, u1);
+#else
+u2 = *a_addr;
+*a_addr = u1;
+#endif
+
++!@ ( u1 a_addr -- u2 )	gforth add_store_fetch
+""load @v{u2} from @v{a_addr}, and increment this location by @v{u1}, as atomic operation""
+#ifdef HAS_ATOMIC
+u2 = __sync_fetch_and_add(a_addr, u1);
+#else
+u2 = *a_addr;
+*a_addr += u1;
+#endif
+
+?!@ ( unew uold a_addr -- uprev )	gforth question_store_fetch
+""load @v{uprev} from @v{a_addr}, compare it to @v{uold}, and if equal, store @v{unew} there, as atomic operation""
+#ifdef HAS_ATOMIC
+uprev = __sync_val_compare_and_swap(a_addr, uold, unew);
+#else
+uprev = *a_addr;
+if(*a_addr == uold) *a_addr = unew;
+#endif
+
+barrier ( -- ) gforth
+""Insert a memory barrier""
+#ifdef HAS_ATOMIC
+__sync_synchronize();
+#endif
+
 \g peephole
 
 \+peephole
@@ -3435,8 +3461,9 @@ ip=IP;
 SUPER_END;
 VM_JUMP(EXEC1((Xt)a_addr));
 
-\+objects
 \g object_pointer
+
+\+objects
 
 >o ( c_addr -- r:c_old )	new	to_o
 c_old = op;

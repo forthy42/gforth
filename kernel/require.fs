@@ -27,7 +27,12 @@ AVariable included-files
     \G loaded.  If the current input source is no (stream) file, the
     \G result is undefined.  In Gforth, the result is valid during the
     \G whole session (but not across @code{savesystem} etc.).
-    loadfilename 2@ ;
+    loadfilename# @
+    dup -3 = IF  drop s" *a block*"           EXIT  THEN
+    dup -2 = IF  drop s" *evaluated string*"  EXIT  THEN
+    dup 0<   IF  drop s" *the terminal*"      EXIT  THEN
+    included-files $@ rot cells safe/string
+    IF  $@  ELSE  drop  s" *unknown file*"  THEN ;
 
 : sourceline# ( -- u ) \ gforth		sourceline-number
     \G The line number of the line that is currently being interpreted
@@ -62,10 +67,8 @@ AVariable included-files
 
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
 \G Include the file file-id with the name given by @var{c-addr u}.
-    add-included-file  included-files $@ + cell- @
-    includefilename @ >r  includefilename !
-    includefilename $@ ['] read-loop execute-parsing-named-file
-    r> includefilename ! ;
+    add-included-file  included-files $@ + cell-
+    $@ ['] read-loop execute-parsing-named-file ;
 
 Defer >filename ( c-addr1 u1 -- c-addr2 u2 )
 ' noop is >filename

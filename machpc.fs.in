@@ -133,3 +133,5 @@ $10 DefaultValue kernel-start   \ no artificial offset
 [THEN]
 
 T cell H 8 = DefaultValue 64bit
+
+@ATOMIC@ DefaultValue atomic

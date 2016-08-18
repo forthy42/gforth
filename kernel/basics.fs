@@ -328,4 +328,3 @@ is ?warning
     \G Set @code{base} to &16 (hexadecimal).  Don't use @code{hex},
     \G use @code{base-execute} instead.
     10 base ! ;
-

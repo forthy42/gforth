@@ -978,7 +978,6 @@ has? new-input 0= [IF]
     current-input off
 [ [THEN] ]
     clear-tibstack
-    0 includefilename !
     rp@ rp0 !
 [ has? floating [IF] ]
     fp@ fp0 !

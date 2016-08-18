@@ -130,14 +130,15 @@ Defer wlscope ' get-current is wlscope
 	    2drop I included-files $@ drop - cell/ unloop exit
 	endif
     cell +loop
+    2dup s" *a block*"          str= IF  2drop -3  EXIT  THEN
+    2dup s" *evaluated string*" str= IF  2drop -2  EXIT  THEN
     2drop -1 ;
 
 : encode-pos ( nline nchar -- npos )
     $ff min swap 8 lshift + ;
 
 : current-sourcepos3 ( -- nfile nline nchar )
-    sourcefilename str>loadfilename# sourceline#
-    input-lexeme 2@ drop source drop - ;
+    loadfilename# @ sourceline# input-lexeme 2@ drop source drop - ;
 
 : encode-pos1 ( nfile nline nchar -- xpos )
     encode-pos $7fffff min swap 23 lshift or ;
