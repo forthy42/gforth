@@ -60,9 +60,8 @@ require string.fs
     decode-pos .sourcepos3 ;
 
 : save-source-filename# ( c-addr1 u1 -- index )
-    \ c-addr1 u1 is a temporary string for a file name, c-addr2 u2 is
-    \ a permanent one.  Reuses strings for the same file names and
-    \ adds them to the included files (not sure if that's a good idea)
+    \ adds a permanent copy of c-addr1 u1 to the included file names,
+    \ returning the index into the included-files
     2dup str>loadfilename# dup 0< if
 	drop add-included-file included-files $[]# 1-
     else
