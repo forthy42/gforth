@@ -351,34 +351,32 @@ MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs			\
 	minos2/android-recorder.fs minos2/ascii.png minos2/button.png	\
 	minos2/button2.png minos2/button3.png
 
-FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC) \
-	$(MINOS2_SRC) ans-report.fs ansi.fs answords.fs \
-	colorize.fs comp-i.fs complex.fs \
-	depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
-	envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs \
-	fsl-util.4th fsl-util.fs glosgen.fs gray.fs httpd.fs install-tags.fs \
-	make-app.fs doc/makedoc.fs locate.fs locate1.fs more.fs onebench.fs fft-bench.fs \
-	other.fs prims2x.fs prims2x0.6.2.fs proxy.fs random.fs \
-	regexp.fs regexp-test.fs sokoban.fs string.fs table.fs tags.fs \
-	tt.fs quotations.fs \
-	unbuffer.fs wordsets.fs 2012words.fs \
-	test/tester.fs test/ttester.fs \
-	test/coretest.fs test/postpone.fs test/dbltest.fs \
-	test/string.fs test/float.fs test/search.fs test/gforth.fs \
-	test/other.fs test/signals.fs test/checkans.fs \
-	test/primtest.fs test/coreext.fs test/deferred.fs \
-	test/coremore.fs test/gforth-nofast.fs test/libcc.fs \
-	test/macros.fs \
-	bubble.fs siev.fs matrix.fs fib.fs \
-	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs \
-	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs user-object.fs \
-	callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs \
-	endtry-iferror.fs recover-endtry.fs smartdots.fs \
-	unix/terminal-server.fs unix/jni-helper.fs unix/jni-tools.fs \
-	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs \
-	unix/gdi.fs unix/user.fs unix/win32.fs \
-	date.fs script.fs wf.fs traceall.fs rec-scope.fs rec-env.fs \
-	notfound.fs utf16.fs archive.fs cilk.fs sections.fs fixfiles.fs
+FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC)			\
+	$(LIBCC_FORTH_SRC) $(MINOS2_SRC) ans-report.fs ansi.fs		\
+	answords.fs colorize.fs comp-i.fs complex.fs depth-changes.fs	\
+	dosekey.fs doskey.fs ds2texi.fs envos.dos envos.os2 etags.fs	\
+	fft.fs filedump.fs fi2c.fs forward.fs fsl-util.4th		\
+	fsl-util.fs glosgen.fs gray.fs httpd.fs install-tags.fs		\
+	make-app.fs doc/makedoc.fs locate.fs locate1.fs more.fs		\
+	onebench.fs fft-bench.fs other.fs prims2x.fs prims2x0.6.2.fs	\
+	proxy.fs random.fs regexp.fs regexp-test.fs sokoban.fs		\
+	string.fs table.fs tags.fs tt.fs quotations.fs unbuffer.fs	\
+	wordsets.fs 2012words.fs test/tester.fs test/ttester.fs		\
+	test/coretest.fs test/postpone.fs test/dbltest.fs		\
+	test/string.fs test/float.fs test/search.fs test/gforth.fs	\
+	test/other.fs test/signals.fs test/checkans.fs			\
+	test/primtest.fs test/coreext.fs test/deferred.fs		\
+	test/coremore.fs test/gforth-nofast.fs test/libcc.fs		\
+	test/macros.fs bubble.fs siev.fs matrix.fs fib.fs oof.fs	\
+	oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs	\
+	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs		\
+	user-object.fs callable.fs add.fs lib.fs oldlib.fs sieve.fs	\
+	list.fs endtry-iferror.fs recover-endtry.fs smartdots.fs	\
+	unix/terminal-server.fs unix/jni-helper.fs unix/jni-tools.fs	\
+	unix/jni-media.fs unix/jni-location.fs unix/sensors.fs		\
+	unix/gdi.fs unix/user.fs unix/win32.fs date.fs script.fs	\
+	wf.fs traceall.fs rec-scope.fs rec-env.fs notfound.fs		\
+	utf16.fs archive.fs cilk.fs sections.fs fixfiles.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \

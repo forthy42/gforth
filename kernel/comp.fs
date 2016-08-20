@@ -153,19 +153,20 @@ Defer check-shadow ( addr u wid -- )
 
 : header, ( c-addr u -- ) \ gforth
     name-too-long?  vt,
-    wlscope >r  2dup r@ check-shadow
+    wlscope >r
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
     dup aligned here + dup maxaligned >align
     view,
     dup cell+ here + dup maxaligned >align
     nlstring,
-    r> 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
+    r@ 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     alias-mask lastflags cset
     next-prelude @ 0<> prelude-mask and lastflags cset
     next-prelude off
-    cfalign ;
+    cfalign
+    last @ name>string r> check-shadow ;
 
 defer record-name ( -- )
 ' noop is record-name
