@@ -359,7 +359,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC) \
 	fsl-util.4th fsl-util.fs glosgen.fs gray.fs httpd.fs install-tags.fs \
 	make-app.fs doc/makedoc.fs locate.fs locate1.fs more.fs onebench.fs fft-bench.fs \
 	other.fs prims2x.fs prims2x0.6.2.fs proxy.fs random.fs \
-	regexp.fs sokoban.fs string.fs table.fs tags.fs \
+	regexp.fs regexp-test.fs sokoban.fs string.fs table.fs tags.fs \
 	tt.fs quotations.fs \
 	unbuffer.fs wordsets.fs 2012words.fs \
 	test/tester.fs test/ttester.fs \
