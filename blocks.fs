@@ -213,7 +213,6 @@ User scr ( -- a-addr ) \ block-ext s-c-r
 	i 2 .r space scr @ block i c/l * chars + c/l type cr
     loop ;
 
-[IFDEF] current-input
 :noname  2 <> -12 and throw >in ! blk ! ;
                               \ restore-input
 :noname  blk @ >in @ 2 ;      \ save-input
@@ -226,29 +225,8 @@ Create block-input   A, A, A, A, A,
 : load  ( i*x u -- j*x ) \ block
     \g Text-interpret block @i{u}.  Block 0 cannot be @code{load}ed.
     dup 0= -35 and throw
-    block-input 0 new-tib dup loadline ! blk !  s" * a block*" loadfilename 2!
+    block-input 0 new-tib dup loadline ! blk !  -3 loadfilename# !
     ['] interpret catch pop-file throw ;
-[ELSE]
-: (source)  ( -- c-addr u )
-  blk @ ?dup
-  IF    block chars/block
-  ELSE  tib #tib @
-  THEN ;
-
-' (source) IS source ( -- c-addr u ) \ core
-\G @i{c-addr} is the address of the input buffer and @i{u} is the
-\G number of characters in it.
-
-: load ( i*x u -- j*x ) \ block
-    \g Text-interpret block @i{u}.  Block 0 cannot be @code{load}ed.
-    dup 0= -35 and throw
-    s" * a block*" loadfilename>r
-    push-file
-    dup loadline ! blk ! >in off ['] interpret catch
-    pop-file
-    r>loadfilename
-    throw ;
-[THEN]
 
 : thru ( i*x n1 n2 -- j*x ) \ block-ext
     \G @code{load} the blocks @i{n1} through @i{n2} in sequence.

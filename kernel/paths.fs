@@ -153,7 +153,7 @@ Variable tfile
     ofile $@ s" ./" string-prefix?
     IF
 	ofile $@ 1 /string tfile $!
-	includefilename $@ extractpath ofile $!
+	sourcefilename extractpath ofile $!
 	\ care of / only if there is a directory
 	ofile $@len IF need/ THEN
 	tfile $@ over c@ pathsep? IF 1 /string THEN

@@ -33,15 +33,15 @@
 
 : $[] ( n addr -- addr' )
     \G index into the string array and return the address at index n
+    \G The array will be resized as needed
     >r
     r@ @ 0= IF  s" " r@ $!  THEN
-    r@ $@ 2 pick cells /string
-    dup cell < IF
+    BEGIN  r@ $@ 2 pick cells /string
+	dup cell < WHILE \ this will be satisfied next round
 	2drop r@ $@len
 	over 1+ cells r@ $!len
 	r@ $@ rot /string 0 fill
-	r@ $@ 2 pick cells /string
-    THEN  drop nip rdrop ;
+    REPEAT  drop nip rdrop ;
 
 : $[]! ( addr u n $[]addr -- )  $[] $! ;
 \G store a string into an array at index @i{n}
@@ -74,7 +74,7 @@ tmp$ $execstr-ptr !
 
 : $exec ( xt addr -- )
     \G execute xt while the standard output (TYPE, EMIT, and everything
-    \G that uses them) is redirected to the string variable addr.
+    \G that uses them) is appended to the string variable addr.
     $execstr-ptr @ op-vector @
     { oldstr oldout }
     try

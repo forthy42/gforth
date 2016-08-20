@@ -111,58 +111,13 @@ AUser errorhandler
 
 AUser "error            0 "error !
 
-has? EC 0= [IF]
-    auser holdbufptr
-    here word-pno-size chars allot dup holdbufptr !
-    word-pno-size chars +
-    : holdbuf ( -- addr ) holdbufptr @ ;
-    : holdbuf-end   holdbuf word-pno-size chars + ;
-    auser holdptr dup holdptr a!
-    auser holdend     holdend a!
-[THEN]
-
-has? new-input [IF]
-\    User current-input
-[ELSE]
-    [IFUNDEF] #tib		\ in ec-Version we may define this ourself
-	User tibstack		\ saves >tib in execute
-	User >tib		\ pointer to terminal input buffer
-	User #tib ( -- a-addr ) \ core-ext number-t-i-b
-	\G @code{User} variable -- @i{a-addr} is the address of a cell containing
-	\G the number of characters in the terminal input buffer.
-	\G OBSOLESCENT: @code{source} superceeds the function of this word.
-	
-	User >in ( -- a-addr ) \ core to-in
-	\G @code{User} variable -- @i{a-addr} is the address of a cell containing the
-	\G char offset from the start of the input buffer to the start of the
-	\G parse area.
-	0 >in ! \ char number currently processed in tib
-    [THEN]
-
-has? file [IF]
- User blk ( -- a-addr ) \ block b-l-k
- \G @code{User} variable -- @i{a-addr} is the address of a cell containing zero
- \G (in which case the input source is not a block and can be identified
- \G by @code{source-id}) or the number of the block currently being
- \G interpreted. A Standard program should not alter @code{blk} directly.
-			0 blk !
-
- User loadfile          0 loadfile !
-
- 2user loadfilename	0 0 loadfilename 2! \ addr u for sourcefilename
-     
- User loadline          \ number of the currently interpreted
-                        \ (in TIB) line if the interpretation
-                        \ is in a textfile
-                        \ the first line is 1
-
-User linestart         \ starting file postition of
-                        \ the current interpreted line (in TIB)
-[THEN]
-[THEN]
-
-user includefilename  0 includefilename ! \ innermost included file
-
+AUser holdbufptr
+here word-pno-size chars allot dup holdbufptr !
+word-pno-size chars +
+: holdbuf ( -- addr ) holdbufptr @ ;
+: holdbuf-end   holdbuf word-pno-size chars + ;
+AUser holdptr dup holdptr a!
+AUser holdend     holdend a!
 
 User base ( -- a-addr ) \ core
 \G @code{User} variable -- @i{a-addr} is the address of a cell that
