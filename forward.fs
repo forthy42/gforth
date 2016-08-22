@@ -17,6 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+\ caveat: forwards don't work with words that use locals!
+
 : forward, ( xt -- )
     >body ['] call peephole-compile, here swap !@ , ;
 

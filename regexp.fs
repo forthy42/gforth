@@ -198,7 +198,7 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
     ]] IF  I' I - 1- drops UNLOOP  true ;S  THEN  LOOP [[
     ]] false ;S JOIN [[ ; immediate
 : ++} ( sys -- ) \ regexp-pattern
-    \G end of greedy zero-or-more pattern
+    \G end of greedy one-or-more pattern
     ]] >last  ;S [[ DONE, ]] drop false ;S  THEN [[
     ]] false  U+DO  FORK BUT [[
     ]] IF  I' I - drops UNLOOP  true ;S  THEN  LOOP [[

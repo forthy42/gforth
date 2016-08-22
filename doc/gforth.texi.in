@@ -7973,12 +7973,12 @@ This example shows how @code{>IN} changes as the text interpreter parses
 the input buffer:
 
 @example
-: remaining >IN @@ SOURCE 2 PICK - -ROT + SWAP
-  CR ." ->" TYPE ." <-" ; IMMEDIATE 
+: remaining source >in @@ /string
+  cr ." ->" type ." <-" ; immediate 
 
 1 2 3 remaining + remaining . 
 
-: foo 1 2 3 remaining SWAP remaining ;
+: foo 1 2 3 remaining swap remaining ;
 @end example
 
 @noindent
@@ -8412,13 +8412,13 @@ Recognizers are organized as stack, so you can arrange the sequence of
 recognizers in the same way as the vocabulary stack.
 
 doc-r:fail
-doc-word-recognizer
-doc-num-recognizer
-doc-fnum-recognizer
-doc-get-recognizer
-doc-set-recognizer
+doc-rec:word
+doc-rec:num
+doc-rec:float
+doc-get-recognizers
+doc-set-recognizers
 doc-do-recognizer
-doc-recognizer:
+doc-recognizer
 
 @c -------------------------------------------------------------
 @node The Input Stream, Word Lists, The Text Interpreter, Words
