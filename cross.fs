@@ -2126,7 +2126,6 @@ X has? f83headerstring [IF]
 : reset-included ( -- )
     [IFDEF] loadfilename#  loadfilename# off  [THEN]
     [IFDEF] current-sourcepos1    included-files $off
-	s" kernel/main.fs" 0 included-files $[]!
     [ELSE] 0 allocate throw 0 included-files 2! [THEN] ;
 : tsourcepos1 ( -- xpos )
     sourcefilename str>loadfilename# sourceline#
