@@ -591,8 +591,7 @@ false DebugFlag showincludedfiles
   IF	cr ." Including: " 2dup type ." ..." THEN
   rot close-file throw
   source-desc >r
-  add-included-file to source-desc 
-  sourcefilename
+  2dup add-included-file to source-desc 
   ['] included catch
   r> to source-desc 
   throw ;
