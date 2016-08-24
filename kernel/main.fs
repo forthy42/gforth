@@ -70,7 +70,6 @@ has? kernel-size
 
 doc-off
 reset-included
-unlock also Forth sourcefilename type cr previous lock
 has? prims [IF]
     include kernel/aliases.fs             \ primitive aliases
 [ELSE]
