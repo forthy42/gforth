@@ -565,6 +565,10 @@ fpath= ~+
 
 \ \ --------------------	include require			13may99jaw
 
+[IFDEF] add-included-file
+    ' add-included-file alias h-add-included-file
+[THEN]
+
 >CROSS
 
 : add-included-file ( adr len -- adr )
@@ -2124,9 +2128,10 @@ X has? f83headerstring [IF]
 	dup T cell+ cfalign# H ht-nlstring, ;
 [THEN]
 : reset-included ( -- )
-    [IFDEF] loadfilename#  loadfilename# off  [THEN]
     [IFDEF] current-sourcepos1    included-files $off
-    [ELSE] 0 allocate throw 0 included-files 2! [THEN] ;
+    [ELSE] 0 allocate throw 0 included-files 2! [THEN]
+    [IFDEF] loadfilename#  loadfilename# off  [THEN]
+    s" kernel/main.fs" h-add-included-file ;
 : tsourcepos1 ( -- xpos )
     sourcefilename str>loadfilename# sourceline#
     input-lexeme 2@ drop source drop -

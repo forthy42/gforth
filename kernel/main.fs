@@ -71,11 +71,11 @@ has? kernel-size
 doc-off
 reset-included
 has? prims [IF]
-    include kernel/aliases.fs             \ primitive aliases
+    include ./aliases.fs             \ primitive aliases
 [ELSE]
     prims-include
     undef-words
-    include kernel/prim.fs
+    include ./prim.fs
     all-words  
 [THEN]
 doc-on
@@ -88,23 +88,23 @@ AConstant image-header
 
 \ 0 AConstant forthstart
 
-\ include kernel/vars.fs                  \ variables and other stuff
-\ include kernel/version.fs          \ is in $(build)/kernel
-include kernel/kernel.fs                  \ kernel
-\ include kernel/errore.fs
-include kernel/doers.fs
+\ include ./vars.fs                  \ variables and other stuff
+\ include ./version.fs          \ is in $(build)/kernel
+include ./kernel.fs                  \ kernel
+\ include ./errore.fs
+include ./doers.fs
 has? file [IF]
-    include kernel/args.fs
-    include kernel/files.fs               \ file words
-    include kernel/paths.fs
-    include kernel/require.fs
+    include ./args.fs
+    include ./files.fs               \ file words
+    include ./paths.fs
+    include ./require.fs
 [THEN]
 
 has? compiler [IF]
     has? glocals [IF]
-        include kernel/cond.fs            \ IF and co.
+        include ./cond.fs            \ IF and co.
     [ELSE]
-        include kernel/cond-old.fs        \ IF and co. withoutlocals
+        include ./cond-old.fs        \ IF and co. withoutlocals
     [THEN]
     \ these two games can be added to provide complex examples for the 4stack
     \ and misc simulators (see arch/4stack/README and arch/misc/README).
@@ -114,17 +114,17 @@ has? compiler [IF]
         include arch/misc/sokoban.fs
     [THEN]
 [THEN]
-include kernel/quotes.fs
+include ./quotes.fs
 has? ec 0= [IF]
-include kernel/toolsext.fs
+include ./toolsext.fs
 [THEN]
-include kernel/tools.fs               \ load tools ( .s dump )
-include kernel/getdoers.fs
-include kernel/copydoers.fs
+include ./tools.fs               \ load tools ( .s dump )
+include ./getdoers.fs
+include ./copydoers.fs
 
 \ Setup                                                13feb93py
 
-include kernel/pass.fs                    \ pass pointers from cross to target
+include ./pass.fs                    \ pass pointers from cross to target
 
 has? header [IF]
     \ set image size

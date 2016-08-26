@@ -968,19 +968,19 @@ extra-install: $(EXTRAS) gforth.fi
 
 kernl32l$(EC).fi-:	$(KERN_DEPS) mach32l.fs preforth
 		-$(CP) kernl32l$(EC).fi kernl32l$(EC).fi~
-		$(PREFORTH) -e 's" mach32l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach32l.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl32l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl32b$(EC).fi-:	$(KERN_DEPS) mach32b.fs preforth
 		-$(CP) kernl32b$(EC).fi kernl32b$(EC).fi~
-		$(PREFORTH) -e 's" mach32b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl32b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach32b.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl32b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64l$(EC).fi-:	$(KERN_DEPS) mach64l.fs preforth
 		-$(CP) kernl64l$(EC).fi kernl64l$(EC).fi~
-		$(PREFORTH) -e 's" mach64l.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach64l.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl64l$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs preforth
 		-$(CP) kernl64b$(EC).fi kernl64b$(EC).fi~
-		$(PREFORTH) -e 's" mach64b.fs"' $(srcdir)/kernel/main.fs -e "save-cross kernl64b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
+		$(PREFORTH) -e 's" mach64b.fs" include $(srcdir)/kernel/main.fs' -e "save-cross kernl64b$(EC).fi- $(bindir)/gforth-$(VERSION) bye"
 
 # Atomic copy, as kernel might be loaded concurrently
 kernl%$(EC).fi:	kernl%$(EC).fi-
@@ -990,7 +990,7 @@ kernl%$(EC).fi:	kernl%$(EC).fi-
 
 #Solaris make does not like that:
 @GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0) preforth @kernel_fi@
-@GNUMAKE@		$(PREFORTH) -e 's" $<"' $(srcdir)/kernel/main.fs -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
+@GNUMAKE@		$(PREFORTH) -e 's" $<" include $(srcdir)/kernel/main.fs' -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
 @GNUMAKE@		if [ -f `echo $< | sed s/fs/sh/` ]; \
 @GNUMAKE@		then sh `echo $< | sed s/fs/sh/` $@; \
 @GNUMAKE@		else $(CP) $@- $@; \
@@ -1262,7 +1262,7 @@ doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) $(EXTRA_DOC)
 		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs except.fs startup.fs $(EXTRA_DOC) -e bye
 
 doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
-		$(FORTHK) -e 's" mach32l.fs"' kernel/main.fs -e bye
+		$(FORTHK) -e 's" mach32l.fs" include kernel/main.fs' -e bye
 
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd preforth @kernel_fi@

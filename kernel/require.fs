@@ -27,7 +27,9 @@ AVariable included-files
     \G loaded.  If the current input source is no (stream) file, the
     \G result is undefined.  In Gforth, the result is valid during the
     \G whole session (but not across @code{savesystem} etc.).
-    loadfilename# @
+    loadfilename# @ included-filename[] ;
+: included-filename[] ( index -- c-addr u ) \ gforth
+    \G convert a file name index to a file name
     dup -3 = IF  drop s" *a block*"           EXIT  THEN
     dup -2 = IF  drop s" *evaluated string*"  EXIT  THEN
     dup 0<   IF  drop s" *the terminal*"      EXIT  THEN
