@@ -2,6 +2,9 @@
 \ test for working across image generation
 \ stuff to run after image generation
 
+\ written by Anton Ertl 1996-1998, 2016
+\ public domain
+
 cr object heap-new print
 
 cr undefined print
