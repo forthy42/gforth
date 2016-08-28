@@ -87,6 +87,12 @@ s" gforth" environment? [if]
     over >r save-mem-dict r> free throw ;
 [then]
 
+[undefined] create-field [if]
+: create-field ( align1 offset1 align size "name" --  align2 offset2 )
+    create swap rot over nalign dup , ( align1 size align offset )
+    rot + >r nalign r> ;
+[then]
+
 \ data structures
 
 struct
