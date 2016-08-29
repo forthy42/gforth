@@ -1,6 +1,6 @@
 forth-package
 key-value name compat
-key-value version 1.0.0
+key-value version 1.1.0
 key-value license public domain
 key-value description Portable (mostly standard) implementations of some Gforth features
 key-list tags Forth-94
