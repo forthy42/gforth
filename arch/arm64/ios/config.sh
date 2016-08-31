@@ -1,5 +1,5 @@
 #configure with
-#./configure --host=aarch64-darwin --with-cross=ios --prefix=/usr --with-ditc=gforth-ditc CC="xcrun -sdk iphoneos clang -arch arm64"
+#./configure --host=aarch64-darwin --with-cross=ios --prefix=/usr --with-ditc=gforth-ditc CC="$(xcrun --sdk iphoneos --find clang) -isysroot $(xcrun --sdk iphoneos --show-sdk-path) -arch arm64"
 #and finally create an apk in this directory
 #./build.sh
 echo "Config for arm64-ios"
