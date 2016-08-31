@@ -29,31 +29,34 @@
 
 : nalign naligned ; \ old name, obsolete
 
-: dofield ( -- )
-does> ( name execution: addr1 -- addr2 )
+[undefined] +field [if]
+: +field ( n1 n2 "name" -- n3 ) \ Forth-2012
+    create over , +	
+  does> ( name execution: addr1 -- addr2 )
     @ + ;
+[then]
 
-: dozerofield ( -- )
-    immediate
-does> ( name execution: -- )
+: 0field ( "name" -- )
+    \ "name" does nothing and compiles nothing (as a field with 0 offset should)
+    create immediate
+  does> ( name execution: -- )
     drop ;
-
-: create-field ( align1 offset1 align size "name" --  align2 offset2 )
-    create swap rot over nalign dup , ( align1 size align offset )
-    rot + >r nalign r> ;
+  
+: opt-+field ( n1 n2 "name" -- n3 )
+    \ like +FIELD, but optimize the n1=0 case
+    over if
+	+field
+    else
+	0field +
+    then ;
 
 : field ( align1 offset1 align size "name" --  align2 offset2 )
     \ name execution: addr1 -- addr2
-    2 pick >r \ this uglyness is just for optimizing with dozerofield
-    create-field
-    r> if \ offset<>0
-	dofield
-    else
-	dozerofield
-    then ;
+    >r tuck naligned r> opt-+field ( align1 align offset2 )
+    >r naligned r> ;
 
 : end-struct ( align size "name" -- )
-    over nalign \ pad size to full alignment
+    over naligned \ pad size to full alignment
     2constant ;
 
 \ an empty struct

@@ -60,6 +60,10 @@ s" gforth" environment? [if]
     dup allocate throw
     swap 2dup r> -rot move ;
 
+: save-mem-dict ( addr1 u -- addr2 u )
+    here swap dup allot ( addr1 addr2 u )
+    2dup 2>r move 2r> ;
+
 : resize ( a-addr1 u -- a-addr2 ior ) \ gforth
     over
     if
@@ -76,6 +80,17 @@ s" gforth" environment? [if]
 
 : \g ( -- )
     postpone \ ; immediate
+[then]
+
+[undefined] heap>dict [if]
+: heap>dict ( addr1 u -- addr2 u )
+    over >r save-mem-dict r> free throw ;
+[then]
+
+[undefined] create-field [if]
+: create-field ( align1 offset1 align size "name" --  align2 offset2 )
+    create swap rot over nalign dup , ( align1 size align offset )
+    rot + >r nalign r> ;
 [then]
 
 \ data structures
@@ -180,7 +195,7 @@ does> ( ... object -- ... )
     + dup @ ( interface-mapp interface-map )
     dup r> =
     if
-	dup @ interface-map 2@ nip save-mem drop	
+	dup @ interface-map 2@ nip save-mem-dict drop	
 	swap !
     else
 	2drop
@@ -220,7 +235,8 @@ variable last-interface-offset 0 last-interface-offset !
 : end-interface-noname ( -- interface ) \ objects- objects
     \g End an interface definition. The resulting interface is
     \g @var{interface}.
-    current-interface @ ;
+    current-interface @
+    dup interface-map dup 2@ heap>dict rot 2! ;
 
 : end-interface ( "name" -- ) \ objects- objects
     \g @code{name} execution: @code{-- interface}@*
@@ -343,7 +359,7 @@ variable public-wordlist
 	r>
     then ( interface offset n )
     drop >r
-    interface-map 2@ save-mem drop ( map )
+    interface-map 2@ save-mem-dict drop ( map )
     current-interface @ dup interface-map 2@ drop
     swap interface-map-offset @ + r> + ! ;
 
