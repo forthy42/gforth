@@ -5,6 +5,7 @@ get-current also opengl definitions
 
 c-library opengles3
     e? os-type s" ios" str= [IF]
+	\c #include <Availability.h>
 	\c #include <OpenGLES/ES3/gl.h>
 	\c #include <OpenGLES/ES3/glext.h>
 

@@ -22,6 +22,7 @@ get-current also opengl definitions
 
 c-library opengles
     e? os-type s" ios" str= [IF]
+	\c #include <Availability.h>
 	\c #include <OpenGLES/ES2/gl.h>
 	\c #include <OpenGLES/ES2/glext.h>
 
