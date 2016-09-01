@@ -2,7 +2,6 @@
 %module gles
 %insert("include")
 %{
-#define __arm64__
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 #ifdef __gnu_linux__
@@ -17,7 +16,6 @@ extern struct _IO_FILE *stderr;
 
 #define SWIG_FORTH_OPTIONS "no-callbacks"
 
-#define __arm64__
 #define GL_APICALL
 #define GL_APIENTRY
 #define __OSX_AVAILABLE_STARTING(x, y)
