@@ -243,7 +243,7 @@ info-color Value setstring-color
 
 : <xins>  ( max span addr pos1 xc -- max span addr pos2 )
     >r  2over r@ xc-size + u< IF  ( max span addr pos1 R:xc )
-	rdrop bell 0  EXIT  THEN
+	rdrop bell  EXIT  THEN
     >string over r@ xc-size + swap move
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
