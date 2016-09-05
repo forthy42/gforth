@@ -819,6 +819,7 @@ AC_SUBST(disasm_fs)
 AC_PATH_PROG(INSTALL_INFO,install-info,[echo '>>>>Please make info dir entry:'],$PATH:/sbin:/usr/sbin:/usr/local/sbin)
 
 RM=rm # usually, rm is called rm
+MV=mv # usually, mv is called mv
 
 case "$host_os" in
 	*ios*)
@@ -881,6 +882,7 @@ case "$host_os" in
 		DEFAULTSYSTEMPREFIX="" #"./${COMSPEC//\\/\\\\\\\\} /c "
 		no_chmod="#"
 		RM='$GFORTH -e ": rm BEGIN  argc @ 1 >  WHILE  next-arg delete-file throw REPEAT ; rm bye"' # on Windows, use Gforth to delete files
+		MV='$GFORTH -e ": mv next-arg next-arg rename-file throw ; mv bye"' # on Windows, use Gforth to move files
 		;;
 	*linux*)
 		DIRSEP="/"
@@ -898,6 +900,7 @@ case "$host_os" in
 esac
 AC_SUBST(no_chmod)
 AC_SUBST(RM)
+AC_SUBST(MV)
 AC_SUBST(DIRSEP)
 AC_DEFINE_UNQUOTED(DIRSEP,'$DIRSEP',[a directory separator character])
 AC_SUBST(PATHSEP)
