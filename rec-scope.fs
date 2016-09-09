@@ -29,7 +29,9 @@
 
 get-recognizers 1+ ' rec:scope -rot set-recognizers
 
-: :wlscope ( addr u -- addr' u' wid )
-    2dup scope-split dup IF  >r 2nip r>  ELSE  drop 2drop defers wlscope  THEN ;
-
-\ activate with ' :wlscope is wlscope
+: in ( "voc" "defining-word" -- )
+    \G execute @var{defining-word} with @var{voc} as one-shot current
+    \G directory. Example: @code{in gui : init-gl ... ;} will define
+    \G @code{init-gl} in the @code{gui} vocabulary.
+    get-current >r also ' execute definitions previous ' execute
+    r> set-current ;
