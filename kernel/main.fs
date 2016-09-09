@@ -90,21 +90,21 @@ AConstant image-header
 
 \ include ./vars.fs                  \ variables and other stuff
 \ include ./version.fs          \ is in $(build)/kernel
-include ./kernel.fs                  \ kernel
+include kernel/kernel.fs                  \ kernel
 \ include ./errore.fs
-include ./doers.fs
+include kernel/doers.fs
 has? file [IF]
-    include ./args.fs
-    include ./files.fs               \ file words
-    include ./paths.fs
-    include ./require.fs
+    include kernel/args.fs
+    include kernel/files.fs               \ file words
+    include kernel/paths.fs
+    include kernel/require.fs
 [THEN]
 
 has? compiler [IF]
     has? glocals [IF]
-        include ./cond.fs            \ IF and co.
+        include kernel/cond.fs            \ IF and co.
     [ELSE]
-        include ./cond-old.fs        \ IF and co. withoutlocals
+        include kernel/cond-old.fs        \ IF and co. withoutlocals
     [THEN]
     \ these two games can be added to provide complex examples for the 4stack
     \ and misc simulators (see arch/4stack/README and arch/misc/README).
@@ -114,17 +114,17 @@ has? compiler [IF]
         include arch/misc/sokoban.fs
     [THEN]
 [THEN]
-include ./quotes.fs
+include kernel/quotes.fs
 has? ec 0= [IF]
-include ./toolsext.fs
+include kernel/toolsext.fs
 [THEN]
-include ./tools.fs               \ load tools ( .s dump )
-include ./getdoers.fs
-include ./copydoers.fs
+include kernel/tools.fs               \ load tools ( .s dump )
+include kernel/getdoers.fs
+include kernel/copydoers.fs
 
 \ Setup                                                13feb93py
 
-include ./pass.fs                    \ pass pointers from cross to target
+include kernel/pass.fs                    \ pass pointers from cross to target
 
 has? header [IF]
     \ set image size
