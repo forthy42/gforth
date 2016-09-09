@@ -106,16 +106,28 @@ true constant search-order-ext
 true constant string
 true constant string-ext
 \ extension queries
+' noop alias X:2value
+' noop alias X:buffer
 ' noop alias X:deferred
 ' noop alias X:defined
 ' noop alias X:ekeys
+' noop alias X:enhanced-locals
+' noop alias X:escaped-strings
 ' noop alias X:extension-query
 ' noop alias X:fp-stack
 ' noop alias X:ftrunc
+' noop alias X:fvalue
+' noop alias X:interprete-espace-s
+' noop alias X:n-to-r
 ' noop alias X:number-prefixes
 ' noop alias X:parse-name
 ' noop alias X:required
+' noop alias X:stoftos
 ' noop alias X:structures
+' noop alias X:substitute
+' noop alias X:synonym
+' noop alias X:throw-iors
+' noop alias X:traverse-wordlist
 ' noop alias X:xchar
 set-current
 

@@ -533,28 +533,24 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in			\
 	engine/dblsub.c engine/fnmatch.h engine/fnmatch.c		\
 	engine/zexpand.c engine/androidmain.c engine/sincos.c
 
-SOURCES	= $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in \
-	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in gforthker.in README.vmgen NEWS.vmgen \
-	autogen.sh configure.ac configure config.sub config.guess \
-	elisp-comp stamp-h.in envos.fs.in kernel/version.fs.in \
-	iss.sh wininst.sh modpath.iss \
-	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS \
-	BUILD-FROM-SCRATCH model \
-	COPYING COPYING.LIB COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4 \
-	doc/Makefile.in doc/gforth.texi.in doc/gforth.1 doc/version.texi.in \
-	doc/vmgen.texi doc/fdl.texi doc/gpl.texi \
-	gforth.el \
-	$(ARCHS) \
-	mkinstalldirs siteinit.fs \
-	versions.bsh \
-	glosgen.glo doc/glossaries.doc \
-	$(INCLUDES) $(FORTH_SRC) $(LIBCC_DIST_SRC) $(LIBCC_GEN_SRC) \
-	$(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
-	timings.sc \
-	test/coretest.out test/checkans.out test/gforth.out \
-	$(wildcard cache*.vmg) peeprules.vmg prim \
-	debian/rules debian/control.in debian/changelog.in debian/compat \
-	gforth.ico .travis.yml install-swig.sh $(SWIG_WRAP)
+SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in		\
+	unix/Makefile.in gforthmi.in gforthmi.sh.in vmgen.in		\
+	preforth.in libforth.in gforthker.in README.vmgen NEWS.vmgen	\
+	autogen.sh configure.ac configure config.sub config.guess	\
+	elisp-comp stamp-h.in envos.fs.in kernel/version.fs.in iss.sh	\
+	wininst.sh modpath.iss install-sh INSTALL INSTALL.BINDIST	\
+	NEWS README ToDo BUGS BUILD-FROM-SCRATCH model COPYING		\
+	COPYING.LIB COPYING.DOC AUTHORS ChangeLog Benchres aclocal.m4	\
+	doc/Makefile.in doc/gforth.texi.in doc/gforth.1			\
+	doc/version.texi.in doc/vmgen.texi doc/fdl.texi doc/gpl.texi	\
+	gforth.el $(ARCHS) mkinstalldirs siteinit.fs versions.bsh	\
+	glosgen.glo doc/glossaries.doc $(INCLUDES) $(FORTH_SRC)		\
+	$(LIBCC_DIST_SRC) $(LIBCC_GEN_SRC) $(COMPAT) $(VMGEN_EX)	\
+	$(VMGEN_EX2) timings.sc test/coretest.out test/checkans.out	\
+	test/gforth.out $(wildcard cache*.vmg) peeprules.vmg prim	\
+	debian/rules debian/control.in debian/changelog.in		\
+	debian/compat gforth.ico .travis.yml install-swig.sh		\
+	$(SWIG_WRAP) m4/ax_gcc_builtin.m4
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen machpc.fs	\
 	envos.fs preforth libforth gforthker engine/Makefile		\
