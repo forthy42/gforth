@@ -19,6 +19,10 @@ wordlist AConstant macros-wordlist
 
 s" ." s" rd" replaces \ in Gforth, "./" prefixes a relative directory
 
+get-order macros-wordlist swap 1+ set-order
+' rd >body $save
+previous
+
 : .% ( -- ) '%' emit ;
 : .substitute ( addr1 len1 -- n / ior )
     \G substitute all macros in text @var{addr1 len1} and print the
