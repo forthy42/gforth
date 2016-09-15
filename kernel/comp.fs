@@ -122,8 +122,6 @@ variable next-prelude
   \G @i{wid} is the identifier of the current compilation word list.
   current @ ;
 
-Defer wlscope ' get-current is wlscope
-
 : str>loadfilename# ( addr u -- n )
     included-files $@ bounds ?do ( addr u )
 	2dup I $@ str= if
@@ -153,7 +151,7 @@ Defer check-shadow ( addr u wid -- )
 
 : header, ( c-addr u -- ) \ gforth
     name-too-long?  vt,
-    wlscope >r
+    get-current >r
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
     dup aligned here + dup maxaligned >align

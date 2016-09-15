@@ -72,27 +72,10 @@ AVariable included-files
     add-included-file  included-files $@ + cell-
     $@ ['] read-loop execute-parsing-named-file ;
 
-Defer >filename ( c-addr1 u1 -- c-addr2 u2 )
-' noop is >filename
 Defer >included ( c-addr1 u1 -- fd c-addr2 u2 wior )
 ' open-fpath-file is >included
-
-: open-file ( c-addr u wfam -- wfileid wior ) \ file
-    \G open the file @var{c-addr u} with access mode @var{wfam}.
-    \G the file name is massaged by open-filename
-    >r >filename r> (open-file) ;
-
-: create-file ( c_addr u wfam -- wfileid wior ) \ file
-    >r >filename r> (create-file) ;
-
-: delete-file ( c_addr u -- wior ) \ file
-    >filename (delete-file) ;
-
-: file-status ( c_addr u -- wfam wior ) \ file
-    >filename (file-status) ;
-
-: rename-file ( c_addr1 u1 c_addr2 u2 -- wior ) \ file-ext
-    >filename 2swap >filename 2swap (rename-file) ;
+Defer >include ( c-addr1 u1 -- c-addr2 u2 )
+' noop is >include
 
 : included ( i*x c-addr u -- j*x ) \ file
     \G @code{include-file} the file whose name is given by the string
@@ -120,11 +103,11 @@ Defer >included ( c-addr1 u1 -- fd c-addr2 u2 wior )
 
 : include  ( ... "file" -- ... ) \ gforth
     \G @code{include-file} the file @var{file}.
-    name included ;
+    parse-name >include included ;
 
 : require  ( ... "file" -- ... ) \ gforth
     \G @code{include-file} @var{file} only if it is not included already.
-    name required ;
+    parse-name >include required ;
 
 \ : \I
 \   here 

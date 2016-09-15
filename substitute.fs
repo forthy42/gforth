@@ -4,10 +4,6 @@ require string.fs
 
 wordlist AConstant macros-wordlist
 
-get-current macros-wordlist set-current
-: idir ( -- addr u ) sourcefilename extractpath ;
-set-current
-
 : macro: ( addr u -- ) Create here 0 , $! DOES> $@ ;
 
 : replaces ( addr1 len1 addr2 len2 -- )
@@ -20,6 +16,12 @@ set-current
 	['] macro: execute-parsing
 	r> set-current
     THEN ;
+
+s" ." s" rd" replaces \ in Gforth, "./" prefixes a relative directory
+
+get-order macros-wordlist swap 1+ set-order
+' rd >body $save
+previous
 
 : .% ( -- ) '%' emit ;
 : .substitute ( addr1 len1 -- n / ior )
@@ -80,11 +82,7 @@ set-current
 : $unescape ( addr1 u1 -- addr2 u2 )
     [: bounds ?DO  I c@ dup emit '%' = IF '%' emit  THEN  LOOP ;] $tmp ;
 
-\ file name replacements
+\ file name replacements in include and require
 
 : subst>filename ['] .substitute $tmp rot 0 min throw ;
-' subst>filename is >filename
-
-: open-subst-fpath-file ( addr u -- fd addr2 u2 ior )
-    subst>filename open-fpath-file ;
-' open-subst-fpath-file is >included
+' subst>filename is >include
