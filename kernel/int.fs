@@ -957,7 +957,7 @@ has? new-input 0= [IF]
 	next-task @ 0= IF
 	    throw-entry main-task udp @ throw-entry next-task -
 	    /string >r swap r> move
-	    next-task dup next-task 2!  normal-dp dpp !
+	    next-task dup next-task 2!  reset-dpp
 	THEN
     THEN
 [ [THEN] ]
