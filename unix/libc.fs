@@ -87,9 +87,9 @@ $004 Constant POLLOUT
 : fds!+ ( fileno flag addr -- addr' )
     >r r@ events w!  r@ fd l!  r> pollfd + ; 
 
-: ?ior ( r -- )
+: ?ior ( x -- )
     \G use errno to generate throw when failing
-    0< IF  errno ?dup-IF  -512 swap - throw  THEN  THEN ;
+    -1 = IF  errno ?dup-IF  -512 swap - throw  THEN  THEN ;
 
 : fd>file ( fd -- file )  s" w+" fdopen ;
 
