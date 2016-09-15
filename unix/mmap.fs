@@ -29,7 +29,7 @@ c-library mmap
 
     c-function mlock mlock a n -- n ( addr len -- r )
     c-function munlock munlock a n -- n ( addr len -- r )
-
+    c-function msync msync a n n -- n ( vaddr len flags -- res )
 e? os-type s" linux" string-prefix? [IF]
     c-function mremap mremap a n n n -- a ( addr len newlen flags -- addr' )
     e? os-type s" linux-gnu" string-prefix? [IF]
@@ -55,6 +55,10 @@ $01 Constant MAP_SHARED		\ Share changes.
 $02 Constant MAP_PRIVATE		\ Changes are private. 
 $10 Constant MAP_FIXED		\ Interpret addr exactly.
 -1  Constant MAP_FAILED \ [MF|SHM] mmap failed
+
+1 Constant MS_ASYNC
+2 Constant MS_INVALIDATE
+4 Constant MS_SYNC
 
 s" os-type" environment? [IF]
     s" linux" string-prefix? [IF]
@@ -141,8 +145,7 @@ s" os-type" environment? [IF]
 : alloc+guard ( len -- addr )
     >pagealign dup >r pagesize +
     0 swap PROT_RWX
-    [ MAP_PRIVATE MAP_ANONYMOUS or ]L -1 0 mmap
-    dup MAP_FAILED = ?ior
+    [ MAP_PRIVATE MAP_ANONYMOUS or ]L -1 0 mmap ?ior
     dup r> + pagesize PROT_NONE mprotect ?ior ;
 : alloc+lock ( len -- addr )
     >pagealign dup >r alloc+guard dup r> mlock ?ior ;
@@ -154,3 +157,13 @@ s" os-type" environment? [IF]
     2dup munmap ?ior
     PROT_RWX
     [ MAP_PRIVATE MAP_ANONYMOUS or MAP_FIXED or ]L -1 0 mmap 0= ?ior ;
+
+: map-fid ( fid -- addr u )
+    >r r@ file-size throw d>s 0 over PROT_RW MAP_SHARED r> fileno 0 mmap
+    dup ?ior swap ;
+
+: map-file ( addr1 u1 fam -- addr2 u2 )
+    open-file throw dup >r ['] map-fid catch
+    dup IF  r@ close-file throw  THEN  rdrop throw ;
+
+: unmap ( addr u -- )  munmap ?ior ;

@@ -10,18 +10,19 @@ wordlist AConstant macros-wordlist
     \G create a macro with name @var{addr2 len2} and content @var{addr1 len1}.
     \G if the macro already exists, just change the content.
     2dup macros-wordlist search-wordlist
-    IF  nip nip >body $!
+    IF
+	nip nip dup @ dodoes: = IF  >body $!
+	ELSE  true [: .name ." is a hard-coded macro" cr ;] ?warning  2drop
+	THEN
     ELSE
 	get-current >r macros-wordlist set-current
 	['] macro: execute-parsing
 	r> set-current
     THEN ;
 
-s" ." s" rd" replaces \ in Gforth, "./" prefixes a relative directory
-
-get-order macros-wordlist swap 1+ set-order
-' rd >body $save
-previous
+get-current macros-wordlist set-current
+: rd ( -- addr u ) sourcefilename extractpath ;
+set-current
 
 : .% ( -- ) '%' emit ;
 : .substitute ( addr1 len1 -- n / ior )
