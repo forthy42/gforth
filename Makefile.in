@@ -489,7 +489,14 @@ ARCHS =	\
 	arch/lm32/mach.sh \
 	arch/lm32/prim.fs \
 	arch/lm32/Makefile \
-	arch/lm32/testasm.disas-ok
+	arch/lm32/testasm.disas-ok \
+	engine/arm64-cacheflush.c \
+	engine/arm-cacheflush0.c \
+	engine/arm-cacheflush-linux.c \
+	engine/hppa-cache.c \
+	engine/ia64-flush_icache_block.c \
+	engine/mips_check_prim.c \
+	engine/power_sync_cache_range.c
 
 #not included in distribution until distribution terms are included:
 ARCHS_NO_DIST = \
@@ -1000,11 +1007,11 @@ gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
 
 # -------------	Make c-engine
 
-prim.b:		prim cache0.vmg Makefile preforth
+prim.b:		prim cache0.vmg Makefile.in preforth.in
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=0 prim) >$@
 #		sleep 1 #should make hpux-workaround unnecessary
 
-prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile preforth gforth gforth.fi
+prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile.in preforth.in gforth gforth.fi
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@
 #		sleep 1 #should make hpux-workaround unnecessary
 
@@ -1069,12 +1076,12 @@ engine/prim_num-fast.i:	prim-fast.b prims2x.fs
 engine/prim-s.i: engine/prim.i
 		grep -v '^#line ' $(srcdir)/engine/prim.i >$@
 
-kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs preforth
+kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs preforth.in
 		$(CP) $(srcdir)/kernel/aliases0.fs $@-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-alias ' noop process-file bye" >>$@-
 		$(MV) $@- $@
 
-kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs preforth
+kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs preforth.in
 		$(CP) $(srcdir)/kernel/prim0.fs kernel/prim.fs-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
 		$(MV) $@- $@
