@@ -62,6 +62,7 @@ ChangesEnvironment=yes
 OutputBaseFilename=gforth$SF-$VERSION
 AppPublisher=Free Software Foundation, Gforth team
 AppPublisherURL=http://bernd-paysan.de/gforth.html
+SignTool=signtool sign /tr http://timestamp.comodoca.com/authenticode /td SHA256 \$f
 
 [Messages]
 WizardInfoBefore=License Agreement
