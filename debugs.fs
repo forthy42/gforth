@@ -216,7 +216,6 @@ require string.fs
     [: ." vi -t '" parse-name esc'type ." '" ;] $tmp system ;
 
 Variable locate-file[]
-Variable locate-pos
 
 : type-prefix ( c-addr1 u1 u -- c-addr2 u2 )
     \ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
@@ -247,18 +246,18 @@ Variable locate-pos
 : view-name {: nt -- :}
     locate-file[] $[]off
     warn-color attr!  nt name>view @ dup cr .sourcepos1  default-color attr!
-    dup locate-pos ! nt name>string nip dup located-len ! show-pos1 ;
+    dup located-xpos ! nt name>string nip dup located-len ! show-pos1 ;
 
 : +locate-lines ( n -- pos )
-    >r locate-pos @ decode-pos1 swap r> + 0 max
+    >r located-xpos @ decode-pos1 swap r> + 0 max
     locate-file[] $[]# 1- min swap encode-pos1 ;
 
 : n ( -- )
     before-locate after-locate + 2 +
-    +locate-lines dup locate-pos ! scroll-pos1 ;
+    +locate-lines dup located-xpos ! scroll-pos1 ;
 : b ( -- )
     before-locate after-locate + 2 + negate
-    +locate-lines dup locate-pos ! scroll-pos1 ;
+    +locate-lines dup located-xpos ! scroll-pos1 ;
 : l ( -- )
     warn-color attr!  located-xpos @ dup cr .sourcepos1  default-color attr!
     located-len @ show-pos1 ;
@@ -285,10 +284,10 @@ Variable locate-pos
     ''' emit loadfilename#>str esc'type ''' emit  2rdrop ;
 
 : g ( -- )
-    locate-pos @ ['] editor-cmd $tmp system ;
+    located-xpos @ ['] editor-cmd $tmp system ;
 
 : external-edit ( "name" )
-    (') name>view @ locate-pos ! g ;
+    (') name>view @ located-xpos ! g ;
 
 Defer edit ( "name" -- ) \ gforth
 ' external-edit IS edit
