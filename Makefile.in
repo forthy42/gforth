@@ -867,8 +867,9 @@ installdirs-indep: 	mkinstalldirs
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
 		$(NORMAL_UNINSTALL)
-		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(bindir)/gforth-$(VERSION)$(EXT) $(bindir)/gforth-fast-$(VERSION)$(EXT) $(bindir)/gforth-itc-$(VERSION)$(EXT) $(bindir)/gforthmi-$(VERSION) $(bindir)/vmgen-$(VERSION) $(includedir)/gforth/$(VERSION)/$(machine)
-		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(bindir)/gforth$(EXT) $(bindir)/gforth-fast$(EXT) $(bindir)/gforth-itc$(EXT) $(bindir)/gforthmi $(bindir)/vmgen $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
+		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(includedir)/gforth/$(VERSION)/$(machine)
+		-for i in "$(EXT)" -$(VERSION)$(EXT) -$(ARCH)$(EXT) -$(VERSION)-$(ARCH)$(EXT); do $(RM) $(bindir)/gforth-$$i $(bindir)/gforth-fast-$$i $(bindir)/gforth-itc-$$i $(bindir)/gforthmi-$$i $(bindir)/vmgen-$$i; done
+		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
 
 # Extra dependency for libraries that use libc
 $(buildccdir)/libgfmmap.la: $(buildccdir)/libgflibc.la

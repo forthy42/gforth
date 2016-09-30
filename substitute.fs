@@ -67,7 +67,7 @@ set-current
     \G substitutions or, if negative, a throwable @var{ior},
     \G @var{addr2 len3} the result.
     2>r $substitute over r@ u<= -78 swap select -rot
-    2r> rot umin 2dup 2>r move 2r> rot -1 tmp$# +! drop  ;
+    2r> rot umin 2dup 2>r move 2r> rot -1 tmp$# +!  ;
 
 : unescape ( addr1 u1 dest -- dest u2 )
     \G double all delimiters in @var{addr1 u1}, so that substitute
