@@ -146,25 +146,40 @@ VARIABLE Unnest
 
 s" debugger aborted" exception Constant end-debug#
 
+\ 20161003 - BEGIN WBZ modifications.
+
+: dbg-help      ( -- )
+    cr
+    cr ." Enter/Space - Single step."
+    cr ." A - Address dump at TOS."
+    cr ." B - Byte dump string at TOS."
+    cr ." C - Continuous tracing. (Same as U.)"
+    cr ." D - Stop debugging and continue execution."
+    cr ." N - Nest into the current word."
+    cr ." S - Stop debugging and abort."
+    cr ." U - Unnest and continue tracing."
+    cr cr ;
+
 : D-KEY         ( -- flag )
-        BEGIN
-                Unnest @ IF 0 ELSE key THEN
-                CASE    [char] n OF     dbg-ip @ @ nestXT EXIT ENDOF
-                        [char] s OF     Leave-D
-                                        end-debug# THROW ENDOF
-                        [char] a OF     Leave-D
-                                        end-debug# THROW ENDOF
-                        [char] d OF     Leave-D
-                                        cr ." Done..." cr
-                                        Nesting off
-                                        r> drop dbg-ip @ >r
-                                        EXIT ENDOF
-                        [char] ? OF     cr ." Nest Stop Done Unnest" cr
-                                        ENDOF
-                        [char] u OF     Unnest on true EXIT ENDOF
-                        drop true EXIT
-                ENDCASE
-        AGAIN ;
+    BEGIN
+      Unnest @ IF 0 ELSE key THEN
+      CASE
+        [char] a OF     dup 256 cr dump cr ENDOF
+        [char] b OF     2dup cr dump cr ENDOF
+        [char] c OF     Unnest on true EXIT ENDOF
+        [char] d OF     Leave-D cr ." Done..." cr
+                        Nesting off
+                        r> drop dbg-ip @ >r
+                        EXIT ENDOF
+        [char] n OF     dbg-ip @ @ nestXT EXIT ENDOF
+        [char] s OF     Leave-D end-debug# THROW ENDOF
+        [char] u OF     Unnest on true EXIT ENDOF
+        [char] ? OF     dbg-help ENDOF
+        ( Default)      drop true EXIT
+      ENDCASE
+    AGAIN ;
+
+\ 20161003 - END WBZ modifications.
 
 : (_debug) ( body ip -- )
         0 Nesting !

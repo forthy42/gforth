@@ -27,7 +27,7 @@
 : (ret) ( max span addr pos1 -- max span addr pos2 flag )
     true space ;
 
-Create ctrlkeys
+Create std-ctrlkeys
     ' false a, ' false a, ' false a, ' false a, 
     ' false a, ' false a, ' false a, ' false a,
 
@@ -39,6 +39,7 @@ Create ctrlkeys
 
     ' false a, ' false a, ' false a, ' false a, 
     ' false a, ' false a, ' false a, ' false a,
+std-ctrlkeys AValue ctrlkeys
 
 defer insert-char
 ' (ins) IS insert-char

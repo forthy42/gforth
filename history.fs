@@ -360,31 +360,22 @@ Defer paste!
     dup >r r@ - over r@ + -rot move
     swap r> - swap r> .redraw 0 ;
 
+Create xchar-ctrlkeys ( -- )
+    ' false        , ' setcur       , ' xback        , ' false        ,
+    ' xeof         , ' xend-pos     , ' xforw        , ' false        ,
+    ' ?xdel        , ' xtab-expand  , ' (xenter)     , ' xclear-rest  ,
+    ' xretype      , ' (xenter)     , ' next-line    , ' false        ,
+
+    ' prev-line    , ' false        , ' false        , ' setsel       ,
+    ' xtranspose   , ' xclear-first , ' false        , ' false        ,
+    ' <xdel>       , ' xpaste       , ' xhide        , ' false        ,
+    ' false        , ' false        , ' false        , ' false        ,
+
 : xchar-history ( -- )
-    ['] setcur       ctrl A bindkey
-    ['] xback        ctrl B bindkey
-    ['] xeof         ctrl D bindkey
-    ['] xend-pos     ctrl E bindkey
-    ['] xforw        ctrl F bindkey
-    ['] ?xdel        ctrl H bindkey
-    ['] xtab-expand  #tab   bindkey \ ctrl I
-    ['] (xenter)     #lf    bindkey \ ctrl J
-    ['] xclear-rest  ctrl K bindkey
-    ['] xretype      ctrl L bindkey
-    ['] (xenter)     #cr    bindkey \ ctrl M
-    ['] next-line    ctrl N bindkey
-    ['] prev-line    ctrl P bindkey
-    ['] setsel       ctrl S bindkey
-    ['] xtranspose   ctrl T bindkey
-    ['] xclear-first ctrl U bindkey
-    ['] <xdel>       ctrl X bindkey
-    ['] xpaste       ctrl Y bindkey
-    ['] xhide        ctrl Z bindkey \ press ctrl-L to reshow
-    ['] (xins)       IS insert-char
-    ['] kill-prefix  IS everychar
-[ifdef] everyline
+    xchar-ctrlkeys to ctrlkeys
+    ['] (xins)        IS insert-char
+    ['] kill-prefix   IS everychar
     ['] linew-off     IS everyline
-[endif]
     ['] xback-restore IS back-restore
     ['] xcur-correct  IS cur-correct
 ;
