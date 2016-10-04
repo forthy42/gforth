@@ -256,7 +256,7 @@ Defer char@ ( addr u -- char addr' u' )
 
 \ \ threading							17mar93py
 
-' noop Alias recurse
+' noop Alias recurse compile-only
 \g Call the current definition.
 unlock tlastcfa @ lock AConstant lastcfa
 \ this is the alias pointer in the recurse header, named lastcfa.
