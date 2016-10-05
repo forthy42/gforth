@@ -553,13 +553,11 @@ previous
 : n>r ( x1 .. xn n -- r:xn..x1 r:n )
     scope r> { n ret }
     0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
-    ret >r endscope [ unlocal-state off ] ;
-' :, set-compiler  docol: latestxt code-address!
+    ret >r endscope ;
 : nr> ( r:xn..x1 r:n -- x1 .. xn n )
     scope r> r> { ret n }
     0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
-    ret >r endscope [ unlocal-state off ] ;
-' :, set-compiler  docol: latestxt code-address!
+    ret >r endscope ;
 
 \ x:traverse-wordlist words
 

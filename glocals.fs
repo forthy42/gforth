@@ -118,18 +118,20 @@ User locals-size \ this is the current size of the locals stack
     \g sets locals-size to n and generates an appropriate lp+!
     locals-size @ swap - compile-lp+! ;
 
-: >docolloc ( -- )
-    \g turn colon definition into lp restoring trampoline
-    latestxt @ docol: <> ?EXIT \ !! delete this
-    docolloc: latestxt code-address!
-    ['] :loc, set-compiler
-    1 unlocal-state cset ;
+\ : >docolloc ( -- )
+\    \g turn colon definition into lp restoring trampoline
+\    latestxt @ docol: <> ?EXIT \ !! delete this
+\    docolloc: latestxt code-address!
+\    ['] :loc, set-compiler
+\    1 unlocal-state cset ;
 
 \ change EXIT's compilation action
 \ beware: because we need EXIT at the end of the definition, it can't
 \ be done with opt: ... ;
-:noname unlocal-state @ 1 = if
-	postpone (unlocal) then
+:noname \ unlocal-state @ 1 = if
+	\ postpone (unlocal)
+    \ then
+    0 adjust-locals-size
     peephole-compile, ;
 ' exit make-latest set-optimizer
 
@@ -475,9 +477,9 @@ new-locals-map mappedwordlist Constant new-locals-wl
 \ new-locals-map ' new-locals >body wordlist-map A! \ !! use special access words
 
 \ and now, finally, the user interface words
-: { ( -- vtaddr u latestxt wid 0 ) \ gforth open-brace
-    >docolloc vtsave \ as locals will mess with their own vttemplate
-    latestxt get-current
+: { ( -- vtaddr u latest latestxt wid 0 ) \ gforth open-brace
+    ( >docolloc ) vtsave \ as locals will mess with their own vttemplate
+    latest latestxt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
     val-part off
@@ -488,7 +490,7 @@ synonym {: {
 
 locals-types definitions
 
-: } ( vtaddr u latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
+: } ( vtaddr u latest latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
     \ ends locals definitions
     ]
     begin
@@ -499,13 +501,13 @@ locals-types definitions
     drop vt,
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
     previous previous
-    set-current lastcfa !
+    set-current lastcfa ! last !
     vtrestore
     locals-list 0 wordlist-id - TO locals-wordlist ;
 
 synonym :} }
 
-: -- ( vtaddr u latestxt wid 0 ... -- ) \ gforth dash-dash
+: -- ( vtaddr u latest latestxt wid 0 ... -- ) \ gforth dash-dash
     }
     BEGIN  [char] } parse dup WHILE
         + 1- c@ dup bl = swap ':' = or  UNTIL
@@ -718,8 +720,8 @@ is free-old-local-names
 
 ' locals-:-hook IS :-hook
 ' locals-;-hook IS ;-hook
-[ifdef] 0-adjust-locals-size
-    :noname 0 adjust-locals-size ; is 0-adjust-locals-size
+[ifdef] unlocal
+    :noname 0 adjust-locals-size ; is unlocal
 [then]
 [ifdef] colon-sys-xt-offset
 colon-sys-xt-offset 3 + to colon-sys-xt-offset

@@ -278,26 +278,6 @@ debugp(stderr, "dodoes to %x, push %x\n", a_retaddr, a_body);
 SET_IP(EXTRA_CODE(CFA));
 #endif /* !defined(NO_IP) */
 
-(docolloc) ( -- R:a_retaddr R:a_lp R:a_trampoline ) gforth-internal paren_docolloc
-""Call a word with locals and create a trampoline to restore the LP at EXIT""
-a_trampoline = &trampoline;
-a_lp = (Cell*)lp;
-#ifdef DEBUG
-    {
-      CFA_TO_NAME(CFA);
-      debugp(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)CFA,
-	     len,name);
-    }
-#endif
-#ifdef NO_IP
-a_retaddr = next_code;
-INST_TAIL;
-JUMP(PFA(CFA));
-#else /* !defined(NO_IP) */
-a_retaddr = (Cell *)IP;
-SET_IP((Xt *)PFA(CFA));
-#endif /* !defined(NO_IP) */
-
 (dodoesxt) ( -- a_body )  gforth-internal       paren_dodoesxt
 a_body = PFA(CFA);
 #ifndef NO_IP
@@ -2250,21 +2230,20 @@ and return @i{ior}=0, @i{flag}=true and @i{u2} equal to the size of the file nam
 If the length of the file name is greater than @i{u1}, 
 store first @i{u1} characters from file name into the buffer and
 indicate "name too long" with @i{ior}, @i{flag}=true, and @i{u2}=@i{u1}.""
-struct dirent dent;
 struct dirent * dresult;
-readdir_r((DIR *)wdirid, &dent, &dresult);
+dresult=readdir((DIR *)wdirid);
 wior = 0;
 flag = -1;
 if(dresult == NULL) {
   u2 = 0;
   flag = 0;
 } else {
-  u2 = strlen((char *)dent.d_name);
+  u2 = strlen((char *)dresult->d_name);
   if(u2 > u1) {
     u2 = u1;
     wior = -512-ENAMETOOLONG;
   }
-  memmove(c_addr, dent.d_name, u2);
+  memmove(c_addr, dresult->d_name, u2);
 }
 
 close-dir	( wdirid -- wior )	gforth	close_dir
@@ -3406,29 +3385,6 @@ goto *(void *)a_retaddr;
 #else
 SET_IP((Xt *)a_retaddr);
 #endif
-
-call-loc ( #a_callee -- R:a_retaddr R:a_lp R:a_trampoline )	new	call_loc
-""Call a word with locals and create a trampoline to restore the LP at EXIT""
-a_trampoline = &trampoline;
-a_lp = (Cell*)lp;
-#ifdef NO_IP
-assert(0);
-INST_TAIL;
-JUMP(a_callee);
-#else
-#ifdef DEBUG
-    {
-      CFA_TO_NAME((((Cell *)a_callee)-2));
-      debugp(stderr,"%08lx: call %08lx %.*s\n",(Cell)ip,(Cell)a_callee,
-	     len,name);
-    }
-#endif
-a_retaddr = (Cell *)IP;
-SET_IP((Xt *)a_callee);
-#endif
-
-(unlocal)	( R:a_lp R:w -- )	gforth-internal	paren_unlocal
-lp = (Address)a_lp;
 
 \+
 

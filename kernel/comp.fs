@@ -256,8 +256,9 @@ Defer char@ ( addr u -- char addr' u' )
 
 \ \ threading							17mar93py
 
-' noop Alias recurse compile-only
-\g Call the current definition.
+' noop Alias recurse
+\g Alias to the current definition.
+
 unlock tlastcfa @ lock AConstant lastcfa
 \ this is the alias pointer in the recurse header, named lastcfa.
 \ changing lastcfa now changes where recurse aliases to
@@ -512,9 +513,9 @@ extra>-dummy (doextra-dummy)
     THEN
     latestxt extra-code! ;
 
-\ call with locals
+\ call with locals - unused
 
-docolloc-dummy (docolloc-dummy)
+\ docolloc-dummy (docolloc-dummy)
 
 \ comp: to define compile, action
 
@@ -633,9 +634,13 @@ comp: ( value-xt to-xt -- )
 defer :-hook ( sys1 -- sys2 )
 defer free-old-local-names ( -- )
 defer ;-hook ( sys2 -- sys1 )
-defer 0-adjust-locals-size ( -- )
+defer unlocal ( l:locals -- ) immediate  ' noop is unlocal
+\G Remove locals information from locals stack.  You need this when
+\G you wrie a word that is e.g. exited by ['] EXIT EXECUTE or by RDROP
+\G from the called word.
+
 1 value colon-sys-xt-offset
-\ you get get the xt in a colon-sys with COLON-SYS-XT-OFFSET PICK
+\g you get the xt in a colon-sys with COLON-SYS-XT-OFFSET PICK
 
 0 Constant defstart
 : colon-sys ( -- colon-sys )
@@ -650,7 +655,7 @@ defer 0-adjust-locals-size ( -- )
 : (noname->comp) ( nt -- nt xt )  ['] compile, ;
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
-    docol, colon-sys ] :-hook unlocal-state off ;
+    docol, colon-sys ] :-hook ( unlocal-state off ) ;
 
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names

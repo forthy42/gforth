@@ -32,7 +32,7 @@
 : does, ['] does-exec peephole-compile, , ;
 : umethod, >body cell+ 2@ ['] u#exec peephole-compile, , , ;
 : uvar, >body cell+ 2@ ['] u#+ peephole-compile, , , ;
-: :loc, >body ['] call-loc peephole-compile, , ;
+\ : :loc, >body ['] call-loc peephole-compile, , ;
 
 : (uv!) ( xt addr -- ) 2@ next-task + @ cell- @ swap cells + ! ;
 : umethod! ( xt xt-method -- )

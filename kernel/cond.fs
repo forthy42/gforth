@@ -317,21 +317,6 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
 Defer exit-like ( -- )
 ' noop IS exit-like
 
-\ exit optimization: when there is locals-stuff on the return stack,
-\ (UNLOCAL) ;S is faster than ;S and also correct, but you must not
-\ insert (UNLOCAL) before ;S if there is no locals-stuff on the return
-\ stack.  If there is an UNLOCAL explicitly in the word, we do not
-\ insert (UNLOCAL) in front of any further EXITs.
-
-variable unlocal-state \ 0: no locals, 1: locals, but no unlocal, >1: unlocal
-
-: unlocal ( run-time old-lp nest-sys -- ) \ gforth
-    \G Remove locals information from return and locals stack.  You
-    \G use this for writing a return-address manipulating word; you
-    \G call this right before removing a nest-sys (return address) of
-    \G a word that contains locals.
-    postpone (unlocal) 2 unlocal-state cset ; immediate compile-only
-
 ' ;s @ $8000 xor #primitive exit ( compilation -- ; run-time nest-sys -- ) \ core
 \G Return to the calling definition; usually used as a way of
 \G forcing an early return from a definition. Before
@@ -360,9 +345,9 @@ defer adjust-locals-list ( wid -- )
  
 \ quotations
 : wrap@ ( -- wrap-sys )
-    vtsave last @ lastcfa @ leave-sp @ locals-wordlist unlocal-state @ ;
+    vtsave last @ lastcfa @ leave-sp @ locals-wordlist ( unlocal-state @ ) ;
 : wrap! ( wrap-sys -- )
-    unlocal-state ! to locals-wordlist leave-sp ! lastcfa ! last ! vtrestore ;
+    ( unlocal-state ! ) to locals-wordlist leave-sp ! lastcfa ! last ! vtrestore ;
 
 : int-[: ( -- flag colon-sys )
     wrap@ false :noname ;

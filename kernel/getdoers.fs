@@ -92,8 +92,3 @@ doer? :doextra [IF]
 : doextra: ( -- addr )
     ['] (doextra-dummy) >code-address ;
 [THEN]
-
-doer? :docolloc [IF]
-    : docolloc: ( -- addr )
-	['] (docolloc-dummy) >code-address ;
-[THEN]

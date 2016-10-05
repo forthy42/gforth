@@ -118,9 +118,8 @@ extern void* (*realloc_l)(void* addr, size_t size);
 #define DOABICODE	8
 #define DOSEMIABICODE   9
 #define DOEXTRA	10
-#define DOCOLLOC 11
-#define DODOESXT 12
-#define DOER_MAX        12
+#define DODOESXT 11
+#define DOER_MAX        11
 
 #include "machine.h"
 

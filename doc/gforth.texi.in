@@ -291,6 +291,7 @@ Defining Words
 * Supplying names::             Passing definition names as strings
 * User-defined Defining Words::
 * Deferred Words::              Allow forward references
+* Forward::                     Auto-resolved forward references
 * Aliases::
 
 User-defined Defining Words
@@ -6227,6 +6228,7 @@ Defining words are used to extend Forth by creating new entries in the dictionar
 * Supplying names::             Passing definition names as strings
 * User-defined Defining Words::
 * Deferred Words::              Allow forward references
+* Forward::                     Auto-resolved forward references
 * Aliases::
 @end menu
 
@@ -7096,7 +7098,7 @@ An ANS Forth implementation of @code{const-does>} is available in
 @file{compat/const-does.fs}.
 
 
-@node Deferred Words, Aliases, User-defined Defining Words, Defining Words
+@node Deferred Words, Forward, User-defined Defining Words, Defining Words
 @subsection Deferred Words
 @cindex deferred words
 
@@ -7202,8 +7204,18 @@ doc-defers
 Definitions of these words (except @code{defers}) in ANS Forth are
 provided in @file{compat/defer.fs}.
 
+@node Forward, Aliases, Deferred Words, Defining Words
+@subsection Forward
 
-@node Aliases,  , Deferred Words, Defining Words
+The defining word @code{Forward} in @code{forward.fs} allows you to
+create forward references, which are resolved automatically, and do
+not incur additional costs like the indirection of @code{Defer}.
+However, these forward definitions only work for colon definitions.
+
+doc-forward
+doc-.unresolved
+
+@node Aliases,  , Forward, Defining Words
 @subsection Aliases
 @cindex aliases
 
