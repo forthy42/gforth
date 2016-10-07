@@ -1125,6 +1125,7 @@ if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP
 fi
+AC_CHECK_LIB(dl,dlopen)
 AC_REPLACE_FUNCS(memmove strtoul pow10 sincos strerror strsignal atanh)
 AC_FUNC_FSEEKO
 AC_CHECK_FUNCS(ftello dlopen sys_siglist getrusage nanosleep clock_gettime)
