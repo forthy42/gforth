@@ -17,6 +17,7 @@ install_osx() {
   brew update > /dev/null
   brew install yodl
   brew install gforth
+  brew install gcc
 }
 
 install_${TRAVIS_OS_NAME:-linux}
