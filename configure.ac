@@ -31,6 +31,8 @@ AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
 LT_INIT([disable-static])
+LT_CONFIG_LTDL_DIR([libltdl])
+LTDL_INIT
 
 #remnants from having ltdl as convenience library
 LTDLDEPS=""
