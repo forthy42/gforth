@@ -283,7 +283,8 @@ here wc-table - Constant #wc-table
     
 : u8width ( xcaddr u -- n )
     0 rot rot bounds ?DO
-        I xc@+ swap >r xc-width +
+	I xc@+ swap >r
+	dup #tab = IF  drop 1+ dfaligned  ELSE  xc-width +  THEN
     r> I - +LOOP ;
 
 here
