@@ -37,27 +37,30 @@ variable  >string-len    \ actual string length
 : >string-emit { c^ c -- }
     c 1 >string-type ;
 
+: >string-cr ( -- )  newline >string-type ;
+1 -1 1 rshift 2Constant >string-form
+
+' >string-type ' >string-emit ' >string-cr ' >string-form output: >string-out
+
 : >string-execute ( ... xt -- ... addr u )
     \G execute xt while the standard output (TYPE, EMIT, and everything
     \G that uses them) is redirected to a string.  The resulting string
     \G is addr u, which is in ALLOCATEd memory; it is the
     \G responsibility of the caller of >STRING-EXECUTE to FREE this
     \G string.
-    >string-buffer 2@ >string-len @
-    action-of type action-of emit    { d: oldbuf oldlen oldtype oldemit }
+    >string-buffer 2@ >string-len @ op-vector @
+    { d: oldbuf oldlen oldvector }
     try
 	>string-initial-buflen dup allocate throw swap >string-buffer 2!
 	0 >string-len !
-	['] >string-type is type
-	['] >string-emit is emit
+	>string-out
 	execute
 	>string-buffer 2@ drop >string-len @ tuck resize throw swap
 	0 \ throw ball
     restore
 	oldbuf >string-buffer 2!
 	oldlen >string-len !
-	oldtype is type
-	oldemit is emit
+	oldvector op-vector !
     endtry
     throw ;
 

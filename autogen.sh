@@ -20,7 +20,7 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111, USA.
 
-libtoolize --force --copy --install || glibtoolize --force --copy --install
+libtoolize --ltdl --force --copy --install || glibtoolize --ltdl --force --copy --install
 
 # makes a aclocal.m4 which includes the automake macros for autconf
 

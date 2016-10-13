@@ -30,6 +30,7 @@ disasm_fs=arch/arm64/disasm.fs
 EC_MODE="false"
 NO_EC=""
 EC=""
+STACK_CACHE_REGS="1"
 engine2='engine2$(OPT).o'
 engine_fast2='engine-fast2$(OPT).o'
 no_dynamic=""
