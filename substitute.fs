@@ -4,14 +4,15 @@ require string.fs
 
 wordlist AConstant macros-wordlist
 
-: macro: ( addr u -- ) Create here 0 , $! DOES> $@ ;
+: macro: ( addr u -- ) Create here 0 , $! DOES> [ here >r ] $@ ; r>
+Constant macro-does:
 
 : replaces ( addr1 len1 addr2 len2 -- )
     \G create a macro with name @var{addr2 len2} and content @var{addr1 len1}.
     \G if the macro already exists, just change the content.
     2dup macros-wordlist search-wordlist
     IF
-	nip nip dup @ dodoes: = IF  >body $!
+	nip nip dup >does-code macro-does: = IF  >body $!
 	ELSE  true [: .name ." is a hard-coded macro" cr ;] ?warning  2drop
 	THEN
     ELSE
