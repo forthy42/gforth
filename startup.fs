@@ -105,27 +105,31 @@ true constant search-order
 true constant search-order-ext
 true constant string
 true constant string-ext
+
 \ extension queries
+
+\ The names are the file names of the proposals (without extension) on
+\ http://www.forth200x.org/, prefixed with X:
 ' noop alias X:2value
 ' noop alias X:buffer
 ' noop alias X:deferred
 ' noop alias X:defined
 ' noop alias X:ekeys
-' noop alias X:enhanced-locals
 ' noop alias X:escaped-strings
 ' noop alias X:extension-query
 ' noop alias X:fp-stack
 ' noop alias X:ftrunc
 ' noop alias X:fvalue
-' noop alias X:interprete-espace-s
+' noop alias X:locals
 ' noop alias X:n-to-r
 ' noop alias X:number-prefixes
 ' noop alias X:parse-name
 ' noop alias X:required
-' noop alias X:stoftos
+' noop alias X:s-escape-quote
+' noop alias X:s-to-f
 ' noop alias X:structures
-' noop alias X:substitute
 ' noop alias X:synonym
+' noop alias X:text-substitution
 ' noop alias X:throw-iors
 ' noop alias X:traverse-wordlist
 ' noop alias X:xchar
