@@ -1191,7 +1191,8 @@ static void reserve_code_super(PrimNum origs[], int ninsts)
       if (i>0)
         size += priminfos[origs[i-1]].restlength+goto_len+CODE_ALIGNMENT-1;
   }
-  size += priminfos[origs[i-1]].restlength+goto_len;
+  if (i>0)
+    size += priminfos[origs[i-1]].restlength+goto_len;
   reserve_code_space(size);
 }
 #endif
