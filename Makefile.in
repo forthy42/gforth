@@ -1012,7 +1012,7 @@ prim.b:		prim cache0.vmg Makefile.in preforth.in
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=0 prim) >$@
 #		sleep 1 #should make hpux-workaround unnecessary
 
-prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile.in preforth.in gforth gforth.fi
+prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile.in preforth.in gforth$(EXT)
 		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@
 #		sleep 1 #should make hpux-workaround unnecessary
 
@@ -1095,7 +1095,7 @@ MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
 MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
 MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h @kernel_anti_dependence@
+gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h gforth.fi @kernel_anti_dependence@
 
 gforth$(OPT)$(EXT):
 	if test -z "$(OPT)"; then \
