@@ -145,10 +145,3 @@ t{ 42 48 gcd -> 6 }
     next-case ;
 
 t{ 7 x1 -> 7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1 }t
-
-
-\ tickable exit
-
-: foo true if 1 {: a :} unlocal ['] exit execute then ;
-: bar 2 {: b :} foo b ;
-t{ bar -> 2 }

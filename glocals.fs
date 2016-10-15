@@ -720,8 +720,8 @@ is free-old-local-names
 
 ' locals-:-hook IS :-hook
 ' locals-;-hook IS ;-hook
-[ifdef] unlocal
-    :noname 0 adjust-locals-size ; is unlocal
+[ifdef] 0-adjust-locals-size
+    :noname 0 adjust-locals-size ; is 0-adjust-locals-size
 [then]
 [ifdef] colon-sys-xt-offset
 colon-sys-xt-offset 3 + to colon-sys-xt-offset

@@ -634,10 +634,7 @@ comp: ( value-xt to-xt -- )
 defer :-hook ( sys1 -- sys2 )
 defer free-old-local-names ( -- )
 defer ;-hook ( sys2 -- sys1 )
-defer unlocal ( l:locals -- ) immediate  ' noop is unlocal
-\G Remove locals information from locals stack.  You need this when
-\G you wrie a word that is e.g. exited by ['] EXIT EXECUTE or by RDROP
-\G from the called word.
+defer 0-adjust-locals-size ( -- )
 
 1 value colon-sys-xt-offset
 \g you get the xt in a colon-sys with COLON-SYS-XT-OFFSET PICK
