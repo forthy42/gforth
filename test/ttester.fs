@@ -272,8 +272,10 @@ HAS-FLOATING-STACK [IF]
    DEPTH ACTUAL-DEPTH @ = IF		\ if depths match
       DEPTH START-DEPTH @ > IF		\ if there is something on the stack
          DEPTH START-DEPTH @ - 0 DO	\ for each stack item
-	    ACTUAL-RESULTS I CELLS + @	\ compare actual with expected
-	    <> IF S" INCORRECT RESULT: " ERROR LEAVE THEN
+	     ACTUAL-RESULTS I CELLS + @	\ compare actual with expected
+	     <> IF S" INCORRECT RESULT " ERROR
+		 ." Actual result[" I 0 .R ." ]="
+		 ACTUAL-RESULTS I CELLS + @ . CR LEAVE THEN
 	 LOOP
       THEN
    ELSE					\ depth mismatch
