@@ -35,7 +35,10 @@ int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len)
    if (isnan(x)) {
      *sign=0;
      *exp=0;
-     strncpy(buf, "nan", len);
+     if (x<0)
+       strncpy(buf, "-na", len);
+     else
+       strncpy(buf, "nan", len);
      return 0;
    }
    if (isinf(x)) {
@@ -59,7 +62,12 @@ int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len)
    }
 
    *exp=(x==0)?-1:(int)floor(log10(x));
-   x = x / pow10((double)*exp);
+   if(*exp < -300) { /* maybe a denormal: do this in two steps */
+     x = x * pow10(300.);
+     x = x / pow10((double)(*exp)+300.);
+   } else {
+     x = x / pow10((double)*exp);
+   }
    
    *exp += 1;
    
