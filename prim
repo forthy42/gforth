@@ -2514,7 +2514,13 @@ char sig[0x40];
 size_t siglen;
 int flag;
 int decpt;
-ecvt_r(r, u, &decpt, &flag, sig, 0x3f);
+if (isnan(r)) {
+  flag=0;
+  decpt=0;
+  strncpy(sig, "nan", 0x3f); /* normalize nan output */
+} else {
+  ecvt_r(r, u, &decpt, &flag, sig, 0x3f);
+}
 n=(r==0. ? 1 : decpt);
 flag=signbit(r); /* not all ecvt()s do this as desired */
 f1=FLAG(flag!=0);

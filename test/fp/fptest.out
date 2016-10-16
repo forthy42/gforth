@@ -263,7 +263,7 @@ What message and/or values does Division by Zero produce?
 
    Trying to compute 1 / 0 produces ...inf
 
-   Trying to compute 0 / 0 produces ...-na
+   Trying to compute 0 / 0 produces ...nan
 Diagnosis resumes after milestone Number 220 
          Page: 10 
 
