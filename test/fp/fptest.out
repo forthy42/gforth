@@ -198,11 +198,7 @@ Diagnosis resumes after milestone Number 40
          Page: 6 
 
 Checking rounding on multiply, divide and add/subtract.
-Multiplication appears to round correctly.
-Division appears to round correctly.
-Addition/Subtraction appears to round correctly.
 Checking for sticky bit.
-Sticky bit apparently used correctly.
 
 Does Multiplication commute?  Testing on 20 random pairs.
     No failures found in 20 integer pairs.
@@ -212,7 +208,6 @@ Testing if sqrt(X * X) == X for 20 Integers X.
 Test for sqrt monotonicity.
 sqrt has passed a test for Monotonicity.
 Testing whether sqrt is rounded or chopped.
-Square root appears to be correctly rounded.
 Diagnosis resumes after milestone Number 90 
          Page: 7 
 

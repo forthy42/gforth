@@ -1232,7 +1232,7 @@ FVARIABLE XB
 		X F@ Zero F@ F=      Y F@ Zero F@ F= and  Z F@ Zero F@ F= and  
 		T F@ Zero F@ F= and  StickyBit F@ Zero F@ F= and  Y1 F@ Half F@ F= and IF
 			Rounded RMult !
-			." Multiplication appears to round correctly." cr
+			true [: ." Multiplication appears to round correctly." cr ;] ?warning
 
 		ELSE
 			X F@ U2 F@ F+ Zero F@ F=  
@@ -1242,16 +1242,16 @@ FVARIABLE XB
 		        StickyBit F@ U2 F@ F+ Zero F@ F= and
 			Y1 F@ Half F@ F< and IF
 				Chopped RMult !
-				." Multiplication appears to chop." cr
+				true [: ." Multiplication appears to chop." cr ;] ?warning
 			ELSE
-			 	." F* is neither chopped nor correctly rounded." cr 
+			 	true [: ." F* is neither chopped nor correctly rounded." cr  ;] ?warning
 				RMult @ Rounded =   GMult @ No =  and IF 
 					s" Multiplication" notify
 				THEN
 			THEN
 		THEN
 	ELSE 
-		." F* is neither chopped nor correctly rounded." cr ( ABORT)
+		true [: ." F* is neither chopped nor correctly rounded." cr ( ABORT) ;] ?warning
 	THEN
 	\ =============================================
 	45 Milestone !
@@ -1288,7 +1288,7 @@ FVARIABLE XB
 		T F@ Zero F@ F= and  Y2 F@ Zero F@ F= and  Y2 F@ Zero F@ F= and
 		Y1 F@ Half F@ F- F9 F@ Half F@ F- F= and IF
 			Rounded RDiv !
-			." Division appears to round correctly." cr
+			true [: ." Division appears to round correctly." cr ;] ?warning
 			GDiv @ No =  IF  s" Division" notify  THEN
 
 		ELSE
@@ -1297,11 +1297,11 @@ FVARIABLE XB
 			Y2 F@ Zero F@ F< and  
 			Y1 F@ Half F@ F- F9 F@ Half F@ F- F< and IF
 				Chopped RDiv !
-				." Division appears to chop." cr
+				true [: ." Division appears to chop." cr ;] ?warning
 			THEN
 		THEN
 	THEN
-	RDiv @ Other = IF ." F/ is neither chopped nor correctly rounded." cr THEN
+	RDiv @ Other = IF true [: ." F/ is neither chopped nor correctly rounded." cr  ;] ?warning THEN
 	One F@ Radix F@ F/ BInvrse F!
 
 	Failure 
@@ -1340,7 +1340,7 @@ FVARIABLE XB
 	Y F@ One F@ F- Y F!
 	X F@ Zero F@ F=   Y F@ Zero F@ F=  and IF
 		Chopped RAddSub !
-		." Add/Subtract appears to be chopped." cr
+		true [: ." Add/Subtract appears to be chopped." cr ;] ?warning
 	THEN
 	GAddSub @ Yes = IF
 		Half F@  U2 F@  F+  U2 F@  F*  X F!
@@ -1358,16 +1358,16 @@ FVARIABLE XB
 			One F@  Y F@ F-  Y F!
 			X F@ Zero F@ F=   Y F@ Zero F@ F=  and IF 
 				Rounded RAddSub !
-				." Addition/Subtraction appears to round correctly." cr
+			        true [: ." Addition/Subtraction appears to round correctly." cr ;] ?warning
 				GAddSub @ No = IF  s" Add/Subtract" notify  THEN
 			ELSE 
-				." Addition/Subtraction neither rounds nor chops." cr
+				true [: ." Addition/Subtraction neither rounds nor chops." cr ;] ?warning
 			THEN
 		ELSE 
-			." Addition/Subtraction neither rounds nor chops." cr
+			true [: ." Addition/Subtraction neither rounds nor chops." cr ;] ?warning
 		THEN
 	ELSE 
-		." Addition/Subtraction neither rounds nor chops." cr
+		true [: ." Addition/Subtraction neither rounds nor chops." cr ;] ?warning
 	THEN
 	One F@ S F!
 	One F@  Half F@  One F@ Half F@ F+ F* F+  X F!
@@ -1427,9 +1427,9 @@ FVARIABLE XB
 		THEN
 	THEN
 	StickyBit F@ One F@ F=  IF
-		." Sticky bit apparently used correctly." cr
+		true [: ." Sticky bit apparently used correctly." cr ;] ?warning
 	ELSE
-		." Sticky bit used incorrectly or not at all." cr
+		true [: ." Sticky bit used incorrectly or not at all." cr ;] ?warning
 	THEN
 
 	Flaw  
@@ -1700,7 +1700,7 @@ FVARIABLE XB
 	Anomaly @ invert IF
 		MinSqEr F@ Zero F@ F<  MaxSqEr F@ Zero F@ F>  or  invert IF
 			Rounded RSqrt !
-			." Square root appears to be correctly rounded." cr
+			true [: ." Square root appears to be correctly rounded." cr ;] ?warning
 		
 		ELSE
 			MaxSqEr F@ U2 F@ F+  U2 F@ Half F@ F- F> 
@@ -1709,14 +1709,14 @@ FVARIABLE XB
 				True SqRWrng !
 			ELSE
 				Chopped RSqrt !
-				." Square root appears to be chopped." cr
+				true [: ." Square root appears to be chopped." cr ;] ?warning
 			THEN
 		THEN
 	THEN
 	SqRWrng @ IF
-		." Square root is neither chopped nor correctly rounded." cr
-		." Observed errors run from " MinSqEr F@ Half F@ F- FS. ( %.7e)  
-		." to " Half F@ MaxSqEr F@ F+ FS. ( %.7e) ."  ulps." cr 
+		true [: ." Square root is neither chopped nor correctly rounded." cr
+		    ." Observed errors run from " MinSqEr F@ Half F@ F- FS. ( %.7e)  
+		    ." to " Half F@ MaxSqEr F@ F+ FS. ( %.7e) ."  ulps." cr  ;] ?warning
 		Serious  MaxSqEr F@ MinSqEr F@ F-  Radix F@ Radix F@ F*  F<
 		s" sqrt gets too many last digits wrong"
 		TstCond
