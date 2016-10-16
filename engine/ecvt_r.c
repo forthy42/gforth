@@ -35,7 +35,7 @@ int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len)
    if (isnan(x)) {
      *sign=0;
      *exp=0;
-     if (x<0)
+     if ((*(unsigned long long*)&x) & 0x8000000000000000ULL)
        strncpy(buf, "-na", len);
      else
        strncpy(buf, "nan", len);
