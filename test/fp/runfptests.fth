@@ -21,4 +21,6 @@ s" to-float-test.4th"  included
 s" paranoia.4th"       included
 
 cr cr 
-.( FP tests finished) cr cr
+.( FP tests finished)
+#errors @ 0= [IF] .(  successfully) [ELSE] .(  failed ) #errors ? .( times) cr ABORT [THEN]
+cr cr

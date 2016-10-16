@@ -47,7 +47,7 @@ T{ 1. d>f f>d -> 1. }T
 T{ -1. d>f f>d -> -1. }T
 
 \ IEEE754 max value (52 bit mantissa)
-T{ hex ffffffff fffff decimal d>f f>d -> hex ffffffff fffff decimal }T
+T{ hex $fffffffffffff. decimal d>f f>d -> hex $fffffffffffff. decimal }T
 
 \ ------------------------------------------------------------------------
 TESTING STACK OPERATIONS

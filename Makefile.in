@@ -367,7 +367,12 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC)			\
 	test/other.fs test/signals.fs test/checkans.fs			\
 	test/primtest.fs test/coreext.fs test/deferred.fs		\
 	test/coremore.fs test/gforth-nofast.fs test/libcc.fs		\
-	test/macros.fs bubble.fs siev.fs matrix.fs fib.fs oof.fs	\
+	test/macros.fs test/fp/ak-fp-test.fth test/fp/fatan2-test.fs	\
+	test/fp/fpio-test.4th test/fp/fpzero-test.4th			\
+	test/fp/ieee-arith-test.fs test/fp/ieee-fprox-test.fs		\
+	test/fp/paranoia.4th test/fp/readme-fp.txt			\
+	test/fp/runfptests.fth test/fp/to-float-test.4th		\
+	test/fp/ttester.fs bubble.fs siev.fs matrix.fs fib.fs oof.fs	\
 	oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs	\
 	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs		\
 	user-object.fs callable.fs add.fs lib.fs oldlib.fs sieve.fs	\
@@ -554,10 +559,10 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in		\
 	glosgen.glo doc/glossaries.doc $(INCLUDES) $(FORTH_SRC)		\
 	$(LIBCC_DIST_SRC) $(LIBCC_GEN_SRC) $(COMPAT) $(VMGEN_EX)	\
 	$(VMGEN_EX2) timings.sc test/coretest.out test/checkans.out	\
-	test/gforth.out $(wildcard cache*.vmg) peeprules.vmg prim	\
-	debian/rules debian/control.in debian/changelog.in		\
-	debian/compat gforth.ico .travis.yml install-swig.sh		\
-	$(SWIG_WRAP) m4/ax_gcc_builtin.m4
+	test/gforth.out test/fp/fptest.out $(wildcard cache*.vmg)	\
+	peeprules.vmg prim debian/rules debian/control.in		\
+	debian/changelog.in debian/compat gforth.ico .travis.yml	\
+	install-swig.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen machpc.fs	\
 	envos.fs preforth libforth gforthker engine/Makefile		\
@@ -917,6 +922,7 @@ checkone test: gforth.fi engine/prim-s.i
 		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -c - engine/prim-s.i
+		$(FORTH) test/fp/runfptests.fth -e bye | diff -c - test/fp/fptest.out
 
 check-nofast: gforth.fi
 		$(FORTHS) test/gforth-nofast.fs -e bye
