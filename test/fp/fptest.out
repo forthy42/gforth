@@ -198,7 +198,6 @@ Diagnosis resumes after milestone Number 40
          Page: 6 
 
 Checking rounding on multiply, divide and add/subtract.
-Checking for sticky bit.
 
 Does Multiplication commute?  Testing on 20 random pairs.
     No failures found in 20 integer pairs.

@@ -1384,7 +1384,7 @@ FVARIABLE XB
 	GMult @ Yes =   GDiv @ Yes = and   GAddSub @ Yes = and
 	RMult @ Rounded = and    RDiv @ Rounded = and
 	RAddSub @ Rounded = and  RadixD2 F@ FLOOR RadixD2 F@ F= and  IF
-		." Checking for sticky bit." cr
+	        true [: ." Checking for sticky bit." cr ;] ?warning
 		Half F@  U1 F@ F+  U2 F@ F*  X F!
 		Half F@  U2 F@ F*  Y F!
 		One  F@  Y  F@ F+  Z F! 
@@ -1432,11 +1432,11 @@ FVARIABLE XB
 		true [: ." Sticky bit used incorrectly or not at all." cr ;] ?warning
 	THEN
 
-	Flaw  
+	true [: Flaw  
 	GMult @ No =  GDiv @ No = or  GAddSub @ No = or 
 	RMult @ Other = or  RDiv @ Other = or  RAddSub @ Other = or invert
 	s" lack(s) of guard digits or failure(s) to correctly round or chop (noted above) count as one flaw in the final tally below"
-	TstCond
+	TstCond ;] ?warning
 	\ =============================================
 	60 Milestone !
 	\ =============================================
