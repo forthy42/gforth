@@ -9,6 +9,7 @@ pad find nip 0=
       bl word find nip 0=
    ; immediate
 [then]
+[undefined] warnings 0= [if] warnings off [then] \ warnings clutter output
 
 s" ttester.fs"         included
 s" ak-fp-test.fth"     included
