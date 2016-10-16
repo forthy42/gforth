@@ -271,10 +271,6 @@ Diagnosis resumes after milestone Number 220
 FAILUREs  encountered = 0 
 SERIOUS DEFECTs  discovered = 0 
 DEFECTs  discovered = 0 
-FLAWs  discovered = 0 
-
-No failures, defects nor flaws have been discovered.
-The arithmetic diagnosed appears to be Excellent!
 END OF TEST.
 
 End of paranoia.fth

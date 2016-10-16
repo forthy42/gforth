@@ -92,7 +92,9 @@ include Hfp387.fth
 (
 import float  also float
 )
-
+[undefined] ?warning [IF]
+    : ?warning ( flag xt -- ) swap IF execute ELSE drop THEN ;
+[THEN]
 
 0 [IF]
 	A C/C++ version of Kahan's Floating Point Test "Paranoia"
@@ -2359,7 +2361,7 @@ FVARIABLE XB
 	." FAILUREs  encountered = " ErrCnt{ Failure } ? cr
 	." SERIOUS DEFECTs  discovered = " ErrCnt{ Serious } ? cr
 	." DEFECTs  discovered = " ErrCnt{ Defect } ? cr 
-	." FLAWs  discovered = " ErrCnt{ Flaw } ? cr
+	true [: ." FLAWs  discovered = " ErrCnt{ Flaw } ? cr
 
 	cr
 	ErrCnt{ Failure } @   ErrCnt{ Serious } @ + 
@@ -2410,6 +2412,7 @@ FVARIABLE XB
 			." The arithmetic diagnosed appears to be Excellent!" cr
 		THEN
 	THEN
+        ;] ?warning
 	fpecount @ IF
 		cr ." A total of " fpecount ? 
 		."  floating point exceptions were registered." cr
