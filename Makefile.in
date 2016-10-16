@@ -914,15 +914,15 @@ check:		gforths	gforth.fi more
 		@libbench@./libgforth-fast$(EXT) --diag -e '."     in libgforth-fast" cr bye'
 
 checkone test: gforth.fi engine/prim-s.i
-		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -c - $(srcdir)/test/coretest.out
+		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -u -u - $(srcdir)/test/coretest.out
 		$(FORTH) test/other.fs -e bye
 		$(FORTHS) test/signals.fs -e bye
-		$(FORTHS) test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -c - $(srcdir)/test/gforth.out
-		$(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -c - $(srcdir)/test/checkans.out
+		$(FORTHS) test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u - $(srcdir)/test/gforth.out
+		$(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -u - $(srcdir)/test/checkans.out
 		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye"| \
-		  tr -d '\015' | grep -v '^#line '|diff -c - engine/prim-s.i
-		$(FORTH) test/fp/runfptests.fth -e bye | diff -c - test/fp/fptest.out
+		  tr -d '\015' | grep -v '^#line '|diff -u - engine/prim-s.i
+		$(FORTH) test/fp/runfptests.fth -e bye | diff -u - test/fp/fptest.out
 
 check-nofast: gforth.fi
 		$(FORTHS) test/gforth-nofast.fs -e bye
