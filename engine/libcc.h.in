@@ -95,7 +95,7 @@ extern user_area *gforth_main_UP;
 extern Cell gforth_go(Xt *ip);
 extern void gforth_sigset(sigset_t* set, ...);
 extern void gforth_setstacks(user_area*);
-#define GFORTH_ARGS ptrpair x, void* a_addr
+#define GFORTH_ARGS ptrpair x, void* cdesc
 ptrpair gforth_libcc_init(GFORTH_ARGS)
 {
   sp++;

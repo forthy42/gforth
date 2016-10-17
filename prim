@@ -2091,7 +2091,7 @@ ptrpair x;
 IF_fpTOS(fp[0]=fpTOS);
 x.fpx=fp;
 x.spx=sp;
-x=((ptrpair (*)(ptrpair, void*))(w))(x, 0);
+x=((ptrpair (*)(ptrpair, void*))(w))(x, (void*)w);
 sp=x.spx;
 fp=x.fpx;
 IF_fpTOS(fpTOS=fp[0]);
@@ -2111,6 +2111,10 @@ IF_fpTOS(fpTOS=fp[0]);
 
 gforth-pointers ( -- a_addr )  gforth get_gforth_pointers
 a_addr = (Cell*)gforth_pointers;
+
+c-resolver ( xt -- a_addr ) gforth c_resolver
+gforth_c_call_resolver = xt;
+a_addr = (Cell*)gforth_resolve_c_call;
 
 \+
 \+file

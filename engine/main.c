@@ -2637,6 +2637,22 @@ Cell gforth_execute(Xt xt)
   return gforth_go(gforth_header->execute_entry);
 }
 
+Xt gforth_c_call_resolver;
+
+#define LPRSIZE 0x20
+#define RPRSIZE 0x20
+
+ptrpair gforth_resolve_c_call(ptrpair x, void * cdesc)
+{
+  Cell lpresolv[LPRSIZE], rpresolv[RPRSIZE];
+  gforth_SP=x.spx;
+  gforth_FP=x.fpx;
+  gforth_LP=(Address)(lpresolv+LPRSIZE);
+  gforth_RP=rpresolv+RPRSIZE;
+    
+  return ((ptrpair (*)(ptrpair, void*))(gforth_execute(gforth_c_call_resolver)))(x, cdesc);
+}
+
 Xt gforth_find(Char * name)
 {
   Xt xt;

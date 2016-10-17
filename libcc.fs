@@ -865,15 +865,16 @@ tmp$ $execstr-ptr !
 	compile-wrapper-function
     endif ;
 
-:noname @ call-c ; Constant rt-does>
+: rt-does> @ call-c ;
 : make-rt ( addr -- )
-    rt-does> swap body> doesxt-code! ;
+    ['] rt-does> swap body> doesxt-code! ;
 
 : ?link-wrapper ( addr -- xf-cfr )
-    dup body> >does-code rt-does> <> IF
+    dup body> >does-code ['] rt-does> <> IF
 	dup make-rt
-	dup link-wrapper-function over !  THEN
-    body> ;
+	dup link-wrapper-function over !  THEN ;
+
+: ft-does> ?compile-wrapper ?link-wrapper @ call-c ;
 
 : c-function-ft ( xt-parse "c-name" "type signature" -- )
     \ build time/first time action for c-function
@@ -882,14 +883,13 @@ tmp$ $execstr-ptr !
     parse-c-name { d: c-name }
     xt-parse-types execute c-name string,
     ['] gen-wrapper-function c-source-file-execute
-  does> ( ... -- ... )
-    ?compile-wrapper ?link-wrapper execute ;
+    ['] ft-does> set-does> ;
 
 : (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
     { xt-parse-types }
-    [: dup >does-code rt-does> <>
-    IF  >body ?compile-wrapper ?link-wrapper  THEN
-    postpone call-c# >body , ;] set-compiler
+    [: dup >does-code ['] rt-does> <>
+    IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
+    postpone call-c# , ;] set-compiler
     xt-parse-types c-function-ft ;
 
 : c-function ( "forth-name" "c-name" "@{type@}" "---" "type" -- ) \ gforth
