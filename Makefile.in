@@ -922,7 +922,7 @@ checkone test: gforth.fi engine/prim-s.i
 		$(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -u engine/prim-s.i -
-		$(FORTH) test/fp/runfptests.fth -e bye | diff -u test/fp/fptest.out -
+		-$(FORTH) test/fp/runfptests.fth -e bye | diff -u test/fp/fptest.out -
 
 check-nofast: gforth.fi
 		$(FORTHS) test/gforth-nofast.fs -e bye
