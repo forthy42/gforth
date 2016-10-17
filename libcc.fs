@@ -147,10 +147,9 @@ Variable libcc$ \ source string for libcc generated source
 
 \ c-function-ft word body:
 struct
-    cell% field cff-cfr \ xt of c-function-rt word
-    cell% field cff-deferred \ xt of c-function deferred word
-    cell% field cff-lha \ address of the lib-handle for the lib that
-                        \ contains the wrapper function of the word
+    cell% field cff-c-call \ c function pointer
+    cell% field cff-lha    \ address of the lib-handle for the lib that
+                           \ contains the wrapper function of the word
     char% field cff-ctype  \ call type (function=1, value=0)
     char% field cff-rtype  \ return type
     char% field cff-np     \ number of parameters
@@ -757,41 +756,36 @@ Create callback-&style c-var c,
 
 \ hashing
 
-[IFUNDEF] hashkey2
-    : hash-c-source ( -- ) ;
-    : check-c-hash ( -- flag ) true ;
-[ELSE]
-    : replace-modulename { addr u -- }
-	libcc$ $@  BEGIN  s" _replace_this_with_the_hash_code" search  WHILE
-		addr 2 pick u move $20 /string  REPEAT
-	2drop ;
-    
-    Create c-source-hash 16 allot
+: replace-modulename { addr u -- }
+    libcc$ $@  BEGIN  s" _replace_this_with_the_hash_code" search  WHILE
+	    addr 2 pick u move $20 /string  REPEAT
+    2drop ;
 
-    : .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
-    : .bytes ( addr u -- )
-	bounds ?DO  ." \x" I c@ .xx  LOOP ;
-    : .c-hash ( -- )
-	lib-filename @ 0= IF
-	    [: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] $tmp
-	    save-mem c-tmp-library-name
-	    lib-modulename $@ replace-modulename
-	THEN
-	." hash_128 gflibcc_hash_" lib-modulename $.
-	.\"  = \"" c-source-hash 16 .bytes .\" \";" cr ;
-    
-    : hash-c-source ( -- )
-	c-source-hash 16 erase
-	libcc$ $@ false c-source-hash hashkey2
-	['] .c-hash c-source-file-execute ;
+Create c-source-hash 16 allot
 
-    : check-c-hash ( -- flag )
-	[: ." gflibcc_hash_" lib-modulename $. ;] $tmp
-	lib-handle lib-sym
-	?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
-	IF  lib-handle close-lib  lib-handle-addr @ off false
-	ELSE  true  THEN ;
-[THEN]
+: .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
+: .bytes ( addr u -- )
+    bounds ?DO  ." \x" I c@ .xx  LOOP ;
+: .c-hash ( -- )
+    lib-filename @ 0= IF
+	[: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] $tmp
+	c-tmp-library-name
+	lib-modulename $@ replace-modulename
+    THEN
+    ." hash_128 gflibcc_hash_" lib-modulename $.
+    .\"  = \"" c-source-hash 16 .bytes .\" \";" cr ;
+
+: hash-c-source ( -- )
+    c-source-hash 16 erase
+    libcc$ $@ false c-source-hash hashkey2
+    ['] .c-hash c-source-file-execute ;
+
+: check-c-hash ( -- flag )
+    [: ." gflibcc_hash_" lib-modulename $. ;] $tmp
+    lib-handle lib-sym
+    ?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
+    IF  lib-handle close-lib  lib-handle-addr @ off false
+    ELSE  true  THEN ;
 
 \ clear library
 
@@ -848,9 +842,7 @@ tmp$ $execstr-ptr !
 	( lib-handle ) lib-handle-addr @ !
     endif
     s" gforth_libcc_init" lib-handle lib-sym  ?dup-if
-	[IFDEF] gforth-pointers
-	    gforth-pointers swap
-	[THEN]  call-c  endif
+	gforth-pointers swap call-c  endif
     0 c-source-file-id !
     lib-filename $off clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
@@ -873,41 +865,32 @@ tmp$ $execstr-ptr !
 	compile-wrapper-function
     endif ;
 
-: ?link-wrapper ( addr -- xf-cfr )
-    dup 2@ { xt-defer xt-cfr }
-    xt-defer defer@ xt-cfr <> IF
-	link-wrapper-function
-	xt-cfr >body !
-	xt-cfr xt-defer defer!  THEN
-    xt-cfr ;
+:noname @ call-c ; Constant rt-does>
+: make-rt ( addr -- )
+    rt-does> swap body> doesxt-code! ;
 
-: c-function-ft ( xt-defr xt-cfr xt-parse "c-name" "type signature" -- )
+: ?link-wrapper ( addr -- xf-cfr )
+    dup body> >does-code rt-does> <> IF
+	dup make-rt
+	dup link-wrapper-function over !  THEN
+    body> ;
+
+: c-function-ft ( xt-parse "c-name" "type signature" -- )
     \ build time/first time action for c-function
     { xt-parse-types }
-    noname create 2, lib-handle-addr @ ,
+    create 0 , lib-handle-addr @ ,
     parse-c-name { d: c-name }
     xt-parse-types execute c-name string,
     ['] gen-wrapper-function c-source-file-execute
   does> ( ... -- ... )
     ?compile-wrapper ?link-wrapper execute ;
 
-: c-function-rt ( -- )
-    \ run-time definition for c function; addr is the address where
-    \ the sym should be stored
-    noname create 0 ,
-  does> ( ... -- ... )
-    @ call-c ;
-
-c-function-rt  lastxt Constant dummy-rt
-
 : (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
-    { xt-parse-types } defer
-    [: defer@ dup >does-code dummy-rt >does-code <>
+    { xt-parse-types }
+    [: dup >does-code rt-does> <>
     IF  >body ?compile-wrapper ?link-wrapper  THEN
     postpone call-c# >body , ;] set-compiler
-    lastxt dup c-function-rt
-    lastxt xt-parse-types c-function-ft
-    lastxt swap defer! ;
+    xt-parse-types c-function-ft ;
 
 : c-function ( "forth-name" "c-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
@@ -964,7 +947,7 @@ c-function-rt  lastxt Constant dummy-rt
     \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
     \G an @var{xt}, and returns the @var{addr}ess of the C function
     \G handling that callback.
-    [: callback-gen ;] (c-callback) ;
+    ['] callback-gen (c-callback) ;
 
 : c-callback-thread ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a callback instantiator with the given signature.  The
@@ -972,7 +955,7 @@ c-function-rt  lastxt Constant dummy-rt
     \G an @var{xt}, and returns the @var{addr}ess of the C function
     \G handling that callback.  This callback is save when called from
     \G another thread
-    [: callback-thread-gen ;] (c-callback) ;
+    ['] callback-thread-gen (c-callback) ;
 
 : c-library-incomplete ( -- )
     !!unfinished!! throw ;
