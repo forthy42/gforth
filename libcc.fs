@@ -146,23 +146,30 @@ s" Called function of unfinished named C library"
 Variable libcc$ \ source string for libcc generated source
 
 \ c-function-ft word body:
-struct
-    cell% field cff-c-call \ c function pointer
-    cell% field cff-lha    \ address of the lib-handle for the lib that
+begin-structure cff%
+    field: cff-c-call \ c function pointer
+    field: cff-lha    \ address of the lib-handle for the lib that
                            \ contains the wrapper function of the word
-    char% field cff-ctype  \ call type (function=1, value=0)
-    char% field cff-rtype  \ return type
-    char% field cff-np     \ number of parameters
-    1 0   field cff-ptypes \ #npar parameter types
+    cfield: cff-ctype  \ call type (function=1, value=0)
+    cfield: cff-rtype  \ return type
+    cfield: cff-np     \ number of parameters
+    0 +field cff-ptypes \ #npar parameter types
     \  counted string: c-name
-end-struct cff%
+end-structure
 
-struct
-    cell% field ccb-num
-    cell% field ccb-lha
-    cell% field ccb-ips
-    cell% field ccb-cfuns
-end-struct ccb%
+begin-structure ccb%
+    field: ccb-num
+    field: ccb-lha
+    field: ccb-ips
+    field: ccb-cfuns
+end-structure
+
+begin-structure lha%
+    field: lha-id    \ open-lib returned library id
+    field: lha-next  \ link to next library in chain
+    field: lha-name  \ library name string
+    $10 +field lha-hash
+end-structure
 
 variable c-source-file-id \ contains the source file id of the current batch
 0 c-source-file-id !
@@ -170,7 +177,8 @@ variable lib-handle-addr \ points to the library handle of the current batch.
                          \ the library handle is 0 if the current
                          \ batch is not yet compiled.
 Variable lib-filename   \ filename without extension
-variable lib-modulename \ basename of the file without extension
+: lib-modulename ( -- addr ) lib-handle-addr @ lha-name ;
+\ basename of the file without extension
 variable libcc-named-dir$ \ directory for named libcc wrapper libraries
 Variable libcc-path      \ pointer to path of library directories
 Variable ptr-declare
@@ -701,7 +709,7 @@ Create callback-&style c-var c,
 
 : open-wrappers ( -- addr|0 )
     [: lib-filename $@ dirname type lib-prefix type
-       lib-filename $@ basename type lib-suffix type ;] $tmp
+	lib-filename $@ basename type lib-suffix type ;] $tmp
     2dup libcc-named-dir string-prefix? if ( c-addr u )
 	\ see if we can open it in the path
 	libcc-named-dir nip /string
@@ -711,7 +719,6 @@ Create callback-&style c-var c,
 	    0 exit endif
 	( wfile-id c-addr2 u2 ) rot close-file throw ( c-addr2 u2 )
     endif
-    \ 2dup cr type
     open-lib ;
 
 : open-path-lib ( addr u -- addr/0 )
@@ -723,7 +730,7 @@ Create callback-&style c-var c,
     { d: filename }
     filename lib-filename $!
     filename basename lib-modulename $! lib-modulename $@ sanitize ;
-   
+
 : c-library-name-create ( -- )
     [: lib-filename $. ." .c" ;] $tmp r/w create-file throw
     c-source-file-id ! ;
@@ -756,12 +763,13 @@ Create callback-&style c-var c,
 
 \ hashing
 
-: replace-modulename { addr u -- }
+: replace-hash { addr u -- }
     libcc$ $@  BEGIN  s" _replace_this_with_the_hash_code" search  WHILE
 	    addr 2 pick u move $20 /string  REPEAT
     2drop ;
 
-Create c-source-hash 16 allot
+: c-source-hash ( -- addr )
+    lib-handle-addr @ lha-hash ;
 
 : .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
 : .bytes ( addr u -- )
@@ -770,7 +778,7 @@ Create c-source-hash 16 allot
     lib-filename @ 0= IF
 	[: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] $tmp
 	c-tmp-library-name
-	lib-modulename $@ replace-modulename
+	lib-modulename $@ replace-hash
     THEN
     ." hash_128 gflibcc_hash_" lib-modulename $.
     .\"  = \"" c-source-hash 16 .bytes .\" \";" cr ;
@@ -791,14 +799,16 @@ Create c-source-hash 16 allot
 
 DEFER compile-wrapper-function ( -- )
 
+: lha, ( -- )
+    \ create an empty library handle
+    align here 0 , lib-handle-addr @ , 0 , $10 allot  lib-handle-addr ! ;
+
 : clear-libs ( -- ) \ gforth
 \G Clear the list of libs
     c-source-file-id @ if
 	compile-wrapper-function
-    endif
-    align here 0 , lib-handle-addr !
+    endif  lha,
     c-libs $init
-    lib-modulename $init
     vararg$ $init
     libcc$ $init libcc-include
     ptr-declare $[]off ;
@@ -870,7 +880,7 @@ tmp$ $execstr-ptr !
     ['] rt-does> swap body> doesxt-code! ;
 
 : ?link-wrapper ( addr -- xf-cfr )
-    dup body> >does-code ['] rt-does> <> IF
+    dup body> >does-code [ '  rt-does> >body ]L <> IF
 	dup make-rt
 	dup link-wrapper-function over !  THEN ;
 
@@ -888,7 +898,7 @@ tmp$ $execstr-ptr !
 : (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
     { xt-parse-types }
     xt-parse-types c-function-ft
-    [: dup >does-code ['] rt-does> <>
+    [: dup >does-code [ '  rt-does> >body ]L <>
     IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
     postpone call-c# , ;] set-compiler ;
 
@@ -921,7 +931,7 @@ tmp$ $execstr-ptr !
     \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
     \G an @var{xt}, and returns the @var{addr}ess of the C function
     \G handling that callback.
-    >r Create here dup ccb% %size dup allot erase
+    >r Create here dup ccb% dup allot erase
     callback# 1- over ccb-num !
     lib-handle-addr @ swap ccb-lha !
     parse-function-types
@@ -933,7 +943,7 @@ tmp$ $execstr-ptr !
 	compile-wrapper-function
     THEN
     r@ ccb-cfuns @ 0= IF
-	r@ cff% %size + 2 + count + count 2dup
+	r@ cff% + 2 + count + count 2dup
 	r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
 	r@ ccb-lha @ @ lookup-c-array r@ ccb-cfuns !
     THEN
@@ -979,12 +989,39 @@ tmp$ $execstr-ptr !
 
 init-libcc
 
-:noname ( -- )
-    defers 'cold
-    init-libcc ;
-is 'cold
+: rebind-libcc ( -- )
+    [: [: dup >does-code [ ' rt-does> >body ]L = IF
+		>body dup link-wrapper-function
+		\ ." relink: " over body> .name dup hex. cr
+		over !
+	    THEN  drop
+	    true ;] swap traverse-wordlist ;] map-vocs ;
 
 set-current
+
+: map-libs { xt -- }
+    lib-handle-addr @
+    BEGIN  dup @ IF  dup xt execute  THEN
+    lha-next @ dup 0= UNTIL  drop ;
+
+: .libs ( -- ) [: lha-name $. space ;] map-libs ;
+: reopen-libs ( -- )
+    [: dup >r lha-name $@
+	libcc-named-dir 2dup  $1ff mkdir-parents drop
+	prepend-dirname lib-filename $!
+	open-wrappers dup IF
+	    r@ !
+	    r@ lha-name [: ." gflibcc_hash_" $. ;] $tmp
+	    r@ @ lib-sym r> lha-hash $10 tuck str= ?EXIT
+	THEN
+	.lib-error !!openlib!! throw
+    ;] map-libs ;
+
+:noname [: lha-name $save ;] map-libs defers 'image ; is 'image
+:noname ( -- )
+    defers 'cold
+    init-libcc reopen-libs rebind-libcc lib-filename $off ;
+is 'cold
 
 : c-library ( "name" -- ) \ gforth
 \G Parsing version of @code{c-library-name}

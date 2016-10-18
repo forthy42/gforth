@@ -410,6 +410,9 @@ User keypollfds pollfd 2* cell- uallot drop
 
 ' thread-key is key-ior
 
+:noname defers 'cold epiper create_pipe ; is 'cold
+
+
 \ a simple test (not commented in)
 
 false [IF] \ test

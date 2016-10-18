@@ -454,9 +454,6 @@ Label *gforth_engine(Xt *ip sr_proto);
 Label *gforth_engine2(Xt *ip sr_proto);
 Label *gforth_engine3(Xt *ip sr_proto);
 
-extern Xt gforth_c_call_resolver; /* resolve a C call */
-ptrpair gforth_resolve_c_call(ptrpair x, void * cdesc);
-
 Cell gforth_main(int argc, char **argv, char **env);
 int gforth_args(int argc, char ** argv, char ** path, char ** imagename);
 ImageHeader* gforth_loader(char* imagename, char* path);

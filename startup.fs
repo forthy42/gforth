@@ -72,8 +72,8 @@ require backtrac.fs
 require simp-see.fs
 require debug.fs
 require dis-gdb.fs
-require libcc.fs
 require struct0x.fs
+require libcc.fs
 require prelude.fs
 require str-exec.fs
 require gforthrc.fs
