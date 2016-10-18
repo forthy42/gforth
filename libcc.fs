@@ -887,10 +887,10 @@ tmp$ $execstr-ptr !
 
 : (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
     { xt-parse-types }
+    xt-parse-types c-function-ft
     [: dup >does-code ['] rt-does> <>
     IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
-    postpone call-c# , ;] set-compiler
-    xt-parse-types c-function-ft ;
+    postpone call-c# , ;] set-compiler ;
 
 : c-function ( "forth-name" "c-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
