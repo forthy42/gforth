@@ -84,6 +84,9 @@ AConstant r:dnum
 : deque: ( n "name" -- )
     \G create a named deque with at least @var{n} cells space
     drop Variable ;
+: deque ( n -- addr )
+    \G create an unnamed deque with at least @var{n} cells space
+    drop here 0 , ;
 
 : >deque ( x deque -- )
     \G push to top of deque

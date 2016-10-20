@@ -145,3 +145,37 @@ t{ 42 48 gcd -> 6 }
     next-case ;
 
 t{ 7 x1 -> 7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1 }t
+
+\ recognizer tests
+
+T{ 4 DEQUE constant RS -> }T
+
+T{ :noname 1 ;  :noname 2 ;  :noname 3  ; recognizer r:1 -> }T
+T{ :noname 10 ; :noname 20 ; :noname 30 ; recognizer r:2 -> }T
+
+\ really stupid: 1 character length or 2 characters
+T{ : rec:1 NIP 1 = IF r:1 ELSE R:FAIL THEN ; -> }T
+T{ : rec:2 NIP 2 = IF r:2 ELSE R:FAIL THEN ; -> }T
+
+T{ r:1 R>INT EXECUTE  -> 1 }T
+T{ r:1 R>COMP EXECUTE -> 2 }T
+T{ r:1 R>POST EXECUTE -> 3 }T
+
+\ set and get methods
+T{ 0 RS DEQUE! -> }T
+T{ RS DEQUE@ -> 0 }T
+
+T{ ' rec:1 1 RS DEQUE! -> }T
+T{ RS DEQUE@ -> ' rec:1 1 }T
+
+T{ ' rec:1 ' rec:2 2 RS DEQUE! -> }T
+T{ RS DEQUE@ -> ' rec:1 ' rec:2 2 }T
+
+\ testing MAP-RECOGNIZERS
+T{         0 RS DEQUE! -> }T
+T{ S" 1"     RS MAP-RECOGNIZER   -> R:FAIL }T
+T{ ' rec:1 1 RS DEQUE! -> }T
+T{ S" 1"     RS MAP-RECOGNIZER   -> R:1 }T
+T{ S" 10"    RS MAP-RECOGNIZER   -> R:FAIL }T
+T{ ' rec:2 ' rec:1 2 RS DEQUE! -> }T
+T{ S" 10"    RS MAP-RECOGNIZER   -> R:2 }T

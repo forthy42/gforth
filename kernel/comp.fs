@@ -677,8 +677,6 @@ defer 0-adjust-locals-size ( -- )
     >r :noname r> compile, postpone ;
     r> set-compiler r> set-lit,  Constant ;
 
-' recognizer alias recognizer: \ old name, deprecated
-
 \ does>
 
 : doesxt, ( xt -- )
