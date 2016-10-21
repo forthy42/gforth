@@ -17,7 +17,7 @@
 
 
 Name:            gforth
-Version:         0.7.9_20160306
+Version:         0.7.9_20161020
 Release:         0
 Summary:         GNU Forth
 License:         GFDL-1.2 and GPL-2.0+ and GPL-3.0+
@@ -28,7 +28,7 @@ Source1:         http://www.complang.tuwien.ac.at/forth/gforth/%{version}/gforth
 Source2:	 http://savannah.gnu.org/people/viewgpg.php?user_id=9629#/%{name}.keyring
 Source3:         gforth-rpmlintrc
 BuildRequires:   emacs-nox
-BuildRequires:   libffi-devel
+BuildRequires:   libffi-devel libX11-devel
 BuildRequires:   libtool
 %if 0%{?rhel_version}
 BuildRequires:   libtool-ltdl libtool-ltdl-devel
@@ -40,7 +40,7 @@ BuildRequires:   libtool-ltdl libtool-ltdl-devel
 BuildRequires:   libtool-ltdl libtool-ltdl-devel
 %endif
 %if 0%{?suse_version}
-BuildRequires:   libltdl7
+BuildRequires:   libltdl7 Mesa-libGL-devel vulkan-devel gpsd-devel
 Requires(post):  %{install_info_prereq}
 Requires(preun): %{install_info_prereq}
 %endif
