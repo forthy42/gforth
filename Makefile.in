@@ -1252,11 +1252,9 @@ prim.tags: 	prim.b prims2x.fs preforth @kernel_fi@
 		$(PREFORTH) prims2x.fs -e "s\" prim.b\" ' output-vi-tag dup process-file bye" >$@-
 		$(MV) $@- $@
 
-kernel.TAGS:
-		$(MAKE) @kernel_fi@
-
-kernel.tags:
-		$(MAKE) @kernel_fi@
+kernel.TAGS kernel.tags:
+		-$(RM) @kernel_fi@-
+		$(MAKE) @kernel_fi@-
 
 #elc files
 gforth.elc:	gforth.el

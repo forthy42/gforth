@@ -1444,3 +1444,11 @@ ln -sf $PWD/engine/config.h $PWD/engine/libcc.h include/gforth/$PACKAGE_VERSION/
 [PACKAGE_VERSION=$PACKAGE_VERSION
  machine=$machine])
 AC_OUTPUT
+
+# if we have no Gforth, then copy kernl$i.fi to kernl$i.fi-
+if test x$kernel_anti_dependence = x; then
+   for i in 32l 32b 64l 64b
+   do
+	cp kernl$i.fi kernl$i.fi-
+   done
+fi
