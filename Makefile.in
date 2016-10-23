@@ -263,6 +263,7 @@ GFORTH_FI_SRC2=\
 	quotes.fs \
 	quotedstring.fs \
 	parsedto.fs \
+	recognizer2.fs \
 	search.fs \
 	see.fs \
 	see-ext.fs \

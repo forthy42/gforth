@@ -108,7 +108,7 @@ dynamic-a to allocater
 
 : rec:moof2 ( addr u -- xt r:moof2 | r:fail )
     over c@ '.' = over 1 > and
-    IF  1 /string do-recognizer
+    IF  1 /string recognize
 	dup >namevt @ >vtlit, @ ['] noop =
 	IF  r:moof2  ELSE  drop r:fail  THEN
     ELSE  2drop r:fail  THEN ;

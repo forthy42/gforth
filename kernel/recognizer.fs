@@ -130,22 +130,25 @@ Defer trace-recognizer  ' drop is trace-recognizer
     cell -LOOP
     2drop r:fail ;
 
+Defer recognize
+
 : do-recognizer ( addr u -- tokens xt )
     \G process the string @var{addr u} in the recognizer stack
     forth-recognizer map-recognizer ;
+' do-recognizer is recognize
 
 \ nested recognizer helper
 
 \ : nest-recognizer ( addr u -- token table | r:fail )
-\   xxx-recognizer do-recognizer ;
+\   xxx-recognizer recognize ;
 
 : interpreter-r ( addr u -- ... xt )
-    do-recognizer name?int ;
+    recognize name?int ;
 
 ' interpreter-r IS parser1
 
 : compiler-r ( addr u -- ... xt )
-    do-recognizer name>comp ;
+    recognize name>comp ;
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
@@ -157,5 +160,5 @@ Defer trace-recognizer  ' drop is trace-recognizer
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
-    parse-name do-recognizer >postpone
+    parse-name recognize >postpone
 ; immediate restrict

@@ -189,7 +189,7 @@ AUser CSP
 
 [ifdef] compiler-r
 : postponer-r ( addr u -- ... xt )
-    do-recognizer dup
+    recognize dup
     [ s" [[" find-name ] Literal =
     IF  drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
 
@@ -595,6 +595,17 @@ recognizer r:word ( takes xt +/-1, i.e. result of find and search-wordlist )
 :noname r>comp execute ;
 ' lit,
 recognizer r:name ( takes nt, i.e. result of find-name and find-name-in )
+
+\ concat recognizers to another recognizer
+
+: rec-sequence ( xt1 .. xtn n "name" -- )
+    \G concatenate a stack of recognizers to one recognizer with the
+    \G name @var{"name"}.  @var{xtn} is tried first, @{xt1} last, just
+    \G like on the recognizer stack
+    n>r : nr> ]] 2>r [[ 0 ?DO
+	]] 2r@ [[ compile,
+	]] dup r:fail <> IF 2rdrop EXIT THEN drop [[
+    LOOP ]] 2rdrop ; [[ ;
 
 \ growing buffers that need not be full
 

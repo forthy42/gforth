@@ -50,19 +50,4 @@ require sections.fs
 : single-recognizer2 ( c-addr u -- nt|0 )
     ['] single-rec2 rec2-wrapper ;
 
-\ : single-recognizer2 {: c-addr u -- nt|0 :}
-\     \ just a demo, no prefixes or anything
-\     0. c-addr u >number 0= if \ it is a number
-\ 	2drop >r wrap@ next-section
-\ 	r> c-addr u nextname constant latest >r
-\ 	previous-section wrap!
-\ 	r> exit then
-\     -13 throw \ don't fallback to the other recognizers in this demo
-\     drop 2drop 0 ;
-
-\ : no-recognizer2 ( c-addr u -- nt|0 ) 2drop 0 ; 
-\ ' no-recognizer2 is do-recognizer2
-
-\ ' single-recognizer2 is do-recognizer2
-
- get-recognizers ' single-recognizer2 -rot 1+ set-recognizers
+get-recognizers ' single-recognizer2 -rot 1+ set-recognizers

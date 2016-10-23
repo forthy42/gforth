@@ -22,7 +22,7 @@
 : rec:to ( addr u -- xt r:to | r:fail )
     2dup s" ->" string-prefix?  0= IF  2drop  r:fail  EXIT  THEN
     2 /string dup 0= IF  2drop  r:fail  EXIT  THEN
-    do-recognizer dup r:fail = ?EXIT
+    recognize dup r:fail = ?EXIT
     name?int r:to ;
 
 ' rec:to get-recognizers 1+ set-recognizers
