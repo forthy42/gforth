@@ -127,32 +127,32 @@ e? os-type s" darwin" string-prefix? [IF]
     [ELSE]
 	machine s" arm" str= [IF]
 	    drop 0 2field: st_dev
-	    drop 12 lfield: st_ino
+	    drop 96 2field: st_ino
 	    drop 16 lfield: st_mode
 	    drop 24 lfield: st_uid
 	    drop 28 lfield: st_gid
 	    drop 32 2field: st_rdev
-	    drop 44 lfield: st_size
-	    drop 48 lfield: st_blksize
-	    drop 52 lfield: st_blocks
-	    drop 56 2field: st_atime
-	    drop 64 2field: st_mtime
-	    drop 72 2field: st_ctime
-	    drop 88
+	    drop 48 2field: st_size
+	    drop 56 lfield: st_blksize
+	    drop 64 2field: st_blocks
+	    drop 72 2field: st_atime
+	    drop 80 2field: st_mtime
+	    drop 88 2field: st_ctime
+	    drop 104
 	[ELSE]
 	    drop 0 2field: st_dev
-	    drop 12 field: st_ino
+	    drop 88 2field: st_ino
 	    drop 16 lfield: st_mode
 	    drop 24 lfield: st_uid
 	    drop 28 lfield: st_gid
 	    drop 32 2field: st_rdev
-	    drop 44 field: st_size
-	    drop 48 field: st_blksize
-	    drop 52 field: st_blocks
-	    drop 56 2field: st_atime
-	    drop 64 2field: st_mtime
-	    drop 72 2field: st_ctime
-	    drop 88
+	    drop 44 2field: st_size
+	    drop 52 lfield: st_blksize
+	    drop 56 2field: st_blocks
+	    drop 64 2field: st_atime
+	    drop 72 2field: st_mtime
+	    drop 80 2field: st_ctime
+	    drop 96
 	[THEN]
     [THEN]
 [THEN]
