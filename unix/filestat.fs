@@ -66,62 +66,94 @@ begin-structure file-stat
 e? os-type s" darwin" string-prefix? [IF]
     cell 8 = [IF]
 	drop 0 lfield: st_dev
-	drop 8 8 +field st_ino
+	drop 8 field: st_ino
 	drop 4 wfield: st_mode
 	drop 16 lfield: st_uid
 	drop 20 lfield: st_gid
 	drop 24 lfield: st_rdev
-	drop 96 8 +field st_size
+	drop 96 field: st_size
 	drop 112 lfield: st_blksize
-	drop 104 8 +field st_blocks
-	drop 32 16 +field st_atime
-	drop 48 16 +field st_mtime
-	drop 64 16 +field st_ctime
+	drop 104 field: st_blocks
+	drop 32 2field: st_atime
+	drop 48 2field: st_mtime
+	drop 64 2field: st_ctime
 	drop 144
     [ELSE]
 	drop 0 lfield: st_dev
-	drop 8 8 +field st_ino
+	drop 8 2field: st_ino
 	drop 4 wfield: st_mode
 	drop 16 lfield: st_uid
 	drop 20 lfield: st_gid
 	drop 24 lfield: st_rdev
-	drop 60 8 +field st_size
+	drop 60 2field: st_size
 	drop 76 lfield: st_blksize
-	drop 68 8 +field st_blocks
-	drop 28 8 +field st_atime
-	drop 36 8 +field st_mtime
-	drop 44 8 +field st_ctime
+	drop 68 2field: st_blocks
+	drop 28 2field: st_atime
+	drop 36 2field: st_mtime
+	drop 44 2field: st_ctime
 	drop 108
     [THEN]
 [ELSE]
     cell 8 = [IF]
-	drop 0 8 +field st_dev
-	drop 8 field: st_ino
-	drop 24 lfield: st_mode
-	drop 28 lfield: st_uid
-	drop 32 lfield: st_gid
-	drop 40 8 +field st_rdev
-	drop 48 field: st_size
-	drop 56 field: st_blksize
-	drop 64 field: st_blocks
-	drop 72 16 +field st_atime
-	drop 88 16 +field st_mtime
-	drop 104 16 +field st_ctime
-	drop 144
+	machine s" arm64" str= [IF]
+	    drop 0 field: st_dev
+	    drop 8 field: st_ino
+	    drop 16 lfield: st_mode
+	    drop 24 lfield: st_uid
+	    drop 28 lfield: st_gid
+	    drop 32 field: st_rdev
+	    drop 48 field: st_size
+	    drop 56 lfield: st_blksize
+	    drop 64 field: st_blocks
+	    drop 72 2field: st_atime
+	    drop 88 2field: st_mtime
+	    drop 104 2field: st_ctime
+	    drop 128
+	[ELSE]
+	    drop 0 field: st_dev
+	    drop 8 field: st_ino
+	    drop 24 lfield: st_mode
+	    drop 28 lfield: st_uid
+	    drop 32 lfield: st_gid
+	    drop 40 field: st_rdev
+	    drop 48 field: st_size
+	    drop 56 field: st_blksize
+	    drop 64 field: st_blocks
+	    drop 72 2field: st_atime
+	    drop 88 2field: st_mtime
+	    drop 104 2field: st_ctime
+	    drop 144
+	[THEN]
     [ELSE]
-	drop 0 8 +field st_dev
-	drop 12 field: st_ino
-	drop 16 lfield: st_mode
-	drop 24 lfield: st_uid
-	drop 28 lfield: st_gid
-	drop 32 8 +field st_rdev
-	drop 44 field: st_size
-	drop 48 field: st_blksize
-	drop 52 field: st_blocks
-	drop 56 8 +field st_atime
-	drop 64 8 +field st_mtime
-	drop 72 8 +field st_ctime
-	drop 88
+	machine s" arm" str= [IF]
+	    drop 0 2field: st_dev
+	    drop 12 lfield: st_ino
+	    drop 16 lfield: st_mode
+	    drop 24 lfield: st_uid
+	    drop 28 lfield: st_gid
+	    drop 32 2field: st_rdev
+	    drop 44 lfield: st_size
+	    drop 48 lfield: st_blksize
+	    drop 52 lfield: st_blocks
+	    drop 56 2field: st_atime
+	    drop 64 2field: st_mtime
+	    drop 72 2field: st_ctime
+	    drop 88
+	[ELSE]
+	    drop 0 2field: st_dev
+	    drop 12 field: st_ino
+	    drop 16 lfield: st_mode
+	    drop 24 lfield: st_uid
+	    drop 28 lfield: st_gid
+	    drop 32 2field: st_rdev
+	    drop 44 field: st_size
+	    drop 48 field: st_blksize
+	    drop 52 field: st_blocks
+	    drop 56 2field: st_atime
+	    drop 64 2field: st_mtime
+	    drop 72 2field: st_ctime
+	    drop 88
+	[THEN]
     [THEN]
 [THEN]
 end-structure
