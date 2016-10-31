@@ -8,7 +8,7 @@
 
 int main()
 {
-  printf("cell %lu = [IF]\n", sizeof(long));
+  printf("begin-structure file-stat\n");
   printf("  drop %lu %lu +field st_dev\n", offsetof(struct stat, st_dev), sizeof(dev_t));
   printf("  drop %lu %lu +field st_ino\n", offsetof(struct stat, st_ino), sizeof(ino_t));
   printf("  drop %lu %lu +field st_mode\n", offsetof(struct stat, st_mode), sizeof(mode_t));
@@ -22,7 +22,6 @@ int main()
   printf("  drop %lu %lu +field st_mtime\n", offsetof(struct stat, st_mtime), sizeof(struct timespec));
   printf("  drop %lu %lu +field st_ctime\n", offsetof(struct stat, st_ctime), sizeof(
 struct timespec));
-  printf("  drop %lu end-structure file-stat\n", sizeof(struct stat));
-  printf("[THEN]\n");
+  printf("drop %lu end-structure\n", sizeof(struct stat));
   return 0;
 }

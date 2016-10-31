@@ -1,7 +1,10 @@
 #!/bin/sh
 # this file is in the public domain
 
-execs=$(grep '^// exec:' $2/${1%fs}i | cut -f3- -d' ')
+if [ -f ${1%fs}i ]
+then
+    execs=$(grep '^// exec:' $2/${1%fs}i | cut -f3- -d' ')
+fi
 
 if [ -z "$execs" ]
 then
