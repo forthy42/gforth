@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-c-library filestat
+c-library stat
     \c #include <sys/types.h>
     \c #include <sys/stat.h>
     \c #include <sys/time.h>
