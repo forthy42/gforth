@@ -1,4 +1,4 @@
-#include "../engine/libcc.h"
+#include "../engine/config.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <stddef.h>
