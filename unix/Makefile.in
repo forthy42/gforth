@@ -44,7 +44,7 @@ GCC	= @CC@
 HOSTCC	= @HOSTCC@
 CC	= $(HOSTCC) $(INCLUDES) -I.
 
-all: $(GENWRAPPERS) $(TARGETS)
+all: $(GENWRAPPERS) $(TARGETS) stat.fs
 
 wrappers: $(WRAPPERS)
 
