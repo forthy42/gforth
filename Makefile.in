@@ -320,8 +320,7 @@ UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs	\
 	unix/opengles3.fs unix/jnilib.fs unix/soillib.fs	\
 	unix/soil2lib.fs unix/freetype-gllib.fs unix/android.fs	\
 	unix/openmax.fs unix/cpufeatureslib.fs unix/png.fs	\
-	unix/waylandlib.fs unix/gpslib.fs unix/vulkanlib.fs	\
-	unix/stat.fs
+	unix/waylandlib.fs unix/gpslib.fs unix/vulkanlib.fs
 
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i	\
 	unix/gl.i unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i	\
@@ -337,7 +336,7 @@ LIBCC_DIST_SRC = $(SWIG_SRC) unix/test.i unix/Makefile.in unix/doexec	\
 	unix/doprep
 
 LIBCC_FORTH_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(UNIXLIBS_SRC)
-LIBCC_GEN_SRC = $(patsubst %, unix/%, $(SWIGMODULES))
+LIBCC_GEN_SRC = unix/stat.fs $(patsubst %, unix/%, $(SWIGMODULES))
 
 LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
 LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BUILD_SRC) | sed -e s,unix/,,g))

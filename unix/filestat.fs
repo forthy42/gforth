@@ -62,7 +62,7 @@ e? os-type s" darwin" string-prefix? [IF]
     : lutimens ( addr u a -- r ) >r AT_FDCWD -rot r> $100 utimensat ;
 [THEN]
 
-include ./stat.fs
+require unix/stat.fs
 
 base @ 8 base !
 
