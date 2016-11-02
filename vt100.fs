@@ -41,13 +41,13 @@ decimal
     \G by adding @var{x} to the column and @var{y} to the row, negative
     \G numbers move up and left, positive down and right.
     over 0< over 0= and IF  drop abs backspaces  EXIT  THEN
-    base @ >r decimal
-    ?dup IF
-	#esc emit '[ emit  dup abs 0 .r 0< IF  'A  ELSE  'B  THEN  emit
-    THEN
-    ?dup IF
-	#esc emit '[ emit  dup abs 0 .r 0< IF  'D  ELSE  'C  THEN  emit
-    THEN  r> base ! ;
+    [: <<#
+      ?dup IF
+	  dup 0< IF  'A'  ELSE  'B'  THEN  hold abs 0 #s #esc[
+      THEN
+      ?dup IF
+	  dup 0< IF  'D'  ELSE  'C'  THEN  hold abs 0 #s #esc[
+      THEN #0. #> type #>> ;] #10 base-execute ;
 
 : vt100-page ( -- ) \ facility
   \G Clear the display and set the cursor to the top left-hand
