@@ -33,7 +33,7 @@ decimal
   \G Position the cursor so that subsequent text output will take
   \G place at column @var{u1}, row @var{u2} of the display. (column 0,
   \G row 0 is the top left-hand corner of the display).
-  1+ swap 1+ <<# 'H' hold #n; #n #esc[ 0. #> type #>> ;
+  1+ swap 1+ <<# 'H' hold #n; #n #esc[ #0. #> type #>> ;
 
 [IFUNDEF] at-deltaxy  Defer at-deltaxy [THEN]
 : vt100-at-deltaxy ( x y -- )
@@ -52,7 +52,7 @@ decimal
 : vt100-page ( -- ) \ facility
   \G Clear the display and set the cursor to the top left-hand
   \G corner.
-  ESC[ ." 2J" 0 0 at-xy ;
+  <<# s" [2J" holds #esc hold #0. #> type #>> 0 0 at-xy ;
 
 ' vt100-at-xy IS at-xy
 ' vt100-at-deltaxy IS at-deltaxy
