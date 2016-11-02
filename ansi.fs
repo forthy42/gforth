@@ -75,14 +75,14 @@ User Attr   0 Attr !
     \G set attribute
     dup Attr @ = IF drop EXIT THEN
     dup Attr !
-    ESC[    0 pn
-    dup FG> ?dup IF $F xor 30 + ;pn THEN
-    dup BG> ?dup IF $F xor 40 + ;pn THEN
-    dup Bold and IF 1 ;pn THEN
-    dup Underline and IF 4 ;pn THEN
-    dup Blink and IF 5 ;pn THEN
-    Invers and IF 7 ;pn THEN
-    [char] m emit ;
+    <<# 'm' hold
+    dup Invers and IF 7 #n; THEN
+    dup Blink and IF 5 #n; THEN
+    dup Underline and IF 4 #n; THEN
+    dup Bold and IF 1 #n; THEN
+    dup BG> ?dup IF $F xor 40 + #n; THEN
+    dup FG> ?dup IF $F xor 30 + #n; THEN
+    drop 0 #n #esc[ 0. #> type #>> ;
 
 ' (Attr!) IS Attr!
 

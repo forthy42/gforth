@@ -21,6 +21,10 @@ decimal
 
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
+: #n ( n -- )  [: 0 #s 2drop ;] #10 base-execute ;
+: #n; ( n -- )  [: 0 #s 2drop ';' hold ;] #10 base-execute ;
+: #esc[ ( -- ) '[' hold #esc hold ;
+
 : pn    base @ swap decimal 0 u.r base ! ;
 : ;pn   [char] ; emit pn ;
 : ESC[  #esc emit [char] [ emit ;
@@ -29,7 +33,7 @@ decimal
   \G Position the cursor so that subsequent text output will take
   \G place at column @var{u1}, row @var{u2} of the display. (column 0,
   \G row 0 is the top left-hand corner of the display).
-  1+ swap 1+ swap ESC[ pn ;pn [char] H emit ;
+  1+ swap 1+ <<# 'H' hold #n; #n #esc[ 0. #> type #>> ;
 
 [IFUNDEF] at-deltaxy  Defer at-deltaxy [THEN]
 : vt100-at-deltaxy ( x y -- )
