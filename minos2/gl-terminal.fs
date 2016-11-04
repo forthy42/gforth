@@ -160,6 +160,7 @@ Variable std-bg
 
 256 Value videocols
 0   Value videorows
+0   Value actualrows
 
 2Variable gl-xy  0 0 gl-xy 2!
 2Variable gl-wh 24 80 gl-wh 2!
@@ -207,6 +208,7 @@ $80 Value minpow2#
 \ blank-screen
 
 : resize-screen ( -- )
+    gl-xy @ 1+ actualrows max to actualrows
     gl-wh @ videocols >= gl-xy @ videorows >= or IF
 	videorows videocols * sfloats >r
 	gl-wh @ nextpow2 videocols max to videocols
@@ -317,7 +319,7 @@ Variable gl-emit-buf
 : gl-type-err ( addr u -- )
     bounds ?DO  I c@ gl-emit-err  LOOP ;
 
-: gl-page ( -- )  0 0 gl-atxy  0 to videorows
+: gl-page ( -- )  0 0 gl-atxy  0 to videorows  0 to actualrows
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!
     resize-screen need-sync on ;
 
@@ -390,7 +392,7 @@ is config-changed
     y-pos sf@ f2/ rows fm* f+ ;
 
 : +scroll ( f -- f' )
-    scroll-yr f+ videorows 1 - s>f fmin
+    scroll-yr f+ actualrows 1 - s>f fmin
     0e fmax screen-scroll ;
 
 : scrolling ( y0 -- )
