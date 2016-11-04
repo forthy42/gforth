@@ -178,7 +178,7 @@ FVariable scroll-time
 
 : show-rows ( -- n ) videorows scroll-y @ - rows 1+ min ;
 : nextpow2 ( n -- n' )
-    $20 BEGIN  2dup u>  WHILE 2*  REPEAT  nip ;
+    $80 BEGIN  2dup u>  WHILE 2*  REPEAT  nip ;
 
 : >rectangle ( -- )
     show-rows s>f rows fm/ -2e f* 1e f+
@@ -318,7 +318,6 @@ Variable gl-emit-buf
 
 : gl-page ( -- )  0 0 gl-atxy  0 to videorows
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!
-    videomem videocols sfloats resize throw to videomem
     resize-screen need-sync on ;
 
 : ?invers ( attr -- attr' ) dup invers and IF
