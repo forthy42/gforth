@@ -207,16 +207,16 @@ FVariable scroll-time
 
 : resize-screen ( -- )
     gl-wh @ videocols >= gl-xy @ videorows >= or IF
+	videorows videocols * sfloats >r
 	gl-wh @ nextpow2 videocols max to videocols
-	videomem videocols gl-xy @ 1+ nextpow2 * sfloats dup >r
+	gl-xy @ 1+ nextpow2 videorows max to videorows
+	videomem videocols videorows * sfloats dup >r
 	resize throw
 	to videomem
 	color-index @
-	videomem r>
-	videocols videorows * sfloats /string bounds +DO
+	videomem r> r> /string bounds +DO
 	    dup I l!
 	1 sfloats +LOOP drop
-	gl-xy @ 1+ to videorows
     THEN ;
 
 2 sfloats buffer: texsize.xy
