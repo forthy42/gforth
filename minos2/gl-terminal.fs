@@ -177,8 +177,9 @@ FVariable scroll-time
     dup dpy-h @ dpy-w @ 2* */ swap gl-wh 2! ;
 
 : show-rows ( -- n ) videorows scroll-y @ - rows 1+ min ;
+$80 Value minpow2#
 : nextpow2 ( n -- n' )
-    $80 BEGIN  2dup u>  WHILE 2*  REPEAT  nip ;
+    minpow2#  BEGIN  2dup u>  WHILE 2*  REPEAT  nip ;
 
 : >rectangle ( -- )
     show-rows s>f rows fm/ -2e f* 1e f+
@@ -210,7 +211,7 @@ FVariable scroll-time
 	videorows videocols * sfloats >r
 	gl-wh @ nextpow2 videocols max to videocols
 	gl-xy @ 1+ nextpow2 videorows max to videorows
-	videomem videocols videorows * sfloats dup >r
+	videomem videocols videorows minpow2# + * sfloats dup >r
 	resize throw
 	to videomem
 	color-index @
