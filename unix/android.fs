@@ -90,12 +90,11 @@ c-library android
     
 end-c-library
 
-require unix/cpufeatureslib.fs \ load into Android vocabulary
-
 s" APP_STATE" getenv s>number drop Value app
 
 get-current also forth definitions
 
+require unix/cpu.fs
 require unix/socket.fs
 require unix/pthread.fs
 require unix/jni-helper.fs

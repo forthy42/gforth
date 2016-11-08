@@ -1358,14 +1358,6 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype-gl-fsi.c; then
     AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype-gl.fs"
 		    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
 fi
-if test x$has_swig = xyes || test -f $srcdir/unix/cpufeatures-fsi.c; then
-    case "$host_os" in
-      	linux-android*)
-	    SWIGMODULES="$SWIGMODULES cpufeatures.fs"
-	    SWIGLIBS="$SWIGLIBS cpufeatureslib.fs"
-	    ;;
-    esac
-fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    AC_CHECK_HEADER(wayland/wayland-egl.h, SWIGMODULES="$SWIGMODULES wayland.fs"
 		   SWIGLIBS="$SWIGLIBS waylandlib.fs", ,)
