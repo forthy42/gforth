@@ -219,13 +219,18 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 : .voc ( wid -- ) \ gforth  dot-voc
 \G print the name of the wordlist represented by @var{wid}.  Can
 \G only print names defined with @code{vocabulary} or
-\G @code{wordlist constant}, otherwise prints @samp{???}.
-    dup >r wordlist-struct %size + dup head? true = if ( wid nt )
-	dup name>int dup >code-address docon: = swap >body @ r@ = and if
-	    id. rdrop exit
+    \G @code{wordlist constant}, otherwise prints @samp{???}.
+    dup body> head?  IF  body> id.  EXIT  THEN
+    #10 cells 2 cells DO
+	dup wordlist-struct %size + I + head?
+	true = if ( wid nt )
+	    dup wordlist-struct %size + I + swap >r
+	    dup name>int dup >code-address docon: = swap >body @ r> = and if
+		id. unloop exit
+	    endif
 	endif
-    endif
-    drop r> body> >head-noprim id. ;
+    cell +LOOP
+    '<' emit 0 .r ." > " ;
 
 : order ( -- )  \  search-ext
   \G Print the search order and the compilation word list.  The
