@@ -178,7 +178,7 @@ FVariable scroll-time
     dup dpy-h @ dpy-w @ 2* */ swap gl-wh 2! ;
 
 : show-rows ( -- n ) videorows scroll-y @ - rows 1+ min ;
-$80 Value minpow2#
+$20 Value minpow2#
 : nextpow2 ( n -- n' )
     minpow2#  BEGIN  2dup u>  WHILE 2*  REPEAT  nip ;
 
@@ -214,12 +214,12 @@ $80 Value minpow2#
 	gl-wh @ nextpow2 videocols max to videocols
 	gl-xy @ 1+ nextpow2 videorows max to videorows
 	videomem videocols videorows minpow2# + * sfloats dup >r
-	resize throw
+	videorows sfloats + resize throw
 	to videomem
 	color-index @
 	videomem r> r> /string bounds +DO
 	    dup I l!
-	1 sfloats +LOOP drop
+	[ 1 sfloats ]L +LOOP drop
     THEN ;
 
 2 sfloats buffer: texsize.xy
@@ -290,9 +290,16 @@ Variable gl-emit-buf
     over #tab = IF  >r drop bl gl-xy cell+ @ dup 1+ dfaligned swap - 0
     ELSE
 	>r
-	gl-emit-buf c$+!  gl-emit-buf $@ tuck x-size u< IF  rdrop  EXIT  THEN
-	gl-emit-buf $@ drop xc@ xchar>glascii
-	gl-emit-buf $@ x-width abs
+	gl-emit-buf c$+!  gl-emit-buf $@ tuck
+	['] x-size catch UTF-8-err = IF
+	    2drop $7F 1
+	ELSE  u< IF  rdrop  EXIT  THEN
+	    gl-emit-buf $@ drop ['] xc@ catch UTF-8-err =
+	    IF  drop $7F 1  ELSE  xchar>glascii
+		gl-emit-buf $@ ['] x-width catch UTF-8-err =
+		IF  2drop 1  THEN  abs
+	    THEN
+	THEN
 	gl-emit-buf $off $10
     THEN  { n m }
 
