@@ -23,9 +23,13 @@ e? os-type s" linux" string-prefix? [IF]
     : get-cpuflags ( -- )
 	s" /proc/cpuinfo" r/o open-file throw
 	[: BEGIN  refill  WHILE
-		  parse-name
-		  [IFDEF] android s" Features" [ELSE] s" flags" [THEN]
-		  str= parse-name s" :" str= and IF
+		  ':' parse -trailing
+		  [ machine s" arm" string-prefix? ] [IF] s" Features" [ELSE]
+		      [ machine s" amd64" str= machine s" 386" str= or ] [IF] s" flags" [ELSE]
+			  [ machine s" mips" str= ] [IF] s" isa" [ELSE]
+			      [ machine s" mipsel" str= ] [IF] s" cpu model" [ELSE]
+				  s" cpu" [THEN] [THEN] [THEN] [THEN]
+		  str= IF
 		      source >in @ /string cpuflags $!  THEN
 	  REPEAT ;] execute-parsing-file ;
     
