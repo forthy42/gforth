@@ -290,17 +290,21 @@ Variable gl-emit-buf
     over #tab = IF  >r drop bl gl-xy cell+ @ dup 1+ dfaligned swap - 0
     ELSE
 	>r
-	gl-emit-buf c$+!  gl-emit-buf $@ tuck
-	['] x-size catch UTF-8-err = IF
-	    2drop $7F 1
-	ELSE  u< IF  rdrop  EXIT  THEN
-	    gl-emit-buf $@ drop ['] xc@ catch UTF-8-err =
-	    IF  drop $7F 1  ELSE  xchar>glascii
-		gl-emit-buf $@ ['] x-width catch UTF-8-err =
-		IF  2drop 1  THEN  abs
+	dup $7F u<= IF \ fast path for ASCII
+	    xchar>glascii 1
+	ELSE \ slow path for xchars
+	    gl-emit-buf c$+!  gl-emit-buf $@ tuck
+	    ['] x-size catch UTF-8-err = IF
+		2drop $7F 1
+	    ELSE  u< IF  rdrop  EXIT  THEN
+		gl-emit-buf $@ drop ['] xc@ catch UTF-8-err =
+		IF  drop $7F 1  ELSE  xchar>glascii
+		    gl-emit-buf $@ ['] x-width catch UTF-8-err =
+		    IF  2drop 1  THEN  abs
+		THEN
 	    THEN
-	THEN
-	gl-emit-buf $off $10
+	    gl-emit-buf $off
+	THEN  $10
     THEN  { n m }
 
     n out +!

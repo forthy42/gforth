@@ -110,9 +110,9 @@ include  ./../termsize.fs
 Defer word-colorize ' noop is word-colorize
 
 : .word ( n nt -- n' )
-    word-colorize name>string tuck 2>r
+    dup >r name>string tuck 2>r
     1+ tuck + dup cols >=  IF  cr drop  ELSE  nip  THEN
-    2r> type space default-color attr! ;
+    2r> r> word-colorize drop type space default-color attr! ;
 
 : wordlist-words ( wid -- ) \ gforth
     \G Display the contents of the wordlist wid.
