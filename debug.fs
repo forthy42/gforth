@@ -214,7 +214,9 @@ s" debugger aborted" exception Constant end-debug#
 
 set-current
 
-: dbg ( "name" -- ) \ gforth 
+: dbg ( "name" -- ) \ gforth
+    threading-method 1 = debugging-method and
+    0= abort" Only works on gforth-itc"
     ' NestXT IF EXIT THEN (debug) Leave-D ;
 
 : break:, ( -- )

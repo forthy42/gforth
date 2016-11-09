@@ -671,7 +671,7 @@ VARIABLE C-Pass
 [IFDEF] call-c#
     : c-call-c# ( addr -- addr' )
 	display? IF
-	    dup @ 7 cells - name>string com# .string bl cemit
+	    dup @ body> name>string com# .string bl cemit
 	THEN  cell+ ;
 [THEN]
 
