@@ -23,7 +23,7 @@ e? os-type s" linux" string-prefix? [IF]
     : get-cpuflags ( -- )
 	s" /proc/cpuinfo" r/o open-file throw
 	[: BEGIN  refill  WHILE
-		  ':' parse -trailing
+		  ':' parse BEGIN dup WHILE 1- 2dup + c@ bl > UNTIL THEN
 		  [ machine s" arm" string-prefix? ] [IF] s" Features" [ELSE]
 		      [ machine s" amd64" str= machine s" 386" str= or ] [IF] s" flags" [ELSE]
 			  [ machine s" mips" str= ] [IF] s" isa" [ELSE]
