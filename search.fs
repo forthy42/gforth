@@ -219,7 +219,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 : .voc ( wid -- ) \ gforth  dot-voc
 \G print the name of the wordlist represented by @var{wid}.  Can
 \G only print names defined with @code{vocabulary} or
-    \G @code{wordlist constant}, otherwise prints @samp{???}.
+    \G @code{wordlist constant}, otherwise prints @samp{address}.
     dup body> head?  IF  body> id.  EXIT  THEN
     #10 cells 2 cells DO
 	dup wordlist-struct %size + I + head?
