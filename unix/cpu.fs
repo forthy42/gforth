@@ -17,7 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-e? os-type s" linux" string-prefix? [IF]
+e? os-type s" linux" string-prefix?
+e? os-type s" cygwin" string-prefix? or [IF]
     Variable cpuflags
     
     : get-cpuflags ( -- )
@@ -60,7 +61,7 @@ e? os-type s" linux" string-prefix? [IF]
 [ELSE]
     : string-cpu? ( addr u -- flag )
 	\G check if the CPU has the feature @var{addr u}
-	parse-name 2drop false ;
+	2drop false ;
     : cpu? ( "name" -- flag )
 	\G check if the CPU has the feature @var{name}
 	parse-name string-cpu? ;
