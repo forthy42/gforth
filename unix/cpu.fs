@@ -50,7 +50,10 @@ e? os-type s" cygwin" string-prefix? or [IF]
     \ fastlib check
     
     machine s" arm" str= [IF]
-	: fast-lib s" neon" string-cpu? ;
+	: fast-lib ( -- flag )
+	    s" neon" string-cpu?  \ on a 32 bit host OS
+	    s" asimd" string-cpu? \ on a 64 bit host OS
+	    or ;
     [ELSE]
 	machine s" 386" str= [IF]
 	    : fast-lib s" ssse3" string-cpu? ;
