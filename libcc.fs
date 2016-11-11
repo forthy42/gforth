@@ -952,7 +952,7 @@ tmp$ $execstr-ptr !
     parse-function-types
     here lastxt name>string string, count sanitize
     r> c-source-file-execute
-    ['] callback-does> set-does ;
+    ['] callback-does> set-does> ;
 
 : c-callback ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a callback instantiator with the given signature.  The
