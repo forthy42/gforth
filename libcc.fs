@@ -926,24 +926,14 @@ tmp$ $execstr-ptr !
     true to is-funptr? ['] parse-function-types (c-function)
     false to is-funptr? ;
 
-: (c-callback) ( xt "forth-name" "@{type@}" "---" "type" -- ) \ gforth
-    \G Define a callback instantiator with the given signature.  The
-    \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
-    \G an @var{xt}, and returns the @var{addr}ess of the C function
-    \G handling that callback.
-    >r Create here dup ccb% dup allot erase
-    callback# 1- over ccb-num !
-    lib-handle-addr @ swap ccb-lha !
-    parse-function-types
-    here lastxt name>string string, count sanitize
-    r> c-source-file-execute
-  DOES> ( xt -- addr ) >r \ create a callback instance
+: callback-does> ( xt -- addr ) >r \ create a callback instance
     r@ ccb-num @ 0< !!callbacks!! and throw
     r@ ccb-lha @ @ 0= IF
 	compile-wrapper-function
     THEN
     r@ ccb-cfuns @ 0= IF
-	r@ cff% + 2 + count + count 2dup
+	callback# 1- r@ ccb-num !
+	r@ ccb% + 2 + count + count 2dup
 	r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
 	r@ ccb-lha @ @ lookup-c-array r@ ccb-cfuns !
     THEN
@@ -951,6 +941,18 @@ tmp$ $execstr-ptr !
     >body r@ ccb-ips @ r@ ccb-num @ cells + !
     r@ ccb-cfuns @ r@ ccb-num @ cells + @
     -1 r> ccb-num +! ;
+
+: (c-callback) ( xt "forth-name" "@{type@}" "---" "type" -- ) \ gforth
+    \G Define a callback instantiator with the given signature.  The
+    \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
+    \G an @var{xt}, and returns the @var{addr}ess of the C function
+    \G handling that callback.
+    >r Create here dup ccb% dup allot erase
+    lib-handle-addr @ swap ccb-lha !
+    parse-function-types
+    here lastxt name>string string, count sanitize
+    r> c-source-file-execute
+    ['] callback-does> set-does ;
 
 : c-callback ( "forth-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a callback instantiator with the given signature.  The
@@ -994,6 +996,9 @@ init-libcc
 		>body dup link-wrapper-function
 		\ ." relink: " over body> .name dup hex. cr
 		over !
+	    ELSE  dup >does-code [ ' callback-does> >body ]L = IF
+		    dup >body ccb-cfuns off
+		THEN
 	    THEN  drop
 	    true ;] swap traverse-wordlist ;] map-vocs ;
 
