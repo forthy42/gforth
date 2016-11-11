@@ -926,16 +926,19 @@ tmp$ $execstr-ptr !
     true to is-funptr? ['] parse-function-types (c-function)
     false to is-funptr? ;
 
+: setup-callback ( addr -- ) >r
+    callback# 1- r@ ccb-num !
+    r@ ccb% + 2 + count + count 2dup
+    r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
+    r@ ccb-lha @ @ lookup-c-array r> ccb-cfuns ! ;
+
 : callback-does> ( xt -- addr ) >r \ create a callback instance
     r@ ccb-num @ 0< !!callbacks!! and throw
     r@ ccb-lha @ @ 0= IF
 	compile-wrapper-function
     THEN
     r@ ccb-cfuns @ 0= IF
-	callback# 1- r@ ccb-num !
-	r@ ccb% + 2 + count + count 2dup
-	r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
-	r@ ccb-lha @ @ lookup-c-array r@ ccb-cfuns !
+	r@ setup-callback
     THEN
     >r :noname r> compile, ]] 0 (bye) ; [[
     >body r@ ccb-ips @ r@ ccb-num @ cells + !
@@ -997,7 +1000,7 @@ init-libcc
 		\ ." relink: " over body> .name dup hex. cr
 		over !
 	    ELSE  dup >does-code [ ' callback-does> >body ]L = IF
-		    dup >body ccb-cfuns off
+		    dup >body setup-callback
 		THEN
 	    THEN  drop
 	    true ;] swap traverse-wordlist ;] map-vocs ;
