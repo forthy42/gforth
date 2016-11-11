@@ -33,17 +33,27 @@ WNDCLASSW buffer: windowClass
 Variable hInstance
 Variable lIcon
 Variable sIcon
+Variable createstruc
+
+: ime-default { wnd msg w l -- n }
+    wnd msg w l ImmIsUIMessage dup 0= IF
+	drop wnd msg w l DefWindowProc
+    THEN ;
 
 : gl-window-proc { wnd msg w l -- n }
-    1 msg case
-	WM_CREATE  of ." Created" cr endof
-	WM_PAINT   of ." Painted" cr endof
-	WM_DESTROY of ." Destroyed" cr  endof
-	WM_CHAR    of ." Char: " w . cr endof
-	WM_NCACTIVATE of  ." ncactivate " w . cr drop 0  endof
-	WM_GETICON of ." GetIcon: " w . drop
-	    w 1 = IF lIcon @ ELSE sIcon @ THEN dup . cr endof
-	." MSG: " dup .
+    ." MSG: " msg . w . l hex. cr
+    msg case
+	WM_CREATE  of ." Created " l createstruc ! cr 0 endof
+	WM_PAINT   of ." Painted " cr 0 endof
+	WM_DESTROY of ." Destroyed " cr  0 endof
+	WM_CHAR    of ." Char: " cr  0 endof
+	WM_NCACTIVATE of  ." ncactivate " cr w 0= negate  endof
+	WM_ACTIVATE of  ." activate " cr 0  endof
+	WM_GETICON of ." GetIcon: "
+	    w 1 = IF lIcon @ ELSE
+		w 2 = IF  0  ELSE  sIcon @ THEN
+	    THEN  dup . cr endof
+	WM_IME_SETCONTEXT of 1 endof
 	drop wnd msg w l DefWindowProc dup . cr
 	0 endcase ;
 

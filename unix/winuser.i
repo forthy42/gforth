@@ -5,6 +5,7 @@
 #include <w32api/minwindef.h>
 #include <w32api/windef.h>
 #include <w32api/winuser.h>
+#include <w32api/imm.h>
 %}
 #define WINAPI
 #define WINAPI_FAMILY_PARTITION(x) x
@@ -157,7 +158,7 @@
 %apply void { VOID };
 %apply const char * { LPCSTR };
 %apply const wchar_t * { LPCWSTR };
-%apply SWIGTYPE * { HDC, HGLRC, LPWSTR, LPSTR, HPALETTE,
+%apply SWIGTYPE * { HIMC, HDC, HGLRC, LPWSTR, LPSTR, HPALETTE,
      LPVOID, LPDWORD, HCOLORSPACE, LPLOGCOLORSPACEW, LPLOGCOLORSPACEA,
      HGDIOBJ, LPPOINT, HBITMAP, LPSIZE, HRGN, HANDLE, PFLOAT,
      LPXFORM, LPTEXTMETRICA, HPEN, PROC, LPTEXTMETRICW, HENHMETAFILE,
@@ -178,4 +179,5 @@
 %include <w32api/minwindef.h>
 %include <w32api/windef.h>
 %include <w32api/winuser.h>
+%include <w32api/imm.h>
 

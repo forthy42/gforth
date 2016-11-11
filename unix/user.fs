@@ -23,7 +23,9 @@ get-current also user32 definitions
 c-library user
     \c #include <w32api/wtypes.h>
     \c #include <w32api/winuser.h>
+    \c #include <w32api/imm.h>
     s" user32" add-lib
+    s" imm32" add-lib
     include unix/winuser.fs
 end-c-library
 
