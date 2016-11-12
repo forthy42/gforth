@@ -82,6 +82,9 @@ jni-method: clearFlags clearFlags (I)V
 jni-method: getForcedWindowFlags getForcedWindowFlags ()I
 jni-method: takeSurface takeSurface (Landroid/view/SurfaceHolder$Callback2;)V
 
+jni-class: android/view/View
+jni-method: setSystemUiVisibility setSystemUiVisibility (I)V
+
 jni-class: android/view/KeyEvent
 jni-new: newKeyEvent (II)V
 jni-method: getUnicodeChar(I) getUnicodeChar (I)I
