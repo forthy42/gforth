@@ -315,7 +315,7 @@ public class Gforth
 	}
 	public void showStatus() {
 	    if (Build.VERSION.SDK_INT < 16) {
-		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	    }
 	    else {
 		View decorView = mActivity.getWindow().getDecorView();
