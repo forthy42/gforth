@@ -78,7 +78,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 import gnu.gforth.R;
-import android.support.v4.app.NotificationCompat;
 
 public class Gforth
     extends android.app.Activity
@@ -319,7 +318,7 @@ public class Gforth
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	    }
 	    else {
-		View decorView = getWindow().getDecorView();
+		View decorView = mActivity.getWindow().getDecorView();
 		// Show Status Bar.
 		int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
 		decorView.setSystemUiVisibility(uiOptions);
@@ -328,11 +327,11 @@ public class Gforth
 	public void hideStatus() {
 	    // Hide Status Bar
 	    if (Build.VERSION.SDK_INT < 16) {
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+		mActivity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				     WindowManager.LayoutParams.FLAG_FULLSCREEN);
 }
 	    else {
-		View decorView = getWindow().getDecorView();
+		View decorView = mActivity.getWindow().getDecorView();
 		// Hide Status Bar.
 		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
 		decorView.setSystemUiVisibility(uiOptions);
