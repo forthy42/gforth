@@ -29,7 +29,7 @@ also user32 also gdi32 also win32
 WS_VISIBLE WS_POPUP or WS_BORDER or WS_OVERLAPPEDWINDOW or Constant wStyle
 
 RECT buffer: windowRect
-WNDCLASSW buffer: windowClass
+WNDCLASSEXW buffer: windowClass
 Variable hInstance
 Variable lIcon
 Variable sIcon
@@ -41,43 +41,53 @@ Variable createstruc
     THEN ;
 
 : gl-window-proc { wnd msg w l -- n }
-    ." MSG: " msg . w . l hex. cr
+\    ." msg: " msg . w . l hex. cr
     msg case
-	WM_CREATE  of ." Created " l createstruc ! cr 0 endof
-	WM_PAINT   of ." Painted " cr 0 endof
-	WM_DESTROY of ." Destroyed " cr  0 endof
-	WM_CHAR    of ." Char: " cr  0 endof
-	WM_NCACTIVATE of  ." ncactivate " cr w 0= negate  endof
-	WM_ACTIVATE of  ." activate " cr 0  endof
-	WM_GETICON of ." GetIcon: "
-	    w 1 = IF lIcon @ ELSE
-		w 2 = IF  0  ELSE  sIcon @ THEN
-	    THEN  dup . cr endof
-	WM_IME_SETCONTEXT of 1 endof
-	drop wnd msg w l DefWindowProc dup . cr
+	WM_NCCREATE of  l createstruc !  1 ms wnd msg w l DefWindowProc  endof
+	WM_CREATE  of  l createstruc !   wnd msg w l DefWindowProc  endof
+\	WM_NCPAINT of ." NC Painted " cr wnd msg w l DefWindowProc endof
+	WM_PAINT   of ." Painted " cr wnd msg w l DefWindowProc endof
+	WM_DESTROY of ." Destroyed " cr  wnd msg w l DefWindowProc endof
+	WM_CHAR    of ." Char: " cr  wnd msg w l DefWindowProc endof
+	WM_NCACTIVATE of  w 0= negate  endof
+	WM_ACTIVATE of    w 0= negate  endof
+	WM_GETICON of  lIcon sIcon w 1 = select @  endof
+	WM_IME_SETCONTEXT of  0 endof
+	drop wnd msg w l DefWindowProc \ dup . cr
 	0 endcase ;
 
 ' gl-window-proc WNDPROC: Constant gl-window-proc-cb
 
-: adjust ( w h -- )
-    0 windowRect RECT-left l!
-    0 windowRect RECT-top l!
-    windowRect RECT-right l!
+: adjust ( w h -- x y w h )
+    #30 windowRect RECT-left l!
+    #40 windowRect RECT-top l!
     windowRect RECT-bottom l!
+    windowRect RECT-right l!
     windowRect wStyle 0 AdjustWindowRect drop
-    windowRect RECT-left sl@  windowRect RECT-right  sl@ +
-    windowRect RECT-top  sl@  windowRect RECT-bottom sl@ + ;
+    windowRect RECT-left sl@
+    windowRect RECT-top  sl@
+    windowRect RECT-right  sl@
+    windowRect RECT-bottom sl@ ;
 
 : register-class ( -- )
     0 0 GetModuleHandle hInstance !
-    "gforth.ico" 0 lIcon sIcon 1 ExtractIconEx
-    CS_OWNDC 3 or                     windowClass WNDCLASSW-style l!
-    hInstance @                       windowClass WNDCLASSW-hInstance !
-    BLACK_BRUSH GetStockObject        windowClass WNDCLASSW-hbrBackground !
-    gl-window-proc-cb                 windowClass WNDCLASSW-lpfnWndProc !
-    "gforth" >utf16 2 + save-mem drop windowClass WNDCLASSW-lpszClassName !
-    windowClass RegisterClass drop ;
+    "gforth.ico" 0 lIcon sIcon 1 ExtractIconEx drop
+    \ ." Icons: " . lIcon ? sIcon ? cr
+    WNDCLASSEXW                         windowClass WNDCLASSEXW-cbSize l!
+    CS_OWNDC 3 or                      windowClass WNDCLASSEXW-style l!
+    hInstance @                        windowClass WNDCLASSEXW-hInstance !
+    BLACK_BRUSH GetStockObject         windowClass WNDCLASSEXW-hbrBackground !
+    gl-window-proc-cb                  windowClass WNDCLASSEXW-lpfnWndProc !
+    lIcon @                            windowClass WNDCLASSEXW-hIcon !
+    sIcon @                            windowClass WNDCLASSEXW-hIconSm !
+    5                                  windowClass WNDCLASSEXW-hbrBackground !
+    0 0 32512 ( IDC_ARROW ) LoadCursor windowClass WNDCLASSEXW-hCursor !
+    "gforth" >utf16 2 + save-mem drop  windowClass WNDCLASSEXW-lpszClassName !
+    windowClass RegisterClassEx drop ;
 
 : make-window ( w h -- hnd )  2>r
-    0 "gforth" "GL-Window" wStyle 0 0 2r> adjust 0 0
+    0 "gforth" "GL-Window" wStyle 2r> adjust 0 0
     hInstance @ 0 CreateWindowEx ;
+
+register-class
+640 400 make-window
