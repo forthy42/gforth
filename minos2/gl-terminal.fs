@@ -381,12 +381,13 @@ Variable gl-emit-buf
 
 : config-changer ( -- )
     getwh  >screen-orientation  form-chooser  winch? on  need-sync on ;
+: ?config-changer ( -- )
+    need-config @ IF
+	-1 need-config +! config-changer
+    THEN ;
 
 : screen-sync ( -- )  rendering @ -2 > ?EXIT \ don't render if paused
-    need-config @ IF
-	-1 need-config +!
-	config-changer
-    THEN
+    ?config-changer
     need-sync @ win and level# @ 0<= and IF
 	show-cursor screen->gl need-sync off  THEN ;
 

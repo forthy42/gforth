@@ -104,10 +104,16 @@ Variable eglformat
     
     0 Value egldpy
     0 Value surface
+
+    cell 8 = 1 pad ! pad c@ 0= and [IF]
+	' sfloat+ alias >int*
+    [ELSE]
+	' noop alias >int* immediate
+    [THEN]
     
     : getwh ( -- )
-	egldpy surface EGL_WIDTH dpy-w eglQuerySurface drop
-	egldpy surface EGL_HEIGHT dpy-h eglQuerySurface drop
+	egldpy surface EGL_WIDTH dpy-w >int* eglQuerySurface drop
+	egldpy surface EGL_HEIGHT dpy-h >int* eglQuerySurface drop
 	0 0 dpy-w @ dpy-h @ glViewport ;
 
     : >screen-orientation ( -- )

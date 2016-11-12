@@ -272,7 +272,7 @@ true value show-mcursor
     media-tex nearest-oes ;
 
 : draw-frame ( -- )
-    init-frame clear
+    ?config-changer init-frame clear
     media-sft >o getTimestamp d>f 1e-9 f* prev-timestamp f!
     updateTexImage o>
     prev-timestamp f@ first-timestamp f@ f<> IF
