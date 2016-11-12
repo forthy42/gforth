@@ -119,7 +119,8 @@ Defer window-init    ' noop is window-init
 Defer config-changed
 Defer screen-ops     ' noop IS screen-ops
 
-:noname ( -- ) need-config on ; is config-changed
+#16 Value config-change#
+:noname ( -- ) config-change# need-config ! ; is config-changed
 
 : term-cr defers cr ;
 

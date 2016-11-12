@@ -22,8 +22,6 @@ jni-method: getWindow getWindow ()Landroid/view/Window;
 jni-method: getResources getResources ()Landroid/content/res/Resources;
 jni-method: showIME showIME ()V
 jni-method: hideIME hideIME ()V
-jni-method: showStatus showStatus ()V
-jni-method: hideStatus hideStatus ()V
 jni-method: get_SDK get_SDK ()I
 jni-method: setEditLine setEditLine (Ljava/lang/String;I)V
 jni-method: set_alarm set_alarm (J)V
@@ -193,12 +191,23 @@ jvalue res clazz .getResources to res
     l-size 0 ?DO  I l-get >o xt execute ref>  LOOP o> ;
 
 Variable kbflag     kbflag off
-Variable statusflag statusflag on
 
 : hidekb ( -- )  clazz >o hideIME o> kbflag off ;
 : showkb ( -- )  clazz >o showIME o> kbflag on ;
-: hidestatus ( -- )  clazz >o hideStatus o> statusflag off ;
-: showstatus ( -- )  clazz >o showStatus o> statusflag on ;
+: hidestatus ( -- )
+    [ SDK_INT 16 < ] [IF]
+	clazz >o getWindow >o $400 addFlags ref> o>
+    [ELSE]
+	clazz >o getWindow >o getDecorView >o $1004 setSystemUiVisibility
+	ref> ref> o>
+    [THEN] ;
+: showstatus ( -- )
+    [ SDK_INT 16 < ] [IF]
+	clazz >o getWindow >o $400 clearFlags ref> o>
+    [ELSE]
+	clazz >o getWindow >o getDecorView >o 0 setSystemUiVisibility
+	ref> ref> o>
+    [THEN] ;
 
 : togglekb ( -- )
     kbflag @ IF  hidekb  ELSE  showkb  THEN ;

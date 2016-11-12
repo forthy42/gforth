@@ -283,7 +283,8 @@ Defer config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
 screen-ops     ' noop IS screen-ops
 
-:noname ( -- ) need-config on ; is config-changed
+#16 Value config-change#
+:noname ( -- ) config-change# need-config ! ; is config-changed
 
 Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 

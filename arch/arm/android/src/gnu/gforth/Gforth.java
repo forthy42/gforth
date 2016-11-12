@@ -361,30 +361,6 @@ public class Gforth
     public void hideIME() {
 	if(mView!=null) mView.hideIME();
     }
-    public void showStatus() {
-	if (Build.VERSION.SDK_INT < 16) {
-	    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	}
-	else {
-	    View decorView = getWindow().getDecorView();
-	    // Show Status Bar.
-	    int uiOptions = 0; // View.SYSTEM_UI_FLAG_VISIBLE
-	    decorView.setSystemUiVisibility(uiOptions);
-	}
-    }
-    public void hideStatus() {
-	// Hide Status Bar
-	if (Build.VERSION.SDK_INT < 16) {
-	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	}
-	else {
-	    View decorView = getWindow().getDecorView();
-	    // Hide Status Bar.
-	    int uiOptions = 4 | 0x1000; // View.SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-	    decorView.setSystemUiVisibility(uiOptions);
-	}
-    }
     public void setEditLine(String line, int curpos) {
 	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
 	if(mView!=null) mView.mInputConnection.setEditLine(line, curpos);
