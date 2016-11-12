@@ -36,7 +36,7 @@ buffer-init
     angle           fsincos angle 6 fm* fcos .1e f* -1e f+ >xyz v+
     angle 120deg f- fsincos angle 6 fm* fcos .1e f* -1e f+ >xyz v+
     angle 120deg f+ fsincos angle 6 fm* fcos .1e f* -1e f+ >xyz v+ o> ;
-    
+
 \ 0 set-triangle
 
 : colors ( -- ) >v

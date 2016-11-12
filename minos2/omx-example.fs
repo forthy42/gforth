@@ -272,7 +272,7 @@ true value show-mcursor
     media-tex nearest-oes ;
 
 : draw-frame ( -- )
-    ?config-changer init-frame clear
+    init-frame clear
     media-sft >o getTimestamp d>f 1e-9 f* prev-timestamp f!
     updateTexImage o>
     prev-timestamp f@ first-timestamp f@ f<> IF
@@ -323,9 +323,10 @@ true value show-mcursor
 
 : play-loop ( -- ) hidekb
     screen+keep pplay
-    omx-init init-frame 1 level# +! config-change# need-config !
+    omx-init init-frame 1 level# +!
+    config-change# need-config !
     BEGIN
-	draw-frame check-input
+	?config-changer draw-frame check-input
 	cues>mts-run? 0= pplay? and  IF  ppause  THEN
     level# @ 0= UNTIL
     ppause screen-keep ;
