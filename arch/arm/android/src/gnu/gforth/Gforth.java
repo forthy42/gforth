@@ -714,8 +714,4 @@ public class Gforth
 	Log.v(TAG, "Return back");
 	return filename;
     }
-
-    public NotificationCompat.Builder nf_builder() {
-	return new NotificationCompat.Builder(this);
-    }
 }
