@@ -321,7 +321,7 @@ true value show-mcursor
     THEN
     rdrop ;
 
-: play-loop ( -- ) hidekb  hidestatus  config-change# need-config !
+: play-loop ( -- ) hidekb  hidestatus  -1 1 rshift need-config !
     screen+keep pplay
     omx-init init-frame 1 level# +!
     BEGIN
