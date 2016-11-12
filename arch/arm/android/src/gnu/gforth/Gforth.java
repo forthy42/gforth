@@ -313,32 +313,6 @@ public class Gforth
 	public void hideIME() {
 	    mManager.hideSoftInputFromWindow(getWindowToken(), 0);
 	}
-	public void showStatus() {
-	    if (Build.VERSION.SDK_INT < 16) {
-		mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-	    }
-	    else {
-		View decorView = mActivity.getWindow().getDecorView();
-		// Show Status Bar.
-		int uiOptions = 0; // View.SYSTEM_UI_FLAG_VISIBLE
-		decorView.setSystemUiVisibility(uiOptions);
-	    }
-	}
-	public void hideStatus() {
-	    // Hide Status Bar
-	    if (Build.VERSION.SDK_INT < 16) {
-		mActivity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				     WindowManager.LayoutParams.FLAG_FULLSCREEN);
-}
-	    else {
-		View decorView = mActivity.getWindow().getDecorView();
-		// Hide Status Bar.
-		int uiOptions = 4 | 0x1000; // View.SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-
-;
-		decorView.setSystemUiVisibility(uiOptions);
-	    }
-	}
     }
 
     public class RunForth implements Runnable {
@@ -388,10 +362,28 @@ public class Gforth
 	if(mView!=null) mView.hideIME();
     }
     public void showStatus() {
-	if(mView!=null) mView.showStatus();
+	if (Build.VERSION.SDK_INT < 16) {
+	    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	}
+	else {
+	    View decorView = getWindow().getDecorView();
+	    // Show Status Bar.
+	    int uiOptions = 0; // View.SYSTEM_UI_FLAG_VISIBLE
+	    decorView.setSystemUiVisibility(uiOptions);
+	}
     }
     public void hideStatus() {
-	if(mView!=null) mView.hideStatus();
+	// Hide Status Bar
+	if (Build.VERSION.SDK_INT < 16) {
+	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	}
+	else {
+	    View decorView = getWindow().getDecorView();
+	    // Hide Status Bar.
+	    int uiOptions = 4 | 0x1000; // View.SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+	    decorView.setSystemUiVisibility(uiOptions);
+	}
     }
     public void setEditLine(String line, int curpos) {
 	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
