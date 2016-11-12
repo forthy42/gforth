@@ -321,8 +321,14 @@ true value show-mcursor
     THEN
     rdrop ;
 
-: play-loop ( -- ) hidekb  hidestatus  -1 1 rshift need-config !
-    screen+keep pplay
+: >changed ( -- )
+    config-change# need-config !
+    BEGIN  >looper screen-sync need-config @ 0= UNTIL ;
+
+: play-loop ( -- )
+    hidekb >changed
+    hidestatus >changed
+    screen+keep pplay >changed
     omx-init init-frame 1 level# +!
     BEGIN
 	?config-changer draw-frame check-input

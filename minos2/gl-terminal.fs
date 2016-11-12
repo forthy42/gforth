@@ -380,11 +380,11 @@ Variable gl-emit-buf
 [IFUNDEF] win : win app window @ ; [THEN]
 
 : config-changer ( -- )
-    getwh  >screen-orientation  form-chooser  winch? on  need-sync on ;
+    getwh  >screen-orientation  form-chooser  need-sync on ;
 : ?config-changer ( -- )
     need-config @ 0> IF
 	dpy-w @ dpy-h @ 2>r config-changer
-	dpy-w @ dpy-h @ 2r> d<> IF  need-config off
+	dpy-w @ dpy-h @ 2r> d<> IF  winch? on  need-config off
 	ELSE  -1 need-config +!  THEN
     THEN ;
 
