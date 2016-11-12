@@ -19,7 +19,9 @@
 
 require minos2/gl-helper.fs
 
-also opengl also [IFDEF] android android [THEN]
+also opengl
+also [IFDEF] android android [THEN]
+also [IFDEF] x11 x11 [THEN]
 
 tex: ascii-tex
 
@@ -74,7 +76,8 @@ FVariable motion 0.01e motion f!
     sync ;
 
 : draw-tri { f: angle -- angle' }
-    ?config-changed angle draw-tri-angle
+    [IFDEF] ?config-changer ?config-changer [THEN]
+    angle draw-tri-angle
     >looper default>ap
     *input >r r@ IF
 	r@ action @ abs 1 <> IF

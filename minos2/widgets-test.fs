@@ -111,7 +111,7 @@ also [IFDEF] android android [THEN]
 
 : widgets-demo ( -- )  [IFDEF] hidekb  hidekb [THEN]
     1 level# +!  !widgets  BEGIN  widgets-test >looper
-	?config-changed need-sync @ IF  !widgets  need-sync off  THEN
+	?config-changer need-sync @ IF  !widgets  need-sync off  THEN
     level# @ 0= UNTIL  need-sync on ;
 
 previous
