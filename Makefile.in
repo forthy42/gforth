@@ -155,7 +155,7 @@ STACK_CACHE_DEFAULT_FAST = @STACK_CACHE_DEFAULT_FAST@
 PROFOBJS = @PROFOBJS@
 PROFEXES = @PROFEXES@
 
-INSTALLDIRS = kernel kernel-ec doc asm ec test \
+INSTALLDIRS = kernel kernel-ec doc asm ec test test/fp \
 	compat unix minos2 \
 	arch arch/generic arch/m68k arch/mips \
 	arch/386 arch/hppa arch/sparc arch/power \
