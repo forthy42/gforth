@@ -314,6 +314,30 @@ public class Gforth
 	public void hideIME() {
 	    mManager.hideSoftInputFromWindow(getWindowToken(), 0);
 	}
+	public void showStatus() {
+	    if (Build.VERSION.SDK_INT < 16) {
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	    }
+	    else {
+		View decorView = getWindow().getDecorView();
+		// Show Status Bar.
+		int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+		decorView.setSystemUiVisibility(uiOptions);
+	    }
+	}
+	public void hideStatus() {
+	    // Hide Status Bar
+	    if (Build.VERSION.SDK_INT < 16) {
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				     WindowManager.LayoutParams.FLAG_FULLSCREEN);
+}
+	    else {
+		View decorView = getWindow().getDecorView();
+		// Hide Status Bar.
+		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+		decorView.setSystemUiVisibility(uiOptions);
+	    }
+	}
     }
 
     public class RunForth implements Runnable {

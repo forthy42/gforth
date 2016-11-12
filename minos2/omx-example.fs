@@ -321,15 +321,14 @@ true value show-mcursor
     THEN
     rdrop ;
 
-: play-loop ( -- ) hidekb
+: play-loop ( -- ) hidekb  hidestatus  need-config on
     screen+keep pplay
     omx-init init-frame 1 level# +!
-    config-change# need-config !
     BEGIN
 	?config-changer draw-frame check-input
 	cues>mts-run? 0= pplay? and  IF  ppause  THEN
     level# @ 0= UNTIL
-    ppause screen-keep ;
+    ppause screen-keep  showstatus ;
 : play-ts ( addr u -- ) ['] read-ts-file is read-ts
     open-mts start-file play-loop ;
 : set-mkv ( addr u -- )
