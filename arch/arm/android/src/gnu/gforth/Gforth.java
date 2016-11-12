@@ -387,6 +387,12 @@ public class Gforth
     public void hideIME() {
 	if(mView!=null) mView.hideIME();
     }
+    public void showStatus() {
+	if(mView!=null) mView.showStatus();
+    }
+    public void hideStatus() {
+	if(mView!=null) mView.hideStatus();
+    }
     public void setEditLine(String line, int curpos) {
 	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
 	if(mView!=null) mView.mInputConnection.setEditLine(line, curpos);
