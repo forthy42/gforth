@@ -191,13 +191,15 @@ $20 Value minpow2#
     1e  fswap >xy n> v+ o> ;
 
 : >texcoords ( -- )
-    cols s>f videocols fm/  show-rows dup s>f nextpow2 fm/
+    cols s>f videocols fm/  show-rows dup s>f nextpow2 dup fm/
     { f: tx f: ty }
+    scroll-y @ over + videorows umin over - scroll-y @ - s>f fm/ fnegate
+    { f: ox }
     >v
-    0e ty >st v+
-    0e 0e >st v+
-    tx 0e >st v+
-    tx ty >st v+ v> ;
+    0e ty ox f+ >st v+
+    0e    ox    >st v+
+    tx    ox    >st v+
+    tx ty ox f+ >st v+ v> ;
 
 0 Value videomem
 
@@ -209,11 +211,11 @@ $20 Value minpow2#
 
 : resize-screen ( -- )
     gl-xy @ 1+ actualrows max to actualrows
-    gl-wh @ videocols >= gl-xy @ videorows >= or IF
+    gl-wh @ videocols u> gl-xy @ videorows u>= or IF
 	videorows videocols * sfloats >r
 	gl-wh @ nextpow2 videocols max to videocols
 	gl-xy @ 1+ nextpow2 videorows max to videorows
-	videomem videocols videorows minpow2# + * sfloats dup >r
+	videomem videocols videorows * sfloats dup >r
 	videorows sfloats + resize throw
 	to videomem
 	color-index @
@@ -229,8 +231,10 @@ $20 Value minpow2#
     video-tex
     show-rows nextpow2 s>f  videocols s>f texsize.xy sf!+ sf!
     texsize 1 texsize.xy glUniform2fv
-    videomem scroll-y @ videocols * sfloats +
-    videocols show-rows nextpow2 rgba-map wrap nearest
+    show-rows nextpow2 >r
+    videomem scroll-y @ r@ + videorows umin r@ -
+    videocols * sfloats +
+    videocols r> rgba-map wrap nearest
 
     v0 >rectangle >texcoords
     GL_TEXTURE0 glActiveTexture
