@@ -33,6 +33,7 @@ also x11
 
 Variable need-sync
 Variable need-show
+Variable need-config
 Variable kbflag
 
 XIMPreeditPosition XIMPreeditArea or
@@ -112,11 +113,14 @@ PropertyChangeMask or
 \ OwnerGrabButtonMask or
 Constant default-events
 
-: linux ;
+[IFUNDEF] linux  : linux ;  [THEN]
 
 Defer window-init    ' noop is window-init
-Defer config-changed ' noop is config-changed
+Defer config-changed
 Defer screen-ops     ' noop IS screen-ops
+
+2 Value config-change#
+:noname ( -- ) config-change# need-config ! ; is config-changed
 
 : term-cr defers cr ;
 
