@@ -378,7 +378,7 @@ public class Gforth
 				 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	}
 	else {
-	    getWindow().getDecorView().setSystemUiVisibility(0x1000);
+	    getWindow().getDecorView().setSystemUiVisibility(0x1004);
 	    // View.SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 	}
     }
