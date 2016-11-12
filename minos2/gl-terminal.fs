@@ -219,7 +219,7 @@ $20 Value minpow2#
 	videorows sfloats + resize throw
 	to videomem
 	color-index @
-	videomem r> r> /string bounds +DO
+	videomem r> r> /string bounds U+DO
 	    dup I l!
 	[ 1 sfloats ]L +LOOP drop
     THEN ;
