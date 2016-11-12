@@ -26,7 +26,7 @@ require utf16.fs
 
 also user32 also gdi32 also win32
 
-WS_VISIBLE WS_POPUP or WS_BORDER or WS_OVERLAPPEDWINDOW or Constant wStyle
+WS_OVERLAPPEDWINDOW  WS_VISIBLE or  Constant wStyle
 
 RECT buffer: windowRect
 WNDCLASSEXW buffer: windowClass
@@ -43,15 +43,19 @@ Variable createstruc
 : gl-window-proc { wnd msg w l -- n }
 \    ." msg: " msg . w . l hex. cr
     msg case
-	WM_NCCREATE of  l createstruc !  1 ms wnd msg w l DefWindowProc  endof
-	WM_CREATE  of  l createstruc !   wnd msg w l DefWindowProc  endof
-\	WM_NCPAINT of ." NC Painted " cr wnd msg w l DefWindowProc endof
+	WM_NCCREATE of  l createstruc !
+	    #0. ns \ weird workaround, if you don't wait here,
+	    \ or do a similar system call, it will stop instantly
+	    wnd msg w l DefWindowProc  endof
+	WM_CREATE  of  wnd msg w l DefWindowProc  endof
 	WM_PAINT   of ." Painted " cr wnd msg w l DefWindowProc endof
 	WM_DESTROY of ." Destroyed " cr  wnd msg w l DefWindowProc endof
 	WM_CHAR    of ." Char: " cr  wnd msg w l DefWindowProc endof
 	WM_NCACTIVATE of  w 0= negate  endof
 	WM_ACTIVATE of    w 0= negate  endof
-	WM_GETICON of  lIcon sIcon w 1 = select @  endof
+	WM_GETICON of  lIcon sIcon w 1 = select @
+	    10000 ms \ crashes as soon as WM_GETICON returns something
+	endof
 	WM_IME_SETCONTEXT of  0 endof
 	drop wnd msg w l DefWindowProc \ dup . cr
 	0 endcase ;
@@ -73,7 +77,7 @@ Variable createstruc
     0 0 GetModuleHandle hInstance !
     "gforth.ico" 0 lIcon sIcon 1 ExtractIconEx drop
     \ ." Icons: " . lIcon ? sIcon ? cr
-    WNDCLASSEXW                         windowClass WNDCLASSEXW-cbSize l!
+    WNDCLASSEXW                        windowClass WNDCLASSEXW-cbSize l!
     CS_OWNDC 3 or                      windowClass WNDCLASSEXW-style l!
     hInstance @                        windowClass WNDCLASSEXW-hInstance !
     BLACK_BRUSH GetStockObject         windowClass WNDCLASSEXW-hbrBackground !
@@ -83,6 +87,7 @@ Variable createstruc
     5                                  windowClass WNDCLASSEXW-hbrBackground !
     0 0 32512 ( IDC_ARROW ) LoadCursor windowClass WNDCLASSEXW-hCursor !
     "gforth" >utf16 2 + save-mem drop  windowClass WNDCLASSEXW-lpszClassName !
+    3                                  windowClass WNDCLASSEXW-lpszMenuName !
     windowClass RegisterClassEx drop ;
 
 : make-window ( w h -- hnd )  2>r
@@ -90,4 +95,4 @@ Variable createstruc
     hInstance @ 0 CreateWindowEx ;
 
 register-class
-640 400 make-window
+640 400 make-window Value hwnd
