@@ -323,7 +323,7 @@ true value show-mcursor
 
 : play-loop ( -- ) hidekb
     screen+keep pplay
-    omx-init init-frame 1 level# +!
+    omx-init init-frame 1 level# +! config-change# need-config !
     BEGIN
 	draw-frame check-input
 	cues>mts-run? 0= pplay? and  IF  ppause  THEN

@@ -74,7 +74,7 @@ FVariable motion 0.01e motion f!
     sync ;
 
 : draw-tri { f: angle -- angle' }
-    angle draw-tri-angle
+    ?config-changed angle draw-tri-angle
     >looper default>ap
     *input >r r@ IF
 	r@ action @ abs 1 <> IF
@@ -108,7 +108,7 @@ FVariable motion 0.01e motion f!
 
 : tri-loop ( -- ) 1 level# +! 0e  BEGIN draw-tri level# @ 0= UNTIL fdrop ;
 
-: gl-sample ( -- ) [IFDEF] hidekb  hidekb [THEN]
+: gl-sample ( -- ) [IFDEF] hidekb  hidekb [THEN]  config-change# need-config !
     ['] VertexShader ['] FragmentShader create-program to program
     program init load-textures .info
     tri-loop ;
