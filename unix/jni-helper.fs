@@ -31,6 +31,8 @@ jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityMana
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
 jni-field: hideprog hideprog Ljava/lang/Runnable;
 jni-field: gforth-handler handler Landroid/os/Handler;
+jni-field: rshowstatus rshowstatus Ljava/lang/Runnable;
+jni-field: rhidestatus rhidestatus Ljava/lang/Runnable;
 
 : SDK_INT clazz .get_SDK ;
 
@@ -81,9 +83,6 @@ jni-method: addFlags addFlags (I)V
 jni-method: clearFlags clearFlags (I)V
 jni-method: getForcedWindowFlags getForcedWindowFlags ()I
 jni-method: takeSurface takeSurface (Landroid/view/SurfaceHolder$Callback2;)V
-
-jni-class: android/view/View
-jni-method: setSystemUiVisibility setSystemUiVisibility (I)V
 
 jni-class: android/view/KeyEvent
 jni-new: newKeyEvent (II)V
@@ -198,19 +197,9 @@ Variable kbflag     kbflag off
 : hidekb ( -- )  clazz >o hideIME o> kbflag off ;
 : showkb ( -- )  clazz >o showIME o> kbflag on ;
 : hidestatus ( -- )
-    [ SDK_INT 16 < ] [IF]
-	clazz >o getWindow >o $400 addFlags ref> o>
-    [ELSE]
-	clazz >o getWindow >o getDecorView >o $1004 setSystemUiVisibility
-	ref> ref> o>
-    [THEN] ;
+    ['] rhidestatus post-it ;
 : showstatus ( -- )
-    [ SDK_INT 16 < ] [IF]
-	clazz >o getWindow >o $400 clearFlags ref> o>
-    [ELSE]
-	clazz >o getWindow >o getDecorView >o 0 setSystemUiVisibility
-	ref> ref> o>
-    [THEN] ;
+    ['] rshowstatus post-it ;
 
 : togglekb ( -- )
     kbflag @ IF  hidekb  ELSE  showkb  THEN ;

@@ -122,6 +122,8 @@ public class Gforth
     public Runnable doneprog;
     public Runnable errprog;
     public Runnable appexit;
+    public Runnable rshowstatus;
+    public Runnable rhidestatus;
     public ProgressDialog progress;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
@@ -361,6 +363,25 @@ public class Gforth
     public void hideIME() {
 	if(mView!=null) mView.hideIME();
     }
+    public void showStatus() {
+	if (Build.VERSION.SDK_INT < 16) {
+	    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	}
+	else {
+	    getWindow().getDecorView().setSystemUiVisibility(0);
+	}
+    }
+    public void hideStatus() {
+	// Hide Status Bar
+	if (Build.VERSION.SDK_INT < 16) {
+	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	}
+	else {
+	    getWindow().getDecorView().setSystemUiVisibility(0x1000);
+	    // View.SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+	}
+    }
     public void setEditLine(String line, int curpos) {
 	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
 	if(mView!=null) mView.mInputConnection.setEditLine(line, curpos);
@@ -459,6 +480,16 @@ public class Gforth
 	appexit=new Runnable() {
 		public void run() {
 		    finish();
+		}
+	    };
+	rshowstatus=new Runnable() {
+		public void run() {
+		    showStatus();
+		}
+	    };
+	rhidestatus=new Runnable() {
+		public void run() {
+		    hideStatus();
 		}
 	    };
 	
