@@ -320,7 +320,7 @@ public class Gforth
 	    else {
 		View decorView = mActivity.getWindow().getDecorView();
 		// Show Status Bar.
-		int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+		int uiOptions = 0; // View.SYSTEM_UI_FLAG_VISIBLE
 		decorView.setSystemUiVisibility(uiOptions);
 	    }
 	}
