@@ -333,7 +333,9 @@ public class Gforth
 	    else {
 		View decorView = mActivity.getWindow().getDecorView();
 		// Hide Status Bar.
-		int uiOptions = 4; // View.SYSTEM_UI_FLAG_FULLSCREEN;
+		int uiOptions = 4 | 0x1000; // View.SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+
+;
 		decorView.setSystemUiVisibility(uiOptions);
 	    }
 	}
