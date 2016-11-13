@@ -321,10 +321,6 @@ true value show-mcursor
     THEN
     rdrop ;
 
-: >changed ( -- )
-    config-change# need-config !
-    BEGIN  >looper screen-sync need-config @ 0= UNTIL ;
-
 : play-loop ( -- )
     hidekb >changed
     hidestatus >changed

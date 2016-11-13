@@ -393,6 +393,10 @@ Variable gl-emit-buf
     need-sync @ win and level# @ 0<= and IF
 	show-cursor screen->gl need-sync off  THEN ;
 
+: >changed ( -- )
+    config-change# need-config !
+    BEGIN  >looper screen-sync need-config @ 0= UNTIL ;
+
 : gl-fscale ( f -- )
     1/f 80 fdup fm* f>s to hcols 48 fm* f>s to vcols
     resize-screen config-changed ;
