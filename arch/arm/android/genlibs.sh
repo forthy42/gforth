@@ -94,13 +94,17 @@ else
 fi
 
 (cd soil2
-premake4 --platform=$machine-android gmake
-(cd make/linux
-make config=release)
-(cd lib/linux
-cp libsoil2.a $TOOLCHAIN/sysroot/usr/lib)
-(cd src/SOIL2
-cp SOIL2.h $TOOLCHAIN/sysroot/usr/include))
+ if [ "$machine" = 386 ]
+ then
+     machine=x86
+ fi
+ premake4 --platform=$machine-android gmake
+ (cd make/linux
+  make config=release)
+ (cd lib/linux
+  cp libsoil2.a $TOOLCHAIN/sysroot/usr/lib)
+ (cd src/SOIL2
+  cp SOIL2.h $TOOLCHAIN/sysroot/usr/include))
 
 $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath /home/bernd/proj/android-toolchain/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ freetype-gl -name '*.lo') -lm -lGLESv2 -lz -llog
 
