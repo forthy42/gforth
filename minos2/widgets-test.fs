@@ -64,21 +64,27 @@ text new value f8
 also freetype-gl
 48e FConstant fontsize#
 atlas fontsize#
-[IFDEF] android  "/system/fonts/DroidSans.ttf"
+[IFDEF] android
+    "/system/fonts/DroidSans.ttf"
 [ELSE] "/usr/share/fonts/truetype/LiberationSans-Regular.ttf" 2dup file-status nip [IF]
 	2drop
 	"/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
     [THEN]
 [THEN]
+2dup file-status throw drop
 texture_font_new_from_file Value font1
 
 atlas fontsize#
 [IFDEF] android  "/system/fonts/DroidSansFallback.ttf"
+    2dup file-status nip [IF]
+	2drop "/system/fonts/NotoSansSC-Regular.otf"
+    [THEN]
 [ELSE] "/usr/share/fonts/truetype/gkai00mp.ttf" 2dup file-status nip [IF]
 	2drop
 	"/usr/share/fonts/truetype/arphic-gkai00mp/gkai00mp.ttf"
     [THEN]
 [THEN]
+2dup file-status throw drop
 texture_font_new_from_file Value font2
 previous
 
