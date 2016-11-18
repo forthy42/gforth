@@ -27,8 +27,13 @@ Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A, ' drop A,
 Create [struct]-voc       [struct]-search A,
                           NIL A,       NIL A,       NIL A,
 
+: scanif-r ( addr u -- xt )
+    [struct]-voc find-name-in name?int ;
+
 : ?if  countif @ 0<
-  IF  [ [struct]-voc 3 cells + ] ALiteral @ lookup !  THEN ;
+    IF
+	[ [struct]-voc 3 cells + ] ALiteral @ is parser1
+    THEN ;
 
 UNLOCK  Tlast @ TNIL Tlast !  LOCK
 \ last @  0 last !
@@ -81,10 +86,10 @@ UNLOCK Tlast @ swap Tlast ! LOCK
   \G @code{[ELSE]}.. @code{[THEN]} and @code{[IF]}.. @code{[THEN]}
   \G until the balancing @code{[ELSE]} or @code{[THEN]} has been
   \G parsed and discarded. Immediate word.
-       0= IF  countif off
-              lookup @ [ [struct]-voc 3 cells + ] ALiteral !
-	      [struct]-voc lookup !
-          THEN ;                                      immediate
+    0= IF  countif off
+	['] parser1 defer@ [ [struct]-voc 3 cells + ] ALiteral !
+	['] scanif-r is parser1
+    THEN ;                                      immediate
 
 : [IFDEF] ( "<spaces>name" -- ) \ gforth bracket-if-def
   \G If name is found in the current search-order, behave like
