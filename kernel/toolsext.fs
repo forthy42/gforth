@@ -24,16 +24,13 @@ Variable countif
 : scanIF   f83find  dup 0=  IF  drop ['] dummy ( >head-noprim )  THEN  ;
 
 Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A, ' drop A,
-Create [struct]-voc       [struct]-search A,
-                          NIL A,       NIL A,       NIL A,
+Create [struct]-voc       [struct]-search A,  NIL A,  NIL A,
 
 : scanif-r ( addr u -- xt )
     [struct]-voc find-name-in name?int ;
 
-: ?if  countif @ 0<
-    IF
-	[ [struct]-voc 3 cells + ] ALiteral @ is parser1
-    THEN ;
+: ?if ( parser -- parser / )  countif @ 0<
+    IF  is parser1  THEN ;
 
 UNLOCK  Tlast @ TNIL Tlast !  LOCK
 \ last @  0 last !
@@ -77,7 +74,7 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 : [undefined] ( "<spaces>name" -- flag ) postpone [defined] 0= ; immediate
   \G returns false if name is found in current search order
 
-: [IF] ( flag -- ) \ tools-ext bracket-if
+: [IF] ( flag -- / parser ) \ tools-ext bracket-if
   \G If flag is @code{TRUE} do nothing (and therefore
   \G execute subsequent words as normal). If flag is @code{FALSE},
   \G parse and discard words from the parse
@@ -87,8 +84,7 @@ UNLOCK Tlast @ swap Tlast ! LOCK
   \G until the balancing @code{[ELSE]} or @code{[THEN]} has been
   \G parsed and discarded. Immediate word.
     0= IF  countif off
-	['] parser1 defer@ [ [struct]-voc 3 cells + ] ALiteral !
-	['] scanif-r is parser1
+	['] parser1 defer@  ['] scanif-r is parser1
     THEN ;                                      immediate
 
 : [IFDEF] ( "<spaces>name" -- ) \ gforth bracket-if-def
