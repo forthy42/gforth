@@ -105,15 +105,15 @@ tmp$ $execstr-ptr !
     $@ r> /string r> read-file throw drop ;
 : $slurp ( fid addr -- )
     \G slurp a file @var{fid} into a string @var{addr2}
-    dup $init $+slurp ;
+    dup $free $+slurp ;
 : $+slurp-file ( addr1 u1 addr2 -- )
     \G slurp a named file @var{addr1 u1} into a string @var{addr2}, append mode
     >r r/o open-file throw dup r> $+slurp close-file throw ;
 : $slurp-file ( addr1 u1 addr2 -- )
     \G slurp a named file @var{addr1 u1} into a string @var{addr2}
-    dup $init $+slurp-file ;
+    dup $free $+slurp-file ;
 
-: $slurp-line { fid addr -- flag }  addr $off  addr $init
+: $slurp-line { fid addr -- flag }  addr $free
     BEGIN
 	addr $@len dup { sk } 2* $100 umax dup { sz } addr $!len
 	addr $@ sk /string fid read-line throw
@@ -122,8 +122,8 @@ tmp$ $execstr-ptr !
     \G slurp a file @var{fid} line by line into a string array @var{addr}
     0 { i }  BEGIN  fid i addr $[] $slurp-line  WHILE
 	    i 1+ to i   REPEAT
-    \ we need to take off the last line, though
-    i addr $[] $off  i cells addr $!len ;
+    \ we need to take off the last line, though, if it is empty
+    i addr $[]@ nip 0= IF  i addr $[] $free  i cells addr $!len  THEN ;
 : $[]slurp-file ( addr u $addr -- )
     \G slurp a named file @var{addr u} line by line into a string array @var{$addr}
     >r r/o open-file throw dup r> $[]slurp close-file throw ;
