@@ -136,8 +136,8 @@ is ?warning
 : shadow-num-warning ( c-addr u -- c-addr u )
     ." defined literal " 2dup type ."  as word" ;
 
-10 deque: warning-recs
-' rec:float ' rec:num 2 warning-recs deque!
+10 stack: warning-recs
+' rec:float ' rec:num 2 warning-recs set-stack
 
 ' check-shadow >code-address dodefer: = [if]
 :noname  ( addr count wid -- )

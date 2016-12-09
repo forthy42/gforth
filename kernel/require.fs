@@ -65,7 +65,7 @@ AVariable included-files
 
 : add-included-file ( c-addr u -- ) \ gforth
     \G add name c-addr u to included-files
-    $make included-files >deque ;
+    $make included-files >stack ;
 
 : included1 ( i*x file-id c-addr u -- j*x ) \ gforth
 \G Include the file file-id with the name given by @var{c-addr u}.

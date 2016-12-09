@@ -71,29 +71,29 @@ AConstant r:dnum
     THEN
     drop r:fail ;
 
-\ generic deque get/set
+\ generic stack get/set
 
-: deque@ ( deque -- x1 .. xn n )
-    \G fetch everything from the generic deque to the data stack
+: get-stack ( stack -- x1 .. xn n )
+    \G fetch everything from the generic stack to the data stack
     $@ dup cell/ >r bounds ?DO  I @  cell +LOOP  r> ;
-: deque! ( x1 .. xn n deque -- )
-    \G set the generic deque with values from the data stack
+: set-stack ( x1 .. xn n stack -- )
+    \G set the generic stack with values from the data stack
     >r cells r@ $!len
     r> $@ bounds cell- swap cell- -DO  I !  cell -LOOP ;
 
-: deque: ( n "name" -- )
-    \G create a named deque with at least @var{n} cells space
+: stack: ( n "name" -- )
+    \G create a named stack with at least @var{n} cells space
     drop Variable ;
-: deque ( n -- addr )
-    \G create an unnamed deque with at least @var{n} cells space
-    drop here 0 , ;
+: stack ( n -- addr )
+    \G create an unnamed stack with at least @var{n} cells space
+    drop align here 0 , ;
 
-: >deque ( x deque -- )
-    \G push to top of deque
+: >stack ( x stack -- )
+    \G push to top of stack
     >r r@ $@len cell+ r@ $!len
     r> $@ + cell- ! ;
-: deque> ( deque -- x )
-    \G pop from top of deque
+: stack> ( stack -- x )
+    \G pop from top of stack
     >r r@ $@ ?dup IF  + cell- @ r@ $@len cell- r> $!len
     ELSE  drop rdrop  THEN ;
 
@@ -111,10 +111,10 @@ default-recognizer AValue forth-recognizer
 
 : get-recognizers ( -- xt1 .. xtn n )
     \G push the content on the recognizer stack
-    forth-recognizer deque@ ;
+    forth-recognizer get-stack ;
 : set-recognizers ( xt1 .. xtn n )
     \G set the recognizer stack from content on the stack
-    forth-recognizer deque! ;
+    forth-recognizer set-stack ;
 
 \ recognizer loop
 

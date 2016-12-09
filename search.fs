@@ -19,15 +19,15 @@
 
 require struct.fs
 
-$10 deque: vocstack
+$10 stack: vocstack
 
-: deque< ( x deque -- )
-    \G push to bottom of deque
+: >back ( x stack -- )
+    \G push to bottom of stack
     >r r@ $@len cell+ r@ $!len
     r@ $@ cell- over cell+ swap move
     r> $@ drop ! ;
-: <deque ( deque -- x )
-    \G pop from bottom of deque
+: back> ( stack -- x )
+    \G pop from bottom of stack
     >r r@ $@ IF  @ r@ 0 cell $del  ELSE  drop 0  THEN
     rdrop ;
 
@@ -74,7 +74,7 @@ Variable slowvoc   0 slowvoc !
 
 : >order ( wid -- ) \ gforth to-order
     \g Push @var{wid} on the search order.
-    vocstack >deque ;
+    vocstack >stack ;
 
 : also  ( -- ) \ search-ext
   \G Like @code{DUP} for the search order. Usually used before a
@@ -84,7 +84,7 @@ Variable slowvoc   0 slowvoc !
 
 : previous ( -- ) \ search-ext
   \G Drop the wordlist at the top of the search order.
-  vocstack deque> drop ;
+  vocstack stack> drop ;
 
 \ vocabulary find                                      14may93py
 
@@ -146,7 +146,7 @@ Vocabulary Root ( -- ) \ gforth
 : Only ( -- ) \ search-ext
   \G Set the search order to the implementation-defined minimum search
   \G order (for Gforth, this is the word list @code{Root}).
-  0 1 vocstack deque! Root also ;
+  0 1 vocstack set-stack Root also ;
 
 [ifundef] 'image
 defer 'image ( -- ) ' noop is 'image
@@ -182,7 +182,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
   \G that is searched first (the word list at the top of the search
   \G order) and @i{widn} represents the wordlist that is searched
   \G last.
-    vocstack deque@ ;
+    vocstack get-stack ;
 
 : set-order  ( widn .. wid1 n -- ) \ search
     \G If @var{n}=0, empty the search order.  If @var{n}=-1, set the
@@ -195,7 +195,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
     dup -1 = IF
 	drop only exit
     THEN
-    vocstack deque! ;
+    vocstack set-stack ;
 
 : seal ( -- ) \ gforth
   \G Remove all word lists from the search order stack other than the word

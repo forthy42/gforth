@@ -148,7 +148,7 @@ t{ 7 x1 -> 7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1 }t
 
 \ recognizer tests
 
-T{ 4 DEQUE constant RS -> }T
+T{ 4 STACK constant RS -> }T
 
 T{ :noname 1 ;  :noname 2 ;  :noname 3  ; recognizer r:1 -> }T
 T{ :noname 10 ; :noname 20 ; :noname 30 ; recognizer r:2 -> }T
@@ -162,20 +162,20 @@ T{ r:1 R>COMP EXECUTE -> 2 }T
 T{ r:1 R>POST EXECUTE -> 3 }T
 
 \ set and get methods
-T{ 0 RS DEQUE! -> }T
-T{ RS DEQUE@ -> 0 }T
+T{ 0 RS SET-STACK -> }T
+T{ RS GET-STACK -> 0 }T
 
-T{ ' rec:1 1 RS DEQUE! -> }T
-T{ RS DEQUE@ -> ' rec:1 1 }T
+T{ ' rec:1 1 RS SET-STACK -> }T
+T{ RS GET-STACK -> ' rec:1 1 }T
 
-T{ ' rec:1 ' rec:2 2 RS DEQUE! -> }T
-T{ RS DEQUE@ -> ' rec:1 ' rec:2 2 }T
+T{ ' rec:1 ' rec:2 2 RS SET-STACK -> }T
+T{ RS GET-STACK -> ' rec:1 ' rec:2 2 }T
 
 \ testing MAP-RECOGNIZERS
-T{         0 RS DEQUE! -> }T
+T{         0 RS SET-STACK -> }T
 T{ S" 1"     RS MAP-RECOGNIZER   -> R:FAIL }T
-T{ ' rec:1 1 RS DEQUE! -> }T
+T{ ' rec:1 1 RS SET-STACK -> }T
 T{ S" 1"     RS MAP-RECOGNIZER   -> R:1 }T
 T{ S" 10"    RS MAP-RECOGNIZER   -> R:FAIL }T
-T{ ' rec:2 ' rec:1 2 RS DEQUE! -> }T
+T{ ' rec:2 ' rec:1 2 RS SET-STACK -> }T
 T{ S" 10"    RS MAP-RECOGNIZER   -> R:2 }T
