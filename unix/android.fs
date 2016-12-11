@@ -153,7 +153,24 @@ AKEYCODE_F9  c, "\e[20~" $,
 AKEYCODE_F10 c, "\e[21~" $,
 AKEYCODE_F11 c, "\e[23~" $,
 AKEYCODE_F12 c, "\e[24~" $,
-0 c,
+\ keys for non-letters
+AKEYCODE_COMMA  c, "," $,
+AKEYCODE_PERIOD c, "." $,
+AKEYCODE_SPACE  c, " " $,
+AKEYCODE_STAR   c, "*" $,
+AKEYCODE_POUND  c, "#" $,
+AKEYCODE_GRAVE  c, "`" $,
+AKEYCODE_MINUS  c, "-" $,
+AKEYCODE_EQUALS c, "=" $,
+AKEYCODE_LEFT_BRACKET c, "[" $,
+AKEYCODE_RIGHT_BRACKET c, "]" $,
+AKEYCODE_BACKSLASH c, "\\" $,
+AKEYCODE_SEMICOLON c, ";" $,
+AKEYCODE_APOSTROPHE c, "'" $,
+AKEYCODE_SLASH  c, "/" $,
+AKEYCODE_AT     c, "@" $,
+AKEYCODE_PLUS   c, "+" $,
+0 c,  0 c,
 DOES> ( akey -- addr u )
   swap >r
   BEGIN  count dup r@ <> and WHILE  count +
@@ -199,7 +216,7 @@ false value wake-lock \ doesn't work, why?
 
 \ event handling
 
-Create ctrl-key# 0 c,
+Create direct-key# 0 c,
 
 : meta@ ( -- char ) \ return meta in vt100 form
     0
@@ -219,9 +236,13 @@ Create ctrl-key# 0 c,
 
 : keycode>keys ( keycode -- addr u )
     dup AKEYCODE_A AKEYCODE_Z 1+ within IF
-	meta-key# @ AMETA_CTRL_ON and IF
-	    AKEYCODE_A - ctrl A + ctrl-key# c!
-	    ctrl-key# 1 EXIT  THEN
+	AKEYCODE_A -  ctrl A
+	'A' 'a' meta-key# @ AMETA_SHIFT_ON and select
+	meta-key# @ AMETA_CTRL_ON and select
+	+ direct-key# c! direct-key# 1 EXIT
+    THEN
+    dup AKEYCODE_0 AKEYCODE_9 1+ within IF
+	AKEYCODE_0 - '0' + direct-key# c! direct-key# 1 EXIT
     THEN
     case
 	AKEYCODE_MENU of  togglekb s" "  endof
@@ -336,7 +357,10 @@ JValue cmanager
 	getKeyCode dup 0= IF
 	    drop getCharacters android-characters
 	ELSE
-	    android-keycode
+	    getUnicodeChar dup 0>
+	    IF    nip  android-unicode
+	    ELSE  drop android-keycode
+	    THEN
 	THEN
     ELSE
 	0= IF  getUnicodeChar dup 0>

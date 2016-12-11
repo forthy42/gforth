@@ -415,7 +415,7 @@ Variable gl-emit-buf
 
 : scrolling ( y0 -- )
     rows swap last-y0 motion-y0 ['] +scroll do-motion
-    long? IF  kbflag @ IF  togglekb  THEN  THEN
+    \ long? IF  kbflag @ IF  togglekb  THEN  THEN
     need-show off ;
 
 #20. 2Value glitch#
