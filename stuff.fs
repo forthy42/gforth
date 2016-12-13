@@ -626,6 +626,27 @@ end-struct buffer%
 	r@ buffer-address @ over resize throw r@ buffer-address !
 	dup r@ buffer-maxlength ! then
     r> buffer-length ! ;
-	
-	
 
+\ traverse directory
+
+: try-read-dir { buf handle -- n flag }
+    BEGIN  buf $@ handle read-dir >r r@  WHILE
+	    over buf $@len = over and  WHILE
+		buf $@len 3 cells + 2* buf $!len
+		rdrop 2drop  REPEAT  buf $free  r> throw  EXIT
+    THEN  rdrop ;
+
+: traverse-dir ( addr u xt -- )
+    0 { xt w^ buf } open-dir throw { handle }
+    [ $100 6 cells - ]L buf $!len
+    BEGIN  buf handle try-read-dir  WHILE
+	    buf $@ drop swap xt execute  REPEAT
+    buf $free  handle close-dir throw ;
+
+: traverse-matched-dir ( addrdir u1 addrmatch u2 xt -- )
+    0 { d: match xt w^ buf } open-dir throw { handle }
+    [ $100 6 cells - ]L buf $!len
+    BEGIN  buf handle try-read-dir  WHILE
+	    buf $@ drop swap 2dup match filename-match
+	    IF  xt execute  THEN  REPEAT
+    buf $free  handle close-dir throw ;
