@@ -2762,6 +2762,15 @@ n2 = n1 / sizeof(DFloat);
 sfloat/ ( n1 -- n2 )	gforth	dfloat_divide
 n2 = n1 / sizeof(SFloat);
 
+f-rot	( r1 r2 r3 -- r3 r1 r2 )	float	f_not_rote
+
+flit	( -- r1 )   gforth
+#ifndef NO_IP
+ip=IP;
+#endif
+r1 = *(Float*)ip;
+SET_IP((void*)ip+sizeof(Float));
+
 \+
 
 \ The following words access machine/OS/installation-dependent

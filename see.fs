@@ -810,6 +810,7 @@ c-extender !
     else
 	dup next-prim
     then
+    [ threading-method 2 = ] [IF] @ >r @ r> [THEN]
     over - discode
     ." end-code" cr ;
 : seeabicode ( xt -- )

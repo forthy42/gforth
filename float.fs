@@ -85,9 +85,8 @@ comp: drop >body postpone ALiteral postpone f! ;
 : FLiteral ( compilation r -- ; run-time -- r ) \ float f-literal
     \G Compile appropriate code such that, at run-time, @i{r} is placed
     \G on the (floating-point) stack. Interpretation semantics are undefined.
-    BEGIN  here cell+ cell+ dup faligned <>  WHILE  postpone noop  REPEAT
-    postpone ahead here >r f, postpone then
-    r> postpone literal postpone f@ ;  immediate
+    here cell+ dup faligned <> IF  postpone noop  THEN
+    postpone flit f, ;  immediate
 
 &15 Value precision ( -- u ) \ float-ext
 \G @i{u} is the number of significant digits currently used by

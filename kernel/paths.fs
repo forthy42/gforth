@@ -60,13 +60,13 @@ include stringk.fs
 [THEN]
 
 Variable fpath ( -- path-addr ) \ gforth
-Variable ofile
-Variable tfile
+User ofile
+User tfile
 
 : os-cold ( -- )
-    fpath $init
-    ofile $init
-    tfile $init
+    fpath off
+    ofile off
+    tfile off
     pathstring 2@ fpath only-path 
     init-included-files ;
 
