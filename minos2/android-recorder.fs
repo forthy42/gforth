@@ -61,17 +61,20 @@ also jni
 : max-area ( w h o:size -- w' h' )
     2dup m* width height m* d<  IF  2drop  width height  THEN ;
 
+debug: video(
+
 : max-size ( o:list -- w h )
-    0 0 l-size 0 ?DO  I l-get >o width . height . cr max-area o>  LOOP ;
+    0 0 l-size 0 ?DO  I l-get >o video( width . height . cr )
+	max-area o>  LOOP ;
 
 : create-camera ( -- )
     camera 0= IF  c-open-back to camera  THEN
     camera >o getParameters to parameters
       parameters >o
-        ." Preview size:" cr
+        video( ." Preview size:" cr )
         getPreferredPreviewSizeForVideo >o width height o>
-        2dup swap . . cr setPreviewSize
-        ." Video sizes:" cr
+        video( 2dup swap . . cr ) setPreviewSize
+        video( ." Video sizes:" cr )
         getSupportedVideoSizes >o max-size o> to cam-h to cam-w
         js" continuous-picture" setFocusMode
       o o>
