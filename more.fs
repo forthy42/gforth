@@ -1,6 +1,6 @@
 \ Forth output paging add-on (like more(1))
 
-\ Copyright (C) 1996,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1996,2000,2003,2007,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,6 +1,6 @@
 \ source location handling
 
-\ Copyright (C) 1995,1997,2003,2004,2007,2009,2011,2014 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,2003,2004,2007,2009,2011,2014,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
