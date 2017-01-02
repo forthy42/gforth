@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Copyright (C) 2000,2003,2006,2007,2009,2011,2012 Free Software Foundation, Inc.
+#Copyright (C) 2000,2003,2006,2007,2009,2011,2012,2016 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 
@@ -51,7 +51,7 @@ cat <<EOF
 [Setup]
 AppName=Gforth$SF
 AppVersion=$VERSION
-AppCopyright=Copyright © 1995-2015 Free Software Foundation
+AppCopyright=Copyright © 1995-2015,2016 Free Software Foundation
 DefaultDirName={pf}\gforth$SF
 DefaultGroupName=Gforth$SF
 AllowNoIcons=1

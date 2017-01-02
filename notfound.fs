@@ -1,6 +1,6 @@
 \ legacy notfound for people who liked the old interface
 
-\ Copyright (C) 2015 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

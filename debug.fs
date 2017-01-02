@@ -1,6 +1,6 @@
 \ DEBUG.FS     Debugger                                12jun93jaw
 
-\ Copyright (C) 1995,1996,1997,2000,2003,2004,2007,2014,2015 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2000,2003,2004,2007,2014,2015,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
