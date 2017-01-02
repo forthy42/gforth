@@ -90,7 +90,7 @@ dbindist:	$(SOURCES) $(FORTH_GEN0) @GKERNEL@ gforth.fi $(DOCDIST) $(BINONLYDIST)
 
 #All file names in a binary distribution
 distfiles:
-		@echo $(SOURCES) $(PRECISE) machpc.fs $(FORTH_GEN0) compat/strcomp.fs gforthmi @GKERNEL@ $(DOCDIST) $(BINONLYDIST)
+		@echo $(SOURCES) $(PRECISE) $(CONFIG_FORTH) $(FORTH_GEN0) $(CONFIG_FORTH) compat/strcomp.fs gforthmi @GKERNEL@ $(DOCDIST) $(BINONLYDIST)
 
 #makes a package with only the stuff not present in the source
 #package. For installation the source package is still needed!

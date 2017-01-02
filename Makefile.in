@@ -567,10 +567,12 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in		\
 	debian/changelog.in debian/compat gforth.ico .travis.yml	\
 	install-swig.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4
 
-CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen machpc.fs	\
-	envos.fs preforth libforth gforthker engine/Makefile		\
-	engine/libcc.h engine/gforth.h doc/version.texi doc/Makefile	\
-	unix/Makefile debian/changelog debian/control build-ec
+CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
+	libforth gforthker engine/Makefile engine/libcc.h		\
+	engine/gforth.h doc/version.texi doc/Makefile unix/Makefile	\
+	debian/changelog debian/control build-ec $(CONFIG_FORTH)
+
+CONFIG_FORTH = machpc.fs kernel/version.fs envos.fs
 
 RCS_FILES =  ToDo model high-level
 
@@ -773,10 +775,10 @@ install-sources:
 		done
 
 install-gensources:
-		for i in $(LIBCC_GEN_SRC) envos.fs; do \
+		for i in $(LIBCC_GEN_SRC) envos.fs machpc.fs; do \
 			$(INSTALL_DATA) $$i $(libdir)/gforth/$(VERSION)/$$i; \
 		done
-		for i in kernel/aliases.fs kernel/prim.fs kernel/version.fs; do \
+		for i in kernel/prim.fs kernel/aliases.fs kernel/version.fs; do \
 			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 		echo "\\ empty site-init" > $(siteforthdir)/siteinit.fs

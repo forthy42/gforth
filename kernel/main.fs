@@ -71,12 +71,12 @@ has? kernel-size
 doc-off
 reset-included
 has? prims [IF]
-    include ./aliases.fs             \ primitive aliases
+    include kernel/aliases.fs             \ primitive aliases, are config-generated
 [ELSE]
     prims-include
     undef-words
     include ./prim.fs
-    all-words  
+    all-words
 [THEN]
 doc-on
 
@@ -89,7 +89,6 @@ AConstant image-header
 \ 0 AConstant forthstart
 
 \ include ./vars.fs                  \ variables and other stuff
-\ include ./version.fs          \ is in $(build)/kernel
 include kernel/kernel.fs                  \ kernel
 \ include ./errore.fs
 include kernel/doers.fs
