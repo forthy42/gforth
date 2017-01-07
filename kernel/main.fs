@@ -75,7 +75,7 @@ has? prims [IF]
 [ELSE]
     prims-include
     undef-words
-    include ./prim.fs
+    include kernel/prim.fs
     all-words
 [THEN]
 doc-on
