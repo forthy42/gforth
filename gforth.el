@@ -1101,10 +1101,10 @@ screen number."
 	     (first-line (1+ (* (/ (1- line) forth-l/b) forth-l/b)))
 	     (scr (+ forth-block-base (/ first-line forth-l/b))))
 	(setq overlay-arrow-string forth-overlay-arrow-string)
-	(forward-line (- first-line (line-number-at-pos))
+	(forward-line (- first-line (line-number-at-pos)))
 	(setq overlay-arrow-position forth-screen-marker)
 	(set-marker forth-screen-marker 
-		    (save-excursion (forward-line (- first-line (line-number-at-pos)) (point)))
+		    (save-excursion (forward-line (- first-line (line-number-at-pos))) (point)))
 	(setq forth-screen-number-string (format "%d" scr))))))
 
 (add-hook 'forth-motion-hooks 'forth-update-show-screen)
