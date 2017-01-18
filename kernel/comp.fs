@@ -501,7 +501,7 @@ defer defer-default ( -- )
     >r ;-hook ?struc
     exit-like
     here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
-    postpone aliteral r> compile, [exit]
+    postpone aliteral r> compile, [compile] exit
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
@@ -663,7 +663,7 @@ defer 0-adjust-locals-size ( -- )
     ['] noop set->int  ['] (noname->comp) set->comp ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
-    ;-hook [exit] ?colon-sys
+    ;-hook [compile] exit ?colon-sys
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict
 
