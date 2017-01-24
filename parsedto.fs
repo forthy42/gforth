@@ -20,6 +20,8 @@
 ' (int-to) ' (comp-to) ' lit, recognizer r:to
 
 : rec:to ( addr u -- xt r:to | r:fail )
+    \G words prefixed with @code{->} are treated as if preceeded by
+    \G @code{TO} or @code{IS}
     2dup s" ->" string-prefix?  0= IF  2drop  r:fail  EXIT  THEN
     2 /string dup 0= IF  2drop  r:fail  EXIT  THEN
     recognize dup r:fail = ?EXIT

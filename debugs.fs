@@ -262,8 +262,23 @@ Variable locate-file[]
     warn-color attr!  located-xpos @ dup cr .sourcepos1  default-color attr!
     located-len @ show-pos1 ;
 
+\ locate/view of recognized tokens show the recognizer, if not a word
+\ Idea: Jenny Brian
+
+Variable rec'
+
+: view' ( "name" -- xt )
+    \G @var{xt} is either the word to view if it is a word
+    \G or the recognizer that successfully parsed @var{"name"}
+    what's trace-recognizer >r
+    sp@ >r parse-name  name-too-short?
+    [: rec' ! ;] is trace-recognizer
+    recognize r> swap >r sp! r>  r> is trace-recognizer
+    dup r:fail = -#13 and throw
+    dup >namevt @ >vtlit, @ ['] noop <> IF  drop rec' @  THEN ;
+
 : view-native ( "name" -- )
-    (') view-name ;
+    view' view-name ;
 
 : kate-l:c ( line pos -- )
     swap ." -l " . ." -c " . ;

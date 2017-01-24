@@ -17,15 +17,13 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-' r:fail >code-address ' bl >code-address <> [IF]
-    ' r:fail Constant r:fail
-[THEN]
-
 : slit,  postpone sliteral ;
 
 ' noop ' slit, dup recognizer r:string
 
 : rec:string ( addr u -- addr u' r:string | r:fail )
+    \G Convert strings enclosed in double quotes into string literals,
+    \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
     IF    drop source drop - 1+ >in !  \"-parse save-mem r:string
     ELSE  2drop r:fail  THEN ;

@@ -184,48 +184,16 @@ si-prefixes count 2/ + Constant zero-exp
 : prefix-number  sfnumber ;
 [THEN]
 
-[ifdef] r:fail
-    : flit, postpone Fliteral ;
-    ' noop ' flit, ' flit, recognizer r:float
+: flit, postpone Fliteral ;
+' noop ' flit, ' flit, recognizer r:float
 
-    : rec:float ( addr u -- r r:float | r:fail )
-	\G recognize floating point numbers
-	prefix-number r:float r:fail rot select ;
-    
-    ' rec:float
-    get-recognizers
-    1+ set-recognizers
-[else]
-    [ifundef] compiler-notfound1
-	defer compiler-notfound1
-	' no.extensions IS compiler-notfound1
-	    
-	:noname compiler-notfound1 execute ; is compiler-notfound
-	
-	defer interpreter-notfound1
-	' no.extensions IS interpreter-notfound1
+: rec:float ( addr u -- r r:float | r:fail )
+    \G recognize floating point numbers
+    prefix-number r:float r:fail rot select ;
 
-	:noname interpreter-notfound1 execute ; is interpreter-notfound
-    [then]
-    
-    :noname ( c-addr u -- ... xt )
-	2dup sfnumber
-	IF
-	    2drop [comp'] FLiteral
-	ELSE
-	    defers compiler-notfound1
-	ENDIF ;
-    IS compiler-notfound1
-    
-    :noname ( c-addr u -- ... xt )
-	2dup sfnumber
-	IF
-	    2drop ['] noop
-	ELSE
-	    defers interpreter-notfound1
-	ENDIF ;
-    IS interpreter-notfound1
-[then]
+' rec:float
+get-recognizers
+1+ set-recognizers
 
 : fvariable ( "name" -- ) \ float f-variable
     Create 0.0E0 f, ;
