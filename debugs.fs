@@ -271,9 +271,9 @@ Variable rec'
     \G @var{xt} is either the word to view if it is a word
     \G or the recognizer that successfully parsed @var{"name"}
     what's trace-recognizer >r
-    sp@ >r parse-name  name-too-short?
+    sp@ fp@ 2>r parse-name  name-too-short?
     [: rec' ! ;] is trace-recognizer
-    recognize r> swap >r sp! r>  r> is trace-recognizer
+    recognize 2r> rot >r fp! sp! r>  r> is trace-recognizer
     dup r:fail = -#13 and throw
     dup >namevt @ >vtlit, @ ['] noop <> IF  drop rec' @  THEN ;
 
