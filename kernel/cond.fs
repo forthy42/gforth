@@ -317,16 +317,17 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
 Defer exit-like ( -- )
 ' noop IS exit-like
 
-' ;s @ $8000 xor #primitive exit ( compilation -- ; run-time nest-sys -- ) \ core
+: EXIT ( compilation -- ; run-time nest-sys -- ) \ core
 \G Return to the calling definition; usually used as a way of
 \G forcing an early return from a definition. Before
 \G @code{EXIT}ing you must clean up the return stack and
 \G @code{UNLOOP} any outstanding @code{?DO}...@code{LOOP}s.
-
-: [exit] ( -- )
-    POSTPONE exit
+\G Use @code{;s} for a tickable word that behaves like @code{exit}
+\G in the absence of locals.
+    exit-like
+    POSTPONE ;s
     basic-block-end
-    POSTPONE unreachable ;
+    POSTPONE unreachable ; immediate compile-only
 
 : ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
     POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
