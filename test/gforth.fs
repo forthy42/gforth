@@ -179,3 +179,23 @@ T{ S" 1"     RS MAP-RECOGNIZER   -> R:1 }T
 T{ S" 10"    RS MAP-RECOGNIZER   -> R:FAIL }T
 T{ ' rec:2 ' rec:1 2 RS SET-STACK -> }T
 T{ S" 10"    RS MAP-RECOGNIZER   -> R:2 }T
+
+\ extended synonym behaviour
+t{ create coc1 -> }t
+t{ synonym coc2 coc1 -> }t
+t{ coc2 -> coc1 }t
+t{ : coc3 coc2 ; -> }t
+t{ coc3 -> coc1 }t
+t{ ' coc2 -> ' coc1 }t \ so >body obviously works
+
+t{ defer cod1 -> }t
+t{ synonym cod2 cod1 -> }t
+t{ ' true is cod2 -> }t
+t{ cod2 -> true }t
+t{ cod1 -> true }t
+t{ action-of cod2 -> ' true }t
+
+\ synonym behaviour for umethods; SOURCE is a umethod
+t{ synonym source2 source -> }t
+t{ ' source2 -> ' source }t
+t{ action-of source2 -> action-of source }t
