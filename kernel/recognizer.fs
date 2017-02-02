@@ -52,12 +52,12 @@
     dup 0= IF  drop r:fail  THEN ;
 
 :noname ( n -- n ) ;
-' do-lit, set-compiler
+' do-lit, set-optimizer
 lit,: ( n -- ) postpone Literal ;
 AConstant r:num
 
 :noname ( d -- d ) ;
-' do-lit, set-compiler
+' do-lit, set-optimizer
 lit,: ( d -- ) postpone 2Literal ;
 AConstant r:dnum
 

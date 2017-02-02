@@ -2760,13 +2760,13 @@ Cond: [ ( -- ) interpreting-state ;Cond
 Ghost does, drop
 Ghost doesxt, drop
 
-Defer gset-compiler
+Defer gset-optimizer
 	
 : !does ( does-action -- )
     tlastcfa @ [G'] :dovar killref
 \    tlastcfa @ t>namevt [G'] dovar-vt killref
     \    tlastcfa @ t>namevt >tempdp [G'] dodoes-vt addr, tempdp>
-    [G'] does, gset-compiler
+    [G'] does, gset-optimizer
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
     r@ created >do:ghost ! r@ swap resolve
@@ -3073,15 +3073,16 @@ End-Struct vtable-struct
     [ findghost default-name>comp ]L vttemplate >vt>comp !
     [ findghost no-defer@  ]L vttemplate >vtdefer@ ! ;
 
-:noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-compiler
+:noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-optimizer
 : gset-lit,     ( ghost -- )  vttemplate >vtlit, ! ;
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
 : gset-defer@   ( ghost -- )  vttemplate >vtdefer@ ! ;
 
-: set-compiler ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
+: set-optimizer ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
 : set-lit,     ( xt -- )  xt>ghost vttemplate >vtlit, ! ;
 : set-to       ( xt -- )  xt>ghost vttemplate >vtto ! ;
 : set-defer@   ( xt -- )  xt>ghost vttemplate >vtdefer@ ! ;
+: set->comp    ( xt -- )  xt>ghost vttemplate >comp ! ;
 
 : vt: ( -- xt colon-sys )
     :noname postpone vt-template, postpone vt-populate ;
@@ -3097,10 +3098,10 @@ End-Struct vtable-struct
     [G'] i/c>comp vttemplate >vt>comp ! ;
 
 : >vtable ( compile-xt tokenize-xt -- )
-    set-lit, set-compiler ;
+    set-lit, set-optimizer ;
 
-: opt: ( -- colon-sys )   gstart-xt set-compiler ;
-: comp: ( -- colon-sys )  gstart-xt set-compiler ;
+: opt: ( -- colon-sys )   gstart-xt set-optimizer ;
+: comp: ( -- colon-sys )  gstart-xt set-optimizer ;
 : lit,: ( -- colon-sys )  gstart-xt set-lit, ;
 \    T 0 cell+ cfalign# here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
 >CROSS
@@ -3117,7 +3118,7 @@ End-Struct vtable-struct
     r@ created >do:ghost @ >exec2 !
     T align H r> hereresolve
     r> T here vtsize H + resolve
-    [G'] extra, set-compiler T here H
+    [G'] extra, set-optimizer T here H
     tlastcfa @ >tempdp [G'] :doextra (doer,) tempdp> ;
 IS !extra
 
@@ -3140,38 +3141,38 @@ IS !extra
 Builder :-dummy
 Build: ;Build
 by: :docol ;DO
-vt: [G'] :, gset-compiler ;vt
+vt: [G'] :, gset-optimizer ;vt
 
 Builder prim-dummy
 Build: ;Build
 by: :doprim ;DO \ :doprim is a dummy, we will not use it
-vt: [G'] peephole-compile, gset-compiler ;vt
+vt: [G'] peephole-compile, gset-optimizer ;vt
 
 <do:> Ghost :doprim >magic !
 
 Builder does>-dummy
 Build: ;Build
 by: :dodoes ;DO
-vt: [G'] does, gset-compiler ;vt
+vt: [G'] does, gset-optimizer ;vt
 \ vtghost: dodoes-vt
 
 Builder doesxt>-dummy
 Build: ;Build
 by: :dodoesxt ;DO
-vt: [G'] doesxt, gset-compiler ;vt
+vt: [G'] doesxt, gset-optimizer ;vt
 \ vtghost: dodoesxt-vt
 
 Builder extra>-dummy
 Build: ;Build
 by: :doextra ;DO
-vt: [G'] extra, gset-compiler ;vt
+vt: [G'] extra, gset-optimizer ;vt
 
 \ Variables and Constants                              05dec92py
 
 Builder (Constant)
 Build:  ( n -- ) ;Build
 by: :docon ( target-body-addr -- n ) T @ H ;DO
-vt: [G'] constant, gset-compiler ;vt
+vt: [G'] constant, gset-optimizer ;vt
 
 Builder Constant
 Build:  ( n -- ) T , H ;Build
@@ -3184,12 +3185,12 @@ by (Constant)
 Builder 2Constant
 Build:  ( d -- ) T , , H ;Build
 DO: ( ghost -- d ) T dup cell+ @ swap @ H ;DO
-vt: [G'] 2constant, gset-compiler ;vt
+vt: [G'] 2constant, gset-optimizer ;vt
 
 Builder Create
 BuildSmart: ;Build
 by: :dovar ( target-body-addr -- addr ) ;DO
-vt: [G'] variable, gset-compiler ;vt \ vtghost: dovar-vt
+vt: [G'] variable, gset-optimizer ;vt \ vtghost: dovar-vt
 
 Builder Variable
 T has? rom H [IF]
@@ -3256,7 +3257,7 @@ by AVariable
     Builder User
     Build: 0 u, X , ;Build
     by: :douser ( ghost -- up-addr )  X @ tup@ + ;DO
-    vt: [G'] user, gset-compiler ;vt
+    vt: [G'] user, gset-optimizer ;vt
     
     Builder 2User
     Build: 0 u, X , 0 u, drop ;Build
@@ -3271,7 +3272,7 @@ T has? rom H [IF]
     Builder (Value)
     Build:  ( n -- ) ;Build
     by: :dovalue ( target-body-addr -- n ) T @ @ H ;DO
-    vt: [G'] value, gset-compiler [G'] value! gset-to ;vt
+    vt: [G'] value, gset-optimizer [G'] value! gset-to ;vt
     
     Builder Value
     Build: T here 0 A, H switchram T align here swap ! , H ;Build
@@ -3284,7 +3285,7 @@ T has? rom H [IF]
     Builder (Value)
     Build:  ( n -- ) ;Build
     by: :dovalue ( target-body-addr -- n ) T @ H ;DO
-    vt: [G'] value, gset-compiler [G'] value! gset-to ;vt
+    vt: [G'] value, gset-optimizer [G'] value! gset-to ;vt
 
     Builder Value
     BuildSmart: T , H ;Build
@@ -3298,7 +3299,7 @@ T has? rom H [IF]
 Builder UValue
 Build: 0 u, T , H ;Build
 DO: X @ tup@ + X @ ;DO
-vt: [G'] u-compile, gset-compiler [G'] u-to gset-to ;vt
+vt: [G'] u-compile, gset-optimizer [G'] u-to gset-to ;vt
 
 Defer texecute
 
@@ -3311,7 +3312,7 @@ T has? rom H [IF]
     by: :dodefer ( ghost -- ) X @ texecute ;DO
 [THEN]
 vt:
-[G'] defer, gset-compiler
+[G'] defer, gset-optimizer
 [G'] value! gset-to
 [G'] >body@ gset-defer@ ;vt
 
@@ -3325,7 +3326,7 @@ vt:
 Builder (Field)
 Build: ;Build
 by: :dofield T @ H + ;DO
-vt: [G'] field+, gset-compiler ;vt
+vt: [G'] field+, gset-optimizer ;vt
 
 Builder Field
 Build: ( align1 offset1 align size "name" --  align2 offset2 )
@@ -3345,12 +3346,12 @@ by (Field)
 Builder (ABI-CODE)
 Build: ;Build
 by: :doabicode noop ;DO
-vt: [G'] abi-code, gset-compiler ;vt
+vt: [G'] abi-code, gset-optimizer ;vt
 
 BUILDER (;abi-code)
 Build: ;Build
 by: :do;abicode noop ;DO
-vt: [G'] ;abi-code, gset-compiler ;vt
+vt: [G'] ;abi-code, gset-optimizer ;vt
 
 \ User Methods                                         22jun13py
 
@@ -3365,14 +3366,14 @@ by User
 : umethod ( m v -- m' v )
     over >r no-loop on T : H compile u#exec class-o @ T , H
     r> tcell / T , (;) swap cell+ swap H
-    [G'] umethod, gset-compiler
+    [G'] umethod, gset-optimizer
     [G'] umethod! gset-to
     [G'] umethod@ gset-defer@ ;
 
 : uvar ( m v size -- m v' )
     over >r no-loop on T : H compile u#+ class-o @ T , H
     r> T , (;) H +
-    [G'] uvar, gset-compiler ;
+    [G'] uvar, gset-optimizer ;
 >CROSS
 
 \ Mini-OOF
@@ -4228,7 +4229,7 @@ previous
 
 : times 0 ?DO dup X c, LOOP drop ; \ used for space table creation
 
-: set-compiler set-compiler ;
+: set-optimizer set-optimizer ;
 
 \ only forth also cross also minimal definitions order
 

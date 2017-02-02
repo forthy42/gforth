@@ -460,7 +460,7 @@ comp: ( uvalue-xt to-xt -- )
 : UValue ( "name" -- )
     \G Define a per-thread value
     Create cell uallot , ['] u-to set-to
-    ['] u-compile, set-compiler
+    ['] u-compile, set-optimizer
   DOES> @ next-task + @ ;
 
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
@@ -509,7 +509,7 @@ extra>-dummy (doextra-dummy)
 : !extra   ( addr -- ) \ gforth store-extra
     vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
     IF
-	['] extra, set-compiler
+	['] extra, set-optimizer
     THEN
     latestxt extra-code! ;
 
@@ -582,8 +582,8 @@ Create vttemplate
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
 : set-does>     ( xt -- ) !doesxt ; \ more work than the aboves
 
-:noname ( -- colon-sys ) start-xt  set-compiler ;
-:noname ['] set-compiler start-xt-like ;
+:noname ( -- colon-sys ) start-xt  set-optimizer ;
+:noname ['] set-optimizer start-xt-like ;
 over over
 interpret/compile: opt:
 interpret/compile: comp:
@@ -674,7 +674,7 @@ defer 0-adjust-locals-size ( -- )
     \G create a new recognizer table
     >r  ['] drop swap concat >r
     >r :noname r> compile, postpone ;
-    r> set-compiler r> set-lit,  Constant ;
+    r> set-optimizer r> set-lit,  Constant ;
 
 \ does>
 
@@ -683,12 +683,12 @@ defer 0-adjust-locals-size ( -- )
 
 : !doesxt ( xt -- ) \ gforth store-doesxt
     latestxt doesxt-code!
-    ['] doesxt, set-compiler ;
+    ['] doesxt, set-optimizer ;
 
 : !does    ( addr -- ) \ gforth	store-does
     vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
     IF
-	['] spaces >namevt @ >vtcompile, @ set-compiler
+	['] spaces >namevt @ >vtcompile, @ set-optimizer
     THEN
     latestxt does-code! ;
 
