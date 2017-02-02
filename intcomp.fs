@@ -31,7 +31,7 @@ latestxt >does-code
 constant no-compilation-does-code
 constant no-interpretation-does-code
 
-: create-interpret/compile ( "name" -- ) \ gforth
+: create-interpret/compile ( "name" -- ) \ gforth-obsolete
     0 0 interpret/compile:
     here latestxt interpret/compile-comp !
     no-compilation-does-code here does-code!
@@ -52,23 +52,23 @@ constant no-interpretation-does-code
 : (interpretation>1) ( addr R:retaddr -- )
     latestxt interpret/compile-int swap fix-does-code ;
 
-: interpretation> ( compilation. -- orig colon-sys ) \ gforth
+: interpretation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
     here 4 cells +  POSTPONE literal POSTPONE (interpretation>1) POSTPONE ahead
     defstart dead-code off 0 set-locals-size-list ; immediate restrict
 
-: <interpretation ( compilation. orig colon-sys -- ) \ gforth
+: <interpretation ( compilation. orig colon-sys -- ) \ gforth-obsolete
     ?struc POSTPONE exit
     POSTPONE then ; immediate restrict
 
 : (compilation>1) ( addr R:retaddr -- )
     latestxt interpret/compile-comp swap fix-does-code ;
 
-: compilation> ( compilation. -- orig colon-sys ) \ gforth
+: compilation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
     here 4 cells + POSTPONE literal POSTPONE (compilation>1) POSTPONE ahead
     defstart dead-code off 0 set-locals-size-list POSTPONE >body ; immediate restrict
 
 comp' <interpretation drop
-Alias <compilation ( compilation. orig colon-sys -- ) \ gforth
+Alias <compilation ( compilation. orig colon-sys -- ) \ gforth-obsolete
 immediate restrict
 
 \ example
