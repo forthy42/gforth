@@ -27,9 +27,11 @@ has? new-does [IF]
     : extra, ['] extra-exec peephole-compile, , ;
     : >comp  ( xt -- ) name>comp execute ;
     : post,  ( xt -- ) lit, postpone >comp ;
-    : no-to ( -- )  -32 throw ;
-    comp: -32 throw ;
-    : no-defer@ ( xt -- ) -2055 throw ;
+    : no-to ( xt -- )
+	\ default to action: report an error ASAP (even right when COMPILE,ing)
+	#-12 throw ;
+    opt: #-12 throw ; \ 
+    : no-defer@ ( xt -- ) #-2055 throw ;
 [THEN]
 
 require ./basics.fs 	\ bounds decimal hex ...

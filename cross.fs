@@ -3099,6 +3099,7 @@ End-Struct vtable-struct
 : >vtable ( compile-xt tokenize-xt -- )
     set-lit, set-compiler ;
 
+: opt: ( -- colon-sys )   gstart-xt set-compiler ;
 : comp: ( -- colon-sys )  gstart-xt set-compiler ;
 : lit,: ( -- colon-sys )  gstart-xt set-lit, ;
 \    T 0 cell+ cfalign# here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
