@@ -29,6 +29,7 @@ has? new-does [IF]
     : post,  ( xt -- ) lit, postpone >comp ;
     : no-to ( -- )  -32 throw ;
     comp: -32 throw ;
+    : no-defer@ ( xt -- ) -2055 throw ;
 [THEN]
 
 require ./basics.fs 	\ bounds decimal hex ...

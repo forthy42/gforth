@@ -527,7 +527,7 @@ Create vttemplate
 ' no-to A,             \ to field
 ' default-name>int A,  \ name>int field
 ' default-name>comp A, \ name>comp field
-' >body@ A,            \ defer@
+' no-defer@ A,         \ defer@
 
 \ initialize to one known vt
 
@@ -597,9 +597,8 @@ interpret/compile: lit,:
 
 \ defer and friends
 
-: defer! ( xt xt-deferred -- ) \ gforth  defer-store
+' (int-to) alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
-    >body ! ;
 
 : (comp-to) ( xt -- )
     \g TO uses the TO-xt for interpretation and compilation.

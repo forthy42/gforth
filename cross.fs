@@ -2997,8 +2997,9 @@ ghost i/c>int
 ghost i/c>comp
 2drop
 ghost no-to
+ghost no-defer@
 ghost >body@
-2drop
+2drop drop
 ghost value!
 ghost umethod,
 2drop
@@ -3023,7 +3024,7 @@ findghost noop ,
 findghost no-to ,
 findghost default-name>int ,
 findghost default-name>comp ,
-findghost >body@ ,
+findghost no-defer@ ,
 
 Struct
     cell% field >vtlink
@@ -3070,7 +3071,7 @@ End-Struct vtable-struct
     [ findghost no-to      ]L vttemplate >vtto !
     [ findghost default-name>int ]L vttemplate >vt>int !
     [ findghost default-name>comp ]L vttemplate >vt>comp !
-    [ findghost >body@     ]L vttemplate >vtdefer@ ! ;
+    [ findghost no-defer@  ]L vttemplate >vtdefer@ ! ;
 
 :noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-compiler
 : gset-lit,     ( ghost -- )  vttemplate >vtlit, ! ;
@@ -3308,7 +3309,10 @@ T has? rom H [IF]
     BuildSmart:  ( -- ) [T'] noop T A, H ;Build
     by: :dodefer ( ghost -- ) X @ texecute ;DO
 [THEN]
-vt: [G'] defer, gset-compiler [G'] value! gset-to ;vt
+vt:
+[G'] defer, gset-compiler
+[G'] value! gset-to
+[G'] >body@ gset-defer@ ;vt
 
 \ Sturctures                                           23feb95py
 
