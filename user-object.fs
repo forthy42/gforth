@@ -10,11 +10,11 @@ Variable class-o
 : umethod ( m v -- m' v )
     over >r : postpone u#exec class-o @ , r> cell/ , postpone ;
     swap cell+ swap
-    ['] umethod, set-compiler ['] umethod! set-to ['] umethod@ set-defer@ ;
+    ['] umethod, set-optimizer ['] umethod! set-to ['] umethod@ set-defer@ ;
 
 : uvar ( m v size -- m v' )
     over >r : postpone u#+ class-o @ , r> , postpone ; +
-    ['] uvar, set-compiler ;
+    ['] uvar, set-optimizer ;
 
 : uclass ( c "name" -- c m v )
     ' execute next-task - class-o ! class ;

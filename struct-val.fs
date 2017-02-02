@@ -36,13 +36,13 @@ standard:field
 : create+value ( n1 addr "name" -- n3 )
     >r r@ cell+ cell+ 2@ r> 2@
     2>r >r Create over , + action-of +field, ,
-    r> 2r> set-to set-compiler set-does> ;
+    r> set-does> 2r> set-to set-optimizer ;
 
 : wrap+value: ( n2 xt-align xt@ xt! "name" -- ) { xt-align xt@ xt! }
     :noname ]] vfield-int, [[ xt@ compile, postpone ; \ xt-does
     :noname ]] >body vfield-comp, [[ xt@ ]]L compile, ; [[ \ xt-comp,
     :noname ]] drop >body vfield-comp, [[ xt! ]]L compile, ; [[ \ xt-to-comp,
-    :noname ]] >body vfield-int, [[ xt! compile, postpone ; swap set-compiler \ xt-to
+    :noname ]] >body vfield-int, [[ xt! compile, postpone ; swap set-optimizer \ xt-to
     :noname ]] >r [[ xt-align compile, ]] r> create+value ; [[
     Create set-does> , , , , ;
 

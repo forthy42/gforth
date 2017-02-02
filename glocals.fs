@@ -122,7 +122,7 @@ User locals-size \ this is the current size of the locals stack
 \    \g turn colon definition into lp restoring trampoline
 \    latestxt @ docol: <> ?EXIT \ !! delete this
 \    docolloc: latestxt code-address!
-\    ['] :loc, set-compiler
+\    ['] :loc, set-optimizer
 \    1 unlocal-state cset ;
 
 \ change EXIT's compilation action

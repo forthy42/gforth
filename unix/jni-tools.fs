@@ -266,7 +266,7 @@ Variable argstring
 : jni-field: ( "forth-name" "name" "signature" -- )
     >in @ parse-name 2drop jni-fid >in @ { old-in fid new-in }
     :noname postpone drop postpone o fid lit,
-    cstring@1 'field! + @ compile, postpone ; >r ['] field-to, set-compiler
+    cstring@1 'field! + @ compile, postpone ; >r ['] field-to, set-optimizer
     old-in >in !
     : ( o:jobject -- retval ) postpone o fid lit,
     cstring@1 'field@ + @ compile, postpone ;

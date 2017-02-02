@@ -66,7 +66,7 @@
 : comp-fval ( xt -- )  >body postpone Literal postpone f@ ;
 
 : fconstant  ( r "name" -- ) \ float f-constant
-    Create f, ['] comp-fval set-compiler
+    Create f, ['] comp-fval set-optimizer
 DOES> ( -- r )
     f@ ;
 
@@ -75,7 +75,7 @@ DOES> ( -- r )
 comp: drop >body postpone ALiteral postpone f! ;
 
 : fvalue ( r "name" -- ) \ float-ext f-value
-    fconstant ['] fvalue! set-to ['] comp-fval set-compiler ;
+    fconstant ['] fvalue! set-to ['] comp-fval set-optimizer ;
 
 : fdepth ( -- +n ) \ float f-depth
     \G @i{+n} is the current number of (floating-point) values on the

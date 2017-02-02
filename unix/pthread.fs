@@ -375,9 +375,10 @@ comp: drop >body @ postpone useraddr , postpone ! ;
 
 : UValue ( "name" -- )
     \G Define a per-thread value
-    Create cell uallot , ['] u-to set-to
-    [: >body @ postpone useraddr , postpone @ ;] set-compiler
-  DOES> @ up@ + @ ;
+    Create cell uallot ,
+    [: @ up@ + @ ;] set-does>
+    ['] u-to set-to
+    [: >body @ postpone useraddr , postpone @ ;] set-optimizer ;
 [THEN]
 
 : udefer@ ( xt -- )
@@ -385,9 +386,11 @@ comp: drop >body @ postpone useraddr , postpone ! ;
 
 : UDefer ( "name" -- )
     \G Define a per-thread deferred word
-    Create cell uallot , ['] u-to set-to ['] udefer@ set-defer@
-    [: >body @ postpone useraddr , postpone perform ;] set-compiler
-  DOES> @ up@ + perform ;
+    Create cell uallot ,
+    [: @ up@ + perform ;] set-does>
+    ['] u-to set-to
+    ['] udefer@ set-defer@
+    [: >body @ postpone useraddr , postpone perform ;] set-optimizer ;
 
 false [IF] \ event test - send to myself
     <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]

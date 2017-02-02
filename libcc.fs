@@ -900,7 +900,7 @@ tmp$ $execstr-ptr !
     xt-parse-types c-function-ft
     [: dup >does-code [ '  rt-does> >body ]L <>
     IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
-    postpone call-c# , ;] set-compiler ;
+    postpone call-c# , ;] set-optimizer ;
 
 : c-function ( "forth-name" "c-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the

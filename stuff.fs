@@ -575,7 +575,7 @@ comp: drop >body postpone literal postpone 2! ;
 
 : 2Value ( d "name" -- ) \ Forth200x
     Create 2,
-    [: >body postpone Literal postpone 2@ ;] set-compiler
+    [: >body postpone Literal postpone 2@ ;] set-optimizer
     ['] (2to) set-to
   DOES> 2@ ;
 
