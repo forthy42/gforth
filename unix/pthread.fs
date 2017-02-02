@@ -371,7 +371,7 @@ synonym sleep halt ( task -- )
 
 [IFUNDEF] UValue
 : u-to >body @ up@ + ! ;
-comp: drop >body @ postpone useraddr , postpone ! ;
+opt: drop >body @ postpone useraddr , postpone ! ;
 
 : UValue ( "name" -- )
     \G Define a per-thread value

@@ -391,7 +391,7 @@ include ./recognizer.fs
 : s>int ( nt -- xt )  @ name>int ;
 : s>comp ( nt -- xt1 xt2 )  @ name>comp ;
 : s-to ( val nt -- )  @ (int-to) ;
-comp: drop @ (comp-to) ;
+opt: drop @ (comp-to) ;
 
 : Alias    ( xt "name" -- ) \ gforth
     Header reveal ['] on vtcopy
@@ -451,7 +451,7 @@ comp: drop @ (comp-to) ;
     (Value) A, ;
 
 : u-to ( n uvalue-xt -- ) >body @ next-task + ! ;
-comp: ( uvalue-xt to-xt -- )
+opt: ( uvalue-xt to-xt -- )
     drop >body @ postpone useraddr , postpone ! ;
 \g u-to is the to-method for user values; it's xt is only
 \g there to be consumed by @code{set-to}.
@@ -517,7 +517,7 @@ extra>-dummy (doextra-dummy)
 
 \ docolloc-dummy (docolloc-dummy)
 
-\ comp: to define compile, action
+\ opt: to define compile, action
 
 Create vttemplate
 0 A,                   \ link field
@@ -613,7 +613,7 @@ interpret/compile: lit,:
     \g this is the TO-method for normal values; it's tickable, but
     \g the only purpose of its xt is to be consumed by @code{set-to}.
     >body ! ;
-comp: ( value-xt to-xt -- )
+opt: ( value-xt to-xt -- )
     drop >body postpone ALiteral postpone ! ;
     
 : <IS> ( "name" xt -- ) \ gforth
