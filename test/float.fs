@@ -79,3 +79,7 @@ set-near
 { 12345 1e facosh -> 12345 0e }
 { 12345 0e fatanh -> 12345 0e }
 
+\ represent (incomplete, just a regression test)
+{ 2e0 -53e0 f** fconstant eps -> }
+{ 1e0 eps f- pad 5 represent pad 5 s" 10000" str= -> 1 0 -1 -1 }
+{ 1e0 eps f- pad 20 represent pad 5 s" 99999" str= -> 0 0 -1 -1 }
