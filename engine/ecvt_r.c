@@ -31,6 +31,7 @@ int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len)
 {
    int i, j;
    double z;
+   double dexp;
    
    if (isnan(x)) {
      *sign=0;
@@ -51,22 +52,34 @@ int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len)
    if(ndigits > (MAXCONV-1)) ndigits = MAXCONV-1;
    if(ndigits >= len) ndigits = len-1;
  
-   if(x<0) {
+   if(x<0.) {
      *sign = 1;
      x = -x;
    } else {
      *sign = 0;
    }
 
-   *exp=(x==0)?-1:(int)floor(log10(x));
-   if(*exp < -300) { /* maybe a denormal: do this in two steps */
+   dexp = (x==0)?-1.:floor(log10(x));
+   if(dexp < -300.) { /* maybe a denormal: do this in two steps */
      x = x * pow10(300.);
-     x = x / pow10((double)(*exp)+300.);
+     x = x * pow10(-dexp-300.);
    } else {
-     x = x / pow10((double)*exp);
+     x = x * pow10(-dexp);
    }
    
-   *exp += 1;
+   dexp += 1.;
+
+   /* correct for imprecision in log10/pow10 
+      <https://savannah.gnu.org/bugs/?50221> */
+   while (x<1. && x!=0.) {
+     x = x * 10.;
+     dexp -= 1.;
+   }
+   while (x>=10.) {
+     x = x / 10.;
+     dexp += 1.;
+   }
+   /* now, hopefully 1.<=x<10. */
    
    for(i=0; i < ndigits; i++) {
      z=floor(x);
@@ -85,12 +98,12 @@ int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len)
      }
      if(j<0) {
        buf[0]='1';
-       *exp += 1;
+       dexp += 1.;
      }
    }
    
    buf[i]='\0';
-   
+   *exp = (int)dexp;
    return 0;
 }
 
