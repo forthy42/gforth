@@ -223,6 +223,10 @@ AC_ARG_VAR(asmcomment, [assembler comment start string])
 AC_ARG_VAR(arm_cacheflush, [file containing ARM cacheflush function (without .c)])
 AC_ARG_VAR(LTDL_LIBRARY_PATH, [additional directories for libltdl (for some 64-bit platforms)])
 
+#ecvt_r is buggy on at least MacOS X, and not better than our ecvt_r
+# in glibc, so use our ecvt_r by default
+test -z "$ac_cv_func_ecvt_r" && ac_cv_func_ecvt_r=no
+
 test -z "$HOSTCC" && HOSTCC='$(GCC)'
 
 #set up feature test macros, so the tests get them right:
