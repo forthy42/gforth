@@ -82,4 +82,5 @@ set-near
 \ represent (incomplete, just a regression test)
 { 2e0 -53e0 f** fconstant eps -> }
 { 1e0 eps f- pad 5 represent pad 5 s" 10000" str= -> 1 0 -1 -1 }
-{ 1e0 eps f- pad 20 represent pad 5 s" 99999" str= -> 0 0 -1 -1 }
+\ the following produces different results on different platforms, so disabled
+\ { 1e0 eps f- pad 20 represent pad 5 s" 99999" str= -> 0 0 -1 -1 }
