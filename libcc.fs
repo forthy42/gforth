@@ -822,9 +822,11 @@ tmp$ $execstr-ptr !
     [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
       s" CROSS_PREFIX" getenv $type
       libtool-cc $type s"  -I '" $type
-      s" includedir" getenv tuck $type
-      0= [IF]  pad $100 get-dir $type s" /include" $type  [THEN]
-      s" '" $type tmp$ $@ ] sliteral type
+      s" includedir" getenv tuck $type 0= [IF]
+	  pad $100 get-dir $type s" /" $type version-string $type
+	  s" /include" $type  [THEN]
+      s" '" $type s" extrastuff" getenv $type
+      tmp$ $@ ] sliteral type
     ."  -O -c " lib-filename $. ." .c -o "
     lib-filename $. ." .lo" ;
 
