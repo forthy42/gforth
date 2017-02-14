@@ -29,11 +29,11 @@
 \ #include <gforth.h>
 \ #include <unistd.h>
 \ 
-\ ptrpair gforth_c_lseek_ndn_d(ptrpair x, void* addr)
+\ gforth_stackpointers gforth_c_lseek_ndn_d(gforth_stackpointers x, void* addr)
 \ {
 \   long long result;  /* longest type in C */
-\   gforth_ll2d(lseek(sp[3],gforth_d2ll(sp[2],sp[1]),sp[0]),sp[3],sp[2]);
-\   sp += 2;
+\   gforth_ll2d(lseek(x.spx[3],gforth_d2ll(x.spx[2],x.spx[1]),x.spx[0]),x.spx[3],x.spx[2]);
+\   x.spx += 2;
 \   return x;
 \ }
 
@@ -382,13 +382,13 @@ create count-stacks-types
 : .gen ( n -- n' )  1- dup .nb ;
 
 : gen-par-sp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    ." sp[" .gen ." ]" ;
+    ." x.spx[" .gen ." ]" ;
 
 : gen-par-sp+ ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    ." sp+" .gen ;
+    ." x.spx+" .gen ;
 
 : gen-par-fp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    swap ." fp[" .gen ." ]" swap ;
+    swap ." x.fpx[" .gen ." ]" swap ;
 
 : gen-par-n ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     type gen-par-sp ;
@@ -537,7 +537,7 @@ create gen-wrapped-types
 	." _LTX_" [ [THEN] ] ;
 
 : >ptr-declare ( c-name u1 -- addr u2 )
-    s" *sp++" 2swap \ default is fetch ptr from stack
+    s" *x.spx++" 2swap \ default is fetch ptr from stack
     ptr-declare [: ( decl u1 c-name u2 ptr-name u3 -- decl' u1' c-name u2 )
 	2>r 2dup 2r> ':' $split 2>r string-prefix?
 	IF  2nip 2r> 2swap  ELSE  2rdrop THEN ;] $[]map 2drop ;
@@ -546,7 +546,7 @@ create gen-wrapped-types
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
     count { ret } count 2dup { d: pars } chars + count { d: c-name }
-    ." ptrpair " .prefix
+    ." gforth_stackpointers " .prefix
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n{\n"
     pars c-name 2over count-stacks
@@ -554,10 +554,10 @@ create gen-wrapped-types
     is-funptr? IF  ." Cell ptr = " c-name >ptr-declare type .\" ;\n  "  THEN
     ret gen-wrapped-stmt .\" ;\n"
     dup is-funptr? or if
-	."   sp += " dup .nb .\" ;\n"
+	."   x.spx += " dup .nb .\" ;\n"
     endif drop
     ?dup-if
-	."   fp += "     .nb .\" ;\n"
+	."   x.fpx += "     .nb .\" ;\n"
     endif
     .\"   return x;\n}\n" ;
 
@@ -611,7 +611,7 @@ Create callback-&style c-var c,
 
 : callback-pushs ( descriptor -- )
     1+ count 0 { d: pars vari }
-    ."   ptrpair x; \" cr
+    ."   gforth_stackpointers x; \" cr
     ."   sp=SPs->spx; \" cr
     ."   fp=SPs->fpx; \" cr
     0 0 pars bounds u+do
