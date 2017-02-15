@@ -612,8 +612,8 @@ Create callback-&style c-var c,
 : callback-pushs ( descriptor -- )
     1+ count 0 { d: pars vari }
     ."   gforth_stackpointers x; \" cr
-    ."   sp=SPs->spx; \" cr
-    ."   fp=SPs->fpx; \" cr
+    ."   x.spx=SPs->spx; \" cr
+    ."   x.fpx=SPs->fpx; \" cr
     0 0 pars bounds u+do
 	I 1+ c@  IF  callback-&style  ELSE  callback-style  THEN
 	3 + 1 2swap
@@ -621,12 +621,12 @@ Create callback-&style c-var c,
 	i c@ 2 spaces gen-wrapped-stmt ." ; \" cr
 	i 1+ c@ 2 +  vari 1+ to vari
     +loop
-    ?dup-if  ."   sp+=" .nb ." ; \" cr  then
-    ?dup-if  ."   fp+=" .nb ." ; \" cr  then ;
+    ?dup-if  ."   x.spx+=" .nb ." ; \" cr  then
+    ?dup-if  ."   x.fpx+=" .nb ." ; \" cr  then ;
 
 : callback-call ( descriptor -- )
     1+ count + count \ callback C name
-    ."   SPs->spx=sp; SPs->fpx=fp; gforth_engine(" .prefix ." gforth_cbips_" type
+    ."   SPs->spx=x.spx; SPs->fpx=x.fpx; gforth_engine(" .prefix ." gforth_cbips_" type
     ." [I], SPs); \" cr ;
 
 : gen-par-callback ( sp-change1 sp-change1 addr u type -- fp-change sp-change )

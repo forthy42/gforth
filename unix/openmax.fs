@@ -5,7 +5,7 @@ Vocabulary openmax
 get-current also openmax definitions
 
 c-library openmax
-    s" ((struct XA:*(Cell*)(sp[arg0])" ptr-declare $+[]!
+    s" ((struct XA:*(Cell*)(x.spx[arg0])" ptr-declare $+[]!
     s" OpenMAXAL" add-lib
     \c #include <OMXAL/OpenMAXAL_Platform.h>
     \c #include <OMXAL/OpenMAXAL.h>
