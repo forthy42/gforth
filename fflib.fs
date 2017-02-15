@@ -37,12 +37,12 @@ c-library fflib
     \c   {
     \c     /* save global variables */
     \c     stackpointers *SPs=get_gforth_SPs();
-    \c     ptrpair x;
+    \c     gforth_stackpointers x;
     \c     Cell *rp = SPs->rpx;
     \c     char *lp = SPs->lpx;
     \c     va_alist clist = gforth_clist;
-    \c     sp = SPs->spx;
-    \c     fp = SPs->fpx;
+    \c     x.spx = SPs->spx;
+    \c     x.fpx = SPs->fpx;
     \c 
     \c     gforth_clist = (va_alist)alist;
     \c 
@@ -50,8 +50,8 @@ c-library fflib
     \c 
     \c     /* restore global variables */
     \c     SPs->rpx = rp;
-    \c     SPs->spx = sp;
-    \c     SPs->fpx = fp;
+    \c     SPs->spx = x.spx;
+    \c     SPs->fpx = x.fpx;
     \c     SPs->lpx = lp;
     \c     gforth_clist = clist;
     \c   }
