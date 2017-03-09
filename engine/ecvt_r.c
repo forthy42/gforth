@@ -75,7 +75,7 @@ int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len)
      x = x * 10.;
      dexp -= 1.;
    }
-   while (x>=10.) {
+   while (floor(x)>=10) {
      x = x / 10.;
      dexp += 1.;
    }
