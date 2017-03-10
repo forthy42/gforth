@@ -400,22 +400,22 @@ Variable gl-emit-buf
 [THEN]
 
 141e FValue default-diag \ Galaxy Note II is 80x48
+1e FValue default-scale
 
 : screen-diag ( -- rdiag )
-    screen-wh
-    f**2 fswap f**2 f+ fsqrt ;   \ diagonal in inch
-
-: gl-fscale ( f -- )
-    1/f 80 fdup fm* f>s to hcols 48 fm* f>s to vcols
-    resize-screen config-changed ;
-: gl-scale ( n -- ) s>f gl-fscale ;
+    screen-wh f**2 fswap f**2 f+ fsqrt ;   \ diagonal in inch
 
 : scale-me ( -- )
     \ smart scaler, scales using square root relation
-    default-diag screen-diag f/ fsqrt gl-fscale ;
+    default-diag screen-diag f/ fsqrt default-scale f*
+    1/f 80 fdup fm* f>s to hcols 48 fm* f>s to vcols
+    resize-screen config-changed ;
+
+: gl-fscale ( f -- ) to default-scale scale-me ;
+: gl-scale ( n -- ) s>f gl-fscale ;
 
 : config-changer ( -- )
-    getwh  >screen-orientation  form-chooser  need-sync on ;
+    getwh  >screen-orientation  form-chooser  scale-me  need-sync on ;
 : ?config-changer ( -- )
     need-config @ 0> IF
 	dpy-w @ dpy-h @ 2>r config-changer
