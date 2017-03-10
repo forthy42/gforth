@@ -380,6 +380,7 @@ Variable gl-emit-buf
 [IFUNDEF] win : win app window @ ; [THEN]
 
 [IFDEF] android
+    also jni
     JValue metrics \ screen metrics
     
     : >metrics ( -- )
@@ -396,8 +397,8 @@ Variable gl-emit-buf
 	dpy XDefaultScreenOfDisplay >r
 	r@ screen-mwidth  l@ s>f dpy-w @ r@ screen-width  l@ fm*/
 	r@ screen-mheight l@ s>f dpy-h @ r> screen-height l@ fm*/ ;
-    previous
 [THEN]
+previous
 
 141e FValue default-diag \ Galaxy Note II is 80x48
 1e FValue default-scale
