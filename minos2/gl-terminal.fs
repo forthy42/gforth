@@ -502,6 +502,9 @@ default-out op-vector !
 
 :noname  defers window-init term-init config-changer ; IS window-init
 
+>black \ make black default
+\ >white \ make white default
+
 window-init
 
 previous previous \ remove opengl from search order
@@ -514,5 +517,3 @@ previous previous \ remove opengl from search order
     fd string $[]slurp string $[]. string $[]off ;
 : sh '#' parse cr system ;
 warnings !
-
->black \ make black default
