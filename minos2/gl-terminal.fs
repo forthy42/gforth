@@ -379,6 +379,41 @@ Variable gl-emit-buf
 
 [IFUNDEF] win : win app window @ ; [THEN]
 
+[IFDEF] android
+    JValue metrics \ screen metrics
+    
+    : >metrics ( -- )
+	newDisplayMetrics dup to metrics
+	clazz .getWindowManager .getDefaultDisplay .getMetrics ;
+    
+    : screen-wh ( -- rw rh )
+	metrics ?dup-0=-IF  >metrics metrics  THEN >o
+	widthPixels  xdpi 1/f fm* 25.4e f*      \ width in mm
+	heightPixels ydpi 1/f fm* 25.4e f* o> ; \ height in mm
+[ELSE]
+    also x11
+    : screen-wh ( -- rw rh )
+	dpy XDefaultScreenOfDisplay >r
+	r@ screen-mwidth  l@ s>f dpy-w @ r@ screen-width  l@ fm*/
+	r@ screen-mheight l@ s>f dpy-h @ r> screen-height l@ fm*/ ;
+    previous
+[THEN]
+
+141e FValue default-diag \ Galaxy Note II is 80x48
+
+: screen-diag ( -- rdiag )
+    screen-wh
+    f**2 fswap f**2 f+ fsqrt ;   \ diagonal in inch
+
+: gl-fscale ( f -- )
+    1/f 80 fdup fm* f>s to hcols 48 fm* f>s to vcols
+    resize-screen config-changed ;
+: gl-scale ( n -- ) s>f gl-fscale ;
+
+: scale-me ( -- )
+    \ smart scaler, scales using square root relation
+    default-diag screen-diag f/ fsqrt gl-fscale ;
+
 : config-changer ( -- )
     getwh  >screen-orientation  form-chooser  need-sync on ;
 : ?config-changer ( -- )
@@ -396,11 +431,6 @@ Variable gl-emit-buf
 : >changed ( -- )
     config-change# need-config !
     BEGIN  >looper screen-sync need-config @ 0= UNTIL ;
-
-: gl-fscale ( f -- )
-    1/f 80 fdup fm* f>s to hcols 48 fm* f>s to vcols
-    resize-screen config-changed ;
-: gl-scale ( n -- ) s>f gl-fscale ;
 
 : 1*scale   1 gl-scale ;
 : 2*scale   2 gl-scale ;
@@ -467,7 +497,7 @@ default-out op-vector !
     create-terminal-program to terminal-program
     terminal-program terminal-init
     s" minos2/ascii.png" term-load-textures form-chooser
-    unit-matrix MVPMatrix set-matrix ;
+    unit-matrix MVPMatrix set-matrix  scale-me ;
 
 :noname  defers window-init term-init config-changer ; IS window-init
 
