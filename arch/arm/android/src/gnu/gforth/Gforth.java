@@ -198,7 +198,7 @@ public class Gforth
 		int i;
 		String send="";
 		for(i=0; i<before; i++) {
-		    send+="\b";
+		    send+="\x7F";
 		}
 		for(i=0; i<after; i++) {
 		    send+="\033[3~";

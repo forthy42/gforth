@@ -125,7 +125,6 @@ Variable meta-key#
 
 Create akey>ekey
 AKEYCODE_HOME c, "\e[H" $,
-AKEYCODE_BACK c, "\b" $,
 AKEYCODE_DPAD_UP c, "\e[A" $,
 AKEYCODE_DPAD_DOWN c, "\e[B" $,
 AKEYCODE_VOLUME_UP c, "\e[A" $,
@@ -134,7 +133,7 @@ AKEYCODE_DPAD_LEFT c, "\e[D" $,
 AKEYCODE_DPAD_RIGHT c, "\e[C" $,
 AKEYCODE_TAB c, "\t" $,
 AKEYCODE_ENTER c, "\r" $,
-AKEYCODE_DEL c, "\b" $, \ is not delete, is backspace!
+AKEYCODE_DEL c, "\x7f" $, \ is not delete, is backspace!
 AKEYCODE_FORWARD_DEL c, "\e[3~" $, \ this is the real delete
 AKEYCODE_PAGE_UP c, "\e[5~" $,
 AKEYCODE_PAGE_DOWN c, "\e[6~" $,
@@ -354,18 +353,14 @@ JValue cmanager
     dup to key-event >o
     ke_getMetaState meta-key# !
     getAction dup 2 = IF  drop
-	getKeyCode dup 0= IF
-	    drop getCharacters android-characters
-	ELSE
-	    getUnicodeChar dup 0>
-	    IF    nip  android-unicode
-	    ELSE  drop android-keycode
-	    THEN
+	getKeyCode dup 0=
+	IF    drop getCharacters android-characters
+	ELSE  android-keycode
 	THEN
     ELSE
-	0= IF  getUnicodeChar dup 0>
-	    IF    android-unicode
-	    ELSE  drop  getKeyCode android-keycode
+	0= IF  getKeyCode dup 0=
+	    IF    drop getUnicodeChar android-unicode
+	    ELSE  android-keycode
 	    THEN
 	THEN
     THEN o> ;

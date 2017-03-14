@@ -2133,7 +2133,9 @@ X has? f83headerstring [IF]
     [IFDEF] loadfilename#  loadfilename# off  [THEN]
     s" kernel/main.fs" h-add-included-file ;
 : tsourcepos1 ( -- xpos )
-    sourcefilename str>loadfilename# sourceline#
+    [IFDEF] loadfilename# loadfilename# @
+    [ELSE] sourcefilename str>loadfilename# [THEN]
+    sourceline#
     input-lexeme 2@ drop source drop -
     $ff min swap 8 lshift + $7fffff min swap #23 lshift or ;
 : view,   ( -- ) tsourcepos1 T , H ;
