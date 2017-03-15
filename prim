@@ -3243,7 +3243,7 @@ le-uxd@ ( c_addr -- ud )	gforth l_e_u_xd_fetch
 UTetrabyte tb[2];
 memcpy((Char*)tb, c_addr, 8);
 #  ifndef WORDS_BIGENDIAN
-D_IS(ud, tb[1], tb[9]);
+D_IS(ud, tb[1], tb[0]);
 #  else
 D_IS(ud, BSWAP32(tb[1]), BSWAP32(tb[0]));
 #  endif
