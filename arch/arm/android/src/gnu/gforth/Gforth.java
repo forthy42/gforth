@@ -124,6 +124,10 @@ public class Gforth
     public Runnable appexit;
     public Runnable rshowstatus;
     public Runnable rhidestatus;
+    public Runnable rkeepscreenon;
+    public Runnable rkeepscreenoff;
+    public Runnable rsecurescreenon;
+    public Runnable rsecurescreenoff;
     public ProgressDialog progress;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
@@ -374,8 +378,7 @@ public class Gforth
     public void hideStatus() {
 	// Hide Status Bar
 	if (Build.VERSION.SDK_INT < 16) {
-	    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	    getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
 	}
 	else {
 	    getWindow().getDecorView().setSystemUiVisibility(0x1004);
@@ -490,6 +493,26 @@ public class Gforth
 	rhidestatus=new Runnable() {
 		public void run() {
 		    hideStatus();
+		}
+	    };
+	rkeepscreenon=new Runnable() {
+		public void run() {
+		    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+		}
+	    };
+	rkeepscreenoff=new Runnable() {
+		public void run() {
+		    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+		}
+	    };
+	rsecurescreenon=new Runnable() {
+		public void run() {
+		    getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+		}
+	    };
+	rsecurescreenoff=new Runnable() {
+		public void run() {
+		    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
 		}
 	    };
 	

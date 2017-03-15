@@ -204,10 +204,12 @@ $80 Constant FLAG_KEEP_SCREEN_ON
 
 false value wake-lock \ doesn't work, why?
 
-: screen+keep ( -- )  wake-lock IF
-	clazz >o getWindow o> >o FLAG_KEEP_SCREEN_ON addFlags ref> THEN ;
-: screen-keep ( -- )  wake-lock IF
-	clazz >o getWindow o> >o FLAG_KEEP_SCREEN_ON clearFlags ref> THEN ;
+: hidestatus ( -- ) ['] rhidestatus post-it ;
+: showstatus ( -- ) ['] rshowstatus post-it ;
+: screen+keep ( -- )  ['] rkeepscreenon post-it ;
+: screen-keep ( -- )  ['] rkeepscreenoff post-it ;
+: screen+secure ( -- )  ['] rsecurescreenon post-it ;
+: screen-secure ( -- )  ['] rsecurescreenoff post-it ;
 
 \ callbacks
 

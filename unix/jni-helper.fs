@@ -33,6 +33,10 @@ jni-field: hideprog hideprog Ljava/lang/Runnable;
 jni-field: gforth-handler handler Landroid/os/Handler;
 jni-field: rshowstatus rshowstatus Ljava/lang/Runnable;
 jni-field: rhidestatus rhidestatus Ljava/lang/Runnable;
+jni-field: rkeepscreenon rkeepscreenon Ljava/lang/Runnable;
+jni-field: rkeepscreenoff rkeepscreenoff Ljava/lang/Runnable;
+jni-field: rsecurescreenon rsecurescreenon Ljava/lang/Runnable;
+jni-field: rsecurescreenoff rsecurescreenoff Ljava/lang/Runnable;
 
 : SDK_INT clazz .get_SDK ;
 
@@ -196,10 +200,6 @@ Variable kbflag     kbflag off
 
 : hidekb ( -- )  clazz >o hideIME o> kbflag off ;
 : showkb ( -- )  clazz >o showIME o> kbflag on ;
-: hidestatus ( -- )
-    ['] rhidestatus post-it ;
-: showstatus ( -- )
-    ['] rshowstatus post-it ;
 
 : togglekb ( -- )
     kbflag @ IF  hidekb  ELSE  showkb  THEN ;
