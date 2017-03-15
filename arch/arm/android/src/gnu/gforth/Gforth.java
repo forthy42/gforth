@@ -378,7 +378,7 @@ public class Gforth
     public void hideStatus() {
 	// Hide Status Bar
 	if (Build.VERSION.SDK_INT < 16) {
-	    getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+	    getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	}
 	else {
 	    getWindow().getDecorView().setSystemUiVisibility(0x1004);
@@ -497,22 +497,22 @@ public class Gforth
 	    };
 	rkeepscreenon=new Runnable() {
 		public void run() {
-		    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+		    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
 	    };
 	rkeepscreenoff=new Runnable() {
 		public void run() {
-		    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+		    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
 	    };
 	rsecurescreenon=new Runnable() {
 		public void run() {
-		    getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+		    getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
 		}
 	    };
 	rsecurescreenoff=new Runnable() {
 		public void run() {
-		    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+		    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
 		}
 	    };
 	
