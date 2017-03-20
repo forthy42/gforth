@@ -304,7 +304,10 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 
 : event-does ( -- )  DOES>  @ 1 event+ c! ;
 : event: ( "name" -- )
-    \G defines an event and the reaction to it as Forth code
+    \G defines an event and the reaction to it as Forth code.
+    \G If @code{name} is invoked, the event gets assembled to the event buffer.
+    \G If the event @code{name} is received, the Forth definition
+    \G that follows the event declaration is executed.
     Create event# @ ,  event-does
     here 0 , >r  noname : lastxt dup event# @ cells event-table + !
     r> ! 1 event# +! ;
@@ -337,18 +340,18 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     2drop 2drop ;
 ' thread-deadline is deadline
 
-event: ->lit  0 { w^ n } n cell epiper @ read-file throw drop n @ ;
-event: ->flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
-event: ->wake ;
-event: ->sleep  stop ;
+event: :>lit  0 { w^ n } n cell epiper @ read-file throw drop n @ ;
+event: :>flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
+event: :>wake ;
+event: :>sleep  stop ;
 
 : restart ( task -- )
     \G Wake a task
-    <event ->wake event> ;
+    <event :>wake event> ;
 synonym wake restart ( task -- )
 : halt ( task -- )
     \G Stop a task
-    <event ->sleep event> ;
+    <event :>sleep event> ;
 synonym sleep halt ( task -- )
 : kill ( task -- )
     \G Kill a task
@@ -359,12 +362,12 @@ synonym sleep halt ( task -- )
 	15 pthread_kill drop
     [THEN] ;
 
-: elit,  ( x -- ) ->lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
+: elit,  ( x -- ) :>lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
 \G sends a literal
 : e$, ( addr u -- )  swap elit, elit, ;
 \G sends a string (actually only the address and the count, because it's
 \G shared memory
-: eflit, ( x -- ) ->flit { f^ r } r float event+ float move ;
+: eflit, ( x -- ) :>flit { f^ r } r float event+ float move ;
 \G sends a float
 
 \ User deferred words, user values

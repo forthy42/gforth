@@ -12609,14 +12609,16 @@ doc-barrier
 
 @subsubsection Message Queues
 
-Gforth implements executable message queues: you send instructions to
-other tasks, which they will execute as atomic sequence when they are
-enclosed in @code{<event} and @code{event>}.  You can pass integers,
-floats, and strings (only the addresses, so treat the string as
-read-only after you have send it to another task).  The instructions you
-send are defined with @code{event:} @var{name}, which, when invoked,
-will add the code for its execution to the message queue, and when
-recieved, will execute the code following.
+Gforth implements executable message queues for event driven programs:
+you send instructions to other tasks, which they will execute as
+atomic sequence when they are enclosed in @code{<event} and
+@code{event>}.  You can pass integers, floats, and strings (only the
+addresses, so treat the string as read-only after you have send it to
+another task).  The messages you send are defined with @code{event:}
+@var{name}, which, when invoked, will add the code for its execution
+to the message queue, and when recieved, will execute the code
+following.  The message queue is queried when you @code{stop} a task,
+or when you check for events with @code{?events}.
 
 doc-<event
 doc-event>
