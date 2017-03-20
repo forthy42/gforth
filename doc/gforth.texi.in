@@ -12610,15 +12610,16 @@ doc-barrier
 @subsubsection Message Queues
 
 Gforth implements executable message queues for event driven programs:
-you send instructions to other tasks, which they will execute as
-atomic sequence when they are enclosed in @code{<event} and
-@code{event>}.  You can pass integers, floats, and strings (only the
-addresses, so treat the string as read-only after you have send it to
-another task).  The messages you send are defined with @code{event:}
-@var{name}, which, when invoked, will add the code for its execution
-to the message queue, and when recieved, will execute the code
-following.  The message queue is queried when you @code{stop} a task,
-or when you check for events with @code{?events}.
+you send instructions to other tasks, enclosed in @code{<event} and
+@code{event>}; the entire event sequence is executed atomically.  You
+can pass integers, floats, and strings (only the addresses, so treat
+the string as read-only after you have send it to another task).  The
+messages you send are defined with @code{event:} @var{name}, which,
+when invoked, will add the code for its execution to the message
+queue, and when recieved, will execute the code following.  The
+message queue is queried when you @code{stop} a task, or when you
+check for events with @code{?events}.  You can define a maximum of 256
+different events.
 
 doc-<event
 doc-event>
@@ -12628,6 +12629,8 @@ doc-event-loop
 doc-elit,
 doc-e$,
 doc-eflit,
+
+The naming conventions for events is @code{:>}@var{name}.
 
 @subsubsection Conditions
 
