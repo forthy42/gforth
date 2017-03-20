@@ -15,24 +15,23 @@ All times are given in seconds of user time.
 
 After 0.7.0:
 AMD64:
-  sieve bubble matrix fib   fft   release; CPU; gcc
- 0.192  0.224  0.104 0.284 0.152  2016-12-22; Celeron J3455 (Goldmont) 2300MHz; gcc-4.9.2 (Debian 8)
- 0.076  0.104  0.040 0.076 0.032  2016-05-03; Intel Core i7-4790K 4.4GHz; gcc-4.9.2 (Debian 8)
- 0.120  0.168  0.064 0.160 0.060  2016-05-03; AMD Phenom II X2 560 3.3GHz; gcc-4.9.2 (Debian 8)
- 0.076  0.112  0.040 0.080 0.028  2015-12-26; Intel Core i7-6700K 4.0GHz; gcc-4.9.2 (Debian 8)
- 0.076  0.108  0.040 0.080 0.032  2015-12-26; Intel Core i7-4790K 4.4GHz; gcc-4.9.2 (Debian 8)
- 0.118  0.171  0.061 0.166 0.050  2015-02-01; Intel Core i7-3517U 3.0GHz; gcc-4.9.0 (SUSE Linux)
- 0.127  0.170  0.062 0.172 0.050  2015-02-01; Intel Core i7-3517U 3.0GHz; gcc-4.8.3 20140627 (SUSE Linux)
- 0.126  0.198  0.078 0.191 0.085  2015-02-01; Intel Core i7-3517U 3.0GHz; clang 3.5.0
- 0.087  0.134  0.047 0.129 0.039  2014-03-24; Intel Core i7-3770 3.40GHz; gcc-4.7.2 20130108 (SUSE Linux)
- 0.088  0.138  0.048 0.132 0.042  2013-04-08; Intel Core i7-3770 3.40GHz; gcc-4.7.2 20130108 (SUSE Linux)
- 0.156  0.232  0.084 0.236 0.080  2012-10-31; Intel Xeon E5620 2.40GHz; gcc-4.7.1 (Debian 4.7.1-7)
- 0.321  0.479  0.219 0.594 0.229  2012-10-31; AMD E-350 1.6GHz; gcc version 4.7.1 20120723 (SUSE Linux)
-sieve bubble matrix  fib   fft    release; CPU; gcc
- 0.284 0.436  0.204 0.516         2012-01-11; AMD E-450 1650MHz; gcc-4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3)
+ sieve bubble matrix fib   fft  release; CPU; gcc
+ 0.192 0.224  0.104 0.284 0.152 2016-12-22; Celeron J3455 (Goldmont) 2300MHz; gcc-4.9.2 (Debian 8)
+ 0.076 0.104  0.040 0.076 0.032 2016-05-03; Intel Core i7-4790K 4.4GHz; gcc-4.9.2 (Debian 8)
+ 0.120 0.168  0.064 0.160 0.060 2016-05-03; AMD Phenom II X2 560 3.3GHz; gcc-4.9.2 (Debian 8)
+ 0.076 0.112  0.040 0.080 0.028 2015-12-26; Intel Core i7-6700K 4.0GHz; gcc-4.9.2 (Debian 8)
+ 0.076 0.108  0.040 0.080 0.032 2015-12-26; Intel Core i7-4790K 4.4GHz; gcc-4.9.2 (Debian 8)
+ 0.118 0.171  0.061 0.166 0.050 2015-02-01; Intel Core i7-3517U 3.0GHz; gcc-4.9.0 (SUSE Linux)
+ 0.127 0.170  0.062 0.172 0.050 2015-02-01; Intel Core i7-3517U 3.0GHz; gcc-4.8.3 20140627 (SUSE Linux)
+ 0.126 0.198  0.078 0.191 0.085 2015-02-01; Intel Core i7-3517U 3.0GHz; clang 3.5.0
+ 0.087 0.134  0.047 0.129 0.039 2014-03-24; Intel Core i7-3770 3.40GHz; gcc-4.7.2 20130108 (SUSE Linux)
+ 0.088 0.138  0.048 0.132 0.042 2013-04-08; Intel Core i7-3770 3.40GHz; gcc-4.7.2 20130108 (SUSE Linux)
+ 0.156 0.232  0.084 0.236 0.080 2012-10-31; Intel Xeon E5620 2.40GHz; gcc-4.7.1 (Debian 4.7.1-7)
+ 0.321 0.479  0.219 0.594 0.229 2012-10-31; AMD E-350 1.6GHz; gcc version 4.7.1 20120723 (SUSE Linux)
+ 0.284 0.436  0.204 0.516       2012-01-11; AMD E-450 1650MHz; gcc-4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3)
 
 ARM64
- sieve bubble matrix fib   fft   release; CPU; gcc
+ sieve bubble matrix fib   fft  release; CPU; gcc
  0.283 0.404  0.169 0.330 0.179 2014-10-31; Apple A7 1.3GHz, clang 3.5 (iOS 8.1.1)
  0.390 0.490  0.270 0.520 0.260 2016-04-27; Odroid C2 Cortex A53 2.0GHz, gcc 5.3.1 (Ubuntu Mate 16.04 LTS)
  0.330 0.370  0.250 0.480 0.290 2016-05-27 (3 registers);  Odroid C2 Cortex A53 2.0GHz, gcc 5.3.1 (Ubuntu 16.04)
@@ -41,7 +40,7 @@ ARM Cortex A53, 32 bit:
  0.600  0.650  0.310 0.870 0.450 2016-04-27; Odroid C2 Cortex A53 2.0GHz, gcc 5.3.1 (Ubuntu Mate 16.04 LTS)
  0.820  0.880  0.420 1.180 0.590 2017-03-20; Raspberry Pi 3 Cortex A53 1.2 GHz, gcc-4.9.2 (Raspbian 8)
 ARM Cortex-A9:
- sieve bubble matrix fib   fft   release; CPU; gcc
+ sieve bubble matrix fib   fft  release; CPU; gcc
  0.410 0.520  0.260 0.635 0.280 2016-01-13; Exynos 4 Quad 1.6GHz; gcc-4.8.x (Android 4.4.2)
  0.405 0.525  0.275 0.560 0.295 2014-10-31; Exynos 4 Quad 1.6GHz; gcc-4.8.x (Android 4.4.2)
  0.560 0.640  0.340 0.860 0.410 2016-01-13; Freescale i.MX6 Quad/DualLite 1.2GHz; gcc-4.9.2 -mthumb (Debian)
@@ -56,7 +55,7 @@ sieve bubble matrix fib   fft   release
  2.610 3.430  2.470 3.980       2012-06-27; Allwinner A10 1.0GHz; gcc-4.4.3 (Android 4.0.3)
  2.671 3.125  2.515 4.054       2012-06-27; TI OMAP 3620 1.0GHz; gcc-4.4.3 (Android 2.3.4)
 PowerPC:
- 0.620  0.728  0.340 1.000 0.532; 2017-03-20; PPC 7447a 1066MHz; gcc 4.3.2
+ 0.620 0.728  0.340 1.000 0.532 2017-03-20; PPC 7447a 1066MHz; gcc 4.3.2
 
 Results with Gforth 0.7.0 (for comparing CPUs and C compilers):
 AMD64:
