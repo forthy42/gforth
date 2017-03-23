@@ -316,7 +316,7 @@ Variable gl-emit-buf
     dup $70 and 5 lshift or $F0F and 4 lshift r> $FFFF0000 and or
     n 0 ?DO
 	dup gl-char' l!
-	gl-xy 2@ >r 1+ dup cols = dup gl-lineend !
+	gl-xy 2@ >r 1+ dup cols u>= dup gl-lineend !
 	IF  drop 0 r> 1+ gl-xy 2! resize-screen
 	ELSE  r> gl-xy 2!  THEN  m +
     LOOP  drop ;
@@ -410,13 +410,10 @@ previous
     \ smart scaler, scales using square root relation
     default-diag screen-diag f/ fsqrt default-scale f*
     1/f 80 fdup fm* f>s to hcols 48 fm* f>s to vcols
-    resize-screen config-changed ;
-
-: gl-fscale ( f -- ) to default-scale scale-me ;
-: gl-scale ( n -- ) s>f gl-fscale ;
+    resize-screen config-changed screen->gl ;
 
 : config-changer ( -- )
-    getwh  >screen-orientation  form-chooser  scale-me  need-sync on ;
+    getwh  >screen-orientation  scale-me  form-chooser  need-sync on ;
 : ?config-changer ( -- )
     need-config @ 0> IF
 	dpy-w @ dpy-h @ 2>r config-changer
@@ -428,6 +425,10 @@ previous
     ?config-changer
     need-sync @ win and level# @ 0<= and IF
 	show-cursor screen->gl need-sync off  THEN ;
+
+: gl-fscale ( f -- ) to default-scale
+    1 need-config +! screen-ops ;
+: gl-scale ( n -- ) s>f gl-fscale ;
 
 : >changed ( -- )
     config-change# need-config !
