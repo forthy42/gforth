@@ -24,6 +24,7 @@ c-library libc
     \c #include <poll.h>
     \c #include <fcntl.h>
     \c #include <locale.h>
+    \c #include <sys/stat.h>
     \c #if HAVE_GETPAGESIZE
     \c #elif HAVE_SYSCONF && defined(_SC_PAGESIZE)
     \c #define getpagesize() sysconf(_SC_PAGESIZE)
