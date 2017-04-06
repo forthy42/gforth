@@ -17,9 +17,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+Variable cpuflags
+
 e? os-type s" linux" string-prefix?
 e? os-type s" cygwin" string-prefix? or [IF]
-    Variable cpuflags
     
     : get-cpuflags ( -- )
 	s" /proc/cpuinfo" r/o open-file throw
