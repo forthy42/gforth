@@ -20,13 +20,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20170308],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20170406],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="January 12, 2017"
+UPDATED="April 6, 2017"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -1345,10 +1345,21 @@ if test x$has_swig = xyes || test -f $srcdir/unix/omxal-fsi.c; then
     AC_CHECK_HEADER(OMXAL/OpenMAXAL.h, SWIGMODULES="$SWIGMODULES omxal.fs"
 		    SWIGLIBS="$SWIGLIBS openmax.fs", ,)
 fi
-if test x$has_swig = xyes || test -f $srcdir/unix/pnglib-fsi.c; then
-    AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES pnglib.fs"
+if test x$has_swig = xyes || test -f $srcdir/unix/pnglib16-fsi.c; then
+    AC_CHECK_HEADER(libpng16/png.h, SWIGMODULES="$SWIGMODULES pnglib16.fs"
 		    SWIGLIBS="$SWIGLIBS png.fs", ,)
 fi
+case "$SWIGLIBS"
+in
+    *png.fs*)
+	;;
+    *)
+	if test x$has_swig = xyes || test -f $srcdir/unix/pnglib-fsi.c; then
+	    AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES pnglib.fs"
+			    SWIGLIBS="$SWIGLIBS png.fs", ,)
+	fi
+	;;
+esac
 if test x$has_swig = xyes || test -f $srcdir/unix/soil2-fsi.c; then
     AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
 		    SWIGLIBS="$SWIGLIBS soil2lib.fs", ,)

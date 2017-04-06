@@ -324,10 +324,10 @@ UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs		\
 
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i	\
 	unix/gl.i unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i	\
-	unix/pnglib.i unix/soil.i unix/soil2.i unix/xlib.i		\
-	unix/ios-gles.i unix/ios-gles3.i unix/freetype-gl.i		\
-	unix/wingdi.i unix/winuser.i unix/wayland.i unix/gps.i		\
-	unix/vulkan.i
+	unix/pnglib.i unix/pnglib16.i unix/soil.i unix/soil2.i		\
+	unix/xlib.i unix/ios-gles.i unix/ios-gles3.i			\
+	unix/freetype-gl.i unix/wingdi.i unix/winuser.i			\
+	unix/wayland.i unix/gps.i unix/vulkan.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs cilk.fs
