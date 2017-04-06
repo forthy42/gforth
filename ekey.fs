@@ -195,7 +195,7 @@ Variable ekey-buffer
     0 ;
 
 : esc-prefix ( -- u )
-    key? ?dup-0=-if  1 ms key?  endif \ wait 1 ms to let keys through
+    \ key? ?dup-0=-if  1 ms key?  endif \ workaround for Windows 1607 Linux
     if
 	key ekey-buffer c$+!
 	ekey-buffer $@ esc-mask >r
