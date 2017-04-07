@@ -8,7 +8,8 @@ extern struct _IO_FILE *stderr;
 #endif
 %}
 
-%apply int { png_size_t, time_t };
+%apply int { time_t };
+%apply unsigned int { png_size_t, png_uint_32 };
 
 #if defined(host_os_linux_android) || defined(host_os_linux_androideabi)
 # define __ANDROID__
