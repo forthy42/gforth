@@ -14,7 +14,9 @@ c-library png
 	\c #include "../../../../libpng/pngconf.h"
 	\c #include "../../../../libpng/png.h"
     [ELSE]
-	e? os-type s" linux" string-prefix? [IF]
+	e? os-type s" linux" string-prefix?
+	e? os-type s" darwin" string-prefix?
+	e? os-type s" cywgin" str= or or [IF]
 	    s" unix/pnglib16.fs" open-fpath-file 0= [IF]
 		2drop close-file throw
 		: png16 ;
