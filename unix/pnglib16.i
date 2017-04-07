@@ -21,7 +21,7 @@ extern struct _IO_FILE *stderr;
 #define USHRT_MAX 65535
 #define INT_MIN -2147483648
 #define INT_MAX 2147483647
-#define UINT_MAX 4294967295U
+#define UINT_MAX (INT_MAX * 2U + 1)
 #define PNG_ERROR_TEXT_SUPPORTED
 #define PNG_FUNCTION(type, name, args, attributes) extern type name args
 
