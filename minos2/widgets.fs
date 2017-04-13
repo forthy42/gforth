@@ -88,12 +88,33 @@ end-class widget
 tex: style-tex \ 8 x 8 subimages, each sized 128x128
 style-tex 1024 dup rgba-newtex
 
+\ glues
+
+widget class
+    3 cells +field hglue-c
+    3 cells +field dglue-c
+    3 cells +field vglue-c
+end-class glue
+
+: @+ ( addr -- u addr' )  dup >r @ r> cell+ ;
+: !- ( addr -- u addr' )  dup >r ! r> cell- ;
+: glue@ ( addr -- t s a )  @+ @+ @ ;
+: glue! ( t s a addr -- )  2 cells + !- !- ! ;
+:noname hglue-c glue@ ; dup glue to hglue@ glue to hglue
+:noname dglue-c glue@ ; dup glue to dglue@ glue to dglue
+:noname vglue-c glue@ ; dup glue to vglue@ glue to vglue
+
 \ tile widget
 
 widget class
     field: frame#
     field: frame-color
+    field: tile-glue \ glue object
 end-class tile
+
+:noname tile-glue @ .hglue ; tile to hglue
+:noname tile-glue @ .dglue ; tile to dglue
+:noname tile-glue @ .vglue ; tile to vglue
 
 8 Value style-w#
 8 Value style-h#
@@ -202,22 +223,6 @@ Variable style-i#
 "button2.png" style: button2
 "button3.png" style: button3
 
-\ glues
-
-widget class
-    3 cells +field hglue-c
-    3 cells +field dglue-c
-    3 cells +field vglue-c
-end-class glue
-
-: @+ ( addr -- u addr' )  dup >r @ r> cell+ ;
-: !- ( addr -- u addr' )  dup >r ! r> cell- ;
-: glue@ ( addr -- t s a )  @+ @+ @ ;
-: glue! ( t s a addr -- )  2 cells + !- !- ! ;
-:noname hglue-c glue@ ; dup glue to hglue@ glue to hglue
-:noname dglue-c glue@ ; dup glue to dglue@ glue to dglue
-:noname vglue-c glue@ ; dup glue to vglue@ glue to vglue
-
 \ boxes
 
 glue class
@@ -245,7 +250,13 @@ end-class box
 :noname ( -- ) ['] draw-image     do-childs ; box to draw-image
 :noname ( -- ) ['] draw-text      do-childs ; box to draw-text
 
-: +child ( o -- ) child-w @ over >o next-w ! o> child-w ! ;
+:noname ( -- )
+    parent-w @ ?dup-IF  .resized \ upwards
+    ELSE  !size xywhd resize     \ downwards
+    THEN ; widget to resized
+
+: +child ( o -- )
+    child-w @ o 2 pick >o parent-w ! next-w ! o> child-w ! ;
 : +childs ( o1 .. on n -- ) 0 +DO  +child  LOOP ;
 
 \ glue arithmetics
@@ -321,5 +332,12 @@ box class end-class zbox \ overlay alignment
     vglue g3>2 { hmin a }
     h hmin - a 0 0 y 0 0 0 ['] vglue-step do-childs 2drop 2drop 2drop 2drop
     x w ['] vbox-resize1 do-childs 2drop ;
+
+$10 stack: box-depth
+: {{ ( -- ) depth box-depth >stack ;
+: }} ( n1 .. nm -- n1 .. nm m ) depth box-depth stack> - ;
+: }}h ( n1 .. nm -- hbox ) }} hbox new >o +childs o o> ;
+: }}v ( n1 .. nm -- hbox ) }} vbox new >o +childs o o> ;
+: }}z ( n1 .. nm -- hbox ) }} zbox new >o +childs o o> ;
 
 previous previous previous set-current

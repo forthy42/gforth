@@ -406,18 +406,23 @@ previous
 : screen-diag ( -- rdiag )
     screen-wh f**2 fswap f**2 f+ fsqrt ;   \ diagonal in inch
 
-: scale-me ( -- )
+: terminal-scale-me ( -- )
     \ smart scaler, scales using square root relation
-    default-diag screen-diag f/ fsqrt default-scale f*
-    1/f 80 fdup fm* f>s to hcols 48 fm* f>s to vcols
-    resize-screen config-changed screen->gl ;
+    level# @ 0= IF
+	default-diag screen-diag f/ fsqrt default-scale f*
+	1/f 80 fdup fm* f>s to hcols 48 fm* f>s to vcols
+	resize-screen config-changed screen->gl  THEN ;
+
+Defer scale-me ' terminal-scale-me is scale-me
 
 : config-changer ( -- )
-    getwh  >screen-orientation  scale-me  form-chooser  need-sync on ;
+    getwh  >screen-orientation  scale-me need-sync on
+    form-chooser ;
 : ?config-changer ( -- )
     need-config @ 0> IF
 	dpy-w @ dpy-h @ 2>r config-changer
-	dpy-w @ dpy-h @ 2r> d<> IF  winch? on  need-config off
+	dpy-w @ dpy-h @ 2r> d<> IF
+	    winch? on  need-config off
 	ELSE  -1 need-config +!  THEN
     THEN ;
 
@@ -503,8 +508,10 @@ default-out op-vector !
 
 :noname  defers window-init term-init config-changer ; IS window-init
 
->black \ make black default
-\ >white \ make white default
+[IFDEF] android
+    >black \ make black default
+    \ >white \ make white default
+[THEN]
 
 window-init
 
