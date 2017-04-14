@@ -355,14 +355,15 @@ JValue cmanager
     dup to key-event >o
     ke_getMetaState meta-key# !
     getAction dup 2 = IF  drop
-	getKeyCode dup 0=
-	IF    drop getCharacters android-characters
-	ELSE  android-keycode
+	getKeyCode
+	?dup-IF  android-keycode
+	ELSE  getCharacters android-characters
 	THEN
     ELSE
-	0= IF  getKeyCode dup 0=
-	    IF    drop getUnicodeChar android-unicode
-	    ELSE  android-keycode
+	0= IF
+	    getUnicodeChar
+	    ?dup-IF  android-unicode
+	    ELSE  getKeyCode android-keycode
 	    THEN
 	THEN
     THEN o> ;

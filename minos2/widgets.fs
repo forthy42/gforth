@@ -90,6 +90,12 @@ style-tex 1024 dup rgba-newtex
 
 \ glues
 
+begin-structure glue-s
+    cell +field glue-t \ typical size
+    cell +field glue-s \ shrink by
+    cell +field glue-a \ add by
+end-structure
+
 widget class
     3 cells +field hglue-c
     3 cells +field dglue-c
@@ -174,6 +180,7 @@ widget class
     field: text-string
     field: text-font
     field: text-color
+    field: text-border
 end-class text
 
 Variable glyphs$
@@ -181,12 +188,12 @@ Variable glyphs$
 : text-init ( -- )
     text-font @ to font text-string $@ glyphs$ $+! ;
 : text-text ( -- )
-    x @ s>f penxy sf!  y @ s>f penxy sfloat+ sf!
+    x @ text-border @ + s>f penxy sf!  y @ s>f penxy sfloat+ sf!
     text-font @ to font  text-color @ color !
     text-string $@ render-string ;
 : text-!size ( -- )
     text-string $@ layout-string
-    f>s d ! f>s h ! f>s w ! ;
+    f>s text-border @ + d ! f>s text-border @ + h ! f>s text-border @ 2* + w ! ;
 ' text-init text to draw-init
 ' text-text text to draw-text
 ' text-!size text to !size
@@ -268,7 +275,12 @@ end-class vbox \ vertical alignment
 box class end-class zbox \ overlay alignment
 
 : 0glue ( -- t s a ) 0 0 0 ;
-: 1glue ( -- t s a ) 0 0 [ -1 1 rshift ]L ;
+: 1glue ( -- t s a ) 0 0 [ -1 8 rshift ]L ; \ can have 128 1glues in a row
+
+glue new Constant glue*1
+glue new Constant glue*2
+glue*1 >o 1glue hglue-c glue! 1glue dglue-c glue! 1glue vglue-c glue! o>
+glue*2 >o 1glue 2* hglue-c glue! 1glue 2* dglue-c glue! 1glue 2* vglue-c glue! o>
 
 : g3>2 ( t s a -- min a ) over + >r - r> ;
 
