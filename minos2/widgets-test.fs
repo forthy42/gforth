@@ -30,35 +30,37 @@ frame new value f6
 text new value f7
 text new value f8
 
+: dw* ( f -- f' ) dpy-w @ fm* ;
+: dh* ( f -- f' ) dpy-h @ fm* ;
 
 : !f1 ( -- ) f1 >o
-    0 0  dpy-w @ 4 /  0  dpy-h @ 2/ resize
-    32 border ! $FFFFFFFF frame-color !
+    0e 0e  .25e dw*  0e  .5e dh* resize
+    32e border sf! $FFFFFFFF frame-color !
     button2 o> ;
 
 : !f2 ( -- ) f2 >o
-    dpy-w @ 2/  0  dpy-w @ 2/  0  dpy-h @ 19 20 */ resize
-    32 border ! $FF7FFFFF frame-color !
+    .5e dw*  0e  .5e dw*  0e  .95e dh* resize
+    32e border sf! $FF7FFFFF frame-color !
     button3 o> ;
 
 : !f3 ( -- ) f3 >o
-    0  dpy-h @ 2/  dpy-w @ 2/  0  dpy-h @ 2/ 2/ resize
-    16 border ! $FFFF7FFF frame-color !
+    0e  .5e dh*  .5e dw*  0e  .25e dh* resize
+    16e border sf! $FFFF7FFF frame-color !
     button1 o> ;
 
 : !f4 ( -- ) f4 >o
-    0  dpy-h @ 3 4 */  dpy-w @ 4 /  0  dpy-h @ 5 / resize
-    32 border ! $FF7F7FFF frame-color !
+    0e  .75e dh* .25e dw* 0e .2e dh* resize
+    32e border sf! $FF7F7FFF frame-color !
     button1 o> ;
 
 : !f5 ( -- ) f5 >o
-    dpy-w @ 4 /  dpy-h @ 3 4 */  dpy-w @ 4 /  0  dpy-h @ 5 / resize
-    8 border ! $7FFF7FFF frame-color !
+    .25e dw* .75e dh* .25e dw* 0e .2e dh* resize
+    8e border sf! $7FFF7FFF frame-color !
     button1 o> ;
 
 : !f6 ( -- ) f6 >o
-    dpy-w @ 4 /  0  dpy-w @ 4 /  0  dpy-h @ 2/ resize
-    16 border ! $7FFFFFFF frame-color !
+    .25e dw*  0e  .25e dw* 0e  .5e dh* resize
+    16e border sf! $7FFFFFFF frame-color !
     button2 o> ;
 
 also freetype-gl
@@ -93,11 +95,11 @@ texture_font_new_from_file Value font2
 previous
 
 : !f7 ( -- )  f7 >o
-    8 x ! dpy-h @ 4 / y ! "Dös isch a Tägscht!" text-string $!
+    8e x sf! .25e dh* y sf! "Dös isch a Tägscht!" text-string $!
     $884400FF text-color !  font1 text-font ! o> ;
 
 : !f8 ( -- ) f8 >o
-    8 x ! dpy-h @ 5 8 */ y ! "这是一个文本：在德语说" text-string $!
+    8e x sf! .625e dh* y sf! "这是一个文本：在德语说" text-string $!
     $004488FF text-color !  font2 text-font ! o> ;
 
 : !widgets ( -- ) !f1 !f2 !f3 !f4 !f5 !f6 !f7 !f8 ;
