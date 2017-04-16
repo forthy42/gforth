@@ -80,10 +80,14 @@ end-class widget
 :noname w sf@ 0e fdup ; widget to hglue
 :noname h sf@ 0e fdup ; widget to vglue
 :noname d sf@ 0e fdup ; widget to dglue
-:noname d sf! h sf! w sf! y sf! x sf! ; widget to resize
+: widget-resize d sf! h sf! w sf! y sf! x sf! ;
+' widget-resize widget to resize
 ' hglue widget to hglue@
 ' vglue widget to vglue@
 ' dglue widget to dglue@
+
+: dw* ( f -- f' ) dpy-w @ fm* ;
+: dh* ( f -- f' ) dpy-h @ fm* ;
 
 tex: style-tex \ 8 x 8 subimages, each sized 128x128
 style-tex 1024 dup rgba-newtex
@@ -192,9 +196,10 @@ Variable glyphs$
     text-font @ to font  text-color @ color !
     text-string $@ render-string ;
 : text-!size ( -- )
+    text-font @ to font
     text-string $@ layout-string
-    text-border sf@ f+ d sf!
     text-border sf@ f+ h sf!
+    text-border sf@ f+ d sf!
     text-border sf@ f2* f+ w sf! ;
 ' text-init text to draw-init
 ' text-text text to draw-text
@@ -205,11 +210,11 @@ Variable glyphs$
 : <draw-init ( -- )
     -1e 1e >apxy
     .01e 100e 100e >ap
-    s" " glyphs$ $!
+    glyphs$ $free
     0.01e 0.02e 0.15e 1.0e glClearColor
     Ambient 1 ambient% glUniform1fv ;
 : draw-init> ( -- ) clear
-    glyphs$ $@ load-glyph$ ;
+    glyphs$ $@ dup IF  load-glyph$  ELSE  2drop  THEN ;
 
 : <draw-bg ( -- ) v0 i0
     z-bias set-color+
@@ -287,6 +292,17 @@ box class end-class zbox \ overlay alignment
 : 0glue ( -- t s a ) 0e 0e 0e ;
 : 1glue ( -- t s a ) 0e 0e 1fil ;
 
+: .fil[l[l]] ( f -- )
+    fdup 1fil f< IF  f.  EXIT  THEN
+    1fil f/ fdup 1fil f< IF  f. ." fil" EXIT  THEN
+    1fil f/ fdup 1fil f< IF  f. ." fill" EXIT  THEN
+    1fil f/ f. ." filll" ;
+
+: .glue { f: t f: s f: a -- }
+    t f. s f. a .fil[l[l]] ;
+: .rec { f: x f: y f: w f: h f: d -- }
+    x f. y f. w f. h f. d f. ;
+
 glue new Constant glue*1
 glue new Constant glue*2
 glue*1 >o 1glue hglue-c glue! 1glue dglue-c glue! 1glue vglue-c glue! o>
@@ -327,15 +343,18 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 \ add glues up for hboxes
 
+:noname defers printdebugdata cr f.s ; is printdebugdata
+
 : hglue-step { f: gp f: ga f: rd f: rg f: rx -- gp ga rd' rg' rx' }
     gp ga  rx x sf!
     hglue@ g3>2 { f: xmin f: xa }
     rg xa f+ gp f* ga f/ rd f- fdup rd f+ rg xa f+
-    frot xmin f+  fdup x sf@ f- w sf! ;
+    frot xmin f+  fdup w sf!  x sf@ f+ ;
 
 : hbox-resize1 { f: y f: h f: d -- y h d } x sf@ y w sf@ h d resize  y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
-    hglue g3>2 { f: wmin f: a }
+    x y w h d widget-resize
+    hglue@ g3>2 { f: wmin f: a }
     w wmin f- a 0e 0e x ['] hglue-step do-childs  fdrop fdrop fdrop fdrop fdrop
     y h d ['] hbox-resize1 do-childs  fdrop fdrop fdrop ;
 
@@ -345,16 +364,30 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 : vglue-step { f: gp f: ga f: rd f: rg f: ry f: td f: sd f: ad -- gp ga rd' rg' ry' td' sd' ad' }
     gp ga baseglue
-    vglue@ td sd ad glue+ glue* g3>2 { ymin ya }
+    vglue@ td sd ad glue+ glue* g3>2 { f: ymin f: ya }
     rg ya f+ gp f* ga f/ rd f- fdup rd f+ rg ya f+
     frot ymin baseline sf@ fmax fdup d sf@ f- h sf! f+  fdup y sf!  dglue@ ;
 
 : vbox-resize1 { f: x f: w -- x w } x y sf@ w h sf@ d sf@ resize  x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
-    vglue g3>2 { hmin a }
+    x y w h d widget-resize
+    vglue@ g3>2 { f: hmin f: a }
     h hmin f- a 0e 0e y 0e 0e 0e ['] vglue-step do-childs
-    fdrop fdrop fdrop fdrop fdrop fdrop fdrop
+    fdrop fdrop fdrop fdrop fdrop fdrop fdrop fdrop
     x w ['] vbox-resize1 do-childs fdrop fdrop ;
+
+' vbox-resize vbox is resize
+
+: zbox-resize1 { f: x f: y f: w f: h f: d -- x y w h d }
+    x y w h d widget-resize
+    x y w h d ;
+
+: zbox-resize { f: x f: y f: w f: h f: d -- }
+    x y w h d widget-resize
+    x y w h d ['] zbox-resize1 do-childs
+    fdrop fdrop fdrop fdrop fdrop ;
+
+' zbox-resize zbox is resize
 
 $10 stack: box-depth
 : {{ ( -- ) depth box-depth >stack ;
@@ -362,6 +395,15 @@ $10 stack: box-depth
 : }}h ( n1 .. nm -- hbox ) }} hbox new >o +childs o o> ;
 : }}v ( n1 .. nm -- hbox ) }} vbox new >o +childs o o> ;
 : }}z ( n1 .. nm -- hbox ) }} zbox new >o +childs o o> ;
+
+: widget-draw ( o:widget -- )
+    <draw-init      draw-init      draw-init>
+    <draw-bg        draw-bg        render>
+    <draw-icon      draw-icon      render>
+    <draw-thumbnail draw-thumbnail render>
+    <draw-image     draw-image     draw-image>
+    <draw-text      draw-text      render>
+    sync ;
 
 previous previous previous
 set-current

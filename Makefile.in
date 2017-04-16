@@ -347,8 +347,9 @@ MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs			\
 	minos2/jpeg-exif.fs minos2/linux-gl.fs minos2/soil-texture.fs	\
 	minos2/gl-sample.fs minos2/gl-slideshow.fs			\
 	minos2/ftgl-helper.fs minos2/ftgl-sample.fs minos2/widgets.fs	\
-	minos2/widgets-test.fs minos2/mts-tools.fs			\
-	minos2/mkv-tools.fs minos2/omx-example.fs minos2/mkv-tags.fs
+	minos2/widgets-test.fs minos2/widgets-test2.fs			\
+	minos2/mts-tools.fs minos2/mkv-tools.fs minos2/omx-example.fs	\
+	minos2/mkv-tags.fs
 
 MINOS2_BIN = minos2/ascii.png minos2/button.png minos2/button2.png	\
 	minos2/button3.png

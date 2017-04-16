@@ -85,17 +85,17 @@ Variable color $FFC0A0FF color !
 	I xchar+xy
     I I' over - x-size +LOOP  drop ;
 
-: xchar@xy ( fw fd fh prev-xchar xchar -- xchar )
+: xchar@xy ( fw fd fh xc-addrp xc-addr -- fw' fd' fh' )
+    { f: fd f: fh }
     tuck font swap texture_font_get_glyph >r
     dup IF  r@ swap texture_glyph_get_kerning  f+
     ELSE  drop  THEN
-    { f: fd f: fh }
     r@ texture_glyph_t-advance_x sf@ f+
     r@ texture_glyph_t-offset_y l@ s>f
     r> texture_glyph_t-height l@ s>f
-    fover f- fnegate fd fmin fswap fh fmax ;
+    fover f- fd fmax fswap fh fmax ;
 
-: layout-string ( addr u -- fw fh fd ) \ depth is ow far it goes down
+: layout-string ( addr u -- fw fd fh ) \ depth is ow far it goes down
     0 -rot  0e 0e 0e  bounds ?DO
 	I xchar@xy
     I I' over - x-size +LOOP  drop ;
