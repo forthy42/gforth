@@ -56,6 +56,7 @@ object class
     sffield: w
     sffield: h \ above baseline
     sffield: d \ below baseline
+    sffield: border \ surrounding border
     method draw-init ( -- ) \ init draw
     method draw-bg ( -- ) \ button background draw
     method draw-icon ( -- ) \ icons draw
@@ -77,9 +78,9 @@ end-class widget
 :noname x sf@ y sf@ h sf@ f- w sf@ h sf@ d sf@ f+ ; widget to xywh
 :noname x sf@ y sf@ w sf@ h sf@ d sf@ ; widget to xywhd
 ' noop widget to !size
-:noname w sf@ 0e fdup ; widget to hglue
-:noname h sf@ 0e fdup ; widget to vglue
-:noname d sf@ 0e fdup ; widget to dglue
+:noname w sf@ border sf@ f2* f+ 0e fdup ; widget to hglue
+:noname h sf@ border sf@ f+ 0e fdup ; widget to vglue
+:noname d sf@ border sf@ f+ 0e fdup ; widget to dglue
 : widget-resize d sf! h sf! w sf! y sf! x sf! ;
 ' widget-resize widget to resize
 ' hglue widget to hglue@
@@ -122,9 +123,9 @@ widget class
     field: tile-glue \ glue object
 end-class tile
 
-:noname tile-glue @ .hglue ; tile to hglue
-:noname tile-glue @ .dglue ; tile to dglue
-:noname tile-glue @ .vglue ; tile to vglue
+:noname tile-glue @ .hglue { f: s f: a } border sf@ f2* f+ s a ; tile to hglue
+:noname tile-glue @ .dglue { f: s f: a } border sf@ f+ s a ; tile to dglue
+:noname tile-glue @ .vglue { f: s f: a } border sf@ f+ s a ; tile to vglue
 
 8 Value style-w#
 8 Value style-h#
@@ -151,7 +152,6 @@ end-class tile
 \ frame widget
 
 tile class
-    sffield: border
 end-class frame
 
 Create button-st  0e sf, 0.25e sf, 0.75e sf, 1e sf,
@@ -184,7 +184,6 @@ widget class
     field: text-string
     field: text-font
     field: text-color
-    field: text-border
 end-class text
 
 Variable glyphs$
@@ -192,15 +191,15 @@ Variable glyphs$
 : text-init ( -- )
     text-font @ to font text-string $@ glyphs$ $+! ;
 : text-text ( -- )
-    x sf@ text-border sf@ f+ penxy sf!  y sf@ penxy sfloat+ sf!
+    x sf@ border sf@ f+ penxy sf!  y sf@ border sf@ f- penxy sfloat+ sf!
     text-font @ to font  text-color @ color !
     text-string $@ render-string ;
 : text-!size ( -- )
     text-font @ to font
     text-string $@ layout-string
-    text-border sf@ f+ h sf!
-    text-border sf@ f+ d sf!
-    text-border sf@ f2* f+ w sf! ;
+    border sf@ f+ h sf!
+    border sf@ f+ d sf!
+    border sf@ f2* f+ w sf! ;
 ' text-init text to draw-init
 ' text-text text to draw-text
 ' text-!size text to !size
@@ -349,7 +348,7 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     gp ga  rx x sf!
     hglue@ g3>2 { f: xmin f: xa }
     rg xa f+ gp f* ga f/ rd f- fdup rd f+ rg xa f+
-    frot xmin f+  fdup w sf!  x sf@ f+ ;
+    frot xmin f+  fdup w sf!  rx f+ ;
 
 : hbox-resize1 { f: y f: h f: d -- y h d } x sf@ y w sf@ h d resize  y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
@@ -366,7 +365,8 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     gp ga baseglue
     vglue@ td sd ad glue+ glue* g3>2 { f: ymin f: ya }
     rg ya f+ gp f* ga f/ rd f- fdup rd f+ rg ya f+
-    frot ymin baseline sf@ fmax fdup d sf@ f- h sf! f+  fdup y sf!  dglue@ ;
+    frot ymin f+  baseline sf@ fmax fdup d sf@ f- h sf! 
+    ry f+ fdup y sf!  dglue@ ;
 
 : vbox-resize1 { f: x f: w -- x w } x y sf@ w h sf@ d sf@ resize  x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }

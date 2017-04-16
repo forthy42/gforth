@@ -30,35 +30,35 @@ frame new value f6
 text new value t1
 text new value t2
 {{ {{ {{
-{{ f1 f2 }}h dup value h1
-t1 }}z dup value z1
+{{ f1 t1 }}z dup value z1
+f2 }}h dup value h1
 {{ f3 t2 }}z dup value z2
 {{ f4 f5 }}h dup value h2
 }}v dup value h3
 f6 }}h Value htop
 
 : !f1 ( -- ) f1 >o
-    32 border ! $FFFFFFFF frame-color ! glue*2 tile-glue !
+    32e border sf! $FFFFFFFF frame-color ! glue*2 tile-glue !
     button2 o> ;
 
 : !f2 ( -- ) f2 >o
-    32 border ! $FF7FFFFF frame-color ! glue*2 tile-glue !
+    32e border sf! $FF7FFFFF frame-color ! glue*2 tile-glue !
     button3 o> ;
 
 : !f3 ( -- ) f3 >o
-    16 border ! $FFFF7FFF frame-color ! glue*1 tile-glue !
+    16e border sf! $FFFF7FFF frame-color ! glue*1 tile-glue !
     button1 o> ;
 
 : !f4 ( -- ) f4 >o
-    32 border ! $FF7F7FFF frame-color ! glue*1 tile-glue !
+    32e border sf! $FF7F7FFF frame-color ! glue*1 tile-glue !
     button1 o> ;
 
 : !f5 ( -- ) f5 >o
-    8 border ! $7FFF7FFF frame-color ! glue*1 tile-glue !
+    8e border sf! $7FFF7FFF frame-color ! glue*1 tile-glue !
     button1 o> ;
 
 : !f6 ( -- ) f6 >o
-    16 border ! $7FFFFFFF frame-color ! glue*2 tile-glue !
+    16e border sf! $7FFFFFFF frame-color ! glue*2 tile-glue !
     button2 o> ;
 
 also freetype-gl
@@ -93,17 +93,17 @@ texture_font_new_from_file Value font2
 previous
 
 : !t1 ( -- ) t1 >o
-    "Dös isch a Tägscht!" text-string $!
+    "Dös isch a Tägscht!" text-string $!  32e border sf!
     $884400FF text-color !  font1 text-font !
     glyphs$ $free draw-init glyphs$ $@ load-glyph$ o> ;
 
 : !t2 ( -- ) t2 >o
-    "这是一个文本：在德语说" text-string $!
+    "这是一个文本：在德语说" text-string $!  32e border sf!
     $004488FF text-color !  font2 text-font !
     glyphs$ $free draw-init glyphs$ $@ load-glyph$ o> ;
 
 : htop-resize ( -- )
-    !size 0e 0e 1e dw* .95e dh* 0e resize ;
+    !size 0e 0e 1e dw* .975e dh* 0e resize ;
 : !widgets ( -- ) !f1 !f2 !f3 !f4 !f5 !f6 !t1 !t2 htop .htop-resize ;
 
 : widgets-test htop .widget-draw ;
