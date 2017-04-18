@@ -191,7 +191,7 @@ Variable glyphs$
 : text-init ( -- )
     text-font @ to font text-string $@ glyphs$ $+! ;
 : text-text ( -- )
-    x sf@ border sf@ f+ penxy sf!  y sf@ border sf@ f- penxy sfloat+ sf!
+    x sf@ border sf@ f+ penxy sf!  y sf@ penxy sfloat+ sf!
     text-font @ to font  text-color @ color !
     text-string $@ render-string ;
 : text-!size ( -- )
@@ -203,6 +203,9 @@ Variable glyphs$
 ' text-init text to draw-init
 ' text-text text to draw-text
 ' text-!size text to !size
+:noname w sf@ 0e fdup ; text to hglue
+:noname h sf@ 0e fdup ; text to vglue
+:noname d sf@ 0e fdup ; text to dglue
 
 \ draw wrapper
 
@@ -347,7 +350,7 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : hglue-step { f: gp f: ga f: rd f: rg f: rx -- gp ga rd' rg' rx' }
     gp ga  rx x sf!
     hglue@ g3>2 { f: xmin f: xa }
-    rg xa f+ gp f* ga f/ rd f- fdup rd f+ rg xa f+
+    rg xa f+ gp f* ga f/ fdup rd f- fswap rg xa f+
     frot xmin f+  fdup w sf!  rx f+ ;
 
 : hbox-resize1 { f: y f: h f: d -- y h d } x sf@ y w sf@ h d resize  y h d ;
@@ -361,19 +364,29 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 \ add glues up for vboxes
 
-: vglue-step { f: gp f: ga f: rd f: rg f: ry f: td f: sd f: ad -- gp ga rd' rg' ry' td' sd' ad' }
-    gp ga baseglue
-    vglue@ td sd ad glue+ glue* g3>2 { f: ymin f: ya }
-    rg ya f+ gp f* ga f/ rd f- fdup rd f+ rg ya f+
-    frot ymin f+  baseline sf@ fmax fdup d sf@ f- h sf! 
-    ry f+ fdup y sf!  dglue@ ;
+: vglue-step-h { f: gp f: ga f: rd f: rg f: ry f: od -- gp ga rd' rg' ry' }
+    gp ga
+    vglue@ baseline sf@ od f- 0e 1fil glue* g3>2 { f: ymin f: ya }
+    rg ya f+ gp f* ga f/ fdup rd f- fswap rg ya f+
+    frot ymin f+  baseline sf@ fmax fdup h sf! 
+    ry f+ fdup y sf! ;
+
+: vglue-step-d { f: gp f: ga f: rd f: rg f: ry -- gp ga rd' rg' ry' }
+    gp ga
+    dglue@ g3>2 { f: ymin f: ya }
+    rg ya f+ gp f* ga f/ fdup rd f- fswap rg ya f+
+    frot ymin f+  baseline sf@ fmax fdup d sf! 
+    fdup ry f+ fswap ;
+
+: vglue-step ( gp ga rd rg ry -- gp ga rd' rg' ry' )
+    vglue-step-h vglue-step-d ;
 
 : vbox-resize1 { f: x f: w -- x w } x y sf@ w h sf@ d sf@ resize  x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    vglue@ g3>2 { f: hmin f: a }
-    h hmin f- a 0e 0e y 0e 0e 0e ['] vglue-step do-childs
-    fdrop fdrop fdrop fdrop fdrop fdrop fdrop fdrop
+    vglue@ dglue@ glue+ g3>2 { f: hmin f: a }
+    h hmin f- a 0e 0e y h f- 0e ['] vglue-step do-childs
+    fdrop fdrop fdrop fdrop fdrop
     x w ['] vbox-resize1 do-childs fdrop fdrop ;
 
 ' vbox-resize vbox is resize

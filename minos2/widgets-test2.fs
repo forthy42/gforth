@@ -29,10 +29,10 @@ frame new value f5
 frame new value f6
 text new value t1
 text new value t2
-{{ {{ {{
-{{ f1 t1 }}z dup value z1
-f2 }}h dup value h1
+text new value t3
+{{ {{
 {{ f3 t2 }}z dup value z2
+{{ {{ f1 t1 }}z dup value z1 f2 t3 }}h dup value h1
 {{ f4 f5 }}h dup value h2
 }}v dup value h3
 f6 }}h Value htop
@@ -102,9 +102,14 @@ previous
     $004488FF text-color !  font2 text-font !
     glyphs$ $free draw-init glyphs$ $@ load-glyph$ o> ;
 
+: !t3 ( -- ) t3 >o
+    "..." text-string $!  32e border sf!
+    $004488FF text-color !  font1 text-font !
+    glyphs$ $free draw-init glyphs$ $@ load-glyph$ o> ;
+
 : htop-resize ( -- )
-    !size 0e 0e 1e dw* .975e dh* 0e resize ;
-: !widgets ( -- ) !f1 !f2 !f3 !f4 !f5 !f6 !t1 !t2 htop .htop-resize ;
+    !size 0e .975e dh* 1e dw* .975e dh* 0e resize ;
+: !widgets ( -- ) !f1 !f2 !f3 !f4 !f5 !f6 !t1 !t2 !t3 htop .htop-resize ;
 
 : widgets-test htop .widget-draw ;
 
