@@ -188,8 +188,9 @@ end-class text
 
 Variable glyphs$
 
-: text-init ( -- )
-    text-font @ to font text-string $@ glyphs$ $+! ;
+: text! ( addr u font -- )
+    text-font ! text-string $!
+    text-font @ to font text-string $@ load-glyph$ ;
 : text-text ( -- )
     x sf@ border sf@ f+ penxy sf!  y sf@ penxy sfloat+ sf!
     text-font @ to font  text-color @ color !
@@ -200,7 +201,7 @@ Variable glyphs$
     border sf@ f+ h sf!
     border sf@ f+ d sf!
     border sf@ f2* f+ w sf! ;
-' text-init text to draw-init
+' noop text to draw-init
 ' text-text text to draw-text
 ' text-!size text to !size
 :noname w sf@ 0e fdup ; text to hglue
@@ -212,11 +213,9 @@ Variable glyphs$
 : <draw-init ( -- )
     -1e 1e >apxy
     .01e 100e 100e >ap
-    glyphs$ $free
     0.01e 0.02e 0.15e 1.0e glClearColor
     Ambient 1 ambient% glUniform1fv ;
-: draw-init> ( -- ) clear
-    glyphs$ $@ dup IF  load-glyph$  ELSE  2drop  THEN ;
+: draw-init> ( -- ) clear ;
 
 : <draw-bg ( -- ) v0 i0
     z-bias set-color+

@@ -93,31 +93,29 @@ texture_font_new_from_file Value font2
 previous
 
 : !t1 ( -- ) t1 >o
-    "Dös isch a Tägscht!" text-string $!  32e border sf!
-    $884400FF text-color !  font1 text-font !
-    glyphs$ $free draw-init glyphs$ $@ load-glyph$ o> ;
+    "Dös isch a Tägscht!" font1 text!  32e border sf!
+    $884400FF text-color ! o> ;
 
 : !t2 ( -- ) t2 >o
-    "这是一个文本：在德语说" text-string $!  32e border sf!
-    $004488FF text-color !  font2 text-font !
-    glyphs$ $free draw-init glyphs$ $@ load-glyph$ o> ;
+    "这是一个文本：在德语说" font2 text!  32e border sf!
+    $004488FF text-color ! o> ;
 
 : !t3 ( -- ) t3 >o
-    "..." text-string $!  32e border sf!
-    $004488FF text-color !  font1 text-font !
-    glyphs$ $free draw-init glyphs$ $@ load-glyph$ o> ;
+    "..." font1 text!  32e border sf!
+    $004488FF text-color ! o> ;
 
 : htop-resize ( -- )
-    !size 0e .975e dh* 1e dw* .975e dh* 0e resize ;
+    !size 0e 1e dh* 1e dw* 1e dh* 0e resize ;
 : !widgets ( -- ) !f1 !f2 !f3 !f4 !f5 !f6 !t1 !t2 !t3 htop .htop-resize ;
 
-: widgets-test htop .widget-draw ;
+: widgets-test ( -- ) htop .widget-draw ;
 
 also [IFDEF] android android [THEN]
 
 : widgets-demo ( -- )  [IFDEF] hidekb  hidekb [THEN]
-    1 level# +!  !widgets  BEGIN  widgets-test >looper
-	?config-changer need-sync @ IF  !widgets  need-sync off  THEN
+    1 level# +!  !widgets widgets-test  BEGIN  >looper
+	?config-changer need-sync @ IF
+	    !widgets widgets-test  need-sync off  THEN
     level# @ 0= UNTIL  need-sync on  need-show on ;
 
 previous
