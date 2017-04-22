@@ -122,7 +122,7 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
     swap warnings @ and if
 	[: warn-color attr!
 	    cr current-sourcepos3 .sourcepos3 ." : " execute
-	    default-color attr! ;] stderr outfile-execute
+	    default-color attr! ;] debug-fid outfile-execute
 	warnings @ abs 4 >= warning-error and throw
 	exit then
     drop ;
@@ -142,7 +142,8 @@ is ?warning
 ' check-shadow >code-address dodefer: = [if]
 :noname  ( addr count wid -- )
     \G prints a warning if the string is already present in the wordlist
-    >r 2dup r> find-name-in warnings @ 0<> and dup
+    warnings @ 0= IF  drop 2drop  EXIT  THEN
+    >r 2dup r> find-name-in dup
     ['] shadow-warning ?warning IF  2drop  EXIT  THEN
     warnings @ >r warnings off
     sp@ fp@ 2>r 2dup warning-recs map-recognizer 2r> rot >r

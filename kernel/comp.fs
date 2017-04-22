@@ -158,13 +158,12 @@ Defer check-shadow ( addr u wid -- )
     view,
     dup cell+ here + dup maxaligned >align
     nlstring,
-    r@ 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
+    r> 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     alias-mask lastflags cset
     next-prelude @ 0<> prelude-mask and lastflags cset
     next-prelude off
-    cfalign
-    last @ name>string r> check-shadow ;
+    cfalign ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -749,10 +748,13 @@ Variable warnings ( -- addr ) \ gforth
 \G @end table
 G -2 warnings T ! \ default to -Won
 
-: (reveal) ( nt wid -- )
+: (nocheck-reveal) ( nt wid -- )
     wordlist-id dup >r
     @ over >link ! 
     r> ! ;
+: (reveal) ( nt wid -- )
+    over name>string 2 pick check-shadow
+    (nocheck-reveal) ;
 
 \ make entry in wordlist-map
 ' (reveal) f83search reveal-method !

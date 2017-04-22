@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Voctable wayland \ needs to be case sensitive
+cs-vocabulary wayland \ needs to be case sensitive
 get-current also wayland definitions
 
 c-library waylandlib

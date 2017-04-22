@@ -100,6 +100,8 @@ Defer hash-alloc ( addr -- addr )
 
 : hash-reveal ( nfa wid -- )
     2dup (reveal) (reveal ;
+: table-reveal ( nfa wid -- )
+    2dup (nocheck-reveal) (reveal ;
 
 [IFUNDEF] >link ' noop Alias >link [THEN]
 
@@ -113,9 +115,10 @@ Defer hash-alloc ( addr -- addr )
 : addall  ( -- )
     HashPop off voclink
     BEGIN  @ dup WHILE
-	   dup 0 wordlist-link -
-	   dup wordlist-map @ reveal-method @ ['] hash-reveal = 
-	   IF  inithash ELSE drop THEN
+	    dup 0 wordlist-link -
+	    dup wordlist-map @ reveal-method @
+	    dup ['] hash-reveal = swap ['] table-reveal = or
+	    IF  inithash ELSE drop THEN
     REPEAT  drop ;
 
 : clearhash  ( -- )

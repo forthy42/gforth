@@ -25,12 +25,20 @@ require hash.fs
     >r 2dup r> bucket @ (tablelfind) ;
 
 Create tablesearch-map ( -- wordlist-map )
+    ' table-find A, ' table-reveal A, ' (rehash) A, ' (rehash) A,
+Create cs-wordlist-search-map ( -- wordlist-map )
     ' table-find A, ' hash-reveal A, ' (rehash) A, ' (rehash) A,
 
 : table ( -- wid ) \ gforth
-    \g Create a case-sensitive wordlist.
+    \g Create a lookup table (case-sensitive, no warnings).
     tablesearch-map mappedwordlist ;
 
-: voctable ( "name" -- ) \ gforth
+: cs-wordlist ( -- wid ) \ gforth
+    \g Create a case-sensitive wordlist.
+    cs-wordlist-search-map mappedwordlist ;
+
+: cs-vocabulary ( "name" -- ) \ gforth
     \g Create a case-senisitve vocabulary
-    Vocabulary tablesearch-map lastxt >body ! ;
+    Vocabulary cs-wordlist-search-map lastxt >body ! ;
+
+' cs-vocabulary alias voctable

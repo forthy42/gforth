@@ -8528,6 +8528,8 @@ doc-get-order
 doc-set-order
 doc-wordlist
 doc-table
+doc-cs-wordlist
+doc-cs-vocabulary
 doc->order
 doc-previous
 doc-also

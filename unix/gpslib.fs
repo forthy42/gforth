@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Voctable gps \ needs to be case sensitive
+cs-vocabulary gps \ needs to be case sensitive
 get-current also gps definitions
 
 c-library gpslib

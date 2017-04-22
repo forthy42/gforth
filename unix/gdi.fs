@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Voctable gdi32
+cs-vocabulary gdi32
 get-current also gdi32 definitions
 
 c-library gdi
