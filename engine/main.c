@@ -2231,10 +2231,13 @@ static void print_diag()
      )
     debugp(stderr, "relocs: %d:%d\n", relocs, nonrelocs);
     fprintf(stderr, "*** %sperformance problems ***\n%s%s",
-#if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D) || !(defined(FORCE_REG) || defined(FORCE_REG_UNNECESSARY)) || defined(BUGGY_LONG_LONG)
+#if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D) || !(defined(FORCE_REG) || defined(FORCE_REG_UNNECESSARY)) || defined(BUGGY_LONG_LONG) || (NO_DYNAMIC_DEFAULT)
 	    "",
 #else
 	    "no ",
+#endif
+#if (NO_DYNAMIC_DEFAULT)
+	    "    no dynamic code generation by default\n"
 #endif
 #if defined(BUGGY_LL_CMP) || defined(BUGGY_LL_MUL) || defined(BUGGY_LL_DIV) || defined(BUGGY_LL_ADD) || defined(BUGGY_LL_SHIFT) || defined(BUGGY_LL_D2F) || defined(BUGGY_LL_F2D)
 	    "    double-cell integer type buggy ->\n        "
