@@ -632,9 +632,10 @@ opt: ( value-xt to-xt -- )
     \g execute @var{xt}.
     record-name (') (name>x) drop (comp-to) ; immediate restrict
 
-' <IS> ' [IS] interpret/compile: TO ( value "name" -- ) \ gforth
+' <IS> ' [IS] interpret/compile: TO ( value "name" -- ) \ core-ext
 \g changes the value of @var{name} to @var{value}
-' <IS> ' [IS] interpret/compile: IS ( value "name" -- )
+' <IS> ' [IS] interpret/compile: IS ( value "name" -- ) \ core-ext
+\g changes the @code{defer}red word @var{name} to execute @var{value}
 
 : <+TO>  1 to-style# ! <IS> ;
 : <addr>  2 to-style# ! <IS> ;
