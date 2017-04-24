@@ -70,9 +70,13 @@
 DOES> ( -- r )
     f@ ;
 
+: f+! ( r addr -- ) dup f@ f+ f! ;
+
+Create f!-table ' f! , ' f+! ,
+
 : fvalue! ( xt xt-deferred -- ) \ gforth  defer-store
-    >body f! ;
-opt: drop >body postpone ALiteral postpone f! ;
+    >body f!-table to-!exec ;
+opt: drop >body postpone ALiteral f!-table to-!, ;
 
 : fvalue ( r "name" -- ) \ float-ext f-value
     fconstant ['] fvalue! set-to ['] comp-fval set-optimizer ;

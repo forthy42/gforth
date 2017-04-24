@@ -341,16 +341,19 @@ variable locals-dp \ so here's the special dp for locals.
 \ adds it as inline argument to a preceding locals primitive
   lp-offset , ;
 
-[IFDEF] set-to
-    : to-w: ( -- )  -14 throw ;
-    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE ! ;
-    : to-d: ( -- ) -14 throw ;
-    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ;
-    : to-c: ( -- ) -14 throw ;
-    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE c! ;
-    : to-f: ( -- ) -14 throw ;
-    comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE f! ;
-[THEN]
+: c+! ( c addr -- ) dup >r c@ + r> c! ;
+: 2+! ( d addr -- ) dup >r 2@ d+ r> 2! ;
+
+Create 2!-table ' 2! , ' 2+! ,
+Create c!-table ' c! , ' c+! ,
+: to-w: ( -- )  -14 throw ;
+comp: drop POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
+: to-d: ( -- ) -14 throw ;
+comp: drop POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
+: to-c: ( -- ) -14 throw ;
+comp: drop POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
+: to-f: ( -- ) -14 throw ;
+comp: drop POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
 : val-part-off ( -- ) val-part off ;
 

@@ -449,9 +449,17 @@ opt: drop @ (comp-to) ;
 : AValue ( w "name" -- ) \ core-ext
     (Value) A, ;
 
-: u-to ( n uvalue-xt -- ) >body @ next-task + ! ;
+Create !-table ' ! A, ' +! A,
+Variable to-style# 0 to-style# !
+
+: to-!, ( table -- )
+    0 to-style# !@ dup 2 u< IF  cells + @ compile,  ELSE  drop  THEN ;
+: to-!exec ( table -- )
+    0 to-style# !@ dup 2 u< IF  cells + perform  ELSE  drop  THEN ;
+
+: u-to ( n uvalue-xt -- ) >body @ next-task +  !-table to-!exec ;
 opt: ( uvalue-xt to-xt -- )
-    drop >body @ postpone useraddr , postpone ! ;
+    drop >body @ postpone useraddr , !-table to-!, ;
 \g u-to is the to-method for user values; it's xt is only
 \g there to be consumed by @code{set-to}.
 : u-compile, ( xt -- )  >body @ postpone useraddr , postpone @ ;
@@ -611,10 +619,10 @@ interpret/compile: lit,:
 : value! ( n value-xt -- ) \ gforth  value-store
     \g this is the TO-method for normal values; it's tickable, but
     \g the only purpose of its xt is to be consumed by @code{set-to}.
-    >body ! ;
+    >body !-table to-!exec ;
 opt: ( value-xt to-xt -- )
-    drop >body postpone ALiteral postpone ! ;
-    
+    drop >body postpone ALiteral !-table to-!, ;
+
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
     record-name (') (name>x) drop (int-to) ;
@@ -626,6 +634,15 @@ opt: ( value-xt to-xt -- )
 
 ' <IS> ' [IS] interpret/compile: TO ( value "name" -- )
 ' <IS> ' [IS] interpret/compile: IS ( value "name" -- )
+
+: <+TO>  1 to-style# ! <IS> ;
+: <addr>  2 to-style# ! <IS> ;
+
+: [+TO]  1 to-style# ! postpone [IS] ; immediate restrict
+: [addr]  2 to-style# ! postpone [IS] ; immediate restrict
+
+' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- )
+' <addr> ' [addr] interpret/compile: addr ( "name" -- addr )
 
 \ \ : ;                                                  	24feb93py
 
