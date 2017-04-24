@@ -199,3 +199,29 @@ t{ action-of cod2 -> ' true }t
 t{ synonym source2 source -> }t
 t{ ' source2 -> ' source }t
 t{ action-of source2 -> action-of source }t
+
+\ +to and addr
+
+1 value foo#
+2. 2value foo##
+3e fvalue foo%
+: +foo# +to foo# ;
+: &foo# addr foo# ;
+: +foo## +to foo## ;
+: &foo## addr foo## ;
+: +foo% +to foo% ;
+: &foo% addr foo% ;
+
+t{ 2 +to foo# foo# -> 3 }t
+t{ addr foo# @ -> 3 }t
+t{ 5. +to foo## foo## -> 7. }t
+t{ addr foo## 2@ -> 7. }t
+t{ 7e +to foo% foo% -> 10e }t
+t{ addr foo% f@ -> 10e }t
+
+t{ 2 +foo# foo# -> 5 }t
+t{ &foo# @ -> 5 }t
+t{ 5. +foo## foo## -> 12. }t
+t{ &foo## 2@ -> 12. }t
+t{ 7e +foo% foo% -> 17e }t
+t{ &foo% f@ -> 17e }t
