@@ -632,7 +632,8 @@ opt: ( value-xt to-xt -- )
     \g execute @var{xt}.
     record-name (') (name>x) drop (comp-to) ; immediate restrict
 
-' <IS> ' [IS] interpret/compile: TO ( value "name" -- )
+' <IS> ' [IS] interpret/compile: TO ( value "name" -- ) \ gforth
+\g changes the value of @var{name} to @var{value}
 ' <IS> ' [IS] interpret/compile: IS ( value "name" -- )
 
 : <+TO>  1 to-style# ! <IS> ;
@@ -641,8 +642,10 @@ opt: ( value-xt to-xt -- )
 : [+TO]  1 to-style# ! postpone [IS] ; immediate restrict
 : [addr]  2 to-style# ! postpone [IS] ; immediate restrict
 
-' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- )
-' <addr> ' [addr] interpret/compile: addr ( "name" -- addr )
+' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- ) \ gforth
+\g increments the value of @var{name} by @var{value}
+' <addr> ' [addr] interpret/compile: addr ( "name" -- addr ) \ gforth
+\g provides the address @var{addr} of the value stored in @var{name}
 
 \ \ : ;                                                  	24feb93py
 

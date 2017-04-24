@@ -6457,8 +6457,8 @@ APPLES              \ puts 35 on the top of the stack.
 
 doc-value
 doc-to
-
-
+doc-+to
+doc-addr
 
 @node Colon Definitions, Anonymous Definitions, Values, Defining Words
 @subsection Colon Definitions
