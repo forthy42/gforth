@@ -453,9 +453,9 @@ Create !-table ' ! A, ' +! A,
 Variable to-style# 0 to-style# !
 
 : to-!, ( table -- )
-    0 to-style# !@ dup 2 u< IF  cells + @ compile,  ELSE  drop  THEN ;
+    0 to-style# !@ dup 2 u< IF  cells + @ compile,  ELSE  2drop  THEN ;
 : to-!exec ( table -- )
-    0 to-style# !@ dup 2 u< IF  cells + perform  ELSE  drop  THEN ;
+    0 to-style# !@ dup 2 u< IF  cells + perform  ELSE  2drop  THEN ;
 
 : u-to ( n uvalue-xt -- ) >body @ next-task +  !-table to-!exec ;
 opt: ( uvalue-xt to-xt -- )

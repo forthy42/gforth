@@ -30,19 +30,19 @@ warnings !
 
 standard:field
 
-: vfield-int, ( addr body -- offset ) dup cell+ @ to-!exec ;
-: vfield-comp, ( body -- ) dup cell+ @ to-!, ;
+: vfield-int, ( addr body -- offset ) dup cell+ @ execute ;
+: vfield-comp, ( body -- ) dup cell+ @ compile, ;
 
 : create+value ( n1 addr "name" -- n3 )
     >r r@ cell+ cell+ 2@ r> 2@
     2>r >r Create over , + action-of +field, ,
     r> set-does> 2r> set-to set-optimizer ;
 
-: wrap+value: ( n2 xt-align xt@ xt!-table "name" -- ) { xt-align xt@ xt! }
+: wrap+value: ( n2 xt-align xt@ !-table "name" -- ) { xt-align xt@ xt! }
     :noname ]] vfield-int, [[ xt@ compile, postpone ; \ xt-does
     :noname ]] >body vfield-comp, [[ xt@ ]]L compile, ; [[ \ xt-comp,
-    :noname ]] drop >body vfield-comp, [[ xt! ]]L compile, ; [[ \ xt-to-comp,
-    :noname ]] >body vfield-int, [[ xt! compile, postpone ; swap set-optimizer \ xt-to
+    :noname ]] drop >body vfield-comp, [[ xt! ]]L to-!, ; [[ \ xt-to-comp,
+    :noname ]] >body vfield-int, [[ xt! ]]L to-!exec ; [[ swap set-optimizer \ xt-to
     :noname ]] >r [[ xt-align compile, ]] r> create+value ; [[
     Create set-does> , , , , ;
 
