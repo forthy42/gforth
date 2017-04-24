@@ -27,7 +27,7 @@
     Create 0 , compile-only ['] forward, set-optimizer ;
 
 : resolve-fwds ( addr -- ) \ resolve forward refereneces
-    BEGIN  dup  WHILE  here >body swap !@  REPEAT  drop ;
+    BEGIN  dup  WHILE  latestxt >body swap !@  REPEAT  drop ;
 
 : auto-resolve ( addr u wid -- )
     \G auto-resolve the forward reference in check-shadow

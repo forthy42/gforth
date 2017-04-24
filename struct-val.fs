@@ -46,16 +46,17 @@ standard:field
     :noname ]] >r [[ xt-align compile, ]] r> create+value ; [[
     Create set-does> , , , , ;
 
-cell      ' aligned   ' @   ' !   wrap+value: value: ( u1 "name" -- u2 )
-1         ' noop      ' c@  ' c!  wrap+value: cvalue: ( u1 "name" -- u2 )
-2         ' waligned  ' w@  ' w!  wrap+value: wvalue: ( u1 "name" -- u2 )
+cell      ' aligned   ' @   ' !   wrap+value: value:   ( u1 "name" -- u2 )
+1         ' noop      ' c@  ' c!  wrap+value: cvalue:  ( u1 "name" -- u2 )
+2         ' waligned  ' w@  ' w!  wrap+value: wvalue:  ( u1 "name" -- u2 )
 2         ' waligned  ' sw@ ' w!  wrap+value: swvalue: ( u1 "name" -- u2 )
-4         ' laligned  ' l@  ' l!  wrap+value: lvalue: ( u1 "name" -- u2 )
+4         ' laligned  ' l@  ' l!  wrap+value: lvalue:  ( u1 "name" -- u2 )
 4         ' laligned  ' sl@ ' l!  wrap+value: slvalue: ( u1 "name" -- u2 )
-2 cells   ' aligned   ' 2@  ' 2!  wrap+value: 2value: ( u1 "name" -- u2 )
-1 floats  ' faligned  ' f@  ' f!  wrap+value: fvalue: ( u1 "name" -- u2 )
+2 cells   ' aligned   ' 2@  ' 2!  wrap+value: 2value:  ( u1 "name" -- u2 )
+1 floats  ' faligned  ' f@  ' f!  wrap+value: fvalue:  ( u1 "name" -- u2 )
 1 sfloats ' sfaligned ' sf@ ' sf! wrap+value: sfvalue: ( u1 "name" -- u2 )
 1 dfloats ' dfaligned ' df@ ' df! wrap+value: dfvalue: ( u1 "name" -- u2 )
+cell      ' aligned   ' $@  ' $!  wrap+value: $value:  ( u1 "name" -- u2 )
 
 0 [IF] \ test
     begin-structure foo
