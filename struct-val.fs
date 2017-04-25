@@ -51,11 +51,11 @@ standard:field
 : sf+! ( w addr -- ) dup >r sf@ f+ r> sf! ;
 : df+! ( w addr -- ) dup >r df@ f+ r> df! ;
 
-Create w!-table ' w! , ' w+! ,
-Create l!-table ' l! , ' l+! ,
+Create w!-table  ' w!  , ' w+!  ,
+Create l!-table  ' l!  , ' l+!  ,
 Create sf!-table ' sf! , ' sf+! ,
 Create df!-table ' df! , ' df+! ,
-Create $!-table ' $! , ' $+! ,
+Create $!-table  ' $!  , ' $+!  ,
 
 cell      ' aligned   ' @   !-table   wrap+value: value:   ( u1 "name" -- u2 )
 1         ' noop      ' c@  c!-table  wrap+value: cvalue:  ( u1 "name" -- u2 )
@@ -68,6 +68,7 @@ cell      ' aligned   ' @   !-table   wrap+value: value:   ( u1 "name" -- u2 )
 1 sfloats ' sfaligned ' sf@ sf!-table wrap+value: sfvalue: ( u1 "name" -- u2 )
 1 dfloats ' dfaligned ' df@ df!-table wrap+value: dfvalue: ( u1 "name" -- u2 )
 cell      ' aligned   ' $@  $!-table  wrap+value: $value:  ( u1 "name" -- u2 )
+cell      ' aligned   ' perform !-table wrap+value: defer: ( u1 "name" -- u2 )
 
 0 [IF] \ test
     begin-structure foo
