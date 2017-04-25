@@ -22,9 +22,15 @@
 : rec:to ( addr u -- xt r:to | r:fail )
     \G words prefixed with @code{->} are treated as if preceeded by
     \G @code{TO} or @code{IS}
-    2dup s" ->" string-prefix?  0= IF  2drop  r:fail  EXIT  THEN
-    2 /string dup 0= IF  2drop  r:fail  EXIT  THEN
-    recognize dup r:fail = ?EXIT
+    dup 3 u< IF  2drop r:fail  EXIT  THEN
+    over 1+ c@ '>' <> IF  2drop r:fail  EXIT  THEN
+    case  over c@
+	'-' of   0 to-style# !  endof
+	'+' of   1 to-style# !  endof
+	'&' of  -1 to-style# !  endof
+	drop 2drop r:fail  EXIT
+    endcase
+    2 /string recognize dup r:fail = IF  to-style# off  EXIT  THEN
     name?int r:to ;
 
 ' rec:to get-recognizers 1+ set-recognizers
