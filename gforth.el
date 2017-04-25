@@ -303,11 +303,11 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	(("<is>" "'" "see") non-immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
-	(("[to]") compile-only (font-lock-keyword-face . 2)
+	(("[to]" "[+to]" "[addr]") compile-only (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
-	(("to") immediate (font-lock-keyword-face . 2)
+	(("to" "+to" "addr") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
-	(("<to>") non-immediate (font-lock-keyword-face . 2)
+	(("<to>" "<+to>" "<addr>") non-immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 
 	(("create" "variable" "constant" "2variable" "2constant" "fvariable"

@@ -638,10 +638,10 @@ opt: ( value-xt to-xt -- )
 \g changes the @code{defer}red word @var{name} to execute @var{value}
 
 : <+TO>  1 to-style# ! <IS> ;
-: <addr>  2 to-style# ! <IS> ;
+: <addr>  -1 to-style# ! <IS> ;
 
 : [+TO]  1 to-style# ! postpone [IS] ; immediate restrict
-: [addr]  2 to-style# ! postpone [IS] ; immediate restrict
+: [addr]  -1 to-style# ! postpone [IS] ; immediate restrict
 
 ' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- ) \ gforth
 \g increments the value of @var{name} by @var{value}
