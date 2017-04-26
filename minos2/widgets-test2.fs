@@ -38,27 +38,27 @@ text new value t3
 f6 }}h Value htop
 
 : !f1 ( -- ) f1 >o
-    32e border sf! $FFFFFFFF frame-color ! glue*2 tile-glue !
+    32e to border $FFFFFFFF to frame-color glue*2 to tile-glue
     button2 o> ;
 
 : !f2 ( -- ) f2 >o
-    32e border sf! $FF7FFFFF frame-color ! glue*2 tile-glue !
+    32e to border $FF7FFFFF to frame-color glue*2 to tile-glue
     button3 o> ;
 
 : !f3 ( -- ) f3 >o
-    16e border sf! $FFFF7FFF frame-color ! glue*1 tile-glue !
+    16e to border $FFFF7FFF to frame-color glue*1 to tile-glue
     button1 o> ;
 
 : !f4 ( -- ) f4 >o
-    32e border sf! $FF7F7FFF frame-color ! glue*1 tile-glue !
+    32e to border $FF7F7FFF to frame-color glue*1 to tile-glue
     button1 o> ;
 
 : !f5 ( -- ) f5 >o
-    8e border sf! $7FFF7FFF frame-color ! glue*1 tile-glue !
+    8e to border $7FFF7FFF to frame-color glue*1 to tile-glue
     button1 o> ;
 
 : !f6 ( -- ) f6 >o
-    16e border sf! $7FFFFFFF frame-color ! glue*2 tile-glue !
+    16e to border $7FFFFFFF to frame-color glue*2 to tile-glue
     button2 o> ;
 
 also freetype-gl
@@ -93,15 +93,15 @@ texture_font_new_from_file Value font2
 previous
 
 : !t1 ( -- ) t1 >o
-    "Dös isch a Tägscht!" font1 text!  32e border sf!
+    "Dös isch a Tägscht!" font1 text!  32e to border
     $884400FF text-color ! o> ;
 
 : !t2 ( -- ) t2 >o
-    "这是一个文本：在德语说" font2 text!  32e border sf!
+    "这是一个文本：在德语说" font2 text!  32e to border
     $004488FF text-color ! o> ;
 
 : !t3 ( -- ) t3 >o
-    "..." font1 text!  32e border sf!
+    "..." font1 text!  32e to border
     $004488FF text-color ! o> ;
 
 : htop-resize ( -- )

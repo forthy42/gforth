@@ -35,7 +35,7 @@ vocabulary minos  also minos definitions
 0 Value layer \ drawing layer
 
 object class
-    field: caller-w
+    value: caller-w
     method clicked
     method keyed
     method inside?
@@ -49,14 +49,14 @@ object class
 end-class actor
 
 object class
-    field: next-w
-    field: parent-w
-    sffield: x
-    sffield: y
-    sffield: w
-    sffield: h \ above baseline
-    sffield: d \ below baseline
-    sffield: border \ surrounding border
+    value: next-w
+    value: parent-w
+    sfvalue: x
+    sfvalue: y
+    sfvalue: w
+    sfvalue: h \ above baseline
+    sfvalue: d \ below baseline
+    sfvalue: border \ surrounding border
     method draw-init ( -- ) \ init draw
     method draw-bg ( -- ) \ button background draw
     method draw-icon ( -- ) \ icons draw
@@ -75,13 +75,13 @@ object class
     method !size \ set your own size
 end-class widget
 
-:noname x sf@ y sf@ h sf@ f- w sf@ h sf@ d sf@ f+ ; widget to xywh
-:noname x sf@ y sf@ w sf@ h sf@ d sf@ ; widget to xywhd
+:noname x y h f- w h d f+ ; widget to xywh
+:noname x y w h d ; widget to xywhd
 ' noop widget to !size
-:noname w sf@ border sf@ f2* f+ 0e fdup ; widget to hglue
-:noname h sf@ border sf@ f+ 0e fdup ; widget to vglue
-:noname d sf@ border sf@ f+ 0e fdup ; widget to dglue
-: widget-resize d sf! h sf! w sf! y sf! x sf! ;
+:noname w border f2* f+ 0e fdup ; widget to hglue
+:noname h border f+ 0e fdup ; widget to vglue
+:noname d border f+ 0e fdup ; widget to dglue
+: widget-resize to d to h to w to y to x ;
 ' widget-resize widget to resize
 ' hglue widget to hglue@
 ' vglue widget to vglue@
@@ -118,14 +118,14 @@ end-class glue
 \ tile widget
 
 widget class
-    field: frame#
-    field: frame-color
-    field: tile-glue \ glue object
+    value: frame#
+    value: frame-color
+    value: tile-glue \ glue object
 end-class tile
 
-:noname tile-glue @ .hglue { f: s f: a } border sf@ f2* f+ s a ; tile to hglue
-:noname tile-glue @ .dglue { f: s f: a } border sf@ f+ s a ; tile to dglue
-:noname tile-glue @ .vglue { f: s f: a } border sf@ f+ s a ; tile to vglue
+:noname tile-glue .hglue { f: s f: a } border f2* f+ s a ; tile to hglue
+:noname tile-glue .dglue { f: s f: a } border f+ s a ; tile to dglue
+:noname tile-glue .vglue { f: s f: a } border f+ s a ; tile to vglue
 
 8 Value style-w#
 8 Value style-h#
@@ -137,10 +137,10 @@ end-class tile
 
 : draw-rectangle { f: x1 f: y1 f: x2 f: y2 -- }
     i? >v
-    x1 y2 >xy frame-color @ rgba>c n> 0e 1e frame# @ #>st v+
-    x2 y2 >xy frame-color @ rgba>c n> 1e 1e frame# @ #>st v+
-    x2 y1 >xy frame-color @ rgba>c n> 1e 0e frame# @ #>st v+
-    x1 y1 >xy frame-color @ rgba>c n> 0e 0e frame# @ #>st v+
+    x1 y2 >xy frame-color rgba>c n> 0e 1e frame# #>st v+
+    x2 y2 >xy frame-color rgba>c n> 1e 1e frame# #>st v+
+    x2 y1 >xy frame-color rgba>c n> 1e 0e frame# #>st v+
+    x1 y1 >xy frame-color rgba>c n> 0e 0e frame# #>st v+
     v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i, ;
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
     { f: w f: h } fover w f+ fover h f+ ;
@@ -163,7 +163,7 @@ DOES>  swap sfloats + sf@ ;
     2 and    IF fnegate w f+  THEN  f+ ;
 
 : frame-draw ( -- )
-    frame# @ frame-color @ border sf@ xywh { f c f: b f: x f: y f: w f: h }
+    frame# frame-color border xywh { f c f: b f: x f: y f: w f: h }
     i>off >v
     4 0 DO
 	4 0 DO
@@ -192,21 +192,21 @@ Variable glyphs$
     text-font ! text-string $!
     text-font @ to font text-string $@ load-glyph$ ;
 : text-text ( -- )
-    x sf@ border sf@ f+ penxy sf!  y sf@ penxy sfloat+ sf!
+    x border f+ penxy sf!  y penxy sfloat+ sf!
     text-font @ to font  text-color @ color !
     text-string $@ render-string ;
 : text-!size ( -- )
     text-font @ to font
     text-string $@ layout-string
-    border sf@ f+ h sf!
-    border sf@ f+ d sf!
-    border sf@ f2* f+ w sf! ;
+    border f+ to h
+    border f+ to d
+    border f2* f+ to w ;
 ' noop text to draw-init
 ' text-text text to draw-text
 ' text-!size text to !size
-:noname w sf@ 0e fdup ; text to hglue
-:noname h sf@ 0e fdup ; text to vglue
-:noname d sf@ 0e fdup ; text to dglue
+:noname w 0e fdup ; text to hglue
+:noname h 0e fdup ; text to vglue
+:noname d 0e fdup ; text to dglue
 
 \ draw wrapper
 
@@ -232,7 +232,7 @@ Variable style-i#
 : load-style ( addr u -- n )  style-tex
     style-i# @ 8 /mod 128 * >r 128 * r> 2swap load-subtex 2drop
     style-i# @ 1 style-i# +! ;
-: style: load-style Create , DOES> @ frame# ! ;
+: style: load-style Create , DOES> @ to frame# ;
 
 "button.png" style: button1
 "button2.png" style: button2
@@ -241,15 +241,15 @@ Variable style-i#
 \ boxes
 
 glue class
-    field: child-w
-    field: act
+    value: child-w
+    value: act
     method resized
     method map
 end-class box
 
 : do-childs { xt -- .. }
-    child-w @ >o
-    BEGIN  xt execute  next-w @ o>  dup  WHILE  >o  REPEAT
+    child-w >o
+    BEGIN  xt execute  next-w o>  dup  WHILE  >o  REPEAT
     drop ;
 
 :noname ( -- )
@@ -266,19 +266,19 @@ end-class box
 :noname ( -- ) ['] draw-text      do-childs ; box to draw-text
 
 :noname ( -- )
-    parent-w @ ?dup-IF  .resized \ upwards
+    parent-w ?dup-IF  .resized \ upwards
     ELSE  !size xywhd resize     \ downwards
     THEN ; widget to resized
 
 : +child ( o -- )
-    child-w @ o 2 pick >o parent-w ! next-w ! o> child-w ! ;
+    child-w o 2 pick >o to parent-w to next-w o> to child-w ;
 : +childs ( o1 .. on n -- ) 0 +DO  +child  LOOP ;
 
 \ glue arithmetics
 
 box class end-class hbox \ horizontal alignment
 box class
-    field: baseline \ minimun skip per line
+    sfvalue: baseline \ minimun skip per line
 end-class vbox \ vertical alignment
 box class end-class zbox \ overlay alignment
 
@@ -318,7 +318,7 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     t1 s1 f- t2 s2 f- fmax fover f- 0e fmax
     t1 a1 f+ t2 a2 f+ fmin 2 fpick f- 0e fmax ;
 : baseglue ( -- b 0 max )
-    baseline sf@ 0e 1fil ;
+    baseline 0e 1fil ;
 : glue-drop ( t s a -- ) fdrop fdrop fdrop ;
 
 : hglue+ 0glue [: hglue@ glue+ ;] do-childs ;
@@ -347,12 +347,12 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 :noname defers printdebugdata cr f.s ; is printdebugdata
 
 : hglue-step { f: gp f: ga f: rd f: rg f: rx -- gp ga rd' rg' rx' }
-    gp ga  rx x sf!
+    gp ga  rx to x
     hglue@ g3>2 { f: xmin f: xa }
     rg xa f+ gp f* ga f/ fdup rd f- fswap rg xa f+
-    frot xmin f+  fdup w sf!  rx f+ ;
+    frot xmin f+  fdup to w  rx f+ ;
 
-: hbox-resize1 { f: y f: h f: d -- y h d } x sf@ y w sf@ h d resize  y h d ;
+: hbox-resize1 { f: y f: h f: d -- y h d } x y w h d resize  y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     hglue@ g3>2 { f: wmin f: a }
@@ -365,22 +365,22 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 : vglue-step-h { f: gp f: ga f: rd f: rg f: ry f: od -- gp ga rd' rg' ry' }
     gp ga
-    vglue@ baseline sf@ od f- 0e 1fil glue* g3>2 { f: ymin f: ya }
+    vglue@ baseline od f- 0e 1fil glue* g3>2 { f: ymin f: ya }
     rg ya f+ gp f* ga f/ fdup rd f- fswap rg ya f+
-    frot ymin f+  baseline sf@ fmax fdup h sf! 
-    ry f+ fdup y sf! ;
+    frot ymin f+  baseline fmax fdup to h 
+    ry f+ fdup to y ;
 
 : vglue-step-d { f: gp f: ga f: rd f: rg f: ry -- gp ga rd' rg' ry' }
     gp ga
     dglue@ g3>2 { f: ymin f: ya }
     rg ya f+ gp f* ga f/ fdup rd f- fswap rg ya f+
-    frot ymin f+  baseline sf@ fmax fdup d sf! 
+    frot ymin f+  baseline fmax fdup to d 
     fdup ry f+ fswap ;
 
 : vglue-step ( gp ga rd rg ry -- gp ga rd' rg' ry' )
     vglue-step-h vglue-step-d ;
 
-: vbox-resize1 { f: x f: w -- x w } x y sf@ w h sf@ d sf@ resize  x w ;
+: vbox-resize1 { f: x f: w -- x w } x y w h d resize  x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     vglue@ dglue@ glue+ g3>2 { f: hmin f: a }

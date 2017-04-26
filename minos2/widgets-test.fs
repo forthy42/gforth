@@ -32,32 +32,32 @@ text new value f8
 
 : !f1 ( -- ) f1 >o
     0e 0e  .25e dw*  0e  .5e dh* resize
-    32e border sf! $FFFFFFFF frame-color !
+    32e to border $FFFFFFFF to frame-color
     button2 o> ;
 
 : !f2 ( -- ) f2 >o
     .5e dw*  0e  .5e dw*  0e  .95e dh* resize
-    32e border sf! $FF7FFFFF frame-color !
+    32e to border $FF7FFFFF to frame-color
     button3 o> ;
 
 : !f3 ( -- ) f3 >o
     0e  .5e dh*  .5e dw*  0e  .25e dh* resize
-    16e border sf! $FFFF7FFF frame-color !
+    16e to border $FFFF7FFF to frame-color
     button1 o> ;
 
 : !f4 ( -- ) f4 >o
     0e  .75e dh* .25e dw* 0e .2e dh* resize
-    32e border sf! $FF7F7FFF frame-color !
+    32e to border $FF7F7FFF to frame-color
     button1 o> ;
 
 : !f5 ( -- ) f5 >o
     .25e dw* .75e dh* .25e dw* 0e .2e dh* resize
-    8e border sf! $7FFF7FFF frame-color !
+    8e to border $7FFF7FFF to frame-color
     button1 o> ;
 
 : !f6 ( -- ) f6 >o
     .25e dw*  0e  .25e dw* 0e  .5e dh* resize
-    16e border sf! $7FFFFFFF frame-color !
+    16e to border $7FFFFFFF to frame-color
     button2 o> ;
 
 also freetype-gl
@@ -92,11 +92,11 @@ texture_font_new_from_file Value font2
 previous
 
 : !f7 ( -- )  f7 >o
-    8e x sf! .25e dh* y sf! "Dös isch a Tägscht!" text-string $!
+    8e to x .25e dh* to y "Dös isch a Tägscht!" text-string $!
     $884400FF text-color !  font1 text-font ! o> ;
 
 : !f8 ( -- ) f8 >o
-    8e x sf! .625e dh* y sf! "这是一个文本：在德语说" text-string $!
+    8e to x .625e dh* to y "这是一个文本：在德语说" text-string $!
     $004488FF text-color !  font2 text-font ! o> ;
 
 : !widgets ( -- ) !f1 !f2 !f3 !f4 !f5 !f6 !f7 !f8 ;
