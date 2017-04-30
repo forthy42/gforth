@@ -38,12 +38,13 @@ atlas-tex current-tex atlas texture_atlas_t-id !
 
 2 sfloats buffer: penxy
 Variable color $FFC0A0FF color !
+1e FValue x-scale
 
 : xy, { glyph -- }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
     glyph texture_glyph_t-offset_x l@ s>f
     glyph texture_glyph_t-offset_y l@ s>f { f: xo f: yo }
-    glyph texture_glyph_t-width  @ s>f
+    glyph texture_glyph_t-width  @ s>f x-scale f*
     glyph texture_glyph_t-height @ s>f { f: w f: h }    
     xp xo f+  yp yo f- { f: x0 f: y0 }
     x0 w f+ y0 h f+ { f: x1 f: y1 }
@@ -57,7 +58,7 @@ Variable color $FFC0A0FF color !
     x0 y1 >xy n> color @ rgba>c s0 t1 >st v+
     x1 y1 >xy n> color @ rgba>c s1 t1 >st v+
     v>
-    xp glyph texture_glyph_t-advance_x sf@ f+ penxy sf!
+    xp glyph texture_glyph_t-advance_x sf@ x-scale f* f+ penxy sf!
     yp glyph texture_glyph_t-advance_y sf@ f+ penxy sfloat+ sf! ;
 
 : glyph+xy ( glyph -- )

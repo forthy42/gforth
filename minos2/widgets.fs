@@ -96,9 +96,9 @@ style-tex 1024 dup rgba-newtex
 \ glues
 
 begin-structure glues
-    sffield: glue-t \ typical size
-    sffield: glue-s \ shrink by
-    sffield: glue-a \ add by
+    dffield: glue-t \ typical size
+    dffield: glue-s \ shrink by
+    dffield: glue-a \ add by
 end-structure
 
 widget class
@@ -107,10 +107,10 @@ widget class
     glues +field vglue-c
 end-class glue
 
-: sf@+ ( addr -- u addr' )  dup sf@ sfloat+ ;
-: sf!- ( addr -- u addr' )  dup sf! [ 1 sfloats ]L - ;
-: glue@ ( addr -- t s a )  sf@+ sf@+ sf@ ;
-: glue! ( t s a addr -- )  [ 2 sfloats ]L + sf!- sf!- sf! ;
+: df@+ ( addr -- u addr' )  dup df@ dfloat+ ;
+: df!- ( addr -- u addr' )  dup df! [ 1 dfloats ]L - ;
+: glue@ ( addr -- t s a )  df@+ df@+ df@ ;
+: glue! ( t s a addr -- )  [ 2 dfloats ]L + df!- df!- df! ;
 :noname hglue-c glue@ ; dup glue to hglue@ glue to hglue
 :noname dglue-c glue@ ; dup glue to dglue@ glue to dglue
 :noname vglue-c glue@ ; dup glue to vglue@ glue to vglue
@@ -178,33 +178,42 @@ DOES>  swap sfloats + sf@ ;
     LOOP
 ; ' frame-draw frame is draw-bg
 
+: }}frame ( glue color border -- o )
+    frame new >o to border to frame-color to tile-glue o o> ;
+
 \ text widget
 
+-5% fvalue text-shrink%
+5% fvalue text-grow%
+
 widget class
-    field: text-string
-    field: text-font
-    field: text-color
+    sfvalue: text-w
+    $value: text$
+    value: text-font
+    value: text-color
 end-class text
 
 Variable glyphs$
 
 : text! ( addr u font -- )
-    text-font ! text-string $!
-    text-font @ to font text-string $@ load-glyph$ ;
+    to text-font to text$
+    text-font to font text$ load-glyph$ ;
 : text-text ( -- )
     x border f+ penxy sf!  y penxy sfloat+ sf!
-    text-font @ to font  text-color @ color !
-    text-string $@ render-string ;
+    text-font to font  text-color color !
+    w border f2* f- text-w f/ to x-scale
+    text$ render-string ;
 : text-!size ( -- )
-    text-font @ to font
-    text-string $@ layout-string
+    text-font to font
+    text$ layout-string
     border f+ to h
     border f+ to d
-    border f2* f+ to w ;
+    fdup to text-w  border f2* f+ to w ;
 ' noop text to draw-init
 ' text-text text to draw-text
 ' text-!size text to !size
-:noname w 0e fdup ; text to hglue
+:noname text-w border f2* f+
+    text-w text-shrink% f* text-w text-grow% f* ; text to hglue
 :noname h 0e fdup ; text to vglue
 :noname d 0e fdup ; text to dglue
 

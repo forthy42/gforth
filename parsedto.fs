@@ -27,7 +27,7 @@
     case  over c@
 	'-' of   0 to-style# !  endof
 	'+' of   1 to-style# !  endof
-	'&' of  -1 to-style# !  endof
+	''' of  -1 to-style# !  endof
 	drop 2drop r:fail  EXIT
     endcase
     2 /string recognize dup r:fail = IF  to-style# off  EXIT  THEN

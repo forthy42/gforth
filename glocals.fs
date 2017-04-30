@@ -347,13 +347,13 @@ variable locals-dp \ so here's the special dp for locals.
 Create 2!-table ' 2! , ' 2+! ,
 Create c!-table ' c! , ' c+! ,
 : to-w: ( -- )  -14 throw ;
-comp: drop POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
+comp: !!?addr!! drop POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
 : to-d: ( -- ) -14 throw ;
-comp: drop POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
+comp: !!?addr!! drop POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
 : to-c: ( -- ) -14 throw ;
-comp: drop POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
+comp: !!?addr!! drop POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
 : to-f: ( -- ) -14 throw ;
-comp: drop POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
+comp: !!?addr!! drop POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
 : val-part-off ( -- ) val-part off ;
 

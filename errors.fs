@@ -116,8 +116,9 @@ decimal
 -2053 s" Can't tick literal" rot errstring
 -2054 s" Warning treated as error" rot errstring
 -2055 s" Can't defer@ from this xt" rot errstring
+-2056 s" Can't ADDR on locals/uvalues" rot errstring
 
-variable next-exception -2056 next-exception !
+variable next-exception -2057 next-exception !
 
 : exception ( addr u -- n ) \ exception- gforth
     \G @var{n} is a previously unused @code{throw} value in the range

@@ -457,9 +457,11 @@ Variable to-style# 0 to-style# !
 : to-!exec ( table -- )
     0 to-style# !@ dup 2 u< IF  cells + perform  ELSE  2drop  THEN ;
 
-: u-to ( n uvalue-xt -- ) >body @ next-task +  !-table to-!exec ;
+: !!?addr!! ( -- ) to-style# @ -1 = -2056 and throw ;
+
+: u-to ( n uvalue-xt -- ) !!?addr!! >body @ next-task +  !-table to-!exec ;
 opt: ( uvalue-xt to-xt -- )
-    drop >body @ postpone useraddr , !-table to-!, ;
+    !!?addr!! drop >body @ postpone useraddr , !-table to-!, ;
 \g u-to is the to-method for user values; it's xt is only
 \g there to be consumed by @code{set-to}.
 : u-compile, ( xt -- )  >body @ postpone useraddr , postpone @ ;
