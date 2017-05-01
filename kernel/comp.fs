@@ -692,11 +692,15 @@ defer 0-adjust-locals-size ( -- )
     \ concat two xts into one
     >r >r :noname r> compile, r> compile, postpone ; ;
 
-: recognizer ( int-xt comp-xt post-xt "name" -- )
-    \G create a new recognizer table
+: dt-token ( int-xt comp-xt post-xt -- dt-token )
+    \G create a new unnamed recognizer token
     >r  ['] drop swap concat >r
     >r :noname r> compile, postpone ;
-    r> set-optimizer r> set-lit,  Constant ;
+    r> set-optimizer r> set-lit, ;
+
+: recognizer ( int-xt comp-xt post-xt "name" -- )
+    \G create a new recognizer table
+    dt-token constant ;
 
 \ does>
 
