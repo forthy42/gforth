@@ -349,10 +349,14 @@ event: :>sleep  stop ;
     \G Wake a task
     <event :>wake event> ;
 synonym wake restart ( task -- )
+
+event: :>restart ( task -- ) restart ;
+
 : halt ( task -- )
     \G Stop a task
     <event :>sleep event> ;
 synonym sleep halt ( task -- )
+
 : kill ( task -- )
     \G Kill a task
     user' pthread-id +
@@ -370,19 +374,15 @@ synonym sleep halt ( task -- )
 : eflit, ( x -- ) :>flit { f^ r } r float event+ float move ;
 \G sends a float
 
+: event| ( task -- )
+    \G send an event and block
+    dup up@ = IF \ don't block, just eval if we send to ourselves
+	event> ?events
+    ELSE
+	up@ elit, :>restart event> stop
+    THEN ;
+
 \ User deferred words, user values
-
-[IFUNDEF] UValue
-: u-to >body @ up@ + ! ;
-opt: drop >body @ postpone useraddr , postpone ! ;
-
-: UValue ( "name" -- )
-    \G Define a per-thread value
-    Create cell uallot ,
-    [: @ up@ + @ ;] set-does>
-    ['] u-to set-to
-    [: >body @ postpone useraddr , postpone @ ;] set-optimizer ;
-[THEN]
 
 : udefer@ ( xt -- )
     >body @ up@ + @ ;
