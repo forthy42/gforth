@@ -17,15 +17,20 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: scope-split ( addr u -- addr' u' wid/0 )
-    ':' $split dup 0= IF  nip  EXIT  THEN
-    2swap find-name dup IF
-	dup >does-code [ ' forth >does-code ]L = IF
-	    >body  EXIT  THEN  drop 0  THEN ;
+: find-name?in ( addr u wid/0 -- nt/0 )
+     ?dup-IF  find-name-in  ELSE  find-name  THEN ;
+
+: scope-split ( addr u wid -- nt/0 )
+    BEGIN  >r
+	':' $split dup 0= IF  2drop r> find-name?in  EXIT  THEN
+	2swap r> find-name?in
+	dup WHILE
+	    dup >does-code [ ' forth >does-code ]L = WHILE
+		>body  REPEAT  THEN
+    drop 2drop 0 ;
 
 : rec:scope ( addr u -- xt | r:fail )
-    scope-split dup IF find-name-in dup 0= IF  drop  r:fail  THEN
-    ELSE  drop 2drop r:fail  THEN ;
+    0 scope-split dup 0= IF  drop  r:fail  THEN ;
 
 get-recognizers 1+ ' rec:scope -rot set-recognizers
 
