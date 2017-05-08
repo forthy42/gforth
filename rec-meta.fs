@@ -18,8 +18,8 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : rec:meta ( addr u -- xt r:to | r:fail )
-    \G words prefixed with @var{recognizer}@code{?} are treated as if
-    \G preceeded by @code{rec:}@var{recognizer}
+    \G words prefixed with @var{recognizer}@code{?} are processed by
+    \G @code{rec:}@var{recognizer} to disambiguate recognizers.
     '?' $split dup 0= IF  2drop
     ELSE
 	2swap [: ." rec:" type ;] $tmp find-name ?dup-IF
