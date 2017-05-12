@@ -463,7 +463,7 @@ Defer scale-me ' terminal-scale-me is scale-me
 	r@ action @ \ dup -1 <> IF  dup .  THEN
 	case
 	    1 of
-		r@ eventtime 2@ r@ eventtime' 2@ d- glitch# d>
+		r@ downtime 2@ glitch# d>
 		IF  ?toggle  THEN
 		r@ action on  endof
 	    3 of r@ action on  endof \ cancel

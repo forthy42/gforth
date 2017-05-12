@@ -265,8 +265,8 @@ DOES> ( x-key -- addr u )
     e.x l@ e.y l@ *input y0 ! *input x0 ! ; handler-class to DoButtonPress
 :noname  1 *input action ! 0 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
-    e.time l@ s>d *input eventtime 2@ d- *input downtime 2!
-    e.time @ s>d *input eventtime 2!
+    e.time @ s>d 2dup *input eventtime 2@ d- *input downtime 2!
+    *input eventtime 2!
     e.x l@ *input x0 ! e.y l@ *input y0 ! ; handler-class to DoButtonRelease
 :noname
     *input pressure @ IF
