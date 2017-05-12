@@ -879,8 +879,9 @@ installdirs-indep: 	mkinstalldirs
 uninstall:	FORCE
 		$(NORMAL_UNINSTALL)
 		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(includedir)/gforth/$(VERSION)/$(machine)
-		-for i in "$(EXT)" -$(VERSION)$(EXT) -$(ARCH)$(EXT) -$(VERSION)-$(ARCH)$(EXT); do $(RM) $(bindir)/gforth-$$i $(bindir)/gforth-fast-$$i $(bindir)/gforth-itc-$$i $(bindir)/gforthmi-$$i $(bindir)/vmgen-$$i; done
-		@echo -e "To remove Gforth completely, type\n$(RM) -rf $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth"
+		-for i in "$(EXT)" -$(VERSION)$(EXT) -$(machine)$(EXT) -$(VERSION)-$(machine)$(EXT); do $(RM) $(bindir)/gforth$$i $(bindir)/gforth-fast$$i $(bindir)/gforth-itc$$i $(bindir)/gforth-ditc$$i $(bindir)/gforthmi$$i ; done
+		-$(RM) $(bindir)/vmgen-$(VERSION)
+		@echo "To remove Gforth completely, type\n$(RM) -rf $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth $(bindir)/vmgen"
 
 # Extra dependency for libraries that use libc
 $(buildccdir)/libgfmmap.la: $(buildccdir)/libgflibc.la
