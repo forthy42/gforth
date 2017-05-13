@@ -314,7 +314,7 @@ here wc-table - Constant #wc-table
 	s" LC_CTYPE" getenv 2dup d0= IF  2drop
 	    s" LANG" getenv 2dup d0= IF  2drop
 		s" C"  THEN THEN THEN
-    s" UTF-8" search nip nip
+    2dup s" UTF-8" search >r 2drop s" utf8" search nip nip r> or
     IF  set-encoding-utf-8  ELSE  set-encoding-fixed-width  THEN ;
 
 environment-wordlist set-current
