@@ -1,7 +1,7 @@
 /*
   This is the machine-specific part for Intel 386 compatible processors
 
-  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2012,2013 Free Software Foundation, Inc.
+  Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2012,2013,2014,2016 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-#if (((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__==3))) && defined(FORCE_REG)
+#if (((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>=3))) && defined(FORCE_REG)
 #if !defined(USE_TOS) && !defined(USE_NO_TOS)
 #define USE_TOS
 #endif
@@ -75,13 +75,6 @@
 /* this works with 2.5.7; nothing works with 2.5.8 */
 #  define IPREG asm("%esi")
 #  define SPREG asm("%edi")
-#  if 0
-#   ifdef USE_TOS
-#    define CFAREG asm("%ecx")
-#   else
-#    define CFAREG asm("%edx")
-#   endif
-#  endif
 # else /* !gcc-2.5.x */
 /* this works with 2.6.3 (and quite well, too) */
 /* since this is not very demanding, it's the default for other gcc versions */
@@ -99,7 +92,7 @@
 #    define TOSREG asm("%ecx")
 /* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
 #   else /* !(gcc-2.95 or gcc-3.x) */
-#    if (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2)
+#    if (__GNUC__>4 || (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2))
 #     if defined(PIC) || defined(__ANDROID__)
 #      define SPREG asm("%esi")
 #      define IPREG asm("%edi")
@@ -108,7 +101,7 @@
 #       define IPREG asm("%ebx")
 #       define SPREG asm("%esi")
 #       define RPREG asm("%edi")
-#       if(__GNUC_MINOR__>=6)
+#       if (__GNUC__>4 || (__GNUC_MINOR__>=6 && __GNUC_MINOR__!=8))
 #        define TOSREG asm("%ebp")
 #       else
 #        define TOSREG asm("%ecx")
@@ -117,7 +110,7 @@
 #      else
 #       define IPREG asm("%edi")
 #       define SPREG asm("%esi")
-#       if(__GNUC_MINOR__>=6)
+#       if(__GNUC__>4 || (__GNUC_MINOR__>=6))
 #        define TOSREG asm("%ebp")
 #       else
 #        define TOSREG asm("%ecx")
