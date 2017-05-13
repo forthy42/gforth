@@ -11,5 +11,5 @@ before_install: ./install-deps.sh
 script:
   - ./autogen.sh
   - if [ "${TRAVIS_OS_NAME}" = osx ]; then export CC=gcc-7; fi
-  - ./configure --enable-lib CC="$CC $M32"
+  - ./configure CC="$CC $M32"
   - make
