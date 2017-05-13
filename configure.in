@@ -255,8 +255,10 @@ case "$host_cpu" in
 		machine=386
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		CFLAGS_1="$CFLAGS"
-		CFLAGS="$CFLAGS -march=pentium"
+		CFLAGS="$CFLAGS -march=pentium -mtune=generic"
+		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -march=pentium")
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
+		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
 		;;
 	x86_64)
 		case $CC
@@ -564,62 +566,20 @@ AC_DEFINE_UNQUOTED(SMALL_OFF_T,$ac_small_off_t,[1 if off_t fits in a Cell])
 ENGINE_FLAGS=
 AC_SUBST(ENGINE_FLAGS)
 
-# Try if GCC understands -fno-gcse
 
-AC_MSG_CHECKING([if $CC understands -fno-gcse])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-gcse"
-AC_TRY_COMPILE(,,ac_nogcse=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-gcse",ac_nogcse=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_nogcse)
+CHECKFLAGS="no-gcse caller-saves no-defer-pop no-inline wrapv char-unsigned no-strict-aliasing no-cse-follow-jumps no-reorder-blocks no-reorder-blocks-and-partition no-toplevel-reorder no-trigraphs align-labels=1 align-loops=1 align-jumps=1 no-delete-null-pointer-checks"
 
-# Try if GCC understands -fno-strict-aliasing
-AC_MSG_CHECKING([if $CC understands -fno-strict-aliasing])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-strict-aliasing"
-AC_TRY_COMPILE(,,ac_nostrictaliasing=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-strict-aliasing",ac_nostrictaliasing=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_nostrictaliasing)
-
-# Try if GCC understands -fno-crossjumping
-AC_MSG_CHECKING([if $CC understands -fno-crossjumping])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-crossjumping"
-AC_TRY_COMPILE(,,ac_nocrossjumping=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-crossjumping",ac_nocrossjumping=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_nocrossjumping)
-
-# Try if GCC understands -fno-reorder-blocks
-AC_MSG_CHECKING([if $CC understands -fno-reorder-blocks])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -fno-reorder-blocks"
-AC_TRY_COMPILE(,,ac_noreorder_blocks=yes;ENGINE_FLAGS="$ENGINE_FLAGS -fno-reorder-blocks",ac_noreorder_blocks=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_noreorder_blocks)
-
-# Try if GCC understands -falign-labels=1
-AC_MSG_CHECKING([if $CC understands -falign-labels=1])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -falign-labels=1"
-AC_TRY_COMPILE(,,ac_align_labels=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-labels=1",ac_align_labels=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_align_labels)
-
-# Try if GCC understands -falign-loops=1
-AC_MSG_CHECKING([if $CC understands -falign-loops=1])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -falign-loops=1"
-AC_TRY_COMPILE(,,ac_align_loops=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-loops=1",ac_align_loops=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_align_loops)
-
-# Try if GCC understands -falign-jumps=1
-AC_MSG_CHECKING([if $CC understands -falign-jumps=1])
-CFLAGS_1="$CFLAGS"
-CFLAGS="$CFLAGS -falign-jumps=1"
-AC_TRY_COMPILE(,,ac_align_jumps=yes;ENGINE_FLAGS="$ENGINE_FLAGS -falign-jumps=1",ac_align_jumps=no)
-CFLAGS="$CFLAGS_1"
-AC_MSG_RESULT($ac_align_jumps)
+for i in $CHECKFLAGS
+do
+    AC_MSG_CHECKING([if $CC understands -f$i])
+    ac_i=$(echo ac_$i | tr '=\-' '__')
+    CFLAGS_1="$CFLAGS"
+    CFLAGS="$CFLAGS -f$i"
+    AC_TRY_COMPILE(,,eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS -f$i",eval ac_$ibar=no)
+    CFLAGS="$CFLAGS_1"
+    ac_result=$(eval echo "\$$ac_i")
+    AC_MSG_RESULT($ac_result)
+done
 
 # Try if GCC understands __attribute__((unused))
 AC_MSG_CHECKING([how to suppress 'unused variable' warnings])
