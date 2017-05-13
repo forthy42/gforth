@@ -7,7 +7,7 @@ install_linux() {
       sudo apt-get install libtool-bin:i386
       sudo apt-get --fix-missing install gcc-multilib libltdl7-dev:i386 libsoil-dev:i386 libffi-dev:i386
   else
-      sudo apt-get install libtool-bin libsoil-dev libltdl7-dev libffi-dev
+      sudo apt-get install libsoil-dev libltdl7-dev libffi-dev
   fi
 }
 
