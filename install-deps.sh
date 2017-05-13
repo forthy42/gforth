@@ -14,7 +14,6 @@ install_linux() {
 install_osx() {
   brew tap zchee/homebrew-zsh
   brew update > /dev/null
-  brew install yodl
   brew install gforth
   brew install gcc
 }
