@@ -179,6 +179,7 @@ object class
     drop 0 XCreateWindowEvent-height value: e.c-height
     drop 0 XButtonEvent-x            lvalue: e.x
     drop 0 XButtonEvent-y            lvalue: e.y
+    drop 0 XButtonEvent-button       lvalue: e.button
     drop 0 XKeyEvent-state           lvalue: e.state
     drop 0 XKeyEvent-keycode         lvalue: e.code \ key and button
     drop 0 XEvent var event

@@ -349,7 +349,7 @@ MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs			\
 	minos2/ftgl-helper.fs minos2/ftgl-sample.fs minos2/widgets.fs	\
 	minos2/actors.fs minos2/x11-actors.fs minos2/widgets-test.fs	\
 	minos2/mts-tools.fs minos2/mkv-tools.fs minos2/omx-example.fs	\
-	minos2/mkv-tags.fs
+	minos2/mkv-tags.fs minos2/android-recorder.fs
 
 MINOS2_BIN = minos2/ascii.png minos2/button.png minos2/button2.png	\
 	minos2/button3.png
@@ -385,8 +385,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC)			\
 	unix/jni-location.fs unix/sensors.fs unix/gdi.fs unix/user.fs	\
 	unix/win32.fs date.fs script.fs wf.fs traceall.fs		\
 	rec-scope.fs rec-env.fs rec-meta.fs notfound.fs utf16.fs	\
-	archive.fs cilk.fs sections.fs fixfiles.fs			\
-	minos2/android-recorder.fs
+	archive.fs cilk.fs sections.fs fixfiles.fs bits.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \

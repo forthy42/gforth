@@ -17,7 +17,24 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+require bits.fs
+
+handler-class class
+    2field: lastpos
+    field: lasttime
+    field: buttonmask
+    field: flags
+    value: clicks
+end-class x11-handler
+
+0 Constant #pending
+1 Constant #lastdown
+
 also x11
+
+#060 Value sameclick  \ every edge within 60ms is merged into one click
+#150 Value twoclicks  \ every edge further apart than 150ms into separate clicks
+#6 Value samepos      \ position difference square-summed less than is same pos
 
 Create x-key>ekey#
 XK_BackSpace , #del ,
@@ -57,15 +74,32 @@ DOES> ( x-key -- addr u )
     ELSE   look_key l@ x-key>ekey# ?dup-IF  top-act .ekeyed  THEN  THEN
 ; handler-class to DoKeyPress
 :noname ; handler-class to DoKeyRelease
-:noname  0 *input action ! 1 *input pressure !
-    *input eventtime 2@ *input eventtime' 2!
-    e.time @ s>d *input eventtime 2!  0. *input downtime 2!
-    e.x l@ e.y l@ *input y0 ! *input x0 ! ; handler-class to DoButtonPress
-:noname  1 *input action ! 0 *input pressure !
-    *input eventtime 2@ *input eventtime' 2!
-    e.time @ s>d 2dup *input eventtime 2@ d- *input downtime 2!
-    *input eventtime 2!
-    e.x l@ *input x0 ! e.y l@ *input y0 ! ; handler-class to DoButtonRelease
+: samepos? ( x y -- flag )
+    lastpos 2@ >r swap r> - >r - dup * r> dup * + samepos < ;
+: sametime? ( deltatime edge -- flag )
+    >r sameclick twoclick r> select < ;
+: send-clicks ( -- )
+    lastpos 2@ buttonmask @ clicks top-act .clicked ;
+:noname ( -- )
+    e.time dup lasttime !@ - true sametime?
+    IF  e.x e.y samepos?
+	IF  flags #lastdown bit@
+	    IF    e.button buttonmask +bit
+	    ELSE  send-clicks  flags #lastdown +bit
+	    THEN  EXIT  THEN   event !xyclick flags #pending -bit
+    THEN  flags #pending bit@  IF  1 +to clicks  THEN
+    1 event sendclick flags #lastdown +bit
+; handler-class to DoButtonPress
+:noname ( -- )
+    e.time dup lasttime !@ - false sametime?
+    IF  e.x e.y samepos?
+	IF  flags #lastdown bit@ 0=
+	    IF    e.button buttonmask -bit
+	    ELSE  send-clicks  flags #lastdown -bit
+	    THEN  EXIT  THEN   event !xyclick flags #pending -bit
+    THEN  flags #pending bit@  IF  1 +to clicks  THEN
+    1 event sendclick flags #lastdown -bit
+; handler-class to DoButtonRelease
 :noname
     *input pressure @ IF
 	2 *input action !
