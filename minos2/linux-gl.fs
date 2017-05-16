@@ -19,6 +19,7 @@
 
 require unix/x.fs
 require mini-oof2.fs
+require struct-val.fs
 
 also x11
 
@@ -166,26 +167,26 @@ Variable level#
 \ handle X11 events
 
 object class
-    drop 0 XGenericEvent-type sizeof XGenericEvent-type var e.type
-    drop 0 XGenericEvent-serial sizeof XGenericEvent-serial var e.serial
-    drop 0 XGenericEvent-send_event sizeof XGenericEvent-send_event var e.send_event
-    drop 0 XGenericEvent-display sizeof XGenericEvent-display var e.display
-    drop 0 XAnyEvent-window sizeof XAnyEvent-window var e.window
-    drop 0 XExposeEvent-width sizeof XExposeEvent-width var e.r-width
-    drop 0 XExposeEvent-height sizeof XExposeEvent-height var e.r-height
-    drop 0 XMotionEvent-time sizeof XMotionEvent-time var e.time
-    drop 0 XCreateWindowEvent-width sizeof XCreateWindowEvent-width var e.c-width
-    drop 0 XCreateWindowEvent-height sizeof XCreateWindowEvent-height var e.c-height
-    drop 0 XButtonEvent-x sizeof XButtonEvent-x var e.x
-    drop 0 XButtonEvent-y sizeof XButtonEvent-y var e.y
-    drop 0 XKeyEvent-state sizeof XKeyEvent-state var e.state
-    drop 0 XKeyEvent-keycode sizeof XKeyEvent-keycode var e.code \ key and button
+    drop 0 XGenericEvent-type        lvalue: e.type
+    drop 0 XGenericEvent-serial      value: e.serial
+    drop 0 XGenericEvent-send_event  lvalue: e.send_event
+    drop 0 XGenericEvent-display     value: e.display
+    drop 0 XAnyEvent-window          value: e.window
+    drop 0 XExposeEvent-width        lvalue: e.r-width
+    drop 0 XExposeEvent-height       lvalue: e.r-height
+    drop 0 XMotionEvent-time         value: e.time
+    drop 0 XCreateWindowEvent-width  value: e.c-width
+    drop 0 XCreateWindowEvent-height value: e.c-height
+    drop 0 XButtonEvent-x            lvalue: e.x
+    drop 0 XButtonEvent-y            lvalue: e.y
+    drop 0 XKeyEvent-state           lvalue: e.state
+    drop 0 XKeyEvent-keycode         lvalue: e.code \ key and button
     drop 0 XEvent var event
     $100 var look_chars
     4 var look_key
     4 var comp_stat
     method DoNull \ doesn't exist
-    method DoOne  \ doesn't exit, either
+    method DoOne  \ doesn't exist, either
     method DoKeyPress
     method DoKeyRelease
     method DoButtonPress
@@ -228,23 +229,56 @@ Variable exposed
 
 : $, ( addr u -- )  here over 1+ allot place ;
 
+also x11
+
+: xmeta@ ( state -- meta ) >r
+    r@ ShiftMask   and 0<> 1 and
+    r@ Mod1Mask    and 0<> 2 and or
+    r> ControlMask and 0<> 4 and or ;
+
+: +meta ( addr u -- addr' u' ) \ insert meta information
+    >r over c@ #esc <> IF  rdrop  EXIT  THEN
+    r> dup 0= IF  drop  EXIT  THEN  '1' + \ no meta, don't insert
+    [: >r 1- 2dup + c@ >r
+	over 1+ c@ '[' = IF
+	    2dup 1- + c@ '9' 1+ '0' within
+	    IF  type ." 1;"  ELSE  type ." ;"  THEN
+	ELSE  type  THEN
+    r> r> emit emit ;] $tmp ;
+
 Create x-key>ekey \ very minimal set for a start
-$FF08 , "\b" $,
-$FF09 , "\t" $,
-$FF0D , "\r" $,
-$FF50 , "\e[H" $,
-$FF51 , "\e[D" $,
-$FF52 , "\e[A" $,
-$FF53 , "\e[C" $,
-$FF54 , "\e[B" $,
-$FF55 , "\e[5~" $,
-$FF56 , "\e[6~" $,
-$FFFF , "\b" $, \ is not delete, is backspace!
+XK_BackSpace , "\x7F" $,
+XK_Tab       , "\t" $,
+XK_Linefeed  , "\n" $,
+XK_Return    , "\r" $,
+XK_Home      , "\e[H" $,
+XK_Left      , "\e[D" $,
+XK_Up        , "\e[A" $,
+XK_Right     , "\e[C" $,
+XK_Down      , "\e[B" $,
+XK_Insert    , "\e[2~" $,
+XK_Delete    , "\e[3~" $,
+XK_Prior     , "\e[5~" $,
+XK_Next      , "\e[6~" $,
+XK_F1        , "\eOP" $,
+XK_F2        , "\eOQ" $,
+XK_F3        , "\eOR" $,
+XK_F4        , "\eOS" $,
+XK_F5        , "\e[15~" $,
+XK_F6        , "\e[17~" $,
+XK_F7        , "\e[18~" $,
+XK_F8        , "\e[19~" $,
+XK_F9        , "\e[20~" $,
+XK_F10       , "\e[21~" $,
+XK_F12       , "\e[22~" $,
+XK_F12       , "\e[23~" $,
 0 , 0 c,
 DOES> ( x-key -- addr u )
   swap >r
   BEGIN  dup cell+ swap @ dup r@ <> and WHILE  count +  REPEAT
-  count rdrop ;
+  count rdrop e.state xmeta@ +meta ;
+
+previous
 
 : getwh ( -- )
     0 0 dpy-w @ dpy-h @ glViewport ;
@@ -254,6 +288,7 @@ DOES> ( x-key -- addr u )
 :noname ; handler-class to DoNull \ doesn't exist
 :noname ; handler-class to DoOne  \ doesn't exit, either
 :noname  ic event look_chars $FF look_key comp_stat  XUtf8LookupString
+    dup 1 = IF  look_chars c@ dup $7F = swap 8 = or +  THEN \ we want the other delete
     ?dup-IF  look_chars swap
     ELSE   look_key l@ x-key>ekey  THEN
     2dup "\e" str= IF  2drop -1 level# +!  ELSE  inskeys  THEN
@@ -262,21 +297,21 @@ DOES> ( x-key -- addr u )
 :noname  0 *input action ! 1 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
     e.time @ s>d *input eventtime 2!  0. *input downtime 2!
-    e.x l@ e.y l@ *input y0 ! *input x0 ! ; handler-class to DoButtonPress
+    e.x e.y *input y0 ! *input x0 ! ; handler-class to DoButtonPress
 :noname  1 *input action ! 0 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
     e.time @ s>d 2dup *input eventtime 2@ d- *input downtime 2!
     *input eventtime 2!
-    e.x l@ *input x0 ! e.y l@ *input y0 ! ; handler-class to DoButtonRelease
+    e.x *input x0 ! e.y *input y0 ! ; handler-class to DoButtonRelease
 :noname
     *input pressure @ IF
 	2 *input action !
 	e.time @ s>d *input eventtime 2@ d- *input downtime 2!
-	e.x l@ e.y l@ *input y0 ! *input x0 !
+	e.x e.y *input y0 ! *input x0 !
     THEN ; handler-class to DoMotionNotify
 :noname ; handler-class to DoEnterNotify
 :noname ; handler-class to DoLeaveNotify
-:noname e.window @ focus-ic ; handler-class to DoFocusIn
+:noname e.window focus-ic ; handler-class to DoFocusIn
 :noname ; handler-class to DoFocusOut
 :noname ; handler-class to DoKeymapNotify
 :noname exposed on ; handler-class to DoExpose
@@ -289,11 +324,11 @@ DOES> ( x-key -- addr u )
 :noname ; handler-class to DoMapNotify
 :noname ; handler-class to DoMapRequest
 :noname ; handler-class to DoReparentNotify
-:noname  e.c-width l@ dpy-w ! e.c-height l@ dpy-h !
+:noname  e.c-width dpy-w ! e.c-height dpy-h !
     ctx IF  config-changed  ELSE  getwh  THEN ; handler-class to DoConfigureNotify
 :noname ; handler-class to DoConfigureRequest
 :noname ; handler-class to DoGravityNotify
-:noname  e.r-width l@ dpy-w ! e.r-height l@ dpy-h ! config-changed ; handler-class to DoResizeRequest
+:noname  e.r-width dpy-w ! e.r-height dpy-h ! config-changed ; handler-class to DoResizeRequest
 :noname ; handler-class to DoCirculateNotify
 :noname ; handler-class to DoCirculateRequest
 :noname ; handler-class to DoPropertyNotify
@@ -305,7 +340,7 @@ DOES> ( x-key -- addr u )
 :noname ; handler-class to DoMappingNotify
 :noname ; handler-class to DoGenericEvent
 
-: handle-event ( -- ) e.type l@ cells o#+ [ -1 cells , ] @ + perform ;
+: handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
 : get-events ( -- )  event-handler @ >o
     BEGIN  dpy XPending  WHILE  dpy event XNextEvent drop
 	    event 0 XFilterEvent 0= IF  handle-event  THEN

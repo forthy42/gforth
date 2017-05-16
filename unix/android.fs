@@ -223,11 +223,11 @@ Create direct-key# 0 c,
     0
     meta-key# @ AMETA_SHIFT_ON and 0<> 1 and  or
     meta-key# @ AMETA_ALT_ON   and 0<> 2 and  or
-    meta-key# @ AMETA_CTRL_ON  and 0<> 4 and  or  '1' + ;
+    meta-key# @ AMETA_CTRL_ON  and 0<> 4 and  or ;
 
 : +meta ( addr u -- addr' u' ) \ insert meta information
-    over c@ #esc <> ?EXIT
-    meta@ dup '1' = IF  drop  EXIT  THEN \ no meta, don't insert
+    >r over c@ #esc <> IF  rdrop  EXIT  THEN
+    r> dup 0= IF  drop  EXIT  THEN  '1' + \ no meta, don't insert
     [: >r 1- 2dup + c@ >r
 	over 1+ c@ '[' = IF
 	    2dup 1- + c@ '9' 1+ '0' within
@@ -248,7 +248,7 @@ Create direct-key# 0 c,
     case
 	AKEYCODE_MENU of  togglekb s" "  endof
 	AKEYCODE_BACK of  aback    s" "  endof
-	akey>ekey +meta 0
+	akey>ekey meta@ +meta 0
     endcase ;
 
 16 Value looper-to#

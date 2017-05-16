@@ -36,16 +36,17 @@ vocabulary minos  also minos definitions
 
 object class
     value: caller-w
-    method clicked
-    method keyed
-    method inside?
-    method focus
-    method defocus
-    method show
-    method hide
-    method get
-    method set
-    method show-you
+    method clicked ( x y b n -- )
+    method ukeyed ( addr u -- ) \ printable unicode characters
+    method ekeyed ( ekey -- ) \ non-printable keys
+    method inside? ( x y -- flag )
+    method focus ( -- )
+    method defocus ( -- )
+    method show ( -- )
+    method hide ( -- )
+    method get ( -- something )
+    method set ( something -- )
+    method show-you ( -- )
 end-class actor
 
 object class
@@ -425,6 +426,8 @@ $10 stack: box-depth
     <draw-image     draw-image     draw-image>
     <draw-text      draw-text      render>
     sync ;
+
+require actors.fs
 
 previous previous previous
 set-current
