@@ -172,11 +172,15 @@ object class
     drop 0 XGenericEvent-send_event  lvalue: e.send_event
     drop 0 XGenericEvent-display     value: e.display
     drop 0 XAnyEvent-window          value: e.window
-    drop 0 XExposeEvent-width        lvalue: e.r-width
-    drop 0 XExposeEvent-height       lvalue: e.r-height
+    drop 0 XResizeRequestEvent-width     lvalue: e.r-width
+    drop 0 XResizeRequestEvent-height    lvalue: e.r-height
+    drop 0 XConfigureRequestEvent-width  lvalue: e.c-width
+    drop 0 XConfigureRequestEvent-height lvalue: e.c-height
+    drop 0 XCreateWindowEvent-width      lvalue: e.w-width
+    drop 0 XCreateWindowEvent-height     lvalue: e.w-height
+    drop 0 XExposeEvent-width            lvalue: e.e-width
+    drop 0 XExposeEvent-height           lvalue: e.e-height
     drop 0 XMotionEvent-time         value: e.time
-    drop 0 XCreateWindowEvent-width  value: e.c-width
-    drop 0 XCreateWindowEvent-height value: e.c-height
     drop 0 XButtonEvent-x            lvalue: e.x
     drop 0 XButtonEvent-y            lvalue: e.y
     drop 0 XButtonEvent-button       lvalue: e.button
@@ -286,60 +290,60 @@ previous
 : screen-orientation ( -- 0/1 )
     dpy-w @ dpy-h @ > negate ;
 
-:noname ; handler-class to DoNull \ doesn't exist
-:noname ; handler-class to DoOne  \ doesn't exit, either
+' noop handler-class to DoNull \ doesn't exist
+' noop handler-class to DoOne  \ doesn't exit, either
 :noname  ic event look_chars $FF look_key comp_stat  XUtf8LookupString
     dup 1 = IF  look_chars c@ dup $7F = swap 8 = or +  THEN \ we want the other delete
     ?dup-IF  look_chars swap
     ELSE   look_key l@ x-key>ekey  THEN
     2dup "\e" str= IF  2drop -1 level# +!  ELSE  inskeys  THEN
 ; handler-class to DoKeyPress
-:noname ; handler-class to DoKeyRelease
+' noop handler-class to DoKeyRelease
 :noname  0 *input action ! 1 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
-    e.time @ s>d *input eventtime 2!  0. *input downtime 2!
+    e.time s>d *input eventtime 2!  0. *input downtime 2!
     e.x e.y *input y0 ! *input x0 ! ; handler-class to DoButtonPress
 :noname  1 *input action ! 0 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
-    e.time @ s>d 2dup *input eventtime 2@ d- *input downtime 2!
+    e.time s>d 2dup *input eventtime 2@ d- *input downtime 2!
     *input eventtime 2!
     e.x *input x0 ! e.y *input y0 ! ; handler-class to DoButtonRelease
 :noname
     *input pressure @ IF
 	2 *input action !
-	e.time @ s>d *input eventtime 2@ d- *input downtime 2!
+	e.time s>d *input eventtime 2@ d- *input downtime 2!
 	e.x e.y *input y0 ! *input x0 !
     THEN ; handler-class to DoMotionNotify
-:noname ; handler-class to DoEnterNotify
-:noname ; handler-class to DoLeaveNotify
+' noop handler-class to DoEnterNotify
+' noop handler-class to DoLeaveNotify
 :noname e.window focus-ic ; handler-class to DoFocusIn
-:noname ; handler-class to DoFocusOut
-:noname ; handler-class to DoKeymapNotify
+' noop handler-class to DoFocusOut
+' noop handler-class to DoKeymapNotify
 :noname exposed on ; handler-class to DoExpose
 :noname exposed on ; handler-class to DoGraphicsExpose
-:noname ; handler-class to DoNoExpose
-:noname ; handler-class to DoVisibilityNotify
-:noname ; handler-class to DoCreateNotify
-:noname ; handler-class to DoDestroyNotify
-:noname ; handler-class to DoUnmapNotify
-:noname ; handler-class to DoMapNotify
-:noname ; handler-class to DoMapRequest
-:noname ; handler-class to DoReparentNotify
+' noop handler-class to DoNoExpose
+' noop handler-class to DoVisibilityNotify
+' noop handler-class to DoCreateNotify
+' noop handler-class to DoDestroyNotify
+' noop handler-class to DoUnmapNotify
+' noop handler-class to DoMapNotify
+' noop handler-class to DoMapRequest
+' noop handler-class to DoReparentNotify
 :noname  e.c-width dpy-w ! e.c-height dpy-h !
     ctx IF  config-changed  ELSE  getwh  THEN ; handler-class to DoConfigureNotify
-:noname ; handler-class to DoConfigureRequest
-:noname ; handler-class to DoGravityNotify
+' noop handler-class to DoConfigureRequest
+' noop handler-class to DoGravityNotify
 :noname  e.r-width dpy-w ! e.r-height dpy-h ! config-changed ; handler-class to DoResizeRequest
-:noname ; handler-class to DoCirculateNotify
-:noname ; handler-class to DoCirculateRequest
-:noname ; handler-class to DoPropertyNotify
-:noname ; handler-class to DoSelectionClear
-:noname ; handler-class to DoSelectionRequest
-:noname ; handler-class to DoSelectionNotify
-:noname ; handler-class to DoColormapNotify
-:noname ; handler-class to DoClientMessage
-:noname ; handler-class to DoMappingNotify
-:noname ; handler-class to DoGenericEvent
+' noop handler-class to DoCirculateNotify
+' noop handler-class to DoCirculateRequest
+' noop handler-class to DoPropertyNotify
+' noop handler-class to DoSelectionClear
+' noop handler-class to DoSelectionRequest
+' noop handler-class to DoSelectionNotify
+' noop handler-class to DoColormapNotify
+' noop handler-class to DoClientMessage
+' noop handler-class to DoMappingNotify
+' noop handler-class to DoGenericEvent
 
 : handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
 : get-events ( -- )  event-handler @ >o

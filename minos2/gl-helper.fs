@@ -44,7 +44,7 @@ s" os-type" environment? [IF]
 	    [THEN]
 	    also opengl
 
-	    require minos2/linux-gl.fs \ same voc stack effect as on android
+	    require linux-gl.fs \ same voc stack effect as on android
 	[THEN]
     [THEN]
 [THEN]

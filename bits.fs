@@ -34,7 +34,7 @@
 
 : bit-erase ( addr off len -- )
     dup 8 u>= IF
-	>r dup 7 and >r 3 rshift + r@ bits 1- over andc!
+	>r dup 7 and >r 3 rshift + r@ bits 1- over c@ and over c!
 	1+ 8 r> - r> swap -
 	dup 7 and >r 3 rshift 2dup erase +
 	0 r> THEN
@@ -42,7 +42,7 @@
 
 : bit-fill ( addr off len -- )
     dup 8 u>= IF
-	>r dup 7 and >r 3 rshift + r@ bits 1- invert over orc!
+	>r dup 7 and >r 3 rshift + r@ bits 1- invert over c@ or over c!
 	1+ 8 r> - r> swap -
 	dup 7 and >r 3 rshift 2dup $FF fill +
 	0 r> THEN

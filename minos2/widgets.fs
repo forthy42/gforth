@@ -380,14 +380,14 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     frot ymin f+  baseline fmax fdup to h 
     ry f+ fdup to y ;
 
-: vglue-step-d { f: gp f: ga f: rd f: rg f: ry -- gp ga rd' rg' ry' }
+: vglue-step-d { f: gp f: ga f: rd f: rg f: ry -- gp ga rd' rg' ry' od' }
     gp ga
     dglue@ g3>2 { f: ymin f: ya }
     rg ya f+ gp f* ga f/ fdup rd f- fswap rg ya f+
     frot ymin f+  baseline fmax fdup to d 
     fdup ry f+ fswap ;
 
-: vglue-step ( gp ga rd rg ry -- gp ga rd' rg' ry' )
+: vglue-step ( gp ga rd rg ry od -- gp ga rd' rg' ry' od )
     vglue-step-h vglue-step-d ;
 
 : vbox-resize1 { f: x f: w -- x w } x y w h d resize  x w ;
@@ -395,7 +395,7 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     x y w h d widget-resize
     vglue@ dglue@ glue+ g3>2 { f: hmin f: a }
     h hmin f- a 0e 0e y h f- 0e ['] vglue-step do-childs
-    fdrop fdrop fdrop fdrop fdrop
+    fdrop fdrop fdrop fdrop fdrop fdrop
     x w ['] vbox-resize1 do-childs fdrop fdrop ;
 
 ' vbox-resize vbox is resize
@@ -426,6 +426,8 @@ $10 stack: box-depth
     <draw-image     draw-image     draw-image>
     <draw-text      draw-text      render>
     sync ;
+
+0 Value top-widget
 
 require actors.fs
 

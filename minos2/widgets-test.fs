@@ -35,7 +35,7 @@ text new value t3
 {{ {{ f1 t1 }}z dup value z1 f2 t3 }}h dup value h1
 {{ f4 f5 }}h dup value h2
 }}v dup value h3
-f6 }}h Value htop
+f6 }}h to top-widget
 
 also freetype-gl
 48e FConstant fontsize#
@@ -82,16 +82,14 @@ previous
 
 : htop-resize ( -- )
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize ;
-: !widgets ( -- ) !t1 !t2 !t3 htop .htop-resize ;
+: !widgets ( -- ) !t1 !t2 !t3 top-widget .htop-resize ;
 
-: widgets-test ( -- ) htop .widget-draw ;
+: widgets-test ( -- ) top-widget .widget-draw ;
 
 also [IFDEF] android android [THEN]
 
 : widgets-demo ( -- )  [IFDEF] hidekb  hidekb [THEN]
     1 level# +!  !widgets widgets-test  BEGIN  >looper
-	?config-changer need-sync @ IF
-	    htop .htop-resize  widgets-test  need-sync off  THEN
     level# @ 0= UNTIL  need-sync on  need-show on ;
 
 previous
