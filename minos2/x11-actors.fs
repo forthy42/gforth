@@ -79,15 +79,15 @@ DOES> ( x-key -- addr u )
     ?dup-IF  look_chars swap top-act ?dup-IF  .ukeyed  ELSE  2drop  THEN
     ELSE   look_key l@ x-key>ekey# ?dup-IF
 	    top-act ?dup-IF  .ekeyed  ELSE  #esc = level# +!  THEN  THEN  THEN
-; handler-class to DoKeyPress
-' noop handler-class to DoKeyRelease
+; x11-handler to DoKeyPress
+' noop x11-handler to DoKeyRelease
 : samepos? ( x y -- flag )
     lastpos 2@ >r swap r> - >r - dup * r> dup * + samepos < ;
 : sametime? ( deltatime edge -- flag )
     >r sameclick twoclicks r> select < ;
 : send-clicks ( -- )
-    lastpos 2@ buttonmask @ clicks top-act ?dup-IF  .clicked
-    ELSE  2drop 2drop  THEN ;
+    lastpos 2@ swap s>f s>f buttonmask @ clicks top-act ?dup-IF  .clicked
+    ELSE  2drop fdrop fdrop  THEN ;
 : sendclick ( -- )  flags #pending +bit
     e.x e.y lastpos 2! ;
 :noname ( -- )
@@ -99,7 +99,7 @@ DOES> ( x-key -- addr u )
 	    THEN  EXIT  THEN   e.x e.y lastpos 2!  flags #pending -bit
     THEN  flags #pending bit@  IF  1 +to clicks  THEN
     1 sendclick flags #lastdown +bit
-; handler-class to DoButtonPress
+; x11-handler to DoButtonPress
 :noname ( -- )
     e.time dup lasttime !@ - false sametime?
     IF  e.x e.y samepos?
@@ -109,43 +109,43 @@ DOES> ( x-key -- addr u )
 	    THEN  EXIT  THEN   e.x e.y lastpos 2!  flags #pending -bit
     THEN  flags #pending bit@  IF  1 +to clicks  THEN
     1 sendclick flags #lastdown -bit
-; handler-class to DoButtonRelease
+; x11-handler to DoButtonRelease
 :noname
     *input pressure @ IF
 	2 *input action !
 	e.time @ s>d *input eventtime 2@ d- *input downtime 2!
 	e.x l@ e.y l@ *input y0 ! *input x0 !
-    THEN ; handler-class to DoMotionNotify
-' noop handler-class to DoEnterNotify
-' noop handler-class to DoLeaveNotify
-:noname e.window focus-ic ; handler-class to DoFocusIn
-' noop handler-class to DoFocusOut
-' noop handler-class to DoKeymapNotify
-:noname top-widget .widget-draw ; handler-class to DoExpose
-:noname top-widget .widget-draw ; handler-class to DoGraphicsExpose
-' noop handler-class to DoNoExpose
-' noop handler-class to DoVisibilityNotify
-:noname e.w-width e.w-height resize-widgets ; handler-class to DoCreateNotify
-' noop handler-class to DoDestroyNotify
-' noop handler-class to DoUnmapNotify
-' noop handler-class to DoMapNotify
-' noop handler-class to DoMapRequest
-' noop handler-class to DoReparentNotify
-:noname e.c-width  e.c-height resize-widgets ; handler-class to DoConfigureNotify
-' noop handler-class to DoConfigureRequest
-' noop handler-class to DoGravityNotify
-:noname e.r-width  e.r-height resize-widgets ; handler-class to DoResizeRequest
-' noop handler-class to DoCirculateNotify
-' noop handler-class to DoCirculateRequest
-' noop handler-class to DoPropertyNotify
-' noop handler-class to DoSelectionClear
-' noop handler-class to DoSelectionRequest
-' noop handler-class to DoSelectionNotify
-' noop handler-class to DoColormapNotify
-' noop handler-class to DoClientMessage
-' noop handler-class to DoMappingNotify
-' noop handler-class to DoGenericEvent
+    THEN ; x11-handler to DoMotionNotify
+' noop x11-handler to DoEnterNotify
+' noop x11-handler to DoLeaveNotify
+:noname e.window focus-ic ; x11-handler to DoFocusIn
+' noop x11-handler to DoFocusOut
+' noop x11-handler to DoKeymapNotify
+:noname top-widget .widget-draw ; x11-handler to DoExpose
+:noname top-widget .widget-draw ; x11-handler to DoGraphicsExpose
+' noop x11-handler to DoNoExpose
+' noop x11-handler to DoVisibilityNotify
+:noname e.w-width e.w-height resize-widgets ; x11-handler to DoCreateNotify
+' noop x11-handler to DoDestroyNotify
+' noop x11-handler to DoUnmapNotify
+' noop x11-handler to DoMapNotify
+' noop x11-handler to DoMapRequest
+' noop x11-handler to DoReparentNotify
+:noname e.c-width  e.c-height resize-widgets ; x11-handler to DoConfigureNotify
+' noop x11-handler to DoConfigureRequest
+' noop x11-handler to DoGravityNotify
+:noname e.r-width  e.r-height resize-widgets ; x11-handler to DoResizeRequest
+' noop x11-handler to DoCirculateNotify
+' noop x11-handler to DoCirculateRequest
+' noop x11-handler to DoPropertyNotify
+' noop x11-handler to DoSelectionClear
+' noop x11-handler to DoSelectionRequest
+' noop x11-handler to DoSelectionNotify
+' noop x11-handler to DoColormapNotify
+' noop x11-handler to DoClientMessage
+' noop x11-handler to DoMappingNotify
+' noop x11-handler to DoGenericEvent
 
-handler-class new event-handler !
+x11-handler new event-handler !
 
 previous

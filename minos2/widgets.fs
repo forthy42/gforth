@@ -36,10 +36,10 @@ vocabulary minos  also minos definitions
 
 object class
     value: caller-w
-    method clicked ( x y b n -- )
+    method clicked ( rx ry b n -- )
     method ukeyed ( addr u -- ) \ printable unicode characters
     method ekeyed ( ekey -- ) \ non-printable keys
-    method inside? ( x y -- flag )
+    method inside? ( rx ry -- flag )
     method focus ( -- )
     method defocus ( -- )
     method show ( -- )
@@ -52,6 +52,7 @@ end-class actor
 object class
     value: next-w
     value: parent-w
+    value: act
     sfvalue: x
     sfvalue: y
     sfvalue: w
@@ -252,7 +253,6 @@ Variable style-i#
 
 glue class
     value: child-w
-    value: act
     method resized
     method map
 end-class box

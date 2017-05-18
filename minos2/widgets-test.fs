@@ -22,20 +22,20 @@ require widgets.fs
 also minos
 
 glue*2 $FFFFFFDF 32e }}frame dup .button2 value f1
-glue*2 $FF7FFFFF 32e }}frame dup .button3 value f2
+glue*2 $FF7FFFFF 32e }}frame dup .button3 simple[] value f2
 glue*1 $FFFF7FFF 16e }}frame dup .button1 value f3
-glue*1 $FF7F7FFF 32e }}frame dup .button1 value f4
-glue*1 $7FFF7FFF 8e  }}frame dup .button1 value f5
-glue*2 $7FFFFFFF 16e }}frame dup .button2 value f6
+glue*1 $FF7F7FFF 32e }}frame dup .button1 simple[] value f4
+glue*1 $7FFF7FFF 8e  }}frame dup .button1 simple[] value f5
+glue*2 $7FFFFFFF 16e }}frame dup .button2 simple[] value f6
 text new value t1
 text new value t2
-text new value t3
+text new simple[] value t3
 {{ {{
-{{ f3 t2 }}z dup value z2
-{{ {{ f1 t1 }}z dup value z1 f2 t3 }}h dup value h1
-{{ f4 f5 }}h dup value h2
-}}v dup value h3
-f6 }}h to top-widget
+{{ f3 t2 }}z simple[] dup value z2
+{{ {{ f1 t1 }}z simple[] dup value z1 f2 t3 }}h box[] dup value h1
+{{ f4 f5 }}h box[] dup value h2
+}}v box[] dup value h3
+f6 }}h box[] to top-widget
 
 also freetype-gl
 48e FConstant fontsize#
