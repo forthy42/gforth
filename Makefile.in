@@ -385,7 +385,8 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC)			\
 	unix/jni-location.fs unix/sensors.fs unix/gdi.fs unix/user.fs	\
 	unix/win32.fs date.fs script.fs wf.fs traceall.fs		\
 	rec-scope.fs rec-env.fs rec-meta.fs notfound.fs utf16.fs	\
-	archive.fs cilk.fs sections.fs fixfiles.fs bits.fs
+	archive.fs cilk.fs sections.fs fixfiles.fs bits.fs		\
+	reverse-words.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
