@@ -345,9 +345,15 @@ previous
 ' noop handler-class to DoMappingNotify
 ' noop handler-class to DoGenericEvent
 
+0 Value timeoffset
+: XTime ( -- ntime ) utime #1000 um/mod nip ;
+: XTime@ ( -- ntime )
+    XTime timeoffset + ;
+
 : handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
 : get-events ( -- )  event-handler @ >o
     BEGIN  dpy XPending  WHILE  dpy event XNextEvent drop
+	    e.time XTime - to timeoffset
 	    event 0 XFilterEvent 0= IF  handle-event  THEN
     REPEAT o> ;
 
@@ -381,8 +387,10 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 	xptimeout 2@ #1000 * swap #1000000 / + poll 0>
     [THEN] ;
 
+Defer ?looper-timeouts ' noop is ?looper-timeouts
+
 : #looper ( delay -- )
-    >poll-events >r
+    ?looper-timeouts >poll-events >r
     dpy IF  dpy XPending IF  get-events ?events  rdrop EXIT  THEN  THEN
     xpollfds r> xpoll
     IF

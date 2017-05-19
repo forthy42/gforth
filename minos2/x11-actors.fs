@@ -29,10 +29,11 @@ end-class x11-handler
 
 0 Constant #pending
 1 Constant #lastdown
+2 Constant #lastclick
 
 also x11
 
-#060 Value sameclick  \ every edge within 60ms is merged into one click
+#040 Value sameclick  \ every edge within 60ms is merged into one click
 #150 Value twoclicks  \ every edge further apart than 150ms into separate clicks
 #6 Value samepos      \ position difference square-summed less than is same pos
 
@@ -83,32 +84,49 @@ DOES> ( x-key -- addr u )
 ' noop x11-handler to DoKeyRelease
 : samepos? ( x y -- flag )
     lastpos 2@ >r swap r> - >r - dup * r> dup * + samepos < ;
-: sametime? ( deltatime edge -- flag )
-    >r sameclick twoclicks r> select < ;
 : send-clicks ( -- )
-    lastpos 2@ swap s>f s>f buttonmask @ clicks top-act ?dup-IF  .clicked
+    lastpos 2@ swap s>f s>f buttonmask le-ul@ clicks top-act ?dup-IF  .clicked
     ELSE  2drop fdrop fdrop  THEN ;
-: sendclick ( -- )  flags #pending +bit
-    e.x e.y lastpos 2! ;
 :noname ( -- )
-    e.time dup lasttime !@ - true sametime?
-    IF  e.x e.y samepos?
-	IF  flags #lastdown bit@
-	    IF    e.button buttonmask +bit
-	    ELSE  send-clicks  flags #lastdown +bit
-	    THEN  EXIT  THEN   e.x e.y lastpos 2!  flags #pending -bit
-    THEN  flags #pending bit@  IF  1 +to clicks  THEN
-    1 sendclick flags #lastdown +bit
+    event-handler @ >o
+    flags #pending bit@ IF
+	XTime@ lasttime @ - sameclick >= IF
+	    1 +to clicks  send-clicks flags #pending -bit
+	    flags #lastclick +bit
+	THEN  o> EXIT
+    THEN
+    flags #lastclick bit@ IF
+	XTime@ lasttime @ - twoclicks >= IF
+	    flags #lastdown bit@ to clicks
+	    flags #lastclick -bit
+	THEN
+    THEN
+    o> ; is ?looper-timeouts
+:noname ( -- )
+    buttonmask e.button +bit
+    flags #lastdown bit@ 0=
+    IF  flags #lastdown +bit
+	flags #pending bit@ IF  1 +to clicks send-clicks  THEN
+	flags #pending +bit  flags #lastclick -bit
+    THEN
+    e.time dup lasttime !@ - sameclick <
+    IF  e.x e.y samepos?  ?EXIT
+	flags #pending bit@ IF  send-clicks  THEN
+	1 to clicks  flags #pending +bit
+    THEN  e.x e.y lastpos 2!
 ; x11-handler to DoButtonPress
 :noname ( -- )
-    e.time dup lasttime !@ - false sametime?
-    IF  e.x e.y samepos?
-	IF  flags #lastdown bit@ 0=
-	    IF    e.button buttonmask -bit
-	    ELSE  send-clicks  flags #lastdown -bit
-	    THEN  EXIT  THEN   e.x e.y lastpos 2!  flags #pending -bit
-    THEN  flags #pending bit@  IF  1 +to clicks  THEN
-    1 sendclick flags #lastdown -bit
+    buttonmask e.button -bit
+    flags #lastdown bit@
+    IF  flags #lastdown -bit
+	flags #pending bit@ IF  1 +to clicks send-clicks  THEN
+	flags #pending +bit  flags #lastclick -bit
+    THEN
+    e.time dup lasttime !@ - sameclick <
+    IF  e.x e.y samepos?  ?EXIT
+	flags #pending bit@ IF  send-clicks  THEN
+	2 to clicks  flags #pending +bit
+    THEN  e.x e.y lastpos 2!
 ; x11-handler to DoButtonRelease
 :noname
     *input pressure @ IF
