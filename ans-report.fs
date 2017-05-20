@@ -181,7 +181,12 @@ ans-report-words
 	rdrop
     repeat
     drop ;
-	
+
+: hide ( "name" -- )
+    \ replace the last character of the name of word "name" with a
+    \ blank, so it won't be found
+    bl parse-name lookup @ find-name-in name>string + 1- c! ;
+
 \ the following sequence "' replace-word forth execute" is necessary
 \ to restore the default search order without effect on the "used
 \ word" lists
