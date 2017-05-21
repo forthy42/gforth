@@ -29,11 +29,10 @@ end-class x11-handler
 
 0 Constant #pending
 1 Constant #lastdown
-2 Constant #lastclick
+2 Constant #clearme
 
 also x11
 
-#040 Value sameclick  \ every edge within 60ms is merged into one click
 #150 Value twoclicks  \ every edge further apart than 150ms into separate clicks
 #6 Value samepos      \ position difference square-summed less than is same pos
 
@@ -85,57 +84,41 @@ DOES> ( x-key -- addr u )
 : samepos? ( x y -- flag )
     lastpos 2@ >r swap r> - >r - dup * r> dup * + samepos < ;
 : send-clicks ( -- )
-    lastpos 2@ swap s>f s>f buttonmask le-ul@ clicks top-act ?dup-IF  .clicked
-    ELSE  2drop fdrop fdrop  THEN ;
+    lastpos 2@ swap s>f s>f buttonmask le-ul@ clicks top-act ?dup-IF
+	.clicked
+    ELSE  2drop fdrop fdrop  THEN
+    flags #pending -bit ;
 :noname ( -- )
     event-handler @ >o
     flags #pending bit@ IF
-	XTime@ lasttime @ - sameclick >= IF
-	    1 +to clicks  send-clicks flags #pending -bit
-	    flags #lastclick +bit
-	THEN  o> EXIT
-    THEN
-    flags #lastclick bit@ IF
 	XTime@ lasttime @ - twoclicks >= IF
-	    flags #lastdown bit@ to clicks
-	    flags #lastclick -bit
+	    send-clicks  flags #pending -bit
+	THEN
+    THEN
+    flags #clearme bit@ IF
+	XTime@ lasttime @ - twoclicks >= IF
+	    0 to clicks
 	THEN
     THEN
     o> ; is ?looper-timeouts
 :noname ( -- )
-    buttonmask e.button +bit
-    flags #lastdown bit@ 0=
-    IF  flags #lastdown +bit
-	flags #pending bit@ IF  1 +to clicks send-clicks  THEN
-	flags #pending +bit  flags #lastclick -bit
-    THEN
-    e.time dup lasttime !@ - sameclick <
-    IF  e.x e.y samepos?  ?EXIT
-	flags #pending bit@ IF  send-clicks  THEN
-	1 to clicks  flags #pending +bit
-    THEN  e.x e.y lastpos 2!
+    buttonmask e.button +bit  e.time lasttime !  e.x e.y lastpos 2!
+    flags #lastdown bit@ 0= negate +to clicks
+    flags #lastdown +bit  flags #pending +bit
 ; x11-handler to DoButtonPress
 :noname ( -- )
+    e.x e.y lastpos 2!  e.time lasttime !
+    flags #lastdown bit@ IF  clicks 0= negate 1+ +to clicks  send-clicks  THEN  
     buttonmask e.button -bit
-    flags #lastdown bit@
-    IF  flags #lastdown -bit
-	flags #pending bit@ IF  1 +to clicks send-clicks  THEN
-	flags #pending +bit  flags #lastclick -bit
-    THEN
-    e.time dup lasttime !@ - sameclick <
-    IF  e.x e.y samepos?  ?EXIT
-	flags #pending bit@ IF  send-clicks  THEN
-	2 to clicks  flags #pending +bit
-    THEN  e.x e.y lastpos 2!
+    flags #lastdown -bit  flags #pending -bit  flags #clearme +bit
 ; x11-handler to DoButtonRelease
 :noname
-    *input pressure @ IF
-	2 *input action !
-	e.time @ s>d *input eventtime 2@ d- *input downtime 2!
-	e.x l@ e.y l@ *input y0 ! *input x0 !
-    THEN ; x11-handler to DoMotionNotify
-' noop x11-handler to DoEnterNotify
-' noop x11-handler to DoLeaveNotify
+    flags #pending bit@  e.x e.y samepos? 0= and IF
+	send-clicks  flags #lastdown bit@ negate to clicks
+    THEN  e.x e.y lastpos 2!
+; x11-handler to DoMotionNotify
+:noname ; x11-handler to DoEnterNotify
+:noname ; x11-handler to DoLeaveNotify
 :noname e.window focus-ic ; x11-handler to DoFocusIn
 ' noop x11-handler to DoFocusOut
 ' noop x11-handler to DoKeymapNotify

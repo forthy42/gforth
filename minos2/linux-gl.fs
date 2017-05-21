@@ -101,6 +101,7 @@ ButtonReleaseMask or
 EnterWindowMask or
 LeaveWindowMask or
 PointerMotionMask or
+ButtonMotionMask or
 \ KeymapStateMask or
 ExposureMask or
 \ VisibilityChangeMask or
