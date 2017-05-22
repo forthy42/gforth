@@ -347,14 +347,12 @@ previous
 ' noop handler-class to DoGenericEvent
 
 0 Value timeoffset
-: XTime ( -- ntime ) utime #1000 um/mod nip ;
-: XTime@ ( -- ntime )
-    XTime timeoffset + ;
+: XTime ( -- ntime ) utime #1000 um/mod nip timeoffset + ;
 
 : handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
 : get-events ( -- )  event-handler @ >o
     BEGIN  dpy XPending  WHILE  dpy event XNextEvent drop
-	    e.time XTime - to timeoffset
+	    e.time XTime - +to timeoffset
 	    event 0 XFilterEvent 0= IF  handle-event  THEN
     REPEAT o> ;
 

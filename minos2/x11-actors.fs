@@ -83,39 +83,40 @@ DOES> ( x-key -- addr u )
 ' noop x11-handler to DoKeyRelease
 : samepos? ( x y -- flag )
     lastpos 2@ >r swap r> - >r - dup * r> dup * + samepos < ;
+: ?samepos ( -- )
+    e.x e.y 2dup samepos? 0= IF   0 to clicks  THEN  lastpos 2! ;
 : send-clicks ( -- )
-    lastpos 2@ swap s>f s>f buttonmask le-ul@ clicks top-act ?dup-IF
+    lastpos 2@ swap s>f s>f buttonmask le-ul@
+    clicks 2* flags #lastdown bit@ -
+    top-act ?dup-IF
 	.clicked
     ELSE  2drop fdrop fdrop  THEN
     flags #pending -bit ;
 :noname ( -- )
     event-handler @ >o
-    flags #pending bit@ IF
-	XTime@ lasttime @ - twoclicks >= IF
+    Xtime lasttime @ - twoclicks >= IF
+	flags #pending -bit@ IF
 	    send-clicks  flags #pending -bit
 	THEN
-    THEN
-    flags #clearme bit@ IF
-	XTime@ lasttime @ - twoclicks >= IF
+	flags #clearme -bit@ IF
 	    0 to clicks
 	THEN
     THEN
     o> ; is ?looper-timeouts
 :noname ( -- )
-    buttonmask e.button +bit  e.time lasttime !  e.x e.y lastpos 2!
-    flags #lastdown bit@ 0= negate +to clicks
+    buttonmask e.button +bit  e.time lasttime !  ?samepos
     flags #lastdown +bit  flags #pending +bit
 ; x11-handler to DoButtonPress
 :noname ( -- )
-    e.x e.y lastpos 2!  e.time lasttime !
-    flags #lastdown bit@ IF  clicks 0= negate 1+ +to clicks  send-clicks  THEN  
+    ?samepos  e.time lasttime !
+    flags #lastdown -bit@  IF
+	1 +to clicks  send-clicks  flags #clearme +bit  THEN
     buttonmask e.button -bit
-    flags #lastdown -bit  flags #pending -bit  flags #clearme +bit
 ; x11-handler to DoButtonRelease
 :noname
     flags #pending bit@  e.x e.y samepos? 0= and IF
-	send-clicks  flags #lastdown bit@ negate to clicks
-    THEN  e.x e.y lastpos 2!
+	send-clicks  0 to clicks
+    THEN
 ; x11-handler to DoMotionNotify
 :noname ; x11-handler to DoEnterNotify
 :noname ; x11-handler to DoLeaveNotify
