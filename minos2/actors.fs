@@ -44,6 +44,17 @@ end-class simple-actor
     ." keyed: " type cr ; simple-actor is ukeyed
 :noname ( ekey -- )
     ." ekeyed: " hex. cr ; simple-actor is ekeyed
+: .touch ( $xy b -- )
+    hex. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr ;
+:noname ( $xy b -- )
+    ." down: " .touch
+; simple-actor is touchdown
+:noname ( $xy b -- )
+    ." up: " .touch
+; simple-actor is touchup
+:noname ( $xy b -- )
+    ." move: " .touch
+; simple-actor is touchmove
 
 : simple[] ( o -- o )
     >o simple-actor new to act o act >o to caller-w o> o o> ;
@@ -69,6 +80,34 @@ box-actor is clicked
 :noname ( ekey -- )
     active-w ?dup-IF  .act .ekeyed  THEN ; box-actor is ekeyed
 ' simple-inside? box-actor is inside?
+: xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
+:noname ( $xy b -- )
+    over xy@ simple-inside? IF
+	o caller-w >o
+	[: { c-act } act IF  over xy@ act .inside?
+		IF
+		    o c-act >o to active-w o>
+		    2dup act .touchdown   THEN  THEN
+	c-act ;] do-childs o> drop
+    THEN  2drop ; box-actor is touchdown
+:noname ( $xy b -- )
+    over xy@ simple-inside? IF
+	o caller-w >o
+	[: { c-act } act IF  over xy@ act .inside?
+		IF
+		    o c-act >o to active-w o>
+		    2dup act .touchup   THEN  THEN
+	c-act ;] do-childs o> drop
+    THEN  2drop ; box-actor is touchup
+:noname ( $xy b -- )
+    over xy@ simple-inside? IF
+	o caller-w >o
+	[: { c-act } act IF  over xy@ act .inside?
+		IF
+		    o c-act >o to active-w o>
+		    2dup act .touchmove  THEN  THEN
+	c-act ;] do-childs o> drop
+    THEN  2drop ; box-actor is touchmove
 
 : box[] ( o -- o )
     >o box-actor new to act o act >o to caller-w o> o o> ;

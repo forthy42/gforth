@@ -92,6 +92,13 @@ DOES> ( x-key -- addr u )
 	.clicked
     ELSE  2drop fdrop fdrop  THEN
     flags #pending -bit ;
+Variable xy$
+: >xy$ ( x1 y1 .. xn yn n -- $rxy )
+    2* sfloats xy$ $!len
+    xy$ $@ bounds 1 sfloats - swap 1 sfloats - U-DO
+	s>f I sf!
+    1 sfloats -LOOP
+    xy$ ;
 :noname ( -- )
     event-handler @ >o
     Xtime lasttime @ - twoclicks >= IF
@@ -104,19 +111,23 @@ DOES> ( x-key -- addr u )
     THEN
     o> ; is ?looper-timeouts
 :noname ( -- )
-    buttonmask e.button +bit  e.time lasttime !  ?samepos
+    buttonmask e.button 1- +bit
+    top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchdown  THEN
+    e.time lasttime !  ?samepos
     flags #lastdown +bit  flags #pending +bit
 ; x11-handler to DoButtonPress
 :noname ( -- )
     ?samepos  e.time lasttime !
     flags #lastdown -bit@  IF
 	1 +to clicks  send-clicks  flags #clearme +bit  THEN
-    buttonmask e.button -bit
+    buttonmask e.button 1- -bit
+    top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchup  THEN
 ; x11-handler to DoButtonRelease
 :noname
     flags #pending bit@  e.x e.y samepos? 0= and IF
 	send-clicks  0 to clicks
     THEN
+    top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchmove  THEN
 ; x11-handler to DoMotionNotify
 :noname ; x11-handler to DoEnterNotify
 :noname ; x11-handler to DoLeaveNotify

@@ -36,7 +36,10 @@ vocabulary minos  also minos definitions
 
 object class
     value: caller-w
-    method clicked ( rx ry b n -- )
+    method clicked ( rx ry bmask n -- ) \ processed clicks
+    method touchdown ( $rxy*n bmask -- ) \ raw click
+    method touchup ( $rxy*n bmask -- ) \ raw click
+    method touchmove ( $rxy*n bmask -- ) \ raw click, bmask=0 is hover
     method ukeyed ( addr u -- ) \ printable unicode characters
     method ekeyed ( ekey -- ) \ non-printable keys
     method inside? ( rx ry -- flag )
@@ -48,6 +51,22 @@ object class
     method set ( something -- )
     method show-you ( -- )
 end-class actor
+
+\ dummy methods for empty actor, used for inheritance
+:noname 2drop fdrop fdrop ; actor is clicked
+' 2drop actor is touchdown
+' 2drop actor is touchup
+' 2drop actor is touchmove
+' 2drop actor is ukeyed
+' drop actor is ekeyed
+:noname fdrop fdrop false ; actor is inside?
+' noop actor is focus
+' noop actor is defocus
+' noop actor is show
+' noop actor is hide
+' noop actor is get
+' noop actor is set
+' noop actor is show-you
 
 object class
     value: next-w
