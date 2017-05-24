@@ -159,6 +159,10 @@ Variable xy$
 ' noop x11-handler to DoMappingNotify
 ' noop x11-handler to DoGenericEvent
 
-x11-handler new event-handler !
+: enter-minos ( -- )
+    x11-handler new event-handler ! ;
+: leave-minos ( -- )
+    event-handler @ dispose [ event-handler @ ]L event-handler !
+    need-sync on  need-show on ;
 
 previous

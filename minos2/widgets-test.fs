@@ -88,9 +88,9 @@ previous
 
 also [IFDEF] android android [THEN]
 
-: widgets-demo ( -- )  [IFDEF] hidekb  hidekb [THEN]
+: widgets-demo ( -- )  [IFDEF] hidekb  hidekb [THEN]  enter-minos
     1 level# +!  !widgets widgets-test  BEGIN  >looper
-    level# @ 0= UNTIL  need-sync on  need-show on ;
+    level# @ 0= UNTIL  leave-minos ;
 
 previous
 
