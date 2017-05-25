@@ -23,7 +23,7 @@ also minos
 
 glue*2 $FFFFFFDF 32e }}frame dup .button2 value f1
 glue*2 $FF7FFFFF 32e }}frame dup .button3 simple[] value f2
-glue*1 $FFFF7FFF 16e }}frame dup .button1 value f3
+glue*1 $FF5F5FFF 16e }}frame dup .button1 value f3
 glue*1 $FF7F7FFF 32e }}frame dup .button1 simple[] value f4
 glue*1 $7FFF7FFF 8e  }}frame dup .button1 simple[] value f5
 glue*2 $7FFFFFFF 16e }}frame dup .button2 simple[] value f6
@@ -69,15 +69,15 @@ texture_font_new_from_file Value font2
 previous
 
 : !t1 ( -- ) t1 >o
-    "Dös isch a Tägscht!" font1 text!  32e to border
+    "Dös isch a Tägscht!" font1 text!  24e to border
     $884400FF to text-color o> ;
 
 : !t2 ( -- ) t2 >o
-    "这是一个文本：在德语说" font2 text!  32e to border
-    $004488BF to text-color o> ;
+    "这是一个文本：在德语说" font2 text!  8e to border
+    $001122DF to text-color o> ;
 
 : !t3 ( -- ) t3 >o
-    "..." font1 text!  32e to border
+    "..." font1 text!  16e to border
     $00FF88FF to text-color o> ;
 
 : htop-resize ( -- )
@@ -90,6 +90,10 @@ also [IFDEF] android android [THEN]
 
 : widgets-demo ( -- )  [IFDEF] hidekb  hidekb [THEN]  enter-minos
     1 level# +!  !widgets widgets-test  BEGIN  >looper
+	[IFDEF] android
+	    ?config-changer need-sync @ IF
+		top-widget .htop-resize  widgets-test  need-sync off  THEN
+	[THEN]
     level# @ 0= UNTIL  leave-minos ;
 
 previous

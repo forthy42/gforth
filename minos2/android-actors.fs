@@ -19,12 +19,13 @@
 
 require bits.fs
 
+: top-act ( -- o ) top-widget .act ;
 Variable xy$
 : >xy$ ( -- xy$ )
     getPointerCount 2* sfloats xy$ $!len
     0 xy$ $@ bounds ?DO
-	dup getX I sf!  dup getY I sfloat+ sf!
-    2 sfloats +LOOP  xy$ ;
+	dup getX I sf!  dup getY I sfloat+ sf!  1+
+    2 sfloats +LOOP  drop xy$ ;
 : action-down ( -- )
     top-act IF  xy$ getButtonState top-act .touchdown  THEN ;
 : action-up ( -- )

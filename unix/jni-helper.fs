@@ -110,6 +110,7 @@ jni-method: getDownTime getDownTime ()J
 jni-method: getMetaState getMetaState ()I
 jni-method: getSize getSize (I)F
 jni-method: getPressure getPressure (I)F
+jni-method: getButtonState getButtonState ()I
 
 jni-class: java/util/List
 

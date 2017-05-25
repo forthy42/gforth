@@ -38,22 +38,23 @@ end-class simple-actor
     and o> ;
 ' simple-inside? simple-actor is inside?
 
+debug: event(
 :noname { f: rx f: ry b n -- }
-    ." simple click: " rx f. ry f. b . n . cr ; simple-actor is clicked
+    event( ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
 :noname ( addr u -- )
-    ." keyed: " type cr ; simple-actor is ukeyed
+    event( ." keyed: " type cr ) ; simple-actor is ukeyed
 :noname ( ekey -- )
-    ." ekeyed: " hex. cr ; simple-actor is ekeyed
+    event( ." ekeyed: " hex. cr ) ; simple-actor is ekeyed
 : .touch ( $xy b -- )
-    hex. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr ;
+    event( hex. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr ) ;
 :noname ( $xy b -- )
-    ." down: " .touch
+    event( ." down: " .touch )
 ; simple-actor is touchdown
 :noname ( $xy b -- )
-    ." up: " .touch
+    event( ." up: " .touch )
 ; simple-actor is touchup
 :noname ( $xy b -- )
-    ." move: " .touch
+    event( ." move: " .touch )
 ; simple-actor is touchmove
 
 : simple[] ( o -- o )
