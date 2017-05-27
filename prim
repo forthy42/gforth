@@ -709,6 +709,16 @@ op = (Char *)rp[3];
 sp = (Cell *)rp[4];
 SET_IP((Xt *)rp[5]);
 
+fast-throw ( ... wball -- ... wball ) gforth fast_throw
+""Lightweight @code{throw} variant: only for non-zero balls, and
+does not store a backtrace or deal with missing @code{catch}.""
+rp = up->handler;
+lp = (Address)rp[1];
+fp = (Float *)rp[2];
+op = (Char *)rp[3];
+sp = (Cell *)rp[4];
+SET_IP((Xt *)rp[5]);
+
 \+
 
 \ don't make any assumptions where the return stack is!!

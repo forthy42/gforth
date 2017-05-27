@@ -251,6 +251,3 @@ variable located-bottom \ last line to display with l
     THEN ;
 is throw
 
-\ throw is heavy-weight due to error handling;
-\ if you want to use throw as control structure, use fast-throw
-: fast-throw ( n -- ) handler @ (throw2) ;
