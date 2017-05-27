@@ -228,7 +228,7 @@ variable located-bottom \ last line to display with l
 \    input-lexeme @ located-len ! current-sourcepos1 located-xpos ! ;
 
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
-    ?DUP IF
+    ?DUP-IF
 	[ here forthstart 9 cells + !
 	  here throw-entry ! ]
 	first-throw @ IF
