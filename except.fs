@@ -154,7 +154,7 @@ User stored-backtrace ( addr -- )
     \G exception between @code{try} and @code{endtry}).  This part has
     \G to be finished with @code{then}.
     \ !! check using a special tag
-    POSTPONE else handler-intro,
+    POSTPONE else \ handler-intro,
 ; immediate compile-only
 
 : restore ( compilation  orig1 -- ; run-time  -- ) \ gforth
@@ -181,7 +181,7 @@ User stored-backtrace ( addr -- )
 
 :noname ( x1 .. xn xt -- y1 .. ym 0 / z1 .. zn error ) \ exception
     try
-	execute [ here to catch-frame ] 0
+	execute [ here to catch-frame ] 0 uncatch exit
     iferror
 	nip
     then endtry ;
@@ -247,10 +247,10 @@ variable located-bottom \ last line to display with l
 	    >stderr cr ." uncaught exception: " .error cr
 	    kill-task  2 (bye)
 	THEN
-        (throw1)
+        (throw2)
     THEN ;
 is throw
 
 \ throw is heavy-weight due to error handling;
 \ if you want to use throw as control structure, use fast-throw
-: fast-throw ( n -- ) handler @ (throw1) ;
+: fast-throw ( n -- ) handler @ (throw2) ;
