@@ -83,78 +83,17 @@ User stored-backtrace ( addr -- )
 
 ' nothrow is .status
 
-: (try0) ( -- aoldhandler )
-    nothrow handler @ ;
-
-[undefined] (try1) [if]
-: (try1) ( aoldhandler arecovery -- anewhandler )
-    r>
-    swap >r \ recovery address
-    sp@ cell+ >r
-    o#+ [ 0 , ] >r
-    fp@ >r
-    lp@ >r
-    swap >r \ old handler
-    rp@ swap \ new handler
-    >r ;
-[endif]
-
-: (try2)
-    handler ! ;
-
-\ : (try) ( ahandler -- )
-\     nothrow
-\     r>
-\     swap >r \ recovery address
-\     sp@ >r
-\     o#+ [ 0 , ] >r
-\     fp@ >r
-\     lp@ >r
-\     handler @ >r
-\     rp@ handler !
-\     >r ;
-
-\ : try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth
-\     \G Start an exception-catching region.
-\     POSTPONE ahead here >r >mark 1 cs-roll POSTPONE then
-\     r> POSTPONE literal POSTPONE (try) ; immediate compile-only
-
-[defined] (try) [if]
 : try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth
     \G Start an exception-catching region.
     POSTPONE (try) >mark
 ; immediate compile-only
-[ELSE]
-: try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth
-    \G Start an exception-catching region.
-    POSTPONE (try0) POSTPONE lit >mark POSTPONE (try1) POSTPONE (try2)
-; immediate compile-only
-[THEN]
-
-[undefined] uncatch [if]
-: uncatch ( -- ) \ gforth
-    \g unwind an exception frame
-    r>
-    r> handler !
-    rdrop \ lp
-    rdrop \ fp
-    rdrop \ op
-    rdrop \ sp
-    rdrop \ recovery address
-    >r ;
-[then]
-
-: handler-intro, ( -- )
-    docol: here 0 , 0 , code-address! \ start a colon def 
-    postpone rdrop                    \ drop the return address
-;
 
 : iferror ( compilation  orig1 -- orig2 ; run-time  -- ) \ gforth
     \G Starts the exception handling code (executed if there is an
     \G exception between @code{try} and @code{endtry}).  This part has
     \G to be finished with @code{then}.
     \ !! check using a special tag
-    POSTPONE else \ handler-intro,
+    POSTPONE else
 ; immediate compile-only
 
 : restore ( compilation  orig1 -- ; run-time  -- ) \ gforth
@@ -186,16 +125,6 @@ User stored-backtrace ( addr -- )
 	nip
     then endtry ;
 is catch
-
-[undefined] (throw1) [if]
-: (throw1) ( ... ball frame -- ... ball )
-    dup rp! ( ... ball frame )
-    cell+ dup @ lp!
-    cell+ dup @ fp!
-    cell+ dup @ >o rdrop
-    cell+ dup @ ( ... ball addr sp ) -rot 2>r sp! drop 2r>
-    cell+ @ perform ;
-[endif]
 
 Defer kill-task ' noop IS kill-task
 Variable located-xpos
