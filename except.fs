@@ -24,47 +24,6 @@ Defer store-backtrace
 ' noop IS store-backtrace
 \ [THEN]
 
-\ Ok, here's the story about how we get to the native code for the
-\ recovery code in case of a THROW, and why there is all this funny
-\ stuff being compiled by TRY and RECOVER:
-
-\ Upon a THROW, we cannot just return through the ordinary return
-\ address, but have to use a different one, for code after the
-\ RECOVER.  How do we do that, in a way portable between the various
-\ threaded and native code engines?  In particular, how does the
-\ native code engine learn about the address of the native recovery
-\ code?
-
-\ On the Forth level, we can compile only references to threaded code.
-\ The only thing that translates a threaded code address to a native
-\ code address is docol, which is only called with EXECUTE and
-\ friends.  So we start the recovery code with a docol, and invoke it
-\ with PERFORM; the recovery code then rdrops the superfluously
-\ generated return address and continues with the proper recovery
-\ code.
-
-\ At compile time, since we cannot compile a forward reference (to the
-\ recovery code) as a literal (backpatching does not work for
-\ native-code literals), we produce a data cell (wrapped in AHEAD
-\ ... THEN) that we can backpatch, and compile the address of that as
-\ literal.
-
-\ Overall, this leads to the following resulting code:
-
-\   ahead
-\ +><recovery address>-+
-\ | then               |
-\ +-lit                |
-\   (try)              |
-\   ...                |
-\   (recover)          |
-\   ahead              |
-\   docol: <-----------+
-\   rdrop
-\   ...
-\   then
-\   ...
-
 \ !! explain handler on-stack structure
 
 [undefined] first-throw [if]
