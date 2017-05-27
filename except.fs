@@ -243,11 +243,10 @@ variable located-bottom \ last line to display with l
 	first-throw @ IF
 	    store-backtrace
 	THEN
-	handler @ ?dup-0=-IF
-	    >stderr cr ." uncaught exception: " .error cr
-	    kill-task  2 (bye)
-	THEN
-        (throw2)
+	handler @ IF
+	    fast-throw THEN
+	>stderr cr ." uncaught exception: " .error cr
+	kill-task  2 (bye)
     THEN ;
 is throw
 
