@@ -698,6 +698,9 @@ c_lp = lp;
 up->handler = rp-6;
 up->first_throw = ~0;
 
+uncatch ( R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler -- ) gforth
+up->handler = a_oldhandler;
+
 \+
 
 \ don't make any assumptions where the return stack is!!

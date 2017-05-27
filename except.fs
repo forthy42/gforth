@@ -131,6 +131,7 @@ User stored-backtrace ( addr -- )
 ; immediate compile-only
 [THEN]
 
+[undefined] uncatch [if]
 : uncatch ( -- ) \ gforth
     \g unwind an exception frame
     r>
@@ -141,6 +142,7 @@ User stored-backtrace ( addr -- )
     rdrop \ sp
     rdrop \ recovery address
     >r ;
+[then]
 
 : handler-intro, ( -- )
     docol: here 0 , 0 , code-address! \ start a colon def 
