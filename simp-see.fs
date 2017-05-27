@@ -21,6 +21,19 @@ require see.fs
 
 get-current also see-voc definitions
 
+: xt-range ( xt -- addr1 addr2 )
+    \ get the range of threaded-code addresses for (possibly deferred)
+    \ colon def xt
+    begin
+	dup >definer dodefer: = while
+	    cr ." defer " dup >name id.
+	    defer@ repeat
+    dup >definer docol: = if
+	>body dup next-head
+    else
+	cr ." not a colon definition" dup \ ensure 0 iterations
+    then ;
+	    
 : simple-see-word { addr -- }
     xpos off addr hex. addr cell+ addr @ .word drop ;
 
@@ -52,15 +65,26 @@ get-current also see-voc definitions
 
 set-current
 
+: xt-simple-see ( xt -- ) \ gforth
+    \G a simple decompiler that's closer to @code{dump} than @code{see}.
+    \ !! at the moment NEXT-HEAD is a little too optimistic (see
+    \ comment in HEAD?)
+    xt-range simple-see-range ;
+
 : simple-see ( "name" -- ) \ gforth
     \G a simple decompiler that's closer to @code{dump} than @code{see}.
     \ !! at the moment NEXT-HEAD is a little too optimistic (see
     \ comment in HEAD?)
-    ' >body dup next-head simple-see-range ;
+    ' xt-simple-see ;
+
+: xt-see-code ( xt -- ) \ gforth
+\G like @code{simple-see}, but also shows the dynamic native code for
+\G the inlined primitives (except for the last).
+    xt-range see-code-range ;
 
 : see-code ( "name" -- ) \ gforth
 \G like @code{simple-see}, but also shows the dynamic native code for
 \G the inlined primitives (except for the last).
-    ' >body dup next-head see-code-range ;
+    ' xt-see-code ;
     
 previous
