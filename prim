@@ -689,6 +689,14 @@ f_fp = fp;
 c_lp = lp;
 a_newhandler = rp-6;
 
+(try)	( ... #a_recovery -- R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler ) gforth paren_try
+a_oldhandler = up->handler;
+a_sp = sp-1;
+c_op = op;
+f_fp = fp;
+c_lp = lp;
+up->handler = rp-6;
+up->first_throw = ~0;
 
 \+
 

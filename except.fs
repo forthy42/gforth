@@ -67,7 +67,9 @@ Defer store-backtrace
 
 \ !! explain handler on-stack structure
 
-User first-throw  \ contains true if the next throw is the first throw
+[undefined] first-throw [if]
+    User first-throw  \ contains true if the next throw is the first throw
+[then]
 User stored-backtrace ( addr -- )
 \ contains the address of a cell-counted string that contains a copy
 \ of the return stack at the throw
@@ -100,27 +102,27 @@ User stored-backtrace ( addr -- )
 : (try2)
     handler ! ;
 
-: (try) ( ahandler -- )
-    nothrow
-    r>
-    swap >r \ recovery address
-    sp@ >r
-    o#+ [ 0 , ] >r
-    fp@ >r
-    lp@ >r
-    handler @ >r
-    rp@ handler !
-    >r ;
+\ : (try) ( ahandler -- )
+\     nothrow
+\     r>
+\     swap >r \ recovery address
+\     sp@ >r
+\     o#+ [ 0 , ] >r
+\     fp@ >r
+\     lp@ >r
+\     handler @ >r
+\     rp@ handler !
+\     >r ;
 
 \ : try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth
 \     \G Start an exception-catching region.
 \     POSTPONE ahead here >r >mark 1 cs-roll POSTPONE then
 \     r> POSTPONE literal POSTPONE (try) ; immediate compile-only
 
-[defined] (try1a) [if]
+[defined] (try) [if]
 : try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth
     \G Start an exception-catching region.
-    POSTPONE (try0) POSTPONE (try1a) >mark POSTPONE (try2)
+    POSTPONE (try) >mark
 ; immediate compile-only
 [ELSE]
 : try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth

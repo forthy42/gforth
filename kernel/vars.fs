@@ -101,6 +101,7 @@ AUser lp0 ( -- a-addr ) \ gforth
 AUser throw-entry  \ pointer to task-specific signal handler
 
 AUser handler	\ pointer to last throw frame
+User first-throw  \ contains true if the next throw is the first throw
 has? backtrace [IF]
 AUser backtrace-rp0 \ rp at last call of interpret
 [THEN]

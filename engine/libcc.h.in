@@ -49,6 +49,8 @@ typedef struct {
   Float* fp0;
   Address lp0;
   Xt *throw_entry;
+  Cell *handler;
+  Cell first_throw;
 } user_area;
 
 typedef struct {
