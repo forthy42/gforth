@@ -682,6 +682,14 @@ ip=IP;
 SUPER_END;
 VM_JUMP(EXEC1((Xt)rp[5]));
 
+(try1a)	( ... a_oldhandler #a_recovery -- R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler a_newhandler ) gforth paren_try1a
+a_sp = sp-1;
+c_op = op;
+f_fp = fp;
+c_lp = lp;
+a_newhandler = rp-6;
+
+
 \+
 
 \ don't make any assumptions where the return stack is!!
