@@ -119,10 +119,8 @@ User stored-backtrace ( addr -- )
 
 : try ( compilation  -- orig ; run-time  -- R:sys1 ) \ gforth
     \G Start an exception-catching region.
-    POSTPONE ahead here >r >mark 1 cs-roll POSTPONE then
-    POSTPONE (try0) r> POSTPONE literal POSTPONE (try1) POSTPONE (try2)
+    POSTPONE (try0) POSTPONE lit >mark POSTPONE (try1) POSTPONE (try2)
 ; immediate compile-only
-
 
 : uncatch ( -- ) \ gforth
     \g unwind an exception frame

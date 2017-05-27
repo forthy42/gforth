@@ -680,8 +680,7 @@ sp = (Cell *)rp[4];
 ip=IP;
 #endif
 SUPER_END;
-VM_JUMP(EXEC1(*(Xt *)rp[5]));
-  
+VM_JUMP(EXEC1((Xt)rp[5]));
 
 \+
 
