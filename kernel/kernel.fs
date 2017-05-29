@@ -18,7 +18,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require ./vars.fs
-include ./input-struct.fs
+include ./input-class.fs
 include ./int.fs
 has? compiler [IF]
     include ./comp.fs

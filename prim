@@ -1467,7 +1467,7 @@ f = FLAG(u1-u2 < u3-u2);
 
 \g stack
 
-useraddr	( #u -- a_addr )	new
+useraddr	( #u -- a_addr )	gforth
 a_addr = (Cell *)(((Address)up)+u);
 
 up!	( a_addr -- )	gforth	up_store
@@ -1608,6 +1608,9 @@ w = sp[u];
 2tuck	( w1 w2 w3 w4 -- w3 w4 w1 w2 w3 w4 )	gforth	two_tuck
 :
  2swap 2over ;
+
+user@	( #u -- w )	gforth	user_fetch
+w = *(Cell *)(((Address)up)+u);
 
 \ toggle is high-level: 0.11/0.42%
 

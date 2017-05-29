@@ -692,6 +692,23 @@ VARIABLE C-Pass
 	    THEN
 	THEN  cell+ ;
 [THEN]
+[IFDEF] user@
+    : search-userval ( offset nt -- offset flag )
+	name>int dup >does-code ['] infile-id >does-code = IF
+	    2dup >body @ = IF  -rot nip false  EXIT
+	    THEN  THEN  drop true ;
+    : c-user@ ( addr -- addr' )
+	display? IF
+	    0 over @
+	    [: ['] search-userval swap traverse-wordlist ;] map-vocs drop
+	    display? IF
+		?dup-IF  name>string com# .string bl cemit
+		ELSE  s" user@ " com# .string
+		    dup @ c-. bl cemit
+		THEN
+	    THEN
+	THEN  cell+ ;
+[THEN]
 
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
@@ -730,6 +747,7 @@ CREATE C-Table
 [IFDEF] u#+     ' u#+ A,            ' c-u#+ A, [THEN]
 [IFDEF] call-c# ' call-c# A,        ' c-call-c# A, [THEN]
 [IFDEF] useraddr ' useraddr A,      ' c-useraddr A, [THEN]
+[IFDEF] user@    ' user@ A,         ' c-user@ A, [THEN]
         	0 ,		here 0 ,
 
 avariable c-extender
