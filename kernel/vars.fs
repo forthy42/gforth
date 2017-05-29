@@ -67,7 +67,7 @@ $400 Value def#tib
 \ initialized by COLD
 
 has? no-userspace 0= [IF]
-Create main-task  has? OS [IF] 100 [ELSE] 40 [THEN] cells dup allot
+Create main-task  has? OS [IF] $100 [ELSE] $40 [THEN] cells dup allot
 
 \ set user-pointer from cross-compiler right
 main-task 
@@ -102,6 +102,7 @@ AUser throw-entry  \ pointer to task-specific signal handler
 
 AUser handler	\ pointer to last throw frame
 User first-throw  \ contains true if the next throw is the first throw
+AUser wraphandler \ wrap handler, experimental
 has? backtrace [IF]
 AUser backtrace-rp0 \ rp at last call of interpret
 [THEN]
@@ -117,8 +118,8 @@ here word-pno-size chars allot dup holdbufptr !
 word-pno-size chars +
 : holdbuf ( -- addr ) holdbufptr @ ;
 : holdbuf-end   holdbuf word-pno-size chars + ;
-AUser holdptr dup holdptr a!
-AUser holdend     holdend a!
+AUser holdptr dup holdptr !
+AUser holdend     holdend !
 
 User base ( -- a-addr ) \ core
 \G @code{User} variable -- @i{a-addr} is the address of a cell that

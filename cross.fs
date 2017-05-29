@@ -1749,7 +1749,7 @@ T has? relocate H
 : cfalign ( -- ) 0 T cfalign# H ;
 
 : >address		dup 0>= IF tbyte / THEN ; \ ?? jaw 
-: A!                    swap >address swap dup relon T ! H ;
+\ : A!                    swap >address swap dup relon T ! H ;
 : A,    ( w -- )        >address T here H relon T , H ;
 
 \ high-level ghosts
@@ -3449,7 +3449,7 @@ Builder Create
 compile: g>body alit, ;compile
 
 Builder User
-compile: g>body compile useraddr T @ , H ;compile
+compile: g>body compile useraddr T here H reloff T @ , H ;compile
 
 Builder Defer
 compile: g>body compile lit-perform T A, H ;compile
@@ -3458,7 +3458,7 @@ Builder (Field)
 compile: g>body T @ H compile lit+ T here H reloff T , H ;compile
 
 Builder UValue
-compile: g>body compile useraddr T @ , H compile @ ;compile
+compile: g>body compile useraddr T here H reloff T @ , H compile @ ;compile
 [THEN]
 
 \ structural conditionals                              17dec92py

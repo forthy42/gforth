@@ -193,6 +193,7 @@ KERN_SRC = \
 	kernel/recognizer.fs \
 	kernel/io.fs \
 	kernel/input.fs \
+	kernel/input-struct.fs \
 	kernel/license.fs \
 	kernel/nio.fs \
 	kernel/saccept.fs \

@@ -17,23 +17,17 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-\ include ./basics.fs
-\ include ./io.fs		\ basic io functions
-has? interpreter [IF]
-    include ./int.fs
-    has? compiler [IF]
-	include ./comp.fs
-	include ./vtables.fs
-    [THEN]
+require ./vars.fs
+include ./input-struct.fs
+include ./int.fs
+has? compiler [IF]
+    include ./comp.fs
+    include ./vtables.fs
 [THEN]
-has? new-input [IF]
-    include ./accept.fs
-    include ./input.fs
-[ELSE]
-    include ./saccept.fs
-[THEN]
+include ./accept.fs
+include ./input.fs
 has? os [IF]
-include ./license.fs
-include ./xchars.fs
+    include ./license.fs
+    include ./xchars.fs
 [THEN]
 \ include ./nio.fs
