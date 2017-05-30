@@ -373,6 +373,7 @@ typedef struct {
   Xt *throw_entry;
   Cell *handler;
   Cell first_throw;
+  Cell *wraphandler; /* experimental */
 } user_area;
 
 typedef struct {

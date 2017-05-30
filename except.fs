@@ -138,3 +138,17 @@ variable located-bottom \ last line to display with l
     THEN ;
 is throw
 
+[defined] pushwrap [if]
+\ usage: wrap ... end-wrap
+\ or:    wrap ... wrap-onexit ... then
+\ in combination with: exit-wrap
+
+: wrap ( compilation: -- orig; run-time: -- r:sys ) \ gforth-experimental
+    POSTPONE pushwrap >mark ; immediate compile-only
+
+: end-wrap ( compilation: orig --; run-time: r:sys -- ) \ gforth-experimental
+    POSTPONE dropwrap POSTPONE then ; immediate compile-only
+
+: wrap-onexit ( compilation: orig --; run-time: r:sys -- ) \ gforth-experimental
+    POSTPONE dropwrap POSTPONE else ; immediate compile-only
+[then]

@@ -702,6 +702,26 @@ op = (Char *)rp[3];
 sp = (Cell *)rp[4];
 SET_IP((Xt *)rp[5]);
 
+pushwrap ( ... #a_recovery -- R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler ) gforth-internal
+a_oldhandler = up->wraphandler;
+a_sp = sp;
+c_op = op;
+f_fp = fp;
+c_lp = lp;
+up->wraphandler = rp;
+
+dropwrap ( R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler -- ) gforth-internal
+up->wraphandler = a_oldhandler;
+
+exit-wrap ( ... -- ... ) gforth-experimental exit_wrap
+rp = up->wraphandler;
+up->wraphandler = rp[-6];
+lp = (Address)rp[-5];
+fp = (Float *)rp[-4];
+op = (Char *)rp[-3];
+sp = (Cell *)rp[-2];
+SET_IP((Xt *)rp[-1]);
+
 \+
 
 \ don't make any assumptions where the return stack is!!
