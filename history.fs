@@ -17,7 +17,22 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Defer edit-update ( span addr pos1 -- span addr pos1 )
+require user-object.fs
+
+edit-out next-task - class-o !
+
+3 cells 0 \ extend edit-out class
+umethod edit-update ( span addr pos1 -- span addr pos1 )
+umethod back-restore ( u -- )
+umethod cur-correct ( addr u -- )
+umethod paste! ( addr u -- )
+
+align here
+' (ins) , ' noop ,  ' noop , \ kernel stuff
+' noop ,  ' noop ,  ' noop ,  ' noop ,
+, here Constant edit-terminal
+edit-terminal edit-out !
+
 \G deferred word to keep an editor informed about the command line content
 ' noop is edit-update
 
@@ -52,28 +67,16 @@ Defer edit-update ( span addr pos1 -- span addr pos1 )
 
 \ moving in history file                               16oct94py
 
-defer back-restore ( u -- )
-defer cur-correct ( addr u -- )
-' backspaces IS back-restore
-' 2drop IS cur-correct
-
 Variable linew
 Variable linew-all
 Variable screenw
 Variable setstring \ additional string at cursor for IME
 : linew-off  linew off cols screenw ! ;
 
-[IFDEF] x-width
 : clear-line ( max span addr pos1 -- max addr )
     drop linew @ back-restore
     2dup swap x-width setstring $@ x-width +
     dup spaces back-restore nip linew off ;
-[ELSE]
-: clear-line ( max span addr pos1 -- max addr )
-  back-restore over spaces swap back-restore ;
-[THEN]
-\ : clear-tib ( max span addr pos -- max 0 addr 0 false )
-\   clear-line 0 tuck dup ;
 
 : hist-pos    ( -- ud )
     history ?dup-IF  file-position drop  ELSE  backward^ 2@  THEN ;
@@ -84,12 +87,15 @@ Variable setstring \ additional string at cursor for IME
     swap history ?dup IF  read-line throw
     ELSE  2drop 0 false  THEN ;
 
+: .edit ( addr u -- )
+    2dup type  2dup cur-correct  edit-update ;
+
 : next-line  ( max span addr pos1 -- max span addr pos2 false )
   clear-line
   forward^ 2@ 2dup hist-setpos backward^ 2!
   2dup get-line drop
   hist-pos  forward^ 2!
-  tuck 2dup type 2dup cur-correct edit-update 0 ;
+  tuck .edit 0 ;
 
 : find-prev-line ( max addr -- max span addr pos2 )
   backward^ 2@ forward^ 2!
@@ -101,7 +107,7 @@ Variable setstring \ additional string at cursor for IME
   REPEAT  2drop  THEN  tuck ;
 
 : prev-line  ( max span addr pos1 -- max span addr pos2 false )
-    clear-line find-prev-line 2dup type 2dup cur-correct edit-update 0 ;
+    clear-line find-prev-line .edit 0 ;
 
 \ Create lfpad #lf c,
 
@@ -206,8 +212,6 @@ require utf-8.fs
 \ : cursor! ( n -- )  screenw @ /mod at-xy ;
 : xcur-correct  ( addr u -- )  x-width linew ! ;
 
-' xcur-correct IS cur-correct
-
 info-color Value setstring-color
 
 : color-execute ( color xt -- )
@@ -218,9 +222,9 @@ info-color Value setstring-color
     dup screenw @ mod 0= over 0> and \ flag, true=-1
     dup >r + screenw @ /mod negate swap r> - negate swap at-deltaxy ;
 : .rest ( addr pos1 -- addr pos1 )
-    linew @ xback-restore 2dup type 2dup cur-correct ;
+    linew @ back-restore 2dup type 2dup cur-correct ;
 : .all ( span addr pos1 -- span addr pos1 )
-    linew @ xback-restore
+    linew @ back-restore
     2dup type setstring $@
     dup IF  ['] type setstring-color color-execute  ELSE  2drop  THEN
     >r 2dup swap r@ /string type
@@ -230,12 +234,12 @@ info-color Value setstring-color
     .all .rest ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
-    linew @ dup xback-restore  screenw @ /mod
+    linew @ dup back-restore  screenw @ /mod
     cols dup screenw ! * + dup spaces linew !
     .redraw false ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
-    linew @ xback-restore 2 pick dup spaces xback-restore
+    linew @ back-restore 2 pick dup spaces back-restore
     linew off  false ;
 
 \ In the following, addr max is the buffer, addr span is the current
@@ -294,7 +298,6 @@ info-color Value setstring-color
 
 Variable paste$
 
-Defer paste!
 : xpaste! ( addr u -- )
     paste$ $! ;
 ' xpaste! is paste!
@@ -304,8 +307,8 @@ Defer paste!
     x-width dup spaces linew +! .all 0 ;
 
 : xclear-first ( max span addr pos -- max pos addr pos false )
-    2dup paste! linew @ xback-restore >r
-    2dup swap x-width dup spaces xback-restore  linew off
+    2dup paste! linew @ back-restore >r
+    2dup swap x-width dup spaces back-restore  linew off
     2dup swap r@ /string 2 pick swap move
     swap r> - swap 0 .redraw 0 ;
 
@@ -372,13 +375,14 @@ Create xchar-ctrlkeys ( -- )
     ' false        , ' false        , ' false        , ' false        ,
 
 : xchar-history ( -- )
-    xchar-ctrlkeys to ctrlkeys
-    ['] (xins)        IS insert-char
-    ['] kill-prefix   IS everychar
-    ['] linew-off     IS everyline
-    ['] xback-restore IS back-restore
-    ['] xcur-correct  IS cur-correct
+    xchar-ctrlkeys to ctrlkeys  edit-terminal edit-out !
 ;
+
+' (xins)        IS insert-char
+' kill-prefix   IS everychar
+' linew-off     IS everyline
+' xback-restore IS back-restore
+' xcur-correct  IS cur-correct
 
 xchar-history
 

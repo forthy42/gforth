@@ -41,12 +41,20 @@ Create std-ctrlkeys
     ' false a, ' false a, ' false a, ' false a,
 std-ctrlkeys AValue ctrlkeys
 
-defer insert-char
-' (ins) IS insert-char
-defer everychar
-' noop IS everychar
-defer everyline
-' noop IS everyline
+user-o edit-out
+
+0 0
+umethod insert-char
+umethod everychar
+umethod everyline
+2drop
+
+here
+' (ins) A, \ IS insert-char
+' noop  A, \ IS everychar
+' noop  A, \ IS everyline
+A, here AConstant kernel-editor
+kernel-editor edit-out !
 
 : decode ( max span addr pos1 key -- max span addr pos2 flag )
     \ perform action corresponding to key; addr max is the buffer,

@@ -1,7 +1,5 @@
 \ Mini-OOF extension: current object in user variable  08jan13py
 
-require mini-oof2.fs
-
 Variable class-o
 
 : user-o ( "name" -- )
@@ -17,4 +15,4 @@ Variable class-o
     ['] uvar, set-optimizer ;
 
 : uclass ( c "name" -- c m v )
-    ' execute next-task - class-o ! class ;
+    ' execute next-task - class-o ! dup cell- cell- 2@ ;
