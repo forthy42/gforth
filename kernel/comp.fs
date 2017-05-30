@@ -705,6 +705,7 @@ defer 0-adjust-locals-size ( -- )
 \ does>
 
 : doesxt, ( xt -- )
+\    postpone does-xt , ;
     dup >body postpone literal  cell+ @ compile, ;
 
 : !doesxt ( xt -- ) \ gforth store-doesxt

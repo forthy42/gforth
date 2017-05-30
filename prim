@@ -284,7 +284,7 @@ a_body = PFA(CFA);
 ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
 #endif /* !defined(NO_IP) */
 SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
-VM_JUMP(EXEC1((Xt)DOES_CODEXT(CFA)));
+VM_JUMP(EXEC1(DOES_CODEXT(CFA)));
 
 \F [endif]
 
@@ -387,6 +387,24 @@ a_retaddr = (Cell *)IP;
     }
 #endif
 SET_IP(EXTRA_CODE(a_cfa));
+#endif
+
+does-xt ( #a_cfa -- R:a_retaddr a_body )	new	does_xt
+#ifdef NO_IP
+/* compiled to LIT CALL by compile_prim */
+assert(0);
+#else
+a_body = PFA(a_cfa);
+a_retaddr = (Cell *)IP;
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(a_cfa);
+      debugp(stderr,"%08lx: does %08lx %.*s exec %p\n",
+	     (Cell)ip,(Cell)a_cfa,len,name,DOES_CODEXT(a_cfa));
+    }
+#endif
+SUPER_END;
+VM_JUMP(EXEC1(DOES_CODEXT(a_cfa)));
 #endif
 
 \+glocals

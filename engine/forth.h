@@ -316,8 +316,8 @@ typedef Label *Xt;
 #  define DOES_CA ((Label)&xts[DODOES])
 #endif /* defined(DOUBLY_INDIRECT) */
 
-#define DOES_CODE1(cfa)	 ((Xt *)(cfa[1]))
-#define DOES_CODEXT(cfa) ((Xt)(cfa[1]))
+#define DOES_CODE1(cfa)	 ((Xt *)(((Cell *)cfa)[1]))
+#define DOES_CODEXT(cfa) ((Xt)(((Cell *)cfa)[1]))
 
 /* MAKE_CF creates an appropriate code field at the cfa;
    ca is the code address */
