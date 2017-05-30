@@ -464,7 +464,7 @@ opt: ( uvalue-xt to-xt -- )
     !!?addr!! drop >body @ postpone useraddr , !-table to-!, ;
 \g u-to is the to-method for user values; it's xt is only
 \g there to be consumed by @code{set-to}.
-: u-compile, ( xt -- )  >body @ postpone useraddr , postpone @ ;
+: u-compile, ( xt -- )  >body @ postpone user@ , ;
 
 : UValue ( "name" -- )
     \G Define a per-thread value
@@ -705,6 +705,7 @@ defer 0-adjust-locals-size ( -- )
 \ does>
 
 : doesxt, ( xt -- )
+\    postpone does-xt , ;
     dup >body postpone literal  cell+ @ compile, ;
 
 : !doesxt ( xt -- ) \ gforth store-doesxt

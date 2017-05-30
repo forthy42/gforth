@@ -129,10 +129,10 @@ has? header [IF]
     \ set image size
     here image-header 2 cells + !         
     ." set image entry point" cr
-    ' boot       >body  image-header #08 cells + A!
-    ' quit       >body  image-header #10 cells + A!
-    ' do-execute >body  image-header #11 cells + A!
-    ' do-find    >body  image-header #12 cells + A!
+    ' boot       >body  image-header #08 cells + !
+    ' quit       >body  image-header #10 cells + !
+    ' do-execute >body  image-header #11 cells + !
+    ' do-find    >body  image-header #12 cells + !
 [ELSE]
     >boot
 [THEN]

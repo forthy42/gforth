@@ -676,21 +676,32 @@ VARIABLE C-Pass
 [THEN]
 
 [IFDEF] useraddr
-    : search-uservar ( offset nt -- offset flag )
-	name>int dup @ douser: = IF
-	    2dup >body @ = IF  -rot nip false  EXIT
+    : ?type-found ( offset nt flag -- offset flag' )
+	IF  2dup >body @ = IF  -rot nip false  EXIT
 	    THEN  THEN  drop true ;
-    : c-useraddr ( addr -- addr' )
+    : search-uservar ( offset nt -- offset flag )
+	name>int dup @ douser: = ?type-found ;
+    : c-searcharg ( addr xt addr u -- addr' ) 2>r >r
 	display? IF
 	    0 over @
-	    [: ['] search-uservar swap traverse-wordlist ;] map-vocs drop
+	    r@ map-vocs drop
 	    display? IF
 		?dup-IF  name>string com# .string bl cemit
-		ELSE  s" uservar " com# .string
+		ELSE  r> 2r@ com# .string >r
 		    dup @ c-. bl cemit
 		THEN
 	    THEN
-	THEN  cell+ ;
+	THEN  cell+ rdrop rdrop rdrop ;
+    : c-useraddr ( addr -- addr' )
+	[: ['] search-uservar swap traverse-wordlist ;]
+	s" useraddr " c-searcharg ;
+[THEN]
+[IFDEF] user@
+    : search-userval ( offset nt -- offset flag )
+	name>int dup >does-code ['] infile-id >does-code = ?type-found ;
+    : c-user@ ( addr -- addr' )
+	[: ['] search-userval swap traverse-wordlist ;]
+	s" user@ " c-searcharg ;
 [THEN]
 
 CREATE C-Table
@@ -730,6 +741,7 @@ CREATE C-Table
 [IFDEF] u#+     ' u#+ A,            ' c-u#+ A, [THEN]
 [IFDEF] call-c# ' call-c# A,        ' c-call-c# A, [THEN]
 [IFDEF] useraddr ' useraddr A,      ' c-useraddr A, [THEN]
+[IFDEF] user@    ' user@ A,         ' c-user@ A, [THEN]
         	0 ,		here 0 ,
 
 avariable c-extender
