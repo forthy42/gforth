@@ -1123,6 +1123,7 @@ Ghost lit-perform drop
 Ghost lit+ drop
 Ghost does-exec drop
 Ghost extra-exec drop
+Ghost does-xt drop
 Ghost no-to drop
 Ghost post, drop
 Ghost refill drop
