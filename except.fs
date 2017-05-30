@@ -138,7 +138,7 @@ variable located-bottom \ last line to display with l
     THEN ;
 is throw
 
-[defined] pushwrap 0 and [if]
+[defined] pushwrap [if]
 \ usage: wrap ... end-wrap
 \ or:    wrap ... wrap-onexit ... then
 \ in combination with: exit-wrap
