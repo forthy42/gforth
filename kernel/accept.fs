@@ -53,9 +53,6 @@ here
 ' (ins) A,  \ IS insert-char
 ' noop  A,  \ IS everychar
 ' noop  A,  \ IS everyline
-' type  A,  \ is edit-type
-' spaces A, \ is edit-spaces
-' drop  A,  \ is edit-curpos
 A, here AConstant kernel-editor
 kernel-editor edit-out !
 
