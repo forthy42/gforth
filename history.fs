@@ -26,11 +26,16 @@ umethod edit-update ( span addr pos1 -- span addr pos1 )
 umethod back-restore ( u -- )
 umethod cur-correct ( addr u -- )
 umethod paste! ( addr u -- )
+cell uvar linew
+cell uvar screenw
+cell uvar setstring \ additional string at cursor for IME
+2drop
 
 align here
 ' (ins) , ' noop ,  ' noop , \ kernel stuff
 ' noop ,  ' noop ,  ' noop ,  ' noop ,
-, here Constant edit-terminal
+, here  0 , 0 , 0 ,
+Constant edit-terminal
 edit-terminal edit-out !
 
 \G deferred word to keep an editor informed about the command line content
@@ -67,10 +72,6 @@ edit-terminal edit-out !
 
 \ moving in history file                               16oct94py
 
-Variable linew
-Variable linew-all
-Variable screenw
-Variable setstring \ additional string at cursor for IME
 : linew-off  linew off cols screenw ! ;
 
 : clear-line ( max span addr pos1 -- max addr )
@@ -229,7 +230,7 @@ info-color Value setstring-color
     dup IF  ['] type setstring-color color-execute  ELSE  2drop  THEN
     >r 2dup swap r@ /string type
     2dup swap cur-correct setstring $@ x-width linew +! r>
-    linew @ linew-all ! edit-update ;
+    edit-update ;
 : .redraw ( span addr pos1 -- span addr pos1 )
     .all .rest ;
 

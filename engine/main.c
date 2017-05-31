@@ -450,7 +450,9 @@ void gforth_relocate(Cell *image, const Char *bitstring,
           /* if base is > 0: 0 is a null reference so don't adjust*/
           if (token>=base) {
             image[i]+=(Cell)start;
-          }
+          } else if(token!=0) {
+	    fprintf(stderr, "tagged item image[%x]=%llx unrelocated\n", i, (long long)image[i]);
+	  }
         }
       }
     }
