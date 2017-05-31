@@ -22,8 +22,10 @@ require user-object.fs
 edit-out next-task - class-o !
 
 3 cells 0 \ extend edit-out class
+umethod edit-type
+umethod edit-spaces
+umethod edit-curpos ( n -- ) \ cursor movement
 umethod edit-update ( span addr pos1 -- span addr pos1 )
-umethod back-restore ( u -- )
 umethod cur-correct ( addr u -- )
 umethod paste! ( addr u -- )
 cell uvar linew
@@ -33,7 +35,7 @@ cell uvar setstring \ additional string at cursor for IME
 
 align here
 ' (ins) , ' noop ,  ' noop , \ kernel stuff
-' noop ,  ' noop ,  ' noop ,  ' noop ,
+' type , ' spaces , ' noop ,  ' noop ,  ' noop ,  ' noop ,
 , here  0 , 0 , 0 ,
 Constant edit-terminal
 edit-terminal edit-out !
@@ -43,7 +45,7 @@ edit-terminal edit-out !
 
 \ command line editing                                  16oct94py
 
-: >string  ( span addr pos1 -- span addr pos1 addr2 len )
+: >edit-rest  ( span addr pos1 -- span addr pos1 addr2 len )
     \G get rest of the string
     over 3 pick 2 pick chars /string ;
 
@@ -75,9 +77,9 @@ edit-terminal edit-out !
 : linew-off  linew off cols screenw ! ;
 
 : clear-line ( max span addr pos1 -- max addr )
-    drop linew @ back-restore
+    drop linew @ negate edit-curpos
     2dup swap x-width setstring $@ x-width +
-    dup spaces back-restore nip linew off ;
+    dup edit-spaces negate edit-curpos nip linew off ;
 
 : hist-pos    ( -- ud )
     history ?dup-IF  file-position drop  ELSE  backward^ 2@  THEN ;
@@ -89,7 +91,7 @@ edit-terminal edit-out !
     ELSE  2drop 0 false  THEN ;
 
 : .edit ( addr u -- )
-    2dup type  2dup cur-correct  edit-update ;
+    2dup edit-type  2dup cur-correct  edit-update ;
 
 : next-line  ( max span addr pos1 -- max span addr pos2 false )
   clear-line
@@ -218,29 +220,29 @@ info-color Value setstring-color
 : color-execute ( color xt -- )
     attr! catch default-color attr! throw ;
 
-: xback-restore ( u -- )
+: xedit-curpos ( u -- )
     \ correction for line=screenw, no wraparound then!
-    dup screenw @ mod 0= over 0> and \ flag, true=-1
+    negate dup screenw @ mod 0= over 0> and \ flag, true=-1
     dup >r + screenw @ /mod negate swap r> - negate swap at-deltaxy ;
 : .rest ( addr pos1 -- addr pos1 )
-    linew @ back-restore 2dup type 2dup cur-correct ;
+    linew @ negate edit-curpos 2dup edit-type 2dup cur-correct ;
 : .all ( span addr pos1 -- span addr pos1 )
-    linew @ back-restore
-    2dup type setstring $@
-    dup IF  ['] type setstring-color color-execute  ELSE  2drop  THEN
-    >r 2dup swap r@ /string type
+    linew @ negate edit-curpos
+    2dup edit-type setstring $@
+    dup IF  ['] edit-type setstring-color color-execute  ELSE  2drop  THEN
+    >r 2dup swap r@ /string edit-type
     2dup swap cur-correct setstring $@ x-width linew +! r>
     edit-update ;
 : .redraw ( span addr pos1 -- span addr pos1 )
     .all .rest ;
 
 : xretype ( max span addr pos1 -- max span addr pos1 f )
-    linew @ dup back-restore  screenw @ /mod
-    cols dup screenw ! * + dup spaces linew !
+    linew @ dup negate edit-curpos  screenw @ /mod
+    cols dup screenw ! * + dup edit-spaces linew !
     .redraw false ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
-    linew @ back-restore 2 pick dup spaces back-restore
+    linew @ negate edit-curpos 2 pick dup edit-spaces negate edit-curpos
     linew off  false ;
 
 \ In the following, addr max is the buffer, addr span is the current
@@ -249,7 +251,7 @@ info-color Value setstring-color
 : <xins>  ( max span addr pos1 xc -- max span addr pos2 )
     >r  2over r@ xc-size + u< IF  ( max span addr pos1 R:xc )
 	rdrop bell  EXIT  THEN
-    >string over r@ xc-size + swap move
+    >edit-rest over r@ xc-size + swap move
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
@@ -280,11 +282,11 @@ info-color Value setstring-color
     ELSE  bell  THEN 0 ;
 : (xdel)  ( max span addr pos1 -- max span addr pos2 )
     over + dup xchar- tuck - >r over -
-    >string over r@ + -rot move
+    >edit-rest over r@ + -rot move
     rot r> - -rot ;
 : xdel ( max span addr pos1 -- max span addr pos2 )
     2dup + dup xchar- tuck - x-width >r
-    (xdel) .all r@ spaces r> linew +! .rest ;
+    (xdel) .all r@ edit-spaces r> linew +! .rest ;
 : ?xdel ( max span addr pos1 -- max span addr pos2 0 )
     dup  IF  xdel  THEN  0 ;
 : <xdel> ( max span addr pos1 -- max span addr pos2 0 )
@@ -305,11 +307,11 @@ Variable paste$
 
 : xclear-rest ( max span addr pos -- max pos addr pos false )
     rot >r tuck 2dup r> swap /string 2dup paste!
-    x-width dup spaces linew +! .all 0 ;
+    x-width dup edit-spaces linew +! .all 0 ;
 
 : xclear-first ( max span addr pos -- max pos addr pos false )
-    2dup paste! linew @ back-restore >r
-    2dup swap x-width dup spaces back-restore  linew off
+    2dup paste! linew @ negate edit-curpos >r
+    2dup swap x-width dup edit-spaces negate edit-curpos  linew off
     2dup swap r@ /string 2 pick swap move
     swap r> - swap 0 .redraw 0 ;
 
@@ -324,8 +326,8 @@ Variable paste$
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )
     prefix-found cell+ @ ?dup IF  >r
-	r@ - >string over r@ + -rot move
-	rot r@ - -rot .all r@ spaces r> back-restore .rest THEN ;
+	r@ - >edit-rest over r@ + -rot move
+	rot r@ - -rot .all r@ edit-spaces r> negate edit-curpos .rest THEN ;
 
 [IFUNDEF] insert
 : insert   ( string length buffer size -- )
@@ -339,7 +341,7 @@ Variable paste$
     search-prefix tib-full?
     IF    bell  2drop  prefix-off
     ELSE  dup >r
-	2>r >string r@ + 2r> 2swap insert
+	2>r >edit-rest r@ + 2r> 2swap insert
 	r@ + rot r> + -rot
     THEN
     prefix-found @ IF  bl (xins)  ELSE  .redraw  THEN  0 ;
@@ -347,7 +349,7 @@ Variable paste$
 : xpaste ( max span addr pos -- max span' addr pos' false )
     2over paste$ $@len + u< IF
 	rdrop bell  0 EXIT  THEN
-    >string paste$ $@ 2swap paste$ $@len + insert
+    >edit-rest paste$ $@ 2swap paste$ $@len + insert
     paste$ $@len + 2>r paste$ $@len + 2r> .redraw  0 ;
 
 : xtranspose ( max span addr pos -- max span' addr pos' false )
@@ -382,7 +384,7 @@ Create xchar-ctrlkeys ( -- )
 ' (xins)        IS insert-char
 ' kill-prefix   IS everychar
 ' linew-off     IS everyline
-' xback-restore IS back-restore
+' xedit-curpos  IS edit-curpos
 ' xcur-correct  IS cur-correct
 
 xchar-history

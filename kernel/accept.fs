@@ -17,6 +17,14 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+user-o edit-out
+
+0 0
+umethod insert-char
+umethod everychar
+umethod everyline
+2drop
+
 : (ins) ( max span addr pos1 key -- max span addr pos2 )
     >r  2over = IF  rdrop bell  EXIT  THEN
     2dup + r@ swap c! r> emit 1+ rot 1+ -rot ;
@@ -41,18 +49,13 @@ Create std-ctrlkeys
     ' false a, ' false a, ' false a, ' false a,
 std-ctrlkeys AValue ctrlkeys
 
-user-o edit-out
-
-0 0
-umethod insert-char
-umethod everychar
-umethod everyline
-2drop
-
 here
-' (ins) A, \ IS insert-char
-' noop  A, \ IS everychar
-' noop  A, \ IS everyline
+' (ins) A,  \ IS insert-char
+' noop  A,  \ IS everychar
+' noop  A,  \ IS everyline
+' type  A,  \ is edit-type
+' spaces A, \ is edit-spaces
+' drop  A,  \ is edit-curpos
 A, here AConstant kernel-editor
 kernel-editor edit-out !
 

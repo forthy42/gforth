@@ -327,7 +327,7 @@ Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
     0 -rot bounds ?DO  1+ I I' over - x-size +LOOP ;
 
 : android-edit-update ( span addr pos1 -- span addr pos1 )
-    2dup xcs swap >r >r
+    xedit-update  2dup xcs swap >r >r
     2dup swap make-jstring r> clazz .setEditLine r> ;
 ' android-edit-update is edit-update
 
