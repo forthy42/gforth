@@ -21,8 +21,7 @@ require user-object.fs
 
 edit-out next-task - class-o !
 
-3 cells 0 \ extend edit-out class
-umethod edit-update ( span addr pos1 -- span addr pos1 )
+4 cells 0 \ extend edit-out class
 umethod paste! ( addr u -- )
 cell uvar edit-curpos
 cell uvar edit-linew
@@ -74,6 +73,9 @@ edit-terminal edit-out !
 : clear-line ( max span addr pos1 -- max addr )
     drop nip ;
 
+: xretype ( max span addr pos1 -- max span addr pos1 f )
+    edit-update false ;
+
 : hist-pos    ( -- ud )
     history ?dup-IF  file-position drop  ELSE  backward^ 2@  THEN ;
 : hist-setpos ( ud -- )
@@ -88,7 +90,7 @@ edit-terminal edit-out !
   forward^ 2@ 2dup hist-setpos backward^ 2!
   2dup get-line drop
   hist-pos  forward^ 2!
-  tuck edit-update 0 ;
+  tuck xretype ;
 
 : find-prev-line ( max addr -- max span addr pos2 )
   backward^ 2@ forward^ 2!
@@ -100,7 +102,7 @@ edit-terminal edit-out !
   REPEAT  2drop  THEN  tuck ;
 
 : prev-line  ( max span addr pos1 -- max span addr pos2 false )
-    clear-line find-prev-line edit-update 0 ;
+    clear-line find-prev-line xretype ;
 
 \ Create lfpad #lf c,
 
@@ -221,9 +223,6 @@ info-color Value setstring-color
     .resizeline .all .rest ;
 ' xedit-update is edit-update
 
-: xretype ( max span addr pos1 -- max span addr pos1 f )
-    edit-update false ;
-
 : xhide ( max span addr pos1 -- max span addr pos1 f )
     over 0 tuck edit-update 2drop drop  false ;
 
@@ -299,7 +298,7 @@ info-color Value setstring-color
 	?dup-IF  write-line drop \ don't worry about errors
 	ELSE  2drop  THEN
 	hist-pos 2dup backward^ 2! end^ 2!
-    THEN  over edit-update space true ;
+    THEN  over edit-update true ;
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )
     prefix-found cell+ @ ?dup-IF  >r

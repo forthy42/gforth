@@ -23,6 +23,7 @@ user-o edit-out
 umethod insert-char
 umethod everychar
 umethod everyline
+umethod edit-update ( span addr pos1 -- span addr pos1 )
 2drop
 
 : (ins) ( max span addr pos1 key -- max span addr pos2 )
@@ -33,7 +34,7 @@ umethod everyline
 	#bs emit space #bs emit 1- rot 1- -rot
     THEN false ;
 : (ret) ( max span addr pos1 -- max span addr pos2 flag )
-    true space ;
+    true ;
 
 Create std-ctrlkeys
     ' false a, ' false a, ' false a, ' false a, 
@@ -49,10 +50,14 @@ Create std-ctrlkeys
     ' false a, ' false a, ' false a, ' false a,
 std-ctrlkeys AValue ctrlkeys
 
+: (edit-update) ( span addr pos -- span addr pos )
+    2dup type ; \ fake kernel edit-update, only for edit-line
+
 here
 ' (ins) A,  \ IS insert-char
 ' noop  A,  \ IS everychar
 ' noop  A,  \ IS everyline
+' (edit-update) A, \ IS edit-update
 A, here AConstant kernel-editor
 kernel-editor edit-out !
 
@@ -72,9 +77,7 @@ Defer edit-key
 : edit-line ( c-addr n1 n2 -- n3 ) \ gforth
     \G edit the string with length @var{n2} in the buffer @var{c-addr
     \G n1}, like @code{accept}.
-    everyline
-    rot over
-    2dup type
+    everyline  rot over  edit-update
     BEGIN  edit-key decode  UNTIL
     2drop nip ;
     
@@ -86,4 +89,4 @@ Defer edit-key
     \G on the Forth command line (including history and word
     \G completion) in @code{accept}.
     dup 0< -&24 and throw \ use edit-line to edit given strings
-    0 edit-line ;
+    0 edit-line space ;
