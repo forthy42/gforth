@@ -90,7 +90,8 @@ terminal-input @       \ source -> terminal-input::source
     current-input @ over cell+ current-input ! old-input ! r> max#tib !
     ! ;
 : expand-tib ( n -- )
-    dup tib+ + current-input @ cell- swap cell+ resize throw current-input !
+    dup tib+ +
+    current-input @ cell- swap cell+ resize throw cell+ current-input !
     max#tib ! tib max#tib @ #tib @ /string 0 fill ;
 
 : push-file  ( -- ) \ gforth

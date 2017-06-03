@@ -23,6 +23,7 @@ edit-out next-task - class-o !
 
 4 cells 0 \ extend edit-out class
 umethod paste! ( addr u -- )
+umethod grow-tib ( max span addr pos1 more -- max span addr pos1 flag )
 cell uvar edit-curpos
 cell uvar edit-linew
 cell uvar screenw
@@ -31,8 +32,8 @@ cell uvar paste$
 2drop
 
 align here
-' (ins) , ' noop ,  ' noop , \ kernel stuff
-' noop ,  ' noop , \ extended stuff
+' (ins) , ' noop ,  ' noop , ' noop ,  \ kernel stuff
+' noop ,  ' 0> , \ extended stuff
 , here  0 , 0 , 0 , 0 , 0 ,
 Constant edit-terminal
 edit-terminal edit-out !
@@ -184,8 +185,8 @@ Create prefix-found  0 , 0 ,
     cell -LOOP
     prefix-string ;
 
-: tib-full? ( max span addr pos addr' len' -- max span addr pos addr1 u flag )
-    5 pick over 4 pick + prefix-found @ 0<> - < ;
+: tib-full? ( max span addr pos addr' len' -- max span addr pos addr' len' flag )
+    5 pick over 4 pick + u< ;
 
 : kill-prefix  ( key -- key )
   dup #tab <> IF  prefix-off  THEN ;
@@ -221,7 +222,6 @@ info-color Value setstring-color
 : xedit-update ( span addr pos1 -- span addr pos1 )
     \G word to update the editor display
     .resizeline .all .rest ;
-' xedit-update is edit-update
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
     over 0 tuck edit-update 2drop drop  false ;
@@ -229,9 +229,16 @@ info-color Value setstring-color
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
 
+: xgrow-tib { max span addr pos1 more -- max span addr pos1 flag }
+    max span more + u> IF  max span addr pos1 true  EXIT  THEN
+    addr tib = IF
+	span #tib !
+	span more + max#tib @ 2* umax ~~ expand-tib ~~
+	max#tib @ span tib pos1 true ~~ EXIT  THEN
+    max span addr pos1 false ;
+
 : <xins>  ( max span addr pos1 xc -- max span addr pos2 )
-    >r  2over r@ xc-size + u< IF  ( max span addr pos1 R:xc )
-	rdrop bell  EXIT  THEN
+    >r  r@ xc-size grow-tib 0= IF  rdrop bell 0  EXIT  THEN
     >edit-rest over r@ xc-size + swap move
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
@@ -281,7 +288,6 @@ info-color Value setstring-color
 
 : xpaste! ( addr u -- )
     paste$ $! ;
-' xpaste! is paste!
 
 : xclear-rest ( max span addr pos -- max pos addr pos false )
     >edit-rest paste! rot drop tuck xretype ;
@@ -314,17 +320,14 @@ info-color Value setstring-color
 : xtab-expand ( max span addr pos1 -- max span addr pos2 0 )
     key? IF  #tab (xins) 0  EXIT  THEN
     xkill-expand 2dup extract-word dup 0= IF  nip EXIT  THEN
-    search-prefix tib-full?
-    IF    bell  2drop  prefix-off
-    ELSE  dup >r
-	2>r >edit-rest r@ + 2r> 2swap insert
-	r@ + rot r> + -rot
-    THEN
+    search-prefix tuck 2>r  prefix-found @ 0<> - grow-tib
+    0= IF  bell  2rdrop  prefix-off 0  EXIT  THEN
+    >edit-rest r@ + 2r> dup >r 2swap insert
+    r@ + rot r> + -rot
     prefix-found @ IF  bl (xins)  ELSE  edit-update  THEN  0 ;
 
 : xpaste ( max span addr pos -- max span' addr pos' false )
-    2over paste$ $@len + u< IF
-	rdrop bell  0 EXIT  THEN
+    paste$ $@len grow-tib 0= IF  bell  0 EXIT  THEN
     >edit-rest paste$ $@ 2swap paste$ $@len + insert
     paste$ $@len + 2>r paste$ $@len + 2r> edit-update  0 ;
 
@@ -360,6 +363,9 @@ Create xchar-ctrlkeys ( -- )
 ' (xins)          IS insert-char
 ' kill-prefix     IS everychar
 ' edit-curpos-off IS everyline
+' xedit-update    IS edit-update
+' xpaste!         IS paste!
+' xgrow-tib       IS grow-tib
 
 xchar-history
 
