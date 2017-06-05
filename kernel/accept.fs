@@ -74,13 +74,15 @@ align , , here
 A, here 0 , AConstant kernel-editor
 kernel-editor edit-out !
 
+: >control ( key -- ctrl-key )
+    dup -1 =   IF  drop 4  THEN  \ -1 is EOF
+    dup #del = IF  drop #bs  THEN ; \ del is rubout
+
 : decode ( max span addr pos1 key -- max span addr pos2 flag )
     \ perform action corresponding to key; addr max is the buffer,
     \ addr span is the current string in the buffer, and pos1 is the
     \ cursor position in the buffer.
-    everychar
-    dup -1 =   IF  drop 4  THEN  \ -1 is EOF
-    dup #del = IF  drop #bs  THEN  \ del is rubout
+    everychar  >control
     dup bl u<  IF  edit-control  EXIT  THEN
     \ check for end reached
     insert-char key? 0= IF  edit-update  THEN 0 ;

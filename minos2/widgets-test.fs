@@ -29,10 +29,10 @@ glue*1 $7FFF7FFF 8e  }}frame dup .button1 simple[] value f5
 glue*2 $7FFFFFFF 16e }}frame dup .button2 simple[] value f6
 text new value t1
 text new value t2
-text new simple[] value t3
+text new value t3
 {{ {{
-{{ f3 t2 }}z simple[] dup value z2
-{{ {{ f1 t1 }}z simple[] dup value z1 f2 t3 }}h box[] dup value h1
+{{ f3 t2 }}z t2 edit[] dup value z2
+{{ {{ f1 t1 }}z t1 edit[] dup value z1 f2 t3 }}h box[] dup value h1
 {{ f4 f5 }}h box[] dup value h2
 }}v box[] dup value h3
 f6 }}h box[] to top-widget
@@ -90,10 +90,9 @@ also [IFDEF] android android [THEN]
 
 : widgets-demo ( -- )  [IFDEF] hidekb  hidekb [THEN]  enter-minos
     1 level# +!  !widgets widgets-test  BEGIN  >looper
-	[IFDEF] android
-	    ?config-changer need-sync @ IF
-		top-widget .htop-resize  widgets-test  need-sync off  THEN
-	[THEN]
+	[IFDEF] android  ?config-changer  [THEN]
+	need-sync @ IF
+	    top-widget .htop-resize  widgets-test  need-sync off  THEN
     level# @ 0= UNTIL  leave-minos ;
 
 previous

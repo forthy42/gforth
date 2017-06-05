@@ -388,12 +388,15 @@ ctrl X k-delete ekey-bind
 ctrl L k-winch  ekey-bind
 ctrl D k-eof    ekey-bind
 
-: edit-ekey ( -- key )
-    ekey dup k-left u>= IF
+: ekey>ckey ( key -- ckey )
+    dup k-left u>= IF
 	dup [ 1 mask-shift# lshift 1- ]l and ekey>ctrl + c@
 	swap mask-shift# rshift 7 and vt100-modifier !
     ELSE  vt100-modifier off
     THEN ;
+
+: edit-ekey ( -- key )
+    ekey ekey>ckey ;
 
 ' edit-ekey is edit-key
 

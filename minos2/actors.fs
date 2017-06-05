@@ -38,7 +38,7 @@ end-class simple-actor
     and o> ;
 ' simple-inside? simple-actor is inside?
 
-debug: event(
+debug: event( +db event(
 :noname { f: rx f: ry b n -- }
     event( ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
 :noname ( addr u -- )
@@ -114,4 +114,55 @@ box-actor is clicked
     >o box-actor new to act o act >o to caller-w o> o o> ;
 
 \ edit actor
+
+edit-terminal-c class
+    cell uvar edit$ \ pointer to the edited string
+end-class edit-widget-c
+
+edit-widget-c ' new static-a with-allocater Constant edit-widget
+
+: grow-edit$ { max span addr pos1 more -- max span addr pos1 true }
+    max span more + u> IF  max span addr pos1 true  EXIT  THEN
+    span more + edit$ @ $!len
+    edit$ @ $@ swap span swap pos1 true ;
+
+edit-widget edit-out !
+
+' grow-edit$ is grow-tib
+' noop is edit-update \ no need to do that here
+
+edit-terminal edit-out !
+
+simple-actor class
+    value: edit-curpos
+    value: edit-w
+end-class edit-actor
+
+\ edit things
+
+: edit-xt ( xt o:actor -- )
+    edit-out @ >r  history >r  edit-widget edit-out !  >r  0 to history
+    edit-w >o addr text$ o> dup edit$ ! $@ swap over swap edit-curpos
+    r> catch >r to edit-curpos drop edit$ @ $!len drop
+    r> r> edit-out !  r> to history throw
+    need-sync on ;
+
+keycode-limit keycode-start - 1+ buffer: keycode-tab
+: bind-ekey ( ctrl ekey -- )  [ keycode-tab keycode-start - ]L + c! ;
+ctrl F k-right bind-ekey
+ctrl B k-left  bind-ekey
+ctrl P k-up    bind-ekey
+ctrl N k-down  bind-ekey
+
+:noname ( key o:actor -- )
+    [: 4 roll ekey>ckey dup k-shift-mask u>= IF
+	    dup mask-shift# rshift 7 and vt100-modifier !
+	    [ 1 mask-shift# lshift 1- ]L and  THEN
+	>control edit-control drop ;] edit-xt ; edit-actor is ekeyed
+:noname ( addr u o:actor -- )
+    [: 2rot insert-string ;] edit-xt ; edit-actor is ukeyed
+
+: edit[] ( o widget -- o )
+    swap >o edit-actor new to act
+    o act >o to caller-w to edit-w o> o o> ;
 

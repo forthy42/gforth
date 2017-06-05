@@ -234,7 +234,7 @@ $20 Value minpow2#
     show-rows nextpow2 >r
     videomem scroll-y @ r@ + videorows umin r@ -
     videocols * sfloats +
-    videocols r> rgba-map wrap nearest
+    videocols r> rgba-map wrap-texture nearest
 
     v0 >rectangle >texcoords
     GL_TEXTURE0 glActiveTexture

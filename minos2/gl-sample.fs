@@ -26,7 +26,7 @@ also [IFDEF] x11 x11 [THEN]
 tex: ascii-tex
 
 : load-textures ( -- )
-    ascii-tex s" ascii.png" load-texture wrap mipmap ;
+    ascii-tex s" ascii.png" load-texture wrap-texture mipmap ;
 
 \ triangle example
 

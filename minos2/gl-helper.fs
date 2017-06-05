@@ -97,7 +97,7 @@ Variable configs
 Variable numconfigs
 Variable eglformat
 
-: ??gl .s ." gl: " glGetError . ; ' ??gl is printdebugdata
+: ??gl .s ." gl: " glGetError . ." o: " o hex. ; ' ??gl is printdebugdata
 
 [IFDEF] android
     : win app window @ ;
@@ -516,7 +516,7 @@ Create white-texture \ aabbggrr
 : rgba-newtex ( w h -- ) 0 -rot rgba-map ;
 : grey-newtex ( w h -- ) 0 -rot grey-map ;
 
-: wrap ( -- )
+: wrap-texture ( -- )
     GL_TEXTURE_2D GL_TEXTURE_WRAP_S GL_REPEAT glTexParameteri
     GL_TEXTURE_2D GL_TEXTURE_WRAP_T GL_REPEAT glTexParameteri ;
 : edge ( -- )
@@ -537,9 +537,9 @@ Create white-texture \ aabbggrr
     GL_TEXTURE_EXTERNAL_OES GL_TEXTURE_WRAP_T GL_CLAMP_TO_EDGE glTexParameteri ;
 [THEN]
 
-: rgba-texture ( addr w h -- )  rgba-map wrap ;
+: rgba-texture ( addr w h -- )  rgba-map wrap-texture ;
 
-: no-texture ( -- )  white-texture 2 2 rgba-texture wrap nearest ;
+: no-texture ( -- )  white-texture 2 2 rgba-texture wrap-texture nearest ;
 
 0 Value current-tex
 
