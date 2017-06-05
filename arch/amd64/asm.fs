@@ -270,7 +270,7 @@ $AB bc.b: stos  $AD bc.b: lods  $AF bc.b: scas
 : ?64off  .64bit @ .anow @ 0= and IF  10 disp# ! THEN  0 sib# ! ;
 : ?ofax ( reg ax -- flag )
     .64bit @ IF  44  ELSE  .anow @ IF 55 ELSE 66 THEN  THEN AX d= ;
-: mov ( r/m reg / reg r/m / reg -- )  ( 2dup or 0> ) imm# @ ( and )
+: mov ( r/m reg / reg r/m / reg -- ) imm# @
   IF    assign#  reg?
         IF    >reg  $B8 or byte? @ 3 lshift xor  byte? off
 	      .64now @ IF  10 imm# !  THEN
