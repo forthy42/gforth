@@ -64,10 +64,14 @@ XK_F10       , k-f10 ,
 XK_F12       , k-f11 ,
 XK_F12       , k-f12 ,
 0            , 0 ,
-DOES> ( x-key -- addr u )
-  swap >r
-  BEGIN  dup cell+ swap @ dup r@ <> and WHILE  cell+  REPEAT
-  @ rdrop e.state xmeta@ mask-shift# lshift or ;
+DOES> ( x-key [addr] -- ekey )
+  over '@' #del within IF  drop
+      e.state ControlMask and IF  $1F and  THEN
+  ELSE
+      swap >r
+      BEGIN  dup cell+ swap @ dup r@ <> and WHILE  cell+  REPEAT
+      @ rdrop dup 0= ?EXIT
+  THEN  e.state xmeta@ mask-shift# lshift or ;
 
 : top-act ( -- o ) top-widget .act ;
 : resize-widgets ( w h -- )

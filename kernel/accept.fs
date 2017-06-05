@@ -26,8 +26,8 @@ umethod edit-control
 umethod everychar
 umethod everyline
 umethod edit-update ( span addr pos1 -- span addr pos1 )
+umethod ctrlkeys
 cell uvar edit-linew
-2drop
 
 : (ins) ( max span addr pos1 key -- max span addr pos2 )
     >r  2over = IF  rdrop bell  EXIT  THEN
@@ -56,7 +56,6 @@ Create std-ctrlkeys
 
     ' false a, ' false a, ' false a, ' false a, 
     ' false a, ' false a, ' false a, ' false a,
-std-ctrlkeys AValue ctrlkeys
 
 : (edit-update) ( span addr pos -- span addr pos )
     2dup edit-linew @ safe/string type
@@ -64,13 +63,14 @@ std-ctrlkeys AValue ctrlkeys
 : (edit-everyline) ( -- )
     edit-linew off ;
 
-here
+align , , here
 ' (ins) A,  \ IS insert-char
 ' (ins-string) A,   \ IS insert-string
 ' (edit-control) A, \ is edit-control
 ' noop  A,  \ IS everychar
 ' (edit-everyline) A,  \ IS everyline
 ' (edit-update) A, \ IS edit-update
+' std-ctrlkeys A,
 A, here 0 , AConstant kernel-editor
 kernel-editor edit-out !
 

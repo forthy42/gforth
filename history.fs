@@ -21,21 +21,21 @@ require user-object.fs
 
 edit-out next-task - class-o !
 
-6 cells 1 cells \ extend edit-out class
+kernel-editor cell- @ 2 cells - 2@ \ extend edit-out class
 umethod paste! ( addr u -- )
 umethod grow-tib ( max span addr pos1 more -- max span addr pos1 flag )
 cell uvar edit-curpos
 cell uvar screenw
 cell uvar setstring$ \ additional string at cursor for IME
 cell uvar paste$
-2drop
 
-align here
+align , , here
 ' (ins) , ' (ins-string) , ' (edit-control) ,
-' noop ,  ' noop , ' noop ,  \ kernel stuff
+' noop ,  ' noop , ' noop , ' std-ctrlkeys , \ kernel stuff
 ' noop ,  ' 0> , \ extended stuff
-, here  0 , 0 , 0 , 0 , 0 ,
+, here  0 , 0 , 0 , 0 , 0 , 0 ,
 Constant edit-terminal
+edit-terminal cell- @ Constant edit-terminal-c
 edit-terminal edit-out !
 
 \ command line editing                                  16oct94py
@@ -358,8 +358,7 @@ Create xchar-ctrlkeys ( -- )
     ' false        , ' false        , ' false        , ' false        ,
 
 : xchar-history ( -- )
-    xchar-ctrlkeys to ctrlkeys  edit-terminal edit-out !
-;
+    edit-terminal edit-out ! ;
 
 ' (xins)          IS insert-char
 ' xins-string     IS insert-string
@@ -368,6 +367,7 @@ Create xchar-ctrlkeys ( -- )
 ' xedit-update    IS edit-update
 ' xpaste!         IS paste!
 ' xgrow-tib       IS grow-tib
+' xchar-ctrlkeys  IS ctrlkeys
 
 xchar-history
 

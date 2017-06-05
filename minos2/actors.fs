@@ -112,3 +112,6 @@ box-actor is clicked
 
 : box[] ( o -- o )
     >o box-actor new to act o act >o to caller-w o> o o> ;
+
+\ edit actor
+
