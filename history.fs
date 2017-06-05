@@ -21,18 +21,18 @@ require user-object.fs
 
 edit-out next-task - class-o !
 
-4 cells 0 \ extend edit-out class
+6 cells 1 cells \ extend edit-out class
 umethod paste! ( addr u -- )
 umethod grow-tib ( max span addr pos1 more -- max span addr pos1 flag )
 cell uvar edit-curpos
-cell uvar edit-linew
 cell uvar screenw
 cell uvar setstring$ \ additional string at cursor for IME
 cell uvar paste$
 2drop
 
 align here
-' (ins) , ' noop ,  ' noop , ' noop ,  \ kernel stuff
+' (ins) , ' (ins-string) , ' (edit-control) ,
+' noop ,  ' noop , ' noop ,  \ kernel stuff
 ' noop ,  ' 0> , \ extended stuff
 , here  0 , 0 , 0 , 0 , 0 ,
 Constant edit-terminal
@@ -233,17 +233,15 @@ info-color Value setstring-color
     max span more + u> IF  max span addr pos1 true  EXIT  THEN
     addr tib = IF
 	span #tib !
-	span more + max#tib @ 2* umax ~~ expand-tib ~~
-	max#tib @ span tib pos1 true ~~ EXIT  THEN
+	span more + max#tib @ 2* umax expand-tib
+	max#tib @ span tib pos1 true EXIT  THEN
     max span addr pos1 false ;
 
-: <xins>  ( max span addr pos1 xc -- max span addr pos2 )
+: (xins)  ( max span addr pos1 xc -- max span addr pos2 )
     >r  r@ xc-size grow-tib 0= IF  rdrop bell 0  EXIT  THEN
     >edit-rest over r@ xc-size + swap move
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
-: (xins)  ( max span addr pos1 xc -- max span addr pos2 )
-    <xins> key? 0= IF  edit-update  THEN ;
 : xback  ( max span addr pos1 -- max span addr pos2 f )
     dup  IF
 	vt100-modifier @ IF
@@ -324,12 +322,15 @@ info-color Value setstring-color
     0= IF  bell  2rdrop  prefix-off 0  EXIT  THEN
     >edit-rest r@ + 2r> dup >r 2swap insert
     r@ + rot r> + -rot
-    prefix-found @ IF  bl (xins)  ELSE  edit-update  THEN  0 ;
+    prefix-found @ IF  bl (xins)  THEN  edit-update  0 ;
+
+: xins-string ( max span addr pos addr1 u1 -- max span' addr pos' )
+    2>r r@ grow-tib 0= IF  bell 2rdrop  EXIT  THEN
+    >edit-rest 2r@ 2swap r@ + insert
+    r@ + rot r> + -rot  rdrop ;
 
 : xpaste ( max span addr pos -- max span' addr pos' false )
-    paste$ $@len grow-tib 0= IF  bell  0 EXIT  THEN
-    >edit-rest paste$ $@ 2swap paste$ $@len + insert
-    paste$ $@len + 2>r paste$ $@len + 2r> edit-update  0 ;
+    paste$ $@ xins-string  0 ;
 
 : xtranspose ( max span addr pos -- max span' addr pos' false )
     dup IF
@@ -361,6 +362,7 @@ Create xchar-ctrlkeys ( -- )
 ;
 
 ' (xins)          IS insert-char
+' xins-string     IS insert-string
 ' kill-prefix     IS everychar
 ' edit-curpos-off IS everyline
 ' xedit-update    IS edit-update

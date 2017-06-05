@@ -21,20 +21,28 @@ user-o edit-out
 
 0 0
 umethod insert-char
+umethod insert-string
+umethod edit-control
 umethod everychar
 umethod everyline
 umethod edit-update ( span addr pos1 -- span addr pos1 )
+cell uvar edit-linew
 2drop
 
 : (ins) ( max span addr pos1 key -- max span addr pos2 )
     >r  2over = IF  rdrop bell  EXIT  THEN
-    2dup + r@ swap c! r> emit 1+ rot 1+ -rot ;
+    2dup + r> swap c! 1+ rot 1+ -rot ;
+: (ins-string) ( max span addr pos1 addr1 u1 -- max span addr pos2 )
+    2>r  2over r@ + u> IF  2rdrop bell  EXIT  THEN
+    2dup + 2r@ rot swap move  2r@ type r@ + rot r> + -rot rdrop ;
 : (bs) ( max span addr pos1 -- max span addr pos2 flag )
     dup IF
 	#bs emit space #bs emit 1- rot 1- -rot
     THEN false ;
 : (ret) ( max span addr pos1 -- max span addr pos2 flag )
     true ;
+: (edit-control) ( max span addr pos1 ctrl-key -- max span addr pos2 flag )
+    cells ctrlkeys + perform ;
 
 Create std-ctrlkeys
     ' false a, ' false a, ' false a, ' false a, 
@@ -51,14 +59,19 @@ Create std-ctrlkeys
 std-ctrlkeys AValue ctrlkeys
 
 : (edit-update) ( span addr pos -- span addr pos )
-    2dup type ; \ fake kernel edit-update, only for edit-line
+    2dup edit-linew @ safe/string type
+    dup edit-linew ! ;
+: (edit-everyline) ( -- )
+    edit-linew off ;
 
 here
 ' (ins) A,  \ IS insert-char
+' (ins-string) A,   \ IS insert-string
+' (edit-control) A, \ is edit-control
 ' noop  A,  \ IS everychar
-' noop  A,  \ IS everyline
+' (edit-everyline) A,  \ IS everyline
 ' (edit-update) A, \ IS edit-update
-A, here AConstant kernel-editor
+A, here 0 , AConstant kernel-editor
 kernel-editor edit-out !
 
 : decode ( max span addr pos1 key -- max span addr pos2 flag )
@@ -68,9 +81,9 @@ kernel-editor edit-out !
     everychar
     dup -1 =   IF  drop 4  THEN  \ -1 is EOF
     dup #del = IF  drop #bs  THEN  \ del is rubout
-    dup bl u<  IF  cells ctrlkeys + perform  EXIT  THEN
+    dup bl u<  IF  edit-control  EXIT  THEN
     \ check for end reached
-    insert-char 0 ;
+    insert-char key? 0= IF  edit-update  THEN 0 ;
 
 Defer edit-key
 

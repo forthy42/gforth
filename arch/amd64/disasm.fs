@@ -190,7 +190,12 @@ Create .16disp  ' noop , ' +8b , ' +16b ,
 : .rmod ( addr -- addr' )  mod@ >r .addr r> ., .r/reg ;
 
 : .imm  ( addr -- addr' )  length @
-  dup 0= IF  drop  dup l@  .$ds 4 + exit  THEN
+    dup 0= IF  drop dup l@  .$ds 4 + exit  THEN
+  1 =    IF  wcount .$ds exit  THEN  count .$bs ;
+: .imm64  ( addr -- addr' )  length @
+    dup 0= IF  drop dup
+	w? IF  @ .$ds cell+  ELSE  l@  .$ds 4 +  THEN
+	exit  THEN
   1 =    IF  wcount .$ds exit  THEN  count .$bs ;
 
 \ .ari                                                 07feb93py
@@ -208,9 +213,9 @@ Defer .code
 : .rexdec  .amd64mode @ IF  opcode @ rex !  .code  rex off  EXIT  THEN
     ." dec" .gr ;
 
-: .igrv  .gr ., .imm ;
+: .igrv  .gr ., .imm64 ;
 : .igrb  2 length ! .igrv ;
-: .igr   .b? .igrv ;
+: .igr   .b? .gr ., .imm ;
 : .modb  .b? tab .rmod ;
 
 : .xcha  .gr ., 0 .m/reg ;
