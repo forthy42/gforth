@@ -73,11 +73,11 @@ texture_font_new_from_file Value font2
 previous
 
 : !t1 ( -- ) t1 >o
-    "Dös isch a Tägscht!" font1 text!  24e to border
+    "Dös isch a Tägscht!" font1 edit!  24e to border
     $884400FF to text-color o> ;
 
 : !t2 ( -- ) t2 >o
-    "这是一个文本：在德语说" font2 text!  8e to border
+    "这是一个文本：在德语说" font2 edit!  8e to border
     $001122DF to text-color o> ;
 
 : !t3 ( -- ) t3 >o

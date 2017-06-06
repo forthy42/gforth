@@ -66,12 +66,17 @@ actor class
     value: active-w
 end-class box-actor
 
+: re-focus { c-act -- }
+    c-act .active-w ?dup-IF  .act .defocus  THEN
+    o c-act >o to active-w o>
+    c-act .active-w ?dup-IF  .act .focus  THEN ;
+
 :noname ( rx ry b n -- )
     fover fover simple-inside? IF
 	o caller-w >o
 	[: { c-act } act IF  fover fover act .inside?
 		IF
-		    o c-act >o to active-w o>
+		    c-act re-focus
 		    fover fover 2dup act .clicked   THEN  THEN
 	c-act ;] do-childs o> drop
     THEN  2drop fdrop fdrop ;
@@ -87,7 +92,7 @@ box-actor is clicked
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
 		IF
-		    o c-act >o to active-w o>
+		    c-act re-focus
 		    2dup act .touchdown   THEN  THEN
 	c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchdown
@@ -96,7 +101,7 @@ box-actor is clicked
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
 		IF
-		    o c-act >o to active-w o>
+		    c-act re-focus
 		    2dup act .touchup   THEN  THEN
 	c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchup
@@ -105,10 +110,11 @@ box-actor is clicked
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
 		IF
-		    o c-act >o to active-w o>
+		    \ c-act re-focus
 		    2dup act .touchmove  THEN  THEN
-	c-act ;] do-childs o> drop
+	    c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchmove
+:noname ( -- ) caller-w >o [: act ?dup-IF  .defocus  THEN ;] do-childs o> ; box-actor is defocus
 
 : box[] ( o -- o )
     >o box-actor new to act o act >o to caller-w o> o o> ;
@@ -128,14 +134,32 @@ edit-widget-c ' new static-a with-allocater Constant edit-widget
 
 edit-widget edit-out !
 
+bl cells buffer: edit-ctrlkeys
+xchar-ctrlkeys edit-ctrlkeys bl cells move
+
+' edit-ctrlkeys is ctrlkeys
 ' grow-edit$ is grow-tib
 ' noop is edit-update \ no need to do that here
+' noop is edit-error  \ no need to make annoying bells
 
-edit-terminal edit-out !
+\ extra key bindings for editors
 
 simple-actor class
+    method edit-next-line
+    method edit-prev-line
+    defer: edit-enter
     value: edit-w
 end-class edit-actor
+
+' false edit-actor is edit-next-line
+' false edit-actor is edit-prev-line
+    
+' edit-next-line ctrl N bindkey
+' edit-prev-line ctrl P bindkey
+' edit-enter     #lf    bindkey
+' edit-enter     #cr    bindkey
+
+edit-terminal edit-out !
 
 \ edit things
 
@@ -153,8 +177,12 @@ end-class edit-actor
 	>control edit-control drop ;] edit-xt ; edit-actor is ekeyed
 :noname ( addr u o:actor -- )
     [: 2rot insert-string ;] edit-xt ; edit-actor is ukeyed
+:noname ( o:actor -- )
+    edit-w >o -1 to cursize o> need-sync on ; edit-actor is defocus
+:noname ( o:actor -- )
+    edit-w >o 0 to cursize o> need-sync on ; edit-actor is focus
 
 : edit[] ( o widget -- o )
     swap >o edit-actor new to act
-    o act >o to caller-w to edit-w o> o o> ;
+    o act >o to caller-w to edit-w ['] true is edit-enter o> o o> ;
 

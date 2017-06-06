@@ -24,6 +24,7 @@ edit-out next-task - class-o !
 kernel-editor cell- @ 2 cells - 2@ \ extend edit-out class
 umethod paste! ( addr u -- )
 umethod grow-tib ( max span addr pos1 more -- max span addr pos1 flag )
+umethod edit-error
 cell uvar edit-curpos
 cell uvar screenw
 cell uvar setstring$ \ additional string at cursor for IME
@@ -238,7 +239,7 @@ info-color Value setstring-color
     max span addr pos1 false ;
 
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
-    >r  r@ xc-size grow-tib 0= IF  rdrop bell 0  EXIT  THEN
+    >r  r@ xc-size grow-tib 0= IF  rdrop edit-error 0  EXIT  THEN
     >edit-rest over r@ xc-size + swap move
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
@@ -253,7 +254,7 @@ info-color Value setstring-color
 	    over + xchar- over -
 	THEN
 	0 max edit-update
-    ELSE  bell  THEN 0 ;
+    ELSE  edit-error  THEN 0 ;
 : xforw  ( max span addr pos1 -- max span addr pos2 f )
     2 pick over <> IF
 	vt100-modifier @ IF
@@ -265,7 +266,7 @@ info-color Value setstring-color
 	    over + xchar+ over -
 	THEN
 	edit-update
-    ELSE  bell  THEN 0 ;
+    ELSE  edit-error  THEN 0 ;
 : (xdel)  ( max span addr pos1 -- max span addr pos2 )
     over + dup xchar- tuck - >r over -
     >edit-rest over r@ + -rot move
@@ -276,7 +277,7 @@ info-color Value setstring-color
     dup  IF  xdel  THEN  0 ;
 : <xdel> ( max span addr pos1 -- max span addr pos2 0 )
     2 pick over <>
-    IF  xforw drop xdel  ELSE  bell  THEN  0 ;
+    IF  xforw drop xdel  ELSE  edit-error  THEN  0 ;
 : xeof  2 pick over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
 
 : xfirst-pos  ( max span addr pos1 -- max span addr 0 0 )
@@ -319,13 +320,13 @@ info-color Value setstring-color
     key? IF  #tab (xins) 0  EXIT  THEN
     xkill-expand 2dup extract-word dup 0= IF  nip EXIT  THEN
     search-prefix tuck 2>r  prefix-found @ 0<> - grow-tib
-    0= IF  bell  2rdrop  prefix-off 0  EXIT  THEN
+    0= IF  edit-error  2rdrop  prefix-off 0  EXIT  THEN
     >edit-rest r@ + 2r> dup >r 2swap insert
     r@ + rot r> + -rot
     prefix-found @ IF  bl (xins)  THEN  edit-update  0 ;
 
 : xins-string ( max span addr pos addr1 u1 -- max span' addr pos' )
-    2>r r@ grow-tib 0= IF  bell 2rdrop  EXIT  THEN
+    2>r r@ grow-tib 0= IF  edit-error 2rdrop  EXIT  THEN
     >edit-rest 2r@ 2swap r@ + insert
     r@ + rot r> + -rot  rdrop ;
 
@@ -368,6 +369,7 @@ Create xchar-ctrlkeys ( -- )
 ' xpaste!         IS paste!
 ' xgrow-tib       IS grow-tib
 ' xchar-ctrlkeys  IS ctrlkeys
+' bell            IS edit-error
 
 xchar-history
 

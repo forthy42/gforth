@@ -20,17 +20,46 @@
 \ A MINOS2 widget is composed of drawable elements, boxes and actors.
 \ to make things easier, neither drawable elements nor boxes need an actor.
 
+[IFUNDEF] no-file#
+    2 Constant ENOENT
+    #-512 ENOENT - Constant no-file#
+[THEN]
+
 require gl-terminal.fs
 ctx 0= [IF] window-init [THEN]
 
 require ftgl-helper.fs
 require mini-oof2.fs
+require config.fs
 
 get-current
 also [IFDEF] android android [THEN]
 also opengl
 
 vocabulary minos  also minos definitions
+
+vocabulary m2c \ minos2 config
+get-current also m2c definitions
+FVariable cursorshade%
+FVariable curminwidth%
+FVariable curminchars#
+set-current
+
+2e 3e f/ cursorshade% f!
+3e curminwidth% f!
+0 curminchars# !
+
+previous
+
+Variable configured?
+Variable config-file$  s" ~/.minos2rc" config-file$ $!
+
+: ?.minos-config ( -- )  true configured? !@ ?EXIT
+    s" MINOS2_CONF" getenv dup IF  config-file$ $!  ELSE  2drop  THEN
+    config-file$ $@ 2dup file-status nip ['] m2c >body swap
+    no-file# = IF  write-config  ELSE  read-config  THEN ;
+
+?.minos-config
 
 0 Value layer \ drawing layer
 
@@ -246,20 +275,25 @@ text class
     value: cursize
 end-class edit
 
-1e Fvalue curminwidth
-
-:noname ( -- )  text-font to font
+:noname ( -- )
+    cursize 0< ?EXIT  text-font to font
+    w border f2* f- text-w f/ { f: scale }
     text$ curpos umin layout-string fdrop fdrop
-    w border f2* f- text-w f/ f* { f: w }
-    x w f+ curminwidth f- border f+  y d border f- f+ { f: x0 f: y0 }
-    x0 curminwidth f2* f+ y h border f- f- { f: x1 f: y1 }
-    i? text-color >v
+    scale f* { f: w }
+    text$ curpos safe/string cursize m2c:curminchars# @ umax umin
+    layout-string fdrop fdrop m2c:curminwidth% f@ fmax scale f* { f: cw }
+    x w f+ border f+  y d border f- f+ { f: x0 f: y0 }
+    x0 cw f+ y h border f- f- { f: x1 f: y1 }
+    i? text-color dup $FF and m2c:cursorshade% f@ fm* f>s $FFFFFF00 mux >v
     x0 y1 >xy dup rgba>c n> 0e 0e >st v+
     x1 y1 >xy dup rgba>c n> 1e 0e >st v+
     x1 y0 >xy dup rgba>c n> 0e 1e >st v+
     x0 y0 >xy     rgba>c n> 1e 1e >st v+
     v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i,
 ; edit to draw-marking
+
+: edit! ( addr u font -- )
+    text!  text$ nip to curpos  -1 to cursize ;
 
 \ draw wrapper
 
@@ -472,8 +506,8 @@ $10 stack: box-depth
     <draw-icon      draw-icon      render>
     <draw-thumbnail draw-thumbnail render>
     <draw-image     draw-image     draw-image>
-    <draw-text      draw-text      render>
     <draw-marking   draw-marking   render>
+    <draw-text      draw-text      render>
     sync ;
 
 0 Value top-widget
