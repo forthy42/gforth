@@ -33,7 +33,7 @@ cell uvar paste$
 align , , here
 ' (ins) , ' (ins-string) , ' (edit-control) ,
 ' noop ,  ' noop , ' noop , ' std-ctrlkeys , \ kernel stuff
-' noop ,  ' 0> , \ extended stuff
+' noop ,  ' 0> , ' bell , \ extended stuff
 , here  0 , 0 , 0 , 0 , 0 , 0 ,
 Constant edit-terminal
 edit-terminal cell- @ Constant edit-terminal-c
@@ -361,6 +361,8 @@ Create xchar-ctrlkeys ( -- )
 : xchar-history ( -- )
     edit-terminal edit-out ! ;
 
+xchar-history
+
 ' (xins)          IS insert-char
 ' xins-string     IS insert-string
 ' kill-prefix     IS everychar
@@ -370,8 +372,6 @@ Create xchar-ctrlkeys ( -- )
 ' xgrow-tib       IS grow-tib
 ' xchar-ctrlkeys  IS ctrlkeys
 ' bell            IS edit-error
-
-xchar-history
 
 \ initializing history
 
