@@ -84,6 +84,7 @@ object class
     method draw-thumbnail ( -- ) \ thumbnails draw
     method draw-image ( -- ) \ image draw
     method draw-text ( -- ) \ text draw
+    method draw-marking ( -- ) \ draw some marking
     method hglue ( -- rtyp rsub radd )
     method dglue ( -- rtyp rsub radd )
     method vglue ( -- rtyp rsub radd )
@@ -238,6 +239,28 @@ Variable glyphs$
 :noname h 0e fdup ; text to vglue
 :noname d 0e fdup ; text to dglue
 
+\ editable text widget
+
+text class
+    value: curpos
+    value: cursize
+end-class edit
+
+1e Fvalue curminwidth
+
+:noname ( -- )  text-font to font
+    text$ curpos umin layout-string fdrop fdrop
+    w border f2* f- text-w f/ f* { f: w }
+    x w f+ curminwidth f- border f+  y d border f- f+ { f: x0 f: y0 }
+    x0 curminwidth f2* f+ y h border f- f- { f: x1 f: y1 }
+    i? text-color >v
+    x0 y1 >xy dup rgba>c n> 0e 0e >st v+
+    x1 y1 >xy dup rgba>c n> 1e 0e >st v+
+    x1 y0 >xy dup rgba>c n> 0e 1e >st v+
+    x0 y0 >xy     rgba>c n> 1e 1e >st v+
+    v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i,
+; edit to draw-marking
+
 \ draw wrapper
 
 : <draw-init ( -- )
@@ -255,7 +278,12 @@ Variable glyphs$
 : <draw-thumbnail ( -- )  ; \ icon draw, one draw call in total
 : <draw-image ( -- )  ; \ image draw, one draw call per image
 : draw-image> ( -- ) ;
-: <draw-text ( -- )  <render ; \ text draw, one draw call in total
+: <draw-text ( -- )
+    1-bias set-color+
+    atlas-tex v0 i0 ; \ text draw, one draw call in total
+: <draw-marking ( -- )
+    z-bias set-color+
+    none-tex v0 i0 ;
 
 Variable style-i#
 
@@ -293,6 +321,7 @@ end-class box
 :noname ( -- ) ['] draw-thumbnail do-childs ; box to draw-thumbnail
 :noname ( -- ) ['] draw-image     do-childs ; box to draw-image
 :noname ( -- ) ['] draw-text      do-childs ; box to draw-text
+:noname ( -- ) ['] draw-marking   do-childs ; box to draw-marking
 
 :noname ( -- )
     parent-w ?dup-IF  .resized \ upwards
@@ -444,6 +473,7 @@ $10 stack: box-depth
     <draw-thumbnail draw-thumbnail render>
     <draw-image     draw-image     draw-image>
     <draw-text      draw-text      render>
+    <draw-marking   draw-marking   render>
     sync ;
 
 0 Value top-widget

@@ -42,19 +42,19 @@ debug: event( \ +db event(
 :noname { f: rx f: ry b n -- }
     event( ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
 :noname ( addr u -- )
-    event( ." keyed: " type cr ) ; simple-actor is ukeyed
+    event( ." keyed: " type cr )else( 2drop ) ; simple-actor is ukeyed
 :noname ( ekey -- )
-    event( ." ekeyed: " hex. cr ) ; simple-actor is ekeyed
+    event( ." ekeyed: " hex. cr )else( drop ) ; simple-actor is ekeyed
 : .touch ( $xy b -- )
-    event( hex. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr ) ;
+    event( hex. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr )else( 2drop ) ;
 :noname ( $xy b -- )
-    event( ." down: " .touch )
+    event( ." down: " .touch )else( 2drop )
 ; simple-actor is touchdown
 :noname ( $xy b -- )
-    event( ." up: " .touch )
+    event( ." up: " .touch )else( 2drop )
 ; simple-actor is touchup
 :noname ( $xy b -- )
-    event( ." move: " .touch )
+    event( ." move: " .touch )else( 2drop )
 ; simple-actor is touchmove
 
 : simple[] ( o -- o )
@@ -77,9 +77,9 @@ end-class box-actor
     THEN  2drop fdrop fdrop ;
 box-actor is clicked
 :noname ( addr u -- )
-    active-w ?dup-IF  .act .ukeyed  THEN ; box-actor is ukeyed
+    active-w ?dup-IF  .act .ukeyed  ELSE  2drop  THEN ; box-actor is ukeyed
 :noname ( ekey -- )
-    active-w ?dup-IF  .act .ekeyed  THEN ; box-actor is ekeyed
+    active-w ?dup-IF  .act .ekeyed  ELSE  drop   THEN ; box-actor is ekeyed
 ' simple-inside? box-actor is inside?
 : xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
 :noname ( $xy b -- )
@@ -134,7 +134,6 @@ edit-widget edit-out !
 edit-terminal edit-out !
 
 simple-actor class
-    value: edit-curpos
     value: edit-w
 end-class edit-actor
 
@@ -142,17 +141,10 @@ end-class edit-actor
 
 : edit-xt ( xt o:actor -- )
     edit-out @ >r  history >r  edit-widget edit-out !  >r  0 to history
-    edit-w >o addr text$ o> dup edit$ ! $@ swap over swap edit-curpos
-    r> catch >r to edit-curpos drop edit$ @ $!len drop
+    edit-w >o addr text$ curpos o> >r dup edit$ ! $@ swap over swap r>
+    r> catch >r edit-w >o to curpos o> drop edit$ @ $!len drop
     r> r> edit-out !  r> to history throw
     need-sync on ;
-
-keycode-limit keycode-start - 1+ buffer: keycode-tab
-: bind-ekey ( ctrl ekey -- )  [ keycode-tab keycode-start - ]L + c! ;
-ctrl F k-right bind-ekey
-ctrl B k-left  bind-ekey
-ctrl P k-up    bind-ekey
-ctrl N k-down  bind-ekey
 
 :noname ( key o:actor -- )
     [: 4 roll ekey>ckey dup k-shift-mask u>= IF
