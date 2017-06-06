@@ -38,7 +38,7 @@ end-class simple-actor
     and o> ;
 ' simple-inside? simple-actor is inside?
 
-debug: event( +db event(
+debug: event( \ +db event(
 :noname { f: rx f: ry b n -- }
     event( ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
 :noname ( addr u -- )
