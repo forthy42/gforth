@@ -26,7 +26,7 @@ glue*2 $FF7FFFFF 32e }}frame dup .button3 simple[] value f2
 glue*1 $FF5F5FFF 16e }}frame dup .button1 value f3
 glue*1 $FF7F7FFF 32e }}frame dup .button1 simple[] value f4
 glue*1 $7FFF7FFF 8e  }}frame dup .button1 simple[] value f5
-glue*2 $7FFFFFFF 16e }}frame dup .button2 simple[] value f6
+glue*2 $7FFFFFFF ' atlas-tex }}image dup .button2 simple[] value f6
 edit new value t1
 edit new value t2
 text new value t3
@@ -77,7 +77,8 @@ previous
     $884400FF to text-color o> ;
 
 : !t2 ( -- ) t2 >o
-    "这是一个文本：在德语说" font2 edit!  8e to border
+    "这是一个文本：在德语说。。。" font2 edit!
+    8e to border
     $001122DF to text-color o> ;
 
 : !t3 ( -- ) t3 >o

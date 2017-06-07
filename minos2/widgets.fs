@@ -187,11 +187,11 @@ end-class tile
     s>f f+ style-h# fm/ fswap >st ;
 
 : draw-rectangle { f: x1 f: y1 f: x2 f: y2 -- }
-    i? >v
-    x1 y2 >xy frame-color rgba>c n> 0e 1e frame# #>st v+
-    x2 y2 >xy frame-color rgba>c n> 1e 1e frame# #>st v+
-    x2 y1 >xy frame-color rgba>c n> 1e 0e frame# #>st v+
-    x1 y1 >xy frame-color rgba>c n> 0e 0e frame# #>st v+
+    i? frame-color frame# >v
+    x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
+    x2 y2 >xy over rgba>c n> 1e 1e dup #>st v+
+    x2 y1 >xy over rgba>c n> 1e 0e dup #>st v+
+    x1 y1 >xy swap rgba>c n> 0e 0e     #>st v+
     v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i, ;
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
     { f: w f: h } fover w f+ fover h f+ ;
@@ -199,6 +199,24 @@ end-class tile
     xywh >xyxy draw-rectangle GL_TRIANGLES draw-elements ;
 
 ' tile-draw tile is draw-bg
+
+\ image widget
+
+tile class
+    defer: image-tex
+end-class image
+
+' noop       image is draw-bg
+:noname ( -- )
+    1-bias set-color+
+    image-tex xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
+    i0 v0 i?  frame-color >v
+    x1 y2 >xy dup rgba>c n> 0e 1e >st v+
+    x2 y2 >xy dup rgba>c n> 1e 1e >st v+
+    x2 y1 >xy dup rgba>c n> 1e 0e >st v+
+    x1 y1 >xy     rgba>c n> 0e 0e >st v+
+    v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i,
+    GL_TRIANGLES draw-elements ; image is draw-image
 
 \ frame widget
 
@@ -231,6 +249,8 @@ DOES>  swap sfloats + sf@ ;
 
 : }}frame ( glue color border -- o )
     frame new >o to border to frame-color to tile-glue o o> ;
+: }}image ( glue color texture -- o )
+    image new >o to image-tex to frame-color to tile-glue o o> ;
 
 \ text widget
 
@@ -247,8 +267,7 @@ end-class text
 Variable glyphs$
 
 : text! ( addr u font -- )
-    to text-font to text$
-    text-font to font text$ load-glyph$ ;
+    to text-font to text$ ;
 : text-text ( -- )
     x border f+ penxy sf!  y penxy sfloat+ sf!
     text-font to font  text-color color !
@@ -260,7 +279,7 @@ Variable glyphs$
     border f+ to h
     border f+ to d
     fdup to text-w  border f2* f+ to w ;
-' noop text to draw-init
+:noname text-font to font text$ load-glyph$ ; text to draw-init
 ' text-text text to draw-text
 ' text-!size text to !size
 :noname text-w border f2* f+
@@ -302,7 +321,7 @@ end-class edit
     .01e 100e 100e >ap
     0.01e 0.02e 0.15e 1.0e glClearColor
     Ambient 1 ambient% glUniform1fv ;
-: draw-init> ( -- ) clear ;
+: draw-init> ( -- ) gen-atlas-tex clear ;
 
 : <draw-bg ( -- ) v0 i0
     z-bias set-color+
@@ -310,7 +329,7 @@ end-class edit
 
 : <draw-icon ( -- )  ; \ icon draw, one draw call in total
 : <draw-thumbnail ( -- )  ; \ icon draw, one draw call in total
-: <draw-image ( -- )  ; \ image draw, one draw call per image
+: <draw-image ( -- ) ; \ image draw, one draw call per image
 : draw-image> ( -- ) ;
 : <draw-text ( -- )
     1-bias set-color+

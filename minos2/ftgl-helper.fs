@@ -24,15 +24,24 @@ require unix/freetype-gllib.fs
 also freetype-gl
 also opengl
 
-512 Value atlas#
+1024 Value atlas#
 
 atlas# dup 1 texture_atlas_new Value atlas
 
 tex: atlas-tex
 atlas-tex current-tex atlas texture_atlas_t-id !
 
-\ : atlas-tex  atlas texture_atlas_t-id l@ dup to current-tex
-\     GL_TEXTURE_2D swap glBindTexture ;
+: upload-atlas-tex ( -- )
+    GL_TEXTURE_2D 0 GL_ALPHA
+    atlas texture_atlas_t-width @
+    atlas texture_atlas_t-height @
+    0 GL_ALPHA GL_UNSIGNED_BYTE
+    atlas texture_atlas_t-data @
+    glTexImage2D ;
+: gen-atlas-tex ( -- )
+    atlas-tex
+    GL_TEXTURE_2D atlas texture_atlas_t-id @ glBindTexture edge linear
+    upload-atlas-tex ;
 
 \ render font into vertex buffers
 
@@ -42,8 +51,8 @@ Variable color $FFC0A0FF color !
 
 : xy, { glyph -- }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
-    glyph texture_glyph_t-offset_x l@ s>f
-    glyph texture_glyph_t-offset_y l@ s>f { f: xo f: yo }
+    glyph texture_glyph_t-offset_x sl@ s>f
+    glyph texture_glyph_t-offset_y sl@ s>f { f: xo f: yo }
     glyph texture_glyph_t-width  @ s>f x-scale f*
     glyph texture_glyph_t-height @ s>f { f: w f: h }    
     xp xo f+  yp yo f- { f: x0 f: y0 }
@@ -92,8 +101,8 @@ Variable color $FFC0A0FF color !
     dup IF  r@ swap texture_glyph_get_kerning  f+
     ELSE  drop  THEN
     r@ texture_glyph_t-advance_x sf@ f+
-    r@ texture_glyph_t-offset_y l@ s>f
-    r> texture_glyph_t-height l@ s>f
+    r@ texture_glyph_t-offset_y sl@ s>f
+    r> texture_glyph_t-height @ s>f
     fover f- fd fmax fswap fh fmax ;
 
 : layout-string ( addr u -- fw fd fh ) \ depth is ow far it goes down
@@ -101,7 +110,8 @@ Variable color $FFC0A0FF color !
 	I xchar@xy
     I I' over - x-size +LOOP  drop ;
 
-: load-glyph$ ( addr u -- ) font -rot texture_font_load_glyphs drop ;
+: load-glyph$ ( addr u -- )
+    bounds ?DO  font I I' over - texture_font_load_glyphs I' I - swap - +LOOP ;
 
 : load-ascii ( -- )
     "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" load-glyph$ ;
