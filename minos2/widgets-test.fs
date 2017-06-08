@@ -62,9 +62,12 @@ atlas fontsize#
 [ELSE]
     "/usr/share/fonts/truetype/NotoSerifSC-Regular.otf"
     2dup file-status nip [IF]
-	2drop "/usr/share/fonts/truetype/gkai00mp.ttf"
+	2drop "/usr/share/fonts/truetype/noto/NotoSerif-Regular.ttf"
 	2dup file-status nip [IF]
-	    2drop "/usr/share/fonts/truetype/arphic-gkai00mp/gkai00mp.ttf"
+	    2drop "/usr/share/fonts/truetype/gkai00mp.ttf"
+	    2dup file-status nip [IF]
+		2drop "/usr/share/fonts/truetype/arphic-gkai00mp/gkai00mp.ttf"
+	    [THEN]
 	[THEN]
     [THEN]
 [THEN]
