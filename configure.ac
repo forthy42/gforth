@@ -327,9 +327,15 @@ case "$host_cpu" in
 		machine=arm
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
 		case "$host" in
-		    *gnueabi*)
+		    *gnueabihf)
 			# don't build for thumb
 			CFLAGS="$CFLAGS -marm -march=armv6"
+			FAST="yes" # build extra fast libraries
+			;;
+		    *gnueabi*)
+			# don't build for thumb
+			CFLAGS="$CFLAGS -marm"
+			FAST="yes" # build extra fast libraries
 			;;
 		esac
 		if test x$platform = xnxt; then
