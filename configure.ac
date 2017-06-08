@@ -329,7 +329,7 @@ case "$host_cpu" in
 		case "$host" in
 		    *gnueabi*)
 			# don't build for thumb
-			CFLAGS="$CFLAGS -marm"
+			CFLAGS="$CFLAGS -marm -march=armv6"
 			;;
 		esac
 		if test x$platform = xnxt; then

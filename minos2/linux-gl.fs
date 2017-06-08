@@ -302,7 +302,7 @@ previous
 ' noop handler-class to DoKeyRelease
 :noname  0 *input action ! 1 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
-    e.time s>d *input eventtime 2!  0. *input downtime 2!
+    e.time s>d *input eventtime 2!  #0. *input downtime 2!
     e.x e.y *input y0 ! *input x0 ! ; handler-class to DoButtonPress
 :noname  1 *input action ! 0 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
