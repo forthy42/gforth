@@ -141,6 +141,8 @@ xchar-ctrlkeys edit-ctrlkeys bl cells move
 ' grow-edit$ is grow-tib
 ' noop is edit-update \ no need to do that here
 ' noop is edit-error  \ no need to make annoying bells
+[IFDEF] x11-paste! ' x11-paste! is paste!  [THEN]
+[IFDEF] android-paste! ' android-paste! is paste!  [THEN]
 
 \ extra key bindings for editors
 

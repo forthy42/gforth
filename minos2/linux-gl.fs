@@ -32,6 +32,9 @@ also x11
 0 Value xim
 0 Value fontset
 
+&31 Value XA_STRING
+&31 Value XA_STRING8
+
 Variable need-sync
 Variable need-show
 Variable need-config
@@ -93,6 +96,12 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
 	XSetICValues_2 drop  ic XSetICFocus
     THEN ;
 
+: get-atoms ( -- )
+    dpy "STRING" 0 XInternAtom to XA_STRING8
+    max-single-byte $80 = IF
+	dpy "UTF8_STRING" 0 XInternAtom  ELSE  XA_STRING8  THEN
+    to XA_STRING ;
+
 0
 KeyPressMask or
 KeyReleaseMask or
@@ -107,8 +116,8 @@ ExposureMask or
 \ VisibilityChangeMask or
 StructureNotifyMask or
 \ ResizeRedirectMask or
-SubstructureNotifyMask or
-SubstructureRedirectMask or
+\ SubstructureNotifyMask or
+\ SubstructureRedirectMask or
 FocusChangeMask or
 PropertyChangeMask or
 \ ColormapChangeMask or
@@ -187,7 +196,11 @@ object class
     drop 0 XButtonEvent-button       lvalue: e.button
     drop 0 XKeyEvent-state           lvalue: e.state
     drop 0 XKeyEvent-keycode         lvalue: e.code \ key and button
+    drop 0 XSelectionEvent-target    value: e.target
+    drop 0 XSelectionEvent-requestor value: e.requestor
+    drop 0 XSelectionEvent-property  value: e.property
     drop 0 XEvent var event
+    XEvent var xev \ for sending events
     $100 var look_chars
     4 var look_key
     4 var comp_stat
@@ -230,6 +243,24 @@ object class
 end-class handler-class
 
 User event-handler  handler-class new event-handler !
+
+\ selection
+
+Variable own-selection
+
+: post-selection ( addr u -- )
+    2dup dpy -rot XStoreBytes drop
+    event-handler @ >o
+    >r >r
+    dpy dpy XDefaultRootWindow 9 XA_STRING 8 PropModeReplace
+    r> r> XChangeProperty drop
+    dpy 1 win e.time ~~ XSetSelectionOwner drop
+    own-selection on o> ;
+
+: x11-paste! ( addr u -- )
+    2dup xpaste! post-selection ;
+
+\ keys
 
 Variable exposed
 
@@ -338,9 +369,34 @@ previous
 ' noop handler-class to DoCirculateNotify
 ' noop handler-class to DoCirculateRequest
 ' noop handler-class to DoPropertyNotify
-' noop handler-class to DoSelectionClear
-' noop handler-class to DoSelectionRequest
-' noop handler-class to DoSelectionNotify
+:noname ~~ own-selection off ; handler-class to DoSelectionClear
+
+: rest-request { addr n mode format type }
+    dpy e.requestor e.property dup >r
+    type format mode addr n
+    XChangeProperty drop dpy 0 XSync drop
+    r> xev XSelectionEvent-property ! ;
+: string-request ( -- )
+    paste$ $@ PropModeReplace 8 XA_STRING rest-request ;
+: string8-request ( -- )
+    paste$ $@ PropModeReplace 8 XA_STRING8 rest-request ;
+: compound-request ( -- )  string-request ;
+2Variable 'string
+: target-request ( -- )
+    XA_STRING8 XA_STRING 'string 2!
+    'string 2 PropModeReplace #32 4 rest-request ;
+: selection-request ( -- ) ~~
+    event xev XEvent move \ first copy the event
+    dpy e.target XGetAtomName cstring>sstring ~~ 2dup type cr
+    1 0 DO \ output push display
+	2dup "STRING"        str= IF  string8-request LEAVE  THEN
+	2dup "UTF8_STRING"   str= IF  string-request  LEAVE  THEN
+	2dup "TARGETS"       str= IF  target-request  LEAVE  THEN
+	2dup "COMPOUND_TEXT" str= IF  compound-request LEAVE THEN
+    LOOP  ( 2dup type cr ) 2drop
+    dpy e.requestor 0 0 xev XSendEvent drop ;
+' selection-request handler-class to DoSelectionRequest
+:noname ~~ ; handler-class to DoSelectionNotify
 ' noop handler-class to DoColormapNotify
 ' noop handler-class to DoClientMessage
 ' noop handler-class to DoMappingNotify
@@ -409,7 +465,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     dpy win 2swap XStoreName drop
     dpy win rot XSelectInput drop
     dpy win XMapWindow drop
-    win get-ic
+    win get-ic  get-atoms
     dpy 0 XSync drop >exposed ;
 
 : x-key ( -- key )
