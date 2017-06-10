@@ -34,6 +34,9 @@ also x11
 
 &31 Value XA_STRING
 &31 Value XA_STRING8
+4 Value XA_TARGET
+4 Value XA_COMPOUND_TEXT
+1 Value XA_CLIPBOARD
 
 Variable need-sync
 Variable need-show
@@ -97,7 +100,9 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     THEN ;
 
 : get-atoms ( -- )
-    dpy "STRING" 0 XInternAtom to XA_STRING8
+    dpy "CLIPBOARD" 0 XInternAtom to XA_CLIPBOARD
+    dpy "TARGET" 0 XInternAtom to XA_TARGET
+    dpy "COMPOUND_TEXT" 0 XInternAtom to XA_COMPOUND_TEXT
     max-single-byte $80 = IF
 	dpy "UTF8_STRING" 0 XInternAtom  ELSE  XA_STRING8  THEN
     to XA_STRING ;
@@ -171,6 +176,7 @@ end-structure
 app_input_state buffer: *input
 
 Variable rendering -2 rendering !
+Variable wm_delete_window
 
 Variable level#
 
@@ -196,9 +202,11 @@ object class
     drop 0 XButtonEvent-button       lvalue: e.button
     drop 0 XKeyEvent-state           lvalue: e.state
     drop 0 XKeyEvent-keycode         lvalue: e.code \ key and button
-    drop 0 XSelectionEvent-target    value: e.target
-    drop 0 XSelectionEvent-requestor value: e.requestor
-    drop 0 XSelectionEvent-property  value: e.property
+    drop 0 XSelectionRequestEvent-selection value: e.selection
+    drop 0 XSelectionRequestEvent-target    value: e.target
+    drop 0 XSelectionRequestEvent-requestor value: e.requestor
+    drop 0 XSelectionRequestEvent-property  value: e.property
+    drop 0 XClientMessageEvent-data  value: e.data
     drop 0 XEvent var event
     XEvent var xev \ for sending events
     $100 var look_chars
@@ -248,17 +256,22 @@ User event-handler  handler-class new event-handler !
 
 Variable own-selection
 
-: post-selection ( addr u -- )
-    2dup dpy -rot XStoreBytes drop
+: post-selection ( addr u selection-number -- )
+    -rot 2dup dpy -rot XStoreBytes drop
     event-handler @ >o
     >r >r
-    dpy dpy XDefaultRootWindow 9 XA_STRING 8 PropModeReplace
+    dpy dpy XDefaultRootWindow 9 \ cut buffer 0
+    XA_STRING 8 PropModeReplace
     r> r> XChangeProperty drop
-    dpy 1 win e.time ~~ XSetSelectionOwner drop
+    dpy swap win e.time XSetSelectionOwner drop
     own-selection on o> ;
 
-: x11-paste! ( addr u -- )
-    2dup xpaste! post-selection ;
+Variable primary$
+
+: x11-clipboard! ( addr u -- )
+    2dup xpaste! XA_CLIPBOARD post-selection ;
+: x11-primary! ( addr u -- )
+    2dup primary$ $! 1 post-selection ;
 
 \ keys
 
@@ -369,36 +382,51 @@ previous
 ' noop handler-class to DoCirculateNotify
 ' noop handler-class to DoCirculateRequest
 ' noop handler-class to DoPropertyNotify
-:noname ~~ own-selection off ; handler-class to DoSelectionClear
+:noname  own-selection off ; handler-class to DoSelectionClear
 
-: rest-request { addr n mode format type }
-    dpy e.requestor e.property dup >r
+: rest-request { addr n mode format type -- }
+    dpy e.requestor e.property
     type format mode addr n
-    XChangeProperty drop dpy 0 XSync drop
-    r> xev XSelectionEvent-property ! ;
+    XChangeProperty drop dpy 0 XSync drop ;
+: paste@ ( -- addr u )
+    dpy e.selection XGetAtomName cstring>sstring \ 2dup type cr
+    2dup s" PRIMARY"   str= IF  2drop  primary$ $@  EXIT  THEN
+    2dup s" CLIPBOARD" str= IF  2drop  paste$   $@  EXIT  THEN
+    2drop s" " ;
 : string-request ( -- )
-    paste$ $@ PropModeReplace 8 XA_STRING rest-request ;
+    paste@ PropModeReplace 8 XA_STRING rest-request ;
 : string8-request ( -- )
-    paste$ $@ PropModeReplace 8 XA_STRING8 rest-request ;
+    paste@ PropModeReplace 8 XA_STRING8 rest-request ;
 : compound-request ( -- )  string-request ;
-2Variable 'string
+8 buffer: 'string
 : target-request ( -- )
-    XA_STRING8 XA_STRING 'string 2!
-    'string 2 PropModeReplace #32 4 rest-request ;
-: selection-request ( -- ) ~~
-    event xev XEvent move \ first copy the event
-    dpy e.target XGetAtomName cstring>sstring ~~ 2dup type cr
-    1 0 DO \ output push display
-	2dup "STRING"        str= IF  string8-request LEAVE  THEN
-	2dup "UTF8_STRING"   str= IF  string-request  LEAVE  THEN
-	2dup "TARGETS"       str= IF  target-request  LEAVE  THEN
-	2dup "COMPOUND_TEXT" str= IF  compound-request LEAVE THEN
-    LOOP  ( 2dup type cr ) 2drop
+    XA_STRING 'string l!
+    XA_STRING8 'string 4 + l!
+    'string 4 PropModeReplace #32 4 rest-request ;
+: do-request ( addr u -- ) \ 2dup type cr
+    2dup "STRING"        str= IF  2drop string8-request  EXIT  THEN
+    2dup "UTF8_STRING"   str= IF  2drop string-request   EXIT  THEN
+    2dup "TARGETS"       str= IF  2drop target-request   EXIT  THEN
+    2dup "COMPOUND_TEXT" str= IF  2drop compound-request EXIT  THEN
+    ." Unknown request: " type cr ;
+: selection-request ( -- )
+\    ." Selection Request from: " e.requestor hex.
+\    dpy e.selection XGetAtomName cstring>sstring type space
+\    dpy e.property XGetAtomName cstring>sstring type space
+    event xev 0 XSelectionEvent-requestor move \ first copy the event
+    event XSelectionRequestEvent-requestor xev XSelectionEvent-requestor
+    [ XSelectionEvent negate XSelectionEvent-requestor negate ]L move
+    e.property xev XSelectionEvent-property !
+    1 xev XSelectionEvent-send_event l!
+    SelectionNotify xev XSelectionEvent-type l!
+    dpy e.target XGetAtomName cstring>sstring do-request
     dpy e.requestor 0 0 xev XSendEvent drop ;
 ' selection-request handler-class to DoSelectionRequest
-:noname ~~ ; handler-class to DoSelectionNotify
+:noname ( to be done ) ; handler-class to DoSelectionNotify
 ' noop handler-class to DoColormapNotify
-' noop handler-class to DoClientMessage
+:noname ( -- )  e.data
+    wm_delete_window @ =  IF  -1 level# +!  THEN
+; handler-class to DoClientMessage
 ' noop handler-class to DoMappingNotify
 ' noop handler-class to DoGenericEvent
 
@@ -459,13 +487,38 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 : >exposed  ( -- )  exposed off  BEGIN  >looper exposed @  UNTIL ;
 : ?looper ( -- )  ;
 
+: set-protocol ( -- )
+    dpy "WM_DELETE_WINDOW" 0 XInternAtom wm_delete_window !
+    dpy win over "WM_PROTOCOLS" 0 XInternAtom
+    4 #32 1 wm_delete_window 1
+    XChangeProperty drop ;
+
+XWMHints buffer: WMhints
+
+: set-hint ( -- )  1 WMhints XWMHints-input l!
+    NormalState WMhints XWMhints-initial_state l!
+    [ InputHint StateHint or ] Literal
+    WMhints XWMHints-flags !
+    dpy win WMhints XSetWMHints drop ;
+
+XSetWindowAttributes buffer: xswa
+
+: set-xswa ( events -- )
+    xswa XSetWindowAttributes-event_mask !
+    NorthWestGravity xswa XSetWindowAttributes-bit_gravity l!
+    NorthWestGravity xswa XSetWindowAttributes-win_gravity l! ;
+
 : simple-win ( events string len w h -- )
-    2>r dpy dup XDefaultRootWindow
-    0 0 2r> 1 0 0 XCreateSimpleWindow  to win
+    2>r rot set-xswa 
+    dpy dup XDefaultRootWindow
+    0 0 2r>
+    0 #24 InputOutput
+    dpy dup XDefaultScreen XDefaultVisual
+    [ CWEventMask CWBitGravity CWWinGravity or or ]L xswa XCreateWindow  to win
     dpy win 2swap XStoreName drop
-    dpy win rot XSelectInput drop
     dpy win XMapWindow drop
-    win get-ic  get-atoms
+    get-atoms  set-hint  set-protocol
+    win get-ic
     dpy 0 XSync drop >exposed ;
 
 : x-key ( -- key )

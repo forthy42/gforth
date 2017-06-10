@@ -28,7 +28,8 @@ umethod edit-error
 cell uvar edit-curpos
 cell uvar screenw
 cell uvar setstring$ \ additional string at cursor for IME
-cell uvar paste$
+
+Variable paste$ \ global paste buffer
 
 align , , here
 ' (ins) , ' (ins-string) , ' (edit-control) ,

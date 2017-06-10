@@ -85,7 +85,7 @@ DOES> ( x-key [addr] -- ekey )
     ELSE   look_key l@ x-key>ekey# ?dup-IF
 	    top-act ?dup-IF  .ekeyed  ELSE  #esc = level# +!  THEN  THEN  THEN
 ; x11-handler to DoKeyPress
-' noop x11-handler to DoKeyRelease
+\ ' noop x11-handler to DoKeyRelease
 : samepos? ( x y -- flag )
     lastpos 2@ >r swap r> - >r - dup * r> dup * + samepos < ;
 : ?samepos ( -- )
@@ -137,37 +137,38 @@ Variable xy$
 :noname ; x11-handler to DoEnterNotify
 :noname ; x11-handler to DoLeaveNotify
 :noname e.window focus-ic ; x11-handler to DoFocusIn
-' noop x11-handler to DoFocusOut
-' noop x11-handler to DoKeymapNotify
+\ ' noop x11-handler to DoFocusOut
+\ ' noop x11-handler to DoKeymapNotify
 :noname top-widget .widget-draw ; x11-handler to DoExpose
 :noname top-widget .widget-draw ; x11-handler to DoGraphicsExpose
-' noop x11-handler to DoNoExpose
-' noop x11-handler to DoVisibilityNotify
+\ ' noop x11-handler to DoNoExpose
+\ ' noop x11-handler to DoVisibilityNotify
 :noname e.w-width e.w-height resize-widgets ; x11-handler to DoCreateNotify
-' noop x11-handler to DoDestroyNotify
-' noop x11-handler to DoUnmapNotify
-' noop x11-handler to DoMapNotify
-' noop x11-handler to DoMapRequest
-' noop x11-handler to DoReparentNotify
+\ ' noop x11-handler to DoDestroyNotify
+\ ' noop x11-handler to DoUnmapNotify
+\ ' noop x11-handler to DoMapNotify
+\ ' noop x11-handler to DoMapRequest
+\ ' noop x11-handler to DoReparentNotify
 :noname e.c-width  e.c-height resize-widgets ; x11-handler to DoConfigureNotify
-' noop x11-handler to DoConfigureRequest
-' noop x11-handler to DoGravityNotify
+\ ' noop x11-handler to DoConfigureRequest
+\ ' noop x11-handler to DoGravityNotify
 :noname e.r-width  e.r-height resize-widgets ; x11-handler to DoResizeRequest
-' noop x11-handler to DoCirculateNotify
-' noop x11-handler to DoCirculateRequest
-' noop x11-handler to DoPropertyNotify
-' noop x11-handler to DoSelectionClear
-' noop x11-handler to DoSelectionRequest
-' noop x11-handler to DoSelectionNotify
-' noop x11-handler to DoColormapNotify
-' noop x11-handler to DoClientMessage
-' noop x11-handler to DoMappingNotify
-' noop x11-handler to DoGenericEvent
+\ ' noop x11-handler to DoCirculateNotify
+\ ' noop x11-handler to DoCirculateRequest
+\ ' noop x11-handler to DoPropertyNotify
+\ ' noop x11-handler to DoSelectionClear
+\ ' noop x11-handler to DoSelectionRequest
+\ ' noop x11-handler to DoSelectionNotify
+\ ' noop x11-handler to DoColormapNotify
+\ ' noop x11-handler to DoClientMessage
+\ ' noop x11-handler to DoMappingNotify
+\ ' noop x11-handler to DoGenericEvent
 
+x11-handler ' new static-a with-allocater Constant x11-keyboard
 : enter-minos ( -- )
-    x11-handler new event-handler ! ;
+    x11-keyboard event-handler ! ;
 : leave-minos ( -- )
-    event-handler @ dispose [ event-handler @ ]L event-handler !
+    [ event-handler @ ]L event-handler !
     need-sync on  need-show on ;
 
 previous
