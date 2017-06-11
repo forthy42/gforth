@@ -24,12 +24,17 @@ require unix/freetype-gllib.fs
 also freetype-gl
 also opengl
 
-1024 Value atlas#
+256 Value atlas#
 
 atlas# dup 1 texture_atlas_new Value atlas
 
 tex: atlas-tex
 atlas-tex current-tex atlas texture_atlas_t-id !
+
+Variable fonts[] \ stack of used fonts
+
+: open-font ( atlas fontsize addr u -- font )
+    texture_font_new_from_file dup fonts[] >stack ;
 
 : upload-atlas-tex ( -- )
     GL_TEXTURE_2D 0 GL_ALPHA
@@ -83,8 +88,17 @@ Variable color $FFC0A0FF color !
 
 0 Value font
 
+: double-atlas ( -- )
+    atlas# 2* to atlas#
+    font atlas# dup texture_font_enlarge_texture
+    fonts[] get-stack 0 ?DO
+	0.5e 0.5e texture_font_enlarge_glyphs
+    LOOP ;
+
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
-    tuck font swap texture_font_get_glyph >r
+    tuck font swap
+    BEGIN  2dup texture_font_get_glyph dup 0= WHILE
+	    drop double-atlas  REPEAT  >r 2drop
     dup IF  r@ swap texture_glyph_get_kerning
 	penxy sf@ f+ penxy sf!
     ELSE  drop  THEN
@@ -97,7 +111,9 @@ Variable color $FFC0A0FF color !
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- fw' fd' fh' )
     { f: fd f: fh }
-    tuck font swap texture_font_get_glyph >r
+    tuck font swap
+    BEGIN  2dup texture_font_get_glyph dup 0= WHILE
+	    drop double-atlas  REPEAT  >r 2drop
     dup IF  r@ swap texture_glyph_get_kerning  f+
     ELSE  drop  THEN
     r@ texture_glyph_t-advance_x sf@ f+
@@ -111,7 +127,10 @@ Variable color $FFC0A0FF color !
     I I' over - x-size +LOOP  drop ;
 
 : load-glyph$ ( addr u -- )
-    bounds ?DO  font I I' over - texture_font_load_glyphs I' I - swap - +LOOP ;
+    bounds ?DO  font I I' over - texture_font_load_glyphs
+	dup IF  double-atlas  THEN
+	I' I - swap -
+    +LOOP ;
 
 : load-ascii ( -- )
     "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" load-glyph$ ;

@@ -170,7 +170,7 @@ edit-terminal edit-out !
     edit-w >o addr text$ curpos o> >r dup edit$ ! $@ swap over swap r>
     r> catch >r edit-w >o to curpos o> drop edit$ @ $!len drop
     r> r> edit-out !  r> to history throw
-    need-sync on ;
+    need-sync on need-glyphs on ;
 
 :noname ( key o:actor -- )
     [: 4 roll ekey>ckey dup k-shift-mask u>= IF

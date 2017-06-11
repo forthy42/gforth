@@ -49,7 +49,7 @@ atlas fontsize#
     [THEN]
 [THEN]
 2dup file-status throw drop
-texture_font_new_from_file Value font1
+open-font Value font1
 
 atlas fontsize#
 [IFDEF] android  "/system/fonts/DroidSansFallback.ttf"
@@ -72,7 +72,7 @@ atlas fontsize#
     [THEN]
 [THEN]
 2dup file-status throw drop
-texture_font_new_from_file Value font2
+open-font Value font2
 previous
 
 : !t1 ( -- ) t1 >o

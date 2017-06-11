@@ -265,6 +265,7 @@ widget class
 end-class text
 
 Variable glyphs$
+Variable need-glyphs
 
 : text! ( addr u font -- )
     to text-font to text$ ;
@@ -279,7 +280,10 @@ Variable glyphs$
     border f+ to h
     border f+ to d
     fdup to text-w  border f2* f+ to w ;
-:noname text-font to font text$ load-glyph$ ; text to draw-init
+:noname
+    need-glyphs @ IF
+	text-font to font text$ load-glyph$
+    THEN ; text to draw-init
 ' text-text text to draw-text
 ' text-!size text to !size
 :noname text-w border f2* f+
@@ -312,7 +316,7 @@ end-class edit
 ; edit to draw-marking
 
 : edit! ( addr u font -- )
-    text!  text$ nip to curpos  -1 to cursize ;
+    text!  text$ nip to curpos  -1 to cursize  need-glyphs on ;
 
 \ draw wrapper
 
@@ -321,7 +325,9 @@ end-class edit
     .01e 100e 100e >ap
     0.01e 0.02e 0.15e 1.0e glClearColor
     Ambient 1 ambient% glUniform1fv ;
-: draw-init> ( -- ) gen-atlas-tex clear ;
+: draw-init> ( -- )
+    need-glyphs @ IF  gen-atlas-tex need-glyphs off  THEN
+    clear ;
 
 : <draw-bg ( -- ) v0 i0
     z-bias set-color+
