@@ -275,7 +275,7 @@ Variable need-glyphs
     w border f2* f- text-w f/ to x-scale
     text$ render-string ;
 : text-!size ( -- )
-    text-font to font
+    text-font to font  text$ load-glyph$
     text$ layout-string
     border f+ to h
     border f+ to d

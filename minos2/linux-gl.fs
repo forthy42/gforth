@@ -34,9 +34,10 @@ also x11
 
 &31 Value XA_STRING
 &31 Value XA_STRING8
-4 Value XA_TARGET
+4 Value XA_TARGETS
 4 Value XA_COMPOUND_TEXT
 1 Value XA_CLIPBOARD
+1 Value XA_PRIMARY
 
 Variable need-sync
 Variable need-show
@@ -101,7 +102,7 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
 
 : get-atoms ( -- )
     dpy "CLIPBOARD" 0 XInternAtom to XA_CLIPBOARD
-    dpy "TARGET" 0 XInternAtom to XA_TARGET
+    dpy "TARGETS" 0 XInternAtom to XA_TARGETS
     dpy "COMPOUND_TEXT" 0 XInternAtom to XA_COMPOUND_TEXT
     max-single-byte $80 = IF
 	dpy "UTF8_STRING" 0 XInternAtom  ELSE  XA_STRING8  THEN
@@ -271,7 +272,7 @@ Variable primary$
 : x11-clipboard! ( addr u -- )
     2dup xpaste! XA_CLIPBOARD post-selection ;
 : x11-primary! ( addr u -- )
-    2dup primary$ $! 1 post-selection ;
+    2dup primary$ $! XA_PRIMARY post-selection ;
 
 \ keys
 
@@ -389,26 +390,29 @@ previous
     type format mode addr n
     XChangeProperty drop dpy 0 XSync drop ;
 : paste@ ( -- addr u )
-    dpy e.selection XGetAtomName cstring>sstring \ 2dup type cr
-    2dup s" PRIMARY"   str= IF  2drop  primary$ $@  EXIT  THEN
-    2dup s" CLIPBOARD" str= IF  2drop  paste$   $@  EXIT  THEN
-    2drop s" " ;
+    case  e.selection
+	XA_PRIMARY   of  primary$ $@  endof
+	XA_CLIPBOARD of  paste$   $@  endof
+	s" " rot
+    endcase ;
 : string-request ( -- )
     paste@ PropModeReplace 8 XA_STRING rest-request ;
 : string8-request ( -- )
     paste@ PropModeReplace 8 XA_STRING8 rest-request ;
 : compound-request ( -- )  string-request ;
-8 buffer: 'string
+4 buffer: 'string
 : target-request ( -- )
     XA_STRING 'string l!
-    XA_STRING8 'string 4 + l!
-    'string 4 PropModeReplace #32 4 rest-request ;
-: do-request ( addr u -- ) \ 2dup type cr
-    2dup "STRING"        str= IF  2drop string8-request  EXIT  THEN
-    2dup "UTF8_STRING"   str= IF  2drop string-request   EXIT  THEN
-    2dup "TARGETS"       str= IF  2drop target-request   EXIT  THEN
-    2dup "COMPOUND_TEXT" str= IF  2drop compound-request EXIT  THEN
-    ." Unknown request: " type cr ;
+    'string 1 PropModeReplace #32 4 rest-request ;
+: do-request ( atom -- ) \ 2dup type cr
+    case
+	XA_STRING8        of  string8-request   endof
+	XA_STRING         of  string-request    endof
+	XA_TARGETS        of  target-request    endof
+	XA_COMPOUND_TEXT  of  compound-request  endof
+	." Unknown request: "
+	dpy over XGetAtomName cstring>sstring type cr
+    endcase ;
 : selection-request ( -- )
 \    ." Selection Request from: " e.requestor hex.
 \    dpy e.selection XGetAtomName cstring>sstring type space
@@ -419,7 +423,7 @@ previous
     e.property xev XSelectionEvent-property !
     1 xev XSelectionEvent-send_event l!
     SelectionNotify xev XSelectionEvent-type l!
-    dpy e.target XGetAtomName cstring>sstring do-request
+    e.target do-request
     dpy e.requestor 0 0 xev XSendEvent drop ;
 ' selection-request handler-class to DoSelectionRequest
 :noname ( to be done ) ; handler-class to DoSelectionNotify
