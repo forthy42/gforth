@@ -32,12 +32,13 @@ also x11
 0 Value xim
 0 Value fontset
 
+&31 Constant XA_STRING8
+1 Constant XA_PRIMARY
+
 &31 Value XA_STRING
-&31 Value XA_STRING8
 4 Value XA_TARGETS
 4 Value XA_COMPOUND_TEXT
 1 Value XA_CLIPBOARD
-1 Value XA_PRIMARY
 
 Variable need-sync
 Variable need-show
@@ -207,6 +208,9 @@ object class
     drop 0 XSelectionRequestEvent-target    value: e.target
     drop 0 XSelectionRequestEvent-requestor value: e.requestor
     drop 0 XSelectionRequestEvent-property  value: e.property
+    drop 0 XSelectionEvent-requestor value: e.requestor'
+    drop 0 XSelectionEvent-property  value: e.property'
+    drop 0 XSelectionEvent-target    value: e.target'
     drop 0 XClientMessageEvent-data  value: e.data
     drop 0 XEvent var event
     XEvent var xev \ for sending events
@@ -256,6 +260,9 @@ User event-handler  handler-class new event-handler !
 \ selection
 
 Variable own-selection
+Variable got-selection
+$10000 Constant /propfetch
+$100 /propfetch * Constant propfetchs
 
 : post-selection ( addr u selection-number -- )
     -rot 2dup dpy -rot XStoreBytes drop
@@ -266,12 +273,23 @@ Variable own-selection
     r> r> XChangeProperty drop
     dpy swap win e.time XSetSelectionOwner drop
     own-selection on o> ;
+: fetch-property ( win prop target addr -- )
+    0 0 0 0 0 { target addr w^ ret-t w^ form-t w^ n w^ rest w^ prop }
+    addr $free
+    propfetchs 0 ?DO
+	dpy -rot I /propfetch 1 AnyPropertyType
+	ret-t form-t n rest prop XGetWindowProperty 0= IF
+	    prop @ n @ addr $+! 
+	THEN
+	rest @ 0= ?LEAVE
+    /propfetch +LOOP
+    got-selection on ;
 
 Variable primary$
 
-: x11-clipboard! ( addr u -- )
+: clipboard! ( addr u -- )
     2dup xpaste! XA_CLIPBOARD post-selection ;
-: x11-primary! ( addr u -- )
+: primary! ( addr u -- )
     2dup primary$ $! XA_PRIMARY post-selection ;
 
 \ keys
@@ -397,8 +415,8 @@ previous
     endcase ;
 : string-request ( -- )
     paste@ PropModeReplace 8 XA_STRING rest-request ;
-: string8-request ( -- )
-    paste@ PropModeReplace 8 XA_STRING8 rest-request ;
+\ : string8-request ( -- )
+\     paste@ PropModeReplace 8 XA_STRING8 rest-request ;
 : compound-request ( -- )  string-request ;
 4 buffer: 'string
 : target-request ( -- )
@@ -406,7 +424,7 @@ previous
     'string 1 PropModeReplace #32 4 rest-request ;
 : do-request ( atom -- ) \ 2dup type cr
     case
-	XA_STRING8        of  string8-request   endof
+\	XA_STRING8        of  string8-request   endof
 	XA_STRING         of  string-request    endof
 	XA_TARGETS        of  target-request    endof
 	XA_COMPOUND_TEXT  of  compound-request  endof
@@ -426,7 +444,13 @@ previous
     e.target do-request
     dpy e.requestor 0 0 xev XSendEvent drop ;
 ' selection-request handler-class to DoSelectionRequest
-:noname ( to be done ) ; handler-class to DoSelectionNotify
+:noname ( -- ) e.requestor' e.property'
+    case dup
+	XA_PRIMARY    of  primary$  endof
+	XA_CLIPBOARD  of  paste$    endof
+	drop 2drop  got-selection on ( we got nothing ) EXIT
+    endcase  e.target' swap fetch-property
+; handler-class to DoSelectionNotify
 ' noop handler-class to DoColormapNotify
 :noname ( -- )  e.data
     wm_delete_window @ =  IF  -1 level# +!  THEN
@@ -489,7 +513,24 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 : >looper ( -- )  xpoll-timeout# #looper ;
 : >exposed  ( -- )  exposed off  BEGIN  >looper exposed @  UNTIL ;
+: >select   ( -- )  got-selection off  BEGIN  >looper got-selection @  UNTIL ;
 : ?looper ( -- )  ;
+
+: clipboard@ ( -- addr u )
+    dpy XA_CLIPBOARD XGetSelectionOwner IF
+	dpy XA_CLIPBOARD XA_STRING XA_CLIPBOARD win e.time XConvertSelection drop
+	>select  paste$ $@
+    ELSE
+	s" "
+    THEN ;
+
+: primary@ ( -- addr u )
+    dpy XA_PRIMARY XGetSelectionOwner IF
+	dpy XA_PRIMARY XA_STRING XA_PRIMARY win e.time XConvertSelection drop
+	>select  primary$ $@
+    ELSE
+	s" "
+    THEN ;
 
 : set-protocol ( -- )
     dpy "WM_DELETE_WINDOW" 0 XInternAtom wm_delete_window !

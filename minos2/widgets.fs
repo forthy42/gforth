@@ -296,6 +296,7 @@ Variable need-glyphs
 text class
     value: curpos
     value: cursize
+    value: start-curpos \ selection mode
 end-class edit
 
 :noname ( -- )
@@ -316,7 +317,8 @@ end-class edit
 ; edit to draw-marking
 
 : edit! ( addr u font -- )
-    text!  text$ nip to curpos  -1 to cursize  need-glyphs on ;
+    text!  text$ nip to curpos  -1 to cursize  -1 to start-curpos
+    need-glyphs on ;
 
 \ draw wrapper
 

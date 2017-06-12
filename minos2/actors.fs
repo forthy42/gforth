@@ -92,7 +92,7 @@ box-actor is clicked
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
 		IF
-		    c-act re-focus
+		    \ c-act re-focus
 		    2dup act .touchdown   THEN  THEN
 	c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchdown
@@ -101,7 +101,7 @@ box-actor is clicked
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
 		IF
-		    c-act re-focus
+		    \ c-act re-focus
 		    2dup act .touchup   THEN  THEN
 	c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchup
@@ -141,7 +141,7 @@ xchar-ctrlkeys edit-ctrlkeys bl cells move
 ' grow-edit$ is grow-tib
 ' noop is edit-update \ no need to do that here
 ' noop is edit-error  \ no need to make annoying bells
-[IFDEF] x11-clipboard! ' x11-clipboard! is paste!  [THEN]
+[IFDEF] clipboard!     ' clipboard!     is paste!  [THEN]
 [IFDEF] android-paste! ' android-paste! is paste!  [THEN]
 
 \ extra key bindings for editors
@@ -155,9 +155,28 @@ end-class edit-actor
 
 ' false edit-actor is edit-next-line
 ' false edit-actor is edit-prev-line
-    
+
+: edit-paste ( max span addr pos1 - max span addr pos2 false )
+    clipboard@ xins-string edit-update 0 ;
+
+0 value xselw
+
+: edit-copy ( max span addr pos1 -- max span addr pos1 false )
+    >r 2dup swap r@ safe/string xselw min clipboard!
+    r> 0 ;
+: edit-cut ( max span addr pos1 -- max span addr pos1 false )
+    edit-copy drop >r
+    2dup swap r@ safe/string xselw delete
+    swap xselw - swap
+    r> edit-update 0 ;
+
 ' edit-next-line ctrl N bindkey
 ' edit-prev-line ctrl P bindkey
+' edit-paste     ctrl V bindkey
+' edit-paste     ctrl Y bindkey
+' edit-copy      ctrl C bindkey
+' edit-cut       ctrl X bindkey
+' edit-cut       ctrl W bindkey
 ' edit-enter     #lf    bindkey
 ' edit-enter     #cr    bindkey
 
@@ -167,10 +186,17 @@ edit-terminal edit-out !
 
 : edit-xt ( xt o:actor -- )
     edit-out @ >r  history >r  edit-widget edit-out !  >r  0 to history
-    edit-w >o addr text$ curpos o> >r dup edit$ ! $@ swap over swap r>
-    r> catch >r edit-w >o to curpos o> drop edit$ @ $!len drop
+    edit-w >o addr text$ curpos cursize 0 max o> to xselw
+    >r dup edit$ ! $@ swap over swap r>
+    r> catch >r edit-w >o to curpos 0 to cursize o> drop edit$ @ $!len drop
     r> r> edit-out !  r> to history throw
     need-sync on need-glyphs on ;
+
+: edit>curpos ( x o:actor -- )
+    edit-w >o  text-font to font
+    x f- border f- w border f2* f- text-w f/ f/
+    text$ pos-string to curpos
+    o>  need-sync on ;
 
 :noname ( key o:actor -- )
     [: 4 roll ekey>ckey dup k-shift-mask u>= IF
@@ -183,6 +209,47 @@ edit-terminal edit-out !
     edit-w >o -1 to cursize o> need-sync on ; edit-actor is defocus
 :noname ( o:actor -- )
     edit-w >o 0 to cursize o> need-sync on ; edit-actor is focus
+:noname ( $rxy*n bmask -- )
+    case 1 of
+	    edit-w .start-curpos 0>= IF
+		xy@ fdrop edit>curpos
+		edit-w >o
+		curpos start-curpos 2dup - abs to cursize
+		umin to curpos
+		o>
+	    ELSE  drop
+	    THEN
+	endof
+	nip
+    endcase
+; edit-actor is touchmove
+:noname ( o:actor rx ry b n -- )
+    dup 1 and IF  edit-w .start-curpos 0< IF
+	    2drop fdrop edit>curpos  edit-w >o
+	    curpos to start-curpos  -1 to cursize o>
+	ELSE
+	    2drop fdrop fdrop
+	THEN
+    ELSE
+	swap
+	case
+	    1 of
+		drop fdrop edit>curpos
+		edit-w >o
+		start-curpos 0>= IF
+		    curpos start-curpos 2dup - abs to cursize
+		    umin to curpos
+		    text$ curpos safe/string cursize min primary!
+		    -1 to start-curpos
+		THEN  o>
+	    endof
+	    2 of  drop fdrop edit>curpos
+		[: primary@ insert-string ;] edit-xt  endof
+	    4 of  ( menu   )  drop fdrop fdrop  endof
+	    nip fdrop fdrop
+	endcase
+    THEN
+; edit-actor is clicked
 
 : edit[] ( o widget -- o )
     swap >o edit-actor new to act

@@ -109,7 +109,7 @@ Variable color $FFC0A0FF color !
 	I xchar+xy
     I I' over - x-size +LOOP  drop ;
 
-: xchar@xy ( fw fd fh xc-addrp xc-addr -- fw' fd' fh' )
+: xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
     { f: fd f: fh }
     tuck font swap
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
@@ -125,6 +125,17 @@ Variable color $FFC0A0FF color !
     0 -rot  0e 0e 0e  bounds ?DO
 	I xchar@xy
     I I' over - x-size +LOOP  drop ;
+: pos-string ( fx addr u -- curpos )
+    fdup f0< IF  2drop fdrop 0  EXIT  THEN  dup >r over >r
+    0 -rot 0e bounds ?DO
+	fdup 0e 0e I xchar@xy fdrop fdrop
+	{ f: p f: n }
+	fdup p f>= fdup n f< and IF
+	    I p f- n p f- f2/ f> IF  xchar+  THEN
+	    unloop r> - nip  rdrop  EXIT
+	THEN  n
+    I I' over - x-size +LOOP
+    drop rdrop r> fdrop fdrop ;
 
 : load-glyph$ ( addr u -- )
     bounds ?DO  font I I' over - texture_font_load_glyphs
