@@ -97,14 +97,14 @@ box-actor is clicked
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
 		IF  2dup act .touchdown   THEN  THEN
-	c-act ;] do-childs o> drop
+	    c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchdown
 :noname ( $xy b -- )
     over xy@ simple-inside? IF
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
 		IF  2dup act .touchup   THEN  THEN
-	c-act ;] do-childs o> drop
+	    c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchup
 :noname ( $xy b -- )
     grab-move? IF
