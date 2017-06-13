@@ -66,12 +66,17 @@ actor class
     value: active-w
 end-class box-actor
 
+false value grab-move? \ set to true to grab moves
+
 : re-focus { c-act -- }
     c-act .active-w ?dup-IF  .act .defocus  THEN
     o c-act >o to active-w o>
     c-act .active-w ?dup-IF  .act .focus  THEN ;
 
 :noname ( rx ry b n -- )
+    grab-move? IF
+	active-w ?dup-IF  .act .clicked  EXIT  THEN
+    THEN
     fover fover simple-inside? IF
 	o caller-w >o
 	[: { c-act } act IF  fover fover act .inside?
@@ -91,27 +96,24 @@ box-actor is clicked
     over xy@ simple-inside? IF
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
-		IF
-		    \ c-act re-focus
-		    2dup act .touchdown   THEN  THEN
+		IF  2dup act .touchdown   THEN  THEN
 	c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchdown
 :noname ( $xy b -- )
     over xy@ simple-inside? IF
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
-		IF
-		    \ c-act re-focus
-		    2dup act .touchup   THEN  THEN
+		IF  2dup act .touchup   THEN  THEN
 	c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchup
 :noname ( $xy b -- )
+    grab-move? IF
+	active-w ?dup-IF  .act .touchmove  EXIT  THEN
+    THEN
     over xy@ simple-inside? IF
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
-		IF
-		    \ c-act re-focus
-		    2dup act .touchmove  THEN  THEN
+		IF  2dup act .touchmove  THEN  THEN
 	    c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchmove
 :noname ( -- ) caller-w >o [: act ?dup-IF  .defocus  THEN ;] do-childs o> ; box-actor is defocus
@@ -223,25 +225,49 @@ edit-terminal edit-out !
 	nip
     endcase
 ; edit-actor is touchmove
-:noname ( o:actor rx ry b n -- )
-    dup 1 and IF  edit-w .start-curpos 0< IF
-	    2drop fdrop edit>curpos  edit-w >o
-	    curpos to start-curpos  -1 to cursize o>
-	ELSE
-	    2drop fdrop fdrop
-	THEN
+
+[IFUNDEF] -scan
+    : -scan ( addr u char -- addr' u' )
+	>r  BEGIN  dup  WHILE  1- 2dup + c@ r@ =  UNTIL  THEN
+	rdrop ;
+[THEN]
+: end-selection ( o:edit-w -- )
+    start-curpos 0>= IF
+	curpos start-curpos 2dup - abs to cursize
+	umin to curpos
+	text$ curpos safe/string cursize min primary!
+	-1 to start-curpos
+    THEN ;
+: select-word ( o:edit-w -- )
+    text$ >r curpos bl -scan 2dup + c@ bl = -
+    dup to curpos
+    r> swap safe/string tuck bl scan nip - to cursize ;
+: select-line ( o:edit-w -- )
+    0 to curpos text$ nip to cursize ;
+: start-selection ( -- )
+    edit-w .start-curpos 0< IF
+	2drop fdrop edit>curpos  edit-w >o
+	curpos to start-curpos  -1 to cursize o>
+	true to grab-move?
     ELSE
+	2drop fdrop fdrop
+    THEN ;
+
+:noname ( o:actor rx ry b n -- )
+    dup 1 and IF  start-selection
+    ELSE
+	false to grab-move?
 	swap
 	case
 	    1 of
-		drop fdrop edit>curpos
+		2 - 6 mod 2 +
+		{ clicks } fdrop edit>curpos
 		edit-w >o
-		start-curpos 0>= IF
-		    curpos start-curpos 2dup - abs to cursize
-		    umin to curpos
-		    text$ curpos safe/string cursize min primary!
-		    -1 to start-curpos
-		THEN  o>
+		case clicks
+		    2 of  end-selection  endof
+		    4 of  select-word    endof
+		    6 of  select-line    endof
+		endcase o>
 	    endof
 	    2 of  drop fdrop edit>curpos
 		[: primary@ insert-string ;] edit-xt  endof

@@ -40,12 +40,14 @@ vocabulary minos  also minos definitions
 
 vocabulary m2c \ minos2 config
 get-current also m2c definitions
-FVariable cursorshade%
+Variable cursorcolor#
+Variable selectioncolor#
 FVariable curminwidth%
 FVariable curminchars#
 set-current
 
-2e 3e f/ cursorshade% f!
+$000000FF cursorcolor# !
+$7FFFFF9F selectioncolor# !
 3e curminwidth% f!
 0 curminchars# !
 
@@ -308,7 +310,7 @@ end-class edit
     layout-string fdrop fdrop m2c:curminwidth% f@ fmax scale f* { f: cw }
     x w f+ border f+  y d border f- f+ { f: x0 f: y0 }
     x0 cw f+ y h border f- f- { f: x1 f: y1 }
-    i? text-color dup $FF and m2c:cursorshade% f@ fm* f>s $FFFFFF00 mux >v
+    i? m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
     x0 y1 >xy dup rgba>c n> 0e 0e >st v+
     x1 y1 >xy dup rgba>c n> 1e 0e >st v+
     x1 y0 >xy dup rgba>c n> 0e 1e >st v+

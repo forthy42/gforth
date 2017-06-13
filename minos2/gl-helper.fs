@@ -301,6 +301,7 @@ Variable $attrib
 GL_VERTEX_SHADER shader: VertexShader
 uniform mat4 u_MVPMatrix;       // A constant representing the combined model/view/projection matrix.
 uniform mat4 u_MVMatrix;        // A constant representing the combined model/view matrix.
+uniform vec2 u_TexScale;        // scale texture coordinates
  
 attribute vec4 a_Position;      // Per-vertex position information we will pass in.
 attribute vec4 a_Color;         // Per-vertex color information we will pass in.
@@ -322,7 +323,7 @@ void main()
     v_Color = a_Color;
  
     // Pass through the texture coordinate.
-    v_TexCoordinate = a_TexCoordinate;
+    v_TexCoordinate = a_TexCoordinate * u_TexScale;
  
     // Transform the normal's orientation into eye space.
     v_Normal = vec3(u_MVMatrix * a_Normal);
@@ -377,6 +378,7 @@ void main()
 
 0 Value MVPMatrix
 0 Value MVMatrix
+0 Value TexScale
 0 Value LightPos
 0 Value Texture
 0 Value ambient
@@ -457,6 +459,9 @@ Create ap-matrix
 ap-matrix 12 sfloats + Constant x-apos
 ap-matrix 13 sfloats + Constant y-apos
 
+Create unit-texscale
+1.0e sf, 1.0e sf,
+
 : .matrix ( addr -- ) 5 set-precision
     $10 sfloats bounds DO
 	I 4 sfloats bounds DO
@@ -482,9 +487,13 @@ ap-matrix 13 sfloats + Constant y-apos
     sfloat+ sfloat+ near far f* f2* near far f- f/ sf!+ 0e sf!+
     drop ;
 
+: set-texscale ( vec2 -- )
+    TexScale 1 rot glUniform2fv ;
+
 : ap-set ( -- )
     ap-matrix MVPMatrix set-matrix
-    ap-matrix MVMatrix set-matrix ;
+    ap-matrix MVMatrix set-matrix
+    unit-texscale set-texscale ;
 
 : >ap ( near far scale -- ) f2* 1/f { f: scale }
     scale dpy-w @ fm* fdup fnegate fswap
@@ -622,6 +631,7 @@ require soil-texture.fs
     program glUseProgram
     program "u_MVPMatrix\0" drop glGetUniformLocation to MVPMatrix
     program "u_MVMatrix\0" drop glGetUniformLocation to MVMatrix
+    program "u_TexScale\0" drop glGetUniformLocation to TexScale
     program "u_LightPos\0" drop glGetUniformLocation to LightPos
     program "u_Texture\0" drop glGetUniformLocation to Texture
     program "u_Ambient\0" drop glGetUniformLocation to Ambient
