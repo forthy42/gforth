@@ -67,6 +67,8 @@ actor class
 end-class box-actor
 
 false value grab-move? \ set to true to grab moves
+0 value select-mode    \ 0: chars, 1: words, 2: lines
+0 value start-cursize \ selection helper
 
 : re-focus { c-act -- }
     c-act .active-w ?dup-IF  .act .defocus  THEN
@@ -200,6 +202,63 @@ edit-terminal edit-out !
     text$ pos-string to curpos
     o>  need-sync on ;
 
+[IFUNDEF] -scan
+    : -scan ( addr u char -- addr' u' )
+	>r  BEGIN  dup  WHILE  1- 2dup + c@ r@ =  UNTIL  THEN
+	rdrop ;
+[THEN]
+: select-word ( o:edit-w -- )
+    start-curpos 0< IF  curpos to start-curpos  THEN
+    text$ start-curpos start-cursize + curpos cursize + umax safe/string
+    bl scan drop { end }
+    text$ drop start-curpos curpos umin bl -scan + dup c@ bl = - { start }
+    start text$ drop - to curpos
+    end start - to cursize ;
+: select-line ( o:edit-w -- )
+    0 to curpos text$ nip to cursize ;
+: end-selection ( o:edit-w -- )
+    start-curpos 0>= IF
+	curpos start-curpos 2dup - abs to cursize
+	umin to curpos
+	case select-mode
+	    1 of select-word endof
+	    2 of select-line endof
+	endcase
+	text$ curpos safe/string cursize min primary!
+	-1 to start-curpos
+    THEN ;
+: start-selection ( -- )
+    edit-w .start-curpos 0< IF
+	1- 2/ to select-mode
+	drop fdrop edit>curpos  edit-w >o
+	0 to cursize
+	curpos  to start-curpos
+	cursize to start-cursize
+	case select-mode
+	    1 of select-word endof
+	    2 of select-line endof
+	endcase
+	curpos  to start-curpos
+	cursize to start-cursize
+	o>
+	true to grab-move?
+    ELSE
+	2drop fdrop fdrop
+    THEN ;
+: expand-selection ( $xy -- )
+    edit-w .start-curpos 0>= IF
+	xy@ fdrop edit>curpos
+	edit-w >o
+	curpos start-curpos 2dup - abs to cursize
+	umin to curpos
+	case  select-mode
+	    1 of select-word endof
+	    2 of select-line endof
+	endcase
+	o>
+    ELSE  drop
+    THEN ;
+
 :noname ( key o:actor -- )
     [: 4 roll ekey>ckey dup k-shift-mask u>= IF
 	    dup mask-shift# rshift 7 and vt100-modifier !
@@ -212,47 +271,10 @@ edit-terminal edit-out !
 :noname ( o:actor -- )
     edit-w >o 0 to cursize o> need-sync on ; edit-actor is focus
 :noname ( $rxy*n bmask -- )
-    case 1 of
-	    edit-w .start-curpos 0>= IF
-		xy@ fdrop edit>curpos
-		edit-w >o
-		curpos start-curpos 2dup - abs to cursize
-		umin to curpos
-		o>
-	    ELSE  drop
-	    THEN
-	endof
+    case 1 of  expand-selection  endof
 	nip
     endcase
 ; edit-actor is touchmove
-
-[IFUNDEF] -scan
-    : -scan ( addr u char -- addr' u' )
-	>r  BEGIN  dup  WHILE  1- 2dup + c@ r@ =  UNTIL  THEN
-	rdrop ;
-[THEN]
-: end-selection ( o:edit-w -- )
-    start-curpos 0>= IF
-	curpos start-curpos 2dup - abs to cursize
-	umin to curpos
-	text$ curpos safe/string cursize min primary!
-	-1 to start-curpos
-    THEN ;
-: select-word ( o:edit-w -- )
-    text$ >r curpos bl -scan 2dup + c@ bl = -
-    dup to curpos
-    r> swap safe/string tuck bl scan nip - to cursize ;
-: select-line ( o:edit-w -- )
-    0 to curpos text$ nip to cursize ;
-: start-selection ( -- )
-    edit-w .start-curpos 0< IF
-	2drop fdrop edit>curpos  edit-w >o
-	curpos to start-curpos  -1 to cursize o>
-	true to grab-move?
-    ELSE
-	2drop fdrop fdrop
-    THEN ;
-
 :noname ( o:actor rx ry b n -- )
     dup 1 and IF  start-selection
     ELSE
@@ -267,7 +289,10 @@ edit-terminal edit-out !
 		    2 of  end-selection  endof
 		    4 of  select-word    endof
 		    6 of  select-line    endof
-		endcase o>
+		endcase
+		-1 to start-curpos
+		0  to start-cursize
+		o>
 	    endof
 	    2 of  drop fdrop edit>curpos
 		[: primary@ insert-string ;] edit-xt  endof

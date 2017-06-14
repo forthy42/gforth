@@ -85,7 +85,7 @@ previous
     $001122DF to text-color o> ;
 
 : !t3 ( -- ) t3 >o
-    "..." font1 text!  16e to border
+    "…" font1 text!  16e to border
     $00FF88FF to text-color o> ;
 
 : htop-resize ( -- )
