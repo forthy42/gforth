@@ -216,6 +216,8 @@ edit-terminal edit-out !
     end start - to cursize ;
 : select-line ( o:edit-w -- )
     0 to curpos text$ nip to cursize ;
+: sel>primary ( o:edit-w -- )
+    text$ curpos safe/string cursize min 0 max primary! ;
 : end-selection ( o:edit-w -- )
     start-curpos 0>= IF
 	curpos start-curpos 2dup - abs to cursize
@@ -224,7 +226,6 @@ edit-terminal edit-out !
 	    1 of select-word endof
 	    2 of select-line endof
 	endcase
-	text$ curpos safe/string cursize min primary!
 	-1 to start-curpos
     THEN ;
 : start-selection ( -- )
@@ -290,6 +291,7 @@ edit-terminal edit-out !
 		    4 of  select-word    endof
 		    6 of  select-line    endof
 		endcase
+		sel>primary
 		-1 to start-curpos
 		0  to start-cursize
 		o>

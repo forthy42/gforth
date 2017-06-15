@@ -45,14 +45,21 @@ atlas fontsize#
 [ELSE]
     "/usr/share/fonts/truetype/NotoSans-Regular.ttf"
     2dup file-status nip [IF]
-	2drop "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+	2drop "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"
+	2dup file-status nip [IF]
+	    2drop "/usr/share/fonts/truetype/LiberationSans-Regular.ttf"
+	    2dup file-status nip [IF]
+		2drop "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+	    [THEN]
+	[THEN]
     [THEN]
 [THEN]
 2dup file-status throw drop
 open-font Value font1
 
 atlas fontsize#
-[IFDEF] android  "/system/fonts/DroidSansFallback.ttf"
+[IFDEF] android
+    "/system/fonts/DroidSansFallback.ttf"
     2dup file-status nip [IF]
 	2drop "/system/fonts/NotoSansSC-Regular.otf" \ for Android 6
 	2dup file-status nip [IF]

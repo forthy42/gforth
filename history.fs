@@ -240,7 +240,7 @@ info-color Value setstring-color
     max span addr pos1 false ;
 
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
-    >r  r@ xc-size grow-tib 0= IF  rdrop edit-error 0  EXIT  THEN
+    >r  r@ xc-size grow-tib 0= IF  rdrop edit-error  EXIT  THEN
     >edit-rest over r@ xc-size + swap move
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
@@ -332,7 +332,7 @@ info-color Value setstring-color
     r@ + rot r> + -rot  rdrop ;
 
 : xpaste ( max span addr pos -- max span' addr pos' false )
-    paste$ $@ xins-string  0 ;
+    paste$ $@ xins-string  edit-update  0 ;
 
 : xtranspose ( max span addr pos -- max span' addr pos' false )
     dup IF
