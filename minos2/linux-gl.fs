@@ -459,7 +459,7 @@ previous
 ' noop handler-class to DoGenericEvent
 
 0 Value timeoffset
-: XTime ( -- ntime ) utime #1000 um/mod nip timeoffset + ;
+: XTime ( -- ntime ) utime #1000 ud/mod drop nip timeoffset + ;
 
 : handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
 : get-events ( -- )  event-handler @ >o
