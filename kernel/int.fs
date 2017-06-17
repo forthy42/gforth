@@ -411,12 +411,6 @@ drop Constant vtsize \ vtable size
 : (x>comp) ( xt w -- xt +-1 )
     immediate-mask and flag-sign ;
 
-\ these transformations are used for legacy words like find
-
-: (name>comp) ( nt -- xt +-1 ) \ gforth
-    \G @i{w xt} is the compilation token for the word @i{nt}.
-    name>comp ['] execute = flag-sign ;
-
 : (name>intn) ( nfa -- xt +-1 )
     dup name>int swap name>comp nip ['] execute = flag-sign ;
 
@@ -543,39 +537,6 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 
 2 cells constant /does-handler ( -- n ) \ gforth
 \G The size of a @code{DOES>}-handler (includes possible padding).
-
-: sfind ( c-addr u -- 0 / xt +-1  ) \ gforth-obsolete
-    find-name dup
-    if ( nt )
-	state @
-	if
-	    (name>comp)
-	else
-	    (name>intn)
-	then
-   then ;
-
-: find ( c-addr -- xt +-1 | c-addr 0 ) \ core,search
-    \G Search all word lists in the current search order for the
-    \G definition named by the counted string at @i{c-addr}.  If the
-    \G definition is not found, return 0. If the definition is found
-    \G return 1 (if the definition has non-default compilation
-    \G semantics) or -1 (if the definition has default compilation
-    \G semantics).  The @i{xt} returned in interpret state represents
-    \G the interpretation semantics.  The @i{xt} returned in compile
-    \G state represented either the compilation semantics (for
-    \G non-default compilation semantics) or the run-time semantics
-    \G that the compilation semantics would @code{compile,} (for
-    \G default compilation semantics).  The ANS Forth standard does
-    \G not specify clearly what the returned @i{xt} represents (and
-    \G also talks about immediacy instead of non-default compilation
-    \G semantics), so this word is questionable in portable programs.
-    \G If non-portability is ok, @code{find-name} and friends are
-    \G better (@pxref{Name token}).
-    dup count sfind dup
-    if
-	rot drop
-    then ;
 
 \ ticks in interpreter
 

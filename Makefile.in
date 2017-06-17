@@ -260,6 +260,7 @@ GFORTH_FI_SRC2=\
 	locals.fs \
 	look.fs \
 	mkdir.fs \
+	obsolete.fs \
 	prelude.fs \
 	quotes.fs \
 	quotedstring.fs \
