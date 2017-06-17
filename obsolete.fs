@@ -19,20 +19,11 @@
 
 \ these transformations are used for legacy words like find
 
-: (name>comp) ( nt -- xt +-1 ) \ gforth
-    \G @i{w xt} is the compilation token for the word @i{nt}.
-    name>comp ['] execute = flag-sign ;
-
 : sfind ( c-addr u -- 0 / xt +-1  ) \ gforth-obsolete
-    find-name dup
-    if ( nt )
-	state @
-	if
-	    (name>comp)
-	else
-	    (name>intn)
-	then
-   then ;
+    find-name dup if
+	dup name>compile >r swap name>interpret state @ select
+	r> ['] execute = flag-sign
+    then ;
 
 : find ( c-addr -- xt +-1 | c-addr 0 ) \ core,search
     \G Search all word lists in the current search order for the
