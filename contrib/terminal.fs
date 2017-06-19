@@ -45,8 +45,6 @@ EOL EOL_BUF c!
         if drop false else close-file drop true then ;
 \ =============
 
-: ms@ ( -- u )  utime 1 1000 m*/ d>s ; 
-
 
 : >UPC 95 AND ;
 : EKEY ( -- u | return extended key as concatenated byte sequence )
@@ -146,8 +144,8 @@ create capture-filename 256 allot
 create send-filename 256 allot
 create send-line-buffer 256 allot
 variable txfid
-variable last-send-time
-10    VALUE LINE-DELAY        \ delay in ms between sending each line of text
+2variable dlast-send-time
+#10000. 2VALUE DLINE-DELAY      \ delay in us between sending each line of text
  1    VALUE CHAR-DELAY        \ to send data to *slow* terminals
 FALSE VALUE ?sending
 		
@@ -172,7 +170,7 @@ FALSE VALUE ?sending
 	      ." Unable to open input file!"
 	      EXIT
 	    THEN 
-	    ms@ last-send-time ! ;
+	    utime dlast-send-time 2! ;
 
 
 : terminal-status? ( -- flag | TRUE equals ok to exit terminal )
@@ -204,8 +202,8 @@ FALSE VALUE ?sending
    
 	BEGIN
 
-	  ?sending ms@ last-send-time @ - LINE-DELAY >= AND IF
-	    ms@ last-send-time !
+	  ?sending utime dlast-send-time 2@ d- DLINE-DELAY d>= AND IF
+	    utime dlast-send-time 2!
 	    send-line-buffer 256 txfid @ read-line IF
 	      \ error reading file
 	      2drop txfid @ close-file drop FALSE to ?sending
