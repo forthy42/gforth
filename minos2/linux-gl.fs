@@ -39,6 +39,9 @@ also x11
 4 Value XA_TARGETS
 4 Value XA_COMPOUND_TEXT
 1 Value XA_CLIPBOARD
+1 Value AECLIP_PRIMARY
+1 Value AECLIP_CLIPBOARD
+4 Value AECLIP_TARGETS
 
 Variable need-sync
 Variable need-show
@@ -107,7 +110,10 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     dpy "COMPOUND_TEXT" 0 XInternAtom to XA_COMPOUND_TEXT
     max-single-byte $80 = IF
 	dpy "UTF8_STRING" 0 XInternAtom  ELSE  XA_STRING8  THEN
-    to XA_STRING ;
+    to XA_STRING
+    dpy "AECLIP_PRIMARY" 0 XInternAtom to AECLIP_PRIMARY
+    dpy "AECLIP_CLIPBORAD" 0 XInternAtom to AECLIP_CLIPBOARD
+    dpy "AECLIP_TARGETS" 0 XInternAtom to AECLIP_TARGETS ;
 
 0
 KeyPressMask or
@@ -422,7 +428,8 @@ previous
 : target-request ( -- )
     XA_STRING 'string l!
     'string 1 PropModeReplace #32 4 rest-request ;
-: do-request ( atom -- ) \ 2dup type cr
+: do-request ( atom -- )
+    \ dpy over XGetAtomName cstring>sstring type cr
     case
 \	XA_STRING8        of  string8-request   endof
 	XA_STRING         of  string-request    endof
@@ -444,10 +451,15 @@ previous
     e.target do-request
     dpy e.requestor 0 0 xev XSendEvent drop ;
 ' selection-request handler-class to DoSelectionRequest
-:noname ( -- ) e.requestor' e.property'
+: .atom ( n -- )
+    ?dup-IF  dpy swap XGetAtomName cstring>sstring type
+    ELSE  ." atom (null)"  THEN  cr ;
+:noname ( -- )
+    e.requestor' e.property'
+    \ dup .atom  e.target' .atom
     case dup
-	XA_PRIMARY    of  primary$  endof
-	XA_CLIPBOARD  of  paste$    endof
+	AECLIP_PRIMARY    of  primary$  endof
+	AECLIP_CLIPBOARD  of  paste$    endof
 	drop 2drop  got-selection on ( we got nothing ) EXIT
     endcase  e.target' swap fetch-property
 ; handler-class to DoSelectionNotify
@@ -514,20 +526,26 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 : >looper ( -- )  xpoll-timeout# #looper ;
 : >exposed  ( -- )  exposed off  BEGIN  >looper exposed @  UNTIL ;
 : >select   ( -- )  got-selection off  BEGIN  >looper got-selection @  UNTIL ;
+: select@ ( $addr -- addr u )
+    >select  $@ ;
 : ?looper ( -- )  ;
 
 : clipboard@ ( -- addr u )
     dpy XA_CLIPBOARD XGetSelectionOwner IF
-	dpy XA_CLIPBOARD XA_STRING XA_CLIPBOARD win e.time XConvertSelection drop
-	>select  paste$ $@
+	dpy win AECLIP_CLIPBOARD XDeleteProperty drop
+	dpy XA_CLIPBOARD XA_STRING AECLIP_CLIPBOARD win
+	CurrentTime XConvertSelection drop
+	paste$  select@
     ELSE
 	s" "
     THEN ;
 
 : primary@ ( -- addr u )
     dpy XA_PRIMARY XGetSelectionOwner IF
-	dpy XA_PRIMARY XA_STRING XA_PRIMARY win e.time XConvertSelection drop
-	>select  primary$ $@
+	dpy win AECLIP_PRIMARY XDeleteProperty drop
+	dpy XA_PRIMARY XA_STRING AECLIP_PRIMARY win
+	CurrentTime XConvertSelection drop
+	primary$  select@
     ELSE
 	s" "
     THEN ;
