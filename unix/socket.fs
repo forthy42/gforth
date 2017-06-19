@@ -122,8 +122,6 @@ $802 Constant O_NONBLOCK|O_RDWR
 
 ' open-socket Alias open-service
 
-: ms@  utime 1000 ud/mod drop nip ; ( -- u ) 
-
 : $put ( c-addr1 u1 c-addr2 -- ) swap cmove ;
 
 : $+ 	( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
@@ -178,10 +176,10 @@ Create crlf 2 c, 13 c, 10 c,
     r> true blocking-mode ;
 
 : read-socket ( socket c-addr maxlen -- c-addr u )
-    ms@ socket-timeout + { socket c-addr maxlen tmax -- c-addr size }
+    utime socket-timeout 1000 um* d+ { socket c-addr maxlen d: tmax -- c-addr size }
     BEGIN 
-	socket c-addr maxlen (rs) dup 0=
-	ms@ tmax - 0< and 
+        socket c-addr maxlen (rs) dup 0=
+        utime tmax d< and
     WHILE 
 	    2drop
     REPEAT ;
