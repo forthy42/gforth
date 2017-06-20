@@ -330,8 +330,15 @@ end-class edit
     0.01e 0.02e 0.15e 1.0e glClearColor
     Ambient 1 ambient% glUniform1fv ;
 : draw-init> ( -- )
-    need-glyphs @ IF  gen-atlas-tex need-glyphs off  THEN
-    clear ;
+    [IFDEF]  texture_atlas_t-modified
+	atlas texture_atlas_t-modified c@ IF
+	    gen-atlas-tex
+	    0 atlas texture_atlas_t-modified c!
+	THEN
+    [ELSE]
+	need-glyphs @ IF  gen-atlas-tex  THEN
+    [THEN]
+    clear  need-glyphs off ;
 
 : <draw-bg ( -- ) v0 i0
     z-bias set-color+

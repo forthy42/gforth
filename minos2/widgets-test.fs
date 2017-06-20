@@ -23,15 +23,24 @@ also minos
 
 glue*2 $FFFFFFDF 32e }}frame dup .button2 value f1
 glue*2 $FF7FFFFF 32e }}frame dup .button3 simple[] value f2
-glue*1 $FF5F5FFF 16e }}frame dup .button1 value f3
+glue*1 $FF5F5FFF 8e }}frame dup .button1 value f3a
+glue*1 $5FFF5FFF 16e }}frame dup .button1 value f3b
+glue*1 $5F5FFFFF 24e }}frame dup .button1 value f3c
+glue*1 $5F5F5FFF 32e }}frame dup .button1 value f3d
 glue*1 $FF7F7FFF 32e }}frame dup .button1 simple[] value f4
 glue*1 $7FFF7FFF 8e  }}frame dup .button1 simple[] value f5
 glue*2 $7FFFFFFF ' atlas-tex }}image dup .button2 simple[] value f6
 edit new value t1
-edit new value t2
+edit new value t2a
+edit new value t2b
+edit new value t2c
+edit new value t2d
 text new value t3
 {{ {{
-{{ f3 t2 }}z t2 edit[] dup value z2
+{{ f3a t2a }}z t2a edit[] dup value z2a
+{{ f3b t2b }}z t2b edit[] dup value z2b
+{{ f3c t2c }}z t2c edit[] dup value z2c
+{{ f3d t2d }}z t2d edit[] dup value z2d
 {{ {{ f1 t1 }}z t1 edit[] dup value z1 f2 t3 }}h box[] dup value h1
 {{ f4 f5 }}h box[] dup value h2
 }}v box[] dup value h3
@@ -86,10 +95,11 @@ previous
     "Dös isch a Tägscht!" font1 edit!  24e to border
     $884400FF to text-color o> ;
 
-: !t2 ( -- ) t2 >o
-    "这是一个文本：在德语说。。。" font2 edit!
-    8e to border
-    $001122DF to text-color o> ;
+: !t2 ( -- )
+    "混沌未分天地乱，茫茫渺渺无人见。" font2  t2a >o edit! 4e to border $001122DF to text-color o>
+    "自从盘古破鸿蒙，开辟从兹清浊辨。" font2  t2b >o edit! 8e to border $221100DF to text-color o>
+    "覆载群生仰至仁，发明万物皆成善。" font2  t2c >o edit! 12e to border $FFDDAADF to text-color o>
+    "欲知造化会元功，须看西游释厄传。" font2  t2d >o edit! 16e to border $DDEEFFDF to text-color o> ;
 
 : !t3 ( -- ) t3 >o
     "…" font1 text!  16e to border
