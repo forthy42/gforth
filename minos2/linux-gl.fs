@@ -39,9 +39,6 @@ also x11
 4 Value XA_TARGETS
 4 Value XA_COMPOUND_TEXT
 1 Value XA_CLIPBOARD
-1 Value AECLIP_PRIMARY
-1 Value AECLIP_CLIPBOARD
-4 Value AECLIP_TARGETS
 
 Variable need-sync
 Variable need-show
@@ -110,10 +107,7 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     dpy "COMPOUND_TEXT" 0 XInternAtom to XA_COMPOUND_TEXT
     max-single-byte $80 = IF
 	dpy "UTF8_STRING" 0 XInternAtom  ELSE  XA_STRING8  THEN
-    to XA_STRING
-    dpy "AECLIP_PRIMARY" 0 XInternAtom to AECLIP_PRIMARY
-    dpy "AECLIP_CLIPBORAD" 0 XInternAtom to AECLIP_CLIPBOARD
-    dpy "AECLIP_TARGETS" 0 XInternAtom to AECLIP_TARGETS ;
+    to XA_STRING ;
 
 0
 KeyPressMask or
@@ -205,8 +199,8 @@ object class
     drop 0 XExposeEvent-width            lvalue: e.e-width
     drop 0 XExposeEvent-height           lvalue: e.e-height
     drop 0 XMotionEvent-time         value: e.time
-    drop 0 XButtonEvent-x            lvalue: e.x
-    drop 0 XButtonEvent-y            lvalue: e.y
+    drop 0 XButtonEvent-x            slvalue: e.x
+    drop 0 XButtonEvent-y            slvalue: e.y
     drop 0 XButtonEvent-button       lvalue: e.button
     drop 0 XKeyEvent-state           lvalue: e.state
     drop 0 XKeyEvent-keycode         lvalue: e.code \ key and button
@@ -359,6 +353,9 @@ previous
     0 0 dpy-w @ dpy-h @ glViewport ;
 : screen-orientation ( -- 0/1 )
     dpy-w @ dpy-h @ > negate ;
+: .atom ( n -- )
+    ?dup-IF  dpy swap XGetAtomName cstring>sstring type
+    ELSE  ." atom (null)"  THEN ;
 
 ' noop handler-class to DoNull \ doesn't exist
 ' noop handler-class to DoOne  \ doesn't exit, either
@@ -429,7 +426,7 @@ previous
     XA_STRING 'string l!
     'string 1 PropModeReplace #32 4 rest-request ;
 : do-request ( atom -- )
-    \ dpy over XGetAtomName cstring>sstring type cr
+    \ dup .atom cr
     case
 \	XA_STRING8        of  string8-request   endof
 	XA_STRING         of  string-request    endof
@@ -440,8 +437,8 @@ previous
     endcase ;
 : selection-request ( -- )
 \    ." Selection Request from: " e.requestor hex.
-\    dpy e.selection XGetAtomName cstring>sstring type space
-\    dpy e.property XGetAtomName cstring>sstring type space
+\    e.selection .atom space
+\    e.property .atom cr
     event xev 0 XSelectionEvent-requestor move \ first copy the event
     event XSelectionRequestEvent-requestor xev XSelectionEvent-requestor
     [ XSelectionEvent negate XSelectionEvent-requestor negate ]L move
@@ -451,15 +448,12 @@ previous
     e.target do-request
     dpy e.requestor 0 0 xev XSendEvent drop ;
 ' selection-request handler-class to DoSelectionRequest
-: .atom ( n -- )
-    ?dup-IF  dpy swap XGetAtomName cstring>sstring type
-    ELSE  ." atom (null)"  THEN  cr ;
 :noname ( -- )
     e.requestor' e.property'
     \ dup .atom  e.target' .atom
     case dup
-	AECLIP_PRIMARY    of  primary$  endof
-	AECLIP_CLIPBOARD  of  paste$    endof
+	XA_PRIMARY    of  primary$  endof
+	XA_CLIPBOARD  of  paste$    endof
 	drop 2drop  got-selection on ( we got nothing ) EXIT
     endcase  e.target' swap fetch-property
 ; handler-class to DoSelectionNotify
@@ -532,8 +526,8 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 : clipboard@ ( -- addr u )
     dpy XA_CLIPBOARD XGetSelectionOwner IF
-	dpy win AECLIP_CLIPBOARD XDeleteProperty drop
-	dpy XA_CLIPBOARD XA_STRING AECLIP_CLIPBOARD win
+	dpy win XA_CLIPBOARD XDeleteProperty drop
+	dpy XA_CLIPBOARD XA_STRING XA_CLIPBOARD win
 	CurrentTime XConvertSelection drop
 	paste$  select@
     ELSE
@@ -542,8 +536,8 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 : primary@ ( -- addr u )
     dpy XA_PRIMARY XGetSelectionOwner IF
-	dpy win AECLIP_PRIMARY XDeleteProperty drop
-	dpy XA_PRIMARY XA_STRING AECLIP_PRIMARY win
+	dpy win XA_PRIMARY XDeleteProperty drop
+	dpy XA_PRIMARY XA_STRING XA_PRIMARY win
 	CurrentTime XConvertSelection drop
 	primary$  select@
     ELSE

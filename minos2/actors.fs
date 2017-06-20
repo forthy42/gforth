@@ -244,6 +244,7 @@ edit-terminal edit-out !
 	o>
 	true to grab-move?
     ELSE
+	false to grab-move?
 	2drop fdrop fdrop
     THEN ;
 : expand-selection ( $xy -- )
