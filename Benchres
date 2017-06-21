@@ -16,6 +16,7 @@ All times are given in seconds of user time.
 After 0.7.0:
 AMD64:
  sieve bubble matrix fib   fft  release; CPU; gcc
+ 0.492 0.556  0.424 0.700 0.396 2017-05-25; Intel Atom 330 (Bonnet) 1.6GHz; gcc-4.9
  0.132 0.136  0.056 0.124 0.048 2017-05-25; AMD Athlon X4 845 (Carrizo/Excavator) 3.5GHz; gcc-4.9
  0.192 0.224  0.104 0.284 0.152 2016-12-22; Celeron J3455 (Goldmont) 2300MHz; gcc-4.9.2 (Debian 8)
  0.076 0.104  0.040 0.076 0.032 2016-05-03; Intel Core i7-4790K 4.4GHz; gcc-4.9.2 (Debian 8)
@@ -34,11 +35,11 @@ AMD64:
 ARM64
  sieve bubble matrix fib   fft  release; CPU; gcc
  0.283 0.404  0.169 0.330 0.179 2014-10-31; Apple A7 1.3GHz, clang 3.5 (iOS 8.1.1)
- 0.390 0.490  0.270 0.520 0.260 2016-04-27; Odroid C2 Cortex A53 2.0GHz, gcc 5.3.1 (Ubuntu Mate 16.04 LTS)
+ 0.390 0.490  0.270 0.520 0.260 2016-04-27; Odroid C2 Cortex A53 1536MHz, gcc 5.3.1 (Ubuntu Mate 16.04 LTS)
  0.330 0.370  0.250 0.480 0.290 2016-05-27 (3 registers);  Odroid C2 Cortex A53 2.0GHz, gcc 5.3.1 (Ubuntu 16.04)
 
 ARM Cortex A53, 32 bit:
- 0.600  0.650  0.310 0.870 0.450 2016-04-27; Odroid C2 Cortex A53 2.0GHz, gcc 5.3.1 (Ubuntu Mate 16.04 LTS)
+ 0.600  0.650  0.310 0.870 0.450 2016-04-27; Odroid C2 Cortex A53 1536MHz, gcc 5.3.1 (Ubuntu Mate 16.04 LTS)
  0.820  0.880  0.420 1.180 0.590 2017-03-20; Raspberry Pi 3 Cortex A53 1.2 GHz, gcc-4.9.2 (Raspbian 8)
 ARM Cortex-A9:
  sieve bubble matrix fib   fft  release; CPU; gcc
