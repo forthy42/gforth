@@ -27,7 +27,11 @@ HARFBUZZ=harfbuzz-1.4.6
 fine=yes
 for i in git wget ragel hg
 do
-    which $i >/dev/null 2>/dev/null || fine=no && echo install $i please
+    if ! which $i >/dev/null 2>/dev/null
+    then
+	fine=no
+	echo install $i please
+    fi
 done
 if [ $fine = no ]
 then

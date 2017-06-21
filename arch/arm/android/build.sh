@@ -42,10 +42,6 @@ TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 NDK=${NDK-~/proj/android-ndk-r10e}
 SRC=$(cd ../../..; pwd)
 
-mkdir -p build/unix
-
-cp $NDK/sources/android/cpufeatures/*.[ch] build/unix
-
 while [ "${1%%[^\+]*}" == '+' ]
 do
     arch+=" ${1#+}"
