@@ -302,7 +302,7 @@ true Value firstkey
     need-show on
     BEGIN  BEGIN  >looper key? winch? @ or screen-ops  UNTIL
 	key-buffer $@len IF
-	    inkey@
+	    inskey@
 	ELSE
 	    infile-id dup IF  (key-file)  ELSE  drop  EINTR  THEN
 	THEN
