@@ -21,8 +21,8 @@
 . build.local
 TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 
-FREETYPE=freetype-2.6.3
-HARFBUZZ=harfbuzz-1.2.4
+FREETYPE=freetype-2.8
+HARFBUZZ=harfbuzz-1.4.6
 
 fine=yes
 for i in git wget ragel hg
@@ -38,7 +38,7 @@ fi
 #get dependent files
 
 (cd ~/Downloads
- test -f $FREETYPE.tar.bz2 || wget http://downloads.sourceforge.net/project/freetype/freetype2/${FREETYPE#*-}/$FREETYPE.tar.bz2
+ test -f $FREETYPE.tar.bz2 || wget http://download.savannah.gnu.org/releases/freetype/$FREETYPE.tar.bz2
  test -f $HARFBUZZ.tar.bz2 || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.bz2)
 
 tar jxvf ~/Downloads/$FREETYPE.tar.bz2
@@ -75,7 +75,7 @@ if [ -f freetype-gl/.git/config ]
 then
     (cd freetype-gl; git pull)
 else
-    git clone https://github.com/forthy42/freetype-gl.git
+    git clone -b android https://github.com/forthy42/freetype-gl.git
 fi
 
 (cd freetype-gl
