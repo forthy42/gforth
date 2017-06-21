@@ -153,11 +153,13 @@ Variable key-buffer
 : char-append-buffer ( c addr -- )
     >r { c^ ins-char }  ins-char 1 r> 0 $ins ;
 
+: inskey@ ( -- c )
+    key-buffer $@ drop c@
+    key-buffer 0 1 $del ;
 : buf-key ( -- c )
     \ buffered key
     key-buffer $@len if
-	key-buffer $@ drop c@
-	key-buffer 0 1 $del
+	inskey@
     else
 	defers key-ior
     then ;

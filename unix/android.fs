@@ -264,8 +264,8 @@ variable looperfds pollfd 8 * allot
     poll-file 0= IF  app ke-fd0 l@ "r" fdopen to poll-file  THEN ;
 : looper-init ( -- )  looperfds off
     app ke-fd0 l@    POLLIN +fds
-    infile-id fileno POLLIN +fds
     epiper @ fileno  POLLIN +fds
+    infile-id ?dup-IF  fileno POLLIN +fds  THEN
     ?poll-file ;
 
 : get-event ( -- )
@@ -291,14 +291,23 @@ variable looperfds pollfd 8 * allot
 \ : >looper  BEGIN  0 poll_looper 0<  UNTIL looper-to# poll_looper drop ;
 \ : ?looper  BEGIN >looper app window @ UNTIL ;
 
-:noname  0 poll? drop  defers key? ; IS key?
+:noname  0 poll? drop
+    key-buffer $@len 0<> infile-id dup IF  key?-file  THEN or
+; IS key?
 Defer screen-ops ' noop IS screen-ops
 
 true Value firstkey
 : android-key-ior ( -- key / ior )
     firstkey IF  showkb false to firstkey  THEN
-    need-show on  BEGIN  >looper key? winch? @ or screen-ops  UNTIL
-    defers key-ior dup #cr = key? and IF  key-ior ?dup-IF inskey THEN THEN ;
+    need-show on
+    BEGIN  BEGIN  >looper key? winch? @ or screen-ops  UNTIL
+	key-buffer $@len IF
+	    inkey@
+	ELSE
+	    infile-id dup IF  (key-file)  ELSE  drop  EINTR  THEN
+	THEN
+	dup EINTR = WHILE  drop  REPEAT
+    dup #cr = key? and IF  key-ior ?dup-IF inskey THEN THEN ;
 ' android-key-ior IS key-ior
 
 Defer config-changed
