@@ -347,8 +347,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
   
   LOGI("Enter onload\n");
 
-  mknod("stdin", 0644, S_IFIFO);
-  freopen("stdin", "r", stdin);
+  mknod("/data/data/gnu.gforth/files/stdin", 0644, S_IFIFO);
+  freopen("/data/data/gnu.gforth/files/stdin", "r", stdin);
   freopen("/sdcard/gforthout.log", "w+", stdout);
   freopen("/sdcard/gfortherr.log", "w+", stderr);
 

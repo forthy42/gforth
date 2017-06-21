@@ -310,14 +310,14 @@ screen-ops     ' noop IS screen-ops
 
 Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 
-: nostring ( -- ) setstring $off ;
-: insstring ( -- )  setstring $@ inskeys nostring ;
+: nostring ( -- ) setstring$ $off ;
+: insstring ( -- )  setstring$ $@ inskeys nostring ;
 
 : android-characters ( string -- )  jstring>sstring
     nostring inskeys jfree ;
 : android-commit     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
-	jstring>sstring inskeys jfree setstring $off  THEN ;
-: android-setstring  ( string -- ) jstring>sstring setstring $! jfree
+	jstring>sstring inskeys jfree setstring$ $off  THEN ;
+: android-setstring  ( string -- ) jstring>sstring setstring$ $! jfree
     ctrl L inskey ;
 : android-unicode    ( uchar -- )   >xstring inskeys ;
 : android-keycode    ( keycode -- ) keycode>keys inskeys ;
