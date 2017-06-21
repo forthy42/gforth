@@ -8,10 +8,6 @@
 #include <android/native_window_jni.h>
 #include <android/native_activity.h>
 #include <android/looper.h>
-#ifdef __gnu_linux__
-#undef stderr
-extern struct _IO_FILE *stderr;
-#endif
 %}
 
 #define __ANDROID__

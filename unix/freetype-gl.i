@@ -3,10 +3,6 @@
 %insert("include")
 %{
 #include <freetype-gl.h>
-#ifdef __gnu_linux__
-#undef stderr
-extern struct _IO_FILE *stderr;
-#endif
 %}
 
 %apply short { wchar_t };

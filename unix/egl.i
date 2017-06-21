@@ -3,10 +3,6 @@
 %insert("include")
 %{
 #include <EGL/egl.h>
-#ifdef __gnu_linux__
-#undef stderr
-extern struct _IO_FILE *stderr;
-#endif
 %}
 %apply int { EGLint };
 

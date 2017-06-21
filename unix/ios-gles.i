@@ -4,10 +4,6 @@
 %{
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
-#ifdef __gnu_linux__
-#undef stderr
-extern struct _IO_FILE *stderr;
-#endif
 %}
 %apply void { GLvoid };
 %apply float { GLfloat, GLclampf };

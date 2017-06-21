@@ -312,6 +312,18 @@ test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have bac
 AC_MSG_RESULT($ac_export_dynamic)
 
 FAST=no
+case "$host_os" in
+    *android*)
+	case "$host_cpu" in
+	    arm64*|aarch64*|mips64*)
+	    	AC_DEFINE(__ANDROID_API__,21,[Define if you use Android])
+		;;
+	    *)
+	    	AC_DEFINE(__ANDROID_API__,19,[Define if you use Android])
+		;;
+	esac
+	;;
+esac
 #terminology is a bit unusual here: The host is the system on which
 #gforth will run; the system on which configure will run is the `build'
 case "$host_cpu" in

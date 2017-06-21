@@ -18,6 +18,7 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -223,13 +224,9 @@ void startForth(jniargs * startargs)
   char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
   char* patharg;
   int retvalue;
-  int epipe[2];
   JavaVM *vm=startargs->vm;
   JNIEnv *env;
   JavaVMAttachArgs vmAA = { JNI_VERSION_1_6, "NativeThread", 0 };
-
-  pipe(epipe);
-  stdin->_file=epipe[0];
 
   (*vm)->AttachCurrentThread(vm, &env, &vmAA);
   
@@ -349,7 +346,9 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
   JNIEnv * env;
   
   LOGI("Enter onload\n");
-  
+
+  mknod("stdin", 0644, S_IFIFO);
+  freopen("stdin", "r", stdin);
   freopen("/sdcard/gforthout.log", "w+", stdout);
   freopen("/sdcard/gfortherr.log", "w+", stderr);
 
