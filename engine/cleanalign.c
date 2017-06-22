@@ -18,6 +18,8 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#include "config.h"
+
 void *memcpy(void *dest, const void *src, int n)
 {
   int i;

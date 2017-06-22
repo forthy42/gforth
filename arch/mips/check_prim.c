@@ -18,6 +18,7 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#include "config.h"
 /* return non-zero if given primitive is non-relocatable (or has other
  * problems when used in dynamic superinstructions) */
 int check_prim(char *start, int len)

@@ -18,6 +18,8 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#include "config.h"
+
 #ifdef i386
 #define X (1024.*1024.*1024.*1024.*1024.*1024.*16.)
 #else /* !defined(386) */

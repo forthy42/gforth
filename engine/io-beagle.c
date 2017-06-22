@@ -18,6 +18,7 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#include "config.h"
 /* This file is a stub for now */
 
 int terminal_prepped = 0;

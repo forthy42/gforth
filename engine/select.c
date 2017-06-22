@@ -18,7 +18,7 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
-
+#include "config.h"
 #include <sys/time.h>
 
 int select(int n, fd_set *a, fd_set *b, fd_set *c, struct timeval * timeout)

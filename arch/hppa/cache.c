@@ -18,6 +18,7 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#include "config.h"
 #include <stddef.h>
 
 void cacheflush(void * address, size_t size, size_t linewidth)

@@ -23,6 +23,7 @@
    file cacheflush.c here and call configure like this:
    ./configure arm_cacheflush=arch/arm/cacheflush
  */
+#include "config.h"
 #include <stdlib.h>
 void gforth_cacheflush(void *p, size_t size)
 {

@@ -18,6 +18,7 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#include "config.h"
 #include "forth.h"
 
 int memcmp(const void *s1, const void *s2, size_t n)
