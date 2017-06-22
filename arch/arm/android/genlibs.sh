@@ -110,6 +110,6 @@ fi
  (cd src/SOIL2
   cp SOIL2.h $TOOLCHAIN/sysroot/usr/include))
 
-$TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath /home/bernd/proj/android-toolchain/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ freetype-gl -name '*.lo') -lm -lGLESv2 -lz -llog
+$TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ freetype-gl -name '*.lo') -lm -lGLESv2 -lz -llog
 
 cp .libs/libtypeset.{a,so} $TOOLCHAIN/sysroot/usr/lib

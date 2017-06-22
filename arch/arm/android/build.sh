@@ -116,7 +116,7 @@ then
 	    $SRC/configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard/gforth/$machine --libexecdir=/lib --includedir=$PWD/include --enable-lib $EXTRAS || exit 1
 	fi
 	echo -n " make" 1>&3
-	make || exit 1
+	make -j4 || exit 1
 	make prefix=$TOOLCHAIN/sysroot/usr install-include
 	rm -rf debian/sdcard
 	echo -n " extras" 1>&3

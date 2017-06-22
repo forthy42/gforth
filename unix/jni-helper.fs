@@ -206,7 +206,7 @@ Variable kbflag     kbflag off
     kbflag @ IF  hidekb  ELSE  showkb  THEN ;
 
 SDK_INT 10 u<= [IF]
-    : getclip? ( -- addr u / 0 0 )
+    : clipboard@ ( -- addr u / 0 0 )
 	clazz .clipboardManager >o
 	hasText IF
 	    getText >o toString jstring>sstring ref>
@@ -214,7 +214,7 @@ SDK_INT 10 u<= [IF]
     : setclip ( addr u -- )
 	make-jstring clazz .clipboardManager >o setText ref> ;
 [ELSE]
-    : getclip? ( -- addr u / 0 0 )
+    : clipboard@ ( -- addr u / 0 0 )
 	clazz .clipboardManager >o
 	hasPrimaryClip IF
 	    getPrimaryClip >o
@@ -234,7 +234,7 @@ SDK_INT 10 u<= [IF]
 \	ref> ;
 [THEN]
 : paste ( -- )
-    getclip? dup IF  paste$ $! ctrl Y inskey  ELSE  2drop  THEN ;
+    clipboard@ dup IF  paste$ $! ctrl Y inskey  ELSE  2drop  THEN ;
 : android-paste! ( addr u -- )
     2dup defers paste! setclip ;
 ' android-paste! is paste!
