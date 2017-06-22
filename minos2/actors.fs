@@ -145,8 +145,9 @@ xchar-ctrlkeys edit-ctrlkeys bl cells move
 ' grow-edit$ is grow-tib
 ' noop is edit-update \ no need to do that here
 ' noop is edit-error  \ no need to make annoying bells
-[IFDEF] clipboard!     ' clipboard!     is paste!  [THEN]
-[IFDEF] android-paste! ' android-paste! is paste!  [THEN]
+' clipboard!     is paste!
+[IFUNDEF] primary!     ' clipboard! alias primary! [THEN]
+[IFUNDEF] primary@     ' clipboard@ alias primary@ [THEN]
 
 \ extra key bindings for editors
 

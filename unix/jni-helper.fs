@@ -235,9 +235,9 @@ SDK_INT 10 u<= [IF]
 [THEN]
 : paste ( -- )
     clipboard@ dup IF  paste$ $! ctrl Y inskey  ELSE  2drop  THEN ;
-: android-paste! ( addr u -- )
+: clipboard! ( addr u -- )
     2dup defers paste! setclip ;
-' android-paste! is paste!
+' clipboard! is paste!
 
 0 [IF]
 jni-class: android/os/PowerManager
