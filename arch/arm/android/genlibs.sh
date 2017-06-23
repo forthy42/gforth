@@ -21,6 +21,15 @@
 . build.local
 TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 
+case "$TARGET" in
+    arm64*|aarch64*|mips64*)
+	export CC="$TARGET-gcc -D__ANDROID_API__=21"
+	;;
+    *)
+	export CC="$TARGET-gcc -D__ANDROID_API__=19"
+	;;
+esac
+
 FREETYPE=freetype-2.8
 HARFBUZZ=harfbuzz-1.4.6
 

@@ -224,9 +224,13 @@ void startForth(jniargs * startargs)
   char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
   char* patharg;
   int retvalue;
+  int epipe[2];
   JavaVM *vm=startargs->vm;
   JNIEnv *env;
   JavaVMAttachArgs vmAA = { JNI_VERSION_1_6, "NativeThread", 0 };
+
+  pipe(epipe);
+  stdin->_file=epipe[0];
 
   (*vm)->AttachCurrentThread(vm, &env, &vmAA);
   
