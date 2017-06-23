@@ -350,14 +350,15 @@ info-color Value setstring-color
     swap r> - swap r> xretype ;
 : xreformat ( max span addr pos1 -- max span addr pos1 0 )
     xedit-startpos
-    edit-curpos @ screenw @ /mod cols dup screenw ! * + dup spaces edit-curpos !
+    edit-linew @ screenw @ /mod cols dup screenw ! * +
+    dup spaces dup edit-curpos ! edit-linew !
     xretype ;
 
 Create xchar-ctrlkeys ( -- )
     ' false        , ' setcur       , ' xback        , ' false        ,
     ' xeof         , ' xend-pos     , ' xforw        , ' false        ,
     ' ?xdel        , ' xtab-expand  , ' (xenter)     , ' xclear-rest  ,
-    ' xretype      , ' (xenter)     , ' next-line    , ' false        ,
+    ' xreformat    , ' (xenter)     , ' next-line    , ' false        ,
 
     ' prev-line    , ' false        , ' false        , ' setsel       ,
     ' xtranspose   , ' xclear-first , ' false        , ' false        ,
