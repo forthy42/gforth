@@ -83,7 +83,9 @@ kernel-editor edit-out !
     \ addr span is the current string in the buffer, and pos1 is the
     \ cursor position in the buffer.
     everychar  >control
-    dup bl u<  IF  edit-control  EXIT  THEN
+    dup bl u< \ ctrl key
+    over $80000000 u>= \ ekey
+    or IF  edit-control  EXIT  THEN
     \ check for end reached
     insert-char key? 0= IF  edit-update  THEN 0 ;
 

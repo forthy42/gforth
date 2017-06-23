@@ -400,7 +400,7 @@ ctrl D k-eof    ekey-bind
 : edit-ekey ( -- key )
     ekey ekey>ckey ;
 
-' edit-ekey is edit-key
+' ekey is edit-key
 
 \G True if a keyboard event is available.
 

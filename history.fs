@@ -25,6 +25,7 @@ kernel-editor cell- @ 2 cells - 2@ \ extend edit-out class
 umethod paste! ( addr u -- )
 umethod grow-tib ( max span addr pos1 more -- max span addr pos1 flag )
 umethod edit-error
+umethod ekeys
 cell uvar edit-curpos
 cell uvar screenw
 cell uvar setstring$ \ additional string at cursor for IME
@@ -34,7 +35,7 @@ Variable paste$ \ global paste buffer
 align , , here
 ' (ins) , ' (ins-string) , ' (edit-control) ,
 ' noop ,  ' noop , ' noop , ' std-ctrlkeys , \ kernel stuff
-' noop ,  ' 0> , ' bell , \ extended stuff
+' noop ,  ' 0> , ' bell , ' noop , \ extended stuff
 , here  0 , 0 , 0 , 0 , 0 , 0 ,
 Constant edit-terminal
 edit-terminal cell- @ Constant edit-terminal-c
@@ -347,6 +348,10 @@ info-color Value setstring-color
     >r 2dup swap r@ /string 2dup setstring$ $!
     dup >r r@ - over r@ + -rot move
     swap r> - swap r> xretype ;
+: xreformat ( max span addr pos1 -- max span addr pos1 0 )
+    xedit-startpos
+    edit-curpos @ screenw @ /mod cols dup screenw ! * + dup spaces edit-curpos !
+    xretype ;
 
 Create xchar-ctrlkeys ( -- )
     ' false        , ' setcur       , ' xback        , ' false        ,
@@ -358,6 +363,21 @@ Create xchar-ctrlkeys ( -- )
     ' xtranspose   , ' xclear-first , ' false        , ' false        ,
     ' <xdel>       , ' xpaste       , ' xhide        , ' false        ,
     ' false        , ' false        , ' false        , ' false        ,
+
+Create std-ekeys
+    ' xback ,        ' xforw ,        ' prev-line ,    ' next-line ,
+    ' setcur ,       ' xend-pos ,     ' prev-line ,    ' next-line ,
+    ' false ,        ' <xdel> ,       ' (xenter) ,     ' false ,
+    ' false ,        ' false ,        ' false ,        ' false ,
+    ' false ,        ' false ,        ' false ,        ' false ,
+    ' false ,        ' false ,        ' false ,        ' xreformat ,
+    ' (xenter) ,
+
+: xchar-edit-ctrl ( ekey -- )
+    dup mask-shift# rshift 7 and vt100-modifier !
+    dup 1 mask-shift# lshift 1- and swap keycode-start u>= IF
+	cells ekeys + perform  EXIT  THEN
+    cells ctrlkeys + perform ;
 
 : xchar-history ( -- )
     edit-terminal edit-out ! ;
@@ -373,6 +393,8 @@ xchar-history
 ' xgrow-tib       IS grow-tib
 ' xchar-ctrlkeys  IS ctrlkeys
 ' bell            IS edit-error
+' std-ekeys       IS ekeys
+' xchar-edit-ctrl IS edit-control
 
 \ initializing history
 
