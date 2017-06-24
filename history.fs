@@ -48,6 +48,7 @@ edit-terminal edit-out !
     over 3 pick 2 pick chars /string ;
 
 : bindkey ( xt key -- )  cells ctrlkeys + ! ;
+: ebindkey ( xt key -- )  keycode-start - cells ekeys + ! ;
 
 \ history support                                       16oct94py
 

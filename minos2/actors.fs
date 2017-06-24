@@ -140,8 +140,11 @@ edit-widget edit-out !
 
 bl cells buffer: edit-ctrlkeys
 xchar-ctrlkeys edit-ctrlkeys bl cells move
+keycode-limit keycode-start - cells buffer: edit-ekeys
+std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 
 ' edit-ctrlkeys is ctrlkeys
+' edit-ekeys is ekeys
 ' grow-edit$ is grow-tib
 ' noop is edit-update \ no need to do that here
 ' noop is edit-error  \ no need to make annoying bells
@@ -184,6 +187,13 @@ end-class edit-actor
 ' edit-cut       ctrl W bindkey
 ' edit-enter     #lf    bindkey
 ' edit-enter     #cr    bindkey
+
+' edit-next-line k-down  ebindkey
+' edit-prev-line k-up    ebindkey
+' edit-next-line k-next  ebindkey
+' edit-prev-line k-prior ebindkey
+' edit-enter     k-eof   ebindkey
+' edit-enter     k-enter ebindkey
 
 edit-terminal edit-out !
 
@@ -263,9 +273,7 @@ edit-terminal edit-out !
     THEN ;
 
 :noname ( key o:actor -- )
-    [: 4 roll ekey>ckey dup k-shift-mask u>= IF
-	    dup mask-shift# rshift 7 and vt100-modifier !
-	    [ 1 mask-shift# lshift 1- ]L and  THEN
+    [: 4 roll dup $80000000 and 0= k-ctrl-mask and invert and
 	>control edit-control drop ;] edit-xt ; edit-actor is ekeyed
 :noname ( addr u o:actor -- )
     [: 2rot insert-string ;] edit-xt ; edit-actor is ukeyed
