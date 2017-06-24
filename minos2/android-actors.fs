@@ -19,26 +19,66 @@
 
 require bits.fs
 
+handler-class class
+    2 sfloats +field lastpos
+    2field: lasttime
+    2field: downtime
+    field: flags
+    field: buttonmask
+    value: clicks
+end-class android-handler
+
+0 Constant #pending
+1 Constant #lastdown
+2 Constant #clearme
+
 : top-act ( -- o ) top-widget .act ;
+
+#250 Value twoclicks  \ every edge further apart than 150ms into separate clicks
+#128e FValue samepos     \ position difference square-summed less than is same pos
+
+: 2sf@ ( addr -- r1 r2 )
+    dup sf@ sfloat+ sf@ ;
+: 2sf! ( r1 r2 addr -- )
+    dup sfloat+ sf! sf! ;
+: samepos? ( rx ry -- flag )
+    lastpos 2sf@ frot f- f**2 f-rot f- f**2 f+ samepos f< ;
+: ?samepos ( -- )
+    0 getX 0 getY fover fover samepos? 0= IF   0 to clicks  THEN  lastpos 2sf! ;
+
 Variable xy$
 : >xy$ ( -- xy$ )
     getPointerCount 2* sfloats xy$ $!len
     0 xy$ $@ bounds ?DO
 	dup getX I sf!  dup getY I sfloat+ sf!  1+
-    2 sfloats +LOOP  drop xy$ ;
+    2 sfloats +LOOP  drop xy$
+    getDownTime downtime 2!
+    getEventTime lasttime 2! ;
 : action-down ( -- )
-    top-act IF  xy$ getButtonState top-act .touchdown  THEN ;
+    getButtonState buttonmask !
+    top-act IF  xy$ buttonmask @ top-act .touchdown  THEN
+    ?samepos  flags #lastdown +bit  flags #pending +bit ;
 : action-up ( -- )
-    top-act IF  xy$ getButtonState top-act .touchup  THEN ;
+    ?samepos
+    flags #lastdown -bit@  IF
+	1 +to clicks  send-clicks  flags #clearme +bit  THEN
+    getButtonState buttonmask !
+    top-act IF  xy$ buttonmask @ top-act .touchup  THEN ;
 : action-move ( -- )
-    top-act IF  xy$ getButtonState top-act .touchmove  THEN ;
+    flags #pending bit@  0 getX 0 getY samepos? 0= and IF
+	send-clicks  0 to clicks
+    THEN
+    top-act IF  xy$ buttonmask @ top-act .touchmove  THEN ;
 : action-cancel ( -- ) ;
 : action-outside ( -- ) ;
 : action-ptr-down ( -- )
-    top-act IF  xy$ getButtonState top-act .touchdown  THEN ;
+    getButtonState buttonmask !
+    top-act IF  xy$ buttonmask @ top-act .touchdown  THEN ;
 : action-ptr-up ( -- )
-    top-act IF  xy$ getButtonState top-act .touchup  THEN ;
+    top-act IF  xy$ buttonmask @ top-act .touchup  THEN
+    getButtonState buttonmask ! ;
 : action-hover-move ( -- )
+    getButtonState buttonmask !
     top-act IF  xy$ 0 top-act .touchmove  THEN ;
 : action-scroll ( -- ) ;
 : action-henter ( -- ) ;
@@ -64,8 +104,30 @@ Create actions
     ELSE  drop  THEN
     o> ;
 
+: send-clicks ( -- )
+    lastpos 2sf@ buttonmask @
+    clicks 2* flags #lastdown bit@ -
+    top-act ?dup-IF
+	.clicked
+    ELSE  2drop fdrop fdrop  THEN
+    flags #pending -bit ;
+
+:noname ( -- )
+    event-handler @ >o
+    uptimeMillis lasttime 2@ d- twoclicks s>d d>= IF
+	flags #pending -bit@ IF
+	    send-clicks  flags #pending -bit
+	THEN
+	flags #clearme -bit@ IF
+	    0 to clicks
+	THEN
+    THEN
+    o> ; is ?looper-timeouts
+
+android-handler ' new static-a with-allocater Constant android-input
+
 : enter-minos ( -- )
-    ['] touch>action is android-touch ;
+    ['] touch>action is android-touch  android-input event-handler ! ;
 : leave-minos ( -- )
     ['] touch>event is android-touch
-    need-sync on  need-show on ;
+    need-sync on  need-show on [ event-handler @ ]l event-handler ! ;

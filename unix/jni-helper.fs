@@ -46,6 +46,9 @@ jni-method: post post (Ljava/lang/Runnable;)Z
 : post-it ( runable-xt -- )
     clazz >o execute gforth-handler >o post ref> drop o> ;
 
+jni-class: android/os/SystemClock
+jni-static: uptimeMillis uptimeMillis ()J
+
 jni-class: android/app/Activity
 jni-method: getWindowManager getWindowManager ()Landroid/view/WindowManager;
 

@@ -33,7 +33,7 @@ end-class x11-handler
 
 also x11
 
-#150 Value twoclicks  \ every edge further apart than 150ms into separate clicks
+#200 Value twoclicks  \ every edge further apart than 150ms into separate clicks
 #6 Value samepos      \ position difference square-summed less than is same pos
 
 Create x-key>ekey#
@@ -87,7 +87,7 @@ DOES> ( x-key [addr] -- ekey )
 ; x11-handler to DoKeyPress
 \ ' noop x11-handler to DoKeyRelease
 : samepos? ( x y -- flag )
-    lastpos 2@ >r swap r> - >r - dup * r> dup * + samepos < ;
+    lastpos 2@ rot - dup * -rot - dup * + samepos < ;
 : ?samepos ( -- )
     e.x e.y 2dup samepos? 0= IF   0 to clicks  THEN  lastpos 2! ;
 : send-clicks ( -- )
@@ -108,7 +108,7 @@ Variable xy$
     event-handler @ >o
     Xtime lasttime @ - twoclicks >= IF
 	flags #pending -bit@ IF
-	    send-clicks  flags #pending -bit
+	    send-clicks
 	THEN
 	flags #clearme -bit@ IF
 	    0 to clicks
@@ -118,11 +118,11 @@ Variable xy$
 :noname ( -- )
     buttonmask e.button 1- +bit
     top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchdown  THEN
-    e.time lasttime !  ?samepos
+    e.kbm.time lasttime !  ?samepos
     flags #lastdown +bit  flags #pending +bit
 ; x11-handler to DoButtonPress
 :noname ( -- )
-    ?samepos  e.time lasttime !
+    ?samepos  e.kbm.time lasttime !
     flags #lastdown -bit@  IF
 	1 +to clicks  send-clicks  flags #clearme +bit  THEN
     buttonmask e.button 1- -bit

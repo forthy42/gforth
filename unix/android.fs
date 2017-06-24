@@ -284,8 +284,10 @@ variable looperfds pollfd 8 * allot
     ELSE  false
     THEN ;
 
+Defer ?looper-timeouts ' noop is ?looper-timeouts
+
 : >looper  looper-init
-    BEGIN  0 poll? 0=  UNTIL  looper-to# poll? drop ;
+    BEGIN  ?looper-timeouts  0 poll? 0=  UNTIL  looper-to# poll? drop ;
 : ?looper  BEGIN  >looper  app window @ UNTIL ;
 	    
 \ : >looper  BEGIN  0 poll_looper 0<  UNTIL looper-to# poll_looper drop ;

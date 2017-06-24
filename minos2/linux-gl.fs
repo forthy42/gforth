@@ -186,6 +186,10 @@ Variable level#
 
 object class
     drop 0 XGenericEvent-type        lvalue: e.type
+    drop 0 XMotionEvent-time         value: e.kbm.time \ key, button, motion, crossing
+    drop 0 XPropertyEvent-time       value: e.psc.time
+    drop 0 XSelectionRequestEvent-time  value: e.sr.time
+    drop 0 XSelectionEvent-time      value: e.s.time
     drop 0 XGenericEvent-serial      value: e.serial
     drop 0 XGenericEvent-send_event  lvalue: e.send_event
     drop 0 XGenericEvent-display     value: e.display
@@ -198,7 +202,6 @@ object class
     drop 0 XCreateWindowEvent-height     lvalue: e.w-height
     drop 0 XExposeEvent-width            lvalue: e.e-width
     drop 0 XExposeEvent-height           lvalue: e.e-height
-    drop 0 XMotionEvent-time         value: e.time
     drop 0 XButtonEvent-x            slvalue: e.x
     drop 0 XButtonEvent-y            slvalue: e.y
     drop 0 XButtonEvent-button       lvalue: e.button
@@ -271,7 +274,7 @@ $100 /propfetch * Constant propfetchs
     dpy dpy XDefaultRootWindow 9 \ cut buffer 0
     XA_STRING 8 PropModeReplace
     r> r> XChangeProperty drop
-    dpy swap win e.time XSetSelectionOwner drop
+    dpy swap win CurrentTime XSetSelectionOwner drop
     own-selection on o> ;
 : fetch-property ( win prop target addr -- )
     0 0 0 0 0 { target addr w^ ret-t w^ form-t w^ n w^ rest w^ prop }
@@ -349,6 +352,10 @@ DOES> ( x-key -- addr u )
 
 previous
 
+0 Value timeoffset
+: XTime0 ( -- ntime ) utime #1000 ud/mod drop nip ;
+: XTime ( -- ntime ) XTime0 timeoffset + ;
+
 : getwh ( -- )
     0 0 dpy-w @ dpy-h @ glViewport ;
 : screen-orientation ( -- 0/1 )
@@ -368,17 +375,20 @@ previous
 ' noop handler-class to DoKeyRelease
 :noname  0 *input action ! 1 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
-    e.time s>d *input eventtime 2!  #0. *input downtime 2!
+    e.kbm.time s>d *input eventtime 2!  #0. *input downtime 2!
+    e.kbm.time XTime0 - to timeoffset
     e.x e.y *input y0 ! *input x0 ! ; handler-class to DoButtonPress
 :noname  1 *input action ! 0 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
-    e.time s>d 2dup *input eventtime 2@ d- *input downtime 2!
+    e.kbm.time s>d 2dup *input eventtime 2@ d- *input downtime 2!
+    e.kbm.time XTime0 - to timeoffset
     *input eventtime 2!
     e.x *input x0 ! e.y *input y0 ! ; handler-class to DoButtonRelease
 :noname
     *input pressure @ IF
 	2 *input action !
-	e.time s>d *input eventtime 2@ d- *input downtime 2!
+	e.kbm.time s>d *input eventtime 2@ d- *input downtime 2!
+	e.kbm.time XTime0 - to timeoffset
 	e.x e.y *input y0 ! *input x0 !
     THEN ; handler-class to DoMotionNotify
 ' noop handler-class to DoEnterNotify
@@ -403,8 +413,9 @@ previous
 :noname  e.r-width dpy-w ! e.r-height dpy-h ! config-changed ; handler-class to DoResizeRequest
 ' noop handler-class to DoCirculateNotify
 ' noop handler-class to DoCirculateRequest
-' noop handler-class to DoPropertyNotify
-:noname  own-selection off ; handler-class to DoSelectionClear
+:noname e.psc.time XTime0 - to timeoffset ; handler-class to DoPropertyNotify
+:noname  e.psc.time XTime0 - to timeoffset
+    own-selection off ; handler-class to DoSelectionClear
 
 : rest-request { addr n mode format type -- }
     dpy e.requestor e.property
@@ -439,6 +450,7 @@ previous
 \    ." Selection Request from: " e.requestor hex.
 \    e.selection .atom space
 \    e.property .atom cr
+    e.sr.time XTime0 - to timeoffset
     event xev 0 XSelectionEvent-requestor move \ first copy the event
     event XSelectionRequestEvent-requestor xev XSelectionEvent-requestor
     [ XSelectionEvent negate XSelectionEvent-requestor negate ]L move
@@ -449,6 +461,7 @@ previous
     dpy e.requestor 0 0 xev XSendEvent drop ;
 ' selection-request handler-class to DoSelectionRequest
 :noname ( -- )
+    e.s.time XTime0 - to timeoffset
     e.requestor' e.property'
     \ dup .atom  e.target' .atom
     case dup
@@ -464,13 +477,9 @@ previous
 ' noop handler-class to DoMappingNotify
 ' noop handler-class to DoGenericEvent
 
-0 Value timeoffset
-: XTime ( -- ntime ) utime #1000 ud/mod drop nip timeoffset + ;
-
 : handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
 : get-events ( -- )  event-handler @ >o
     BEGIN  dpy XPending  WHILE  dpy event XNextEvent drop
-	    e.time XTime - +to timeoffset
 	    event 0 XFilterEvent 0= IF  handle-event  THEN
     REPEAT o> ;
 
