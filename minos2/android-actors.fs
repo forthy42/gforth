@@ -19,14 +19,12 @@
 
 require bits.fs
 
-handler-class class
-    2 sfloats +field lastpos
-    2field: lasttime
-    2field: downtime
-    field: flags
-    field: buttonmask
-    value: clicks
-end-class android-handler
+2 sfloats buffer: lastpos
+2Variable lasttime
+2Variable downtime
+Variable flags
+Variable buttonmask
+0 Value clicks
 
 0 Constant #pending
 1 Constant #lastdown
@@ -113,7 +111,6 @@ Create actions
     flags #pending -bit ;
 
 :noname ( -- )
-    event-handler @ >o
     uptimeMillis lasttime 2@ d- twoclicks s>d d>= IF
 	flags #pending -bit@ IF
 	    send-clicks  flags #pending -bit
@@ -121,13 +118,10 @@ Create actions
 	flags #clearme -bit@ IF
 	    0 to clicks
 	THEN
-    THEN
-    o> ; is ?looper-timeouts
-
-android-handler ' new static-a with-allocater Constant android-input
+    THEN ; is ?looper-timeouts
 
 : enter-minos ( -- )
-    ['] touch>action is android-touch  android-input event-handler ! ;
+    ['] touch>action is android-touch ;
 : leave-minos ( -- )
     ['] touch>event is android-touch
-    need-sync on  need-show on [ event-handler @ ]l event-handler ! ;
+    need-sync on  need-show on ;
