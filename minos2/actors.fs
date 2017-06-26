@@ -146,7 +146,17 @@ std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 ' edit-ctrlkeys is ctrlkeys
 ' edit-ekeys is ekeys
 ' grow-edit$ is grow-tib
-' noop is edit-update \ no need to do that here
+[IFDEF] android
+    also jni
+    : android-seteditline ( span addr pos -- span addr pos )
+	2dup xcs swap >r >r
+	2dup swap make-jstring r> clazz .setEditLine r>
+	need-sync on ;
+    previous
+    ' android-seteditline is edit-update
+[ELSE]
+    ' noop is edit-update \ no need to do that here
+[THEN]
 ' noop is edit-error  \ no need to make annoying bells
 ' clipboard!     is paste!
 [IFUNDEF] primary!     ' clipboard! alias primary! [THEN]

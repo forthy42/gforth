@@ -113,7 +113,8 @@ Create actions
 : key>action ( event -- )
     key>event
     BEGIN  key?  WHILE  ekey
-	    ekey>xchar IF  >xstring top-act .ukeyed
+	    ekey>xchar over #del <> and over bl u>= and
+	    IF    >xstring top-act .ukeyed
 	    ELSE  top-act .ekeyed  THEN
     REPEAT ;
 
