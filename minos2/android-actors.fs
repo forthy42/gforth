@@ -105,26 +105,17 @@ Create actions
 
 : touch>action ( event -- )  new-touch on
     dup to touch-event >o  >xy$ drop
-    me-getAction $FF and dup $A <= IF
+    me-getAction $FF and dup $A u<= IF
 	cells actions + perform
     ELSE  drop  THEN
     o> ;
 
-Variable ukey$
-
-: xc$+! ( xc addr$ -- ) >r
-    dup xc-size dup r@ $@len + r@ $!len
-    r> $@ + swap - xc!+ drop ;
-
-: ?ukey$ ( -- )
-    ukey$ $@ dup IF  top-act .ukeyed  ELSE  2drop  THEN
-    ukey$ $free ;
-
 : key>action ( event -- )
-    key>event ukey$ $free
-    BEGIN  ekey?  WHILE  ekey ekey>xchar IF  ukey$ xc$+!
-	    ELSE  ?ukey$ top-act .ekeyed  THEN  REPEAT
-    ?ukey$ ;
+    key>event
+    BEGIN  key?  WHILE  ekey
+	    ekey>xchar IF  >xstring top-act .ukeyed
+	    ELSE  top-act .ekeyed  THEN
+    REPEAT ;
 
 :noname ( -- )
     uptimeMillis lasttime 2@ d- twoclicks s>d d>= IF

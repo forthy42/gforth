@@ -34,7 +34,9 @@ decimal
 
 : xt= ( ca xt -- flag )
     \G compare threaded-code cell with the primitive xt
-    @ swap threading-method 1 umin 0 +DO  ['] @ catch drop  LOOP  = ;
+    first-throw @ >r first-throw off
+    @ swap threading-method 1 umin 0 +DO  ['] @ catch drop  LOOP  =
+    r> first-throw ! ;
 
 : search-name  ( xt startlfa -- nt|0 )
     \ look up name of primitive with code at xt

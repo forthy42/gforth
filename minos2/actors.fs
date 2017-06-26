@@ -165,7 +165,7 @@ end-class edit-actor
 ' false edit-actor is edit-prev-line
 
 : edit-paste ( max span addr pos1 - max span addr pos2 false )
-    clipboard@ xins-string edit-update 0 ;
+    clipboard@ insert-string edit-update 0 ;
 
 0 value xselw
 
@@ -187,6 +187,7 @@ end-class edit-actor
 ' edit-cut       ctrl W bindkey
 ' edit-enter     #lf    bindkey
 ' edit-enter     #cr    bindkey
+' false          ctrl L bindkey
 
 ' edit-next-line k-down  ebindkey
 ' edit-prev-line k-up    ebindkey
@@ -194,6 +195,7 @@ end-class edit-actor
 ' edit-prev-line k-prior ebindkey
 ' edit-enter     k-eof   ebindkey
 ' edit-enter     k-enter ebindkey
+' false          k-winch ebindkey
 
 edit-terminal edit-out !
 
@@ -276,7 +278,7 @@ edit-terminal edit-out !
     [: 4 roll dup $80000000 and 0= k-ctrl-mask and invert and
 	>control edit-control drop ;] edit-xt ; edit-actor is ekeyed
 :noname ( addr u o:actor -- )
-    [: 2rot insert-string ;] edit-xt ; edit-actor is ukeyed
+    [: 2rot insert-string edit-update ;] edit-xt ; edit-actor is ukeyed
 :noname ( o:actor -- )
     edit-w >o -1 to cursize o> need-sync on
     need-keyboard off ; edit-actor is defocus

@@ -299,7 +299,6 @@ set-current
 
 [IFDEF] max-single-byte
     : read-xkey ( key -- flag )
-	clear-ekey-buffer
 	ekey-buffer c$+!
 	ekey-buffer $@ x-size 1 +do
 	    key? 0= ?leave
