@@ -118,6 +118,9 @@ also [IFDEF] android android [THEN]
 	[IFDEF] android  ?config-changer  [THEN]
 	need-sync @ IF
 	    top-widget .htop-resize  widgets-test  need-sync off  THEN
+	need-keyboard @ IF
+	    [IFDEF] showkb showkb [THEN]
+	    need-keyboard off  THEN
     level# @ 0= UNTIL  leave-minos ;
 
 previous

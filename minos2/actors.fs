@@ -278,9 +278,11 @@ edit-terminal edit-out !
 :noname ( addr u o:actor -- )
     [: 2rot insert-string ;] edit-xt ; edit-actor is ukeyed
 :noname ( o:actor -- )
-    edit-w >o -1 to cursize o> need-sync on ; edit-actor is defocus
+    edit-w >o -1 to cursize o> need-sync on
+    need-keyboard off ; edit-actor is defocus
 :noname ( o:actor -- )
-    edit-w >o 0 to cursize o> need-sync on ; edit-actor is focus
+    edit-w >o 0 to cursize o> need-sync on
+    need-keyboard on ; edit-actor is focus
 :noname ( $rxy*n bmask -- )
     case 1 of  expand-selection  endof
 	nip

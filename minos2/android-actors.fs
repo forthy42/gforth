@@ -32,8 +32,8 @@ Variable buttonmask
 
 : top-act ( -- o ) top-widget .act ;
 
-#250 Value twoclicks  \ every edge further apart than 150ms into separate clicks
-#128e FValue samepos     \ position difference square-summed less than is same pos
+#250 Value twoclicks  \ every edge further apart than 250ms into separate clicks
+128e FValue samepos   \ position difference square-summed less than is same pos
 
 : 2sf@ ( addr -- r1 r2 )
     dup sf@ sfloat+ sf@ ;
@@ -52,6 +52,14 @@ Variable xy$
     2 sfloats +LOOP  drop xy$
     getDownTime downtime 2!
     getEventTime lasttime 2! ;
+: send-clicks ( -- )
+    lastpos 2sf@ buttonmask @
+    clicks 2* flags #lastdown bit@ -
+    top-act ?dup-IF
+	.clicked
+    ELSE  2drop fdrop fdrop  THEN
+    flags #pending -bit ;
+
 : action-down ( -- )
     getButtonState buttonmask !
     top-act IF  xy$ buttonmask @ top-act .touchdown  THEN
@@ -102,13 +110,21 @@ Create actions
     ELSE  drop  THEN
     o> ;
 
-: send-clicks ( -- )
-    lastpos 2sf@ buttonmask @
-    clicks 2* flags #lastdown bit@ -
-    top-act ?dup-IF
-	.clicked
-    ELSE  2drop fdrop fdrop  THEN
-    flags #pending -bit ;
+Variable ukey$
+
+: xc$+! ( xc addr$ -- ) >r
+    dup xc-size dup r@ $@len + r@ $!len
+    r> $@ + swap - xc!+ drop ;
+
+: ?ukey$ ( -- )
+    ukey$ $@ dup IF  top-act .ukeyed  ELSE  2drop  THEN
+    ukey$ $free ;
+
+: key>action ( event -- )
+    key>event ukey$ $free
+    BEGIN  ekey?  WHILE  ekey ekey>xchar IF  ukey$ xc$+!
+	    ELSE  ?ukey$ top-act .ekeyed  THEN  REPEAT
+    ?ukey$ ;
 
 :noname ( -- )
     uptimeMillis lasttime 2@ d- twoclicks s>d d>= IF
@@ -121,7 +137,9 @@ Create actions
     THEN ; is ?looper-timeouts
 
 : enter-minos ( -- )
-    ['] touch>action is android-touch ;
+    ['] touch>action is android-touch
+    ['] key>action   is android-key ;
 : leave-minos ( -- )
     ['] touch>event is android-touch
+    ['] key>event   is android-key
     need-sync on  need-show on ;

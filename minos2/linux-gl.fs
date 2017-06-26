@@ -41,6 +41,7 @@ also x11
 1 Value XA_CLIPBOARD
 
 Variable need-sync
+Variable need-keyboard
 Variable need-show
 Variable need-config
 Variable kbflag

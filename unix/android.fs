@@ -103,6 +103,7 @@ set-current previous
 
 Variable need-sync need-sync on
 Variable need-show need-show on
+Variable need-keyboard need-keyboard on
 Variable need-config
 
 app_input_state buffer: *input
@@ -298,9 +299,8 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 ; IS key?
 Defer screen-ops ' noop IS screen-ops
 
-true Value firstkey
 : android-key-ior ( -- key / ior )
-    firstkey IF  showkb false to firstkey  THEN
+    need-keyboard @ IF  showkb need-keyboard off  THEN
     need-show on
     BEGIN  >looper key? winch? @ or screen-ops  UNTIL
     winch? @ IF  EINTR  ELSE
@@ -361,7 +361,7 @@ JValue cmanager
 : .network ( -- )  network-info
     ?dup-IF  .network-info  ELSE  ." no active network"  THEN cr ;
 
-: android-key ( event -- )
+: key>event ( event -- )
     dup to key-event >o
     ke_getMetaState meta-key# !
     getAction dup 2 = IF  drop
@@ -411,6 +411,7 @@ Defer android-surface-changed ' ]gref is android-surface-changed
 Defer android-surface-redraw ' ]gref is recurse
 Defer android-video-size ' ]gref is recurse
 Defer android-touch ' touch>event is recurse
+Defer android-key   ' key>event is recurse
 
 : android-surface-created ( surface -- )
     app window @ 0= IF
