@@ -166,8 +166,10 @@ Variable xy$
 
 x11-handler ' new static-a with-allocater Constant x11-keyboard
 : enter-minos ( -- )
+    edit-widget edit-out !
     x11-keyboard event-handler ! ;
 : leave-minos ( -- )
+    edit-terminal edit-out !
     [ event-handler @ ]L event-handler !
     need-sync on  need-show on ;
 

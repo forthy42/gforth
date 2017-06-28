@@ -325,10 +325,12 @@ Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 
 : android-characters ( string -- )  jstring>sstring
     nostring inskeys jfree ;
-: android-commit     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
-	jstring>sstring inskeys jfree setstring$ $off  THEN ;
-: android-setstring  ( string -- ) jstring>sstring setstring$ $! jfree
-    ctrl L inskey ;
+Defer android-commit
+:noname     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
+	jstring>sstring inskeys jfree setstring$ $off  THEN ; is android-commit
+Defer android-setstring
+:noname  ( string -- ) jstring>sstring setstring$ $! jfree
+    ctrl L inskey ; is android-setstring
 : android-unicode    ( uchar -- )   >xstring inskeys ;
 : android-keycode    ( keycode -- ) keycode>keys inskeys ;
 

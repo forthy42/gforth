@@ -110,13 +110,60 @@ Create actions
     ELSE  drop  THEN
     o> ;
 
+Create keycode>ekey
+AKEYCODE_HOME        , k-home   ,
+AKEYCODE_DPAD_UP     , k-up     ,
+AKEYCODE_DPAD_DOWN   , k-down   ,
+AKEYCODE_VOLUME_UP   , k-up     ,
+AKEYCODE_VOLUME_DOWN , k-down   ,
+AKEYCODE_DPAD_LEFT   , k-left   ,
+AKEYCODE_DPAD_RIGHT  , k-right  ,
+AKEYCODE_TAB         , #tab     ,
+AKEYCODE_ENTER       , #cr      ,
+AKEYCODE_DEL         , #bs      ,
+AKEYCODE_FORWARD_DEL , k-delete ,
+AKEYCODE_PAGE_UP     , k-prior  ,
+AKEYCODE_PAGE_DOWN   , k-next   ,
+AKEYCODE_MOVE_HOME   , k-home   ,
+AKEYCODE_MOVE_END    , k-end    ,
+AKEYCODE_INSERT      , k-insert ,
+AKEYCODE_F1          , k-f1     ,
+AKEYCODE_F2          , k-f2     ,
+AKEYCODE_F3          , k-f3     ,
+AKEYCODE_F4          , k-f4     ,
+AKEYCODE_F5          , k-f5     ,
+AKEYCODE_F6          , k-f6     ,
+AKEYCODE_F7          , k-f7     ,
+AKEYCODE_F8          , k-f8     ,
+AKEYCODE_F9          , k-f9     ,
+AKEYCODE_F10         , k-f10    ,
+AKEYCODE_F11         , k-f11    ,
+AKEYCODE_F12         , k-f12    ,
+0 ,  0 ,
+DOES> ( akey -- ekey )
+  swap >r
+  BEGIN  dup cell+ swap @ r@ <> WHILE  cell+
+      dup @ 0= UNTIL  r@ unknown-key# !
+  THEN  @ rdrop ;
+
+also jni
+
 : key>action ( event -- )
-    key>event
-    BEGIN  key?  WHILE  ekey
-	    ekey>xchar over #del <> and over bl u>= and
-	    IF    >xstring top-act .ukeyed
-	    ELSE  top-act .ekeyed  THEN
-    REPEAT ;
+    dup to key-event >o
+    ke_getMetaState meta-key# !
+    getAction dup 2 = IF  drop
+	getKeyCode
+	?dup-IF  keycode>ekey top-act .ekeyed
+	ELSE  nostring getCharacters jstring>sstring top-act .ukeyed jfree
+	THEN
+    ELSE
+	0= IF
+	    getUnicodeChar
+	    ?dup-IF  >xstring top-act .ukeyed
+	    ELSE  getKeyCode keycode>ekey top-act .ekeyed
+	    THEN
+	THEN
+    THEN o> ;
 
 :noname ( -- )
     uptimeMillis lasttime 2@ d- twoclicks s>d d>= IF
@@ -128,10 +175,33 @@ Create actions
 	THEN
     THEN ; is ?looper-timeouts
 
+: edit-setstring ( string -- )
+    jstring>sstring setstring$ $! jfree
+    need-sync on  need-glyphs on ;
+: edit-commit ( string/0 -- )  ?dup-IF
+	jstring>sstring setstring$ $! jfree
+    THEN
+    setstring$ @ { w^ s$ } setstring$ off
+    s$ $@
+    BEGIN  dup  WHILE  over c@ #del =  WHILE
+		2>r #bs top-act .ekeyed 2r> 1 /string  REPEAT  THEN
+    BEGIN  dup  WHILE  2dup "\e[3~" string-prefix?  WHILE
+		2>r k-delete top-act .ekeyed 2r> 4 /string  REPEAT  THEN
+    ?dup-IF  top-act .ukeyed  ELSE  drop  THEN
+    s$ $free ;
+
+previous
+
 : enter-minos ( -- )
-    ['] touch>action is android-touch
-    ['] key>action   is android-key ;
+    edit-widget edit-out !
+    ['] touch>action   is android-touch
+    ['] key>action     is android-key
+    ['] edit-setstring is android-setstring
+    ['] edit-commit    is android-commit ;
 : leave-minos ( -- )
+    edit-terminal edit-out !
     ['] touch>event is android-touch
     ['] key>event   is android-key
+    [ action-of android-setstring ]L is android-setstring
+    [ action-of android-commit ]L is android-commit
     need-sync on  need-show on ;

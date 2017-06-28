@@ -277,15 +277,15 @@ Variable need-glyphs
     w border f2* f- text-w f/ to x-scale
     text$ render-string ;
 : text-!size ( -- )
-    text-font to font  text$ load-glyph$
     text$ layout-string
     border f+ to h
     border f+ to d
     fdup to text-w  border f2* f+ to w ;
-:noname
+: text-init
     need-glyphs @ IF
 	text-font to font text$ load-glyph$
-    THEN ; text to draw-init
+    THEN ;
+' text-init text to draw-init
 ' text-text text to draw-text
 ' text-!size text to !size
 :noname text-w border f2* f+
@@ -301,13 +301,22 @@ text class
     value: start-curpos \ selection mode
 end-class edit
 
+:noname text-init  need-glyphs @ IF
+	cursize 0= setstring$ $@len and IF
+	    setstring$ $@ load-glyph$
+	THEN
+    THEN ; edit to draw-init
 :noname ( -- )
     cursize 0< ?EXIT  text-font to font
     w border f2* f- text-w f/ { f: scale }
     text$ curpos umin layout-string fdrop fdrop
     scale f* { f: w }
-    text$ curpos safe/string cursize m2c:curminchars# @ umax umin
-    layout-string fdrop fdrop m2c:curminwidth% f@ fmax scale f* { f: cw }
+    setstring$ $@len IF
+	setstring$ $@ layout-string fdrop fdrop scale f*
+    ELSE
+	text$ curpos cursize m2c:curminchars# @ umax + umin
+	layout-string fdrop fdrop scale f* w f-
+    THEN  m2c:curminwidth% f@ fmax { f: cw }
     x w f+ border f+  y d border f- f+ { f: x0 f: y0 }
     x0 cw f+ y h border f- f- { f: x1 f: y1 }
     i? m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
@@ -317,6 +326,36 @@ end-class edit
     x0 y0 >xy     rgba>c n> 1e 1e >st v+
     v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i,
 ; edit to draw-marking
+$FFFF7FFF Value setstring-color
+: edit-text ( -- )
+    x border f+ penxy sf!  y penxy sfloat+ sf!
+    text-font to font  text-color color !
+    w border f2* f- text-w f/ to x-scale
+    cursize 0= setstring$ $@len and IF
+	text$ curpos umin render-string
+	setstring-color color !
+	setstring$ $@ render-string
+	text-color color !
+	text$ curpos safe/string render-string
+    ELSE
+	text$ render-string
+    THEN ;
+: edit-!size ( -- )
+    text-font to font
+    cursize 0= setstring$ $@len and IF
+	text$ curpos umin layout-string { f: d f: h }
+	setstring$ $@ layout-string
+	h fmax to h d fmax to d  f+
+	text$ curpos safe/string layout-string
+	h fmax to h d fmax to d  f+  d h
+    ELSE
+	text$ layout-string
+    THEN
+    border f+ to h
+    border f+ to d
+    fdup to text-w  border f2* f+ to w ;
+' edit-text edit to draw-text
+' edit-!size edit to !size
 
 : edit! ( addr u font -- )
     text!  text$ nip to curpos  -1 to cursize  -1 to start-curpos

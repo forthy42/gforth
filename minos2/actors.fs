@@ -23,6 +23,14 @@
 
 \ platform specific action handler
 
+\ edit actor
+
+edit-terminal-c class
+    cell uvar edit$ \ pointer to the edited string
+end-class edit-widget-c
+
+edit-widget-c ' new static-a with-allocater Constant edit-widget
+
 [IFDEF] x11      include x11-actors.fs      [THEN]
 [IFDEF] android  include android-actors.fs  [THEN]
 
@@ -123,13 +131,7 @@ box-actor is clicked
 : box[] ( o -- o )
     >o box-actor new to act o act >o to caller-w o> o o> ;
 
-\ edit actor
-
-edit-terminal-c class
-    cell uvar edit$ \ pointer to the edited string
-end-class edit-widget-c
-
-edit-widget-c ' new static-a with-allocater Constant edit-widget
+\ edit widget
 
 : grow-edit$ { max span addr pos1 more -- max span addr pos1 true }
     max span more + u> IF  max span addr pos1 true  EXIT  THEN
@@ -212,11 +214,11 @@ edit-terminal edit-out !
 \ edit things
 
 : edit-xt ( xt o:actor -- )
-    edit-out @ >r  history >r  edit-widget edit-out !  >r  0 to history
+    history >r  >r  0 to history
     edit-w >o addr text$ curpos cursize 0 max o> to xselw
     >r dup edit$ ! $@ swap over swap r>
     r> catch >r edit-w >o to curpos 0 to cursize o> drop edit$ @ $!len drop
-    r> r> edit-out !  r> to history throw
+    r>  r> to history throw
     need-sync on need-glyphs on ;
 
 : edit>curpos ( x o:actor -- )
