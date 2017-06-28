@@ -251,7 +251,7 @@ edit-terminal edit-out !
 	endcase
 	-1 to start-curpos
     THEN ;
-: start-selection ( -- )
+: start-selection ( fx fy b n -- )
     edit-w .start-curpos 0< IF
 	1- 2/ to select-mode
 	drop fdrop edit>curpos  edit-w >o
@@ -296,7 +296,9 @@ edit-terminal edit-out !
     edit-w >o 0 to cursize o> need-sync on
     need-keyboard on ; edit-actor is focus
 :noname ( $rxy*n bmask -- )
-    case 1 of  expand-selection  endof
+    case
+	0 of  expand-selection  endof
+	1 of  expand-selection  endof
 	nip
     endcase
 ; edit-actor is touchmove
@@ -306,7 +308,7 @@ edit-terminal edit-out !
 	false to grab-move?
 	swap
 	case
-	    1 of
+	    dup 1 u<= ?of drop
 		2 - 6 mod 2 +
 		{ clicks } fdrop edit>curpos
 		edit-w >o
