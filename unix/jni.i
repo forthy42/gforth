@@ -5,6 +5,10 @@
 #define JNINativeInterface_ JNINativeInterface
 #define JNIInvokeInterface_ JNIInvokeInterface
 #include <jni.h>
+#ifdef __gnu_linux__
+#undef stderr
+extern struct _IO_FILE *stderr;
+#endif
 %}
 
 // #define SWIG_FORTH_OPTIONS ""

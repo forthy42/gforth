@@ -16,6 +16,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+0 to infile-id
 ." load terminal-server" cr stdout flush-file throw
 require ansi.fs
 require unix/terminal-server.fs

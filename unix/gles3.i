@@ -4,6 +4,10 @@
 %{
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
+#ifdef __gnu_linux__
+#undef stderr
+extern struct _IO_FILE *stderr;
+#endif
 %}
 #define const
 %apply float { GLfloat, GLclampf };

@@ -4,6 +4,10 @@
 %{
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#ifdef __gnu_linux__
+#undef stderr
+extern struct _IO_FILE *stderr;
+#endif
 %}
 #define const
 %apply float { GLfloat, GLclampf };

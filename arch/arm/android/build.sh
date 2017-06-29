@@ -109,6 +109,7 @@ done
 
 if [ "$1" != "--no-gforthgz" ]
 then
+    mkdir -p build/debian/sdcard/gforth/$machine/gforth/site-forth
     (cd build
 	if [ "$1" != "--no-config" ]
 	then
@@ -128,7 +129,6 @@ then
 	CONFIG=no; shift
     fi
     
-    mkdir -p build/debian/sdcard/gforth/$machine/gforth/site-forth
     mkdir -p res/raw
     cp *.{fs,fi,png,jpg} build/debian/sdcard/gforth/$machine/gforth/site-forth
     (cd build/debian/sdcard
