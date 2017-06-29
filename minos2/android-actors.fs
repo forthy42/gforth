@@ -110,41 +110,46 @@ Create actions
     ELSE  drop  THEN
     o> ;
 
+: togglekb-0  togglekb 0 ;
+: aback-0     aback    0 ;
+
 Create keycode>ekey
-AKEYCODE_HOME        , k-home   ,
-AKEYCODE_DPAD_UP     , k-up     ,
-AKEYCODE_DPAD_DOWN   , k-down   ,
-AKEYCODE_VOLUME_UP   , k-up     ,
-AKEYCODE_VOLUME_DOWN , k-down   ,
-AKEYCODE_DPAD_LEFT   , k-left   ,
-AKEYCODE_DPAD_RIGHT  , k-right  ,
-AKEYCODE_TAB         , #tab     ,
-AKEYCODE_ENTER       , #cr      ,
-AKEYCODE_DEL         , #bs      ,
-AKEYCODE_FORWARD_DEL , k-delete ,
-AKEYCODE_PAGE_UP     , k-prior  ,
-AKEYCODE_PAGE_DOWN   , k-next   ,
-AKEYCODE_MOVE_HOME   , k-home   ,
-AKEYCODE_MOVE_END    , k-end    ,
-AKEYCODE_INSERT      , k-insert ,
-AKEYCODE_F1          , k-f1     ,
-AKEYCODE_F2          , k-f2     ,
-AKEYCODE_F3          , k-f3     ,
-AKEYCODE_F4          , k-f4     ,
-AKEYCODE_F5          , k-f5     ,
-AKEYCODE_F6          , k-f6     ,
-AKEYCODE_F7          , k-f7     ,
-AKEYCODE_F8          , k-f8     ,
-AKEYCODE_F9          , k-f9     ,
-AKEYCODE_F10         , k-f10    ,
-AKEYCODE_F11         , k-f11    ,
-AKEYCODE_F12         , k-f12    ,
-0 ,  0 ,
+AKEYCODE_HOME        , ' k-home   ,
+AKEYCODE_DPAD_UP     , ' k-up     ,
+AKEYCODE_DPAD_DOWN   , ' k-down   ,
+AKEYCODE_VOLUME_UP   , ' k-up     ,
+AKEYCODE_VOLUME_DOWN , ' k-down   ,
+AKEYCODE_DPAD_LEFT   , ' k-left   ,
+AKEYCODE_DPAD_RIGHT  , ' k-right  ,
+AKEYCODE_TAB         , ' #tab     ,
+AKEYCODE_ENTER       , ' #cr      ,
+AKEYCODE_DEL         , ' #bs      ,
+AKEYCODE_FORWARD_DEL , ' k-delete ,
+AKEYCODE_PAGE_UP     , ' k-prior  ,
+AKEYCODE_PAGE_DOWN   , ' k-next   ,
+AKEYCODE_MOVE_HOME   , ' k-home   ,
+AKEYCODE_MOVE_END    , ' k-end    ,
+AKEYCODE_INSERT      , ' k-insert ,
+AKEYCODE_F1          , ' k-f1     ,
+AKEYCODE_F2          , ' k-f2     ,
+AKEYCODE_F3          , ' k-f3     ,
+AKEYCODE_F4          , ' k-f4     ,
+AKEYCODE_F5          , ' k-f5     ,
+AKEYCODE_F6          , ' k-f6     ,
+AKEYCODE_F7          , ' k-f7     ,
+AKEYCODE_F8          , ' k-f8     ,
+AKEYCODE_F9          , ' k-f9     ,
+AKEYCODE_F10         , ' k-f10    ,
+AKEYCODE_F11         , ' k-f11    ,
+AKEYCODE_F12         , ' k-f12    ,
+AKEYCODE_MENU        , ' togglekb-0 ,
+AKEYCODE_BACK        , ' aback-0  ,
+0 , ' false ,
 DOES> ( akey -- ekey )
   swap >r
-  BEGIN  dup cell+ swap @ r@ <> WHILE  cell+
-      dup @ 0= UNTIL  r@ unknown-key# !
-  THEN  @ rdrop ;
+  BEGIN  dup cell+ swap @ r@ <> WHILE
+      dup cell+ swap @ 0= UNTIL  r@ unknown-key# !
+  THEN  perform rdrop ;
 
 also jni
 
@@ -153,14 +158,14 @@ also jni
     ke_getMetaState meta-key# !
     getAction dup 2 = IF  drop
 	getKeyCode
-	?dup-IF  keycode>ekey top-act .ekeyed
+	?dup-IF  keycode>ekey ?dup-IF top-act .ekeyed THEN
 	ELSE  nostring getCharacters jstring>sstring top-act .ukeyed jfree
 	THEN
     ELSE
 	0= IF
 	    getUnicodeChar
 	    ?dup-IF  >xstring top-act .ukeyed
-	    ELSE  getKeyCode keycode>ekey top-act .ekeyed
+	    ELSE  getKeyCode keycode>ekey ?dup-IF top-act .ekeyed THEN
 	    THEN
 	THEN
     THEN o> ;

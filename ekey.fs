@@ -196,6 +196,9 @@ Variable ekey-buffer
     THEN
     0 ;
 
+: clear-ekey-buffer ( -- )
+    ekey-buffer $off ;
+
 : esc-prefix ( -- u )
     key? \ ?dup-0=-if  1 ms key?  endif \ workaround for Windows 1607 Linux
     if
@@ -203,11 +206,11 @@ Variable ekey-buffer
 	ekey-buffer $@ esc-mask >r
         esc-sequences search-wordlist
         if
-            execute r> or exit
+            execute r> or clear-ekey-buffer exit
 	endif
 	rdrop
     endif
-    ekey-buffer $@ unkeys #esc ;
+    ekey-buffer $@ unkeys #esc clear-ekey-buffer ;
 
 : esc-sequence ( u1 addr u -- ; name execution: -- u2 ) recursive
     \ define escape sequence addr u (=name) to have value u1; if u1=0,
@@ -294,9 +297,6 @@ k-down   s" OB" esc-sequence
 set-current
 [ENDIF]
 
-: clear-ekey-buffer ( -- )
-    ekey-buffer $off ;
-
 [IFDEF] max-single-byte
     : read-xkey ( key -- flag )
 	ekey-buffer c$+!
@@ -327,8 +327,7 @@ set-current
     dup EOK = IF  drop k-eof  EXIT  THEN
     dup #esc =
     if
-        drop clear-ekey-buffer
-        esc-prefix  exit
+        drop esc-prefix  exit
     then
     [IFDEF] max-single-byte
 	get-xkey
@@ -373,31 +372,6 @@ Variable vt100-modifier
 :noname
     ctrl-i postpone Literal ;
 interpret/compile: ctrl  ( "<char>" -- ctrl-code )
-
-keycode-limit keycode-start - buffer: ekey>ctrl
-
-: ekey-bind ( ctrl-key ekey -- )
-    keycode-start - ekey>ctrl + c! ;
-
-ctrl B k-left   ekey-bind
-ctrl F k-right  ekey-bind
-ctrl P k-up     ekey-bind
-ctrl N k-down   ekey-bind
-ctrl A k-home   ekey-bind
-ctrl E k-end    ekey-bind
-ctrl X k-delete ekey-bind
-ctrl L k-winch  ekey-bind
-ctrl D k-eof    ekey-bind
-
-: ekey>ckey ( key -- ckey )
-    dup k-left u>= IF
-	dup [ 1 mask-shift# lshift 1- ]l and ekey>ctrl + c@
-	swap mask-shift# rshift 7 and vt100-modifier !
-    ELSE  vt100-modifier off
-    THEN ;
-
-: edit-ekey ( -- key )
-    ekey ekey>ckey ;
 
 ' ekey is edit-key
 
