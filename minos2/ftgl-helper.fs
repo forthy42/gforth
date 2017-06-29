@@ -33,6 +33,10 @@ atlas-tex current-tex atlas texture_atlas_t-id !
 
 Variable fonts[] \ stack of used fonts
 
+[IFDEF] texture_font_default_mode
+    MODE_FREE_CLOSE texture_font_default_mode
+[THEN]
+
 : open-font ( atlas fontsize addr u -- font )
     texture_font_new_from_file dup fonts[] >stack ;
 
