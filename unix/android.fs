@@ -433,7 +433,7 @@ Defer android-key   ' key>event is recurse
 : android-log$ ( string -- )  jstring>sstring ." log: " type cr jfree ;
 Defer android-w! ( n -- ) ' drop is recurse
 Defer android-h! ( n -- ) ' drop is recurse
-Defer clipboard! ( 0 -- ) ' drop is recurse
+Defer clipboard-changed ( 0 -- ) ' drop is recurse
 : android-config! ( n -- ) to screen-orientation config-changed ;
 
 Defer android-active
@@ -465,7 +465,7 @@ Create aevents
 ' android-setstring ,
 ' android-w! ,
 ' android-h! ,
-' clipboard! , \ primary clipboard changed
+' clipboard-changed , \ primary clipboard changed
 ' android-config! ,
 ' android-active ,
 ' android-setcur ,

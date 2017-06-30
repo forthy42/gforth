@@ -176,9 +176,6 @@ end-class edit-actor
 ' false edit-actor is edit-next-line
 ' false edit-actor is edit-prev-line
 
-: edit-paste ( max span addr pos1 - max span addr pos2 false )
-    clipboard@ insert-string edit-update 0 ;
-
 0 value xselw
 
 : edit-copy ( max span addr pos1 -- max span addr pos1 false )
@@ -193,6 +190,14 @@ end-class edit-actor
     xselw 0> IF  edit-cut  ELSE  ?xdel  THEN ;
 : edit-del ( max span addr pos1 -- max span addr pos1 false )
     xselw 0> IF  edit-cut  ELSE  <xdel>  THEN ;
+
+: edit-ins$ ( max span addr pos1 addr u -- max span' addr pos1' )
+    xselw 0> IF  save-mem 2>r edit-cut drop 2r@ insert-string
+	2r> drop free throw
+    ELSE  insert-string  THEN ;
+
+: edit-paste ( max span addr pos1 - max span addr pos2 false )
+    clipboard@ edit-ins$ edit-update 0 ;
 
 ' edit-next-line ctrl N bindkey
 ' edit-prev-line ctrl P bindkey
@@ -297,7 +302,7 @@ edit-terminal edit-out !
     [: 4 roll dup $80000000 and 0= k-ctrl-mask and invert and
 	>control edit-control drop ;] edit-xt ; edit-actor is ekeyed
 :noname ( addr u o:actor -- )
-    [: 2rot insert-string edit-update ;] edit-xt ; edit-actor is ukeyed
+    [: 2rot edit-ins$ edit-update ;] edit-xt ; edit-actor is ukeyed
 :noname ( o:actor -- )
     edit-w >o -1 to cursize o> need-sync on
     need-keyboard off ; edit-actor is defocus
@@ -332,7 +337,7 @@ edit-terminal edit-out !
 		o>
 	    endof
 	    2 of  drop fdrop edit>curpos
-		[: primary@ insert-string ;] edit-xt  endof
+		[: primary@ edit-ins$ ;] edit-xt  endof
 	    4 of  ( menu   )  drop fdrop fdrop  endof
 	    nip fdrop fdrop
 	endcase
