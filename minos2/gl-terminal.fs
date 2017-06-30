@@ -415,11 +415,15 @@ previous
 
 Defer scale-me ' terminal-scale-me is scale-me
 
-2Variable screen-xy
-2Variable screen-wh
+[IFDEF] screen-xywh@
+    2Variable screen-xy
+    2Variable screen-wh
+[THEN]
 
 : config-changer ( -- )
+[IFDEF] screen-xywh@
     screen-xywh@ screen-wh 2! screen-xy 2!
+[THEN]
     getwh  >screen-orientation  scale-me need-sync on
     form-chooser ;
 : ?config-changer ( -- )

@@ -189,6 +189,10 @@ end-class edit-actor
     2dup swap r@ safe/string xselw delete
     swap xselw - swap
     r> edit-update 0 ;
+: edit-bs ( max span addr pos1 -- max span addr pos1 false )
+    xselw 0> IF  edit-cut  ELSE  ?xdel  THEN ;
+: edit-del ( max span addr pos1 -- max span addr pos1 false )
+    xselw 0> IF  edit-cut  ELSE  <xdel>  THEN ;
 
 ' edit-next-line ctrl N bindkey
 ' edit-prev-line ctrl P bindkey
@@ -200,14 +204,17 @@ end-class edit-actor
 ' edit-enter     #lf    bindkey
 ' edit-enter     #cr    bindkey
 ' false          ctrl L bindkey
+' edit-bs        ctrl H bindkey
+' edit-del       ctrl D bindkey
 
-' edit-next-line k-down  ebindkey
-' edit-prev-line k-up    ebindkey
-' edit-next-line k-next  ebindkey
-' edit-prev-line k-prior ebindkey
-' edit-enter     k-eof   ebindkey
-' edit-enter     k-enter ebindkey
-' false          k-winch ebindkey
+' edit-next-line k-down   ebindkey
+' edit-prev-line k-up     ebindkey
+' edit-next-line k-next   ebindkey
+' edit-prev-line k-prior  ebindkey
+' edit-enter     k-eof    ebindkey
+' edit-enter     k-enter  ebindkey
+' false          k-winch  ebindkey
+' edit-del       k-delete ebindkey
 
 edit-terminal edit-out !
 
