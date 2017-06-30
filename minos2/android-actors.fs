@@ -39,16 +39,19 @@ Variable buttonmask
     dup sf@ sfloat+ sf@ ;
 : 2sf! ( r1 r2 addr -- )
     dup sfloat+ sf! sf! ;
+: getXY ( index -- rx ry )
+    dup getX screen-xy cell+ @ s>f f-
+        getY screen-xy       @ s>f f- ;
 : samepos? ( rx ry -- flag )
     lastpos 2sf@ frot f- f**2 f-rot f- f**2 f+ samepos f< ;
 : ?samepos ( -- )
-    0 getX 0 getY fover fover samepos? 0= IF   0 to clicks  THEN  lastpos 2sf! ;
+    0 getXY fover fover samepos? 0= IF   0 to clicks  THEN  lastpos 2sf! ;
 
 Variable xy$
 : >xy$ ( -- xy$ )
     getPointerCount 2* sfloats xy$ $!len
     0 xy$ $@ bounds ?DO
-	dup getX I sf!  dup getY I sfloat+ sf!  1+
+	dup getXY I 2sf! 1+
     2 sfloats +LOOP  drop xy$
     getDownTime downtime 2!
     getEventTime lasttime 2! ;
@@ -71,7 +74,7 @@ Variable xy$
     getButtonState buttonmask !
     top-act IF  xy$ buttonmask @ top-act .touchup  THEN ;
 : action-move ( -- )
-    flags #pending bit@  0 getX 0 getY samepos? 0= and IF
+    flags #pending bit@  0 getXY samepos? 0= and IF
 	send-clicks  0 to clicks
     THEN
     top-act IF  xy$ buttonmask @ top-act .touchmove  THEN ;

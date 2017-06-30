@@ -59,6 +59,7 @@ jni-class: android/view/Display
 jni-method: getRotation getRotation ()I
 SDK_INT 13 >= [IF]
     jni-method: getSizeD getSize (Landroid/graphics/Point;)V
+    jni-method: getRectSize getRectSize (Landroid/graphics/Rect;)V
 [ELSE]
     jni-method: getWidth getWidth ()I
     jni-method: getHeight getHeight ()I
@@ -69,6 +70,13 @@ jni-class: android/graphics/Point
 jni-new: newPoint ()V
 jni-field: x x I
 jni-field: y y I
+
+jni-class: android/graphics/Rect
+jni-new: newRect ()V
+jni-field: top top I
+jni-field: left left I
+jni-field: right right I
+jni-field: bottom bottom I
 
 jni-class: android/util/DisplayMetrics
 jni-new: newDisplayMetrics ()V
@@ -83,6 +91,9 @@ jni-field: scaledDensity scaledDensity F
 jni-class: android/view/inputmethod/InputMethodManager
 
 jni-method: toggleSoftInput toggleSoftInput (II)V
+
+jni-class: android/view/View
+jni-method: getWindowVisibleDisplayFrame getWindowVisibleDisplayFrame (Landroid/graphics/Rect;)V
 
 jni-class: android/view/Window
 jni-method: getDecorView getDecorView ()Landroid/view/View;

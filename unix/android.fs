@@ -190,6 +190,8 @@ JValue psize
 newPoint to psize
 JValue dmetrics
 newDisplayMetrics to dmetrics
+JValue screenrect
+newRect to screenrect
 
 : screen-orientation@ ( -- 0..3 )
     clazz >o getWindowManager >o getDefaultDisplay >o
@@ -200,6 +202,10 @@ newDisplayMetrics to dmetrics
 : screen-size@ ( -- w h )
     screen-metric@
     dmetrics >o widthPixels heightPixels o> ;
+: screen-xywh@ ( -- x y w h )
+    clazz >o getWindow >o getDecorView >o
+    screenrect getWindowVisibleDisplayFrame ref> ref> o>
+    screenrect >o left top right bottom o> ;
 
 $80 Constant FLAG_KEEP_SCREEN_ON
 
