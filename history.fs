@@ -50,6 +50,14 @@ edit-terminal edit-out !
 : bindkey ( xt key -- )  cells ctrlkeys + ! ;
 : ebindkey ( xt key -- )  keycode-start - cells ekeys + ! ;
 
+: ctrl-i ( "<char>" -- c )
+    char toupper $40 xor ;
+
+' ctrl-i
+:noname
+    ctrl-i postpone Literal ;
+interpret/compile: ctrl  ( "<char>" -- ctrl-code )
+
 \ history support                                       16oct94py
 
 0 Value history \ history file fid
@@ -240,6 +248,8 @@ info-color Value setstring-color
 	span more + max#tib @ 2* umax expand-tib
 	max#tib @ span tib pos1 true EXIT  THEN
     max span addr pos1 false ;
+
+Variable vt100-modifier
 
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
     >r  r@ xc-size grow-tib 0= IF  rdrop edit-error  EXIT  THEN

@@ -363,16 +363,6 @@ set-current
 
 \ integrate ekey into line editor
 
-Variable vt100-modifier
-
-: ctrl-i ( "<char>" -- c )
-    char toupper $40 xor ;
-
-' ctrl-i
-:noname
-    ctrl-i postpone Literal ;
-interpret/compile: ctrl  ( "<char>" -- ctrl-code )
-
 ' ekey is edit-key
 
 \G True if a keyboard event is available.
