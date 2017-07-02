@@ -37,3 +37,7 @@ User sh$  cell uallot drop
 :noname '`' parse sh-get ;
 :noname '`' parse postpone SLiteral postpone sh-get ;
 interpret/compile: s` ( "eval-string" -- addr u )
+
+[IFDEF] thread-init
+    :noname defers thread-init #0. sh$ 2! ; is thread-init
+[THEN]
