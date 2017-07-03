@@ -25,8 +25,12 @@ Vocabulary config
 
 ' rec:string ' rec:num ' rec:float 3 config-recognizer set-stack
 
+s" Config error" exception Value config-throw
+\ if you don't want an exception, set config-throw to 0
+
 : .config-err ( -- )
-    ." unknown config variable: '" source type ." '" cr ;
+    ." can't parse config line " sourceline# 0 .r ." : '" source type ." '" cr
+    config-throw throw ;
 : exec-config ( .. addr u char xt1 xt2 -- ) >r >r
     [: >r type r> emit ;] $tmp config-wl find-name-in
     ?dup-IF  execute r> execute rdrop
@@ -38,7 +42,7 @@ Vocabulary config
 	r:num    of  '#' ['] !  ['] drop exec-config               endof
 	r:dnum   of  '&' ['] 2! ['] 2drop exec-config              endof
 	r:float  of  '%' ['] f! ['] fdrop exec-config              endof
-	2drop ." can't parse config line: '" source type ." '" cr
+	2drop .config-err
     endcase ;
 
 : config-line ( -- )
