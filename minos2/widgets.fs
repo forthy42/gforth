@@ -210,8 +210,8 @@ end-class image
 
 ' noop       image is draw-bg
 :noname ( -- )
-    1-bias set-color+
-    image-tex xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
+    1-bias set-color+ image-tex
+    xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
     i0 v0 i?  frame-color >v
     x1 y2 >xy dup rgba>c n> 0e 1e >st v+
     x2 y2 >xy dup rgba>c n> 1e 1e >st v+
@@ -575,6 +575,8 @@ $10 stack: box-depth
 : }}v ( n1 .. nm -- hbox ) }} vbox new >o +childs o o> ;
 : }}z ( n1 .. nm -- hbox ) }} zbox new >o +childs o o> ;
 
+\ draw everything
+
 : widget-draw ( o:widget -- )
     <draw-init      draw-init      draw-init>
     <draw-bg        draw-bg        render>
@@ -585,9 +587,56 @@ $10 stack: box-depth
     <draw-text      draw-text      render>
     sync ;
 
+\ viewport: Draw into a frame buffer
+
+box class
+    sfvalue: vp-xoff
+    sfvalue: vp-yoff
+    sfvalue: vp-w
+    sfvalue: vp-h
+    defer: vp-tex
+end-class viewport
+
+:noname vp-w vp-h vp-tex >framebuffer
+    child-w .widget-draw
+    0>framebuffer ; viewport to draw-init
+:noname ( -- )
+    1-bias set-color+ vp-tex
+    xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
+    x vp-w f/ y vp-h f/ w vp-w f/ h vp-h f/ { f: s0 f: t0 f: s1 f: t1 }
+    i0 v0 i?  frame-color >v
+    x1 y2 >xy dup rgba>c n> s0       t0 t1 f+ >st v+
+    x2 y2 >xy dup rgba>c n> s0 s1 f+ t0 t1 f+ >st v+
+    x2 y1 >xy dup rgba>c n> s0 s1 f+ t0       >st v+
+    x1 y1 >xy     rgba>c n> s0       t0       >st v+
+    v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i,
+    GL_TRIANGLES draw-elements ; viewport is draw-image
+' noop viewport is draw-bg
+' noop viewport is draw-icon
+' noop viewport is draw-thumbnail
+' noop viewport is draw-marking
+' noop viewport is draw-text
+
+\ top widget and actors
+
 0 Value top-widget
 
 require actors.fs
+
+: htop-resize ( -- )
+    !size 0e 1e dh* 1e dw* 1e dh* 0e resize ;
+
+: widgets-loop ( -- )
+    [IFDEF] hidekb  hidekb [THEN]  enter-minos
+    1 level# +! top-widget .widget-draw
+    BEGIN  >looper
+	[IFDEF] android  ?config-changer  [THEN]
+	need-sync @ IF
+	    top-widget >o htop-resize widget-draw o>  need-sync off  THEN
+	need-keyboard @ IF
+	    [IFDEF] showkb showkb [THEN]
+	    need-keyboard off  THEN
+    level# @ 0= UNTIL  leave-minos  need-sync on ;
 
 previous previous previous
 set-current

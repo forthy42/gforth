@@ -76,13 +76,13 @@ atlas fontsize#
 	[THEN]
     [THEN]
 [ELSE]
-    "/usr/share/fonts/truetype/NotoSerifSC-Regular.otf"
+    "/usr/share/fonts/truetype/gkai00mp.ttf"
     2dup file-status nip [IF]
-	2drop "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
+	2drop "/usr/share/fonts/truetype/arphic-gkai00mp/gkai00mp.ttf"
 	2dup file-status nip [IF]
-	    2drop "/usr/share/fonts/truetype/gkai00mp.ttf"
+	    "/usr/share/fonts/truetype/NotoSerifSC-Regular.otf"
 	    2dup file-status nip [IF]
-		2drop "/usr/share/fonts/truetype/arphic-gkai00mp/gkai00mp.ttf"
+		2drop "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 	    [THEN]
 	[THEN]
     [THEN]
@@ -105,23 +105,12 @@ previous
     "…" font1 text!  16e to border
     $00FF88FF to text-color o> ;
 
-: htop-resize ( -- )
-    !size 0e 1e dh* 1e dw* 1e dh* 0e resize ;
 : !widgets ( -- ) !t1 !t2 !t3 top-widget .htop-resize ;
-
-: widgets-test ( -- ) top-widget .widget-draw ;
 
 also [IFDEF] android android [THEN]
 
-: widgets-demo ( -- )  [IFDEF] hidekb  hidekb [THEN]  enter-minos
-    1 level# +!  !widgets widgets-test  BEGIN  >looper
-	[IFDEF] android  ?config-changer  [THEN]
-	need-sync @ IF
-	    top-widget .htop-resize  widgets-test  need-sync off  THEN
-	need-keyboard @ IF
-	    [IFDEF] showkb showkb [THEN]
-	    need-keyboard off  THEN
-    level# @ 0= UNTIL  leave-minos ;
+: widgets-demo ( -- )
+    !widgets widgets-loop ;
 
 previous
 

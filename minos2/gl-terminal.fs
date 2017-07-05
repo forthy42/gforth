@@ -516,10 +516,7 @@ default-out op-vector !
 
 :noname  defers window-init term-init config-changer ; IS window-init
 
-[IFDEF] android
-    >black \ make black default
-    \ >white \ make white default
-[THEN]
+>black \ make black default
 
 window-init
 
