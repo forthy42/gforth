@@ -12395,6 +12395,7 @@ doc--ltrace
 doc-view
 doc-locate
 doc-edit
+doc-#loc
 
 @node Assertions, Singlestep Debugger, Debugging, Programming Tools
 @subsection Assertions
