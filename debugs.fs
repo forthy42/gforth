@@ -324,3 +324,12 @@ Defer view ( "name" -- ) \ gforth
 
 ' view alias locate ( "name" -- ) \ forth inc
 \G directly view the source in the curent terminal
+
+\ insert a different location
+
+: #loc ( nline nchar "file" -- )
+    \G set next word's location to @var{nline nchar} in @var{"file"}
+    parse-name 2dup str>loadfilename# dup 0< IF
+	drop add-included-file included-files $[]# 1-
+    ELSE  nip nip  THEN
+    -rot encode-pos1 to replace-sourcepos1 ;

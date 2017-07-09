@@ -2136,6 +2136,9 @@ X has? f83headerstring [IF]
     [IFDEF] loadfilename#  loadfilename# off  [THEN]
     s" kernel/main.fs" h-add-included-file ;
 : tsourcepos1 ( -- xpos )
+    [IFDEF] replace-sourcepos1
+	replace-sourcepos1 0 to replace-sourcepos1 ?dup ?EXIT
+    [THEN]
     [IFDEF] loadfilename# loadfilename# @
     [ELSE] sourcefilename str>loadfilename# [THEN]
     sourceline#
@@ -4032,6 +4035,10 @@ Variable outfile-fd
 \ Useful words                                        13feb93py
 
 : KB  400 * ;
+
+[IFDEF] #loc
+    ' #loc alias #loc
+[THEN]
 
 \ \ [IF] [ELSE] [THEN] ...				14sep97jaw
 

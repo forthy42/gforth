@@ -141,8 +141,11 @@ variable next-prelude
 : encode-pos1 ( nfile nline nchar -- xpos )
     encode-pos $7fffff min swap 23 lshift or ;
 
+0 Value replace-sourcepos1
+
 : current-sourcepos1 ( -- xpos )
-    current-sourcepos3 encode-pos1 ;
+    replace-sourcepos1 dup IF  0 to replace-sourcepos1  EXIT  THEN
+    drop  current-sourcepos3 encode-pos1 ;
 
 : view, ( -- ) current-sourcepos1 , ;
 
