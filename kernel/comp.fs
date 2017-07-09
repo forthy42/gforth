@@ -122,16 +122,6 @@ variable next-prelude
   \G @i{wid} is the identifier of the current compilation word list.
   current @ ;
 
-: str>loadfilename# ( addr u -- n )
-    included-files $@ bounds ?do ( addr u )
-	2dup I $@ str= if
-	    2drop I included-files $@ drop - cell/ unloop exit
-	endif
-    cell +loop
-    2dup s" *a block*"          str= IF  2drop -3  EXIT  THEN
-    2dup s" *evaluated string*" str= IF  2drop -2  EXIT  THEN
-    2drop -1 ;
-
 : encode-pos ( nline nchar -- npos )
     $ff min swap 8 lshift + ;
 

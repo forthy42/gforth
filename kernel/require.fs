@@ -46,6 +46,16 @@ AVariable included-files
 : init-included-files ( -- ) \ gforth-internal
     included-files $boot ;
 
+: str>loadfilename# ( addr u -- n )
+    included-files $@ bounds ?do ( addr u )
+	2dup I $@ str= if
+	    2drop I included-files $@ drop - cell/ unloop exit
+	endif
+    cell +loop
+    2dup s" *a block*"          str= IF  2drop -3  EXIT  THEN
+    2dup s" *evaluated string*" str= IF  2drop -2  EXIT  THEN
+    2drop -1 ;
+
 : included? ( c-addr u -- f ) \ gforth
     \G True only if the file @var{c-addr u} is in the list of earlier
     \G included files. If the file has been loaded, it may have been
@@ -53,15 +63,7 @@ AVariable included-files
     \G Forth search path. To return @code{true} from @code{included?},
     \G you must specify the exact path to the file, even if that is
     \G @file{./foo.fs}
-    included-files $@ bounds
-    ?do ( c-addr u addr )
-	2dup I $@ str=
-	if
-	    2drop unloop
-	    true EXIT
-	then
-    cell +loop
-    2drop false ;
+    str>loadfilename# 0>= ;
 
 : add-included-file ( c-addr u -- ) \ gforth
     \G add name c-addr u to included-files
