@@ -4038,6 +4038,8 @@ Variable outfile-fd
 
 [IFDEF] #loc
     ' #loc alias #loc
+[ELSE]
+    : #loc 2drop parse-name 2drop ;
 [THEN]
 
 \ \ [IF] [ELSE] [THEN] ...				14sep97jaw
