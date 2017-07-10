@@ -64,11 +64,11 @@ User ofile
 User tfile
 
 : os-cold ( -- )
+    boot-strings
     fpath off
     ofile off
     tfile off
-    pathstring 2@ fpath only-path 
-    init-included-files ;
+    pathstring 2@ fpath only-path ;
 
 \ The path Gforth uses for @code{included} and friends.
 
@@ -82,7 +82,7 @@ User tfile
 
 : clear-path ( path-addr -- ) \ gforth
     \G Set the path @i{path-addr} to empty.
-    s" " rot $! ;
+    $init ;
 
 : only-path ( adr len path -- )
     dup clear-path also-path ;

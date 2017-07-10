@@ -18,14 +18,9 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : update-image-included-files ( -- )
-    included-files $save
     s" GFORTHDESTDIR" getenv  included-files $@ bounds ?DO
-	I @ in-dictionary? 0= IF
-	    2dup I $@ string-prefix? IF
-		I 0 2 pick $del  THEN
-	    I $save
-	THEN
-    cell +LOOP  2drop maxalign ;
+	2dup I $@ string-prefix? IF  I 0 2 pick $del  THEN
+    cell +LOOP  2drop ;
 
 : update-maintask ( -- )
     throw-entry main-task udp @ throw-entry next-task - /string move ;

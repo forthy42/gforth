@@ -43,9 +43,6 @@ AVariable included-files
     \G undefined.
     loadline @ ;
 
-: init-included-files ( -- ) \ gforth-internal
-    included-files $boot ;
-
 : str>loadfilename# ( addr u -- n )
     included-files $@ bounds ?do ( addr u )
 	2dup I $@ str= if

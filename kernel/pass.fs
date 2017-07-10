@@ -31,6 +31,18 @@ UNLOCK tlast @ LOCK
 dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !
 
 unlock vt, tvtable-list @ lock vtable-list !
+
+align here boot[][] !
+1 cells ,
+included-files A,
+
+align here boot$[] !
+1 cells ,
+default-recognizer A,
+
 unlock included-files, lock included-files !
+
+align here default-recognizer !
+2 cells , ' rec:num A, ' rec:word A,
 
 >ram here normal-dp !

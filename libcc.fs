@@ -801,7 +801,7 @@ DEFER compile-wrapper-function ( -- )
 
 : lha, ( -- )
     \ create an empty library handle
-    align here 0 , lib-handle-addr @ , 0 , $10 allot  lib-handle-addr ! ;
+    align here 0 , lib-handle-addr @ , here $saved 0 , $10 allot  lib-handle-addr ! ;
 
 : clear-libs ( -- ) \ gforth
 \G Clear the list of libs
@@ -1027,7 +1027,6 @@ set-current
 	.lib-error !!openlib!! throw
     ;] map-libs ;
 
-:noname [: lha-name $save ;] map-libs defers 'image ; is 'image
 :noname ( -- )
     defers 'cold
     init-libcc reopen-libs rebind-libcc lib-filename $off ;

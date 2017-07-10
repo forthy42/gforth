@@ -83,7 +83,7 @@ AConstant r:dnum
 
 : stack: ( n "name" -- )
     \G create a named stack with at least @var{n} cells space
-    drop Variable ;
+    drop $Variable ;
 : stack ( n -- addr )
     \G create an unnamed stack with at least @var{n} cells space
     drop align here 0 , ;
@@ -99,13 +99,6 @@ AConstant r:dnum
 
 AVariable default-recognizer
 \G The system recognizer
-
-here default-recognizer !
-2 cells , ' rec:num A, ' rec:word A,
-
-Defer 'image ( -- )
-:noname ( -- )
-    default-recognizer $save ; IS 'image
 
 default-recognizer AValue forth-recognizer
 

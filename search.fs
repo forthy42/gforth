@@ -152,17 +152,6 @@ Vocabulary Root ( -- ) \ gforth
 defer 'image ( -- ) ' noop is 'image
 [then]
 
-:noname ( -- )
-    \ save search order here
-    defers 'image vocstack $save ; is 'image
-
-: init-vp  ( -- )
-    vocstack $boot ;
-
-:noname
-   init-vp DEFERS 'cold ;
-IS 'cold
-
 Only Forth also definitions
 
 \ set initial search order                             14may93py

@@ -94,12 +94,6 @@
     >r >r dup $@ r> safe/string r@ delete
     dup $@len r> - 0 max swap $!len ;
 
-: $boot ( $addr -- )
-    \G take string from dictionary to allocated memory
-    dup >r $@ r@ off r> $! ;
-: $save ( $addr -- )
-    \G push string to dictionary for savesys
-    dup >r $@ here r> ! dup , here swap dup aligned allot move ;
 : $init ( $addr -- )
     \G store an empty string there, regardless of what was in before
     s" " $make swap ! ;
@@ -120,4 +114,62 @@
     >r >r
     $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
     REPEAT  2drop rdrop rdrop ;
+
+\ auto-save and restore strings in images
+
+: $boot ( $addr -- )
+    \G take string from dictionary to allocated memory
+    dup >r $@ r@ off r> $! ;
+: $save ( $addr -- )
+    \G push string to dictionary for savesys
+    dup >r $@ here r> ! dup , here swap dup aligned allot move ;
+: $boot[] ( addr -- )
+    \G take string array from dictionary to allocated memory
+    dup $boot  $@ bounds ?DO
+	I $boot
+    cell +LOOP ;
+: $[]save ( addr -- )
+    \G push string array to dictionary for savesys
+    dup $save $@ bounds ?DO
+	I $save
+    cell +LOOP ;
+
+AVariable boot$[]  \ strings to be booted
+AVariable boot[][] \ arrays to be booted
+
+: $saved ( addr -- )
+    \ mark an address as booted/saved
+    boot$[] >stack ;
+: $[]saved ( addr -- )
+    \ mark an address as booted/saved
+    boot[][] >stack ;
+: $Variable ( -- )
+    \G A string variable which is preserved across savesystem
+    Create here $saved 0 , ;
+: $[]Variable ( -- )
+    \G A string variable which is preserved across savesystem
+    Create here $[]saved 0 , ;
+: boot-strings ( -- )
+    boot[][] @ >r
+    boot$[] $boot
+    boot$[] $@ bounds ?DO
+	I @ $boot
+    cell +LOOP
+    boot[][] $boot
+    boot[][] $@ bounds ?DO
+	I @ $boot[]
+    cell +LOOP
+    rdrop ( r> dp ! ) ;
+: save-strings ( -- )
+    boot[][] $save
+    boot[][] $@ bounds ?DO
+	I @ $[]save
+    cell +LOOP
+    boot$[] $save
+    boot$[] $@ bounds ?DO
+	I @ $save
+    cell +LOOP ;
+
+Defer 'image ( -- ) \G deferred word executed before saving an image
+' save-strings IS 'image
 [THEN]

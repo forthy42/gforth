@@ -152,9 +152,6 @@ is ?warning
 ; is check-shadow
 [then]
 
-:noname defers 'cold  warning-recs $boot ; is 'cold
-:noname defers 'image warning-recs $save ; is 'image
-
 : ?warn-dp ( -- )
     >num-state @ >num-state off 1 and 0= dpl @ 0>= and warnings @ abs 1 > and
     [: '' emit input-lexeme 2@ type

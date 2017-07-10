@@ -9566,7 +9566,7 @@ doc-$del
 doc-$ins
 doc-$+!
 doc-c$+!
-doc-$off
+doc-$free
 doc-$init
 doc-$split
 doc-$iter
@@ -9585,7 +9585,15 @@ doc-$[]map
 doc-$[]slurp
 doc-$[]slurp-file
 doc-$[].
-doc-$[]off
+doc-$[]free
+doc-$save
+doc-$[]save
+doc-$boot
+doc-$[]boot
+doc-$saved
+doc-$[]saved
+doc-$variable
+doc-$[]variable
 
 @node Terminal output, Single-key input, String words, Other I/O
 @subsection Terminal output
