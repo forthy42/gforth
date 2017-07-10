@@ -1276,9 +1276,9 @@ is output-c-prim-num
     output-tag-file
     prim prim-name 2@ 1+ type
     127 emit
-    space prim prim-name 2@ type space
+    prim prim-name 2@ type
     1 emit
-    name-line @ 0 .r
+    name-line @ 1- 0 .r
     ." ,0" cr ;
 
 : output-vi-tag ( -- )
