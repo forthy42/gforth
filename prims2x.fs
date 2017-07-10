@@ -1243,8 +1243,10 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 : output-label ( -- )  
     ." INST_ADDR(" prim prim-c-name 2@ type ." )," cr ;
 
-: output-alias ( -- ) 
-    ( primitive-number @ . ." alias " ) ." Primitive " prim prim-name 2@ type cr ;
+: output-alias ( -- )
+    name-line @ 1- . 0 . ." #loc " name-filename 2@ type space
+    \ I don't know why the "1-" above is necessary, but it works
+    ." Primitive " prim prim-name 2@ type cr ;
 
 defer output-c-prim-num ( -- )
 
