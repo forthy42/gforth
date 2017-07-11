@@ -183,8 +183,3 @@ has? flash [IF]
 
 Variable max-name-length \ maximum length of all names defined yet
 32 max-name-length ! \ is global!
-
-\  has? peephole  [IF]
-\  0 value peeptable \ initialized in boot
-\  [THEN]
-
