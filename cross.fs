@@ -2160,7 +2160,7 @@ X has? f83headerstring [IF]
 	I loadfilename#>str shorten-path
 	ht-lstring, T align H
     LOOP  T here H  array @ dup cell+ swap @
-    dup cell/ tcell * T , H bounds ?DO  I @ T A, H  cell +LOOP
+    dup cell / T cells , H bounds ?DO  I @ T A, H  cell +LOOP
     array @ free throw ;
 >CROSS
 
