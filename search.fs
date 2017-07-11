@@ -148,10 +148,6 @@ Vocabulary Root ( -- ) \ gforth
   \G order (for Gforth, this is the word list @code{Root}).
   0 1 vocstack set-stack Root also ;
 
-[ifundef] 'image
-defer 'image ( -- ) ' noop is 'image
-[then]
-
 Only Forth also definitions
 
 \ set initial search order                             14may93py
