@@ -37,7 +37,7 @@ cell uvar edit-linew
     2dup + 2r@ rot swap move  2r@ type r@ + rot r> + -rot rdrop ;
 : (bs) ( max span addr pos1 -- max span addr pos2 flag )
     dup IF
-	#bs emit space #bs emit 1- rot 1- -rot
+	#bs emit space #bs emit 1- rot 1- -rot -1 edit-linew +!
     THEN false ;
 : (ret) ( max span addr pos1 -- max span addr pos2 flag )
     true ;
