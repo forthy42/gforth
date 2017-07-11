@@ -22,5 +22,6 @@ require except.fs
 
 \ now boot
 
+save-strings
 pathstring 2@ argv @ argc @ boot
     

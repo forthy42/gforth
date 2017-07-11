@@ -151,21 +151,21 @@ AVariable boot[][] \ arrays to be booted
     Create here $[]saved 0 , ;
 : boot-strings ( -- )
     boot[][] @ >r
-    boot$[] $boot
-    boot$[] $@ bounds ?DO
-	I @ $boot
-    cell +LOOP
     boot[][] $boot
+    boot$[] $boot
     boot[][] $@ bounds ?DO
 	I @ $[]boot
     cell +LOOP
-    rdrop ( r> dp ! ) ;
+    boot$[] $@ bounds ?DO
+	I @ $boot
+    cell +LOOP
+    r> dp ! ;
 : save-strings ( -- )
     boot[][] $save
+    boot$[] $save
     boot[][] $@ bounds ?DO
 	I @ $[]save
     cell +LOOP
-    boot$[] $save
     boot$[] $@ bounds ?DO
 	I @ $save
     cell +LOOP ;
