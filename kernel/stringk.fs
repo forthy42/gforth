@@ -79,9 +79,13 @@
 	over @ @ $padding over = IF  drop @ !  EXIT  THEN
     THEN
     over @ swap resize throw over ! @ ! ;
+: $+!len ( u $addr -- addr )
+    \G make room for u bytes at the end of the memory area referenced
+    \G by $addr; addr is the address of the first of these bytes.
+    >r r@ $@len tuck + r@ $!len r> @ cell+ + ;
 : $+! ( addr1 u $addr -- ) \ gforth-string string-plus-store
     \G appends a string to another.
-    >r r@ $@len 2dup + r@ $!len r> $@ rot /string rot umin move ;
+    over >r $+!len r> move ;
 : c$+! ( char $addr -- ) \ gforth-string c-string-plus-store
     \G append a character to a string.
     dup $@len 1+ over $!len $@ + 1- c! ;
