@@ -865,13 +865,10 @@ defer process-args
 
 ' gforth IS bootmessage
 
-has? os [IF]
 Defer 'cold ( -- ) \ gforth  tick-cold
 \G Hook (deferred word) for things to do right before interpreting the
 \G OS command-line arguments.  Normally does some initializations that
 \G you also want to perform.
-:noname default-recognizer $boot ; IS 'cold
-[THEN]
 
 : cold ( -- ) \ gforth
 [ has? backtrace [IF] ]

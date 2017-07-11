@@ -64,7 +64,6 @@ User ofile
 User tfile
 
 : os-cold ( -- )
-    boot-strings
     fpath off
     ofile off
     tfile off

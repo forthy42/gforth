@@ -176,4 +176,5 @@ AVariable boot[][] \ arrays to be booted
 
 Defer 'image ( -- ) \G deferred word executed before saving an image
 ' save-strings IS 'image
+' boot-strings IS 'cold
 [THEN]
