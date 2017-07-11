@@ -123,7 +123,7 @@
 : $save ( $addr -- )
     \G push string to dictionary for savesys
     dup >r $@ here r> ! dup , here swap dup aligned allot move ;
-: $boot[] ( addr -- )
+: $[]boot ( addr -- )
     \G take string array from dictionary to allocated memory
     dup $boot  $@ bounds ?DO
 	I $boot
@@ -157,7 +157,7 @@ AVariable boot[][] \ arrays to be booted
     cell +LOOP
     boot[][] $boot
     boot[][] $@ bounds ?DO
-	I @ $boot[]
+	I @ $[]boot
     cell +LOOP
     rdrop ( r> dp ! ) ;
 : save-strings ( -- )
