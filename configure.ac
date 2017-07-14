@@ -1220,7 +1220,7 @@ AC_SUBST(include_fi)
 AC_MSG_CHECKING([for gforth])
 if test -z "$GFORTH"
 then
-    GFORTH="`cd / && which gforth 2>/dev/null`"
+    GFORTH="`cd / && command -v gforth`"
     (cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null) || GFORTH=""
 fi
 if test -z "$GFORTH"; then
