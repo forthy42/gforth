@@ -3330,7 +3330,6 @@ vt:
 \ addr2 is the aligned version of addr1 wrt the alignment size n
  1- tuck +  swap invert and ;
 
-
 Builder (Field)
 Build: ;Build
 by: :dofield T @ H + ;DO
@@ -3343,12 +3342,29 @@ Build: ( align1 offset1 align size "name" --  align2 offset2 )
 by (Field)
 
 >TARGET
+Builder end-struct
+Build: T , , H ;Build
+by 2Constant
 : struct  T 1 chars 0 H ;
-: end-struct  T 2Constant H ;
 
 : cell% ( n -- size align )
     T 1 cells H dup ;
 >CROSS
+
+\ Forth 2012 structures
+
+Builder +field
+Build: ( offset size -- offset' )
+over T , H + ;Build
+by (Field)
+Builder field:
+Build: ( offset -- offset' )
+T aligned dup , cell+ H ;Build
+by (Field)
+Builder cfield:
+Build: ( offset -- offset' )
+dup T , char+ H ;Build
+by (Field)
 
 \ ABI-CODE support
 Builder (ABI-CODE)
@@ -4218,6 +4234,8 @@ previous
 : invert invert ;
 : linkstring ( addr u n addr -- )
     X here over X @ X , swap X ! X , ht-string, X align ;
+: %size nip ;
+: %alignment drop ;
 \ : . . ;
 
 : all-words    ['] forced?    IS skip? ;
