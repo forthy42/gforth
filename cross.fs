@@ -3151,9 +3151,9 @@ variable cross-boot[][]
 >TARGET
 
 : boot$[], ( -- )
-    cross-boot$[] $@ dup T , H bounds ?DO I @ T A, H cell +LOOP ;
+    cross-boot$[] $@ dup cell/ T cells , H bounds ?DO I @ T A, H cell +LOOP ;
 : boot[][], ( -- )
-    cross-boot[][] $@ dup T , H bounds ?DO I @ T A, H cell +LOOP ;
+    cross-boot[][] $@ dup cell/ T cells , H bounds ?DO I @ T A, H cell +LOOP ;
 
 >CROSS
 
