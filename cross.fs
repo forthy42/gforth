@@ -242,7 +242,7 @@ Create bases   10 ,   2 ,   A , 100 ,
     : >stack ( x stack -- )
 	\G push to top of stack
 	>r r@ $@len cell+ r@ $!len
-	r> $@ + cell- ! ;
+	r> $@ + 1 cells - ! ;
 [THEN]
 
 >CROSS
