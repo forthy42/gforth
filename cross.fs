@@ -215,6 +215,35 @@ Create bases   10 ,   2 ,   A , 100 ,
 [IFUNDEF] $@
     : $@ @ dup IF  dup cell+ swap @  ELSE  0  THEN ;
 [THEN]
+[IFUNDEF] >stack
+    : $@len ( $addr -- u ) \ gforth-string string-fetch-len
+	\G returns the length of the stored string.
+	@ dup IF  @  THEN ;
+    : >pow2 ( n -- pow2 )
+	1-
+	dup 2/ or \ next power of 2
+	dup 2 rshift or
+	dup 4 rshift or
+	dup 8 rshift or
+	dup #16 rshift or
+	[ cell 8 = [IF] ]
+	    dup #32 rshift or
+	    [ [THEN] ] 1+ ;
+    : $padding ( n -- n' ) \ gforth-string
+	[ 6 cells ] Literal +  >pow2  [ -4 cells ] Literal and ;
+    : $!len ( u $addr -- ) \ gforth-string string-store-len
+	\G changes the length of the stored string.  Therefore we must
+	\G change the memory area and adjust address and count cell as
+	\G well.
+	over $padding  over @ IF  \ fast path for unneeded size change
+	    over @ @ $padding over = IF  drop @ !  EXIT  THEN
+	THEN
+	over @ swap resize throw over ! @ ! ;
+    : >stack ( x stack -- )
+	\G push to top of stack
+	>r r@ $@len cell+ r@ $!len
+	r> $@ + cell- ! ;
+[THEN]
 
 >CROSS
 
