@@ -19,7 +19,7 @@
 
 \ Now: Kernel Module, Reloadable
 
-AVariable included-files
+$[]Variable included-files
 
 : sourcefilename ( -- c-addr u ) \ gforth
     \G The name of the source file which is currently the input

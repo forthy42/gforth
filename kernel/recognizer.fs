@@ -97,7 +97,7 @@ AConstant r:dnum
     >r r@ $@ ?dup IF  + cell- @ r@ $@len cell- r> $!len
     ELSE  drop rdrop  THEN ;
 
-AVariable default-recognizer
+$Variable default-recognizer
 \G The system recognizer
 
 default-recognizer AValue forth-recognizer

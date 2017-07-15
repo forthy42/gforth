@@ -3112,6 +3112,17 @@ End-Struct vtable-struct
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
 : lit,: ( -- colon-sys )  gstart-xt set-lit, ;
 \    T 0 cell+ cfalign# here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
+
+variable cross-boot$[]
+variable cross-boot[][]
+
+>TARGET
+
+: boot$[], ( -- )
+    cross-boot$[] $@ dup T , H bounds ?DO I @ T A, H cell +LOOP ;
+: boot[][], ( -- )
+    cross-boot[][] $@ dup T , H bounds ?DO I @ T A, H cell +LOOP ;
+
 >CROSS
 
 \ instantiate deferred extra, now
@@ -3226,6 +3237,14 @@ by (Constant)
 Build: T 0 A, H ;Build
 by Create
 [THEN]
+
+Builder $Variable
+Build: T here 0 A, H cross-boot$[] >stack ;Build
+by Create
+
+Builder $[]Variable
+Build: T here 0 A, H cross-boot[][] >stack ;Build
+by Create
 
 \ User variables                                       04may94py
 

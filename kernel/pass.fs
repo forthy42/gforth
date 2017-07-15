@@ -33,16 +33,12 @@ dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !
 unlock vt, tvtable-list @ lock vtable-list !
 
 \ list of arrays to restore at boot
-align here boot[][] !
-1 cells ,
-included-files A,
+align here boot[][] ! boot[][],
 
 \ list of strings to resture at boot
-align here boot$[] !
-1 cells ,
-default-recognizer A,
+align here boot$[] !  boot$[],
 
-unlock included-files, lock included-files !
+included-files, included-files !
 
 align here default-recognizer !
 2 cells , ' rec:num A, ' rec:word A,
