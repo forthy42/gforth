@@ -212,7 +212,9 @@ Create bases   10 ,   2 ,   A , 100 ,
 \GFORTH [IFUNDEF] assert1(
 \GFORTH also forth definitions require assert.fs previous
 \GFORTH [THEN]
-\GFORTH [IFUNDEF] $@ require string.fs [THEN]
+\GFORTH [IFUNDEF] $@
+\GFORTH also forth definitions require string.fs previous
+\GFORTH [THEN]
 
 >CROSS
 
