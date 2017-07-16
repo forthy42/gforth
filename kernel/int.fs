@@ -261,6 +261,39 @@ Defer context ( -- addr ) \ gforth
 \G @code{context} @code{@@} is the @i{wid} of the word list at the
 \G top of the search order.
 
+$variable wheres
+
+0
+field: where-nt
+field: where-loc
+constant where-struct
+
+: where-duplicate? ( nt -- f )
+    \ true if the current where tuple would be a duplicate of the last
+    \ one; these duplicates occur due to FIND-NAME-IN being called
+    \ once for LOOKUP and then again for the individual wordlists.
+    wheres $@ dup if ( nt addr u )
+	where-struct - + >r
+	dup r@ where-nt @ =
+	r> where-loc @ current-sourcepos1 = and if
+	    drop true exit then
+    else
+	2drop then
+    drop false ;
+
+: where, ( nt -- )
+    \ store nt and the current source position for use by WHERE
+    dup if ( nt )
+	source-id dup -1 <> and if ( nt )
+	    dup where-duplicate? 0= if
+		where-struct wheres $+!len >r
+		dup r@ where-nt !
+		current-sourcepos1 r> where-loc !
+	    then
+	then
+    then
+    drop ;
+
 ' lookup is context
 forth-wordlist current !
 
@@ -268,7 +301,7 @@ forth-wordlist current !
     \G search the word list identified by @i{wid} for the definition
     \G named by the string at @i{c-addr u}. Return its @i{nt}, if
     \G found, otherwise 0.
-    dup wordlist-map @ find-method perform ;
+    dup wordlist-map @ find-method perform dup where, ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
     \G Search the word list identified by @i{wid} for the definition
