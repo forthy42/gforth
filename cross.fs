@@ -3532,6 +3532,9 @@ compile: g>body T @ H compile lit+ T V, H ;compile
 
 Builder UValue
 compile: g>body compile user@ T @ V, H ;compile
+
+Builder 2Constant
+compile: g>body compile lit T dup cell+ @ V, H compile lit T @ V, H ;compile
 [THEN]
 
 \ structural conditionals                              17dec92py
