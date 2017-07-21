@@ -588,9 +588,10 @@ XSetWindowAttributes buffer: xswa
     win get-ic
     dpy 0 XSync drop >exposed ;
 
+: x-key? ( -- flag ) defers key? dup 0= IF screen-ops THEN ;
 : x-key ( -- key )
     need-show on  key? IF  defers key-ior  EXIT  THEN
-    BEGIN  >looper  key? screen-ops UNTIL  defers key-ior ;
+    BEGIN  >looper  key? UNTIL  defers key-ior ;
 
 0 warnings !@
 : bye ( -- )
@@ -599,3 +600,4 @@ XSetWindowAttributes buffer: xswa
     bye ;
 warnings !
 ' x-key IS key-ior
+' x-key? IS key?
