@@ -326,16 +326,16 @@ Sema gl-sema
 
 : gl-emit ( char -- ) [: color-index @ (gl-emit) ;] gl-sema c-section ;
 : gl-emit-err ( char -- )
-    [:  dup (err-emit) \ errors also go to the error log
-	err-color-index @ (gl-emit) ;] gl-sema c-section ;
+    dup (err-emit) \ errors also go to the error log
+    [: err-color-index @ (gl-emit) ;] gl-sema c-section ;
 : gl-cr-err ( -- )
-    [: #lf (err-emit)  gl-cr ;] gl-sema c-section ;
+    #lf (err-emit)  gl-cr ;
 
 : gl-type ( addr u -- )
     [: bounds ?DO  I c@ color-index @ (gl-emit)  LOOP ;] gl-sema c-section ;
 
-: gl-type-err ( addr u -- )
-    [: bounds ?DO  I c@ gl-emit-err  LOOP ;] gl-sema c-section ;
+: gl-type-err ( addr u -- )  2dup (err-type)
+    [: bounds ?DO  I c@ err-color-index @ (gl-emit)  LOOP ;] gl-sema c-section ;
 
 : gl-page ( -- ) [: 0 0 gl-atxy  0 to videorows  0 to actualrows
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!
