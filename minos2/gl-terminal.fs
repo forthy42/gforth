@@ -21,6 +21,7 @@
 
 \ :noname source type cr stdout flush-file throw ; is before-line
 
+require unix/pthread.fs
 require gl-helper.fs
 
 also [IFDEF] android android [THEN]
@@ -321,22 +322,24 @@ Variable gl-emit-buf
 	ELSE  r> gl-xy 2!  THEN  m +
     LOOP  drop ;
 
-: gl-emit ( char -- )  color-index @ (gl-emit) ;
+Sema gl-sema
+
+: gl-emit ( char -- ) [: color-index @ (gl-emit) ;] gl-sema c-section ;
 : gl-emit-err ( char -- )
-    dup (err-emit) \ errors also go to the error log
-    err-color-index @ (gl-emit) ;
+    [:  dup (err-emit) \ errors also go to the error log
+	err-color-index @ (gl-emit) ;] gl-sema c-section ;
 : gl-cr-err ( -- )
-    #lf (err-emit)  gl-cr ;
+    [: #lf (err-emit)  gl-cr ;] gl-sema c-section ;
 
 : gl-type ( addr u -- )
-    bounds ?DO  I c@ gl-emit  LOOP ;
+    [: bounds ?DO  I c@ color-index @ (gl-emit)  LOOP ;] gl-sema c-section ;
 
 : gl-type-err ( addr u -- )
-    bounds ?DO  I c@ gl-emit-err  LOOP ;
+    [: bounds ?DO  I c@ gl-emit-err  LOOP ;] gl-sema c-section ;
 
-: gl-page ( -- )  0 0 gl-atxy  0 to videorows  0 to actualrows
+: gl-page ( -- ) [: 0 0 gl-atxy  0 to videorows  0 to actualrows
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!
-    resize-screen need-sync on ;
+    resize-screen need-sync on ;] gl-sema c-section ;
 
 : ?invers ( attr -- attr' ) dup invers and IF
     dup $F00 and 4 rshift over $F0 and 4 lshift or swap $7 and or  THEN ;
@@ -345,9 +348,11 @@ Variable gl-emit-buf
     over fg> 6 <= $F and >fg or
     default-color -rot mux ;
 : gl-attr! ( attribute -- )
-    dup attr ! >default ?invers  dup bg> bg! fg> fg! ;
+    [: dup attr ! >default ?invers  dup bg> bg! fg> fg! ;]
+    gl-sema c-section ;
 : gl-err-attr! ( attribute -- )
-    dup attr ! >default ?invers  dup bg> err-bg! fg> err-fg! ;
+    [: dup attr ! >default ?invers  dup bg> err-bg! fg> err-fg! ;]
+    gl-sema c-section ;
 
 4e FConstant scroll-deltat
 : >scroll-pos ( -- 0..1 )
@@ -436,8 +441,9 @@ Defer scale-me ' terminal-scale-me is scale-me
 
 : screen-sync ( -- )  rendering @ -2 > ?EXIT \ don't render if paused
     ?config-changer
-    need-sync @ win and level# @ 0<= and IF
-	show-cursor screen->gl need-sync off  THEN ;
+    win level# @ 0<= and IF
+	0 need-sync !@ IF  show-cursor screen->gl  THEN
+    THEN ;
 
 : gl-fscale ( f -- ) to default-scale
     1 need-config +! screen-ops ;
