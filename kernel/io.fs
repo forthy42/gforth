@@ -133,7 +133,7 @@ A, here AConstant debug-out
 
 default-out op-vector !
 
-AVariable debug-vector
+AUser debug-vector
 debug-out debug-vector !
 
 here
