@@ -93,26 +93,26 @@ tex: color-tex
 
 \ Variables and constants
 
-[IFUNDEF] l, ' , Alias l, [THEN]
+: le-l, ( n -- )  here 4 allot le-l! ;
 
 Create color-matrix \ vt100 colors
 \ RGBA, but this is little endian, so write ABGR ,
-$ff000000 l, \ Black
-$ff3030ff l, \ Red
-$ff20ff20 l, \ Green
-$ff00ffff l, \ Yellow
-$ffff6020 l, \ Blue - complete blue is too dark
-$ffff00ff l, \ Magenta
-$ffffff00 l, \ Cyan
-$ffffffff l, \ White
-$ff404040 l, \ dimm Black
-$ff4040bf l, \ dimm Red
-$ff40bf40 l, \ dimm Green
-$ff40bfbf l, \ dimm Yellow
-$ffbf4040 l, \ dimm Blue
-$ffbf40bf l, \ dimm Magenta
-$ffbfbf40 l, \ dimm Cyan
-$ffbfbfbf l, \ dimm White
+$ff000000 le-l, \ Black
+$ff3030ff le-l, \ Red
+$ff20ff20 le-l, \ Green
+$ff00ffff le-l, \ Yellow
+$ffff6020 le-l, \ Blue - complete blue is too dark
+$ffff00ff le-l, \ Magenta
+$ffffff00 le-l, \ Cyan
+$ffffffff le-l, \ White
+$ff404040 le-l, \ dimm Black
+$ff4040bf le-l, \ dimm Red
+$ff40bf40 le-l, \ dimm Green
+$ff40bfbf le-l, \ dimm Yellow
+$ffbf4040 le-l, \ dimm Blue
+$ffbf40bf le-l, \ dimm Magenta
+$ffbfbf40 le-l, \ dimm Cyan
+$ffbfbfbf le-l, \ dimm White
 
 : term-load-textures ( addr u -- )
     chars-tex load-texture 2drop linear
@@ -125,6 +125,13 @@ Variable err-color-index
 bl dup $70 and 5 lshift or $F0F and 4 lshift
 dup color-index ! err-color-index !
 Variable std-bg
+1 pad ! pad c@ [IF] \ little endian
+    2 cfield: fg-field
+    cfield: bg-field drop
+[ELSE]
+    cell 3 - cfield: bg-field
+    cfield: fg-field drop
+[THEN]
 
 : ?default-fg ( n -- color ) dup 6 <= IF
 	drop default-color fg>  THEN  $F xor ;
@@ -132,14 +139,14 @@ Variable std-bg
 	drop default-color bg>  THEN  $F xor ;
 : fg! ( index -- )
     dup 0= IF  drop  EXIT  THEN  ?default-fg
-    4 lshift color-index 2 + c! ;
+    4 lshift color-index fg-field c! ;
 : bg! ( index -- )
     dup 0= IF  drop  EXIT  THEN  ?default-bg
-    4 lshift color-index 3 + c! ;
+    4 lshift color-index bg-field c! ;
 : err-fg! ( index -- ) ?default-fg
-    4 lshift err-color-index 2 + c! ;
+    4 lshift err-color-index fg-field c! ;
 : err-bg! ( index -- ) ?default-bg
-    4 lshift err-color-index 3 + c! ;
+    4 lshift err-color-index bg-field c! ;
 : bg>clear ( index -- ) $F xor
     $F and sfloats color-matrix +
     count s>f $FF fm/
@@ -221,7 +228,7 @@ $20 Value minpow2#
 	to videomem
 	color-index @
 	videomem r> r> /string bounds U+DO
-	    dup I l!
+	    dup I le-l!
 	[ 1 sfloats ]L +LOOP drop
     THEN ;
 
@@ -316,7 +323,7 @@ Variable gl-emit-buf
     resize-screen  need-sync on
     dup $70 and 5 lshift or $F0F and 4 lshift r> $FFFF0000 and or
     n 0 ?DO
-	dup gl-char' l!
+	dup gl-char' le-l!
 	gl-xy 2@ >r 1+ dup cols u>= dup gl-lineend !
 	IF  drop 0 r> 1+ gl-xy 2! resize-screen
 	ELSE  r> gl-xy 2!  THEN  m +
