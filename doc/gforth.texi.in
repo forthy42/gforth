@@ -9279,17 +9279,41 @@ doc-f.
 doc-fe.
 doc-fs.
 doc-fp.
+
+Examples of printing the number 1234.5678E23 in the different
+floating-point output formats are shown below.
+
+@example
+f. 123456780000000000000000000.
+fe. 123.456780000000E24
+fs. 1.23456780000000E26
+fp. 123.456780000000Y
+@end example
+
 doc-precision
 doc-set-precision
 doc-f.rdp
 
-Examples of printing the number 1234.5678E23 in the different floating-point output
-formats are shown below:
+For @code{f.rdp} the output depends on the parameters.  To give you a
+better intuition of how they influence the output, here are some
+examples of parameter combinations; in each line the same number is
+printed, in each column the same parameter combination is used for
+printing:
 
 @example
-f. 123456779999999000000000000.
-fe. 123.456779999999E24
-fs. 1.23456779999999E26
+    12 13 0    7 3 4   7 3 0   7 3 1   7 5 1   7 7 1   7 0 2  4 2 1
+|-1.234568E-6|-1.2E-6| -0.000|-1.2E-6|-1.2E-6|-1.2E-6|-1.2E-6|****|
+|-1.234568E-5|-1.2E-5| -0.000|-1.2E-5|-.00001|-1.2E-5|-1.2E-5|****|
+|-1.234568E-4|-1.2E-4| -0.000|-1.2E-4|-.00012|-1.2E-4|-1.2E-4|****|
+|-1.234568E-3|-1.2E-3| -0.001| -0.001|-.00123|-1.2E-3|-1.2E-3|****|
+|-1.234568E-2|-1.2E-2| -0.012| -0.012|-.01235|-1.2E-2|-1.2E-2|-.01|
+|-1.234568E-1|-1.2E-1| -0.123| -0.123|-.12346|-1.2E-1|-1.2E-1|-.12|
+|-1.2345679E0| -1.235| -1.235| -1.235|-1.23E0|-1.23E0|-1.23E0|-1E0|
+|-1.2345679E1|-12.346|-12.346|-12.346|-1.23E1|-1.23E1|   -12.|-1E1|
+|-1.2345679E2|-1.23E2|-1.23E2|-1.23E2|-1.23E2|-1.23E2|  -123.|-1E2|
+|-1.2345679E3|-1.23E3|-1.23E3|-1.23E3|-1.23E3|-1.23E3| -1235.|-1E3|
+|-1.2345679E4|-1.23E4|-1.23E4|-1.23E4|-1.23E4|-1.23E4|-12346.|-1E4|
+|-1.2345679E5|-1.23E5|-1.23E5|-1.23E5|-1.23E5|-1.23E5|-1.23E5|-1E5|
 @end example
 
 

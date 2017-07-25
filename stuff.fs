@@ -310,9 +310,11 @@ comp' sliteral drop alias postpone-sliteral
 \G exponential notation because fixed-point notation would have too
 \G few significant digits, yet exponential notation offers fewer
 \G significant digits.  We recommend @i{nr}>=@i{nd}+2, if you want to
-\G have fixed-point notation for some numbers.  We recommend
-\G @i{np}>@i{nr}, if you want to have exponential notation for all
-\G numbers.
+\G have fixed-point notation for some numbers; the smaller the value
+\G of @i{np}, the more cases are shown in fixed-point notation (cases
+\G where few or no significant digits remain in fixed-point notation).
+\G We recommend @i{np}>@i{nr}, if you want to have exponential
+\G notation for all numbers.
     f>str-rdp type ;
 
 0 [if]
