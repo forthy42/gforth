@@ -233,7 +233,7 @@ comp' sliteral drop alias postpone-sliteral
     \ um1 is the mantissa length to try, um2 is the actual mantissa length
     c-addr ur um1 /string '0 fill
     rf c-addr um1 represent if { nexp fsign }
-	nd nexp + up >=
+	nd nexp + up >= up 0= or
 	ur nd - 1- dup { beforep } fsign + nexp 0 max >= and if
 	    \ fixed-point notation
 	    c-addr ur beforep nexp - dup { befored } '0 push-right
