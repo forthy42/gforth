@@ -652,3 +652,15 @@ end-struct buffer%
 	    buf $@ drop swap 2dup match filename-match
 	    IF  xt execute  THEN  REPEAT
     buf $free  handle close-dir throw ;
+
+: s+ { addr1 u1 addr2 u2 -- addr u }
+    u1 u2 + allocate throw { addr }
+    addr1 addr u1 move
+    addr2 addr u1 + u2 move
+    addr u1 u2 +
+;
+
+: append { addr1 u1 addr2 u2 -- addr u }
+    addr1 u1 u2 + dup { u } resize throw { addr }
+    addr2 addr u1 + u2 move
+    addr u ;
