@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-0 [IF] \ pretty pad linear congruent generator
+0 [IF] \ pretty bad linear congruent generator
     Variable seed
     
     $10450405 Constant generator
@@ -32,7 +32,7 @@
     $10 buffer: rng-state
     8 buffer: seed
 
-    : rnd ( -- n ) seed 7 0 rng-state hashkey2 rng-state 2@ xor ;
+    : rnd ( -- n ) seed 8 0 rng-state hashkey2 rng-state 2@ xor ;
     cell 8 = [IF]
 	: seed-init ( -- ) ntime drop seed ! rnd drop ;
     [ELSE]
