@@ -132,6 +132,25 @@ require struct.fs
 require mkdir.fs
 require string.fs
 
+\ these words are generally useful and used by at least one user
+
+: scan-back { c-addr u1 c -- c-addr u2 } \ gforth
+    \ the last occurence of c in c-addr u1 is at u2-1; if it does not
+    \ occur, u2=0.
+    c-addr 1- c-addr u1 + 1- u-do
+	i c@ c = if
+	    c-addr i over - 1+ unloop exit endif
+    1 -loop
+    c-addr 0 ;
+
+: dirname ( c-addr1 u1 -- c-addr2 u2 ) \ gforth
+    \ directory name of the file name c-addr1 u1, including the final "/".
+    '/ scan-back ;
+
+: basename ( c-addr1 u1 -- c-addr2 u2 ) \ gforth
+    \ file name without directory component
+    2dup dirname nip /string ;
+
 Vocabulary c-lib
 
 get-current also c-lib definitions
@@ -191,15 +210,6 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 
 : const+ ( n1 "name" -- n2 )
     dup constant 1+ ;
-
-: scan-back { c-addr u1 c -- c-addr u2 }
-    \ the last occurence of c in c-addr u1 is at u2-1; if it does not
-    \ occur, u2=0.
-    c-addr 1- c-addr u1 + 1- u-do
-	i c@ c = if
-	    c-addr i over - 1+ unloop exit endif
-    1 -loop
-    c-addr 0 ;
 
 Variable c-libs \ library names in a string (without "lib")
 
@@ -686,14 +696,6 @@ Create callback-&style c-var c,
     >r [: ." gforth_callbacks_" type ;] $tmp r> lib-sym ;
 
 \ file stuff
-
-: dirname ( c-addr1 u1 -- c-addr2 u2 )
-    \ directory name of the file name c-addr1 u1, including the final "/".
-    '/ scan-back ;
-
-: basename ( c-addr1 u1 -- c-addr2 u2 )
-    \ file name without directory component
-    2dup dirname nip /string ;
 
 : libcc-named-dir ( -- c-addr u )
     libcc-named-dir$ $@ ;
