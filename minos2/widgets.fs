@@ -622,6 +622,7 @@ end-class viewport
 0 Value top-widget
 
 require actors.fs
+require animation.fs
 
 : htop-resize ( -- )
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize ;
@@ -631,6 +632,7 @@ require actors.fs
     1 level# +! top-widget .widget-draw
     BEGIN  >looper
 	[IFDEF] android  ?config-changer  [THEN]
+	anims[] $@len IF  animation  THEN
 	need-sync @ IF
 	    top-widget >o htop-resize widget-draw o>  need-sync off  THEN
 	need-keyboard @ IF
