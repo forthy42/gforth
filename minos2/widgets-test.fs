@@ -23,10 +23,10 @@ also minos
 
 glue*2 $FFFFFFDF 32e }}frame dup .button2 value f1
 glue*2 $FF7FFFFF 32e }}frame dup .button3 simple[] value f2
-glue*1 $FF5F5FFF 0e }}frame dup .button1 value f3a
-glue*1 $5FFF5FFF 0e }}frame dup .button1 value f3b
-glue*1 $5F5FFFFF 0e }}frame dup .button1 value f3c
-glue*1 $5F5F5FFF 0e }}frame dup .button1 value f3d
+glue*1 $FF5F5F00 0e }}frame dup .button1 value f3a
+glue*1 $5FFF5F00 0e }}frame dup .button1 value f3b
+glue*1 $5F5FFF00 0e }}frame dup .button1 value f3c
+glue*1 $5F5F5F00 0e }}frame dup .button1 value f3d
 glue*1 $FF7F7FFF 32e }}frame dup .button1 simple[] value f4
 glue*1 $7FFF7FFF 8e  }}frame dup .button1 simple[] value f5
 glue*2 $7FFFFFFF ' atlas-tex }}image dup .button2 simple[] value f6
@@ -105,15 +105,19 @@ previous
     "…" font1 text!  16e to border
     $00FF88FF to text-color o> ;
 
+: txfade ( r -- )
+    $DF fm* f>s text-color $FF mux to text-color ;
+: fxfade ( r -- )
+    $FF fm* f>s frame-color $FF mux to frame-color ;
 : !widgets ( -- ) !t1 !t2 !t3 top-widget .htop-resize
-    t2a [: >o 4e f* to border o>  ;] 1e >animate
-    t2b [: >o 8e f* to border o>  ;] 2e >animate
-    t2c [: >o 12e f* to border o>  ;] 3e >animate
-    t2d [: >o 16e f* to border o>  ;] 4e >animate
-    f3a [: >o 8e f* to border o>  ;] 1e >animate
-    f3b [: >o 16e f* to border o>  ;] 2e >animate
-    f3c [: >o 24e f* to border o>  ;] 3e >animate
-    f3d [: >o 32e f* to border o>  ;] 4e >animate ;
+    t2a [: >o fdup txfade 4e f* to border o> ;] 1e >animate
+    t2b [: >o fdup txfade 8e f* to border o> ;] 2e >animate
+    t2c [: >o fdup txfade 12e f* to border o> ;] 3e >animate
+    t2d [: >o fdup txfade 16e f* to border o> ;] 4e >animate
+    f3a [: >o fdup fxfade 8e f* to border o> ;] 1e >animate
+    f3b [: >o fdup fxfade 16e f* to border o> ;] 2e >animate
+    f3c [: >o fdup fxfade 24e f* to border o> ;] 3e >animate
+    f3d [: >o fdup fxfade 32e f* to border o> ;] 4e >animate ;
 
 also [IFDEF] android android [THEN]
 
