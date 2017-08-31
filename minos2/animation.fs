@@ -28,16 +28,18 @@ object class
     defer: animate ( addr rstate -- )
 end-class animation
 
-: >animate ( rdelta addr xt -- )
+: new-anim ( rdelta addr xt -- o )
     animation new >o ftime to ani-start to ani-delta is animate to ani-addr
-    o o> anims[] >stack ;
+    o o> ;
+: >animate ( rdelta addr xt -- )
+    new-anim anims[] >stack ;
 
+: anim-t ( time -- r0..1 flag ) ani-start f- ani-delta fabs f/
+    fdup 1e f< dup 0= IF  fdrop 1e  THEN
+    ani-delta f0< IF  1e fswap f-  THEN ;
 : animation ( -- )
     ftime { f: now }
     anims[] get-stack anims[] $free 0 ?DO
-	>o now ani-start f- ani-delta fabs f/
-	fdup 1e f> IF  fdrop 1e  ELSE  o anims[] >stack  THEN
-	ani-delta f0< IF  1e fswap f-  THEN
-	ani-addr animate  need-sync on
-	o>
+	>o now anim-t IF  o anims[] >stack  THEN
+	ani-addr animate  need-sync on o>
     LOOP ;
