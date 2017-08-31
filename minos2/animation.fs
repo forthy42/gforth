@@ -35,8 +35,9 @@ end-class animation
 : animation ( -- )
     ftime { f: now }
     anims[] get-stack anims[] $free 0 ?DO
-	>o now ani-start f- ani-delta f/
+	>o now ani-start f- ani-delta fabs f/
 	fdup 1e f> IF  fdrop 1e  ELSE  o anims[] >stack  THEN
+	ani-delta f0< IF  1e fswap f-  THEN
 	ani-addr animate  need-sync on
 	o>
     LOOP ;
