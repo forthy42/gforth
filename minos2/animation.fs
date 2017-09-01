@@ -43,3 +43,17 @@ end-class animation
 	>o now anim-t IF  o anims[] >stack  THEN
 	ani-addr animate  need-sync on o>
     LOOP ;
+
+\ helper for animation
+
+: sin-t ( r0..1 -- r0..1 ) \ sinusoidal movement
+    pi f* fcos f2/ 0.5e fswap f- ;
+: sin-at ( r0..r1 -- r0..1 ) \ accellerating
+    pi f2/ f* fcos 1e fswap f- ;
+: sin-dt ( r0..r1 -- r0..1 ) \ decellerating
+    pi f2/ f* fsin ;
+
+\ often used animation
+
+: fade ( r max -- )
+    fm* f>s text-color $FF mux to text-color ;

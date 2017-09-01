@@ -171,8 +171,8 @@ end-class glue
 \ tile widget
 
 widget class
-    value: frame#
     value: frame-color
+    value: frame#
     value: tile-glue \ glue object
 end-class tile
 
@@ -260,10 +260,10 @@ DOES>  swap sfloats + sf@ ;
 5% fvalue text-grow%
 
 widget class
+    value: text-color
     sfvalue: text-w
     $value: text$
     value: text-font
-    value: text-color
 end-class text
 
 Variable glyphs$
@@ -409,11 +409,17 @@ Variable style-i#
 
 glue class
     value: child-w
+    field: box-flags
     method resized
     method map
 end-class box
 
+$01 Constant box-hflip#
+$02 Constant box-vflip#
+$03 Constant box-flip#
+
 : do-childs { xt -- .. }
+    box-flags @ box-flip# and ?EXIT
     child-w >o
     BEGIN  xt execute  next-w o>  dup  WHILE  >o  REPEAT
     drop ;
@@ -488,14 +494,17 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     baseline 0e 1fil ;
 : glue-drop ( t s a -- ) fdrop fdrop fdrop ;
 
-: hglue+ 0glue [: hglue@ glue+ ;] do-childs ;
-: dglue+ 0glue [: glue-drop dglue@ ;] do-childs ; \ last dglue
-: vglue+ 0glue 0glue [: vglue@ glue+ baseglue glue* glue+ dglue@ ;] do-childs
+: hglue+ 0glue box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs ;
+: dglue+ 0glue box-flags @ box-vflip# and ?EXIT [: glue-drop dglue@ ;] do-childs ; \ last dglue
+: vglue+ 0glue box-flags @ box-vflip# and ?EXIT 0glue [: vglue@ glue+ baseglue glue* glue+ dglue@ ;] do-childs
     glue-drop ;
 
-: hglue* 1glue [: hglue@ glue* ;] do-childs ;
-: dglue* 1glue [: dglue@ glue* ;] do-childs ;
-: vglue* 1glue [: vglue@ glue* ;] do-childs ;
+: hglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+    1glue [: hglue@ glue* ;] do-childs ;
+: dglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+ 1glue [: dglue@ glue* ;] do-childs ;
+: vglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+ 1glue [: vglue@ glue* ;] do-childs ;
 
 ' hglue+ hbox is hglue
 ' dglue* hbox is dglue
