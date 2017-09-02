@@ -1234,7 +1234,7 @@ mux   ( u1 u2 u3 -- u )	   gforth
 ""multiplex @i{u1} for 1 bits in @i{u3}, @i{u2} for 0 bits in @i{u3} into @i{u}""
 u = (u3 & u1) | (~u3 & u2);
 :
- tuck and >r invert and r> ;
+ tuck invert and rot rot and or ;
 
 select ( u1 u2 f -- u )	   gforth
 ""select @i{u1} if @i{f} is true, @i{u2} if false.""

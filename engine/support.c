@@ -69,21 +69,23 @@ void* malloc_ll(size_t size)
 
 void free_ll(void* addr)
 {
+  if (addr != NULL) {
 #ifdef HAVE_MPROBE
-  if(debug_mcheck) {
-    int reason;
-    pthread_mutex_lock(&memlock);
-    reason=mprobe(addr);
-    pthread_mutex_unlock(&memlock);
-    debugp(stderr, "free(%8p)=%d;\n", addr, reason);
-    if(reason > 0) {
-      throw(-2049-reason);
+    if(debug_mcheck) {
+      int reason;
+      pthread_mutex_lock(&memlock);
+      reason=mprobe(addr);
+      pthread_mutex_unlock(&memlock);
+      debugp(stderr, "free(%8p)=%d;\n", addr, reason);
+      if(reason > 0) {
+	throw(-2049-reason);
+      }
     }
-  }
 #endif
-  pthread_mutex_lock(&memlock);
-  free(addr);
-  pthread_mutex_unlock(&memlock);
+    pthread_mutex_lock(&memlock);
+    free(addr);
+    pthread_mutex_unlock(&memlock);
+  }
 }
 
 void* realloc_ll(void* addr, size_t size)
