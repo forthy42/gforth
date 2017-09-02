@@ -69,7 +69,7 @@ get-current also see-voc definitions
         save-see-flags
         NoFine 10 XPos !
         dbg-ip @ DisplayMode c-pass ! Analyse drop
-        25 XPos @ - 0 max spaces ." -> " 
+        25 XPos @ - spaces ." -> " 
         restore-see-flags ;
 
 : get-next ( -- n | n n )

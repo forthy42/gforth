@@ -126,7 +126,7 @@ Variable timer-list
 
 : .times ( -- )
     [: dup body> >name name>string 1 /string
-	tuck type 8 swap - 0 max spaces ." : "
+	tuck type 8 swap - spaces ." : "
 	2@ d>f 1n f* f. cr ;] map-timer ;
 
 : !time ( -- ) ntime timer-tick 2! ;

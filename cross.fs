@@ -1408,7 +1408,7 @@ Variable mirrored-link          \ linked list for mirrored regions
   WHILE cr
         0 >rlink - >r
         r@ >rname count tuck type
-        12 swap - 0 max spaces space
+        12 swap - spaces space
         ." Start: " r@ >rstart @ dup .addr space
         ." End: " r@ >rlen @ + .addr space
         ." DP: " r> >rdp @ .addr
