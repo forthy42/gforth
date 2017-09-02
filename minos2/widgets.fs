@@ -202,6 +202,13 @@ end-class tile
 
 ' tile-draw tile is draw-bg
 
+\ tile that doesn't draw
+
+tile class
+end-class glue-tile
+
+' noop tile is draw-bg
+
 \ image widget
 
 tile class
@@ -249,6 +256,8 @@ DOES>  swap sfloats + sf@ ;
     LOOP
 ; ' frame-draw frame is draw-bg
 
+: }}glue ( glue -- o )
+    glue-tile new >o to tile-glue o o> ;
 : }}frame ( glue color border -- o )
     frame new >o to border to frame-color to tile-glue o o> ;
 : }}image ( glue color texture -- o )
@@ -270,17 +279,20 @@ Variable glyphs$
 Variable need-glyphs
 
 : text! ( addr u font -- )
-    to text-font to text$ ;
+    to text-font to text$  need-glyphs on ;
 : text-text ( -- )
     x border f+ penxy sf!  y penxy sfloat+ sf!
     text-font to font  text-color color !
     w border f2* f- text-w f/ to x-scale
     text$ render-string ;
 : text-!size ( -- )
+    text-font to font
     text$ layout-string
     border f+ to h
     border f+ to d
-    fdup to text-w  border f2* f+ to w ;
+    fdup to text-w  border f2* f+ to w
+\    ." text sized to: " x f. y f. w f. h f. d f. cr
+;
 : text-init
     need-glyphs @ IF
 	text-font to font text$ load-glyph$
@@ -358,8 +370,7 @@ $FFFF7FFF Value setstring-color
 ' edit-!size edit to !size
 
 : edit! ( addr u font -- )
-    text!  text$ nip to curpos  -1 to cursize  -1 to start-curpos
-    need-glyphs on ;
+    text!  text$ nip to curpos  -1 to cursize  -1 to start-curpos ;
 
 \ draw wrapper
 
@@ -528,12 +539,16 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     rg xa f+ gp f* ga f/ fdup rd f- fswap rg xa f+
     frot xmin f+  fdup to w  rx f+ ;
 
-: hbox-resize1 { f: y f: h f: d -- y h d } x y w h d resize  y h d ;
+: hbox-resize1 { f: y f: h f: d -- y h d } x y w h d resize
+\    ." hchild resized: " x f. y f. w f. h f. d f. cr
+    y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     hglue@ g3>2 { f: wmin f: a }
     w wmin f- a 0e 0e x ['] hglue-step do-childs  fdrop fdrop fdrop fdrop fdrop
-    y h d ['] hbox-resize1 do-childs  fdrop fdrop fdrop ;
+    y h d ['] hbox-resize1 do-childs  fdrop fdrop fdrop
+\    ." hbox sized to: " x f. y f. w f. h f. d f. cr
+;
 
 ' hbox-resize hbox is resize
 
@@ -556,24 +571,31 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : vglue-step ( gp ga rd rg ry od -- gp ga rd' rg' ry' od )
     vglue-step-h vglue-step-d ;
 
-: vbox-resize1 { f: x f: w -- x w } x y w h d resize  x w ;
+: vbox-resize1 { f: x f: w -- x w } x y w h d resize
+\    ." vchild resized: " x f. y f. w f. h f. d f. cr
+    x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     vglue@ dglue@ glue+ g3>2 { f: hmin f: a }
     h hmin f- a 0e 0e y h f- 0e ['] vglue-step do-childs
     fdrop fdrop fdrop fdrop fdrop fdrop
-    x w ['] vbox-resize1 do-childs fdrop fdrop ;
+    x w ['] vbox-resize1 do-childs fdrop fdrop
+\    ." vbox sized to: " x f. y f. w f. h f. d f. cr
+;
 
 ' vbox-resize vbox is resize
 
 : zbox-resize1 { f: x f: y f: w f: h f: d -- x y w h d }
-    x y w h d widget-resize
+    x y w h d resize
+\    ." zchild resized: " x f. y f. w f. h f. d f. cr
     x y w h d ;
 
 : zbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     x y w h d ['] zbox-resize1 do-childs
-    fdrop fdrop fdrop fdrop fdrop ;
+    fdrop fdrop fdrop fdrop fdrop
+\    ." zbox sized to: " x f. y f. w f. h f. d f. cr
+;
 
 ' zbox-resize zbox is resize
 
@@ -641,7 +663,7 @@ require animation.fs
     1 level# +! top-widget .widget-draw
     BEGIN  >looper
 	[IFDEF] android  ?config-changer  [THEN]
-	anims[] $@len IF  animation  THEN
+	anims[] $@len IF  animations  THEN
 	need-sync @ IF
 	    top-widget >o htop-resize widget-draw o>  need-sync off  THEN
 	need-keyboard @ IF

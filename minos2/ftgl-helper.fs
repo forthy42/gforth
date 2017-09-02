@@ -24,7 +24,7 @@ require unix/freetype-gllib.fs
 also freetype-gl
 also opengl
 
-256 Value atlas#
+512 Value atlas#
 
 atlas# dup 1 texture_atlas_new Value atlas
 
