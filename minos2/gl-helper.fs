@@ -654,7 +654,7 @@ max-buf# sfloats buffer: gl-buffers
 0 Value array-buf
 0 Value index-buf
 
-$1000 Value points# \ 4k points
+$4000 Value points# \ 16k points max
 
 object class
     sffield: v.x

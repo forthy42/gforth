@@ -63,7 +63,9 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
 
 ?.minos-config
 
-0 Value layer \ drawing layer
+$01 Constant box-hflip#
+$02 Constant box-vflip#
+$03 Value box-flip#
 
 object class
     value: caller-w
@@ -378,7 +380,9 @@ $FFFF7FFF Value setstring-color
     -1e 1e >apxy
     .01e 100e 100e >ap
     0.01e 0.02e 0.15e 1.0e glClearColor
-    Ambient 1 ambient% glUniform1fv ;
+    Ambient 1 ambient% glUniform1fv
+    0 to box-flip#
+;
 : draw-init> ( -- )
     [IFDEF]  texture_atlas_t-modified
 	atlas texture_atlas_t-modified c@ IF
@@ -388,7 +392,9 @@ $FFFF7FFF Value setstring-color
     [ELSE]
 	need-glyphs @ IF  gen-atlas-tex  THEN
     [THEN]
-    clear  need-glyphs off ;
+    clear  need-glyphs off
+    3 to box-flip#
+;
 
 : <draw-bg ( -- ) v0 i0
     z-bias set-color+
@@ -424,10 +430,6 @@ glue class
     method resized
     method map
 end-class box
-
-$01 Constant box-hflip#
-$02 Constant box-vflip#
-$03 Constant box-flip#
 
 : do-childs { xt -- .. }
     box-flags @ box-flip# and ?EXIT
@@ -558,14 +560,14 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     gp ga
     vglue@ baseline od f- 0e 1fil glue* g3>2 { f: ymin f: ya }
     rg ya f+ gp f* ga f/ fdup rd f- fswap rg ya f+
-    frot ymin f+  baseline fmax fdup to h 
+    frot ymin f+  baseline od f- fmax fdup to h 
     ry f+ fdup to y ;
 
 : vglue-step-d { f: gp f: ga f: rd f: rg f: ry -- gp ga rd' rg' ry' od' }
     gp ga
     dglue@ g3>2 { f: ymin f: ya }
     rg ya f+ gp f* ga f/ fdup rd f- fswap rg ya f+
-    frot ymin f+  baseline fmax fdup to d 
+    frot ymin f+ fdup to d 
     fdup ry f+ fswap ;
 
 : vglue-step ( gp ga rd rg ry od -- gp ga rd' rg' ry' od )
@@ -577,9 +579,10 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : vbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     vglue@ dglue@ glue+ g3>2 { f: hmin f: a }
-    h hmin f- a 0e 0e y h f- 0e ['] vglue-step do-childs
+    h border f- hmin f- a 0e 0e
+    y border f+ h border f- f- 0e ['] vglue-step do-childs
     fdrop fdrop fdrop fdrop fdrop fdrop
-    x w ['] vbox-resize1 do-childs fdrop fdrop
+    x border f+ w border f2* f- ['] vbox-resize1 do-childs fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
@@ -592,7 +595,8 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 : zbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    x y w h d ['] zbox-resize1 do-childs
+    x border f+ y border f+ w border f2* f- h border f- d border f-
+    ['] zbox-resize1 do-childs
     fdrop fdrop fdrop fdrop fdrop
 \    ." zbox sized to: " x f. y f. w f. h f. d f. cr
 ;

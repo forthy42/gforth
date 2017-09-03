@@ -68,8 +68,8 @@ Variable color $FFC0A0FF color !
     x0 w f+ y0 h f+ { f: x1 f: y1 }
     glyph texture_glyph_t-s0 sf@ { f: s0 }
     glyph texture_glyph_t-t0 sf@ { f: t0 }
-    glyph texture_glyph_t-s1 sf@ { f: s1 }
-    glyph texture_glyph_t-t1 sf@ { f: t1 }
+    glyph texture_glyph_t-s1 sf@ atlas# 2* s>f 1/f f- { f: s1 }
+    glyph texture_glyph_t-t1 sf@ atlas# 2* s>f 1/f f- { f: t1 }
     >v
     x0 y0 >xy n> color @ rgba>c s0 t0 >st v+
     x1 y0 >xy n> color @ rgba>c s1 t0 >st v+
