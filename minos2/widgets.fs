@@ -263,7 +263,7 @@ DOES>  swap sfloats + sf@ ;
 : }}frame ( glue color border -- o )
     frame new >o to border to frame-color to tile-glue o o> ;
 : }}image ( glue color texture -- o )
-    image new >o to image-tex to frame-color to tile-glue o o> ;
+    image new >o is image-tex to frame-color to tile-glue o o> ;
 
 \ text widget
 
@@ -667,9 +667,8 @@ require animation.fs
     1 level# +! top-widget .widget-draw
     BEGIN  >looper
 	[IFDEF] android  ?config-changer  [THEN]
-	anims[] $@len IF  animations  THEN
-	need-sync @ IF
-	    top-widget >o htop-resize widget-draw o>  need-sync off  THEN
+	anims[] $@len IF  animations true  ELSE  need-sync @  THEN
+	IF  top-widget >o htop-resize widget-draw o>  need-sync off  THEN
 	need-keyboard @ IF
 	    [IFDEF] showkb showkb [THEN]
 	    need-keyboard off  THEN

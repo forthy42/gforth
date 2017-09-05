@@ -22,9 +22,11 @@ require widgets.fs
 also minos
 
 also freetype-gl
-dpy-h @ s>f 22.5e f/ fround FConstant fontsize#
+dpy-w @ s>f 42e f/ fround FConstant fontsize#
 fontsize# 2 3 fm*/ fround FConstant smallsize#
 fontsize# f2* FConstant largesize#
+dpy-h @ s>f dpy-w @ s>f f/ .42e f/ FConstant baselinesmall#
+dpy-h @ s>f dpy-w @ s>f f/ .33e f/ FConstant baselinemedium#
 
 [IFDEF] android
     "/system/fonts/DroidSans.ttf"
@@ -41,6 +43,22 @@ fontsize# f2* FConstant largesize#
     [THEN]
 [THEN]
 2dup file-status throw drop 2Constant latin-font
+
+[IFDEF] android
+    "/system/fonts/DroidSans.ttf"
+[ELSE]
+    "/usr/share/fonts/truetype/LiberationSans-Italic.ttf"
+    2dup file-status nip [IF]
+	2drop "/usr/share/fonts/truetype/liberation/LiberationSans-Italic.ttf"
+	2dup file-status nip [IF]
+	    2drop "/usr/share/fonts/truetype/NotoSans-Italic.ttf"
+	    2dup file-status nip [IF]
+		2drop "/usr/share/fonts/truetype/noto/NotoSans-Italic.ttf"
+	    [THEN]
+	[THEN]
+    [THEN]
+[THEN]
+2dup file-status throw drop 2Constant italic-font
 
 [IFDEF] android
     "/system/fonts/DroidSansFallback.ttf"
@@ -67,6 +85,7 @@ fontsize# f2* FConstant largesize#
 atlas fontsize# latin-font open-font   Value font1
 atlas smallsize# latin-font open-font  Value font1s
 atlas largesize# latin-font open-font  Value font1l
+atlas fontsize# italic-font open-font   Value font1i
 atlas fontsize# chinese-font open-font Value font2
 previous
 
@@ -75,7 +94,9 @@ font1 Value x-font
 largesize# FValue x-baseline
 : small font1s to x-font ;
 : medium font1 to x-font ;
+: italic font1i to x-font ;
 : large font1l to x-font ;
+: chinese font2 to x-font ;
 : blackish $FF to x-color ;
 : dark-blue $7FFF to x-color ;
 0e FValue x-border
@@ -97,8 +118,37 @@ largesize# FValue x-baseline
     >o box-hflip# box-flags ! o o> ;
 : /flop ( o -- o )
     >o 0 box-flags ! o o> ;
+
+glue new Constant glue-left
+glue new Constant glue-right
+glue new Constant glue*wh
+glue new Constant glue*b1
+glue new Constant glue*b2
+
+glue*wh >o 0e 0e dpy-w @ s>f smallsize# f2* f- hglue-c glue! o>
+glue*wh >o 0glue dglue-c glue! 1glue vglue-c glue! o>
+glue*b1 >o dpy-w @ s>f .1e f* 0e 0e hglue-c glue! o>
+glue*b2 >o dpy-w @ s>f .2e f* 0e 0e hglue-c glue! o>
+
+: b1 ( addr1 u1 -- o )
+    dark-blue }}text >r
+    {{ glue*b1 }}glue {{ glue*1 }}glue r> }}h box[] }}z box[] ;
+: b2 ( addr1 u1 -- o )
+    dark-blue }}text >r
+    {{ glue*b2 }}glue {{ glue*1 }}glue r> }}h box[] }}z box[] ;
 : bb\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
-    dark-blue 2swap }}text >r blackish }}text >r
+    2swap b1 >r
+    blackish }}text >r
+    {{ r> r> swap glue*1 }}glue }}h box[] >o
+    x-baseline to baseline o o> ;
+: b2\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
+    2swap b2 >r
+    blackish }}text >r
+    {{ r> r> swap glue*1 }}glue }}h box[] >o
+    x-baseline to baseline o o> ;
+: b2i\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
+    2swap b2 >r
+    blackish italic }}text >r
     {{ r> r> swap glue*1 }}glue }}h box[] >o
     x-baseline to baseline o o> ;
 
@@ -106,18 +156,11 @@ Variable slides[]
 Variable slide#
 : >slides ( o -- ) slides[] >stack ;
 
-glue new Constant glue-left
-glue new Constant glue-right
-glue new Constant glue*wh
-
-glue*wh >o 0e 0e dpy-w @ s>f 64e f- hglue-c glue! o>
-glue*wh >o 0glue dglue-c glue! 1glue vglue-c glue! o>
-
 : prev-anim ( n r0..1 -- )
     dup 0<= IF  drop fdrop  EXIT  THEN
     fdup 1e f>= IF  fdrop
 	dup slides[] $[] @ /flip drop
-	1- slide# !
+	1- dup slide# ! slides[] $[] @ /flop drop
 	glue-left  >o 0glue hglue-c glue! o>
 	glue-right >o 0glue hglue-c glue! o>  EXIT
     THEN
@@ -131,7 +174,7 @@ glue*wh >o 0glue dglue-c glue! 1glue vglue-c glue! o>
     dup slides[] $[]# 1- u>= IF  drop fdrop  EXIT  THEN
     fdup 1e f>= IF  fdrop
 	dup slides[] $[] @ /flip drop
-	1+ slide# !
+	1+ dup slide# ! slides[] $[] @ /flop drop
 	glue-left  >o 0glue hglue-c glue! o>
 	glue-right >o 0glue hglue-c glue! o>  EXIT
     THEN
@@ -163,9 +206,9 @@ glue-right >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 {{
 glue-left }}glue
 
-\ page 1
+\ page 0
 {{
-glue*wh $FFFFFFFF 32e }}frame dup .button1 simple[]
+glue*wh $FFFFFFFF smallsize# }}frame dup .button1 simple[]
 {{
 dark-blue
 glue*1 }}glue \ $FFFFFFFF 4e }}frame dup .button1
@@ -178,16 +221,36 @@ glue*1 }}glue \ $FFFFFFFF 4e }}frame dup .button1
 }}v box[] >o o Value title-page o o>
 }}z slide[] dup >slides
 
+\ page 1
+\ {{
+\ glue*wh $FFFFFFFF smallsize# }}frame dup .button1 simple[]
+\ {{
+\ dark-blue
+\ largesize# to x-baseline
+\ large "Motivation" }}text /center
+\ medium
+\ {{
+\ glue*1 $FFBE00FF smallsize# }}frame dup .button1 simple[]
+\ {{
+\ "Bad Gateway" }}text /center
+\ "Internetkurort" }}text /center
+\ }}v box[]
+\ }}z box[]
+\ glue*1 }}glue
+\ }}v box[] >o fontsize# to border o o>
+\ }}z slide[] /flip dup >slides
+
 \ page 2
 {{
-glue*wh $FF7F7FFF 32e }}frame dup .button1 simple[]
+glue*wh $FF7F7FFF smallsize# }}frame dup .button1 simple[]
 {{
 dark-blue
+largesize# to x-baseline
 large "4 Years after Snowden" }}text /center
 blackish
 medium "What has changed?" \\
 dark-blue "Politics " \\
-fontsize# 1.33e f* to x-baseline
+fontsize# baselinesmall# f* to x-baseline
 blackish
 "    Fake News/Hate Speech as excuse for censorship #NetzDG" \\
 "    Crypto Wars 4.0: Discuss about ban of cryptography" \\
@@ -206,13 +269,13 @@ glue*1 }}glue
 
 \ page 3
 {{
-glue*wh $BFFFBFFF 32e }}frame dup .button1 simple[]
+glue*wh $BFFFBFFF smallsize# }}frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "Outlook from 2013" }}text /center
 medium blackish
 "•  The next presentation should be rendered with MINOΣ2" \\
-fontsize# 1.33e f* to x-baseline
+fontsize# baselinesmall# f* to x-baseline
 "•  Texts, videos, and images should be get with net2o, shouldn’t be on the device" \\
 "•  Typesetting engine with boxes and glues, line breaking and hyphenation missing" \\
 "•  a lot less classes than MINOΣ — but more objects" \\
@@ -225,59 +288,62 @@ glue*1 }}glue
 
 \ page 4
 {{
-glue*wh $BFBFFFFF 32e }}frame dup .button1 simple[]
+glue*wh $BFBFFFFF smallsize# }}frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 vs. MINOΣ" }}text /center
 medium blackish
-"Rendering:" " OpenGL (ES) instead of Xlib, Vulkan backend planned" bb\\
-fontsize# 1.33e f* to x-baseline
-"Coordinates:" " Single float instead of Ineger, origin bottom left (Xlib: top left)" bb\\
-"Typesetting:" " Boxes&Glues closer to LaTeX — including ascender&descender" bb\\
-"    Glues can shrink, not just grow" \\
-"Object System:" " Mini–OOF2 instead of BerndOOF" bb\\
-"Class number:" " Fewer classes, more combinations" bb\\
+"Rendering:" " OpenGL (ES) instead of Xlib, Vulkan backend planned" b2\\
+fontsize# baselinesmall# f* to x-baseline
+"Coordinates:" " Single float instead of Ineger, origin bottom left (Xlib: top left)" b2\\
+"Typesetting:" " Boxes&Glues closer to LaTeX — including ascender&descender" b2\\
+"" " Glues can shrink, not just grow" b2\\
+"Object System:" " Mini–OOF2 instead of BerndOOF" b2\\
+"Class number:" " Fewer classes, more combinations" b2\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
 }}z slide[] /flip dup >slides
 
 \ page 5
 {{
-glue*wh $FFBFFFFF 32e }}frame dup .button1 simple[]
+glue*wh $FFBFFFFF smallsize# }}frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 Widgets" }}text /center
 medium blackish
 "Design principle is a Lego–style combination of many extremely simple objects" \\
-fontsize# 1.33e f* to x-baseline
+fontsize# baselinesmall# f* to x-baseline
 "actor" " base class that reacts on all actions (clicks, touchs, keys)" bb\\
 "widget" " base class for all visible objects" bb\\
 "glue" " base class for flexible objects" bb\\
 "tile" " colored rectangle" bb\\
 "frame" " colored rectangle with borders" bb\\
 "test" " text element" bb\\
-{{ dark-blue "edit" }}text blackish " editable text element " }}text "(text with cursor)" }}edit dup Value edit-field glue*1 }}glue }}h edit-field edit[] >o x-baseline to baseline o o>
-"icon" " image from an icon texture" bb\\
+{{ "edit" b1 blackish " editable text element " }}text
+chinese "(text with cursor)" }}edit dup Value edit-field glue*1 }}glue }}h edit-field edit[] >o x-baseline to baseline o o>
+medium "icon" " image from an icon texture" bb\\
 "image" " larger image" bb\\
+"animation" " action for animations" bb\\
+"canvas" " vector graphics (TBD)" bb\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
 }}z slide[] /flip dup >slides
 
 \ page 6
 {{
-glue*wh $BFFFFFFF 32e }}frame dup .button1 simple[]
+glue*wh $BFFFFFFF smallsize# }}frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 Boxes" }}text /center
 medium blackish
 "Just like LaTeX: Boxes arrange widgets/text" \\
-fontsize# 1.66e f* to x-baseline
+fontsize# baselinemedium# f* to x-baseline
 "hbox" " Horizontal box, common baseline" bb\\
-fontsize# 1.33e f* to x-baseline
+fontsize# baselinesmall# f* to x-baseline
 "vbox" " Vertical box, minimum distance a baselineskip (of the hboxes below)" bb\\
 "zbox" " Overlapping several boxes" bb\\
 "grid" " Free widget placements (TBD)" bb\\
-fontsize# 1.66e f* to x-baseline
+fontsize# baselinemedium# f* to x-baseline
 "There will be some more variants for tables and wrapped paragraphs" \\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
@@ -285,20 +351,79 @@ glue*1 }}glue
 
 \ page 7
 {{
-glue*wh $FFFFBFFF 32e }}frame dup .button1 simple[]
+glue*wh $FFFFBFFF smallsize# }}frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 Displays" }}text /center
 medium blackish
 "Render into different kinds of displays" \\
-fontsize# 1.66e f* to x-baseline
+fontsize# baselinemedium# f* to x-baseline
 "texture" " Into a texture, which can be used as image, also used as viewport (TBD)" bb\\
-fontsize# 1.33e f* to x-baseline
+fontsize# baselinesmall# f* to x-baseline
 "display" " To the actual display" bb\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
 }}z slide[] /flip dup >slides
 
+\ page 8
+{{
+glue*wh $BFDFFFFF smallsize# }}frame dup .button1 simple[]
+{{
+largesize# to x-baseline
+large dark-blue "Minimize Draw Calls" }}text /center
+medium blackish
+"OpenGL wants as few draw–calls per frame, so different contexts are drawn" \\
+fontsize# baselinesmall# f* to x-baseline
+"in stacks with a draw–call each" \\
+fontsize# baselinemedium# f* to x-baseline
+"init" " Initialization round" bb\\
+fontsize# baselinesmall# f* to x-baseline
+"bg" " Background round" bb\\
+"icon" " draw items of the icon texture" bb\\
+"thumbnail" " draw items of the thumbnail texture" bb\\
+"image" " images with one draw call per image" bb\\
+"text" " text round" bb\\
+"marking" " cursor/selection highlight round" bb\\
+glue*1 }}glue
+}}v box[] >o fontsize# to border o o>
+}}z slide[] /flip dup >slides
+
+\ page 9
+{{
+glue*wh $D4AF37FF smallsize# }}frame dup .button1 simple[]
+{{
+largesize# to x-baseline
+large dark-blue "Bonus page: BlockChain" }}text /center
+medium blackish
+"Challenge" " Avoid double–spending" b2\\
+fontsize# baselinesmall# f* to x-baseline
+"State of the art:" " Proof of work" b2\\
+"Problem:" " Proof of work burns energy and GPUs" b2\\
+"Alternative 1:" " Proof of stake (money buys influence)" b2\\
+"Problem:" " Money corrupts, and corrupt entities misbehave" b2\\
+"Alternative 2:" " Proof of well–behaving" b2\\
+"How?" " Having signed many blocks in the chain" b2\\
+"Multiple signers" " Not only have one signer, but many" b2\\
+"Suspicion" " Don't accept transactions in low confidence blocks" b2\\
+glue*1 }}glue
+}}v box[] >o fontsize# to border o o>
+}}z slide[] /flip dup >slides
+
+\ page 10
+{{
+glue*wh $FFFFFFFF smallsize# }}frame dup .button1 simple[]
+{{
+largesize# to x-baseline
+large dark-blue "Literature&Links" }}text /center
+medium blackish
+"Bernd Paysan" " net2o fossil repository" b2i\\
+fontsize# baselinesmall# f* to x-baseline medium
+"" " https://fossil.net2o.de/net2o/" b2\\
+glue*1 }}glue
+}}v box[] >o fontsize# to border o o>
+}}z slide[] /flip dup >slides
+
+\ end
 glue-right }}glue
 }}h box[]
 to top-widget
