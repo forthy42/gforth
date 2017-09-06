@@ -103,6 +103,10 @@ terminal-input @       \ source -> terminal-input::source
     dup IF
 	input-error-data >error
     THEN
+    scanning? IF
+	s" warning: unfinished [IF] at end of file" true ['] type ?warning
+	3 roll is parser1
+    THEN
     current-input @ old-input @ current-input ! cell- free throw ;
 
 \ save-input, restore-input

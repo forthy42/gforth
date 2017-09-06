@@ -32,6 +32,8 @@ Create [struct]-voc       [struct]-search A,  NIL A,  NIL A,
 : ?if ( parser -- parser / )  countif @ 0<
     IF  is parser1  THEN ;
 
+: scanning? ( -- flag ) ['] scanif-r ['] parser1 defer@ = ;
+
 UNLOCK  Tlast @ TNIL Tlast !  LOCK
 \ last @  0 last !
 

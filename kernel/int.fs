@@ -675,7 +675,8 @@ Defer before-line ( -- ) \ gforth
 Defer 'quit
 Defer .status
 
-: prompt        state @ IF ."  compiled" EXIT THEN ."  ok" ;
+: prompt        state @ IF ."  compiled" EXIT THEN
+    scanning? IF  ." scanning for [THEN]"  ELSE  ."  ok" THEN ;
 
 : (quit) ( -- )
     \ exits only through THROW etc.
