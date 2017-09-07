@@ -18,4 +18,14 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : set-compsem ( xt -- )
+    \G change compilation semantics of the last defined word
     >r start-xt set->comp r> ['] execute ]] drop 2literal ; [[ ;
+
+: special: ( xt "name" -- )
+    \G defines a word, which has a special compilation semantics
+    \G provided as @var{xt} on the stack
+    >r :noname r> ['] execute ]] drop 2Literal ; [[ >r
+    : r> set->comp ;
+
+\ silly example:
+\ :noname ." compiling" ; special: foo ." interpreting" ;

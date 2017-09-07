@@ -2169,7 +2169,7 @@ X has? f83headerstring [IF]
     s" kernel/main.fs" h-add-included-file ;
 : tsourcepos1 ( -- xpos )
     [IFDEF] replace-sourcepos1
-	replace-sourcepos1 0 to replace-sourcepos1 ?dup ?EXIT
+	replace-sourcepos1  0 to replace-sourcepos1 ?dup ?EXIT
     [THEN]
     [IFDEF] loadfilename# loadfilename# @
     [ELSE] sourcefilename str>loadfilename# [THEN]

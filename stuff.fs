@@ -519,7 +519,8 @@ previous
     \G string has zero length. A program may replace characters within
     \G the counted string. OBSOLESCENT: the counted string has a
     \G trailing space that is not included in its length.
-    sword here place  bl here count + c!  here ;
+    sword dup word-pno-size u>= IF  -18 throw  THEN
+    here place  bl here count + c!  here ;
 
 \ quotations
 
