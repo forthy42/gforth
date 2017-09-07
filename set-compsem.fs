@@ -21,7 +21,11 @@
     \G change compilation semantics of the last defined word
     >r start-xt set->comp r> ['] execute ]] drop 2literal ; [[ ;
 
-: special: ( xt "name" -- )
+\ silly example:
+\ :noname ." compiling" ;
+\ : foo ." interpreting" ; set-compsem
+
+: intsem: ( xt "name" -- )
     \G defines a word, which has a special compilation semantics
     \G provided as @var{xt} on the stack
     >r :noname r> ['] execute ]] drop 2Literal ; [[ >r
@@ -29,3 +33,13 @@
 
 \ silly example:
 \ :noname ." compiling" ; special: foo ." interpreting" ;
+
+0 Value xt-compsem
+: compsem: ( -- )
+    \G adds a non default compilation semantics to the last
+    \G definition
+    start-xt to xt-compsem
+    [: xt-compsem set-compsem ;] colon-sys-xt-offset stick ;
+
+\ silly example
+\ : foo ." interpreting" ; compsem: ." compiling" ;
