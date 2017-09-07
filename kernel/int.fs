@@ -62,7 +62,8 @@ require kernel/version.fs \ version-string
 [IFUNDEF] (name) \ name might be a primitive
 
 : (name) ( -- c-addr count ) \ gforth
-    source 2dup >r >r >in @ /string (parse-white)
+    source 2dup >r >r >in @ 2dup u< IF  -18 throw  THEN
+    /string (parse-white)
     2dup input-lexeme!
     2dup + r> - 1+ r> min >in ! ;
 \    name count ;
