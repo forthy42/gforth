@@ -1,3 +1,4 @@
 *.fs linguist-language=Forth
 *.fb linguist-language=Forth
 *.fs.in linguist-language=Forth
+*.4th linguist-language=Forth
