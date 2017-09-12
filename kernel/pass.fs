@@ -41,6 +41,6 @@ align here boot$[] !  boot$[],
 included-files, included-files !
 
 align here default-recognizer !
-2 cells , ' rec:num A, ' rec:word A,
+2 cells , ' rec-num A, ' rec-word A,
 
 >ram here normal-dp !

@@ -19,25 +19,25 @@
 
 : slit,  postpone sliteral ;
 
-' noop ' slit, dup recognizer r:string
+' noop ' slit, dup rectype: rectype-string
 
-: rec:string ( addr u -- addr u' r:string | r:fail )
+: rec-string ( addr u -- addr u' r:string | rectype-null )
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
-    IF    drop source drop - 1+ >in !  \"-parse save-mem r:string
-    ELSE  2drop r:fail  THEN ;
+    IF    drop source drop - 1+ >in !  \"-parse save-mem rectype-string
+    ELSE  2drop rectype-null  THEN ;
 
-' rec:string get-recognizers 1+ set-recognizers
+' rec-string forth-recognizer >back
 
 0 [IF] \ dot-quoted strings, we don't need them
 : .slit slit, postpone type ;
-' type ' .slit ' slit, recognizer r:."
+' type ' .slit ' slit, recognizer rectype-."
 
-: rec:."  ( addr u -- addr u' r:." | addr u r:fail )
+: rec-."  ( addr u -- addr u' r:." | addr u rectype-null )
     2dup ".\"" string-prefix?
-    IF    drop source drop - 2 + >in !  \"-parse save-mem r:."
-    ELSE  r:fail  THEN ;
+    IF    drop source drop - 2 + >in !  \"-parse save-mem rectype-."
+    ELSE  rectype-null  THEN ;
 
-' rec:." get-recognizers 1+ set-recognizers
+' rec-." forth-recognizer >back
 [THEN]

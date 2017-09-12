@@ -17,20 +17,20 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-' (int-to) ' (comp-to) ' lit, recognizer r:to
+' (int-to) ' (comp-to) ' lit, rectype: rectype-to
 
-: rec:to ( addr u -- xt r:to | r:fail )
+: rec-to ( addr u -- xt r:to | rectype-null )
     \G words prefixed with @code{->} are treated as if preceeded by
     \G @code{TO} or @code{IS}
-    dup 3 u< IF  2drop r:fail  EXIT  THEN
-    over 1+ c@ '>' <> IF  2drop r:fail  EXIT  THEN
+    dup 3 u< IF  2drop rectype-null  EXIT  THEN
+    over 1+ c@ '>' <> IF  2drop rectype-null  EXIT  THEN
     case  over c@
 	'-' of   0 to-style# !  endof
 	'+' of   1 to-style# !  endof
 	''' of  -1 to-style# !  endof
-	drop 2drop r:fail  EXIT
+	drop 2drop rectype-null  EXIT
     endcase
-    2 /string recognize dup r:fail = IF  to-style# off  EXIT  THEN
-    name?int r:to ;
+    2 /string recognize dup rectype-null = IF  to-style# off  EXIT  THEN
+    name?int rectype-to ;
 
-' rec:to get-recognizers 1+ set-recognizers
+' rec-to forth-recognizer >back

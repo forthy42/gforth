@@ -25,31 +25,31 @@
 \ The "design pattern" used here is the *factory*, even though
 \ the recognizer does not return a full-blown object.
 \ A recognizer has the stack effect
-\ ( addr u -- token table | addr u r:fail )
+\ ( addr u -- token table | addr u rectype-null )
 \ where the token is the result of the parsing action (can be more than
 \ one stack or live on other stacks, e.g. on the FP stack)
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, compile it as literal.
 
-: (r:fail)  no.extensions ;
+:noname  no.extensions ;
 ' no.extensions dup >vtable
-' (r:fail) AConstant r:fail
-\G If a recognizer fails, it returns @code{r:fail}
+AConstant rectype-null
+\G If a recognizer fails, it returns @code{rectype-null}
 
 : lit, ( n -- ) postpone Literal ;
 
-' name?int alias r>int
-' name>comp alias r>comp
-: r>post ( r:table -- xt ) >namevt @ >vtlit, @ ;
+' name?int alias rectype>int
+' name>comp alias rectype>comp
+: rectype>post ( r:table -- xt ) >namevt @ >vtlit, @ ;
 
-: do-lit, ( .. xt -- .. ) r>post execute ;
+: do-lit, ( .. xt -- .. ) rectype>post execute ;
 : >postpone ( token table -- )
     dup >r name>comp drop do-lit, r> post, ;
 
-: rec:word ( addr u -- xt | r:fail )
+: rec-word ( addr u -- xt | rectype-null )
     \G Searches a word in the wordlist stack
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
-    dup 0= IF  drop r:fail  THEN ;
+    dup 0= IF  drop rectype-null  THEN ;
 
 :noname ( n -- n ) ;
 ' do-lit, set-optimizer
@@ -63,13 +63,13 @@ AConstant r:dnum
 
 \ snumber? should be implemented as recognizer stack
 
-: rec:num ( addr u -- n/d table | r:fail )
+: rec-num ( addr u -- n/d table | rectype-null )
     \G converts a number to a single/double integer
     snumber?  dup
     IF
 	0> IF  r:dnum   ELSE  r:num  THEN  EXIT
     THEN
-    drop r:fail ;
+    drop rectype-null ;
 
 \ generic stack get/set
 
@@ -113,35 +113,28 @@ default-recognizer AValue forth-recognizer
 
 Defer trace-recognizer  ' drop is trace-recognizer
 
-: map-recognizer ( addr u rec-addr -- tokens table )
+: recognize ( addr u rec-addr -- tokens table )
     \G apply a recognizer stack to a string, delivering a token
     $@ bounds cell- swap cell- -DO
 	2dup I -rot 2>r
-	perform dup r:fail <>  IF
+	perform dup rectype-null <>  IF
 	    2rdrop I @ trace-recognizer  UNLOOP  EXIT  THEN  drop
 	2r>
     cell -LOOP
-    2drop r:fail ;
-
-Defer recognize
-
-: do-recognizer ( addr u -- tokens xt )
-    \G process the string @var{addr u} in the recognizer stack
-    forth-recognizer map-recognizer ;
-' do-recognizer is recognize
+    2drop rectype-null ;
 
 \ nested recognizer helper
 
-\ : nest-recognizer ( addr u -- token table | r:fail )
+\ : nest-recognizer ( addr u -- token table | rectype-null )
 \   xxx-recognizer recognize ;
 
 : interpreter-r ( addr u -- ... xt )
-    recognize name?int ;
+    forth-recognizer recognize name?int ;
 
 ' interpreter-r IS parser1
 
 : compiler-r ( addr u -- ... xt )
-    recognize name>comp ;
+    forth-recognizer recognize name>comp ;
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
@@ -153,5 +146,5 @@ Defer recognize
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
-    parse-name recognize >postpone
+    parse-name forth-recognizer recognize >postpone
 ; immediate restrict

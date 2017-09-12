@@ -21,8 +21,8 @@
 
 ' getenv ' env$, ' slit, recognizer r:env
 
-: rec:env ( addr u -- addr u r:env | r:fail )
-    over c@ '$' <> IF  2drop  r:fail  EXIT  THEN
+: rec-env ( addr u -- addr u r:env | rectype-null )
+    over c@ '$' <> IF  2drop  rectype-null  EXIT  THEN
     1 /string r:env ;
 
-' rec:env get-recognizers 1+ set-recognizers
+' rec-env get-recognizers 1+ set-recognizers

@@ -23,7 +23,7 @@ Vocabulary config
 3 stack: config-recognizer
 \G The config recognizer
 
-' rec:string ' rec:num ' rec:float 3 config-recognizer set-stack
+' rec-string ' rec-num ' rec-float 3 config-recognizer set-stack
 
 s" Config error" exception Value config-throw
 \ if you don't want an exception, set config-throw to 0

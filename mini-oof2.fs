@@ -104,13 +104,13 @@ dynamic-a to allocater
 \ dot parser .foo -> >o foo o>
 
 : >oo> ( xt table -- )  postpone >o compile, postpone o> ;
-:noname ( object xt -- ) swap >o execute o> ; ' >oo> ' lit, recognizer r:moof2
+:noname ( object xt -- ) swap >o execute o> ; ' >oo> ' lit, rectype: r:moof2
 
-: rec:moof2 ( addr u -- xt r:moof2 | r:fail )
+: rec-moof2 ( addr u -- xt r:moof2 | rectype-null )
     over c@ '.' = over 1 > and
     IF  1 /string recognize
 	dup >namevt @ >vtlit, @ ['] noop =
-	IF  r:moof2  ELSE  drop r:fail  THEN
-    ELSE  2drop r:fail  THEN ;
+	IF  r:moof2  ELSE  drop rectype-null  THEN
+    ELSE  2drop rectype-null  THEN ;
 
-' rec:moof2 get-recognizers 1+ set-recognizers
+' rec-moof2 get-recognizers 1+ set-recognizers

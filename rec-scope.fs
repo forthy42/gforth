@@ -29,10 +29,10 @@
 		>body  REPEAT  THEN
     drop 2drop 0 ;
 
-: rec:scope ( addr u -- xt | r:fail )
-    0 scope-split dup 0= IF  drop  r:fail  THEN ;
+: rec-scope ( addr u -- xt | rectype-null )
+    0 scope-split dup 0= IF  drop  rectype-null  THEN ;
 
-get-recognizers 1+ ' rec:scope -rot set-recognizers
+get-recognizers 1+ ' rec-scope -rot set-recognizers
 
 : in ( "voc" "defining-word" -- )
     \G execute @var{defining-word} with @var{voc} as one-shot current

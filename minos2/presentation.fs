@@ -295,7 +295,7 @@ large dark-blue "MINOΣ2 vs. MINOΣ" }}text /center
 medium blackish
 "Rendering:" " OpenGL (ES) instead of Xlib, Vulkan backend planned" b2\\
 fontsize# baselinesmall# f* to x-baseline
-"Coordinates:" " Single float instead of Ineger, origin bottom left (Xlib: top left)" b2\\
+"Coordinates:" " Single float instead of integer, origin bottom left (Xlib: top left)" b2\\
 "Typesetting:" " Boxes&Glues closer to LaTeX — including ascender&descender" b2\\
 "" " Glues can shrink, not just grow" b2\\
 "Object System:" " Mini–OOF2 instead of BerndOOF" b2\\
@@ -318,7 +318,7 @@ fontsize# baselinesmall# f* to x-baseline
 "glue" " base class for flexible objects" bb\\
 "tile" " colored rectangle" bb\\
 "frame" " colored rectangle with borders" bb\\
-"test" " text element" bb\\
+"text" " text element" bb\\
 {{ "edit" b1 blackish " editable text element " }}text
 chinese "(text with cursor)" }}edit dup Value edit-field glue*1 }}glue }}h edit-field edit[] >o x-baseline to baseline o o>
 medium "icon" " image from an icon texture" bb\\

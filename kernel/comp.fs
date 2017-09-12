@@ -309,7 +309,7 @@ has? primcentric [IF]
 
 : COMP'    ( "name" -- w xt ) \ gforth  comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
-    parse-name recognize '-error name>comp ;
+    parse-name forth-recognizer recognize '-error name>comp ;
 
 : [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth bracket-comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
@@ -685,15 +685,15 @@ defer 0-adjust-locals-size ( -- )
     \ concat two xts into one
     >r >r :noname r> compile, r> compile, postpone ; ;
 
-: dt-token ( int-xt comp-xt post-xt -- dt-token )
+: rectype ( int-xt comp-xt post-xt -- rectype )
     \G create a new unnamed recognizer token
     >r  ['] drop swap concat >r
     >r :noname r> compile, postpone ;
     r> set-optimizer r> set-lit, ;
 
-: recognizer ( int-xt comp-xt post-xt "name" -- )
+: rectype: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table
-    dt-token constant ;
+    rectype constant ;
 
 \ does>
 

@@ -17,15 +17,15 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: rec:meta ( addr u -- xt r:to | r:fail )
+: rec-meta ( addr u -- xt r:to | rectype-null )
     \G words prefixed with @var{recognizer}@code{?} are processed by
-    \G @code{rec:}@var{recognizer} to disambiguate recognizers.
+    \G @code{rec-}@var{recognizer} to disambiguate recognizers.
     '?' $split dup 0= IF  2drop
     ELSE
-	2swap [: ." rec:" type ;] $tmp find-name ?dup-IF
+	2swap [: ." rec-" type ;] $tmp find-name ?dup-IF
 	    name?int execute  EXIT
 	THEN
     THEN
-    2drop r:fail ;
+    2drop rectype-null ;
 
-get-recognizers ' rec:meta swap 1+ set-recognizers
+' rec-meta forth-recognizer >back

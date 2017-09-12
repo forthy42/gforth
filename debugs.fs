@@ -137,7 +137,7 @@ is ?warning
     ." defined literal " 2dup type ."  as word" ;
 
 10 stack: warning-recs
-' rec:float ' rec:num 2 warning-recs set-stack
+' rec-float ' rec-num 2 warning-recs set-stack
 
 ' check-shadow >code-address dodefer: = [if]
 :noname  ( addr count wid -- )
@@ -146,8 +146,8 @@ is ?warning
     >r 2dup r> find-name-in dup
     ['] shadow-warning ?warning IF  2drop  EXIT  THEN
     warnings @ >r warnings off
-    sp@ fp@ 2>r 2dup warning-recs map-recognizer 2r> rot >r
-    fp! sp! r> r:fail <>  r> dup warnings ! 0<> and
+    sp@ fp@ 2>r 2dup warning-recs recognize 2r> rot >r
+    fp! sp! r> rectype-null <>  r> dup warnings ! 0<> and
     ['] shadow-num-warning ?warning  2drop
 ; is check-shadow
 [then]
@@ -272,7 +272,7 @@ Variable rec'
     sp@ fp@ 2>r parse-name  name-too-short?
     [: rec' ! ;] is trace-recognizer
     recognize 2r> rot >r fp! sp! r>  r> is trace-recognizer
-    dup r:fail = -#13 and throw
+    dup rectype-null = -#13 and throw
     dup >namevt @ >vtlit, @ ['] noop <> IF  drop rec' @  THEN ;
 
 : view-native ( "name" -- )

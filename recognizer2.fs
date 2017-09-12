@@ -33,11 +33,11 @@ require sections.fs
     c-addr u xt catch vt,
     2>r vtrestore previous-section wrap! 2r> throw ;
 
-: single-rec2 ( c-addr u -- nt|0 )
+: single-rec2 ( c-addr u -- nt|rectype-null )
     \ !! compilation does not work for some reason
     0. 2swap >number 0= if \ it is a number
 	2drop noname constant lastxt exit then
-    2drop drop r:fail ;
+    2drop drop rectype-null ;
 
 \ or (to get nicer decompilation for ['] and POSTPONE):
 
@@ -47,7 +47,7 @@ require sections.fs
 \     -13 throw \ don't fallback to the other recognizers in this demo
 \     2drop drop 0 ;
 
-: single-recognizer2 ( c-addr u -- nt|0 )
+: single-recognizer2 ( c-addr u -- nt|rectype-null )
     ['] single-rec2 rec2-wrapper ;
 
 get-recognizers ' single-recognizer2 -rot 1+ set-recognizers

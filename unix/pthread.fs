@@ -179,7 +179,10 @@ comp: drop ' >body @ postpone Literal ;
 ' next-task alias up@ ( -- addr )
 \G the current user pointer
 
-: >task ( user task -- user' )  + up@ - ;
+0 warnings !@
+: 's ( user task -- user' )  + up@ - ;
+\G get the tasks's address of our user variable
+warnings !
 
 epiper create_pipe \ create pipe for main task
 
@@ -199,11 +202,11 @@ Defer thread-init
     \G creates a task, each stack individually sized
     gforth_create_thread >r
     throw-entry r@ udp @ throw-entry up@ - /string move
-    word-pno-size chars r@ pagesize + over - dup holdbufptr r@ >task !
-    + dup holdptr r@ >task !  holdend r@ >task !
-    epiper r@ >task create_pipe
-    action-of kill-task >body  rp0 r@ >task @ 1 cells - dup rp0 r@ >task ! !
-    handler r@ >task off
+    word-pno-size chars r@ pagesize + over - dup holdbufptr r@ 's !
+    + dup holdptr r@ 's !  holdend r@ 's !
+    epiper r@ 's create_pipe
+    action-of kill-task >body  rp0 r@ 's @ 1 cells - dup rp0 r@ 's ! !
+    handler r@ 's off
     r> ;
 
 : newtask ( stacksize -- task )  dup 2dup newtask4 ;
@@ -215,8 +218,8 @@ Defer thread-init
 
 : (activate) ( task -- )
     \G activates task, the current procedure will be continued there
-    r> swap >r  save-task r@ >task !
-    pthread-id r@ >task pthread_detach_attr thread_start r> pthread_create drop ; compile-only
+    r> swap >r  save-task r@ 's !
+    pthread-id r@ 's pthread_detach_attr thread_start r> pthread_create drop ; compile-only
 
 : activate ( task -- )
     \G activates a task. The remaining part of the word calling
@@ -224,10 +227,10 @@ Defer thread-init
     ]] (activate) up! thread-init [[ ; immediate compile-only
 
 : (pass) ( x1 .. xn n task -- )
-    r> swap >r  save-task r@ >task !
-    1+ dup cells negate  sp0 r@ >task @ -rot  sp0 r@ >task +!
-    sp0 r@ >task @ swap 0 ?DO  tuck ! cell+  LOOP  drop
-    pthread-id r@ >task 0 thread_start r> pthread_create drop ; compile-only
+    r> swap >r  save-task r@ 's !
+    1+ dup cells negate  sp0 r@ 's @ -rot  sp0 r@ 's +!
+    sp0 r@ 's @ swap 0 ?DO  tuck ! cell+  LOOP  drop
+    pthread-id r@ 's 0 thread_start r> pthread_create drop ; compile-only
 
 : pass ( x1 .. xn n task -- )
     \G activates task, and passes n parameters from the data stack
@@ -295,7 +298,7 @@ User event-start
 	>r eventbuf# cell+ eventbuf# @ event-start @
 	?dup-if  /string  event-start @ 1- eventbuf# !  'event c@ event-start !
 	else  eventbuf# off  then
-	epipew r> >task @ write-file throw
+	epipew r> 's @ write-file throw
     ELSE  drop  THEN ;
 
 : event-crash  !!event!! throw ;

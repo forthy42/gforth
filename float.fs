@@ -189,15 +189,13 @@ si-prefixes count 2/ + Constant zero-exp
 [THEN]
 
 : flit, postpone Fliteral ;
-' noop ' flit, ' flit, recognizer r:float
+' noop ' flit, ' flit, rectype: rectype-float
 
-: rec:float ( addr u -- r r:float | r:fail )
+: rec-float ( addr u -- r rectype-float | rectype-null )
     \G recognize floating point numbers
-    prefix-number r:float r:fail rot select ;
+    prefix-number rectype-float rectype-null rot select ;
 
-' rec:float
-get-recognizers
-1+ set-recognizers
+' rec-float forth-recognizer >back
 
 : fvariable ( "name" -- ) \ float f-variable
     Create 0.0E0 f, ;

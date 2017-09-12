@@ -189,7 +189,7 @@ AUser CSP
 
 [ifdef] compiler-r
 : postponer-r ( addr u -- ... xt )
-    recognize dup
+    forth-recognizer recognize dup
     [ s" [[" find-name ] Literal =
     IF  drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
 
@@ -592,12 +592,12 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 :noname drop execute ;
 :noname 0> IF execute ELSE compile, THEN ;
 :noname postpone 2literal ;
-recognizer r:word ( takes xt +/-1, i.e. result of find and search-wordlist )
+rectype: r:word ( takes xt +/-1, i.e. result of find and search-wordlist )
 
-:noname r>int execute ;
-:noname r>comp execute ;
+:noname rectype>int execute ;
+:noname rectype>comp execute ;
 ' lit,
-recognizer r:name ( takes nt, i.e. result of find-name and find-name-in )
+rectype: r:name ( takes nt, i.e. result of find-name and find-name-in )
 
 \ concat recognizers to another recognizer
 
@@ -607,7 +607,7 @@ recognizer r:name ( takes nt, i.e. result of find-name and find-name-in )
     \G like on the recognizer stack
     n>r : nr> ]] 2>r [[ 0 ?DO
 	]] 2r@ [[ compile,
-	]] dup r:fail <> IF 2rdrop EXIT THEN drop [[
+	]] dup rectype-null <> IF 2rdrop EXIT THEN drop [[
     LOOP ]] 2rdrop ; [[ ;
 
 \ growing buffers that need not be full

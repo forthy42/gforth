@@ -28,6 +28,6 @@ Defer postpone-notfound1 ( addr u -- )
 ' no.extensions is postpone-notfound1
 
 ' interpret-notfound1 ' compiler-notfound1 ' postpone-notfound1
-recognizer r:notfound
+rectype: rectype-notfound
 
-r:notfound get-recognizers 1+ set-recognizers
+rectype-notfound forth-recognizer >back
