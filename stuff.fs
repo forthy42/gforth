@@ -587,17 +587,17 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 2>r : help ( -- ) [ 2r> ] 2literal type ; \ gforth
 \G Print some help for the first steps
 
-\ r:word and r:name
+\ rectype-word and rectype-name
 
 :noname drop execute ;
 :noname 0> IF execute ELSE compile, THEN ;
 :noname postpone 2literal ;
-rectype: r:word ( takes xt +/-1, i.e. result of find and search-wordlist )
+rectype: rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
 
 :noname rectype>int execute ;
 :noname rectype>comp execute ;
 ' lit,
-rectype: r:name ( takes nt, i.e. result of find-name and find-name-in )
+rectype: rectype-name ( takes nt, i.e. result of find-name and find-name-in )
 
 \ concat recognizers to another recognizer
 
