@@ -30,7 +30,8 @@
 	''' of  -1 to-style# !  endof
 	drop 2drop rectype-null  EXIT
     endcase
-    2 /string recognize dup rectype-null = IF  to-style# off  EXIT  THEN
+    2 /string forth-recognizer recognize
+    dup rectype-null = IF  to-style# off  EXIT  THEN
     name?int rectype-to ;
 
 ' rec-to forth-recognizer >back
