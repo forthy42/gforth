@@ -38,16 +38,16 @@ s" Config error" exception Value config-throw
 
 : eval-config ( .. rec addr u -- )  rot
     case
-	r:string of  '$' ['] $! [: drop free throw ;] exec-config  endof
-	r:num    of  '#' ['] !  ['] drop exec-config               endof
-	r:dnum   of  '&' ['] 2! ['] 2drop exec-config              endof
-	r:float  of  '%' ['] f! ['] fdrop exec-config              endof
+	rectype-string of  '$' ['] $! [: drop free throw ;] exec-config  endof
+	rectype-num    of  '#' ['] !  ['] drop exec-config               endof
+	rectype-dnum   of  '&' ['] 2! ['] 2drop exec-config              endof
+	rectype-float  of  '%' ['] f! ['] fdrop exec-config              endof
 	2drop .config-err
     endcase ;
 
 : config-line ( -- )
     '=' parse 2>r
-    parse-name config-recognizer map-recognizer 2r> eval-config
+    parse-name config-recognizer recognize 2r> eval-config
     postpone \ ;
 
 : read-config-loop ( -- )

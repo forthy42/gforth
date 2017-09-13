@@ -54,12 +54,12 @@ AConstant rectype-null
 :noname ( n -- n ) ;
 ' do-lit, set-optimizer
 lit,: ( n -- ) postpone Literal ;
-AConstant r:num
+AConstant rectype-num
 
 :noname ( d -- d ) ;
 ' do-lit, set-optimizer
 lit,: ( d -- ) postpone 2Literal ;
-AConstant r:dnum
+AConstant rectype-dnum
 
 \ snumber? should be implemented as recognizer stack
 
@@ -67,7 +67,7 @@ AConstant r:dnum
     \G converts a number to a single/double integer
     snumber?  dup
     IF
-	0> IF  r:dnum   ELSE  r:num  THEN  EXIT
+	0> IF  rectype-dnum   ELSE  rectype-num  THEN  EXIT
     THEN
     drop rectype-null ;
 
