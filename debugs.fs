@@ -271,7 +271,7 @@ Variable rec'
     what's trace-recognizer >r
     sp@ fp@ 2>r parse-name  name-too-short?
     [: rec' ! ;] is trace-recognizer
-    recognize 2r> rot >r fp! sp! r>  r> is trace-recognizer
+    forth-recognizer recognize 2r> rot >r fp! sp! r>  r> is trace-recognizer
     dup rectype-null = -#13 and throw
     dup >namevt @ >vtlit, @ ['] noop <> IF  drop rec' @  THEN ;
 

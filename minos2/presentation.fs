@@ -190,6 +190,9 @@ Variable slide#
     anims[] $@len IF  anim-end  THEN
     slide# @ ['] next-anim .5e >animate ;
 
+: slide-frame ( glue color -- o )
+    smallsize# }}frame ;
+
 box-actor class
 end-class slide-actor
 :noname
@@ -208,7 +211,7 @@ glue-left }}glue
 
 \ page 0
 {{
-glue*wh $FFFFFFFF smallsize# }}frame dup .button1 simple[]
+glue*wh $FFFFFFFF slide-frame dup .button1 simple[]
 {{
 dark-blue
 glue*1 }}glue \ $FFFFFFFF 4e }}frame dup .button1
@@ -223,14 +226,14 @@ glue*1 }}glue \ $FFFFFFFF 4e }}frame dup .button1
 
 \ page 1
 \ {{
-\ glue*wh $FFFFFFFF smallsize# }}frame dup .button1 simple[]
+\ glue*wh $FFFFFFFF slide-frame dup .button1 simple[]
 \ {{
 \ dark-blue
 \ largesize# to x-baseline
 \ large "Motivation" }}text /center
 \ medium
 \ {{
-\ glue*1 $FFBE00FF smallsize# }}frame dup .button1 simple[]
+\ glue*1 $FFBE00FF slide-frame dup .button1 simple[]
 \ {{
 \ "Bad Gateway" }}text /center
 \ "Internetkurort" }}text /center
@@ -242,7 +245,7 @@ glue*1 }}glue \ $FFFFFFFF 4e }}frame dup .button1
 
 \ page 2
 {{
-glue*wh $FF7F7FFF smallsize# }}frame dup .button1 simple[]
+glue*wh $FF7F7FFF slide-frame dup .button1 simple[]
 {{
 dark-blue
 largesize# to x-baseline
@@ -269,7 +272,7 @@ glue*1 }}glue
 
 \ page 3
 {{
-glue*wh $BFFFBFFF smallsize# }}frame dup .button1 simple[]
+glue*wh $BFFFBFFF slide-frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "Outlook from 2013" }}text /center
@@ -288,7 +291,7 @@ glue*1 }}glue
 
 \ page 4
 {{
-glue*wh $BFBFFFFF smallsize# }}frame dup .button1 simple[]
+glue*wh $BFBFFFFF slide-frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 vs. MINOΣ" }}text /center
@@ -306,7 +309,7 @@ glue*1 }}glue
 
 \ page 5
 {{
-glue*wh $FFBFFFFF smallsize# }}frame dup .button1 simple[]
+glue*wh $FFBFFFFF slide-frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 Widgets" }}text /center
@@ -331,7 +334,7 @@ glue*1 }}glue
 
 \ page 6
 {{
-glue*wh $BFFFFFFF smallsize# }}frame dup .button1 simple[]
+glue*wh $BFFFFFFF slide-frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 Boxes" }}text /center
@@ -351,7 +354,7 @@ glue*1 }}glue
 
 \ page 7
 {{
-glue*wh $FFFFBFFF smallsize# }}frame dup .button1 simple[]
+glue*wh $FFFFBFFF slide-frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 Displays" }}text /center
@@ -367,7 +370,7 @@ glue*1 }}glue
 
 \ page 8
 {{
-glue*wh $BFDFFFFF smallsize# }}frame dup .button1 simple[]
+glue*wh $BFDFFFFF slide-frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "Minimize Draw Calls" }}text /center
@@ -390,7 +393,7 @@ glue*1 }}glue
 
 \ page 9
 {{
-glue*wh $D4AF37FF smallsize# }}frame dup .button1 simple[]
+glue*wh $D4AF37FF slide-frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "Bonus page: BlockChain" }}text /center
@@ -411,7 +414,7 @@ glue*1 }}glue
 
 \ page 10
 {{
-glue*wh $FFFFFFFF smallsize# }}frame dup .button1 simple[]
+glue*wh $FFFFFFFF slide-frame dup .button1 simple[]
 {{
 largesize# to x-baseline
 large dark-blue "Literature&Links" }}text /center
