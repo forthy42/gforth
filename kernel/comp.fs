@@ -134,10 +134,11 @@ variable next-prelude
 0 Value replace-sourcepos1
 
 : current-sourcepos1 ( -- xpos )
-    replace-sourcepos1 dup IF  EXIT  THEN
-    drop  current-sourcepos3 encode-pos1 ;
+    current-sourcepos3 encode-pos1 ;
 
-: view, ( -- ) current-sourcepos1 , 0 to replace-sourcepos1 ;
+: view, ( -- )
+    replace-sourcepos1 current-sourcepos1 over select ,
+    0 to replace-sourcepos1 ;
 
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
