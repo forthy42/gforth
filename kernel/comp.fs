@@ -131,7 +131,7 @@ variable next-prelude
 : encode-pos1 ( nfile nline nchar -- xpos )
     encode-pos $7fffff min swap 23 lshift or ;
 
-0 Value replace-sourcepos1
+0 Value replace-sourcepos1 \ used by #loc to modify view,
 
 : current-sourcepos1 ( -- xpos )
     current-sourcepos3 encode-pos1 ;
