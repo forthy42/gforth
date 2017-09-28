@@ -183,12 +183,14 @@ Variable slide#
     fdup fnegate dpy-w @ fm* glue-left  .hglue-c df!
     -1e f+       dpy-w @ fm* glue-right .hglue-c df! ;
 
+[IFDEF] android 3e [ELSE] 1e [THEN] FValue slide-time%
+
 : prev-slide ( -- )
     anims[] $@len IF  anim-end  THEN
-    slide# @ ['] prev-anim .5e >animate ;
+    slide# @ ['] prev-anim slide-time% >animate ;
 : next-slide ( -- )
     anims[] $@len IF  anim-end  THEN
-    slide# @ ['] next-anim .5e >animate ;
+    slide# @ ['] next-anim slide-time% >animate ;
 
 : slide-frame ( glue color -- o )
     smallsize# }}frame ;
@@ -204,9 +206,11 @@ end-class slide-actor
 :noname
     over $8  and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
     over $10 and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
-    over -$2 and 0= IF  fover caller-w >o x f- w f2/ f< o>
-	IF  prev-slide  ELSE  next-slide  THEN
-	2drop fdrop fdrop  EXIT  THEN
+    over -$2 and 0= IF
+	fover caller-w >o x f- w f/ o>
+	fdup 0.1e f< IF  fdrop prev-slide  2drop fdrop fdrop  EXIT
+	ELSE  0.9e f> IF  next-slide  2drop fdrop fdrop  EXIT  THEN  THEN
+    THEN
     [ box-actor :: clicked ] ; slide-actor to clicked
 \ :noname ( $xy b -- )  dup 1 > IF
 \ 	[ box-actor :: touchdown ] EXIT
@@ -348,13 +352,13 @@ medium blackish
 fontsize# baselinesmall# f* to x-baseline
 "actor" " base class that reacts on all actions (clicks, touchs, keys)" bb\\
 "widget" " base class for all visible objects" bb\\
-"glue" " base class for flexible objects" bb\\
+{{ "edit" b1 blackish " editable text element " }}text
+chinese "中秋节快乐！" }}edit dup Value edit-field glue*1 }}glue }}h edit-field edit[] >o x-baseline to baseline o o>
+medium "glue" " base class for flexible objects" bb\\
 "tile" " colored rectangle" bb\\
 "frame" " colored rectangle with borders" bb\\
 "text" " text element" bb\\
-{{ "edit" b1 blackish " editable text element " }}text
-chinese "(text with cursor)" }}edit dup Value edit-field glue*1 }}glue }}h edit-field edit[] >o x-baseline to baseline o o>
-medium "icon" " image from an icon texture" bb\\
+"icon" " image from an icon texture" bb\\
 "image" " larger image" bb\\
 "animation" " action for animations" bb\\
 "canvas" " vector graphics (TBD)" bb\\
