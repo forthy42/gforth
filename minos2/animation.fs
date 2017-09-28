@@ -28,9 +28,10 @@ object class
     defer: animate ( addr rstate -- )
 end-class animation
 
+: new-anim-time ( rdelta rtime addr xt -- o )    
+    animation new >o to ani-start to ani-delta is animate to ani-addr o o> ;
 : new-anim ( rdelta addr xt -- o )
-    animation new >o ftime to ani-start to ani-delta is animate to ani-addr
-    o o> ;
+    ftime new-anim-time ;
 : >animate ( rdelta addr xt -- )
     new-anim anims[] >stack ;
 

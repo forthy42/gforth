@@ -194,11 +194,41 @@ Variable slide#
     smallsize# }}frame ;
 
 box-actor class
+    \ sfvalue: s-x
+    \ sfvalue: s-y
+    \ sfvalue: last-x
+    \ sfvalue: last-t
+    \ sfvalue: speed
 end-class slide-actor
+
 :noname
     over $8  and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
     over $10 and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
+    over -$2 and 0= IF  fover caller-w >o x f- w f2/ f< o>
+	IF  prev-slide  ELSE  next-slide  THEN
+	2drop fdrop fdrop  EXIT  THEN
     [ box-actor :: clicked ] ; slide-actor to clicked
+\ :noname ( $xy b -- )  dup 1 > IF
+\ 	[ box-actor :: touchdown ] EXIT
+\     THEN  drop
+\     xy@ to s-y to s-x ftime to last-t
+\     true to grab-move? ; slide-actor is touchdown
+\ :noname ( $xy b -- ) dup 1 > IF
+\ 	[ box-actor :: touchmove ] EXIT
+\     THEN  drop xy@ fdrop
+\     ftime last-t fover to last-t f- \ delta-t
+\     last-x fover to last-x f-       \ delta-x
+\     fswap f/ caller-w .w f/ to speed
+\     last-x s-x f- caller-w .w f/ fdup f0< IF \ to the right
+\ 	1e f+ slide# @ prev-anim
+\     ELSE \ to the left
+\ 	slide# @ next-anim
+\     THEN ; slide-actor is touchmove
+\ :noname ( $xy b -- )  dup 1 > IF
+\ 	[ box-actor :: touchup ] EXIT
+\     THEN  2drop
+\     slide# @ 1e next-anim
+\     false to grab-move? ; slide-actor is touchup
 
 : slide[] ( o -- o )
     >o slide-actor new to act o act >o to caller-w o> o o> ;
