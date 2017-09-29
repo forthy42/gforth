@@ -20,7 +20,7 @@
 require widgets.fs
 
 [IFDEF] android
-    hidekb also android hidestatus previous ekey drop
+    hidekb also android hidestatus previous ekey drop ekey drop
 [THEN]
 
 also minos
@@ -227,7 +227,7 @@ box-actor class
     \ sfvalue: speed
 end-class slide-actor
 
-:noname
+:noname ( -- )
     over $8  and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
     over $10 and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
     over -$2 and 0= IF
@@ -494,6 +494,7 @@ to top-widget
 also [IFDEF] android android [THEN]
 
 : widgets-demo ( -- )
+    [IFDEF] hidestatus hidekb hidestatus [THEN]
     !widgets widgets-loop ;
 
 previous

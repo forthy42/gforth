@@ -380,9 +380,13 @@ public class Gforth
 	if (Build.VERSION.SDK_INT < 16) {
 	    getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	}
-	else {
+	else if (Build.VERSION.SDK_INT < 19) {
 	    getWindow().getDecorView().setSystemUiVisibility(0x1004);
 	    // View.SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+	}
+	else {
+	    getWindow().getDecorView().setSystemUiVisibility(0x806);
+	    // View.SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_IMMERSIVE
 	}
     }
     public void setEditLine(String line, int curpos) {
