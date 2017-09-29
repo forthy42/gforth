@@ -494,8 +494,8 @@ require unix/pthread.fs
 previous set-current
 
 User xptimeout  cell uallot drop
-#16000000 Value xpoll-timeout# \ 16ms, don't sleep too long
-xpoll-timeout# 0 xptimeout 2!
+#16 Value looper-to# \ 16ms, don't sleep too long
+looper-to# #1000000 um* xptimeout 2!
 3 Value xpollfd#
 User xpollfds
 xpollfds pollfd xpollfd# * dup cell- uallot drop erase
@@ -516,7 +516,7 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
 Defer ?looper-timeouts ' noop is ?looper-timeouts
 
-: #looper ( delay -- )
+: #looper ( delay -- ) #1000000 *
     ?looper-timeouts >poll-events >r
     dpy IF  dpy XPending IF  get-events ?events  rdrop EXIT  THEN  THEN
     xpollfds r> xpoll
@@ -527,7 +527,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 	THEN
     THEN ;
 
-: >looper ( -- )  xpoll-timeout# #looper ;
+: >looper ( -- )  looper-to# #looper ;
 : >exposed  ( -- )  exposed off  BEGIN  >looper exposed @  UNTIL ;
 : >select   ( -- )  got-selection off  BEGIN  >looper got-selection @  UNTIL ;
 : select@ ( $addr -- addr u )

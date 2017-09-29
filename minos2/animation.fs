@@ -40,7 +40,7 @@ end-class animation
     ani-delta f0< IF  1e fswap f-  THEN ;
 : anims@ ( -- anim1 .. animn n )
     anims[] get-stack anims[] $free ;
-: animations ( -- )
+: animations ( -- ) time( ." anim:  " .!time cr ) 
     ftime { f: now }
     anims@ 0 ?DO
 	>o now anim-t IF  o anims[] >stack  THEN

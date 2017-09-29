@@ -20,6 +20,13 @@
 \ A MINOS2 widget is composed of drawable elements, boxes and actors.
 \ to make things easier, neither drawable elements nor boxes need an actor.
 
+debug: time(
+
+[IFUNDEF] !@time
+    : !@time ( -- delta-f ) ntime timer-tick 2@ 2over timer-tick 2! d- d>f 1n f* ;
+    : .!time ( -- ) !@time (.time) ;
+[THEN]
+
 [IFUNDEF] no-file#
     2 Constant ENOENT
     #-512 ENOENT - Constant no-file#
@@ -200,7 +207,7 @@ end-class tile
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
     { f: w f: h } fover w f+ fover h f+ ;
 : tile-draw ( -- )
-    xywh >xyxy draw-rectangle GL_TRIANGLES draw-elements ;
+    xywh >xyxy draw-rectangle ;
 
 ' tile-draw tile is draw-bg
 
@@ -279,6 +286,7 @@ end-class text
 
 Variable glyphs$
 Variable need-glyphs
+Variable need-ap
 
 : text! ( addr u font -- )
     to text-font to text$  need-glyphs on ;
@@ -315,7 +323,8 @@ text class
     value: start-curpos \ selection mode
 end-class edit
 
-:noname text-init  need-glyphs @ IF
+:noname need-glyphs @ IF
+	text-init
 	cursize 0= setstring$ $@len and IF
 	    setstring$ $@ load-glyph$
 	THEN
@@ -376,29 +385,36 @@ $FFFF7FFF Value setstring-color
 
 \ draw wrapper
 
+also freetype-gl
 : <draw-init ( -- )
-    -1e 1e >apxy
-    .01e 100e 100e >ap
-    0.01e 0.02e 0.15e 1.0e glClearColor
+    -1e 1e >apxy  .01e 100e 100e >ap
     Ambient 1 ambient% glUniform1fv
-    0 to box-flip#
+    0.01e 0.02e 0.15e 1.0e glClearColor  clear
+    [IFUNDEF] texture_atlas_t-modified
+	0 to box-flip#
+    [THEN]
 ;
+
 : draw-init> ( -- )
-    [IFDEF]  texture_atlas_t-modified
+    [IFDEF] texture_atlas_t-modified
 	atlas texture_atlas_t-modified c@ IF
-	    gen-atlas-tex
+	    gen-atlas-tex time( ." atlas: " .!time cr )
 	    0 atlas texture_atlas_t-modified c!
 	THEN
     [ELSE]
-	need-glyphs @ IF  gen-atlas-tex  THEN
+	need-glyphs @ IF
+	    gen-atlas-tex time( ." atlas: " .!time cr )
+	    need-glyphs off
+	THEN
+	3 to box-flip#
     [THEN]
-    clear  need-glyphs off
-    3 to box-flip#
 ;
+previous
 
 : <draw-bg ( -- ) v0 i0
     z-bias set-color+
-    program glUseProgram  style-tex ;
+    program glUseProgram
+    style-tex ;
 
 : <draw-icon ( -- )  ; \ icon draw, one draw call in total
 : <draw-thumbnail ( -- )  ; \ icon draw, one draw call in total
@@ -612,15 +628,15 @@ $10 stack: box-depth
 
 \ draw everything
 
-: widget-draw ( o:widget -- )
-    <draw-init      draw-init      draw-init>
-    <draw-bg        draw-bg        render>
-    <draw-icon      draw-icon      render>
-    <draw-thumbnail draw-thumbnail render>
-    <draw-image     draw-image     draw-image>
-    <draw-marking   draw-marking   render>
-    <draw-text      draw-text      render>
-    sync ;
+: widget-draw ( o:widget -- )  time( ." draw:  " .!time cr )
+    <draw-init      draw-init      draw-init>  time( ." init:  " .!time cr )
+    <draw-bg        draw-bg        render>     time( ." bg:    " .!time cr )
+    <draw-icon      draw-icon      render>     time( ." icon:  " .!time cr )
+    <draw-thumbnail draw-thumbnail render>     time( ." thumb: " .!time cr )
+    <draw-image     draw-image     draw-image> time( ." img:   " .!time cr )
+    <draw-marking   draw-marking   render>     time( ." mark:  " .!time cr )
+    <draw-text      draw-text      render>     time( ." text:  " .!time cr )
+    sync time( ." sync:  " .!time cr ) ;
 
 \ viewport: Draw into a frame buffer
 
@@ -660,15 +676,18 @@ require actors.fs
 require animation.fs
 
 : htop-resize ( -- )
-    !size 0e 1e dh* 1e dw* 1e dh* 0e resize ;
+    !size 0e 1e dh* 1e dw* 1e dh* 0e resize time( ." resize: " .!time cr ) ;
 
 : widgets-loop ( -- )
     [IFDEF] hidekb  hidekb [THEN]  enter-minos
     1 level# +! top-widget .widget-draw
-    BEGIN  >looper
+    BEGIN  0 looper-to# anims[] $@len need-sync @ or select
+	#looper  time( ." looper: " .!time cr )
 	[IFDEF] android  ?config-changer  [THEN]
 	anims[] $@len IF  animations true  ELSE  need-sync @  THEN
-	IF  top-widget >o htop-resize widget-draw o>  need-sync off  THEN
+	IF  top-widget >o htop-resize widget-draw time( ." animate: " .!time cr )
+	    o>
+	    need-sync off  THEN
 	need-keyboard @ IF
 	    [IFDEF] showkb showkb [THEN]
 	    need-keyboard off  THEN

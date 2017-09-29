@@ -36,11 +36,11 @@ s" os-type" environment? [IF]
 	: use-egl ;
     [ELSE]
 	2dup s" darwin" str= >r s" linux-gnu" string-prefix? r> or [IF]
-	    [IFDEF] use-egl
-		require unix/opengles.fs
-	    [ELSE]
+	    [IFDEF] use-glx
 		require unix/opengl.fs
-		: use-glx ;
+	    [ELSE]
+		require unix/opengles.fs
+		: use-egl ;
 	    [THEN]
 	    also opengl
 
