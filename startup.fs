@@ -28,37 +28,27 @@ require except.fs \ included on command line
 [THEN]
 
 warnings off
-include search.fs
-include options.fs
-include environ.fs
-include ~+/envos.fs
-include errors.fs
-include hash.fs
-
-[ifundef] xemit
-    require kernel/xchars.fs
-[then]
-\ require interpretation.fs
-\ include float.fs
-\ include search.fs
+require search.fs
+require options.fs
+require environ.fs
+require ~+/envos.fs
+require errors.fs
+require hash.fs
 require compat/strcomp.fs
 require glocals.fs
 require float.fs
 require stuff.fs
-include wordinfo.fs
-include vt100.fs
-\ include colorize.fs
-include bufio.fs
+require wordinfo.fs
+require vt100.fs
+require bufio.fs
 require utf-8.fs
-\ include vt100key.fs \ ekey.fs now does the same
 require debugs.fs
 require assert.fs
 require blocks.fs
-\ require intcomp.fs
 require savesys.fs
 require table.fs
 require ekey.fs
-include history.fs
+require history.fs
 require quotes.fs
 require quotedstring.fs
 require parsedto.fs
@@ -75,7 +65,8 @@ require libcc.fs
 require prelude.fs
 require str-exec.fs
 require gforthrc.fs
-include ansi.fs
+require ansi.fs
+\ require colorize.fs
 require obsolete.fs
 require locate1.fs
 
