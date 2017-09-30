@@ -83,6 +83,7 @@
 require search.fs
 require float.fs
 require extend.fs \ for case
+require compat/caseext.fs
 
 User locals-size \ this is the current size of the locals stack
 		 \ frame of the current word
