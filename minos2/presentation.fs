@@ -19,6 +19,10 @@
 
 require widgets.fs
 
+[IFDEF] android
+    hidekb also android hidestatus previous ekey drop ekey drop
+[THEN]
+
 also minos
 
 also freetype-gl
@@ -43,6 +47,22 @@ dpy-h @ s>f dpy-w @ s>f f/ .33e f/ FConstant baselinemedium#
     [THEN]
 [THEN]
 2dup file-status throw drop 2Constant latin-font
+
+[IFDEF] android
+    "/system/fonts/DroidSansMono.ttf"
+[ELSE]
+    "/usr/share/fonts/truetype/LiberationMono-Regular.ttf"
+    2dup file-status nip [IF]
+	2drop "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf"
+	2dup file-status nip [IF]
+	    2drop "/usr/share/fonts/truetype/NotoSans-Regular.ttf"
+	    2dup file-status nip [IF]
+		2drop "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"
+	    [THEN]
+	[THEN]
+    [THEN]
+[THEN]
+2dup file-status throw drop 2Constant mono-font
 
 [IFDEF] android
     "/system/fonts/DroidSans.ttf"
@@ -83,6 +103,7 @@ dpy-h @ s>f dpy-w @ s>f f/ .33e f/ FConstant baselinemedium#
 2dup file-status throw drop 2constant chinese-font
 
 atlas fontsize# latin-font open-font   Value font1
+atlas fontsize# mono-font  open-font   Value font1m
 atlas smallsize# latin-font open-font  Value font1s
 atlas largesize# latin-font open-font  Value font1l
 atlas fontsize# italic-font open-font   Value font1i
@@ -95,6 +116,7 @@ largesize# FValue x-baseline
 : small font1s to x-font ;
 : medium font1 to x-font ;
 : italic font1i to x-font ;
+: mono   font1m to x-font ;
 : large font1l to x-font ;
 : chinese font2 to x-font ;
 : blackish $FF to x-color ;
@@ -183,14 +205,16 @@ Variable slide#
     fdup fnegate dpy-w @ fm* glue-left  .hglue-c df!
     -1e f+       dpy-w @ fm* glue-right .hglue-c df! ;
 
-[IFDEF] android 3e [ELSE] 1e [THEN] FValue slide-time%
+1e FValue slide-time%
 
 : prev-slide ( -- )
-    anims[] $@len IF  anim-end  THEN
-    slide# @ ['] prev-anim slide-time% >animate ;
+    slide-time% anims[] $@len IF  anim-end .2e f*  THEN
+    slide# @ ['] prev-anim
+    >animate ;
 : next-slide ( -- )
-    anims[] $@len IF  anim-end  THEN
-    slide# @ ['] next-anim slide-time% >animate ;
+    slide-time% anims[] $@len IF  anim-end .2e f*  THEN
+    slide# @ ['] next-anim
+    >animate ;
 
 : slide-frame ( glue color -- o )
     smallsize# }}frame ;
@@ -203,13 +227,13 @@ box-actor class
     \ sfvalue: speed
 end-class slide-actor
 
-:noname
+:noname ( -- )
     over $8  and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
     over $10 and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
     over -$2 and 0= IF
 	fover caller-w >o x f- w f/ o>
-	fdup 0.1e f< IF  fdrop prev-slide  2drop fdrop fdrop  EXIT
-	ELSE  0.9e f> IF  next-slide  2drop fdrop fdrop  EXIT  THEN  THEN
+	fdup 0.1e f< IF  fdrop  2drop fdrop fdrop  prev-slide  EXIT
+	ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
     THEN
     [ box-actor :: clicked ] ; slide-actor to clicked
 \ :noname ( $xy b -- )  dup 1 > IF
@@ -453,9 +477,9 @@ glue*wh $FFFFFFFF slide-frame dup .button1 simple[]
 largesize# to x-baseline
 large dark-blue "Literature&Links" }}text /center
 medium blackish
-"Bernd Paysan" " net2o fossil repository" b2i\\
+"Bernd Paysan " "net2o fossil repository" b2i\\
 fontsize# baselinesmall# f* to x-baseline medium
-"" " https://fossil.net2o.de/net2o/" b2\\
+mono "" "https://fossil.net2o.de/net2o/" b2\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
 }}z slide[] /flip dup >slides
@@ -470,8 +494,12 @@ to top-widget
 also [IFDEF] android android [THEN]
 
 : widgets-demo ( -- )
+    [IFDEF] hidestatus hidekb hidestatus [THEN]
     !widgets widgets-loop ;
 
 previous
 
-script? [IF] widgets-demo bye [THEN]
+script? [IF]
+    next-arg s" time" str= [IF]  +db time( \ ) [THEN]
+    widgets-demo bye
+[THEN]

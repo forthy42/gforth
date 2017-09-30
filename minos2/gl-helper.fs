@@ -36,11 +36,11 @@ s" os-type" environment? [IF]
 	: use-egl ;
     [ELSE]
 	2dup s" darwin" str= >r s" linux-gnu" string-prefix? r> or [IF]
-	    [IFDEF] use-egl
-		require unix/opengles.fs
-	    [ELSE]
+	    [IFDEF] use-glx
 		require unix/opengl.fs
-		: use-glx ;
+	    [ELSE]
+		require unix/opengles.fs
+		: use-egl ;
 	    [THEN]
 	    also opengl
 
@@ -707,6 +707,7 @@ array-buf Value buf^
 index-buf Value index^
 
 : draw-elements ( type -- )
+    buf^ array-buf = index^ index-buf = or ?EXIT
     GL_ARRAY_BUFFER 0 buf^ array-buf - array-buf glBufferSubData
     GL_ELEMENT_ARRAY_BUFFER 0 index^ index-buf - index-buf glBufferSubData
     index^ index-buf - 2/ GL_UNSIGNED_SHORT 0 glDrawElements ;

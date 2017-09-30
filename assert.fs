@@ -138,3 +138,6 @@ Variable timer-list
     f>s 3 .r ." ns " ;
 : .time ( -- )
     @time (.time) ;
+
+: !@time ( -- delta-f ) ntime timer-tick 2@ 2over timer-tick 2! d- d>f 1n f* ;
+: .!time ( -- ) !@time (.time) ;

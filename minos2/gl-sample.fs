@@ -121,3 +121,4 @@ previous previous
 win 0= [IF] window-init [THEN]
 
 gl-sample
+script? [IF] bye [THEN]

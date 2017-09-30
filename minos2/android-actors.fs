@@ -201,7 +201,7 @@ also jni
 previous
 
 : enter-minos ( -- )
-    edit-widget edit-out !
+    edit-widget edit-out !  need-ap on
     ['] touch>action   is android-touch
     ['] key>action     is android-key
     ['] edit-setstring is android-setstring

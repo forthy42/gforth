@@ -158,7 +158,6 @@ program init
     .01e 100e 100e >ap
     atlas-tex v0 i0 ;
 
-: render> ( -- )  GL_TRIANGLES draw-elements
-    ( Coloradd 0e fdup fdup fdup glUniform4f ) ;
+: render> ( -- )  GL_TRIANGLES draw-elements ;
 
 previous previous
