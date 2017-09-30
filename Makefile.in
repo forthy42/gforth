@@ -258,6 +258,7 @@ GFORTH_FI_SRC2=\
 	i18n.fs \
 	libcc.fs \
 	locals.fs \
+	locate1.fs \
 	look.fs \
 	mkdir.fs \
 	obsolete.fs \

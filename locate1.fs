@@ -216,6 +216,20 @@ variable code-locations 0 code-locations !
 : where ( "name" -- )
     parse-name find-name [: over = ;] forwheres drop ;
 
+\ count word usage
+
+: usage# ( nt -- n )
+    \G count usage of the word @var{nt}
+    0 wheres $@ bounds U+DO
+	over i where-nt @ = -
+    where-struct +LOOP  nip ;
+
+: .wids ( nt1 .. ntn n ) cr 0 swap 0 ?DO swap .word LOOP drop ;
+: unused-words ( -- )
+    \G list all words without usage
+    0 [: dup usage# 0= IF  swap 1+  ELSE  drop  THEN  true ;]
+    context @ traverse-wordlist .wids ;
+
 \ test
 
 : foo 0 @ ;
