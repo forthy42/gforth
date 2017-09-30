@@ -79,6 +79,7 @@ require str-exec.fs
 require gforthrc.fs
 include ansi.fs
 require obsolete.fs
+require locate1.fs
 
 \ define the environmental queries for all the loaded wordsets
 \ since the blocks wordset is loaded in a single file, its queries

@@ -27,7 +27,9 @@
     then ;
 
 : locate-line {: c-addr1 u1 lineno -- c-addr2 u2 lineno+1 c-addr1 u3 :}
-     u1 0 u+do
+    \ c-addr1 u1 is the rest of the file, c-addr1 u3 the line, and
+    \ c-addr2 u2 the rest of the file without the line
+    u1 0 u+do
 	c-addr1 u1 i /string s\" \r\l" string-prefix? if
 	    c-addr1 u1 i 2 + /string lineno 1+ c-addr1 i unloop exit then
 	c-addr1 i + c@ dup #lf = swap #cr = or if
@@ -98,8 +100,10 @@
     \g Enter the editor at the place of "name"
     (') name-set-located-xpos g ;
 
+
 \ backtrace locate stuff:
 
+0 [if]
 256 1024 * constant bl-data-size
 
 0
@@ -176,6 +180,41 @@ variable code-locations 0 code-locations !
     xt-location2 ;
 
 ' xt-location1 is xt-location
+[then]
+
+\ where
+
+: unbounds ( c-start c-end -- c-start u )
+    over - ;
+    
+: .wheretype ( c-addr u xpos -- )
+    xpos>char >r -trailing over r> + {: c-pos :} 2dup + {: c-lineend :} 
+    (parse-white) drop ( c-addr1 )
+    warn-color attr! c-pos unbounds type
+    err-color  attr! c-pos c-lineend unbounds (parse-white) tuck type
+    warn-color attr! c-pos + c-lineend unbounds type
+    default-color attr! ;
+    
+: .whereline {: xpos -- :}
+    xpos xpos>file# loadfilename#>str slurp-file 1 case ( c-addr u lineno1 )
+	over 0= ?of endof
+	dup xpos xpos>line = ?of locate-line xpos .wheretype endof
+	locate-next-line
+    next-case
+    drop 2drop ;
+
+: .wherepos1 ( xpos -- )
+    dup .sourcepos1 ": " type .whereline ;
+
+: forwheres ( ... xt -- ... )
+    { xt } wheres $@ bounds u+do
+	i where-nt @ xt execute if
+	    i where-loc @ cr .wherepos1
+	then
+    where-struct +loop ;
+
+: where ( "name" -- )
+    parse-name find-name [: over = ;] forwheres drop ;
 
 \ test
 
