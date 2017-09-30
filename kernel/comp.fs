@@ -271,9 +271,16 @@ defer basic-block-end ( -- )
     0 compile-prim1 ;
 is basic-block-end
 
-defer xt-location ( addr -- addr )
+\ record locations
+
+40 value bt-pos-width
+0 AValue locs-start
+$variable locs[]
+
+: xt-location ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
-' noop is xt-location
+    dup locs-start - cell/ >r
+    current-sourcepos1 dup r> 1+ locs[] $[] cell- 2! ;
 
 has? primcentric [IF]
     has? peephole [IF]

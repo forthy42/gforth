@@ -119,6 +119,20 @@
     $@ BEGIN  dup  WHILE  r@ $split i' -rot >r >r execute r> r>
     REPEAT  2drop rdrop rdrop ;
 
+\ basics for string arrays
+
+: $[] ( n addr -- addr' )
+    \G index into the string array and return the address at index n
+    \G The array will be resized as needed
+    >r
+    r@ @ 0= IF  s" " r@ $!  THEN
+    BEGIN  r@ $@ 2 pick cells /string
+	dup cell < WHILE \ this will be satisfied next round
+	2drop r@ $@len
+	over 1+ cells r@ $!len
+	r@ $@ rot /string 0 fill
+    REPEAT  drop nip rdrop ;
+
 \ auto-save and restore strings in images
 
 : $boot ( $addr -- )

@@ -32,6 +32,8 @@ dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !
 
 unlock vt, tvtable-list @ lock vtable-list !
 
+here to locs-start
+
 \ list of arrays to restore at boot
 align here boot[][] ! boot[][],
 

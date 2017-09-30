@@ -33,7 +33,6 @@ include options.fs
 include environ.fs
 include ~+/envos.fs
 include errors.fs
-include record-locs.fs
 include hash.fs
 
 [ifundef] xemit
@@ -43,6 +42,7 @@ include hash.fs
 \ include float.fs
 \ include search.fs
 require compat/strcomp.fs
+require glocals.fs
 require float.fs
 require stuff.fs
 include wordinfo.fs

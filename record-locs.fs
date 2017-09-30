@@ -19,12 +19,6 @@
 
 require string.fs
 
-40 value bt-pos-width
-0 Value locs-start
-Variable locs[]
-: xt-location1 ( addr -- addr )
-    dup locs-start - cell/ >r
-    current-sourcepos1 dup r> 1+ locs[] $[] cell- 2! ;
 : record-locs ( -- )
     \G record locations to annotate backtraces with source locations
     here to locs-start  locs[] $free

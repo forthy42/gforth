@@ -295,6 +295,8 @@ constant where-struct
     then
     drop ;
 
+\ find and friends
+
 ' lookup is context
 forth-wordlist current !
 
