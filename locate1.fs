@@ -22,7 +22,6 @@
 
 : slurp-located ( -- )
     located-slurped 2@ drop 0= if
-	." slurp located" cr
 	located-xpos @ xpos>file# loadfilename#>str slurp-file
 	located-slurped 2!
     then ;
@@ -46,7 +45,7 @@
     >r 2dup r> umin tuck type /string ;
 
 : locate-type ( c-addr u lineno -- )
-    cr located-xpos @ xpos>line = if
+    located-xpos @ xpos>line = if
 	warn-color attr! located-xpos @ xpos>char type-prefix
 	err-color  attr! located-len @            type-prefix
 	warn-color attr! type
@@ -62,7 +61,7 @@
     located-slurped 2@ 1 case ( c-addr u lineno1 )
 	over 0= ?of endof
 	dup located-bottom @ >= ?of endof
-	dup located-top @ >= ?of locate-print-line contof
+	dup located-top @ >= ?of cr locate-print-line contof
 	locate-next-line
     next-case
     2drop drop ;
@@ -178,9 +177,11 @@ variable code-locations 0 code-locations !
 
 \ where
 
+\ currently unused
 : unbounds ( c-start c-end -- c-start u )
     over - ;
-    
+
+\ also unused
 : .wheretype ( c-addr u xpos -- )
     xpos>char >r -trailing over r> + {: c-pos :} 2dup + {: c-lineend :} 
     (parse-white) drop ( c-addr1 )
@@ -192,13 +193,13 @@ variable code-locations 0 code-locations !
 : .whereline {: xpos u -- :}
     \ print the part of the source line around xpos that fits in the
     \ current line, of which u characters have already been used
-    xpos xpos>file# loadfilename#>str slurp-file over >r
-    1 case ( c-addr u lineno1 )
+    xpos located-len @ set-located-xpos
+    slurp-located located-slurped 2@ 1 case ( c-addr u lineno1 )
 	over 0= ?of endof
-	dup xpos xpos>line = ?of locate-line xpos .wheretype endof
+	dup xpos xpos>line = ?of locate-print-line endof
 	locate-next-line
     next-case
-    drop 2drop r> free throw ;
+    drop 2drop ;
 
 : .wherepos1 ( xpos -- )
     dup .sourcepos1-width ": " type 2 + .whereline ;
@@ -211,7 +212,7 @@ variable code-locations 0 code-locations !
     where-struct +loop ;
 
 : where ( "name" -- )
-    parse-name find-name [: over = ;] forwheres drop ;
+    parse-name dup located-len ! find-name [: over = ;] forwheres drop ;
 
 \ count word usage
 
