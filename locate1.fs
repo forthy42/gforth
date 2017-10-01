@@ -22,6 +22,7 @@
 
 : slurp-located ( -- )
     located-slurped 2@ drop 0= if
+	." slurp located" cr
 	located-xpos @ xpos>file# loadfilename#>str slurp-file
 	located-slurped 2!
     then ;
@@ -191,12 +192,13 @@ variable code-locations 0 code-locations !
 : .whereline {: xpos u -- :}
     \ print the part of the source line around xpos that fits in the
     \ current line, of which u characters have already been used
-    xpos xpos>file# loadfilename#>str slurp-file 1 case ( c-addr u lineno1 )
+    xpos xpos>file# loadfilename#>str slurp-file over >r
+    1 case ( c-addr u lineno1 )
 	over 0= ?of endof
 	dup xpos xpos>line = ?of locate-line xpos .wheretype endof
 	locate-next-line
     next-case
-    drop 2drop ;
+    drop 2drop r> free throw ;
 
 : .wherepos1 ( xpos -- )
     dup .sourcepos1-width ": " type 2 + .whereline ;
@@ -228,15 +230,21 @@ lcount-mask 1+ Constant unused-mask
     >f+c unused-mask over @ or swap ! ;
 : -unused ( nt -- )
     >f+c unused-mask invert over @ and swap ! ;
-: unused-words ( -- )
-    \G list all words without usage
-    [: +unused true ;] context @ traverse-wordlist
+: unused-all ( wid -- )
+    [: +unused true ;] swap traverse-wordlist ;
+: unmark-used ( -- )
     wheres $@ bounds U+DO
 	i where-nt @ dup forthstart here within
 	IF  -unused  ELSE  drop  THEN
-    where-struct +LOOP
+    where-struct +LOOP ;
+: unused@ ( wid -- nt1 .. ntn n )
     0 [: dup >f+c @ unused-mask and IF
 	    dup -unused swap 1+
 	ELSE  drop  THEN  true ;]
-    context @ traverse-wordlist .wids ;
+    swap traverse-wordlist ;
+: unused-wordlist ( wid -- )
+    dup unused-all unmark-used unused@ .wids ;
+: unused-words ( -- )
+    \G list all words without usage
+    context @ unused-wordlist ;
 

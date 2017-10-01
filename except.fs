@@ -106,8 +106,9 @@ variable located-bottom \ last line to display with l
 : set-located-xpos ( xpos len -- )
     over xpos>file# located-xpos @ xpos>file# <> if
 	located-slurped 2@ drop ?dup-if
-	    free throw then
-	0 0 located-slurped 2! then
+	    free throw
+	    0 0 located-slurped 2! then
+    then
     located-len ! dup located-xpos ! dup bn-xpos !
     xpos>line
     dup before-locate - 0 max located-top !

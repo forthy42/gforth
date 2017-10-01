@@ -242,9 +242,9 @@ Variable locate-file[]
     LOOP ;
 
 : view-name {: nt -- :}
-    locate-file[] $[]off
+    locate-file[] $[]free
     warn-color attr!  nt name>view @ dup cr .sourcepos1  default-color attr!
-    dup located-xpos ! nt name>string nip dup located-len ! show-pos1 ;
+    nt name>string nip 2dup set-located-xpos show-pos1 ;
 
 : +locate-lines ( n -- pos )
     >r located-xpos @ decode-pos1 swap r> + 0 max
