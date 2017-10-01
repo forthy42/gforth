@@ -224,10 +224,25 @@ variable code-locations 0 code-locations !
 	over i where-nt @ = -
     where-struct +LOOP  nip ;
 
+\ display unused words
+
+lcount-mask 1+ Constant unused-mask
+
 : .wids ( nt1 .. ntn n ) cr 0 swap 0 ?DO swap .word LOOP drop ;
+: +unused ( nt -- )
+    >f+c unused-mask over @ or swap ! ;
+: -unused ( nt -- )
+    >f+c unused-mask invert over @ and swap ! ;
 : unused-words ( -- )
     \G list all words without usage
-    0 [: dup usage# 0= IF  swap 1+  ELSE  drop  THEN  true ;]
+    [: +unused true ;] context @ traverse-wordlist
+    wheres $@ bounds U+DO
+	i where-nt @ dup forthstart here within
+	IF  -unused  ELSE  drop  THEN
+    where-struct +LOOP
+    0 [: dup >f+c @ unused-mask and IF
+	    dup -unused swap 1+
+	ELSE  drop  THEN  true ;]
     context @ traverse-wordlist .wids ;
 
 \ test
