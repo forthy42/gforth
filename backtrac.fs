@@ -96,8 +96,12 @@ is defer-default
 	?dup-IF  nip  EXIT  THEN
     THEN  drop 0 ;
 
+: .sourcepos1-width ( xpos -- u )
+    \ prints sourcepos1, returns width of printed string
+    ['] .sourcepos1 $tmp 2dup type x-width ;
+    
 : .backtrace-pos1 ( addr -- )
     addr>pos1 dup IF
-	['] .sourcepos1 $tmp 2dup type x-width  THEN
+	.sourcepos1-width THEN
     bt-pos-width swap - 1 max spaces ;
 ' .backtrace-pos1 is .backtrace-pos

@@ -347,6 +347,7 @@ $10000000 constant prelude-mask
 1 bits/char 4 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
                           [ELSE] 0 1 cells 1- times c, [THEN]
+\ $01000000 constant unused-mask \ defined in locate1.fs, used only temporarily
 \ reserve 8 bits for all possible flags in total
 $00ffffff constant lcount-mask
 0 -1 cells allot  bigendian [IF]   c, -1 1 cells 1- times

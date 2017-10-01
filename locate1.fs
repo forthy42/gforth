@@ -103,6 +103,9 @@
 
 \ backtrace locate stuff:
 
+\ an alternative implementation of much of this stuff is elsewhere.
+\ The following implementation works for code in sections, too, but
+\ currently does not survive SAVESYSTEM.
 0 [if]
 256 1024 * constant bl-data-size
 
@@ -127,36 +130,13 @@ variable code-locations 0 code-locations !
 	    bl-next @ repeat
     drop ;
 
-: lookup-location ( addr -- pos1|0 )
+: addr>pos1 ( addr -- pos1|0 )
     code-locations @ begin ( addr bl )
 	dup while
 	    2dup bl-bounds 2@ within if
 		tuck bl-bounds 2@ drop  - + bl-data @ exit then
 	    bl-next @ repeat
     2drop 0 ;
-
-40 value bt-pos-width
-
-[ifdef] .backtrace-pos
-: .backtrace-pos1 ( addr -- )
-    cell- lookup-location dup if
-	dup .sourcepos1 then
-    drop bt-pos-width out @ - 1 max spaces ;
-' .backtrace-pos1 is .backtrace-pos
-[then]
-
-: bt-location ( u -- f )
-    \ locate-setup backtrace entry with index u; returns true iff successful
-    cells >r stored-backtrace $@ r@ u> if ( addr1 r: offset )
-	r> + @ cell- lookup-location dup if ( xpos )
-	    1 set-located-xpos true exit then
-    else
-	rdrop then
-    drop ." no location for this backtrace index" false ;
-
-: lb ( u -- )
-    bt-location if
-	l then ;
 
 : xt-location2 ( addr bl -- addr )
     \ knowing that addr is within bl, record the current source
@@ -182,6 +162,19 @@ variable code-locations 0 code-locations !
 ' xt-location1 is xt-location
 [then]
 
+: bt-location ( u -- f )
+    \ locate-setup backtrace entry with index u; returns true iff successful
+    cells >r stored-backtrace $@ r@ u> if ( addr1 r: offset )
+	r> + @ cell- addr>pos1 dup if ( xpos )
+	    1 set-located-xpos true exit then
+    else
+	rdrop then
+    drop ." no location for this backtrace index" false ;
+
+: lb ( u -- )
+    bt-location if
+	l then ;
+
 \ where
 
 : unbounds ( c-start c-end -- c-start u )
@@ -195,7 +188,9 @@ variable code-locations 0 code-locations !
     warn-color attr! c-pos + c-lineend unbounds type
     default-color attr! ;
     
-: .whereline {: xpos -- :}
+: .whereline {: xpos u -- :}
+    \ print the part of the source line around xpos that fits in the
+    \ current line, of which u characters have already been used
     xpos xpos>file# loadfilename#>str slurp-file 1 case ( c-addr u lineno1 )
 	over 0= ?of endof
 	dup xpos xpos>line = ?of locate-line xpos .wheretype endof
@@ -204,7 +199,7 @@ variable code-locations 0 code-locations !
     drop 2drop ;
 
 : .wherepos1 ( xpos -- )
-    dup .sourcepos1 ": " type .whereline ;
+    dup .sourcepos1-width ": " type 2 + .whereline ;
 
 : forwheres ( ... xt -- ... )
     { xt } wheres $@ bounds u+do
@@ -245,11 +240,3 @@ lcount-mask 1+ Constant unused-mask
 	ELSE  drop  THEN  true ;]
     context @ traverse-wordlist .wids ;
 
-\ test
-
-: foo 0 @ ;
-
-: foo1 10 0 do foo loop ;
-: foo2 foo1 ;
-
-\ foo2
