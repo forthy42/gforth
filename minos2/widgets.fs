@@ -117,6 +117,7 @@ object class
     sfvalue: h \ above baseline
     sfvalue: d \ below baseline
     sfvalue: border \ surrounding border
+    sfvalue: baseline \ minimun skip per line
     method draw-init ( -- ) \ init draw
     method draw-bg ( -- ) \ button background draw
     method draw-icon ( -- ) \ icons draw
@@ -479,7 +480,6 @@ end-class box
 
 box class end-class hbox \ horizontal alignment
 box class
-    sfvalue: baseline \ minimun skip per line
 end-class vbox \ vertical alignment
 box class end-class zbox \ overlay alignment
 
