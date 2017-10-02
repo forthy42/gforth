@@ -115,7 +115,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
 
 : recognize ( addr u rec-addr -- tokens table )
     \G apply a recognizer stack to a string, delivering a token
-    $@ bounds cell- swap cell- -DO
+    $@ bounds cell- swap cell- U-DO
 	2dup I -rot 2>r
 	perform dup rectype-null <>  IF
 	    2rdrop I @ trace-recognizer  UNLOOP  EXIT  THEN  drop

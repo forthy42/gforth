@@ -109,7 +109,6 @@ end-class actor
 ' noop actor is show-you
 
 object class
-    value: next-w
     value: parent-w
     value: act
     sfvalue: x
@@ -441,7 +440,7 @@ Variable style-i#
 \ boxes
 
 glue class
-    value: child-w
+    field: childs[]
     field: box-flags
     method resized
     method map
@@ -449,9 +448,9 @@ end-class box
 
 : do-childs { xt -- .. }
     box-flags @ box-flip# and ?EXIT
-    child-w >o
-    BEGIN  xt execute  next-w o>  dup  WHILE  >o  REPEAT
-    drop ;
+    childs[] $@ bounds U+DO
+	xt I @ .execute
+    cell +LOOP ;
 
 :noname ( -- )
     ['] !size do-childs
@@ -472,9 +471,9 @@ end-class box
     ELSE  !size xywhd resize     \ downwards
     THEN ; widget to resized
 
-: +child ( o -- )
-    child-w o 2 pick >o to parent-w to next-w o> to child-w ;
-: +childs ( o1 .. on n -- ) 0 +DO  +child  LOOP ;
+: +child ( o -- ) o over >o to parent-w o> childs[] >back ;
+: +childs ( o1 .. on n -- ) childs[] set-stack
+    o [: dup to parent-w ;] do-childs drop ;
 
 \ glue arithmetics
 
@@ -649,7 +648,7 @@ box class
 end-class viewport
 
 :noname vp-w vp-h vp-tex >framebuffer
-    child-w .widget-draw
+    ['] widget-draw do-childs
     0>framebuffer ; viewport to draw-init
 :noname ( -- )
     1-bias set-color+ vp-tex

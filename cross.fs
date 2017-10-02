@@ -805,6 +805,7 @@ Plugin do,	( -- do-token )
 Plugin ?do,	( -- ?do-token )
 Plugin +do,	( -- ?do-token )
 Plugin -do,	( -- ?do-token )
+Plugin u-do,	( -- ?do-token )
 Plugin for,	( -- for-token )
 Plugin loop,	( do-token / ?do-token -- )
 Plugin +loop,	( do-token / ?do-token -- )
@@ -1792,7 +1793,7 @@ T has? relocate H
 >CROSS
 
 Ghost (do)      Ghost (?do)                     2drop
-Ghost (+do)     Ghost (-do)                     2drop
+Ghost (+do)     Ghost (-do)     Ghost (u-do)    2drop drop
 Ghost (for)                                     drop
 Ghost (loop)    Ghost (+loop)   Ghost (-loop)   2drop drop
 Ghost (next)                                    drop
@@ -3738,6 +3739,10 @@ Cond: ENDCASE   endcase, ;Cond
     0 compile (-do)  ?domark, (leave)
     branchtomark,  2 to1 ;			' (-do,) plugin-of -do,
 
+: (u-do,) ( -- target-addr )
+    0 compile (u-do)  ?domark, (leave)
+    branchtomark,  2 to1 ;			' (u-do,) plugin-of u-do,
+
 : (for,) ( -- target-addr )
   compile (for) branchtomark, ;			' (for,) plugin-of for,
 
@@ -3760,6 +3765,7 @@ Cond: DO      	do, ;Cond
 Cond: ?DO     	?do, ;Cond
 Cond: +DO     	+do, ;Cond
 Cond: -DO     	-do, ;Cond
+Cond: U-DO     	u-do, ;Cond
 Cond: FOR	for, ;Cond
 
 Cond: LOOP	1 ncontrols? loop, ;Cond
