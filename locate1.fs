@@ -42,7 +42,7 @@
 
 : type-prefix ( c-addr1 u1 u -- c-addr2 u2 )
     \ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
-    >r 2dup r> umin tuck type /string ;
+    >r 2dup r> umin tuck type safe/string ;
 
 : locate-type ( c-addr u lineno -- )
     located-xpos @ xpos>line = if
