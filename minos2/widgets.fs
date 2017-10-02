@@ -452,6 +452,8 @@ end-class box
     childs[] $@ bounds U+DO
 	xt I @ .execute
     cell +LOOP ;
+: do-lastchild ( xt -- .. )
+    childs[] $[]# 1- childs[] $[] @ .execute ;
 
 :noname ( -- )
     ['] !size do-childs
@@ -523,8 +525,10 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : glue-drop ( t s a -- ) fdrop fdrop fdrop ;
 
 : hglue+ 0glue box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs ;
-: dglue+ 0glue box-flags @ box-vflip# and ?EXIT [: glue-drop dglue@ ;] do-childs ; \ last dglue
-: vglue+ 0glue box-flags @ box-vflip# and ?EXIT 0glue [: vglue@ glue+ baseglue glue* glue+ dglue@ ;] do-childs
+: dglue+ 0glue box-flags @ box-vflip# and ?EXIT
+    [: glue-drop dglue@ ;] do-lastchild ; \ last dglue
+: vglue+ 0glue box-flags @ box-vflip# and ?EXIT
+    0glue [: vglue@ glue+ baseglue glue* glue+ dglue@ ;] do-childs
     glue-drop ;
 
 : hglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
