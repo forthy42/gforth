@@ -17,7 +17,6 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-[IFUNDEF] $!
 : delete   ( buffer size u -- ) \ gforth-string
     \G deletes the first @var{u} bytes from a buffer and fills the
     \G rest at the end with blanks.
@@ -39,7 +38,7 @@
 	dup #16 rshift or
 	[ cell 8 = [IF] ]
 	    dup #32 rshift or
-	    [ [THEN] ] 1+ ;
+	[ [THEN] ] 1+ ;
 [THEN]
 
 : $padding ( n -- n' ) \ gforth-string
