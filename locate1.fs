@@ -17,15 +17,31 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+variable included-file-buffers
+\ Bernd-array of c-addr u descriptors for read-only buffers that
+\ contain the contents of the included files (same index as
+\ included-files); filled on demand and cleared on session end.
+:noname ( -- )
+    0 included-file-buffers ! defers 'cold ; is 'cold
+
+: included-buffer ( u -- c-addr u2 )
+    \ u is the index into included-files, c-addr u2 describes a buffer
+    \ containing the content of the file, or 0 0, if the file cannot
+    \ be read.
+    >r included-file-buffers $@len r@ 2* cells u< if
+	r@ 1+ 2* cells included-file-buffers $!len then
+    included-file-buffers $@ drop r@ 2* cells + ( addr r:u )
+    dup 2@ over 0= if ( addr c-addr3 u3 r:u )
+	2drop r@ included-files $[]@ ['] slurp-file catch if
+	    2drop 0 0 then
+	2dup 4 pick 2! then
+    rot r> 2drop ;
+
+: xpos>buffer ( xpos -- c-addr u )
+    xpos>file# included-buffer ;
+
 : set-bn-xpos ( -- )
     bn-xpos @ xpos>file# located-top @ 0 encode-pos1 bn-xpos ! ;
-
-: slurp-located ( -- )
-    located-slurped 2@ drop 0= if
-	." slurp located" cr
-	located-xpos @ xpos>file# loadfilename#>str slurp-file
-	located-slurped 2!
-    then ;
 
 : locate-line {: c-addr1 u1 lineno -- c-addr2 u2 lineno+1 c-addr1 u3 :}
     \ c-addr1 u1 is the rest of the file, c-addr1 u3 the line, and
@@ -57,9 +73,12 @@
 : locate-print-line ( c-addr1 u1 lineno -- c-addr2 u2 lineno+1 )
     dup >r locate-line r> locate-type ;
 
+
+: located-buffer ( -- c-addr u )
+    located-xpos @ xpos>buffer ;
+
 : l1 ( -- )
-    slurp-located
-    located-slurped 2@ 1 case ( c-addr u lineno1 )
+    located-buffer 1 case ( c-addr u lineno1 )
 	over 0= ?of endof
 	dup located-bottom @ >= ?of endof
 	dup located-top @ >= ?of locate-print-line contof
@@ -192,13 +211,13 @@ variable code-locations 0 code-locations !
 : .whereline {: xpos u -- :}
     \ print the part of the source line around xpos that fits in the
     \ current line, of which u characters have already been used
-    xpos xpos>file# loadfilename#>str slurp-file over >r
+    xpos xpos>buffer
     1 case ( c-addr u lineno1 )
 	over 0= ?of endof
 	dup xpos xpos>line = ?of locate-line xpos .wheretype endof
 	locate-next-line
     next-case
-    drop 2drop r> free throw ;
+    drop 2drop ;
 
 : .wherepos1 ( xpos -- )
     dup .sourcepos1-width ": " type 2 + .whereline ;
