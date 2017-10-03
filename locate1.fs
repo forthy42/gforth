@@ -28,14 +28,20 @@ variable included-file-buffers
     \ u is the index into included-files, c-addr u2 describes a buffer
     \ containing the content of the file, or 0 0, if the file cannot
     \ be read.
-    >r included-file-buffers $@len r@ 2* cells u< if
-	r@ 1+ 2* cells included-file-buffers $!len then
-    included-file-buffers $@ drop r@ 2* cells + ( addr r:u )
-    dup 2@ over 0= if ( addr c-addr3 u3 r:u )
-	2drop r@ included-files $[]@ ['] slurp-file catch if
-	    2drop 0 0 then
-	2dup 4 pick 2! then
-    rot r> 2drop ;
+    >r r@ included-file-buffers $[] >r
+    r@ $@ dup IF  rdrop rdrop  EXIT  THEN  2drop
+    i' included-files $[]@ r@ ['] $slurp-file catch IF
+	drop 2drop 0 0  r> $free rdrop  EXIT  THEN
+    r> $@ rdrop ;
+
+    \ >r included-file-buffers $@len r@ 2* cells u< if
+    \ 	r@ 1+ 2* cells included-file-buffers $!len then
+    \ included-file-buffers $@ drop r@ 2* cells + ( addr r:u )
+    \ dup 2@ over 0= if ( addr c-addr3 u3 r:u )
+    \ 	2drop r@ included-files $[]@ ['] slurp-file catch if
+    \ 	    2drop 0 0 then
+    \ 	2dup 4 pick 2! then
+    \ rot r> 2drop ;
 
 : xpos>buffer ( xpos -- c-addr u )
     xpos>file# included-buffer ;

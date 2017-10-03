@@ -121,17 +121,15 @@
 
 \ basics for string arrays
 
-: $[] ( n addr -- addr' )
-    \G index into the string array and return the address at index n
+: $room ( u $addr -- )
+    \G generate room for at least u bytes, erase when expanding
+    >r dup r@ $@len tuck u<= IF  rdrop 2drop EXIT  THEN
+    - dup r> $+!len swap 0 fill ;
+
+: $[] ( u $[]addr -- addr' )
+    \G index into the string array and return the address at index @var{u}
     \G The array will be resized as needed
-    >r
-    r@ @ 0= IF  s" " r@ $!  THEN
-    BEGIN  r@ $@ 2 pick cells /string
-	dup cell < WHILE \ this will be satisfied next round
-	2drop r@ $@len
-	over 1+ cells r@ $!len
-	r@ $@ rot /string 0 fill
-    REPEAT  drop nip rdrop ;
+    >r cells dup cell+ r@ $room  r> $@ drop + ;
 
 \ auto-save and restore strings in images
 
