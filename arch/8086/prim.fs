@@ -186,7 +186,7 @@ end-macros
  \ i/o
   Variable lastkey      \ Flag und Zeichencode der letzen Taste
 
-  Code (key)    ( -- char ) \ get character
+  Code key    ( -- char ) \ get character
     tos push,
     lastkey #) ax mov,
     ah ah or,  0= IF, 7 # ah mov,  $21 int, THEN,
@@ -196,7 +196,7 @@ end-macros
     next,
    End-Code
 
-  Code (emit)     ( char -- ) \ output character
+  Code emit     ( char -- ) \ output character
     tosl dl mov,
     6 # ah mov,
     $ff # dl cmp,  0= IF, dl dec, THEN,

@@ -6,6 +6,7 @@ env:
   - M32=-m32
   - EC=misc
   - EC=r8c
+  - EC=8086
 language: c
 compiler: gcc
 sudo: true

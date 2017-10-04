@@ -311,11 +311,11 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 
 	(("create" "variable" "constant" "2variable" "2constant" "fvariable"
-	  "fconstant" "value" "2value" "fvalue" "field" "user" "vocabulary"
-	  "cs-vocabulary" "create-interpret/compile" "interpret/compile:"
-	  "debug:" "field:" "2field:" "ffield:" "sffield:" "dffield:"
-	  "uvar" "uvalue" "cfield:" "wfield:" "lfield:" "+field"
-	  "value:" "cvalue:" "wvalue:" "swvalue:" "lvalue:" "slvalue:"
+	  "$variable" "fconstant" "value" "2value" "fvalue" "field" "user"
+	  "vocabulary" "cs-vocabulary" "create-interpret/compile"
+	  "interpret/compile:" "debug:" "field:" "2field:" "ffield:"
+	  "sffield:" "dffield:" "uvar" "uvalue" "cfield:" "wfield:" "lfield:"
+	  "+field" "value:" "cvalue:" "wvalue:" "swvalue:" "lvalue:" "slvalue:"
 	  "2value:" "fvalue:" "sfvalue:" "dfvalue:" "$value:" "defer:"
 	  "wrap+value:")
 	 non-immediate (font-lock-type-face . 2)

@@ -66,10 +66,11 @@ Variable color $FFC0A0FF color !
     glyph texture_glyph_t-height @ s>f { f: w f: h }    
     xp xo f+  yp yo f- { f: x0 f: y0 }
     x0 w f+ y0 h f+ { f: x1 f: y1 }
-    glyph texture_glyph_t-s0 sf@ { f: s0 }
-    glyph texture_glyph_t-t0 sf@ { f: t0 }
-    glyph texture_glyph_t-s1 sf@ atlas# 2* s>f 1/f f- { f: s1 }
-    glyph texture_glyph_t-t1 sf@ atlas# 2* s>f 1/f f- { f: t1 }
+    atlas# 2* s>f 1/f { f: fixup }
+    glyph texture_glyph_t-s0 sf@ fixup f- { f: s0 }
+    glyph texture_glyph_t-t0 sf@ fixup f- { f: t0 }
+    glyph texture_glyph_t-s1 sf@ fixup f- { f: s1 }
+    glyph texture_glyph_t-t1 sf@ fixup f- { f: t1 }
     >v
     x0 y0 >xy n> color @ rgba>c s0 t0 >st v+
     x1 y0 >xy n> color @ rgba>c s1 t0 >st v+
