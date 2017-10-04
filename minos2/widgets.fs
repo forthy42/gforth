@@ -226,7 +226,7 @@ end-class image
 
 ' noop       image is draw-bg
 :noname ( -- )
-    1-bias set-color+ image-tex
+    z-bias set-color+ image-tex
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
     i0 v0 i?  frame-color >v
     x1 y2 >xy dup rgba>c n> 0e 1e >st v+
@@ -683,7 +683,7 @@ require animation.fs
 
 : widgets-loop ( -- )
     [IFDEF] hidekb  hidekb [THEN]  enter-minos
-    1 level# +! top-widget .widget-draw
+    1 level# +!  top-widget .widget-draw
     BEGIN  0 looper-to# anims[] $@len need-sync @ or select
 	#looper  time( ." looper: " .!time cr )
 	[IFDEF] android  ?config-changer  [THEN]

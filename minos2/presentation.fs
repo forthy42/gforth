@@ -31,6 +31,7 @@ fontsize# 2 3 fm*/ fround FConstant smallsize#
 fontsize# f2* FConstant largesize#
 dpy-h @ s>f dpy-w @ s>f f/ .42e f/ FConstant baselinesmall#
 dpy-h @ s>f dpy-w @ s>f f/ .33e f/ FConstant baselinemedium#
+dpy-h @ s>f 720e f/ FConstant pixelsize#
 
 [IFDEF] android
     "/system/fonts/DroidSans.ttf"
@@ -140,6 +141,14 @@ largesize# FValue x-baseline
     >o box-hflip# box-flags ! o o> ;
 : /flop ( o -- o )
     >o 0 box-flags ! o o> ;
+: }}image-file ( xt addr u r -- o glue-o ) pixelsize# f*
+    2 pick execute
+    load-texture glue new >o
+    s>f fover f* vglue-c df!
+    s>f       f* hglue-c df! o o> dup >r
+    $ffffffff rot }}image r> ;
+: }}image-tex ( xt glue -- o )
+    $ffffffff rot }}image ;
 
 glue new Constant glue-left
 glue new Constant glue-right
@@ -178,32 +187,30 @@ Variable slides[]
 Variable slide#
 : >slides ( o -- ) slides[] >stack ;
 
+: glue0 ( -- )
+    glue-left  >o 0glue hglue-c glue! o>
+    glue-right >o 0glue hglue-c glue! o> ;
+: !slides ( nprev n -- )
+    slides[] $[] @ /flip drop
+    dup slide# ! slides[] $[] @ /flop drop glue0 ;
+: anim!slides ( r0..1 n -- )
+    slides[] $[] @ /flop drop
+    fdup fnegate dpy-w @ fm* glue-left  .hglue-c df!
+    -1e f+       dpy-w @ fm* glue-right .hglue-c df! ;
+
 : prev-anim ( n r0..1 -- )
     dup 0<= IF  drop fdrop  EXIT  THEN
     fdup 1e f>= IF  fdrop
-	dup slides[] $[] @ /flip drop
-	1- dup slide# ! slides[] $[] @ /flop drop
-	glue-left  >o 0glue hglue-c glue! o>
-	glue-right >o 0glue hglue-c glue! o>  EXIT
+	dup 1- swap !slides  EXIT
     THEN
-    sin-t
-    1- slides[] $[] @ /flop drop
-    1e fswap f-
-    fdup fnegate dpy-w @ fm* glue-left  .hglue-c df!
-    -1e f+       dpy-w @ fm* glue-right .hglue-c df! ;
+    sin-t 1e fswap f- 1- anim!slides ;
 
 : next-anim ( n r0..1 -- )
     dup slides[] $[]# 1- u>= IF  drop fdrop  EXIT  THEN
     fdup 1e f>= IF  fdrop
-	dup slides[] $[] @ /flip drop
-	1+ dup slide# ! slides[] $[] @ /flop drop
-	glue-left  >o 0glue hglue-c glue! o>
-	glue-right >o 0glue hglue-c glue! o>  EXIT
+	dup 1+ swap !slides  EXIT
     THEN
-    sin-t
-    1+ slides[] $[] @ /flop drop
-    fdup fnegate dpy-w @ fm* glue-left  .hglue-c df!
-    -1e f+       dpy-w @ fm* glue-right .hglue-c df! ;
+    sin-t 1+ anim!slides ;
 
 1e FValue slide-time%
 
@@ -264,12 +271,27 @@ end-class slide-actor
 glue-left  >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 glue-right >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 
+tex: minos2
+' minos2 "net2o-minos2.png" 0.666e }}image-file Constant minos2-glue
+
+: minos2-img ( -- o )
+    x-baseline 0e to x-baseline
+    {{
+    ['] minos2 minos2-glue }}image-tex /right
+    glue*1 }}glue
+    }}v box[] >o fontsize# f2/ to border o o>
+    to x-baseline ;
+: pres-frame ( color -- o1 o2 )
+    glue*wh swap slide-frame dup .button1 simple[] ;
+
+{{
+minos2-img
 {{
 glue-left }}glue
 
 \ page 0
 {{
-glue*wh $FFFFFFFF slide-frame dup .button1 simple[]
+$FFFFFFFF pres-frame
 {{
 dark-blue
 glue*1 }}glue \ $FFFFFFFF 4e }}frame dup .button1
@@ -283,27 +305,24 @@ glue*1 }}glue \ $FFFFFFFF 4e }}frame dup .button1
 }}z slide[] dup >slides
 
 \ page 1
-\ {{
-\ glue*wh $FFFFFFFF slide-frame dup .button1 simple[]
-\ {{
-\ dark-blue
-\ largesize# to x-baseline
-\ large "Motivation" }}text /center
-\ medium
-\ {{
-\ glue*1 $FFBE00FF slide-frame dup .button1 simple[]
-\ {{
-\ "Bad Gateway" }}text /center
-\ "Internetkurort" }}text /center
-\ }}v box[]
-\ }}z box[]
-\ glue*1 }}glue
-\ }}v box[] >o fontsize# to border o o>
-\ }}z slide[] /flip dup >slides
+{{
+$FFFFFFFF pres-frame
+{{
+dark-blue
+largesize# to x-baseline
+large "Motivation" }}text /center
+medium
+glue*1 }}glue
+tex: bad-gateway
+' bad-gateway "bad-gateway.png" 0.666e }}image-file
+Constant bgw-glue /center
+glue*1 }}glue
+}}v box[] >o fontsize# to border o o>
+}}z slide[] /flip dup >slides
 
 \ page 2
 {{
-glue*wh $FF7F7FFF slide-frame dup .button1 simple[]
+$FF7F7FFF pres-frame
 {{
 dark-blue
 largesize# to x-baseline
@@ -330,7 +349,7 @@ glue*1 }}glue
 
 \ page 3
 {{
-glue*wh $BFFFBFFF slide-frame dup .button1 simple[]
+$BFFFBFFF pres-frame
 {{
 largesize# to x-baseline
 large dark-blue "Outlook from 2013" }}text /center
@@ -349,7 +368,7 @@ glue*1 }}glue
 
 \ page 4
 {{
-glue*wh $BFBFFFFF slide-frame dup .button1 simple[]
+$BFBFFFFF pres-frame
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 vs. MINOΣ" }}text /center
@@ -367,7 +386,7 @@ glue*1 }}glue
 
 \ page 5
 {{
-glue*wh $FFBFFFFF slide-frame dup .button1 simple[]
+$FFBFFFFF pres-frame
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 Widgets" }}text /center
@@ -392,7 +411,7 @@ glue*1 }}glue
 
 \ page 6
 {{
-glue*wh $BFFFFFFF slide-frame dup .button1 simple[]
+$BFFFFFFF pres-frame
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 Boxes" }}text /center
@@ -412,7 +431,7 @@ glue*1 }}glue
 
 \ page 7
 {{
-glue*wh $FFFFBFFF slide-frame dup .button1 simple[]
+$FFFFBFFF pres-frame
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 Displays" }}text /center
@@ -428,7 +447,7 @@ glue*1 }}glue
 
 \ page 8
 {{
-glue*wh $BFDFFFFF slide-frame dup .button1 simple[]
+$BFDFFFFF pres-frame
 {{
 largesize# to x-baseline
 large dark-blue "Minimize Draw Calls" }}text /center
@@ -451,7 +470,7 @@ glue*1 }}glue
 
 \ page 9
 {{
-glue*wh $D4AF37FF slide-frame dup .button1 simple[]
+$D4AF37FF pres-frame
 {{
 largesize# to x-baseline
 large dark-blue "Bonus page: BlockChain" }}text /center
@@ -472,7 +491,7 @@ glue*1 }}glue
 
 \ page 10
 {{
-glue*wh $FFFFFFFF slide-frame dup .button1 simple[]
+$FFFFFFFF pres-frame
 {{
 largesize# to x-baseline
 large dark-blue "Literature&Links" }}text /center
@@ -486,7 +505,7 @@ glue*1 }}glue
 
 \ end
 glue-right }}glue
-}}h box[]
+}}h box[] }}z box[]
 to top-widget
 
 : !widgets ( -- ) top-widget .htop-resize ;
@@ -502,4 +521,6 @@ previous
 script? [IF]
     next-arg s" time" str= [IF]  +db time( \ ) [THEN]
     widgets-demo bye
+[ELSE]
+    widgets-demo
 [THEN]

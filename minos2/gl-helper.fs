@@ -707,7 +707,7 @@ array-buf Value buf^
 index-buf Value index^
 
 : draw-elements ( type -- )
-    buf^ array-buf = index^ index-buf = or ?EXIT
+    buf^ array-buf = index^ index-buf = or IF  drop  EXIT  THEN
     GL_ARRAY_BUFFER 0 buf^ array-buf - array-buf glBufferSubData
     GL_ELEMENT_ARRAY_BUFFER 0 index^ index-buf - index-buf glBufferSubData
     index^ index-buf - 2/ GL_UNSIGNED_SHORT 0 glDrawElements ;
