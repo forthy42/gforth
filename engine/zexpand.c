@@ -50,7 +50,7 @@ void zexpand(char * zfile)
     // LOGI("File %c: %s size %d\n", filename[0], filename+1, filesize);
 
     if((len1==sizebuf) && (len2==sizeof(int32_t))) {
-      char filebuf[filesize];
+      char *filebuf=malloc(filesize);
       int len3=(filesize==0) ? 0 : gzread(file, filebuf, filesize);
       
       if((len3==filesize)) {
@@ -78,6 +78,7 @@ void zexpand(char * zfile)
 	  break;
 	}
       }
+      free(filebuf);
     }
   }
   gzclose(file);
