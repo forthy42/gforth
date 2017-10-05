@@ -266,7 +266,7 @@ lcount-mask 1+ Constant unused-mask
     0 [: dup >f+c @ unused-mask and IF
 	    dup -unused swap 1+
 	ELSE  drop  THEN  true ;]
-    swap traverse-wordlist ;
+    rot traverse-wordlist ;
 : unused-wordlist ( wid -- )
     dup unused-all unmark-used unused@ .wids ;
 : unused-words ( -- )
