@@ -114,5 +114,5 @@ dsetup-debdist:	$(SOURCES) $(FORTH_GEN0) $(FORTH_GEN_FAST) @GKERNEL@ $(DOCDIST) 
 		make package=$$PWD/debian install
 
 ddebdist:
-		dpkg-buildpackage -d -b $(DEBARCH)
+		dpkg-buildpackage -uc -us -d -b $(DEBARCH)
 
