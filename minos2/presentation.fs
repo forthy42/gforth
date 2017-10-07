@@ -29,9 +29,9 @@ also freetype-gl
 dpy-w @ s>f 42e f/ fround FConstant fontsize#
 fontsize# 2 3 fm*/ fround FConstant smallsize#
 fontsize# f2* FConstant largesize#
-dpy-h @ s>f dpy-w @ s>f f/ .42e f/ FConstant baselinesmall#
-dpy-h @ s>f dpy-w @ s>f f/ .33e f/ FConstant baselinemedium#
-dpy-h @ s>f 720e f/ FConstant pixelsize#
+dpy-h @ s>f dpy-w @ s>f f/ .42e f/ fround FConstant baselinesmall#
+dpy-h @ s>f dpy-w @ s>f f/ .33e f/ fround FConstant baselinemedium#
+dpy-w @ s>f 1280e f/ FConstant pixelsize#
 
 [IFDEF] android
     "/system/fonts/DroidSans.ttf"

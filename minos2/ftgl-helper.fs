@@ -57,15 +57,16 @@ Variable fonts[] \ stack of used fonts
 2 sfloats buffer: penxy
 Variable color $FFC0A0FF color !
 1e FValue x-scale
+0.5e FConstant 1/2
 
 : xy, { glyph -- }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
     glyph texture_glyph_t-offset_x sl@ s>f
     glyph texture_glyph_t-offset_y sl@ s>f { f: xo f: yo }
     glyph texture_glyph_t-width  @ s>f x-scale f*
-    glyph texture_glyph_t-height @ s>f { f: w f: h }    
-    xp xo f+  yp yo f- { f: x0 f: y0 }
-    x0 w f+ y0 h f+ { f: x1 f: y1 }
+    glyph texture_glyph_t-height @ s>f { f: w f: h }
+    xp xo f+ fround 1/2 f+  yp yo f- fround 1/2 f+ { f: x0 f: y0 }
+    x0 w f+ fround 1/2 f+   y0 h f+ fround 1/2 f+ { f: x1 f: y1 }
     atlas# 2* s>f 1/f { f: fixup }
     glyph texture_glyph_t-s0 sf@ fixup f- { f: s0 }
     glyph texture_glyph_t-t0 sf@ fixup f- { f: t0 }
