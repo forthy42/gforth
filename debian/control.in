@@ -22,6 +22,7 @@ Package: gforth-common
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
+Recommends: gforth-minos2
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.

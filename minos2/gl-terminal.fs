@@ -122,9 +122,9 @@ $ffbfbfbf le-l, \ dimm White
 
 Variable color-index
 Variable err-color-index
-bl dup $70 and 5 lshift or $F0F and 4 lshift
-dup color-index ! err-color-index !
+$704000 dup color-index ! err-color-index !
 Variable std-bg
+Black std-bg !
 1 pad ! pad c@ [IF] \ little endian
     2 cfield: fg-field
     cfield: bg-field drop
@@ -162,9 +162,12 @@ Variable std-bg
     warn-color $F0F and over or to warn-color drop ;
 
 : >white White std-bg! White err-bg! Black fg! Red err-fg!
-    White >extra-colors-bg White >bg Black >fg or to default-color ;
+    White >extra-colors-bg White >bg Black >fg or to default-color
+    $70004000 dup color-index ! err-color-index ! ;
 : >black Black std-bg! Black err-bg! White fg! Red err-fg!
-    Black >extra-colors-bg Black >bg White >fg or to default-color ;
+    Black >extra-colors-bg Black >bg White >fg or to default-color
+    $704000 dup color-index ! err-color-index ! ;
+>black
 
 256 Value videocols
 0   Value videorows
