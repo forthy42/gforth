@@ -32,7 +32,7 @@
 \ The keycode names are compatible with pfe-0.9.14
 
 $80000000 constant keycode-start
-$80000019 constant keycode-limit
+$8000001D constant keycode-limit
 
 create keycode-table keycode-limit keycode-start - cells allot
 
@@ -67,7 +67,7 @@ $4 mask-shift# lshift constant k-ctrl-mask ( -- u )  \ X:ekeys
     simple-fkey-string type
     dup k-shift-mask and if ."  k-shift-mask or" then
     dup k-ctrl-mask  and if ."  k-ctrl-mask or"  then
-        k-alt-mask   and if ."  k-alt-mask or"   then ;
+    ( ) k-alt-mask   and if ."  k-alt-mask or"   then ;
 
 keycode-start
 keycode k-left   ( -- u ) \ X:ekeys  
@@ -102,7 +102,11 @@ keycode k-f11 ( -- u ) \ X:ekeys
 keycode k-f12 ( -- u ) \ X:ekeys
 
 keycode k-winch ( -- u ) \ gforth
-keycode k-eof ( -- u ) \ gforth
+keycode k-pause ( -- u ) \ gforth
+keycode k-mute  ( -- u ) \ gforth
+keycode k-volup ( -- u ) \ gforth
+keycode k-voldown ( -- u ) \ gforth
+keycode k-eof ( -- u ) \ gforth, always the last gforth-specific keycode
 drop
     
 ' k-f1  alias k1  ( -- u ) \ gforth-obsolete
@@ -237,63 +241,68 @@ Variable ekey-buffer
 \ a documentation file. Do this because key sequences [ and OR here clash with
 \ standard names and so prevent them appearing in the documentation. 
 [IFUNDEF] put-doc-entry
-get-current esc-sequences set-current
+    get-current esc-sequences set-current
 
-\ esc sequences (derived by using key-sequence in an xterm)
-k-left   s" [D" esc-sequence
-k-right  s" [C" esc-sequence
-k-up     s" [A" esc-sequence
-k-down   s" [B" esc-sequence
-k-home   s" [H" esc-sequence
-k-end    s" [F" esc-sequence
-k-prior  s" [5~" esc-sequence
-k-next   s" [6~" esc-sequence
-k-insert s" [2~" esc-sequence
-k-delete s" [3~" esc-sequence
+    \ esc sequences (derived by using key-sequence in an xterm)
+    k-left   s" [D" esc-sequence
+    k-right  s" [C" esc-sequence
+    k-up     s" [A" esc-sequence
+    k-down   s" [B" esc-sequence
+    k-home   s" [H" esc-sequence
+    k-end    s" [F" esc-sequence
+    k-prior  s" [5~" esc-sequence
+    k-next   s" [6~" esc-sequence
+    k-insert s" [2~" esc-sequence
+    k-delete s" [3~" esc-sequence
 
-k-enter  k-shift-mask or s" OM" esc-sequence
-k-enter  k-alt-mask or   s" x" over #cr swap c! esc-sequence
-k-enter  k-alt-mask or k-shift-mask or s" eOM" over #esc swap c! esc-sequence
+    k-enter  k-shift-mask or s" OM" esc-sequence
+    k-enter  k-alt-mask or   s" x" over #cr swap c! esc-sequence
+    k-enter  k-alt-mask or k-shift-mask or s" eOM" over #esc swap c! esc-sequence
 
-k1      s" OP"  esc-sequence
-k2      s" OQ"  esc-sequence
-k3      s" OR"  esc-sequence
-k4      s" OS"  esc-sequence
-k5      s" [15~" esc-sequence
-k6      s" [17~" esc-sequence
-k7      s" [18~" esc-sequence
-k8      s" [19~" esc-sequence
-k9      s" [20~" esc-sequence
-k10     s" [21~" esc-sequence
-k11     s" [23~" esc-sequence
-k12     s" [24~" esc-sequence
+    k1      s" OP"  esc-sequence
+    k2      s" OQ"  esc-sequence
+    k3      s" OR"  esc-sequence
+    k4      s" OS"  esc-sequence
+    k5      s" [15~" esc-sequence
+    k6      s" [17~" esc-sequence
+    k7      s" [18~" esc-sequence
+    k8      s" [19~" esc-sequence
+    k9      s" [20~" esc-sequence
+    k10     s" [21~" esc-sequence
+    k11     s" [23~" esc-sequence
+    k12     s" [24~" esc-sequence
 
-\ esc sequences from Linux console:
+    \ esc sequences from Linux console:
 
-k1       s" [[A" esc-sequence
-k2       s" [[B" esc-sequence
-k3       s" [[C" esc-sequence
-k4       s" [[D" esc-sequence
-k5       s" [[E" esc-sequence
-\ k-delete s" [3~" esc-sequence \ duplicate from above
-k-home   s" [1~" esc-sequence
-k-end    s" [4~" esc-sequence
+    k1       s" [[A" esc-sequence
+    k2       s" [[B" esc-sequence
+    k3       s" [[C" esc-sequence
+    k4       s" [[D" esc-sequence
+    k5       s" [[E" esc-sequence
+    \ k-delete s" [3~" esc-sequence \ duplicate from above
+    k-home   s" [1~" esc-sequence
+    k-end    s" [4~" esc-sequence
 
-s-k1 s" [25~" esc-sequence
-s-k2 s" [26~" esc-sequence
-s-k3 s" [28~" esc-sequence
-s-k4 s" [29~" esc-sequence
-s-k5 s" [31~" esc-sequence
-s-k6 s" [32~" esc-sequence
-s-k7 s" [33~" esc-sequence
-s-k8 s" [34~" esc-sequence
+    s-k1 s" [25~" esc-sequence
+    s-k2 s" [26~" esc-sequence
+    s-k3 s" [28~" esc-sequence
+    s-k4 s" [29~" esc-sequence
+    s-k5 s" [31~" esc-sequence
+    s-k6 s" [32~" esc-sequence
+    s-k7 s" [33~" esc-sequence
+    s-k8 s" [34~" esc-sequence
 
-\ esc sequences for MacOS X iterm <e7a7c785-3bea-408b-94e9-4b59b008546f@x16g2000prn.googlegroups.com>
-k-left   s" OD" esc-sequence
-k-right  s" OC" esc-sequence
-k-up     s" OA" esc-sequence
-k-down   s" OB" esc-sequence
+    \ esc sequences for MacOS X iterm <e7a7c785-3bea-408b-94e9-4b59b008546f@x16g2000prn.googlegroups.com>
+    k-left   s" OD" esc-sequence
+    k-right  s" OC" esc-sequence
+    k-up     s" OA" esc-sequence
+    k-down   s" OB" esc-sequence
 
+    k-pause   s" [P" esc-sequence
+    k-mute    s" VM" esc-sequence
+    k-volup   s" VU" esc-sequence
+    k-voldown s" VD" esc-sequence
+    
 set-current
 [ENDIF]
 

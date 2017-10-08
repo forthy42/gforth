@@ -383,6 +383,7 @@ Create std-ekeys
     ' false ,        ' false ,        ' false ,        ' false ,
     ' false ,        ' false ,        ' false ,        ' false ,
     ' false ,        ' false ,        ' false ,        ' xreformat ,
+    ' xhide ,        ' false ,        ' prev-line ,    ' next-line ,
     ' (xenter) ,
 
 : xchar-edit-ctrl ( ekey -- )

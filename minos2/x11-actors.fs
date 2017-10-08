@@ -64,6 +64,10 @@ XK_F9        , k-f9 ,
 XK_F10       , k-f10 ,
 XK_F12       , k-f11 ,
 XK_F12       , k-f12 ,
+XK_Pause     , k-pause ,
+XF86XK_AudioMute , k-mute ,
+XF86XK_AudioRaiseVolume , k-volup ,
+XF86XK_AudioLowerVolume , k-voldown ,
 0            , 0 ,
 DOES> ( x-key [addr] -- ekey )
   over '@' #del within IF  drop

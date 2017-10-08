@@ -29,8 +29,8 @@ also freetype-gl
 dpy-w @ s>f 42e f/ fround FConstant fontsize#
 fontsize# 2 3 fm*/ fround FConstant smallsize#
 fontsize# f2* FConstant largesize#
-dpy-h @ s>f dpy-w @ s>f f/ .42e f/ fround FConstant baselinesmall#
-dpy-h @ s>f dpy-w @ s>f f/ .33e f/ fround FConstant baselinemedium#
+dpy-h @ s>f dpy-w @ s>f f/ .42e f/ FConstant baselinesmall#
+dpy-h @ s>f dpy-w @ s>f f/ .33e f/ FConstant baselinemedium#
 dpy-w @ s>f 1280e f/ FConstant pixelsize#
 
 [IFDEF] android
@@ -243,6 +243,16 @@ end-class slide-actor
 	ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
     THEN
     [ box-actor :: clicked ] ; slide-actor to clicked
+:noname ( ekey -- )
+    case
+	k-up      of  prev-slide  endof
+	k-down    of  next-slide  endof
+	k-prior   of  prev-slide  endof
+	k-next    of  next-slide  endof
+	k-volup   of  prev-slide  endof
+	k-voldown of  next-slide  endof
+	[ box-actor :: ekeyed ]  EXIT
+    endcase ; slide-actor to ekeyed
 \ :noname ( $xy b -- )  dup 1 > IF
 \ 	[ box-actor :: touchdown ] EXIT
 \     THEN  drop

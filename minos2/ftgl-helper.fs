@@ -24,7 +24,7 @@ require unix/freetype-gllib.fs
 also freetype-gl
 also opengl
 
-512 Value atlas#
+$200 Value atlas#
 
 atlas# dup 1 texture_atlas_new Value atlas
 
@@ -37,8 +37,23 @@ Variable fonts[] \ stack of used fonts
     MODE_FREE_CLOSE texture_font_default_mode
 [THEN]
 
+[IFDEF] texture_font_t-scaletex
+    Create text-texscale 2 sfloats allot
+    
+    : atlas-scaletex ( -- )
+	1e atlas texture_atlas_t-height @ fm/
+	1e atlas texture_atlas_t-width  @ fm/
+	text-texscale sf!+ sf!
+	text-texscale set-texscale ;
+[THEN]
+
 : open-font ( atlas fontsize addr u -- font )
-    texture_font_new_from_file dup fonts[] >stack ;
+    texture_font_new_from_file
+    [IFDEF] texture_font_t-scaletex
+	0 over texture_font_t-scaletex l!
+    [ELSE]
+	dup fonts[] >stack
+    [THEN] ;
 
 : upload-atlas-tex ( -- )
     GL_TEXTURE_2D 0 GL_ALPHA
@@ -65,13 +80,20 @@ Variable color $FFC0A0FF color !
     glyph texture_glyph_t-offset_y sl@ s>f { f: xo f: yo }
     glyph texture_glyph_t-width  @ s>f x-scale f*
     glyph texture_glyph_t-height @ s>f { f: w f: h }
-    xp xo f+ fround 1/2 f+  yp yo f- fround 1/2 f+ { f: x0 f: y0 }
-    x0 w f+ fround 1/2 f+   y0 h f+ fround 1/2 f+ { f: x1 f: y1 }
-    atlas# 2* s>f 1/f { f: fixup }
-    glyph texture_glyph_t-s0 sf@ fixup f- { f: s0 }
-    glyph texture_glyph_t-t0 sf@ fixup f- { f: t0 }
-    glyph texture_glyph_t-s1 sf@ fixup f- { f: s1 }
-    glyph texture_glyph_t-t1 sf@ fixup f- { f: t1 }
+    xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f+ { f: x0 f: y0 }
+    x0 w f+ fround 1/2 f-   y0 h f+ fround 1/2 f+ { f: x1 f: y1 }
+    [IFDEF] texture_font_t-scaletex
+	glyph texture_glyph_t-s0 sf@ { f: s0 }
+	glyph texture_glyph_t-t0 sf@ { f: t0 }
+	glyph texture_glyph_t-s1 sf@ { f: s1 }
+	glyph texture_glyph_t-t1 sf@ { f: t1 }
+    [ELSE]
+	atlas# 2* s>f 1/f { f: fixup }
+	glyph texture_glyph_t-s0 sf@ fixup f- { f: s0 }
+	glyph texture_glyph_t-t0 sf@ fixup f- { f: t0 }
+	glyph texture_glyph_t-s1 sf@ fixup f- { f: s1 }
+	glyph texture_glyph_t-t1 sf@ fixup f- { f: t1 }
+    [THEN]
     >v
     x0 y0 >xy n> color @ rgba>c s0 t0 >st v+
     x1 y0 >xy n> color @ rgba>c s1 t0 >st v+
@@ -97,9 +119,11 @@ Variable color $FFC0A0FF color !
 : double-atlas ( -- )
     atlas# 2* to atlas#
     font atlas# dup texture_font_enlarge_texture
-    fonts[] get-stack 0 ?DO
-	0.5e 0.5e texture_font_enlarge_glyphs
-    LOOP ;
+    [IFUNDEF] texture_font_t-scaletex
+	fonts[] get-stack 0 ?DO
+	    0.5e 0.5e texture_font_enlarge_glyphs
+	LOOP
+    [THEN] ;
 
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
     tuck font swap

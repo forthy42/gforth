@@ -422,6 +422,7 @@ previous
 : draw-image> ( -- ) ;
 : <draw-text ( -- )
     1-bias set-color+
+    atlas-scaletex
     atlas-tex v0 i0 ; \ text draw, one draw call in total
 : <draw-marking ( -- )
     z-bias set-color+
