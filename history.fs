@@ -242,7 +242,7 @@ info-color Value setstring-color
 \ string in the buffer, and pos1 is the cursor position in the buffer.
 
 : xgrow-tib { max span addr pos1 more -- max span addr pos1 flag }
-    max span more + u> IF  max span addr pos1 true  EXIT  THEN
+    max span more + u>= IF  max span addr pos1 true  EXIT  THEN
     addr tib = IF
 	span #tib !
 	span more + max#tib @ 2* umax expand-tib
