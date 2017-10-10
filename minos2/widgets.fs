@@ -124,6 +124,7 @@ object class
     method draw-thumbnail ( -- ) \ thumbnails draw
     method draw-image ( -- ) \ image draw
     method draw-text ( -- ) \ text draw
+    method draw-emoji ( -- ) \ text emoji
     method draw-marking ( -- ) \ draw some marking
     method hglue ( -- rtyp rsub radd )
     method dglue ( -- rtyp rsub radd )
@@ -284,7 +285,6 @@ widget class
     value: text-font
 end-class text
 
-Variable glyphs$
 Variable need-glyphs
 Variable need-ap
 
@@ -314,6 +314,14 @@ Variable need-ap
     text-w text-shrink% f* text-w text-grow% f* ; text to hglue
 :noname h 0e fdup ; text to vglue
 :noname d 0e fdup ; text to dglue
+
+\ emoji
+
+text class
+end-class emoji
+
+' noop emoji to draw-text
+' text-text emoji to draw-emoji
 
 \ editable text widget
 
@@ -351,7 +359,8 @@ end-class edit
 ; edit to draw-marking
 $FFFF7FFF Value setstring-color
 : edit-text ( -- )
-    x border f+ penxy sf!  y penxy sfloat+ sf!
+    x border f+ fround penxy sf!
+    y fround penxy sfloat+ sf!
     text-font to font  text-color color !
     w border f2* f- text-w f/ to x-scale
     cursize 0= setstring$ $@len and IF
@@ -390,25 +399,17 @@ also freetype-gl
     -1e 1e >apxy  .01e 100e 100e >ap
     Ambient 1 ambient% glUniform1fv
     0.01e 0.02e 0.15e 1.0e glClearColor  clear
-    [IFUNDEF] texture_atlas_t-modified
-	0 to box-flip#
-    [THEN]
 ;
 
 : draw-init> ( -- )
-    [IFDEF] texture_atlas_t-modified
-	atlas texture_atlas_t-modified c@ IF
-	    gen-atlas-tex time( ." atlas: " .!time cr )
-	    0 atlas texture_atlas_t-modified c!
-	THEN
-    [ELSE]
-	need-glyphs @ IF
-	    gen-atlas-tex time( ." atlas: " .!time cr )
-	    need-glyphs off
-	THEN
-	3 to box-flip#
-    [THEN]
-;
+    atlas texture_atlas_t-modified c@ IF
+	gen-atlas-tex time( ." atlas: " .!time cr )
+	0 atlas texture_atlas_t-modified c!
+    THEN
+    atlas-bgra texture_atlas_t-modified c@ IF
+	gen-atlas-tex-bgra time( ." atlas-bgra: " .!time cr )
+	0 atlas-bgra texture_atlas_t-modified c!
+    THEN ;
 previous
 
 : <draw-bg ( -- ) v0 i0
@@ -424,6 +425,10 @@ previous
     1-bias set-color+
     atlas-scaletex
     atlas-tex v0 i0 ; \ text draw, one draw call in total
+: <draw-emoji ( -- )
+    z-bias set-color+
+    atlas-bgra-scaletex
+    atlas-tex-bgra v0 i0 ; \ text emoji, one draw call in total
 : <draw-marking ( -- )
     z-bias set-color+
     none-tex v0 i0 ;
@@ -468,6 +473,7 @@ end-class box
 :noname ( -- ) ['] draw-thumbnail do-childs ; box to draw-thumbnail
 :noname ( -- ) ['] draw-image     do-childs ; box to draw-image
 :noname ( -- ) ['] draw-text      do-childs ; box to draw-text
+:noname ( -- ) ['] draw-emoji     do-childs ; box to draw-emoji
 :noname ( -- ) ['] draw-marking   do-childs ; box to draw-marking
 
 :noname ( -- )
@@ -522,7 +528,7 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     t1 s1 f- t2 s2 f- fmax fover f- 0e fmax
     t1 a1 f+ t2 a2 f+ fmin 2 fpick f- 0e fmax ;
 : baseglue ( -- b 0 max )
-    baseline 0e 1fil ;
+    baseline 0e 1filll ;
 : glue-drop ( t s a -- ) fdrop fdrop fdrop ;
 
 : hglue+ 0glue box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs ;
@@ -578,9 +584,11 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 : vglue-step-h { f: gp f: ga f: rd f: rg f: ry f: od -- gp ga rd' rg' ry' }
     gp ga
-    vglue@ baseline od f- 0e 1fil glue* g3>2 { f: ymin f: ya }
-    rg ya f+ gp f* ga f/ fdup rd f- fswap rg ya f+
-    frot ymin f+  baseline od f- fmax fdup to h 
+    vglue@ g3>2 { f: ymin f: ya }
+    rg ya f+ gp f* ga f/
+    fdup
+    rg ya f+
+    frot rd f- ymin f+   fdup to h  baseline od f- fmax
     ry f+ fdup to y ;
 
 : vglue-step-d { f: gp f: ga f: rd f: rg f: ry -- gp ga rd' rg' ry' od' }
@@ -633,13 +641,14 @@ $10 stack: box-depth
 \ draw everything
 
 : widget-draw ( o:widget -- )  time( ." draw:  " .!time cr )
-    <draw-init      draw-init      draw-init>  time( ." init:  " .!time cr )
-    <draw-bg        draw-bg        render>     time( ." bg:    " .!time cr )
-    <draw-icon      draw-icon      render>     time( ." icon:  " .!time cr )
-    <draw-thumbnail draw-thumbnail render>     time( ." thumb: " .!time cr )
-    <draw-image     draw-image     draw-image> time( ." img:   " .!time cr )
-    <draw-marking   draw-marking   render>     time( ." mark:  " .!time cr )
-    <draw-text      draw-text      render>     time( ." text:  " .!time cr )
+    <draw-init      draw-init      draw-init>   time( ." init:  " .!time cr )
+    <draw-bg        draw-bg        render>      time( ." bg:    " .!time cr )
+    <draw-icon      draw-icon      render>      time( ." icon:  " .!time cr )
+    <draw-thumbnail draw-thumbnail render>      time( ." thumb: " .!time cr )
+    <draw-image     draw-image     draw-image>  time( ." img:   " .!time cr )
+    <draw-marking   draw-marking   render>      time( ." mark:  " .!time cr )
+    <draw-text      draw-text      render>      time( ." text:  " .!time cr )
+    <draw-emoji     draw-emoji     render-bgra> time( ." emoji: " .!time cr )
     sync time( ." sync:  " .!time cr ) ;
 
 \ viewport: Draw into a frame buffer

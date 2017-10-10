@@ -2,7 +2,7 @@
 ## Build from git:
 
     git clone http://savannah.gnu.org/git/?group=gforth
-    sudo apt-get install gforth libffi-dev libltdl7 libsoil-dev libtool-bin yodl
+    sudo apt-get install gforth libffi-dev libltdl-dev libsoil-dev libtool-bin yodl
     ./install-swig.sh # optional for C-bindings (e.g. OpenGL, posix )
     ./BUILD-FROM-SCRATCH
     sudo make install

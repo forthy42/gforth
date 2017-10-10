@@ -103,12 +103,32 @@ dpy-w @ s>f 1280e f/ FConstant pixelsize#
 [THEN]
 2dup file-status throw drop 2constant chinese-font
 
+0 0
+2drop "/usr/share/fonts/truetype/emojione-android.ttf"
+2dup file-status nip [IF]
+    2drop "/usr/share/fonts/truetype/TwitterColorEmojiv2.ttf
+    2dup file-status nip [IF]
+	2drop "/usr/share/fonts/truetype/NotoColorEmoji.ttf"
+	2dup file-status nip [IF]
+	    2drop "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"
+	    2dup file-status nip [IF]
+		2drop 0 0
+	    [THEN]
+	[THEN]
+    [THEN]
+[THEN]
+2dup d0<> [IF] 2constant emoji-font [ELSE] 2drop [THEN]
+	
+
 atlas fontsize# latin-font open-font   Value font1
 atlas fontsize# mono-font  open-font   Value font1m
 atlas smallsize# latin-font open-font  Value font1s
 atlas largesize# latin-font open-font  Value font1l
-atlas fontsize# italic-font open-font   Value font1i
+atlas fontsize# italic-font open-font  Value font1i
 atlas fontsize# chinese-font open-font Value font2
+[IFDEF] emoji-font
+    atlas-bgra fontsize# emoji-font open-font Value font-e
+[THEN]
 previous
 
 $000000FF Value x-color
@@ -125,6 +145,8 @@ largesize# FValue x-baseline
 0e FValue x-border
 : }}text ( addr u -- o )
     text new >o x-font text! x-color to text-color  x-border to border o o> ;
+: }}emoji ( addr u -- o )
+    emoji new >o font-e text! $FFFFFFFF to text-color  x-border to border o o> ;
 : }}edit ( addr u -- o )
     edit new >o x-font edit! x-color to text-color  x-border to border o o> ;
 : /center ( o -- o' )
@@ -171,6 +193,12 @@ glue*b2 >o dpy-w @ s>f .2e f* 0e 0e hglue-c glue! o>
     2swap b1 >r
     blackish }}text >r
     {{ r> r> swap glue*1 }}glue }}h box[] >o
+    x-baseline to baseline o o> ;
+: bbe\\ ( addr1 u1 addr2 u2 addr3 u3 -- o ) \ blue black emoji newline
+    2rot b1 >r
+    2swap blackish }}text >r
+    }}emoji >r
+    {{ r> r> r> swap rot glue*1 }}glue }}h box[] >o
     x-baseline to baseline o o> ;
 : b2\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
     2swap b2 >r
@@ -234,14 +262,14 @@ box-actor class
     \ sfvalue: speed
 end-class slide-actor
 
-:noname ( -- )
-    over $8  and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
-    over $10 and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
-    over -$2 and 0= IF
-	fover caller-w >o x f- w f/ o>
-	fdup 0.1e f< IF  fdrop  2drop fdrop fdrop  prev-slide  EXIT
-	ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
-    THEN
+:noname ( rx ry b n -- )  dup 1 and 0= IF
+	over $8  and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
+	over $10 and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
+	over -$2 and 0= IF
+	    fover caller-w >o x f- w f/ o>
+	    fdup 0.1e f< IF  fdrop  2drop fdrop fdrop  prev-slide  EXIT
+	    ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
+	THEN  THEN
     [ box-actor :: clicked ] ; slide-actor to clicked
 :noname ( ekey -- )
     case
@@ -304,15 +332,15 @@ glue-left }}glue
 $FFFFFFFF pres-frame
 {{
 dark-blue
-glue*1 }}glue \ $FFFFFFFF 4e }}frame dup .button1
+glue*1 }}glue \ ) $FFFFFFFF 32e }}frame dup .button1
 large "MINOΣ2 — A GUI for net2o" }}text /center
 small "Widgets and Layout Engine" }}text /center
-glue*2 }}glue \ $FFFFFFFF 4e }}frame dup .button1
+glue*2 }}glue \ ) $FFFFFFFF 32e }}frame dup .button1
 medium "Bernd Paysan" }}text /center
 "EuroForth 2017, Bad Vöslau" }}text /center
-glue*1 }}glue \ $FFFFFFFF 4e }}frame dup .button1
+glue*1 }}glue \ ) $FFFFFFFF 32e }}frame dup .button1
 }}v box[] >o o Value title-page o o>
-}}z slide[] dup >slides
+}}z box[] dup >slides
 
 \ page 1
 {{
@@ -328,7 +356,7 @@ tex: bad-gateway
 Constant bgw-glue /center
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
-}}z slide[] /flip dup >slides
+}}z box[] /flip dup >slides
 
 \ page 2
 {{
@@ -355,7 +383,7 @@ blackish
 "    net2o starts becoming useable" \\
 glue*1 }}glue
 }}v box[] >o o Value snowden-page fontsize# to border o o>
-}}z slide[] /flip dup >slides
+}}z box[] /flip dup >slides
 
 \ page 3
 {{
@@ -374,7 +402,7 @@ fontsize# baselinesmall# f* to x-baseline
 "•  combine the GLSL programs into one program?" \\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
-}}z slide[] /flip dup >slides
+}}z box[] /flip dup >slides
 
 \ page 4
 {{
@@ -392,7 +420,7 @@ fontsize# baselinesmall# f* to x-baseline
 "Class number:" " Fewer classes, more combinations" b2\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
-}}z slide[] /flip dup >slides
+}}z box[] /flip dup >slides
 
 \ page 5
 {{
@@ -411,13 +439,18 @@ medium "glue" " base class for flexible objects" bb\\
 "tile" " colored rectangle" bb\\
 "frame" " colored rectangle with borders" bb\\
 "text" " text element" bb\\
+[IFDEF] emoji-font
+    "emoji" " emoji element " "😀😁😂😇😈🙈🙉🙊💓💔💕💖💗💘🍺🍻🎉🎻🎺🎷" bbe\\
+[ELSE]
+    "emoji" " emoji element (no emoji font found)" bb\\
+[THEN]
 "icon" " image from an icon texture" bb\\
 "image" " larger image" bb\\
 "animation" " action for animations" bb\\
 "canvas" " vector graphics (TBD)" bb\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
-}}z slide[] /flip dup >slides
+}}z box[] /flip dup >slides
 
 \ page 6
 {{
@@ -437,7 +470,7 @@ fontsize# baselinemedium# f* to x-baseline
 "There will be some more variants for tables and wrapped paragraphs" \\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
-}}z slide[] /flip dup >slides
+}}z box[] /flip dup >slides
 
 \ page 7
 {{
@@ -453,7 +486,7 @@ fontsize# baselinesmall# f* to x-baseline
 "display" " To the actual display" bb\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
-}}z slide[] /flip dup >slides
+}}z box[] /flip dup >slides
 
 \ page 8
 {{
@@ -476,7 +509,7 @@ fontsize# baselinesmall# f* to x-baseline
 "marking" " cursor/selection highlight round" bb\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
-}}z slide[] /flip dup >slides
+}}z box[] /flip dup >slides
 
 \ page 9
 {{
@@ -497,7 +530,7 @@ fontsize# baselinesmall# f* to x-baseline
 "Suspicion" " Don't accept transactions in low confidence blocks" b2\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
-}}z slide[] /flip dup >slides
+}}z box[] /flip dup >slides
 
 \ page 10
 {{
@@ -511,11 +544,11 @@ fontsize# baselinesmall# f* to x-baseline medium
 mono "" "https://fossil.net2o.de/net2o/" b2\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
-}}z slide[] /flip dup >slides
+}}z box[] /flip dup >slides
 
 \ end
 glue-right }}glue
-}}h box[] }}z box[]
+}}h box[] }}z slide[]
 to top-widget
 
 : !widgets ( -- ) top-widget .htop-resize ;

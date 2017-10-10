@@ -25,11 +25,15 @@ also freetype-gl
 also opengl
 
 $200 Value atlas#
+$100 Value atlas-bgra#
 
 atlas# dup 1 texture_atlas_new Value atlas
+atlas-bgra# dup 4 texture_atlas_new Value atlas-bgra
 
 tex: atlas-tex
-atlas-tex current-tex atlas texture_atlas_t-id !
+atlas-tex current-tex atlas texture_atlas_t-id l!
+tex: atlas-tex-bgra \ for color emojis
+atlas-tex-bgra current-tex atlas-bgra texture_atlas_t-id l!
 
 Variable fonts[] \ stack of used fonts
 
@@ -45,6 +49,11 @@ Variable fonts[] \ stack of used fonts
 	1e atlas texture_atlas_t-width  @ fm/
 	text-texscale sf!+ sf!
 	text-texscale set-texscale ;
+    : atlas-bgra-scaletex ( -- )
+	1e atlas-bgra texture_atlas_t-height @ fm/
+	1e atlas-bgra texture_atlas_t-width  @ fm/
+	text-texscale sf!+ sf!
+	text-texscale set-texscale ;
 [THEN]
 
 : open-font ( atlas fontsize addr u -- font )
@@ -55,33 +64,40 @@ Variable fonts[] \ stack of used fonts
 	dup fonts[] >stack
     [THEN] ;
 
-: upload-atlas-tex ( -- )
-    GL_TEXTURE_2D 0 GL_ALPHA
-    atlas texture_atlas_t-width @
-    atlas texture_atlas_t-height @
-    0 GL_ALPHA GL_UNSIGNED_BYTE
-    atlas texture_atlas_t-data @
-    glTexImage2D ;
+: upload-atlas-tex ( atlas -- ) >r
+    GL_TEXTURE_2D 0 GL_ALPHA GL_RGBA r@ texture_atlas_t-depth @ 1 = select
+    r@ texture_atlas_t-width @
+    r@ texture_atlas_t-height @
+    0
+    GL_ALPHA GL_BGRA_EXT r@ texture_atlas_t-depth @ 1 = select
+    GL_UNSIGNED_BYTE
+    r@ texture_atlas_t-data @
+    glTexImage2D rdrop ;
 : gen-atlas-tex ( -- )
     atlas-tex
-    GL_TEXTURE_2D atlas texture_atlas_t-id @ glBindTexture edge linear
-    upload-atlas-tex ;
+    GL_TEXTURE_2D atlas texture_atlas_t-id l@ glBindTexture edge linear
+    atlas upload-atlas-tex ;
+: gen-atlas-tex-bgra ( -- )
+    atlas-tex-bgra
+    GL_TEXTURE_2D atlas-bgra texture_atlas_t-id l@ glBindTexture edge linear
+    atlas-bgra upload-atlas-tex ;
 
 \ render font into vertex buffers
 
 2 sfloats buffer: penxy
 Variable color $FFC0A0FF color !
 1e FValue x-scale
+1e FValue y-scale
 0.5e FConstant 1/2
 
 : xy, { glyph -- }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
-    glyph texture_glyph_t-offset_x sl@ s>f
-    glyph texture_glyph_t-offset_y sl@ s>f { f: xo f: yo }
-    glyph texture_glyph_t-width  @ s>f x-scale f*
-    glyph texture_glyph_t-height @ s>f { f: w f: h }
-    xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f+ { f: x0 f: y0 }
-    x0 w f+ fround 1/2 f-   y0 h f+ fround 1/2 f+ { f: x1 f: y1 }
+    glyph texture_glyph_t-offset_x sl@ x-scale fm*
+    glyph texture_glyph_t-offset_y sl@ y-scale fm* { f: xo f: yo }
+    glyph texture_glyph_t-width  @ x-scale fm*
+    glyph texture_glyph_t-height @ y-scale fm* { f: w f: h }
+    xp xo f+ 1/2 f-  yp yo f- 1/2 f+ { f: x0 f: y0 }
+    x0 w f+  1/2 f-  y0 h f+  1/2 f+ { f: x1 f: y1 }
     [IFDEF] texture_font_t-scaletex
 	glyph texture_glyph_t-s0 sf@ { f: s0 }
 	glyph texture_glyph_t-t0 sf@ { f: t0 }
@@ -184,6 +200,12 @@ program init
     .01e 100e 100e >ap
     atlas-tex v0 i0 ;
 
-: render> ( -- )  GL_TRIANGLES draw-elements ;
+: render> ( -- )
+    GL_TRIANGLES draw-elements ;
+: render-bgra> ( -- )
+    GL_ONE GL_ONE_MINUS_SRC_ALPHA glBlendFunc
+    GL_TRIANGLES draw-elements
+    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
+;
 
 previous previous
