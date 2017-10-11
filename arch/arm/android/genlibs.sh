@@ -30,8 +30,8 @@ case "$TARGET" in
 	;;
 esac
 
-FREETYPE=freetype-2.8
-HARFBUZZ=harfbuzz-1.4.6
+FREETYPE=freetype-2.8.1
+HARFBUZZ=harfbuzz-1.5.1
 
 fine=yes
 for i in git wget ragel hg
