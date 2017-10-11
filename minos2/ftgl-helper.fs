@@ -117,7 +117,7 @@ Variable color $FFC0A0FF color !
     x1 y1 >xy n> color @ rgba>c s1 t1 >st v+
     v>
     xp glyph texture_glyph_t-advance_x sf@ x-scale f* f+ penxy sf!
-    yp glyph texture_glyph_t-advance_y sf@ f+ penxy sfloat+ sf! ;
+    yp glyph texture_glyph_t-advance_y sf@ y-scale f* f+ penxy sfloat+ sf! ;
 
 : glyph+xy ( glyph -- )
     i>off  xy,  2 quad ;

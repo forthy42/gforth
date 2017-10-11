@@ -106,13 +106,19 @@ dpy-w @ s>f 1280e f/ FConstant pixelsize#
 0 0
 2drop "/usr/share/fonts/truetype/emojione-android.ttf"
 2dup file-status nip [IF]
-    2drop "/usr/share/fonts/truetype/TwitterColorEmojiv2.ttf
+    2drop "/usr/share/fonts/truetype/emoji/emojione-android.ttf"
     2dup file-status nip [IF]
-	2drop "/usr/share/fonts/truetype/NotoColorEmoji.ttf"
+	2drop "/usr/share/fonts/truetype/TwitterColorEmojiv2.ttf
 	2dup file-status nip [IF]
-	    2drop "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"
+	    2drop "/usr/share/fonts/truetype/emoji/TwitterColorEmojiv2.ttf
 	    2dup file-status nip [IF]
-		2drop 0 0
+		2drop "/usr/share/fonts/truetype/NotoColorEmoji.ttf"
+		2dup file-status nip [IF]
+		    2drop "/usr/share/fonts/truetype/emoji/NotoColorEmoji.ttf"
+		    2dup file-status nip [IF]
+			2drop 0 0
+		    [THEN]
+		[THEN]
 	    [THEN]
 	[THEN]
     [THEN]
@@ -156,6 +162,8 @@ largesize# FValue x-baseline
     >r {{ r> glue*1 }}glue }}h box[] >o
     x-baseline to baseline o o> ;
 : \\ }}text /left ;
+: e\\ }}emoji >r }}text >r {{ r> r> glue*1 }}glue }}h box[] >o
+    x-baseline to baseline o o> ;
 : /right ( o -- o' )
     >r {{ glue*1 }}glue r> }}h box[] >o
     x-baseline to baseline o o> ;
@@ -370,11 +378,11 @@ medium "What has changed?" \\
 dark-blue "Politics " \\
 fontsize# baselinesmall# f* to x-baseline
 blackish
-"    Fake News/Hate Speech as excuse for censorship #NetzDG" \\
-"    Crypto Wars 4.0: Discuss about ban of cryptography" \\
-"    Legalize it (dragnet surveillance)" \\
-"    Kill the link (EuGH and LG Humbug)" \\
-"    Privacy: nobody is forced to use the Interwebs (Jim Sensenbrenner)" \\
+"    Fake News/Hate Speech as excuse for censorship #NetzDG" "🤦" e\\
+"    Crypto Wars 4.0: Discuss about ban of cryptography" "🤦🤦" e\\
+"    Legalize it (dragnet surveillance)" "🤦🤦🤦" e\\
+"    Kill the link (EuGH and LG Humbug)" "🤦🤦🤦🤦" e\\
+"    Privacy: nobody is forced to use the Interwebs (Jim Sensenbrenner)" "🤦🤦🤦🤦🤦" e\\
 dark-blue "Competition" \\
 blackish
 "    faces Stasi–like Zersetzung (Tor project)" \\
