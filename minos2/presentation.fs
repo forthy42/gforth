@@ -104,19 +104,26 @@ dpy-w @ s>f 1280e f/ FConstant pixelsize#
 2dup file-status throw drop 2constant chinese-font
 
 0 0
-2drop "/usr/share/fonts/truetype/emojione-android.ttf"
-2dup file-status nip [IF]
-    2drop "/usr/share/fonts/truetype/emoji/emojione-android.ttf"
+[IFDEF] android
+    2drop "/system/fonts/NotoColorEmoji.ttf"
     2dup file-status nip [IF]
-	2drop "/usr/share/fonts/truetype/TwitterColorEmojiv2.ttf
+	2drop 0 0
+    [THEN]
+[ELSE]
+    2drop "/usr/share/fonts/truetype/emojione-android.ttf"
+    2dup file-status nip [IF]
+	2drop "/usr/share/fonts/truetype/emoji/emojione-android.ttf"
 	2dup file-status nip [IF]
-	    2drop "/usr/share/fonts/truetype/emoji/TwitterColorEmojiv2.ttf
+	    2drop "/usr/share/fonts/truetype/TwitterColorEmojiv2.ttf
 	    2dup file-status nip [IF]
-		2drop "/usr/share/fonts/truetype/NotoColorEmoji.ttf"
+		2drop "/usr/share/fonts/truetype/emoji/TwitterColorEmojiv2.ttf
 		2dup file-status nip [IF]
-		    2drop "/usr/share/fonts/truetype/emoji/NotoColorEmoji.ttf"
+		    2drop "/usr/share/fonts/truetype/NotoColorEmoji.ttf"
 		    2dup file-status nip [IF]
-			2drop 0 0
+			2drop "/usr/share/fonts/truetype/emoji/NotoColorEmoji.ttf"
+			2dup file-status nip [IF]
+			    2drop 0 0
+			[THEN]
 		    [THEN]
 		[THEN]
 	    [THEN]
