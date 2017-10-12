@@ -68,7 +68,7 @@ Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
 Depends: gforth (= @DEBVERSION@), libgles2, freetype-gl, fonts-liberation, fonts-arphic-gkai00mp
-Recommends: emoji
+Recommends: fonts-emoji
 Description: GNU Forth Minos2 GUI
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.
