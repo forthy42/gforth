@@ -64,15 +64,13 @@ Variable fonts[] \ stack of used fonts
 	dup fonts[] >stack
     [THEN] ;
 
+: alpha/bgra ( atlas -- )
+    GL_BGRA_EXT GL_ALPHA rot texture_atlas_t-depth @ 4 = select ;
 : upload-atlas-tex ( atlas -- ) >r
-    GL_TEXTURE_2D 0 GL_ALPHA GL_RGBA r@ texture_atlas_t-depth @ 1 = select
-    r@ texture_atlas_t-width @
-    r@ texture_atlas_t-height @
-    0
-    GL_ALPHA GL_BGRA_EXT r@ texture_atlas_t-depth @ 1 = select
-    GL_UNSIGNED_BYTE
-    r@ texture_atlas_t-data @
-    glTexImage2D rdrop ;
+    GL_TEXTURE_2D 0 r@ alpha/bgra
+    r@ texture_atlas_t-width @   r@ texture_atlas_t-height @
+    0 r@ alpha/bgra GL_UNSIGNED_BYTE
+    r@ texture_atlas_t-data @ glTexImage2D rdrop ;
 : gen-atlas-tex ( -- )
     atlas-tex
     GL_TEXTURE_2D atlas texture_atlas_t-id l@ glBindTexture edge linear
