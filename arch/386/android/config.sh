@@ -53,6 +53,7 @@ ac_cv_file___arch_368_disasm_fs=yes
 ac_cv_func_dlopen=yes
 ac_cv_lib_ltdl_lt_dlinit=no
 ac_export_dynamic=no
+ac_cv_func_mcheck=no
 HOSTCC="gcc -m32 -D__ANDROID_API__=19"
 GNU_LIBTOOL="i686-linux-android-libtool"
 LIBTOOL="i686-linux-android-libtool"
