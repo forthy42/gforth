@@ -2,6 +2,10 @@
 %insert("include")
 %{
 #include "libpng/png.h"
+#ifdef __gnu_linux__
+#undef stderr
+extern struct _IO_FILE *stderr;
+#endif
 %}
 
 %apply int { png_size_t, time_t };
