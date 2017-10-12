@@ -32,6 +32,7 @@ esac
 
 FREETYPE=freetype-2.8.1
 HARFBUZZ=harfbuzz-1.5.1
+LIBPNG=libpng-1.6.34
 
 fine=yes
 for i in git wget ragel hg
@@ -52,18 +53,26 @@ fi
 
 (cd ~/Downloads
  test -f $FREETYPE.tar.bz2 || wget http://download.savannah.gnu.org/releases/freetype/$FREETYPE.tar.bz2
- test -f $HARFBUZZ.tar.bz2 || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.bz2)
+ test -f $HARFBUZZ.tar.bz2 || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.bz2
+ test -f $LIBPNG.tar.xz || wget https://downloads.sourceforge.net/project/libpng/libpng16/${LIBPNG#libpng-}/$LIBPNG.tar.xz)
 
 tar jxvf ~/Downloads/$FREETYPE.tar.bz2
 tar jxvf ~/Downloads/$HARFBUZZ.tar.bz2
+tar Jxvf ~/Downloads/$LIBPNG.tar.xz
 
 # support stuff
+
+(cd $LIBPNG
+./autogen.sh # get fresh libtool&co
+./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
+make -j4
+make install)
 
 #make and install freetype, part 1 (no harfbuzz)
 
 (cd $FREETYPE
 ./autogen.sh # get fresh libtool&co
-./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=no --with-bzip2=no --with-zlib=no --with-harfbuzz=no 
+./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-bzip2=no --with-zlib=no --with-harfbuzz=no 
 make -j4
 make install)
 
@@ -77,7 +86,7 @@ make install)
 #now freetype with harfbuzz support
 
 (cd $FREETYPE
-./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=no --with-bzip2=no --with-zlib=no --with-harfbuzz=yes
+./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-bzip2=no --with-zlib=no --with-harfbuzz=yes
 make clean
 make -j4
 make install)
@@ -119,6 +128,6 @@ fi
  (cd src/SOIL2
   cp SOIL2.h $TOOLCHAIN/sysroot/usr/include))
 
-$TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ freetype-gl -name '*.lo') -lm -lGLESv2 -lz -llog
+$TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ $LIBPNG freetype-gl -name '*.lo') -lm -lGLESv2 -lz -llog
 
 cp .libs/libtypeset.{a,so} $TOOLCHAIN/sysroot/usr/lib
