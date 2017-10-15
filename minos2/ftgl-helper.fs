@@ -59,7 +59,9 @@ Variable fonts[] \ stack of used fonts
 : open-font ( atlas fontsize addr u -- font )
     texture_font_new_from_file
     [IFDEF] texture_font_t-scaletex
-	0 over texture_font_t-scaletex l!
+	0 over texture_font_t-scaletex
+	[ sizeof texture_font_t-scaletex 4 = ] [IF] l! [THEN]
+	[ sizeof texture_font_t-scaletex 1 = ] [IF] c! [THEN]
     [ELSE]
 	dup fonts[] >stack
     [THEN] ;

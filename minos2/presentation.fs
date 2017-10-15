@@ -455,7 +455,7 @@ medium "glue" " base class for flexible objects" bb\\
 "frame" " colored rectangle with borders" bb\\
 "text" " text element" bb\\
 [IFDEF] emoji-font
-    "emoji" " emoji element " "😀😁😂😇😈🙈🙉🙊💓💔💕💖💗💘🍺🍻🎉🎻🎺🎷" bbe\\
+    "emoji" " emoji element " "😀🤭😁😂😇😈🙈🙉🙊💓💔💕💖💗💘🍺🍻🎉🎻🎺🎷" bbe\\
 [ELSE]
     "emoji" " emoji element (no emoji font found)" bb\\
 [THEN]
