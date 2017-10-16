@@ -133,13 +133,15 @@ Variable color $FFC0A0FF color !
 0 Value font
 
 : double-atlas ( -- )
-    atlas# 2* to atlas#
-    font atlas# dup texture_font_enlarge_texture
-    [IFUNDEF] texture_font_t-scaletex
-	fonts[] get-stack 0 ?DO
+    freetype_gl_errno $100 = IF
+	atlas# 2* to atlas#
+	font atlas# dup texture_font_enlarge_texture
+	[IFUNDEF] texture_font_t-scaletex
+	    fonts[] get-stack 0 ?DO
 	    0.5e 0.5e texture_font_enlarge_glyphs
-	LOOP
-    [THEN] ;
+	    LOOP
+	[THEN]
+    THEN ;
 
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
     tuck font swap

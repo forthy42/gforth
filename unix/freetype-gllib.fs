@@ -21,6 +21,7 @@ c-library freetype-gllib
     \c #include "texture-font.h"
 
     include unix/freetype-gl.fs
+    c-value freetype_gl_errno freetype_gl_errno -- n
 end-c-library
 
 previous set-current

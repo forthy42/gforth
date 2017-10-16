@@ -34,7 +34,7 @@ c-library harfbuzzlib
 	s" harfbuzz" add-lib
     [THEN]
     
-    include unix/harfbuzz.fs
+    include harfbuzz.fs
 end-c-library
 
 set-current
