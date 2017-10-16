@@ -1409,6 +1409,11 @@ if test x$has_swig = xyes || test -f $srcdir/unix/vulkan-fsi.c; then
    AC_CHECK_HEADER(vulkan/vulkan.h, SWIGMODULES="$SWIGMODULES vulkan.fs"
 		   SWIGLIBS="$SWIGLIBS vulkanlib.fs", ,))
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
+   AC_CHECK_LIB(harfbuzz,hb_buffer_create,
+   AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
+		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs", ,))
+fi
 
 if test x$has_swig = xno; then
    AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])
