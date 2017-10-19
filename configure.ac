@@ -20,13 +20,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20171012],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20171019],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="October 12, 2017"
+UPDATED="October 19, 2017"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -1396,8 +1396,9 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype-gl-fsi.c; then
 		    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
-   AC_CHECK_HEADER(wayland/wayland-egl.h, SWIGMODULES="$SWIGMODULES wayland.fs"
-		   SWIGLIBS="$SWIGLIBS waylandlib.fs", ,)
+   AC_CHECK_LIB(wayland-client,wl_display_connect_to_fd,
+   AC_CHECK_HEADER(wayland/wayland-client.h, SWIGMODULES="$SWIGMODULES wayland.fs"
+		   SWIGLIBS="$SWIGLIBS waylandlib.fs", ,))
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gps-fsi.c; then
    AC_CHECK_LIB(gps,gps_open,
