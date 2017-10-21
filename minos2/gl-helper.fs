@@ -36,15 +36,26 @@ s" os-type" environment? [IF]
 	: use-egl ;
     [ELSE]
 	2dup s" darwin" str= >r s" linux-gnu" string-prefix? r> or [IF]
-	    [IFDEF] use-glx
-		require unix/opengl.fs
+	    s" XDG_SESSION_TYPE" getenv 2dup s" x11" str= [IF]
+		2drop
+		[IFDEF] use-glx
+		    require unix/opengl.fs
+		[ELSE]
+		    require unix/opengles.fs
+		    : use-egl ;
+		[THEN]
+		also opengl
+		require linux-gl.fs \ same voc stack effect as on android
 	    [ELSE]
-		require unix/opengles.fs
-		: use-egl ;
+		s" wayland" str= [IF]
+		    require wayland-gl.fs
+		    require unix/opengles.fs
+		    : use-egl ;
+		    : use-wl ;
+		[ELSE]
+		    !!unknown-dsession-type!!
+		[THEN]
 	    [THEN]
-	    also opengl
-
-	    require linux-gl.fs \ same voc stack effect as on android
 	[THEN]
     [THEN]
 [THEN]
