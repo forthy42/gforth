@@ -172,7 +172,11 @@ Variable eglformat
 	    THEN ;
 
 	: create-context ( -- )
-	    default-events "EGL-Window" dpy-w @ dpy-h @ simple-win
+	    [IFDEF] use-wl
+		wl-connect
+	    [ELSE]
+		default-events "EGL-Window" dpy-w @ dpy-h @ simple-win
+	    [THEN]
 	    egldpy configs @ win 0 eglCreateWindowSurface to surface
 	    egldpy configs @ 0 eglattribs eglCreateContext to ctx
 	    egldpy surface dup ctx eglMakeCurrent drop ;

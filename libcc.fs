@@ -621,9 +621,6 @@ Create callback-&style c-var c,
 
 : callback-pushs ( descriptor -- )
     1+ count 0 { d: pars vari }
-    ."   gforth_stackpointers x; \" cr
-    ."   x.spx=SPs.spx; \" cr
-    ."   x.fpx=SPs.fpx; \" cr
     0 0 pars bounds u+do
 	I 1+ c@  IF  callback-&style  ELSE  callback-style  THEN
 	3 + 1 2swap
@@ -636,8 +633,8 @@ Create callback-&style c-var c,
 
 : callback-call ( descriptor -- )
     1+ count + count \ callback C name
-    ."   SPs.spx=x.spx; SPs.fpx=x.fpx; gforth_engine(" .prefix ." gforth_cbips_" type
-    ." [I], &SPs); \" cr ;
+    ."   gforth_engine(" .prefix ." gforth_cbips_" type
+    ." [I], &x); \" cr ;
 
 : gen-par-callback ( sp-change1 sp-change1 addr u type -- fp-change sp-change )
     dup [ libcc-types >order ] void [ previous ] =
@@ -649,9 +646,9 @@ Create callback-&style c-var c,
     >r 0 0 s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
 
 : callback-wrapper ( -- )
-    ."   stackpointers SPs; \" cr
+    ."   stackpointers x; \" cr
     ."   Cell stack[GFSS], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS]; \" cr
-    ."   SPs.spx=stack+GFSS-1; SPs.rpx=rstack+GFSS; SPs.lpx=(char*)(lstack+GFSS); SPs.fpx=fstack+GFSS-1; SPs.upx=gforth_main_UP; SPs.magic=GFORTH_MAGIC; \" cr ;
+    ."   x.spx=stack+GFSS-1; x.rpx=rstack+GFSS; x.lpx=(char*)(lstack+GFSS); x.fpx=fstack+GFSS-1; x.upx=gforth_main_UP; x.magic=GFORTH_MAGIC; \" cr ;
 
 : callback-thread-define ( descriptor -- )
     dup callback-header callback-wrapper
