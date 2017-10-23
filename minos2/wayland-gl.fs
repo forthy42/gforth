@@ -262,6 +262,8 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 	dpy IF
 	    xpollfds pollfd + revents w@ POLLIN and IF  get-events  THEN
 	THEN
+    ELSE
+	dpy IF  get-events  THEN
     THEN ;
 
 : >looper ( -- )  looper-to# #looper ;
