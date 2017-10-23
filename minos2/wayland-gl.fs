@@ -1,4 +1,4 @@
-\ Wayland bindings for GLES
+\ Wayland window for GLES
 
 \ Copyright (C) 2017 Free Software Foundation, Inc.
 
@@ -22,32 +22,202 @@ require unix/waylandlib.fs
 require mini-oof2.fs
 require struct-val.fs
 
+[IFUNDEF] linux  : linux ;  [THEN]
+
 also wayland
 
 0 Value dpy        \ wayland display
 0 Value compositor \ wayland compositor
+0 Value wl-output
 0 Value wl-shell   \ wayland shell
 0 Value wl-egl-dpy \ egl display
 0 Value registry
+0 Value win
 
-\ listeners
+\ shell surface listener
+
+: sh-surface-ping ( data surface serial -- )
+    wl_shell_surface_pong drop ;
+: sh-surface-config { data surface edges w h -- }
+    win w h 0 0 wl_egl_window_resize ;
+: sh-surface-popup-done { data surface -- } ;
+
+' sh-surface-popup-done wl_shell_surface_listener-popup_done:
+' sh-surface-config wl_shell_surface_listener-configure:
+' sh-surface-ping wl_shell_surface_listener-ping:
+Create wl-sh-surface-listener , , ,
+
+\ geometry output listener
+
+2Variable wl-metrics
+2Variable dpy-wh
+1 Value wl-scale
+0 Value screen-orientation
+
+: wl-out-geometry { data out x y pw ph subp make model transform -- }
+    pw ph wl-metrics 2! ;
+: wl-out-mode { data out flags w h r -- }
+    w h dpy-wh 2! ;
+: wl-out-done { data out -- } ;
+: wl-out-scale { data out scale -- }
+    scale to wl-scale ;
+
+' wl-out-scale wl_output_listener-scale:
+' wl-out-done wl_output_listener-done:
+' wl-out-mode wl_output_listener-mode:
+' wl-out-geometry wl_output_listener-geometry:
+Create wl-output-listener , , , ,
+
+0 Value wl-surface
+0 Value sh-surface
+
+\ registry listeners: the interface string is searched in a table
+
+table Constant wl-registry
+
+get-current
+
+wl-registry set-current
+
+: wl_compositor ( registry name -- )
+    wl_compositor_interface 1 wl_registry_bind to compositor
+    compositor wl_compositor_create_surface to wl-surface ;
+: wl_shell ( registry name -- )
+    wl_shell_interface 1 wl_registry_bind to wl-shell
+    wl-shell wl-surface wl_shell_get_shell_surface to sh-surface
+    sh-surface wl-sh-surface-listener 0 wl_shell_surface_add_listener drop
+    sh-surface wl_shell_surface_set_toplevel ;
+: wl_output ( registry name -- )
+    wl_output_interface 1 wl_registry_bind to wl-output
+    wl-output wl-output-listener 0 wl_output_add_listener ;
+
+set-current
+    
 : registry+ { data registry name interface version -- }
-    interface cstring>sstring 2dup s" wl_compositor" str= IF
-	2drop
-	registry name wl_compositor_interface 0 wl_registry_bind to compositor
+    interface cstring>sstring wl-registry find-name-in ?dup-IF
+	registry name rot name?int execute
     ELSE
-	s" wl_shell" str= IF
-	    registry name wl_shell_interface 0 wl_registry_bind to wl-shell
-	THEN
+	\ interface cstring>sstring type cr
     THEN ;
 : registry- { data registry name -- } ;
 
 ' registry- wl_registry_listener-global_remove:
 ' registry+ wl_registry_listener-global:
-Create registry_listener , ,
+Create registry-listener , ,
 
-: wl-connect ( -- )
+: get-events ( -- )
+    dpy wl_display_roundtrip drop ;
+
+: get-display ( -- )
     0 0 wl_display_connect to dpy
     dpy wl_display_get_registry to registry
-    registry registry_listener 0 wl_registry_add_listener drop
-    dpy wl_display_roundtrip drop ;
+    registry registry-listener 0 wl_registry_add_listener drop
+    get-events  get-events  dpy-wh 2@ ;
+
+: wl-eglwin ( w h -- )
+    wl-surface -rot wl_egl_window_create to win ;
+
+also opengl
+: getwh ( -- )
+    0 0 dpy-w @ dpy-h @ glViewport ;
+previous
+
+\ looper
+
+get-current also forth definitions
+
+require unix/socket.fs
+require unix/pthread.fs
+
+previous set-current
+
+User xptimeout  cell uallot drop
+#16 Value looper-to# \ 16ms, don't sleep too long
+looper-to# #1000000 um* xptimeout 2!
+3 Value xpollfd#
+User xpollfds
+xpollfds pollfd xpollfd# * dup cell- uallot drop erase
+
+: >poll-events ( delay -- n )
+    0 xptimeout 2!
+    epiper @ fileno POLLIN  xpollfds fds!+ >r
+    dpy IF  dpy wl_display_get_fd POLLIN  r> fds!+ >r  THEN
+    infile-id fileno POLLIN  r> fds!+ >r
+    r> xpollfds - pollfd / ;
+
+: xpoll ( -- flag )
+    [IFDEF] ppoll
+	xptimeout 0 ppoll 0>
+    [ELSE]
+	xptimeout 2@ #1000 * swap #1000000 / + poll 0>
+    [THEN] ;
+
+Defer ?looper-timeouts ' noop is ?looper-timeouts
+
+: #looper ( delay -- ) #1000000 *
+    ?looper-timeouts >poll-events >r
+    xpollfds r> xpoll
+    IF
+	xpollfds          revents w@ POLLIN and IF  ?events  THEN
+	dpy IF
+	    xpollfds pollfd + revents w@ POLLIN and IF  get-events  THEN
+	THEN
+    THEN ;
+
+: >looper ( -- )  looper-to# #looper ;
+
+\ android similarities
+
+Variable need-show
+Variable need-sync
+Variable need-config
+Variable need-keyboard
+Variable level#
+Variable rendering -2 rendering !
+#16 Value config-change#
+
+: ?looper ;
+
+Defer window-init    ' noop is window-init
+Defer config-changed ' noop is config-changed
+Defer screen-ops     ' noop IS screen-ops
+
+begin-structure app_input_state
+field: action
+field: flags
+field: metastate
+field: edgeflags
+field: pressure
+field: size
+2field: downtime
+2field: eventtime
+2field: eventtime'
+field: tcount
+field: x0
+field: y0
+field: x1
+field: y1
+field: x2
+field: y2
+field: x3
+field: y3
+field: x4
+field: y4
+field: x5
+field: y5
+field: x6
+field: y6
+field: x7
+field: y7
+field: x8
+field: y8
+field: x9
+field: y9
+end-structure
+
+app_input_state buffer: *input
+
+: clipboard! ( addr u -- ) 2drop ; \ stub
+: clipboard@ ( -- addr u ) s" " ;
+
+also OpenGL

@@ -50,6 +50,7 @@ s" os-type" environment? [IF]
 		s" wayland" str= [IF]
 		    require wayland-gl.fs
 		    require unix/opengles.fs
+		    also opengl
 		    : use-egl ;
 		    : use-wl ;
 		[ELSE]
@@ -173,7 +174,7 @@ Variable eglformat
 
 	: create-context ( -- )
 	    [IFDEF] use-wl
-		wl-connect
+		dpy-w @ dpy-h @ wl-eglwin
 	    [ELSE]
 		default-events "EGL-Window" dpy-w @ dpy-h @ simple-win
 	    [THEN]

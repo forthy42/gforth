@@ -402,16 +402,21 @@ Sema gl-sema
 	newDisplayMetrics dup to metrics
 	clazz .getWindowManager .getDefaultDisplay .getMetrics ;
     
-    : screen-wh ( -- rw rh )
+    : screen-wh ( -- rw rh ) \ w h in mm
 	metrics ?dup-0=-IF  >metrics metrics  THEN >o
 	widthPixels  xdpi 1/f fm* 25.4e f*      \ width in mm
 	heightPixels ydpi 1/f fm* 25.4e f* o> ; \ height in mm
 [ELSE]
-    also x11
-    : screen-wh ( -- rw rh )
-	dpy XDefaultScreenOfDisplay >r
-	r@ screen-mwidth  l@ s>f dpy-w @ r@ screen-width  l@ fm*/
-	r@ screen-mheight l@ s>f dpy-h @ r> screen-height l@ fm*/ ;
+    [IFDEF] x11
+	also x11
+	: screen-wh ( -- rw rh )
+	    dpy XDefaultScreenOfDisplay >r
+	    r@ screen-mwidth  l@ s>f dpy-w @ r@ screen-width  l@ fm*/
+	    r@ screen-mheight l@ s>f dpy-h @ r> screen-height l@ fm*/ ;
+    [ELSE]
+	: screen-wh ( -- rw rh )
+	    wl-metrics 2@ swap s>f s>f ;
+    [THEN]
 [THEN]
 previous
 
