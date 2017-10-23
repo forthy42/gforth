@@ -19,8 +19,6 @@
 
 require bits.fs
 
-2Variable lastpos
-Variable lasttime
 Variable buttonmask
 Variable flags
 0 Value clicks
@@ -29,8 +27,81 @@ Variable flags
 1 Constant #lastdown
 2 Constant #clearme
 
+Variable ev-time
+2Variable ev-xy
+Variable ev-button
+Variable ev-up/down
+2Variable lastpos
+Variable lasttime
+
 #200 Value twoclicks  \ every edge further apart than 150ms into separate clicks
-#6 Value samepos      \ position difference square-summed less than is same pos
+$60000. 2Value samepos      \ position difference square-summed less than is same pos
+
+1e 256e f/ fconstant 1/256
+
+\ handle scrolling
+
+:noname ( time axis val -- )
+    rot ev-time ! top-act .scrolled ; IS b-scroll
+
+\ handle clicks
+
+: samepos? ( x y -- flag )
+    lastpos 2@ rot - dup m* 2swap - dup m* d+ samepos d< ;
+: ?samepos ( -- )
+    ev-xy 2@
+    2dup samepos? 0= IF   0 to clicks  THEN  lastpos 2! ;
+: send-clicks ( -- )
+    top-act IF
+	lastpos 2@ swap 1/256 fm* 1/256 fm* buttonmask le-ul@
+	clicks 2* flags #lastdown bit@ - top-act .clicked  THEN
+    flags #pending -bit ;
+
+Variable xy$
+: >xy$ ( x1 y1 .. xn yn n -- $rxy )
+    2* sfloats xy$ $!len
+    xy$ $@ bounds 1 sfloats - swap 1 sfloats - U-DO
+	1/256 fm* I sf!
+    1 sfloats -LOOP
+    xy$ ;
+
+:noname ( -- )
+    Xtime lasttime @ - twoclicks >= IF
+	flags #pending -bit@ IF
+	    send-clicks
+	THEN
+	flags #clearme -bit@ IF
+	    0 to clicks
+	THEN
+    THEN ; is ?looper-timeouts
+
+Create >button 0 c, 2 c, 1 c, 3 c, 4 c, 5 c, 6 c, 7 c,
+DOES> + c@ ;
+
+:noname { time b mask -- }
+    mask IF  \ button pressend
+	buttonmask b 7 and >button +bit
+	top-act IF  ev-xy 2@ 1 >xy$ buttonmask le-ul@ top-act .touchdown  THEN
+	time lasttime !  ?samepos
+	flags #lastdown +bit  flags #pending +bit
+    ELSE \ button released
+	?samepos  time lasttime !
+	flags #lastdown -bit@  IF
+	    1 +to clicks  send-clicks  flags #clearme +bit  THEN
+	buttonmask b 7 and >button -bit
+	top-act IF ev-xy 2@ 1 >xy$ buttonmask le-ul@ top-act .touchup  THEN
+    THEN
+; is b-button
+
+:noname ( time x y -- )
+    ev-xy 2!  ev-time !
+    flags #pending bit@  ev-xy 2@ samepos? 0= and IF
+	send-clicks  0 to clicks
+    THEN
+    top-act IF  ev-xy 2@ 1 >xy$ buttonmask le-ul@ top-act .touchmove  THEN
+; is b-motion
+
+\ enter and leave
 
 : enter-minos ( -- )
     edit-widget edit-out ! ;

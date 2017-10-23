@@ -77,6 +77,7 @@ $03 Value box-flip#
 object class
     value: caller-w
     method clicked ( rx ry bmask n -- ) \ processed clicks
+    method scrolled ( axis dir -- ) \ process scrolling
     method touchdown ( $rxy*n bmask -- ) \ raw click
     method touchup ( $rxy*n bmask -- ) \ raw click
     method touchmove ( $rxy*n bmask -- ) \ raw click, bmask=0 is hover
@@ -94,6 +95,7 @@ end-class actor
 
 \ dummy methods for empty actor, used for inheritance
 :noname 2drop fdrop fdrop ; actor is clicked
+' 2drop actor is scrolled
 ' 2drop actor is touchdown
 ' 2drop actor is touchup
 ' 2drop actor is touchmove
@@ -684,6 +686,7 @@ end-class viewport
 \ top widget and actors
 
 0 Value top-widget
+: top-act ( -- o ) top-widget .act ;
 
 require actors.fs
 require animation.fs

@@ -26,13 +26,41 @@ require struct-val.fs
 
 also wayland
 
+debug: wayland(
+
 0 Value dpy        \ wayland display
 0 Value compositor \ wayland compositor
 0 Value wl-output
 0 Value wl-shell   \ wayland shell
 0 Value wl-egl-dpy \ egl display
+0 Value wl-pointer
+0 Value wl-keyboard
+0 Value wl-touch
 0 Value registry
 0 Value win
+0 Value cursor-theme
+0 Value cursor
+0 Value cursor-surface
+0 Value wl-surface
+0 Value sh-surface
+0 Value wl-seat
+0 Value wl-shm
+
+\ set a cursor
+
+: set-cursor { serial -- }
+    cursor wl_cursor-images @ @ { image }
+    wl-pointer serial cursor-surface
+    image wl_cursor_image-hotspot_x sl@
+    image wl_cursor_image-hotspot_y sl@
+    wl_pointer_set_cursor
+    cursor-surface image wl_cursor_image_get_buffer
+    0 0 wl_surface_attach
+    cursor-surface 0 0
+    image wl_cursor_image-width sl@
+    image wl_cursor_image-height sl@
+    wl_surface_damage
+    cursor-surface wl_surface_commit ;
 
 \ shell surface listener
 
@@ -47,6 +75,13 @@ also wayland
 ' sh-surface-ping wl_shell_surface_listener-ping:
 Create wl-sh-surface-listener , , ,
 
+\ time handling
+
+0 Value timeoffset
+: XTime0 ( -- mtime ) utime #1000 ud/mod drop nip ;
+: XTime ( -- mtime ) XTime0 timeoffset + ;
+: XTime! ( mtime -- ) XTime0 - to timeoffset ;
+
 \ geometry output listener
 
 2Variable wl-metrics
@@ -55,7 +90,7 @@ Create wl-sh-surface-listener , , ,
 0 Value screen-orientation
 
 : wl-out-geometry { data out x y pw ph subp make model transform -- }
-    pw ph wl-metrics 2! ;
+    pw ph wl-metrics 2! transform to screen-orientation ;
 : wl-out-mode { data out flags w h r -- }
     w h dpy-wh 2! ;
 : wl-out-done { data out -- } ;
@@ -68,8 +103,65 @@ Create wl-sh-surface-listener , , ,
 ' wl-out-geometry wl_output_listener-geometry:
 Create wl-output-listener , , , ,
 
-0 Value wl-surface
-0 Value sh-surface
+\ As events come in callbacks, push them to an event queue
+
+: 3drop 2drop drop ;
+
+Defer b-scroll ' 3drop is b-scroll
+Defer b-button ' 3drop is b-button
+Defer b-motion ' 3drop is b-motion
+Defer b-enter  ' 2drop is b-enter
+Defer b-leave  ' noop  is b-leave
+event: :>scroll ( time axis val -- ) b-scroll ;
+event: :>button ( time b mask -- )   b-button ; 
+event: :>motion ( time x y -- )      b-motion ; 
+event: :>enter  ( x y -- )           b-enter ; 
+event: :>leave  ( -- )               b-leave ; 
+
+\ pointer listener
+
+:noname { data p axis disc -- } ; wl_pointer_listener-axis_discrete:
+:noname { data p time axis -- }  time XTime!
+; wl_pointer_listener-axis_stop:
+:noname { data p source -- } ; wl_pointer_listener-axis_source:
+:noname { data p -- } ; wl_pointer_listener-frame:
+:noname { data p time axis val -- }  time XTime!
+    <event time elit, axis elit, val elit, :>scroll [ up@ ]L event>
+; wl_pointer_listener-axis:
+:noname { data p ser time b mask -- }  time XTime!
+    <event time elit, b elit, mask elit, :>button [ up@ ]L event>
+; wl_pointer_listener-button:
+:noname { data p time x y -- }  time XTime!
+    <event time elit, x elit, y elit, :>motion [ up@ ]L event>
+; wl_pointer_listener-motion:
+:noname { data p s -- }
+    <event :>leave [ up@ ]L event>
+; wl_pointer_listener-leave:
+:noname { data p s x y -- }
+    s set-cursor \ on enter, we set the cursor
+    <event x elit, y elit, :>enter [ up@ ]L event>
+; wl_pointer_listener-enter:
+Create wl-pointer-listener  , , , , , , , , ,
+
+\ keyboard listener
+
+Create wl-keyboard-listener
+
+\ seat listener
+
+:noname { data seat name -- } ; wl_seat_listener-name:
+:noname { data seat caps -- }
+    caps WL_SEAT_CAPABILITY_POINTER and IF
+	wl-seat wl_seat_get_pointer to wl-pointer
+	wl-pointer wl-pointer-listener 0 wl_pointer_add_listener drop
+    THEN
+    caps WL_SEAT_CAPABILITY_KEYBOARD and IF
+	wl-seat wl_seat_get_keyboard to wl-keyboard
+    THEN
+    caps WL_SEAT_CAPABILITY_TOUCH and IF
+	wl-seat wl_seat_get_touch to wl-touch
+    THEN ; wl_seat_listener-capabilities:
+Create wl-seat-listener  , ,
 
 \ registry listeners: the interface string is searched in a table
 
@@ -81,7 +173,8 @@ wl-registry set-current
 
 : wl_compositor ( registry name -- )
     wl_compositor_interface 1 wl_registry_bind to compositor
-    compositor wl_compositor_create_surface to wl-surface ;
+    compositor wl_compositor_create_surface to wl-surface
+    compositor wl_compositor_create_surface to cursor-surface ;
 : wl_shell ( registry name -- )
     wl_shell_interface 1 wl_registry_bind to wl-shell
     wl-shell wl-surface wl_shell_get_shell_surface to sh-surface
@@ -89,7 +182,14 @@ wl-registry set-current
     sh-surface wl_shell_surface_set_toplevel ;
 : wl_output ( registry name -- )
     wl_output_interface 1 wl_registry_bind to wl-output
-    wl-output wl-output-listener 0 wl_output_add_listener ;
+    wl-output wl-output-listener 0 wl_output_add_listener drop ;
+: wl_seat ( registry name -- )
+    wl_seat_interface 1 wl_registry_bind to wl-seat
+    wl-seat wl-seat-listener 0 wl_seat_add_listener drop ;
+: wl_shm ( registry name -- )
+    wl_shm_interface 1 wl_registry_bind to wl-shm
+    s" Breeze_Snow" 16 wl-shm wl_cursor_theme_load to cursor-theme
+    cursor-theme s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
 
 set-current
     
@@ -97,7 +197,7 @@ set-current
     interface cstring>sstring wl-registry find-name-in ?dup-IF
 	registry name rot name?int execute
     ELSE
-	\ interface cstring>sstring type cr
+	wayland( interface cstring>sstring type cr )
     THEN ;
 : registry- { data registry name -- } ;
 

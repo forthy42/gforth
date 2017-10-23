@@ -5,6 +5,7 @@
 #include <wayland/wayland-client.h>
 #include <wayland/wayland-server.h>
 #include <wayland/wayland-egl.h>
+#include <wayland/wayland-cursor.h>
 %}
 
 %apply int { int32_t, wl_fixed_t }
@@ -17,5 +18,6 @@
 %include <wayland/wayland-client-protocol.h>
 %include <wayland/wayland-egl.h>
 %include <wayland/wayland-egl-core.h>
+%include <wayland/wayland-cursor.h>
 
 // exec: sed -e 's/c-funptr \(.*\)() {.*} \(.*\)/c-callback \1: \2/g'

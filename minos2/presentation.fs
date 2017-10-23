@@ -277,6 +277,8 @@ box-actor class
     \ sfvalue: speed
 end-class slide-actor
 
+:noname ( axis dir -- ) nip
+    0< IF  prev-slide  ELSE  next-slide  THEN ; slide-actor is scrolled
 :noname ( rx ry b n -- )  dup 1 and 0= IF
 	over $8  and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
 	over $10 and IF  next-slide  2drop fdrop fdrop  EXIT  THEN

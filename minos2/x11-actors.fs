@@ -78,7 +78,6 @@ DOES> ( x-key [addr] -- ekey )
       @ rdrop dup 0= ?EXIT
   THEN  e.state xmeta@ mask-shift# lshift or ;
 
-: top-act ( -- o ) top-widget .act ;
 : resize-widgets ( w h -- )
     dpy-h ! dpy-w !
     getwh  config-changed
