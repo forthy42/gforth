@@ -88,7 +88,7 @@ synonym section-offset section-end
     \G offset is the difference for relocated addresses
     \ this definition is certainly to long and too complex, but is
     \ hard to factor.
-    cr ."  code" cell     26 cells image-data { cbase coffset }
+    cr ."  code" cell  26 cells image-data { cbase coffset }
     ."    xt" 13 cells 22 cells image-data { xbase xoffset }
     ." label" 14 cells 18 cells image-data { lbase loffset }
     size 0 u+do
@@ -101,16 +101,13 @@ synonym section-offset section-end
 		i reloc-bits set-bit endof
 	    drop
 	    cell1 coffset + cell2 = ?of
-		cell1 cbase - cell/ { tag }
-		tag >tag $4000 xor file-id write-cell throw
+		cell1 cbase - cell/ >tag $4000 xor file-id write-cell throw
 		i reloc-bits set-bit endof
 	    cell1 xoffset + cell2 = ?of
-		cell1 xbase - cell/ { tag }
-		tag >tag file-id write-cell throw
+		cell1 xbase - cell/ >tag           file-id write-cell throw
 		i reloc-bits set-bit endof
 	    cell1 loffset + cell2 = ?of
-		cell1 lbase - cell/ { tag }
-		tag >tag $8000 xor file-id write-cell throw
+		cell1 lbase - cell/ >tag $8000 xor file-id write-cell throw
 		i reloc-bits set-bit endof
 	    cell1 file-id write-cell throw
 	    cell1 cell2 <> if
