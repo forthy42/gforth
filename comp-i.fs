@@ -83,6 +83,14 @@ synonym section-offset section-end
     section-desc +loop
     x1 ;
 
+: write-symbol { acell mask file-id u -- }
+    \ Writes ACELL, which refers to some engine symbol (code address,
+    \ xt, or label) and does the appropriate tagging.  MASK provides
+    \ additional tagging information for this symbol, FILE-ID is the
+    \ image-file and U is the cell index  in the image file.
+    acell cell/ >tag mask xor file-id write-cell throw
+    u reloc-bits set-bit ;
+
 : compare-images { size file-id -- }
     \G compares image1 and image2 (of size cells) and sets reloc-bits.
     \G offset is the difference for relocated addresses
@@ -101,14 +109,11 @@ synonym section-offset section-end
 		i reloc-bits set-bit endof
 	    drop
 	    cell1 coffset + cell2 = ?of
-		cell1 cbase - cell/ >tag $4000 xor file-id write-cell throw
-		i reloc-bits set-bit endof
+		cell1 cbase - $4000 file-id i write-symbol endof
 	    cell1 xoffset + cell2 = ?of
-		cell1 xbase - cell/ >tag           file-id write-cell throw
-		i reloc-bits set-bit endof
+		cell1 xbase -     0 file-id i write-symbol endof
 	    cell1 loffset + cell2 = ?of
-		cell1 lbase - cell/ >tag $8000 xor file-id write-cell throw
-		i reloc-bits set-bit endof
+		cell1 lbase - $8000 file-id i write-symbol endof
 	    cell1 file-id write-cell throw
 	    cell1 cell2 <> if
 		0 i th 9 u.r cell1 17 u.r cell2 17 u.r cr
