@@ -24,6 +24,8 @@ require unix/user.fs
 require unix/gdi.fs
 require utf16.fs
 
+debug: windows(
+
 also user32 also gdi32 also win32
 
 WS_OVERLAPPEDWINDOW  WS_VISIBLE or  Constant wStyle
@@ -41,24 +43,18 @@ Variable createstruc
     THEN ;
 
 : gl-window-proc { wnd msg w l -- n }
-\    ." msg: " msg . w . l hex. cr
+    windows( ." msg: " msg . w . l hex. ." :" )
     msg case
-	WM_NCCREATE of  l createstruc !
-	    #0. ns \ weird workaround, if you don't wait here,
-	    \ or do a similar system call, it will stop instantly
-	    wnd msg w l DefWindowProc  endof
-	WM_CREATE  of  wnd msg w l DefWindowProc  endof
+	WM_CREATE  of ." Created " cr wnd msg w l DefWindowProc  endof
 	WM_PAINT   of ." Painted " cr wnd msg w l DefWindowProc endof
 	WM_DESTROY of ." Destroyed " cr  wnd msg w l DefWindowProc endof
 	WM_CHAR    of ." Char: " cr  wnd msg w l DefWindowProc endof
 	WM_NCACTIVATE of  w 0= negate  endof
 	WM_ACTIVATE of    w 0= negate  endof
-	WM_GETICON of  lIcon sIcon w 1 = select @
-	    10000 ms \ crashes as soon as WM_GETICON returns something
-	endof
+	WM_GETICON of  lIcon sIcon w 1 = select @  endof
 	WM_IME_SETCONTEXT of  0 endof
-	drop wnd msg w l DefWindowProc \ dup . cr
-	0 endcase ;
+	drop wnd msg w l DefWindowProc
+	0 endcase windows( dup . cr ) ;
 
 ' gl-window-proc WNDPROC: Constant gl-window-proc-cb
 
@@ -78,7 +74,7 @@ Variable createstruc
     "gforth.ico" 0 lIcon sIcon 1 ExtractIconEx drop
     \ ." Icons: " . lIcon ? sIcon ? cr
     WNDCLASSEXW                        windowClass WNDCLASSEXW-cbSize l!
-    CS_OWNDC 3 or                      windowClass WNDCLASSEXW-style l!
+    CS_OWNDC CS_VREDRAW or CS_HREDRAW or windowClass WNDCLASSEXW-style l!
     hInstance @                        windowClass WNDCLASSEXW-hInstance !
     BLACK_BRUSH GetStockObject         windowClass WNDCLASSEXW-hbrBackground !
     gl-window-proc-cb                  windowClass WNDCLASSEXW-lpfnWndProc !
@@ -94,5 +90,8 @@ Variable createstruc
     0 "gforth" "GL-Window" wStyle 2r> adjust 0 0
     hInstance @ 0 CreateWindowEx ;
 
+: show-window ( hnd -- )
+    0 640 400 adjust SWP_NOZORDER SWP_SHOWWINDOW or SetWindowPos drop ;
+
 register-class
-640 400 make-window Value hwnd
+640 400 make-window Value win
