@@ -7,6 +7,7 @@ env:
   - EC=misc
   - EC=r8c
   - EC=8086
+  - EC=c165
 language: c
 compiler: gcc
 sudo: true
