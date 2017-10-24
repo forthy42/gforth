@@ -27,6 +27,7 @@ require struct-val.fs
 also wayland
 
 debug: wayland(
+\ +db wayland( \ )
 
 0 Value dpy        \ wayland display
 0 Value compositor \ wayland compositor
@@ -190,6 +191,7 @@ wl-registry set-current
     wl_shm_interface 1 wl_registry_bind to wl-shm
     s" Breeze_Snow" 16 wl-shm wl_cursor_theme_load to cursor-theme
     cursor-theme s" left_ptr" wl_cursor_theme_get_cursor to cursor ;
+\ : zwp_text_input_manager_v2 ( registry name -- ) ;
 
 set-current
     
