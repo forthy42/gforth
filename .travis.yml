@@ -7,6 +7,16 @@ env:
   - EC=misc
   - EC=r8c
   - EC=8086
+matrix:
+  exclude:
+    - os: osx
+      env: EC=misc
+    - os: osx
+      env: EC=r8c
+    - os: osx
+      env: EC=8086
+    - os: osx
+      env: EC=c165
 language: c
 compiler: gcc
 sudo: true
