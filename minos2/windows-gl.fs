@@ -25,13 +25,16 @@ require unix/gdi.fs
 require utf16.fs
 
 debug: windows(
+\ +db windows( \ )
 
 also user32 also gdi32 also win32
 
 WS_OVERLAPPEDWINDOW  WS_VISIBLE or  Constant wStyle
 
-RECT buffer: windowRect
+RECT        buffer: windowRect
 WNDCLASSEXW buffer: windowClass
+MSG         buffer: event
+
 Variable hInstance
 Variable lIcon
 Variable sIcon
@@ -89,6 +92,12 @@ Variable createstruc
 : make-window ( w h -- hnd )  2>r
     0 "gforth" "GL-Window" wStyle 2r> adjust 0 0
     hInstance @ 0 CreateWindowEx ;
+
+: get-events ( -- )
+    BEGIN  event 0 0 0 PM_REMOVE PeekMessage  WHILE
+	    event TranslateMessage drop
+	    event DispatchMessage drop
+    REPEAT ;
 
 : show-window ( hnd -- )
     0 640 400 adjust SWP_NOZORDER SWP_SHOWWINDOW or SetWindowPos drop ;
