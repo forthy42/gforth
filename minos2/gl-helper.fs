@@ -36,7 +36,9 @@ s" os-type" environment? [IF]
 	: use-egl ;
     [ELSE]
 	2dup s" darwin" str= >r s" linux-gnu" string-prefix? r> or [IF]
-	    s" XDG_SESSION_TYPE" getenv 2dup s" x11" str= [IF]
+	    s" XDG_SESSION_TYPE" getenv 2dup s" x11" str=
+	    [IFUNDEF] use-wl >r 2dup s" wayland" str= r> or [THEN]
+	    [IF]
 		2drop
 		[IFDEF] use-glx
 		    require unix/opengl.fs
@@ -51,8 +53,8 @@ s" os-type" environment? [IF]
 		    require wayland-gl.fs
 		    require unix/opengles.fs
 		    also opengl
-		    : use-egl ;
-		    : use-wl ;
+		    [IFUNDEF] use-egl : use-egl ; [THEN]
+		    [IFUNDEF] use-wl : use-wl ; [THEN]
 		[ELSE]
 		    !!unknown-dsession-type!!
 		[THEN]
