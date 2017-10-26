@@ -621,6 +621,10 @@ Defer before-line ( -- ) \ gforth
 \ called before the text interpreter parses the next line
 ' noop IS before-line
 
+defer int-execute ( ... xt -- ... )
+\ like EXECUTE, but restores and saves ERRNO if present
+' execute IS int-execute
+
 : interpret1 ( ... -- ... )
     rp@ backtrace-rp0 !
     [ has? EC 0= [IF] ] before-line [ [THEN] ]
