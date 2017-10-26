@@ -631,7 +631,7 @@ defer int-execute ( ... xt -- ... )
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
-	parser1 execute
+	parser1 int-execute
     REPEAT
     2drop ;
     
