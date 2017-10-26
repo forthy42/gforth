@@ -643,7 +643,8 @@ Create callback-&style c-var c,
 : callback-wrapup ( -- ) ;
 
 : callback-return ( descriptor -- )
-    >r 0 0 s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
+    >r 0 0 r@ c@ cells count-stacks-types + perform
+    s"   return " r> c@ gen-par-callback 2drop .\" ; \\\n}" cr ;
 
 : callback-wrapper ( -- )
     ."   stackpointers x; \" cr
