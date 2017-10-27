@@ -437,6 +437,7 @@ C Interface
 * Callbacks::
 * C interface internals::
 * Low-Level C Interface Words::
+* Migrating the C interface from Gforth 0.7::
 
 Assembler and Code Words
 
@@ -12700,6 +12701,7 @@ with a SWIG plugin, which is still not completed.
 * Callbacks::
 * C interface internals::
 * Low-Level C Interface Words::
+* Migrating the C interface from Gforth 0.7::
 @end menu
 
 @node Calling C Functions, Declaring C Functions, C Interface, C Interface
@@ -13074,13 +13076,28 @@ causing these libraries to be dynamically linked when the wrapper
 function is linked.
 
 
-@node Low-Level C Interface Words,  , C interface internals, C Interface
+@node Low-Level C Interface Words, Migrating the C interface from Gforth 0.7, C interface internals, C Interface
 @subsection Low-Level C Interface Words
 
 doc-open-lib
 doc-lib-sym
 doc-lib-error
 doc-call-c
+
+@node Migrating the C interface from Gforth 0.7,  , Low-Level C Interface Words, C Interface
+@subsection Migrating from Gforth 0.7
+@cindex Must now be used inside C-LIBRARY, see C interface doc
+
+In this version, you can use @code{\c}, @code{c-function} and
+@code{add-lib} only inside @code{c-library}...@code{end-c-library}.
+@code{add-lib} now always starts from a clean slate inside a
+@code{c-library}, so you don't need to use @code{clear-libs} in most
+cases.
+
+If you have a program that uses these words outside
+@code{c-library}...@code{end-c-library}, just wrap them in
+@code{c-library}...@code{end-c-library}.  You may have to add some
+instances of @code{add-lib}, however.
 
 @c -------------------------------------------------------------
 @node Assembler and Code Words, Threading Words, C Interface, Words

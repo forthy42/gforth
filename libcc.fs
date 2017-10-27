@@ -159,6 +159,7 @@ constant !!0.7-style!!
 : \c !!0.7-style!! throw ;
 synonym c-function \c
 synonym add-lib \c
+synonym clear-libs \c
 
 Vocabulary c-lib
 
