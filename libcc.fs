@@ -215,6 +215,10 @@ Variable c-libs \ library names in a string (without "lib")
 
 : lib-prefix ( -- addr u )  s" libgf" ;
 
+: add-flags ( c-addr u -- ) \ gforth
+    \G add flag to list of arguments
+    [: type space ;] c-libs $exec ;
+
 : add-lib ( c-addr u -- ) \ gforth
 \G Add library lib@i{string} to the list of libraries, where
     \G @i{string} is represented by @i{c-addr u}.
