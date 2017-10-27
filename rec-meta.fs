@@ -20,6 +20,8 @@
 : rec-meta ( addr u -- xt r:to | rectype-null )
     \G words prefixed with @var{recognizer}@code{?} are processed by
     \G @code{rec-}@var{recognizer} to disambiguate recognizers.
+    \G Example: @code{hex num?cafe num?add} will be parsed as number only
+    \G Example: @code{word?1234} will be parsed as word only
     '?' $split dup 0= IF  2drop
     ELSE
 	2swap [: ." rec-" type ;] $tmp find-name ?dup-IF
