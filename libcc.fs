@@ -151,6 +151,16 @@ require string.fs
     \ file name without directory component
     2dup dirname nip /string ;
 
+\ stubs for 0.7-style usage without C-LIBRARY
+
+s" Must now be used inside C-LIBRARY, see C interface doc" exception
+constant !!0.7-style!!
+
+: \c !!0.7-style!! throw ;
+synonym c-function \c
+synonym add-lib \c
+synonym clear-libs \c
+
 Vocabulary c-lib
 
 get-current also c-lib definitions
