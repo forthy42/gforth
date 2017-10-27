@@ -31,7 +31,9 @@ c-library libc
     \c #elif PAGESIZE
     \c #define getpagesize() PAGESIZE
     \c #endif
+    \c #define set_errno(n) (errno=n)
     c-value errno errno -- n ( -- value )
+    c-function ->errno set_errno n -- void ( n -- )
     c-function getpagesize getpagesize -- n ( -- size )
     c-function fileno fileno a{(FILE*)} -- n ( file* -- fd )
     c-function poll poll a n n -- n ( fds nfds timeout -- r )
@@ -92,6 +94,12 @@ $004 Constant POLLOUT
 : ?ior ( x -- )
     \G use errno to generate throw when failing
     -1 = IF  errno ?dup-IF  -512 swap - throw  THEN  THEN ;
+
+[defined] int-execute [if]
+    variable saved-errno 0 saved-errno !
+    :noname r> { r } saved-errno @ ->errno execute errno saved-errno ! r >r ;
+    is int-execute
+[then]
 
 : fd>file ( fd -- file )  s" w+" fdopen ;
 
