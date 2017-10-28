@@ -166,8 +166,9 @@ is ?warning
 
 : replace-word ( xt2 xt1 -- )
   \G make xt1 do xt2, both need to be colon definitions
-  >body  here >r dp !  >r postpone AHEAD  r> >body dp !  postpone THEN
-  r> dp ! ;
+    >body  here >r dp !  >r ['] branch
+    threading-method 0= IF @ THEN  ,
+    r> >body , r> dp ! ;
 
 \ watching variables and values
 
