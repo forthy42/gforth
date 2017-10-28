@@ -1329,3 +1329,5 @@ $(CONFIG_GEN): kernel/version.fs
 config.status: configure
 	./config.status --recheck
 
+ChangeLog.git: FORCE
+	git log --name-only --date=short --pretty=format:'%cd -%d %s <%an> %h%n%b' --abbrev-commit >ChangeLog.git

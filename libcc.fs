@@ -151,6 +151,16 @@ require string.fs
     \ file name without directory component
     2dup dirname nip /string ;
 
+\ stubs for 0.7-style usage without C-LIBRARY
+
+s" Must now be used inside C-LIBRARY, see C interface doc" exception
+constant !!0.7-style!!
+
+: \c !!0.7-style!! throw ;
+synonym c-function \c
+synonym add-lib \c
+synonym clear-libs \c
+
 Vocabulary c-lib
 
 get-current also c-lib definitions
@@ -214,6 +224,10 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 Variable c-libs \ library names in a string (without "lib")
 
 : lib-prefix ( -- addr u )  s" libgf" ;
+
+: add-flags ( c-addr u -- ) \ gforth
+    \G add flag to list of arguments
+    [: type space ;] c-libs $exec ;
 
 : add-lib ( c-addr u -- ) \ gforth
 \G Add library lib@i{string} to the list of libraries, where
