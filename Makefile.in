@@ -851,7 +851,7 @@ install-seq:	install-indep install-arch
 post-inst:
 		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
 		$(POST_INSTALL)
-		find . -user root | sed -e 's/^/failed to clean: /g'
+		test $EUID -ne 0 && find . -user root | sed -e 's/^/failed to clean: /g'
 		@echo
 		@echo
 		@echo "============= INSTALL SUCCEEDED ============="
