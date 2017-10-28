@@ -437,7 +437,7 @@ C Interface
 * Callbacks::
 * C interface internals::
 * Low-Level C Interface Words::
-* Migrating the C interface from Gforth 0.7::
+* Migrating the C interface from earlier Gforth::
 
 Assembler and Code Words
 
@@ -12701,7 +12701,7 @@ with a SWIG plugin, which is still not completed.
 * Callbacks::
 * C interface internals::
 * Low-Level C Interface Words::
-* Migrating the C interface from Gforth 0.7::
+* Migrating the C interface from earlier Gforth::
 @end menu
 
 @node Calling C Functions, Declaring C Functions, C Interface, C Interface
@@ -13076,7 +13076,7 @@ causing these libraries to be dynamically linked when the wrapper
 function is linked.
 
 
-@node Low-Level C Interface Words, Migrating the C interface from Gforth 0.7, C interface internals, C Interface
+@node Low-Level C Interface Words, Migrating the C interface from earlier Gforth, C interface internals, C Interface
 @subsection Low-Level C Interface Words
 
 doc-open-lib
@@ -13084,7 +13084,7 @@ doc-lib-sym
 doc-lib-error
 doc-call-c
 
-@node Migrating the C interface from Gforth 0.7,  , Low-Level C Interface Words, C Interface
+@node Migrating the C interface from earlier Gforth,  , Low-Level C Interface Words, C Interface
 @subsection Migrating from Gforth 0.7
 @cindex Must now be used inside C-LIBRARY, see C interface doc
 
@@ -16399,11 +16399,11 @@ cumbersome to express double integer arithmetic.
 @cindex long long
 Fortunately, there is a portable language that does not have these
 limitations: GNU C, the version of C processed by the GNU C compiler
-(@pxref{C Extensions, , Extensions to the C Language Family, gcc.info,
+(@pxref{C Extensions, , Extensions to the C Language Family, gcc,
 GNU C Manual}). Its labels as values feature (@pxref{Labels as Values, ,
-Labels as Values, gcc.info, GNU C Manual}) makes direct and indirect
+Labels as Values, gcc, GNU C Manual}) makes direct and indirect
 threading possible, its @code{long long} type (@pxref{Long Long, ,
-Double-Word Integers, gcc.info, GNU C Manual}) corresponds to Forth's
+Double-Word Integers, gcc, GNU C Manual}) corresponds to Forth's
 double numbers on many systems.  GNU C is freely available on all
 important (and many unimportant) UNIX machines, VMS, 80386s running
 MS-DOS, the Amiga, and the Atari ST, so a Forth written in GNU C can run
@@ -16420,7 +16420,7 @@ inefficiencies by appropriate changes in the source code.
 However, register allocation cannot be portably influenced by the
 programmer, leading to some inefficiencies on register-starved
 machines. We use explicit register declarations (@pxref{Explicit Reg
-Vars, , Variables in Specified Registers, gcc.info, GNU C Manual}) to
+Vars, , Variables in Specified Registers, gcc, GNU C Manual}) to
 improve the speed on some machines. They are turned on by using the
 configuration flag @code{--enable-force-reg} (@code{gcc} switch
 @code{-DFORCE_REG}). Unfortunately, this feature not only depends on the
@@ -16435,7 +16435,7 @@ declarations are used. So by default @code{-DFORCE_REG} is not used.
 
 @cindex labels as values
 GNU C's labels as values extension (available since @code{gcc-2.0},
-@pxref{Labels as Values, , Labels as Values, gcc.info, GNU C Manual})
+@pxref{Labels as Values, , Labels as Values, gcc, GNU C Manual})
 makes it possible to take the address of @i{label} by writing
 @code{&&@i{label}}.  This address can then be used in a statement like
 @code{goto *@i{address}}. I.e., @code{goto *&&x} is the same as
@@ -16961,7 +16961,7 @@ The speedup of Gforth over PFE, ThisForth and TILE can be easily
 explained with the self-imposed restriction of the latter systems to
 standard C, which makes efficient threading impossible (however, the
 measured implementation of PFE uses a GNU C extension: @pxref{Global Reg
-Vars, , Defining Global Register Variables, gcc.info, GNU C Manual}).
+Vars, , Defining Global Register Variables, gcc, GNU C Manual}).
 Moreover, current C compilers have a hard time optimizing other aspects
 of the ThisForth and the TILE source.
 
@@ -17166,7 +17166,7 @@ Gforth sources.
 @end itemize
 
 For a thorough guide on reporting bugs read @ref{Bug Reporting, , How
-to Report Bugs, gcc.info, GNU C Manual}.
+to Report Bugs, gcc, GNU C Manual}.
 
 
 @node Origin, Forth-related information, Bugs, Top
