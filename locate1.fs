@@ -121,10 +121,15 @@ variable included-file-buffers
     located-top @ dup located-bottom ! form drop 2/ - 0 max located-top !
     set-bn-view l ;
 
-: g ( -- )
+: extern-g ( -- )
+    \g Enter the external editor at the place of the latest error,
+    \g @code{locate}, @code{n} or @code{b}.
+    bn-view @ ['] editor-cmd >string-execute 2dup system drop free
+    throw ;
+
+Defer g ' extern-g is g
     \g Enter the editor at the place of the latest error, @code{locate},
     \g @code{n} or @code{b}.
-    bn-view @ ['] editor-cmd >string-execute 2dup system drop free throw ;
 
 : edit ( "name" -- )
     \g Enter the editor at the place of "name"
