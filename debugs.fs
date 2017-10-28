@@ -213,52 +213,9 @@ require string.fs
 : view-vi ( "name" -- ) \ gforth
     [: ." vi -t '" parse-name esc'type ." '" ;] $tmp system ;
 
-Variable locate-file[]
-
 : type-prefix ( c-addr1 u1 u -- c-addr2 u2 )
     \ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
     >r 2dup r> umin tuck type /string ;
-
-: show-view ( view u -- ) {: u :}
-    decode-view  {: lineno charno :}
-    loadfilename#>str locate-file[] $[]slurp-file
-    lineno after-locate + 1+ locate-file[] $[]# umin
-    lineno before-locate 1+ - 0 max +DO  cr
-	I locate-file[] $[]@
-	I 1+ lineno = IF
-	    warn-color attr! '*' emit  I 1+ 5 .r ." : "  charno type-prefix
-	    err-color attr!                                   u type-prefix
-	    warn-color attr!                                    type
-	    default-color attr!
-	ELSE
-	    I 1+ 6 .r ." : "  type
-	THEN
-    LOOP ;
-: scroll-view ( view -- )
-    decode-view drop nip {: lineno :}
-    lineno after-locate + 1+ locate-file[] $[]# umin
-    lineno before-locate 1+ - 0 max +DO  cr
-	I 1+ 6 .r ." : "  I locate-file[] $[]@ type
-    LOOP ;
-
-: view-name {: nt -- :}
-    locate-file[] $[]free
-    warn-color attr!  nt name>view @ dup cr .sourceview  default-color attr!
-    nt name>string nip 2dup set-located-view show-view ;
-
-: +locate-lines ( n -- view )
-    >r located-view @ decode-view swap r> + 0 max
-    locate-file[] $[]# 1- min swap encode-view ;
-
-: n ( -- )
-    before-locate after-locate + 2 +
-    +locate-lines dup located-view ! scroll-view ;
-: b ( -- )
-    before-locate after-locate + 2 + negate
-    +locate-lines dup located-view ! scroll-view ;
-: l ( -- )
-    warn-color attr!  located-view @ dup cr .sourceview  default-color attr!
-    located-len @ show-view ;
 
 \ locate/view of recognized tokens show the recognizer, if not a word
 \ Idea: Jenny Brian
@@ -274,9 +231,6 @@ Variable rec'
     forth-recognizer recognize 2r> rot >r fp! sp! r>  r> is trace-recognizer
     dup rectype-null = -#13 and throw
     dup >namevt @ >vtlit, @ ['] noop <> IF  drop rec' @  THEN ;
-
-: view-native ( "name" -- )
-    view' view-name ;
 
 : kate-l:c ( line pos -- )
     swap ." -l " . ." -c " . ;
@@ -296,14 +250,6 @@ Variable rec'
     THEN
     ''' emit loadfilename#>str esc'type ''' emit  2rdrop ;
 
-: g ( -- )
-    located-view @ ['] editor-cmd $tmp system ;
-
-: external-edit ( "name" )
-    (') name>view @ located-view ! g ;
-
-Defer edit ( "name" -- ) \ gforth
-' external-edit IS edit
 \G tell the editor to go to the source of a word
 \G uses $EDITOR, and adjusts goto line command depending
 \G on vi- (default), kate-, or emacs-style
@@ -314,13 +260,6 @@ Defer edit ( "name" -- ) \ gforth
 \G EDITOR=gedit            #if you like gedit
 \G EDITOR=joe|mcedit|nano  #if you like other simple editors
 \G @end example
-
-Defer view ( "name" -- ) \ gforth
-\G directly view the source in the curent terminal
-' view-native IS view
-
-' view alias locate ( "name" -- ) \ forth inc
-\G directly view the source in the curent terminal
 
 \ insert a different location
 

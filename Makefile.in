@@ -713,6 +713,11 @@ distclean:	clean
 realclean:	distclean
 		-$(RM) -rf $(GEN_PRECIOUS) `cat .cvsignore`
 
+kernel-clean:
+		-$(RM) -rf $(KERNLS) $(BKERNLS)
+
+fresh: kernel-clean all
+
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean
 		-$(RM) -rf gforth.fns gforth.texi gforth.ps gforth.info* \
@@ -846,6 +851,7 @@ install-seq:	install-indep install-arch
 post-inst:
 		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
 		$(POST_INSTALL)
+		test $EUID -ne 0 && find . -user root | sed -e 's/^/failed to clean: /g'
 		@echo
 		@echo
 		@echo "============= INSTALL SUCCEEDED ============="
