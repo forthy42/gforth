@@ -128,17 +128,17 @@ variable next-prelude
 : current-sourcepos3 ( -- nfile nline nchar )
     loadfilename# @ sourceline# input-lexeme 2@ drop source drop - ;
 
-: encode-pos1 ( nfile nline nchar -- xpos )
+: encode-view ( nfile nline nchar -- xpos )
     encode-pos $7fffff min swap 23 lshift or ;
 
-0 Value replace-sourcepos1 \ used by #loc to modify view,
+0 Value replace-sourceview \ used by #loc to modify view,
 
-: current-sourcepos1 ( -- xpos )
-    current-sourcepos3 encode-pos1 ;
+: current-sourceview ( -- xpos )
+    current-sourcepos3 encode-view ;
 
 : view, ( -- )
-    replace-sourcepos1 current-sourcepos1 over select ,
-    0 to replace-sourcepos1 ;
+    replace-sourceview current-sourceview over select ,
+    0 to replace-sourceview ;
 
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
@@ -280,7 +280,7 @@ $variable locs[]
 : xt-location ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
     dup locs-start - cell/ >r
-    current-sourcepos1 dup r> 1+ locs[] $[] cell- 2! ;
+    current-sourceview dup r> 1+ locs[] $[] cell- 2! ;
 
 has? primcentric [IF]
     has? peephole [IF]

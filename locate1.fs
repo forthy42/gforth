@@ -43,11 +43,11 @@ variable included-file-buffers
     \ 	2dup 4 pick 2! then
     \ rot r> 2drop ;
 
-: xpos>buffer ( xpos -- c-addr u )
-    xpos>file# included-buffer ;
+: view>buffer ( view -- c-addr u )
+    view>filename# included-buffer ;
 
-: set-bn-xpos ( -- )
-    bn-xpos @ xpos>file# located-top @ 0 encode-pos1 bn-xpos ! ;
+: set-bn-view ( -- )
+    bn-view @ view>filename# located-top @ 0 encode-view bn-view ! ;
 
 : locate-line {: c-addr1 u1 lineno -- c-addr2 u2 lineno+1 c-addr1 u3 :}
     \ c-addr1 u1 is the rest of the file, c-addr1 u3 the line, and
@@ -68,8 +68,8 @@ variable included-file-buffers
     >r 2dup r> umin tuck type safe/string ;
 
 : locate-type ( c-addr u lineno -- )
-    cr located-xpos @ xpos>line = if
-	warn-color attr! located-xpos @ xpos>char type-prefix
+    cr located-view @ view>line = if
+	warn-color attr! located-view @ view>char type-prefix
 	err-color  attr! located-len @            type-prefix
 	warn-color attr! type
 	default-color attr! exit
@@ -81,7 +81,7 @@ variable included-file-buffers
 
 
 : located-buffer ( -- c-addr u )
-    located-xpos @ xpos>buffer ;
+    located-view @ view>buffer ;
 
 : l1 ( -- )
     located-buffer 1 case ( c-addr u lineno1 )
@@ -92,17 +92,21 @@ variable included-file-buffers
     next-case
     2drop drop ;
 
+: view>filename ( view -- c-addr u )
+    \G filename of view (obtained by @code{name>view})
+    view>filename# loadfilename#>str ;
+
 : l ( -- )
     \g Display line of source after compiler error or locate
-    cr located-xpos @ xpos>file# loadfilename#>str type  ': emit
+    cr located-view @ view>filename type  ': emit
     located-top @ dec.
     l1 ;
 
-: name-set-located-xpos ( nt -- )
-    dup name>view @ swap name>string nip set-located-xpos ;
+: name-set-located-view ( nt -- )
+    dup name>view @ swap name>string nip set-located-view ;
 
 : locate-name ( nt -- )
-     name-set-located-xpos l ;
+     name-set-located-view l ;
 
 : locate ( "name" -- )
     (') locate-name ;
@@ -110,21 +114,21 @@ variable included-file-buffers
 : n ( -- )
     \g Display next lines after locate or error
     located-bottom @ dup located-top ! form drop 2/ + located-bottom !
-    set-bn-xpos l1 ;
+    set-bn-view l1 ;
 
 : b ( -- )
     \g Display previous lines after locate.
     located-top @ dup located-bottom ! form drop 2/ - 0 max located-top !
-    set-bn-xpos l ;
+    set-bn-view l ;
 
 : g ( -- )
     \g Enter the editor at the place of the latest error, @code{locate},
     \g @code{n} or @code{b}.
-    bn-xpos @ ['] editor-cmd >string-execute 2dup system drop free throw ;
+    bn-view @ ['] editor-cmd >string-execute 2dup system drop free throw ;
 
 : edit ( "name" -- )
     \g Enter the editor at the place of "name"
-    (') name-set-located-xpos g ;
+    (') name-set-located-view g ;
 
 
 \ backtrace locate stuff:
@@ -156,7 +160,7 @@ variable code-locations 0 code-locations !
 	    bl-next @ repeat
     drop ;
 
-: addr>pos1 ( addr -- pos1|0 )
+: addr>view ( addr -- view|0 )
     code-locations @ begin ( addr bl )
 	dup while
 	    2dup bl-bounds 2@ within if
@@ -168,7 +172,7 @@ variable code-locations 0 code-locations !
     \ knowing that addr is within bl, record the current source
     \ position for addr
     2dup bl-bounds 2@ drop - + bl-data ( addr addr' )
-    current-sourcepos1 swap 2dup ! cell+ ! ;
+    current-sourceview swap 2dup ! cell+ ! ;
 
 : new-bl ( addr blp -- )
     bl-size allocate throw >r
@@ -191,8 +195,8 @@ variable code-locations 0 code-locations !
 : bt-location ( u -- f )
     \ locate-setup backtrace entry with index u; returns true iff successful
     cells >r stored-backtrace $@ r@ u> if ( addr1 r: offset )
-	r> + @ cell- addr>pos1 dup if ( xpos )
-	    1 set-located-xpos true exit then
+	r> + @ cell- addr>view dup if ( view )
+	    1 set-located-view true exit then
     else
 	rdrop then
     drop ." no location for this backtrace index" false ;
@@ -206,32 +210,32 @@ variable code-locations 0 code-locations !
 : unbounds ( c-start c-end -- c-start u )
     over - ;
     
-: .wheretype ( c-addr u xpos -- )
-    xpos>char >r -trailing over r> + {: c-pos :} 2dup + {: c-lineend :} 
+: .wheretype ( c-addr u view -- )
+    view>char >r -trailing over r> + {: c-pos :} 2dup + {: c-lineend :}
     (parse-white) drop ( c-addr1 )
     warn-color attr! c-pos unbounds type
     err-color  attr! c-pos c-lineend unbounds (parse-white) tuck type
     warn-color attr! c-pos + c-lineend unbounds type
     default-color attr! ;
     
-: .whereline {: xpos u -- :}
-    \ print the part of the source line around xpos that fits in the
+: .whereline {: view u -- :}
+    \ print the part of the source line around view that fits in the
     \ current line, of which u characters have already been used
-    xpos xpos>buffer
+    view view>buffer
     1 case ( c-addr u lineno1 )
 	over 0= ?of endof
-	dup xpos xpos>line = ?of locate-line xpos .wheretype endof
+	dup view view>line = ?of locate-line view .wheretype endof
 	locate-next-line
     next-case
     drop 2drop ;
 
-: .wherepos1 ( xpos -- )
-    dup .sourcepos1-width ": " type 2 + .whereline ;
+: .whereview ( view -- )
+    dup .sourceview-width ": " type 2 + .whereline ;
 
 : forwheres ( ... xt -- ... )
     { xt } wheres $@ bounds u+do
 	i where-nt @ xt execute if
-	    i where-loc @ cr .wherepos1
+	    i where-loc @ cr .whereview
 	then
     where-struct +loop ;
 

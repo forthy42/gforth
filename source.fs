@@ -34,10 +34,10 @@ require string.fs
 : decode-pos ( npos -- nline nchar )
     dup 8 rshift swap $ff and ;
 
-: decode-pos1 ( xpos -- nfile nline nchar )
+: decode-view ( view -- nfile nline nchar )
     dup 23 arshift swap $7fffff and decode-pos ;
 
-: xpos>char ( xpos -- u )
+: view>char ( view -- u )
     $ff and ;
 
 : .sourcepos3 (  nfile nline nchar -- )
@@ -46,13 +46,13 @@ require string.fs
     rot 0 .r ': emit swap 1+ 0 .r
     base ! ;
 
-: .sourcepos1 ( xpos -- )
-    decode-pos1 .sourcepos3 ;
+: .sourceview ( view -- )
+    decode-view .sourcepos3 ;
     
-: compile-sourcepos ( compile-time: -- ; run-time: -- xpos )
+: compile-sourcepos ( compile-time: -- ; run-time: -- view )
     \ compile the current source position as literals: nfile is the
     \ source file index, nline the line number within the file.
-    current-sourcepos1
+    current-sourceview
     postpone literal ;
 
 : .sourcepos ( nfile npos -- )

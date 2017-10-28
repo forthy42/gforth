@@ -42,9 +42,9 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 \G additional debugging information; the default @code{.debugline}
 \G prints the additional information with @code{printdebugdata}.
 
-: (.debugline) ( xpos -- )
+: (.debugline) ( view -- )
     info-color attr!
-    cr .sourcepos1 ." :"
+    cr .sourceview ." :"
     \ it would be nice to print the name of the following word,
     \ but that's not easily possible for primitives
     printdebugdata
@@ -57,7 +57,7 @@ stderr value debug-fid ( -- fid )
 
 ' (.debugline) IS .debugline
 
-: .debugline-directed ( xpos -- )
+: .debugline-directed ( view -- )
     op-vector @ { oldout }
     debug-vector @ op-vector !
     ['] .debugline catch
@@ -65,7 +65,7 @@ stderr value debug-fid ( -- fid )
     throw ;
 
 :noname ( -- )
-    current-sourcepos1 .debugline-directed ;
+    current-sourceview .debugline-directed ;
 :noname ( compilation  -- ; run-time  -- )
     compile-sourcepos POSTPONE .debugline-directed ;
 interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
@@ -219,8 +219,8 @@ Variable locate-file[]
     \ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
     >r 2dup r> umin tuck type /string ;
 
-: show-pos1 ( pos1 u -- ) {: u :}
-    decode-pos1  {: lineno charno :}
+: show-view ( view u -- ) {: u :}
+    decode-view  {: lineno charno :}
     loadfilename#>str locate-file[] $[]slurp-file
     lineno after-locate + 1+ locate-file[] $[]# umin
     lineno before-locate 1+ - 0 max +DO  cr
@@ -234,8 +234,8 @@ Variable locate-file[]
 	    I 1+ 6 .r ." : "  type
 	THEN
     LOOP ;
-: scroll-pos1 ( pos1 -- )
-    decode-pos1 drop nip {: lineno :}
+: scroll-view ( view -- )
+    decode-view drop nip {: lineno :}
     lineno after-locate + 1+ locate-file[] $[]# umin
     lineno before-locate 1+ - 0 max +DO  cr
 	I 1+ 6 .r ." : "  I locate-file[] $[]@ type
@@ -243,22 +243,22 @@ Variable locate-file[]
 
 : view-name {: nt -- :}
     locate-file[] $[]free
-    warn-color attr!  nt name>view @ dup cr .sourcepos1  default-color attr!
-    nt name>string nip 2dup set-located-xpos show-pos1 ;
+    warn-color attr!  nt name>view @ dup cr .sourceview  default-color attr!
+    nt name>string nip 2dup set-located-view show-view ;
 
-: +locate-lines ( n -- pos )
-    >r located-xpos @ decode-pos1 swap r> + 0 max
-    locate-file[] $[]# 1- min swap encode-pos1 ;
+: +locate-lines ( n -- view )
+    >r located-view @ decode-view swap r> + 0 max
+    locate-file[] $[]# 1- min swap encode-view ;
 
 : n ( -- )
     before-locate after-locate + 2 +
-    +locate-lines dup located-xpos ! scroll-pos1 ;
+    +locate-lines dup located-view ! scroll-view ;
 : b ( -- )
     before-locate after-locate + 2 + negate
-    +locate-lines dup located-xpos ! scroll-pos1 ;
+    +locate-lines dup located-view ! scroll-view ;
 : l ( -- )
-    warn-color attr!  located-xpos @ dup cr .sourcepos1  default-color attr!
-    located-len @ show-pos1 ;
+    warn-color attr!  located-view @ dup cr .sourceview  default-color attr!
+    located-len @ show-view ;
 
 \ locate/view of recognized tokens show the recognizer, if not a word
 \ Idea: Jenny Brian
@@ -283,12 +283,12 @@ Variable rec'
 : emacs-l:c ( line pos -- )
     ." +" swap 0 .r ." :" . ;
 : vi-l:c ( line pos -- )  ." +" drop . ;
-: editor-cmd ( soucepos1 -- )
+: editor-cmd ( souceview -- )
     s" EDITOR" getenv dup 0= IF
 	2drop s" vi" \ if you don't set EDITOR, use vi as default
     THEN
     2dup 2>r type space
-    decode-pos1 1+
+    decode-view 1+
     2r@ s" emacs" search nip nip  2r@ s" gedit" str= or  IF  emacs-l:c  ELSE
 	2r@ s" kate" string-prefix? IF  kate-l:c  ELSE
 	    vi-l:c  \ also works for joe, mcedit, nano, and is de facto standard
@@ -297,10 +297,10 @@ Variable rec'
     ''' emit loadfilename#>str esc'type ''' emit  2rdrop ;
 
 : g ( -- )
-    located-xpos @ ['] editor-cmd $tmp system ;
+    located-view @ ['] editor-cmd $tmp system ;
 
 : external-edit ( "name" )
-    (') name>view @ located-xpos ! g ;
+    (') name>view @ located-view ! g ;
 
 Defer edit ( "name" -- ) \ gforth
 ' external-edit IS edit
@@ -329,4 +329,4 @@ Defer view ( "name" -- ) \ gforth
     parse-name 2dup str>loadfilename# dup 0< IF
 	drop add-included-file included-files $[]# 1-
     ELSE  nip nip  THEN
-    -rot encode-pos1 to replace-sourcepos1 ;
+    -rot encode-view to replace-sourceview ;
