@@ -164,16 +164,17 @@ is ?warning
 
 \ replacing one word with another
 
+: >colon-body ( xt -- addr )
+    dup @ docol: <> -12 and throw >body ;
+
 : >prim-code ( xt -- x )
     \ converts xt of a primitive into a form usable in the code of
     \ colon definitions on the current engine
     threading-method 0= IF @ THEN ;
 
-: replace-word ( xt2 xt1 -- )
+: replace-word ( xt2 xt1 -- ) \ gforth
   \G make xt1 do xt2, both need to be colon definitions
-    >body  here >r dp !  >r ['] branch
-    >prim-code ,
-    r> >body , r> dp ! ;
+    ['] branch >prim-code rot >colon-body rot >colon-body 2! ;
 
 \ watching variables and values
 
