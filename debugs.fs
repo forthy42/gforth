@@ -164,10 +164,15 @@ is ?warning
 
 \ replacing one word with another
 
+: >prim-code ( xt -- x )
+    \ converts xt of a primitive into a form usable in the code of
+    \ colon definitions on the current engine
+    threading-method 0= IF @ THEN ;
+
 : replace-word ( xt2 xt1 -- )
   \G make xt1 do xt2, both need to be colon definitions
     >body  here >r dp !  >r ['] branch
-    threading-method 0= IF @ THEN  ,
+    >prim-code ,
     r> >body , r> dp ! ;
 
 \ watching variables and values
