@@ -68,7 +68,7 @@ Programming style note:
 @comment %**end of header (This is for running Texinfo on a region.)
 @copying
 This manual is for Gforth (version @value{VERSION}, @value{UPDATED}),
-a fast and portable implementation of the ANS Forth language.  It
+a fast and portable implementation of the Standard Forth language.  It
 serves as reference manual, but it also contains an introduction to
 Forth and a Forth tutorial.
 
@@ -125,11 +125,11 @@ Software Foundation raise funds for GNU development.''
 * Goals::                       About the Gforth Project
 * Gforth Environment::          Starting (and exiting) Gforth
 * Tutorial::                    Hands-on Forth Tutorial
-* Introduction::                An introduction to ANS Forth
+* Introduction::                An introduction to Standard Forth
 * Words::                       Forth words available in Gforth
 * Error messages::              How to interpret them
 * Tools::                       Programming tools
-* ANS conformance::             Implementation-defined options etc.
+* Standard conformance::        Implementation-defined options etc.
 * Standard vs Extensions::      Should I use extensions?
 * Model::                       The abstract machine of Gforth
 * Integrating Gforth::          Forth as scripting language for applications
@@ -197,7 +197,7 @@ Forth Tutorial
 * Compilation Tokens Tutorial::
 * Wordlists and Search Order Tutorial::
 
-An Introduction to ANS Forth
+An Introduction to Standard Forth
 
 * Introducing the Text Interpreter::
 * Stacks and Postfix notation::
@@ -359,7 +359,7 @@ Other I/O
 Locals
 
 * Gforth locals::
-* ANS Forth locals::
+* Standard Forth locals::
 
 Gforth locals
 
@@ -454,10 +454,10 @@ Assembler and Code Words
 
 Tools
 
-* ANS Report::                  Report the words used, sorted by wordset.
+* Standard Report::             Report the words used, sorted by wordset.
 * Stack depth changes::         Where does this stack item come from?
 
-ANS conformance
+Standard conformance
 
 * The Core Words::
 * The optional Block word set::
@@ -602,11 +602,11 @@ reference manual.
 @chapter Goals of Gforth
 @cindex goals of the Gforth project
 The goal of the Gforth Project is to develop a standard model for
-ANS Forth. This can be split into several subgoals:
+Standard Forth. This can be split into several subgoals:
 
 @itemize @bullet
 @item
-Gforth should conform to the ANS Forth Standard.
+Gforth should conform to the Forth Standard.
 @item
 It should be a model, i.e. it should define all the
 implementation-dependent things.
@@ -631,16 +631,17 @@ Free.
 Available on many machines/easy to port.
 @end itemize
 
-Have we achieved these goals? Gforth conforms to the ANS Forth
-standard. It may be considered a model, but we have not yet documented
-which parts of the model are stable and which parts we are likely to
-change. It certainly has not yet become a de facto standard, but it
-appears to be quite popular. It has some similarities to and some
-differences from previous models. It has some powerful features, but not
-yet everything that we envisioned. We certainly have achieved our
-execution speed goals (@pxref{Performance})@footnote{However, in 1998
-the bar was raised when the major commercial Forth vendors switched to
-native code compilers.}.  It is free and available on many machines.
+Have we achieved these goals? Gforth conforms to the Forth-94 (ANS
+Forth) and Forth-2012 standards. It may be considered a model, but we
+have not yet documented which parts of the model are stable and which
+parts we are likely to change. It certainly has not yet become a de
+facto standard, but it appears to be quite popular. It has some
+similarities to and some differences from previous models. It has some
+powerful features, but not yet everything that we envisioned. We
+certainly have achieved our execution speed goals
+(@pxref{Performance})@footnote{However, in 1998 the bar was raised
+when the major commercial Forth vendors switched to native code
+compilers.}.  It is free and available on many machines.
 
 @c ******************************************************************
 @node Gforth Environment, Tutorial, Goals, Top
@@ -1248,7 +1249,7 @@ The difference of this chapter from the Introduction
 be used while sitting in front of a computer, and covers much more
 material, but does not explain how the Forth system works.
 
-This tutorial can be used with any ANS-compliant Forth; any
+This tutorial can be used with any Standard-compliant Forth; any
 Gforth-specific features are marked as such and you can skip them if
 you work with another Forth.  This tutorial does not explain all
 features of Forth, just enough to get you started and give you some
@@ -2611,11 +2612,8 @@ that, for historical reasons, Forth interprets a decimal point alone
 Another requirement for literal FP numbers is that the current base is
 decimal; with a hex base @code{1e} is interpreted as an integer.
 
-Forth has a separate stack for FP numbers.@footnote{Theoretically, an
-ANS Forth system may implement the FP stack on the data stack, but
-virtually all systems implement a separate FP stack; and programming
-in a way that accommodates all models is so cumbersome that nobody
-does it.}  One advantage of this model is that cells are not in the
+Forth has a separate stack for FP numbers in conformance with
+Forth-2012.  One advantage of this model is that cells are not in the
 way when accessing FP values, and vice versa.  Forth has a set of
 words for manipulating the FP stack: @code{fdup fswap fdrop fover
 frot} and (non-standard) @code{fnip ftuck fpick}.
@@ -3171,10 +3169,10 @@ Reference: @ref{User-defined Defining Words}.
 @cindex records tutorial
 @cindex structs tutorial
 
-Forth has no standard words for defining data structures such as arrays
-and records (structs in C terminology), but you can build them yourself
-based on address arithmetic.  You can also define words for defining
-arrays and records (@pxref{Defining Words Tutorial,, Defining Words}).
+Forth has no standard words for defining arrays, but you can build
+them yourself based on address arithmetic.  You can also define words
+for defining arrays and records (@pxref{Defining Words Tutorial,,
+Defining Words}).
 
 One of the first projects a Forth newcomer sets out upon when learning
 about defining words is an array defining word (possibly for
@@ -3491,7 +3489,7 @@ Reference: @ref{Word Lists}.
 @c ******************************************************************
 @node Introduction, Words, Tutorial, Top
 @comment node-name,     next,           previous, up
-@chapter An Introduction to ANS Forth
+@chapter An Introduction to Standard Forth
 @cindex Forth - an introduction
 
 The difference of this chapter from the Tutorial (@pxref{Tutorial}) is
@@ -3506,7 +3504,7 @@ teaching material, it seems worthwhile to provide some introductory
 material.  For other sources of Forth-related
 information, see @ref{Forth-related information}.
 
-The examples in this section should work on any ANS Forth; the
+The examples in this section should work on any Standard Forth; the
 output shown was produced using Gforth. Each example attempts to
 reproduce the exact output that Gforth produces. If you try out the
 examples (and you should), what you should type is shown @kbd{like this}
@@ -4334,7 +4332,7 @@ Many Forth systems are implemented mainly in Forth.
 Amazing as it may seem, if you have read (and understood) this far, you
 know almost all the fundamentals about the inner workings of a Forth
 system. You certainly know enough to be able to read and understand the
-rest of this manual and the ANS Forth document, to learn more about the
+rest of this manual and the Standard Forth document, to learn more about the
 facilities that Forth in general and Gforth in particular provide. Even
 scarier, you know almost enough to implement your own Forth system.
 However, that's not a good idea just yet... better to try writing some
@@ -4492,11 +4490,11 @@ How the word is pronounced.
 @cindex wordset
 @cindex environment wordset
 @item wordset
-The ANS Forth standard is divided into several word sets. A standard
+The Forth standard is divided into several word sets. A standard
 system need not support all of them. Therefore, in theory, the fewer
 word sets your program uses the more portable it will be. However, we
-suspect that most ANS Forth systems on personal machines will feature
-all word sets. Words that are not defined in ANS Forth have
+suspect that most Standard Forth systems on personal machines will feature
+all word sets. Words that are not defined in Standard Forth have
 @code{gforth} or @code{gforth-internal} as word set. @code{gforth}
 describes words that will work in future releases of Gforth;
 @code{gforth-internal} words are more volatile. Environmental query
@@ -4583,7 +4581,7 @@ Standard words using upper, lower or mixed case (however,
 @pxref{core-idef, Implementation-defined options, Implementation-defined
 options}).
 
-ANS Forth only @i{requires} implementations to recognise Standard words
+Standard Forth only @i{requires} implementations to recognise Standard words
 when they are typed entirely in upper case. Therefore, a Standard
 program must use upper case for all Standard words. You can use whatever
 case you like for words that you define, but in a Standard program you
@@ -4978,15 +4976,6 @@ doc-2rot
 @cindex floating-point stack manipulation words
 @cindex stack manipulation words, floating-point stack
 
-Whilst every sane Forth has a separate floating-point stack, it is not
-strictly required; an ANS Forth system could theoretically keep
-floating-point numbers on the data stack. As an additional difficulty,
-you don't know how many cells a floating-point number takes. It is
-reportedly possible to write words in a way that they work also for a
-unified stack model, but we do not recommend trying it. Instead, just
-say that your program has an environmental dependency on a separate
-floating-point stack.
-
 doc-floating-stack
 
 doc-fdrop
@@ -5066,12 +5055,12 @@ a @uref{http://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
 garbage collector}.
 
 @node Memory model, Dictionary allocation, Memory, Memory
-@subsection ANS Forth and Gforth memory models
+@subsection Memory model
 
-@c The ANS Forth description is a mess (e.g., is the heap part of
+@c The Standard Forth description is a mess (e.g., is the heap part of
 @c the dictionary?), so let's not stick to closely with it.
 
-ANS Forth considers a Forth system as consisting of several address
+Standard Forth considers a Forth system as consisting of several address
 spaces, of which only @dfn{data space} is managed and accessible with
 the memory words.  Memory not necessarily in data space includes the
 stacks, the code (called code space) and the headers (called name
@@ -5085,18 +5074,10 @@ because it is used for looking up names, just as you would in a
 conventional dictionary.}, the heap, and a number of system-allocated
 buffers.
 
-@cindex address arithmetic restrictions, ANS vs. Gforth
-@cindex contiguous regions, ANS vs. Gforth
-In ANS Forth data space is also divided into contiguous regions.  You
-can only use address arithmetic within a contiguous region, not between
-them.  Usually each allocation gives you one contiguous region, but the
-dictionary allocation words have additional rules (@pxref{Dictionary
-allocation}).
-
 Gforth provides one big address space, and address arithmetic can be
 performed between any addresses. However, in the dictionary headers or
 code are interleaved with data, so almost the only contiguous data space
-regions there are those described by ANS Forth as contiguous; but you
+regions there are those described by Standard Forth as contiguous; but you
 can be sure that the dictionary is allocated towards increasing
 addresses even between contiguous regions.  The memory order of
 allocations in the heap is platform-dependent (and possibly different
@@ -5118,7 +5099,7 @@ towards increasing addresses.  Other words that allocate dictionary
 memory of any kind (i.e., defining words including @code{:noname}) end
 the contiguous region and start a new one.
 
-In ANS Forth only @code{create}d words are guaranteed to produce an
+In Standard Forth only @code{create}d words are guaranteed to produce an
 address that is the start of the following contiguous region.  In
 particular, the cell allocated by @code{variable} is not guaranteed to
 be contiguous with following @code{allot}ed memory.
@@ -5145,7 +5126,7 @@ of the size of this type and if @code{here} was aligned for this type
 before.
 
 After freshly @code{create}ing a word, @code{here} is @code{align}ed in
-ANS Forth (@code{maxalign}ed in Gforth).
+Standard Forth (@code{maxalign}ed in Gforth).
 
 doc-align
 doc-falign
@@ -5211,7 +5192,7 @@ structures like arrays, records (@pxref{Structures}) and objects
 
 @cindex address unit
 @cindex au (address unit)
-ANS Forth does not specify the sizes of the data types. Instead, it
+Standard Forth does not specify the sizes of the data types. Instead, it
 offers a number of words for computing sizes and doing address
 arithmetic. Address arithmetic is performed in terms of address units
 (aus); on most systems the address unit is one byte. Note that a
@@ -5222,21 +5203,8 @@ The basic address arithmetic words are @code{+} and @code{-}.  E.g., if
 you have the address of a cell, perform @code{1 cells +}, and you will
 have the address of the next cell.
 
-@cindex contiguous regions and address arithmetic
-In ANS Forth you can perform address arithmetic only within a contiguous
-region, i.e., if you have an address into one region, you can only add
-and subtract such that the result is still within the region; you can
-only subtract or compare addresses from within the same contiguous
-region.  Reasons: several contiguous regions can be arranged in memory
-in any way; on segmented systems addresses may have unusual
-representations, such that address arithmetic only works within a
-region.  Gforth provides a few more guarantees (linear address space,
-dictionary grows upwards), but in general I have found it easy to stay
-within contiguous regions (exception: computing and comparing to the
-address just beyond the end of an array).
-
 @cindex alignment of addresses for types
-ANS Forth also defines words for aligning addresses for specific
+Standard Forth also defines words for aligning addresses for specific
 types. Many computers require that accesses to specific data types
 must only occur at specific addresses; e.g., that cells may only be
 accessed at addresses divisible by 4. Even if a machine allows unaligned
@@ -5246,17 +5214,15 @@ For the performance-conscious: alignment operations are usually only
 necessary during the definition of a data structure, not during the
 (more frequent) accesses to it.
 
-ANS Forth defines no words for character-aligning addresses. This is not
-an oversight, but reflects the fact that addresses that are not
-char-aligned have no use in the standard and therefore will not be
-created.
+Standard Forth defines no words for character-aligning addresses; in
+Forth-2012 all addresses are character-aligned.
 
 @cindex @code{CREATE} and alignment
-ANS Forth guarantees that addresses returned by @code{CREATE}d words
+Standard Forth guarantees that addresses returned by @code{CREATE}d words
 are cell-aligned; in addition, Gforth guarantees that these addresses
 are aligned for all purposes.
 
-Note that the ANS Forth word @code{char} has nothing to do with address
+Note that the Standard Forth word @code{char} has nothing to do with address
 arithmetic.
 
 
@@ -5390,7 +5356,7 @@ and many other programming languages has the meaning 3d.]
 
 Gforth also provides the words @code{?DUP-IF} and @code{?DUP-0=-IF}, so
 you can avoid using @code{?dup}. Using these alternatives is also more
-efficient than using @code{?dup}. Definitions in ANS Forth
+efficient than using @code{?dup}. Definitions in Standard Forth
 for @code{ENDIF}, @code{?DUP-IF} and @code{?DUP-0=-IF} are provided in
 @file{compat/control.fs}.
 
@@ -5631,7 +5597,7 @@ prints nothing.
 @end itemize
 
 Unfortunately, @code{+DO}, @code{U+DO}, @code{-DO}, @code{U-DO} and
-@code{-LOOP} are not defined in ANS Forth. However, an implementation
+@code{-LOOP} are not defined in Standard Forth. However, an implementation
 for these words that uses only standard words is provided in
 @file{compat/loops.fs}.
 
@@ -5646,7 +5612,7 @@ NEXT
 @end example
 This is the preferred loop of native code compiler writers who are too
 lazy to optimize @code{?DO} loops properly. This loop structure is not
-defined in ANS Forth. In Gforth, this loop iterates @i{n+1} times;
+defined in Standard Forth. In Gforth, this loop iterates @i{n+1} times;
 @code{i} produces values starting with @i{n} and ending with 0. Other
 Forth systems may behave differently, even if they support @code{FOR}
 loops. To avoid problems, don't use @code{FOR} loops.
@@ -5806,7 +5772,7 @@ restarted with @code{next-case}.
 @cindex control structures, user-defined
 
 @cindex control-flow stack
-ANS Forth permits and supports using control structures in a non-nested
+Standard Forth permits and supports using control structures in a non-nested
 way. Information about incomplete control structures is stored on the
 control-flow stack. This stack may be implemented on the Forth data
 stack, and this is what we have done in Gforth.
@@ -6005,18 +5971,18 @@ your program, and report an appropriate error.
 doc-throw
 
 @code{Throw} consumes a cell-sized error number on the stack. There are
-some predefined error numbers in ANS Forth (see @file{errors.fs}).  In
+some predefined error numbers in Standard Forth (see @file{errors.fs}).  In
 Gforth (and most other systems) you can use the iors produced by various
 words as error numbers (e.g., a typical use of @code{allocate} is
 @code{allocate throw}).  Gforth also provides the word @code{exception}
-to define your own error numbers (with decent error reporting); an ANS
+to define your own error numbers (with decent error reporting); a Standard
 Forth version of this word (but without the error messages) is available
 in @code{compat/except.fs}.  And finally, you can use your own error
 numbers (anything outside the range -4095..0), but won't get nice error
 messages, only numbers.  For example, try:
 
 @example
--10 throw                    \ ANS defined
+-10 throw                    \ Standard defined
 -267 throw                   \ system defined
 s" my error" exception throw \ user defined
 7 throw                      \ arbitrary number
@@ -6039,7 +6005,7 @@ exception handler.  The system's exception handler is outermost, and just
 prints an error and restarts command-line interpretation (or, in batch
 mode (i.e., while processing the shell command line), leaves Gforth).
 
-The ANS Forth way to catch exceptions is @code{catch}:
+The Standard Forth way to catch exceptions is @code{catch}:
 
 doc-catch
 doc-nothrow
@@ -6256,11 +6222,11 @@ associating a name with the address of a region of memory.
 
 doc-create
 
-Note that in ANS Forth guarantees only for @code{create} that its body
+Note that Standard Forth guarantees only for @code{create} that its body
 is in dictionary data space (i.e., where @code{here}, @code{allot}
-etc. work, @pxref{Dictionary allocation}).  Also, in ANS Forth only
+etc. work, @pxref{Dictionary allocation}).  Also, in Standard Forth only
 @code{create}d words can be modified with @code{does>}
-(@pxref{User-defined Defining Words}).  And in ANS Forth @code{>body}
+(@pxref{User-defined Defining Words}).  And in Standard Forth @code{>body}
 can only be applied to @code{create}d words.
 
 By extending this example to reserve some memory in data space, we end
@@ -6319,7 +6285,7 @@ myvariable0 joe \ whilst joe is initialised to 0
 @end example
 
 Not surprisingly, there is no need to define @code{myvariable}, since
-Forth already has a definition @code{Variable}. ANS Forth does not
+Forth already has a definition @code{Variable}. Standard Forth does not
 guarantee that a @code{Variable} is initialised when it is created
 (i.e., it may behave like @code{myvariableX}). In contrast, Gforth's
 @code{Variable} initialises the variable to 0 (i.e., it behaves exactly
@@ -6443,7 +6409,7 @@ space. However, there is no standard way of doing this.
 
 A @code{Value} behaves like a @code{Constant}, but it can be changed.
 @code{TO} is a parsing word that changes a @code{Values}.  In Gforth
-(not in ANS Forth) you can access (and change) a @code{value} also with
+(not in Standard Forth) you can access (and change) a @code{value} also with
 @code{>body}.
 
 Here are some
@@ -7095,7 +7061,7 @@ be optimized away (because you could change the data using
 
 @end itemize
 
-An ANS Forth implementation of @code{const-does>} is available in
+A Standard Forth implementation of @code{const-does>} is available in
 @file{compat/const-does.fs}.
 
 
@@ -7202,7 +7168,7 @@ doc-defers
 
 @c Use @code{words-deferred} to see a list of deferred words.
 
-Definitions of these words (except @code{defers}) in ANS Forth are
+Definitions of these words (except @code{defers}) in Standard Forth are
 provided in @file{compat/defer.fs}.
 
 @node Forward, Aliases, Deferred Words, Defining Words
@@ -7521,7 +7487,7 @@ An XT occupies one cell and can be manipulated like any other cell.
 
 @cindex code field address
 @cindex CFA
-In ANS Forth the XT is just an abstract data type (i.e., defined by the
+In Standard Forth the XT is just an abstract data type (i.e., defined by the
 operations that produce or consume it).  For old hands: In Gforth, the
 XT is implemented as a code field address (CFA).
 
@@ -7779,7 +7745,7 @@ compilation:
 ]] ... [[ ['] + ]]L ... [[
 @end example
 
-Definitions of @code{]]} and friends in ANS Forth are provided in
+Definitions of @code{]]} and friends in Standard Forth are provided in
 @file{compat/macros.fs}.
 
 Immediate compiling words are similar to macros in other languages (in
@@ -8260,13 +8226,13 @@ floating-point number.
 There is a word @code{bin} but it does @i{not} set the number base!
 It is used to specify file types.
 @item
-ANS Forth requires the @code{.} of a double-precision number to be the
+Standard Forth requires the @code{.} of a double-precision number to be the
 final character in the string.  Gforth allows the @code{.} to be
 anywhere after the first digit.
 @item
 The number conversion process does not check for overflow.
 @item
-In an ANS Forth program @code{base} is required to be decimal when
+In a Standard Forth program @code{base} is required to be decimal when
 converting floating-point numbers.  In Gforth, number conversion to
 floating-point numbers always uses base &10, irrespective of the value
 of @code{base}.
@@ -8355,7 +8321,7 @@ Directives}).
 
 These words are usually used in interpret state; typically to control
 which parts of a source file are processed by the text
-interpreter. There are only a few ANS Forth Standard words, but Gforth
+interpreter. There are only a few Standard Forth Standard words, but Gforth
 supplements these with a rich set of immediate control structure words
 to compensate for the fact that the non-immediate versions can only be
 used in compile state (@pxref{Control Structures}). Typical usages:
@@ -8472,7 +8438,7 @@ string that is not in the input stream to it?
 
 doc-execute-parsing
 
-A definition of this word in ANS Forth is provided in
+A definition of this word in Standard Forth is provided in
 @file{compat/execute-parsing.fs}.
 
 If you want to run a parsing word on a file, the following word should
@@ -8506,10 +8472,10 @@ in much the same way as a file is identified by a file handle. The
 numerical value of the wid has no (portable) meaning, and might change
 from session to session.
 
-The ANS Forth ``Search order'' word set is intended to provide a set of
+The Standard Forth ``Search order'' word set is intended to provide a set of
 low-level tools that allow various different schemes to be
 implemented. Gforth also provides @code{vocabulary}, a traditional Forth
-word.  @file{compat/vocabulary.fs} provides an implementation in ANS
+word.  @file{compat/vocabulary.fs} provides an implementation in Standard
 Forth.
 
 @comment TODO: locals section refers to here, saying that every word list (aka
@@ -8564,7 +8530,7 @@ doc-context
 @subsection Vocabularies
 @cindex Vocabularies, detailed explanation
 
-Here is an example of creating and using a new wordlist using ANS
+Here is an example of creating and using a new wordlist using Standard
 Forth words:
 
 @example
@@ -8704,9 +8670,10 @@ previous \ restore original search order (helper words become invisible)
 @section Environmental Queries
 @cindex environmental queries
 
-ANS Forth introduced the idea of ``environmental queries'' as a way
-for a program running on a system to determine certain characteristics of the system.
-The Standard specifies a number of strings that might be recognised by a system.
+Forth-94 introduced the idea of ``environmental queries'' as a way
+for a program running on a system to determine certain characteristics
+of the system.  The Standard specifies a number of strings that might
+be recognised by a system.
 
 The Standard requires that the header space used for environmental queries
 be distinct from the header space used for definitions.
@@ -8866,7 +8833,7 @@ doc-needs
 doc-sourcefilename
 doc-sourceline#
 
-A definition in ANS Forth for @code{required} is provided in
+A definition in Standard Forth for @code{required} is provided in
 @file{compat/required.fs}.
 
 @c -------------------------------------------------------------
@@ -9128,7 +9095,7 @@ block buffer.
 The assignment of a block to a block buffer is performed by @code{block}
 or @code{buffer}. Use @code{block} when you wish to modify the existing
 contents of a block. Use @code{buffer} when you don't care about the
-existing contents of the block@footnote{The ANS Forth definition of
+existing contents of the block@footnote{The Standard Forth definition of
 @code{buffer} is intended not to cause disk I/O; if the data associated
 with the particular block is already stored in a block buffer due to an
 earlier @code{block} command, @code{buffer} will return that block
@@ -9186,8 +9153,7 @@ block buffer will be initialised with spaces.
 
 Gforth includes a simple block editor (type @code{use blocked.fb 0 list}
 for details) but doesn't encourage the use of blocks; the mechanism is
-only provided for backward compatibility -- ANS Forth requires blocks to
-be available when files are.
+only provided for backward compatibility.
 
 Common techniques that are used when working with blocks include:
 
@@ -9471,8 +9437,8 @@ of the string in characters, and @i{c-addr} is the address of the
 first byte of the string.
 @end itemize
 
-ANS Forth encourages the use of the second format when representing
-strings.
+Standard Forth encourages the use of the cell pair format when
+representing strings.
 
 
 doc-count
@@ -9916,10 +9882,10 @@ doc-argv
 @cindex locals
 
 Local variables can make Forth programming more enjoyable and Forth
-programs easier to read. Unfortunately, the locals of ANS Forth are
-laden with restrictions. Therefore, we provide not only the ANS Forth
+programs easier to read. Unfortunately, the locals of Standard Forth are
+laden with restrictions. Therefore, we provide not only the Standard Forth
 locals wordset, but also our own, more powerful locals wordset (we
-implemented the ANS Forth locals wordset through our locals wordset).
+implemented the Standard Forth locals wordset through our locals wordset).
 
 The ideas in this section have also been published in M. Anton Ertl,
 @cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz,
@@ -9927,10 +9893,10 @@ Automatic Scoping of Local Variables}}, EuroForth '94.
 
 @menu
 * Gforth locals::
-* ANS Forth locals::
+* Standard Forth locals::
 @end menu
 
-@node Gforth locals, ANS Forth locals, Locals, Locals
+@node Gforth locals, Standard Forth locals, Locals, Locals
 @subsection Gforth locals
 @cindex Gforth locals
 @cindex locals, Gforth style
@@ -10413,11 +10379,11 @@ this may lead to increased space needs for the locals name area, but
 usually less than reclaiming this space would cost in code size.
 
 
-@node ANS Forth locals,  , Gforth locals, Locals
-@subsection ANS Forth locals
-@cindex locals, ANS Forth style
+@node Standard Forth locals,  , Gforth locals, Locals
+@subsection Standard Forth locals
+@cindex locals, Standard Forth style
 
-The ANS Forth locals wordset does not define a syntax for locals, but
+!!The Standard Forth locals wordset does not define a syntax for locals, but
 words that make it possible to define various syntaxes. One of the
 possible syntaxes is a subset of the syntax we used in the Gforth locals
 wordset, i.e.:
@@ -10449,7 +10415,7 @@ stack easier.
 The whole definition must be in one line.
 @end itemize
 
-Locals defined in ANS Forth behave like @code{VALUE}s
+Locals defined in Standard Forth behave like @code{VALUE}s
 (@pxref{Values}). I.e., they are initialized from the stack. Using their
 name produces their value. Their value can be changed using @code{TO}.
 
@@ -10462,7 +10428,7 @@ Note that a syntax shown in the standard, section A.13 looks
 similar, but is quite different in having the order of locals
 reversed. Beware!
 
-The ANS Forth locals wordset itself consists of one word:
+The Standard Forth locals wordset itself consists of one word:
 
 doc-(local)
 
@@ -10483,7 +10449,7 @@ implement using the ANS Forth locals wordset.
 @cindex records
 
 This section presents the structure package that comes with Gforth. A
-version of the package implemented in ANS Forth is available in
+version of the package implemented in Standard Forth is available in
 @file{compat/struct.fs}. This package was inspired by a posting on
 comp.lang.forth in 1989 (unfortunately I don't remember, by whom;
 possibly John Hayes). A version of this section has been published in
@@ -10627,7 +10593,7 @@ use @code{list% %allocate}). You can get the the size of a list
 node with @code{list% %size} and its alignment with @code{list%
 %alignment}.
 
-Note that in ANS Forth the body of a @code{create}d word is
+Note that in Standard Forth the body of a @code{create}d word is
 @code{aligned} but not necessarily @code{faligned};
 therefore, if you do a:
 
@@ -10796,7 +10762,7 @@ doc-struct
 @subsection Forth200x Structures
 @cindex Structures in Forth200x
 
-The Forth 200x standard defines a slightly less convenient form of
+The Forth 2012 standard defines a slightly less convenient form of
 structures.  In general (when using @code{field+}, you have to perform
 the alignment yourself, but there are a number of convenience words
 (e.g., @code{field:} that perform the alignment for you.
@@ -10838,7 +10804,7 @@ Gforth comes with three packages for object-oriented programming:
 is preloaded, so you have to @code{include} them before use. The most
 important differences between these packages (and others) are discussed
 in @ref{Comparison with other object models}. All packages are written
-in ANS Forth and can be used with any other ANS Forth.
+in Standard Forth and can be used with any other Standard Forth.
 
 @menu
 * Why object-oriented programming?::
@@ -11032,7 +10998,7 @@ model. Only a few features are necessary (@pxref{Basic Objects Usage},
 are optional and independent of each other.
 
 @item
-An implementation in ANS Forth is available.
+An implementation in Standard Forth is available.
 
 @end itemize
 
@@ -11726,7 +11692,7 @@ State-smart objects parse selectors. However, extensibility is provided
 using a (parsing) selector @code{postpone} and a selector @code{'}.
 
 @item
-An implementation in ANS Forth is available.
+An implementation in Standard Forth is available.
 
 @end itemize
 
@@ -12262,7 +12228,7 @@ changes more or less implicitly at @code{m: ... ;m}. Such a change at
 the method entry point is unnecessary with Zsoter's model, because the
 receiving object is the active object already. On the other hand, the
 explicit change is absolutely necessary in that model, because otherwise
-no one could ever change the active object. An ANS Forth implementation
+no one could ever change the active object. An Standard Forth implementation
 of this model is available through
 @uref{http://www.forth.org/oopf.html}.
 
@@ -12500,7 +12466,7 @@ marker is executed in the same file after their occurance.  They will
 print @samp{*somewhere*} as file name if a marker is executed in the
 same file before their occurance.
 
-Definitions in ANS Forth for these assertion words are provided
+Definitions in Standard Forth for these assertion words are provided
 in @file{compat/assert.fs}.
 
 
@@ -13867,13 +13833,13 @@ doc-cputime
 
 @comment TODO find homes for these
 
-These section lists the ANS Forth words that are not documented
+This section lists the Standard Forth words that are not documented
 elsewhere in this manual. Ultimately, they all need proper homes.
 
 doc-quit
 
-The following ANS Forth words are not currently supported by Gforth 
-(@pxref{ANS conformance}):
+The following Standard Forth words are not currently supported by Gforth 
+(@pxref{Standard conformance}):
 
 @code{EDITOR} 
 @code{EMIT?} 
@@ -13953,29 +13919,27 @@ caught by @code{catch} (e.g., for restoring some state), and then
 @code{throw}.
 
 @c ******************************************************************
-@node Tools, ANS conformance, Error messages, Top
+@node Tools, Standard conformance, Error messages, Top
 @chapter Tools
 
 @menu
-* ANS Report::                  Report the words used, sorted by wordset.
+* Standard Report::             Report the words used, sorted by wordset.
 * Stack depth changes::         Where does this stack item come from?
 @end menu
 
 See also @ref{Emacs and Gforth}.
 
-@node ANS Report, Stack depth changes, Tools, Tools
+@node Standard Report, Stack depth changes, Tools, Tools
 @section @file{ans-report.fs}: Report the words used, sorted by wordset
 @cindex @file{ans-report.fs}
 @cindex report the words used in your program
 @cindex words used in your program
 
-If you want to label a Forth program as ANS Forth Program, you must
-document which wordsets the program uses; for extension wordsets, it is
-helpful to list the words the program requires from these wordsets
-(because Forth systems are allowed to provide only some words of them).
+If you want to label a Forth program as Standard Program, you must
+document which wordsets the program uses.
 
 The @file{ans-report.fs} tool makes it easy for you to determine which
-words from which wordset and which non-ANS words your application
+words from which wordset and which non-standard words your application
 uses. You simply have to include @file{ans-report.fs} before loading the
 program you want to check. After loading your program, you can get the
 report with @code{print-ans-report}. A typical use is to run this as
@@ -13995,10 +13959,17 @@ from FILE :
 ( 
 @end example
 
+@file{ans-report.fs} reports both Forth-94 and Forth-2012 wordsets.
+For words that are in both standards, it reports the wordset without
+suffix (e.g., @code{CORE-EXT}).  For Forth-2012-only words, it reports
+the wordset with a @code{-2012} suffix (e.g., @code{CORE-EXT-2012});
+and likewise for the words that are Forth-94-only (i.e., that have
+been removed in Forth-2012).
+
 @subsection Caveats
 
-Note that @file{ans-report.fs} just checks which words are used, not whether
-they are used in an ANS Forth conforming way!
+Note that @file{ans-report.fs} just checks which words are used, not
+whether they are used in a standard-conforming way!
 
 Some words are defined in several wordsets in the
 standard. @file{ans-report.fs} reports them for only one of the
@@ -14008,7 +13979,7 @@ compilation semantics of @code{S"}, it is a Core word; if you also use
 its interpretation semantics, it is a File word.
 
 
-@node Stack depth changes,  , ANS Report, Tools
+@node Stack depth changes,  , Standard Report, Tools
 @section Stack depth changes during interpretation
 @cindex @file{depth-changes.fs}
 @cindex depth changes during interpretation
@@ -14060,13 +14031,13 @@ gforth depth-changes.fs -e "' most-lines is depth-changes-filter" my-file.fs
 @end example
 
 @c ******************************************************************
-@node ANS conformance, Standard vs Extensions, Tools, Top
-@chapter ANS conformance
-@cindex ANS conformance of Gforth
+@node Standard conformance, Standard vs Extensions, Tools, Top
+@chapter Standard conformance
+@cindex Standard conformance of Gforth
 
-To the best of our knowledge, Gforth is an
+To the best of our knowledge, Gforth is a
 
-ANS Forth System
+ANS Forth System and a Forth-2012 System
 @itemize @bullet
 @item providing the Core Extensions word set
 @item providing the Block word set
@@ -14076,7 +14047,7 @@ ANS Forth System
 @item providing the Exception word set
 @item providing the Exception Extensions word set
 @item providing the Facility word set
-@item providing @code{EKEY}, @code{EKEY>CHAR}, @code{EKEY?}, @code{MS} and @code{TIME&DATE} from the Facility Extensions word set
+@item providing the Facility Extensions word set, except @code{EMIT?}
 @item providing the File Access word set
 @item providing the File Access Extensions word set
 @item providing the Floating-Point word set
@@ -14084,13 +14055,14 @@ ANS Forth System
 @item providing the Locals word set
 @item providing the Locals Extensions word set
 @item providing the Memory-Allocation word set
-@item providing the Memory-Allocation Extensions word set (that one's easy)
+@item providing the Memory-Allocation Extensions word set
 @item providing the Programming-Tools word set
-@item providing @code{;CODE}, @code{AHEAD}, @code{ASSEMBLER}, @code{BYE}, @code{CODE}, @code{CS-PICK}, @code{CS-ROLL}, @code{STATE}, @code{[ELSE]}, @code{[IF]}, @code{[THEN]} from the Programming-Tools Extensions word set
+@item providing the Programming-Tools Extensions word set, except @code{EDITOR} and @code{FORGET}
 @item providing the Search-Order word set
 @item providing the Search-Order Extensions word set
 @item providing the String word set
-@item providing the String Extensions word set (another easy one)
+@item providing the String Extensions word set
+@item providing the Extended-Character wordset
 @end itemize
 
 Gforth has the following environmental restrictions:
@@ -14099,18 +14071,18 @@ Gforth has the following environmental restrictions:
 @itemize @bullet
 @item
 While processing the OS command line, if an exception is not caught,
-Gforth exits with a non-zero exit code instyead of performing QUIT.
+Gforth exits with a non-zero exit code instead of performing QUIT.
 
 @item
 When an @code{throw} is performed after a @code{query}, Gforth does not
-allways restore the input source specification in effect at the
+always restore the input source specification in effect at the
 corresponding catch.
 
 @end itemize
 
 
 @cindex system documentation
-In addition, ANS Forth systems are required to document certain
+In addition, Standard Forth systems are required to document certain
 implementation choices. This chapter tries to meet these
 requirements. In many cases it gives a way to ask the system for the
 information instead of providing the information directly, in
@@ -14136,7 +14108,7 @@ change during the maintenance of Gforth.
 
 
 @c =====================================================================
-@node The Core Words, The optional Block word set, ANS conformance, ANS conformance
+@node The Core Words, The optional Block word set, Standard conformance, Standard conformance
 @comment  node-name,  next,  previous,  up
 @section The Core Words
 @c =====================================================================
@@ -14690,7 +14662,7 @@ writing, this gives 80080 (bytes) on a 32-bit system.
 
 
 @c =====================================================================
-@node The optional Block word set, The optional Double Number word set, The Core Words, ANS conformance
+@node The optional Block word set, The optional Double Number word set, The Core Words, Standard conformance
 @section The optional Block word set
 @c =====================================================================
 @cindex system documentation, block words
@@ -14778,7 +14750,7 @@ depends on your disk space.
 
 
 @c =====================================================================
-@node The optional Double Number word set, The optional Exception word set, The optional Block word set, ANS conformance
+@node The optional Double Number word set, The optional Exception word set, The optional Block word set, Standard conformance
 @section The optional Double Number word set
 @c =====================================================================
 @cindex system documentation, double words
@@ -14805,7 +14777,7 @@ The least significant cell of @i{d} is produced.
 
 
 @c =====================================================================
-@node The optional Exception word set, The optional Facility word set, The optional Double Number word set, ANS conformance
+@node The optional Exception word set, The optional Facility word set, The optional Double Number word set, Standard conformance
 @section The optional Exception word set
 @c =====================================================================
 @cindex system documentation, exception words
@@ -14836,7 +14808,7 @@ undefined OS errors produce a message with a strange number; e.g.,
 @end table
 
 @c =====================================================================
-@node The optional Facility word set, The optional File-Access word set, The optional Exception word set, ANS conformance
+@node The optional Facility word set, The optional File-Access word set, The optional Exception word set, Standard conformance
 @section The optional Facility word set
 @c =====================================================================
 @cindex system documentation, facility words
@@ -14903,7 +14875,7 @@ simply nothing happen.
 
 
 @c =====================================================================
-@node The optional File-Access word set, The optional Floating-Point word set, The optional Facility word set, ANS conformance
+@node The optional File-Access word set, The optional Floating-Point word set, The optional Facility word set, Standard conformance
 @section The optional File-Access word set
 @c =====================================================================
 @cindex system documentation, file words
@@ -15041,7 +15013,7 @@ the source which loaded the block. (Better ideas?)
 
 
 @c =====================================================================
-@node  The optional Floating-Point word set, The optional Locals word set, The optional File-Access word set, ANS conformance
+@node  The optional Floating-Point word set, The optional Locals word set, The optional File-Access word set, Standard conformance
 @section The optional Floating-Point word set
 @c =====================================================================
 @cindex system documentation, floating-point words
@@ -15204,7 +15176,7 @@ close to @code{here}.
 @end table
 
 @c =====================================================================
-@node  The optional Locals word set, The optional Memory-Allocation word set, The optional Floating-Point word set, ANS conformance
+@node  The optional Locals word set, The optional Memory-Allocation word set, The optional Floating-Point word set, Standard conformance
 @section The optional Locals word set
 @c =====================================================================
 @cindex system documentation, locals words
@@ -15260,7 +15232,7 @@ gives an ``is compile-only'' warning.
 
 
 @c =====================================================================
-@node  The optional Memory-Allocation word set, The optional Programming-Tools word set, The optional Locals word set, ANS conformance
+@node  The optional Memory-Allocation word set, The optional Programming-Tools word set, The optional Locals word set, Standard conformance
 @section The optional Memory-Allocation word set
 @c =====================================================================
 @cindex system documentation, memory-allocation words
@@ -15289,7 +15261,7 @@ intended as throw codes. They typically are in the range
 @end table
 
 @c =====================================================================
-@node  The optional Programming-Tools word set, The optional Search-Order word set, The optional Memory-Allocation word set, ANS conformance
+@node  The optional Programming-Tools word set, The optional Search-Order word set, The optional Memory-Allocation word set, Standard conformance
 @section The optional Programming-Tools word set
 @c =====================================================================
 @cindex system documentation, programming-tools words
@@ -15323,7 +15295,7 @@ state.
 
 @item search order capability for @code{EDITOR} and @code{ASSEMBLER}:
 @cindex @code{ASSEMBLER}, search order capability
-The ANS Forth search order word set.
+The Search-Order word set.
 
 @item source and format of display by @code{SEE}:
 @cindex @code{SEE}, source and format of output
@@ -15385,7 +15357,7 @@ Not implemented (yet).
 
 
 @c =====================================================================
-@node  The optional Search-Order word set,  , The optional Programming-Tools word set, ANS conformance
+@node  The optional Search-Order word set,  , The optional Programming-Tools word set, Standard conformance
 @section The optional Search-Order word set
 @c =====================================================================
 @cindex system documentation, search-order words
@@ -15447,7 +15419,7 @@ are applied to the latest defined word (as reported by @code{latest} or
 @end table
 
 @c ***************************************************************
-@node Standard vs Extensions, Model, ANS conformance, Top
+@node Standard vs Extensions, Model, Standard conformance, Top
 @chapter Should I use Gforth extensions?
 @cindex Gforth extensions
 
@@ -15482,25 +15454,25 @@ are the following points to consider:
 @itemize @bullet
 
 @item
-Most Forth systems that are being maintained support the ANS Forth
-standard.  So if your program complies with the standard, it will be
-portable among many systems.
+Most Forth systems that are being maintained support Standard Forth.
+So if your program complies with the standard, it will be portable
+among many systems.
 
 @item
-A number of the Gforth extensions can be implemented in ANS Forth using
+A number of the Gforth extensions can be implemented in Standard Forth using
 public-domain files provided in the @file{compat/} directory. These are
 mentioned in the text in passing.  There is no reason not to use these
-extensions, your program will still be ANS Forth compliant; just include
+extensions, your program will still be Standard Forth compliant; just include
 the appropriate compat files with your program.
 
 @item
-The tool @file{ans-report.fs} (@pxref{ANS Report}) makes it easy to
+The tool @file{ans-report.fs} (@pxref{Standard Report}) makes it easy to
 analyse your program and determine what non-Standard words it relies
 upon.  However, it does not check whether you use standard words in a
 non-standard way.
 
 @item
-Some techniques are not standardized by ANS Forth, and are hard or
+Some techniques are not standardized by Standard Forth, and are hard or
 impossible to implement in a standard way, but can be implemented in
 most Forth systems easily, and usually in similar ways (e.g., accessing
 word headers).  Forth has a rich historical precedent for programmers
@@ -15547,7 +15519,7 @@ that are otherwise written in C, C++, or some other language.
 
 The Forth system ATLAST provides facilities for embedding it into
 applications; unfortunately it has several disadvantages: most
-importantly, it is not based on ANS Forth, and it is apparently dead
+importantly, it is not based on Standard Forth, and it is apparently dead
 (i.e., not developed further and not supported). The facilities
 provided by Gforth in this area are inspired by ATLAST's facilities, so
 making the switch should not be hard.
@@ -16452,7 +16424,7 @@ goto *ca;
 @end example
 @cindex instruction pointer
 For those unfamiliar with the names: @code{ip} is the Forth instruction
-pointer; the @code{cfa} (code-field address) corresponds to ANS Forths
+pointer; the @code{cfa} (code-field address) corresponds to Standard Forth's
 execution token and points to the code field of the next word to be
 executed; The @code{ca} (code address) fetched from there points to some
 executable code, e.g., a primitive or the colon definition handler
@@ -17201,7 +17173,7 @@ physically for the first 4 years of development.
 @cindex pedigree of Gforth
 
 Gforth descends from bigFORTH (1993) and fig-Forth.  Of course, a
-significant part of the design of Gforth was prescribed by ANS Forth.
+significant part of the design of Gforth was prescribed by Standard Forth.
 
 Bernd Paysan wrote bigFORTH, a descendent from TurboForth, an unreleased
 32 bit native code version of VolksForth for the Atari ST, written
@@ -17254,8 +17226,8 @@ There is an active news group (comp.lang.forth) discussing Forth
 information on Forth.  You should read it before posting to
 comp.lang.forth.
 
-The ANS Forth standard is most usable in its
-@uref{http://www.taygeta.com/forth/dpans.html, HTML form}.
+The Forth standard is most usable in its
+@uref{http://forth-standard.org/, HTML form}.
 
 @c ---------------------------------------------------
 @node  Licenses, Word Index, Forth-related information, Top
