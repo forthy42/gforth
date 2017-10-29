@@ -18,8 +18,9 @@ AB   [ ]*locate, view, where & edit
          [ ]*help or doc - get documentation of word
          [ ]*backtrace os-commandline
          [ ]*where: interaction with editors
-A    [ ]*2012 Implementieren
-A        [ ] update ansreport
+A    [x]*2012 Implementieren
+A        [x] update ansreport
+A        [ ] system documentation requirements
  B   [ ] Configure Scripts
  B       [x] make -j
   G      [ ] ./BUILD-FROM-SCRATCH mit make -j
