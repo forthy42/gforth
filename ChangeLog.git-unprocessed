@@ -1,64 +1,8 @@
 -*- fundamental -*-
 
-Contained all changes up to ab151c2 on 2017-10-29, everything newer is unprocessed, everything not in here is already subsumed in NEWS
-
-2017-10-29 - (HEAD -> master, origin/master, origin/HEAD) rewrote REPLACE-WORD <Anton Ertl> ab151c2
-
-debugs.fs
-
-2017-10-29 - factored out >prim-code <Anton Ertl> 84fc651
-
-debugs.fs
-
-2017-10-29 - Merge remote-tracking branch 'refs/remotes/origin/master' <Anton Ertl> c1e6ed4
-
-2017-10-29 - Updated ans-report.fs documentation replaced "ANS Forth" with "Standard Forth" started with Forth-2012 system documentation requirements <Anton Ertl> 28d1e80
-
-doc/gforth.texi.in
-
-2017-10-29 - Merge branch 'master' of git.sv.gnu.org:/srv/git/gforth <Gerald Wodni> d4a4a9b
-
-2017-10-29 - responsive css added for html-documentation <Gerald Wodni> dae5cf4
-
-doc/Makefile.in
-doc/gforth.css
-
-2017-10-29 - Made replace-word work again after being broken by locate/where magic <Bernd Paysan> f030b34
-
-debugs.fs
-
-2017-10-28 - Add -j to Android build <Bernd Paysan> 252a2e3
-
-arch/arm/android/build.sh
-
-2017-10-28 - Fix EUID typo <Bernd Paysan> 48d61b1
-
-Makefile.in
-
-2017-10-28 - Fix EUID typo <Bernd Paysan> c697b66
-
-Makefile.in
-
-2017-10-28 - Merge branch 'master' of git.sv.gnu.org:/srv/git/gforth <Gerald Wodni> ba1862f
-
-2017-10-28 - make -j with processor-count added in BUILD_FROM_SCRATCH <Gerald Wodni> 8380748
-
-BUILD-FROM-SCRATCH
-ToDo
-
-2017-10-28 - Clean kernl*.fi also in make fresh <Bernd Paysan> 92c6a95
-
-Makefile.in
-
-2017-10-28 - Check for EUID 0 when reporting failed to clean files on make install <Bernd Paysan> 3035ba1
-
-Makefile.in
-
-2017-10-28 - Remove duplicated definitions for locate/view <Bernd Paysan> baa20b9
-
-Makefile.in
-debugs.fs
-locate1.fs
+Contained all changes up to ab151c2 on 2017-10-29, everything newer is
+unprocessed, everything earlier that's not in here is already subsumed
+in NEWS
 
 2017-10-28 - xpos and pos1 refactored to view (for name>view and friends) <Gerald Wodni> d06fbd7
 

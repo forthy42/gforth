@@ -1,3 +1,14 @@
+We switched to git on 2012-09-20.  If you want to see something
+similar based on git (back to 1994, because we converted the CVS
+history to git), just do
+
+git clone https://git.savannah.gnu.org/git/gforth.git
+cd gforth
+make ChangeLog.git
+
+and you will find the result in ChangeLog.git.  We no longer update
+this file.
+
 Update this by inserting the output of 
 	rcs2log -u "pazsan	Bernd Paysan	bernd.paysan@gmx.de" -h mips.complang.tuwien.ac.at
 with possibly additional -u clauses for other authors.  Check the authors with
