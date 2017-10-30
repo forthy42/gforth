@@ -1162,7 +1162,7 @@ fi
 if test $LIBFFIFLAG = false -a $FFCALLFLAG = false; then
   AC_MSG_WARN([The (old) lib.fs foreign function interface needs either libffi or the ffcall libraries])
   config_warns="$config_warns
-Lld foreign interfaces not supported (libffi or ffcall)."
+Old foreign interfaces not supported (libffi or ffcall)."
 fi
 AC_SUBST(LIBFFIFLAG)
 AC_SUBST(FFCALLFLAG)
