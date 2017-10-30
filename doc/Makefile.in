@@ -59,8 +59,8 @@ vmgen.info:	$(VMGEN_TEXI)
 		$(MAKEINFO) $<
 
 gforth:		$(GFORTH_TEXI)
-		$(MAKEINFO) --css-ref $(GFORTH_CSS) --html $<
-		$(CP) $(GFORTH_CSS) gforth.html
+		$(MAKEINFO) --css-ref $(GFORTH_CSS) -o gforth --html $<
+		$(CP) $(GFORTH_CSS) gforth/
 
 vmgen:		$(VMGEN_TEXI)
 		$(MAKEINFO) --html $<
