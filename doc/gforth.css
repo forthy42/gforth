@@ -33,10 +33,10 @@ div.header {
 div.header ~ div.header {
     /* bottom */
     margin-top: 10px;
-    bottom: 0;
+    bottom: 0px;
     overflow:hidden;
     position:absolute;
-    width: 100%;
+    width: calc(100% - 2px);
 }
 div.header p {
     margin: 10px 15px;
