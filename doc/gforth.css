@@ -72,7 +72,7 @@ pre.example, code {
 /* responsive */
 /* small */
 @media (min-width: 768px) {
-    body > *, div.header > p {
+    body > *, div.header > p, div.display > pre, div.smallexample > pre {
         margin-left: auto;
         margin-right: auto;
         width: 750px;
@@ -81,18 +81,18 @@ pre.example, code {
 
 /* medium */
 @media (min-width: 992px) {
-    body > *, div.header > p {
+    body > *, div.header > p, div.display > pre, div.smallexample > pre {
         width: 970px;
     }
 }
 
 /* large */
 @media (min-width: 1200px) {
-    body > *, div.header > p {
+    body > *, div.header > p, div.display > pre, div.smallexample > pre {
         width: 1170px;
     }
 }
 
-body > div.header {
+body > div.header, body > div.display, body > div.smallexample {
     width: auto;
 }
