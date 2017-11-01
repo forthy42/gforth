@@ -23,6 +23,7 @@ require unix/win32.fs
 require unix/user.fs
 require unix/gdi.fs
 require utf16.fs
+require unix/opengles.fs
 
 debug: windows(
 \ +db windows( \ )
@@ -90,7 +91,7 @@ Variable createstruc
     windowClass RegisterClassEx drop ;
 
 : make-window ( w h -- hnd )  2>r
-    0 "gforth" "GL-Window" wStyle 2r> adjust 0 0
+    0 "gforth" "GL-Window" wStyle 0 0 2r> 0 0
     hInstance @ 0 CreateWindowEx ;
 
 : get-events ( -- )
@@ -99,8 +100,62 @@ Variable createstruc
 	    event DispatchMessage drop
     REPEAT ;
 
-: show-window ( hnd -- )
-    0 640 400 adjust SWP_NOZORDER SWP_SHOWWINDOW or SetWindowPos drop ;
+0 Value dpy
+0 Value win
 
-register-class
-640 400 make-window Value win
+: get-display ( -- w h )
+    register-class
+    SM_CXMAXIMIZED GetSystemMetrics
+    SM_CYMAXIMIZED GetSystemMetrics
+    2dup make-window to win
+    win GetDC to dpy ;
+
+[IFDEF] dpy-w
+    also opengl
+    : getwh ( -- )
+	0 0 dpy-w @ dpy-h @ glViewport ;
+    
+    : win-eglwin ( w h -- )  2drop ;
+    previous
+[THEN]
+
+\ looper
+
+get-current also forth definitions
+
+require unix/socket.fs
+require unix/pthread.fs
+
+previous set-current
+
+User xptimeout  cell uallot drop
+#16 Value looper-to# \ 16ms, don't sleep too long
+looper-to# #1000000 um* xptimeout 2!
+2 Value xpollfd#
+User xpollfds
+xpollfds pollfd xpollfd# * dup cell- uallot drop erase
+
+: >poll-events ( delay -- n )
+    0 xptimeout 2!
+    epiper @ fileno POLLIN  xpollfds fds!+ >r
+    infile-id fileno POLLIN  r> fds!+ >r
+    r> xpollfds - pollfd / ;
+
+: xpoll ( -- flag )
+    [IFDEF] ppoll
+	xptimeout 0 ppoll 0>
+    [ELSE]
+	xptimeout 2@ #1000 * swap #1000000 / + poll 0>
+    [THEN] ;
+
+Defer ?looper-timeouts ' noop is ?looper-timeouts
+
+: #looper ( delay -- ) #1000000 *
+    ?looper-timeouts >poll-events >r
+    xpollfds r> xpoll
+    IF
+	xpollfds          revents w@ POLLIN and IF  ?events  THEN
+    THEN
+    get-events ;
+
+: >looper ( -- )  looper-to# #looper ;
