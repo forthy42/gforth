@@ -22,7 +22,7 @@ get-current also wayland definitions
 
 c-library waylandlib
     \c #include <wayland/wayland-client.h>
-    \c #include <wayland/wayland-egl.h>
+    \c #include <wayland/wayland-egl-core.h>
     \c #include <wayland/wayland-cursor.h>
     s" wayland-egl" add-lib
     s" wayland-client" add-lib
