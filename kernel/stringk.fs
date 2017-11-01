@@ -133,8 +133,9 @@
 \ auto-save and restore strings in images
 
 : $boot ( $addr -- )
-    \G take string from dictionary to allocated memory
-    dup >r $@ r@ off r> $! ;
+    \G take string from dictionary to allocated memory.
+    \G clean dictionary afterwards.
+    dup >r $@ 2dup r> dup off $! 0 fill ;
 : $save ( $addr -- )
     \G push string to dictionary for savesys
     dup >r $@ here r> ! dup , here swap dup aligned allot move ;
