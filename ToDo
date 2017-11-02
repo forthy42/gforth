@@ -13,6 +13,7 @@ ABGO [ ] Documentation for Undocumented features
 A        [ ]*Search changelogs for features
 A    [ ]*Sections
 A        [ ] integrate for: quotations, strings, locals
+ B       [ ] loader for images with sections
 AB   [ ]*locate, view, where & edit
          [ ] documented view>*
          [ ]*help or doc - get documentation of word
