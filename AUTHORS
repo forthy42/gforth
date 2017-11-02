@@ -2,7 +2,7 @@ Authors of Gforth (alphabetically listed, format as Linux CREDITS):
 
 N: Anton Ertl
 E: anton@mips.complang.tuwien.ac.at
-D: Project initiator, C based primitives, locals, gray, manual
+D: Project initiator, C based primitives, locals, gray, manual, 
 D: Release manager, GNU maintainer
 
 N: Neal Crook
@@ -11,7 +11,7 @@ D: manual, glossary entries
 
 N: Bernd Paysan
 E: bernd@net2o.de
-D: Project leader, kernel, cross compiler, non-Unix ports based on GCC
+D: Project leader, kernel, cross compiler, non-Unix ports based on GCC, 
 D: Release manager, GNU maintainer
 S: Wilbrechtstr. 85
 S: D-81477 München

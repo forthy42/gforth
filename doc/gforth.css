@@ -1,6 +1,12 @@
+html {
+    position: relative;
+    min-height: 100%;
+}
+
 body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    margin-bottom: 0;
+    min-height: 100%;
+    margin-bottom: 60px;
 }
 
 /* gerneral */
@@ -27,6 +33,10 @@ div.header {
 div.header ~ div.header {
     /* bottom */
     margin-top: 10px;
+    bottom: 0px;
+    overflow:hidden;
+    position:absolute;
+    width: calc(100% - 2px);
 }
 div.header p {
     margin: 10px 15px;
@@ -62,7 +72,7 @@ pre.example, code {
 /* responsive */
 /* small */
 @media (min-width: 768px) {
-    body > *, div.header > p {
+    body > *, div.header > p, div.display > pre, div.smallexample > pre {
         margin-left: auto;
         margin-right: auto;
         width: 750px;
@@ -71,18 +81,18 @@ pre.example, code {
 
 /* medium */
 @media (min-width: 992px) {
-    body > *, div.header > p {
+    body > *, div.header > p, div.display > pre, div.smallexample > pre {
         width: 970px;
     }
 }
 
 /* large */
 @media (min-width: 1200px) {
-    body > *, div.header > p {
+    body > *, div.header > p, div.display > pre, div.smallexample > pre {
         width: 1170px;
     }
 }
 
-body > div.header {
+body > div.header, body > div.display, body > div.smallexample {
     width: auto;
 }

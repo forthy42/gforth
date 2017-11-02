@@ -26,6 +26,7 @@ DVI2PS	= dvips -t letterSize -Z
 MAKEINFO = makeinfo $(SRCINC)
 GFORTH_CSS = gforth.css
 TEXI2HTML = texi2html $(SRCINC)
+CP	= cp -p
 
 VPATH = @srcdir@:.
 
@@ -58,7 +59,8 @@ vmgen.info:	$(VMGEN_TEXI)
 		$(MAKEINFO) $<
 
 gforth:		$(GFORTH_TEXI)
-		$(MAKEINFO) --css-include $(GFORTH_CSS) --html $<
+		$(MAKEINFO) --css-ref $(GFORTH_CSS) -o gforth --html $<
+		$(CP) $(GFORTH_CSS) gforth/
 
 vmgen:		$(VMGEN_TEXI)
 		$(MAKEINFO) --html $<
