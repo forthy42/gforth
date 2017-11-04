@@ -20,13 +20,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20171026],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20171101],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="October 26, 2017"
+UPDATED="November 1, 2017"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -371,6 +371,8 @@ case "$host_cpu" in
 			no_dynamic_default=1
 			AC_LIBOBJ(arm-cacheflush0)
 			AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
+			config_warns="$config_warns
+Dynamic NC generation disabled."
 			;;
                 esac
                 #longer skipcodes lead to problems on ARM, and it uses
@@ -471,6 +473,8 @@ case "$host_cpu" in
 		if test -z "$no_dynamic_default"; then
 		    no_dynamic_default=1
 		    AC_MSG_WARN([Disabling default dynamic native code generation (relocation and delay slot issues)])
+			config_warns="$config_warns
+Dynamic Code generation disabled."
 		fi
 		;;
 	alpha*)
@@ -497,11 +501,15 @@ case "$host_cpu" in
 		AC_MSG_WARN([Using a generic machine description])
 		AC_MSG_WARN([Assuming C floats and doubles are IEEE floats and doubles (for SF@ DF@ SF! DF!)])
 		AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
+		config_warns="$config_warns
+Generic machine description used."
 		machine=generic
 		#I-cache flushing would be needed for dynamic code generation
 		if test -z $no_dynamic_default; then
 		    no_dynamic_default=1
 		    AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
+		    config_warns="$config_warns
+Dynamic NC generation disabled."
 		fi
 esac
 AC_SUBST(host)
@@ -1032,6 +1040,8 @@ then
     if test -z $no_dynamic_default; then
 	no_dynamic_default=1
 	AC_MSG_WARN(Disabling default dynamic native code generation)
+	config_warns="$config_warns
+Dynamic NC generation disabled."
     fi
     AC_DEFINE_UNQUOTED(SKIP16,asm(""),statement for skipping 16 bytes)
 else
@@ -1074,6 +1084,9 @@ AC_CHECK_PROGS(GNU_LIBTOOL,"glibtool --tag=CC" libtool)
 if test -z "$GNU_LIBTOOL"; then
   AC_MSG_WARN([No GNU_LIBTOOL found, using "libtool" as name.])
   AC_MSG_WARN([libcc.fs won't work until you have installed (GNU) libtool.])
+  AC_MSG_WARN([(package libtool-bin on Debian).])
+  config_warns="$config_warns
+GNU libtool not found."
   #'
   GNU_LIBTOOL=libtool
 fi
@@ -1101,6 +1114,9 @@ elif test -n "GNU_LIBTOOL" -a $ac_cv_func_dlopen = yes; then
 else
   AC_MSG_WARN([No LIBTOOL found, skip pre-building libcc-based libraries])
   AC_MSG_WARN([No LIBTOOL found, skip building library])
+  AC_MSG_WARN([If you use Debian, install libtool-bin])
+  config_warns="$config_warns
+GNU libtool not found."
   enable_lib=no
 fi
 AC_SUBST(build_libcc_named)
@@ -1145,6 +1161,8 @@ else
 fi
 if test $LIBFFIFLAG = false -a $FFCALLFLAG = false; then
   AC_MSG_WARN([The (old) lib.fs foreign function interface needs either libffi or the ffcall libraries])
+  config_warns="$config_warns
+Old foreign interfaces not supported (libffi or ffcall)."
 fi
 AC_SUBST(LIBFFIFLAG)
 AC_SUBST(FFCALLFLAG)
@@ -1274,6 +1292,8 @@ AC_SUBST(incdir)
 test x$SWIG = x && AC_PATH_PROG(SWIG, swig)
 if test -z "$SWIG"; then
    AC_MSG_WARN([*** Could not find swig in your PATH. The library bindings cannot be built.])
+   config_warns="$config_warns
+swig not found."
 fi
 
 has_swig=no
@@ -1418,6 +1438,8 @@ fi
 
 if test x$has_swig = xno; then
    AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])
+   config_warns="$config_warns
+Swig without -forth feature."
 fi
 AC_SUBST(SWIGMODULES)
 AC_SUBST(SWIGINCLUDES)
@@ -1486,4 +1508,15 @@ if test x$kernel_anti_dependence = x; then
    do
 	cp kernl$i.fi kernl$i.fi-
    done
+fi
+
+# print warnings summary if exist
+
+echo
+if test -z "$config_warns"
+then
+   echo "*** Config summary: everything fine ***"
+else
+   echo "*** Config summary: Warnings exist ***"
+   echo "$config_warns"
 fi

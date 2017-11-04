@@ -42,9 +42,9 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 \G additional debugging information; the default @code{.debugline}
 \G prints the additional information with @code{printdebugdata}.
 
-: (.debugline) ( xpos -- )
+: (.debugline) ( view -- )
     info-color attr!
-    cr .sourcepos1 ." :"
+    cr .sourceview ." :"
     \ it would be nice to print the name of the following word,
     \ but that's not easily possible for primitives
     printdebugdata
@@ -57,7 +57,7 @@ stderr value debug-fid ( -- fid )
 
 ' (.debugline) IS .debugline
 
-: .debugline-directed ( xpos -- )
+: .debugline-directed ( view -- )
     op-vector @ { oldout }
     debug-vector @ op-vector !
     ['] .debugline catch
@@ -65,7 +65,7 @@ stderr value debug-fid ( -- fid )
     throw ;
 
 :noname ( -- )
-    current-sourcepos1 .debugline-directed ;
+    current-sourceview .debugline-directed ;
 :noname ( compilation  -- ; run-time  -- )
     compile-sourcepos POSTPONE .debugline-directed ;
 interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
@@ -164,10 +164,17 @@ is ?warning
 
 \ replacing one word with another
 
-: replace-word ( xt2 xt1 -- )
+: >colon-body ( xt -- addr )
+    dup @ docol: <> -12 and throw >body ;
+
+: >prim-code ( xt -- x )
+    \ converts xt of a primitive into a form usable in the code of
+    \ colon definitions on the current engine
+    threading-method 0= IF @ THEN ;
+
+: replace-word ( xt2 xt1 -- ) \ gforth
   \G make xt1 do xt2, both need to be colon definitions
-  >body  here >r dp !  >r postpone AHEAD  r> >body dp !  postpone THEN
-  r> dp ! ;
+    ['] branch >prim-code rot >colon-body rot >colon-body 2! ;
 
 \ watching variables and values
 
@@ -213,52 +220,9 @@ require string.fs
 : view-vi ( "name" -- ) \ gforth
     [: ." vi -t '" parse-name esc'type ." '" ;] $tmp system ;
 
-Variable locate-file[]
-
 : type-prefix ( c-addr1 u1 u -- c-addr2 u2 )
     \ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
     >r 2dup r> umin tuck type /string ;
-
-: show-pos1 ( pos1 u -- ) {: u :}
-    decode-pos1  {: lineno charno :}
-    loadfilename#>str locate-file[] $[]slurp-file
-    lineno after-locate + 1+ locate-file[] $[]# umin
-    lineno before-locate 1+ - 0 max +DO  cr
-	I locate-file[] $[]@
-	I 1+ lineno = IF
-	    warn-color attr! '*' emit  I 1+ 5 .r ." : "  charno type-prefix
-	    err-color attr!                                   u type-prefix
-	    warn-color attr!                                    type
-	    default-color attr!
-	ELSE
-	    I 1+ 6 .r ." : "  type
-	THEN
-    LOOP ;
-: scroll-pos1 ( pos1 -- )
-    decode-pos1 drop nip {: lineno :}
-    lineno after-locate + 1+ locate-file[] $[]# umin
-    lineno before-locate 1+ - 0 max +DO  cr
-	I 1+ 6 .r ." : "  I locate-file[] $[]@ type
-    LOOP ;
-
-: view-name {: nt -- :}
-    locate-file[] $[]free
-    warn-color attr!  nt name>view @ dup cr .sourcepos1  default-color attr!
-    nt name>string nip 2dup set-located-xpos show-pos1 ;
-
-: +locate-lines ( n -- pos )
-    >r located-xpos @ decode-pos1 swap r> + 0 max
-    locate-file[] $[]# 1- min swap encode-pos1 ;
-
-: n ( -- )
-    before-locate after-locate + 2 +
-    +locate-lines dup located-xpos ! scroll-pos1 ;
-: b ( -- )
-    before-locate after-locate + 2 + negate
-    +locate-lines dup located-xpos ! scroll-pos1 ;
-: l ( -- )
-    warn-color attr!  located-xpos @ dup cr .sourcepos1  default-color attr!
-    located-len @ show-pos1 ;
 
 \ locate/view of recognized tokens show the recognizer, if not a word
 \ Idea: Jenny Brian
@@ -275,20 +239,17 @@ Variable rec'
     dup rectype-null = -#13 and throw
     dup >namevt @ >vtlit, @ ['] noop <> IF  drop rec' @  THEN ;
 
-: view-native ( "name" -- )
-    view' view-name ;
-
 : kate-l:c ( line pos -- )
     swap ." -l " . ." -c " . ;
 : emacs-l:c ( line pos -- )
     ." +" swap 0 .r ." :" . ;
 : vi-l:c ( line pos -- )  ." +" drop . ;
-: editor-cmd ( soucepos1 -- )
+: editor-cmd ( souceview -- )
     s" EDITOR" getenv dup 0= IF
 	2drop s" vi" \ if you don't set EDITOR, use vi as default
     THEN
     2dup 2>r type space
-    decode-pos1 1+
+    decode-view 1+
     2r@ s" emacs" search nip nip  2r@ s" gedit" str= or  IF  emacs-l:c  ELSE
 	2r@ s" kate" string-prefix? IF  kate-l:c  ELSE
 	    vi-l:c  \ also works for joe, mcedit, nano, and is de facto standard
@@ -296,14 +257,6 @@ Variable rec'
     THEN
     ''' emit loadfilename#>str esc'type ''' emit  2rdrop ;
 
-: g ( -- )
-    located-xpos @ ['] editor-cmd $tmp system ;
-
-: external-edit ( "name" )
-    (') name>view @ located-xpos ! g ;
-
-Defer edit ( "name" -- ) \ gforth
-' external-edit IS edit
 \G tell the editor to go to the source of a word
 \G uses $EDITOR, and adjusts goto line command depending
 \G on vi- (default), kate-, or emacs-style
@@ -315,13 +268,6 @@ Defer edit ( "name" -- ) \ gforth
 \G EDITOR=joe|mcedit|nano  #if you like other simple editors
 \G @end example
 
-Defer view ( "name" -- ) \ gforth
-\G directly view the source in the curent terminal
-' view-native IS view
-
-' view alias locate ( "name" -- ) \ forth inc
-\G directly view the source in the curent terminal
-
 \ insert a different location
 
 : #loc ( nline nchar "file" -- )
@@ -329,4 +275,4 @@ Defer view ( "name" -- ) \ gforth
     parse-name 2dup str>loadfilename# dup 0< IF
 	drop add-included-file included-files $[]# 1-
     ELSE  nip nip  THEN
-    -rot encode-pos1 to replace-sourcepos1 ;
+    -rot encode-view to replace-sourceview ;

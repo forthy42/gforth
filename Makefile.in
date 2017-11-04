@@ -53,12 +53,14 @@ EXTRAS= @EXTRAS@
 HOST= @HOSTPREFIX@
 EXTRAPREFIX= @EXTRAPREFIX@
 FAST= @FAST@
+PACKAGE_TARNAME= @PACKAGE_TARNAME@
 
 # ------------	Install Directories
 
 package = $(DESTDIR)
 VPATH = @srcdir@:.
 prefix = @prefix@
+docdir= @docdir@
 exec_prefix = @exec_prefix@
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -74,6 +76,7 @@ buildccdir = lib/gforth/$(VERSION)/$(machine)/libcc-named
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
 htmldir = $(package)@htmldir@
+pdfdir = $(package)@pdfdir@
 mandir = $(package)@mandir@
 man1dir= $(mandir)/man1
 man1ext= .1
@@ -713,6 +716,11 @@ distclean:	clean
 realclean:	distclean
 		-$(RM) -rf $(GEN_PRECIOUS) `cat .cvsignore`
 
+kernel-clean:
+		-$(RM) -rf $(KERNLS) $(BKERNLS)
+
+fresh: kernel-clean all
+
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean
 		-$(RM) -rf gforth.fns gforth.texi gforth.ps gforth.info* \
@@ -724,7 +732,9 @@ maintainer-clean: realclean
 #Makefile if it contains our dist rules.  Therefore we have put these
 #rules in Makedist (you can use them with GNU make on these systems).
 
-debdist setup-debdist docdist htmldist: doc
+debdist:
+
+setup-debdist docdist htmldist: doc
 
 dist srcdist srconlydist docdist htmldist bindist binonlydist debdist setup-debdist:		Makedist FORCE
 		$(MAKE) -f Makedist d$@
@@ -810,9 +820,21 @@ install-libcc:
 install-man:
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(man1dir)
 
-install-info:
+install-info:	doc
 		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/gforth.info
 		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/vmgen.info
+
+install-html:	html
+		$(MKDIR) -p $(htmldir)/html
+		$(CP) doc/gforth/* $(htmldir)/html
+		$(MKDIR) -p $(htmldir)/../vmgen/html
+		$(CP) doc/vmgen/* $(htmldir)/../vmgen/html
+
+install-pdf:	pdf
+		$(MKDIR) -p $(pdfdir)
+		$(MKDIR) -p $(pdfdir)/../vmgen
+		$(CP) doc/gforth.pdf $(pdfdir)
+		$(CP) doc/vmgen.pdf $(pdfdir)/../vmgen/
 
 install-tags:	install.TAGS
 		$(INSTALL_DATA) install.TAGS $(datadir)/gforth/$(VERSION)/TAGS
@@ -846,6 +868,7 @@ install-seq:	install-indep install-arch
 post-inst:
 		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
 		$(POST_INSTALL)
+		@test $$EUID -ne 0 && find . -user root | sed -e 's/^/failed to clean: /g' || true
 		@echo
 		@echo
 		@echo "============= INSTALL SUCCEEDED ============="
@@ -1297,7 +1320,7 @@ checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdo
 		-grep unknown doc/gforth.texi
 		-grep doc- doc/gforth.texi| grep -v '^@c'
 
-doc pdf dvi txt ps:	gforth.fi TAGS $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
+doc pdf dvi txt ps html:	gforth.fi TAGS $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
 		-cd doc; $(MAKE) $@
 
 # For an explanation of the following Makefile rules, see node
@@ -1329,3 +1352,5 @@ $(CONFIG_GEN): kernel/version.fs
 config.status: configure
 	./config.status --recheck
 
+ChangeLog.git: FORCE
+	git log --name-only --date=short --pretty=format:'%cd -%d %s <%an> %h%n%b' --abbrev-commit >ChangeLog.git

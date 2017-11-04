@@ -11,7 +11,8 @@ DB = $(CURDIR)/debian/gforth-bin
 DH = $(CURDIR)/debian/gforth-html
 DP = $(CURDIR)/debian/gforth-pdf
 DV = $(CURDIR)/debian/gforth-dev
-DM== $(CURDIR)/debian/gforth-minos2
+DM = $(CURDIR)/debian/gforth-minos2
+DI = $(CURDIR)/debian/gforth-info
 USHARE = $(DB)/usr/share/gforth/$(GFORTH_VER)
 ULIB = $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)
 
@@ -22,11 +23,13 @@ override_dh_auto_test:
 override_dh_shlibdeps:
 override_dh_auto_configure:
 	dh_auto_configure -- --with-elispstartdir=/etc/emacs/site-start.d
-
+override_dh_make:
+	make -j$(nproc)
+	make doc -j$(nproc)
 override_dh_auto_install:
 	mkdir -p $(DB)/usr/lib/gforth/site-forth
 	touch $(DB)/usr/lib/gforth/site-forth/site-init.fs
-	dh_auto_install -- DESTDIR=$(DB)
+	dh_auto_install -- install-html install-pdf DESTDIR=$(DB)
 	chmod 755 $(USHARE)/filedump.fs $(USHARE)/httpd.fs $(USHARE)/sieve.fs \
 	$(ULIB)/kernl*.fi $(ULIB)/gforth.fi
 	mkdir -p $(DC)/usr $(DC)/usr/bin $(DL)/usr/lib $(DV)/usr/include
@@ -41,6 +44,16 @@ override_dh_auto_install:
 	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mkdir -p $(D)/usr/bin
 	mv $(DB)/usr/bin/gforth $(DB)/usr/bin/gforth-fast $(DB)/usr/bin/gforth-itc $(DB)/usr/bin/gforth-ditc $(DB)/usr/bin/gforthmi $(DB)/usr/bin/gforth-$(GFORTH_VER) $(DB)/usr/bin/gforth-fast-$(GFORTH_VER) $(DB)/usr/bin/gforth-itc-$(GFORTH_VER) $(DB)/usr/bin/gforth-ditc-$(GFORTH_VER) $(DB)/usr/bin/gforthmi-$(GFORTH_VER) $(D)/usr/bin
+	mkdir -p $(DI)/usr/share
+	mv $(DC)/usr/share/info $(DI)/usr/share
+	mkdir -p $(DH)/usr/share/doc/gforth
+	mkdir -p $(DH)/usr/share/doc/vmgen
+	mv $(DC)/usr/share/doc/gforth/html $(DH)/usr/share/doc/gforth
+	mv $(DC)/usr/share/doc/vmgen/html $(DH)/usr/share/doc/vmgen
+	mkdir -p $(DP)/usr/share/doc/gforth
+	mkdir -p $(DP)/usr/share/doc/vmgen
+	mv $(DC)/usr/share/doc/gforth/*.pdf $(DP)/usr/share/doc/gforth
+	mv $(DC)/usr/share/doc/vmgen/*.pdf $(DP)/usr/share/doc/vmgen
 
 override_dh_installchangelogs:
 	git log --date=format:%Y-%m-%d --pretty=format:'%cd  %cN  <%cE>%n%n%x09* %s%n' | gzip >$(DC)/usr/share/doc/gforth-common/changelog.gz
@@ -48,3 +61,5 @@ override_dh_installchangelogs:
 	rm -rf $(DL)/usr/share/doc
 	rm -rf $(DB)/usr/share/doc
 	rm -rf $(DV)/usr/share/doc
+	rm -rf $(DP)/usr/share/doc/gforth-pdf
+	rm -rf $(DH)/usr/share/doc/gforth-html

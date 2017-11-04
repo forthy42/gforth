@@ -23,11 +23,11 @@ variable assert-level ( -- a-addr ) \ gforth
 \G All assertions above this level are turned off.
 1 assert-level !
 
-: (end-assert) ( flag xpos -- ) \ gforth-internal
+: (end-assert) ( flag view -- ) \ gforth-internal
     swap if
 	drop
     else
-	.sourcepos1 ." : failed assertion"
+	.sourceview ." : failed assertion"
 	true abort" assertion failed" \ !! or use a new throw code?
     then ;
 

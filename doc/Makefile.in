@@ -24,7 +24,9 @@ TEXI2PDF = @TEXI2DVI@ $(SRCINC) --pdf
 DVI2PS	= dvips -t letterSize -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
 MAKEINFO = makeinfo $(SRCINC)
+GFORTH_CSS = gforth.css
 TEXI2HTML = texi2html $(SRCINC)
+CP	= cp -p
 
 VPATH = @srcdir@:.
 
@@ -57,7 +59,8 @@ vmgen.info:	$(VMGEN_TEXI)
 		$(MAKEINFO) $<
 
 gforth:		$(GFORTH_TEXI)
-		$(MAKEINFO) --html $<
+		$(MAKEINFO) --css-ref $(GFORTH_CSS) -o gforth --html $<
+		$(CP) $(GFORTH_CSS) gforth/
 
 vmgen:		$(VMGEN_TEXI)
 		$(MAKEINFO) --html $<

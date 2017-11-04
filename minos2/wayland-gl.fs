@@ -210,7 +210,7 @@ Create registry-listener , ,
 : get-events ( -- )
     dpy wl_display_roundtrip drop ;
 
-: get-display ( -- )
+: get-display ( -- w h )
     0 0 wl_display_connect to dpy
     dpy wl_display_get_registry to registry
     registry registry-listener 0 wl_registry_add_listener drop

@@ -1,0 +1,98 @@
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    min-height: 100%;
+    margin-bottom: 60px;
+}
+
+/* gerneral */
+h1 {
+    color: #33691e;
+}
+a {
+    color: #33691e;
+}
+a:hover {
+    color: #162e0d;
+}
+/* navigation */
+div.header {
+    /* top/both */
+    font-weight: bold;
+    margin-top: -8px;
+    margin-left: -8px;
+    margin-right: -8px;
+    border: 1px solid #424242;
+    color: #FFFFFF;
+    background-color: #424242;
+}
+div.header ~ div.header {
+    /* bottom */
+    margin-top: 10px;
+    bottom: 0px;
+    overflow:hidden;
+    position:absolute;
+    width: calc(100% - 2px);
+}
+div.header p {
+    margin: 10px 15px;
+}
+div.header a {
+    font-weight: normal;
+    color: #f1f8e9;
+}
+hr {
+    display: none;
+}
+h1 ~ div.header {
+    /* hide navigation on title page */
+    display: none;
+}
+
+
+/* code */
+div.example {
+    margin-left: auto;
+}
+div.example > pre.example {
+    margin-left: 1em;
+    border-left: 2px solid #33691e;
+}
+pre.example, code {
+    padding: 3px 5px;
+    color: #33691e;
+    background-color: #f1f8e9;
+    border-radius: 3px;
+}
+
+/* responsive */
+/* small */
+@media (min-width: 768px) {
+    body > *, div.header > p, div.display > pre, div.smallexample > pre {
+        margin-left: auto;
+        margin-right: auto;
+        width: 750px;
+    }
+}
+
+/* medium */
+@media (min-width: 992px) {
+    body > *, div.header > p, div.display > pre, div.smallexample > pre {
+        width: 970px;
+    }
+}
+
+/* large */
+@media (min-width: 1200px) {
+    body > *, div.header > p, div.display > pre, div.smallexample > pre {
+        width: 1170px;
+    }
+}
+
+body > div.header, body > div.display, body > div.smallexample {
+    width: auto;
+}

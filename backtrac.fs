@@ -90,18 +90,18 @@ is defer-default
 
 \ print backtrace location
 
-: addr>pos1 ( addr -- pos1 / 0 )
+: addr>view ( addr -- view / 0 )
     dup cell- locs-start here within locs-start and ?dup-IF
 	over cell- swap - cell/ locs[] $[] @
 	?dup-IF  nip  EXIT  THEN
     THEN  drop 0 ;
 
-: .sourcepos1-width ( xpos -- u )
-    \ prints sourcepos1, returns width of printed string
-    ['] .sourcepos1 $tmp 2dup type x-width ;
+: .sourceview-width ( view -- u )
+    \ prints sourceview, returns width of printed string
+    ['] .sourceview $tmp 2dup type x-width ;
     
-: .backtrace-pos1 ( addr -- )
-    addr>pos1 dup IF
-	.sourcepos1-width THEN
+: .backtrace-view ( addr -- )
+    addr>view dup IF
+	.sourceview-width THEN
     bt-pos-width swap - 1 max spaces ;
-' .backtrace-pos1 is .backtrace-pos
+' .backtrace-view is .backtrace-pos

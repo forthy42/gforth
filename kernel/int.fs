@@ -276,7 +276,7 @@ constant where-struct
     wheres $@ dup if ( nt addr u )
 	where-struct - + >r
 	dup r@ where-nt @ =
-	r> where-loc @ current-sourcepos1 = and if
+	r> where-loc @ current-sourceview = and if
 	    drop true exit then
     else
 	2drop then
@@ -289,7 +289,7 @@ constant where-struct
 	    dup where-duplicate? 0= if
 		where-struct wheres $+!len >r
 		dup r@ where-nt !
-		current-sourcepos1 r> where-loc !
+		current-sourceview r> where-loc !
 	    then
 	then
     then

@@ -4,7 +4,7 @@
 %{
 #include <wayland/wayland-client.h>
 #include <wayland/wayland-server.h>
-#include <wayland/wayland-egl.h>
+#include <wayland/wayland-egl-core.h>
 #include <wayland/wayland-cursor.h>
 %}
 
@@ -16,7 +16,6 @@
 %include <wayland/wayland-client.h>
 %include <wayland/wayland-client-core.h>
 %include <wayland/wayland-client-protocol.h>
-%include <wayland/wayland-egl.h>
 %include <wayland/wayland-egl-core.h>
 %include <wayland/wayland-cursor.h>
 
