@@ -2190,7 +2190,12 @@ wior = IOR(fseeko((FILE *)wfileid, UD2OFF(ud), SEEK_SET)==-1);
 file-size	( wfileid -- ud wior )	file	file_size
 struct stat buf;
 wior = IOR(fstat(fileno((FILE *)wfileid), &buf)==-1);
-ud = OFF2UD(buf.st_size);
+if (wior==0 && (S_ISREG(buf.st_mode) || S_ISDIR(buf.st_mode)))
+  ud = OFF2UD(buf.st_size);
+else {
+  ud = OFF2UD(0);
+  wior = -2057; /* wrong file type */
+}
 
 resize-file	( ud wfileid -- wior )	file	resize_file
 wior = IOR(ftruncate(fileno((FILE *)wfileid), UD2OFF(ud))==-1);
