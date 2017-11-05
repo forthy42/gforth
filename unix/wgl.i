@@ -2,8 +2,8 @@
 %module wgl
 %insert("include")
 %{
-#include <w32api/GL/gl.h>
-#include <w32api/GL/glext.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
 #include <w32api/GL/wglext.h>
 %}
 #define WINAPI
@@ -14,7 +14,7 @@
 %apply long { GLsizeiptr, GLintptr, GLsizeiptrARB, GLintptrARB, HDC, HANDLE, HPVIDEODEV, HPBUFFERARB, HVIDEOINPUTDEVICENV, GLsizei };
 %apply int { BOOL, GLint, GLenum };
 %apply unsigned int { UINT, GLuint };
-%apply void * { LPVOID };
+%apply void * { LPVOID, HDC };
 
 // exec: sed -e 's/\(c-function .*\(NV\|SUN\|IBM\|ATI\|AMD\|EXT\|SUN\|SGI\|MESA\|INTEL\|HP\|GREMEDY\|APPLE\|OES\|3DFX\|ARB\|INGR\)\)/\\ \1/g'
 

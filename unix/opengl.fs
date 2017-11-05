@@ -23,19 +23,17 @@ get-current also opengl definitions
 c-library opengl
     \c #define GL_GLEXT_PROTOTYPES
     e? os-type s" cygwin" str= [IF]
-	\c #include <w32api/GL/gl.h>
-	\c #include <w32api/GL/glext.h>
-	\c #include <w32api/GL/wglext.h>
+	\c #include <GL/gl.h>
+	\c #include <GL/glext.h>
     [ELSE]
 	\c #include <GL/glx.h>
 	\c #include <GL/glext.h>
     [THEN]
     
     e? os-type s" cygwin" str= [IF]
-	s" opengl32" add-lib
+	s" GL" add-lib
     
-	include unix/glwin.fs
-	include unix/wgl.fs
+	include unix/gl.fs
     [ELSE]
 	s" GL" add-lib
     
