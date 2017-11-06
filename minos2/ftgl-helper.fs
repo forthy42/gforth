@@ -66,16 +66,12 @@ Variable fonts[] \ stack of used fonts
 	dup fonts[] >stack
     [THEN] ;
 
-[IFDEF] use-glx
-    : alpha/rgba ( atlas -- )
-	GL_RGBA GL_ALPHA rot texture_atlas_t-depth @ 4 = select ;
-[THEN]
-: alpha/bgra ( atlas -- )
-    GL_BGRA_EXT GL_ALPHA rot texture_atlas_t-depth @ 4 = select ;
+: alpha/rgba ( atlas -- )
+    GL_RGBA GL_ALPHA rot texture_atlas_t-depth @ 4 = select ;
 : upload-atlas-tex ( atlas -- ) >r
-    GL_TEXTURE_2D 0 r@ [IFDEF] use-glx alpha/rgba [ELSE] alpha/bgra [THEN]
+    GL_TEXTURE_2D 0 r@ alpha/rgba
     r@ texture_atlas_t-width @   r@ texture_atlas_t-height @
-    0 r@ alpha/bgra GL_UNSIGNED_BYTE
+    0 r@ alpha/rgba GL_UNSIGNED_BYTE
     r@ texture_atlas_t-data @ glTexImage2D rdrop ;
 : gen-atlas-tex ( -- )
     atlas-tex
