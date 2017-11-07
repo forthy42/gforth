@@ -998,11 +998,15 @@ all-bench allbench:
 
 EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=" "FAST=$(FAST)"
 
-extras: $(EXTRAS) gforth.fi
-	@for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile configs all $(EXTRAVARS)); done
+extras:	gforth.fi $(EXTRAS:%=%.extras)
 
-extra-install: $(EXTRAS) gforth.fi
-	for i in $(EXTRAS); do (cd $$i; $(MAKE) -f ./Makefile extra-install $(EXTRAVARS)); done
+%.extras:
+	cd $(@:%.extras=%); $(MAKE) -f ./Makefile configs all $(EXTRAVARS)
+
+extra-install:	gforth.fi $(EXTRAS:%=%.extrasinst)
+
+%.extrasinst:
+	cd $(@:%.extrasinst=%); $(MAKE) -f ./Makefile extra-install $(EXTRAVARS)
 
 # -------------	Make forth images
 
