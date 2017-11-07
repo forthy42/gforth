@@ -1001,7 +1001,9 @@ EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "
 extras:	gforth.fi $(EXTRAS:%=%.extras)
 
 %.extras:
-	cd $(@:%.extras=%); $(MAKE) -f ./Makefile configs all $(EXTRAVARS)
+	cd $(@:%.extras=%); \
+	$(MAKE) -f ./Makefile configs $(EXTRAVARS); \
+	$(MAKE) -f ./Makefile all $(EXTRAVARS);
 
 extra-install:	gforth.fi $(EXTRAS:%=%.extrasinst)
 
