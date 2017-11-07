@@ -121,7 +121,7 @@ then
 	make prefix=$TOOLCHAIN/sysroot/usr install-include
 	rm -rf debian/sdcard
 	echo -n " extras" 1>&3
-	if [ "$1" != "--no-config" ]; then make extras || exit 1; fi
+	if [ "$1" != "--no-config" ]; then make -j$(nproc) extras || exit 1; fi
 	echo -n " debdist" 1>&3
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]
