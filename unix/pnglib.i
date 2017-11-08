@@ -18,3 +18,5 @@ extern struct _IO_FILE *stderr;
 
 %include "libpng/pngconf.h"
 %include "libpng/png.h"
+
+// exec: sed -e 's/c-function png_info_init/\\ c-function png_info_init/g'
