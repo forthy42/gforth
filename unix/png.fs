@@ -28,7 +28,7 @@ c-library png
 	[ELSE]
 	    s" png12" add-lib
 	    \c #include <zlib.h>
-	    \c #include <libpng12/pngconf.h>
+	    \ c #include <libpng12/pngconf.h>
 	    \c #include <libpng12/png.h>
 	[THEN]
     [THEN]
