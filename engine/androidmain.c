@@ -199,8 +199,8 @@ void addfileargs(char* filename)
 }
 
 static const char *paths[] = { "--",
-			       "--path=/mnt/sdcard/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/" ARCH "/gforth/" PACKAGE_VERSION ":/mnt/sdcard/gforth/site-forth",
-			       "--path=/data/data/gnu.gforth/files/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/" ARCH "/gforth/" PACKAGE_VERSION ":/data/data/gnu.gforth/files/gforth/site-forth" };
+			       "--path=/mnt/sdcard/gforth/current:/mnt/sdcard/gforth/" ARCH "/gforth/current:/mnt/sdcard/gforth/site-forth",
+			       "--path=/data/data/gnu.gforth/files/gforth/current:/data/data/gnu.gforth/files/gforth/" ARCH "/gforth/current:/data/data/gnu.gforth/files/gforth/site-forth" };
 static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
 
 int checkFiles(char ** patharg)
@@ -215,8 +215,8 @@ int checkFiles(char ** patharg)
   LOGI("chdir(%s)\n", folder[i]);
   LOGI("Extra arg: %s\n", *patharg);
 
-  return checksha256sum(sha256sum, "gforth/" PACKAGE_VERSION "/sha256sum") &&
-    checksha256sum(sha256arch, "gforth/" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum");
+  return checksha256sum(sha256sum, "gforth/current/sha256sum") &&
+    checksha256sum(sha256arch, "gforth/" ARCH "/gforth/current/sha256sum");
 }
 
 void startForth(jniargs * startargs)
@@ -244,8 +244,8 @@ void startForth(jniargs * startargs)
     char *gforth_gz=get_gforth_gz();
     snprintf(dirbuf, dirlen, "%s/%s", dir, zip);
 
-    if(unpackFiles(gforth_gz, "gforth/" PACKAGE_VERSION "/sha256sum", sha256sum) &&
-       unpackFiles(dirbuf, "gforth/" ARCH "/gforth/" PACKAGE_VERSION "/sha256sum", sha256arch)) {
+    if(unpackFiles(gforth_gz, "gforth/current/sha256sum", sha256sum) &&
+       unpackFiles(dirbuf, "gforth/" ARCH "/gforth/current/sha256sum", sha256arch)) {
       post("doneprog");
     }
     unlink(gforth_gz); // remove temporary copy of gforth.gz
@@ -278,7 +278,7 @@ void startForth(jniargs * startargs)
     retvalue = gforth_quit();
   } else {
     LOGI("booting not successful...\n");
-    unlink("../" PACKAGE_VERSION "/sha256sum");
+    unlink("../current/sha256sum");
   }
   post("appexit");
 
