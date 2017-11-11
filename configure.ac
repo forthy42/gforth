@@ -195,6 +195,13 @@ AC_ARG_WITH(ditc,
 fi])
 AC_SUBST(DITCENGINE)
 
+AC_ARG_ENABLE(version,
+	AC_HELP_STRING([--disable-version],
+			[  disable multi-version install]),
+[if test "$enableval" = "no"; then
+    PACKAGE_VERSION=current
+fi],)
+
 #variables mentioned in INSTALL
 AC_ARG_VAR(SH, [The shell])
 AC_ARG_VAR(CC, [The C compiler (must support GNU C 2.x).])
