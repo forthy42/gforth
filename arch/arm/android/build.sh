@@ -81,7 +81,7 @@ ENGINES="gforth-fast gforth-itc"
 
 GFORTH_VERSION=$($GFORTH_DITC --version 2>&1 | cut -f2 -d' ')
 
-LIBCCNAMED=lib/current/$machine/libcc-named/.libs
+LIBCCNAMED=lib/gforth/current/$machine/libcc-named/.libs
 
 if [ ! -f $SRC/configure ]
 then
