@@ -73,22 +73,22 @@ has? OS [IF]
     s>d tuck dabs <# #s rot sign s" error #" holds #> r> base ! ;
 
 has? OS [IF]
-    $660 Value default-color
-    $E60 Value err-color
-    $B60 Value warn-color
-    $D60 Value info-color
+    $6600 Value default-color
+    $E600 Value err-color
+    $B600 Value warn-color
+    $D600 Value info-color
     : white-colors ( -- )
 	\G for white background
-	$660 to default-color
-	$E60 to err-color
-	$B60 to warn-color
-	$D60 to info-color ;
+	$6600 to default-color
+	$E600 to err-color
+	$B600 to warn-color
+	$D600 to info-color ;
     : black-colors ( -- )
 	\G for black background
-	$660 to default-color
-	$C61 to err-color
-	$961 to warn-color
-	$D61 to info-color ;
+	$6600 to default-color
+	$C601 to err-color
+	$9601 to warn-color
+	$D601 to info-color ;
 [THEN]
 
 : .error ( n -- )

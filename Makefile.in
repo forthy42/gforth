@@ -234,6 +234,7 @@ EC_SRC = $(KERN_EC_SRC) \
 	build-ec.in
 
 GFORTH_FI_SRC1=\
+	ansi.fs \
 	assert.fs \
 	backtrac.fs \
 	blocked.fb \

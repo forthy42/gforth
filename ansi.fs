@@ -57,14 +57,17 @@ decimal
 2 CONSTANT Underline
 4 CONSTANT Blink
 8 CONSTANT Invers
+16 CONSTANT Strikethrough
+32 CONSTANT Italic
+64 Constant Invisible
 
 \ For portable programs don't use invers and underline
 
-: >BG    4 lshift ;
-: >FG    8 lshift ;
+: >BG    8 lshift ;
+: >FG    12 lshift ;
 
-: BG>    4 rshift 15 and ;
-: FG>    8 rshift 15 and ;
+: BG>    8 rshift 15 and ;
+: FG>    12 rshift 15 and ;
 
 : <A    -1 0 ;
 : A>    BEGIN over -1 <> WHILE or REPEAT nip ;
@@ -76,10 +79,13 @@ User Attr   0 Attr !
     dup Attr @ = IF drop EXIT THEN
     dup Attr !
     <<# 'm' hold
-    dup Invers and IF 7 #n; THEN
-    dup Blink and IF 5 #n; THEN
-    dup Underline and IF 4 #n; THEN
     dup Bold and IF 1 #n; THEN
+    dup Italic and IF 3 #n; THEN
+    dup Underline and IF 4 #n; THEN
+    dup Blink and IF 5 #n; THEN
+    dup Invers and IF 7 #n; THEN
+    dup Invisible and IF 8 #n; THEN
+    dup Strikethrough and IF 9 #n; THEN
     dup BG> ?dup IF $F xor 40 + #n; THEN
     dup FG> ?dup IF $F xor 30 + #n; THEN
     drop 0 #n #esc[ 0. #> type #>> ;

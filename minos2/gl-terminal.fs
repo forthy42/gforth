@@ -157,9 +157,9 @@ Black std-bg !
 : std-bg! ( index -- )  dup bg! dup std-bg ! bg>clear ;
 
 : >extra-colors-bg ( -- ) >bg
-    err-color  $F0F and over or to err-color
-    info-color $F0F and over or to info-color
-    warn-color $F0F and over or to warn-color drop ;
+    err-color  $F0FF and over or to err-color
+    info-color $F0FF and over or to info-color
+    warn-color $F0FF and over or to warn-color drop ;
 
 : >white White std-bg! White err-bg! Black fg! Red err-fg!
     White >extra-colors-bg White >bg Black >fg or to default-color
@@ -352,7 +352,7 @@ Sema gl-sema
     resize-screen need-sync on ;] gl-sema c-section ;
 
 : ?invers ( attr -- attr' ) dup invers and IF
-    dup $F00 and 4 rshift over $F0 and 4 lshift or swap $7 and or  THEN ;
+    dup $F000 and 4 rshift over $F00 and 4 lshift or swap $FF and or  THEN ;
 : >default ( attr -- attr' )
     dup  bg> 6 <= $F and >bg
     over fg> 6 <= $F and >fg or
