@@ -26,12 +26,20 @@ require widgets.fs
 also minos
 
 also freetype-gl
-dpy-w @ s>f 42e f/ fround FConstant fontsize#
-fontsize# 2 3 fm*/ fround FConstant smallsize#
-fontsize# f2* FConstant largesize#
-dpy-h @ s>f dpy-w @ s>f f/ .42e f/ FConstant baselinesmall#
-dpy-h @ s>f dpy-w @ s>f f/ .33e f/ FConstant baselinemedium#
-dpy-w @ s>f 1280e f/ FConstant pixelsize#
+dpy-w @ s>f 42e f/ fround FValue fontsize#
+fontsize# 2 3 fm*/ fround FValue smallsize#
+fontsize# f2* FValue largesize#
+dpy-h @ s>f dpy-w @ s>f f/ .42e f/ FValue baselinesmall#
+dpy-h @ s>f dpy-w @ s>f f/ .33e f/ FValue baselinemedium#
+dpy-w @ s>f 1280e f/ FValue pixelsize#
+
+: update-size# ( -- )
+    dpy-w @ s>f 42e f/ fround to fontsize#
+    fontsize# 2 3 fm*/ fround to smallsize#
+    fontsize# f2* to largesize#
+    dpy-h @ s>f dpy-w @ s>f f/ .42e f/ to baselinesmall#
+    dpy-h @ s>f dpy-w @ s>f f/ .33e f/ to baselinemedium#
+    dpy-w @ s>f 1280e f/ to pixelsize# ;
 
 [IFDEF] android
     "/system/fonts/DroidSans.ttf"
@@ -105,9 +113,12 @@ dpy-w @ s>f 1280e f/ FConstant pixelsize#
 
 0 0
 [IFDEF] android \ system default is noto-emoji
-    2drop "/system/fonts/NotoColorEmoji.ttf"
+    2drop "/system/fonts/SamsungColorEmoji.ttf"
     2dup file-status nip [IF]
-	2drop 0 0
+	2drop "/system/fonts/NotoColorEmoji.ttf"
+	2dup file-status nip [IF]
+	    2drop 0 0
+	[THEN]
     [THEN]
 [ELSE] \ noto-emoji, emojione, twemoji in that order
     2drop "/usr/share/fonts/truetype/NotoColorEmoji.ttf"
@@ -193,10 +204,13 @@ glue new Constant glue*wh
 glue new Constant glue*b1
 glue new Constant glue*b2
 
-glue*wh >o 0e 0e dpy-w @ s>f smallsize# f2* f- hglue-c glue! o>
-glue*wh >o 0glue dglue-c glue! 1glue vglue-c glue! o>
-glue*b1 >o dpy-w @ s>f .1e f* 0e 0e hglue-c glue! o>
-glue*b2 >o dpy-w @ s>f .2e f* 0e 0e hglue-c glue! o>
+: update-glue
+    glue*wh >o 0e 0e dpy-w @ s>f smallsize# f2* f- hglue-c glue!
+    0glue dglue-c glue! 1glue vglue-c glue! o>
+    glue*b1 >o dpy-w @ s>f .1e f* 0e 0e hglue-c glue! o>
+    glue*b2 >o dpy-w @ s>f .2e f* 0e 0e hglue-c glue! o> ;
+
+update-glue
 
 : b1 ( addr1 u1 -- o )
     dark-blue }}text >r
@@ -234,6 +248,7 @@ Variable slide#
     glue-left  >o 0glue hglue-c glue! o>
     glue-right >o 0glue hglue-c glue! o> ;
 : !slides ( nprev n -- )
+    update-size# update-glue
     slides[] $[] @ /flip drop
     dup slide# ! slides[] $[] @ /flop drop glue0 ;
 : anim!slides ( r0..1 n -- )
