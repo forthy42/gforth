@@ -196,7 +196,7 @@ Variable playstate
 
 : queue-flush ( -- )
     cues>mts-run? IF
-	<event ->cue-abort cue-task event>
+	<event :>cue-abort cue-task event>
     THEN  clear-queue ;
 
 : setup-player ( -- )  player IF
@@ -258,8 +258,8 @@ also android
 \ player
 
 2Variable lastseek
-500.000 2Constant delta-seek \ 0.5 seconds
-5.000.000 2Constant hide-cursor
+#500.000. 2Constant delta-seek \ 0.5 seconds
+#5.000.000. 2Constant hide-cursor
 
 true value show-mcursor
 
@@ -273,8 +273,8 @@ true value show-mcursor
 
 : draw-frame ( -- )
     init-frame clear
-    media-sft >o getTimestamp d>f 1e-9 f* prev-timestamp f!
-    updateTexImage o>
+    media-sft >o updateTexImage
+    getTimestamp d>f 1e-9 f* prev-timestamp f! o>
     prev-timestamp f@ first-timestamp f@ f<> IF
 	first-timestamp f@ f0=
 	IF  set-deltat  THEN
@@ -290,7 +290,7 @@ true value show-mcursor
     ts-fd IF  >rai  ELSE
 	0e first-timestamp f!
 	mkv-file-o >o >cue o>
-	<event elit, ->cues cue-task event>  THEN ;
+	<event elit, :>cues cue-task event>  THEN ;
 
 : check-input ( -- )
     >looper
@@ -335,20 +335,27 @@ true value show-mcursor
     open-mts start-file play-loop ;
 : set-mkv ( addr u -- )
     ['] pull-queue is read-ts
-    <event e$, ->open-mkv 0 elit, ->cues cue-task event> ;
+    <event e$, :>open-mkv 0 elit, :>cues cue-task event> ;
 : play-mkv ( addr u -- )
     set-mkv start-file play-loop stop-player ;
 : replay% ( r -- )  >pos  true init-enqueue play-loop ;
 : replay ( -- )
     cue-task IF
-	<event 0 elit, ->cues cue-task event>
+	<event 0 elit, :>cues cue-task event>
     ELSE
-	0. ts-fd reposition-file throw
+	#0. ts-fd reposition-file throw
     THEN
     true init-enqueue play-loop stop-player ;
 
-: gs "/storage/extSdCard/Filme/gangnamstyle.mkv" play-mkv ;
-: jb "/storage/extSdCard/Filme/jb.mkv" play-mkv ;
+Variable stpath
+
+"/storage" :noname 2dup "." str= >r 2dup ".." str= r> or IF  2drop  ELSE
+    [: ." /storage/" type ;] $tmp stpath also-path  THEN ; traverse-dir
+: >stpath ( addr u -- addr' u' )
+    stpath open-path-file throw rot close-file throw ;
+
+: gs "Filme/gangnamstyle.mkv" >stpath  play-mkv ;
+: jb "Filme/jb.mkv"           >stpath  play-mkv ;
 
 cue-converter \ start task a bit ahead of game
 

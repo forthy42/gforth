@@ -236,12 +236,3 @@ static wchar_t * gforth_str2wc(Char* addr, UCell u)
 typedef Char hash_128[16];
 
 #define GFSS 0x80 /* stack sizes */
-
-#define GFORTH_MAKESTACK(n)					   \
-  if(gforth_magic != GFORTH_MAGIC) {				   \
-    gforth_RP = alloca(n*sizeof(Cell))+sizeof(Cell)*(n);	   \
-    gforth_SP = alloca(n*sizeof(Cell))+sizeof(Cell)*(n-1);	   \
-    gforth_FP = alloca(n*sizeof(Float))+sizeof(Float)*(n-1);	   \
-    gforth_LP = alloca(n*sizeof(Cell))+sizeof(Cell)*(n);	   \
-    gforth_UP = gforth_main_UP;					   \
-  }

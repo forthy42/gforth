@@ -311,7 +311,7 @@ also mkv-tags
 
 : >seekpos ( addr u tag -- dseek ) { tag } bounds ?DO
 	I @ tag = IF  I cell+ 2@  unloop  EXIT  THEN
-    3 cells +LOOP  -1. ;
+    3 cells +LOOP  #-1. ;
 
 \ seekhead will terminate after doing the head
 :noname  tag-pos 2@ seek-pos 2!
@@ -569,9 +569,9 @@ require unix/mmap.fs
 Variable queue-used  \ queue is used
 0 Value cue-task
 
-: new-queue ( -- )  0. queue-buf 2!  0. queue-io 2! ;
+: new-queue ( -- )  #0. queue-buf 2!  #0. queue-io 2! ;
 
-event: ->read-mkv ( addr u -- )  queue-buf 2! ;
+event: :>read-mkv ( addr u -- )  queue-buf 2! ;
 
 : wait-for-write ( -- )
     BEGIN   queue-buf @ 0= WHILE  stop  REPEAT ;
@@ -583,12 +583,12 @@ event: ->read-mkv ( addr u -- )  queue-buf 2! ;
     BEGIN  packet>queue dup WHILE
 	    wait-for-write  REPEAT  2drop ;
 
-: wait-for-read ntime 60000000. d+ { u d: deadline -- u }
+: wait-for-read ntime #60000000. d+ { u d: deadline -- u }
     BEGIN  queue-io 2@ -  WHILE  pause  deadline ntime d- d0<  UNTIL  THEN
     u queue-buf @ - ;
 : pull-queue ( addr u -- u )
     dup queue-io cell+ +!
-    dup >r <event e$, ->read-mkv cue-task event>
+    dup >r <event e$, :>read-mkv cue-task event>
     r> wait-for-read ;
 
 : fill-mts-buf ( -- )
@@ -601,19 +601,19 @@ event: ->read-mkv ( addr u -- )  queue-buf 2! ;
 
 0 Value cue-cont?
 0 Value mkv-file-o
-event: ->open-mkv ( addr u -- ) new-mkv-file >o rdrop
+event: :>open-mkv ( addr u -- ) new-mkv-file >o rdrop
     o to mkv-file-o sdt, pat, codec-init pnt, ;
-event: ->close-mkv ( -- )  close-mkv 0 >o rdrop ;
-event: ->cues ( index -- )  cues>mts ;
-event: ->cue-abort ( -- )  false to cues>mts-run?
+event: :>close-mkv ( -- )  close-mkv 0 >o rdrop ;
+event: :>cues ( index -- )  cues>mts ;
+event: :>cue-abort ( -- )  false to cues>mts-run?
     nothrow !!cueterm!! throw ;
-event: ->cue-pause ( -- )  false to cue-cont? BEGIN  stop cue-cont?  UNTIL ;
-event: ->cue-cont ( -- ) true to cue-cont? ;
+event: :>cue-pause ( -- )  false to cue-cont? BEGIN  stop cue-cont?  UNTIL ;
+event: :>cue-cont ( -- ) true to cue-cont? ;
 
 0 Value mts-fd
 
 : convert-mkv ( addr u addrmts umts -- )  r/w create-file throw to mts-fd
     cue-converter
-    <event e$, ->open-mkv 0 elit, ->cues cue-task event>
+    <event e$, :>open-mkv 0 elit, :>cues cue-task event>
     BEGIN  pad /packet 128 * pull-queue pad over mts-fd write-file throw
     0= UNTIL ;

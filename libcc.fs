@@ -630,9 +630,6 @@ create gen-types
 Create callback-style c-val c,
 Create callback-&style c-var c,
 
-: callback-threadsafe ( -- )
-    ."   GFORTH_MAKESTACK(GFSS); \" cr ;
-
 : callback-pushs ( descriptor -- )
     1+ count 0 { d: pars vari }
     0 0 pars bounds u+do
@@ -662,8 +659,8 @@ Create callback-&style c-var c,
 
 : callback-wrapper ( -- )
     ."   stackpointers x; \" cr
-    ."   Cell stack[GFSS], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS]; \" cr
-    ."   x.spx=stack+GFSS-1; x.rpx=rstack+GFSS; x.lpx=(char*)(lstack+GFSS); x.fpx=fstack+GFSS-1; x.upx=gforth_main_UP; x.magic=GFORTH_MAGIC; \" cr ;
+    ."   Cell stack[GFSS+8], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS+2]; \" cr
+    ."   x.spx=stack+GFSS; x.rpx=rstack+GFSS; x.lpx=(char*)(lstack+GFSS); x.fpx=fstack+GFSS; x.upx=gforth_main_UP; x.magic=GFORTH_MAGIC; \" cr ;
 
 : callback-thread-define ( descriptor -- )
     dup callback-header callback-wrapper
