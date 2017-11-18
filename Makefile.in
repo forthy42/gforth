@@ -345,7 +345,7 @@ LIBCC_DIST_SRC = $(SWIG_SRC) unix/test.i unix/Makefile.in unix/doexec	\
 LIBCC_FORTH_SRC = libffi.fs fflib.fs $(LIBCC_SRC) $(UNIXLIBS_SRC)
 LIBCC_GEN_SRC = unix/stat.fs $(patsubst %, unix/%, $(SWIGMODULES))
 
-LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC)
+LIBCC_BUILD_SRC = @LIBCC_BUILD_SRC@ $(LIBCC_SRC) test/libcc.fs
 LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BUILD_SRC) | sed -e s,unix/,,g))
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)

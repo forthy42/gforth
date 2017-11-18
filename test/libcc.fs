@@ -19,7 +19,7 @@
 
 require libcc.fs
 
-c-library libcc-test
+c-library libcc
 \c #include <string.h>
 \c #include <stdlib.h>
 
@@ -63,9 +63,15 @@ decimal
 t{ pad s\" n=%d r=%f\n\0" drop -5 -0.5e sprintf-nr pad swap s\" n=-5 r=-0.500000\n" str= -> true }t
 t{ pad s\" r=%f n=%d\n\0" drop -0.5e -5 sprintf-rn pad swap s\" r=-0.500000 n=-5\n" str= -> true }t
 t{ pad s\" ll=%lld\n\0" drop -1 sprintfll pad swap s\" ll=-1\n" str= -> true }t
-t{ pad s\" ll=%lld r=%f\n\0" drop -1 -0.5e sprintf-nr pad swap s\" ll=-1 r=-0.500000\n" str= -> true }t
-t{ pad s\" ull=%llu\n\0" drop -1 sprintfull pad swap s\" ull=18446744073709551615\n" str= -> true }t
-t{ pad s\" ull=%llu r=%f\n\0" drop -1 -0.5e sprintf-nr pad swap s\" ull=18446744073709551615 r=-0.500000\n" str= -> true }t
+cell 4 = [IF]
+    t{ pad s\" ll=%d r=%f\n\0" drop -1 -0.5e sprintf-nr pad swap s\" ll=-1 r=-0.500000\n" str= -> true }t
+    t{ pad s\" ull=%llu\n\0" drop -1 sprintfull pad swap s\" ull=18446744073709551615\n" str= -> true }t
+    t{ pad s\" ull=%u r=%f\n\0" drop -1 -0.5e sprintf-nr pad swap s\" ull=4294967295 r=-0.500000\n" str= -> true }t
+[ELSE]
+    t{ pad s\" ll=%lld r=%f\n\0" drop -1 -0.5e sprintf-nr pad swap s\" ll=-1 r=-0.500000\n" str= -> true }t
+    t{ pad s\" ull=%llu\n\0" drop -1 sprintfull pad swap s\" ull=18446744073709551615\n" str= -> true }t
+    t{ pad s\" ull=%llu r=%f\n\0" drop -1 -0.5e sprintf-nr pad swap s\" ull=18446744073709551615 r=-0.500000\n" str= -> true }t
+[THEN]
 
 t{ s\" fooo\0" drop strlen -> 4 }t
 t{ -5 labs -> 5 }t
