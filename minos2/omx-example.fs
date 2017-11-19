@@ -110,6 +110,7 @@ Variable domain
 XAVideoStreamInformation buffer: videoinfo
 Variable si-cb#
 Variable eventid#
+Variable found-video
 
 : stream-info-cb { caller eventid stream edata ctx -- success }
     1 si-cb# +! eventid eventid# !
@@ -122,6 +123,7 @@ Variable eventid#
 		XA_DOMAINTYPE_VIDEO of
 		    caller stream videoinfo
 		    XAStreamInformationItf-QueryStreamInformation()
+		    found-video on
 		    EXIT
 		endof
 	    endcase
@@ -327,7 +329,11 @@ true value show-mcursor
     hidekb >changed
     hidestatus >changed
     screen+keep pplay >changed
-    omx-init init-frame 1 level# +!
+    found-video off  omx-init
+    BEGIN  found-video @ 0= WHILE
+	    10 ms
+    REPEAT
+    init-frame 1 level# +!
     BEGIN
 	?config-changer draw-frame check-input
 	cues>mts-run? 0= pplay? and  IF  ppause  THEN

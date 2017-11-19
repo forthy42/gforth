@@ -15,6 +15,13 @@ extern struct _IO_FILE *stderr;
 #define XA_API
 #define const
 
+%apply int { XAint32, XAmillibel }
+%apply unsigned int { XAuint32, XAmillisecond, XAmilliHertz, XAmillidegree, XAmicrosecond, XAboolean, XAresult }
+%apply unsigned short { XAuint16 }
+%apply short { XAint16, XApermille }
+%apply char { XAchar, XAuint8, XAint8 }
+%apply long long { XAuint64, XAtime }
+
 // exec: sed -e s/Itf_-/Itf-/g -e s/ID_-/ID-/g -e s/c-callback/c-callback-thread/g
 
 %include "OMXAL/OpenMAXAL_Platform.h"
