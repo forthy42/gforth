@@ -22,7 +22,7 @@ extern struct _IO_FILE *stderr;
 %apply char { XAchar, XAuint8, XAint8 }
 %apply long long { XAuint64, XAtime }
 
-// exec: sed -e s/Itf_-/Itf-/g -e s/ID_-/ID-/g -e s/c-callback/c-callback-thread/g
+// exec: sed -e s/Itf_-/Itf-/g -e s/ID_-/ID-/g
 
 %include "OMXAL/OpenMAXAL_Platform.h"
 %include "OMXAL/OpenMAXAL.h"
