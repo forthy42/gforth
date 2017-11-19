@@ -660,7 +660,8 @@ Create callback-&style c-var c,
 : callback-wrapper ( -- )
     ."   stackpointers x; \" cr
     ."   Cell stack[GFSS+8], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS+2]; \" cr
-    ."   x.spx=stack+GFSS; x.rpx=rstack+GFSS; x.lpx=(char*)(lstack+GFSS); x.fpx=fstack+GFSS; x.upx=gforth_main_UP; x.magic=GFORTH_MAGIC; \" cr ;
+    ."   x.spx=stack+GFSS; x.rpx=rstack+GFSS; x.lpx=(char*)(lstack+GFSS); x.fpx=fstack+GFSS; x.upx=gforth_main_UP; x.magic=GFORTH_MAGIC; \" cr
+    ."   x.handler=0; x.first_throw = ~0; x.wraphandler=0; \" cr ;
 
 : callback-thread-define ( descriptor -- )
     dup callback-header callback-wrapper

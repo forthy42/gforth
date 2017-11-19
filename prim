@@ -681,21 +681,21 @@ SET_IP((Xt *)a_target);
  THEN  >r ;
 
 (try)	( ... #a_recovery -- R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler ) gforth paren_try
-a_oldhandler = up->handler;
+a_oldhandler = SPs->handler;
 a_sp = sp;
 c_op = op;
 f_fp = fp;
 c_lp = lp;
-up->handler = rp-6;
-up->first_throw = ~0;
+SPs->handler = rp-6;
+SPs->first_throw = ~0;
 
 uncatch ( R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler -- ) gforth
-up->handler = a_oldhandler;
+SPs->handler = a_oldhandler;
 
 fast-throw ( ... wball -- ... wball ) gforth fast_throw
 ""Lightweight @code{throw} variant: only for non-zero balls, and
 does not store a backtrace or deal with missing @code{catch}.""
-rp = up->handler;
+rp = SPs->handler;
 lp = (Address)rp[1];
 fp = (Float *)rp[2];
 op = (Char *)rp[3];
@@ -703,19 +703,19 @@ sp = (Cell *)rp[4];
 SET_IP((Xt *)rp[5]);
 
 pushwrap ( ... #a_recovery -- R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler ) gforth-internal
-a_oldhandler = up->wraphandler;
+a_oldhandler = SPs->wraphandler;
 a_sp = sp;
 c_op = op;
 f_fp = fp;
 c_lp = lp;
-up->wraphandler = rp;
+SPs->wraphandler = rp;
 
 dropwrap ( R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler -- ) gforth-internal
-up->wraphandler = a_oldhandler;
+SPs->wraphandler = a_oldhandler;
 
 exit-wrap ( ... -- ... ) gforth-experimental exit_wrap
-rp = up->wraphandler;
-up->wraphandler = rp[-6];
+rp = SPs->wraphandler;
+SPs->wraphandler = rp[-6];
 lp = (Address)rp[-5];
 fp = (Float *)rp[-4];
 op = (Char *)rp[-3];
@@ -1648,6 +1648,9 @@ w = sp[u];
 
 user@	( #u -- w )	gforth	user_fetch
 w = *(Cell *)(((Address)up)+u);
+
+sps@	( -- w )   gforth sps_fetch
+w = (Cell)SPs;
 
 \ toggle is high-level: 0.11/0.42%
 

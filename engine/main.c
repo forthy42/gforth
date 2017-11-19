@@ -689,7 +689,7 @@ Cell gforth_go(Xt* ip0)
   throw_jmp_handler = &throw_jmp_buf;
 
   debugp(stderr, "setjmp(%p)\n", *throw_jmp_handler);
-  while((throw_code=setjmp(*throw_jmp_handler))) {
+  while((throw_code=setjmp(throw_jmp_buf))) {
     signal_data_stack[15]=throw_code;
 
 #ifdef GFORTH_DEBUGGING
@@ -2601,6 +2601,10 @@ void gforth_setstacks(user_area * t)
   gforth_RP = t->rp0;
   gforth_FP = t->fp0;
   gforth_LP = t->lp0;
+
+  gforth_SPs.handler = 0;
+  gforth_SPs.first_throw = ~0;
+  gforth_SPs.wraphandler = 0;
 }
 
 Cell gforth_boot(int argc, char** argv, char* path)

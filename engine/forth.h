@@ -371,9 +371,6 @@ typedef struct {
   Float* fp0;
   Address lp0;
   Xt *throw_entry;
-  Cell *handler;
-  Cell first_throw;
-  Cell *wraphandler; /* experimental */
 } user_area;
 
 typedef struct {
@@ -432,6 +429,12 @@ typedef struct _hash128 {
 
 typedef struct {
   Cell magic;
+  /* exception parts here, not in user area */
+  Cell *handler;
+  Cell first_throw;
+  Cell *wraphandler; /* experimental */
+  jmp_buf * throw_jumpptr;
+  /* pointers and user area */
   Cell *spx;
   Cell *rpx;
   Address lpx;
@@ -439,7 +442,6 @@ typedef struct {
   user_area* upx;
   Xt *s_ip;
   Cell *s_rp;
-  jmp_buf * throw_jumpptr;
 } stackpointers;
 
 extern PER_THREAD stackpointers gforth_SPs;

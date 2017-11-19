@@ -206,7 +206,6 @@ Defer thread-init
     + dup holdptr r@ 's !  holdend r@ 's !
     epiper r@ 's create_pipe
     action-of kill-task >body  rp0 r@ 's @ 1 cells - dup rp0 r@ 's ! !
-    handler r@ 's off
     r> ;
 
 : newtask ( stacksize -- task )  dup 2dup newtask4 ;

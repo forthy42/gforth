@@ -43,15 +43,15 @@ also openmax
 : realize ( object -- ) 0 XAObjectItf-Realize() ?success ;
 
 : create-object ( -- )
-    ['] mp-object >body 0 0 0 0 0 xaCreateEngine ?success
+    addr mp-object 0 0 0 0 0 xaCreateEngine ?success
     mp-object realize ;
 
 : create-engine ( -- )
-    mp-object XA_IID_ENGINE ['] engine >body XAObjectItf-GetInterface()
+    mp-object XA_IID_ENGINE addr engine XAObjectItf-GetInterface()
     ?success ;
 
 : create-mix ( -- )
-    engine ['] mix >body  0 0 0 XAEngineItf-CreateOutputMix() ?success
+    engine addr mix 0 0 0 XAEngineItf-CreateOutputMix() ?success
     mix realize ;
 
 : create-stuff ( -- )
@@ -116,11 +116,13 @@ Variable eventid#
     case eventid
 	XA_STREAMCBEVENT_PROPERTYCHANGE of
 	    caller stream domain
-	    XAStreamInformationItf-QueryStreamType() ?success
+	    XAStreamInformationItf-QueryStreamType()
+	    dup XA_RESULT_SUCCESS <> ?EXIT  drop
 	    case domain l@
 		XA_DOMAINTYPE_VIDEO of
 		    caller stream videoinfo
-		    XAStreamInformationItf-QueryStreamInformation() ?success
+		    XAStreamInformationItf-QueryStreamInformation()
+		    EXIT
 		endof
 	    endcase
 	endof
@@ -141,13 +143,13 @@ Variable eventid#
     BUFFER_SIZE +LOOP ;
 
 : get-interfaces ( -- )
-    player XA_IID_PLAY ['] playitf >body
+    player XA_IID_PLAY addr playitf
     XAObjectItf-GetInterface() ?success
-    player XA_IID_STREAMINFORMATION ['] infoitf >body
+    player XA_IID_STREAMINFORMATION addr infoitf
     XAObjectItf-GetInterface() ?success
-    player XA_IID_VOLUME ['] volitf >body
+    player XA_IID_VOLUME addr volitf
     XAObjectItf-GetInterface() ?success
-    player XA_IID_ANDROIDBUFFERQUEUESOURCE ['] BQItf >body
+    player XA_IID_ANDROIDBUFFERQUEUESOURCE addr BQItf
     XAObjectItf-GetInterface() ?success ;
 
 : set-callbacks ( -- )
@@ -171,7 +173,7 @@ also jni also android
 : create-player ( -- )
     env media-sf ANativeWindow_fromSurface loc_nd cell+ !
     mix loc_mix cell+ !
-    engine ['] player >body
+    engine addr player
     data< 0 audio> video> 0 0 NB_MAXAL_INTERFACES iidArray req
     XAEngineITF-CreateMediaPlayer() ?success
     player realize ;
