@@ -328,11 +328,9 @@ true value show-mcursor
 : play-loop ( -- )
     hidekb >changed
     hidestatus >changed
-    screen+keep pplay >changed
+    screen+keep pplay \ >changed
     found-video off  omx-init
-    BEGIN  found-video @ 0= WHILE
-	    10 ms
-    REPEAT
+    \ videoinfo XAVideoStreamInformation dump
     init-frame 1 level# +!
     BEGIN
 	?config-changer draw-frame check-input
