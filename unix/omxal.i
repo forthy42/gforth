@@ -20,7 +20,8 @@ extern struct _IO_FILE *stderr;
 %apply unsigned short { XAuint16 }
 %apply short { XAint16, XApermille }
 %apply char { XAchar, XAuint8, XAint8 }
-%apply long long { XAuint64, XAtime }
+%apply unsigned long long { XAuint64, XAAuint64, XAtime }
+%apply long long { XAint64, XAAint64 }
 
 // exec: sed -e s/Itf_-/Itf-/g -e s/ID_-/ID-/g
 
