@@ -18,11 +18,7 @@
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
 ./gentoolchain.sh
-(cd ../..
-for i in arm 386 arm64 amd64 mips
-do
-    (cd $i/android; ./genlibs.sh)
-done)
+
 if [ -d ~/net2o ]
 then
     ./build.sh +mips +386 +arm64 +amd64

@@ -22,3 +22,4 @@ LIBS=libs/armeabi
 TARGET=arm-linux-androideabi
 GFORTH_DITC=gforth-ditc-386
 machine=arm
+PKG_CONFIG_PATH=$TOOLCHAIN/sysroot/usr/lib

@@ -581,9 +581,9 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in		\
 	install-swig.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
-	libforth gforthker engine/Makefile engine/libcc.h		\
-	engine/gforth.h doc/version.texi doc/Makefile unix/Makefile	\
-	debian/changelog debian/control build-ec $(CONFIG_FORTH)
+	libforth gforthker engine/Makefile engine/gforth.h		\
+	doc/version.texi doc/Makefile unix/Makefile debian/changelog	\
+	debian/control build-ec $(CONFIG_FORTH)
 
 CONFIG_FORTH = machpc.fs kernel/version.fs envos.fs
 
@@ -810,7 +810,7 @@ install-images:
 
 install-include:
 		$(srcdir)/mkinstalldirs $(includedir)/gforth/$(VERSION)/$(machine)
-		$(INSTALL_DATA) engine/config.h engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
+		$(INSTALL_DATA) engine/config.h $(srcdir)/engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
 		$(INSTALL_DATA) engine/gforth.h $(includedir)
 
 install-libcc:

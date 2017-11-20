@@ -23,3 +23,4 @@ TOOLCHAIN=${TOOLCHAIN-~/proj/android-toolchain-arm64}
 TARGET=aarch64-linux-android
 GFORTH_DITC=gforth-ditc-amd64
 machine=arm64
+PKG_CONFIG_PATH=$TOOLCHAIN/sysroot/usr/lib

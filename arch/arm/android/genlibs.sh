@@ -33,6 +33,7 @@ esac
 FREETYPE=freetype-2.8.1
 HARFBUZZ=harfbuzz-1.5.1
 LIBPNG=libpng-1.6.34
+BZIP2=bzip2-1.0.6
 
 fine=yes
 for i in git wget ragel hg
@@ -54,11 +55,14 @@ fi
 (cd ~/Downloads
  test -f $FREETYPE.tar.bz2 || wget http://download.savannah.gnu.org/releases/freetype/$FREETYPE.tar.bz2
  test -f $HARFBUZZ.tar.bz2 || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.bz2
- test -f $LIBPNG.tar.xz || wget https://downloads.sourceforge.net/project/libpng/libpng16/${LIBPNG#libpng-}/$LIBPNG.tar.xz)
+ test -f $LIBPNG.tar.xz || wget https://downloads.sourceforge.net/project/libpng/libpng16/${LIBPNG#libpng-}/$LIBPNG.tar.xz
+ test -f $BZIP2.tar.gz || wget http://www.bzip.org/${BZIP2#bzip2-}/$BZIP2.tar.gz
+)
 
 tar jxvf ~/Downloads/$FREETYPE.tar.bz2
 tar jxvf ~/Downloads/$HARFBUZZ.tar.bz2
 tar Jxvf ~/Downloads/$LIBPNG.tar.xz
+tar zxvf ~/Downloads/$BZIP2.tar.gz
 
 # support stuff
 
@@ -68,19 +72,25 @@ tar Jxvf ~/Downloads/$LIBPNG.tar.xz
 make -j4
 make install)
 
+(cd $BZIP2
+PREFIX=$TOOLCHAIN/sysroot/usr
+make -j4 CC="$CC -fPIC" libbz2.a
+cp -f libbz2.a $PREFIX/lib
+cp -f bzlib.h $PREFIX/include)
+
 #make and install freetype, part 1 (no harfbuzz)
 
 (cd $FREETYPE
 ./autogen.sh # get fresh libtool&co
-./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-bzip2=no --with-zlib=no --with-harfbuzz=no 
-make -j4
+./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-zlib=no --with-harfbuzz=no 
+make -j$(nproc)
 make install)
 
 #make and install harfbuzz
 
 (cd $HARFBUZZ
 ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-glib=no --with-icu=no --with-uniscribe=no --with-cairo=no
-make -j4
+make -j$(nproc)
 make install)
 
 #now freetype with harfbuzz support
@@ -88,7 +98,7 @@ make install)
 (cd $FREETYPE
 ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-bzip2=no --with-zlib=no --with-harfbuzz=yes
 make clean
-make -j4
+make -j$(nproc)
 make install)
 
 #freetype GL
@@ -102,7 +112,7 @@ fi
 
 (cd freetype-gl
 ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
-make
+make -j$(nproc)
 make install
 )
 
@@ -128,6 +138,6 @@ fi
  (cd src/SOIL2
   cp SOIL2.h $TOOLCHAIN/sysroot/usr/include))
 
-$TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ $LIBPNG freetype-gl -name '*.lo') -lm -lGLESv2 -lz -llog
+$TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ $LIBPNG freetype-gl -name '*.lo') -lm -lGLESv2 -lz -lbz2 -llog
 
 cp .libs/libtypeset.{a,so} $TOOLCHAIN/sysroot/usr/lib
