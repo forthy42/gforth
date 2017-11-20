@@ -1510,7 +1510,7 @@ test -d kernel||mkdir kernel
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
 $srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION/$machine
 $srcdir/mkinstalldirs arch/$machine
-ln -sf $PWD/engine/config.h $PWD/engine/libcc.h include/gforth/$PACKAGE_VERSION/$machine]],
+ln -sf $PWD/engine/config.h $srcdir/engine/libcc.h include/gforth/$PACKAGE_VERSION/$machine]],
 [PACKAGE_VERSION=$PACKAGE_VERSION
  machine=$machine])
 AC_OUTPUT

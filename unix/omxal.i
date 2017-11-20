@@ -22,6 +22,7 @@ extern struct _IO_FILE *stderr;
 %apply char { XAchar, XAuint8, XAint8 }
 %apply unsigned long long { XAuint64, XAAuint64, XAtime }
 %apply long long { XAint64, XAAint64 }
+%apply SWIGTYPE * { void * }
 
 // exec: sed -e s/Itf_-/Itf-/g -e s/ID_-/ID-/g
 
