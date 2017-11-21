@@ -43,15 +43,15 @@ also openmax
 : realize ( object -- ) 0 XAObjectItf-Realize() ?success ;
 
 : create-object ( -- )
-    ['] mp-object >body 0 0 0 0 0 xaCreateEngine ?success
+    addr mp-object 0 0 0 0 0 xaCreateEngine ?success
     mp-object realize ;
 
 : create-engine ( -- )
-    mp-object XA_IID_ENGINE ['] engine >body XAObjectItf-GetInterface()
+    mp-object XA_IID_ENGINE addr engine XAObjectItf-GetInterface()
     ?success ;
 
 : create-mix ( -- )
-    engine ['] mix >body  0 0 0 XAEngineItf-CreateOutputMix() ?success
+    engine addr mix 0 0 0 XAEngineItf-CreateOutputMix() ?success
     mix realize ;
 
 : create-stuff ( -- )
@@ -110,17 +110,21 @@ Variable domain
 XAVideoStreamInformation buffer: videoinfo
 Variable si-cb#
 Variable eventid#
+Variable found-video
 
 : stream-info-cb { caller eventid stream edata ctx -- success }
     1 si-cb# +! eventid eventid# !
     case eventid
 	XA_STREAMCBEVENT_PROPERTYCHANGE of
 	    caller stream domain
-	    XAStreamInformationItf-QueryStreamType() ?success
+	    XAStreamInformationItf-QueryStreamType()
+	    dup XA_RESULT_SUCCESS <> ?EXIT  drop
 	    case domain l@
 		XA_DOMAINTYPE_VIDEO of
 		    caller stream videoinfo
-		    XAStreamInformationItf-QueryStreamInformation() ?success
+		    XAStreamInformationItf-QueryStreamInformation()
+		    found-video on
+		    EXIT
 		endof
 	    endcase
 	endof
@@ -141,13 +145,13 @@ Variable eventid#
     BUFFER_SIZE +LOOP ;
 
 : get-interfaces ( -- )
-    player XA_IID_PLAY ['] playitf >body
+    player XA_IID_PLAY addr playitf
     XAObjectItf-GetInterface() ?success
-    player XA_IID_STREAMINFORMATION ['] infoitf >body
+    player XA_IID_STREAMINFORMATION addr infoitf
     XAObjectItf-GetInterface() ?success
-    player XA_IID_VOLUME ['] volitf >body
+    player XA_IID_VOLUME addr volitf
     XAObjectItf-GetInterface() ?success
-    player XA_IID_ANDROIDBUFFERQUEUESOURCE ['] BQItf >body
+    player XA_IID_ANDROIDBUFFERQUEUESOURCE addr BQItf
     XAObjectItf-GetInterface() ?success ;
 
 : set-callbacks ( -- )
@@ -171,7 +175,7 @@ also jni also android
 : create-player ( -- )
     env media-sf ANativeWindow_fromSurface loc_nd cell+ !
     mix loc_mix cell+ !
-    engine ['] player >body
+    engine addr player
     data< 0 audio> video> 0 0 NB_MAXAL_INTERFACES iidArray req
     XAEngineITF-CreateMediaPlayer() ?success
     player realize ;
@@ -196,7 +200,7 @@ Variable playstate
 
 : queue-flush ( -- )
     cues>mts-run? IF
-	<event ->cue-abort cue-task event>
+	<event :>cue-abort cue-task event>
     THEN  clear-queue ;
 
 : setup-player ( -- )  player IF
@@ -258,8 +262,8 @@ also android
 \ player
 
 2Variable lastseek
-500.000 2Constant delta-seek \ 0.5 seconds
-5.000.000 2Constant hide-cursor
+#500.000. 2Constant delta-seek \ 0.5 seconds
+#5.000.000. 2Constant hide-cursor
 
 true value show-mcursor
 
@@ -273,8 +277,8 @@ true value show-mcursor
 
 : draw-frame ( -- )
     init-frame clear
-    media-sft >o getTimestamp d>f 1e-9 f* prev-timestamp f!
-    updateTexImage o>
+    media-sft >o updateTexImage
+    getTimestamp d>f 1e-9 f* prev-timestamp f! o>
     prev-timestamp f@ first-timestamp f@ f<> IF
 	first-timestamp f@ f0=
 	IF  set-deltat  THEN
@@ -290,14 +294,14 @@ true value show-mcursor
     ts-fd IF  >rai  ELSE
 	0e first-timestamp f!
 	mkv-file-o >o >cue o>
-	<event elit, ->cues cue-task event>  THEN ;
+	<event elit, :>cues cue-task event>  THEN ;
 
 : check-input ( -- )
     >looper
     ekey? IF ekey CASE
-	    k-up   of pvol# 200 + 0 min dup to pvol# pvol endof 
-	    k-down of pvol# 200 - dup       to pvol# pvol endof 
-	ENDCASE THEN 
+	    k-volup   of pvol# 200 + 0 min dup to pvol# pvol endof 
+	    k-voldown of pvol# 200 - dup       to pvol# pvol endof 
+	ENDCASE  THEN
     *input >r r@ IF
 	r@ action @ AMOTION_EVENT_ACTION_MOVE =
 	r@ action @ AMOTION_EVENT_ACTION_UP = or IF
@@ -324,8 +328,10 @@ true value show-mcursor
 : play-loop ( -- )
     hidekb >changed
     hidestatus >changed
-    screen+keep pplay >changed
-    omx-init init-frame 1 level# +!
+    screen+keep pplay \ >changed
+    found-video off  omx-init
+    \ videoinfo XAVideoStreamInformation dump
+    init-frame 1 level# +!
     BEGIN
 	?config-changer draw-frame check-input
 	cues>mts-run? 0= pplay? and  IF  ppause  THEN
@@ -335,20 +341,27 @@ true value show-mcursor
     open-mts start-file play-loop ;
 : set-mkv ( addr u -- )
     ['] pull-queue is read-ts
-    <event e$, ->open-mkv 0 elit, ->cues cue-task event> ;
+    <event e$, :>open-mkv 0 elit, :>cues cue-task event> ;
 : play-mkv ( addr u -- )
     set-mkv start-file play-loop stop-player ;
 : replay% ( r -- )  >pos  true init-enqueue play-loop ;
 : replay ( -- )
     cue-task IF
-	<event 0 elit, ->cues cue-task event>
+	<event 0 elit, :>cues cue-task event>
     ELSE
-	0. ts-fd reposition-file throw
+	#0. ts-fd reposition-file throw
     THEN
     true init-enqueue play-loop stop-player ;
 
-: gs "/storage/extSdCard/Filme/gangnamstyle.mkv" play-mkv ;
-: jb "/storage/extSdCard/Filme/jb.mkv" play-mkv ;
+Variable stpath
+
+"/storage" :noname 2dup "." str= >r 2dup ".." str= r> or IF  2drop  ELSE
+    [: ." /storage/" type ;] $tmp stpath also-path  THEN ; traverse-dir
+: >stpath ( addr u -- addr' u' )
+    stpath open-path-file throw rot close-file throw ;
+
+: gs "Filme/gangnamstyle.mkv" >stpath  play-mkv ;
+: jb "Filme/jb.mkv"           >stpath  play-mkv ;
 
 cue-converter \ start task a bit ahead of game
 

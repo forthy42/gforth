@@ -381,6 +381,7 @@ Sema gl-sema
     videomem 0= IF  resize-screen  THEN
     std-bg @ bg>clear clear
     terminal-program glUseProgram
+    unit-matrix MVPMatrix set-matrix
     gl-char' 2 + dup be-uw@ swap le-w!
     draw-now
     gl-char' 2 + dup be-uw@ swap le-w!
@@ -533,7 +534,7 @@ default-out op-vector !
     create-terminal-program to terminal-program
     terminal-program terminal-init
     s" minos2/ascii.png" term-load-textures form-chooser
-    unit-matrix MVPMatrix set-matrix  scale-me ;
+    scale-me ;
 
 :noname  defers window-init term-init config-changer ; IS window-init
 

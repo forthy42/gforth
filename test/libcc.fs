@@ -19,11 +19,11 @@
 
 require libcc.fs
 
+c-library libcc
 \c #include <string.h>
 \c #include <stdlib.h>
 
 c-function strlen strlen a -- n
-cr s\" fooo\0" 2dup dump drop .s strlen cr .s drop cr 
 c-function labs labs n -- n
 
 \c #define _FILE_OFFSET_BITS 64
@@ -31,24 +31,15 @@ c-function labs labs n -- n
 \c #include <unistd.h>
 c-function dlseek lseek n d n -- d
 
-cr s\" fooo\0" 2dup dump drop .s strlen cr .s drop cr 
--5 labs .s drop cr
-
 \c #include <stdio.h>
-c-function printf-nr printf a n r -- n
-c-function printf-rn printf a r n -- n
-s\" n=%d r=%f\n\0" drop -5 -0.5e fp@ hex. cr printf-nr . cr
-s\" r=%f n=%d\n\0" drop -0.5e -5 printf-rn . cr
+c-function sprintf-nr sprintf a a n r -- n
+c-function sprintf-rn sprintf a a r n -- n
 
-\c #define printfull(s,ull) printf(s,(unsigned long long)ull)
-c-function printfull printfull a n -- n
-s\" ull=%llu\n\0" drop -1 printfull . cr
-s\" ull=%llu r=%f\n\0" drop -1 -0.5e printf-nr . cr
+\c #define sprintfull(a,s,ull) sprintf(a,s,(unsigned long long)ull)
+c-function sprintfull sprintfull a a n -- n
 
-\c #define printfll(s,ll) printf(s,(long long)ll)
-c-function printfll printfll a n -- n
-s\" ll=%lld\n\0" drop -1 printfll . cr
-s\" ll=%lld r=%f\n\0" drop -1 -0.5e printf-nr . cr
+\c #define sprintfll(a,s,ll) sprintf(a,s,(long long)ll)
+c-function sprintfll sprintfll a a n -- n
 
 \ test calling a C function pointer from Forth
 
@@ -62,5 +53,30 @@ c-function labsptr labsptr -- a
 \c #define call_func1(par1,fptr) ((func1)fptr)(par1)
 c-function call_func1 call_func1 n func -- n
 
--5 labsptr call_func1 . cr
+c-callback test-callback: u u -- u
+c-funptr test-call {((Cell(*)(Cell,Cell))(ptr))} u u -- u
+end-c-library
 
+require ./tester.fs
+decimal
+
+t{ pad s\" n=%d r=%f\n\0" drop -5 -0.5e sprintf-nr pad swap s\" n=-5 r=-0.500000\n" str= -> true }t
+t{ pad s\" r=%f n=%d\n\0" drop -0.5e -5 sprintf-rn pad swap s\" r=-0.500000 n=-5\n" str= -> true }t
+t{ pad s\" ll=%lld\n\0" drop -1 sprintfll pad swap s\" ll=-1\n" str= -> true }t
+cell 4 = [IF]
+    t{ pad s\" ll=%d r=%f\n\0" drop -1 -0.5e sprintf-nr pad swap s\" ll=-1 r=-0.500000\n" str= -> true }t
+    t{ pad s\" ull=%llu\n\0" drop -1 sprintfull pad swap s\" ull=18446744073709551615\n" str= -> true }t
+    t{ pad s\" ull=%u r=%f\n\0" drop -1 -0.5e sprintf-nr pad swap s\" ull=4294967295 r=-0.500000\n" str= -> true }t
+[ELSE]
+    t{ pad s\" ll=%lld r=%f\n\0" drop -1 -0.5e sprintf-nr pad swap s\" ll=-1 r=-0.500000\n" str= -> true }t
+    t{ pad s\" ull=%llu\n\0" drop -1 sprintfull pad swap s\" ull=18446744073709551615\n" str= -> true }t
+    t{ pad s\" ull=%llu r=%f\n\0" drop -1 -0.5e sprintf-nr pad swap s\" ull=18446744073709551615 r=-0.500000\n" str= -> true }t
+[THEN]
+
+t{ s\" fooo\0" drop strlen -> 4 }t
+t{ -5 labs -> 5 }t
+t{ -5 labsptr call_func1 -> 5 }t
+
+' + test-callback: constant plus
+
+t{ 1 2 plus test-call -> 3 }t
