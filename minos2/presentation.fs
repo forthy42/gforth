@@ -20,7 +20,7 @@
 require widgets.fs
 
 [IFDEF] android
-    hidekb also android hidestatus previous ekey drop ekey drop
+    hidekb also android >changed hidestatus >changed previous
 [THEN]
 
 also minos
@@ -587,7 +587,7 @@ to top-widget
 
 also [IFDEF] android android [THEN]
 
-: widgets-demo ( -- )
+: widgets-demo ( -- )  1 need-config !
     [IFDEF] hidestatus hidekb hidestatus [THEN]
     !widgets widgets-loop ;
 
