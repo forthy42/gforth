@@ -1372,8 +1372,8 @@ if test x$has_swig = xyes || test -f $srcdir/unix/gles3-fsi.c; then
    AC_CHECK_HEADER(EGL/egl.h, SWIGLIBS="$SWIGLIBS opengles3.fs", ,), ,
 #include <GLES3/gl3.h>
 ) ,))
-# iOS varaint
 fi
+# iOS varaint
 if test x$has_swig = xyes || test -f $srcdir/unix/ios-gles-fsi.c; then
    AC_CHECK_HEADER(OpenGLES/ES2/gl.h,
    AC_CHECK_HEADER(OpenGLES/ES2/glext.h, SWIGMODULES="$SWIGMODULES ios-gles.fs" SWIGLIBS="$SWIGLIBS opengles.fs", ,
@@ -1510,7 +1510,7 @@ test -d kernel||mkdir kernel
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
 $srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION/$machine
 $srcdir/mkinstalldirs arch/$machine
-ln -sf $PWD/engine/config.h $srcdir/engine/libcc.h include/gforth/$PACKAGE_VERSION/$machine]],
+ln -sf $PWD/engine/config.h `cd $srcdir; pwd`/engine/libcc.h include/gforth/$PACKAGE_VERSION/$machine]],
 [PACKAGE_VERSION=$PACKAGE_VERSION
  machine=$machine])
 AC_OUTPUT
