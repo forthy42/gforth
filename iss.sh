@@ -62,7 +62,9 @@ ChangesEnvironment=yes
 OutputBaseFilename=gforth$SF-$VERSION
 AppPublisher=Free Software Foundation, Gforth team
 AppPublisherURL=http://bernd-paysan.de/gforth.html
-SignTool=signtool sign /sha1 F0DB1A7CC42249D69FCD403BDC6BA39C6BA4AC4B /fd SHA256 /tr http://timestamp.comodoca.com/authenticode /td SHA256 \$f
+SignTool=signtool $f
+; add the following args in inno setup:
+; sign /a /fd sha1 /tr http://timestamp.comodoca.com/?td=sha256 /td sha256 \$f
 SetupIconFile=gforth.ico
 UninstallDisplayIcon={app}\\gforth.ico
 
