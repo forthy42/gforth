@@ -925,7 +925,7 @@ $(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_SRC) libforth
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
 		-$(TOUCH) $@
 
-build-libcc-named: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
+build-libcc-named libcc: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
 
 libccdir:	$(buildccdir)
 
