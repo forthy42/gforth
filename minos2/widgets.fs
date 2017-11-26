@@ -566,7 +566,8 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : hglue-step { f: gp f: ga f: rd f: rg f: rx -- gp ga rd' rg' rx' }
     gp ga  rx to x
     hglue@ g3>2 { f: xmin f: xa }
-    rg xa f+ gp f* ga f/ fdup rd f- fswap rg xa f+
+    rg xa f+ gp f* fdup f0<> IF  ga f/  THEN
+    fdup rd f- fswap rg xa f+
     frot xmin f+  fdup to w  rx f+ ;
 
 : hbox-resize1 { f: y f: h f: d -- y h d } x y w h d resize
@@ -587,16 +588,16 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : vglue-step-h { f: gp f: ga f: rd f: rg f: ry f: od -- gp ga rd' rg' ry' }
     gp ga
     vglue@ g3>2 { f: ymin f: ya }
-    rg ya f+ gp f* ga f/
-    fdup
-    rg ya f+
+    rg ya f+ gp f* fdup f0<> IF  ga f/  THEN
+    fdup  rg ya f+
     frot rd f- ymin f+   fdup to h  baseline od f- fmax
     ry f+ fdup to y ;
 
 : vglue-step-d { f: gp f: ga f: rd f: rg f: ry -- gp ga rd' rg' ry' od' }
     gp ga
     dglue@ g3>2 { f: ymin f: ya }
-    rg ya f+ gp f* ga f/ fdup rd f- fswap rg ya f+
+    rg ya f+ gp f* fdup f0<> IF  ga f/  THEN
+    fdup  rd f- fswap rg ya f+
     frot ymin f+ fdup to d 
     fdup ry f+ fswap ;
 
