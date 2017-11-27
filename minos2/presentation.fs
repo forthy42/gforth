@@ -365,13 +365,13 @@ $FFFFFFFF pres-frame
 {{
 dark-blue
 largesize# to x-baseline
-glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 large "MINOΣ2 — A GUI for net2o" }}text /center
 small "Widgets and Layout Engine" }}text /center
-glue*2 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+glue*2 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 medium "Bernd Paysan" }}text /center
 "EuroForth 2017, Bad Vöslau" }}text /center
-glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o fontsize# to border o Value title-page o o>
 }}z box[] dup >slides
 
@@ -383,11 +383,11 @@ dark-blue
 largesize# to x-baseline
 large "Motivation" }}text /center
 medium
-glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 tex: bad-gateway
 ' bad-gateway "bad-gateway.png" 0.666e }}image-file
 Constant bgw-glue /center
-glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o fontsize# to border o o>
 }}z box[] /flip dup >slides
 
@@ -414,7 +414,7 @@ blackish
 dark-blue "Solutions" \\
 blackish
 "    net2o starts becoming useable" \\
-glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o o Value snowden-page fontsize# to border o o>
 }}z box[] /flip dup >slides
 
@@ -433,7 +433,7 @@ fontsize# baselinesmall# f* to x-baseline
 "•  add a zbox for vertical layering" \\
 "•  integrated animations" \\
 "•  combine the GLSL programs into one program?" \\
-glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o fontsize# to border o o>
 }}z box[] /flip dup >slides
 
@@ -451,7 +451,7 @@ fontsize# baselinesmall# f* to x-baseline
 "" " Glues can shrink, not just grow" b2\\
 "Object System:" " Mini–OOF2 instead of BerndOOF" b2\\
 "Class number:" " Fewer classes, more combinations" b2\\
-glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o fontsize# to border o o>
 }}z box[] /flip dup >slides
 

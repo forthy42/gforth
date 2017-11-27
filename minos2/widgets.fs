@@ -519,8 +519,8 @@ box class end-class zbox \ overlay alignment
 
 glue new Constant glue*1
 glue new Constant glue*2
-glue*1 >o 1glue hglue-c glue! 1glue dglue-c glue! 1glue vglue-c glue! o>
-glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue! o>
+glue*1 >o 1glue hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
+glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue! o>
 
 : g3>2 ( t s a -- min a ) fover f+ { f: a } f- a ;
 
@@ -601,7 +601,7 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     vglue@ g3>2 +to rg { f: ymin }
     rg fdup gp/a f* \ rd'
     fdup rd f- ymin f+   fdup to h
-    baseline od f- fmax ry f+ fdup to y ;
+    baseline od f- fmax  ry f+ fdup to y ;
 
 : vglue-step-d { f: gp/a f: rg f: rd f: ry -- gp/a rg' rd' ry' d' }
     \g gp: total additonal pixels to stretch into
