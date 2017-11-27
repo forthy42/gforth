@@ -22,11 +22,6 @@
 
 debug: time(
 
-[IFUNDEF] !@time
-    : !@time ( -- delta-f ) ntime timer-tick 2@ 2over timer-tick 2! d- d>f 1n f* ;
-    : .!time ( -- ) !@time (.time) ;
-[THEN]
-
 [IFUNDEF] no-file#
     2 Constant ENOENT
     #-512 ENOENT - Constant no-file#
