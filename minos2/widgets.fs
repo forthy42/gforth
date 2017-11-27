@@ -497,13 +497,14 @@ box class end-class zbox \ overlay alignment
 1e20 fconstant 1fil
 1e40 fconstant 1fill
 1e60 fconstant 1filll
+1e-20 fconstant 0g \ minimum glue, needs to be bigger than zero to avoid 0/0
 
 : fils ( f -- f' ) 1fil f* ;
 : fills ( f -- f' ) 1fill f* ;
 : fillls ( f -- f' ) 1filll f* ;
 
-: 0glue ( -- t s a ) 0e 0e 0e ;
-: 1glue ( -- t s a ) 0e 0e 1fil ;
+: 0glue ( -- t s a ) 0e 0g 0g ;
+: 1glue ( -- t s a ) 0e 0g 1fil ;
 
 : .fil[l[l]] ( f -- )
     fdup 1fil f< IF  f.  EXIT  THEN
@@ -527,17 +528,17 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
     t1 t2 f+ s1 s2 f+ a1 a2 f+ ;
 : glue* { f: t1 f: s1 f: a1 f: t2 f: s2 f: a2 -- t3 s3 a3 }
     t1 t2 fmax
-    t1 s1 f- t2 s2 f- fmax fover f- 0e fmax
-    t1 a1 f+ t2 a2 f+ fmin 2 fpick f- 0e fmax ;
+    t1 s1 f- t2 s2 f- fmax fover f- 0g fmax
+    t1 a1 f+ t2 a2 f+ fmin 2 fpick f- 0g fmax ;
 : baseglue ( -- b 0 max )
-    baseline 0e 1filll ;
+    baseline 0g 1filll ;
 : glue-drop ( t s a -- ) fdrop fdrop fdrop ;
 
 : hglue+ 0glue box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs ;
 : dglue+ 0glue box-flags @ box-vflip# and ?EXIT
     [: glue-drop dglue@ ;] do-lastchild ; \ last dglue
 : vglue+ 0glue box-flags @ box-vflip# and ?EXIT
-    0glue [: vglue@ glue+ baseglue glue* glue+ dglue@ ;] do-childs
+    0glue [: vglue@ glue+ frot baseline fmax f-rot glue+ dglue@ ;] do-childs
     glue-drop ;
 
 : hglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
@@ -563,12 +564,15 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 :noname defers printdebugdata cr f.s ; is printdebugdata
 
-: hglue-step { f: gp f: ga f: rd f: rg f: rx -- gp ga rd' rg' rx' }
-    gp ga  rx to x
-    hglue@ g3>2 { f: xmin f: xa }
-    rg xa f+ gp f* fdup f0<> IF  ga f/  THEN
-    fdup rd f- fswap rg xa f+
-    frot xmin f+  fdup to w  rx f+ ;
+: hglue-step { f: gp/a f: rg f: rd f: rx -- gp/a rg' rd' rx' }
+    \g gp/a: total additonal pixels to stretch into divided by total glue
+    \g rg: running glue
+    \g rd: running remaining pixels
+    \g rx: running x
+    gp/a  rx to x
+    hglue@ g3>2 +to rg { f: xmin }
+    rg fdup gp/a f*
+    fdup rd f- xmin f+  fdup to w  rx f+ ;
 
 : hbox-resize1 { f: y f: h f: d -- y h d } x y w h d resize
 \    ." hchild resized: " x f. y f. w f. h f. d f. cr
@@ -576,7 +580,8 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : hbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     hglue@ g3>2 { f: wmin f: a }
-    w wmin f- a 0e 0e x ['] hglue-step do-childs  fdrop fdrop fdrop fdrop fdrop
+    w wmin f- a f/ 0e 0e x ['] hglue-step do-childs
+    fdrop fdrop fdrop fdrop
     y h d ['] hbox-resize1 do-childs  fdrop fdrop fdrop
 \    ." hbox sized to: " x f. y f. w f. h f. d f. cr
 ;
@@ -585,23 +590,33 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 \ add glues up for vboxes
 
-: vglue-step-h { f: gp f: ga f: rd f: rg f: ry f: od -- gp ga rd' rg' ry' }
-    gp ga
-    vglue@ g3>2 { f: ymin f: ya }
-    rg ya f+ gp f* fdup f0<> IF  ga f/  THEN
-    fdup  rg ya f+
-    frot rd f- ymin f+   fdup to h  baseline od f- fmax
-    ry f+ fdup to y ;
+: vglue-step-h { f: gp/a f: rg f: rd f: ry f: od -- gp/a rg' rd' ry' }
+    \g gp: total additonal pixels to stretch into
+    \g /a: 1/total glue to stretch into (so you can multiply with it)
+    \g rg: running glue
+    \g rd: running remaining pixels
+    \g rx: running y
+    \g od: previous descender
+    gp/a
+    vglue@ g3>2 +to rg { f: ymin }
+    rg fdup gp/a f* \ rd'
+    fdup rd f- ymin f+   fdup to h
+    baseline od f- fmax ry f+ fdup to y ;
 
-: vglue-step-d { f: gp f: ga f: rd f: rg f: ry -- gp ga rd' rg' ry' od' }
-    gp ga
-    dglue@ g3>2 { f: ymin f: ya }
-    rg ya f+ gp f* fdup f0<> IF  ga f/  THEN
-    fdup  rd f- fswap rg ya f+
-    frot ymin f+ fdup to d 
+: vglue-step-d { f: gp/a f: rg f: rd f: ry -- gp/a rg' rd' ry' d' }
+    \g gp: total additonal pixels to stretch into
+    \g /a: 1/total glue to stretch into (so you can multiply with it)
+    \g rd: running remaining pixels
+    \g rg: running glue
+    \g rx: running y
+    \g d': this descender
+    gp/a
+    dglue@ g3>2 +to rg { f: ymin }
+    rg fdup gp/a f*
+    fdup rd f- ymin f+ fdup to d 
     fdup ry f+ fswap ;
 
-: vglue-step ( gp ga rd rg ry od -- gp ga rd' rg' ry' od )
+: vglue-step ( gp/a rd rg ry od -- gp/a rd' rg' ry' od )
     vglue-step-h vglue-step-d ;
 
 : vbox-resize1 { f: x f: w -- x w } x y w h d resize
@@ -610,9 +625,9 @@ glue*2 >o 1glue f2* hglue-c glue! 1glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : vbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     vglue@ dglue@ glue+ g3>2 { f: hmin f: a }
-    h border f- hmin f- a 0e 0e
-    y border f+ h border f- f- 0e ['] vglue-step do-childs
-    fdrop fdrop fdrop fdrop fdrop fdrop
+    h border f2* f- hmin f- a f/ 0e 0e
+    y border f+ h f- 0e ['] vglue-step do-childs
+    fdrop fdrop fdrop fdrop fdrop
     x border f+ w border f2* f- ['] vbox-resize1 do-childs fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;

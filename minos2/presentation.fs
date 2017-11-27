@@ -205,10 +205,10 @@ glue new Constant glue*b1
 glue new Constant glue*b2
 
 : update-glue
-    glue*wh >o 0e 0e dpy-w @ s>f smallsize# f2* f- hglue-c glue!
+    glue*wh >o 0g 0g dpy-w @ s>f smallsize# f2* f- hglue-c glue!
     0glue dglue-c glue! 1glue vglue-c glue! o>
-    glue*b1 >o dpy-w @ s>f .1e f* 0e 0e hglue-c glue! o>
-    glue*b2 >o dpy-w @ s>f .2e f* 0e 0e hglue-c glue! o> ;
+    glue*b1 >o dpy-w @ s>f .1e f* 0g 0g hglue-c glue! o>
+    glue*b2 >o dpy-w @ s>f .2e f* 0g 0g hglue-c glue! o> ;
 
 update-glue
 
@@ -364,14 +364,15 @@ glue-left }}glue
 $FFFFFFFF pres-frame
 {{
 dark-blue
-glue*1 }}glue \ ) $FFFFFFFF 32e }}frame dup .button1
+largesize# to x-baseline
+glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 large "MINOΣ2 — A GUI for net2o" }}text /center
 small "Widgets and Layout Engine" }}text /center
-glue*2 }}glue \ ) $FFFFFFFF 32e }}frame dup .button1
+glue*2 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 medium "Bernd Paysan" }}text /center
 "EuroForth 2017, Bad Vöslau" }}text /center
-glue*1 }}glue \ ) $FFFFFFFF 32e }}frame dup .button1
-}}v box[] >o o Value title-page o o>
+glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+}}v box[] >o fontsize# to border o Value title-page o o>
 }}z box[] dup >slides
 
 \ page 1
@@ -382,11 +383,11 @@ dark-blue
 largesize# to x-baseline
 large "Motivation" }}text /center
 medium
-glue*1 }}glue
+glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 tex: bad-gateway
 ' bad-gateway "bad-gateway.png" 0.666e }}image-file
 Constant bgw-glue /center
-glue*1 }}glue
+glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o fontsize# to border o o>
 }}z box[] /flip dup >slides
 
@@ -413,7 +414,7 @@ blackish
 dark-blue "Solutions" \\
 blackish
 "    net2o starts becoming useable" \\
-glue*1 }}glue
+glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o o Value snowden-page fontsize# to border o o>
 }}z box[] /flip dup >slides
 
@@ -432,7 +433,7 @@ fontsize# baselinesmall# f* to x-baseline
 "•  add a zbox for vertical layering" \\
 "•  integrated animations" \\
 "•  combine the GLSL programs into one program?" \\
-glue*1 }}glue
+glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o fontsize# to border o o>
 }}z box[] /flip dup >slides
 
@@ -450,7 +451,7 @@ fontsize# baselinesmall# f* to x-baseline
 "" " Glues can shrink, not just grow" b2\\
 "Object System:" " Mini–OOF2 instead of BerndOOF" b2\\
 "Class number:" " Fewer classes, more combinations" b2\\
-glue*1 }}glue
+glue*1 ( }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o fontsize# to border o o>
 }}z box[] /flip dup >slides
 
