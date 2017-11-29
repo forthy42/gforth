@@ -513,11 +513,12 @@ Create unit-texscale
     ap-matrix MVMatrix set-matrix
     unit-texscale set-texscale ;
 
-: >ap ( near far scale -- ) f2* 1/f { f: scale }
-    scale dpy-w @ fm* fdup fnegate fswap
-    scale dpy-h @ fm* fdup fnegate fswap >ortho
+: >apwh ( rnear rfar rscale w h -- ) f2* 1/f { f: scale }
+    scale swap fm* fdup fnegate fswap
+    scale      fm* fdup fnegate fswap >ortho
     \ cr ap-matrix .matrix
     ap-set ;
+: >ap ( rnear rfar rscale -- ) dpy-w @ dpy-h @ >apwh ;
 : >apxy ( xoff yoff -- )  y-apos sf!  x-apos sf! ;
 : default>ap ( -- )
     .01e 100e dpy-w @ dpy-h @ min s>f f2/ 100 fm* >ap ;

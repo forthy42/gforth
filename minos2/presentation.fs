@@ -208,8 +208,8 @@ glue new Constant glue*b2
 : update-glue
     glue*wh >o 0g 0g dpy-w @ s>f smallsize# f2* f- hglue-c glue!
     0glue dglue-c glue! 1glue vglue-c glue! o>
-    glue*b1 >o dpy-w @ s>f .1e f* 0g 0g hglue-c glue! o>
-    glue*b2 >o dpy-w @ s>f .2e f* 0g 0g hglue-c glue! o> ;
+    glue*b1 >o dpy-w @ s>f .12e f* 0g 0g hglue-c glue! o>
+    glue*b2 >o dpy-w @ s>f .20e f* 0g 0g hglue-c glue! o> ;
 
 update-glue
 
@@ -464,7 +464,7 @@ largesize# to x-baseline
 large dark-blue "MINOΣ2 Widgets" }}text /center
 medium blackish
 "Design principle is a Lego–style combination of many extremely simple objects" \\
-{{
+{{ {{ glue*1 $FCC3FFFF 0e }}frame {{
 fontsize# baselinesmall# f* to x-baseline
 "actor" " base class that reacts on all actions (clicks, touchs, keys)" bb\\
 "widget" " base class for all visible objects" bb\\
@@ -484,8 +484,9 @@ medium "glue" " base class for flexible objects" bb\\
 "animation" " action for animations" bb\\
 "canvas" " vector graphics (TBD)" bb\\
 glue*1 }}glue
-tex: vp1
-glue*1 ' vp1 }}vp
+}}v box[]
+}}z box[]
+tex: vp1 glue*1 ' vp1 }}vp
 }}v box[] >o fontsize# to border o o>
 }}z box[] /flip dup >slides
 
@@ -542,8 +543,9 @@ fontsize# baselinesmall# f* to x-baseline
 "icon" " draw items of the icon texture" bb\\
 "thumbnail" " draw items of the thumbnail texture" bb\\
 "image" " images with one draw call per image" bb\\
-"text" " text round" bb\\
 "marking" " cursor/selection highlight round" bb\\
+"text" " text round" bb\\
+"emoji" " emoji round" bb\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
 }}z box[] /flip dup >slides
