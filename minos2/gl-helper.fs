@@ -588,7 +588,7 @@ tex: none-tex
 
 \ framebuffer + rendering into framebuffer
 
-: gen-framebuffer { tb rb -- buffer-name )
+: gen-framebuffer { tb rb -- buffer-name }
     0 { w^ fb-name }
     1 fb-name glGenFramebuffers
     GL_FRAMEBUFFER fb-name l@ glBindFramebuffer

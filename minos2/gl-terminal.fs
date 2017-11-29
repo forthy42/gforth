@@ -167,7 +167,7 @@ Black std-bg !
 : >black Black std-bg! Black err-bg! White fg! Red err-fg!
     Black >extra-colors-bg Black >bg White >fg or to default-color
     $704000 dup color-index ! err-color-index ! ;
->black
+[IFDEF] android >black [THEN]
 
 256 Value videocols
 0   Value videorows

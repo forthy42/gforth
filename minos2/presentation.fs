@@ -25,7 +25,6 @@ require widgets.fs
 
 also minos
 
-also freetype-gl
 dpy-w @ s>f 42e f/ fround FValue fontsize#
 fontsize# 2 3 fm*/ fround FValue smallsize#
 fontsize# f2* FValue largesize#
@@ -40,6 +39,8 @@ dpy-w @ s>f 1280e f/ FValue pixelsize#
     dpy-h @ s>f dpy-w @ s>f f/ .42e f/ to baselinesmall#
     dpy-h @ s>f dpy-w @ s>f f/ .33e f/ to baselinemedium#
     dpy-w @ s>f 1280e f/ to pixelsize# ;
+
+also freetype-gl
 
 [IFDEF] android
     "/system/fonts/DroidSans.ttf"
@@ -463,6 +464,7 @@ largesize# to x-baseline
 large dark-blue "MINOΣ2 Widgets" }}text /center
 medium blackish
 "Design principle is a Lego–style combination of many extremely simple objects" \\
+{{
 fontsize# baselinesmall# f* to x-baseline
 "actor" " base class that reacts on all actions (clicks, touchs, keys)" bb\\
 "widget" " base class for all visible objects" bb\\
@@ -482,6 +484,8 @@ medium "glue" " base class for flexible objects" bb\\
 "animation" " action for animations" bb\\
 "canvas" " vector graphics (TBD)" bb\\
 glue*1 }}glue
+tex: vp1
+glue*1 ' vp1 }}vp
 }}v box[] >o fontsize# to border o o>
 }}z box[] /flip dup >slides
 
@@ -588,7 +592,7 @@ to top-widget
 
 also [IFDEF] android android [THEN]
 
-: widgets-demo ( -- )  1 need-config !
+: presentation ( -- )  1 need-config !
     [IFDEF] hidestatus hidekb hidestatus [THEN]
     !widgets widgets-loop ;
 
@@ -596,7 +600,7 @@ previous
 
 script? [IF]
     next-arg s" time" str= [IF]  +db time( \ ) [THEN]
-    widgets-demo bye
+    presentation bye
 [ELSE]
-    widgets-demo
+    presentation
 [THEN]

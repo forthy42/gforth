@@ -644,12 +644,12 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 ' zbox-resize zbox is resize
 
-$10 stack: box-depth
+$10 stack: box-depth \ this $10 here is no real limit
 : {{ ( -- ) depth box-depth >stack ;
 : }} ( n1 .. nm -- n1 .. nm m ) depth box-depth stack> - ;
 : }}h ( n1 .. nm -- hbox ) }} hbox new >o +childs o o> ;
-: }}v ( n1 .. nm -- hbox ) }} vbox new >o +childs o o> ;
-: }}z ( n1 .. nm -- hbox ) }} zbox new >o +childs o o> ;
+: }}v ( n1 .. nm -- vbox ) }} vbox new >o +childs o o> ;
+: }}z ( n1 .. nm -- zbox ) }} zbox new >o +childs o o> ;
 
 \ draw everything
 
@@ -666,33 +666,60 @@ $10 stack: box-depth
 
 \ viewport: Draw into a frame buffer
 
-box class
-    sfvalue: vp-xoff
-    sfvalue: vp-yoff
-    sfvalue: vp-w
-    sfvalue: vp-h
+vbox class
+    sfvalue: vp-x \ x offset of visible part of viewport
+    sfvalue: vp-y \ y offset of visible part of viewport
+    sfvalue: vp-w \ width inside viewport
+    sfvalue: vp-h \ height inside viewport
     defer: vp-tex
+    value: vp-fb
+    value: vp-glue \ glue object
 end-class viewport
 
-:noname vp-w vp-h vp-tex >framebuffer
+:noname vp-h vp-w f>s f>s vp-fb >framebuffer
+    0e fdup fdup fdup glClearColor clear
     ['] widget-draw do-childs
     0>framebuffer ; viewport to draw-init
 :noname ( -- )
     1-bias set-color+ vp-tex
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
-    x vp-w f/ y vp-h f/ w vp-w f/ h vp-h f/ { f: s0 f: t0 f: s1 f: t1 }
+    vp-x vp-w f/ vp-y vp-h f/ w vp-w f/ h vp-h f/ { f: s0 f: t0 f: s1 f: t1 }
     i0 v0 i?  frame-color >v
     x1 y2 >xy dup rgba>c n> s0       t0 t1 f+ >st v+
     x2 y2 >xy dup rgba>c n> s0 s1 f+ t0 t1 f+ >st v+
     x2 y1 >xy dup rgba>c n> s0 s1 f+ t0       >st v+
     x1 y1 >xy     rgba>c n> s0       t0       >st v+
     v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i,
-    GL_TRIANGLES draw-elements ; viewport is draw-image
+    GL_TRIANGLES draw-elements ; viewport to draw-image
+: vp-!size ( -- )
+    ['] !size do-childs
+    hglue* hglue-c glue!
+    dglue+ dglue-c glue!
+    vglue+ vglue-c glue!
+    w hglue-c df@ fmax to vp-w
+    h d f+ dglue-c df@ vglue-c df@ f+ fmax to vp-h ;
+' vp-!size viewport is !size
+
+:noname { f: x f: y f: w f: h f: d -- }
+    x y w h d widget-resize vp-!size
+    vp-tex vp-fb IF
+	0 vp-w f>s vp-h f>s GL_RGBA texture-map \ just resize
+    ELSE
+	vp-w f>s vp-h f>s GL_RGBA new-textbuffer to vp-fb
+    THEN
+    0e 0e vp-w vp-h 0e vbox-resize
+; viewport to resize
 ' noop viewport is draw-bg
 ' noop viewport is draw-icon
 ' noop viewport is draw-thumbnail
 ' noop viewport is draw-marking
 ' noop viewport is draw-text
+:noname vp-glue .hglue ; viewport to hglue
+:noname vp-glue .dglue ; viewport to dglue
+:noname vp-glue .vglue ; viewport to vglue
+
+: }}vp ( b:n1 .. b:nm glue vp-tex -- viewport ) { g t }
+    }} viewport new >o +childs t is vp-tex g to vp-glue o o> ;
 
 \ top widget and actors
 
