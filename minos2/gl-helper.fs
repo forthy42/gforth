@@ -36,10 +36,16 @@ s" os-type" environment? [IF]
 	: use-egl ;
     [ELSE]
 	2dup s" darwin" str= >r s" linux-gnu" string-prefix? r> or [IF]
-	    s" XDG_SESSION_TYPE" getenv 2dup s" x11" str=
-	    [IFUNDEF] use-wl >r 2dup s" wayland" str= r> or [THEN]
+	    [IFDEF] use-wl
+		s" XDG_SESSION_TYPE" getenv s" wayland" str=
+	    [ELSE] false [THEN] \ wayland is experimental, default to x11
 	    [IF]
-		2drop
+		require wayland-gl.fs
+		require unix/opengles.fs
+		also opengl
+		[IFUNDEF] use-egl : use-egl ; [THEN]
+		[IFUNDEF] use-wl : use-wl ; [THEN]
+	    [ELSE] \ it's probably "x11" or undefined
 		[IFDEF] use-glx
 		    require unix/opengl.fs
 		[ELSE]
@@ -48,16 +54,6 @@ s" os-type" environment? [IF]
 		[THEN]
 		also opengl
 		require linux-gl.fs \ same voc stack effect as on android
-	    [ELSE]
-		s" wayland" str= [IF]
-		    require wayland-gl.fs
-		    require unix/opengles.fs
-		    also opengl
-		    [IFUNDEF] use-egl : use-egl ; [THEN]
-		    [IFUNDEF] use-wl : use-wl ; [THEN]
-		[ELSE]
-		    !!unknown-dsession-type!!
-		[THEN]
 	    [THEN]
 	[THEN]
     [THEN]
