@@ -17,8 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-
-Variable need-mask
+Variable need-root
+need-root Value need-mask
 
 : ?need: ( mask -- flag )
     Create dup , 2* DOES> @ need-mask @ and 0<> ;
@@ -54,5 +54,5 @@ drop
 : +config ( -- flag ) $1000 need-mask @ -$100 mux need-mask ! ;
 : 1+config ( -- flag ) $100 need-mask +! ;
 : 1config ( -- flag ) $100 need-mask @ -$100 mux need-mask ! ;
-: -config ( -- flag ) -$100 need-mask +! ;
+: -config ( -- flag ) ?config IF  -$100 need-mask +!  THEN ;
 : 0-config ( -- flag ) need-mask @ $FF and need-mask ! ;

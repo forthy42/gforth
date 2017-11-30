@@ -264,25 +264,23 @@ Variable slide#
     fdup 1e f>= IF  fdrop
 	dup 1- swap !slides  EXIT
     THEN
-    sin-t 1e fswap f- 1- anim!slides ;
+    sin-t 1e fswap f- 1- anim!slides +sync ;
 
 : next-anim ( n r0..1 -- )
     dup slides[] $[]# 1- u>= IF  drop fdrop  EXIT  THEN
     fdup 1e f>= IF  fdrop
 	dup 1+ swap !slides  EXIT
     THEN
-    sin-t 1+ anim!slides ;
+    sin-t 1+ anim!slides +sync ;
 
 1e FValue slide-time%
 
 : prev-slide ( -- )
     slide-time% anims[] $@len IF  anim-end .2e f*  THEN
-    slide# @ ['] prev-anim
-    >animate ;
+    slide# @ ['] prev-anim >animate ;
 : next-slide ( -- )
     slide-time% anims[] $@len IF  anim-end .2e f*  THEN
-    slide# @ ['] next-anim
-    >animate ;
+    slide# @ ['] next-anim >animate ;
 
 : slide-frame ( glue color -- o )
     smallsize# }}frame ;

@@ -106,14 +106,14 @@ previous
     $00FF88FF to text-color o> ;
 
 : !widgets ( -- ) !t1 !t2 !t3 top-widget .htop-resize
-    t2a [: >o sin-t fdup $DF fade 4e f* to border o> ;] 1e >animate
-    t2b [: >o sin-t fdup $DF fade 8e f* to border o> ;] 2e >animate
-    t2c [: >o sin-t fdup $DF fade 12e f* to border o> ;] 3e >animate
-    t2d [: >o sin-t fdup $DF fade 16e f* to border o> ;] 4e >animate
-    f3a [: >o sin-t fdup $FF fade 8e f* to border o> ;] 1e >animate
-    f3b [: >o sin-t fdup $FF fade 16e f* to border o> ;] 2e >animate
-    f3c [: >o sin-t fdup $FF fade 24e f* to border o> ;] 3e >animate
-    f3d [: >o sin-t fdup $FF fade 32e f* to border o> ;] 4e >animate ;
+    t2a [: >o sin-t fdup $DF fade 4e f* to border o> +sync ;] 1e >animate
+    t2b [: >o sin-t fdup $DF fade 8e f* to border o> +sync ;] 2e >animate
+    t2c [: >o sin-t fdup $DF fade 12e f* to border o> +sync ;] 3e >animate
+    t2d [: >o sin-t fdup $DF fade 16e f* to border o> +sync ;] 4e >animate
+    f3a [: >o sin-t fdup $FF fade 8e f* to border o> +sync ;] 1e >animate
+    f3b [: >o sin-t fdup $FF fade 16e f* to border o> +sync ;] 2e >animate
+    f3c [: >o sin-t fdup $FF fade 24e f* to border o> +sync ;] 3e >animate
+    f3d [: >o sin-t fdup $FF fade 32e f* to border o> +sync ;] 4e >animate ;
 
 also [IFDEF] android android [THEN]
 

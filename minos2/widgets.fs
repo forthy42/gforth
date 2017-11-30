@@ -392,8 +392,7 @@ also freetype-gl
 : <draw-init ( -- )
     -1e 1e >apxy  .01e 100e 100e >ap
     Ambient 1 ambient% glUniform1fv
-    0.01e 0.02e 0.15e 1.0e glClearColor clear
-;
+    0e fdup fdup fdup glClearColor clear ;
 
 : draw-init> ( -- )
     atlas texture_atlas_t-modified c@ IF
@@ -671,7 +670,12 @@ vbox class
     defer: vp-tex
     value: vp-fb
     value: vp-glue \ glue object
+    field: vp-need
 end-class viewport
+
+: vp-needed ( xt -- )
+    need-mask >r vp-need to need-mask
+    catch r> to need-mask throw ;
 
 : draw-vpchilds ( -- )
     <draw-bg        ['] draw-bg        do-childs render>
@@ -683,14 +687,19 @@ end-class viewport
     <draw-emoji     ['] draw-emoji     do-childs render-bgra>
 ;
 
-:noname
+: <draw-vpinit ( -- )
     vp-h vp-w f>s f>s vp-fb >framebuffer
     0e fdup fdup fdup glClearColor clear
-    .01e 100e 100e vp-h vp-w f>s f>s >apwh
-    ['] draw-init do-childs
-    draw-vpchilds
-    0>framebuffer
-    -1e 1e >apxy  .01e 100e 100e >ap ; viewport to draw-init
+    .01e 100e 100e vp-h vp-w f>s f>s >apwh ;
+
+:noname
+    [: ?sync ?config or ;] vp-needed IF
+	<draw-vpinit  ['] draw-init do-childs  draw-init>
+	draw-vpchilds
+	0>framebuffer
+	-1e 1e >apxy  .01e 100e 100e >ap
+	[: -sync -config ;] vp-needed
+    THEN ; viewport to draw-init
 :noname ( -- )
     z-bias set-color+ vp-tex
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
@@ -707,8 +716,10 @@ end-class viewport
     hglue* hglue-c glue!
     dglue+ dglue-c glue!
     vglue+ vglue-c glue!
-    w hglue-c df@ fmax to vp-w
-    h d f+ dglue-c df@ vglue-c df@ f+ fmax to vp-h ;
+    w hglue-c df@ fmax
+    fdup vp-w f<> to vp-w
+    h d f+ dglue-c df@ vglue-c df@ f+ fmax
+    fdup vp-h f<> to vp-h or IF ['] +sync vp-needed THEN ;
 ' vp-!size viewport is !size
 
 4 buffer: texwh

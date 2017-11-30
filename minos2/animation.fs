@@ -44,17 +44,17 @@ end-class animation
     ftime { f: now }
     anims@ 0 ?DO
 	>o now anim-t IF  o anims[] >stack  THEN
-	ani-addr animate  +sync o>
+	ani-addr animate o>
     LOOP ;
 : anim-start ( -- )
     anims@ 0 ?DO
 	>o ani-delta f0< IF  1e  ELSE  0e  THEN
-	ani-addr animate  +sync o>
+	ani-addr animate o>
     LOOP ;
 : anim-end ( -- )
     anims@ 0 ?DO
 	>o ani-delta f0< IF  0e  ELSE  1e  THEN
-	ani-addr animate  +sync o>
+	ani-addr animate o>
     LOOP ;
 
 \ helper for animation
