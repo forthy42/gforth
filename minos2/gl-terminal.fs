@@ -254,7 +254,7 @@ $20 Value minpow2#
     GL_TRIANGLES draw-elements ;
 
 : screen-scroll ( r -- )  fdup floor fdup f>s scroll-y ! f-
-    f2* rows fm/ >y-pos  need-sync on ;
+    f2* rows fm/ >y-pos  +sync ;
 
 : gl-char' ( -- addr )
     gl-xy 2@ videocols * + sfloats videomem + ;
@@ -266,7 +266,7 @@ Variable gl-emit-buf
 : gl-cr ( -- )
     gl-lineend @ 0= IF
 	gl-xy 2@ 1+ nip 0 swap gl-xy 2! THEN
-    resize-screen  need-sync on  out off ;
+    resize-screen  +sync  out off ;
 
 : xchar>glascii ( xchar -- 0..7F )
     case
@@ -323,7 +323,7 @@ Variable gl-emit-buf
     THEN  { n m }
 
     n out +!
-    resize-screen  need-sync on
+    resize-screen  +sync
     dup $70 and 5 lshift or $F0F and 4 lshift r> $FFFF0000 and or
     n 0 ?DO
 	dup gl-char' le-l!
@@ -349,7 +349,7 @@ Sema gl-sema
 
 : gl-page ( -- ) [: 0 0 gl-atxy  0 to videorows  0 to actualrows
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!
-    resize-screen need-sync on ;] gl-sema c-section ;
+    resize-screen +sync ;] gl-sema c-section ;
 
 : ?invers ( attr -- attr' ) dup invers and IF
     dup $F000 and 4 rshift over $F00 and 4 lshift or swap $FF and or  THEN ;
@@ -387,11 +387,11 @@ Sema gl-sema
     gl-char' 2 + dup be-uw@ swap le-w!
     sync ;
 
-: show-cursor ( -- )  need-show @ 0= ?EXIT
+: show-cursor ( -- )  ?show 0= ?EXIT
     rows ( kbflag @ IF  dup 10 / - 14 -  THEN ) >r
     gl-xy @ scroll-y @ dup r@ + within 0= IF
        gl-xy @ 1+ r@ - 0 max s>f set-scroll
-    THEN  rdrop  need-show off ;
+    THEN  rdrop  -show ;
 
 [IFUNDEF] win : win app window @ ; [THEN]
 
@@ -445,29 +445,29 @@ Defer scale-me ' terminal-scale-me is scale-me
 [IFDEF] screen-xywh@
     screen-xywh@ screen-wh 2! screen-xy 2!
 [THEN]
-    getwh  >screen-orientation  scale-me need-sync on
+    getwh  >screen-orientation  scale-me +sync
     form-chooser ;
 : ?config-changer ( -- )
-    need-config @ 0> IF
+    ?config 0> IF
 	dpy-w @ dpy-h @ 2>r config-changer
 	dpy-w @ dpy-h @ 2r> d<> IF
-	    winch? on  need-config off
-	ELSE  -1 need-config +!  THEN
+	    winch? on  0-config
+	ELSE  -config  THEN
     THEN ;
 
 : screen-sync ( -- )  rendering @ -2 > ?EXIT \ don't render if paused
     ?config-changer
     win level# @ 0<= and IF
-	0 need-sync !@ IF  show-cursor screen->gl  THEN
+	?sync IF  -sync show-cursor screen->gl  THEN
     THEN ;
 
 : gl-fscale ( f -- ) to default-scale
-    1 need-config +! screen-ops ;
+    1+config screen-ops ;
 : gl-scale ( n -- ) s>f gl-fscale ;
 
 : >changed ( -- )
-    config-change# need-config !
-    BEGIN  >looper screen-sync need-config @ 0= UNTIL ;
+    +config
+    BEGIN  >looper screen-sync ?config 0= UNTIL ;
 
 : 1*scale   1 gl-scale ;
 : 2*scale   2 gl-scale ;
@@ -483,7 +483,7 @@ Defer scale-me ' terminal-scale-me is scale-me
 : scrolling ( y0 -- )
     rows swap last-y0 motion-y0 ['] +scroll do-motion
     \ long? IF  kbflag @ IF  togglekb  THEN  THEN
-    need-show off ;
+    -show ;
 
 #20. 2Value glitch#
 

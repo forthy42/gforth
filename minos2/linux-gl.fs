@@ -40,10 +40,8 @@ also x11
 4 Value XA_COMPOUND_TEXT
 1 Value XA_CLIPBOARD
 
-Variable need-sync
-Variable need-keyboard
-Variable need-show
-Variable need-config
+require need-x.fs
+
 Variable kbflag
 
 XIMPreeditPosition XIMPreeditArea or
@@ -138,8 +136,7 @@ Defer window-init    ' noop is window-init
 Defer config-changed
 Defer screen-ops     ' noop IS screen-ops
 
-#16 Value config-change#
-:noname ( -- ) config-change# need-config ! ; is config-changed
+:noname ( -- ) +config ; is config-changed
 
 : term-cr defers cr ;
 
@@ -590,7 +587,7 @@ XSetWindowAttributes buffer: xswa
 
 : x-key? ( -- flag ) defers key? dup 0= IF screen-ops THEN ;
 : x-key ( -- key )
-    need-show on  key? IF  defers key-ior  EXIT  THEN
+    +show  key? IF  defers key-ior  EXIT  THEN
     BEGIN  >looper  key? UNTIL  defers key-ior ;
 
 0 warnings !@

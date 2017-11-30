@@ -111,7 +111,7 @@ FVariable motion 0.01e motion f!
 
 : tri-loop ( -- ) 1 level# +! 0e  BEGIN draw-tri level# @ 0= UNTIL fdrop ;
 
-: gl-sample ( -- ) [IFDEF] hidekb  hidekb  config-change# need-config ! [THEN]
+: gl-sample ( -- ) [IFDEF] hidekb  hidekb  +config [THEN]
     ['] VertexShader ['] FragmentShader create-program to program
     program init load-textures .info
     tri-loop ;

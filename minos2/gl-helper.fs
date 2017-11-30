@@ -799,7 +799,7 @@ Variable last-y0  -100 last-y0 !
 : !click ( -- )  0e motion-x0 f! 0e motion-y0 f! ftime drag-time f! ;
 [IFUNDEF] togglekb : togglekb ; [THEN]
 : ?toggle ( -- )
-    short? motion-y0 f@ 2e f< and IF  togglekb need-show off  THEN ;
+    short? motion-y0 f@ 2e f< and IF  togglekb -show  THEN ;
 
 : do-motion { rows cur old motion xt -- }
     old @ -100 = IF

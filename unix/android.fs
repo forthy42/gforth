@@ -1,4 +1,4 @@
-\ wrapper to load Swig-generated libraries
+\ Android based stuff, including wrapper to androidlib.fs
 
 \ Copyright (C) 2015,2016 Free Software Foundation, Inc.
 
@@ -101,10 +101,9 @@ require unix/jni-helper.fs
 
 set-current previous
 
-Variable need-sync need-sync on
-Variable need-show need-show on
-Variable need-keyboard need-keyboard on
-Variable need-config
+require minos2/need-x.fs
+
++sync +show +keyboard
 
 app_input_state buffer: *input
 
@@ -308,8 +307,8 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 Defer screen-ops ' noop IS screen-ops
 
 : android-key-ior ( -- key / ior )
-    need-keyboard @ IF  showkb need-keyboard off  THEN
-    need-show on
+    ?keyboard IF  showkb -keyboard  THEN
+    +show
     BEGIN  >looper key? winch? @ or screen-ops  UNTIL
     winch? @ IF  EINTR  ELSE
 	infile-id IF
@@ -323,8 +322,7 @@ Defer config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
 screen-ops     ' noop IS screen-ops
 
-#16 Value config-change#
-:noname ( -- ) config-change# need-config ! ; is config-changed
+:noname ( -- ) +config ; is config-changed
 
 Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 
@@ -443,7 +441,7 @@ Defer android-active
     \ >stderr ." active: " dup . cr
     dup rendering !  IF
 	16 to looper-to#
-	need-show on need-sync on screen-ops
+	+show +sync screen-ops
     ELSE  16000 to looper-to#  THEN ; is android-active
 
 Defer android-alarm ( 0 -- ) ' drop is recurse

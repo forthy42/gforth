@@ -161,7 +161,9 @@ font1 Value x-font
 largesize# FValue x-baseline
 : small font1s to x-font ;
 : medium font1 to x-font ;
+0 warnings !@
 : italic font1i to x-font ;
+warnings ! \ we already have italic for ANSI
 : mono   font1m to x-font ;
 : large font1l to x-font ;
 : chinese font2 to x-font ;
@@ -464,7 +466,7 @@ largesize# to x-baseline
 large dark-blue "MINOΣ2 Widgets" }}text /center
 medium blackish
 "Design principle is a Lego–style combination of many extremely simple objects" \\
-{{ {{ glue*1 $FCC3FFFF 0e }}frame {{
+{{
 fontsize# baselinesmall# f* to x-baseline
 "actor" " base class that reacts on all actions (clicks, touchs, keys)" bb\\
 "widget" " base class for all visible objects" bb\\
@@ -484,8 +486,6 @@ medium "glue" " base class for flexible objects" bb\\
 "animation" " action for animations" bb\\
 "canvas" " vector graphics (TBD)" bb\\
 glue*1 }}glue
-}}v box[]
-}}z box[]
 tex: vp1 glue*1 ' vp1 }}vp
 }}v box[] >o fontsize# to border o o>
 }}z box[] /flip dup >slides
@@ -519,7 +519,7 @@ large dark-blue "MINOΣ2 Displays" }}text /center
 medium blackish
 "Render into different kinds of displays" \\
 fontsize# baselinemedium# f* to x-baseline
-"texture" " Into a texture, which can be used as image, also used as viewport (TBD)" bb\\
+"viewport" " Into a texture, used as viewport" bb\\
 fontsize# baselinesmall# f* to x-baseline
 "display" " To the actual display" bb\\
 glue*1 }}glue
@@ -594,7 +594,7 @@ to top-widget
 
 also [IFDEF] android android [THEN]
 
-: presentation ( -- )  1 need-config !
+: presentation ( -- )  1config
     [IFDEF] hidestatus hidekb hidestatus [THEN]
     !widgets widgets-loop ;
 

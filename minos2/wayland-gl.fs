@@ -272,10 +272,8 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 \ android similarities
 
-Variable need-show
-Variable need-sync
-Variable need-config
-Variable need-keyboard
+require need-x.fs
+
 Variable level#
 Variable rendering -2 rendering !
 #16 Value config-change#

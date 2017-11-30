@@ -154,7 +154,7 @@ std-ekeys edit-ekeys keycode-limit keycode-start - cells move
     : android-seteditline ( span addr pos -- span addr pos )
 	2dup xcs swap >r >r
 	2dup swap make-jstring r> clazz .setEditLine r>
-	need-sync on ;
+	+sync ;
     previous
     ' android-seteditline is edit-update
 [ELSE]
@@ -232,13 +232,13 @@ edit-terminal edit-out !
     >r dup edit$ ! $@ swap over swap r>
     r> catch >r edit-w >o to curpos 0 to cursize o> drop edit$ @ $!len drop
     r>  r> to history throw
-    need-sync on need-glyphs on ;
+    +sync +glyphs ;
 
 : edit>curpos ( x o:actor -- )
     edit-w >o  text-font to font
     x f- border f- w border f2* f- text-w f/ f/
     text$ pos-string to curpos
-    o>  need-sync on ;
+    o>  +sync ;
 
 [IFUNDEF] -scan
     : -scan ( addr u char -- addr' u' )
@@ -305,11 +305,11 @@ edit-terminal edit-out !
 :noname ( addr u o:actor -- )
     [: 2rot edit-ins$ edit-update ;] edit-xt ; edit-actor is ukeyed
 :noname ( o:actor -- )
-    edit-w >o -1 to cursize o> need-sync on
-    need-keyboard off ; edit-actor is defocus
+    edit-w >o -1 to cursize o> +sync
+    -keyboard ; edit-actor is defocus
 :noname ( o:actor -- )
-    edit-w >o 0 to cursize o> need-sync on
-    need-keyboard on ; edit-actor is focus
+    edit-w >o 0 to cursize o> +sync
+    +keyboard ; edit-actor is focus
 :noname ( $rxy*n bmask -- )
     case
 	0 of  expand-selection  endof

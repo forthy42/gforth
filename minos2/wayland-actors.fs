@@ -107,4 +107,4 @@ DOES> + c@ ;
     edit-widget edit-out ! ;
 : leave-minos ( -- )
     edit-terminal edit-out !
-    need-sync on  need-show on ;
+    +sync  +show ;

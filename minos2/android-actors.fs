@@ -185,7 +185,7 @@ also jni
 
 : edit-setstring ( string -- )
     jstring>sstring setstring$ $! jfree
-    need-sync on  need-glyphs on ;
+    +sync  +glyphs ;
 : edit-commit ( string/0 -- )  ?dup-IF
 	jstring>sstring setstring$ $! jfree
     THEN
@@ -201,7 +201,7 @@ also jni
 previous
 
 : enter-minos ( -- )
-    edit-widget edit-out !  need-ap on
+    edit-widget edit-out !
     ['] touch>action   is android-touch
     ['] key>action     is android-key
     ['] edit-setstring is android-setstring
@@ -212,4 +212,4 @@ previous
     ['] key>event   is android-key
     [ action-of android-setstring ]L is android-setstring
     [ action-of android-commit ]L is android-commit
-    need-sync on  need-show on ;
+    +sync  +show ;

@@ -235,11 +235,11 @@ Variable current-slide
 	    0 of  !click  endof
 	endcase
     THEN  rdrop
-    need-sync @ IF  slideshow-init slide-reshow  need-sync off  THEN ;
+    ?sync IF  slideshow-init slide-reshow  -sync  THEN ;
 
 : (reshow) ( -- )
     slide-reshow
-    BEGIN  prefetch slide-input  level# @ 0= UNTIL  need-sync on ;
+    BEGIN  prefetch slide-input  level# @ 0= UNTIL  +sync ;
 
 : reshow ( -- ) [IFDEF] android  kbflag @ IF  togglekb  THEN [THEN]
     1 level# +! slideshow-init (reshow) ;
@@ -272,11 +272,11 @@ Variable current-slide
 	    THEN  0
 	endcase
     THEN  rdrop
-    need-sync @ IF  slideshow-init 0 thumb-slide  need-sync off  THEN ;
+    ?sync IF  slideshow-init 0 thumb-slide  -sync  THEN ;
 
 : rethumb ( -- ) [IFDEF] android  kbflag @ IF  togglekb  THEN [THEN] 0e >y-pos
     1 level# +! slideshow-init 0 thumb-slide
-    BEGIN  prefetch-thumb  thumb-input  level# @ 0= UNTIL  need-sync on ;
+    BEGIN  prefetch-thumb  thumb-input  level# @ 0= UNTIL  +sync ;
 : slide-show ( addr u -- )
     slidelist $[]slurp-file current-slide off reshow ;
 : thumb-show ( addr u -- )

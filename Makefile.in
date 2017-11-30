@@ -359,7 +359,7 @@ MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs			\
 	minos2/wayland-actors.fs minos2/widgets-test.fs			\
 	minos2/presentation.fs minos2/mts-tools.fs			\
 	minos2/mkv-tools.fs minos2/omx-example.fs minos2/mkv-tags.fs	\
-	minos2/android-recorder.fs minos2/animation.fs
+	minos2/android-recorder.fs minos2/animation.fs minos2/need-x.fs
 
 MINOS2_BIN = minos2/ascii.png minos2/button.png minos2/button2.png	\
 	minos2/button3.png minos2/bad-gateway.png			\

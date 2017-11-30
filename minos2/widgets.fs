@@ -282,11 +282,8 @@ widget class
     value: text-font
 end-class text
 
-Variable need-glyphs
-Variable need-ap
-
 : text! ( addr u font -- )
-    to text-font to text$  need-glyphs on ;
+    to text-font to text$  +glyphs ;
 : text-text ( -- )
     x border f+ penxy sf!  y penxy sfloat+ sf!
     text-font to font  text-color color !
@@ -301,7 +298,7 @@ Variable need-ap
 \    ." text sized to: " x f. y f. w f. h f. d f. cr
 ;
 : text-init
-    need-glyphs @ IF
+    ?glyphs IF
 	text-font to font text$ load-glyph$
     THEN ;
 ' text-init text to draw-init
@@ -328,7 +325,7 @@ text class
     value: start-curpos \ selection mode
 end-class edit
 
-:noname need-glyphs @ IF
+:noname ?glyphs IF
 	text-init
 	cursize 0= setstring$ $@len and IF
 	    setstring$ $@ load-glyph$
@@ -395,7 +392,7 @@ also freetype-gl
 : <draw-init ( -- )
     -1e 1e >apxy  .01e 100e 100e >ap
     Ambient 1 ambient% glUniform1fv
-    0.01e 0.02e 0.15e 1.0e glClearColor  clear
+    0.01e 0.02e 0.15e 1.0e glClearColor clear
 ;
 
 : draw-init> ( -- )
@@ -704,7 +701,7 @@ end-class viewport
     x2 y1 >xy dup rgba>c n> s0 s1 f+ t0 t1 f+ >st v+
     x1 y1 >xy     rgba>c n> s0       t0 t1 f+ >st v+
     v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i,
-    render> ; viewport to draw-image
+    render-bgra> ; viewport to draw-image
 : vp-!size ( -- )
     ['] !size do-childs
     hglue* hglue-c glue!
@@ -755,17 +752,17 @@ require animation.fs
 : widgets-loop ( -- )
     [IFDEF] hidekb  hidekb [THEN]  enter-minos
     1 level# +!  top-widget .widget-draw
-    BEGIN  0 looper-to# anims[] $@len need-sync @ or select
+    BEGIN  0 looper-to# anims[] $@len ?sync or select
 	#looper  time( ." looper: " .!time cr )
 	[IFDEF] android  ?config-changer  [THEN]
-	anims[] $@len IF  animations true  ELSE  need-sync @  THEN
+	anims[] $@len IF  animations true  ELSE  ?sync  THEN
 	IF  top-widget >o htop-resize widget-draw time( ." animate: " .!time cr )
 	    o>
-	    need-sync off  THEN
-	need-keyboard @ IF
+	    -sync  THEN
+	?keyboard IF
 	    [IFDEF] showkb showkb [THEN]
-	    need-keyboard off  THEN
-    level# @ 0= UNTIL  leave-minos  need-sync on ;
+	    -keyboard  THEN
+    level# @ 0= UNTIL  leave-minos  +sync ;
 
 previous previous previous
 set-current

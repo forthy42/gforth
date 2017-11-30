@@ -174,6 +174,6 @@ x11-handler ' new static-a with-allocater Constant x11-keyboard
 : leave-minos ( -- )
     edit-terminal edit-out !
     [ event-handler @ ]L event-handler !
-    need-sync on  need-show on ;
+    +sync  +show ;
 
 previous
