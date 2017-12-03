@@ -98,10 +98,9 @@ require unix/cpu.fs
 require unix/socket.fs
 require unix/pthread.fs
 require unix/jni-helper.fs
+require minos2/need-x.fs
 
 set-current previous
-
-require minos2/need-x.fs
 
 +sync +show +keyboard
 
