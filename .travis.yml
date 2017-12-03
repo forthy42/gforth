@@ -25,7 +25,6 @@ before_install: ./install-deps.sh
 script:
   - ./autogen.sh
   - export CC=gcc
-  - if [ "${TRAVIS_OS_NAME}" = osx ]; then which gcc-7 || export CC=gcc-7; fi
   - ./configure --enable-lib CC="$CC $M32"
   - make
   - if [ -n "$EC" ]; then ./build-ec $EC; fi
