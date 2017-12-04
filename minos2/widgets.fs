@@ -113,8 +113,10 @@ object class
     sfvalue: w
     sfvalue: h \ above baseline
     sfvalue: d \ below baseline
-    sfvalue: border \ surrounding border
-    sfvalue: baseline \ minimun skip per line
+    sfvalue: border    \ surrounding border, all directions
+    sfvalue: kerning   \ add kerning
+    sfvalue: raise     \ raise/lower box
+    sfvalue: baseline  \ minimun skip per line
     method draw-init ( -- ) \ init draw
     method draw-bg ( -- ) \ button background draw
     method draw-icon ( -- ) \ icons draw
@@ -138,9 +140,9 @@ end-class widget
 :noname x y h f- w h d f+ ; widget to xywh
 :noname x y w h d ; widget to xywhd
 ' noop widget to !size
-:noname w border f2* f+ 0e fdup ; widget to hglue
-:noname h border f+ 0e fdup ; widget to vglue
-:noname d border f+ 0e fdup ; widget to dglue
+:noname w border f2* f+ kerning f+ 0e fdup ; widget to hglue
+:noname h border raise f+ f+ 0e fdup ; widget to vglue
+:noname d border raise f- f+ 0e fdup ; widget to dglue
 : widget-resize to d to h to w to y to x ;
 ' widget-resize widget to resize
 ' hglue widget to hglue@
@@ -248,11 +250,13 @@ DOES>  swap sfloats + sf@ ;
     2 and    IF fnegate w f+  THEN  f+ ;
 
 : frame-draw ( -- )
-    frame# frame-color border xywh { f c f: b f: x f: y f: w f: h }
+    frame# frame-color border
+    xywh { f c f: b f: x f: y f: w f: h }
     i>off >v
     4 0 DO
 	4 0 DO
-	    x b I w >border  y b J h >border >xy
+	    x b I w >border
+	    y b J h >border >xy
 	    c rgba>c  n>
 	    I button-st J button-st f #>st v+
 	LOOP
@@ -285,9 +289,9 @@ end-class text
 : text! ( addr u font -- )
     to text-font to text$  +glyphs ;
 : text-text ( -- )
-    x border f+ penxy sf!  y penxy sfloat+ sf!
+    x border f+ kerning f+ penxy sf!  y raise f+ penxy sfloat+ sf!
     text-font to font  text-color color !
-    w border f2* f- text-w f/ to x-scale
+    w border f2* f- kerning f- text-w f/ to x-scale
     text$ render-string ;
 : text-!size ( -- )
     text-font to font
@@ -304,10 +308,10 @@ end-class text
 ' text-init text to draw-init
 ' text-text text to draw-text
 ' text-!size text to !size
-:noname text-w border f2* f+
+:noname text-w border f2* f+ kerning f+
     text-w text-shrink% f* text-w text-grow% f* ; text to hglue
-:noname h 0e fdup ; text to vglue
-:noname d 0e fdup ; text to dglue
+:noname h raise f+ 0e fdup ; text to vglue
+:noname d raise f- 0e fdup ; text to dglue
 
 \ emoji
 

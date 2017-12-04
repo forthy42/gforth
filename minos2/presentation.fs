@@ -172,6 +172,8 @@ warnings ! \ we already have italic for ANSI
 0e FValue x-border
 : }}text ( addr u -- o )
     text new >o x-font text! x-color to text-color  x-border to border o o> ;
+: }}smalltext ( addr u -- o )
+    text new >o font1s text! x-color to text-color  x-border to border o o> ;
 : }}emoji ( addr u -- o )
     emoji new >o font-e text! $FFFFFFFF to text-color  x-border to border o o> ;
 : }}edit ( addr u -- o )
@@ -242,6 +244,12 @@ update-glue
     blackish italic }}text >r
     {{ r> r> swap glue*1 }}glue }}h box[] >o
     x-baseline to baseline o o> ;
+: \LaTeX ( -- )
+    "L" }}text
+    "A" }}smalltext >o fontsize# fdup -0.23e f* to raise -0.3e f* to kerning o o>
+    "T" }}text >o fontsize# -0.1e f* to kerning o o>
+    "E" }}text >o fontsize# -0.23e f* fdup fnegate to raise to kerning o o>
+    "X" }}text >o fontsize# -0.1e f* to kerning o o> ;
 
 Variable slides[]
 Variable slide#
@@ -448,7 +456,11 @@ medium blackish
 "Rendering:" " OpenGL (ES) instead of Xlib, Vulkan backend planned" b2\\
 fontsize# baselinesmall# f* to x-baseline
 "Coordinates:" " Single float instead of integer, origin bottom left (Xlib: top left)" b2\\
-"Typesetting:" " Boxes&Glues closer to LaTeX — including ascender&descender" b2\\
+{{ "Typesetting:" b2 blackish
+" Boxes&Glues closer to " }}text
+\LaTeX
+" — including ascender&descender" }}text glue*1 }}h box[]
+>o x-baseline to baseline o o>
 "" " Glues can shrink, not just grow" b2\\
 "Object System:" " Mini–OOF2 instead of BerndOOF" b2\\
 "Class number:" " Fewer classes, more combinations" b2\\
