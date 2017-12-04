@@ -207,7 +207,6 @@ program init
 : render-bgra> ( -- )
     GL_ONE GL_ONE_MINUS_SRC_ALPHA glBlendFunc
     GL_TRIANGLES draw-elements
-    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
-;
+    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc ;
 
 previous previous

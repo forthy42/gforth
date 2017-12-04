@@ -26,7 +26,7 @@ require widgets.fs
 also minos
 
 dpy-w @ s>f 42e f/ fround FValue fontsize#
-fontsize# 2 3 fm*/ fround FValue smallsize#
+fontsize# 70% f* fround FValue smallsize#
 fontsize# f2* FValue largesize#
 dpy-h @ s>f dpy-w @ s>f f/ .42e f/ FValue baselinesmall#
 dpy-h @ s>f dpy-w @ s>f f/ .33e f/ FValue baselinemedium#
@@ -167,8 +167,8 @@ warnings ! \ we already have italic for ANSI
 : mono   font1m to x-font ;
 : large font1l to x-font ;
 : chinese font2 to x-font ;
-: blackish $FF to x-color ;
-: dark-blue $7FFF to x-color ;
+: blackish $000000FF to x-color ;
+: dark-blue $0000bFFF to x-color ;
 0e FValue x-border
 : }}text ( addr u -- o )
     text new >o x-font text! x-color to text-color  x-border to border o o> ;
@@ -413,10 +413,11 @@ dark-blue "Politics " \\
 fontsize# baselinesmall# f* to x-baseline
 blackish
 "    Fake News/Hate Speech as excuse for censorship #NetzDG" "🤦" e\\
-"    Crypto Wars 4.0: Discuss about ban of cryptography" "🤦🤦" e\\
+"    Crypto Wars rebranded as “reasonable encryption”" "🤦🤦" e\\
 "    Legalize it (dragnet surveillance)" "🤦🤦🤦" e\\
 "    Kill the link (EuGH and LG Humbug)" "🤦🤦🤦🤦" e\\
 "    Privacy: nobody is forced to use the Interwebs (Jim Sensenbrenner)" "🤦🤦🤦🤦🤦" e\\
+"    “Crypto” now means BitCoin" "🤦" e\\
 dark-blue "Competition" \\
 blackish
 "    faces Stasi–like Zersetzung (Tor project)" \\
