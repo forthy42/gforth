@@ -80,6 +80,7 @@ false value grab-move? \ set to true to grab moves
 0 value start-cursize \ selection helper
 
 : re-focus { c-act -- }
+    o c-act .active-w = ?EXIT
     c-act .active-w ?dup-IF  .act .defocus  THEN
     o c-act >o to active-w o>
     c-act .active-w ?dup-IF  .act .focus  THEN ;
@@ -143,10 +144,10 @@ end-class vp-actor
     fswap vp-y y h f- f- f+ ;
 
 :noname ( rx ry bmask n -- )
-    caller-w >O
+    caller-w >o
     tx [: act >o [ box-actor :: clicked ] o> ;] vp-needed
-    [: ?sync ?config or ;] vp-needed
-    IF  +sync  THEN o> ; vp-actor is clicked
+    vp-need @ need-mask @ over $FF and over $FF and or >r
+    $-100 and swap $-100 and max r> or need-mask ! o> ; vp-actor is clicked
 
 : vp[] ( o -- o )
     >o vp-actor new to act o act >o to caller-w o> o o> ;
