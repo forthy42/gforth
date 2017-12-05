@@ -497,7 +497,7 @@ medium "glue" " base class for flexible objects" bb\\
 glue*1 }}glue
 }}v box[] >o fontsize# to border o o>
 }}z box[]
-tex: vp1 glue*1 ' vp1 }}vp
+tex: vp1 glue*1 ' vp1 }}vp vp[]
 /flip dup >slides
 
 \ page 6

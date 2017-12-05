@@ -93,7 +93,7 @@ false value grab-move? \ set to true to grab moves
 	[: { c-act } act IF  fover fover act .inside?
 		IF
 		    c-act re-focus
-		    fover fover 2dup act .clicked   THEN  THEN
+		    fover fover 2dup act .clicked  THEN  THEN
 	c-act ;] do-childs o> drop
     THEN  2drop fdrop fdrop ;
 box-actor is clicked
@@ -131,6 +131,25 @@ box-actor is clicked
 
 : box[] ( o -- o )
     >o box-actor new to act o act >o to caller-w o> o o> ;
+
+\ viewport
+
+box-actor class
+    value: txy$ \ translated xy$
+end-class vp-actor
+
+: tx ( rx ry -- rx' ry' )
+    fswap vp-x x   f- f+
+    fswap vp-y y h f- f- f+ ;
+
+:noname ( rx ry bmask n -- )
+    caller-w >O
+    tx [: act >o [ box-actor :: clicked ] o> ;] vp-needed
+    [: ?sync ?config or ;] vp-needed
+    IF  +sync  THEN o> ; vp-actor is clicked
+
+: vp[] ( o -- o )
+    >o vp-actor new to act o act >o to caller-w o> o o> ;
 
 \ edit widget
 

@@ -288,7 +288,7 @@ DOES>  swap sfloats + sf@ ;
 
 \ text widget
 
--5% fvalue text-shrink%
+5% fvalue text-shrink%
 5% fvalue text-grow%
 
 widget class
