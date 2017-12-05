@@ -13,7 +13,7 @@ install_linux() {
 }
 
 install_osx() {
-  brew tap zchee/homebrew-zsh
+  brew tap forthy42/homebrew-zsh
   brew update > /dev/null
   brew install yodl
   brew install gforth
