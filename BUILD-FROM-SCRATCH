@@ -19,6 +19,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
+# if we don't have nproc, it's better to assume just one core
+
+nprocs=`nproc || echo 1`
 
 # created: 2may00jaw
 
@@ -29,6 +32,6 @@ rm -f kernl*.fi gforth.fi gforth gforth-ditc gforth-ll* gforth-fast* # remove so
 ./autogen.sh &&
 ./configure "$@" &&
 echo Running: make &&
-make -j$(nproc) && rm kernl*.fi- && make &&
-make -j$(nproc) doc &&
-make -j$(nproc) more
+make -j$nprocs && rm kernl*.fi- && make &&
+make -j$nprocs doc &&
+make -j$nprocs more

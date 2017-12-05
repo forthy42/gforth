@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
+nprocs=`nproc || echo 1`
+
 function extra_apps {
     for i in $EXTRADIRS
     do
@@ -117,7 +119,7 @@ then
 	    $SRC/configure --host=$TARGET --with-cross=android --with-ditc=$GFORTH_DITC --prefix= --datarootdir=/sdcard --libdir=/sdcard/gforth/$machine --libexecdir=/lib --includedir=$PWD/include --enable-lib --disable-version $EXTRAS || exit 1
 	fi
 	echo -n " make" 1>&3
-	make -j$(nproc) || exit 1
+	make -j$nprocs || exit 1
 	make prefix=$TOOLCHAIN/sysroot/usr install-include
 	rm -rf debian/sdcard
 	echo -n " extras" 1>&3

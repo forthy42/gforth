@@ -18,6 +18,8 @@
 
 # Generate stuff needed for android Gforth
 
+nprocs=`nproc || echo 1`
+
 . build.local
 TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 
@@ -83,14 +85,14 @@ cp -f bzlib.h $PREFIX/include)
 (cd $FREETYPE
 ./autogen.sh # get fresh libtool&co
 ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-zlib=no --with-harfbuzz=no 
-make -j$(nproc)
+make -j$nprocs
 make install)
 
 #make and install harfbuzz
 
 (cd $HARFBUZZ
 ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-glib=no --with-icu=no --with-uniscribe=no --with-cairo=no
-make -j$(nproc)
+make -j$nprocs
 make install)
 
 #now freetype with harfbuzz support
@@ -98,7 +100,7 @@ make install)
 (cd $FREETYPE
 ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-bzip2=no --with-zlib=no --with-harfbuzz=yes
 make clean
-make -j$(nproc)
+make -j$nprocs
 make install)
 
 #freetype GL
@@ -112,7 +114,7 @@ fi
 
 (cd freetype-gl
 ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
-make -j$(nproc)
+make -j$nprocs
 make install
 )
 
