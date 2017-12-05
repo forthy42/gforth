@@ -228,7 +228,7 @@ end-class image
 ' noop       image is draw-bg
 : xywh-rect ( color -- )
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
-    i>off  frame-color >v
+    i>off  >v
     x1 y1 >xy dup rgba>c n> 0e 0e >st v+
     x2 y1 >xy dup rgba>c n> 1e 0e >st v+
     x1 y2 >xy dup rgba>c n> 0e 1e >st v+
