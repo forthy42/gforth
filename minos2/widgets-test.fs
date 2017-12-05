@@ -29,7 +29,7 @@ glue*1 $5F5FFF00 0e }}frame dup .button1 value f3c
 glue*1 $5F5F5F00 16e }}frame dup .button1 value f3d
 glue*1 $FF7F7FFF 32e }}frame dup .button1 simple[] value f4
 glue*1 $7FFF7FFF 8e  }}frame dup .button1 simple[] value f5
-glue*2 $7FFFFFFF ' atlas-tex }}image dup .button2 simple[] value f6
+glue*2 $7FFFFFFF ' atlas-tex }}1image dup .button2 simple[] value f6
 edit new value t1
 edit new value t2a
 edit new value t2b

@@ -199,12 +199,12 @@ end-class tile
     s>f f+ style-h# fm/ fswap >st ;
 
 : draw-rectangle { f: x1 f: y1 f: x2 f: y2 -- }
-    i? frame-color frame# >v
-    x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
-    x2 y2 >xy over rgba>c n> 1e 1e dup #>st v+
+    i>off frame-color frame# >v
+    x1 y1 >xy over rgba>c n> 0e 0e dup #>st v+
     x2 y1 >xy over rgba>c n> 1e 0e dup #>st v+
-    x1 y1 >xy swap rgba>c n> 0e 0e     #>st v+
-    v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i, ;
+    x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
+    x2 y2 >xy swap rgba>c n> 1e 1e     #>st v+
+    v> 2 quad ;
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
     { f: w f: h } fover w f+ fover h f+ ;
 : tile-draw ( -- )
@@ -226,16 +226,25 @@ tile class
 end-class image
 
 ' noop       image is draw-bg
-:noname ( -- )
-    z-bias set-color+ image-tex
+: xywh-rect ( color -- )
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
-    i0 v0 i?  frame-color >v
-    x1 y2 >xy dup rgba>c n> 0e 1e >st v+
-    x2 y2 >xy dup rgba>c n> 1e 1e >st v+
+    i>off  frame-color >v
+    x1 y1 >xy dup rgba>c n> 0e 0e >st v+
     x2 y1 >xy dup rgba>c n> 1e 0e >st v+
-    x1 y1 >xy     rgba>c n> 0e 0e >st v+
-    v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i,
-    GL_TRIANGLES draw-elements ; image is draw-image
+    x1 y2 >xy dup rgba>c n> 0e 1e >st v+
+    x2 y2 >xy     rgba>c n> 1e 1e >st v+
+    v> 2 quad
+    GL_TRIANGLES draw-elements ;
+:noname ( -- )
+    z-bias set-color+ image-tex  frame-color i0 v0 xywh-rect ;
+image is draw-image
+
+image class
+end-class 1image
+
+:noname ( -- )
+    1-bias set-color+ image-tex  frame-color i0 v0 xywh-rect ;
+1image is draw-image
 
 \ frame widget
 
@@ -274,6 +283,8 @@ DOES>  swap sfloats + sf@ ;
     frame new >o to border to frame-color to tile-glue o o> ;
 : }}image ( glue color texture -- o )
     image new >o is image-tex to frame-color to tile-glue o o> ;
+: }}1image ( glue color texture -- o )
+    1image new >o is image-tex to frame-color to tile-glue o o> ;
 
 \ text widget
 
@@ -349,12 +360,12 @@ end-class edit
     THEN  m2c:curminwidth% f@ fmax { f: cw }
     x w f+ border f+  y d border borderv f+ f- f+ { f: x0 f: y0 }
     x0 cw f+ y h border borderv f+ f- f- { f: x1 f: y1 }
-    i? m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
-    x0 y1 >xy dup rgba>c n> 0e 0e >st v+
-    x1 y1 >xy dup rgba>c n> 1e 0e >st v+
+    i>off m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
+    x0 y0 >xy dup rgba>c n> 1e 1e >st v+
     x1 y0 >xy dup rgba>c n> 0e 1e >st v+
-    x0 y0 >xy     rgba>c n> 1e 1e >st v+
-    v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i,
+    x0 y1 >xy dup rgba>c n> 0e 0e >st v+
+    x1 y1 >xy     rgba>c n> 1e 0e >st v+
+    v> 2 quad
 ; edit to draw-marking
 $FFFF7FFF Value setstring-color
 : edit-text ( -- )
@@ -716,12 +727,12 @@ end-class viewport
     z-bias set-color+ vp-tex
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
     vp-x vp-w f/ vp-y vp-h f/ w vp-w f/ h vp-h f/ { f: s0 f: t0 f: s1 f: t1 }
-    i0 v0 i?  $FFFFFFFF >v
-    x1 y2 >xy dup rgba>c n> s0       t0       >st v+
-    x2 y2 >xy dup rgba>c n> s0 s1 f+ t0       >st v+
+    i0 v0 i>off  $FFFFFFFF >v
+    x1 y1 >xy dup rgba>c n> s0       t0 t1 f+ >st v+
     x2 y1 >xy dup rgba>c n> s0 s1 f+ t0 t1 f+ >st v+
-    x1 y1 >xy     rgba>c n> s0       t0 t1 f+ >st v+
-    v> dup i, dup 1+ i, dup 2 + i, dup i, dup 2 + i, 3 + i,
+    x1 y2 >xy dup rgba>c n> s0       t0       >st v+
+    x2 y2 >xy     rgba>c n> s0 s1 f+ t0       >st v+
+    v> 2 quad
     render-bgra> ; viewport to draw-image
 : vp-!size ( -- )
     ['] !size do-childs
