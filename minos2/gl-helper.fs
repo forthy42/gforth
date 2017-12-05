@@ -63,7 +63,7 @@ s" os-type" environment? [IF]
     align here
     EGL_SAMPLE_BUFFERS  l, 1 l, \ multisample buffer
     EGL_SAMPLES         l, 4 l, \ 4 samples antialiasing
-    EGL_STENCIL_SIZE    l, $10 l,
+    \    EGL_STENCIL_SIZE    l, $10 l,
     here
     EGL_SURFACE_TYPE    l, EGL_WINDOW_BIT l, \ this is default
     EGL_RENDERABLE_TYPE l, EGL_OPENGL_ES2_BIT l,
@@ -166,8 +166,9 @@ Variable eglformat
 		egldpy attribs2 configs 1 numconfigs eglChooseConfig drop
 		numconfigs @ 0= IF
 		    egldpy attribs configs 1 numconfigs eglChooseConfig drop
-		    ." default config only" EXIT
+		    ." default config only" cr EXIT
 		THEN
+		." simple config only" cr
 	    THEN ;
 
 	: create-context ( -- )

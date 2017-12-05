@@ -26,7 +26,7 @@ glue*2 $FF7FFFFF 32e }}frame dup .button3 simple[] value f2
 glue*1 $FF5F5F00 0e }}frame dup .button1 value f3a
 glue*1 $5FFF5F00 0e }}frame dup .button1 value f3b
 glue*1 $5F5FFF00 0e }}frame dup .button1 value f3c
-glue*1 $5F5F5F00 0e }}frame dup .button1 value f3d
+glue*1 $5F5F5F00 16e }}frame dup .button1 value f3d
 glue*1 $FF7F7FFF 32e }}frame dup .button1 simple[] value f4
 glue*1 $7FFF7FFF 8e  }}frame dup .button1 simple[] value f5
 glue*2 $7FFFFFFF ' atlas-tex }}image dup .button2 simple[] value f6
@@ -99,7 +99,7 @@ previous
     "混沌未分天地乱，茫茫渺渺无人见。" font2  t2a >o edit! 0e to border $001122DF to text-color o>
     "自从盘古破鸿蒙，开辟从兹清浊辨。" font2  t2b >o edit! 0e to border $221100DF to text-color o>
     "覆载群生仰至仁，发明万物皆成善。" font2  t2c >o edit! 0e to border $FFDDAADF to text-color o>
-    "欲知造化会元功，须看西游释厄传。" font2  t2d >o edit! 0e to border $DDEEFFDF to text-color o> ;
+    "欲知造化会元功，须看西游释厄传。" font2  t2d >o edit! 16e to border $DDEEFFDF to text-color o> ;
 
 : !t3 ( -- ) t3 >o
     "…" font1 text!  16e to border
@@ -109,11 +109,11 @@ previous
     t2a [: >o sin-t fdup $DF fade 4e f* to border o> +sync ;] 1e >animate
     t2b [: >o sin-t fdup $DF fade 8e f* to border o> +sync ;] 2e >animate
     t2c [: >o sin-t fdup $DF fade 12e f* to border o> +sync ;] 3e >animate
-    t2d [: >o sin-t fdup $DF fade 16e f* to border o> +sync ;] 4e >animate
+    t2d [: >o sin-t fdup $DF fade 16e f* to borderv o> +sync ;] 4e >animate
     f3a [: >o sin-t fdup $FF fade 8e f* to border o> +sync ;] 1e >animate
     f3b [: >o sin-t fdup $FF fade 16e f* to border o> +sync ;] 2e >animate
     f3c [: >o sin-t fdup $FF fade 24e f* to border o> +sync ;] 3e >animate
-    f3d [: >o sin-t fdup $FF fade 32e f* to border o> +sync ;] 4e >animate ;
+    f3d [: >o sin-t fdup $FF fade 16e f* to borderv o> +sync ;] 4e >animate ;
 
 also [IFDEF] android android [THEN]
 

@@ -114,6 +114,7 @@ object class
     sfvalue: h \ above baseline
     sfvalue: d \ below baseline
     sfvalue: border    \ surrounding border, all directions
+    sfvalue: borderv   \ vertical border offset
     sfvalue: kerning   \ add kerning
     sfvalue: raise     \ raise/lower box
     sfvalue: baseline  \ minimun skip per line
@@ -141,8 +142,8 @@ end-class widget
 :noname x y w h d ; widget to xywhd
 ' noop widget to !size
 :noname w border f2* f+ kerning f+ 0e fdup ; widget to hglue
-:noname h border raise f+ f+ 0e fdup ; widget to vglue
-:noname d border raise f- f+ 0e fdup ; widget to dglue
+:noname h border borderv f+ raise f+ f+ 0e fdup ; widget to vglue
+:noname d border borderv f+ raise f- f+ 0e fdup ; widget to dglue
 : widget-resize to d to h to w to y to x ;
 ' widget-resize widget to resize
 ' hglue widget to hglue@
@@ -186,8 +187,8 @@ widget class
 end-class tile
 
 :noname tile-glue .hglue { f: s f: a } border f2* f+ s a ; tile to hglue
-:noname tile-glue .dglue { f: s f: a } border f+ s a ; tile to dglue
-:noname tile-glue .vglue { f: s f: a } border f+ s a ; tile to vglue
+:noname tile-glue .dglue { f: s f: a } border borderv f+ f+ s a ; tile to dglue
+:noname tile-glue .vglue { f: s f: a } border borderv f+ f+ s a ; tile to vglue
 
 8 Value style-w#
 8 Value style-h#
@@ -250,13 +251,13 @@ DOES>  swap sfloats + sf@ ;
     2 and    IF fnegate w f+  THEN  f+ ;
 
 : frame-draw ( -- )
-    frame# frame-color border
-    xywh { f c f: b f: x f: y f: w f: h }
+    frame# frame-color border fdup borderv f+
+    xywh { f c f: b f: bv f: x f: y f: w f: h }
     i>off >v
     4 0 DO
 	4 0 DO
 	    x b I w >border
-	    y b J h >border >xy
+	    y bv J h >border >xy
 	    c rgba>c  n>
 	    I button-st J button-st f #>st v+
 	LOOP
@@ -296,8 +297,8 @@ end-class text
 : text-!size ( -- )
     text-font to font
     text$ layout-string
-    border f+ to h
-    border f+ to d
+    border borderv f+ f+ to h
+    border borderv f+ f+ to d
     fdup to text-w  border f2* f+ to w
 \    ." text sized to: " x f. y f. w f. h f. d f. cr
 ;
@@ -346,8 +347,8 @@ end-class edit
 	text$ curpos cursize m2c:curminchars# @ umax + umin
 	layout-string fdrop fdrop scale f* w f-
     THEN  m2c:curminwidth% f@ fmax { f: cw }
-    x w f+ border f+  y d border f- f+ { f: x0 f: y0 }
-    x0 cw f+ y h border f- f- { f: x1 f: y1 }
+    x w f+ border f+  y d border borderv f+ f- f+ { f: x0 f: y0 }
+    x0 cw f+ y h border borderv f+ f- f- { f: x1 f: y1 }
     i? m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
     x0 y1 >xy dup rgba>c n> 0e 0e >st v+
     x1 y1 >xy dup rgba>c n> 1e 0e >st v+
@@ -381,8 +382,8 @@ $FFFF7FFF Value setstring-color
     ELSE
 	text$ layout-string
     THEN
-    border f+ to h
-    border f+ to d
+    border borderv f+ f+ to h
+    border borderv f+ f+ to d
     fdup to text-w  border f2* f+ to w ;
 ' edit-text edit to draw-text
 ' edit-!size edit to !size
@@ -624,10 +625,10 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    vglue@ dglue@ glue+ h d f+ border f2* f- { f: htotal }
+    vglue@ dglue@ glue+ h d f+ border borderv f+ f2* f- { f: htotal }
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
     htotal hmin f- a f/ 0e 0e
-    y border f+ h f- 0e ['] vglue-step do-childs
+    y border borderv f+ f+ h f- 0e ['] vglue-step do-childs
     fdrop fdrop fdrop fdrop fdrop
     x border f+ w border f2* f- ['] vbox-resize1 do-childs fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
@@ -642,7 +643,8 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 : zbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    x border f+ y border f+ w border f2* f- h border f- d border f-
+    x border f+ y border borderv f+ f+ w border f2* f-
+    h border borderv f+ f- d border borderv f+ f-
     ['] zbox-resize1 do-childs
     fdrop fdrop fdrop fdrop fdrop
 \    ." zbox sized to: " x f. y f. w f. h f. d f. cr

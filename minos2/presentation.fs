@@ -364,9 +364,7 @@ tex: minos2
     glue*wh swap slide-frame dup .button1 simple[] ;
 
 {{
-minos2-img
-{{
-glue-left }}glue
+{{ glue-left }}glue
 
 \ page 0
 {{
@@ -471,13 +469,13 @@ glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 
 \ page 5
 {{
+{{
 $FFBFFFFF pres-frame
 {{
 largesize# to x-baseline
 large dark-blue "MINOΣ2 Widgets" }}text /center
 medium blackish
 "Design principle is a Lego–style combination of many extremely simple objects" \\
-{{
 fontsize# baselinesmall# f* to x-baseline
 "actor" " base class that reacts on all actions (clicks, touchs, keys)" bb\\
 "widget" " base class for all visible objects" bb\\
@@ -497,9 +495,10 @@ medium "glue" " base class for flexible objects" bb\\
 "animation" " action for animations" bb\\
 "canvas" " vector graphics (TBD)" bb\\
 glue*1 }}glue
-tex: vp1 glue*1 ' vp1 }}vp
 }}v box[] >o fontsize# to border o o>
-}}z box[] /flip dup >slides
+}}z box[]
+tex: vp1 glue*1 ' vp1 }}vp
+/flip dup >slides
 
 \ page 6
 {{
@@ -598,7 +597,9 @@ glue*1 }}glue
 
 \ end
 glue-right }}glue
-}}h box[] }}z slide[]
+}}h box[]
+minos2-img
+}}z slide[]
 to top-widget
 
 : !widgets ( -- ) top-widget .htop-resize ;
