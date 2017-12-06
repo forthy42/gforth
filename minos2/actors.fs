@@ -154,8 +154,8 @@ end-class vp-actor
     vp-x x f-  vp-y y h f- f- { f: dx f: dy }
     dup $@len act .txy$ $!len
     act .txy$ $@ drop swap $@ bounds U+DO
-	I sf@ dx f+ I cell+ sf@ dy f+
-	dup sfloat+ sf! dup sf! [ 2 sfloats ]L +
+	I         sf@ dx f+ sf!+
+	I sfloat+ sf@ dy f+ sf!+
     [ 2 sfloats ]L +LOOP  drop  act .txy$ ;
 
 : vp-need-or ( -- )
@@ -166,6 +166,14 @@ end-class vp-actor
     caller-w >o
     tx [: act >o [ box-actor :: clicked ] o> ;] vp-needed
     vp-need-or o> ; vp-actor is clicked
+:noname ( $rxy*n bmask -- )
+    caller-w >o
+    >r tx$ r> [: act >o [ box-actor :: touchdown ] o> ;] vp-needed
+    vp-need-or o> ; vp-actor is touchdown
+:noname ( $rxy*n bmask -- )
+    caller-w >o
+    >r tx$ r> [: act >o [ box-actor :: touchup ] o> ;] vp-needed
+    vp-need-or o> ; vp-actor is touchup
 :noname ( $rxy*n bmask -- )
     caller-w >o
     >r tx$ r> [: act >o [ box-actor :: touchmove ] o> ;] vp-needed
