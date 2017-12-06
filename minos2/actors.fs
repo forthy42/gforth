@@ -147,10 +147,10 @@ box-actor class
 end-class vp-actor
 
 : tx ( rx ry -- rx' ry' )
-    fswap vp-x x   f- f+
-    fswap vp-y y h f- f- f+ ;
+    fswap vp-x         x f- f+
+    fswap vp-y vp-h f+ y f- f+ ;
 : tx$ ( $rxy*n -- $rxy*n' )
-    vp-x x f-  vp-y y h f- f- { f: dx f: dy }
+    0e fdup tx { f: dx f: dy }
     dup $@len act .txy$ $!len
     act .txy$ $@ drop swap $@ bounds U+DO
 	I         sf@ dx f+ sf!+
