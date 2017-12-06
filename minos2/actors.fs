@@ -88,7 +88,6 @@ false value grab-move? \ set to true to grab moves
 0 value start-cursize \ selection helper
 
 : re-focus { c-act -- }
-    o c-act .active-w = ?EXIT
     c-act .active-w ?dup-IF  .act .defocus  THEN
     o c-act >o to active-w o>
     c-act .active-w ?dup-IF  .act .focus  THEN ;
@@ -309,14 +308,14 @@ edit-terminal edit-out !
     bl scan drop { end }
     text$ drop start-curpos curpos umin bl -scan + dup c@ bl = - { start }
     start text$ drop - to curpos
-    end start - to cursize ;
+    end start - to cursize +sync ;
 : select-line ( o:edit-w -- )
-    0 to curpos text$ nip to cursize ;
+    0 to curpos text$ nip to cursize +sync ;
 : sel>primary ( o:edit-w -- )
     text$ curpos safe/string cursize min 0 max primary! ;
 : end-selection ( o:edit-w -- )
     start-curpos 0>= IF
-	curpos start-curpos 2dup - abs to cursize
+	curpos start-curpos 2dup - abs to cursize +sync
 	umin to curpos
 	case select-mode
 	    1 of select-word endof
@@ -328,7 +327,7 @@ edit-terminal edit-out !
     edit-w .start-curpos 0< IF
 	1- 2/ to select-mode
 	drop fdrop edit>curpos  edit-w >o
-	0 to cursize
+	0 to cursize +sync
 	curpos  to start-curpos
 	cursize to start-cursize
 	case select-mode
@@ -347,7 +346,7 @@ edit-terminal edit-out !
     edit-w .start-curpos 0>= IF
 	xy@ fdrop edit>curpos
 	edit-w >o
-	curpos start-curpos 2dup - abs to cursize
+	curpos start-curpos 2dup - abs to cursize +sync
 	umin to curpos
 	case  select-mode
 	    1 of select-word endof
@@ -366,7 +365,7 @@ edit-terminal edit-out !
     edit-w >o -1 to cursize o> +sync
     -keyboard ; edit-actor is defocus
 :noname ( o:actor -- )
-    edit-w >o 0 to cursize o> +sync
+    edit-w >o  0 to cursize o> +sync
     +keyboard ; edit-actor is focus
 :noname ( $rxy*n bmask -- )
     case
