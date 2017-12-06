@@ -38,6 +38,7 @@ function extra_features {
 }
 
 . build.local
+export PKG_CONFIG_PATH
 TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 NDK=${NDK-~/proj/android-ndk-r10e}
 SRC=$(cd ../../..; pwd)

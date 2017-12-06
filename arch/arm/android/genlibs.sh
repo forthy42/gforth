@@ -19,6 +19,7 @@
 # Generate stuff needed for android Gforth
 
 . build.local
+export PKG_CONFIG_PATH
 TOOLCHAIN=$(which $TARGET-gcc | sed -e s,/bin/.*-gcc,,g)
 
 case "$TARGET" in
