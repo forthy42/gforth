@@ -358,7 +358,7 @@ tex: minos2
     {{
     ['] minos2 minos2-glue }}image-tex /right
     glue*1 }}glue
-    }}v box[] >o fontsize# f2/ to border o o>
+    }}v outside[] >o fontsize# f2/ to border o o>
     to x-baseline ;
 : pres-frame ( color -- o1 o2 )
     glue*wh swap slide-frame dup .button1 simple[] ;

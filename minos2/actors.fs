@@ -38,6 +38,14 @@ edit-widget-c ' new static-a with-allocater Constant edit-widget
 \ generic actor stuff
 
 actor class
+end-class outside-actor
+:noname ( rx ry -- flag )
+    fdrop fdrop false ; outside-actor is inside?
+
+: outside[] ( o -- o )
+    >o outside-actor new to act o act >o to caller-w o> o o> ;
+
+actor class
 end-class simple-actor
 
 : simple-inside? ( rx ry -- flag )
@@ -136,18 +144,40 @@ box-actor is clicked
 \ viewport
 
 box-actor class
-    value: txy$ \ translated xy$
+    field: txy$ \ translated xy$
 end-class vp-actor
 
 : tx ( rx ry -- rx' ry' )
     fswap vp-x x   f- f+
     fswap vp-y y h f- f- f+ ;
+: tx$ ( $rxy*n -- $rxy*n' )
+    vp-x x f-  vp-y y h f- f- { f: dx f: dy }
+    dup $@len act .txy$ $!len
+    act .txy$ $@ drop swap $@ bounds U+DO
+	I sf@ dx f+ I cell+ sf@ dy f+
+	dup sfloat+ sf! dup sf! [ 2 sfloats ]L +
+    [ 2 sfloats ]L +LOOP  drop  act .txy$ ;
+
+: vp-need-or ( -- )
+    vp-need @ need-mask @ over $FF and over $FF and or >r
+    $-100 and swap $-100 and max r> or need-mask ! ;
 
 :noname ( rx ry bmask n -- )
     caller-w >o
     tx [: act >o [ box-actor :: clicked ] o> ;] vp-needed
-    vp-need @ need-mask @ over $FF and over $FF and or >r
-    $-100 and swap $-100 and max r> or need-mask ! o> ; vp-actor is clicked
+    vp-need-or o> ; vp-actor is clicked
+:noname ( $rxy*n bmask -- )
+    caller-w >o
+    >r tx$ r> [: act >o [ box-actor :: touchmove ] o> ;] vp-needed
+    vp-need-or o> ; vp-actor is touchmove
+:noname ( ekey -- )
+    caller-w >o
+    [: act >o [ box-actor :: ekeyed ] o> ;] vp-needed
+    vp-need-or o> ; vp-actor is ekeyed
+:noname ( ekey -- )
+    caller-w >o
+    [: act >o [ box-actor :: ukeyed ] o> ;] vp-needed
+    vp-need-or o> ; vp-actor is ukeyed
 
 : vp[] ( o -- o )
     >o vp-actor new to act o act >o to caller-w o> o o> ;
