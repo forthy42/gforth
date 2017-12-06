@@ -734,7 +734,7 @@ maintainer-clean: realclean
 
 debdist:
 
-setup-debdist docdist htmldist: doc
+setup-debdist docdist htmldist dist: doc
 
 dist srcdist srconlydist docdist htmldist bindist binonlydist debdist setup-debdist:		Makedist FORCE
 		$(MAKE) -f Makedist d$@
