@@ -866,9 +866,9 @@ install-arch:	installdeps installdirs-arch normal-install rm-install install-pro
 install-seq:	install-indep install-arch
 
 post-inst:
-		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
+		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el* doc/gforth.texi doc/gforth.info*
 		$(POST_INSTALL)
-		@test $$EUID -ne 0 && find . -user root | sed -e 's/^/failed to clean: /g' || true
+		@test 0$$SUDO_UID -ne 0 && find . -user root | sed -e 's/^/failed to clean: /g' || true
 		@echo
 		@echo
 		@echo "============= INSTALL SUCCEEDED ============="
