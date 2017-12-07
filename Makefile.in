@@ -821,6 +821,7 @@ install-man:
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(man1dir)
 
 install-info:	doc
+		$(MKDIR) -p $(infodir)
 		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/gforth.info
 		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/vmgen.info
 
