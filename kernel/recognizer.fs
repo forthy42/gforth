@@ -44,7 +44,7 @@ AConstant rectype-null
 
 : do-lit, ( .. xt -- .. ) rectype>post execute ;
 : >postpone ( token table -- )
-    dup >r name>comp drop do-lit, r> post, ;
+    dup >r do-lit, r> post, ;
 
 : rec-word ( addr u -- xt | rectype-null )
     \G Searches a word in the wordlist stack
