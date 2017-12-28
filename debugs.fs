@@ -172,9 +172,9 @@ is ?warning
     \ colon definitions on the current engine
     threading-method 0= IF @ THEN ;
 
-: replace-word ( xt2 xt1 -- ) \ gforth
-  \G make xt1 do xt2, both need to be colon definitions
-    ['] branch >prim-code rot >colon-body rot >colon-body 2! ;
+: replace-word ( xt1 xt2 -- ) \ gforth
+  \G make xt2 do xt1, both need to be colon definitions
+    swap >colon-body ['] branch >prim-code rot >colon-body 2! ;
 
 \ watching variables and values
 

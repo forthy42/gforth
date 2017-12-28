@@ -225,3 +225,11 @@ t{ 5. +foo## foo## -> 12. }t
 t{ &foo## 2@ -> 12. }t
 t{ 7e +foo% foo% -> 17e }t
 t{ &foo% f@ -> 17e }t
+
+\ replace-word
+
+t{ : rw-test1 1 ; : rw-test2 2 ; -> }t
+t{ rw-test1 -> 1 }t
+t{ rw-test2 -> 2 }t
+t{ ' rw-test1 ' rw-test2 replace-word -> }t
+t{ rw-test2 -> 1 }t

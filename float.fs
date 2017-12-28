@@ -188,8 +188,7 @@ si-prefixes count 2/ + Constant zero-exp
 : prefix-number  sfnumber ;
 [THEN]
 
-: flit, postpone Fliteral ;
-' noop ' flit, ' flit, rectype: rectype-float
+' noop ' fliteral ' fliteral rectype: rectype-float
 
 : rec-float ( addr u -- r rectype-float | rectype-null )
     \G recognize floating point numbers
