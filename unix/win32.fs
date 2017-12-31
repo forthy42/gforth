@@ -1,6 +1,6 @@
 \ useful windows functions (kernel32 and imm32)
 
-\ Copyright (C) 2015 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

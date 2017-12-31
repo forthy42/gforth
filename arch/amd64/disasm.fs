@@ -2,7 +2,7 @@
 
 \ Copyright (C) 1992-2000 by Bernd Paysan (486 disassemlber)
 
-\ Copyright (C) 2016 Free Software Foundation, Inc.
+\ Copyright (C) 2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

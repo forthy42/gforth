@@ -1,6 +1,6 @@
 /* Check primitive agains non-relocatable MIPS instruction blacklist
 
-  Copyright (C) 2010 Free Software Foundation, Inc.
+  Copyright (C) 2010,2017 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 
