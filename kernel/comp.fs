@@ -532,7 +532,6 @@ extra>-dummy (doextra-dummy)
 Create vttemplate
 0 A,                   \ link field
 ' peephole-compile, A, \ compile, field
-' noop A,              \ post, field
 0 A,                   \ extra field
 ' no-to A,             \ to field
 ' default-name>int A,  \ name>int field

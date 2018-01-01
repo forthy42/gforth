@@ -3001,10 +3001,10 @@ Variable gvtable-list
 Ghost docol-vt drop
 
 >TARGET
-8 T cells H Constant vtsize
+7 T cells H Constant vtsize
 >CROSS
 
-8 cells Constant gvtsize \ ghost vtables for comparison
+7 cells Constant gvtsize \ ghost vtables for comparison
 
 ghost :,
 ghost peephole-compile,
@@ -3058,17 +3058,16 @@ ghost noop
 Create vttemplate
 0 ,
 findghost :, ,
-findghost noop ,
 0 ,
 findghost no-to ,
 findghost default-name>int ,
 findghost default-name>comp ,
 findghost no-defer@ ,
+0 ,
 
 Struct
     cell% field >vtlink
     cell% field >vtcompile,
-    cell% field >vtlit,
     cell% field >vtextra
     cell% field >vtto
     cell% field >vt>int
@@ -3105,7 +3104,6 @@ End-Struct vtable-struct
     T here 0 A, H vttemplate ! ;
 : vt-populate ( -- )
     [ findghost :,         ]L vttemplate >vtcompile, !
-    [ findghost noop       ]L vttemplate >vtlit, !
     0                         vttemplate >vtextra !
     [ findghost no-to      ]L vttemplate >vtto !
     [ findghost default-name>int ]L vttemplate >vt>int !

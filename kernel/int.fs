@@ -376,12 +376,11 @@ $00ffffff constant lcount-mask
 
 (field) >vtlink      0 cells ,
 (field) >vtcompile,  1 cells ,
-(field) >vtlit,      2 cells ,
-(field) >vtextra     3 cells ,
-(field) >vtto        4 cells ,
-(field) >vt>int      5 cells ,
-(field) >vt>comp     6 cells ,
-(field) >vtdefer@    7 cells ,
+(field) >vtextra     2 cells ,
+(field) >vtto        3 cells ,
+(field) >vt>int      4 cells ,
+(field) >vt>comp     5 cells ,
+(field) >vtdefer@    6 cells ,
 
 1 cells -3 cells \ mini-oof class declaration with methods
 \ the offsets are a bit odd to keep the xt as point of reference
@@ -391,7 +390,6 @@ cell var >namevt
 
 method compile, ( xt -- )
 swap
-cell+ \ postpone action has no simple method
 cell+ \ extra has no simple method
 swap
 
