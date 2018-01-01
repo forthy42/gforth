@@ -332,6 +332,15 @@ Defer exit-like ( -- )
 : ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
     POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
 
+: execute-exit ( compilation -- ; run-time xt nest-sys -- ) \ gforth
+    \G Execute @code{xt} and return from the current definition, in a
+    \G tail-call-optimized way: The return address @code{nest-sys} and
+    \G the locals are deallocated before executing @code{xt}.
+    exit-like
+    POSTPONE execute-;s
+    basic-block-end
+    POSTPONE unreachable ; immediate compile-only
+
 \ scope endscope
 
 : scope ( compilation  -- scope ; run-time  -- ) \ gforth

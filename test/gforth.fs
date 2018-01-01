@@ -233,3 +233,11 @@ t{ rw-test1 -> 1 }t
 t{ rw-test2 -> 2 }t
 t{ ' rw-test1 ' rw-test2 replace-word -> }t
 t{ rw-test2 -> 1 }t
+
+\ execute-exit
+
+t{ : execute1 execute-exit ; -> }t
+t{ 1 >r ' r> execute1 -> 1 }t
+t{ : execute2 {: xt :} xt execute-exit ; -> }t
+t{ : execute-exit-test {: a :} >r ['] r> execute2 a ; -> }t
+t{ 1 2 execute-exit-test -> 1 2 }t
