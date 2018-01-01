@@ -3058,7 +3058,6 @@ ghost noop
 Create vttemplate
 0 ,
 findghost :, ,
-0 ,
 findghost no-to ,
 findghost default-name>int ,
 findghost default-name>comp ,
@@ -3068,11 +3067,11 @@ findghost no-defer@ ,
 Struct
     cell% field >vtlink
     cell% field >vtcompile,
-    cell% field >vtextra
     cell% field >vtto
     cell% field >vt>int
     cell% field >vt>comp
     cell% field >vtdefer@
+    cell% field >vtextra
 End-Struct vtable-struct
 
 \ stores 7 ghosts and a link

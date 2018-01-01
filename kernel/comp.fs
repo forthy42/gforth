@@ -532,11 +532,11 @@ extra>-dummy (doextra-dummy)
 Create vttemplate
 0 A,                   \ link field
 ' peephole-compile, A, \ compile, field
-0 A,                   \ extra field
 ' no-to A,             \ to field
 ' default-name>int A,  \ name>int field
 ' default-name>comp A, \ name>comp field
 ' no-defer@ A,         \ defer@
+0 A,                   \ extra field
 
 \ initialize to one known vt
 

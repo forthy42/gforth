@@ -376,11 +376,11 @@ $00ffffff constant lcount-mask
 
 (field) >vtlink      0 cells ,
 (field) >vtcompile,  1 cells ,
-(field) >vtextra     2 cells ,
-(field) >vtto        3 cells ,
-(field) >vt>int      4 cells ,
-(field) >vt>comp     5 cells ,
-(field) >vtdefer@    6 cells ,
+(field) >vtto        2 cells ,
+(field) >vt>int      3 cells ,
+(field) >vt>comp     4 cells ,
+(field) >vtdefer@    5 cells ,
+(field) >vtextra     6 cells ,
 
 1 cells -3 cells \ mini-oof class declaration with methods
 \ the offsets are a bit odd to keep the xt as point of reference
@@ -389,9 +389,6 @@ cell var >link
 cell var >namevt
 
 method compile, ( xt -- )
-swap
-cell+ \ extra has no simple method
-swap
 
 method (int-to) ( val xt -- ) \ gforth paren-int-to
 \G direct call performs the interpretation semantics of to
@@ -406,7 +403,7 @@ method name>comp ( nt -- w xt ) \ gforth name-to-comp
 method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
 \G @i{xt} represents the word currently associated with the deferred
 \G word @i{xt-deferred}.
-drop Constant vtsize \ vtable size
+drop cell+ Constant vtsize \ vtable size
 
 : immediate? ( nt -- flag ) >f+c @ immediate-mask and 0<> ;
 : compile-only? ( nt -- flag ) >f+c @ restrict-mask and 0<> ;
