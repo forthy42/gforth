@@ -585,7 +585,6 @@ Create vttemplate
 
 : set-optimizer ( xt -- ) vttemplate >vtcompile, ! ;
 ' set-optimizer alias set-compiler
-: set-lit,      ( xt -- ) vttemplate >vtlit, ! ;
 : set-to        ( xt -- ) vttemplate >vtto ! ;
 : set-defer@    ( xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
@@ -597,12 +596,6 @@ Create vttemplate
 over over
 interpret/compile: opt:
 interpret/compile: comp:
-( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
-
-:noname ( -- colon-sys )
-    start-xt  set-lit, ;
-:noname ['] set-lit, start-xt-like ;
-interpret/compile: lit,:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
 \ defer and friends

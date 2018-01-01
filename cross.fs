@@ -3113,12 +3113,10 @@ End-Struct vtable-struct
     [ findghost no-defer@  ]L vttemplate >vtdefer@ ! ;
 
 :noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-optimizer
-: gset-lit,     ( ghost -- )  vttemplate >vtlit, ! ;
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
 : gset-defer@   ( ghost -- )  vttemplate >vtdefer@ ! ;
 
 : set-optimizer ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
-: set-lit,     ( xt -- )  xt>ghost vttemplate >vtlit, ! ;
 : set-to       ( xt -- )  xt>ghost vttemplate >vtto ! ;
 : set-defer@   ( xt -- )  xt>ghost vttemplate >vtdefer@ ! ;
 : set->comp    ( xt -- )  xt>ghost vttemplate >comp ! ;
@@ -3136,12 +3134,8 @@ End-Struct vtable-struct
     [G'] i/c>int vttemplate >vt>int !
     [G'] i/c>comp vttemplate >vt>comp ! ;
 
-: >vtable ( compile-xt tokenize-xt -- )
-    set-lit, set-optimizer ;
-
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
-: lit,: ( -- colon-sys )  gstart-xt set-lit, ;
 
 variable cross-boot$[]
 variable cross-boot[][]
