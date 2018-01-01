@@ -26,7 +26,6 @@
 has? new-does [IF]
     : extra, ['] extra-exec peephole-compile, , ;
     : >comp  ( xt -- ) name>comp execute ;
-    : post,  ( xt -- ) lit, postpone >comp ;
     : no-to ( xt -- )
 	\ default to action: report an error ASAP (even right when COMPILE,ing)
 	#-12 throw ;
@@ -579,7 +578,7 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 
 : '-error ( nt -- nt )
     dup rectype-null = -#13 and throw
-    dup >namevt @ >vtlit, @ ['] noop <> -#2053 and throw ;
+    rectype-name  <> -#2053 and throw ;
 
 : (') ( "name" -- nt ) \ gforth
     parse-name name-too-short? forth-recognizer recognize '-error ;

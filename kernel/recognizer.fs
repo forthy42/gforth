@@ -31,35 +31,37 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, compile it as literal.
 
-:noname  no.extensions ;
-' no.extensions dup >vtable
-AConstant rectype-null
+' no.extensions dup dup rectype: rectype-null
 \G If a recognizer fails, it returns @code{rectype-null}
 
 : lit, ( n -- ) postpone Literal ;
 
-' name?int alias rectype>int
-' name>comp alias rectype>comp
-: rectype>post ( r:table -- xt ) >namevt @ >vtlit, @ ;
+: rectype>int  ( rectype -- xt ) @ ;
+: rectype>comp ( rectype -- xt ) cell+ @ ;
+: rectype>post ( rectype -- xt ) cell+ cell+ @ ;
 
-: do-lit, ( .. xt -- .. ) rectype>post execute ;
 : >postpone ( token table -- )
-    dup >r do-lit, r> post, ;
+    dup >r rectype>post execute r> rectype>comp compile, ;
 
-: rec-word ( addr u -- xt | rectype-null )
+:noname name?int  execute-;s ;
+:noname name>comp execute-;s ;
+' lit,
+rectype: rectype-name ( takes nt, i.e. result of find-name and find-name-in )
+
+: rec-word ( addr u -- nt rectype-name | rectype-null )
     \G Searches a word in the wordlist stack
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
-    dup 0= IF  drop rectype-null  THEN ;
+    dup IF  rectype-name  ELSE  drop rectype-null  THEN ;
 
 :noname ( n -- n ) ;
-' do-lit, set-optimizer
-lit,: ( n -- ) postpone Literal ;
-AConstant rectype-num
+:noname ( n -- ) postpone Literal ;
+dup
+rectype: rectype-num
 
 :noname ( d -- d ) ;
-' do-lit, set-optimizer
-lit,: ( d -- ) postpone 2Literal ;
-AConstant rectype-dnum
+:noname ( d -- ) postpone 2Literal ;
+dup
+rectype: rectype-dnum
 
 \ snumber? should be implemented as recognizer stack
 
@@ -129,12 +131,12 @@ Defer trace-recognizer  ' drop is trace-recognizer
 \   xxx-recognizer recognize ;
 
 : interpreter-r ( addr u -- ... xt )
-    forth-recognizer recognize name?int ;
+    forth-recognizer recognize rectype>int ;
 
 ' interpreter-r IS parser1
 
 : compiler-r ( addr u -- ... xt )
-    forth-recognizer recognize name>comp ;
+    forth-recognizer recognize rectype>comp ;
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.

@@ -30,7 +30,7 @@
     drop 2drop 0 ;
 
 : rec-scope ( addr u -- xt | rectype-null )
-    0 scope-split dup 0= IF  drop  rectype-null  THEN ;
+    0 scope-split dup IF  rectype-name  ELSE  drop  rectype-null  THEN ;
 
 get-recognizers 1+ ' rec-scope -rot set-recognizers
 

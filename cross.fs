@@ -1158,7 +1158,6 @@ Ghost does-exec drop
 Ghost extra-exec drop
 Ghost does-xt drop
 Ghost no-to drop
-Ghost post, drop
 Ghost refill drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
@@ -3029,8 +3028,7 @@ ghost field+,
 ghost abi-code,
 2drop
 ghost ;abi-code,
-ghost post,
-2drop
+drop
 ghost default-name>int
 ghost default-name>comp
 2drop
@@ -3144,7 +3142,6 @@ End-Struct vtable-struct
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
 : lit,: ( -- colon-sys )  gstart-xt set-lit, ;
-\    T 0 cell+ cfalign# here vtsize cell+ H + [T'] post, T >vtable :noname H drop ; 
 
 variable cross-boot$[]
 variable cross-boot[][]
@@ -3472,6 +3469,13 @@ by Create
 
 : class ( class -- class methods vars ) dup T 2@ H ;
 : defines ( xt class -- )  T ' >body @ + ! H ;
+
+\ rectype
+
+Builder rectype:
+Build: ( xtint xtcomp xtpost --- )
+    T rot A, swap A, A, H ;Build
+by Create
 
 \ Peephole optimization					05sep01jaw
 

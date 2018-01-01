@@ -695,13 +695,11 @@ defer 0-adjust-locals-size ( -- )
 
 : rectype ( int-xt comp-xt post-xt -- rectype )
     \G create a new unnamed recognizer token
-    >r  ['] drop swap concat >r
-    >r :noname r> compile, postpone ;
-    r> set-optimizer r> set-lit, ;
+    here >r rot , swap , , r> ;
 
 : rectype: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table
-    rectype constant ;
+    Create rectype drop ;
 
 \ does>
 

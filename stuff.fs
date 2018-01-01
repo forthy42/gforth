@@ -189,9 +189,9 @@ AUser CSP
 
 [ifdef] compiler-r
 : postponer-r ( addr u -- ... xt )
-    forth-recognizer recognize dup
+    forth-recognizer recognize over
     [ s" [[" find-name ] Literal =
-    IF  drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
+    IF  2drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
@@ -593,11 +593,6 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 :noname 0> IF execute ELSE compile, THEN ;
 :noname postpone 2literal ;
 rectype: rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
-
-:noname rectype>int execute ;
-:noname rectype>comp execute ;
-' lit,
-rectype: rectype-name ( takes nt, i.e. result of find-name and find-name-in )
 
 \ concat recognizers to another recognizer
 
