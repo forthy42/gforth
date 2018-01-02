@@ -31,7 +31,7 @@
 	drop 2drop rectype-null  EXIT
     endcase
     2 /string forth-recognizer recognize
-    dup rectype-null = IF  to-style# off  EXIT  THEN
+    rectype-name <> IF  to-style# off  rectype-null EXIT  THEN
     name?int rectype-to ;
 
 ' rec-to forth-recognizer >back
