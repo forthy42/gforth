@@ -53,12 +53,12 @@ rectype: rectype-name ( takes nt, i.e. result of find-name and find-name-in )
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
     dup IF  rectype-name  ELSE  drop rectype-null  THEN ;
 
-:noname ( n -- n ) ;
-:noname ( n -- ) postpone Literal ;
+' noop
+' lit,
 dup
 rectype: rectype-num
 
-:noname ( d -- d ) ;
+' noop
 :noname ( d -- ) postpone 2Literal ;
 dup
 rectype: rectype-dnum
