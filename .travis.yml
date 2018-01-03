@@ -4,20 +4,7 @@ os:
 env:
   - M32=
   - M32=-m32
-  - EC=misc
-  - EC=r8c
-  - EC=8086
-  - EC=c165
-matrix:
-  exclude:
-    - os: osx
-      env: EC=misc
-    - os: osx
-      env: EC=r8c
-    - os: osx
-      env: EC=8086
-    - os: osx
-      env: EC=c165
+  - EC="misc r8c 8086 c165"
 language: c
 compiler: gcc
 sudo: true
@@ -28,4 +15,4 @@ script:
   - if [ "${TRAVIS_OS_NAME}" = osx ]; then gcc -v; gcc-7 -v; export CC=gcc-7; fi
   - ./configure --enable-lib CC="$CC $M32"
   - make
-  - if [ -n "$EC" ]; then ./build-ec $EC; fi
+  - for i in $EC; do ./build-ec $i; done
