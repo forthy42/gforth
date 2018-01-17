@@ -159,7 +159,7 @@ Variable eglformat
 	
 	: choose-config ( -- )
 	    get-display dpy-h ! dpy-w !
-	    dpy eglGetDisplay to egldpy
+	    0 eglGetDisplay to egldpy
 	    egldpy 0 0 eglInitialize drop
 	    egldpy attribs3 configs 1 numconfigs eglChooseConfig drop
 	    numconfigs @ 0= IF

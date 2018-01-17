@@ -1449,6 +1449,13 @@ if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
 		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs", ,), ,-lpng16 -lfreetype)
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
+   CFLAGS_1="$CFLAGS"
+   CFLAGS="$CFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
+   AC_CHECK_LIB(gstreamer-1.0,gst_init,
+   AC_CHECK_HEADER(gst/gst.h, SWIGMODULES="$SWIGMODULES gst.fs"
+		   SWIGLIBS="$SWIGLIBS gstlib.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CFLAGS="$CFLAGS_1",), ,)
+fi
 
 if test x$has_swig = xno; then
    AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])
