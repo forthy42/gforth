@@ -55,96 +55,129 @@ fi
 
 #get dependent files
 
-(cd ~/Downloads
- test -f $FREETYPE.tar.bz2 || wget http://download.savannah.gnu.org/releases/freetype/$FREETYPE.tar.bz2
- test -f $HARFBUZZ.tar.bz2 || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.bz2
- test -f $LIBPNG.tar.xz || wget https://downloads.sourceforge.net/project/libpng/libpng16/${LIBPNG#libpng-}/$LIBPNG.tar.xz
- test -f $BZIP2.tar.gz || wget http://www.bzip.org/${BZIP2#bzip2-}/$BZIP2.tar.gz
-)
-
-tar jxvf ~/Downloads/$FREETYPE.tar.bz2
-tar jxvf ~/Downloads/$HARFBUZZ.tar.bz2
-tar Jxvf ~/Downloads/$LIBPNG.tar.xz
-tar zxvf ~/Downloads/$BZIP2.tar.gz
-
 # support stuff
 
-(cd $LIBPNG
-./autogen.sh # get fresh libtool&co
-./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
-make -j4
-make install)
+function gen_png {
+    (cd ~/Downloads
+     test -f $LIBPNG.tar.xz || wget https://downloads.sourceforge.net/project/libpng/libpng16/${LIBPNG#libpng-}/$LIBPNG.tar.xz)
+    tar Jxvf ~/Downloads/$LIBPNG.tar.xz
+    (cd $LIBPNG
+     ./autogen.sh # get fresh libtool&co
+     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
+     make -j$nprocs
+     make install)
+}
 
-(cd $BZIP2
-PREFIX=$TOOLCHAIN/sysroot/usr
-make -j4 CC="$CC -fPIC" libbz2.a
-cp -f libbz2.a $PREFIX/lib
-cp -f bzlib.h $PREFIX/include)
+function gen_bzip2 {
+    (cd ~/Downloads
+     test -f $BZIP2.tar.gz || wget http://www.bzip.org/${BZIP2#bzip2-}/$BZIP2.tar.gz)
+    tar zxvf ~/Downloads/$BZIP2.tar.gz
+    (cd $BZIP2
+     PREFIX=$TOOLCHAIN/sysroot/usr
+     make -j$nprocs CC="$CC -fPIC" libbz2.a
+     cp -f libbz2.a $PREFIX/lib
+     cp -f bzlib.h $PREFIX/include)
+}
 
 #make and install freetype, part 1 (no harfbuzz)
 
-(cd $FREETYPE
-./autogen.sh # get fresh libtool&co
-./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-zlib=no --with-harfbuzz=no 
-make -j$nprocs
-make install)
+function gen_freetype {
+    (cd ~/Downloads
+     test -f $FREETYPE.tar.bz2 || wget http://download.savannah.gnu.org/releases/freetype/$FREETYPE.tar.bz2)
+    tar jxvf ~/Downloads/$FREETYPE.tar.bz2
+    (cd $FREETYPE
+     ./autogen.sh # get fresh libtool&co
+     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-zlib=no --with-harfbuzz=no 
+     make -j$nprocs
+     make install)
+}
 
 #make and install harfbuzz
 
-(cd $HARFBUZZ
-./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-glib=no --with-icu=no --with-uniscribe=no --with-cairo=no
-make -j$nprocs
-make install)
+function gen_harfbuzz {
+    (cd ~/Downloads
+     test -f $HARFBUZZ.tar.bz2 || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.bz2)
+    tar jxvf ~/Downloads/$HARFBUZZ.tar.bz2
+    (cd $HARFBUZZ
+     ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-glib=no --with-icu=no --with-uniscribe=no --with-cairo=no
+     make -j$nprocs
+     make install)
+}
 
 #now freetype with harfbuzz support
 
-(cd $FREETYPE
-./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-bzip2=no --with-zlib=no --with-harfbuzz=yes
-make clean
-make -j$nprocs
-make install)
+function gen_fthb {
+    (cd $FREETYPE
+     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-bzip2=no --with-zlib=no --with-harfbuzz=yes
+     make clean
+     make -j$nprocs
+     make install)
+}
 
 #freetype GL
 
-if [ -f freetype-gl/.git/config ]
-then
-    (cd freetype-gl; git pull)
-else
-    git clone -b android https://github.com/forthy42/freetype-gl.git
-fi
-
-(cd freetype-gl
-./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
-make -j$nprocs
-make install
-)
+function gen_ftgl {
+    if [ -f freetype-gl/.git/config ]
+    then
+	(cd freetype-gl; git pull)
+    else
+	git clone -b android https://github.com/forthy42/freetype-gl.git
+    fi
+    
+    (cd freetype-gl
+     ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
+     make -j$nprocs
+     make install
+    )
+}
 
 # SOIL2
 
-if [ -f soil2/.hg/hgrc ]
+function gen_soil2 {
+    if [ -f soil2/.hg/hgrc ]
+    then
+	(cd soil2; hg pull; hg up)
+    else
+	hg clone https://bitbucket.org/forthy42/soil2
+    fi
+    
+    (cd soil2
+     case "$machine" in
+	 386)
+	     machine=x86
+	     ;;
+	 amd64)
+	     machine=x86_64
+	     ;;
+     esac
+     premake4 --platform=$machine-android gmake
+     (cd make/linux
+      make config=release)
+     cp lib/linux/libsoil2.a $TOOLCHAIN/sysroot/usr/lib
+     cp src/SOIL2/SOIL2.h $TOOLCHAIN/sysroot/usr/include)
+}
+
+function gen_typeset {
+    $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ $LIBPNG freetype-gl -name '*.lo') -lm -lGLESv2 -lz -lbz2 -llog
+    cp .libs/libtypeset.{a,so} $TOOLCHAIN/sysroot/usr/lib
+}
+
+if [ "$1" = "" ]
 then
-    (cd soil2; hg pull; hg up)
+    gen_png
+    gen_bzip2
+    gen_freetype
+    gen_harfbuzz
+    gen_fthb
+    gen_ftgl
+    gen_soil2
+    gen_typeset
 else
-    hg clone https://bitbucket.org/forthy42/soil2
+    while [ "$1" != "" ]
+    do
+	eval $1
+	shift
+    done
 fi
 
-(cd soil2
- case "$machine" in
-     386)
-	 machine=x86
-	 ;;
-     amd64)
-	 machine=x86_64
-	 ;;
- esac
- premake4 --platform=$machine-android gmake
- (cd make/linux
-  make config=release)
- (cd lib/linux
-  cp libsoil2.a $TOOLCHAIN/sysroot/usr/lib)
- (cd src/SOIL2
-  cp SOIL2.h $TOOLCHAIN/sysroot/usr/include))
 
-$TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ $LIBPNG freetype-gl -name '*.lo') -lm -lGLESv2 -lz -lbz2 -llog
-
-cp .libs/libtypeset.{a,so} $TOOLCHAIN/sysroot/usr/lib
