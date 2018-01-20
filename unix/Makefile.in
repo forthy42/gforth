@@ -17,7 +17,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
-CPPFLAGS   = @CPPFLAGS@
 INCLUDES   = @SWIGINCLUDES@
 SWIG       = @SWIG@
 TARGETS    = @SWIGMODULES@
@@ -43,7 +42,7 @@ DESTDIR = $(PWD)
 LIBTOOL = @LIBTOOL@
 GCC	= @CC@
 HOSTCC	= @HOSTCC@
-CC	= $(HOSTCC) $(INCLUDES) $(CPPFLAGS) -I.
+CC	= $(HOSTCC) $(INCLUDES) -I.
 
 all: $(GENWRAPPERS) $(TARGETS) stat.fs
 
