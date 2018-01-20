@@ -129,10 +129,14 @@ else
 fi
 
 (cd soil2
- if [ "$machine" = 386 ]
- then
-     machine=x86
- fi
+ case "$machine" in
+     386)
+	 machine=x86
+	 ;;
+     amd64)
+	 machine=x86_64
+	 ;;
+ esac
  premake4 --platform=$machine-android gmake
  (cd make/linux
   make config=release)
