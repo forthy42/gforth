@@ -1450,11 +1450,11 @@ if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
 		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs", ,), ,-lpng16 -lfreetype)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
-   CFLAGS_1="$CFLAGS"
-   CFLAGS="$CFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
+   CPPFLAGS_1="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
    AC_CHECK_LIB(gstreamer-1.0,gst_init,
    AC_CHECK_HEADER(gst/gst.h, SWIGMODULES="$SWIGMODULES gst.fs"
-		   SWIGLIBS="$SWIGLIBS gstlib.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CFLAGS="$CFLAGS_1",), ,)
+		   SWIGLIBS="$SWIGLIBS gstlib.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
 fi
 
 if test x$has_swig = xno; then
