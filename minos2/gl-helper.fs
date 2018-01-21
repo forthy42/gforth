@@ -445,6 +445,9 @@ void main() {
     ." Renderer: " GL_RENDERER .gl cr
     ." Extensions: " GL_EXTENSIONS .gl cr ;
 
+: 0>clear ( -- )
+    0e fdup fdup 1e glClearColor ;
+
 : clear ( -- )
     GL_DEPTH_BUFFER_BIT GL_COLOR_BUFFER_BIT or glClear ;
 
@@ -754,6 +757,7 @@ Variable i-off
 : n>xyz ( x y z -- ) n.z sf! n.y sf! n.x sf! 1e n.t sf! ;
 : n> ( -- ) -1e n.z sf! 0e n.y sf! 0e n.x sf! 1e n.t sf! ;
 : >st ( s t -- ) t.t sf! t.s sf! ;
+: rot>st ( n -- n' )  dup 2 and 2/ s>f dup 1- 2 and 2/ s>f >st 1+ ;
 
 \ window closed/reopened
 

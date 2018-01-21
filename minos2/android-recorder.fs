@@ -36,8 +36,6 @@ also jni
 
 : oes-init create-oes-program to oes-program ;
 
-: rot>st ( n -- n' )  dup 2 and 2/ s>f dup 1- 2 and 2/ s>f >st 1+ ;
-
 : cam-rectangle ( orientation -- )
     >v
     -1e  1e >xy n> rot>st  $FFFFFF00 rgba>c v+
@@ -51,7 +49,7 @@ also jni
     unit-matrix MVPMatrix set-matrix
     unit-matrix MVMatrix set-matrix
     media-sft >o updateTexImage o>
-    0e fdup fdup 1.0e glClearColor clear
+    0>clear
     Ambient 1 ambient% glUniform1fv
     media-tex nearest-oes ;
 : camera-frame ( -- ) camera-init
