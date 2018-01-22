@@ -46,13 +46,13 @@ also jni
 
 : camera-init ( -- )
     oes-program init
+    0e fdup x-pos sf! >y-pos
     unit-matrix MVPMatrix set-matrix
     unit-matrix MVMatrix set-matrix
     media-sft >o updateTexImage o>
     0>clear
     Ambient 1 ambient% glUniform1fv
-    media-tex nearest-oes
-    GL_TEXTURE_EXTERNAL_OES glGenerateMipmap ;
+    media-tex nearest-oes ;
 : camera-frame ( -- ) camera-init
     v0 i0 screen-orientation cam-rectangle
     GL_TRIANGLES draw-elements ;
