@@ -51,7 +51,8 @@ also jni
     media-sft >o updateTexImage o>
     0>clear
     Ambient 1 ambient% glUniform1fv
-    media-tex nearest-oes ;
+    media-tex nearest-oes
+    GL_TEXTURE_EXTERNAL_OES glGenerateMipmap ;
 : camera-frame ( -- ) camera-init
     v0 i0 screen-orientation cam-rectangle
     GL_TRIANGLES draw-elements ;
