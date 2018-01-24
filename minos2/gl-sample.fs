@@ -26,7 +26,7 @@ also [IFDEF] x11 x11 [THEN]
 tex: ascii-tex
 
 : load-textures ( -- )
-    ascii-tex s" ascii.png" load-texture wrap-texture mipmap ;
+    ascii-tex s" ascii.png" load-texture 2drop ;
 
 \ triangle example
 
@@ -80,7 +80,7 @@ FVariable motion 0.01e motion f!
     angle draw-tri-angle
     >looper default>ap
     *input >r r@ IF
-	r@ action @ abs 1 <> IF
+	r@ action @ abs 1 u> IF
 	    \ ." Touch at " r@ x0 ? r@ y0 ? cr
 	    \ r@ x0 @ 20 < r@ y0 @ 20 < and IF -1 (bye) THEN
 	    r@ x0 @ dpy-w @ 2/ - s>f dpy-h @ 2/ fm/
@@ -98,7 +98,7 @@ FVariable motion 0.01e motion f!
 		    ( .2e f* motion f@ .8e f* f+ ) motion f!  THEN
 		to angle
 	    THEN
-	    ambient% sf@ 0.05e f- 0.5e fmax ambient% sf!
+	    ambient% sf@ 0.05e f- 0.0e fmax ambient% sf!
 	ELSE
 	    ambient% sf@ 0.05e f+ 1.0e fmin ambient% sf!
 	    angle motion f@ f+ to angle
