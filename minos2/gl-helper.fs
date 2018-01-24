@@ -294,19 +294,16 @@ Variable eglformat
     BEGIN  2dup >wordend  dup WHILE  2nip >wordend >word  REPEAT  2drop
     2r> 2swap ;
 
-Variable $attrib
-
 : >bindattrib ( xt program -- )  0 { prog idx } shader>string
     BEGIN  s" attribute " >attrib extract-name dup  WHILE
-	    $attrib $!  0 $attrib c$+!
-	    prog idx $attrib $@ drop glBindAttribLocation
+	    prog idx 2swap glBindAttribLocation
 	    idx 1+ to idx
     REPEAT  2drop 2drop ;
 
 : >univattrib ( xt program -- )  { prog }
     shader>string
-    BEGIN  s" uniform " >attrib extract-name dup  WHILE  $attrib $!
-	    prog $attrib $@ over + 0 swap c! glGetUniformLocation ,
+    BEGIN  s" uniform " >attrib extract-name dup  WHILE
+	    prog -rot glGetUniformLocation ,
     REPEAT  2drop 2drop ;
 
 : >univattribs { vs-xt fs-xt program -- locblock }
@@ -642,28 +639,44 @@ require soil-texture.fs
 [THEN]
 
 1 sfloats buffer: ambient%  1.0e ambient% sf!
+3 sfloats buffer: lightpos-xyz
+0.0e lightpos-xyz sf!
+0.0e lightpos-xyz sfloat+ sf!
+-0.3e lightpos-xyz sfloat+ sfloat+ sf!
 
 \ init program
 
-: init { program -- }
+: parse-uniform ( program -- )
+    program "u_MVPMatrix" glGetUniformLocation to MVPMatrix
+    program "u_MVMatrix"  glGetUniformLocation to MVMatrix
+    program "u_TexScale"  glGetUniformLocation to TexScale
+    program "u_LightPos"  glGetUniformLocation to LightPos
+    program "u_Texture"   glGetUniformLocation to Texture
+    program "u_Ambient"   glGetUniformLocation to Ambient
+    program "u_Coloradd"  glGetUniformLocation to Coloradd ;
+
+0 Value no-texture?
+
+: init-program ( program -- )
+    dup glUseProgram  parse-uniform ;
+: init-glstate ( -- )
     GL_DITHER glEnable
     [IFDEF] GL_MULTISAMPLE  GL_MULTISAMPLE glEnable  [THEN]
     GL_BLEND glEnable
     GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
-    program glUseProgram
-    program "u_MVPMatrix\0" drop glGetUniformLocation to MVPMatrix
-    program "u_MVMatrix\0" drop glGetUniformLocation to MVMatrix
-    program "u_TexScale\0" drop glGetUniformLocation to TexScale
-    program "u_LightPos\0" drop glGetUniformLocation to LightPos
-    program "u_Texture\0" drop glGetUniformLocation to Texture
-    program "u_Ambient\0" drop glGetUniformLocation to Ambient
-    program "u_Coloradd\0" drop glGetUniformLocation to Coloradd
     GL_UNPACK_ALIGNMENT 1 glPixelStorei
-    GL_TEXTURE0 glActiveTexture
-    none-tex no-texture
+    GL_TEXTURE0 glActiveTexture ;
+: ?no-texture ( -- )
+    none-tex no-texture? 0= IF
+	no-texture true to no-texture?
+    THEN ;
+: set-uniforms ( -- )
     Texture 0 glUniform1i
     Ambient 1 ambient% glUniform1fv
-    LightPos 0.0e 0.0e -0.3e glUniform3f
+    LightPos 1 lightpos-xyz glUniform3fv ;
+: init ( program -- )
+    init-program init-glstate ?no-texture
+    set-uniforms
     z-bias set-color+ default>ap ;
 
 \ glDrawElements helper

@@ -81,9 +81,9 @@ void main()
     ['] VertexShader ['] TerminalShader create-program ;
 
 : terminal-init { program -- } program init
-    program "u_Charmap\0" drop glGetUniformLocation to Charmap
-    program "u_Colormap\0" drop glGetUniformLocation to Colormap
-    program "u_texsize\0" drop glGetUniformLocation to texsize
+    program "u_Charmap"  glGetUniformLocation to Charmap
+    program "u_Colormap" glGetUniformLocation to Colormap
+    program "u_texsize"  glGetUniformLocation to texsize
     Charmap 1 glUniform1i
     Colormap 2 glUniform1i ;
 

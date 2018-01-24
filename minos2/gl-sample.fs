@@ -85,7 +85,7 @@ FVariable motion 0.01e motion f!
 	    \ r@ x0 @ 20 < r@ y0 @ 20 < and IF -1 (bye) THEN
 	    r@ x0 @ dpy-w @ 2/ - s>f dpy-h @ 2/ fm/
 	    r@ y0 @ dpy-h @ 2/ - s>f dpy-h @ 2/ fm/
-	    fover fover fnegate -1.15e lightpos glUniform3f
+	    fover fover fnegate 1.5e lightpos glUniform3f
 	    fatan2
 	    touch f@ -100e f= IF
 		angle f- touch f!
