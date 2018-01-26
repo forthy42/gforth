@@ -547,13 +547,13 @@ Create white-texture \ aabbggrr
 : edge ( -- )
     GL_TEXTURE_2D GL_TEXTURE_WRAP_S GL_CLAMP_TO_EDGE glTexParameteri
     GL_TEXTURE_2D GL_TEXTURE_WRAP_T GL_CLAMP_TO_EDGE glTexParameteri ;
-: mipmap ( -- )  GL_TEXTURE_2D glGenerateMipmap ;
 : linear ( -- )
     GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR glTexParameteri
     GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR glTexParameteri ;
 : linear-mipmap ( -- )
     GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR glTexParameteri
     GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR_MIPMAP_LINEAR glTexParameteri ;
+: mipmap ( -- )  linear-mipmap GL_TEXTURE_2D glGenerateMipmap ;
 : nearest ( -- )
     GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_NEAREST glTexParameteri
     GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_NEAREST glTexParameteri ;
@@ -647,13 +647,13 @@ require soil-texture.fs
 \ init program
 
 : parse-uniform ( program -- )
-    program "u_MVPMatrix" glGetUniformLocation to MVPMatrix
-    program "u_MVMatrix"  glGetUniformLocation to MVMatrix
-    program "u_TexScale"  glGetUniformLocation to TexScale
-    program "u_LightPos"  glGetUniformLocation to LightPos
-    program "u_Texture"   glGetUniformLocation to Texture
-    program "u_Ambient"   glGetUniformLocation to Ambient
-    program "u_Coloradd"  glGetUniformLocation to Coloradd ;
+    dup "u_MVPMatrix" glGetUniformLocation to MVPMatrix
+    dup "u_MVMatrix"  glGetUniformLocation to MVMatrix
+    dup "u_TexScale"  glGetUniformLocation to TexScale
+    dup "u_LightPos"  glGetUniformLocation to LightPos
+    dup "u_Texture"   glGetUniformLocation to Texture
+    dup "u_Ambient"   glGetUniformLocation to Ambient
+    "u_Coloradd"      glGetUniformLocation to Coloradd ;
 
 0 Value no-texture?
 
