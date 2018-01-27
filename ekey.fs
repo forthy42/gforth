@@ -204,16 +204,17 @@ Variable ekey-buffer
     ekey-buffer $off ;
 
 : esc-prefix ( -- u )
-    key? \ ?dup-0=-if  1 ms key?  endif \ workaround for Windows 1607 Linux
-    if
-	key ekey-buffer c$+!
-	ekey-buffer $@ esc-mask >r
-        esc-sequences search-wordlist
-        if
-            execute r> or clear-ekey-buffer exit
-	endif
-	rdrop
-    endif
+    BEGIN
+	key? \ ?dup-0=-if  1 ms key?  endif \ workaround for Windows 1607 Linux
+    WHILE
+	    key ekey-buffer c$+!
+	    ekey-buffer $@ esc-mask >r
+	    esc-sequences search-wordlist
+	    if
+		execute r> or clear-ekey-buffer exit
+	    endif
+	    rdrop
+    REPEAT
     ekey-buffer $@ unkeys #esc clear-ekey-buffer ;
 
 : esc-sequence ( u1 addr u -- ; name execution: -- u2 ) recursive
