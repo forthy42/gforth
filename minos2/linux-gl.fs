@@ -572,6 +572,10 @@ XSetWindowAttributes buffer: xswa
     NorthWestGravity xswa XSetWindowAttributes-bit_gravity l!
     NorthWestGravity xswa XSetWindowAttributes-win_gravity l! ;
 
+: map-win ( -- )
+    dpy win XMapWindow drop
+    dpy 0 XSync drop >exposed ;
+
 : simple-win ( events string len w h -- )
     2>r rot set-xswa 
     dpy dup XDefaultRootWindow
@@ -580,10 +584,8 @@ XSetWindowAttributes buffer: xswa
     dpy dup XDefaultScreen XDefaultVisual
     [ CWEventMask CWBitGravity CWWinGravity or or ]L xswa XCreateWindow  to win
     dpy win 2swap XStoreName drop
-    dpy win XMapWindow drop
     get-atoms  set-hint  set-protocol
-    win get-ic
-    dpy 0 XSync drop >exposed ;
+    win get-ic ;
 
 : x-key? ( -- flag ) defers key? dup 0= IF screen-ops THEN ;
 : x-key ( -- key )
