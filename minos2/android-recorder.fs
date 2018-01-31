@@ -21,6 +21,8 @@
 require minos2/gl-helper.fs
 require unix/jni-media.fs
 
+debug: video(
+
 also opengl
 also android
 also jni
@@ -46,13 +48,14 @@ also jni
 
 : camera-init ( -- )
     oes-program init-program set-uniforms α-bias set-color+
+    unit-texscale set-texscale
     0e fdup x-pos sf! >y-pos
     unit-matrix MVPMatrix set-matrix
     unit-matrix MVMatrix set-matrix
     media-sft >o updateTexImage o>
     0>clear
     Ambient 1 ambient% glUniform1fv
-    media-tex nearest-oes mipmap ;
+    media-tex nearest-oes ;
 : camera-frame ( -- ) camera-init
     v0 i0 screen-orientation cam-rectangle
     GL_TRIANGLES draw-elements ;
@@ -60,8 +63,6 @@ also jni
 : max-area ( w h o:size -- w' h' )
     video( width . height . cr )
     2dup m* width height m* d<  IF  2drop  width height  THEN ;
-
-debug: video(
 
 : max-size ( o:list -- w h )
     0 0 l-size 0 ?DO  I l-get .max-area  LOOP ;
