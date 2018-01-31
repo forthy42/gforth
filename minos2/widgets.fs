@@ -243,7 +243,7 @@ image class
 end-class 1image
 
 :noname ( -- )
-    1-bias set-color+ image-tex  frame-color i0 v0 xywh-rect ;
+    w-bias set-color+ image-tex  frame-color i0 v0 xywh-rect ;
 1image is draw-image
 
 \ frame widget
@@ -431,7 +431,7 @@ previous
 : <draw-image ( -- ) ; \ image draw, one draw call per image
 : draw-image> ( -- ) ;
 : <draw-text ( -- )
-    1-bias set-color+
+    w-bias set-color+
     atlas-scaletex
     atlas-tex v0 i0 ; \ text draw, one draw call in total
 : <draw-emoji ( -- )

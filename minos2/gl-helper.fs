@@ -359,32 +359,31 @@ varying vec3 v_Normal;          // Interpolated normal for this fragment.
 varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
  
 // The entry point for our fragment shader.
-void main()
-{
-    // Will be used for attenuation.
-    float distance = length(u_LightPos - v_Position);
- 
-    // Get a lighting direction vector from the light to the vertex.
-    vec3 lightVector = normalize(u_LightPos - v_Position);
- 
-    // Calculate the dot product of the light vector and vertex normal. If the normal and light vector are
-    // pointing in the same direction then it will get max illumination.
-    float diffuse = max(dot(v_Normal, lightVector), 0.0);
- 
-    // Add attenuation.
-    diffuse = diffuse * (1.0 / (1.0 + (0.10 * distance)));
- 
-    // Add ambient lighting
-    diffuse = (diffuse * ( 1.0 - u_Ambient )) + u_Ambient;
- 
-// Multiply the color by the diffuse illumination level and texture value to get final output color.
+void main() {
     vec4 texture = texture2D(u_Texture, v_TexCoordinate) + u_Coloradd;
-    gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0) * v_Color * texture;
-    // vec4 pixel = (v_Color * texture2D(u_Texture, v_TexCoordinate));
-    // gl_FragColor = vec4(pixel.rgb, pixel.a);
-    // gl_FragColor = texture2D(u_Texture, v_TexCoordinate);
-    // gl_FragColor = (v_Color * diffuse);
-    // gl_FragColor = v_Color;
+    if(u_Ambient != 1.0) {
+        // Will be used for attenuation.
+        float distance = length(u_LightPos - v_Position);
+    
+        // Get a lighting direction vector from the light to the vertex.
+        vec3 lightVector = normalize(u_LightPos - v_Position);
+ 
+        // Calculate the dot product of the light vector and vertex normal. If the normal and light vector are
+        // pointing in the same direction then it will get max illumination.
+        float diffuse = max(dot(v_Normal, lightVector), 0.0);
+        diffuse = diffuse * diffuse;
+ 
+        // Add attenuation.
+        diffuse = diffuse * (1.0 / (1.0 + (0.2 * distance * distance)));
+ 
+        // Add ambient lighting
+        diffuse = (diffuse * (1.0 - u_Ambient)) + u_Ambient;
+ 
+        // Multiply the color by the diffuse illumination level and texture value to get final output color.
+        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0) * v_Color * texture;
+    } else {
+        gl_FragColor = v_Color * texture;
+    }
 }
 
 
@@ -414,7 +413,7 @@ GL_FRAGMENT_SHADER shader: oesShader
 uniform vec3 u_LightPos;        // The position of the light in eye space.
 uniform samplerExternalOES u_Texture;
 uniform float u_Ambient;        // ambient lighting level
-uniform vec4 u_Colorad;         // color bias for texture
+uniform vec4 u_Coloradd;        // color bias for texture
  
 varying vec3 v_Position;        // Interpolated position for this fragment.
 varying vec4 v_Color;           // This is the color from the vertex shader interpolated across the
@@ -422,12 +421,30 @@ varying vec4 v_Color;           // This is the color from the vertex shader inte
 varying vec3 v_Normal;          // Interpolated normal for this fragment.
 varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
 void main() {
-    float distance = length(u_LightPos - v_Position);
-    vec3 lightVector = normalize(u_LightPos - v_Position);
-    float diffuse = max(dot(v_Normal, lightVector), 0.0);
-    diffuse = diffuse * (1.0 / (1.0 + (0.10 * distance)));
-    diffuse = (diffuse * ( 1.0 - u_Ambient )) + u_Ambient;
-    gl_FragColor = (diffuse * (v_Color + texture2D(u_Texture, v_TexCoordinate)));
+    vec4 texture = texture2D(u_Texture, v_TexCoordinate) + u_Coloradd;
+    if(u_Ambient != 1.0) {
+        // Will be used for attenuation.
+        float distance = length(u_LightPos - v_Position);
+    
+        // Get a lighting direction vector from the light to the vertex.
+        vec3 lightVector = normalize(u_LightPos - v_Position);
+ 
+        // Calculate the dot product of the light vector and vertex normal. If the normal and light vector are
+        // pointing in the same direction then it will get max illumination.
+        float diffuse = max(dot(v_Normal, lightVector), 0.0);
+        diffuse = diffuse * diffuse;
+ 
+        // Add attenuation.
+        diffuse = diffuse * (1.0 / (1.0 + (0.2 * distance * distance)));
+ 
+        // Add ambient lighting
+        diffuse = (diffuse * (1.0 - u_Ambient)) + u_Ambient;
+ 
+        // Multiply the color by the diffuse illumination level and texture value to get final output color.
+        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0) * v_Color * texture;
+    } else {
+        gl_FragColor = v_Color * texture;
+    }
 }
 
 : create-oes-program ( -- program )
@@ -451,10 +468,9 @@ void main() {
 : sf,  ( float -- )  here 1 sfloats allot sf! ;
 : sf!+ ( float addr -- addr' )  dup sf! sfloat+ ;
 
-Create z-bias
-0e sf, 0e sf, 0e sf, 0e sf,
-Create 1-bias
-1e sf, 1e sf, 1e sf, 0e sf,
+Create z-bias  0e sf, 0e sf, 0e sf, 0e sf, \ no bias
+Create w-bias  1e sf, 1e sf, 1e sf, 0e sf, \ white bias, for black alpha-channel text
+Create α-bias  0e sf, 0e sf, 0e sf, 1e sf, \ alpha bias, for alpha-less textures
 
 Create unit-matrix
 1.0e sf, 0.0e sf, 0.0e sf, 0.0e sf,
@@ -771,7 +787,7 @@ Variable i-off
 : abgr>c ( abgr -- )  c.r color! c.g color! c.b color! c.a color! drop ;
 : f>c ( r g b a -- )  c.a sf! c.b sf! c.g sf! c.r sf! ;
 : n>xyz ( x y z -- ) n.z sf! n.y sf! n.x sf! 1e n.t sf! ;
-: n> ( -- ) -1e n.z sf! 0e n.y sf! 0e n.x sf! 1e n.t sf! ;
+: n> ( -- ) 0e fdup -1e n>xyz ;
 : >st ( s t -- ) t.t sf! t.s sf! ;
 : rot>st ( n -- n' )  dup 2 and 2/ s>f dup 1- 2 and 2/ s>f >st 1+ ;
 

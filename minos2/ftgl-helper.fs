@@ -198,7 +198,7 @@ program init
 
 : <render ( -- )
     program glUseProgram
-    1-bias set-color+
+    w-bias set-color+
     .01e 100e 100e >ap
     atlas-tex v0 i0 ;
 
