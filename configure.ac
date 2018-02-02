@@ -1448,7 +1448,7 @@ if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
    AC_CHECK_LIB(harfbuzz,hb_buffer_create,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
 		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs", ,),
-   AC_CHECK_LIB(harfbuzz,hb_buffer_create,
+   AC_CHECK_LIB(harfbuzz,hb_buffer_get_direction,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
 		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs", ,), ,-lpng12 -lfreetype)
 		   ,-lpng16 -lfreetype)
