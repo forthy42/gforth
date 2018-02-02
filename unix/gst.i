@@ -20,6 +20,8 @@
 #define G_GNUC_CONST
 #define G_GNUC_INTERNAL
 
+// exec: sed -e 's/\(c-function gst_pad_create_stream_id_printf_valist\)/\\ \1/g'
+
 %apply int { gboolean, gint }
 %apply unsigned int { GType, guint, gsize, GstFormat }
 %apply long long { gint64 }
