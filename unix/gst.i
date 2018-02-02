@@ -46,7 +46,7 @@
 %include <gst/gstdevice.h>
 %include <gst/gstdevicemonitor.h>
 %include <gst/gstdeviceprovider.h>
-%include <gst/gstdynamictypefactory.h>
+ // %include <gst/gstdynamictypefactory.h>
 %include <gst/gstelement.h>
 %include <gst/gstelementmetadata.h>
 %include <gst/gsterror.h>
@@ -58,19 +58,19 @@
 %include <gst/gstmeta.h>
 %include <gst/gstminiobject.h>
 %include <gst/gstobject.h>
-%include <gst/gststreamcollection.h>
+ // %include <gst/gststreamcollection.h>
 %include <gst/gstpad.h>
 %include <gst/gstparamspecs.h>
 %include <gst/gstpipeline.h>
 %include <gst/gstplugin.h>
 %include <gst/gstpoll.h>
 %include <gst/gstpreset.h>
-%include <gst/gstprotection.h>
+ // %include <gst/gstprotection.h>
 %include <gst/gstquery.h>
 %include <gst/gstregistry.h>
 %include <gst/gstsample.h>
 %include <gst/gstsegment.h>
-%include <gst/gststreams.h>
+ // %include <gst/gststreams.h>
 %include <gst/gststructure.h>
 %include <gst/gstsystemclock.h>
 %include <gst/gsttaglist.h>
@@ -79,9 +79,9 @@
 %include <gst/gsttaskpool.h>
 %include <gst/gsttoc.h>
 %include <gst/gsttocsetter.h>
-%include <gst/gsttracer.h>
-%include <gst/gsttracerfactory.h>
-%include <gst/gsttracerrecord.h>
+ // %include <gst/gsttracer.h>
+ // %include <gst/gsttracerfactory.h>
+ // %include <gst/gsttracerrecord.h>
 %include <gst/gsttypefind.h>
 %include <gst/gsttypefindfactory.h>
 %include <gst/gsturi.h>
@@ -95,23 +95,23 @@
 %include <gst/gl/gstgldisplay.h>
 %include <gst/gl/gstglcontext.h>
 %include <gst/gl/gstglfeature.h>
-%include <gst/gl/gstglformat.h>
+ // %include <gst/gl/gstglformat.h>
 %include <gst/gl/gstglutils.h>
 %include <gst/gl/gstglwindow.h>
-%include <gst/gl/gstglslstage.h>
+ // %include <gst/gl/gstglslstage.h>
 %include <gst/gl/gstglshader.h>
-%include <gst/gl/gstglshaderstrings.h>
-%include <gst/gl/gstglcolorconvert.h>
+ // %include <gst/gl/gstglshaderstrings.h>
+ // %include <gst/gl/gstglcolorconvert.h>
 %include <gst/gl/gstglupload.h>
-%include <gst/gl/gstglbasememory.h>
-%include <gst/gl/gstglbuffer.h>
+ // %include <gst/gl/gstglbasememory.h>
+ // %include <gst/gl/gstglbuffer.h>
 %include <gst/gl/gstglmemory.h>
-%include <gst/gl/gstglmemorypbo.h>
-%include <gst/gl/gstglrenderbuffer.h>
+ // %include <gst/gl/gstglmemorypbo.h>
+ // %include <gst/gl/gstglrenderbuffer.h>
 %include <gst/gl/gstglbufferpool.h>
 %include <gst/gl/gstglframebuffer.h>
-%include <gst/gl/gstglbasefilter.h>
-%include <gst/gl/gstglviewconvert.h>
+ // %include <gst/gl/gstglbasefilter.h>
+ // %include <gst/gl/gstglviewconvert.h>
 %include <gst/gl/gstglfilter.h>
 %include <gst/gl/gstglsyncmeta.h>
-%include <gst/gl/gstgloverlaycompositor.h>
+ // %include <gst/gl/gstgloverlaycompositor.h>
