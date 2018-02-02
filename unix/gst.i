@@ -22,11 +22,11 @@
 
 // exec: sed -e 's/\(c-function .*_valist\)/\\ \1/g'
 
-%apply int { gboolean, gint }
-%apply unsigned int { GType, guint, gsize, GstFormat }
+%apply int { gboolean, gint, GLint, gint32 }
+%apply unsigned int { GType, guint, gsize, GstFormat, GLuint, GstGLFormat, guint32, GstGLTextureTarget, guint16 }
 %apply long long { gint64 }
 %apply unsigned long long { guint64 }
-%apply SWIGTYPE * { gpointer, gconstpointer, GDestroyNotify, GstMiniObjectNotify, GCompareFunc, GCompareDataFunc, va_list, GCallback, GstPluginFeatureFilter }
+%apply SWIGTYPE * { gpointer, gconstpointer, GDestroyNotify, GstMiniObjectNotify, GCompareFunc, GCompareDataFunc, va_list, GCallback, GstPluginFeatureFilter, GstGLAllocationParamsFreeFunc, GstGLAllocationParamsCopyFunc, guintptr }
 %apply float { gfloat }
 %apply double { gdouble }
 
