@@ -18,6 +18,7 @@
 #define G_GNUC_PRINTF(a,b)
 #define G_GNUC_NO_INSTRUMENT
 #define G_GNUC_CONST
+#define G_GNUC_INTERNAL
 
 %apply int { gboolean, gint }
 %apply unsigned int { GType, guint, gsize, GstFormat }
