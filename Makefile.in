@@ -821,8 +821,8 @@ install-man:
 
 install-info:	doc
 		$(MKDIR) -p $(infodir)
-		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/gforth.info
-		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/vmgen.info
+		$(INSTALL_INFO) --info-dir=$(infodir) doc/gforth.info $(infodir)/gforth.info
+		$(INSTALL_INFO) --info-dir=$(infodir) doc/vmgen.info $(infodir)/vmgen.info
 
 install-html:	html
 		$(MKDIR) -p $(htmldir)/html
