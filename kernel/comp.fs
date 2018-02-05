@@ -400,7 +400,8 @@ opt: drop @ (comp-to) ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
     Header  ['] on vtcopy
-    parse-name find-name dup A,
+    parse-name find-name dup 0= #-13 and throw
+    dup A,
     dup compile-only? IF  compile-only  THEN  name>int lastcfa !
     ['] s>int set->int ['] s>comp set->comp ['] s-to set-to reveal ;
 

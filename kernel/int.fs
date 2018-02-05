@@ -572,8 +572,8 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 \ ticks in interpreter
 
 : '-error ( nt -- nt )
-    dup rectype-null = -#13 and throw
-    rectype-name  <> -#2053 and throw ;
+    dup rectype-null = #-13 and throw
+    rectype-name  <> #-2053 and throw ;
 
 : (') ( "name" -- nt ) \ gforth
     parse-name name-too-short? forth-recognizer recognize '-error ;
