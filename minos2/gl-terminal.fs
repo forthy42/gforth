@@ -31,6 +31,7 @@ GL_FRAGMENT_SHADER shader: TerminalShader
 uniform vec3 u_LightPos;        // The position of the light in eye space.
 uniform sampler2D u_Texture;    // The input texture.
 uniform float u_Ambient;        // ambient lighting level
+uniform vec4 u_Coloradd;        // color bias for texture
 uniform sampler2D u_Charmap;    // The character map
 uniform sampler2D u_Colormap;   // the available colors
 uniform vec2 u_texsize;         // the screen texture size
@@ -44,22 +45,6 @@ varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
 // The entry point for our fragment shader.
 void main()
 {
-    // Will be used for attenuation.
-    float distance = length(u_LightPos - v_Position);
- 
-    // Get a lighting direction vector from the light to the vertex.
-    vec3 lightVector = normalize(u_LightPos - v_Position);
- 
-    // Calculate the dot product of the light vector and vertex normal. If the normal and light vector are
-    // pointing in the same direction then it will get max illumination.
-    float diffuse = max(dot(v_Normal, lightVector), 0.0);
- 
-    // Add attenuation.
-    diffuse = diffuse * (1.0 / (1.0 + (0.10 * distance)));
- 
-    // Add ambient lighting
-    diffuse = (diffuse * ( 1.0 - u_Ambient )) + u_Ambient;
- 
     vec4 chartex = texture2D(u_Charmap, v_TexCoordinate);
     vec4 fgcolor = texture2D(u_Colormap, vec2(chartex.z, 0.));
     vec4 bgcolor = texture2D(u_Colormap, vec2(chartex.w, 0.));
@@ -67,9 +52,28 @@ void main()
     // mix background and foreground colors by character ROM alpha value
     // and multiply by diffuse
     vec4 pixel = texture2D(u_Texture, charxy);
-    gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0)*(bgcolor*(1.0-pixel.a) + fgcolor*pixel.a);
-    // gl_FragColor = diffuse*mix(bgcolor, fgcolor, pixel.a);
-    // gl_FragColor = (v_Color * diffuse * pixcolor);
+    if(u_Ambient != 1.0) {
+        // Will be used for attenuation.
+        float distance = length(u_LightPos - v_Position);
+ 
+        // Get a lighting direction vector from the light to the vertex.
+        vec3 lightVector = normalize(u_LightPos - v_Position);
+ 
+        // Calculate the dot product of the light vector and vertex normal. If the normal and light vector are
+        // pointing in the same direction then it will get max illumination.
+        float diffuse = max(dot(v_Normal, lightVector), 0.0);
+        diffuse = diffuse * diffuse;
+ 
+        // Add attenuation.
+        diffuse = diffuse * (1.0 / (1.0 + (0.10 * distance * distance)));
+ 
+        // Add ambient lighting
+        diffuse = (diffuse * (1.0 - u_Ambient)) + u_Ambient;
+ 
+        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0)*(bgcolor*(1.0-pixel.a) + fgcolor*pixel.a);
+    } else {
+        gl_FragColor = bgcolor*(1.0-pixel.a) + fgcolor*pixel.a;
+    }
 }
 
 0 Value Charmap
