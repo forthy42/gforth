@@ -31,6 +31,7 @@ GL_FRAGMENT_SHADER shader: TerminalShader
 uniform vec3 u_LightPos;        // The position of the light in eye space.
 uniform sampler2D u_Texture;    // The input texture.
 uniform float u_Ambient;        // ambient lighting level
+uniform float u_Saturate;       // ambient lighting level
 uniform vec4 u_Coloradd;        // color bias for texture
 uniform sampler2D u_Charmap;    // The character map
 uniform sampler2D u_Colormap;   // the available colors
@@ -52,6 +53,12 @@ void main()
     // mix background and foreground colors by character ROM alpha value
     // and multiply by diffuse
     vec4 pixel = texture2D(u_Texture, charxy);
+    vec4 col = bgcolor*(1.0-pixel.a) + fgcolor*pixel.a;
+    if(u_Saturate != 1.0) {
+        float mid = (col.r + col.g + col.b) * 0.333333333333;
+        vec3 mid3 = vec3(mid, mid, mid);
+        col.rgb = (u_Saturate * (col.rgb - mid3)) + mid3;
+    }
     if(u_Ambient != 1.0) {
         // Will be used for attenuation.
         float distance = length(u_LightPos - v_Position);
@@ -70,9 +77,9 @@ void main()
         // Add ambient lighting
         diffuse = (diffuse * (1.0 - u_Ambient)) + u_Ambient;
  
-        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0)*(bgcolor*(1.0-pixel.a) + fgcolor*pixel.a);
+        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0)*col;
     } else {
-        gl_FragColor = bgcolor*(1.0-pixel.a) + fgcolor*pixel.a;
+        gl_FragColor = col;
     }
 }
 
