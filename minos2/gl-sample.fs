@@ -113,7 +113,7 @@ FVariable motion 0.01e motion f!
 
 : gl-sample ( -- )
     [IFDEF] hidekb  hidekb  +config [THEN]
-    [IFDEF] map-win map-win [THEN]
+    [IFDEF] map-win exposed @ 0= IF  map-win  THEN [THEN]
     ['] VertexShader ['] FragmentShader create-program to program
     program init load-textures .info
     tri-loop ;
