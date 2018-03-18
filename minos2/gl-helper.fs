@@ -350,6 +350,7 @@ GL_FRAGMENT_SHADER shader: FragmentShader
 uniform vec3 u_LightPos;        // The position of the light in eye space.
 uniform sampler2D u_Texture;    // The input texture.
 uniform float u_Ambient;        // ambient lighting level
+uniform float u_Saturate;       // saturation component (1.0=original)
 uniform vec4 u_Coloradd;        // color bias for texture
  
 varying vec3 v_Position;        // Interpolated position for this fragment.
@@ -360,7 +361,12 @@ varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
  
 // The entry point for our fragment shader.
 void main() {
-    vec4 texture = texture2D(u_Texture, v_TexCoordinate) + u_Coloradd;
+    vec4 col = v_Color * (texture2D(u_Texture, v_TexCoordinate) + u_Coloradd);
+    if(u_Saturate != 1.0) {
+        float mid = (col.r + col.g + col.b) * 0.333333333333;
+        vec3 mid3 = vec3(mid, mid, mid);
+        col.rgb = (u_Saturate * (col.rgb - mid3)) + mid3;
+    }
     if(u_Ambient != 1.0) {
         // Will be used for attenuation.
         float distance = length(u_LightPos - v_Position);
@@ -380,9 +386,9 @@ void main() {
         diffuse = (diffuse * (1.0 - u_Ambient)) + u_Ambient;
  
         // Multiply the color by the diffuse illumination level and texture value to get final output color.
-        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0) * v_Color * texture;
+        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0) * col;
     } else {
-        gl_FragColor = v_Color * texture;
+        gl_FragColor = col;
     }
 }
 
@@ -392,7 +398,8 @@ void main() {
 0 Value TexScale
 0 Value LightPos
 0 Value Texture
-0 Value ambient
+0 Value Ambient
+0 Value Saturate
 0 Value Coloradd
 0 Value program
 
@@ -413,6 +420,7 @@ GL_FRAGMENT_SHADER shader: oesShader
 uniform vec3 u_LightPos;        // The position of the light in eye space.
 uniform samplerExternalOES u_Texture;
 uniform float u_Ambient;        // ambient lighting level
+uniform float u_Saturate;       // saturation component (1.0=original)
 uniform vec4 u_Coloradd;        // color bias for texture
  
 varying vec3 v_Position;        // Interpolated position for this fragment.
@@ -421,7 +429,12 @@ varying vec4 v_Color;           // This is the color from the vertex shader inte
 varying vec3 v_Normal;          // Interpolated normal for this fragment.
 varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
 void main() {
-    vec4 texture = texture2D(u_Texture, v_TexCoordinate) + u_Coloradd;
+    vec4 col = v_Color * (texture2D(u_Texture, v_TexCoordinate) + u_Coloradd);
+    if(u_Saturate != 1.0) {
+        float mid = (col.r + col.g + col.b) * 0.333333333333;
+        vec3 mid3 = vec3(mid, mid, mid);
+        col.rgb = (u_Saturate * (col.rgb - mid3)) + mid3;
+    }
     if(u_Ambient != 1.0) {
         // Will be used for attenuation.
         float distance = length(u_LightPos - v_Position);
@@ -441,9 +454,9 @@ void main() {
         diffuse = (diffuse * (1.0 - u_Ambient)) + u_Ambient;
  
         // Multiply the color by the diffuse illumination level and texture value to get final output color.
-        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0) * v_Color * texture;
+        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0) * col;
     } else {
-        gl_FragColor = v_Color * texture;
+        gl_FragColor = col;
     }
 }
 
@@ -569,6 +582,9 @@ Create white-texture \ aabbggrr
 : linear-mipmap ( -- )
     GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_LINEAR glTexParameteri
     GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR_MIPMAP_LINEAR glTexParameteri ;
+: cubic-mipmap ( -- )
+    GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_CUBIC_IMG glTexParameteri
+    GL_TEXTURE_2D GL_TEXTURE_MIN_FILTER GL_LINEAR_MIPMAP_LINEAR glTexParameteri ;
 : mipmap ( -- )  linear-mipmap GL_TEXTURE_2D glGenerateMipmap ;
 : nearest ( -- )
     GL_TEXTURE_2D GL_TEXTURE_MAG_FILTER GL_NEAREST glTexParameteri
@@ -655,6 +671,7 @@ require soil-texture.fs
 [THEN]
 
 1 sfloats buffer: ambient%  1.0e ambient% sf!
+1 sfloats buffer: saturate% 1.0e saturate% sf!
 3 sfloats buffer: lightpos-xyz
 0.0e lightpos-xyz sf!
 0.0e lightpos-xyz sfloat+ sf!
@@ -669,6 +686,7 @@ require soil-texture.fs
     dup "u_LightPos"  glGetUniformLocation to LightPos
     dup "u_Texture"   glGetUniformLocation to Texture
     dup "u_Ambient"   glGetUniformLocation to Ambient
+    dup "u_Saturate"  glGetUniformLocation to Saturate
     "u_Coloradd"      glGetUniformLocation to Coloradd ;
 
 0 Value no-texture?
@@ -689,6 +707,7 @@ require soil-texture.fs
 : set-uniforms ( -- )
     Texture 0 glUniform1i
     Ambient 1 ambient% glUniform1fv
+    Saturate 1 saturate% glUniform1fv
     LightPos 1 lightpos-xyz glUniform3fv ;
 : init ( program -- )
     init-program init-glstate ?no-texture
