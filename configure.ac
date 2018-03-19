@@ -1430,9 +1430,11 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype-gl-fsi.c; then
 		    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
+   CPPFLAGS_1="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS `pkg-config --cflags wayland-client`"
    AC_CHECK_LIB(wayland-client,wl_display_connect_to_fd,
-   AC_CHECK_HEADER(wayland/wayland-client.h, SWIGMODULES="$SWIGMODULES wayland.fs"
-		   SWIGLIBS="$SWIGLIBS waylandlib.fs", ,))
+   AC_CHECK_HEADER(wayland-client.h, SWIGMODULES="$SWIGMODULES wayland.fs"
+		   SWIGLIBS="$SWIGLIBS waylandlib.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags wayland-client | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1", ,))
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gps-fsi.c; then
    AC_CHECK_LIB(gps,gps_open,
@@ -1445,12 +1447,16 @@ if test x$has_swig = xyes || test -f $srcdir/unix/vulkan-fsi.c; then
 		   SWIGLIBS="$SWIGLIBS vulkanlib.fs", ,))
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
+   CPPFLAGS_1="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS `pkg-config --cflags harfbuzz`"
    AC_CHECK_LIB(harfbuzz,hb_buffer_create,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
-		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs", ,),
+		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs"
+		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags harfbuzz | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,),
    AC_CHECK_LIB(harfbuzz,hb_buffer_get_direction,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
-		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs", ,), ,-lpng12 -lfreetype)
+		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs"
+		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags harfbuzz | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,), ,-lpng12 -lfreetype)
 		   ,-lpng16 -lfreetype)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
@@ -1467,6 +1473,10 @@ if test x$has_swig = xno; then
 Swig without -forth feature."
 fi
 AC_SUBST(SWIGMODULES)
+
+#remove duplicates
+SWIGINCLUDES=`echo $SWIGINCLUDES | tr ' ' '\n' | sort -u  | tr '\n' ' '`
+
 AC_SUBST(SWIGINCLUDES)
 AC_SUBST(SWIGLIBS)
 
