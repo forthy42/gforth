@@ -8,6 +8,8 @@ install_linux() {
   sudo apt-get install libgles2-mesa-dev
   sudo apt-get install libgl1-mesa-dev
   sudo apt-get install libwayland-dev
+  sudo apt-get install libharfbuzz-dev
+  sudo apt-get install libvulkan-dev
   if [ `uname -m`$M32 = x86_64-m32 ]; then
     sudo apt-get --fix-missing install gcc-multilib libltdl7:i386
   fi
