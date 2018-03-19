@@ -884,7 +884,7 @@ defer reset-dpp
 
 : gforth ( -- )
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2016,2017 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2017 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `help' for basic help"

@@ -1,1 +1,1 @@
-: version-string s" @PACKAGE_VERSION@" ;
+: version-string s" @GFORTH_VERSION@" ;

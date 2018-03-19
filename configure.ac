@@ -195,6 +195,9 @@ AC_ARG_WITH(ditc,
 fi])
 AC_SUBST(DITCENGINE)
 
+GFORTH_VERSION=$PACKAGE_VERSION
+AC_SUBST(GFORTH_VERSION)
+
 AC_ARG_ENABLE(version,
 	AC_HELP_STRING([--disable-version],
 			[  disable multi-version install]),
