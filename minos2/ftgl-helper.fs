@@ -56,15 +56,18 @@ Variable fonts[] \ stack of used fonts
 	text-texscale set-texscale ;
 [THEN]
 
-: open-font ( atlas fontsize addr u -- font )
+: open-font ( atlas rfontsize addr u -- font )
     texture_font_new_from_file
     [IFDEF] texture_font_t-scaletex
 	0 over texture_font_t-scaletex
 	[ sizeof texture_font_t-scaletex 4 = ] [IF] l! [THEN]
+	[ sizeof texture_font_t-scaletex 2 = ] [IF] w! [THEN]
 	[ sizeof texture_font_t-scaletex 1 = ] [IF] c! [THEN]
     [ELSE]
 	dup fonts[] >stack
     [THEN] ;
+
+' texture_font_clone alias clone-font ( rfontsize font -- font )
 
 : alpha/rgba ( atlas -- )
     GL_RGBA GL_ALPHA rot texture_atlas_t-depth @ 4 = select ;

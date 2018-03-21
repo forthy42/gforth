@@ -349,16 +349,15 @@ LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BU
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
-MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs			\
-	minos2/jpeg-exif.fs minos2/linux-gl.fs minos2/wayland-gl.fs	\
-	minos2/soil-texture.fs minos2/gl-sample.fs			\
-	minos2/gl-slideshow.fs minos2/ftgl-helper.fs			\
-	minos2/ftgl-sample.fs minos2/widgets.fs minos2/actors.fs	\
-	minos2/x11-actors.fs minos2/android-actors.fs			\
-	minos2/wayland-actors.fs minos2/widgets-test.fs			\
-	minos2/presentation.fs minos2/mts-tools.fs			\
-	minos2/mkv-tools.fs minos2/omx-example.fs minos2/mkv-tags.fs	\
-	minos2/android-recorder.fs minos2/animation.fs minos2/need-x.fs
+MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs minos2/jpeg-exif.fs  \
+	minos2/linux-gl.fs minos2/wayland-gl.fs minos2/soil-texture.fs	    \
+	minos2/gl-sample.fs minos2/gl-slideshow.fs minos2/ftgl-helper.fs    \
+	minos2/ftgl-sample.fs minos2/widgets.fs minos2/actors.fs	    \
+	minos2/x11-actors.fs minos2/android-actors.fs			    \
+	minos2/wayland-actors.fs minos2/widgets-test.fs			    \
+	minos2/presentation.fs minos2/mts-tools.fs minos2/mkv-tools.fs	    \
+	minos2/omx-example.fs minos2/mkv-tags.fs minos2/android-recorder.fs \
+	minos2/animation.fs minos2/need-x.fs minos2/font-style.fs
 
 MINOS2_BIN = minos2/ascii.png minos2/button.png minos2/button2.png	\
 	minos2/button3.png minos2/bad-gateway.png			\
