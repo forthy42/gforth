@@ -320,7 +320,7 @@ Defer screen-ops ' noop IS screen-ops
 ' android-key-ior IS key-ior
 
 : android-deadline ( dtime -- )
-    screen-ops defers deadline ;
+    up@ [ up@ ]L = IF screen-ops THEN  defers deadline ;
 ' android-deadline IS deadline
 
 Defer config-changed

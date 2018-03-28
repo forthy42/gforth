@@ -592,7 +592,7 @@ XSetWindowAttributes buffer: xswa
     +show  key? IF  defers key-ior  EXIT  THEN
     BEGIN  >looper  key? UNTIL  defers key-ior ;
 : x-deadline ( dtime -- )
-    screen-ops defers deadline ;
+    up@ [ up@ ]L = IF screen-ops THEN  defers deadline ;
 ' x-deadline IS deadline
 
 0 warnings !@
