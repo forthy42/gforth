@@ -337,7 +337,8 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     \G for some reason).  This also checks for events in the queue.
     sched_yield ?events ;
 : thread-deadline ( d -- )
-    \G wait until absolute time @var{d}, base is 1970-1-1 0:00 UTC
+    \G wait until absolute time @var{d} in nanoseconds, base is 1970-1-1 0:00
+    \G UTC
     BEGIN  2dup ntime d- 2dup d0> WHILE  stop-dns  REPEAT
     2drop 2drop ;
 ' thread-deadline is deadline

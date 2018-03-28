@@ -368,7 +368,7 @@ previous
     dup 1 = IF  look_chars c@ dup $7F = swap 8 = or +  THEN \ we want the other delete
     ?dup-IF  look_chars swap
     ELSE   look_key l@ x-key>ekey  THEN
-    2dup "\e" str= IF  2drop -1 level# +!  ELSE  inskeys  THEN
+    2dup "\e" str= level# @ 0> and IF  2drop -1 level# +!  ELSE  inskeys  THEN
 ; handler-class to DoKeyPress
 ' noop handler-class to DoKeyRelease
 :noname  0 *input action ! 1 *input pressure !
@@ -587,10 +587,13 @@ XSetWindowAttributes buffer: xswa
     get-atoms  set-hint  set-protocol
     win get-ic ;
 
-: x-key? ( -- flag ) defers key? dup 0= IF screen-ops THEN ;
+: x-key? ( -- flag ) 0 #looper  defers key? dup 0= IF screen-ops THEN ;
 : x-key ( -- key )
     +show  key? IF  defers key-ior  EXIT  THEN
     BEGIN  >looper  key? UNTIL  defers key-ior ;
+: x-deadline ( dtime -- )
+    screen-ops defers deadline ;
+' x-deadline IS deadline
 
 0 warnings !@
 : bye ( -- )
