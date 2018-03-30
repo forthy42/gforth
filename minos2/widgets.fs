@@ -450,6 +450,7 @@ Variable style-i#
 : style: load-style Create , DOES> @ to frame# ;
 
 "button.png" style: button1
+style-i# @ Value slider-frame# \ set the frame number to button2 style
 "button2.png" style: button2
 "button3.png" style: button3
 
@@ -555,9 +556,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : hglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
     1glue [: hglue@ glue* ;] do-childs ;
 : dglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
- 1glue [: dglue@ glue* ;] do-childs ;
+    1glue [: dglue@ glue* ;] do-childs ;
 : vglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
- 1glue [: vglue@ glue* ;] do-childs ;
+    1glue [: vglue@ glue* ;] do-childs ;
 
 ' hglue+ hbox is hglue
 ' dglue* hbox is dglue
@@ -772,6 +773,68 @@ end-class viewport
 : }}vp ( b:n1 .. b:nm glue vp-tex -- viewport ) { g t }
     }} viewport new >o +childs t is vp-tex g to vp-glue o o> ;
 
+\ slider (simple composit object)
+
+tile class \ tile-glue here is the viewport link
+end-class vslider-part \ slider part
+
+:noname w 0g fdup ; vslider-part is hglue
+:noname d 0g fdup ; vslider-part is dglue
+:noname d 0g tile-glue >o h d f+ o> ; vslider-part is vglue
+' frame-draw vslider-part is draw-bg
+
+vslider-part class
+end-class vslider-partu \ upper part
+
+:noname 0g fdup tile-glue .vp-y ; vslider-partu is vglue
+' noop vslider-partu is draw-bg
+
+vslider-part class
+end-class vslider-partd
+
+:noname 0g fdup tile-glue >o vp-h vp-y f- h d f+ f- o> ; vslider-partd is vglue
+' noop vslider-partd is draw-bg
+
+\ vslider
+
+Create vslider-parts
+vslider-partu , vslider-part , vslider-partd ,
+
+tile class \ tile-glue here is the viewport link
+end-class hslider-part \ slider part
+
+:noname d f2* 0g tile-glue .w ; hslider-part is hglue
+:noname h 0g fdup ; hslider-part is vglue
+:noname d 0g fdup ; hslider-part is dglue
+' frame-draw hslider-part is draw-bg
+
+hslider-part class
+end-class hslider-partl \ left part
+
+:noname 0g fdup tile-glue .vp-x ; hslider-partl is hglue
+' noop hslider-partl is draw-bg
+
+hslider-part class
+end-class hslider-partr
+
+:noname 0g fdup tile-glue >o vp-w vp-x f- o> ; hslider-partr is hglue
+' noop hslider-partr is draw-bg
+
+Create hslider-parts
+hslider-partl , hslider-part , hslider-partr ,
+
+\ slider top
+
+$7F7F7FFF Value slider-color
+8e FValue slider-border
+
+: slider { parts viewport-link f: sw f: sd f: sh -- ou os od }
+    parts 3 cells bounds DO
+	I @ new >o slider-frame# to frame#
+	slider-color to frame-color  slider-border to border
+	viewport-link to tile-glue  sw to w  sd to d  sh to h  o o>
+    cell +LOOP ;
+
 \ top widget and actors
 
 0 Value top-widget
@@ -779,6 +842,15 @@ end-class viewport
 
 require actors.fs
 require animation.fs
+
+\ composite objects
+
+: vslider ( viewport-link sw sd -- o )
+    >r {{ glue*1 slider-color slider-border }}frame dup .button3
+    {{ vslider-parts r> 0g slider }}v box[] }}z box[] ;
+: hslider ( viewport-link sd sh -- o )
+    >r {{ glue*1 slider-color slider-border }}frame dup .button3
+    {{ hslider-parts r> 0g frot frot slider }}h box[] }}z box[] ;
 
 : htop-resize ( -- )
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize time( ." resize: " .!time cr ) ;
