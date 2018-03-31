@@ -770,6 +770,9 @@ end-class viewport
 :noname vp-glue .hglue ; viewport to hglue
 :noname vp-glue .dglue ; viewport to dglue
 :noname vp-glue .vglue ; viewport to vglue
+:noname vp-glue .hglue@ ; viewport to hglue@
+:noname vp-glue .dglue@ ; viewport to dglue@
+:noname vp-glue .vglue@ ; viewport to vglue@
 
 : }}vp ( b:n1 .. b:nm glue vp-tex -- viewport ) { g t }
     }} viewport new >o +childs t is vp-tex g to vp-glue o o> ;
@@ -787,13 +790,17 @@ end-class vslider-part \ slider part
 vslider-part class
 end-class vslider-partu \ upper part
 
-:noname 0g fdup tile-glue .vp-y ; vslider-partu is vglue
+vslider-part class
+end-class vslider-partd \ lower part
+
+' 0glue vslider-partu is hglue
+' 0glue vslider-partu is dglue
+:noname 0e fdup tile-glue >o vp-h vp-y f- h d f+ f- o> ; vslider-partu is vglue
 ' noop vslider-partu is draw-bg
 
-vslider-part class
-end-class vslider-partd
-
-:noname 0g fdup tile-glue >o vp-h vp-y f- h d f+ f- o> ; vslider-partd is vglue
+' 0glue vslider-partd is hglue
+' 0glue vslider-partd is dglue
+:noname 0e fdup tile-glue .vp-y ; vslider-partd is vglue
 ' noop vslider-partd is draw-bg
 
 \ vslider
@@ -832,7 +839,7 @@ $7F7F7FFF Value slider-color
 : slider { parts viewport-link f: sw f: sd f: sh -- ou os od }
     parts 3 cells bounds DO
 	I @ new >o slider-frame# to frame#
-	slider-color to frame-color  slider-border to border
+	slider-color to frame-color  slider-border to border  0e to baseline
 	viewport-link to tile-glue  sw to w  sd to d  sh to h  o o>
     cell +LOOP ;
 
