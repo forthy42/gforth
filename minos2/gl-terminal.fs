@@ -476,9 +476,12 @@ Defer scale-me ' terminal-scale-me is scale-me
     1+config screen-ops ;
 : gl-scale ( n -- ) s>f gl-fscale ;
 
-: >changed ( -- )
+: >changed-to ( ms -- ) #1000000 um* ntime d+ { d: t-o }
     +config
-    BEGIN  >looper screen-sync ?config 0= UNTIL ;
+    BEGIN  >looper screen-sync ?config 0=
+    ntime t-o du>= or  UNTIL ;
+
+: >changed ( -- ) #1000 >changed-to ;
 
 : 1*scale   1 gl-scale ;
 : 2*scale   2 gl-scale ;
