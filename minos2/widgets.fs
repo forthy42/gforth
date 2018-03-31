@@ -743,7 +743,8 @@ end-class viewport
     w hglue-c df@ fmax
     fdup vp-w f<> to vp-w
     h d f+ dglue-c df@ vglue-c df@ f+ fmax
-    fdup vp-h f<> to vp-h or IF ['] +sync vp-needed THEN ;
+    fdup vp-h f<> to vp-h
+    or IF ['] +sync vp-needed THEN ;
 ' vp-!size viewport is !size
 
 4 buffer: texwh
