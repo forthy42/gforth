@@ -99,8 +99,8 @@ Variable color $FFC0A0FF color !
     glyph texture_glyph_t-offset_y sl@ y-scale fm* { f: xo f: yo }
     glyph texture_glyph_t-width  @ x-scale fm*
     glyph texture_glyph_t-height @ y-scale fm* { f: w f: h }
-    xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f+ { f: x0 f: y0 }
-    x0 w f+  fround 1/2 f-  y0 h f+  fround 1/2 f+ { f: x1 f: y1 }
+    xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f- { f: x0 f: y0 }
+    x0 w f+                 y0 h f+                { f: x1 f: y1 }
     [IFDEF] texture_font_t-scaletex
 	glyph texture_glyph_t-s0 sf@ { f: s0 }
 	glyph texture_glyph_t-t0 sf@ { f: t0 }

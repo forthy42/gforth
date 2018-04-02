@@ -88,6 +88,20 @@ object class
     method show-you ( -- )
 end-class actor
 
+object class
+    method hglue!@
+    method dglue!@
+    method vglue!@
+    method aidglue0 \ zero glues
+    method aidglue=
+end-class helper-glue
+
+' noop helper-glue is hglue!@
+' noop helper-glue is vglue!@
+' noop helper-glue is dglue!@
+' noop helper-glue is aidglue0
+' true helper-glue is aidglue= \ if equal, no need to rerun
+
 \ dummy methods for empty actor, used for inheritance
 :noname 2drop fdrop fdrop ; actor is clicked
 ' 2drop actor is scrolled
@@ -108,6 +122,7 @@ end-class actor
 object class
     value: parent-w
     value: act
+    value: aidglue \ helper glue for tables
     sfvalue: x
     sfvalue: y
     sfvalue: w
@@ -138,17 +153,24 @@ object class
     method !size \ set your own size
 end-class widget
 
-:noname x y h f- w h d f+ ; widget to xywh
-:noname x y w h d ; widget to xywhd
-' noop widget to !size
-:noname w border f2* f+ kerning f+ 0e fdup ; widget to hglue
-:noname h border borderv f+ raise f+ f+ 0e fdup ; widget to vglue
-:noname d border borderv f+ raise f- f+ 0e fdup ; widget to dglue
+: >hglue!@ ( glue -- glue' )
+    aidglue ?dup-IF  .hglue!@  THEN ;
+: >vglue!@ ( glue -- glue' )
+    aidglue ?dup-IF  .vglue!@  THEN ;
+: >dglue!@ ( glue -- glue' )
+    aidglue ?dup-IF  .dglue!@  THEN ;
+
+:noname x y h f- w h d f+ ; widget is xywh
+:noname x y w h d ; widget is xywhd
+' noop widget is !size
+:noname w border f2* f+ kerning f+ 0e fdup >hglue!@ ; widget is hglue
+:noname h border borderv f+ raise f+ f+ 0e fdup >vglue!@ ; widget is vglue
+:noname d border borderv f+ raise f- f+ 0e fdup >dglue!@ ; widget is dglue
 : widget-resize to d to h to w to y to x ;
-' widget-resize widget to resize
-' hglue widget to hglue@
-' vglue widget to vglue@
-' dglue widget to dglue@
+' widget-resize widget is resize
+' hglue widget is hglue@
+' vglue widget is vglue@
+' dglue widget is dglue@
 
 : dw* ( f -- f' ) dpy-w @ fm* ;
 : dh* ( f -- f' ) dpy-h @ fm* ;
@@ -174,9 +196,12 @@ end-class glue
 : df!- ( addr -- u addr' )  dup df! [ 1 dfloats ]L - ;
 : glue@ ( addr -- t s a )  df@+ df@+ df@ ;
 : glue! ( t s a addr -- )  [ 2 dfloats ]L + df!- df!- df! ;
-:noname hglue-c glue@ ; dup glue to hglue@ glue to hglue
-:noname dglue-c glue@ ; dup glue to dglue@ glue to dglue
-:noname vglue-c glue@ ; dup glue to vglue@ glue to vglue
+:noname hglue-c glue@ ; glue is hglue@
+:noname hglue-c glue@ >hglue!@ ; glue is hglue
+:noname dglue-c glue@ ; glue is dglue@
+:noname dglue-c glue@ >dglue!@ ; glue is dglue
+:noname vglue-c glue@ ; glue is vglue@
+:noname vglue-c glue@ >vglue!@ ; glue is vglue
 
 \ tile widget
 
@@ -186,9 +211,9 @@ widget class
     value: tile-glue \ glue object
 end-class tile
 
-:noname tile-glue .hglue { f: s f: a } border f2* f+ s a ; tile to hglue
-:noname tile-glue .dglue { f: s f: a } border borderv f+ f+ s a ; tile to dglue
-:noname tile-glue .vglue { f: s f: a } border borderv f+ f+ s a ; tile to vglue
+:noname tile-glue .hglue { f: s f: a } border f2* f+ s a >hglue!@ ; tile is hglue
+:noname tile-glue .dglue { f: s f: a } border borderv f+ f+ s a >dglue!@ ; tile is dglue
+:noname tile-glue .vglue { f: s f: a } border borderv f+ f+ s a >vglue!@ ; tile is vglue
 
 8 Value style-w#
 8 Value style-h#
@@ -301,7 +326,8 @@ end-class text
 : text! ( addr u font -- )
     to text-font to text$  +glyphs ;
 : text-text ( -- )
-    x border f+ kerning f+ penxy sf!  y raise f+ penxy sfloat+ sf!
+    x border f+ kerning f+ fround penxy         sf!
+    y             raise f+ fround penxy sfloat+ sf!
     text-font to font  text-color color !
     w border f2* f- kerning f- text-w f/ to x-scale
     text$ render-string ;
@@ -317,21 +343,21 @@ end-class text
     ?glyphs IF
 	text-font to font text$ load-glyph$
     THEN ;
-' text-init text to draw-init
-' text-text text to draw-text
-' text-!size text to !size
+' text-init text is draw-init
+' text-text text is draw-text
+' text-!size text is !size
 :noname text-w border f2* f+ kerning f+
-    text-w text-shrink% f* text-w text-grow% f* ; text to hglue
-:noname h raise f+ 0e fdup ; text to vglue
-:noname d raise f- 0e fdup ; text to dglue
+    text-w text-shrink% f* text-w text-grow% f* >hglue!@ ; text is hglue
+:noname h raise f+ 0e fdup >vglue!@ ; text is vglue
+:noname d raise f- 0e fdup >dglue!@ ; text is dglue
 
 \ emoji
 
 text class
 end-class emoji
 
-' noop emoji to draw-text
-' text-text emoji to draw-emoji
+' noop emoji is draw-text
+' text-text emoji is draw-emoji
 
 \ editable text widget
 
@@ -346,7 +372,7 @@ end-class edit
 	cursize 0= setstring$ $@len and IF
 	    setstring$ $@ load-glyph$
 	THEN
-    THEN ; edit to draw-init
+    THEN ; edit is draw-init
 :noname ( -- )
     cursize 0< ?EXIT  text-font to font
     w border f2* f- text-w f/ { f: scale }
@@ -366,7 +392,7 @@ end-class edit
     x0 y1 >xy dup rgba>c n> 0e 0e >st v+
     x1 y1 >xy     rgba>c n> 1e 0e >st v+
     v> 2 quad
-; edit to draw-marking
+; edit is draw-marking
 $FFFF7FFF Value setstring-color
 : edit-text ( -- )
     x border f+ fround penxy sf!
@@ -396,8 +422,8 @@ $FFFF7FFF Value setstring-color
     border borderv f+ f+ to h
     border borderv f+ f+ to d
     fdup to text-w  border f2* f+ to w ;
-' edit-text edit to draw-text
-' edit-!size edit to !size
+' edit-text edit is draw-text
+' edit-!size edit is !size
 
 : edit! ( addr u font -- )
     text!  text$ nip to curpos  -1 to cursize  -1 to start-curpos ;
@@ -457,11 +483,19 @@ style-i# @ Value slider-frame# \ set the frame number to button2 style
 \ boxes
 
 glue class
-    field: childs[]
+    field: childs[] \ all children
+    field: aidglues[] \ all helper glues which need to be reset
     field: box-flags
     method resized
     method map
 end-class box
+
+: aidglues0 ( -- )
+    aidglues[] $@ bounds U+DO  I @ .aidglue0  cell +LOOP ;
+: aidglues= ( -- flag )
+    true aidglues[] $@ bounds U+DO  I @ .aidglue= and  cell +LOOP ;
+: +aidglue { w^ glue -- }
+    glue cell aidglues[] $+! ;
 
 : do-childs { xt -- .. }
     box-flags @ box-flip# and ?EXIT
@@ -475,21 +509,21 @@ end-class box
     ['] !size do-childs
     hglue hglue-c glue!
     dglue dglue-c glue!
-    vglue vglue-c glue! ; box to !size
+    vglue vglue-c glue! ; box is !size
 
-:noname ( -- ) ['] draw-init      do-childs ; box to draw-init
-:noname ( -- ) ['] draw-bg        do-childs ; box to draw-bg
-:noname ( -- ) ['] draw-icon      do-childs ; box to draw-icon
-:noname ( -- ) ['] draw-thumbnail do-childs ; box to draw-thumbnail
-:noname ( -- ) ['] draw-image     do-childs ; box to draw-image
-:noname ( -- ) ['] draw-text      do-childs ; box to draw-text
-:noname ( -- ) ['] draw-emoji     do-childs ; box to draw-emoji
-:noname ( -- ) ['] draw-marking   do-childs ; box to draw-marking
+:noname ( -- ) ['] draw-init      do-childs ; box is draw-init
+:noname ( -- ) ['] draw-bg        do-childs ; box is draw-bg
+:noname ( -- ) ['] draw-icon      do-childs ; box is draw-icon
+:noname ( -- ) ['] draw-thumbnail do-childs ; box is draw-thumbnail
+:noname ( -- ) ['] draw-image     do-childs ; box is draw-image
+:noname ( -- ) ['] draw-text      do-childs ; box is draw-text
+:noname ( -- ) ['] draw-emoji     do-childs ; box is draw-emoji
+:noname ( -- ) ['] draw-marking   do-childs ; box is draw-marking
 
 :noname ( -- )
     parent-w ?dup-IF  .resized \ upwards
     ELSE  !size xywhd resize     \ downwards
-    THEN ; widget to resized
+    THEN ; widget is resized
 
 : +child ( o -- ) o over >o to parent-w o> childs[] >back ;
 : +childs ( o1 .. on n -- ) childs[] set-stack
@@ -537,14 +571,18 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     IF  g3>2grow  ELSE  g3>2shrink  THEN ;
 
 : glue+ { f: t1 f: s1 f: a1 f: t2 f: s2 f: a2 -- t3 s3 a3 }
+    \G stick two glues together
     t1 t2 f+ s1 s2 f+ a1 a2 f+ ;
 : glue* { f: t1 f: s1 f: a1 f: t2 f: s2 f: a2 -- t3 s3 a3 }
+    \G overlay two glues together 
     t1 t2 fmax
-    t1 s1 f- t2 s2 f- fmax fover f- 0g fmax
+    t1 s1 f- t2 s2 f- fmax fover f- fnegate 0g fmax
     t1 a1 f+ t2 a2 f+ fmin 2 fpick f- 0g fmax ;
+: glue-dup { f: t1 f: s1 f: a1 -- t1 s1 a1 t1 s1 a1 }
+    t1 s1 a1 t1 s1 a1 ;
+: glue-drop ( t s a -- ) fdrop fdrop fdrop ;
 : baseglue ( -- b 0 max )
     baseline 0g 1filll ;
-: glue-drop ( t s a -- ) fdrop fdrop fdrop ;
 
 : hglue+ 0glue box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs ;
 : dglue+ 0glue box-flags @ box-vflip# and ?EXIT
@@ -560,13 +598,19 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : vglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
     1glue [: vglue@ glue* ;] do-childs ;
 
-' hglue+ hbox is hglue
-' dglue* hbox is dglue
-' vglue* hbox is vglue
+' hglue+ hbox is hglue@
+' dglue* hbox is dglue@
+' vglue* hbox is vglue@
+:noname hglue+ >hglue!@ ; hbox is hglue
+:noname dglue* >dglue!@ ; hbox is dglue
+:noname vglue* >vglue!@ ; hbox is vglue
 
-' hglue* vbox is hglue
-' dglue+ vbox is dglue
-' vglue+ vbox is vglue
+' hglue* vbox is hglue@
+' dglue+ vbox is dglue@
+' vglue+ vbox is vglue@
+:noname hglue* >hglue!@ ; vbox is hglue@
+:noname dglue+ >dglue!@ ; vbox is dglue@
+:noname vglue+ >vglue!@ ; vbox is vglue@
 
 ' hglue* zbox is hglue
 ' dglue* zbox is dglue
@@ -582,7 +626,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     \g rd: running remaining pixels
     \g rx: running x
     gp/a  rx to x
-    hglue@ gp/a f0> ?g3>2 +to rg { f: xmin }
+    hglue gp/a f0> ?g3>2 +to rg { f: xmin }
     rg fdup gp/a f*
     fdup rd f- xmin f+  fdup to w  rx f+ ;
 
@@ -590,8 +634,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 \    ." hchild resized: " x f. y f. w f. h f. d f. cr
     y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
-    x y w h d widget-resize
-    hglue@   w border f2* f- { f: wtotal }
+    ( aidglues0 ) x y w h d widget-resize
+    hglue@  aidglues= 0= IF  glue-drop  hglue@  THEN
+    w border f2* f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
     wtotal wmin f- a f/ 0e 0e x ['] hglue-step do-childs
     fdrop fdrop fdrop fdrop
@@ -636,8 +681,12 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 \    ." vchild resized: " x f. y f. w f. h f. d f. cr
     x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
-    x y w h d widget-resize
-    vglue@ dglue@ glue+ h d f+ border borderv f+ f2* f- { f: htotal }
+    ( aidglues0 ) x y w h d widget-resize
+    hglue@ glue-drop  vglue@ dglue@ glue+
+    aidglues= 0= IF  glue-drop  hglue@ glue-drop
+	x y w h d widget-resize
+	vglue@ dglue@ glue+  THEN
+    h d f+ border borderv f+ f2* f- { f: htotal }
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
     htotal hmin f- a f/ 0e 0e
     y border borderv f+ f+ h f- 0e ['] vglue-step do-childs
@@ -670,6 +719,21 @@ $10 stack: box-depth \ this $10 here is no real limit
 : }}h ( n1 .. nm -- hbox ) }} hbox new >o +childs o o> ;
 : }}v ( n1 .. nm -- vbox ) }} vbox new >o +childs o o> ;
 : }}z ( n1 .. nm -- zbox ) }} zbox new >o +childs o o> ;
+
+\ tab helper glues
+
+helper-glue class
+    glues +field htab-c
+    glues +field htab-co
+end-class htab-glue
+
+:noname ( -- )
+    htab-c htab-co glues move
+    0e 1filll fdup htab-c glue! ; htab-glue is aidglue0
+:noname ( -- flag )
+    htab-c glues htab-co over str= ; htab-glue is aidglue=
+:noname ( glue -- glue' )
+    htab-c glue@ glue* glue-dup htab-c glue! ; htab-glue is hglue!@
 
 \ draw everything
 
@@ -711,19 +775,27 @@ end-class viewport
     <draw-emoji     ['] draw-emoji     do-childs render-bgra>
 ;
 
-: <draw-vpinit ( -- )
+1 sfloats buffer: vp-ambient%  1.0e vp-ambient% sf!
+1 sfloats buffer: vp-saturate% 1.0e vp-saturate% sf!
+
+: <draw-vp ( -- )
     vp-h vp-w f>s f>s vp-fb >framebuffer
+    Ambient 1 vp-ambient% glUniform1fv
+    Saturate 1 vp-saturate% glUniform1fv
     0e fdup fdup fdup glClearColor clear
     .01e 100e 100e vp-h vp-w f>s f>s >apwh ;
+: draw-vp> ( -- )
+    Ambient 1 ambient% glUniform1fv
+    Saturate 1 saturate% glUniform1fv
+    -1e 1e >apxy  .01e 100e 100e >ap ;
 
 :noname
     [: ?sync ?config or ;] vp-needed IF
-	<draw-vpinit  ['] draw-init do-childs  draw-init>
+	<draw-vp  ['] draw-init do-childs  draw-init>
 	draw-vpchilds
-	0>framebuffer
-	-1e 1e >apxy  .01e 100e 100e >ap
+	0>framebuffer draw-vp>
 	[: -sync -config ;] vp-needed
-    THEN ; viewport to draw-init
+    THEN ; viewport is draw-init
 :noname ( -- )
     z-bias set-color+ vp-tex
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
@@ -734,7 +806,7 @@ end-class viewport
     x1 y2 >xy dup rgba>c n> s0       t0       >st v+
     x2 y2 >xy     rgba>c n> s0 s1 f+ t0       >st v+
     v> 2 quad
-    render-bgra> ; viewport to draw-image
+    render-bgra> ; viewport is draw-image
 : vp-!size ( -- )
     ['] !size do-childs
     hglue* hglue-c glue!
@@ -760,19 +832,19 @@ end-class viewport
     THEN
     0e vp-h vp-w vp-h 0e vbox-resize
     x y w h d widget-resize
-; viewport to resize
+; viewport is resize
 ' noop viewport is draw-bg
 ' noop viewport is draw-icon
 ' noop viewport is draw-thumbnail
 ' noop viewport is draw-marking
 ' noop viewport is draw-text
 ' noop viewport is draw-emoji
-:noname vp-glue .hglue ; viewport to hglue
-:noname vp-glue .dglue ; viewport to dglue
-:noname vp-glue .vglue ; viewport to vglue
-:noname vp-glue .hglue@ ; viewport to hglue@
-:noname vp-glue .dglue@ ; viewport to dglue@
-:noname vp-glue .vglue@ ; viewport to vglue@
+:noname vp-glue .hglue >hglue!@ ; viewport is hglue
+:noname vp-glue .dglue >dglue!@ ; viewport is dglue
+:noname vp-glue .vglue >vglue!@ ; viewport is vglue
+:noname vp-glue .hglue@ ; viewport is hglue@
+:noname vp-glue .dglue@ ; viewport is dglue@
+:noname vp-glue .vglue@ ; viewport is vglue@
 
 : }}vp ( b:n1 .. b:nm glue vp-tex -- viewport ) { g t }
     }} viewport new >o +childs t is vp-tex g to vp-glue o o> ;

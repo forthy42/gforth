@@ -1,4 +1,4 @@
-\ MINOS2 font style example
+\ MINOS2 font style
 
 \ Copyright (C) 2018 Free Software Foundation, Inc.
 
@@ -63,8 +63,8 @@ Value font-sizes#
 0
 fontshape: \regular
 fontshape: \bold
-fontshape: \italics
-fontshape: \bold-italics
+fontshape: \italic
+fontshape: \bold-italic
 4 Value font-shapes#
 
 \regular
@@ -151,23 +151,25 @@ Vocabulary fonts
 
 get-current also fonts definitions
 
+\ default font selection
+
 \sans
-\regular fonts= LiberationSans-Regular.ttf|NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf
-\italics fonts= LiberationSans-Italic.ttf|NotoSans-Italic.ttf|Roboto-Italic.ttf
-\bold fonts= LiberationSans-Bold.ttf|NotoSans-Bold.ttf|Roboto-Bold.ttf
-\bold-italics fonts= LiberationSans-BoldItalic.ttf|NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf
+\regular fonts= NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf|DejaVuSansCondensed.ttf|LiberationSans-Regular.ttf
+\italic fonts= NotoSans-Italic.ttf|Roboto-Italic.ttf|DejaVuSansCondensed-Oblique.ttf|LiberationSans-Italic.ttf
+\bold fonts= NotoSans-Bold.ttf|Roboto-Bold.ttf|DejaVuSansCondensed-Bold.ttf|LiberationSans-Bold.ttf
+\bold-italic fonts= NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf|DejaVuSansCondensed-BoldOblique.ttf|LiberationSans-BoldItalic.ttf
 
 \serif
-\regular fonts= LiberationSerif-Regular.ttf|NotoSerif-Regular.ttf
-\bold fonts= LiberationSerif-Bold.ttf|NotoSerif-Bold.ttf
-\italics fonts= LiberationSerif-Italic.ttf|NotoSerif-Italic.ttf
-\bold-italics fonts= LiberationSerif-BoldItalic.ttf|NotoSerif-BoldItalic.ttf|
+\regular fonts= NotoSerif-Regular.ttf|LiberationSerif-Regular.ttf
+\bold fonts= NotoSerif-Bold.ttf|LiberationSerif-Bold.ttf
+\italic fonts= NotoSerif-Italic.ttf|LiberationSerif-Italic.ttf
+\bold-italic fonts= NotoSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf
 
 \mono
 \regular fonts= LiberationMono-Regular.ttf|DroidSansMono.ttf
-\bold fonts= LiberationMono-Bold.ttf|DroidSansMono.ttf|
-\italics fonts= LiberationMono-Italic.ttf|DroidSansMono.ttf
-\bold-italics fonts= LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
+\bold fonts= LiberationMono-Bold.ttf|DroidSansMono.ttf
+\italic fonts= LiberationMono-Italic.ttf|DroidSansMono.ttf
+\bold-italic fonts= LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
 \chinese \sans \regular
 [IFDEF] android
