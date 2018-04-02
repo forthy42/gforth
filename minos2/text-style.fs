@@ -111,3 +111,14 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
 : vt{{ htab-glue new to bx-tab {{ ;
 : }}vt \ vertical box with tab
     }}v >o bx-tab +aidglue o o> box[] ;
+
+\ high level style
+
+: /title ( addr u -- )
+    \huge cbl \sans \latin \bold dark-blue }}text /center blackish
+    \normal \regular x-baseline 80% f* to x-baseline ;
+: /subtitle ( addr u -- ) \small dark-blue }}text /center blackish \normal ;
+: /author ( addr u -- ) \normal \large \bold dark-blue }}text /center blackish
+    \normal \regular \skip ;
+: /location ( addr u -- ) \normal  dark-blue }}text /center blackish \normal ;
+: /subsection ( addr u -- ) \normal \bold dark-blue \\ blackish \normal \regular ;
