@@ -1182,7 +1182,7 @@ optgforth-fast:
 
 gforth-native$(OPT)$(EXT):	engines-fast
 	$(CP) engine/$@ $@
-	-$(MASSAGE_EXE) $@
+	$(MASSAGE_EXE) $@ || true
 	$(DOSTRIP) $@
 #@GFORTHX_EXE@
 
@@ -1240,17 +1240,17 @@ optlibgforth-fast2:
 libgforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) libgforth-itc$(EXT) $(MAKELINE-noll)
 		$(LN_S) engine/$@ $@
-		-$(MASSAGE_EXE) $@
+		$(MASSAGE_EXE) $@ || true
 
 libgforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) libgforth-ditc$(EXT) $(MAKELINE-noll)
 		$(LN_S) engine/$@ $@
-		-$(MASSAGE_EXE) $@
+		$(MASSAGE_EXE) $@ || true
 
 libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) libgforth-prof$(EXT) $(MAKELINE-noll)
 		$(LN_S) engine/$@ $@
-		-$(MASSAGE_EXE) $@
+		$(MASSAGE_EXE) $@ || true
 
 .PHONY: libgforths
 libgforths:	$(LIBENGINES) $(LIBENGINES_FAST)

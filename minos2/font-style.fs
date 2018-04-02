@@ -17,6 +17,107 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+\ font array
+
+Variable font[]     \ array of fonts
+Variable fontname[] \ array of fontnames
+
+0 Value font-size
+0 Value font-shape
+0 Value font-family
+0 Value font-lang
+
+12e FValue font-size# \ basic font size
+16e FValue baseline#  \ basic baseline size
+
+: fontsize: ( n "name" -- n+1 )
+    Create dup , 1+ DOES> @ to font-size ;
+: fontshape: ( n "name" -- n+1 )
+    Create dup , 1+ DOES> @ to font-shape ;
+: fontfamily: ( n "name" -- n+1 )
+    Create dup , 1+ DOES> @ to font-family ;
+: fontlang: ( n "name" -- n+1 )
+    Create dup , 1+ DOES> @ to font-lang ;
+
+Create font-size%
+100% f, 50% f, 70% f, 80% f, 90% f, 140% f, 200% f,
+DOES> ( n -- ) swap floats + f@ ;
+
+: current-font-size% ( -- float )
+    font-size# font-size font-size% f* fround ;
+: current-baseline% ( -- float )
+    baseline# font-size font-size% f* fround ;
+
+0
+fontsize: \normal
+fontsize: \tiny
+fontsize: \script
+fontsize: \footnote
+fontsize: \small
+fontsize: \large
+fontsize: \huge
+Value font-sizes#
+
+\normal
+
+0
+fontshape: \regular
+fontshape: \bold
+fontshape: \italics
+fontshape: \bold-italics
+4 Value font-shapes#
+
+\regular
+
+0
+fontfamily: \sans
+fontfamily: \serif
+fontfamily: \mono
+Value font-families#
+
+\sans
+
+0
+fontlang: \latin
+fontlang: \chinese
+fontlang: \emoji
+Value font-langs#
+
+\latin
+
+: font[]# ( -- n ) \ size of font array
+    font-sizes# font-shapes# font-families# font-langs# * * * ;
+: fontnames[]# ( -- n ) \ size of font array
+    font-shapes# font-families# font-langs# * * ;
+
+: font-index ( size -- index )
+    font-langs#    * font-lang   +
+    font-families# * font-family +
+    font-shapes#   * font-shape  + ;
+
+: fontname@ ( -- addr )
+    0 font-index fontname[] $[] ;
+
+: fonts! ( addr -- ) \ set current font for all sizes
+    font-sizes# 0 U+DO
+	dup I font-index font[] $[] !
+	I 1+ I' <> IF
+	    I 1+ font-size% font-size# f* fround clone-font  THEN
+    LOOP  drop ;
+
+: font@ ( -- addr )
+    font-size font-index font[] $[]
+    dup @ 0= IF
+	atlas-bgra atlas font-lang [ ' \emoji >body @ ]L = select
+	fontname@ $@ 2dup d0= IF
+	    ." font matrix: " font-lang . font-family . font-shape . cr
+	    true abort" No font specified"
+	THEN
+	font-size# 0 font-size% f* fround open-font fonts!
+    THEN  @ ;
+
+\ font paths
+
 Variable font-path
 : font-path+ ( "font" -- )
     parse-name 2dup open-dir 0= IF
@@ -30,7 +131,8 @@ Variable font-path
     THEN ;
 : fonts= ( "font1|font2|..." -- addr u )
     parse-name  BEGIN  dup  WHILE  '|' $split 2swap ?font  UNTIL  2nip
-    ELSE  true abort" No suitable font found"  THEN  save-mem ;
+    ELSE  true abort" No suitable font found"  THEN
+    fontname@ $! ;
 
 [IFDEF] android
     font-path+ /system/fonts
@@ -51,50 +153,32 @@ Vocabulary fonts
 
 get-current also fonts definitions
 
-fonts= NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf|LiberationSans-Regular.ttf
-2Value sans
+\sans
+\regular fonts= LiberationSans-Regular.ttf|NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf
+\italics fonts= LiberationSans-Italic.ttf|NotoSans-Italic.ttf|Roboto-Italic.ttf
+\bold fonts= LiberationSans-Bold.ttf|NotoSans-Bold.ttf|Roboto-Bold.ttf
+\bold-italics fonts= LiberationSans-BoldItalic.ttf|NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf
 
-fonts= NotoSans-Italic.ttf|LiberationSans-Italic.ttf|Roboto-Italic.ttf
-2Value sans-i
+\serif
+\regular fonts= LiberationSerif-Regular.ttf|NotoSerif-Regular.ttf
+\bold fonts= LiberationSerif-Bold.ttf|NotoSerif-Bold.ttf
+\italics fonts= LiberationSerif-Italic.ttf|NotoSerif-Italic.ttf
+\bold-italics fonts= LiberationSerif-BoldItalic.ttf|NotoSerif-BoldItalic.ttf|
 
-fonts= NotoSans-Bold.ttf|LiberationSans-Bold.ttf|Roboto-Bold.ttf
-2Value sans-b
+\mono
+\regular fonts= LiberationMono-Regular.ttf|DroidSansMono.ttf
+\bold fonts= LiberationMono-Bold.ttf|DroidSansMono.ttf|
+\italics fonts= LiberationMono-Italic.ttf|DroidSansMono.ttf
+\bold-italics fonts= LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
-fonts= NotoSans-BoldItalic.ttf|LiberationSans-BoldItalic.ttf|Roboto-BoldItalic.ttf
-2Value sans-bi
-
-fonts= NotoSerif-Regular.ttf|LiberationSerif-Regular.ttf
-2Value serif
-
-fonts= NotoSerif-Bold.ttf|LiberationSerif-Bold.ttf
-2Value serif-b
-
-fonts= NotoSerif-Italic.ttf|LiberationSerif-Italic.ttf
-2Value serif-i
-
-fonts= NotoSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf
-2Value serif-bi
-
-fonts= DroidSansMono.ttf|LiberationMono-Regular.ttf
-2Value mono
-
-fonts= DroidSansMono.ttf|LiberationMono-Bold.ttf
-2Value mono-b
-
-fonts= DroidSansMono.ttf|LiberationMono-Italic.ttf
-2Value mono-i
-
-fonts= DroidSansMono.ttf|LiberationMono-BoldItalic.ttf
-2Value mono-bi
-
+\chinese \sans \regular
 [IFDEF] android
     fonts= DroidSansFallback.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
 [ELSE]
     fonts= gkai00mp.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
 [THEN]
-2Value chinese
 
+\emoji
 fonts= SamsungColorEmoji.ttf|NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf
-2Value emoji
 
 previous set-current
