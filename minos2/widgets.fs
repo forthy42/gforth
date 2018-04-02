@@ -49,7 +49,7 @@ FVariable curminchars#
 set-current
 
 $000000FF cursorcolor# !
-$7FFFFF9F selectioncolor# !
+$3F7FFF7F selectioncolor# !
 3e curminwidth% f!
 0 curminchars# !
 

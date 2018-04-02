@@ -149,8 +149,6 @@ Variable font-path
 
 Vocabulary fonts
 
-\ !!FIXME!! create a font matrix: regular/bold/italic/bi, various sizes, various shapes
-
 get-current also fonts definitions
 
 \sans

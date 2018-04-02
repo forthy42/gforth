@@ -96,7 +96,7 @@ false value grab-move? \ set to true to grab moves
     grab-move? IF
 	active-w ?dup-IF  .act .clicked  EXIT  THEN
     THEN
-    fover fover simple-inside? IF
+    fover fover inside? IF
 	o caller-w >o
 	[: { c-act } act IF  fover fover act .inside?
 		IF
@@ -145,6 +145,8 @@ box-actor is clicked
 box-actor class
     field: txy$ \ translated xy$
 end-class vp-actor
+
+:noname caller-w >o vp-h f< vp-w f< and o> ; vp-actor is inside?
 
 : tx ( rx ry -- rx' ry' )
     fswap vp-x f+ x f-
