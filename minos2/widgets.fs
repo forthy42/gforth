@@ -539,6 +539,8 @@ box class end-class zbox \ overlay alignment
 
 : 0glue ( -- t s a ) 0e 0g 0g ;
 : 1glue ( -- t s a ) 0e 0g 1fil ;
+: 1kglue ( -- t s a ) 0e 0g 1fill ;
+: 1Mglue ( -- t s a ) 0e 0g 1filll ;
 
 : .fil[l[l]] ( f -- )
     fdup 1fil f< IF  f.  EXIT  THEN
@@ -551,9 +553,13 @@ box class end-class zbox \ overlay alignment
 : .rec { f: x f: y f: w f: h f: d -- }
     x f. y f. w f. h f. d f. ;
 
-glue new Constant glue*1
+glue new Constant glue*l
+glue new Constant glue*ll
+glue new Constant glue*lll
 glue new Constant glue*2
-glue*1 >o 1glue hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
+glue*l >o 1glue hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
+glue*ll >o 1kglue hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
+glue*lll >o 1Mglue hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue! o>
 
 : g3>2 ( t s a -- min a ) fover f+ { f: a } f- a ;
@@ -910,10 +916,10 @@ require animation.fs
 \ composite objects
 
 : vslider ( viewport-link sw sd -- o )
-    >r {{ glue*1 slider-color slider-border }}frame dup .button3
+    >r {{ glue*l slider-color slider-border }}frame dup .button3
     {{ vslider-parts r> 0g slider }}v box[] }}z box[] ;
 : hslider ( viewport-link sd sh -- o )
-    >r {{ glue*1 slider-color slider-border }}frame dup .button3
+    >r {{ glue*l slider-color slider-border }}frame dup .button3
     {{ hslider-parts r> 0g frot frot slider }}h box[] }}z box[] ;
 
 : htop-resize ( -- )

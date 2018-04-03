@@ -41,13 +41,13 @@ $000000FF Value x-color
 : >bdr ( o -- o' )
     >o font-size# to border o o> ;
 : /center ( o -- o' )
-    >r {{ glue*1 }}glue r> glue*1 }}glue }}h box[] >bl ;
+    >r {{ glue*l }}glue r> glue*l }}glue }}h box[] >bl ;
 : /left ( o -- o' )
-    >r {{ r> glue*1 }}glue }}h box[] >bl ;
+    >r {{ r> glue*l }}glue }}h box[] >bl ;
 : \\ }}text /left ;
-: e\\ }}emoji >r }}text >r {{ r> glue*1 }}glue r> }}h box[] >bl ;
+: e\\ }}emoji >r }}text >r {{ r> glue*l }}glue r> }}h box[] >bl ;
 : /right ( o -- o' )
-    >r {{ glue*1 }}glue r> }}h box[] >bl ;
+    >r {{ glue*l }}glue r> }}h box[] >bl ;
 : /flip ( o -- o )
     >o box-hflip# box-flags ! o o> ;
 : /flop ( o -- o )
@@ -88,7 +88,7 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
 : b\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
     2swap b0 >r
     blackish }}text >r
-    {{ r> r> swap glue*em }}glue }}h box[] >bl ;
+    {{ r> r> swap glue*ll }}glue }}h box[] >bl ;
 : bbe\\ ( addr1 u1 addr2 u2 addr3 u3 -- o ) \ blue black emoji newline
     2rot b0 >r
     2swap blackish }}text >r
