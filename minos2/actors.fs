@@ -112,14 +112,14 @@ box-actor is clicked
 ' simple-inside? box-actor is inside?
 : xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
 :noname ( $xy b -- )
-    over xy@ simple-inside? IF
+    over xy@ inside? IF
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
 		IF  2dup act .touchdown   THEN  THEN
 	    c-act ;] do-childs o> drop
     THEN  2drop ; box-actor is touchdown
 :noname ( $xy b -- )
-    over xy@ simple-inside? IF
+    over xy@ inside? IF
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
 		IF  2dup act .touchup   THEN  THEN
@@ -129,7 +129,7 @@ box-actor is clicked
     grab-move? IF
 	active-w ?dup-IF  .act .touchmove  EXIT  THEN
     THEN
-    over xy@ simple-inside? IF
+    over xy@ inside? IF
 	o caller-w >o
 	[: { c-act } act IF  over xy@ act .inside?
 		IF  2dup act .touchmove  THEN  THEN

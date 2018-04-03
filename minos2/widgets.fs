@@ -590,23 +590,17 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : vglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
     1glue [: vglue@ glue* ;] do-childs ;
 
-' hglue+ hbox is hglue@
-' dglue* hbox is dglue@
-' vglue* hbox is vglue@
 :noname hglue+ >hglue!@ ; hbox is hglue
 :noname dglue* >dglue!@ ; hbox is dglue
 :noname vglue* >vglue!@ ; hbox is vglue
 
-' hglue* vbox is hglue@
-' dglue+ vbox is dglue@
-' vglue+ vbox is vglue@
-:noname hglue* >hglue!@ ; vbox is hglue@
-:noname dglue+ >dglue!@ ; vbox is dglue@
-:noname vglue+ >vglue!@ ; vbox is vglue@
+:noname hglue* >hglue!@ ; vbox is hglue
+:noname dglue+ >dglue!@ ; vbox is dglue
+:noname vglue+ >vglue!@ ; vbox is vglue
 
-' hglue* zbox is hglue
-' dglue* zbox is dglue
-' vglue* zbox is vglue
+:noname hglue* >hglue!@ ; zbox is hglue
+:noname dglue* >dglue!@ ; zbox is dglue
+:noname vglue* >vglue!@ ; zbox is vglue
 
 \ add glues up for hboxes
 
@@ -618,7 +612,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     \g rd: running remaining pixels
     \g rx: running x
     gp/a  rx to x
-    hglue gp/a f0> ?g3>2 +to rg { f: xmin }
+    hglue@ gp/a f0> ?g3>2 +to rg { f: xmin }
     rg fdup gp/a f*
     fdup rd f- xmin f+  fdup to w  rx f+ ;
 
@@ -627,7 +621,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    hglue@  w border f2* f- { f: wtotal }
+    hglue+  w border f2* f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
     wtotal wmin f- a f/ 0e 0e x ['] hglue-step do-childs
     fdrop fdrop fdrop fdrop
@@ -673,7 +667,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    hglue@ glue-drop  vglue@ dglue@ glue+
+    hglue* glue-drop  vglue+ dglue+ glue+
     h d f+ border borderv f+ f2* f- { f: htotal }
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
     htotal hmin f- a f/ 0e 0e
