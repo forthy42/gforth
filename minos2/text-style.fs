@@ -110,7 +110,7 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
     "X" }}text >o font-size# -10% f* to kerning o o> ;
 : vt{{ htab-glue new to bx-tab {{ ;
 : }}vt \ vertical box with tab
-    }}v >o bx-tab +aidglue o o> box[] ;
+    }}v box[] ;
 
 \ high level style
 

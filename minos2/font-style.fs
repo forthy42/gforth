@@ -29,6 +29,7 @@ Variable fontname[] \ array of fontnames
 
 12e FValue font-size# \ basic font size
 16e FValue baseline#  \ basic baseline size
+1e FValue pixelsize#  \ basic pixel size
 
 : fontsize: ( n "name" -- n+1 )
     Create dup , 1+ DOES> @ to font-size ;

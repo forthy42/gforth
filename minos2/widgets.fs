@@ -484,18 +484,10 @@ style-i# @ Value slider-frame# \ set the frame number to button2 style
 
 glue class
     field: childs[] \ all children
-    field: aidglues[] \ all helper glues which need to be reset
     field: box-flags
     method resized
     method map
 end-class box
-
-: aidglues0 ( -- )
-    aidglues[] $@ bounds U+DO  I @ .aidglue0  cell +LOOP ;
-: aidglues= ( -- flag )
-    true aidglues[] $@ bounds U+DO  I @ .aidglue= and  cell +LOOP ;
-: +aidglue { w^ glue -- }
-    glue cell aidglues[] $+! ;
 
 : do-childs { xt -- .. }
     box-flags @ box-flip# and ?EXIT
@@ -634,9 +626,8 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 \    ." hchild resized: " x f. y f. w f. h f. d f. cr
     y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
-    ( aidglues0 ) x y w h d widget-resize
-    hglue@  aidglues= 0= IF  glue-drop  hglue@  THEN
-    w border f2* f- { f: wtotal }
+    x y w h d widget-resize
+    hglue@  w border f2* f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
     wtotal wmin f- a f/ 0e 0e x ['] hglue-step do-childs
     fdrop fdrop fdrop fdrop
@@ -681,11 +672,8 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 \    ." vchild resized: " x f. y f. w f. h f. d f. cr
     x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
-    ( aidglues0 ) x y w h d widget-resize
+    x y w h d widget-resize
     hglue@ glue-drop  vglue@ dglue@ glue+
-    aidglues= 0= IF  glue-drop  hglue@ glue-drop
-	x y w h d widget-resize
-	vglue@ dglue@ glue+  THEN
     h d f+ border borderv f+ f2* f- { f: htotal }
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
     htotal hmin f- a f/ 0e 0e
@@ -729,11 +717,13 @@ end-class htab-glue
 
 :noname ( -- )
     htab-c htab-co glues move
-    0e 1filll fdup htab-c glue! ; htab-glue is aidglue0
+    1glue htab-c glue! ; htab-glue is aidglue0
 :noname ( -- flag )
     htab-c glues htab-co over str= ; htab-glue is aidglue=
 :noname ( glue -- glue' )
-    htab-c glue@ glue* glue-dup htab-c glue! ; htab-glue is hglue!@
+    htab-c glue@ glue* glue-dup htab-c glue!
+    fdrop fdrop 0g fdup ; \ don't allow shrinking/growing
+htab-glue is hglue!@
 
 \ draw everything
 
