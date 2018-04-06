@@ -320,6 +320,7 @@ fi
 test $ac_export_dynamic = yes && LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
 test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
 AC_MSG_RESULT($ac_export_dynamic)
+AX_GCC_BUILTIN(__builtin___clear_cache)
 
 FAST=no
 ANDROID_EXTRA=""
@@ -481,10 +482,12 @@ Dynamic NC generation disabled."
 		#
 		#Therefore we disable dynamic native code by default:
 		if test -z "$no_dynamic_default"; then
-		    no_dynamic_default=1
-		    AC_MSG_WARN([Disabling default dynamic native code generation (relocation and delay slot issues)])
+		    if test no = $ax_cv_have___builtin___clear_cache; then
+			no_dynamic_default=1
+			AC_MSG_WARN([Disabling default dynamic native code generation (relocation and delay slot issues)])
 			config_warns="$config_warns
 Dynamic Code generation disabled."
+		    fi
 		fi
 		;;
 	alpha*)
@@ -510,16 +513,18 @@ Dynamic Code generation disabled."
 	*)
 		AC_MSG_WARN([Using a generic machine description])
 		AC_MSG_WARN([Assuming C floats and doubles are IEEE floats and doubles (for SF@ DF@ SF! DF!)])
-		AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
 		config_warns="$config_warns
 Generic machine description used."
 		machine=generic
 		#I-cache flushing would be needed for dynamic code generation
 		if test -z $no_dynamic_default; then
-		    no_dynamic_default=1
-		    AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
-		    config_warns="$config_warns
-Dynamic NC generation disabled."
+		    if test no = $ax_cv_have___builtin___clear_cache; then
+			no_dynamic_default=1
+			AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
+			AC_MSG_WARN([Disabling default dynamic native code generation (relocation and delay slot issues)])
+			config_warns="$config_warns
+Dynamic Code generation disabled."
+		    fi
 		fi
 esac
 AC_SUBST(host)

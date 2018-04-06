@@ -26,23 +26,25 @@
 #endif
 
 /* cache flush stuff */
-#if defined(ultrix)
-#include <mips/cachectl.h>
-#elif (defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__))
-# if (SIZEOF_VOID_P == 4)
-#  include <mips/sysarch.h>
+#include "../generic/machine.h"
+
+#ifndef FLUSH_ICACHE
+# if defined(ultrix)
+#  include <mips/cachectl.h>
+# elif (defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__))
+#  if (SIZEOF_VOID_P == 4)
+#   include <mips/sysarch.h>
+#  else
+#   include <mips64/sysarch.h>
+#  endif
 # else
-#  include <mips64/sysarch.h>
-# endif
-#else
 /* works on Irix and Android */
-#include <sys/cachectl.h>
-#endif
+#  include <sys/cachectl.h>
+# endif
 
 #define FLUSH_ICACHE(addr,size) \
 			cacheflush((char *)(addr), (int)(size), BCACHE)
-
-#include "../generic/machine.h"
+#endif
 
 #ifdef FORCE_REG
 #define IPREG asm("$16")

@@ -22,9 +22,11 @@
 #define USE_TOS
 #endif
 
-#define FLUSH_ICACHE(addr,size)		asm("call_pal 0x86") /* imb (instruction-memory barrier) */
-
 #include "../generic/machine.h"
+
+#ifndef FLUSH_ICACHE
+# define FLUSH_ICACHE(addr,size)		asm("call_pal 0x86") /* imb (instruction-memory barrier) */
+#endif
 
 /* code padding */
 #define CODE_ALIGNMENT 16

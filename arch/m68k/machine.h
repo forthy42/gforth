@@ -28,9 +28,10 @@
 /* Clearing the whole cache is a bit drastic, but this is the only
  *    cache control available on the apollo and NeXT
  */
-#if defined(apollo)
+#ifndef FLUSH_ICACHE
+# if defined(apollo)
 #  define FLUSH_ICACHE(addr,size)    cache_$clear()
-#elif defined(__NetBSD__)
+# elif defined(__NetBSD__)
 #  define FLUSH_ICACHE(addr,size)	do {				\
 		register void *addr_ asm("a1") = (addr);		\
 		register int size_ asm("d1") = (size);			\
@@ -39,26 +40,27 @@
 			: "=a" (addr_), "=d" (size_), "=d" (cmd_)	\
 			: "0" (addr_), "1" (size_), "2" (cmd_) : "a0");	\
 	} while (0)
-#elif defined(NeXT) || defined(sun)
+# elif defined(NeXT) || defined(sun)
 #  define FLUSH_ICACHE(addr,size)     asm("trap #2");
-#elif defined(hpux)
+# elif defined(hpux)
 #  include <sys/cache.h>
 #  define FLUSH_ICACHE(addr,size) cachectl(CC_IPURGE,(addr),(size))
-#elif defined(linux)
-#include <asm/cachectl.h>
+# elif defined(linux)
+# include <asm/cachectl.h>
 extern int cacheflush(void *, int, int, size_t);
-#define FLUSH_ICACHE(addr,size) \
+# define FLUSH_ICACHE(addr,size) \
   cacheflush(addr, FLUSH_SCOPE_LINE, FLUSH_CACHE_INSN, (size_t)(size) + 15)
-#elif defined(amigaos)
+# elif defined(amigaos)
 #  define FLUSH_ICACHE(addr,size) \
   asm(" move.l a6,-(sp); \
         move.l _SysBase,a6; \
         jsr -636(a6); \
         move.l (sp)+,a6; \
   ")
-#else
+# else
 #  warning no FLUSH_ICACHE defined.  Dynamic native code generation disabled.
 #  warning CODE words will not work.
+# endif
 #endif
 
 #define ASM_SM_SLASH_REM(d1lo, d1hi, n1, n2, n3) \
