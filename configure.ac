@@ -379,7 +379,6 @@ case "$host_cpu" in
 			AC_LIBOBJ(arm-cacheflush-linux)
 			;;
 		     *)   
-			no_dynamic_default=1
 			AC_LIBOBJ(arm-cacheflush0)
 			AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
 			config_warns="$config_warns
@@ -482,12 +481,10 @@ Dynamic NC generation disabled."
 		#
 		#Therefore we disable dynamic native code by default:
 		if test -z "$no_dynamic_default"; then
-		    if test no = $ax_cv_have___builtin___clear_cache; then
 			no_dynamic_default=1
 			AC_MSG_WARN([Disabling default dynamic native code generation (relocation and delay slot issues)])
 			config_warns="$config_warns
-Dynamic Code generation disabled."
-		    fi
+Dynamic Code generation disabled (relocation and delay slot issues).]"
 		fi
 		;;
 	alpha*)
@@ -519,11 +516,10 @@ Generic machine description used."
 		#I-cache flushing would be needed for dynamic code generation
 		if test -z $no_dynamic_default; then
 		    if test no = $ax_cv_have___builtin___clear_cache; then
-			no_dynamic_default=1
 			AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
-			AC_MSG_WARN([Disabling default dynamic native code generation (relocation and delay slot issues)])
+			AC_MSG_WARN([Disabling default dynamic native code generation (no I-Cache synchronization)])
 			config_warns="$config_warns
-Dynamic Code generation disabled."
+Dynamic Code generation disabled (no I-cache synchronization)."
 		    fi
 		fi
 esac

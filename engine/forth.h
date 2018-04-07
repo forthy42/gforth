@@ -335,11 +335,15 @@ typedef Label *Xt;
 #define CF_NIL	-1
 
 #ifndef FLUSH_ICACHE
+#ifdef HAVE___BUILTIN___CLEAR_CACHE
+#define FLUSH_ICACHE(addr,size) __builtin___clear_cache((void*)(addr),(void*)(addr)+(size_t)(size))
+#else /* !defined(HAVE___BUILTIN___CLEAR_CACHE) */
 #warning flush-icache probably will not work (see manual)
 #	define FLUSH_ICACHE(addr,size)
 #warning no FLUSH_ICACHE, turning off dynamic native code by default
 #undef NO_DYNAMIC_DEFAULT
 #define NO_DYNAMIC_DEFAULT 1
+#endif /* !defined(HAVE___BUILTIN___CLEAR_CACHE) */
 #endif
 
 #ifndef CHECK_PRIM
