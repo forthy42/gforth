@@ -927,21 +927,48 @@ build-libcc-swig:
 		(cd unix; $(MAKE))
 
 check:		gforths	gforth.fi more
-		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT) --no-dynamic" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth-itc$(EXT)" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth-itc$(EXT)" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc$(EXT)" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth-ditc$(EXT)" >/dev/null 2>&1
-		$(MAKE) checkone ENGINE="./gforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone ENGINE="./libgforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT)" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT)" >/dev/null 2>&1
-		$(MAKE) checkone ENGINE="./gforth-fast$(EXT)" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone ENGINE="./libgforth-fast$(EXT)" >/dev/null 2>&1
+		$(MAKE) checkones
 		@echo "*** Check successful ***"
 		./gforth-fast$(EXT) --diag -e '."     in gforth-fast" cr bye'
 		@libbench@./libgforth-fast$(EXT) --diag -e '."     in libgforth-fast" cr bye'
+
+checkones:	checkg checkgi checkgdi checkgf checkgd checkgfd @libbench@checklibg checklibgi checklibgdi checklibgf checklibgd checklibgfd
+
+checklibg:
+		$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT) --no-dynamic" >/dev/null 2>&1
+
+checklibgi:
+		$(MAKE) checkone check-nofast ENGINE="./libgforth-itc$(EXT)" >/dev/null 2>&1
+
+checklibgdi:
+		$(MAKE) checkone check-nofast ENGINE="./libgforth-ditc$(EXT)" >/dev/null 2>&1
+
+checklibgf:
+		$(MAKE) checkone ENGINE="./libgforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
+
+checklibgd:
+		$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT)" >/dev/null 2>&1
+
+checklibgfd:
+		$(MAKE) checkone ENGINE="./libgforth-fast$(EXT)" >/dev/null 2>&1
+
+checkg:
+		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" >/dev/null 2>&1
+
+checkgi:
+		$(MAKE) checkone check-nofast ENGINE="./gforth-itc$(EXT)" >/dev/null 2>&1
+
+checkgdi:
+		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc$(EXT)" >/dev/null 2>&1
+
+checkgf:
+		$(MAKE) checkone ENGINE="./gforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
+
+checkgd:
+		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT)" >/dev/null 2>&1
+
+checkgfd:
+		$(MAKE) checkone ENGINE="./gforth-fast$(EXT)" >/dev/null 2>&1
 
 checkone test: gforth.fi engine/prim-s.i
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
