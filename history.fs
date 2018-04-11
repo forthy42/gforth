@@ -190,12 +190,14 @@ Create prefix-found  0 , 0 ,
 	2drop s" " prefix-off
     THEN ;
 
-: search-prefix  ( addr1 len1 -- addr2 len2 )
+Defer search-prefix
+: simple-search-prefix  ( addr1 len1 -- addr2 len2 )
     0 vocstack $@ bounds cell- swap cell-
     -DO  I cell- 2@ <>
         IF  I @ wordlist-id @ swap  search-voc  THEN
     cell -LOOP
     prefix-string ;
+' simple-search-prefix is search-prefix
 
 : tib-full? ( max span addr pos addr' len' -- max span addr pos addr' len' flag )
     5 pick over 4 pick + u< ;

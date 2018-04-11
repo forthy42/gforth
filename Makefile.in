@@ -268,8 +268,8 @@ GFORTH_FI_SRC2=\
 	obsolete.fs \
 	prelude.fs \
 	quotes.fs \
-	quotedstring.fs \
-	parsedto.fs \
+	rec-string.fs \
+	rec-to.fs \
 	recognizer2.fs \
 	search.fs \
 	see.fs \

@@ -30,4 +30,4 @@ Defer postpone-notfound1 ( addr u -- )
 ' interpret-notfound1 ' compiler-notfound1 ' postpone-notfound1
 rectype: rectype-notfound
 
-rectype-notfound forth-recognizer >back
+' rectype-notfound forth-recognizer >back

@@ -40,3 +40,13 @@ get-recognizers 1+ ' rec-scope -rot set-recognizers
     \G @code{init-gl} in the @code{gui} vocabulary.
     get-current >r also ' execute definitions previous ' execute
     r> set-current ;
+
+: scope-search-prefix ( addr1 len1 -- addr2 len2 )
+    2dup ':' $split dup 0= IF  2drop 2drop  simple-search-prefix  EXIT  THEN
+    2swap find-name dup >does-code [ ' forth >does-code ]L = IF
+	>body wordlist-id @ 0 search-voc prefix-string  2nip
+    ELSE
+	drop 2drop  simple-search-prefix
+    THEN ;
+
+' scope-search-prefix is search-prefix

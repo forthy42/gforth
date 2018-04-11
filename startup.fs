@@ -50,8 +50,8 @@ require table.fs
 require ekey.fs
 require history.fs
 require quotes.fs
-require quotedstring.fs
-require parsedto.fs
+require rec-string.fs
+require rec-to.fs
 require substitute.fs
 require code.fs
 require see.fs

@@ -71,6 +71,8 @@ jni-static: c-open open (I)Landroid/hardware/Camera;
 jni-method: c-lock lock ()V
 jni-method: c-unlock unlock ()V
 jni-method: c-release release ()V
+jni-method: c-cam# getNumberOfCameras ()I
+jni-method: c-orientation setDisplayOrientation (I)V
 
 jni-class: android/hardware/Camera$Parameters
 
