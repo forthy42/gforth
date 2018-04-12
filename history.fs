@@ -281,7 +281,7 @@ Variable vt100-modifier
 	    over + xchar+ over -
 	THEN
 	edit-update
-    ELSE  edit-error  THEN 0 ;
+    ELSE  edit-error  THEN  0 ;
 : (xdel)  ( max span addr pos1 -- max span addr pos2 )
     over + dup xchar- tuck - >r over -
     >edit-rest over r@ + -rot move
@@ -289,8 +289,15 @@ Variable vt100-modifier
 : xdel ( max span addr pos1 -- max span addr pos2 )
     (xdel) edit-update ;
 : ?xdel ( max span addr pos1 -- max span addr pos2 0 )
-    dup  IF  xdel  THEN  0 ;
+    vt100-modifier @ IF
+	BEGIN  dup  WHILE
+		2dup 1- + c@ bl u<= WHILE  (xdel)  REPEAT  THEN
+	BEGIN  dup  WHILE
+		2dup 1- + c@ bl u> WHILE  (xdel)  REPEAT  THEN
+	edit-update
+    ELSE  dup IF   xdel  THEN  THEN  0 ;
 : <xdel> ( max span addr pos1 -- max span addr pos2 0 )
+    vt100-modifier @ IF  ?xdel  EXIT  THEN
     2 pick over <>
     IF  xforw drop xdel  ELSE  edit-error  THEN  0 ;
 : xeof  2 pick over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
@@ -386,7 +393,7 @@ Create std-ekeys
     ' false ,        ' false ,        ' false ,        ' false ,
     ' false ,        ' false ,        ' false ,        ' xreformat ,
     ' xhide ,        ' false ,        ' prev-line ,    ' next-line ,
-    ' (xenter) ,
+    ' ?xdel ,        ' (xenter) ,
 
 : xchar-edit-ctrl ( ekey -- )
     dup mask-shift# rshift 7 and vt100-modifier !
