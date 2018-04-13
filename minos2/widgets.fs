@@ -122,7 +122,6 @@ end-class helper-glue
 object class
     value: parent-w
     value: act
-    value: aidglue \ helper glue for tables
     sfvalue: x
     sfvalue: y
     sfvalue: w
@@ -153,19 +152,12 @@ object class
     method !size \ set your own size
 end-class widget
 
-: >hglue!@ ( glue -- glue' )
-    aidglue ?dup-IF  .hglue!@  THEN ;
-: >vglue!@ ( glue -- glue' )
-    aidglue ?dup-IF  .vglue!@  THEN ;
-: >dglue!@ ( glue -- glue' )
-    aidglue ?dup-IF  .dglue!@  THEN ;
-
 :noname x y h f- w h d f+ ; widget is xywh
 :noname x y w h d ; widget is xywhd
 ' noop widget is !size
-:noname w border f2* f+ kerning f+ 0e fdup >hglue!@ ; widget is hglue
-:noname h border borderv f+ raise f+ f+ 0e fdup >vglue!@ ; widget is vglue
-:noname d border borderv f+ raise f- f+ 0e fdup >dglue!@ ; widget is dglue
+:noname w border f2* f+ kerning f+ 0e fdup ; widget is hglue
+:noname h border borderv f+ raise f+ f+ 0e fdup ; widget is vglue
+:noname d border borderv f+ raise f- f+ 0e fdup ; widget is dglue
 : widget-resize to d to h to w to y to x ;
 ' widget-resize widget is resize
 ' hglue widget is hglue@
@@ -196,12 +188,9 @@ end-class glue
 : df!- ( addr -- u addr' )  dup df! [ 1 dfloats ]L - ;
 : glue@ ( addr -- t s a )  df@+ df@+ df@ ;
 : glue! ( t s a addr -- )  [ 2 dfloats ]L + df!- df!- df! ;
-:noname hglue-c glue@ ; glue is hglue@
-:noname hglue-c glue@ >hglue!@ ; glue is hglue
-:noname dglue-c glue@ ; glue is dglue@
-:noname dglue-c glue@ >dglue!@ ; glue is dglue
-:noname vglue-c glue@ ; glue is vglue@
-:noname vglue-c glue@ >vglue!@ ; glue is vglue
+:noname hglue-c glue@ ; dup glue is hglue@ glue is hglue
+:noname dglue-c glue@ ; dup glue is dglue@ glue is dglue
+:noname vglue-c glue@ ; dup glue is vglue@ glue is vglue
 
 \ tile widget
 
@@ -211,9 +200,9 @@ widget class
     value: tile-glue \ glue object
 end-class tile
 
-:noname tile-glue .hglue { f: s f: a } border f2* f+ s a >hglue!@ ; tile is hglue
-:noname tile-glue .dglue { f: s f: a } border borderv f+ f+ s a >dglue!@ ; tile is dglue
-:noname tile-glue .vglue { f: s f: a } border borderv f+ f+ s a >vglue!@ ; tile is vglue
+:noname tile-glue .hglue { f: s f: a } border f2* f+ s a ; tile is hglue
+:noname tile-glue .dglue { f: s f: a } border borderv f+ f+ s a ; tile is dglue
+:noname tile-glue .vglue { f: s f: a } border borderv f+ f+ s a ; tile is vglue
 
 8 Value style-w#
 8 Value style-h#
@@ -347,9 +336,9 @@ end-class text
 ' text-text text is draw-text
 ' text-!size text is !size
 :noname text-w border f2* f+ kerning f+
-    text-w text-shrink% f* text-w text-grow% f* >hglue!@ ; text is hglue
-:noname h raise f+ 0e fdup >vglue!@ ; text is vglue
-:noname d raise f- 0e fdup >dglue!@ ; text is dglue
+    text-w text-shrink% f* text-w text-grow% f* ; text is hglue
+:noname h raise f+ 0e fdup ; text is vglue
+:noname d raise f- 0e fdup ; text is dglue
 
 \ emoji
 
@@ -485,9 +474,17 @@ style-i# @ Value slider-frame# \ set the frame number to button2 style
 glue class
     field: childs[] \ all children
     field: box-flags
+    value: aidglue \ helper glue for tables
     method resized
     method map
 end-class box
+
+: >hglue!@ ( glue -- glue' )
+    aidglue ?dup-IF  .hglue!@  THEN ;
+: >vglue!@ ( glue -- glue' )
+    aidglue ?dup-IF  .vglue!@  THEN ;
+: >dglue!@ ( glue -- glue' )
+    aidglue ?dup-IF  .dglue!@  THEN ;
 
 : do-childs { xt -- .. }
     box-flags @ box-flip# and ?EXIT

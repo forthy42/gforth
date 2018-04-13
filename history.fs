@@ -297,7 +297,7 @@ Variable vt100-modifier
 	edit-update
     ELSE  dup IF   xdel  THEN  THEN  0 ;
 : <xdel> ( max span addr pos1 -- max span addr pos2 0 )
-    vt100-modifier @ IF  ?xdel  EXIT  THEN
+    vt100-modifier @ IF  ?xdel  EXIT  THEN  \ emacs binds Alt-Del to Alt-Backspace
     2 pick over <>
     IF  xforw drop xdel  ELSE  edit-error  THEN  0 ;
 : xeof  2 pick over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
