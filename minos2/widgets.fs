@@ -362,7 +362,7 @@ end-class edit
 	    setstring$ $@ load-glyph$
 	THEN
     THEN ; edit is draw-init
-:noname ( -- )
+: edit-marking ( -- )
     cursize 0< ?EXIT  text-font to font
     w border f2* f- text-w f/ { f: scale }
     text$ curpos umin layout-string fdrop fdrop
@@ -380,8 +380,8 @@ end-class edit
     x1 y0 >xy dup rgba>c n> 0e 1e >st v+
     x0 y1 >xy dup rgba>c n> 0e 0e >st v+
     x1 y1 >xy     rgba>c n> 1e 0e >st v+
-    v> 2 quad
-; edit is draw-marking
+    v> 2 quad ;
+' edit-marking edit is draw-marking
 $FFFF7FFF Value setstring-color
 : edit-text ( -- )
     x border f+ fround penxy sf!
@@ -416,6 +416,44 @@ $FFFF7FFF Value setstring-color
 
 : edit! ( addr u font -- )
     text!  text$ nip to curpos  -1 to cursize  -1 to start-curpos ;
+
+\ password editor
+
+edit class
+    cvalue: pw-mode \ 0: hidden, 1: show last char, 2: reveal
+end-class pw-edit
+
+'●' Value pw-char
+
+Variable *insflag
+0 Value *cursor
+
+: text$->* ( -- oldtext$ )
+    text$ over *cursor +  0 addr text$ !@ >r
+    [: { cursor } bounds ?DO
+	  I c@ $C0 $80 within IF
+	      I cursor = IF
+		  *insflag @ IF
+		      I dup xchar+ over - type
+		  ELSE  pw-char xemit  THEN
+		  text$ nip to curpos
+	      ELSE  pw-char xemit  THEN
+	  THEN
+      LOOP ;] addr text$ $exec
+    r> ;
+
+: pw-xt { xt -- }
+    curpos >r
+    pw-mode dup 0= IF  *insflag off  THEN
+    2 < IF
+	text$ curpos umin x\string- nip to *cursor
+	text$->* >r xt catch r> addr text$ $!buf
+	r> to curpos
+	throw
+    ELSE  xt execute  THEN ;
+:noname ( -- ) ['] edit-text pw-xt ;  pw-edit is draw-text
+:noname ( -- ) ['] edit-!size pw-xt ; pw-edit is !size
+:noname ( -- ) ['] edit-marking pw-xt ; pw-edit is draw-marking
 
 \ draw wrapper
 

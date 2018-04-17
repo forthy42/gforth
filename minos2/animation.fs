@@ -43,8 +43,9 @@ end-class animation
 : animations ( -- ) time( ." anim:  " .!time cr ) 
     ftime { f: now }
     anims@ 0 ?DO
-	>o now anim-t IF  o anims[] >stack  THEN
-	ani-addr animate o>
+	>o now anim-t IF
+	    o anims[] >stack ani-addr animate
+	ELSE  ani-addr animate dispose  THEN  o>
     LOOP ;
 : anim-start ( -- )
     anims@ 0 ?DO
@@ -54,8 +55,23 @@ end-class animation
 : anim-end ( -- )
     anims@ 0 ?DO
 	>o ani-delta f0< IF  0e  ELSE  1e  THEN
-	ani-addr animate o>
+	ani-addr animate dispose o>
     LOOP ;
+
+\ edit animation
+
+0.5e fvalue *instime
+
+: *anim-ins ( addr -- )
+    1e f= IF  *insflag off +sync  THEN  drop ;
+: *anim-end ( -- )
+    anims@ 0 ?DO
+	>o action-of animate ['] *anim-ins = IF  dispose  THEN  o>
+    LOOP ;
+:noname ( -- )
+    *anim-end *insflag on
+    *instime *insflag ['] *anim-ins >animate ;
+is anim-ins
 
 \ helper for animation
 

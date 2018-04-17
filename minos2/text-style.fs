@@ -38,6 +38,9 @@ $000000FF Value x-color
     r> to font-lang ;
 : }}edit ( addr u -- o )
     edit new >o font@ edit! x-color to text-color  x-border to border o o> ;
+: }}pw ( addr u -- o )
+    pw-edit new >o font@ edit! x-color to text-color  x-border to border
+    1 to pw-mode  o o> ;
 : >bdr ( o -- o' )
     >o font-size# to border o o> ;
 : /center ( o -- o' )

@@ -251,7 +251,10 @@ end-class edit-actor
 : edit-del ( max span addr pos1 -- max span addr pos1 false )
     xselw 0> IF  edit-cut  ELSE  <xdel>  THEN ;
 
+Defer anim-ins
+
 : edit-ins$ ( max span addr pos1 addr u -- max span' addr pos1' )
+    anim-ins
     xselw 0> IF  save-mem 2>r edit-cut drop 2r@ insert-string
 	2r> drop free throw
     ELSE  insert-string  THEN ;
@@ -283,9 +286,14 @@ end-class edit-actor
 
 edit-terminal edit-out !
 
+: *xins        anim-ins  defers insert-char ;
+
+' *xins        is insert-char
+
 \ edit things
 
 : edit-xt ( xt o:actor -- )
+    *insflag off
     history >r  >r  0 to history
     edit-w >o addr text$ curpos cursize 0 max o> to xselw
     >r dup edit$ ! $@ swap over swap r>
@@ -326,6 +334,7 @@ edit-terminal edit-out !
 	-1 to start-curpos
     THEN ;
 : start-selection ( fx fy b n -- )
+    *insflag off
     edit-w .start-curpos 0< IF
 	1- 2/ to select-mode
 	drop fdrop edit>curpos  edit-w >o
