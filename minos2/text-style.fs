@@ -21,6 +21,7 @@
 $000000FF Value x-color
 : blackish $000000FF to x-color ;
 : dark-blue $0000bFFF to x-color ;
+: transparent $00000000 to x-color ;
 0e FValue x-border
 : cbl ( -- )
     current-baseline% to x-baseline ;

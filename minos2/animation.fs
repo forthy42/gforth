@@ -60,18 +60,17 @@ end-class animation
 
 \ edit animation
 
-0.5e fvalue *instime
-
 : *anim-ins ( addr -- )
     1e f= *insflag @ and  IF  *insflag off .resized
     ELSE  drop  THEN ;
 : *anim-end ( -- )
     anims@ 0 ?DO
-	>o action-of animate ['] *anim-ins = IF  dispose  THEN  o>
+	>o action-of animate ['] *anim-ins =
+	IF  dispose  ELSE  o anims[] >stack  THEN  o>
     LOOP ;
 :noname ( -- )
     *anim-end *insflag on
-    *instime edit-w .caller-w ['] *anim-ins >animate ;
+    m2c:pwtime% f@ edit-w .caller-w ['] *anim-ins >animate ;
 is anim-ins
 
 \ helper for animation

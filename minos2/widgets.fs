@@ -44,14 +44,16 @@ vocabulary m2c \ minos2 config
 get-current also m2c definitions
 Variable cursorcolor#
 Variable selectioncolor#
+Variable curminchars#
 FVariable curminwidth%
-FVariable curminchars#
+FVariable pwtime%
 set-current
 
 $000000FF cursorcolor# !
 $3F7FFF7F selectioncolor# !
-3e curminwidth% f!
 0 curminchars# !
+1e curminwidth% f!
+0.5e pwtime% f!
 
 previous
 
@@ -314,11 +316,12 @@ end-class text
 
 : text! ( addr u font -- )
     to text-font to text$  +glyphs ;
-: text-text ( -- )
-    x border f+ kerning f+ fround penxy         sf!
+: text-xy! ( -- )
+    x border kerning f+ f+ fround penxy         sf!
     y             raise f+ fround penxy sfloat+ sf!
-    text-font to font  text-color color !
     w border f2* f- kerning f- text-w f/ to x-scale
+    text-font to font  text-color color ! ;
+: text-text ( -- ) text-xy!
     text$ render-string ;
 : text-!size ( -- )
     text-font to font
@@ -335,7 +338,7 @@ end-class text
 ' text-init text is draw-init
 ' text-text text is draw-text
 ' text-!size text is !size
-:noname text-w border f2* f+ kerning f+
+:noname w kerning f+
     text-w text-shrink% f* text-w text-grow% f* ; text is hglue
 :noname h raise f+ 0e fdup ; text is vglue
 :noname d raise f- 0e fdup ; text is dglue
@@ -364,7 +367,7 @@ end-class edit
     THEN ; edit is draw-init
 : edit-marking ( -- )
     cursize 0< ?EXIT  text-font to font
-    w border f2* f- text-w f/ { f: scale }
+    w border f2* f- text-w fdup f0= IF  f*  ELSE   f/  THEN { f: scale }
     text$ curpos umin layout-string fdrop fdrop
     scale f* { f: w }
     setstring$ $@len IF
@@ -383,11 +386,7 @@ end-class edit
     v> 2 quad ;
 ' edit-marking edit is draw-marking
 $FFFF7FFF Value setstring-color
-: edit-text ( -- )
-    x border f+ fround penxy sf!
-    y fround penxy sfloat+ sf!
-    text-font to font  text-color color !
-    w border f2* f- text-w f/ to x-scale
+: edit-text ( -- )  text-xy!
     cursize 0= setstring$ $@len and IF
 	text$ curpos umin render-string
 	setstring-color color !
