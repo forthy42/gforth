@@ -24,16 +24,23 @@ require unix/freetype-gllib.fs
 also freetype-gl
 also opengl
 
+ctx 0= [IF]  window-init  [THEN]
+
 $200 Value atlas#
 $100 Value atlas-bgra#
 
-atlas# dup 1 texture_atlas_new Value atlas
-atlas-bgra# dup 4 texture_atlas_new Value atlas-bgra
-
+0 Value atlas
+0 Value atlas-bgra
 tex: atlas-tex
-atlas-tex current-tex atlas texture_atlas_t-id l!
 tex: atlas-tex-bgra \ for color emojis
-atlas-tex-bgra current-tex atlas-bgra texture_atlas_t-id l!
+
+: init-atlas
+    atlas#      dup 1 texture_atlas_new to atlas
+    atlas-bgra# dup 4 texture_atlas_new to atlas-bgra
+    atlas-tex      current-tex atlas      texture_atlas_t-id l!
+    atlas-tex-bgra current-tex atlas-bgra texture_atlas_t-id l! ;
+
+init-atlas
 
 Variable fonts[] \ stack of used fonts
 

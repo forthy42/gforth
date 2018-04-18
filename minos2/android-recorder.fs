@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require minos2/gl-helper.fs
+require gl-helper.fs
 require unix/jni-media.fs
 
 debug: video(

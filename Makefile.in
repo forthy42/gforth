@@ -1298,12 +1298,12 @@ install.TAGS:	TAGS install-tags.fs preforth @kernel_fi@
 		sed 's;^\$(srcdir)/;;' TAGS|$(PREFORTH) -e 's" '@datadir@/gforth/$(VERSION)/'"' $(srcdir)/install-tags.fs -e bye >install.TAGS
 
 gforth.TAGS:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_BUILD_SRC) prim.TAGS kernel.TAGS
-		includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) $(FORTHK) etags.fs except.fs startup.fs $(LIBCC_BUILD_NOEC) -e bye
+		includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) $(FORTHK) etags.fs except.fs startup.fs $(LIBCC_BUILD_NOEC) minos2/widgets.fs -e bye
 		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
 		rm TAGS
 
 gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) prim.tags kernel.tags
-		$(FORTHK) tags.fs except.fs startup.fs -e bye
+		$(FORTHK) tags.fs except.fs startup.fs $(LIBCC_BUILD_NOEC) minos2/widgets.fs -e bye
 		cat tags prim.tags kernel.tags >gforth.tags
 		rm tags
 

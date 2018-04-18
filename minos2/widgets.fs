@@ -28,8 +28,8 @@ debug: time(
 [THEN]
 
 require gl-terminal.fs
-ctx 0= [IF] window-init [THEN]
 
+ctx 0= [IF] window-init [THEN]
 require ftgl-helper.fs
 require mini-oof2.fs
 require config.fs

@@ -20,8 +20,7 @@
 require minos2/gl-helper.fs
 require minos2/jpeg-exif.fs
 
-also [IFDEF] android android [THEN]
-also opengl
+also opengl also [IFDEF] android android [THEN]
 
 \ six slides in memory, cyclic wraparound
 

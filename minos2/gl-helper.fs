@@ -871,4 +871,4 @@ Variable last-y0  -100 last-y0 !
     fdup motion f! fdup f0<> IF  xt execute  ELSE  fdrop  THEN
     -100 old ! ;
 
-previous
+previous previous

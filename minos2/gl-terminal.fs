@@ -24,7 +24,7 @@
 require unix/pthread.fs
 require gl-helper.fs
 
-also [IFDEF] android android [THEN]
+also opengl also [IFDEF] android android [THEN]
 
 GL_FRAGMENT_SHADER shader: TerminalShader
 #precision
@@ -538,7 +538,9 @@ err>screen
 
 default-out op-vector !
 
-: >screen  err>screen op-vector @ debug-vector ! out>screen ;
+: >screen ( -- )
+    ctx 0= IF  window-init  THEN
+    err>screen op-vector @ debug-vector ! out>screen ;
 
 \ initialize
 
@@ -554,7 +556,7 @@ default-out op-vector !
 
 [IFDEF] android >black [THEN] \ make black default
 
-window-init
+\ window-init
 
 previous previous \ remove opengl from search order
 
