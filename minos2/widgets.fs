@@ -550,7 +550,9 @@ end-class box
 :noname ( -- )
     parent-w ?dup-IF  .resized \ upwards
     ELSE  !size xywhd resize     \ downwards
-    THEN ; widget is resized
+    THEN ;
+dup widget is resized
+box is resized
 
 : +child ( o -- ) o over >o to parent-w o> childs[] >back ;
 : +childs ( o1 .. on n -- ) childs[] set-stack
@@ -843,6 +845,8 @@ end-class viewport
     fdup vp-h f<> to vp-h
     or IF ['] +sync vp-needed THEN ;
 ' vp-!size viewport is !size
+:noname ( -- )
+    ['] +sync vp-needed [ box :: resized ] ; viewport is resized
 
 4 buffer: texwh
 

@@ -539,7 +539,7 @@ err>screen
 default-out op-vector !
 
 : >screen ( -- )
-    ctx 0= IF  window-init  THEN
+    ctx 0= IF  window-init  [IFDEF] map-win map-win [THEN] config-changer  THEN
     err>screen op-vector @ debug-vector ! out>screen ;
 
 \ initialize
@@ -550,9 +550,9 @@ default-out op-vector !
     create-terminal-program to terminal-program
     terminal-program terminal-init
     s" minos2/ascii.png" term-load-textures form-chooser
-    scale-me [IFDEF] map-win map-win [THEN] ;
+    scale-me ;
 
-:noname  defers window-init term-init config-changer ; IS window-init
+:noname  defers window-init term-init ; IS window-init
 
 [IFDEF] android >black [THEN] \ make black default
 

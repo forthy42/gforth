@@ -63,14 +63,15 @@ end-class animation
 0.5e fvalue *instime
 
 : *anim-ins ( addr -- )
-    1e f= IF  *insflag off +sync  THEN  drop ;
+    1e f= *insflag @ and  IF  *insflag off .resized
+    ELSE  drop  THEN ;
 : *anim-end ( -- )
     anims@ 0 ?DO
 	>o action-of animate ['] *anim-ins = IF  dispose  THEN  o>
     LOOP ;
 :noname ( -- )
     *anim-end *insflag on
-    *instime *insflag ['] *anim-ins >animate ;
+    *instime edit-w .caller-w ['] *anim-ins >animate ;
 is anim-ins
 
 \ helper for animation
