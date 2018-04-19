@@ -27,6 +27,7 @@ debug: time(
     #-512 ENOENT - Constant no-file#
 [THEN]
 
+require i18n.fs \ localization
 require gl-terminal.fs
 
 ctx 0= [IF] window-init [THEN]
@@ -310,8 +311,8 @@ DOES>  swap sfloats + sf@ ;
 widget class
     value: text-color
     sfvalue: text-w
-    $value: text$
     value: text-font
+    $value: text$
 end-class text
 
 : text! ( addr u font -- )
@@ -342,6 +343,21 @@ end-class text
     text-w text-shrink% f* text-w text-grow% f* ; text is hglue
 :noname h raise f+ 0e fdup ; text is vglue
 :noname d raise f- 0e fdup ; text is dglue
+
+\ translated text
+
+text class
+    value: l-text
+end-class i18n-text
+
+: i18n-text-init
+    ?lang   IF
+	l-text locale@ to text$ +glyphs
+    THEN
+    text-init ;
+' i18n-text-init i18n-text is draw-init
+: i18n-text! ( lsid font -- )
+    to text-font to l-text  +lang ;
 
 \ emoji
 

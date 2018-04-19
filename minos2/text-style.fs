@@ -31,8 +31,12 @@ $000000FF Value x-color
     >o x-baseline to baseline o o> cbl ;
 : }}text ( addr u -- o )
     text new >o font@ text! x-color to text-color  x-border to border o o> ;
+: }}i18n-text ( lsid -- o )
+    i18n-text new >o
+    font@ i18n-text! x-color to text-color  x-border to border o o> ;
+Defer }}text' ' }}text IS }}text'
 : }}smalltext ( addr u -- o )
-    font-size >r \script }}text r> to font-size ;
+    font-size >r \script }}text' r> to font-size ;
 : }}emoji ( addr u -- o )
     font-lang >r
     \emoji emoji new >o font@ text! $FFFFFFFF to text-color  x-border to border o o>
@@ -48,8 +52,8 @@ $000000FF Value x-color
     >r {{ glue*l }}glue r> glue*l }}glue }}h box[] >bl ;
 : /left ( o -- o' )
     >r {{ r> glue*l }}glue }}h box[] >bl ;
-: \\ }}text /left ;
-: e\\ }}emoji >r }}text >r {{ r> glue*l }}glue r> }}h box[] >bl ;
+: \\ }}text' /left ;
+: e\\ }}emoji >r }}text' >r {{ r> glue*l }}glue r> }}h box[] >bl ;
 : /right ( o -- o' )
     >r {{ glue*l }}glue r> }}h box[] >bl ;
 : /flip ( o -- o )
@@ -86,26 +90,26 @@ glue new Constant glue*em
 glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 
 : b0 ( addr1 u1 -- o )
-    dark-blue }}text >r
+    dark-blue }}text' >r
     {{ glue*em }}glue r> }}h box[]
-    >o bx-tab to aidglue o o> ;
+    >o bx-tab to aidglue o o>  blackish ;
 : b\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
-    2swap b0 >r
-    blackish }}text >r
-    {{ r> r> swap glue*ll }}glue }}h box[] >bl ;
+    blackish }}text' >r
+    b0 >r
+    {{ r> r> glue*ll }}glue }}h box[] >bl ;
 : bbe\\ ( addr1 u1 addr2 u2 addr3 u3 -- o ) \ blue black emoji newline
-    2rot b0 >r
-    2swap blackish }}text >r
     }}emoji >r
-    {{ r> r> r> swap rot glue*em }}glue }}h box[] >bl ;
+    blackish }}text' >r
+    b0 >r
+    {{ r> r> r> glue*em }}glue }}h box[] >bl ;
 : bi\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
-    2swap b0 >r
-    blackish \italic }}text >r
-    {{ r> r> swap glue*em }}glue }}h box[] >bl \regular ;
+    blackish \italic }}text' >r
+    \regular b0 >r
+    {{ r> r> glue*em }}glue }}h box[] >bl ;
 : bm\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
-    2swap b0 >r
-    blackish \mono }}text >r
-    {{ r> r> swap glue*em }}glue }}h box[] >bl \sans ;
+    blackish \mono }}text' >r
+    b0 >r
+    {{ r> r> glue*em }}glue }}h box[] >bl \sans ;
 : \LaTeX ( -- )
     "L" }}text
     "A" }}smalltext >o font-size# fdup -23% f* to raise -30% f* to kerning o o>
@@ -119,10 +123,15 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
 \ high level style
 
 : /title ( addr u -- )
-    \huge cbl \sans \latin \bold dark-blue }}text /center blackish
+    \huge cbl \sans \latin \bold dark-blue }}text' /center blackish
     \normal \regular x-baseline 80% f* to x-baseline ;
-: /subtitle ( addr u -- ) \small dark-blue }}text /center blackish \normal ;
-: /author ( addr u -- ) \normal \large \bold dark-blue }}text /center blackish
+: /subtitle ( addr u -- ) \small dark-blue }}text' /center blackish \normal ;
+: /author ( addr u -- ) \normal \large \bold dark-blue }}text' /center blackish
     \normal \regular \skip ;
-: /location ( addr u -- ) \normal  dark-blue }}text /center blackish \normal ;
+: /location ( addr u -- ) \normal  dark-blue }}text' /center blackish \normal ;
 : /subsection ( addr u -- ) \normal \bold dark-blue \\ blackish \normal \regular ;
+
+\ mode
+
+: !i18n  ['] }}i18n-text IS }}text' ;
+: !lit   ['] }}text IS }}text' ;
