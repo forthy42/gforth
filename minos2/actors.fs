@@ -88,9 +88,13 @@ false value grab-move? \ set to true to grab moves
 0 value start-cursize \ selection helper
 
 : re-focus { c-act -- }
-    c-act .active-w ?dup-IF  .act .defocus  THEN
+    c-act .active-w ?dup-IF  .act ?dup-IF  .defocus  THEN  THEN
     o c-act >o to active-w o>
-    c-act .active-w ?dup-IF  .act .focus  THEN ;
+    c-act .active-w ?dup-IF  .act ?dup-IF  .focus  THEN  THEN ;
+
+: engage ( object -- )
+    >o parent-w ?dup-IF
+	recurse parent-w .act re-focus  THEN  o> ;
 
 :noname ( rx ry b n -- )
     grab-move? IF
@@ -413,7 +417,8 @@ edit-terminal edit-out !
     THEN
 ; edit-actor is clicked
 
-: edit[] ( o widget -- o )
+: edit[] ( o widget xt -- o ) { xt }
     swap >o edit-actor new to act
-    o act >o to caller-w to edit-w ['] true is edit-enter o> o o> ;
+    o act >o to caller-w to edit-w xt is edit-enter o>
+    o o> ;
 

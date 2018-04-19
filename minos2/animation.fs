@@ -68,7 +68,7 @@ end-class animation
 	>o action-of animate ['] *anim-ins =
 	IF  dispose  ELSE  o anims[] >stack  THEN  o>
     LOOP ;
-:noname ( -- )
+:noname ( -- ) o 0= ?EXIT
     *anim-end *insflag on
     m2c:pwtime% f@ edit-w .caller-w ['] *anim-ins >animate ;
 is anim-ins

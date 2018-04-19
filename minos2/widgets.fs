@@ -450,8 +450,8 @@ Variable *insflag
 	r> to curpos
 	throw
     ELSE  xt execute  THEN ;
-:noname ( -- ) ['] edit-text pw-xt ;  pw-edit is draw-text
-:noname ( -- ) ['] edit-!size pw-xt ; pw-edit is !size
+:noname ( -- ) ['] edit-text    pw-xt ; pw-edit is draw-text
+:noname ( -- ) ['] edit-!size   pw-xt ; pw-edit is !size
 :noname ( -- ) ['] edit-marking pw-xt ; pw-edit is draw-marking
 
 \ draw wrapper
