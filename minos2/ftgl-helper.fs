@@ -190,7 +190,8 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     drop rdrop r> fdrop fdrop ;
 
 : load-glyph$ ( addr u -- )
-    bounds ?DO  font font-select I I' over - texture_font_load_glyphs
+    bounds ?DO  I font font-select nip
+	I I' over - texture_font_load_glyphs
 	dup IF  double-atlas  THEN
 	I' I - swap -
     +LOOP ;
