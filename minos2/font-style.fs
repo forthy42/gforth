@@ -66,7 +66,7 @@ fontshape: \regular
 fontshape: \bold
 fontshape: \italic
 fontshape: \bold-italic
-4 Value font-shapes#
+Value font-shapes#
 
 \regular
 
@@ -86,36 +86,67 @@ Value font-langs#
 
 \latin
 
+\ font load on demand
+
+: font-index ( size -- index )
+    font-families# * font-family +
+    font-shapes#   * font-shape  +
+    font-langs#    * font-lang   + ;
 : font[]# ( -- n ) \ size of font array
     font-sizes# font-shapes# font-families# font-langs# * * * ;
 : fontnames[]# ( -- n ) \ size of font array
     font-shapes# font-families# font-langs# * * ;
 
-: font-index ( size -- index )
-    font-langs#    * font-lang   +
-    font-families# * font-family +
-    font-shapes#   * font-shape  + ;
-
-: fontname@ ( -- addr )
-    0 font-index fontname[] $[] ;
-
-: fonts! ( addr -- ) \ set current font for all sizes
+: fonts! ( font-addr addr -- ) \ set current font for all sizes
+    over 0 font[] $[] - cell/ fontnames[]# mod { idx }
     font-sizes# 0 U+DO
-	dup I font-index font[] $[] !
+	dup I fontnames[]# * idx + font[] $[] !
 	I 1+ I' <> IF
 	    I 1+ font-size% font-size# f* fround clone-font  THEN
     LOOP  drop ;
 
+: fontname@ ( -- addr )
+    0 font-index fontname[] $[] ;
+
+: font-load ( font-addr -- font-addr )
+    dup 0 font[] $[] - cell/ fontnames[]# mod >r \ font index size 0
+    atlas-bgra atlas r@ font-langs# mod [ ' \emoji >body @ ]L = select
+    r@ fontname[] $[]@ 2dup d0= IF
+	." font matrix: " r@ . cr
+	true abort" No font specified"
+    THEN
+    font-size# 0 font-size% f* fround open-font fonts! rdrop ;
+
+: ?font-load ( font-addr -- font-addr )
+    dup @ 0= IF  font-load  THEN ;
+
+\ font selector
+
+: cjk? ( xchar -- xchar flag )
+    \G true if CJK Unified Ideographs
+    dup  $2E80  $A000 within ?dup-IF  EXIT  THEN \ Common
+    dup $20000 $31390 within ?dup-IF  EXIT  THEN \ Ext B-E
+    dup  $F900  $FB00 within ?dup-IF  EXIT  THEN \ Duplicates
+    dup  $FF00  $FFF0 within ; \ fullwidth forms
+
+: emoji? ( xchar -- xchar flag )
+    dup  $2600  $2700 within ?dup-IF  EXIT  THEN \ misc. symbols
+    dup $1F000 $20000 within ;                   \ pictograms
+
+: xc>font ( xc-addr font-addr -- xc-addr font )
+    >r dup xc@
+    cjk?   IF  drop r> cell+ ?font-load @  EXIT  THEN
+\    emoji? IF  drop r> cell+ cell+ ?font-load @  EXIT  THEN
+    drop r> @ ;
+
+' xc>font IS font-select
+\ ' @ IS font-select
+
+\ font indices
+
 : font@ ( -- addr )
     font-size font-index font[] $[]
-    dup @ 0= IF
-	atlas-bgra atlas font-lang [ ' \emoji >body @ ]L = select
-	fontname@ $@ 2dup d0= IF
-	    ." font matrix: " font-lang . font-family . font-shape . cr
-	    true abort" No font specified"
-	THEN
-	font-size# 0 font-size% f* fround open-font fonts!
-    THEN  @ ;
+    dup @ 0= IF  font-load  THEN ;
 
 \ font paths
 
@@ -174,12 +205,21 @@ get-current also fonts definitions
 
 \chinese \sans \regular
 [IFDEF] android
-    fonts= DroidSansFallback.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
+    fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
 [ELSE]
-    fonts= gkai00mp.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
+    fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|gkai00mp.ttf
+[THEN]
+\chinese \sans \bold
+[IFDEF] android
+    fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|DroidSansFallback.ttf
+[ELSE]
+    fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|gkai00mp.ttf
 [THEN]
 
-\emoji
+\emoji \sans \regular
+fonts= SamsungColorEmoji.ttf|NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf
+
+\emoji \sans \bold
 fonts= SamsungColorEmoji.ttf|NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf
 
 previous set-current

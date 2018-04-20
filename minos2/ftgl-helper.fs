@@ -108,18 +108,10 @@ Variable color $FFC0A0FF color !
     glyph texture_glyph_t-height @ y-scale fm* { f: w f: h }
     xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f- { f: x0 f: y0 }
     x0 w f+                 y0 h f+                { f: x1 f: y1 }
-    [IFDEF] texture_font_t-scaletex
-	glyph texture_glyph_t-s0 sf@ { f: s0 }
-	glyph texture_glyph_t-t0 sf@ { f: t0 }
-	glyph texture_glyph_t-s1 sf@ { f: s1 }
-	glyph texture_glyph_t-t1 sf@ { f: t1 }
-    [ELSE]
-	atlas# 2* s>f 1/f { f: fixup }
-	glyph texture_glyph_t-s0 sf@ fixup f- { f: s0 }
-	glyph texture_glyph_t-t0 sf@ fixup f- { f: t0 }
-	glyph texture_glyph_t-s1 sf@ fixup f- { f: s1 }
-	glyph texture_glyph_t-t1 sf@ fixup f- { f: t1 }
-    [THEN]
+    glyph texture_glyph_t-s0 sf@ { f: s0 }
+    glyph texture_glyph_t-t0 sf@ { f: t0 }
+    glyph texture_glyph_t-s1 sf@ { f: s1 }
+    glyph texture_glyph_t-t1 sf@ { f: t1 }
     >v
     x0 y0 >xy n> color @ rgba>c s0 t0 >st v+
     x1 y0 >xy n> color @ rgba>c s1 t0 >st v+
@@ -141,20 +133,22 @@ Variable color $FFC0A0FF color !
     v> 2 quad ;
 
 0 Value font
+Defer font-select ( xcaddr font -- xcaddr font' )
+' noop is font-select
 
-: double-atlas ( -- )
+: double-atlas ( xc-addr -- xc-addr )
     freetype_gl_errno $100 = IF
-	atlas# 2* to atlas#
-	font atlas# dup texture_font_enlarge_texture
-	[IFUNDEF] texture_font_t-scaletex
-	    fonts[] get-stack 0 ?DO
-	    0.5e 0.5e texture_font_enlarge_glyphs
-	    LOOP
-	[THEN]
+	font font-select
+	dup texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
+	    atlas-bgra# 2* dup >r to atlas-bgra#
+	ELSE
+	    atlas# 2* dup >r to atlas#
+	THEN
+	r> dup texture_font_enlarge_texture
     THEN ;
 
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
-    tuck font swap
+    tuck font font-select swap
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
 	    drop double-atlas  REPEAT  >r 2drop
     dup IF  r@ swap texture_glyph_get_kerning
@@ -169,7 +163,7 @@ Variable color $FFC0A0FF color !
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
     { f: fd f: fh }
-    tuck font swap
+    tuck font font-select swap
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
 	    drop double-atlas  REPEAT  >r 2drop
     dup IF  r@ swap texture_glyph_get_kerning  f+
@@ -196,7 +190,7 @@ Variable color $FFC0A0FF color !
     drop rdrop r> fdrop fdrop ;
 
 : load-glyph$ ( addr u -- )
-    bounds ?DO  font I I' over - texture_font_load_glyphs
+    bounds ?DO  font font-select I I' over - texture_font_load_glyphs
 	dup IF  double-atlas  THEN
 	I' I - swap -
     +LOOP ;
