@@ -69,19 +69,11 @@ Defer }}text' ' }}text IS }}text'
 : }}image-tex ( xt glue -- o )
     $ffffffff rot }}image ;
 
-glue new Constant glue-left
-glue new Constant glue-right
 glue new Constant glue*wh
-glue new Constant glue*b0
-glue new Constant glue*b1
-glue new Constant glue*b2
 
 : update-glue
     glue*wh >o 0g 0g dpy-w @ s>f font-size# 140% f* f- hglue-c glue!
-    0glue dglue-c glue! 1glue vglue-c glue! o>
-    glue*b0 >o dpy-w @ s>f .05e f* 0g 0g hglue-c glue! o>
-    glue*b1 >o dpy-w @ s>f .12e f* 0g 0g hglue-c glue! o>
-    glue*b2 >o dpy-w @ s>f .20e f* 0g 0g hglue-c glue! o> ;
+    0glue dglue-c glue! 1glue vglue-c glue! o> ;
 
 update-glue
 
