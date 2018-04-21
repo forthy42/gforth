@@ -112,7 +112,8 @@ Value font-langs#
     dup 0 font[] $[] - cell/ fontnames[]# mod >r \ font index size 0
     atlas-bgra atlas r@ font-langs# mod [ ' \emoji >body @ ]L = select
     r@ fontname[] $[]@ 2dup d0= IF
-	." font matrix: " r@ . cr
+	." font matrix: " r@
+	font-langs# /mod font-shapes# /mod font-families# /mod . . . . cr
 	true abort" No font specified"
     THEN
     font-size# 0 font-size% f* fround open-font fonts! rdrop ;
@@ -203,17 +204,42 @@ get-current also fonts definitions
 \italic fonts= LiberationMono-Italic.ttf|DroidSansMono.ttf
 \bold-italic fonts= LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
-\chinese \sans \regular
+\chinese
+\sans
 [IFDEF] android
-    fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \regular fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|DroidSansFallback.ttf
+    \italic fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold-italic fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|DroidSansFallback.ttf
 [ELSE]
-    fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|gkai00mp.ttf
+    \regular fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|gkai00mp.ttf
+    \bold fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|gkai00mp.ttf
+    \italic fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|gkai00mp.ttf
+    \bold-italic fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|gkai00mp.ttf
 [THEN]
-\chinese \sans \bold
+\serif
 [IFDEF] android
-    fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|DroidSansFallback.ttf
+    \regular fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|DroidSansFallback.ttf
+    \italic fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold-italic fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|DroidSansFallback.ttf
 [ELSE]
-    fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|gkai00mp.ttf
+    \regular fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|gkai00mp.ttf
+    \bold fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|gkai00mp.ttf
+    \italic fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|gkai00mp.ttf
+    \bold-italic fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|gkai00mp.ttf
+[THEN]
+\mono
+[IFDEF] android
+    \regular fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|DroidSansFallback.ttf
+    \italic fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold-italic fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|DroidSansFallback.ttf
+[ELSE]
+    \regular fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|gkai00mp.ttf
+    \bold fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|gkai00mp.ttf
+    \italic fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|gkai00mp.ttf
+    \bold-italic fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|gkai00mp.ttf
 [THEN]
 
 \emoji \sans \regular

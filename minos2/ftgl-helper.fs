@@ -191,9 +191,9 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 
 : load-glyph$ ( addr u -- )
     bounds ?DO  I font font-select nip
-	I I' over - texture_font_load_glyphs
-	dup IF  double-atlas  THEN
-	I' I - swap -
+	I dup I' over - x-size texture_font_load_glyph
+	0= IF  I double-atlas drop 0
+	ELSE  I I' over - x-size  THEN
     +LOOP ;
 
 : load-ascii ( -- )
