@@ -38,9 +38,7 @@ Defer }}text' ' }}text IS }}text'
 : }}smalltext ( addr u -- o )
     font-size >r \script }}text' r> to font-size ;
 : }}emoji ( addr u -- o )
-    font-lang >r \emoji
-    emoji new >o font@ text! $FFFFFFFF to text-color  x-border to border o o>
-    r> to font-lang ;
+    text new >o font@ text! $FFFFFFFF to text-color  x-border to border o o> ;
 : }}edit ( addr u -- o )
     edit new >o font@ edit! x-color to text-color  x-border to border o o> ;
 : }}pw ( addr u -- o )

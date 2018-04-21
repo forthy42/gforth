@@ -263,7 +263,7 @@ Variable eglformat
 
 : shader: ( type "name" -- )
     0 Value here >r dup ,
-    here cell+ , \ pointer to the string - it's only one!
+    here cell+ , \ pointer to the string - it’s only one!
     BEGIN  refill  source nip 0<> and  WHILE
 	    source s" #precision" str=
 	    IF  add-precision  ELSE  source  THEN
@@ -313,30 +313,47 @@ Variable eglformat
 GL_VERTEX_SHADER shader: VertexShader
 uniform mat4 u_MVPMatrix;       // A constant representing the combined model/view/projection matrix.
 uniform mat4 u_MVMatrix;        // A constant representing the combined model/view matrix.
-uniform vec2 u_TexScale;        // scale texture coordinates
+uniform vec2 u_TexScale0;       // scale texture coordinates
+uniform vec2 u_TexScale1;       // scale texture coordinates
+uniform vec2 u_TexScale2;       // scale texture coordinates
+uniform vec2 u_TexScale3;       // scale texture coordinates
  
 attribute vec4 a_Position;      // Per-vertex position information we will pass in.
 attribute vec4 a_Color;         // Per-vertex color information we will pass in.
 attribute vec4 a_Normal;        // Per-vertex normal information we will pass in.
 attribute vec2 a_TexCoordinate; // Per-vertex texture coordinate information we will pass in.
+attribute vec2 a_Extras;        // extra attributes passed through
  
 varying vec3 v_Position;        // This will be passed into the fragment shader.
 varying vec4 v_Color;           // This will be passed into the fragment shader.
 varying vec3 v_Normal;          // This will be passed into the fragment shader.
 varying vec2 v_TexCoordinate;   // This will be passed into the fragment shader.
+varying vec2 v_Extras;          // extra attributes passed through
  
 // The entry point for our vertex shader.
 void main()
 {
+    // pass through the extras
+    v_Extras = a_Extras;
+ 
     // Transform the vertex into eye space.
     v_Position = vec3(u_MVMatrix * a_Position);
  
     // Pass through the color.
     v_Color = a_Color;
  
-    // Pass through the texture coordinate.
-    v_TexCoordinate = a_TexCoordinate * u_TexScale;
- 
+    // scale texture coordinate by appropriate texture scale
+    if(a_Extras.x >= 0.0)
+	if(a_Extras.x < 1.0)
+	    v_TexCoordinate = a_TexCoordinate * u_TexScale0;
+	else
+	    v_TexCoordinate = a_TexCoordinate * u_TexScale1;
+    else
+	if(a_Extras.x >= -1.0)
+	    v_TexCoordinate = a_TexCoordinate * u_TexScale2;
+	else
+	    v_TexCoordinate = a_TexCoordinate * u_TexScale3;
+  
     // Transform the normal's orientation into eye space.
     v_Normal = vec3(u_MVMatrix * a_Normal);
  
@@ -348,20 +365,37 @@ void main()
 GL_FRAGMENT_SHADER shader: FragmentShader
 #precision
 uniform vec3 u_LightPos;        // The position of the light in eye space.
-uniform sampler2D u_Texture;    // The input texture.
+uniform sampler2D u_Texture0;   // The input texture.
+uniform sampler2D u_Texture1;   // A second input texture.
+uniform sampler2D u_Texture2;   // Special texture for emojis
+uniform sampler2D u_Texture3;   // Special texture for texts
 uniform float u_Ambient;        // ambient lighting level
 uniform float u_Saturate;       // saturation component (1.0=original)
-uniform vec4 u_Coloradd;        // color bias for texture
+uniform vec4 u_Coloradd0;       // color bias for texture0
+uniform vec4 u_Coloradd1;       // color bias for texture1
+uniform vec4 u_Coloradd2;       // color bias for texture2
+uniform vec4 u_Coloradd3;       // color bias for texture3
  
 varying vec3 v_Position;        // Interpolated position for this fragment.
 varying vec4 v_Color;           // This is the color from the vertex shader interpolated across the
                                 // triangle per fragment.
 varying vec3 v_Normal;          // Interpolated normal for this fragment.
 varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
+varying vec2 v_Extras;          // extra attributes passed through
  
 // The entry point for our fragment shader.
 void main() {
-    vec4 col = v_Color * (texture2D(u_Texture, v_TexCoordinate) + u_Coloradd);
+    vec4 col = v_Color;
+    if(v_Extras.x >= 0.0)
+	if(v_Extras.x < 1.0)
+	    col = col*(texture2D(u_Texture0, v_TexCoordinate) + u_Coloradd0);
+	else
+	    col = col*(texture2D(u_Texture1, v_TexCoordinate) + u_Coloradd1);
+    else
+	if(v_Extras.x >= -1.0)
+	    col = col.aaaa*(texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2);
+	else
+	    col = col*(texture2D(u_Texture3, v_TexCoordinate).aaaa + u_Coloradd3);
     if(u_Saturate != 1.0) {
         float mid = (col.r + col.g + col.b) * 0.333333333333;
         vec3 mid3 = vec3(mid, mid, mid);
@@ -395,12 +429,21 @@ void main() {
 
 0 Value MVPMatrix
 0 Value MVMatrix
-0 Value TexScale
+0 Value TexScale0
+0 Value TexScale1
+0 Value TexScale2
+0 Value TexScale3
 0 Value LightPos
-0 Value Texture
+0 Value Texture0
+0 Value Texture1
+0 Value Texture2
+0 Value Texture3
 0 Value Ambient
 0 Value Saturate
-0 Value Coloradd
+0 Value Coloradd0
+0 Value Coloradd1
+0 Value Coloradd2
+0 Value Coloradd3
 0 Value program
 
 : create-program { vs-xt fs-xt -- program }
@@ -418,18 +461,35 @@ GL_FRAGMENT_SHADER shader: oesShader
 #extension GL_OES_EGL_image_external : require
 #precision
 uniform vec3 u_LightPos;        // The position of the light in eye space.
-uniform samplerExternalOES u_Texture;
+uniform samplerExternalOES u_Texture0;
+uniform samplerExternalOES u_Texture1;
+uniform samplerExternalOES u_Texture2;
+uniform samplerExternalOES u_Texture3;
 uniform float u_Ambient;        // ambient lighting level
 uniform float u_Saturate;       // saturation component (1.0=original)
-uniform vec4 u_Coloradd;        // color bias for texture
+uniform vec4 u_Coloradd0;       // color bias for texture
+uniform vec4 u_Coloradd1;       // color bias for texture
+uniform vec4 u_Coloradd2;       // color bias for texture
+uniform vec4 u_Coloradd3;       // color bias for texture
  
 varying vec3 v_Position;        // Interpolated position for this fragment.
 varying vec4 v_Color;           // This is the color from the vertex shader interpolated across the
                                 // triangle per fragment.
 varying vec3 v_Normal;          // Interpolated normal for this fragment.
 varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
+varying vec2 v_Extras;          // extra attributes passed through
 void main() {
-    vec4 col = v_Color * (texture2D(u_Texture, v_TexCoordinate) + u_Coloradd);
+    vec4 col = v_Color;
+    if(v_Extras.x >= 0.0)
+	if(v_Extras.x < 1.0)
+	    col = col*(texture2D(u_Texture0, v_TexCoordinate) + u_Coloradd0);
+	else
+	    col = col*(texture2D(u_Texture1, v_TexCoordinate) + u_Coloradd1);
+    else
+	if(v_Extras.x >= -1.0)
+	    col = col*(texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2);
+	else
+	    col = col*(texture2D(u_Texture3, v_TexCoordinate) + u_Coloradd3);
     if(u_Saturate != 1.0) {
         float mid = (col.r + col.g + col.b) * 0.333333333333;
         vec3 mid3 = vec3(mid, mid, mid);
@@ -519,7 +579,10 @@ Create unit-texscale
 : >x-pos ( r -- ) x-pos sf!  unit-matrix MVPMatrix set-matrix ;
 : >y-pos ( r -- ) y-pos sf!  unit-matrix MVPMatrix set-matrix ;
 
-: set-color+ ( addr -- )  Coloradd 1 rot glUniform4fv ;
+: set-color+  ( addr -- )  Coloradd0 1 rot glUniform4fv ;
+: set-color+1 ( addr -- )  Coloradd1 1 rot glUniform4fv ;
+: set-color+2 ( addr -- )  Coloradd2 1 rot glUniform4fv ;
+: set-color+3 ( addr -- )  Coloradd3 1 rot glUniform4fv ;
 
 : >ortho { f: near f: far f: left f: right f: top f: bottom -- }
     ap-matrix
@@ -531,13 +594,18 @@ Create unit-texscale
     sfloat+ sfloat+ near far f* f2* near far f- f/ sf!+ 0e sf!+
     drop ;
 
-: set-texscale ( vec2 -- )
-    TexScale 1 rot glUniform2fv ;
+: set-texscale0 ( vec2 -- ) TexScale0 1 rot glUniform2fv ;
+: set-texscale1 ( vec2 -- ) TexScale1 1 rot glUniform2fv ;
+: set-texscale2 ( vec2 -- ) TexScale2 1 rot glUniform2fv ;
+: set-texscale3 ( vec2 -- ) TexScale3 1 rot glUniform2fv ;
 
 : ap-set ( -- )
     ap-matrix MVPMatrix set-matrix
     ap-matrix MVMatrix set-matrix
-    unit-texscale set-texscale ;
+    unit-texscale set-texscale0
+    unit-texscale set-texscale1
+    unit-texscale set-texscale2
+    unit-texscale set-texscale3 ;
 
 : >apwh ( rnear rfar rscale w h -- ) f2* 1/f { f: scale }
     scale swap fm* fdup fnegate fswap
@@ -685,12 +753,22 @@ require soil-texture.fs
 : parse-uniform ( program -- )
     dup "u_MVPMatrix" glGetUniformLocation to MVPMatrix
     dup "u_MVMatrix"  glGetUniformLocation to MVMatrix
-    dup "u_TexScale"  glGetUniformLocation to TexScale
+    dup "u_TexScale0" glGetUniformLocation to TexScale0
+    dup "u_TexScale1" glGetUniformLocation to TexScale1
+    dup "u_TexScale2" glGetUniformLocation to TexScale2
+    dup "u_TexScale3" glGetUniformLocation to TexScale3
     dup "u_LightPos"  glGetUniformLocation to LightPos
-    dup "u_Texture"   glGetUniformLocation to Texture
+    dup "u_Texture0"  glGetUniformLocation to Texture0
+    dup "u_Texture1"  glGetUniformLocation to Texture1
+    dup "u_Texture2"  glGetUniformLocation to Texture2
+    dup "u_Texture3"  glGetUniformLocation to Texture3
     dup "u_Ambient"   glGetUniformLocation to Ambient
     dup "u_Saturate"  glGetUniformLocation to Saturate
-    "u_Coloradd"      glGetUniformLocation to Coloradd ;
+    dup "u_Coloradd0" glGetUniformLocation to Coloradd0
+    dup "u_Coloradd1" glGetUniformLocation to Coloradd1
+    dup "u_Coloradd2" glGetUniformLocation to Coloradd2
+    dup "u_Coloradd3" glGetUniformLocation to Coloradd3
+    drop ;
 
 0 Value no-texture?
 
@@ -708,7 +786,10 @@ require soil-texture.fs
 	no-texture true to no-texture?
     THEN ;
 : set-uniforms ( -- )
-    Texture 0 glUniform1i
+    Texture0 0 glUniform1i
+    Texture1 1 glUniform1i
+    Texture2 2 glUniform1i
+    Texture3 3 glUniform1i
     Ambient 1 ambient% glUniform1fv
     Saturate 1 saturate% glUniform1fv
     LightPos 1 lightpos-xyz glUniform3fv ;
@@ -747,8 +828,8 @@ object class
 
     sffield: t.s
     sffield: t.t
+    sffield: t.i \ texture index, maybe used
     sffield: m.i \ matrix index, unused
-    sffield: t.i \ texture index, unused
     0 +field next-vertex
 end-class vertex-c
 vertex-c >osize @ Constant vertex#
@@ -762,6 +843,8 @@ vertex-c >osize @ Constant vertex#
     2 4 GL_FLOAT GL_FALSE vertex# n.x glVertexAttribPointer \ normal
     3 glEnableVertexAttribArray
     3 2 GL_FLOAT GL_FALSE vertex# t.s glVertexAttribPointer \ texture
+    4 glEnableVertexAttribArray
+    4 2 GL_FLOAT GL_FALSE vertex# t.i glVertexAttribPointer \ texture
     o> ;
 
 : buffer-init ( -- )
@@ -788,9 +871,11 @@ index-buf Value index^
 : v0 ( -- ) array-buf to buf^ ;
 : i0 ( -- ) index-buf to index^ ;
 
-: >v ( -- o:vertex0 )  ]] buf^ >o [[ ; immediate compile-only
+0e FValue t.i0
+
+: >v ( -- o:vertex0 )  ]] buf^ >o t.i0 t.i sf! [[ ; immediate compile-only
 : v+ ( o:vertex -- o:vertex' )
-    next-vertex >o rdrop ;
+    next-vertex >o rdrop t.i0 t.i sf! ;
 : v> ( o:vertex -- )  ]] o ->buf^ o> [[ ; immediate compile-only
 : i? ( -- n )  buf^ array-buf - vertex# / ;
 : i, ( n -- )

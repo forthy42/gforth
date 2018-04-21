@@ -49,18 +49,19 @@ Variable fonts[] \ stack of used fonts
 [THEN]
 
 [IFDEF] texture_font_t-scaletex
-    Create text-texscale 2 sfloats allot
+    Create text-texscale0 2 sfloats allot
+    Create text-texscale1 2 sfloats allot
     
     : atlas-scaletex ( -- )
 	1e atlas texture_atlas_t-height @ fm/
 	1e atlas texture_atlas_t-width  @ fm/
-	text-texscale sf!+ sf!
-	text-texscale set-texscale ;
+	text-texscale0 sf!+ sf!
+	text-texscale0 set-texscale3 ;
     : atlas-bgra-scaletex ( -- )
 	1e atlas-bgra texture_atlas_t-height @ fm/
 	1e atlas-bgra texture_atlas_t-width  @ fm/
-	text-texscale sf!+ sf!
-	text-texscale set-texscale ;
+	text-texscale1 sf!+ sf!
+	text-texscale1 set-texscale2 ;
 [THEN]
 
 : open-font ( atlas rfontsize addr u -- font )
@@ -136,6 +137,10 @@ Variable color $FFC0A0FF color !
 Defer font-select ( xcaddr font -- xcaddr font' )
 ' noop is font-select
 
+: font->t.i0 ( font -- )
+    texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF  -1e  ELSE  -2e  THEN
+    to t.i0 ;
+
 : double-atlas ( xc-addr -- xc-addr )
     freetype_gl_errno $100 = IF
 	font font-select
@@ -148,13 +153,13 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     THEN ;
 
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
-    tuck font font-select swap
+    tuck font font-select dup font->t.i0 swap
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
 	    drop double-atlas  REPEAT  >r 2drop
     dup IF  r@ swap texture_glyph_get_kerning
 	penxy sf@ f+ penxy sf!
     ELSE  drop  THEN
-    r> glyph+xy ;
+    r> glyph+xy 0e to t.i0 ;
 
 : render-string ( addr u -- )
     0 -rot  bounds ?DO
@@ -203,15 +208,19 @@ program init
 
 : <render ( -- )
     program glUseProgram
-    w-bias set-color+
+    z-bias set-color+
     .01e 100e 100e >ap
-    atlas-tex v0 i0 ;
+    GL_TEXTURE3 glActiveTexture
+    atlas-tex atlas-scaletex
+    GL_TEXTURE0 glActiveTexture
+    v0 i0 ;
 
 : render> ( -- )
+\    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
     GL_TRIANGLES draw-elements ;
-: render-bgra> ( -- )
-    GL_ONE GL_ONE_MINUS_SRC_ALPHA glBlendFunc
-    GL_TRIANGLES draw-elements
-    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc ;
+ : render-bgra> ( -- )
+     GL_ONE GL_ONE_MINUS_SRC_ALPHA glBlendFunc
+     GL_TRIANGLES draw-elements
+     GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc ;
 
 previous previous

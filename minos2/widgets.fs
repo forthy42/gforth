@@ -141,7 +141,6 @@ object class
     method draw-thumbnail ( -- ) \ thumbnails draw
     method draw-image ( -- ) \ image draw
     method draw-text ( -- ) \ text draw
-    method draw-emoji ( -- ) \ text emoji
     method draw-marking ( -- ) \ draw some marking
     method hglue ( -- rtyp rsub radd )
     method dglue ( -- rtyp rsub radd )
@@ -359,14 +358,6 @@ end-class i18n-text
 : i18n-text! ( lsid font -- )
     to text-font to l-text  +lang ;
 
-\ emoji
-
-text class
-end-class emoji
-
-' noop emoji is draw-text
-' text-text emoji is draw-emoji
-
 \ editable text widget
 
 text class
@@ -499,13 +490,16 @@ previous
 : <draw-image ( -- ) ; \ image draw, one draw call per image
 : draw-image> ( -- ) ;
 : <draw-text ( -- )
-    w-bias set-color+
-    atlas-scaletex
-    atlas-tex v0 i0 ; \ text draw, one draw call in total
-: <draw-emoji ( -- )
-    z-bias set-color+
+    GL_TEXTURE2 glActiveTexture
+    z-bias set-color+2
     atlas-bgra-scaletex
-    atlas-tex-bgra v0 i0 ; \ text emoji, one draw call in total
+    atlas-tex-bgra
+    GL_TEXTURE3 glActiveTexture
+    z-bias set-color+3
+    atlas-scaletex
+    atlas-tex
+    GL_TEXTURE0 glActiveTexture
+    v0 i0 ; \ text draw, one draw call in total
 : <draw-marking ( -- )
     z-bias set-color+
     none-tex v0 i0 ;
@@ -559,7 +553,6 @@ end-class box
 :noname ( -- ) ['] draw-thumbnail do-childs ; box is draw-thumbnail
 :noname ( -- ) ['] draw-image     do-childs ; box is draw-image
 :noname ( -- ) ['] draw-text      do-childs ; box is draw-text
-:noname ( -- ) ['] draw-emoji     do-childs ; box is draw-emoji
 :noname ( -- ) ['] draw-marking   do-childs ; box is draw-marking
 
 :noname ( -- )
@@ -787,7 +780,6 @@ htab-glue is hglue!@
     <draw-image     draw-image     draw-image>  time( ." img:   " .!time cr )
     <draw-marking   draw-marking   render>      time( ." mark:  " .!time cr )
     <draw-text      draw-text      render>      time( ." text:  " .!time cr )
-    <draw-emoji     draw-emoji     render-bgra> time( ." emoji: " .!time cr )
     sync time( ." sync:  " .!time cr ) ;
 
 \ viewport: Draw into a frame buffer
@@ -814,7 +806,6 @@ end-class viewport
     <draw-image     ['] draw-image     do-childs draw-image>
     <draw-marking   ['] draw-marking   do-childs render>
     <draw-text      ['] draw-text      do-childs render>
-    <draw-emoji     ['] draw-emoji     do-childs render-bgra>
 ;
 
 1 sfloats buffer: vp-ambient%  1.0e vp-ambient% sf!
@@ -882,7 +873,6 @@ end-class viewport
 ' noop viewport is draw-thumbnail
 ' noop viewport is draw-marking
 ' noop viewport is draw-text
-' noop viewport is draw-emoji
 :noname vp-glue .hglue >hglue!@ ; viewport is hglue
 :noname vp-glue .dglue >dglue!@ ; viewport is dglue
 :noname vp-glue .vglue >vglue!@ ; viewport is vglue

@@ -48,7 +48,7 @@ also jni
 
 : camera-init ( -- )
     oes-program init-program set-uniforms α-bias set-color+
-    unit-texscale set-texscale
+    unit-texscale set-texscale0
     0e fdup x-pos sf! >y-pos
     unit-matrix MVPMatrix set-matrix
     unit-matrix MVMatrix set-matrix

@@ -137,7 +137,7 @@ Value font-langs#
 : xc>font ( xc-addr font-addr -- xc-addr font )
     >r dup xc@
     cjk?   IF  drop r> cell+ ?font-load @  EXIT  THEN
-\    emoji? IF  drop r> cell+ cell+ ?font-load @  EXIT  THEN
+    emoji? IF  drop r> cell+ cell+ ?font-load @  EXIT  THEN
     drop r> @ ;
 
 ' xc>font IS font-select
