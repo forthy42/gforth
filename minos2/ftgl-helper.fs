@@ -99,14 +99,15 @@ Variable fonts[] \ stack of used fonts
 Variable color $FFC0A0FF color !
 1e FValue x-scale
 1e FValue y-scale
+1e FValue f-scale
 0.5e FConstant 1/2
 
-: xy, { glyph -- }
+: xy, { glyph -- }  x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
-    glyph texture_glyph_t-offset_x sl@ x-scale fm*
-    glyph texture_glyph_t-offset_y sl@ y-scale fm* { f: xo f: yo }
-    glyph texture_glyph_t-width  @ x-scale fm*
-    glyph texture_glyph_t-height @ y-scale fm* { f: w f: h }
+    glyph texture_glyph_t-offset_x sl@ xs fm*
+    glyph texture_glyph_t-offset_y sl@ ys fm* { f: xo f: yo }
+    glyph texture_glyph_t-width  @ xs fm*
+    glyph texture_glyph_t-height @ ys fm* { f: w f: h }
     xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f- { f: x0 f: y0 }
     x0 w f+                 y0 h f+                { f: x1 f: y1 }
     glyph texture_glyph_t-s0 sf@ { f: s0 }
@@ -119,8 +120,8 @@ Variable color $FFC0A0FF color !
     x0 y1 >xy n> color @ rgba>c s0 t1 >st v+
     x1 y1 >xy n> color @ rgba>c s1 t1 >st v+
     v>
-    xp glyph texture_glyph_t-advance_x sf@ x-scale f* f+ penxy sf!
-    yp glyph texture_glyph_t-advance_y sf@ y-scale f* f+ penxy sfloat+ sf! ;
+    xp glyph texture_glyph_t-advance_x sf@ xs f* f+ penxy sf!
+    yp glyph texture_glyph_t-advance_y sf@ ys f* f+ penxy sfloat+ sf! ;
 
 : glyph+xy ( glyph -- )
     i>off  xy,  2 quad ;
@@ -153,7 +154,10 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     THEN ;
 
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
-    tuck font font-select dup font->t.i0 swap
+    tuck font font-select
+    dup font->t.i0
+    dup texture_font_t-scale sf@ to f-scale
+    swap
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
 	    drop double-atlas  REPEAT  >r 2drop
     dup IF  r@ swap texture_glyph_get_kerning
@@ -168,14 +172,16 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
     { f: fd f: fh }
-    tuck font font-select swap
+    tuck font font-select
+    dup texture_font_t-scale sf@ { f: f-scale }
+    swap
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
 	    drop double-atlas  REPEAT  >r 2drop
-    dup IF  r@ swap texture_glyph_get_kerning  f+
+    dup IF  r@ swap texture_glyph_get_kerning f-scale f* f+
     ELSE  drop  THEN
-    r@ texture_glyph_t-advance_x sf@ f+
-    r@ texture_glyph_t-offset_y sl@ s>f
-    r> texture_glyph_t-height @ s>f
+    r@ texture_glyph_t-advance_x sf@ f-scale f* f+
+    r@ texture_glyph_t-offset_y sl@ f-scale fm*
+    r> texture_glyph_t-height @ f-scale fm*
     fover f- fd fmax fswap fh fmax ;
 
 : layout-string ( addr u -- fw fd fh ) \ depth is ow far it goes down

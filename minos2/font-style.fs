@@ -97,13 +97,16 @@ Value font-langs#
 : fontnames[]# ( -- n ) \ size of font array
     font-shapes# font-families# font-langs# * * ;
 
+also freetype-gl
 : fonts! ( font-addr addr -- ) \ set current font for all sizes
     over 0 font[] $[] - cell/ fontnames[]# mod { idx }
     font-sizes# 0 U+DO
 	dup I fontnames[]# * idx + font[] $[] !
 	I 1+ I' <> IF
-	    I 1+ font-size% font-size# f* fround clone-font  THEN
+	    I 1+ font-size% font-size# f* fround clone-font
+	THEN
     LOOP  drop ;
+previous
 
 : fontname@ ( -- addr )
     0 font-index fontname[] $[] ;
