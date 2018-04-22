@@ -70,7 +70,7 @@ end-class animation
     LOOP ;
 :noname ( -- ) o 0= ?EXIT
     *anim-end *insflag on
-    m2c:pwtime% f@ edit-w .caller-w ['] *anim-ins >animate ;
+    m2c:pwtime% f@ caller-w ['] *anim-ins >animate ;
 is anim-ins
 
 \ helper for animation

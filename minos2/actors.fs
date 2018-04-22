@@ -42,8 +42,10 @@ end-class outside-actor
 :noname ( rx ry -- flag )
     fdrop fdrop false ; outside-actor is inside?
 
+: !act ( o:widget actor -- o:widget )
+    to act o act >o to caller-w o> ;
 : outside[] ( o -- o )
-    >o outside-actor new to act o act >o to caller-w o> o o> ;
+    >o outside-actor new !act o o> ;
 
 actor class
 end-class simple-actor
@@ -75,7 +77,28 @@ debug: event( \ +db event(
 ; simple-actor is touchmove
 
 : simple[] ( o -- o )
-    >o simple-actor new to act o act >o to caller-w o> o o> ;
+    >o simple-actor new !act o o> ;
+
+\ toggle actor
+
+simple-actor class
+    value: tg-state
+    defer: tg-action
+end-class toggle-actor
+
+: toggle[] ( o xt state -- o )
+    rot >o toggle-actor new >o to tg-state is tg-action o o> !act o o> ;
+
+:noname ( rx ry b n -- )
+    fdrop fdrop 1 and 0= swap 1 <= and IF
+	tg-state 0= dup to tg-state tg-action
+    THEN ; toggle-actor is clicked
+:noname ( ukeyaddr u -- )
+    bounds ?DO  I c@ bl = IF  tg-state 0= dup to tg-state tg-action  THEN
+    LOOP ; toggle-actor is ukeyed
+:noname ( ekey -- )
+    k-enter = IF  tg-state 0= dup to tg-state tg-action  THEN
+; toggle-actor is ekeyed
 
 \ actor for a box with one active element
 
@@ -142,7 +165,7 @@ box-actor is clicked
 :noname ( -- ) caller-w >o [: act ?dup-IF  .defocus  THEN ;] do-childs o> ; box-actor is defocus
 
 : box[] ( o -- o )
-    >o box-actor new to act o act >o to caller-w o> o o> ;
+    >o box-actor new !act o o> ;
 
 \ viewport
 
@@ -193,7 +216,7 @@ end-class vp-actor
     vp-need-or o> ; vp-actor is ukeyed
 
 : vp[] ( o -- o )
-    >o vp-actor new to act o act >o to caller-w o> o o> ;
+    >o vp-actor new !act o o> ;
 
 \ edit widget
 
@@ -233,8 +256,8 @@ std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 simple-actor class
     method edit-next-line
     method edit-prev-line
-    defer: edit-enter
     value: edit-w
+    defer: edit-enter
 end-class edit-actor
 
 ' false edit-actor is edit-next-line
@@ -421,4 +444,3 @@ edit-terminal edit-out !
     swap >o edit-actor new to act
     o act >o to caller-w to edit-w xt is edit-enter o>
     o o> ;
-

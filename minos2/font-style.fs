@@ -246,9 +246,15 @@ get-current also fonts definitions
 [THEN]
 
 \emoji \sans \regular
-fonts= SamsungColorEmoji.ttf|NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf
+fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
 
 \emoji \sans \bold
-fonts= SamsungColorEmoji.ttf|NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf
+fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+
+\emoji \mono \regular
+fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+
+\emoji \mono \bold
+fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
 
 previous set-current
