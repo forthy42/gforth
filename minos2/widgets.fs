@@ -432,31 +432,36 @@ end-class pw-edit
 '●' Value pw-char
 
 Variable *insflag
-0 Value *cursor
 
 : text$->* ( -- oldtext$ )
-    text$ over *cursor +  0 addr text$ !@ >r
-    [: { cursor } bounds ?DO
-	  I c@ $C0 $80 within IF
-	      I cursor = IF
-		  *insflag @ IF
-		      I dup xchar+ over - type
-		  ELSE  pw-char xemit  THEN
-		  text$ nip to curpos
-	      ELSE  pw-char xemit  THEN
-	  THEN
-      LOOP ;] addr text$ $exec
+    text$ over curpos + dup cursize 0 max +  0 addr text$ !@ >r
+    [: { cursor cur# } bounds over >r ?DO
+	    I c@ $C0 $80 within IF
+		I cur# = cursize 0>= and IF
+		    text$ nip curpos - to cursize
+		THEN
+		I xchar+ cursor = IF
+		    *insflag @ IF
+			I dup xchar+ over - type
+		    ELSE  pw-char xemit  THEN
+		    text$ nip to curpos
+		ELSE  pw-char xemit  THEN
+	    THEN
+	LOOP
+	r> cur#   = cursize 0>= and IF
+	    text$ nip curpos - to cursize  THEN
+    ;] addr text$ $exec
     r> ;
 
 : pw-xt { xt -- }
-    curpos >r
+    cursize >r curpos >r
     pw-mode dup 0= IF  *insflag off  THEN
     2 < IF
-	text$ curpos umin x\string- nip to *cursor
 	text$->* >r xt catch r> addr text$ $!buf
-	r> to curpos
-	throw
-    ELSE  xt execute  THEN ;
+	r> to curpos r> to cursize throw
+    ELSE
+	2rdrop  xt execute
+    THEN ;
 :noname ( -- ) ['] edit-text    pw-xt ; pw-edit is draw-text
 :noname ( -- ) ['] edit-!size   pw-xt ; pw-edit is !size
 :noname ( -- ) ['] edit-marking pw-xt ; pw-edit is draw-marking
