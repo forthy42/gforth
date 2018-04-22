@@ -79,31 +79,42 @@ debug: event( \ +db event(
 : simple[] ( o -- o )
     >o simple-actor new !act o o> ;
 
-\ toggle actor
+\ click actor
 
 simple-actor class
+    method do-action
+    defer: ck-action
+end-class click-actor
+
+' ck-action click-actor is do-action
+
+: click[] ( o xt -- o )
+    rot >o click-actor new >o is ck-action o o> !act o o> ;
+
+:noname ( rx ry b n -- )
+    fdrop fdrop 1 and 0= swap 1 <= and IF  do-action  THEN
+; click-actor is clicked
+:noname ( ukeyaddr u -- )
+    bounds ?DO  I c@ bl = IF  do-action  THEN
+    LOOP ; click-actor is ukeyed
+:noname ( ekey -- )
+    k-enter = IF  do-action  THEN
+; click-actor is ekeyed
+
+\ toggle actor
+
+click-actor class
     value: tg-state
-    defer: tg-action
 end-class toggle-actor
 
 : toggle[] ( o xt state -- o )
-    rot >o toggle-actor new >o to tg-state is tg-action o o> !act o o> ;
+    rot >o toggle-actor new >o to tg-state is ck-action o o> !act o o> ;
 
-:noname ( rx ry b n -- )
-    fdrop fdrop 1 and 0= swap 1 <= and IF
-	tg-state 0= dup to tg-state tg-action
-    THEN ; toggle-actor is clicked
-:noname ( ukeyaddr u -- )
-    bounds ?DO  I c@ bl = IF  tg-state 0= dup to tg-state tg-action  THEN
-    LOOP ; toggle-actor is ukeyed
-:noname ( ekey -- )
-    k-enter = IF  tg-state 0= dup to tg-state tg-action  THEN
-; toggle-actor is ekeyed
+:noname tg-state 0= dup to tg-state ck-action ; toggle-actor is do-action
 
 \ actor for a box with one active element
 
 actor class
-    value: active-w
 end-class box-actor
 
 false value grab-move? \ set to true to grab moves

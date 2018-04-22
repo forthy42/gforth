@@ -74,6 +74,7 @@ $03 Value box-flip#
 
 object class
     value: caller-w
+    value: active-w
     method clicked ( rx ry bmask n -- ) \ processed clicks
     method scrolled ( axis dir -- ) \ process scrolling
     method touchdown ( $rxy*n bmask -- ) \ raw click
