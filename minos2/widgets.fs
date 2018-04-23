@@ -569,6 +569,7 @@ dup widget is resized
 box is resized
 
 : +child ( o -- ) o over >o to parent-w o> childs[] >back ;
+: child+ ( o -- ) o over >o to parent-w o> childs[] >stack ;
 : +childs ( o1 .. on n -- ) childs[] set-stack
     o [: dup to parent-w ;] do-childs drop ;
 
