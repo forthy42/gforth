@@ -75,14 +75,17 @@ glue new Constant glue*wh
 
 update-glue
 
-0 Value bx-tab
+: tab-glue: ( glue "name" -- )
+    Value DOES> @ swap >o to aidglue o o> ;
+
+0 tab-glue: bx-tab
 glue new Constant glue*em
 glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 
 : b0 ( addr1 u1 -- o )
     dark-blue }}text' >r
-    {{ glue*em }}glue r> }}h box[]
-    >o bx-tab to aidglue o o>  blackish ;
+    {{ glue*em }}glue r> }}h box[] bx-tab
+    blackish ;
 : b\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
     blackish }}text' >r
     b0 >r
