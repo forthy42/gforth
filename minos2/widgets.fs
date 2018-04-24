@@ -947,12 +947,13 @@ hslider-partl , hslider-part , hslider-partr ,
 \ slider top
 
 $7F7F7FFF Value slider-color
+$7F7F7FFF Value slider-fgcolor
 8e FValue slider-border
 
 : slider { parts viewport-link f: sw f: sd f: sh -- ou os od }
     parts 3 cells bounds DO
 	I @ new >o slider-frame# to frame#
-	slider-color to frame-color  slider-border to border  0e to baseline
+	slider-fgcolor to frame-color  slider-border to border  0e to baseline
 	viewport-link to tile-glue  sw to w  sd to d  sh to h  o o>
     cell +LOOP ;
 
@@ -966,12 +967,16 @@ require animation.fs
 
 \ composite objects
 
-: vslider ( viewport-link sw sd -- o )
-    >r {{ glue*l slider-color slider-border }}frame dup .button3
-    {{ vslider-parts r> 0g slider }}v box[] }}z box[] ;
 : hslider ( viewport-link sd sh -- o )
     >r {{ glue*l slider-color slider-border }}frame dup .button3
-    {{ hslider-parts r> 0g frot frot slider }}h box[] }}z box[] ;
+    {{ hslider-parts r@ 0g frot frot slider
+    over r> swap hslider[] }}h box[]
+    }}z box[] ;
+: vslider ( viewport-link sw sd -- o )
+    >r {{ glue*l slider-color slider-border }}frame dup .button3
+    {{ vslider-parts r@ 0g slider
+    over r> swap vslider[] }}v box[]
+    }}z box[] ;
 
 : htop-resize ( -- )
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize time( ." resize: " .!time cr ) ;

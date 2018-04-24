@@ -57,23 +57,23 @@ end-class simple-actor
     and o> ;
 ' simple-inside? simple-actor is inside?
 
-debug: event( \ +db event(
+debug: event( \ +db event( \ )
 :noname { f: rx f: ry b n -- }
-    event( ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
+    event( o hex. caller-w hex. ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
 :noname ( addr u -- )
-    event( ." keyed: " type cr )else( 2drop ) ; simple-actor is ukeyed
+    event( o hex. caller-w hex. ." keyed: " type cr )else( 2drop ) ; simple-actor is ukeyed
 :noname ( ekey -- )
-    event( ." ekeyed: " hex. cr )else( drop ) ; simple-actor is ekeyed
+    event( o hex. caller-w hex. ." ekeyed: " hex. cr )else( drop ) ; simple-actor is ekeyed
 : .touch ( $xy b -- )
-    event( hex. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr )else( 2drop ) ;
+    event( ." touch: " hex. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr )else( 2drop ) ;
 :noname ( $xy b -- )
-    event( ." down: " .touch )else( 2drop )
+    event( o hex. caller-w hex. ." down " .touch )else( 2drop )
 ; simple-actor is touchdown
 :noname ( $xy b -- )
-    event( ." up: " .touch )else( 2drop )
+    event( o hex. caller-w hex. ." up " .touch )else( 2drop )
 ; simple-actor is touchup
 :noname ( $xy b -- )
-    event( ." move: " .touch )else( 2drop )
+    event( o hex. caller-w hex. ." move " .touch )else( 2drop )
 ; simple-actor is touchmove
 
 : simple[] ( o -- o )
@@ -131,6 +131,7 @@ false value grab-move? \ set to true to grab moves
 	recurse parent-w .act re-focus  THEN  o> ;
 
 :noname ( rx ry b n -- )
+    event( o hex. caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
     grab-move? IF
 	active-w ?dup-IF  .act .clicked  EXIT  THEN
     THEN
@@ -151,27 +152,29 @@ box-actor is clicked
 : xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
 :noname ( $xy b -- )
     over xy@ inside? IF
-	o caller-w >o
-	[: { c-act } act IF  over xy@ act .inside?
+	caller-w >o
+	[: act IF  over xy@ act .inside?
 		IF  2dup act .touchdown   THEN  THEN
-	    c-act ;] do-childs o> drop
+	;] do-childs o>
     THEN  2drop ; box-actor is touchdown
 :noname ( $xy b -- )
     over xy@ inside? IF
-	o caller-w >o
-	[: { c-act } act IF  over xy@ act .inside?
+	caller-w >o
+	[: act IF  over xy@ act .inside?
 		IF  2dup act .touchup   THEN  THEN
-	    c-act ;] do-childs o> drop
+	;] do-childs o>
     THEN  2drop ; box-actor is touchup
 :noname ( $xy b -- )
+    event( o hex. caller-w hex. ." box move " 2dup .touch )
     grab-move? IF
 	active-w ?dup-IF  .act .touchmove  EXIT  THEN
     THEN
     over xy@ inside? IF
-	o caller-w >o
-	[: { c-act } act IF  over xy@ act .inside?
+	caller-w >o
+	[: act IF  over xy@ act .inside?
+		event( o hex. caller-w hex. ." move inside? " dup . cr )
 		IF  2dup act .touchmove  THEN  THEN
-	    c-act ;] do-childs o> drop
+	;] do-childs o>
     THEN  2drop ; box-actor is touchmove
 :noname ( -- ) caller-w >o [: act ?dup-IF  .defocus  THEN ;] do-childs o> ; box-actor is defocus
 
@@ -228,6 +231,62 @@ end-class vp-actor
 
 : vp[] ( o -- o )
     >o vp-actor new !act o o> ;
+
+\ slider actor
+
+simple-actor class
+    value: slide-vp
+    fvalue: slider-sxy
+end-class hslider-actor
+
+hslider-actor class
+end-class vslider-actor
+
+: >hslide ( x -- )
+    slider-sxy f- caller-w >o parent-w .w w f- +sync o> f/
+    slide-vp >o vp-w w f- f* to vp-x ['] +sync vp-needed o> ;
+
+:noname ( $rxy*n bmask -- ) 
+    grab-move? IF
+	drop xy@ fdrop >hslide
+    THEN ; hslider-actor is touchmove
+:noname ( x y b n -- )
+    1 and IF
+	drop fdrop caller-w .parent-w .childs[] $@ drop @ .w f- to slider-sxy
+	true to grab-move?
+    ELSE
+	drop fdrop >hslide
+	false to grab-move?
+    THEN ; hslider-actor is clicked
+
+: hslider[] ( vp o -- )
+    >o o hslider-actor new to act
+    act >o to caller-w to slide-vp -1e to slider-sxy o> o> ;
+
+: >vslide ( x -- )
+    slider-sxy fswap f- caller-w >o parent-w .h h f- +sync o> f/
+    slide-vp >o vp-h h f- fdup { f: vmax } f* 0e fmax vmax fmin
+    to vp-y ['] +sync vp-needed o> ;
+
+:noname ( $rxy*n bmask -- )
+    event( o hex. caller-w hex. ." slider move " 2dup .touch )
+    grab-move? IF
+	drop xy@ fnip >vslide
+    ELSE  2drop  THEN ; vslider-actor is touchmove
+:noname ( x y b n -- )
+    event( o hex. caller-w hex. ." slider click " fover f. fdup f. over . dup . cr )
+    1 and IF
+	drop fnip caller-w .parent-w .childs[] $@ cell- + @ .h f+
+	to slider-sxy
+	true to grab-move?
+    ELSE
+	drop fnip >vslide
+	false to grab-move?
+    THEN ; vslider-actor is clicked
+
+: vslider[] ( vp o -- )
+    >o o vslider-actor new to act
+    act >o to caller-w to slide-vp -1e to slider-sxy o> o> ;
 
 \ edit widget
 
