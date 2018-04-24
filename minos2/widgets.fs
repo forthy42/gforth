@@ -802,6 +802,11 @@ vbox class
     field: vp-need
 end-class viewport
 
+: vp-top ( o:vp -- )    vp-h h f- to vp-y ;
+: vp-bottom ( o:vp -- )        0e to vp-y ;
+: vp-left ( o:vp -- )          0e to vp-x ;
+: vp-right ( o:vp -- )  vp-w w f- to vp-x ;
+
 : vp-needed ( xt -- )
     need-mask >r vp-need to need-mask
     catch r> to need-mask throw ;

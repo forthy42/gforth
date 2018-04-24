@@ -27,12 +27,12 @@ also opengl
 ctx 0= [IF]  window-init  [THEN]
 
 $200 Value atlas#
-$100 Value atlas-bgra#
+$200 Value atlas-bgra#
 
 0 Value atlas
 0 Value atlas-bgra
 tex: atlas-tex
-tex: atlas-tex-bgra \ for color emojis
+tex: atlas-tex-bgra \ for color emojis, actually flipped to RGBA
 
 : init-atlas
     atlas#      dup 1 texture_atlas_new to atlas

@@ -134,7 +134,7 @@ previous
     dup  $FF00  $FFF0 within ; \ fullwidth forms
 
 : emoji? ( xchar -- xchar flag )
-    dup  $2600  $2700 within ?dup-IF  EXIT  THEN \ misc. symbols
+    dup  $2600  $27C0 within ?dup-IF  EXIT  THEN \ misc. symbols
     dup $1F000 $20000 within ;                   \ pictograms
 
 : xc>font ( xc-addr font-addr -- xc-addr font )
