@@ -435,7 +435,7 @@ previous
 1e FValue default-scale
 
 : screen-diag ( -- rdiag )
-    screen-wh f**2 fswap f**2 f+ fsqrt ;   \ diagonal in inch
+    screen-wh f**2 fswap f**2 f+ fsqrt ;   \ diagonal in mm
 
 : terminal-scale-me ( -- )
     \ smart scaler, scales using square root relation
