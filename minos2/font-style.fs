@@ -177,7 +177,7 @@ Variable font-path
     font-path+ /usr/share/fonts/truetype/noto
     font-path+ /usr/share/fonts/truetype/droid
     font-path+ /usr/share/fonts/truetype/liberation
-    font-path+ /usr/share/fonts/truetype/arphic-gkai00m
+    font-path+ /usr/share/fonts/truetype/arphic-gkai00mp
     font-path+ /usr/share/fonts/truetype/emoji
     font-path+ /usr/share/fonts/opentype/
     font-path+ /usr/share/fonts/opentype/noto
