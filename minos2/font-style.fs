@@ -222,15 +222,15 @@ get-current also fonts definitions
 [THEN]
 \serif
 [IFDEF] android
-    \regular fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
-    \bold fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|DroidSansFallback.ttf
-    \italic fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
-    \bold-italic fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|DroidSansFallback.ttf
+    \regular fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|DroidSansFallback.ttf
+    \italic fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold-italic fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|DroidSansFallback.ttf
 [ELSE]
-    \regular fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|gkai00mp.ttf
-    \bold fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|gkai00mp.ttf
-    \italic fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|gkai00mp.ttf
-    \bold-italic fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|gkai00mp.ttf
+    \regular fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|gkai00mp.ttf
+    \bold fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc||gkai00mp.ttf
+    \italic fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|gkai00mp.ttf
+    \bold-italic fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc||gkai00mp.ttf
 [THEN]
 \mono
 [IFDEF] android
