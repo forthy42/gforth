@@ -116,6 +116,13 @@ Create actions
 : togglekb-0  togglekb 0 ;
 : aback-0     aback    0 ;
 
+Variable a-mods
+
+[IFUNDEF] xor! : xor! ( n addr -- )  >r r@ @ xor r> ! ; [THEN]
+: a-ctrl!   k-ctrl-mask a-mods xor! 0 ;
+: a-shift!  k-shift-mask a-mods xor! 0 ;
+: a-alt!    k-alt-mask a-mods xor! 0 ;
+
 Create keycode>ekey
 AKEYCODE_HOME        , ' k-home   ,
 AKEYCODE_DPAD_UP     , ' k-up     ,
@@ -147,12 +154,29 @@ AKEYCODE_F11         , ' k-f11    ,
 AKEYCODE_F12         , ' k-f12    ,
 AKEYCODE_MENU        , ' togglekb-0 ,
 AKEYCODE_BACK        , ' aback-0  ,
-0 , ' false ,
-DOES> ( akey -- ekey )
-  swap >r
-  BEGIN  dup cell+ swap @ r@ <> WHILE
-      dup cell+ swap @ 0= UNTIL  r@ unknown-key# !
-  THEN  perform rdrop ;
+AKEYCODE_CTRL_LEFT   , ' a-ctrl!  ,
+AKEYCODE_CTRL_RIGHT  , ' a-ctrl!  ,
+AKEYCODE_SHIFT_LEFT  , ' a-shift! ,
+AKEYCODE_SHIFT_RIGHT , ' a-shift! ,
+AKEYCODE_ALT_LEFT    , ' a-alt!   ,
+AKEYCODE_ALT_RIGHT   , ' a-alt!   ,
+here >r DOES> ( akey -- ekey ) [ r> ]l swap DO
+    dup I @ = IF  drop I cell+ perform  UNLOOP  EXIT  THEN
+[ 2 cells ]L +LOOP
+dup AKEYCODE_A AKEYCODE_Z 1+ within IF
+    a-mods @ k-ctrl-mask and IF
+	AKEYCODE_A - 1+  EXIT
+    THEN
+    a-mods @ k-shift-mask and IF
+	AKEYCODE_A - 'A' +  EXIT
+    THEN
+    a-mods @ k-alt-mask and IF
+	drop 0  EXIT
+    THEN
+    AKEYCODE_A - 'a' +
+ELSE
+    ~~ unknown-key# ! 0
+THEN ;
 
 also jni
 
@@ -162,12 +186,15 @@ also jni
     getAction dup 2 = IF  drop
 	getKeyCode
 	?dup-IF  keycode>ekey ?dup-IF top-act .ekeyed THEN
-	ELSE  nostring getCharacters jstring>sstring top-act .ukeyed jfree
+	ELSE  nostring getCharacters jstring>sstring
+	    top-act .ukeyed jfree
 	THEN
     ELSE
 	0= IF
 	    getUnicodeChar
-	    ?dup-IF  >xstring top-act .ukeyed
+	    ?dup-IF
+		dup bl < IF  top-act .ekeyed \ pass control characters to ekeyed
+		ELSE  >xstring top-act .ukeyed  THEN
 	    ELSE  getKeyCode keycode>ekey ?dup-IF top-act .ekeyed THEN
 	    THEN
 	THEN
