@@ -149,16 +149,16 @@ here >r DOES> ( akey -- ekey ) [ r> ]l swap DO
     dup I @ = IF  drop I cell+ perform  UNLOOP  EXIT  THEN
 [ 2 cells ]L +LOOP
 dup AKEYCODE_A AKEYCODE_Z 1+ within IF
-    meta-key# @ META_CTRL_ON and IF
+    meta-key# @ AMETA_CTRL_ON and IF
 	AKEYCODE_A - 1+  EXIT
     THEN
-    meta-key# @ META_SHIFT_ON and IF
+    meta-key# @ AMETA_SHIFT_ON and IF
 	AKEYCODE_A - 'A' +  EXIT
     THEN
-    meta-key# @ META_ALT_ON and IF
+    meta-key# @ AMETA_ALT_ON and IF
 	drop 0  EXIT
     THEN
-    meta-key# @ META_META_ON and IF
+    meta-key# @ AMETA_META_ON and IF
 	drop 0  EXIT
     THEN
     AKEYCODE_A - 'a' +
