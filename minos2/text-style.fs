@@ -54,8 +54,11 @@ Defer }}text' ' }}text IS }}text'
 : e\\ }}emoji >r }}text' >r {{ r> glue*l }}glue r> }}h box[] >bl ;
 : /right ( o -- o' )
     >r {{ glue*l }}glue r> }}h box[] >bl ;
-: /flip ( o -- o )
+: /hflip ( o -- o )
     >o box-hflip# box-flags ! o o> ;
+' /hflip alias /flip
+: /vflip ( o -- o )
+    >o box-vflip# box-flags ! o o> ;
 : /flop ( o -- o )
     >o 0 box-flags ! o o> ;
 : }}image-file ( xt addr u r -- o glue-o ) pixelsize# f*
