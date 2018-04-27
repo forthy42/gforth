@@ -57,7 +57,7 @@ also jni
     Ambient 1 ambient% glUniform1fv
     media-tex nearest-oes ;
 : camera-frame ( -- ) camera-init
-    v0 i0 screen-orientation cam-rectangle
+    vi0 screen-orientation cam-rectangle
     GL_TRIANGLES draw-elements ;
 
 : max-area ( w h o:size -- w' h' )

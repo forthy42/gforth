@@ -253,14 +253,14 @@ end-class image
     v> 2 quad
     GL_TRIANGLES draw-elements ;
 :noname ( -- )
-    z-bias set-color+ image-tex  frame-color i0 v0 xywh-rect ;
+    z-bias set-color+ image-tex  frame-color vi0 xywh-rect ;
 image is draw-image
 
 image class
 end-class 1image
 
 :noname ( -- )
-    w-bias set-color+ image-tex  frame-color i0 v0 xywh-rect ;
+    w-bias set-color+ image-tex  frame-color vi0 xywh-rect ;
 1image is draw-image
 
 \ frame widget
@@ -486,7 +486,7 @@ also freetype-gl
     THEN ;
 previous
 
-: <draw-bg ( -- ) v0 i0
+: <draw-bg ( -- ) vi0
     z-bias set-color+
     program glUseProgram
     style-tex ;
@@ -505,10 +505,10 @@ previous
     atlas-scaletex
     atlas-tex
     GL_TEXTURE0 glActiveTexture
-    v0 i0 ; \ text draw, one draw call in total
+    vi0 ; \ text draw, one draw call in total
 : <draw-marking ( -- )
     z-bias set-color+
-    none-tex v0 i0 ;
+    none-tex vi0 ;
 
 Variable style-i#
 
@@ -845,7 +845,7 @@ end-class viewport
     z-bias set-color+ vp-tex
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
     vp-x vp-w f/ vp-y vp-h f/ w vp-w f/ h vp-h f/ { f: s0 f: t0 f: s1 f: t1 }
-    i0 v0 i>off  $FFFFFFFF >v
+    vi0 i>off  $FFFFFFFF >v
     x1 y1 >xy dup rgba>c n> s0       t0 t1 f+ >st v+
     x2 y1 >xy dup rgba>c n> s0 s1 f+ t0 t1 f+ >st v+
     x1 y2 >xy dup rgba>c n> s0       t0       >st v+

@@ -65,10 +65,10 @@ FVariable motion 0.01e motion f!
     0.01e 0.02e 0.15e 1.0e glClearColor
     clear
     Ambient 1 ambient% glUniform1fv
-    v0  set-triangle
+    vi0  set-triangle
     normals texcoords colors
     none-tex
-    i0  0 i, 1 i, 2 i,
+    0 i, 1 i, 2 i,
     GL_TRIANGLES draw-elements
     v0 colors'
     ascii-tex

@@ -833,6 +833,13 @@ object class
     0 +field next-vertex
 end-class vertex-c
 vertex-c >osize @ Constant vertex#
+vertex# $40 = [IF]
+    : vertex#/ 6 rshift ;
+    : vertex#* 6 lshift ;
+[ELSE]
+    : vertex#/ vertex# / ;
+    : vertex#* vertex# * ;
+[THEN]
 
 : vertex-init ( -- ) 0 >o
     0 glEnableVertexAttribArray
@@ -848,14 +855,15 @@ vertex-c >osize @ Constant vertex#
     o> ;
 
 : buffer-init ( -- )
-    index-buf 0= IF  points# 2* alloc+guard to index-buf  THEN
-    array-buf 0= IF  points# vertex# * alloc+guard to array-buf  THEN
+    \ 6 points per 4 vertices
+    index-buf 0= IF  points# 3 *      alloc+guard to index-buf  THEN
+    array-buf 0= IF  points# vertex#* alloc+guard to array-buf  THEN
     gl-buffers @ 0= IF  max-buf# gl-buffers glGenBuffers  THEN
     GL_ELEMENT_ARRAY_BUFFER 1 bind-buf
-    GL_ELEMENT_ARRAY_BUFFER points# 2* index-buf GL_DYNAMIC_DRAW
+    GL_ELEMENT_ARRAY_BUFFER points# 3 * index-buf GL_DYNAMIC_DRAW
     glBufferData
     GL_ARRAY_BUFFER 0 bind-buf
-    GL_ARRAY_BUFFER points# vertex# * array-buf GL_DYNAMIC_DRAW
+    GL_ARRAY_BUFFER points# vertex#* array-buf GL_DYNAMIC_DRAW
     glBufferData
     vertex-init ;
 
@@ -868,8 +876,8 @@ index-buf Value index^
     GL_ELEMENT_ARRAY_BUFFER 0 index^ index-buf - index-buf glBufferSubData
     index^ index-buf - 2/ GL_UNSIGNED_SHORT 0 glDrawElements ;
 
+: vi0 ( -- ) array-buf to buf^  index-buf to index^ ;
 : v0 ( -- ) array-buf to buf^ ;
-: i0 ( -- ) index-buf to index^ ;
 
 0e FValue t.i0
 
@@ -877,9 +885,9 @@ index-buf Value index^
 : v+ ( o:vertex -- o:vertex' )
     next-vertex >o rdrop t.i0 t.i sf! ;
 : v> ( o:vertex -- )  ]] o ->buf^ o> [[ ; immediate compile-only
-: i? ( -- n )  buf^ array-buf - vertex# / ;
+: i? ( -- n )  buf^ array-buf - vertex#/ ;
 : i, ( n -- )
-    index^ dup 2 + to index^ w! ;
+    index^ 2 +to index^ w! ;
 Variable i-off
 : i>off ( -- )  i? i-off ! ;
 : ltri ( off -- )  i-off @ dup i, dup 1+ i, + i, ;

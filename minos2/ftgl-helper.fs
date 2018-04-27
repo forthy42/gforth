@@ -165,9 +165,16 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     ELSE  drop  THEN
     r> glyph+xy 0e to t.i0 ;
 
+: render> ( -- )
+\    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
+    GL_TRIANGLES draw-elements ;
+
+: ?flush-tris ( -- )
+    i? 4 + points# u>= IF  render> vi0  THEN ;
+
 : render-string ( addr u -- )
     0 -rot  bounds ?DO
-	I xchar+xy
+	I xchar+xy ?flush-tris
     I I' over - x-size +LOOP  drop ;
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
@@ -219,11 +226,8 @@ program init
     GL_TEXTURE3 glActiveTexture
     atlas-tex atlas-scaletex
     GL_TEXTURE0 glActiveTexture
-    v0 i0 ;
+    vi0 ;
 
-: render> ( -- )
-\    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
-    GL_TRIANGLES draw-elements ;
  : render-bgra> ( -- )
      GL_ONE GL_ONE_MINUS_SRC_ALPHA glBlendFunc
      GL_TRIANGLES draw-elements

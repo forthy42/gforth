@@ -257,10 +257,10 @@ $20 Value minpow2#
     videocols * sfloats +
     videocols r> rgba-map wrap-texture nearest
 
-    v0 >rectangle >texcoords
+    vi0 >rectangle >texcoords
     GL_TEXTURE0 glActiveTexture
     chars-tex
-    i0 0 i, 1 i, 2 i, 0 i, 2 i, 3 i,
+    0 i, 1 i, 2 i, 0 i, 2 i, 3 i,
     GL_TRIANGLES draw-elements ;
 
 : screen-scroll ( r -- )  fdup floor fdup f>s scroll-y ! f-

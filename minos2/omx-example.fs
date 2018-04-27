@@ -282,7 +282,7 @@ true value show-mcursor
     prev-timestamp f@ first-timestamp f@ f<> IF
 	first-timestamp f@ f0=
 	IF  set-deltat  THEN
-	v0 i0 rectangle
+	vi0 rectangle
 	show-mcursor IF
 	    hide-cursor utime lastseek 2@ d- 2over dmin d-
 	    d>f hide-cursor d>f f/ triangle
