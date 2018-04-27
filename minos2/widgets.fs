@@ -545,7 +545,7 @@ end-class box
 	xt I @ .execute
     cell +LOOP ;
 : do-lastchild ( xt -- .. )
-    childs[] $[]# 1- childs[] $[] @ .execute ;
+    childs[] $[]# ?dup-IF 1- childs[] $[] @ .execute ELSE  drop  THEN ;
 
 :noname ( -- )
     ['] !size do-childs
