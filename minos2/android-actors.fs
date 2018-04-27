@@ -30,8 +30,6 @@ Variable buttonmask
 1 Constant #lastdown
 2 Constant #clearme
 
-: top-act ( -- o ) top-widget .act ;
-
 #250 Value twoclicks  \ every edge further apart than 250ms into separate clicks
 128e FValue samepos   \ position difference square-summed less than is same pos
 
@@ -116,13 +114,6 @@ Create actions
 : togglekb-0  togglekb 0 ;
 : aback-0     aback    0 ;
 
-Variable a-mods
-
-[IFUNDEF] xor! : xor! ( n addr -- )  >r r@ @ xor r> ! ; [THEN]
-: a-ctrl!   k-ctrl-mask a-mods xor! 0 ;
-: a-shift!  k-shift-mask a-mods xor! 0 ;
-: a-alt!    k-alt-mask a-mods xor! 0 ;
-
 Create keycode>ekey
 AKEYCODE_HOME        , ' k-home   ,
 AKEYCODE_DPAD_UP     , ' k-up     ,
@@ -154,23 +145,20 @@ AKEYCODE_F11         , ' k-f11    ,
 AKEYCODE_F12         , ' k-f12    ,
 AKEYCODE_MENU        , ' togglekb-0 ,
 AKEYCODE_BACK        , ' aback-0  ,
-AKEYCODE_CTRL_LEFT   , ' a-ctrl!  ,
-AKEYCODE_CTRL_RIGHT  , ' a-ctrl!  ,
-AKEYCODE_SHIFT_LEFT  , ' a-shift! ,
-AKEYCODE_SHIFT_RIGHT , ' a-shift! ,
-AKEYCODE_ALT_LEFT    , ' a-alt!   ,
-AKEYCODE_ALT_RIGHT   , ' a-alt!   ,
 here >r DOES> ( akey -- ekey ) [ r> ]l swap DO
     dup I @ = IF  drop I cell+ perform  UNLOOP  EXIT  THEN
 [ 2 cells ]L +LOOP
 dup AKEYCODE_A AKEYCODE_Z 1+ within IF
-    a-mods @ k-ctrl-mask and IF
+    meta-key# @ META_CTRL_ON and IF
 	AKEYCODE_A - 1+  EXIT
     THEN
-    a-mods @ k-shift-mask and IF
+    meta-key# @ META_SHIFT_ON and IF
 	AKEYCODE_A - 'A' +  EXIT
     THEN
-    a-mods @ k-alt-mask and IF
+    meta-key# @ META_ALT_ON and IF
+	drop 0  EXIT
+    THEN
+    meta-key# @ META_META_ON and IF
 	drop 0  EXIT
     THEN
     AKEYCODE_A - 'a' +
