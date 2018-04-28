@@ -863,7 +863,9 @@ end-class viewport
     fdup vp-w f<> to vp-w
     h d f+ dglue-c df@ vglue-c df@ f+ fmax
     fdup vp-h f<> to vp-h
-    or IF ['] +sync vp-needed THEN ;
+    vp-h h d f+ f- vp-y fmin fdup vp-y f<> to vp-y
+    vp-w w f- vp-x fmin fdup vp-x f<> to vp-x
+    or or or IF ['] +sync vp-needed THEN ;
 ' vp-!size viewport is !size
 :noname ( -- )
     ['] +sync vp-needed [ box :: resized ] ; viewport is resized
