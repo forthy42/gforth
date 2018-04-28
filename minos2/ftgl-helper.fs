@@ -184,7 +184,8 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     swap
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
 	    drop double-atlas  REPEAT  >r 2drop
-    dup IF  r@ swap texture_glyph_get_kerning f-scale f* f+
+    dup IF  r@ swap texture_glyph_get_kerning
+	fdup f0<> IF  f-scale f*  THEN  f+
     ELSE  drop  THEN
     r@ texture_glyph_t-advance_x sf@ f-scale f* f+
     r@ texture_glyph_t-offset_y sl@ f-scale fm*
