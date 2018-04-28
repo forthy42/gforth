@@ -389,14 +389,15 @@ edit-terminal edit-out !
 
 \ edit things
 
-: edit-xt ( xt o:actor -- )
+: edit-xt ( ... xt o:actor -- )
+    \G pass xt to the editor
+    \G xt has ( ... addr u curpos cursize -- addr u curpos cursize ) as stack effect
     *insflag off
     history >r  >r  0 to history
     edit-w >o addr text$ curpos cursize 0 max o> to xselw
-    >r dup edit$ ! $@ swap over swap r>
-    r> catch >r edit-w >o to curpos 0 to cursize o> drop edit$ @ $!len drop
-    r>  r> to history throw
-    +sync +glyphs ;
+    >r dup edit$ ! dup { e$ } $@ swap over swap r>
+    r> catch >r edit-w >o to curpos 0 to cursize o> drop e$ $!len drop
+    r>  r> to history  +sync +glyphs  throw ;
 
 : edit>curpos ( x o:actor -- )
     edit-w >o  text-font to font

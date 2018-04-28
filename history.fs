@@ -395,7 +395,7 @@ Create std-ekeys
     ' xhide ,        ' false ,        ' prev-line ,    ' next-line ,
     ' ?xdel ,        ' (xenter) ,
 
-: xchar-edit-ctrl ( ekey -- )
+: xchar-edit-ctrl ( max span addr pos1 ekey -- max span addr pos2 flag )
     dup mask-shift# rshift 7 and vt100-modifier !
     dup 1 mask-shift# lshift 1- and swap keycode-start u>= IF
 	cells ekeys + perform  EXIT  THEN
