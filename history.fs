@@ -319,6 +319,7 @@ Variable vt100-modifier
     swap r> - swap 0 xretype ;
 
 : (xenter)  ( max span addr pos1 -- max span addr span true )
+    setstring$ $@ dup IF  insert-string  ELSE  2drop  THEN
     drop 2dup swap -trailing nip IF
 	end^ 2@ hist-setpos
 	2dup swap history
