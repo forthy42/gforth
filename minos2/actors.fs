@@ -84,12 +84,13 @@ debug: event( \ +db event( \ )
 simple-actor class
     method do-action
     defer: ck-action
+    value: data
 end-class click-actor
 
 ' ck-action click-actor is do-action
 
-: click[] ( o xt -- o )
-    rot >o click-actor new >o is ck-action o o> !act o o> ;
+: click[] ( o xt data -- o )
+    rot >o click-actor new >o to data is ck-action o o> !act o o> ;
 
 :noname ( rx ry b n -- )
     fdrop fdrop 1 and 0= swap 1 <= and IF  do-action  THEN
@@ -104,13 +105,12 @@ end-class click-actor
 \ toggle actor
 
 click-actor class
-    value: tg-state
 end-class toggle-actor
 
 : toggle[] ( o xt state -- o )
-    rot >o toggle-actor new >o to tg-state is ck-action o o> !act o o> ;
+    rot >o toggle-actor new >o to data is ck-action o o> !act o o> ;
 
-:noname tg-state 0= dup to tg-state ck-action ; toggle-actor is do-action
+:noname data 0= dup to data ck-action ; toggle-actor is do-action
 
 \ actor for a box with one active element
 
@@ -190,8 +190,8 @@ end-class vp-actor
 :noname caller-w >o vp-h f< vp-w f< and o> ; vp-actor is inside?
 
 : tx ( rx ry -- rx' ry' )
-    fswap vp-x f+ x f-
-    fswap vp-y f+ y h f- f- ;
+    fswap x f- vp-x         f+
+    fswap y f- vp-h vp-y f- f+ ;
 : tx$ ( $rxy*n -- $rxy*n' )
     0e fdup tx { f: dx f: dy }
     dup $@len act .txy$ $!len
