@@ -18,10 +18,11 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 0e FValue x-baseline
-$000000FF Value x-color
-: blackish $000000FF to x-color ;
-: dark-blue $0000bFFF to x-color ;
-: transparent $00000000 to x-color ;
+$000000FF color: blackish
+$0000BFFF color: dark-blue
+$00000000 color: transparent
+$FFFFFFFF color: whitish
+blackish
 0e FValue x-border
 : cbl ( -- )
     current-baseline% to x-baseline ;
@@ -38,7 +39,7 @@ Defer }}text' ' }}text IS }}text'
 : }}smalltext ( addr u -- o )
     font-size >r \script }}text' r> to font-size ;
 : }}emoji ( addr u -- o )
-    text new >o font@ text! $FFFFFFFF to text-color  x-border to border o o> ;
+    text new >o font@ text! x-color to text-color  x-border to border o o> ;
 : }}edit ( addr u -- o )
     edit new >o font@ edit! x-color to text-color  x-border to border o o> ;
 : }}pw ( addr u -- o )
@@ -66,9 +67,9 @@ Defer }}text' ' }}text IS }}text'
     load-texture glue new >o
     s>f fover f* vglue-c df!
     s>f       f* hglue-c df! o o> dup >r
-    $ffffffff rot }}image r> ;
+    $ffffffff color, rot }}image r> ;
 : }}image-tex ( xt glue -- o )
-    $ffffffff rot }}image ;
+    $ffffffff color, rot }}image ;
 
 glue new Constant glue*wh
 

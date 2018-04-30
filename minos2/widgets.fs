@@ -39,19 +39,27 @@ get-current
 also [IFDEF] android android [THEN]
 also opengl
 
+: #Variable ( init -- )  Create , ;
+
 vocabulary minos  also minos definitions
+
+0 Value x-color
+: color: ( rgba "name" -- )
+    Create , DOES> @ to x-color ;
+: color, ( rgba -- [rgba] ) \ pseudonymous color
+;
 
 vocabulary m2c \ minos2 config
 get-current also m2c definitions
-Variable cursorcolor#
-Variable selectioncolor#
+
+$000000FF #Variable cursorcolor#
+$3F7FFF7F #Variable selectioncolor#
 Variable curminchars#
 FVariable curminwidth%
 FVariable pwtime%
 set-current
 
-$000000FF cursorcolor# !
-$3F7FFF7F selectioncolor# !
+
 0 curminchars# !
 1e curminwidth% f!
 0.5e pwtime% f!
@@ -133,6 +141,8 @@ object class
     sfvalue: d \ below baseline
     sfvalue: border    \ surrounding border, all directions
     sfvalue: borderv   \ vertical border offset
+    sfvalue: bordert   \ top border offset
+    sfvalue: borderl   \ left border offset
     sfvalue: kerning   \ add kerning
     sfvalue: raise     \ raise/lower box
     sfvalue: baseline  \ minimun skip per line
@@ -158,8 +168,8 @@ end-class widget
 :noname x y h f- w h d f+ ; widget is xywh
 :noname x y w h d ; widget is xywhd
 ' noop widget is !size
-:noname w border f2* f+ kerning f+ 0e fdup ; widget is hglue
-:noname h border borderv f+ raise f+ f+ 0e fdup ; widget is vglue
+:noname w border f2* f+ borderl f+ kerning f+ 0e fdup ; widget is hglue
+:noname h border borderv f+ bordert f+ raise f+ f+ 0e fdup ; widget is vglue
 :noname d border borderv f+ raise f- f+ 0e fdup ; widget is dglue
 : widget-resize to d to h to w to y to x ;
 ' widget-resize widget is resize
@@ -203,9 +213,9 @@ widget class
     value: tile-glue \ glue object
 end-class tile
 
-:noname tile-glue .hglue { f: s f: a } border f2* f+ s a ; tile is hglue
+:noname tile-glue .hglue { f: s f: a } border f2* borderl f+ f+ s a ; tile is hglue
 :noname tile-glue .dglue { f: s f: a } border borderv f+ f+ s a ; tile is dglue
-:noname tile-glue .vglue { f: s f: a } border borderv f+ f+ s a ; tile is vglue
+:noname tile-glue .vglue { f: s f: a } border borderv f+ bordert f+ f+ s a ; tile is vglue
 
 8 Value style-w#
 8 Value style-h#
@@ -216,12 +226,13 @@ end-class tile
     s>f f+ style-h# fm/ fswap >st ;
 
 : draw-rectangle { f: x1 f: y1 f: x2 f: y2 -- }
-    i>off frame-color frame# >v
-    x1 y1 >xy over rgba>c n> 0e 0e dup #>st v+
-    x2 y1 >xy over rgba>c n> 1e 0e dup #>st v+
-    x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
-    x2 y2 >xy swap rgba>c n> 1e 1e     #>st v+
-    v> 2 quad ;
+    frame-color ?dup-IF  @ frame# i>off >v
+	x1 y1 >xy over rgba>c n> 0e 0e dup #>st v+
+	x2 y1 >xy over rgba>c n> 1e 0e dup #>st v+
+	x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
+	x2 y2 >xy swap rgba>c n> 1e 1e     #>st v+
+	v> 2 quad
+    THEN ;
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
     { f: w f: h } fover w f+ fover h f+ ;
 : tile-draw ( -- )
@@ -320,18 +331,18 @@ end-class text
 : text! ( addr u font -- )
     to text-font to text$  +glyphs ;
 : text-xy! ( -- )
-    x border kerning f+ f+ fround penxy         sf!
-    y             raise f+ fround penxy sfloat+ sf!
-    w border f2* f- kerning f- text-w f/ to x-scale
+    x border kerning f+ borderl f+ f+ fround penxy         sf!
+    y                        raise f+ fround penxy sfloat+ sf!
+    w border f2* borderl f+ f- kerning f- text-w f/ to x-scale
     text-font to font  text-color color ! ;
 : text-text ( -- ) text-xy!
     text$ render-string ;
 : text-!size ( -- )
     text-font to font
     text$ layout-string
-    border borderv f+ f+ to h
+    border borderv f+ bordert f+ f+ to h
     border borderv f+ f+ to d
-    fdup to text-w  border f2* f+ to w
+    fdup to text-w  border f2* borderl f+ f+ to w
 \    ." text sized to: " x f. y f. w f. h f. d f. cr
 ;
 : text-init
@@ -377,7 +388,7 @@ end-class edit
     THEN ; edit is draw-init
 : edit-marking ( -- )
     cursize 0< ?EXIT  text-font to font
-    w border f2* f- text-w fdup f0= IF  f*  ELSE   f/  THEN { f: scale }
+    w border f2* borderl f+ f- text-w fdup f0= IF  f*  ELSE   f/  THEN { f: scale }
     text$ curpos umin layout-string fdrop fdrop
     scale f* { f: w }
     setstring$ $@len IF
@@ -386,16 +397,18 @@ end-class edit
 	text$ curpos cursize m2c:curminchars# @ umax + umin
 	layout-string fdrop fdrop scale f* w f-
     THEN  m2c:curminwidth% f@ fmax { f: cw }
-    x w f+ border f+  y d border borderv f+ f- f+ { f: x0 f: y0 }
-    x0 cw f+ y h border borderv f+ f- f- { f: x1 f: y1 }
+    x w f+ border f+ borderl f+ y d border borderv f+ f- f+ { f: x0 f: y0 }
+    x0 cw f+ y h border borderv f+ bordert f+ f- f- { f: x1 f: y1 }
     i>off m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
-    x0 y0 >xy dup rgba>c n> 1e 1e >st v+
-    x1 y0 >xy dup rgba>c n> 0e 1e >st v+
-    x0 y1 >xy dup rgba>c n> 0e 0e >st v+
-    x1 y1 >xy     rgba>c n> 1e 0e >st v+
+    x0 y0 >xy dup rgba>c n> 0e 0e >st v+
+    x1 y0 >xy dup rgba>c n> 1e 0e >st v+
+    x0 y1 >xy dup rgba>c n> 0e 1e >st v+
+    x1 y1 >xy     rgba>c n> 1e 1e >st v+
     v> 2 quad ;
 ' edit-marking edit is draw-marking
-$FFFF7FFF Value setstring-color
+
+$FFFF7FFF color, Value setstring-color
+
 : edit-text ( -- )  text-xy!
     cursize 0= setstring$ $@len and IF
 	text$ curpos umin render-string
@@ -417,9 +430,9 @@ $FFFF7FFF Value setstring-color
     ELSE
 	text$ layout-string
     THEN
-    border borderv f+ f+ to h
+    border borderv f+ bordert f+ f+ to h
     border borderv f+ f+ to d
-    fdup to text-w  border f2* f+ to w ;
+    fdup to text-w  border f2* f+ borderl f+ to w ;
 ' edit-text edit is draw-text
 ' edit-!size edit is !size
 
@@ -681,7 +694,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    hglue+  w border f2* f- { f: wtotal }
+    hglue+  w border f2* borderl f+ f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
     wtotal wmin f- a f/ 0e 0e x ['] hglue-step do-childs
     fdrop fdrop fdrop fdrop
@@ -728,12 +741,12 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : vbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     hglue* glue-drop  vglue+ dglue+ glue+
-    h d f+ border borderv f+ f2* f- { f: htotal }
+    h d f+ border borderv f+ f2* bordert f+ f- { f: htotal }
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
     htotal hmin f- a f/ 0e 0e
-    y border borderv f+ f+ h f- 0e ['] vglue-step do-childs
+    y border borderv f+ bordert f+ f+ h f- 0e ['] vglue-step do-childs
     fdrop fdrop fdrop fdrop fdrop
-    x border f+ w border f2* f- ['] vbox-resize1 do-childs fdrop fdrop
+    x border f+ w border f2* f- borderl f- ['] vbox-resize1 do-childs fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
@@ -746,8 +759,8 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 : zbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    x border f+ y border borderv f+ f+ w border f2* f-
-    h border borderv f+ f- d border borderv f+ f-
+    x border f+ borderl f+ y border borderv f+ bordert f+ f+ w border f2* f-
+    h border borderv f+ bordert f+ f- d border borderv f+ f-
     ['] zbox-resize1 do-childs
     fdrop fdrop fdrop fdrop fdrop
 \    ." zbox sized to: " x f. y f. w f. h f. d f. cr
@@ -955,8 +968,8 @@ hslider-partl , hslider-part , hslider-partr ,
 
 \ slider top
 
-$7F7F7FFF Value slider-color
-$7F7F7FFF Value slider-fgcolor
+$7F7F7FFF color, Value slider-color
+$7F7F7FFF color, Value slider-fgcolor
 8e FValue slider-border
 
 : slider { parts viewport-link f: sw f: sd f: sh -- ou os od }
