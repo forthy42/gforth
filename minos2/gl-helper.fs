@@ -393,7 +393,7 @@ void main() {
 	    col = col*(texture2D(u_Texture1, v_TexCoordinate) + u_Coloradd1);
     else
 	if(v_Extras.x >= -1.0)
-	    col = col.aaaa*(texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2);
+	    col = col*(texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2);
 	else
 	    col = col*(texture2D(u_Texture3, v_TexCoordinate).aaaa + u_Coloradd3);
     if(u_Saturate != 1.0) {

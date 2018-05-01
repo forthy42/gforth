@@ -97,6 +97,7 @@ Variable fonts[] \ stack of used fonts
 
 2 sfloats buffer: penxy
 Variable color $FFC0A0FF color !
+color @ Value xy-color
 1e FValue x-scale
 1e FValue y-scale
 1e FValue f-scale
@@ -115,10 +116,10 @@ Variable color $FFC0A0FF color !
     glyph texture_glyph_t-s1 sf@ { f: s1 }
     glyph texture_glyph_t-t1 sf@ { f: t1 }
     >v
-    x0 y0 >xy n> color @ rgba>c s0 t0 >st v+
-    x1 y0 >xy n> color @ rgba>c s1 t0 >st v+
-    x0 y1 >xy n> color @ rgba>c s0 t1 >st v+
-    x1 y1 >xy n> color @ rgba>c s1 t1 >st v+
+    x0 y0 >xy n> xy-color rgba>c s0 t0 >st v+
+    x1 y0 >xy n> xy-color rgba>c s1 t0 >st v+
+    x0 y1 >xy n> xy-color rgba>c s0 t1 >st v+
+    x1 y1 >xy n> xy-color rgba>c s1 t1 >st v+
     v>
     xp glyph texture_glyph_t-advance_x sf@ xs f* f+ penxy sf!
     yp glyph texture_glyph_t-advance_y sf@ ys f* f+ penxy sfloat+ sf! ;
@@ -138,8 +139,13 @@ Variable color $FFC0A0FF color !
 Defer font-select ( xcaddr font -- xcaddr font' )
 ' noop is font-select
 
+: .aaaa ( color -- alpha-channel )
+    $FF and dup 8 lshift or dup $10 lshift or ;
+
 : font->t.i0 ( font -- )
-    texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF  -1e  ELSE  -2e  THEN
+    texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
+	-1e color @ .aaaa to xy-color  ELSE
+	-2e color @       to xy-color  THEN
     to t.i0 ;
 
 : double-atlas ( xc-addr -- xc-addr )

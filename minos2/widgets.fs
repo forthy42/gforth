@@ -21,7 +21,7 @@
 \ to make things easier, neither drawable elements nor boxes need an actor.
 
 debug: time(
-\ +db time( \ )
++db time( \ )
 
 [IFUNDEF] no-file#
     2 Constant ENOENT
@@ -59,7 +59,6 @@ Variable curminchars#
 FVariable curminwidth%
 FVariable pwtime%
 set-current
-
 
 0 curminchars# !
 1e curminwidth% f!
@@ -149,11 +148,8 @@ object class
     sfvalue: baseline  \ minimun skip per line
     method draw-init ( -- ) \ init draw
     method draw-bg ( -- ) \ button background draw
-    method draw-icon ( -- ) \ icons draw
-    method draw-thumbnail ( -- ) \ thumbnails draw
     method draw-image ( -- ) \ image draw
     method draw-text ( -- ) \ text draw
-    method draw-marking ( -- ) \ draw some marking
     method hglue ( -- rtyp rsub radd )
     method dglue ( -- rtyp rsub radd )
     method vglue ( -- rtyp rsub radd )
@@ -180,9 +176,6 @@ end-class widget
 
 : dw* ( f -- f' ) dpy-w @ fm* ;
 : dh* ( f -- f' ) dpy-h @ fm* ;
-
-tex: style-tex \ 8 x 8 subimages, each sized 128x128
-style-tex 1024 dup rgba-newtex
 
 \ glues
 
@@ -218,16 +211,21 @@ end-class tile
 :noname tile-glue .dglue { f: s f: a } border borderv f+ f+ s a ; tile is dglue
 :noname tile-glue .vglue { f: s f: a } border borderv f+ bordert f+ f+ s a ; tile is vglue
 
-8 Value style-w#
-8 Value style-h#
+begin-structure atlas-region
+    slvalue: i.x
+    slvalue: i.y
+    slvalue: i.w
+    slvalue: i.h
+end-structure
 
 : #>st ( x y frame -- ) \ using frame#
-    style-w# /mod
-    s>f f+ style-w# fm/ fswap
-    s>f f+ style-h# fm/ fswap >st ;
+    dup i.h fm* dup i.y s>f f+ fswap
+    dup i.w fm*     i.x s>f f+ fswap >st ;
 
 : draw-rectangle { f: x1 f: y1 f: x2 f: y2 -- }
-    frame-color ?dup-IF  @ frame# i>off >v
+    frame-color ?dup-IF
+	-1e to t.i0
+	@ frame# i>off >v
 	x1 y1 >xy over rgba>c n> 0e 0e dup #>st v+
 	x2 y1 >xy over rgba>c n> 1e 0e dup #>st v+
 	x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
@@ -289,6 +287,7 @@ DOES>  swap sfloats + sf@ ;
     2 and    IF fnegate w f+  THEN  f+ ;
 
 : frame-draw ( -- )
+    -1e to t.i0
     frame# frame-color border fdup borderv f+
     xywh { f c f: b f: bv f: x f: y f: w f: h }
     i>off >v
@@ -397,21 +396,21 @@ end-class edit
     ELSE
 	text$ curpos cursize m2c:curminchars# @ umax + umin
 	layout-string fdrop fdrop scale f* w f-
-    THEN  m2c:curminwidth% f@ fmax { f: cw }
-    x w f+ border f+ borderl f+ y d border borderv f+ f- f+ { f: x0 f: y0 }
+    THEN  fdup f0= IF  fdrop m2c:curminwidth% f@ fdup f2/ fnegate
+    ELSE  0e   THEN  { f: cw f: cw- }
+    x cw- f+ w f+ border f+ borderl f+ y d border borderv f+ f- f+ { f: x0 f: y0 }
     x0 cw f+ y h border borderv f+ bordert f+ f- f- { f: x1 f: y1 }
-    i>off 1e to t.i0
+    i>off -2e to t.i0
     m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
-    x0 y0 >xy dup rgba>c n> 0e 0e >st v+
-    x1 y0 >xy dup rgba>c n> 1e 0e >st v+
-    x0 y1 >xy dup rgba>c n> 0e 1e >st v+
-    x1 y1 >xy     rgba>c n> 1e 1e >st v+
+    x0 y0 >xy dup rgba>c n> 2e 2e >st v+
+    x1 y0 >xy dup rgba>c n> 3e 2e >st v+
+    x0 y1 >xy dup rgba>c n> 2e 3e >st v+
+    x1 y1 >xy     rgba>c n> 3e 3e >st v+
     v> 2 quad  #4 ?flush-tris ;
-' edit-marking edit is draw-marking
 
 $FFFF7FFF color, Value setstring-color
 
-: edit-text ( -- )  text-xy!
+: edit-text ( -- ) edit-marking  text-xy!
     cursize 0= setstring$ $@len and IF
 	text$ curpos umin render-string
 	setstring-color color !
@@ -482,7 +481,6 @@ Variable *insflag
     THEN ;
 :noname ( -- ) ['] edit-text    pw-xt ; pw-edit is draw-text
 :noname ( -- ) ['] edit-!size   pw-xt ; pw-edit is !size
-:noname ( -- ) ['] edit-marking pw-xt ; pw-edit is draw-marking
 
 \ draw wrapper
 
@@ -503,8 +501,6 @@ also freetype-gl
     THEN ;
 previous
 
-: <draw-icon ( -- )  ; \ icon draw, one draw call in total
-: <draw-thumbnail ( -- )  ; \ icon draw, one draw call in total
 : <draw-image ( -- ) ; \ image draw, one draw call per image
 : draw-image> ( -- ) ;
 : <draw-text ( -- )
@@ -517,25 +513,41 @@ previous
     z-bias set-color+2
     atlas-bgra-scaletex
     atlas-tex-bgra
-    GL_TEXTURE1 glActiveTexture
-    z-bias set-color+1
-    none-tex
     GL_TEXTURE0 glActiveTexture
-    z-bias set-color+
-    style-tex 0e to t.i0
     vi0 ; \ bg+text+marking draw, one draw call in total
 
-Variable style-i#
+\ load style into atlas-tex-bgra
 
-: load-style ( addr u -- n )  style-tex
-    style-i# @ 8 /mod 128 * >r 128 * r> 2swap load-subtex 2drop
-    style-i# @ 1 style-i# +! ;
-: style: load-style Create , DOES> @ to frame# ;
+atlas-region buffer: (ar)
+
+also soil also freetype-gl
+
+: mem>style ( addr u -- )
+    atlas-tex-bgra
+    over >r  0 0 0 { w^ w w^ h w^ ch# }
+    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
+    r> free throw
+    BEGIN
+	atlas-bgra w @ 1+ h @ 1+ (ar) texture_atlas_get_region
+	(ar) i.x (ar) i.y -1 -1 d= WHILE
+	    atlas-bgra atlas-bgra# 2* dup >r to atlas-bgra#
+	    r> dup texture_atlas_enlarge_texture
+    REPEAT
+    >r atlas-bgra (ar) i.x (ar) i.y (ar) i.w 1- (ar) i.h 1- r@ (ar) i.w 1- 2* 2*
+    texture_atlas_set_region
+    r> free throw  (ar) ;
+: load-style ( addr u -- ivec4-addr )
+    open-fpath-file throw 2drop slurp-fid mem>style ;
+
+previous previous
+
+: style: load-style Create here atlas-region dup allot move
+  DOES> to frame# ;
 
 "button.png" style: button1
-style-i# @ Value slider-frame# \ set the frame number to button2 style
 "button2.png" style: button2
 "button3.png" style: button3
+' button1 >body Value slider-frame# \ set the frame number to button2 style
 
 \ boxes
 
@@ -570,11 +582,8 @@ end-class box
 
 :noname ( -- ) ['] draw-init      do-childs ; box is draw-init
 :noname ( -- ) ['] draw-bg        do-childs ; box is draw-bg
-:noname ( -- ) ['] draw-icon      do-childs ; box is draw-icon
-:noname ( -- ) ['] draw-thumbnail do-childs ; box is draw-thumbnail
 :noname ( -- ) ['] draw-image     do-childs ; box is draw-image
 :noname ( -- ) ['] draw-text      do-childs ; box is draw-text
-:noname ( -- ) ['] draw-marking   do-childs ; box is draw-marking
 
 :noname ( -- )
     parent-w ?dup-IF  .resized \ upwards
@@ -796,9 +805,7 @@ htab-glue is hglue!@
 
 : widget-draw ( o:widget -- )  time( ." draw:  " .!time cr )
     <draw-init      draw-init      draw-init>   time( ." init:  " .!time cr )
-    <draw-text      draw-bg draw-marking draw-text   render>      time( ." text:  " .!time cr )
-    <draw-icon      draw-icon      render>      time( ." icon:  " .!time cr )
-    <draw-thumbnail draw-thumbnail render>      time( ." thumb: " .!time cr )
+    <draw-text draw-bg draw-text   render>      time( ." text:  " .!time cr )
     <draw-image     draw-image     draw-image>  time( ." img:   " .!time cr )
     sync time( ." sync:  " .!time cr ) ;
 
@@ -826,10 +833,7 @@ end-class viewport
 
 : draw-vpchilds ( -- )
     <draw-text      ['] draw-bg        do-childs
-                    ['] draw-marking   do-childs
                     ['] draw-text      do-childs render>
-    <draw-icon      ['] draw-icon      do-childs render>
-    <draw-thumbnail ['] draw-thumbnail do-childs render>
     <draw-image     ['] draw-image     do-childs draw-image>
 ;
 
@@ -896,9 +900,6 @@ end-class viewport
     x y w h d widget-resize
 ; viewport is resize
 ' noop viewport is draw-bg
-' noop viewport is draw-icon
-' noop viewport is draw-thumbnail
-' noop viewport is draw-marking
 ' noop viewport is draw-text
 :noname vp-glue .hglue >hglue!@ ; viewport is hglue
 :noname vp-glue .dglue >dglue!@ ; viewport is dglue
