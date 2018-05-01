@@ -21,6 +21,7 @@
 \ to make things easier, neither drawable elements nor boxes need an actor.
 
 debug: time(
+\ +db time( \ )
 
 [IFUNDEF] no-file#
     2 Constant ENOENT
@@ -231,7 +232,7 @@ end-class tile
 	x2 y1 >xy over rgba>c n> 1e 0e dup #>st v+
 	x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
 	x2 y2 >xy swap rgba>c n> 1e 1e     #>st v+
-	v> 2 quad
+	v> 2 quad  #4 ?flush-tris
     THEN ;
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
     { f: w f: h } fover w f+ fover h f+ ;
@@ -302,7 +303,7 @@ DOES>  swap sfloats + sf@ ;
     v>
     9 0  DO
 	4 quad  1 I 3 mod 2 = - i-off +!
-    LOOP
+    LOOP   #36 ?flush-tris
 ; ' frame-draw frame is draw-bg
 
 : }}glue ( glue -- o )
@@ -399,12 +400,13 @@ end-class edit
     THEN  m2c:curminwidth% f@ fmax { f: cw }
     x w f+ border f+ borderl f+ y d border borderv f+ f- f+ { f: x0 f: y0 }
     x0 cw f+ y h border borderv f+ bordert f+ f- f- { f: x1 f: y1 }
-    i>off m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
+    i>off 1e to t.i0
+    m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
     x0 y0 >xy dup rgba>c n> 0e 0e >st v+
     x1 y0 >xy dup rgba>c n> 1e 0e >st v+
     x0 y1 >xy dup rgba>c n> 0e 1e >st v+
     x1 y1 >xy     rgba>c n> 1e 1e >st v+
-    v> 2 quad ;
+    v> 2 quad  #4 ?flush-tris ;
 ' edit-marking edit is draw-marking
 
 $FFFF7FFF color, Value setstring-color
@@ -501,29 +503,27 @@ also freetype-gl
     THEN ;
 previous
 
-: <draw-bg ( -- ) vi0
-    z-bias set-color+
-    program glUseProgram
-    style-tex ;
-
 : <draw-icon ( -- )  ; \ icon draw, one draw call in total
 : <draw-thumbnail ( -- )  ; \ icon draw, one draw call in total
 : <draw-image ( -- ) ; \ image draw, one draw call per image
 : draw-image> ( -- ) ;
 : <draw-text ( -- )
-    GL_TEXTURE2 glActiveTexture
-    z-bias set-color+2
-    atlas-bgra-scaletex
-    atlas-tex-bgra
+    program glUseProgram
     GL_TEXTURE3 glActiveTexture
     z-bias set-color+3
     atlas-scaletex
     atlas-tex
+    GL_TEXTURE2 glActiveTexture
+    z-bias set-color+2
+    atlas-bgra-scaletex
+    atlas-tex-bgra
+    GL_TEXTURE1 glActiveTexture
+    z-bias set-color+1
+    none-tex
     GL_TEXTURE0 glActiveTexture
-    vi0 ; \ text draw, one draw call in total
-: <draw-marking ( -- )
     z-bias set-color+
-    none-tex vi0 ;
+    style-tex 0e to t.i0
+    vi0 ; \ bg+text+marking draw, one draw call in total
 
 Variable style-i#
 
@@ -796,12 +796,10 @@ htab-glue is hglue!@
 
 : widget-draw ( o:widget -- )  time( ." draw:  " .!time cr )
     <draw-init      draw-init      draw-init>   time( ." init:  " .!time cr )
-    <draw-bg        draw-bg        render>      time( ." bg:    " .!time cr )
+    <draw-text      draw-bg draw-marking draw-text   render>      time( ." text:  " .!time cr )
     <draw-icon      draw-icon      render>      time( ." icon:  " .!time cr )
     <draw-thumbnail draw-thumbnail render>      time( ." thumb: " .!time cr )
     <draw-image     draw-image     draw-image>  time( ." img:   " .!time cr )
-    <draw-marking   draw-marking   render>      time( ." mark:  " .!time cr )
-    <draw-text      draw-text      render>      time( ." text:  " .!time cr )
     sync time( ." sync:  " .!time cr ) ;
 
 \ viewport: Draw into a frame buffer
@@ -827,12 +825,12 @@ end-class viewport
     catch r> to need-mask throw ;
 
 : draw-vpchilds ( -- )
-    <draw-bg        ['] draw-bg        do-childs render>
+    <draw-text      ['] draw-bg        do-childs
+                    ['] draw-marking   do-childs
+                    ['] draw-text      do-childs render>
     <draw-icon      ['] draw-icon      do-childs render>
     <draw-thumbnail ['] draw-thumbnail do-childs render>
     <draw-image     ['] draw-image     do-childs draw-image>
-    <draw-marking   ['] draw-marking   do-childs render>
-    <draw-text      ['] draw-text      do-childs render>
 ;
 
 1 sfloats buffer: vp-ambient%  1.0e vp-ambient% sf!

@@ -169,12 +169,12 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 \    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
     GL_TRIANGLES draw-elements ;
 
-: ?flush-tris ( -- )
-    i? 4 + points# u>= IF  render> vi0  THEN ;
+: ?flush-tris ( n -- )
+    i? + points# u>= IF  render> vi0  THEN ;
 
 : render-string ( addr u -- )
     0 -rot  bounds ?DO
-	I xchar+xy ?flush-tris
+	I xchar+xy 4 ?flush-tris
     I I' over - x-size +LOOP  drop ;
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
