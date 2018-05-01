@@ -21,7 +21,7 @@
 \ to make things easier, neither drawable elements nor boxes need an actor.
 
 debug: time(
-+db time( \ )
+\ +db time( \ )
 
 [IFUNDEF] no-file#
     2 Constant ENOENT
