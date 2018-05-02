@@ -315,8 +315,6 @@ uniform mat4 u_MVPMatrix;       // A constant representing the combined model/vi
 uniform mat4 u_MVMatrix;        // A constant representing the combined model/view matrix.
 uniform vec2 u_TexScale0;       // scale texture coordinates
 uniform vec2 u_TexScale1;       // scale texture coordinates
-uniform vec2 u_TexScale2;       // scale texture coordinates
-uniform vec2 u_TexScale3;       // scale texture coordinates
  
 attribute vec4 a_Position;      // Per-vertex position information we will pass in.
 attribute vec4 a_Color;         // Per-vertex color information we will pass in.
@@ -344,15 +342,12 @@ void main()
  
     // scale texture coordinate by appropriate texture scale
     if(a_Extras.x >= 0.0)
-	if(a_Extras.x < 1.0)
+	v_TexCoordinate = a_TexCoordinate;
+    else
+	if(a_Extras.x >= -1.0)
 	    v_TexCoordinate = a_TexCoordinate * u_TexScale0;
 	else
 	    v_TexCoordinate = a_TexCoordinate * u_TexScale1;
-    else
-	if(a_Extras.x >= -1.0)
-	    v_TexCoordinate = a_TexCoordinate * u_TexScale2;
-	else
-	    v_TexCoordinate = a_TexCoordinate * u_TexScale3;
   
     // Transform the normal's orientation into eye space.
     v_Normal = vec3(u_MVMatrix * a_Normal);
@@ -431,8 +426,6 @@ void main() {
 0 Value MVMatrix
 0 Value TexScale0
 0 Value TexScale1
-0 Value TexScale2
-0 Value TexScale3
 0 Value LightPos
 0 Value Texture0
 0 Value Texture1
@@ -596,16 +589,12 @@ Create unit-texscale
 
 : set-texscale0 ( vec2 -- ) TexScale0 1 rot glUniform2fv ;
 : set-texscale1 ( vec2 -- ) TexScale1 1 rot glUniform2fv ;
-: set-texscale2 ( vec2 -- ) TexScale2 1 rot glUniform2fv ;
-: set-texscale3 ( vec2 -- ) TexScale3 1 rot glUniform2fv ;
 
 : ap-set ( -- )
     ap-matrix MVPMatrix set-matrix
     ap-matrix MVMatrix set-matrix
     unit-texscale set-texscale0
-    unit-texscale set-texscale1
-    unit-texscale set-texscale2
-    unit-texscale set-texscale3 ;
+    unit-texscale set-texscale1 ;
 
 : >apwh ( rnear rfar rscale w h -- ) f2* 1/f { f: scale }
     scale swap fm* fdup fnegate fswap
@@ -755,8 +744,6 @@ require soil-texture.fs
     dup "u_MVMatrix"  glGetUniformLocation to MVMatrix
     dup "u_TexScale0" glGetUniformLocation to TexScale0
     dup "u_TexScale1" glGetUniformLocation to TexScale1
-    dup "u_TexScale2" glGetUniformLocation to TexScale2
-    dup "u_TexScale3" glGetUniformLocation to TexScale3
     dup "u_LightPos"  glGetUniformLocation to LightPos
     dup "u_Texture0"  glGetUniformLocation to Texture0
     dup "u_Texture1"  glGetUniformLocation to Texture1

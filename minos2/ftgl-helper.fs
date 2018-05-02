@@ -56,12 +56,12 @@ Variable fonts[] \ stack of used fonts
 	1e atlas texture_atlas_t-height @ fm/
 	1e atlas texture_atlas_t-width  @ fm/
 	text-texscale0 sf!+ sf!
-	text-texscale0 set-texscale3 ;
+	text-texscale0 set-texscale1 ;
     : atlas-bgra-scaletex ( -- )
 	1e atlas-bgra texture_atlas_t-height @ fm/
 	1e atlas-bgra texture_atlas_t-width  @ fm/
 	text-texscale1 sf!+ sf!
-	text-texscale1 set-texscale2 ;
+	text-texscale1 set-texscale0 ;
 [THEN]
 
 : open-font ( atlas rfontsize addr u -- font )
@@ -103,26 +103,32 @@ color @ Value xy-color
 1e FValue f-scale
 0.5e FConstant 1/2
 
-: xy, { glyph -- }  x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
+: s0t0>st ( si ti addr -- ) dup     l@ t.s l!  4 + l@ t.t l! ;
+: s1t0>st ( si ti addr -- ) dup 8 + l@ t.s l!  4 + l@ t.t l! ;
+: s0t1>st ( si ti addr -- ) dup     l@ t.s l! 12 + l@ t.t l! ;
+: s1t1>st ( si ti addr -- ) dup 8 + l@ t.s l! 12 + l@ t.t l! ;
+
+: xy, { glyph -- }
+    \ glyph texture_glyph_t-codepoint l@
+    x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
     glyph texture_glyph_t-offset_x sl@ xs fm*
     glyph texture_glyph_t-offset_y sl@ ys fm* { f: xo f: yo }
-    glyph texture_glyph_t-width  @ xs fm*
-    glyph texture_glyph_t-height @ ys fm* { f: w f: h }
+    glyph texture_glyph_t-width  2@ xs fm* ys fm* { f: w f: h }
     xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f- { f: x0 f: y0 }
     x0 w f+                 y0 h f+                { f: x1 f: y1 }
-    glyph texture_glyph_t-s0 sf@ { f: s0 }
-    glyph texture_glyph_t-t0 sf@ { f: t0 }
-    glyph texture_glyph_t-s1 sf@ { f: s1 }
-    glyph texture_glyph_t-t1 sf@ { f: t1 }
+    glyph texture_glyph_t-s0
+    \ over hex. dup $10 dump
     >v
-    x0 y0 >xy n> xy-color rgba>c s0 t0 >st v+
-    x1 y0 >xy n> xy-color rgba>c s1 t0 >st v+
-    x0 y1 >xy n> xy-color rgba>c s0 t1 >st v+
-    x1 y1 >xy n> xy-color rgba>c s1 t1 >st v+
+    x0 y0 >xy n> xy-color rgba>c dup s0t0>st v+
+    x1 y0 >xy n> xy-color rgba>c dup s1t0>st v+
+    x0 y1 >xy n> xy-color rgba>c dup s0t1>st v+
+    x1 y1 >xy n> xy-color rgba>c     s1t1>st v+
     v>
     xp glyph texture_glyph_t-advance_x sf@ xs f* f+ penxy sf!
-    yp glyph texture_glyph_t-advance_y sf@ ys f* f+ penxy sfloat+ sf! ;
+    yp glyph texture_glyph_t-advance_y sf@ ys f* f+ penxy sfloat+ sf!
+\    drop
+;
 
 : glyph+xy ( glyph -- )
     i>off  xy,  2 quad ;
@@ -143,10 +149,11 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     $FF and dup 8 lshift or dup $10 lshift or ;
 
 : font->t.i0 ( font -- )
+    -1e color @ swap
     texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
-	-1e color @ .aaaa to xy-color  ELSE
-	-2e color @       to xy-color  THEN
-    to t.i0 ;
+	.aaaa ELSE
+	f2*   THEN
+    to xy-color to t.i0 ;
 
 : double-atlas ( xc-addr -- xc-addr )
     freetype_gl_errno $100 = IF
@@ -160,13 +167,15 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     THEN ;
 
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
-    tuck font font-select
+    tuck font font-select \ xc-addr xc-addrp xc-addr font
     dup font->t.i0
     dup texture_font_t-scale sf@ to f-scale
-    swap
+    swap \ xc-addr xc-addrp font xc-addr
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
-	    drop double-atlas  REPEAT  >r 2drop
-    dup IF  r@ swap texture_glyph_get_kerning
+	    drop double-atlas  REPEAT \ xc-addr xc-addrp font xc-addr glyph
+    >r 2drop \ xc-addr xc-addrp r:glyph
+    dup IF
+	r@ swap texture_glyph_get_kerning f-scale f*
 	penxy sf@ f+ penxy sf!
     ELSE  drop  THEN
     r> glyph+xy 0e to t.i0 ;
@@ -190,8 +199,8 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     swap
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
 	    drop double-atlas  REPEAT  >r 2drop
-    dup IF  r@ swap texture_glyph_get_kerning f-scale f* f+
-	\ fdup f0<> IF  f-scale f*  THEN  f+
+    dup IF
+	r@ swap texture_glyph_get_kerning f-scale f* f+
     ELSE  drop  THEN
     r@ texture_glyph_t-advance_x sf@ f-scale f* f+
     r@ texture_glyph_t-offset_y sl@ f-scale fm*
@@ -216,7 +225,7 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 
 : load-glyph$ ( addr u -- )
     bounds ?DO  I font font-select nip
-	I dup I' over - x-size texture_font_load_glyph
+	I texture_font_get_glyph
 	0= IF  I double-atlas drop 0
 	ELSE  I I' over - x-size  THEN
     +LOOP ;

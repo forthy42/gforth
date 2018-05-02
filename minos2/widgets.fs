@@ -203,8 +203,8 @@ end-class glue
 
 widget class
     value: frame-color
-    value: frame#
     value: tile-glue \ glue object
+    value: frame#
 end-class tile
 
 :noname tile-glue .hglue { f: s f: a } border f2* borderl f+ f+ s a ; tile is hglue
@@ -225,7 +225,7 @@ end-structure
 : draw-rectangle { f: x1 f: y1 f: x2 f: y2 -- }
     frame-color ?dup-IF
 	-1e to t.i0
-	@ frame# i>off >v
+	frame# i>off >v
 	x1 y1 >xy over rgba>c n> 0e 0e dup #>st v+
 	x2 y1 >xy over rgba>c n> 1e 0e dup #>st v+
 	x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
@@ -266,13 +266,6 @@ end-class image
     z-bias set-color+ image-tex  frame-color vi0 xywh-rect ;
 image is draw-image
 
-image class
-end-class 1image
-
-:noname ( -- )
-    w-bias set-color+ image-tex  frame-color vi0 xywh-rect ;
-1image is draw-image
-
 \ frame widget
 
 tile class
@@ -302,18 +295,15 @@ DOES>  swap sfloats + sf@ ;
     v>
     9 0  DO
 	4 quad  1 I 3 mod 2 = - i-off +!
-    LOOP   #36 ?flush-tris
+    LOOP   #24 ?flush-tris
 ; ' frame-draw frame is draw-bg
 
 : }}glue ( glue -- o )
     glue-tile new >o to tile-glue o o> ;
 : }}frame ( glue color border -- o )
     frame new >o to border to frame-color to tile-glue o o> ;
-: }}image ( glue color texture -- o )
+: }}image ( glue color texture-xt -- o )
     image new >o is image-tex to frame-color to tile-glue
-    image-tex edge mipmap cubic-mipmap o o> ;
-: }}1image ( glue color texture -- o )
-    1image new >o is image-tex to frame-color to tile-glue
     image-tex edge mipmap cubic-mipmap o o> ;
 
 \ text widget
@@ -345,11 +335,6 @@ end-class text
     fdup to text-w  border f2* borderl f+ f+ to w
 \    ." text sized to: " x f. y f. w f. h f. d f. cr
 ;
-: text-init
-    ?glyphs IF
-	text-font to font text$ load-glyph$
-    THEN ;
-' text-init text is draw-init
 ' text-text text is draw-text
 ' text-!size text is !size
 :noname w kerning f+
@@ -363,12 +348,6 @@ text class
     value: l-text
 end-class i18n-text
 
-: i18n-text-init
-    ?lang   IF
-	l-text locale@ to text$ +glyphs
-    THEN
-    text-init ;
-' i18n-text-init i18n-text is draw-init
 : i18n-text! ( lsid font -- )
     to text-font to l-text  +lang ;
 
@@ -380,12 +359,6 @@ text class
     value: start-curpos \ selection mode
 end-class edit
 
-:noname ?glyphs IF
-	text-init
-	cursize 0= setstring$ $@len and IF
-	    setstring$ $@ load-glyph$
-	THEN
-    THEN ; edit is draw-init
 : edit-marking ( -- )
     cursize 0< ?EXIT  text-font to font
     w border f2* borderl f+ f- text-w fdup f0= IF  f*  ELSE   f/  THEN { f: scale }
