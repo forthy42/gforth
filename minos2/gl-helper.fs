@@ -843,11 +843,11 @@ vertex# $40 = [IF]
 
 : buffer-init ( -- )
     \ 6 points per 4 vertices
-    index-buf 0= IF  points# 3 *      alloc+guard to index-buf  THEN
+    index-buf 0= IF  points# 2* 2*    alloc+guard to index-buf  THEN
     array-buf 0= IF  points# vertex#* alloc+guard to array-buf  THEN
     gl-buffers @ 0= IF  max-buf# gl-buffers glGenBuffers  THEN
     GL_ELEMENT_ARRAY_BUFFER 1 bind-buf
-    GL_ELEMENT_ARRAY_BUFFER points# 3 * index-buf GL_DYNAMIC_DRAW
+    GL_ELEMENT_ARRAY_BUFFER points# 2* 2* index-buf GL_DYNAMIC_DRAW
     glBufferData
     GL_ARRAY_BUFFER 0 bind-buf
     GL_ARRAY_BUFFER points# vertex#* array-buf GL_DYNAMIC_DRAW

@@ -397,7 +397,7 @@ edit-terminal edit-out !
     edit-w >o addr text$ curpos cursize 0 max o> to xselw
     >r dup edit$ ! dup { e$ } $@ swap over swap r>
     r> catch >r edit-w >o to curpos 0 to cursize o> drop e$ $!len drop
-    r>  r> to history  +sync +glyphs  throw ;
+    r>  r> to history  +sync  throw ;
 
 : edit>curpos ( x o:actor -- )
     edit-w >o  text-font to font

@@ -230,7 +230,7 @@ end-structure
 	x2 y1 >xy over rgba>c n> 1e 0e dup #>st v+
 	x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
 	x2 y2 >xy swap rgba>c n> 1e 1e     #>st v+
-	v> 2 quad  #4 ?flush-tris
+	v> 2 quad  4 ?flush-tris
     THEN ;
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
     { f: w f: h } fover w f+ fover h f+ ;
@@ -295,7 +295,7 @@ DOES>  swap sfloats + sf@ ;
     v>
     9 0  DO
 	4 quad  1 I 3 mod 2 = - i-off +!
-    LOOP   #24 ?flush-tris
+    LOOP   #16 ?flush-tris
 ; ' frame-draw frame is draw-bg
 
 : }}glue ( glue -- o )
@@ -319,7 +319,7 @@ widget class
 end-class text
 
 : text! ( addr u font -- )
-    to text-font to text$  +glyphs ;
+    to text-font to text$ ;
 : text-xy! ( -- )
     x border kerning f+ borderl f+ f+ fround penxy         sf!
     y                        raise f+ fround penxy sfloat+ sf!
@@ -348,6 +348,11 @@ text class
     value: l-text
 end-class i18n-text
 
+: i18n-text-init
+    ?lang   IF
+	l-text locale@ to text$
+    THEN ;
+' i18n-text-init i18n-text is draw-init
 : i18n-text! ( lsid font -- )
     to text-font to l-text  +lang ;
 
@@ -379,7 +384,7 @@ end-class edit
     x1 y0 >xy dup rgba>c n> 3e 2e >st v+
     x0 y1 >xy dup rgba>c n> 2e 3e >st v+
     x1 y1 >xy     rgba>c n> 3e 3e >st v+
-    v> 2 quad  #4 ?flush-tris ;
+    v> 2 quad  4 ?flush-tris ;
 
 $FFFF7FFF color, Value setstring-color
 
@@ -459,25 +464,17 @@ Variable *insflag
 
 also freetype-gl
 : <draw-init ( -- )
+    program glUseProgram
     -1e 1e >apxy  .01e 100e 100e >ap
     Ambient 1 ambient% glUniform1fv
     0e fdup fdup fdup glClearColor clear ;
 
-: draw-init> ( -- )
-    atlas texture_atlas_t-modified c@ IF
-	gen-atlas-tex time( ." atlas: " .!time cr )
-	0 atlas texture_atlas_t-modified c!
-    THEN
-    atlas-bgra texture_atlas_t-modified c@ IF
-	gen-atlas-tex-bgra time( ." atlas-bgra: " .!time cr )
-	0 atlas-bgra texture_atlas_t-modified c!
-    THEN ;
+: draw-init> ( -- ) ;
 previous
 
 : <draw-image ( -- ) ; \ image draw, one draw call per image
 : draw-image> ( -- ) ;
 : <draw-text ( -- )
-    program glUseProgram
     GL_TEXTURE3 glActiveTexture
     z-bias set-color+3
     atlas-scaletex
@@ -804,12 +801,6 @@ end-class viewport
     need-mask >r vp-need to need-mask
     catch r> to need-mask throw ;
 
-: draw-vpchilds ( -- )
-    <draw-text      ['] draw-bg        do-childs
-                    ['] draw-text      do-childs render>
-    <draw-image     ['] draw-image     do-childs draw-image>
-;
-
 1 sfloats buffer: vp-ambient%  1.0e vp-ambient% sf!
 1 sfloats buffer: vp-saturate% 1.0e vp-saturate% sf!
 
@@ -820,26 +811,33 @@ end-class viewport
     0e fdup fdup fdup glClearColor clear
     .01e 100e 100e vp-h vp-w f>s f>s >apwh ;
 : draw-vp> ( -- )
+    0>framebuffer
     Ambient 1 ambient% glUniform1fv
     Saturate 1 saturate% glUniform1fv
     -1e 1e >apxy  .01e 100e 100e >ap ;
 
+: draw-vpchilds ( -- )
+    <draw-vp        ['] draw-init      do-childs  draw-init>
+    <draw-text      ['] draw-bg        do-childs
+                    ['] draw-text      do-childs  render>
+    <draw-image     ['] draw-image     do-childs  draw-image>
+    draw-vp> ;
+
 :noname
     [: ?sync ?config or ;] vp-needed IF
-	<draw-vp  ['] draw-init do-childs  draw-init>
 	draw-vpchilds
-	0>framebuffer draw-vp>
 	[: -sync -config ;] vp-needed
     THEN ; viewport is draw-init
 :noname ( -- )
     z-bias set-color+ vp-tex
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
-    vp-x vp-w f/ vp-y vp-h f/ w vp-w f/ h vp-h f/ { f: s0 f: t0 f: s1 f: t1 }
+    vp-x fround vp-w f/ vp-y fround vp-h f/ w vp-w f/ h vp-h f/ >xyxy
+    { f: s0 f: t0 f: s1 f: t1 }
     vi0 i>off  $FFFFFFFF >v
-    x1 y1 >xy dup rgba>c n> s0       t0 t1 f+ >st v+
-    x2 y1 >xy dup rgba>c n> s0 s1 f+ t0 t1 f+ >st v+
-    x1 y2 >xy dup rgba>c n> s0       t0       >st v+
-    x2 y2 >xy     rgba>c n> s0 s1 f+ t0       >st v+
+    x1 fround y1 fround >xy dup rgba>c n> s0 t1 >st v+
+    x2 fround y1 fround >xy dup rgba>c n> s1 t1 >st v+
+    x1 fround y2 fround >xy dup rgba>c n> s0 t0 >st v+
+    x2 fround y2 fround >xy     rgba>c n> s1 t0 >st v+
     v> 2 quad
     render-bgra> ; viewport is draw-image
 : vp-!size ( -- )

@@ -181,6 +181,14 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     r> glyph+xy 0e to t.i0 ;
 
 : render> ( -- )
+    atlas texture_atlas_t-modified c@ IF
+	gen-atlas-tex time( ." atlas: " .!time cr )
+	0 atlas texture_atlas_t-modified c!
+    THEN
+    atlas-bgra texture_atlas_t-modified c@ IF
+	gen-atlas-tex-bgra time( ." atlas-bgra: " .!time cr )
+	0 atlas-bgra texture_atlas_t-modified c!
+    THEN
 \    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
     GL_TRIANGLES draw-elements ;
 
@@ -189,7 +197,7 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 
 : render-string ( addr u -- )
     0 -rot  bounds ?DO
-	I xchar+xy 4 ?flush-tris
+	I xchar+xy  4 ?flush-tris 
     I I' over - x-size +LOOP  drop ;
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )

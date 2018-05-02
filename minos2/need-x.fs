@@ -33,7 +33,6 @@ $100 Constant ?config#
 ?need: ?sync      \ sync screen needed
 ?need: ?show      \ show hidden object needed
 ?need: ?keyboard  \ show keyboard needed
-?need: ?glyphs    \ render glyphs needed
 ?need: ?lang      \ change language needed
 drop
 
@@ -41,7 +40,6 @@ drop
 +need: +sync
 +need: +show
 +need: +keyboard
-+need: +glyphs
 +need: +lang
 drop
 
@@ -49,7 +47,6 @@ drop
 -need: -sync
 -need: -show
 -need: -keyboard
--need: -glyphs
 -need: -lang
 drop
 
