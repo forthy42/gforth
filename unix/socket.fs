@@ -60,7 +60,7 @@ e? os-type s" linux-android" string-prefix? [IF] [IFUNDEF] android : android ; [
 e? os-type s" cygwin" string-prefix? [IF] [IFUNDEF] cygwin : cygwin ; [THEN] [THEN]
 e? os-type s" linux-gnu" string-prefix? [IF]
     [IFUNDEF] linux : linux ; [THEN]
-    s" /proc/kcore" file-status nip 0< [IF] : mslinux ; [THEN]
+    s" /proc/partitions" file-status nip 0< [IF] : mslinux ; [THEN]
 [THEN]
 
 begin-structure hostent
@@ -314,11 +314,9 @@ s" sock read error"    exception Constant !!sockread!!
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt ?ior
     [ELSE]
-	[defined] mslinux [ 0= ] [IF]
-	    IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
-	    dup IPPROTO_IP IP_MTU_DISCOVER sockopt 4
-	    setsockopt ?ior
-	[THEN]
+	IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
+	dup IPPROTO_IP IP_MTU_DISCOVER sockopt 4
+	setsockopt ?ior
     [THEN] ;
 
 : new-udp-socket6 ( -- server ) 0 { w^ sockopt }
@@ -327,11 +325,9 @@ s" sock read error"    exception Constant !!sockread!!
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt drop
     [ELSE]
-	[defined] mslinux [ 0= ] [IF]
-	    IP_PMTUDISC_DO sockopt l!
-	    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
-	    setsockopt ?ior
-	[THEN]
+	IP_PMTUDISC_DO sockopt l!
+	dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
+	setsockopt ?ior
     [THEN]
     dup IPPROTO_IPV6 IPV6_V6ONLY sockopt dup on 4 setsockopt ?ior ;
 
@@ -341,11 +337,9 @@ s" sock read error"    exception Constant !!sockread!!
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt ?ior
     [ELSE]
-	[defined] mslinux [ 0= ] [IF]
-	    IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
-	    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
-	    setsockopt ?ior
-	[THEN]
+	IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
+	dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
+	setsockopt ?ior
     [THEN]
 ;
 

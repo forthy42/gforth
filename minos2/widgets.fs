@@ -430,28 +430,30 @@ Variable *insflag
 
 : text$->* ( -- oldtext$ )
     text$ over curpos + dup cursize 0 max +  0 addr text$ !@ >r
-    [: { cursor cur# } bounds over >r ?DO
-	    I c@ $C0 $80 within IF
-		I cur# = cursize 0>= and IF
+    pw-mode c>s 0>= IF
+	[: { cursor cur# } bounds over >r ?DO
+		I c@ $C0 $80 within IF
+		    I cur# = cursize 0>= and IF
 		    text$ nip curpos - to cursize
-		THEN
-		I xchar+ cursor = IF
-		    *insflag @ IF
-			I dup xchar+ over - type
-		    ELSE  pw-char xemit  THEN
+		    THEN
+		    I xchar+ cursor = IF
+			*insflag @ IF
+			    I dup xchar+ over - type
+			ELSE  pw-char xemit  THEN
 		    text$ nip to curpos
-		ELSE  pw-char xemit  THEN
-	    THEN
-	LOOP
-	r> cur#   = cursize 0>= and IF
-	    text$ nip curpos - to cursize  THEN
-    ;] addr text$ $exec
+		    ELSE  pw-char xemit  THEN
+		THEN
+	    LOOP
+	    r> cur#   = cursize 0>= and IF
+		text$ nip curpos - to cursize  THEN
+	;] addr text$ $exec
+    THEN
     r> ;
 
 : pw-xt { xt -- }
     cursize >r curpos >r
     pw-mode dup 0= IF  *insflag off  THEN
-    2 < IF
+    c>s 2 < IF
 	text$->* >r xt catch r> addr text$ $!buf
 	r> to curpos r> to cursize throw
     ELSE
@@ -517,6 +519,8 @@ previous previous
 "button.png" style: button1
 "button2.png" style: button2
 "button3.png" style: button3
+"lbubble.png" style: lbubble
+"rbubble.png" style: rbubble
 ' button1 >body Value slider-frame# \ set the frame number to button2 style
 
 \ boxes
@@ -675,7 +679,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     x y w h d widget-resize
     hglue+  w border f2* borderl f+ f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
-    wtotal wmin f- a f/ 0e 0e x ['] hglue-step do-childs
+    wtotal wmin f- a f/ 0e 0e x border f+ borderl f+ ['] hglue-step do-childs
     fdrop fdrop fdrop fdrop
     y h d ['] hbox-resize1 do-childs  fdrop fdrop fdrop
 \    ." hbox sized to: " x f. y f. w f. h f. d f. cr
@@ -725,7 +729,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     htotal hmin f- a f/ 0e 0e
     y border borderv f+ bordert f+ f+ h f- 0e ['] vglue-step do-childs
     fdrop fdrop fdrop fdrop fdrop
-    x border f+ w border f2* f- borderl f- ['] vbox-resize1 do-childs fdrop fdrop
+    x border f+ borderl f+ w border f2* f- borderl f- ['] vbox-resize1 do-childs fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
