@@ -304,7 +304,8 @@ DOES>  swap sfloats + sf@ ;
     frame new >o to border to frame-color to tile-glue o o> ;
 : }}image ( glue color texture-xt -- o )
     image new >o is image-tex to frame-color to tile-glue
-    image-tex edge mipmap cubic-mipmap o o> ;
+    image-tex edge mipmap
+    [IFDEF] cubic-mipmap cubic-mipmap [ELSE] linear-mipmap [THEN] o o> ;
 
 \ text widget
 
