@@ -164,6 +164,7 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 	    atlas# 2* dup >r to atlas#
 	THEN
 	r> dup texture_font_enlarge_texture
+	atlas-scaletex atlas-bgra-scaletex
     THEN ;
 
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
@@ -192,12 +193,14 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 \    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
     GL_TRIANGLES draw-elements ;
 
-: ?flush-tris ( n -- )
-    i? + points# u>= IF  render> vi0  THEN ;
+: ?flush-tris ( n -- ) >r
+    i? r@ + points# 2* u>=
+    v? r> + points# u>= or
+    IF  render> vi0  THEN ;
 
 : render-string ( addr u -- )
     0 -rot  bounds ?DO
-	I xchar+xy  4 ?flush-tris 
+	6 ?flush-tris  I xchar+xy
     I I' over - x-size +LOOP  drop ;
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )

@@ -872,11 +872,12 @@ index-buf Value index^
 : v+ ( o:vertex -- o:vertex' )
     next-vertex >o rdrop t.i0 t.i sf! ;
 : v> ( o:vertex -- )  ]] o ->buf^ o> [[ ; immediate compile-only
-: i? ( -- n )  buf^ array-buf - vertex#/ ;
+: v? ( -- n )  buf^ array-buf - vertex#/ ;
+: i? ( -- n )  index^ index-buf - 2/ ;
 : i, ( n -- )
     index^ 2 +to index^ w! ;
 Variable i-off
-: i>off ( -- )  i? i-off ! ;
+: i>off ( -- )  v? i-off ! ;
 : ltri ( off -- )  i-off @ dup i, dup 1+ i, + i, ;
 : rtri ( off -- )  i-off @ dup 1+ i, + dup i, 1+ i, ;
 : quad ( off -- )  dup ltri rtri ;

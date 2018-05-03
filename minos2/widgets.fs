@@ -55,6 +55,7 @@ get-current also m2c definitions
 
 $000000FF #Variable cursorcolor#
 $3F7FFF7F #Variable selectioncolor#
+$FFFF7FFF #Variable setstring-color#
 Variable curminchars#
 FVariable curminwidth%
 FVariable pwtime%
@@ -224,13 +225,13 @@ end-structure
 
 : draw-rectangle { f: x1 f: y1 f: x2 f: y2 -- }
     frame-color ?dup-IF
-	-1e to t.i0
+	-1e to t.i0  6 ?flush-tris
 	frame# i>off >v
 	x1 y1 >xy over rgba>c n> 0e 0e dup #>st v+
 	x2 y1 >xy over rgba>c n> 1e 0e dup #>st v+
 	x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
 	x2 y2 >xy swap rgba>c n> 1e 1e     #>st v+
-	v> 2 quad  4 ?flush-tris
+	v> 2 quad
     THEN ;
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
     { f: w f: h } fover w f+ fover h f+ ;
@@ -280,7 +281,7 @@ DOES>  swap sfloats + sf@ ;
     2 and    IF fnegate w f+  THEN  f+ ;
 
 : frame-draw ( -- )
-    -1e to t.i0
+    -1e to t.i0   #36 ?flush-tris
     frame# frame-color border fdup borderv f+
     xywh { f c f: b f: bv f: x f: y f: w f: h }
     i>off >v
@@ -295,7 +296,7 @@ DOES>  swap sfloats + sf@ ;
     v>
     9 0  DO
 	4 quad  1 I 3 mod 2 = - i-off +!
-    LOOP   #16 ?flush-tris
+    LOOP
 ; ' frame-draw frame is draw-bg
 
 : }}glue ( glue -- o )
@@ -379,20 +380,18 @@ end-class edit
     ELSE  0e   THEN  { f: cw f: cw- }
     x cw- f+ w f+ border f+ borderl f+ y d border borderv f+ f- f+ { f: x0 f: y0 }
     x0 cw f+ y h border borderv f+ bordert f+ f- f- { f: x1 f: y1 }
-    i>off -2e to t.i0
+    -2e to t.i0  6 ?flush-tris  i>off
     m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
     x0 y0 >xy dup rgba>c n> 2e 2e >st v+
     x1 y0 >xy dup rgba>c n> 3e 2e >st v+
     x0 y1 >xy dup rgba>c n> 2e 3e >st v+
     x1 y1 >xy     rgba>c n> 3e 3e >st v+
-    v> 2 quad  4 ?flush-tris ;
-
-$FFFF7FFF color, Value setstring-color
+    v> 2 quad ;
 
 : edit-text ( -- ) edit-marking  text-xy!
     cursize 0= setstring$ $@len and IF
 	text$ curpos umin render-string
-	setstring-color color !
+	m2c:setstring-color# @ color !
 	setstring$ $@ render-string
 	text-color color !
 	text$ curpos safe/string render-string
@@ -781,6 +780,14 @@ htab-glue is hglue!@
     sync time( ." sync:  " .!time cr ) ;
 
 \ viewport: Draw into a frame buffer
+
+0 Value maxtexsize#
+: ?texsize ( -- )
+    GL_MAX_TEXTURE_SIZE addr maxtexsize#
+    [ cell 8 = [IF] 1 pad ! pad c@ 0= [IF] ] 4 + [ [THEN] [THEN] ]
+    glGetIntegerv ;
+
+?texsize
 
 vbox class
     sfvalue: vp-x \ x offset of visible part of viewport
