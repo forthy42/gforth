@@ -381,7 +381,7 @@ end-class edit
     x cw- f+ w f+ border f+ borderl f+ y d border borderv f+ f- f+ { f: x0 f: y0 }
     x0 cw f+ y h border borderv f+ bordert f+ f- f- { f: x1 f: y1 }
     -2e to t.i0  6 ?flush-tris  i>off
-    m2c:selectioncolor# m2c:cursorcolor# cursize 0> select @ >v
+    m2c:selectioncolor# @ text-color cursize 0> select >v
     x0 y0 >xy dup rgba>c n> 2e 2e >st v+
     x1 y0 >xy dup rgba>c n> 3e 2e >st v+
     x0 y1 >xy dup rgba>c n> 2e 3e >st v+
