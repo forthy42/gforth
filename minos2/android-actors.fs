@@ -199,8 +199,7 @@ also jni
     THEN ; is ?looper-timeouts
 
 : edit-setstring ( string -- )
-    jstring>sstring setstring$ $! jfree
-    +sync  +glyphs ;
+    jstring>sstring setstring$ $! jfree +sync ;
 : edit-commit ( string/0 -- )  ?dup-IF
 	jstring>sstring setstring$ $! jfree
     THEN
