@@ -1194,7 +1194,7 @@ AC_CHECK_FUNCS(mcheck mprobe)
 AC_REPLACE_FUNCS(rint ecvt_r)
 #No check for select, because our replacement is no good under
 #anything but DOS
-AC_CHECK_HEADERS(sys/mman.h fnmatch.h alloca.h wchar.h endian.h)
+AC_CHECK_HEADERS(sys/mman.h fnmatch.h alloca.h wchar.h endian.h spawn.h)
 AC_REPLACE_FUNCS(wcwidth)
 AC_FUNC_FNMATCH
 test $ac_cv_func_fnmatch_works = yes || AC_LIBOBJ(fnmatch)

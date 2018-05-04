@@ -53,9 +53,11 @@ c-library libc
     c-function setlocale setlocale n s -- a ( category locale len -- locale )
     c-function (getpid) getpid -- n ( -- n ) \ for completion
     c-function (fork) fork -- n ( -- pid_t )
-    e? os-type 2dup type cr s" linux-gnu" string-prefix? 0= [IF]
+    e? os-type s" linux-gnu" string-prefix? 0= [IF]
+	\c #ifdef HAVE_SPAWN_H
 	\c #include <spawn.h>
 	c-function posix_spawnp posix_spawnp a s a a a a -- n ( *pid path addr actions attrp argv envp -- ret )
+	\c #endif
     [THEN]
     c-function execvp execvp s a -- n ( filename len argv -- ret )
     c-function exit() exit n -- void ( ret -- )
