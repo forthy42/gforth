@@ -274,11 +274,13 @@ end-class frame
 
 Create button-st  0e sf, 0.25e sf, 0.75e sf, 1e sf,
 DOES>  swap sfloats + sf@ ;
-: button-border ( n -- gray )  dup 2/ xor ;
-: >border ( rx rb i rw -- r ) { f: w }
-    button-border dup
-    1 and 0= IF fdrop 0e      THEN
-    2 and    IF fnegate w f+  THEN  f+ ;
+: >border ( rx rb i rw bx -- r ) { f: w f: bx }
+    case
+	0 of  fdrop      endof
+	1 of  f+         endof
+	2 of  f- w f+    endof
+	3 of  fdrop w f+ endof
+    endcase ;
 
 : frame-draw ( -- )
     -1e to t.i0   #36 ?flush-tris
@@ -287,8 +289,8 @@ DOES>  swap sfloats + sf@ ;
     i>off >v
     4 0 DO
 	4 0 DO
-	    x b I w >border
-	    y bv J h >border >xy
+	    x b  I w borderl >border
+	    y bv J h bordert >border >xy
 	    c rgba>c  n>
 	    I button-st J button-st f #>st v+
 	LOOP

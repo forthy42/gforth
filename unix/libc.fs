@@ -53,6 +53,8 @@ c-library libc
     c-function setlocale setlocale n s -- a ( category locale len -- locale )
     c-function (getpid) getpid -- n ( -- n ) \ for completion
     c-function (fork) fork -- n ( -- pid_t )
+    \c #include <spawn.h>
+    c-function posix_spawnp posix_spawnp a s a a a a -- n ( *pid path addr actions attrp argv envp -- ret )
     c-function execvp execvp s a -- n ( filename len argv -- ret )
     c-function exit() exit n -- void ( ret -- )
     c-function symlink symlink s s -- n ( target len1 path len2 -- ret )
@@ -60,6 +62,7 @@ c-library libc
     c-function readlink readlink s a n -- n ( path len buf len2 -- ret )
     c-function rmdir rmdir s -- n ( path len -- ret )
     c-function mknod mknod s n n -- n ( path mode dev -- ret )
+    c-value environ environ -- a ( -- env )
 end-c-library
 
 getpagesize constant pagesize
@@ -108,5 +111,12 @@ $004 Constant POLLOUT
 : fork() ( -- pid )
     (fork) (getpid) to getpid ;
 
+Variable fpid
+
 : fork+exec ( filename len argv -- )
-    fork() 0= IF  ['] exit() is throw  execvp exit()  ELSE  drop 2drop  THEN ;
+    [IFDEF] posix_spawnp
+	>r fpid -rot 0 0 r> environ posix_spawnp ?ior
+    [ELSE]
+	fork() dup 0= IF  drop ['] exit() is throw  execvp exit()
+	ELSE  fpid ! drop 2drop  THEN
+    [THEN] ;
