@@ -53,8 +53,10 @@ c-library libc
     c-function setlocale setlocale n s -- a ( category locale len -- locale )
     c-function (getpid) getpid -- n ( -- n ) \ for completion
     c-function (fork) fork -- n ( -- pid_t )
-    \c #include <spawn.h>
-    c-function posix_spawnp posix_spawnp a s a a a a -- n ( *pid path addr actions attrp argv envp -- ret )
+    e? os-type s" linux-gnu" string-prefix? 0= [IF]
+	\c #include <spawn.h>
+	c-function posix_spawnp posix_spawnp a s a a a a -- n ( *pid path addr actions attrp argv envp -- ret )
+    [THEN]
     c-function execvp execvp s a -- n ( filename len argv -- ret )
     c-function exit() exit n -- void ( ret -- )
     c-function symlink symlink s s -- n ( target len1 path len2 -- ret )
@@ -115,7 +117,8 @@ Variable fpid
 
 : fork+exec ( filename len argv -- )
     [IFDEF] posix_spawnp
-	>r fpid -rot 0 0 r> environ posix_spawnp ?ior
+	>r fpid [ cell 8 = pad 1 ! pad c@ 0= and ] [IF] 4 + [THEN]
+	-rot 0 0 r> environ posix_spawnp ?ior
     [ELSE]
 	fork() dup 0= IF  drop ['] exit() is throw  execvp exit()
 	ELSE  fpid ! drop 2drop  THEN
