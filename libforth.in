@@ -30,7 +30,7 @@ if test -n "$C_INCLUDE_PATH"; then
 else
     export C_INCLUDE_PATH=@srcdir@/include/gforth/$VERSION/$machine
 fi
-EXTRAPATH="also c-lib s\" $LIBCCDIR\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $DEST\" ; is replace-rpath previous get-current environment-wordlist set-current : os-type ( -- c-addr u ) s" @host_os@" ; set-current"
+EXTRAPATH="also c-lib s\" $LIBCCDIR\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $DEST\" ; is replace-rpath previous get-current environment-wordlist set-current : os-type ( -- c-addr u ) s\" @host_os@\" ; set-current"
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
   $ENGINE -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" --die-on-signal -e "$EXTRAPATH" "$@"
 else
