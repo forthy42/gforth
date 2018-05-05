@@ -39,10 +39,16 @@ c-library libc
     c-function poll poll a n n -- n ( fds nfds timeout -- r )
     e? os-type s" linux-gnu" string-prefix? [IF]
 	c-function ppoll ppoll a n a a -- n ( fds nfds timeout_ts sigmask -- r )
-	\c #include <sys/epoll.h>
+	\c #if HAVE_SYS_EPOLL_H
+	\c # include <sys/epoll.h>
+	\c #endif
 	c-function epoll_create epoll_create n -- n ( n -- epfd )
 	c-function epoll_ctl epoll_ctl n n n a -- n ( epfd op fd event -- r )
 	c-function epoll_wait epoll_wait n a n n -- n ( epfd events maxevs timeout -- r )
+	\c #if HAVE_SPAWN_H
+	\c # include <spawn.h>
+	\c #endif
+	c-function posix_spawnp posix_spawnp a s a a a a -- n ( *pid path addr actions attrp argv envp -- ret )
     [THEN]
     c-function fdopen fdopen n s -- a ( fd fileattr len -- file )
     c-function fcntl fcntl n n n -- n ( fd n1 n2 -- ior )
@@ -53,12 +59,6 @@ c-library libc
     c-function setlocale setlocale n s -- a ( category locale len -- locale )
     c-function (getpid) getpid -- n ( -- n ) \ for completion
     c-function (fork) fork -- n ( -- pid_t )
-    e? os-type s" linux-gnu" string-prefix? 0= [IF]
-	\c #ifdef HAVE_SPAWN_H
-	\c #include <spawn.h>
-	c-function posix_spawnp posix_spawnp a s a a a a -- n ( *pid path addr actions attrp argv envp -- ret )
-	\c #endif
-    [THEN]
     c-function execvp execvp s a -- n ( filename len argv -- ret )
     c-function exit() exit n -- void ( ret -- )
     c-function symlink symlink s s -- n ( target len1 path len2 -- ret )
@@ -117,11 +117,12 @@ $004 Constant POLLOUT
 
 Variable fpid
 
+e? os-type s" linux-gnu" string-prefix? [IF]
 : fork+exec ( filename len argv -- )
-    [IFDEF] posix_spawnp
-	>r fpid [ cell 8 = pad 1 ! pad c@ 0= and ] [IF] 4 + [THEN]
-	-rot 0 0 r> environ posix_spawnp ?ior
-    [ELSE]
-	fork() dup 0= IF  drop ['] exit() is throw  execvp exit()
-	ELSE  fpid ! drop 2drop  THEN
-    [THEN] ;
+    >r fpid [ cell 8 = 1 pad ! pad c@ 0= and ] [IF] 4 + [THEN]
+    -rot 0 0 r> environ posix_spawnp ?ior ;
+[ELSE]
+: fork+exec ( filename len argv -- )
+    fork() dup 0= IF  drop ['] exit() is throw  execvp exit()
+    ELSE  fpid ! drop 2drop  THEN ;
+[THEN]
