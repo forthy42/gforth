@@ -26,6 +26,7 @@ jni-method: screen_on screen_on (I)V
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
 jni-field: notificationManager notificationManager Landroid/app/NotificationManager;
+jni-field: notificationChannel notificationChannel Landroid/app/NotificationChannel;
 jni-field: inputMethodManager inputMethodManager Landroid/view/inputmethod/InputMethodManager;
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
 jni-field: hideprog hideprog Ljava/lang/Runnable;
@@ -165,11 +166,15 @@ SDK_INT 11 >= [IF]
 	jni-class: android/app/NotificationChannel
 	jni-new: newNotificationChannel (Ljava/lang/String;Ljava/lang/CharSequence;I)V
 	jni-method: setDescription setDescription (Ljava/lang/String;)V
+	jni-method: setName setName (Ljava/lang/String;)V
     [THEN]
 [THEN]
 
 jni-class: android/app/NotificationManager
 jni-method: notify notify (ILandroid/app/Notification;)V
+SDK_INT 26 >= [IF] \ need channels
+    jni-method: createNotificationChannel createNotificationChannel (Landroid/app/NotificationChannel;)V
+[THEN]
 
 SDK_INT 10 <= [IF] \ 2.3.x uses a different clipboard manager
     jni-class: android/text/ClipboardManager

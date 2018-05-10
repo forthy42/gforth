@@ -66,6 +66,7 @@ import android.app.ProgressDialog;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.NotificationManager;
+import android.app.NotificationChannel;
 import android.net.ConnectivityManager;
 import android.util.Log;
 import android.util.AttributeSet;
@@ -103,6 +104,7 @@ public class Gforth
     private PendingIntent pintent, gforthintent;
     private PowerManager powerManager;
     private NotificationManager notificationManager;
+    private NotificationChannel notificationChannel;
     private WakeLock wl, wl_cpu;
     private GforthView mView;
     private InputStream gforthfd;
@@ -443,6 +445,9 @@ public class Gforth
 	inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 	powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
 	notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+	notificationChannel = new NotificationChannel("gnu.gforth.notifications", "dummy name", NotificationManager.IMPORTANCE_DEFAULT);
+	notificationManager.createNotificationChannel(notificationChannel);
+	
 	wl = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
 	wl_cpu = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyCpuLock");
 	
