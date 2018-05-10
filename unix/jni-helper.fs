@@ -159,6 +159,13 @@ SDK_INT 11 >= [IF]
     [ELSE]
 	jni-method: build getNotification ()Landroid/app/Notification;
     [THEN]
+    SDK_INT 26 >= [IF] \ need channels
+	jni-new: newNotification.Builder+Id (Landroid/content/Context;Ljava/lang/String;)V
+
+	jni-class: android/app/NotificationChannel
+	jni-new: newNotificationChannel (Ljava/lang/String;Ljava/lang/CharSequence;I)V
+	jni-method: setDescription setDescription (Ljava/lang/String;)V
+    [THEN]
 [THEN]
 
 jni-class: android/app/NotificationManager
