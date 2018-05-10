@@ -65,6 +65,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.NotificationManager;
 import android.net.ConnectivityManager;
 import android.util.Log;
 import android.util.AttributeSet;
@@ -101,6 +102,7 @@ public class Gforth
     private BroadcastReceiver recKeepalive, recConnectivity;
     private PendingIntent pintent, gforthintent;
     private PowerManager powerManager;
+    private NotificationManager notificationManager;
     private WakeLock wl, wl_cpu;
     private GforthView mView;
     private InputStream gforthfd;
@@ -440,6 +442,7 @@ public class Gforth
 	connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 	inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 	powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
+	notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_MANAGER);
 	wl = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
 	wl_cpu = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyCpuLock");
 	

@@ -13,9 +13,6 @@ gforth-class:
 
 \ jni-sfield: INPUT_METHOD_SERVICE INPUT_METHOD_SERVICE Ljava/lang/String;
 \ jni-sfield: POWER_SERVICE POWER_SERVICE Ljava/lang/String;
-: INPUT_METHOD_SERVICE js" input_method" ;
-: POWER_SERVICE        js" power" ;
-: NOTIFICATION_SERVICE js" notification" ;
 
 jni-method: getSystemService getSystemService (Ljava/lang/String;)Ljava/lang/Object;
 jni-method: getWindow getWindow ()Landroid/view/Window;
@@ -28,6 +25,8 @@ jni-method: set_alarm set_alarm (J)V
 jni-method: screen_on screen_on (I)V
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
+jni-field: notificationManager notificationManager Landroid/app/NotificationManager;
+jni-field: inputMethodManager inputMethodManager Landroid/view/inputmethod/InputMethodManager;
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
 jni-field: hideprog hideprog Ljava/lang/Runnable;
 jni-field: gforth-handler handler Landroid/os/Handler;
