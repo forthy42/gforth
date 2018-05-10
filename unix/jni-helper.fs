@@ -166,7 +166,7 @@ SDK_INT 11 >= [IF]
 	jni-class: android/app/NotificationChannel
 	jni-new: newNotificationChannel (Ljava/lang/String;Ljava/lang/CharSequence;I)V
 	jni-method: setDescription setDescription (Ljava/lang/String;)V
-	jni-method: setName setName (Ljava/lang/String;)V
+	jni-method: setName setName (Ljava/lang/CharSequence;)V
     [THEN]
 [THEN]
 
