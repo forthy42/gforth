@@ -534,7 +534,9 @@ public class Gforth
 	    };
 	notifyer=new Runnable() {
 		public void run() {
+		    Log.v(TAG, "show notification");
 		    notificationManager.notify((int)argj0, argnotify);
+		    Log.v(TAG, "done notification");
 		}
 	    };
 	
