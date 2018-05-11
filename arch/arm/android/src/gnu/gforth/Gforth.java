@@ -65,6 +65,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.NotificationChannel;
 import android.net.ConnectivityManager;
@@ -93,6 +94,7 @@ public class Gforth
     private double argf0=10;    // update every 10 meters
     private String args0="gps";
     private Sensor argsensor;
+    private Notification argnotify;
     private Gforth gforth;
     private LocationManager locationManager;
     private SensorManager sensorManager;
@@ -132,6 +134,7 @@ public class Gforth
     public Runnable rkeepscreenoff;
     public Runnable rsecurescreenon;
     public Runnable rsecurescreenoff;
+    public Runnable notifyer;
     public ProgressDialog progress;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
@@ -527,6 +530,11 @@ public class Gforth
 	rsecurescreenoff=new Runnable() {
 		public void run() {
 		    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+		}
+	    };
+	notifyer=new Runnable() {
+		public void run() {
+		    notificationManager.notify((int)argj0, argnotify);
 		}
 	    };
 	

@@ -74,9 +74,6 @@ jni-field: startgps startgps Ljava/lang/Runnable;
 jni-field: stopgps stopgps Ljava/lang/Runnable;
 jni-field: startsensor startsensor Ljava/lang/Runnable;
 jni-field: stopsensor stopsensor Ljava/lang/Runnable;
-jni-field: args0 args0 Ljava/lang/String;
-jni-field: argf0 argf0 D
-jni-field: argj0 argj0 J
 jni-field: argsensor argsensor Landroid/hardware/Sensor;
 jni-field: locationManager locationManager Landroid/location/LocationManager;
 jni-field: sensorManager sensorManager Landroid/hardware/SensorManager;
