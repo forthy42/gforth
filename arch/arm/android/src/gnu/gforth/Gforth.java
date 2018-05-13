@@ -566,7 +566,7 @@ public class Gforth
 
 	gforthintent = PendingIntent.getActivity
 	    (this, 1,
-	     new Intent("gnu.gforth.Gforth_n2o")
+	     new Intent(this, Gforth.class) // ("gnu.gforth.Gforth_n2o")
 	     .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
 		       Intent.FLAG_ACTIVITY_SINGLE_TOP |
 		       Intent.FLAG_ACTIVITY_CLEAR_TOP),
