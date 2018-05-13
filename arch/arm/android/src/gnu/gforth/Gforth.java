@@ -556,11 +556,10 @@ public class Gforth
 	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
 
 	recNotification = new BroadcastReceiver() {
-		@Override public void onReceive(Context context, Intent foo)
+		@Override public void onReceive(Context context, Intent intent)
 		{
-		    Log.v(TAG, "notifcation received");
-		    onEventNative(23, foo);
-		    mView.bringToFront();
+		    // Log.v(TAG, "notifcation received");
+		    onEventNative(23, intent);
 		}
 	    };
 	registerReceiver(recNotification, new IntentFilter("gnu.gforth.Gforth_n2o.MESSAGE") );
@@ -603,6 +602,7 @@ public class Gforth
 	super.onNewIntent(intent);
 	setIntent(intent);
 	activated = -1;
+	onEventNative(23, intent);
 	if(surfaced) onEventNative(18, activated);
     }
 
