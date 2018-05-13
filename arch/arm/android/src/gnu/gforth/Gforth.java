@@ -570,7 +570,8 @@ public class Gforth
 	     .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
 		       Intent.FLAG_ACTIVITY_SINGLE_TOP |
 		       Intent.FLAG_ACTIVITY_CLEAR_TOP)
-	     .setClass(getApplicationContext(), Gforth.class),
+	     // .setClass(getApplicationContext(), Gforth.class)
+	     ,
 	     PendingIntent.FLAG_UPDATE_CURRENT);
 	
 	recConnectivity = new BroadcastReceiver() {
