@@ -102,7 +102,7 @@ public class Gforth
     private AlarmManager alarmManager;
     private ConnectivityManager connectivityManager;
     private InputMethodManager inputMethodManager;
-    private BroadcastReceiver recKeepalive, recConnectivity, recNotification;
+    private BroadcastReceiver recKeepalive, recConnectivity;
     private PendingIntent pintent, gforthintent;
     private PowerManager powerManager;
     private NotificationManager notificationManager;
@@ -555,15 +555,7 @@ public class Gforth
 	
 	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
 
-	recNotification = new BroadcastReceiver() {
-		@Override public void onReceive(Context context, Intent intent)
-		{
-		    // Log.v(TAG, "notifcation received");
-		    onEventNative(23, intent);
-		}
-	    };
-	registerReceiver(recNotification, new IntentFilter("gnu.gforth.Gforth_n2o.MESSAGE") );
-
+	// intent for notifications
 	gforthintent = PendingIntent.getActivity
 	    (this, 1,
 	     new Intent(this, getClass())
@@ -571,7 +563,8 @@ public class Gforth
 	     .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
 		       Intent.FLAG_ACTIVITY_SINGLE_TOP),
 	     PendingIntent.FLAG_UPDATE_CURRENT);
-	
+
+	// intent for network connectivity (!!use netlink socket!!)
 	recConnectivity = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 		    // boolean metered = connectivityManager.isActiveNetworkMetered();
@@ -602,8 +595,8 @@ public class Gforth
 	super.onNewIntent(intent);
 	setIntent(intent);
 	activated = -1;
-	onEventNative(23, intent);
 	if(surfaced) onEventNative(18, activated);
+	onEventNative(23, intent);
     }
 
     @Override protected void onResume() {

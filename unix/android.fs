@@ -453,7 +453,7 @@ Defer android-alarm ( 0 -- ) ' drop is android-alarm
 Defer android-network ( metered -- )
 ( :noname drop .network cr ; ) ' drop is android-network
 Defer android-notification ( intent -- )
-:noname drop ." Got intent" cr ; is android-notification
+( :noname drop ." Got intent" cr ; ) ' drop is android-notification
 
 Create aevents
 ' android-key ,
