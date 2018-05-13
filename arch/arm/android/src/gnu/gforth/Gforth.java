@@ -564,13 +564,12 @@ public class Gforth
 	    };
 	registerReceiver(recNotification, new IntentFilter("gnu.gforth.Gforth_n2o.MESSAGE") );
 
-	gforthintent = PendingIntent.getActivity
+	gforthintent = PendingIntent.getBroadcast
 	    (this, 1,
 	     new Intent("gnu.gforth.Gforth_n2o.MESSAGE")
 	     .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
 		       Intent.FLAG_ACTIVITY_SINGLE_TOP |
-		       Intent.FLAG_ACTIVITY_CLEAR_TOP)
-	     .setClassName("gnu.gforth.Gforth_n2o", "Gforth"),
+		       Intent.FLAG_ACTIVITY_CLEAR_TOP),
 	     PendingIntent.FLAG_UPDATE_CURRENT);
 	
 	recConnectivity = new BroadcastReceiver() {
