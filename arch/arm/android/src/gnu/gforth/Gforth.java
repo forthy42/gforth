@@ -558,17 +558,19 @@ public class Gforth
 	recNotification = new BroadcastReceiver() {
 		@Override public void onReceive(Context context, Intent foo)
 		{
-		    // Log.v(TAG, "notifcation received");
+		    Log.v(TAG, "notifcation received");
 		    onEventNative(23, foo);
 		}
 	    };
 	registerReceiver(recNotification, new IntentFilter("gnu.gforth.notification") );
 
-	gforthintent = PendingIntent.getBroadcast
+	gforthintent = PendingIntent.getActivity
 	    (this, 1,
 	     new Intent("gnu.gforth.notification")
 	     .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
-		       Intent.FLAG_ACTIVITY_SINGLE_TOP),
+		       Intent.FLAG_ACTIVITY_SINGLE_TOP |
+		       Intent.FLAG_ACTIVITY_CLEAR_TOP)
+	     .setClass(getApplicationContext(), Gforth.class),
 	     PendingIntent.FLAG_UPDATE_CURRENT);
 	
 	recConnectivity = new BroadcastReceiver() {
