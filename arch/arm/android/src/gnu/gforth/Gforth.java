@@ -562,16 +562,14 @@ public class Gforth
 		    onEventNative(23, foo);
 		}
 	    };
-	registerReceiver(recNotification, new IntentFilter("gnu.gforth.notification") );
+	registerReceiver(recNotification, new IntentFilter("gnu.gforth.Gforth_n2o.MESSAGE") );
 
-	gforthintent = PendingIntent.getBroadcast
+	gforthintent = PendingIntent.getActivity
 	    (this, 1,
-	     new Intent("gnu.gforth.notification")
+	     new Intent("gnu.gforth.Gforth_n2o.MESSAGE")
 	     .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
 		       Intent.FLAG_ACTIVITY_SINGLE_TOP |
-		       Intent.FLAG_ACTIVITY_CLEAR_TOP)
-	     // .setClass(getApplicationContext(), Gforth.class)
-	     ,
+		       Intent.FLAG_ACTIVITY_CLEAR_TOP),
 	     PendingIntent.FLAG_UPDATE_CURRENT);
 	
 	recConnectivity = new BroadcastReceiver() {
