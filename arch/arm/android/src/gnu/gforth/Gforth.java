@@ -102,7 +102,7 @@ public class Gforth
     private AlarmManager alarmManager;
     private ConnectivityManager connectivityManager;
     private InputMethodManager inputMethodManager;
-    private BroadcastReceiver recKeepalive, recConnectivity;
+    private BroadcastReceiver recKeepalive, recConnectivity, recNotification;
     private PendingIntent pintent, gforthintent;
     private PowerManager powerManager;
     private NotificationManager notificationManager;
@@ -449,7 +449,10 @@ public class Gforth
 	powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
 	notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 	if (Build.VERSION.SDK_INT >= 26) {
-	    notificationChannel = new NotificationChannel("gnu.gforth.notifications", "dummy name", NotificationManager.IMPORTANCE_DEFAULT);
+	    notificationChannel = new NotificationChannel("gnu.gforth.notifications", "Messages", NotificationManager.IMPORTANCE_DEFAULT);
+	    notificationChannel.enableLights(true);
+	    notificationChannel.setShowBadge(true);
+	    
 	    notificationManager.createNotificationChannel(notificationChannel);
 	}
 	
@@ -551,13 +554,23 @@ public class Gforth
 	registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive") );
 	
 	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
-	Intent startgforth = new Intent(this, Gforth.class);
-	startgforth.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
-			     Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-	gforthintent = PendingIntent.getActivity(this, 1, startgforth,
-						 PendingIntent.FLAG_UPDATE_CURRENT);
+	recNotification = new BroadcastReceiver() {
+		@Override public void onReceive(Context context, Intent foo)
+		{
+		    // Log.v(TAG, "notifcation received");
+		    onEventNative(23, foo);
+		}
+	    };
+	registerReceiver(recNotification, new IntentFilter("gnu.gforth.notification") );
 
+	gforthintent = PendingIntent.getBroadcast
+	    (this, 1,
+	     new Intent("gnu.gforth.notification")
+	     .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
+		       Intent.FLAG_ACTIVITY_SINGLE_TOP),
+	     PendingIntent.FLAG_UPDATE_CURRENT);
+	
 	recConnectivity = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 		    // boolean metered = connectivityManager.isActiveNetworkMetered();

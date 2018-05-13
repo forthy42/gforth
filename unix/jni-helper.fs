@@ -148,9 +148,11 @@ jni-method: isConnected isConnected ()Z
 SDK_INT 11 >= [IF]
     jni-class: android/app/Notification$Builder
     jni-new: newNotification.Builder (Landroid/content/Context;)V
+    jni-method: setGroup setGroup (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
     jni-method: setContentTitle setContentTitle (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
     jni-method: setContentText setContentText (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
     jni-method: setTicker setTicker (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
+    jni-method: setNumber setNumber (I)Landroid/app/Notification$Builder;
     SDK_INT 21 >= [IF]
 	jni-method: addPerson addPerson (Ljava/lang/String;)Landroid/app/Notification$Builder;
     [THEN]

@@ -449,9 +449,11 @@ Defer android-active
 	+show +sync screen-ops
     ELSE  16000 to looper-to#  THEN ; is android-active
 
-Defer android-alarm ( 0 -- ) ' drop is recurse
+Defer android-alarm ( 0 -- ) ' drop is android-alarm
 Defer android-network ( metered -- )
 ( :noname drop .network cr ; ) ' drop is android-network
+Defer android-notification ( intent -- )
+:noname drop ." Got intent" cr ; is android-notification
 
 Create aevents
 ' android-key ,
@@ -477,6 +479,7 @@ Create aevents
 ' android-setsel ,
 ' android-alarm ,
 ' android-network ,
+' android-notification ,
 here aevents - cell/
 ' drop ,
 Constant max-event#
