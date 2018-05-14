@@ -352,10 +352,15 @@ s" sock read error"    exception Constant !!sockread!!
 	!!noaddr!! throw  THEN
     addrres @ ;
 
+defer get-socket-options ( socket -- socket )
+\G hook to set socket options im get-socket-options
+' noop is get-socket-options
+
 : get-socket ( info -- socket )  dup >r >r
     BEGIN  r@  WHILE
 	    r@ ai_family l@ r@ ai_socktype l@ r@ ai_protocol l@ socket
 	    dup 0>= IF
+		get-socket-options
 		dup r@ ai_addr @ r@ ai_addrlen l@ connect
 		IF
 		    close-server
