@@ -14,12 +14,14 @@ gforth-class:
 \ jni-sfield: INPUT_METHOD_SERVICE INPUT_METHOD_SERVICE Ljava/lang/String;
 \ jni-sfield: POWER_SERVICE POWER_SERVICE Ljava/lang/String;
 
+jni-method: get_SDK get_SDK ()I
+: SDK_INT clazz .get_SDK ;
+
 jni-method: getSystemService getSystemService (Ljava/lang/String;)Ljava/lang/Object;
 jni-method: getWindow getWindow ()Landroid/view/Window;
 jni-method: getResources getResources ()Landroid/content/res/Resources;
 jni-method: showIME showIME ()V
 jni-method: hideIME hideIME ()V
-jni-method: get_SDK get_SDK ()I
 jni-method: setEditLine setEditLine (Ljava/lang/String;I)V
 jni-method: set_alarm set_alarm (J)V
 jni-method: screen_on screen_on (I)V
@@ -44,8 +46,6 @@ jni-field: args0 args0 Ljava/lang/String;
 jni-field: argf0 argf0 D
 jni-field: argj0 argj0 J
 jni-field: argnotify argnotify Landroid/app/Notification;
-
-: SDK_INT clazz .get_SDK ;
 
 jni-class: android/os/Handler
 jni-method: post post (Ljava/lang/Runnable;)Z
