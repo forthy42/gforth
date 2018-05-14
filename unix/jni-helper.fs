@@ -26,7 +26,9 @@ jni-method: screen_on screen_on (I)V
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
 jni-field: notificationManager notificationManager Landroid/app/NotificationManager;
-jni-field: notificationChannel notificationChannel Landroid/app/NotificationChannel;
+SDK_INT 26 >= [IF]
+    jni-field: notificationChannel notificationChannel Landroid/app/NotificationChannel;
+[THEN]
 jni-field: inputMethodManager inputMethodManager Landroid/view/inputmethod/InputMethodManager;
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
 jni-field: hideprog hideprog Ljava/lang/Runnable;
