@@ -828,7 +828,7 @@ end-class viewport
     Saturate 1 vp-saturate% glUniform1fv
     0e fdup fdup fdup glClearColor clear
     vt-x x-apos sf+! vt-y y-apos sf+!
-    .01e 100e 100e vp-w f>s vp-h f>s >apwh ;
+    .01e 100e 100e vt-w f>s vt-h f>s >apwh ;
 : draw-vp> ( -- )
     0>framebuffer
     Ambient 1 ambient% glUniform1fv
@@ -836,11 +836,23 @@ end-class viewport
     0e fdup x-apos sf! y-apos sf!
     -1e 1e >apxy  .01e 100e 100e >ap ;
 
+: do-vp-childs { xt -- .. }
+    vt-y vt-h fover f+ { f: y0 f: y1 }
+    box-flags @ box-flip# and ?EXIT
+    childs[] $@ bounds U+DO
+	I @ >o
+	\ check if coordinates in bounds
+	y d border borderv f+ f- f+ y0 f>
+	y h border borderv f+ bordert f+ f- f- y1 f<
+	and IF  xt execute  THEN
+	o>
+    cell +LOOP ;
+
 : draw-vpchilds ( -- )
-    <draw-vp        ['] draw-init      do-childs  draw-init>
-    <draw-text      ['] draw-bg        do-childs
-                    ['] draw-text      do-childs  render>
-    <draw-image     ['] draw-image     do-childs  draw-image>
+    <draw-vp        ['] draw-init      do-vp-childs  draw-init>
+    <draw-text      ['] draw-bg        do-vp-childs
+                    ['] draw-text      do-vp-childs  render>
+    <draw-image     ['] draw-image     do-vp-childs  draw-image>
     draw-vp> ;
 
 :noname
@@ -851,7 +863,10 @@ end-class viewport
 :noname ( -- )
     z-bias set-color+ vp-tex
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
-    vp-x fround vp-w f/ vp-y fround vp-h f/ w vp-w f/ h vp-h f/ >xyxy
+    vp-x vt-x f- fround vt-w f/
+    vp-y vt-y f- fround vt-h f/
+    w vt-w f/
+    h vt-h f/ >xyxy
     { f: s0 f: t0 f: s1 f: t1 }
     vi0 i>off  $FFFFFFFF >v
     x1 fround y1 fround >xy dup rgba>c n> s0 t1 >st v+
