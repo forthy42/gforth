@@ -256,7 +256,7 @@ end-class image
 ' noop       image is draw-bg
 : xywh-rect ( color -- )
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
-    i>off  >v
+    6 ?flush-tris  i>off  >v
     x1 y1 >xy dup rgba>c n> 0e 0e >st v+
     x2 y1 >xy dup rgba>c n> 1e 0e >st v+
     x1 y2 >xy dup rgba>c n> 0e 1e >st v+
@@ -283,10 +283,10 @@ DOES>  swap sfloats + sf@ ;
     endcase ;
 
 : frame-draw ( -- )
-    -1e to t.i0   #36 ?flush-tris
+    -1e to t.i0 
     frame# frame-color border fdup borderv f+
     xywh { f c f: b f: bv f: x f: y f: w f: h }
-    i>off >v
+    #80 ?flush-tris  i>off >v
     4 0 DO
 	4 0 DO
 	    x b  I w borderl >border
@@ -800,6 +800,10 @@ vbox class
     sfvalue: vp-y \ y offset of visible part of viewport
     sfvalue: vp-w \ width inside viewport
     sfvalue: vp-h \ height inside viewport
+    sfvalue: vt-x \ x offset of rendering texture
+    sfvalue: vt-y \ y offset of rendering texture
+    sfvalue: vt-w \ width of rendering texture
+    sfvalue: vt-h \ height of rendering texture
     defer: vp-tex
     value: vp-fb
     value: vp-glue \ glue object
@@ -819,15 +823,17 @@ end-class viewport
 1 sfloats buffer: vp-saturate% 1.0e vp-saturate% sf!
 
 : <draw-vp ( -- )
-    vp-h vp-w f>s f>s vp-fb >framebuffer
+    vt-h vt-w f>s f>s vp-fb >framebuffer
     Ambient 1 vp-ambient% glUniform1fv
     Saturate 1 vp-saturate% glUniform1fv
     0e fdup fdup fdup glClearColor clear
-    .01e 100e 100e vp-h vp-w f>s f>s >apwh ;
+    vt-x x-apos sf+! vt-y y-apos sf+!
+    .01e 100e 100e vp-w f>s vp-h f>s >apwh ;
 : draw-vp> ( -- )
     0>framebuffer
     Ambient 1 ambient% glUniform1fv
     Saturate 1 saturate% glUniform1fv
+    0e fdup x-apos sf! y-apos sf!
     -1e 1e >apxy  .01e 100e 100e >ap ;
 
 : draw-vpchilds ( -- )
@@ -854,18 +860,27 @@ end-class viewport
     x2 fround y2 fround >xy     rgba>c n> s1 t0 >st v+
     v> 2 quad
     render-bgra> ; viewport is draw-image
+: ?vpt-x ( -- flag )
+    vp-x vt-x f< vp-x w f+ vt-x vt-w f+ f> or dup IF
+	vp-x vt-w w f- f2/ f- 0e fmax vp-w vt-w f- fmin to vt-x
+    THEN ;
+: ?vpt-y ( -- flag )
+    vp-y vt-y f< vp-y h d f+ f+ vt-y vt-h f+ f> or dup IF
+	vp-y vt-h h d f+ f- f2/ f- 0e fmax vp-h vt-h f- fmin to vt-y
+    THEN ;
 : vp-!size ( -- )
     ['] !size do-childs
     hglue* hglue-c glue!
     dglue+ dglue-c glue!
     vglue+ vglue-c glue!
     w hglue-c df@ fmax
-    fdup vp-w f<> to vp-w
+    fdup vp-w f<> to vp-w vp-w maxtexsize# s>f fmin to vt-w
     h d f+ dglue-c df@ vglue-c df@ f+ fmax
-    fdup vp-h f<> to vp-h
+    fdup vp-h f<> to vp-h vp-h maxtexsize# s>f fmin to vt-h
     vp-h h d f+ f- vp-y fmin fdup vp-y f<> to vp-y
     vp-w w f- vp-x fmin fdup vp-x f<> to vp-x
-    or or or IF ['] +sync vp-needed THEN ;
+    ?vpt-x ?vpt-y
+    or or or or or IF ['] +sync vp-needed THEN ;
 ' vp-!size viewport is !size
 :noname ( -- )
     ['] +sync vp-needed [ box :: resized ] ; viewport is resized
@@ -876,10 +891,10 @@ end-class viewport
     x y w h d widget-resize
     vp-!size
     vp-tex vp-fb IF
-	vp-w f>s vp-h f>s 2dup 0 -rot GL_RGBA texture-map \ just resize
+	vt-w f>s vt-h f>s 2dup 0 -rot GL_RGBA texture-map \ just resize
 	GL_RENDERBUFFER GL_DEPTH_COMPONENT16 2swap glRenderbufferStorage
     ELSE
-	vp-w f>s vp-h f>s GL_RGBA new-textbuffer to vp-fb
+	vt-w f>s vt-h f>s GL_RGBA new-textbuffer to vp-fb
     THEN
     0e vp-h vp-w vp-h 0e vbox-resize
     x y w h d widget-resize
@@ -944,7 +959,7 @@ end-class hslider-partl \ left part
 hslider-part class
 end-class hslider-partr
 
-:noname 0g fdup tile-glue >o vp-w vp-x f- o> ; hslider-partr is hglue
+:noname 0g fdup tile-glue >o vp-w vp-x f- w f- o> ; hslider-partr is hglue
 ' noop hslider-partr is draw-bg
 
 Create hslider-parts
