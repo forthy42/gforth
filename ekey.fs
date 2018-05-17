@@ -32,7 +32,7 @@
 \ The keycode names are compatible with pfe-0.9.14
 
 $80000000 constant keycode-start
-$8000001E constant keycode-limit
+$8000001F constant keycode-limit
 
 create keycode-table keycode-limit keycode-start - cells allot
 
@@ -107,6 +107,7 @@ keycode k-mute  ( -- u ) \ gforth
 keycode k-volup ( -- u ) \ gforth
 keycode k-voldown ( -- u ) \ gforth
 keycode k-backspace ( -- u ) \ gforth
+keycode k-tab ( -- u ) \ gforth
 keycode k-eof ( -- u ) \ gforth, always the last gforth-specific keycode
 drop
     
@@ -256,6 +257,7 @@ Variable ekey-buffer
     k-next   s" [6~" esc-sequence
     k-insert s" [2~" esc-sequence
     k-delete s" [3~" esc-sequence
+    k-tab    k-shift-mask or s" [Z" esc-sequence
 
     k-enter  k-shift-mask or s" OM" esc-sequence
     k-enter  k-alt-mask or   s" x" over #cr swap c! esc-sequence

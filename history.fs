@@ -65,6 +65,7 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 2Variable forward^
 2Variable backward^
 2Variable end^
+Variable vt100-modifier \ shift, ctrl, alt
 
 : force-open ( addr len -- fid )
     2dup r/w open-file
@@ -150,9 +151,9 @@ Create prefix-found  0 , 0 ,
     name>string 2>r name>string
     dup r@ =
     IF
-	rdrop r> capscomp 0<= EXIT
+	rdrop r> capscomp vt100-modifier @ IF 0>= ELSE 0<= THEN EXIT
     THEN
-    r> <
+    r> vt100-modifier @ IF > ELSE < THEN
     nip rdrop ;
 
 : search-voc ( addr len nfa1 nfa2 -- addr len nfa3 )
@@ -203,7 +204,7 @@ Defer search-prefix
     5 pick over 4 pick + u< ;
 
 : kill-prefix  ( key -- key )
-  dup #tab <> IF  prefix-off  THEN ;
+  dup #tab <> over [ k-tab k-shift-mask or ]L <> and IF  prefix-off  THEN ;
 
 \ UTF-8 support
 
@@ -250,8 +251,6 @@ info-color Value setstring-color
 	span more + max#tib @ 2* umax expand-tib
 	max#tib @ span tib pos1 true EXIT  THEN
     max span addr pos1 false ;
-
-Variable vt100-modifier
 
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
     >r  r@ xc-size grow-tib 0= IF  rdrop edit-error  EXIT  THEN
@@ -394,7 +393,7 @@ Create std-ekeys
     ' false ,        ' false ,        ' false ,        ' false ,
     ' false ,        ' false ,        ' false ,        ' xreformat ,
     ' xhide ,        ' false ,        ' prev-line ,    ' next-line ,
-    ' ?xdel ,        ' (xenter) ,
+    ' ?xdel ,        ' xtab-expand ,  ' (xenter) ,
 
 : xchar-edit-ctrl ( max span addr pos1 ekey -- max span addr pos2 flag )
     dup mask-shift# rshift 7 and vt100-modifier !

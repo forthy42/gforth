@@ -859,7 +859,7 @@ end-class viewport
     vp-h vt-h f- vt-y f- 32e f- vt-h 64e f+ fover f+ { f: y0 f: y1 }
     box-flags @ box-flip# and ?EXIT
     y1 childs[] [: y h border borderv f+ bordert f+ f- f- fover f<
-    ;] search-tree fdrop
+    ;] search-tree fdrop cell+
     y0 childs[] [: y d border borderv f+ f- f+ fover f<
     ;] search-tree fdrop
     U+DO
