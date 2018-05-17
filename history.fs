@@ -143,18 +143,20 @@ Create prefix-found  0 , 0 ,
     LOOP
     drop 0 ;
 
+0 value alphabetic-tab
+
 : word-lex ( nfa1 nfa2 -- -1/0/1 )
     dup 0=
     IF
 	2drop 1  EXIT
     THEN
     name>string 2>r name>string
-    dup r@ =
+    vt100-modifier @ IF  2r> 2swap 2>r  THEN
+    dup r@ = alphabetic-tab or
     IF
-	rdrop r> capscomp vt100-modifier @ IF 0>= ELSE 0<= THEN EXIT
+	rdrop r> capscomp 0<=  EXIT
     THEN
-    r> vt100-modifier @ IF > ELSE < THEN
-    nip rdrop ;
+    r> < nip rdrop ;
 
 : search-voc ( addr len nfa1 nfa2 -- addr len nfa3 )
     >r
