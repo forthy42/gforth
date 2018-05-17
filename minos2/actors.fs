@@ -251,6 +251,8 @@ end-class vslider-actor
 :noname ( $rxy*n bmask -- ) 
     grab-move? IF
 	drop xy@ fdrop >hslide
+    ELSE
+	2drop
     THEN ; hslider-actor is touchmove
 :noname ( x y b n -- )
     1 and IF

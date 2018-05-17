@@ -634,7 +634,13 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : baseglue ( -- b 0 max )
     baseline 0g 1filll ;
 
-: hglue+ 0glue box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs ;
+: bxx ( -- b )
+    border f2* borderl f+ kerning f+ ;
+: b0glue ( -- b 0 0 ) bxx 0g fdup ;
+: b1glue ( -- b 0 0 ) bxx 0g 1fil ;
+
+: hglue+ b0glue
+    box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs ;
 : dglue+ 0glue box-flags @ box-vflip# and ?EXIT
     [: glue-drop dglue@ ;] do-lastchild ; \ last dglue
 : vglue+ 0glue box-flags @ box-vflip# and ?EXIT
@@ -642,7 +648,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     glue-drop ;
 
 : hglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
-    1glue [: hglue@ glue* ;] do-childs ;
+    1glue [: hglue@ glue* ;] do-childs  b0glue glue+ ;
 : dglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
     1glue [: dglue@ glue* ;] do-childs ;
 : vglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
@@ -696,7 +702,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     \g       by total glue to stretch into (so you can multiply with it)
     \g rg: running glue
     \g rd: running remaining pixels
-    \g rx: running y
+    \g ry: running y
     \g od: previous descender
     gp/a
     vglue@ gp/a f0> ?g3>2 +to rg { f: ymin }
@@ -788,10 +794,12 @@ htab-glue is hglue!@
 \ viewport: Draw into a frame buffer
 
 0 Value maxtexsize#
+0 Value usetexsize#
 : ?texsize ( -- )
     GL_MAX_TEXTURE_SIZE addr maxtexsize#
     [ cell 8 = [IF] 1 pad ! pad c@ 0= [IF] ] 4 + [ [THEN] [THEN] ]
-    glGetIntegerv ;
+    glGetIntegerv
+    maxtexsize# dpy-w @ dpy-h @ max 2* min to usetexsize# ;
 
 ?texsize
 
@@ -827,7 +835,8 @@ end-class viewport
     Ambient 1 vp-ambient% glUniform1fv
     Saturate 1 vp-saturate% glUniform1fv
     0e fdup fdup fdup glClearColor clear
-    vt-x x-apos sf+! vt-y y-apos sf+!
+    vt-x vt-w f/ f2* fnegate -1e f+
+    vp-h vt-h f- vt-y f- vt-h f/ f2*  1e f+ >apxy
     .01e 100e 100e vt-w f>s vt-h f>s >apwh ;
 : draw-vp> ( -- )
     0>framebuffer
@@ -837,16 +846,15 @@ end-class viewport
     -1e 1e >apxy  .01e 100e 100e >ap ;
 
 : do-vp-childs { xt -- .. }
-    vt-y vt-h fover f+ { f: y0 f: y1 }
+    vp-h vt-h f- vt-y f- 32e f- vt-h 64e f+ fover f+ { f: y0 f: y1 }
     box-flags @ box-flip# and ?EXIT
-    childs[] $@ bounds U+DO
+    childs[] $@ bounds dup { i` } U+DO
 	I @ >o
 	\ check if coordinates in bounds
 	y d border borderv f+ f- f+ y0 f>
 	y h border borderv f+ bordert f+ f- f- y1 f<
-	and IF  xt execute  THEN
-	o>
-    cell +LOOP ;
+	and IF  xt execute  THEN  o>
+    cell +LOOP cr ;
 
 : draw-vpchilds ( -- )
     <draw-vp        ['] draw-init      do-vp-childs  draw-init>
@@ -889,9 +897,9 @@ end-class viewport
     dglue+ dglue-c glue!
     vglue+ vglue-c glue!
     w hglue-c df@ fmax
-    fdup vp-w f<> to vp-w vp-w maxtexsize# s>f fmin to vt-w
+    fdup vp-w f<> to vp-w vp-w usetexsize# s>f fmin to vt-w
     h d f+ dglue-c df@ vglue-c df@ f+ fmax
-    fdup vp-h f<> to vp-h vp-h maxtexsize# s>f fmin to vt-h
+    fdup vp-h f<> to vp-h vp-h usetexsize# s>f fmin to vt-h
     vp-h h d f+ f- vp-y fmin fdup vp-y f<> to vp-y
     vp-w w f- vp-x fmin fdup vp-x f<> to vp-x
     ?vpt-x ?vpt-y
