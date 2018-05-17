@@ -845,15 +845,25 @@ end-class viewport
     0e fdup x-apos sf! y-apos sf!
     -1e 1e >apxy  .01e 100e 100e >ap ;
 
+: search-tree ( ... array xt -- ... ) >r
+    $@ 0 { a x x/2 }
+    BEGIN  x cell u>  WHILE  x 2/ [ cell negate ]L and to x/2
+	    r@  a x/2 + @ .execute IF
+		a x x/2 /string
+	    ELSE
+		a x/2
+	    THEN  to x  to a
+    REPEAT  rdrop  a ;
+
 : do-vp-childs { xt -- .. }
     vp-h vt-h f- vt-y f- 32e f- vt-h 64e f+ fover f+ { f: y0 f: y1 }
     box-flags @ box-flip# and ?EXIT
-    childs[] $@ bounds dup { i` } U+DO
-	I @ >o
-	\ check if coordinates in bounds
-	y d border borderv f+ f- f+ y0 f>
-	y h border borderv f+ bordert f+ f- f- y1 f<
-	and IF  xt execute  THEN  o>
+    y1 childs[] [: y h border borderv f+ bordert f+ f- f- fover f<
+    ;] search-tree fdrop
+    y0 childs[] [: y d border borderv f+ f- f+ fover f<
+    ;] search-tree fdrop
+    U+DO
+	xt I @ .execute
     cell +LOOP  ;
 
 : draw-vpchilds ( -- )
