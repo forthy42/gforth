@@ -854,7 +854,7 @@ end-class viewport
 	y d border borderv f+ f- f+ y0 f>
 	y h border borderv f+ bordert f+ f- f- y1 f<
 	and IF  xt execute  THEN  o>
-    cell +LOOP cr ;
+    cell +LOOP  ;
 
 : draw-vpchilds ( -- )
     <draw-vp        ['] draw-init      do-vp-childs  draw-init>
@@ -884,12 +884,14 @@ end-class viewport
     v> 2 quad
     render-bgra> ; viewport is draw-image
 : ?vpt-x ( -- flag )
-    vp-x vt-x f< vp-x w f+ vt-x vt-w f+ f> or dup IF
-	vp-x vt-w w f- f2/ f- 0e fmax vp-w vt-w f- fmin to vt-x
+    vp-x vt-x f< vp-x w f+ vt-x vt-w f+ f> or dup IF  drop
+	vp-x vt-w w f- f2/ f- 0e fmax vp-w vt-w f- fmin
+	fdup vt-x f<> to vt-x
     THEN ;
 : ?vpt-y ( -- flag )
-    vp-y vt-y f< vp-y h d f+ f+ vt-y vt-h f+ f> or dup IF
-	vp-y vt-h h d f+ f- f2/ f- 0e fmax vp-h vt-h f- fmin to vt-y
+    vp-y vt-y f< vp-y h d f+ f+ vt-y vt-h f+ f> or dup IF  drop
+	vp-y vt-h h d f+ f- f2/ f- 0e fmax vp-h vt-h f- fmin
+	fdup vt-y f<> to vt-y
     THEN ;
 : vp-!size ( -- )
     ['] !size do-childs
