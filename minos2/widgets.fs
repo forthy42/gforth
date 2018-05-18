@@ -818,10 +818,10 @@ vbox class
     field: vp-need
 end-class viewport
 
-: vp-top ( o:vp -- )    vp-h h f- to vp-y ;
-: vp-bottom ( o:vp -- )        0e to vp-y ;
-: vp-left ( o:vp -- )          0e to vp-x ;
-: vp-right ( o:vp -- )  vp-w w f- to vp-x ;
+: vp-top ( o:vp -- )    vp-h h f- fround to vp-y ;
+: vp-bottom ( o:vp -- )               0e to vp-y ;
+: vp-left ( o:vp -- )                 0e to vp-x ;
+: vp-right ( o:vp -- )  vp-w w f- fround to vp-x ;
 
 : vp-needed ( xt -- )
     need-mask >r vp-need to need-mask
@@ -880,17 +880,18 @@ end-class viewport
     THEN ; viewport is draw-init
 :noname ( -- )
     z-bias set-color+ vp-tex
-    xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
-    vp-x vt-x f- fround vt-w f/
-    vp-y vt-y f- fround vt-h f/
-    w vt-w f/
-    h vt-h f/ >xyxy
+    x fround y h f- fround w fround h d f+ fround
+    >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
+    vp-x vt-x f- vt-w f/
+    vp-y vt-y f- vt-h f/
+    w fround vt-w f/
+    h fround vt-h f/ >xyxy
     { f: s0 f: t0 f: s1 f: t1 }
     vi0 i>off  $FFFFFFFF >v
-    x1 fround y1 fround >xy dup rgba>c n> s0 t1 >st v+
-    x2 fround y1 fround >xy dup rgba>c n> s1 t1 >st v+
-    x1 fround y2 fround >xy dup rgba>c n> s0 t0 >st v+
-    x2 fround y2 fround >xy     rgba>c n> s1 t0 >st v+
+    x1 y1 >xy dup rgba>c n> s0 t1 >st v+
+    x2 y1 >xy dup rgba>c n> s1 t1 >st v+
+    x1 y2 >xy dup rgba>c n> s0 t0 >st v+
+    x2 y2 >xy     rgba>c n> s1 t0 >st v+
     v> 2 quad
     render-bgra> ; viewport is draw-image
 : ?vpt-x ( -- flag )
@@ -908,12 +909,12 @@ end-class viewport
     hglue* hglue-c glue!
     dglue+ dglue-c glue!
     vglue+ vglue-c glue!
-    w hglue-c df@ fmax
+    w hglue-c df@ fmax fround
     fdup vp-w f<> to vp-w vp-w usetexsize# s>f fmin fround to vt-w
-    h d f+ dglue-c df@ vglue-c df@ f+ fmax
+    h d f+ dglue-c df@ vglue-c df@ f+ fmax fround
     fdup vp-h f<> to vp-h vp-h usetexsize# s>f fmin fround to vt-h
-    vp-h h d f+ f- vp-y fmin fdup vp-y f<> to vp-y
-    vp-w w f- vp-x fmin fdup vp-x f<> to vp-x
+    vp-h h d f+ f- vp-y fmin fround fdup vp-y f<> to vp-y
+    vp-w w f- vp-x fmin fround fdup vp-x f<> to vp-x
     ?vpt-x ?vpt-y
     or or or or or IF ['] +sync vp-needed THEN ;
 ' vp-!size viewport is !size

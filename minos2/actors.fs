@@ -245,7 +245,7 @@ end-class vslider-actor
 : >hslide ( x -- )
     slider-sxy f- caller-w >o parent-w .w w f- +sync o> f/
     slide-vp >o vp-w w f- fdup { f: hmax } f*
-    0e fmax hmax fmin to vp-x
+    0e fmax hmax fmin fround to vp-x
     ?vpt-x IF  ['] +sync vp-needed  THEN o>
     caller-w .parent-w >o !size xywhd resize o> ;
 
@@ -271,7 +271,7 @@ end-class vslider-actor
 : >vslide ( x -- )
     slider-sxy fswap f- caller-w >o parent-w .h h f- +sync o> f/
     slide-vp >o vp-h h f- fdup { f: vmax } f*
-    0e fmax vmax fmin to vp-y
+    0e fmax vmax fmin fround to vp-y
     ?vpt-y IF  ['] +sync vp-needed  THEN  o>
     caller-w .parent-w >o !size xywhd resize o> ;
 
@@ -404,7 +404,7 @@ edit-terminal edit-out !
     edit-w >o addr text$ curpos cursize 0 max o> to xselw
     >r dup edit$ ! dup { e$ } $@ swap over swap r>
     r> catch >r edit-w >o to curpos 0 to cursize o> drop e$ $!len drop
-    r>  r> to history  +sync  throw ;
+    r>  r> to history  +sync +config  throw ;
 
 : edit>curpos ( x o:actor -- )
     edit-w >o  text-font to font
