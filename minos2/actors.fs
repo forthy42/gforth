@@ -246,7 +246,8 @@ end-class vslider-actor
     slider-sxy f- caller-w >o parent-w .w w f- +sync o> f/
     slide-vp >o vp-w w f- fdup { f: hmax } f*
     0e fmax hmax fmin to vp-x
-    ?vpt-x IF  ['] +sync vp-needed  THEN o> ;
+    ?vpt-x IF  ['] +sync vp-needed  THEN o>
+    caller-w .parent-w >o !size xywhd resize o> ;
 
 :noname ( $rxy*n bmask -- ) 
     grab-move? IF
@@ -271,7 +272,8 @@ end-class vslider-actor
     slider-sxy fswap f- caller-w >o parent-w .h h f- +sync o> f/
     slide-vp >o vp-h h f- fdup { f: vmax } f*
     0e fmax vmax fmin to vp-y
-    ?vpt-y IF  ['] +sync vp-needed  THEN  o> ;
+    ?vpt-y IF  ['] +sync vp-needed  THEN  o>
+    caller-w .parent-w >o !size xywhd resize o> ;
 
 :noname ( $rxy*n bmask -- )
     event( o hex. caller-w hex. ." slider move " 2dup .touch )

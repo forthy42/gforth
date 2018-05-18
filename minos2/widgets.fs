@@ -896,12 +896,12 @@ end-class viewport
 : ?vpt-x ( -- flag )
     vp-x vt-x f< vp-x w f+ vt-x vt-w f+ f> or dup IF  drop
 	vp-x vt-w w f- f2/ f- 0e fmax vp-w vt-w f- fmin
-	fdup vt-x f<> to vt-x
+	fround fdup vt-x f<> to vt-x
     THEN ;
 : ?vpt-y ( -- flag )
     vp-y vt-y f< vp-y h d f+ f+ vt-y vt-h f+ f> or dup IF  drop
 	vp-y vt-h h d f+ f- f2/ f- 0e fmax vp-h vt-h f- fmin
-	fdup vt-y f<> to vt-y
+	fround fdup vt-y f<> to vt-y
     THEN ;
 : vp-!size ( -- )
     ['] !size do-childs
@@ -909,9 +909,9 @@ end-class viewport
     dglue+ dglue-c glue!
     vglue+ vglue-c glue!
     w hglue-c df@ fmax
-    fdup vp-w f<> to vp-w vp-w usetexsize# s>f fmin to vt-w
+    fdup vp-w f<> to vp-w vp-w usetexsize# s>f fmin fround to vt-w
     h d f+ dglue-c df@ vglue-c df@ f+ fmax
-    fdup vp-h f<> to vp-h vp-h usetexsize# s>f fmin to vt-h
+    fdup vp-h f<> to vp-h vp-h usetexsize# s>f fmin fround to vt-h
     vp-h h d f+ f- vp-y fmin fdup vp-y f<> to vp-y
     vp-w w f- vp-x fmin fdup vp-x f<> to vp-x
     ?vpt-x ?vpt-y
@@ -1043,10 +1043,11 @@ require animation.fs
     BEGIN  0 looper-to# anims[] $@len ?sync or select
 	#looper  time( ." looper: " .!time cr )
 	[IFDEF] android  ?config-changer  [THEN]
-	anims[] $@len IF  animations true  ELSE  ?sync  THEN
-	IF  top-widget >o htop-resize widget-draw time( ." animate: " .!time cr )
+	anims[] $@len IF  animations  THEN
+	?sync  IF  top-widget >o ?config IF  htop-resize  THEN
+	    widget-draw time( ." animate: " .!time cr )
 	    o>
-	    -sync  THEN
+	    -sync -config  THEN
 	?keyboard IF
 	    [IFDEF] showkb showkb [THEN]
 	    -keyboard  THEN
