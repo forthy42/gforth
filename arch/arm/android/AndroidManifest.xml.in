@@ -26,10 +26,11 @@ cat <<EOF
     <!-- This is the platform API where NativeActivity was introduced. -->
     <!-- However, we use OpenMAX AL, so 10 doesn't work any longer -->
     <uses-sdk
-     android:minSdkVersion="10"
-     android:targetSdkVersion="18" />
+     android:minSdkVersion="14"
+     android:targetSdkVersion="26" />
 
-    <application android:icon="@drawable/ic_launcher">
+    <application android:icon="@drawable/ic_launcher"
+                android:resizeableActivity="true">
         <!-- Our activity is a homebrewn variant of the NativeAcitivity.
              This will take care of integrating with our NDK code. -->
         <activity android:name="gnu.gforth.Gforth"

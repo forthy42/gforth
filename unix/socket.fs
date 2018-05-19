@@ -60,7 +60,7 @@ e? os-type s" linux-android" string-prefix? [IF] [IFUNDEF] android : android ; [
 e? os-type s" cygwin" string-prefix? [IF] [IFUNDEF] cygwin : cygwin ; [THEN] [THEN]
 e? os-type s" linux-gnu" string-prefix? [IF]
     [IFUNDEF] linux : linux ; [THEN]
-    s" /proc/kcore" file-status nip 0< [IF] : mslinux ; [THEN]
+    s" /proc/partitions" file-status nip 0< [IF] : mslinux ; [THEN]
 [THEN]
 
 begin-structure hostent
@@ -304,9 +304,12 @@ s" sock read error"    exception Constant !!sockread!!
 : new-socket ( -- server )
     PF_INET SOCK_STREAM 0 socket dup 0<= ?ior ;
 
+: ipv6-only ( sock -- )  true { w^ sockopt }
+    IPPROTO_IPV6 IPV6_V6ONLY sockopt 4 setsockopt ?ior ;
+
 : new-socket6 ( -- server )  true { w^ sockopt }
     PF_INET6 SOCK_STREAM 0 socket dup 0<= ?ior
-    dup IPPROTO_IPV6 IPV6_V6ONLY sockopt 4 setsockopt drop ;
+    dup ipv6-only ;
 
 : new-udp-socket ( -- server )
     PF_INET SOCK_DGRAM 0 socket dup 0<= ?ior
@@ -314,26 +317,10 @@ s" sock read error"    exception Constant !!sockread!!
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt ?ior
     [ELSE]
-	[defined] mslinux [ 0= ] [IF]
-	    IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
-	    dup IPPROTO_IP IP_MTU_DISCOVER sockopt 4
-	    setsockopt ?ior
-	[THEN]
+	IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
+	dup IPPROTO_IP IP_MTU_DISCOVER sockopt 4
+	setsockopt ?ior
     [THEN] ;
-
-: new-udp-socket6 ( -- server ) 0 { w^ sockopt }
-    PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
-    [defined] darwin [defined] cygwin [ or ] [IF]
-	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
-	\    setsockopt drop
-    [ELSE]
-	[defined] mslinux [ 0= ] [IF]
-	    IP_PMTUDISC_DO sockopt l!
-	    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
-	    setsockopt ?ior
-	[THEN]
-    [THEN]
-    dup IPPROTO_IPV6 IPV6_V6ONLY sockopt dup on 4 setsockopt ?ior ;
 
 : new-udp-socket46 ( -- server )
     PF_INET6 SOCK_DGRAM 0 socket dup 0<= ?ior
@@ -341,13 +328,14 @@ s" sock read error"    exception Constant !!sockread!!
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt ?ior
     [ELSE]
-	[defined] mslinux [ 0= ] [IF]
-	    IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
-	    dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
-	    setsockopt ?ior
-	[THEN]
+	IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
+	dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
+	setsockopt ?ior
     [THEN]
 ;
+
+: new-udp-socket6 ( -- server )
+    new-udp-socket46 dup ipv6-only ;
 
 \ getaddrinfo based open-socket
 
@@ -364,10 +352,15 @@ s" sock read error"    exception Constant !!sockread!!
 	!!noaddr!! throw  THEN
     addrres @ ;
 
+defer get-socket-options ( socket -- socket )
+\G hook to set socket options im get-socket-options
+' noop is get-socket-options
+
 : get-socket ( info -- socket )  dup >r >r
     BEGIN  r@  WHILE
 	    r@ ai_family l@ r@ ai_socktype l@ r@ ai_protocol l@ socket
 	    dup 0>= IF
+		get-socket-options
 		dup r@ ai_addr @ r@ ai_addrlen l@ connect
 		IF
 		    close-server
@@ -384,6 +377,8 @@ s" sock read error"    exception Constant !!sockread!!
 : open-udp-socket ( addr u port -- fid )
     SOCK_DGRAM >hints  get-info  get-socket ;
 
+0 value reuse-addr?
+
 : reuse-addr ( socket -- ) 0 { w^ sockopt } 1 sockopt l!
     SOL_SOCKET SO_REUSEADDR sockopt 4 setsockopt drop ;
 \ : reuse-port ( socket -- ) \ only on BSD for now...
@@ -396,27 +391,27 @@ s" sock read error"    exception Constant !!sockread!!
 
 : create-server  ( port# -- server )
     AF_INET port+family
-    new-socket dup ?ior dup reuse-addr >r
+    new-socket dup ?ior >r r@ reuse-addr
     r@ sockaddr-tmp sockaddr_in4 bind ?ior r> ;
 
 : create-server6  ( port# -- server )
     AF_INET6 port+family
-    new-socket6 dup ?ior dup reuse-addr >r
+    new-socket6 dup ?ior >r reuse-addr? IF  r@ reuse-addr  THEN
     r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
 : create-udp-server  ( port# -- server )
     AF_INET port+family
-    new-udp-socket dup ?ior dup reuse-addr >r
+    new-udp-socket dup ?ior >r reuse-addr? IF  r@ reuse-addr  THEN
     r@ sockaddr-tmp sockaddr_in4 bind ?ior r> ;
 
 : create-udp-server6  ( port# -- server )
     AF_INET6 port+family
-    new-udp-socket6 dup ?ior dup reuse-addr >r
+    new-udp-socket6 dup ?ior >r reuse-addr? IF  r@ reuse-addr  THEN
     r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
 : create-udp-server46  ( port# -- server )
     AF_INET6 port+family
-    new-udp-socket46 dup ?ior dup reuse-addr >r
+    new-udp-socket46 dup ?ior >r reuse-addr? IF  r@ reuse-addr  THEN
     r@ sockaddr-tmp sockaddr_in6 bind ?ior r> ;
 
 \ from itools.frt

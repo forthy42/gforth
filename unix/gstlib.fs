@@ -1,6 +1,6 @@
-\ legacy notfound for people who liked the old interface
+\ wrapper to load Swig-generated libraries
 
-\ Copyright (C) 2015,2016,2017 Free Software Foundation, Inc.
+\ Copyright (C) 2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -17,17 +17,18 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Defer interpret-notfound1 ( addr u -- )
-\g Legacy hook for words not found during interpretation
-Defer compiler-notfound1 ( addr u -- )
-\g Legacy hook for words not found during compilation
-Defer postpone-notfound1 ( addr u -- )
-\g Legacy hook for words not found during postpone
-' no.extensions is interpret-notfound1
-' no.extensions is compiler-notfound1
-' no.extensions is postpone-notfound1
+cs-vocabulary gst \ needs to be case sensitive
+get-current also gst definitions
 
-' interpret-notfound1 ' compiler-notfound1 ' postpone-notfound1
-rectype: rectype-notfound
+c-library gstlib
+    \c #define GST_USE_UNSTABLE_API
+    \c #include <gst/gst.h>
+    \c #include <gst/gl/gl.h>
 
-' rectype-notfound forth-recognizer >back
+    s" gstreamer-1.0" add-lib
+    s" a a 0" vararg$ $!
+    
+    include gst.fs
+end-c-library
+
+set-current

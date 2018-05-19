@@ -572,8 +572,8 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 \ ticks in interpreter
 
 : '-error ( nt -- nt )
-    dup rectype-null = -#13 and throw
-    rectype-name  <> -#2053 and throw ;
+    dup rectype-null = #-13 and throw
+    rectype-name  <> #-2053 and throw ;
 
 : (') ( "name" -- nt ) \ gforth
     parse-name name-too-short? forth-recognizer recognize '-error ;
@@ -884,7 +884,7 @@ defer reset-dpp
 
 : gforth ( -- )
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2016,2017 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2017 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `help' for basic help"

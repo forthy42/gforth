@@ -20,13 +20,13 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20171206],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20180517],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
 #I.e., 0.4.1_YYYYMMDD must not exist before 0.4.1!
-UPDATED="December 6, 2017"
+UPDATED="February 8, 2018"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
@@ -195,6 +195,9 @@ AC_ARG_WITH(ditc,
 fi])
 AC_SUBST(DITCENGINE)
 
+GFORTH_VERSION=$PACKAGE_VERSION
+AC_SUBST(GFORTH_VERSION)
+
 AC_ARG_ENABLE(version,
 	AC_HELP_STRING([--disable-version],
 			[  disable multi-version install]),
@@ -317,6 +320,7 @@ fi
 test $ac_export_dynamic = yes && LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
 test $ac_export_dynamic = yes && AC_DEFINE(HAS_BACKLINK,,[Define if you have backlinks])
 AC_MSG_RESULT($ac_export_dynamic)
+AX_GCC_BUILTIN(__builtin___clear_cache)
 
 FAST=no
 ANDROID_EXTRA=""
@@ -375,7 +379,6 @@ case "$host_cpu" in
 			AC_LIBOBJ(arm-cacheflush-linux)
 			;;
 		     *)   
-			no_dynamic_default=1
 			AC_LIBOBJ(arm-cacheflush0)
 			AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
 			config_warns="$config_warns
@@ -478,10 +481,10 @@ Dynamic NC generation disabled."
 		#
 		#Therefore we disable dynamic native code by default:
 		if test -z "$no_dynamic_default"; then
-		    no_dynamic_default=1
-		    AC_MSG_WARN([Disabling default dynamic native code generation (relocation and delay slot issues)])
+			no_dynamic_default=1
+			AC_MSG_WARN([Disabling default dynamic native code generation (relocation and delay slot issues)])
 			config_warns="$config_warns
-Dynamic Code generation disabled."
+Dynamic Code generation disabled (relocation and delay slot issues).]"
 		fi
 		;;
 	alpha*)
@@ -507,16 +510,17 @@ Dynamic Code generation disabled."
 	*)
 		AC_MSG_WARN([Using a generic machine description])
 		AC_MSG_WARN([Assuming C floats and doubles are IEEE floats and doubles (for SF@ DF@ SF! DF!)])
-		AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
 		config_warns="$config_warns
 Generic machine description used."
 		machine=generic
 		#I-cache flushing would be needed for dynamic code generation
 		if test -z $no_dynamic_default; then
-		    no_dynamic_default=1
-		    AC_MSG_WARN([No I-cache flush code known, disabling dynamic native code generation])
-		    config_warns="$config_warns
-Dynamic NC generation disabled."
+		    if test no = $ax_cv_have___builtin___clear_cache; then
+			AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
+			AC_MSG_WARN([Disabling default dynamic native code generation (no I-Cache synchronization)])
+			config_warns="$config_warns
+Dynamic Code generation disabled (no I-cache synchronization)."
+		    fi
 		fi
 esac
 AC_SUBST(host)
@@ -1190,7 +1194,7 @@ AC_CHECK_FUNCS(mcheck mprobe)
 AC_REPLACE_FUNCS(rint ecvt_r)
 #No check for select, because our replacement is no good under
 #anything but DOS
-AC_CHECK_HEADERS(sys/mman.h fnmatch.h alloca.h wchar.h endian.h)
+AC_CHECK_HEADERS(sys/mman.h sys/epoll.h fnmatch.h alloca.h wchar.h endian.h spawn.h)
 AC_REPLACE_FUNCS(wcwidth)
 AC_FUNC_FNMATCH
 test $ac_cv_func_fnmatch_works = yes || AC_LIBOBJ(fnmatch)
@@ -1430,9 +1434,12 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype-gl-fsi.c; then
 		    SWIGLIBS="$SWIGLIBS freetype-gllib.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
-   AC_CHECK_LIB(wayland-client,wl_display_connect_to_fd,
-   AC_CHECK_HEADER(wayland/wayland-client.h, SWIGMODULES="$SWIGMODULES wayland.fs"
-		   SWIGLIBS="$SWIGLIBS waylandlib.fs", ,))
+   CPPFLAGS_1="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS `pkg-config --cflags wayland-client`"
+   AC_CHECK_LIB(wayland-egl,wl_egl_window_create,
+   AC_CHECK_LIB(wayland-client,wl_display_get_fd,
+   AC_CHECK_HEADER(wayland-egl-core.h, SWIGMODULES="$SWIGMODULES wayland.fs"
+		   SWIGLIBS="$SWIGLIBS waylandlib.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags wayland-client | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1", ,)))
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gps-fsi.c; then
    AC_CHECK_LIB(gps,gps_open,
@@ -1445,9 +1452,24 @@ if test x$has_swig = xyes || test -f $srcdir/unix/vulkan-fsi.c; then
 		   SWIGLIBS="$SWIGLIBS vulkanlib.fs", ,))
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
+   CPPFLAGS_1="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS `pkg-config --cflags harfbuzz`"
    AC_CHECK_LIB(harfbuzz,hb_buffer_create,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
-		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs", ,), ,-lpng16 -lfreetype)
+		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs"
+		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags harfbuzz | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,),
+   AC_CHECK_LIB(harfbuzz,hb_buffer_get_direction,
+   AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
+		   SWIGLIBS="$SWIGLIBS harfbuzzlib.fs"
+		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags harfbuzz | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,), ,-lpng12 -lfreetype)
+		   ,-lpng16 -lfreetype)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
+   CPPFLAGS_1="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
+   AC_CHECK_LIB(gstreamer-1.0,gst_init,
+   AC_CHECK_HEADER(gst/gst.h, SWIGMODULES="$SWIGMODULES gst.fs"
+		   SWIGLIBS="$SWIGLIBS gstlib.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
 fi
 
 if test x$has_swig = xno; then
@@ -1456,6 +1478,10 @@ if test x$has_swig = xno; then
 Swig without -forth feature."
 fi
 AC_SUBST(SWIGMODULES)
+
+#remove duplicates
+SWIGINCLUDES=`echo $SWIGINCLUDES | tr ' ' '\n' | sort -u  | tr '\n' ' '`
+
 AC_SUBST(SWIGINCLUDES)
 AC_SUBST(SWIGLIBS)
 

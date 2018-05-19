@@ -51,7 +51,9 @@
 #include "../generic/machine.h"
 
 /* The architecture requires hardware consistency */
-#define FLUSH_ICACHE(addr,size)
+#ifndef FLUSH_ICACHE
+# define FLUSH_ICACHE(addr,size)
+#endif
 
 /* globals are accessed in a PC-relative way and therefore make
    primitives that access them nonrelocatable.  If GLOBALS_NONRELOC is

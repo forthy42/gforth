@@ -300,15 +300,17 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 \ : >looper  BEGIN  0 poll_looper 0<  UNTIL looper-to# poll_looper drop ;
 \ : ?looper  BEGIN >looper app window @ UNTIL ;
 
+Defer screen-ops ' noop IS screen-ops
+
 :noname  0 poll? drop
     key-buffer $@len 0<>  infile-id ?dup-IF  key?-file  or  THEN
+    screen-ops
 ; IS key?
-Defer screen-ops ' noop IS screen-ops
 
 : android-key-ior ( -- key / ior )
     ?keyboard IF  showkb -keyboard  THEN
     +show
-    BEGIN  >looper key? winch? @ or screen-ops  UNTIL
+    BEGIN  >looper key? winch? @ or  UNTIL
     winch? @ IF  EINTR  ELSE
 	infile-id IF
 	    defers key-ior dup #cr = key? and
@@ -316,6 +318,10 @@ Defer screen-ops ' noop IS screen-ops
 	ELSE  inskey@  THEN
     THEN ;
 ' android-key-ior IS key-ior
+
+: android-deadline ( dtime -- )
+    up@ [ up@ ]L = IF screen-ops THEN  defers deadline ;
+' android-deadline IS deadline
 
 Defer config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
@@ -443,9 +449,11 @@ Defer android-active
 	+show +sync screen-ops
     ELSE  16000 to looper-to#  THEN ; is android-active
 
-Defer android-alarm ( 0 -- ) ' drop is recurse
+Defer android-alarm ( 0 -- ) ' drop is android-alarm
 Defer android-network ( metered -- )
 ( :noname drop .network cr ; ) ' drop is android-network
+Defer android-notification ( intent -- )
+( :noname drop ." Got intent" cr ; ) ' drop is android-notification
 
 Create aevents
 ' android-key ,
@@ -471,6 +479,7 @@ Create aevents
 ' android-setsel ,
 ' android-alarm ,
 ' android-network ,
+' android-notification ,
 here aevents - cell/
 ' drop ,
 Constant max-event#

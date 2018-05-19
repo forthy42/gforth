@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require minos2/gl-helper.fs
+require gl-helper.fs
 
 also opengl
 also [IFDEF] android android [THEN]
@@ -26,7 +26,7 @@ also [IFDEF] x11 x11 [THEN]
 tex: ascii-tex
 
 : load-textures ( -- )
-    ascii-tex s" ascii.png" load-texture wrap-texture mipmap ;
+    ascii-tex s" ascii.png" load-texture 2drop ;
 
 \ triangle example
 
@@ -65,10 +65,10 @@ FVariable motion 0.01e motion f!
     0.01e 0.02e 0.15e 1.0e glClearColor
     clear
     Ambient 1 ambient% glUniform1fv
-    v0  set-triangle
+    vi0  set-triangle
     normals texcoords colors
     none-tex
-    i0  0 i, 1 i, 2 i,
+    0 i, 1 i, 2 i,
     GL_TRIANGLES draw-elements
     v0 colors'
     ascii-tex
@@ -80,12 +80,12 @@ FVariable motion 0.01e motion f!
     angle draw-tri-angle
     >looper default>ap
     *input >r r@ IF
-	r@ action @ abs 1 <> IF
+	r@ action @ abs 1 u> IF
 	    \ ." Touch at " r@ x0 ? r@ y0 ? cr
 	    \ r@ x0 @ 20 < r@ y0 @ 20 < and IF -1 (bye) THEN
 	    r@ x0 @ dpy-w @ 2/ - s>f dpy-h @ 2/ fm/
 	    r@ y0 @ dpy-h @ 2/ - s>f dpy-h @ 2/ fm/
-	    fover fover fnegate -1.15e lightpos glUniform3f
+	    fover fover fnegate 1.5e lightpos glUniform3f
 	    fatan2
 	    touch f@ -100e f= IF
 		angle f- touch f!
@@ -98,7 +98,7 @@ FVariable motion 0.01e motion f!
 		    ( .2e f* motion f@ .8e f* f+ ) motion f!  THEN
 		to angle
 	    THEN
-	    ambient% sf@ 0.05e f- 0.5e fmax ambient% sf!
+	    ambient% sf@ 0.05e f- 0.0e fmax ambient% sf!
 	ELSE
 	    ambient% sf@ 0.05e f+ 1.0e fmin ambient% sf!
 	    angle motion f@ f+ to angle
@@ -111,7 +111,9 @@ FVariable motion 0.01e motion f!
 
 : tri-loop ( -- ) 1 level# +! 0e  BEGIN draw-tri level# @ 0= UNTIL fdrop ;
 
-: gl-sample ( -- ) [IFDEF] hidekb  hidekb  +config [THEN]
+: gl-sample ( -- )
+    [IFDEF] hidekb  hidekb  +config [THEN]
+    [IFDEF] map-win exposed @ 0= IF  map-win  THEN [THEN]
     ['] VertexShader ['] FragmentShader create-program to program
     program init load-textures .info
     tri-loop ;

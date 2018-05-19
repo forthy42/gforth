@@ -73,11 +73,10 @@ User tfile
 
 : also-path ( c-addr len path-addr -- ) \ gforth
     \G add the directory @i{c-addr len} to @i{path-addr}.
-    >r
-    r@ $@len IF  \ add separator if necessary
-	s" |" r@ $+!  0 r@ $@ + 1- c!
+    dup $@len IF  \ add separator if necessary
+	0 over c$+!
     THEN
-    r> $+! ;
+    $+! ;
 
 : clear-path ( path-addr -- ) \ gforth
     \G Set the path @i{path-addr} to empty.

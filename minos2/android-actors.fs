@@ -30,8 +30,6 @@ Variable buttonmask
 1 Constant #lastdown
 2 Constant #clearme
 
-: top-act ( -- o ) top-widget .act ;
-
 #250 Value twoclicks  \ every edge further apart than 250ms into separate clicks
 128e FValue samepos   \ position difference square-summed less than is same pos
 
@@ -147,12 +145,26 @@ AKEYCODE_F11         , ' k-f11    ,
 AKEYCODE_F12         , ' k-f12    ,
 AKEYCODE_MENU        , ' togglekb-0 ,
 AKEYCODE_BACK        , ' aback-0  ,
-0 , ' false ,
-DOES> ( akey -- ekey )
-  swap >r
-  BEGIN  dup cell+ swap @ r@ <> WHILE
-      dup cell+ swap @ 0= UNTIL  r@ unknown-key# !
-  THEN  perform rdrop ;
+here >r DOES> ( akey -- ekey ) [ r> ]l swap DO
+    dup I @ = IF  drop I cell+ perform  UNLOOP  EXIT  THEN
+[ 2 cells ]L +LOOP
+dup AKEYCODE_A AKEYCODE_Z 1+ within IF
+    meta-key# @ AMETA_CTRL_ON and IF
+	AKEYCODE_A - 1+  EXIT
+    THEN
+    meta-key# @ AMETA_SHIFT_ON and IF
+	AKEYCODE_A - 'A' +  EXIT
+    THEN
+    meta-key# @ AMETA_ALT_ON and IF
+	drop 0  EXIT
+    THEN
+    meta-key# @ AMETA_META_ON and IF
+	drop 0  EXIT
+    THEN
+    AKEYCODE_A - 'a' +
+ELSE
+    ~~ unknown-key# ! 0
+THEN ;
 
 also jni
 
@@ -162,12 +174,15 @@ also jni
     getAction dup 2 = IF  drop
 	getKeyCode
 	?dup-IF  keycode>ekey ?dup-IF top-act .ekeyed THEN
-	ELSE  nostring getCharacters jstring>sstring top-act .ukeyed jfree
+	ELSE  nostring getCharacters jstring>sstring
+	    top-act .ukeyed jfree
 	THEN
     ELSE
 	0= IF
 	    getUnicodeChar
-	    ?dup-IF  >xstring top-act .ukeyed
+	    ?dup-IF
+		dup bl < IF  top-act .ekeyed \ pass control characters to ekeyed
+		ELSE  >xstring top-act .ukeyed  THEN
 	    ELSE  getKeyCode keycode>ekey ?dup-IF top-act .ekeyed THEN
 	    THEN
 	THEN
@@ -184,8 +199,7 @@ also jni
     THEN ; is ?looper-timeouts
 
 : edit-setstring ( string -- )
-    jstring>sstring setstring$ $! jfree
-    +sync  +glyphs ;
+    jstring>sstring setstring$ $! jfree +sync ;
 : edit-commit ( string/0 -- )  ?dup-IF
 	jstring>sstring setstring$ $! jfree
     THEN

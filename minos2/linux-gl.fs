@@ -368,7 +368,7 @@ previous
     dup 1 = IF  look_chars c@ dup $7F = swap 8 = or +  THEN \ we want the other delete
     ?dup-IF  look_chars swap
     ELSE   look_key l@ x-key>ekey  THEN
-    2dup "\e" str= IF  2drop -1 level# +!  ELSE  inskeys  THEN
+    2dup "\e" str= level# @ 0> and IF  2drop -1 level# +!  ELSE  inskeys  THEN
 ; handler-class to DoKeyPress
 ' noop handler-class to DoKeyRelease
 :noname  0 *input action ! 1 *input pressure !
@@ -572,6 +572,10 @@ XSetWindowAttributes buffer: xswa
     NorthWestGravity xswa XSetWindowAttributes-bit_gravity l!
     NorthWestGravity xswa XSetWindowAttributes-win_gravity l! ;
 
+: map-win ( -- )
+    dpy win XMapWindow drop
+    dpy 0 XSync drop >exposed ;
+
 : simple-win ( events string len w h -- )
     2>r rot set-xswa 
     dpy dup XDefaultRootWindow
@@ -580,15 +584,16 @@ XSetWindowAttributes buffer: xswa
     dpy dup XDefaultScreen XDefaultVisual
     [ CWEventMask CWBitGravity CWWinGravity or or ]L xswa XCreateWindow  to win
     dpy win 2swap XStoreName drop
-    dpy win XMapWindow drop
     get-atoms  set-hint  set-protocol
-    win get-ic
-    dpy 0 XSync drop >exposed ;
+    win get-ic ;
 
-: x-key? ( -- flag ) defers key? dup 0= IF screen-ops THEN ;
+: x-key? ( -- flag ) 0 #looper  defers key? dup 0= IF screen-ops THEN ;
 : x-key ( -- key )
     +show  key? IF  defers key-ior  EXIT  THEN
     BEGIN  >looper  key? UNTIL  defers key-ior ;
+: x-deadline ( dtime -- )
+    up@ [ up@ ]L = IF screen-ops THEN  defers deadline ;
+' x-deadline IS deadline
 
 0 warnings !@
 : bye ( -- )

@@ -268,8 +268,8 @@ GFORTH_FI_SRC2=\
 	obsolete.fs \
 	prelude.fs \
 	quotes.fs \
-	quotedstring.fs \
-	parsedto.fs \
+	rec-string.fs \
+	rec-to.fs \
 	recognizer2.fs \
 	search.fs \
 	see.fs \
@@ -323,18 +323,17 @@ SWIG_WRAP = $(patsubst %.fs, unix/%-fsi.c, $(SWIGMODULES))
 LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
 	unix/filestat.fs unix/libc.fs unix/time.fs $(patsubst %, unix/%, $(SWIGLIBS))
 
-UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs		\
-	unix/opengles3.fs unix/jnilib.fs unix/soillib.fs		\
-	unix/soil2lib.fs unix/freetype-gllib.fs unix/android.fs		\
-	unix/openmax.fs unix/cpu.fs unix/png.fs unix/waylandlib.fs	\
-	unix/gpslib.fs unix/vulkanlib.fs unix/harfbuzzlib.fs
+UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
+	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs			   \
+	unix/freetype-gllib.fs unix/android.fs unix/openmax.fs unix/cpu.fs \
+	unix/png.fs unix/waylandlib.fs unix/gpslib.fs unix/vulkanlib.fs	   \
+	unix/harfbuzzlib.fs unix/gstlib.fs
 
-SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i	\
-	unix/gl.i unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i	\
-	unix/pnglib.i unix/pnglib16.i unix/soil.i unix/soil2.i		\
-	unix/xlib.i unix/ios-gles.i unix/ios-gles3.i			\
-	unix/freetype-gl.i unix/wingdi.i unix/winuser.i			\
-	unix/wayland.i unix/gps.i unix/vulkan.i unix/harfbuzz.i
+SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i   \
+	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	     \
+	unix/pnglib16.i unix/soil.i unix/soil2.i unix/xlib.i unix/ios-gles.i \
+	unix/ios-gles3.i unix/freetype-gl.i unix/wingdi.i unix/winuser.i     \
+	unix/wayland.i unix/gps.i unix/vulkan.i unix/harfbuzz.i unix/gst.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs cilk.fs
@@ -350,54 +349,47 @@ LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BU
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
-MINOS2_SRC = minos2/gl-helper.fs minos2/gl-terminal.fs			\
-	minos2/jpeg-exif.fs minos2/linux-gl.fs minos2/wayland-gl.fs	\
-	minos2/soil-texture.fs minos2/gl-sample.fs			\
-	minos2/gl-slideshow.fs minos2/ftgl-helper.fs			\
-	minos2/ftgl-sample.fs minos2/widgets.fs minos2/actors.fs	\
-	minos2/x11-actors.fs minos2/android-actors.fs			\
-	minos2/wayland-actors.fs minos2/widgets-test.fs			\
-	minos2/presentation.fs minos2/mts-tools.fs			\
-	minos2/mkv-tools.fs minos2/omx-example.fs minos2/mkv-tags.fs	\
-	minos2/android-recorder.fs minos2/animation.fs minos2/need-x.fs
+MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	    \
+	wayland-gl.fs soil-texture.fs gl-sample.fs gl-slideshow.fs	    \
+	ftgl-helper.fs ftgl-sample.fs widgets.fs actors.fs x11-actors.fs    \
+	android-actors.fs wayland-actors.fs widgets-test.fs presentation.fs \
+	mts-tools.fs mkv-tools.fs omx-example.fs mkv-tags.fs		    \
+	android-recorder.fs animation.fs need-x.fs font-style.fs	    \
+	text-style.fs
 
-MINOS2_BIN = minos2/ascii.png minos2/button.png minos2/button2.png	\
-	minos2/button3.png minos2/bad-gateway.png			\
-	minos2/net2o-minos2.png
+MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
+	net2o-minos2.png lbubble.png rbubble.png
 
-FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC)			\
-	$(LIBCC_FORTH_SRC) $(MINOS2_SRC) $(MINOS2_BIN) ans-report.fs	\
-	ansi.fs answords.fs colorize.fs comp-i.fs complex.fs		\
-	depth-changes.fs dosekey.fs doskey.fs ds2texi.fs envos.dos	\
-	envos.os2 etags.fs fft.fs filedump.fs fi2c.fs forward.fs	\
-	fsl-util.4th fsl-util.fs glosgen.fs gray.fs httpd.fs		\
-	install-tags.fs make-app.fs doc/makedoc.fs locate.fs		\
-	locate1.fs more.fs onebench.fs fft-bench.fs other.fs		\
-	prims2x.fs prims2x0.6.2.fs proxy.fs random.fs regexp.fs		\
-	regexp-test.fs sokoban.fs string.fs table.fs tags.fs tt.fs	\
-	quotations.fs unbuffer.fs wordsets.fs 2012words.fs		\
-	test/tester.fs test/ttester.fs test/coretest.fs			\
-	test/postpone.fs test/dbltest.fs test/string.fs test/float.fs	\
-	test/search.fs test/gforth.fs test/other.fs test/signals.fs	\
-	test/checkans.fs test/primtest.fs test/coreext.fs		\
-	test/deferred.fs test/coremore.fs test/gforth-nofast.fs		\
-	test/libcc.fs test/macros.fs test/fp/ak-fp-test.fth		\
-	test/fp/fatan2-test.fs test/fp/fpio-test.4th			\
-	test/fp/fpzero-test.4th test/fp/ieee-arith-test.fs		\
-	test/fp/ieee-fprox-test.fs test/fp/paranoia.4th			\
-	test/fp/readme-fp.txt test/fp/runfptests.fth			\
-	test/fp/to-float-test.4th test/fp/ttester.fs bubble.fs		\
-	siev.fs matrix.fs fib.fs oof.fs oofsampl.fs objects.fs		\
-	objexamp.fs mini-oof.fs moof-exm.fs moofglos.fs fixpath.fs	\
-	mini-oof2.fs moof2-example.fs user-object.fs callable.fs	\
-	add.fs lib.fs oldlib.fs sieve.fs list.fs endtry-iferror.fs	\
-	recover-endtry.fs smartdots.fs unix/terminal-server.fs		\
-	unix/jni-helper.fs unix/jni-tools.fs unix/jni-media.fs		\
-	unix/jni-location.fs unix/sensors.fs unix/gdi.fs unix/user.fs	\
-	unix/win32.fs date.fs script.fs wf.fs traceall.fs		\
-	rec-scope.fs rec-env.fs rec-meta.fs notfound.fs utf16.fs	\
-	archive.fs cilk.fs sections.fs fixfiles.fs bits.fs		\
-	reverse-words.fs config.fs
+TEST_SRC = tester.fs ttester.fs coretest.fs postpone.fs dbltest.fs string.fs \
+	float.fs search.fs gforth.fs other.fs signals.fs checkans.fs	     \
+	primtest.fs coreext.fs deferred.fs coremore.fs gforth-nofast.fs	     \
+	libcc.fs macros.fs fp/ak-fp-test.fth fp/fatan2-test.fs		     \
+	fp/fpio-test.4th fp/fpzero-test.4th fp/ieee-arith-test.fs	     \
+	fp/ieee-fprox-test.fs fp/paranoia.4th fp/readme-fp.txt		     \
+	fp/runfptests.fth fp/to-float-test.4th fp/ttester.fs
+
+UNIX_SRC = terminal-server.fs jni-helper.fs jni-tools.fs jni-media.fs	\
+	jni-location.fs sensors.fs gdi.fs user.fs win32.fs
+
+FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
+	$(patsubst %, minos2/%, $(MINOS2_SRC)) $(patsubst %, minos2/%,	      \
+	$(MINOS2_BIN)) ans-report.fs ansi.fs answords.fs colorize.fs	      \
+	comp-i.fs complex.fs depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
+	envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs forward.fs    \
+	fsl-util.4th fsl-util.fs glosgen.fs gray.fs httpd.fs install-tags.fs  \
+	make-app.fs doc/makedoc.fs locate.fs locate1.fs more.fs onebench.fs   \
+	fft-bench.fs other.fs prims2x.fs prims2x0.6.2.fs proxy.fs random.fs   \
+	regexp.fs regexp-test.fs sokoban.fs string.fs table.fs tags.fs tt.fs  \
+	quotations.fs unbuffer.fs wordsets.fs 2012words.fs $(patsubst %,      \
+	test/%, $(TEST_SRC)) bubble.fs siev.fs matrix.fs fib.fs oof.fs	      \
+	oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs	      \
+	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs user-object.fs   \
+	callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs		      \
+	endtry-iferror.fs recover-endtry.fs smartdots.fs $(patsubst %,	      \
+	unix/%, $(UNIX_SRC)) date.fs script.fs wf.fs traceall.fs rec-scope.fs \
+	rec-env.fs rec-meta.fs notfound.fs utf16.fs archive.fs cilk.fs	      \
+	sections.fs fixfiles.fs bits.fs reverse-words.fs config.fs	      \
+	set-compsem.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -822,8 +814,8 @@ install-man:
 
 install-info:	doc
 		$(MKDIR) -p $(infodir)
-		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/gforth.info
-		$(INSTALL_INFO) --info-dir=$(infodir) $(infodir)/vmgen.info
+		$(INSTALL_INFO) --info-dir=$(infodir) doc/gforth.info $(infodir)/gforth.info
+		$(INSTALL_INFO) --info-dir=$(infodir) doc/vmgen.info $(infodir)/vmgen.info
 
 install-html:	html
 		$(MKDIR) -p $(htmldir)/html
@@ -936,21 +928,48 @@ build-libcc-swig:
 		(cd unix; $(MAKE))
 
 check:		gforths	gforth.fi more
-		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT) --no-dynamic" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth-itc$(EXT)" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth-itc$(EXT)" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc$(EXT)" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth-ditc$(EXT)" >/dev/null 2>&1
-		$(MAKE) checkone ENGINE="./gforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone ENGINE="./libgforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
-		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT)" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT)" >/dev/null 2>&1
-		$(MAKE) checkone ENGINE="./gforth-fast$(EXT)" >/dev/null 2>&1
-		@libbench@$(MAKE) checkone ENGINE="./libgforth-fast$(EXT)" >/dev/null 2>&1
+		$(MAKE) checkones
 		@echo "*** Check successful ***"
 		./gforth-fast$(EXT) --diag -e '."     in gforth-fast" cr bye'
 		@libbench@./libgforth-fast$(EXT) --diag -e '."     in libgforth-fast" cr bye'
+
+checkones:	checkg checkgi checkgdi checkgf checkgd checkgfd @libbench@checklibg checklibgi checklibgdi checklibgf checklibgd checklibgfd
+
+checklibg:
+		$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT) --no-dynamic" >/dev/null 2>&1
+
+checklibgi:
+		$(MAKE) checkone check-nofast ENGINE="./libgforth-itc$(EXT)" >/dev/null 2>&1
+
+checklibgdi:
+		$(MAKE) checkone check-nofast ENGINE="./libgforth-ditc$(EXT)" >/dev/null 2>&1
+
+checklibgf:
+		$(MAKE) checkone ENGINE="./libgforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
+
+checklibgd:
+		$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT)" >/dev/null 2>&1
+
+checklibgfd:
+		$(MAKE) checkone ENGINE="./libgforth-fast$(EXT)" >/dev/null 2>&1
+
+checkg:
+		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" >/dev/null 2>&1
+
+checkgi:
+		$(MAKE) checkone check-nofast ENGINE="./gforth-itc$(EXT)" >/dev/null 2>&1
+
+checkgdi:
+		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc$(EXT)" >/dev/null 2>&1
+
+checkgf:
+		$(MAKE) checkone ENGINE="./gforth-fast$(EXT) --no-dynamic" >/dev/null 2>&1
+
+checkgd:
+		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT)" >/dev/null 2>&1
+
+checkgfd:
+		$(MAKE) checkone ENGINE="./gforth-fast$(EXT)" >/dev/null 2>&1
 
 checkone test: gforth.fi engine/prim-s.i
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
@@ -1184,7 +1203,7 @@ optgforth-fast:
 
 gforth-native$(OPT)$(EXT):	engines-fast
 	$(CP) engine/$@ $@
-	-$(MASSAGE_EXE) $@
+	$(MASSAGE_EXE) $@ || true
 	$(DOSTRIP) $@
 #@GFORTHX_EXE@
 
@@ -1242,17 +1261,17 @@ optlibgforth-fast2:
 libgforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) libgforth-itc$(EXT) $(MAKELINE-noll)
 		$(LN_S) engine/$@ $@
-		-$(MASSAGE_EXE) $@
+		$(MASSAGE_EXE) $@ || true
 
 libgforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) libgforth-ditc$(EXT) $(MAKELINE-noll)
 		$(LN_S) engine/$@ $@
-		-$(MASSAGE_EXE) $@
+		$(MASSAGE_EXE) $@ || true
 
 libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 		cd engine && $(MAKE) libgforth-prof$(EXT) $(MAKELINE-noll)
 		$(LN_S) engine/$@ $@
-		-$(MASSAGE_EXE) $@
+		$(MASSAGE_EXE) $@ || true
 
 .PHONY: libgforths
 libgforths:	$(LIBENGINES) $(LIBENGINES_FAST)
@@ -1279,13 +1298,15 @@ tags:		gforth.fi gforth.tags
 install.TAGS:	TAGS install-tags.fs preforth @kernel_fi@
 		sed 's;^\$(srcdir)/;;' TAGS|$(PREFORTH) -e 's" '@datadir@/gforth/$(VERSION)/'"' $(srcdir)/install-tags.fs -e bye >install.TAGS
 
-gforth.TAGS:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_BUILD_SRC) prim.TAGS kernel.TAGS
-		includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) $(FORTHK) etags.fs except.fs startup.fs $(LIBCC_BUILD_NOEC) -e bye
+MINOS_ROOT =	@NO_CROSS@ minos2/widgets.fs
+
+gforth.TAGS:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_BUILD_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) prim.TAGS kernel.TAGS
+		includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) $(FORTHK) etags.fs except.fs startup.fs $(LIBCC_BUILD_NOEC) $(MINOS_ROOT) -e bye
 		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
 		rm TAGS
 
-gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) prim.tags kernel.tags
-		$(FORTHK) tags.fs except.fs startup.fs -e bye
+gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) prim.tags kernel.tags
+		$(FORTHK) tags.fs except.fs startup.fs $(LIBCC_BUILD_NOEC) $(MINOS_ROOT) -e bye
 		cat tags prim.tags kernel.tags >gforth.tags
 		rm tags
 

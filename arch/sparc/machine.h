@@ -24,9 +24,11 @@
 
 #include "../generic/machine.h"
 
-#define FLUSH_ICACHE(addr,size) \
+#ifndef FLUSH_ICACHE
+# define FLUSH_ICACHE(addr,size) \
   ({void *_addr=(addr); void *_end=_addr+((Cell)(size)); \
     for (_addr=(void *)(((long)_addr)&~7); _addr<_end; _addr += 8) \
        asm("iflush %0+0"::"r"(_addr)); \
    })
 /* the +0 in the iflush instruction is needed by gas */
+#endif

@@ -21,18 +21,19 @@ Variable cpuflags
 
 e? os-type s" linux" string-prefix?
 e? os-type s" cygwin" string-prefix? or [IF]
-    
+    machine s" arm" string-prefix? [IF] s" Features" [ELSE]
+	machine s" amd64" str= machine s" 386" str= or [IF] s" flags" [ELSE]
+	    machine s" mips" str= [IF] s" isa" [ELSE]
+		machine s" mipsel" str= [IF] s" cpu model" [ELSE]
+		    s" cpu" [THEN] [THEN] [THEN] [THEN]
+    2constant cpu-string
+    : parse-cpuline ( addr u -- )
+	':' parse BEGIN dup WHILE 1- 2dup + c@ bl > UNTIL  1+  THEN
+	[ cpu-string ] SLiteral str= IF
+	    source >in @ /string cpuflags $!  THEN ;
     : get-cpuflags ( -- )
 	s" /proc/cpuinfo" r/o open-file throw
-	[: BEGIN  refill  WHILE
-		  ':' parse BEGIN dup WHILE 1- 2dup + c@ bl > UNTIL  1+  THEN
-		  [ machine s" arm" string-prefix? ] [IF] s" Features" [ELSE]
-		      [ machine s" amd64" str= machine s" 386" str= or ] [IF] s" flags" [ELSE]
-			  [ machine s" mips" str= ] [IF] s" isa" [ELSE]
-			      [ machine s" mipsel" str= ] [IF] s" cpu model" [ELSE]
-				  s" cpu" [THEN] [THEN] [THEN] [THEN]
-		  str= IF
-		      source >in @ /string cpuflags $!  THEN
+	[: BEGIN  refill  WHILE  parse-cpuline
 	  REPEAT ;] execute-parsing-file ;
     
     : string-cpu? ( addr u -- flag )

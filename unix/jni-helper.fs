@@ -13,21 +13,25 @@ gforth-class:
 
 \ jni-sfield: INPUT_METHOD_SERVICE INPUT_METHOD_SERVICE Ljava/lang/String;
 \ jni-sfield: POWER_SERVICE POWER_SERVICE Ljava/lang/String;
-: INPUT_METHOD_SERVICE js" input_method" ;
-: POWER_SERVICE        js" power" ;
-: NOTIFICATION_SERVICE js" notification" ;
+
+jni-method: get_SDK get_SDK ()I
+: SDK_INT clazz .get_SDK ;
 
 jni-method: getSystemService getSystemService (Ljava/lang/String;)Ljava/lang/Object;
 jni-method: getWindow getWindow ()Landroid/view/Window;
 jni-method: getResources getResources ()Landroid/content/res/Resources;
 jni-method: showIME showIME ()V
 jni-method: hideIME hideIME ()V
-jni-method: get_SDK get_SDK ()I
 jni-method: setEditLine setEditLine (Ljava/lang/String;I)V
 jni-method: set_alarm set_alarm (J)V
 jni-method: screen_on screen_on (I)V
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
+jni-field: notificationManager notificationManager Landroid/app/NotificationManager;
+SDK_INT 26 >= [IF]
+    jni-field: notificationChannel notificationChannel Landroid/app/NotificationChannel;
+[THEN]
+jni-field: inputMethodManager inputMethodManager Landroid/view/inputmethod/InputMethodManager;
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
 jni-field: hideprog hideprog Ljava/lang/Runnable;
 jni-field: gforth-handler handler Landroid/os/Handler;
@@ -37,8 +41,11 @@ jni-field: rkeepscreenon rkeepscreenon Ljava/lang/Runnable;
 jni-field: rkeepscreenoff rkeepscreenoff Ljava/lang/Runnable;
 jni-field: rsecurescreenon rsecurescreenon Ljava/lang/Runnable;
 jni-field: rsecurescreenoff rsecurescreenoff Ljava/lang/Runnable;
-
-: SDK_INT clazz .get_SDK ;
+jni-field: notifyer notifyer Ljava/lang/Runnable;
+jni-field: args0 args0 Ljava/lang/String;
+jni-field: argf0 argf0 D
+jni-field: argj0 argj0 J
+jni-field: argnotify argnotify Landroid/app/Notification;
 
 jni-class: android/os/Handler
 jni-method: post post (Ljava/lang/Runnable;)Z
@@ -143,9 +150,11 @@ jni-method: isConnected isConnected ()Z
 SDK_INT 11 >= [IF]
     jni-class: android/app/Notification$Builder
     jni-new: newNotification.Builder (Landroid/content/Context;)V
+    jni-method: setGroup setGroup (Ljava/lang/String;)Landroid/app/Notification$Builder;
     jni-method: setContentTitle setContentTitle (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
     jni-method: setContentText setContentText (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
     jni-method: setTicker setTicker (Ljava/lang/CharSequence;)Landroid/app/Notification$Builder;
+    jni-method: setNumber setNumber (I)Landroid/app/Notification$Builder;
     SDK_INT 21 >= [IF]
 	jni-method: addPerson addPerson (Ljava/lang/String;)Landroid/app/Notification$Builder;
     [THEN]
@@ -160,10 +169,21 @@ SDK_INT 11 >= [IF]
     [ELSE]
 	jni-method: build getNotification ()Landroid/app/Notification;
     [THEN]
+    SDK_INT 26 >= [IF] \ need channels
+	jni-new: newNotification.Builder+Id (Landroid/content/Context;Ljava/lang/String;)V
+
+	jni-class: android/app/NotificationChannel
+	jni-new: newNotificationChannel (Ljava/lang/String;Ljava/lang/CharSequence;I)V
+	jni-method: setDescription setDescription (Ljava/lang/String;)V
+	jni-method: setName setName (Ljava/lang/CharSequence;)V
+    [THEN]
 [THEN]
 
 jni-class: android/app/NotificationManager
 jni-method: notify notify (ILandroid/app/Notification;)V
+SDK_INT 26 >= [IF] \ need channels
+    jni-method: createNotificationChannel createNotificationChannel (Landroid/app/NotificationChannel;)V
+[THEN]
 
 SDK_INT 10 <= [IF] \ 2.3.x uses a different clipboard manager
     jni-class: android/text/ClipboardManager

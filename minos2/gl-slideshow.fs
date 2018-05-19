@@ -20,8 +20,7 @@
 require minos2/gl-helper.fs
 require minos2/jpeg-exif.fs
 
-also [IFDEF] android android [THEN]
-also opengl
+also opengl also [IFDEF] android android [THEN]
 
 \ six slides in memory, cyclic wraparound
 
@@ -110,7 +109,7 @@ Variable xoff
 Variable yoff
 
 : sl-rectangle { f: x1 f: y1 f: x2 f: y2 -- }
-    v0 i0 >v
+    vi0 >v
     x1 xoff sf@ f+  y2 yoff sf@ f+ >xy slcolor rgba>c n> 0e 0e >st v+
     x2 xoff sf@ f+  y2 yoff sf@ f+ >xy slcolor rgba>c n> 1e 0e >st v+
     x2 xoff sf@ f+  y1 yoff sf@ f+ >xy slcolor rgba>c n> 1e 1e >st v+

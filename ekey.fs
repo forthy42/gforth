@@ -32,7 +32,7 @@
 \ The keycode names are compatible with pfe-0.9.14
 
 $80000000 constant keycode-start
-$8000001D constant keycode-limit
+$8000001F constant keycode-limit
 
 create keycode-table keycode-limit keycode-start - cells allot
 
@@ -106,6 +106,8 @@ keycode k-pause ( -- u ) \ gforth
 keycode k-mute  ( -- u ) \ gforth
 keycode k-volup ( -- u ) \ gforth
 keycode k-voldown ( -- u ) \ gforth
+keycode k-backspace ( -- u ) \ gforth
+keycode k-tab ( -- u ) \ gforth
 keycode k-eof ( -- u ) \ gforth, always the last gforth-specific keycode
 drop
     
@@ -204,16 +206,17 @@ Variable ekey-buffer
     ekey-buffer $off ;
 
 : esc-prefix ( -- u )
-    key? \ ?dup-0=-if  1 ms key?  endif \ workaround for Windows 1607 Linux
-    if
-	key ekey-buffer c$+!
-	ekey-buffer $@ esc-mask >r
-        esc-sequences search-wordlist
-        if
-            execute r> or clear-ekey-buffer exit
-	endif
-	rdrop
-    endif
+    BEGIN
+	key? \ ?dup-0=-if  1 ms key?  endif \ workaround for Windows 1607 Linux
+    WHILE
+	    key ekey-buffer c$+!
+	    ekey-buffer $@ esc-mask >r
+	    esc-sequences search-wordlist
+	    if
+		execute r> or clear-ekey-buffer exit
+	    endif
+	    rdrop
+    REPEAT
     ekey-buffer $@ unkeys #esc clear-ekey-buffer ;
 
 : esc-sequence ( u1 addr u -- ; name execution: -- u2 ) recursive
@@ -254,10 +257,12 @@ Variable ekey-buffer
     k-next   s" [6~" esc-sequence
     k-insert s" [2~" esc-sequence
     k-delete s" [3~" esc-sequence
+    k-tab    k-shift-mask or s" [Z" esc-sequence
 
     k-enter  k-shift-mask or s" OM" esc-sequence
     k-enter  k-alt-mask or   s" x" over #cr swap c! esc-sequence
     k-enter  k-alt-mask or k-shift-mask or s" eOM" over #esc swap c! esc-sequence
+    k-backspace k-alt-mask or   s" D" over #del swap c! esc-sequence
 
     k1      s" OP"  esc-sequence
     k2      s" OQ"  esc-sequence

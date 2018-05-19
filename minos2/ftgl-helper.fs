@@ -24,16 +24,23 @@ require unix/freetype-gllib.fs
 also freetype-gl
 also opengl
 
+ctx 0= [IF]  window-init  [THEN]
+
 $200 Value atlas#
-$100 Value atlas-bgra#
+$200 Value atlas-bgra#
 
-atlas# dup 1 texture_atlas_new Value atlas
-atlas-bgra# dup 4 texture_atlas_new Value atlas-bgra
-
+0 Value atlas
+0 Value atlas-bgra
 tex: atlas-tex
-atlas-tex current-tex atlas texture_atlas_t-id l!
-tex: atlas-tex-bgra \ for color emojis
-atlas-tex-bgra current-tex atlas-bgra texture_atlas_t-id l!
+tex: atlas-tex-bgra \ for color emojis, actually flipped to RGBA
+
+: init-atlas
+    atlas#      dup 1 texture_atlas_new to atlas
+    atlas-bgra# dup 4 texture_atlas_new to atlas-bgra
+    atlas-tex      current-tex atlas      texture_atlas_t-id l!
+    atlas-tex-bgra current-tex atlas-bgra texture_atlas_t-id l! ;
+
+init-atlas
 
 Variable fonts[] \ stack of used fonts
 
@@ -42,29 +49,33 @@ Variable fonts[] \ stack of used fonts
 [THEN]
 
 [IFDEF] texture_font_t-scaletex
-    Create text-texscale 2 sfloats allot
+    Create text-texscale0 2 sfloats allot
+    Create text-texscale1 2 sfloats allot
     
     : atlas-scaletex ( -- )
 	1e atlas texture_atlas_t-height @ fm/
 	1e atlas texture_atlas_t-width  @ fm/
-	text-texscale sf!+ sf!
-	text-texscale set-texscale ;
+	text-texscale0 sf!+ sf!
+	text-texscale0 set-texscale1 ;
     : atlas-bgra-scaletex ( -- )
 	1e atlas-bgra texture_atlas_t-height @ fm/
 	1e atlas-bgra texture_atlas_t-width  @ fm/
-	text-texscale sf!+ sf!
-	text-texscale set-texscale ;
+	text-texscale1 sf!+ sf!
+	text-texscale1 set-texscale0 ;
 [THEN]
 
-: open-font ( atlas fontsize addr u -- font )
+: open-font ( atlas rfontsize addr u -- font )
     texture_font_new_from_file
     [IFDEF] texture_font_t-scaletex
 	0 over texture_font_t-scaletex
 	[ sizeof texture_font_t-scaletex 4 = ] [IF] l! [THEN]
+	[ sizeof texture_font_t-scaletex 2 = ] [IF] w! [THEN]
 	[ sizeof texture_font_t-scaletex 1 = ] [IF] c! [THEN]
     [ELSE]
 	dup fonts[] >stack
     [THEN] ;
+
+' texture_font_clone alias clone-font ( rfontsize font -- font )
 
 : alpha/rgba ( atlas -- )
     GL_RGBA GL_ALPHA rot texture_atlas_t-depth @ 4 = select ;
@@ -86,38 +97,38 @@ Variable fonts[] \ stack of used fonts
 
 2 sfloats buffer: penxy
 Variable color $FFC0A0FF color !
+color @ Value xy-color
 1e FValue x-scale
 1e FValue y-scale
+1e FValue f-scale
 0.5e FConstant 1/2
 
+: s0t0>st ( si ti addr -- ) dup     l@ t.s l!  4 + l@ t.t l! ;
+: s1t0>st ( si ti addr -- ) dup 8 + l@ t.s l!  4 + l@ t.t l! ;
+: s0t1>st ( si ti addr -- ) dup     l@ t.s l! 12 + l@ t.t l! ;
+: s1t1>st ( si ti addr -- ) dup 8 + l@ t.s l! 12 + l@ t.t l! ;
+
 : xy, { glyph -- }
+    \ glyph texture_glyph_t-codepoint l@
+    x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
-    glyph texture_glyph_t-offset_x sl@ x-scale fm*
-    glyph texture_glyph_t-offset_y sl@ y-scale fm* { f: xo f: yo }
-    glyph texture_glyph_t-width  @ x-scale fm*
-    glyph texture_glyph_t-height @ y-scale fm* { f: w f: h }
-    xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f+ { f: x0 f: y0 }
-    x0 w f+  fround 1/2 f-  y0 h f+  fround 1/2 f+ { f: x1 f: y1 }
-    [IFDEF] texture_font_t-scaletex
-	glyph texture_glyph_t-s0 sf@ { f: s0 }
-	glyph texture_glyph_t-t0 sf@ { f: t0 }
-	glyph texture_glyph_t-s1 sf@ { f: s1 }
-	glyph texture_glyph_t-t1 sf@ { f: t1 }
-    [ELSE]
-	atlas# 2* s>f 1/f { f: fixup }
-	glyph texture_glyph_t-s0 sf@ fixup f- { f: s0 }
-	glyph texture_glyph_t-t0 sf@ fixup f- { f: t0 }
-	glyph texture_glyph_t-s1 sf@ fixup f- { f: s1 }
-	glyph texture_glyph_t-t1 sf@ fixup f- { f: t1 }
-    [THEN]
+    glyph texture_glyph_t-offset_x sl@ xs fm*
+    glyph texture_glyph_t-offset_y sl@ ys fm* { f: xo f: yo }
+    glyph texture_glyph_t-width  2@ xs fm* ys fm* { f: w f: h }
+    xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f- { f: x0 f: y0 }
+    x0 w f+                 y0 h f+                { f: x1 f: y1 }
+    glyph texture_glyph_t-s0
+    \ over hex. dup $10 dump
     >v
-    x0 y0 >xy n> color @ rgba>c s0 t0 >st v+
-    x1 y0 >xy n> color @ rgba>c s1 t0 >st v+
-    x0 y1 >xy n> color @ rgba>c s0 t1 >st v+
-    x1 y1 >xy n> color @ rgba>c s1 t1 >st v+
+    x0 y0 >xy n> xy-color rgba>c dup s0t0>st v+
+    x1 y0 >xy n> xy-color rgba>c dup s1t0>st v+
+    x0 y1 >xy n> xy-color rgba>c dup s0t1>st v+
+    x1 y1 >xy n> xy-color rgba>c     s1t1>st v+
     v>
-    xp glyph texture_glyph_t-advance_x sf@ x-scale f* f+ penxy sf!
-    yp glyph texture_glyph_t-advance_y sf@ y-scale f* f+ penxy sfloat+ sf! ;
+    xp glyph texture_glyph_t-advance_x sf@ xs f* f+ penxy sf!
+    yp glyph texture_glyph_t-advance_y sf@ ys f* f+ penxy sfloat+ sf!
+\    drop
+;
 
 : glyph+xy ( glyph -- )
     i>off  xy,  2 quad ;
@@ -131,42 +142,80 @@ Variable color $FFC0A0FF color !
     v> 2 quad ;
 
 0 Value font
+Defer font-select ( xcaddr font -- xcaddr font' )
+' noop is font-select
 
-: double-atlas ( -- )
+: .aaaa ( color -- alpha-channel )
+    $FF and dup 8 lshift or dup $10 lshift or ;
+
+: font->t.i0 ( font -- )
+    -1e color @ swap
+    texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
+	.aaaa ELSE
+	f2*   THEN
+    to xy-color to t.i0 ;
+
+: double-atlas ( xc-addr -- xc-addr )
     freetype_gl_errno $100 = IF
-	atlas# 2* to atlas#
-	font atlas# dup texture_font_enlarge_texture
-	[IFUNDEF] texture_font_t-scaletex
-	    fonts[] get-stack 0 ?DO
-	    0.5e 0.5e texture_font_enlarge_glyphs
-	    LOOP
-	[THEN]
+	font font-select
+	dup texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
+	    atlas-bgra# 2* dup >r to atlas-bgra#
+	ELSE
+	    atlas# 2* dup >r to atlas#
+	THEN
+	r> dup texture_font_enlarge_texture
+	atlas-scaletex atlas-bgra-scaletex
     THEN ;
 
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
-    tuck font swap
+    tuck font font-select \ xc-addr xc-addrp xc-addr font
+    dup font->t.i0
+    dup texture_font_t-scale sf@ to f-scale
+    swap \ xc-addr xc-addrp font xc-addr
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
-	    drop double-atlas  REPEAT  >r 2drop
-    dup IF  r@ swap texture_glyph_get_kerning
+	    drop double-atlas  REPEAT \ xc-addr xc-addrp font xc-addr glyph
+    >r 2drop \ xc-addr xc-addrp r:glyph
+    dup IF
+	r@ swap texture_glyph_get_kerning f-scale f*
 	penxy sf@ f+ penxy sf!
     ELSE  drop  THEN
-    r> glyph+xy ;
+    r> glyph+xy 0e to t.i0 ;
+
+: render> ( -- )
+    atlas texture_atlas_t-modified c@ IF
+	gen-atlas-tex time( ." atlas: " .!time cr )
+	0 atlas texture_atlas_t-modified c!
+    THEN
+    atlas-bgra texture_atlas_t-modified c@ IF
+	gen-atlas-tex-bgra time( ." atlas-bgra: " .!time cr )
+	0 atlas-bgra texture_atlas_t-modified c!
+    THEN
+\    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
+    GL_TRIANGLES draw-elements ;
+
+: ?flush-tris ( n -- ) >r
+    i? r@ + points# 2* u>=
+    v? r> + points# u>= or
+    IF  render> vi0  THEN ;
 
 : render-string ( addr u -- )
     0 -rot  bounds ?DO
-	I xchar+xy
+	6 ?flush-tris  I xchar+xy
     I I' over - x-size +LOOP  drop ;
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
     { f: fd f: fh }
-    tuck font swap
+    tuck font font-select
+    dup texture_font_t-scale sf@ { f: f-scale }
+    swap
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
 	    drop double-atlas  REPEAT  >r 2drop
-    dup IF  r@ swap texture_glyph_get_kerning  f+
+    dup IF
+	r@ swap texture_glyph_get_kerning f-scale f* f+
     ELSE  drop  THEN
-    r@ texture_glyph_t-advance_x sf@ f+
-    r@ texture_glyph_t-offset_y sl@ s>f
-    r> texture_glyph_t-height @ s>f
+    r@ texture_glyph_t-advance_x sf@ f-scale f* f+
+    r@ texture_glyph_t-offset_y sl@ f-scale fm*
+    r> texture_glyph_t-height @ f-scale fm*
     fover f- fd fmax fswap fh fmax ;
 
 : layout-string ( addr u -- fw fd fh ) \ depth is ow far it goes down
@@ -186,9 +235,10 @@ Variable color $FFC0A0FF color !
     drop rdrop r> fdrop fdrop ;
 
 : load-glyph$ ( addr u -- )
-    bounds ?DO  font I I' over - texture_font_load_glyphs
-	dup IF  double-atlas  THEN
-	I' I - swap -
+    bounds ?DO  I font font-select nip
+	I texture_font_get_glyph
+	0= IF  I double-atlas drop 0
+	ELSE  I I' over - x-size  THEN
     +LOOP ;
 
 : load-ascii ( -- )
@@ -198,15 +248,16 @@ program init
 
 : <render ( -- )
     program glUseProgram
-    1-bias set-color+
+    z-bias set-color+
     .01e 100e 100e >ap
-    atlas-tex v0 i0 ;
+    GL_TEXTURE3 glActiveTexture
+    atlas-tex atlas-scaletex
+    GL_TEXTURE0 glActiveTexture
+    vi0 ;
 
-: render> ( -- )
-    GL_TRIANGLES draw-elements ;
-: render-bgra> ( -- )
-    GL_ONE GL_ONE_MINUS_SRC_ALPHA glBlendFunc
-    GL_TRIANGLES draw-elements
-    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc ;
+ : render-bgra> ( -- )
+     GL_ONE GL_ONE_MINUS_SRC_ALPHA glBlendFunc
+     GL_TRIANGLES draw-elements
+     GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc ;
 
 previous previous

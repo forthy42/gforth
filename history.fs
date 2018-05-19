@@ -65,6 +65,7 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 2Variable forward^
 2Variable backward^
 2Variable end^
+Variable vt100-modifier \ shift, ctrl, alt
 
 : force-open ( addr len -- fid )
     2dup r/w open-file
@@ -142,18 +143,20 @@ Create prefix-found  0 , 0 ,
     LOOP
     drop 0 ;
 
+0 value alphabetic-tab
+
 : word-lex ( nfa1 nfa2 -- -1/0/1 )
     dup 0=
     IF
 	2drop 1  EXIT
     THEN
     name>string 2>r name>string
-    dup r@ =
+    vt100-modifier @ IF  2r> 2swap 2>r  THEN
+    dup r@ = alphabetic-tab or
     IF
-	rdrop r> capscomp 0<= EXIT
+	rdrop r> capscomp 0<=  EXIT
     THEN
-    r> <
-    nip rdrop ;
+    r> < nip rdrop ;
 
 : search-voc ( addr len nfa1 nfa2 -- addr len nfa3 )
     >r
@@ -190,18 +193,20 @@ Create prefix-found  0 , 0 ,
 	2drop s" " prefix-off
     THEN ;
 
-: search-prefix  ( addr1 len1 -- addr2 len2 )
+Defer search-prefix
+: simple-search-prefix  ( addr1 len1 -- addr2 len2 )
     0 vocstack $@ bounds cell- swap cell-
     -DO  I cell- 2@ <>
         IF  I @ wordlist-id @ swap  search-voc  THEN
     cell -LOOP
     prefix-string ;
+' simple-search-prefix is search-prefix
 
 : tib-full? ( max span addr pos addr' len' -- max span addr pos addr' len' flag )
     5 pick over 4 pick + u< ;
 
 : kill-prefix  ( key -- key )
-  dup #tab <> IF  prefix-off  THEN ;
+  dup #tab <> over [ k-tab k-shift-mask or ]L <> and IF  prefix-off  THEN ;
 
 \ UTF-8 support
 
@@ -249,8 +254,6 @@ info-color Value setstring-color
 	max#tib @ span tib pos1 true EXIT  THEN
     max span addr pos1 false ;
 
-Variable vt100-modifier
-
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
     >r  r@ xc-size grow-tib 0= IF  rdrop edit-error  EXIT  THEN
     >edit-rest over r@ xc-size + swap move
@@ -279,7 +282,7 @@ Variable vt100-modifier
 	    over + xchar+ over -
 	THEN
 	edit-update
-    ELSE  edit-error  THEN 0 ;
+    ELSE  edit-error  THEN  0 ;
 : (xdel)  ( max span addr pos1 -- max span addr pos2 )
     over + dup xchar- tuck - >r over -
     >edit-rest over r@ + -rot move
@@ -287,8 +290,15 @@ Variable vt100-modifier
 : xdel ( max span addr pos1 -- max span addr pos2 )
     (xdel) edit-update ;
 : ?xdel ( max span addr pos1 -- max span addr pos2 0 )
-    dup  IF  xdel  THEN  0 ;
+    vt100-modifier @ IF
+	BEGIN  dup  WHILE
+		2dup 1- + c@ bl u<= WHILE  (xdel)  REPEAT  THEN
+	BEGIN  dup  WHILE
+		2dup 1- + c@ bl u> WHILE  (xdel)  REPEAT  THEN
+	edit-update
+    ELSE  dup IF   xdel  THEN  THEN  0 ;
 : <xdel> ( max span addr pos1 -- max span addr pos2 0 )
+    vt100-modifier @ IF  ?xdel  EXIT  THEN  \ emacs binds Alt-Del to Alt-Backspace
     2 pick over <>
     IF  xforw drop xdel  ELSE  edit-error  THEN  0 ;
 : xeof  2 pick over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
@@ -310,6 +320,7 @@ Variable vt100-modifier
     swap r> - swap 0 xretype ;
 
 : (xenter)  ( max span addr pos1 -- max span addr span true )
+    setstring$ $@ dup IF  insert-string  ELSE  2drop  THEN
     drop 2dup swap -trailing nip IF
 	end^ 2@ hist-setpos
 	2dup swap history
@@ -384,9 +395,9 @@ Create std-ekeys
     ' false ,        ' false ,        ' false ,        ' false ,
     ' false ,        ' false ,        ' false ,        ' xreformat ,
     ' xhide ,        ' false ,        ' prev-line ,    ' next-line ,
-    ' (xenter) ,
+    ' ?xdel ,        ' xtab-expand ,  ' (xenter) ,
 
-: xchar-edit-ctrl ( ekey -- )
+: xchar-edit-ctrl ( max span addr pos1 ekey -- max span addr pos2 flag )
     dup mask-shift# rshift 7 and vt100-modifier !
     dup 1 mask-shift# lshift 1- and swap keycode-start u>= IF
 	cells ekeys + perform  EXIT  THEN

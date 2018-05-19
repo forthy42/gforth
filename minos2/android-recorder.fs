@@ -18,8 +18,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require minos2/gl-helper.fs
+require gl-helper.fs
 require unix/jni-media.fs
+
+debug: video(
 
 also opengl
 also android
@@ -36,36 +38,34 @@ also jni
 
 : oes-init create-oes-program to oes-program ;
 
-: rot>st ( n -- n' )  dup 2 and 2/ s>f dup 1- 2 and 2/ s>f >st 1+ ;
-
 : cam-rectangle ( orientation -- )
     >v
-    -1e  1e >xy n> rot>st  $FFFFFF00 rgba>c v+
-     1e  1e >xy n> rot>st  $FFFFFF00 rgba>c v+
-     1e -1e >xy n> rot>st  $FFFFFF00 rgba>c v+
-    -1e -1e >xy n> rot>st  $FFFFFF00 rgba>c v+
+    -1e  1e >xy n> rot>st  $FFFFFFFF rgba>c v+
+     1e  1e >xy n> rot>st  $FFFFFFFF rgba>c v+
+     1e -1e >xy n> rot>st  $FFFFFFFF rgba>c v+
+    -1e -1e >xy n> rot>st  $FFFFFFFF rgba>c v+
     v>  drop  0 i, 1 i, 2 i, 0 i, 2 i, 3 i, ;
 
 : camera-init ( -- )
-    oes-program init
+    oes-program init-program set-uniforms α-bias set-color+
+    unit-texscale set-texscale0
+    0e fdup x-pos sf! >y-pos
     unit-matrix MVPMatrix set-matrix
     unit-matrix MVMatrix set-matrix
     media-sft >o updateTexImage o>
-    0e fdup fdup 1.0e glClearColor clear
+    0>clear
     Ambient 1 ambient% glUniform1fv
     media-tex nearest-oes ;
 : camera-frame ( -- ) camera-init
-    v0 i0 screen-orientation cam-rectangle
+    vi0 screen-orientation cam-rectangle
     GL_TRIANGLES draw-elements ;
 
 : max-area ( w h o:size -- w' h' )
+    video( width . height . cr )
     2dup m* width height m* d<  IF  2drop  width height  THEN ;
 
-debug: video(
-
 : max-size ( o:list -- w h )
-    0 0 l-size 0 ?DO  I l-get >o video( width . height . cr )
-	max-area o>  LOOP ;
+    0 0 l-size 0 ?DO  I l-get .max-area  LOOP ;
 
 : create-camera ( -- )
     camera 0= IF  c-open-back to camera  THEN

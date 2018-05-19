@@ -122,3 +122,7 @@ typedef void *Label;
 #define HAS_OBJECTS
 
 #define RELINFOBITS	8
+
+#ifdef HAVE___BUILTIN___CLEAR_CACHE
+#define FLUSH_ICACHE(addr,size) __builtin___clear_cache((void*)(addr),(void*)(addr)+(size_t)(size))
+#endif

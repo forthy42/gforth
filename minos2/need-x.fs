@@ -30,24 +30,24 @@ need-root Value need-mask
 $100 Constant ?config#
 
 1
-?need: ?sync
-?need: ?show
-?need: ?keyboard
-?need: ?glyphs
+?need: ?sync      \ sync screen needed
+?need: ?show      \ show hidden object needed
+?need: ?keyboard  \ show keyboard needed
+?need: ?lang      \ change language needed
 drop
 
 1
 +need: +sync
 +need: +show
 +need: +keyboard
-+need: +glyphs
++need: +lang
 drop
 
 1
 -need: -sync
 -need: -show
 -need: -keyboard
--need: -glyphs
+-need: -lang
 drop
 
 : ?config ( -- flag ) need-mask @ 8 rshift 0> ;

@@ -24,15 +24,21 @@
 require unix/pthread.fs
 require gl-helper.fs
 
-also [IFDEF] android android [THEN]
+also opengl also [IFDEF] android android [THEN]
 
 GL_FRAGMENT_SHADER shader: TerminalShader
 #precision
 uniform vec3 u_LightPos;        // The position of the light in eye space.
-uniform sampler2D u_Texture;    // The input texture.
+uniform sampler2D u_Texture0;   // The input texture (font)
+uniform sampler2D u_Texture1;   // The character input
+uniform sampler2D u_Texture2;   // the available colors
+uniform sampler2D u_Texture3;   // the available colors
 uniform float u_Ambient;        // ambient lighting level
-uniform sampler2D u_Charmap;    // The character map
-uniform sampler2D u_Colormap;   // the available colors
+uniform float u_Saturate;       // ambient lighting level
+uniform vec4 u_Coloradd0;       // color bias for texture
+uniform vec4 u_Coloradd1;       // color bias for texture
+uniform vec4 u_Coloradd2;       // color bias for texture
+uniform vec4 u_Coloradd3;       // color bias for texture
 uniform vec2 u_texsize;         // the screen texture size
  
 varying vec3 v_Position;        // Interpolated position for this fragment.
@@ -40,52 +46,56 @@ varying vec4 v_Color;           // This is the color from the vertex shader inte
                                 // triangle per fragment.
 varying vec3 v_Normal;          // Interpolated normal for this fragment.
 varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
+varying vec2 v_Extras;          // extra attributes passed through
  
 // The entry point for our fragment shader.
 void main()
 {
-    // Will be used for attenuation.
-    float distance = length(u_LightPos - v_Position);
- 
-    // Get a lighting direction vector from the light to the vertex.
-    vec3 lightVector = normalize(u_LightPos - v_Position);
- 
-    // Calculate the dot product of the light vector and vertex normal. If the normal and light vector are
-    // pointing in the same direction then it will get max illumination.
-    float diffuse = max(dot(v_Normal, lightVector), 0.0);
- 
-    // Add attenuation.
-    diffuse = diffuse * (1.0 / (1.0 + (0.10 * distance)));
- 
-    // Add ambient lighting
-    diffuse = (diffuse * ( 1.0 - u_Ambient )) + u_Ambient;
- 
-    vec4 chartex = texture2D(u_Charmap, v_TexCoordinate);
-    vec4 fgcolor = texture2D(u_Colormap, vec2(chartex.z, 0.));
-    vec4 bgcolor = texture2D(u_Colormap, vec2(chartex.w, 0.));
+    vec4 chartex = texture2D(u_Texture1, v_TexCoordinate);
+    vec4 fgcolor = texture2D(u_Texture2, vec2(chartex.z, 0.));
+    vec4 bgcolor = texture2D(u_Texture2, vec2(chartex.w, 0.));
     vec2 charxy = chartex.xy + vec2(0.0625, 0.125)*u_texsize*mod(v_TexCoordinate, 1.0/u_texsize);
     // mix background and foreground colors by character ROM alpha value
     // and multiply by diffuse
-    vec4 pixel = texture2D(u_Texture, charxy);
-    gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0)*(bgcolor*(1.0-pixel.a) + fgcolor*pixel.a);
-    // gl_FragColor = diffuse*mix(bgcolor, fgcolor, pixel.a);
-    // gl_FragColor = (v_Color * diffuse * pixcolor);
+    vec4 pixel = texture2D(u_Texture0, charxy);
+    vec4 col = bgcolor*(1.0-pixel.a) + fgcolor*pixel.a;
+    if(u_Saturate != 1.0) {
+        float mid = (col.r + col.g + col.b) * 0.333333333333;
+        vec3 mid3 = vec3(mid, mid, mid);
+        col.rgb = (u_Saturate * (col.rgb - mid3)) + mid3;
+    }
+    if(u_Ambient != 1.0) {
+        // Will be used for attenuation.
+        float distance = length(u_LightPos - v_Position);
+ 
+        // Get a lighting direction vector from the light to the vertex.
+        vec3 lightVector = normalize(u_LightPos - v_Position);
+ 
+        // Calculate the dot product of the light vector and vertex normal. If the normal and light vector are
+        // pointing in the same direction then it will get max illumination.
+        float diffuse = max(dot(v_Normal, lightVector), 0.0);
+        diffuse = diffuse * diffuse;
+ 
+        // Add attenuation.
+        diffuse = diffuse * (1.0 / (1.0 + (0.10 * distance * distance)));
+ 
+        // Add ambient lighting
+        diffuse = (diffuse * (1.0 - u_Ambient)) + u_Ambient;
+ 
+        gl_FragColor = vec4(diffuse, diffuse, diffuse, 1.0)*col;
+    } else {
+        gl_FragColor = col;
+    }
 }
 
-0 Value Charmap
-0 Value Colormap
-0 value texsize
+0 Value texsize
 0 Value terminal-program
 
 : create-terminal-program ( -- program )
     ['] VertexShader ['] TerminalShader create-program ;
 
 : terminal-init { program -- } program init
-    program "u_Charmap\0" drop glGetUniformLocation to Charmap
-    program "u_Colormap\0" drop glGetUniformLocation to Colormap
-    program "u_texsize\0" drop glGetUniformLocation to texsize
-    Charmap 1 glUniform1i
-    Colormap 2 glUniform1i ;
+    program "u_texsize"  glGetUniformLocation to texsize ;
 
 tex: chars-tex
 tex: video-tex
@@ -247,10 +257,10 @@ $20 Value minpow2#
     videocols * sfloats +
     videocols r> rgba-map wrap-texture nearest
 
-    v0 >rectangle >texcoords
+    vi0 >rectangle >texcoords
     GL_TEXTURE0 glActiveTexture
     chars-tex
-    i0 0 i, 1 i, 2 i, 0 i, 2 i, 3 i,
+    0 i, 1 i, 2 i, 0 i, 2 i, 3 i,
     GL_TRIANGLES draw-elements ;
 
 : screen-scroll ( r -- )  fdup floor fdup f>s scroll-y ! f-
@@ -425,7 +435,7 @@ previous
 1e FValue default-scale
 
 : screen-diag ( -- rdiag )
-    screen-wh f**2 fswap f**2 f+ fsqrt ;   \ diagonal in inch
+    screen-wh f**2 fswap f**2 f+ fsqrt ;   \ diagonal in mm
 
 : terminal-scale-me ( -- )
     \ smart scaler, scales using square root relation
@@ -465,9 +475,12 @@ Defer scale-me ' terminal-scale-me is scale-me
     1+config screen-ops ;
 : gl-scale ( n -- ) s>f gl-fscale ;
 
-: >changed ( -- )
+: >changed-to ( ms -- ) #1000000 um* ntime d+ { d: t-o }
     +config
-    BEGIN  >looper screen-sync ?config 0= UNTIL ;
+    BEGIN  >looper screen-sync ?config 0=
+    ntime t-o du>= or  UNTIL ;
+
+: >changed ( -- ) #1000 >changed-to ;
 
 : 1*scale   1 gl-scale ;
 : 2*scale   2 gl-scale ;
@@ -524,7 +537,9 @@ err>screen
 
 default-out op-vector !
 
-: >screen  err>screen op-vector @ debug-vector ! out>screen ;
+: >screen ( -- )
+    ctx 0= IF  window-init  [IFDEF] map-win map-win [THEN] config-changer  THEN
+    err>screen op-vector @ debug-vector ! out>screen ;
 
 \ initialize
 
@@ -536,11 +551,11 @@ default-out op-vector !
     s" minos2/ascii.png" term-load-textures form-chooser
     scale-me ;
 
-:noname  defers window-init term-init config-changer ; IS window-init
+:noname  defers window-init term-init ; IS window-init
 
 [IFDEF] android >black [THEN] \ make black default
 
-window-init
+\ window-init
 
 previous previous \ remove opengl from search order
 

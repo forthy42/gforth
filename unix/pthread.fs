@@ -170,6 +170,7 @@ pthread-id pthread_self
 
 User epiper
 User epipew
+User wake#
 
 : user' ( 'user' -- n )
     \G USER' computes the task offset of a user variable
@@ -337,22 +338,32 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     \G for some reason).  This also checks for events in the queue.
     sched_yield ?events ;
 : thread-deadline ( d -- )
-    \G wait until absolute time @var{d}, base is 1970-1-1 0:00 UTC
+    \G wait until absolute time @var{d} in nanoseconds, base is 1970-1-1 0:00
+    \G UTC
     BEGIN  2dup ntime d- 2dup d0> WHILE  stop-dns  REPEAT
     2drop 2drop ;
 ' thread-deadline is deadline
 
 event: :>lit  0 { w^ n } n cell epiper @ read-file throw drop n @ ;
 event: :>flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
-event: :>wake ;
+
+: elit,  ( x -- ) :>lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
+\G sends a literal
+: e$, ( addr u -- )  swap elit, elit, ;
+\G sends a string (actually only the address and the count, because it's
+\G shared memory
+: eflit, ( x -- ) :>flit { f^ r } r float event+ float move ;
+\G sends a float
+
+event: :>wake ( wake# -- )  wake# ! ;
 event: :>sleep  stop ;
 
 : restart ( task -- )
     \G Wake a task
-    <event :>wake event> ;
+    <event 0 elit, :>wake event> ;
 synonym wake restart ( task -- )
 
-event: :>restart ( task -- ) restart ;
+event: :>restart ( wake# task -- ) <event swap elit, :>wake event> ;
 
 : halt ( task -- )
     \G Stop a task
@@ -368,20 +379,13 @@ synonym sleep halt ( task -- )
 	15 pthread_kill drop
     [THEN] ;
 
-: elit,  ( x -- ) :>lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
-\G sends a literal
-: e$, ( addr u -- )  swap elit, elit, ;
-\G sends a string (actually only the address and the count, because it's
-\G shared memory
-: eflit, ( x -- ) :>flit { f^ r } r float event+ float move ;
-\G sends a float
-
 : event| ( task -- )
     \G send an event and block
-    dup up@ = IF \ don't block, just eval if we send to ourselves
+    dup up@ = IF \ don't block, just eval what we sent to ourselves
 	event> ?events
     ELSE
-	up@ elit, :>restart event> stop
+	wake# @ 1+ dup >r elit, up@ elit, :>restart event>
+	BEGIN  stop  wake# @ r@ =  UNTIL  rdrop
     THEN ;
 
 \ User deferred words, user values

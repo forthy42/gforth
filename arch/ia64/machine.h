@@ -32,5 +32,7 @@
 #include "../generic/machine.h"
 #include <sys/types.h>
 
+#ifndef FLUSH_ICACHE
 extern void flush_icache_block(caddr_t eaddr, size_t count);
-#define FLUSH_ICACHE(addr,size) flush_icache_block(addr, size)
+# define FLUSH_ICACHE(addr,size) flush_icache_block(addr, size)
+#endif

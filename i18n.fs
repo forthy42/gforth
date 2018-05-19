@@ -21,6 +21,8 @@
 \ together in lists. Each LSID has also a number, which is used to go
 \ from native to local LSID.
 
+require set-compsem.fs
+
 \ LSIDs
 
 Variable lsids
@@ -37,30 +39,30 @@ Variable lsids
 : append-list ( addr list -- )
     BEGIN  dup @  WHILE  @  REPEAT  ! ;
 
-: sl, ( addr u -- )  dup , here swap dup allot move align ;
-: l, ( addr u -- )
-    here lsids append-list 0 , lsid# dup , 1+ to lsid# sl, ;
-: [l,] ( addr u -- addr )
-    2>r postpone AHEAD 2r> align here >r l,
+: $l, ( addr u -- )  dup , here swap dup allot move align ;
+: lsid, ( addr u -- )
+    here lsids append-list 0 , lsid# dup , 1+ to lsid# $l, ;
+: [lsid,] ( addr u -- addr )
+    2>r postpone AHEAD 2r> align here >r lsid,
     [defined] bigFORTH [IF] 0 :r T&P [THEN]
     postpone THEN r> ;
 
 : LLiteral ( addr u -- )
     2dup search-lsid dup  IF
         nip nip
-    ELSE  drop [l,]  THEN
+    ELSE  drop [lsid,]  THEN
     postpone Literal ; immediate
 
 : L" ( "lsid<">" -- lsid )
     '"' parse 2dup search-lsid dup  IF
 	nip nip
-    ELSE  drop align here >r l, r>  THEN ;
-comp: '"' parse  postpone LLiteral ;
+    ELSE  drop align here >r lsid, r>  THEN ;
+compsem: '"' parse  postpone LLiteral ;
 
 \ deliberately unique string
 : LU" ( "lsid<">" -- lsid )
-    '"' parse align here >r l, r> ;
-comp: '"' parse [l,] postpone Literal ; immediate
+    '"' parse align here >r lsid, r> ;
+compsem: '"' parse [lsid,] postpone Literal ; immediate
 
 : .lsids ( lsids -- )  BEGIN  @ dup  WHILE dup native@ type cr  REPEAT  drop ;
 
@@ -80,8 +82,9 @@ here 0 , locale-stack cell+ !
 
 : Locale ( "name" -- )
     Create 0 , DOES>  locale-stack off >locale ;
-: Country ( "name" -- )
-    Create 0 , , DOES>  locale-stack off dup cell+ @ >locale >locale ;
+: Country ( <lang> "name" -- )
+    Create 0 , locale-stack cell+ @ ,
+  DOES>  locale-stack off dup cell+ @ >locale >locale ;
 
 : set-language ( lang -- ior )  locale-stack off >locale 0 ;
 : set-country ( country -- ior )
@@ -115,11 +118,11 @@ Variable last-namespace
 
 : locale! ( addr u lsid -- )
     >r 2dup r@ locale@ str= IF  rdrop 2drop  EXIT  THEN
-    r> id#@ here locale' append-list 0 , , sl, ;
+    r> id#@ here locale' append-list 0 , , $l, ;
 
 : native-file ( fid -- )
     >r BEGIN  pad $1000 r@ read-line throw  WHILE
-	    pad swap l,  REPEAT
+	    pad swap lsid,  REPEAT
     drop r> close-file throw ;
 
 : locale-file ( fid -- )
@@ -128,24 +131,23 @@ Variable last-namespace
 	    IF  pad swap 2 pick locale!  ELSE  drop  THEN  REPEAT
     drop r> close-file throw ;
 
-: included-locale ( addr u -- )  r/o open-file throw locale-file ;
-
-: included-native ( addr u -- )  r/o open-file throw native-file ;
+: included-locale ( addr u -- )  open-fpath-file throw 2drop locale-file ;
+: included-native ( addr u -- )  open-fpath-file throw 2drop native-file ;
 
 [defined] getpathspec 0= [IF]
-    : getpathspec ( -- fd )  parse-name r/o open-file throw ;
+    : getpathspec ( "name" -- fd )  parse-name open-fpath-file throw 2drop ;
 [THEN]
 
-: include-locale ( -- )  getpathspec locale-file ;
-: include-native ( -- )  getpathspec native-file ;
+: include-locale ( "name" -- )  getpathspec locale-file ;
+: include-native ( "name" -- )  getpathspec native-file ;
 
 \ easy use
 
 : x" ( "string"<"> -- addr u )
     ['] l" execute locale@ ;
-comp: postpone l" postpone locale@ ;
+compsem: postpone l" postpone locale@ ;
 
 l" FORTH" constant forth-lx
-[defined] gforth [IF] s" Gforth" forth-lx locale! [THEN]
-\ [defined] bigforth [IF] s" bigFORTH" forth-lx locale! [THEN]
+[defined] gforth   [IF] s" Gforth"    forth-lx locale! [THEN]
+[defined] bigforth [IF] s" bigFORTH"  forth-lx locale! [THEN]
 [defined] VFXforth [IF] s" VFX FORTH" forth-lx locale! [THEN]

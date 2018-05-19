@@ -65,6 +65,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.NotificationChannel;
 import android.net.ConnectivityManager;
 import android.util.Log;
 import android.util.AttributeSet;
@@ -91,6 +94,7 @@ public class Gforth
     private double argf0=10;    // update every 10 meters
     private String args0="gps";
     private Sensor argsensor;
+    private Notification argnotify;
     private Gforth gforth;
     private LocationManager locationManager;
     private SensorManager sensorManager;
@@ -101,6 +105,8 @@ public class Gforth
     private BroadcastReceiver recKeepalive, recConnectivity;
     private PendingIntent pintent, gforthintent;
     private PowerManager powerManager;
+    private NotificationManager notificationManager;
+    private NotificationChannel notificationChannel;
     private WakeLock wl, wl_cpu;
     private GforthView mView;
     private InputStream gforthfd;
@@ -128,6 +134,7 @@ public class Gforth
     public Runnable rkeepscreenoff;
     public Runnable rsecurescreenon;
     public Runnable rsecurescreenoff;
+    public Runnable notifyer;
     public ProgressDialog progress;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
@@ -440,6 +447,15 @@ public class Gforth
 	connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 	inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 	powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
+	notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+	if (Build.VERSION.SDK_INT >= 26) {
+	    notificationChannel = new NotificationChannel("gnu.gforth.notifications", "Messages", NotificationManager.IMPORTANCE_DEFAULT);
+	    notificationChannel.enableLights(true);
+	    notificationChannel.setShowBadge(true);
+	    
+	    notificationManager.createNotificationChannel(notificationChannel);
+	}
+	
 	wl = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
 	wl_cpu = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyCpuLock");
 	
@@ -519,6 +535,13 @@ public class Gforth
 		    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
 		}
 	    };
+	notifyer=new Runnable() {
+		public void run() {
+		    Log.v(TAG, "show notification");
+		    notificationManager.notify((int)argj0, argnotify);
+		    Log.v(TAG, "done notification");
+		}
+	    };
 	
 	recKeepalive = new BroadcastReceiver() {
 		@Override public void onReceive(Context context, Intent foo)
@@ -531,13 +554,17 @@ public class Gforth
 	registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive") );
 	
 	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
-	Intent startgforth = new Intent(this, Gforth.class);
-	startgforth.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
-			     Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-	gforthintent = PendingIntent.getActivity(this, 1, startgforth,
-						 PendingIntent.FLAG_UPDATE_CURRENT);
+	// intent for notifications
+	gforthintent = PendingIntent.getActivity
+	    (this, 1,
+	     new Intent(this, getClass())
+	     .setAction("gnu.gforth.Gforth_n2o.MESSAGE")
+	     .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
+		       Intent.FLAG_ACTIVITY_SINGLE_TOP),
+	     PendingIntent.FLAG_UPDATE_CURRENT);
 
+	// intent for network connectivity (!!use netlink socket!!)
 	recConnectivity = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 		    // boolean metered = connectivityManager.isActiveNetworkMetered();
@@ -569,6 +596,7 @@ public class Gforth
 	setIntent(intent);
 	activated = -1;
 	if(surfaced) onEventNative(18, activated);
+	onEventNative(23, intent);
     }
 
     @Override protected void onResume() {

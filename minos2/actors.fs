@@ -42,8 +42,10 @@ end-class outside-actor
 :noname ( rx ry -- flag )
     fdrop fdrop false ; outside-actor is inside?
 
+: !act ( o:widget actor -- o:widget )
+    to act o act >o to caller-w o> ;
 : outside[] ( o -- o )
-    >o outside-actor new to act o act >o to caller-w o> o o> ;
+    >o outside-actor new !act o o> ;
 
 actor class
 end-class simple-actor
@@ -55,32 +57,64 @@ end-class simple-actor
     and o> ;
 ' simple-inside? simple-actor is inside?
 
-debug: event( \ +db event(
+debug: event( \ +db event( \ )
 :noname { f: rx f: ry b n -- }
-    event( ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
+    event( o hex. caller-w hex. ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
 :noname ( addr u -- )
-    event( ." keyed: " type cr )else( 2drop ) ; simple-actor is ukeyed
+    event( o hex. caller-w hex. ." keyed: " type cr )else( 2drop ) ; simple-actor is ukeyed
 :noname ( ekey -- )
-    event( ." ekeyed: " hex. cr )else( drop ) ; simple-actor is ekeyed
+    event( o hex. caller-w hex. ." ekeyed: " hex. cr )else( drop ) ; simple-actor is ekeyed
 : .touch ( $xy b -- )
-    event( hex. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr )else( 2drop ) ;
+    event( ." touch: " hex. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr )else( 2drop ) ;
 :noname ( $xy b -- )
-    event( ." down: " .touch )else( 2drop )
+    event( o hex. caller-w hex. ." down " .touch )else( 2drop )
 ; simple-actor is touchdown
 :noname ( $xy b -- )
-    event( ." up: " .touch )else( 2drop )
+    event( o hex. caller-w hex. ." up " .touch )else( 2drop )
 ; simple-actor is touchup
 :noname ( $xy b -- )
-    event( ." move: " .touch )else( 2drop )
+    event( o hex. caller-w hex. ." move " .touch )else( 2drop )
 ; simple-actor is touchmove
 
 : simple[] ( o -- o )
-    >o simple-actor new to act o act >o to caller-w o> o o> ;
+    >o simple-actor new !act o o> ;
+
+\ click actor
+
+simple-actor class
+    method do-action
+    defer: ck-action
+    value: data
+end-class click-actor
+
+' ck-action click-actor is do-action
+
+: click[] ( o xt data -- o )
+    rot >o click-actor new >o to data is ck-action o o> !act o o> ;
+
+:noname ( rx ry b n -- )
+    fdrop fdrop 1 and 0= swap 1 <= and IF  do-action  THEN
+; click-actor is clicked
+:noname ( ukeyaddr u -- )
+    bounds ?DO  I c@ bl = IF  do-action  THEN
+    LOOP ; click-actor is ukeyed
+:noname ( ekey -- )
+    k-enter = IF  do-action  THEN
+; click-actor is ekeyed
+
+\ toggle actor
+
+click-actor class
+end-class toggle-actor
+
+: toggle[] ( o xt state -- o )
+    rot >o toggle-actor new >o to data is ck-action o o> !act o o> ;
+
+:noname data 0= dup to data ck-action ; toggle-actor is do-action
 
 \ actor for a box with one active element
 
 actor class
-    value: active-w
 end-class box-actor
 
 false value grab-move? \ set to true to grab moves
@@ -88,15 +122,20 @@ false value grab-move? \ set to true to grab moves
 0 value start-cursize \ selection helper
 
 : re-focus { c-act -- }
-    c-act .active-w ?dup-IF  .act .defocus  THEN
+    c-act .active-w ?dup-IF  .act ?dup-IF  .defocus  THEN  THEN
     o c-act >o to active-w o>
-    c-act .active-w ?dup-IF  .act .focus  THEN ;
+    c-act .active-w ?dup-IF  .act ?dup-IF  .focus  THEN  THEN ;
+
+: engage ( object -- )
+    >o parent-w ?dup-IF
+	recurse parent-w .act re-focus  THEN  o> ;
 
 :noname ( rx ry b n -- )
+    event( o hex. caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
     grab-move? IF
 	active-w ?dup-IF  .act .clicked  EXIT  THEN
     THEN
-    fover fover simple-inside? IF
+    fover fover inside? IF
 	o caller-w >o
 	[: { c-act } act IF  fover fover act .inside?
 		IF
@@ -112,33 +151,35 @@ box-actor is clicked
 ' simple-inside? box-actor is inside?
 : xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
 :noname ( $xy b -- )
-    over xy@ simple-inside? IF
-	o caller-w >o
-	[: { c-act } act IF  over xy@ act .inside?
+    over xy@ inside? IF
+	caller-w >o
+	[: act IF  over xy@ act .inside?
 		IF  2dup act .touchdown   THEN  THEN
-	    c-act ;] do-childs o> drop
+	;] do-childs o>
     THEN  2drop ; box-actor is touchdown
 :noname ( $xy b -- )
-    over xy@ simple-inside? IF
-	o caller-w >o
-	[: { c-act } act IF  over xy@ act .inside?
+    over xy@ inside? IF
+	caller-w >o
+	[: act IF  over xy@ act .inside?
 		IF  2dup act .touchup   THEN  THEN
-	    c-act ;] do-childs o> drop
+	;] do-childs o>
     THEN  2drop ; box-actor is touchup
 :noname ( $xy b -- )
+    event( o hex. caller-w hex. ." box move " 2dup .touch )
     grab-move? IF
 	active-w ?dup-IF  .act .touchmove  EXIT  THEN
     THEN
-    over xy@ simple-inside? IF
-	o caller-w >o
-	[: { c-act } act IF  over xy@ act .inside?
+    over xy@ inside? IF
+	caller-w >o
+	[: act IF  over xy@ act .inside?
+		event( o hex. caller-w hex. ." move inside? " dup . cr )
 		IF  2dup act .touchmove  THEN  THEN
-	    c-act ;] do-childs o> drop
+	;] do-childs o>
     THEN  2drop ; box-actor is touchmove
 :noname ( -- ) caller-w >o [: act ?dup-IF  .defocus  THEN ;] do-childs o> ; box-actor is defocus
 
 : box[] ( o -- o )
-    >o box-actor new to act o act >o to caller-w o> o o> ;
+    >o box-actor new !act o o> ;
 
 \ viewport
 
@@ -146,9 +187,11 @@ box-actor class
     field: txy$ \ translated xy$
 end-class vp-actor
 
+:noname caller-w >o vp-h f< vp-w f< and o> ; vp-actor is inside?
+
 : tx ( rx ry -- rx' ry' )
-    fswap vp-x         f+ x f-
-    fswap vp-y f+ vp-h f+ y f- ;
+    fswap x f- vp-x         f+
+    fswap y f- vp-h vp-y f- f+ ;
 : tx$ ( $rxy*n -- $rxy*n' )
     0e fdup tx { f: dx f: dy }
     dup $@len act .txy$ $!len
@@ -187,7 +230,70 @@ end-class vp-actor
     vp-need-or o> ; vp-actor is ukeyed
 
 : vp[] ( o -- o )
-    >o vp-actor new to act o act >o to caller-w o> o o> ;
+    >o vp-actor new !act o o> ;
+
+\ slider actor
+
+simple-actor class
+    value: slide-vp
+    fvalue: slider-sxy
+end-class hslider-actor
+
+hslider-actor class
+end-class vslider-actor
+
+: >hslide ( x -- )
+    slider-sxy f- caller-w >o parent-w .w w f- +sync o> f/
+    slide-vp >o vp-w w f- fdup { f: hmax } f*
+    0e fmax hmax fmin fround to vp-x
+    ?vpt-x IF  ['] +sync vp-needed  THEN o>
+    caller-w .parent-w >o !size xywhd resize o> ;
+
+:noname ( $rxy*n bmask -- ) 
+    grab-move? IF
+	drop xy@ fdrop >hslide
+    ELSE
+	2drop
+    THEN ; hslider-actor is touchmove
+:noname ( x y b n -- )
+    1 and IF
+	drop fdrop caller-w .parent-w .childs[] $@ drop @ .w f- to slider-sxy
+	true to grab-move?
+    ELSE
+	drop fdrop >hslide
+	false to grab-move?
+    THEN ; hslider-actor is clicked
+
+: hslider[] ( vp o -- )
+    >o o hslider-actor new to act
+    act >o to caller-w to slide-vp -1e to slider-sxy o> o> ;
+
+: >vslide ( x -- )
+    slider-sxy fswap f- caller-w >o parent-w .h h f- +sync o> f/
+    slide-vp >o vp-h h f- fdup { f: vmax } f*
+    0e fmax vmax fmin fround to vp-y
+    ?vpt-y IF  ['] +sync vp-needed  THEN  o>
+    caller-w .parent-w >o !size xywhd resize o> ;
+
+:noname ( $rxy*n bmask -- )
+    event( o hex. caller-w hex. ." slider move " 2dup .touch )
+    grab-move? IF
+	drop xy@ fnip >vslide
+    ELSE  2drop  THEN ; vslider-actor is touchmove
+:noname ( x y b n -- )
+    event( o hex. caller-w hex. ." slider click " fover f. fdup f. over . dup . cr )
+    1 and IF
+	drop fnip caller-w .parent-w .childs[] $@ cell- + @ .h f+
+	to slider-sxy
+	true to grab-move?
+    ELSE
+	drop fnip >vslide
+	false to grab-move?
+    THEN ; vslider-actor is clicked
+
+: vslider[] ( vp o -- )
+    >o o vslider-actor new to act
+    act >o to caller-w to slide-vp -1e to slider-sxy o> o> ;
 
 \ edit widget
 
@@ -227,8 +333,8 @@ std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 simple-actor class
     method edit-next-line
     method edit-prev-line
-    defer: edit-enter
     value: edit-w
+    defer: edit-enter
 end-class edit-actor
 
 ' false edit-actor is edit-next-line
@@ -249,7 +355,10 @@ end-class edit-actor
 : edit-del ( max span addr pos1 -- max span addr pos1 false )
     xselw 0> IF  edit-cut  ELSE  <xdel>  THEN ;
 
+Defer anim-ins
+
 : edit-ins$ ( max span addr pos1 addr u -- max span' addr pos1' )
+    anim-ins
     xselw 0> IF  save-mem 2>r edit-cut drop 2r@ insert-string
 	2r> drop free throw
     ELSE  insert-string  THEN ;
@@ -281,15 +390,21 @@ end-class edit-actor
 
 edit-terminal edit-out !
 
+: *xins        anim-ins  defers insert-char ;
+
+' *xins        is insert-char
+
 \ edit things
 
-: edit-xt ( xt o:actor -- )
+: edit-xt ( ... xt o:actor -- )
+    \G pass xt to the editor
+    \G xt has ( ... addr u curpos cursize -- addr u curpos cursize ) as stack effect
+    *insflag off
     history >r  >r  0 to history
     edit-w >o addr text$ curpos cursize 0 max o> to xselw
-    >r dup edit$ ! $@ swap over swap r>
-    r> catch >r edit-w >o to curpos 0 to cursize o> drop edit$ @ $!len drop
-    r>  r> to history throw
-    +sync +glyphs ;
+    >r dup edit$ ! dup { e$ } $@ swap over swap r>
+    r> catch >r edit-w >o to curpos 0 to cursize o> drop e$ $!len drop
+    r>  r> to history  +sync +config  throw ;
 
 : edit>curpos ( x o:actor -- )
     edit-w >o  text-font to font
@@ -324,6 +439,7 @@ edit-terminal edit-out !
 	-1 to start-curpos
     THEN ;
 : start-selection ( fx fy b n -- )
+    *insflag off
     edit-w .start-curpos 0< IF
 	1- 2/ to select-mode
 	drop fdrop edit>curpos  edit-w >o
@@ -402,7 +518,7 @@ edit-terminal edit-out !
     THEN
 ; edit-actor is clicked
 
-: edit[] ( o widget -- o )
+: edit[] ( o widget xt -- o ) { xt }
     swap >o edit-actor new to act
-    o act >o to caller-w to edit-w ['] true is edit-enter o> o o> ;
-
+    o act >o to caller-w to edit-w xt is edit-enter o>
+    o o> ;
