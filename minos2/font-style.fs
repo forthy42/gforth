@@ -126,17 +126,6 @@ previous
 
 \ font selector
 
-: cjk? ( xchar -- xchar flag )
-    \G true if CJK Unified Ideographs
-    dup  $2E80  $A000 within ?dup-IF  EXIT  THEN \ Common
-    dup $20000 $31390 within ?dup-IF  EXIT  THEN \ Ext B-E
-    dup  $F900  $FB00 within ?dup-IF  EXIT  THEN \ Duplicates
-    dup  $FF00  $FFF0 within ; \ fullwidth forms
-
-: emoji? ( xchar -- xchar flag )
-    dup  $2600  $27C0 within ?dup-IF  EXIT  THEN \ misc. symbols
-    dup $1F000 $20000 within ;                   \ pictograms
-
 : xc>font ( xc-addr font-addr -- xc-addr font )
     >r dup xc@
     cjk?   IF  drop r> cell+ ?font-load @  EXIT  THEN

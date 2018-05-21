@@ -77,6 +77,21 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
 
 ?.minos-config
 
+\ helper for languages
+
+: cjk? ( xchar -- xchar flag )
+    \G true if CJK Unified Ideographs
+    dup  $2E80  $A000 within ?dup-IF  EXIT  THEN \ Common
+    dup $20000 $31390 within ?dup-IF  EXIT  THEN \ Ext B-E
+    dup  $F900  $FB00 within ?dup-IF  EXIT  THEN \ Duplicates
+    dup  $FF00  $FFF0 within ; \ fullwidth forms
+
+: emoji? ( xchar -- xchar flag )
+    dup  $2600  $27C0 within ?dup-IF  EXIT  THEN \ misc. symbols
+    dup $1F000 $20000 within ;                   \ pictograms
+
+\ base class
+
 $01 Constant box-hflip#
 $02 Constant box-vflip#
 $03 Value box-flip#
@@ -151,7 +166,10 @@ object class
     method draw-bg ( -- ) \ button background draw
     method draw-image ( -- ) \ image draw
     method draw-text ( -- ) \ text draw
+    method draw-text-part ( rstart rend -- )
+    method split-text ( rx -- rend1 rstart2 )
     method hglue ( -- rtyp rsub radd )
+    method hglue-part ( rstart rend - rtyp rsub radd )
     method dglue ( -- rtyp rsub radd )
     method vglue ( -- rtyp rsub radd )
     method hglue@ ( -- rtyp rsub radd ) \ cached variant
@@ -167,6 +185,7 @@ end-class widget
 :noname x y w h d ; widget is xywhd
 ' noop widget is !size
 :noname w border f2* f+ borderl f+ kerning f+ 0e fdup ; widget is hglue
+:noname fdrop fdrop hglue ; widget is hglue-part
 :noname h border borderv f+ bordert f+ raise f+ f+ 0e fdup ; widget is vglue
 :noname d border borderv f+ raise f- f+ 0e fdup ; widget is dglue
 : widget-resize to d to h to w to y to x ;
@@ -174,6 +193,9 @@ end-class widget
 ' hglue widget is hglue@
 ' vglue widget is vglue@
 ' dglue widget is dglue@
+:noname ( rstart rend -- ) fdrop fdrop draw-text ; widget is draw-text-part
+:noname ( rstart rx -- rend1 rstart2 ) fdrop fdrop 1e -1e ; widget is split-text
+\ if rstart2 < rend1, no split happened
 
 : dw* ( f -- f' ) dpy-w @ fm* ;
 : dh* ( f -- f' ) dpy-h @ fm* ;
@@ -233,10 +255,28 @@ end-structure
 	x2 y2 >xy swap rgba>c n> 1e 1e     #>st v+
 	v> 2 quad
     THEN ;
+: 01minmax ( r -- r' )
+    0e fmax 1e fmin ;
+: interpol ( x1 x2 rel -- x1' )
+    ftuck fnegate 1e f+ f* f-rot f* f+ ;
+: draw-rectangle-part { f: start f: end f: x1 f: y1 f: x2 f: y2 -- }
+    start 01minmax to start
+    end   01minmax to end
+    x1 x2 start interpol
+    x1 x2 end   interpol  to x2 to x1
+    frame-color ?dup-IF
+	-1e to t.i0  6 ?flush-tris
+	frame# i>off >v
+	x1 y1 >xy over rgba>c n> start 0e dup #>st v+
+	x2 y1 >xy over rgba>c n> end   0e dup #>st v+
+	x1 y2 >xy over rgba>c n> start 1e dup #>st v+
+	x2 y2 >xy swap rgba>c n> end   1e     #>st v+
+	v> 2 quad
+    THEN ;
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
     { f: w f: h } fover w f+ fover h f+ ;
 : tile-draw ( -- )
-    xywh >xyxy draw-rectangle ;
+    0e 1e xywh >xyxy draw-rectangle-part ;
 
 ' tile-draw tile is draw-bg
 
@@ -331,6 +371,11 @@ end-class text
     text-font to font  text-color color ! ;
 : text-text ( -- ) text-xy!
     text$ render-string ;
+: text$-part ( start end -- addr u )
+    dup fover f- fm* fround f>s >r \ length to draw
+    dup fm* fround f>s safe/string r> umin ; \ start to skip
+: text-part ( start end -- )
+    text-xy! text$-part render-string ;
 : text-!size ( -- )
     text-font to font
     text$ layout-string
@@ -339,10 +384,35 @@ end-class text
     fdup to text-w  border f2* borderl f+ f+ to w
 \    ." text sized to: " x f. y f. w f. h f. d f. cr
 ;
+
+$Variable split$ " !&,-./:;|=@–—" split$ $!
+
+: ?split { xchar -- flag }
+    split$ $@ bounds U+DO
+	I xc@+ xchar = IF  drop true  unloop  EXIT  THEN
+    I - +LOOP  false ;
+: <split ( addr u -- addre1 addrs2 / addr 0 )
+    BEGIN  dup >r x\string- dup 0> WHILE
+	    2dup + xc@ cjk? >r emoji? >r ?split r> r> or or IF
+		drop r>  EXIT  THEN  rdrop
+    REPEAT  rdrop ;
+
+: text-split-text ( rstart rw -- rend1 rstart2 )
+    fswap 1e text$-part 2dup pos-string
+    2dup = over 0= or IF  drop 2drop 1e -1e  EXIT  THEN \ no split
+    nip <split dup 0= IF  2drop 1e -1e  EXIT  THEN
+    2dup -trailing + >r + >r
+    text$ s>f fdup r> over - fm/ fswap r> swap - fm/ ;
 ' text-text text is draw-text
+' text-part text is draw-text-part
+' text-split-text text is split-text
 ' text-!size text is !size
 :noname w kerning f+
     text-w text-shrink% f* text-w text-grow% f* ; text is hglue
+:noname ( start end -- )
+    text$-part layout-string fdrop fdrop
+    fdup border f2* borderl f+ f+  fswap
+    fdup text-shrink% f* fswap text-grow% f* ; text is hglue-part
 :noname h raise f+ 0e fdup ; text is vglue
 :noname d raise f- 0e fdup ; text is dglue
 
