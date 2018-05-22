@@ -169,12 +169,14 @@ object class
     method draw-text-part ( rstart rend -- )
     method split-text ( rx -- rend1 rstart2 )
     method hglue ( -- rtyp rsub radd )
-    method hglue-part ( rstart rend - rtyp rsub radd )
     method dglue ( -- rtyp rsub radd )
     method vglue ( -- rtyp rsub radd )
     method hglue@ ( -- rtyp rsub radd ) \ cached variant
     method dglue@ ( -- rtyp rsub radd ) \ cached variant
     method vglue@ ( -- rtyp rsub radd ) \ cached variant
+    method hglue-part ( rstart rend - rtyp rsub radd )
+    method vglue-part ( rstart rend - rtyp rsub radd )
+    method dglue-part ( rstart rend - rtyp rsub radd )
     method xywh ( -- rx0 ry0 rw rh )
     method xywhd ( -- rx ry rw rh rd )
     method resize ( rx ry rw rh rd -- )
@@ -186,6 +188,8 @@ end-class widget
 ' noop widget is !size
 :noname w border f2* f+ borderl f+ kerning f+ 0e fdup ; widget is hglue
 :noname fdrop fdrop hglue ; widget is hglue-part
+:noname fdrop fdrop vglue ; widget is vglue-part
+:noname fdrop fdrop dglue ; widget is dglue-part
 :noname h border borderv f+ bordert f+ raise f+ f+ 0e fdup ; widget is vglue
 :noname d border borderv f+ raise f- f+ 0e fdup ; widget is dglue
 : widget-resize to d to h to w to y to x ;
@@ -616,6 +620,16 @@ end-class box
     box-flags @ box-flip# and ?EXIT
     childs[] $@ bounds U+DO
 	xt I @ .execute
+    cell +LOOP ;
+: do-childs-part { f: start f: end xt -- .. }
+    box-flags @ box-flip# and ?EXIT
+    childs[] $@
+    start floor f>s cells safe/string
+    start floor end f- floor fnegate f>s cells umin bounds
+    start fdup floor f- to start
+    U+DO
+	start end 1e fmin  xt I @ .execute
+	0e to start  end 1e f- to end
     cell +LOOP ;
 : do-lastchild ( xt -- .. )
     childs[] $[]# ?dup-IF 1- childs[] $[] @ .execute ELSE  drop  THEN ;
