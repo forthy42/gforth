@@ -78,6 +78,7 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
 ?.minos-config
 
 \ helper for languages and splitting texts
+\ cjk and emoji can be split at any letter
 
 : cjk? ( xchar -- xchar flag )
     \G true if CJK Unified Ideographs
@@ -90,7 +91,7 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
     dup  $2600  $27C0 within ?dup-IF  EXIT  THEN \ misc. symbols
     dup $1F000 $20000 within ;                   \ pictograms
 
-$Variable split$ " !&,-./:;|=@–—           　" split$ $!
+$Variable split$ " !&,-./:;|=@–—␣           　" split$ $!
 $Variable spaces$ "            　" spaces$ $!
 
 : xcs? ( xchar addr u -- flag ) rot { xc }
@@ -185,7 +186,7 @@ object class
     method draw-bg ( -- ) \ button background draw
     method draw-image ( -- ) \ image draw
     method draw-text ( -- ) \ text draw
-    method draw-text-part ( rstart rend -- )
+    method draw-text-part ( w rstart rend -- )
     method split-text ( rx -- rend1 rstart2 )
     method hglue ( -- rtyp rsub radd )
     method dglue ( -- rtyp rsub radd )
@@ -193,13 +194,13 @@ object class
     method hglue@ ( -- rtyp rsub radd ) \ cached variant
     method dglue@ ( -- rtyp rsub radd ) \ cached variant
     method vglue@ ( -- rtyp rsub radd ) \ cached variant
-    method hglue-part ( rstart rend - rtyp rsub radd )
-    method vglue-part ( rstart rend - rtyp rsub radd )
-    method dglue-part ( rstart rend - rtyp rsub radd )
+    method hglue-part ( rstart rend -- rtyp rsub radd )
+    method vglue-part ( rstart rend -- rtyp rsub radd )
+    method dglue-part ( rstart rend -- rtyp rsub radd )
     method xywh ( -- rx0 ry0 rw rh )
     method xywhd ( -- rx ry rw rh rd )
     method resize ( rx ry rw rh rd -- )
-    method !size \ set your own size
+    method !size ( -- ) \ set your own size
 end-class widget
 
 :noname x y h f- w h d f+ ; widget is xywh
@@ -216,7 +217,7 @@ end-class widget
 ' hglue widget is hglue@
 ' vglue widget is vglue@
 ' dglue widget is dglue@
-:noname ( rstart rend -- ) fdrop fdrop draw-text ; widget is draw-text-part
+:noname ( w rstart rend -- ) fdrop fdrop fdrop draw-text ; widget is draw-text-part
 :noname ( rstart rx -- rend1 rstart2 ) fdrop fdrop 1e -1e ; widget is split-text
 \ if rstart2 < rend1, no split happened
 
@@ -387,18 +388,23 @@ end-class text
 
 : text! ( addr u font -- )
     to text-font to text$ ;
+: text-scale! ( w text-w -- ) { f: tx-w }
+    border f2* borderl f+ f- kerning f- tx-w f/ to x-scale ;
 : text-xy! ( -- )
     x border kerning f+ borderl f+ f+ fround penxy         sf!
     y                        raise f+ fround penxy sfloat+ sf!
-    w border f2* borderl f+ f- kerning f- text-w f/ to x-scale
     text-font to font  text-color color ! ;
-: text-text ( -- ) text-xy!
-    text$ render-string ;
+: text-text ( -- ) w text-w text-scale! text-xy! text$ render-string ;
 : text$-part ( start end -- addr u )
     dup fover f- fm* fround f>s >r \ length to draw
     dup fm* fround f>s safe/string r> umin ; \ start to skip
-: text-part ( start end -- )
-    text-xy! text$-part render-string ;
+: border-part { start end -- border-extars } 0e
+    start fover f<= IF  border borderl f+ kerning f+  THEN
+    end   1e    f>= IF  border f+ THEN ;
+: text-part { w start end -- } start end text$-part { d: text$ }
+    w text$ layout-string fdrop fdrop { tx-w }
+    start end border-part f- tx-w f/ to x-scale
+    text-xy! text$ render-string ;
 : text-!size ( -- )
     text-font to font
     text$ layout-string
@@ -420,9 +426,9 @@ end-class text
 ' text-!size text is !size
 :noname w kerning f+
     text-w text-shrink% f* text-w text-grow% f* ; text is hglue
-:noname ( start end -- )
-    text$-part layout-string fdrop fdrop
-    fdup border f2* borderl f+ f+  fswap
+:noname { start end -- glue }
+    start end text$-part layout-string fdrop fdrop
+    fdup start end border-part f+  fswap
     fdup text-shrink% f* fswap text-grow% f* ; text is hglue-part
 :noname h raise f+ 0e fdup ; text is vglue
 :noname d raise f- 0e fdup ; text is dglue
@@ -630,6 +636,7 @@ end-class box
     cell +LOOP ;
 : do-childs-part { f: start f: end xt -- .. }
     box-flags @ box-flip# and ?EXIT
+    childs[] $[]# dup start fm* to start  end fm* to end
     childs[] $@
     start floor f>s cells safe/string
     start floor end f- floor fnegate f>s cells umin bounds
@@ -639,7 +646,9 @@ end-class box
 	0e to start  end 1e f- to end
     cell +LOOP ;
 : do-lastchild ( xt -- .. )
-    childs[] $[]# ?dup-IF 1- childs[] $[] @ .execute ELSE  drop  THEN ;
+    childs[] $[]# dup IF 1- childs[] $[] @ .execute ELSE  2drop  THEN ;
+: do-firstchild ( xt -- .. )
+    childs[] $[]# IF  0 childs[] $[] @ .execute ELSE  drop  THEN ;
 
 :noname ( -- )
     ['] !size do-childs
@@ -730,24 +739,46 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : b0glue ( -- b 0 0 ) bxx 0g fdup ;
 : b1glue ( -- b 0 0 ) bxx 0g 1fil ;
 
-: hglue+ b0glue
-    box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs ;
-: dglue+ 0glue box-flags @ box-vflip# and ?EXIT
-    [: glue-drop dglue@ ;] do-lastchild ; \ last dglue
-: vglue+ 0glue box-flags @ box-vflip# and ?EXIT
+: hglue+ ( -- glue ) b0glue
+    box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs
+    kerning 0e fdup glue+ ;
+: dglue+ ( -- glue ) 0glue box-flags @ box-vflip# and ?EXIT
+    [: glue-drop dglue@ ;] do-lastchild \ last dglue
+    raise fnegate 0e fdup glue+ ;
+: vglue+ ( -- glue ) 0glue box-flags @ box-vflip# and ?EXIT
     0glue [: vglue@ glue+ frot baseline fmax f-rot glue+ dglue@ ;] do-childs
-    glue-drop ;
+    glue-drop  raise 0e fdup glue+ ;
 
-: hglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
-    1glue [: hglue@ glue* ;] do-childs  b0glue glue+ ;
-: dglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
-    1glue [: dglue@ glue* ;] do-childs ;
-: vglue* box-flags @ box-hflip# and IF  0glue  EXIT  THEN
-    1glue [: vglue@ glue* ;] do-childs ;
+: hglue* ( -- glue ) box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+    1glue [: hglue@ glue* ;] do-childs  b0glue glue+
+    kerning 0e fdup glue+ ;
+: dglue* ( -- glue ) box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+    1glue [: dglue@ glue* ;] do-childs
+    raise fnegate 0e fdup glue+ ;
+: vglue* ( -- glue ) box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+    1glue [: vglue@ glue* ;] do-childs
+    raise 0e fdup glue+ ;
+
+: hglue+part { f: start f: end -- glue } b0glue
+    box-flags @ box-hflip# and ?EXIT
+    start end [: hglue@ glue+ ;] do-childs-part
+    kerning 0e fdup glue+ ;
+: dglue*part { f: start f: end -- glue }
+    box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+    1glue start end [: dglue@ glue* ;] do-childs-part
+    raise fnegate 0e fdup glue+ ;
+: vglue*part { f: start f: end -- glue }
+    box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+    1glue start end [: vglue@ glue* ;] do-childs-part
+    raise 0e fdup glue+ ;
 
 :noname hglue+ >hglue!@ ; hbox is hglue
 :noname dglue* >dglue!@ ; hbox is dglue
 :noname vglue* >vglue!@ ; hbox is vglue
+
+:noname hglue+part >hglue!@ ; hbox is hglue-part
+:noname dglue*part >dglue!@ ; hbox is dglue-part
+:noname vglue*part >vglue!@ ; hbox is vglue-part
 
 :noname hglue* >hglue!@ ; vbox is hglue
 :noname dglue+ >dglue!@ ; vbox is dglue
@@ -785,6 +816,23 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 ;
 
 ' hbox-resize hbox is resize
+
+: hbox-split-text { f: start f: w -- end start' )
+    childs[] $[]# dup start fm* to start
+    start fdup floor f- { f: startx }
+    start floor f>s U+DO
+	startx w I childs[] $[] @ .split-text
+	fdup -1e f<> IF  \ we found an end
+	    I s>f f+ childs[] $[]# dup fm/ fswap
+	    I s>f f+ fm/ fswap
+	    UNLOOP  EXIT  THEN
+	fdrop fdrop
+	w I childs[] $[] @ .w f- fdup to w
+	w f0< IF  I 1+ s>f childs[] $[]# fm/ fdup
+	    I' I 1+ = IF  fdrop -1e  THEN  UNLOOP  EXIT
+	THEN \ also ends here
+    LOOP  1e -1e ;
+' hbox-split-text hbox is split-text
 
 \ add glues up for vboxes
 
@@ -850,12 +898,32 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 ' zbox-resize zbox is resize
 
+\ parbox (stub for now)
+
+hbox class
+    field: startends[] \ double array
+end-class parbox
+
+: par-init ( -- ) \ set paragraph to maximum horizontal extent
+    0e fdup hglue fdrop fdrop vglue fdrop fdrop dglue fdrop fdrop
+    [ hbox :: resize ] ;
+: sf$+! ( rvalue $addr -- ) 0 { w^ sf }
+    sf sf! sf 1 sfloats rot $+! ;
+: par-split ( -- ) \ split a hbox into chunks
+    startends[] $free 0e
+    BEGIN  fdup startends[] sf$+!
+	w hbox-split-text fswap startends[] sf$+!
+	fdup f0<  UNTIL  fdrop ;
+
+\ create boxes
+
 $10 stack: box-depth \ this $10 here is no real limit
 : {{ ( -- ) depth box-depth >stack ;
 : }} ( n1 .. nm -- n1 .. nm m ) depth box-depth stack> - ;
 : }}h ( n1 .. nm -- hbox ) }} hbox new >o +childs o o> ;
 : }}v ( n1 .. nm -- vbox ) }} vbox new >o +childs o o> ;
 : }}z ( n1 .. nm -- zbox ) }} zbox new >o +childs o o> ;
+: }}p ( n1 .. nm -- parbox ) }} parbox new >o +childs o o> ;
 
 \ tab helper glues
 
