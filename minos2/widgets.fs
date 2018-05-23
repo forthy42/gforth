@@ -77,7 +77,7 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
 
 ?.minos-config
 
-\ helper for languages
+\ helper for languages and splitting texts
 
 : cjk? ( xchar -- xchar flag )
     \G true if CJK Unified Ideographs
@@ -89,6 +89,25 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
 : emoji? ( xchar -- xchar flag )
     dup  $2600  $27C0 within ?dup-IF  EXIT  THEN \ misc. symbols
     dup $1F000 $20000 within ;                   \ pictograms
+
+$Variable split$ " !&,-./:;|=@–—           　" split$ $!
+$Variable spaces$ "            　" spaces$ $!
+
+: xcs? ( xchar addr u -- flag ) rot { xc }
+    bounds U+DO
+	I xc@+ xc = IF  drop true  unloop  EXIT  THEN
+    I - +LOOP  false ;
+: ?split ( xchar -- flag )  split$ $@ xcs? ;
+: ?spaces ( xchar -- flag )  spaces$ $@ xcs? ;
+: <split ( addr u -- addr u' )
+    BEGIN  dup >r x\string- dup 0>= WHILE
+	    2dup + xc@ cjk? >r emoji? >r ?split r> r> or or IF
+		drop r>  EXIT  THEN  rdrop
+    REPEAT  rdrop ;
+: xc-trailing ( addr u -- addr u' )
+    dup >r  BEGIN  rdrop dup >r dup WHILE
+	x\string- 2dup + xc@ ?spaces 0= UNTIL
+	drop r>  ELSE  rdrop  THEN ;
 
 \ base class
 
@@ -389,23 +408,11 @@ end-class text
 \    ." text sized to: " x f. y f. w f. h f. d f. cr
 ;
 
-$Variable split$ " !&,-./:;|=@–—" split$ $!
-
-: ?split { xchar -- flag }
-    split$ $@ bounds U+DO
-	I xc@+ xchar = IF  drop true  unloop  EXIT  THEN
-    I - +LOOP  false ;
-: <split ( addr u -- addre1 addrs2 / addr 0 )
-    BEGIN  dup >r x\string- dup 0> WHILE
-	    2dup + xc@ cjk? >r emoji? >r ?split r> r> or or IF
-		drop r>  EXIT  THEN  rdrop
-    REPEAT  rdrop ;
-
 : text-split-text ( rstart rw -- rend1 rstart2 )
     fswap 1e text$-part 2dup pos-string
     2dup = over 0= or IF  drop 2drop 1e -1e  EXIT  THEN \ no split
     nip <split dup 0= IF  2drop 1e -1e  EXIT  THEN
-    2dup -trailing + >r + >r
+    2dup xc-trailing + >r + >r
     text$ s>f fdup r> over - fm/ fswap r> swap - fm/ ;
 ' text-text text is draw-text
 ' text-part text is draw-text-part
