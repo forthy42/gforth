@@ -327,7 +327,7 @@ Defer config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
 screen-ops     ' noop IS screen-ops
 
-:noname ( -- ) +config ; is config-changed
+:noname ( -- ) +sync +config ; is config-changed
 
 Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 
@@ -446,7 +446,7 @@ Defer android-active
     \ >stderr ." active: " dup . cr
     dup rendering !  IF
 	16 to looper-to#
-	+show +sync screen-ops
+	+show +sync +config screen-ops
     ELSE  16000 to looper-to#  THEN ; is android-active
 
 Defer android-alarm ( 0 -- ) ' drop is android-alarm

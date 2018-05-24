@@ -136,7 +136,9 @@ Defer window-init    ' noop is window-init
 Defer config-changed
 Defer screen-ops     ' noop IS screen-ops
 
-:noname ( -- ) +config ; is config-changed
+: getwh ( -- )  0 0 dpy-w @ dpy-h @ glViewport ;
+
+:noname ( -- ) +sync +config getwh ; is config-changed
 
 : term-cr defers cr ;
 
@@ -354,8 +356,6 @@ previous
 : XTime0 ( -- ntime ) utime #1000 ud/mod drop nip ;
 : XTime ( -- ntime ) XTime0 timeoffset + ;
 
-: getwh ( -- )
-    0 0 dpy-w @ dpy-h @ glViewport ;
 : screen-orientation ( -- 0/1 )
     dpy-w @ dpy-h @ > negate ;
 : .atom ( n -- )
@@ -476,8 +476,12 @@ previous
 ' noop handler-class to DoGenericEvent
 
 : handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
-: get-events ( -- )  event-handler @ >o
-    BEGIN  dpy XPending  WHILE  dpy event XNextEvent drop
+#16 Value looper-to# \ 16ms, don't sleep too long
+: get-events ( -- )
+    looper-to# #4000000 um* ntime d+ { d: timeout }
+    event-handler @ >o
+    BEGIN  dpy XPending  ntime timeout du< and
+    WHILE  dpy event XNextEvent drop
 	    event 0 XFilterEvent 0= IF  handle-event  THEN
     REPEAT o> ;
 
@@ -491,7 +495,6 @@ require unix/pthread.fs
 previous set-current
 
 User xptimeout  cell uallot drop
-#16 Value looper-to# \ 16ms, don't sleep too long
 looper-to# #1000000 um* xptimeout 2!
 3 Value xpollfd#
 User xpollfds
@@ -520,7 +523,8 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     IF
 	xpollfds          revents w@ POLLIN and IF  ?events  THEN
 	dpy IF
-	    xpollfds pollfd + revents w@ POLLIN and IF  get-events  THEN
+	    dpy XPending
+	    xpollfds pollfd + revents w@ POLLIN and or IF  get-events  THEN
 	THEN
     THEN ;
 

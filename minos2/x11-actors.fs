@@ -79,9 +79,7 @@ DOES> ( x-key [addr] -- ekey )
   THEN  e.state xmeta@ mask-shift# lshift or ;
 
 : resize-widgets ( w h -- )
-    dpy-h ! dpy-w !
-    getwh  config-changed
-    top-widget >o !size 0e 1e dh* 1e dw* 1e dh* 0e resize widget-draw o> ;
+    dpy-h ! dpy-w !  config-changed ;
 :noname  ic event look_chars $FF look_key comp_stat  XUtf8LookupString
     dup 1 = IF  look_chars c@ dup $7F = swap bl < or +  THEN \ we want the other delete
     ?dup-IF  look_chars swap top-act ?dup-IF  .ukeyed  ELSE  2drop  THEN

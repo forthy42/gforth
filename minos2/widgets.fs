@@ -1204,7 +1204,7 @@ require animation.fs
 	#looper  time( ." looper: " .!time cr )
 	[IFDEF] android  ?config-changer  [THEN]
 	anims[] $@len IF  animations  THEN
-	?sync  IF  top-widget >o ?config IF  htop-resize  THEN
+	?sync ?config or  IF  top-widget >o ?config IF  htop-resize  THEN
 	    widget-draw time( ." animate: " .!time cr )
 	    o>
 	    -sync -config  THEN
