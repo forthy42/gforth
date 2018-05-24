@@ -199,7 +199,7 @@ also jni
     THEN ; is ?looper-timeouts
 
 : edit-setstring ( string -- )
-    jstring>sstring setstring$ $! jfree +sync ;
+    jstring>sstring setstring$ $! jfree +sync +config ;
 : edit-commit ( string/0 -- )  ?dup-IF
 	jstring>sstring setstring$ $! jfree
     THEN
@@ -226,4 +226,4 @@ previous
     ['] key>event   is android-key
     [ action-of android-setstring ]L is android-setstring
     [ action-of android-commit ]L is android-commit
-    +sync  +show ;
+    +sync +config +show ;
