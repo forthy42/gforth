@@ -442,11 +442,14 @@ Defer clipboard-changed ( 0 -- ) ' drop is recurse
 : android-config! ( n -- ) to screen-orientation config-changed ;
 
 Defer android-active
+Defer reload-textures ' noop is reload-textures
+
 :noname ( flag -- )
     \ >stderr ." active: " dup . cr
     dup rendering !  IF
 	16 to looper-to#
-	+show +sync +config screen-ops
+	rendering @ -2 <= IF  reload-textures
+	    +show +sync +config screen-ops  THEN
     ELSE  16000 to looper-to#  THEN ; is android-active
 
 Defer android-alarm ( 0 -- ) ' drop is android-alarm

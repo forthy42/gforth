@@ -132,9 +132,10 @@ Constant default-events
 
 [IFUNDEF] linux  : linux ;  [THEN]
 
-Defer window-init    ' noop is window-init
+Defer window-init     ' noop is window-init
 Defer config-changed
-Defer screen-ops     ' noop IS screen-ops
+Defer screen-ops      ' noop is screen-ops
+Defer reload-textures ' noop is reload-textures
 
 : getwh ( -- )  0 0 dpy-w @ dpy-h @ glViewport ;
 

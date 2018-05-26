@@ -543,12 +543,17 @@ default-out op-vector !
 
 \ initialize
 
+: term-textures ( -- )
+    s" minos2/ascii.png" term-load-textures ;
+
+:noname defers reload-textures  term-textures ; is reload-textures
+
 : term-init ( -- )
     [IFDEF] clazz [ also jni ] ['] hideprog post-it [ previous ] [THEN]
     >screen-orientation
     create-terminal-program to terminal-program
     terminal-program terminal-init
-    s" minos2/ascii.png" term-load-textures form-chooser
+    term-textures form-chooser
     scale-me ;
 
 :noname  defers window-init term-init ; IS window-init

@@ -226,4 +226,6 @@ previous
     ['] key>event   is android-key
     [ action-of android-setstring ]L is android-setstring
     [ action-of android-commit ]L is android-commit
+    [IFDEF] terminal-program
+	terminal-program terminal-init term-textures [THEN]
     +sync +config +show ;

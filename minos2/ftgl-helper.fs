@@ -93,6 +93,11 @@ Variable fonts[] \ stack of used fonts
     GL_TEXTURE_2D atlas-bgra texture_atlas_t-id l@ glBindTexture edge linear
     atlas-bgra upload-atlas-tex ;
 
+[IFDEF] android also android [THEN]
+:noname defers reload-textures
+    gen-atlas-tex gen-atlas-tex-bgra ; is reload-textures
+[IFDEF] android previous [THEN]
+
 \ render font into vertex buffers
 
 2 sfloats buffer: penxy

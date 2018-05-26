@@ -62,12 +62,24 @@ Defer }}text' ' }}text IS }}text'
     >o box-vflip# box-flags ! o o> ;
 : /flop ( o -- o )
     >o 0 box-flags ! o o> ;
+Variable image-tex[]
+Variable image-file[]
 : }}image-file ( xt addr u r -- o glue-o ) pixelsize# f*
+    2 pick image-tex[] >stack  2dup $make image-file[] >stack
     2 pick execute
     load-texture glue new >o
     s>f fover f* vglue-c df!
     s>f       f* hglue-c df! o o> dup >r
     $ffffffff color, rot }}image r> ;
+: reload-images ( -- )
+    image-tex[] $[]# 0 DO
+	I image-tex[] $[] perform
+	I image-file[] $[]@ load-texture 2drop
+    LOOP ;
+[IFDEF] android also android [THEN]
+:noname defers reload-textures  level# @ 0> IF  reload-images  THEN ;
+is reload-textures
+[IFDEF] android previous [THEN]
 : }}image-tex ( xt glue -- o )
     $ffffffff color, rot }}image ;
 

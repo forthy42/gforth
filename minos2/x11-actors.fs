@@ -173,6 +173,8 @@ x11-handler ' new static-a with-allocater Constant x11-keyboard
 : leave-minos ( -- )
     edit-terminal edit-out !
     [ event-handler @ ]L event-handler !
-    +sync  +show ;
+    [IFDEF] term-textures
+	terminal-program terminal-init term-textures [THEN]
+    +sync +config +show ;
 
 previous

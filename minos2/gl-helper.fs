@@ -659,8 +659,6 @@ Create white-texture \ aabbggrr
 
 : rgba-texture ( addr w h -- )  rgba-map wrap-texture ;
 
-: no-texture ( -- )  white-texture 2 2 rgba-texture wrap-texture nearest ;
-
 0 Value current-tex
 
 \ use texture
@@ -678,6 +676,11 @@ Variable tex-index
     DOES> @ tex[] ;
 
 tex: none-tex
+
+: no-texture ( -- )
+    none-tex white-texture 2 2 rgba-texture wrap-texture nearest ;
+
+' no-texture is reload-textures
 
 \ framebuffer + rendering into framebuffer
 

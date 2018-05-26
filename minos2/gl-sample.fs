@@ -28,6 +28,8 @@ tex: ascii-tex
 : load-textures ( -- )
     ascii-tex s" ascii.png" load-texture 2drop ;
 
+:noname defers reload-textures load-textures ; is reload-textures
+
 \ triangle example
 
 buffer-init
@@ -63,7 +65,7 @@ FVariable motion 0.01e motion f!
 
 : draw-tri-angle ( f -- )
     0.01e 0.02e 0.15e 1.0e glClearColor
-    clear
+    clear  program init
     Ambient 1 ambient% glUniform1fv
     vi0  set-triangle
     normals texcoords colors

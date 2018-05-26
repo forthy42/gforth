@@ -553,6 +553,9 @@ Variable *insflag
 
 \ draw wrapper
 
+:noname defers reload-textures  level# @ 0> IF  program init  THEN ;
+is reload-textures
+
 also freetype-gl
 : <draw-init ( -- )
     program glUseProgram
@@ -1197,21 +1200,33 @@ require animation.fs
 : htop-resize ( -- )
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize time( ." resize: " .!time cr ) ;
 
+: widgets-redraw ( flag -- flag )
+    top-widget >o ?config IF  htop-resize  THEN
+    widget-draw time( ." animate: " .!time cr )
+    o> -sync 0-config ;
+
+: widget-sync ( -- ) rendering @ -2 > ?EXIT
+    level# @ 0> IF
+	[IFDEF] android  ?config-changer  [THEN]
+	anims[] $@len IF  animations  THEN
+	?sync ?config or  IF  widgets-redraw  THEN
+	?keyboard IF
+	    [IFDEF] showkb showkb [THEN]
+	    -keyboard
+	THEN
+    ELSE
+	defers screen-ops
+    THEN ;
+
+' widget-sync is screen-ops
+
 : widgets-loop ( -- )
     [IFDEF] hidekb  hidekb [THEN]  enter-minos
     1 level# +!  top-widget .widget-draw
     BEGIN  0 looper-to# anims[] $@len ?sync or select
 	#looper  time( ." looper: " .!time cr )
-	[IFDEF] android  ?config-changer  [THEN]
-	anims[] $@len IF  animations  THEN
-	?sync ?config or  IF  top-widget >o ?config IF  htop-resize  THEN
-	    widget-draw time( ." animate: " .!time cr )
-	    o>
-	    -sync -config  THEN
-	?keyboard IF
-	    [IFDEF] showkb showkb [THEN]
-	    -keyboard  THEN
-    level# @ 0= UNTIL  leave-minos  +sync ;
+	widget-sync
+    level# @ 0= UNTIL  leave-minos ;
 
 previous previous previous
 set-current
