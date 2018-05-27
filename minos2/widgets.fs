@@ -975,7 +975,8 @@ vbox class
     sfvalue: vt-w \ width of rendering texture
     sfvalue: vt-h \ height of rendering texture
     defer: vp-tex
-    value: vp-fb
+    value: vp-fb   \ framebuffer
+    value: vp-rb   \ renderbuffer
     value: vp-glue \ glue object
     field: vp-need
 end-class viewport
@@ -993,7 +994,8 @@ end-class viewport
 1 sfloats buffer: vp-saturate% 1.0e vp-saturate% sf!
 
 : <draw-vp ( -- )
-    vt-h vt-w f>s f>s vp-fb >framebuffer
+    vt-h vt-w f>s f>s
+    2dup vp-rb >renderbuffer  vp-fb >framebuffer
     Ambient 1 vp-ambient% glUniform1fv
     Saturate 1 vp-saturate% glUniform1fv
     0e fdup fdup fdup glClearColor clear
@@ -1090,11 +1092,13 @@ end-class viewport
     vp-!size  vp-tex
     ?textures IF  ['] +textures vp-needed  THEN
     vt-w f>s vt-h f>s
-    vp-fb ?textures 0= and IF
+    vp-fb  ?textures 0= and  IF
 	2dup 0 -rot GL_RGBA texture-map \ just resize
-	GL_RENDERBUFFER GL_DEPTH_COMPONENT16 2swap glRenderbufferStorage
+	vp-rb >renderbuffer
+	current-tex vp-rb vp-fb attach-framebuffer
+	GL_FRAMEBUFFER 0 glBindFramebuffer
     ELSE
-	GL_RGBA new-textbuffer to vp-fb
+	GL_RGBA new-textbuffer to vp-fb to vp-rb
     THEN
     0e vp-h vp-w vp-h 0e vbox-resize
     x y w h d widget-resize
@@ -1203,7 +1207,7 @@ require animation.fs
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize time( ." resize: " .!time cr ) ;
 
 : widgets-redraw ( flag -- flag )
-    top-widget >o ?config IF  htop-resize  THEN
+    top-widget >o ?config ?textures or  IF  htop-resize -textures  THEN
     widget-draw time( ." animate: " .!time cr )
     o> -sync 0-config ;
 
@@ -1211,12 +1215,11 @@ require animation.fs
     level# @ 0> IF
 	[IFDEF] android  ?config-changer  [THEN]
 	anims[] $@len IF  animations  THEN
-	?sync ?config or  IF  widgets-redraw  THEN
+	?sync ?config ?textures or or  IF  widgets-redraw  THEN
 	?keyboard IF
 	    [IFDEF] showkb showkb [THEN]
 	    -keyboard
 	THEN
-	-textures
     ELSE
 	defers screen-ops
     THEN ;

@@ -684,21 +684,25 @@ tex: none-tex
 
 \ framebuffer + rendering into framebuffer
 
-: gen-framebuffer { tb rb -- buffer-name }
-    0 { w^ fb-name }
-    1 fb-name glGenFramebuffers
-    GL_FRAMEBUFFER fb-name l@ glBindFramebuffer
+: attach-framebuffer { tb rb fb -- }
+    GL_FRAMEBUFFER fb glBindFramebuffer
     GL_FRAMEBUFFER GL_COLOR_ATTACHMENT0 GL_TEXTURE_2D
     tb 0 glFramebufferTexture2D
     GL_FRAMEBUFFER GL_DEPTH_ATTACHMENT GL_RENDERBUFFER rb
-    glFramebufferRenderbuffer
-    fb-name l@ ;
+    glFramebufferRenderbuffer ;
+
+: gen-framebuffer ( tb rb -- buffer-name )
+    0 { w^ fb-name }
+    1 fb-name glGenFramebuffers
+    fb-name l@ attach-framebuffer  fb-name l@ ;
+
+: >renderbuffer ( w h rb -- )
+    GL_RENDERBUFFER glBindRenderbuffer
+    GL_RENDERBUFFER GL_DEPTH_COMPONENT16 2swap glRenderbufferStorage ;
 
 : gen-renderbuffer ( w h -- buffer-name )
     0 { w^ rb-name }
-    1 rb-name glGenRenderbuffers
-    GL_RENDERBUFFER rb-name l@ glBindRenderbuffer
-    GL_RENDERBUFFER GL_DEPTH_COMPONENT16 2swap glRenderbufferStorage
+    1 rb-name glGenRenderbuffers  rb-name l@ >renderbuffer
     rb-name l@ ;
 
 : rgba-textbuffer { w h -- }
@@ -709,11 +713,11 @@ tex: none-tex
     GL_TEXTURE_2D current-tex glBindTexture
     w h grey-newtex nearest ;
 
-: new-textbuffer { w h mode -- fb }
+: new-textbuffer { w h mode -- rb fb }
     \G create new texture buffer to render into
     \G uses the current active texture
     0 w h mode texture-map linear edge
-    current-tex  w h gen-renderbuffer  gen-framebuffer ;
+    current-tex  w h gen-renderbuffer  tuck gen-framebuffer ;
 
 : >framebuffer ( w h fb -- )
     GL_FRAMEBUFFER swap glBindFramebuffer
