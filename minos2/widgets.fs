@@ -1090,7 +1090,7 @@ end-class viewport
 :noname { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     vp-!size  vp-tex
-    ?textures IF  ['] +textures vp-needed  THEN
+    ?textures IF  [: +textures +sync ;] vp-needed  THEN
     vt-w f>s vt-h f>s
     vp-fb  ?textures 0= and  IF
 	2dup 0 -rot GL_RGBA texture-map \ just resize
@@ -1207,9 +1207,10 @@ require animation.fs
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize time( ." resize: " .!time cr ) ;
 
 : widgets-redraw ( flag -- flag )
-    top-widget >o ?config ?textures or  IF  htop-resize -textures  THEN
+    top-widget >o ?config ?textures or  IF  htop-resize
+	?textures IF  +config -textures  ELSE  0-config  THEN  THEN
     widget-draw time( ." animate: " .!time cr )
-    o> -sync 0-config ;
+    o> -sync ;
 
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
     level# @ 0> IF
