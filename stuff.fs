@@ -138,6 +138,14 @@ AUser CSP
     repeat
     - + dup >r resize throw r> ;
 
+\ file>path
+
+: file>path ( addr1 u1 path-addr -- addr2 u2 ) \ gforth
+    open-path-file throw rot close-file throw ;
+
+: file>fpath ( addr1 u1 -- addr2 u2 ) \ gforth
+    fpath file>path ;
+
 \ ]] ... [[
 
 : [[ ( -- ) \ gforth left-bracket-bracket

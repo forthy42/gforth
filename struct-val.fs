@@ -37,6 +37,7 @@ standard:field
     >r r@ cell+ cell+ 2@ r> 2@
     2>r >r Create over , + action-of +field, ,
     r> set-does> 2r> set-to set-optimizer ;
+
 : create+defer ( n1 addr "name" -- n3 )
     create+value
     [: ( addr -- xt ) >body vfield-int, @ ;] set-defer@ ;

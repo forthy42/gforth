@@ -64,8 +64,13 @@ Defer }}text' ' }}text IS }}text'
     >o 0 box-flags ! o o> ;
 Variable image-tex[]
 Variable image-file[]
+[IFUNDEF] file>fpath
+    : file>fpath ( addr1 u1 path-addr -- addr2 u2 ) \ gforth
+	open-fpath-file throw rot close-file throw ;
+[THEN]
 : }}image-file ( xt addr u r -- o glue-o ) pixelsize# f*
-    2 pick image-tex[] >stack  2dup $make image-file[] >stack
+    2 pick image-tex[] >stack
+    file>fpath 2dup $make image-file[] >stack
     2 pick execute
     load-texture glue new >o
     s>f fover f* vglue-c df!
@@ -77,7 +82,8 @@ Variable image-file[]
 	I image-file[] $[]@ load-texture 2drop
     LOOP ;
 [IFDEF] android also android [THEN]
-:noname defers reload-textures  level# @ 0> IF  reload-images  THEN ;
+:noname defers reload-textures
+    level# @ 0>  rendering @ -2 <= and  IF  reload-images  THEN ;
 is reload-textures
 [IFDEF] android previous [THEN]
 : }}image-tex ( xt glue -- o )

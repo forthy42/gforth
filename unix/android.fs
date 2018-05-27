@@ -449,7 +449,7 @@ Defer reload-textures ' noop is reload-textures
     dup rendering !  IF
 	16 to looper-to#
 	rendering @ -2 <= IF  reload-textures
-	    +show +sync +config screen-ops  THEN
+	    +show +sync +config +textures screen-ops  THEN
     ELSE  16000 to looper-to#  THEN ; is android-active
 
 Defer android-alarm ( 0 -- ) ' drop is android-alarm

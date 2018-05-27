@@ -34,6 +34,7 @@ $100 Constant ?config#
 ?need: ?show      \ show hidden object needed
 ?need: ?keyboard  \ show keyboard needed
 ?need: ?lang      \ change language needed
+?need: ?textures  \ reload textures needed
 drop
 
 1
@@ -41,6 +42,7 @@ drop
 +need: +show
 +need: +keyboard
 +need: +lang
++need: +textures
 drop
 
 1
@@ -48,6 +50,7 @@ drop
 -need: -show
 -need: -keyboard
 -need: -lang
+-need: -textures
 drop
 
 : ?config ( -- flag ) need-mask @ 8 rshift 0> ;

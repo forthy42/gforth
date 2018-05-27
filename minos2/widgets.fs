@@ -1087,12 +1087,14 @@ end-class viewport
 
 :noname { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    vp-!size
-    vp-tex vp-fb IF
-	vt-w f>s vt-h f>s 2dup 0 -rot GL_RGBA texture-map \ just resize
+    vp-!size  vp-tex
+    ?textures IF  ['] +textures vp-needed  THEN
+    vt-w f>s vt-h f>s
+    vp-fb ?textures 0= and IF
+	2dup 0 -rot GL_RGBA texture-map \ just resize
 	GL_RENDERBUFFER GL_DEPTH_COMPONENT16 2swap glRenderbufferStorage
     ELSE
-	vt-w f>s vt-h f>s GL_RGBA new-textbuffer to vp-fb
+	GL_RGBA new-textbuffer to vp-fb
     THEN
     0e vp-h vp-w vp-h 0e vbox-resize
     x y w h d widget-resize
@@ -1214,6 +1216,7 @@ require animation.fs
 	    [IFDEF] showkb showkb [THEN]
 	    -keyboard
 	THEN
+	-textures
     ELSE
 	defers screen-ops
     THEN ;

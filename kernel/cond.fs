@@ -18,7 +18,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 here 0 , \ just a dummy, the real value of locals-list is patched into it in glocals.fs
-AConstant locals-list \ acts like a variable that contains
+AValue locals-list \ acts like a variable that contains
 		      \ a linear list of locals names
 0 value locals-wordlist
 
