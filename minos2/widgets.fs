@@ -637,6 +637,11 @@ end-class box
     childs[] $@ bounds U+DO
 	xt I @ .execute
     cell +LOOP ;
+: do-childs-limits { start n xt -- .. }
+    box-flags @ box-flip# and ?EXIT
+    childs[] $@ start cells safe/string n cells umin bounds U+DO
+	xt I @ .execute
+    cell +LOOP ;
 : do-childs-part { f: start f: end xt -- .. }
     box-flags @ box-flip# and ?EXIT
     childs[] $[]# dup start fm* to start  end fm* to end
@@ -680,6 +685,7 @@ box is resized
 
 box class end-class hbox \ horizontal alignment
 box class
+    value: baseline-offset \ line which is used as outer baseline
 end-class vbox \ vertical alignment
 box class end-class zbox \ overlay alignment
 
@@ -746,10 +752,18 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs
     kerning 0e fdup glue+ ;
 : dglue+ ( -- glue ) 0glue box-flags @ box-vflip# and ?EXIT
-    [: glue-drop dglue@ ;] do-lastchild \ last dglue
+    baseline-offset childs[] $[]# u>= IF
+	[: glue-drop dglue@ ;] do-lastchild \ last dglue
+    ELSE
+	baseline-offset childs[] $[] @ .dglue@
+	baseline-offset -1
+	[: vglue@ glue+ frot baseline fmax f-rot glue+ dglue@ ;] do-childs-limits
+	glue+
+    THEN
     raise fnegate 0e fdup glue+ ;
 : vglue+ ( -- glue ) 0glue box-flags @ box-vflip# and ?EXIT
-    0glue [: vglue@ glue+ frot baseline fmax f-rot glue+ dglue@ ;] do-childs
+    0glue 0 baseline-offset
+    [: vglue@ glue+ frot baseline fmax f-rot glue+ dglue@ ;] do-childs-limits
     glue-drop  raise 0e fdup glue+ ;
 
 : hglue* ( -- glue ) box-flags @ box-hflip# and IF  0glue  EXIT  THEN
@@ -924,7 +938,8 @@ $10 stack: box-depth \ this $10 here is no real limit
 : {{ ( -- ) depth box-depth >stack ;
 : }} ( n1 .. nm -- n1 .. nm m ) depth box-depth stack> - ;
 : }}h ( n1 .. nm -- hbox ) }} hbox new >o +childs o o> ;
-: }}v ( n1 .. nm -- vbox ) }} vbox new >o +childs o o> ;
+: }}v ( n1 .. nm -- vbox ) }} vbox new >o +childs -1 to baseline-offset o o> ;
+: }}vtop ( n1 .. nm -- vbox ) }} vbox new >o +childs 1 to baseline-offset o o> ;
 : }}z ( n1 .. nm -- zbox ) }} zbox new >o +childs o o> ;
 : }}p ( n1 .. nm -- parbox ) }} parbox new >o +childs o o> ;
 
@@ -1095,8 +1110,6 @@ end-class viewport
     vp-fb  ?textures 0= and  IF
 	2dup 0 -rot GL_RGBA texture-map \ just resize
 	vp-rb >renderbuffer
-	current-tex vp-rb vp-fb attach-framebuffer
-	GL_FRAMEBUFFER 0 glBindFramebuffer
     ELSE
 	GL_RGBA new-textbuffer to vp-fb to vp-rb
     THEN
