@@ -687,6 +687,7 @@ box is resized
 box class end-class hbox \ horizontal alignment
 box class
     value: baseline-offset \ line which is used as outer baseline
+    value: baseline-start? \ flag for first baseline skip
 end-class vbox \ vertical alignment
 box class end-class zbox \ overlay alignment
 
@@ -768,7 +769,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     THEN
     raise fnegate 0e fdup glue+ ;
 : vglue+ ( -- glue ) 0glue box-flags @ box-vflip# and ?EXIT
-    0glue false 0 baseline-offset
+    0glue baseline-start? 0 baseline-offset
     ['] vglue1+ do-childs-limits
     glue-drop drop  raise 0e fdup glue+ ;
 
@@ -859,7 +860,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 \ add glues up for vboxes
 
-: vglue-step-h { f: gp/a f: rg f: rd f: ry f: od -- gp/a rg' rd' ry' }
+: vglue-step-h { f: gp/a f: rg f: rd f: ry f: od flag -- gp/a rg' rd' ry' }
     \g gp/a: total additonal pixels to stretch into
     \g       by total glue to stretch into (so you can multiply with it)
     \g rg: running glue
@@ -870,7 +871,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     vglue@ gp/a f0> ?g3>2 +to rg gap f+ { f: ymin }
     rg fdup gp/a f* \ rd'
     fdup rd f- ymin f+   fdup gap f- to h
-    baseline od f- fmax  ry f+ fdup to y ;
+    flag IF  baseline od f- fmax  THEN  ry f+ fdup to y ;
 
 : vglue-step-d { f: gp/a f: rg f: rd f: ry -- gp/a rg' rd' ry' d' }
     \g gp/a: total additonal pixels to stretch into
@@ -885,8 +886,8 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     fdup rd f- ymin f+ fdup to d 
     fdup ry f+ fswap ;
 
-: vglue-step ( gp/a rd rg ry od -- gp/a rd' rg' ry' od )
-    vglue-step-h vglue-step-d ;
+: vglue-step ( gp/a rd rg ry od flag -- gp/a rd' rg' ry' od flag' )
+    vglue-step-h vglue-step-d true ;
 
 : vbox-resize1 { f: x f: w -- x w } x y w h d resize
 \    ." vchild resized: " x f. y f. w f. h f. d f. cr
@@ -897,8 +898,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     h d f+ border borderv f+ f2* bordert f+ f- { f: htotal }
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
     htotal hmin f- a f/ 0e 0e
-    y border borderv f+ bordert f+ f+ h f- 0e ['] vglue-step do-childs
-    fdrop fdrop fdrop fdrop fdrop
+    y border borderv f+ bordert f+ f+ h f- 0e
+    baseline-start? ['] vglue-step do-childs
+    fdrop fdrop fdrop fdrop fdrop drop
     x border f+ borderl f+ w border f2* f- borderl f- ['] vbox-resize1 do-childs fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;
@@ -923,19 +925,27 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 \ parbox (stub for now)
 
-hbox class
-    field: startends[] \ double array
+widget class
+    value: part   \ hbox part of box
+    fvalue: start \ start value
+    fvalue: end   \ end value
+end-class parbox-part
+
+vbox class
+    value: subbox
 end-class parbox
 
+: dispose[] ( $addr[] -- )
+    $@ bounds ?DO  I @ .dispose  cell +LOOP ;
 : par-init ( -- ) \ set paragraph to maximum horizontal extent
-    0e fdup hglue fdrop fdrop vglue fdrop fdrop dglue fdrop fdrop
-    [ hbox :: resize ] ;
-: sf$+! ( rvalue $addr -- ) 0 { w^ sf }
-    sf sf! sf 1 sfloats rot $+! ;
+    0e fdup  subbox >o  hglue fdrop fdrop  vglue fdrop fdrop  dglue fdrop fdrop 
+    resize o> ;
 : par-split ( -- ) \ split a hbox into chunks
-    startends[] $free 0e
-    BEGIN  fdup startends[] sf$+!
-	w hbox-split-text fswap startends[] sf$+!
+    childs[] dispose[] 0e
+    BEGIN  { f: startx }
+	start w hbox-split-text fswap { f: endx }
+	subbox parbox-part new >o
+	to part  startx to start  endx to end o o> child+
 	fdup f0<  UNTIL  fdrop ;
 
 \ create boxes
@@ -944,7 +954,8 @@ $10 stack: box-depth \ this $10 here is no real limit
 : {{ ( -- ) depth box-depth >stack ;
 : }} ( n1 .. nm -- n1 .. nm m ) depth box-depth stack> - ;
 : }}h ( n1 .. nm -- hbox ) }} hbox new >o +childs o o> ;
-: }}v ( n1 .. nm -- vbox ) }} vbox new >o +childs -1 to baseline-offset o o> ;
+: }}v ( n1 .. nm -- vbox ) }} vbox new >o +childs
+    -1 to baseline-offset true to baseline-start? o o> ;
 : }}vtop ( n1 .. nm -- vbox ) }} vbox new >o +childs 1 to baseline-offset o o> ;
 : }}z ( n1 .. nm -- zbox ) }} zbox new >o +childs o o> ;
 : }}p ( n1 .. nm -- parbox ) }} parbox new >o +childs o o> ;
