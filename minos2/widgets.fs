@@ -925,11 +925,15 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 \ parbox (stub for now)
 
-widget class
-    value: part   \ hbox part of box
+hbox class
     fvalue: start \ start value
     fvalue: end   \ end value
 end-class parbox-part
+
+:noname start end hglue+part >hglue!@ ; parbox-part is hglue
+:noname start end dglue*part >dglue!@ ; parbox-part is dglue
+:noname start end vglue*part >vglue!@ ; parbox-part is vglue
+:noname w start end [ hbox :: draw-text-part ] ; parbox-part is draw-text
 
 vbox class
     value: subbox
@@ -944,8 +948,8 @@ end-class parbox
     childs[] dispose[] 0e
     BEGIN  { f: startx }
 	start w hbox-split-text fswap { f: endx }
-	subbox parbox-part new >o
-	to part  startx to start  endx to end o o> child+
+	subbox .childs[] @ parbox-part new >o
+	childs[] !  startx to start  endx to end o o> child+
 	fdup f0<  UNTIL  fdrop ;
 
 \ create boxes
