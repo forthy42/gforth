@@ -182,6 +182,7 @@ object class
     sfvalue: kerning   \ add kerning
     sfvalue: raise     \ raise/lower box
     sfvalue: baseline  \ minimun skip per line
+    sfvalue: gap       \ gap between lines
     method draw-init ( -- ) \ init draw
     method draw-bg ( -- ) \ button background draw
     method draw-image ( -- ) \ image draw
@@ -751,20 +752,25 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : hglue+ ( -- glue ) b0glue
     box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs
     kerning 0e fdup glue+ ;
+
+: vglue1+ ( glue1 dglue flag -- glue2 flag )
+    vglue@ glue+ frot gap f+
+    IF  baseline fmax  THEN  f-rot glue+ dglue@
+    true ;
 : dglue+ ( -- glue ) 0glue box-flags @ box-vflip# and ?EXIT
     baseline-offset childs[] $[]# u>= IF
 	[: glue-drop dglue@ ;] do-lastchild \ last dglue
     ELSE
 	baseline-offset childs[] $[] @ .dglue@
-	baseline-offset -1
-	[: vglue@ glue+ frot baseline fmax f-rot glue+ dglue@ ;] do-childs-limits
-	glue+
+	false baseline-offset -1
+	['] vglue1+ do-childs-limits
+	drop glue+
     THEN
     raise fnegate 0e fdup glue+ ;
 : vglue+ ( -- glue ) 0glue box-flags @ box-vflip# and ?EXIT
-    0glue 0 baseline-offset
-    [: vglue@ glue+ frot baseline fmax f-rot glue+ dglue@ ;] do-childs-limits
-    glue-drop  raise 0e fdup glue+ ;
+    0glue false 0 baseline-offset
+    ['] vglue1+ do-childs-limits
+    glue-drop drop  raise 0e fdup glue+ ;
 
 : hglue* ( -- glue ) box-flags @ box-hflip# and IF  0glue  EXIT  THEN
     1glue [: hglue@ glue* ;] do-childs  b0glue glue+
@@ -861,9 +867,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     \g ry: running y
     \g od: previous descender
     gp/a
-    vglue@ gp/a f0> ?g3>2 +to rg { f: ymin }
+    vglue@ gp/a f0> ?g3>2 +to rg gap f+ { f: ymin }
     rg fdup gp/a f* \ rd'
-    fdup rd f- ymin f+   fdup to h
+    fdup rd f- ymin f+   fdup gap f- to h
     baseline od f- fmax  ry f+ fdup to y ;
 
 : vglue-step-d { f: gp/a f: rg f: rd f: ry -- gp/a rg' rd' ry' d' }

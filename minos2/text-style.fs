@@ -24,12 +24,13 @@ $00000000 color: transparent
 $FFFFFFFF color: whitish
 blackish
 0e FValue x-border
+10% FValue gap%
 : cbl ( -- )
     current-baseline% to x-baseline ;
 : \skip ( -- )
     x-baseline 140% f* to x-baseline ;
 : >bl ( o -- o' )
-    >o x-baseline to baseline o o> cbl ;
+    >o x-baseline fdup to baseline gap% f* to gap o o> cbl ;
 : }}text ( addr u -- o )
     text new >o font@ text! x-color to text-color  x-border to border o o> ;
 : }}i18n-text ( lsid -- o )
@@ -131,7 +132,8 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
     "T" }}text >o font-size# -10% f* to kerning o o>
     "E" }}text >o font-size# -23% f* fdup fnegate to raise to kerning o o>
     "X" }}text >o font-size# -10% f* to kerning o o> ;
-: vt{{ htab-glue new to bx-tab {{ ;
+: nt ( -- ) htab-glue new to bx-tab ; \ new tab
+: vt{{ nt {{ ;
 : }}vt \ vertical box with tab
     }}v box[] ;
 
