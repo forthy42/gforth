@@ -191,9 +191,9 @@ warnings ! \ we already have italic for ANSI
     >r {{ glue*1 }}glue r> }}h box[] >o
     x-baseline to baseline o o> ;
 : /flip ( o -- o )
-    >o box-hflip# box-flags ! o o> ;
+    >o box-hflip# to box-flags o o> ;
 : /flop ( o -- o )
-    >o 0 box-flags ! o o> ;
+    >o 0 to box-flags o o> ;
 : }}image-file ( xt addr u r -- o glue-o ) pixelsize# f*
     2 pick execute
     load-texture glue new >o

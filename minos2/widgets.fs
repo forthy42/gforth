@@ -115,6 +115,7 @@ $Variable spaces$ "            　" spaces$ $!
 $01 Constant box-hflip#
 $02 Constant box-vflip#
 $03 Value box-flip#
+$04 Value baseline-start#
 
 object class
     value: caller-w
@@ -194,9 +195,6 @@ object class
     method hglue@ ( -- rtyp rsub radd ) \ cached variant
     method dglue@ ( -- rtyp rsub radd ) \ cached variant
     method vglue@ ( -- rtyp rsub radd ) \ cached variant
-    method hglue-part ( rstart rend -- rtyp rsub radd )
-    method vglue-part ( rstart rend -- rtyp rsub radd )
-    method dglue-part ( rstart rend -- rtyp rsub radd )
     method xywh ( -- rx0 ry0 rw rh )
     method xywhd ( -- rx ry rw rh rd )
     method resize ( rx ry rw rh rd -- )
@@ -207,9 +205,6 @@ end-class widget
 :noname x y w h d ; widget is xywhd
 ' noop widget is !size
 :noname w border f2* f+ borderl f+ kerning f+ 0e fdup ; widget is hglue
-:noname fdrop fdrop hglue ; widget is hglue-part
-:noname fdrop fdrop vglue ; widget is vglue-part
-:noname fdrop fdrop dglue ; widget is dglue-part
 :noname h border borderv f+ bordert f+ raise f+ f+ 0e fdup ; widget is vglue
 :noname d border borderv f+ raise f- f+ 0e fdup ; widget is dglue
 : widget-resize to d to h to w to y to x ;
@@ -385,12 +380,6 @@ widget class
     $value: text$
 end-class text
 
-text class
-    value: orig-text
-    fvalue: start
-    fvalue: end
-end-class part-text
-
 : text! ( addr u font -- )
     to text-font to text$ ;
 : text-scale! ( w text-w -- ) { f: tx-w }
@@ -399,40 +388,46 @@ end-class part-text
     x border kerning f+ borderl f+ f+ fround penxy         sf!
     y                        raise f+ fround penxy sfloat+ sf!
     text-font to font  text-color color ! ;
-: text-text ( -- ) w text-w text-scale! text-xy! text$ render-string ;
-: text$-part ( start end -- addr u )
+: text-text ( addr u -- ) w text-w text-scale! text-xy! render-string ;
+: text$-part ( addr u start end -- addr' u' )
     dup fover f- fm* fround f>s >r \ length to draw
     dup fm* fround f>s safe/string r> umin ; \ start to skip
 : border-part { f: start f: end -- border-extra }  border f2* borderl f+
-    start fover f<= IF  kerning f+  THEN ;
-: text-!size ( -- )
+    start 0e f<= IF  kerning f+  THEN ;
+: text-!size ( addr u -- )
     text-font to font
-    text$ layout-string
+    layout-string
     border borderv f+ bordert f+ f+ to h
     border borderv f+ f+ to d
     fdup to text-w  border f2* borderl f+ f+ to w
 \    ." text sized to: " x f. y f. w f. h f. d f. cr
 ;
+:noname text$ text-text ; text is draw-text
+:noname text$ text-!size ; text is !size
+:noname w kerning f+
+    text-w text-shrink% f* text-w text-grow% f* ; text is hglue
+:noname h raise f+ 0e fdup ; text is vglue
+:noname d raise f- 0e fdup ; text is dglue
+
+text class
+    value: orig-text
+    fvalue: start
+    fvalue: end
+end-class part-text
 
 : text-split { f: start1 f: rx -- o rstart2 }
-    rx start1 1e text$-part 2dup pos-string
+    rx start1 1e text$ text$-part 2dup pos-string
     2dup = over 0= or IF  drop 2drop o -1e  EXIT  THEN \ no split
     nip <split dup 0= IF  2drop o -1e  EXIT  THEN
     2dup xc-trailing + >r + >r
     text$ s>f fdup r> over - fm/
     o part-text new >o to orig-text to end start1 to start o o>
     r> swap - fm/ ;
-' text-text text is draw-text
 ' text-split text is split
-' text-!size text is !size
-:noname w kerning f+
-    text-w text-shrink% f* text-w text-grow% f* ; text is hglue
-:noname { start end -- glue }
-    start end text$-part layout-string fdrop fdrop
-    fdup start end border-part f+  fswap
-    fdup text-shrink% f* fswap text-grow% f* ; text is hglue-part
-:noname h raise f+ 0e fdup ; text is vglue
-:noname d raise f- 0e fdup ; text is dglue
+:noname orig-text .text-split ; part-text is split
+
+:noname start end orig-text .text$ text$-part text-!size ; part-text is !size
+:noname start end orig-text .text$ text$-part text-text ; part-text is draw-text
 
 \ translated text
 
@@ -620,7 +615,7 @@ previous previous
 
 glue class
     field: childs[] \ all children
-    field: box-flags
+    value: box-flags
     value: aidglue \ helper glue for tables
     method resized
     method map
@@ -634,17 +629,17 @@ end-class box
     aidglue ?dup-IF  .dglue!@  THEN ;
 
 : do-childs { xt -- .. }
-    box-flags @ box-flip# and ?EXIT
+    box-flags box-flip# and ?EXIT
     childs[] $@ bounds U+DO
 	xt I @ .execute
     cell +LOOP ;
 : do-childs-limits { start n xt -- .. }
-    box-flags @ box-flip# and ?EXIT
+    box-flags box-flip# and ?EXIT
     childs[] $@ start cells safe/string n cells umin bounds U+DO
 	xt I @ .execute
     cell +LOOP ;
 : do-childs-part { f: start f: end xt -- .. }
-    box-flags @ box-flip# and ?EXIT
+    box-flags box-flip# and ?EXIT
     childs[] $[]# dup start fm* to start  end fm* to end
     childs[] $@
     start floor f>s cells safe/string
@@ -687,7 +682,6 @@ box is resized
 box class end-class hbox \ horizontal alignment
 box class
     value: baseline-offset \ line which is used as outer baseline
-    value: baseline-start? \ flag for first baseline skip
 end-class vbox \ vertical alignment
 box class end-class zbox \ overlay alignment
 
@@ -751,14 +745,14 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : b1glue ( -- b 0 0 ) bxx 0g 1fil ;
 
 : hglue+ ( -- glue ) b0glue
-    box-flags @ box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs
+    box-flags box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs
     kerning 0e fdup glue+ ;
 
 : vglue1+ ( glue1 dglue flag -- glue2 flag )
     vglue@ glue+ frot gap f+
     IF  baseline fmax  THEN  f-rot glue+ dglue@
     true ;
-: dglue+ ( -- glue ) 0glue box-flags @ box-vflip# and ?EXIT
+: dglue+ ( -- glue ) 0glue box-flags box-vflip# and ?EXIT
     baseline-offset childs[] $[]# u>= IF
 	[: glue-drop dglue@ ;] do-lastchild \ last dglue
     ELSE
@@ -768,31 +762,31 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 	drop glue+
     THEN
     raise fnegate 0e fdup glue+ ;
-: vglue+ ( -- glue ) 0glue box-flags @ box-vflip# and ?EXIT
-    0glue baseline-start? 0 baseline-offset
+: vglue+ ( -- glue ) 0glue box-flags box-vflip# and ?EXIT
+    0glue box-flags baseline-start# and 0<> 0 baseline-offset
     ['] vglue1+ do-childs-limits
     glue-drop drop  raise 0e fdup glue+ ;
 
-: hglue* ( -- glue ) box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+: hglue* ( -- glue ) box-flags box-hflip# and IF  0glue  EXIT  THEN
     1glue [: hglue@ glue* ;] do-childs  b0glue glue+
     kerning 0e fdup glue+ ;
-: dglue* ( -- glue ) box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+: dglue* ( -- glue ) box-flags box-hflip# and IF  0glue  EXIT  THEN
     1glue [: dglue@ glue* ;] do-childs
     raise fnegate 0e fdup glue+ ;
-: vglue* ( -- glue ) box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+: vglue* ( -- glue ) box-flags box-hflip# and IF  0glue  EXIT  THEN
     1glue [: vglue@ glue* ;] do-childs
     raise 0e fdup glue+ ;
 
 : hglue+part { f: start f: end -- glue } b0glue
-    box-flags @ box-hflip# and ?EXIT
+    box-flags box-hflip# and ?EXIT
     start end [: hglue@ glue+ ;] do-childs-part
     kerning 0e fdup glue+ ;
 : dglue*part { f: start f: end -- glue }
-    box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+    box-flags box-hflip# and IF  0glue  EXIT  THEN
     1glue start end [: dglue@ glue* ;] do-childs-part
     raise fnegate 0e fdup glue+ ;
 : vglue*part { f: start f: end -- glue }
-    box-flags @ box-hflip# and IF  0glue  EXIT  THEN
+    box-flags box-hflip# and IF  0glue  EXIT  THEN
     1glue start end [: vglue@ glue* ;] do-childs-part
     raise 0e fdup glue+ ;
 
@@ -800,9 +794,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 :noname dglue* >dglue!@ ; hbox is dglue
 :noname vglue* >vglue!@ ; hbox is vglue
 
-:noname hglue+part >hglue!@ ; hbox is hglue-part
-:noname dglue*part >dglue!@ ; hbox is dglue-part
-:noname vglue*part >vglue!@ ; hbox is vglue-part
+\ :noname hglue+part >hglue!@ ; hbox is hglue-part
+\ :noname dglue*part >dglue!@ ; hbox is dglue-part
+\ :noname vglue*part >vglue!@ ; hbox is vglue-part
 
 :noname hglue* >hglue!@ ; vbox is hglue
 :noname dglue+ >dglue!@ ; vbox is dglue
@@ -901,7 +895,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
     htotal hmin f- a f/ 0e 0e
     y border borderv f+ bordert f+ f+ h f- 0e
-    baseline-start? ['] vglue-step do-childs
+    box-flags baseline-start# and 0<> ['] vglue-step do-childs
     fdrop fdrop fdrop fdrop fdrop drop
     x border f+ borderl f+ w border f2* f- borderl f- ['] vbox-resize1 do-childs fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
@@ -949,7 +943,7 @@ $10 stack: box-depth \ this $10 here is no real limit
 : }} ( n1 .. nm -- n1 .. nm m ) depth box-depth stack> - ;
 : }}h ( n1 .. nm -- hbox ) }} hbox new >o +childs o o> ;
 : }}v ( n1 .. nm -- vbox ) }} vbox new >o +childs
-    -1 to baseline-offset true to baseline-start? o o> ;
+    -1 to baseline-offset box-flags baseline-start# or to box-flags o o> ;
 : }}vtop ( n1 .. nm -- vbox ) }} vbox new >o +childs 1 to baseline-offset o o> ;
 : }}z ( n1 .. nm -- zbox ) }} zbox new >o +childs o o> ;
 : }}p ( n1 .. nm -- parbox ) }} parbox new >o +childs o o> ;
@@ -1047,7 +1041,7 @@ end-class viewport
 
 : do-vp-childs { xt -- .. }
     vp-h vt-h f- vt-y f- 32e f- vt-h 64e f+ fover f+ { f: y0 f: y1 }
-    box-flags @ box-flip# and ?EXIT
+    box-flags box-flip# and ?EXIT
     y1 childs[] [: y h border borderv f+ bordert f+ f- f- fover f<
     ;] search-tree fdrop cell+
     y0 childs[] [: y d border borderv f+ f- f+ fover f<

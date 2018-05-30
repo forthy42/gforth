@@ -57,12 +57,12 @@ Defer }}text' ' }}text IS }}text'
 : /right ( o -- o' )
     >r {{ glue*l }}glue r> }}h box[] >bl ;
 : /hflip ( o -- o )
-    >o box-hflip# box-flags ! o o> ;
+    >o box-hflip# to box-flags o o> ;
 ' /hflip alias /flip
 : /vflip ( o -- o )
-    >o box-vflip# box-flags ! o o> ;
+    >o box-vflip# to box-flags o o> ;
 : /flop ( o -- o )
-    >o 0 box-flags ! o o> ;
+    >o 0 to box-flags o o> ;
 Variable image-tex[]
 Variable image-file[]
 [IFUNDEF] file>fpath
