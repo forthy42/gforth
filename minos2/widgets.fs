@@ -187,8 +187,7 @@ object class
     method draw-bg ( -- ) \ button background draw
     method draw-image ( -- ) \ image draw
     method draw-text ( -- ) \ text draw
-    method draw-text-part ( w rstart rend -- )
-    method split-text ( rx -- rend1 rstart2 )
+    method split ( rstart1 rx -- o rstart2 )
     method hglue ( -- rtyp rsub radd )
     method dglue ( -- rtyp rsub radd )
     method vglue ( -- rtyp rsub radd )
@@ -218,9 +217,8 @@ end-class widget
 ' hglue widget is hglue@
 ' vglue widget is vglue@
 ' dglue widget is dglue@
-:noname ( w rstart rend -- ) fdrop fdrop fdrop draw-text ; widget is draw-text-part
-:noname ( rstart rx -- rend1 rstart2 ) fdrop fdrop 1e -1e ; widget is split-text
-\ if rstart2 < rend1, no split happened
+:noname ( rstart1 rx -- o rstart2 ) fdrop fdrop o -1e ; widget is split
+\ if rstart2 < 0, no split happened
 
 : dw* ( f -- f' ) dpy-w @ fm* ;
 : dh* ( f -- f' ) dpy-h @ fm* ;
@@ -387,6 +385,12 @@ widget class
     $value: text$
 end-class text
 
+text class
+    value: orig-text
+    fvalue: start
+    fvalue: end
+end-class part-text
+
 : text! ( addr u font -- )
     to text-font to text$ ;
 : text-scale! ( w text-w -- ) { f: tx-w }
@@ -399,13 +403,8 @@ end-class text
 : text$-part ( start end -- addr u )
     dup fover f- fm* fround f>s >r \ length to draw
     dup fm* fround f>s safe/string r> umin ; \ start to skip
-: border-part { start end -- border-extars } 0e
-    start fover f<= IF  border borderl f+ kerning f+  THEN
-    end   1e    f>= IF  border f+ THEN ;
-: text-part { w start end -- } start end text$-part { d: text$ }
-    w text$ layout-string fdrop fdrop { tx-w }
-    start end border-part f- tx-w f/ to x-scale
-    text-xy! text$ render-string ;
+: border-part { f: start f: end -- border-extra }  border f2* borderl f+
+    start fover f<= IF  kerning f+  THEN ;
 : text-!size ( -- )
     text-font to font
     text$ layout-string
@@ -415,15 +414,16 @@ end-class text
 \    ." text sized to: " x f. y f. w f. h f. d f. cr
 ;
 
-: text-split-text ( rstart rw -- rend1 rstart2 )
-    fswap 1e text$-part 2dup pos-string
-    2dup = over 0= or IF  drop 2drop 1e -1e  EXIT  THEN \ no split
-    nip <split dup 0= IF  2drop 1e -1e  EXIT  THEN
+: text-split { f: start1 f: rx -- o rstart2 }
+    rx start1 1e text$-part 2dup pos-string
+    2dup = over 0= or IF  drop 2drop o -1e  EXIT  THEN \ no split
+    nip <split dup 0= IF  2drop o -1e  EXIT  THEN
     2dup xc-trailing + >r + >r
-    text$ s>f fdup r> over - fm/ fswap r> swap - fm/ ;
+    text$ s>f fdup r> over - fm/
+    o part-text new >o to orig-text to end start1 to start o o>
+    r> swap - fm/ ;
 ' text-text text is draw-text
-' text-part text is draw-text-part
-' text-split-text text is split-text
+' text-split text is split
 ' text-!size text is !size
 :noname w kerning f+
     text-w text-shrink% f* text-w text-grow% f* ; text is hglue
@@ -841,22 +841,24 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 ' hbox-resize hbox is resize
 
-: hbox-split-text { f: start f: w -- end start' )
+: hbox-split { f: start f: w -- o start' )
     childs[] $[]# dup start fm* to start
     start fdup floor f- { f: startx }
+    hbox new { newbox }
     start floor f>s U+DO
-	startx w I childs[] $[] @ .split-text
-	fdup -1e f<> IF  \ we found an end
-	    I s>f f+ childs[] $[]# dup fm/ fswap
-	    I s>f f+ fm/ fswap
+	startx w I childs[] $[] @ .split
+	newbox .child+ \ add to children
+	fdup 0e f< IF  \ we found an end
+	    I s>f f+ childs[] $[]# fm/ newbox
 	    UNLOOP  EXIT  THEN
-	fdrop fdrop
+	fdrop
 	w I childs[] $[] @ .w f- fdup to w
-	w f0< IF  I 1+ s>f childs[] $[]# fm/ fdup
-	    I' I 1+ = IF  fdrop -1e  THEN  UNLOOP  EXIT
+	w f0< IF  I 1+ s>f childs[] $[]# fm/
+	    I' I 1+ = IF  fdrop -1e  THEN
+	    newbox  UNLOOP  EXIT
 	THEN \ also ends here
-    LOOP  1e -1e ;
-' hbox-split-text hbox is split-text
+    LOOP  o newbox start f0= select -1e ;
+' hbox-split hbox is split
 
 \ add glues up for vboxes
 
@@ -925,18 +927,8 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 \ parbox (stub for now)
 
-hbox class
-    fvalue: start \ start value
-    fvalue: end   \ end value
-end-class parbox-part
-
-:noname start end hglue+part >hglue!@ ; parbox-part is hglue
-:noname start end dglue*part >dglue!@ ; parbox-part is dglue
-:noname start end vglue*part >vglue!@ ; parbox-part is vglue
-:noname w start end [ hbox :: draw-text-part ] ; parbox-part is draw-text
-
 vbox class
-    value: subbox
+    value: subbox \ hbox to be split into
 end-class parbox
 
 : dispose[] ( $addr[] -- )
@@ -947,9 +939,7 @@ end-class parbox
 : par-split ( -- ) \ split a hbox into chunks
     childs[] dispose[] 0e
     BEGIN  { f: startx }
-	start w hbox-split-text fswap { f: endx }
-	subbox .childs[] @ parbox-part new >o
-	childs[] !  startx to start  endx to end o o> child+
+	start w hbox-split { f: endx } subbox .child+
 	fdup f0<  UNTIL  fdrop ;
 
 \ create boxes
