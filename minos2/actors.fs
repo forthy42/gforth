@@ -210,7 +210,7 @@ end-class vp-actor
 
 : vpxy! ( rx ry -- )
     vstart-y f- vpstart-y f+ fswap
-    vstart-x f- vpstart-x f+ fnegate fswap
+    vstart-x fswap f- vpstart-x f+ fswap
     caller-w >o
     0e fmax vp-h h f- fmin fround to vp-y
     0e fmax vp-w w f- fmin fround to vp-x
