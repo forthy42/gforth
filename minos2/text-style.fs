@@ -65,13 +65,9 @@ Defer }}text' ' }}text IS }}text'
     >o 0 to box-flags o o> ;
 Variable image-tex[]
 Variable image-file[]
-[IFUNDEF] file>fpath
-    : file>fpath ( addr1 u1 path-addr -- addr2 u2 ) \ gforth
-	open-fpath-file throw rot close-file throw ;
-[THEN]
 : }}image-file ( xt addr u r -- o glue-o ) pixelsize# f*
     2 pick image-tex[] >stack
-    file>fpath 2dup $make image-file[] >stack
+    file>fpath $make dup image-file[] >stack dup cell+ swap @
     2 pick execute
     load-texture glue new >o
     s>f fover f* vglue-c df!

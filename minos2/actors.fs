@@ -185,6 +185,10 @@ box-actor is clicked
 
 box-actor class
     field: txy$ \ translated xy$
+    sfvalue: vstart-x
+    sfvalue: vstart-y
+    sfvalue: vpstart-x
+    sfvalue: vpstart-y
 end-class vp-actor
 
 :noname caller-w >o vp-h f< vp-w f< and o> ; vp-actor is inside?
@@ -204,7 +208,25 @@ end-class vp-actor
     vp-need @ need-mask @ over $FF and over $FF and or >r
     $-100 and swap $-100 and max r> or need-mask ! ;
 
+: vpxy! ( rx ry -- )
+    vstart-y f- vpstart-y f+ fswap
+    vstart-x f- vpstart-x f+ fnegate fswap
+    caller-w >o
+    0e fmax vp-h h f- fmin fround to vp-y
+    0e fmax vp-w w f- fmin fround to vp-x
+    ?vpt-x ?vpt-y or IF  ['] +sync vp-needed  THEN
+    o> +sync +config ;
+
 :noname ( rx ry bmask n -- )
+    over 2 or 2 = IF
+	dup 1 and IF  2drop
+	    to vstart-y  to vstart-x
+	    caller-w >o vp-x vp-y o> to vpstart-y  to vpstart-x
+	    o to grab-move?  EXIT
+	ELSE
+	    grab-move? o = IF  2drop vpxy!  false to grab-move?  EXIT  THEN
+	THEN
+    THEN
     caller-w >o
     tx [: act >o [ box-actor :: clicked ] o> ;] vp-needed
     vp-need-or o> ; vp-actor is clicked
@@ -217,9 +239,13 @@ end-class vp-actor
     >r tx$ r> [: act >o [ box-actor :: touchup ] o> ;] vp-needed
     vp-need-or o> ; vp-actor is touchup
 :noname ( $rxy*n bmask -- )
-    caller-w >o
-    >r tx$ r> [: act >o [ box-actor :: touchmove ] o> ;] vp-needed
-    vp-need-or o> ; vp-actor is touchmove
+    dup 2 or 2 = grab-move? o = and IF
+	drop xy@ vpxy!
+    ELSE
+	caller-w >o
+	>r tx$ r> [: act >o [ box-actor :: touchmove ] o> ;] vp-needed
+	vp-need-or o>
+    THEN ; vp-actor is touchmove
 :noname ( ekey -- )
     caller-w >o
     [: act >o [ box-actor :: ekeyed ] o> ;] vp-needed
@@ -258,7 +284,7 @@ end-class vslider-actor
 :noname ( x y b n -- )
     1 and IF
 	drop fdrop caller-w .parent-w .childs[] $@ drop @ .w f- to slider-sxy
-	true to grab-move?
+	o to grab-move?
     ELSE
 	drop fdrop >hslide
 	false to grab-move?
@@ -285,7 +311,7 @@ end-class vslider-actor
     1 and IF
 	drop fnip caller-w .parent-w .childs[] $@ cell- + @ .h f+
 	to slider-sxy
-	true to grab-move?
+	o to grab-move?
     ELSE
 	drop fnip >vslide
 	false to grab-move?
@@ -453,7 +479,7 @@ edit-terminal edit-out !
 	curpos  to start-curpos
 	cursize to start-cursize
 	o>
-	true to grab-move?
+	o to grab-move?
     ELSE
 	false to grab-move?
 	2drop fdrop fdrop

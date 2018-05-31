@@ -417,6 +417,9 @@ Sema gl-sema
 	metrics ?dup-0=-IF  >metrics metrics  THEN >o
 	widthPixels  xdpi 1/f fm* 25.4e f*      \ width in mm
 	heightPixels ydpi 1/f fm* 25.4e f* o> ; \ height in mm
+    : screen-pwh ( -- w h ) \ w h in pixels
+	metrics ?dup-0=-IF  >metrics metrics  THEN >o
+	widthPixels heightPixels o> ;
 [ELSE]
     [IFDEF] x11
 	also x11
@@ -424,6 +427,10 @@ Sema gl-sema
 	    dpy XDefaultScreenOfDisplay >r
 	    r@ screen-mwidth  l@ s>f dpy-w @ r@ screen-width  l@ fm*/
 	    r@ screen-mheight l@ s>f dpy-h @ r> screen-height l@ fm*/ ;
+	: screen-pwh ( -- w h ) \ w h in pixels
+	    dpy XDefaultScreenOfDisplay >r
+	    r@ screen-width  l@
+	    r> screen-height l@ ;
     [ELSE]
 	: screen-wh ( -- rw rh )
 	    wl-metrics 2@ swap s>f s>f ;
