@@ -57,6 +57,11 @@ end-class animation
 	>o ani-delta f0< IF  0e  ELSE  1e  THEN
 	ani-addr animate dispose o>
     LOOP ;
+: anim-del { addr -- }
+    anims@ 0 ?DO
+	>o ani-addr addr =
+	IF  dispose  ELSE  o anims[] >stack  THEN  o>
+    LOOP ;
 
 \ edit animation
 

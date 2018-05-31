@@ -185,10 +185,16 @@ box-actor is clicked
 
 box-actor class
     field: txy$ \ translated xy$
+    fvalue: vmotion-time
     sfvalue: vstart-x
     sfvalue: vstart-y
     sfvalue: vpstart-x
     sfvalue: vpstart-y
+    sfvalue: vold-x
+    sfvalue: vold-y
+    sfvalue: vmotion-dx
+    sfvalue: vmotion-dy
+    sfvalue: vmotion-dt
 end-class vp-actor
 
 :noname caller-w >o vp-h f< vp-w f< and o> ; vp-actor is inside?
@@ -208,23 +214,67 @@ end-class vp-actor
     vp-need @ need-mask @ over $FF and over $FF and or >r
     $-100 and swap $-100 and max r> or need-mask ! ;
 
-: vpxy! ( rx ry -- )
-    vstart-y f- vpstart-y f+ fswap
-    vstart-x fswap f- vpstart-x f+ fswap
+: vp-setxy ( rx ry -- )
     caller-w >o
     0e fmax vp-h h f- fmin fround to vp-y
     0e fmax vp-w w f- fmin fround to vp-x
     ?vpt-x ?vpt-y or IF  ['] +sync vp-needed  THEN
     o> +sync +config ;
 
+: >motion-dt ( -- flag )
+    ftime fdup vmotion-time f-
+    fdup 16m f> dup IF
+	to vmotion-dt to vmotion-time
+    ELSE
+	fdrop fdrop
+    THEN ;
+
+: vpxy! ( rx ry -- )
+    >motion-dt IF
+	fdup  vold-y f- to vmotion-dy fdup  to vold-y
+	fover vold-x f- to vmotion-dx fover to vold-x
+    THEN
+    vstart-y f- vpstart-y f+ fswap
+    vstart-x fswap f- vpstart-x f+ fswap
+    vp-setxy ;
+
+: set-startxy ( -- )
+    caller-w >o vp-x vp-y o> to vpstart-y  to vpstart-x ;
+
+10e fconstant limit-drag \ 10 pixels/s
+
+: motion-speed ( -- px/s )
+    vmotion-dx f**2 vmotion-dy f**2 f+ fsqrt
+    vmotion-dt f/ ;
+: motion-time ( -- time )
+    limit-drag motion-speed f/ fln
+    rel-drag fln f* fexp ;
+
+: vp-motion ( 0..1 addr -- )
+    >o motion-time f* { f: t }
+    rel-drag fln vmotion-dx vmotion-dt f/ fover f/ \ -lambda, v0 / -lambda
+    fswap t f* fexp fover f* fswap f-  vpstart-x fswap f-
+    rel-drag fln vmotion-dy vmotion-dt f/ fover f/ \ -lambda, v0 / -lambda
+    fswap t f* fexp fover f* fswap f-  vpstart-y f+
+    vp-setxy o> ;
+
+forward anim-del
+forward >animate
+
 :noname ( rx ry bmask n -- )
     over 2 or 2 = IF
+	o anim-del
 	dup 1 and IF  2drop
-	    to vstart-y  to vstart-x
-	    caller-w >o vp-x vp-y o> to vpstart-y  to vpstart-x
+	    fdup to vstart-y  fover to vstart-x
+	    to vold-y  to vold-x
+	    ftime to vmotion-time
+	    set-startxy
 	    o to grab-move?  EXIT
 	ELSE
-	    grab-move? o = IF  2drop vpxy!  false to grab-move?  EXIT  THEN
+	    grab-move? o = IF  2drop vpxy!  set-startxy
+		false to grab-move?  >motion-dt drop
+		motion-time ~~
+		o ['] vp-motion >animate  EXIT  THEN
 	THEN
     THEN
     caller-w >o
@@ -277,11 +327,13 @@ end-class vslider-actor
 
 :noname ( $rxy*n bmask -- ) 
     grab-move? IF
+	slide-vp .act anim-del
 	drop xy@ fdrop >hslide
     ELSE
 	2drop
     THEN ; hslider-actor is touchmove
 :noname ( x y b n -- )
+    slide-vp .act anim-del
     1 and IF
 	drop fdrop caller-w .parent-w .childs[] $@ drop @ .w f- to slider-sxy
 	o to grab-move?
@@ -304,10 +356,12 @@ end-class vslider-actor
 :noname ( $rxy*n bmask -- )
     event( o hex. caller-w hex. ." slider move " 2dup .touch )
     grab-move? IF
+	slide-vp .act anim-del
 	drop xy@ fnip >vslide
     ELSE  2drop  THEN ; vslider-actor is touchmove
 :noname ( x y b n -- )
     event( o hex. caller-w hex. ." slider click " fover f. fdup f. over . dup . cr )
+    slide-vp .act anim-del
     1 and IF
 	drop fnip caller-w .parent-w .childs[] $@ cell- + @ .h f+
 	to slider-sxy
