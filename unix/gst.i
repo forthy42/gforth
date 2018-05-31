@@ -7,6 +7,8 @@
 #include <gst/gl/gl.h>
 %}
 
+#define GST_API
+#define GST_DEPRECATED_FOR(x)
 #define GST_USE_UNSTABLE_API
 #define G_BEGIN_DECLS
 #define G_END_DECLS
