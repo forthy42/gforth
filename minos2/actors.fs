@@ -214,8 +214,8 @@ end-class vp-actor
     vp-need @ need-mask @ over $FF and over $FF and or >r
     $-100 and swap $-100 and max r> or need-mask ! ;
 
-screen-pwh max s>f FValue drag-rate \ 1/4 screen/s²
-100m FValue min-dt \ measure over 100ms at least
+screen-pwh max s>f FValue drag-rate \ 1 screen/s²
+50m FValue min-dt \ measure over 50ms at least
 
 : vp-setxy ( rx ry -- )
     caller-w >o
@@ -268,13 +268,17 @@ forward >animate
 	    fdup to vstart-y  fover to vstart-x
 	    to vold-y  to vold-x
 	    ftime to vmotion-time
+	    0e to vmotion-dt
 	    set-startxy
 	    o to grab-move?  EXIT
 	ELSE
 	    grab-move? o = IF  2drop vpxy!  set-startxy
-		false to grab-move?  >motion-dt drop
-		motion-time
-		o ['] vp-motion >animate  EXIT  THEN
+		false to grab-move?
+		vmotion-dt 0e f> IF
+		    >motion-dt drop
+		    motion-time
+		    o ['] vp-motion >animate
+		THEN  EXIT  THEN
 	THEN
     THEN
     caller-w >o

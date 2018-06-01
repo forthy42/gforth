@@ -199,6 +199,7 @@ object class
     method xywhd ( -- rx ry rw rh rd )
     method resize ( rx ry rw rh rd -- )
     method !size ( -- ) \ set your own size
+    method dispose-widget ( -- ) \ get rid of a widget
 end-class widget
 
 :noname x y h f- w h d f+ ; widget is xywh
@@ -214,6 +215,7 @@ end-class widget
 ' dglue widget is dglue@
 :noname ( rstart1 rx -- o rstart2 ) fdrop fdrop o -1e ; widget is split
 \ if rstart2 < 0, no split happened
+:noname ( -- ) act ?dup-IF .dispose THEN  dispose ; widget is dispose-widget
 
 : dw* ( f -- f' ) dpy-w @ fm* ;
 : dh* ( f -- f' ) dpy-h @ fm* ;
@@ -653,6 +655,12 @@ end-class box
     childs[] $[]# dup IF 1- childs[] $[] @ .execute ELSE  2drop  THEN ;
 : do-firstchild ( xt -- .. )
     childs[] $[]# IF  0 childs[] $[] @ .execute ELSE  drop  THEN ;
+
+: dispose-childs ( -- )
+    ['] dispose-widget do-childs childs[] $free ;
+
+:noname ( -- )
+    dispose-childs [ widget :: dispose-widget ] ; box is dispose-widget
 
 :noname ( -- )
     ['] !size do-childs
@@ -1245,13 +1253,12 @@ require animation.fs
 
 ' widget-sync is screen-ops
 
-: widgets-loop ( -- )
-    [IFDEF] hidekb  hidekb [THEN]  enter-minos
-    1 level# +!  top-widget .widget-draw
+: widgets-loop ( -- )  level# @ 0= IF  enter-minos  THEN
+    1 level# +!@ >r  top-widget .widget-draw
     BEGIN  0 looper-to# anims[] $@len ?sync or select
 	#looper  time( ." looper: " .!time cr )
 	widget-sync
-    level# @ 0= UNTIL  leave-minos ;
+    level# @ r@ = UNTIL  r> 0= IF  leave-minos  THEN ;
 
 previous previous previous
 set-current
