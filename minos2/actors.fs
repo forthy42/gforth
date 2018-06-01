@@ -214,6 +214,9 @@ end-class vp-actor
     vp-need @ need-mask @ over $FF and over $FF and or >r
     $-100 and swap $-100 and max r> or need-mask ! ;
 
+screen-pwh max 2/ 2/ s>f FValue drag-rate \ 1/4 screen/s²
+100m FValue min-dt \ measure over 100ms at least
+
 : vp-setxy ( rx ry -- )
     caller-w >o
     0e fmax vp-h h f- fmin fround to vp-y
@@ -223,7 +226,7 @@ end-class vp-actor
 
 : >motion-dt ( -- flag )
     ftime fdup vmotion-time f-
-    fdup 16m f> dup IF
+    fdup min-dt f> dup IF
 	to vmotion-dt to vmotion-time
     ELSE
 	fdrop fdrop
@@ -241,21 +244,18 @@ end-class vp-actor
 : set-startxy ( -- )
     caller-w >o vp-x vp-y o> to vpstart-y  to vpstart-x ;
 
-10e fconstant limit-drag \ 10 pixels/s
-
 : motion-speed ( -- px/s )
     vmotion-dx f**2 vmotion-dy f**2 f+ fsqrt
     vmotion-dt f/ ;
 : motion-time ( -- time )
-    limit-drag motion-speed f/ fln
-    rel-drag fln f* fexp ;
+    motion-speed drag-rate f/ ;
 
 : vp-motion ( 0..1 addr -- )
-    >o motion-time f* { f: t }
-    rel-drag fln vmotion-dx vmotion-dt f/ fover f/ \ -lambda, v0 / -lambda
-    fswap t f* fexp fover f* fswap f-  vpstart-x fswap f-
-    rel-drag fln vmotion-dy vmotion-dt f/ fover f/ \ -lambda, v0 / -lambda
-    fswap t f* fexp fover f* fswap f-  vpstart-y f+
+    >o motion-time f* vmotion-dx f**2 vmotion-dy f**2 f+ fsqrt { f: t f: speed }
+    t vmotion-dx vmotion-dt f/ f*
+    t f**2 f2/ drag-rate vmotion-dx speed f/ f* f* f- vpstart-x fswap f-
+    t vmotion-dy vmotion-dt f/ f*
+    t f**2 f2/ drag-rate vmotion-dy speed f/ f* f* f- vpstart-y f+
     vp-setxy o> ;
 
 forward anim-del
@@ -273,7 +273,7 @@ forward >animate
 	ELSE
 	    grab-move? o = IF  2drop vpxy!  set-startxy
 		false to grab-move?  >motion-dt drop
-		motion-time ~~
+		motion-time
 		o ['] vp-motion >animate  EXIT  THEN
 	THEN
     THEN
