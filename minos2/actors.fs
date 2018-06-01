@@ -214,7 +214,7 @@ end-class vp-actor
     vp-need @ need-mask @ over $FF and over $FF and or >r
     $-100 and swap $-100 and max r> or need-mask ! ;
 
-screen-pwh max 2/ 2/ s>f FValue drag-rate \ 1/4 screen/s²
+screen-pwh max s>f FValue drag-rate \ 1/4 screen/s²
 100m FValue min-dt \ measure over 100ms at least
 
 : vp-setxy ( rx ry -- )
