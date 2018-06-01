@@ -272,9 +272,10 @@ forward >animate
 	    set-startxy
 	    o to grab-move?  EXIT
 	ELSE
-	    grab-move? o = IF  2drop vpxy!  set-startxy
+	    grab-move? o = IF  2drop vpxy!
 		false to grab-move?
 		vmotion-dt 0e f> IF
+		    set-startxy
 		    >motion-dt drop
 		    motion-time
 		    o ['] vp-motion >animate

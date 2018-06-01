@@ -27,6 +27,8 @@ handler-class class
     value: clicks
 end-class x11-handler
 
+: lasttime@ ( -- seconds ) lasttime @ s>f 1m f* ;
+
 0 Constant #pending
 1 Constant #lastdown
 2 Constant #clearme
@@ -124,10 +126,10 @@ Variable xy$
 ; x11-handler to DoButtonPress
 :noname ( -- )
     ?samepos  e.kbm.time lasttime !
-    flags #lastdown -bit@  IF
-	1 +to clicks  send-clicks  flags #clearme +bit  THEN
     buttonmask e.button 1- -bit
     top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchup  THEN
+    flags #lastdown -bit@  IF
+	1 +to clicks  flags #clearme +bit  send-clicks  THEN
 ; x11-handler to DoButtonRelease
 :noname ( -- )
     flags #pending bit@  e.x e.y samepos? 0= and IF

@@ -26,6 +26,8 @@ Variable flags
 Variable buttonmask
 0 Value clicks
 
+: lasttime@ ( -- seconds ) lasttime 2@ d>f 1m f* ;
+
 0 Constant #pending
 1 Constant #lastdown
 2 Constant #clearme
@@ -56,10 +58,10 @@ Variable xy$
 : send-clicks ( -- )
     lastpos 2sf@ buttonmask @
     clicks 2* flags #lastdown bit@ -
+    flags #pending -bit
     top-act ?dup-IF
 	.clicked
-    ELSE  2drop fdrop fdrop  THEN
-    flags #pending -bit ;
+    ELSE  2drop fdrop fdrop  THEN ;
 
 : action-down ( -- )
     getButtonState buttonmask !
@@ -67,10 +69,10 @@ Variable xy$
     ?samepos  flags #lastdown +bit  flags #pending +bit ;
 : action-up ( -- )
     ?samepos
-    flags #lastdown -bit@  IF
-	1 +to clicks  send-clicks  flags #clearme +bit  THEN
     getButtonState buttonmask !
-    top-act IF  xy$ buttonmask @ top-act .touchup  THEN ;
+    top-act IF  xy$ buttonmask @ top-act .touchup  THEN
+    flags #lastdown -bit@  IF
+	1 +to clicks  flags #clearme +bit  send-clicks  THEN ;
 : action-move ( -- )
     flags #pending bit@  0 getXY samepos? 0= and IF
 	send-clicks  0 to clicks
