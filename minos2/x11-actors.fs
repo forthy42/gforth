@@ -96,10 +96,10 @@ DOES> ( x-key [addr] -- ekey )
 : send-clicks ( -- )
     lastpos 2@ swap s>f s>f buttonmask le-ul@
     clicks 2* flags #lastdown bit@ -
+    flags #pending -bit
     top-act ?dup-IF
 	.clicked
-    ELSE  2drop fdrop fdrop  THEN
-    flags #pending -bit ;
+    ELSE  2drop fdrop fdrop  THEN ;
 Variable xy$
 : >xy$ ( x1 y1 .. xn yn n -- $rxy )
     2* sfloats xy$ $!len
