@@ -66,7 +66,7 @@ end-class animation
 \ edit animation
 
 : *anim-ins ( addr -- )
-    1e f= *insflag @ and  IF  *insflag off .resized
+    1e f= *insflag @ and  IF  *insflag off .resized +config +sync
     ELSE  drop  THEN ;
 : *anim-end ( -- )
     anims@ 0 ?DO
