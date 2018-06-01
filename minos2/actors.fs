@@ -83,13 +83,13 @@ debug: event( \ +db event( \ )
 
 simple-actor class
     method do-action
-    defer: ck-action
+    defer: ck-action ( addr -- )
     value: data
 end-class click-actor
 
 ' ck-action click-actor is do-action
 
-: click[] ( o xt data -- o )
+: click[] ( o xt data -- o ) \ xt takes ( data -- )
     rot >o click-actor new >o to data is ck-action o o> !act o o> ;
 
 :noname ( rx ry b n -- )

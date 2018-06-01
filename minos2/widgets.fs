@@ -88,7 +88,7 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
     dup  $FF00  $FFF0 within ; \ fullwidth forms
 
 : emoji? ( xchar -- xchar flag )
-    dup  $2600  $27C0 within ?dup-IF  EXIT  THEN \ misc. symbols
+    dup  $2600  $2C00 within ?dup-IF  EXIT  THEN \ misc. symbols
     dup $1F000 $20000 within ;                   \ pictograms
 
 $Variable split$ " !&,-./:;|=@–—␣           　" split$ $!
@@ -410,6 +410,7 @@ end-class text
     text-w text-shrink% f* text-w text-grow% f* ; text is hglue
 :noname h raise f+ 0e fdup ; text is vglue
 :noname d raise f- 0e fdup ; text is dglue
+:noname addr text$ $free [ widget :: dispose-widget ] ; text is dispose-widget
 
 text class
     value: orig-text
