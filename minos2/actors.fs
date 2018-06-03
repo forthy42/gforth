@@ -244,18 +244,19 @@ screen-pwh max s>f FValue drag-rate \ 1 screen/s²
 : set-startxy ( -- )
     caller-w >o vp-x vp-y o> to vpstart-y  to vpstart-x ;
 
+: motion-dxy ( -- px )
+    vmotion-dx f**2 vmotion-dy f**2 f+ fsqrt ;
 : motion-speed ( -- px/s )
-    vmotion-dx f**2 vmotion-dy f**2 f+ fsqrt
-    vmotion-dt f/ ;
+    motion-dxy vmotion-dt f/ ;
 : motion-time ( -- time )
     motion-speed drag-rate f/ ;
 
 : vp-motion ( 0..1 addr -- )
-    >o motion-time f* vmotion-dx f**2 vmotion-dy f**2 f+ fsqrt { f: t f: speed }
+    >o motion-time f* motion-dxy { f: t f: dxy }
     t vmotion-dx vmotion-dt f/ f*
-    t f**2 f2/ drag-rate vmotion-dx speed f/ f* f* f- vpstart-x fswap f-
+    t f**2 f2/ drag-rate vmotion-dx dxy f/ f* f* f- vpstart-x fswap f-
     t vmotion-dy vmotion-dt f/ f*
-    t f**2 f2/ drag-rate vmotion-dy speed f/ f* f* f- vpstart-y f+
+    t f**2 f2/ drag-rate vmotion-dy dxy f/ f* f* f- vpstart-y f+
     vp-setxy o> ;
 
 forward anim-del
@@ -274,7 +275,7 @@ forward >animate
 	ELSE
 	    grab-move? o = IF  2drop vpxy!
 		false to grab-move?
-		vmotion-dt 0e f> IF
+		vmotion-dt 0e f> motion-dxy 0e f> and IF
 		    set-startxy
 		    >motion-dt drop
 		    motion-time
