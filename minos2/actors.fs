@@ -246,10 +246,8 @@ screen-pwh max s>f FValue drag-rate \ 1 screen/s²
 
 : motion-dxy ( -- px )
     vmotion-dx f**2 vmotion-dy f**2 f+ fsqrt ;
-: motion-speed ( -- px/s )
-    motion-dxy vmotion-dt f/ ;
 : motion-time ( -- time )
-    motion-speed drag-rate f/ ;
+    motion-dxy vmotion-dt drag-rate f* f/ ;
 
 : vp-motion ( 0..1 addr -- )
     >o fdup f**2 f2/ f-
