@@ -222,7 +222,7 @@ screen-pwh max s>f FValue drag-rate \ 1 screen/s²
     0e fmax vp-h h f- fmin fround to vp-y
     0e fmax vp-w w f- fmin fround to vp-x
     ?vpt-x ?vpt-y or IF  ['] +sync vp-needed  THEN
-    o> +sync +config ;
+    vp-reslide o> +sync ;
 
 : >motion-dt ( -- flag )
     ftime fdup vmotion-time f-
@@ -347,7 +347,8 @@ end-class vslider-actor
 
 : hslider[] ( vp o -- )
     >o o hslider-actor new to act
-    act >o to caller-w to slide-vp -1e to slider-sxy o> o> ;
+    act >o to caller-w to slide-vp -1e to slider-sxy
+    caller-w slide-vp >o to vp-hslider o> o> o> ;
 
 : >vslide ( x -- )
     slider-sxy fswap f- caller-w >o parent-w .h h f- +sync o> f/
@@ -376,7 +377,8 @@ end-class vslider-actor
 
 : vslider[] ( vp o -- )
     >o o vslider-actor new to act
-    act >o to caller-w to slide-vp -1e to slider-sxy o> o> ;
+    act >o to caller-w to slide-vp -1e to slider-sxy
+    caller-w slide-vp >o to vp-vslider o> o> o> ;
 
 \ edit widget
 

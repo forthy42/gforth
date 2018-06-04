@@ -936,9 +936,10 @@ end-class parbox
 
 : dispose[] ( $addr[] -- )
     $@ bounds ?DO  I @ .dispose  cell +LOOP ;
+: re-glue ( -- w h d )
+    hglue fdrop fdrop  vglue fdrop fdrop  dglue fdrop fdrop ;
 : par-init ( -- ) \ set paragraph to maximum horizontal extent
-    0e fdup  subbox >o  hglue fdrop fdrop  vglue fdrop fdrop  dglue fdrop fdrop 
-    resize o> ;
+    0e fdup  subbox >o  re-glue resize o> ;
 : par-split ( -- ) \ split a hbox into chunks
     childs[] dispose[] 0e
     BEGIN  { f: startx }
@@ -1007,6 +1008,8 @@ vbox class
     value: vp-fb   \ framebuffer
     value: vp-rb   \ renderbuffer
     value: vp-glue \ glue object
+    value: vp-hslider \ hslider object
+    value: vp-vslider \ vslider object
     field: vp-need
 end-class viewport
 
@@ -1014,6 +1017,10 @@ end-class viewport
 : vp-bottom ( o:vp -- )               0e to vp-y ;
 : vp-left ( o:vp -- )                 0e to vp-x ;
 : vp-right ( o:vp -- )  vp-w w f- fround to vp-x ;
+
+: vp-reslide ( o:vp -- )
+    vp-hslider ?dup-IF  .parent-w >o !size xywhd resize o>  THEN
+    vp-vslider ?dup-IF  .parent-w >o !size xywhd resize o>  THEN ;
 
 : vp-needed ( xt -- )
     need-mask >r vp-need to need-mask
