@@ -860,7 +860,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 	    I' I 1+ = IF  fdrop -1e  THEN
 	    newbox  UNLOOP  EXIT
 	THEN \ also ends here
-    LOOP  o newbox start f0= select -1e ;
+	0e to startx
+    LOOP
+    start f0= IF  o newbox .dispose-widget  ELSE  newbox  THEN  -1e ;
 ' hbox-split hbox is split
 
 \ add glues up for vboxes
@@ -942,9 +944,7 @@ end-class parbox
     0e fdup  subbox >o  re-glue resize o> ;
 : par-split ( -- ) \ split a hbox into chunks
     childs[] dispose[] 0e
-    BEGIN  { f: startx }
-	start w hbox-split { f: endx } subbox .child+
-	fdup f0<  UNTIL  fdrop ;
+    BEGIN  w hbox-split subbox .child+ fdup f0<  UNTIL  fdrop ;
 
 \ create boxes
 
@@ -991,7 +991,7 @@ htab-glue is hglue!@
     GL_MAX_TEXTURE_SIZE addr maxtexsize#
     [ cell 8 = [IF] 1 pad ! pad c@ 0= [IF] ] 4 + [ [THEN] [THEN] ]
     glGetIntegerv
-    maxtexsize# dpy-w @ dpy-h @ max 2* min to usetexsize# ;
+    maxtexsize# dpy-w @ dpy-h @ max 2* 2* min to usetexsize# ;
 
 ?texsize
 

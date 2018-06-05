@@ -53,7 +53,7 @@ end-class simple-actor
 : simple-inside? ( rx ry -- flag )
     caller-w >o
     y f- fdup d f< h fnegate f> and
-    x f- fdup w f< 0e f> and
+    x f- fdup w f< f0> and
     and o> ;
 ' simple-inside? simple-actor is inside?
 
@@ -272,7 +272,7 @@ forward >animate
 	ELSE
 	    grab-move? o = IF  2drop vpxy!
 		false to grab-move?
-		vmotion-dt 0e f> motion-dxy 0e f> and IF
+		vmotion-dt f0> motion-dxy f0> and IF
 		    set-startxy
 		    >motion-dt drop
 		    motion-time
