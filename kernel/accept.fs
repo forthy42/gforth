@@ -84,7 +84,7 @@ kernel-editor edit-out !
     \ cursor position in the buffer.
     everychar  >control
     dup bl u< \ ctrl key
-    over $80000000 u>= \ ekey
+    over $7FFFFFFF u> \ ekey
     or IF  edit-control  EXIT  THEN
     \ check for end reached
     insert-char key? 0= IF  edit-update  THEN 0 ;
