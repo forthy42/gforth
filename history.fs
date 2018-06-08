@@ -136,13 +136,6 @@ Variable vt100-modifier \ shift, ctrl, alt
 
 Create prefix-found  0 , 0 ,
 
-: capscomp  ( c_addr1 u c_addr2 -- -1|0|1 )
-    swap bounds ?DO
-	count toupper i c@ toupper - ?dup-IF
-	    nip 0< 2* 1+ unloop exit THEN
-    LOOP
-    drop 0 ;
-
 0 value alphabetic-tab
 
 : word-lex ( nfa1 nfa2 -- -1/0/1 )
@@ -154,7 +147,7 @@ Create prefix-found  0 , 0 ,
     vt100-modifier @ IF  2r> 2swap 2>r  THEN
     dup r@ = alphabetic-tab or
     IF
-	rdrop r> capscomp 0<=  EXIT
+	rdrop r> over capscompare 0<=  EXIT
     THEN
     r> < nip rdrop ;
 
@@ -165,7 +158,7 @@ Create prefix-found  0 , 0 ,
     WHILE
 	>r dup r@ name>string nip <=
 	IF
-	    2dup r@ name>string drop capscomp  0=
+	    2dup r@ name>string drop over capscompare  0=
 	    IF
 		r> dup r@ word-lex
 		IF
