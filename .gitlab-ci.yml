@@ -11,8 +11,9 @@ build-distcheck:
   stage: build
   script:
     - mkdir build
+    - ./autogen.sh
     - cd build
-    - ../autogen.sh
+    - ../configure
     - make
  
   # The files which are to be made available in GitLab
