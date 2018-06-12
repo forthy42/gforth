@@ -10,13 +10,11 @@ stages:
 build-distcheck:
   stage: build
   script:
-    - mkdir build
     - ./autogen.sh
-    - cd build
-    - ../configure
-    - make
+    - dpkg-buildpackage -uc -us -d -b
  
   # The files which are to be made available in GitLab
   artifacts:
     paths:
       - build/*
+      - ../*.deb

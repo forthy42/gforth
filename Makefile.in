@@ -1349,7 +1349,8 @@ checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdo
 		-grep unknown doc/gforth.texi
 		-grep doc- doc/gforth.texi| grep -v '^@c'
 
-doc pdf dvi txt ps html:	gforth.fi TAGS $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
+doc pdf dvi txt ps html:	gforth.fi TAGS doc/Makefile
+		$(MAKE) $(GFORTH_TEXI) $(VMGEN_TEXI)
 		-cd doc; $(MAKE) $@
 
 # For an explanation of the following Makefile rules, see node

@@ -17,7 +17,7 @@ USHARE = $(DB)/usr/share/gforth/$(GFORTH_VER)
 ULIB = $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)
 
 %:
-	dh $@
+	dh $@ --builddirectory=build
 
 override_dh_auto_test:
 override_dh_shlibdeps:
@@ -25,6 +25,7 @@ override_dh_auto_configure:
 	dh_auto_configure -- --with-elispstartdir=/etc/emacs/site-start.d
 override_dh_make:
 	make -j$(nproc)
+	make doc/gforth.texi doc/version.texi
 	make doc -j$(nproc)
 override_dh_auto_install:
 	mkdir -p $(DB)/usr/lib/gforth/site-forth
