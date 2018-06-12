@@ -1,0 +1,21 @@
+image: debian:unstable
+ 
+before_script:
+  - apt update -qq
+  - ./install-deps.sh
+ 
+stages:
+  - build
+ 
+build-distcheck:
+  stage: build
+  script:
+    - mkdir build
+    - cd build
+    - ../autogen.sh
+    - make
+ 
+  # The files which are to be made available in GitLab
+  artifacts:
+    paths:
+      - build/*
