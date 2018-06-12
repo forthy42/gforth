@@ -1,17 +1,17 @@
 #!/bin/sh
 which sudo || alias sudo=eval
 install_linux() {
-  sudo apt-get update
-  sudo apt-get install gforth gforth-lib gforth-common libffi-dev libltdl7 libsoil-dev libtool install-info yodl bison libpcre3-dev libboost-dev git # yodl, bison, ... git: are for swig
-  sudo apt-get install libtool-bin
-  sudo apt-get install libx11-dev
-  sudo apt-get install libgles2-mesa-dev
-  sudo apt-get install libgl1-mesa-dev
-  sudo apt-get install libwayland-dev
-  sudo apt-get install libharfbuzz-dev
-  sudo apt-get install libvulkan-dev
+  sudo apt-get -y update
+  sudo apt-get -y install gforth gforth-lib gforth-common libffi-dev libltdl7 libsoil-dev libtool install-info yodl bison libpcre3-dev libboost-dev git # yodl, bison, ... git: are for swig
+  sudo apt-get -y install libtool-bin
+  sudo apt-get -y install libx11-dev
+  sudo apt-get -y install libgles2-mesa-dev
+  sudo apt-get -y install libgl1-mesa-dev
+  sudo apt-get -y install libwayland-dev
+  sudo apt-get -y install libharfbuzz-dev
+  sudo apt-get -y install libvulkan-dev
   if [ `uname -m`$M32 = x86_64-m32 ]; then
-    sudo apt-get --fix-missing install gcc-multilib libltdl7:i386
+    sudo apt-get -y --fix-missing install gcc-multilib libltdl7:i386
   fi
 }
 
