@@ -2,7 +2,7 @@
 which sudo || alias sudo=eval
 install_linux() {
   sudo apt-get -y update
-  sudo apt-get -y install gforth gforth-lib gforth-common libffi-dev libltdl7 libsoil-dev libtool make gcc automake install-info dpkg-buildpackage yodl bison libpcre3-dev libboost-dev git g++ # yodl, bison, ... git: are for swig
+  sudo apt-get -y install gforth gforth-lib gforth-common libffi-dev libltdl7 libsoil-dev libtool make gcc automake install-info dpkg-dev yodl bison libpcre3-dev libboost-dev git g++ # yodl, bison, ... git: are for swig
   sudo apt-get -y install libtool-bin
   sudo apt-get -y install autoconf-archive
   sudo apt-get -y install libx11-dev
