@@ -1146,7 +1146,7 @@ engine/prim_num-fast.i:	prim-fast.b prims2x.fs
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
 
 engine/prim-s.i: engine/prim.i
-		grep -v '^#line ' $(srcdir)/engine/prim.i >$@
+		grep -v '^#line ' $< >$@
 
 kernel/aliases.fs:	prim.b prims2x.fs kernel/aliases0.fs preforth.in
 		$(CP) $(srcdir)/kernel/aliases0.fs $@-
