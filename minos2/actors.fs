@@ -416,14 +416,11 @@ std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 \ extra key bindings for editors
 
 simple-actor class
-    method edit-next-line
-    method edit-prev-line
+    defer: edit-next-line
+    defer: edit-prev-line
     value: edit-w
     defer: edit-enter
 end-class edit-actor
-
-' false edit-actor is edit-next-line
-' false edit-actor is edit-prev-line
 
 0 value xselw
 
@@ -605,5 +602,8 @@ edit-terminal edit-out !
 
 : edit[] ( o widget xt -- o ) { xt }
     swap >o edit-actor new to act
-    o act >o to caller-w to edit-w xt is edit-enter o>
+    o act >o to caller-w to edit-w
+    xt        is edit-enter
+    ['] false is edit-next-line
+    ['] false is edit-prev-line o>
     o o> ;
