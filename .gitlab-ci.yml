@@ -1,6 +1,7 @@
 image: debian:unstable
  
 before_script:
+  - alias sudo=eval
   - apt update -qq
   - ./install-deps.sh
  
