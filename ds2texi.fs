@@ -194,22 +194,6 @@ create docline doclinelength chars allot
     repeat
     drop rdrop ;
 
-: compare-ci ( addr1 u1 addr2 u2 -- n )
-    \ case insensitive string compare
-    \ !! works correctly only for comparing for equality
-    2 pick swap -
-    ?dup-0=-if
-        capscomp
-    else
-	nip nip nip
-	0<
-	if
-	    -1
-	else
-	    1
-	endif
-    endif  ;
-
 : answord ( "name wordset pronounciation" -- )
     \ check the documentaion of an ans word
     name { D: wordname }
@@ -218,11 +202,11 @@ create docline doclinelength chars allot
     wordname documentation search-wordlist
     if
 	execute { doc }
-	wordset doc doc-wordset 2@ compare-ci
+	wordset doc doc-wordset 2@ capscompare
 	if 
 	    ." wordset: " wordname type ." : '"  doc doc-wordset 2@ type ." ' instead of '" wordset type ." '" cr
 	endif
-	pronounciation doc doc-pronounciation 2@ compare-ci
+	pronounciation doc doc-pronounciation 2@ capscompare
 	if
 	    ." pronounciation: " wordname type ." : '" doc doc-pronounciation 2@ type ." ' instead of '" pronounciation type ." '" cr
 	endif
