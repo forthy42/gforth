@@ -11,6 +11,7 @@ build-distcheck:
   stage: build
   script:
     - ./autogen.sh
+    - ./configure
     - dpkg-buildpackage -uc -us -d -b
  
   # The files which are to be made available in GitLab
