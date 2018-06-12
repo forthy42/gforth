@@ -2,7 +2,7 @@
 which sudo || alias sudo=eval
 install_linux() {
   sudo apt-get update
-  sudo apt-get install gforth gforth-lib gforth-common libffi-dev libltdl7 libsoil-dev libtool install-info yodl bison libpcre3-dev libboost-dev # yodl, bison... are for swig
+  sudo apt-get install gforth gforth-lib gforth-common libffi-dev libltdl7 libsoil-dev libtool install-info yodl bison libpcre3-dev libboost-dev git # yodl, bison, ... git: are for swig
   sudo apt-get install libtool-bin
   sudo apt-get install libx11-dev
   sudo apt-get install libgles2-mesa-dev
