@@ -79,5 +79,5 @@ run: $(DEMO)
 clean:
 	rm -f $(TARGETS) stat.fs
 	rm -f $(GENWRAPPERS)
-	rm -f $(WRAPPERS)
+	rm -f $(WRAPPERS) stat.fsx
 
