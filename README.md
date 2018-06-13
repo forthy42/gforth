@@ -2,6 +2,7 @@
 
 [![Build Status Travis](https://travis-ci.org/forthy42/gforth.png?branch=master)](https://travis-ci.org/forthy42/gforth)
 [![pipeline status](https://gitlab.com/forthy42/gforth/badges/master/pipeline.svg)](https://gitlab.com/forthy42/gforth/commits/master)
+[![pipeline status](https://git.net2o.de/bernd/gforth/badges/master/pipeline.svg)](https://git.net2o.de/bernd/gforth/commits/master)
 
 Gforth is a fast and portable implementation of the ANS Forth
 language. It works nicely with the Emacs editor, offers some nice
