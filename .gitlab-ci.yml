@@ -13,7 +13,6 @@ build-distcheck:
     - ./autogen.sh
     - ./configure
     - make distclean
-    - (cd libltdl; make distclean; rm configure)
     - (cd engine; ln -s ../build/engine/config.h .)
     - dpkg-buildpackage -uc -us -d -b
     - mv ../*.deb build/debian

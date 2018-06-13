@@ -726,8 +726,6 @@ maintainer-clean: realclean
 #rules in Makedist (you can use them with GNU make on these systems).
 
 debdist:
-		$(RM) $(srcdir)/libltdl/configure
-		$(MAKE) distclean
 
 setup-debdist docdist htmldist dist: doc
 

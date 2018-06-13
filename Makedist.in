@@ -114,5 +114,6 @@ dsetup-debdist:	$(SOURCES) $(FORTH_GEN0) $(FORTH_GEN_FAST) @GKERNEL@ $(DOCDIST) 
 		make package=$$PWD/debian install
 
 ddebdist:
+		-$(RM) libltdl/config.status
 		dpkg-buildpackage -uc -us -d -b $(DEBARCH)
 
