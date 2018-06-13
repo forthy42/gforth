@@ -2,3 +2,7 @@
 *.fb linguist-language=Forth
 *.fs.in linguist-language=Forth
 *.4th linguist-language=Forth
+*.fs gitlab-language=Forth
+*.fs.in gitlab-language=Forth
+*.fb gitlab-language=Forth
+*.4th gitlab-language=Forth
