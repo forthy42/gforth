@@ -77,7 +77,7 @@ run: $(DEMO)
 .PHONY: clean
 
 clean:
-	rm -f $(TARGETS)
+	rm -f $(TARGETS) stat.fs
 	rm -f $(GENWRAPPERS)
 	rm -f $(WRAPPERS)
 
