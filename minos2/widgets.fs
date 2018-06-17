@@ -476,7 +476,7 @@ end-class edit
     x1 y1 >xy     rgba>c n> 3e 3e >st v+
     v> 2 quad ;
 
-: edit-text ( -- ) edit-marking  text-xy!
+: edit-text ( -- ) edit-marking  w text-w text-scale! text-xy!
     cursize 0= setstring$ $@len and IF
 	text$ curpos umin render-string
 	m2c:setstring-color# @ color !
