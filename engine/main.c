@@ -2499,10 +2499,6 @@ void gforth_cleanup()
 
 user_area* gforth_stacks(Cell dsize, Cell fsize, Cell rsize, Cell lsize)
 {
-#ifdef SIGSTKSZ
-  stack_t sigstack;
-  int sas_retval=-1;
-#endif
   size_t totalsize;
   Cell a;
   user_area * up0;
@@ -2523,16 +2519,6 @@ user_area* gforth_stacks(Cell dsize, Cell fsize, Cell rsize, Cell lsize)
     page_noaccess((void*)a); a+=pagesize; up0->fp0=(Float*)(a+fsize); a+=fsizep;
     page_noaccess((void*)a); a+=pagesize; up0->lp0=(Address)(a+lsize); a+=lsizep;
     page_noaccess((void*)a); a+=pagesize;
-# ifdef SIGSTKSZ
-    sigstack.ss_sp=(void*)a+SIGSTKSZ;
-    sigstack.ss_size=SIGSTKSZ;
-    sigstack.ss_flags=0;
-    sas_retval=sigaltstack(&sigstack,(stack_t *)0);
-# if defined(HAS_FILE) || !defined(STANDALONE)
-    if(sas_retval)
-      debugp(stderr,"sigaltstack: %s\n",strerror(errno));
-# endif
-#endif
   /* ensure that the cached elements (if any) are accessible */
 #if !(defined(GFORTH_DEBUGGING) || defined(INDIRECT_THREADED) || defined(DOUBLY_INDIRECT) || defined(VM_PROFILING))
     up0->sp0 -= 8; /* make stuff below bottom accessible for stack caching */
@@ -2553,20 +2539,29 @@ user_area* gforth_stacks(Cell dsize, Cell fsize, Cell rsize, Cell lsize)
     a+=pagesize; up0->rp0=a+rsize; a+=rsizep;
     a+=pagesize; up0->fp0=a+fsize; a+=fsizep;
     a+=pagesize; up0->lp0=a+lsize; a+=lsizep;
-    a+=pagesize;
-#ifdef SIGSTKSZ
-    sigstack.ss_sp=(void*)a+SIGSTKSZ;
-    sigstack.ss_size=SIGSTKSZ;
-    sigstack.ss_flags=0;
-    sas_retval=sigaltstack(&sigstack,(stack_t *)0);
-#if defined(HAS_FILE) || !defined(STANDALONE)
-    if(sas_retval)
-      debugp(stderr,"sigaltstack: %s\n",strerror(errno));
-#endif
-#endif
     return up0;
   }
   return 0;
+#endif
+}
+
+static inline void gforth_set_sigaltstack(user_area * t)
+{
+#ifdef SIGSTKSZ
+  stack_t sigstack;
+  int sas_retval=-1;
+#endif
+  Cell a=wholepage((size_t)(t->lp0));
+  a+=pagesize;
+#ifdef SIGSTKSZ
+  sigstack.ss_sp=(void*)a+SIGSTKSZ;
+  sigstack.ss_size=SIGSTKSZ;
+  sigstack.ss_flags=0;
+  sas_retval=sigaltstack(&sigstack,(stack_t *)0);
+#if defined(HAS_FILE) || !defined(STANDALONE)
+  if(sas_retval)
+    debugp(stderr,"sigaltstack: %s\n",strerror(errno));
+#endif
 #endif
 }
 
@@ -2605,6 +2600,8 @@ void gforth_setstacks(user_area * t)
   gforth_SPs.handler = 0;
   gforth_SPs.first_throw = ~0;
   gforth_SPs.wraphandler = 0;
+
+  gforth_set_sigaltstack(t);
 }
 
 Cell gforth_boot(int argc, char** argv, char* path)
