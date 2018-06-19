@@ -366,15 +366,15 @@ Create fopatable
 
 : .rep ( ip -- ip' )
     dup c@ $F0 and $40 = IF
-	dup 1+ c@ 0F = IF
-	    count  10 + rex !  .code  EXIT
-	ELSE  dup c@ 0F = IF  10 rex !  .code  EXIT  THEN  THEN  THEN
+	dup 1+ c@ $0F = IF
+	    count  $10 + rex !  .code  EXIT  THEN
+    ELSE  dup c@ $0F = IF  $10 rex !  .code  EXIT  THEN  THEN
     ." rep " .code  ;
 : .repe ( ip -- ip' )
     dup c@ $F0 and $40 = IF
 	dup 1+ c@ 0F = IF
-	    count  20 + rex !  .code  EXIT
-	ELSE  dup c@ 0F = IF  20 rex !  .code  EXIT  THEN  THEN  THEN
+	    count  $20 + rex !  .code  EXIT  THEN
+    ELSE  dup c@ $0F = IF  $20 rex !  .code  EXIT  THEN  THEN
     ." repe " .code  ;
 
 \ vex SSE codes (les/lds in 16/32 bit mode)
