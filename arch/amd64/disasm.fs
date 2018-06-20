@@ -1,6 +1,6 @@
 \ *** Disassembler for amd64 ***
 
-\ Copyright (C) 1992-2000 by Bernd Paysan (486 disassemlber)
+\ Copyright (C) 1992-2000 by Bernd Paysan (486 disassembler)
 
 \ Copyright (C) 2016,2017 Free Software Foundation, Inc.
 
