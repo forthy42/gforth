@@ -1232,7 +1232,7 @@ require animation.fs
 
 : hslider ( viewport-link sd sh -- o )
     >r {{ glue*l slider-color slider-border }}frame dup .button3
-    {{ hslider-parts r@ 0g frot frot slider
+    {{ hslider-parts r@ 0g frot f2/ frot f2/ slider
     over r> swap hslider[] }}h box[]
     }}z box[] ;
 : vslider ( viewport-link sw sd -- o )
