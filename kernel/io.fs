@@ -50,7 +50,7 @@ User out ( -- addr ) \ gforth
 Variable winch?
 
 #-512 Constant EOK
-#-516 Constant EINTR
+#-516 Constant EINTR \ error returned for window change
 
 : key-file ( fd -- key )
     \G Read one character @i{n} from @i{wfileid}.  This word disables

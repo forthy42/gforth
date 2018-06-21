@@ -429,7 +429,7 @@ xchar-history
 ;
 
 : history-cold ( -- )
-    history-file get-history xchar-history ;
+    history-file get-history xchar-history edit-curpos-off ;
 
 :noname ( -- )
     defers 'cold
