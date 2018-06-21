@@ -251,12 +251,20 @@ screen-pwh max s>f FValue drag-rate \ 1 screen/s²
 : motion-time ( -- time )
     motion-dxy vmotion-dt drag-rate f* f/ ;
 
+: vp-deltaxy ( time -- rx ry )
+    fdup  vmotion-dx f* vpstart-x fswap f-
+    fswap vmotion-dy f* vpstart-y f+ ;
+
 : vp-motion ( 0..1 addr -- )
     >o fdup f**2 f2/ f-
     motion-dxy vmotion-dt f**2 drag-rate f* f/ f*
-    fdup  vmotion-dx f* vpstart-x fswap f-
-    fswap vmotion-dy f* vpstart-y f+
-    vp-setxy o> ;
+    vp-deltaxy vp-setxy o> ;
+
+forward sin-t
+
+: vp-scroll ( 0..1 addr -- )
+    >o sin-t fdup to vmotion-dt
+    vp-deltaxy vp-setxy o> ;
 
 forward anim-del
 forward >animate
@@ -282,6 +290,20 @@ forward >animate
 		THEN  EXIT  THEN
 	THEN
     THEN
+    over $18 and over 1 and 0= and IF
+	set-startxy
+	dup 2 = IF
+	    0e fdup to vmotion-dx
+	ELSE
+	    vmotion-dt vmotion-dy f*
+	THEN  to vmotion-dy  0e to vmotion-dt
+	o anim-del
+	caller-w .vp-w 32e f/ fm*
+	dup
+	$08 and IF  fdup +to vmotion-dy  THEN  fnegate
+	$10 and IF  fdup +to vmotion-dy  THEN  fdrop fdrop fdrop
+	0.333e o ['] vp-scroll >animate
+	EXIT  THEN
     caller-w >o
     tx [: act >o [ box-actor :: clicked ] o> ;] vp-needed
     vp-need-or o> ; vp-actor is clicked

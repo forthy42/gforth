@@ -21,10 +21,12 @@
 : system, slit, postpone >system ;
 ' >system ' system, ' slit, rectype: rectype-eval
 
-: rec-shell ( addr u -- addr u' r:string )
+: rec-shell ( addr u -- addr u' rectype-eval | rectype-null )
     \G evaluate string + rest of command line
-    drop source drop - >in ! source >in @ /string dup >in +!
-    rectype-eval ;
+    over source drop = IF
+	drop source drop - >in ! source >in @ /string dup >in +!
+	rectype-eval
+    ELSE  2drop rectype-null  THEN ;
 ' rec-shell get-recognizers 1+ set-recognizers
 
 User sh$  cell uallot drop
