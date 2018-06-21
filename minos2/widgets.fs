@@ -624,6 +624,8 @@ glue class
     method map
 end-class box
 
+: >glue0 ( -- )
+    aidglue ?dup-IF  .aidglue0  THEN ;
 : >hglue!@ ( glue -- glue' )
     aidglue ?dup-IF  .hglue!@  THEN ;
 : >vglue!@ ( glue -- glue' )
@@ -738,10 +740,12 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     \G stick two glues together
     t1 t2 f+ s1 s2 f+ a1 a2 f+ ;
 : glue* { f: t1 f: s1 f: a1 f: t2 f: s2 f: a2 -- t3 s3 a3 }
-    \G overlay two glues together 
-    t1 t2 fmax
-    t1 s1 f- t2 s2 f- fmax fover f- fnegate 0g fmax
-    t1 a1 f+ t2 a2 f+ fmin 2 fpick f- 0g fmax ;
+    \G overlay two glues together
+    t1 s1 f- to s1  t1 a1 f+ to a1
+    t2 s2 f- to s2  t2 a2 f+ to a2
+    t1 t2 fmax  s1 s2 fmax fmax  a1 a2 fmin fmin
+    s1 s2 fmax fover f- fnegate 0e fmax
+    a1 a2 fmin 2 fpick f- 0e fmax ;
 : glue-dup { f: t1 f: s1 f: a1 -- t1 s1 a1 t1 s1 a1 }
     t1 s1 a1 t1 s1 a1 ;
 : glue-drop ( t s a -- ) fdrop fdrop fdrop ;

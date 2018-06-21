@@ -23,6 +23,8 @@
 
 \ platform specific action handler
 
+require forward.fs
+
 \ edit actor
 
 edit-terminal-c class

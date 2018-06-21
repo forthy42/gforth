@@ -190,7 +190,7 @@ defer line-end-hook ( -- ) \ gforth
 : get-input ( -- flag ) \ gforth
     \G read a line of input
     ['] refill catch dup -56 = IF  bye  THEN  throw ;
-    
+
 Defer ?set-current-xpos  ' noop is ?set-current-xpos
 
 : execute-parsing-named-file ( i*x wfileid filename-addr filename-u xt -- j*x )
