@@ -126,10 +126,10 @@ Variable xy$
 ; x11-handler to DoButtonPress
 :noname ( -- )
     ?samepos  e.kbm.time lasttime !
-    buttonmask e.button 1- -bit
-    top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchup  THEN
     flags #lastdown -bit@  IF
 	1 +to clicks  flags #clearme +bit  send-clicks  THEN
+    buttonmask e.button 1- -bit
+    top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchup  THEN
 ; x11-handler to DoButtonRelease
 :noname ( -- )
     flags #pending bit@  e.x e.y samepos? 0= and IF
