@@ -743,7 +743,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     \G overlay two glues together
     t1 s1 f- to s1  t1 a1 f+ to a1
     t2 s2 f- to s2  t2 a2 f+ to a2
-    t1 t2 fmax  s1 s2 fmax fmax  a1 a2 fmin fmin
+    t1 t2 fmax  a1 a2 fmin fmin  s1 s2 fmax fmax
     s1 s2 fmax fover f- fnegate 0e fmax
     a1 a2 fmin 2 fpick f- 0e fmax ;
 : glue-dup { f: t1 f: s1 f: a1 -- t1 s1 a1 t1 s1 a1 }
