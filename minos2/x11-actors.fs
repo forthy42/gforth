@@ -93,8 +93,8 @@ DOES> ( x-key [addr] -- ekey )
     lastpos 2@ rot - dup * -rot - dup * + samepos < ;
 : ?samepos ( -- )
     e.x e.y 2dup samepos? 0= IF   0 to clicks  THEN  lastpos 2! ;
-: send-clicks ( -- )
-    lastpos 2@ swap s>f s>f buttonmask le-ul@
+: send-clicks ( button-mask -- )
+    lastpos 2@ swap s>f s>f
     clicks 2* flags #lastdown bit@ -
     flags #pending -bit
     top-act ?dup-IF
@@ -127,13 +127,16 @@ Variable xy$
 :noname ( -- )
     ?samepos  e.kbm.time lasttime !
     flags #lastdown -bit@  IF
-	1 +to clicks  flags #clearme +bit  send-clicks  THEN
+	1 +to clicks  flags #clearme +bit
+	buttonmask le-ul@
+	buttonmask e.button 1- -bit
+	send-clicks  THEN
     buttonmask e.button 1- -bit
     top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchup  THEN
 ; x11-handler to DoButtonRelease
 :noname ( -- )
     flags #pending bit@  e.x e.y samepos? 0= and IF
-	send-clicks  0 to clicks
+	buttonmask le-ul@ send-clicks  0 to clicks
     THEN
     top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchmove  THEN
 ; x11-handler to DoMotionNotify

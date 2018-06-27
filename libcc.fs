@@ -816,7 +816,13 @@ DEFER compile-wrapper-function ( -- )
 \G Clear the list of libs
     c-source-file-id @ if
 	compile-wrapper-function
-    endif  lha,
+    endif
+    lib-handle-addr @ dup if
+	@ 0=
+    endif
+    0= if
+	lha,
+    endif
     c-libs $init
     vararg$ $init
     libcc$ $init libcc-include
