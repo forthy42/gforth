@@ -958,6 +958,7 @@ has? new-input 0= [IF]
 	ram-mirror ram-size  THEN  ram-start swap move
 [ [THEN] ]
     sp@ sp0 !
+    boot-strings
 [ has? peephole [IF] ]
     \ only needed for greedy static superinstruction selection
     \ primtable prepare-peephole-table TO peeptable

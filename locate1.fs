@@ -22,7 +22,7 @@ variable included-file-buffers
 \ contain the contents of the included files (same index as
 \ included-files); filled on demand and cleared on session end.
 :noname ( -- )
-    0 included-file-buffers ! defers 'cold ; is 'cold
+    included-file-buffers off defers 'image ; is 'image
 
 : included-buffer ( u -- c-addr u2 )
     \ u is the index into included-files, c-addr u2 describes a buffer
