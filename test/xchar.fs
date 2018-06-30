@@ -24,8 +24,8 @@ base @ hex
 { test-string -trailing-garbage -> test-string }
 { test-string 2 - -trailing-garbage -> test-string 4 - }
 
-{ 0. <# s" Test" holds #> s" Test" compare -> 0 }
-{ 0. <# 606D xhold #> s" 恭" compare -> 0 }
+{ 0. <# 123. #s s" Test" holds #> s" Test123" compare -> 0 }
+{ 0. <# 123. #s 606D xhold #> s" 恭123" compare -> 0 }
 
 { 606D xc-width -> 2 }
 { 41 xc-width -> 1 }
