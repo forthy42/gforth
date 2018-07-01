@@ -212,7 +212,7 @@ int checkFiles(char ** patharg)
     *patharg=paths[i];
     if(!chdir(folder[i])) {
       if(!mkdir("gforth", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
-	if(NULL==(test=fopen("gforth/test-stamp", "w+"))) {
+	if((test=fopen("gforth/test-stamp", "w+"))) {
 	  fclose(test);
 	  unlink("gforth/test-stamp");
 	  LOGI("chdir(%s)\n", folder[i]);
