@@ -206,10 +206,13 @@ static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth
 int checkFiles(char ** patharg)
 {
   int i;
+  FILE * test;
 
   for(i=0; i<=2; i++) {
     *patharg=paths[i];
     if(!chdir(folder[i])) break;
+    if(NULL==(test=fopen("gfortherr.log", "w+"))) break;
+    fclose(test);
   }
 
   LOGI("chdir(%s)\n", folder[i]);

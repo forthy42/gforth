@@ -57,12 +57,15 @@ void zexpand(char * zfile)
 	switch(filename[0]) {
 	case 'f': // file
 	  LOGI("file %s, size %d\n", filename+1, filesize);
-	  out=fopen(filename+1, "w+");
-	  fwrite(filebuf, filesize, 1, out);
-	  if(ferror(out)) {
-	    LOGE("write error on file %s: %s\n", filename+1, strerror(errno));
+	  if(NULL==(out=fopen(filename+1, "w+"))) {
+	    LOGE("fopen error on file %s: %s\n", filename+1, strerror(errno));
+	  } else {
+	    fwrite(filebuf, filesize, 1, out);
+	    if(ferror(out)) {
+	      LOGE("write error on file %s: %s\n", filename+1, strerror(errno));
+	    }
+	    fclose(out);
 	  }
-	  fclose(out);
 	  break;
 	case 'd': // directory
 	  LOGI("dir %s\n", filename+1);
