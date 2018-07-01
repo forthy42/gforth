@@ -69,15 +69,21 @@ void zexpand(char * zfile)
 	  break;
 	case 'd': // directory
 	  LOGI("dir %s\n", filename+1);
-	  mkdir(filename+1, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	  if(mkdir(filename+1, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
+	    LOGE("mkdir(%s) failed: %s\n", filename+1, strerror(errno));
+	  }
 	  break;
 	case 'h': // hard link
 	  LOGI("hardlink %s\n", filename+1);
-	  link(filebuf, filename+1);
+	  if(link(filebuf, filename+1)) {
+	    LOGE("link(%s) failed: %s\n", filename+1, strerror(errno));
+	  }
 	  break;
 	case 's': // symlink
 	  LOGI("symlink %s\n", filename+1);
-	  symlink(filebuf, filename+1);
+	  if(symlink(filebuf, filename+1)) {
+	    LOGE("symlink(%s) failed: %s\n", filename+1, strerror(errno));
+	  }
 	  break;
 	}
       }

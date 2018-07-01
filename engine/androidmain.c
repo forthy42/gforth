@@ -210,12 +210,18 @@ int checkFiles(char ** patharg)
 
   for(i=0; i<=2; i++) {
     *patharg=paths[i];
-    if(!chdir(folder[i])) break;
-    if(NULL==(test=fopen("gfortherr.log", "w+"))) break;
-    fclose(test);
+    if(!chdir(folder[i])) {
+      if(!mkdir("gforth", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
+	if(NULL==(test=fopen("gforth/test-stamp", "w+"))) {
+	  fclose(test);
+	  unlink("gforth/test-stamp");
+	  LOGI("chdir(%s)\n", folder[i]);
+	  break;
+	}
+      }
+    }
   }
 
-  LOGI("chdir(%s)\n", folder[i]);
   LOGI("Extra arg: %s\n", *patharg);
 
   return checksha256sum(sha256sum, "gforth/current/sha256sum") &&
