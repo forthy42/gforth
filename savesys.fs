@@ -19,12 +19,12 @@
 
 : del-included-files ( addr u -- )
     included-files $@ bounds ?DO
-	2dup I $@ string-prefix? IF  I 0 2 pick $del  THEN
+	I $@ 2over string-prefix? IF  I 0 2 pick $del  THEN
     cell +LOOP  2drop ;
 
 : repl-included-files ( addr1 u1 addr2 u2 -- )
     included-files $@ bounds ?DO
-	2over I $@ string-prefix? IF   I 0 4 pick $del  2dup I 0 $ins  THEN
+	2over I $@ 2swap string-prefix? IF   I 0 4 pick $del  2dup I 0 $ins  THEN
     cell +LOOP  2drop 2drop ;
 
 : update-image-included-files ( -- )
