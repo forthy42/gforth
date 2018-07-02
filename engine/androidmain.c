@@ -211,13 +211,13 @@ int checkFiles(char ** patharg)
   for(i=0; i<=2; i++) {
     *patharg=paths[i];
     if(!chdir(folder[i])) {
-      if(!mkdir("gforth", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
-	if((test=fopen("gforth/test-stamp", "w+"))) {
-	  fclose(test);
-	  unlink("gforth/test-stamp");
-	  LOGI("chdir(%s)\n", folder[i]);
-	  break;
-	}
+      mkdir("gforth", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+      // may fail, because it exists
+      if((test=fopen("gforth/test-stamp", "w+"))) {
+	fclose(test);
+	unlink("gforth/test-stamp");
+	LOGI("chdir(%s)\n", folder[i]);
+	break;
       }
     }
   }
