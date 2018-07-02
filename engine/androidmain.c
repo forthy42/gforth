@@ -209,6 +209,7 @@ int checkFiles(char ** patharg)
 {
   int i;
   FILE * test;
+  char * logfile;
 
   for(i=0; i<=2; i++) {
     *patharg=paths[i];
@@ -226,6 +227,12 @@ int checkFiles(char ** patharg)
 
   rootdir=folder[i];
   LOGI("Extra arg: %s\n", *patharg);
+
+  asprintf(&logfile, "%s/gforthout.log", rootdir);
+  freopen(logfile, "w+", stdout);
+  asprintf(&logfile, "%s/gfortherr.log", rootdir);
+  freopen(logfile, "w+", stderr);
+  free(logfile);
 
   return checksha256sum(sha256sum, "gforth/current/sha256sum") &&
     checksha256sum(sha256arch, "gforth/" ARCH "/gforth/current/sha256sum");
@@ -267,6 +274,7 @@ void startForth(jniargs * startargs)
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
   asprintf(&homedir, "%s/gforth/home", rootdir);
   setenv("HOME", homedir, 1);
+  free(homedir);
   setenv("SHELL", "/system/bin/sh", 1);
   setenv("libccdir", startargs->libdir, 1);
   setenv("LANG", startargs->locale, 1);
