@@ -219,12 +219,12 @@ int checkFiles(char ** patharg)
 	fclose(test);
 	unlink("gforth/test-stamp");
 	LOGI("chdir(%s)\n", folder[i]);
-	rootdir=folder[i];
 	break;
       }
     }
   }
 
+  rootdir=folder[i];
   LOGI("Extra arg: %s\n", *patharg);
 
   return checksha256sum(sha256sum, "gforth/current/sha256sum") &&
@@ -265,7 +265,7 @@ void startForth(jniargs * startargs)
   }
 
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
-  asprintf(homedir, "%s/gforth/home", rootdir);
+  asprintf(&homedir, "%s/gforth/home", rootdir);
   setenv("HOME", homedir, 1);
   setenv("SHELL", "/system/bin/sh", 1);
   setenv("libccdir", startargs->libdir, 1);
