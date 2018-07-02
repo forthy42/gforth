@@ -19,6 +19,7 @@
 0 to infile-id
 s" GFORTHDESTDIR" getenv d0<> [IF]
     s" GFORTHDESTDIR" getenv s" GFORTHINSDIR" getenv repl-included-files
+    .included
 [THEN]
 ." load terminal-server" cr stdout flush-file throw
 require ansi.fs
