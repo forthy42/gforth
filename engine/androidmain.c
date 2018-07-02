@@ -361,14 +361,11 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
   jmethodID jid;
   jclass cls;
   JNIEnv * env;
-  char* logfile;
   
   LOGI("Enter onload\n");
-
-  asprintf(&logfile, "%s/gforthout.log", rootdir);
-  freopen(logfile, "w+", stdout);
-  asprintf(&logfile, "%s/gfortherr.log", rootdir);
-  freopen(logfile, "w+", stderr);
+  
+  freopen("/sdcard/gforthout.log", "w+", stdout);
+  freopen("/sdcard/gfortherr.log", "w+", stderr);
 
   pipe(startargs.ke_fd);
 
