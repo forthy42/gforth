@@ -18,7 +18,10 @@
 
 0 to infile-id
 s" GFORTHDESTDIR" getenv d0<> [IF]
-    s" GFORTHDESTDIR" getenv s" GFORTHINSDIR" getenv repl-included-files
+    ." Replace dirs:" cr
+    s" GFORTHDESTDIR" getenv 2dup type cr
+    s" GFORTHINSDIR" getenv 2dup type cr
+    repl-included-files
     .included
 [THEN]
 ." load terminal-server" cr stdout flush-file throw

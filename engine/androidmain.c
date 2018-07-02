@@ -228,11 +228,13 @@ int checkFiles(char ** patharg)
   rootdir=folder[i];
   LOGI("Extra arg: %s\n", *patharg);
 
-  asprintf(&logfile, "%s/gforthout.log", rootdir);
-  freopen(logfile, "w+", stdout);
-  asprintf(&logfile, "%s/gfortherr.log", rootdir);
-  freopen(logfile, "w+", stderr);
-  free(logfile);
+  if(i != 0) {
+    asprintf(&logfile, "%s/gforthout.log", rootdir);
+    freopen(logfile, "w+", stdout);
+    asprintf(&logfile, "%s/gfortherr.log", rootdir);
+    freopen(logfile, "w+", stderr);
+    free(logfile);
+  }
 
   return checksha256sum(sha256sum, "gforth/current/sha256sum") &&
     checksha256sum(sha256arch, "gforth/" ARCH "/gforth/current/sha256sum");
@@ -304,6 +306,8 @@ void startForth(jniargs * startargs)
   } else {
     LOGI("booting not successful...\n");
     unlink("../current/sha256sum");
+    fflush(stdout);
+    fflush(stderr);
   }
   post("appexit");
 
