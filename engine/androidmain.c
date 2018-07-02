@@ -275,6 +275,10 @@ void startForth(jniargs * startargs)
   asprintf(&homedir, "%s/gforth/home", rootdir);
   setenv("HOME", homedir, 1);
   free(homedir);
+  if(rootdir != folder[0]) {
+    setenv("GFORTHDESTDIR", folder[0], 1);
+    setenv("GFORTHINSDIR", rootdir, 1);
+  }
   setenv("SHELL", "/system/bin/sh", 1);
   setenv("libccdir", startargs->libdir, 1);
   setenv("LANG", startargs->locale, 1);

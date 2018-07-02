@@ -17,6 +17,9 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 0 to infile-id
+s" GFORTHDESTDIR" getenv d0<> [IF]
+    s" GFORTHDESTDIR" getenv s" GFORTHINSDIR" getenv repl-included-files
+[THEN]
 ." load terminal-server" cr stdout flush-file throw
 require ansi.fs
 require unix/terminal-server.fs

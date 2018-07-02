@@ -17,10 +17,18 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: update-image-included-files ( -- )
-    s" GFORTHDESTDIR" getenv  included-files $@ bounds ?DO
+: del-included-files ( addr u -- )
+    included-files $@ bounds ?DO
 	2dup I $@ string-prefix? IF  I 0 2 pick $del  THEN
     cell +LOOP  2drop ;
+
+: repl-included-files ( addr1 u1 addr2 u2 -- )
+    included-files $@ bounds ?DO
+	2over I $@ string-prefix? IF   I 0 4 pick $del  2dup I 0 $ins  THEN
+    cell +LOOP  2drop 2drop ;
+
+: update-image-included-files ( -- )
+    s" GFORTHDESTDIR" getenv del-included-files ;
 
 : update-maintask ( -- )
     throw-entry main-task udp @ throw-entry next-task - /string move ;
