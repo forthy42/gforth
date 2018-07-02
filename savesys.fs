@@ -24,7 +24,9 @@
 
 : repl-included-files ( addr1 u1 addr2 u2 -- )
     included-files $@ bounds ?DO
-	2over I $@ 2swap string-prefix? IF   I 0 4 pick $del  2dup I 0 $ins  THEN
+	2over I $@ 2swap string-prefix? IF
+	    I 0 4 pick $del  2dup I 0 $ins
+	THEN
     cell +LOOP  2drop 2drop ;
 
 : update-image-included-files ( -- )
