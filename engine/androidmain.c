@@ -202,6 +202,8 @@ static const char *paths[] = { "--",
 			       "--path=/mnt/sdcard/gforth/current:/mnt/sdcard/gforth/" ARCH "/gforth/current:/mnt/sdcard/gforth/site-forth:/mnt/sdcard/gforth/" ARCH "/gforth/site-forth",
 			       "--path=/data/data/gnu.gforth/files/gforth/current:/data/data/gnu.gforth/files/gforth/" ARCH "/gforth/current:/data/data/gnu.gforth/files/gforth/site-forth:/data/data/gnu.gforth/files/gforth/" ARCH "/gforth/site-forth" };
 static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
+char *rootdir;
+char *homedir;
 
 int checkFiles(char ** patharg)
 {
@@ -217,6 +219,7 @@ int checkFiles(char ** patharg)
 	fclose(test);
 	unlink("gforth/test-stamp");
 	LOGI("chdir(%s)\n", folder[i]);
+	rootdir=folder[i];
 	break;
       }
     }
@@ -262,7 +265,8 @@ void startForth(jniargs * startargs)
   }
 
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
-  setenv("HOME", "/sdcard/gforth/home", 1);
+  asprintf(homedir, "%s/gforth/home", rootdir);
+  setenv("HOME", homedir, 1);
   setenv("SHELL", "/system/bin/sh", 1);
   setenv("libccdir", startargs->libdir, 1);
   setenv("LANG", startargs->locale, 1);
