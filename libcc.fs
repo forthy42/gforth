@@ -1006,8 +1006,11 @@ tmp$ $execstr-ptr !
     clear-libs
     libcc-named-dir libcc-path also-path
     s" libccdir" getenv 2dup d0= IF
-	2drop [ s" libccdir" getenv ] SLiteral
-    THEN  libcc-path also-path ;
+	2drop [ s" libccdir" getenv ':' 0 substc ] SLiteral
+    ELSE  ':' 0 substc  THEN  libcc-path also-path
+    s" GFORTHCCPATH" getenv 2dup d0<> IF
+	':' 0 substc libcc-path also-path
+    ELSE  2drop  THEN ;
 
 init-libcc
 

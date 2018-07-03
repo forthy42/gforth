@@ -93,10 +93,12 @@ User tfile
     \G Add directory @var{dir} to the Forth search path.
     fpath path+ ;
 
+: substc ( addr u charold charnew -- addr u )
+    2over bounds ?DO over i c@ = IF dup i c! THEN LOOP  2drop ;
+
 : path= ( path-addr "dir1|dir2|dir3" ) \ gforth
     \G Make a complete new search path; the path separator is |.
-    name 2dup bounds ?DO i c@ '| = IF 0 i c! THEN LOOP
-    rot only-path ;
+    parse-name '|' 0 substc rot only-path ;
 
 : fpath= ( "dir1|dir2|dir3" ) \ gforth
     \G Make a complete new Forth search path; the path separator is |.
@@ -124,7 +126,7 @@ User tfile
     \G or if it is in the form ./*, extended regexp: ^[/~]|./, or if
     \G it has a colon as second character ("C:...").  Paths simply
     \G containing a / are not absolute!
-    2dup 2 u> swap 1+ c@ ': = and >r \ dos absoulte: c:/....
+    2dup 2 u> swap 1+ c@ ':' = and >r \ dos absoulte: c:/....
     over c@ '/ = >r
     over c@ '~ = >r
     \ 2dup S" ../" string-prefix? r> or >r \ not catered for in expandtopic
