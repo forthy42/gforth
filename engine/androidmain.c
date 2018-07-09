@@ -273,18 +273,23 @@ void startForth(jniargs * startargs)
     free(gforth_gz);
   }
 
-  snprintf(statepointer, sizeof(statepointer), "%p", startargs);
-  asprintf(&homedir, "%s/gforth/home", rootdir);
-  setenv("HOME", homedir, 1);
-  free(homedir);
-  if(rootdir != folder[0]) {
-    setenv("GFORTHDESTDIR", folder[0], 1);
-    setenv("GFORTHINSDIR", rootdir, 1);
+  if(rootdir) {
+    asprintf(&homedir, "%s/gforth/home", rootdir);
+    setenv("HOME", homedir, 1);
+    free(homedir);
+    if((rootdir != folder[0])) {
+      setenv("GFORTHDESTDIR", folder[0], 1);
+      setenv("GFORTHINSDIR", rootdir, 1);
+    }
+  } else {
+    setenv("HOME", "/sdcard/gforth/home", 1);
   }
   setenv("SHELL", "/system/bin/sh", 1);
   setenv("libccdir", startargs->libdir, 1);
   setenv("LANG", startargs->locale, 1);
   setenv("LC_ALL", startargs->locale, 1);
+
+  snprintf(statepointer, sizeof(statepointer), "%p", startargs);
   setenv("APP_STATE", statepointer, 1);
   
   chdir("gforth/home");
@@ -306,10 +311,11 @@ void startForth(jniargs * startargs)
   } else {
     LOGI("booting not successful...\n");
     unlink("../current/sha256sum");
-    fflush(stdout);
-    fflush(stderr);
   }
   post("appexit");
+
+  fflush(stdout);
+  fflush(stderr);
 
   exit(retvalue);
 }
