@@ -415,7 +415,7 @@ locals-types definitions
 
 : F! ( "name" -- a-addr u ) \ gforth w-store
     create-local [IFDEF] set-to ['] to-f! set-to [THEN]
-    2
+    1
   does> ( Compilation: -- ) ( Run-time: -- w )
     @ lp-offset compile-@local postpone f@ ;
 
@@ -433,7 +433,7 @@ locals-types definitions
 
 : D! ( "name" -- a-addr u ) \ gforth w-store
     create-local [IFDEF] set-to ['] to-d! set-to [THEN]
-    3
+    1
   does> ( Compilation: -- ) ( Run-time: -- w )
     @ lp-offset compile-@local postpone 2@ ;
 
@@ -451,7 +451,7 @@ locals-types definitions
 
 : C! ( "name" -- a-addr u ) \ gforth w-store
     create-local [IFDEF] set-to ['] to-c! set-to [THEN]
-    4
+    1
   does> ( Compilation: -- ) ( Run-time: -- w )
     @ lp-offset compile-@local postpone c@ ;
 
