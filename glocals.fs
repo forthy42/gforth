@@ -292,6 +292,14 @@ opt: drop postpone swap postpone >l postpone >l ;
     locals-size @ swap !
     val-part @ IF  postpone false  THEN  postpone lp@ postpone c! ;
 
+Create locals-pushlocals
+' compile-pushlocal-w ,
+' compile-pushlocal-f ,
+' compile-pushlocal-d ,
+' compile-pushlocal-c ,
+
+locals-pushlocals Value compile-pushlocals
+
 (field) locals-name-size+ 10 cells , \ fields + wiggle room, name size must be added
 
 : create-local1 ( "name" -- a-addr )
@@ -351,99 +359,99 @@ variable locals-dp \ so here's the special dp for locals.
 Create 2!-table ' 2! , ' 2+! ,
 Create c!-table ' c! , ' c+! ,
 : to-w: ( -- ) -14 throw ;
-comp: !!?addr!! drop POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
+comp: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
 : to-d: ( -- ) -14 throw ;
-comp: !!?addr!! drop POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
+comp: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
 : to-c: ( -- ) -14 throw ;
-comp: !!?addr!! drop POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
+comp: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
 : to-f: ( -- ) -14 throw ;
-comp: !!?addr!! drop POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
+comp: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
 : to-w! ( -- ) -14 throw ;
-comp: !!?addr!! drop >body @ lp-offset compile-@local !-table to-!, ;
+comp: ( !!?addr!! ) drop >body @ lp-offset compile-@local !-table to-!, ;
 : to-d! ( -- ) -14 throw ;
-comp: !!?addr!! drop >body @ lp-offset compile-@local 2!-table to-!, ;
+comp: ( !!?addr!! ) drop >body @ lp-offset compile-@local 2!-table to-!, ;
 : to-c! ( -- ) -14 throw ;
-comp: !!?addr!! drop >body @ lp-offset compile-@local c!-table to-!, ;
+comp: ( !!?addr!! ) drop >body @ lp-offset compile-@local c!-table to-!, ;
 : to-f! ( -- ) -14 throw ;
-comp: !!?addr!! drop >body @ lp-offset compile-@local @ f!-table to-!, ;
+comp: ( !!?addr!! ) drop >body @ lp-offset compile-@local f!-table to-!, ;
 
 : val-part-off ( -- ) val-part off ;
 
 vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
 
-: W: ( "name" -- a-addr xt ) \ gforth w-colon
+: W: ( "name" -- a-addr u ) \ gforth w-colon
     create-local [IFDEF] set-to ['] to-w: set-to [THEN]
     \ xt produces the appropriate locals pushing code when executed
-    ['] compile-pushlocal-w
+    1
   does> ( Compilation: -- ) ( Run-time: -- w )
     \ compiles a local variable access
     @ lp-offset compile-@local ;
 
-: W^ ( "name" -- a-addr xt ) \ gforth w-caret
+: W^ ( "name" -- a-addr u ) \ gforth w-caret
     create-local
-    ['] compile-pushlocal-w
+    1
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-: W! ( "name" -- a-addr xt ) \ gforth w-store
+: W! ( "name" -- a-addr u ) \ gforth w-store
     create-local [IFDEF] set-to ['] to-w! set-to [THEN]
-    ['] compile-pushlocal-w
+    1
   does> ( Compilation: -- ) ( Run-time: -- w )
     @ lp-offset compile-@local postpone @ ;
 
-: F: ( "name" -- a-addr xt ) \ gforth f-colon
+: F: ( "name" -- a-addr u ) \ gforth f-colon
     create-local [IFDEF] set-to ['] to-f: set-to [THEN]
-    ['] compile-pushlocal-f
+    2
   does> ( Compilation: -- ) ( Run-time: -- w )
     @ lp-offset compile-f@local ;
 
-: F^ ( "name" -- a-addr xt ) \ gforth f-caret
+: F^ ( "name" -- a-addr u ) \ gforth f-caret
     create-local
-    ['] compile-pushlocal-f
+    2
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-: F! ( "name" -- a-addr xt ) \ gforth w-store
+: F! ( "name" -- a-addr u ) \ gforth w-store
     create-local [IFDEF] set-to ['] to-f! set-to [THEN]
-    ['] compile-pushlocal-w
+    2
   does> ( Compilation: -- ) ( Run-time: -- w )
     @ lp-offset compile-@local postpone f@ ;
 
-: D: ( "name" -- a-addr xt ) \ gforth d-colon
+: D: ( "name" -- a-addr u ) \ gforth d-colon
     create-local [IFDEF] set-to ['] to-d: set-to [THEN]
-    ['] compile-pushlocal-d
+    3
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, postpone 2@ ;
 
-: D^ ( "name" -- a-addr xt ) \ gforth d-caret
+: D^ ( "name" -- a-addr u ) \ gforth d-caret
     create-local
-    ['] compile-pushlocal-d
+    3
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-: D! ( "name" -- a-addr xt ) \ gforth w-store
+: D! ( "name" -- a-addr u ) \ gforth w-store
     create-local [IFDEF] set-to ['] to-d! set-to [THEN]
-    ['] compile-pushlocal-w
+    3
   does> ( Compilation: -- ) ( Run-time: -- w )
     @ lp-offset compile-@local postpone 2@ ;
 
-: C: ( "name" -- a-addr xt ) \ gforth c-colon
+: C: ( "name" -- a-addr u ) \ gforth c-colon
     create-local [IFDEF] set-to ['] to-c: set-to [THEN]
-    ['] compile-pushlocal-c
+    4
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, postpone c@ ;
 
-: C^ ( "name" -- a-addr xt ) \ gforth c-caret
+: C^ ( "name" -- a-addr u ) \ gforth c-caret
     create-local
-    ['] compile-pushlocal-c
+    4
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-: C! ( "name" -- a-addr xt ) \ gforth w-store
+: C! ( "name" -- a-addr u ) \ gforth w-store
     create-local [IFDEF] set-to ['] to-c! set-to [THEN]
-    ['] compile-pushlocal-w
+    4
   does> ( Compilation: -- ) ( Run-time: -- w )
     @ lp-offset compile-@local postpone c@ ;
 
@@ -542,7 +550,7 @@ locals-types definitions
     begin
 	dup
     while
-	execute
+	1- cells compile-pushlocals + perform
     repeat
     drop vt,
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
