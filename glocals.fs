@@ -279,10 +279,13 @@ Variable val-part
     swap !
     val-part @ IF  postpone 0e  THEN  postpone f>l ;
 
+: 2>l swap >l >l ;
+opt: drop postpone swap postpone >l postpone >l ;
+
 : compile-pushlocal-d ( a-addr -- ) ( run-time: w1 w2 -- )
     locals-size @ alignlp-w cell+ cell+ dup locals-size !
     swap !
-    val-part @ IF  postpone 0.  THEN  postpone swap postpone >l postpone >l ;
+    val-part @ IF  postpone 0.  THEN  postpone 2>l ;
 
 : compile-pushlocal-c ( a-addr -- ) ( run-time: w -- )
     -1 chars compile-lp+!
@@ -356,6 +359,15 @@ comp: !!?addr!! drop POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
 : to-f: ( -- ) -14 throw ;
 comp: !!?addr!! drop POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
+: to-w! ( -- ) -14 throw ;
+comp: !!?addr!! drop >body @ lp-offset compile-@local !-table to-!, ;
+: to-d! ( -- ) -14 throw ;
+comp: !!?addr!! drop >body @ lp-offset compile-@local 2!-table to-!, ;
+: to-c! ( -- ) -14 throw ;
+comp: !!?addr!! drop >body @ lp-offset compile-@local c!-table to-!, ;
+: to-f! ( -- ) -14 throw ;
+comp: !!?addr!! drop >body @ lp-offset compile-@local @ f!-table to-!, ;
+
 : val-part-off ( -- ) val-part off ;
 
 vocabulary locals-types \ this contains all the type specifyers, -- and }
@@ -375,6 +387,12 @@ locals-types definitions
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
+: W! ( "name" -- a-addr xt ) \ gforth w-store
+    create-local [IFDEF] set-to ['] to-w! set-to [THEN]
+    ['] compile-pushlocal-w
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    @ lp-offset compile-@local postpone @ ;
+
 : F: ( "name" -- a-addr xt ) \ gforth f-colon
     create-local [IFDEF] set-to ['] to-f: set-to [THEN]
     ['] compile-pushlocal-f
@@ -386,6 +404,12 @@ locals-types definitions
     ['] compile-pushlocal-f
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
+
+: F! ( "name" -- a-addr xt ) \ gforth w-store
+    create-local [IFDEF] set-to ['] to-f! set-to [THEN]
+    ['] compile-pushlocal-w
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    @ lp-offset compile-@local postpone f@ ;
 
 : D: ( "name" -- a-addr xt ) \ gforth d-colon
     create-local [IFDEF] set-to ['] to-d: set-to [THEN]
@@ -399,6 +423,12 @@ locals-types definitions
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
+: D! ( "name" -- a-addr xt ) \ gforth w-store
+    create-local [IFDEF] set-to ['] to-d! set-to [THEN]
+    ['] compile-pushlocal-w
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    @ lp-offset compile-@local postpone 2@ ;
+
 : C: ( "name" -- a-addr xt ) \ gforth c-colon
     create-local [IFDEF] set-to ['] to-c: set-to [THEN]
     ['] compile-pushlocal-c
@@ -410,6 +440,12 @@ locals-types definitions
     ['] compile-pushlocal-c
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
+
+: C! ( "name" -- a-addr xt ) \ gforth w-store
+    create-local [IFDEF] set-to ['] to-c! set-to [THEN]
+    ['] compile-pushlocal-w
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    @ lp-offset compile-@local postpone c@ ;
 
 : | val-part on ['] val-part-off ;
 
@@ -444,6 +480,12 @@ c^ some-caddr 2drop
 d^ some-daddr 2drop
 f^ some-faddr 2drop
 w^ some-waddr 2drop
+
+\ these "locals" create the associated vts
+c! some-cref 2drop
+d! some-dref 2drop
+f! some-fref 2drop
+w! some-wref 2drop
 
 ' dict-execute1 is dict-execute \ now the real thing
     

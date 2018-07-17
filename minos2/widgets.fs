@@ -21,6 +21,7 @@
 \ to make things easier, neither drawable elements nor boxes need an actor.
 
 debug: time(
+debug: gui(
 \ +db time( \ )
 
 [IFUNDEF] no-file#
@@ -1265,11 +1266,12 @@ require animation.fs
 
 ' widget-sync is screen-ops
 
-: widgets-loop ( -- )  level# @ 0= IF  enter-minos  THEN
+: widgets-loop ( -- ) depth { d }
+    level# @ 0= IF  enter-minos  THEN
     1 level# +!@ >r  top-widget .widget-draw
     BEGIN  0 looper-to# anims[] $@len ?sync or select
 	#looper  time( ." looper: " .!time cr )
-	widget-sync
+	widget-sync  gui( depth d u> IF  ~~bt  THEN )
     level# @ r@ = UNTIL  r> 0= IF  leave-minos  THEN ;
 
 previous previous previous
