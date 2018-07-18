@@ -40,7 +40,7 @@ locals-types definitions
     0 lit, here cell- >r
     ]] allot laddr# [[ 0 , ]] >r here lp! [[
     :}
-    locals-size @ 3 cells maxaligned + r> !
+    locals-size @ [ 3 cells maxaligned ]L + r> !
     [: ]] r> lp! [[ ;] end-d ;
 
 : alloch ( size -- addr ) \ addr is the end of the allocated region
@@ -50,13 +50,13 @@ locals-types definitions
     0 lit, here cell- >r
     ]] alloch laddr# [[ 0 , ]] >r lp! [[
     :}
-    locals-size @ 3 cells maxaligned + r> !
+    locals-size @ [ 3 cells maxaligned ]L + r> !
     [: ]] r> lp! [[ ;] end-d ;
 
 : :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
     ]] lp+!# [[ here >r 0 ,
     :}
-    locals-size @ 3 cells maxaligned +
+    locals-size @ [ 3 cells maxaligned ]L +
     dup locals-sizes stack> + locals-sizes >stack
     negate r> !
     ['] noop end-d ;
