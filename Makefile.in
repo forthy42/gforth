@@ -248,6 +248,7 @@ GFORTH_FI_SRC1=\
 
 GFORTH_FI_SRC2=\
 	savesys.fs \
+	closures.fs \
 	environ.fs \
 	errors.fs \
 	exboot.fs \

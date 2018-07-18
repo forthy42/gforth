@@ -359,17 +359,7 @@ defer adjust-locals-list ( wid -- )
 : wrap! ( wrap-sys -- )
     ( unlocal-state ! ) to locals-wordlist leave-sp ! lastcfa ! last ! vtrestore ;
 
-: int-[: ( -- flag colon-sys )
-    wrap@ false :noname ;
-: comp-[: ( -- quotation-sys flag colon-sys )
-    wrap@
-    postpone AHEAD
-    locals-list @ locals-list off
-    postpone SCOPE
-    true  :noname  ;
-' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
-\G Starts a quotation
-
+: (int-;]) ( some-sys lastxt -- ) >r vt, wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
     ] postpone ENDSCOPE vt,
@@ -378,7 +368,18 @@ defer adjust-locals-list ( wid -- )
     wrap!
     r> postpone ALiteral ;
 
+: int-[: ( -- flag colon-sys )
+    wrap@ ['] (int-;]) :noname ;
+: comp-[: ( -- quotation-sys flag colon-sys )
+    wrap@
+    postpone AHEAD
+    locals-list @ locals-list off
+    postpone SCOPE
+    ['] (;])  :noname  ;
+' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
+\G Starts a quotation
+
 : ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
     \g ends a quotation
-    POSTPONE ; swap IF (;]) ELSE >r vt, wrap! r> THEN ( xt ) ; immediate
+    POSTPONE ; swap execute ( xt ) ; immediate
 

@@ -180,12 +180,38 @@ variable locals-mem-list \ linked list of all locals name memory in
 
 Variable val-part
 
+: locals, ( addr size -- )
+    dup locals-size ! swap ! ;
+
 : compile-pushlocal-w ( a-addr -- ) ( run-time: w -- )
 \ compiles a push of a local variable, and adjusts locals-size
 \ stores the offset of the local variable to a-addr
-    locals-size @ alignlp-w cell+ dup locals-size !
-    swap !
+    locals-size @ alignlp-w cell+ locals,
     val-part @ IF  postpone false  THEN  postpone >l ;
+
+: compile-pushlocal-f ( a-addr -- ) ( run-time: f -- )
+    locals-size @ alignlp-f float+ locals,
+    val-part @ IF  postpone 0e  THEN  postpone f>l ;
+
+: 2>l swap >l >l ;
+opt: drop postpone swap postpone >l postpone >l ;
+
+: compile-pushlocal-d ( a-addr -- ) ( run-time: w1 w2 -- )
+    locals-size @ alignlp-w cell+ cell+ locals,
+    val-part @ IF  postpone #0.  THEN  postpone 2>l ;
+
+: compile-pushlocal-c ( a-addr -- ) ( run-time: w -- )
+    -1 chars compile-lp+!
+    locals-size @ swap !
+    val-part @ IF  postpone false  THEN  postpone lp@ postpone c! ;
+
+Create pushlocals
+' compile-pushlocal-w ,
+' compile-pushlocal-f ,
+' compile-pushlocal-d ,
+' compile-pushlocal-c ,
+
+pushlocals Value compile-pushlocals
 
 \ locals list operations
 
@@ -273,32 +299,6 @@ Variable val-part
      >stderr ." compiler was overly optimistic about locals at a BEGIN" cr
    \ !! print assumption and reality
  then ;
-
-: compile-pushlocal-f ( a-addr -- ) ( run-time: f -- )
-    locals-size @ alignlp-f float+ dup locals-size !
-    swap !
-    val-part @ IF  postpone 0e  THEN  postpone f>l ;
-
-: 2>l swap >l >l ;
-opt: drop postpone swap postpone >l postpone >l ;
-
-: compile-pushlocal-d ( a-addr -- ) ( run-time: w1 w2 -- )
-    locals-size @ alignlp-w cell+ cell+ dup locals-size !
-    swap !
-    val-part @ IF  postpone 0.  THEN  postpone 2>l ;
-
-: compile-pushlocal-c ( a-addr -- ) ( run-time: w -- )
-    -1 chars compile-lp+!
-    locals-size @ swap !
-    val-part @ IF  postpone false  THEN  postpone lp@ postpone c! ;
-
-Create locals-pushlocals
-' compile-pushlocal-w ,
-' compile-pushlocal-f ,
-' compile-pushlocal-d ,
-' compile-pushlocal-c ,
-
-locals-pushlocals Value compile-pushlocals
 
 (field) locals-name-size+ 10 cells , \ fields + wiggle room, name size must be added
 
@@ -544,7 +544,7 @@ synonym {: {
 
 locals-types definitions
 
-: } ( vtaddr u latest latestxt wid 0 a-addr1 xt1 ... -- ) \ gforth close-brace
+: } ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace
     \ ends locals definitions
     ]
     begin
