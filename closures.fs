@@ -21,50 +21,71 @@
 
 require glocals.fs
 
-0 Value last-closure-size
-
 Create do-closure
 DOES> ;
 ' noop set->int
 ' (noname->comp) set->comp
 
-: end-dlocals ( -- )
-    r> r> locals-size ! >r  ]] r> [[ ;
+Defer end-d   ' execute is end-d
 
-Defer end-d   ' end-dlocals   is end-d
+$10 stack: locals-sizes
+$10 stack: locals-lists
+
+: >addr ( xt -- addr )
+    [ cell maxaligned ]L - ;
 
 locals-types definitions
 
 : :}d ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
-    0 lit, here cell- to last-closure-size
+    0 lit, here cell- >r
     ]] allot laddr# [[ 0 , ]] >r here lp! [[
     :}
-    locals-size @ 3 cells maxaligned + last-closure-size !
-    end-d ;
+    locals-size @ 3 cells maxaligned + r> !
+    [: ]] r> lp! [[ ;] end-d ;
+
+: alloch ( size -- addr ) \ addr is the end of the allocated region
+    dup allocate throw + ;
+
+: :}m ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+    0 lit, here cell- >r
+    ]] alloch laddr# [[ 0 , ]] >r lp! [[
+    :}
+    locals-size @ 3 cells maxaligned + r> !
+    [: ]] r> lp! [[ ;] end-d ;
+
+: :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+    ]] lp+!# [[ here >r 0 ,
+    :}
+    locals-size @ 3 cells maxaligned +
+    dup locals-sizes stack> + locals-sizes >stack
+    negate r> !
+    ['] noop end-d ;
 
 forth definitions
 
 : (closure-;]) ( some-sys lastxt -- )
     ]
     postpone THEN
-    wrap! locals-list ! locals-size !
-    ['] end-dlocals is end-d ;
+    wrap!
+    locals-lists stack> locals-list !
+    locals-sizes stack> locals-size !
+    ['] execute is end-d ;
 
 : closure> ( body -- addr )
     >l dodoes: >l lp@
     [ ' do-closure cell- @ ]L >l
     [ cell maxaligned cell <> ] [IF] 0 >l [THEN] ;
-: end-dclosure ( -- closure-sys )
-    wrap@
+: end-dclosure ( unravel-xt -- closure-sys )
+    >r wrap@
     postpone lit >mark
-    ]] closure> r> lp! AHEAD BUT THEN lp+!# [[ locals-size @ negate ,
+    ]] closure> [[ r> execute ]] AHEAD BUT THEN lp+!# [[ locals-size @ negate ,
     locals-size @ ]] laddr# [[ 0 , ]] literal move [[
     ['] (closure-;]) defstart  last @ lastcfa @ defstart ;
 
 : [{: ( -- vtaddr u latest latestxt wid 0 )
     [: ] drop ;] defstart
-    locals-size @ locals-size off
-    locals-list @ locals-list off
+    locals-size @ locals-sizes >stack  locals-size off
+    locals-list @ locals-lists >stack  locals-list off
     ['] end-dclosure is end-d
     postpone {:
 ; immediate
