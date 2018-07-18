@@ -248,7 +248,6 @@ GFORTH_FI_SRC1=\
 
 GFORTH_FI_SRC2=\
 	savesys.fs \
-	closures.fs \
 	environ.fs \
 	errors.fs \
 	exboot.fs \
@@ -390,7 +389,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
 	unix/%, $(UNIX_SRC)) date.fs script.fs wf.fs traceall.fs rec-scope.fs \
 	rec-env.fs rec-meta.fs notfound.fs utf16.fs archive.fs cilk.fs	      \
 	sections.fs fixfiles.fs bits.fs reverse-words.fs config.fs	      \
-	set-compsem.fs
+	set-compsem.fs closures.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
