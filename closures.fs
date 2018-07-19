@@ -48,10 +48,10 @@ locals-types definitions
 : :}d ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
     ['] allocd :}* ;
 
-: :}m ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+: :}m ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-heap
     ['] alloch :}* ;
 
-: :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+: :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
     :}
     locals-size @ [ 3 cells maxaligned ]L +
     locals-sizes stack> + locals-sizes >stack
