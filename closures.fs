@@ -88,7 +88,7 @@ forth definitions
     postpone {:
 ; immediate
 
-true [IF]
+false [IF]
     : test [{: a f: b d: c :}d a b c ;] ;
     5 3.3e #1234. test execute d. f. . cr
 
