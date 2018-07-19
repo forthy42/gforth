@@ -102,6 +102,7 @@ false [IF]
     : man-or-boy? ( n -- ) [: 1e ;] [: -1e ;] 2dup swap [: 0e ;] A f. ;
     
     \ start with: gforth -l64M -r8M closures.fs
+    \ start with: gforth-fast -l4G -r512M closures.fs if you want to go up to 25
     14 set-precision
-    20 0 [DO] [i] man-or-boy? [LOOP] cr
+    20 0 [DO] [i] dup . man-or-boy? cr [LOOP]
 [THEN]
