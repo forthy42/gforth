@@ -45,6 +45,9 @@ locals-types definitions
     locals-size @ [ 3 cells maxaligned ]L + r> !
     [: ]] r> lp! [[ ;] end-d ;
 
+: :}xt ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
+    [: swap execute ;] :}* ;
+
 : :}d ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
     ['] allocd :}* ;
 
