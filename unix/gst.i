@@ -8,6 +8,7 @@
 %}
 
 #define GST_API
+#define GST_GL_API
 #define GST_DEPRECATED_FOR(x)
 #define GST_USE_UNSTABLE_API
 #define G_BEGIN_DECLS
@@ -24,6 +25,7 @@
 
 // exec: sed -e 's/\(c-function .*_valist\)/\\ \1/g' -e 's/\(c-function _gst_gl_feature_check\)/\\ \1/g'
 
+%apply char { gchar }
 %apply int { gboolean, gint, GLint, gint32 }
 %apply unsigned int { GType, guint, gsize, GstFormat, GLuint, GstGLFormat, guint32, GstGLTextureTarget, guint16 }
 %apply long long { gint64 }
