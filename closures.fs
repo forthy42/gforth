@@ -19,8 +19,6 @@
 
 \ more information in http://www.complang.tuwien.ac.at/anton/euroforth/ef18/drafts/ertl.pdf
 
-require glocals.fs
-
 Create do-closure
 DOES> ;
 ' noop set->int
@@ -35,22 +33,23 @@ $10 stack: locals-lists
     [ cell maxaligned ]L - ;
 : alloch ( size -- addr ) \ addr is the end of the allocated region
     dup allocate throw + ;
+: allocd ( size -- addr ) \ addr is the end of the allocated region
+    allot here ;
 
 locals-types definitions
 
-: :}d ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+: :}* ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... xt -- ) \ gforth close-brace-dictionary
     0 lit, here cell- >r
-    ]] allot laddr# [[ 0 , ]] >r here lp! [[
+    compile, ]] laddr# [[ 0 , ]] >r lp! [[
     :}
     locals-size @ [ 3 cells maxaligned ]L + r> !
     [: ]] r> lp! [[ ;] end-d ;
 
+: :}d ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+    ['] allocd :}* ;
+
 : :}m ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
-    0 lit, here cell- >r
-    ]] alloch laddr# [[ 0 , ]] >r lp! [[
-    :}
-    locals-size @ [ 3 cells maxaligned ]L + r> !
-    [: ]] r> lp! [[ ;] end-d ;
+    ['] alloch :}* ;
 
 : :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
     :}
@@ -85,7 +84,7 @@ forth definitions
     locals-list @ locals-lists >stack  locals-list off
     ['] end-dclosure is end-d
     postpone {:
-; immediate
+; immediate compile-only
 
 false [IF]
     : test [{: a f: b d: c :}d a b c ;] ;
