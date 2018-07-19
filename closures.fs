@@ -33,6 +33,8 @@ $10 stack: locals-lists
 
 : >addr ( xt -- addr )
     [ cell maxaligned ]L - ;
+: alloch ( size -- addr ) \ addr is the end of the allocated region
+    dup allocate throw + ;
 
 locals-types definitions
 
@@ -42,9 +44,6 @@ locals-types definitions
     :}
     locals-size @ [ 3 cells maxaligned ]L + r> !
     [: ]] r> lp! [[ ;] end-d ;
-
-: alloch ( size -- addr ) \ addr is the end of the allocated region
-    dup allocate throw + ;
 
 : :}m ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
     0 lit, here cell- >r
