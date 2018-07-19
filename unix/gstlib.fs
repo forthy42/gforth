@@ -28,7 +28,7 @@ c-library gstlib
     s" gstreamer-1.0" add-lib
     s" a a 0" vararg$ $!
     
-    include gst.fs
+    include unix/gst.fs
 end-c-library
 
 set-current
