@@ -54,11 +54,9 @@ locals-types definitions
     [: ]] r> lp! [[ ;] end-d ;
 
 : :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
-    ]] lp+!# [[ here >r 0 ,
     :}
     locals-size @ [ 3 cells maxaligned ]L +
-    dup locals-sizes stack> + locals-sizes >stack
-    negate r> !
+    locals-sizes stack> + locals-sizes >stack
     ['] noop end-d ;
 
 forth definitions
@@ -90,21 +88,19 @@ forth definitions
     postpone {:
 ; immediate
 
-false [IF]
+true [IF]
     : test [{: a f: b d: c :}d a b c ;] ;
     5 3.3e #1234. test execute d. f. . cr
 
-    : A {: k x1 x2 x3 x4 x5 :} recursive
-	k 0<= IF  x4 x5 execute execute f+ ELSE
-	    0 addr k x1 x2 x3 x4
-	    [{: B w! k x1 x2 x3 x4 :}L -1 +to k
-		k B x1 x2 x3 x4 A ;]
-	    dup dup >body ! \ modify first local in quotation
+    : A {: k x1 x2 x3 x4 x5 | B :} recursive
+	k 0<= IF  x4 execute x5 execute f+ ELSE
+	    addr B addr k x1 x2 x3 x4
+	    [{: w! B w! k x1 x2 x3 x4 :}L -1 +to k
+		k B x1 x2 x3 x4 A ;] dup to B
 	    execute THEN ;
-    
     : man-or-boy? ( n -- ) [: 1e ;] [: -1e ;] 2dup swap [: 0e ;] A f. ;
     
-    \ start with: gforth -l128M -r16M -d1M closures.fs
+    \ start with: gforth -l64M -r8M closures.fs
     14 set-precision
     20 0 [DO] [i] man-or-boy? [LOOP] cr
 [THEN]
