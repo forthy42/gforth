@@ -124,20 +124,20 @@ forth definitions
     pop-locals
 ; immediate compile-only
 
-false [IF]
+true [IF]
     : test [{: a f: b d: c :}d a b c ;] ;
     5 3.3e #1234. test execute d. f. . cr
 
-    : A {: w^ kh x1 x2 x3 x4 x5 | w^ Bh :} recursive
-	kh @ 0<= IF  x4 execute x5 execute f+ ELSE
-	    Bh kh x1 x2 x3 x4 [{: Bh kh x1 x2 x3 x4 :}L
-		-1 kh +!
-		kh @ Bh @ x1 x2 x3 x4 A ;] dup Bh !
-	    execute THEN ;
+    : A {: w^ k x1 x2 x3 x4 x5 | w^ B :} recursive
+	k @ 0<= IF  x4 execute x5 execute f+  ELSE
+	    B k x1 x2 x3 x4 [{: B k x1 x2 x3 x4 :}L
+		-1 k +!
+		k @ B @ x1 x2 x3 x4 A ;] dup B !
+	    execute  THEN ;
     : man-or-boy? ( n -- ) [: 1e ;] [: -1e ;] 2dup swap [: 0e ;] A f. ;
     
     \ start with: gforth -l64M -r8M closures.fs
     \ start with: gforth-fast -l4G -r512M closures.fs if you want to go up to 25
     14 set-precision
-    20 0 [DO] [i] dup . man-or-boy? cr [LOOP]
+    20 0 [DO] [i] dup . !time man-or-boy? .time cr [LOOP]
 [THEN]
