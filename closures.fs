@@ -22,10 +22,11 @@
 $10 stack: locals-sizes
 $10 stack: locals-lists
 
-Create do-closure \G construct a proper vtable for closures
-DOES> ;
-' noop set->int            \ lower-overhead default interpretation and
-' (noname->comp) set->comp \ compilation semantic
+Create do-closure \G vtable prototype for closures
+DOES> ;           \G the does-code part is patched for each closure
+' noop set->int            \ closures don't have a full header, so the default
+' (noname->comp) set->comp \ actions (that check flags) don't work
+
 
 Defer end-d ( ... xt -- ... )
 \ is either EXECUTE (for {: ... :}*) or END-DCLOSURE (for [{: ... :}*).
@@ -128,11 +129,10 @@ false [IF]
     5 3.3e #1234. test execute d. f. . cr
 
     : A {: w^ kh x1 x2 x3 x4 x5 | w^ Bh :} recursive
-	kh Bh {: w! k w! B :}
-	k 0<= IF  x4 execute x5 execute f+ ELSE
-	    Bh kh x1 x2 x3 x4 [{: w! B w! k x1 x2 x3 x4 :}L
-		-1 +to k
-		k B x1 x2 x3 x4 A ;] dup to B
+	kh @ 0<= IF  x4 execute x5 execute f+ ELSE
+	    Bh kh x1 x2 x3 x4 [{: Bh kh x1 x2 x3 x4 :}L
+		-1 kh +!
+		kh @ Bh @ x1 x2 x3 x4 A ;] dup Bh !
 	    execute THEN ;
     : man-or-boy? ( n -- ) [: 1e ;] [: -1e ;] 2dup swap [: 0e ;] A f. ;
     
