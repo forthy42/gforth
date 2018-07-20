@@ -118,7 +118,7 @@ forth definitions
     push-locals postpone {:
 ; immediate compile-only
 
-: ;}> ( -- )
+: ;> ( -- )
     \G end using a home location
     pop-locals
 ; immediate compile-only
