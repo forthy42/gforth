@@ -97,10 +97,11 @@ false [IF]
     : test [{: a f: b d: c :}d a b c ;] ;
     5 3.3e #1234. test execute d. f. . cr
 
-    : A {: k x1 x2 x3 x4 x5 | B :} recursive
+    : A {: w^ kh x1 x2 x3 x4 x5 | w^ Bh :} recursive
+	kh Bh {: w! k w! B :}
 	k 0<= IF  x4 execute x5 execute f+ ELSE
-	    addr B addr k x1 x2 x3 x4
-	    [{: w! B w! k x1 x2 x3 x4 :}L -1 +to k
+	    Bh kh x1 x2 x3 x4 [{: w! B w! k x1 x2 x3 x4 :}L
+		-1 +to k
 		k B x1 x2 x3 x4 A ;] dup to B
 	    execute THEN ;
     : man-or-boy? ( n -- ) [: 1e ;] [: -1e ;] 2dup swap [: 0e ;] A f. ;
