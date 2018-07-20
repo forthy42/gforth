@@ -178,7 +178,7 @@ variable locals-mem-list \ linked list of all locals name memory in
 \ righmost local; the names are already created earlier, the
 \ compile-pushlocal just inserts the offsets from the frame base.
 
-Variable val-part
+Variable val-part \ contains true before |, false afterwards
 
 : locals, ( addr size -- )
     dup locals-size ! swap ! ;

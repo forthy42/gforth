@@ -21,10 +21,13 @@
 
 Create do-closure
 DOES> ;
-' noop set->int
-' (noname->comp) set->comp
+' noop set->int            \ lower-overhead default interpretation and
+' (noname->comp) set->comp \ compilation semantic
 
-Defer end-d   ' execute is end-d
+Defer end-d ( ... xt -- ... )
+\ is either EXECUTE (for {: ... :}*) or END-DCLOSURE (for [{: ... :}*).
+\ xt is either ' NOOP or [: ]] r> lp! [[ ;], which restores LP.
+' execute is end-d
 
 $10 stack: locals-sizes
 $10 stack: locals-lists
@@ -71,6 +74,7 @@ forth definitions
     ['] execute is end-d ;
 
 : closure> ( body -- addr )
+    \ create trampoline head
     >l dodoes: >l lp@
     [ ' do-closure cell- @ ]L >l
     [ cell maxaligned cell <> ] [IF] 0 >l [THEN] ;
