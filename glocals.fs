@@ -351,22 +351,22 @@ variable locals-dp \ so here's the special dp for locals.
 Create 2!-table ' 2! , ' 2+! ,
 Create c!-table ' c! , ' c+! ,
 : to-w: ( -- ) -14 throw ;
-comp: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
+opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
 : to-d: ( -- ) -14 throw ;
-comp: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
+opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
 : to-c: ( -- ) -14 throw ;
-comp: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
+opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
 : to-f: ( -- ) -14 throw ;
-comp: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
+opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
 : to-w! ( -- ) -14 throw ;
-comp: ( !!?addr!! ) drop >body @ lp-offset compile-@local !-table to-!, ;
+opt: ( !!?addr!! ) drop >body @ lp-offset compile-@local !-table to-!, ;
 : to-d! ( -- ) -14 throw ;
-comp: ( !!?addr!! ) drop >body @ lp-offset compile-@local 2!-table to-!, ;
+opt: ( !!?addr!! ) drop >body @ lp-offset compile-@local 2!-table to-!, ;
 : to-c! ( -- ) -14 throw ;
-comp: ( !!?addr!! ) drop >body @ lp-offset compile-@local c!-table to-!, ;
+opt: ( !!?addr!! ) drop >body @ lp-offset compile-@local c!-table to-!, ;
 : to-f! ( -- ) -14 throw ;
-comp: ( !!?addr!! ) drop >body @ lp-offset compile-@local f!-table to-!, ;
+opt: ( !!?addr!! ) drop >body @ lp-offset compile-@local f!-table to-!, ;
 
 : val-part-off ( -- ) val-part off ;
 
@@ -849,43 +849,6 @@ colon-sys-xt-offset 3 + to colon-sys-xt-offset
     else
 	code-address!
     then ;
-
-[IFUNDEF] set-to
-    : (int-to) ( xt -- )
-	dup >definer
-	case
-	    [ ' locals-wordlist ] literal >definer \ value
-	    of  >body ! endof
-	    [ ' parse-name ] literal >definer \ defer
-	    of  defer! endof
-	    -&32 throw
-	endcase ;
-
-    : (comp-to) ( xt -- )
-	dup >definer
-	case
-	    [ ' locals-wordlist ] literal >definer \ value
-	    OF >body POSTPONE Aliteral POSTPONE ! ENDOF
-	    [ ' parse-name ] literal >definer \ defer
-	    OF POSTPONE Aliteral POSTPONE defer! ENDOF
-	    \ !! dependent on c: etc. being does>-defining words
-	    \ this works, because >definer uses >does-code in this case,
-	    \ which produces a relocatable address
-	    [ comp' some-clocal drop ] literal >definer
-	    OF POSTPONE laddr# >body @ lp-offset, POSTPONE c! ENDOF
-	    [ comp' some-wlocal drop ] literal >definer
-	    OF POSTPONE laddr# >body @ lp-offset, POSTPONE ! ENDOF
-	    [ comp' some-dlocal drop ] literal >definer
-	    OF POSTPONE laddr# >body @ lp-offset, POSTPONE 2! ENDOF
-	    [ comp' some-flocal drop ] literal >definer
-	    OF POSTPONE laddr# >body @ lp-offset, POSTPONE f! ENDOF
-	    -&32 throw
-	endcase ;
-    
-    : TO ( c|w|d|r "name" -- ) \ core-ext,local
-	' (int-to) ;
-    comp: drop comp' drop (comp-to) ;
-[THEN]
 
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar
     \ don't use 'locals|'! use '{'! A portable and free '{'

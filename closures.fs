@@ -19,7 +19,10 @@
 
 \ more information in http://www.complang.tuwien.ac.at/anton/euroforth/ef18/drafts/ertl.pdf
 
-Create do-closure
+$10 stack: locals-sizes
+$10 stack: locals-lists
+
+Create do-closure \G construct a proper vtable for closures
 DOES> ;
 ' noop set->int            \ lower-overhead default interpretation and
 ' (noname->comp) set->comp \ compilation semantic
@@ -28,9 +31,10 @@ Defer end-d ( ... xt -- ... )
 \ is either EXECUTE (for {: ... :}*) or END-DCLOSURE (for [{: ... :}*).
 \ xt is either ' NOOP or [: ]] r> lp! [[ ;], which restores LP.
 ' execute is end-d
-
-$10 stack: locals-sizes
-$10 stack: locals-lists
+Defer endref, ( -- )
+\ pushes a reference to the location
+: home? postpone laddr# 0 , ;
+' home? is endref,
 
 : >addr ( xt -- addr )
     [ cell maxaligned ]L - ;
@@ -39,16 +43,26 @@ $10 stack: locals-lists
 : allocd ( size -- addr ) \ addr is the end of the allocated region
     allot here ;
 
+: >lp r> lp@ >r >r lp! ;
+opt: drop ]] laddr# [[ 0 , ]] >r lp! [[ ;
+: lp> r> r> lp! >r ;
+opt: drop ]] r> lp! [[ ;
+
+Variable extra-locals ( additional hidden locals size )
+
 locals-types definitions
 
 : :}* ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... xt -- ) \ gforth close-brace-dictionary
     0 lit, here cell- >r
-    compile, ]] laddr# [[ 0 , ]] >r lp! [[
+    compile, ]] >lp [[
     :}
-    locals-size @ [ 3 cells maxaligned ]L + r> !
-    [: ]] r> lp! [[ ;] end-d ;
+    locals-size @ extra-locals @ + r> !
+    [: endref, ]] lp> [[ ;] end-d
+    ['] execute is end-d  ['] home? is endref,
+    extra-locals off ;
 
 : :}xt ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
+    \ run-time: ( xt size -- ... )
     [: swap execute ;] :}* ;
 
 : :}d ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
@@ -65,16 +79,17 @@ locals-types definitions
 
 forth definitions
 
-: (closure-;]) ( some-sys lastxt -- )
+: pop-locals ( -- )
+    locals-lists stack> locals-list !
+    locals-sizes stack> locals-size ! ;
+
+: (closure-;]) ( closure-sys lastxt -- )
     ]
     postpone THEN
-    wrap!
-    locals-lists stack> locals-list !
-    locals-sizes stack> locals-size !
-    ['] execute is end-d ;
+    wrap! pop-locals ;
 
 : closure> ( body -- addr )
-    \ create trampoline head
+    \G create trampoline head
     >l dodoes: >l lp@
     [ ' do-closure cell- @ ]L >l
     [ cell maxaligned cell <> ] [IF] 0 >l [THEN] ;
@@ -85,12 +100,27 @@ forth definitions
     locals-size @ ]] laddr# [[ 0 , ]] literal move [[
     ['] (closure-;]) defstart  last @ lastcfa @ defstart ;
 
-: [{: ( -- vtaddr u latest latestxt wid 0 )
-    [: ] drop ;] defstart
+: push-locals ( -- )
     locals-size @ locals-sizes >stack  locals-size off
-    locals-list @ locals-lists >stack  locals-list off
-    ['] end-dclosure is end-d
+    locals-list @ locals-lists >stack  locals-list off ;
+
+: [{: ( -- vtaddr u latest latestxt wid 0 )
+    \G starts a closure
+    [: ] drop ;] defstart
+    push-locals
+    ['] end-dclosure is end-d  ['] noop is endref,
+    [ 3 cells maxaligned ]L extra-locals !
     postpone {:
+; immediate compile-only
+
+: <{: ( -- vtaddr u latest latestxt wid 0 )
+    \G starts a home location
+    push-locals postpone {:
+; immediate compile-only
+
+: ;}> ( -- )
+    \G end using a home location
+    pop-locals
 ; immediate compile-only
 
 false [IF]
