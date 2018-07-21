@@ -394,7 +394,7 @@ include ./recognizer.fs
 opt: drop @ (comp-to) ;
 
 : Alias    ( xt "name" -- ) \ gforth
-    Header reveal ['] on vtcopy
+    Header reveal ['] on vtcopy ?noname-vt
     alias-mask lastflags creset
     dup A, lastcfa ! ;
 
@@ -409,7 +409,7 @@ opt: drop @ (comp-to) ;
     >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;
 
 : Create ( "name" -- ) \ core
-    Header reveal dovar, ;
+    Header reveal dovar, ?noname-vt ;
 
 : buffer: ( u "name" -- ) \ core ext
     Create here over 0 fill allot ;
@@ -427,14 +427,14 @@ opt: drop @ (comp-to) ;
     udp @ swap udp +! ;
 
 : User ( "name" -- ) \ gforth
-    Header reveal douser, cell uallot , ;
+    Header reveal douser, ?noname-vt cell uallot , ;
 
 : AUser ( "name" -- ) \ gforth
     User ;
 
-: (Constant)  Header reveal docon, ;
+: (Constant)  Header reveal docon, ?noname-vt ;
 
-: (Value)  Header reveal dovalue, ;
+: (Value)  Header reveal dovalue, ?noname-vt ;
 
 : Constant ( w "name" -- ) \ core
     \G Define a constant @i{name} with value @i{w}.
@@ -480,7 +480,7 @@ opt: ( uvalue-xt to-xt -- )
     DOES> ( -- w1 w2 )
         2@ ;
 
-: (Field)  Header reveal dofield, ;
+: (Field)  Header reveal dofield, ?noname-vt ;
 
 \ IS Defer What's Defers TO                            24feb93py
 
@@ -492,10 +492,11 @@ defer defer-default ( -- )
 \G Define a deferred word @i{name}; its execution semantics can be
 \G set with @code{defer!} or @code{is} (and they have to, before first
 \G executing @i{name}.
-    Header Reveal dodefer,
+    Header Reveal dodefer, ?noname-vt
     ['] defer-default A, ;
 
 : >body@ >body @ ;
+opt: drop >body lit, postpone @ ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
     \G Compiles the present contents of the deferred word @i{name}
@@ -671,11 +672,15 @@ defer 0-adjust-locals-size ( -- )
 
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
-    Header (:noname) ;
+    Header (:noname) ?noname-vt ;
+
+: noname-vt ( -- )
+    \G modify vt for noname words
+    ['] noop set->int  ['] (noname->comp) set->comp ;
+: ?noname-vt ( -- ) last @ 0= IF  noname-vt  THEN ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    noname, here (:noname)
-    ['] noop set->int  ['] (noname->comp) set->comp ;
+    noname, here (:noname) noname-vt ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook [compile] exit ?colon-sys

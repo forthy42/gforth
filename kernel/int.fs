@@ -420,6 +420,7 @@ drop cell+ Constant vtsize \ vtable size
 
 : name>string ( nt -- addr count ) \ gforth     name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
+\    dup >namevt @ >vt>int @ ['] noop = IF  drop 0 0  EXIT  THEN
     >f+c dup @ lcount-mask and tuck - swap ;
 
 : name>view ( nt -- addr ) \ gforth   name-to-view

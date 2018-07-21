@@ -358,6 +358,8 @@ opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
 opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
 : to-f: ( -- ) -14 throw ;
 opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
+: defer@-xt: ( -- ) -14 throw ;
+opt: drop POSTPONE laddr# >body @ lp-offset, postpone @ ;
 
 : val-part-off ( -- ) val-part off ;
 
@@ -415,7 +417,7 @@ locals-types definitions
     postpone laddr# @ lp-offset, ;
 
 : XT: ( "name" -- a-addr u ) \ gforth w-colon
-    create-local  ['] to-w: set-to
+    create-local  ['] to-w: set-to  ['] defer@-xt: set-defer@
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: .. -- .. )
     \ compiles a local variable access
