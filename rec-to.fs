@@ -17,7 +17,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-' (int-to) ' (comp-to) ' lit, rectype: rectype-to
+: post-to, ( nt -- )
+    to-style# @ ?dup-IF  lit, ]] to-style# ! [[  THEN  lit, ;
+
+' (int-to) ' (comp-to) ' post-to, rectype: rectype-to
 
 : rec-to ( addr u -- xt r:to | rectype-null )
     \G words prefixed with @code{->} are treated as if preceeded by
