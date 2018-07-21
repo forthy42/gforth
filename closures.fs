@@ -34,8 +34,7 @@ Defer end-d ( ... xt -- ... )
 ' execute is end-d
 Defer endref, ( -- )
 \ pushes a reference to the location
-: home? postpone laddr# 0 , ;
-' home? is endref,
+' noop is endref,
 
 : >addr ( xt -- addr )
     [ cell maxaligned ]L - ;
@@ -58,8 +57,8 @@ locals-types definitions
     compile, ]] >lp [[
     :}
     locals-size @ extra-locals @ + r> !
-    [: endref, ]] lp> [[ ;] end-d
-    ['] execute is end-d  ['] home? is endref,
+    [: endref, ;] end-d
+    ['] execute is end-d  ['] noop is endref,
     extra-locals off ;
 
 : :}xt ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
@@ -109,7 +108,7 @@ forth definitions
     \G starts a closure
     [: ] drop ;] defstart
     push-locals
-    ['] end-dclosure is end-d  ['] noop is endref,
+    ['] end-dclosure is end-d  [: ]] lp> [[ ;] is endref,
     [ 3 cells maxaligned ]L extra-locals !
     postpone {:
 ; immediate compile-only
@@ -121,12 +120,14 @@ forth definitions
 
 : ;> ( -- )
     \G end using a home location
-    pop-locals
+    pop-locals ]] laddr# [[ 0 , ]] lp> [[
 ; immediate compile-only
 
 false [IF]
     : test [{: a f: b d: c :}d a b c ;] ;
     5 3.3e #1234. test execute d. f. . cr
+    : homeloc <{: w^ a w^ b w^ c :}h a b c ;> ;
+    1 2 3 homeloc >r ? ? ? r> free throw cr
 
     : A {: w^ k x1 x2 x3 x4 x5 | w^ B :} recursive
 	k @ 0<= IF  x4 execute x5 execute f+  ELSE
