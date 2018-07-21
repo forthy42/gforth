@@ -35,11 +35,11 @@
 \ : :loc, >body ['] call-loc peephole-compile, , ;
 
 : (uv!) ( xt addr -- ) 2@ next-task + @ cell- @ swap cells + ! ;
+: (uv@) ( addr -- xt ) 2@ next-task + @ cell- @ swap cells + @ ;
 : umethod! ( xt xt-method -- )
     >body cell+ (uv!) ;
 opt: ( xt-method xt-to -- )
     drop >body cell+ postpone Aliteral postpone (uv!) ;
-: (uv@) ( addr -- xt ) 2@ next-task + @ cell- @ swap cells + @ ;
 : umethod@ ( addr -- xt ) >body cell+ (uv@) ;
 opt: ( xt-method xt-defer@ -- )
     drop >body cell+ postpone Aliteral postpone (uv@) ;
