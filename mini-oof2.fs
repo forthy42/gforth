@@ -24,11 +24,12 @@ Defer default-method ' noop IS default-method
 \ template for methods and ivars
 
 Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
-comp: >body @ postpone o#+ , ;
-: to-m >body @ + ! ;
+opt: >body @ postpone o#+ , ;
+to: m-to >body @ + ! ;
+to-opt: >body @ postpone lit+ , postpone ! ;
 Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
-comp: >body @ cell/ postpone o#exec , ;
-' to-m set-to
+opt: >body @ cell/ postpone o#exec , ;
+' m-to set-to
 ' o Value var-xt
 ' m Value method-xt
 : current-o  ['] o to var-xt  ['] m to method-xt ;
@@ -37,7 +38,7 @@ comp: >body @ cell/ postpone o#exec , ;
 
 : o+field, ( addr body -- addr' )
     @ o + ;
-comp: drop @ postpone o#+ , ;
+opt: drop @ postpone o#+ , ;
 
 \ core system
 

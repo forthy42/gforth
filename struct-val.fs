@@ -21,7 +21,7 @@ Defer +field,
 
 : standard+field, ( addr body -- addr' )
     @ + ;
-comp: drop @ ?dup-IF ['] lit+ peephole-compile, , THEN ;
+opt: drop @ ?dup-IF ['] lit+ peephole-compile, , THEN ;
 
 warnings @ warnings off
 : standard:field ( -- )
@@ -41,7 +41,7 @@ standard:field
 : create+defer ( n1 addr "name" -- n3 )
     create+value
     [: ( addr -- xt ) >body vfield-int, @ ;
-    opt: drop >body vfield-comp, postpone @ ;] set-defer@ ;
+    defer@-opt: >body vfield-comp, postpone @ ;] set-defer@ ;
 
 : wrapper-xts ( xt@ !-table -- xt-does xt-opt xt-to ) { xt@ xt! }
     :noname ]] vfield-int, [[ xt@ compile, postpone ; \ xt-does

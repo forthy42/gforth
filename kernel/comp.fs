@@ -461,16 +461,16 @@ Variable to-style# 0 to-style# !
 
 : !!?addr!! ( -- ) to-style# @ -1 = -2056 and throw ;
 
-: u-to ( n uvalue-xt -- ) !!?addr!! >body @ next-task +  !-table to-!exec ;
+: uvalue-to ( n uvalue-xt -- ) !!?addr!! >body @ next-task +  !-table to-!exec ;
 opt: ( uvalue-xt to-xt -- )
     !!?addr!! drop >body @ postpone useraddr , !-table to-!, ;
-\g u-to is the to-method for user values; it's xt is only
+\g uvalue-to is the to-method for user values; it's xt is only
 \g there to be consumed by @code{set-to}.
 : u-compile, ( xt -- )  >body @ postpone user@ , ;
 
 : UValue ( "name" -- )
     \G Define a per-thread value
-    Create cell uallot , ['] u-to set-to
+    Create cell uallot , ['] uvalue-to set-to
     ['] u-compile, set-optimizer
   DOES> @ next-task + @ ;
 
@@ -487,7 +487,7 @@ opt: ( uvalue-xt to-xt -- )
 defer defer-default ( -- )
 ' abort is defer-default
 \ default action for deferred words (overridden by a warning later)
-    
+
 : Defer ( "name" -- ) \ gforth
 \G Define a deferred word @i{name}; its execution semantics can be
 \G set with @code{defer!} or @code{is} (and they have to, before first
@@ -495,7 +495,7 @@ defer defer-default ( -- )
     Header Reveal dodefer, ?noname-vt
     ['] defer-default A, ;
 
-: >body@ >body @ ;
+: defer-defer@ >body @ ;
 opt: drop >body lit, postpone @ ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
@@ -599,6 +599,11 @@ interpret/compile: opt:
 interpret/compile: comp:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
+: to-opt: ( -- colon-sys ) start-xt  set-optimizer postpone drop ;
+' to-opt: alias defer@-opt:
+: to: : ;
+' to: alias defer@:
+
 \ defer and friends
 
 ' (int-to) alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
@@ -613,11 +618,11 @@ interpret/compile: comp:
     \g effect.
     dup >namevt @ >vtto @ compile, ;
 
-: value! ( n value-xt -- ) \ gforth  value-store
+: value-to ( n value-xt -- ) \ gforth  value-store
     \g this is the TO-method for normal values; it's tickable, but
     \g the only purpose of its xt is to be consumed by @code{set-to}.
     >body !-table to-!exec ;
-opt: ( value-xt to-xt -- )
+opt: ( value-xt -- ) \ run-time: ( n -- )
     drop >body postpone ALiteral !-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth

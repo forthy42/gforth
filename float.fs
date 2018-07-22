@@ -63,10 +63,17 @@
     \G @i{f} in the space.
     here 1 floats allot f! ;
 
-: comp-fval ( xt -- )  >body postpone Literal postpone f@ ;
+: FLiteral ( compilation r -- ; run-time -- r ) \ float f-literal
+    \G Compile appropriate code such that, at run-time, @i{r} is placed
+    \G on the (floating-point) stack. Interpretation semantics are undefined.
+    here cell+ dup faligned <> IF  postpone noop  THEN
+    postpone flit f, ;  immediate
+
+: opt-fcon ( xt -- )  >body f@ postpone FLiteral ;
+: opt-fval ( xt -- )  >body postpone Literal postpone f@ ;
 
 : fconstant  ( r "name" -- ) \ float f-constant
-    Create f, ['] comp-fval set-optimizer
+    Create f, ['] opt-fcon set-optimizer
 DOES> ( -- r )
     f@ ;
 
@@ -74,23 +81,17 @@ DOES> ( -- r )
 
 Create f!-table ' f! , ' f+! ,
 
-: fvalue! ( xt xt-deferred -- ) \ gforth  defer-store
+to: fvalue-to ( xt xt-deferred -- ) \ gforth  defer-store
     >body f!-table to-!exec ;
-opt: drop >body postpone ALiteral f!-table to-!, ;
+to-opt: >body postpone ALiteral f!-table to-!, ;
 
 : fvalue ( r "name" -- ) \ float-ext f-value
-    fconstant ['] fvalue! set-to ['] comp-fval set-optimizer ;
+    fconstant ['] fvalue-to set-to ['] opt-fval set-optimizer ;
 
 : fdepth ( -- +n ) \ float f-depth
     \G @i{+n} is the current number of (floating-point) values on the
     \G floating-point stack.
     fp0 @ fp@ - [ 1 floats ] Literal / ;
-
-: FLiteral ( compilation r -- ; run-time -- r ) \ float f-literal
-    \G Compile appropriate code such that, at run-time, @i{r} is placed
-    \G on the (floating-point) stack. Interpretation semantics are undefined.
-    here cell+ dup faligned <> IF  postpone noop  THEN
-    postpone flit f, ;  immediate
 
 &15 Value precision ( -- u ) \ float-ext
 \G @i{u} is the number of significant digits currently used by

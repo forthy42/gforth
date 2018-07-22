@@ -350,16 +350,17 @@ variable locals-dp \ so here's the special dp for locals.
 
 Create 2!-table ' 2! , ' 2+! ,
 Create c!-table ' c! , ' c+! ,
-: to-w: ( -- ) -14 throw ;
-opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
-: to-d: ( -- ) -14 throw ;
-opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
-: to-c: ( -- ) -14 throw ;
-opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
-: to-f: ( -- ) -14 throw ;
-opt: ( !!?addr!! ) drop POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
-: defer@-xt: ( -- ) -14 throw ;
-opt: drop POSTPONE laddr# >body @ lp-offset, postpone @ ;
+to: to-w: ( -- ) -14 throw ;
+to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
+to: to-d: ( -- ) -14 throw ;
+to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
+to: to-c: ( -- ) -14 throw ;
+to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
+to: to-f: ( -- ) -14 throw ;
+to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
+
+defer@: defer@-xt: ( -- ) -14 throw ;
+defer@-opt: POSTPONE laddr# >body @ lp-offset, postpone @ ;
 
 : val-part-off ( -- ) val-part off ;
 

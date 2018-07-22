@@ -715,6 +715,8 @@ Variable comp-state
 
 : pi-undefined -1 ABORT" Plugin undefined" ;
 
+[IFDEF] value! ' value! alias value-to [THEN]
+
 : Plugin ( -- : pluginname )
   Create 
   \ for normal cross-compiling only one action
@@ -724,12 +726,7 @@ Variable comp-state
   ['] pi-undefined , \ action
   ['] pi-undefined , \ target plugin action
   8765 ,     \ plugin magic
-[IFDEF] set-to
-  ['] value! set-to
-[THEN]
-[IFDEF] !to
-  ['] value! !to
-[THEN]
+  ['] value-to set-to
   DOES> perform ;
 
 Plugin DummyPlugin
@@ -3022,7 +3019,7 @@ ghost user,
 ghost defer,
 2drop
 ghost u-compile,
-ghost u-to
+ghost uvalue-to
 2drop
 ghost field+,
 ghost abi-code,
@@ -3037,9 +3034,9 @@ ghost i/c>comp
 2drop
 ghost no-to
 ghost no-defer@
-ghost >body@
+ghost defer-defer@
 2drop drop
-ghost value!
+ghost value-to
 ghost umethod,
 2drop
 ghost umethod!
@@ -3320,7 +3317,7 @@ T has? rom H [IF]
     Builder (Value)
     Build:  ( n -- ) ;Build
     by: :dovalue ( target-body-addr -- n ) T @ @ H ;DO
-    vt: [G'] value, gset-optimizer [G'] value! gset-to ;vt
+    vt: [G'] value, gset-optimizer [G'] value-to gset-to ;vt
     
     Builder Value
     Build: T here 0 A, H switchram T align here swap ! , H ;Build
@@ -3333,7 +3330,7 @@ T has? rom H [IF]
     Builder (Value)
     Build:  ( n -- ) ;Build
     by: :dovalue ( target-body-addr -- n ) T @ H ;DO
-    vt: [G'] value, gset-optimizer [G'] value! gset-to ;vt
+    vt: [G'] value, gset-optimizer [G'] value-to gset-to ;vt
 
     Builder Value
     BuildSmart: T , H ;Build
@@ -3347,7 +3344,7 @@ T has? rom H [IF]
 Builder UValue
 Build: 0 u, T , H ;Build
 DO: X @ tup@ + X @ ;DO
-vt: [G'] u-compile, gset-optimizer [G'] u-to gset-to ;vt
+vt: [G'] u-compile, gset-optimizer [G'] uvalue-to gset-to ;vt
 
 Defer texecute
 
@@ -3361,8 +3358,8 @@ T has? rom H [IF]
 [THEN]
 vt:
 [G'] defer, gset-optimizer
-[G'] value! gset-to
-[G'] >body@ gset-defer@ ;vt
+[G'] value-to gset-to
+[G'] defer-defer@ gset-defer@ ;vt
 
 \ Sturctures                                           23feb95py
 

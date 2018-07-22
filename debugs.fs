@@ -186,7 +186,7 @@ is ?warning
 
 : ~~Value ( n "name" -- )
     \G Value that will be watched on every access
-    Value [: ~~ >body ! ; opt: drop ]] Literal ~~ >body ! [[ ;] set-to ;
+    Value [: >body ~~ ! ; to-opt: >body ]] Literal ~~ ! [[ ;] set-to ;
 
 \ trace lines
 
