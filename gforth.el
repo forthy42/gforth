@@ -242,7 +242,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	(("immediate" "compile-only" "restrict")
 	 immediate (font-lock-keyword-face . 1))
 	(("does>") definition-starter (font-lock-keyword-face . 1))
-	((":noname" "comp:" "compsem:" "opt:") definition-starter (font-lock-keyword-face . 1))
+	((":noname" "comp:" "compsem:" "opt:" "comp-to:" "comp-defer@:") definition-starter (font-lock-keyword-face . 1))
 	((";" ";code" ";abi-code") definition-ender (font-lock-keyword-face . 1))
 	(("include" "require" "needs" "use") 
 	 non-immediate (font-lock-keyword-face . 1) 
@@ -467,7 +467,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	 (0 . 2) (0 . 2))
 	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" 
 	  "interface" "c-library" "c-library-name" "comp:" "opt:" "post:"
-	  "begin-structure" "event:")
+	  "begin-structure" "event:" "to-opt:" "defer@-opt:" "to:" "defer@:")
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))

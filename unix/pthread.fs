@@ -398,7 +398,7 @@ opt: ( xt xt-udefer@ -- ) drop >body @ postpone useraddr , postpone @ ;
     \G Define a per-thread deferred word
     Create cell uallot ,
     [: @ up@ + perform ;] set-does>
-    ['] u-to set-to
+    ['] uvalue-to set-to
     ['] udefer@ set-defer@
     [: >body @ postpone useraddr , postpone perform ;] set-optimizer ;
 

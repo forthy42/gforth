@@ -601,7 +601,9 @@ interpret/compile: comp:
 
 : to-opt: ( -- colon-sys ) start-xt  set-optimizer postpone drop ;
 ' to-opt: alias defer@-opt:
-: to: : ;
+
+: default-to-opt ( xt1 xt2 -- )  swap lit, :, ;
+: to: : ['] default-to-opt set-optimizer ;
 ' to: alias defer@:
 
 \ defer and friends
