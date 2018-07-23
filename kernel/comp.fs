@@ -586,8 +586,8 @@ Create vttemplate
 
 : set-optimizer ( xt -- ) vttemplate >vtcompile, ! ;
 ' set-optimizer alias set-compiler
-: set-to        ( xt -- ) vttemplate >vtto ! ;
-: set-defer@    ( xt -- ) vttemplate >vtdefer@ ! ;
+: set-to        ( to-xt -- ) vttemplate >vtto ! ;
+: set-defer@    ( defer@-xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
 : set-does>     ( xt -- ) !doesxt ; \ more work than the aboves
@@ -599,12 +599,29 @@ interpret/compile: opt:
 interpret/compile: comp:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
-: to-opt: ( -- colon-sys ) start-xt  set-optimizer postpone drop ;
-' to-opt: alias defer@-opt:
+: default-to-opt ( xt1 xt2 -- )
+    swap lit, :, ;
+: to: ( "name1" -- colon-sys ) \ gforth-internal
+    \G defines a to-word ( v xt -- ) that is not a proper word (it does
+    \G not compile properly), but only useful as parameter for
+    \G @code{set-to}.  The to-word constitutes a part of the TO <name>
+    \G run-time semantics: it stores v (a stack item of the appropriate
+    \G type for <name>) in the storage represented by the xt (which is
+    \G the xt of <name>).  It is usually used only for interpretive
+    \G @code{to}; the compiled @code{to} uses the part after
+    \G @code{to-opt:}.
+    : ['] default-to-opt set-optimizer ;
+: to-opt: ( -- colon-sys ) \ gforth-internal
+    \G Must only be used to modify a preceding to-word defined with
+    \G \code{to:}.  It defines a part of the TO <name> run-time
+    \G semantics used with compiled \code{TO}.  The stack effect of the
+    \G code following @code{to-opt:} must be: ( xt -- ) ( generated: v
+    \G -- ).  The generated code stores v in the storage represented by
+    \G xt.
+    start-xt  set-optimizer postpone drop ;
 
-: default-to-opt ( xt1 xt2 -- )  swap lit, :, ;
-: to: : ['] default-to-opt set-optimizer ;
-' to: alias defer@:
+' to: alias defer@:  ( "name1" -- colon-sys ) \ gforth-internal
+' to-opt: alias defer@-opt: ( -- colon-sys ) \ gforth-internal
 
 \ defer and friends
 
@@ -620,9 +637,10 @@ interpret/compile: comp:
     \g effect.
     dup >namevt @ >vtto @ compile, ;
 
-: value-to ( n value-xt -- ) \ gforth  value-store
-    \g this is the TO-method for normal values; it's tickable, but
-    \g the only purpose of its xt is to be consumed by @code{set-to}.
+: value-to ( n value-xt -- ) \ gforth-internal
+    \g this is the TO-method for normal values; it's tickable, but the
+    \g only purpose of its xt is to be consumed by @code{set-to}.  It
+    \g does not compile like a proper word.
     >body !-table to-!exec ;
 opt: ( value-xt -- ) \ run-time: ( n -- )
     drop >body postpone ALiteral !-table to-!, ;

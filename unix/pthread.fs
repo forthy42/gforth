@@ -390,9 +390,9 @@ synonym sleep halt ( task -- )
 
 \ User deferred words, user values
 
-: udefer@ ( xt -- )
+defer@: udefer@ ( xt -- )
     >body @ up@ + @ ;
-opt: ( xt xt-udefer@ -- ) drop >body @ postpone useraddr , postpone @ ;
+defer@-opt: ( xt xt-udefer@ -- ) >body @ postpone useraddr , postpone @ ;
 
 : UDefer ( "name" -- )
     \G Define a per-thread deferred word
