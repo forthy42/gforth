@@ -582,8 +582,8 @@ previous
 
 \ 2value
 
-: (2to) ( addr -- ) >body 2!-table to-!exec ;
-comp: drop >body postpone literal 2!-table to-!, ;
+to: (2to) ( addr -- ) >body 2!-table to-!exec ;
+to-opt: ( xt -- ) >body postpone literal 2!-table to-!, ;
 
 : 2Value ( d "name" -- ) \ Forth200x
     Create 2,

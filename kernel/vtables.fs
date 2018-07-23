@@ -36,10 +36,16 @@
 
 : (uv) ( xt addr -- ) 2@ next-task + @ cell- @ swap cells + ;
 : umethod! ( xt xt-method -- )
+    \ this is not a proper word, but a TO: OPT-TO: word (but the
+    \ cross-compiler does not implement them).
     >body cell+ (uv) ! ;
 opt: ( xt-method xt-to -- )
     drop >body cell+ postpone Aliteral postpone (uv) postpone ! ;
-: umethod@ ( addr -- xt ) >body cell+ (uv) @ ;
+
+: umethod@ ( addr -- xt )
+    \ this is not a proper word, but a DEFER@: OPT-DEFER@: word (but
+    \ the cross-compiler does not implement them).
+    >body cell+ (uv) @ ;
 opt: ( xt-method xt-defer@ -- )
     drop >body cell+ postpone Aliteral postpone (uv) postpone @ ;
 

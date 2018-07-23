@@ -390,7 +390,9 @@ include ./recognizer.fs
 
 : s>int ( nt -- xt )  @ name>int ;
 : s>comp ( nt -- xt1 xt2 )  @ name>comp ;
-: s-to ( val nt -- )  @ (int-to) ;
+: s-to ( val nt -- )
+    \ actually a TO: TO-OPT: word, but cross.fs does not support that
+    @ (int-to) ;
 opt: drop @ (comp-to) ;
 
 : Alias    ( xt "name" -- ) \ gforth
@@ -461,11 +463,13 @@ Variable to-style# 0 to-style# !
 
 : !!?addr!! ( -- ) to-style# @ -1 = -2056 and throw ;
 
-: uvalue-to ( n uvalue-xt -- ) !!?addr!! >body @ next-task +  !-table to-!exec ;
+: uvalue-to ( n uvalue-xt -- )
+    \g uvalue-to is the to-method for uvalues; it's xt is only
+    \g there to be consumed by @code{set-to}.
+    \ should be defined with TO: OPT-TO:, but not supported by cross.fs
+    !!?addr!! >body @ next-task +  !-table to-!exec ;
 opt: ( uvalue-xt to-xt -- )
     !!?addr!! drop >body @ postpone useraddr , !-table to-!, ;
-\g uvalue-to is the to-method for user values; it's xt is only
-\g there to be consumed by @code{set-to}.
 : u-compile, ( xt -- )  >body @ postpone user@ , ;
 
 : UValue ( "name" -- )
@@ -602,7 +606,7 @@ interpret/compile: comp:
 : default-to-opt ( xt1 xt2 -- )
     swap lit, :, ;
 : to: ( "name1" -- colon-sys ) \ gforth-internal
-    \G defines a to-word ( v xt -- ) that is not a proper word (it does
+    \G Defines a to-word ( v xt -- ) that is not a proper word (it does
     \G not compile properly), but only useful as parameter for
     \G @code{set-to}.  The to-word constitutes a part of the TO <name>
     \G run-time semantics: it stores v (a stack item of the appropriate
@@ -620,22 +624,31 @@ interpret/compile: comp:
     \G xt.
     start-xt  set-optimizer postpone drop ;
 
-' to: alias defer@:  ( "name1" -- colon-sys ) \ gforth-internal
-' to-opt: alias defer@-opt: ( -- colon-sys ) \ gforth-internal
-
 \ defer and friends
+
+' to: alias defer@:  ( "name1" -- colon-sys ) \ gforth-internal
+\g Defines @i{name1}, not a proper word, only useful as parameter for
+\g @code{set-defer@}.  It defines what @code{defer@} does for the word
+\g to which the @code{set-defer@} is applied.  If there is a
+\g @code{defer@-opt:} following it, that provides optimized code
+\g generation for compiled @code{action-of}.
+' to-opt: alias defer@-opt: ( -- colon-sys ) \ gforth-internal
+\g Optimized code generation for compiled @code{action-of @i{name}}.
+\g The stack effect of the following code must be ( xt -- ), where xt
+\g represents @i{name}; this word generates code with stack effect (
+\g -- xt1 ), where xt1 is the result of xt @code{defer@}.
 
 ' (int-to) alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
 
-: (comp-to) ( xt -- )
-    \g TO uses the TO-xt for interpretation and compilation.
-    \g Interpretation is straight-forward execute with ( value xt -- )
-    \g on the stack, so a normal >BODY ! (with the appropriate !) does
-    \g the TO action.  Compilation uses the compile,-Method of this
-    \g xt, i.e. that method will see ( value-xt to-xt -- ) as stack
-    \g effect.
-    dup >namevt @ >vtto @ compile, ;
+: (comp-to) ( xt -- ) ( generated code: v -- )
+    \g in compiled @code{to @i{name}}, xt is that of @i{name}.  This
+    \g word generates code for storing v (of type appropriate for
+    \g @i{name}) there.  This word is a factor of @code{to}.
+    dup >namevt @ >vtto @ compile, \ this COMPILE, calls the TO-OPT: part
+    \ of the SET-TO part of the defining word of <name>.  It does not
+    \ behave as COMPILE, does normally.
+;
 
 : value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values; it's tickable, but the

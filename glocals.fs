@@ -360,7 +360,7 @@ to: to-f: ( -- ) -14 throw ;
 to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
 defer@: defer@-xt: ( -- ) -14 throw ;
-defer@-opt: POSTPONE laddr# >body @ lp-offset, postpone @ ;
+defer@-opt: ( xt -- ) POSTPONE laddr# >body @ lp-offset, postpone @ ;
 
 : val-part-off ( -- ) val-part off ;
 
