@@ -1,5 +1,5 @@
 \input texinfo   @c -*-texinfo-*-
-@comment The source is gforth.ds, from which gforth.texi is generated
+@comment The source is gforth.texi.in, from which gforth.texi is generated
 
 @c uncomment this if you want a smartphone PDF
 @c iftex
@@ -5146,7 +5146,7 @@ doc-cfalign
 Heap allocation supports deallocation of allocated memory in any
 order. Dictionary allocation is not affected by it (i.e., it does not
 end a contiguous region). In Gforth, these words are implemented using
-the standard C library calls malloc(), free() and resize().
+the standard C library calls malloc(), free() and realloc().
 
 The memory region produced by one invocation of @code{allocate} or
 @code{resize} is internally contiguous.  There is no contiguity between
