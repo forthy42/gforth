@@ -285,4 +285,4 @@ previous previous
 
 \ s" slide.lst" slide-show
 
-win 0= [IF] window-init [THEN]
+win 0= [IF] window-init [IFDEF] map-win map-win [THEN] [THEN]
