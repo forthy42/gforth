@@ -391,7 +391,8 @@ end-class text
     x border kerning f+ borderl f+ f+ fround penxy         sf!
     y                        raise f+ fround penxy sfloat+ sf!
     text-font to font  text-color color ! ;
-: text-text ( addr u -- ) w text-w text-scale! text-xy! render-string ;
+: text-text ( addr u -- )
+    w text-w text-scale! text-xy! render-string ;
 : text$-part ( addr u rstart rend -- addr' u' )
     dup fover f- fm* fround f>s >r \ length to draw
     dup fm* fround f>s safe/string r> umin ; \ start to skip
@@ -422,11 +423,13 @@ end-class part-text
 : text-split { f: start1 f: rx -- o rstart2 }
     text-font to font
     rx start1 1e text$ text$-part 2dup pos-string
-    2dup = over 0= or IF  drop 2drop o -1e  EXIT  THEN \ no split
+    dup 0= IF  drop 2drop o -1e  EXIT  THEN \ no split
     nip <split dup 0= IF  2drop o -1e  EXIT  THEN
     2dup + >r xc-trailing +
     text$ -rot - s>f fm/
-    o part-text new >o to orig-text to end start1 to start o o>
+    o text-font text-color
+    part-text new >o to text-color to text-font to orig-text
+    to end start1 to start o o>
     text$ r> rot - s>f fm/ ;
 ' text-split text is split
 :noname orig-text .text-split ; part-text is split
@@ -857,23 +860,26 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 : hbox-split { f: start f: rw -- o start' )
     childs[] $[]# dup start fm* to start
-    start fdup floor f- { f: startx }
+    start fdup floor f- rw { f: startx f: rw' }
     hbox new { newbox }
     start floor f>s U+DO
-	startx rw I childs[] $[] @ .split dup .par-init
+	startx rw' I childs[] $[] @ .split
 	newbox .child+ \ add to children
-	fdup 0e f< IF  \ we found an end
-	    I s>f f+ childs[] $[]# fm/ newbox
-	    UNLOOP  EXIT  THEN
-	fdrop
-	rw I childs[] $[] @ .w f- fdup to rw
-	rw f0< IF
-	    I 1+ s>f childs[] $[]# fm/ newbox
-	    I' I 1+ = IF  fdrop -1e  THEN
-	    UNLOOP  EXIT THEN \ also ends here
-	0e to startx
-    LOOP
-    start f0= IF  o newbox .dispose-widget  ELSE  newbox  THEN  -1e ;
+	fdup to startx
+	f0< IF
+	    newbox .childs[] dup $[]# 1- swap $[] @
+	    >o par-init w o> fnegate +to rw'
+	    rw' f0<= IF
+		newbox startx I s>f f+ childs[] $[]# fm/
+		UNLOOP  EXIT
+	    THEN
+	    0e to startx 1
+	ELSE
+	    newbox startx I s>f f+ childs[] $[]# fm/
+	    UNLOOP  EXIT
+	THEN
+    +LOOP
+    newbox -1e ;
 ' hbox-split hbox is split
 
 \ add glues up for vboxes
