@@ -430,7 +430,8 @@ end-class part-text
     o text-font text-color
     part-text new >o to text-color to text-font to orig-text
     to end start1 to start o o>
-    text$ r> rot - s>f fm/ ;
+    text$ r> rot - s>f fm/
+    fdup 1e f>= IF  fdrop -1e  THEN ;
 ' text-split text is split
 :noname orig-text .text-split ; part-text is split
 
@@ -856,21 +857,21 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : re-glue ( -- w h d )
     hglue fdrop fdrop  vglue fdrop fdrop  dglue fdrop fdrop ;
 : par-init ( -- ) \ set paragraph to maximum horizontal extent
-    0e fdup  re-glue resize ;
+    !size xywhd resize ;
 
 : hbox-split { f: start f: rw -- o start' )
     childs[] $[]# dup start fm* to start
-    start fdup floor f- rw { f: startx f: rw' }
+    start fdup floor f- { f: startx }
     hbox new { newbox }
     start floor f>s U+DO
-	startx rw' I childs[] $[] @ .split
+	startx rw I childs[] $[] @ .split
 	newbox .child+ \ add to children
 	fdup to startx
 	f0< IF
 	    newbox .childs[] dup $[]# 1- swap $[] @
-	    >o par-init w o> fnegate +to rw'
-	    rw' f0<= IF
-		newbox startx I s>f f+ childs[] $[]# fm/
+	    >o !size hglue fdrop fdrop o> fnegate +to rw
+	    rw f0<= IF
+		newbox  I 1+ s>f childs[] $[]# fm/
 		UNLOOP  EXIT
 	    THEN
 	    0e to startx 1
