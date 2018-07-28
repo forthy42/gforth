@@ -203,10 +203,19 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     v? r> + points# u>= or
     IF  render> vi0  THEN ;
 
+$AD Constant 'soft-hyphen'
+
+: ?soft-hyphen { I' I -- xaddr xs }
+	I I' over - x-size { xs }
+	I xc@ 'soft-hyphen' = IF  I xs + I' =
+	    IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
+	ELSE  I  THEN  xs ;
+
 : render-string ( addr u -- )
     0 -rot  bounds ?DO
-	6 ?flush-tris  I xchar+xy
-    I I' over - x-size +LOOP  drop ;
+	6 ?flush-tris I' I ?soft-hyphen { xs }
+	xchar+xy
+    xs +LOOP  drop ;
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
     { f: fd f: fh }
@@ -225,18 +234,20 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 
 : layout-string ( addr u -- fw fd fh ) \ depth is ow far it goes down
     0 -rot  0e 0e 0e  bounds ?DO
-	I xchar@xy
-    I I' over - x-size +LOOP  drop ;
+	I' I ?soft-hyphen { xs } xchar@xy
+    xs +LOOP  drop ;
 : pos-string ( fx addr u -- curpos )
     fdup f0< IF  2drop fdrop 0  EXIT  THEN  dup >r over >r
     0 -rot 0e bounds ?DO
-	fdup 0e 0e I xchar@xy fdrop fdrop
+	fdup 0e 0e I' I ?soft-hyphen { xs }
+	xchar@xy
+	fdrop fdrop
 	{ f: p f: n }
 	fdup p f>= fdup n f< and IF
 	    I p f- n p f- f2/ f> IF  xchar+  THEN
 	    unloop r> - nip  rdrop  EXIT
 	THEN  n
-    I I' over - x-size +LOOP
+    xs +LOOP
     drop rdrop r> fdrop fdrop ;
 
 : load-glyph$ ( addr u -- )

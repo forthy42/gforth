@@ -53,6 +53,8 @@ Defer }}text' ' }}text IS }}text'
 : /left ( o -- o' )
     >r {{ r> glue*l }}glue }}h box[] >bl ;
 : \\ }}text' /left ;
+: p\\ 2>r {{ 2r> }}text glue*l }}glue }}p box[] cbl >bl
+    dpy-w @ s>f font-size# 140% f* f- 1e text-shrink% f2/ f- f/ dup .par-split ;
 : e\\ }}emoji >r }}text' >r {{ r> glue*l }}glue r> }}h box[] >bl ;
 : /right ( o -- o' )
     >r {{ glue*l }}glue r> }}h box[] >bl ;

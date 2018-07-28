@@ -92,23 +92,29 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
     dup  $2600  $2C00 within ?dup-IF  EXIT  THEN \ misc. symbols
     dup $1F000 $20000 within ;                   \ pictograms
 
-$Variable split$ " !&,-./:;|=@–—␣           　" split$ $!
+$Variable split$ " !&,-./:;|=@­␣‧‐‒–—―‖           　" split$ $!
 $Variable spaces$ "            　" spaces$ $!
 
 : xcs? ( xchar addr u -- flag ) rot { xc }
     bounds U+DO
 	I xc@+ xc = IF  drop true  unloop  EXIT  THEN
     I - +LOOP  false ;
-: ?split ( xchar -- flag )  split$ $@ xcs? ;
-: ?spaces ( xchar -- flag )  spaces$ $@ xcs? ;
-: <split ( addr u -- addr u' )
-    BEGIN  dup >r x\string- dup 0>= WHILE
-	    2dup + xc@ cjk? >r emoji? >r ?split r> r> or or IF
+: split? ( xchar -- flag )  split$ $@ xcs? ;
+: spaces? ( xchar -- flag )  spaces$ $@ xcs? ;
+: breakable? ( xchar -- flag )
+    cjk? >r emoji? >r split? r> r> or or ;
+: <split ( addr u -- addr u' )  dup 0= ?EXIT
+    BEGIN  dup >r x\string- dup 0> WHILE
+	    2dup + xc@ breakable? IF
 		drop r>  EXIT  THEN  rdrop
+    REPEAT  rdrop ;
+: split> ( addr u total -- addr u' ) { t } dup t = ?EXIT
+    BEGIN  dup >r over + xchar+ over - dup t u< WHILE
+	    over r> + xc@ breakable? ?EXIT
     REPEAT  rdrop ;
 : xc-trailing ( addr u -- addr u' )
     dup >r  BEGIN  rdrop dup >r dup WHILE
-	x\string- 2dup + xc@ ?spaces 0= UNTIL
+	x\string- 2dup + xc@ spaces? 0= UNTIL
 	drop r>  ELSE  rdrop  THEN ;
 
 \ base class
@@ -423,15 +429,18 @@ end-class part-text
 : text-split { f: start1 f: rx -- o rstart2 }
     text-font to font
     rx start1 1e text$ text$-part 2dup pos-string
-    dup 0= IF  drop 2drop o -1e  EXIT  THEN \ no split
-    nip <split dup 0= IF  2drop o -1e  EXIT  THEN
-    2dup + >r xc-trailing +
+    { t p } p t p <> IF
+	<split dup 0= IF
+	    drop p t split>
+	THEN
+    THEN
+    2dup + >r dup t <> IF xc-trailing THEN +
     text$ -rot - s>f fm/
     o text-font text-color
     part-text new >o to text-color to text-font to orig-text
     to end start1 to start o o>
-    text$ r> rot - s>f fm/
-    fdup 1e f>= IF  fdrop -1e  THEN ;
+    text$ xc-trailing r> rot - s>f fm/
+    fdup 1e f>= IF  fnegate  THEN ;
 ' text-split text is split
 :noname orig-text .text-split ; part-text is split
 
@@ -865,21 +874,21 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     hbox new { newbox }
     start floor f>s U+DO
 	startx rw I childs[] $[] @ .split
+	>o !size hglue fdrop fdrop o o> { f: ow }
 	newbox .child+ \ add to children
 	fdup to startx
 	f0< IF
-	    newbox .childs[] dup $[]# 1- swap $[] @
-	    >o !size hglue fdrop fdrop o> fnegate +to rw
+	    ow fnegate +to rw
 	    rw f0<= IF
-		newbox  I 1+ s>f childs[] $[]# fm/
+		I 1+ s>f newbox childs[] $[]# fm/
 		UNLOOP  EXIT
 	    THEN
-	    0e to startx 1
+	    0e to startx
 	ELSE
-	    newbox startx I s>f f+ childs[] $[]# fm/
+	    startx I s>f f+ newbox childs[] $[]# fm/
 	    UNLOOP  EXIT
 	THEN
-    +LOOP
+    LOOP
     newbox -1e ;
 ' hbox-split hbox is split
 
@@ -958,7 +967,9 @@ end-class parbox
     dup $@ bounds ?DO  I @ .dispose  cell +LOOP  $free ;
 : par-split { f: w -- } \ split a hbox into chunks
     childs[] dispose[] 0e
-    BEGIN  w subbox .split o .child+ fdup f0<  UNTIL  fdrop ;
+    BEGIN  w subbox .split
+	>r baseline gap r@ >o to gap to baseline o>
+    r> o .child+ fdup f0<  UNTIL  fdrop ;
 
 \ create boxes
 
