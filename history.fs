@@ -314,13 +314,14 @@ info-color Value setstring-color
 
 : (xenter)  ( max span addr pos1 -- max span addr span true )
     setstring$ $@ dup IF  insert-string  ELSE  2drop  THEN
-    drop 2dup swap -trailing nip IF
+    >r 2dup swap -trailing nip IF
 	end^ 2@ hist-setpos
 	2dup swap history
 	?dup-IF  write-line drop \ don't worry about errors
 	ELSE  2drop  THEN
 	hist-pos 2dup backward^ 2! end^ 2!
-    THEN  over edit-update true ;
+    THEN
+    over dup r> <> IF  edit-update  THEN true ;
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )
     prefix-found cell+ @ ?dup-IF  >r
