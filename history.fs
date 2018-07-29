@@ -228,6 +228,8 @@ info-color Value setstring-color
     dup IF  ['] type setstring-color color-execute  ELSE  2drop  THEN
     >edit-rest type  edit-linew @ edit-curpos !  ;
 : .rest ( span addr pos -- span addr pos )
+    dup 3 pick = IF
+	2dup x-width edit-curpos !  EXIT  THEN
     xedit-startpos  2dup x-width edit-curpos !  2dup type ;
 : xedit-update ( span addr pos1 -- span addr pos1 )
     \G word to update the editor display
@@ -314,14 +316,14 @@ info-color Value setstring-color
 
 : (xenter)  ( max span addr pos1 -- max span addr span true )
     setstring$ $@ dup IF  insert-string  ELSE  2drop  THEN
-    >r 2dup swap -trailing nip IF
+    drop 2dup swap -trailing nip IF
 	end^ 2@ hist-setpos
 	2dup swap history
 	?dup-IF  write-line drop \ don't worry about errors
 	ELSE  2drop  THEN
 	hist-pos 2dup backward^ 2! end^ 2!
     THEN
-    over dup r> <> IF  edit-update  THEN true ;
+    over edit-update true ;
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )
     prefix-found cell+ @ ?dup-IF  >r
