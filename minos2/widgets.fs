@@ -116,6 +116,10 @@ $Variable spaces$ "            　" spaces$ $!
     dup >r  BEGIN  rdrop dup >r dup WHILE
 	x\string- 2dup + xc@ spaces? 0= UNTIL
 	drop r>  ELSE  rdrop  THEN ;
+: xc-leading ( addr u -- addr' u' )
+    BEGIN  dup  WHILE
+	    over xc@ spaces?  WHILE
+		+x/string  REPEAT  THEN ;
 
 \ base class
 
@@ -195,7 +199,8 @@ object class
     method draw-bg ( -- ) \ button background draw
     method draw-image ( -- ) \ image draw
     method draw-text ( -- ) \ text draw
-    method split ( rstart1 rx -- o rstart2 )
+    method split ( firstflag rstart1 rx -- o rstart2 )
+    method lastfit ( -- )
     method hglue ( -- rtyp rsub radd )
     method dglue ( -- rtyp rsub radd )
     method vglue ( -- rtyp rsub radd )
@@ -220,9 +225,11 @@ end-class widget
 ' hglue widget is hglue@
 ' vglue widget is vglue@
 ' dglue widget is dglue@
-:noname ( rstart1 rx -- o rstart2 ) fdrop fdrop o -1e ; widget is split
+:noname ( firstflag rstart1 rx -- o rstart2 )
+    drop fdrop fdrop o 1e ; widget is split
 \ if rstart2 < 0, no split happened
 :noname ( -- ) act ?dup-IF .dispose THEN  dispose ; widget is dispose-widget
+' noop widget is lastfit
 
 : dw* ( f -- f' ) dpy-w @ fm* ;
 : dh* ( f -- f' ) dpy-h @ fm* ;
@@ -426,23 +433,30 @@ text class
     fvalue: end
 end-class part-text
 
-: text-split { f: start1 f: rx -- o rstart2 }
+: pos>fp ( addr -- r )  text$ -rot - s>f fm/ ;
+: text-split { firstflag f: start1 f: rx -- o rstart2 }
     text-font to font
     rx start1 1e text$ text$-part 2dup pos-string
     { t p } p t p <> IF
-	<split dup 0= IF
+	<split dup 0= firstflag and IF
 	    drop p t split>
 	THEN
     THEN
-    2dup + >r dup t <> IF xc-trailing THEN +
-    text$ -rot - s>f fm/
+    dup 0= IF
+	2drop 0 start1  EXIT
+    THEN
+    2dup + >r dup t <> IF xc-trailing THEN 2dup + pos>fp
+    firstflag IF  xc-leading over pos>fp to start1  THEN
+    2drop
     o text-font text-color
     part-text new >o to text-color to text-font to orig-text
     to end start1 to start o o>
-    text$ xc-trailing r> rot - s>f fm/
-    fdup 1e f>= IF  fnegate  THEN ;
+    r> pos>fp ;
 ' text-split text is split
 :noname orig-text .text-split ; part-text is split
+:noname ( -- )
+    start end orig-text .text$ text$-part xc-trailing +
+    orig-text .pos>fp to end ; part-text is lastfit
 
 :noname start end orig-text .text$ text$-part text-!size ; part-text is !size
 :noname start end orig-text .text$ text$-part text-text ; part-text is draw-text
@@ -868,16 +882,21 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : par-init ( -- ) \ set paragraph to maximum horizontal extent
     !size xywhd resize ;
 
-: hbox-split { f: start f: rw -- o start' )
+: hbox-split { firstflag f: start f: rw -- o start' )
     childs[] $[]# dup start fm* to start
     start fdup floor f- { f: startx }
     hbox new { newbox }
     start floor f>s U+DO
-	startx rw I childs[] $[] @ .split
-	>o !size hglue fdrop fdrop o o> { f: ow }
-	newbox .child+ \ add to children
+	firstflag startx rw I childs[] $[] @ .split
+	0e { f: ow }
+	?dup-IF
+	    >o !size hglue fdrop fdrop o o> to ow
+	    newbox .child+ \ add to children
+	ELSE
+	    newbox .childs[] dup $[]# 1- swap $[] @ >o lastfit !size o>
+	THEN
 	fdup to startx
-	f0< IF
+	fdup 1e f>= IF
 	    ow fnegate +to rw
 	    rw f0<= IF
 		I 1+ s>f newbox childs[] $[]# fm/
@@ -888,9 +907,11 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 	    startx I s>f f+ newbox childs[] $[]# fm/
 	    UNLOOP  EXIT
 	THEN
+	false to firstflag
     LOOP
-    newbox -1e ;
+    newbox 1e ;
 ' hbox-split hbox is split
+:noname childs[] dup $[]# 1- swap $[] @ .lastfit ; hbox is lastfit
 
 \ add glues up for vboxes
 
@@ -959,6 +980,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 \ parbox (stub for now)
 
+0e FValue x-baseline
+10% FValue gap%
+
 vbox class
     value: subbox \ hbox to be split into
 end-class parbox
@@ -967,9 +991,11 @@ end-class parbox
     dup $@ bounds ?DO  I @ .dispose  cell +LOOP  $free ;
 : par-split { f: w -- } \ split a hbox into chunks
     childs[] dispose[] 0e
-    BEGIN  w subbox .split
-	>r baseline gap r@ >o to gap to baseline o>
-    r> o .child+ fdup f0<  UNTIL  fdrop ;
+    BEGIN  true w subbox .split >r
+	childs[] $[]# 0= IF  baseline gap
+	ELSE  x-baseline fdup gap% f*  THEN
+	r@ >o to gap to baseline o>
+    r> o .child+ fdup 1e f>=  UNTIL  fdrop ;
 
 \ create boxes
 
@@ -982,6 +1008,9 @@ $10 stack: box-depth \ this $10 here is no real limit
 : }}vtop ( n1 .. nm -- vbox ) }} vbox new >o +childs 1 to baseline-offset o o> ;
 : }}z ( n1 .. nm -- zbox ) }} zbox new >o +childs o o> ;
 : }}p ( n1 .. nm -- parbox ) }}h parbox new >o to subbox subbox .par-init o o> ;
+: unbox ( parbox -- n1 .. nm )
+    >o baseline gap 0 childs[] $[] @ >o to gap to baseline o>
+    childs[] get-stack drop o> ;
 
 \ tab helper glues
 

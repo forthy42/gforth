@@ -41,7 +41,7 @@ Variable fontname[] \ array of fontnames
     Create dup , 1+ DOES> @ to font-lang ;
 
 Create font-size%
-100% f, 50% f, 70% f, 80% f, 90% f, 140% f, 200% f,
+100% f, 33% f, 50% f, 70% f, 80% f, 90% f, 140% f, 200% f,
 DOES> ( n -- ) swap floats + f@ ;
 
 : current-font-size% ( -- float )
@@ -51,6 +51,7 @@ DOES> ( n -- ) swap floats + f@ ;
 
 0
 fontsize: \normal
+fontsize: \micro
 fontsize: \tiny
 fontsize: \script
 fontsize: \footnote

@@ -17,14 +17,12 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-0e FValue x-baseline
 $000000FF color: blackish
 $0000BFFF color: dark-blue
 $00000000 color: transparent
 $FFFFFFFF color: whitish
 blackish
 0e FValue x-border
-10% FValue gap%
 : cbl ( -- )
     current-baseline% to x-baseline ;
 : \skip ( -- )
@@ -53,8 +51,9 @@ Defer }}text' ' }}text IS }}text'
 : /left ( o -- o' )
     >r {{ r> glue*l }}glue }}h box[] >bl ;
 : \\ }}text' /left ;
-: p\\ 2>r {{ 2r> }}text glue*l }}glue }}p box[] cbl >bl
-    dpy-w @ s>f font-size# 140% f* f- 1e text-shrink% f2/ f- f/ dup .par-split ;
+: p\\ 2>r {{ 2r> }}text glue*l }}glue }}p box[] >bl
+    dpy-w @ s>f font-size# 140% f* f- 1e text-shrink% f2/ f- f/ dup .par-split
+    unbox ;
 : e\\ }}emoji >r }}text' >r {{ r> glue*l }}glue r> }}h box[] >bl ;
 : /right ( o -- o' )
     >r {{ glue*l }}glue r> }}h box[] >bl ;
