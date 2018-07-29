@@ -990,12 +990,12 @@ end-class parbox
 : dispose[] ( $addr[] -- )
     dup $@ bounds ?DO  I @ .dispose  cell +LOOP  $free ;
 : par-split { f: w -- } \ split a hbox into chunks
-    childs[] dispose[] 0e
-    BEGIN  true w subbox .split >r
+    childs[] dispose[] 0e false
+    BEGIN  w subbox .split >r
 	childs[] $[]# 0= IF  baseline gap
 	ELSE  x-baseline fdup gap% f*  THEN
 	r@ >o to gap to baseline o>
-    r> o .child+ fdup 1e f>=  UNTIL  fdrop ;
+    r> o .child+ true fdup 1e f>=  UNTIL  fdrop drop ;
 
 \ create boxes
 
