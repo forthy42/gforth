@@ -714,7 +714,8 @@ box is resized
 
 : +child ( o -- ) o over >o to parent-w o> childs[] >back ;
 : child+ ( o -- ) o over >o to parent-w o> childs[] >stack ;
-: +childs ( o1 .. on n -- ) childs[] set-stack
+: +childs ( o1 .. on n -- )
+    n>r childs[] get-stack { x } nr> x + childs[] set-stack
     o [: dup to parent-w ;] do-childs drop ;
 
 \ glue arithmetics
@@ -994,7 +995,9 @@ end-class parbox
     BEGIN  w subbox .split >r
 	childs[] $[]# 0= IF  baseline gap
 	ELSE  x-baseline fdup gap% f*  THEN
-	r@ >o to gap to baseline o>
+	borderl bordert borderv border
+	r@ >o to border to borderv to bordert to borderl
+	to gap to baseline o>
     r> o .child+ true fdup 1e f>=  UNTIL  fdrop drop ;
 
 \ create boxes
