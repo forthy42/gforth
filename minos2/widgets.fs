@@ -957,7 +957,8 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     y border borderv f+ bordert f+ f+ h f- 0e
     box-flags baseline-start# and 0<> ['] vglue-step do-childs
     fdrop fdrop fdrop fdrop fdrop drop
-    x border f+ borderl f+ w border f2* f- borderl f- ['] vbox-resize1 do-childs fdrop fdrop
+    x border f+ borderl f+ w border f2* borderl f+ f-
+    ['] vbox-resize1 do-childs fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 

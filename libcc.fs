@@ -996,7 +996,8 @@ tmp$ $execstr-ptr !
 \G Start a C library interface with name @i{c-addr u}.
     clear-libs
     ['] c-library-incomplete is compile-wrapper-function
-    c-named-library-name ;
+    c-named-library-name
+    also c-lib ; \ setup of a named c library also extends vocabulary stack
 
 : init-libcc ( -- )
     libcc-named-dir$ $init
@@ -1052,7 +1053,7 @@ is 'cold
 
 : c-library ( "name" -- ) \ gforth
 \G Parsing version of @code{c-library-name}
-    parse-name save-mem c-library-name also c-lib ;
+    parse-name save-mem c-library-name ;
 
 : end-c-library ( -- ) \ gforth
     \G Finish and (if necessary) build the latest C library interface.
