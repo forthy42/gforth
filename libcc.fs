@@ -944,7 +944,6 @@ tmp$ $execstr-ptr !
     false to is-funptr? ;
 
 : setup-callback ( addr -- ) >r
-    callback# 1- r@ ccb-num !
     r@ ccb% + 2 + count + count 2dup
     r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
     r@ ccb-lha @ @ lookup-c-array r> ccb-cfuns ! ;
@@ -968,9 +967,10 @@ tmp$ $execstr-ptr !
     \G an @var{xt}, and returns the @var{addr}ess of the C function
     \G handling that callback.
     >r Create here dup ccb% dup allot erase
-    lib-handle-addr @ swap ccb-lha !
+    lib-handle-addr @ swap dup >r ccb-lha !
     parse-function-types
     here lastxt name>string string, count sanitize
+    callback# 1- r> ccb-num !
     r> c-source-file-execute
     ['] callback-does> set-does> ;
 
