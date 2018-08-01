@@ -395,10 +395,13 @@ widget class
     value: text-font
     $value: text$
     value: l-text \ located text, placeholder to make sure part-text works
+    value: orig-text \ part-text, placeholder to make sure part-edit works
+    fvalue: start
+    fvalue: end
 end-class text
 
 : text! ( addr u font -- )
-    to text-font to text$ ;
+    to text-font to text$ 0e to start 1e to end ;
 : text-scale! ( w text-w -- ) { f: tx-w }
     border f2* borderl f+ f- kerning f- tx-w f/ to x-scale ;
 : text-xy! ( -- )
@@ -412,12 +415,13 @@ end-class text
     dup fm* fround f>s safe/string r> umin ; \ start to skip
 : border-part { f: start f: end -- border-extra }  border f2* borderl f+
     start 0e f<= IF  kerning f+  THEN ;
-: text-!size ( addr u -- )
-    text-font to font
-    layout-string
+: >text+border ( w d h -- )
     border borderv f+ bordert f+ f+ to h
     border borderv f+ f+ to d
-    fdup to text-w  border f2* borderl f+ f+ to w
+    fdup to text-w  border f2* borderl f+ f+ to w ;
+: text-!size ( addr u -- )
+    text-font to font
+    layout-string >text+border ;
 \    ." text sized to: " x f. y f. w f. h f. d f. cr
 ;
 :noname text$ text-text ; text is draw-text
@@ -427,11 +431,13 @@ end-class text
 :noname h raise f+ 0e fdup ; text is vglue
 :noname d raise f- 0e fdup ; text is dglue
 :noname addr text$ $free [ widget :: dispose-widget ] ; text is dispose-widget
+: i18n-text-init
+    l-text ?lang and IF
+	l-text locale@ to text$
+    THEN ;
+' i18n-text-init text is draw-init
 
 text class
-    value: orig-text
-    fvalue: start
-    fvalue: end
 end-class part-text
 
 : pos>fp ( addr -- r )  text$ -rot - s>f fm/ ;
@@ -466,27 +472,8 @@ end-class part-text
 
 \ translated text
 
-text class
-end-class i18n-text
-
-: i18n-text-init
-    ?lang   IF
-	l-text locale@ to text$
-    THEN ;
-' i18n-text-init i18n-text is draw-init
 : i18n-text! ( lsid font -- )
     to text-font to l-text  +lang l-text locale@ to text$ ;
-
-i18n-text class
-    cell+ faligned 2 floats +
-end-class i18n-part
-
-part-text action-of !size i18n-part is !size
-part-text action-of draw-text i18n-part is draw-text
-part-text action-of lastfit i18n-part is lastfit
-: i18n-split ( firstflag rstart rx -- o rstart2 )
-    i18n-part (text-split) ; ' i18n-split i18n-text is split
-:noname orig-text .draw-init ; i18n-part is draw-init
 
 \ editable text widget
 
@@ -531,22 +518,21 @@ end-class edit
 : edit-!size ( -- )
     text-font to font
     cursize 0= setstring$ $@len and IF
-	text$ curpos umin layout-string { f: d f: h }
-	setstring$ $@ layout-string
-	h fmax to h d fmax to d  f+
-	text$ curpos safe/string layout-string
-	h fmax to h d fmax to d  f+  d h
+	[: text$ curpos umin type setstring$ $.
+	    text$ curpos safe/string type ;] $tmp
     ELSE
-	text$ layout-string
-    THEN
-    border borderv f+ bordert f+ f+ to h
-    border borderv f+ f+ to d
-    fdup to text-w  border f2* f+ borderl f+ to w ;
+	text$
+    THEN  start end text$-part layout-string >text+border ;
 ' edit-text edit is draw-text
 ' edit-!size edit is !size
 
 : edit! ( addr u font -- )
     text!  text$ nip to curpos  -1 to cursize  -1 to start-curpos ;
+
+\ multi-line edit
+
+edit class
+end-class part-edit
 
 \ password editor
 

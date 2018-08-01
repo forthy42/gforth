@@ -32,7 +32,7 @@ blackish
 : }}text ( addr u -- o )
     text new >o font@ text! x-color to text-color  x-border to border o o> ;
 : }}i18n-text ( lsid -- o )
-    i18n-text new >o
+    text new >o
     font@ i18n-text! x-color to text-color  x-border to border o o> ;
 Defer }}text' ' }}text IS }}text'
 : }}smalltext ( addr u -- o )
