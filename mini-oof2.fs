@@ -27,9 +27,12 @@ Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
 opt: >body @ postpone o#+ , ;
 to: m-to >body @ + ! ;
 to-opt: >body @ postpone lit+ , postpone ! ;
+defer@: m-defer@ >body @ + @ ;
+defer@-opt: >body @ postpone lit+ , postpone @ ;
 Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
 opt: >body @ cell/ postpone o#exec , ;
 ' m-to set-to
+' m-defer@ set-defer@
 ' o Value var-xt
 ' m Value method-xt
 : current-o  ['] o to var-xt  ['] m to method-xt ;

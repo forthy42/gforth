@@ -394,6 +394,7 @@ widget class
     sfvalue: text-w
     value: text-font
     $value: text$
+    value: l-text \ located text, placeholder to make sure part-text works
 end-class text
 
 : text! ( addr u font -- )
@@ -434,7 +435,7 @@ text class
 end-class part-text
 
 : pos>fp ( addr -- r )  text$ -rot - s>f fm/ ;
-: text-split { firstflag f: start1 f: rx -- o rstart2 }
+: (text-split) { firstflag class f: start1 f: rx -- o rstart2 }
     text-font to font
     rx start1 1e text$ text$-part 2dup pos-string
     { t p } p t p <> IF
@@ -448,12 +449,14 @@ end-class part-text
     2dup + >r dup t <> IF xc-trailing THEN 2dup + pos>fp
     firstflag IF  xc-leading over pos>fp to start1  THEN
     2drop
-    o text-font text-color
-    part-text new >o to text-color to text-font to orig-text
-    to end start1 to start o o>
+    start1 o text-font text-color
+    class new >o to text-color to text-font to orig-text
+    to start to end o o>
     r> pos>fp ;
+: text-split ( firstflag rstart rx -- o rstart2 )
+    part-text (text-split) ;
 ' text-split text is split
-:noname orig-text .text-split ; part-text is split
+:noname orig-text .split ; part-text is split
 :noname ( -- )
     start end orig-text .text$ text$-part xc-trailing +
     orig-text .pos>fp to end ; part-text is lastfit
@@ -464,7 +467,6 @@ end-class part-text
 \ translated text
 
 text class
-    value: l-text
 end-class i18n-text
 
 : i18n-text-init
@@ -473,7 +475,18 @@ end-class i18n-text
     THEN ;
 ' i18n-text-init i18n-text is draw-init
 : i18n-text! ( lsid font -- )
-    to text-font to l-text  +lang ;
+    to text-font to l-text  +lang l-text locale@ to text$ ;
+
+i18n-text class
+    cell+ faligned 2 floats +
+end-class i18n-part
+
+part-text action-of !size i18n-part is !size
+part-text action-of draw-text i18n-part is draw-text
+part-text action-of lastfit i18n-part is lastfit
+: i18n-split ( firstflag rstart rx -- o rstart2 )
+    i18n-part (text-split) ; ' i18n-split i18n-text is split
+:noname orig-text .draw-init ; i18n-part is draw-init
 
 \ editable text widget
 
