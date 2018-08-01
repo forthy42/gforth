@@ -513,7 +513,7 @@ end-class edit
 	text-color color !
 	text$ curpos safe/string render-string
     ELSE
-	text$ render-string
+	text$ start end text$-part render-string
     THEN ;
 : edit-!size ( -- )
     text-font to font
