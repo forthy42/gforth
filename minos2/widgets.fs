@@ -1298,7 +1298,7 @@ require animation.fs
 
 : widgets-redraw ( flag -- flag )
     top-widget >o ?config ?textures or  IF  htop-resize
-	?textures IF  +config -textures  ELSE  -config  THEN  THEN
+	?textures IF  1+config -textures  ELSE  -config  THEN  THEN
     widget-draw time( ." animate: " .!time cr )
     o> -sync ;
 

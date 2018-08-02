@@ -53,7 +53,7 @@ drop
 -need: -textures
 drop
 
-: ?config ( -- flag ) need-mask @ 8 rshift 0> ;
+: ?config ( -- flag ) need-mask @ 8 arshift 0> ;
 : +config ( -- flag ) $1000 need-mask @ -$100 mux need-mask ! ;
 : 1+config ( -- flag ) $100 need-mask +! ;
 : 1config ( -- flag ) $100 need-mask @ -$100 mux need-mask ! ;
