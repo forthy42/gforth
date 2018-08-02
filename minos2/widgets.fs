@@ -422,8 +422,7 @@ end-class text
 : text-!size ( addr u -- )
     text-font to font
     layout-string >text+border ;
-\    ." text sized to: " x f. y f. w f. h f. d f. cr
-;
+\    ." text sized to: " x f. y f. w f. h f. d f. cr ;
 :noname text$ text-text ; text is draw-text
 :noname text$ text-!size ; text is !size
 :noname w kerning f+
