@@ -1297,7 +1297,8 @@ require animation.fs
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize time( ." resize: " .!time cr ) ;
 
 : widgets-redraw ( flag -- flag )
-    top-widget >o ?config ?textures or  IF  htop-resize
+    top-widget >o ?config ?resize ?textures or or  IF
+	?resize IF  htop-resize -resize  THEN
 	?textures IF  1+config -textures  ELSE  -config  THEN  THEN
     widget-draw time( ." animate: " .!time cr )
     o> -sync ;
@@ -1306,7 +1307,7 @@ require animation.fs
     level# @ 0> IF
 	[IFDEF] android  ?config-changer  [THEN]
 	anims[] $@len IF  animations  THEN
-	?sync ?config ?textures or or  IF  widgets-redraw  THEN
+	?sync ?config ?resize ?textures or or or  IF  widgets-redraw  THEN
 	?keyboard IF
 	    [IFDEF] showkb showkb [THEN]
 	    -keyboard

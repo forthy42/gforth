@@ -181,7 +181,9 @@ app_input_state buffer: *input
 Variable rendering -2 rendering !
 Variable wm_delete_window
 
-Variable level#
+[IFUNDEF] level#
+    Variable level#
+[THEN]
 
 \ handle X11 events
 

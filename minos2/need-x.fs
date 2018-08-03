@@ -35,6 +35,7 @@ $100 Constant ?config#
 ?need: ?keyboard  \ show keyboard needed
 ?need: ?lang      \ change language needed
 ?need: ?textures  \ reload textures needed
+?need: ?resize
 drop
 
 1
@@ -43,6 +44,7 @@ drop
 +need: +keyboard
 +need: +lang
 +need: +textures
++need: +resize
 drop
 
 1
@@ -51,6 +53,7 @@ drop
 -need: -keyboard
 -need: -lang
 -need: -textures
+-need: -resize
 drop
 
 : ?config ( -- flag ) need-mask @ 8 arshift 0> ;

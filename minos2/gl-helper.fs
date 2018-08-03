@@ -917,7 +917,9 @@ Variable i-off
 
 \ toggle and drag time stuff
 
-: ftime ( -- r ) ntime d>f 1e-9 f* ;
+[IFUNDEF] ftime
+    : ftime ( -- r ) ntime d>f 1e-9 f* ;
+[THEN]
 
 0.5e FConstant rel-drag
 0.3e FConstant abs-drag

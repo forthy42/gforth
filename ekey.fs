@@ -32,7 +32,7 @@
 \ The keycode names are compatible with pfe-0.9.14
 
 $80000000 constant keycode-start
-$8000001F constant keycode-limit
+$80000020 constant keycode-limit
 
 create keycode-table keycode-limit keycode-start - cells allot
 
@@ -108,6 +108,7 @@ keycode k-volup ( -- u ) \ gforth
 keycode k-voldown ( -- u ) \ gforth
 keycode k-backspace ( -- u ) \ gforth
 keycode k-tab ( -- u ) \ gforth
+keycode k-swipe ( -- u ) \ gforth - keycode for Android thingy
 keycode k-eof ( -- u ) \ gforth, always the last gforth-specific keycode
 drop
     
@@ -307,7 +308,8 @@ Variable ekey-buffer
     k-mute    s" VM" esc-sequence
     k-volup   s" VU" esc-sequence
     k-voldown s" VD" esc-sequence
-    
+
+    k-swipe   s" [S"  esc-sequence
 set-current
 [ENDIF]
 

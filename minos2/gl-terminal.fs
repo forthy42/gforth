@@ -468,7 +468,7 @@ Defer scale-me ' terminal-scale-me is scale-me
     ?config IF
 	dpy-w @ dpy-h @ 2>r config-changer
 	dpy-w @ dpy-h @ 2r> d<> IF
-	    winch? on  1config
+	    winch? on +resize
 	ELSE  -config  THEN
     THEN ;
 

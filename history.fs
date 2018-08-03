@@ -391,7 +391,7 @@ Create std-ekeys
     ' false ,        ' false ,        ' false ,        ' false ,
     ' false ,        ' false ,        ' false ,        ' xreformat ,
     ' xhide ,        ' false ,        ' prev-line ,    ' next-line ,
-    ' ?xdel ,        ' xtab-expand ,  ' (xenter) ,
+    ' ?xdel ,        ' xtab-expand ,  ' false ,        ' (xenter) ,
 
 : xchar-edit-ctrl ( max span addr pos1 ekey -- max span addr pos2 flag )
     dup mask-shift# rshift 7 and vt100-modifier !
