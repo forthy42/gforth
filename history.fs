@@ -217,8 +217,9 @@ info-color Value setstring-color
     \ correction for line=screenw, no wraparound then!
     edit-curpos @ dup screenw @ mod 0= over 0> and \ flag, true=-1
     dup >r + screenw @ /mod negate swap r> - negate swap at-deltaxy ;
+: set-width+ ( width -- width' ) setstring$ $@ x-width + ;
 : .resizeline ( span addr pos -- span addr pos )
-    >r 2dup swap x-width setstring$ $@ x-width +
+    >r 2dup swap x-width set-width+
     dup >r edit-linew @ u< IF
 	xedit-startpos  edit-linew @ spaces  edit-linew @ edit-curpos !
     THEN
@@ -229,8 +230,9 @@ info-color Value setstring-color
     >edit-rest type  edit-linew @ edit-curpos !  ;
 : .rest ( span addr pos -- span addr pos )
     dup 3 pick = IF
-	2dup x-width edit-curpos !  EXIT  THEN
-    xedit-startpos  2dup x-width edit-curpos !  2dup type ;
+	2dup x-width set-width+ edit-curpos !  EXIT  THEN
+    xedit-startpos  2dup x-width set-width+ edit-curpos !
+    2dup type ;
 : xedit-update ( span addr pos1 -- span addr pos1 )
     \G word to update the editor display
     .resizeline .all .rest ;
@@ -315,7 +317,7 @@ info-color Value setstring-color
     swap r> - swap 0 xretype ;
 
 : (xenter)  ( max span addr pos1 -- max span addr span true )
-    setstring$ $@ dup IF  insert-string  ELSE  2drop  THEN
+    setstring$ $@ dup IF  insert-string  ELSE  2drop  THEN  setstring$ $free
     drop 2dup swap -trailing nip IF
 	end^ 2@ hist-setpos
 	2dup swap history

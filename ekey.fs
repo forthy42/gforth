@@ -111,7 +111,7 @@ keycode k-tab ( -- u ) \ gforth
 keycode k-swipe ( -- u ) \ gforth - keycode for Android thingy
 keycode k-eof ( -- u ) \ gforth, always the last gforth-specific keycode
 drop
-    
+
 ' k-f1  alias k1  ( -- u ) \ gforth-obsolete
 ' k-f2  alias k2  ( -- u ) \ gforth-obsolete
 ' k-f3  alias k3  ( -- u ) \ gforth-obsolete
