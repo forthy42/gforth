@@ -354,8 +354,8 @@ Defer android-setstring
     2dup swap make-jstring r> clazz .setEditLine r> ;
 ' android-edit-update is edit-update
 
-: android-setcur ( n -- ) setcur# ! "\e[H" ins-keys ;
-: android-setsel ( n -- ) setsel# ! "\e[S" ins-keys ;
+: android-setcur ( n -- ) setcur# ! "\e[H" inskeys ;
+: android-setsel ( n -- ) setsel# ! "\e[S" inskeys ;
 
 JValue key-event
 JValue touch-event
