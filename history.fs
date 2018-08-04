@@ -366,7 +366,7 @@ Variable setcur#
 Variable setsel#
 
 : setcur ( max span addr pos1 -- max span addr pos2 0 )
-    drop 0 setcur# !@ xretype ;
+    drop over 0 setcur# !@ min 0 max xretype ;
 : xchars>chars ( addr len +n -- len' )
     >r tuck r> 0 +DO  +x/string  LOOP  nip - ;
 : setsel ( max span addr pos1 -- max span addr pos2 0 )
