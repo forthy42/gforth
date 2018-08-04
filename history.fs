@@ -367,11 +367,13 @@ Variable setsel#
 
 : setcur ( max span addr pos1 -- max span addr pos2 0 )
     drop 0 setcur# !@ xretype ;
+: xchars>chars ( addr len +n -- len' )
+    >r tuck r> 0 +DO  +x/string  LOOP  nip - ;
 : setsel ( max span addr pos1 -- max span addr pos2 0 )
-    >r 2dup swap r@ /string
-    2dup setsel# @ umin setstring$ $!
-    setsel# @ delete
-    swap setsel# @ - swap r> xretype ;
+    >r 2dup swap r@ safe/string
+    2dup setsel# @ xchars>chars setstring$ $!
+    setstring$ $@len delete
+    swap setstring$ $@len - swap r> xretype ;
 : xreformat ( max span addr pos1 -- max span addr pos1 0 )
     xedit-startpos
     edit-linew @ screenw @ /mod cols dup screenw ! * +

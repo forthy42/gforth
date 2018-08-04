@@ -94,7 +94,7 @@ Defer check-xy  ' noop IS check-xy
 \ utf-8 stuff for xchars
 
 : +u8/string ( xc-addr1 u1 -- xc-addr2 u2 )
-    over dup u8>> swap - /string ;
+    over dup u8>> swap - safe/string ;
 : u8\string- ( xcaddr u -- xcaddr u' )
     over + u8<< over - ;
 
