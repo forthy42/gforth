@@ -362,12 +362,16 @@ info-color Value setstring-color
 	over + xchar+ over - r> (xins)
     THEN 0 ;
 
+Variable setcur#
+Variable setsel#
+
 : setcur ( max span addr pos1 -- max span addr pos2 0 )
-    drop 0 xretype ;
+    drop 0 setcur# !@ xretype ;
 : setsel ( max span addr pos1 -- max span addr pos2 0 )
-    >r 2dup swap r@ /string 2dup setstring$ $!
-    dup >r r@ - over r@ + -rot move
-    swap r> - swap r> xretype ;
+    >r 2dup swap r@ /string
+    2dup setsel# @ umin setstring$ $!
+    setsel# @ delete
+    swap setsel# @ - swap r> xretype ;
 : xreformat ( max span addr pos1 -- max span addr pos1 0 )
     xedit-startpos
     edit-linew @ screenw @ /mod cols dup screenw ! * +
@@ -393,7 +397,7 @@ Create std-ekeys
     ' false ,        ' false ,        ' false ,        ' false ,
     ' false ,        ' false ,        ' false ,        ' xreformat ,
     ' xhide ,        ' false ,        ' prev-line ,    ' next-line ,
-    ' ?xdel ,        ' xtab-expand ,  ' false ,        ' (xenter) ,
+    ' ?xdel ,        ' xtab-expand ,  ' setsel ,       ' (xenter) ,
 
 : xchar-edit-ctrl ( max span addr pos1 ekey -- max span addr pos2 flag )
     dup mask-shift# rshift 7 and vt100-modifier !

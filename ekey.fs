@@ -108,7 +108,7 @@ keycode k-volup ( -- u ) \ gforth
 keycode k-voldown ( -- u ) \ gforth
 keycode k-backspace ( -- u ) \ gforth
 keycode k-tab ( -- u ) \ gforth
-keycode k-swipe ( -- u ) \ gforth - keycode for Android thingy
+keycode k-sel ( -- u ) \ gforth - keycode for Android selections
 keycode k-eof ( -- u ) \ gforth, always the last gforth-specific keycode
 drop
 
@@ -309,7 +309,7 @@ Variable ekey-buffer
     k-volup   s" VU" esc-sequence
     k-voldown s" VD" esc-sequence
 
-    k-swipe   s" [S"  esc-sequence
+    k-sel     s" [S"  esc-sequence
 set-current
 [ENDIF]
 
