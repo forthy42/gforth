@@ -365,10 +365,10 @@ info-color Value setstring-color
 Variable setcur# \ relative to the end, in utf8 charactes
 Variable setsel# \ size of selection relative to the end
 
-: xchars>chars ( addr len +n -- len' )
-    >r tuck r> 0 +DO  x\string-  LOOP  nip - ;
+: x\chars ( addr len +n -- addr len' )
+    0 +DO  x\string-  LOOP ;
 : setcur ( max span addr pos1 -- max span addr pos2 )
-    drop over over swap setcur# @ setsel# @ + xchars>chars ;
+    drop over setcur# @ setsel# @ + x\chars ;
 : setsel ( max span addr pos1 -- max span addr pos2 0 )
     setcur >r 2dup swap r@ safe/string
     2dup setsel# @ xchars>chars nip setstring$ $!
