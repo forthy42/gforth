@@ -355,7 +355,7 @@ Defer android-setstring
 ' android-edit-update is edit-update
 
 : android-setcur ( +n -- ) setcur# ! ;
-: android-setsel ( +n -- ) setsel# ! "\e[S" inskeys ;
+: android-setsel ( +n -- ) setsel# ! ctrl S inskey ;
 
 JValue key-event
 JValue touch-event
