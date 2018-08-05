@@ -362,15 +362,15 @@ info-color Value setstring-color
 	over + xchar+ over - r> (xins)
     THEN 0 ;
 
-Variable setcur#
-Variable setsel#
+Variable setcur# \ relative to the end, in utf8 charactes
+Variable setsel# \ size of selection relative to the end
 
-: setcur ( max span addr pos1 -- max span addr pos2 0 )
-    drop over 0 setcur# !@ min 0 max xretype ;
 : xchars>chars ( addr len +n -- len' )
-    >r tuck r> 0 +DO  +x/string  LOOP  nip - ;
+    >r tuck r> 0 +DO  x\string-  LOOP  nip - ;
+: setcur ( max span addr pos1 -- max span addr pos2 )
+    drop over over swap setcur# @ setsel# @ + xchars>chars ;
 : setsel ( max span addr pos1 -- max span addr pos2 0 )
-    >r 2dup swap r@ safe/string
+    setcur >r 2dup swap r@ safe/string
     2dup setsel# @ xchars>chars nip setstring$ $!
     2dup swap setstring$ $@len delete
     swap setstring$ $@len - swap r> xretype ;
@@ -381,7 +381,7 @@ Variable setsel#
     xretype ;
 
 Create xchar-ctrlkeys ( -- )
-    ' false        , ' setcur       , ' xback        , ' false        ,
+    ' false        , ' xfirst-pos   , ' xback        , ' false        ,
     ' xeof         , ' xend-pos     , ' xforw        , ' false        ,
     ' ?xdel        , ' xtab-expand  , ' (xenter)     , ' xclear-rest  ,
     ' xreformat    , ' (xenter)     , ' next-line    , ' false        ,
@@ -393,7 +393,7 @@ Create xchar-ctrlkeys ( -- )
 
 Create std-ekeys
     ' xback ,        ' xforw ,        ' prev-line ,    ' next-line ,
-    ' setcur ,       ' xend-pos ,     ' prev-line ,    ' next-line ,
+    ' xfirst-pos ,   ' xend-pos ,     ' prev-line ,    ' next-line ,
     ' false ,        ' <xdel> ,       ' (xenter) ,     ' false ,
     ' false ,        ' false ,        ' false ,        ' false ,
     ' false ,        ' false ,        ' false ,        ' false ,
