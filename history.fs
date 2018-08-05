@@ -366,7 +366,7 @@ Variable setcur# \ relative to the end, in utf8 charactes
 Variable setsel# \ size of selection relative to the end
 
 : x\chars ( addr len +n -- addr len' )
-    0 +DO  x\string-  LOOP ;
+    0 +DO  x\string- dup 0<= ?LEAVE  LOOP  0 max ;
 : xchars>chars ( addr len +n -- len' )
     >r tuck r>  0 +DO  +x/string  LOOP  nip - ;
 : setcur ( max span addr pos1 -- max span addr pos2 )
