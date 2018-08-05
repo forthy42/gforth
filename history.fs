@@ -367,6 +367,8 @@ Variable setsel# \ size of selection relative to the end
 
 : x\chars ( addr len +n -- addr len' )
     0 +DO  x\string-  LOOP ;
+: xchars>chars ( addr len +n -- len' )
+    >r tuck r>  0 +DO  +x/string  LOOP  nip - ;
 : setcur ( max span addr pos1 -- max span addr pos2 )
     drop over setcur# @ setsel# @ + x\chars ;
 : setsel ( max span addr pos1 -- max span addr pos2 0 )
