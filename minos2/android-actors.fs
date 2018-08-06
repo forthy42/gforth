@@ -168,7 +168,13 @@ ELSE
     ~~ unknown-key# ! 0
 THEN ;
 
-also jni
+also jni also android
+
+: gui-inskey ( key -- )
+    level# @ 0= IF  inskey  ELSE  top-act .ekeyed  THEN ;
+' gui-inskey is android-inskey
+
+previous
 
 : key>action ( event -- )
     dup to key-event >o

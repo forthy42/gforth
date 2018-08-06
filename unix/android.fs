@@ -340,8 +340,9 @@ Defer android-commit
 :noname     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
 	jstring>sstring inskeys jfree setstring$ $off  THEN ; is android-commit
 Defer android-setstring
+Defer android-inskey ' inskey is android-inskey
 :noname  ( string -- ) jstring>sstring setstring$ $! jfree
-    ctrl L inskey ; is android-setstring
+    ctrl L android-inskey ; is android-setstring
 : android-unicode    ( uchar -- )   >xstring inskeys ;
 : android-keycode    ( keycode -- ) keycode>keys inskeys ;
 
@@ -355,7 +356,7 @@ Defer android-setstring
 ' android-edit-update is edit-update
 
 : android-setcur ( +n -- ) setcur# ! ;
-: android-setsel ( +n -- ) setsel# ! ctrl S inskey ;
+: android-setsel ( +n -- ) setsel# ! ctrl S android-inskey ;
 
 JValue key-event
 JValue touch-event
