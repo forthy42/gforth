@@ -316,11 +316,13 @@ info-color Value setstring-color
     2dup swap r@ /string 2 pick swap move
     swap r> - swap 0 xretype ;
 
-: ins-setstring ( max span addr pos -- max span' addr' pos' )
-    setstring$ $@ dup IF  insert-string  ELSE  2drop  THEN  setstring$ $free ;
+: xins-string ( max span addr pos addr1 u1 -- max span' addr pos' )
+    2>r r@ grow-tib 0= IF  edit-error 2rdrop  EXIT  THEN
+    >edit-rest 2r@ 2swap r@ + insert
+    r@ + rot r> + -rot  rdrop ;
 
 : (xenter)  ( max span addr pos1 -- max span addr span true )
-    ins-setstring$
+    setstring$ $@ xins-string  setstring$ $free
     drop 2dup swap -trailing nip IF
 	end^ 2@ hist-setpos
 	2dup swap history
@@ -349,11 +351,6 @@ info-color Value setstring-color
     >edit-rest r@ + 2r> dup >r 2swap insert
     r@ + rot r> + -rot
     prefix-found @ IF  bl (xins)  THEN  edit-update  0 ;
-
-: xins-string ( max span addr pos addr1 u1 -- max span' addr pos' )
-    2>r r@ grow-tib 0= IF  edit-error 2rdrop  EXIT  THEN
-    >edit-rest 2r@ 2swap r@ + insert
-    r@ + rot r> + -rot  rdrop ;
 
 : xpaste ( max span addr pos -- max span' addr pos' false )
     paste$ $@ xins-string  edit-update  0 ;
