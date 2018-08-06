@@ -316,8 +316,11 @@ info-color Value setstring-color
     2dup swap r@ /string 2 pick swap move
     swap r> - swap 0 xretype ;
 
+: ins-setstring ( max span addr pos -- max span' addr' pos' )
+    setstring$ $@ dup IF  insert-string  ELSE  2drop  THEN  setstring$ $free ;
+
 : (xenter)  ( max span addr pos1 -- max span addr span true )
-    setstring$ $@ dup IF  insert-string  ELSE  2drop  THEN  setstring$ $free
+    ins-setstring$
     drop 2dup swap -trailing nip IF
 	end^ 2@ hist-setpos
 	2dup swap history
@@ -365,16 +368,15 @@ info-color Value setstring-color
 Variable setcur# \ relative to the end, in utf8 charactes
 Variable setsel# \ size of selection relative to the end
 
-: x\chars ( addr len +n -- addr len' )
-    0 +DO  x\string- dup 0<= ?LEAVE  LOOP  0 max ;
 : xchars>chars ( addr len +n -- len' )
     >r tuck r>  0 +DO  +x/string  LOOP  nip - ;
 : setcur ( max span addr pos1 -- max span addr pos2 )
-    drop over setcur# @ setsel# @ + x\chars ;
+    drop over 2dup setcur# @ xchars>chars nip ;
 : setsel ( max span addr pos1 -- max span addr pos2 0 )
+    setstring$ $@ xins-string
     setcur >r 2dup swap r@ safe/string
-    2dup setsel# @ xchars>chars nip setstring$ $!
-    2dup swap setstring$ $@len delete
+    2dup 2dup setsel# @ xchars>chars nip tuck setstring$ $!
+    delete
     swap setstring$ $@len - swap r> xretype ;
 : xreformat ( max span addr pos1 -- max span addr pos1 0 )
     xedit-startpos
