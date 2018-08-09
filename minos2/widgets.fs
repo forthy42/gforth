@@ -1305,7 +1305,8 @@ require animation.fs
 
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
     level# @ 0> IF
-	[IFDEF] android  ?config-changer  [THEN]
+	?lang IF  +resize  THEN
+	?config-changer
 	anims[] $@len IF  animations  THEN
 	?sync ?config ?resize ?textures or or or  IF  widgets-redraw  THEN
 	?keyboard IF
