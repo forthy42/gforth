@@ -670,17 +670,6 @@ end-class box
     childs[] $@ start cells safe/string n cells umin bounds U+DO
 	xt I @ .execute
     cell +LOOP ;
-: do-childs-part { f: start f: end xt -- .. }
-    box-flags box-flip# and ?EXIT
-    childs[] $[]# dup start fm* to start  end fm* to end
-    childs[] $@
-    start floor f>s cells safe/string
-    start floor end f- floor fnegate f>s cells umin bounds
-    start fdup floor f- to start
-    U+DO
-	start end 1e fmin  xt I @ .execute
-	0e to start  end 1e f- to end
-    cell +LOOP ;
 : do-lastchild ( xt -- .. )
     childs[] $[]# dup IF 1- childs[] $[] @ .execute ELSE  2drop  THEN ;
 : do-firstchild ( xt -- .. )
@@ -818,26 +807,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     1glue [: vglue@ glue* ;] do-childs
     raise 0e fdup glue+ ;
 
-: hglue+part { f: start f: end -- glue } b0glue
-    box-flags box-hflip# and ?EXIT
-    start end [: hglue@ glue+ ;] do-childs-part
-    kerning 0e fdup glue+ ;
-: dglue*part { f: start f: end -- glue }
-    box-flags box-hflip# and IF  0glue  EXIT  THEN
-    1glue start end [: dglue@ glue* ;] do-childs-part
-    raise fnegate 0e fdup glue+ ;
-: vglue*part { f: start f: end -- glue }
-    box-flags box-hflip# and IF  0glue  EXIT  THEN
-    1glue start end [: vglue@ glue* ;] do-childs-part
-    raise 0e fdup glue+ ;
-
 :noname hglue+ >hglue!@ ; hbox is hglue
 :noname dglue* >dglue!@ ; hbox is dglue
 :noname vglue* >vglue!@ ; hbox is vglue
-
-\ :noname hglue+part >hglue!@ ; hbox is hglue-part
-\ :noname dglue*part >dglue!@ ; hbox is dglue-part
-\ :noname vglue*part >vglue!@ ; hbox is vglue-part
 
 :noname hglue* >hglue!@ ; vbox is hglue
 :noname dglue+ >dglue!@ ; vbox is dglue
