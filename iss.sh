@@ -70,9 +70,11 @@ ChangesEnvironment=yes
 OutputBaseFilename=gforth-$VERSION
 AppPublisher=Free Software Foundation, Gforth team
 AppPublisherURL=http://bernd-paysan.de/gforth.html
-SignTool=signtool $f
-; add the following args in inno setup:
-; sign /a /fd sha1 /tr http://timestamp.comodoca.com/?td=sha256 /td sha256 \$f
+SignTool=sha1
+SignTool=sha256
+; add the following sign tools:
+; sha1=signtool sign /a /fd sha1 /tr http://timestamp.comodoca.com/?td=sha1 /td sha1 $f
+; sha256=signtool sign /a /as /fd sha256 /tr http://timestamp.comodoca.com/?td=sha256 /td sha256 $f
 SetupIconFile=gforth.ico
 UninstallDisplayIcon={app}\\gforth.ico
 ArchitecturesInstallIn64BitMode=$X64
