@@ -157,7 +157,7 @@ $(ls lib/gforth/$VERSION/amd64/libcc-named/.libs/*.dll | sed -e 's:/:\\:g' -e 's
 $(ls include/gforth/$VERSION/amd64/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\amd64"; Check: Is64BitInstallMode,g')
 $(ls lib/gforth/$VERSION/386/libcc-named/*.la | sed -e 's,^\(..*\)$,Source: "C:\\cygwin'$(pwd)'\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named"; Check: not Is64BitInstallMode,g' | sed -e 's:/:\\:g')
 $(ls lib/gforth/$VERSION/386/libcc-named/.libs/*.dll | sed -e 's,^\(..*\)$,Source: "C:\\cygwin'$(pwd)'\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named\.libs"; Check: not Is64BitInstallMode,g' | sed -e 's:/:\\:g')
-$(ls include/gforth/$VERSION/386/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "C:\\cygwin'$(pwd | sed -e 's,/,\\\\,g')'\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\386"; Check: not Is64BitInstallMode,g')
+$(ls include/gforth/$VERSION/386/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "C:\\cygwin'$(pwd)'\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\386"; Check: not Is64BitInstallMode,g')
 $(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | grep -v engine.*exe | (while read i; do
   if [ ! -d $i ]; then echo $i; fi
 done) | sed \
