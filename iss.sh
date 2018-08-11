@@ -57,7 +57,7 @@ cat <<EOF
 ; Setup program is Inno Setup
 
 [Setup]
-AppName=Gforth$SF
+AppName=Gforth
 AppVersion=$VERSION
 AppCopyright=Copyright © 1995-2017 Free Software Foundation
 DefaultDirName={pf}\gforth
@@ -114,7 +114,7 @@ Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
 Source: "C:\\$CYGWIN64\\bin\\sh.exe"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
 Source: "C:\\$CYGWIN64\\bin\\cygwin-console-helper.exe"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
 Source: "C:\\$CYGWIN64\\bin\\cygwin1.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
-Source: "C:\\$CYGWIN64\\bin\\cyggcc_s-1.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
+Source: "C:\\$CYGWIN64\\bin\\cyggcc_s-seh-1.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
 Source: "C:\\$CYGWIN64\\bin\\cygintl-8.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
 Source: "C:\\$CYGWIN64\\bin\\cygiconv-2.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
 Source: "C:\\$CYGWIN64\\bin\\cygreadline7.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
@@ -152,7 +152,7 @@ Source: "c:\\$CYGWIN32\\bin\\env.exe"; DestDir: "{app}"; Check: not Is64BitInsta
 Source: "gforthmi.sh"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
-$(ls lib/gforth/$VERSION/amd64/libcc-named/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\amd64\\libcc-named\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\amd64\\libcc-named"; Check: Is64BitInstallMode,g')
+$(ls lib/gforth/$VERSION/amd64/libcc-named/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\amd64\\libcc-named"; Check: Is64BitInstallMode,g')
 $(ls lib/gforth/$VERSION/amd64/libcc-named/.libs/*.dll | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\amd64\\libcc-named\\.libs"; Check: Is64BitInstallMode,g')
 $(ls include/gforth/$VERSION/amd64/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\amd64"; Check: Is64BitInstallMode,g')
 $(ls lib/gforth/$VERSION/386/libcc-named/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named"; Check: not Is64BitInstallMode,g')
@@ -180,7 +180,7 @@ Name: "{group}\Gforth Manual"; Filename: "{app}\doc\gforth\index.html"; WorkingD
 Name: "{group}\Gforth Manual (PDF)"; Filename: "{app}\doc\gforth.pdf"; WorkingDir: "{app}"; Components: help
 Name: "{group}\VMgen Manual"; Filename: "{app}\doc\vmgen\index.html"; WorkingDir: "{app}"; Components: help
 Name: "{group}\Bash"; Filename: "{app}\\run.exe"; Parameters: "./env HOME='%HOMEDRIVE%%HOMEPATH%' ./mintty /bin/sh"; WorkingDir: "{app}"; Flags: runminimized
-Name: "{group}\Uninstall Gforth$SF"; Filename: "{uninstallexe}"
+Name: "{group}\Uninstall Gforth"; Filename: "{uninstallexe}"
 
 [Run]
 Filename: "{app}\\..\\bin\\sh.exe"; WorkingDir: "{app}"; Parameters: "-c ""./wininst.sh '{app}' || (printf '\e[0;31;49mAn error occured, pess return to quit'; read)"""
