@@ -29,6 +29,7 @@ VERSION=$(./gforth --version 2>&1 | cut -f2 -d' ')
 machine=$(./gforth --version 2>&1 | cut -f3 -d' ')
 SF=$(./gforth -e 'cell 8 = [IF] ." 64" [THEN] bye')
 CYGWIN=cygwin$SF
+X64=$(./gforth -e 'cell 8 = [IF] ." x64" [THEN] bye')
 
 for i in lib/gforth/$VERSION/$machine/libcc-named/*.la
 do
@@ -67,6 +68,7 @@ SignTool=signtool $f
 ; sign /a /fd sha1 /tr http://timestamp.comodoca.com/?td=sha256 /td sha256 \$f
 SetupIconFile=gforth.ico
 UninstallDisplayIcon={app}\\gforth.ico
+ArchitecturesInstallIn64BitMode=$X64
 
 [Messages]
 WizardInfoBefore=License Agreement
