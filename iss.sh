@@ -29,12 +29,19 @@ VERSION=$(./gforth --version 2>&1 | cut -f2 -d' ')
 machine=$(./gforth --version 2>&1 | cut -f3 -d' ')
 SF=$(./gforth -e 'cell 8 = [IF] ." 64" [THEN] bye')
 CYGWIN=cygwin$SF
+CYGWIN64=cygwin64
+CYGWIN32=cygwin
 X64=$(./gforth -e 'cell 8 = [IF] ." x64" [THEN] bye')
 
-for i in lib/gforth/$VERSION/$machine/libcc-named/*.la
+ln -fs /cygdrive/c/cygwin$(pwd)/lib/gforth/$VERSION/386 lib/gforth/$VERSION/
+
+for m in amd64 386
 do
-    sed "s/dependency_libs='.*'/dependency_libs=''/g" <$i >$i+
-    mv $i+ $i
+    for i in lib/gforth/$VERSION/$m/libcc-named/*.la
+    do
+	sed "s/dependency_libs='.*'/dependency_libs=''/g" <$i >$i+
+	mv $i+ $i
+    done
 done
 
 make doc pdf install.TAGS >&2
@@ -53,14 +60,14 @@ cat <<EOF
 AppName=Gforth$SF
 AppVersion=$VERSION
 AppCopyright=Copyright © 1995-2015,2016,2017 Free Software Foundation
-DefaultDirName={pf}\gforth$SF
+DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth$SF
 AllowNoIcons=1
 InfoBeforeFile=COPYING
 Compression=lzma
 DisableStartupPrompt=yes
 ChangesEnvironment=yes
-OutputBaseFilename=gforth$SF-$VERSION
+OutputBaseFilename=gforth-$VERSION
 AppPublisher=Free Software Foundation, Gforth team
 AppPublisherURL=http://bernd-paysan.de/gforth.html
 SignTool=signtool $f
@@ -93,8 +100,10 @@ done) | sort -u | sed \
   -e 's,^\(..*\)$,Name: "{app}\\\1",g')
 Name: "{app}\\doc\\gforth"
 Name: "{app}\\doc\\vmgen"
-Name: "{app}\\lib\\gforth\\$VERSION\\$machine\\libcc-named"
-Name: "{app}\\include\\gforth\\$VERSION"
+Name: "{app}\\lib\\gforth\\$VERSION\\amd64\\libcc-named"; Check: Is64BitInstallMode
+Name: "{app}\\lib\\gforth\\$VERSION\\386\\libcc-named"; Check: not Is64BitInstallMode
+Name: "{app}\\include\\gforth\\$VERSION\\amd64"; Check: Is64BitInstallMode
+Name: "{app}\\include\\gforth\\$VERSION\\386"; Check: not Is64BitInstallMode
 Name: "{app}\\..\\bin"
 Name: "{app}\\..\\tmp"; Permissions: users-modify
 
@@ -102,61 +111,53 @@ Name: "{app}\\..\\tmp"; Permissions: users-modify
 ; Parameter quick reference:
 ;   "Source filename", "Dest. filename", Copy mode, Flags
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
-EOF
-
-if [ "$SF" = 64 ]
-then
-    mkdir -p bin32
-    cp /cygdrive/c/cygwin/bin/{sh.exe,cygwin-console-helper.exe,cygwin1.dll,cyggcc_s-1.dll,cygintl-8.dll,cygiconv-2.dll,cygreadline7.dll,cygncursesw-10.dll} bin32
-    cat <<EOF
-Source: "bin32\\sh.exe"; DestDir: "{app}\\..\\bin"
-Source: "bin32\\cygwin-console-helper.exe"; DestDir: "{app}\\..\\bin"
-Source: "bin32\\cygwin1.dll"; DestDir: "{app}\\..\\bin"
-Source: "bin32\\cyggcc_s-1.dll"; DestDir: "{app}\\..\\bin"
-Source: "bin32\\cygintl-8.dll"; DestDir: "{app}\\..\\bin"
-Source: "bin32\\cygiconv-2.dll"; DestDir: "{app}\\..\\bin"
-Source: "bin32\\cygreadline7.dll"; DestDir: "{app}\\..\\bin"
-Source: "bin32\\cygncursesw-10.dll"; DestDir: "{app}\\..\\bin"
-Source: "c:\\$CYGWIN\\bin\\cyggcc_s-seh-1.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygwin1.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygintl-8.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygiconv-2.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygltdl-7.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygreadline7.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygncursesw-10.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygffi-6.dll"; DestDir: "{app}"
-EOF
-else
-    cat <<EOF
-Source: "c:\\$CYGWIN\\bin\\sh.exe"; DestDir: "{app}\\..\\bin"
-Source: "c:\\$CYGWIN\\bin\\cygwin-console-helper.exe"; DestDir: "{app}\\..\\bin"
-Source: "c:\\$CYGWIN\\bin\\cygwin1.dll"; DestDir: "{app}\\..\\bin"
-Source: "c:\\$CYGWIN\\bin\\cyggcc_s-1.dll"; DestDir: "{app}\\..\\bin"
-Source: "c:\\$CYGWIN\\bin\\cygintl-8.dll"; DestDir: "{app}\\..\\bin"
-Source: "c:\\$CYGWIN\\bin\\cygiconv-2.dll"; DestDir: "{app}\\..\\bin"
-Source: "c:\\$CYGWIN\\bin\\cygreadline7.dll"; DestDir: "{app}\\..\\bin"
-Source: "c:\\$CYGWIN\\bin\\cygncursesw-10.dll"; DestDir: "{app}\\..\\bin"
-Source: "c:\\$CYGWIN\\bin\\cyggcc_s-1.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygwin1.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygintl-8.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygiconv-2.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygltdl-7.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygreadline7.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygncursesw-10.dll"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\cygffi-6.dll"; DestDir: "{app}"
-EOF
-fi
-
-cat <<EOF
-Source: "c:\\$CYGWIN\\bin\\mintty.exe"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\run.exe"; DestDir: "{app}"
-Source: "c:\\$CYGWIN\\bin\\env.exe"; DestDir: "{app}"
+Source: "C:\\$CYGWIN64\\bin\\sh.exe"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
+Source: "C:\\$CYGWIN64\\bin\\cygwin-console-helper.exe"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
+Source: "C:\\$CYGWIN64\\bin\\cygwin1.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
+Source: "C:\\$CYGWIN64\\bin\\cyggcc_s-1.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
+Source: "C:\\$CYGWIN64\\bin\\cygintl-8.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
+Source: "C:\\$CYGWIN64\\bin\\cygiconv-2.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
+Source: "C:\\$CYGWIN64\\bin\\cygreadline7.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
+Source: "C:\\$CYGWIN64\\bin\\cygncursesw-10.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\cyggcc_s-seh-1.dll"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\cygwin1.dll"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\cygintl-8.dll"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\cygiconv-2.dll"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\cygltdl-7.dll"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\cygreadline7.dll"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\cygncursesw-10.dll"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\cygffi-6.dll"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\mintty.exe"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\run.exe"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN64\\bin\\env.exe"; DestDir: "{app}"; Check: Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\sh.exe"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygwin-console-helper.exe"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygwin1.dll"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cyggcc_s-1.dll"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygintl-8.dll"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygiconv-2.dll"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygreadline7.dll"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygncursesw-10.dll"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cyggcc_s-1.dll"; DestDir: "{app}"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygwin1.dll"; DestDir: "{app}"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygintl-8.dll"; DestDir: "{app}"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygiconv-2.dll"; DestDir: "{app}"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygltdl-7.dll"; DestDir: "{app}"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygreadline7.dll"; DestDir: "{app}"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygncursesw-10.dll"; DestDir: "{app}"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\cygffi-6.dll"; DestDir: "{app}"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\mintty.exe"; DestDir: "{app}"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\run.exe"; DestDir: "{app}"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\env.exe"; DestDir: "{app}"; Check: not Is64BitInstallMode
 Source: "gforthmi.sh"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
-$(ls lib/gforth/$VERSION/$machine/libcc-named | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\'$machine'\\libcc-named\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\'$machine'\\libcc-named",g')
-$(ls lib/gforth/$VERSION/$machine/libcc-named/.libs | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\'$machine'\\libcc-named\\.libs\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\'$machine'\\libcc-named\\.libs",g')
-$(ls include/gforth/$VERSION/$machine | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "engine\\\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\'$machine'",g')
+$(ls lib/gforth/$VERSION/amd64/libcc-named/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\amd64\\libcc-named\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\amd64\\libcc-named"; Check: Is64BitInstallMode,g')
+$(ls lib/gforth/$VERSION/amd64/libcc-named/.libs/*.dll | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\amd64\\libcc-named\\.libs\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\amd64\\libcc-named\\.libs"; Check: Is64BitInstallMode,g')
+$(ls include/gforth/$VERSION/amd64 | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "engine\\\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\amd64"; Check: Is64BitInstallMode,g')
+$(ls lib/gforth/$VERSION/386/libcc-named/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\386\\libcc-named\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named"; Check: not Is64BitInstallMode,g')
+$(ls lib/gforth/$VERSION/386/libcc-named/.libs/*.dll | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\386\\libcc-named\\.libs\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named\\.libs"; Check: not Is64BitInstallMode,g')
+$(ls include/gforth/$VERSION/386 | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "engine\\\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\386"; Check: not Is64BitInstallMode,g')
 $(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | grep -v engine.*exe | (while read i; do
   if [ ! -d $i ]; then echo $i; fi
 done) | sed \
