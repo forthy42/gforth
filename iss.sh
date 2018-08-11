@@ -59,9 +59,9 @@ cat <<EOF
 [Setup]
 AppName=Gforth$SF
 AppVersion=$VERSION
-AppCopyright=Copyright © 1995-2015,2016,2017 Free Software Foundation
+AppCopyright=Copyright © 1995-2017 Free Software Foundation
 DefaultDirName={pf}\gforth
-DefaultGroupName=Gforth$SF
+DefaultGroupName=Gforth
 AllowNoIcons=1
 InfoBeforeFile=COPYING
 Compression=lzma
@@ -153,11 +153,11 @@ Source: "gforthmi.sh"; DestDir: "{app}"
 $(ls doc/gforth | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\gforth\\\1"; DestDir: "{app}\\doc\\gforth"; Components: help,g')
 $(ls doc/vmgen | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "doc\\vmgen\\\1"; DestDir: "{app}\\doc\\vmgen"; Components: help,g')
 $(ls lib/gforth/$VERSION/amd64/libcc-named/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\amd64\\libcc-named\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\amd64\\libcc-named"; Check: Is64BitInstallMode,g')
-$(ls lib/gforth/$VERSION/amd64/libcc-named/.libs/*.dll | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\amd64\\libcc-named\\.libs\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\amd64\\libcc-named\\.libs"; Check: Is64BitInstallMode,g')
-$(ls include/gforth/$VERSION/amd64 | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "engine\\\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\amd64"; Check: Is64BitInstallMode,g')
-$(ls lib/gforth/$VERSION/386/libcc-named/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\386\\libcc-named\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named"; Check: not Is64BitInstallMode,g')
-$(ls lib/gforth/$VERSION/386/libcc-named/.libs/*.dll | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "lib\\gforth\\'$VERSION'\\386\\libcc-named\\.libs\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named\\.libs"; Check: not Is64BitInstallMode,g')
-$(ls include/gforth/$VERSION/386 | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "engine\\\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\386"; Check: not Is64BitInstallMode,g')
+$(ls lib/gforth/$VERSION/amd64/libcc-named/.libs/*.dll | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\amd64\\libcc-named\\.libs"; Check: Is64BitInstallMode,g')
+$(ls include/gforth/$VERSION/amd64/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\amd64"; Check: Is64BitInstallMode,g')
+$(ls lib/gforth/$VERSION/386/libcc-named/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named"; Check: not Is64BitInstallMode,g')
+$(ls lib/gforth/$VERSION/386/libcc-named/.libs/*.dll | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named\\.libs"; Check: not Is64BitInstallMode,g')
+$(ls include/gforth/$VERSION/386/*.la | sed -e 's:/:\\:g' -e 's,^\(..*\)$,Source: "\1"; DestDir: "{app}\\include\\gforth\\'$VERSION'\\386"; Check: not Is64BitInstallMode,g')
 $(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | grep -v engine.*exe | (while read i; do
   if [ ! -d $i ]; then echo $i; fi
 done) | sed \
