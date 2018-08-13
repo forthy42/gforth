@@ -587,7 +587,7 @@ XSetWindowAttributes buffer: xswa
     2>r rot set-xswa 
     dpy dup XDefaultRootWindow
     0 0 2r>
-    0 #24 InputOutput
+    0 dpy dup XDefaultScreen XDefaultDepth InputOutput
     dpy dup XDefaultScreen XDefaultVisual
     [ CWEventMask CWBitGravity CWWinGravity or or ]L xswa XCreateWindow  to win
     dpy win 2swap XStoreName drop
