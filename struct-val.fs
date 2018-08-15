@@ -60,6 +60,8 @@ standard:field
 : l+! ( w addr -- ) dup >r l@ + r> l! ;
 : sf+! ( w addr -- ) dup >r sf@ f+ r> sf! ;
 : df+! ( w addr -- ) dup >r df@ f+ r> df! ;
+: sc@ ( addr -- c ) c@ c>s ;
+opt: drop ]] c@ c>s [[ ;
 
 Create w!-table  ' w!  , ' w+!  ,
 Create l!-table  ' l!  , ' l+!  ,
@@ -69,6 +71,7 @@ Create $!-table  ' $!  , ' $+!  ,
 
 cell      ' aligned   ' @   !-table   wrap+value: value:   ( u1 "name" -- u2 )
 1         ' noop      ' c@  c!-table  wrap+value: cvalue:  ( u1 "name" -- u2 )
+1         ' noop      ' sc@ c!-table  wrap+value: scvalue:  ( u1 "name" -- u2 )
 2         ' waligned  ' w@  w!-table  wrap+value: wvalue:  ( u1 "name" -- u2 )
 2         ' waligned  ' sw@ w!-table  wrap+value: swvalue: ( u1 "name" -- u2 )
 4         ' laligned  ' l@  l!-table  wrap+value: lvalue:  ( u1 "name" -- u2 )
