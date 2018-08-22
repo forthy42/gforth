@@ -58,11 +58,7 @@ stderr value debug-fid ( -- fid )
 ' (.debugline) IS .debugline
 
 : .debugline-directed ( view -- )
-    op-vector @ { oldout }
-    debug-vector @ op-vector !
-    ['] .debugline catch
-    oldout op-vector !
-    throw ;
+    ['] .debugline do-debug ;
 
 :noname ( -- )
     current-sourceview .debugline-directed ;
