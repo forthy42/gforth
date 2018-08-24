@@ -1,15 +1,15 @@
 -*- RoadMap for gforth 1.0 -*-
-ABGO Anton, Bernd, Gerald, Others welcome!
- B   [ ] Multithreading API
+ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done
+ B   [x] Multithreading API
+ B       [ ] Documentation
   G      [ ] Examples
- B       [ ] Use sections to allow compilation in every threading
  B   [x] Images sichern, die C-Bindings enthalten
 A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
 AB       [ ] Documentation in manual
 ABGO [ ] Documentation for Undocumented features
- B       [ ] Document so far, that other programmers can understand the code and complete the documentation
+ B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
 A        [ ]*Search changelogs for features
 A    [ ]*Sections
 A        [ ] integrate for: quotations, strings, locals
@@ -24,13 +24,12 @@ A        [x] update ansreport
 A        [ ] system documentation requirements
  B   [ ] Configure Scripts
  B       [x] make -j
-  G      [ ] ./BUILD-FROM-SCRATCH mit make -j
+  G      [x] ./BUILD-FROM-SCRATCH mit make -j
  B       [ ] ./BUILD-FROM-SCRATCH for android
- B       [ ]*libtool-Fehler when it cannot be found (why is ./libtool not enough?) - better error reporting in configure
+ B       [x]*libtool-Fehler when it cannot be found (why is ./libtool not enough?) - better error reporting in configure
  B       [ ]*sudo make install does not clean up stuff - check if something is still owned by root
  B       [x]*Warnings are added to string variables: present summary at the end
   G      [x] hash -r show or document
-AB   [ ] bin-utils disassembler
  B   [x]*version comparison 001.000.000 -> upgrade path: 000.007.009
   G  [ ] theforth.net - client: look for local version or use global version
   G  [ ] swig
@@ -39,6 +38,17 @@ AB   [ ] bin-utils disassembler
 A    [ ] changelog
 A    [ ] news-file
 A    [x] update this ToDo file
+ BG  [ ]*implement smart .s "..."
+AB   [ ] ~~ uses ... and prints floating stack
+
+Bugs:
+A    [x] fix f.rdp output of nan (-na), fix f.s (--nan)
+
+-*- RoadMap for gforth post 1.0 -*-
+ B   [ ] Multithreading: Use sections to allow compilation in every threading
+ABG  [ ] fork-marker use fork instead of classic marker
+AB   [ ] marker für sections
+AB   [ ] bin-utils disassembler
 
 
 -*- outline -*-
