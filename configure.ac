@@ -1087,7 +1087,11 @@ AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
 
 #check for the presence of Emacs
 AC_CHECK_PROGS(EMACS,emacs xemacs)
-test -n "$EMACS" && gforth_elc=gforth.elc
+if test -n "$EMACS"; then
+  gforth_elc=gforth.elc
+else
+  AC_MSG_WARN([No emacs found, won't build gforth.elc.])
+fi
 AC_SUBST(gforth_elc)
 
 #MacOS X has a libtool that does something else

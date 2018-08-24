@@ -44,6 +44,7 @@ require bufio.fs
 require utf-8.fs
 require debugs.fs
 require assert.fs
+require smartdots.fs
 require blocks.fs
 require savesys.fs
 require table.fs

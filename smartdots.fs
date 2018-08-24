@@ -47,4 +47,7 @@ Variable smart.s-skip
 	ELSE  .  THEN
     THEN ;
 
-' smart.s. IS .s.
+: ... ( x1 .. xn -- x1 .. xn )
+    action-of .s. >r
+    ['] smart.s. IS .s. .s
+    r> IS .s. ;
