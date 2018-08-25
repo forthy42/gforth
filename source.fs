@@ -25,8 +25,10 @@
 
 require string.fs
 
+-1 #23 rshift Constant *terminal*#
+
 : loadfilename#>str ( n -- addr u )
-    dup 0< IF  drop s" *terminal*"  EXIT  THEN
+    dup *terminal*# = IF  drop s" *terminal*"  EXIT  THEN
     included-files $[]@ ;
 
 \ we encode line and character in one cell to keep the interface the same
@@ -35,7 +37,7 @@ require string.fs
     dup 8 rshift swap $ff and ;
 
 : decode-view ( view -- nfile nline nchar )
-    dup 23 arshift swap $7fffff and decode-pos ;
+    dup 23 rshift swap $7fffff and decode-pos ;
 
 : view>char ( view -- u )
     $ff and ;
