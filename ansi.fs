@@ -116,3 +116,32 @@ Variable mark-attr
     mark-attr @ dup Underline xor attr! ." <<<" attr! ;
 ' m>>> is mark-start
 ' <<<m is mark-end
+
+\ check what color our terminal has
+
+$Variable term-rgb$
+
+: term-bg? ( -- rgb )
+    \G query terminal's background color, return value in hex RRGGBB
+    key? drop s\" \e]11;?\e" type
+    BEGIN  1 ms key?  UNTIL  key #esc <> abort" escape expected"
+    BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
+    term-rgb$ $@ ':' $split 2nip
+    '/' $split '/' $split
+    ['] s>number $10 base-execute drop >r
+    ['] s>number $10 base-execute drop >r
+    ['] s>number $10 base-execute drop
+    $FF00 and $8 lshift r> $FF00 and or r> $8 rshift or
+    term-rgb$ $free ;
+
+: auto-color ( -- )
+    term-bg?
+    dup $FF and swap
+    8 rshift dup $FF and
+    8 rshift $FF and + + $17F u> IF
+	white-colors
+    ELSE
+	black-colors
+    THEN ;
+
+:noname auto-color defers bootmessage ; is bootmessage
