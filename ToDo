@@ -16,7 +16,7 @@ A        [ ] integrate for: quotations, strings, locals
  B       [ ] loader for images with sections
 AB   [ ]*locate, view, where & edit
          [ ] documented view>*
-         [ ]*help or doc - get documentation of word
+         [x]*help or doc - get documentation of word
          [ ]*backtrace os-commandline
          [ ]*where: interaction with editors
 A    [x]*2012 Implementieren
