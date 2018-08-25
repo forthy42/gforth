@@ -73,22 +73,30 @@ has? OS [IF]
     s>d tuck dabs <# #s rot sign s" error #" holds #> r> base ! ;
 
 has? OS [IF]
-    $6600 Value default-color
-    $E600 Value err-color
-    $B600 Value warn-color
+    $6600 Value default-color ( -- x ) \ gforth
+    \G use system-default color
+    $E600 Value error-color ( -- x ) \ gforth
+    \G error color: red
+    $B600 Value warning-color ( -- x ) \ gforth
+    \G color for warnings: blue/yellow on black terminals
     $D600 Value info-color
-    : white-colors ( -- )
-	\G for white background
+    \G color for info: green/cyan on black terminals
+    $D600 Value success-color
+    \G color for success: green
+    : white-colors ( -- ) \ gforth
+	\G color theme for white background
 	$6600 to default-color
-	$E600 to err-color
-	$B600 to warn-color
-	$D600 to info-color ;
-    : black-colors ( -- )
-	\G for black background
+	$E600 to error-color
+	$B600 to warning-color
+	$D600 to info-color
+	$D600 to success-color ;
+    : black-colors ( -- ) \ gforth
+	\G color theme for black background
 	$6600 to default-color
-	$E601 to err-color
-	$C601 to warn-color
-	$9601 to info-color ;
+	$E601 to error-color
+	$C601 to warning-color
+	$9601 to info-color
+	$D601 to success-color ;
 [THEN]
 
 : .error ( n -- )

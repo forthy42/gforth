@@ -678,8 +678,11 @@ defer int-execute ( ... xt -- ... )
 Defer 'quit
 Defer .status
 
-: prompt        state @ IF ."  compiled" EXIT THEN
+: prompt-text    state @ IF ."  compiled" EXIT THEN
     scanning? IF  ." scanning for [THEN]"  ELSE  ."  ok" THEN ;
+
+: prompt ( -- )
+    success-color attr!  prompt-text default-color attr! ;
 
 : (quit) ( -- )
     \ exits only through THROW etc.
@@ -835,7 +838,7 @@ defer reset-dpp
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
     [ has? os [IF] ]
-	>stderr err-color attr!
+	>stderr error-color attr!
 	[ [THEN] ]
     input-error-data 2 .error-frame
     error-stack $@len 0 ?DO

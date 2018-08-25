@@ -69,9 +69,9 @@ variable included-file-buffers
 
 : locate-type ( c-addr u lineno -- )
     cr located-view @ view>line = if
-	warn-color attr! located-view @ view>char type-prefix
-	err-color  attr! located-len @            type-prefix
-	warn-color attr! type
+	info-color  attr! located-view @ view>char type-prefix
+	error-color attr! located-len @            type-prefix
+	info-color  attr! type
 	default-color attr! exit
     then
     type ;
@@ -218,9 +218,9 @@ variable code-locations 0 code-locations !
 : .wheretype ( c-addr u view -- )
     view>char >r -trailing over r> + {: c-pos :} 2dup + {: c-lineend :}
     (parse-white) drop ( c-addr1 )
-    warn-color attr! c-pos unbounds type
-    err-color  attr! c-pos c-lineend unbounds (parse-white) tuck type
-    warn-color attr! c-pos + c-lineend unbounds type
+    info-color  attr! c-pos unbounds type
+    error-color attr! c-pos c-lineend unbounds (parse-white) tuck type
+    info-color  attr! c-pos + c-lineend unbounds type
     default-color attr! ;
     
 : .whereline {: view u -- :}

@@ -85,7 +85,8 @@ umethod cr ( -- ) \ core c-r
 umethod page ( -- )
 umethod at-xy ( x y -- )
 umethod at-deltaxy ( dx dy -- )
-umethod attr! ( attr -- )
+umethod attr! ( attr -- ) \ gforth
+\G apply attribute to terminal (i.e. set color)
 2drop
 
 user-o ip-vector
