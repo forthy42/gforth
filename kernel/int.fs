@@ -681,7 +681,7 @@ defer prompt
 
 : color-execute ( xt x-color -- ... ) \ gforth
     \G execute a xt using color
-    attr! execute default-color attr! ;
+    attr! catch default-color attr! throw ;
 
 : (prompt) ( -- )
     ."  ok" ;

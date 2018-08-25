@@ -193,7 +193,8 @@ defer line-end-hook ( -- ) \ gforth
 
 : get-input-colored ( -- flag ) \ gforth
     \G perform get-input colored with input-color
-    ['] get-input input-color color-execute ;
+    ['] refill input-color ['] color-execute catch
+    dup -56 = IF  bye  THEN  throw ;
 
 Defer ?set-current-xpos  ' noop is ?set-current-xpos
 
