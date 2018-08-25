@@ -32,7 +32,7 @@
 : .string. ( addr u -- )
     '"' emit type '"' emit space ;
 : .addr. ( addr -- )
-    dup >name dup IF  ." '" .name drop  ELSE  drop hex.  THEN ;
+    dup >name dup IF  ." `" .name drop  ELSE  drop hex.  THEN ;
 : .var. ( addr -- )
     dup body> >name dup IF  .name drop  ELSE  drop hex.  THEN ;
 
