@@ -9622,6 +9622,7 @@ doc-info-color
 doc-success-color
 
 doc-attr!
+doc-color-execute
 
 @subsubsection Color themes
 Depending on wether you prefer bright or dark background the foreground colors-theme can be changed by:

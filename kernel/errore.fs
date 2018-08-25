@@ -84,7 +84,7 @@ has? OS [IF]
     $D600 Value success-color ( -- x ) \ gforth
     \G color for success: green
     $A600 Value input-color   ( -- x ) \ gforth
-    \G color for user-input: magenta
+    \G color for user-input: black/white (both bold)
     : white-colors ( -- ) \ gforth
 	\G color theme for white background
 	$6600 to default-color
@@ -92,7 +92,7 @@ has? OS [IF]
 	$B600 to warning-color
 	$D600 to info-color
 	$D600 to success-color
-	$A600 to input-color ;
+	$1601 to input-color ;
     : black-colors ( -- ) \ gforth
 	\G color theme for black background
 	$6600 to default-color
@@ -100,7 +100,10 @@ has? OS [IF]
 	$C601 to warning-color
 	$9601 to info-color
 	$D601 to success-color
-	$A601 to input-color ;
+	$1601 to input-color ;
+    : magenta-input ( -- ) \ gforth
+	\G make input color easily recognizable (useful in presentations)
+        $A601 to input-color ;
 [THEN]
 
 : .error ( n -- )

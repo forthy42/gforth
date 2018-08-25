@@ -681,11 +681,12 @@ Defer .status
 : prompt-text    state @ IF ."  compiled" EXIT THEN
     scanning? IF  ." scanning for [THEN]"  ELSE  ."  ok" THEN ;
 
-: prompt ( -- )
-    success-color attr! prompt-text default-color attr! ;
+: color-execute ( xt x-color -- ... ) \ gforth
+    \G execute a xt using color
+    attr! execute default-color attr! ;
 
-: get-input-colored ( -- flag )
-    input-color attr! get-input default-color attr! ;
+: prompt ( -- )
+    ['] prompt-text success-color color-execute ;
 
 : (quit) ( -- )
     \ exits only through THROW etc.
