@@ -83,7 +83,7 @@ has? OS [IF]
     \G color for info: green/cyan on black terminals
     $D600 Value success-color ( -- x ) \ gforth
     \G color for success: green
-    $A600 Value input-color   ( -- x ) \ gforth
+    $1601 Value input-color   ( -- x ) \ gforth
     \G color for user-input: black/white (both bold)
     : white-colors ( -- ) \ gforth
 	\G color theme for white background
