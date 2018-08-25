@@ -131,8 +131,8 @@ $ffbfbfbf le-l, \ dimm White
     GL_TEXTURE0 glActiveTexture ;
 
 Variable color-index
-Variable err-color-index
-$704000 dup color-index ! err-color-index !
+Variable error-color-index
+$704000 dup color-index ! error-color-index !
 Variable std-bg
 Black std-bg !
 1 pad ! pad c@ [IF] \ little endian
@@ -154,9 +154,9 @@ Black std-bg !
     dup 0= IF  drop  EXIT  THEN  ?default-bg
     4 lshift color-index bg-field c! ;
 : err-fg! ( index -- ) ?default-fg
-    4 lshift err-color-index fg-field c! ;
+    4 lshift error-color-index fg-field c! ;
 : err-bg! ( index -- ) ?default-bg
-    4 lshift err-color-index bg-field c! ;
+    4 lshift error-color-index bg-field c! ;
 : bg>clear ( index -- ) $F xor
     $F and sfloats color-matrix +
     count s>f $FF fm/
@@ -167,16 +167,16 @@ Black std-bg !
 : std-bg! ( index -- )  dup bg! dup std-bg ! bg>clear ;
 
 : >extra-colors-bg ( -- ) >bg
-    err-color  $F0FF and over or to err-color
-    info-color $F0FF and over or to info-color
-    warn-color $F0FF and over or to warn-color drop ;
+    error-color   $F0FF and over or to error-color
+    info-color    $F0FF and over or to info-color
+    warning-color $F0FF and over or to warning-color drop ;
 
 : >white White std-bg! White err-bg! Black fg! Red err-fg!
     White >extra-colors-bg White >bg Black >fg or to default-color
-    $70004000 dup color-index ! err-color-index ! ;
+    $70004000 dup color-index ! error-color-index ! ;
 : >black Black std-bg! Black err-bg! White fg! Red err-fg!
     Black >extra-colors-bg Black >bg White >fg or to default-color
-    $704000 dup color-index ! err-color-index ! ;
+    $704000 dup color-index ! error-color-index ! ;
 [IFDEF] android >black [THEN]
 
 256 Value videocols
@@ -347,7 +347,7 @@ Sema gl-sema
 : gl-emit ( char -- ) [: color-index @ (gl-emit) ;] gl-sema c-section ;
 : gl-emit-err ( char -- )
     dup (err-emit) \ errors also go to the error log
-    [: err-color-index @ (gl-emit) ;] gl-sema c-section ;
+    [: error-color-index @ (gl-emit) ;] gl-sema c-section ;
 : gl-cr-err ( -- )
     #lf (err-emit)  gl-cr ;
 
@@ -355,7 +355,7 @@ Sema gl-sema
     [: bounds ?DO  I c@ color-index @ (gl-emit)  LOOP ;] gl-sema c-section ;
 
 : gl-type-err ( addr u -- )  2dup (err-type)
-    [: bounds ?DO  I c@ err-color-index @ (gl-emit)  LOOP ;] gl-sema c-section ;
+    [: bounds ?DO  I c@ error-color-index @ (gl-emit)  LOOP ;] gl-sema c-section ;
 
 : gl-page ( -- ) [: 0 0 gl-atxy  0 to videorows  0 to actualrows
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!
