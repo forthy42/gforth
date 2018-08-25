@@ -14083,12 +14083,16 @@ corresponding catch.
 
 @cindex system documentation
 In addition, Standard Forth systems are required to document certain
-implementation choices. This chapter tries to meet these
-requirements. In many cases it gives a way to ask the system for the
-information instead of providing the information directly, in
-particular, if the information depends on the processor, the operating
-system or the installation options chosen, or if they are likely to
-change during the maintenance of Gforth.
+implementation choices. This chapter tries to meet these requirements
+for the Forth-94 standard.  For the Forth-2012 standard, we decided to
+produce the additional documentation only if there is demand.  So if
+you are really missing this documentation, please let us know.
+
+In many cases, the following documentation gives a way to ask the
+system for the information instead of providing the information
+directly, in particular, if the information depends on the processor,
+the operating system or the installation options chosen, or if they
+are likely to change during the maintenance of Gforth.
 
 @comment The framework for the rest has been taken from pfe.
 
