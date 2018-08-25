@@ -123,7 +123,7 @@ $Variable term-rgb$
 
 : term-bg? ( -- rgb )
     \G query terminal's background color, return value in hex RRGGBB
-    key? drop s\" \e]11;?\e" type
+    key? drop s\" \e]11;?\007" type
     BEGIN  1 ms key?  UNTIL  key #esc <> abort" escape expected"
     BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
     term-rgb$ $@ ':' $split 2nip
