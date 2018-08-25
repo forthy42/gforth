@@ -86,9 +86,9 @@ has? OS [IF]
     : black-colors ( -- )
 	\G for black background
 	$6600 to default-color
-	$C601 to err-color
-	$9601 to warn-color
-	$D601 to info-color ;
+	$E601 to err-color
+	$C601 to warn-color
+	$9601 to info-color ;
 [THEN]
 
 : .error ( n -- )
