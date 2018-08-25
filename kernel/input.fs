@@ -191,6 +191,10 @@ defer line-end-hook ( -- ) \ gforth
     \G read a line of input
     ['] refill catch dup -56 = IF  bye  THEN  throw ;
 
+: get-input-colored ( -- flag ) \ gforth
+    \G perform get-input colored with input-color
+    ['] get-input input-color color-execute ;
+
 Defer ?set-current-xpos  ' noop is ?set-current-xpos
 
 : execute-parsing-named-file ( i*x wfileid filename-addr filename-u xt -- j*x )

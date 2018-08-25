@@ -677,9 +677,15 @@ defer int-execute ( ... xt -- ... )
 
 Defer 'quit
 Defer .status
+defer prompt
 
-: prompt        state @ IF ."  compiled" EXIT THEN
-    scanning? IF  ." scanning for [THEN]"  ELSE  ."  ok" THEN ;
+: color-execute ( xt x-color -- ... ) \ gforth
+    \G execute a xt using color
+    attr! execute default-color attr! ;
+
+: (prompt) ( -- )
+    ."  ok" ;
+' (prompt) is prompt
 
 : (quit) ( -- )
     \ exits only through THROW etc.
@@ -691,7 +697,7 @@ Defer .status
 	    \ if stderr does not work either, already DoError causes a hang
 	    -2 (bye)
 	endif [ [THEN] ]
-	get-input  WHILE
+	get-input-colored WHILE
 	    interpret prompt
     REPEAT
     bye ;
@@ -835,7 +841,7 @@ defer reset-dpp
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
     [ has? os [IF] ]
-	>stderr err-color attr!
+	>stderr error-color attr!
 	[ [THEN] ]
     input-error-data 2 .error-frame
     error-stack $@len 0 ?DO

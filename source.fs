@@ -28,7 +28,7 @@ require string.fs
 -1 #23 rshift Constant *terminal*#
 
 : loadfilename#>str ( n -- addr u )
-    dup *terminal*# = IF  drop s" *terminal*"  EXIT  THEN
+    dup *terminal*# and *terminal*# = IF  drop s" *terminal*"  EXIT  THEN
     included-files $[]@ ;
 
 \ we encode line and character in one cell to keep the interface the same

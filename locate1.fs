@@ -28,7 +28,7 @@ variable included-file-buffers
     \ u is the index into included-files, c-addr u2 describes a buffer
     \ containing the content of the file, or 0 0, if the file cannot
     \ be read.
-    dup *terminal*# = IF  drop s" "  EXIT  THEN \ special files
+    dup *terminal*# = IF  drop 0 0  EXIT  THEN \ special files
     >r r@ included-file-buffers $[] >r
     r@ $@ dup IF  rdrop rdrop  EXIT  THEN  2drop
     i' included-files $[]@ r@ ['] $slurp-file catch IF
@@ -70,9 +70,9 @@ variable included-file-buffers
 
 : locate-type ( c-addr u lineno -- )
     cr located-view @ view>line = if
-	warn-color attr! located-view @ view>char type-prefix
-	err-color  attr! located-len @            type-prefix
-	warn-color attr! type
+	info-color  attr! located-view @ view>char type-prefix
+	error-color attr! located-len @            type-prefix
+	info-color  attr! type
 	default-color attr! exit
     then
     type ;
@@ -219,9 +219,9 @@ variable code-locations 0 code-locations !
 : .wheretype ( c-addr u view -- )
     view>char >r -trailing over r> + {: c-pos :} 2dup + {: c-lineend :}
     (parse-white) drop ( c-addr1 )
-    warn-color attr! c-pos unbounds type
-    err-color  attr! c-pos c-lineend unbounds (parse-white) tuck type
-    warn-color attr! c-pos + c-lineend unbounds type
+    info-color  attr! c-pos unbounds type
+    error-color attr! c-pos c-lineend unbounds (parse-white) tuck type
+    info-color  attr! c-pos + c-lineend unbounds type
     default-color attr! ;
     
 : .whereline {: view u -- :}
