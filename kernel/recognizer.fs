@@ -40,7 +40,11 @@
 : rectype>comp ( rectype -- xt ) cell+ @ ;
 : rectype>post ( rectype -- xt ) cell+ cell+ @ ;
 
-: >postpone ( token table -- )
+defer >postpone-replacer ( ... rectype1 -- ... rectype2 )
+\ may replace recognizer result for postponing (used for postponing locals)
+' noop is >postpone-replacer
+
+: >postpone ( ... rectype -- )
     dup >r rectype>post execute r> rectype>comp compile, ;
 
 :noname name?int  execute-;s ;
@@ -115,7 +119,7 @@ default-recognizer AValue forth-recognizer
 
 Defer trace-recognizer  ' drop is trace-recognizer
 
-: recognize ( addr u rec-addr -- tokens table )
+: recognize ( addr u rec-addr -- ... rectype )
     \G apply a recognizer stack to a string, delivering a token
     $@ bounds cell- swap cell- U-DO
 	2dup I -rot 2>r
