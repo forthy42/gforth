@@ -28,6 +28,8 @@ variable included-file-buffers
     \ u is the index into included-files, c-addr u2 describes a buffer
     \ containing the content of the file, or 0 0, if the file cannot
     \ be read.
+    dup [ cell 4 = ] [IF] $1FC [ELSE] $1FFFFFFFFFC [THEN]
+    u> IF  drop s" "  EXIT  THEN \ special files
     >r r@ included-file-buffers $[] >r
     r@ $@ dup IF  rdrop rdrop  EXIT  THEN  2drop
     i' included-files $[]@ r@ ['] $slurp-file catch IF
