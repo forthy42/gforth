@@ -271,11 +271,11 @@ comp' sliteral drop alias postpone-sliteral
 	    #>> mantlen
 	endif
     else \ inf or nan
-	if \ negative
-	    c-addr ur 1 '- push-right
-	endif
-	drop ur
-	\ !! align in some way?
+        \ don't rely on REPRESENT result
+        2drop
+        rf f0< if s" -Inf" else rf f0>= if s" Inf" else s" NaN" endif endif
+        c-addr ur rot umin dup >r move c-addr ur r> /string blank
+        ur
     endif
     1 max ur min ;
 

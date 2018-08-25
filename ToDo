@@ -41,9 +41,6 @@ A    [x] update this ToDo file
  BG  [ ]*implement smart .s "..."
 AB   [ ] ~~ uses ... and prints floating stack
 
-Bugs:
-A    [x] fix f.rdp output of nan (-na), fix f.s (--nan)
-
 -*- RoadMap for gforth post 1.0 -*-
  B   [ ] Multithreading: Use sections to allow compilation in every threading
 ABG  [ ] fork-marker use fork instead of classic marker
