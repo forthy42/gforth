@@ -272,3 +272,21 @@ Variable rec'
 	drop add-included-file included-files $[]# 1-
     ELSE  nip nip  THEN
     -rot encode-view to replace-sourceview ;
+
+: prompt-ok ( -- )
+    ."  ok"
+    fdepth depth 1- 2dup or if
+        space 0 dec.r ?dup if
+            ."  f:" 0 dec.r
+        then
+    else
+        2drop
+    then ;
+
+: prompt-text    state @ IF ."  compiled" EXIT THEN
+    scanning? IF  ." scanning for [THEN]"  ELSE prompt-ok THEN ;
+
+: color-prompt ( -- )
+    ['] prompt-text success-color color-execute ;
+
+' color-prompt is prompt

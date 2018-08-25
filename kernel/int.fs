@@ -677,16 +677,15 @@ defer int-execute ( ... xt -- ... )
 
 Defer 'quit
 Defer .status
-
-: prompt-text    state @ IF ."  compiled" EXIT THEN
-    scanning? IF  ." scanning for [THEN]"  ELSE  ."  ok" THEN ;
+defer prompt
 
 : color-execute ( xt x-color -- ... ) \ gforth
     \G execute a xt using color
     attr! execute default-color attr! ;
 
-: prompt ( -- )
-    ['] prompt-text success-color color-execute ;
+: (prompt) ( -- )
+    ."  ok" ;
+' (prompt) is prompt
 
 : (quit) ( -- )
     \ exits only through THROW etc.
