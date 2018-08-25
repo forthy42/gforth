@@ -60,6 +60,7 @@ decimal
 16 CONSTANT Strikethrough
 32 CONSTANT Italic
 64 Constant Invisible
+128 Constant Dim
 
 \ For portable programs don't use invers and underline
 
@@ -80,6 +81,7 @@ User Attr   0 Attr !
     dup Attr !
     <<# 'm' hold
     dup Bold and IF 1 #n; THEN
+    dup Dim and IF 2 #n; THEN
     dup Italic and IF 3 #n; THEN
     dup Underline and IF 4 #n; THEN
     dup Blink and IF 5 #n; THEN

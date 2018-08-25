@@ -293,6 +293,7 @@ GFORTH_FI_SRC2=\
 	wordinfo.fs \
 	gforthrc.fs \
 	options.fs \
+	smartdots.fs \
 	arch/386/asm.fs arch/386/disasm.fs \
 	arch/amd64/asm.fs arch/amd64/disasm.fs \
 	arch/alpha/asm.fs arch/alpha/disasm.fs arch/alpha/testasm.fs\
@@ -385,8 +386,8 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
 	oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs	      \
 	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs user-object.fs   \
 	callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs		      \
-	endtry-iferror.fs recover-endtry.fs smartdots.fs $(patsubst %,	      \
-	unix/%, $(UNIX_SRC)) date.fs script.fs wf.fs traceall.fs rec-scope.fs \
+	endtry-iferror.fs recover-endtry.fs $(patsubst %, unix/%,	      \
+	$(UNIX_SRC)) date.fs script.fs wf.fs traceall.fs rec-scope.fs	      \
 	rec-env.fs rec-meta.fs notfound.fs utf16.fs archive.fs cilk.fs	      \
 	sections.fs fixfiles.fs bits.fs reverse-words.fs config.fs	      \
 	set-compsem.fs closures.fs
