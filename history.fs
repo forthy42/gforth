@@ -207,9 +207,6 @@ require utf-8.fs
 
 info-color Value setstring-color
 
-: color-execute ( color xt -- )
-    attr! catch default-color attr! throw ;
-
 \ retype an edited line: this is generic, every word should use edit-update
 \ and nothing else to redraw the edited string
 
