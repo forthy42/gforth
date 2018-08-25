@@ -21,7 +21,7 @@ AB   [ ]*locate, view, where & edit
          [ ]*where: interaction with editors
 A    [x]*2012 Implementieren
 A        [x] update ansreport
-A        [ ] system documentation requirements
+A        [x] system documentation requirements
  B   [ ] Configure Scripts
  B       [x] make -j
   G      [x] ./BUILD-FROM-SCRATCH mit make -j
