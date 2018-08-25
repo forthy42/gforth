@@ -592,8 +592,7 @@ to-opt: ( xt -- ) >body postpone literal 2!-table to-!, ;
   DOES> 2@ ;
 
 s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
-
-2>r : help ( -- ) [ 2r> ] 2literal type ; \ gforth
+2>r : basic-help ( -- ) [ 2r> ] 2literal type ;
 \G Print some help for the first steps
 
 \ rectype-word and rectype-name

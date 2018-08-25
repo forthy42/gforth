@@ -283,3 +283,33 @@ lcount-mask 1+ Constant unused-mask
     \G list all words without usage
     context @ unused-wordlist ;
 
+\ help
+
+s" doc/gforth.txt" add-included-file
+
+included-files $[]# 1- constant doc-file#
+
+: count-lfs ( c-addr u -- u1 )
+    0 -rot bounds ?do
+        i c@ #lf = - loop ;
+
+: help-word {: c-addr u -- :}
+    doc-file# included-buffer {: c-addr1 u1 :} u1 if
+        c-addr1 u1 c-addr u [: "\l'" type type "'    " type ;] $tmp search if
+            {: c-addr3 u3 :} c-addr1 u1 u3 - count-lfs 2 +
+            doc-file# swap 1 encode-view u set-located-view l exit
+        else
+            2drop cr ." No documentation for " c-addr u type
+            ." , LOCATEing source" then
+    else
+        cr ." Documentation file not found, LOCATEing source"
+    then
+    c-addr u find-name dup 0= -13 and throw locate-name ;        
+
+: help ( "name" -- ) \ gforth
+    \G If no name is given, show basic help.  Otherwise, show the
+    \G documentation of the word if it exists, or its source code if
+    \G not.
+    parse-name dup if
+        help-word exit then
+    2drop basic-help ;
