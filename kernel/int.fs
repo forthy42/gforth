@@ -682,7 +682,10 @@ Defer .status
     scanning? IF  ." scanning for [THEN]"  ELSE  ."  ok" THEN ;
 
 : prompt ( -- )
-    success-color attr!  prompt-text default-color attr! ;
+    success-color attr! prompt-text default-color attr! ;
+
+: get-input-colored ( -- flag )
+    input-color attr! get-input default-color attr! ;
 
 : (quit) ( -- )
     \ exits only through THROW etc.
@@ -694,7 +697,7 @@ Defer .status
 	    \ if stderr does not work either, already DoError causes a hang
 	    -2 (bye)
 	endif [ [THEN] ]
-	get-input  WHILE
+	get-input-colored WHILE
 	    interpret prompt
     REPEAT
     bye ;
