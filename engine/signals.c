@@ -232,6 +232,10 @@ static void segv_handler(int sig, siginfo_t *info, void *_)
     code=-44;
   else if (JUSTOVER(addr, NEXTPAGE(gforth_UP->fp0)))
     code=-45;
+  else if (JUSTUNDER(addr, NEXTPAGE2(gforth_UP->fp0)))
+    code=-2058;
+  else if (JUSTOVER(addr, NEXTPAGE(gforth_UP->lp0)))
+    code=-2059;
   throw(code);
 }
 
