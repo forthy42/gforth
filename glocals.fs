@@ -119,13 +119,6 @@ User locals-size \ this is the current size of the locals stack
     \g sets locals-size to n and generates an appropriate lp+!
     locals-size @ swap - compile-lp+! ;
 
-\ : >docolloc ( -- )
-\    \g turn colon definition into lp restoring trampoline
-\    latestxt @ docol: <> ?EXIT \ !! delete this
-\    docolloc: latestxt code-address!
-\    ['] :loc, set-optimizer
-\    1 unlocal-state cset ;
-
 \ change EXIT's compilation action
 \ beware: because we need EXIT at the end of the definition, it can't
 \ be done with opt: ... ;
@@ -238,35 +231,6 @@ opt: drop postpone swap postpone >l postpone >l ;
 : sub-list? ( list1 list2 -- f )
     \ true iff list1 is a sublist of list2
     over list-length over list-length swap - 0 max /list = ;
-
-\ : ocommon-list ( list1 list2 -- list3 ) \ gforth-internal
-\ \ list1 and list2 are lists, where the heads are at higher addresses than
-\ \ the tail. list3 is the largest sublist of both lists.
-\  begin
-\    2dup u<>
-\  while
-\    2dup u>
-\    if
-\      swap
-\    then
-\    @
-\  repeat
-\  drop ;
-
-\ : osub-list? ( list1 list2 -- f ) \ gforth-internal
-\ \ true iff list1 is a sublist of list2
-\  begin
-\    2dup u<
-\  while
-\    @
-\  repeat
-\  = ;
-
-\ defer common-list
-\ defer sub-list?
-
-\ ' ocommon-list is common-list
-\ ' osub-list?   is sub-list?
 
 : list-size ( list -- u ) \ gforth-internal
     \ size of the locals frame represented by list
@@ -487,12 +451,6 @@ create new-locals-map ( -- wordlist-map )
 ' drop A,
 
 new-locals-map mappedwordlist Constant new-locals-wl
-
-\ slowvoc @
-\ slowvoc on
-\ vocabulary new-locals
-\ slowvoc !
-\ new-locals-map ' new-locals >body wordlist-map A! \ !! use special access words
 
 \ and now, finally, the user interface words
 : { ( -- vtaddr u latest latestxt wid 0 ) \ gforth open-brace
