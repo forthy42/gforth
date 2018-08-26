@@ -270,6 +270,7 @@ GFORTH_FI_SRC2=\
 	quotes.fs \
 	rec-string.fs \
 	rec-to.fs \
+	rec-tick.fs \
 	recognizer2.fs \
 	search.fs \
 	see.fs \
