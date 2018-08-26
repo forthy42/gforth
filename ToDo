@@ -3,7 +3,8 @@ ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done
  B   [x] Multithreading API
  B       [ ] Documentation
   G      [ ] Examples
- B   [x] Images sichern, die C-Bindings enthalten
+ B   [x] Save images that contain C bindings
+  G      [ ] Interface files for .h-files; build on install
 A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
@@ -38,8 +39,8 @@ A        [x] system documentation requirements
 A    [ ] changelog
 A    [ ] news-file
 A    [x] update this ToDo file
- BG  [ ]*implement smart .s "..."
-AB   [ ] ~~ uses ... and prints floating stack
+ BG  [x]*implement smart .s "..."
+AB   [ ]*~~ uses ... and prints floating stack
 
 -*- RoadMap for gforth post 1.0 -*-
  B   [ ] Multithreading: Use sections to allow compilation in every threading
