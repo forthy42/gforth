@@ -255,3 +255,6 @@ t{ pl-test6 -> 123e }t
 t{ : pl-test7 123 {: l :} postpone l ; immediate -> }t
 t{ : pl-test8 pl-test7 ; -> }t
 t{ pl-test8 -> 123 }t
+t{ : pl-test9 ['] + {: xt: l :} postpone l ; immediate -> }t
+t{ : pl-testa pl-test9 ; -> }t
+t{ 3 6 pl-testa -> 9 }t
