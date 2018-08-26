@@ -789,3 +789,35 @@ colon-sys-xt-offset 3 + to colon-sys-xt-offset
 	(local)
     REPEAT
     drop 0 (local) ; immediate restrict
+
+
+\ POSTPONEing locals
+
+\ these rectypes are only used for POSTPONEing
+' never-happens '  literal ' name-compsem rectype: post-wlocal
+' never-happens ' 2literal ' name-compsem rectype: post-dlocal
+' never-happens ' fliteral ' name-compsem rectype: post-flocal
+\ ' never-happens ' never-happens ' never-happens rectype: post-xtlocal
+
+: >postpone-replacer-locals ( ... rectype1 -- ... rectype2 )
+    \ Input: any recognizer result; if it is for a local, produce
+    \ correct behaviour for read-only locals.  This is wrong for
+    \ read/write locals, but it's better than what we get without this
+    \ replacer.
+    dup rectype-name = if
+        over name>int >does-code case
+            0 of endof
+            [ ' some-clocal  >does-code ] literal of drop post-wlocal endof
+            [ ' some-dlocal  >does-code ] literal of drop post-dlocal endof
+            [ ' some-flocal  >does-code ] literal of drop post-flocal endof
+            [ ' some-wlocal  >does-code ] literal of drop post-wlocal endof
+            [ ' some-xtlocal >does-code ] literal of -48 throw endof
+            [ ' some-caddr   >does-code ] literal of -48 throw endof
+            [ ' some-daddr   >does-code ] literal of -48 throw endof
+            [ ' some-faddr   >does-code ] literal of -48 throw endof
+            [ ' some-waddr   >does-code ] literal of -48 throw endof
+        endcase
+    then
+    defers >postpone-replacer ;
+
+' >postpone-replacer-locals is >postpone-replacer

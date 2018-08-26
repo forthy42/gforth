@@ -241,3 +241,17 @@ t{ 1 >r ' r> execute1 -> 1 }t
 t{ : execute2 {: xt :} xt execute-exit ; -> }t
 t{ : execute-exit-test {: a :} >r ['] r> execute2 a ; -> }t
 t{ 1 2 execute-exit-test -> 1 2 }t
+
+\ postpone locals
+t{ : pl-test1 'a' {: c: l :} postpone l ; immediate -> }t
+t{ : pl-test2 pl-test1 ; -> }t
+t{ pl-test2 -> 'a' }t
+t{ : pl-test3 8 9 {: d: l :} postpone l ; immediate -> }t
+t{ : pl-test4 pl-test3 ; -> }t
+t{ pl-test4 -> 8 9 }t
+t{ : pl-test5 123e {: f: l :} postpone l ; immediate -> }t
+t{ : pl-test6 pl-test5 ; -> }t
+t{ pl-test6 -> 123e }t
+t{ : pl-test7 123 {: l :} postpone l ; immediate -> }t
+t{ : pl-test8 pl-test7 ; -> }t
+t{ pl-test8 -> 123 }t

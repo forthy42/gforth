@@ -45,10 +45,14 @@ defer >postpone-replacer ( ... rectype1 -- ... rectype2 )
 ' noop is >postpone-replacer
 
 : >postpone ( ... rectype -- )
-    dup >r rectype>post execute r> rectype>comp compile, ;
+    >postpone-replacer dup >r rectype>post execute r> rectype>comp compile, ;
+
+: name-compsem ( ... nt -- ... )
+    \ perform compilation semantics of nt
+    name>comp execute-;s ;
 
 :noname name?int  execute-;s ;
-:noname name>comp execute-;s ;
+' name-compsem
 ' lit,
 rectype: rectype-name ( takes nt, i.e. result of find-name and find-name-in )
 

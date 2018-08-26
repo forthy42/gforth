@@ -120,8 +120,9 @@ decimal
 -2057 s" wrong file type" rot errstring
 -2058 s" locals stack overflow" rot errstring
 -2059 s" locals stack underflow" rot errstring
+-2060 s" Bug in Gforth, please report" rot errstring
 
-variable next-exception -2060 next-exception !
+variable next-exception -2061 next-exception !
 
 : exception ( addr u -- n ) \ exception- gforth
     \G @var{n} is a previously unused @code{throw} value in the range
@@ -136,3 +137,7 @@ variable next-exception -2060 next-exception !
 \G the error number for a broken pipe
 
 -2054 constant warning-error ( -- n )
+
+: never-happens ( -- )
+    \ you can use this when you have to provide an xt that is never reached
+    -2060 throw ;
