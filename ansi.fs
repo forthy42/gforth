@@ -121,8 +121,14 @@ Variable mark-attr
 
 $Variable term-rgb$
 
+: is-ansi-terminal? ( -- f )
+    s" TERM" getenv s" xterm" string-prefix?
+    stdin isatty
+    stdout isatty and and ;
+
 : term-bg? ( -- rgb )
     \G query terminal's background color, return value in hex RRGGBB
+    is-ansi-terminal? 0= if $0 EXIT then
     key? drop \ set terminal into raw mode
     s\" \e]11;?\007" type \ avada kedavra, terminal!
     BEGIN  1 ms key?  UNTIL  key #esc <> abort" escape expected"
@@ -136,6 +142,11 @@ $Variable term-rgb$
     term-rgb$ $free ;
 
 : auto-color ( -- )
+    is-ansi-terminal? 0= if
+        \ no terminal - switch to other output clas
+        ['] drop is attr!
+        EXIT
+    then
     term-bg?
     dup $FF and swap
     8 rshift dup $FF and

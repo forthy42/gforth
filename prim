@@ -2025,6 +2025,10 @@ Gforth.""
 urows=rows;
 ucols=cols;
 
+isatty	( wfileid -- f )	gforth	isatty
+""checks if fd is a (pseudo-)terminal""
+f = FLAG(isatty( fileno((FILE*)wfileid) ));
+
 wcwidth	( u -- n )	gforth
 ""The number of fixed-width characters per unicode character u""
 n = wcwidth(u);
