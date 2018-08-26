@@ -158,4 +158,4 @@ $Variable term-rgb$
 	black-colors
     THEN ;
 
-:noname auto-color defers bootmessage ; is bootmessage
+:noname auto-color defers 'cold ; is 'cold
