@@ -125,6 +125,11 @@ $Variable term-rgb$
     stdin isatty
     stdout isatty and ;
 
+: is-color-terminal? ( -- )
+    s" TERM" getenv
+    2dup s" xterm" string-prefix? >r
+         s" linux" string-prefix? r> or ;
+
 : is-xterm? ( -- f )
     s" TERM" getenv s" xterm" string-prefix?
     is-terminal? and ;
@@ -144,7 +149,7 @@ $Variable term-rgb$
     term-rgb$ $free ;
 
 : auto-color ( -- )
-    is-terminal? 0= if
+    is-terminal? is-color-terminal? and 0= if
         \ TODO: no terminal - switch to other output clas
         ['] drop is attr!
         EXIT
