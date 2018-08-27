@@ -462,7 +462,9 @@ new-locals-map mappedwordlist Constant new-locals-wl
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
-synonym {: {
+synonym {: { ( -- vtaddr u latest latestxt wid 0 ) \ forth-2012 open-brace-colon
+\G Start standard locals declaration.  All Gforth locals extensions are
+\G supported by Gforth, though the standard only supports the subset of cells.
 
 locals-types definitions
 

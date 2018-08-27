@@ -36,7 +36,9 @@ Defer endref, ( -- )
 \ pushes a reference to the location
 ' noop is endref,
 
-: >addr ( xt -- addr )
+: >addr ( xt -- addr ) \ gforth-experimental to-addr
+    \G convert the xt of a closure on the heap to the @var{addr} with can be
+    \G passed to @code{free} to get rid of the closure
     [ cell maxaligned ]L - ;
 : alloch ( size -- addr ) \ addr is the end of the allocated region
     dup allocate throw + ;
@@ -97,7 +99,7 @@ forth definitions
     postpone THEN
     wrap! pop-locals ;
 
-: closure> ( body -- addr )
+: closure> ( body -- addr ) \ gforth-experimental closure-end
     \G create trampoline head
     >l dodoes: >l lp@
     [ ' do-closure cell- @ ]L >l
@@ -113,7 +115,7 @@ forth definitions
     locals-size @ locals-sizes >stack  locals-size off
     locals-list @ locals-lists >stack  locals-list off ;
 
-: [{: ( -- vtaddr u latest latestxt wid 0 )
+: [{: ( -- vtaddr u latest latestxt wid 0 ) \ gforth-experimental start-closure
     \G starts a closure.  Closures first declare the locals frame they are
     \G going to use, and then the code that is executed with those locals.
     \G Closures end like quotations with a @code{;]}.  The locals declaration
@@ -130,19 +132,19 @@ forth definitions
     postpone {:
 ; immediate compile-only
 
-: <{: ( -- vtaddr u latest latestxt wid 0 )
+: <{: ( -- vtaddr u latest latestxt wid 0 ) \ gforth-experimental start-homelocation
     \G starts a home location
     push-locals postpone {:
 ; immediate compile-only
 
-: ;> ( -- )
+: ;> ( -- ) \ gforth-experimental end-homelocation
     \G end using a home location
     pop-locals ]] laddr# [[ 0 , ]] lp> [[
 ; immediate compile-only
 
 false [IF]
-    : test [{: a f: b d: c :}d a b c ;] ;
-    5 3.3e #1234. test execute d. f. . cr
+    : foo [{: a f: b d: c xt: d :}d a . b f. c d. d ;] ;
+    5 3.3e #1234. ' cr foo execute
     : homeloc <{: w^ a w^ b w^ c :}h a b c ;> ;
     1 2 3 homeloc >r ? ? ? r> free throw cr
 

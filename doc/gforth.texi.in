@@ -9995,6 +9995,7 @@ poses the following questions:
 * How long do locals live?::
 * Locals programming style::
 * Locals implementation::
+* Closures::
 @end menu
 
 @node Where are locals visible by name?, How long do locals live?, Gforth locals, Gforth locals
@@ -10256,7 +10257,7 @@ are initialized with the right value for the current iteration.
 Here it is clear from the start that @code{s1} has a different value
 in every loop iteration.
 
-@node Locals implementation,  , Locals programming style, Gforth locals
+@node Locals implementation, Closures, Locals programming style, Gforth locals
 @subsubsection Locals implementation
 @cindex locals implementation
 @cindex implementation of locals
@@ -10395,23 +10396,92 @@ they are no longer visible in any control-flow path. In a few cases
 this may lead to increased space needs for the locals name area, but
 usually less than reclaiming this space would cost in code size.
 
+@node Closures, , Locals implementation, Gforth locals
+@subsubsection Closures
+@cindex closures
+
+Gforth also provides basic closures.  A closure is a combination of a
+quotation (@pxref{Quotations}) and locals.  Gforth's closures have
+locals which are filled with values at the closure's run-time,
+producing a trampoline xt.  When executing that trampoline xt, the
+closure's code is executed, with access to the closure's locals on the
+locals stack.  Modifications of the closure's locals aren't
+persistent, i.e. when the closure @code{EXIT}s, the modified values
+are lost.
+
+doc-[{:
+doc-:}l
+doc-:}d
+doc-:}h
+doc->addr
+
+@example
+: foo [@{: a f: b d: c xt: d :@}d a . b f. c d. d ;] ;
+5 3.3e #1234. ' cr foo execute
+@end example
+
+@code{foo} creates a closure in the dictionary with a single cell, a
+floating point, a double, and an xt, and prints the first three values
+before executing the xt on invocation.
+
+This allows to implement Donald Knuth's ``Man or boy test'' proposed
+in 1964 to test Algol compilers.
+
+@example
+: A @{: w^ k x1 x2 x3 xt: x4 xt: x5 | w^ B :@} recursive
+    k @ 0<= IF  x4 x5 f+  ELSE
+        B k x1 x2 x3 action-of x4 [@{: B k x1 x2 x3 x4 :@}L
+            -1 k +!
+            k @ B @ x1 x2 x3 x4 A ;] dup B !
+        execute  THEN ;
+: man-or-boy? ( n -- ) [: 1e ;] [: -1e ;] 2dup swap [: 0e ;] A f. ;
+@end example
+
+Sometimes, closures need a permanent storage to be modified; it is
+even possible that more than one closure shares that permanent
+storage.  In the example above, local variables of the outer procedure
+are used for this, but in some cases, the closure lives longer than
+the outer procedure; especially closures allocated in the dictionary
+or on the heap are designed to outlive their parent procedure.
+
+For those, we have home locations, which are allocated like closures,
+but their code is directly executed at run-time and should provide us
+with the addresses of the home locations.
+
+@example
+: bar ( a b c -- aaddr baddr caddr hl-addr )
+    <@{: w^ a w^ b w^ c :@}h a b c ;> ;
+@end example
+
+This example creates a home location with three cells on the heap, and
+returns the addresses of the three locations and the address of the
+home location.  This address can be used to @code{free} the home
+location when it is no longer needed.
+
+doc-<{:
+doc-;>
 
 @node Standard Forth locals,  , Gforth locals, Locals
 @subsection Standard Forth locals
 @cindex locals, Standard Forth style
 
-!!The Standard Forth locals wordset does not define a syntax for locals, but
-words that make it possible to define various syntaxes. One of the
-possible syntaxes is a subset of the syntax we used in the Gforth locals
-wordset, i.e.:
+The Forth-2012 standard defines a syntax for locals, that is similar
+to a subset of Gforth locals.  Instead of using @code{@{} and
+@code{@}}, the standard decided to use @code{@{:} and @code{:@}}, as
+shown in the following examples:
 
 @example
-@{ local1 local2 ... -- comment @}
+@{: local1 local2 ... -- comment :@}
 @end example
 @noindent
 or
 @example
-@{ local1 local2 ... @}
+@{: local1 local2 ... | local3 local4 ... -- comment :@}
+@end example
+@noindent
+where local3 and local4 are uninitialized or
+@example
+@{: local1 local2 ... :@}
 @end example
 
 The order of the locals corresponds to the order in a stack comment. The
@@ -10445,9 +10515,10 @@ Note that a syntax shown in the standard, section A.13 looks
 similar, but is quite different in having the order of locals
 reversed. Beware!
 
-The Standard Forth locals wordset itself consists of one word:
+The Standard Forth locals wordset itself consists of two words:
 
 doc-(local)
+doc-{:
 
 The ANS Forth locals extension wordset defines a syntax using
 @code{locals|}, but it is so awful that we strongly recommend not to use
