@@ -149,10 +149,10 @@ $Variable term-rgb$
     term-rgb$ $free ;
 
 : auto-color ( -- )
-    false to white?
     is-terminal? is-color-terminal? and 0= if
         \ TODO: no terminal - switch to other output class
-        ['] drop is attr!
+	['] drop is attr!
+	black-colors
         EXIT
     then
     is-xterm? if term-bg? else $0 then
