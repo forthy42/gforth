@@ -119,7 +119,7 @@ forth definitions
     \G starts a closure.  Closures first declare the locals frame they are
     \G going to use, and then the code that is executed with those locals.
     \G Closures end like quotations with a @code{;]}.  The locals declaration
-    \G ends depending where the closure's locals are crated.  At run-time, the
+    \G ends depending where the closure's locals are created.  At run-time, the
     \G closure is created as trampolin xt, and fills the values of its local
     \G frame from the stack.  At execution time of the xt, the local frame is
     \G copied to the locals stack, and used inside the closure's code.  After
