@@ -134,7 +134,6 @@ Variable color-index
 Variable error-color-index
 $704000 dup color-index ! error-color-index !
 Variable std-bg
-Black std-bg !
 1 pad ! pad c@ [IF] \ little endian
     2 cfield: fg-field
     cfield: bg-field drop
@@ -165,6 +164,7 @@ Black std-bg !
     c@    s>f $FF fm/ glClearColor ;
 
 : std-bg! ( index -- )  dup bg! dup std-bg ! bg>clear ;
+Black White white? [IF] swap [THEN] fg! bg!
 
 : >extra-colors-bg ( -- ) >bg
     error-color   $F0FF and over or to error-color
@@ -546,7 +546,8 @@ default-out op-vector !
 
 : >screen ( -- )
     ctx 0= IF  window-init  [IFDEF] map-win map-win [THEN] config-changer  THEN
-    err>screen op-vector @ debug-vector ! out>screen ;
+    err>screen op-vector @ debug-vector ! out>screen
+    white? IF  >white  ELSE  >black  THEN ;
 
 \ initialize
 

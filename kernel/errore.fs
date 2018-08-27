@@ -85,8 +85,11 @@ has? OS [IF]
     \G color for success: green
     $6601 Value input-color   ( -- x ) \ gforth
     \G color for user-input: black/white (both bold)
+    true Value white?
+    \G reset to current colors
     : white-colors ( -- ) \ gforth
 	\G color theme for white background
+	true to white?
 	$6600 to default-color
 	$E600 to error-color
 	$B600 to warning-color
@@ -95,6 +98,7 @@ has? OS [IF]
 	$6601 to input-color ;
     : black-colors ( -- ) \ gforth
 	\G color theme for black background
+	false to white?
 	$6600 to default-color
 	$E601 to error-color
 	$C601 to warning-color

@@ -288,6 +288,7 @@ void startForth(jniargs * startargs)
   setenv("libccdir", startargs->libdir, 1);
   setenv("LANG", startargs->locale, 1);
   setenv("LC_ALL", startargs->locale, 1);
+  setenv("TERM", "linux", 1);
 
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
   setenv("APP_STATE", statepointer, 1);
