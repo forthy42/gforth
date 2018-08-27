@@ -122,8 +122,7 @@ Variable mark-attr
 $Variable term-rgb$
 
 : is-terminal? ( -- f )
-    stdin isatty
-    stdout isatty and ;
+    stdin isatty  stdin isfg and  stdout isatty and ;
 
 : is-color-terminal? ( -- )
     s" TERM" getenv
@@ -150,6 +149,7 @@ $Variable term-rgb$
     term-rgb$ $free ;
 
 : auto-color ( -- )
+    false to white?
     is-terminal? is-color-terminal? and 0= if
         \ TODO: no terminal - switch to other output class
         ['] drop is attr!

@@ -594,7 +594,9 @@ XSetWindowAttributes buffer: xswa
     get-atoms  set-hint  set-protocol
     win get-ic ;
 
-: x-key? ( -- flag ) 0 #looper  defers key? dup 0= IF screen-ops THEN ;
+: term-key? ( -- flag )
+    stdin isfg IF  defers key?  ELSE  key-buffer $@len 0>  THEN ;
+: x-key? ( -- flag ) 0 #looper  term-key? dup 0= IF screen-ops THEN ;
 : x-key ( -- key )
     +show  key? IF  defers key-ior  EXIT  THEN
     BEGIN  >looper  key? UNTIL  defers key-ior ;

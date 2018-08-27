@@ -2029,6 +2029,14 @@ isatty	( wfileid -- f )	gforth	isatty
 ""checks if fd is a (pseudo-)terminal""
 f = FLAG(isatty( fileno((FILE*)wfileid) ));
 
+isfg	 ( wfileid -- f )	gforth	isfg
+""check if fd is controlled by us (we are the foreground process)""
+pid_t fg = tcgetpgrp( fileno((FILE*)wfileid) );
+if (fg == -1) {
+   f=-1; // non-terminal file, is ours
+} else
+   f=FLAG(fg == getpgrp());
+
 wcwidth	( u -- n )	gforth
 ""The number of fixed-width characters per unicode character u""
 n = wcwidth(u);
