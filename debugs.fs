@@ -245,6 +245,7 @@ Variable rec'
 	2drop s" vi" \ if you don't set EDITOR, use vi as default
     THEN
     2dup 2>r type space
+    2r@ s" emacsclient" string-prefix? IF  ." -n "  THEN
     decode-view 1+
     2r@ s" emacs" search nip nip  2r@ s" gedit" str= or  IF  emacs-l:c  ELSE
 	2r@ s" kate" string-prefix? IF  kate-l:c  ELSE
