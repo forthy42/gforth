@@ -62,16 +62,25 @@ locals-types definitions
     extra-locals off ;
 
 : :}xt ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
+    \G end a closure's locals declaration.  The closure will be allocated by
+    \G the xt on the stack, so the closure's run-time stack effect is @code{(
+    \G xt-alloc -- xt-closure}.
     \ run-time: ( xt size -- ... )
     [: swap execute ;] :}* ;
 
 : :}d ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+    \G end a closure's locals declaration.  The closure will be allocated in
+    \G the dictionary.
     ['] allocd :}* ;
 
 : :}h ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-heap
+    \G end a closure's locals declaration.  The closure will be allocated on
+    \G the heap.
     ['] alloch :}* ;
 
 : :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
+    \G end a closure's locals declaration.  The closure will be allocated on
+    \G the local's stack.
     :}
     locals-size @ [ 3 cells maxaligned ]L +
     locals-sizes stack> + locals-sizes >stack
@@ -105,7 +114,15 @@ forth definitions
     locals-list @ locals-lists >stack  locals-list off ;
 
 : [{: ( -- vtaddr u latest latestxt wid 0 )
-    \G starts a closure
+    \G starts a closure.  Closures first declare the locals frame they are
+    \G going to use, and then the code that is executed with those locals.
+    \G Closures end like quotations with a @code{;]}.  The locals declaration
+    \G ends depending where the closure's locals are crated.  At run-time, the
+    \G closure is created as trampolin xt, and fills the values of its local
+    \G frame from the stack.  At execution time of the xt, the local frame is
+    \G copied to the locals stack, and used inside the closure's code.  After
+    \G return, those values are removed from the locals stack, and not updated
+    \G in the closure itself.
     [: ] drop ;] defstart
     push-locals
     ['] end-dclosure is end-d  [: ]] lp> [[ ;] is endref,
