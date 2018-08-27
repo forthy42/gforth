@@ -3377,8 +3377,8 @@ u2 = u1+1;
 
 \g atomic
 
-!@ ( u1 a_addr -- u2 )	gforth store_fetch
-""load @v{u2} from @v{a_addr}, and store @v{u1} there, as atomic operation""
+!@ ( u1 a_addr -- u2 )	gforth-experimental store_fetch
+""load @var{u2} from @var{a_addr}, and store @var{u1} there, as atomic operation""
 #ifdef HAS_ATOMIC
 u2 = __sync_lock_test_and_set(a_addr, u1);
 #else
@@ -3386,8 +3386,8 @@ u2 = *a_addr;
 *a_addr = u1;
 #endif
 
-+!@ ( u1 a_addr -- u2 )	gforth add_store_fetch
-""load @v{u2} from @v{a_addr}, and increment this location by @v{u1}, as atomic operation""
++!@ ( u1 a_addr -- u2 )	gforth-experimental add_store_fetch
+""load @var{u2} from @var{a_addr}, and increment this location by @var{u1}, as atomic operation""
 #ifdef HAS_ATOMIC
 u2 = __sync_fetch_and_add(a_addr, u1);
 #else
@@ -3395,8 +3395,8 @@ u2 = *a_addr;
 *a_addr += u1;
 #endif
 
-?!@ ( unew uold a_addr -- uprev )	gforth question_store_fetch
-""load @v{uprev} from @v{a_addr}, compare it to @v{uold}, and if equal, store @v{unew} there, as atomic operation""
+?!@ ( unew uold a_addr -- uprev )	gforth-experimental question_store_fetch
+""load @var{uprev} from @var{a_addr}, compare it to @var{uold}, and if equal, store @var{unew} there, as atomic operation""
 #ifdef HAS_ATOMIC
 uprev = __sync_val_compare_and_swap(a_addr, uold, unew);
 #else
@@ -3404,8 +3404,8 @@ uprev = *a_addr;
 if(*a_addr == uold) *a_addr = unew;
 #endif
 
-barrier ( -- ) gforth
-""Insert a memory barrier""
+barrier ( -- ) gforth-experimental
+""Insert a full memory barrier""
 #ifdef HAS_ATOMIC
 __sync_synchronize();
 #endif

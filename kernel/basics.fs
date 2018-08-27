@@ -276,7 +276,7 @@ defer ?warning ( f xt -- )
 :noname ( f xt -- )
     \ just a very basic version
     swap if
-	>stderr ." warning:" execute exit then
+	>stderr cr ." warning: " execute exit then
     drop ;
 is ?warning
 

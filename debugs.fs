@@ -117,7 +117,7 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
     \ if f, output a warning by EXECUTEing xt
     swap warnings @ and if
 	[: warning-color attr!
-	    cr current-sourcepos3 .sourcepos3 ." : " execute
+	    cr current-sourcepos3 .sourcepos3 ." : warning: " execute
 	    default-color attr! ;] debug-fid outfile-execute
 	warnings @ abs 4 >= warning-error and throw
 	exit then

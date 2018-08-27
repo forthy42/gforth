@@ -12571,11 +12571,20 @@ doc-break"
 
 Gforth offers two multitasker: a traditional, cooperative round-robin
 multitasker, and a pthread-based multitasker which allows to run several
-threads concurrently on multi-core machines.
+threads concurrently on multi-core machines.  The pthread-based is now
+marked as experimental feature, as standardization of Forth
+multitaskers will likely change the names of words without changing
+their semantics.
 
 @node Pthreads,  , Multitasker, Multitasker
 @subsection Ptheads
 @cindex pthread
+
+Tasks can be created with @code{newtask} or @code{newtast4} with a
+given amount of stack space (either all the same or each stack's size
+specified); these tasks neet to be @code{activate}d or send an
+@var{xt} through @code{initiate}.  Tasks can @code{stop} themselves
+when they are done or wait for new instructions.
 
 doc-newtask
 doc-task
@@ -12591,15 +12600,24 @@ doc-restart
 doc-halt
 doc-stop
 doc-stop-ns
-doc-uvalue
-doc-udefer
-doc-user'
 
 A cooperative multitasker can ensure that there is no other task
 interacting between two invocations of @code{pause}.  Pthreads however
 are really concurrent tasks (at least on a multi-core CPU), and
 therefore, several techniques to avoid conflicts when accessing the same
 resources.
+
+@subsubsection Special User Variables
+
+Aside from the user variables that are already defined in the kernel,
+tasks may want to have user values and user defers, optain the offset
+of a user variable, or the address of those related to another task to
+initialize that task's user area.
+
+doc-uvalue
+doc-udefer
+doc-user'
+doc-'s
 
 @subsubsection Semaphores
 
@@ -12620,7 +12638,8 @@ doc-critical-section
 
 @subsubsection Atomic operations
 
-Experimental atomic operations
+Atomic operations can be used to synchronize tasks without using slow
+OS primitives.
 
 doc-!@
 doc-+!@
