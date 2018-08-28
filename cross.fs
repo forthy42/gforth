@@ -1047,6 +1047,11 @@ constant gwhere-struct
 	2drop then
     drop false ;
 
+[IFUNDEF] $+!len
+    : $+!len ( n $addr -- addr )
+	>r r@ $@len tuck + r@ $!len r> @ cell+ + ;
+[THEN]
+
 : gwhere, ( ghost -- )
     dup gwhere-duplicate? 0= IF
 	gwhere-struct cross-wheres $+!len >r
