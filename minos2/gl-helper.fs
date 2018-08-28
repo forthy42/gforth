@@ -107,7 +107,8 @@ Variable configs
 Variable numconfigs
 Variable eglformat
 
-: ??gl .s ." gl: " glGetError . ." o: " o hex. ; ' ??gl is printdebugdata
+: ??gl .s ." gl: " glGetError . ." o: " o hex.
+    fdepth IF  cr ." F:" f.s  THEN  ; ' ??gl is printdebugdata
 
 [IFDEF] android
     : win app window @ ;
