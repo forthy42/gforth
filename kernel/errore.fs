@@ -107,7 +107,7 @@ has? OS [IF]
 	$6601 to input-color ;
     : magenta-input ( -- ) \ gforth
 	\G make input color easily recognizable (useful in presentations)
-        $A601 to input-color ;
+        $A601 white? + to input-color ;
 [THEN]
 
 : .error ( n -- )
