@@ -1291,12 +1291,12 @@ require animation.fs
 
 ' widget-sync is screen-ops
 
-: widgets-loop ( -- ) depth { d }
+: widgets-loop ( -- ) depth fdepth { d fd }
     level# @ 0= IF  enter-minos  THEN
     1 level# +!@ >r  top-widget .widget-draw
     BEGIN  0 looper-to# anims[] $@len ?sync or select
 	#looper  time( ." looper: " .!time cr )
-	widget-sync  gui( depth d u> IF  ~~bt  THEN )
+	widget-sync  gui( depth d u>  fdepth fd u> or IF  ~~bt  THEN )
     level# @ r@ = UNTIL  r> 0= IF  leave-minos  THEN ;
 
 previous previous previous

@@ -82,6 +82,7 @@ doc-on
 
 has? header [IF]
 1802 <> [IF] .s cr .( header start address expected!) cr uffz [THEN]
+wheres-off
 AConstant image-header
 : forthstart image-header @ ;
 [THEN]
@@ -128,7 +129,7 @@ include kernel/pass.fs                    \ pass pointers from cross to target
 has? header [IF]
     \ set image size
     here image-header 2 cells + !         
-    ." set image entry point" cr
+    .( set image entry point) cr
     ' boot       >body  image-header #08 cells + !
     ' quit       >body  image-header #10 cells + !
     ' do-execute >body  image-header #11 cells + !

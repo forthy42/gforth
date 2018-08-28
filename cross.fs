@@ -77,7 +77,9 @@ H
 
 \ find out whether we are compiling with gforth
 
-: defined? bl word find nip ;
+: bl-word ( -- addr )
+    parse-name here place here ;
+: defined? bl-word find nip ;
 defined? emit-file defined? toupper and \ drop 0
 [IF]
 \ use this in a gforth system
@@ -94,7 +96,7 @@ defined? emit-file defined? toupper and \ drop 0
 [IF]
 : \G postpone \ ; immediate
 : rdrop postpone r> postpone drop ; immediate
-: name bl word count ;
+: name bl-word count ;
 : bounds over + swap ;
 : scan >r BEGIN dup WHILE over c@ r@ <> WHILE 1 /string REPEAT THEN rdrop ;
 : linked here over @ , swap ! ;
@@ -269,7 +271,7 @@ hex     \ the defualt base for the cross-compiler is hex !!
 \G Same behaviour as "Value" if the <name> is not defined
 \G Same behaviour as "to" if the <name> is defined
 \G SetValue searches in the current vocabulary
-  save-input bl word >r restore-input throw r> count
+  save-input bl-word >r restore-input throw r> count
   get-current search-wordlist
   IF	drop >r
 	\ we have to set current to be topmost context wordlist
@@ -281,9 +283,9 @@ hex     \ the defualt base for the cross-compiler is hex !!
 : DefaultValue ( n -- <name> )
 \G Same behaviour as "Value" if the <name> is not defined
 \G DefaultValue searches in the current vocabulary
- save-input bl word >r restore-input throw r> count
+ save-input bl-word >r restore-input throw r> count
  get-current search-wordlist
- IF bl word drop 2drop ELSE Value THEN ;
+ IF bl-word drop 2drop ELSE Value THEN ;
 
 hex
 
@@ -303,7 +305,7 @@ hex
 \G The next word in the input is a target word.
 \G Equivalent to T <name> but without permanent
 \G switch to target dictionary. Used as prefix e.g. for @, !, here etc.
-  bl word count [ ' target >wordlist ] Literal search-wordlist
+  bl-word count [ ' target >wordlist ] Literal search-wordlist
   IF state @ IF compile, ELSE execute THEN
   ELSE	-1 ABORT" Cross: access method not supported!"
   THEN ; immediate
@@ -342,12 +344,12 @@ set-order previous
 : D? ( <name> -- flag )
 \G return true if debug flag is defined or switched on
 \G while compiling we do not return the current value but
-  bl word count debug? ;
+  bl-word count debug? ;
 
 : [d?]
 \G compile the value-xt so the debug flag can be switched
 \G the flag must exist!
-  bl word count debugflags-wl search-wordlist
+  bl-word count debugflags-wl search-wordlist
   IF 	compile,
   ELSE  -1 ABORT" unknown debug flag"
 	\ POSTPONE false 
@@ -645,9 +647,9 @@ false DebugFlag showincludedfiles
 	ELSE	included1
 	THEN ;
 
-: include bl word count included ;
+: include bl-word count included ;
 
-: require bl word count required ;
+: require bl-word count required ;
 
 0 [IF]
 
@@ -996,7 +998,7 @@ ghosts-wordlist Value current-ghosts
   \ restore current
   r> set-current
   here (ghostheader)
-  bl word count string, align
+  bl-word count string, align
   space>
   \ set ghost-xt field by doing a search
   dup >ghost-name count 
@@ -1021,11 +1023,42 @@ Defer search-ghosts
   search-ghosts
   dup IF swap >body swap THEN ;
 
+Variable cross-wheres
+
+0
+cell +field gwhere-nt
+cell +field gwhere-loc
+constant gwhere-struct
+
+: tsourceview ( -- view )
+    [IFDEF] loadfilename# loadfilename# @
+    [ELSE] sourcefilename str>loadfilename# [THEN]
+    sourceline#
+    input-lexeme 2@ drop source drop -
+    $ff min swap 8 lshift + $7fffff min swap #23 lshift or ;
+
+: gwhere-duplicate? ( ghost -- flag )
+    cross-wheres $@ dup if
+	gwhere-struct - + >r
+	dup r@ gwhere-nt @ =
+	r> gwhere-loc @ tsourceview = and if
+	    drop true exit then
+    else
+	2drop then
+    drop false ;
+
+: gwhere, ( ghost -- )
+    dup gwhere-duplicate? 0= IF
+	gwhere-struct cross-wheres $+!len >r
+	dup r@ gwhere-nt !
+	tsourceview r> gwhere-loc !
+    THEN  drop ;
+
 : gfind   ( string -- ghost true / string false )
 \ searches for string in word-list ghosts
   \ dup count type space
   dup >r count gsearch
-  dup IF rdrop ELSE r> swap THEN ;
+  dup IF rdrop over gwhere, ELSE r> swap THEN ;
 
 : gdiscover ( xt -- ghost true | xt false )
   >r ghost-list
@@ -1041,7 +1074,7 @@ Defer search-ghosts
   gdiscover 0= ABORT" CROSS: ghost not found for this xt" ;
 
 : Ghost   ( "name" -- ghost )
-  >in @ bl word gfind IF  nip EXIT  THEN
+  >in @ bl-word gfind IF  nip EXIT  THEN
   drop  >in !  Make-Ghost ;
 
 : >ghostname ( ghost -- adr len )
@@ -1071,7 +1104,7 @@ Variable reuse-ghosts reuse-ghosts off
 
 : HeaderGhost ( "name" -- ghost )
   >in @ 
-  bl word count 
+  bl-word count 
 \  2dup type space
   current-ghosts search-wordlist
   IF  >body dup undefined? reuse-ghosts @ or
@@ -1091,7 +1124,7 @@ Variable reuse-ghosts reuse-ghosts off
 \ ' >ghostname ALIAS @name
 
 : findghost ( "ghostname" -- ghost ) 
-  bl word gfind 0= ABORT" CROSS: Ghost don't exists" ;
+  bl-word gfind 0= ABORT" CROSS: Ghost don't exists" ;
 
 : [G'] ( -- ghost : name )
 \G ticks a ghost and returns its address
@@ -1192,13 +1225,13 @@ Variable env-current
 : e? ( "name" -- x )
 \G returns the content of environment variable. 
 \G The variable is expected to exist. If not, issue an error.
-   bl word count T environment? H 
+   bl-word count T environment? H 
    0= ABORT" environment variable not defined!" ;
 
 : has? ( "name" --- x | false )
 \G returns the content of environment variable 
 \G or false if not present
-   bl word count T $has? H ;
+   bl-word count T $has? H ;
 
 
 >ENVIRON get-order get-current swap 1+ set-order
@@ -1351,7 +1384,7 @@ Variable mirrored-link          \ linked list for mirrored regions
 : region ( addr len -- "name" )                
 \G create a new region
   \ check whether predefined region exists 
-  save-input bl word find >r >r restore-input throw r> r> 0= 
+  save-input bl-word find >r >r restore-input throw r> r> 0= 
   IF	\ make region
 	drop
 	save-input create restore-input throw
@@ -1359,9 +1392,9 @@ Variable mirrored-link          \ linked list for mirrored regions
 	over ( startaddr ) , ( length ) , ( dp ) ,
 	region-link linked 0 , 0 , 0 , 0 , 
         ['] uninitialized ,
-        bl word count string,
+        bl-word count string,
   ELSE	\ store new parameters in region
-        bl word drop
+        bl-word drop
 	>body (region)
   THEN ;
 
@@ -2170,11 +2203,7 @@ X has? f83headerstring [IF]
     [IFDEF] replace-sourceview
 	replace-sourceview  0 to replace-sourceview ?dup ?EXIT
     [THEN]
-    [IFDEF] loadfilename# loadfilename# @
-    [ELSE] sourcefilename str>loadfilename# [THEN]
-    sourceline#
-    input-lexeme 2@ drop source drop -
-    $ff min swap 8 lshift + $7fffff min swap #23 lshift or ;
+    tsourceview ;
 : view,   ( -- ) tsourcepos1 T , H ;
 : shorten-path ( addr u -- addr' u' )  2>r
     fpath path>string  BEGIN  next-path dup  WHILE
@@ -2316,7 +2345,7 @@ Defer skip? ' false IS skip?
 \G a word is not defined
 \G a forward reference exists
 \G so the definition is not skipped!
-    bl word gfind
+    bl-word gfind
     IF dup undefined?
 	nip
 	0=
@@ -2354,7 +2383,7 @@ Defer vt, \ forward rference only
 0 Value lastghost
 
 : (THeader ( "name" -- ghost )
-    \  >in @ bl word count type 2 spaces >in !
+    \  >in @ bl-word count type 2 spaces >in !
     \ wordheaders will always be compiled to rom
     switchrom vt,
     \ build header in target
@@ -2378,7 +2407,7 @@ Defer vt, \ forward rference only
     THEN
     T cfalign here H tlastcfa !
     \ Old Symbol table sed-script
-\    >in @ cr ." sym:s/CFA=" there 4 0.r ." /"  bl word count .sym ." /g" cr >in !
+\    >in @ cr ." sym:s/CFA=" there 4 0.r ." /"  bl-word count .sym ." /g" cr >in !
     HeaderGhost
     \ output symbol table to extra file
     dup >ghostname there symentry
@@ -2425,7 +2454,7 @@ Variable last-prim-ghost
 : asmprimname, ( ghost -- : name ) 
   dup last-prim-ghost !
   >r
-  here bl word count string, r@ >asm-name !
+  here bl-word count string, r@ >asm-name !
   aprim-nr @ r> >asm-dummyaddr ! ;
 
 Defer setup-prim-semantics
@@ -2444,7 +2473,7 @@ Defer setup-prim-semantics
   >in @ skip? IF  2drop  EXIT  THEN  >in !
   dup 0< s" prims" T $has? H 0= and
   IF
-      .sourcepos ." needs doer: " >in @ bl word count type >in ! cr
+      .sourcepos ." needs doer: " >in @ bl-word count type >in ! cr
   THEN
   Ghost
   tuck swap resolve-noforwards <do:> swap >magic ! ;
@@ -2472,7 +2501,7 @@ Variable prim#
   >in @ skip? IF  drop  EXIT  THEN  >in !
   s" prims" T $has? H 0=
   IF
-     .sourcepos ." needs prim: " >in @ bl word count type >in ! cr
+     .sourcepos ." needs prim: " >in @ bl-word count type >in ! cr
   THEN
   prim# @ #primitive
   -1 prim# +! ;
@@ -2520,7 +2549,7 @@ Comment (       Comment \
 
 : '  ( -- xt ) 
 \G returns the target-cfa of a ghost
-  bl word gfind 0= ABORT" CROSS: Ghost don't exists"
+  bl-word gfind 0= ABORT" CROSS: Ghost don't exists"
   g>xt ;
 
 \ FIXME: this works for the current use cases, but is not
@@ -2632,7 +2661,7 @@ Cond: \G  T-\G ;Cond
 Cond: Literal  ( n -- )   lit, ;Cond
 Cond: ALiteral ( n -- )   alit, ;Cond
 
-: Char ( "<char>" -- )  bl word char+ c@ ;
+: Char ( "<char>" -- )  bl-word char+ c@ ;
 Cond: [Char]   ( "<char>" -- )  Char  lit, ;Cond
 
 : (x#) ( adr len base -- )
@@ -2718,7 +2747,7 @@ Variable no-loop
     compiling-state
     BEGIN
         compiling? WHILE
-        BEGIN save-input bl word
+        BEGIN save-input bl-word
               dup c@ 0= WHILE drop discard refill 0=
               ABORT" CROSS: End of file while target compiling"
         REPEAT
@@ -3142,6 +3171,14 @@ variable cross-boot[][]
     H cross-boot$[] $@ dup cell / T cell * , H bounds ?DO I @ T A, H cell +LOOP ;
 : boot[][], ( -- )
     H cross-boot[][] $@ dup cell / T cell * , H bounds ?DO I @ T A, H cell +LOOP ;
+
+: wheres, ( -- ) cr ." Compiling wheres" cr
+    H cross-wheres $@ dup cell / T cell * , H bounds ?DO I 2@
+	dup undefined? IF  ( ." undefined " dup >ghostname type cr ) drop -1
+	ELSE  g>xt  THEN
+    T A, , H 2 cells +LOOP ;
+
+: wheres-off cross-wheres $free ;
 
 >CROSS
 
@@ -3826,11 +3863,11 @@ Cond: defers	T ' >body @ compile, H ;Cond
 
 Cond: [compile] ( -- ) \ name
 \g For immediate words, works even if forward reference
-      bl word gfind 0= ABORT" CROSS: Can't compile"
+      bl-word gfind 0= ABORT" CROSS: Can't compile"
       (gexecute) ;Cond
 	   
 Cond: postpone ( -- ) \ name
-      bl word gfind 0= ABORT" CROSS: Can't compile"
+      bl-word gfind 0= ABORT" CROSS: Can't compile"
       dup >magic @ <fwd> =
       ABORT" CROSS: Can't postpone on forward declaration"
       dup >magic @ <imm> =
@@ -4121,7 +4158,7 @@ Variable outfile-fd
 
 : [ELSE]
     1 BEGIN
-	BEGIN bl word count dup WHILE
+	BEGIN bl-word count dup WHILE
 	    comment? 20 umin 2dup upcase
 	    2dup s" [IF]" str= >r 
 	    2dup s" [IFUNDEF]" str= >r
@@ -4162,7 +4199,7 @@ Cond: [ELSE]    postpone [ELSE] ;Cond
 \ we want to use IFDEF on compiler directives (e.g. E?) in the source, too
 
 : directive? 
-  bl word count [ ' target >wordlist ] literal search-wordlist 
+  bl-word count [ ' target >wordlist ] literal search-wordlist 
   dup IF nip THEN ;
 
 : [IFDEF]  >in @ directive? swap >in !
@@ -4180,7 +4217,7 @@ Cond: [IFUNDEF] postpone [IFUNDEF] ;Cond
 : C: >in @ tdefined? 0=
      IF    >in ! X :
      ELSE drop
-        BEGIN bl word dup c@
+        BEGIN bl-word dup c@
               IF   count comment? s" ;" str= ?EXIT
               ELSE refill 0= ABORT" CROSS: Out of Input while C:"
               THEN
@@ -4210,11 +4247,11 @@ Cond: \+ \+ ;Cond
 Cond: \D \D ;Cond
 Cond: \? \? ;Cond
 
-: ?? bl word find IF execute ELSE drop 0 THEN ;
+: ?? bl-word find IF execute ELSE drop 0 THEN ;
 
 : needed:
 \G defines ghost for words that we want to be compiled
-  BEGIN >in @ bl word c@ WHILE >in ! Ghost drop REPEAT drop ;
+  BEGIN >in @ bl-word c@ WHILE >in ! Ghost drop REPEAT drop ;
 
 \ words that should be in minimal
 
@@ -4300,7 +4337,7 @@ previous
 : \  postpone \ ;  immediate
 : \G T-\G ; immediate
 : (  postpone ( ;  immediate
-: include bl word count included ;
+: include bl-word count included ;
 : included swap >image swap included ;
 : require require ;
 : needs require ;

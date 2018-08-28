@@ -45,4 +45,7 @@ included-files, included-files !
 align here default-recognizer !
 2 cells , ' rec-num A, ' rec-word A,
 
+align here wheres !
+wheres,
+
 >ram here normal-dp !
