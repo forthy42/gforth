@@ -3183,7 +3183,7 @@ variable cross-boot[][]
 	ELSE  g>xt  THEN
     T A, , H 2 cells +LOOP ;
 
-: wheres-off cross-wheres $off ;
+: wheres-off H 0 cross-wheres $!len ;
 
 >CROSS
 
