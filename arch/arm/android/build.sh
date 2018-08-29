@@ -126,6 +126,8 @@ then
 	echo -n " extras" 1>&3
 	if [ "$1" != "--no-config" ]; then make extras || exit 1; fi
 	echo -n " debdist" 1>&3
+	mkdir -p debian/sdcard/gforth/current/doc
+	cp doc/gforth.txt debian/sdcard/gforth/current/doc
 	make setup-debdist || exit 1) || exit 1
     if [ "$1" == "--no-config" ]
     then
@@ -135,7 +137,6 @@ then
     mkdir -p res/raw
     cp *.{fs,fi,png,jpg} build/debian/sdcard/gforth/$machine/gforth/site-forth
     (cd build/debian/sdcard
-     cp ../../doc/gforth.txt gforth/current/doc
      mkdir -p gforth/home gforth/site-forth
      gforth archive.fs gforth/home/ gforth/site-forth/ $(find gforth/current -type f) $(find gforth/site-forth -type f)) | gzip -9 >res/raw/gforth
     (cd build/debian/sdcard
