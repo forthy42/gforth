@@ -23,6 +23,7 @@
 debug: time(
 debug: gui(
 \ +db time( \ )
+\ +db gui( \ )
 
 [IFUNDEF] no-file#
     2 Constant ENOENT
@@ -821,8 +822,6 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 \ add glues up for hboxes
 
-:noname defers printdebugdata cr f.s ; is printdebugdata
-
 : hglue-step { f: gp/a f: rg f: rd f: rx -- gp/a rg' rd' rx' }
     \g gp/a: total additonal pixels to stretch into divided by total glue
     \g rg: running glue
@@ -1296,7 +1295,8 @@ require animation.fs
     1 level# +!@ >r  top-widget .widget-draw
     BEGIN  0 looper-to# anims[] $@len ?sync or select
 	#looper  time( ." looper: " .!time cr )
-	widget-sync  gui( depth d u>  fdepth fd u> or IF  ~~bt  THEN )
+	widget-sync  gui( depth d u>  fdepth fd u> or IF  ~~bt
+	    depth to d  fdepth to fd  THEN )
     level# @ r@ = UNTIL  r> 0= IF  leave-minos  THEN ;
 
 previous previous previous
