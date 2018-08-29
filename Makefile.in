@@ -863,7 +863,7 @@ install-arch:	installdeps installdirs-arch normal-install rm-install install-pro
 install-seq:	install-indep install-arch
 
 post-inst:
-		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el* doc/gforth.texi doc/gforth.info*
+		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
 		$(POST_INSTALL)
 		@test 0$$SUDO_UID -ne 0 && find . -user root | sed -e 's/^/failed to clean: /g' || true
 		@echo
@@ -1354,8 +1354,7 @@ checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdo
 
 doc/gforth.txt:	txt
 
-doc pdf dvi txt ps html:	gforth.fi $(GFORTH_TEXI) TAGS doc/Makefile
-		$(MAKE) $(GFORTH_TEXI) $(VMGEN_TEXI)
+doc pdf dvi txt ps html:	gforth.fi $(GFORTH_TEXI) $(VMGEN_TEXI) TAGS doc/Makefile
 		-cd doc; $(MAKE) $@
 
 # For an explanation of the following Makefile rules, see node

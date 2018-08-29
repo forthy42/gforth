@@ -77,7 +77,7 @@ User Attr   0 Attr !
 
 : (Attr!) ( attr -- )
     \G set attribute
-    dup Attr @ = IF drop EXIT THEN
+    dup Attr @ = over 0= or IF drop EXIT THEN
     dup Attr !
     <<# 'm' hold
     dup Bold and IF 1 #n; THEN
@@ -137,7 +137,7 @@ $Variable term-rgb$
     \G query terminal's background color, return value in hex RRGGBB
     key? drop \ set terminal into raw mode
     s\" \e]11;?\007" type \ avada kedavra, terminal!
-    50 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 10 ms
+    100 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 100 ms
     key? IF  key #esc <>  ELSE  -1  THEN  abort" escape expected"
     BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
     term-rgb$ $@ ':' $split 2nip
@@ -151,9 +151,7 @@ $Variable term-rgb$
 : auto-color ( -- )
     is-terminal? is-color-terminal? and 0= if
         \ TODO: no terminal - switch to other output class
-	['] drop is attr!
-	black-colors
-        EXIT
+	no-colors  EXIT
     then
     is-xterm? if term-bg? else $0 then
     dup $FF and swap

@@ -108,6 +108,15 @@ has? OS [IF]
 	$9601 to info-color
 	$D601 to success-color
 	$6601 to input-color ;
+    : no-colors ( -- ) \ gforth
+	\G use the default color
+	false to white?
+	false to default-color
+	false to error-color
+	false to warning-color
+	false to info-color
+	false to success-color
+	false to input-color ;
     : magenta-input ( -- ) \ gforth
 	\G make input color easily recognizable (useful in presentations)
         $A601 white? + to input-color ;
