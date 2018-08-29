@@ -809,6 +809,7 @@ opt: drop ;
 ' never-happens ' fliteral ' name-compsem rectype: post-flocal
 ' never-happens ' nocomp ' xtlocal-postpone rectype: post-xtlocal
 
+warnings @ warnings off \ disable all those compile-only warnings
 : >postpone-replacer-locals ( ... rectype1 -- ... rectype2 )
     \ Input: any recognizer result; if it is for a local, produce
     \ correct behaviour for read-only locals.  This is wrong for
@@ -829,5 +830,6 @@ opt: drop ;
         endcase
     then
     defers >postpone-replacer ;
+warnings !
 
 ' >postpone-replacer-locals is >postpone-replacer

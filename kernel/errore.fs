@@ -36,8 +36,11 @@ decimal
 \ error numbers between -512 and -2047 are for OS errors and are
 \ handled with strerror
 
-: c(warning") ( c-addr -- )
-    count true ['] type ?warning ;
+Variable warning-string
+
+: .warning ( -- ) warning-string @ count type ;
+: c(warning") ( c-addr -- ) warning-string !
+    true ['] .warning ?warning ;
 
 has? OS [IF]
 : >stderr ( -- )
