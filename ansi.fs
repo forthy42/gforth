@@ -137,7 +137,7 @@ $Variable term-rgb$
     \G query terminal's background color, return value in hex RRGGBB
     key? drop \ set terminal into raw mode
     s\" \e]11;?\007" type \ avada kedavra, terminal!
-    10 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 10 ms
+    50 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 10 ms
     key? IF  key #esc <>  ELSE  -1  THEN  abort" escape expected"
     BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
     term-rgb$ $@ ':' $split 2nip

@@ -3159,7 +3159,8 @@ End-Struct vtable-struct
 >TARGET
 
 : interpret/compile: ( xt1 xt2 "name" -- )
-    (THeader drop swap T A, A, H [ T has? ec H ] [IF] alias-mask flag! [THEN]
+    (THeader <res> over >magic !  there swap >link !
+    swap T A, A, H [ T has? ec H ] [IF] alias-mask flag! [THEN]
     vt-populate
     [G'] i/c>int vttemplate >vt>int !
     [G'] i/c>comp vttemplate >vt>comp ! ;
@@ -3179,7 +3180,7 @@ variable cross-boot[][]
 
 : wheres, ( -- ) cr ." Compiling wheres" cr
     H cross-wheres $@ dup cell / T cell * , H bounds ?DO I 2@
-	dup undefined? IF  ( ." undefined " dup >ghostname type cr ) drop -1
+	dup undefined? IF  ." undefined " dup >ghostname type cr drop -1
 	ELSE  g>xt  THEN
     T A, , H 2 cells +LOOP ;
 
