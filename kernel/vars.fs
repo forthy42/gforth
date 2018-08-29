@@ -183,3 +183,19 @@ has? flash [IF]
 
 Variable max-name-length \ maximum length of all names defined yet
 32 max-name-length ! \ is global!
+
+Variable warnings ( -- addr ) \ gforth
+\G set warnings level to
+\G @table @code
+\G @item 0
+\G turns warnings off
+\G @item -1
+\G turns normal warnings on
+\G @item -2
+\G turns beginner warnngs on
+\G @item -3
+\G pedantic warnings on
+\G @item -4
+\G turns warnings into errors (including beginner warnings)
+\G @end table
+G -2 warnings T ! \ default to -Won

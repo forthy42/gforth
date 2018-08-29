@@ -392,7 +392,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
 	$(UNIX_SRC)) date.fs script.fs wf.fs traceall.fs rec-scope.fs	      \
 	rec-env.fs rec-meta.fs notfound.fs utf16.fs archive.fs cilk.fs	      \
 	sections.fs fixfiles.fs bits.fs reverse-words.fs config.fs	      \
-	set-compsem.fs closures.fs
+	set-compsem.fs closures.fs doc/gforth.txt
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -1351,6 +1351,8 @@ checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdo
 		$(FORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd answords.fs -e bye
 		-grep unknown doc/gforth.texi
 		-grep doc- doc/gforth.texi| grep -v '^@c'
+
+doc/gforth.txt:	txt
 
 doc pdf dvi txt ps html:	gforth.fi $(GFORTH_TEXI) TAGS doc/Makefile
 		$(MAKE) $(GFORTH_TEXI) $(VMGEN_TEXI)

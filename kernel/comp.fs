@@ -794,22 +794,6 @@ defer 0-adjust-locals-size ( -- )
 : last?   ( -- false / nfa nfa )
     latest ?dup ;
 
-Variable warnings ( -- addr ) \ gforth
-\G set warnings level to
-\G @table @code
-\G @item 0
-\G turns warnings off
-\G @item -1
-\G turns normal warnings on
-\G @item -2
-\G turns beginner warnngs on
-\G @item -3
-\G pedantic warnings on
-\G @item -4
-\G turns warnings into errors (including beginner warnings)
-\G @end table
-G -2 warnings T ! \ default to -Won
-
 : (nocheck-reveal) ( nt wid -- )
     wordlist-id dup >r
     @ over >link ! 
