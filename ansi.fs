@@ -130,7 +130,7 @@ $Variable term-rgb$
          s" linux" string-prefix? r> or ;
 
 : is-xterm? ( -- f )
-    s" TERM" getenv s" xterm" string-prefix?
+    s" TERM" getenv s" xterm" search nip nip
     is-terminal? and ;
 
 : term-bg? ( -- rgb )
