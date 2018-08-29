@@ -866,7 +866,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 	    newbox .childs[] dup $[]# 1- swap $[] @ >o lastfit !size o>
 	THEN
 	fdup to startx
-	fdup 1e f>= IF
+	1e f>= IF
 	    ow fnegate +to rw
 	    rw f0<= IF
 		I 1+ s>f newbox childs[] $[]# fm/
