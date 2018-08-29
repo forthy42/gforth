@@ -616,7 +616,7 @@ KERN_DEPS = $(KERN_SRC) kernel/aliases.fs kernel/version.fs machpc.fs	\
 
 #distributed documentation
 DOCDIST = doc/gforth.info $(wildcard doc/gforth.info-*) doc/gforth.ps \
-	  doc/vmgen.info doc/vmgen.ps
+	  doc/gforth.txt doc/vmgen.info doc/vmgen.ps
 
 BKERNLS = kernl32b$(EC).fi kernl32l$(EC).fi \
 	  kernl64b$(EC).fi kernl64l$(EC).fi
