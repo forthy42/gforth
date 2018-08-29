@@ -25,8 +25,7 @@ override_dh_auto_configure:
 	dh_auto_configure -- --with-elispstartdir=/etc/emacs/site-start.d
 override_dh_make:
 	make -j$(nproc)
-	make doc/gforth.texi doc/version.texi
-	make doc -j$(nproc)
+	make doc pdf -j$(nproc)
 override_dh_auto_install:
 	mkdir -p $(DB)/usr/lib/gforth/site-forth
 	touch $(DB)/usr/lib/gforth/site-forth/site-init.fs
