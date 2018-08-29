@@ -392,7 +392,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
 	$(UNIX_SRC)) date.fs script.fs wf.fs traceall.fs rec-scope.fs	      \
 	rec-env.fs rec-meta.fs notfound.fs utf16.fs archive.fs cilk.fs	      \
 	sections.fs fixfiles.fs bits.fs reverse-words.fs config.fs	      \
-	set-compsem.fs closures.fs doc/gforth.txt
+	set-compsem.fs closures.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -793,7 +793,7 @@ install-gensources:
 		for i in $(LIBCC_GEN_SRC) envos.fs machpc.fs; do \
 			$(INSTALL_DATA) $$i $(libdir)/gforth/$(VERSION)/$$i; \
 		done
-		for i in kernel/prim.fs kernel/aliases.fs kernel/version.fs; do \
+		for i in kernel/prim.fs kernel/aliases.fs kernel/version.fs doc/gforth.txt; do \
 			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 		echo "\\ empty site-init" > $(siteforthdir)/siteinit.fs
