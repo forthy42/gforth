@@ -90,6 +90,10 @@ locals-types definitions
 
 forth definitions
 
+: push-locals ( -- )
+    locals-size @ locals-sizes >stack  locals-size off
+    locals-list @ locals-lists >stack  locals-list off ;
+
 : pop-locals ( -- )
     locals-lists stack> locals-list !
     locals-sizes stack> locals-size ! ;
@@ -110,10 +114,6 @@ forth definitions
     ]] closure> [[ r> execute ]] AHEAD BUT THEN lp+!# [[ locals-size @ negate ,
     locals-size @ ]] laddr# [[ 0 , ]] literal move [[
     ['] (closure-;]) defstart  last @ lastcfa @ defstart ;
-
-: push-locals ( -- )
-    locals-size @ locals-sizes >stack  locals-size off
-    locals-list @ locals-lists >stack  locals-list off ;
 
 : [{: ( -- vtaddr u latest latestxt wid 0 ) \ gforth-experimental start-closure
     \G starts a closure.  Closures first declare the locals frame they are
