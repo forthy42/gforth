@@ -59,7 +59,7 @@ locals-types definitions
     compile, ]] >lp [[
     :}
     locals-size @ extra-locals @ + r> !
-    [: endref, ;] end-d
+    ['] endref, end-d
     ['] execute is end-d  ['] noop is endref,
     extra-locals off ;
 
