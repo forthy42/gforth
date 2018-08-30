@@ -129,11 +129,12 @@ $Variable term-rgb$
     s" TERM" getenv
     2dup s" xterm" search nip nip >r
     2dup s" linux" search nip nip >r
-         s" rxvt"  search nip nip r> or r> or ;
+         s" rxvt"  search nip nip r> r> or or ;
 
 : is-xterm? ( -- f )
-    s" TERM" getenv 2dup s" xterm" string-prefix? >r
-    s" rxvt" string-prefix? r> or \ rxvt behaves like xterm
+    s" TERM" getenv
+    2dup s" xterm" string-prefix? >r
+         s" rxvt"  string-prefix? r> or \ rxvt behaves like xterm
     is-terminal? and ;
 
 : term-bg? ( -- rgb )
@@ -141,7 +142,7 @@ $Variable term-rgb$
     key? drop \ set terminal into raw mode
     s\" \e]11;?\007" type \ avada kedavra, terminal!
     100 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 100 ms
-    key? IF  key #esc <>  ELSE  -1  THEN  abort" escape expected"
+    BEGIN  key?  WHILE  key #esc =  UNTIL  ELSE  0  EXIT  THEN
     BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
     term-rgb$ $@ ':' $split 2nip
     '/' $split '/' $split
