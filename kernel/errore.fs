@@ -111,7 +111,7 @@ has? OS [IF]
     : no-colors ( -- ) \ gforth
 	\G use the default color
 	false to white?
-	false to default-color
+	$6600 to default-color \ reset colors even in no-color mode
 	false to error-color
 	false to warning-color
 	false to info-color

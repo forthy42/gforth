@@ -78,6 +78,7 @@ User Attr   0 Attr !
 : (Attr!) ( attr -- )
     \G set attribute
     dup Attr @ = over 0= or IF drop EXIT THEN
+    dup $6600 = Attr @ 0= and IF drop EXIT THEN
     dup Attr !
     <<# 'm' hold
     dup Bold and IF 1 #n; THEN
@@ -127,10 +128,12 @@ $Variable term-rgb$
 : is-color-terminal? ( -- )
     s" TERM" getenv
     2dup s" xterm" search nip nip >r
-         s" linux" search nip nip r> or ;
+    2dup s" linux" search nip nip >r
+         s" rxvt"  search nip nip r> or r> or ;
 
 : is-xterm? ( -- f )
-    s" TERM" getenv s" xterm" string-prefix?
+    s" TERM" getenv 2dup s" xterm" string-prefix? >r
+    s" rxvt" string-prefix? r> or \ rxvt behaves like xterm
     is-terminal? and ;
 
 : term-bg? ( -- rgb )
