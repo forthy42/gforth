@@ -111,8 +111,12 @@ forth definitions
 : end-dclosure ( unravel-xt -- closure-sys )
     >r wrap@
     postpone lit >mark
-    ]] closure> [[ r> execute ]] AHEAD BUT THEN lp+!# [[ locals-size @ negate ,
-    locals-size @ ]] laddr# [[ 0 , ]] literal move [[
+    ]] closure> [[ r> execute ]] AHEAD BUT THEN [[
+    case locals-size @ \ special optimizations for few locals
+	cell    of ]] @ >l   [[ endof
+	2 cells of ]] 2@ 2>l [[ endof
+	]] lp+!# [[ dup negate , ]] laddr# [[ 0 , dup ]] literal move [[
+    endcase
     ['] (closure-;]) defstart  last @ lastcfa @ defstart ;
 
 : [{: ( -- vtaddr u latest latestxt wid 0 ) \ gforth-experimental start-closure
