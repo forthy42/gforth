@@ -80,14 +80,6 @@ locals-types definitions
     \G the heap.
     ['] alloch :}* ;
 
-: :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
-    \G end a closure's locals declaration.  The closure will be allocated on
-    \G the local's stack.
-    :}
-    locals-size @ [ 3 cells maxaligned ]L +
-    locals-sizes stack> + locals-sizes >stack
-    ['] noop end-d ;
-
 forth definitions
 
 : push-locals ( -- )
@@ -97,6 +89,23 @@ forth definitions
 : pop-locals ( -- )
     locals-lists stack> locals-list !
     locals-sizes stack> locals-size ! ;
+
+locals-types definitions
+
+: :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
+    \G end a closure's locals declaration.  The closure will be allocated on
+    \G the local's stack.
+    :}
+    locals-size @ [ 3 cells maxaligned ]L +
+    locals-size @ locals-list @ 2>r  pop-locals  locals-size +!
+    get-current >r  [ ' locals >body ]l set-current
+    0 new-local-mem
+    s" " nextname ['] create-local1 dict-execute locals-size @ locals,
+    r> set-current
+    push-locals  2r> locals-list ! locals-size !
+    ['] noop end-d ;
+
+forth definitions
 
 : (closure-;]) ( closure-sys lastxt -- )
     ]
