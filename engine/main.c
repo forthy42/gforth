@@ -585,7 +585,6 @@ static Address alloc_mmap_guard(Cell size)
   start=alloc_mmap(size);
   dictguard=start+size-pagesize;
   page_noaccess(dictguard);
-  debugp(stderr, "dictionary guard page = %p\n", dictguard);
   return start;
 }
 
