@@ -43,7 +43,7 @@ Defer endref, ( -- )
 : alloch ( size -- addr ) \ addr is the end of the allocated region
     dup allocate throw + ;
 : allocd ( size -- addr ) \ addr is the end of the allocated region
-    allot here ;
+    dp +! dp @ ;
 
 : >lp r> lp@ >r >r lp! ;
 opt: drop ]] laddr# [[ 0 , ]] >r lp! [[ ;

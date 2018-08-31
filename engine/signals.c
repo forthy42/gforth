@@ -220,7 +220,9 @@ static void segv_handler(int sig, siginfo_t *info, void *_)
   SIGPP(sig);
   debugp(stderr,"\nsegv_handler %d %p %p @%p\n", sig, info, _, addr);
 
-  if (JUSTUNDER(addr, NEXTPAGE3(gforth_UP)))
+  if ((UCell)(addr - dictguard) < pagesize)
+    code=-8;
+  else if (JUSTUNDER(addr, NEXTPAGE3(gforth_UP)))
     code=-3;
   else if (JUSTOVER(addr, NEXTPAGE(gforth_UP->sp0)))
     code=-4;

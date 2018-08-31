@@ -149,6 +149,7 @@ int ignore_async_signals=0;
 #ifndef INCLUDE_IMAGE
 static int clear_dictionary=0;
 UCell pagesize=1;
+Address dictguard; // guard page for dictionary
 char *progname;
 #else
 char *progname = "gforth";
@@ -572,9 +573,20 @@ static void page_noaccess(void *a)
 }  
 #endif
 
-static size_t wholepage(size_t n)
+static inline size_t wholepage(size_t n)
 {
   return (n+pagesize-1)&~(pagesize-1);
+}
+
+static Address alloc_mmap_guard(Cell size)
+{
+  Address start;
+  size = wholepage(size+pagesize);
+  start=alloc_mmap(size);
+  dictguard=start+size-pagesize;
+  page_noaccess(dictguard);
+  debugp(stderr, "dictionary guard page = %p\n", dictguard);
+  return start;
 }
 
 Address gforth_alloc(Cell size)
@@ -598,7 +610,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
 
 #if defined(HAVE_MMAP)
   if (offset==0) {
-    image=alloc_mmap(dictsize);
+    image=alloc_mmap_guard(dictsize);
     if (image != (void *)MAP_FAILED) {
       void *image1;
       debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);

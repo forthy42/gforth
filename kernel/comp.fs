@@ -45,18 +45,21 @@
     dp ! ;
 [THEN]
 
+: small-allot ( n -- addr )
+    dp @ tuck + dp ! ;
+
 : c,    ( c -- ) \ core c-comma
     \G Reserve data space for one char and store @i{c} in the space.
-    here 1 chars allot c! ;
+    1 chars small-allot c! ;
 
 : ,     ( w -- ) \ core comma
     \G Reserve data space for one cell and store @i{w} in the space.
-    here cell allot ! ;
+    cell small-allot ! ;
 
 : 2,	( w1 w2 -- ) \ gforth
     \G Reserve data space for two cells and store the double @i{w1
     \G w2} there, @i{w2} first (lower address).
-    here 2 cells allot 2! ;
+    2 cells small-allot 2! ;
 
 \ : aligned ( addr -- addr' ) \ core
 \     [ cell 1- ] Literal + [ -1 cells ] Literal and ;

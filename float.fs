@@ -61,7 +61,7 @@
 : f, ( f -- ) \ gforth
     \G Reserve data space for one floating-point number and store
     \G @i{f} in the space.
-    here 1 floats allot f! ;
+    1 floats small-allot f! ;
 
 : FLiteral ( compilation r -- ; run-time -- r ) \ float f-literal
     \G Compile appropriate code such that, at run-time, @i{r} is placed
