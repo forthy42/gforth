@@ -3845,6 +3845,7 @@ Cond: IS        cross-record-name T ' >body H compile ALiteral compile ! ;Cond
 Cond: TO        T ' >body H compile ALiteral compile ! ;Cond
 : TO            T ' >body ! H ;
 Cond: UTO       compile useraddr T ' >body @ , H compile ! ;Cond
+Cond: UADDR     compile useraddr T ' >body @ , H ;Cond
 [THEN]
 
 Cond: defers	T ' >body @ compile, H ;Cond

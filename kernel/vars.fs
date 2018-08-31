@@ -166,7 +166,7 @@ User state ( -- a-addr ) \ core,tools-ext
 0 state !
 
 AVariable normal-dp     \ default dictionary pointer before sections
-AUser dpp		normal-dp dpp !
+UValue dp               \ initialized at boot time with normal-dp
 			\ the pointer to the current dictionary pointer
                         \ ist reset to normal-dp on (doerror)
                         \  (i.e. any throw caught by quit)

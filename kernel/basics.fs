@@ -96,8 +96,8 @@ has? ec has? primcentric 0= and [IF]
 
 \ here is used for pad calculation!
 
-: dp    ( -- addr ) \ gforth
-    dpp @ ;
+: dpp   ( -- addr ) \ gforth
+    uaddr dp ;
 : here  ( -- addr ) \ core
     \G Return the address of the next free location in data space.
     dp @ ;
