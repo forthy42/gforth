@@ -82,9 +82,9 @@ locals-types definitions
 
 forth definitions
 
-: push-locals ( -- )
-    locals-size @ locals-sizes >stack  locals-size off
-    locals-list @ locals-lists >stack  locals-list off ;
+: push-locals ( list size -- )
+    locals-size @ locals-sizes >stack  locals-size !
+    locals-list @ locals-lists >stack  locals-list ! ;
 
 : pop-locals ( -- )
     locals-lists stack> locals-list !
@@ -96,13 +96,11 @@ locals-types definitions
     \G end a closure's locals declaration.  The closure will be allocated on
     \G the local's stack.
     :}
-    locals-size @ [ 3 cells maxaligned ]L +
-    locals-size @ locals-list @ 2>r  pop-locals  locals-size +!
+    locals-size @ locals-list @ over 2>r  pop-locals
+    [ 3 cells maxaligned ]L + locals-size +!
     get-current >r  [ ' locals >body ]l set-current
-    0 new-local-mem
-    s" " nextname ['] create-local1 dict-execute locals-size @ locals,
-    r> set-current
-    push-locals  2r> locals-list ! locals-size !
+    s" " nextname 0 new-local locals-size @ locals,
+    r> set-current  2r> push-locals
     ['] noop end-d ;
 
 forth definitions
@@ -139,7 +137,7 @@ forth definitions
     \G return, those values are removed from the locals stack, and not updated
     \G in the closure itself.
     [: ] drop ;] defstart
-    push-locals
+    #0. push-locals
     ['] end-dclosure is end-d  [: ]] lp> [[ ;] is endref,
     [ 3 cells maxaligned ]L extra-locals !
     postpone {:
@@ -147,7 +145,7 @@ forth definitions
 
 : <{: ( -- vtaddr u latest latestxt wid 0 ) \ gforth-experimental start-homelocation
     \G starts a home location
-    push-locals postpone {:
+    #0. push-locals postpone {:
 ; immediate compile-only
 
 : ;> ( -- ) \ gforth-experimental end-homelocation

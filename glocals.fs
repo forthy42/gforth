@@ -287,18 +287,18 @@ defer dict-execute ( ... addr1 addr2 xt -- ... )
     nip nip execute ;
 ' dummy-dict is dict-execute
 
-: new-local-mem ( size -- addr end )
+: new-local ( size "name" -- a-addr )
     dfaligned locals-name-size+ >r
     r@ allocate throw
     dup locals-mem-list prepend-list
-    r> cell /string over + ;
+    r> cell /string over + ['] create-local1 dict-execute ;
 
 : create-local ( "name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
     nextname-string 2@ 2dup d0= IF
 	2drop >in @ >r parse-name r> >in !  THEN  nip
-    new-local-mem ['] create-local1 dict-execute ;
+    new-local ;
 
 variable locals-dp \ so here's the special dp for locals.
 
