@@ -152,15 +152,20 @@ $Variable term-rgb$
     $FF00 and $8 lshift r> $FF00 and or r> $8 rshift or
     term-rgb$ $free ;
 
+: rgb-split ( rgb -- r g b )
+    dup $FF and swap 8 rshift
+    dup $FF and swap 8 rshift
+    ( ) $FF and swap rot ;
+
+$0 Value default-bg
+
 : auto-color ( -- )
     is-terminal? is-color-terminal? and 0= if
         \ TODO: no terminal - switch to other output class
 	no-colors  EXIT
     then
-    is-xterm? if term-bg? else $0 then
-    dup $FF and swap
-    8 rshift dup $FF and
-    8 rshift $FF and + + $17F u> IF
+    is-xterm? if term-bg? else default-bg then
+    rgb-split + + $17F u> IF
 	white-colors
     ELSE
 	black-colors
