@@ -160,12 +160,12 @@ false [IF]
     1 2 3 homeloc >r ? ? ? r> free throw cr
 
     : A {: w^ k x1 x2 x3 xt: x4 xt: x5 | w^ B :} recursive
-	k @ 0<= IF  x4 x5 f+  ELSE
+	k @ 0<= IF  x4 x5 +  ELSE
 	    B k x1 x2 x3 action-of x4 [{: B k x1 x2 x3 x4 :}L
 		-1 k +!
 		k @ B @ x1 x2 x3 x4 A ;] dup B !
 	    execute  THEN ;
-    : man-or-boy? ( n -- n' ) [: 1e ;] [: -1e ;] 2dup swap [: 0e ;] A f>s ;
+    : man-or-boy? ( n -- n' ) [: 1 ;] [: -1 ;] 2dup swap [: 0 ;] A ;
     
     \ start with: gforth -l64M -r8M closures.fs
     \ start with: gforth-fast -l6G -r768M closures.fs if you want to go up to 26
