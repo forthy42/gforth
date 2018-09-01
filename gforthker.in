@@ -23,9 +23,9 @@ VERSION=@PACKAGE_VERSION@
 @NO_CROSS@test -f "@srcdir@/@kernel_fi@" && KERNEL="@srcdir@/@kernel_fi@"
 @NO_CROSS@test -f "@kernel_fi@" && KERNEL="@kernel_fi@"
 if test -n "$C_INCLUDE_PATH"; then
-    C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine:$C_INCLUDE_PATH"
+    export C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine:$C_INCLUDE_PATH"
 else
-    export C_INCLUDE_PATH=@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine
+    export C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine"
 fi
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
   $ENGINE --die-on-signal -i @kernel_fi@ "$@"

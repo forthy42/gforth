@@ -26,9 +26,9 @@ export CROSS_PREFIX=@CROSS_PREFIX@
 @NO_CROSS@test -f "gforth.fi" && KERNEL="gforth.fi"
 LIBCCDIR=$PWD/lib/gforth/$VERSION/$machine/libcc-named/
 if test -n "$C_INCLUDE_PATH"; then
-    C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine:$C_INCLUDE_PATH"
+    export C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine:$C_INCLUDE_PATH"
 else
-    export C_INCLUDE_PATH=@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine
+    export C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine"
 fi
 EXTRAPATH="also c-lib s\" $LIBCCDIR\" >libcc-named-dir libcc-path clear-path libcc-named-dir libcc-path also-path :noname 2drop s\" $DEST\" ; is replace-rpath previous 0 warnings !@ get-current environment-wordlist set-current : os-type ( -- c-addr u ) s\" @host_os@\" ; set-current warnings !"
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
