@@ -1001,8 +1001,13 @@ tmp$ $execstr-ptr !
 
 : init-libcc ( -- )
     libcc-named-dir$ $init
-    [: ." ~/.gforth/" machine type ." /libcc-named/"
-    ;] libcc-named-dir$ $exec
+    s" libccnameddir" getenv 2dup d0= IF
+	2drop
+	[: ." ~/.gforth/" machine type ." /libcc-named/"
+	;] libcc-named-dir$ $exec
+    ELSE
+	libcc-named-dir$ $!
+    THEN
     libcc-path $init  ptr-declare $init
     clear-libs
     libcc-named-dir libcc-path also-path
