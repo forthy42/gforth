@@ -14,7 +14,6 @@ build-distcheck:
     - ./configure
     - make distclean
     - (cd libltdl; make distclean)
-    - (cd engine; ln -s ../build/engine/config.h .)
     - dpkg-buildpackage -uc -us -d -b
     - mv ../*.deb build/debian
  

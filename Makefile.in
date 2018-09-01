@@ -1336,7 +1336,7 @@ start-gforth.el:	gforth.el
 
 #Documentation
 
-doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) $(EXTRA_DOC)
+doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) libcc $(EXTRA_DOC)
 		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs except.fs startup.fs $(EXTRA_DOC) -e bye
 
 doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
