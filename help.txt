@@ -9,4 +9,4 @@ To input double-cell integers without warnings, use a base-prefix and put
 the '.' only in the last position, e.g. "#1.".
 For better colors on dark background, type "black-colors".
 Disable warnings with "warnings off" and reduce warnings with "-1 warnings !"
-Config in ~/.gforthrc0 before loading anything, ~/.gforthrc for interactive mode
+Config in ~/.config/gforthrc0 before loading anything, ~/.config/gforthrc for interactive mode

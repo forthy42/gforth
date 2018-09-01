@@ -30,3 +30,4 @@ install_osx() {
 
 install_${TRAVIS_OS_NAME:-linux}
 ./install-swig.sh
+./install-freetype-gl.sh
