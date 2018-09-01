@@ -165,10 +165,9 @@ false [IF]
 		-1 k +!
 		k @ B @ x1 x2 x3 x4 A ;] dup B !
 	    execute  THEN ;
-    : man-or-boy? ( n -- ) [: 1e ;] [: -1e ;] 2dup swap [: 0e ;] A f. ;
+    : man-or-boy? ( n -- n' ) [: 1e ;] [: -1e ;] 2dup swap [: 0e ;] A f>s ;
     
     \ start with: gforth -l64M -r8M closures.fs
-    \ start with: gforth-fast -l4G -r512M closures.fs if you want to go up to 25
-    14 set-precision
-    20 0 [DO] [i] dup . !time man-or-boy? .time cr [LOOP]
+    \ start with: gforth-fast -l6G -r768M closures.fs if you want to go up to 26
+    20 0 [DO] [i] dup . !time man-or-boy? . .time cr [LOOP]
 [THEN]
