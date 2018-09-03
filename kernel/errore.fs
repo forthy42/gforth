@@ -36,11 +36,13 @@ decimal
 \ error numbers between -512 and -2047 are for OS errors and are
 \ handled with strerror
 
-Variable warning-string
-
-: .warning ( -- ) warning-string @ count type ;
-: c(warning") ( c-addr -- ) warning-string !
-    true ['] .warning ?warning ;
+: .warning ( addr -- ) @ count type ;
+\ closure technique, implemented by hand:
+\ : c(warning") [{: s :}l s count type ;] true swap ?warning ;
+: c(warning") ( c-addr -- )
+    [ cell 4 = [IF] ] false >l [ [THEN] ]
+    >l ['] .warning >body >l dodoes: >l
+    true laddr# [ 0 , ] ?warning lp+!# [ 3 cell 4 = - cells , ] ;
 
 has? OS [IF]
 : >stderr ( -- )

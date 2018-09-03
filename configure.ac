@@ -1101,7 +1101,7 @@ if test -z "$GNU_LIBTOOL"; then
   AC_MSG_WARN([libcc.fs won't work until you have installed (GNU) libtool.])
   AC_MSG_WARN([(package libtool-bin on Debian).])
   config_warns="$config_warns
-GNU libtool not found."
+GNU libtool not found (package libtool-bin on Debian)."
   #'
   GNU_LIBTOOL=libtool
 fi
