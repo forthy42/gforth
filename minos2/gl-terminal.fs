@@ -168,16 +168,11 @@ $8F00 Value gl-default-color \ real default color
 : std-bg! ( index -- )  dup bg! dup std-bg ! bg>clear ;
 Black White white? [IF] swap [THEN] fg! bg!
 
-: >extra-colors-bg ( -- ) >bg
-    error-color   $F0FF and over or to error-color
-    info-color    $F0FF and over or to info-color
-    warning-color $F0FF and over or to warning-color drop ;
-
-: >white White std-bg! White err-bg! Black fg! Red err-fg!
-    White >extra-colors-bg White >bg Black >fg or to gl-default-color
+: >white white-colors White std-bg! White err-bg! Black fg! Red err-fg!
+    White >bg Black >fg or to gl-default-color
     $70004000 dup color-index ! error-color-index ! ;
-: >black Black std-bg! Black err-bg! White fg! Red err-fg!
-    Black >extra-colors-bg Black >bg White >fg or to gl-default-color
+: >black black-colors Black std-bg! Black err-bg! White fg! Red err-fg!
+    Black >bg White >fg or to gl-default-color
     $704000 dup color-index ! error-color-index ! ;
 [IFDEF] android >black [THEN]
 
