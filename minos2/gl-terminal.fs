@@ -142,10 +142,12 @@ Variable std-bg
     cfield: fg-field drop
 [THEN]
 
+$8F00 Value gl-default-color \ real default color
+
 : ?default-fg ( n -- color ) dup 6 <= IF
-	drop default-color fg>  THEN  $F xor ;
+	drop gl-default-color fg>  THEN  $F xor ;
 : ?default-bg ( n -- color ) dup 6 <= IF
-	drop default-color bg>  THEN  $F xor ;
+	drop gl-default-color bg>  THEN  $F xor ;
 : fg! ( index -- )
     dup 0= IF  drop  EXIT  THEN  ?default-fg
     4 lshift color-index fg-field c! ;
@@ -172,10 +174,10 @@ Black White white? [IF] swap [THEN] fg! bg!
     warning-color $F0FF and over or to warning-color drop ;
 
 : >white White std-bg! White err-bg! Black fg! Red err-fg!
-    White >extra-colors-bg White >bg Black >fg or to default-color
+    White >extra-colors-bg White >bg Black >fg or to gl-default-color
     $70004000 dup color-index ! error-color-index ! ;
 : >black Black std-bg! Black err-bg! White fg! Red err-fg!
-    Black >extra-colors-bg Black >bg White >fg or to default-color
+    Black >extra-colors-bg Black >bg White >fg or to gl-default-color
     $704000 dup color-index ! error-color-index ! ;
 [IFDEF] android >black [THEN]
 
@@ -366,7 +368,7 @@ Sema gl-sema
 : >default ( attr -- attr' )
     dup  bg> 6 <= $F and >bg
     over fg> 6 <= $F and >fg or
-    default-color -rot mux ;
+    gl-default-color -rot mux ;
 : gl-attr! ( attribute -- )
     [: dup attr ! >default ?invers  dup bg> bg! fg> fg! ;]
     gl-sema c-section ;
