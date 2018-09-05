@@ -64,7 +64,7 @@
 \ which define words for the wrappers in a separate wordlist.
 
 \ The files are built in .../lib/gforth/$VERSION/$machine/libcc/ or
-\ ~/.gforth/libcc/$machine/.
+\ ~/.cache/gforth/libcc/$machine/.
 
 \ Todo: conversion between function pointers and xts (both directions)
 
@@ -711,7 +711,7 @@ Create callback-&style c-var c,
     libcc-named-dir$ $! ;
 
 : libcc-tmp-dir ( -- c-addr u )
-    [: ." ~/.gforth/" machine type ." /libcc-tmp/" ;] $tmp ;
+    [: ." ~/.cache/gforth/" machine type ." /libcc-tmp/" ;] $tmp ;
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     [: type type ;] $tmp ;
@@ -1002,12 +1002,9 @@ tmp$ $execstr-ptr !
 : init-libcc ( -- )
     libcc-named-dir$ $init
     s" libccnameddir" getenv 2dup d0= IF
-	2drop
-	[: ." ~/.gforth/" machine type ." /libcc-named/"
-	;] libcc-named-dir$ $exec
-    ELSE
-	libcc-named-dir$ $!
+	2drop libcc-tmp-dir
     THEN
+    libcc-named-dir$ $!
     libcc-path $init  ptr-declare $init
     clear-libs
     libcc-named-dir libcc-path also-path

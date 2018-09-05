@@ -917,11 +917,11 @@ invokes a specific version. If your environment contains the variable
 
 On startup, before processing any of the image option, the user
 initialization file either specified in the environment variable
-@code{GFORTH_ENV} or, if not set, @file{~/.gforthrc0} is included, if
+@code{GFORTH_ENV} or, if not set, @file{~/.config/gforthrc0} is included, if
 it exists.  If @code{GFORTH_ENV} is ``@code{off},'' nothing is
 included.  After processing all the image options and just before
 printing the boot message, the user initialization file
-@file{~/.gforthrc} from your home directory is included, unless the
+@file{~/.config/gforthrc} from your home directory is included, unless the
 option @code{--no-rc} is given.
 
 @comment ----------------------------------------------
@@ -990,7 +990,7 @@ cursor position; the line is always in ``insert'' (as opposed to
 
 @cindex history file
 @cindex @file{.gforth-history}
-On Unix systems, the history file is @file{~/.gforth-history} by
+On Unix systems, the history file is @file{~/.local/share/gforth/history} by
 default@footnote{i.e. it is stored in the user's home directory.}. You
 can find out the name and location of your history file using:
 

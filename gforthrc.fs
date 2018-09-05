@@ -30,6 +30,7 @@ previous definitions
 
 : load-rc ( -- )
     \G if available, load @file{~/.config/gforthrc} after processing args
+    \G disable by setting @var{load-rc?} to 0 (see option @code{--no-rc}).
     load-rc? @ IF
 	s" ~/.config/gforthrc" open-fpath-file
 	0= IF  included1  ELSE  drop  THEN

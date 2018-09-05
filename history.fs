@@ -18,6 +18,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require user-object.fs
+require mkdir.fs
 
 edit-out next-task - class-o !
 
@@ -67,10 +68,18 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 2Variable end^
 Variable vt100-modifier \ shift, ctrl, alt
 
+[IFUNDEF] -scan
+    : -scan ( addr u char -- addr' u' )
+	>r  BEGIN  dup  WHILE  1- 2dup + c@ r@ =  UNTIL  THEN
+	rdrop ;
+[THEN]
+
 : force-open ( addr len -- fid )
     2dup r/w open-file
     IF
-	drop r/w create-file throw
+	drop
+	2dup '/' -scan $1FF mkdir-parents drop
+	r/w create-file throw
     ELSE
 	nip nip
     THEN ;
@@ -79,7 +88,7 @@ Variable vt100-modifier \ shift, ctrl, alt
     s" GFORTHHIST" getenv dup 0= IF
 	\ !!TODO!! use ~/.config/gforth and ~/.cache/gforth instead of ~/
 	\ 2drop s" ~/.cache/gforth/history"
-	2drop s" ~/.gforth-history"
+	2drop s" ~/.local/share/gforth/history"
     THEN ;
 
 \ moving in history file                               16oct94py
