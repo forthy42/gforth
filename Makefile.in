@@ -1062,8 +1062,9 @@ kernl64b$(EC).fi-:	$(KERN_DEPS) mach64b.fs preforth
 
 # Atomic copy, as kernel might be loaded concurrently
 kernl%$(EC).fi:	kernl%$(EC).fi-
-		-$(firstword $(CP)) $< $@+
+		-$(CP) $< $@+
 		-$(MV) $@+ $@
+		-$(TOUCH) $@
 
 #Solaris make does not like that:
 @GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0) preforth @kernel_fi@
