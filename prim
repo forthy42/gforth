@@ -2322,6 +2322,9 @@ close-dir	( wdirid -- wior )	gforth	close_dir
 wior = IOR(closedir((DIR *)wdirid));
 
 filename-match	( c_addr1 u1 c_addr2 u2 -- flag )	gforth	match_file
+""match the file name @var{c_addr1 u1} with the pattern @var{c_addr2 u2}.
+Patterns match char by char except for the special characters '*' and '?',
+which are wildcards for several ('*') or one ('?') character.""
 char * string = cstr(c_addr1, u1);
 char * pattern = cstr(c_addr2, u2);
 flag = FLAG(!fnmatch(pattern, string, 0));

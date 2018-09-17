@@ -270,7 +270,9 @@ forward anim-del
 forward >animate
 
 :noname ( rx ry bmask n -- )
-    fover fover inside? 0= IF  2drop fdrop fdrop  EXIT  THEN
+    grab-move? o <> IF
+	fover fover inside? 0= IF  2drop fdrop fdrop  EXIT  THEN
+    THEN
     over 2 or 2 = IF
 	o anim-del
 	dup 1 and IF  2drop

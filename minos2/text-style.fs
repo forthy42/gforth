@@ -120,12 +120,13 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
     \regular b0 >r
     {{ r> r> glue*em }}glue }}h box[] >bl ;
 : bm\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
-    blackish \mono }}text' >r
+    dark-blue \mono }}text' >r
     b0 >r
     {{ r> r> glue*em }}glue }}h box[] >bl \sans ;
 : \LaTeX ( -- )
-    "L" }}text
-    "A" }}smalltext >o font-size# fdup -23% f* to raise -30% f* to kerning o o>
+    "L" }}text font-size >r \script
+    "A" }}text >o font-size# fdup -23% f* to raise -30% f* to kerning o o>
+    r> to font-size
     "T" }}text >o font-size# -10% f* to kerning o o>
     "E" }}text >o font-size# -23% f* fdup fnegate to raise to kerning o o>
     "X" }}text >o font-size# -10% f* to kerning o o> ;
