@@ -62,6 +62,12 @@ Defer }}text' ' }}text IS }}text'
 ' /hflip alias /flip
 : /vflip ( o -- o )
     >o box-vflip# to box-flags o o> ;
+: /hphantom ( o -- o )
+    >o box-hphantom# to box-flags o o> ;
+: /vphantom ( o -- o )
+    >o box-vphantom# to box-flags o o> ;
+: /phantom ( o -- o )
+    >o box-phantom# to box-flags o o> ;
 : /flop ( o -- o )
     >o 0 to box-flags o o> ;
 Variable image-tex[]

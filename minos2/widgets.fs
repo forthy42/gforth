@@ -128,6 +128,9 @@ $01 Constant box-hflip#
 $02 Constant box-vflip#
 $03 Value box-flip#
 $04 Value baseline-start#
+$10 Value box-hphantom#
+$20 Value box-vphantom#
+$30 Value box-phantom#
 
 object class
     value: caller-w
@@ -662,10 +665,15 @@ end-class box
     aidglue ?dup-IF  .dglue!@  THEN ;
 
 : do-childs { xt -- .. }
-    box-flags box-flip# and ?EXIT
     childs[] $@ bounds U+DO
 	xt I @ .execute
     cell +LOOP ;
+: do-childs-flip { xt -- }
+    box-flags box-flip# and ?EXIT
+    xt do-childs ;
+: do-childs-fph { xt -- }
+    box-flags [ box-flip# box-phantom# or ]L and ?EXIT
+    xt do-childs ;
 : do-childs-limits { start n xt -- .. }
     box-flags box-flip# and ?EXIT
     childs[] $@ start cells safe/string n cells umin bounds U+DO
@@ -688,10 +696,10 @@ end-class box
     dglue dglue-c glue!
     vglue vglue-c glue! ; box is !size
 
-:noname ( -- ) ['] draw-init      do-childs ; box is draw-init
-:noname ( -- ) ['] draw-bg        do-childs ; box is draw-bg
-:noname ( -- ) ['] draw-image     do-childs ; box is draw-image
-:noname ( -- ) ['] draw-text      do-childs ; box is draw-text
+:noname ( -- ) ['] draw-init      do-childs-fph ; box is draw-init
+:noname ( -- ) ['] draw-bg        do-childs-fph ; box is draw-bg
+:noname ( -- ) ['] draw-image     do-childs-fph ; box is draw-image
+:noname ( -- ) ['] draw-text      do-childs-fph ; box is draw-text
 
 :noname ( -- )
     parent-w ?dup-IF  .resized \ upwards
@@ -776,7 +784,8 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : b1glue ( -- b 0 0 ) bxx 0g 1fil ;
 
 : hglue+ ( -- glue ) b0glue
-    box-flags box-hflip# and ?EXIT [: hglue@ glue+ ;] do-childs
+    box-flags box-hflip# and ?EXIT
+    [: hglue@ glue+ ;] do-childs-flip
     kerning 0e fdup glue+ ;
 
 : vglue1+ ( glue1 dglue flag -- glue2 flag )
@@ -799,13 +808,13 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     glue-drop drop  raise 0e fdup glue+ ;
 
 : hglue* ( -- glue ) box-flags box-hflip# and IF  0glue  EXIT  THEN
-    1glue [: hglue@ glue* ;] do-childs  b0glue glue+
+    1glue [: hglue@ glue* ;] do-childs-flip  b0glue glue+
     kerning 0e fdup glue+ ;
 : dglue* ( -- glue ) box-flags box-hflip# and IF  0glue  EXIT  THEN
-    1glue [: dglue@ glue* ;] do-childs
+    1glue [: dglue@ glue* ;] do-childs-flip
     raise fnegate 0e fdup glue+ ;
 : vglue* ( -- glue ) box-flags box-hflip# and IF  0glue  EXIT  THEN
-    1glue [: vglue@ glue* ;] do-childs
+    1glue [: vglue@ glue* ;] do-childs-flip
     raise 0e fdup glue+ ;
 
 :noname hglue+ >hglue!@ ; hbox is hglue
@@ -839,9 +848,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     x y w h d widget-resize
     hglue+  w border f2* borderl f+ f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
-    wtotal wmin f- a f/ 0e 0e x border f+ borderl f+ ['] hglue-step do-childs
+    wtotal wmin f- a f/ 0e 0e x border f+ borderl f+ ['] hglue-step do-childs-flip
     fdrop fdrop fdrop fdrop
-    y h d ['] hbox-resize1 do-childs  fdrop fdrop fdrop
+    y h d ['] hbox-resize1 do-childs-flip  fdrop fdrop fdrop
 \    ." hbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
@@ -924,10 +933,10 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
     htotal hmin f- a f/ 0e 0e
     y border borderv f+ bordert f+ f+ h f- 0e
-    box-flags baseline-start# and 0<> ['] vglue-step do-childs
+    box-flags baseline-start# and 0<> ['] vglue-step do-childs-flip
     fdrop fdrop fdrop fdrop fdrop drop
     x border f+ borderl f+ w border f2* borderl f+ f-
-    ['] vbox-resize1 do-childs fdrop fdrop
+    ['] vbox-resize1 do-childs-flip fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
@@ -942,7 +951,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     x y w h d widget-resize
     x border f+ borderl f+ y border borderv f+ bordert f+ f+ w border f2* f-
     h border borderv f+ bordert f+ f- d border borderv f+ f-
-    ['] zbox-resize1 do-childs
+    ['] zbox-resize1 do-childs-flip
     fdrop fdrop fdrop fdrop fdrop
 \    ." zbox sized to: " x f. y f. w f. h f. d f. cr
 ;
