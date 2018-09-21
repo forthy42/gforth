@@ -791,7 +791,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 : hglue+ ( -- glue ) b0glue
     box-flags box-hflip# and ?EXIT
-    box-flags dup box-phantom# and 0= swap box-hphantom# and or 0= ?EXIT
+    box-flags dup box-phantom# and swap box-hphantom# and 0= and ?EXIT
     [: hglue@ glue+ ;] do-childs
     kerning 0e fdup glue+ ;
 
@@ -800,7 +800,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     IF  baseline fmax  THEN  f-rot glue+ dglue@
     true ;
 : dglue+ ( -- glue ) 0glue box-flags box-vflip# and ?EXIT
-    box-flags dup box-phantom# and 0= swap box-dphantom# and or 0= ?EXIT
+    box-flags dup box-phantom# and swap box-dphantom# and 0= and ?EXIT
     baseline-offset childs[] $[]# u>= IF
 	[: glue-drop dglue@ ;] do-lastchild \ last dglue
     ELSE
@@ -811,7 +811,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     THEN
     raise fnegate 0e fdup glue+ ;
 : vglue+ ( -- glue ) 0glue box-flags box-vflip# and ?EXIT
-    box-flags dup box-phantom# and 0= swap box-vphantom# and or 0= ?EXIT
+    box-flags dup box-phantom# and swap box-vphantom# and 0= and ?EXIT
     0glue box-flags baseline-start# and 0<> 0 baseline-offset
     ['] vglue1+ do-childs-limits
     glue-drop drop  raise 0e fdup glue+ ;
