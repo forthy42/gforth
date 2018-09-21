@@ -59,9 +59,12 @@ Defer }}text' ' }}text IS }}text'
     >r {{ glue*l }}glue r> }}h box[] >bl ;
 : /hflip ( o -- o )
     >o box-hflip# to box-flags o o> ;
-' /hflip alias /flip
 : /vflip ( o -- o )
     >o box-vflip# to box-flags o o> ;
+: /dflip ( o -- o )
+    >o box-dflip# to box-flags o o> ;
+: /flip ( o -- o )
+    >o box-flip# to box-flags o o> ;
 : /hphantom ( o -- o )
     >o box-hphantom# to box-flags o o> ;
 : /vphantom ( o -- o )
