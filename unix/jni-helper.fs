@@ -46,6 +46,7 @@ jni-field: args0 args0 Ljava/lang/String;
 jni-field: argf0 argf0 D
 jni-field: argj0 argj0 J
 jni-field: argnotify argnotify Landroid/app/Notification;
+jni-field: cameraPath cameraPath Ljava/lang/String;
 
 jni-class: android/os/Handler
 jni-method: post post (Ljava/lang/Runnable;)Z

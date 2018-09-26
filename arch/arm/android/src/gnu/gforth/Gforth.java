@@ -23,6 +23,7 @@ package gnu.gforth;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Build;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.text.ClipboardManager;
@@ -136,6 +137,7 @@ public class Gforth
     public Runnable rsecurescreenoff;
     public Runnable notifyer;
     public ProgressDialog progress;
+    public String cameraPath;
 
     private static final String META_DATA_LIB_NAME = "android.app.lib_name";
     private static final String META_DATA_STARTFILE = "android.app.startfile";
@@ -411,8 +413,8 @@ public class Gforth
 
 	gforth=this;
 	progress=null;
+	cameraPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
 
-        // getWindow().takeSurface(this);
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
                 | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
