@@ -1260,6 +1260,11 @@ if test -z "$GFORTH"; then
   PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
   GFORTHKER='echo "You need to configure with a gforth in \$PATH to build this part" && false'
   kernel_anti_dependence=''
+  if [ ! -f ${srcdir}/kernl32l.fi ]
+  then
+    config_warns="$config_warns
+No Gforth found in path, build from git will fail"
+  fi
 else
   GFORTH_MAGIC="`cd / && "$GFORTH" --debug -e bye 2>&1 |grep \"Magic found:\"`"
   case "$GFORTH_MAGIC" in
