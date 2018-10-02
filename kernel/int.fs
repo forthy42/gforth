@@ -492,7 +492,7 @@ const Create ???
     \ some code), which is typically not in the dictionary.
     \ we added a third iteration for working with code and ;code words.
     3 0 do
-	dup one-head? 0= if
+	dup ['] one-head? catch first-throw on 0= and 0= if
 	    drop false unloop exit
 	endif
 	dup >link @ dup 0= if
