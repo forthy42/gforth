@@ -2447,12 +2447,6 @@ Variable aprim-nr -20 aprim-nr !
 
 >TARGET
 
-: Alias    ( cfa -- ) \ name
-  >in @ skip? IF  2drop  EXIT  THEN  >in !
-  (THeader ( S xt ghost )
-  2dup swap xt>ghost swap copy-execution-semantics
-  over resolve T A, H alias-mask flag! ;
-
 Variable last-prim-ghost
 0 last-prim-ghost !
 
@@ -3135,12 +3129,12 @@ End-Struct vtable-struct
 : vt-template, ( -- )
     T here 0 A, H vttemplate ! ;
 : vt-populate ( -- )
-    [ findghost :,         ]L vttemplate >vtcompile, !
-    0                         vttemplate >vtextra !
-    [ findghost no-to      ]L vttemplate >vtto !
-    [ findghost default-name>int ]L vttemplate >vt>int !
-    [ findghost default-name>comp ]L vttemplate >vt>comp !
-    [ findghost no-defer@  ]L vttemplate >vtdefer@ ! ;
+    [G'] :,                vttemplate >vtcompile, !
+    0                      vttemplate >vtextra !
+    [G'] no-to             vttemplate >vtto !
+    [G'] default-name>int  vttemplate >vt>int !
+    [G'] default-name>comp vttemplate >vt>comp !
+    [G'] no-defer@         vttemplate >vtdefer@ ! ;
 
 :noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-optimizer
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
@@ -3157,6 +3151,18 @@ End-Struct vtable-struct
     postpone ;  built >do:ghost @ >exec2 ! ; immediate
 
 >TARGET
+
+ghost a>comp drop
+ghost s-to drop
+
+: Alias    ( cfa -- ) \ name
+    >in @ skip? IF  2drop  EXIT  THEN  >in !
+    (THeader ( S xt ghost )
+    2dup swap xt>ghost swap copy-execution-semantics
+    [G'] @      vttemplate >vt>int  !
+    [G'] a>comp vttemplate >vt>comp !
+    [G'] s-to   vttemplate >vtto    !
+    over resolve T A, H ;
 
 : interpret/compile: ( xt1 xt2 "name" -- )
     (THeader <res> over >magic !  there swap >link !

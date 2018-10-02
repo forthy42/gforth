@@ -428,17 +428,14 @@ drop cell+ Constant vtsize \ vtable size
 
 : (name>x) ( nfa -- cfa w )
     \ cfa is an intermediate cfa and w is the flags cell of nfa
-    dup >f+c @ dup alias-mask and 0=
-    IF
-	swap @ swap
-    THEN ;
+    dup >f+c @ ;
 
 : default-name>int ( nt -- xt ) \ gforth paren-name-to-int
     \G @i{xt} represents the interpretation semantics of the word
     \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
     \G @code{compile-only}), @i{xt} is the execution token for
     \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
-    (name>x) drop ;
+;
 
 : (x>comp) ( xt w -- xt +-1 )
     immediate-mask and flag-sign ;
@@ -457,33 +454,33 @@ drop cell+ Constant vtsize \ vtable size
 
 const Create ???
 
+: xt? ( xt -- f )
+    \G check for xt - must be code field or primitive
+    dup @ tuck 2 cells - = swap
+    docol:  ['] u#+ @ 1+ within or ;
+
 : one-head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false
 \G positives; addr must be a valid address
-    dup dup maxaligned <>
-    if
-        drop false exit \ heads are aligned
-    then
-    dup >f+c @ alias-mask and 0= >r
-    dup name>string dup $20 $1 within if
-        rdrop 2drop drop false exit \ realistically the name is short
-    then
-    bounds ?do \ should be a printable string
-	i c@ bl < if
-	    unloop rdrop drop false exit
+    begin
+	dup dup maxaligned <>
+	if
+	    drop false exit \ heads are aligned
 	then
-    loop
-    r> if \ check for valid aliases
-	@ dup forthstart here within
-	over ['] noop ['] lit-execute 1+ within or
-	over dup aligned = and
-	0= if
-	    drop false exit
+	dup name>string dup $20 $1 within if
+	    2drop drop false exit \ realistically the name is short
 	then
-    then \ check for cfa - must be code field or primitive
-    dup synonym? swap
-    dup @ tuck 2 cells - = swap
-    docol:  ['] u#+ @ 1+ within or or ;
+	bounds ?do \ should be a printable string
+	    i c@ bl < if
+		unloop drop false exit
+	    then
+	loop
+	dup synonym?  while  @  repeat
+    dup interpret/compile? if
+	2@ xt? swap xt? and
+    else
+	dup alias? IF  @  THEN	xt?
+    then ;
 
 : head? ( addr -- f )
 \G heuristic check whether addr is a name token; may deliver false

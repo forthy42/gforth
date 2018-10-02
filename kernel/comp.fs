@@ -391,7 +391,6 @@ include ./recognizer.fs
 
 \ : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
 
-: a>int ( nt -- xt )  @ ;
 : a>comp ( nt -- xt1 xt2 )  dup >r @
     ['] execute ['] compile, r> immediate? select ;
 
@@ -404,8 +403,11 @@ opt: drop @ (comp-to) ;
 
 : Alias    ( xt "name" -- ) \ gforth
     Header reveal ['] on vtcopy ?noname-vt
-    ['] a>int set->int ['] a>comp set->comp ['] s-to set-to
+    ['] @ set->int ['] a>comp set->comp ['] s-to set-to
     dup A, lastcfa ! ;
+
+: alias? ( nt -- flag )
+    >namevt @ >vt>int 2@ ['] a>comp ['] @ d= ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
     Header  ['] on vtcopy
@@ -787,7 +789,7 @@ defer 0-adjust-locals-size ( -- )
 : i/c>int ( nt -- xt )  @ ;
 : i/c>comp ( nt -- xt1 xt2 ) cell+ @ ['] execute ;
 
-\ : interpret/compile? ( xt -- flag ) >namevt @ >vt>int @ ['] i/c>int = ;
+: interpret/compile? ( nt -- flag ) >namevt @ >vt>int @ ['] i/c>int = ;
 
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     Header reveal

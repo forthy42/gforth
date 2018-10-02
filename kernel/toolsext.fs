@@ -18,7 +18,7 @@
 Warnings off
 
 Variable countif
-Variable endif?
+Variable endif?  -1 cells allot -1 1 cells times
 
 : dummy ;  immediate
 : scanIF   f83find  dup 0=  IF  drop ['] dummy ( >head-noprim )  THEN  ;
