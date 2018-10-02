@@ -1068,7 +1068,7 @@ kernl%$(EC).fi:	kernl%$(EC).fi-
 
 #Solaris make does not like that:
 @GNUMAKE@kernl-%.fi:	arch/%/mach.fs arch/%/prim.fs arch/%/asm.fs $(KERN_SRC) kernel/version.fs $(FORTH_GEN0) preforth @kernel_fi@
-@GNUMAKE@		$(PREFORTH) -e 's" $<" include $(srcdir)/kernel/main.fs' -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
+@GNUMAKE@		$(PREFORTH) -e 's" $<" include $(srcdir)/kernel-ec/main.fs' -e "save-cross $@- $(bindir)/gforth-$(VERSION) bye"
 @GNUMAKE@		if [ -f `echo $< | sed s/fs/sh/` ]; \
 @GNUMAKE@		then sh `echo $< | sed s/fs/sh/` $@; \
 @GNUMAKE@		else $(CP) $@- $@; \
