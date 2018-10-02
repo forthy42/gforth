@@ -2166,9 +2166,11 @@ Create current-name-vt  name-vt %size allot
 VARIABLE ^imm
 
 \ !! should be target wordsize specific
-$80 constant alias-mask
-$40 constant immediate-mask
-$20 constant restrict-mask
+$80 X has? f83headerstring [IF]
+    dup Constant alias-mask 2/
+[THEN]
+dup constant immediate-mask 2/
+constant restrict-mask
 
 >TARGET
 : immediate     immediate-mask flag!
@@ -2418,7 +2420,7 @@ Defer vt, \ forward rference only
     dup >ghostname there symentry
     dup Last-Header-Ghost ! dup to lastghost
     dup >magic ^imm !     \ a pointer for immediate
-    alias-mask flag!
+    [IFDEF] alias-mask alias-mask flag! [THEN]
     cross-doc-entry cross-tag-entry 
     setup-execution-semantics
     ;
@@ -2778,7 +2780,8 @@ ghost :-dummy Constant :-ghost
     switchrom vt,
     [ X has? f83headerstring 0= ] [IF]
 	T 0 cell+ cfalign# 0 , 0 , here cell+ H
-	t>flag >r alias-mask T r@ c@ xor r> c! H
+	[IFDEF] alias-mask t>flag >r alias-mask T r@ c@ xor r> c! H
+	[ELSE] drop [THEN]
 	:-ghost >do:ghost @ >exec2 @ execute
     [ELSE]
 	X cfalign
@@ -2976,7 +2979,7 @@ Cond: DOES>
   executed-ghost @ (THeader 
   dup >created on  dup to created
   2dup takeover-x-semantics
-  there 0 T a, H alias-mask flag!
+  there 0 T a, H [IFDEF] alias-mask alias-mask flag! [THEN]
   \ store poiter to code-field
   switchram T cfalign H
   there swap T ! H

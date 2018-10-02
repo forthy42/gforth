@@ -157,7 +157,7 @@ Defer check-shadow ( addr u wid -- )
     nlstring,
     r> 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
-    alias-mask lastflags cset
+\   alias-mask lastflags cset
     next-prelude @ 0<> prelude-mask and lastflags cset
     next-prelude off
     cfalign ;
@@ -196,7 +196,7 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname, ( -- )
-    0 last ! vt,  here cell+ dup cfaligned >align alias-mask , 0 , 0 , ;
+    0 last ! vt,  here cell+ dup cfaligned >align 0 ( alias-mask ) , 0 , 0 , ;
 : noname-header ( -- )
     noname, input-stream ;
 

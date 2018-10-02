@@ -937,7 +937,7 @@ set-current
     dup synonym? IF
 	." Synonym " dup .name dup @ .name
     ELSE
-	dup >f+c @ alias-mask and 0= IF
+	dup alias? IF
 	    dup @ name>string nip 0= IF
 		dup @ hex.
 	    ELSE

@@ -330,20 +330,20 @@ forth-wordlist current !
 \ 32-bit systems cannot generate large 64-bit constant in the
 \ cross-compiler, so we kludge it by generating a constant and then
 \ storing the proper value into it (and that's another kludge).
-$80000000 constant alias-mask
+\ $80000000 constant alias-mask
+\ 1 bits/char 1 - lshift
+\ -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
+\                           [ELSE] 0 1 cells 1- times c, [THEN]
+$80000000 constant immediate-mask
 1 bits/char 1 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
                           [ELSE] 0 1 cells 1- times c, [THEN]
-$40000000 constant immediate-mask
+$40000000 constant restrict-mask
 1 bits/char 2 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
                           [ELSE] 0 1 cells 1- times c, [THEN]
-$20000000 constant restrict-mask
+$20000000 constant prelude-mask
 1 bits/char 3 - lshift
--1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
-                          [ELSE] 0 1 cells 1- times c, [THEN]
-$10000000 constant prelude-mask
-1 bits/char 4 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
                           [ELSE] 0 1 cells 1- times c, [THEN]
 \ $01000000 constant unused-mask \ defined in locate1.fs, used only temporarily
