@@ -283,8 +283,7 @@ Variable rec'
         2drop
     then ;
 
-: prompt-text    state @ IF ."  compiled" EXIT THEN
-    scanning? IF  ." scanning for [THEN]"  ELSE prompt-ok THEN ;
+: prompt-text    state @ IF ."  compiled" EXIT THEN  prompt-ok ;
 
 : color-prompt ( -- )
     ['] prompt-text success-color color-execute ;

@@ -45,6 +45,7 @@ decimal
     true laddr# [ 0 , ] ?warning lp+!# [ 3 cell 4 = - cells , ] ;
 
 has? OS [IF]
+: >exec  >r ;
 : >stderr ( -- )
     r> op-vector @ >r debug-vector @ op-vector !
     >exec  r> op-vector ! ;

@@ -850,7 +850,7 @@ defer reset-dpp
     /error +LOOP
     drop 
     dobacktrace
-    default-color attr!
+    default-color attr! endif? on
   reset-dpp ;
 
 ' (DoError) IS DoError

@@ -29,12 +29,16 @@
 
 \ terminal input implementation
 
+: .scanning ( -- )
+    ." scanning for [THEN]" cr ;
+
 :noname ( in 1 -- ) 1 <> -12 and throw >in ! ;
                        \ restore-input
 :noname ( -- in 1 ) >in @ 1 ;     \ save-input
 ' false                \ source-id
 :noname ( -- flag )
     [ has? file [IF] ] stdin file-eof?  IF  false  EXIT  THEN [ [THEN] ]
+    scanning? IF  ['] .scanning warning-color color-execute  THEN
     tib max#tib @ accept #tib !
     input-start-line true 1 loadline +! ;     \ refill
 :noname ( -- addr u ) tib #tib @ ;   \ source
@@ -102,10 +106,6 @@ terminal-input @       \ source -> terminal-input::source
     \G pop and free the current top input buffer
     dup IF
 	input-error-data >error
-    THEN
-    scanning? IF
-	s" warning: unfinished [IF] at end of file" true ['] type ?warning
-	3 roll is parser1
     THEN
     current-input @ old-input @ current-input ! cell- free throw ;
 
