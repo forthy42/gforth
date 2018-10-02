@@ -391,6 +391,10 @@ include ./recognizer.fs
 
 \ : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
 
+: a>int ( nt -- xt )  @ ;
+: a>comp ( nt -- xt1 xt2 )  dup >r @
+    ['] execute ['] compile, r> immediate? select ;
+
 : s>int ( nt -- xt )  @ name>int ;
 : s>comp ( nt -- xt1 xt2 )  @ name>comp ;
 : s-to ( val nt -- )
@@ -400,7 +404,7 @@ opt: drop @ (comp-to) ;
 
 : Alias    ( xt "name" -- ) \ gforth
     Header reveal ['] on vtcopy ?noname-vt
-    alias-mask lastflags creset
+    ['] a>int set->int ['] a>comp set->comp ['] s-to set-to
     dup A, lastcfa ! ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
