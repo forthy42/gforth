@@ -1364,7 +1364,7 @@ else
         if test "$host_os" == "darwin"
     	then
     	    AC_CHECK_HEADER(OpenGL/gl.h,
-	    AC_CHECK_HEADER(OpenGL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
+	    AC_CHECK_HEADER(OpenGL/glext.h, SWIGMODULES="$SWIGMODULES darwin-gl.fs"
 			    SWIGLIBS="$SWIGLIBS opengl.fs", ,
 #include <OpenGL/gl.h>
 ) ,)

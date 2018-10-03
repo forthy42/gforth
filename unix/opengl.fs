@@ -35,15 +35,17 @@ c-library opengl
 	[THEN]
     [THEN]
     
-    e? os-type 3 /string s" win" str= [IF] \ darwin, cygwin...
+    e? os-type s" darwin" str= [IF]
 	s" GL" add-lib
     
-	include unix/gl.fs
+	include unix/darwin-gl.fs
     [ELSE]
 	s" GL" add-lib
     
 	include unix/gl.fs
-	include unix/glx.fs
+	e? os-type s" cygwin" str= 0= [IF]
+	    include unix/glx.fs
+	[THEN]
     [THEN]
     
 end-c-library
