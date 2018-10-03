@@ -13,11 +13,14 @@
 #define WINGDIAPI
 #define APIENTRY
 
+%apply float { GLfloat, GLdouble, GLclampf, GLclampd }
+%apply int { GLenum, GLint, GLshort, GLbyte, GLfixed }
+%apply unsigned int { GLuint, GLsizei, GLboolean, GLubyte, GLushort, GLbitfield }
 %apply long long { GLint64, GLint64EXT, GLuint64, GLuint64EXT };
 %apply long { GLsizeiptr, GLintptr, GLsizeiptrARB, GLintptrARB };
 %apply char { GLchar }
 
 // exec: sed -e 's/\(c-function .*\(NV\|SUN\|IBM\|ATI\|AMD\|SUN\|SGI\|MESA\|INTEL\|HP\|GREMEDY\|APPLE\|OES\|3DFX\|ARB\|INGR\)\)/\\ \1/g'
 
-%include <OpenGL/gl.h>
-%include <OpenGL/glext.h>
+%include <OpenGL.framework/Headers/gl.h>
+%include <OpenGL.framework/Headers/glext.h>
