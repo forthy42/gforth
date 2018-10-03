@@ -25,6 +25,7 @@ install_osx() {
   brew install yodl
   brew install gforth
   brew install gcc
+  brew install harfbuzz
   brew link --overwrite gcc
 }
 
