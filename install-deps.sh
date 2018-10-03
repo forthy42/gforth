@@ -22,6 +22,7 @@ install_linux() {
 install_osx() {
   brew tap forthy42/homebrew-zsh
   brew update > /dev/null
+  brew upgrade > /dev/null
   brew install yodl
   brew install gforth
   brew install gcc
