@@ -24,7 +24,6 @@ c-library opengl
     \c #define GL_GLEXT_PROTOTYPES
     e? os-type s" darwin" str= [IF]
 	\c #include <OpenGL/gl.h>
-	\c #include <OpenGL/glext.h>
     [ELSE]
 	e? os-type s" cygwin" str= [IF]
 	    \c #include <GL/gl.h>

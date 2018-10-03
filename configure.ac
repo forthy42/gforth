@@ -1366,7 +1366,7 @@ else
     	    AC_CHECK_HEADER(OpenGL/gl.h,
 	    AC_CHECK_HEADER(OpenGL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
 			    SWIGLIBS="$SWIGLIBS opengl.fs", ,
-#include <GL/gl.h>
+#include <OpenGL/gl.h>
 ) ,)
  	else
   	    AC_CHECK_HEADER(GL/gl.h,
