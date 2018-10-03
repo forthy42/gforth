@@ -32,6 +32,7 @@ c-library libc
     \c #define getpagesize() PAGESIZE
     \c #endif
     \c #define set_errno(n) (errno=n)
+    \c extern char ** environ;
     c-value errno errno -- n ( -- value )
     c-function ->errno set_errno n -- void ( n -- )
     c-function getpagesize getpagesize -- n ( -- size )

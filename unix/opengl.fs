@@ -22,15 +22,20 @@ get-current also opengl definitions
 
 c-library opengl
     \c #define GL_GLEXT_PROTOTYPES
-    e? os-type s" cygwin" str= [IF]
-	\c #include <GL/gl.h>
-	\c #include <GL/glext.h>
+    e? os-type s" darwin" str= [IF]
+	\c #include <OpenGL/gl.h>
+	\c #include <OpenGL/glext.h>
     [ELSE]
-	\c #include <GL/glx.h>
-	\c #include <GL/glext.h>
+	e? os-type s" cygwin" str= [IF]
+	    \c #include <GL/gl.h>
+	    \c #include <GL/glext.h>
+	[ELSE]
+	    \c #include <GL/glx.h>
+	    \c #include <GL/glext.h>
+	[THEN]
     [THEN]
     
-    e? os-type s" cygwin" str= [IF]
+    e? os-type 3 /string s" win" str= [IF] \ darwin, cygwin...
 	s" GL" add-lib
     
 	include unix/gl.fs
