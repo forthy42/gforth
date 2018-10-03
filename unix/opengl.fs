@@ -36,6 +36,7 @@ c-library opengl
     [THEN]
     
     e? os-type s" darwin" str= [IF]
+	s" /System/Library/Frameworks/OpenGL.framework/Libraries" add-libpath
 	s" GL" add-lib
     
 	include unix/darwin-gl.fs
