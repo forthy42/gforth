@@ -907,9 +907,9 @@ case "$host_os" in
 			;;
 			*)
 				host_os=darwin # remove version number
-				test -d /opt/X11/include && CFLAGS="$CFLAGS -I/opt/X11/include"
+				test -d /opt/X11/include && CPPFLAGS="$CPPFLAGS -I/opt/X11/include"
 				test -d /opt/X11/lib && LDFLAGS="$LDFLAGS -L/opt/X11/lib"
-				test -d /sw/include && CFLAGS="$CFLAGS -I/sw/include"
+				test -d /sw/include && CPPFLAGS="$CPPFLAGS -I/sw/include"
 				test -d /sw/lib && LDFLAGS="$LDFLAGS -L/sw/lib"
 			;;
 		esac
@@ -1361,21 +1361,12 @@ then
     fi
 else
     if test x$has_swig = xyes || test -f $srcdir/unix/gl-fsi.c; then
-        if test "$host_os" == "darwin"
-    	then
-    	    AC_CHECK_HEADER(OpenGL/gl.h,
-	    AC_CHECK_HEADER(OpenGL/glext.h, SWIGMODULES="$SWIGMODULES darwin-gl.fs"
-			    SWIGLIBS="$SWIGLIBS opengl.fs", ,
-#include <OpenGL/gl.h>
-) ,)
- 	else
-  	    AC_CHECK_HEADER(GL/gl.h,
-	    AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
-	    AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
-			    SWIGLIBS="$SWIGLIBS opengl.fs", ,), , 
+      AC_CHECK_HEADER(GL/gl.h, 
+      AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
+      AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
+      SWIGLIBS="$SWIGLIBS opengl.fs", ,), , 
 #include <GL/gl.h>
 ) ,)
-        fi
     fi
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gles-fsi.c; then

@@ -22,33 +22,21 @@ get-current also opengl definitions
 
 c-library opengl
     \c #define GL_GLEXT_PROTOTYPES
-    e? os-type s" darwin" str= [IF]
-	\c #include <OpenGL/gl.h>
-	\c #include <OpenGL/glext.h>
+    e? os-type s" cygwin" str= [IF]
+	\c #include <GL/gl.h>
+	\c #include <GL/glext.h>
     [ELSE]
-	e? os-type s" cygwin" str= [IF]
-	    \c #include <GL/gl.h>
-	    \c #include <GL/glext.h>
-	[ELSE]
-	    \c #include <GL/glx.h>
-	    \c #include <GL/glext.h>
-	[THEN]
+	\c #include <GL/glx.h>
+	\c #include <GL/glext.h>
     [THEN]
     
-    e? os-type s" darwin" str= [IF]
-	s" /System/Library/Frameworks/OpenGL.framework/Libraries" add-libpath
-	s" GL" add-lib
+    s" GL" add-lib
     
-	include unix/darwin-gl.fs
-    [ELSE]
-	s" GL" add-lib
-    
-	include unix/gl.fs
-	e? os-type s" cygwin" str= 0= [IF]
-	    include unix/glx.fs
-	[THEN]
+    include unix/gl.fs
+    e? os-type s" cygwin" str= 0= [IF]
+	include unix/glx.fs
     [THEN]
-    
+
 end-c-library
 
 previous set-current
