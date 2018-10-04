@@ -135,6 +135,8 @@ $Variable term-rgb$
     s" TERM" getenv
     2dup s" xterm" string-prefix? >r
          s" rxvt"  string-prefix? r> or \ rxvt behaves like xterm
+    \ OSX' terminal claims to be a full xterm-256color, but isn't
+    s" TERM_PROGRAM" getenv s" Apple_Terminal" str= 0= and
     is-terminal? and ;
 
 : term-bg? ( -- rgb )

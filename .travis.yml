@@ -15,3 +15,4 @@ script:
   - ./configure --enable-lib CC="$CC $M32"
   - make
   - for i in misc r8c 8086 c165; do ./build-ec $i; done
+  - make doc
