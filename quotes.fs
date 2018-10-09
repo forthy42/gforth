@@ -62,7 +62,8 @@ create \-escape-table
             #cr c, \ first half, the rest follows below
         endif
 	dup 'a '{ within if
-	    'a - chars \-escape-table + c@
+	    dup 'a - chars \-escape-table + c@
+	    tuck = IF '\' c, THEN
 	endif
     endif
     1 chars under+ ;
