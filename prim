@@ -724,7 +724,7 @@ SPs->wraphandler = a_oldhandler;
 
 exit-wrap ( ... -- ... ) gforth-experimental exit_wrap
 rp = SPs->wraphandler;
-SPs->wraphandler = rp[-6];
+SPs->wraphandler = (Cell *)rp[-6];
 lp = (Address)rp[-5];
 fp = (Float *)rp[-4];
 op = (Char *)rp[-3];
