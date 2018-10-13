@@ -41,32 +41,47 @@ create \-escape-table
 'o c,  'p c,  '" c,  #cr c,   's c,  #tab c,   'u c,
 11 c,  'w c,  'x c,   'y c,    0 c,
 
-: \-escape ( c-addr1 -- c-addr2 c )
-    \ c-addr1 points at a char right after a '\', c-addr2 points right
-    \ after the whole sequence, c is the translated char
+: \-escape, ( c-addr1 -- c-addr2 )
+    \ c-addr1 points at a char right after a '\', c-addr2 points right after
+    \ the whole sequence, the translated chars are appended to the dictionary.
     dup c@
-    dup 'x = if
-	drop char+ 2 16 parse-num exit
+    dup 'u' = if
+	drop char+ 4 16 parse-num
+	dup $DC00 and $D800 = if
+	    >r  count '\' = >r count 'u' = r> and if
+		4 16 parse-num dup $DC00 and $DC00 = if
+		    $3FF and r> $3FF and #10 lshift or $10000 +
+		    xc,  exit
+		else
+		    r> xc, xc,  exit
+		endif
+	    endif
+	    -2 + r>
+	endif
+	xc, exit
     endif
-    dup '0 '8 within if
-	drop 3 8 parse-num exit
+    dup 'x' = if
+	drop char+ 2 16 parse-num c, exit
     endif
-    dup 'n = if
+    dup '0' '8' within if
+	drop 3 8 parse-num c, exit
+    endif
+    dup 'n' = if
 	\ \-escapes were designed to translate to one character, so
 	\ this is quite ugly: copy all but the last char right away
 	drop newline 1-
 	2dup here swap chars dup allot move
 	chars + c@
     else
-        dup 'm = if \ crlf; ugly, because it's two characters
+        dup 'm' = if \ crlf; ugly, because it's two characters
             #cr c, \ first half, the rest follows below
         endif
-	dup 'a '{ within if
-	    dup 'a - chars \-escape-table + c@
+	dup 'a' '{' within if
+	    dup 'a' - chars \-escape-table + c@
 	    tuck = IF '\' c, THEN
 	endif
     endif
-    1 chars under+ ;
+    c, char+ ;
 
 : \"-parse ( "string"<"> -- c-addr u ) \ gforth-internal  backslash-quote-parse
 \G parses string, translating @code{\}-escapes to characters (as in
@@ -78,7 +93,7 @@ create \-escape-table
 	    dup c@ '" <> while
 		dup c@ dup '\ = if ( parse-area c R: here parse-end )
 		    drop char+ dup r@ = abort" unfinished \-escape"
-		    \-escape c,
+		    \-escape,
 		else
 		    c, char+
 		endif
@@ -91,13 +106,14 @@ create \-escape-table
 :noname \"-parse save-mem ;
 :noname \"-parse save-mem 2dup postpone sliteral drop free throw ;
 interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ gforth	s-backslash-quote
-\G Like @code{S"}, but translates C-like \-escape-sequences, as
-\G follows: @code{\a} BEL (alert), @code{\b} BS, @code{\e} ESC (not in
-\G C99), @code{\f} FF, @code{\n} newline, @code{\r} CR, @code{\t} HT,
-\G @code{\v} VT, @code{\"} ", @code{\\} \, @code{\}[0-7]@{1,3@} octal
-\G numerical character value (non-standard), @code{\x}[0-9a-f]@{0,2@}
-\G hex numerical character value (standard only with two digits); a
-\G @code{\} before any other character is reserved.
+\G Like @code{S"}, but translates C-like \-escape-sequences, as follows:
+\G @code{\a} BEL (alert), @code{\b} BS, @code{\e} ESC (not in C99), @code{\f}
+\G FF, @code{\n} newline, @code{\r} CR, @code{\t} HT, @code{\v} VT, @code{\"}
+\G ", @code{\\} \, @code{\}[0-7]@{1,3@} octal numerical character value
+\G (non-standard), @code{\x}[0-9a-f]@{0,2@} hex numerical character value
+\G (standard only with two digits), @code{\u}[0-9a-f]@{4@} for unicode
+\G codepoints (surrogate pairs supported); a @code{\} before any other
+\G character is reserved.
 
 :noname \"-parse type ;
 :noname postpone s\" postpone type ;
@@ -108,9 +124,9 @@ interpret/compile: .\" ( compilation 'ccc"' -- ; run-time -- )	\ gforth	dot-back
 0 [if] \ test
     s" 123" drop 10 parse-num-x 123 <> throw drop .s
     s" 123a" drop 10 parse-num   123 <> throw drop .s
-    s" x1fg" drop \-escape 31 <> throw drop .s
-    s" 00129" drop \-escape 10 <> throw drop .s
-    s" a" drop \-escape 7 <> throw drop .s
+    s" x1fg" drop \-escape, here 1- c@ 31 <> throw drop .s
+    s" 00129" drop \-escape, here 1- c@ 10 <> throw drop .s
+    s" a" drop \-escape, here 1- c@ 7 <> throw drop .s
     \"-parse " s" " str= 0= throw .s
     \"-parse \a\b\c\e\f\n\r\t\v\100\x40xabcde" dump
     s\" \a\bcd\e\fghijklm\12op\"\rs\tu\v" \-escape-table over str= 0= throw
