@@ -36,9 +36,9 @@ Defer +field
 \ exactly field-like behavior.  Objects, locals, etc.
 \ Allow them to plug into +field.
 
-: standard:field ( -- )
-    \g set +field to standard behavior
-    ['] standard+field IS +field ;
+defer standard:field ( -- )
+\g set +field to standard behavior
+:noname  ['] standard+field IS +field ; is standard:field
 
 standard:field
 

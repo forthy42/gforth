@@ -1929,6 +1929,20 @@ u2 = r.n2;
  BEGIN  dup  WHILE  over c@ bl >   WHILE  1 /string
  REPEAT  THEN  nip - ;
 
+scan	 ( c_addr1 u1 c -- c_addr2 u2 )	gforth	scan
+c_addr2 = memchr(c_addr1, c, u1);
+if(!c_addr2) {
+  c_addr2 = c_addr1 + u1;
+  u2 = 0;
+} else {
+  u2 = (c_addr1+u1)-c_addr2;
+}
+
+skip	( c_addr1 u1 c -- c_addr2 u2 )	gforth	skip
+while((u1) && (*c_addr1 == c)) { u1--; c_addr1++; };
+c_addr2 = c_addr1;
+u2 = u1;
+
 aligned	( c_addr -- a_addr )	core
 "" @i{a-addr} is the first aligned address greater than or equal to @i{c-addr}.""
 a_addr = (Cell *)((((Cell)c_addr)+(sizeof(Cell)-1))&(-sizeof(Cell)));

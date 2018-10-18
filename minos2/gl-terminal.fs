@@ -133,7 +133,7 @@ $ffbfbfbf le-l, \ dimm White
 Variable color-index
 Variable error-color-index
 $704000 dup color-index ! error-color-index !
-Variable std-bg
+Variable std-bg standard:field
 1 pad ! pad c@ [IF] \ little endian
     2 cfield: fg-field
     cfield: bg-field drop

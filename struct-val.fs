@@ -23,10 +23,8 @@ Defer +field,
     @ + ;
 opt: drop @ ?dup-IF ['] lit+ peephole-compile, , THEN ;
 
-warnings @ warnings off
-: standard:field ( -- )
-    standard:field ['] standard+field, IS +field, ;
-warnings !
+:noname ( -- )
+    defers standard:field ['] standard+field, IS +field, ; is standard:field
 
 standard:field
 

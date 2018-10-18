@@ -144,28 +144,32 @@ has? ec has? primcentric 0= and [IF]
 
 \ (word)                                               22feb93py
 
-: scan   ( addr1 n1 char -- addr2 n2 ) \ gforth
-    \G skip all characters not equal to char
-    >r
-    BEGIN
-	dup
-    WHILE
-	over c@ r@ <>
-    WHILE
-	1 /string
-    REPEAT  THEN
-    rdrop ;
-: skip   ( addr1 n1 char -- addr2 n2 ) \ gforth
-    \G skip all characters equal to char
-    >r
-    BEGIN
-	dup
-    WHILE
-	over c@ r@  =
-    WHILE
-	1 /string
-    REPEAT  THEN
-    rdrop ;
+[IFUNDEF] scan
+    : scan   ( addr1 n1 char -- addr2 n2 ) \ gforth
+	\G skip all characters not equal to char
+	>r
+	BEGIN
+	    dup
+	WHILE
+		over c@ r@ <>
+	    WHILE
+		    1 /string
+	    REPEAT  THEN
+	rdrop ;
+[THEN]
+[IFUNDEF] skip
+    : skip   ( addr1 n1 char -- addr2 n2 ) \ gforth
+	\G skip all characters equal to char
+	>r
+	BEGIN
+	    dup
+	WHILE
+		over c@ r@  =
+	    WHILE
+		    1 /string
+	    REPEAT  THEN
+	rdrop ;
+[THEN]
 
 \ digit?                                               17dec92py
 

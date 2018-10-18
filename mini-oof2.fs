@@ -54,8 +54,7 @@ opt: drop @ postpone o#+ , ;
   dup >osize 2@ ['] var IS +field  ['] o+field, IS +field, ;
 : end-class  ( class methods vars "name" -- )
   , dup , here >r 0 U+DO ['] default-method defer@ , cell +LOOP
-  dup r@ swap >methods @ move  standard:field
-  r> Value ;
+  dup r@ swap >methods @ move  r> Value ;
 : >vt ( class "name" -- addr )  ' >body @ + ;
 : :: ( class "name" -- ) >vt @ compile, ;
 0 cells , 0 cells ,  here Value object
