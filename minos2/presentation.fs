@@ -1,23 +1,22 @@
-\ Presentation on MINOS2 made in MINOS2
+\ Presentation on ΜΙΝΩΣ2 made in ΜΙΝΩΣ2
 
-\ Copyright (C) 2017 Free Software Foundation, Inc.
+\ Copyright (C) 2018 Bernd Paysan
 
-\ This file is part of Gforth.
 
-\ Gforth is free software; you can redistribute it and/or
-\ modify it under the terms of the GNU General Public License
-\ as published by the Free Software Foundation, either version 3
-\ of the License, or (at your option) any later version.
+\ This program is free software: you can redistribute it and/or modify
+\ it under the terms of the GNU Affero General Public License as published by
+\ the Free Software Foundation, either version 3 of the License, or
+\ (at your option) any later version.
 
 \ This program is distributed in the hope that it will be useful,
 \ but WITHOUT ANY WARRANTY; without even the implied warranty of
 \ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-\ GNU General Public License for more details.
+\ GNU Affero General Public License for more details.
 
-\ You should have received a copy of the GNU General Public License
-\ along with this program. If not, see http://www.gnu.org/licenses/.
+\ You should have received a copy of the GNU Affero General Public License
+\ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require widgets.fs
+require minos2/widgets.fs
 
 [IFDEF] android
     hidekb also android >changed hidestatus >changed previous
@@ -25,243 +24,46 @@ require widgets.fs
 
 also minos
 
-dpy-w @ s>f 42e f/ fround FValue fontsize#
-fontsize# 70% f* fround FValue smallsize#
-fontsize# f2* FValue largesize#
-dpy-h @ s>f dpy-w @ s>f f/ .42e f/ FValue baselinesmall#
-dpy-h @ s>f dpy-w @ s>f f/ .33e f/ FValue baselinemedium#
-dpy-w @ s>f 1280e f/ FValue pixelsize#
+ctx 0= [IF]  window-init  [THEN]
+
+require minos2/font-style.fs
 
 : update-size# ( -- )
-    dpy-w @ s>f 42e f/ fround to fontsize#
-    fontsize# 2 3 fm*/ fround to smallsize#
-    fontsize# f2* to largesize#
-    dpy-h @ s>f dpy-w @ s>f f/ .42e f/ to baselinesmall#
-    dpy-h @ s>f dpy-w @ s>f f/ .33e f/ to baselinemedium#
+    dpy-w @ s>f 42e f/ fround to font-size#
+    font-size# 16e f/ m2c:curminwidth% f!
+    dpy-h @ s>f dpy-w @ s>f f/ 45% f/ font-size# f* fround to baseline#
     dpy-w @ s>f 1280e f/ to pixelsize# ;
 
-also freetype-gl
+update-size#
 
-[IFDEF] android
-    "/system/fonts/DroidSans.ttf"
-[ELSE]
-    "/usr/share/fonts/truetype/LiberationSans-Regular.ttf"
-    2dup file-status nip [IF]
-	2drop "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
-	2dup file-status nip [IF]
-	    2drop "/usr/share/fonts/truetype/NotoSans-Regular.ttf"
-	    2dup file-status nip [IF]
-		2drop "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"
-	    [THEN]
-	[THEN]
-    [THEN]
-[THEN]
-2dup file-status throw drop 2Constant latin-font
-
-[IFDEF] android
-    "/system/fonts/DroidSansMono.ttf"
-[ELSE]
-    "/usr/share/fonts/truetype/LiberationMono-Regular.ttf"
-    2dup file-status nip [IF]
-	2drop "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf"
-	2dup file-status nip [IF]
-	    2drop "/usr/share/fonts/truetype/NotoSans-Regular.ttf"
-	    2dup file-status nip [IF]
-		2drop "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"
-	    [THEN]
-	[THEN]
-    [THEN]
-[THEN]
-2dup file-status throw drop 2Constant mono-font
-
-[IFDEF] android
-    "/system/fonts/DroidSans.ttf"
-[ELSE]
-    "/usr/share/fonts/truetype/LiberationSans-Italic.ttf"
-    2dup file-status nip [IF]
-	2drop "/usr/share/fonts/truetype/liberation/LiberationSans-Italic.ttf"
-	2dup file-status nip [IF]
-	    2drop "/usr/share/fonts/truetype/NotoSans-Italic.ttf"
-	    2dup file-status nip [IF]
-		2drop "/usr/share/fonts/truetype/noto/NotoSans-Italic.ttf"
-	    [THEN]
-	[THEN]
-    [THEN]
-[THEN]
-2dup file-status throw drop 2Constant italic-font
-
-[IFDEF] android
-    "/system/fonts/DroidSansFallback.ttf"
-    2dup file-status nip [IF]
-	2drop "/system/fonts/NotoSansSC-Regular.otf" \ for Android 6
-	2dup file-status nip [IF]
-	    2drop "/system/fonts/NotoSansCJK-Regular.ttc" \ for Android 7
-	[THEN]
-    [THEN]
-[ELSE]
-    "/usr/share/fonts/truetype/gkai00mp.ttf"
-    2dup file-status nip [IF]
-	2drop "/usr/share/fonts/truetype/arphic-gkai00mp/gkai00mp.ttf"
-	2dup file-status nip [IF]
-	    "/usr/share/fonts/truetype/NotoSerifSC-Regular.otf"
-	    2dup file-status nip [IF]
-		2drop "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
-	    [THEN]
-	[THEN]
-    [THEN]
-[THEN]
-2dup file-status throw drop 2constant chinese-font
-
-0 0
-[IFDEF] android \ system default is noto-emoji
-    2drop "/system/fonts/SamsungColorEmoji.ttf"
-    2dup file-status nip [IF]
-	2drop "/system/fonts/NotoColorEmoji.ttf"
-	2dup file-status nip [IF]
-	    2drop 0 0
-	[THEN]
-    [THEN]
-[ELSE] \ noto-emoji, emojione, twemoji in that order
-    2drop "/usr/share/fonts/truetype/NotoColorEmoji.ttf"
-    2dup file-status nip [IF]
-	2drop "/usr/share/fonts/truetype/emoji/NotoColorEmoji.ttf"
-	2dup file-status nip [IF]
-	    2drop "/usr/share/fonts/truetype/emojione-android.ttf"
-	    2dup file-status nip [IF]
-		2drop "/usr/share/fonts/truetype/emoji/emojione-android.ttf"
-		2dup file-status nip [IF]
-		    2drop "/usr/share/fonts/truetype/TwitterColorEmojiv2.ttf
-		    2dup file-status nip [IF]
-			2drop "/usr/share/fonts/truetype/emoji/TwitterColorEmojiv2.ttf
-			2dup file-status nip [IF]
-			    2drop 0 0
-			[THEN]
-		    [THEN]
-		[THEN]
-	    [THEN]
-	[THEN]
-    [THEN]
-[THEN]
-2dup d0<> [IF] 2constant emoji-font [ELSE] 2drop [THEN]
-	
-
-atlas fontsize# latin-font open-font   Value font1
-atlas fontsize# mono-font  open-font   Value font1m
-atlas smallsize# latin-font open-font  Value font1s
-atlas largesize# latin-font open-font  Value font1l
-atlas fontsize# italic-font open-font  Value font1i
-atlas fontsize# chinese-font open-font Value font2
-[IFDEF] emoji-font
-    atlas-bgra fontsize# emoji-font open-font Value font-e
-[THEN]
-previous
-
-$000000FF Value x-color
-font1 Value x-font
-largesize# FValue x-baseline
-: small font1s to x-font ;
-: medium font1 to x-font ;
-0 warnings !@
-: italic font1i to x-font ;
-warnings ! \ we already have italic for ANSI
-: mono   font1m to x-font ;
-: large font1l to x-font ;
-: chinese font2 to x-font ;
-: blackish $000000FF to x-color ;
-: dark-blue $0000bFFF to x-color ;
-0e FValue x-border
-: }}text ( addr u -- o )
-    text new >o x-font text! x-color to text-color  x-border to border o o> ;
-: }}smalltext ( addr u -- o )
-    text new >o font1s text! x-color to text-color  x-border to border o o> ;
-: }}emoji ( addr u -- o )
-    emoji new >o font-e text! $FFFFFFFF to text-color  x-border to border o o> ;
-: }}edit ( addr u -- o )
-    edit new >o x-font edit! x-color to text-color  x-border to border o o> ;
-: /center ( o -- o' )
-    >r {{ glue*1 }}glue r> glue*1 }}glue }}h box[] >o
-    x-baseline to baseline o o> ;
-: /left ( o -- o' )
-    >r {{ r> glue*1 }}glue }}h box[] >o
-    x-baseline to baseline o o> ;
-: \\ }}text /left ;
-: e\\ }}emoji >r }}text >r {{ r> r> glue*1 }}glue }}h box[] >o
-    x-baseline to baseline o o> ;
-: /right ( o -- o' )
-    >r {{ glue*1 }}glue r> }}h box[] >o
-    x-baseline to baseline o o> ;
-: /flip ( o -- o )
-    >o box-hflip# to box-flags o o> ;
-: /flop ( o -- o )
-    >o 0 to box-flags o o> ;
-: }}image-file ( xt addr u r -- o glue-o ) pixelsize# f*
-    2 pick execute
-    load-texture glue new >o
-    s>f fover f* vglue-c df!
-    s>f       f* hglue-c df! o o> dup >r
-    $ffffffff rot }}image r> ;
-: }}image-tex ( xt glue -- o )
-    $ffffffff rot }}image ;
-
-glue new Constant glue-left
-glue new Constant glue-right
-glue new Constant glue*wh
-glue new Constant glue*b1
-glue new Constant glue*b2
-
-: update-glue
-    glue*wh >o 0g 0g dpy-w @ s>f smallsize# f2* f- hglue-c glue!
-    0glue dglue-c glue! 1glue vglue-c glue! o>
-    glue*b1 >o dpy-w @ s>f .12e f* 0g 0g hglue-c glue! o>
-    glue*b2 >o dpy-w @ s>f .20e f* 0g 0g hglue-c glue! o> ;
-
-update-glue
-
-: b1 ( addr1 u1 -- o )
-    dark-blue }}text >r
-    {{ glue*b1 }}glue {{ glue*1 }}glue r> }}h box[] }}z box[] ;
-: b2 ( addr1 u1 -- o )
-    dark-blue }}text >r
-    {{ glue*b2 }}glue {{ glue*1 }}glue r> }}h box[] }}z box[] ;
-: bb\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
-    2swap b1 >r
-    blackish }}text >r
-    {{ r> r> swap glue*1 }}glue }}h box[] >o
-    x-baseline to baseline o o> ;
-: bbe\\ ( addr1 u1 addr2 u2 addr3 u3 -- o ) \ blue black emoji newline
-    2rot b1 >r
-    2swap blackish }}text >r
-    }}emoji >r
-    {{ r> r> r> swap rot glue*1 }}glue }}h box[] >o
-    x-baseline to baseline o o> ;
-: b2\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
-    2swap b2 >r
-    blackish }}text >r
-    {{ r> r> swap glue*1 }}glue }}h box[] >o
-    x-baseline to baseline o o> ;
-: b2i\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
-    2swap b2 >r
-    blackish italic }}text >r
-    {{ r> r> swap glue*1 }}glue }}h box[] >o
-    x-baseline to baseline o o> ;
-: \LaTeX ( -- )
-    "L" }}text
-    "A" }}smalltext >o fontsize# fdup -0.23e f* to raise -0.3e f* to kerning o o>
-    "T" }}text >o fontsize# -0.1e f* to kerning o o>
-    "E" }}text >o fontsize# -0.23e f* fdup fnegate to raise to kerning o o>
-    "X" }}text >o fontsize# -0.1e f* to kerning o o> ;
+require minos2/text-style.fs
 
 Variable slides[]
 Variable slide#
+
+0 Value m2-img
+
 : >slides ( o -- ) slides[] >stack ;
 
-: glue0 ( -- )
-    glue-left  >o 0glue hglue-c glue! o>
-    glue-right >o 0glue hglue-c glue! o> ;
+glue ' new static-a with-allocater Constant glue-left
+glue ' new static-a with-allocater Constant glue-right
+
+: glue0 ( -- ) 0e fdup
+    [ glue-left  .hglue-c ]L df!
+    [ glue-right .hglue-c ]L df! ;
+: trans-frame ( o -- )
+    >o $00000000 to frame-color o> ;
+: solid-frame ( o -- )
+    >o $FFFFFFFF to frame-color o> ;
 : !slides ( nprev n -- )
     update-size# update-glue
+    over slide# !
     slides[] $[] @ /flip drop
-    dup slide# ! slides[] $[] @ /flop drop glue0 ;
+    slides[] $[] @ /flop drop glue0 ;
+: fade-img ( r0..1 img1 img2 -- ) >r >r
+    $FF fm* f>s $FFFFFF00 or dup
+    r> >o to frame-color parent-w .parent-w /flop drop o> invert $FFFFFF00 or
+    r> >o to frame-color parent-w .parent-w /flop drop o> ;
 : anim!slides ( r0..1 n -- )
     slides[] $[] @ /flop drop
     fdup fnegate dpy-w @ fm* glue-left  .hglue-c df!
@@ -270,16 +72,17 @@ Variable slide#
 : prev-anim ( n r0..1 -- )
     dup 0<= IF  drop fdrop  EXIT  THEN
     fdup 1e f>= IF  fdrop
-	dup 1- swap !slides  EXIT
+	dup 1- swap !slides +sync +config  EXIT
     THEN
-    sin-t 1e fswap f- 1- anim!slides +sync ;
+    1e fswap f-
+    1- sin-t anim!slides +sync +config ;
 
 : next-anim ( n r0..1 -- )
     dup slides[] $[]# 1- u>= IF  drop fdrop  EXIT  THEN
     fdup 1e f>= IF  fdrop
-	dup 1+ swap !slides  EXIT
+	dup 1+ swap !slides +sync +config  EXIT
     THEN
-    sin-t 1+ anim!slides +sync ;
+    1+ sin-t anim!slides +sync +config ;
 
 1e FValue slide-time%
 
@@ -291,7 +94,7 @@ Variable slide#
     slide# @ ['] next-anim >animate ;
 
 : slide-frame ( glue color -- o )
-    smallsize# }}frame ;
+    font-size# 70% f* }}frame ;
 
 box-actor class
     \ sfvalue: s-x
@@ -320,6 +123,18 @@ end-class slide-actor
 	k-next    of  next-slide  endof
 	k-volup   of  prev-slide  endof
 	k-voldown of  next-slide  endof
+	s-k3      of  1e ambient% sf!
+	    Ambient 1 ambient% opengl:glUniform1fv  +sync endof
+	k-f3      of  ambient% sf@ 0.1e f+ 1e fmin  ambient% sf!
+	    Ambient 1 ambient% opengl:glUniform1fv  +sync endof
+	k-f4      of  ambient% sf@ 0.1e f- 0e fmax  ambient% sf!
+	    Ambient 1 ambient% opengl:glUniform1fv  +sync endof
+	s-k5      of  1e saturate% sf!
+	    Saturate 1 saturate% opengl:glUniform1fv  +sync endof
+	k-f5      of  saturate% sf@ 0.1e f+ 3e fmin saturate% sf!
+	    Saturate 1 saturate% opengl:glUniform1fv  +sync endof
+	k-f6      of  saturate% sf@ 0.1e f- 0e fmax saturate% sf!
+	    Saturate 1 saturate% opengl:glUniform1fv  +sync endof
 	[ box-actor :: ekeyed ]  EXIT
     endcase ; slide-actor to ekeyed
 \ :noname ( $xy b -- )  dup 1 > IF
@@ -338,6 +153,11 @@ end-class slide-actor
 \     ELSE \ to the left
 \ 	slide# @ next-anim
 \     THEN ; slide-actor is touchmove
+:noname ( $xy b -- ) 2dup [ box-actor :: touchmove ] drop
+    xy@ dpy-h @ s>f fswap f- dpy-h @ 2/ fm/ lightpos-xyz sfloat+ sf!
+    dpy-w @ s>f f- dpy-w @ 2/ fm/ lightpos-xyz sf!
+    3.0e lightpos-xyz 2 sfloats + sf!
+    LightPos 1 lightpos-xyz opengl:glUniform3fv  +sync ; slide-actor is touchmove
 \ :noname ( $xy b -- )  dup 1 > IF
 \ 	[ box-actor :: touchup ] EXIT
 \     THEN  2drop
@@ -353,15 +173,15 @@ glue-right >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 tex: minos2
 ' minos2 "net2o-minos2.png" 0.666e }}image-file Constant minos2-glue
 
-: minos2-img ( -- o )
-    x-baseline 0e to x-baseline
-    {{
-    ['] minos2 minos2-glue }}image-tex /right
-    glue*1 }}glue
-    }}v outside[] >o fontsize# f2/ to border o o>
-    to x-baseline ;
-: pres-frame ( color -- o1 o2 )
-    glue*wh swap slide-frame dup .button1 simple[] ;
+: logo-img ( xt xt -- o o-img ) 2>r
+    baseline# 0e to baseline#
+    {{ 2r> }}image-tex dup >r /right
+    glue*l }}glue
+    }}v outside[] >o font-size# f2/ to border o o>
+    to baseline# r> ;
+
+: pres-frame ( color -- o1 o2 ) \ drop $FFFFFFFF
+    color, glue*wh swap slide-frame dup .button1 simple[] ;
 
 {{
 {{ glue-left }}glue
@@ -370,243 +190,210 @@ tex: minos2
 {{
 $FFFFFFFF pres-frame
 {{
-dark-blue
-largesize# to x-baseline
-glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-large "MINOΣ2 — A GUI for net2o" }}text /center
-small "Widgets and Layout Engine" }}text /center
-glue*2 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-medium "Bernd Paysan" }}text /center
-"EuroForth 2017, Bad Vöslau" }}text /center
-glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-}}v box[] >o fontsize# to border o Value title-page o o>
+glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+"ΜΙΝΩΣ2 GUI" /title
+"Ein leichtgewichtiges GUI für Gforth und net2o" /subtitle
+glue*2 }}glue  \ ) $CCDDDD3F 4e }}frame dup .button1
+"Bernd Paysan" /author
+"Forth–Tagung 2018, Essen" /location
+glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+}}v box[] >o font-size# to border o Value title-page o o>
 }}z box[] dup >slides
 
 \ page 1
 {{
 $FFFFFFFF pres-frame
 {{
-dark-blue
-largesize# to x-baseline
-large "Motivation" }}text /center
-medium
-glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+"Motivation" /title
+glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 tex: bad-gateway
 ' bad-gateway "bad-gateway.png" 0.666e }}image-file
 Constant bgw-glue /center
-glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-}}v box[] >o fontsize# to border o o>
+glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+}}v box[] >bdr
 }}z box[] /flip dup >slides
 
 \ page 2
 {{
 $FF7F7FFF pres-frame
 {{
-dark-blue
-largesize# to x-baseline
-large "4 Years after Snowden" }}text /center
+"5 Jahre nach Snowden" /title
+"Was hat sich verändert?" \\
+\skip
+"Politik" /subsection
 blackish
-medium "What has changed?" \\
-dark-blue "Politics " \\
-fontsize# baselinesmall# f* to x-baseline
-blackish
-"    Fake News/Hate Speech as excuse for censorship #NetzDG" "🤦" e\\
-"    Crypto Wars rebranded as “reasonable encryption”" "🤦🤦" e\\
-"    Legalize it (dragnet surveillance)" "🤦🤦🤦" e\\
-"    Kill the link (EuGH and LG Humbug)" "🤦🤦🤦🤦" e\\
-"    Privacy: nobody is forced to use the Interwebs (Jim Sensenbrenner)" "🤦🤦🤦🤦🤦" e\\
-"    “Crypto” now means BitCoin" "🤦" e\\
-dark-blue "Competition" \\
-blackish
-"    faces Stasi–like Zersetzung (Tor project)" \\
-dark-blue "Solutions" \\
-blackish
-"    net2o starts becoming useable" \\
-glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-}}v box[] >o o Value snowden-page fontsize# to border o o>
-}}z box[] /flip dup >slides
-
-\ page 3
-{{
-$BFFFBFFF pres-frame
-{{
-largesize# to x-baseline
-large dark-blue "Outlook from 2013" }}text /center
-medium blackish
-"•  The next presentation should be rendered with MINOΣ2" \\
-fontsize# baselinesmall# f* to x-baseline
-"•  Texts, videos, and images should be get with net2o, shouldn’t be on the device" \\
-"•  Typesetting engine with boxes and glues, line breaking and hyphenation missing" \\
-"•  a lot less classes than MINOΣ — but more objects" \\
-"•  add a zbox for vertical layering" \\
-"•  integrated animations" \\
-"•  combine the GLSL programs into one program?" \\
-glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-}}v box[] >o fontsize# to border o o>
-}}z box[] /flip dup >slides
-
-\ page 4
-{{
-$BFBFFFFF pres-frame
-{{
-largesize# to x-baseline
-large dark-blue "MINOΣ2 vs. MINOΣ" }}text /center
-medium blackish
-"Rendering:" " OpenGL (ES) instead of Xlib, Vulkan backend planned" b2\\
-fontsize# baselinesmall# f* to x-baseline
-"Coordinates:" " Single float instead of integer, origin bottom left (Xlib: top left)" b2\\
-{{ "Typesetting:" b2 blackish
-" Boxes&Glues closer to " }}text
-\LaTeX
-" — including ascender&descender" }}text glue*1 }}h box[]
->o x-baseline to baseline o o>
-"" " Glues can shrink, not just grow" b2\\
-"Object System:" " Mini–OOF2 instead of BerndOOF" b2\\
-"Class number:" " Fewer classes, more combinations" b2\\
-glue*1 }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-}}v box[] >o fontsize# to border o o>
+"  Fake News/Hate Speech sind jetzt Ausreden für Zensur #NetzDG" "🤦" e\\
+"  Die Crypto Wars heißen jetzt “reasonable encryption”" "🤦🤦" e\\
+"  Legalize it (Schleppnetzüberwachung)" "🤦🤦🤦" e\\
+"  Der Link ist immer noch nicht ganz tot! (EuGH und LG Humbug)" "🤦🤦🤦🤦" e\\
+"  Privacy: Niemand muss das Interwebs benutzen (Jim Sensenbrenner)" "🤦🤦🤦🤦🤦" e\\
+"  “Crypto” bedeutet nun BitCoin" "🤦🤦🤦🤦🤦🤦" e\\
+\skip
+"Mitbewerber" /subsection
+"  Stasi–artige Zersetzung (Tor project)" \\
+"  Cambridge Analytica–Skandal (Facebook)" \\
+\skip
+"Lösungen" /subsection
+"  net2o fängt an, benutztbar zu werden" \\
+glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+}}v box[] >o o Value snowden-page font-size# to border o o>
 }}z box[] /flip dup >slides
 
 \ page 5
 {{
+$BFBFFFFF pres-frame
 {{
-$FFBFFFFF pres-frame
-{{
-largesize# to x-baseline
-large dark-blue "MINOΣ2 Widgets" }}text /center
-medium blackish
-"Design principle is a Lego–style combination of many extremely simple objects" \\
-fontsize# baselinesmall# f* to x-baseline
-"actor" " base class that reacts on all actions (clicks, touchs, keys)" bb\\
-"widget" " base class for all visible objects" bb\\
-{{ "edit" b1 blackish " editable text element " }}text
-chinese "中秋节快乐！" }}edit dup Value edit-field glue*1 }}glue }}h edit-field edit[] >o x-baseline to baseline o o>
-medium "glue" " base class for flexible objects" bb\\
-"tile" " colored rectangle" bb\\
-"frame" " colored rectangle with borders" bb\\
-"text" " text element" bb\\
-[IFDEF] emoji-font
-    "emoji" " emoji element " "😀🤭😁😂😇😈🙈🙉🙊💓💔💕💖💗💘🍺🍻🎉🎻🎺🎷" bbe\\
-[ELSE]
-    "emoji" " emoji element (no emoji font found)" bb\\
-[THEN]
-"icon" " image from an icon texture" bb\\
-"image" " larger image" bb\\
-"animation" " action for animations" bb\\
-"canvas" " vector graphics (TBD)" bb\\
-glue*1 }}glue
-}}v box[] >o fontsize# to border o o>
-}}z box[]
-tex: vp1 glue*1 ' vp1 }}vp vp[]
-/flip dup >slides
+"ΜΙΝΩΣ2–Technologie" /title
+"ΜΙΝΩΣ2 ist unterhalb des DOM–Layers" \\
+\skip
+vt{{
+"Rendering: " "OpenGL (ES), Vulkan backend möglich" b\\
+"Font nach Textur: " "Freetype–GL (mit eigenen Verbesserungen)" b\\
+"Image nach Textur: " "SOIL2 (TBD: AV1 photo?)" b\\
+"Video nach Textur: " "OpenMAX AL (Android), gstreamer für Linux (geplant)" b\\
+"Koordinaten: " "Single float, Ursprung links unten" b\\
+{{ "Typesetting: " b0 blackish
+"Boxes & Glues ähnlich wie " }}text
+\LaTeX
+" — mit Ober– & Unterlängen" }}text glue*l }}glue }}h box[] >bl
+"" "Glues können schrumpfen, nicht nur wachsen" b\\
+"Object System: " "extrem leichtgewichtiges Mini–OOF2" b\\
+"Klassenzahl: " "Weniger Klassen, viele mögliche Kombinationen" b\\
+}}vt
+glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+}}v box[] >bdr
+}}z box[] /flip dup >slides
 
 \ page 6
 {{
-$BFFFFFFF pres-frame
+$FFBFFFFF pres-frame
 {{
-largesize# to x-baseline
-large dark-blue "MINOΣ2 Boxes" }}text /center
-medium blackish
-"Just like LaTeX: Boxes arrange widgets/text" \\
-fontsize# baselinemedium# f* to x-baseline
-"hbox" " Horizontal box, common baseline" bb\\
-fontsize# baselinesmall# f* to x-baseline
-"vbox" " Vertical box, minimum distance a baselineskip (of the hboxes below)" bb\\
-"zbox" " Overlapping several boxes" bb\\
-"grid" " Free widget placements (TBD)" bb\\
-fontsize# baselinemedium# f* to x-baseline
-"There will be some more variants for tables and wrapped paragraphs" \\
-glue*1 }}glue
-}}v box[] >o fontsize# to border o o>
-}}z box[] /flip dup >slides
+"ΜΙΝΩΣ2 Widgets" /title
+"Design-Prinzip ist eine Lego–artige Kombination aus vielen sehr einfachen Objekten" \\
+{{ {{ vt{{
+"actor " "Basis–Klasse, die auf alle Aktionen reagiert (Klicks, Touch, Tasten)" b\\
+"widget " "Basis–Klasse für alle sichtbaren Objekte" b\\
+{{ "edit " b0 blackish "Editierbarer Text: " }}text
+"复活节快乐！" }}edit dup Value edit-field glue*l }}glue }}h edit-field ' true edit[] >bl
+\sans \latin \normal
+"glue " "Basis–Klasse für flexible Objekte" b\\
+"tile " "Farbiges Rechteck" b\\
+"frame " "Farbiges Rechteck mit Rand" b\\
+"text " "Text–Element+Emoji 😀🤭😁😂😇😈🙈🙉🙊💓💔💕💖💗💘🍺🍻🎉🎻🎺🎷" b\\
+"icon " "Bild aus der Icon–Textur" b\\
+"image " "Größeres Bild" b\\
+"animation " "Klasse für Animationen" b\\
+"canvas " "Vektor–Grafik (TBD)" b\\
+"video " "Video–Player (TBD)" b\\
+}}vt
+glue*l }}glue
+tex: vp0 glue*l ' vp0 }}vp vp[]
+$FFBFFFFF color, dup to slider-color to slider-fgcolor
+font-size# f2/ f2/ to slider-border
+dup font-size# f2/ fdup vslider
+}}h box[]
+}}v box[] >bdr
+}}z box[]
+/flip dup >slides
 
 \ page 7
 {{
-$FFFFBFFF pres-frame
+$BFFFFFFF pres-frame
 {{
-largesize# to x-baseline
-large dark-blue "MINOΣ2 Displays" }}text /center
-medium blackish
-"Render into different kinds of displays" \\
-fontsize# baselinemedium# f* to x-baseline
-"viewport" " Into a texture, used as viewport" bb\\
-fontsize# baselinesmall# f* to x-baseline
-"display" " To the actual display" bb\\
-glue*1 }}glue
-}}v box[] >o fontsize# to border o o>
+"ΜΙΝΩΣ2 Boxen" /title
+{{
+"Wie bei " }}text \LaTeX " werden Texte/Widgets in Boxen angeordnet" }}text glue*l }}h box[]
+>bl
+\skip
+vt{{
+"hbox " "Horizontale Box, gemeinsame Baseline" b\\
+"vbox " "Verticale Box, Mindestdistanz eine baselineskip (der eingebetteten Boxen)" b\\
+"zbox " "Mehrere Boxen überlappt" b\\
+"grid " "Frei plazierbare Widgets (TBD)" b\\
+"slider " "Horizontale und vertikale Slider (zusammengesetztes Objekt)" b\\
+\skip
+"Für Tabellen gibt es einen Hilfs–Glue, und formatierte Absätze sind auch geplant" \\
+}}vt
+{{ glue*l }}glue
+{{ $0000007F to x-color \tiny l"  Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. " }}i18n-text \bold "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit," }}text \regular " sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui " }}text \italic "dolorem ipsum quia dolor sit amet," }}text \regular " consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum " }}text \bold-italic "qui dolorem eum fugiat" }}text \regular " quo voluptas nulla pariatur?" }}text glue*l }}glue }}p cbl dpy-w @ 72% fm* dup .par-split /center
+glue*l }}glue }}v
+}}v box[] >bdr
 }}z box[] /flip dup >slides
 
 \ page 8
 {{
-$BFDFFFFF pres-frame
+$FFFFBFFF pres-frame
 {{
-largesize# to x-baseline
-large dark-blue "Minimize Draw Calls" }}text /center
-medium blackish
-"OpenGL wants as few draw–calls per frame, so different contexts are drawn" \\
-fontsize# baselinesmall# f* to x-baseline
-"in stacks with a draw–call each" \\
-fontsize# baselinemedium# f* to x-baseline
-"init" " Initialization round" bb\\
-fontsize# baselinesmall# f* to x-baseline
-"bg" " Background round" bb\\
-"icon" " draw items of the icon texture" bb\\
-"thumbnail" " draw items of the thumbnail texture" bb\\
-"image" " images with one draw call per image" bb\\
-"marking" " cursor/selection highlight round" bb\\
-"text" " text round" bb\\
-"emoji" " emoji round" bb\\
-glue*1 }}glue
-}}v box[] >o fontsize# to border o o>
+"ΜΙΝΩΣ2 Displays" /title
+"Rendern in verschiedene Arten von Displays" \\
+\skip
+vt{{
+"viewport " "In eine Textur, genutzt als Viewport" b\\
+"display " "Zum tatsächlichen Display" b\\
+}}vt
+glue*l }}glue
+}}v box[] >bdr
 }}z box[] /flip dup >slides
 
 \ page 9
 {{
-$D4AF37FF pres-frame
+$BFDFFFFF pres-frame
 {{
-largesize# to x-baseline
-large dark-blue "Bonus page: BlockChain" }}text /center
-medium blackish
-"Challenge" " Avoid double–spending" b2\\
-fontsize# baselinesmall# f* to x-baseline
-"State of the art:" " Proof of work" b2\\
-"Problem:" " Proof of work burns energy and GPUs" b2\\
-"Alternative 1:" " Proof of stake (money buys influence)" b2\\
-"Problem:" " Money corrupts, and corrupt entities misbehave" b2\\
-"Alternative 2:" " Proof of well–behaving" b2\\
-"How?" " Having signed many blocks in the chain" b2\\
-"Multiple signers" " Not only have one signer, but many" b2\\
-"Suspicion" " Don't accept transactions in low confidence blocks" b2\\
-glue*1 }}glue
-}}v box[] >o fontsize# to border o o>
+"Draw–Calls minimieren" /title
+"OpenGL möchte so wenig wie mögliche Draw–Calls pro Frame, also werden ver­schie­dene Contexte mit einem Draw–Call pro Stack gezeichnet" p\\
+\skip
+vt{{
+"init " "Initialisierungs–Runde" b\\
+"bg " "Hintergrund–Runde" b\\
+"icon " "Zeichne Elemente der Icon–Textur" b\\
+"thumbnail " "Zeichne Elemente der Thumbnail–Textur" b\\
+"image " "Zeichne Bilder mit einem Draw–Call pro Image" b\\
+"marking " "Cursor/Auswahl–Runde" b\\
+"text " "Text–Runde" b\\
+}}vt
+glue*l }}glue
+}}v box[] >bdr
 }}z box[] /flip dup >slides
 
-\ page 10
+\ page 11
 {{
 $FFFFFFFF pres-frame
 {{
-largesize# to x-baseline
-large dark-blue "Literature&Links" }}text /center
-medium blackish
-"Bernd Paysan " "net2o fossil repository" b2i\\
-fontsize# baselinesmall# f* to x-baseline medium
-mono "" "https://fossil.net2o.de/net2o/" b2\\
-glue*1 }}glue
-}}v box[] >o fontsize# to border o o>
+"Literatur & Links" /title
+vt{{
+"Bernd Paysan " "net2o fossil repository" bi\\
+"" "https://fossil.net2o.de/net2o/" bm\\
+"Bernd Paysan " "$quid cryptocurrency & SwapDragonChain" bi\\
+"" "https://squid.cash/" bm\\
+}}vt
+glue*l }}glue
+\ tex: qr-code
+\ ' qr-code "qr-code.png" 13e }}image-file drop /center
+\ qr-code nearest
+\ glue*l }}glue
+}}v box[] >bdr
 }}z box[] /flip dup >slides
 
 \ end
 glue-right }}glue
 }}h box[]
-minos2-img
+{{
+' minos2 minos2-glue  logo-img to m2-img
+}}z
 }}z slide[]
 to top-widget
 
-: !widgets ( -- ) top-widget .htop-resize ;
+also opengl
+
+: !widgets ( -- ) top-widget .htop-resize
+    1e ambient% sf! set-uniforms ;
+
+previous
 
 also [IFDEF] android android [THEN]
 
-: presentation ( -- )  1config
+: presentation ( -- )
+    1config
     [IFDEF] hidestatus hidekb hidestatus [THEN]
     !widgets widgets-loop ;
 
