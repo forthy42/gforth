@@ -82,7 +82,11 @@ DOES> ( x-key [addr] -- ekey )
 
 : resize-widgets ( w h -- )
     dpy-h ! dpy-w !  config-changed ;
-:noname  ic event look_chars $FF look_key comp_stat  XUtf8LookupString
+:noname  ic ?dup-IF
+	event look_chars $FF look_key comp_stat  XUtf8LookupString
+    ELSE
+	event look_chars $FF look_key comp_stat  XLookupString
+    THEN
     dup 1 = IF  look_chars c@ dup $7F = swap bl < or +  THEN \ we want the other delete
     ?dup-IF  look_chars swap top-act ?dup-IF  .ukeyed  ELSE  2drop  THEN
     ELSE   look_key l@ x-key>ekey# ?dup-IF

@@ -163,6 +163,7 @@ Variable font-path
 [IFDEF] android
     font-path+ /system/fonts
 [ELSE]
+    font-path+ /usr/share/fonts/ttf/
     font-path+ /usr/share/fonts/truetype/
     font-path+ /usr/share/fonts/truetype/noto
     font-path+ /usr/share/fonts/truetype/droid
