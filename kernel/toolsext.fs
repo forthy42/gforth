@@ -76,13 +76,14 @@ UNLOCK Tlast @ swap Tlast ! LOCK
   \G returns false if name is found in current search order
 
 : scanif ( -- )
-    countif off endif? off
+    countif off endif? off  current-sourcepos3 >r >r >r
     BEGIN
 	BEGIN
 	    parse-name dup  WHILE  scanif-r execute
-	    endif? @  UNTIL  EXIT  THEN  2drop
+	    endif? @  UNTIL  rdrop rdrop rdrop  EXIT  THEN  2drop
 	refill  WHILE
-	endif? @  UNTIL  EXIT  THEN
+	endif? @  UNTIL  rdrop rdrop rdrop  EXIT  THEN
+    r> r> r> source drop + 1 input-lexeme 2! loadline ! loadfilename# !
     s" unfinished [IF] at end of file" true ['] type ?warning
     endif? on ;
 

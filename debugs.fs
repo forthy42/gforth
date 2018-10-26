@@ -127,6 +127,7 @@ is ?warning
     dup >r name>string ." redefined " 2dup type ( c-addr u c-addr2 u2 )
     2over str= 0= if
 	."  with " 2dup type then
+    cr r@ name>view @ .sourceview ." : warning: original location"
     r> ;
 : shadow-num-warning ( c-addr u -- c-addr u )
     ." defined literal " 2dup type ."  as word" ;
