@@ -193,8 +193,10 @@ void addfileargs(char* filename)
   if(argfile==NULL) return; // no file, nothing to do
 
   while((line=fgetln(argfile, &n))) {
-    if(n > 0 && line[n-1]=='\n') n--;
-    addarg(line, n);
+    if(n > 0 && line[n-1]=='\n') {
+      n--;
+      addarg(line, n);
+    }
   }
 }
 
