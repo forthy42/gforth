@@ -45,6 +45,9 @@ create \-escape-table
     \ c-addr1 points at a char right after a '\', c-addr2 points right after
     \ the whole sequence, the translated chars are appended to the dictionary.
     dup c@
+    dup 'U' = if
+	drop char+ 6 16 parse-num xc, exit
+    endif
     dup 'u' = if
 	drop char+ 4 16 parse-num
 	dup $DC00 and $D800 = if
@@ -112,8 +115,9 @@ interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ gforth
 \G ", @code{\\} \, @code{\}[0-7]@{1,3@} octal numerical character value
 \G (non-standard), @code{\x}[0-9a-f]@{0,2@} hex numerical character value
 \G (standard only with two digits), @code{\u}[0-9a-f]@{4@} for unicode
-\G codepoints (surrogate pairs supported); a @code{\} before any other
-\G character is reserved.
+\G codepoints (auto-merges surrogate pairs), @code{\U}[0-9a-f]@{6@} for
+\G extended unicode code points; a @code{\} before any other character is
+\G reserved.
 
 :noname \"-parse type ;
 :noname postpone s\" postpone type ;

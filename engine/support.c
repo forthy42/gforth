@@ -266,8 +266,9 @@ void cmove_up(Char *c_from, Char *c_to, UCell u)
 Cell compare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
 {
   Cell n;
+  Cell umin = u1<u2 ? u1 : u2;
 
-  n = memcmp(c_addr1, c_addr2, u1<u2 ? u1 : u2);
+  n = (umin == 0) ? 0 : memcmp(c_addr1, c_addr2, umin);
   if (n==0)
     n = u1-u2;
   if (n<0)
