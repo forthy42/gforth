@@ -20,9 +20,7 @@
 cs-vocabulary harfbuzz \ needs to be case sensitive
 get-current also harfbuzz definitions
 
-e? os-type s" linux-android" string-prefix? [IF]
-    s" libtypeset.so" also c-lib open-path-lib drop previous
-[THEN]
+s" libtypeset.so" prefetch-lib
     
 include unix/harfbuzz.fs
 

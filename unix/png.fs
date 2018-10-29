@@ -1,8 +1,6 @@
 \ png library
 
-e? os-type s" linux-android" string-prefix? [IF]
-    s" libpng16.so" also c-lib open-path-lib drop previous
-[THEN]
+s" libpng16.so" prefetch-lib
 
 Vocabulary pnglib
 get-current also pnglib definitions

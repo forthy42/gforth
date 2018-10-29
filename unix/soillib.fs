@@ -1,9 +1,7 @@
 \ soil wrapper
 
 \ dummy load for Android
-e? os-type s" linux-android" string-prefix? [IF]
-    s" libsoil.so" also c-lib open-path-lib drop previous
-[THEN]
+s" libsoil.so" prefetch-lib
     
 Vocabulary soil
 

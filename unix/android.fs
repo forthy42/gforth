@@ -33,6 +33,8 @@ get-current also android definitions
 Defer akey
 
 c-library android
+    :noname open-path-lib drop ; is prefetch-lib
+
     \c #include <android/input.h>
     \c #include <android/keycodes.h>
     \c #include <android/native_window.h>
