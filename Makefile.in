@@ -58,7 +58,7 @@ PACKAGE_TARNAME= @PACKAGE_TARNAME@
 # ------------	Install Directories
 
 package = $(DESTDIR)
-VPATH = @srcdir@:.:unix:@srcdir@/unix:@srcdir@/test
+VPATH = @srcdir@:.
 prefix = @prefix@
 docdir= @docdir@
 exec_prefix = @exec_prefix@
@@ -630,9 +630,9 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 	doc/vmgen.dvi doc/vmgen.ps \
 	$(CONFIG_GEN) configure
 
-#search path patterhn
+#search path pattern
 
-vpath %.fs $(srcdir) $(srcdir)/unix $(srcdir)/test . unix
+vpath %.fs $(srcdir):.:$(srcdir)/unix:$(srcdir)/test:unix
 
 #standards.info recommends this:
 .SUFFIXES:
