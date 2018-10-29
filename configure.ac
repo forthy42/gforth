@@ -1418,17 +1418,6 @@ if test x$has_swig = xyes || test -f $srcdir/unix/png16-fsi.c; then
     AC_CHECK_HEADER(libpng16/png.h, SWIGMODULES="$SWIGMODULES png16.fs"
 		    SWIGLIBS="$SWIGLIBS png16.fs", ,)
 fi
-case "$SWIGLIBS"
-in
-    *png.fs*)
-	;;
-    *)
-	if test x$has_swig = xyes || test -f $srcdir/unix/pnglib-fsi.c; then
-	    AC_CHECK_HEADER(libpng/png.h, SWIGMODULES="$SWIGMODULES pnglib.fs"
-			    SWIGLIBS="$SWIGLIBS pnglib.fs", ,)
-	fi
-	;;
-esac
 if test x$has_swig = xyes || test -f $srcdir/unix/soil2-fsi.c; then
     AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
 		    SWIGLIBS="$SWIGLIBS soil2.fs", ,)
