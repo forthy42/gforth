@@ -10,6 +10,8 @@ extern struct _IO_FILE *stderr;
 #endif
 %}
 
+#define SWIG_FORTH_OPTIONS "no-prefix"
+
 #define __ANDROID__
 #define ANDROID
 #define XA_API

@@ -34,6 +34,8 @@
 %apply float { gfloat }
 %apply double { gdouble }
 
+#define SWIG_FORTH_GFORTH_LIBRARY "gstreamer-1.0"
+
 %include <gst/gst.h>
 %include <gst/glib-compat.h>
 %include <gst/gstenumtypes.h>

@@ -1,5 +1,5 @@
 // this file is in the public domain
-%module soil
+%module openvg
 %insert("include")
 %{
 #include "openvg.h"

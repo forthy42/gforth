@@ -20,12 +20,6 @@
 cs-vocabulary vulkan \ needs to be case sensitive
 get-current also vulkan definitions
 
-c-library vulkanlib
-    \c #include <vulkan/vulkan.h>
-
-    s" vulkan" add-lib
-    
-    include unix/vulkan.fs
-end-c-library
+include unix/vulkan.fs
 
 set-current

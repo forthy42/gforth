@@ -422,12 +422,12 @@ Sema gl-sema
 	also x11
 	: screen-wh ( -- rw rh )
 	    dpy XDefaultScreenOfDisplay >r
-	    r@ screen-mwidth  l@ s>f dpy-w @ r@ screen-width  l@ fm*/
-	    r@ screen-mheight l@ s>f dpy-h @ r> screen-height l@ fm*/ ;
+	    r@ Screen-mwidth  l@ s>f dpy-w @ r@ Screen-width  l@ fm*/
+	    r@ Screen-mheight l@ s>f dpy-h @ r> Screen-height l@ fm*/ ;
 	: screen-pwh ( -- w h ) \ w h in pixels
 	    dpy XDefaultScreenOfDisplay >r
-	    r@ screen-width  l@
-	    r> screen-height l@ ;
+	    r@ Screen-width  l@
+	    r> Screen-height l@ ;
     [ELSE]
 	: screen-wh ( -- rw rh )
 	    wl-metrics 2@ swap s>f s>f ;

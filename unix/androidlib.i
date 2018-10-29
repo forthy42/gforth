@@ -18,7 +18,7 @@ extern struct _IO_FILE *stderr;
 #define ANDROID
 #define __attribute__(x)
 #define __NDK_FPABI__
-#define SWIG_FORTH_OPTIONS "no-funptrs"
+#define SWIG_FORTH_OPTIONS "no-funptrs no-prefix"
 
 // exec: sed -e 's/\(c-function ANativeActivity_onCreate.*\)/\\ \1/g' -e 's/\(c-function AMotionEvent_getHistorical.*\)/\\ \1/g' -e 's/\(c-function AMotionEvent_getAxisValue.*\)/\\ \1/g' -e 's/\(c-function AMotionEvent_getButtonState.*\)/\\ \1/g' -e 's/\(c-function AMotionEvent_getToolType.*\)/\\ \1/g' -e 's/\(c-function ANativeWindow_fromSurfaceTexture.*\)/\\ \1/g' -e 's/\(c-function ANativeWindow_setBuffersTransform.*\)/\\ \1/g'
 

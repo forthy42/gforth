@@ -824,10 +824,13 @@ DEFER compile-wrapper-function ( -- )
 	lha,
     endif
     c-libs $init
-    vararg$ $init
     libcc$ $init libcc-include
-    ptr-declare $[]off ;
+;
+: end-libs ( -- )
+    ptr-declare $[]off
+    vararg$ $free ;
 clear-libs
+end-libs
 
 \ compilation wrapper
 
@@ -1061,6 +1064,6 @@ is 'cold
     \G Finish and (if necessary) build the latest C library interface.
     previous
     ['] compile-wrapper-function1 is compile-wrapper-function
-    compile-wrapper-function1 ;
+    compile-wrapper-function1 end-libs ;
 
 previous

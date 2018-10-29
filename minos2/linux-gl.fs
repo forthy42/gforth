@@ -80,8 +80,8 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     dpy XDefaultScreen to screen
     best-im to im  set-fontset
     dpy #38 0 XKeycodeToKeysym drop
-    screen-struct screen-width l@
-    screen-struct screen-height l@ ;
+    screen-struct Screen-width l@
+    screen-struct Screen-height l@ ;
 
 4 buffer: spot \ spot location, two shorts
 
@@ -367,7 +367,7 @@ previous
 
 ' noop handler-class to DoNull \ doesn't exist
 ' noop handler-class to DoOne  \ doesn't exit, either
-:noname  ic event look_chars $FF look_key comp_stat  XUtf8LookupString
+:noname  ic event look_chars $FF look_key comp_stat  Xutf8LookupString
     dup 1 = IF  look_chars c@ dup $7F = swap 8 = or +  THEN \ we want the other delete
     ?dup-IF  look_chars swap
     ELSE   look_key l@ x-key>ekey  THEN
@@ -567,7 +567,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 XWMHints buffer: WMhints
 
 : set-hint ( -- )  1 WMhints XWMHints-input l!
-    NormalState WMhints XWMhints-initial_state l!
+    NormalState WMhints XWMHints-initial_state l!
     [ InputHint StateHint or ] Literal
     WMhints XWMHints-flags !
     dpy win WMhints XSetWMHints drop ;

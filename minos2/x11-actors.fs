@@ -83,7 +83,7 @@ DOES> ( x-key [addr] -- ekey )
 : resize-widgets ( w h -- )
     dpy-h ! dpy-w !  config-changed ;
 :noname  ic ?dup-IF
-	event look_chars $FF look_key comp_stat  XUtf8LookupString
+	event look_chars $FF look_key comp_stat  Xutf8LookupString
     ELSE
 	event look_chars $FF look_key comp_stat  XLookupString
     THEN

@@ -20,23 +20,9 @@
 Vocabulary opengl
 get-current also opengl definitions
 
-c-library opengl
-    \c #define GL_GLEXT_PROTOTYPES
-    e? os-type s" cygwin" str= [IF]
-	\c #include <GL/gl.h>
-	\c #include <GL/glext.h>
-    [ELSE]
-	\c #include <GL/glx.h>
-	\c #include <GL/glext.h>
-    [THEN]
-    
-    s" GL" add-lib
-    
-    include unix/gl.fs
-    e? os-type s" cygwin" str= 0= [IF]
-	include unix/glx.fs
-    [THEN]
-
-end-c-library
+include unix/gl.fs
+e? os-type s" cygwin" str= 0= [IF]
+    include unix/glx.fs
+[THEN]
 
 previous set-current

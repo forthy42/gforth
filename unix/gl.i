@@ -13,6 +13,8 @@
 #define WINGDIAPI
 #define APIENTRY
 
+#define SWIG_FORTH_GFORTH_LIBRARY "GL"
+
 %apply long long { GLint64, GLint64EXT, GLuint64, GLuint64EXT };
 %apply long { GLsizeiptr, GLintptr, GLsizeiptrARB, GLintptrARB };
 %apply char { GLchar };

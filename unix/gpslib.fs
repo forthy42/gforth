@@ -20,14 +20,9 @@
 cs-vocabulary gps \ needs to be case sensitive
 get-current also gps definitions
 
-c-library gpslib
-    \c #include <gps.h>
+also c-lib s" n" vararg$ $! previous
 
-    s" gps" add-lib
-    s" n" vararg$ $!
-    
-    include unix/gps.fs
-end-c-library
+include unix/gps.fs
 
 set-current
 

@@ -1,5 +1,5 @@
 // this file is in the public domain
-%module gl
+%module vulkan
 %insert("include")
 %{
 #include <vulkan/vulkan.h>
@@ -16,3 +16,4 @@
 
 %include <vulkan/vk_platform.h>
 %include <vulkan/vulkan.h>
+%include <vulkan/vulkan_core.h>

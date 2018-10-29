@@ -8,4 +8,6 @@
 %apply long long { int64_t };
 %apply float { GLfloat };
 
+#define SWIG_FORTH_GFORTH_LIBRARY "GLX"
+
 %include <GL/glx.h>

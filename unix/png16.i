@@ -1,4 +1,4 @@
-%module png
+%module png16
 %insert("include")
 %{
 #include "libpng16/png.h"

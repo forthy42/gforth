@@ -334,7 +334,7 @@ UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
 
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i   \
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/pnglib.i	     \
-	unix/pnglib16.i unix/soil.i unix/soil2.i unix/xlib.i unix/ios-gles.i \
+	unix/png16.i unix/soil.i unix/soil2.i unix/xlib.i unix/ios-gles.i \
 	unix/ios-gles3.i unix/freetype-gl.i unix/wingdi.i unix/winuser.i     \
 	unix/wayland.i unix/gps.i unix/vulkan.i unix/harfbuzz.i unix/gst.i
 

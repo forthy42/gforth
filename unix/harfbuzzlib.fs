@@ -23,18 +23,7 @@ get-current also harfbuzz definitions
 e? os-type s" linux-android" string-prefix? [IF]
     s" libtypeset.so" also c-lib open-path-lib drop previous
 [THEN]
-
-c-library harfbuzzlib
-    \c #include <harfbuzz/hb.h>
-
-
-    e? os-type s" linux-android" string-prefix? [IF]
-	s" typeset" add-lib
-    [ELSE]
-	s" harfbuzz" add-lib
-    [THEN]
     
-    include unix/harfbuzz.fs
-end-c-library
+include unix/harfbuzz.fs
 
 set-current
