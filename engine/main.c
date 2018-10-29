@@ -2327,9 +2327,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"no-offset-im", no_argument, &offset_image, 0},
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
       {"debug", no_argument, &debug, 1},
-#ifdef HAVE_MCHECK
       {"debug-mcheck", no_argument, &debug_mcheck, 1},
-#endif
       {"diag", no_argument, NULL, 'D'},
       {"die-on-signal", no_argument, &die_on_signal, 1},
       {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
