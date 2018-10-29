@@ -632,7 +632,7 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 
 #search path patterhn
 
-vpath %.fs . unix $(srcdir) $(srcdir)/unix $(srcdir)/test
+vpath %.fs $(srcdir) $(srcdir)/unix $(srcdir)/test . unix
 
 #standards.info recommends this:
 .SUFFIXES:
