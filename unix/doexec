@@ -1,6 +1,8 @@
 #!/bin/sh
 # this file is in the public domain
 
+which gsed 2>/dev/null && alias sed=gsed
+
 if [ -f $2/${1%fs}i ]
 then
     execs=$(grep '^// exec:' $2/${1%fs}i | cut -f3- -d' ')

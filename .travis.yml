@@ -6,7 +6,8 @@ env:
   - M32=-m32
 language: c
 compiler: gcc
-sudo: true
+dist: trusty
+sudo: false
 before_install: ./install-deps.sh
 script:
   - ./autogen.sh
