@@ -1929,15 +1929,43 @@ u2 = r.n2;
  BEGIN  dup  WHILE  over c@ bl >   WHILE  1 /string
  REPEAT  THEN  nip - ;
 
-scan	 ( c_addr1 u1 c -- c_addr2 u2 )	gforth	scan
-while((u1) && (*c_addr1 != c)) { u1--; c_addr1++; };
-c_addr2 = c_addr1;
-u2 = u1;
+scan	 ( c_addr1 u1 c -- c_addr2 u2 )	gforth
+""Skip all characters not equal to c.  The result starts with c or is empty.""
+for (c_addr2=c_addr1; c_addr2!=c_addr1+u1 && *c_addr2 != c; c_addr2++)
+  ;
+u2 = (c_addr1+u1)-c_addr2;
+#if 0
+Char *c_addr3=memchr(c_addr1, c, u1);
+if (u2!=0 && c_addr3!=c_addr2)
+  fprintf(stderr,"\nscan: %p %ld %d -- %p %ld (memchr -> %p)",c_addr1,u1,c,c_addr2,u2,c_addr3);
+#endif
+:
+    >r
+    BEGIN
+        dup
+    WHILE
+        over c@ r@ <>
+    WHILE
+        1 /string
+    REPEAT  THEN
+    rdrop ;
 
-skip	( c_addr1 u1 c -- c_addr2 u2 )	gforth	skip
-while((u1) && (*c_addr1 == c)) { u1--; c_addr1++; };
-c_addr2 = c_addr1;
-u2 = u1;
+skip	( c_addr1 u1 c -- c_addr2 u2 )	gforth
+""Skip all characters equal to c.  The result starts with the first
+non-c character, or it is empty.""
+for (c_addr2=c_addr1; c_addr2!=c_addr1+u1 && *c_addr2 == c; c_addr2++)
+  ;
+u2 = (c_addr1+u1)-c_addr2;
+:
+    >r
+    BEGIN
+        dup
+    WHILE
+        over c@ r@  =
+    WHILE
+        1 /string
+    REPEAT  THEN
+    rdrop ;
 
 aligned	( c_addr -- a_addr )	core
 "" @i{a-addr} is the first aligned address greater than or equal to @i{c-addr}.""
