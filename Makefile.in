@@ -58,7 +58,7 @@ PACKAGE_TARNAME= @PACKAGE_TARNAME@
 # ------------	Install Directories
 
 package = $(DESTDIR)
-VPATH = @srcdir@:.:unix:@srcdir@/test
+VPATH = @srcdir@:.:unix:@srcdir@/unix:@srcdir@/test
 prefix = @prefix@
 docdir= @docdir@
 exec_prefix = @exec_prefix@
@@ -632,7 +632,7 @@ GEN_PRECIOUS = $(FORTH_GEN) $(KERNLS) \
 
 #search path patterhn
 
-vpath %.fs $(srcdir) $(srcdir)/unix
+vpath %.fs . unix $(srcdir) $(srcdir)/unix $(srcdir)/test
 
 #standards.info recommends this:
 .SUFFIXES:
