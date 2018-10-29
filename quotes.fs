@@ -118,6 +118,12 @@ interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ gforth
 \G codepoints (auto-merges surrogate pairs), @code{\U}[0-9a-f]@{8@} for
 \G extended unicode code points; a @code{\} before any other character is
 \G reserved.
+\G @*
+\G Note that @code{\x}XX produces raw bytes, while @code{\u}XXXX and
+\G @code{\U}XXXXXXXX produce code points for the current encoding.
+\G E.g., if we use UTF-8 encoding and want to encode @"a (code point
+\G U+00E4), you can write the letter @"a itself, or write @code{\xc3\xa4}
+\G (the UTF-8 bytes for this code point), @code{\u00e4}, or @code{\U000000e4}.
 
 :noname \"-parse type ;
 :noname postpone s\" postpone type ;
