@@ -9,11 +9,6 @@ Vocabulary soil
 
 get-current also soil definitions
 
-c-library soillib
-    s" SOIL" add-lib
-    \c #include "SOIL/SOIL.h"
-
-    include unix/soil.fs
-end-c-library
+include unix/soil.fs
 
 previous set-current
