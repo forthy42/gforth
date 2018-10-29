@@ -17,7 +17,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, see http://www.gnu.org/licenses/.
 
-set -x
 export GFORTH_ENV=off
 startup="-i @kernel_fi@ exboot.fs startup.fs @asm_fs@ @disasm_fs@"
 prefix=@prefix@
