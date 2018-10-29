@@ -7,7 +7,7 @@ env:
 language: c
 compiler: gcc
 dist: trusty
-sudo: false
+sudo: required
 before_install: ./install-deps.sh
 script:
   - ./autogen.sh
