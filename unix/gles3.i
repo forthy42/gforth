@@ -1,5 +1,5 @@
 // this file is in the public domain
-%module gles
+%module gles3
 %insert("include")
 %{
 #include <GLES3/gl3.h>
