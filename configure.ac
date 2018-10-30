@@ -1401,7 +1401,7 @@ if test x$has_swig = xyes || test -f $srcdir/unix/ios-gles3-fsi.c; then
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/jni-fsi.c; then
    AC_CHECK_HEADER(jni.h, SWIGMODULES="$SWIGMODULES jni.fs"
-		   SWIGLIBS="$SWIGLIBS jnilib.fs", ,)
+		   SWIGLIBS="$SWIGLIBS jni.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/openvg-fsi.c; then
    AC_CHECK_HEADER(openvg.h, SWIGMODULES="$SWIGMODULES openvg.fs", ,)
@@ -1425,7 +1425,7 @@ fi
 if test x$has_swig = xyes || test -f $srcdir/unix/soil-fsi.c; then
     AC_CHECK_LIB(SOIL,SOIL_load_image,
     AC_CHECK_HEADER(SOIL/SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
-		    SWIGLIBS="$SWIGLIBS soillib.fs", ,))
+		    SWIGLIBS="$SWIGLIBS soil.fs", ,))
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
     AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
