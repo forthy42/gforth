@@ -11,6 +11,7 @@ extern struct _IO_FILE *stderr;
 #endif
 %}
 
+#define SWIG_FORTH_GFORTH_LIBRARY "c"
 // #define SWIG_FORTH_OPTIONS ""
 
 #if defined(host_os_linux_android) || defined(host_os_linux_androideabi)
