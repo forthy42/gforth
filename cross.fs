@@ -4162,7 +4162,9 @@ Variable outfile-fd
 [IFDEF] #loc
     ' #loc alias #loc
 [ELSE]
-    : #loc 2drop parse-name 2drop ." #loc not supported" cr ;
+    false Value warned?
+    : #loc 2drop parse-name 2drop
+	warned? IF  ." #loc not supported" cr true to warned?  THEN ;
 [THEN]
 
 \ \ [IF] [ELSE] [THEN] ...				14sep97jaw
