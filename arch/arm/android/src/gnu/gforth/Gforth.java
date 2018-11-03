@@ -136,6 +136,7 @@ public class Gforth
     public Runnable rsecurescreenon;
     public Runnable rsecurescreenoff;
     public Runnable notifyer;
+    public Runnable startbrowser;
     public ProgressDialog progress;
     public String cameraPath;
 
@@ -547,6 +548,11 @@ public class Gforth
 		    Log.v(TAG, "done notification");
 		}
 	    };
+	startbrowser=new Runnable() {
+		public void run() {
+		    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(args0)));
+		}
+	    }
 	
 	recKeepalive = new BroadcastReceiver() {
 		@Override public void onReceive(Context context, Intent foo)
