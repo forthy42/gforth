@@ -823,10 +823,10 @@ warnings @ warnings off \ disable all those compile-only warnings
             [ ' some-flocal  >does-code ] literal of drop post-flocal endof
             [ ' some-wlocal  >does-code ] literal of drop post-wlocal endof
             [ ' some-xtlocal >does-code ] literal of drop post-xtlocal endof
-            [ ' some-caddr   >does-code ] literal of -48 throw endof
-            [ ' some-daddr   >does-code ] literal of -48 throw endof
-            [ ' some-faddr   >does-code ] literal of -48 throw endof
-            [ ' some-waddr   >does-code ] literal of -48 throw endof
+            [ ' some-caddr   >does-code ] literal of drop post-wlocal endof
+            [ ' some-daddr   >does-code ] literal of drop post-wlocal endof
+            [ ' some-faddr   >does-code ] literal of drop post-wlocal endof
+            [ ' some-waddr   >does-code ] literal of drop post-wlocal endof
         endcase
     then
     defers >postpone-replacer ;
