@@ -40,6 +40,11 @@
 @settitle Gforth Manual
 @c @syncodeindex pg cp
 
+@c Don't use UTF-8; it will produce a large number of non-ASCII chars.
+@c Instead, recode afterwards if necessary.
+@documentencoding ISO-8859-1
+
+
 @macro progstyle {}
 Programming style note:
 @end macro
