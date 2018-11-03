@@ -66,7 +66,7 @@ vmgen:		$(VMGEN_TEXI)
 		$(MAKEINFO) --html $<
 
 gforth.txt:	$(GFORTH_TEXI)
-		-$(MAKEINFO) --no-headers --no-split $< >gforth.txt
+		-$(MAKEINFO) --no-headers --no-split --enable-encoding $<|recode l1.. >gforth.txt
 
 vmgen.txt:	$(VMGEN_TEXI)
 		-$(MAKEINFO) --no-headers --no-split $< >vmgen.txt
