@@ -44,24 +44,25 @@ end-class outside-actor
 :noname ( rx ry -- flag )
     fdrop fdrop false ; outside-actor is inside?
 
-: !act ( o:widget actor -- o:widget )
-    to act o act >o to caller-w o> ;
 : outside[] ( o -- o )
     >o outside-actor new !act o o> ;
 
 actor class
 end-class simple-actor
 
-: simple-inside? ( rx ry -- flag )
-    caller-w >o
+: o-inside? ( o:widget rx ry -- flag )
     y f- fdup d f< h fnegate f> and
     x f- fdup w f< f0> and
-    and o> ;
+    and ;
+
+: simple-inside? ( rx ry -- flag )
+    caller-w .o-inside? ;
 ' simple-inside? simple-actor is inside?
 
 debug: event( \ +db event( \ )
+
 :noname { f: rx f: ry b n -- }
-    event( o hex. caller-w hex. ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
+    click( o hex. caller-w hex. ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
 :noname ( addr u -- )
     event( o hex. caller-w hex. ." keyed: " type cr )else( 2drop ) ; simple-actor is ukeyed
 :noname ( ekey -- )
@@ -95,6 +96,7 @@ end-class click-actor
     rot >o click-actor new >o to data is ck-action o o> !act o o> ;
 
 :noname ( rx ry b n -- )
+    click( o hex. ." is clicked, do-action " action-of ck-action xt-see cr )
     fdrop fdrop 1 and 0= swap 1 <= and IF  do-action  THEN
 ; click-actor is clicked
 :noname ( ukeyaddr u -- )
@@ -132,17 +134,33 @@ false value grab-move? \ set to true to grab moves
     >o parent-w ?dup-IF
 	recurse parent-w .act re-focus  THEN  o> ;
 
+: .parents ( o:widget -- )
+    parent-w ?dup-IF  >o recurse o>  THEN  o hex. name$ type space ;
+
 :noname ( rx ry b n -- )
-    event( o hex. caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
+    click( o hex. caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
     grab-move? IF
 	active-w ?dup-IF  .act .clicked  EXIT  THEN
     THEN
     fover fover inside? IF
 	o caller-w >o
-	[: { c-act } act IF  fover fover act .inside?
+	[: { c-act } act IF  fover fover o-inside? \ act .inside?
 		IF
+		    click( ." click passed through " .parents cr )
 		    c-act re-focus
-		    fover fover 2dup act .clicked  THEN  THEN
+		    fover fover 2dup act .clicked
+		ELSE
+		    click( ." click outside "
+		    fover fover o-inside?
+		    IF ." would be inside "  THEN  .parents cr )
+		THEN
+	    ELSE
+		fover fover o-inside? IF
+		    click( ." no click passed through " .parents cr )
+		ELSE
+		    click( ." no click outside " .parents cr )
+		THEN
+	    THEN
 	c-act ;] do-childs o> drop
     THEN  2drop fdrop fdrop ;
 box-actor is clicked
@@ -270,6 +288,7 @@ forward anim-del
 forward >animate
 
 :noname ( rx ry bmask n -- )
+    click( o hex. ." vp is clicked" cr )
     grab-move? o <> IF
 	fover fover inside? 0= IF  2drop fdrop fdrop  EXIT  THEN
     THEN
@@ -363,6 +382,7 @@ end-class vslider-actor
 	2drop
     THEN ; hslider-actor is touchmove
 :noname ( x y b n -- )
+    click( o hex. caller-w hex. ." slider click " fover f. fdup f. over . dup . cr )
     slide-vp .act anim-del
     1 and IF
 	drop fdrop caller-w .parent-w .childs[] $@ drop @ .w f- to slider-sxy
@@ -391,7 +411,7 @@ end-class vslider-actor
 	drop xy@ fnip >vslide
     ELSE  2drop  THEN ; vslider-actor is touchmove
 :noname ( x y b n -- )
-    event( o hex. caller-w hex. ." slider click " fover f. fdup f. over . dup . cr )
+    click( o hex. caller-w hex. ." slider click " fover f. fdup f. over . dup . cr )
     slide-vp .act anim-del
     1 and IF
 	drop fnip caller-w .parent-w .childs[] $@ cell- + @ .h f+
@@ -600,6 +620,7 @@ edit-terminal edit-out !
     endcase
 ; edit-actor is touchmove
 :noname ( o:actor rx ry b n -- )
+    click( o hex. caller-w hex. ." edit click " fover f. fdup f. over . dup . cr )
     dup 1 and IF  start-selection
     ELSE
 	false to grab-move?

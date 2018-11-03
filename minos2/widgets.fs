@@ -20,10 +20,9 @@
 \ A MINOS2 widget is composed of drawable elements, boxes and actors.
 \ to make things easier, neither drawable elements nor boxes need an actor.
 
-debug: time(
-debug: gui(
-\ +db time( \ )
-\ +db gui( \ )
+debug: time(  \ +db time( \ )
+debug: gui(   \ +db gui( \ )
+debug: click( \ +db click( \ )
 
 [IFUNDEF] no-file#
     2 Constant ENOENT
@@ -189,6 +188,7 @@ end-class helper-glue
 object class
     value: parent-w
     value: act
+    $value: name$ \ DOM name, for debugging and searching
     sfvalue: x
     sfvalue: y
     sfvalue: w
@@ -220,6 +220,10 @@ object class
     method !size ( -- ) \ set your own size
     method dispose-widget ( -- ) \ get rid of a widget
 end-class widget
+
+: name! ( o addr u -- )  2 pick >o to name$ o> ;
+: !act ( o:widget actor -- o:widget )
+    to act o act >o to caller-w o> ;
 
 :noname x y h f- w h d f+ ; widget is xywh
 :noname x y w h d ; widget is xywhd
@@ -463,9 +467,9 @@ end-class part-text
     2dup + >r dup t <> IF xc-trailing THEN 2dup + pos>fp
     firstflag IF  xc-leading over pos>fp to start1  THEN
     2drop
-    start1 o text-font text-color
-    class new >o to text-color to text-font to orig-text
-    to start to end o o>
+    start1 o text-font text-color act name$
+    class new >o to name$ to act to text-color to text-font to orig-text
+    to start to end o ( act >o dup to caller-w o> ) o>
     r> pos>fp ;
 : text-split ( firstflag rstart rx -- o rstart2 )
     part-text (text-split) ;
@@ -875,6 +879,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     childs[] $[]# dup start fm* to start
     start fdup floor f- { f: startx }
     hbox new { newbox }
+    act newbox >o to act o>
     start floor f>s U+DO
 	firstflag startx rw I childs[] $[] @ .split
 	0e { f: ow }
@@ -1000,9 +1005,9 @@ $10 stack: box-depth \ this $10 here is no real limit
 : }}vtop ( n1 .. nm -- vbox ) }} vbox new >o +childs 1 to baseline-offset o o> ;
 : }}z ( n1 .. nm -- zbox ) }} zbox new >o +childs o o> ;
 : }}p ( n1 .. nm -- parbox ) }}h parbox new >o to subbox subbox .par-init o o> ;
-: unbox ( parbox -- n1 .. nm )
+: unbox ( parbox -- n1 .. nm ) click( ." unbox " )
     >o baseline gap 0 childs[] $[] @ >o to gap to baseline o>
-    childs[] get-stack drop o> ;
+    childs[] get-stack 0 ?DO  I pick act swap click( dup hex. ) >o to act o>  LOOP o> click( cr ) ;
 
 \ tab helper glues
 
