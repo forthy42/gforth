@@ -217,6 +217,29 @@ $AD Constant 'soft-hyphen'
 	xchar+xy
     xs +LOOP  drop ;
 
+: render-us-string ( addr u mask -- )
+    penxy sf@ fround 1/2 f+ { f: x0 mask }
+    render-string
+    penxy dup sf@ fround 1/2 f+
+    sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
+    s"  " drop font font-select { ft } drop
+    ft font->t.i0
+    y ft texture_font_t-underline_position sf@
+    ft texture_font_t-descender sf@ 33% f* fround fmin f- { f: y0 }
+    ft texture_font_t-underline_thickness sf@
+    ft texture_font_t-size sf@ 5% f* fround fmax { f: y1 }
+    4 1 DO
+	mask I and IF
+	    i>off  >v
+	    x0 y0 y1 f2/ f+ >xy n> xy-color rgba>c 2e 2e >st v+
+	    x1 y0 y1 f2/ f+ >xy n> xy-color rgba>c 3e 2e >st v+
+	    x0 y0 y1 f2/ f- >xy n> xy-color rgba>c 2e 3e >st v+
+	    x1 y0 y1 f2/ f- >xy n> xy-color rgba>c 3e 3e >st v+
+	    v> 2 quad
+	THEN
+	y ft texture_font_t-ascender sf@ 33% f* f- fround 1/2 f+ to y0
+    I +LOOP  0e to t.i0 ;
+
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
     { f: fd f: fh }
     tuck font font-select

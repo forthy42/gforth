@@ -409,6 +409,7 @@ widget class
     $value: text$
     value: l-text \ located text, placeholder to make sure part-text works
     value: orig-text \ part-text, placeholder to make sure part-edit works
+    value: us-mask \ underline or strikethrough
     fvalue: start
     fvalue: end
 end-class text
@@ -422,7 +423,8 @@ end-class text
     y                        raise f+ fround penxy sfloat+ sf!
     text-font to font  text-color color ! ;
 : text-text ( addr u -- )
-    w text-w text-scale! text-xy! render-string ;
+    w text-w text-scale! text-xy!
+    us-mask ?dup-IF  render-us-string  ELSE  render-string  THEN ;
 : text$-part ( addr u rstart rend -- addr' u' )
     dup fover f- fm* fround f>s >r \ length to draw
     dup fm* fround f>s safe/string r> umin ; \ start to skip
