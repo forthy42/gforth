@@ -706,7 +706,7 @@ Cell gforth_go(Xt* ip0)
 #ifdef GFORTH_DEBUGGING
     debugp(stderr,"\ncaught signal, throwing exception %d, ip=%p rp=%p\n",
 	   throw_code, saved_ip, saved_rp);
-    if ((saved_rp > NEXTPAGE2(gforth_UP->sp0)) &&
+    if ((saved_rp-2 > NEXTPAGE2(gforth_UP->sp0)) &&
 	(saved_rp < NEXTPAGE(gforth_UP->rp0))) {
       /* no rstack overflow or underflow */
       gforth_RP = saved_rp;

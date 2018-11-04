@@ -40,24 +40,7 @@ edit-widget-c ' new static-a with-allocater Constant edit-widget
 \ generic actor stuff
 
 actor class
-end-class outside-actor
-:noname ( rx ry -- flag )
-    fdrop fdrop false ; outside-actor is inside?
-
-: outside[] ( o -- o )
-    >o outside-actor new !act o o> ;
-
-actor class
 end-class simple-actor
-
-: o-inside? ( o:widget rx ry -- flag )
-    y f- fdup d f< h fnegate f> and
-    x f- fdup w f< f0> and
-    and ;
-
-: simple-inside? ( rx ry -- flag )
-    caller-w .o-inside? ;
-' simple-inside? simple-actor is inside?
 
 debug: event( \ +db event( \ )
 
@@ -142,23 +125,13 @@ false value grab-move? \ set to true to grab moves
     grab-move? IF
 	active-w ?dup-IF  .act .clicked  EXIT  THEN
     THEN
-    fover fover inside? IF
+    fover fover caller-w .inside? IF
 	o caller-w >o
-	[: { c-act } act IF  fover fover o-inside? \ act .inside?
+	[: { c-act } act IF  fover fover inside?
 		IF
 		    click( ." click passed through " .parents cr )
 		    c-act re-focus
 		    fover fover 2dup act .clicked
-		ELSE
-		    click( ." click outside "
-		    fover fover o-inside?
-		    IF ." would be inside "  THEN  .parents cr )
-		THEN
-	    ELSE
-		fover fover o-inside? IF
-		    click( ." no click passed through " .parents cr )
-		ELSE
-		    click( ." no click outside " .parents cr )
 		THEN
 	    THEN
 	c-act ;] do-childs o> drop
@@ -168,19 +141,18 @@ box-actor is clicked
     active-w ?dup-IF  .act .ukeyed  ELSE  2drop  THEN ; box-actor is ukeyed
 :noname ( ekey -- )
     active-w ?dup-IF  .act .ekeyed  ELSE  drop   THEN ; box-actor is ekeyed
-' simple-inside? box-actor is inside?
 : xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
 :noname ( $xy b -- )
-    over xy@ inside? IF
+    over xy@ caller-w .inside? IF
 	caller-w >o
-	[: act IF  over xy@ act .inside?
+	[: act IF  over xy@ inside?
 		IF  2dup act .touchdown   THEN  THEN
 	;] do-childs o>
     THEN  2drop ; box-actor is touchdown
 :noname ( $xy b -- )
-    over xy@ inside? IF
+    over xy@ caller-w .inside? IF
 	caller-w >o
-	[: act IF  over xy@ act .inside?
+	[: act IF  over xy@ inside?
 		IF  2dup act .touchup   THEN  THEN
 	;] do-childs o>
     THEN  2drop ; box-actor is touchup
@@ -189,14 +161,19 @@ box-actor is clicked
     grab-move? IF
 	active-w ?dup-IF  .act .touchmove  EXIT  THEN
     THEN
-    over xy@ inside? IF
+    over xy@ caller-w .inside? IF
 	caller-w >o
-	[: act IF  over xy@ act .inside?
+	[: act IF  over xy@ inside?
 		event( o hex. caller-w hex. ." move inside? " dup . cr )
 		IF  2dup act .touchmove  THEN  THEN
 	;] do-childs o>
     THEN  2drop ; box-actor is touchmove
-:noname ( -- ) caller-w >o [: act ?dup-IF  .defocus  THEN ;] do-childs o> ; box-actor is defocus
+:noname ( -- )
+    caller-w >o box-flags box-defocus# and 0= IF
+	box-flags box-defocus# or to box-flags
+	[: act ?dup-IF  .defocus  THEN ;] do-childs
+	box-flags box-defocus# invert and to box-flags
+    THEN  o> ; box-actor is defocus
 
 : box[] ( o -- o )
     >o box-actor new !act o o> ;
@@ -216,8 +193,6 @@ box-actor class
     sfvalue: vmotion-dy
     sfvalue: vmotion-dt
 end-class vp-actor
-
-:noname caller-w >o vp-h f< vp-w f< and o> ; vp-actor is inside?
 
 : tx ( rx ry -- rx' ry' )
     fswap x f- vp-x         f+
@@ -290,7 +265,7 @@ forward >animate
 :noname ( rx ry bmask n -- )
     click( o hex. ." vp is clicked" cr )
     grab-move? o <> IF
-	fover fover inside? 0= IF  2drop fdrop fdrop  EXIT  THEN
+	fover fover caller-w .inside? 0= IF  2drop fdrop fdrop  EXIT  THEN
     THEN
     over 2 or 2 = IF
 	o anim-del

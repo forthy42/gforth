@@ -131,6 +131,7 @@ $08 Constant baseline-start#
 $10 Constant box-hphantom#
 $20 Constant box-vphantom#
 $40 Constant box-dphantom#
+$80 Constant box-defocus#
 box-hphantom# box-vphantom# or box-dphantom# or Constant box-phantom#
 box-flip# box-phantom# or Constant box-visible#
 
@@ -144,7 +145,6 @@ object class
     method touchmove ( $rxy*n bmask -- ) \ raw click, bmask=0 is hover
     method ukeyed ( addr u -- ) \ printable unicode characters
     method ekeyed ( ekey -- ) \ non-printable keys
-    method inside? ( rx ry -- flag )
     method focus ( -- )
     method defocus ( -- )
     method show ( -- )
@@ -176,7 +176,6 @@ end-class helper-glue
 ' 2drop actor is touchmove
 ' 2drop actor is ukeyed
 ' drop actor is ekeyed
-:noname fdrop fdrop false ; actor is inside?
 ' noop actor is focus
 ' noop actor is defocus
 ' noop actor is show
@@ -220,6 +219,11 @@ object class
     method !size ( -- ) \ set your own size
     method dispose-widget ( -- ) \ get rid of a widget
 end-class widget
+
+: inside? ( o:widget rx ry -- flag )
+    y f- fdup d f< h fnegate f> and
+    x f- fdup w f< f0> and
+    and ;
 
 : name! ( o addr u -- )  2 pick >o to name$ o> ;
 : !act ( o:widget actor -- o:widget )
