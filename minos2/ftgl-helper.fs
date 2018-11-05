@@ -223,16 +223,15 @@ $AD Constant 'soft-hyphen'
     penxy dup sf@ fround 1/2 f+
     sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
     s"  " drop font font-select { ft } drop
-    -1e to t.i0
-    ft "·" drop texture_font_get_glyph { go }
+    ft font->t.i0
+    ft "-" drop texture_font_get_glyph { g- }
     ft "g" drop texture_font_get_glyph { gg }
-    ft "." drop texture_font_get_glyph { g. }
     y
     gg texture_glyph_t-height   sl@
-    gg texture_glyph_t-offset_y sl@ - s>f 33% f*
+    gg texture_glyph_t-offset_y sl@ - 33% fm*
     f+ fround { f: y0 }
-    g. texture_glyph_t-width @ s>f 20% f*
-    fdup floor fswap fnegate 0.01e f- floor { f: y1 f: y1- }
+    g- texture_glyph_t-height @ 33% fm*
+    fdup fround fswap fnegate 0.5e f- fround { f: y1 f: y1- }
     4 1 DO
 	mask I and IF
 	    i>off  >v
@@ -242,8 +241,8 @@ $AD Constant 'soft-hyphen'
 	    x1 y0 y1- f- >xy n> xy-color rgba>c 3e 3e >st v+
 	    v> 2 quad
 	THEN
-	y go texture_glyph_t-offset_y sl@ 2*
-	  go texture_glyph_t-height   sl@ - s>f f2/ f- fround to y0
+	y g- texture_glyph_t-offset_y sl@ 2*
+	  g- texture_glyph_t-height   sl@ - 1+ 50% fm* f- fround to y0
     I +LOOP  0e to t.i0 ;
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
