@@ -473,8 +473,9 @@ end-class part-text
     2dup + >r dup t <> IF xc-trailing THEN 2dup + pos>fp
     firstflag IF  xc-leading over pos>fp to start1  THEN
     2drop
-    start1 o text-font text-color act name$
-    class new >o to name$ to act to text-color to text-font to orig-text
+    start1 o text-font text-color act name$ us-mask
+    class new >o to us-mask to name$
+    to act to text-color to text-font to orig-text
     to start to end o ( act >o dup to caller-w o> ) o>
     r> pos>fp ;
 : text-split ( firstflag rstart rx -- o rstart2 )
@@ -526,9 +527,9 @@ end-class edit
 : edit-text ( -- ) edit-marking  w text-w text-scale! text-xy!
     cursize 0= setstring$ $@len and IF
 	text$ curpos umin render-string
-	m2c:setstring-color# @ color !
-	setstring$ $@ render-string
-	text-color color !
+\	m2c:setstring-color# @ color !
+	setstring$ $@ 1 render-us-string
+\	text-color color !
 	text$ curpos safe/string render-string
     ELSE
 	text$ start end text$-part render-string

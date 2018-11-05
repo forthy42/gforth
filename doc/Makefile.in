@@ -27,6 +27,7 @@ MAKEINFO = makeinfo $(SRCINC)
 GFORTH_CSS = gforth.css
 TEXI2HTML = texi2html $(SRCINC)
 CP	= cp -p
+RECODE  = @RECODE@ @RECODE_ARGS@
 
 VPATH = @srcdir@:.
 
@@ -66,7 +67,7 @@ vmgen:		$(VMGEN_TEXI)
 		$(MAKEINFO) --html $<
 
 gforth.txt:	$(GFORTH_TEXI)
-		-$(MAKEINFO) --no-headers --no-split --enable-encoding $<|recode l1.. >gforth.txt
+		-$(MAKEINFO) --no-headers --no-split --enable-encoding $<| $(RECODE) >gforth.txt
 
 vmgen.txt:	$(VMGEN_TEXI)
 		-$(MAKEINFO) --no-headers --no-split $< >vmgen.txt

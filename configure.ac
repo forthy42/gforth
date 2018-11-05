@@ -1084,7 +1084,14 @@ AC_DEFINE_UNQUOTED(NO_DYNAMIC_DEFAULT,$no_dynamic_default,default value for no_d
 AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
+AC_CHECK_PROGS(RECODE,recode iconv)
 
+if test x$RECODE == xrecode; then
+   RECODE_ARGS=l1..
+else
+   RECODE_ARGS="-f LATIN1"
+fi
+AC_SUBST(RECODE_ARGS)
 #check for the presence of Emacs
 AC_CHECK_PROGS(EMACS,emacs xemacs)
 if test -n "$EMACS"; then

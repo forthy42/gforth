@@ -125,7 +125,6 @@ false value grab-move? \ set to true to grab moves
     grab-move? IF
 	active-w ?dup-IF  .act .clicked  EXIT  THEN
     THEN
-    fover fover caller-w .inside? IF
 	o caller-w >o
 	[: { c-act } act IF  fover fover inside?
 		IF
@@ -135,7 +134,7 @@ false value grab-move? \ set to true to grab moves
 		THEN
 	    THEN
 	c-act ;] do-childs o> drop
-    THEN  2drop fdrop fdrop ;
+    2drop fdrop fdrop ;
 box-actor is clicked
 :noname ( addr u -- )
     active-w ?dup-IF  .act .ukeyed  ELSE  2drop  THEN ; box-actor is ukeyed
@@ -143,31 +142,28 @@ box-actor is clicked
     active-w ?dup-IF  .act .ekeyed  ELSE  drop   THEN ; box-actor is ekeyed
 : xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
 :noname ( $xy b -- )
-    over xy@ caller-w .inside? IF
-	caller-w >o
-	[: act IF  over xy@ inside?
-		IF  2dup act .touchdown   THEN  THEN
-	;] do-childs o>
-    THEN  2drop ; box-actor is touchdown
+    caller-w >o
+    [: act IF  over xy@ inside?
+	    IF  2dup act .touchdown   THEN  THEN
+    ;] do-childs o>
+    2drop ; box-actor is touchdown
 :noname ( $xy b -- )
-    over xy@ caller-w .inside? IF
-	caller-w >o
-	[: act IF  over xy@ inside?
-		IF  2dup act .touchup   THEN  THEN
-	;] do-childs o>
-    THEN  2drop ; box-actor is touchup
+    caller-w >o
+    [: act IF  over xy@ inside?
+	    IF  2dup act .touchup   THEN  THEN
+    ;] do-childs o>
+    2drop ; box-actor is touchup
 :noname ( $xy b -- )
     event( o hex. caller-w hex. ." box move " 2dup .touch )
     grab-move? IF
 	active-w ?dup-IF  .act .touchmove  EXIT  THEN
     THEN
-    over xy@ caller-w .inside? IF
-	caller-w >o
-	[: act IF  over xy@ inside?
-		event( o hex. caller-w hex. ." move inside? " dup . cr )
-		IF  2dup act .touchmove  THEN  THEN
-	;] do-childs o>
-    THEN  2drop ; box-actor is touchmove
+    caller-w >o
+    [: act IF  over xy@ inside?
+	    event( o hex. caller-w hex. ." move inside? " dup . cr )
+	    IF  2dup act .touchmove  THEN  THEN
+    ;] do-childs o>
+    2drop ; box-actor is touchmove
 :noname ( -- )
     caller-w >o box-flags box-defocus# and 0= IF
 	box-flags box-defocus# or to box-flags

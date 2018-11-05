@@ -223,7 +223,7 @@ $AD Constant 'soft-hyphen'
     penxy dup sf@ fround 1/2 f+
     sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
     s"  " drop font font-select { ft } drop
-    ft font->t.i0
+    -1e to t.i0
     ft "·" drop texture_font_get_glyph { go }
     ft "g" drop texture_font_get_glyph { gg }
     ft "." drop texture_font_get_glyph { g. }
@@ -232,14 +232,14 @@ $AD Constant 'soft-hyphen'
     gg texture_glyph_t-offset_y sl@ - s>f 33% f*
     f+ fround { f: y0 }
     g. texture_glyph_t-width @ s>f 20% f*
-    fdup floor fswap fnegate floor { f: y1 f: y1- }
+    fdup floor fswap fnegate 0.01e f- floor { f: y1 f: y1- }
     4 1 DO
 	mask I and IF
 	    i>off  >v
-	    x0 y0 y1  f+ >xy n> xy-color rgba>c 2e 2e >st v+
-	    x1 y0 y1  f+ >xy n> xy-color rgba>c 3e 2e >st v+
-	    x0 y0 y1- f+ >xy n> xy-color rgba>c 2e 3e >st v+
-	    x1 y0 y1- f+ >xy n> xy-color rgba>c 3e 3e >st v+
+	    x0 y0 y1  f- >xy n> xy-color rgba>c 2e 2e >st v+
+	    x1 y0 y1  f- >xy n> xy-color rgba>c 3e 2e >st v+
+	    x0 y0 y1- f- >xy n> xy-color rgba>c 2e 3e >st v+
+	    x1 y0 y1- f- >xy n> xy-color rgba>c 3e 3e >st v+
 	    v> 2 quad
 	THEN
 	y go texture_glyph_t-offset_y sl@ 2*

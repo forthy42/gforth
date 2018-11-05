@@ -128,8 +128,12 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
     blackish \italic }}text' >r
     \regular b0 >r
     {{ r> r> glue*em }}glue }}h box[] >bl ;
+: _underline_ ( o -- o )
+    >o 1 +to us-mask o o> ;
+: -strikethrough- ( o -- o )
+    >o 2 +to us-mask o o> ;
 : bm\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
-    dark-blue \mono }}text' >o 1 to us-mask o o> >r
+    dark-blue \mono }}text' _underline_ >r
     b0 >r
     {{ r> r> glue*em }}glue }}h box[] >bl \sans ;
 : \LaTeX ( -- )
