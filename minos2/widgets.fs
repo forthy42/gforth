@@ -1094,7 +1094,7 @@ end-class viewport
     Saturate 1 vp-saturate% glUniform1fv
     0e fdup fdup fdup glClearColor clear
     vt-x vt-w f/ f2* fnegate -1e f+
-    vp-h vt-h f- vt-y f- vt-h f/ f2*  1e f+ >apxy
+    vp-h vt-h f- vt-y f- vt-h f/ f2* 1e f+ >apxy
     .01e 100e 100e vt-w f>s vt-h f>s >apwh ;
 : draw-vp> ( -- )
     0>framebuffer
@@ -1143,7 +1143,7 @@ end-class viewport
     vp-x vt-x f- vt-w f/
     vp-y vt-y f- vt-h f/
     w fround vt-w f/
-    h fround vt-h f/ >xyxy
+    h d f+ fround vt-h f/ >xyxy
     { f: s0 f: t0 f: s1 f: t1 }
     vi0 i>off  $FFFFFFFF >v
     x1 y1 >xy dup rgba>c n> s0 t1 >st v+
@@ -1168,9 +1168,9 @@ end-class viewport
     dglue+ dglue-c glue!
     vglue+ vglue-c glue!
     w hglue-c df@ fmax fround
-    fdup vp-w f<> to vp-w vp-w usetexsize# s>f fmin fround to vt-w
+    fdup vp-w f<> to vp-w vp-w usetexsize# s>f fmin to vt-w
     h d f+ dglue-c df@ vglue-c df@ f+ fmax fround
-    fdup vp-h f<> to vp-h vp-h usetexsize# s>f fmin fround to vt-h
+    fdup vp-h f<> to vp-h vp-h usetexsize# s>f fmin to vt-h
     vp-h h d f+ f- vp-y fmin fround fdup vp-y f<> to vp-y
     vp-w w f- vp-x fmin fround fdup vp-x f<> to vp-x
     ?vpt-x ?vpt-y
