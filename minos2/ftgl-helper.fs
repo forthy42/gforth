@@ -224,20 +224,26 @@ $AD Constant 'soft-hyphen'
     sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
     s"  " drop font font-select { ft } drop
     ft font->t.i0
-    y ft texture_font_t-underline_position sf@
-    ft texture_font_t-descender sf@ 33% f* fround fmin f- { f: y0 }
-    ft texture_font_t-underline_thickness sf@
-    ft texture_font_t-size sf@ 5% f* fround fmax { f: y1 }
+    ft "·" drop texture_font_get_glyph { go }
+    ft "g" drop texture_font_get_glyph { gg }
+    ft "." drop texture_font_get_glyph { g. }
+    y
+    gg texture_glyph_t-height   sl@
+    gg texture_glyph_t-offset_y sl@ - s>f 33% f*
+    f+ fround { f: y0 }
+    g. texture_glyph_t-width @ s>f 20% f*
+    fdup floor fswap fnegate floor { f: y1 f: y1- }
     4 1 DO
 	mask I and IF
 	    i>off  >v
-	    x0 y0 y1 f2/ f+ >xy n> xy-color rgba>c 2e 2e >st v+
-	    x1 y0 y1 f2/ f+ >xy n> xy-color rgba>c 3e 2e >st v+
-	    x0 y0 y1 f2/ f- >xy n> xy-color rgba>c 2e 3e >st v+
-	    x1 y0 y1 f2/ f- >xy n> xy-color rgba>c 3e 3e >st v+
+	    x0 y0 y1  f+ >xy n> xy-color rgba>c 2e 2e >st v+
+	    x1 y0 y1  f+ >xy n> xy-color rgba>c 3e 2e >st v+
+	    x0 y0 y1- f+ >xy n> xy-color rgba>c 2e 3e >st v+
+	    x1 y0 y1- f+ >xy n> xy-color rgba>c 3e 3e >st v+
 	    v> 2 quad
 	THEN
-	y ft texture_font_t-ascender sf@ 33% f* f- fround 1/2 f+ to y0
+	y go texture_glyph_t-offset_y sl@ 2*
+	  go texture_glyph_t-height   sl@ - s>f f2/ f- fround to y0
     I +LOOP  0e to t.i0 ;
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )

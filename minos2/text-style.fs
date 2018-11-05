@@ -129,7 +129,7 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
     \regular b0 >r
     {{ r> r> glue*em }}glue }}h box[] >bl ;
 : bm\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
-    dark-blue \mono }}text' >r
+    dark-blue \mono }}text' >o 1 to us-mask o o> >r
     b0 >r
     {{ r> r> glue*em }}glue }}h box[] >bl \sans ;
 : \LaTeX ( -- )
