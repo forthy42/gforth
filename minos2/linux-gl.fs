@@ -507,8 +507,8 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
     0 xptimeout 2!
     epiper @ fileno POLLIN  xpollfds fds!+ >r
     dpy IF  dpy XConnectionNumber POLLIN  r> fds!+ >r  THEN
-    infile-id fileno POLLIN  r> fds!+ >r
-    r> xpollfds - pollfd / ;
+    infile-id fileno POLLIN  r> fds!+
+    xpollfds - pollfd / ;
 
 : xpoll ( -- flag )
     [IFDEF] ppoll

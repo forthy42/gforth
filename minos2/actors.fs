@@ -401,6 +401,7 @@ end-class vslider-actor
 \ edit widget
 
 : edit$!len ( len -- ) \ precaution for password edit
+    edit$ @ $@len over = IF  drop  EXIT  THEN
     0 { w^ new$ } new$ $!len
     edit$ @ $@ new$ $@ rot umin move
     edit$ @ $@ erase edit$ @ $free
@@ -509,7 +510,8 @@ edit-terminal edit-out !
     history >r  >r  0 to history
     edit-w >o addr text$ curpos cursize 0 max o> to xselw
     >r dup edit$ ! $@ swap over swap r>
-    r> catch >r edit-w >o to curpos 0 to cursize o> drop edit$!len drop
+    r> catch >r edit-w >o to curpos 0 to cursize addr text$ o> nip
+    edit-widget edit-out ! edit$ ! edit$!len drop
     r>  r> to history  +sync +config  throw ;
 
 : edit>curpos ( x o:actor -- )

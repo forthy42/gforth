@@ -115,7 +115,7 @@ Variable xy$
     event-handler @ >o
     Xtime lasttime @ - twoclicks >= IF
 	flags #pending -bit@ IF
-	    send-clicks
+	    buttonmask le-ul@ send-clicks
 	THEN
 	flags #clearme -bit@ IF
 	    0 to clicks
