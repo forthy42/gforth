@@ -130,8 +130,12 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
     {{ r> r> glue*em }}glue }}h box[] >bl ;
 : _underline_ ( o -- o )
     >o 1 +to us-mask o o> ;
-: -strikethrough- ( o -- o )
+: __underline__ ( o -- o )
     >o 2 +to us-mask o o> ;
+: ___underline___ ( o -- o )
+    >o 3 +to us-mask o o> ;
+: -strikethrough- ( o -- o )
+    >o 4 +to us-mask o o> ;
 : bm\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
     dark-blue \mono }}text' _underline_ >r
     b0 >r

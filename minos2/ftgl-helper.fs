@@ -112,6 +112,10 @@ color @ Value xy-color
 : s1t0>st ( si ti addr -- ) dup 8 + l@ t.s l!  4 + l@ t.t l! ;
 : s0t1>st ( si ti addr -- ) dup     l@ t.s l! 12 + l@ t.t l! ;
 : s1t1>st ( si ti addr -- ) dup 8 + l@ t.s l! 12 + l@ t.t l! ;
+: s0t0>st- ( si ti addr -- ) dup sf@ 75% f* dup 8 + sf@ 25% f* f+ t.s sf!  4 + l@ t.t l! ;
+: s1t0>st- ( si ti addr -- ) dup sf@ 25% f* dup 8 + sf@ 75% f* f+ t.s sf!  4 + l@ t.t l! ;
+: s0t1>st- ( si ti addr -- ) dup sf@ 75% f* dup 8 + sf@ 25% f* f+ t.s sf!  12 + l@ t.t l! ;
+: s1t1>st- ( si ti addr -- ) dup sf@ 25% f* dup 8 + sf@ 75% f* f+ t.s sf!  12 + l@ t.t l! ;
 
 : xy, { glyph -- }
     \ glyph texture_glyph_t-codepoint l@
@@ -224,25 +228,33 @@ $AD Constant 'soft-hyphen'
     sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
     s"  " drop font font-select { ft } drop
     ft font->t.i0
-    ft "-" drop texture_font_get_glyph { g- }
+    ft "–" drop texture_font_get_glyph { g- }
     ft "g" drop texture_font_get_glyph { gg }
     y
     gg texture_glyph_t-height   sl@
-    gg texture_glyph_t-offset_y sl@ - 33% fm*
-    f+ fround { f: y0 }
-    g- texture_glyph_t-height @ 33% fm*
-    fdup fround fswap fnegate 0.5e f- fround { f: y1 f: y1- }
-    4 1 DO
+    gg texture_glyph_t-offset_y sl@ - 20% fm*
+    f+ fround 1/2 f- { f: y0 }
+    g- texture_glyph_t-height @ s>f { f: y1 }
+    8 1 DO
 	mask I and IF
+	    g- texture_glyph_t-s0
 	    i>off  >v
-	    x0 y0 y1  f- >xy n> xy-color rgba>c 2e 2e >st v+
-	    x1 y0 y1  f- >xy n> xy-color rgba>c 3e 2e >st v+
-	    x0 y0 y1- f- >xy n> xy-color rgba>c 2e 3e >st v+
-	    x1 y0 y1- f- >xy n> xy-color rgba>c 3e 3e >st v+
+	    x0 y0 >xy n> xy-color rgba>c dup s0t0>st- v+
+	    x1 y0 >xy n> xy-color rgba>c dup s1t0>st- v+
+	    x0 y0 y1 f+ >xy n> xy-color rgba>c dup s0t1>st- v+
+	    x1 y0 y1 f+ >xy n> xy-color rgba>c     s1t1>st- v+
 	    v> 2 quad
 	THEN
-	y g- texture_glyph_t-offset_y sl@ 2*
-	  g- texture_glyph_t-height   sl@ - 1+ 50% fm* f- fround to y0
+	case I  y
+	    1 of
+		gg texture_glyph_t-height   sl@
+		gg texture_glyph_t-offset_y sl@ - -80% fm*
+	    endof
+	    2 of
+		g- texture_glyph_t-offset_y sl@ s>f
+	    endof
+	    0e
+	endcase  f- fround 1/2 f- to y0
     I +LOOP  0e to t.i0 ;
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
