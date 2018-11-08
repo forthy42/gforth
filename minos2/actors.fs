@@ -473,6 +473,10 @@ Defer anim-ins
 : edit-paste ( max span addr pos1 - max span addr pos2 false )
     clipboard@ edit-ins$ edit-update 0 ;
 
+: xedit-enter ( max span addr pos1 -- max span addr pos2 true )
+    setstring$ $@ xins-string  setstring$ $free
+    edit-enter ;
+
 ' edit-next-line ctrl N bindkey
 ' edit-prev-line ctrl P bindkey
 ' edit-paste     ctrl V bindkey
@@ -480,8 +484,8 @@ Defer anim-ins
 ' edit-copy      ctrl C bindkey
 ' edit-cut       ctrl X bindkey
 ' edit-cut       ctrl W bindkey
-' edit-enter     #lf    bindkey
-' edit-enter     #cr    bindkey
+' xedit-enter    #lf    bindkey
+' xedit-enter    #cr    bindkey
 ' false          ctrl L bindkey
 ' edit-bs        ctrl H bindkey
 ' edit-del       ctrl D bindkey
@@ -491,7 +495,7 @@ Defer anim-ins
 ' edit-next-line k-next   ebindkey
 ' edit-prev-line k-prior  ebindkey
 ' edit-enter     k-eof    ebindkey
-' edit-enter     k-enter  ebindkey
+' xedit-enter    k-enter  ebindkey
 ' false          k-winch  ebindkey
 ' edit-del       k-delete ebindkey
 
