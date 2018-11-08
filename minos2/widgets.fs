@@ -508,7 +508,7 @@ end-class edit
     text$ curpos umin layout-string fdrop fdrop
     scale f* { f: w }
     setstring$ $@len IF
-	setstring$ $@ layout-string fdrop fdrop scale f*
+	setstring$ $@ layout-string fdrop fdrop scale f* +to w  0e
     ELSE
 	text$ curpos cursize m2c:curminchars# @ umax + umin
 	layout-string fdrop fdrop scale f* w f-
