@@ -70,6 +70,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.NotificationChannel;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.util.Log;
 import android.util.AttributeSet;
 import android.widget.Toast;
@@ -552,7 +553,7 @@ public class Gforth
 		public void run() {
 		    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(args0)));
 		}
-	    }
+	    };
 	
 	recKeepalive = new BroadcastReceiver() {
 		@Override public void onReceive(Context context, Intent foo)
