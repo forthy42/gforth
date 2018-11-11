@@ -32,4 +32,4 @@ previous
 
 include unix/gst.fs
 
-set-current
+set-current previous

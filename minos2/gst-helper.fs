@@ -19,6 +19,8 @@
 
 require unix/gstlib.fs
 
+also gst
+
 s" gstreamer error" exception constant !!gst!!
 
 Variable gst-error
@@ -32,6 +34,9 @@ Variable gst-pad
 	cell+ @ cstring>sstring [: type cr ;]
 	error-color ['] color-execute do-debug
     THEN ;
+
+: events-cb ( -- ) ;
+: buffers-cb ( -- ) ;
 
 ' events-cb GstPadEventFullFunction: events_cb
 ' buffers-cb GstPadEventFullFunction: buffers_cb
