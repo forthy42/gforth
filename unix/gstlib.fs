@@ -20,15 +20,16 @@
 cs-vocabulary gst \ needs to be case sensitive
 get-current also gst definitions
 
-c-library gstlib
-    \c #define GST_USE_UNSTABLE_API
-    \c #include <gst/gst.h>
-    \c #include <gst/gl/gl.h>
+also c-lib
+s" a 0" vararg$ $!
+previous
 
-    s" gstreamer-1.0" add-lib
-    s" a a 0" vararg$ $!
-    
-    include unix/gst.fs
-end-c-library
+include unix/gobject.fs
+
+also c-lib
+s" a 0" vararg$ $!
+previous
+
+include unix/gst.fs
 
 set-current

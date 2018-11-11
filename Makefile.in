@@ -336,7 +336,7 @@ SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i    \
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/png16.i	      \
 	unix/soil.i unix/soil2.i unix/xlib.i unix/ios-gles.i unix/ios-gles3.i \
 	unix/freetype_gl.i unix/wingdi.i unix/winuser.i unix/wayland.i	      \
-	unix/gps.i unix/vulkan.i unix/harfbuzz.i unix/gst.i
+	unix/gps.i unix/vulkan.i unix/harfbuzz.i unix/gobject.i unix/gst.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs cilk.fs
@@ -358,7 +358,7 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	    \
 	android-actors.fs wayland-actors.fs widgets-test.fs presentation.fs \
 	mts-tools.fs mkv-tools.fs omx-example.fs mkv-tags.fs		    \
 	android-recorder.fs animation.fs need-x.fs font-style.fs	    \
-	text-style.fs
+	text-style.fs gst-helper.fs
 
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
 	net2o-minos2.png lbubble.png rbubble.png
