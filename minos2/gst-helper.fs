@@ -28,6 +28,7 @@ Variable pipeline
 Variable vsink
 Variable asink
 Variable gst-pad
+$10 buffer: gst-state
 
 : .gst-error ( -- )
     gst-error @ ?dup-IF
@@ -35,11 +36,15 @@ Variable gst-pad
 	error-color ['] color-execute do-debug
     THEN ;
 
-: events-cb ( -- ) ;
-: buffers-cb ( -- ) ;
+: reshape-cb ( -- ) ~~ ;
+: draw-cb ( -- )    ~~ ;
+: events-cb ( -- )  ~~ ;
+: query-cb ( -- )   ~~ ;
 
-' events-cb GstPadEventFullFunction: events_cb
-' buffers-cb GstPadEventFullFunction: buffers_cb
+' reshape-cb reshapeCallback:         Constant reshape_cb
+' draw-cb    drawCallback:            Constant draw_cb
+' events-cb  GstPadEventFullFunction: Constant events_cb
+' query-cb   GstPadEventFullFunction: Constant query_cb
 
 : gst-init ( -- )
     0 0 gst-error gst_init_check 0= IF  .gst-error !!gst!! throw  THEN ;
@@ -56,7 +61,8 @@ Variable gst-pad
 
 : gst-pad-probes ( -- )
     vsink @ "sink" gst_element_get_static_pad { gst-pad }
-    vsink @ "handoff" buffers_cb gst-state g_signal_connect
+    vsink @ "client-reshape" reshape_cb gst-state g_signal_connect drop
+    vsink @ "client-draw"    draw_cb    gst-state g_signal_connect drop
     gst-pad GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM events_cb gst-state 0
     gst_pad_add_probe drop
     gst-pad GST_PAD_PROBE_TYPE_QUERY_DOWNSTREAM query_cb gst-state 0
@@ -67,3 +73,5 @@ Variable gst-pad
     gst-init gst-launch  gst-@sink  gst-pad-probes ;
 
 : test !time "/home/bernd/Video/ft2018/net2o.mp4" init-pipeline .time ;
+
+previous

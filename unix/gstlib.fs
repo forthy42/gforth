@@ -21,14 +21,11 @@ cs-vocabulary gst \ needs to be case sensitive
 get-current also gst definitions
 
 also c-lib
-s" a 0" vararg$ $!
 previous
 
 include unix/gobject.fs
 
-also c-lib
-s" a 0" vararg$ $!
-previous
+: g_signal_connect  0 0 g_signal_connect_data ;
 
 include unix/gst.fs
 
