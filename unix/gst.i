@@ -5,6 +5,8 @@
 #define GST_USE_UNSTABLE_API
 #include <gst/gst.h>
 #include <gst/gl/gl.h>
+#include <gst/gl/egl/gstgldisplay_egl.h>
+#include <gst/gl/x11/gstgldisplay_x11.h>
 %}
 
 #define GST_API
@@ -24,14 +26,15 @@
 #define G_GNUC_INTERNAL
 #define gchar char
 
-// exec: sed -e 's/\(c-function .*_valist\)/\\ \1/g' -e 's/\(c-function _gst_gl_feature_check\)/\\ \1/g' -e 's/add-lib/add-lib\n8 to callback#\ns" a 0" vararg$ $!/g' -e 's/end-c-library/2 to callback#\nend-c-library/g' -e 's/\(.* callbacks .*\)/\1\nc-callback reshapeCallback: u u a -- void\nc-callback drawCallback: u u u a -- void/g'
+// exec: sed -e 's/\(c-function .*_valist\)/\\ \1/g' -e 's/\(c-function _gst_gl_feature_check\)/\\ \1/g' -e 's/add-lib/add-lib\ns" gstgl-1.0" add-lib\n8 to callback#\ns" a 0" vararg$ $!/g' -e 's/end-c-library/2 to callback#\nend-c-library/g' -e 's/\(.* callbacks .*\)/\1\nc-callback reshapeCallback: u u a -- void\nc-callback drawCallback: u u u a -- void/g'
 
 %apply unsigned char { guint8 }
 %apply int { gboolean, gint, GLint, gint32 }
 %apply unsigned int { GType, guint, gsize, GstFormat, GLuint, GstGLFormat, guint32, GstGLTextureTarget, guint16 }
+%apply unsigned long { guintptr }
 %apply long long { gint64 }
 %apply unsigned long long { guint64 }
-%apply SWIGTYPE * { gpointer, gconstpointer, GDestroyNotify, GstMiniObjectNotify, GCompareFunc, GCompareDataFunc, va_list, GCallback, GstPluginFeatureFilter, GstGLAllocationParamsFreeFunc, GstGLAllocationParamsCopyFunc, guintptr }
+%apply SWIGTYPE * { gpointer, gconstpointer, GDestroyNotify, GstMiniObjectNotify, GCompareFunc, GCompareDataFunc, va_list, GCallback, GstPluginFeatureFilter, GstGLAllocationParamsFreeFunc, GstGLAllocationParamsCopyFunc }
 %apply float { gfloat }
 %apply double { gdouble }
 
@@ -46,6 +49,7 @@
 %include <gst/gstbuffer.h>
 %include <gst/gstbufferlist.h>
 %include <gst/gstbufferpool.h>
+%include <gst/gstbus.h>
 %include <gst/gstcaps.h>
 %include <gst/gstcapsfeatures.h>
 %include <gst/gstchildproxy.h>
@@ -125,3 +129,5 @@
 %include <gst/gl/gstglfilter.h>
 %include <gst/gl/gstglsyncmeta.h>
  // %include <gst/gl/gstgloverlaycompositor.h>
+%include <gst/gl/egl/gstgldisplay_egl.h>
+%include <gst/gl/x11/gstgldisplay_x11.h>
