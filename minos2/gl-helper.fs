@@ -233,7 +233,7 @@ Variable eglformat
 	    default-events "GL-Window" dpy-w @ dpy-h @ simple-win
 	    dpy visual 0 1 glXCreateContext to ctx
 	    dpy win ctx glXMakeCurrent drop
-	    visuals Xfree drop 0 to visuals 0 to visual ;
+	    visuals XFree drop 0 to visuals 0 to visual ;
 
 	: >screen-orientation ;
 
