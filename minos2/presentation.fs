@@ -177,7 +177,7 @@ tex: minos2
     baseline# 0e to baseline#
     {{ 2r> }}image-tex dup >r /right
     glue*l }}glue
-    }}v outside[] >o font-size# f2/ to border o o>
+    }}v >o font-size# f2/ to border o o>
     to baseline# r> ;
 
 : pres-frame ( color -- o1 o2 ) \ drop $FFFFFFFF
