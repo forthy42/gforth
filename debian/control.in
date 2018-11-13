@@ -108,7 +108,7 @@ Package: gforth-gles-dependencies
 Version: @DEBVERSION@
 Architecture: all
 Provides: gforth-opengl
-Depends: libgles, libegl1, libgl1-mesa-dri
+Depends: libgles2, libegl1, libgl1-mesa-dri
 
 Package: gforth-gl-dependencies
 Version: @DEBVERSION@
