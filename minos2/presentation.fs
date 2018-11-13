@@ -41,7 +41,12 @@ require minos2/text-style.fs
 Variable slides[]
 Variable slide#
 
+0 Value n2-img
 0 Value m2-img
+0 Value $q-img
+
+3 Constant n/m-switch
+8 Constant m/$-switch
 
 : >slides ( o -- ) slides[] >stack ;
 
@@ -74,8 +79,7 @@ glue ' new static-a with-allocater Constant glue-right
     fdup 1e f>= IF  fdrop
 	dup 1- swap !slides +sync +config  EXIT
     THEN
-    1e fswap f-
-    1- sin-t anim!slides +sync +config ;
+    1e fswap f- 1- sin-t anim!slides +sync +config ;
 
 : next-anim ( n r0..1 -- )
     dup slides[] $[]# 1- u>= IF  drop fdrop  EXIT  THEN
@@ -190,195 +194,175 @@ tex: minos2
 {{
 $FFFFFFFF pres-frame
 {{
-glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-"ΜΙΝΩΣ2 GUI" /title
-"Ein leichtgewichtiges GUI für Gforth und net2o" /subtitle
-glue*2 }}glue  \ ) $CCDDDD3F 4e }}frame dup .button1
-"Bernd Paysan" /author
-"Forth–Tagung 2018, Essen" /location
-glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+    ' }}i18n-text is }}text'
+    l" net2o: ΜΙΝΩΣ2 GUI, $quid “crypto”" /title
+    l" ($quid = ethical micropayment with efficient BlockChain)" /subtitle
+    {{ glue*2 }}glue }}z
+    l" Bernd Paysan" /author
+    l" EuroForth 2018, Edinburgh" /location
+    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o font-size# to border o Value title-page o o>
 }}z box[] dup >slides
 
 \ page 1
 {{
 $FFFFFFFF pres-frame
-{{
-"Motivation" /title
-glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-tex: bad-gateway
-' bad-gateway "bad-gateway.png" 0.666e }}image-file
-Constant bgw-glue /center
-glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-}}v box[] >bdr
+    {{
+	l" Motivation" /title
+	glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+	tex: bad-gateway
+	' bad-gateway "bad-gateway.png" 0.666e }}image-file
+	Constant bgw-glue /center
+	glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+    }}v box[] >bdr
 }}z box[] /flip dup >slides
 
 \ page 2
 {{
-$FF7F7FFF pres-frame
-{{
-"5 Jahre nach Snowden" /title
-"Was hat sich verändert?" \\
-\skip
-"Politik" /subsection
-blackish
-"  Fake News/Hate Speech sind jetzt Ausreden für Zensur #NetzDG" "🤦" e\\
-"  Die Crypto Wars heißen jetzt “reasonable encryption”" "🤦🤦" e\\
-"  Legalize it (Schleppnetzüberwachung)" "🤦🤦🤦" e\\
-"  Der Link ist immer noch nicht ganz tot! (EuGH und LG Humbug)" "🤦🤦🤦🤦" e\\
-"  Privacy: Niemand muss das Interwebs benutzen (Jim Sensenbrenner)" "🤦🤦🤦🤦🤦" e\\
-"  “Crypto” bedeutet nun BitCoin" "🤦🤦🤦🤦🤦🤦" e\\
-\skip
-"Mitbewerber" /subsection
-"  Stasi–artige Zersetzung (Tor project)" \\
-"  Cambridge Analytica–Skandal (Facebook)" \\
-\skip
-"Lösungen" /subsection
-"  net2o fängt an, benutztbar zu werden" \\
-glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-}}v box[] >o o Value snowden-page font-size# to border o o>
-}}z box[] /flip dup >slides
-
-\ page 5
-{{
-$BFBFFFFF pres-frame
-{{
-"ΜΙΝΩΣ2–Technologie" /title
-"ΜΙΝΩΣ2 ist unterhalb des DOM–Layers" \\
-\skip
-vt{{
-"Rendering: " "OpenGL (ES), Vulkan backend möglich" b\\
-"Font nach Textur: " "Freetype–GL (mit eigenen Verbesserungen)" b\\
-"Image nach Textur: " "SOIL2 (TBD: AV1 photo?)" b\\
-"Video nach Textur: " "OpenMAX AL (Android), gstreamer für Linux (geplant)" b\\
-"Koordinaten: " "Single float, Ursprung links unten" b\\
-{{ "Typesetting: " b0 blackish
-"Boxes & Glues ähnlich wie " }}text
-\LaTeX
-" — mit Ober– & Unterlängen" }}text glue*l }}glue }}h box[] >bl
-"" "Glues können schrumpfen, nicht nur wachsen" b\\
-"Object System: " "extrem leichtgewichtiges Mini–OOF2" b\\
-"Klassenzahl: " "Weniger Klassen, viele mögliche Kombinationen" b\\
-}}vt
-glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-}}v box[] >bdr
+    $FF7F7FFF pres-frame
+    {{
+	l" 5 Years after Snowden" /title
+	l" What changed?" \\
+	\skip
+	l" Politics" /subsection
+	{{ {{
+	    blackish l" " \\
+	    l"   EU parliament wants upload filters" "🤦" e\\
+	    l"   EU parliament taxes the link (instead: “right”)" "🤦🤦" e\\
+	    l"   EU parliament wants filtering “terrorist contents”" "🤦🤦🤦" e\\
+	    l"   Germany wants a Cyberadministration like CAC (Medienstaatsvertrag)" "🤦🤦🤦🤦" e\\
+	    l"   Backdoors still wanted (“reasonable encryption”)" "🤦🤦🤦🤦🤦" e\\
+	    l"   Legalize it (dragnet surveillance)" "🤦🤦🤦🤦🤦🤦" e\\
+	    l"   You can't reasonably expect privacy on your own PC" "🤦🤦🤦🤦🤦🤦🤦" e\\
+	    l"   “Crypto” now means BitCoin" "🤦🤦🤦🤦🤦🤦🤦🤦" e\\
+	    tex: vp-eu glue*l ' vp-eu }}vp vp[]
+	    $FFBFFFFF color, dup to slider-color to slider-fgcolor
+	    font-size# f2/ f2/ to slider-border
+	    dup font-size# f2/ fdup vslider
+	}}h box[]
+	\skip
+	l" Competition" /subsection
+	l"   Cambridge Analytica scandal (Facebook)" \\
+	l"   Security fuckups: Passwords pawned, chat log saved unprotected in the cloud, etc." \\
+	
+	\skip
+	l" Progress" /subsection
+	l"   The ECHR ruled that GCHQ’s dragnet surveillances violates your rights" \\
+	l"   net2o becomes more and more usable" \\
+\	glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+    }}v box[] >o o Value snowden-page font-size# to border o o>
 }}z box[] /flip dup >slides
 
 \ page 6
 {{
-$FFBFFFFF pres-frame
-{{
-"ΜΙΝΩΣ2 Widgets" /title
-"Design-Prinzip ist eine Lego–artige Kombination aus vielen sehr einfachen Objekten" \\
-{{ {{ vt{{
-"actor " "Basis–Klasse, die auf alle Aktionen reagiert (Klicks, Touch, Tasten)" b\\
-"widget " "Basis–Klasse für alle sichtbaren Objekte" b\\
-{{ "edit " b0 blackish "Editierbarer Text: " }}text
-"复活节快乐！" }}edit dup Value edit-field glue*l }}glue }}h edit-field ' true edit[] >bl
-\sans \latin \normal
-"glue " "Basis–Klasse für flexible Objekte" b\\
-"tile " "Farbiges Rechteck" b\\
-"frame " "Farbiges Rechteck mit Rand" b\\
-"text " "Text–Element+Emoji 😀🤭😁😂😇😈🙈🙉🙊💓💔💕💖💗💘🍺🍻🎉🎻🎺🎷" b\\
-"icon " "Bild aus der Icon–Textur" b\\
-"image " "Größeres Bild" b\\
-"animation " "Klasse für Animationen" b\\
-"canvas " "Vektor–Grafik (TBD)" b\\
-"video " "Video–Player (TBD)" b\\
-}}vt
-glue*l }}glue
-tex: vp0 glue*l ' vp0 }}vp vp[]
-$FFBFFFFF color, dup to slider-color to slider-fgcolor
-font-size# f2/ f2/ to slider-border
-dup font-size# f2/ fdup vslider
-}}h box[]
-}}v box[] >bdr
-}}z box[]
-/flip dup >slides
+    $FFBFFFFF pres-frame
+    {{
+	l" ΜΙΝΩΣ2 Widgets" /title
+	l" Design principle is a Lego–style combination of many extremely simple objects" \\
+	{{ {{ vt{{
+		    l" actor " l" base class that reacts on all actions (clicks, touchs, keys)" b\\
+		    l" animation " l" action for animations" b\\
+		    l" widget " l" base class for all visible objects" b\\
+		    l" glue " l" base class for flexible objects" b\\
+		    l" tile " l" colored rectangle" b\\
+		    l" frame " l" colored rectangle with border" b\\
+		    l" icon " l" icon from an icon texture" b\\
+		    l" image " l" larger image" b\\
+		    {{ l" edit " b0 blackish l" editable text: " }}text'
+		    "中秋节快乐！ Happy autumn festival! 🌙🌕" }}edit dup Value edit-field glue*l }}glue }}h edit-field ' true edit[] >bl
+		    \sans \latin \normal \regular
+		    l" text " l" text element/Emoji/中文/… 😀🤭😁😂😇😈🙈🙉🙊💓💔💕💖💗💘🍺🍻🎉🎻🎺🎷" b\\
+		    l" part-text " l" pseudo–element for paragraph breaking" b\\
+		    l" canvas " l" vector graphics (TBD)" b\\
+		    l" video " l" video player (TBD)" b\\
+		}}vt
+		glue*l }}glue
+	    tex: vp0 glue*lll ' vp0 }}vp vp[]
+	    dup font-size# f2/ fdup vslider
+	}}h box[]
+    }}v box[] >bdr
+}}z box[] /flip dup >slides
 
 \ page 7
 {{
 $BFFFFFFF pres-frame
 {{
-"ΜΙΝΩΣ2 Boxen" /title
-{{
-"Wie bei " }}text \LaTeX " werden Texte/Widgets in Boxen angeordnet" }}text glue*l }}h box[]
->bl
-\skip
-vt{{
-"hbox " "Horizontale Box, gemeinsame Baseline" b\\
-"vbox " "Verticale Box, Mindestdistanz eine baselineskip (der eingebetteten Boxen)" b\\
-"zbox " "Mehrere Boxen überlappt" b\\
-"grid " "Frei plazierbare Widgets (TBD)" b\\
-"slider " "Horizontale und vertikale Slider (zusammengesetztes Objekt)" b\\
-\skip
-"Für Tabellen gibt es einen Hilfs–Glue, und formatierte Absätze sind auch geplant" \\
-}}vt
-{{ glue*l }}glue
-{{ $0000007F to x-color \tiny l"  Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. " }}i18n-text \bold "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit," }}text \regular " sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui " }}text \italic "dolorem ipsum quia dolor sit amet," }}text \regular " consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum " }}text \bold-italic "qui dolorem eum fugiat" }}text \regular " quo voluptas nulla pariatur?" }}text glue*l }}glue }}p cbl dpy-w @ 72% fm* dup .par-split /center
-glue*l }}glue }}v
+    l" ΜΙΝΩΣ2 Boxes" /title
+    {{
+    l" Just like " }}text' \LaTeX l" , boxes arrange widgets/text" }}text' glue*l }}h box[]
+    >bl
+    \skip
+    vt{{
+	l" hbox " l" Horizontal box, common baseline" b\\
+	l" vbox " l" Vertical box, minimum distance a baselineskip (of the hboxes below)" b\\
+	l" zbox " l" Overlapping several boxes" b\\
+	l" slider " l" horizontal and vertical sliders (composite object)" b\\
+	l" parbox " l" box for breaking paragraphs" b\\
+	l" grid " l" Free widget placements (TBD)" b\\
+	\skip
+	l" Tables uses helper glues, no special boxes needed" \\
+    }}vt
+    {{ {{ glue*l }}glue
+	    {{ \tiny l"  Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. " }}i18n-text \bold "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit," }}text \regular " sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui " }}text \italic "dolorem ipsum quia dolor sit amet," }}text \regular " consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum" }}text \bold-italic " qui dolorem eum fugiat" }}text \regular " quo voluptas nulla pariatur?" }}text glue*l }}glue }}p cbl dpy-w @ s>f font-size# 140% f* f- 1e text-shrink% f2/ f- f/ dup .par-split unbox
+	glue*l }}glue }}v
+    glue*2 }}glue }}z  \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >bdr
 }}z box[] /flip dup >slides
 
 \ page 8
 {{
-$FFFFBFFF pres-frame
-{{
-"ΜΙΝΩΣ2 Displays" /title
-"Rendern in verschiedene Arten von Displays" \\
-\skip
-vt{{
-"viewport " "In eine Textur, genutzt als Viewport" b\\
-"display " "Zum tatsächlichen Display" b\\
-}}vt
-glue*l }}glue
-}}v box[] >bdr
+    $FFFFBFFF pres-frame
+    {{
+	l" ΜΙΝΩΣ2 Displays" /title
+	l" Render into different kinds of displays" \\
+	\skip
+	vt{{
+	    l" viewport " l" Into a texture, used as viewport" b\\
+	    l" display " l" To the actual display (no class, just the default)" b\\
+	}}vt
+	glue*l }}glue
+    }}v box[] >bdr
 }}z box[] /flip dup >slides
 
 \ page 9
 {{
-$BFDFFFFF pres-frame
-{{
-"Draw–Calls minimieren" /title
-"OpenGL möchte so wenig wie mögliche Draw–Calls pro Frame, also werden ver­schie­dene Contexte mit einem Draw–Call pro Stack gezeichnet" p\\
-\skip
-vt{{
-"init " "Initialisierungs–Runde" b\\
-"bg " "Hintergrund–Runde" b\\
-"icon " "Zeichne Elemente der Icon–Textur" b\\
-"thumbnail " "Zeichne Elemente der Thumbnail–Textur" b\\
-"image " "Zeichne Bilder mit einem Draw–Call pro Image" b\\
-"marking " "Cursor/Auswahl–Runde" b\\
-"text " "Text–Runde" b\\
-}}vt
-glue*l }}glue
-}}v box[] >bdr
+    $BFDFFFFF pres-frame
+    {{
+	l" Minimize Draw Calls" /title
+	l" OpenGL wants as few draw–calls per frame, so different contexts are drawn in stacks with a draw–call each" p\\
+	\skip
+	vt{{
+	    l" init " l" Initialization round" b\\
+	    l" bg " l" background round" b\\
+	    l" text " l" text round (same draw call as bg round, just different code)" b\\
+	    l" image " l" draw images with one draw–call per image" b\\
+	}}vt
+	glue*l }}glue
+    }}v box[] >bdr
 }}z box[] /flip dup >slides
 
-\ page 11
+\ page 17
 {{
-$FFFFFFFF pres-frame
-{{
-"Literatur & Links" /title
-vt{{
-"Bernd Paysan " "net2o fossil repository" bi\\
-"" "https://fossil.net2o.de/net2o/" bm\\
-"Bernd Paysan " "$quid cryptocurrency & SwapDragonChain" bi\\
-"" "https://squid.cash/" bm\\
-}}vt
-glue*l }}glue
-\ tex: qr-code
-\ ' qr-code "qr-code.png" 13e }}image-file drop /center
-\ qr-code nearest
-\ glue*l }}glue
-}}v box[] >bdr
+    $FFFFFFFF pres-frame
+    {{
+	l" Literatur & Links" /title
+	vt{{
+	    l" Bernd Paysan " l" net2o fossil repository" bi\\
+	    l" 🔗" l" https://net2o.de/" bm\\
+	    [: s" xdg-open https://net2o.de/" system ;] 0 click[]
+	}}vt
+	glue*l }}glue
+    }}v box[] >bdr
 }}z box[] /flip dup >slides
+
+' }}text is }}text'
 
 \ end
 glue-right }}glue
 }}h box[]
 {{
-' minos2 minos2-glue  logo-img to m2-img
+' minos2     minos2-glue logo-img drop
 }}z
 }}z slide[]
 to top-widget
@@ -387,6 +371,11 @@ also opengl
 
 : !widgets ( -- ) top-widget .htop-resize
     1e ambient% sf! set-uniforms ;
+
+[IFDEF] writeout-en
+    lsids ' .lsids s" ef2018/en" r/w create-file throw
+    dup >r outfile-execute r> close-file throw
+[THEN]
 
 previous
 
@@ -404,4 +393,24 @@ script? [IF]
     presentation bye
 [ELSE]
     presentation
+[THEN]
+
+0 [IF]
+Local Variables:
+forth-local-words:
+    (
+     (("net2o:" "+net2o:") definition-starter (font-lock-keyword-face . 1)
+      "[ \t\n]" t name (font-lock-function-name-face . 3))
+     ("[a-z0-9]+(" immediate (font-lock-comment-face . 1)
+      ")" nil comment (font-lock-comment-face . 1))
+     (("x\"" "l\"") immediate (font-lock-string-face . 1)
+      "[\"\n]" nil string (font-lock-string-face . 1))
+    )
+forth-local-indent-words:
+    (
+     (("net2o:" "+net2o:") (0 . 2) (0 . 2) non-immediate)
+     (("{{" "vt{{") (0 . 2) (0 . 2) immediate)
+     (("}}h" "}}v" "}}z" "}}vp" "}}p" "}}vt") (-2 . 0) (-2 . 0) immediate)
+    )
+End:
 [THEN]
