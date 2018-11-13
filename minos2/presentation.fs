@@ -196,63 +196,14 @@ $FFFFFFFF pres-frame
 {{
     glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
     ' }}i18n-text is }}text'
-    l" net2o: ΜΙΝΩΣ2 GUI, $quid “crypto”" /title
-    l" ($quid = ethical micropayment with efficient BlockChain)" /subtitle
+    l" net2o: ΜΙΝΩΣ2 GUI" /title
+    l" Lightweight GUI library" /subtitle
     {{ glue*2 }}glue }}z
     l" Bernd Paysan" /author
     l" EuroForth 2018, Edinburgh" /location
     glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 }}v box[] >o font-size# to border o Value title-page o o>
 }}z box[] dup >slides
-
-\ page 1
-{{
-$FFFFFFFF pres-frame
-    {{
-	l" Motivation" /title
-	glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-	tex: bad-gateway
-	' bad-gateway "bad-gateway.png" 0.666e }}image-file
-	Constant bgw-glue /center
-	glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-    }}v box[] >bdr
-}}z box[] /flip dup >slides
-
-\ page 2
-{{
-    $FF7F7FFF pres-frame
-    {{
-	l" 5 Years after Snowden" /title
-	l" What changed?" \\
-	\skip
-	l" Politics" /subsection
-	{{ {{
-	    blackish l" " \\
-	    l"   EU parliament wants upload filters" "🤦" e\\
-	    l"   EU parliament taxes the link (instead: “right”)" "🤦🤦" e\\
-	    l"   EU parliament wants filtering “terrorist contents”" "🤦🤦🤦" e\\
-	    l"   Germany wants a Cyberadministration like CAC (Medienstaatsvertrag)" "🤦🤦🤦🤦" e\\
-	    l"   Backdoors still wanted (“reasonable encryption”)" "🤦🤦🤦🤦🤦" e\\
-	    l"   Legalize it (dragnet surveillance)" "🤦🤦🤦🤦🤦🤦" e\\
-	    l"   You can't reasonably expect privacy on your own PC" "🤦🤦🤦🤦🤦🤦🤦" e\\
-	    l"   “Crypto” now means BitCoin" "🤦🤦🤦🤦🤦🤦🤦🤦" e\\
-	    tex: vp-eu glue*l ' vp-eu }}vp vp[]
-	    $FFBFFFFF color, dup to slider-color to slider-fgcolor
-	    font-size# f2/ f2/ to slider-border
-	    dup font-size# f2/ fdup vslider
-	}}h box[]
-	\skip
-	l" Competition" /subsection
-	l"   Cambridge Analytica scandal (Facebook)" \\
-	l"   Security fuckups: Passwords pawned, chat log saved unprotected in the cloud, etc." \\
-	
-	\skip
-	l" Progress" /subsection
-	l"   The ECHR ruled that GCHQ’s dragnet surveillances violates your rights" \\
-	l"   net2o becomes more and more usable" \\
-\	glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-    }}v box[] >o o Value snowden-page font-size# to border o o>
-}}z box[] /flip dup >slides
 
 \ page 6
 {{
