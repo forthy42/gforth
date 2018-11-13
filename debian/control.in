@@ -120,7 +120,7 @@ Package: gforth-noto-fonts
 Version: @DEBVERSION@
 Architecture: all
 Provides: gforth-fonts
-Depends: fonts-noto, fonts-noto-cjk, fonts-noto-emoji
+Depends: fonts-noto, fonts-noto-cjk, fonts-noto-emoji, fonts-liberation | liberation-fonts
 
 Package: gforth-liberation-fonts
 Version: @DEBVERSION@
