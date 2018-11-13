@@ -14,6 +14,7 @@ extern struct _IO_FILE *stderr;
 
 // exec: sed -e 's/ s n / a n /g' -e 's/c-function hb_glyph_info_get_glyph_flags/\\ c-function hb_glyph_info_get_glyph_flags/g'
 
+#define HB_EXTERN extern
 #define HB_BEGIN_DECLS
 #define HB_END_DECLS
 
