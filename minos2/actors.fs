@@ -120,28 +120,17 @@ false value grab-move? \ set to true to grab moves
 : .parents ( o:widget -- )
     parent-w ?dup-IF  >o recurse o>  THEN  o hex. name$ type space ;
 
-: do-childs? ( xt flag -- )
-    caller-w >o
-    dup box-flags and 0= IF
-	dup >r    box-flags or  to box-flags  do-childs
-	r> invert box-flags and to box-flags
-    ELSE
-	2drop
-    THEN o> ;
-
 :noname ( rx ry b n -- )
     click( o hex. caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
     grab-move? IF
 	active-w ?dup-IF  .act .clicked  EXIT  THEN
     THEN
-    o [: { c-act } act IF  fover fover inside?
-	    IF
-		click( ." click passed through " .parents cr )
-		c-act re-focus
-		fover fover 2dup act .clicked
-	    THEN
+    o [: { c-act }  fover fover inside? IF
+	    click( ." click passed through " .parents cr )
+	    c-act re-focus
+	    fover fover 2dup act .clicked
 	THEN
-	c-act ;] box-touched# do-childs? drop
+	c-act ;] box-touched# do-childs-act? drop
     2drop fdrop fdrop ;
 box-actor is clicked
 :noname ( addr u -- )
@@ -150,27 +139,25 @@ box-actor is clicked
     active-w ?dup-IF  .act .ekeyed  ELSE  drop   THEN ; box-actor is ekeyed
 : xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
 :noname ( $xy b -- )
-    [: act IF  over xy@ inside?
-	    IF  2dup act .touchdown   THEN  THEN
-    ;] box-touched# do-childs?
+    [: over xy@ inside?  IF  2dup act .touchdown   THEN
+    ;] box-touched# do-childs-act?
     2drop ; box-actor is touchdown
 :noname ( $xy b -- )
-    [: act IF  over xy@ inside?
-	    IF  2dup act .touchup   THEN  THEN
-    ;] box-touched# do-childs?
+    [: over xy@ inside?  IF  2dup act .touchup   THEN
+    ;] box-touched# do-childs-act?
     2drop ; box-actor is touchup
 :noname ( $xy b -- )
     event( o hex. caller-w hex. ." box move " 2dup .touch )
     grab-move? IF
 	active-w ?dup-IF  .act .touchmove  EXIT  THEN
     THEN
-    [: act IF  over xy@ inside?
-	    event( o hex. caller-w hex. ." move inside? " dup . cr )
-	    IF  2dup act .touchmove  THEN  THEN
-    ;] box-touched# do-childs?
+    [: over xy@ inside?
+	event( o hex. caller-w hex. ." move inside? " dup . cr )
+	IF  2dup act .touchmove  THEN
+    ;] box-touched# do-childs-act?
     2drop ; box-actor is touchmove
 :noname ( -- )
-    [: act ?dup-IF  .defocus  THEN ;] box-defocus# do-childs?
+    [: act .defocus ;] box-defocus# do-childs-act?
 ; box-actor is defocus
 
 : box[] ( o -- o )

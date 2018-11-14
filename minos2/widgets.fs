@@ -688,8 +688,23 @@ end-class box
     childs[] $@ bounds U+DO
 	xt I @ .execute
     cell +LOOP ;
+: do-childs-?act { xt -- .. }
+    childs[] $@ bounds U+DO
+	I @ .act IF  xt I @ .execute  THEN
+    cell +LOOP ;
 : ?do-childs { xt flag -- }
     box-flags flag and 0= IF  xt do-childs  THEN ;
+
+: do-childs-act? ( xt flag -- )
+    \G loop prevention: checks flag, sets flag, calls do-child-?act, resets flag
+    caller-w >o
+    dup box-flags and 0= IF
+	dup >r    box-flags or  to box-flags  do-childs-?act
+	r> invert box-flags and to box-flags
+    ELSE
+	2drop
+    THEN o> ;
+
 : ?=do-childs { xt flag -- }
     box-flags dup box-phantom# and 0= swap flag and or
     IF  xt do-childs  THEN ;
