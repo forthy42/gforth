@@ -132,6 +132,7 @@ $10 Constant box-hphantom#
 $20 Constant box-vphantom#
 $40 Constant box-dphantom#
 $80 Constant box-defocus#
+$100 Constant box-touched#
 box-hphantom# box-vphantom# or box-dphantom# or Constant box-phantom#
 box-flip# box-phantom# or Constant box-visible#
 
