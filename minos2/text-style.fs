@@ -96,6 +96,104 @@ is reload-textures
 : }}image-tex ( xt glue -- o )
     $ffffffff color, rot }}image ;
 
+\ buttons
+
+: 20%bt ( o -- o ) >o font-size# 20% f* to bordert o o> ;
+: 25%b ( o -- o ) >o font-size# 25% f* to border o o> ;
+: 25%bv ( o -- o ) >o font-size# 25% f* fdup to border fnegate to borderv o o> ;
+: 40%b ( o -- o ) >o font-size# 40% f* to border o o> ;
+
+: /center*ll ( o -- o' )
+    >r {{ glue*ll }}glue r> glue*ll }}glue }}h box[] >bl ;
+: /left*ll ( o -- o' )
+    >r {{ r> glue*ll }}glue }}h box[] >bl ;
+
+: }}button { text color -- o }
+    {{
+	glue*l color font-size# 40% f* }}frame dup .button2
+	text }}text' 25%b /center
+    }}z box[] ;
+
+: }}button1 { d: text color -- o }
+    {{
+	glue*l color font-size# 40% f* }}frame dup .button1
+	text }}text 25%b /center
+    }}z box[] ;
+
+: }}tile1 { d: text color -- o }
+    {{
+	glue*l color 0e }}frame dup .button1
+	>o font-size# 40% f* to borderv o o>
+	text }}text 25%b /center
+    }}z box[] ;
+
+: }}button*ll { text color -- o }
+    {{
+	glue*ll color font-size# 40% f* }}frame dup .button2
+	text }}text' 25%b /center*ll
+    }}z box[] ;
+
+: }}button-lit { d: text color -- o }
+    {{
+	glue*l color font-size# 40% f* }}frame dup .button2
+	text }}text 25%b /center
+    }}z box[] ;
+
+: }}toggle-bit ( mask addr -- o )
+    l" 🔵" }}text' -rot
+    [{: x a :}d
+	IF    a @ x or a ! l" 🔵"
+	ELSE  a @ x invert and a ! l" ⚪"
+	THEN  caller-w >o to l-text o> ;] true toggle[] ;
+
+: }}rider ( text color -- o ) }}button
+    >o 0 childs[] $[] @
+    >o font-size# 40% f* fdup fnegate to borderv to bordert o>
+    o o> ;
+
+: rgba> ( rgba -- r g b a ) >r
+    r@ #24 rshift $FF and
+    r@ #16 rshift $FF and
+    r@ #08 rshift $FF and
+    r>            $FF and ;
+: >rgba ( r g b a -- rgba ) >r >r >r
+    #8 lshift r> or
+    #8 lshift r> or
+    #8 lshift r> or ;
+
+: darken ( rgba -- rgba' )
+    rgba> { r g b a }
+    r $FF - 2* $FF +
+    g $FF - 2* $FF +
+    b $FF - 2* $FF +
+    a >rgba ;
+
+: lighten ( rgba -- rgba' )
+    rgba> { r g b a }
+    r $FF - 2/ $FF +
+    g $FF - 2/ $FF +
+    b $FF - 2/ $FF +
+    a >rgba ;
+
+: >lowered ( percent o -- )
+    >o 0 childs[] $[] @
+    >o raise fover to raise
+    fover fover f<> IF
+	fover f< IF  frame-color darken  to frame-color
+	ELSE   frame-color lighten to frame-color  THEN
+    ELSE  fdrop  THEN o>
+    1 childs[] $[] @ >o 1 childs[] $[] @
+    >o      to raise o>
+    o> o> ;
+
+: }}tab' ( text color -- o ) }}tab
+    dup font-size# 15% f* >lowered ;
+
+: tab[] ( o -- o )
+    [:  [: o font-size# 15% f* >lowered ;] caller-w .parent-w .do-childs
+	caller-w 0e >lowered
+    ;] over click[] ;
+
 glue new Constant glue*wh
 
 : update-glue

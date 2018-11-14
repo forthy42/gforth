@@ -234,8 +234,8 @@ end-class widget
 :noname x y w h d ; widget is xywhd
 ' noop widget is !size
 :noname w border f2* f+ borderl f+ kerning f+ 0e fdup ; widget is hglue
-:noname h border borderv f+ bordert f+ raise f+ f+ 0e fdup ; widget is vglue
-:noname d border borderv f+ raise f- f+ 0e fdup ; widget is dglue
+:noname h border borderv f+ bordert f+ raise f- f+ 0e fdup ; widget is vglue
+:noname d border borderv f+ raise f+ f+ 0e fdup ; widget is dglue
 : widget-resize to d to h to w to y to x ;
 ' widget-resize widget is resize
 ' hglue widget is hglue@
@@ -448,8 +448,8 @@ end-class text
 :noname text$ text-!size ; text is !size
 :noname w kerning f+
     text-w text-shrink% f* text-w text-grow% f* ; text is hglue
-:noname h raise f+ 0e fdup ; text is vglue
-:noname d raise f- 0e fdup ; text is dglue
+:noname h raise f- 0e fdup ; text is vglue
+:noname d raise f+ 0e fdup ; text is dglue
 :noname addr text$ $free [ widget :: dispose-widget ] ; text is dispose-widget
 : i18n-text-init
     l-text ?lang and IF
@@ -837,22 +837,22 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 	['] vglue1+ do-childs-limits
 	drop glue+
     THEN
-    raise fnegate 0e fdup glue+ ;
+    raise 0e fdup glue+ ;
 : vglue+ ( -- glue ) 0glue box-flags box-vflip# and ?EXIT
     box-flags dup box-phantom# and swap box-vphantom# and 0= and ?EXIT
     0glue box-flags baseline-start# and 0<> 0 baseline-offset
     ['] vglue1+ do-childs-limits
-    glue-drop drop  raise 0e fdup glue+ ;
+    glue-drop drop  raise fnegate 0e fdup glue+ ;
 
 : hglue* ( -- glue ) box-flags box-hflip# and IF  0glue  EXIT  THEN
     1glue [: hglue@ glue* ;] box-hphantom# ?=do-childs  b0glue glue+
     kerning 0e fdup glue+ ;
 : dglue* ( -- glue ) box-flags box-vflip# and IF  0glue  EXIT  THEN
     1glue [: dglue@ glue* ;] box-dphantom# ?=do-childs
-    raise fnegate 0e fdup glue+ ;
+    raise 0e fdup glue+ ;
 : vglue* ( -- glue ) box-flags box-vflip# and IF  0glue  EXIT  THEN
     1glue [: vglue@ glue* ;] box-vphantom# ?=do-childs
-    raise 0e fdup glue+ ;
+    raise fnegate 0e fdup glue+ ;
 
 :noname hglue+ >hglue!@ ; hbox is hglue
 :noname dglue* >dglue!@ ; hbox is dglue
