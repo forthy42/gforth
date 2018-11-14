@@ -146,7 +146,7 @@ is reload-textures
 	ELSE  a @ x invert and a ! l" ⚪"
 	THEN  caller-w >o to l-text o> ;] true toggle[] ;
 
-: }}rider ( text color -- o ) }}button
+: }}tab ( text color -- o ) }}button
     >o 0 childs[] $[] @
     >o font-size# 40% f* fdup fnegate to borderv to bordert o>
     o o> ;
