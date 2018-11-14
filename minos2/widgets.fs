@@ -376,6 +376,7 @@ DOES>  swap sfloats + sf@ ;
     -1e to t.i0 
     frame# frame-color border fdup borderv f+ borderl bordert
     xywh { f c f: b f: bv f: bl f: bt f: x f: y f: w f: h }
+    raise fdup +to y fnegate +to h
     #80 ?flush-tris  i>off >v
     4 0 DO
 	4 0 DO
