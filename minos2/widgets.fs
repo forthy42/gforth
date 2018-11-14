@@ -367,20 +367,20 @@ DOES>  swap sfloats + sf@ ;
 : >border ( rx rb i rw bx -- r ) { f: w f: bx }
     case
 	0 of  fdrop      endof
-	1 of  f+         endof
+	1 of  bx f+ f+   endof
 	2 of  f- w f+    endof
 	3 of  fdrop w f+ endof
     endcase ;
 
 : frame-draw ( -- )
     -1e to t.i0 
-    frame# frame-color border fdup borderv f+
-    xywh { f c f: b f: bv f: x f: y f: w f: h }
+    frame# frame-color border fdup borderv f+ borderl bordert
+    xywh { f c f: b f: bv f: bl f: bt f: x f: y f: w f: h }
     #80 ?flush-tris  i>off >v
     4 0 DO
 	4 0 DO
-	    x b  I w borderl >border
-	    y bv J h bordert >border >xy
+	    x b  I w bl >border
+	    y bv J h bt >border >xy
 	    c rgba>c  n>
 	    I button-st J button-st f #>st v+
 	LOOP
