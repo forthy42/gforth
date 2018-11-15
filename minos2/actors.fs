@@ -561,7 +561,7 @@ edit-terminal edit-out !
 : edit>curpos ( x o:actor -- )
     edit-w >o  text-font to font
     x f- border f- w border f2* f- text-w f/ f/
-    text$ pos-string to curpos
+    text$ pos-string to curpos  prefix-off
     o>  +sync ;
 
 [IFUNDEF] -scan
