@@ -438,18 +438,12 @@ end-class vslider-actor
 
 \ edit widget
 
-0 Value safe-edit
-
 : edit$!len ( len -- ) \ precaution for password edit
-    safe-edit IF
-	edit$ @ $@len over = IF  drop  EXIT  THEN
-	0 { w^ new$ } new$ $!len
-	edit$ @ $@ new$ $@ rot umin move
-	edit$ @ $@ erase edit$ @ $free
-	new$ @ edit$ @ !
-    ELSE
-	edit$ @ $!len
-    THEN ;
+    edit$ @ $@len over = IF  drop  EXIT  THEN
+    0 { w^ new$ } new$ $!len
+    edit$ @ $@ new$ $@ rot umin move
+    edit$ @ $@ erase edit$ @ $free
+    new$ @ edit$ @ ! ;
 
 : grow-edit$ { max span addr pos1 more -- max span addr pos1 true }
     max span more + u> IF  max span addr pos1 true  EXIT  THEN
@@ -463,9 +457,10 @@ xchar-ctrlkeys edit-ctrlkeys bl cells move
 keycode-limit keycode-start - cells buffer: edit-ekeys
 std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 
+' kill-prefix   is everychar
 ' edit-ctrlkeys is ctrlkeys
-' edit-ekeys is ekeys
-' grow-edit$ is grow-tib
+' edit-ekeys    is ekeys
+' grow-edit$    is grow-tib
 [IFDEF] android
     also jni
     : android-seteditline ( span addr pos -- span addr pos )
@@ -631,9 +626,9 @@ edit-terminal edit-out !
 
 :noname ( key o:actor -- )
     [: 4 roll dup $80000000 and 0= k-ctrl-mask and invert and
-	>control edit-control drop ;] edit-xt ; edit-actor is ekeyed
+	everychar >control edit-control drop ;] edit-xt ; edit-actor is ekeyed
 :noname ( addr u o:actor -- )
-    [: 2rot edit-ins$ edit-update ;] edit-xt ; edit-actor is ukeyed
+    [: 2rot prefix-off edit-ins$ edit-update ;] edit-xt ; edit-actor is ukeyed
 :noname ( o:actor -- )
     edit-w >o -1 to cursize o> +sync
     -keyboard ; edit-actor is defocus
