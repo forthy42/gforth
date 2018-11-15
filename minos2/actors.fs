@@ -657,7 +657,7 @@ edit-terminal edit-out !
 		    4 of  select-word    endof
 		    6 of  select-line    endof
 		endcase
-		sel>primary
+		primary$ $@len cursize 0<> or IF  sel>primary  THEN
 		-1 to start-curpos
 		0  to start-cursize
 		o>
