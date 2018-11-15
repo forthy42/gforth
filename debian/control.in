@@ -109,24 +109,32 @@ Version: @DEBVERSION@
 Architecture: all
 Provides: gforth-opengl
 Depends: libgles2, libegl1, libgl1-mesa-dri
+Description: GNU Forth
+ OpenGL ES dependency meta-package
 
 Package: gforth-gl-dependencies
 Version: @DEBVERSION@
 Architecture: all
 Provides: gforth-opengl
 Depends: libglx0, libgl1, libgl1-mesa-dri
+Description: GNU Forth
+ OpenGL dependency meta-package
 
 Package: gforth-noto-fonts
 Version: @DEBVERSION@
 Architecture: all
 Provides: gforth-fonts
 Depends: fonts-noto, fonts-noto-cjk, fonts-noto-emoji, fonts-liberation | liberation-fonts
+Description: GNU Forth
+ Noto fonts dependency meta-package
 
 Package: gforth-liberation-fonts
 Version: @DEBVERSION@
 Architecture: all
 Provides: gforth-fonts
 Depends: fonts-liberation | liberation-fonts, fonts-arphic-gkai00mp
+Description: GNU Forth
+ Liberation fonts dependency meta-package
 
 Package: gforth-minos2
 Version: @DEBVERSION@
