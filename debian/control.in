@@ -108,7 +108,8 @@ Package: gforth-gles-dependencies
 Version: @DEBVERSION@
 Architecture: all
 Provides: gforth-opengl
-Depends: libgles2, libegl1, libgl1-mesa-dri
+Depends: libgles2, libgl1-mesa-dri
+Recommends: libegl1 | libegl1-mesa
 Description: GNU Forth
  OpenGL ES dependency meta-package
 
@@ -124,7 +125,8 @@ Package: gforth-noto-fonts
 Version: @DEBVERSION@
 Architecture: all
 Provides: gforth-fonts
-Depends: fonts-noto, fonts-noto-cjk, fonts-noto-emoji, fonts-liberation | liberation-fonts
+Depends: fonts-noto, fonts-noto-emoji, fonts-liberation | liberation-fonts
+Recomments: fonts-noto-cjk
 Description: GNU Forth
  Noto fonts dependency meta-package
 
