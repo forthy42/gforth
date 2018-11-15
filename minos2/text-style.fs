@@ -114,6 +114,13 @@ is reload-textures
 	text }}text' 25%b /center
     }}z box[] ;
 
+: }}tab-button { text color -- o }
+    {{
+	glue*l color font-size# 40% f* }}frame dup .button2
+	text }}text' 25%b /center
+	s" f|g" }}text 25%b /center /vphantom
+    }}z box[] ;
+
 : }}button1 { d: text color -- o }
     {{
 	glue*l color font-size# 40% f* }}frame dup .button1
@@ -146,7 +153,7 @@ is reload-textures
 	ELSE  a @ x invert and a ! l" ⚪"
 	THEN  caller-w >o to l-text o> ;] true toggle[] ;
 
-: }}tab ( text color -- o ) }}button
+: }}tab ( text color -- o ) }}tab-button
     >o 0 childs[] $[] @
     >o font-size# 40% f* fdup fnegate to borderv to bordert o>
     o o> ;
