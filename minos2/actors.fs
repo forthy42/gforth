@@ -438,12 +438,18 @@ end-class vslider-actor
 
 \ edit widget
 
+0 Value safe-edit
+
 : edit$!len ( len -- ) \ precaution for password edit
-    edit$ @ $@len over = IF  drop  EXIT  THEN
-    0 { w^ new$ } new$ $!len
-    edit$ @ $@ new$ $@ rot umin move
-    edit$ @ $@ erase edit$ @ $free
-    new$ @ edit$ @ ! ;
+    safe-edit IF
+	edit$ @ $@len over = IF  drop  EXIT  THEN
+	0 { w^ new$ } new$ $!len
+	edit$ @ $@ new$ $@ rot umin move
+	edit$ @ $@ erase edit$ @ $free
+	new$ @ edit$ @ !
+    ELSE
+	edit$ @ $!len
+    THEN ;
 
 : grow-edit$ { max span addr pos1 more -- max span addr pos1 true }
     max span more + u> IF  max span addr pos1 true  EXIT  THEN
