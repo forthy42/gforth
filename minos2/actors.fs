@@ -163,6 +163,55 @@ box-actor is clicked
 : box[] ( o -- o )
     >o box-actor new !act o o> ;
 
+\ scroll actor
+
+box-actor class
+    defer: sr-action
+end-class scroll-actor
+
+: scroll[] ( o xt -- o ) \ xt takes ( data -- )
+    swap >o scroll-actor new >o is sr-action o o> !act o o> ;
+
+:noname ( rx ry b n -- )
+    click( o hex. ." is clicked, do-action " action-of ck-action xt-see cr )
+    over $18 and 0<> over 1 and 0= and IF
+	fdrop fdrop 1 and 0= IF  >r
+	    r@ $08 and IF  -1 sr-action  THEN
+	    r@ $10 and IF   1 sr-action  THEN
+	    r>
+	THEN  drop
+    ELSE
+	[ box-actor :: clicked ]
+    THEN
+; scroll-actor is clicked
+:noname ( ukeyaddr u -- )
+    over ctrl P = >r over ctrl N = r> or over 1 = IF
+	bounds ?DO  case I c@
+		ctrl P of  -1 sr-action  endof
+		ctrl N of   1 sr-action  endof
+	    endcase
+	LOOP
+    ELSE  [ box-actor :: ukeyed ]  THEN ; scroll-actor is ukeyed
+:noname ( ekey -- )
+    case
+	k-left  of  -1 sr-action  endof
+	k-right of   1 sr-action  endof
+	[ box-actor :: ekeyed ] 0
+    endcase
+; scroll-actor is ekeyed
+
+\ scroll through tabs
+
+: find-tab ( -- n )
+    -1 0 [: 0 childs[] $[] @ .raise f0=
+	IF  nip dup  THEN  1+ ;] caller-w .do-childs drop ;
+: set-tab ( n -- )
+    dup 0 caller-w .childs[] $[]# within 0= IF  drop  EXIT  THEN
+    caller-w .childs[] $[] @ >r s"  " r> .act .ukeyed ;
+
+: tabs[] ( o -- o )
+    [: find-tab + set-tab ;] scroll[] ;
+
 \ viewport
 
 box-actor class

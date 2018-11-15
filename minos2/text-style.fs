@@ -187,12 +187,14 @@ is reload-textures
     o> o> ;
 
 : }}tab' ( text color -- o ) }}tab
-    dup font-size# 15% f* >lowered ;
+    dup font-size# 15% f* fround >lowered ;
 
-: tab[] ( o -- o )
-    [:  [: o font-size# 15% f* >lowered ;] caller-w .parent-w .do-childs
+: tab[] ( o addr -- o )
+    [:  [: o font-size# 15% f* fround >lowered ;] caller-w .parent-w .do-childs
 	caller-w 0e >lowered
-    ;] over click[] ;
+	[: o /flip drop ;] data @ .parent-w .do-childs
+	data @ /flop drop
+    ;] swap click[] ;
 
 glue new Constant glue*wh
 
