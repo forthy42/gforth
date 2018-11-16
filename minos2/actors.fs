@@ -509,8 +509,15 @@ Defer anim-ins
 	2r> drop free throw
     ELSE  insert-string  THEN ;
 
+: edit-split-ins$ ( max span addr pos1 addr u -- max span' addr pos1' )
+    BEGIN  #lf $split 2over + >r over r> u>  WHILE
+	    2>r  edit-ins$ edit-update edit-enter drop 2drop 2drop
+	    0 edit$!len edit$ @ $@ swap 0 tuck  2r>
+    REPEAT  2drop edit-ins$ edit-update ;
+
 : edit-paste ( max span addr pos1 - max span addr pos2 false )
-    clipboard@ edit-ins$ edit-update 0 ;
+    setstring$ $@ xins-string  setstring$ $free
+    clipboard@ edit-split-ins$ 0 ;
 
 : xedit-enter ( max span addr pos1 -- max span addr pos2 true )
     setstring$ $@ xins-string  setstring$ $free
@@ -664,7 +671,7 @@ edit-terminal edit-out !
 		o>
 	    endof
 	    2 of  drop fdrop edit>curpos
-		[: primary@ edit-ins$ ;] edit-xt  endof
+		[: primary@ edit-split-ins$ ;] edit-xt  endof
 	    4 of  ( menu   )  drop fdrop fdrop  endof
 	    nip fdrop fdrop
 	endcase
