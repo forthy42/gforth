@@ -515,13 +515,14 @@ Defer anim-ins
 	    0 edit$!len edit$ @ $@ swap 0 tuck  2r>
     REPEAT  2drop edit-ins$ edit-update ;
 
+: setstring> ( max span addr pos1 - max span addr pos2 )
+    setstring$ $@ xins-string  setstring$ $free ;
+
 : edit-paste ( max span addr pos1 - max span addr pos2 false )
-    setstring$ $@ xins-string  setstring$ $free
-    clipboard@ edit-split-ins$ 0 ;
+    setstring> clipboard@ edit-split-ins$ 0 ;
 
 : xedit-enter ( max span addr pos1 -- max span addr pos2 true )
-    setstring$ $@ xins-string  setstring$ $free
-    edit-enter ;
+    setstring> edit-enter ;
 
 ' edit-next-line ctrl N bindkey
 ' edit-prev-line ctrl P bindkey
@@ -659,19 +660,22 @@ edit-terminal edit-out !
 	    dup 1 u<= ?of drop
 		2 - 6 mod 2 +
 		{ clicks } fdrop edit>curpos
+		['] setstring> edit-xt
 		edit-w >o
 		case clicks
 		    2 of  end-selection  endof
 		    4 of  select-word    endof
 		    6 of  select-line    endof
 		endcase
-		primary$ $@len cursize 0<> or IF  sel>primary  THEN
+		[IFDEF] primary$
+		    primary$ $@len cursize 0<> or IF  sel>primary  THEN
+		[THEN]
 		-1 to start-curpos
 		0  to start-cursize
 		o>
 	    endof
 	    2 of  drop fdrop edit>curpos
-		[: primary@ edit-split-ins$ ;] edit-xt  endof
+		[: setstring> primary@ edit-split-ins$ ;] edit-xt  endof
 	    4 of  ( menu   )  drop fdrop fdrop  endof
 	    nip fdrop fdrop
 	endcase
