@@ -132,7 +132,11 @@ $10 Constant box-hphantom#
 $20 Constant box-vphantom#
 $40 Constant box-dphantom#
 $80 Constant box-defocus#
-$100 Constant box-touched#
+$100 Constant box-hfix#
+$200 Constant box-vfix#
+$400 Constant box-dfix#
+$10000 Constant box-touched#
+
 box-hphantom# box-vphantom# or box-dphantom# or Constant box-phantom#
 box-flip# box-phantom# or Constant box-visible#
 
@@ -423,7 +427,8 @@ end-class text
 : text! ( addr u font -- )
     to text-font to text$ 0e to start 1e to end ;
 : text-scale! ( w text-w -- ) { f: tx-w }
-    border f2* borderl f+ f- kerning f- tx-w f/ to x-scale ;
+    border f2* borderl f+ f- kerning f- tx-w fdup f0= IF  f*  ELSE  f/  THEN
+    to x-scale ;
 : text-xy! ( -- )
     x border kerning f+ borderl f+ f+ fround penxy         sf!
     y                        raise f+ fround penxy sfloat+ sf!
@@ -434,8 +439,6 @@ end-class text
 : text$-part ( addr u rstart rend -- addr' u' )
     dup fover f- fm* fround f>s >r \ length to draw
     dup fm* fround f>s safe/string r> umin ; \ start to skip
-: border-part { f: start f: end -- border-extra }  border f2* borderl f+
-    start 0e f<= IF  kerning f+  THEN ;
 : >text+border ( w d h -- )
     border borderv f+ bordert f+ f+ to h
     border borderv f+ f+ to d
@@ -506,17 +509,16 @@ end-class edit
 
 : edit-marking ( -- )
     cursize 0< ?EXIT  text-font to font
-    w border f2* borderl f+ f- text-w fdup f0= IF  f*  ELSE   f/  THEN { f: scale }
     text$ curpos umin layout-string fdrop fdrop
-    scale f* { f: w }
+    x-scale f* { f: ww }
     setstring$ $@len IF
-	setstring$ $@ layout-string fdrop fdrop scale f* +to w  0e
+	setstring$ $@ layout-string fdrop fdrop x-scale f* +to ww  0e
     ELSE
 	text$ curpos cursize m2c:curminchars# @ umax + umin
-	layout-string fdrop fdrop scale f* w f-
+	layout-string fdrop fdrop x-scale f* ww f-
     THEN  fdup f0= IF  fdrop m2c:curminwidth% f@ fdup f2/ fnegate
     ELSE  0e   THEN  { f: cw f: cw- }
-    x cw- f+ w f+ border f+ borderl f+ y d border borderv f+ f- f+ { f: x0 f: y0 }
+    x cw- f+ ww f+ border f+ borderl f+ y d border borderv f+ f- f+ { f: x0 f: y0 }
     x0 cw f+ y h border borderv f+ bordert f+ f- f- { f: x1 f: y1 }
     -2e to t.i0  6 ?flush-tris  i>off
     m2c:selectioncolor# @ text-color cursize 0> select >v
@@ -526,12 +528,12 @@ end-class edit
     x1 y1 >xy     rgba>c n> 3e 3e >st v+
     v> 2 quad ;
 
-: edit-text ( -- ) edit-marking  w text-w text-scale! text-xy!
+: edit-text ( -- )
+    w text-w text-scale! edit-marking
+    text-xy!
     cursize 0= setstring$ $@len and IF
 	text$ curpos umin render-string
-\	m2c:setstring-color# @ color !
 	setstring$ $@ 1 render-us-string
-\	text-color color !
 	text$ curpos safe/string render-string
     ELSE
 	text$ start end text$-part render-string
@@ -757,9 +759,9 @@ end-class vbox \ vertical alignment
 box class end-class zbox \ overlay alignment
 
 1e20 fconstant 1fil
-1e40 fconstant 1fill
-1e60 fconstant 1filll
-1e-20 fconstant 0g \ minimum glue, needs to be bigger than zero to avoid 0/0
+1fil fdup f* fconstant 1fill
+1fil 1fill f* fconstant 1filll
+1fil 1/f fconstant 0g \ minimum glue, needs to be bigger than zero to avoid 0/0
 
 : fils ( f -- f' ) 1fil f* ;
 : fills ( f -- f' ) 1fill f* ;
@@ -820,14 +822,13 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : hglue+ ( -- glue ) b0glue
     box-flags box-hflip# and ?EXIT
     box-flags dup box-phantom# and swap box-hphantom# and 0= and ?EXIT
-    [: hglue@ glue+ ;] do-childs
-    kerning 0e fdup glue+ ;
+    [: hglue@ glue+ ;] do-childs ;
 
 : vglue1+ ( glue1 dglue flag -- glue2 flag )
     vglue@ glue+ frot gap f+
     IF  baseline fmax  THEN  f-rot glue+ dglue@
     true ;
-: dglue+ ( -- glue ) 0glue box-flags box-vflip# and ?EXIT
+: dglue+ ( -- glue ) 0glue box-flags box-dflip# and ?EXIT
     box-flags dup box-phantom# and swap box-dphantom# and 0= and ?EXIT
     baseline-offset childs[] $[]# u>= IF
 	[: glue-drop dglue@ ;] do-lastchild \ last dglue
@@ -847,24 +848,28 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : hglue* ( -- glue ) box-flags box-hflip# and IF  0glue  EXIT  THEN
     1glue [: hglue@ glue* ;] box-hphantom# ?=do-childs  b0glue glue+
     kerning 0e fdup glue+ ;
-: dglue* ( -- glue ) box-flags box-vflip# and IF  0glue  EXIT  THEN
+: dglue* ( -- glue ) box-flags box-dflip# and IF  0glue  EXIT  THEN
     1glue [: dglue@ glue* ;] box-dphantom# ?=do-childs
     raise 0e fdup glue+ ;
 : vglue* ( -- glue ) box-flags box-vflip# and IF  0glue  EXIT  THEN
     1glue [: vglue@ glue* ;] box-vphantom# ?=do-childs
     raise fnegate 0e fdup glue+ ;
 
-:noname hglue+ >hglue!@ ; hbox is hglue
-:noname dglue* >dglue!@ ; hbox is dglue
-:noname vglue* >vglue!@ ; hbox is vglue
+: hfix| ( -- ) box-flags box-hfix# and IF  fdrop fdrop 0e fdup  THEN ;
+: vfix| ( -- ) box-flags box-vfix# and IF  fdrop fdrop 0e fdup  THEN ;
+: dfix| ( -- ) box-flags box-dfix# and IF  fdrop fdrop 0e fdup  THEN ;
 
-:noname hglue* >hglue!@ ; vbox is hglue
-:noname dglue+ >dglue!@ ; vbox is dglue
-:noname vglue+ >vglue!@ ; vbox is vglue
+:noname hglue+ hfix| >hglue!@ ; hbox is hglue
+:noname dglue* dfix| >dglue!@ ; hbox is dglue
+:noname vglue* vfix| >vglue!@ ; hbox is vglue
 
-:noname hglue* >hglue!@ ; zbox is hglue
-:noname dglue* >dglue!@ ; zbox is dglue
-:noname vglue* >vglue!@ ; zbox is vglue
+:noname hglue* hfix| >hglue!@ ; vbox is hglue
+:noname dglue+ dfix| >dglue!@ ; vbox is dglue
+:noname vglue+ vfix| >vglue!@ ; vbox is vglue
+
+:noname hglue* hfix| >hglue!@ ; zbox is hglue
+:noname dglue* dfix| >dglue!@ ; zbox is dglue
+:noname vglue* vfix| >vglue!@ ; zbox is vglue
 
 \ add glues up for hboxes
 

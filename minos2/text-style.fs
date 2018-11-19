@@ -71,6 +71,12 @@ Defer }}text' ' }}text IS }}text'
     >o box-vphantom# to box-flags o o> ;
 : /phantom ( o -- o )
     >o box-phantom# to box-flags o o> ;
+: /hfix ( o -- o )
+    >o box-hfix# to box-flags o o> ;
+: /vfix ( o -- o )
+    >o box-vfix# to box-flags o o> ;
+: /dfix ( o -- o )
+    >o box-dfix# to box-flags o o> ;
 : /flop ( o -- o )
     >o 0 to box-flags o o> ;
 Variable image-tex[]
@@ -199,7 +205,7 @@ is reload-textures
 : tab[] ( o addr -- o )
     [:  [: o font-size# 15% f* fround >lowered ;] caller-w .parent-w .do-childs
 	caller-w 0e >lowered
-	[: o /flip drop ;] data @ .parent-w .do-childs
+	[: o /vflip drop ;] data @ .parent-w .do-childs
 	data @ /flop drop
     ;] swap click[] ;
 
