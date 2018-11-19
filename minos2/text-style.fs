@@ -68,7 +68,7 @@ Defer }}text' ' }}text IS }}text'
 : /hphantom ( o -- o )
     >o box-hphantom# to box-flags o o> ;
 : /vphantom ( o -- o )
-    >o box-vphantom# to box-flags o o> ;
+    >o box-vphantom# box-dphantom# or to box-flags o o> ;
 : /phantom ( o -- o )
     >o box-phantom# to box-flags o o> ;
 : /hfix ( o -- o )
@@ -206,7 +206,7 @@ is reload-textures
     [:  [: o font-size# 15% f* fround >lowered ;] caller-w .parent-w .do-childs
 	caller-w 0e >lowered
 	[: o /vflip drop ;] data @ .parent-w .do-childs
-	data @ /flop drop
+	data @ /flop drop +resize +sync
     ;] swap click[] ;
 
 glue new Constant glue*wh

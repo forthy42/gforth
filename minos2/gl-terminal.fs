@@ -459,13 +459,13 @@ Defer scale-me ' terminal-scale-me is scale-me
 [IFDEF] screen-xywh@
     screen-xywh@ screen-wh 2! screen-xy 2!
 [THEN]
-    getwh  >screen-orientation  scale-me +sync +config
+    getwh  >screen-orientation  scale-me
     form-chooser ;
 : ?config-changer ( -- )
     ?config IF
 	dpy-w @ dpy-h @ 2>r config-changer
 	dpy-w @ dpy-h @ 2r> d<> IF
-	    winch? on +resize
+	    winch? on +resize +sync +config
 	ELSE  -config  THEN
     THEN ;
 

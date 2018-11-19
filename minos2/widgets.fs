@@ -1325,7 +1325,7 @@ require animation.fs
 	?resize IF  htop-resize -resize  THEN
 	?textures IF  1+config -textures  ELSE  -config  THEN  THEN
     widget-draw time( ." animate: " .!time cr )
-    o> -sync ;
+    o> -sync -lang ;
 
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
     level# @ 0> IF

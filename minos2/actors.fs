@@ -210,7 +210,7 @@ end-class scroll-actor
     caller-w .childs[] $[] @ >r s"  " r> .act .ukeyed ;
 
 : tabs[] ( o -- o )
-    [: find-tab + set-tab ;] scroll[] ;
+    [: find-tab + set-tab +sync ;] scroll[] ;
 
 \ viewport
 
@@ -634,9 +634,9 @@ edit-terminal edit-out !
 
 :noname ( key o:actor -- )
     [: 4 roll dup $80000000 and 0= k-ctrl-mask and invert and
-	everychar >control edit-control drop ;] edit-xt ; edit-actor is ekeyed
+	everychar >control edit-control drop +sync +resize ;] edit-xt ; edit-actor is ekeyed
 :noname ( addr u o:actor -- )
-    [: 2rot prefix-off edit-ins$ edit-update ;] edit-xt ; edit-actor is ukeyed
+    [: 2rot prefix-off edit-ins$ edit-update +sync +resize ;] edit-xt ; edit-actor is ukeyed
 :noname ( o:actor -- )
     edit-w >o -1 to cursize o> +sync
     -keyboard ; edit-actor is defocus
@@ -648,7 +648,7 @@ edit-terminal edit-out !
 	0 of  expand-selection  endof
 	1 of  expand-selection  endof
 	nip
-    endcase
+    endcase +sync +resize
 ; edit-actor is touchmove
 :noname ( o:actor rx ry b n -- )
     click( o hex. caller-w hex. ." edit click " fover f. fdup f. over . dup . cr )
@@ -679,7 +679,7 @@ edit-terminal edit-out !
 	    4 of  ( menu   )  drop fdrop fdrop  endof
 	    nip fdrop fdrop
 	endcase
-    THEN
+    THEN +sync +resize
 ; edit-actor is clicked
 
 : edit[] ( o widget xt -- o ) { xt }
