@@ -1337,24 +1337,21 @@ require animation.fs
 : htop-resize ( -- )
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize time( ." resize: " .!time cr ) ;
 
-: widgets-redraw ( flag -- flag )
-    top-widget >o ?config ?resize ?textures or or  IF
-	?config   IF  +resize -config  THEN
-	?resize   IF  htop-resize -resize  THEN
-	?textures IF  1+config -textures  ELSE  -config  THEN  THEN
-    widget-draw time( ." animate: " .!time cr )
-    o> -sync -lang ;
+: widgets-redraw ( -- )
+    ?config   IF  +resize -config  THEN
+    ?resize   IF  htop-resize -resize +sync  THEN
+    ?sync     IF  widget-draw time( ." animate: " .!time cr ) -sync  THEN ;
 
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
     level# @ 0> IF
-	?lang IF  +resize  THEN
 	?config-changer
+	?lang     IF  +resize -lang       THEN
+	?textures IF  1+config -textures  THEN
 	anims[] $@len IF  animations  THEN
-	?sync ?config ?resize ?textures or or or  IF  widgets-redraw  THEN
-	?keyboard IF
-	    [IFDEF] showkb showkb [THEN]
-	    -keyboard
-	THEN
+	top-widget .widgets-redraw
+	[IFDEF] showkb
+	    ?keyboard IF  showkb -keyboard  THEN
+	[THEN]
     ELSE
 	defers screen-ops
     THEN ;
