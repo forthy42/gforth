@@ -46,8 +46,6 @@ DOES> ( n -- ) swap floats + f@ ;
 
 : current-font-size% ( -- float )
     font-size# font-size font-size% f* fround ;
-: current-baseline% ( -- float )
-    baseline# font-size font-size% f* fround ;
 
 0
 fontsize: \normal
@@ -141,6 +139,11 @@ previous
 : font@ ( -- addr )
     font-size font-index font[] $[]
     dup @ 0= IF  font-load  THEN ;
+
+: current-baseline% ( -- float )
+    baseline# font-size font-size% f*
+    font@ freetype-gl:texture_font_t-height sf@ fmax
+    fround ;
 
 \ font paths
 

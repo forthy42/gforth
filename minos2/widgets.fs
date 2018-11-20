@@ -132,9 +132,14 @@ $10 Constant box-hphantom#
 $20 Constant box-vphantom#
 $40 Constant box-dphantom#
 $80 Constant box-defocus#
-$100 Constant box-hfix#
-$200 Constant box-vfix#
-$400 Constant box-dfix#
+
+$0100 Constant box-hfix#
+$0200 Constant box-vfix#
+$0400 Constant box-dfix#
+$0800 Constant vp-hfix#
+$1000 Constant vp-vfix#
+$2000 Constant vp-dfix#
+
 $10000 Constant box-touched#
 
 box-hphantom# box-vphantom# or box-dphantom# or Constant box-phantom#
@@ -1219,12 +1224,24 @@ end-class viewport
 ; viewport is resize
 ' noop viewport is draw-bg
 ' noop viewport is draw-text
-:noname vp-glue .hglue >hglue!@ ; viewport is hglue
-:noname vp-glue .dglue >dglue!@ ; viewport is dglue
-:noname vp-glue .vglue >vglue!@ ; viewport is vglue
-:noname vp-glue .hglue@ ; viewport is hglue@
-:noname vp-glue .dglue@ ; viewport is dglue@
-:noname vp-glue .vglue@ ; viewport is vglue@
+:noname ( -- glue )
+    box-flags vp-hfix# and IF  [ vbox :: hglue ]
+    ELSE  vp-glue .hglue >hglue!@  THEN ; viewport is hglue
+:noname ( -- glue )
+    box-flags vp-dfix# and IF  [ vbox :: dglue ]
+    ELSE   vp-glue .dglue >dglue!@ THEN  ; viewport is dglue
+:noname ( -- glue )
+    box-flags vp-vfix# and IF  [ vbox :: vglue ]
+    ELSE   vp-glue .vglue >vglue!@ THEN  ; viewport is vglue
+:noname ( -- glue )
+    box-flags vp-hfix# and IF  [ vbox :: hglue@ ]
+    ELSE   vp-glue .hglue@ THEN  ; viewport is hglue@
+:noname ( -- glue )
+    box-flags vp-dfix# and IF  [ vbox :: dglue@ ]
+    ELSE   vp-glue .dglue@  THEN ; viewport is dglue@
+:noname ( -- glue )
+    box-flags vp-vfix# and IF  [ vbox :: vglue@ ]
+    ELSE   vp-glue .vglue@  THEN ; viewport is vglue@
 
 : }}vp ( b:n1 .. b:nm glue vp-tex -- viewport ) { g t }
     }} viewport new >o +childs t is vp-tex g to vp-glue o o> ;
@@ -1322,7 +1339,8 @@ require animation.fs
 
 : widgets-redraw ( flag -- flag )
     top-widget >o ?config ?resize ?textures or or  IF
-	?resize IF  htop-resize -resize  THEN
+	?config   IF  +resize -config  THEN
+	?resize   IF  htop-resize -resize  THEN
 	?textures IF  1+config -textures  ELSE  -config  THEN  THEN
     widget-draw time( ." animate: " .!time cr )
     o> -sync -lang ;
