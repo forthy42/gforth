@@ -107,7 +107,7 @@ is reload-textures
 \ buttons
 
 : 20%bt ( o -- o ) >o current-font-size% 20% f* to bordert o o> ;
-: 25%b ( o -- o ) >o current-font-size% 25% f* to border o o> ;
+: 25%b ( o -- o ) >o current-font-size% 25% f* fdup to border to gap o o> ;
 : 25%bv ( o -- o ) >o current-font-size% 25% f* fdup to border fnegate to borderv o o> ;
 : 40%b ( o -- o ) >o current-font-size% 40% f* to border o o> ;
 

@@ -281,13 +281,6 @@ end-class glue
 :noname dglue-c glue@ ; dup glue is dglue@ glue is dglue
 :noname vglue-c glue@ ; dup glue is vglue@ glue is vglue
 
-\ canvas widget
-
-widget class
-    defer: draw-canvas
-    value: canvas-glue
-end-class canvas
-
 \ tile widget
 
 widget class
@@ -311,16 +304,6 @@ end-structure
     dup i.h fm* dup i.y s>f f+ fswap
     dup i.w fm*     i.x s>f f+ fswap >st ;
 
-: draw-rectangle { f: x1 f: y1 f: x2 f: y2 -- }
-    frame-color ?dup-IF
-	-1e to t.i0  6 ?flush-tris
-	frame# i>off >v
-	x1 y1 >xy over rgba>c n> 0e 0e dup #>st v+
-	x2 y1 >xy over rgba>c n> 1e 0e dup #>st v+
-	x1 y2 >xy over rgba>c n> 0e 1e dup #>st v+
-	x2 y2 >xy swap rgba>c n> 1e 1e     #>st v+
-	v> 2 quad
-    THEN ;
 : 01minmax ( r -- r' )
     0e fmax 1e fmin ;
 : interpol ( x1 x2 rel -- x1' )
@@ -333,10 +316,10 @@ end-structure
     frame-color ?dup-IF
 	-1e to t.i0  6 ?flush-tris
 	frame# i>off >v
-	x1 y1 >xy over rgba>c n> start 0e dup #>st v+
-	x2 y1 >xy over rgba>c n> end   0e dup #>st v+
-	x1 y2 >xy over rgba>c n> start 1e dup #>st v+
-	x2 y2 >xy swap rgba>c n> end   1e     #>st v+
+	x1 y1 >xy over rgba>c n> start         0.125e f+ 0.125e dup #>st v+
+	x2 y1 >xy over rgba>c n> end  0.75e f* 0.125e f+ 0.125e dup #>st v+
+	x1 y2 >xy over rgba>c n> start         0.125e f+ 0.875e dup #>st v+
+	x2 y2 >xy swap rgba>c n> end  0.75e f* 0.125e f+ 0.875e     #>st v+
 	v> 2 quad
     THEN ;
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
@@ -345,6 +328,17 @@ end-structure
     0e 1e xywh >xyxy draw-rectangle-part ;
 
 ' tile-draw tile is draw-bg
+
+\ canvas widget
+
+tile class
+    defer: draw-canvas
+    defer: text-canvas
+    value: cv-data
+end-class canvas
+
+' draw-canvas canvas is draw-image
+' text-canvas canvas is draw-text
 
 \ tile that doesn't draw
 
@@ -670,15 +664,19 @@ previous previous
 : style: load-style Create here atlas-region dup allot move
   DOES> to frame# ;
 
-Create white-tile
-white-texture $10 save-mem mem>style here atlas-region dup allot move
-DOES> to frame# ;
+"white.png" style: white-tile
 "button.png" style: button1
 "button2.png" style: button2
 "button3.png" style: button3
 "lbubble.png" style: lbubble
 "rbubble.png" style: rbubble
 ' button1 >body Value slider-frame# \ set the frame number to button2 style
+
+: }}canvas ( glue color xt-lines xt-text -- o )
+    canvas new >o
+    to text-canvas to draw-canvas
+    to frame-color to tile-glue o
+    white-tile o> ;
 
 \ boxes
 
