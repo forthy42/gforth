@@ -113,12 +113,12 @@ false value grab-move? \ set to true to grab moves
     o c-act >o to active-w o>
     c-act .active-w ?dup-IF  .act ?dup-IF  .focus  THEN  THEN ;
 
+: .parents ( o:widget -- )
+    parent-w ?dup-IF  >o recurse o>  THEN  o hex. name$ type space ;
+
 : engage ( object -- )
     >o parent-w ?dup-IF
 	recurse parent-w .act ?dup-IF  re-focus  THEN  THEN  o> ;
-
-: .parents ( o:widget -- )
-    parent-w ?dup-IF  >o recurse o>  THEN  o hex. name$ type space ;
 
 :noname ( rx ry b n -- )
     click( o hex. caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
@@ -450,6 +450,11 @@ end-class vslider-actor
     span more + edit$!len
     edit$ @ $@ swap span swap pos1 true ;
 
+: eins-string ( max span addr pos addr1 u1 -- max span' addr pos' )
+    2>r r@ grow-tib 0= IF  edit-error 2rdrop  EXIT  THEN
+    >edit-rest 2r@ 2swap r@ + insert
+    r@ + rot r> + -rot  rdrop ;
+
 edit-widget edit-out !
 
 bl cells buffer: edit-ctrlkeys
@@ -461,6 +466,7 @@ std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 ' edit-ctrlkeys is ctrlkeys
 ' edit-ekeys    is ekeys
 ' grow-edit$    is grow-tib
+' eins-string   is insert-string
 [IFDEF] android
     also jni
     : android-seteditline ( span addr pos -- span addr pos )
@@ -559,7 +565,7 @@ edit-terminal edit-out !
     \G xt has ( ... addr u curpos cursize -- addr u curpos cursize ) as stack effect
     *insflag off
     history >r  >r  0 to history
-    edit-w >o addr text$ curpos cursize 0 max o> to xselw
+    edit-w >o addr text$ curpos over $@len umin cursize 0 max o> to xselw
     >r dup edit$ ! $@ swap over swap r>
     r> catch
     >r edit-w >o to curpos 0 to cursize o> drop
