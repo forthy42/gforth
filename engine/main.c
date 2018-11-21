@@ -2372,7 +2372,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 's': die_on_signal = 1; break;
     case 'x': debug = 1; break;
     case 'D': print_diag(); break;
-    case 'v': fputs(PACKAGE_STRING" "ARCH"\n", stderr); return 1;
+    case 'v': fputs(PACKAGE_STRING" "ARCH"\n", stderr); exit(0);
     case opt_code_block_size: if((code_area_size = convsize(optarg,sizeof(Char)))==-1L) return 1; break;
     case ss_number: static_super_number = atoi(optarg); break;
     case ss_states: maxstates = max(min(atoi(optarg),MAX_STATE),1); break;
