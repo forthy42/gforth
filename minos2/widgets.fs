@@ -281,6 +281,13 @@ end-class glue
 :noname dglue-c glue@ ; dup glue is dglue@ glue is dglue
 :noname vglue-c glue@ ; dup glue is vglue@ glue is vglue
 
+\ canvas widget
+
+widget class
+    defer: draw-canvas
+    value: canvas-glue
+end-class canvas
+
 \ tile widget
 
 widget class
