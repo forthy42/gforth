@@ -358,7 +358,7 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	    \
 	android-actors.fs wayland-actors.fs widgets-test.fs presentation.fs \
 	mts-tools.fs mkv-tools.fs omx-example.fs mkv-tags.fs		    \
 	android-recorder.fs animation.fs need-x.fs font-style.fs	    \
-	text-style.fs gst-helper.fs waveform.fs
+	text-style.fs gst-helper.fs plot.fs
 
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
 	net2o-minos2.png lbubble.png rbubble.png white.png
