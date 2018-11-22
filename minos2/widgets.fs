@@ -1350,13 +1350,14 @@ require animation.fs
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
     level# @ 0> IF
 	?config-changer
-	?lang     IF  +resize -lang       THEN
-	?textures IF  1+config -textures  THEN
+	?lang         IF  +resize     THEN
+	?textures     IF  1+config    THEN
 	anims[] $@len IF  animations  THEN
 	top-widget .widgets-redraw
 	[IFDEF] showkb
-	    ?keyboard IF  showkb -keyboard  THEN
+	    ?keyboard IF  showkb  THEN
 	[THEN]
+	-textures -lang -keyboard
     ELSE
 	defers screen-ops
     THEN ;
