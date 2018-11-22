@@ -880,6 +880,7 @@ index-buf Value index^
 : v+ ( o:vertex -- o:vertex' )
     next-vertex >o rdrop t.i0 t.i sf! ;
 : v> ( o:vertex -- )  ]] o ->buf^ o> [[ ; immediate compile-only
+: v+> ( o:vertex -- )  ]] next-vertex ->buf^ o> [[ ; immediate compile-only
 : v? ( -- n )  buf^ array-buf - vertex#/ ;
 : i? ( -- n )  index^ index-buf - 2/ ;
 : i, ( n -- )

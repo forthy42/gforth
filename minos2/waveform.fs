@@ -21,6 +21,12 @@
 \ either x/y waveforms or y waveforms with a constant delta x
 
 : lines> ( -- )
+    \ 0 array-buf buf^ over - bounds ?DO
+    \ 	I sf@ f. sfloat+ dup vertex-c >osize @ = IF  cr drop 0  THEN
+    \ 1 sfloats +LOOP drop
+    \ index-buf index^ over - bounds ?DO
+    \ 	I w@ .
+    \ 2 +LOOP cr cr
     opengl:GL_LINE_STRIP draw-elements ;
 
 : flush-lines? ( n -- flag ) >r
@@ -28,74 +34,62 @@
     v? r> + points# u>= or
     IF  lines> vi0 true  ELSE  false  THEN ;
 
-: minmax-x ( addr u -- ymin ymax )
-    [ 1e 0e f/ ] FLiteral fdup fnegate
-    { f: ymin f: ymax }
+: minmax' ( addr u xmin xmax -- xmin' xmax' )
     bounds ?DO
-	I f@ fdup ymin fmin to ymin ymax fmax to ymax
-    [ 1 floats ]L +LOOP
-    ymin ymax ;
+	I f@ fmax fswap I f@ fmin fswap
+    [ 1 floats ]L +LOOP ;
+: minmax ( addr u -- xmin xmax )
+    [ 1e 0e f/ ] FLiteral fdup fnegate minmax' ;
 
-: minmax-xy ( addr u -- xmin ymin xmax ymay )
-    \G minmax for xy plot
-    [ 1e 0e f/ ] FLiteral fdup fdup fnegate fdup
-    { f: xmin f: ymin f: xmax f: ymax }
-    bounds ?DO
-	I        f@ fdup xmin fmin to xmin xmax fmax to xmax
-	I float+ f@ fdup ymin fmin to ymin ymax fmax to ymax
-    [ 2 floats ]L +LOOP
-    xmin ymin xmax ymax ;
-
-: minmax-dxy ( addr u -- xmin ymin xmax ymay )
+: fsum ( addr u -- xmax )
     \G minmax for deltax y plot
-    [ 1e 0e f/ ] FLiteral 0e fover fnegate
-    { f: ymin f: xmax f: ymax }
-    bounds ?DO
-	I        f@ +to xmax
-	I float+ f@ fdup ymin fmin to ymin ymax fmax to ymax
-    [ 2 floats ]L +LOOP
-    0e ymin xmax ymax ;
+    0e bounds ?DO  I f@ f+  [ 1 floats ]L +LOOP ;
 
-: plot-x-minmax ( addr u color ymin ymax -- )
+: plot-x-minmax ( yaddr yu color ymin ymax -- )
     { color f: ymin f: ymax }
-    w dup [ 1 floats ]L / fm/
-    h ymax ymin f- f/ { f: xsc f: ysc }
+    vi0 -1e to t.i0
+    w dup [ 1 floats ]L / 1- fm/ { f: xsc }
+    h ymin ymax f- f/ { f: ysc }
+    y ymin ysc f* f- { f: y0 } frame# { f# } x
     bounds ?DO
-	i>off >v
-	I            xsc fm* x f+
-	I f@ ymin f- ysc f*  y f+ >xy
-	color rgba>c n> 0.5e fdup frame# #>st v+ v>  i-off @ i,
+	fdup I f@ i>off >v
+	ysc f*  y0 f+ >xy  xsc f+
+	color rgba>c n> 0.5e fdup f# #>st v+> i-off @ i,
 	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
-    +LOOP ;
+    +LOOP  fdrop lines> ;
 
-: plot-xy-minmax ( addr u color xmin xmax ymin ymax -- )
-    { color f: xmin f: ymin f: xmax f: ymax }
-    w xmax xmin f- f/  h ymax ymin f- f/ { f: xsc f: ysc }
+: plot-xy-minmax ( addrx addry uy color xmin xmax ymin ymax -- )
+    { color f: xmin f: xmax f: ymin f: ymax }
+    vi0 -1e to t.i0
+    w xmax xmin f- f/  h ymin ymax f- f/ { f: xsc f: ysc }
+    x xmin xsc f* f-  y ymin ysc f* f- { f: x0 f: y0 } frame# { f# }
     bounds ?DO
-	i>off >v
-	I        f@ xmin f- xsc f* x f+
-	I float+ f@ ymin f- ysc f* y f+ >xy
-	color rgba>c n> 0.5e fdup frame# #>st v+ v>  i-off @ i,
-	1 flush-lines? IF  0  ELSE  [ 2 floats ]L  THEN
-    +LOOP ;
+	dup f@ xsc f* x0 f+ float+
+	I   f@ ysc f* y0 f+
+	i>off >v >xy
+	color rgba>c n> 0.5e fdup f# #>st v+>  i-off @ i,
+	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
+    +LOOP  drop lines> ;
 
-: plot-dxy-minmax ( addr u color xmin xmax ymin ymax -- )
-    { color f: xmin f: ymin f: xmax f: ymax }
-    w xmax xmin f- f/  h ymax ymin f- f/ { f: xsc f: ysc }
-    xmin to xmax
+: plot-dxy-minmax ( addrx addry uy color xmax ymin ymax -- )
+    { color f: xmax f: ymin f: ymax }
+    vi0 -1e to t.i0
+    w xmax f/  h ymin ymax f- f/ { f: xsc f: ysc }
+    y ymin ysc f* f- { f: y0 } frame# { f# } x
     bounds ?DO
-	i>off >v
-	xmax I f@ +to xmax  xsc f* x f+
-	I float+ f@ ymin f- ysc f* y f+ >xy
-	color rgba>c n> 0.5e fdup frame# #>st v+ v>  i-off @ i,
-	1 flush-lines? IF  0  ELSE  [ 2 floats ]L  THEN
-    +LOOP ;
+	fdup
+	dup f@ xsc f*    f+ fswap float+
+	I   f@ ysc f* y0 f+
+	i>off >v >xy
+	color rgba>c n> 0.5e fdup f# #>st v+>  i-off @ i,
+	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
+    +LOOP  fdrop drop lines> ;
 
 : plot-x ( addr u color o:canvas -- )
-    >r 2dup minmax-x r> plot-x-minmax ;
+    >r 2dup minmax r> plot-x-minmax ;
 
-: plot-xy ( addr u color o:canvas -- )
-    >r 2dup minmax-xy r> plot-xy-minmax ;
+: plot-xy ( addrx addry uy color o:canvas -- )
+    >r 2 pick over minmax 2dup minmax r> plot-xy-minmax ;
 
-: plot-dxy ( addr u color o:canvas -- )
-    >r 2dup minmax-dxy r> plot-dxy-minmax ;
+: plot-dxy ( addrdx addry uy color o:canvas -- )
+    >r 2 pick over 1 floats - fsum 2dup minmax r> plot-dxy-minmax ;
