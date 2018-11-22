@@ -77,16 +77,16 @@ glue ' new static-a with-allocater Constant glue-right
 : prev-anim ( n r0..1 -- )
     dup 0<= IF  drop fdrop  EXIT  THEN
     fdup 1e f>= IF  fdrop
-	dup 1- swap !slides +sync +config  EXIT
+	dup 1- swap !slides +sync +resize  EXIT
     THEN
-    1e fswap f- 1- sin-t anim!slides +sync +config ;
+    1e fswap f- 1- sin-t anim!slides +sync +resize ;
 
 : next-anim ( n r0..1 -- )
     dup slides[] $[]# 1- u>= IF  drop fdrop  EXIT  THEN
     fdup 1e f>= IF  fdrop
-	dup 1+ swap !slides +sync +config  EXIT
+	dup 1+ swap !slides +sync +resize  EXIT
     THEN
-    1+ sin-t anim!slides +sync +config ;
+    1+ sin-t anim!slides +sync +resize ;
 
 1e FValue slide-time%
 
@@ -118,7 +118,7 @@ end-class slide-actor
 	    fdup 0.1e f< IF  fdrop  2drop fdrop fdrop  prev-slide  EXIT
 	    ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
 	THEN  THEN
-    [ box-actor :: clicked ] ; slide-actor to clicked
+    [ box-actor :: clicked ] +sync +resize ; slide-actor to clicked
 :noname ( ekey -- )
     case
 	k-up      of  prev-slide  endof
@@ -140,7 +140,7 @@ end-class slide-actor
 	k-f6      of  saturate% sf@ 0.1e f- 0e fmax saturate% sf!
 	    Saturate 1 saturate% opengl:glUniform1fv  +sync endof
 	[ box-actor :: ekeyed ]  EXIT
-    endcase ; slide-actor to ekeyed
+    endcase +sync +resize ; slide-actor to ekeyed
 \ :noname ( $xy b -- )  dup 1 > IF
 \ 	[ box-actor :: touchdown ] EXIT
 \     THEN  drop
@@ -187,22 +187,24 @@ tex: minos2
 : pres-frame ( color -- o1 o2 ) \ drop $FFFFFFFF
     color, glue*wh swap slide-frame dup .button1 simple[] ;
 
+' }}i18n-text is }}text'
+
 {{
 {{ glue-left }}glue
 
 \ page 0
 {{
-$FFFFFFFF pres-frame
-{{
-    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-    ' }}i18n-text is }}text'
-    l" net2o: ΜΙΝΩΣ2 GUI" /title
-    l" Lightweight GUI library" /subtitle
-    {{ glue*2 }}glue }}z
-    l" Bernd Paysan" /author
-    l" EuroForth 2018, Edinburgh" /location
-    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-}}v box[] >o font-size# to border o Value title-page o o>
+    $FFFFFFFF pres-frame
+    {{
+	\sans
+	glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+	l" net2o: ΜΙΝΩΣ2 GUI" /title
+	l" Lightweight GUI library" /subtitle
+	glue*2 }}glue
+	l" Bernd Paysan" /author
+	l" EuroForth 2018, Edinburgh" /location
+	glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+    }}v box[] >o font-size# to border o Value title-page o o>
 }}z box[] dup >slides
 
 \ page 6
@@ -320,7 +322,7 @@ to top-widget
 
 also opengl
 
-: !widgets ( -- ) top-widget .htop-resize
+: !widgets ( -- ) top-widget .htop-resize top-widget .htop-resize
     1e ambient% sf! set-uniforms ;
 
 [IFDEF] writeout-en
