@@ -625,8 +625,8 @@ edit-terminal edit-out !
 	2drop fdrop fdrop
     THEN ;
 : expand-selection ( $xy -- )
-    ['] setstring> edit-xt
     edit-w .start-curpos 0>= IF
+	['] setstring> edit-xt
 	xy@ fdrop edit>curpos
 	edit-w >o
 	curpos start-curpos 2dup - abs to cursize +sync
@@ -640,7 +640,7 @@ edit-terminal edit-out !
     THEN ;
 
 :noname ( key o:actor -- )
-    [: 4 roll dup $80000000 and 0= k-ctrl-mask and invert and
+    [: 4 roll dup keycode-start and 0= k-ctrl-mask and invert and
 	everychar >control edit-control drop +sync +resize ;] edit-xt ; edit-actor is ekeyed
 :noname ( addr u o:actor -- )
     [: 2rot prefix-off edit-ins$ edit-update +sync +resize ;] edit-xt ; edit-actor is ukeyed
