@@ -651,13 +651,14 @@ edit-terminal edit-out !
     +keyboard ; edit-actor is focus
 :noname ( $rxy*n bmask -- )
     case
-	0 of  expand-selection  endof
-	1 of  expand-selection  endof
+	0 of  setstring> expand-selection  endof
+	1 of  setstring> expand-selection  endof
 	nip
     endcase +sync +resize
 ; edit-actor is touchmove
 :noname ( o:actor rx ry b n -- )
     click( o hex. caller-w hex. ." edit click " fover f. fdup f. over . dup . cr )
+    setstring>
     dup 1 and IF  start-selection
     ELSE
 	false to grab-move?

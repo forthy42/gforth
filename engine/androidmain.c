@@ -294,7 +294,7 @@ void startForth(jniargs * startargs)
 
   snprintf(statepointer, sizeof(statepointer), "%p", startargs);
   setenv("APP_STATE", statepointer, 1);
-  
+
   chdir("gforth/home");
 
   addarg(ADDRLEN("gforth"));
