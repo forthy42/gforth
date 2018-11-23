@@ -354,7 +354,7 @@ Defer android-inskey ' inskey is android-inskey
 
 : android-edit-update ( span addr pos1 -- span addr pos1 )
     xedit-update  2dup xcs swap >r >r
-    2dup swap make-jstring r> clazz .setEditLine r> ;
+    2dup swap make-jstring r> 0 clazz .setEditLine r> ;
 ' android-edit-update is edit-update
 
 : android-setcur ( +n -- ) setcur# ! ;
@@ -458,6 +458,8 @@ Defer android-network ( metered -- )
 ( :noname drop .network cr ; ) ' drop is android-network
 Defer android-notification ( intent -- )
 ( :noname drop ." Got intent" cr ; ) ' drop is android-notification
+Defer android-context-menu ( id -- )
+:noname 2 = IF  paste  THEN ; is android-context-menu
 
 Create aevents
 ' android-key ,
@@ -484,6 +486,7 @@ Create aevents
 ' android-alarm ,
 ' android-network ,
 ' android-notification ,
+' android-context-menu ,
 here aevents - cell/
 ' drop ,
 Constant max-event#

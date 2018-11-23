@@ -59,6 +59,8 @@ import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.CompletionInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.ExtractedText;
+import android.view.inputmethod.ExtractedTextRequest;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
@@ -160,12 +162,42 @@ public class Gforth
 	static class MyInputConnection extends BaseInputConnection {
 	    private SpannableStringBuilder mEditable;
 	    private GforthView mView;
+	    private String mText;
+	    private ExtractedTextRequest mExtractedTextRequest;
+	    private ExtractedText et;
 	    
 	    public MyInputConnection(GforthView targetView, boolean fullEditor) {
 		super(targetView, fullEditor);
 		mView = targetView;
+		mExtractedTextRequest = null;
 	    }
-	    
+
+	    private ExtractedText setET(String text, int curpos, int len) {
+		if(et == null) {
+		    et = new ExtractedText();
+		}
+		et.partialStartOffset = 0;
+		et.partialEndOffset = (text != null) ? text.length() : 0;
+		et.startOffset = 0;
+		et.selectionStart = curpos; // getSelectionStart();
+		et.selectionEnd = curpos+len; // getSelectionEnd();
+		et.flags = 0;
+		et.text = text;
+
+		return et;
+	    }
+	    private int min(int a, int b) { return a < b ? a : b; }
+	    private int max(int a, int b) { return a > b ? a : b; }
+	    public CharSequence	getTextBeforeCursor(int n, int flags) {
+		if(et == null || et.text == null) return "";
+		return et.text.subSequence(max(0, et.selectionStart-n),
+					   et.selectionStart);
+	    }
+	    public CharSequence	getTextAfterCursor(int n, int flags) {
+		if(et == null || et.text == null) return "";
+		return et.text.subSequence(et.selectionStart,
+					   min(et.text.length(), et.selectionStart+n));
+	    }
 	    public Editable getEditable() {
 		if (mEditable == null) {
 		    mEditable = (SpannableStringBuilder) Editable.Factory.getInstance()
@@ -174,10 +206,15 @@ public class Gforth
 		return mEditable;
 	    }
 	    
-	    public void setEditLine(String line, int curpos) {
+	    public void setEditLine(String line, int curpos, int len) {
 		Log.v(TAG, "IC.setEditLine: \"" + line + "\" at: " + curpos);
 		getEditable().clear();
 		getEditable().append(line);
+		if(mExtractedTextRequest != null) {
+		    mView.mManager.
+			updateExtractedText(mView, mExtractedTextRequest.token,
+					    setET(line, curpos, len));
+		}
 		setSelection(curpos, curpos);
 	    }
 	    
@@ -237,6 +274,33 @@ public class Gforth
 	    public boolean sendKeyEvent (KeyEvent event) {
 		mView.mActivity.onEventNative(0, event);
 		return true;
+	    }
+	    public ExtractedText getExtractedText(ExtractedTextRequest request, int flags) {
+		if ((flags & GET_EXTRACTED_TEXT_MONITOR) != 0)
+		    mExtractedTextRequest = request;  // mExtractedTextRequest currently doing nothing
+		else
+		    mExtractedTextRequest = null;
+
+		return setET("", 0, 0);
+	    }
+
+	    @Override
+	    public boolean performContextMenuAction(int id) {
+		switch (id) {
+		case android.R.id.copy:
+		    mView.mActivity.onEventNative(23, 0);
+		    return true;
+		case android.R.id.cut:
+		    mView.mActivity.onEventNative(23, 1);
+		    return true;
+		case android.R.id.paste:
+		    mView.mActivity.onEventNative(23, 2);
+		    return true;
+		case android.R.id.selectAll:
+		    mView.mActivity.onEventNative(23, 3);
+		    return true;
+		}
+		return false;
 	    }
 	}
 	
@@ -403,9 +467,9 @@ public class Gforth
 	    // View.SYSTEM_UI_FLAG_FULLSCREEN | SYSTEM_UI_FLAG_IMMERSIVE
 	}
     }
-    public void setEditLine(String line, int curpos) {
-	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos);
-	if(mView!=null) mView.mInputConnection.setEditLine(line, curpos);
+    public void setEditLine(String line, int curpos, int len) {
+	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos + " len: " + len);
+	if(mView!=null) mView.mInputConnection.setEditLine(line, curpos, len);
     }
 
     @Override
