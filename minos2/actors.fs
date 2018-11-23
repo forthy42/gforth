@@ -625,6 +625,7 @@ edit-terminal edit-out !
 	2drop fdrop fdrop
     THEN ;
 : expand-selection ( $xy -- )
+    ['] setstring> edit-xt
     edit-w .start-curpos 0>= IF
 	xy@ fdrop edit>curpos
 	edit-w >o
@@ -651,14 +652,14 @@ edit-terminal edit-out !
     +keyboard ; edit-actor is focus
 :noname ( $rxy*n bmask -- )
     case
-	0 of  setstring> expand-selection  endof
-	1 of  setstring> expand-selection  endof
+	0 of  expand-selection  endof
+	1 of  expand-selection  endof
 	nip
     endcase +sync +resize
 ; edit-actor is touchmove
 :noname ( o:actor rx ry b n -- )
     click( o hex. caller-w hex. ." edit click " fover f. fdup f. over . dup . cr )
-    setstring>
+    ['] setstring> edit-xt
     dup 1 and IF  start-selection
     ELSE
 	false to grab-move?
@@ -667,7 +668,6 @@ edit-terminal edit-out !
 	    dup 1 u<= ?of drop
 		2 - 6 mod 2 +
 		{ clicks } fdrop edit>curpos
-		['] setstring> edit-xt
 		edit-w >o
 		case clicks
 		    2 of  end-selection  endof
