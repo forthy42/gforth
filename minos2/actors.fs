@@ -106,7 +106,7 @@ end-class box-actor
 
 false value grab-move? \ set to true to grab moves
 0 value select-mode    \ 0: chars, 1: words, 2: lines
-0 value start-cursize \ selection helper
+0 value start-cursize  \ selection helper
 
 : re-focus { c-act -- }
     c-act .active-w ?dup-IF  .act ?dup-IF  .defocus  THEN  THEN
@@ -467,11 +467,14 @@ std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 ' edit-ekeys    is ekeys
 ' grow-edit$    is grow-tib
 ' eins-string   is insert-string
+
+0 value xselw
+
 [IFDEF] android
     also jni
     : android-seteditline ( span addr pos -- span addr pos )
 	2dup xcs swap >r >r
-	2dup swap make-jstring r> clazz .setEditLine r>
+	2dup swap make-jstring r> xselw clazz .setEditLine r>
 	+sync ;
     previous
     ' android-seteditline is edit-update
@@ -491,8 +494,6 @@ simple-actor class
     value: edit-w
     defer: edit-enter
 end-class edit-actor
-
-0 value xselw
 
 : edit-copy ( max span addr pos1 -- max span addr pos1 false )
     >r 2dup swap r@ safe/string xselw min clipboard!

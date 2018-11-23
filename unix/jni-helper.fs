@@ -22,7 +22,7 @@ jni-method: getWindow getWindow ()Landroid/view/Window;
 jni-method: getResources getResources ()Landroid/content/res/Resources;
 jni-method: showIME showIME ()V
 jni-method: hideIME hideIME ()V
-jni-method: setEditLine setEditLine (Ljava/lang/String;I)V
+jni-method: setEditLine setEditLine (Ljava/lang/String;II)V
 jni-method: set_alarm set_alarm (J)V
 jni-method: screen_on screen_on (I)V
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
