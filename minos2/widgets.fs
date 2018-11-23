@@ -1216,6 +1216,7 @@ end-class viewport
 :noname { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
     vp-!size  vp-tex
+    current-tex glIsTexture 0= IF  +textures  THEN
     ?textures IF  [: +textures +sync ;] vp-needed  THEN
     vt-w f>s vt-h f>s
     vp-fb  ?textures 0= and  IF
@@ -1355,7 +1356,7 @@ require animation.fs
 	anims[] $@len IF  animations  THEN
 	top-widget .widgets-redraw
 	[IFDEF] showkb
-	    ?keyboard IF  showkb  THEN
+	    ?keyboard IF  showkb      THEN
 	[THEN]
 	-textures -lang -keyboard
     ELSE
