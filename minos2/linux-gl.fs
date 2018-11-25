@@ -518,10 +518,12 @@ xpollfds pollfd xpollfd# * dup cell- uallot drop erase
     [THEN] ;
 
 Defer ?looper-timeouts ' noop is ?looper-timeouts
+Defer looper-hook ( -- ) ' noop is looper-hook
 
 : #looper ( delay -- ) #1000000 *
     ?looper-timeouts >poll-events >r
-    dpy IF  dpy XPending IF  get-events ?events  rdrop EXIT  THEN  THEN
+    dpy IF  dpy XPending IF  get-events ?events
+	    looper-hook rdrop EXIT  THEN  THEN
     xpollfds r> xpoll
     IF
 	xpollfds          revents w@ POLLIN and IF  ?events  THEN
@@ -529,7 +531,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 	    dpy XPending
 	    xpollfds pollfd + revents w@ POLLIN and or IF  get-events  THEN
 	THEN
-    THEN ;
+    THEN  looper-hook ;
 
 : >looper ( -- )  looper-to# #looper ;
 : >exposed  ( -- )  exposed off  BEGIN  >looper exposed @  UNTIL ;

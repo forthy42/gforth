@@ -14,11 +14,16 @@
 #define GLIB_AVAILABLE_IN_2_32
 #define GLIB_AVAILABLE_IN_2_34
 #define GLIB_AVAILABLE_IN_2_36
+#define GLIB_AVAILABLE_IN_2_38
+#define GLIB_AVAILABLE_IN_2_42
+#define GLIB_AVAILABLE_IN_2_44
 #define GLIB_AVAILABLE_IN_2_54
 #define GLIB_AVAILABLE_IN_2_56
 #define GLIB_DEPRECATED_IN_2_28_FOR(x)
 #define GLIB_DEPRECATED_IN_2_54_FOR(x)
 #define GLIB_DEPRECATED_IN_2_58_FOR(x)
+#define GLIB_DEPRECATED_IN_2_36
+#define GLIB_DEPRECATED_IN_2_58
 #define GLIB_DEPRECATED_FOR(x)
 #define GLIB_DEPRECATED
 #define G_BEGIN_DECLS
@@ -32,6 +37,7 @@
 #define GLIB_SYSDEF_POLLERR =8
 #define GLIB_SYSDEF_POLLNVAL =32
 #define GLIB_VAR extern
+#define G_GNUC_PURE
 
 %include <glib.h>
 %include <glib/gtypes.h>
@@ -39,5 +45,6 @@
 %include <glib/gthread.h>
 %include <glib/gmain.h>
 %include <glib-object.h>
+%include <gobject/gtype.h>
 %include <gobject/gobject.h>
 %include <gobject/gsignal.h>

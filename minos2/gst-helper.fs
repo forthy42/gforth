@@ -51,21 +51,42 @@ $10 buffer: gst-state
 	error-color ['] color-execute do-debug
     THEN ;
 
-: reshape-cb ( -- ) ~~ ;
-: draw-cb ( -- )    ~~ ;
-: events-cb ( -- )  ~~ ;
-: query-cb { pad info u_d -- ok }
+: reshape-cb ( -- ) ." reshape-cb" cr ;
+: draw-cb ( -- )    ." draw-cb" cr ;
+: events-cb ( -- )  ." events-cb" cr ;
+: query-cb          { pad info u_d -- ok }
     info _GstPadProbeInfo-data @ { query }
-    case query _GstQuery-type l@
+    case query _GstQuery-type l@ dup hex.
 	GST_QUERY_CONTEXT of
 	    pipeline @ query gst-display @ 0 gl-context @
 	    gst_gl_handle_context_query IF
-		GST_PAD_PROBE_HANDLED  EXIT
+		GST_PAD_PROBE_HANDLED dup hex. EXIT
 	    THEN
 	endof
     endcase
     GST_PAD_PROBE_OK ;
-: bus-cb ( bus message u_d -- ) 2drop drop GST_BUS_PASS ;
+: bus-cb { bus message u_d -- }
+    case message _GstMessage-type l@
+	GST_MESSAGE_EOS   of ." End-of-Stream reached" cr endof
+	GST_MESSAGE_ERROR of
+	    ." error received" cr
+	    { | err debug-info }
+	    message addr err addr debug-info gst_message_parse_error
+	    err 8 + @ cstring>sstring type cr
+	endof
+	GST_MESSAGE_STATE_CHANGED of
+	    message _GstMessage-src @
+	    pipeline @ gst_object_get_type g_type_check_instance_cast
+	    = IF
+		." Pipeline state changed" cr
+		{ | old-state new-state pending-state }
+		message addr old-state addr new-state addr pending-state
+		gst_message_parse_state_changed
+		old-state gst_element_state_get_name cstring>sstring type cr
+		new-state gst_element_state_get_name cstring>sstring type cr
+	    THEN
+	endof
+    endcase ;
 
 ' reshape-cb reshapeCallback:         Constant reshape_cb
 ' draw-cb    drawCallback:            Constant draw_cb
@@ -112,10 +133,13 @@ $10 buffer: gst-state
 
 : gst-play ( -- ) GST_STATE_PLAYING set-pipeline ;
 : gst-pause ( -- ) GST_STATE_PAUSED set-pipeline ;
+: gst-ready ( -- ) GST_STATE_READY set-pipeline ;
 
 : iter? ( -- flag )
-    g-context @ 1 g_main_context_iteration ;
+    g-context @ 0 g_main_context_iteration ;
 
-: test !time "/home/bernd/Video/ft2018/net2o.mp4" init-pipeline .time ;
+:noname BEGIN  iter?  0= UNTIL defers looper-hook ; is looper-hook
+
+: test !time "/home/bernd/Videos/ft2018/net2o.mp4" init-pipeline .time ;
 
 previous
