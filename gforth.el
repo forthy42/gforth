@@ -315,8 +315,9 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  "vocabulary" "cs-vocabulary" "create-interpret/compile"
 	  "interpret/compile:" "debug:" "field:" "2field:" "ffield:"
 	  "sffield:" "dffield:" "uvar" "uvalue" "cfield:" "wfield:" "lfield:"
-	  "+field" "value:" "cvalue:" "scvalue:" "wvalue:" "swvalue:" "lvalue:" "slvalue:"
-	  "2value:" "fvalue:" "sfvalue:" "dfvalue:" "$value:" "defer:"
+	  "+field" "value:" "cvalue:" "scvalue:" "wvalue:" "swvalue:"
+	  "lvalue:" "slvalue:" "2value:" "fvalue:" "sfvalue:" "dfvalue:"
+	  "$value:" "defer:" "value[]:" "$value[]:"
 	  "wrap+value:")
 	 non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))

@@ -39,6 +39,9 @@ edit-widget-c ' new static-a with-allocater Constant edit-widget
 
 \ generic actor stuff
 
+false value grab-move?   \ set to true to grab moves
+false value inside-move? \ set to object if touched
+
 actor class
 end-class simple-actor
 
@@ -61,6 +64,7 @@ debug: event( \ +db event( \ )
 :noname ( $xy b -- )
     event( o hex. caller-w hex. ." move " .touch )else( 2drop )
 ; simple-actor is touchmove
+:noname ( -- ) o to inside-move? ; simple-actor is entered
 
 : simple[] ( o -- o )
     >o simple-actor new !act o o> ;
@@ -104,7 +108,6 @@ end-class toggle-actor
 actor class
 end-class box-actor
 
-false value grab-move? \ set to true to grab moves
 0 value select-mode    \ 0: chars, 1: words, 2: lines
 0 value start-cursize  \ selection helper
 
@@ -153,12 +156,18 @@ box-actor is clicked
     THEN
     [: over xy@ inside?
 	event( o hex. caller-w hex. ." move inside? " dup . cr )
-	IF  2dup act .touchmove  THEN
+	IF
+	    inside-move? >r
+	    act inside-move? <> IF  act .entered  THEN
+	    r@ inside-move? <>
+	    IF  r@ ?dup-IF  .left  THEN  THEN  rdrop
+	    2dup act .touchmove  THEN
     ;] box-touched# do-childs-act?
     2drop ; box-actor is touchmove
 :noname ( -- )
     [: act .defocus ;] box-defocus# do-childs-act?
 ; box-actor is defocus
+' noop box-actor is entered
 
 : box[] ( o -- o )
     >o box-actor new !act o o> ;
@@ -329,7 +338,7 @@ forward >animate
 	    vmotion-dt vmotion-dy f*
 	THEN  to vmotion-dy  0e to vmotion-dt
 	o anim-del
-	caller-w .vp-w 32e f/ fm*
+	caller-w .vp-h 32e f/ fm*
 	dup
 	$08 and IF  fdup +to vmotion-dy  THEN  fnegate
 	$10 and IF  fdup +to vmotion-dy  THEN  fdrop fdrop fdrop
@@ -401,10 +410,33 @@ end-class vslider-actor
 	false to grab-move?
     THEN ; hslider-actor is clicked
 
-: hslider[] ( vp o -- )
-    >o o hslider-actor new to act
+: (hslider[]) ( vp o class -- )
+    swap >o o swap new to act
     act >o to caller-w to slide-vp -1e to slider-sxy
     caller-w slide-vp >o to vp-hslider o> o> o> ;
+
+: hslider[] ( vp o -- ) hslider-actor (hslider[]) ;
+
+hslider-actor class
+end-class hsliderleft-actor
+hslider-actor class
+end-class hsliderright-actor
+
+:noname ( rx ry b n -- )
+    fdrop fdrop  1 and 0= swap 1 u<= and IF
+	slide-vp >o w         act o> >o  o anim-del
+	set-startxy to vmotion-dx  0e to vmotion-dt  0e to vmotion-dy
+	0.333e o ['] vp-scroll >animate o>
+    THEN ; hsliderleft-actor to clicked
+:noname ( rx ry b n -- )
+    fdrop fdrop  1 and 0= swap 1 u<= and IF
+	slide-vp >o w fnegate act o> >o  o anim-del
+	set-startxy to vmotion-dx  0e to vmotion-dt  0e to vmotion-dy
+	0.333e o ['] vp-scroll >animate o>
+    THEN ; hsliderright-actor to clicked
+
+: hsliderleft[] ( vp o -- ) hsliderleft-actor (hslider[]) ;
+: hsliderright[] ( vp o -- ) hsliderright-actor (hslider[]) ;
 
 : >vslide ( x -- )
     slider-sxy fswap f- caller-w >o parent-w .h h f- +sync o> f/
@@ -431,10 +463,32 @@ end-class vslider-actor
 	false to grab-move?
     THEN ; vslider-actor is clicked
 
-: vslider[] ( vp o -- )
-    >o o vslider-actor new to act
+: (vslider[]) ( vp o class -- )
+    swap >o o swap new to act
     act >o to caller-w to slide-vp -1e to slider-sxy
     caller-w slide-vp >o to vp-vslider o> o> o> ;
+: vslider[] ( vp o -- ) vslider-actor (vslider[]) ;
+
+vslider-actor class
+end-class vsliderup-actor
+vslider-actor class
+end-class vsliderdown-actor
+
+:noname ( rx ry b n -- )
+    fdrop fdrop  1 and 0= swap 1 u<= and IF
+	slide-vp >o h         act o> >o  o anim-del
+	set-startxy to vmotion-dy  0e to vmotion-dt  0e to vmotion-dx
+	0.333e o ['] vp-scroll >animate o>
+    THEN ; vsliderup-actor to clicked
+:noname ( rx ry b n -- )
+    fdrop fdrop  1 and 0= swap 1 u<= and IF
+	slide-vp >o h fnegate act o> >o  o anim-del
+	set-startxy to vmotion-dy  0e to vmotion-dt  0e to vmotion-dx
+	0.333e o ['] vp-scroll >animate o>
+    THEN ; vsliderdown-actor to clicked
+
+: vsliderup[] ( vp o -- ) vsliderup-actor (vslider[]) ;
+: vsliderdown[] ( vp o -- ) vsliderdown-actor (vslider[]) ;
 
 \ edit widget
 

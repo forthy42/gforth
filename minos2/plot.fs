@@ -20,26 +20,25 @@
 \ waveform plotter uses a canvas to draw waveforms
 \ either x/y waveforms or y waveforms with a constant delta x
 
-: lines> ( -- )
-    \ 0 array-buf buf^ over - bounds ?DO
-    \ 	I sf@ f. sfloat+ dup vertex-c >osize @ = IF  cr drop 0  THEN
-    \ 1 sfloats +LOOP drop
-    \ index-buf index^ over - bounds ?DO
-    \ 	I w@ .
-    \ 2 +LOOP cr cr
+: line-strip> ( -- )
     opengl:GL_LINE_STRIP draw-elements ;
+
+: lines> ( -- )
+    opengl:GL_LINES draw-elements ;
 
 : flush-lines? ( n -- flag ) >r
     i? r@ + points# 2* u>=
     v? r> + points# u>= or
-    IF  lines> vi0 true  ELSE  false  THEN ;
+    IF  line-strip> vi0 true  ELSE  false  THEN ;
 
 : minmax' ( addr u xmin xmax -- xmin' xmax' )
     bounds ?DO
 	I f@ fmax fswap I f@ fmin fswap
     [ 1 floats ]L +LOOP ;
+: minmax-start ( -- -inf inf )
+    [ 1e 0e f/ ] FLiteral fdup fnegate ;
 : minmax ( addr u -- xmin xmax )
-    [ 1e 0e f/ ] FLiteral fdup fnegate minmax' ;
+    minmax-start minmax' ;
 
 : fsum ( addr u -- xmax )
     \G minmax for deltax y plot
@@ -56,7 +55,7 @@
 	ysc f*  y0 f+ >xy  xsc f+
 	color rgba>c n> 0.5e fdup f# #>st v+> i-off @ i,
 	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
-    +LOOP  fdrop lines> ;
+    +LOOP  fdrop line-strip> ;
 
 : plot-xy-minmax ( addrx addry uy color xmin xmax ymin ymax -- )
     { color f: xmin f: xmax f: ymin f: ymax }
@@ -69,7 +68,7 @@
 	i>off >v >xy
 	color rgba>c n> 0.5e fdup f# #>st v+>  i-off @ i,
 	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
-    +LOOP  drop lines> ;
+    +LOOP  drop line-strip> ;
 
 : plot-dxy-minmax ( addrx addry uy color xmax ymin ymax -- )
     { color f: xmax f: ymin f: ymax }
@@ -83,7 +82,7 @@
 	i>off >v >xy
 	color rgba>c n> 0.5e fdup f# #>st v+>  i-off @ i,
 	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
-    +LOOP  fdrop drop lines> ;
+    +LOOP  fdrop drop line-strip> ;
 
 : plot-x ( addr u color o:canvas -- )
     >r 2dup minmax r> plot-x-minmax ;

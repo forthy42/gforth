@@ -262,7 +262,9 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
     "T" }}text >o font-size# -10% f* to kerning o o>
     "E" }}text >o font-size# -23% f* fdup fnegate to raise to kerning o o>
     "X" }}text >o font-size# -10% f* to kerning o o> ;
-: nt ( -- ) htab-glue new to bx-tab ; \ new tab
+: new-htab ( -- )
+    htab-glue new dup tab-glues >stack  ;
+: nt ( -- ) new-htab to bx-tab ; \ new tab
 : vt{{ nt {{ ;
 : }}vt \ vertical box with tab
     }}v box[] ;

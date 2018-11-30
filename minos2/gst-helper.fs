@@ -39,7 +39,8 @@ $10 buffer: gst-state
 [IFDEF] use-egl
     : set-egl-context ( -- )
 	egldpy gst_gl_display_egl_new_with_egl_display gst-display !
-	gst-display @ ctx GST_GL_PLATFORM_EGL GST_GL_API_GLES2
+	gst-display @ gst_gl_display_egl_get_type g_type_check_instance_cast
+	ctx GST_GL_PLATFORM_EGL GST_GL_API_GLES2
 	gst_gl_context_new_wrapped gl-context ! ;
 [THEN]
 
@@ -54,13 +55,13 @@ $10 buffer: gst-state
 : reshape-cb ( -- ) ." reshape-cb" cr ;
 : draw-cb ( -- )    ." draw-cb" cr ;
 : events-cb ( -- )  ." events-cb" cr ;
-: query-cb          { pad info u_d -- ok }
+: query-cb          ." query-cb " { pad info u_d -- ok }
     info _GstPadProbeInfo-data @ { query }
-    case query _GstQuery-type l@ dup hex.
+    case query _GstQuery-type l@ dup .
 	GST_QUERY_CONTEXT of
 	    pipeline @ query gst-display @ 0 gl-context @
 	    gst_gl_handle_context_query IF
-		GST_PAD_PROBE_HANDLED dup hex. EXIT
+		GST_PAD_PROBE_HANDLED EXIT
 	    THEN
 	endof
     endcase

@@ -144,6 +144,8 @@ $10000 Constant box-touched#
 
 box-hphantom# box-vphantom# or box-dphantom# or Constant box-phantom#
 box-flip# box-phantom# or Constant box-visible#
+box-hflip# box-hphantom# or Constant box-vvisible#
+box-vflip# box-dflip# or box-dphantom# box-vphantom# or or Constant box-hvisible#
 
 object class
     value: caller-w
@@ -157,6 +159,8 @@ object class
     method ekeyed ( ekey -- ) \ non-printable keys
     method focus ( -- )
     method defocus ( -- )
+    method entered ( -- )
+    method left
     method show ( -- )
     method hide ( -- )
     method get ( -- something )
@@ -193,6 +197,8 @@ end-class helper-glue
 ' noop actor is get
 ' noop actor is set
 ' noop actor is show-you
+' noop actor is entered
+' noop actor is left
 
 object class
     value: parent-w
@@ -832,16 +838,18 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : hglue+ ( -- glue ) b0glue
     box-flags box-hflip# and ?EXIT
     box-flags dup box-phantom# and swap box-hphantom# and 0= and ?EXIT
-    [: hglue@ glue+ ;] do-childs ;
+    [: hglue@ glue+ ;] box-flip# ?do-childs ;
 
-: vglue1+ ( glue1 dglue flag -- glue2 flag )
+: vglue1+ ( glue1 dglue flag -- glue2 dglue2 flag )
+\    box-flags box-vflip# and IF  drop glue-drop 0glue false  THEN
     vglue@ glue+ frot gap f+
     IF  baseline fmax  THEN  f-rot glue+ dglue@
     true ;
 : dglue+ ( -- glue ) 0glue box-flags box-dflip# and ?EXIT
     box-flags dup box-phantom# and swap box-dphantom# and 0= and ?EXIT
     baseline-offset childs[] $[]# u>= IF
-	[: glue-drop dglue@ ;] do-lastchild \ last dglue
+	[: glue-drop box-flags box-dflip# and
+	    IF  0glue  ELSE  dglue@  THEN ;] do-lastchild \ last dglue
     ELSE
 	baseline-offset childs[] $[] @ .dglue@
 	false baseline-offset -1
@@ -901,9 +909,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     hglue+  w border f2* borderl f+ f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
     wtotal wmin f- a f/ 0e 0e x border f+ borderl f+
-    ['] hglue-step box-visible# ?do-childs
+    ['] hglue-step box-hvisible# ?do-childs
     fdrop fdrop fdrop fdrop
-    y h d ['] hbox-resize1 box-visible# ?do-childs  fdrop fdrop fdrop
+    y h d ['] hbox-resize1 box-hvisible# ?do-childs  fdrop fdrop fdrop
 \    ." hbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
@@ -987,10 +995,10 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
     htotal hmin f- a f/ 0e 0e
     y border borderv f+ bordert f+ f+ h f- 0e
-    box-flags baseline-start# and 0<> ['] vglue-step box-visible# ?do-childs
+    box-flags baseline-start# and 0<> ['] vglue-step box-vvisible# ?do-childs
     fdrop fdrop fdrop fdrop fdrop drop
     x border f+ borderl f+ w border f2* borderl f+ f-
-    ['] vbox-resize1 box-visible# ?do-childs fdrop fdrop
+    ['] vbox-resize1 box-vvisible# ?do-childs fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
@@ -1050,20 +1058,32 @@ $10 stack: box-depth \ this $10 here is no real limit
 
 \ tab helper glues
 
+Variable tab-glues
+
 helper-glue class
     glues +field htab-c
     glues +field htab-co
 end-class htab-glue
 
 :noname ( -- )
-    htab-c htab-co glues move
-    1glue htab-c glue! ; htab-glue is aidglue0
-:noname ( -- flag )
-    htab-c glues htab-co over str= ; htab-glue is aidglue=
-:noname ( glue -- glue' )
-    htab-c glue@ glue* glue-dup htab-c glue!
-    fdrop fdrop 0g fdup ; \ don't allow shrinking/growing
+\    htab-c htab-co glues move
+\    1glue htab-c glue! ; htab-glue is aidglue0
+    1glue htab-co glue! ; htab-glue is aidglue0
+ :noname ( -- flag )
+\    htab-c glues htab-co over str= ; htab-glue is aidglue=
+    htab-co df@ fdup htab-c df@ f= htab-c df! ; htab-glue is aidglue=
+ :noname ( glue -- glue' )
+\    htab-c glue@ glue* glue-dup htab-c glue!
+\    fdrop fdrop 0g fdup ; \ don't allow shrinking/growing
+    htab-co glue@ glue* htab-co glue!
+    htab-c df@ 0g fdup ; \ don't allow shrinking/growing
 htab-glue is hglue!@
+
+: tabglues0 ( -- )
+    tab-glues get-stack 0 ?DO  .aidglue0  LOOP ;
+: tabglues= ( -- flag )  true { flag }
+    tab-glues get-stack 0 ?DO  .aidglue= flag and to flag  LOOP
+    flag ;
 
 \ draw everything
 
@@ -1331,16 +1351,27 @@ require animation.fs
 : hslider ( viewport-link sd sh -- o )
     >r {{ glue*l slider-color slider-border }}frame dup .button3
     {{ hslider-parts r@ 0g frot f2/ frot f2/ slider
-    over r> swap hslider[] }}h box[]
+	r@ 3 pick hsliderleft[]
+	r@ 2 pick hslider[]
+	r> 1 pick hsliderright[]
+    }}h box[]
     }}z box[] ;
 : vslider ( viewport-link sw sd -- o )
     >r {{ glue*l slider-color slider-border }}frame dup .button3
     {{ vslider-parts r@ 0g slider
-    over r> swap vslider[] }}v box[]
+	r@ 3 pick vsliderup[]
+	r@ 2 pick vslider[]
+	r> 1 pick vsliderdown[]
+    }}v box[]
     }}z box[] ;
 
 : htop-resize ( -- )
-    !size 0e 1e dh* 1e dw* 1e dh* 0e resize time( ." resize: " .!time cr ) ;
+    tabglues0
+    !size 0e 1e dh* 1e dw* 1e dh* 0e resize
+    tabglues= 0= IF
+	!size 0e 1e dh* 1e dw* 1e dh* 0e resize
+    THEN
+    time( ." resize: " .!time cr ) ;
 
 : widgets-redraw ( -- )
     ?config   IF  +resize -config  THEN
