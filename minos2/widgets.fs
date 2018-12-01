@@ -125,8 +125,7 @@ $Variable spaces$ "            　" spaces$ $!
 
 $01 Constant box-hflip#
 $02 Constant box-vflip#
-$04 Constant box-dflip#
-box-hflip# box-vflip# or box-dflip# or Constant box-flip#
+box-hflip# box-vflip# or Constant box-flip#
 $08 Constant baseline-start#
 $10 Constant box-hphantom#
 $20 Constant box-vphantom#
@@ -145,7 +144,7 @@ $10000 Constant box-touched#
 box-hphantom# box-vphantom# or box-dphantom# or Constant box-phantom#
 box-flip# box-phantom# or Constant box-visible#
 box-hflip# box-hphantom# or Constant box-vvisible#
-box-vflip# box-dflip# or box-dphantom# box-vphantom# or or Constant box-hvisible#
+box-vflip# box-dphantom# box-vphantom# or or Constant box-hvisible#
 
 object class
     value: caller-w
@@ -831,24 +830,29 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     baseline 0g 1filll ;
 
 : bxx ( -- b )
-    border f2* borderl f+ kerning f+ ;
-: b0glue ( -- b 0 0 ) bxx 0g fdup ;
-: b1glue ( -- b 0 0 ) bxx 0g 1fil ;
+    borderl border f2* f+ kerning f+ ;
+: bx ( -- b ) border borderl f+ kerning f+ ;
+: byy ( -- b )
+    borderv border f+ bordert f+ raise f- ;
+: bdd ( -- b )
+    borderv border f+ raise f+ ;
+: byd ( -- b )
+    borderv border f+ f2* bordert f+ ;
 
-: hglue+ ( -- glue ) b0glue
+: hglue+ ( -- glue ) 0glue
     box-flags box-hflip# and ?EXIT
     box-flags dup box-phantom# and swap box-hphantom# and 0= and ?EXIT
-    [: hglue@ glue+ ;] box-flip# ?do-childs ;
+    [: hglue@ glue+ ;] box-flip# ?do-childs  frot bxx f+ f-rot ;
 
 : vglue1+ ( glue1 dglue flag -- glue2 dglue2 flag )
 \    box-flags box-vflip# and IF  drop glue-drop 0glue false  THEN
-    vglue@ glue+ frot gap f+
-    IF  baseline fmax  THEN  f-rot glue+ dglue@
+    vglue@ glue+ frot
+    IF  gap f+ baseline fmax  THEN  f-rot glue+ dglue@
     true ;
-: dglue+ ( -- glue ) 0glue box-flags box-dflip# and ?EXIT
+: dglue+ ( -- glue ) 0glue box-flags box-vflip# and ?EXIT
     box-flags dup box-phantom# and swap box-dphantom# and 0= and ?EXIT
     baseline-offset childs[] $[]# u>= IF
-	[: glue-drop box-flags box-dflip# and
+	[: glue-drop box-flags box-vflip# and
 	    IF  0glue  ELSE  dglue@  THEN ;] do-lastchild \ last dglue
     ELSE
 	baseline-offset childs[] $[] @ .dglue@
@@ -856,22 +860,22 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 	['] vglue1+ do-childs-limits
 	drop glue+
     THEN
-    raise 0e fdup glue+ ;
+    frot bdd f+ f-rot ;
 : vglue+ ( -- glue ) 0glue box-flags box-vflip# and ?EXIT
     box-flags dup box-phantom# and swap box-vphantom# and 0= and ?EXIT
     0glue box-flags baseline-start# and 0<> 0 baseline-offset
     ['] vglue1+ do-childs-limits
-    glue-drop drop  raise fnegate 0e fdup glue+ ;
+    glue-drop drop  frot byy f+ f-rot ;
 
 : hglue* ( -- glue ) box-flags box-hflip# and IF  0glue  EXIT  THEN
-    1glue [: hglue@ glue* ;] box-hphantom# ?=do-childs  b0glue glue+
-    kerning 0e fdup glue+ ;
-: dglue* ( -- glue ) box-flags box-dflip# and IF  0glue  EXIT  THEN
+    1glue [: hglue@ glue* ;] box-hphantom# ?=do-childs
+    frot bxx f+ f-rot ;
+: dglue* ( -- glue ) box-flags box-vflip# and IF  0glue  EXIT  THEN
     1glue [: dglue@ glue* ;] box-dphantom# ?=do-childs
-    raise 0e fdup glue+ ;
+    frot bdd f+ f-rot ;
 : vglue* ( -- glue ) box-flags box-vflip# and IF  0glue  EXIT  THEN
     1glue [: vglue@ glue* ;] box-vphantom# ?=do-childs
-    raise fnegate 0e fdup glue+ ;
+    frot byy f+ f-rot ;
 
 : hfix| ( -- ) box-flags box-hfix# and IF  fdrop fdrop 0e fdup  THEN ;
 : vfix| ( -- ) box-flags box-vfix# and IF  fdrop fdrop 0e fdup  THEN ;
@@ -906,9 +910,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    hglue+  w border f2* borderl f+ f- { f: wtotal }
+    hglue+ frot bxx f- f-rot  w bxx f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
-    wtotal wmin f- a f/ 0e 0e x border f+ borderl f+
+    wtotal wmin f- a f/ 0e 0e x bx f+
     ['] hglue-step box-hvisible# ?do-childs
     fdrop fdrop fdrop fdrop
     y h d ['] hbox-resize1 box-hvisible# ?do-childs  fdrop fdrop fdrop
@@ -964,10 +968,10 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     \g ry: running y
     \g od: previous descender
     gp/a
-    vglue@ gp/a f0> ?g3>2 +to rg gap f+ { f: ymin }
+    vglue@ gp/a f0> ?g3>2 +to rg { f: ymin }
     rg fdup gp/a f* \ rd'
-    fdup rd f- ymin f+   fdup gap f- to h
-    flag IF  baseline od f- fmax  THEN  ry f+ fdup to y ;
+    fdup rd f- ymin f+   fdup to h
+    flag IF  gap f+ baseline od f- fmax  THEN  ry f+ fdup to y ;
 
 : vglue-step-d { f: gp/a f: rg f: rd f: ry -- gp/a rg' rd' ry' d' }
     \g gp/a: total additonal pixels to stretch into
@@ -990,15 +994,17 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    hglue* glue-drop  vglue+ dglue+ glue+
-    h d f+ border borderv f+ f2* bordert f+ f- { f: htotal }
+    hglue* glue-drop  vglue+ dglue+ glue+ frot byd f- f-rot
+    h d f+ byd f- { f: htotal }
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
     htotal hmin f- a f/ 0e 0e
-    y border borderv f+ bordert f+ f+ h f- 0e
-    box-flags baseline-start# and 0<> ['] vglue-step box-vvisible# ?do-childs
+    y byy f+ h f- 0e
+    box-flags baseline-start# and 0<>
+    ['] vglue-step box-vvisible# ?do-childs
     fdrop fdrop fdrop fdrop fdrop drop
-    x border f+ borderl f+ w border f2* borderl f+ f-
-    ['] vbox-resize1 box-vvisible# ?do-childs fdrop fdrop
+    x bx f+ w bxx f-
+    ['] vbox-resize1 box-vvisible# ?do-childs
+    fdrop fdrop
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
@@ -1011,8 +1017,8 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 : zbox-resize { f: x f: y f: w f: h f: d -- }
     x y w h d widget-resize
-    x border f+ borderl f+ y border borderv f+ bordert f+ f+ w border f2* f-
-    h border borderv f+ bordert f+ f- d border borderv f+ f-
+    x bx f+ y byy f+ w bxx f-
+    h byy f- d bdd f-
     ['] zbox-resize1 box-visible# ?do-childs
     fdrop fdrop fdrop fdrop fdrop
 \    ." zbox sized to: " x f. y f. w f. h f. d f. cr

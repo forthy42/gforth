@@ -63,8 +63,6 @@ Defer }}text' ' }}text IS }}text'
     >o box-hflip# to box-flags o o> ;
 : /vflip ( o -- o )
     >o box-vflip# to box-flags o o> ;
-: /dflip ( o -- o )
-    >o box-dflip# to box-flags o o> ;
 : /flip ( o -- o )
     >o box-flip# to box-flags o o> ;
 : /hphantom ( o -- o )
