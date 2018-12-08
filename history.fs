@@ -351,14 +351,17 @@ info-color Value setstring-color
     over dup r@ +  rot move   r> move  ;
 [THEN]
 
-: xtab-expand ( max span addr pos1 -- max span addr pos2 0 )
-    key? IF  #tab (xins) 0  EXIT  THEN
+: (xtab-expand) ( max span addr pos1 -- max span addr pos2 0 )
     xkill-expand 2dup extract-word dup 0= IF  nip EXIT  THEN
     search-prefix tuck 2>r  prefix-found @ 0<> - grow-tib
     0= IF  edit-error  2rdrop  prefix-off 0  EXIT  THEN
     >edit-rest r@ + 2r> dup >r 2swap insert
     r@ + rot r> + -rot
     prefix-found @ IF  bl (xins)  THEN  edit-update  0 ;
+
+: xtab-expand ( max span addr pos1 -- max span addr pos2 0 )
+    key? IF  #tab (xins) 0  EXIT  THEN
+    (xtab-expand) ;
 
 : xpaste ( max span addr pos -- max span' addr pos' false )
     paste$ $@ xins-string  edit-update  0 ;

@@ -597,6 +597,7 @@ Defer anim-ins
 ' false          ctrl L bindkey
 ' edit-bs        ctrl H bindkey
 ' edit-del       ctrl D bindkey
+' (xtab-expand)  #tab   bindkey
 
 ' edit-next-line k-down   ebindkey
 ' edit-prev-line k-up     ebindkey
@@ -606,6 +607,7 @@ Defer anim-ins
 ' xedit-enter    k-enter  ebindkey
 ' false          k-winch  ebindkey
 ' edit-del       k-delete ebindkey
+' (xtab-expand)  k-tab    ebindkey
 
 edit-terminal edit-out !
 
