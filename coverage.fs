@@ -19,7 +19,7 @@
 
 require sections.fs
 
-section-size extra-section coverage
+section-size 2* extra-section coverage
 
 ' Create coverage cover-start
 
@@ -27,7 +27,7 @@ section-size extra-section coverage
 : cover, ( n -- ) ['] , coverage ;
 : cover-end! ( addr -- )  [: dp ! ;] coverage ;
 
-0 Value coverage?
+[IFUNDEF] coverage? 0 Value coverage? [THEN]
 0 Value dead-cov?
 
 : cov+, ( -- )
