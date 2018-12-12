@@ -37,7 +37,7 @@ section-size 2* extra-section coverage
     THEN
     false to dead-cov? ;
 
-: cov+ ( -- )
+: cov+ ( -- ) \ gforth-exp
     \G add a coverage tag here
     dead-cov? 0= state @ and  IF  cov+,  THEN
     false to dead-cov? ; immediate compile-only
@@ -49,13 +49,13 @@ section-size 2* extra-section coverage
 :noname defers exit-like      true to dead-cov? ; is exit-like
 :noname defers before-line        postpone cov+ ; is before-line
 
-: .cover-raw ( -- )
+: .cover-raw ( -- ) \ gforth-exp
     \G print all raw coverage data
     cover-end cover-start U+DO
 	I @ .sourceview ." : " I cell+ ? cr
     2 cells +LOOP ;
 
-: .cover-file { fn -- }
+: .cover-file { fn -- } \ gforth-exp
     \G pretty print coverage in a file
     fn included-buffer 0 locate-line 0 { d: buf lpos d: line cpos }
     cover-end cover-start U+DO
@@ -73,13 +73,13 @@ section-size 2* extra-section coverage
     2 cells +LOOP
     line cpos safe/string type cr  buf type  default-color attr! ;
 
-: covered? ( fn -- flag )
+: covered? ( fn -- flag ) \ gforth-exp
     \G check if file number @var{fn} has coverage information
     false cover-end cover-start U+DO 
 	over I @ view>filename# = or
     2 cells +LOOP  nip ;
 
-: .coverage ( -- )
+: .coverage ( -- ) \ gforth-exp
     \G pretty print coverage
     cr included-files $[]# 0 ?DO
 	I covered? IF
@@ -89,7 +89,7 @@ section-size 2* extra-section coverage
 	THEN
     LOOP ;
 
-: annotate-cov ( -- )
+: annotate-cov ( -- ) \ gforth-exp
     \G annotate files with coverage information
     included-files $[]# 0 ?DO
 	I covered? IF
@@ -108,26 +108,26 @@ section-size 2* extra-section coverage
 
 $10 buffer: cover-hash
 
-: hash-cover ( -- addr u )
+: hash-cover ( -- addr u ) \ gforth-exp
     cover-hash $10 erase
     cover-end cover-start U+DO
 	I cell false cover-hash hashkey2
     2 cells +LOOP
     cover-hash $10 ;
 
-: cover-filename ( -- addr u )
+: cover-filename ( -- addr u ) \ gforth-exp
     "~/.cache/gforth/" 2dup $1ff mkdir-parents drop
     [: type
 	hash-cover bounds ?DO  I c@ 0 <# # # #> type LOOP ." .covbin" ;]
     ['] $tmp $10 base-execute ;
 
-: save-cov ( -- )
+: save-cov ( -- ) \ gforth-exp
     \G save coverage counters
     cover-filename r/w create-file throw >r
     cover-start cover-end over - r@ write-file throw
     r> close-file throw ;
 
-: load-cov ( -- )
+: load-cov ( -- ) \ gforth-exp
     \G load coverage counters
     cover-filename r/o open-file dup #-514 = IF
 	2drop true [: ." no saved coverage found" cr ;] ?warning
@@ -136,7 +136,8 @@ $10 buffer: cover-hash
     cover-start + cover-end!
     r> close-file throw ;
 
-: cov% ( -- )
+: cov% ( -- ) \ gforth-exp
+    \G print the coverage percentage
     0 0  cover-end cover-start U+DO
 	I cell+ @ 0<> negate 1  d+
     2 cells +LOOP  1000 swap */

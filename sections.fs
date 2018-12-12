@@ -78,7 +78,8 @@ constant extra-section-error
 
 : set-section ( -- )
     \ any changes to other things after changing the section
-    current-section-addr section-dp dpp ! ;
+    current-section-addr section-dp dpp !
+    [IFDEF] check-dp  current-section-addr section-dp to check-dp [THEN] ;
 
 :noname ( -- )
     0 current-section ! set-section ;

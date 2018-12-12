@@ -323,8 +323,10 @@ SWIGMODULES = @SWIGMODULES@
 SWIGLIBS = @SWIGLIBS@
 SWIG_WRAP = $(patsubst %.fs, unix/%-fsi.c, $(SWIGMODULES))
 
-LIBCC_SRC = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs unix/serial.fs \
-	unix/filestat.fs unix/libc.fs unix/time.fs $(patsubst %, unix/%, $(SWIGLIBS))
+LIBCC_SRC1 = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs	\
+	unix/serial.fs unix/filestat.fs unix/libc.fs unix/time.fs
+
+LIBCC_SRC = $(LIBCC_SRC1) $(patsubst %, unix/%, $(SWIGLIBS))
 
 UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
 	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs			   \
@@ -339,7 +341,7 @@ SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i    \
 	unix/gps.i unix/vulkan.i unix/harfbuzz.i unix/gobject.i unix/gst.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
-	@NO_CROSS@ $(LIBCC_SRC) mkdir.fs cilk.fs
+	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_SRC)
 
 LIBCC_DIST_SRC = $(SWIG_SRC) unix/test.i unix/Makefile.in unix/doexec	\
 	unix/doprep
@@ -1336,7 +1338,7 @@ start-gforth.el:	gforth.el
 
 #Documentation
 
-doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) libcc $(EXTRA_DOC)
+doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) $(EXTRA_DOC)
 		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs except.fs startup.fs $(EXTRA_DOC) -e bye
 
 doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)

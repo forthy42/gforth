@@ -12360,6 +12360,7 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
+* Code Coverage::               Check how much code is used.
 @end menu
 
 @node Examining, Forgetting words, Programming Tools, Programming Tools
@@ -12563,7 +12564,7 @@ Definitions in Standard Forth for these assertion words are provided
 in @file{compat/assert.fs}.
 
 
-@node Singlestep Debugger,  , Assertions, Programming Tools
+@node Singlestep Debugger, Code Coverage, Assertions, Programming Tools
 @subsection Singlestep Debugger
 @cindex singlestep Debugger
 @cindex debugging Singlestep
@@ -12635,6 +12636,33 @@ string is typed out when the ``breakpoint'' is reached.
 doc-dbg
 doc-break:
 doc-break"
+
+@c -------------------------------------------------------------
+@node Code Coverage, , Singlestep Debugger, Programming Tools
+@subsection Code Coverage
+@cindex code coverage
+
+If you run extensive tests on your code, you often want to figure out
+if all parts of the code run, so measuring code coverage is
+important.  Gforth has a file @file{coverage.fs}, which contains the
+necessary tools.
+
+Code coverage inserts code into crucial positions of a word.  Each
+time that code is run, a specific counter is incremented, so you can
+know how often that part is executed.  You can save and reload the
+coverage counters in binary format, and use that to annotate the
+source files.  Annotation is done by ANSI color escape sequences, so
+the coverage shows nicely in the terminal.
+
+doc-cov+
+doc-.cover-raw
+doc-.cover-file
+doc-covered?
+doc-.coverage
+doc-annotate-cov
+doc-save-cov
+doc-load-cov
+doc-cov%
 
 @c -------------------------------------------------------------
 @node Multitasker, C Interface, Programming Tools, Words
