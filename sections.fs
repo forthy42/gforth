@@ -149,6 +149,7 @@ init-sections
 
 \ savesystem
 
+0 warnings !@
 : dump-fi ( c-addr u -- )
     prepare-for-dump
     0 current-section ! set-section
@@ -167,6 +168,7 @@ init-sections
     .sections cr
     #sections 1 cells r@ write-file throw
     r> close-file throw ;
+warnings !
 
 [defined] testing [if]
 section-size extra-section bla

@@ -1808,6 +1808,11 @@ a_addr2 = a_addr1-1;
 :
  cell - ;
 
+inc#   ( #a_addr -- )	gforth	one_plus_store
+*a_addr += 1;
+:
+ 1 r> dup cell+ >r @ +! ;
+
 \g compiler
 
 \+f83headerstring
