@@ -93,8 +93,13 @@ section-size 2* extra-section coverage
     included-files $[]# 0 ?DO
 	I covered? IF
 	    I [: included-files $[]@ type ." .cov" ;] $tmp
-	    r/w create-file throw { fd }
-	    I ['] .cover-file fd outfile-execute  fd close-file throw
+	    r/w create-file dup 0= IF
+		drop { fd }
+		I ['] .cover-file fd outfile-execute  fd close-file throw
+	    ELSE
+		I [: included-files $[]@ type space
+		    .error-string cr ;] warning-color color-execute
+		drop  THEN \ ignore write errors
 	THEN
     LOOP ;
 
