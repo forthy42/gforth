@@ -28,19 +28,23 @@ section-size extra-section coverage
 : cover-end! ( addr -- )  [: dp ! ;] coverage ;
 
 0 Value coverage?
+0 Value dead-cov?
 
-: (cov+) ( -- )
+: cov+, ( -- )
+    false to dead-cov?
     current-sourceview input-lexeme @ + cover,
     postpone inc# cover-end , 0 cover, ;
 
 : cov+ ( -- )
-    coverage?
-    source nip >in @ u>  and
-    state @ and  IF  (cov+)  THEN ; immediate compile-only
+    \G add a coverage tag here
+    coverage?  dead-cov? 0= and
+    state @ and  IF  cov+,  THEN
+    false to dead-cov? ; immediate compile-only
 
-:noname defers :-hook coverage? IF  (cov+)  THEN ; is :-hook
+:noname defers :-hook coverage? IF  cov+,  THEN ; is :-hook
 :noname defers if-like            postpone cov+ ; is if-like
 :noname defers basic-block-end    postpone cov+ ; is basic-block-end
+:noname defers exit-like      true to dead-cov? ; is exit-like
 \ :noname defers before-line        postpone cov+ ; is before-line
 
 : .cover-raw ( -- )
@@ -68,12 +72,14 @@ section-size extra-section coverage
     line cpos safe/string type cr  buf type  default-color attr! ;
 
 : covered? ( fn -- flag )
+    \G check if file number @var{fn} has coverage information
     false cover-end cover-start U+DO 
 	over I @ view>filename# = or
     2 cells +LOOP  nip ;
 
-: .coverage ( -- ) cr
-    included-files $[]# 0 ?DO
+: .coverage ( -- )
+    \G pretty print coverage
+    cr included-files $[]# 0 ?DO
 	I covered? IF
 	    I [: included-files $[]@ type ':' emit cr ;]
 	    warning-color color-execute
@@ -82,6 +88,7 @@ section-size extra-section coverage
     LOOP ;
 
 : annotate-cov ( -- )
+    \G annotate files with coverage information
     included-files $[]# 0 ?DO
 	I covered? IF
 	    I [: included-files $[]@ type ." .cov" ;] $tmp
@@ -108,11 +115,13 @@ $10 buffer: cover-hash
     ['] $tmp $10 base-execute ;
 
 : save-cov ( -- )
+    \G save coverage counters
     cover-filename r/w create-file throw >r
     cover-start cover-end over - r@ write-file throw
     r> close-file throw ;
 
 : load-cov ( -- )
+    \G load coverage counters
     cover-filename r/o open-file dup #-514 = IF
 	2drop ." no coverage found" cr  EXIT  THEN  throw  >r
     cover-start r@ file-size throw drop r@ read-file throw
@@ -121,7 +130,7 @@ $10 buffer: cover-hash
 
 \ coverage tests
 
-false [IF]
+0 [IF]
     true to coverage?
     : test1 ( n -- )  0 ?DO  I 3 > ?LEAVE I . LOOP ;
     : yes ." yes" ;
