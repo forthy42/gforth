@@ -44,6 +44,7 @@ section-size 2* extra-section coverage
 
 :noname defers :-hook                     cov+, ; is :-hook
 :noname defers if-like            postpone cov+ ; is if-like
+:noname defers until-like         postpone cov+ ; is until-like
 :noname defers basic-block-end    postpone cov+ ; is basic-block-end
 :noname defers exit-like      true to dead-cov? ; is exit-like
 :noname defers before-line        postpone cov+ ; is before-line
