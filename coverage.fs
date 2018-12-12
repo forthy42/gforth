@@ -121,7 +121,7 @@ $10 buffer: cover-hash
 
 \ coverage tests
 
-true [IF]
+0 [IF]
     true to coverage?
     : test1 ( n -- )  0 ?DO  I .  LOOP ;
     : yes ." yes" ;
