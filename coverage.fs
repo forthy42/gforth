@@ -45,7 +45,7 @@ section-size extra-section coverage
 :noname defers if-like            postpone cov+ ; is if-like
 :noname defers basic-block-end    postpone cov+ ; is basic-block-end
 :noname defers exit-like      true to dead-cov? ; is exit-like
-\ :noname defers before-line        postpone cov+ ; is before-line
+:noname defers before-line        postpone cov+ ; is before-line
 
 : .cover-raw ( -- )
     \G print all raw coverage data
