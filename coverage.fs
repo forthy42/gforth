@@ -136,6 +136,12 @@ $10 buffer: cover-hash
     cover-start + cover-end!
     r> close-file throw ;
 
+: cov% ( -- )
+    0 0  cover-end cover-start U+DO
+	I cell+ @ 0<> negate 1  d+
+    2 cells +LOOP  1000 swap */
+    0 <# '%' hold # '.' hold #s #> type ."  coverage" ;
+
 true to coverage?
 
 \ coverage tests
