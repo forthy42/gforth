@@ -123,7 +123,8 @@ $10 buffer: cover-hash
 : load-cov ( -- )
     \G load coverage counters
     cover-filename r/o open-file dup #-514 = IF
-	2drop ." no coverage found" cr  EXIT  THEN  throw  >r
+	2drop true [: ." no saved coverage found" cr ;] ?warning
+	EXIT  THEN  throw  >r
     cover-start r@ file-size throw drop r@ read-file throw
     cover-start + cover-end!
     r> close-file throw ;
