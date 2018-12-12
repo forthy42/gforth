@@ -39,9 +39,9 @@ section-size extra-section coverage
     state @ and  IF  (cov+)  THEN ; immediate compile-only
 
 :noname defers :-hook coverage? IF  (cov+)  THEN ; is :-hook
-:noname defers other-control-flow postpone cov+ ; is other-control-flow
+:noname defers if-like            postpone cov+ ; is if-like
 :noname defers basic-block-end    postpone cov+ ; is basic-block-end
-:noname defers before-line        postpone cov+ ; is before-line
+\ :noname defers before-line        postpone cov+ ; is before-line
 
 : .cover-raw ( -- )
     \G print all raw coverage data
@@ -121,7 +121,7 @@ $10 buffer: cover-hash
 
 \ coverage tests
 
-0 [IF]
+true [IF]
     true to coverage?
     : test1 ( n -- )  0 ?DO  I .  LOOP ;
     : yes ." yes" ;

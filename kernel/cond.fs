@@ -106,6 +106,8 @@ variable backedge-locals
 
 defer other-control-flow ( -- )
 \ hook for control-flow stuff that's not handled by begin-like etc.
+defer if-like
+\ hook for if-like control flow not handled by other-control-flow
 
 : ?struc      ( tag -- )
     defstart <> &-22 and throw ;
@@ -113,7 +115,9 @@ defer other-control-flow ( -- )
     ?struc execute ;
 
 : >mark ( -- orig )
- cs-push-orig 0 , other-control-flow ;
+    cs-push-orig 0 , other-control-flow ;
+: >mark? ( -- orig )
+    >mark if-like ;
 : >resolve    ( addr -- )
     here swap !
     basic-block-end ;
@@ -132,15 +136,15 @@ defer other-control-flow ( -- )
     POSTPONE branch  >mark  POSTPONE unreachable ; immediate restrict
 
 : IF ( compilation -- orig ; run-time f -- ) \ core
- POSTPONE ?branch >mark ; immediate restrict
+    POSTPONE ?branch >mark? ; immediate restrict
 
 : ?DUP-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-if
 \G This is the preferred alternative to the idiom "@code{?DUP IF}", since it can be
 \G better handled by tools like stack checkers. Besides, it's faster.
-    POSTPONE ?dup-?branch >mark ;       immediate restrict
+    POSTPONE ?dup-?branch >mark? ;       immediate restrict
 
 : ?DUP-0=-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-zero-equals-if
-    POSTPONE ?dup-0=-?branch >mark ;       immediate restrict
+    POSTPONE ?dup-0=-?branch >mark? ;       immediate restrict
 
 Defer then-like ( orig -- )
 : cs>addr ( orig/dest -- )  drop >resolve drop ;
