@@ -25,22 +25,72 @@ section-size extra-section coverage
 
 : cover-end ( -- addr ) ['] here coverage ;
 : cover, ( n -- ) ['] , coverage ;
+: cover-end! ( addr -- )  [: dp ! ;] coverage ;
 
 0 Value coverage?
-0 Value last-cover?
 
-: (cov+) ( flag -- )
-    current-sourceview cover,
-    IF    postpone inc# cover-end , 0
-    ELSE  1  THEN  cover,
-    here to last-cover? ;
+: (cov+) ( -- )
+    current-sourceview input-lexeme @ + cover,
+    postpone inc# cover-end , 0 cover, ;
 
 : cov+ ( -- )
     coverage?
-    here last-cover? <>  and
-    source nip >in @ u>  and  IF
-	state @ (cov+)
-    THEN ; immediate compile-only
+    source nip >in @ u>  and
+    state @ and  IF  (cov+)  THEN ; immediate compile-only
+
+:noname defers :-hook coverage? IF  (cov+)  THEN ; is :-hook
+:noname defers other-control-flow postpone cov+ ; is other-control-flow
+:noname defers basic-block-end    postpone cov+ ; is basic-block-end
+:noname defers before-line        postpone cov+ ; is before-line
+
+: .cover-raw ( -- )
+    \G print all raw coverage data
+    cover-end cover-start U+DO
+	I @ .sourceview ." : " I cell+ ? cr
+    2 cells +LOOP ;
+
+: .cover-file { fn -- }
+    \G pretty print coverage in a file
+    fn included-buffer 0 locate-line 0 { d: buf lpos d: line cpos }
+    cover-end cover-start U+DO
+	I @ view>filename# fn = IF
+	    buf lpos
+	    BEGIN  dup I @ view>line u<  WHILE
+		    line cpos safe/string type cr
+		    locate-line  to line  0 to cpos
+	    REPEAT  to lpos  to buf
+	    line cpos safe/string
+	    over I @ view>char cpos - tuck type +to cpos  2drop
+	    info-color error-color I cell+ @ select
+	    dup Invers or attr!  I cell+ ? attr!
+	THEN
+    2 cells +LOOP
+    line cpos safe/string type cr  buf type  default-color attr! ;
+
+: covered? ( fn -- flag )
+    false cover-end cover-start U+DO 
+	over I @ view>filename# = or
+    2 cells +LOOP  nip ;
+
+: .coverage ( -- ) cr
+    included-files $[]# 0 ?DO
+	I covered? IF
+	    I [: included-files $[]@ type ':' emit cr ;]
+	    warning-color color-execute
+	    I .cover-file
+	THEN
+    LOOP ;
+
+: annotate-cov ( -- )
+    included-files $[]# 0 ?DO
+	I covered? IF
+	    I [: included-files $[]@ type ." .cov" ;] $tmp
+	    r/w create-file throw { fd }
+	    I ['] .cover-file fd outfile-execute  fd close-file throw
+	THEN
+    LOOP ;
+
+\ load and save coverage
 
 $10 buffer: cover-hash
 
@@ -51,20 +101,30 @@ $10 buffer: cover-hash
     2 cells +LOOP
     cover-hash $10 ;
 
-:noname defers :-hook coverage? IF  true (cov+)  THEN ; is :-hook
-:noname defers basic-block-end    postpone cov+ ; is basic-block-end
-:noname defers before-line        postpone cov+ ; is before-line
+: cover-filename ( -- addr u )
+    "~/.cache/gforth/" 2dup $1ff mkdir-parents drop
+    [: type
+	hash-cover bounds ?DO  I c@ 0 <# # # #> type LOOP ." .covbin" ;]
+    ['] $tmp $10 base-execute ;
 
-: .coverage ( -- )
-    \G print all coverage data
-    cover-end cover-start U+DO
-	I @ .sourceview ." : " I cell+ ? cr
-    2 cells +LOOP ;
+: save-cov ( -- )
+    cover-filename r/w create-file throw >r
+    cover-start cover-end over - r@ write-file throw
+    r> close-file throw ;
+
+: load-cov ( -- )
+    cover-filename r/o open-file dup #-514 = IF
+	2drop ." no coverage found" cr  EXIT  THEN  throw  >r
+    cover-start r@ file-size throw drop r@ read-file throw
+    cover-start + cover-end!
+    r> close-file throw ;
 
 \ coverage tests
 
-0 [IF]
-true to coverage?
-: test1 ( n -- )  0 ?DO  I .  LOOP ;
-: test2 ( flag -- ) IF ." yes"  ELSE ." no"  THEN ;
+true [IF]
+    true to coverage?
+    : test1 ( n -- )  0 ?DO  I .  LOOP ;
+    : yes ." yes" ;
+    : no  ." no" ;
+    : test2 ( flag -- ) IF  yes  ELSE  no  THEN ;
 [THEN]
