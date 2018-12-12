@@ -31,17 +31,18 @@ section-size extra-section coverage
 0 Value dead-cov?
 
 : cov+, ( -- )
-    false to dead-cov?
-    current-sourceview input-lexeme @ + cover,
-    postpone inc# cover-end , 0 cover, ;
+    coverage?  loadfilename# @ 0>= and  IF
+	current-sourceview input-lexeme @ + cover,
+	postpone inc# cover-end , 0 cover,
+    THEN
+    false to dead-cov? ;
 
 : cov+ ( -- )
     \G add a coverage tag here
-    coverage?  dead-cov? 0= and
-    state @ and  IF  cov+,  THEN
+    dead-cov? 0= state @ and  IF  cov+,  THEN
     false to dead-cov? ; immediate compile-only
 
-:noname defers :-hook coverage? IF  cov+,  THEN ; is :-hook
+:noname defers :-hook                     cov+, ; is :-hook
 :noname defers if-like            postpone cov+ ; is if-like
 :noname defers basic-block-end    postpone cov+ ; is basic-block-end
 :noname defers exit-like      true to dead-cov? ; is exit-like
@@ -129,10 +130,11 @@ $10 buffer: cover-hash
     cover-start + cover-end!
     r> close-file throw ;
 
+true to coverage?
+
 \ coverage tests
 
 0 [IF]
-    true to coverage?
     : test1 ( n -- )  0 ?DO  I 3 > ?LEAVE I . LOOP ;
     : yes ." yes" ;
     : no  ." no" ;
