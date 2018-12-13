@@ -12673,7 +12673,7 @@ doc-cov%
 * Pthreads::                    Native Unix multitasker
 @end menu
 
-Gforth offers two multitasker: a traditional, cooperative round-robin
+Gforth offers two multitaskers: a traditional, cooperative round-robin
 multitasker, and a pthread-based multitasker which allows to run several
 threads concurrently on multi-core machines.  The pthread-based is now
 marked as experimental feature, as standardization of Forth
