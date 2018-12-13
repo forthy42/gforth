@@ -25,7 +25,7 @@
  
 \ gregorian calendar
  
-1582 10 15 (ymd2day) 2Constant gregorian.
+1582 10 15 (ymd2day) 1 0 d+ 2Constant gregorian.
 1582 10 5 j-ymd2day Constant gregorian
  
 : day2ymd ( day -- y m d )
@@ -39,7 +39,7 @@
  
 : ymd2day ( y m d -- day )
     (ymd2day)
-    2dup gregorian. d< 0= IF
+    over 1+ over gregorian. d< 0= IF
 	25 /mod swap 1461 * swap
 	4 /mod swap 36524 * swap
 	146097 * + + + 2 +
@@ -52,11 +52,9 @@
     require test/ttester.fs
     13 1 [DO] t{ 2018 [I] 13 ymd2day day2ymd -> 2018 [I] 13 }t [LOOP] cov% cr
     32 1 [DO] t{ 2018 12 [I] ymd2day day2ymd -> 2018 12 [I] }t [LOOP] cov% cr
-    2018 1 1 ymd2day 365 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
-    2000 1 1 ymd2day 366 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
+    2000 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
+    1580 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
     7  0 [DO] t{ 1896 [I] + 12 13 ymd2day day2dow -> [I] }t [lOOP]    cov% cr
-    13 1 [DO] t{ 1216 [I] 28 ymd2day day2ymd -> 1216 [I] 28 }t [LOOP] cov% cr
-    13 1 [DO] t{ 1216 [I] 29 ymd2day day2ymd -> 1216 [I] 29 }t [LOOP] cov% cr
     .coverage
     #ERRORS @ [IF]
 	error-color attr!
