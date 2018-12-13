@@ -52,6 +52,8 @@
     require test/ttester.fs
     13 1 [DO] t{ 2018 [I] 13 ymd2day day2ymd -> 2018 [I] 13 }t [LOOP] cov% cr
     32 1 [DO] t{ 2018 12 [I] ymd2day day2ymd -> 2018 12 [I] }t [LOOP] cov% cr
+    2018 1 1 ymd2day 365 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
+    2000 1 1 ymd2day 366 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
     7  0 [DO] t{ 1896 [I] + 12 13 ymd2day day2dow -> [I] }t [lOOP]    cov% cr
     13 1 [DO] t{ 1216 [I] 28 ymd2day day2ymd -> 1216 [I] 28 }t [LOOP] cov% cr
     13 1 [DO] t{ 1216 [I] 29 ymd2day day2ymd -> 1216 [I] 29 }t [LOOP] cov% cr
