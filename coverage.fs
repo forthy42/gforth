@@ -62,7 +62,7 @@ section-size 2* extra-section coverage
 	I @ view>filename# fn = IF
 	    buf lpos
 	    BEGIN  dup I @ view>line u<  WHILE
-		    line cpos safe/string type cr
+		    line cpos safe/string type cr default-color attr!
 		    locate-line  to line  0 to cpos
 	    REPEAT  to lpos  to buf
 	    line cpos safe/string
@@ -71,7 +71,7 @@ section-size 2* extra-section coverage
 	    dup Invers or attr!  I cell+ ? attr!
 	THEN
     2 cells +LOOP
-    line cpos safe/string type cr  buf type  default-color attr! ;
+    line cpos safe/string type cr  default-color attr!  buf type ;
 
 : covered? ( fn -- flag ) \ gforth-exp
     \G check if file number @var{fn} has coverage information

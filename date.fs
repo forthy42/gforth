@@ -7,19 +7,19 @@
 : day2dow ( day -- dow )  2 + 7 mod ;
  
 \ julian calendar
- 
+
 : j-day2ymd ( day -- y m d )
     1461 /mod 4 * swap
     365 /mod3 rot + swap
-    31 + 5 153 */mod swap 5 /
-    >r 2 + dup 12 > IF  12 - swap 1+ swap  THEN
+    31 + 5 153 */mod swap 5 / >r
+    2 + dup 12 > IF  12 - swap 1+ swap  THEN
     r> 1+ ;
  
 : (ymd2day) ( y m d -- day year/4 )
     1- -rot
     2 - dup 0<= IF  12 + swap 1- swap  THEN
-    153 5 */ 31 - swap
-    4 /mod swap 365 * swap >r + + r> ;
+    153 5 */mod swap 0= >r 31 - swap
+    4 /mod swap 365 * swap >r + + r> swap r> + swap ;
  
 : j-ymd2day ( y m d -- day )  (ymd2day) 1461 * + ;
  
@@ -46,3 +46,19 @@
     ELSE
 	1461 * +
     THEN ;
+
+[IFDEF] cov%
+    false to coverage?
+    require test/ttester.fs
+    13 1 [DO] t{ 2018 [I] 13 ymd2day day2ymd -> 2018 [I] 13 }t [LOOP] cov% cr
+    7  0 [DO] t{ 1896 [i] + 12 13 ymd2day day2dow -> [i] }t [lOOP]    cov% cr
+    13 1 [DO] t{ 1216 [I] 28 ymd2day day2ymd -> 1216 [I] 28 }t [LOOP] cov% cr
+    13 1 [DO] t{ 1216 [I] 29 ymd2day day2ymd -> 1216 [I] 29 }t [LOOP] cov% cr
+    .coverage
+    #ERRORS @ [IF]
+	error-color attr!
+	." had " #ERRORS ? ." errors"
+    [ELSE]  info-color attr!  ." passed successful"  [THEN]
+    default-color attr! cr
+    cov% cr
+[THEN]
