@@ -21,16 +21,20 @@
 
 require ./vars.fs
 
+\ String literals
+
 : CLiteral ( Compilation c-addr1 u ; run-time -- c-addr )
-    2>r postpone ahead here 2r> s, >r postpone then
+    2>r postpone ahead here 2r> s, >r
+    dead-code on postpone then
     r> postpone literal ; immediate restrict
 
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
 \G Compilation: compile the string specified by @i{c-addr1},
 \G @i{u} into the current definition. Run-time: return
 \G @i{c-addr2 u} describing the address and length of the
-\G string.
-    tuck 2>r postpone ahead here 2r> chars mem, align >r postpone then
+    \G string.
+    tuck 2>r postpone ahead here 2r> chars mem, align >r
+    dead-code on postpone then
     r> postpone literal postpone literal ; immediate restrict
 
 \ \ abort"							22feb93py
@@ -40,7 +44,7 @@ require ./vars.fs
 \G displaying the string @i{ccc} if there is no exception frame on the
 \G exception stack.
     postpone if [char] " parse postpone cliteral postpone c(abort")
-    postpone then ; immediate restrict
+    dead-code on postpone then ; immediate restrict
 
 : warning" ( compilation 'ccc"' -- ; run-time f -- ) \ gforth
     \G if @i{f} is non-zero, display the string @i{ccc} as warning message.

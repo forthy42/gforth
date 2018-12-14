@@ -54,6 +54,13 @@ unused extra-section coverage
 :noname defers exit-like      true to dead-cov? ; is exit-like
 :noname defers before-line        postpone cov+ ; is before-line
 
+: cov% ( -- ) \ gforth-exp
+    \G print the coverage percentage
+    0 cover-end cover-start U+DO
+	I cell+ @ 0<> -
+    2 cells +LOOP  #2000 cells cover-end cover-start - */
+    0 <# '%' hold # '.' hold #s #> type ."  coverage" ;
+
 : .cover-raw ( -- ) \ gforth-exp
     \G print all raw coverage data
     cover-end cover-start U+DO
@@ -161,13 +168,6 @@ $10 buffer: cover-hash
     cover-start r@ file-size throw drop r@ read-file throw
     cover-start + cover-end!
     r> close-file throw ;
-
-: cov% ( -- ) \ gforth-exp
-    \G print the coverage percentage
-    0 0  cover-end cover-start U+DO
-	I cell+ @ 0<> negate 1  d+
-    2 cells +LOOP  1000 swap */
-    0 <# '%' hold # '.' hold #s #> type ."  coverage" ;
 
 true to coverage?
 
