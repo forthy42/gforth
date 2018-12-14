@@ -50,6 +50,20 @@
 [defined] t{ [defined] cov% and [IF]
     13 1 [DO] t{ 2018 [I] 13 ymd2day day2ymd -> 2018 [I] 13 }t [LOOP] cov% cr
     32 1 [DO] t{ 2018 12 [I] ymd2day day2ymd -> 2018 12 [I] }t [LOOP] cov% cr
+    t{ 2018 1 1 ymd2day 1- day2ymd -> 2017 12 31 }t
+    t{ 2018 2 1 ymd2day 1- day2ymd -> 2018 1 31 }t
+    t{ 2018 3 1 ymd2day 1- day2ymd -> 2018 2 28 }t
+    t{ 2018 4 1 ymd2day 1- day2ymd -> 2018 3 31 }t
+    t{ 2018 5 1 ymd2day 1- day2ymd -> 2018 4 30 }t
+    t{ 2018 6 1 ymd2day 1- day2ymd -> 2018 5 31 }t
+    t{ 2018 7 1 ymd2day 1- day2ymd -> 2018 6 30 }t
+    t{ 2018 8 1 ymd2day 1- day2ymd -> 2018 7 31 }t
+    t{ 2018 9 1 ymd2day 1- day2ymd -> 2018 8 31 }t
+    t{ 2018 10 1 ymd2day 1- day2ymd -> 2018 9 30 }t
+    t{ 2018 11 1 ymd2day 1- day2ymd -> 2018 10 31 }t
+    t{ 2018 12 1 ymd2day 1- day2ymd -> 2018 11 30 }t cov% cr
+    2100 1904 [DO] t{ [I] 3 1 ymd2day 1- day2ymd -> [I] 2 29 }t 4 [+LOOP]
+    2000 1700 [DO] t{ [I] 3 1 ymd2day 1- day2ymd -> [I] 2 28 }t 100 [+LOOP] cov% cr
     1620 1560 [DO] t{ [I] 1 3 ymd2day day2ymd -> [I] 1 3 }t [LOOP] cov% cr
     7  0 [DO] t{ 1896 [I] + 12 13 ymd2day day2dow -> [I] }t [lOOP]    cov% cr
     2000 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr

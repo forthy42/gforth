@@ -28,7 +28,7 @@ unused extra-section coverage
 : cover-end! ( addr -- )  [: dp ! ;] coverage ;
 
 [IFUNDEF] coverage?
-    0 Value coverage?
+    0 Value coverage? ( -- flag ) \ gforth-exp
     \G Coverage check on/off
 [THEN]
 0 value dead-cov?
