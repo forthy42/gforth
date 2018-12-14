@@ -74,14 +74,14 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 
 0 Value coverage?
 \G Coverage check on/off
-0 Value saved-coverage?
+$10 stack: cov-stack
 
 : nocov[ ( -- )
     \G turn coverage off temporarily
-    coverage? to saved-coverage?  false to coverage? ; immediate
+    coverage? cov-stack >stack  false to coverage? ; immediate
 : ]nocov ( -- )
     \G end of temporary turned off coverage
-    saved-coverage? to coverage? ; immediate
+    cov-stack stack> to coverage? ; immediate
 
 \ print a no-overhead backtrace
 

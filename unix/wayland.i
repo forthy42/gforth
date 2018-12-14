@@ -11,7 +11,7 @@
 %apply SWIGTYPE * { wl_dispatcher_func_t, wl_log_func_t }
 #define WL_HIDE_DEPRECATED
 
-#define SWIG_FORTH_OPTIONS "no-prefix"
+#define SWIG_FORTH_OPTIONS "no-pre-postfix"
 
 %include <wayland-client.h>
 %include <wayland-client-core.h>
