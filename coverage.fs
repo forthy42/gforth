@@ -19,7 +19,7 @@
 
 require sections.fs
 
-section-size 2* extra-section coverage
+unused extra-section coverage
 
 ' Create coverage cover-start
 
@@ -27,11 +27,14 @@ section-size 2* extra-section coverage
 : cover, ( n -- ) ['] , coverage ;
 : cover-end! ( addr -- )  [: dp ! ;] coverage ;
 
-[IFUNDEF] coverage? 0 Value coverage? [THEN]
-0 Value dead-cov?
+[IFUNDEF] coverage?
+    0 Value coverage?
+    \G Coverage check on/off
+[THEN]
+0 value dead-cov?
 
 : cov+, ( -- )
-    coverage?  loadfilename# @ 0>= and  IF
+    coverage?  dead-code @ 0= and  loadfilename# @ 0>= and  IF
 	current-sourceview input-lexeme @ + cover,
 	postpone inc# cover-end , 0 cover,
     THEN
@@ -41,6 +44,8 @@ section-size 2* extra-section coverage
     \G add a coverage tag here
     dead-cov? 0= state @ and  IF  cov+,  THEN
     false to dead-cov? ; immediate compile-only
+: ?cov+ ( flag -- flag ) \ gforth-exp
+    ]] dup IF ELSE THEN [[ ; immediate compile-only
 
 :noname defers :-hook                     cov+, ; is :-hook
 :noname defers if-like            postpone cov+ ; is if-like
@@ -55,6 +60,27 @@ section-size 2* extra-section coverage
 	I @ .sourceview ." : " I cell+ ? cr
     2 cells +LOOP ;
 
+Defer .cov#
+
+: .ansi-cov# ( n -- )
+    >r info-color error-color r@ select
+    dup Invers or attr! space r> 0 .r  attr! ;
+: .paren-cov# ( n -- ) ."  ( " 0 .r ." ) " ;
+
+: color-cover ( -- ) ['] .ansi-cov#  is .cov# ;
+\G print coverage with colors
+: bw-cover    ( -- ) ['] .paren-cov# is .cov# ;
+\G print coverage with parents (source-code compatible)
+color-cover
+
+: ?del-cover ( addr u -- n )
+    \G remove coverage comment
+    2dup s"  ( " string-prefix?  IF
+	3 dup >r /string
+	BEGIN  over c@ digit?  WHILE  drop 1 /string r> 1+ >r  REPEAT
+	s" ) " string-prefix? IF  r> 2 +  ELSE  rdrop  0  THEN
+    ELSE  2drop  0  THEN ;
+
 : .cover-file { fn -- } \ gforth-exp
     \G pretty print coverage in a file
     fn included-buffer 0 locate-line 0 { d: buf lpos d: line cpos }
@@ -67,8 +93,8 @@ section-size 2* extra-section coverage
 	    REPEAT  to lpos  to buf
 	    line cpos safe/string
 	    over I @ view>char cpos - tuck type +to cpos  2drop
-	    info-color error-color I cell+ @ select
-	    dup Invers or attr!  I cell+ ? attr!
+	    I cell+ @ .cov#
+	    line cpos safe/string ?del-cover +to cpos
 	THEN
     2 cells +LOOP
     line cpos safe/string type cr  default-color attr!  buf type ;
@@ -147,7 +173,7 @@ true to coverage?
 
 \ coverage tests
 
-0 [IF]
+[defined] test-it [IF]
     : test1 ( n -- )  0 ?DO  I 3 > ?LEAVE I . LOOP ;
     : yes ." yes" ;
     : no  ." no" ;

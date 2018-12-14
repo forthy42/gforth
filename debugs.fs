@@ -70,6 +70,19 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 
 :noname ( -- )  stderr to debug-fid  defers 'cold ; IS 'cold
 
+\ code coverage helpers that are always present
+
+0 Value coverage?
+\G Coverage check on/off
+0 Value saved-coverage?
+
+: nocov[ ( -- )
+    \G turn coverage off temporarily
+    coverage? to saved-coverage?  false to coverage? ; immediate
+: ]nocov ( -- )
+    \G end of temporary turned off coverage
+    saved-coverage? to coverage? ; immediate
+
 \ print a no-overhead backtrace
 
 : once ( -- )

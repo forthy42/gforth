@@ -12654,9 +12654,14 @@ coverage counters in binary format, and use that to annotate the
 source files.  Annotation is done by ANSI color escape sequences, so
 the coverage shows nicely in the terminal.
 
+doc-coverage?
+doc-nocov[
+doc-]nocov
 doc-cov+
 doc-.cover-raw
 doc-.cover-file
+doc-color-cover
+doc-bw-cover
 doc-covered?
 doc-.coverage
 doc-annotate-cov

@@ -189,7 +189,9 @@ s" (bla) 12:34:56 (fasel) 00:01:57 (blubber)" 2dup type hms>s,del() ."  -> " typ
 
 \ more tests from David Kühling
 
+coverage? false to coverage?
 require test/ttester.fs
+to coverage?
 
 : underflow1  ( c-addr u -- flag )
    (( {{
@@ -216,7 +218,7 @@ charclass [*/] '* +char '/ +char
    )) ;
 
 \ this still seems to be too complicated
-T{ s" /*10203030203030404*/   " underflow3 .s -> true }T
+T{ s" /*10203030203030404*/   " underflow3 -> true }T
 \1 type cr
 
 : underflow4  ( -- )
@@ -224,4 +226,5 @@ T{ s" /*10203030203030404*/   " underflow3 .s -> true }T
 
 T{ s" 0  " underflow4 -> true }T
 
+coverage? [IF] .coverage cov% cr [THEN]
 script? [IF] bye [THEN]

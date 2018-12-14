@@ -53,8 +53,8 @@ require kernel/version.fs \ version-string
 \G parse area. If the parse area was empty, @i{u} is 0.
     >r  source  >in @ over min /string ( c-addr1 u1 )
     over  swap r>  scan >r
-    over - dup r> IF 1+ THEN  >in +!
-    2dup input-lexeme! ;
+    over - dup r@ IF 1+ THEN  >in +!
+    2dup r> 0<> - input-lexeme! ;
 
 \ name                                                 13feb93py
 

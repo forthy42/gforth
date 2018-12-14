@@ -160,7 +160,7 @@ immediate restrict
 \ brought up with fig-Forth).
 
 : ELSE ( compilation orig1 -- orig2 ; run-time -- ) \ core
-    POSTPONE ahead
+    POSTPONE ahead  dead-code off
     1 cs-roll
     POSTPONE then ; immediate restrict
 

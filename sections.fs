@@ -171,7 +171,7 @@ init-sections
     r> close-file throw ;
 warnings !
 
-[defined] testing [if]
+[defined] test-it [if] 
 section-size extra-section bla
 cr .sections
 :noname 50 allot ; bla

@@ -47,19 +47,15 @@
 	1461 * +
     THEN ;
 
-[IFDEF] cov%
-    false to coverage?
-    require test/ttester.fs
+[defined] t{ [defined] cov% and [IF]
     13 1 [DO] t{ 2018 [I] 13 ymd2day day2ymd -> 2018 [I] 13 }t [LOOP] cov% cr
     32 1 [DO] t{ 2018 12 [I] ymd2day day2ymd -> 2018 12 [I] }t [LOOP] cov% cr
+    1620 1560 [DO] t{ [I] 1 3 ymd2day day2ymd -> [I] 1 3 }t [LOOP] cov% cr
+    7  0 [DO] t{ 1896 [I] + 12 13 ymd2day day2dow -> [I] }t [lOOP]    cov% cr
     2000 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
     1580 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
-    7  0 [DO] t{ 1896 [I] + 12 13 ymd2day day2dow -> [I] }t [lOOP]    cov% cr
     .coverage
-    #ERRORS @ [IF]
-	error-color attr!
-	." had " #ERRORS ? ." errors"
+    #ERRORS @ [IF]  error-color attr!  ." had " #ERRORS ? ." errors"
     [ELSE]  info-color attr!  ." passed successful"  [THEN]
-    default-color attr! cr
-    cov% cr
+    default-color attr! cr cov% cr
 [THEN]

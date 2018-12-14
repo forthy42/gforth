@@ -289,6 +289,7 @@ GFORTH_FI_SRC2=\
 	tasker.fs \
 	table.fs \
 	termsize.fs \
+	user-object.fs \
 	utf-8.fs \
 	vt100.fs \
 	vt100key.fs \
@@ -388,13 +389,12 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
 	quotations.fs unbuffer.fs wordsets.fs 2012words.fs $(patsubst %,      \
 	test/%, $(TEST_SRC)) bubble.fs siev.fs matrix.fs fib.fs oof.fs	      \
 	oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs	      \
-	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs user-object.fs   \
-	callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs		      \
-	endtry-iferror.fs recover-endtry.fs $(patsubst %, unix/%,	      \
-	$(UNIX_SRC)) date.fs script.fs wf.fs traceall.fs rec-scope.fs	      \
-	rec-env.fs rec-meta.fs notfound.fs utf16.fs archive.fs cilk.fs	      \
-	sections.fs fixfiles.fs bits.fs reverse-words.fs config.fs	      \
-	set-compsem.fs coverage.fs
+	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs callable.fs      \
+	add.fs lib.fs oldlib.fs sieve.fs list.fs endtry-iferror.fs	      \
+	recover-endtry.fs $(patsubst %, unix/%, $(UNIX_SRC)) date.fs	      \
+	script.fs wf.fs traceall.fs rec-scope.fs rec-env.fs rec-meta.fs	      \
+	notfound.fs utf16.fs archive.fs cilk.fs sections.fs fixfiles.fs	      \
+	bits.fs reverse-words.fs config.fs set-compsem.fs coverage.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
