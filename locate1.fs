@@ -294,9 +294,10 @@ included-files $[]# 1- constant doc-file#
         i c@ #lf = - loop ;
 
 : help-word {: c-addr u -- :}
-    c-addr u find-name dup 0= -13 and throw {: nt :}
+    c-addr u find-name {: nt :} nt if \ convert to canonical case if present
+	nt name>string to u to c-addr then
     doc-file# included-buffer {: c-addr1 u1 :} u1 if
-        c-addr1 u1 nt name>string [: "\l'" type type "'    " type ;] $tmp
+        c-addr1 u1 c-addr u [: "\l'" type type "'    " type ;] $tmp
         search if
             {: c-addr3 u3 :} c-addr1 u1 u3 - count-lfs 2 +
             doc-file# swap 1 encode-view u set-located-view l exit
@@ -305,7 +306,7 @@ included-files $[]# 1- constant doc-file#
     else
         cr ." Documentation file not found"
     then
-    ." , LOCATEing source" nt locate-name ;        
+    ." , LOCATEing source" nt 0= -13 and throw nt locate-name ;        
 
 : help ( "name" -- ) \ gforth
     \G If no name is given, show basic help.  Otherwise, show the
