@@ -36,6 +36,7 @@ require errors.fs
 require hash.fs
 require compat/strcomp.fs
 require glocals.fs
+require iloops.fs
 require float.fs
 require stuff.fs
 require closures.fs

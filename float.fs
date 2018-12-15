@@ -259,7 +259,10 @@ set-current
 	fnegate f~rel
     THEN ;
 
--0e 8 0 [do] fp@ [i] + c@ $80 = [if] [i] constant fsign-offset [then] [loop]
+-0e
+fp@ 0 + c@ $80 = [if] 0 constant fsign-offset [then]
+fp@ 7 + c@ $80 = [if] 7 constant fsign-offset [then]
+fdrop
 
 : fcopysign ( r1 r2 -- r3 ) \ gforth
 \G r3 takes its absolute value from r1 and its sign from r2

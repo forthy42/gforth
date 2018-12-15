@@ -261,6 +261,7 @@ GFORTH_FI_SRC2=\
 	history.fs \
 	intcomp.fs \
 	i18n.fs \
+	iloops.fs \
 	libcc.fs \
 	locals.fs \
 	locate1.fs \
