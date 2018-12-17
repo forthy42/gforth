@@ -93,16 +93,14 @@ Variable fonts[] \ stack of used fonts
     GL_TEXTURE_2D atlas-bgra texture_atlas_t-id l@ glBindTexture edge linear
     atlas-bgra upload-atlas-tex ;
 
-[IFDEF] android also android [THEN]
 :noname defers reload-textures
     gen-atlas-tex gen-atlas-tex-bgra ; is reload-textures
-[IFDEF] android previous [THEN]
 
 \ render font into vertex buffers
 
 2 sfloats buffer: penxy
-Variable color $FFC0A0FF color !
-color @ Value xy-color
+FVariable color 0e color f!
+color f@ FValue xy-color
 1e FValue x-scale
 1e FValue y-scale
 1e FValue f-scale
@@ -129,10 +127,10 @@ color @ Value xy-color
     glyph texture_glyph_t-s0
     \ over hex. dup $10 dump
     >v
-    x0 y0 >xy n> xy-color rgba>c dup s0t0>st v+
-    x1 y0 >xy n> xy-color rgba>c dup s1t0>st v+
-    x0 y1 >xy n> xy-color rgba>c dup s0t1>st v+
-    x1 y1 >xy n> xy-color rgba>c     s1t1>st v+
+    x0 y0 >xy n> xy-color i>c dup s0t0>st v+
+    x1 y0 >xy n> xy-color i>c dup s1t0>st v+
+    x0 y1 >xy n> xy-color i>c dup s0t1>st v+
+    x1 y1 >xy n> xy-color i>c     s1t1>st v+
     v>
     xp glyph texture_glyph_t-advance_x sf@ xs f* f+ penxy sf!
     yp glyph texture_glyph_t-advance_y sf@ ys f* f+ penxy sfloat+ sf!
@@ -144,25 +142,20 @@ color @ Value xy-color
 
 : all-glyphs ( -- )
     i>off >v
-    0e 0e >xy n> color @ rgba>c 0e 0e >st v+
-    512e 0e >xy n> color @ rgba>c 1e 0e >st v+
-    0e 512e >xy n> color @ rgba>c 0e 1e >st v+
-    512e 512e >xy n> color @ rgba>c 1e 1e >st v+
+    0e 0e >xy n> color @ i>c 0e 0e >st v+
+    512e 0e >xy n> color @ i>c 1e 0e >st v+
+    0e 512e >xy n> color @ i>c 0e 1e >st v+
+    512e 512e >xy n> color @ i>c 1e 1e >st v+
     v> 2 quad ;
 
 0 Value font
 Defer font-select ( xcaddr font -- xcaddr font' )
 ' noop is font-select
 
-: .aaaa ( color -- alpha-channel )
-    $FF and dup 8 lshift or dup $10 lshift or ;
-
 : font->t.i0 ( font -- )
-    -1e color @ swap
+    -2e to t.i0  color f@ to xy-color
     texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
-	.aaaa ELSE
-	f2*   THEN
-    to xy-color to t.i0 ;
+	2e +to xy-color -1e to t.i0  THEN ;
 
 : double-atlas ( xc-addr -- xc-addr )
     freetype_gl_errno $100 = IF
@@ -176,13 +169,15 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 	atlas-scaletex atlas-bgra-scaletex
     THEN ;
 
+: glyph@ ( font xc-addr -- glyph )
+    BEGIN  2dup texture_font_get_glyph dup 0= WHILE
+	    drop double-atlas  REPEAT ; \ xc-addr xc-addrp font xc-addr glyph
+
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
     tuck font font-select \ xc-addr xc-addrp xc-addr font
     dup font->t.i0
     dup texture_font_t-scale sf@ to f-scale
-    swap \ xc-addr xc-addrp font xc-addr
-    BEGIN  2dup texture_font_get_glyph dup 0= WHILE
-	    drop double-atlas  REPEAT \ xc-addr xc-addrp font xc-addr glyph
+    swap glyph@ \ xc-addr xc-addrp font xc-addr
     >r 2drop \ xc-addr xc-addrp r:glyph
     dup IF
 	r@ swap texture_glyph_get_kerning f-scale f*
@@ -226,10 +221,10 @@ $AD Constant 'soft-hyphen'
     render-string
     penxy dup sf@ fround 1/2 f+
     sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
-    s"  " drop font font-select { ft } drop
+    s" g" drop font font-select { ft } drop
     ft font->t.i0
-    ft "–" drop texture_font_get_glyph { g- }
-    ft "g" drop texture_font_get_glyph { gg }
+    ft "–" drop glyph@ { g- }
+    ft "g" drop glyph@ { gg }
     y
     gg texture_glyph_t-height   sl@
     gg texture_glyph_t-offset_y sl@ - 20% fm*
@@ -239,10 +234,10 @@ $AD Constant 'soft-hyphen'
 	mask I and IF
 	    g- texture_glyph_t-s0
 	    i>off  >v
-	    x0 y0 >xy n> xy-color rgba>c dup s0t0>st- v+
-	    x1 y0 >xy n> xy-color rgba>c dup s1t0>st- v+
-	    x0 y0 y1 f+ >xy n> xy-color rgba>c dup s0t1>st- v+
-	    x1 y0 y1 f+ >xy n> xy-color rgba>c     s1t1>st- v+
+	    x0 y0       >xy n> xy-color i>c dup s0t0>st- v+
+	    x1 y0       >xy n> xy-color i>c dup s1t0>st- v+
+	    x0 y0 y1 f+ >xy n> xy-color i>c dup s0t1>st- v+
+	    x1 y0 y1 f+ >xy n> xy-color i>c     s1t1>st- v+
 	    v> 2 quad
 	THEN
 	case I  y

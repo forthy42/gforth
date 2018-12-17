@@ -45,11 +45,13 @@ also opengl
 
 vocabulary minos  also minos definitions
 
-0 Value x-color
+0e FValue x-color
 : color: ( rgba "name" -- )
-    Create , DOES> @ to x-color ;
-: color, ( rgba -- [rgba] ) \ pseudonymous color
-;
+    Create color, f, DOES> f@ to x-color ;
+: text-color: ( rgba "name" -- )
+    Create text-color, f, DOES> f@ to x-color ;
+: text-emoji-color: ( rgbatext rgbaemoji "name" -- )
+    Create text-emoji-color, f, DOES> f@ to x-color ;
 
 vocabulary m2c \ minos2 config
 get-current also m2c definitions
@@ -289,7 +291,7 @@ end-class glue
 \ tile widget
 
 widget class
-    value: frame-color
+    sfvalue: frame-color
     value: tile-glue \ glue object
     value: frame#
 end-class tile
@@ -318,13 +320,14 @@ end-structure
     end   01minmax to end
     x1 x2 start interpol
     x1 x2 end   interpol  to x2 to x1
-    frame-color ?dup-IF
+    frame# IF
+	frame-color
 	-1e to t.i0  6 ?flush-tris
 	frame# i>off >v
-	x1 y1 >xy over rgba>c n> start         0.125e f+ 0.125e dup #>st v+
-	x2 y1 >xy over rgba>c n> end  0.75e f* 0.125e f+ 0.125e dup #>st v+
-	x1 y2 >xy over rgba>c n> start         0.125e f+ 0.875e dup #>st v+
-	x2 y2 >xy swap rgba>c n> end  0.75e f* 0.125e f+ 0.875e     #>st v+
+	x1 y1 >xy fdup i>c n> start         0.125e f+ 0.125e dup #>st v+
+	x2 y1 >xy fdup i>c n> end  0.75e f* 0.125e f+ 0.125e dup #>st v+
+	x1 y2 >xy fdup i>c n> start         0.125e f+ 0.875e dup #>st v+
+	x2 y2 >xy      i>c n> end  0.75e f* 0.125e f+ 0.875e     #>st v+
 	v> 2 quad
     THEN ;
 : >xyxy ( rx ry rw rh -- rx0 ry0 rx1 ry1 )
@@ -350,7 +353,7 @@ end-class canvas
 tile class
 end-class glue-tile
 
-' noop tile is draw-bg
+' noop glue-tile is draw-bg
 
 \ image widget
 
@@ -359,13 +362,13 @@ tile class
 end-class image
 
 ' noop       image is draw-bg
-: xywh-rect ( color -- )
+: xywh-rect ( fcolor -- )
     xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
     6 ?flush-tris  i>off  >v
-    x1 y1 >xy dup rgba>c n> 0e 0e >st v+
-    x2 y1 >xy dup rgba>c n> 1e 0e >st v+
-    x1 y2 >xy dup rgba>c n> 0e 1e >st v+
-    x2 y2 >xy     rgba>c n> 1e 1e >st v+
+    x1 y1 >xy fdup i>c n> 0e 0e >st v+
+    x2 y1 >xy fdup i>c n> 1e 0e >st v+
+    x1 y2 >xy fdup i>c n> 0e 1e >st v+
+    x2 y2 >xy      i>c n> 1e 1e >st v+
     v> 2 quad
     GL_TRIANGLES draw-elements ;
 :noname ( -- )
@@ -390,14 +393,14 @@ DOES>  swap sfloats + sf@ ;
 : frame-draw ( -- )
     -1e to t.i0 
     frame# frame-color border fdup borderv f+ borderl bordert
-    xywh { f c f: b f: bv f: bl f: bt f: x f: y f: w f: h }
+    xywh { f f: c f: b f: bv f: bl f: bt f: x f: y f: w f: h }
     raise fdup +to y fnegate +to h
     #80 ?flush-tris  i>off >v
     4 0 DO
 	4 0 DO
 	    x b  I w bl >border
 	    y bv J h bt >border >xy
-	    c rgba>c  n>
+	    c i>c  n>
 	    I button-st J button-st f #>st v+
 	LOOP
     LOOP
@@ -408,14 +411,14 @@ DOES>  swap sfloats + sf@ ;
 ; ' frame-draw frame is draw-bg
 
 : }}glue ( glue -- o )
-    glue-tile new >o to tile-glue o o> ;
+    glue-tile new >o to tile-glue s" glu" to name$ o o> ;
 : }}tile ( glue color -- o )
-    tile new >o to frame-color to tile-glue o o> ;
+    tile new >o to frame-color to tile-glue s" tile" to name$ o o> ;
 : }}frame ( glue color border -- o )
     frame new >o to border to frame-color to tile-glue o o> ;
-: }}image ( glue color texture-xt -- o )
+: }}image ( glue rcolor texture-xt -- o )
     image new >o is image-tex to frame-color to tile-glue
-    image-tex edge mipmap
+    image-tex edge mipmap s" image" to name$
     [IFDEF] cubic-mipmap cubic-mipmap [ELSE] linear-mipmap [THEN] o o> ;
 
 \ text widget
@@ -424,7 +427,7 @@ DOES>  swap sfloats + sf@ ;
 5% fvalue text-grow%
 
 widget class
-    value: text-color
+    sfvalue: text-color
     sfvalue: text-w
     value: text-font
     $value: text$
@@ -443,7 +446,7 @@ end-class text
 : text-xy! ( -- )
     x border kerning f+ borderl f+ f+ fround penxy         sf!
     y                        raise f+ fround penxy sfloat+ sf!
-    text-font to font  text-color color ! ;
+    text-font to font  text-color color f! ;
 : text-text ( addr u -- )
     w text-w text-scale! text-xy!
     us-mask ?dup-IF  render-us-string  ELSE  render-string  THEN ;
@@ -532,11 +535,11 @@ end-class edit
     x cw- f+ ww f+ border f+ borderl f+ y d border borderv f+ f- f+ { f: x0 f: y0 }
     x0 cw f+ y h border borderv f+ bordert f+ f- f- { f: x1 f: y1 }
     -2e to t.i0  6 ?flush-tris  i>off
-    m2c:selectioncolor# @ text-color cursize 0> select >v
-    x0 y0 >xy dup rgba>c n> 2e 2e >st v+
-    x1 y0 >xy dup rgba>c n> 3e 2e >st v+
-    x0 y1 >xy dup rgba>c n> 2e 3e >st v+
-    x1 y1 >xy     rgba>c n> 3e 3e >st v+
+    cursize 0> IF  m2c:selectioncolor# @ color,  ELSE  text-color  THEN >v
+    x0 y0 >xy fdup i>c n> 2e 2e >st v+
+    x1 y0 >xy fdup i>c n> 3e 2e >st v+
+    x0 y1 >xy fdup i>c n> 2e 3e >st v+
+    x1 y1 >xy      i>c n> 3e 3e >st v+
     v> 2 quad ;
 
 : edit-text ( -- )
@@ -630,6 +633,8 @@ previous
 : <draw-image ( -- ) ; \ image draw, one draw call per image
 : draw-image> ( -- ) ;
 : <draw-text ( -- )
+    GL_TEXTURE4 glActiveTexture
+    palette-tex
     GL_TEXTURE3 glActiveTexture
     z-bias set-color+3
     atlas-scaletex
@@ -639,6 +644,7 @@ previous
     atlas-bgra-scaletex
     atlas-tex-bgra
     GL_TEXTURE0 glActiveTexture
+    -2e to t.i0
     vi0 ; \ bg+text+marking draw, one draw call in total
 
 \ load style into atlas-tex-bgra
@@ -1203,11 +1209,11 @@ end-class viewport
     w fround vt-w f/
     h d f+ fround vt-h f/ >xyxy
     { f: s0 f: t0 f: s1 f: t1 }
-    vi0 i>off  $FFFFFFFF >v
-    x1 y1 >xy dup rgba>c n> s0 t1 >st v+
-    x2 y1 >xy dup rgba>c n> s1 t1 >st v+
-    x1 y2 >xy dup rgba>c n> s0 t0 >st v+
-    x2 y2 >xy     rgba>c n> s1 t0 >st v+
+    vi0 i>off  white# >v
+    x1 y1 >xy fdup i>c n> s0 t1 >st v+
+    x2 y1 >xy fdup i>c n> s1 t1 >st v+
+    x1 y2 >xy fdup i>c n> s0 t0 >st v+
+    x2 y2 >xy      i>c n> s1 t0 >st v+
     v> 2 quad
     render-bgra> ; viewport is draw-image
 : ?vpt-x ( -- flag )
@@ -1333,8 +1339,8 @@ hslider-partl , hslider-part , hslider-partr ,
 
 \ slider top
 
-$7F7F7FFF color, Value slider-color
-$7F7F7FFF color, Value slider-fgcolor
+$7F7F7FFF color, FValue slider-color
+$7F7F7FFF color, FValue slider-fgcolor
 8e FValue slider-border
 
 : slider { parts viewport-link f: sw f: sd f: sh -- ou os od }

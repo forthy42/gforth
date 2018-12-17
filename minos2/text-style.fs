@@ -17,10 +17,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-$000000FF color: blackish
-$0000BFFF color: dark-blue
-$00000000 color: transparent
-$FFFFFFFF color: whitish
+$000000FF text-color: blackish
+$0000BFFF text-color: dark-blue
+$00000000 text-color: transparent
+$FFFFFFFF text-color: whitish
 blackish
 0e FValue x-border
 : cbl ( -- )
@@ -88,7 +88,7 @@ Variable image-file[]
     load-texture glue new >o
     s>f fover f* vglue-c df!
     s>f       f* hglue-c df! o o> dup >r
-    $ffffffff color, rot }}image r> ;
+    swap white# }}image r> ;
 : reload-images ( -- )
     image-tex[] $[]# 0 DO
 	I image-tex[] $[] perform
@@ -100,7 +100,7 @@ Variable image-file[]
 is reload-textures
 [IFDEF] android previous [THEN]
 : }}image-tex ( xt glue -- o )
-    $ffffffff color, rot }}image ;
+    swap white# }}image ;
 
 \ buttons
 
@@ -273,9 +273,9 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
     \huge cbl \sans \latin \bold dark-blue }}text' /center blackish
     \normal \regular x-baseline 80% f* to x-baseline ;
 : /subtitle ( addr u -- ) \small dark-blue }}text' /center blackish \normal ;
-: /author ( addr u -- ) \normal \large \bold dark-blue }}text' /center blackish
+: /author ( addr u -- ) \regular \large \bold dark-blue }}text' /center blackish
     \normal \regular \skip ;
-: /location ( addr u -- ) \normal  dark-blue }}text' /center blackish \normal ;
+: /location ( addr u -- ) \normal \regular  dark-blue }}text' /center blackish \normal ;
 : /subsection ( addr u -- ) \normal \bold dark-blue \\ blackish \normal \regular ;
 
 \ mode

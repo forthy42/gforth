@@ -42,14 +42,14 @@ buffer-init
 \ 0 set-triangle
 
 : colors ( -- ) >v
-    $FF0000FF rgba>c v+
-    $00FF00FF rgba>c v+
-    $0000FFFF rgba>c v+ v> ;
+    red#   i>c v+
+    green# i>c v+
+    blue#  i>c v+ v> ;
 
 : colors' ( -- ) >v
-    $0000FFFF rgba>c v+
-    $FF0000FF rgba>c v+
-    $00FF00FF rgba>c v+ v> ;
+    blue#  i>c v+
+    red#   i>c v+
+    green# i>c v+ v> ;
 
 : texcoords >v
     2e0 0e0 >st v+

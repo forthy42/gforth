@@ -129,7 +129,7 @@ previous
     >r dup xc@
     cjk?   IF  drop r> cell+ ?font-load @  EXIT  THEN
     emoji? IF  drop r> cell+ cell+ ?font-load @  EXIT  THEN
-    drop r> @ ;
+    drop r> ?font-load @ ;
 
 ' xc>font IS font-select
 \ ' @ IS font-select
@@ -250,5 +250,7 @@ fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungCo
 
 \emoji \mono \bold
 fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+
+\latin \sans \regular
 
 previous set-current

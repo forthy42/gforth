@@ -2,7 +2,6 @@
 
 \ Copyright (C) 2018 Bernd Paysan
 
-
 \ This program is free software: you can redistribute it and/or modify
 \ it under the terms of the GNU Affero General Public License as published by
 \ the Free Software Foundation, either version 3 of the License, or
@@ -41,13 +40,6 @@ require minos2/text-style.fs
 Variable slides[]
 Variable slide#
 
-0 Value n2-img
-0 Value m2-img
-0 Value $q-img
-
-3 Constant n/m-switch
-8 Constant m/$-switch
-
 : >slides ( o -- ) slides[] >stack ;
 
 glue ' new static-a with-allocater Constant glue-left
@@ -57,17 +49,18 @@ glue ' new static-a with-allocater Constant glue-right
     [ glue-left  .hglue-c ]L df!
     [ glue-right .hglue-c ]L df! ;
 : trans-frame ( o -- )
-    >o $00000000 to frame-color o> ;
+    >o transp# to frame-color o> ;
 : solid-frame ( o -- )
-    >o $FFFFFFFF to frame-color o> ;
+    >o white# to frame-color o> ;
 : !slides ( nprev n -- )
     update-size# update-glue
     over slide# !
     slides[] $[] @ /flip drop
     slides[] $[] @ /flop drop glue0 ;
 : fade-img ( r0..1 img1 img2 -- ) >r >r
-    $FF fm* f>s $FFFFFF00 or dup
-    r> >o to frame-color parent-w .parent-w /flop drop o> invert $FFFFFF00 or
+    [ whitish x-color 1e f+ ] Fliteral fover f-
+    r> >o to frame-color parent-w .parent-w /flop drop o>
+    [ whitish x-color ] Fliteral f+
     r> >o to frame-color parent-w .parent-w /flop drop o> ;
 : anim!slides ( r0..1 n -- )
     slides[] $[] @ /flop drop
@@ -79,7 +72,8 @@ glue ' new static-a with-allocater Constant glue-right
     fdup 1e f>= IF  fdrop
 	dup 1- swap !slides +sync +resize  EXIT
     THEN
-    1e fswap f- 1- sin-t anim!slides +sync +resize ;
+    1e fswap f-
+    1- sin-t anim!slides +sync +resize ;
 
 : next-anim ( n r0..1 -- )
     dup slides[] $[]# 1- u>= IF  drop fdrop  EXIT  THEN
@@ -175,7 +169,9 @@ glue-left  >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 glue-right >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 
 tex: minos2
-' minos2 "net2o-minos2.png" 0.666e }}image-file Constant minos2-glue
+' minos2 "net2o-minos2.png" 0.666e }}image-file Constant minos2-glue drop
+' minos2 "net2o-minos2.png" 0.666e }}image-file 2drop
+' minos2 "net2o-minos2.png" 0.666e }}image-file 2drop
 
 : logo-img ( xt xt -- o o-img ) 2>r
     baseline# 0e to baseline#
@@ -185,7 +181,7 @@ tex: minos2
     to baseline# r> ;
 
 : pres-frame ( color -- o1 o2 ) \ drop $FFFFFFFF
-    color, glue*wh swap slide-frame dup .button1 simple[] ;
+    color, glue*wh slide-frame dup .button1 simple[] ;
 
 ' }}i18n-text is }}text'
 
@@ -196,14 +192,13 @@ tex: minos2
 {{
     $FFFFFFFF pres-frame
     {{
-	\sans
-	glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
-	l" net2o: ΜΙΝΩΣ2 GUI" /title
+	glue*l }}glue \ ) $CCDDDD3F color, 4e }}frame dup .button1
+	l" net2o: ΜΙΝΩΣ2 GUI”" /title
 	l" Lightweight GUI library" /subtitle
 	glue*2 }}glue
 	l" Bernd Paysan" /author
 	l" EuroForth 2018, Edinburgh" /location
-	glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+	glue*l }}glue \ ) $CCDDDD3F color, 4e }}frame dup .button1
     }}v box[] >o font-size# to border o Value title-page o o>
 }}z box[] dup >slides
 
@@ -232,6 +227,7 @@ tex: minos2
 		}}vt
 		glue*l }}glue
 	    tex: vp0 glue*lll ' vp0 }}vp vp[]
+	    $FFBFFFFF color, fdup to slider-color to slider-fgcolor
 	    dup font-size# f2/ fdup vslider
 	}}h box[]
     }}v box[] >bdr
@@ -315,14 +311,15 @@ $BFFFFFFF pres-frame
 glue-right }}glue
 }}h box[]
 {{
-' minos2     minos2-glue logo-img drop
+' minos2     minos2-glue logo-img solid-frame
 }}z
 }}z slide[]
 to top-widget
 
 also opengl
 
-: !widgets ( -- ) top-widget .htop-resize top-widget .htop-resize
+: !widgets ( -- )
+    top-widget .htop-resize
     1e ambient% sf! set-uniforms ;
 
 [IFDEF] writeout-en

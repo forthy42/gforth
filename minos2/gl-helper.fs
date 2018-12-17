@@ -316,15 +316,16 @@ uniform mat4 u_MVPMatrix;       // A constant representing the combined model/vi
 uniform mat4 u_MVMatrix;        // A constant representing the combined model/view matrix.
 uniform vec2 u_TexScale0;       // scale texture coordinates
 uniform vec2 u_TexScale1;       // scale texture coordinates
+uniform sampler2D u_ColorTex;   // Color palette (texture)
  
 attribute vec4 a_Position;      // Per-vertex position information we will pass in.
-attribute vec4 a_Color;         // Per-vertex color information we will pass in.
 attribute vec4 a_Normal;        // Per-vertex normal information we will pass in.
 attribute vec2 a_TexCoordinate; // Per-vertex texture coordinate information we will pass in.
-attribute vec2 a_Extras;        // extra attributes passed through
+attribute vec2 a_Extras;        // extra attributes: texture index+color index
  
 varying vec3 v_Position;        // This will be passed into the fragment shader.
-varying vec4 v_Color;           // This will be passed into the fragment shader.
+varying vec4 v_Color;           // This is the color from the vertex shader interpolated across the
+                                // triangle per fragment.
 varying vec3 v_Normal;          // This will be passed into the fragment shader.
 varying vec2 v_TexCoordinate;   // This will be passed into the fragment shader.
 varying vec2 v_Extras;          // extra attributes passed through
@@ -334,12 +335,10 @@ void main()
 {
     // pass through the extras
     v_Extras = a_Extras;
+    v_Color = texture2D(u_ColorTex, vec2(v_Extras.y, 0.5));
  
     // Transform the vertex into eye space.
     v_Position = vec3(u_MVMatrix * a_Position);
- 
-    // Pass through the color.
-    v_Color = a_Color;
  
     // scale texture coordinate by appropriate texture scale
     if(a_Extras.x >= 0.0)
@@ -373,6 +372,7 @@ uniform vec4 u_Coloradd2;       // color bias for texture2
 uniform vec4 u_Coloradd3;       // color bias for texture3
  
 varying vec3 v_Position;        // Interpolated position for this fragment.
+                                // triangle per fragment.
 varying vec4 v_Color;           // This is the color from the vertex shader interpolated across the
                                 // triangle per fragment.
 varying vec3 v_Normal;          // Interpolated normal for this fragment.
@@ -427,6 +427,7 @@ void main() {
 0 Value MVMatrix
 0 Value TexScale0
 0 Value TexScale1
+0 Value ColorTex
 0 Value LightPos
 0 Value Texture0
 0 Value Texture1
@@ -681,8 +682,6 @@ tex: none-tex
 : no-texture ( -- )
     none-tex white-texture 2 2 rgba-texture wrap-texture nearest ;
 
-' no-texture is reload-textures
-
 \ framebuffer + rendering into framebuffer
 
 : attach-framebuffer { tb rb fb -- }
@@ -752,6 +751,7 @@ require soil-texture.fs
     dup "u_MVMatrix"  glGetUniformLocation to MVMatrix
     dup "u_TexScale0" glGetUniformLocation to TexScale0
     dup "u_TexScale1" glGetUniformLocation to TexScale1
+    dup "u_ColorTex"  glGetUniformLocation to ColorTex
     dup "u_LightPos"  glGetUniformLocation to LightPos
     dup "u_Texture0"  glGetUniformLocation to Texture0
     dup "u_Texture1"  glGetUniformLocation to Texture1
@@ -785,11 +785,79 @@ require soil-texture.fs
     Texture1 1 glUniform1i
     Texture2 2 glUniform1i
     Texture3 3 glUniform1i
+    ColorTex 4 glUniform1i
     Ambient 1 ambient% glUniform1fv
     Saturate 1 saturate% glUniform1fv
     LightPos 1 lightpos-xyz glUniform3fv ;
+
+\ color palette
+
+$100 Value color-w
+0 Value color,#
+0 Value color-pal
+$100 sfloats allocate throw to color-pal
+
+tex: palette-tex
+
+: load-colors ( -- )
+    GL_TEXTURE4 glActiveTexture
+    palette-tex color-pal color-w 1 rgba-map linear
+    GL_TEXTURE0 glActiveTexture ;
+
+:noname no-texture load-colors ; is reload-textures
+
+: (col,) ( rgba -- rindex )
+    1 +to color,#
+    color-pal color,# sfloats + be-l!
+    color,# s>f 0.5e f+ ;
+
+$000000FF (col,) FConstant black#
+$0000FFFF (col,) FConstant blue#
+$00FF00FF (col,) FConstant green#
+$00FFFFFF (col,) FConstant cyan#
+$FF0000FF (col,) FConstant red#
+$FF00FFFF (col,) FConstant magenta#
+$FFFF00FF (col,) FConstant yellow#
+$FFFFFFFF (col,) FConstant white#
+$00000000 (col,) FConstant transp#
+
+: search-color ( rgba -- rindex t / rgba f )
+    color-pal color,# sfloats bounds ?DO
+	dup I be-ul@ = IF
+	    drop I color-pal - 2/ 2/
+	    s>f 0.5e f+ true  UNLOOP  EXIT  THEN
+    4 +LOOP  false ;
+
+: new-color, ( color -- rindex )
+    1 +to color,#
+    BEGIN  color,# color-w u>=  WHILE
+	    color-w +to color-w
+	    color-w sfloats color-pal resize throw to color-pal
+    REPEAT
+    color-pal color,# sfloats + be-l!
+    load-colors color,# s>f 0.5e f+ ;
+: color, ( rgba -- rindex )
+    search-color ?EXIT  new-color, ;
+
+: .aaaa ( color -- alpha-channel )
+    $FF and dup 8 lshift or dup $10 lshift or ;
+
+: text-color, ( rgba -- rindex0 )
+    dup new-color, { f: index }
+    dup $FFFFFF00 and new-color, fdrop \ fade out index
+    .aaaa dup new-color, fdrop \ emoji index
+    $FFFFFF00 and new-color, fdrop \ emoji fade out
+    index ;
+
+: text-emoji-color, ( rgbatext rgbaemoji -- rindex0 )
+    over new-color, { f: index }
+    swap $FFFFFF00 and new-color, fdrop
+    dup new-color, fdrop
+    $FFFFFF00 and new-color, fdrop
+    index ;
+
 : init ( program -- )
-    init-program init-glstate ?no-texture
+    init-program init-glstate ?no-texture load-colors
     set-uniforms
     z-bias set-color+ default>ap ;
 
@@ -811,11 +879,6 @@ object class
     sffield: v.z
     sffield: v.t
 
-    sffield: c.r
-    sffield: c.g
-    sffield: c.b
-    sffield: c.a
-
     sffield: n.x
     sffield: n.y
     sffield: n.z
@@ -823,8 +886,8 @@ object class
 
     sffield: t.s
     sffield: t.t
-    sffield: t.i \ texture index, maybe used
-    sffield: m.i \ matrix index, unused
+    sffield: t.i \ texture index
+    sffield: c.i \ color index
     0 +field next-vertex
 end-class vertex-c
 vertex-c >osize @ Constant vertex#
@@ -840,13 +903,11 @@ vertex# $40 = [IF]
     0 glEnableVertexAttribArray
     0 4 GL_FLOAT GL_FALSE vertex# v.x glVertexAttribPointer \ vertex
     1 glEnableVertexAttribArray
-    1 4 GL_FLOAT GL_FALSE vertex# c.r glVertexAttribPointer \ color
+    1 4 GL_FLOAT GL_FALSE vertex# n.x glVertexAttribPointer \ normal
     2 glEnableVertexAttribArray
-    2 4 GL_FLOAT GL_FALSE vertex# n.x glVertexAttribPointer \ normal
+    2 2 GL_FLOAT GL_FALSE vertex# t.s glVertexAttribPointer \ texture
     3 glEnableVertexAttribArray
-    3 2 GL_FLOAT GL_FALSE vertex# t.s glVertexAttribPointer \ texture
-    4 glEnableVertexAttribArray
-    4 2 GL_FLOAT GL_FALSE vertex# t.i glVertexAttribPointer \ texture
+    3 2 GL_FLOAT GL_FALSE vertex# t.i glVertexAttribPointer \ texture_i+color_i
     o> ;
 
 : buffer-init ( -- )
@@ -894,10 +955,7 @@ Variable i-off
 : >xyz ( x y z -- )  v.z sf! v.y sf! v.x sf! 1e v.t sf! ;
 \ note: this is a right hand system, therefore the z coordinate is negative
 : >xy ( x y -- )  -1e >xyz ;
-: color! ( rgba addr -- rgb ) >r dup $FF and s>f $FF fm/ r> sf! 8 rshift ;
-: rgba>c ( rgba -- )  c.a color! c.b color! c.g color! c.r color! drop ;
-: abgr>c ( abgr -- )  c.r color! c.g color! c.b color! c.a color! drop ;
-: f>c ( r g b a -- )  c.a sf! c.b sf! c.g sf! c.r sf! ;
+: i>c ( index -- )  color-w fm/ c.i sf! ;
 : n>xyz ( x y z -- ) n.z sf! n.y sf! n.x sf! 1e n.t sf! ;
 : n> ( -- ) 0e fdup -1e n>xyz ;
 : >st ( s t -- ) t.t sf! t.s sf! ;
