@@ -169,9 +169,8 @@ glue-left  >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 glue-right >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 
 tex: minos2
+1 ms \ strange delay necessary here
 ' minos2 "net2o-minos2.png" 0.666e }}image-file Constant minos2-glue drop
-' minos2 "net2o-minos2.png" 0.666e }}image-file 2drop
-' minos2 "net2o-minos2.png" 0.666e }}image-file 2drop
 
 : logo-img ( xt xt -- o o-img ) 2>r
     baseline# 0e to baseline#
@@ -311,7 +310,7 @@ $BFFFFFFF pres-frame
 glue-right }}glue
 }}h box[]
 {{
-' minos2     minos2-glue logo-img solid-frame
+    ' minos2     minos2-glue logo-img solid-frame
 }}z
 }}z slide[]
 to top-widget

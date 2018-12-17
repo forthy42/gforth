@@ -21,15 +21,15 @@ require widgets.fs
 
 also minos
 
-glue*2 $FFFFFFDF 32e }}frame dup .button2 value f1
-glue*2 $FF7FFFFF 32e }}frame dup .button3 simple[] value f2
-glue*1 $FF5F5F00 0e }}frame dup .button1 value f3a
-glue*1 $5FFF5F00 0e }}frame dup .button1 value f3b
-glue*1 $5F5FFF00 0e }}frame dup .button1 value f3c
-glue*1 $5F5F5F00 16e }}frame dup .button1 value f3d
-glue*1 $FF7F7FFF 32e }}frame dup .button1 simple[] value f4
-glue*1 $7FFF7FFF 8e  }}frame dup .button1 simple[] value f5
-glue*2 $7FFFFFFF ' atlas-tex }}1image dup .button2 simple[] value f6
+glue*2 $FFFFFFDF color, 32e }}frame dup .button2 value f1
+glue*2 $FF7FFFFF color, 32e }}frame dup .button3 simple[] value f2
+glue*l $FF5F5F00 color, 0e }}frame dup .button1 value f3a
+glue*l $5FFF5F00 color, 0e }}frame dup .button1 value f3b
+glue*l $5F5FFF00 color, 0e }}frame dup .button1 value f3c
+glue*l $5F5F5F00 color, 16e }}frame dup .button1 value f3d
+glue*l $FF7F7FFF color, 32e }}frame dup .button1 simple[] value f4
+glue*l $7FFF7FFF color, 8e  }}frame dup .button1 simple[] value f5
+glue*2 $7FFFFFFF color, ' atlas-tex }}1image dup .button2 simple[] value f6
 edit new value t1
 edit new value t2a
 edit new value t2b
@@ -93,27 +93,27 @@ previous
 
 : !t1 ( -- ) t1 >o
     "Dös isch a Tägscht!" font1 edit!  24e to border
-    $884400FF to text-color o> ;
+    $884400FF text-color, to text-color o> ;
 
 : !t2 ( -- )
-    "混沌未分天地乱，茫茫渺渺无人见。" font2  t2a >o edit! 0e to border $001122DF to text-color o>
-    "自从盘古破鸿蒙，开辟从兹清浊辨。" font2  t2b >o edit! 0e to border $221100DF to text-color o>
-    "覆载群生仰至仁，发明万物皆成善。" font2  t2c >o edit! 0e to border $FFDDAADF to text-color o>
-    "欲知造化会元功，须看西游释厄传。" font2  t2d >o edit! 16e to border $DDEEFFDF to text-color o> ;
+    "混沌未分天地乱，茫茫渺渺无人见。" font2  t2a >o edit! 0e to border $001122DF text-color, to text-color o>
+    "自从盘古破鸿蒙，开辟从兹清浊辨。" font2  t2b >o edit! 0e to border $221100DF text-color, to text-color o>
+    "覆载群生仰至仁，发明万物皆成善。" font2  t2c >o edit! 0e to border $FFDDAADF text-color, to text-color o>
+    "欲知造化会元功，须看西游释厄传。" font2  t2d >o edit! 16e to border text-color, $DDEEFFDF to text-color o> ;
 
 : !t3 ( -- ) t3 >o
     "…" font1 text!  16e to border
-    $00FF88FF to text-color o> ;
+    $00FF88FF text-color, to text-color o> ;
 
 : !widgets ( -- ) !t1 !t2 !t3 top-widget .htop-resize
-    t2a [: >o sin-t fdup $DF fade 4e f* to border o> +sync ;] 1e >animate
-    t2b [: >o sin-t fdup $DF fade 8e f* to border o> +sync ;] 2e >animate
-    t2c [: >o sin-t fdup $DF fade 12e f* to border o> +sync ;] 3e >animate
-    t2d [: >o sin-t fdup $DF fade 16e f* to borderv o> +sync ;] 4e >animate
-    f3a [: >o sin-t fdup $FF fade 8e f* to border o> +sync ;] 1e >animate
-    f3b [: >o sin-t fdup $FF fade 16e f* to border o> +sync ;] 2e >animate
-    f3c [: >o sin-t fdup $FF fade 24e f* to border o> +sync ;] 3e >animate
-    f3d [: >o sin-t fdup $FF fade 16e f* to borderv o> +sync ;] 4e >animate ;
+    t2a [: >o sin-t fdup fade 4e f* to border o> +sync ;] 1e >animate
+    t2b [: >o sin-t fdup fade 8e f* to border o> +sync ;] 2e >animate
+    t2c [: >o sin-t fdup fade 12e f* to border o> +sync ;] 3e >animate
+    t2d [: >o sin-t fdup fade 16e f* to borderv o> +sync ;] 4e >animate
+    f3a [: >o sin-t fdup fade 8e f* to border o> +sync ;] 1e >animate
+    f3b [: >o sin-t fdup fade 16e f* to border o> +sync ;] 2e >animate
+    f3c [: >o sin-t fdup fade 24e f* to border o> +sync ;] 3e >animate
+    f3d [: >o sin-t fdup fade 16e f* to borderv o> +sync ;] 4e >animate ;
 
 also [IFDEF] android android [THEN]
 

@@ -89,5 +89,5 @@ is anim-ins
 
 \ often used animation
 
-: fade ( r max -- )
-    fm* f>s text-color $FF mux to text-color ;
+: fade ( r -- )
+    0.999e fmin text-color 0.5e f- floor f+ 0.5e f+ to text-color ;
