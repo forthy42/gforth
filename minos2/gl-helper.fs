@@ -849,6 +849,9 @@ $00000000 (col,) FConstant transp#
     $FFFFFF00 and new-color, fdrop \ emoji fade out
     index ;
 
+: fade-color, ( rgba1 rgba2 -- rindex0 )
+    swap new-color, new-color, fdrop ;
+
 : text-emoji-color, ( rgbatext rgbaemoji -- rindex0 )
     over new-color, { f: index }
     swap $FFFFFF00 and new-color, fdrop
