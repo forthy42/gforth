@@ -114,39 +114,39 @@ is reload-textures
 : /left*ll ( o -- o' )
     >r {{ r> glue*ll }}glue }}h box[] >bl ;
 
-: }}button { text color -- o }
+: }}button { text f: color -- o }
     {{
 	glue*l color font-size# 40% f* }}frame dup .button2
 	text }}text' 25%b /center
     }}z box[] ;
 
-: }}tab-button { text color -- o }
+: }}tab-button { text f: color -- o }
     {{
 	glue*l color font-size# 40% f* }}frame dup .button2
 	text }}text' 25%b /center
 	s" f|g" }}text 25%b /center /vphantom
     }}z box[] ;
 
-: }}button1 { d: text color -- o }
+: }}button1 { d: text f: color -- o }
     {{
 	glue*l color font-size# 40% f* }}frame dup .button1
 	text }}text 25%b /center
     }}z box[] ;
 
-: }}tile1 { d: text color -- o }
+: }}tile1 { d: text f: color -- o }
     {{
 	glue*l color 0e }}frame dup .button1
 	>o font-size# 40% f* to borderv o o>
 	text }}text 25%b /center
     }}z box[] ;
 
-: }}button*ll { text color -- o }
+: }}button*ll { text f: color -- o }
     {{
 	glue*ll color font-size# 40% f* }}frame dup .button2
 	text }}text' 25%b /center*ll
     }}z box[] ;
 
-: }}button-lit { d: text color -- o }
+: }}button-lit { d: text f: color -- o }
     {{
 	glue*l color font-size# 40% f* }}frame dup .button2
 	text }}text 25%b /center
@@ -174,19 +174,11 @@ is reload-textures
     #8 lshift r> or
     #8 lshift r> or ;
 
-: darken ( rgba -- rgba' )
-    rgba> { r g b a }
-    r $FF - 2* $FF +
-    g $FF - 2* $FF +
-    b $FF - 2* $FF +
-    a >rgba ;
+: darken ( color -- color' )
+    1e f+ ;
 
-: lighten ( rgba -- rgba' )
-    rgba> { r g b a }
-    r $FF - 2/ $FF +
-    g $FF - 2/ $FF +
-    b $FF - 2/ $FF +
-    a >rgba ;
+: lighten ( color -- color' )
+    1e f- ;
 
 : >lowered ( percent o -- )
     >o 0 childs[] $[] @
