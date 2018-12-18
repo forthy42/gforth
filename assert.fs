@@ -141,3 +141,7 @@ Variable timer-list
 
 : !@time ( -- delta-f ) ntime timer-tick 2@ 2over timer-tick 2! d- d>f 1n f* ;
 : .!time ( -- ) !@time (.time) ;
+
+\ words present in iforth and win32forth
+synonym timer-reset !time ( -- )
+synonym .elapsed .time ( -- )
