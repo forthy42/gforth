@@ -45,7 +45,7 @@
     0e bounds ?DO  I f@ f+  [ 1 floats ]L +LOOP ;
 
 : plot-x-minmax ( yaddr yu color ymin ymax -- )
-    { color f: ymin f: ymax }
+    { f: color f: ymin f: ymax }
     vi0 -1e to t.i0
     w dup [ 1 floats ]L / 1- fm/ { f: xsc }
     h ymin ymax f- f/ { f: ysc }
@@ -53,12 +53,12 @@
     bounds ?DO
 	fdup I f@ i>off >v
 	ysc f*  y0 f+ >xy  xsc f+
-	color rgba>c n> 0.5e fdup f# #>st v+> i-off @ i,
+	color i>c n> 0.5e fdup f# #>st v+> i-off @ i,
 	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
     +LOOP  fdrop line-strip> ;
 
 : plot-xy-minmax ( addrx addry uy color xmin xmax ymin ymax -- )
-    { color f: xmin f: xmax f: ymin f: ymax }
+    { f: color f: xmin f: xmax f: ymin f: ymax }
     vi0 -1e to t.i0
     w xmax xmin f- f/  h ymin ymax f- f/ { f: xsc f: ysc }
     x xmin xsc f* f-  y ymin ysc f* f- { f: x0 f: y0 } frame# { f# }
@@ -66,12 +66,12 @@
 	dup f@ xsc f* x0 f+ float+
 	I   f@ ysc f* y0 f+
 	i>off >v >xy
-	color rgba>c n> 0.5e fdup f# #>st v+>  i-off @ i,
+	color i>c n> 0.5e fdup f# #>st v+>  i-off @ i,
 	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
     +LOOP  drop line-strip> ;
 
 : plot-dxy-minmax ( addrx addry uy color xmax ymin ymax -- )
-    { color f: xmax f: ymin f: ymax }
+    { f: color f: xmax f: ymin f: ymax }
     vi0 -1e to t.i0
     w xmax f/  h ymin ymax f- f/ { f: xsc f: ysc }
     y ymin ysc f* f- { f: y0 } frame# { f# } x
@@ -80,7 +80,7 @@
 	dup f@ xsc f*    f+ fswap float+
 	I   f@ ysc f* y0 f+
 	i>off >v >xy
-	color rgba>c n> 0.5e fdup f# #>st v+>  i-off @ i,
+	color i>c n> 0.5e fdup f# #>st v+>  i-off @ i,
 	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
     +LOOP  fdrop drop line-strip> ;
 
