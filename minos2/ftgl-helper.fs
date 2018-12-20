@@ -169,9 +169,9 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 	atlas-scaletex atlas-bgra-scaletex
     THEN ;
 
-: glyph@ ( font xc-addr -- glyph )
+: glyph@ ( font xc-addr -- font xc-addr glyph )
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
-	    drop double-atlas  REPEAT ; \ xc-addr xc-addrp font xc-addr glyph
+	    drop double-atlas  REPEAT ;
 
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
     tuck font font-select \ xc-addr xc-addrp xc-addr font
@@ -223,8 +223,8 @@ $AD Constant 'soft-hyphen'
     sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
     s" g" drop font font-select { ft } drop
     ft font->t.i0
-    ft "–" drop glyph@ { g- }
-    ft "g" drop glyph@ { gg }
+    ft "–" drop glyph@ { g- } 2drop
+    ft "g" drop glyph@ { gg } 2drop
     y
     gg texture_glyph_t-height   sl@
     gg texture_glyph_t-offset_y sl@ - 20% fm*
