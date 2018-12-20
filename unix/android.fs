@@ -21,9 +21,7 @@ require struct0x.fs
 
 \ public interface, C calls us through these
 
-get-current also forth definitions
-
-previous set-current
+Defer reload-textures ' noop is reload-textures
 
 \ The rest is in the "android" vocabulary
 
@@ -443,7 +441,6 @@ Defer clipboard-changed ( 0 -- ) ' drop is recurse
 : android-config! ( n -- ) to screen-orientation config-changed ;
 
 Defer android-active
-Defer reload-textures ' noop is reload-textures
 
 :noname ( flag -- )
     \ >stderr ." active: " dup . cr
