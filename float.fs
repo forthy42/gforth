@@ -73,9 +73,9 @@
 : opt-fval ( xt -- )  >body postpone Literal postpone f@ ;
 
 : fconstant  ( r "name" -- ) \ float f-constant
-    Create f, ['] opt-fcon set-optimizer
-DOES> ( -- r )
-    f@ ;
+    Create f,
+    ['] f@ set-does>
+    ['] opt-fcon set-optimizer ;
 
 : f+! ( r addr -- ) dup f@ f+ f! ;
 
