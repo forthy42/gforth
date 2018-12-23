@@ -27,11 +27,16 @@ include unix/gps.fs
 set-current
 
 gps_data_t buffer: gps-data
+GPSD_API_MAJOR_VERSION 7 >= [IF]
+    #33 cells  buffer: gps-message
+[THEN]
 
 : gps-local-open ( -- flag )
     s" shared memory" s" 2947" gps-data gps_open ;
 
 : gps-fix ( -- addr )
-    gps-data gps_read drop gps-data gps_data_t-fix ;
+    gps-data
+    GPSD_API_MAJOR_VERSION 7 >= [IF] gps-message #33 cells [THEN]
+    gps_read drop gps-data gps_data_t-fix ;
 
 previous

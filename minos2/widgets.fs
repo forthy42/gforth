@@ -61,6 +61,7 @@ get-current also m2c definitions
 $000000FF #Variable cursorcolor#
 $3F7FFF7F #Variable selectioncolor#
 $FFFF7FFF #Variable setstring-color#
+$1010107F #Variable shadow-color#
 Variable curminchars#
 FVariable curminwidth%
 FVariable pwtime%
@@ -142,8 +143,8 @@ $0400 Constant box-dfix#
 $0800 Constant vp-hfix#
 $1000 Constant vp-vfix#
 $2000 Constant vp-dfix#
-
-$10000 Constant box-touched#
+$4000 Constant box-touched#
+$10 Constant vp-shadow>>#
 
 box-hphantom# box-vphantom# or box-dphantom# or Constant box-phantom#
 box-flip# box-phantom# or Constant box-visible#
@@ -1211,7 +1212,21 @@ end-class viewport
     w fround vt-w f/
     h d f+ fround vt-h f/ >xyxy
     { f: s0 f: t0 f: s1 f: t1 }
-    vi0 i>off  white# >v
+    box-flags vp-shadow>># rshift $FF and ?dup-IF
+	s>f { f: shadow }
+	vi0 i>off
+	x1 shadow f+  y1 shadow f+  x2 shadow f+  y2 shadow f+
+	{ f: x1 f: y1 f: x2 f: y2 }
+	m2c:shadow-color# @ color, >v
+	x1 y1 >xy fdup i>c n> s0 t1 >st v+
+	x2 y1 >xy fdup i>c n> s1 t1 >st v+
+	x1 y2 >xy fdup i>c n> s0 t0 >st v+
+	x2 y2 >xy      i>c n> s1 t0 >st v+
+	v> 2 quad
+	render-bgra>
+    THEN
+    vi0 i>off
+    white# >v
     x1 y1 >xy fdup i>c n> s0 t1 >st v+
     x2 y1 >xy fdup i>c n> s1 t1 >st v+
     x1 y2 >xy fdup i>c n> s0 t0 >st v+
