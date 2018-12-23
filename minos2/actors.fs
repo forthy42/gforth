@@ -257,7 +257,7 @@ screen-pwh max s>f FValue drag-rate \ 1 screen/s²
 
 : vp-setxy ( rx ry -- )
     caller-w >o
-    0e fmax vp-h h f- fmin fround to vp-y
+    0e fmax vp-h h d f+ f- fmin fround to vp-y
     0e fmax vp-w w f- fmin fround to vp-x
     ?vpt-x ?vpt-y or IF  ['] +sync vp-needed  THEN
     vp-reslide o> +sync ;
@@ -440,7 +440,7 @@ end-class hsliderright-actor
 
 : >vslide ( x -- )
     slider-sxy fswap f- caller-w >o parent-w .h h f- +sync o> f/
-    slide-vp >o vp-h h f- fdup { f: vmax } f*
+    slide-vp >o vp-h h d f+ f- fdup { f: vmax } f*
     0e fmax vmax fmin fround to vp-y
     ?vpt-y IF  ['] +sync vp-needed  THEN  o>
     caller-w .parent-w >o !size xywhd resize o> ;

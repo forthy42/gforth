@@ -243,8 +243,8 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
     >o 4 +to us-mask o o> ;
 : bm\\ ( addr1 u1 addr2 u2 -- o ) \ blue black newline
     dark-blue \mono }}text' _underline_ >r
-    b0 >r
-    {{ r> r> glue*em }}glue }}h box[] >bl \sans ;
+    \sans b0 >r
+    {{ r> r> glue*em }}glue }}h box[] >bl ;
 : \LaTeX ( -- )
     "L" }}text font-size >r \script
     "A" }}text >o font-size# fdup -23% f* to raise -30% f* to kerning o o>

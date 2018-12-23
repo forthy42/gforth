@@ -97,7 +97,7 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
     dup  $2600  $2C00 within ?dup-IF  EXIT  THEN \ misc. symbols
     dup $1F000 $20000 within ;                   \ pictograms
 
-$Variable split$ " !&,-./:;|=@­␣‧‐‒–—―‖           　" split$ $!
+$Variable split$ " !&,-_./:;|<=>@­␣‧‐‒–—―‖           　" split$ $!
 $Variable spaces$ "            　" spaces$ $!
 
 : xcs? ( xchar addr u -- flag ) rot { xc }
@@ -1210,22 +1210,21 @@ end-class viewport
     vp-x vt-x f- vt-w f/
     vp-y vt-y f- vt-h f/
     w fround vt-w f/
-    h d f+ fround vt-h f/ >xyxy
+    h d f+ fround vt-h f/ >xyxy vi0
     { f: s0 f: t0 f: s1 f: t1 }
-    box-flags vp-shadow>># rshift $FF and ?dup-IF
+    box-flags vp-shadow>># rshift c>s ?dup-IF
 	s>f { f: shadow }
-	vi0 i>off
+	i>off
 	x1 shadow f+  y1 shadow f+  x2 shadow f+  y2 shadow f+
-	{ f: x1 f: y1 f: x2 f: y2 }
+	{ f: x1a f: y1a f: x2a f: y2a }
 	m2c:shadow-color# @ color, >v
-	x1 y1 >xy fdup i>c n> s0 t1 >st v+
-	x2 y1 >xy fdup i>c n> s1 t1 >st v+
-	x1 y2 >xy fdup i>c n> s0 t0 >st v+
-	x2 y2 >xy      i>c n> s1 t0 >st v+
+	x1a y1a >xy fdup i>c n> s0 t1 >st v+
+	x2a y1a >xy fdup i>c n> s1 t1 >st v+
+	x1a y2a >xy fdup i>c n> s0 t0 >st v+
+	x2a y2a >xy      i>c n> s1 t0 >st v+
 	v> 2 quad
-	render-bgra>
     THEN
-    vi0 i>off
+    i>off
     white# >v
     x1 y1 >xy fdup i>c n> s0 t1 >st v+
     x2 y1 >xy fdup i>c n> s1 t1 >st v+
