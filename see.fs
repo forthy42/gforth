@@ -707,7 +707,8 @@ VARIABLE C-Pass
 CREATE C-Table
 	        ' lit A,            ' c-lit A,
 		' does-exec A,	    ' c-callxt A,
-		' extra-exec A,	    ' c-callxt A,
+[IFDEF] does-xt ' does-xt A,        ' c-callxt A,
+                ' extra-exec A,	    ' c-callxt A,
 		' lit@ A,	    ' c-call A,
 [IFDEF] call	' call A,           ' c-call A, [THEN]
 [IFDEF] call-loc ' call-loc A,      ' c-call A, [THEN]
