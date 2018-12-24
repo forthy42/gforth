@@ -39,6 +39,9 @@ also x11
 4 Value XA_TARGETS
 4 Value XA_COMPOUND_TEXT
 1 Value XA_CLIPBOARD
+0 Value _NET_WM_BYPASS_COMPOSITOR
+0 Value _NET_WM_STATE
+0 Value _NET_WM_STATE_FULLSCREEN
 
 require need-x.fs
 
@@ -104,6 +107,9 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     dpy "CLIPBOARD" 0 XInternAtom to XA_CLIPBOARD
     dpy "TARGETS" 0 XInternAtom to XA_TARGETS
     dpy "COMPOUND_TEXT" 0 XInternAtom to XA_COMPOUND_TEXT
+    dpy "_NET_WM_BYPASS_COMPOSITOR" 0 XInternAtom to _NET_WM_BYPASS_COMPOSITOR
+    dpy "_NET_WM_STATE" 0 XInternAtom to _NET_WM_STATE
+    dpy "_NET_WM_STATE_FULLSCREEN" 0 XInternAtom to _NET_WM_STATE_FULLSCREEN
     max-single-byte $80 = IF
 	dpy "UTF8_STRING" 0 XInternAtom  ELSE  XA_STRING8  THEN
     to XA_STRING ;
@@ -565,6 +571,18 @@ Defer looper-hook ( -- ) ' noop is looper-hook
     dpy win over "WM_PROTOCOLS" 0 XInternAtom
     4 #32 1 wm_delete_window 1
     XChangeProperty drop ;
+
+: set-compose-hint ( n -- ) { w^ compose }
+    dpy win _NET_WM_BYPASS_COMPOSITOR 6 ( XA_CARDINAL )
+    #32 1 compose 1 XChangeProperty drop ;
+
+: set-fullscreen-hint ( -- )
+    _NET_WM_STATE_FULLSCREEN { w^ fullscreen }
+    dpy win _NET_WM_STATE 4 ( XA_ATOM )
+    #32 1 fullscreen 1 XChangeProperty drop ;
+
+: reset-fullscreen-hint ( -- )
+    dpy win _NET_WM_STATE XDeleteProperty drop ;
 
 XWMHints buffer: WMhints
 
