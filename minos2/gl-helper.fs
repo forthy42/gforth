@@ -531,7 +531,7 @@ void main() {
     0e fdup fdup 1e glClearColor ;
 
 : clear ( -- )
-    GL_DEPTH_BUFFER_BIT GL_COLOR_BUFFER_BIT or glClear ;
+    glFinish GL_DEPTH_BUFFER_BIT GL_COLOR_BUFFER_BIT or glClear ;
 
 : sf,  ( float -- )  here 1 sfloats allot sf! ;
 : sf!+ ( float addr -- addr' )  dup sf! sfloat+ ;

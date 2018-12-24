@@ -152,12 +152,12 @@ Variable xy$
 :noname top-widget .widget-draw ; x11-handler to DoExpose
 :noname top-widget .widget-draw ; x11-handler to DoGraphicsExpose
 \ ' noop x11-handler to DoNoExpose
-\ ' noop x11-handler to DoVisibilityNotify
+:noname gui( ~~ ) ; x11-handler to DoVisibilityNotify
 :noname e.w-width e.w-height resize-widgets ; x11-handler to DoCreateNotify
 \ ' noop x11-handler to DoDestroyNotify
-\ ' noop x11-handler to DoUnmapNotify
-\ ' noop x11-handler to DoMapNotify
-\ ' noop x11-handler to DoMapRequest
+:noname gui( ~~ ) -1 rendering ! ; x11-handler to DoUnmapNotify
+:noname gui( ~~ ) -2 rendering ! ; x11-handler to DoMapNotify
+:noname gui( ~~ ) ; x11-handler to DoMapRequest
 \ ' noop x11-handler to DoReparentNotify
 :noname e.c-width  e.c-height resize-widgets ; x11-handler to DoConfigureNotify
 \ ' noop x11-handler to DoConfigureRequest
@@ -171,7 +171,7 @@ Variable xy$
 \ ' noop x11-handler to DoSelectionNotify
 \ ' noop x11-handler to DoColormapNotify
 \ ' noop x11-handler to DoClientMessage
-\ ' noop x11-handler to DoMappingNotify
+:noname gui( ~~ ) ; x11-handler to DoMappingNotify
 \ ' noop x11-handler to DoGenericEvent
 
 x11-handler ' new static-a with-allocater Constant x11-keyboard
