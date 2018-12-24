@@ -97,7 +97,7 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
     dup  $2600  $2C00 within ?dup-IF  EXIT  THEN \ misc. symbols
     dup $1F000 $20000 within ;                   \ pictograms
 
-$Variable split$ " !&,-_./:;|<=>@­␣‧‐‒–—―‖           　" split$ $!
+$Variable split$ " !&,-_.\\/:;|<=>@­␣‧‐‒–—―‖           　" split$ $!
 $Variable spaces$ "            　" spaces$ $!
 
 : xcs? ( xchar addr u -- flag ) rot { xc }
@@ -1035,7 +1035,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 ' zbox-resize zbox is resize
 
-\ parbox (stub for now)
+\ parbox
 
 0e FValue x-baseline
 10% FValue gap%
