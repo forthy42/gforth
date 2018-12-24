@@ -36,7 +36,7 @@ GPSD_API_MAJOR_VERSION 7 >= [IF]
 
 : gps-fix ( -- addr )
     gps-data
-    GPSD_API_MAJOR_VERSION 7 >= [IF] gps-message #33 cells [THEN]
+    [ GPSD_API_MAJOR_VERSION 7 >= ] [IF] gps-message #33 cells [THEN]
     gps_read drop gps-data gps_data_t-fix ;
 
 previous
