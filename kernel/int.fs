@@ -388,7 +388,7 @@ cell var >f+c
 cell var >link
 cell var >namevt
 
-method compile, ( xt -- )
+method opt-compile, ( xt -- )
 
 method (int-to) ( val xt -- ) \ gforth paren-int-to
 \G direct call performs the interpretation semantics of to
@@ -404,6 +404,16 @@ method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
 \G @i{xt} represents the word currently associated with the deferred
 \G word @i{xt-deferred}.
 drop cell+ Constant vtsize \ vtable size
+
+defer compile, ( xt -- )
+\G Append the semantics represented by @i{xt} to the current
+\G definition.  When the resulting code fragment is run, it behaves
+\G the same as if @i{xt} is @code{execute}d.
+' opt-compile, is compile,
+
+: ,     ( w -- ) \ core comma
+    \G Reserve data space for one cell and store @i{w} in the space.
+    cell small-allot ! ;
 
 : immediate? ( nt -- flag ) >f+c @ immediate-mask and 0<> ;
 : compile-only? ( nt -- flag ) >f+c @ restrict-mask and 0<> ;
@@ -943,6 +953,9 @@ has? new-input 0= [IF]
 [THEN]
 
 : boot ( path n **argv argc -- )
+    threading-method 1 = if
+	['] , is compile,
+    then
 [ has? no-userspace 0= [IF] ]
     next-task 0= IF  main-task up!
     ELSE
@@ -963,10 +976,6 @@ has? new-input 0= [IF]
 [ [THEN] ]
     sp@ sp0 !
     boot-strings
-[ has? peephole [IF] ]
-    \ only needed for greedy static superinstruction selection
-    \ primtable prepare-peephole-table TO peeptable
-[ [THEN] ]
 [ has? new-input [IF] ]
     current-input off
 [ [THEN] ]

@@ -52,10 +52,6 @@
     \G Reserve data space for one char and store @i{c} in the space.
     1 chars small-allot c! ;
 
-: ,     ( w -- ) \ core comma
-    \G Reserve data space for one cell and store @i{w} in the space.
-    cell small-allot ! ;
-
 : 2,	( w1 w2 -- ) \ gforth
     \G Reserve data space for two cells and store the double @i{w1
     \G w2} there, @i{w2} first (lower address).
@@ -654,9 +650,8 @@ interpret/compile: comp:
     \g in compiled @code{to @i{name}}, xt is that of @i{name}.  This
     \g word generates code for storing v (of type appropriate for
     \g @i{name}) there.  This word is a factor of @code{to}.
-    dup >namevt @ >vtto @ compile, \ this COMPILE, calls the TO-OPT: part
-    \ of the SET-TO part of the defining word of <name>.  It does not
-    \ behave as COMPILE, does normally.
+    dup >namevt @ >vtto @ opt-compile, \ this OPT-COMPILE, calls the
+    \ TO-OPT: part of the SET-TO part of the defining word of <name>.
 ;
 
 : value-to ( n value-xt -- ) \ gforth-internal

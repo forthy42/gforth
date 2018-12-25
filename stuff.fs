@@ -356,8 +356,9 @@ comp' sliteral drop alias postpone-sliteral
 
 \ defer stuff
 
-: defer@, ( xt -- )  dup >namevt @ >vtdefer@ @
-    dup >namevt @ >vtcompile, @ ['] :, = IF  swap lit,  THEN  compile, ;
+: defer@, ( xt -- )
+    dup >namevt @ >vtdefer@ @
+    dup >namevt @ >vtcompile, @ ['] :, = IF  swap lit,  THEN  opt-compile, ;
 
 :noname ' defer@ ;
 :noname (') (name>x) drop defer@, ;
