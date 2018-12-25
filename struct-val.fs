@@ -29,7 +29,7 @@ opt: drop @ ?dup-IF ['] lit+ peephole-compile, , THEN ;
 standard:field
 
 : vfield-int, ( addr body -- addr+offset ) dup cell+ @ execute ;
-: vfield-comp, ( body -- ) dup cell+ @ compile, ;
+: vfield-comp, ( body -- ) dup cell+ @ opt-compile, ;
 
 : create+value ( n1 addr "name" -- n3 )
     >r r@ cell+ cell+ 2@ r> 2@
@@ -39,7 +39,7 @@ standard:field
 : create+defer ( n1 addr "name" -- n3 )
     create+value
     [: ( addr -- xt ) >body vfield-int, @ ;
-    defer@-opt: >body vfield-comp, postpone @ ;] set-defer@ ;
+    defer@-opt: ( xt -- ) >body vfield-comp, postpone @ ;] set-defer@ ;
 
 : wrapper-xts ( xt@ !-table -- xt-does xt-opt xt-to ) { xt@ xt! }
     :noname ]] vfield-int, [[ xt@ compile, postpone ; \ xt-does

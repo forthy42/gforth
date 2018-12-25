@@ -389,6 +389,8 @@ cell var >link
 cell var >namevt
 
 method opt-compile, ( xt -- )
+\ to: and defer@: tokens have an opt-compile, stack effect of
+\ ( xt to-xt -- )
 
 method (int-to) ( val xt -- ) \ gforth paren-int-to
 \G direct call performs the interpretation semantics of to

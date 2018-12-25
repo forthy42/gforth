@@ -24,13 +24,13 @@ Defer default-method ' noop IS default-method
 \ template for methods and ivars
 
 Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
-opt: >body @ postpone o#+ , ;
-to: m-to >body @ + ! ;
-to-opt: >body @ postpone lit+ , postpone ! ;
-defer@: m-defer@ >body @ + @ ;
-defer@-opt: >body @ postpone lit+ , postpone @ ;
+opt: ( xt -- ) >body @ postpone o#+ , ;
+to: m-to ( xt -- ) >body @ + ! ;
+to-opt: ( xt -- ) >body @ postpone lit+ , postpone ! ;
+defer@: m-defer@ ( xt -- ) >body @ + @ ;
+defer@-opt: ( xt -- ) >body @ postpone lit+ , postpone @ ;
 Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
-opt: >body @ cell/ postpone o#exec , ;
+opt: ( xt -- ) >body @ cell/ postpone o#exec , ;
 ' m-to set-to
 ' m-defer@ set-defer@
 ' o Value var-xt

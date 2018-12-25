@@ -357,8 +357,10 @@ comp' sliteral drop alias postpone-sliteral
 \ defer stuff
 
 : defer@, ( xt -- )
-    dup >namevt @ >vtdefer@ @
-    dup >namevt @ >vtcompile, @ ['] :, = IF  swap lit,  THEN  opt-compile, ;
+    dup >namevt @ >vtdefer@ @ opt-compile, ;
+\ defer@-opt: methods have, like to-opt:, different stack effect
+\ than normal opt: methods. They operate on the original xt, not on the
+\ defer@-xt; therefore they need two xts on the stack.
 
 :noname ' defer@ ;
 :noname (') (name>x) drop defer@, ;

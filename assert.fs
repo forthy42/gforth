@@ -69,20 +69,15 @@ variable assert-level ( -- a-addr ) \ gforth
 
 \ conditionally executed debug code, not necessarily assertions
 
-: debug-does>  DOES>  @
-    IF ['] noop assert-canary  ELSE  postpone (  THEN ;
+: debug-does>  DOES>
+    ]] Literal @ IF [[ [: postpone THEN ;] assert-canary ;
 : debug: ( -- )
-    Create false , debug-does>
-comp:  >body
-    ]] Literal @ IF [[ [: ]] THEN [[ ;] assert-canary ;
-: )else( ( --)
-    ]] ) ( [[ ; \ )
-comp: drop 2>r ]] ELSE [[ 2r> ;
-: else( ['] noop assert-canary ; immediate
+    Create false , immediate debug-does> ;
+: )else( ( -- ) 2>r postpone ELSE 2r> ; immediate compile-only
 
-: +db ( "word" -- ) ' >body on ;
-: -db ( "word" -- ) ' >body off ;
-: ~db ( "word" -- ) ' >body dup @ 0= swap ! ;
+: +db ( "word" -- ) (') >body on ;
+: -db ( "word" -- ) (') >body off ;
+: ~db ( "word" -- ) (') >body dup @ 0= swap ! ;
 
 Variable debug-eval
 
