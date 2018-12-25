@@ -17,22 +17,28 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-\ caveat: forwards don't work with words that use locals!
-
 : forward, ( xt -- )
-    >body ['] call peephole-compile, here swap !@ , ;
+    threading-method 1 <> IF
+	>body ['] call peephole-compile,
+    THEN
+    here swap !@ , ;
 
 : forward ( "name" -- )
     \G create a forward reference
-    Create 0 , compile-only ['] forward, set-optimizer ;
+    Create 0 , compile-only ['] forward,
+    threading-method 1 <> IF set-optimizer
+    ELSE immediate set-does> THEN ;
 
 : resolve-fwds ( addr -- ) \ resolve forward refereneces
-    BEGIN  dup  WHILE  latestxt >body swap !@  REPEAT  drop ;
+    BEGIN  dup  WHILE  latestxt
+	    threading-method 1 <> IF >body THEN
+	    swap !@  REPEAT  drop ;
 
 : auto-resolve ( addr u wid -- )
     \G auto-resolve the forward reference in check-shadow
     dup 2over rot find-name-in  dup IF
-	dup >namevt @ >vtcompile, @ ['] forward, = IF
+	dup threading-method 1 <> IF >namevt @ >vtcompile, @
+	ELSE >does-code THEN ['] forward, = IF
 	    0 swap >body !@ resolve-fwds  drop 2drop  EXIT
 	THEN
     THEN  drop

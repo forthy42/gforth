@@ -810,14 +810,16 @@ box class end-class zbox \ overlay alignment
 : .rec { f: x f: y f: w f: h f: d -- }
     x f. y f. w f. h f. d f. ;
 
+\ static-a to allocater
 glue new Constant glue*l
-glue new Constant glue*ll
-glue new Constant glue*lll
-glue new Constant glue*2
 glue*l >o 1glue hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
+glue new Constant glue*ll
 glue*ll >o 1kglue hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
+glue new Constant glue*lll
 glue*lll >o 1Mglue hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
+glue new Constant glue*2
 glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue! o>
+\ dynamic-a to allocater
 
 : g3>2 ( t s a -- min a ) fover f+ { f: a } f- a ;
 : g3>2grow ( t s a -- min a ) fnip ;
