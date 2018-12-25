@@ -539,7 +539,7 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
     dup @ dodoes: = if
 	cell+ @
     else dup @ dodoesxt: = if
-            cell+ @ >body \ >body in case the result is used for does-code!
+            cell+ @
         else
             dup @ doextra: = IF
                 >namevt @ >vtextra @
