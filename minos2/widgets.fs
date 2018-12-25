@@ -633,7 +633,10 @@ also freetype-gl
 : draw-init> ( -- ) ;
 previous
 
-: <draw-image ( -- ) ; \ image draw, one draw call per image
+: <draw-image ( -- )
+    GL_TEXTURE0 glActiveTexture
+    0e to t.i0
+; \ image draw, one draw call per image
 : draw-image> ( -- ) ;
 : <draw-text ( -- )
     GL_TEXTURE4 glActiveTexture
