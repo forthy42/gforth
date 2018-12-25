@@ -504,8 +504,13 @@ defer defer-default ( -- )
     Header Reveal dodefer, ?noname-vt
     ['] defer-default A, ;
 
-: defer-defer@ >body @ ;
-opt: drop >body lit, postpone @ ;
+\ The following should use DEFER@: and DEFER@-OPT:, but cross.fs does
+\ not support them.
+: defer-defer@ ( xt -- )
+    \ The defer@ implementation of children of DEFER
+    >body @ ;
+opt: drop ( xt -- )
+    >body lit, postpone @ ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
     \G Compiles the present contents of the deferred word @i{name}
@@ -650,17 +655,18 @@ interpret/compile: comp:
     \g in compiled @code{to @i{name}}, xt is that of @i{name}.  This
     \g word generates code for storing v (of type appropriate for
     \g @i{name}) there.  This word is a factor of @code{to}.
-    dup >namevt @ >vtto @ opt-compile, \ this OPT-COMPILE, calls the
+    dup >namevt @ >vtto @ opt-something, \ this OPT-SOMETHING, calls the
     \ TO-OPT: part of the SET-TO part of the defining word of <name>.
 ;
 
+\ The following should use TO: OPT-TO:, but that's not supported by cross.fs
 : value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values; it's tickable, but the
     \g only purpose of its xt is to be consumed by @code{set-to}.  It
     \g does not compile like a proper word.
     >body !-table to-!exec ;
-opt: ( value-xt -- ) \ run-time: ( n -- )
-    drop >body postpone ALiteral !-table to-!, ;
+opt: drop ( value-xt -- ) \ run-time: ( n -- )
+     >body postpone ALiteral !-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.

@@ -388,9 +388,9 @@ cell var >f+c
 cell var >link
 cell var >namevt
 
-method opt-compile, ( xt -- )
-\ to: and defer@: tokens have an opt-compile, stack effect of
-\ ( xt to-xt -- )
+method opt-compile, ( xt -- ) \ gforth-internal
+\g The intelligent @code{compile,} compiles each word as specified by
+\g @code{set-optimizer} for that word.
 
 method (int-to) ( val xt -- ) \ gforth paren-int-to
 \G direct call performs the interpretation semantics of to
@@ -412,6 +412,13 @@ defer compile, ( xt -- )
 \G definition.  When the resulting code fragment is run, it behaves
 \G the same as if @i{xt} is @code{execute}d.
 ' opt-compile, is compile,
+
+' opt-compile, alias opt-something, ( xt1 xt2 -- ) \ gforth-internal
+\ TO: and DEFER@: define not-quite-words that have code-generation
+\ code fragments with the stack effect ( xt1 xt2 -- ), where xt1
+\ identifies the word to which to or defer@ is applied, while xt2
+\ identifies the not-quite-word that implements the TO or DEFER@
+\ behaviour of that
 
 : ,     ( w -- ) \ core comma
     \G Reserve data space for one cell and store @i{w} in the space.
