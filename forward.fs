@@ -17,29 +17,27 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: forward, ( xt -- )
-    threading-method 1 <> IF
-	>body ['] call peephole-compile,
-    THEN
-    here swap !@ , ;
+: forward, ( forward-body -- )
+    dup cell+ @ dup if
+	compile, drop
+    else
+	drop ['] call peephole-compile, here over @ , swap !
+    then ;
 
 : forward ( "name" -- )
     \G create a forward reference
-    Create 0 , compile-only ['] forward,
-    threading-method 1 <> IF set-optimizer
-    ELSE immediate set-does> THEN ;
+    Create 0 , 0 , immediate compile-only
+    ['] forward, set-does> ;
 
 : resolve-fwds ( addr -- ) \ resolve forward refereneces
-    BEGIN  dup  WHILE  latestxt
-	    threading-method 1 <> IF >body THEN
-	    swap !@  REPEAT  drop ;
+    BEGIN  dup  WHILE  latestxt >body swap !@  REPEAT  drop ;
 
 : auto-resolve ( addr u wid -- )
     \G auto-resolve the forward reference in check-shadow
     dup 2over rot find-name-in  dup IF
-	dup threading-method 1 <> IF >namevt @ >vtcompile, @
-	ELSE >does-code THEN ['] forward, = IF
-	    0 swap >body !@ resolve-fwds  drop 2drop  EXIT
+	dup >does-code ['] forward, = IF
+	    >body latestxt over cell+ !
+	    0 swap !@ resolve-fwds  drop 2drop  EXIT
 	THEN
     THEN  drop
     defers check-shadow ;
