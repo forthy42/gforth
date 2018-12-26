@@ -368,7 +368,7 @@ MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
 	net2o-minos2.png lbubble.png rbubble.png white.png
 
 TEST_SRC = tester.fs ttester.fs coretest.fs postpone.fs dbltest.fs string.fs \
-	float.fs search.fs gforth.fs other.fs signals.fs checkans.fs	     \
+	float.fs search.fs gforth.fs forward.fs other.fs signals.fs checkans.fs \
 	primtest.fs coreext.fs deferred.fs coremore.fs gforth-nofast.fs	     \
 	libcc.fs macros.fs fp/ak-fp-test.fth fp/fatan2-test.fs		     \
 	fp/fpio-test.4th fp/fpzero-test.4th fp/ieee-arith-test.fs	     \
