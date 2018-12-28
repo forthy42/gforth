@@ -135,9 +135,11 @@ variable next-prelude
 : current-sourceview ( -- xpos )
     current-sourcepos3 encode-view ;
 
+: current-view ( -- xpos )
+    replace-sourceview current-sourceview over select ;
+
 : view, ( -- )
-    replace-sourceview current-sourceview over select ,
-    0 to replace-sourceview ;
+    current-view , 0 to replace-sourceview ;
 
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow

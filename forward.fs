@@ -47,5 +47,7 @@
 : .unresolved ( -- )
     \G print all unresolved forward references
     [: [: dup >does-code ['] forward, = IF
+		dup name>view @ to replace-sourceview
 		dup >body @ [: dup .name ." is unresolved" cr ;] ?warning
+		0 to replace-sourceview
 	    THEN  drop true ;] swap traverse-wordlist ;] map-vocs ;
