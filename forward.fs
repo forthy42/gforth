@@ -46,6 +46,6 @@
 
 : .unresolved ( -- )
     \G print all unresolved forward references
-    [: [: dup >namevt @ >vtcompile, @ ['] forward, = IF
+    [: [: dup >does-code ['] forward, = IF
 		dup >body @ [: dup .name ." is unresolved" cr ;] ?warning
 	    THEN  drop true ;] swap traverse-wordlist ;] map-vocs ;

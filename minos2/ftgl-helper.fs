@@ -185,17 +185,19 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     ELSE  drop  THEN
     r> glyph+xy 0e to t.i0 ;
 
-: render> ( -- )
+: ?mod-atlas ( -- )
     atlas texture_atlas_t-modified c@ IF
 	gen-atlas-tex time( ." atlas: " .!time cr )
 	0 atlas texture_atlas_t-modified c!
-    THEN
+    THEN ;
+: ?mod-atlas-bgra ( -- )
     atlas-bgra texture_atlas_t-modified c@ IF
 	gen-atlas-tex-bgra time( ." atlas-bgra: " .!time cr )
 	0 atlas-bgra texture_atlas_t-modified c!
-    THEN
-\    GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
-    GL_TRIANGLES draw-elements ;
+    THEN ;
+
+: render> ( -- )
+    ?mod-atlas ?mod-atlas-bgra GL_TRIANGLES draw-elements ;
 
 : ?flush-tris ( n -- ) >r
     i? r@ + points# 2* u>=
