@@ -66,11 +66,12 @@ true [if]
 
 ' auto-resolve is check-shadow
 
-\ : .unresolved ( -- )
-\     \G print all unresolved forward references
-\     [: [: dup >namevt @ >vtcompile, @ ['] forward, = IF
-\ 		dup >body @ [: dup .name ." is unresolved" cr ;] ?warning
-\ 	    THEN  drop true ;] swap traverse-wordlist ;] map-vocs ;
+: .unresolved ( -- )
+    \G print all unresolved forward references
+    [: [: dup is-forward? IF
+                dup [ 3 cells >body ]L + @ 0=
+                [: dup .name ." is unresolved" cr ;] ?warning
+            THEN  drop true ;] swap traverse-wordlist ;] map-vocs ;
 
 \ testing
 0 [if]
