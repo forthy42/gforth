@@ -17,7 +17,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require ../forward.fs
+\ require ../forward.fs
 require ./ttester.fs
 decimal
 
@@ -28,7 +28,7 @@ t{ : forward4 postpone forward1 ; immediate -> }t
 t{ : forward5 forward4 ; -> }t
 t{ : forward1 285 ; -> }t
 t{ : forward6 forward4 ; -> }t
-simple-see forward6
+\ simple-see forward6
 t{ forward2 -> 285 }t
 t{ forward3 -> 285 }t
 t{ forward5 -> 285 }t
