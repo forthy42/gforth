@@ -26,6 +26,11 @@ t{ : forward2 forward1 ; -> }t
 t{ : forward3 forward1 ; -> }t
 t{ : forward4 postpone forward1 ; immediate -> }t
 t{ : forward5 forward4 ; -> }t
+t{ ' forward1 constant forward7 -> }T
+t{ defer forward8 -> }t
+t{ ' forward1 is forward8 -> }t
+t{ : forward9 ['] forward1 compile, ; immediate -> }t
+t{ : forwarda forward9 ; -> }t
 t{ : forward1 285 ; -> }t
 t{ : forward6 forward4 ; -> }t
 \ simple-see forward6
@@ -33,3 +38,9 @@ t{ forward2 -> 285 }t
 t{ forward3 -> 285 }t
 t{ forward5 -> 285 }t
 t{ forward6 -> 285 }t
+t{ : x execute ; forward7 x forward7 x -> 285 285 }t
+t{ forward8 forward8 -> 285 285 }t
+t{ : forwardb forward9 ; -> }t
+t{ forwarda forwarda -> 285 285 }t
+t{ forwardb forwardb -> 285 285 }t
+

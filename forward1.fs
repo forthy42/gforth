@@ -28,9 +28,13 @@ s" unresolved forward definition" exception constant unresolved-forward
     \ been resolved)
     r> dup {: retaddr :} cell+ @ dup 0= unresolved-forward and throw ( xt )
     dup r@ cell- {: target :}
-    target @ retaddr 2 cells - = if \ primitive-centric call
-        >body then
-    target ! execute-exit ; 
+    target @ retaddr [ 2 cells >body ]L - ( xt target@ forward-xt )
+    - dup 0 >body invert and 0= if ( xt diff )
+        \ if it's a primitive-centric or classical ITC call
+        + target !
+    else \ other, i.e., executed or deferred
+        2drop then
+    execute-exit ; 
 
 : forward ( "name" -- )
     \ defines a very stylized colon definition, followed by a cell
