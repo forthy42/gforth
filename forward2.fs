@@ -59,7 +59,9 @@ s" unresolved forward definition" exception constant unresolved-forward
 
 : .unresolved ( -- )
     \G print all unresolved forward references
-    [: [: dup is-forward? [: dup .name ." is unresolved" cr ;] ?warning
+    [: [:   replace-sourceview >r dup name>view @ to replace-sourceview
+	    dup is-forward? [: dup .name ." is unresolved" cr ;] ?warning
+	    r> to replace-sourceview
             drop true ;] swap traverse-wordlist ;] map-vocs ;
 
 \ testing

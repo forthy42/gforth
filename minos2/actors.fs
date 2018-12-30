@@ -126,7 +126,9 @@ end-class box-actor
 :noname ( rx ry b n -- )
     click( o hex. caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
     grab-move? IF
-	active-w ?dup-IF  .act .clicked  EXIT  THEN
+	active-w ?dup-IF
+	    [: dup .act .clicked  ;] box-touched# do-childs-act? drop
+	    EXIT  THEN
     THEN
     o [: { c-act }  fover fover inside? IF
 	    click( ." click passed through " .parents cr )
