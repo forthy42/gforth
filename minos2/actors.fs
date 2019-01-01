@@ -315,8 +315,8 @@ forward >animate
 	fover fover caller-w .inside? 0= IF  2drop fdrop fdrop  EXIT  THEN
     THEN
     over 2 or 2 = IF
-	o anim-del
 	dup 1 and IF  2drop
+	    o anim-del
 	    fdup to vstart-y  fover to vstart-x
 	    to vold-y  to vold-x
 	    ftime to vmotion-time
@@ -330,6 +330,7 @@ forward >animate
 		    set-startxy
 		    >motion-dt drop
 		    motion-time
+		    o anim-del
 		    o ['] vp-motion >animate
 		THEN  EXIT  THEN
 	THEN
