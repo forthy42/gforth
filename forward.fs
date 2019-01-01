@@ -17,37 +17,65 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: forward, ( forward-body -- )
-    dup cell+ @ dup if
-	compile, drop
-    else
-	drop ['] call peephole-compile, here over @ , swap !
-    then ;
+\ This implementation relies on return address manipulation and
+\ specific threaded-code properties
+
+\ note that there are related words with the same name here and in
+\ forward1.fs, but they behave differently.
+
+s" unresolved forward definition" exception constant unresolved-forward
+
+: unresolved-forward-error ( -- )
+    unresolved-forward throw ;
+
+: unfixed-forward ( ... -- ... )
+    \ the compiled code for a forward child branches to this word,
+    \ which patches the call to the forward word; if the word has not
+    \ been resolved, this produces an error after patching the call to
+    \ report an error.
+    r@ cell- {: target :}
+    target @ cell- @ dup >body target !
+    execute-exit ;
 
 : forward ( "name" -- )
-    \G create a forward reference
-    Create 0 , 0 , immediate compile-only
-    ['] forward, set-does> ;
+    defer ['] unresolved-forward-error lastxt defer!
+    ['] branch peephole-compile, ['] unfixed-forward >body ,
+    [: ['] call peephole-compile, >body cell+ , ;] set-optimizer ;
 
-: resolve-fwds ( addr -- ) \ resolve forward refereneces
-    BEGIN  dup  WHILE  latestxt >body swap !@  REPEAT  drop ;
+: is-forward? ( xt -- f )
+    \ f is true if xt is an unresolved forward definition
+    dup >code-address dodefer: = if
+        defer@ ['] unresolved-forward-error = exit then
+    drop false ;
 
 : auto-resolve ( addr u wid -- )
     \G auto-resolve the forward reference in check-shadow
-    dup 2over rot find-name-in  dup IF
-	dup >does-code ['] forward, = IF
-	    >body latestxt over cell+ !
-	    0 swap !@ resolve-fwds  drop 2drop  EXIT
-	THEN
-    THEN  drop
-    defers check-shadow ;
+    dup 2over rot find-name-in dup if
+        dup is-forward? if
+            latestxt swap defer! 2drop drop exit then then
+    drop defers check-shadow ;
 
 ' auto-resolve is check-shadow
 
 : .unresolved ( -- )
     \G print all unresolved forward references
-    [: [: dup >does-code ['] forward, = IF
-		dup name>view @ to replace-sourceview
-		dup >body @ [: dup .name ." is unresolved" cr ;] ?warning
-		0 to replace-sourceview
-	    THEN  drop true ;] swap traverse-wordlist ;] map-vocs ;
+    [: [:   replace-sourceview >r dup name>view @ to replace-sourceview
+	    dup is-forward? [: dup .name ." is unresolved" cr ;] ?warning
+	    r> to replace-sourceview
+            drop true ;] swap traverse-wordlist ;] map-vocs ;
+
+\ testing
+0 [if]
+    forward forward1
+    see forward1
+    ' forward1 is-forward? cr .
+    : forward2 forward1 ;
+    ' forward2 5 cells dump
+    ' forward2 catch cr .
+    ' forward1 6 cells
+    : forward1 285 ;
+    dump
+    forward2 .
+    ' forward2 5 cells dump
+    .s
+[then]
