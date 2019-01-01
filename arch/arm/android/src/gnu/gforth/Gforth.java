@@ -76,6 +76,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.util.AttributeSet;
 import android.widget.Toast;
+import android.support.v4.content.ContextCompat;
 import java.lang.Object;
 import java.lang.Runnable;
 import java.lang.String;
@@ -478,6 +479,27 @@ public class Gforth
         String libname = "gforth";
 
 	gforth=this;
+
+	if ((ContextCompat.checkSelfPermission(thisActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+	     != PackageManager.PERMISSION_GRANTED) ||
+	    (ContextCompat.checkSelfPermission(thisActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
+	     != PackageManager.PERMISSION_GRANTED)) {
+	    if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,
+								    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+		Log.v(TAG, "Write to SD card needs explanation");
+        // Show an explanation to the user *asynchronously* -- don't block
+        // this thread waiting for the user's response! After the user
+        // sees the explanation, try again to request the permission.
+	    }
+	    ActivityCompat.requestPermissions(thisActivity,
+					      arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+					      1);
+	    
+	    ActivityCompat.requestPermissions(thisActivity,
+					      arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+					      2);
+	}
+	
 	progress=null;
 	cameraPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
 
