@@ -29,8 +29,7 @@ blackish
     x-baseline 140% f* to x-baseline ;
 : >bl ( o -- o' )
     >o x-baseline to baseline
-    font@ freetype-gl:texture_font_t-linegap sf@
-    x-baseline gap% f* fmax to gap o o> cbl ;
+    x-baseline gap% f* font@gap fmax to gap o o> cbl ;
 : }}text ( addr u -- o )
     text new >o font@ text! x-color to text-color  x-border to border o o> ;
 : }}i18n-text ( lsid -- o )

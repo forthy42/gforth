@@ -111,7 +111,7 @@ previous
     0 font-index fontname[] $[] ;
 
 : font-load ( font-addr -- font-addr )
-    dup 0 font[] $[] - cell/ fontnames[]# mod >r \ font index size 0
+    dup font[] $@ drop - cell/ fontnames[]# mod >r \ font index size 0
     atlas-bgra atlas r@ font-langs# mod [ ' \emoji >body @ ]L = select
     r@ fontname[] $[]@ 2dup d0= IF
 	." font matrix: " r@
@@ -137,13 +137,17 @@ previous
 \ font indices
 
 : font@ ( -- addr )
-    font-size font-index font[] $[]
-    dup @ 0= IF  font-load  THEN ;
+    font-size font-index font[] $[] ?font-load ;
+
+: font@h ( -- height )
+    font@ drop
+    font@ @ freetype-gl:texture_font_t-height  sf@ ;
+: font@gap ( -- gap )
+    font@ drop
+    font@ @ freetype-gl:texture_font_t-linegap sf@ ;
 
 : current-baseline% ( -- float )
-    baseline# font-size font-size% f*
-    font@ freetype-gl:texture_font_t-height sf@ fmax
-    fround ;
+    baseline# font-size font-size% f* font@h fmax fround ;
 
 \ font paths
 

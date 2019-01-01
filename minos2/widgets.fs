@@ -213,10 +213,10 @@ object class
     sfvalue: w
     sfvalue: h \ above baseline
     sfvalue: d \ below baseline
+    sfvalue: gap       \ gap between lines
+    sfvalue: baseline  \ minimun skip per line
     sfvalue: kerning   \ add kerning
     sfvalue: raise     \ raise/lower box
-    sfvalue: baseline  \ minimun skip per line
-    sfvalue: gap       \ gap between lines
     sfvalue: border    \ surrounding border, all directions
     sfvalue: borderv   \ vertical border offset
     sfvalue: bordert   \ top border offset
@@ -381,7 +381,6 @@ end-class glue-tile
 
 tile class
     defer: image-tex
-    $10 +
 end-class image
 
 ' noop       image is draw-bg
@@ -401,7 +400,6 @@ image is draw-image
 \ frame widget
 
 tile class
-    $8 +
 end-class frame
 
 Create button-st  0e sf, 0.25e sf, 0.75e sf, 1e sf,
