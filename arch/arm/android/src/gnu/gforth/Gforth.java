@@ -77,7 +77,7 @@ import android.util.Log;
 import android.util.AttributeSet;
 import android.widget.Toast;
 import android.content.pm.PackageManager;
-import static android.Manifest.permission;
+import android.Manifest;
 import java.lang.Object;
 import java.lang.Runnable;
 import java.lang.String;
