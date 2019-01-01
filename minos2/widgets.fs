@@ -213,14 +213,14 @@ object class
     sfvalue: w
     sfvalue: h \ above baseline
     sfvalue: d \ below baseline
-    sfvalue: border    \ surrounding border, all directions
-    sfvalue: borderv   \ vertical border offset
-    sfvalue: bordert   \ top border offset
-    sfvalue: borderl   \ left border offset
     sfvalue: kerning   \ add kerning
     sfvalue: raise     \ raise/lower box
     sfvalue: baseline  \ minimun skip per line
     sfvalue: gap       \ gap between lines
+    sfvalue: border    \ surrounding border, all directions
+    sfvalue: borderv   \ vertical border offset
+    sfvalue: bordert   \ top border offset
+    sfvalue: borderl   \ left border offset
     sfvalue: w-color   \ widget color (if any)
     method draw-init ( -- ) \ init draw
     method draw-bg ( -- ) \ button background draw
@@ -245,7 +245,10 @@ end-class widget
 0 Value w.indent#
 
 : w.widget ( -- ) w.indent# spaces name$ type ." : "
-    x f. y f. w f. h f. d f. ;
+    x f. y f. w f. h f. d f. space
+    baseline f. gap f. space
+    kerning f. raise f. space
+    border f. borderv f. bordert f. borderl f. ;
 :noname w.widget cr ; widget is .widget
 
 : inside? ( o:widget rx ry -- flag )
