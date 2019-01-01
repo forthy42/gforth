@@ -1,6 +1,6 @@
 \ forward definitions
 
-\ Copyright (C) 2016,2017 Free Software Foundation, Inc.
+\ Copyright (C) 2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -24,6 +24,7 @@
 \ forward1.fs, but they behave differently.
 
 s" unresolved forward definition" exception constant unresolved-forward
+s" forward must be resolved with :" exception constant forward-needs-:
 
 : unresolved-forward-error ( -- )
     unresolved-forward throw ;
@@ -38,6 +39,10 @@ s" unresolved forward definition" exception constant unresolved-forward
     execute-exit ;
 
 : forward ( "name" -- )
+    \g Defines a forward reference to a colon definition.  Defining a
+    \g colon definition with the same name in the same wordlist
+    \g resolves the forward references.  Use @code{.unresolved} to
+    \g check whether any forwards are unresolved.
     defer ['] unresolved-forward-error lastxt defer!
     ['] branch peephole-compile, ['] unfixed-forward >body ,
     [: ['] call peephole-compile, >body cell+ , ;] set-optimizer ;
@@ -51,7 +56,8 @@ s" unresolved forward definition" exception constant unresolved-forward
 : auto-resolve ( addr u wid -- )
     \G auto-resolve the forward reference in check-shadow
     dup 2over rot find-name-in dup if
-        dup is-forward? if
+	dup is-forward? if
+	    latestxt >code-address docol: <> forward-needs-: and throw
             latestxt swap defer! 2drop drop exit then then
     drop defers check-shadow ;
 

@@ -1,5 +1,5 @@
 \ startup stuff
-\ Copyright (C) 2015,2014,2016,2017 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2014,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
