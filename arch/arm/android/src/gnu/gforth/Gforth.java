@@ -481,20 +481,20 @@ public class Gforth
 
 	gforth=this;
 
-	if ((checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-	     != PackageManager.PERMISSION_GRANTED)) {
-	    if (.shouldShowRequestPermissionRationale(this,
-						      Manifest.permission.READ_EXTERNAL_STORAGE)) {
+	if (checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+	    != PackageManager.PERMISSION_GRANTED) {
+	    if (shouldShowRequestPermissionRationale(this,
+						     Manifest.permission.READ_EXTERNAL_STORAGE)) {
 		Log.v(TAG, "Write to SD card needs explanation");
-        // Show an explanation to the user *asynchronously* -- don't block
-        // this thread waiting for the user's response! After the user
-        // sees the explanation, try again to request the permission.
+		// Show an explanation to the user *asynchronously* -- don't block
+		// this thread waiting for the user's response! After the user
+		// sees the explanation, try again to request the permission.
 	    }
 	    requestPermissions(this,
 			       new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
 			       1);
 	}
-
+	
 	progress=null;
 	cameraPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
 
