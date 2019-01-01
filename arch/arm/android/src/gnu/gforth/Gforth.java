@@ -76,7 +76,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.util.AttributeSet;
 import android.widget.Toast;
-import android.support.v4.content.ContextCompat;
+import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import java.lang.Object;
 import java.lang.Runnable;
@@ -481,9 +481,9 @@ public class Gforth
 
 	gforth=this;
 
-	if ((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+	if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 	     != PackageManager.PERMISSION_GRANTED) ||
-	    (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+	    (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 	     != PackageManager.PERMISSION_GRANTED)) {
 	    if (ActivityCompat.shouldShowRequestPermissionRationale(this,
 								    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
