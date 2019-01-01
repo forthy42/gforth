@@ -221,6 +221,7 @@ object class
     sfvalue: raise     \ raise/lower box
     sfvalue: baseline  \ minimun skip per line
     sfvalue: gap       \ gap between lines
+    sfvalue: w-color   \ widget color (if any)
     method draw-init ( -- ) \ init draw
     method draw-bg ( -- ) \ button background draw
     method draw-image ( -- ) \ image draw
@@ -238,7 +239,14 @@ object class
     method resize ( rx ry rw rh rd -- )
     method !size ( -- ) \ set your own size
     method dispose-widget ( -- ) \ get rid of a widget
+    method .widget
 end-class widget
+
+0 Value w.indent#
+
+: w.widget ( -- ) w.indent# spaces name$ type ." : "
+    x f. y f. w f. h f. d f. ;
+:noname w.widget cr ; widget is .widget
 
 : inside? ( o:widget rx ry -- flag )
     y f- fdup d f< h fnegate f> and
@@ -294,7 +302,7 @@ end-class glue
 \ tile widget
 
 widget class
-    sfvalue: frame-color
+    synonym frame-color w-color
     value: tile-glue \ glue object
     value: frame#
 end-class tile
@@ -302,6 +310,14 @@ end-class tile
 :noname tile-glue .hglue { f: s f: a } border f2* borderl f+ f+ s a ; tile is hglue
 :noname tile-glue .dglue { f: s f: a } border borderv f+ f+ s a ; tile is dglue
 :noname tile-glue .vglue { f: s f: a } border borderv f+ bordert f+ f+ s a ; tile is vglue
+
+: x.glue ( addr -- ) '[' emit glue@ frot f. fswap f. f. ']' emit ;
+: g.widget ( -- )
+    w.widget
+    tile-glue .hglue-c x.glue
+    tile-glue .vglue-c x.glue
+    tile-glue .dglue-c x.glue ;
+:noname g.widget cr ; tile is .widget
 
 begin-structure atlas-region
     slvalue: i.x
@@ -362,6 +378,7 @@ end-class glue-tile
 
 tile class
     defer: image-tex
+    $10 +
 end-class image
 
 ' noop       image is draw-bg
@@ -381,6 +398,7 @@ image is draw-image
 \ frame widget
 
 tile class
+    $8 +
 end-class frame
 
 Create button-st  0e sf, 0.25e sf, 0.75e sf, 1e sf,
@@ -418,10 +436,10 @@ DOES>  swap sfloats + sf@ ;
 : }}tile ( glue color -- o )
     tile new >o to frame-color to tile-glue s" tile" to name$ o o> ;
 : }}frame ( glue color border -- o )
-    frame new >o to border to frame-color to tile-glue o o> ;
+    frame new >o "frame" to name$ to border to frame-color to tile-glue o o> ;
 : }}image ( glue rcolor texture-xt -- o )
     image new >o is image-tex to frame-color to tile-glue
-    image-tex edge mipmap s" image" to name$
+    image-tex edge mipmap "image" to name$
     [IFDEF] cubic-mipmap cubic-mipmap [ELSE] linear-mipmap [THEN] o o> ;
 
 \ text widget
@@ -430,7 +448,7 @@ DOES>  swap sfloats + sf@ ;
 5% fvalue text-grow%
 
 widget class
-    sfvalue: text-color
+    synonym text-color w-color
     sfvalue: text-w
     value: text-font
     $value: text$
@@ -750,14 +768,20 @@ end-class box
 : dispose-childs ( -- )
     ['] dispose-widget do-childs childs[] $free ;
 
+: b.widget ( -- )
+    w.widget hglue-c x.glue vglue-c x.glue dglue-c x.glue cr
+    1 +to w.indent# ['] .widget box-visible# ?do-childs -1 +to w.indent# ;
+' b.widget box is .widget
+
 :noname ( -- )
     dispose-childs [ widget :: dispose-widget ] ; box is dispose-widget
 
-:noname ( -- )
+: box-!size ( -- )
     ['] !size do-childs
     hglue hglue-c glue!
     dglue dglue-c glue!
-    vglue vglue-c glue! ; box is !size
+    vglue vglue-c glue! ;
+' box-!size box is !size
 
 :noname ( -- ) ['] draw-init      box-visible# ?do-childs ; box is draw-init
 :noname ( -- ) ['] draw-bg        box-visible# ?do-childs ; box is draw-bg
@@ -860,8 +884,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 : vglue1+ ( glue1 dglue flag -- glue2 dglue2 flag )
 \    box-flags box-vflip# and IF  drop glue-drop 0glue false  THEN
-    vglue@ glue+ frot
-    IF  gap f+ baseline fmax  THEN  f-rot glue+ dglue@
+    vglue@ glue+
+    frot  IF  gap f+ baseline fmax  THEN  f-rot
+    glue+ dglue@
     true ;
 : dglue+ ( -- glue ) 0glue box-flags box-vflip# and ?EXIT
     box-flags dup box-phantom# and swap box-dphantom# and 0= and ?EXIT
@@ -1066,11 +1091,11 @@ end-class parbox
 $10 stack: box-depth \ this $10 here is no real limit
 : {{ ( -- ) depth box-depth >stack ;
 : }} ( n1 .. nm -- n1 .. nm m ) depth box-depth stack> - ;
-: }}h ( n1 .. nm -- hbox ) }} hbox new >o +childs o o> ;
-: }}v ( n1 .. nm -- vbox ) }} vbox new >o +childs
+: }}h ( n1 .. nm -- hbox ) }} hbox new >o "hbox" to name$ +childs o o> ;
+: }}v ( n1 .. nm -- vbox ) }} vbox new >o "vbox" to name$ +childs
     -1 to baseline-offset box-flags baseline-start# or to box-flags o o> ;
 : }}vtop ( n1 .. nm -- vbox ) }} vbox new >o +childs 1 to baseline-offset o o> ;
-: }}z ( n1 .. nm -- zbox ) }} zbox new >o +childs o o> ;
+: }}z ( n1 .. nm -- zbox ) }} zbox new >o "zbox" to name$ +childs o o> ;
 : }}p ( n1 .. nm -- parbox ) }}h parbox new >o to subbox subbox .par-init o o> ;
 : unbox ( parbox -- n1 .. nm ) click( ." unbox " )
     >o baseline gap 0 childs[] $[] @ >o to gap to baseline o>
@@ -1249,9 +1274,9 @@ end-class viewport
     THEN ;
 : vp-!size ( -- )
     ['] !size do-childs
-    hglue* hglue-c glue!
-    dglue+ dglue-c glue!
-    vglue+ vglue-c glue!
+    [ vbox :: hglue ] hglue-c glue!
+    [ vbox :: dglue ] dglue-c glue!
+    [ vbox :: vglue ] vglue-c glue!
     w hglue-c df@ fmax fround
     fdup vp-w f<> to vp-w vp-w usetexsize# s>f fmin to vt-w
     h d f+ dglue-c df@ vglue-c df@ f+ fmax fround
@@ -1287,22 +1312,22 @@ end-class viewport
     ELSE  vp-glue .hglue >hglue!@  THEN ; viewport is hglue
 :noname ( -- glue )
     box-flags vp-dfix# and IF  [ vbox :: dglue ]
-    ELSE   vp-glue .dglue >dglue!@ THEN  ; viewport is dglue
+    ELSE  vp-glue .dglue >dglue!@  THEN  ; viewport is dglue
 :noname ( -- glue )
     box-flags vp-vfix# and IF  [ vbox :: vglue ]
-    ELSE   vp-glue .vglue >vglue!@ THEN  ; viewport is vglue
+    ELSE  vp-glue .vglue >vglue!@  THEN  ; viewport is vglue
 :noname ( -- glue )
     box-flags vp-hfix# and IF  [ vbox :: hglue@ ]
-    ELSE   vp-glue .hglue@ THEN  ; viewport is hglue@
+    ELSE  vp-glue .hglue@ THEN  ; viewport is hglue@
 :noname ( -- glue )
     box-flags vp-dfix# and IF  [ vbox :: dglue@ ]
-    ELSE   vp-glue .dglue@  THEN ; viewport is dglue@
+    ELSE  vp-glue .dglue@  THEN ; viewport is dglue@
 :noname ( -- glue )
     box-flags vp-vfix# and IF  [ vbox :: vglue@ ]
     ELSE   vp-glue .vglue@  THEN ; viewport is vglue@
 
 : }}vp ( b:n1 .. b:nm glue vp-tex -- viewport ) { g t }
-    }} viewport new >o +childs t is vp-tex g to vp-glue o o> ;
+    }} viewport new >o "vp" to name$ +childs t is vp-tex g to vp-glue o o> ;
 
 \ slider (simple composit object)
 
