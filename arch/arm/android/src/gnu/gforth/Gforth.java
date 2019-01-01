@@ -76,8 +76,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.util.AttributeSet;
 import android.widget.Toast;
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
+// import android.content.pm.PackageManager;
+// import android.support.v4.app.ActivityCompat;
 import java.lang.Object;
 import java.lang.Runnable;
 import java.lang.String;
@@ -481,7 +481,7 @@ public class Gforth
 
 	gforth=this;
 
-	if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+/*	if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 	     != PackageManager.PERMISSION_GRANTED) ||
 	    (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
 	     != PackageManager.PERMISSION_GRANTED)) {
@@ -500,7 +500,7 @@ public class Gforth
 					      arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
 					      2);
 	}
-	
+*/
 	progress=null;
 	cameraPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
 
