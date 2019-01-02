@@ -40,10 +40,10 @@ also jni
 
 : cam-rectangle ( orientation -- )
     >v
-    -1e  1e >xy n> rot>st  $FFFFFFFF rgba>c v+
-     1e  1e >xy n> rot>st  $FFFFFFFF rgba>c v+
-     1e -1e >xy n> rot>st  $FFFFFFFF rgba>c v+
-    -1e -1e >xy n> rot>st  $FFFFFFFF rgba>c v+
+    -1e  1e >xy n> rot>st  white# i>c v+
+     1e  1e >xy n> rot>st  white# i>c v+
+     1e -1e >xy n> rot>st  white# i>c v+
+    -1e -1e >xy n> rot>st  white# i>c v+
     v>  drop  0 i, 1 i, 2 i, 0 i, 2 i, 3 i, ;
 
 : camera-init ( -- )

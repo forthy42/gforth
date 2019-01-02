@@ -104,19 +104,19 @@ Variable slidelist
 	r> thumbs perform
     THEN ;
 
-$FFFFFFFF Value slcolor
+white# FValue slcolor
 Variable xoff
 Variable yoff
 
 : sl-rectangle { f: x1 f: y1 f: x2 f: y2 -- }
     vi0 >v
-    x1 xoff sf@ f+  y2 yoff sf@ f+ >xy slcolor rgba>c n> 0e 0e >st v+
-    x2 xoff sf@ f+  y2 yoff sf@ f+ >xy slcolor rgba>c n> 1e 0e >st v+
-    x2 xoff sf@ f+  y1 yoff sf@ f+ >xy slcolor rgba>c n> 1e 1e >st v+
-    x1 xoff sf@ f+  y1 yoff sf@ f+ >xy slcolor rgba>c n> 0e 1e >st v+
+    x1 xoff sf@ f+  y2 yoff sf@ f+ >xy slcolor i>c n> 0e 0e >st v+
+    x2 xoff sf@ f+  y2 yoff sf@ f+ >xy slcolor i>c n> 1e 0e >st v+
+    x2 xoff sf@ f+  y1 yoff sf@ f+ >xy slcolor i>c n> 1e 1e >st v+
+    x1 xoff sf@ f+  y1 yoff sf@ f+ >xy slcolor i>c n> 0e 1e >st v+
     v> 0 i, 1 i, 2 i, 0 i, 2 i, 3 i, ;
 
-: blend ( alpha -- ) $FF fm* f>s $FF and $FFFFFF00 or to slcolor ;
+: blend ( alpha -- ) white# f+ to slcolor ;
 : xshift ( delta -- ) xoff sf! ;
 : yshift ( delta -- ) yoff sf! ;
 
