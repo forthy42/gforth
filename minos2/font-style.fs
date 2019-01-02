@@ -98,7 +98,7 @@ Value font-langs#
 
 also freetype-gl
 : fonts! ( font-addr addr -- ) \ set current font for all sizes
-    over 0 font[] $[] - cell/ fontnames[]# mod { idx }
+    over font[] $@ drop - cell/ fontnames[]# mod { idx }
     font-sizes# 0 U+DO
 	dup I fontnames[]# * idx + font[] $[] !
 	I 1+ I' <> IF
@@ -111,14 +111,15 @@ previous
     0 font-index fontname[] $[] ;
 
 : font-load ( font-addr -- font-addr )
-    dup font[] $@ drop - cell/ fontnames[]# mod >r \ font index size 0
+    dup font[] $@ drop - cell/ dup >r fontnames[]# mod >r \ font index size 0
     atlas-bgra atlas r@ font-langs# mod [ ' \emoji >body @ ]L = select
     r@ fontname[] $[]@ 2dup d0= IF
 	." font matrix: " r@
 	font-langs# /mod font-shapes# /mod font-families# /mod . . . . cr
 	true abort" No font specified"
     THEN
-    font-size# 0 font-size% f* fround open-font fonts! rdrop ;
+    font-size# 0 font-size% f* fround open-font fonts! rdrop
+    drop r> font[] $[] ;
 
 : ?font-load ( font-addr -- font-addr )
     dup @ 0= IF  font-load  THEN ;
@@ -140,10 +141,8 @@ previous
     font-size font-index font[] $[] ?font-load ;
 
 : font@h ( -- height )
-    font@ drop
     font@ @ freetype-gl:texture_font_t-height  sf@ ;
 : font@gap ( -- gap )
-    font@ drop
     font@ @ freetype-gl:texture_font_t-linegap sf@ ;
 
 : current-baseline% ( -- float )
