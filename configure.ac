@@ -393,7 +393,7 @@ Dynamic NC generation disabled."
 		machine=hppa
 		AC_LIBOBJ(hppa-cache)
 		#-N needed for --dynamic <M4U3b.3790$9d.317@news.cpqcorp.net>
-		LDFLAGS="$LDFLAGS -Xlinker -N"
+		#LDFLAGS="$LDFLAGS -Xlinker -N" # no longer needed
 		LIBS="$LIBS -L/lib/pa1.1/"
 		;;
 	sparc*)

@@ -6,7 +6,7 @@
 \ by Norman Smith.
 
 \ The format is:
-\ answord word-name wordset pronounciation \ dpans6-section dpans6-page
+\ answord word-name wordset pronunciation \ dpans6-section dpans6-page
 
 \ I replaced the wordset name FLOATING (EXT) with FLOAT (EXT)
 

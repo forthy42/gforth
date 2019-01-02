@@ -959,11 +959,14 @@ DCell smdiv (DCell num, Cell denom)
   UCell MAYBE_UNUSED lz;
   
   vm_d2twoCell(u,u0,u1);
-  if (v==0)
+  if (denom==0)
     throw(BALL_DIVZERO);
-  if (u1>=v)
-    throw(BALL_RESULTRANGE);
-  sdiv_qrnnd(q,r,u1,u0,v);
+  sdiv_qrnnd(q,r,u1,u0,denom);
+  if ((u1^denom)<0)
+    if(q>0)
+      throw(BALL_RESULTRANGE);
+    else if(q<0)
+      throw(BALL_RESULTRANGE);
   vm_twoCell2d(q,r,res);
 #else
   UDCell ures;
