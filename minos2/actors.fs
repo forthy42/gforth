@@ -123,6 +123,9 @@ end-class box-actor
     >o parent-w ?dup-IF
 	recurse parent-w .act ?dup-IF  re-focus  THEN  THEN  o> ;
 
+: engage-edit ( addr u object -- )
+    dup engage >o tuck to text$ 0 to curpos to cursize o> ;
+
 :noname ( rx ry b n -- )
     click( o hex. caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
     grab-move? IF
