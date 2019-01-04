@@ -574,8 +574,8 @@ Defer anim-ins
 
 : edit-ins$ ( max span addr pos1 addr u -- max span' addr pos1' )
     anim-ins
-    xselw 0> IF  save-mem 2>r edit-cut drop 2r@ insert-string
-	2r> drop free throw
+    xselw 0> IF  $make { w^ str } edit-cut drop str $@ insert-string
+	str $free
     ELSE  insert-string  THEN ;
 
 : edit-split-ins$ ( max span addr pos1 addr u -- max span' addr pos1' )

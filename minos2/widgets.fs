@@ -581,7 +581,10 @@ end-class edit
 	    text$ curpos safe/string type ;] $tmp
     ELSE
 	text$
-    THEN  start end text$-part layout-string >text+border ;
+    THEN  start end text$-part layout-string
+\    font @ freetype-gl:texture_font_t-ascender  sf@         fmax
+    fswap font @ freetype-gl:texture_font_t-descender sf@ fnegate fmax fswap
+    >text+border ;
 ' edit-text edit is draw-text
 ' edit-!size edit is !size
 
@@ -601,7 +604,7 @@ end-class pw-edit
 
 ( '●' ) '•' Value pw-char
 
-Variable *insflag
+Variable *ins-o
 
 : text$->* ( -- oldtext$ )
     text$ over curpos + dup cursize 0 max +  0 addr text$ !@ >r
@@ -612,7 +615,7 @@ Variable *insflag
 		    text$ nip curpos - to cursize
 		    THEN
 		    I xchar+ cursor = IF
-			*insflag @ IF
+			*ins-o @ caller-w = IF
 			    I dup xchar+ over - type
 			ELSE  pw-char xemit  THEN
 		    text$ nip to curpos
@@ -627,7 +630,7 @@ Variable *insflag
 
 : pw-xt { xt -- }
     cursize >r curpos >r
-    pw-mode dup 0= IF  *insflag off  THEN
+    pw-mode dup 0= IF  *ins-o off  THEN
     c>s 2 < IF
 	text$->* >r xt catch r> addr text$ $!buf
 	r> to curpos r> to cursize throw
@@ -661,7 +664,7 @@ previous
     GL_TEXTURE4 glActiveTexture
     palette-tex
     GL_TEXTURE3 glActiveTexture
-    z-bias set-color+3
+    w-bias set-color+3
     atlas-scaletex
     atlas-tex
     GL_TEXTURE2 glActiveTexture

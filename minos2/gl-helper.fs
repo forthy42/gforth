@@ -381,17 +381,18 @@ varying vec2 v_Extras;          // extra attributes passed through
  
 // The entry point for our fragment shader.
 void main() {
-    vec4 col = v_Color;
+    vec4 col;
     if(v_Extras.x >= 0.0)
 	if(v_Extras.x < 1.0)
-	    col = col*(texture2D(u_Texture0, v_TexCoordinate) + u_Coloradd0);
+	    col = texture2D(u_Texture0, v_TexCoordinate) + u_Coloradd0;
 	else
-	    col = col*(texture2D(u_Texture1, v_TexCoordinate) + u_Coloradd1);
+	    col = texture2D(u_Texture1, v_TexCoordinate) + u_Coloradd1;
     else
 	if(v_Extras.x >= -1.0)
-	    col = col*(texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2);
+	    col = texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2;
 	else
-	    col = col*(texture2D(u_Texture3, v_TexCoordinate).aaaa + u_Coloradd3);
+	    col = texture2D(u_Texture3, v_TexCoordinate) + u_Coloradd3;
+    col = col*v_Color;
     if(u_Saturate != 1.0) {
         float mid = (col.r + col.g + col.b) * 0.333333333333;
         vec3 mid3 = vec3(mid, mid, mid);
@@ -474,17 +475,18 @@ varying vec3 v_Normal;          // Interpolated normal for this fragment.
 varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
 varying vec2 v_Extras;          // extra attributes passed through
 void main() {
-    vec4 col = v_Color;
+    vec4 col;
     if(v_Extras.x >= 0.0)
 	if(v_Extras.x < 1.0)
-	    col = col*(texture2D(u_Texture0, v_TexCoordinate) + u_Coloradd0);
+	    col = texture2D(u_Texture0, v_TexCoordinate) + u_Coloradd0;
 	else
-	    col = col*(texture2D(u_Texture1, v_TexCoordinate) + u_Coloradd1);
+	    col = texture2D(u_Texture1, v_TexCoordinate) + u_Coloradd1;
     else
 	if(v_Extras.x >= -1.0)
-	    col = col*(texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2);
+	    col = texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2;
 	else
-	    col = col*(texture2D(u_Texture3, v_TexCoordinate) + u_Coloradd3);
+	    col = texture2D(u_Texture3, v_TexCoordinate) + u_Coloradd3;
+    col = col*v_Color;
     if(u_Saturate != 1.0) {
         float mid = (col.r + col.g + col.b) * 0.333333333333;
         vec3 mid3 = vec3(mid, mid, mid);

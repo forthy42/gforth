@@ -66,7 +66,7 @@ end-class animation
 \ edit animation
 
 : *anim-ins ( addr -- )
-    1e f= *insflag @ and  IF  *insflag off .resized +config +sync
+    1e f= over *ins-o @ = and  IF  *ins-o off .resized +config +sync
     ELSE  drop  THEN ;
 : *anim-end ( -- )
     anims@ 0 ?DO
@@ -74,7 +74,7 @@ end-class animation
 	IF  dispose  ELSE  o anims[] >stack  THEN  o>
     LOOP ;
 :noname ( -- ) o 0= ?EXIT
-    *anim-end *insflag on
+    *anim-end caller-w *ins-o !
     m2c:pwtime% f@ caller-w ['] *anim-ins >animate ;
 is anim-ins
 

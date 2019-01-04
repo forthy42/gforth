@@ -126,17 +126,17 @@ is reload-textures
 	s" f|g" }}text 25%b /center /vphantom
     }}z box[] ;
 
-: }}button1 { d: text f: color -- o }
+: }}button1 { text f: color -- o }
     {{
 	glue*l color font-size# 40% f* }}frame dup .button1
-	text }}text 25%b /center
+	text }}text' 25%b /center
     }}z box[] ;
 
-: }}tile1 { d: text f: color -- o }
+: }}tile1 { text f: color -- o }
     {{
 	glue*l color 0e }}frame dup .button1
 	>o font-size# 40% f* to borderv o o>
-	text }}text 25%b /center
+	text }}text' 25%b /center
     }}z box[] ;
 
 : }}button*ll { text f: color -- o }
