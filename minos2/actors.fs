@@ -628,7 +628,7 @@ edit-terminal edit-out !
 : edit-xt ( ... xt o:actor -- )
     \G pass xt to the editor
     \G xt has ( ... addr u curpos cursize -- addr u curpos cursize ) as stack effect
-    *insflag off
+    *ins-o off
     history >r  >r  0 to history
     edit-w >o addr text$ curpos over $@len umin cursize 0 max o> to xselw
     >r dup edit$ ! $@ swap over swap r>
@@ -670,7 +670,7 @@ edit-terminal edit-out !
 	-1 to start-curpos
     THEN ;
 : start-selection ( fx fy b n -- )
-    *insflag off
+    *ins-o off
     edit-w .start-curpos 0< IF
 	1- 2/ to select-mode
 	drop fdrop edit>curpos  edit-w >o

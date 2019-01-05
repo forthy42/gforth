@@ -582,8 +582,8 @@ end-class edit
     ELSE
 	text$
     THEN  start end text$-part layout-string
-\    font @ freetype-gl:texture_font_t-ascender  sf@         fmax
-    fswap font @ freetype-gl:texture_font_t-descender sf@ fnegate fmax fswap
+    font @ freetype-gl:texture_font_t-ascender  sf@         fmax fswap
+    font @ freetype-gl:texture_font_t-descender sf@ fnegate fmax fswap
     >text+border ;
 ' edit-text edit is draw-text
 ' edit-!size edit is !size
@@ -1136,8 +1136,12 @@ htab-glue is hglue!@
 
 \ draw everything
 
-: widget-draw ( o:widget -- )  time( ." draw:  " .!time cr )
+: widget-init ( o:widget -- )
     <draw-init      draw-init      draw-init>   time( ." init:  " .!time cr )
+;
+
+: widget-draw ( o:widget -- )  time( ." draw:  " .!time cr )
+    widget-init
     <draw-text draw-bg draw-text   render>      time( ." text:  " .!time cr )
     <draw-image     draw-image     draw-image>  time( ." img:   " .!time cr )
     sync time( ." sync:  " .!time cr ) ;
@@ -1443,7 +1447,7 @@ require animation.fs
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
     level# @ 0> IF
 	?config-changer
-	?lang         IF  +resize     THEN
+	?lang         IF  top-widget .widget-init +resize  THEN
 	?textures     IF  1+config    THEN
 	anims[] $@len IF  animations  THEN
 	top-widget .widgets-redraw
