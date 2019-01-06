@@ -554,7 +554,9 @@ simple-actor class
     defer: edit-next-line
     defer: edit-prev-line
     value: edit-w
+    $value: prev-text$
     defer: edit-enter
+    defer: edit-filter
 end-class edit-actor
 
 : edit-copy ( max span addr pos1 -- max span addr pos1 false )
@@ -630,12 +632,13 @@ edit-terminal edit-out !
     \G xt has ( ... addr u curpos cursize -- addr u curpos cursize ) as stack effect
     *ins-o off
     history >r  >r  0 to history
+    edit-w .text$ to prev-text$ \ backup of previous text
     edit-w >o addr text$ curpos over $@len umin cursize 0 max o> to xselw
     >r dup edit$ ! $@ swap over swap r>
     r> catch
     >r edit-w >o to curpos 0 to cursize o> drop
-    edit$!len drop
-    r>  r> to history  +sync +config  throw ;
+    edit$!len drop  edit-filter
+    r>  r> to history  +sync +resize  throw ;
 
 : edit>curpos ( x o:actor -- )
     edit-w >o  text-font to font
@@ -759,5 +762,6 @@ edit-terminal edit-out !
     o act >o to caller-w to edit-w
     xt        is edit-enter
     ['] false is edit-next-line
-    ['] false is edit-prev-line o>
+    ['] false is edit-prev-line
+    ['] noop  is edit-filter o>
     o o> ;

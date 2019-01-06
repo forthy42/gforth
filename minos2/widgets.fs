@@ -887,11 +887,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     [: hglue@ glue+ ;] box-flip# ?do-childs  frot bxx f+ f-rot ;
 
 : vglue1+ ( glue1 dglue flag -- glue2 dglue2 flag )
-\    box-flags box-vflip# and IF  drop glue-drop 0glue false  THEN
     vglue@ glue+
     frot  IF  gap f+ baseline fmax  THEN  f-rot
-    glue+ dglue@
-    true ;
+    glue+ dglue@  true ;
 : dglue+ ( -- glue ) 0glue box-flags box-vflip# and ?EXIT
     box-flags dup box-phantom# and swap box-dphantom# and 0= and ?EXIT
     baseline-offset childs[] $[]# u>= IF
