@@ -47,7 +47,7 @@ require kernel/version.fs \ version-string
 
 \ parse                                           23feb93py
 
-: parse    ( char "ccc<char>" -- c-addr u ) \ core-ext
+: (parse)    ( char "ccc<char>" -- c-addr u ) \ core-ext
 \G Parse @i{ccc}, delimited by @i{char}, in the parse
 \G area. @i{c-addr u} specifies the parsed string within the
 \G parse area. If the parse area was empty, @i{u} is 0.
@@ -55,6 +55,8 @@ require kernel/version.fs \ version-string
     over  swap r>  scan >r
     over - dup r@ IF 1+ THEN  >in +!
     2dup r> 0<> - input-lexeme! ;
+
+Defer parse  ' (parse) is parse
 
 \ name                                                 13feb93py
 
