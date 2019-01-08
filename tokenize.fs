@@ -37,11 +37,14 @@ Variable tokens[]
 
 Variable parsed-name$
 
+: i, ( token -- )
+    emit input-lexeme 2@ dup xemit type ;
+
 : tokenize-it ( rectype rec-xt -- rectype )
     drop case dup
 	rectype-name of
 	    over ?token IF  2 emit xemit
-	    ELSE  1 emit input-lexeme 2@ dup emit type  THEN
+	    ELSE  1 i,  THEN
 	endof
 	rectype-num of
 	    3 emit >r dup { w^ x } x cell type r>
@@ -56,12 +59,13 @@ Variable parsed-name$
 	    6 emit >r 2dup dup xemit type r>
 	endof
 	rectype-to of
-	    ?token IF  8 emit xemit
-	    ELSE  7 emit input-lexeme 2@ dup emit type  THEN
+	    over ?token IF  8 emit xemit
+	    ELSE  7 i,  THEN
 	endof
+	9 i,
     endcase  parsed-name$ $free ;
 
-stdout Value token-file
+0 Value token-file
 
 : t, ( ... xt -- )
     token-file outfile-execute ;
@@ -78,8 +82,89 @@ stdout Value token-file
 : parse' ( char -- addr u )
     parse [: 9 emit dup xemit 2dup type ;] t, ;
 
+: reset-interpreter ( -- )
+    [ action-of parse-name       ]L is parse-name
+    [ action-of parse            ]L is parse
+    [ action-of trace-recognizer ]L is trace-recognizer ;
+
 : >tokenize ( addr u -- )
     r/w create-file throw to token-file
     ['] parse-name' is parse-name
     ['] parse'      is parse
     ['] tokenize    is trace-recognizer ;
+
+\ read tokenized input
+
+Variable tokens$
+0 Value token-pos#
+
+s" unexpected token" exception constant !!token!!
+
+: token@ ( -- token )
+    token-pos# c@  1 +to token-pos# ;
+: xc-token ( -- xchar )
+    token-pos# xc@+ swap to token-pos# ;
+
+: >parsed ( -- addr u )
+    xc-token token-pos# swap dup +to token-pos# ;
+
+: >nt ( -- nt )
+    >parsed find-name { nt } addr nt cell tokens[] $+! nt ;
+: nt@ ( -- nt )
+    tokens[] $@ xc-token cells safe/string drop @ ;
+
+: token-parse ( -- addr u )
+    token@ 9 <> !!token!! and throw
+    >parsed ;
+
+: token-nt-name ( -- nt rectype-name )
+    >nt rectype-name ;
+: token-nt ( -- nt rectype-name )
+    nt@ rectype-name ;
+: token-num ( -- n rectype-num )
+    token-pos# @ 1 cells +to token-pos# rectype-num ;
+: token-dnum ( -- n rectype-num )
+    token-pos# 2@ 2 cells +to token-pos# rectype-dnum ;
+: token-float ( -- n rectype-num )
+    token-pos# f@ 1 floats +to token-pos# rectype-float ;
+: token-string ( -- addr u rectype-string )
+    >parsed rectype-string ;
+: token-to-name ( -- nt rectype-to )
+    >nt rectype-to ;
+: token-to ( -- nt rectype-to )
+    nt@ rectype-to ;
+: token-generic ( -- ... rectype-??? )
+    >parsed recognize ;
+
+Create token-actions
+0                ,
+' token-nt-name  ,
+' token-nt       ,
+' token-num      ,
+' token-dnum     ,
+' token-float    ,
+' token-string   ,
+' token-to-name  ,
+' token-to       ,
+' token-generic  ,
+
+: token-recognizer ( n dummy -- ... rectype )
+    drop cells token-actions + perform ;
+
+1 stack: token-recognizers
+
+' token-recognizer 1 token-recognizers set-stack
+
+: token-int ( -- )  rp@ backtrace-rp0 !
+    BEGIN  ?stack token-pos# tokens$ $@ + u< WHILE
+	    token@ 0 parser1 int-execute
+    REPEAT ;
+
+: tokenize> ( addr u -- )
+    tokens$ $slurp-file  tokens$ $@ drop to token-pos#
+    forth-recognizer >r  token-recognizers to forth-recognizer
+    ['] token-parse is parse
+    ['] token-parse is parse-name
+    ['] token-int catch  reset-interpreter
+    r> to forth-recognizer
+    tokens$ $free  0 to token-pos#  throw ;
