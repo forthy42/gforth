@@ -40,11 +40,25 @@ Variable parsed-name$
 : i, ( token -- )
     emit input-lexeme 2@ dup xemit type ;
 
+Create blacklist \ things we don't want to tokenize, e.g. comments
+' ( , ' \ ,
+here blacklist - Constant blacklist#
+Variable blacklisted
+
+: ?blacklist ( nt -- flag )
+    blacklist blacklist# bounds ?DO
+	dup I @ = IF  drop true  UNLOOP  EXIT  THEN
+    cell +LOOP  drop false ;
+
 : tokenize-it ( rectype rec-xt -- rectype )
     drop case dup
 	rectype-name of
-	    over ?token IF  2 emit xemit
-	    ELSE  1 i,  THEN
+	    over ?blacklist IF
+		blacklisted on
+	    ELSE
+		over ?token IF  2 emit xemit
+		ELSE  1 i,  THEN
+	    THEN
 	endof
 	rectype-num of
 	    3 emit >r dup { w^ x } x cell type r>
@@ -74,13 +88,17 @@ Variable parsed-name$
     ['] tokenize-it t, ;
 
 : parse-name' ( -- addr u )
-    parsed-name$ $@len IF
+    parsed-name$ $@len blacklisted @ 0= and IF
 	parsed-name$ $@ [: 9 emit dup xemit type ;] t,
     THEN
+    blacklisted off
     defers parse-name 2dup parsed-name$ $! ;
 
 : parse' ( char -- addr u )
-    parse [: 9 emit dup xemit 2dup type ;] t, ;
+    defers parse
+    blacklisted @ 0= IF
+	[: 9 emit dup xemit 2dup type ;] t,
+    THEN  blacklisted off ;
 
 : reset-interpreter ( -- )
     [ action-of parse-name       ]L is parse-name
