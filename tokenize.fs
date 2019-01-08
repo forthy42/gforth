@@ -93,6 +93,10 @@ Variable parsed-name$
     ['] parse'      is parse
     ['] tokenize    is trace-recognizer ;
 
+: tokenize-file ( addr u -- )
+    2dup '.' -scan [: type ." .ft" ;] $tmp >tokenize included
+    reset-interpreter ;
+
 \ read tokenized input
 
 Variable tokens$
@@ -168,3 +172,11 @@ Create token-actions
     ['] token-int catch  reset-interpreter
     r> to forth-recognizer
     tokens$ $free  0 to token-pos#  throw ;
+
+script? [IF]
+    next-arg 2dup + 3 - 3 s" .ft" str= [IF]
+	tokenize>
+    [ELSE]
+	tokenize-file bye
+    [THEN]
+[THEN]
