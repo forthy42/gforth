@@ -49,7 +49,7 @@ Variable parsed-name$
     emit input-lexeme 2@ dup xemit type ;
 
 Create blacklist \ things we don't want to tokenize, e.g. comments
-' ( , ' \ ,
+' ( , ' \ , \ also locals-types ' -- , previous
 here blacklist - Constant blacklist#
 Variable blacklisted
 Variable recursive?
@@ -144,9 +144,18 @@ s" unexpected token" exception constant !!token!!
 : >parsed ( -- addr u )
     xc-token token-pos# swap dup +to token-pos# ;
 
+
+forth-recognizer value backup-recognizer
+
+: backup-recognize ( addr u -- ... token )
+    forth-recognizer >r backup-recognizer dup to forth-recognizer
+    recognize  r> to forth-recognizer ;
+
 : +nt ( nt -- ) { w^ nt } nt cell tokens[] $+! ;
 : >nt ( -- nt )
-    >parsed find-name dup +nt ;
+    >parsed 2dup find-name dup IF  dup +nt nip nip
+    ELSE  drop backup-recognize rectype-name <> !!token!! and throw
+	dup +nt  THEN ;
 : nt@ ( -- nt )
     tokens[] $@ xc-token cells safe/string drop @ ;
 
@@ -157,12 +166,6 @@ s" unexpected token" exception constant !!token!!
 	9 of  >parsed                     endof
 	!!token!! throw
     endcase ;
-
-forth-recognizer value backup-recognizer
-
-: backup-recognize ( addr u -- ... token )
-    forth-recognizer >r backup-recognizer dup to forth-recognizer
-    recognize  r> to forth-recognizer ;
 
 : token-nt-name ( -- nt rectype-name )
     >nt rectype-name ;
@@ -195,7 +198,7 @@ Create token-actions
 ' token-to       ,
 ' token-generic  ,
 
-: token-recognizer ( n dummy -- ... rectype )
+: token-recognizer ( n 0 / addr u -- ... rectype )
     ?dup-IF  backup-recognize  ELSE
 	cells token-actions + perform
     THEN ;

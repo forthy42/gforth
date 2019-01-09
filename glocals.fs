@@ -291,7 +291,7 @@ defer dict-execute ( ... addr1 addr2 xt -- ... )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
     nextname-string 2@ 2dup d0= IF
-	2drop >in @ >r parse-name r> >in !  THEN  nip
+	2drop parse-name nextname nextname-string 2@  THEN  nip
     dfaligned locals-name-size+ >r
     r@ allocate throw
     dup locals-mem-list prepend-list
