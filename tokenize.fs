@@ -32,6 +32,37 @@ Variable tokens[]
 	nt I @ = IF  I tokens[] $@ drop - cell/ true  UNLOOP  EXIT  THEN
     cell +LOOP  addr nt cell tokens[] $+!  false ;
 
+\ read tokenized input
+
+Variable tokens$
+0 Value token-pos#
+
+s" unexpected token" exception constant !!token!!
+
+: token@ ( -- token )
+    token-pos# c@  1 +to token-pos# ;
+: xc-token ( -- xchar )
+    token-pos# xc@+ swap to token-pos# ;
+
+: >parsed ( -- addr u )
+    xc-token token-pos# swap dup +to token-pos# ;
+
+\ backup recognizer
+
+forth-recognizer value backup-recognizer
+
+: backup-recognize ( addr u -- ... token )
+    forth-recognizer >r backup-recognizer dup to forth-recognizer
+    recognize  r> to forth-recognizer ;
+
+: +nt ( nt -- ) { w^ nt } nt cell tokens[] $+! ;
+: >nt ( -- nt )
+    >parsed 2dup find-name dup IF  dup +nt nip nip
+    ELSE  drop backup-recognize rectype-name <> !!token!! and throw
+	dup +nt  THEN ;
+: nt@ ( -- nt )
+    tokens[] $@ xc-token cells safe/string drop @ ;
+
 \ token format:
 \ 1 count string  -> nt rectype-name ( need to convert string to nt first)
 \ 2 xchar         -> nt rectype-name
@@ -47,27 +78,39 @@ Variable parsed-name$
 
 : i, ( token -- )
     emit input-lexeme 2@ dup xemit type ;
+: nt, ( nt token -- )
+    emit name>string dup xemit type ;
 
 Create blacklist \ things we don't want to tokenize, e.g. comments
-' ( , ' \ , \ also locals-types ' -- , previous
+' ( , ' noop ,
+' \ , ' noop ,
+also locals-types ' -- , ' } , previous
 here blacklist - Constant blacklist#
 Variable blacklisted
 Variable recursive?
 
-: ?blacklist ( nt -- flag )
+: ?blacklist ( nt -- nt' )
     blacklist blacklist# bounds ?DO
-	dup I @ = IF  drop true  UNLOOP  EXIT  THEN
-    cell +LOOP  drop false ;
+	dup I @ = IF  drop I cell+ @  UNLOOP  EXIT  THEN
+    2 cells +LOOP  drop false ;
 
 : tokenize-it ( rectype rec-xt -- rectype )
     drop recursive? @ ?EXIT
     case dup
 	rectype-name of
-	    over ?blacklist IF
+	    over ?blacklist dup IF
 		blacklisted on
+		dup ['] noop <> IF
+		    dup ?token  IF  2 emit xemit drop
+		    ELSE  1 nt,  THEN
+		ELSE  drop  THEN
 	    ELSE
+		drop
 		over ?token IF  2 emit xemit
-		ELSE  1 i,  THEN
+		ELSE  over 1 nt,  THEN
+		nextname-string 2@ d0<> IF
+		    9 emit nextname-string 2@ dup xemit type
+		THEN
 	    THEN
 	endof
 	rectype-num of
@@ -84,7 +127,7 @@ Variable recursive?
 	endof
 	rectype-to of
 	    over ?token IF  8 emit xemit
-	    ELSE  7 i,  THEN
+	    ELSE  over 7 nt,  THEN
 	endof
 	9 i,
     endcase  parsed-name$ $free ;
@@ -128,36 +171,6 @@ dup set-current
     reset-interpreter ;
 
 tokenizer definitions
-
-\ read tokenized input
-
-Variable tokens$
-0 Value token-pos#
-
-s" unexpected token" exception constant !!token!!
-
-: token@ ( -- token )
-    token-pos# c@  1 +to token-pos# ;
-: xc-token ( -- xchar )
-    token-pos# xc@+ swap to token-pos# ;
-
-: >parsed ( -- addr u )
-    xc-token token-pos# swap dup +to token-pos# ;
-
-
-forth-recognizer value backup-recognizer
-
-: backup-recognize ( addr u -- ... token )
-    forth-recognizer >r backup-recognizer dup to forth-recognizer
-    recognize  r> to forth-recognizer ;
-
-: +nt ( nt -- ) { w^ nt } nt cell tokens[] $+! ;
-: >nt ( -- nt )
-    >parsed 2dup find-name dup IF  dup +nt nip nip
-    ELSE  drop backup-recognize rectype-name <> !!token!! and throw
-	dup +nt  THEN ;
-: nt@ ( -- nt )
-    tokens[] $@ xc-token cells safe/string drop @ ;
 
 : token-parse ( -- addr u )
     case  token@
