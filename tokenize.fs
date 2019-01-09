@@ -17,6 +17,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+Vocabulary tokenizer
+
+tokenizer also definitions
+
 Variable tokens[]
 
 : ?token { nt -- index t / f }
@@ -105,6 +109,8 @@ Variable blacklisted
     [ action-of parse            ]L is parse
     [ action-of trace-recognizer ]L is trace-recognizer ;
 
+forth definitions
+
 : >tokenize ( addr u -- )
     r/w create-file throw to token-file
     ['] parse-name' is parse-name
@@ -114,6 +120,8 @@ Variable blacklisted
 : tokenize-file ( addr u -- )
     2dup '.' -scan [: type ." .ft" ;] $tmp >tokenize included
     reset-interpreter ;
+
+tokenizer definitions
 
 \ read tokenized input
 
@@ -182,14 +190,19 @@ Create token-actions
 	    token@ 0 parser1 int-execute
     REPEAT ;
 
+forth definitions
+
 : tokenize> ( addr u -- )
-    tokens$ $slurp-file  tokens$ $@ drop to token-pos#
+    open-fpath-file throw 2drop tokens$ $slurp
+    tokens$ $@ drop to token-pos#
     forth-recognizer >r  token-recognizers to forth-recognizer
     ['] token-parse is parse
     ['] token-parse is parse-name
     ['] token-int catch  reset-interpreter
     r> to forth-recognizer
     tokens$ $free  0 to token-pos#  throw ;
+
+previous
 
 script? [IF]
     next-arg 2dup + 3 - 3 s" .ft" str= [IF]
