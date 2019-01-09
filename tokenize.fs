@@ -196,6 +196,7 @@ tokenizer definitions
     case  token@
 	1 of  >parsed 2dup find-name +nt  endof
 	2 of  nt@ name>string             endof
+	7 of  >parsed                     endof
 	9 of  >parsed                     endof
 	!!token!! throw
     endcase ;
