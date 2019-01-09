@@ -111,9 +111,9 @@ dynamic-a to allocater
 
 : rec-moof2 ( addr u -- xt rectype-moof2 | rectype-null )
     over c@ '.' = over 1 > and
-    IF  1 /string forth-recognizer recognize
-	rectype-name =
-	rectype-moof2 rectype-null rot select
+    IF  1 /string sp@ >r forth-recognizer recognize
+	rectype-name = IF  rdrop rectype-moof2
+	ELSE  r> sp!  2drop rectype-null  THEN
     ELSE  2drop rectype-null  THEN ;
 
 ' rec-moof2 get-recognizers 1+ set-recognizers

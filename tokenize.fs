@@ -17,9 +17,13 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+:noname ( ... -- ... )
+    depth IF  ...  THEN
+    fdepth IF  cr "F:" type f.s  THEN ; is printdebugdata
+
 Vocabulary tokenizer
 
-tokenizer also definitions
+get-current also tokenizer definitions
 
 Variable tokens[]
 
@@ -48,6 +52,7 @@ Create blacklist \ things we don't want to tokenize, e.g. comments
 ' ( , ' \ ,
 here blacklist - Constant blacklist#
 Variable blacklisted
+Variable recursive?
 
 : ?blacklist ( nt -- flag )
     blacklist blacklist# bounds ?DO
@@ -55,7 +60,8 @@ Variable blacklisted
     cell +LOOP  drop false ;
 
 : tokenize-it ( rectype rec-xt -- rectype )
-    drop case dup
+    drop recursive? @ ?EXIT
+    case dup
 	rectype-name of
 	    over ?blacklist IF
 		blacklisted on
@@ -109,7 +115,7 @@ Variable blacklisted
     [ action-of parse            ]L is parse
     [ action-of trace-recognizer ]L is trace-recognizer ;
 
-forth definitions
+dup set-current
 
 : >tokenize ( addr u -- )
     r/w create-file throw to token-file
@@ -138,14 +144,25 @@ s" unexpected token" exception constant !!token!!
 : >parsed ( -- addr u )
     xc-token token-pos# swap dup +to token-pos# ;
 
+: +nt ( nt -- ) { w^ nt } nt cell tokens[] $+! ;
 : >nt ( -- nt )
-    >parsed find-name { nt } addr nt cell tokens[] $+! nt ;
+    >parsed find-name dup +nt ;
 : nt@ ( -- nt )
     tokens[] $@ xc-token cells safe/string drop @ ;
 
 : token-parse ( -- addr u )
-    token@ 9 <> !!token!! and throw
-    >parsed ;
+    case  token@
+	1 of  >parsed 2dup find-name +nt  endof
+	2 of  nt@ name>string             endof
+	9 of  >parsed                     endof
+	!!token!! throw
+    endcase ;
+
+forth-recognizer value backup-recognizer
+
+: backup-recognize ( addr u -- ... token )
+    forth-recognizer >r backup-recognizer dup to forth-recognizer
+    recognize  r> to forth-recognizer ;
 
 : token-nt-name ( -- nt rectype-name )
     >nt rectype-name ;
@@ -164,7 +181,7 @@ s" unexpected token" exception constant !!token!!
 : token-to ( -- nt rectype-to )
     nt@ rectype-to ;
 : token-generic ( -- ... rectype-??? )
-    >parsed recognize ;
+    >parsed backup-recognize ;
 
 Create token-actions
 0                ,
@@ -179,27 +196,33 @@ Create token-actions
 ' token-generic  ,
 
 : token-recognizer ( n dummy -- ... rectype )
-    drop cells token-actions + perform ;
+    ?dup-IF  backup-recognize  ELSE
+	cells token-actions + perform
+    THEN ;
 
 1 stack: token-recognizers
 
 ' token-recognizer 1 token-recognizers set-stack
 
-: token-int ( -- )  rp@ backtrace-rp0 !
+: token-int ( -- )
     BEGIN  ?stack token-pos# tokens$ $@ + u< WHILE
 	    token@ 0 parser1 int-execute
     REPEAT ;
 
-forth definitions
+set-current
 
 : tokenize> ( addr u -- )
     open-fpath-file throw 2drop tokens$ $slurp
     tokens$ $@ drop to token-pos#
-    forth-recognizer >r  token-recognizers to forth-recognizer
+    forth-recognizer to backup-recognizer
+    token-recognizers to forth-recognizer
     ['] token-parse is parse
     ['] token-parse is parse-name
     ['] token-int catch  reset-interpreter
-    r> to forth-recognizer
+    backup-recognizer to forth-recognizer
+    dup IF
+	." Error at byte " token-pos# tokens$ $@ drop - hex. cr
+    THEN
     tokens$ $free  0 to token-pos#  throw ;
 
 previous
