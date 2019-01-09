@@ -27,10 +27,26 @@ get-current also tokenizer definitions
 
 Variable tokens[]
 
+: +nt ( nt -- ) { w^ nt } nt cell tokens[] $+! ;
 : ?token { nt -- index t / f }
     tokens[] $@ bounds ?DO
 	nt I @ = IF  I tokens[] $@ drop - cell/ true  UNLOOP  EXIT  THEN
-    cell +LOOP  addr nt cell tokens[] $+!  false ;
+    cell +LOOP  nt +nt  false ;
+: ?token-0 { nt -- }
+    tokens[] $@ bounds ?DO
+	nt I @ = IF  I off  LEAVE  THEN
+    cell +LOOP  ;
+
+\ remove tokens when local lists are adjusted
+
+: drop-tokens ( wid -- )
+    locals-list @
+    BEGIN  2dup <> over 0<> and  WHILE
+	    dup ?token-0 >link @  REPEAT  2drop ;
+
+:noname ( wid -- )
+    dup drop-tokens defers locals-list!
+; is locals-list!
 
 \ read tokenized input
 
@@ -55,7 +71,6 @@ forth-recognizer value backup-recognizer
     forth-recognizer >r backup-recognizer dup to forth-recognizer
     recognize  r> to forth-recognizer ;
 
-: +nt ( nt -- ) { w^ nt } nt cell tokens[] $+! ;
 : >nt ( -- nt )
     >parsed 2dup find-name dup IF  dup +nt nip nip
     ELSE  drop backup-recognize rectype-name <> !!token!! and throw
@@ -82,15 +97,18 @@ Variable parsed-name$
     emit name>string dup xemit type ;
 
 Create blacklist \ things we don't want to tokenize, e.g. comments
-' ( , ' noop ,
+' ( , ' noop , \ )
 ' \ , ' noop ,
-also locals-types ' -- , ' } , previous
-here blacklist - Constant blacklist#
+also locals-types
+' -- , ' } ,
+' w: , ' w: ,
+previous
+here Constant blacklist-end
 Variable blacklisted
 Variable recursive?
 
 : ?blacklist ( nt -- nt' )
-    blacklist blacklist# bounds ?DO
+    blacklist-end blacklist ?DO
 	dup I @ = IF  drop I cell+ @  UNLOOP  EXIT  THEN
     2 cells +LOOP  drop false ;
 
@@ -99,7 +117,9 @@ Variable recursive?
     case dup
 	rectype-name of
 	    over ?blacklist dup IF
-		blacklisted on
+		[ also locals-types ]
+		dup ['] w: <> blacklisted !
+		[ previous ]
 		dup ['] noop <> IF
 		    dup ?token  IF  2 emit xemit drop
 		    ELSE  1 nt,  THEN
@@ -107,10 +127,10 @@ Variable recursive?
 	    ELSE
 		drop
 		over ?token IF  2 emit xemit
-		ELSE  over 1 nt,  THEN
-		nextname-string 2@ d0<> IF
-		    9 emit nextname-string 2@ dup xemit type
-		THEN
+		ELSE  1 i,  THEN
+	    THEN
+	    nextname-string 2@ d0<> IF
+		9 emit nextname-string 2@ dup xemit type
 	    THEN
 	endof
 	rectype-num of
@@ -127,7 +147,7 @@ Variable recursive?
 	endof
 	rectype-to of
 	    over ?token IF  8 emit xemit
-	    ELSE  over 7 nt,  THEN
+	    ELSE  7 i,  THEN
 	endof
 	9 i,
     endcase  parsed-name$ $free ;

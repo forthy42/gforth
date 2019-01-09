@@ -244,8 +244,11 @@ opt: drop postpone swap postpone >l postpone >l ;
     repeat
     faligned nip ;
 
+Defer locals-list!
+:noname locals-list ! ; is locals-list!
+
 : set-locals-size-list ( list -- )
-    dup locals-list !
+    dup locals-list!
     list-size locals-size ! ;
 
 : check-begin ( list -- )
@@ -599,7 +602,7 @@ defer adjust-locals-list ( wid -- )
 :noname ( wid -- )
     locals-list @ common-list
     dup list-size adjust-locals-size
-    locals-list ! ;
+    locals-list! ;
 is adjust-locals-list
 
 \ adapt the hooks
@@ -610,7 +613,7 @@ is adjust-locals-list
     latest latestxt
     clear-leave-stack
     0 locals-size !
-    0 locals-list !
+    0 locals-list!
     dead-code off
     defstart ;
 

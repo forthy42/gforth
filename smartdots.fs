@@ -26,7 +26,7 @@
 	ELSE  true  THEN   ENDTRY ;
 
 : string? ( addr u -- flag )
-    TRY  dup #80 u> throw  bounds ?DO  I c@ bl < IF  -1 throw  THEN  LOOP
+    TRY  dup #80 #1 within throw  bounds ?DO  I c@ bl < IF  -1 throw  THEN  LOOP
 	IFERROR  2drop drop false nothrow ELSE  true  THEN  ENDTRY ;
 
 : .string. ( addr u -- )
