@@ -253,8 +253,8 @@ set-current
     tokens$ $@ drop to token-pos#
     forth-recognizer to backup-recognizer
     token-recognizers to forth-recognizer
-    ['] token-parse is parse
     ['] token-parse is parse-name
+    [: drop token-parse ;] is parse
     ['] token-int catch  reset-interpreter
     backup-recognizer to forth-recognizer
     dup IF
