@@ -97,8 +97,9 @@ Variable parsed-name$
     emit name>string dup xemit type ;
 
 Create blacklist \ things we don't want to tokenize, e.g. comments
-' ( , ' noop , \ )
-' \ , ' noop ,
+' ( ,  ' noop , \ )
+' \ ,  ' noop ,
+' \G , ' noop ,
 also locals-types
 ' -- , ' } ,
 ' w: , ' w: ,
