@@ -517,7 +517,7 @@ end-class part-text
     start1 o text-font text-color act name$ us-mask
     class new >o to us-mask to name$
     to act to text-color to text-font to orig-text
-    to start to end o ( act >o dup to caller-w o> ) o>
+    to start to end o o>
     r> pos>fp ;
 : text-split ( firstflag rstart rx -- o rstart2 )
     part-text (text-split) ;
@@ -1087,6 +1087,23 @@ end-class parbox
 	r@ >o to border to borderv to bordert to borderl
 	to gap to baseline o>
     r> o .child+ true fdup 1e f>=  UNTIL  fdrop drop ;
+Defer tab-}}h
+: par-split-hang { f: w tab -- } \ split a hbox into chunks
+    childs[] dispose[] 0e false
+    BEGIN  dup IF
+	    tab tab-}}h { tab-h } tab-h .!size
+	    w tab-h .hglue fdrop fdrop f-
+	    subbox .split >r
+	    tab-h r@ >back
+	ELSE
+	    w subbox .split >r
+	THEN
+	childs[] $[]# 0= IF  baseline gap
+	ELSE  x-baseline fdup gap% f*  THEN
+	borderl bordert borderv border
+	r@ >o to border to borderv to bordert to borderl
+	to gap to baseline o>
+    r> o .child+ true fdup 1e f>=  UNTIL  fdrop drop ;
 
 \ create boxes
 
@@ -1113,15 +1130,10 @@ helper-glue class
 end-class htab-glue
 
 :noname ( -- )
-\    htab-c htab-co glues move
-\    1glue htab-c glue! ; htab-glue is aidglue0
     1glue htab-co glue! ; htab-glue is aidglue0
  :noname ( -- flag )
-\    htab-c glues htab-co over str= ; htab-glue is aidglue=
     htab-co df@ fdup htab-c df@ f= htab-c df! ; htab-glue is aidglue=
  :noname ( glue -- glue' )
-\    htab-c glue@ glue* glue-dup htab-c glue!
-\    fdrop fdrop 0g fdup ; \ don't allow shrinking/growing
     htab-co glue@ glue* htab-co glue!
     htab-c df@ 0g fdup ; \ don't allow shrinking/growing
 htab-glue is hglue!@

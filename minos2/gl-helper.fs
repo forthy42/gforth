@@ -777,6 +777,8 @@ require soil-texture.fs
     GL_BLEND glEnable
     GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA glBlendFunc
     GL_UNPACK_ALIGNMENT 1 glPixelStorei
+\    [IFDEF] GL_FRAMEBUFFER_SRGB_EXT GL_FRAMEBUFFER_SRGB_EXT
+\    [ELSE] GL_FRAMEBUFFER_SRGB [THEN] glEnable
     GL_TEXTURE0 glActiveTexture ;
 : ?no-texture ( -- )
     none-tex no-texture? 0= IF

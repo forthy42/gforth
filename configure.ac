@@ -507,6 +507,9 @@ Dynamic Code generation disabled (relocation and delay slot issues).]"
                 #work with gcc-3.[34]
 		test "$skipcode" || skipcode="nop\nnop\nnop\nnop"
 		;;
+	tile*)
+		machine=tile
+		;;
 	*)
 		AC_MSG_WARN([Using a generic machine description])
 		AC_MSG_WARN([Assuming C floats and doubles are IEEE floats and doubles (for SF@ DF@ SF! DF!)])
