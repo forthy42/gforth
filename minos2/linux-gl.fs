@@ -79,6 +79,7 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
 
 : get-display ( -- w h )
     "DISPLAY" getenv XOpenDisplay to dpy
+    dpy 0= abort" Can't open display!"
     dpy XDefaultScreenOfDisplay to screen-struct
     dpy XDefaultScreen to screen
     best-im to im  set-fontset

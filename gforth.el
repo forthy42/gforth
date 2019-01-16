@@ -273,6 +273,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  ")" nil comment (font-lock-comment-face . 1))
 	(("\\" "\\G") immediate (font-lock-comment-face . 1)
 	 "[\n]" nil comment (font-lock-comment-face . 1))
+	(("\\\\\\") immediate (font-lock-comment-face . 1)
+	 "[\0]" nil comment (font-lock-comment-face . 1))
 	  
 	(("[if]" "[?do]" "[do]" "[for]" "[begin]" 
 	  "[endif]" "[then]" "[loop]" "[+loop]" "[next]" "[until]" "[repeat]"
