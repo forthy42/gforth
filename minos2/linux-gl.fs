@@ -186,7 +186,20 @@ end-structure
 app_input_state buffer: *input
 
 Variable rendering -2 rendering !
-Variable wm_delete_window
+Variable ?sync-update
+4 buffer: wm_delete_window
+4 buffer: wm_sync_request
+4 buffer: wm_sync_counter
+8 buffer: wm_sync_value
+8 buffer: wm_sync_value'
+
+: xsv! ( ud addr -- )
+    >r 2dup #32 drshift drop r@ l! drop r> 4 + l! ;
+: xsv@ ( addr -- ud )
+    >r r@ 4 + l@ 0 r> sl@ s>d #32 dlshift d+ ;
+
+: sync-counter-update ( -- )
+    dpy wm_sync_counter l@ wm_sync_value' XSyncSetCounter drop ;
 
 [IFUNDEF] level#
     Variable level#
@@ -414,7 +427,7 @@ previous
 ' noop handler-class to DoMapNotify
 ' noop handler-class to DoMapRequest
 ' noop handler-class to DoReparentNotify
-:noname  e.c-width dpy-w ! e.c-height dpy-h !
+:noname  e.c-height e.c-width dpy-w ! dpy-h !
     ctx IF  config-changed  ELSE  getwh  THEN ; handler-class to DoConfigureNotify
 ' noop handler-class to DoConfigureRequest
 ' noop handler-class to DoGravityNotify
@@ -480,7 +493,7 @@ previous
 ; handler-class to DoSelectionNotify
 ' noop handler-class to DoColormapNotify
 :noname ( -- )  e.data
-    wm_delete_window @ =  IF  -1 level# +!  THEN
+    wm_delete_window l@ =  IF  -1 level# +!  THEN
 ; handler-class to DoClientMessage
 ' noop handler-class to DoMappingNotify
 ' noop handler-class to DoGenericEvent
@@ -568,10 +581,19 @@ Defer looper-hook ( -- ) ' noop is looper-hook
     THEN ;
 
 : set-protocol ( -- )
-    dpy "WM_DELETE_WINDOW" 0 XInternAtom wm_delete_window !
+    dpy "WM_DELETE_WINDOW" 0 XInternAtom wm_delete_window l!
     dpy win over "WM_PROTOCOLS" 0 XInternAtom
-    4 #32 1 wm_delete_window 1
-    XChangeProperty drop ;
+    4 #32 1 wm_delete_window 1 XChangeProperty drop ;
+
+: set-sync-request ( -- )
+    dpy "_NET_WM_SYNC_REQUEST" 0 XInternAtom  wm_sync_request l!
+    dpy win over "WM_PROTOCOLS" 0 XInternAtom
+    4 #32 1 wm_sync_request 1 XChangeProperty drop
+
+    #0. wm_sync_value xsv!
+    dpy wm_sync_value XSyncCreateCounter wm_sync_counter l!
+    dpy win over "_NET_WM_SYNC_REQUEST_COUNTER" 0 XInternAtom
+    6 #32 1 wm_sync_counter 1 XChangeProperty drop ;
 
 : set-compose-hint ( n -- ) { w^ compose }
     dpy win _NET_WM_BYPASS_COMPOSITOR 6 ( XA_CARDINAL )

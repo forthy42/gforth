@@ -170,13 +170,19 @@ Variable xy$
 \ ' noop x11-handler to DoSelectionRequest
 \ ' noop x11-handler to DoSelectionNotify
 \ ' noop x11-handler to DoColormapNotify
-\ ' noop x11-handler to DoClientMessage
+:noname [ handler-class :: DoClientMessage ]
+    e.data wm_sync_request l@ = IF
+	addr e.data 2 cells + @ s>d
+	addr e.data 3 cells + @ s>d #32 dlshift d+
+	wm_sync_value xsv!
+    THEN
+; x11-handler to DoClientMessage
 :noname gui( ~~ ) ; x11-handler to DoMappingNotify
 \ ' noop x11-handler to DoGenericEvent
 
 x11-handler ' new static-a with-allocater Constant x11-keyboard
 : enter-minos ( -- )
-    exposed @ 0= IF  map-win  THEN
+    exposed @ 0= IF  map-win set-sync-request  THEN
     edit-widget edit-out !
     x11-keyboard event-handler ! ;
 : leave-minos ( -- )

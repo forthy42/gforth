@@ -1447,12 +1447,20 @@ require animation.fs
     tabglues= 0= IF
 	!size 0e 1e dh* 1e dw* 1e dh* 0e resize
     THEN
+    [IFDEF] ?sync-update
+	wm_sync_value wm_sync_value' 8 move
+	?sync-update on
+    [THEN]
     time( ." resize: " .!time cr ) ;
 
 : widgets-redraw ( -- )
     ?config   IF  +resize -config  THEN
     ?resize   IF  htop-resize -resize +sync  THEN
-    ?sync     IF  widget-draw time( ." animate: " .!time cr ) -sync  THEN ;
+    ?sync     IF  widget-draw time( ." animate: " .!time cr ) -sync
+	[IFDEF] ?sync-update
+	    0 ?sync-update !@ IF  sync-counter-update  THEN
+	[THEN]
+    THEN ;
 
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
     level# @ 0> IF
