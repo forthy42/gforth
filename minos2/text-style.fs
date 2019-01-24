@@ -154,7 +154,7 @@ is reload-textures
 $000000FF $000000FF $40C0FFFF $FFFFFFFF text-emoji-fade-color: toggle-color
 
 : +text-color ( 0/0.999e o:widget -- )
-    text-color 0.5e f- floor f+ 0.5e f+ to text-color ;
+    text-color 1/2 f- floor f+ 1/2 f+ to text-color ;
 
 : toggle-bit, ( -- o )
     x-color toggle-color l" ⚪" }}text' to x-color ;

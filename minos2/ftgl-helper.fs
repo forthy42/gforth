@@ -104,7 +104,6 @@ color f@ FValue xy-color
 1e FValue x-scale
 1e FValue y-scale
 1e FValue f-scale
-0.5e FConstant 1/2
 
 : s0t0>st ( si ti addr -- ) dup     l@ t.s l!  4 + l@ t.t l! ;
 : s1t0>st ( si ti addr -- ) dup 8 + l@ t.s l!  4 + l@ t.t l! ;

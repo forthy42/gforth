@@ -810,10 +810,12 @@ tex: palette-tex
 
 :noname no-texture load-colors ; is reload-textures
 
+0.5e FConstant 1/2
+
 : (col,) ( rgba -- rindex )
     1 +to color,#
     color-pal color,# sfloats + be-l!
-    color,# s>f 0.5e f+ ;
+    color,# s>f 1/2 f+ ;
 
 $000000FF (col,) FConstant black#
 $0000FFFF (col,) FConstant blue#
@@ -829,7 +831,7 @@ $00000000 (col,) FConstant transp#
     color-pal color,# sfloats bounds ?DO
 	dup I be-ul@ = IF
 	    drop I color-pal - 2/ 2/
-	    s>f 0.5e f+ true  UNLOOP  EXIT  THEN
+	    s>f 1/2 f+ true  UNLOOP  EXIT  THEN
     4 +LOOP  false ;
 
 : new-color, ( color -- rindex )
@@ -839,7 +841,7 @@ $00000000 (col,) FConstant transp#
 	    color-w sfloats color-pal resize throw to color-pal
     REPEAT
     color-pal color,# sfloats + be-l!
-    load-colors color,# s>f 0.5e f+ ;
+    load-colors color,# s>f 1/2 f+ ;
 : color, ( rgba -- rindex )
     search-color ?EXIT  new-color, ;
 
