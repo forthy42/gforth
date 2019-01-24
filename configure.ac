@@ -1213,6 +1213,8 @@ AC_REPLACE_FUNCS(wcwidth)
 AC_FUNC_FNMATCH
 test $ac_cv_func_fnmatch_works = yes || AC_LIBOBJ(fnmatch)
 AC_CHECK_FUNCS(mmap sysconf getpagesize pselect pthread_setaffinity_np)
+AC_CHECK_FUNC(getentropy,[GETENTROPY=true],[GETENTROPY=false])
+AC_SUBST(GETENTROPY)
 AM_PATH_LISPDIR
 AX_GCC_BUILTIN(__builtin_clzl)
 AX_GCC_BUILTIN(__builtin_bswap16)

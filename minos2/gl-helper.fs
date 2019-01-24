@@ -855,6 +855,8 @@ $00000000 (col,) FConstant transp#
 
 : fade-color, ( rgba1 rgba2 -- rindex0 )
     swap new-color, new-color, fdrop ;
+: text-emoji-fade-color, ( rgba1 rgba2 rgba3 rgba4 -- rindex0 )
+    2swap fade-color, fade-color, fdrop ;
 
 : text-emoji-color, ( rgbatext rgbaemoji -- rindex0 )
     over new-color, { f: index }

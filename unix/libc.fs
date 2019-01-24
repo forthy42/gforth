@@ -67,6 +67,9 @@ c-library libc
     c-function readlink readlink s a n -- n ( path len buf len2 -- ret )
     c-function rmdir rmdir s -- n ( path len -- ret )
     c-function mknod mknod s n n -- n ( path mode dev -- ret )
+    getentropy? [IF]
+	c-function getentropy getentropy a n -- n ( buffer len -- n )
+    [THEN]
     c-value environ environ -- a ( -- env )
 end-c-library
 

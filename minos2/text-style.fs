@@ -151,12 +151,21 @@ is reload-textures
 	text }}text 25%b /center
     }}z box[] ;
 
+$000000FF $000000FF $40C0FFFF $FFFFFFFF text-emoji-fade-color: toggle-color
+
+: +text-color ( 0/0.999e o:widget -- )
+    text-color 0.5e f- floor f+ 0.5e f+ to text-color ;
+
+: toggle-bit, ( -- o )
+    x-color toggle-color l" ⚪" }}text' to x-color ;
+
 : }}toggle-bit ( mask addr -- o )
-    l" 🔵" }}text' -rot
+    toggle-bit, -rot
     [{: x a :}d
-	IF    a @ x or a ! l" 🔵"
-	ELSE  a @ x invert and a ! l" ⚪"
-	THEN  caller-w >o to l-text o> ;] true toggle[] ;
+	IF    a @ x or a !         0e
+	ELSE  a @ x invert and a ! 0.999e 
+	THEN  caller-w >o +text-color o> +sync ;]
+    true toggle[] ;
 
 : }}tab ( text color -- o ) }}tab-button
     >o 0 childs[] $[] @

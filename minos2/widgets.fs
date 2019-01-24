@@ -54,6 +54,8 @@ vocabulary minos  also minos definitions
     Create text-emoji-color, f, DOES> f@ to x-color ;
 : fade-color: ( rgba1 rgba2 "name" -- )
     create fade-color, f, DOES> f@ to x-color ;
+: text-emoji-fade-color: ( rgbatext rgbaemoji "name" -- )
+    Create text-emoji-fade-color, f, DOES> f@ to x-color ;
 
 vocabulary m2c \ minos2 config
 get-current also m2c definitions

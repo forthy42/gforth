@@ -54,3 +54,4 @@ set-current
 : include-ffi.h-string ( -- c-addr u )
   s" #include <@FFI_H_NAME@>" ;
 
+@GETENTROPY@ constant getentropy?
