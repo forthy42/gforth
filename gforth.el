@@ -331,7 +331,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-type-face . 3))
 	(("struct" "end-c-library" "c-library-name" "end-structure") 
 	 non-immediate (font-lock-keyword-face . 2))
-	(("c-library" "begin-structure") non-immediate (font-lock-keyword-face . 2)
+	(("c-library" "begin-structure" "extend-structure") non-immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 	(("c-variable") non-immediate (font-lock-type-face . 1)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3)
@@ -470,7 +470,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	 (0 . 2) (0 . 2))
 	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" 
 	  "interface" "c-library" "c-library-name" "comp:" "opt:" "post:"
-	  "begin-structure" "event:" "to-opt:" "defer@-opt:" "to:" "defer@:")
+	  "begin-structure" "extend-structure" "event:" "to-opt:" "defer@-opt:" "to:" "defer@:")
 	 (0 . 2) (0 . 2) non-immediate)
 	("\\S-+%$" (0 . 2) (0 . 0) non-immediate)
 	((";" ";m") (-2 . 0) (0 . -2))

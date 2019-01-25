@@ -2,6 +2,7 @@
 
 require unix/jnilib.fs
 require mini-oof2.fs \ we only need o for now
+require set-compsem.fs
 
 get-current also android also jni definitions
 
@@ -194,7 +195,7 @@ Variable jstring#
 : make-jstring ( addr u -- jstring-addr )
     env -rot JNIEnv-NewStringUTF() dup to-jstring ;
 : js" ( -- addr )  '"' parse make-jstring ;
-comp: drop '"' parse ]] SLiteral make-jstring [[ ;
+compsem: '"' parse ]] SLiteral make-jstring [[ ;
 
 Variable iscopy
 2Variable to-release
