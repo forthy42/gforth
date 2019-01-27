@@ -715,10 +715,10 @@ CREATE C-Table
 \		' useraddr A,	    ....
 		' lit-perform A,    ' c-call A,
 		' lit+ A,	    ' c-lit+ A,
-[IFDEF] (s")	' (s") A,	    ' c-c" A, [THEN]
-[IFDEF] (.")	' (.") A,	    ' c-c" A, [THEN]
-[IFDEF] "lit    ' "lit A,           ' c-c" A, [THEN]
-[IFDEF] (c")	' (c") A,	    ' c-c" A, [THEN]
+\ [IFDEF] (s")	' (s") A,	    ' c-c" A, [THEN]
+\ [IFDEF] (.")	' (.") A,	    ' c-c" A, [THEN]
+\ [IFDEF] "lit    ' "lit A,           ' c-c" A, [THEN]
+\ [IFDEF] (c")	' (c") A,	    ' c-c" A, [THEN]
         	' (do) A,           ' c-do A,
 [IFDEF] (+do)	' (+do) A,	    ' c-?do A, [THEN]
 [IFDEF] (u+do)	' (u+do) A,	    ' c-?do A, [THEN]
@@ -735,9 +735,9 @@ CREATE C-Table
 [IFDEF] (-loop) ' (-loop) A,        ' c-loop A, [THEN]
         	' (next) A,         ' c-loop A,
         	' ;s A,             ' c-exit A,
-[IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
+\ [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
 \ only defined if compiler is loaded
-[IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
+\ [IFDEF] (compile) ' (compile) A,      ' c-(compile) A, [THEN]
 [IFDEF] u#exec  ' u#exec A,         ' c-u#exec A, [THEN]
 [IFDEF] u#+     ' u#+ A,            ' c-u#+ A, [THEN]
 [IFDEF] call-c# ' call-c# A,        ' c-call-c# A, [THEN]
@@ -790,8 +790,8 @@ c-extender !
 : analyse ( a-addr1 -- a-addr2 )
     Branches @ IF BranchTo? THEN
     dup cell+ swap @
-    dup >r DoTable r> swap IF drop EXIT THEN
-    Display?
+    dup >r DoTable IF rdrop EXIT THEN
+    r> Display?
     IF
 	.word bl cemit
     ELSE
