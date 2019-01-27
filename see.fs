@@ -704,7 +704,7 @@ VARIABLE C-Pass
 	s" user@ " c-searcharg ;
 [THEN]
 
-CREATE C-Table
+CREATE C-Table \ primitives map to code only
 	        ' lit A,            ' c-lit A,
 		' does-exec A,	    ' c-callxt A,
 [IFDEF] does-xt ' does-xt A,        ' c-callxt A,
