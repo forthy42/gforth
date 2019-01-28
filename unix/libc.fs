@@ -100,7 +100,10 @@ $004 Constant POLLOUT
 12 Constant LC_IDENTIFICATION
 
 : fds!+ ( fileno flag addr -- addr' )
-    >r r@ events w!  r@ fd l!  r> pollfd + ; 
+    >r r@ events w!  r@ fd l!  r> pollfd + ;
+: fds[]! ( fileno flag addr index -- )
+    over $@len over 1+ pollfd * umax 2 pick $!len
+    pollfd * swap $@ drop + tuck events w! fd l! ;
 
 : ?ior ( x -- )
     \G use errno to generate throw when failing

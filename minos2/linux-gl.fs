@@ -521,14 +521,14 @@ User xptimeout  cell uallot drop
 looper-to# #1000000 um* xptimeout 2!
 3 Value xpollfd#
 User xpollfds
-xpollfds pollfd xpollfd# * dup cell- uallot drop erase
 
-: >poll-events ( delay -- n )
+Defer >poll-events ( delay -- )
+:noname
     0 xptimeout 2!
-    epiper @ fileno POLLIN  xpollfds fds!+ >r
-    dpy IF  dpy XConnectionNumber POLLIN  r> fds!+ >r  THEN
-    infile-id fileno POLLIN  r> fds!+
-    xpollfds - pollfd / ;
+    epiper @ fileno  POLLIN  xpollfds 0 fds[]!
+    infile-id fileno POLLIN  xpollfds 1 fds[]!
+    dpy IF  dpy XConnectionNumber POLLIN  xpollfds 2 fds[]!  THEN
+; IS >poll-events
 
 : xpoll ( -- flag )
     [IFDEF] ppoll
@@ -541,15 +541,15 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 Defer looper-hook ( -- ) ' noop is looper-hook
 
 : #looper ( delay -- ) #1000000 *
-    ?looper-timeouts >poll-events >r
+    ?looper-timeouts >poll-events
     dpy IF  dpy XPending IF  get-events ?events
-	    looper-hook rdrop EXIT  THEN  THEN
-    xpollfds r> xpoll
+	    looper-hook  EXIT  THEN  THEN
+    xpollfds $@ pollfd / xpoll
     IF
-	xpollfds          revents w@ POLLIN and IF  ?events  THEN
+	xpollfds $@ drop revents w@ POLLIN and IF  ?events  THEN
 	dpy IF
-	    dpy XPending
-	    xpollfds pollfd + revents w@ POLLIN and or IF  get-events  THEN
+	    dpy XPending  xpollfds $@ drop
+	    [ pollfd 2* ]L + revents w@ POLLIN and or IF  get-events  THEN
 	THEN
     THEN  looper-hook ;
 
