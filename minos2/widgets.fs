@@ -276,7 +276,8 @@ end-class widget
 :noname ( firstflag rstart1 rx -- o rstart2 )
     drop fdrop fdrop o 1e ; widget is split
 \ if rstart2 < 0, no split happened
-:noname ( -- ) act ?dup-IF .dispose THEN  dispose ; widget is dispose-widget
+:noname ( -- ) ( act ?dup-IF .dispose THEN ) \ !!FIXME!!
+    dispose ; widget is dispose-widget
 ' noop widget is lastfit
 
 : dw* ( f -- f' ) dpy-w @ fm* ;
@@ -738,13 +739,13 @@ end-class box
 : >dglue!@ ( glue -- glue' )
     aidglue ?dup-IF  .dglue!@  THEN ;
 
-: do-childs { xt -- .. }
+: do-childs { xt: xt -- .. }
     childs[] $@ bounds U+DO
-	xt I @ .execute
+	I @ .xt
     cell +LOOP ;
-: do-childs-?act { xt -- .. }
+: do-childs-?act { xt: xt -- .. }
     childs[] $@ bounds U+DO
-	I @ .act IF  xt I @ .execute  THEN
+	I @ .act IF  I @ .xt  THEN
     cell +LOOP ;
 : ?do-childs { xt flag -- }
     box-flags flag and 0= IF  xt do-childs  THEN ;

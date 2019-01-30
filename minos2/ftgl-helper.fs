@@ -219,7 +219,7 @@ $AD Constant 'soft-hyphen'
 
 : render-us-string ( addr u mask -- )
     penxy sf@ fround 1/2 f+ { f: x0 mask }
-    render-string
+    render-string  #12 ?flush-tris
     penxy dup sf@ fround 1/2 f+
     sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
     s" g" drop font font-select { ft } drop
