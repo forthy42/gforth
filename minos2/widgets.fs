@@ -99,6 +99,9 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
     dup  $2600  $2C00 within ?dup-IF  EXIT  THEN \ misc. symbols
     dup $1F000 $20000 within ;                   \ pictograms
 
+: icons? ( xchar -- xchar flag )
+    dup $F000 $F900 within ; \ private space
+
 $Variable split$ " !&,-_.\\/:;|<=>@­␣‧‐‒–—―‖           　" split$ $!
 $Variable spaces$ "            　" spaces$ $!
 
@@ -557,8 +560,10 @@ end-class edit
 	layout-string fdrop fdrop x-scale f* ww f-
     THEN  fdup f0= IF  fdrop m2c:curminwidth% f@ fdup f2/ fnegate
     ELSE  0e   THEN  { f: cw f: cw- }
-    x cw- f+ ww f+ border f+ borderl f+ y d border borderv f+ f- f+ { f: x0 f: y0 }
-    x0 cw f+ y h border borderv f+ bordert f+ f- f- { f: x1 f: y1 }
+    x cw- f+ ww f+ border f+ borderl f+ fround
+    y d border borderv f+ f- f+ { f: x0 f: y0 }
+    x0 cw f+ fround
+    y h border borderv f+ bordert f+ f- f- { f: x1 f: y1 }
     -2e to t.i0  6 ?flush-tris  i>off
     cursize 0> IF  m2c:selectioncolor# @ color,  ELSE  text-color  THEN >v
     x0 y0 >xy fdup i>c n> 2e 2e >st v+

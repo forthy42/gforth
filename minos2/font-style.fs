@@ -81,6 +81,7 @@ Value font-families#
 fontlang: \latin
 fontlang: \chinese
 fontlang: \emoji
+fontlang: \icons
 Value font-langs#
 
 \latin
@@ -128,8 +129,9 @@ previous
 
 : xc>font ( xc-addr font-addr -- xc-addr font )
     >r dup xc@
-    cjk?   IF  drop r> cell+ ?font-load @  EXIT  THEN
-    emoji? IF  drop r> cell+ cell+ ?font-load @  EXIT  THEN
+    cjk?   IF  drop r> cell+          ?font-load @  EXIT  THEN
+    emoji? IF  drop r> [ 2 cells ]L + ?font-load @  EXIT  THEN
+    icons? IF  drop r> [ 3 cells ]L + ?font-load @  EXIT  THEN
     drop r> ?font-load @ ;
 
 ' xc>font IS font-select
@@ -242,17 +244,40 @@ get-current also fonts definitions
     \bold-italic fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|gkai00mp.ttf
 [THEN]
 
-\emoji \sans \regular
-fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\emoji \sans
+\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
 
-\emoji \sans \bold
-fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\serif
+\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
 
-\emoji \mono \regular
-fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\mono
+\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
 
-\emoji \mono \bold
-fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\icons
+\sans
+\regular fonts= fa-merged-900.ttf
+\bold fonts= fa-merged-900.ttf
+\italic fonts= fa-merged-900.ttf
+\bold-italic fonts= fa-merged-900.ttf
+\serif
+\regular fonts= fa-merged-900.ttf
+\bold fonts= fa-merged-900.ttf
+\italic fonts= fa-merged-900.ttf
+\bold-italic fonts= fa-merged-900.ttf
+\mono
+\regular fonts= fa-merged-900.ttf
+\bold fonts= fa-merged-900.ttf
+\italic fonts= fa-merged-900.ttf
+\bold-italic fonts= fa-merged-900.ttf
 
 \latin \sans \regular
 
