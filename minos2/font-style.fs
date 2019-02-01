@@ -170,6 +170,7 @@ Variable font-path
 
 [IFDEF] android
     font-path+ /system/fonts
+    font-path+ /sdcard/gforth/current/minos2/fonts
 [ELSE]
     font-path+ /usr/share/fonts/ttf/
     font-path+ /usr/share/fonts/truetype/

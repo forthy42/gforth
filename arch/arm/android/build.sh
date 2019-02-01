@@ -137,7 +137,8 @@ then
     mkdir -p res/raw
     cp *.{fs,fi,png,jpg} build/debian/sdcard/gforth/$machine/gforth/site-forth
     (cd build/debian/sdcard
-     mkdir -p gforth/home gforth/site-forth
+     mkdir -p gforth/home gforth/site-forth gforth/current/minos2/fonts
+     cp /usr/share/fonts/truetype/emoji/fa-merged-900.ttf gforth/current/minos2/fonts
      gforth archive.fs gforth/home/ gforth/site-forth/ $(find gforth/current -type f) $(find gforth/site-forth -type f)) | gzip -9 >res/raw/gforth
     (cd build/debian/sdcard
      rm gforth/$machine/lib*
