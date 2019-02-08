@@ -460,7 +460,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
    Even values of SELF-INDENT and NEXT-INDENT correspond to multiples of
    `forth-indent-level'. Odd values get an additional 
    `forth-minor-indent-level' added/substracted. Eg a value of -2 indents
-   1 * forth-indent-level  to the left, wheras 3 indents 
+   1 * forth-indent-level  to the left, whereas 3 indents 
    1 * forth-indent-level + forth-minor-indent-level  columns to the right.")
 
 (setq forth-indent-words
