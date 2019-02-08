@@ -4,6 +4,8 @@ Variable class-o
 
 : user-o ( "name" -- )
     0 uallot class-o !  User ;
+: uval-o ( "name" -- )
+    0 uallot class-o !  UValue ;
 
 : umethod ( m v -- m' v )
     postpone nocov[

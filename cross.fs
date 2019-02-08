@@ -3477,6 +3477,11 @@ DO: true abort" not in cross compiler!" ;DO
 Build: 0 au, dup class-o ! X , ;Build
 by User
 
+Builder uval-o
+DO: true abort" not in cross compiler!" ;DO
+Build: 0 au, dup class-o ! X , ;Build
+by UValue
+
 >TARGET
 : umethod ( m v -- m' v )
     over >r no-loop on T : H compile u#exec class-o @ T , H
@@ -3854,6 +3859,7 @@ Cond: IS        cross-record-name T ' >body H compile ALiteral compile ! ;Cond
 Cond: TO        T ' >body H compile ALiteral compile ! ;Cond
 : TO            T ' >body ! H ;
 Cond: UTO       compile useraddr T ' >body @ , H compile ! ;Cond
+: UTO           T ' >body @ H tup@ + X ! ;
 Cond: UADDR     compile useraddr T ' >body @ , H ;Cond
 [THEN]
 

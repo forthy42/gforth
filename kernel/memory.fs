@@ -25,8 +25,8 @@ here
 ' heap-resize a,
 A, here Aconstant heap-words
 
-user-o current-memory-words
-heap-words current-memory-words A!
+uval-o current-memory-words
+heap-words uto current-memory-words
 0 0
 umethod allocate ( u -- a_addr wior )	\ memory
     \G Allocate @i{u} address units of contiguous data space. The
