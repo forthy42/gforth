@@ -183,6 +183,7 @@ KERN_SRC = \
 	kernel/paths.fs \
 	kernel/kernel.fs \
 	kernel/main.fs \
+	kernel/memory.fs \
 	kernel/prim0.fs \
 	search.fs \
 	kernel/quotes.fs \
