@@ -2148,7 +2148,7 @@ nsec  =ltime.tm_sec;
 ""Wait at least @i{n} milli-second.""
 gforth_ms(u);
 
-allocate	( u -- a_addr wior )	memory
+heap-allocate	( u -- a_addr wior )	gforth	heap_allocate
 ""Allocate @i{u} address units of contiguous data space. The initial
 contents of the data space is undefined. If the allocation is successful,
 @i{a-addr} is the start address of the allocated region and @i{wior}
@@ -2157,7 +2157,7 @@ is a non-zero I/O result code.""
 a_addr = (Cell *)malloc_l(u?u:1);
 wior = IOR(a_addr==NULL);
 
-free	( a_addr -- wior )		memory
+heap-free	( a_addr -- wior )	gforth	heap_free
 ""Return the region of data space starting at @i{a-addr} to the system.
 The region must originally have been obtained using @code{allocate} or
 @code{resize}. If the operational is successful, @i{wior} is 0.
@@ -2165,7 +2165,7 @@ If the operation fails, @i{wior} is a non-zero I/O result code.""
 free_l(a_addr);
 wior = 0;
 
-resize	( a_addr1 u -- a_addr2 wior )	memory
+heap-resize	( a_addr1 u -- a_addr2 wior )	gforth	heap_resize
 ""Change the size of the allocated area at @i{a-addr1} to @i{u}
 address units, possibly moving the contents to a different
 area. @i{a-addr2} is the address of the resulting area.

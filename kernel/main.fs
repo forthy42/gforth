@@ -121,6 +121,7 @@ include kernel/toolsext.fs
 include kernel/tools.fs               \ load tools ( .s dump )
 include kernel/getdoers.fs
 include kernel/copydoers.fs
+include kernel/memory.fs
 
 \ Setup                                                13feb93py
 
