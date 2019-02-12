@@ -19,6 +19,8 @@
 
 require bits.fs
 
+also jni
+
 2 sfloats buffer: lastpos
 2Variable lasttime
 2Variable downtime
@@ -168,7 +170,7 @@ ELSE
     ~~ unknown-key# ! 0
 THEN ;
 
-also jni also android
+also android
 
 : gui-inskey ( key -- )
     level# @ 0= IF  inskey  ELSE  top-act .ekeyed  THEN ;

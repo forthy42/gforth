@@ -2,7 +2,7 @@
 
 require unix/jni-tools.fs
 
-also android also jni
+also android also jni definitions
 
 app obj @ Value clazz
 
@@ -303,4 +303,4 @@ $00000006 Constant SCREEN_DIM_WAKE_LOCK
 : screen-bright ( -- )  >bright-wl bright-wl >o wl-release o> ;
 [THEN]
 
-previous previous
+previous previous definitions

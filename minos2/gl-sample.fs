@@ -21,6 +21,7 @@ require gl-helper.fs
 
 also opengl
 also [IFDEF] android android [THEN]
+also [IFDEF] jni jni [THEN]
 also [IFDEF] x11 x11 [THEN]
 
 tex: ascii-tex
@@ -120,7 +121,7 @@ FVariable motion 0.01e motion f!
     program init load-textures .info
     tri-loop ;
 
-previous previous
+previous previous previous previous
 
 win 0= [IF] window-init [THEN]
 

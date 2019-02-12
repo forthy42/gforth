@@ -1013,9 +1013,12 @@ Variable last-y0  -100 last-y0 !
 : long? ( -- flag )
     delta-tc long-click# f> ;
 : !click ( -- )  0e motion-x0 f! 0e motion-y0 f! ftime drag-time f! ;
+
+also [IFDEF] jni jni [THEN]
 [IFUNDEF] togglekb : togglekb ; [THEN]
 : ?toggle ( -- )
     short? motion-y0 f@ 2e f< and IF  togglekb -show  THEN ;
+previous
 
 : do-motion { rows cur old motion xt -- }
     old @ -100 = IF

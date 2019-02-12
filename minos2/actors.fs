@@ -532,13 +532,13 @@ std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 
 0 value xselw
 
+also
 [IFDEF] android
-    also jni
+    jni
     : android-seteditline ( span addr pos -- span addr pos )
 	2dup xcs swap >r >r
 	2dup swap make-jstring r> xselw clazz .setEditLine r>
 	+sync ;
-    previous
     ' android-seteditline is edit-update
 [ELSE]
     ' noop is edit-update \ no need to do that here
@@ -547,6 +547,7 @@ std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 ' clipboard!     is paste!
 [IFUNDEF] primary!     ' clipboard! alias primary! [THEN]
 [IFUNDEF] primary@     ' clipboard@ alias primary@ [THEN]
+previous
 
 \ extra key bindings for editors
 
@@ -560,7 +561,7 @@ simple-actor class
 end-class edit-actor
 
 : edit-copy ( max span addr pos1 -- max span addr pos1 false )
-    >r 2dup swap r@ safe/string xselw min clipboard!
+    >r 2dup swap r@ safe/string xselw min primary!
     r> 0 ;
 : edit-cut ( max span addr pos1 -- max span addr pos1 false )
     edit-copy drop >r
@@ -590,7 +591,7 @@ Defer anim-ins
     setstring$ $@ xins-string  setstring$ $free edit-update ;
 
 : edit-paste ( max span addr pos1 - max span addr pos2 false )
-    setstring> clipboard@ edit-split-ins$ edit-update 0 ;
+    setstring> primary@ edit-split-ins$ edit-update 0 ;
 
 : xedit-enter ( max span addr pos1 -- max span addr pos2 true )
     setstring> edit-enter ;

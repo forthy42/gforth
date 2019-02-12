@@ -123,6 +123,7 @@ Defer check-xy  ' noop IS check-xy
     drop 8 ;
 
 : -u8trailing-garbage ( addr u1 -- addr u2 )
+    dup ?EXIT
     2dup + dup u8<< ( addr u1 end1 end2 )
     2dup dup over over - u8addrlen + = if \ last character ok
 	2drop

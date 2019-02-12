@@ -18,7 +18,7 @@
 require minos2/widgets.fs
 
 [IFDEF] android
-    hidekb also android >changed hidestatus >changed previous
+    also jni hidekb also android >changed hidestatus >changed previous previous
 [THEN]
 
 also minos
@@ -328,14 +328,14 @@ also opengl
 
 previous
 
-also [IFDEF] android android [THEN]
+[IFDEF] android also android also jni [THEN]
 
 : presentation ( -- )
     1config
     [IFDEF] hidestatus hidekb hidestatus [THEN]
     !widgets widgets-loop ;
 
-previous
+[IFDEF] android previous previous [THEN]
 
 script? [IF]
     next-arg s" time" str= [IF]  +db time( \ ) [THEN]
