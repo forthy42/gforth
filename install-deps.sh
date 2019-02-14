@@ -18,6 +18,16 @@ install_linux() {
   sudo apt-get -y install libgstreamer-plugins-base1.0-dev
   #if [ `uname -m`$M32 = x86_64-m32 ]; then
     sudo apt-get -y --fix-missing install gcc-multilib
+  sudo apt-get -y install libx11-dev:i386
+  sudo apt-get -y install libgles2-mesa-dev:i386
+  sudo apt-get -y install libgl1-mesa-dev:i386
+  sudo apt-get -y install libwayland-dev:i386
+  sudo apt-get -y install libharfbuzz-dev:i386
+  sudo apt-get -y install libvulkan-dev:i386
+  sudo apt-get -y install libpng-dev:i386
+  sudo apt-get -y install libfreetype6-dev:i386
+  sudo apt-get -y install libgstreamer1.0-dev:i386
+  sudo apt-get -y install libgstreamer-plugins-base1.0-dev:i386
   #fi
 }
 
