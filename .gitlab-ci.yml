@@ -14,6 +14,8 @@ build-distcheck:
     - ./configure
     - make distclean
     - (cd libltdl; make distclean)
+    - env CC="gcc -m32" dpkg-buildpackage -uc -us -d -b -ai386
+    - mv ../*.deb build/debian
     - dpkg-buildpackage -uc -us -d -b
     - mv ../*.deb build/debian
  
