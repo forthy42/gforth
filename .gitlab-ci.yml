@@ -1,6 +1,7 @@
 image: debian:unstable
  
 before_script:
+  - dpkg --add-architecture i386
   - apt update -qq
   - ./install-deps.sh
  
