@@ -15,10 +15,10 @@ build-distcheck:
     - ./configure
     - make distclean
     - (cd libltdl; make distclean)
-    - env CC="gcc -m32" dpkg-buildpackage -uc -us -d -b -ai386
-    - mv ../*.deb build/debian
     - dpkg-buildpackage -uc -us -d -b
     - mv ../*.deb build/debian
+    - env CC="gcc -m32" dpkg-buildpackage -uc -us -d -b -ai386
+    - mv ../*i386.deb build/debian
  
   # The files which are to be made available in GitLab
   artifacts:
