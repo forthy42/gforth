@@ -32,6 +32,8 @@ blackish
     x-baseline gap% f* font@gap fmax to gap o o> cbl ;
 : }}text ( addr u -- o )
     text new >o font@ text! x-color to text-color  x-border to border o o> ;
+: }}text-us ( us addr u -- o )
+    }}text >o to us-mask o o> ;
 : }}i18n-text ( lsid -- o )
     text new >o
     font@ i18n-text! x-color to text-color  x-border to border o o> ;
