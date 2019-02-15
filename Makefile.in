@@ -861,11 +861,11 @@ install-elc:
 
 installdeps:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim gforth.fi start-gforth.el
 
-install-indep:	installdeps installdirs-indep install-sources install-man install-info install-elc
+install-indep:	installdeps installdirs-indep install-sources install-man install-elc
 
 install-arch:	installdeps installdirs-arch normal-install rm-install install-prog-bins install-gensources install-images install-include install-libcc install-tags @libinstall@ extra-install
 
-install-seq:	install-indep install-arch
+install-seq:	install-indep install-arch install-info
 
 post-inst:
 		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
