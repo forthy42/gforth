@@ -798,10 +798,13 @@ install-gensources:
 		for i in $(LIBCC_GEN_SRC) envos.fs machpc.fs; do \
 			$(INSTALL_DATA) $$i $(libdir)/gforth/$(VERSION)/$$i; \
 		done
-		for i in kernel/prim.fs kernel/aliases.fs kernel/version.fs doc/gforth.txt; do \
+		for i in kernel/prim.fs kernel/aliases.fs kernel/version.fs; do \
 			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 		echo "\\ empty site-init" > $(siteforthdir)/siteinit.fs
+
+install-txt:	doc
+		$(INSTALL_DATA) doc/gforth.txt $(datadir)/gforth/$(VERSION)/gforth.txt
 
 install-images:
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
@@ -865,7 +868,7 @@ install-indep:	installdeps installdirs-indep install-sources install-man install
 
 install-arch:	installdeps installdirs-arch normal-install rm-install install-prog-bins install-gensources install-images install-include install-libcc install-tags @libinstall@ extra-install
 
-install-seq:	install-indep install-arch install-info
+install-seq:	install-indep install-arch install-txt install-info
 
 post-inst:
 		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
