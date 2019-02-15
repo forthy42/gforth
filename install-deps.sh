@@ -2,7 +2,7 @@
 which sudo || alias sudo=eval
 install_linux() {
   sudo apt-get -y update
-  sudo apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc automake texinfo texi2html texlive install-info dpkg-dev debhelper yodl bison libpcre3-dev libboost-dev git g++ # yodl, bison, ... git: are for swig
+  sudo apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc automake texinfo texi2html texlive install-info dpkg-dev debhelper yodl bison libpcre3-dev libboost-dev git g++ premake4 # yodl, bison, ... git: are for swig
   sudo apt-get -y install gforth gforth-lib gforth-common
   sudo apt-get -y install libtool-bin
   sudo apt-get -y install autoconf-archive

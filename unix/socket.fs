@@ -348,7 +348,8 @@ s" sock read error"    exception Constant !!sockread!!
     base @ >r  decimal  0 <<# 0 hold #s #>  r> base ! drop
     >r c-string r> hints addrres getaddrinfo #>>
     ?dup IF
-	gai_strerror cstring>sstring type
+	gai_strerror cstring>sstring
+	['] type error-color ['] color-execute do-debug
 	!!noaddr!! throw  THEN
     addrres @ ;
 
