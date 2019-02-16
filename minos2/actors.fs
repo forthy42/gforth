@@ -33,9 +33,9 @@ end-class edit-widget-c
 
 edit-widget-c ' new static-a with-allocater Constant edit-widget
 
-[IFDEF] x11      include x11-actors.fs      [THEN]
-[IFDEF] wayland  include wayland-actors.fs  [THEN]
-[IFDEF] android  include android-actors.fs  [THEN]
+[IFDEF] x11      include x11-actors.fs      [ELSE]
+[IFDEF] wayland  include wayland-actors.fs  [ELSE]
+[IFDEF] android  include android-actors.fs  [THEN] [THEN] [THEN]
 
 \ generic actor stuff
 
