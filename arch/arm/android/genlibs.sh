@@ -134,7 +134,7 @@ function gen_ftgl {
 # SOIL2
 
 function gen_soil2 {
-    if [ -f soil2/.hg/hgrc ]
+    if [ -f soil2/.git/config ]
     then
 	(cd soil2; git pull)
     else
