@@ -158,7 +158,7 @@ function gen_soil2 {
 }
 
 function gen_typeset {
-    $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $FREETYPE $HARFBUZZ $LIBPNG freetype-gl -name '*.lo') -lm -lGLESv2 -lz -lbz2 -llog
+    $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $HARFBUZZ -name libharfbuzz_la*.lo) $HARFBUZZ/src/hb-ucdn/libhb_ucdn_la-ucdn.lo $(find $FREETYPE $LIBPNG freetype-gl -name '*.lo') -lm -lGLESv2 -lz -lbz2 -llog
     cp .libs/libtypeset.{a,so} $TOOLCHAIN/sysroot/usr/lib
 }
 
