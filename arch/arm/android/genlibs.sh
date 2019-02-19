@@ -33,9 +33,9 @@ case "$TARGET" in
 	;;
 esac
 
-FREETYPE=freetype-2.8.1
-HARFBUZZ=harfbuzz-1.5.1
-LIBPNG=libpng-1.6.34
+FREETYPE=freetype-2.9.1
+HARFBUZZ=harfbuzz-2.3.1
+LIBPNG=libpng-1.6.36
 BZIP2=bzip2-1.0.6
 
 fine=yes
@@ -136,9 +136,9 @@ function gen_ftgl {
 function gen_soil2 {
     if [ -f soil2/.hg/hgrc ]
     then
-	(cd soil2; hg pull; hg up)
+	(cd soil2; git pull)
     else
-	hg clone https://bitbucket.org/forthy42/soil2
+	git clone https://github.com/forthy42/soil2.git
     fi
     
     (cd soil2
