@@ -282,6 +282,12 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
 : /location ( addr u -- ) \normal \regular  dark-blue }}text' /center blackish \normal ;
 : /subsection ( addr u -- ) \normal \bold dark-blue \\ blackish \normal \regular ;
 
+\ link click
+
+: link[] ( o addr u -- o )
+    [: ." xdg-open " type ;] $tmp $make >r
+    [: addr data $@ system ;] r> click[] ;
+
 \ mode
 
 : !i18n  ['] }}i18n-text IS }}text' ;
