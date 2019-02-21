@@ -17,6 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+get-current also minos definitions
+
 $000000FF text-color: blackish
 $0000BFFF text-color: dark-blue
 $00000000 text-color: transparent
@@ -292,3 +294,5 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
 
 : !i18n  ['] }}i18n-text IS }}text' ;
 : !lit   ['] }}text IS }}text' ;
+
+previous set-current

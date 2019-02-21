@@ -19,6 +19,8 @@
 
 \ Inspiration: wf.fs, a markdown-like parser, which converts to HTML
 
+get-current also minos definitions
+
 Defer .char
 
 Variable md-text$
@@ -31,6 +33,12 @@ Variable us-state
 
 0 Value p-box \ paragraph box
 0 Value v-box \ vertical box
+
+[IFUNDEF] bits:
+    : bit ( n "name" -- n*2 )   dup Constant 2* ;
+    : bits: ( start n "name1" .. "namen" -- )
+	0 ?DO bit LOOP drop ;
+[THEN]
 
 1 7 bits: italic underline 2underline sitalic bold mono strikethrough
 
@@ -51,11 +59,15 @@ Variable us-state
     md-text$ $@len IF  bl md-text$ c$+!  THEN ;
 : .md-text ( -- )
     md-text$ $@len IF
-	us-state @ md-text$ $@ }}text-us p-box .+childs md-text$ $free
+	us-state @ md-text$ $@ }}text-us p-box .+child md-text$ $free
     THEN ;
 
 : /source ( -- addr u )
     source >in @ safe/string ;
+
+: +link ( o -- o )
+    /source IF  c@ '(' =  IF  1 >in +! ')' parse link[]  THEN
+    ELSE  drop  THEN ;
 
 : default-char ( char -- )
     emph-flags @ last-emph-flags @ over last-emph-flags ! <> IF
@@ -102,9 +114,7 @@ md-char: [ ( char -- )
     drop ']' parse 2dup "![" search nip nip IF
 	drop ')' parse 2drop ']' parse + over -  THEN
     .md-text
-    1 -rot }}text-us p-box .+childs
-    /source IF  c@ '(' =  IF  1 >in +! ')' parse link[]  THEN
-    ELSE  drop  THEN ;
+    1 -rot }}text-us +link p-box .+child ;
 
 : render-line ( addr u -- )
     \G render a line
@@ -124,11 +134,14 @@ $10 cells buffer: indent#s
     over 1 swap +! [ 1 cells ]L /string erase ;
 
 : bullet-char ( n -- xchar )
-    "•‒⋆‧‧‧‧‧‧" drop swap 0 ?DO xchar+ LOOP  xc@ ;
-
+    "•‒⋆‧‧‧‧‧‧"
+    drop swap 0 ?DO xchar+ LOOP  xc@ ;
 0 warnings !@
 
-scope: markdown
+Vocabulary markdown
+
+get-current also markdown definitions
+
 \ headlines limited to h1..h3
 : # ( -- )
     /source 2dup + 2 - 2 " #" str= -2 and +
@@ -143,7 +156,7 @@ scope: markdown
     \ render counted line
     .md-text -3 >indent
     0 [: cur#indent 2* spaces indent# 0 .r ." . " ;]
-    $tmp }}text-us p-box .+childs
+    $tmp }}text-us p-box .+child
     /source render-line ;
 synonym 2. 1.
 synonym 3. 1.
@@ -156,36 +169,36 @@ synonym 9. 1.
 : * ( -- )
     .md-text -2 >indent
     0 [: cur#indent 2* spaces
-	cur#indent bullet-char xemit space ;] $tmp }}text-us p-box .+childs
+	cur#indent bullet-char xemit space ;] $tmp }}text-us p-box .+child
     /source render-line ;
 : +  ( -- )
     .md-text -2 >indent
     0 [: cur#indent 2* spaces
-	'+' xemit space ;] $tmp }}text-us p-box .+childs
+	'+' xemit space ;] $tmp }}text-us p-box .+child
     /source render-line ;
 : -  ( -- )
     .md-text -2 >indent
     0 [: cur#indent 2* spaces
-	'–' xemit space ;] $tmp }}text-us p-box .+childs
+	'–' xemit space ;] $tmp }}text-us p-box .+child
     /source render-line ;
 : ±  ( -- )
     .md-text -2 >indent
     0 [: cur#indent 2* spaces
-	'±' xemit space ;] $tmp }}text-us p-box .+childs
+	'±' xemit space ;] $tmp }}text-us p-box .+child
     /source render-line ;
 
-}scope
+previous set-current
 
 warnings !
 
 : +p-box ( -- )
-    {{ }}p dup v-box .+childs .subbox to p-box ;
+    {{ }}p dup v-box .+child .subbox to p-box ;
 
 : markdown-loop ( -- )
     BEGIN  refill  WHILE
 	    source nip 0= IF
 		.md-text indent#s [ $10 cells ]L erase
-		p-box ?dup-IF  .subbox .par-init  THEN
+		p-box ?dup-IF  .par-init  THEN
 		+p-box
 	    ELSE
 		md-text+
@@ -198,6 +211,8 @@ warnings !
 : markdown-parse ( addr u -- )
     {{ }}v to v-box +p-box open-fpath-file throw
     ['] markdown-loop execute-parsing-named-file ;
+
+previous set-current
 
 \\\
 Local Variables:

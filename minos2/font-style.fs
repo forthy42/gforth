@@ -19,6 +19,8 @@
 
 \ font array
 
+get-current also minos definitions
+
 Variable font[]     \ array of fonts
 Variable fontname[] \ array of fontnames
 
@@ -185,7 +187,7 @@ Variable font-path
 
 Vocabulary fonts
 
-get-current also fonts definitions
+also fonts definitions
 
 \ default font selection
 
@@ -282,4 +284,4 @@ get-current also fonts definitions
 
 \latin \sans \regular
 
-previous set-current
+previous previous set-current
