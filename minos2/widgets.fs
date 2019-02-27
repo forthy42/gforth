@@ -501,6 +501,9 @@ end-class text
 	l-text locale@ to text$
     THEN ;
 ' i18n-text-init text is draw-init
+: t.widget ( -- )
+    w.widget  '"' emit text$ type '"' emit cr ;
+' t.widget text is .widget
 
 text class
 end-class part-text
@@ -1083,6 +1086,11 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 vbox class
     value: subbox \ hbox to be split into
 end-class parbox
+
+: p.widget ( -- )
+    b.widget
+    1 +to w.indent# ['] .widget box-visible# subbox .?do-childs -1 +to w.indent# ;
+' p.widget parbox is .widget
 
 : dispose[] ( $addr[] -- )
     dup $@ bounds ?DO  I @ .dispose  cell +LOOP  $free ;

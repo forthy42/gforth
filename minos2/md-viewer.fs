@@ -24,6 +24,7 @@ get-current also minos definitions
 Defer .char
 
 Variable md-text$
+Variable preparse$
 Variable last-cchar
 Variable last-emph-flags
 Variable emph-flags \ emphasis flags
@@ -59,7 +60,7 @@ Variable us-state
     md-text$ $@len IF  bl md-text$ c$+!  THEN ;
 : .md-text ( -- )
     md-text$ $@len IF
-	us-state @ md-text$ $@ }}text-us p-box .+child md-text$ $free
+	us-state @ md-text$ $@ }}text-us p-box .child+ md-text$ $free
     THEN ;
 
 : /source ( -- addr u )
@@ -114,7 +115,7 @@ md-char: [ ( char -- )
     drop ']' parse 2dup "![" search nip nip IF
 	drop ')' parse 2drop ']' parse + over -  THEN
     .md-text
-    1 -rot }}text-us +link p-box .+child ;
+    1 -rot }}text-us +link p-box .child+ ;
 
 : render-line ( addr u -- )
     \G render a line
@@ -134,7 +135,7 @@ $10 cells buffer: indent#s
     over 1 swap +! [ 1 cells ]L /string erase ;
 
 : bullet-char ( n -- xchar )
-    "•‒⋆‧‧‧‧‧‧"
+    "•‣‧‧‧‧‧‧‧‧‧‧‧"
     drop swap 0 ?DO xchar+ LOOP  xc@ ;
 0 warnings !@
 
@@ -156,7 +157,7 @@ get-current also markdown definitions
     \ render counted line
     .md-text -3 >indent
     0 [: cur#indent 2* spaces indent# 0 .r ." . " ;]
-    $tmp }}text-us p-box .+child
+    $tmp }}text-us p-box .child+
     /source render-line ;
 synonym 2. 1.
 synonym 3. 1.
@@ -166,25 +167,41 @@ synonym 6. 1.
 synonym 7. 1.
 synonym 8. 1.
 synonym 9. 1.
+: 10. ( -- )
+    \ render counted line
+    .md-text -4 >indent
+    0 [: cur#indent 2* 1- 0 max spaces indent# 0 .r ." . " ;]
+    $tmp }}text-us p-box .child+
+    /source render-line ;
+synonym 11. 10.
+synonym 12. 10.
+synonym 13. 10.
+synonym 14. 10.
+synonym 15. 10.
+synonym 16. 10.
+synonym 17. 10.
+synonym 18. 10.
+synonym 19. 10.
+synonym 20. 10.
 : * ( -- )
     .md-text -2 >indent
     0 [: cur#indent 2* spaces
-	cur#indent bullet-char xemit space ;] $tmp }}text-us p-box .+child
+	cur#indent bullet-char xemit space ;] $tmp }}text-us p-box .child+
     /source render-line ;
 : +  ( -- )
     .md-text -2 >indent
     0 [: cur#indent 2* spaces
-	'+' xemit space ;] $tmp }}text-us p-box .+child
+	'+' xemit space ;] $tmp }}text-us p-box .child+
     /source render-line ;
 : -  ( -- )
     .md-text -2 >indent
     0 [: cur#indent 2* spaces
-	'–' xemit space ;] $tmp }}text-us p-box .+child
+	'–' xemit space ;] $tmp }}text-us p-box .child+
     /source render-line ;
 : ±  ( -- )
     .md-text -2 >indent
     0 [: cur#indent 2* spaces
-	'±' xemit space ;] $tmp }}text-us p-box .+child
+	'±' xemit space ;] $tmp }}text-us p-box .child+
     /source render-line ;
 
 previous set-current
@@ -192,21 +209,39 @@ previous set-current
 warnings !
 
 : +p-box ( -- )
-    {{ }}p dup v-box .+child .subbox to p-box ;
+    {{ }}p dup v-box .child+ .subbox to p-box ;
+
+: ?md-token ( -- token )
+    parse-name [ ' markdown >body ]L find-name-in ;
+
+: read-par ( -- )
+    BEGIN  source  dup WHILE  preparse$ $@len IF  bl preparse$ c$+!  THEN
+	preparse$ $+!  refill 0= UNTIL  EXIT  THEN  2drop ;
+: hang-source ( addr u hang -- )
+    source dup >r bl skip r> over - ;
+: hang-read ( -- )
+    hang-source >r preparse$ $+!
+    BEGIN  refill  WHILE
+	    hang-source r@ u>  ?md-token 0= and  WHILE
+		bl preparse$ c$+!  preparse$ $+!  AGAIN  THEN  2drop
+    THEN  rdrop ;
+: reset-hang ( -- )
+    .md-text indent#s [ $10 cells ]L erase ;
+
+: refill-empty ( -- flag )
+    BEGIN  source nip 0=  WHILE  refill 0=  UNTIL  false  ELSE  true  THEN ;
+
+: typeset ( -- )
+    preparse$ $@
+    [: ?md-token ?dup-IF   name?int execute
+	ELSE  >in off  source render-line  THEN ;]
+    execute-parsing  preparse$ $free  +p-box ;
 
 : markdown-loop ( -- )
-    BEGIN  refill  WHILE
-	    source nip 0= IF
-		.md-text indent#s [ $10 cells ]L erase
-		p-box ?dup-IF  .par-init  THEN
-		+p-box
-	    ELSE
-		md-text+
-		parse-name ['] markdown >body find-name-in ?dup-IF
-		    name?int execute
-		ELSE  >in off  source render-line  THEN
-	    THEN
-    REPEAT ;
+    BEGIN  refill-empty  WHILE
+	    ?md-token IF  hang-read
+	    ELSE  reset-hang read-par  THEN
+	    typeset  REPEAT ;
 
 : markdown-parse ( addr u -- )
     {{ }}v to v-box +p-box open-fpath-file throw
