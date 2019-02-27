@@ -130,7 +130,9 @@ $10 cells buffer: indent#s
 : indent# ( n -- ) cur#indent cells indent#s + @ ;
 
 : >indent ( n -- )
-    >in @ + 2/ dup to cur#indent
+    >in @ + source rot umin  0 -rot
+    bounds U+DO  I c@ #tab = 4 and I c@ bl = 1 and or +  LOOP
+    2/ dup to cur#indent
     cells >r indent#s [ $10 cells ]L r> /string
     over 1 swap +! [ 1 cells ]L /string erase ;
 
@@ -155,10 +157,10 @@ get-current also markdown definitions
     \normal \bold \sans render-line .md-text \normal \regular ;
 : 1. ( -- )
     \ render counted line
-    .md-text -3 >indent
+    -3 >indent
     0 [: cur#indent 2* spaces indent# 0 .r ." . " ;]
     $tmp }}text-us p-box .child+
-    /source render-line ;
+    /source render-line .md-text ;
 synonym 2. 1.
 synonym 3. 1.
 synonym 4. 1.
@@ -169,10 +171,10 @@ synonym 8. 1.
 synonym 9. 1.
 : 10. ( -- )
     \ render counted line
-    .md-text -4 >indent
+    -4 >indent
     0 [: cur#indent 2* 1- 0 max spaces indent# 0 .r ." . " ;]
     $tmp }}text-us p-box .child+
-    /source render-line ;
+    /source render-line .md-text ;
 synonym 11. 10.
 synonym 12. 10.
 synonym 13. 10.
@@ -184,25 +186,25 @@ synonym 18. 10.
 synonym 19. 10.
 synonym 20. 10.
 : * ( -- )
-    .md-text -2 >indent
+    -2 >indent
     0 [: cur#indent 2* spaces
 	cur#indent bullet-char xemit space ;] $tmp }}text-us p-box .child+
-    /source render-line ;
+    /source render-line .md-text ;
 : +  ( -- )
-    .md-text -2 >indent
+    -2 >indent
     0 [: cur#indent 2* spaces
 	'+' xemit space ;] $tmp }}text-us p-box .child+
-    /source render-line ;
+    /source render-line .md-text ;
 : -  ( -- )
-    .md-text -2 >indent
+    -2 >indent
     0 [: cur#indent 2* spaces
 	'–' xemit space ;] $tmp }}text-us p-box .child+
-    /source render-line ;
+    /source render-line .md-text ;
 : ±  ( -- )
-    .md-text -2 >indent
+    -2 >indent
     0 [: cur#indent 2* spaces
 	'±' xemit space ;] $tmp }}text-us p-box .child+
-    /source render-line ;
+    /source render-line .md-text ;
 
 previous set-current
 
@@ -213,38 +215,51 @@ warnings !
 
 : ?md-token ( -- token )
     parse-name [ ' markdown >body ]L find-name-in ;
+: ===/---? ( -- )
+    source nip 0<> IF
+	source '=' skip nip 0= IF  "# " preparse$ 0 $ins " #" preparse$ $+!
+	    true  EXIT  THEN
+	source '-' skip nip 0= IF  "## " preparse$ 0 $ins " ##" preparse$ $+!
+	    true  EXIT  THEN
+    THEN  false ;
 
-: read-par ( -- )
-    BEGIN  source  dup WHILE  preparse$ $@len IF  bl preparse$ c$+!  THEN
-	preparse$ $+!  refill 0= UNTIL  EXIT  THEN  2drop ;
-: hang-source ( addr u hang -- )
-    source dup >r bl skip r> over - ;
+: read-par ( -- )  0 >r
+    BEGIN   r@ 1 = IF  ===/---?  IF  rdrop  refill drop  EXIT  THEN  THEN
+	source  dup WHILE  preparse$ $@len IF  bl preparse$ c$+!  THEN
+	preparse$ $+! r> 1+ >r  refill 0= UNTIL
+	rdrop  EXIT  THEN  rdrop 2drop ;
+: hang-source ( -- addr u hang )
+    source dup >r bl skip r> over - >r
+    dup >r #tab skip r> over - 2* 2* r> max ;
+
 : hang-read ( -- )
-    hang-source >r preparse$ $+!
+    hang-source >r 2drop source preparse$ $+!
     BEGIN  refill  WHILE
-	    hang-source r@ u>  ?md-token 0= and  WHILE
-		bl preparse$ c$+!  preparse$ $+!  AGAIN  THEN  2drop
+	    hang-source r@ u>=  over 0> and  ?md-token 0=  and  WHILE
+		bl preparse$ c$+!  preparse$ $+!
+	REPEAT  2drop
     THEN  rdrop ;
 : reset-hang ( -- )
-    .md-text indent#s [ $10 cells ]L erase ;
+    indent#s [ $10 cells ]L erase ;
 
 : refill-empty ( -- flag )
     BEGIN  source nip 0=  WHILE  refill 0=  UNTIL  false  ELSE  true  THEN ;
 
 : typeset ( -- )
-    preparse$ $@
+    +p-box  preparse$ $@
+    ." typesetting: '" 2dup type ''' emit cr
     [: ?md-token ?dup-IF   name?int execute
-	ELSE  >in off  source render-line  THEN ;]
-    execute-parsing  preparse$ $free  +p-box ;
+	ELSE  >in off  source render-line .md-text  THEN ;]
+    execute-parsing  preparse$ $free ;
 
 : markdown-loop ( -- )
-    BEGIN  refill-empty  WHILE
-	    ?md-token IF  hang-read
+    BEGIN  refill-empty  WHILE  >in off
+	    ?md-token  IF  hang-read
 	    ELSE  reset-hang read-par  THEN
 	    typeset  REPEAT ;
 
 : markdown-parse ( addr u -- )
-    {{ }}v to v-box +p-box open-fpath-file throw
+    {{ }}v to v-box open-fpath-file throw
     ['] markdown-loop execute-parsing-named-file ;
 
 previous set-current
