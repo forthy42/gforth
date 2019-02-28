@@ -817,7 +817,7 @@ install-include:
 		$(INSTALL_DATA) engine/gforth.h $(includedir)
 
 install-libcc:
-		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_BUILD_SRC); do \
+		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_SRC1) $(LIBCC_BUILD_SRC); do \
 		   $(LIBTOOL) --silent --mode=install $(INSTALL) $(buildccdir)/libgf`basename $$i .fs`.la `(cd $(package)$(libccdir); pwd)`/libgf`basename $$i .fs`.la; \
 		done; fi
 
