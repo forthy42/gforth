@@ -1373,12 +1373,17 @@ then
     fi
 else
     if test x$has_swig = xyes || test -f $srcdir/unix/gl-fsi.c; then
+      AC_CHECK_LIB(GL,glBegin,
       AC_CHECK_HEADER(GL/gl.h, 
       AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
-      AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
-      SWIGLIBS="$SWIGLIBS gl.fs glx.fs", ,), , 
+      SWIGLIBS="$SWIGLIBS gl.fs", ,
 #include <GL/gl.h>
-) ,)
+) ,) ,)
+    fi
+    if test x$has_swig = xyes || test -f $srcdir/unix/glx-fsi.c; then
+      AC_CHECK_LIB(GLX,glXCreateWindow,
+      AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
+      SWIGLIBS="$SWIGLIBS gl.fs", ,),)
     fi
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gles-fsi.c; then
