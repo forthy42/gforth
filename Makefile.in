@@ -168,7 +168,8 @@ INSTALLDIRS = kernel kernel-ec doc asm ec test test/fp \
 	arch/arm arch/arm64 arch/r8c arch/lm32
 INSTALL_LIBDIRS = unix
 
-INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h
+INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h \
+	engine/symver.h
 
 KERN_SRC = \
 	mach32b.fs mach32l.fs mach64b.fs mach64l.fs \

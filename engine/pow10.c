@@ -19,6 +19,7 @@
 */
 #include "config.h"
 #include <math.h>
+#include "symver.h"
 
 #ifndef M_LN10
 #define M_LN10      2.30258509299404568402

@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "forth.h"
+#include "symver.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
