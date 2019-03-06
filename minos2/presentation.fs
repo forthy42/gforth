@@ -192,7 +192,7 @@ tex: minos2
     $FFFFFFFF pres-frame
     {{
 	glue*l }}glue \ ) $CCDDDD3F color, 4e }}frame dup .button1
-	l" net2o: ΜΙΝΩΣ2 GUI”" /title
+	l" ΜΙΝΩΣ2 GUI”" /title
 	l" Lightweight GUI library" /subtitle
 	glue*2 }}glue
 	l" Bernd Paysan" /author
@@ -344,12 +344,10 @@ script? [IF]
     presentation
 [THEN]
 
-0 [IF]
+\\\
 Local Variables:
 forth-local-words:
     (
-     (("net2o:" "+net2o:") definition-starter (font-lock-keyword-face . 1)
-      "[ \t\n]" t name (font-lock-function-name-face . 3))
      ("[a-z0-9]+(" immediate (font-lock-comment-face . 1)
       ")" nil comment (font-lock-comment-face . 1))
      (("x\"" "l\"") immediate (font-lock-string-face . 1)
@@ -357,9 +355,7 @@ forth-local-words:
     )
 forth-local-indent-words:
     (
-     (("net2o:" "+net2o:") (0 . 2) (0 . 2) non-immediate)
      (("{{" "vt{{") (0 . 2) (0 . 2) immediate)
      (("}}h" "}}v" "}}z" "}}vp" "}}p" "}}vt") (-2 . 0) (-2 . 0) immediate)
     )
 End:
-[THEN]

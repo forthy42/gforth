@@ -58,6 +58,14 @@ Variable us-state
 
 : md-text+ ( -- )
     md-text$ $@len IF  bl md-text$ c$+!  THEN ;
+glue new Constant glue*\\
+glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
+: .\\ ( -- )
+    glue*\\ }}glue p-box .child+ ;
+: +p-box ( -- )
+    {{ }}p >bl dup v-box .child+
+    dup >o "p-box" to name$ o> .subbox
+    dup >o "subbox" to name$ o> to p-box ;
 : .md-text ( -- )
     md-text$ $@len IF
 	us-state @ md-text$ $@ }}text-us p-box .child+ md-text$ $free
@@ -76,12 +84,15 @@ Variable us-state
     THEN
     md-text$ c$+!  last-cchar off ;
 
+: wspace ( -- ) ' ' xemit ;
+: wspaces ( n -- ) 0 ?DO wspace LOOP ;
+
 ' default-char is .char
 
 Create do-char $100 0 [DO] ' .char , [LOOP]
 
 : md-char ( xt "char" -- )
-    char cells do-char + ! ;
+    source >in @ /string drop c@ cells do-char + !  1 >in +! ;
 : md-char: ( "char" -- )
     depth >r :noname depth r> - 1- roll md-char ;
 
@@ -98,10 +109,7 @@ md-char: _ ( char -- )
     italic up-emph @ 0= IF  negate  THEN  emph-flags +! ;
 md-char: ` ( char -- )
     mono swap ?count-emph
-    /source "``" string-prefix? IF
-	2 >in +!
-	mono up-emph @ 0= IF  negate  THEN  emph-flags +!
-    ELSE  '`' .char  THEN ;
+    mono up-emph @ 0= IF  negate  THEN  emph-flags +! ;
 md-char: ~ ( char -- )
     strikethrough swap ?count-emph
     /source "~" string-prefix? IF
@@ -109,17 +117,24 @@ md-char: ~ ( char -- )
 	strikethrough up-emph @ 0= IF  negate  THEN  emph-flags +!
     ELSE  '~' .char  THEN ;
 md-char: \ ( char -- )
-    drop /source IF  c@ .char  1 >in +!
-    ELSE  drop ( add line break )  THEN ;
+    drop /source IF  c@ .char  1 >in +!  ELSE  drop  THEN ;
 md-char: [ ( char -- )
     drop ']' parse 2dup "![" search nip nip IF
 	drop ')' parse 2drop ']' parse + over -  THEN
-    .md-text
-    1 -rot }}text-us +link p-box .child+ ;
+    .md-text dark-blue
+    1 -rot }}text-us +link p-box .child+ blackish ;
+md-char: 	 ( tab -- )
+    drop dark-blue ['] wspace md-text$ $exec
+    " " md-text$ 0 $ins
+    {{
+	{{ us-state @ md-text$ $@ }}text-us glue*l }}glue }}h box[]
+	glue*l }}glue
+    }}z box[] bx-tab
+    p-box .child+ blackish  md-text$ $free ;
 
-: render-line ( addr u -- )
+: render-line ( addr u attr -- )
     \G render a line
-    0 +emphs
+    +emphs
     [: BEGIN  /source  WHILE  1 >in +!
 		c@ dup cells do-char + perform
 	REPEAT  drop ;] execute-parsing ;
@@ -148,19 +163,19 @@ get-current also markdown definitions
 \ headlines limited to h1..h3
 : # ( -- )
     /source 2dup + 2 - 2 " #" str= -2 and +
-    \huge \bold \sans render-line .md-text \normal \regular ;
+    \huge cbl bold render-line .md-text .\\ \normal \regular ;
 : ## ( -- )
     /source 2dup + 3 - 3 " ##" str= -3 and +
-    \large \bold \sans render-line .md-text \normal \regular ;
+    \large cbl bold render-line .md-text .\\ \normal \regular ;
 : ### ( -- )
     /source 2dup + 4 - 4 " ###" str= -4 and +
-    \normal \bold \sans render-line .md-text \normal \regular ;
+    \normal cbl bold render-line .md-text .\\ \normal \regular ;
 : 1. ( -- )
     \ render counted line
     -3 >indent
-    0 [: cur#indent 2* spaces indent# 0 .r ." . " ;]
+    0 [: cur#indent 2* spaces indent# 0 .r ." . " ;]
     $tmp }}text-us p-box .child+
-    /source render-line .md-text ;
+    /source 0 render-line .md-text .\\ ;
 synonym 2. 1.
 synonym 3. 1.
 synonym 4. 1.
@@ -172,9 +187,9 @@ synonym 9. 1.
 : 10. ( -- )
     \ render counted line
     -4 >indent
-    0 [: cur#indent 2* 1- 0 max spaces indent# 0 .r ." . " ;]
+    0 [: cur#indent 2* 1- 0 max spaces indent# 0 .r ." . " ;]
     $tmp }}text-us p-box .child+
-    /source render-line .md-text ;
+    /source 0 render-line .md-text .\\ ;
 synonym 11. 10.
 synonym 12. 10.
 synonym 13. 10.
@@ -186,32 +201,32 @@ synonym 18. 10.
 synonym 19. 10.
 synonym 20. 10.
 : * ( -- )
-    -2 >indent
-    0 [: cur#indent 2* spaces
-	cur#indent bullet-char xemit space ;] $tmp }}text-us p-box .child+
-    /source render-line .md-text ;
+    -2 >indent dark-blue
+    0 [: cur#indent 1+ wspaces
+	cur#indent bullet-char xemit wspace ;] $tmp }}text-us p-box .child+
+    blackish /source 0 render-line .md-text .\\ ;
 : +  ( -- )
-    -2 >indent
-    0 [: cur#indent 2* spaces
-	'+' xemit space ;] $tmp }}text-us p-box .child+
-    /source render-line .md-text ;
+    -2 >indent dark-blue
+    0 [: cur#indent 1+ wspaces
+	'+' xemit wspace ;] $tmp }}text-us p-box .child+
+    blackish /source 0 render-line .md-text .\\ ;
 : -  ( -- )
-    -2 >indent
-    0 [: cur#indent 2* spaces
-	'–' xemit space ;] $tmp }}text-us p-box .child+
-    /source render-line .md-text ;
+    -2 >indent dark-blue
+    0 [: cur#indent 1+ wspaces
+	'–' xemit wspace ;] $tmp }}text-us p-box .child+
+    blackish /source 0 render-line .md-text .\\ ;
 : ±  ( -- )
-    -2 >indent
-    0 [: cur#indent 2* spaces
-	'±' xemit space ;] $tmp }}text-us p-box .child+
-    /source render-line .md-text ;
+    -2 >indent dark-blue
+    0 [: cur#indent 1+ wspaces
+	'±' xemit wspace ;] $tmp }}text-us p-box .child+
+    blackish /source 0 render-line .md-text .\\ ;
 
 previous set-current
 
 warnings !
 
-: +p-box ( -- )
-    {{ }}p dup v-box .child+ .subbox to p-box ;
+: p-format ( rw -- )
+    [{: f: rw :}l rw par-split ;] v-box .do-childs ;
 
 : ?md-token ( -- token )
     parse-name [ ' markdown >body ]L find-name-in ;
@@ -225,9 +240,13 @@ warnings !
 
 : read-par ( -- )  0 >r
     BEGIN   r@ 1 = IF  ===/---?  IF  rdrop  refill drop  EXIT  THEN  THEN
-	source  dup WHILE  preparse$ $@len IF  bl preparse$ c$+!  THEN
-	preparse$ $+! r> 1+ >r  refill 0= UNTIL
+	source dup  WHILE
+	    preparse$ $@len IF  bl preparse$ c$+!  THEN
+	    r@ IF  bl skip  THEN
+	preparse$ $+! r> 1+ >r  source + 1- c@ '\' =  refill 0= or UNTIL
 	rdrop  EXIT  THEN  rdrop 2drop ;
+: read-pre ( -- )
+    source 4 /string preparse$ $!  refill drop ;
 : hang-source ( -- addr u hang )
     source dup >r bl skip r> over - >r
     dup >r #tab skip r> over - 2* 2* r> max ;
@@ -247,19 +266,27 @@ warnings !
 
 : typeset ( -- )
     +p-box  preparse$ $@
-    ." typesetting: '" 2dup type ''' emit cr
+    \ ." typesetting: '" 2dup type ''' emit cr
     [: ?md-token ?dup-IF   name?int execute
-	ELSE  >in off  source render-line .md-text  THEN ;]
+	ELSE  >in off  source 0 render-line .md-text .\\  THEN ;]
     execute-parsing  preparse$ $free ;
+
+: pre-typeset ( -- )
+    +p-box preparse$ $@ mono render-line .md-text .\\
+    preparse$ $free ;
 
 : markdown-loop ( -- )
     BEGIN  refill-empty  WHILE  >in off
-	    ?md-token  IF  hang-read
-	    ELSE  reset-hang read-par  THEN
-	    typeset  REPEAT ;
+	    ?md-token  IF  hang-read typeset
+	    ELSE  reset-hang
+		source "    " string-prefix? IF
+		    read-pre pre-typeset  ELSE
+		    read-par typeset  THEN
+	    THEN
+    REPEAT ;
 
 : markdown-parse ( addr u -- )
-    {{ }}v to v-box open-fpath-file throw
+    {{ }}v to v-box nt open-fpath-file throw
     ['] markdown-loop execute-parsing-named-file ;
 
 previous set-current

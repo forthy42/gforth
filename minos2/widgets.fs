@@ -539,6 +539,10 @@ end-class part-text
 :noname start end orig-text .text$ text$-part text-!size ; part-text is !size
 :noname start end orig-text .text$ text$-part text-text ; part-text is draw-text
 
+: tp.widget ( -- )
+    w.widget  '"' emit start end orig-text .text$ text$-part type '"' emit cr ;
+' tp.widget part-text is .widget
+
 \ translated text
 
 : i18n-text! ( lsid font -- )
@@ -1088,7 +1092,7 @@ vbox class
 end-class parbox
 
 : p.widget ( -- )
-    b.widget
+    b.widget  w.indent# spaces subbox .name$ type ." : " cr
     1 +to w.indent# ['] .widget box-visible# subbox .?do-childs -1 +to w.indent# ;
 ' p.widget parbox is .widget
 
