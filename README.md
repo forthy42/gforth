@@ -64,10 +64,10 @@ or at\
 
 On popular request, here are the meanings of unusual file extensions:
 
-\*.fs	Forth stream source file (include with "include <file>" from within
-        gforth, or start with "gforth <file1> <file2> ...")\
-\*.fi	Forth image files (start with "gforth -i <image file>")\
-\*.fb	Forth blocks file (load with "use <block file> 1 load")\
+\*.fs	Forth stream source file (include with "`include _<file>_`" from within
+        gforth, or start with "`gforth _<file1> <file2>_ ...`")\
+\*.fi	Forth image files (start with "`gforth -i _<image file>_`")\
+\*.fb	Forth blocks file (load with "`use _<block file>_ 1 load`")\
 \*.i	C include files\
 \*.texi.in	documenation source\
 \*TAGS	etags files

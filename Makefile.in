@@ -578,8 +578,8 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	timings.sc test/coretest.out test/checkans.out test/gforth.out	      \
 	test/fp/fptest.out $(wildcard cache*.vmg) peeprules.vmg prim	      \
 	debian/rules debian/control.in debian/changelog.in debian/compat      \
-	gforth.ico .travis.yml install-swig.sh install-freetype-gl.sh	      \
-	$(SWIG_WRAP) m4/ax_gcc_builtin.m4
+	gforth.ico .travis.yml install-deps.sh install-swig.sh		      \
+	install-freetype-gl.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
 	libforth gforthker engine/Makefile engine/gforth.h		\
