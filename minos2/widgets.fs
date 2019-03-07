@@ -1089,6 +1089,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 
 vbox class
     value: subbox \ hbox to be split into
+    value: lhang  \ glue on the left side (second line onwards)
+    value: rhang  \ glue on the right side (all lines)
+    sfvalue: baseline'
 end-class parbox
 
 : p.widget ( -- )
@@ -1100,29 +1103,19 @@ end-class parbox
     dup $@ bounds ?DO  I @ .dispose  cell +LOOP  $free ;
 : par-split { f: w -- } \ split a hbox into chunks
     childs[] dispose[] 0e false
-    BEGIN  w subbox .split >r
+    BEGIN  w
+	childs[] $[]# IF
+	    lhang ?dup-IF  .hglue-c df@ f-  THEN  THEN
+	rhang ?dup-IF  .hglue-c df@ f-  THEN
+	subbox .split >r
 	childs[] $[]# 0= IF  baseline gap
-	ELSE  x-baseline fdup gap% f*  THEN
+	ELSE  baseline' fdup gap% f*  THEN
 	borderl bordert borderv border
 	r@ >o to border to borderv to bordert to borderl
 	to gap to baseline o>
-    r> o .child+ true fdup 1e f>=  UNTIL  fdrop drop ;
-Defer tab-}}h
-: par-split-hang { f: w tab -- } \ split a hbox into chunks
-    childs[] dispose[] 0e false
-    BEGIN  dup IF
-	    tab tab-}}h { tab-h } tab-h .!size
-	    w tab-h .hglue fdrop fdrop f-
-	    subbox .split >r
-	    tab-h r@ >back
-	ELSE
-	    w subbox .split >r
-	THEN
-	childs[] $[]# 0= IF  baseline gap
-	ELSE  x-baseline fdup gap% f*  THEN
-	borderl bordert borderv border
-	r@ >o to border to borderv to bordert to borderl
-	to gap to baseline o>
+	childs[] $[]# IF
+	    lhang ?dup-IF  }}glue r@ .+child  THEN  THEN
+	rhang ?dup-IF  }}glue r@ .child+  THEN
     r> o .child+ true fdup 1e f>=  UNTIL  fdrop drop ;
 
 \ create boxes

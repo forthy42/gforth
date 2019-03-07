@@ -267,8 +267,6 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
 : new-htab ( -- )
     htab-glue new dup tab-glues >stack  ;
 : nt ( -- ) new-htab to bx-tab ; \ new tab
-:noname { xt: tab -- }
-    {{ glue*l }}glue }}h tab ; is tab-}}h
 : vt{{ nt {{ ;
 : }}vt \ vertical box with tab
     }}v box[] ;

@@ -61,11 +61,11 @@ Variable us-state
 glue new Constant glue*\\
 glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 : .\\ ( -- )
-    glue*\\ }}glue p-box .child+ ;
+    glue*\\ }}glue p-box .child+ x-baseline p-box .parent-w >o to baseline' o> ;
 : +p-box ( -- )
     {{ }}p >bl dup v-box .child+
-    dup >o "p-box" to name$ o> .subbox
-    dup >o "subbox" to name$ o> to p-box ;
+    dup >o "p-box" to name$ o>
+    dup .subbox >o to parent-w "subbox" to name$ o o> to p-box ;
 : .md-text ( -- )
     md-text$ $@len IF
 	us-state @ md-text$ $@ }}text-us p-box .child+ md-text$ $free
@@ -77,6 +77,9 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 : +link ( o -- o )
     /source IF  c@ '(' =  IF  1 >in +! ')' parse link[]  THEN
     ELSE  drop  THEN ;
+
+: >lhang ( o -- o )
+    p-box .parent-w >o dup to lhang o> ;
 
 : default-char ( char -- )
     emph-flags @ last-emph-flags @ over last-emph-flags ! <> IF
@@ -128,8 +131,7 @@ md-char: 	 ( tab -- )
     " " md-text$ 0 $ins
     {{
 	{{ us-state @ md-text$ $@ }}text-us glue*l }}glue }}h box[]
-	glue*l }}glue
-    }}z box[] bx-tab
+    }}z box[] bx-tab >lhang
     p-box .child+ blackish  md-text$ $free ;
 
 : render-line ( addr u attr -- )
@@ -172,9 +174,10 @@ get-current also markdown definitions
     \normal cbl bold render-line .md-text .\\ \normal \regular ;
 : 1. ( -- )
     \ render counted line
-    -3 >indent
-    0 [: cur#indent 2* spaces indent# 0 .r ." . " ;]
-    $tmp }}text-us p-box .child+
+    -3 >indent dark-blue
+    {{ 0 [: cur#indent 2* 2 + spaces indent# 0 .r ." . " ;]
+	$tmp }}text-us
+    }}z /hfix box[] >lhang p-box .child+ blackish
     /source 0 render-line .md-text .\\ ;
 synonym 2. 1.
 synonym 3. 1.
@@ -186,9 +189,9 @@ synonym 8. 1.
 synonym 9. 1.
 : 10. ( -- )
     \ render counted line
-    -4 >indent
-    0 [: cur#indent 2* 1- 0 max spaces indent# 0 .r ." . " ;]
-    $tmp }}text-us p-box .child+
+    -4 >indent dark-blue
+    {{ 0 [: cur#indent 2* 1+ spaces indent# 0 .r ." . " ;]
+    $tmp }}text-us }}z /hfix box[] >lhang p-box .child+ blackish
     /source 0 render-line .md-text .\\ ;
 synonym 11. 10.
 synonym 12. 10.
@@ -200,25 +203,39 @@ synonym 17. 10.
 synonym 18. 10.
 synonym 19. 10.
 synonym 20. 10.
+synonym 21. 10.
+synonym 22. 10.
+synonym 23. 10.
+synonym 24. 10.
+synonym 25. 10.
+synonym 26. 10.
+synonym 27. 10.
+synonym 28. 10.
+synonym 29. 10.
+synonym 30. 10.
 : * ( -- )
     -2 >indent dark-blue
-    0 [: cur#indent 1+ wspaces
-	cur#indent bullet-char xemit wspace ;] $tmp }}text-us p-box .child+
+    {{ 0 [: cur#indent 1+ wspaces
+	    cur#indent bullet-char xemit wspace ;] $tmp }}text-us
+    }}z /hfix box[] >lhang p-box .child+
     blackish /source 0 render-line .md-text .\\ ;
 : +  ( -- )
     -2 >indent dark-blue
-    0 [: cur#indent 1+ wspaces
-	'+' xemit wspace ;] $tmp }}text-us p-box .child+
+    {{ 0 [: cur#indent 1+ wspaces
+	'+' xemit wspace ;] $tmp }}text-us
+    }}z /hfix box[] >lhang p-box .child+
     blackish /source 0 render-line .md-text .\\ ;
 : -  ( -- )
     -2 >indent dark-blue
-    0 [: cur#indent 1+ wspaces
-	'–' xemit wspace ;] $tmp }}text-us p-box .child+
+    {{ 0 [: cur#indent 1+ wspaces
+	'–' xemit wspace ;] $tmp }}text-us
+    }}z /hfix box[] >lhang p-box .child+
     blackish /source 0 render-line .md-text .\\ ;
 : ±  ( -- )
     -2 >indent dark-blue
-    0 [: cur#indent 1+ wspaces
-	'±' xemit wspace ;] $tmp }}text-us p-box .child+
+    {{ 0 [: cur#indent 1+ wspaces
+	'±' xemit wspace ;] $tmp }}text-us
+    }}z /hfix box[] >lhang p-box .child+
     blackish /source 0 render-line .md-text .\\ ;
 
 previous set-current

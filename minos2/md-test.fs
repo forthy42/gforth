@@ -38,6 +38,8 @@ require minos2/font-style.fs
 require minos2/text-style.fs
 require minos2/md-viewer.fs
 
+fpath= ~+
+
 next-arg markdown-parse
 
 dpy-w @ s>f font-size# fover 25% f* f+ f2* f- p-format
