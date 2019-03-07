@@ -10,7 +10,7 @@ Architecture: any
 Multi-Arch: same
 Depends: libltdl7, gforth-common (= @DEBVERSION@)
 Recommends: gforth-lib (= @DEBVERSION@)
-Suggests: libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc, freetype-gl
+Suggests: libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc, freetype-gl, libsoil2
 License: GPLv3
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
@@ -142,7 +142,7 @@ Package: gforth-minos2
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
-Depends: gforth (= @DEBVERSION@), gforth-opengl, freetype-gl, gforth-fonts
+Depends: gforth (= @DEBVERSION@), gforth-opengl, freetype-gl, libsoil2, gforth-fonts
 Recommends: fonts-emoji, fonts-awesome
 Description: GNU Forth Minos2 GUI
  Gforth is the Forth implementation of the GNU project, providing all
