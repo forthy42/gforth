@@ -1377,13 +1377,11 @@ bell during block file read/write operations."
 	   (forth-change-function (point-min) (point-max) nil t))))
 
 (defun forth-fill-paragraph () 
-  "Fill comments (starting with '\'; do not fill code (block style
-programmers who tend to fill code won't use emacs anyway:-)."
-  ; Currently only comments at the start of the line are filled.
-  ; Something like lisp-fill-paragraph may be better.  We cannot use
-  ; fill-paragraph, because it removes the \ from the first comment
-  ; line. Therefore we have to look for the first line of the comment
-  ; and use fill-region.
+  "Fill comments starting with '\\' which start a line; do not fill code."
+  ;; Something like lisp-fill-paragraph may be better.  We cannot use
+  ;; fill-paragraph, because it removes the \ from the first comment
+  ;; line. Therefore we have to look for the first line of the comment
+  ;; and use fill-region.
   (interactive)
   (save-excursion
     (beginning-of-line)
@@ -1396,8 +1394,10 @@ programmers who tend to fill code won't use emacs anyway:-)."
 	  (to (save-excursion (forward-paragraph) (point))))
       (if (looking-at "[ \t]*\\\\g?[ \t]+")
 	  (progn (goto-char (match-end 0))
-		 (set-fill-prefix)
-		 (fill-region from to nil))))))
+		 (let ((fill-prefix-save fill-prefix))
+		   (set-fill-prefix)
+		   (fill-region from to nil)
+		   (setq fill-prefix fill-prefix-save)))))))
 
 (defun forth-comment-indent ()
   (save-excursion

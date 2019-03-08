@@ -17,7 +17,7 @@ After 0.7.0:
 AMD64:
  sieve bubble matrix fib   fft  release; CPU; gcc
  0.093 0.099  0.042 0.104 0.030 2017-07-05; AMD Ryzen 1600X 4GHz; gcc-6.3
- 0.492 0.556  0.424 0.700 0.396 2017-05-25; Intel Atom 330 (Bonnet) 1.6GHz; gcc-4.9
+ 0.492 0.556  0.424 0.700 0.396 2017-05-25; Intel Atom 330 (Bonnell) 1.6GHz; gcc-4.9
  0.132 0.136  0.056 0.124 0.048 2017-05-25; AMD Athlon X4 845 (Carrizo/Excavator) 3.5GHz; gcc-4.9
  0.192 0.224  0.104 0.284 0.152 2016-12-22; Celeron J3455 (Goldmont) 2300MHz; gcc-4.9.2 (Debian 8)
  0.152 0.180  0.080 0.148 0.068 2017-11-08; Celeron J4105 (Goldmont+) 2350MHz; gcc-6.3.0 (Debian 9)
