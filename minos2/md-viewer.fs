@@ -32,6 +32,14 @@ Variable up-emph
 Variable count-emph
 Variable us-state
 
+: reset-emph ( -- )
+    last-emph-flags off
+    last-cchar off
+    emph-flags off
+    up-emph off
+    count-emph off
+    us-state off ;
+
 0 Value p-box \ paragraph box
 0 Value v-box \ vertical box
 
@@ -289,11 +297,11 @@ warnings !
     execute-parsing  preparse$ $free ;
 
 : pre-typeset ( -- )
-    +p-box preparse$ $@ mono render-line .md-text .\\
+    +p-box preparse$ $@ mono +emphs md-text$ $! .md-text .\\
     preparse$ $free ;
 
 : markdown-loop ( -- )
-    BEGIN  refill-empty  WHILE  >in off
+    BEGIN  refill-empty  WHILE  reset-emph >in off
 	    ?md-token  IF  hang-read typeset
 	    ELSE  reset-hang
 		source "    " string-prefix? IF
