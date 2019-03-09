@@ -184,7 +184,7 @@ static enum
    in GCC.  */
 #include <string.h>
 #define	my_index	strchr
-#define	my_bcopy(src, dst, n)	memcpy ((dst), (src), (n))
+#define	my_bcopy(src, dst, n)	memmove ((dst), (src), (n))
 #else
 
 /* Avoid depending on library functions or files

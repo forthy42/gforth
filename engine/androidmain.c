@@ -170,7 +170,7 @@ void addarg(char* arg, size_t len)
 {
   char * newarg = malloc(len+1);
 
-  memcpy(newarg, arg, len);
+  memmove(newarg, arg, len);
   newarg[len]='\0';
   argc++;
 
