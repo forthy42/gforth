@@ -260,11 +260,6 @@ Char *gforth_memset(Char * s, Cell c, UCell n)
 {
   return memset(s, c, n);
 }
-
-Char *gforth_memcpy(Char * dest, const Char* src, Cell n)
-{
-  return memcpy(dest, src, n);
-}
 #endif
 
 static Cell max(Cell a, Cell b)
@@ -949,7 +944,7 @@ static void check_prims(Label symbols1[])
   goto_p = ends1j+i+1; /* goto_p[0]==before; ...[1]==after;*/
   nends1j = i+1;
   ends1jsorted = (Label *)alloca(nends1j*sizeof(Label));
-  memcpy(ends1jsorted,ends1j,nends1j*sizeof(Label));
+  memmove(ends1jsorted,ends1j,nends1j*sizeof(Label));
   qsort(ends1jsorted, nends1j, sizeof(Label), compare_labels);
 
   /* check whether the "goto *" is relocatable */
@@ -1111,7 +1106,7 @@ static void MAYBE_UNUSED align_code(void)
   UCell offset = ((UCell)code_here)&(alignment-1);
   UCell length = alignment-offset;
   if (length <= maxpadding) {
-    memcpy(code_here,nops+offset,length);
+    memmove(code_here,nops+offset,length);
     code_here += length;
   }
 #endif /* defined(CODE_PADDING) */
@@ -1125,10 +1120,10 @@ static void append_jump(void)
     PrimInfo *pi = &priminfos[last_jump];
     
     /* debugp(stderr, "Copy code %p<=%p+%x,%d\n", code_here, pi->start, pi->length, pi->restlength); */
-    memcpy(code_here, pi->start+pi->length, pi->restlength);
+    memmove(code_here, pi->start+pi->length, pi->restlength);
     code_here += pi->restlength;
     /* debugp(stderr, "Copy goto %p<=%p,%d\n", code_here, goto_start, goto_len); */
-    memcpy(code_here, goto_start, goto_len);
+    memmove(code_here, goto_start, goto_len);
     code_here += goto_len;
     align_code();
     last_jump=0;
@@ -1181,7 +1176,7 @@ static Address append_prim(Cell p)
   if(reserve_code_space(pi->length+pi->restlength+goto_len+CODE_ALIGNMENT-1))
     return NULL;
   /* debugp(stderr, "Copy code %p<=%p,%d\n", code_here, pi->start, pi->length); */
-  memcpy(code_here, pi->start, pi->length);
+  memmove(code_here, pi->start, pi->length);
   old_code_here = code_here;
   code_here += pi->length;
   return old_code_here;
@@ -1994,7 +1989,7 @@ static FILE *checkimage(char *path, int len, char *imagename)
 #endif
     ;
 
-  memcpy(fullfilename, path, dirlen);
+  memmove(fullfilename, path, dirlen);
   if (dirlen && fullfilename[dirlen-1]!=DIRSEP)
     fullfilename[dirlen++]=DIRSEP;
   strcpy(fullfilename+dirlen,imagename);
