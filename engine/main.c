@@ -21,6 +21,7 @@
 
 #include "config.h"
 #include "forth.h"
+#include "symver.h"
 #include <errno.h>
 #include <ctype.h>
 #include <stdio.h>

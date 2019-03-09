@@ -21,6 +21,7 @@
 #include "config.h"
 #include "forth.h"
 #include "io.h"
+#include "symver.h"
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
