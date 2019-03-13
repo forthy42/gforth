@@ -38,7 +38,7 @@ require minos2/font-style.fs
 require minos2/text-style.fs
 require minos2/md-viewer.fs
 
-fpath= ~+
+fpath+ ~+
 
 next-arg markdown-parse
 

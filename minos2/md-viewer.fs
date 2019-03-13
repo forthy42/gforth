@@ -49,13 +49,14 @@ Variable us-state
 	0 ?DO bit LOOP drop ;
 [THEN]
 
-1 7 bits: italic underline 2underline sitalic bold mono strikethrough
+1 8 bits: italic underline 2underline sitalic bold mono strikethrough #dark-blue
 
 : +emphs ( flags -- )
     \regular \sans
     dup [ underline 2underline or ]L and 2/  us-state !
     dup strikethrough and 4 rshift us-state +!
     dup mono and IF  \mono  THEN
+    dup #dark-blue and IF  dark-blue  ELSE  blackish  THEN
     [ italic sitalic bold or or ]L and
     dup 1 and swap 3 rshift xor
     case
@@ -112,6 +113,18 @@ Create do-char $100 0 [DO] ' .char , [LOOP]
 	emph-flags @ and 0= up-emph !
     ELSE  1 count-emph +!  drop  THEN ;
 
+: render-line ( addr u attr -- )
+    \G render a line
+    +emphs
+    [: BEGIN  /source  WHILE  1 >in +!
+		c@ dup cells do-char + perform
+	REPEAT  drop ;] execute-parsing ;
+
+: ]-parse ( -- addr u )
+    /source drop
+    BEGIN  ']' parse  dup IF  2dup + 1- c@ '\' =  ELSE  false  THEN  WHILE
+	    2drop  REPEAT  + over - ;
+
 md-char: * ( char -- )
     [ sitalic bold or ]L swap ?count-emph
     sitalic up-emph @ 0= IF  negate  THEN  emph-flags +! ;
@@ -129,11 +142,22 @@ md-char: ~ ( char -- )
     ELSE  '~' .char  THEN ;
 md-char: \ ( char -- )
     drop /source IF  c@ .char  1 >in +!  ELSE  drop  THEN ;
+md-char: ! ( char -- )
+    /source "[" string-prefix? IF
+	drop 1 >in +! ]-parse
+	.md-text dark-blue
+	dup 0= IF  2drop " "  THEN
+	1 -rot }}text-us +link p-box .child+ blackish
+    ELSE  .char  THEN ;
 md-char: [ ( char -- )
-    drop ']' parse 2dup "![" search nip nip IF
-	drop ')' parse 2drop ']' parse + over -  THEN
-    .md-text dark-blue
-    1 -rot }}text-us +link p-box .child+ blackish ;
+    drop ]-parse 2dup "![" search nip nip IF
+	drop ')' parse 2drop ]-parse + over -  THEN
+    .md-text
+    dup 0= IF  2drop " "  THEN
+    us-state @ >r p-box >r {{ }}h box[] to p-box
+    [ underline #dark-blue or ]L render-line .md-text
+    p-box r> to p-box r> us-state ! blackish
+    +link p-box .child+ ;
 md-char: 	 ( tab -- )
     drop dark-blue ['] wspace md-text$ $exec
     " " md-text$ 0 $ins
@@ -141,13 +165,6 @@ md-char: 	 ( tab -- )
 	{{ us-state @ md-text$ $@ }}text-us glue*l }}glue }}h box[]
     }}z box[] bx-tab >lhang
     p-box .child+ blackish  md-text$ $free ;
-
-: render-line ( addr u attr -- )
-    \G render a line
-    +emphs
-    [: BEGIN  /source  WHILE  1 >in +!
-		c@ dup cells do-char + perform
-	REPEAT  drop ;] execute-parsing ;
 
 $10 cells buffer: indent#s
 0 Value cur#indent
@@ -245,7 +262,12 @@ synonym 30. 10.
 	'±' xemit wspace ;] $tmp }}text-us
     }}z /hfix box[] >lhang p-box .child+
     blackish /source 0 render-line .md-text .\\ ;
-
+: > ( -- )
+    -2 >indent dark-blue
+    {{ 0 [: cur#indent 1+ wspaces
+	'|' xemit wspace ;] $tmp }}text-us
+    }}z /hfix box[] >lhang p-box .child+
+    blackish /source 0 render-line .md-text .\\ ;
 previous set-current
 
 warnings !

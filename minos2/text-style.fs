@@ -32,6 +32,8 @@ blackish
 : >bl ( o -- o' )
     >o x-baseline to baseline
     x-baseline gap% f* font@gap fmax to gap o o> cbl ;
+: >bl' ( o -- o' )
+    >bl >o x-baseline to baseline' o o> ;
 : }}text ( addr u -- o )
     text new >o font@ text! x-color to text-color  x-border to border o o> ;
 : }}text-us ( us addr u -- o )
@@ -56,9 +58,14 @@ Defer }}text' ' }}text IS }}text'
 : /left ( o -- o' )
     >r {{ r> glue*l }}glue }}h box[] >bl ;
 : \\ }}text' /left ;
-: p\\  }}text' >r {{ r> glue*l }}glue }}p box[] >bl
-    dpy-w @ s>f font-size# 140% f* f- 1e text-shrink% f2/ f- f/ dup .par-split
-    unbox ;
+: p\\ ( text -- )
+    }}text' >r {{ r> glue*l }}glue }}p box[] >bl'
+    dpy-w @ s>f font-size# 140% f* f- 1e text-shrink% f2/ f- f/ dup .par-split ;
+: p2\\ ( text1 text2 -- )
+    }}text' >r dark-blue }}text' blackish >r {{ r> }}z >r
+    {{ r> r> over >r glue*l }}glue }}p box[] >bl'
+    r> over >o to lhang o>
+    dpy-w @ s>f font-size# 140% f* f- 1e text-shrink% f2/ f- f/ dup .par-split ;
 : e\\ }}emoji >r }}text' >r {{ r> glue*l }}glue r> }}h box[] >bl ;
 : /right ( o -- o' )
     >r {{ glue*l }}glue r> }}h box[] >bl ;
