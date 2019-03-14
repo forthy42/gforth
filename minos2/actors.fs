@@ -48,21 +48,21 @@ end-class simple-actor
 debug: event( \ +db event( \ )
 
 :noname { f: rx f: ry b n -- }
-    click( o hex. caller-w hex. ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
+    click( o hex. caller-w .name$ type space caller-w hex. ." simple click: " rx f. ry f. b . n . cr ) ; simple-actor is clicked
 :noname ( addr u -- )
-    event( o hex. caller-w hex. ." keyed: " type cr )else( 2drop ) ; simple-actor is ukeyed
+    event( o hex. caller-w .name$ type space caller-w hex. ." keyed: " type cr )else( 2drop ) ; simple-actor is ukeyed
 :noname ( ekey -- )
-    event( o hex. caller-w hex. ." ekeyed: " hex. cr )else( drop ) ; simple-actor is ekeyed
+    event( o hex. caller-w .name$ type space caller-w hex. ." ekeyed: " hex. cr )else( drop ) ; simple-actor is ekeyed
 : .touch ( $xy b -- )
     event( ." touch: " hex. $@ bounds ?DO  I sf@ f.  1 sfloats +LOOP cr )else( 2drop ) ;
 :noname ( $xy b -- )
-    event( o hex. caller-w hex. ." down " .touch )else( 2drop )
+    event( o hex. caller-w .name$ type space caller-w hex. ." down " .touch )else( 2drop )
 ; simple-actor is touchdown
 :noname ( $xy b -- )
-    event( o hex. caller-w hex. ." up " .touch )else( 2drop )
+    event( o hex. caller-w .name$ type space caller-w hex. ." up " .touch )else( 2drop )
 ; simple-actor is touchup
 :noname ( $xy b -- )
-    event( o hex. caller-w hex. ." move " .touch )else( 2drop )
+    event( o hex. caller-w .name$ type space caller-w hex. ." move " .touch )else( 2drop )
 ; simple-actor is touchmove
 :noname ( -- ) o to inside-move? ; simple-actor is entered
 
@@ -127,7 +127,7 @@ end-class box-actor
     dup engage >o tuck to text$ 0 to curpos to cursize o> ;
 
 :noname ( rx ry b n -- )
-    click( o hex. caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
+    click( o hex. caller-w .name$ type space caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
     grab-move? IF
 	active-w ?dup-IF
 	    [{: f: rx f: ry b n ox :}l ox .act
@@ -139,6 +139,10 @@ end-class box-actor
 	    click( ." click passed through " .parents cr )
 	    c-act re-focus
 	    fover fover 2dup act .clicked
+	ELSE
+	    click( ." click outside " name$ type space
+	    x f. y f. w f. h f. ." <> " fover fover f. f. 
+	    .parents cr )
 	THEN
 	c-act ;] box-touched# do-childs-act? drop
     2drop fdrop fdrop ;
@@ -313,7 +317,7 @@ forward anim-del
 forward >animate
 
 :noname ( rx ry bmask n -- )
-    click( o hex. ." vp is clicked" cr )
+    click( o hex. caller-w .name$ type space ." vp click" cr )
     grab-move? o <> IF
 	fover fover caller-w .inside? 0= IF  2drop fdrop fdrop  EXIT  THEN
     THEN

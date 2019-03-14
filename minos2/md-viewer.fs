@@ -72,7 +72,7 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 : .\\ ( -- )
     glue*\\ }}glue p-box .child+ x-baseline p-box .parent-w >o to baseline' o> ;
 : +p-box ( -- )
-    {{ }}p >bl dup v-box .child+
+    {{ }}p box[] >bl dup v-box .child+
     dup >o "p-box" to name$ o>
     dup .subbox >o to parent-w "subbox" to name$ o o> to p-box ;
 : .md-text ( -- )
@@ -115,10 +115,11 @@ Create do-char $100 0 [DO] ' .char , [LOOP]
 
 : render-line ( addr u attr -- )
     \G render a line
-    +emphs
+    emph-flags @ >r dup emph-flags ! +emphs
     [: BEGIN  /source  WHILE  1 >in +!
 		c@ dup cells do-char + perform
-	REPEAT  drop ;] execute-parsing ;
+	REPEAT  drop ;] execute-parsing
+    r> emph-flags ! ;
 
 : ]-parse ( -- addr u )
     /source drop
@@ -333,8 +334,9 @@ warnings !
     REPEAT ;
 
 : markdown-parse ( addr u -- )
-    {{ }}v to v-box nt open-fpath-file throw
-    ['] markdown-loop execute-parsing-named-file ;
+    {{ }}v box[] to v-box nt open-fpath-file throw
+    ['] markdown-loop execute-parsing-named-file
+    reset-emph \regular \sans \normal ;
 
 previous set-current
 

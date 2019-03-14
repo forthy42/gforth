@@ -769,6 +769,7 @@ end-class box
 	dup >r    box-flags or  to box-flags  do-childs-?act
 	r> invert box-flags and to box-flags
     ELSE
+	click( ." box " name$ type ."  loop prevented" cr )
 	2drop
     THEN o> ;
 
