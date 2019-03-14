@@ -595,7 +595,7 @@ Defer anim-ins
     setstring$ $@ xins-string  setstring$ $free edit-update ;
 
 : edit-paste ( max span addr pos1 - max span addr pos2 false )
-    setstring> primary@ edit-split-ins$ edit-update 0 ;
+    setstring> clipboard@ edit-split-ins$ edit-update 0 ;
 
 : xedit-enter ( max span addr pos1 -- max span addr pos2 true )
     setstring> edit-enter ;
@@ -754,8 +754,9 @@ edit-terminal edit-out !
 		0  to start-cursize
 		o>
 	    endof
-	    2 of  drop fdrop edit>curpos
-		[: setstring> primary@ edit-split-ins$ ;] edit-xt  endof
+	    2 of  2 = IF fdrop edit>curpos
+		    [: setstring> primary@ edit-split-ins$ ;] edit-xt
+		ELSE  fdrop fdrop  THEN  endof
 	    4 of  ( menu   )  drop fdrop fdrop  endof
 	    nip fdrop fdrop
 	endcase
@@ -770,3 +771,6 @@ edit-terminal edit-out !
     ['] false is edit-prev-line
     ['] noop  is edit-filter o>
     o o> ;
+
+: filter[] ( o xt -- o ) { xt }
+    >o act >o xt is edit-filter o> o o> ;
