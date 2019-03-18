@@ -74,7 +74,7 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 : +p-box ( -- )
     {{ }}p box[] >bl dup v-box .child+
     dup >o "p-box" to name$ o>
-    dup .subbox >o to parent-w "subbox" to name$ o o> to p-box ;
+    dup .subbox >o to parent-w "subbox" to name$ o o> box[] to p-box ;
 : .md-text ( -- )
     md-text$ $@len IF
 	us-state @ md-text$ $@ }}text-us p-box .child+ md-text$ $free

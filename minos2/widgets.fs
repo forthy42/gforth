@@ -20,9 +20,10 @@
 \ A MINOS2 widget is composed of drawable elements, boxes and actors.
 \ to make things easier, neither drawable elements nor boxes need an actor.
 
-debug: time(  \ +db time( \ )
-debug: gui(   \ +db gui( \ )
-debug: click( \ +db click( \ )
+debug: time(    \ +db time( \ )
+debug: gui(     \ +db gui( \ )
+debug: click(   \ +db click( \ )
+debug: click-o( \ +db click-o( \ )
 
 [IFUNDEF] no-file#
     2 Constant ENOENT
@@ -757,7 +758,7 @@ end-class box
     cell +LOOP ;
 : do-childs-?act { xt: xt -- .. }
     childs[] $@ bounds U+DO
-	I @ .act IF  I @ .xt  THEN
+	I @ >o act IF  xt  THEN  o>
     cell +LOOP ;
 : ?do-childs { xt flag -- }
     box-flags flag and 0= IF  xt do-childs  THEN ;
@@ -995,7 +996,9 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 	    >o !size hglue fdrop fdrop o o> to ow
 	    newbox .child+ \ add to children
 	ELSE
-	    newbox .childs[] dup $[]# 1- swap $[] @ >o lastfit !size o>
+	    \ !!FIXME!! check if childs[] $[]# 0>
+	    newbox .childs[] dup $[]#
+	    dup IF  1- swap $[] @ >o lastfit !size o>  ELSE  2drop  THEN
 	THEN
 	fdup to startx
 	1e f>= IF

@@ -140,7 +140,7 @@ end-class box-actor
 	    c-act re-focus
 	    fover fover 2dup act .clicked
 	ELSE
-	    click( ." click outside " name$ type space
+	    click-o( ." click outside " name$ type space
 	    x f. y f. w f. h f. ." <> " fover fover f. f. 
 	    .parents cr )
 	THEN
@@ -436,15 +436,15 @@ end-class hsliderright-actor
 
 :noname ( rx ry b n -- )
     fdrop fdrop  1 and 0= swap 1 u<= and IF
-	slide-vp >o w         act o> >o  o anim-del
+	slide-vp >o w         act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dx  0e to vmotion-dt  0e to vmotion-dy
-	0.333e o ['] vp-scroll >animate o>
+	0.333e o ['] vp-scroll >animate o>  ELSE fdrop THEN
     THEN ; hsliderleft-actor to clicked
 :noname ( rx ry b n -- )
     fdrop fdrop  1 and 0= swap 1 u<= and IF
-	slide-vp >o w fnegate act o> >o  o anim-del
+	slide-vp >o w fnegate act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dx  0e to vmotion-dt  0e to vmotion-dy
-	0.333e o ['] vp-scroll >animate o>
+	0.333e o ['] vp-scroll >animate o>  ELSE fdrop THEN
     THEN ; hsliderright-actor to clicked
 
 : hsliderleft[] ( vp o -- ) hsliderleft-actor (hslider[]) ;
@@ -488,15 +488,15 @@ end-class vsliderdown-actor
 
 :noname ( rx ry b n -- )
     fdrop fdrop  1 and 0= swap 1 u<= and IF
-	slide-vp >o h         act o> >o  o anim-del
+	slide-vp >o h         act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dy  0e to vmotion-dt  0e to vmotion-dx
-	0.333e o ['] vp-scroll >animate o>
+	0.333e o ['] vp-scroll >animate o>  ELSE  fdrop  THEN
     THEN ; vsliderup-actor to clicked
 :noname ( rx ry b n -- )
     fdrop fdrop  1 and 0= swap 1 u<= and IF
-	slide-vp >o h fnegate act o> >o  o anim-del
+	slide-vp >o h fnegate act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dy  0e to vmotion-dt  0e to vmotion-dx
-	0.333e o ['] vp-scroll >animate o>
+	0.333e o ['] vp-scroll >animate o>  ELSE  fdrop  THEN
     THEN ; vsliderdown-actor to clicked
 
 : vsliderup[] ( vp o -- ) vsliderup-actor (vslider[]) ;
