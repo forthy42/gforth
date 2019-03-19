@@ -49,19 +49,19 @@ Variable fonts[] \ stack of used fonts
 [THEN]
 
 [IFDEF] texture_font_t-scaletex
-    Create text-texscale0 2 sfloats allot
-    Create text-texscale1 2 sfloats allot
+    Create texscale0 1e sf, 1e sf,
+    Create texscale1 1e sf, 1e sf,
+    Create texscale2 1e sf, 1e sf,
+    Create texscale3 1e sf, 1e sf,
     
+    : scaletex ( atlas dest -- dest ) >r
+	1e dup texture_atlas_t-height @ fm/
+	1e     texture_atlas_t-width  @ fm/
+	r@ sf!+ sf! r> ;
     : atlas-scaletex ( -- )
-	1e atlas texture_atlas_t-height @ fm/
-	1e atlas texture_atlas_t-width  @ fm/
-	text-texscale0 sf!+ sf!
-	text-texscale0 set-texscale1 ;
+	atlas texscale3 scaletex set-texscale3 ;
     : atlas-bgra-scaletex ( -- )
-	1e atlas-bgra texture_atlas_t-height @ fm/
-	1e atlas-bgra texture_atlas_t-width  @ fm/
-	text-texscale1 sf!+ sf!
-	text-texscale1 set-texscale0 ;
+	atlas-bgra texscale2 scaletex set-texscale2 ;
 [THEN]
 
 : open-font ( atlas rfontsize addr u -- font )

@@ -656,10 +656,32 @@ Variable *ins-o
 :noname ( -- ) ['] edit-text    pw-xt ; pw-edit is draw-text
 :noname ( -- ) ['] edit-!size   pw-xt ; pw-edit is !size
 
-\ draw wrapper
+\ thumb texture
 
-:noname defers reload-textures  level# @ 0> IF  program init  THEN ;
+also freetype-gl
+$200 Value thumb-rgba#
+0 Value thumb-rgba
+tex: thumb-tex-rgba
+
+: thumb-rgba-scaletex ( -- )
+    thumb-rgba texscale1 scaletex set-texscale1 ;
+: gen-thumb-tex ( -- )
+    thumb-tex-rgba
+    GL_TEXTURE_2D thumb-rgba texture_atlas_t-id l@ glBindTexture edge linear
+    thumb-rgba upload-atlas-tex ;
+
+: init-thumb-atlas
+    thumb-rgba#  dup 1 texture_atlas_new to thumb-rgba
+    thumb-tex-rgba current-tex thumb-rgba texture_atlas_t-id l! ;
+
+init-thumb-atlas
+
+:noname defers reload-textures gen-thumb-tex
+    level# @ 0> IF  program init  THEN ;
 is reload-textures
+previous
+
+\ draw wrapper
 
 also freetype-gl
 : <draw-init ( -- )
@@ -687,6 +709,10 @@ previous
     z-bias set-color+2
     atlas-bgra-scaletex
     atlas-tex-bgra
+    GL_TEXTURE1 glActiveTexture
+    z-bias set-color+1
+    thumb-rgba-scaletex
+    thumb-tex-rgba
     GL_TEXTURE0 glActiveTexture
     -2e to t.i0
     vi0 ; \ bg+text+marking draw, one draw call in total
@@ -697,22 +723,29 @@ atlas-region buffer: (ar)
 
 also soil also freetype-gl
 
-: mem>style ( addr u -- ivec4-addr )
-    atlas-tex-bgra
+: (mem>style) { atlas val -- ivec4-addr }
     over >r  0 0 0 { w^ w w^ h w^ ch# }
     w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
     r> free throw
     BEGIN
-	atlas-bgra w @ 1+ h @ 1+ (ar) texture_atlas_get_region
+	atlas w @ 1+ h @ 1+ (ar) texture_atlas_get_region
 	(ar) i.x (ar) i.y -1 -1 d= WHILE
-	    atlas-bgra atlas-bgra# 2* dup >r to atlas-bgra#
+	    atlas val @ 2* dup >r val !
 	    r> dup texture_atlas_enlarge_texture
     REPEAT
-    >r atlas-bgra (ar) i.x (ar) i.y (ar) i.w 1- (ar) i.h 1- r@ (ar) i.w 1- 2* 2*
+    >r atlas (ar) i.x (ar) i.y (ar) i.w 1- (ar) i.h 1- r@ (ar) i.w 1- 2* 2*
     texture_atlas_set_region
-    r> free throw  (ar) ;
+    r> free throw  (ar)
+    GL_TEXTURE0 glActiveTexture ;
+: mem>style ( addr u -- ivec4-addr )
+    GL_TEXTURE2 glActiveTexture
+    atlas-tex-bgra atlas-bgra addr atlas-bgra# (mem>style) ;
 : load-style ( addr u -- ivec4-addr )
     open-fpath-file throw 2drop slurp-fid mem>style ;
+
+: mem>thumb ( addr u -- ivec4-addr )
+    GL_TEXTURE1 glActiveTexture
+    thumb-tex-rgba thumb-rgba addr thumb-rgba# (mem>style) ;
 
 previous previous
 
