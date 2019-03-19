@@ -366,6 +366,24 @@ end-structure
 
 ' tile-draw tile is draw-bg
 
+tile class
+end-class thumbnail
+
+: draw-thumb ( -- )
+    xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
+    frame# IF
+	frame-color
+	1e to t.i0  6 ?flush-tris
+	frame# i>off >v
+	x1 y1 >xy fdup i>c n> 0e 0e dup #>st v+
+	x2 y1 >xy fdup i>c n> 1e 0e dup #>st v+
+	x1 y2 >xy fdup i>c n> 0e 1e dup #>st v+
+	x2 y2 >xy      i>c n> 1e 1e     #>st v+
+	v> 2 quad
+    THEN ;
+
+' draw-thumb thumbnail is draw-bg
+
 \ canvas widget
 
 tile class
@@ -670,8 +688,14 @@ tex: thumb-tex-rgba
     GL_TEXTURE_2D thumb-rgba texture_atlas_t-id l@ glBindTexture edge linear
     thumb-rgba upload-atlas-tex ;
 
+: ?mod-thumb ( -- )
+    thumb-rgba texture_atlas_t-modified c@ IF
+	gen-thumb-tex time( ." thumb: " .!time cr )
+	0 thumb-rgba texture_atlas_t-modified c!
+    THEN ;
+
 : init-thumb-atlas
-    thumb-rgba#  dup 1 texture_atlas_new to thumb-rgba
+    thumb-rgba#  dup 4 texture_atlas_new to thumb-rgba
     thumb-tex-rgba current-tex thumb-rgba texture_atlas_t-id l! ;
 
 init-thumb-atlas
@@ -724,9 +748,8 @@ atlas-region buffer: (ar)
 also soil also freetype-gl
 
 : (mem>style) { atlas val -- ivec4-addr }
-    over >r  0 0 0 { w^ w w^ h w^ ch# }
+    0 0 0 { w^ w w^ h w^ ch# }
     w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
-    r> free throw
     BEGIN
 	atlas w @ 1+ h @ 1+ (ar) texture_atlas_get_region
 	(ar) i.x (ar) i.y -1 -1 d= WHILE
@@ -738,8 +761,10 @@ also soil also freetype-gl
     r> free throw  (ar)
     GL_TEXTURE0 glActiveTexture ;
 : mem>style ( addr u -- ivec4-addr )
+    over >r
     GL_TEXTURE2 glActiveTexture
-    atlas-tex-bgra atlas-bgra addr atlas-bgra# (mem>style) ;
+    atlas-tex-bgra atlas-bgra addr atlas-bgra# (mem>style)
+    r> free throw ;
 : load-style ( addr u -- ivec4-addr )
     open-fpath-file throw 2drop slurp-fid mem>style ;
 
@@ -1202,7 +1227,7 @@ htab-glue is hglue!@
 
 : widget-draw ( o:widget -- )  time( ." draw:  " .!time cr )
     widget-init
-    <draw-text draw-bg draw-text   render>      time( ." text:  " .!time cr )
+    <draw-text draw-bg draw-text   ?mod-thumb render>      time( ." text:  " .!time cr )
     <draw-image     draw-image     draw-image>  time( ." img:   " .!time cr )
     sync time( ." sync:  " .!time cr ) ;
 
@@ -1292,7 +1317,7 @@ end-class viewport
 : draw-vpchilds ( -- )
     <draw-vp        ['] draw-init      do-vp-childs  draw-init>
     <draw-text      ['] draw-bg        do-vp-childs
-                    ['] draw-text      do-vp-childs  render>
+                    ['] draw-text      do-vp-childs  ?mod-thumb render>
     <draw-image     ['] draw-image     do-vp-childs  draw-image>
     draw-vp> ;
 
