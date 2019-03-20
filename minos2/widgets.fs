@@ -409,13 +409,25 @@ tile class
 end-class image
 
 ' noop       image is draw-bg
+
+Create rot-sts \ exif rotation
+    0 c, 1 c, 2 c, 3 c, \ normal
+    1 c, 0 c, 3 c, 2 c, \ flip horizontal
+    3 c, 2 c, 1 c, 0 c, \ upside down
+    2 c, 3 c, 0 c, 1 c, \ flip vertical
+    0 c, 2 c, 1 c, 3 c, \ turn right+flip
+    2 c, 0 c, 3 c, 1 c, \ turn right
+    3 c, 1 c, 2 c, 0 c, \ turn left+flip
+    1 c, 3 c, 0 c, 2 c, \ turn left
+: rot>st ( n -- )
+    rot-sts + c@ dup 1 and s>f 2/ 1 and s>f >st ;
 : xywh-rect ( fcolor -- )
-    xywh >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
+    xywh >xyxy frame# 2 lshift { f: x1 f: y1 f: x2 f: y2 fx# -- }
     6 ?flush-tris  i>off  >v
-    x1 y1 >xy fdup i>c n> 0e 0e >st v+
-    x2 y1 >xy fdup i>c n> 1e 0e >st v+
-    x1 y2 >xy fdup i>c n> 0e 1e >st v+
-    x2 y2 >xy      i>c n> 1e 1e >st v+
+    x1 y1 >xy fdup i>c n> fx#     rot>st v+
+    x2 y1 >xy fdup i>c n> fx# 1+  rot>st v+
+    x1 y2 >xy fdup i>c n> fx# 2 + rot>st v+
+    x2 y2 >xy      i>c n> fx# 3 + rot>st v+
     v> 2 quad
     GL_TRIANGLES draw-elements ;
 :noname ( -- )

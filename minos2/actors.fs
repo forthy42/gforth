@@ -350,7 +350,7 @@ forward >animate
 	    vmotion-dt vmotion-dy f*
 	THEN  to vmotion-dy  0e to vmotion-dt
 	o anim-del
-	caller-w .vp-h 32e f/ fm*
+	caller-w .h 16 fm*/
 	dup
 	$08 and IF  fdup +to vmotion-dy  THEN  fnegate
 	$10 and IF  fdup +to vmotion-dy  THEN  fdrop fdrop fdrop
