@@ -96,8 +96,7 @@ Variable image-file[]
     file>fpath $make dup image-file[] >stack dup cell+ swap @
     2 pick execute
     load-texture glue new >o
-    s>f fover f* vglue-c df!
-    s>f       f* hglue-c df! o o> dup >r
+    fdup fm* vglue-c df!  fm* hglue-c df!  o o> dup >r
     swap white# }}image r> ;
 : reload-images ( -- )
     image-tex[] $[]# 0 DO

@@ -86,6 +86,24 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 : +link ( o -- o )
     /source IF  c@ '(' =  IF  1 >in +! ')' parse link[]  THEN
     ELSE  drop  THEN ;
+: }}image-file' ( addr u hmax vmax -- o glue-o ) { f: w% f: h% }
+    noname tex: latestxt
+    pixelsize# f*
+    dup image-tex[] >stack
+    -rot file>fpath $make dup image-file[] >stack dup cell+ swap @
+    2 pick execute
+    load-texture
+    2dup dpy-h @ s>f fm/ h% f* dpy-w @ s>f fm/ w% f* fmin
+    \ not bigger than x% of screen
+    glue new >o
+    fdup fm* vglue-c df!  fm* hglue-c df!  o o> dup >r
+    swap white# }}image r> ;
+: +image ( o -- o )
+    /source IF  c@ '(' =  IF  1 >in +! ')' parse
+	    2dup "file:" string-prefix? IF  5 /string  THEN
+	    50% 100% }}image-file' drop
+	2>r {{ 2r> swap >r {{ glue*l }}glue r> /center }}v }}z box[] THEN
+    ELSE  drop  THEN ;
 
 : >lhang ( o -- o )
     p-box .parent-w >o dup to lhang o> ;
@@ -148,7 +166,7 @@ md-char: ! ( char -- )
 	drop 1 >in +! ]-parse
 	.md-text dark-blue
 	dup 0= IF  2drop " "  THEN
-	1 -rot }}text-us +link p-box .child+ blackish
+	1 -rot }}text-us +image p-box .child+ blackish
     ELSE  .char  THEN ;
 md-char: [ ( char -- )
     drop ]-parse 2dup "![" search nip nip IF

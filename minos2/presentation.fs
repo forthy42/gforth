@@ -169,7 +169,6 @@ glue-left  >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 glue-right >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 
 tex: minos2
-1 ms \ strange delay necessary here
 ' minos2 "net2o-minos2.png" 0.666e }}image-file Constant minos2-glue drop
 
 : logo-img ( xt xt -- o o-img ) 2>r

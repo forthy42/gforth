@@ -123,4 +123,4 @@ DOES> + c@ ;
 : >thumbnail ( fn-addr u1 -- jpeg-addr u2 )
     >exif ?exif exw 12 * jpeg+seek exl exif-seek >thumb
     thumb-len thumb-off exif-slurp
-    jpeg-fd close-file throw 0 to jpeg-fd ;
+    jpeg-fd close-file 0 to jpeg-fd throw ;
