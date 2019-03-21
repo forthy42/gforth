@@ -688,7 +688,9 @@ Variable tex-index
 : tex[] ( index -- )  tex@ GL_TEXTURE_2D swap glBindTexture ;
 : tex: ( "name" -- )
     Create 1 tex-index +!@ ,
-    DOES> @ tex[] ;
+  DOES> @ tex[] ;
+: tex-xt ( -- xt )
+    1 tex-index +!@ [{: index :}h index tex[] ;] ;
 
 tex: none-tex
 

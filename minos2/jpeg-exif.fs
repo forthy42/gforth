@@ -116,15 +116,13 @@ DOES> + c@ ;
 
 : >thumb ( -- )
     exw 0 ?DO
-	exw exw exl { cmd type len | offset }
-	case len
-	    1 of  exb to offset  exb exw 2drop  endof
-	    2 of  exw to offset  exw drop  endof
-	    exl to offset
+	exw exw exl { cmd type len }
+	exl case cmd
+	    $112 of  to img-orient  endof
+	    $201 of  to thumb-off   endof
+	    $202 of  to thumb-len   endof
+	    nip
 	endcase
-	cmd $112 = IF  offset to img-orient THEN
-	cmd $201 = IF  offset to thumb-off  THEN
-	cmd $202 = IF  offset to thumb-len  THEN
     LOOP ;
 
 : >thumb-scan ( fn-addr u1 -- )
@@ -132,7 +130,7 @@ DOES> + c@ ;
     >exif ?exif exw 12 * jpeg+seek exl exif-seek >thumb ;
 
 : exif-close ( -- )
-    jpeg-fd close-file 0 to jpeg-fd throw ;
+    jpeg-fd ?dup-IF   close-file 0 to jpeg-fd throw  THEN ;
 : thumbnail@ ( -- addr u )
     thumb-len thumb-off exif-slurp ;
 : >thumbnail ( fn-addr u1 -- jpeg-addr u2 )

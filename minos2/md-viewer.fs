@@ -89,27 +89,45 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     /source IF  c@ '(' =  IF  1 >in +! ')' parse link[]  THEN
     ELSE  drop  THEN ;
 
-: }}image-file' ( addr u hmax vmax -- o glue-o ) { f: w% f: h% }
-    noname tex: latestxt
-    pixelsize# f*
-    dup image-tex[] >stack
-    -rot file>fpath $make dup image-file[] >stack dup cell+ swap @
-    2dup dup 4 - 0 max safe/string ".jpg" str= IF
-	2dup >thumb-scan  img-orient 1- 0 max
-    ELSE  0  THEN
-    { img-rot# }
-    2 pick execute
-    load-texture img-rot# 1 and IF  swap  THEN
+: jpeg? ( addr u -- flag )
+    dup 4 - 0 max safe/string ".jpg" str= ;
+: img-orient? ( addr u -- flag )
+    2dup jpeg? IF
+	>thumb-scan  img-orient 1- 0 max
+    ELSE  2drop 0  THEN ;
+
+Variable imgs#
+-1 Value imgs#max
+
+: load-thumb ( addr u -- w h thumb )
+    thumbnail@ mem>thumb >r r@ i.w r@ i.h r> ;
+
+: load/thumb { w^ fn$ -- w h thumb }
+    thumbnail@ nip 0<> imgs# @ imgs#max u>= and IF
+	load-thumb fn$ $free
+    ELSE
+	fn$ @ image-file[] >stack
+	fn$ $@ slurp-file mem>texture false
+    THEN  1 imgs# +! ;
+
+: }}image-file' ( addr u hmax vmax -- o ) { f: w% f: h% | w^ fn$ }
+    tex-xt dup image-tex[] >stack
+    -rot file>fpath fn$ $!
+    fn$ $@ img-orient? { img-rot# }
+    dup execute
+    fn$ @ load/thumb { thumb }
+    img-rot# 1 and IF  swap  THEN
     2dup dpy-h @ s>f fm/ h% f* dpy-w @ s>f fm/ w% f* fmin
     \ not bigger than x% of screen
     glue new >o
-    fdup fm* vglue-c df!  fm* hglue-c df!  o o> dup >r
-    swap white# }}image
-    >o img-rot# to frame# o o> r> ;
+    fdup fm* vglue-c df!  fm* hglue-c df!  o o>
+    swap white# thumb ?dup-IF  }}thumb  ELSE  }}image  THEN
+    >o img-rot# to rotate# o o>
+    exif-close ;
 : +image ( o -- o )
     /source IF  c@ '(' =  IF  1 >in +! ')' parse
 	    2dup "file:" string-prefix? IF  5 /string  THEN
-	    50% 100% }}image-file' drop
+	    50% 100% }}image-file'
 	2>r {{ 2r> swap >r {{ glue*l }}glue r> /center }}v }}z box[] THEN
     ELSE  drop  THEN ;
 
@@ -295,6 +313,8 @@ synonym 30. 10.
 	'|' xemit wspace ;] $tmp }}text-us
     }}z /hfix box[] >lhang p-box .child+
     blackish /source 0 render-line .md-text .\\ ;
+: ::album:: ( -- )
+    ( imgs# @ 1+ to imgs#max ) ;
 previous set-current
 
 warnings !
@@ -360,6 +380,7 @@ warnings !
     REPEAT ;
 
 : markdown-parse ( addr u -- )
+    -1 to imgs#max  imgs# off
     {{ }}v box[] to v-box nt open-fpath-file throw
     ['] markdown-loop execute-parsing-named-file
     reset-emph \regular \sans \normal ;
