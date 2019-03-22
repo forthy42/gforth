@@ -102,33 +102,34 @@ Variable imgs#
 : load-thumb ( addr u -- w h thumb )
     thumbnail@ mem>thumb >r r@ i.w r@ i.h r> ;
 
-: load/thumb { w^ fn$ -- w h thumb }
+: load/thumb { w^ fn$ -- w h res flag }
     thumbnail@ nip 0<> imgs# @ imgs#max u>= and IF
-	load-thumb fn$ $free
+	load-thumb fn$ $free atlas-region save-mem drop  true
     ELSE
+	tex-xt dup >r image-tex[] >stack r@ execute
 	fn$ @ image-file[] >stack
-	fn$ $@ slurp-file mem>texture false
+	fn$ $@ slurp-file mem>texture r> false
     THEN  1 imgs# +! ;
 
-: }}image-file' ( addr u hmax vmax -- o ) { f: w% f: h% | w^ fn$ }
-    tex-xt dup image-tex[] >stack
-    -rot file>fpath fn$ $!
-    fn$ $@ img-orient? { img-rot# }
-    dup execute
-    fn$ @ load/thumb { thumb }
-    img-rot# 1 and IF  swap  THEN
+: wh>glue ( w h w% h% -- glue ) { f: w% f: h% }
     2dup dpy-h @ s>f fm/ h% f* dpy-w @ s>f fm/ w% f* fmin
     \ not bigger than x% of screen
-    glue new >o
-    fdup fm* vglue-c df!  fm* hglue-c df!  o o>
-    swap white# thumb ?dup-IF  }}thumb  ELSE  }}image  THEN
-    >o img-rot# to rotate# o o>
-    exif-close ;
+    glue new >o fdup fm* vglue-c df!  fm* hglue-c df!  o o> ;
+
+: }}image-file' ( addr u hmax vmax -- o ) { | w^ fn$ }
+    file>fpath fn$ $!
+    fn$ $@ img-orient? { img-rot# }
+    fn$ @ load/thumb 2swap
+    img-rot# 1 and IF  swap  THEN
+    imgs# @ imgs#max u>  IF  10% f* fswap 10% f* fswap  THEN  wh>glue
+    -rot IF  }}thumb  ELSE  white# }}image  THEN
+    >o img-rot# to rotate# o o>  exif-close ;
 : +image ( o -- o )
     /source IF  c@ '(' =  IF  1 >in +! ')' parse
 	    2dup "file:" string-prefix? IF  5 /string  THEN
 	    50% 100% }}image-file'
-	2>r {{ 2r> swap >r {{ glue*l }}glue r> /center }}v }}z box[] THEN
+	    2>r {{ 2r> swap >r >r {{ glue*l }}glue r> glue*l }}glue }}v
+	    {{ glue*l }}glue r> /center }}v }}z box[] THEN
     ELSE  drop  THEN ;
 
 : >lhang ( o -- o )
@@ -314,7 +315,7 @@ synonym 30. 10.
     }}z /hfix box[] >lhang p-box .child+
     blackish /source 0 render-line .md-text .\\ ;
 : ::album:: ( -- )
-    ( imgs# @ 1+ to imgs#max ) ;
+    imgs# @ 1+ to imgs#max ;
 previous set-current
 
 warnings !
