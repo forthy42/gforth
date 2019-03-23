@@ -278,7 +278,8 @@ end-class widget
 ' vglue widget is vglue@
 ' dglue widget is dglue@
 :noname ( firstflag rstart1 rx -- o rstart2 )
-    drop fdrop fdrop o 1e ; widget is split
+    !size hglue@ fdrop fdrop f>= or IF   o fdrop 1e
+    ELSE  0  fdrop 0e  THEN ; widget is split
 \ if rstart2 < 0, no split happened
 :noname ( -- ) ( act ?dup-IF .dispose THEN ) \ !!FIXME!!
     dispose ; widget is dispose-widget
@@ -557,7 +558,7 @@ end-class part-text
 	THEN
     THEN
     dup 0= IF
-	2drop 0 start1  EXIT
+	2drop 0 0e  EXIT
     THEN
     2dup + >r dup t <> IF xc-trailing THEN 2dup + pos>fp
     firstflag IF  xc-leading over pos>fp to start1  THEN
@@ -1063,31 +1064,30 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     !size xywhd resize ;
 
 : hbox-split { firstflag f: start f: rw -- o start' )
-    childs[] $[]# dup start fm* to start
+    childs[] $[]# { childs# } childs# start fm* to start
     start fdup floor f- { f: startx }
     hbox new { newbox }
     act newbox >o to act o>
-    start floor f>s U+DO
-	firstflag startx rw I childs[] $[] @ .split
+    childs# start floor f>s U+DO
+	firstflag newbox .childs[] $[]# 0= or
+	startx rw I childs[] $[] @ .split to startx
 	0e { f: ow }
 	?dup-IF
 	    >o !size hglue fdrop fdrop o o> to ow
 	    newbox .child+ \ add to children
 	ELSE
-	    \ !!FIXME!! check if childs[] $[]# 0>
 	    newbox .childs[] dup $[]#
 	    dup IF  1- swap $[] @ >o lastfit !size o>  ELSE  2drop  THEN
 	THEN
-	fdup to startx
-	1e f>= IF
+	startx 1e f>= IF
 	    ow fnegate +to rw
 	    rw f0<= IF
-		I 1+ s>f newbox childs[] $[]# fm/
+		newbox I 1+ s>f childs# fm/
 		UNLOOP  EXIT
 	    THEN
 	    0e to startx
 	ELSE
-	    startx I s>f f+ newbox childs[] $[]# fm/
+	    newbox startx I s>f f+ childs# fm/
 	    UNLOOP  EXIT
 	THEN
 	false to firstflag

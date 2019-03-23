@@ -121,15 +121,15 @@ Variable imgs#
     fn$ $@ img-orient? { img-rot# }
     fn$ @ load/thumb 2swap
     img-rot# 1 and IF  swap  THEN
-    imgs# @ imgs#max u>  IF  10% f* fswap 10% f* fswap  THEN  wh>glue
+    imgs# @ imgs#max u>  IF  15% f* fswap 15% f* fswap  THEN  wh>glue
     -rot IF  }}thumb  ELSE  white# }}image  THEN
     >o img-rot# to rotate# o o>  exif-close ;
 : +image ( o -- o )
     /source IF  c@ '(' =  IF  1 >in +! ')' parse
 	    2dup "file:" string-prefix? IF  5 /string  THEN
 	    50% 100% }}image-file'
-	    2>r {{ 2r> swap >r >r {{ glue*l }}glue r> glue*l }}glue }}v
-	    {{ glue*l }}glue r> /center }}v }}z box[] THEN
+	    2>r {{ glue*l }}glue r> glue*l }}glue }}v box[]
+	    r> .dispose-widget THEN
     ELSE  drop  THEN ;
 
 : >lhang ( o -- o )
