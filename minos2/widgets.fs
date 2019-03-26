@@ -703,7 +703,7 @@ $200 Value thumb-rgba#
 tex: thumb-tex-rgba
 
 : thumb-rgba-scaletex ( -- )
-    thumb-rgba texscale1 scaletex set-texscale1 ;
+    thumb-rgba texscale-xy1 scaletex set-texscale1 ;
 : gen-thumb-tex ( -- )
     thumb-tex-rgba
     GL_TEXTURE_2D thumb-rgba texture_atlas_t-id l@ glBindTexture edge linear
@@ -715,7 +715,7 @@ tex: thumb-tex-rgba
 	0 thumb-rgba texture_atlas_t-modified c!
     THEN ;
 
-: init-thumb-atlas
+: init-thumb-atlas ( -- ) $200 to thumb-rgba#
     thumb-rgba#  dup 4 texture_atlas_new to thumb-rgba
     thumb-tex-rgba current-tex thumb-rgba texture_atlas_t-id l! ;
 
@@ -724,6 +724,17 @@ init-thumb-atlas
 :noname defers reload-textures gen-thumb-tex
     level# @ 0> IF  program init  THEN ;
 is reload-textures
+
+Variable thumbs[]
+
+Defer free-thumbs
+
+:noname ( -- )
+    thumbs[] $[]free
+    thumb-rgba texture_atlas_delete
+    init-thumb-atlas
+; is free-thumbs
+
 previous
 
 \ draw wrapper
@@ -792,6 +803,10 @@ also soil also freetype-gl
 : mem>thumb ( addr u -- ivec4-addr )
     GL_TEXTURE1 glActiveTexture
     thumb-tex-rgba thumb-rgba addr thumb-rgba# (mem>style) ;
+: load-thumb ( addr u -- w h thumb )
+    mem>thumb >r r@ i.w r@ i.h r>
+    atlas-region thumbs[] $+[]!
+    thumbs[] $[]# 1- thumbs[] $[]@ drop ;
 
 previous previous
 

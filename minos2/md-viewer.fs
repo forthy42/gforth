@@ -99,12 +99,9 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 Variable imgs#
 -1 Value imgs#max
 
-: load-thumb ( addr u -- w h thumb )
-    thumbnail@ mem>thumb >r r@ i.w r@ i.h r> ;
-
 : load/thumb { w^ fn$ -- w h res flag }
     thumbnail@ nip 0<> imgs# @ imgs#max u>= and IF
-	load-thumb fn$ $free atlas-region save-mem drop  true
+	thumbnail@ load-thumb  fn$ $free  true
     ELSE
 	tex-xt dup >r image-tex[] >stack r@ execute
 	fn$ @ image-file[] >stack
