@@ -594,8 +594,10 @@ Defer anim-ins
 : setstring> ( max span addr pos1 - max span addr pos2 )
     setstring$ $@ xins-string  setstring$ $free edit-update ;
 
+also [IFDEF] android jni [THEN]
 : edit-paste ( max span addr pos1 - max span addr pos2 false )
     setstring> clipboard@ edit-split-ins$ edit-update 0 ;
+previous
 
 : xedit-enter ( max span addr pos1 -- max span addr pos2 true )
     setstring> edit-enter ;
