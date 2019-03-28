@@ -123,7 +123,11 @@ Variable imgs#
     >o img-rot# to rotate# o o>  exif-close ;
 : +image ( o -- o )
     /source IF  c@ '(' =  IF  1 >in +! ')' parse
-	    2dup "file:" string-prefix? IF  5 /string  THEN
+	    2dup "file:" string-prefix? IF  5 /string
+	    ELSE
+		2dup "http:" string-prefix? >r
+		2dup "https:" string-prefix? r> or IF  link[]  EXIT  THEN
+	    THEN
 	    50% 100% }}image-file'
 	    2>r {{ glue*l }}glue r> glue*l }}glue }}v box[]
 	    r> .dispose-widget THEN
