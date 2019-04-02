@@ -4,11 +4,12 @@ N: Anton Ertl
 E: anton@mips.complang.tuwien.ac.at
 D: Project initiator, C based primitives, locals, gray, manual, 
 D: Release manager, GNU maintainer
+P: dsa1024/760F3526 F2CE 53F2 6D3B 43BC 4668 741D 3EB5 FFF1 760F 3526
 
 N: Bernd Paysan
 E: bernd@net2o.de
 D: Project leader, kernel, cross compiler, non-Unix ports based on GCC, 
-D: Release manager, GNU maintainer
+D: MINOS2, Release manager, GNU maintainer
 S: Wilbrechtstr. 85
 S: D-81477 München
 S: Germany

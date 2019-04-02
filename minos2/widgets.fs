@@ -1572,6 +1572,7 @@ require animation.fs
 	[THEN]
     THEN ;
 
+also [IFDEF] android jni [THEN]
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
     level# @ 0> IF
 	?config-changer
@@ -1586,6 +1587,7 @@ require animation.fs
     ELSE
 	defers screen-ops
     THEN ;
+previous
 
 ' widget-sync is screen-ops
 

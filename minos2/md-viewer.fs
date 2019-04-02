@@ -129,8 +129,8 @@ Variable imgs#
 		2dup "https:" string-prefix? r> or IF  link[]  EXIT  THEN
 	    THEN
 	    50% 100% }}image-file'
-	    2>r {{ glue*l }}glue r> glue*l }}glue }}v box[]
-	    r> .dispose-widget THEN
+	    >r {{ glue*l }}glue r> glue*l }}glue }}v box[]
+	    swap .dispose-widget THEN
     ELSE  drop  THEN ;
 
 : >lhang ( o -- o )
