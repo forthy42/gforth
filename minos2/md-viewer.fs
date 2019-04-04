@@ -100,7 +100,9 @@ Variable imgs#
 -1 Value imgs#max
 
 : load/thumb { w^ fn$ -- w h res flag }
-    thumbnail@ nip 0<> imgs# @ imgs#max u>= and IF
+    imgs# @ imgs#max u>=
+    fn$ $@ jpeg? IF  thumbnail@ nip 0<> and  THEN
+    IF
 	thumbnail@ load-thumb  fn$ $free  true
     ELSE
 	tex-xt dup >r image-tex[] >stack r@ execute

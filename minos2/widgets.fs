@@ -1082,7 +1082,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     childs[] $[]# { childs# } childs# start fm* to start
     start fdup floor f- { f: startx }
     hbox new { newbox }
-    act newbox >o to act o>
+    act .clone newbox .!act
     childs# start floor f>s U+DO
 	firstflag newbox .childs[] $[]# 0= or
 	startx rw I childs[] $[] @ .split to startx

@@ -292,7 +292,7 @@ glue*em >o 1glue font-size# 0e 0e glue+ hglue-c glue! 0glue dglue-c glue! 1glue 
 
 : link[] ( o addr u -- o )
     [: ." xdg-open " type ;] $tmp $make >r
-    [: addr data $@ system ;] r> click[] ;
+    [: click( ." link[]" cr ) addr data $@ system ;] r> click[] ;
 
 \ mode
 

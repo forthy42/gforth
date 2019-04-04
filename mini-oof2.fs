@@ -84,6 +84,8 @@ static-a to allocater
     cell+ dup dup cell- @ >osize @ erase ;
 : dispose ( o:o -- o:0 )  o cell- dup dup @ >osize @ cell+ erase
     allocater >o :free o>  0 >o rdrop ;
+: clone ( o:o -- o' )
+    o cell- @ new o cell- over cell- dup @ >osize @ cell+ move ;
 
 dynamic-alloc new Constant dynamic-a
 dynamic-a to allocater
