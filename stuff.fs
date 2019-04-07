@@ -228,6 +228,14 @@ comp' sliteral drop alias postpone-sliteral
 \G allocated permanently, you can use @code{]]2L} instead.
     ]] postpone-sliteral ]] [[ ; immediate
 
+\ interp
+
+: >interp ( .. rectype -- )
+    dup >r rectype>post execute r> rectype>int compile, ;
+: [interp] ( "name" -- )
+    \G Compiles the interpretation semantics of @i{name}, see @code{postpone}.
+    parse-name forth-recognizer recognize >interp ; immediate compile-only
+
 \ f.rdp
 
 : push-right ( c-addr u1 u2 cfill -- )

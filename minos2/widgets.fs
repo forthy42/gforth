@@ -47,16 +47,32 @@ also opengl
 vocabulary minos  also minos definitions
 
 0e FValue x-color
+: color> ( f -- ) f,  DOES> f@ to x-color ;
 : color: ( rgba "name" -- )
-    Create color, f, DOES> f@ to x-color ;
+    Create color,                 color> ;
 : text-color: ( rgba "name" -- )
-    Create text-color, f, DOES> f@ to x-color ;
+    Create text-color,            color> ;
 : text-emoji-color: ( rgbatext rgbaemoji "name" -- )
-    Create text-emoji-color, f, DOES> f@ to x-color ;
+    Create text-emoji-color,      color> ;
 : fade-color: ( rgba1 rgba2 "name" -- )
-    create fade-color, f, DOES> f@ to x-color ;
-: text-emoji-fade-color: ( rgbatext rgbaemoji "name" -- )
-    Create text-emoji-fade-color, f, DOES> f@ to x-color ;
+    Create fade-color,            color> ;
+: text-emoji-fade-color: ( rgbatext1 ~2 rgbaemoji1 ~2 "name" -- )
+    Create text-emoji-fade-color, color> ;
+
+: (re-color) ( "name" xt -- )
+    color,# >r
+    ' >body f@ floor f>s to color,#  execute fdrop
+    r> to color,# ;
+: re-color ( rgba "name" -- )
+    ['] new-color, (re-color) ;
+: re-text-color ( rgba "name" -- )
+    ['] text-color, (re-color) ;
+: re-emoji-color ( rgbatext rgbaemoji "name" -- )
+    ['] text-emoji-color, (re-color) ;
+: re-fade-color ( rgba1 rgba2 "name" -- )
+    ['] fade-color, (re-color) ;
+: re-text-emoji-fade-color ( rgbatext1 ~2 rgbaemoji1 ~2 "name" -- )
+    ['] text-emoji-fade-color, (re-color) ;
 
 vocabulary m2c \ minos2 config
 get-current also m2c definitions
@@ -1082,7 +1098,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     childs[] $[]# { childs# } childs# start fm* to start
     start fdup floor f- { f: startx }
     hbox new { newbox }
-    act .clone newbox .!act
+    act ?dup-IF  .clone newbox .!act  THEN
     childs# start floor f>s U+DO
 	firstflag newbox .childs[] $[]# 0= or
 	startx rw I childs[] $[] @ .split to startx
@@ -1261,6 +1277,7 @@ htab-glue is hglue!@
 ;
 
 : widget-draw ( o:widget -- )  time( ." draw:  " .!time cr )
+    ?colors   IF  load-colors  THEN
     widget-init
     <draw-text draw-bg draw-text   ?mod-thumb render>      time( ." text:  " .!time cr )
     <draw-image     draw-image     draw-image>  time( ." img:   " .!time cr )
