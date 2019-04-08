@@ -37,6 +37,7 @@ $100 Constant ?config#
 ?need: ?textures  \ reload textures needed
 ?need: ?resize
 ?need: ?colors
+?need: ?vpsync    \ sync viewport
 drop
 
 1
@@ -47,6 +48,7 @@ drop
 +need: +textures
 +need: +resize
 +need: +colors
++need: +vpsync    \ sync viewport
 drop
 
 1
@@ -57,6 +59,7 @@ drop
 -need: -textures
 -need: -resize
 -need: -colors
+-need: -vpsync    \ sync viewport
 drop
 
 : ?config ( -- flag ) need-mask @ 8 arshift 0> ;

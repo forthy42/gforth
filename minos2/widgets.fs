@@ -1374,7 +1374,7 @@ end-class viewport
     draw-vp> ;
 
 :noname
-    [: ?sync ?config or ;] vp-needed IF
+    [: ?sync ?config or ;] vp-needed ?vpsync or IF
 	draw-vpchilds
 	[: -sync -config ;] vp-needed
     THEN ; viewport is draw-init
@@ -1583,7 +1583,7 @@ require animation.fs
 : widgets-redraw ( -- )
     ?config   IF  +resize -config  THEN
     ?resize   IF  htop-resize -resize +sync  THEN
-    ?sync     IF  widget-draw time( ." animate: " .!time cr ) -sync
+    ?sync     IF  widget-draw time( ." animate: " .!time cr ) -sync -vpsync
 	[IFDEF] ?sync-update
 	    0 ?sync-update !@ IF  sync-counter-update  THEN
 	[THEN]

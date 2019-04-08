@@ -816,7 +816,7 @@ $8   Value color-h \ 8 different themes
 0 Value color-pal
 color-w color-h * sfloats allocate throw to color-pal
 
-: ColorMode! ( r -- )  color% sf!
+: ColorMode! ( r -- )  color-h fm/ color% sf!
     ColorMode 1 color% glUniform1fv ;
 
 : set-uniforms ( -- )
@@ -830,9 +830,9 @@ color-w color-h * sfloats allocate throw to color-pal
     Saturate 1 saturate% glUniform1fv
     LightPos 1 lightpos-xyz glUniform3fv ;
 
-: day-mode    ( -- )  0 to color-theme 0.5e color-h fm/ ColorMode! ;
+: day-mode    ( -- )  0 to color-theme 0.5e ColorMode! ;
 color-h 1 > [IF]
-    : night-mode  ( -- )  1 to color-theme 1.5e color-h fm/ ColorMode! ;
+    : night-mode  ( -- )  1 to color-theme 1.5e ColorMode! ;
 [THEN]
 
 tex: palette-tex
@@ -847,10 +847,10 @@ tex: palette-tex
 
 0.5e FConstant 1/2
 
+: cpal! ( rgba -- )
+    color-pal color,# color-w color-theme * + sfloats + be-l! ;
 : (col,) ( rgba -- rindex )
-    1 +to color,#
-    color-pal color,# color-theme color-w * + sfloats + be-l!
-    color,# s>f 1/2 f+ ;
+    cpal!  color,# s>f 1/2 f+  1 +to color,# ;
 
 $000000FF (col,) FConstant black#
 $0000FFFF (col,) FConstant blue#
@@ -874,8 +874,7 @@ $00000000 (col,) FConstant transp#
     color-w sfloats * color-pal tuck + color-w sfloats move ;
 
 : new-color, ( color -- rindex )
-    1 +to color,#
-    BEGIN  color,# color-w u>=  WHILE
+    BEGIN  color,# 1+ color-w u>=  WHILE
 	    color-w +to color-w
 	    color-w color-h * sfloats
 	    color-pal resize throw to color-pal
@@ -885,8 +884,7 @@ $00000000 (col,) FConstant transp#
 		2* + color-w 2* tuck + swap erase
 	    1 -LOOP
     REPEAT
-    color-pal color-w color-theme * sfloats + color,# sfloats + be-l!
-    +colors color,# s>f 1/2 f+ ;
+    (col,)  +colors ;
 : color, ( rgba -- rindex )
     search-color ?EXIT  new-color, ;
 
