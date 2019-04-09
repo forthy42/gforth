@@ -396,8 +396,10 @@ void main() {
     else
 	if(v_Extras.x >= -1.0)
 	    col = texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2;
-	else
+	else {
 	    col = texture2D(u_Texture3, v_TexCoordinate) + u_Coloradd3;
+	    // col.a = pow(col.a, 2.2);
+	}
     col = col*v_Color;
     if(u_Saturate != 1.0) {
         float mid = (col.r + col.g + col.b) * 0.333333333333;

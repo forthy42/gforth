@@ -245,7 +245,6 @@ object class
     sfvalue: borderl   \ left border offset
     sfvalue: w-color   \ widget color (if any)
     method draw-init ( -- ) \ init draw
-    method draw-bg ( -- ) \ button background draw
     method draw-image ( -- ) \ image draw
     method draw-text ( -- ) \ text draw
     method split ( firstflag rstart1 rx -- o rstart2 )
@@ -382,7 +381,7 @@ end-structure
 : tile-draw ( -- )
     0e 1e xywh >xyxy draw-rectangle-part ;
 
-' tile-draw tile is draw-bg
+' tile-draw tile is draw-text
 
 tile class
 end-class thumbnail
@@ -422,7 +421,7 @@ Create rot-sts \ exif rotation
        v> 2 quad
     THEN ;
 
-' draw-thumb thumbnail is draw-bg
+' draw-thumb thumbnail is draw-text
 
 : }}thumb ( glue frame -- o )
     thumbnail new >o  "thumb" to name$
@@ -444,7 +443,7 @@ end-class canvas
 tile class
 end-class glue-tile
 
-' noop glue-tile is draw-bg
+' noop glue-tile is draw-text
 
 \ image widget
 
@@ -452,7 +451,7 @@ tile class
     defer: image-tex
 end-class image
 
-' noop       image is draw-bg
+' noop       image is draw-text
 
 :noname ( -- )
     z-bias set-color+ image-tex  frame-color vi0 xywh-rect
@@ -492,7 +491,7 @@ DOES>  swap sfloats + sf@ ;
     9 0  DO
 	4 quad  1 I 3 mod 2 = - i-off +!
     LOOP
-; ' frame-draw frame is draw-bg
+; ' frame-draw frame is draw-text
 
 : }}glue ( glue -- o )
     glue-tile new >o to tile-glue s" glu" to name$ o o> ;
@@ -915,7 +914,6 @@ end-class box
 ' box-!size box is !size
 
 :noname ( -- ) ['] draw-init      box-visible# ?do-childs ; box is draw-init
-:noname ( -- ) ['] draw-bg        box-visible# ?do-childs ; box is draw-bg
 :noname ( -- ) ['] draw-image     box-visible# ?do-childs ; box is draw-image
 :noname ( -- ) ['] draw-text      box-visible# ?do-childs ; box is draw-text
 
@@ -1279,7 +1277,7 @@ htab-glue is hglue!@
 : widget-draw ( o:widget -- )  time( ." draw:  " .!time cr )
     ?colors   IF  load-colors  THEN
     widget-init
-    <draw-text draw-bg draw-text   ?mod-thumb render>      time( ." text:  " .!time cr )
+    <draw-text      draw-text   ?mod-thumb render>  time( ." text:  " .!time cr )
     <draw-image     draw-image     draw-image>  time( ." img:   " .!time cr )
     sync time( ." sync:  " .!time cr ) ;
 
@@ -1368,8 +1366,7 @@ end-class viewport
 
 : draw-vpchilds ( -- )
     <draw-vp        ['] draw-init      do-vp-childs  draw-init>
-    <draw-text      ['] draw-bg        do-vp-childs
-                    ['] draw-text      do-vp-childs  ?mod-thumb render>
+    <draw-text      ['] draw-text      do-vp-childs  ?mod-thumb render>
     <draw-image     ['] draw-image     do-vp-childs  draw-image>
     draw-vp> ;
 
@@ -1450,7 +1447,6 @@ end-class viewport
     0e vp-h vp-w vp-h 0e vbox-resize
     x y w h d widget-resize
 ; viewport is resize
-' noop viewport is draw-bg
 ' noop viewport is draw-text
 :noname ( -- glue )
     box-flags vp-hfix# and IF  [ vbox :: hglue ]
@@ -1482,7 +1478,7 @@ end-class vslider-part \ slider part
 :noname w 0g fdup ; vslider-part is hglue
 :noname d 0g fdup ; vslider-part is dglue
 :noname d 0g tile-glue >o h d f+ o> ; vslider-part is vglue
-' frame-draw vslider-part is draw-bg
+' frame-draw vslider-part is draw-text
 
 vslider-part class
 end-class vslider-partu \ upper part
@@ -1493,12 +1489,12 @@ end-class vslider-partd \ lower part
 ' 0glue vslider-partu is hglue
 ' 0glue vslider-partu is dglue
 :noname 0e fdup tile-glue >o vp-h vp-y f- h d f+ f- o> ; vslider-partu is vglue
-' noop vslider-partu is draw-bg
+' noop vslider-partu is draw-text
 
 ' 0glue vslider-partd is hglue
 ' 0glue vslider-partd is dglue
 :noname 0e fdup tile-glue .vp-y ; vslider-partd is vglue
-' noop vslider-partd is draw-bg
+' noop vslider-partd is draw-text
 
 \ vslider
 
@@ -1511,19 +1507,19 @@ end-class hslider-part \ slider part
 :noname d f2* 0g tile-glue .w ; hslider-part is hglue
 :noname h 0g fdup ; hslider-part is vglue
 :noname d 0g fdup ; hslider-part is dglue
-' frame-draw hslider-part is draw-bg
+' frame-draw hslider-part is draw-text
 
 hslider-part class
 end-class hslider-partl \ left part
 
 :noname 0g fdup tile-glue .vp-x ; hslider-partl is hglue
-' noop hslider-partl is draw-bg
+' noop hslider-partl is draw-text
 
 hslider-part class
 end-class hslider-partr
 
 :noname 0g fdup tile-glue >o vp-w vp-x f- w f- o> ; hslider-partr is hglue
-' noop hslider-partr is draw-bg
+' noop hslider-partr is draw-text
 
 Create hslider-parts
 hslider-partl , hslider-part , hslider-partr ,

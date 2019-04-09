@@ -206,10 +206,10 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 $AD Constant 'soft-hyphen'
 
 : ?soft-hyphen { I' I -- xaddr xs }
-	I I' over - x-size { xs }
-	I xc@ 'soft-hyphen' = IF  I xs + I' =
-	    IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
-	ELSE  I  THEN  xs ;
+    I I' over - x-size { xs }
+    I xc@ 'soft-hyphen' = IF  I xs + I' =
+	IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
+    ELSE  I  THEN  xs ;
 
 : render-string ( addr u -- )
     0 -rot  bounds ?DO
