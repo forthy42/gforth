@@ -196,12 +196,12 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     THEN ;
 
 : render> ( -- )
-    ?mod-atlas ?mod-atlas-bgra GL_TRIANGLES draw-elements ;
+    ?mod-atlas ?mod-atlas-bgra GL_TRIANGLES draw-elements vi0 ;
 
 : ?flush-tris ( n -- ) >r
     i? r@ + points# 2* u>=
     v? r> + points# u>= or
-    IF  render> vi0  THEN ;
+    IF  render>  THEN ;
 
 $AD Constant 'soft-hyphen'
 

@@ -245,8 +245,7 @@ object class
     sfvalue: borderl   \ left border offset
     sfvalue: w-color   \ widget color (if any)
     method draw-init ( -- ) \ init draw
-    method draw-image ( -- ) \ image draw
-    method draw-text ( -- ) \ text draw
+    method draw ( -- ) \ draw
     method split ( firstflag rstart1 rx -- o rstart2 )
     method lastfit ( -- )
     method hglue ( -- rtyp rsub radd )
@@ -381,7 +380,7 @@ end-structure
 : tile-draw ( -- )
     0e 1e xywh >xyxy draw-rectangle-part ;
 
-' tile-draw tile is draw-text
+' tile-draw tile is draw
 
 tile class
 end-class thumbnail
@@ -421,7 +420,7 @@ Create rot-sts \ exif rotation
        v> 2 quad
     THEN ;
 
-' draw-thumb thumbnail is draw-text
+' draw-thumb thumbnail is draw
 
 : }}thumb ( glue frame -- o )
     thumbnail new >o  "thumb" to name$
@@ -435,15 +434,14 @@ tile class
     value: cv-data
 end-class canvas
 
-' draw-canvas canvas is draw-image
-' text-canvas canvas is draw-text
+:noname draw-canvas text-canvas ; canvas is draw
 
 \ tile that doesn't draw
 
 tile class
 end-class glue-tile
 
-' noop glue-tile is draw-text
+' noop glue-tile is draw
 
 \ image widget
 
@@ -451,12 +449,10 @@ tile class
     defer: image-tex
 end-class image
 
-' noop       image is draw-text
-
-:noname ( -- )
-    z-bias set-color+ image-tex  frame-color vi0 xywh-rect
-    GL_TRIANGLES draw-elements ;
-image is draw-image
+:noname ( -- )  render>
+    0e to t.i0
+    z-bias set-color+ image-tex  frame-color xywh-rect ;
+image is draw
 
 \ frame widget
 
@@ -491,7 +487,7 @@ DOES>  swap sfloats + sf@ ;
     9 0  DO
 	4 quad  1 I 3 mod 2 = - i-off +!
     LOOP
-; ' frame-draw frame is draw-text
+; ' frame-draw frame is draw
 
 : }}glue ( glue -- o )
     glue-tile new >o to tile-glue s" glu" to name$ o o> ;
@@ -544,7 +540,7 @@ end-class text
     text-font to font
     layout-string >text+border ;
 \    ." text sized to: " x f. y f. w f. h f. d f. cr ;
-:noname text$ text-text ; text is draw-text
+:noname text$ text-text ; text is draw
 :noname text$ text-!size ; text is !size
 :noname w kerning f+
     text-w text-shrink% f* text-w text-grow% f* ; text is hglue
@@ -592,7 +588,7 @@ end-class part-text
     orig-text .pos>fp to end ; part-text is lastfit
 
 :noname start end orig-text .text$ text$-part text-!size ; part-text is !size
-:noname start end orig-text .text$ text$-part text-text ; part-text is draw-text
+:noname start end orig-text .text$ text$-part text-text ; part-text is draw
 
 : tp.widget ( -- )
     w.widget  '"' emit start end orig-text .text$ text$-part type '"' emit cr ;
@@ -655,7 +651,7 @@ end-class edit
     font @ freetype-gl:texture_font_t-ascender  sf@         fmax fswap
     font @ freetype-gl:texture_font_t-descender sf@ fnegate fmax fswap
     >text+border ;
-' edit-text edit is draw-text
+' edit-text edit is draw
 ' edit-!size edit is !size
 
 : edit! ( addr u font -- )
@@ -707,7 +703,7 @@ Variable *ins-o
     ELSE
 	2rdrop  xt execute
     THEN ;
-:noname ( -- ) ['] edit-text    pw-xt ; pw-edit is draw-text
+:noname ( -- ) ['] edit-text    pw-xt ; pw-edit is draw
 :noname ( -- ) ['] edit-!size   pw-xt ; pw-edit is !size
 
 \ thumb texture
@@ -764,12 +760,7 @@ also freetype-gl
 : draw-init> ( -- ) ;
 previous
 
-: <draw-image ( -- )
-    GL_TEXTURE0 glActiveTexture
-    0e to t.i0
-; \ image draw, one draw call per image
-: draw-image> ( -- ) ;
-: <draw-text ( -- )
+: <draw ( -- )
     GL_TEXTURE4 glActiveTexture
     palette-tex
     GL_TEXTURE3 glActiveTexture
@@ -785,7 +776,6 @@ previous
     thumb-rgba-scaletex
     thumb-tex-rgba
     GL_TEXTURE0 glActiveTexture
-    -2e to t.i0
     vi0 ; \ bg+text+marking draw, one draw call in total
 
 \ load style into atlas-tex-bgra
@@ -914,8 +904,7 @@ end-class box
 ' box-!size box is !size
 
 :noname ( -- ) ['] draw-init      box-visible# ?do-childs ; box is draw-init
-:noname ( -- ) ['] draw-image     box-visible# ?do-childs ; box is draw-image
-:noname ( -- ) ['] draw-text      box-visible# ?do-childs ; box is draw-text
+:noname ( -- ) ['] draw      box-visible# ?do-childs ; box is draw
 
 :noname ( -- )
     parent-w ?dup-IF  .resized \ upwards
@@ -1277,8 +1266,7 @@ htab-glue is hglue!@
 : widget-draw ( o:widget -- )  time( ." draw:  " .!time cr )
     ?colors   IF  load-colors  THEN
     widget-init
-    <draw-text      draw-text   ?mod-thumb render>  time( ." text:  " .!time cr )
-    <draw-image     draw-image     draw-image>  time( ." img:   " .!time cr )
+    <draw      draw   ?mod-thumb render>  time( ." text:  " .!time cr )
     sync time( ." sync:  " .!time cr ) ;
 
 \ viewport: Draw into a frame buffer
@@ -1365,9 +1353,8 @@ end-class viewport
     cell +LOOP  ;
 
 : draw-vpchilds ( -- )
-    <draw-vp        ['] draw-init      do-vp-childs  draw-init>
-    <draw-text      ['] draw-text      do-vp-childs  ?mod-thumb render>
-    <draw-image     ['] draw-image     do-vp-childs  draw-image>
+    <draw-vp   ['] draw-init  do-vp-childs  draw-init>
+    <draw      ['] draw       do-vp-childs  ?mod-thumb render>
     draw-vp> ;
 
 :noname
@@ -1375,14 +1362,15 @@ end-class viewport
 	draw-vpchilds
 	[: -sync -config ;] vp-needed
     THEN ; viewport is draw-init
-:noname ( -- )
+:noname ( -- )  render>
+    0e to t.i0
     z-bias set-color+ vp-tex
     x fround y h f- fround w fround h d f+ fround
     >xyxy { f: x1 f: y1 f: x2 f: y2 -- }
     vp-x vt-x f- vt-w f/
     vp-y vt-y f- vt-h f/
     w fround vt-w f/
-    h d f+ fround vt-h f/ >xyxy vi0
+    h d f+ fround vt-h f/ >xyxy
     { f: s0 f: t0 f: s1 f: t1 }
     box-flags vp-shadow>># rshift c>s ?dup-IF
 	s>f { f: shadow }
@@ -1402,8 +1390,7 @@ end-class viewport
     x2 y1 >xy fdup i>c n> s1 t1 >st v+
     x1 y2 >xy fdup i>c n> s0 t0 >st v+
     x2 y2 >xy      i>c n> s1 t0 >st v+
-    v> 2 quad
-    render-bgra> ; viewport is draw-image
+    v> 2 quad render-bgra> ; viewport is draw
 : ?vpt-x ( -- flag )
     vp-x vt-x f< vp-x w f+ vt-x vt-w f+ f> or dup IF  drop
 	vp-x vt-w w f- f2/ f- 0e fmax vp-w vt-w f- fmin
@@ -1447,7 +1434,6 @@ end-class viewport
     0e vp-h vp-w vp-h 0e vbox-resize
     x y w h d widget-resize
 ; viewport is resize
-' noop viewport is draw-text
 :noname ( -- glue )
     box-flags vp-hfix# and IF  [ vbox :: hglue ]
     ELSE  vp-glue .hglue >hglue!@  THEN ; viewport is hglue
@@ -1478,7 +1464,7 @@ end-class vslider-part \ slider part
 :noname w 0g fdup ; vslider-part is hglue
 :noname d 0g fdup ; vslider-part is dglue
 :noname d 0g tile-glue >o h d f+ o> ; vslider-part is vglue
-' frame-draw vslider-part is draw-text
+' frame-draw vslider-part is draw
 
 vslider-part class
 end-class vslider-partu \ upper part
@@ -1489,12 +1475,12 @@ end-class vslider-partd \ lower part
 ' 0glue vslider-partu is hglue
 ' 0glue vslider-partu is dglue
 :noname 0e fdup tile-glue >o vp-h vp-y f- h d f+ f- o> ; vslider-partu is vglue
-' noop vslider-partu is draw-text
+' noop vslider-partu is draw
 
 ' 0glue vslider-partd is hglue
 ' 0glue vslider-partd is dglue
 :noname 0e fdup tile-glue .vp-y ; vslider-partd is vglue
-' noop vslider-partd is draw-text
+' noop vslider-partd is draw
 
 \ vslider
 
@@ -1507,19 +1493,19 @@ end-class hslider-part \ slider part
 :noname d f2* 0g tile-glue .w ; hslider-part is hglue
 :noname h 0g fdup ; hslider-part is vglue
 :noname d 0g fdup ; hslider-part is dglue
-' frame-draw hslider-part is draw-text
+' frame-draw hslider-part is draw
 
 hslider-part class
 end-class hslider-partl \ left part
 
 :noname 0g fdup tile-glue .vp-x ; hslider-partl is hglue
-' noop hslider-partl is draw-text
+' noop hslider-partl is draw
 
 hslider-part class
 end-class hslider-partr
 
 :noname 0g fdup tile-glue >o vp-w vp-x f- w f- o> ; hslider-partr is hglue
-' noop hslider-partr is draw-text
+' noop hslider-partr is draw
 
 Create hslider-parts
 hslider-partl , hslider-part , hslider-partr ,
