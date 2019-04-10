@@ -319,6 +319,7 @@ uniform vec2 u_TexScale1;       // scale texture coordinates
 uniform vec2 u_TexScale2;       // scale texture coordinates
 uniform vec2 u_TexScale3;       // scale texture coordinates
 uniform sampler2D u_ColorTex;   // Color palette (texture)
+uniform float u_ColorMode;      // Color mode
  
 attribute vec4 a_Position;      // Per-vertex position information we will pass in.
 attribute vec4 a_Normal;        // Per-vertex normal information we will pass in.
@@ -337,7 +338,7 @@ void main()
 {
     // pass through the extras
     v_Extras = a_Extras;
-    v_Color = texture2D(u_ColorTex, vec2(v_Extras.y, 0.5));
+    v_Color = texture2D(u_ColorTex, vec2(v_Extras.y, u_ColorMode));
  
     // Transform the vertex into eye space.
     v_Position = vec3(u_MVMatrix * a_Position);
@@ -395,8 +396,10 @@ void main() {
     else
 	if(v_Extras.x >= -1.0)
 	    col = texture2D(u_Texture2, v_TexCoordinate) + u_Coloradd2;
-	else
+	else {
 	    col = texture2D(u_Texture3, v_TexCoordinate) + u_Coloradd3;
+	    // col.a = pow(col.a, 2.2);
+	}
     col = col*v_Color;
     if(u_Saturate != 1.0) {
         float mid = (col.r + col.g + col.b) * 0.333333333333;
@@ -436,6 +439,8 @@ void main() {
 0 Value TexScale2
 0 Value TexScale3
 0 Value ColorTex
+0 Value ColorMode
+
 0 Value LightPos
 0 Value Texture0
 0 Value Texture1
@@ -752,6 +757,7 @@ require soil-texture.fs
     ext-tex: media-tex
 [THEN]
 
+1 sfloats buffer: color%
 1 sfloats buffer: ambient%  1.0e ambient% sf!
 1 sfloats buffer: saturate% 1.0e saturate% sf!
 3 sfloats buffer: lightpos-xyz
@@ -762,6 +768,7 @@ require soil-texture.fs
 \ init program
 
 : parse-uniform ( program -- )
+    \ Vertex shader
     dup "u_MVPMatrix" glGetUniformLocation to MVPMatrix
     dup "u_MVMatrix"  glGetUniformLocation to MVMatrix
     dup "u_TexScale0" glGetUniformLocation to TexScale0
@@ -769,6 +776,8 @@ require soil-texture.fs
     dup "u_TexScale2" glGetUniformLocation to TexScale2
     dup "u_TexScale3" glGetUniformLocation to TexScale3
     dup "u_ColorTex"  glGetUniformLocation to ColorTex
+    dup "u_ColorMode" glGetUniformLocation to ColorMode
+    \ Pixel shader
     dup "u_LightPos"  glGetUniformLocation to LightPos
     dup "u_Texture0"  glGetUniformLocation to Texture0
     dup "u_Texture1"  glGetUniformLocation to Texture1
@@ -799,38 +808,51 @@ require soil-texture.fs
     none-tex no-texture? 0= IF
 	no-texture true to no-texture?
     THEN ;
+
+\ color palette
+
+$100 Value color-w \ 256 colors in palette
+$8   Value color-h \ 8 different themes
+0 Value color,#
+0 Value color-theme \ currently used color theme
+0 Value color-pal
+color-w color-h * sfloats allocate throw to color-pal
+
+: ColorMode! ( r -- )  color-h fm/ color% sf!
+    ColorMode 1 color% glUniform1fv ;
+
 : set-uniforms ( -- )
     Texture0 0 glUniform1i
     Texture1 1 glUniform1i
     Texture2 2 glUniform1i
     Texture3 3 glUniform1i
     ColorTex 4 glUniform1i
+    ColorMode 1 color% glUniform1fv
     Ambient 1 ambient% glUniform1fv
     Saturate 1 saturate% glUniform1fv
     LightPos 1 lightpos-xyz glUniform3fv ;
 
-\ color palette
-
-$100 Value color-w
-0 Value color,#
-0 Value color-pal
-$100 sfloats allocate throw to color-pal
+: day-mode    ( -- )  0 to color-theme 0.5e ColorMode! ;
+color-h 1 > [IF]
+    : night-mode  ( -- )  1 to color-theme 1.5e ColorMode! ;
+[THEN]
 
 tex: palette-tex
 
 : load-colors ( -- )
+    ColorMode 1 color% glUniform1fv
     GL_TEXTURE4 glActiveTexture
-    palette-tex color-pal color-w 1 rgba-map linear
-    GL_TEXTURE0 glActiveTexture ;
+    palette-tex color-pal color-w color-h rgba-map linear
+    GL_TEXTURE0 glActiveTexture  -colors ;
 
 :noname no-texture load-colors ; is reload-textures
 
 0.5e FConstant 1/2
 
+: cpal! ( rgba -- )
+    color-pal color,# color-w color-theme * + sfloats + be-l! ;
 : (col,) ( rgba -- rindex )
-    1 +to color,#
-    color-pal color,# sfloats + be-l!
-    color,# s>f 1/2 f+ ;
+    cpal!  color,# s>f 1/2 f+  1 +to color,# ;
 
 $000000FF (col,) FConstant black#
 $0000FFFF (col,) FConstant blue#
@@ -843,20 +865,28 @@ $FFFFFFFF (col,) FConstant white#
 $00000000 (col,) FConstant transp#
 
 : search-color ( rgba -- rindex t / rgba f )
-    color-pal color,# sfloats bounds ?DO
+    color-pal color-w color-theme * sfloats + { cpal }
+    cpal color,# sfloats bounds ?DO
 	dup I be-ul@ = IF
-	    drop I color-pal - 2/ 2/
+	    drop I cpal - 2/ 2/
 	    s>f 1/2 f+ true  UNLOOP  EXIT  THEN
     4 +LOOP  false ;
 
+: new-theme ( n -- )
+    color-w sfloats * color-pal tuck + color-w sfloats move ;
+
 : new-color, ( color -- rindex )
-    1 +to color,#
-    BEGIN  color,# color-w u>=  WHILE
+    BEGIN  color,# 1+ color-w u>=  WHILE
 	    color-w +to color-w
-	    color-w sfloats color-pal resize throw to color-pal
+	    color-w color-h * sfloats
+	    color-pal resize throw to color-pal
+	    0 color-h 1- DO
+		color-pal color-w 2* I *
+		2dup + 2dup + color-w 2* move
+		2* + color-w 2* tuck + swap erase
+	    1 -LOOP
     REPEAT
-    color-pal color,# sfloats + be-l!
-    load-colors color,# s>f 1/2 f+ ;
+    (col,)  +colors ;
 : color, ( rgba -- rindex )
     search-color ?EXIT  new-color, ;
 

@@ -19,11 +19,25 @@
 
 get-current also minos definitions
 
+\ day mode colors
 $000000FF text-color: blackish
 $0000BFFF text-color: dark-blue
 $00000000 text-color: transparent
 $FFFFFFFF text-color: whitish
+$000000FF $000000FF $40C0FFFF $FFFFFFFF text-emoji-fade-color: toggle-color
+\ night mode colors
+color-h 1 > [IF]
+    1 new-theme
+    night-mode
+    $FFFFFFFF re-text-color blackish
+    $FFFFBBFF re-text-color dark-blue
+    $000000FF re-text-color whitish
+    $40C0FFFF $000000FF $000000FF $FFFFFFFF re-text-emoji-fade-color toggle-color
+    day-mode
+[THEN]
+
 blackish
+
 0e FValue x-border
 : cbl ( -- )
     current-baseline% to x-baseline ;
@@ -160,8 +174,6 @@ is reload-textures
 	glue*l color font-size# 40% f* }}frame dup .button2
 	text }}text 25%b /center
     }}z box[] ;
-
-$000000FF $000000FF $40C0FFFF $FFFFFFFF text-emoji-fade-color: toggle-color
 
 : +text-color ( 0/0.999e o:widget -- )
     text-color 1/2 f- floor f+ 1/2 f+ to text-color ;

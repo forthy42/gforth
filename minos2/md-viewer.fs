@@ -174,6 +174,8 @@ Create do-char $100 0 [DO] ' .char , [LOOP]
     BEGIN  ']' parse  dup IF  2dup + 1- c@ '\' =  ELSE  false  THEN  WHILE
 	    2drop  REPEAT  + over - ;
 
+Vocabulary md-tokens
+
 md-char: * ( char -- )
     [ sitalic bold or ]L swap ?count-emph
     sitalic up-emph @ 0= IF  negate  THEN  emph-flags +! ;
@@ -207,6 +209,15 @@ md-char: [ ( char -- )
     [ underline #dark-blue or ]L render-line .md-text
     p-box r> to p-box r> us-state ! blackish
     +link p-box .child+ ;
+md-char: : ( char -- )
+    drop /source ":" string-prefix? IF
+	>in @ >r
+	1 >in +! ':' parse /source ":" string-prefix? IF
+	    ['] md-tokens >body find-name-in ?dup-IF
+		name?int execute
+		rdrop EXIT  THEN  THEN
+	r> >in !
+    THEN  ':' .char ;
 md-char: 	 ( tab -- )
     drop dark-blue ['] wspace md-text$ $exec
     " " md-text$ 0 $ins
