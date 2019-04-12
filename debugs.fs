@@ -303,3 +303,14 @@ Variable rec'
     ['] prompt-text success-color color-execute ;
 
 ' color-prompt is prompt
+
+\ print name vtable
+
+: .vt ( nt -- )
+    >namevt @ cr
+    ." opt:    " dup >vtcompile, @ .name cr
+    ." to:     " dup >vtto       @ .name cr
+    ." >int:   " dup >vt>int     @ .name cr
+    ." >comp:  " dup >vt>comp    @ .name cr
+    ." defer@: " dup >vtdefer@   @ .name cr
+    ." extra:  "     >vtextra    @ hex. ;

@@ -155,9 +155,11 @@ Defer check-shadow ( addr u wid -- )
     nlstring,
     r> 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
-\   alias-mask lastflags cset
-    next-prelude @ 0<> prelude-mask and lastflags cset
-    next-prelude off
+    \   alias-mask lastflags cset
+    [ [IFDEF] prelude-mask ]
+	next-prelude @ 0<> prelude-mask and lastflags cset
+	next-prelude off
+    [ [THEN] ]
     cfalign ;
 
 defer record-name ( -- )
@@ -300,12 +302,7 @@ has? primcentric [IF]
 
 : default-name>comp ( nt -- w xt ) \ gforth name-to-comp
     \G @i{w xt} is the compilation token for the word @i{nt}.
-    (name>x) (x>comp)
-    1 = if
-        ['] execute
-    else
-        ['] compile,
-    then ;
+    name>int ['] compile, ;
 
 : [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth bracket-paren-tick
     (') postpone ALiteral ; immediate restrict
@@ -368,10 +365,11 @@ include ./recognizer.fs
     latest dup 0= abort" last word was headerless"
     >f+c ;
 
+: imm>comp  name>int ['] execute ;
 : immediate ( -- ) \ core
     \G Make the compilation semantics of a word be to @code{execute}
     \G the execution semantics.
-    immediate-mask lastflags cset ;
+    ['] imm>comp set->comp ;
 
 : restrict ( -- ) \ gforth
     \G A synonym for @code{compile-only}
@@ -393,8 +391,9 @@ include ./recognizer.fs
     dup >namevt @ >vtdefer@ @ opt-something, ;
 
 : a>int ( nt -- )  >body @ ;
-: a>comp ( nt -- xt1 xt2 )  dup >r >body @
-    ['] execute ['] compile, r> immediate? select ;
+: a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
+\ dup >r >body @
+\    ['] execute ['] compile, r> >f+c @ immediate-mask and select ;
 
 : s>int ( nt -- xt )  >body @ name>int ;
 : s>comp ( nt -- xt1 xt2 )  >body @ name>comp ;
@@ -409,10 +408,10 @@ opt: drop >body @ defer@, ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
 : Alias    ( xt "name" -- ) \ gforth
-    Header reveal ['] on vtcopy
+    Header reveal ['] on vtcopy  dodefer,
     ['] a>int set->int ['] a>comp set->comp ['] s-to set-to
     ['] s-defer@ set-defer@  ['] s-compile, set-optimizer
-    dodefer, dup A, lastcfa ! ;
+    dup A, lastcfa ! ;
 
 : alias? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] a>comp ['] a>int d= ;
@@ -684,12 +683,12 @@ opt: drop ( value-xt -- ) \ run-time: ( n -- )
 
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    record-name (') (name>x) drop (int-to) ;
+    record-name (') (int-to) ;
 
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
-    record-name (') (name>x) drop (comp-to) ; immediate restrict
+    record-name (') (comp-to) ; immediate restrict
 
 ' <IS> ' [IS] interpret/compile: TO ( value "name" -- ) \ core-ext
 \g changes the value of @var{name} to @var{value}

@@ -336,18 +336,18 @@ forth-wordlist current !
 \ 1 bits/char 1 - lshift
 \ -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
 \                           [ELSE] 0 1 cells 1- times c, [THEN]
-$80000000 constant immediate-mask
-1 bits/char 1 - lshift
--1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
-                          [ELSE] 0 1 cells 1- times c, [THEN]
+\ $80000000 constant immediate-mask
+\ 1 bits/char 1 - lshift
+\ -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
+\                           [ELSE] 0 1 cells 1- times c, [THEN]
 $40000000 constant restrict-mask
 1 bits/char 2 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
                           [ELSE] 0 1 cells 1- times c, [THEN]
-$20000000 constant prelude-mask
-1 bits/char 3 - lshift
--1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
-                          [ELSE] 0 1 cells 1- times c, [THEN]
+\ $20000000 constant prelude-mask
+\ 1 bits/char 3 - lshift
+\ -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
+\                           [ELSE] 0 1 cells 1- times c, [THEN]
 \ $01000000 constant unused-mask \ defined in locate1.fs, used only temporarily
 \ reserve 8 bits for all possible flags in total
 $00ffffff constant lcount-mask
@@ -426,7 +426,7 @@ defer compile, ( xt -- )
     \G Reserve data space for one cell and store @i{w} in the space.
     cell small-allot ! ;
 
-: immediate? ( nt -- flag ) >f+c @ immediate-mask and 0<> ;
+: immediate? ( nt -- flag )    name>comp nip ['] execute = ;
 : compile-only? ( nt -- flag ) >f+c @ restrict-mask and 0<> ;
 : ?compile-only ( nt -- nt )
     dup compile-only? IF
@@ -447,19 +447,12 @@ defer compile, ( xt -- )
 : name>view ( nt -- addr ) \ gforth   name-to-view
     name>string drop cell negate and cell- ;
 
-: (name>x) ( nfa -- cfa w )
-    \ cfa is an intermediate cfa and w is the flags cell of nfa
-    dup >f+c @ ;
-
 : default-name>int ( nt -- xt ) \ gforth paren-name-to-int
     \G @i{xt} represents the interpretation semantics of the word
     \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
     \G @code{compile-only}), @i{xt} is the execution token for
     \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
 ;
-
-: (x>comp) ( xt w -- xt +-1 )
-    immediate-mask and flag-sign ;
 
 : (name>intn) ( nfa -- xt +-1 )
     dup name>int swap name>comp nip ['] execute = flag-sign ;

@@ -329,9 +329,9 @@ VARIABLE C-Pass
 	    EXIT
 	then
     THEN
-    nip dup >f+c @ immediate-mask and
+    nip dup immediate?
     IF
-	bl cemit  ." POSTPONE "
+	bl cemit  ." [COMPILE] "
     THEN
     dup name>string rot wordinfo .string
     ;

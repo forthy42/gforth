@@ -2173,10 +2173,6 @@ dup constant immediate-mask 2/
 constant restrict-mask
 
 >TARGET
-: immediate     immediate-mask flag!
-                ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
-                <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
-                <imm> ^imm @ ! ;
 : restrict      restrict-mask flag! ;
 : compile-only  restrict-mask flag! ;
 
@@ -2960,8 +2956,8 @@ Cond: DOES>
 
 : create-resolve ( -- )
     created createhere resolve ( 0 ;Resolve ! ) ;
-: create-resolve-immediate ( -- )
-    create-resolve T immediate H ;
+\ : create-resolve-immediate ( -- )
+\      create-resolve T immediate H ;
 
 : TCreate ( <name> -- )
   create-forward-warn
@@ -3000,9 +2996,9 @@ Cond: DOES>
 : ;Build
   postpone create-resolve postpone ; built >exec ! ; immediate
 
-: ;Build-immediate
-    postpone create-resolve-immediate
-    postpone ; built >exec ! ; immediate
+\ : ;Build-immediate
+\     postpone create-resolve-immediate
+\     postpone ; built >exec ! ; immediate
 
 : gdoes>  ( ghost -- addr flag )
   executed-ghost @ g>body ;
@@ -3142,6 +3138,7 @@ End-Struct vtable-struct
 :noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-optimizer
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
 : gset-defer@   ( ghost -- )  vttemplate >vtdefer@ ! ;
+: gset->comp ( ghost -- )     vttemplate >vt>comp ! ;
 
 : set-optimizer ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
 : set-to       ( xt -- )  xt>ghost vttemplate >vtto ! ;
@@ -3154,6 +3151,13 @@ End-Struct vtable-struct
     postpone ;  built >do:ghost @ >exec2 ! ; immediate
 
 >TARGET
+ghost imm>comp
+
+: immediate     ( immediate-mask flag! )
+                [G'] imm>comp gset->comp
+                ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
+                <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
+                <imm> ^imm @ ! ;
 
 ghost a>int drop
 ghost a>comp drop

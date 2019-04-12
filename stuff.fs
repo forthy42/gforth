@@ -365,7 +365,7 @@ comp' sliteral drop alias postpone-sliteral
 \ defer stuff
 
 :noname ' defer@ ;
-:noname (') (name>x) drop defer@, ;
+:noname (') name>int defer@, ;
 interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
