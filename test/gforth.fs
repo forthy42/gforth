@@ -194,11 +194,15 @@ t{ ' true is cod2 -> }t
 t{ cod2 -> true }t
 t{ cod1 -> true }t
 t{ action-of cod2 -> ' true }t
+: cod2-ao action-of cod2 ;
+t{ cod2-ao -> ' true }t
 
 \ synonym behaviour for umethods; SOURCE is a umethod
 t{ synonym source2 source -> }t
 t{ ' source2 -> ' source }t
 t{ action-of source2 -> action-of source }t
+: source2-ao action-of source2 ;
+t{ source2-ao -> action-of source }t
 
 \ +to and addr
 

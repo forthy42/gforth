@@ -389,6 +389,9 @@ include ./recognizer.fs
 
 \ : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
 
+: defer@, ( xt -- )
+    dup >namevt @ >vtdefer@ @ opt-something, ;
+
 : a>int ( nt -- )  >body @ ;
 : a>comp ( nt -- xt1 xt2 )  dup >r >body @
     ['] execute ['] compile, r> immediate? select ;
@@ -399,10 +402,16 @@ include ./recognizer.fs
     \ actually a TO: TO-OPT: word, but cross.fs does not support that
     >body @ (int-to) ;
 opt: drop >body @ (comp-to) ;
+: s-defer@ ( xt1 -- xt2 )
+    \ actually a DEFER@ DEFER@-OPT: word, but cross.fs does not support that
+    >body @ defer@ ;
+opt: drop >body @ defer@, ;
+: s-compile, ( xt -- )  >body @ compile, ;
 
 : Alias    ( xt "name" -- ) \ gforth
     Header reveal ['] on vtcopy
     ['] a>int set->int ['] a>comp set->comp ['] s-to set-to
+    ['] s-defer@ set-defer@  ['] s-compile, set-optimizer
     dodefer, dup A, lastcfa ! ;
 
 : alias? ( nt -- flag )
@@ -413,7 +422,9 @@ opt: drop >body @ (comp-to) ;
     parse-name find-name dup 0= #-13 and throw
     dodefer, dup A,
     dup compile-only? IF  compile-only  THEN  name>int lastcfa !
-    ['] s>int set->int ['] s>comp set->comp ['] s-to set-to reveal ;
+    ['] s>int set->int ['] s>comp set->comp ['] s-to set-to
+    ['] s-defer@ set-defer@  ['] s-compile, set-optimizer
+    reveal ;
 
 : synonym? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;

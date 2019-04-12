@@ -364,9 +364,6 @@ comp' sliteral drop alias postpone-sliteral
 
 \ defer stuff
 
-: defer@, ( xt -- )
-    dup >namevt @ >vtdefer@ @ opt-something, ;
-
 :noname ' defer@ ;
 :noname (') (name>x) drop defer@, ;
 interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
