@@ -74,12 +74,12 @@ Defer }}text' ' }}text IS }}text'
 : \\ }}text' /left ;
 : p\\ ( text -- )
     }}text' >r {{ r> glue*l }}glue }}p box[] >bl'
-    dpy-w @ s>f font-size# 140% f* f- 1e text-shrink% f2/ f- f/ dup .par-split ;
+    dpy-w @ s>f font-size# 70% f* f- 1e text-shrink% f2/ f- f/ dup .par-split ;
 : p2\\ ( text1 text2 -- )
     }}text' >r dark-blue }}text' blackish >r {{ r> }}z >r
     {{ r> r> over >r glue*l }}glue }}p box[] >bl'
     r> over >o to lhang o>
-    dpy-w @ s>f font-size# 140% f* f- 1e text-shrink% f2/ f- f/ dup .par-split ;
+    dpy-w @ s>f font-size# 70% f* f- 1e text-shrink% f2/ f- f/ dup .par-split ;
 : e\\ }}emoji >r }}text' >r {{ r> glue*l }}glue r> }}h box[] >bl ;
 : /right ( o -- o' )
     >r {{ glue*l }}glue r> }}h box[] >bl ;

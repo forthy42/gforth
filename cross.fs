@@ -3155,17 +3155,20 @@ End-Struct vtable-struct
 
 >TARGET
 
+ghost a>int drop
 ghost a>comp drop
+ghost a-to drop
 ghost s-to drop
+ghost :dodefer drop
 
 : Alias    ( cfa -- ) \ name
     >in @ skip? IF  2drop  EXIT  THEN  >in !
     (THeader ( S xt ghost )
     2dup swap xt>ghost swap copy-execution-semantics
-    [G'] @      vttemplate >vt>int  !
+    [G'] a>int  vttemplate >vt>int  !
     [G'] a>comp vttemplate >vt>comp !
     [G'] s-to   vttemplate >vtto    !
-    over resolve T A, H ;
+    over resolve [G'] :dodefer (doer,) T A, H ;
 
 : interpret/compile: ( xt1 xt2 "name" -- )
     (THeader <res> over >magic !  there swap >link !

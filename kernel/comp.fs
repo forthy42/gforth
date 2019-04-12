@@ -253,7 +253,7 @@ Defer char@ ( addr u -- char addr' u' )
 ' noop Alias recurse
 \g Alias to the current definition.
 
-unlock tlastcfa @ lock AConstant lastcfa
+unlock tlastcfa @ >body lock AConstant lastcfa
 \ this is the alias pointer in the recurse header, named lastcfa.
 \ changing lastcfa now changes where recurse aliases to
 \ it's always an alias of the current definition
@@ -389,28 +389,29 @@ include ./recognizer.fs
 
 \ : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
 
-: a>comp ( nt -- xt1 xt2 )  dup >r @
+: a>int ( nt -- )  >body @ ;
+: a>comp ( nt -- xt1 xt2 )  dup >r >body @
     ['] execute ['] compile, r> immediate? select ;
 
-: s>int ( nt -- xt )  @ name>int ;
-: s>comp ( nt -- xt1 xt2 )  @ name>comp ;
+: s>int ( nt -- xt )  >body @ name>int ;
+: s>comp ( nt -- xt1 xt2 )  >body @ name>comp ;
 : s-to ( val nt -- )
     \ actually a TO: TO-OPT: word, but cross.fs does not support that
-    @ (int-to) ;
-opt: drop @ (comp-to) ;
+    >body @ (int-to) ;
+opt: drop >body @ (comp-to) ;
 
 : Alias    ( xt "name" -- ) \ gforth
-    Header reveal ['] on vtcopy ?noname-vt
-    ['] @ set->int ['] a>comp set->comp ['] s-to set-to
-    dup A, lastcfa ! ;
+    Header reveal ['] on vtcopy
+    ['] a>int set->int ['] a>comp set->comp ['] s-to set-to
+    dodefer, dup A, lastcfa ! ;
 
 : alias? ( nt -- flag )
-    >namevt @ >vt>int 2@ ['] a>comp ['] @ d= ;
+    >namevt @ >vt>int 2@ ['] a>comp ['] a>int d= ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
     Header  ['] on vtcopy
     parse-name find-name dup 0= #-13 and throw
-    dup A,
+    dodefer, dup A,
     dup compile-only? IF  compile-only  THEN  name>int lastcfa !
     ['] s>int set->int ['] s>comp set->comp ['] s-to set-to reveal ;
 
