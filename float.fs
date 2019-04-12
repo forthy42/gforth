@@ -81,7 +81,7 @@
 
 Create f!-table ' f! , ' f+! ,
 
-to: fvalue-to ( xt xt-deferred -- ) \ gforth  defer-store
+to: fvalue-to ( r xt-fvalue -- ) \ gforth
     >body f!-table to-!exec ;
 to-opt: >body postpone ALiteral f!-table to-!, ;
 
