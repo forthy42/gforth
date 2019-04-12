@@ -50,7 +50,7 @@ s" forward must be resolved with :" exception constant forward-needs-:
 : is-forward? ( xt -- f )
     \ f is true if xt is an unresolved forward definition
     dup >code-address dodefer: = if
-        defer@ ['] unresolved-forward-error = exit then
+        >body @ ['] unresolved-forward-error = exit then
     drop false ;
 
 : auto-resolve ( addr u wid -- )
