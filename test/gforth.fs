@@ -204,6 +204,35 @@ t{ action-of source2 -> action-of source }t
 : source2-ao action-of source2 ;
 t{ source2-ao -> action-of source }t
 
+\ alias
+
+t{ ' coc1 alias coc4 -> }t
+t{ coc4 -> coc1 }t
+t{ : coc5 coc4 ; -> }t
+t{ coc5 -> coc1 }t
+t{ ' coc4 -> ' coc1 }t
+
+t{ ' coc1 alias coc6 immediate -> }t
+t{ "coc1" find-name immediate? -> false }t
+t{ "coc6" find-name immediate? -> true }t
+t{ ] coc6 [ -> coc1 }t
+t{ ' coc6 -> ' coc1 }t
+
+t{ ' cod1 alias aod2 -> }t
+t{ ' false is aod2 -> }t
+t{ aod2 -> false }t
+t{ cod1 -> false }t
+t{ action-of aod2 -> ' false }t
+: aod2-ao action-of aod2 ;
+t{ aod2-ao -> ' false }t
+
+\ synonym behaviour for umethods; SOURCE is a umethod
+t{ ' source alias source3 -> }t
+t{ ' source3 -> ' source }t
+t{ action-of source3 -> action-of source }t
+: source3-ao action-of source3 ;
+t{ source3-ao -> action-of source }t
+
 \ +to and addr
 
 1 value foo#
