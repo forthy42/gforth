@@ -124,6 +124,11 @@ $541B Constant FIONREAD
     t_buf swap cfsetospeed ?ior
     r> 0 t_buf tcsetattr ?ior ;
 
+: open-serial ( addr u baud -- port )
+    \G open serial device @ivar{addr u} with symbolic baud rate @ivar{baud}
+    >r $C02 0 open dup 0< ?ior fd>file
+    r> over set-baud ;
+
 : reset-baud ( port -- ) fileno
     0 t_old tcsetattr ?ior ;
 
