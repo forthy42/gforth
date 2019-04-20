@@ -327,6 +327,7 @@ typedef Label *Xt;
 #define VTEXTRA 3
 #define VTTO 4
 #define EXTRA_CODE(cfa) ((Xt *)(((Cell **)cfa)[-1][VTEXTRA]))
+#define EXTRA_CODEXT(cfa) ((Xt)(((Cell **)cfa)[-1][VTEXTRA]))
 #define MAKE_CF(cfa,ca) ((*(Label *)(cfa)) = ((Label)ca))
 /* make a code field for a defining-word-defined word */
 

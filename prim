@@ -286,6 +286,14 @@ ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
 SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
 VM_JUMP(EXEC1(DOES_CODEXT(CFA)));
 
+(doextraxt) ( -- a_body )  gforth-internal       paren_doextraxt
+a_body = PFA(CFA);
+#ifndef NO_IP
+ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
+#endif /* !defined(NO_IP) */
+SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
+VM_JUMP(EXEC1(EXTRA_CODEXT(CFA)));
+
 \F [endif]
 
 \g control
@@ -413,6 +421,23 @@ a_body = PFA(a_cfa);
 #endif
 SUPER_END;
 VM_JUMP(EXEC1(DOES_CODEXT(a_cfa)));
+#endif
+
+extra-xt ( #a_cfa -- a_body )	new	extra_xt
+#ifdef NO_IP
+/* compiled to LIT CALL by compile_prim */
+assert(0);
+#else
+a_body = PFA(a_cfa);
+#ifdef DEBUG
+    {
+      CFA_TO_NAME(a_cfa);
+      debugp(stderr,"%08lx: does %08lx %.*s exec %p\n",
+	     (Cell)ip,(Cell)a_cfa,len,name,EXTRA_CODE(a_cfa));
+    }
+#endif
+SUPER_END;
+VM_JUMP(EXEC1(EXTRA_CODEXT(a_cfa)));
 #endif
 
 \+glocals

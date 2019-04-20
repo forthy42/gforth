@@ -573,9 +573,9 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 \G code field, for correctness you also need to change the compiler
     dodoesxt: over ! cell+ ! ;
 
-: extra-code! ( a-addr xt -- ) \ gforth
-\G Create a code field at @i{xt} for a child of a @code{EXTRA>}-word;
-\G @i{a-addr} is the start of the Forth code after @code{EXTRA>}.
+: extra-code! ( xt1 xt2 -- ) \ gforth
+\G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;
+\G @i{xt1} is the execution token of the assigned Forth code.
     doextra: any-code! ;
 
 2 cells constant /does-handler ( -- n ) \ gforth

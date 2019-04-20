@@ -546,7 +546,7 @@ opt: drop ( xt -- )
 
 extra>-dummy (doextra-dummy)
 : !extra   ( addr -- ) \ gforth store-extra
-    vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
+    created?
     IF
 	['] extra, set-optimizer
     THEN
@@ -769,9 +769,11 @@ defer 0-adjust-locals-size ( -- )
     latestxt doesxt-code!
     ['] doesxt, set-optimizer ;
 
+: created? ( -- flag )
+    vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ = ;
+
 : !does    ( addr -- ) \ gforth	store-does
-    vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ =
-    IF
+    created? IF
 	['] spaces >namevt @ >vtcompile, @ set-optimizer
     THEN
     latestxt does-code! ;

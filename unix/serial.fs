@@ -120,6 +120,7 @@ $541B Constant FIONREAD
     r@ t_old tcgetattr ?ior
     t_old t_buf termios move
     t_buf cfmakeraw
+    t_buf c_iflag dup flag@ CLOCAL or swap flag!
     t_buf over cfsetispeed ?ior
     t_buf swap cfsetospeed ?ior
     r> 0 t_buf tcsetattr ?ior ;
@@ -134,6 +135,12 @@ $541B Constant FIONREAD
 
 : check-read ( port -- n )  0 { w^ io-result }
     fileno FIONREAD io-result ioctl ?ior io-result l@ ;
+
+pollfd buffer: port-poll
+
+: poll-read ( port -- )
+    dup fileno POLLIN port-poll fds!+ drop
+    port-poll 1 -1 poll 0< ?ior ;
 
 \ get and set control lines
 
