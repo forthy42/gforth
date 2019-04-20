@@ -204,6 +204,13 @@ t{ action-of source2 -> action-of source }t
 : source2-ao action-of source2 ;
 t{ source2-ao -> action-of source }t
 
+\ synonym and immediate
+t{ create coc8 immediate -> }t
+t{ synonym coc9 coc8 -> }t
+t{ "coc8" find-name immediate? -> true }t
+t{ "coc9 find-name immediate? -> true }t
+t{ ] coc9 [ -> coc8 }t
+
 \ alias
 
 t{ ' coc1 alias coc4 -> }t
