@@ -92,3 +92,9 @@ doer? :doextra [IF]
 : doextra: ( -- addr )
     ['] (doextra-dummy) >code-address ;
 [THEN]
+
+doer? :doextraxt [IF]
+\ extra>-dummy (doextra-dummy)
+: doextraxt: ( -- addr )
+    ['] (doextraxt-dummy) >code-address ;
+[THEN]

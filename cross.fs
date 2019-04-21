@@ -1198,9 +1198,9 @@ Ghost no-to drop
 Ghost refill drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
-Ghost :dovar	Ghost dovar-vt	Ghost dodoes-vt	2drop drop
-Ghost :doextra  Ghost doextra-vt Ghost extra,   2drop drop
-Ghost :dodoesxt drop
+Ghost :dovar	drop
+Ghost :doextra  drop
+Ghost :dodoesxt Ghost :doextraxt 2drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -3037,7 +3037,8 @@ ghost peephole-compile,
 2drop
 ghost does,
 ghost extra,
-2drop
+ghost extraxt,
+2drop drop
 ghost value,
 ghost constant,
 2drop
@@ -3264,6 +3265,11 @@ Builder extra>-dummy
 Build: ;Build
 by: :doextra ;DO
 vt: [G'] extra, gset-optimizer ;vt
+
+Builder extraxt>-dummy
+Build: ;Build
+by: :doextraxt ;DO
+vt: [G'] extraxt, gset-optimizer ;vt
 
 \ Variables and Constants                              05dec92py
 

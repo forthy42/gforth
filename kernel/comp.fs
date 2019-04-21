@@ -552,6 +552,14 @@ extra>-dummy (doextra-dummy)
     THEN
     latestxt extra-code! ;
 
+extraxt>-dummy (doextraxt-dummy)
+: !extraxt   ( addr -- ) \ gforth store-extra
+    created?
+    IF
+	['] extraxt, set-optimizer
+    THEN
+    latestxt extra-xt! ;
+
 \ call with locals - unused
 
 \ docolloc-dummy (docolloc-dummy)

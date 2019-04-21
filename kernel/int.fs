@@ -25,6 +25,7 @@
 
 has? new-does [IF]
     : extra, ['] extra-exec peephole-compile, , ;
+    : extraxt, ['] extra-xt peephole-compile, , ;
     : >comp  ( xt -- ) name>comp execute ;
     : no-to ( xt -- )
 	\ default to action: report an error ASAP (even right when COMPILE,ing)
@@ -577,6 +578,11 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 \G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;
 \G @i{xt1} is the execution token of the assigned Forth code.
     doextra: any-code! ;
+
+: extra-xt! ( xt1 xt2 -- ) \ gforth
+\G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;
+\G @i{xt1} is the execution token of the assigned Forth code.
+    doextraxt: any-code! ;
 
 2 cells constant /does-handler ( -- n ) \ gforth
 \G The size of a @code{DOES>}-handler (includes possible padding).

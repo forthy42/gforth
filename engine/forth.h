@@ -119,7 +119,8 @@ extern void* (*realloc_l)(void* addr, size_t size);
 #define DOSEMIABICODE   9
 #define DOEXTRA	10
 #define DODOESXT 11
-#define DOER_MAX        11
+#define DOEXTRAXT 12
+#define DOER_MAX 12
 
 #include "machine.h"
 
@@ -319,15 +320,19 @@ typedef Label *Xt;
 #define DOES_CODE1(cfa)	 ((Xt *)(((Cell *)cfa)[1]))
 #define DOES_CODEXT(cfa) ((Xt)(((Cell *)cfa)[1]))
 
-/* MAKE_CF creates an appropriate code field at the cfa;
-   ca is the code address */
+/* Extra is used for DOES */
 #define VTLINK 0
 #define VTCOMPILE 1
-#define VTLIT 2
-#define VTEXTRA 3
-#define VTTO 4
+#define VTTO 2
+#define VT2INT 3
+#define VT2COMP 4
+#define VTDEFER 5
+#define VTEXTRA 6
 #define EXTRA_CODE(cfa) ((Xt *)(((Cell **)cfa)[-1][VTEXTRA]))
 #define EXTRA_CODEXT(cfa) ((Xt)(((Cell **)cfa)[-1][VTEXTRA]))
+
+/* MAKE_CF creates an appropriate code field at the cfa;
+   ca is the code address */
 #define MAKE_CF(cfa,ca) ((*(Label *)(cfa)) = ((Label)ca))
 /* make a code field for a defining-word-defined word */
 
