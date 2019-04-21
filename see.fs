@@ -371,7 +371,7 @@ VARIABLE C-Pass
 	over 1 cells + @ decompile-prim ['] call xt= >r
 	over 3 cells + @ decompile-prim ['] ;S xt=
 	r> and if
-	    over 2 cells + @ ['] !extra >body = if  drop
+	    over 2 cells + @ ['] !extraxt >body = if  drop
 		S" DOES> " Com# ?.string 4 cells + EXIT endif
 	endif
 	[IFDEF] !;abi-code

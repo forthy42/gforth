@@ -387,18 +387,7 @@ void gforth_relocate(Cell *image, const Char *bitstring,
 	    switch(token|0x4000) {
 	    case CF_NIL      : image[i]=0; break;
 #if !defined(DOUBLY_INDIRECT)
-	    case CF(DOCOL)   :
-	    case CF(DOVAR)   :
-	    case CF(DOCON)   :
-	    case CF(DOVAL)   :
-	    case CF(DOUSER)  : 
-	    case CF(DODEFER) : 
-	    case CF(DOFIELD) : 
-	    case CF(DODOES)  :
-	    case CF(DOABICODE) :
-	    case CF(DOSEMIABICODE): 
-	    case CF(DOEXTRA): 
-	    case CF(DODOESXT): 
+	    case CF(DOER_MAX) ... CF(DOCOL):
 	      MAKE_CF(image+i,symbols[CF(token)]); break;
 #endif /* !defined(DOUBLY_INDIRECT) */
 	    default          : /* backward compatibility */

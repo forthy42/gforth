@@ -544,7 +544,7 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
     else dup @ dodoesxt: = if
             cell+ @
         else
-            dup @ doextra: = IF
+            dup @ doextraxt: = IF
                 >namevt @ >vtextra @
             ELSE
                 drop 0
@@ -573,11 +573,6 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 \G address is pushed and @i{xt1} is run.  Note: This changes only the
 \G code field, for correctness you also need to change the compiler
     dodoesxt: over ! cell+ ! ;
-
-: extra-code! ( xt1 xt2 -- ) \ gforth
-\G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;
-\G @i{xt1} is the execution token of the assigned Forth code.
-    doextra: any-code! ;
 
 : extra-xt! ( xt1 xt2 -- ) \ gforth
 \G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;

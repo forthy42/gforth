@@ -544,14 +544,6 @@ opt: drop ( xt -- )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
-extra>-dummy (doextra-dummy)
-: !extra   ( addr -- ) \ gforth store-extra
-    created?
-    IF
-	['] extra, set-optimizer
-    THEN
-    latestxt extra-code! ;
-
 extraxt>-dummy (doextraxt-dummy)
 : !extraxt   ( addr -- ) \ gforth store-extra
     created?

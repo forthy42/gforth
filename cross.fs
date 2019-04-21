@@ -1199,7 +1199,6 @@ Ghost refill drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	drop
-Ghost :doextra  drop
 Ghost :dodoesxt Ghost :doextraxt 2drop
 
 \ \ Parameter for target systems                         06oct92py
@@ -1833,7 +1832,7 @@ Ghost (+do)     Ghost (-do)     Ghost (u-do)    2drop drop
 Ghost (for)                                     drop
 Ghost (loop)    Ghost (+loop)   Ghost (-loop)   2drop drop
 Ghost (next)                                    drop
-Ghost !does     Ghost !extra                    2drop
+Ghost !does     Ghost !extraxt                  2drop
 Ghost compile,                                  drop
 Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
 Ghost (C")      Ghost c(abort") Ghost type      2drop drop
@@ -2838,7 +2837,7 @@ Defer gset-optimizer
     r@ created >do:ghost ! r@ swap resolve
     r> tlastcfa @ >tempdp dodoes, tempdp> ;
 
-Defer !extra
+Defer !extraxt
 
 Defer instant-interpret-does>-hook  ' noop IS instant-interpret-does>-hook
 
@@ -2876,8 +2875,7 @@ Cond: DOES>
 
 : EXTRA>
     ['] extra-resolved created >comp !
-    switchrom T align H
-    doeshandler, !extra 
+    switchrom doeshandler, T here H !extraxt 
     instant-interpret-does>-hook
     depth ;Resolve off  T ] H ;
 [ELSE]
@@ -3036,7 +3034,6 @@ ghost :,
 ghost peephole-compile,
 2drop
 ghost does,
-ghost extra,
 ghost extraxt,
 2drop drop
 ghost value,
@@ -3217,9 +3214,9 @@ variable cross-boot[][]
     r@ created >do:ghost @ >exec2 !
     T align H r> hereresolve
     r> T here vtsize H + resolve
-    [G'] extra, set-optimizer T here H
-    tlastcfa @ >tempdp [G'] :doextra (doer,) tempdp> ;
-IS !extra
+    [G'] extraxt, set-optimizer T here H
+    tlastcfa @ >tempdp [G'] :doextraxt (doer,) tempdp> ;
+IS !extraxt
 
 : ;DO ( [xt] [colon-sys] -- )
   postpone ; doexec! ; immediate
@@ -3260,11 +3257,6 @@ Build: ;Build
 by: :dodoesxt ;DO
 vt: [G'] doesxt, gset-optimizer ;vt
 \ vtghost: dodoesxt-vt
-
-Builder extra>-dummy
-Build: ;Build
-by: :doextra ;DO
-vt: [G'] extra, gset-optimizer ;vt
 
 Builder extraxt>-dummy
 Build: ;Build
