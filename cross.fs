@@ -2597,6 +2597,11 @@ T 2 cells H Value xt>body
   addr,
   2 fillcfa ;						' (dodoesxt,) plugin-of dodoesxt,
 
+: doextraxt, ( -- )
+  ]comp [G'] :doextraxt addr, comp[
+  0 addr,
+  2 fillcfa ;
+
 : (dlit,) ( n -- ) compile lit td, ;			' (dlit,) plugin-of dlit,
 
 : (lit,) ( n -- )  s>d dlit, ;				' (lit,) plugin-of lit,
@@ -2829,15 +2834,13 @@ Defer gset-optimizer
 	
 : !does ( does-action -- )
     tlastcfa @ [G'] :dovar killref
-\    tlastcfa @ t>namevt [G'] dovar-vt killref
-    \    tlastcfa @ t>namevt >tempdp [G'] dodoes-vt addr, tempdp>
     [G'] does, gset-optimizer
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
     r@ created >do:ghost ! r@ swap resolve
     r> tlastcfa @ >tempdp dodoes, tempdp> ;
 
-Defer !extraxt
+Defer !newdoes
 
 Defer instant-interpret-does>-hook  ' noop IS instant-interpret-does>-hook
 
@@ -2862,10 +2865,15 @@ X has? primcentric [IF]
   IF  there resolve  THEN ;
 
 Cond: DOES>
-        T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
-        H + alit, compile !does compile ;s
-        doeshandler, resolve-does>-part
-        ;Cond
+    T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
+    H + alit, compile !does compile ;s
+    doeshandler, resolve-does>-part
+;Cond
+Cond: EXTRA>
+    T here cfaligned H [ T has? primcentric H [IF] ] 8 [ [ELSE] ] 7 [ [THEN] ] T cells
+    H + alit, compile !extraxt [compile] ;
+    T :noname H resolve-does>-part
+;Cond
 
 : DOES>
     ['] does-resolved created >comp !
@@ -2875,9 +2883,11 @@ Cond: DOES>
 
 : EXTRA>
     ['] extra-resolved created >comp !
-    switchrom doeshandler, T here H !extraxt 
+    T here cfaligned #10 cells H \ includes noname header+vtable
+    + !newdoes
+    T :noname H 2drop
     instant-interpret-does>-hook
-    depth ;Resolve off  T ] H ;
+    depth ;
 [ELSE]
 T has? primcentric H [IF]
 : does-resolved ( ghost -- )
@@ -3033,10 +3043,8 @@ Ghost docol-vt drop
 ghost :,
 ghost peephole-compile,
 2drop
-ghost does,
-ghost doesxt,
 ghost extraxt,
-2drop drop
+drop
 ghost value,
 ghost constant,
 2drop
@@ -3138,6 +3146,7 @@ End-Struct vtable-struct
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
 : gset-defer@   ( ghost -- )  vttemplate >vtdefer@ ! ;
 : gset->comp ( ghost -- )     vttemplate >vt>comp ! ;
+: gset-extra ( ghost -- )     vttemplate >vtextra ! ;
 
 : set-optimizer ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
 : set-to       ( xt -- )  xt>ghost vttemplate >vtto ! ;
@@ -3205,19 +3214,15 @@ variable cross-boot[][]
 
 \ instantiate deferred extra, now
 
-:noname ( -- )
-    switchrom vt,
+:noname ( doesxt -- )
     tlastcfa @ [G'] :dovar killref
+    [G'] extraxt, gset-optimizer
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
-    r@ created >do:ghost !
-    >space here >r ghostheader space>
-    r@ created >do:ghost @ >exec2 !
-    T align H r> hereresolve
-    r> T here vtsize H + resolve
-    [G'] extraxt, set-optimizer T here H
-    tlastcfa @ >tempdp [G'] :doextraxt (doer,) tempdp> ;
-IS !extraxt
+    r@ created >do:ghost ! r@ swap resolve
+    r> gset-extra
+    tlastcfa @ >tempdp doextraxt, tempdp> ;
+IS !newdoes
 
 : ;DO ( [xt] [colon-sys] -- )
   postpone ; doexec! ; immediate

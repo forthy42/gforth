@@ -913,7 +913,8 @@ tmp$ $execstr-ptr !
     IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
     postpone call-c# , ;
 
-noname Create \ can not be named due to auto-resolver
+noname Create
+\ can not be named due to rebind-libcc
 ' cfun, set-optimizer
 ' rt-does> !extraxt
 

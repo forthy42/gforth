@@ -183,7 +183,7 @@ bl 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- ) spaces-loop ;
 Create backspaces
 08 80 times \ times from target compiler! 11may93jaw
-DOES>   ( u -- ) over 2* negate out +! spaces-loop ;
+EXTRA>   ( u -- ) over 2* negate out +! spaces-loop ;
 hex
 
 Defer deadline ( d -- )
