@@ -908,8 +908,6 @@ tmp$ $execstr-ptr !
 
 : ft-does> ?compile-wrapper ?link-wrapper @ call-c ;
 
-' rt-does> to rt-vtable
-
 : cfun, ( xt -- )
     dup >does-code [ '  rt-does> >body ]L <>
     IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
