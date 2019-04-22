@@ -542,10 +542,10 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
     dup @ dodoes: = if
 	cell+ @
     else dup @ dodoesxt: = if
-            cell+ @
+            cell+ @ >body
         else
             dup @ doextraxt: = IF
-                >namevt @ >vtextra @
+                >namevt @ >vtextra @ >body
             ELSE
                 drop 0
             THEN

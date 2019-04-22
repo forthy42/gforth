@@ -900,7 +900,7 @@ tmp$ $execstr-ptr !
     ['] rt-does> swap body> doesxt-code! ;
 
 : ?link-wrapper ( addr -- xf-cfr )
-    dup body> >does-code [ '  rt-does> >body ]L <> IF
+    dup body> >does-code [ ' rt-does> >body ]L <> IF
 	dup make-rt
 	dup link-wrapper-function over !  THEN ;
 

@@ -617,7 +617,8 @@ Create vttemplate
 : set-defer@    ( defer@-xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
-: set-does>     ( xt -- ) !doesxt ; \ more work than the aboves
+: set-does>     ( xt -- ) !extraxt ; \ more work than the aboves
+: set-doesxt>   ( xt -- ) !doesxt ; \ more work than the aboves
 
 :noname ( -- colon-sys ) start-xt  set-optimizer ;
 :noname ['] set-optimizer start-xt-like ;

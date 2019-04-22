@@ -3034,6 +3034,7 @@ ghost :,
 ghost peephole-compile,
 2drop
 ghost does,
+ghost doesxt,
 ghost extraxt,
 2drop drop
 ghost value,
