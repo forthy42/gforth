@@ -895,10 +895,12 @@ tmp$ $execstr-ptr !
 	compile-wrapper-function
     endif ;
 
-: rt-does> @ call-c ;
-: make-rt ( addr -- )
-    ['] rt-does> swap body> doesxt-code! ;
+0 Value rt-vtable
 
+: make-rt ( addr -- )
+    rt-vtable >namevt @ swap body> >namevt ! ;
+
+: rt-does> @ call-c ;
 : ?link-wrapper ( addr -- xf-cfr )
     dup body> >does-code [ ' rt-does> >body ]L <> IF
 	dup make-rt
@@ -906,21 +908,27 @@ tmp$ $execstr-ptr !
 
 : ft-does> ?compile-wrapper ?link-wrapper @ call-c ;
 
-: c-function-ft ( xt-parse "c-name" "type signature" -- )
-    \ build time/first time action for c-function
+' rt-does> to rt-vtable
+
+: cfun, ( xt -- )
+    dup >does-code [ '  rt-does> >body ]L <>
+    IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
+    postpone call-c# , ;
+
+noname Create \ can not be named due to auto-resolver
+' cfun, set-optimizer
+' rt-does> !extraxt
+
+latestxt to rt-vtable
+
+: (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
     { xt-parse-types }
     create 0 , lib-handle-addr @ ,
     parse-c-name { d: c-name }
     xt-parse-types execute c-name string,
     ['] gen-wrapper-function c-source-file-execute
-    ['] ft-does> set-does> ;
-
-: (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
-    { xt-parse-types }
-    xt-parse-types c-function-ft
-    [: dup >does-code [ '  rt-does> >body ]L <>
-    IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
-    postpone call-c# , ;] set-optimizer ;
+    ['] ft-does> set-does>
+    ['] cfun, set-optimizer ;
 
 : c-function ( "forth-name" "c-name" "@{type@}" "---" "type" -- ) \ gforth
     \G Define a Forth word @i{forth-name}.  @i{Forth-name} has the
