@@ -541,14 +541,11 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 \G Otherwise @i{a-addr} is 0.
     dup @ dodoes: = if
 	cell+ @
-    else dup @ dodoesxt: = if
-            cell+ @ >body
-        else
-            dup @ doextraxt: = IF
-                >namevt @ >vtextra @ >body
-            ELSE
-                drop 0
-            THEN
+    else
+	dup @ doextraxt: = if
+	    >namevt @ >vtextra @ >body
+	else
+	    drop 0
         then
     endif ;
 
@@ -565,14 +562,7 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 \G @i{a-addr} is the start of the Forth code after @code{DOES>}.
     dodoes: over ! cell+ ! ;
 \ after eliminating dodoes:, this changes to
-\   body> doesxt-code! ;
-
-: doesxt-code! ( xt1 xt2 -- ) \ gforth
-\G Create a code field at @i{xt2} for a child of a
-\G @code{SET-DOES>}-word; afterwards, when @i{xt2} is run, its body
-\G address is pushed and @i{xt1} is run.  Note: This changes only the
-\G code field, for correctness you also need to change the compiler
-    dodoesxt: over ! cell+ ! ;
+\   body> extra-xt! ;
 
 : extra-xt! ( xt1 xt2 -- ) \ gforth
 \G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;

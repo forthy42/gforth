@@ -544,7 +544,6 @@ opt: drop ( xt -- )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
-extraxt>-dummy (doextraxt-dummy)
 : !extraxt   ( addr -- ) \ gforth store-extra
     created?
     IF
@@ -618,7 +617,6 @@ Create vttemplate
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
 : set-does>     ( xt -- ) !extraxt ; \ more work than the aboves
-: set-doesxt>   ( xt -- ) !doesxt ; \ more work than the aboves
 
 :noname ( -- colon-sys ) start-xt  set-optimizer ;
 :noname ['] set-optimizer start-xt-like ;
@@ -763,19 +761,12 @@ defer 0-adjust-locals-size ( -- )
 
 \ does>
 
-: doesxt, ( xt -- )  postpone does-xt , ;
-\    dup >body postpone literal  cell+ @ compile, ;
-
-: !doesxt ( xt -- ) \ gforth store-doesxt
-    latestxt doesxt-code!
-    ['] doesxt, set-optimizer ;
-
 : created? ( -- flag )
     vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ = ;
 
 : !does    ( addr -- ) \ gforth	store-does
     created? IF
-	['] spaces >namevt @ >vtcompile, @ set-optimizer
+	['] does, set-optimizer
     THEN
     latestxt does-code! ;
 

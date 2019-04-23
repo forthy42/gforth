@@ -61,18 +61,12 @@ doer? :dofield [IF]
     ['] >body >code-address ;
 [THEN]
 
-true [IF] \ !! don't know what to put here
+doer? :dodoes [IF]
+does>-dummy (does-dummy)
 : dodoes: ( -- addr )	\ gforth
 \G The code address of a @code{DOES>}-defined word.
-    ['] spaces >code-address ;
+    ['] (does-dummy) >code-address ;
 [THEN]
-
-doer? :dodoesxt [if]
-    doesxt>-dummy (doesxt>-dummy)
-    : dodoesxt: ( -- addr )
-        \G the code address of a @code{set-does>}-defined word.
-        ['] (doesxt>-dummy) >code-address ;
-[then]
 
 doer? :doabicode [IF]
 (ABI-CODE) (abi-code-dummy)
@@ -87,14 +81,8 @@ doer? :do;abicode [IF]
     ['] (;abi-code-dummy) >code-address ;
 [THEN]
 
-doer? :doextra [IF]
-\ extra>-dummy (doextra-dummy)
-: doextra: ( -- addr )
-    ['] (doextra-dummy) >code-address ;
-[THEN]
-
 doer? :doextraxt [IF]
-\ extra>-dummy (doextra-dummy)
+extraxt>-dummy (doextraxt-dummy)
 : doextraxt: ( -- addr )
     ['] (doextraxt-dummy) >code-address ;
 [THEN]

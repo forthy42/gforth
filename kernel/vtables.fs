@@ -40,13 +40,13 @@
     \ cross-compiler does not implement them).
     >body cell+ (uv) ! ;
 opt: ( xt-method xt-to -- )
-    drop >body cell+ postpone Aliteral postpone (uv) postpone ! ;
+    drop >body cell+ lit, postpone (uv) postpone ! ;
 
 : umethod@ ( addr -- xt )
     \ this is not a proper word, but a DEFER@: OPT-DEFER@: word (but
     \ the cross-compiler does not implement them).
     >body cell+ (uv) @ ;
 opt: ( xt-method xt-defer@ -- )
-    drop >body cell+ postpone Aliteral postpone (uv) postpone @ ;
+    drop >body cell+ lit, postpone (uv) postpone @ ;
 
 AVariable vtable-list

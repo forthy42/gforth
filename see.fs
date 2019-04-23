@@ -707,8 +707,9 @@ VARIABLE C-Pass
 CREATE C-Table \ primitives map to code only
 	        ' lit A,            ' c-lit A,
 		' does-exec A,	    ' c-callxt A,
-[IFDEF] does-xt ' does-xt A,        ' c-callxt A,
-                ' extra-exec A,	    ' c-callxt A,
+[IFDEF] does-xt ' does-xt A,        ' c-callxt A, [THEN]
+[IFDEF] extra-exec ' extra-exec A,	    ' c-callxt A, [THEN]
+[IFDEF] extra-xt ' extra-xt A,	    ' c-callxt A, [THEN]
 		' lit@ A,	    ' c-call A,
 [IFDEF] call	' call A,           ' c-call A, [THEN]
 [IFDEF] call-loc ' call-loc A,      ' c-call A, [THEN]

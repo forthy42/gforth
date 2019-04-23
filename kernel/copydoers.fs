@@ -59,10 +59,10 @@ doer? :dofield [IF]
     ['] >body vtcopy, ;
 [THEN]
 
-true [IF] \ !! don't know what to put here
+doer? :dodoes [IF]
 : dodoes: ( -- addr )	\ gforth
     \G The code address of a @code{DOES>}-defined word.
-    ['] spaces >code-address ;
+    ['] (does-dummy) >code-address ;
 [THEN]
 
 doer? :doabicode [IF]

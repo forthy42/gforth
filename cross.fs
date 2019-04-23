@@ -830,7 +830,6 @@ Plugin doer,
 Plugin fini,      \ compiles end of definition ;s
 Plugin doeshandler,
 Plugin dodoes,
-Plugin dodoesxt,
 
 Plugin colon-start
 ' noop plugin-of colon-start
@@ -1193,13 +1192,14 @@ Ghost lit-perform drop
 Ghost lit+ drop
 Ghost does-exec drop
 Ghost extra-exec drop
+Ghost extra-xt drop
 Ghost does-xt drop
 Ghost no-to drop
 Ghost refill drop
 
 Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
 Ghost :dovar	drop
-Ghost :dodoesxt Ghost :doextraxt 2drop
+Ghost :doextraxt drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -2592,11 +2592,6 @@ T 2 cells H Value xt>body
   addr,
   2 fillcfa ;						' (dodoes,) plugin-of dodoes,
 
-: (dodoesxt,) ( does-action-ghost -- )
-  ]comp [G'] :dodoesxt addr, comp[
-  addr,
-  2 fillcfa ;						' (dodoesxt,) plugin-of dodoesxt,
-
 : doextraxt, ( -- )
   ]comp [G'] :doextraxt addr, comp[
   0 addr,
@@ -2828,10 +2823,10 @@ Cond: [ ( -- ) interpreting-state ;Cond
 0 Value created
 
 Ghost does, drop
-Ghost doesxt, drop
 
 Defer gset-optimizer
-	
+Defer gset-extra
+
 : !does ( does-action -- )
     tlastcfa @ [G'] :dovar killref
     [G'] does, gset-optimizer
@@ -2851,7 +2846,7 @@ X has? primcentric [IF]
 : does-resolved ( ghost -- )
     compile does-exec g>xt T a, H ;
 : extra-resolved ( ghost -- )
-    compile extra-exec g>xt T a, H ;
+    compile extra-xt g>xt T a, H ;
 [ELSE]
 : does-resolved ( ghost -- )
     g>xt T a, H ;
@@ -2871,17 +2866,17 @@ Cond: DOES>
 ;Cond
 Cond: EXTRA>
     T here cfaligned H [ T has? primcentric H [IF] ] 8 [ [ELSE] ] 7 [ [THEN] ] T cells
-    H + alit, compile !extraxt [compile] ;
-    T :noname H resolve-does>-part
+    H + alit, compile !extraxt compile ;
+    T :noname H 2drop depth resolve-does>-part
 ;Cond
 
-: DOES>
+: oldDOES>
     ['] does-resolved created >comp !
     switchrom doeshandler, T here H !does 
     instant-interpret-does>-hook
     depth ;Resolve off  T ] H ;
 
-: EXTRA>
+: DOES>
     ['] extra-resolved created >comp !
     T here cfaligned #10 cells H \ includes noname header+vtable
     + !newdoes
@@ -3146,7 +3141,7 @@ End-Struct vtable-struct
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
 : gset-defer@   ( ghost -- )  vttemplate >vtdefer@ ! ;
 : gset->comp ( ghost -- )     vttemplate >vt>comp ! ;
-: gset-extra ( ghost -- )     vttemplate >vtextra ! ;
+:noname ( ghost -- )     vttemplate >vtextra ! ; is gset-extra
 
 : set-optimizer ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
 : set-to       ( xt -- )  xt>ghost vttemplate >vtto ! ;
@@ -3257,12 +3252,6 @@ Build: ;Build
 by: :dodoes ;DO
 vt: [G'] does, gset-optimizer ;vt
 \ vtghost: dodoes-vt
-
-Builder doesxt>-dummy
-Build: ;Build
-by: :dodoesxt ;DO
-vt: [G'] doesxt, gset-optimizer ;vt
-\ vtghost: dodoesxt-vt
 
 Builder extraxt>-dummy
 Build: ;Build

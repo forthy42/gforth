@@ -21,8 +21,8 @@ require ./vars.fs
 include ./input-class.fs
 include ./int.fs
 has? compiler [IF]
-    include ./comp.fs
     include ./vtables.fs
+    include ./comp.fs
 [THEN]
 include ./accept.fs
 include ./input.fs
