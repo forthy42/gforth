@@ -81,7 +81,7 @@ $10 stack: cov-stack
     coverage? cov-stack >stack  false to coverage? ; immediate
 : ]nocov ( -- )
     \G end of temporary turned off coverage
-	cov-stack stack> to coverage? ; immediate
+    cov-stack stack> to coverage? ; immediate
 
 \ print a no-overhead backtrace
 

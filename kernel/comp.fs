@@ -481,27 +481,6 @@ Variable to-style# 0 to-style# !
 
 : !!?addr!! ( -- ) to-style# @ -1 = -2056 and throw ;
 
-: uvalue-to ( n uvalue-xt -- )
-    \g uvalue-to is the to-method for uvalues; it's xt is only
-    \g there to be consumed by @code{set-to}.
-    \ should be defined with TO: OPT-TO:, but not supported by cross.fs
-    !!?addr!! >body @ next-task +  !-table to-!exec ;
-opt: ( uvalue-xt to-xt -- )
-    !!?addr!! drop >body @ postpone useraddr , !-table to-!, ;
-: u-compile, ( xt -- )  >body @ postpone user@ , ;
-
-: UValue ( "name" -- )
-    \G Define a per-thread value
-    Create cell uallot , ['] uvalue-to set-to
-    ['] u-compile, set-optimizer
-  DOES> @ next-task + @ ;
-
-: 2Constant ( w1 w2 "name" -- ) \ double two-constant
-    Create ( w1 w2 "name" -- )
-        2,
-    DOES> ( -- w1 w2 )
-        2@ ;
-
 : (Field)  Header reveal dofield, ?noname-vt ;
 
 \ IS Defer What's Defers TO                            24feb93py

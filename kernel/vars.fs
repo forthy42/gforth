@@ -19,7 +19,31 @@
 
 hex \ everything now hex!                               11may93jaw
 
+\ important definers
+
+: uvalue-to ( n uvalue-xt -- )
+    \g uvalue-to is the to-method for uvalues; it's xt is only
+    \g there to be consumed by @code{set-to}.
+    \ should be defined with TO: OPT-TO:, but not supported by cross.fs
+    !!?addr!! >body @ next-task +  !-table to-!exec ;
+opt: ( uvalue-xt to-xt -- )
+    !!?addr!! drop >body @ postpone useraddr , !-table to-!, ;
+: u-compile, ( xt -- )  >body @ postpone user@ , ;
+
+: UValue ( "name" -- )
+    \G Define a per-thread value
+    Create cell uallot , ['] uvalue-to set-to
+    ['] u-compile, set-optimizer
+  DOES> @ next-task + @ ;
+
+: 2Constant ( w1 w2 "name" -- ) \ double two-constant
+    Create ( w1 w2 "name" -- )
+    2,
+  DOES> ( -- w1 w2 )
+    2@ ;
+
 \ important constants                                  17dec92py
+
 
 \ dpANS6 (sect 3.1.3.1) says 
 \ "a true flag ... [is] a single-cell value with all bits set"

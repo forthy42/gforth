@@ -38,9 +38,6 @@ doer? :dodefer 0= [IF] \D compileddofillers .( DODEFER )
 [THEN]
 
 \D compileddofillers .( DO2CON )
-| : 2Constant ( w1 w2 "name" -- ) 
-    DOES> ( -- w1 w2 )
-        2@ ;
 
 doer? :docon 0= [IF] \D compileddofillers .( DOCON )
 | : (Constant)  DOES> @ ;

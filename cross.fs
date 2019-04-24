@@ -1912,12 +1912,11 @@ previous
 
 : (cr) >tempdp colon, tempdp> ;                 ' (cr) plugin-of colon-resolve
 : (ar) T ! H ;					' (ar) plugin-of addr-resolve
+: doer/does, ( ghost -- )
+    dup >magic @ <do:> =
+    IF  doer,  ELSE  dodoes,  THEN ;
 : (dr)  ( ghost res-pnt target-addr addr )
-	>tempdp drop over 
-	dup >magic @ <do:> =
-	IF 	doer,
-	ELSE	dodoes,
-	THEN 
+	>tempdp drop over doer/does,
 	tempdp> ;				' (dr) plugin-of doer-resolve
 
 : (cm) ( -- addr )
@@ -2587,15 +2586,19 @@ T 2 cells H Value xt>body
 : (doeshandler,) ( -- ) 
     T H ; 					' (doeshandler,) plugin-of doeshandler,
 
-: (dodoes,) ( does-action-ghost -- )
-  ]comp [G'] :dodoes addr, comp[
-  addr,
-  2 fillcfa ;						' (dodoes,) plugin-of dodoes,
+Defer gset-extra
 
-: doextraxt, ( -- )
-  ]comp [G'] :doextraxt addr, comp[
-  0 addr,
-  2 fillcfa ;
+: (dodoes,) ( does-action-ghost -- )
+    ]comp [G'] :dodoes addr, comp[
+    dup gset-extra
+    addr,
+    2 fillcfa ;
+
+: doextraxt, ( does-action-ghost -- )
+    ]comp [G'] :doextraxt addr, comp[
+    0 addr,
+    gset-extra
+    2 fillcfa ;						' doextraxt, plugin-of dodoes,
 
 : (dlit,) ( n -- ) compile lit td, ;			' (dlit,) plugin-of dlit,
 
@@ -2825,7 +2828,6 @@ Cond: [ ( -- ) interpreting-state ;Cond
 Ghost does, drop
 
 Defer gset-optimizer
-Defer gset-extra
 
 : !does ( does-action -- )
     tlastcfa @ [G'] :dovar killref
@@ -2860,21 +2862,12 @@ X has? primcentric [IF]
   IF  there resolve  THEN ;
 
 Cond: DOES>
-    T here H [ T has? primcentric H [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] T cells
-    H + alit, compile !does compile ;s
-    doeshandler, resolve-does>-part
-;Cond
-Cond: EXTRA>
     T here cfaligned H [ T has? primcentric H [IF] ] 8 [ [ELSE] ] 7 [ [THEN] ] T cells
     H + alit, compile !extraxt compile ;
-    T :noname H 2drop depth resolve-does>-part
+    Last-Header-Ghost @ >do:ghost @ >r
+T :noname H
+    r> ?dup IF  swap resolve  ELSE  drop  THEN
 ;Cond
-
-: oldDOES>
-    ['] does-resolved created >comp !
-    switchrom doeshandler, T here H !does 
-    instant-interpret-does>-hook
-    depth ;Resolve off  T ] H ;
 
 : DOES>
     ['] extra-resolved created >comp !
@@ -2931,14 +2924,11 @@ Cond: DOES>
 
 : gdoes,  ( ghost -- )
 \ makes the codefield for a word that is built
-  >do:ghost @ dup undefined? 0=
-  IF
-	dup >magic @ <do:> =
-	IF 	 doer, 
-	ELSE	dodoes,
-	THEN
+    >do:ghost @ dup undefined? 0=
+    IF
+	doer/does,
 	EXIT
-  THEN
+    THEN
 \  compile :dodoes gexecute
 \  T here H tcell - reloff 
   2 refered 
@@ -3215,8 +3205,7 @@ variable cross-boot[][]
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
     r@ created >do:ghost ! r@ swap resolve
-    r> gset-extra
-    tlastcfa @ >tempdp doextraxt, tempdp> ;
+    r> tlastcfa @ >tempdp doextraxt, tempdp> ;
 IS !newdoes
 
 : ;DO ( [xt] [colon-sys] -- )
