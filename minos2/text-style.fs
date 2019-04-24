@@ -240,7 +240,8 @@ glue new Constant glue*wh
 update-glue
 
 : tab-glue: ( glue "name" -- )
-    Value DOES> @ swap >o to aidglue >glue0 o o> ;
+    Create , ['] value-to set-to
+  DOES> @ swap >o to aidglue >glue0 o o> ;
 
 0 tab-glue: bx-tab
 glue new Constant glue*em

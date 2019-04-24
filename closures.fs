@@ -22,8 +22,11 @@
 $10 stack: locals-sizes
 $10 stack: locals-lists
 
+: doesxt, ( xt -- )  postpone does-xt , ;
+
 Create do-closure \G vtable prototype for closures
-DOES> ;           \G the does-code part is patched for each closure
+dodoes: latestxt !
+' doesxt, set-optimizer
 ' noop set->int            \ closures don't have a full header, so the default
 ' (noname->comp) set->comp \ actions (that check flags) don't work
 
