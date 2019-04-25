@@ -186,7 +186,7 @@ synonym section-offset section-end
 
 : comp-image ( "image-file1" "image-file2" "new-image" -- )
     name slurp-file { file1 fsize1 }
-    file1 fsize1 s" Gforth5" search 0= abort" not a Gforth image"
+    file1 fsize1 s" Gforth6" search 0= abort" not a Gforth image"
     drop 8 + file1 - { header-offset }
     file1 fsize1 header-offset /string to size1 to image1
     size1 aligned size1 <> abort" unaligned image size"

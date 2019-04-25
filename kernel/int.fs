@@ -524,12 +524,12 @@ const Create ???
     \ also heuristic
     dup head? 0= IF  drop ['] ???  THEN ;
 
-cell% 2* 0 0 field >body ( xt -- a_addr ) \ core to-body
+cell% 0 0 field >body ( xt -- a_addr ) \ core to-body
 \G Get the address of the body of the word represented by @i{xt} (the
 \G address of the word's data field).
 drop drop
 
-cell% -2 * 0 0 field body> ( xt -- a_addr )
+cell% -1 * 0 0 field body> ( xt -- a_addr )
     drop drop
 
 ' @ alias >code-address ( xt -- c_addr ) \ gforth
@@ -539,15 +539,11 @@ cell% -2 * 0 0 field body> ( xt -- a_addr )
 \G If @i{xt} is the execution token of a child of a @code{DOES>} word,
 \G @i{a-addr} is the start of the Forth code after the @code{DOES>};
 \G Otherwise @i{a-addr} is 0.
-    dup @ dodoes: = if
-	cell+ @
+    dup @ doextraxt: = if
+	>namevt @ >vtextra @ >body
     else
-	dup @ doextraxt: = if
-	    >namevt @ >vtextra @ >body
-	else
-	    drop 0
-        then
-    endif ;
+	drop 0
+    then ;
 
 ' ! alias code-address! ( c_addr xt -- ) \ gforth
 \G Create a code field with code address @i{c-addr} at @i{xt}.

@@ -2563,42 +2563,29 @@ Cond: [']  T ' H alit, ;Cond
 \ \ threading model					13dec92py
 \ modularized						14jun97jaw
 
-T 2 cells H Value xt>body
+T 1 cells H Value xt>body
 
 : (>body)   ( cfa -- pfa ) 
   xt>body + ;						' (>body) plugin-of t>body
 
-: fillcfa   ( usedcells -- )
-  T cells H xt>body swap -
-  assert1( dup 0 >= )
-  0 ?DO 0 X c, tchar +LOOP ;
-
 : (doer,)   ( ghost -- ) 
-  addr, 1 fillcfa ;   					' (doer,) plugin-of doer,
+  addr, ;   					' (doer,) plugin-of doer,
 
 : (docol,)  ( -- ) [G'] :docol (doer,) ;		' (docol,) plugin-of docol,
 
                                                         ' NOOP plugin-of ca>native
 
 : (doprim,) ( -- )
-  there xt>body + ca>native T a, H 1 fillcfa ;		' (doprim,) plugin-of doprim,
+  there xt>body + ca>native T a, H ;		' (doprim,) plugin-of doprim,
 
 : (doeshandler,) ( -- ) 
     T H ; 					' (doeshandler,) plugin-of doeshandler,
 
 Defer gset-extra
 
-: (dodoes,) ( does-action-ghost -- )
-    ]comp [G'] :dodoes addr, comp[
-    dup gset-extra
-    addr,
-    2 fillcfa ;
-
 : doextraxt, ( does-action-ghost -- )
     ]comp [G'] :doextraxt addr, comp[
-    0 addr,
-    gset-extra
-    2 fillcfa ;						' doextraxt, plugin-of dodoes,
+    gset-extra ;					' doextraxt, plugin-of dodoes,
 
 : (dlit,) ( n -- ) compile lit td, ;			' (dlit,) plugin-of dlit,
 
@@ -2932,7 +2919,6 @@ Cond: DOES>
 \  compile :dodoes gexecute
 \  T here H tcell - reloff 
   2 refered 
-  0 fillcfa
   ;
 
 : takeover-x-semantics ( S constructor-ghost new-ghost -- )
@@ -3891,7 +3877,7 @@ Cond: postpone ( -- ) \ name
 hex
 
 >CROSS
-Create magic  s" Gforth5x" here over allot swap move
+Create magic  s" Gforth6x" here over allot swap move
 
 bigendian 1+ \ strangely, in magic big=0, little=1
 tcell 1 = 0 and or

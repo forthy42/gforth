@@ -22,15 +22,6 @@
 $10 stack: locals-sizes
 $10 stack: locals-lists
 
-: doesxt, ( xt -- )  postpone does-xt , ;
-
-Create do-closure \G vtable prototype for closures
-dodoes: latestxt !
-' doesxt, set-optimizer
-' noop set->int            \ closures don't have a full header, so the default
-' (noname->comp) set->comp \ actions (that check flags) don't work
-
-
 Defer end-d ( ... xt -- ... )
 \ is either EXECUTE (for {: ... :}*) or END-DCLOSURE (for [{: ... :}*).
 \ xt is either ' NOOP or [: ]] r> lp! [[ ;], which restores LP.
@@ -109,25 +100,34 @@ locals-types definitions
 forth definitions
 
 : (closure-;]) ( closure-sys lastxt -- )
-    ]
+    >r r@ dup >namevt @ >vtextra ! vt,
     postpone THEN
+    orig? r> >namevt @ swap ! drop
     wrap! pop-locals ;
+
+: closure-:-hook ( sys -- sys addr xt n )
+    \ addr is the nfa of the defined word, xt its xt
+    latest latestxt
+    clear-leave-stack
+    dead-code off
+    defstart ;
 
 : closure> ( body -- addr ) \ gforth-experimental closure-end
     \G create trampoline head
-    >l dodoes: >l lp@
-    [ ' do-closure cell- @ ]L >l
-    [ cell maxaligned cell <> ] [IF] 0 >l [THEN] ;
+    doextraxt: >l >l lp@ cell+ ;
 : end-dclosure ( unravel-xt -- closure-sys )
     >r wrap@
     postpone lit >mark
-    ]] closure> [[ r> execute ]] AHEAD BUT THEN [[
+    ]] closure> [[ r> execute ]] AHEAD [[
+    action-of :-hook >r  ['] closure-:-hook is :-hook
+    :noname
+    r> is :-hook
     case locals-size @ \ special optimizations for few locals
 	cell    of ]] @ >l   [[ endof
 	2 cells of ]] 2@ 2>l [[ endof
 	]] lp+!# [[ dup negate , ]] laddr# [[ 0 , dup ]] literal move [[
     endcase
-    ['] (closure-;]) defstart  last @ lastcfa @ defstart ;
+    ['] (closure-;]) colon-sys-xt-offset stick ;
 
 : [{: ( -- vtaddr u latest latestxt wid 0 ) \ gforth-experimental start-closure
     \G starts a closure.  Closures first declare the locals frame they are

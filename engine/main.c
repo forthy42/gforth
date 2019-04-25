@@ -1994,7 +1994,7 @@ static FILE *checkimage(char *path, int len, char *imagename)
       return NULL;
     }
     preamblesize+=8;
-  } while(memcmp(magic,"Gforth5",7));
+  } while(memcmp(magic,"Gforth6",7));
   if (debug) {
     fprintf(stderr,"Magic found: %*s ", 6, magic);
     print_sizes(magic[7]);

@@ -151,7 +151,7 @@ Defer check-shadow ( addr u wid -- )
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
     dup aligned here + dup maxaligned >align
     view,
-    dup cell+ here + dup maxaligned >align
+    dup here + dup maxaligned >align
     nlstring,
     r> 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
@@ -159,8 +159,7 @@ Defer check-shadow ( addr u wid -- )
     [ [IFDEF] prelude-mask ]
 	next-prelude @ 0<> prelude-mask and lastflags cset
 	next-prelude off
-    [ [THEN] ]
-    cfalign ;
+    [ [THEN] ] ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -196,7 +195,7 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname, ( -- )
-    0 last ! vt,  here cell+ dup cfaligned >align 0 ( alias-mask ) , 0 , 0 , ;
+    0 last ! vt,  here dup cfaligned >align 0 ( alias-mask ) , 0 , 0 , ;
 : noname-header ( -- )
     noname, input-stream ;
 
@@ -255,7 +254,7 @@ Defer char@ ( addr u -- char addr' u' )
 ' noop Alias recurse
 \g Alias to the current definition.
 
-unlock tlastcfa @ >body lock AConstant lastcfa
+unlock tlastcfa @ lock >body AConstant lastcfa
 \ this is the alias pointer in the recurse header, named lastcfa.
 \ changing lastcfa now changes where recurse aliases to
 \ it's always an alias of the current definition
@@ -265,7 +264,7 @@ unlock tlastcfa @ >body lock AConstant lastcfa
 : cfa,     ( code-address -- )  \ gforth	cfa-comma
     here
     dup lastcfa !
-    0 A, 0 ,
+    0 A,
     code-address! ;
 
 defer basic-block-end ( -- )

@@ -303,7 +303,7 @@ typedef union {
 typedef Label *Xt;
 
 /* PFA gives the parameter field address corresponding to a cfa */
-#define PFA(cfa)	(((Cell *)cfa)+2)
+#define PFA(cfa)	(((Cell *)cfa)+1)
 /* PFA1 is a special version for use just after a NEXT1 */
 #define PFA1(cfa)	PFA(cfa)
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
