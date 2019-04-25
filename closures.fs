@@ -100,7 +100,9 @@ locals-types definitions
 forth definitions
 
 : (closure-;]) ( closure-sys lastxt -- )
-    >r r@ dup >namevt @ >vtextra ! vt,
+    >r r@ dup >namevt @ >vtextra !
+    ['] extraxt, set-optimizer
+    vt,
     postpone THEN
     orig? r> >namevt @ swap ! drop
     wrap! pop-locals ;
