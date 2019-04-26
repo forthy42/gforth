@@ -2193,7 +2193,7 @@ X has? f83headerstring [IF]
     : name,  ( addr u -- )  ht-header, X cfalign ;
 [ELSE]
     : name,  ( addr u -- )
-	dup T cell+ cfalign# H ht-nlstring, ;
+	dup /maxalign + T cfalign# H ht-nlstring, ;
 [THEN]
 : reset-included ( -- )
     [IFDEF] current-sourcepos1    included-files $off
@@ -2395,7 +2395,7 @@ Defer vt, \ forward rference only
 	    T align H tlast @ T A, H
 	    >in @ parse-name T name, H >in !
 	[ELSE]
-	    >in @ parse-name dup T aligned cfalign# view, name, H >in !
+	    >in @ parse-name dup T cell+ aligned cfalign# view, name, H >in !
 	    tlast @ T A, H
 	    executed-ghost @ ?dup IF
 		>do:ghost @ >exec2 @ execute
@@ -2406,7 +2406,7 @@ Defer vt, \ forward rference only
 	there tlast !
 	1 headers-named +!	\ Statistic
     THEN
-    T cfalign here H tlastcfa !
+    T ( cfalign ) here H tlastcfa !
     \ Old Symbol table sed-script
 \    >in @ cr ." sym:s/CFA=" there 4 0.r ." /"  bl-word count .sym ." /g" cr >in !
     HeaderGhost
