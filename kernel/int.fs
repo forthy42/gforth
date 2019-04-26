@@ -490,11 +490,11 @@ const Create ???
 		unloop drop false exit
 	    then
 	loop
-	dup synonym?  while  @  repeat
+	dup synonym?  while  >body @  repeat
     dup interpret/compile? if
 	2@ xt? swap xt? and
     else
-	dup alias? IF  @  THEN	xt?
+	dup alias? IF  >body @  THEN  xt?
     then ;
 
 : head? ( addr -- f )
