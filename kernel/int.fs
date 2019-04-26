@@ -478,7 +478,7 @@ const Create ???
 \G heuristic check whether addr is a name token; may deliver false
 \G positives; addr must be a valid address
     begin
-	dup dup maxaligned <>
+	dup >body dup maxaligned <>
 	if
 	    drop false exit \ heads are aligned
 	then
