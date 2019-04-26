@@ -777,7 +777,7 @@ stack inst-stream IP Cell
     state-enabled @ ;
 
 : .state ( state -- )
-    0 >body - >name .name ;
+    body> >name .name ;
 
 : set-ss ( ss stack state -- )
     state-sss swap stack-number @ th ! ;
