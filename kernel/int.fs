@@ -424,7 +424,7 @@ defer compile, ( xt -- )
     \G Reserve data space for one cell and store @i{w} in the space.
     cell small-allot ! ;
 
-: immediate? ( nt -- flag )    name>comp nip ['] execute = ;
+: immediate? ( nt -- flag )    name>comp nip ['] compile, <> ;
 : compile-only? ( nt -- flag ) >f+c @ restrict-mask and 0<> ;
 : ?compile-only ( nt -- nt )
     dup compile-only? IF
