@@ -101,7 +101,7 @@ forth definitions
 
 : (closure-;]) ( closure-sys lastxt -- )
     >r r@ dup >namevt @ >vtextra !
-    ['] extraxt, set-optimizer
+    ['] does, set-optimizer
     vt,
     postpone THEN
     orig? r> >namevt @ swap ! drop
@@ -116,7 +116,7 @@ forth definitions
 
 : closure> ( body -- addr ) \ gforth-experimental closure-end
     \G create trampoline head
-    doextraxt: >l >l lp@ cell+ ;
+    dodoes: >l >l lp@ cell+ ;
 : end-dclosure ( unravel-xt -- closure-sys )
     >r wrap@
     postpone lit >mark

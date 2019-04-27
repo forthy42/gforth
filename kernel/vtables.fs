@@ -29,7 +29,7 @@
 : field+, >body @ ['] lit+ peephole-compile, , ;
 : abi-code, >body ['] abi-call peephole-compile, , ;
 : ;abi-code, ['] ;abi-code-exec peephole-compile, , ;
-: does, ['] does-exec peephole-compile, , ;
+: does, ['] does-xt peephole-compile, , ;
 : umethod, >body cell+ 2@ ['] u#exec peephole-compile, , , ;
 : uvar, >body cell+ 2@ ['] u#+ peephole-compile, , , ;
 \ : :loc, >body ['] call-loc peephole-compile, , ;

@@ -440,7 +440,7 @@ w^ some-waddr 2drop
 \ the returned nfa denotes a word that produces what W: produces
 \ !! do the whole thing without nextname
     drop nextname
-    ['] W: >head-noprim ;
+    ['] W: ;
 
 previous
 

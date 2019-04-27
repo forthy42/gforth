@@ -20,7 +20,7 @@
 require sections.fs
 
 s" address-unit-bits" environment? drop constant bits/au
-11 constant maxdoer-tag
+9 constant maxdoer-tag
 
 0 value image1
 0 value size1

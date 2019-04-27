@@ -916,7 +916,7 @@ tmp$ $execstr-ptr !
 noname Create
 \ can not be named due to rebind-libcc
 ' cfun, set-optimizer
-' rt-does> !extraxt
+' rt-does> set-does>
 
 latestxt to rt-vtable
 
