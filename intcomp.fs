@@ -36,7 +36,7 @@
 : compilation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
     ]] [: [: >body [[ ; immediate restrict
 
-: <compilation ( orig colon-sys -- )
+: <compilation ( orig colon-sys -- ) \ gforth-obsolete
     ]] ;] ;] set->comp [[ ; immediate restrict
 
 \\\ example
