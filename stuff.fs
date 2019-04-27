@@ -364,12 +364,9 @@ comp' sliteral drop alias postpone-sliteral
 
 \ new interpret/compile:
 
-: interpret/compile>comp ( nt -- xt1 xt2 )
-    >body cell+ @ ['] execute ;
-
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     swap alias ,
-    ['] interpret/compile>comp set->comp
+    ['] i/c>comp set->comp
     ['] no-to set-to
     ['] no-defer@ set-defer@ ;
 

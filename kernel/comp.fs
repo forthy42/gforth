@@ -761,8 +761,8 @@ defer 0-adjust-locals-size ( -- )
 
 \ for cross-compiler's interpret/compile:
 
-: i/c>int ( nt -- xt )  @ ;
-: i/c>comp ( nt -- xt1 xt2 ) cell+ @ ['] execute ;
+: i/c>comp ( nt -- xt1 xt2 )
+    >body cell+ @ ['] execute ;
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 

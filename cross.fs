@@ -3108,13 +3108,15 @@ End-Struct vtable-struct
 :noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-optimizer
 : gset-to ( ghost -- )        vttemplate >vtto ! ;
 : gset-defer@   ( ghost -- )  vttemplate >vtdefer@ ! ;
+: gset->int ( ghost -- )      vttemplate >vt>int ! ;
 : gset->comp ( ghost -- )     vttemplate >vt>comp ! ;
 :noname ( ghost -- )     vttemplate >vtextra ! ; is gset-extra
 
-: set-optimizer ( xt -- )  xt>ghost vttemplate >vtcompile, ! ;
-: set-to       ( xt -- )  xt>ghost vttemplate >vtto ! ;
-: set-defer@   ( xt -- )  xt>ghost vttemplate >vtdefer@ ! ;
-: set->comp    ( xt -- )  xt>ghost vttemplate >comp ! ;
+: set-optimizer ( xt -- ) xt>ghost gset-optimizer ;
+: set-to       ( xt -- )  xt>ghost gset-to ;
+: set-defer@   ( xt -- )  xt>ghost gset-defer@ ;
+: set->int     ( xt -- )  xt>ghost gset->int ;
+: set->comp    ( xt -- )  xt>ghost gset->comp ;
 
 : vt: ( -- xt colon-sys )
     :noname postpone vt-template, postpone vt-populate ;
@@ -3140,16 +3142,19 @@ ghost :dodefer drop
     >in @ skip? IF  2drop  EXIT  THEN  >in !
     (THeader ( S xt ghost )
     2dup swap xt>ghost swap copy-execution-semantics
-    [G'] a>int  vttemplate >vt>int  !
-    [G'] a>comp vttemplate >vt>comp !
-    [G'] s-to   vttemplate >vtto    !
+    [G'] a>int  gset->int
+    [G'] a>comp gset->comp
+    [G'] s-to   gset-to
     over resolve [G'] :dodefer (doer,) T A, H ;
 
 : interpret/compile: ( xt1 xt2 "name" -- )
     (THeader <res> over >magic !  there swap >link !
+    [G'] :dodefer (doer,)
     swap T A, A, H [ T has? ec H ] [IF] alias-mask flag! [THEN]
     vt-populate
-    [G'] i/c>int vttemplate >vt>int !
+    [G'] no-to   gset-to
+    [G'] no-defer@ gset-defer@
+    [G'] a>int   gset->int
     [G'] i/c>comp vttemplate >vt>comp ! ;
 
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
