@@ -486,7 +486,8 @@ const Create ???
     THEN
     drop false ;
 
-' noop alias >head-noprim ( xt -- nt ) \ gforth  to-head-noprim
+: >head-noprim ( xt -- nt ) \ gforth  to-head-noprim
+    dup xt? 0= IF  drop ['] ???  THEN ;
 
 cell% 0 0 field >body ( xt -- a_addr ) \ core to-body
 \G Get the address of the body of the word represented by @i{xt} (the
