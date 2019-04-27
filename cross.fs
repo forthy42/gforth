@@ -1190,16 +1190,12 @@ Ghost hex drop
 Ghost lit@ drop
 Ghost lit-perform drop
 Ghost lit+ drop
-Ghost does-exec drop
-Ghost extra-exec drop
-Ghost extra-xt drop
 Ghost does-xt drop
 Ghost no-to drop
 Ghost refill drop
 
-Ghost :docol    Ghost :doesjump Ghost :dodoes   2drop drop
+Ghost :docol    Ghost :dodoes   2drop
 Ghost :dovar	drop
-Ghost :doextraxt drop
 
 \ \ Parameter for target systems                         06oct92py
 
@@ -1832,7 +1828,7 @@ Ghost (+do)     Ghost (-do)     Ghost (u-do)    2drop drop
 Ghost (for)                                     drop
 Ghost (loop)    Ghost (+loop)   Ghost (-loop)   2drop drop
 Ghost (next)                                    drop
-Ghost !does     Ghost !extraxt                  2drop
+Ghost set-does> drop
 Ghost compile,                                  drop
 Ghost (.")      Ghost (S")      Ghost (ABORT")  2drop drop
 Ghost (C")      Ghost c(abort") Ghost type      2drop drop
@@ -2583,9 +2579,9 @@ T 1 cells H Value xt>body
 
 Defer gset-extra
 
-: doextraxt, ( does-action-ghost -- )
-    ]comp [G'] :doextraxt addr, comp[
-    gset-extra ;					' doextraxt, plugin-of dodoes,
+: (dodoes,) ( does-action-ghost -- )
+    ]comp [G'] :dodoes addr, comp[
+    gset-extra ;					' (dodoes,) plugin-of dodoes,
 
 : (dlit,) ( n -- ) compile lit td, ;			' (dlit,) plugin-of dlit,
 
@@ -2833,13 +2829,9 @@ Defer instant-interpret-does>-hook  ' noop IS instant-interpret-does>-hook
 X has? new-does [IF]
 X has? primcentric [IF]
 : does-resolved ( ghost -- )
-    compile does-exec g>xt T a, H ;
-: extra-resolved ( ghost -- )
-    compile extra-xt g>xt T a, H ;
+    compile does-xt g>xt T a, H ;
 [ELSE]
 : does-resolved ( ghost -- )
-    g>xt T a, H ;
-: extra-resolved ( ghost -- )
     g>xt T a, H ;
 [THEN]
 
@@ -2850,14 +2842,14 @@ X has? primcentric [IF]
 
 Cond: DOES>
     T here cfaligned H [ T has? primcentric H [IF] ] 8 [ [ELSE] ] 7 [ [THEN] ] T cells
-    H + alit, compile !extraxt compile ;
+    H + alit, compile set-does> compile ;
     Last-Header-Ghost @ >do:ghost @ >r
 T :noname H
     r> ?dup IF  swap resolve  ELSE  drop  THEN
 ;Cond
 
 : DOES>
-    ['] extra-resolved created >comp !
+    ['] does-resolved created >comp !
     T here cfaligned #10 cells H \ includes noname header+vtable
     + !newdoes
     T :noname H 2drop
@@ -2867,7 +2859,7 @@ T :noname H
 T has? primcentric H [IF]
 : does-resolved ( ghost -- )
 \    g>xt dup T >body H alit, compile call T cell+ @ a, H ;
-    compile does-exec g>xt T a, H ;
+    compile does-xt g>xt T a, H ;
 [ELSE]
 : does-resolved ( ghost -- )
     g>xt T a, H ;
@@ -3014,7 +3006,7 @@ Ghost docol-vt drop
 ghost :,
 ghost peephole-compile,
 2drop
-ghost extraxt,
+ghost set-does>
 drop
 ghost value,
 ghost constant,
@@ -3187,11 +3179,11 @@ variable cross-boot[][]
 
 :noname ( doesxt -- )
     tlastcfa @ [G'] :dovar killref
-    [G'] extraxt, gset-optimizer
+    [G'] does, gset-optimizer
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
     r@ created >do:ghost ! r@ swap resolve
-    r> tlastcfa @ >tempdp doextraxt, tempdp> ;
+    r> tlastcfa @ >tempdp dodoes, tempdp> ;
 IS !newdoes
 
 : ;DO ( [xt] [colon-sys] -- )
@@ -3227,11 +3219,6 @@ Build: ;Build
 by: :dodoes ;DO
 vt: [G'] does, gset-optimizer ;vt
 \ vtghost: dodoes-vt
-
-Builder extraxt>-dummy
-Build: ;Build
-by: :doextraxt ;DO
-vt: [G'] extraxt, gset-optimizer ;vt
 
 \ Variables and Constants                              05dec92py
 

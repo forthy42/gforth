@@ -522,13 +522,6 @@ opt: drop ( xt -- )
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
-: !extraxt   ( addr -- ) \ gforth store-extra
-    created?
-    IF
-	['] extraxt, set-optimizer
-    THEN
-    latestxt extra-xt! ;
-
 \ call with locals - unused
 
 \ docolloc-dummy (docolloc-dummy)
@@ -594,7 +587,9 @@ Create vttemplate
 : set-defer@    ( defer@-xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
-: set-does>     ( xt -- ) !extraxt ; \ more work than the aboves
+: set-does>     ( xt -- ) vttemplate >vtextra !
+    created?  IF  ['] does, set-optimizer  THEN
+    dodoes: latestxt ! ;
 
 :noname ( -- colon-sys ) start-xt  set-optimizer ;
 :noname ['] set-optimizer start-xt-like ;
@@ -740,13 +735,7 @@ defer 0-adjust-locals-size ( -- )
 \ does>
 
 : created? ( -- flag )
-    vttemplate >vtcompile, @ ['] udp >namevt @ >vtcompile, @ = ;
-
-: !does    ( addr -- ) \ gforth	store-does
-    created? IF
-	['] does, set-optimizer
-    THEN
-    latestxt does-code! ;
+    vttemplate >vtcompile, @ ['] variable, = ;
 
 : comp-does>; ( some-sys flag lastxt -- )
     \ used as colon-sys xt; this is executed after ";" has removed the

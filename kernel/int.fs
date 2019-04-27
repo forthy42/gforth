@@ -23,16 +23,13 @@
 
 \ \ input stream primitives                       	23feb93py
 
-has? new-does [IF]
-    : extra, ['] extra-exec peephole-compile, , ;
-    : extraxt, ['] extra-xt peephole-compile, , ;
-    : >comp  ( xt -- ) name>comp execute ;
-    : no-to ( xt -- )
-	\ default to action: report an error ASAP (even right when COMPILE,ing)
-	#-12 throw ;
-    opt: #-12 throw ; \ 
-    : no-defer@ ( xt -- ) #-2055 throw ;
-[THEN]
+: >comp  ( xt -- ) name>comp execute ;
+: no-to ( xt -- )
+    \ default to action: report an error ASAP (even right when COMPILE,ing)
+    #-12 throw ;
+opt: #-12 throw ; \ 
+: no-defer@ ( xt -- ) #-2055 throw ;
+opt: #-2055 throw ;
 
 require ./basics.fs 	\ bounds decimal hex ...
 require ./io.fs		\ type ...
@@ -539,7 +536,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 \G If @i{xt} is the execution token of a child of a @code{DOES>} word,
 \G @i{a-addr} is the start of the Forth code after the @code{DOES>};
 \G Otherwise @i{a-addr} is 0.
-    dup @ doextraxt: = if
+    dup @ dodoes: = if
 	>namevt @ >vtextra @ >body
     else
 	drop 0
@@ -552,18 +549,11 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
     \ for implementing DOES> and ;ABI-CODE, maybe :
     \ code-address is stored at cfa, a-addr at cfa+cell
     over !  >namevt @ >vtextra ! ;
-    
-: does-code! ( a-addr xt -- ) \ gforth
-\G Create a code field at @i{xt} for a child of a @code{DOES>}-word;
-\G @i{a-addr} is the start of the Forth code after @code{DOES>}.
-    dodoes: over ! cell+ ! ;
-\ after eliminating dodoes:, this changes to
-\   body> extra-xt! ;
 
-: extra-xt! ( xt1 xt2 -- ) \ gforth
+: does-code! ( xt1 xt2 -- ) \ gforth
 \G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;
 \G @i{xt1} is the execution token of the assigned Forth code.
-    doextraxt: any-code! ;
+    dodoes: any-code! ;
 
 2 cells constant /does-handler ( -- n ) \ gforth
 \G The size of a @code{DOES>}-handler (includes possible padding).
@@ -889,7 +879,7 @@ defer reset-dpp
 
 : gforth ( -- )
     ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2017,2018 Free Software Foundation, Inc." cr
+    ." , Copyright (C) 1995-2018 Free Software Foundation, Inc." cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `help' for basic help"
