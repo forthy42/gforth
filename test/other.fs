@@ -164,9 +164,9 @@ s" //jkfklfggfld/fjsjfk/hjfdjs" open-fpath-file 2drop
 1 allot
 -1 allot
 
-\ unaligned input for head?
+\ unaligned input for xt?
 
-here 1+ head? throw
+here 1+ xt? throw
 
 \ [compile] exit = exit
 

@@ -471,55 +471,7 @@ const Create ???
     dup @ tuck body> = swap
     docol:  ['] u#+ @ 1+ within or ;
 
-: one-head? ( addr -- f )
-\G heuristic check whether addr is a name token; may deliver false
-\G positives; addr must be a valid address
-    begin
-	dup >body dup maxaligned <>
-	if
-	    drop false exit \ heads are aligned
-	then
-	dup name>string dup $20 $1 within if
-	    2drop drop false exit \ realistically the name is short
-	then
-	bounds ?do \ should be a printable string
-	    i c@ bl < if
-		unloop drop false exit
-	    then
-	loop
-	dup synonym?  while  >body @  repeat
-    dup interpret/compile? if
-	2@ xt? swap xt? and
-    else
-	dup alias? IF  >body @  THEN  xt?
-    then ;
-
-: head? ( addr -- f )
-\G heuristic check whether addr is a name token; may deliver false
-\G positives; addr must be a valid address; returns 1 for
-\G particularly unsafe positives
-    \ we follow the link fields and check for plausibility; two
-    \ iterations should catch most false addresses: on the first
-    \ iteration, we may get an xt, on the second a code address (or
-    \ some code), which is typically not in the dictionary.
-    \ we added a third iteration for working with code and ;code words.
-    3 0 do
-	dup ['] one-head? catch first-throw on 0= and 0= if
-	    drop false unloop exit
-	endif
-	dup >link @ dup 0= if
-	    2drop 1 unloop exit
-	else
-	    dup rot forthstart within if
-		drop false unloop exit
-	    then
-	then
-    loop
-    drop true ;
-
-: >head-noprim ( xt -- nt ) \ gforth  to-head-noprim
-    \ also heuristic
-    dup head? 0= IF  drop ['] ???  THEN ;
+' noop alias >head-noprim ( xt -- nt ) \ gforth  to-head-noprim
 
 cell% 0 0 field >body ( xt -- a_addr ) \ core to-body
 \G Get the address of the body of the word represented by @i{xt} (the
