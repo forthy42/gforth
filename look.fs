@@ -38,20 +38,6 @@ decimal
     @ swap threading-method 1 umin 0 +DO  ['] @ catch drop  LOOP  =
     r> first-throw ! ;
 
-: search-name  ( xt startlfa -- nt|0 )
-    \ look up name of primitive with code at xt
-    swap
-    >r false swap
-    BEGIN
-	>link @ dup
-    WHILE
-	    dup name>int
-	    r@ = IF
-		nip dup
-	    THEN
-    REPEAT
-    drop rdrop ;
-
 : threaded>xt ( ca -- xt|0 )
     \G For the code address ca of a primitive, find the xt (or 0).
     [IFDEF] decompile-prim
@@ -73,6 +59,20 @@ has? ec [IF]
 
 has? rom 
 [IF]
+: search-name  ( xt startlfa -- nt|0 )
+    \ look up name of primitive with code at xt
+    swap
+    >r false swap
+    BEGIN
+	>link @ dup
+    WHILE
+	    dup name>int
+	    r@ = IF
+		nip dup
+	    THEN
+    REPEAT
+    drop rdrop ;
+
 : prim>name ( xt -- nt|0 )
     forth-wordlist @ search-name ;
 
@@ -93,30 +93,23 @@ has? rom
 
 : PrimStart ['] true >head-noprim ;
 
-: prim>name ( xt -- nt|0 )
-    PrimStart search-name ;
-
-: look ( xt -- lfa flag )
-    dup in-dictionary?
-    IF
-	>head-noprim dup ['] ??? <>
-    ELSE
-	prim>name dup 0<>
-    THEN ;
+: look ( xt -- nt flag )
+    dup xt? ;
 
 [THEN]
 [THEN]
-
-: threaded>name ( ca -- nt|0 )
-    threaded>xt prim>name ;
 
 : >name ( xt -- nt ) \ gforth to-name
     \G The primary name token @var{nt} of the word represented by
     \G @var{xt}.  As of Gforth 1.0, every xt has a primary nt, but other
     \G named words may have the same interpretation sematics xt.
-    dup xt? and ;
+    look and ;
+
+: threaded>name ( ca -- nt|0 )
+    threaded>xt >name ;
 
 ' >name ALIAS >head \ gforth to-head
+' >name Alias prim>name
 \G another name of @code{>name}
 
 \ print recognizer stack
