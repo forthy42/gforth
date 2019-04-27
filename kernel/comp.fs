@@ -770,19 +770,10 @@ defer 0-adjust-locals-size ( -- )
 
 ' int-does> ' comp-does> interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 )
 
-\ new interpret/compile:
+\ for cross-compiler's interpret/compile:
 
 : i/c>int ( nt -- xt )  @ ;
 : i/c>comp ( nt -- xt1 xt2 ) cell+ @ ['] execute ;
-
-: interpret/compile? ( nt -- flag ) >namevt @ >vt>int @ ['] i/c>int = ;
-
-: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
-    Header reveal
-    ['] on vtcopy \ vtable template from normal colon definition
-    ['] i/c>int  set->int   \ special name>interpret method
-    ['] i/c>comp set->comp  \ special name>compile method
-    swap , , ;
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 

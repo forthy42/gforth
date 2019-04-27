@@ -362,6 +362,17 @@ comp' sliteral drop alias postpone-sliteral
     ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 
     ?DO  dup i - 1- floats fp@ + f@ 16 5 11 f.rdp space LOOP  drop ; 
 
+\ new interpret/compile:
+
+: interpret/compile>comp ( nt -- xt1 xt2 )
+    >body cell+ @ ['] execute ;
+
+: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
+    swap alias ,
+    ['] interpret/compile>comp set->comp
+    ['] no-to set-to
+    ['] no-defer@ set-defer@ ;
+
 \ defer stuff
 
 :noname ' defer@ ;

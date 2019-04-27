@@ -246,7 +246,7 @@ variable code-locations 0 code-locations !
     where-struct +loop ;
 
 : where ( "name" -- )
-    parse-name find-name [: over = ;] forwheres drop ;
+    parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres drop ;
 
 \ count word usage
 

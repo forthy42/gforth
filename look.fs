@@ -110,12 +110,10 @@ has? rom
 : threaded>name ( ca -- nt|0 )
     threaded>xt prim>name ;
 
-: >name ( xt -- nt|0 ) \ gforth to-name
-    \G tries to find the name token @var{nt} of the word represented
-    \G by @var{xt}; returns 0 if it fails.  This word is not
-    \G absolutely reliable, it may give false positives and produce
-    \G wrong nts.
-    look and ;
+' noop alias >name ( xt -- nt ) \ gforth to-name
+\G The primary name token @var{nt} of the word represented by
+\G @var{xt}.  As of Gforth 1.0, every xt has a primary nt, but other
+\G named words may have the same interpretation sematics xt.
 
 ' >name ALIAS >head \ gforth to-head
 \G another name of @code{>name}
