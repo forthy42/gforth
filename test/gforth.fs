@@ -208,8 +208,15 @@ t{ source2-ao -> action-of source }t
 t{ create coc8 immediate -> }t
 t{ synonym coc9 coc8 -> }t
 t{ "coc8" find-name immediate? -> true }t
-t{ "coc9 find-name immediate? -> true }t
+t{ "coc9" find-name immediate? -> true }t
 t{ ] coc9 [ -> coc8 }t
+
+\ synonym and using nts as xts
+t{ "coc2" find-name execute -> coc1 }t
+\ t{ "coc2" find-name >body -> coc1 }t
+t{ : coca [ "coc2" find-name compile, ] ; -> }t
+t{ coca -> coc1 }t
+
 
 \ alias
 
@@ -233,12 +240,32 @@ t{ action-of aod2 -> ' false }t
 : aod2-ao action-of aod2 ;
 t{ aod2-ao -> ' false }t
 
-\ synonym behaviour for umethods; SOURCE is a umethod
+\ alias behaviour for umethods; SOURCE is a umethod
 t{ ' source alias source3 -> }t
 t{ ' source3 -> ' source }t
 t{ action-of source3 -> action-of source }t
 : source3-ao action-of source3 ;
 t{ source3-ao -> action-of source }t
+
+\ alias and using nts as xts
+t{ "coc4" find-name execute -> coc1 }t
+\ t{ "coc4" find-name >body -> coc1 }t
+t{ : cocb [ "coc4" find-name compile, ] ; -> }t
+t{ cocb -> coc1 }t
+
+
+\ interpret/compile:
+
+t{ ' coc1 ' coc8 interpret/compile: cocc -> }t
+t{ cocc -> coc1 }t
+t{ ] cocc [ -> coc8 }t
+t{ "cocc" find-name execute -> coc1 }t
+t{ : cocd [ "cocc" find-name compile, ] ; -> }t
+t{ cocd -> coc1 }t
+
+t{ ' coc1 ' coc8 interpret/compile: coce immediate -> }t
+t{ coce -> coc1 }t
+t{ ] coce [ -> coc1 }t
 
 \ +to and addr
 
