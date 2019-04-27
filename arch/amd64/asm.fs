@@ -67,7 +67,7 @@ Create nrc  ' c, A, ' here A, ' allot A, ' c! A, ' (+rel A,
 >exec +rel
 drop
 
-\ Stack-Buffer für Extra-Werte                         22dec93py
+\ Stack-Buffer fÃ¼r Extra-Werte                         22dec93py
 
 Variable ModR/M               Variable ModR/M#
 Variable SIB                  Variable SIB#
@@ -388,7 +388,11 @@ $E0 sb: LOOPNE  $E1 sb: LOOPE   $E2 sb: LOOP    $E3 sb: JCXZ
 : jmpf  ( reg / seg -- )
   seg? IF  drop $EA  finish exit  THEN  55 $FF -rex modf ;
 
-: next .d ['] noop >code-address rel) jmp ;
+: next ( -- )
+    \ assume dynamic code generation works, so NOOP's code can be copied
+    \ Essentially assumes: code noop next end-code
+    ['] noop >code-address ['] call >code-address over -
+    here swap dup allot move ;
 
 \ jump if                                              22dec93py
 
