@@ -34,12 +34,11 @@
 \ silly example:
 \ :noname ." compiling" ; special: foo ." interpreting" ;
 
-0 Value xt-compsem
 : compsem: ( -- )
     \G adds a non default compilation semantics to the last
     \G definition
-    start-xt to xt-compsem
-    [: xt-compsem set-compsem ;] colon-sys-xt-offset stick ;
+    start-xt
+    [{: xt-compsem :}h xt-compsem set-compsem ;] colon-sys-xt-offset stick ;
 
 \ silly example
 \ : foo ." interpreting" ; compsem: ." compiling" ;
