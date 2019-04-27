@@ -466,10 +466,25 @@ defer compile, ( xt -- )
 
 const Create ???
 
+: vt? ( vt -- flag )
+    \G check if a vt is actually one
+    dup vttemplate = IF  drop true  EXIT  THEN
+    >r  vtable-list
+    BEGIN  @ dup  WHILE
+	    dup r@ = IF  rdrop drop true  EXIT  THEN
+    REPEAT  rdrop ;
+
 : xt? ( xt -- f )
     \G check for xt - must be code field or primitive
-    dup @ tuck body> = swap
-    docol:  ['] u#+ @ 1+ within or ;
+    dup in-dictionary? IF
+	dup >body dup maxaligned = IF
+	    dup >namevt @ vt? IF
+		dup @ tuck body> = swap
+		docol:  ['] u#+ @ 1+ within or  EXIT
+	    THEN
+	THEN
+    THEN
+    drop false ;
 
 ' noop alias >head-noprim ( xt -- nt ) \ gforth  to-head-noprim
 

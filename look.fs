@@ -110,10 +110,11 @@ has? rom
 : threaded>name ( ca -- nt|0 )
     threaded>xt prim>name ;
 
-' noop alias >name ( xt -- nt ) \ gforth to-name
-\G The primary name token @var{nt} of the word represented by
-\G @var{xt}.  As of Gforth 1.0, every xt has a primary nt, but other
-\G named words may have the same interpretation sematics xt.
+: >name ( xt -- nt ) \ gforth to-name
+    \G The primary name token @var{nt} of the word represented by
+    \G @var{xt}.  As of Gforth 1.0, every xt has a primary nt, but other
+    \G named words may have the same interpretation sematics xt.
+    dup xt? and ;
 
 ' >name ALIAS >head \ gforth to-head
 \G another name of @code{>name}
