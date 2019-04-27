@@ -468,7 +468,7 @@ const Create ???
 
 : xt? ( xt -- f )
     \G check for xt - must be code field or primitive
-    dup @ tuck 2 cells - = swap
+    dup @ tuck body> = swap
     docol:  ['] u#+ @ 1+ within or ;
 
 : one-head? ( addr -- f )
