@@ -22,8 +22,6 @@
 \     interpretation> ... <interpretation
 \     compilation> ... <compilation ;
 
-require set-compsem.fs
-
 : create-interpret/compile ( "name" -- ) \ gforth-obsolete
     Create
     [: true abort" compiling word without compilation semantics" ;]
