@@ -32,7 +32,7 @@
     : r> set->comp ;
 
 \ silly example:
-\ :noname ." compiling" ; special: foo ." interpreting" ;
+\ :noname ." compiling" ; intsem: foo ." interpreting" ;
 
 : compsem: ( -- )
     \G adds a non default compilation semantics to the last
