@@ -91,7 +91,7 @@ locals-types definitions
     \G the local's stack.
     :}
     locals-size @ locals-list @ over 2>r  pop-locals
-    [ 3 cells maxaligned ]L + locals-size +!
+    [ 2 cells maxaligned ]L + locals-size +!
     get-current >r  0 warnings !@ >r  [ ' locals >body ]l set-current
     s" " nextname create-local locals-size @ locals,
     r> warnings !  r> set-current  2r> push-locals
