@@ -31,7 +31,7 @@ require rec-tick.fs
 
 : create-interpret/compile ( "name" -- ) \ gforth-obsolete
     Create
-    ['] default-c-i/c-int  set->does
+    ['] default-c-i/c-int  set-does>
     ['] default-c-i/c-comp set->comp ;
 
 : interpretation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
