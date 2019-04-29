@@ -32,7 +32,15 @@
 : .string. ( addr u -- )
     '"' emit type '"' emit space ;
 : .addr. ( addr -- )
-    dup >name dup IF  ." `" .name drop  ELSE  drop hex.  THEN ;
+    dup xt? if
+	dup name>string dup if
+	    ." `" type space drop exit
+	else
+	    2drop
+	then
+    then
+    hex. ;
+
 : .var. ( addr -- )
     dup body> >name dup IF  .name drop  ELSE  drop hex.  THEN ;
 
@@ -47,7 +55,11 @@ Variable smart.s-skip
 	ELSE  .  THEN
     THEN ;
 
+' smart.s. is .s.
+
 : ... ( x1 .. xn -- x1 .. xn )
     action-of .s. >r
     ['] smart.s. IS .s. .s
     r> IS .s. ;
+
+
