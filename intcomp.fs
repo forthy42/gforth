@@ -22,10 +22,23 @@
 \     interpretation> ... <interpretation
 \     compilation> ... <compilation ;
 
-: create-interpret/compile ( "name" -- ) \ gforth-obsolete
-    Create
-    [: true abort" compiling word without compilation semantics" ;]
-    set->comp ;
+"compiling word without compilation semantics" exception constant no-compsem
+
+: default-c-i/c-int -14 throw ;
+: default-c-i/c-comp no-compsem throw ;
+
+variable last-c-i/c-comp
+
+: c-i/c-comp-xt ( -- )
+    "test" nextname create 0 `default-c-i/c-comp 2,
+    [: 2@ execute ;] set-does>
+    lastxt last-c-i/c-comp ! ;
+
+c-i/c-comp-xt \ make one so that the vt already exists for the real use
+
+: create-interpret/compile ( "name" -- )
+    c-i/c-comp-xt
+    create [: name>view 2 cells - body> `execute ;] set->comp ;
 
 : interpretation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
     postpone [: ; immediate restrict
@@ -34,10 +47,13 @@
     ]] ;] set-does> [[ ; immediate restrict
 
 : compilation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
-    ]] [: [: >body [[ ; immediate restrict
+    ]] [: [[ ; immediate restrict
 
+: set-c-i/c-comp ( xt -- )
+    lastxt >body swap last-c-i/c-comp @ >body 2! ;
+    
 : <compilation ( orig colon-sys -- ) \ gforth-obsolete
-    ]] ;] ;] set->comp [[ ; immediate restrict
+    ]] ;]  set-c-i/c-comp [[ ; immediate restrict
 
 \\\ example
 : constant ( n "name" -- )
