@@ -24,10 +24,15 @@
 
 require rec-tick.fs
 
+"compiling word without compilation semantics" exception constant no-compsem
+
+: default-c-i/c-int -14 throw ;
+: default-c-i/c-comp no-compsem throw ;
+
 : create-interpret/compile ( "name" -- ) \ gforth-obsolete
     Create
-    [: true abort" compiling word without compilation semantics" ;]
-    set->comp ;
+    ['] default-c-i/c-int  set->does
+    ['] default-c-i/c-comp set->comp ;
 
 : interpretation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
     postpone [: ; immediate restrict
@@ -36,8 +41,9 @@ require rec-tick.fs
     ]] ;] set-does> [[ ; immediate restrict
 
 : compilation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
-    ]] [: [n:h >body [[ ; immediate restrict
-
+    \G use a anonymous closure on the heap, acceptable leakage
+    ]] [: >body [n:h [[ ; immediate restrict
+    
 : <compilation ( orig colon-sys -- ) \ gforth-obsolete
     ]] ;] `execute ;] set->comp [[ ; immediate restrict
 
