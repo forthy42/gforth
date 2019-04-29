@@ -39,9 +39,9 @@ Defer endref, ( -- )
 : allocd ( size -- addr ) \ addr is the end of the allocated region
     dp +! dp @ ;
 
-: >lp r> lp@ >r >r lp! ;
+: >lp ( addr -- r:oldlp ) r> lp@ >r >r lp! ;
 opt: drop ]] laddr# [[ 0 , ]] >r lp! [[ ;
-: lp> r> r> lp! >r ;
+: lp> ( r:oldlp -- ) r> r> lp! >r ;
 opt: drop ]] r> lp! [[ ;
 
 Variable extra-locals ( additional hidden locals size )
@@ -144,7 +144,7 @@ forth definitions
     [: ] drop ;] defstart
     #0. push-locals
     ['] end-dclosure is end-d  [: ]] lp> [[ ;] is endref,
-    [ 3 cells maxaligned ]L extra-locals !
+    [ 2 cells maxaligned ]L extra-locals !
     postpone {:
 ; immediate compile-only
 
@@ -157,6 +157,55 @@ forth definitions
     \G end using a home location
     pop-locals ]] laddr# [[ 0 , ]] lp> [[
 ; immediate compile-only
+
+\ stack-based closures without name
+
+: (;*]) ( -- )
+    >r ] postpone endscope locals-list !
+    r@ dup >namevt @ >vtextra !
+    ['] does, set-optimizer
+    vt, postpone THEN wrap!
+    r> >namevt @ lit, ;
+
+: n-closure> ( n vt -- xt )
+    [ cell 4 = ] [IF]  0 >l  [THEN]
+    swap >l dodoes: >l >l lp@ cell+ ;
+: (n;]) ( xt -- )  (;*]) postpone n-closure> ;
+: [n:l ( -- colon-sys ) ]] [: @ [[ ['] (n;]) colon-sys-xt-offset 2 + stick ;
+    immediate restrict
+
+: (n;]*) ( xt -- )  (;*]) [ 3 cells maxaligned ]L lit, compile,
+    ]] >lp n-closure> lp> [[ ;
+: ([n:*) ( xt -- colon-sys )
+    ]] [: @ [[ ['] (n;]*) colon-sys-xt-offset 2 + stick ;
+: [n:h ( -- colon-sys )  ['] alloch ([n:*) ; immediate restrict
+: [n:d ( -- colon-sys )  ['] allocd ([n:*) ; immediate restrict
+
+: d-closure> ( d vt -- xt )
+    -rot 2>l dodoes: >l >l lp@ cell+ ;
+: (d;]) ( xt -- )  (;*]) postpone d-closure> ;
+: [d:l ( -- colon-sys ) ]] [: @ [[ ['] (d;]) colon-sys-xt-offset 2 + stick ;
+    immediate restrict
+
+: (d;]*) ( xt -- )  (;*]) [ 4 cells maxaligned ]L lit, compile,
+    ]] >lp d-closure> lp> [[ ;
+: ([d:*) ( xt -- colon-sys )
+    ]] [: 2@ [[ ['] (d;]*) colon-sys-xt-offset 2 + stick ;
+: [d:h ( -- colon-sys )  ['] alloch ([d:*) ; immediate restrict
+: [d:d ( -- colon-sys )  ['] allocd ([d:*) ; immediate restrict
+
+: f-closure> ( r vt -- xt )
+    f>l dodoes: >l >l lp@ cell+ ;
+: (f;]) ( xt -- )  (;*]) postpone f-closure> ;
+: [f:l ( -- colon-sys ) ]] [: @ [[ ['] (f;]) colon-sys-xt-offset 2 + stick ;
+    immediate restrict
+
+: (f;]*) ( xt -- )  (;*]) [ 2 cells float+ maxaligned ]L lit, compile,
+    ]] >lp f-closure> lp> [[ ;
+: ([f:*) ( xt -- colon-sys )
+    ]] [: f@ [[ ['] (f;]*) colon-sys-xt-offset 2 + stick ;
+: [f:h ( -- colon-sys )  ['] alloch ([f:*) ; immediate restrict
+: [f:d ( -- colon-sys )  ['] allocd ([f:*) ; immediate restrict
 
 false [IF]
     : foo [{: a f: b d: c xt: d :}d a . b f. c d. d ;] ;

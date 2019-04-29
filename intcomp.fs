@@ -22,6 +22,8 @@
 \     interpretation> ... <interpretation
 \     compilation> ... <compilation ;
 
+require rec-tick.fs
+
 : create-interpret/compile ( "name" -- ) \ gforth-obsolete
     Create
     [: true abort" compiling word without compilation semantics" ;]
@@ -34,10 +36,10 @@
     ]] ;] set-does> [[ ; immediate restrict
 
 : compilation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
-    ]] [: [: >body [[ ; immediate restrict
+    ]] [: [n:h >body [[ ; immediate restrict
 
 : <compilation ( orig colon-sys -- ) \ gforth-obsolete
-    ]] ;] ;] set->comp [[ ; immediate restrict
+    ]] ;] `execute ;] set->comp [[ ; immediate restrict
 
 \\\ example
 : constant ( n "name" -- )
