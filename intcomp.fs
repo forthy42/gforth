@@ -43,7 +43,7 @@ require rec-tick.fs
 : compilation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
     \G use a anonymous closure on the heap, acceptable leakage
     ]] [: >body [n:h [[ ; immediate restrict
-    
+
 : <compilation ( orig colon-sys -- ) \ gforth-obsolete
     ]] ;] `execute ;] set->comp [[ ; immediate restrict
 

@@ -278,7 +278,9 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  
 	(("[if]" "[?do]" "[do]" "[for]" "[begin]" 
 	  "[endif]" "[then]" "[loop]" "[+loop]" "[next]" "[until]" "[repeat]"
-	  "[again]" "[while]" "[else]" "[:" "[{:" ";]" "nope")
+	  "[again]" "[while]" "[else]" "[:"
+	  "[n:l" "[n:h" "[n:d" "[d:l" "[d:h" "[d:d" "[f:l" "[f:h" "[f:d"
+	  "[{:" ";]" "nope")
 	 immediate (font-lock-keyword-face . 2))
 	(("[ifdef]" "[ifundef]" "[defined]" "[undefined]") immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
@@ -466,7 +468,8 @@ INDENT1 and INDENT2 are indentation specifications of the form
 (setq forth-indent-words
       '((("if" "begin" "do" "?do" "+do" "-do" "u+do"
 	  "u-do" "?dup-if" "?dup-0=-if" "case" "of" "?of" "try" "iferror"
-	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]" "[:" "[{:")
+	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]" "[:"
+	  "[n:l" "[n:h" "[n:d" "[d:l" "[d:h" "[d:d" "[f:l" "[f:h" "[f:d" "[{:")
 	 (0 . 2) (0 . 2))
 	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" 
 	  "interface" "c-library" "c-library-name" "comp:" "opt:" "post:"
