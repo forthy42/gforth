@@ -37,8 +37,7 @@
 : compsem: ( -- )
     \G adds a non default compilation semantics to the last
     \G definition
-    start-xt
-    [{: xt-compsem :}h xt-compsem set-compsem ;] colon-sys-xt-offset stick ;
+    start-xt [n:h set-compsem ;] colon-sys-xt-offset stick ;
 
 \ silly example
 \ : foo ." interpreting" ; compsem: ." compiling" ;
