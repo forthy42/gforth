@@ -2809,6 +2809,7 @@ Cond: [ ( -- ) interpreting-state ;Cond
 0 Value created
 
 Ghost does, drop
+Ghost !does drop
 
 Defer gset-optimizer
 
