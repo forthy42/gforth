@@ -184,7 +184,7 @@ forth definitions
 : d-closure> ( d vt -- xt )
     -rot 2>l dodoes: >l >l lp@ cell+ ;
 : (d;]) ( xt -- )  (;*]) postpone d-closure> ;
-: [d:l ( -- colon-sys ) ]] [: @ [[ ['] (d;]) colon-sys-xt-offset 2 + stick ;
+: [d:l ( -- colon-sys ) ]] [: 2@ [[ ['] (d;]) colon-sys-xt-offset 2 + stick ;
     immediate restrict
 
 : (d;]*) ( xt -- )  (;*]) [ 4 cells maxaligned ]L lit, compile,
@@ -197,7 +197,7 @@ forth definitions
 : f-closure> ( r vt -- xt )
     f>l dodoes: >l >l lp@ cell+ ;
 : (f;]) ( xt -- )  (;*]) postpone f-closure> ;
-: [f:l ( -- colon-sys ) ]] [: @ [[ ['] (f;]) colon-sys-xt-offset 2 + stick ;
+: [f:l ( -- colon-sys ) ]] [: f@ [[ ['] (f;]) colon-sys-xt-offset 2 + stick ;
     immediate restrict
 
 : (f;]*) ( xt -- )  (;*]) [ 2 cells float+ maxaligned ]L lit, compile,
