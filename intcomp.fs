@@ -24,15 +24,7 @@
 
 require rec-tick.fs
 
-"compiling word without compilation semantics" exception constant no-compsem
-
-: default-c-i/c-int -14 throw ;
-: default-c-i/c-comp no-compsem throw ;
-
-: create-interpret/compile ( "name" -- ) \ gforth-obsolete
-    Create
-    ['] default-c-i/c-int  set-does>
-    ['] default-c-i/c-comp set->comp ;
+synonym create-interpret/compile create ( "name" -- ) \ gforth-obsolete
 
 : interpretation> ( compilation. -- orig colon-sys ) \ gforth-obsolete
     postpone [: ; immediate restrict
