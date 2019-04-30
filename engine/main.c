@@ -290,7 +290,7 @@ static Cell min(Cell a, Cell b)
  *  tags ((if relocatable, 1 bit/data cell)
  *
  * If the image has sections, they follow after the main image with each
- * section starting with the magic "Section..". A section starts with the
+ * section starting with the magic "Section.". A section starts with the
  * section header (see section.fs and forth.h), has data and tags.
  *
  * tag==1 means that the corresponding word is an address;
@@ -2156,7 +2156,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     
     if(8 != fread(magic, 1, 8, imagefile)) break;
     
-    if(memcmp(magic, "Section..", 8)) break;
+    if(memcmp(magic, "Section.", 8)) break;
     
     if(sizeof(SectionHeader) !=
        fread(&section, 1, sizeof(SectionHeader), imagefile)) break;
