@@ -39,6 +39,17 @@
 	    2drop
 	then
     then
+    dup in-dictionary? if
+	forthstart over [ 1 maxaligned negate ]L and U-DO
+	    I body> xt? if
+		I body> name>string dup if
+		    '<' emit type I - ?dup-if
+			." +$" 0 ['] u.r $10 base-execute  then
+		    '>' emit space unloop  EXIT
+		else  2drop  then
+	    then
+	[ 1 maxaligned ]L -LOOP
+    then
     hex. ;
 
 : .var. ( addr -- )
