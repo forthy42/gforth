@@ -289,13 +289,16 @@ static Cell min(Cell a, Cell b)
  *  data (size in ImageHeader.image_size)
  *  tags ((if relocatable, 1 bit/data cell)
  *
+ * If the image has sections, they follow after the main image with each
+ * section starting with the magic "Section..". A section starts with the
+ * section header (see section.fs and forth.h), has data and tags.
+ *
  * tag==1 means that the corresponding word is an address;
  * If the word is >=0, the address is within the image;
- * addresses within the image are given relative to the start of the image.
+ * addresses within the image are given relative to the start of the section.
+ * bits MSB..MSB-7 (8 bits) index the section
  * If the word =-1 (CF_NIL), the address is NIL,
- * If the word is <CF_NIL and >CF(DODOES), it's a CFA (:, Create, ...)
- * If the word =CF(DODOES), it's a DOES> CFA
- * !! ABI-CODE and ;ABI-CODE
+ * If the word is <CF_NIL and >=CF(DOER_MAX), it's a CFA (:, Create, ...)
  * If the word is <CF(DOER_MAX) and bit 14 is set, it's the xt of a primitive
  * If the word is <CF(DOER_MAX) and bit 14 is clear, 
  *                                        it's the threaded code of a primitive
@@ -343,10 +346,10 @@ static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring
   return result;
 }
 
-void gforth_relocate(Cell *image, const Char *bitstring, 
-		     UCell size, Cell base, Label symbols[])
+void gforth_relocate(Address sections[], Char *bitstrings[], 
+		     UCell sizes[], Cell bases[], Label symbols[])
 {
-  int i=0, j, k, steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
+  int i=0, j, k;
   Cell token;
   char bits;
   Cell max_symbols;
@@ -354,98 +357,115 @@ void gforth_relocate(Cell *image, const Char *bitstring,
    * A virtual start address that's the real start address minus 
    * the one in the image 
    */
-  Cell *start = (Cell * ) (((void *) image) - ((void *) base));
-  unsigned char *targets = branch_targets(image, bitstring, size, base);
+  int ii;
+  for (ii=0; ii<0x100; ii++) {
+    Char * bitstring=bitstrings[ii];
+    Cell * image=(Cell*)sections[ii];
+    UCell size=sizes[ii];
+    Cell base=bases[ii];
 
-  /* group index into table */
-  if(groups[31]==0) {
-    int groupsum=0;
-    for(i=0; i<32; i++) {
-      groupsum += groups[i];
-      groups[i] = groupsum;
-      /* printf("group[%d]=%d\n",i,groupsum); */
+    int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
+    
+    if(!bitstring) break;
+    
+    unsigned char *targets = branch_targets(image, bitstring, size, base);
+    
+    /* group index into table */
+    if(groups[31]==0) {
+      int groupsum=0;
+      for(i=0; i<32; i++) {
+	groupsum += groups[i];
+	groups[i] = groupsum;
+	/* printf("group[%d]=%d\n",i,groupsum); */
+      }
+      i=0;
     }
-    i=0;
-  }
-  
-/* printf("relocating to %x[%x] start=%x base=%x\n", image, size, start, base); */
-  
-  for (max_symbols=0; symbols[max_symbols]!=0; max_symbols++)
-    ;
-  max_symbols--;
-
-  for(k=0; k<steps; k++) {
-    for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
-      /*      fprintf(stderr,"relocate: image[%d]\n", i);*/
-      if(bits & (1U << (RELINFOBITS-1))) {
-	assert(i*sizeof(Cell) < size);
-	/* fprintf(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell)); */
-        token=image[i];
-	if(token<0) {
-	  int group = (-token & 0x3E00) >> 9;
-	  if(group == 0) {
-	    switch(token|0x4000) {
-	    case CF_NIL      : image[i]=0; break;
+    
+    /* printf("relocating to %x[%x] start=%x base=%x\n", image, size, start, base); */
+    
+    for (max_symbols=0; symbols[max_symbols]!=0; max_symbols++)
+      ;
+    max_symbols--;
+    
+    for(k=0; k<steps; k++) {
+      for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
+	/*      fprintf(stderr,"relocate: image[%d]\n", i);*/
+	if(bits & (1U << (RELINFOBITS-1))) {
+	  assert(i*sizeof(Cell) < size);
+	  /* fprintf(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell)); */
+	  token=image[i];
+	  if(SECTION(token)==0xFF) {
+	    int group = (-token & 0x3E00) >> 9;
+	    if(group == 0) {
+	      switch(token|0x4000) {
+	      case CF_NIL      : image[i]=0; break;
 #if !defined(DOUBLY_INDIRECT)
-	    case CF(DOER_MAX) ... CF(DOCOL):
-	      MAKE_CF(image+i,symbols[CF(token)]); break;
+	      case CF(DOER_MAX) ... CF(DOCOL):
+		MAKE_CF(image+i,symbols[CF(token)]); break;
 #endif /* !defined(DOUBLY_INDIRECT) */
-	    default          : /* backward compatibility */
-/*	      printf("Code field generation image[%x]:=CFA(%x)\n",
-		     i, CF(image[i])); */
-	      if (CF((token | 0x4000))<max_symbols) {
-		image[i]=(Cell)CFA(CF(token));
+	      default          : /* backward compatibility */
+		/*	      printf("Code field generation image[%x]:=CFA(%x)\n",
+			      i, CF(image[i])); */
+		if (CF((token | 0x4000))<max_symbols) {
+		  image[i]=(Cell)CFA(CF(token));
+#ifdef DIRECT_THREADED
+		  if ((token & 0x4000) == 0) { /* threaded code, no CFA */
+		    if (targets[k] & (1U<<(RELINFOBITS-1-j)))
+		      compile_prim1(0);
+		    compile_prim1(&image[i]);
+		  }
+#endif
+		} else
+		  fprintf(stderr,"Primitive %ld used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
+	      }
+	    } else {
+	      int tok = -token & 0x1FF;
+	      if (tok < (groups[group+1]-groups[group])) {
+#if defined(DOUBLY_INDIRECT)
+		image[i]=(Cell)CFA(((groups[group]+tok) | (CF(token) & 0x4000)));
+#else
+		image[i]=(Cell)CFA((groups[group]+tok));
+#endif
 #ifdef DIRECT_THREADED
 		if ((token & 0x4000) == 0) { /* threaded code, no CFA */
 		  if (targets[k] & (1U<<(RELINFOBITS-1-j)))
 		    compile_prim1(0);
 		  compile_prim1(&image[i]);
+		} else if((token & 0x8000) == 0) { /* special CFA */
+		  /* debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok); */
+		  MAKE_CF(image+i,symbols[groups[group]+tok]);
+		}
+#endif
+#if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
+		if((token & 0x8000) == 0) { /* special CFA */
+		  /* debugp(stderr, "image[%x] = symbols[%x] = %p\n", i, groups[group]+tok, symbols[groups[group]+tok]); */
+		  MAKE_CF(image+i,symbols[groups[group]+tok]);
 		}
 #endif
 	      } else
-		fprintf(stderr,"Primitive %ld used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
+		fprintf(stderr,"Primitive %lx, %d of group %d used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
 	    }
 	  } else {
-	    int tok = -token & 0x1FF;
-	    if (tok < (groups[group+1]-groups[group])) {
-#if defined(DOUBLY_INDIRECT)
-	      image[i]=(Cell)CFA(((groups[group]+tok) | (CF(token) & 0x4000)));
-#else
-	      image[i]=(Cell)CFA((groups[group]+tok));
-#endif
-#ifdef DIRECT_THREADED
-	      if ((token & 0x4000) == 0) { /* threaded code, no CFA */
-		if (targets[k] & (1U<<(RELINFOBITS-1-j)))
-		  compile_prim1(0);
-		compile_prim1(&image[i]);
-	      } else if((token & 0x8000) == 0) { /* special CFA */
-		/* debugp(stderr, "image[%x] = symbols[%x]\n", i, groups[group]+tok); */
-		MAKE_CF(image+i,symbols[groups[group]+tok]);
-	      }
-#endif
-#if defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)
-	      if((token & 0x8000) == 0) { /* special CFA */
-		/* debugp(stderr, "image[%x] = symbols[%x] = %p\n", i, groups[group]+tok, symbols[groups[group]+tok]); */
-		MAKE_CF(image+i,symbols[groups[group]+tok]);
-	      }
-#endif
-	    } else
-	      fprintf(stderr,"Primitive %lx, %d of group %d used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
+	    /* if base is > 0: 0 is a null reference so don't adjust*/
+	    if (token>=base) {
+	      UCell sec = SECTION(token);
+	      UCell start = (Cell) (((void *) sections[sec]) - ((void *) bases[sec]));
+	      image[i]=start+INSECTION(token);
+	    } else if(token!=0) {
+	      fprintf(stderr, "tagged item image[%x]=%llx unrelocated\n", i, (long long)image[i]);
+	    }
 	  }
-	} else {
-          /* if base is > 0: 0 is a null reference so don't adjust*/
-          if (token>=base) {
-            image[i]+=(Cell)start;
-          } else if(token!=0) {
-	    fprintf(stderr, "tagged item image[%x]=%llx unrelocated\n", i, (long long)image[i]);
-	  }
-        }
+	}
       }
     }
+    free(targets);
+    image[0] = (Cell)image;
+    if(ii>0) {
+      image[1] += (Cell)image;
+      image[2] += (Cell)image;
+    }
   }
-  free(targets);
   finish_code();
-  ((ImageHeader*)(image))->base = (Address) image;
 }
 
 #ifndef DOUBLY_INDIRECT
@@ -2057,6 +2077,11 @@ ImageHeader* gforth_loader(char* imagename, char* path)
 /* returns the address of the image proper (after the preamble) */
 {
   ImageHeader header;
+  SectionHeader section;
+  Address sections[0x100];  /* base address of all sections */
+  Char* reloc_bits[0x100];  /* reloc bits of all images     */
+  UCell sizes[0x100];       /* section sizes */
+  Cell bases[0x100];        /* section bases */
   Address image;
   Address imp; /* image+preamble */
   Cell data_offset = offset_image ? 56*sizeof(Cell) : 0;
@@ -2086,6 +2111,8 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   }
 
   set_stack_sizes(&header);
+  bzero(sections, sizeof(sections));
+  bzero(reloc_bits, sizeof(reloc_bits));
   
 #if HAVE_GETPAGESIZE
   pagesize=getpagesize(); /* Linux/GNU libc offers this */
@@ -2099,33 +2126,57 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   image = dict_alloc_read(imagefile, preamblesize+header.image_size,
 			  dictsize, data_offset);
   if(image==NULL) return NULL;
-  imp=image+preamblesize;
+
+  sections[0]=imp=image+preamblesize;
+  sizes[0]=header.image_size;
+  bases[0]=(Cell)header.base;
 
   set_stack_sizes((ImageHeader*)imp);
 
   if (clear_dictionary)
     memset(imp+header.image_size, 0, dictsize-header.image_size-preamblesize);
-  if(header.base==0 || header.base  == (Address)0x100) {
-    Cell reloc_size=((header.image_size-1)/sizeof(Cell))/8+1;
-    Char reloc_bits[reloc_size];
-    fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
-    if(reloc_size != fread(reloc_bits, 1, reloc_size, imagefile)) {
-      fprintf(stderr, "Image reloc bits read terminated early\n");
+  
+  fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
+    
+  int i;
+  for(i=0; i<0xFE; ) {
+    Cell reloc_size=((sizes[i]-1)/sizeof(Cell))/8+1;
+    if(bases[i]==0 || bases[i] == 0x100) {
+      reloc_bits[i]=malloc(reloc_size);
+      
+      if(reloc_size != fread(reloc_bits[i], 1, reloc_size, imagefile)) {
+	fprintf(stderr, "Image reloc bits read terminated early\n");
+	break;
+      }
+    } else if(bases[i]!=(Cell)sections[i]) {
+      fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address %p) at address %p\n",
+	      progname, (Address)bases[i], sections[i]);
+      return NULL;
     }
-    gforth_relocate((Cell *)imp, reloc_bits, header.image_size, (Cell)header.base, vm_prims);
+    
+    if(8 != fread(magic, 1, 8, imagefile)) break;
+    
+    if(memcmp(magic, "Section..", 8)) break;
+    
+    if(sizeof(SectionHeader) !=
+       fread(&section, 1, sizeof(SectionHeader), imagefile)) break;
+    
+    i++;
+    
+    bases[i] = (Cell)section.base;
+    sizes[i] = section.dp-section.base;
+    sections[i] = alloc_mmap(section.end-section.base);
+    memmove(sections[i], &section, sizeof(section));
+    fread(sections[i] + sizeof(section), 1, sizes[i]-sizeof(section), imagefile);
+  }
+  gforth_relocate(sections, reloc_bits, sizes, bases, vm_prims);
 #if 0
-    { /* let's see what the relocator did */
-      FILE *snapshot=fopen("snapshot.fi","wb");
-      fwrite(image,1,imagesize,snapshot);
-      fclose(snapshot);
-    }
+  { /* let's see what the relocator did */
+    FILE *snapshot=fopen("snapshot.fi","wb");
+    fwrite(image,1,imagesize,snapshot);
+    fclose(snapshot);
+  }
 #endif
-  }
-  else if(header.base!=imp) {
-    fprintf(stderr,"%s: Cannot load nonrelocatable image (compiled for address %p) at address %p\n",
-	    progname, header.base, imp);
-    return NULL;
-  }
   if (header.checksum==0)
     ((ImageHeader *)imp)->checksum=check_sum;
   else if (header.checksum != check_sum) {
@@ -2139,6 +2190,10 @@ ImageHeader* gforth_loader(char* imagename, char* path)
 #endif
   fclose(imagefile);
 
+  for(i=0; i<0x100; i++) {
+    if(reloc_bits[i]!=NULL)
+      free(reloc_bits[i]);
+  }
   /* unnecessary, except maybe for CODE words */
   /* FLUSH_ICACHE(imp, header.image_size);*/
 

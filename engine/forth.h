@@ -141,6 +141,8 @@ typedef unsigned OCTABYTE_TYPE UOctabyte;
 #define LH(x)		((x)&HALFCELL_MASK)
 #define L2U(x)		(((UCell)(x))<<HALFCELL_BITS)
 #define HIGHBIT(x)	(((UCell)(x))>>(CELL_BITS-1))
+#define SECTION(x)      (((UCell)(x))>>(CELL_BITS-8))
+#define INSECTION(x)    (((UCell)(x))&((~(UCell)0)>>8))
 
 #define F_TRUE (FLAG(0==0))
 #define F_FALSE (FLAG(0!=0))
@@ -400,6 +402,12 @@ typedef struct {
   Label *label_base;      /* base of DOUBLE_INDIRECT labels[], for comp-i.fs */
 } ImageHeader;
 /* the image-header is created in main.fs */
+
+typedef struct {
+  Address base;
+  Address end;
+  Address dp;
+} SectionHeader;
 
 #ifdef HAS_F83HEADERSTRING
 struct F83Name {
