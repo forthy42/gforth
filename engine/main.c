@@ -459,11 +459,8 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
       }
     }
     free(targets);
-    image[0] = (Cell)image;
-    if(ii>0) {
-      image[1] += (Cell)image;
-      image[2] += (Cell)image;
-    }
+    if(ii==0)
+      image[0] = (Cell)image;
   }
   finish_code();
 }
@@ -2163,11 +2160,11 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     
     i++;
     
-    bases[i] = (Cell)section.base;
+    bases[i] = INSECTION(section.base);
     sizes[i] = section.dp-section.base;
-    sections[i] = alloc_mmap(section.end-section.base);
-    memmove(sections[i], &section, sizeof(section));
-    fread(sections[i] + sizeof(section), 1, sizes[i]-sizeof(section), imagefile);
+    sections[i] = alloc_mmap_guard(section.end-section.base);
+    fseek(imagefile, -sizeof(SectionHeader), SEEK_CUR);
+    fread(sections[i], 1, sizes[i], imagefile);
   }
   gforth_relocate(sections, reloc_bits, sizes, bases, vm_prims);
 #if 0
