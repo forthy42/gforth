@@ -50,6 +50,8 @@ vocabulary minos  also minos definitions
 : color> ( f -- ) f,  DOES> f@ to x-color ;
 : color: ( rgba "name" -- )
     Create color,                 color> ;
+: new-color: ( rgba "name" -- )
+    Create new-color,             color> ;
 : text-color: ( rgba "name" -- )
     Create text-color,            color> ;
 : text-emoji-color: ( rgbatext rgbaemoji "name" -- )
