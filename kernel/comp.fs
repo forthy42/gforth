@@ -149,7 +149,7 @@ Defer check-shadow ( addr u wid -- )
     get-current >r
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
-    dup aligned here + dup maxaligned >align
+    dup cell+ aligned here + dup maxaligned >align
     view,
     dup here + dup maxaligned >align
     nlstring,
