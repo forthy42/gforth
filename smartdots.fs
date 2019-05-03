@@ -66,11 +66,15 @@ Variable smart.s-skip
 	ELSE  .  THEN
     THEN ;
 
-' smart.s. is .s.
-
 : ... ( x1 .. xn -- x1 .. xn )
-    action-of .s. >r
-    ['] smart.s. IS .s. .s
-    r> IS .s. ;
+    action-of .s. {: old-.s. :}
+    try
+	['] smart.s. IS .s. .s
+    recover
+	old-.s. is .s. throw
+    endtry
+    fdepth IF
+	cr ." F:" f.s THEN ;
 
+' ... IS printdebugdata
 
