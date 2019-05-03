@@ -66,13 +66,18 @@ Variable smart.s-skip
 	ELSE  .  THEN
     THEN ;
 
-: ... ( x1 .. xn -- x1 .. xn )
-    action-of .s. {: old-.s. :} try
-	['] smart.s. IS .s. .s 0 ( ball )
-    restore ( ball )
-	old-.s. is .s.
+: wrap-xt {: xt1 xt2 xt: xt3 -- ... :}
+    \G set deferred word xt2 to xt1 and execute xt3
+    \G restore afterwards
+    xt2 defer@ {: old-xt2 :} try
+	xt1 xt2 defer! xt3 0
+    restore
+	old-xt2 xt2 defer!
     endtry
-    throw
+    throw ;
+
+: ... ( x1 .. xn -- x1 .. xn )
+    ['] smart.s. ['] .s. ['] .s wrap-xt
     fdepth IF
 	cr ." F:" f.s THEN ;
 

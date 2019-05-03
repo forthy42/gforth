@@ -1095,7 +1095,7 @@ static void check_prims(Label symbols1[])
 static void flush_to_here(void)
 {
 #ifndef NO_DYNAMIC
-  if (start_flush)
+  if (start_flush!=code_here)
     FLUSH_ICACHE((caddr_t)start_flush, code_here-start_flush);
   start_flush=code_here;
 #endif
@@ -1375,10 +1375,10 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
       return 0;
 #ifdef DOES_CODE1
   } else if (p==N_does_exec) {
-    struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
     Cell *arg;
     if((codeaddr = compile_prim1arg(N_lit,&arg)) == NULL)
       return 0;
+    struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
     *arg = (Cell)PFA(tcp[1]);
     /* we cannot determine the callee now (last_start[1] may be a
        forward reference), so just register an arbitrary target, and
@@ -1854,7 +1854,8 @@ void compile_prim1(Cell *start)
   if (start==NULL || ninsts >= MAX_BB ||
       (ninsts>0 && superend[origs[ninsts-1]])) {
     /* after bb, or at the start of the next bb */
-    optimize_rewrite(instps,origs,ninsts);
+    if(ninsts)
+      optimize_rewrite(instps,origs,ninsts);
     /* fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts); */
     ninsts=0;
     if (start==NULL) {
