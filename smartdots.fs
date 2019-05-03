@@ -67,12 +67,12 @@ Variable smart.s-skip
     THEN ;
 
 : ... ( x1 .. xn -- x1 .. xn )
-    action-of .s. {: old-.s. :}
-    try
-	['] smart.s. IS .s. .s
-    recover
-	old-.s. is .s. throw
+    action-of .s. {: old-.s. :} try
+	['] smart.s. IS .s. .s 0 ( ball )
+    restore ( ball )
+	old-.s. is .s.
     endtry
+    throw
     fdepth IF
 	cr ." F:" f.s THEN ;
 
