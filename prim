@@ -160,68 +160,38 @@ undefine(`symbols')
 	     len,name);
     }
 #endif
-#ifdef NO_IP
-a_retaddr = next_code;
-INST_TAIL;
-JUMP(PFA(CFA));
-#else /* !defined(NO_IP) */
 a_retaddr = (Cell *)IP;
 SET_IP((Xt *)PFA(CFA));
-#endif /* !defined(NO_IP) */
 
 (docon) ( -- w )	gforth-internal	paren_docon
 ""run-time routine for constants""
 w = *(Cell *)PFA(CFA);
-#ifdef NO_IP
-INST_TAIL;
-goto *next_code;
-#endif /* defined(NO_IP) */
 
 (dovar) ( -- a_body )	gforth-internal	paren_dovar
 ""run-time routine for variables and CREATEd words""
 a_body = PFA(CFA);
-#ifdef NO_IP
-INST_TAIL;
-goto *next_code;
-#endif /* defined(NO_IP) */
 
 (douser) ( -- a_user )	gforth-internal	paren_douser
 ""run-time routine for constants""
 a_user = (Cell *)(((Address)up)+*(Cell *)PFA(CFA));
-#ifdef NO_IP
-INST_TAIL;
-goto *next_code;
-#endif /* defined(NO_IP) */
 
 (dodefer) ( -- )	gforth-internal	paren_dodefer
 ""run-time routine for deferred words""
-#ifndef NO_IP
 ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
-#endif /* !defined(NO_IP) */
 SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
 VM_JUMP(EXEC1(*(Xt *)PFA(CFA)));
 
 (dofield) ( n1 -- n2 )	gforth-internal	paren_field
 ""run-time routine for fields""
 n2 = n1 + *(Cell *)PFA(CFA);
-#ifdef NO_IP
-INST_TAIL;
-goto *next_code;
-#endif /* defined(NO_IP) */
 
 (dovalue) ( -- w )	gforth-internal	paren_doval
 ""run-time routine for constants""
 w = *(Cell *)PFA(CFA);
-#ifdef NO_IP
-INST_TAIL;
-goto *next_code;
-#endif /* defined(NO_IP) */
 
 (dodoes) ( -- a_body )  gforth-internal       paren_dodoes
 a_body = PFA(CFA);
-#ifndef NO_IP
 ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
-#endif /* !defined(NO_IP) */
 SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
 VM_JUMP(EXEC1(EXTRA_CODEXT(CFA)));
 
@@ -231,10 +201,6 @@ abifunc *f = (abifunc *)PFA(CFA);
 Float *fp_mem = fp;
 sp = (*f)(sp, &fp_mem);
 fp = fp_mem;
-#ifdef NO_IP
-INST_TAIL;
-goto *next_code;
-#endif /* defined(NO_IP) */
 
 (do;abicode) ( ... -- ... ) gforth-internal paren_do_semicolon_abi_code
 ""run-time routine for @code{;abi-code}-defined words""
@@ -243,10 +209,6 @@ Address body = (Address)PFA(CFA);
 semiabifunc *f = (semiabifunc *)EXTRA_CODE(CFA);
 sp = (*f)(sp, &fp_mem, body);
 fp = fp_mem;
-#ifdef NO_IP
-INST_TAIL;
-goto *next_code;
-#endif /* defined(NO_IP) */
 
 \F [endif]
 
@@ -258,11 +220,6 @@ noop	( -- )		gforth
 
 call	( #a_callee -- R:a_retaddr )	new
 ""Call callee (a variant of docol with inline argument).""
-#ifdef NO_IP
-assert(0);
-INST_TAIL;
-JUMP(a_callee);
-#else
 #ifdef DEBUG
     {
       CFA_TO_NAME((((Cell *)a_callee)-2));
@@ -272,25 +229,20 @@ JUMP(a_callee);
 #endif
 a_retaddr = (Cell *)IP;
 SET_IP((Xt *)a_callee);
-#endif
 
 execute	( xt -- )		core
 ""Perform the semantics represented by the execution token, @i{xt}.""
 #ifdef DEBUG
 debugp(stderr, "execute %08x\n", xt);
 #endif
-#ifndef NO_IP
 ip=IP;
-#endif
 SUPER_END;
 VM_JUMP(EXEC1(xt));
 
 perform	( a_addr -- )	gforth
 ""@code{@@ execute}.""
 /* and pfe */
-#ifndef NO_IP
 ip=IP;
-#endif
 SUPER_END;
 VM_JUMP(EXEC1(*(Xt *)a_addr));
 :
@@ -298,12 +250,7 @@ VM_JUMP(EXEC1(*(Xt *)a_addr));
 
 ;s	( R:w -- )		gforth	semis
 ""The primitive compiled by @code{EXIT}.""
-#ifdef NO_IP
-INST_TAIL;
-goto *(void *)w;
-#else
 SET_IP((Xt *)w);
-#endif
 
 execute-;s ( xt R:w -- )	gforth-internal execute_semis
 ""The primitive compiled by @code{EXECUTE-EXIT}.""
@@ -320,17 +267,11 @@ unloop	( R:w1 R:w2 -- )	core
  r> rdrop rdrop >r ;
 
 lit-perform	( #a_addr -- )	new	lit_perform
-#ifndef NO_IP
 ip=IP;
-#endif
 SUPER_END;
 VM_JUMP(EXEC1(*(Xt *)a_addr));
 
 does-xt ( #a_cfa -- a_body )	new	extra_xt
-#ifdef NO_IP
-/* compiled to LIT CALL by compile_prim */
-assert(0);
-#else
 a_body = PFA(a_cfa);
 #ifdef DEBUG
     {
@@ -341,29 +282,18 @@ a_body = PFA(a_cfa);
 #endif
 SUPER_END;
 VM_JUMP(EXEC1(EXTRA_CODEXT(a_cfa)));
-#endif
 
 \+glocals
 
 branch-lp+!# ( #a_target #nlocals -- )	gforth	branch_lp_plus_store_number
 /* this will probably not be used */
 lp += nlocals;
-#ifdef NO_IP
-INST_TAIL;
-JUMP(a_target);
-#else
 SET_IP((Xt *)a_target);
-#endif
 
 \+
 
 branch	( #a_target -- )	gforth
-#ifdef NO_IP
-INST_TAIL;
-JUMP(a_target);
-#else
 SET_IP((Xt *)a_target);
-#endif
 :
  r> @ >r ;
 
@@ -371,15 +301,8 @@ SET_IP((Xt *)a_target);
 \ this is non-syntactical: code must open a brace that is closed by the macro
 define(condbranch,
 $1 ( `#'a_target $2 ) $3
-$4	#ifdef NO_IP
-INST_TAIL;
-#endif
-$5	#ifdef NO_IP
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
+$4 $5 SET_IP((Xt *)a_target);
 ifelse(condbranch_opt,`1',`INST_TAIL; NEXT_P2;',`/* condbranch_opt=0 */')
-#endif
 }
 ifelse(condbranch_opt,`1',`SUPER_CONTINUE;',`/* condbranch_opt=0 */')
 $6
@@ -387,16 +310,9 @@ $6
 \+glocals
 
 $1-lp+!`#' ( `#'a_target `#'nlocals $2 ) $3_lp_plus_store_number
-$4	#ifdef NO_IP
-INST_TAIL;
-#endif
-$5	lp += nlocals;
-#ifdef NO_IP
-JUMP(a_target);
-#else
+$4	$5	lp += nlocals;
 SET_IP((Xt *)a_target);
 ifelse(condbranch_opt,`1',`INST_TAIL; NEXT_P2;',`/* condbranch_opt=0 */')
-#endif
 }
 ifelse(condbranch_opt,`1',`SUPER_CONTINUE;',`/* condbranch_opt=0 */')
 
@@ -419,15 +335,10 @@ condbranch(?branch,f --,f83	question_branch,
 ?dup-?branch	( #a_target f -- S:... )	new	question_dupe_question_branch
 ""The run-time procedure compiled by @code{?DUP-IF}.""
 if (f==0) {
-#ifdef NO_IP
-INST_TAIL;
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-#endif
+  SET_IP((Xt *)a_target);
 } else {
-sp--;
-sp[0]=f;
+  sp--;
+  sp[0]=f;
 }
 
 ?dup-0=-?branch ( #a_target f -- S:... ) new	question_dupe_zero_equals_question_branch
@@ -435,11 +346,7 @@ sp[0]=f;
 if (f!=0) {
   sp--;
   sp[0]=f;
-#ifdef NO_IP
-  JUMP(a_target);
-#else
   SET_IP((Xt *)a_target);
-#endif
 }
 
 \+
@@ -513,15 +420,8 @@ nlimit=0;
  r> swap rot >r >r >r ;
 
 (?do) ( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	paren_question_do
-#ifdef NO_IP
-    INST_TAIL;
-#endif
 if (nstart == nlimit) {
-#ifdef NO_IP
-    JUMP(a_target);
-#else
     SET_IP((Xt *)a_target);
-#endif
 }
 :
   2dup =
@@ -534,15 +434,8 @@ if (nstart == nlimit) {
 \+xconds
 
 (+do)	( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	paren_plus_do
-#ifdef NO_IP
-    INST_TAIL;
-#endif
 if (nstart >= nlimit) {
-#ifdef NO_IP
-    JUMP(a_target);
-#else
-    SET_IP((Xt *)a_target);
-#endif
+  SET_IP((Xt *)a_target);
 }
 :
  swap 2dup
@@ -555,15 +448,8 @@ if (nstart >= nlimit) {
  THEN  >r ;
 
 (u+do)	( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth	paren_u_plus_do
-#ifdef NO_IP
-    INST_TAIL;
-#endif
 if (ustart >= ulimit) {
-#ifdef NO_IP
-JUMP(a_target);
-#else
-SET_IP((Xt *)a_target);
-#endif
+  SET_IP((Xt *)a_target);
 }
 :
  swap 2dup
@@ -576,15 +462,8 @@ SET_IP((Xt *)a_target);
  THEN  >r ;
 
 (-do)	( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	paren_minus_do
-#ifdef NO_IP
-    INST_TAIL;
-#endif
 if (nstart <= nlimit) {
-#ifdef NO_IP
-JUMP(a_target);
-#else
 SET_IP((Xt *)a_target);
-#endif
 }
 :
  swap 2dup
@@ -597,15 +476,8 @@ SET_IP((Xt *)a_target);
  THEN  >r ;
 
 (u-do)	( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth	paren_u_minus_do
-#ifdef NO_IP
-    INST_TAIL;
-#endif
 if (ustart <= ulimit) {
-#ifdef NO_IP
-JUMP(a_target);
-#else
 SET_IP((Xt *)a_target);
-#endif
 }
 :
  swap 2dup
@@ -2810,9 +2682,7 @@ n2 = n1 / sizeof(SFloat);
 f-rot	( r1 r2 r3 -- r3 r1 r2 )	float	f_not_rote
 
 flit	( -- r1 )   gforth
-#ifndef NO_IP
 ip=IP;
-#endif
 r1 = *(Float*)ip;
 SET_IP((void*)ip+sizeof(Float));
 
@@ -3415,36 +3285,10 @@ decompile-prim ( a_code -- a_prim ) gforth-internal decompile_prim
 compile_prim1ed to a_code""
 a_prim = (Cell *)decompile_code((Label)a_code);
 
-\ set-next-code and call2 do not appear in images and can be
-\ renumbered arbitrarily
-
-set-next-code ( #w -- ) gforth set_next_code
-#ifdef NO_IP
-next_code = (Label)w;
-#endif
-
-call2 ( #a_callee #a_ret_addr -- R:a_ret_addr ) gforth
-/* call with explicit return address */
-#ifdef NO_IP
-INST_TAIL;
-JUMP(a_callee);
-#else
-assert(0);
-#endif
 
 tag-offsets ( -- a_addr ) gforth tag_offsets
 extern Cell groups[32];
 a_addr = groups;
-
-lp-trampoline	( R:a_retaddr R:a_lp -- )	gforth	lp_trampoline
-""The primitive used for the call-loc trampoline.""
-lp = (Address)a_lp;
-#ifdef NO_IP
-INST_TAIL;
-goto *(void *)a_retaddr;
-#else
-SET_IP((Xt *)a_retaddr);
-#endif
 
 \+
 
@@ -3471,9 +3315,7 @@ fp = fp_mem;
 lit-execute	( #a_addr -- )	new	lit_execute
 /* for ;code and code words; a static superinstruction would be more general, 
    but VM_JUMP is currently not supported there */
-#ifndef NO_IP
 ip=IP;
-#endif
 SUPER_END;
 VM_JUMP(EXEC1((Xt)a_addr));
 
@@ -3493,25 +3335,19 @@ c_addr = op + w;
 
 o#exec	( #w -- )		new	o_lit_exec
 ""method invocation, use index -1 of current op as vtable""
-#ifndef NO_IP
 ip=IP;
-#endif
 SUPER_END;
 VM_JUMP(EXEC1(((Xt**)op)[-1][w]));
 
 x#exec	( c_addr #w -- c_addr )		new	x_lit_exec
 ""method invocation using the stack""
-#ifndef NO_IP
 ip=IP;
-#endif
 SUPER_END;
 VM_JUMP(EXEC1(((Xt**)c_addr)[-1][w]));
 
 u#exec	( #n #w -- )		new	u_lit_exec
 ""method invocation using a user address as current object""
-#ifndef NO_IP
 ip=IP;
-#endif
 SUPER_END;
 VM_JUMP(EXEC1((*(Xt***)(((Address)up)+n))[-1][w]));
 

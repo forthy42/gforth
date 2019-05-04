@@ -594,7 +594,7 @@ RCS_FILES =  ToDo model high-level
 
 ENGINES = gforth$(EXT) @NO_EC@ gforth-ditc$(EXT) gforth-itc$(EXT) $(PROFEXES)
 
-ENGINES_FAST = @NO_EC@ gforth-fast$(EXT) #gforth-native$(OPT)$(EXT) 
+ENGINES_FAST = @NO_EC@ gforth-fast$(EXT)
 
 LIBENGINES = $(ENGINES:%=lib%)
 LIBENGINES_FAST = $(ENGINES_FAST:%=lib%)
@@ -706,7 +706,7 @@ clean:		mostlyclean
 	gforth-ditc-noll$(EXT) engine/gforth-ditc-noll$(EXT) \
 	gforth-prof-noll$(EXT) engine/gforth-prof-noll$(EXT) \
 	engine/prim-s.i
-	for i in gforth gforth-fast gforth-native; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EXT) $$i$${j}$(EXT); done; done
+	for i in gforth gforth-fast; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EXT) $$i$${j}$(EXT); done; done
 	-$(RM) -rf $(buildccdir)
 
 distclean:	clean
@@ -1003,8 +1003,8 @@ check-nofast: gforth.fi
 test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
 		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
-primtest:	gforth gforth-native test/primtest.fi FORCE
-		(echo rs|ENVVAR=bla ./gforth -i test/primtest.fi) && (echo rs|ENVVAR=bla ./gforth-native -i test/primtest.fi); echo $$?
+primtest:	gforth test/primtest.fi FORCE
+		(echo rs|ENVVAR=bla ./gforth -i test/primtest.fi); echo $$?
 
 bench:		gforth-fast$(EXT) gforth.fi
 		@echo 'Each benchmark takes about 30s on a 486-66 (gcc-2.6.3 -DFORCE_REG)'
@@ -1215,12 +1215,6 @@ gforth-fast$(OPT)$(EXT):
 
 optgforth-fast:
 	$(MAKE) DOSTRIP=$(DOSTRIP) gforth-fast$(OPT)$(EXT) $(MAKELINE$(OPT))
-
-gforth-native$(OPT)$(EXT):	engines-fast
-	$(CP) engine/$@ $@
-	$(MASSAGE_EXE) $@ || true
-	$(DOSTRIP) $@
-#@GFORTHX_EXE@
 
 gforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
 	cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) gforth-itc-noll$(EXT) $(MAKELINE-noll)

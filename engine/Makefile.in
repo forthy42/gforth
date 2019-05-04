@@ -110,7 +110,6 @@ AOBJECTS = @signals_o@ support$(OPT).o @LIBOBJS@ $(OPTOBJECTS)
 @MAKEINC@
 
 OBJECTS = engine$(OPT).o @engine2@ main$(OPT).o
-OBJECTS_NATIVE = engine-native$(OPT).o engine-native2$(OPT).o engine-native3$(OPT).o main-native$(OPT).o
 OBJECTS_FAST = engine-fast$(OPT).o @engine_fast2@ main-fast$(OPT).o
 OBJECTS_ITC = engine-itc$(OPT).o main-itc$(OPT).o
 OBJECTS_DITC = engine-ditc$(OPT).o main-ditc$(OPT).o
@@ -164,10 +163,6 @@ gforth$(OPT)$(EC)$(EXE):	$(OBJECTS) $(GFORTHDEPS)
 	$(LINKER) $(OBJECTS) $(GFORTHOBJS) -o $@
 	$(DOSTRIP) $@
 
-gforth-native$(OPT)$(EC)$(EXE):	$(OBJECTS_NATIVE) $(GFORTHDEPS)
-	$(LINKER) $(OBJECTS_NATIVE) $(GFORTHOBJS) -o $@
-	$(DOSTRIP) $@
-
 gforth-fast$(OPT)$(EC)$(EXE):	$(OBJECTS_FAST) $(GFORTHDEPS)
 	$(LINKER) $(OBJECTS_FAST) $(GFORTHOBJS) -o $@
 	$(DOSTRIP) $@
@@ -193,9 +188,6 @@ LIBGFORTHOBJS = $(AOBJECTS:%.o=lib%.lo) $(LDLIBS)
 
 libgforth$(EC).la libgforth$(OPT)$(EC).la:	$(OBJECTS:%.o=lib%.lo) $(LIBGFORTHDEPS)
 	$(LINKER) $(OBJECTS:%.o=lib%.lo) $(LIBGFORTHOBJS) -o $@
-
-libgforth-native$(EC).la libgforth-native$(OPT)$(EC).la:	$(OBJECTS_NATIVE:%.o=lib%.lo) $(LIBGFORTHDEPS)
-	$(LINKER) $(OBJECTS_NATIVE:%.o=lib%.lo) $(LIBGFORTHOBJS) -o $@
 
 libgforth-fast$(EC).la libgforth-fast$(OPT)$(EC).la:	$(OBJECTS_FAST:%.o=lib%.lo) $(LIBGFORTHDEPS)
 	$(LINKER) $(OBJECTS_FAST:%.o=lib%.lo) $(LIBGFORTHOBJS) -o $@
@@ -229,15 +221,6 @@ engine$(OPT).o libengine$(OPT).lo:	$(ENGINE_DEPS)
 engine2$(OPT).o libengine2$(OPT).lo:	$(ENGINE_DEPS)
 		$(COMPILER) $(ENGINE_FLAGS) -DGFORTH_DEBUGGING -DENGINE=2 -o $@ $(srcdir)/engine.c
 
-engine-native$(OPT).o libengine-native$(OPT).lo:$(ENGINE_FAST_DEPS)
-		$(COMPILER) $(ENGINE_FLAGS) -DNO_IP -o $@ $(srcdir)/engine.c
-
-engine-native2$(OPT).o libengine-native2$(OPT).lo:$(ENGINE_FAST_DEPS)
-		$(COMPILER) $(ENGINE_FLAGS) -DNO_IP -DENGINE=2 -o $@ $(srcdir)/engine.c
-
-engine-native3$(OPT).o libengine-native3$(OPT).lo:$(ENGINE_FAST_DEPS)
-		$(COMPILER) $(ENGINE_FLAGS) -DNO_IP -DENGINE=3 -o $@ $(srcdir)/engine.c
-
 engine-fast$(OPT).o libengine-fast$(OPT).lo:	$(ENGINE_FAST_DEPS)
 		$(COMPILER) $(ENGINE_FLAGS) -o $@ $(srcdir)/engine.c
 
@@ -255,9 +238,6 @@ engine-prof$(OPT).o libengine-prof$(OPT).lo:	$(ENGINE_DEPS)
 
 main$(OPT).o libmain$(OPT).lo:		$(MAIN_DEPS) 
 		$(COMPILER) -DGFORTH_DEBUGGING @no_dynamic@ -o $@ $(srcdir)/main.c
-
-main-native$(OPT).o libmain-native$(OPT).lo:	$(MAIN_FAST_DEPS) 
-		$(COMPILER) -DNO_IP -o $@ $(srcdir)/main.c
 
 main-fast$(OPT).o libmain-fast$(OPT).lo:	$(MAIN_FAST_DEPS) 
 		$(COMPILER) -o $@ $(srcdir)/main.c

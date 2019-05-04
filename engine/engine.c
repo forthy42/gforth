@@ -154,11 +154,7 @@ extern Char *gforth_memset(Char * s, Cell c, UCell n);
 
 #define vm_Cell2Cell(_x,_y)		(_y=_x)
 
-#ifdef NO_IP
-#define IMM_ARG(access,value)		(VARIANT(value))
-#else
 #define IMM_ARG(access,value)		(access)
-#endif
 
 /* if machine.h has not defined explicit registers, define them as implicit */
 #ifndef IPREG
@@ -358,9 +354,7 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 # undef saved_ip
   Xt* MAYBE_UNUSED saved_ip;
 #endif /* !defined(GFORTH_DEBUGGING) */
-#ifndef NO_IP
   register Xt *ip IPREG = ip0;
-#endif
   register Cell *sp SPREG = gforth_SP;
   register Float *fp FPREG = gforth_FP;
   register Address lp LPREG = gforth_LP;
@@ -487,13 +481,9 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 
   IF_fpTOS(fpTOS = fp[0]);
 /*  prep_terminal(); */
-#ifdef NO_IP
-  goto *(*(Label *)ip0);
-#else
   SET_IP(ip);
   SUPER_END; /* count the first block, too */
   NEXT;
-#endif
 
 #ifdef CPU_DEP3
   CPU_DEP3

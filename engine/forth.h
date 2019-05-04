@@ -606,10 +606,6 @@ extern Cell const * gforth_pointers(Cell n);
 extern void gforth_callback(Xt* fcall, void * alist);
 #endif
 
-#ifdef NO_IP
-extern Label next_code;
-#endif
-
 #ifdef HAS_FILE
 extern char* fileattr[6];
 extern char* pfileattr[6];

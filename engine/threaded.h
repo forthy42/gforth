@@ -149,22 +149,7 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
     fprintf(stderr,"EXEC encountered xt %p at ip=%p, vm_prims=%p, xts=%p\n", cfa, ip, vm_prims, xts); \
  ca=**cfa; ca;})
 
-#elif defined(NO_IP)
-
-#define NEXT_P0
-#  define CFA		cfa
-#define SET_IP(target)	assert(0)
-#define INC_IP(n)	((void)0)
-#define DEF_CA
-#define NEXT_P1
-#define NEXT_P1_5		do {goto *next_code;} while(0)
-/* set next_code to the return address before performing EXEC */
-/* original: */
-/* #define EXEC1(XT)	do {cfa=(XT); goto **cfa;} while(0) */
-/* fake, to make syntax check work */
-#define EXEC1(XT)	({cfa=(XT); *cfa;})
-
-#else  /* !defined(DOUBLY_INDIRECT) && !defined(NO_IP) */
+#else  /* !defined(DOUBLY_INDIRECT) */
 
 #if defined(DIRECT_THREADED)
 
@@ -220,5 +205,5 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
 /* indirect threaded */
 #endif
 
-#endif /* !defined(DOUBLY_INDIRECT) && !defined(NO_IP) */
+#endif /* !defined(DOUBLY_INDIRECT) */
 

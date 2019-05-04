@@ -98,10 +98,6 @@ void gforth_callback(Xt* fcall, void * alist)
 }
 #endif
 
-#ifdef NO_IP
-Label next_code;
-#endif
-
 #ifdef HAS_FILE
 char* fileattr[6]={"rb","rb","r+b","r+b","wb","wb"};
 char* pfileattr[6]={"r","r","r+","r+","w","w"};
@@ -920,7 +916,7 @@ static void check_prims(Label symbols1[])
 {
   int i;
 #ifndef NO_DYNAMIC
-  Label *symbols2, *symbols3, *ends1, *ends1j, *ends1jsorted, *goto_p;
+  Label *symbols2, *ends1, *ends1j, *ends1jsorted, *goto_p;
   int nends1j;
 #endif
 
@@ -940,11 +936,6 @@ static void check_prims(Label symbols1[])
   if (no_dynamic)
     return;
   symbols2=gforth_engine2(0 sr_call);
-#if NO_IP
-  symbols3=gforth_engine3(0 sr_call);
-#else
-  symbols3=symbols1;
-#endif
   ends1 = symbols1+i+1;
   ends1j =   ends1+i;
   goto_p = ends1j+i+1; /* goto_p[0]==before; ...[1]==after;*/
@@ -974,7 +965,6 @@ static void check_prims(Label symbols1[])
     int j=0;
     char *s1 = (char *)symbols1[i];
     char *s2 = (char *)symbols2[i];
-    char *s3 = (char *)symbols3[i];
     Label endlabel = bsearch_next(symbols1[i]+1,ends1jsorted,nends1j);
 
     pi->start = s1;
@@ -992,9 +982,9 @@ static void check_prims(Label symbols1[])
 	debugp(stderr, "S%d: op%d(S%d) = %d (%d);", sc->state_in, p, sc->state_out, i+1, pi->length);
     }
 #else
-    debugp(stderr, "%-15s %d-%d %4d %p %p %p len=%3ld rest=%2ld send=%1d",
+    debugp(stderr, "%-15s %d-%d %4d %p %p len=%3ld rest=%2ld send=%1d",
 	   prim_names[i], sc->state_in, sc->state_out,
-	   i, s1, s2, s3, (long)(pi->length), (long)(pi->restlength),
+	   i, s1, s2, (long)(pi->length), (long)(pi->restlength),
 	   pi->superend);
 #endif
     if (endlabel == NULL) {
@@ -1045,42 +1035,17 @@ static void check_prims(Label symbols1[])
 #endif
     };
     while (j<(pi->length+pi->restlength)) {
-      if (s1[j]==s3[j]) {
-	if (s1[j] != s2[j]) {
-	  pi->start = NULL; /* not relocatable */
+      if (s1[j] != s2[j]) {
+	pi->start = NULL; /* not relocatable */
 #ifndef BURG_FORMAT
-	  debugp(stderr,"\n   non_reloc: engine1!=engine2 offset %3d",j);
+	debugp(stderr,"\n   non_reloc: engine1!=engine2 offset %3d",j);
 #endif
-	  /* assert(j<prim_len); */
-	  relocs--;
-	  nonrelocs++;
-	  break;
-	}
-	j++;
-      } else {
-	struct immarg *ia=&pi->immargs[pi->nimmargs];
-
-	pi->nimmargs++;
-	ia->offset=j;
-	if ((~*(Cell *)&(s1[j]))==*(Cell *)&(s3[j])) {
-	  ia->rel=0;
-	  debugp(stderr,"\n   absolute immarg: offset %3d",j);
-	} else if ((&(s1[j]))+(*(Cell *)&(s1[j]))+4 ==
-		   symbols1[DOER_MAX+1]) {
-	  ia->rel=1;
-	  debugp(stderr,"\n   relative immarg: offset %3d",j);
-	} else {
-	  pi->start = NULL; /* not relocatable */
-#ifndef BURG_FORMAT
-	  debugp(stderr,"\n   non_reloc: engine1!=engine3 offset %3d",j);
-#endif
-	  /* assert(j<prim_len);*/
-	  relocs--;
-	  nonrelocs++;
-	  break;
-	}
-	j+=4;
+	/* assert(j<prim_len); */
+	relocs--;
+	nonrelocs++;
+	break;
       }
+      j++;
     }
     debugp(stderr,"\n");
   }
@@ -1274,144 +1239,13 @@ Label decompile_code(Label _code)
 #endif /* !defined(NO_DYNAMIC) */
 }
 
-#ifdef NO_IP
-int nbranchinfos=0;
-
-struct branchinfo {
-  Label **targetpp; /* **(bi->targetpp) is the target */
-  Cell *addressptr; /* store the target here */
-} branchinfos[100000];
-
-int ndoesexecinfos=0;
-struct doesexecinfo {
-  int branchinfo; /* fix the targetptr of branchinfos[...->branchinfo] */
-  Label *targetp; /*target for branch (because this is not in threaded code)*/
-  Cell *xt; /* cfa of word whose does-code needs calling */
-} doesexecinfos[10000];
-
-static void set_rel_target(Cell *source, Label target)
-{
-  *source = ((Cell)target)-(((Cell)source)+4);
-}
-
-static void register_branchinfo(Label source, Cell *targetpp)
-{
-  struct branchinfo *bi = &(branchinfos[nbranchinfos]);
-  bi->targetpp = (Label **)targetpp;
-  bi->addressptr = (Cell *)source;
-  nbranchinfos++;
-}
-
-static Address compile_prim1arg(PrimNum p, Cell **argp)
-{
-  Address old_code_here=append_prim(p);
-  if(old_code_here==NULL)
-    return NULL;
-
-  assert(vm_prims[p]==priminfos[p].start);
-  *argp = (Cell*)(old_code_here+priminfos[p].immargs[0].offset);
-  return old_code_here;
-}
-
-static Address compile_call2(Cell *targetpp, Cell **next_code_targetp)
-{
-  PrimInfo *pi = &priminfos[N_call2];
-  Address old_code_here = append_prim(N_call2);
-  if(old_code_here==NULL)
-    return NULL;
-
-  *next_code_targetp = (Cell *)(old_code_here + pi->immargs[0].offset);
-  register_branchinfo(old_code_here + pi->immargs[1].offset, targetpp);
-  return old_code_here;
-}
-#endif
-
 void finish_code(void)
 {
-#ifdef NO_IP
-  Cell i;
-
   compile_prim1(NULL);
-  for (i=0; i<ndoesexecinfos; i++) {
-    struct doesexecinfo *dei = &doesexecinfos[i];
-    dei->targetp = (Label *)DOES_CODE1((dei->xt));
-    branchinfos[dei->branchinfo].targetpp = &(dei->targetp);
-  }
-  ndoesexecinfos = 0;
-  for (i=0; i<nbranchinfos; i++) {
-    struct branchinfo *bi=&branchinfos[i];
-    set_rel_target(bi->addressptr, **(bi->targetpp));
-  }
-  nbranchinfos = 0;
-#else
-  compile_prim1(NULL);
-#endif
   flush_to_here();
 }
 
 #if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
-#ifdef NO_IP
-static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
-     /* compile prim #p dynamically (mod flags etc.) and return start
-	address of generated code for putting it into the threaded
-	code. This function is only called if all the associated
-	inline arguments of p are already in place (at tcp[1] etc.) */
-{
-  PrimInfo *pi=&priminfos[p];
-  Cell *next_code_target=NULL;
-  Address codeaddr;
-  Address primstart;
-  
-  assert(p<npriminfos);
-  if (p==N_execute || p==N_perform || p==N_lit_perform) {
-    if((codeaddr = compile_prim1arg(N_set_next_code, &next_code_target)) == NULL)
-      return 0;
-    primstart = append_prim(p);
-    goto other_prim;
-  } else if (p==N_call) {
-    if((codeaddr = compile_call2(tcp+1, &next_code_target)) == NULL)
-      return 0;
-  } else if (p==N_does_exec) {
-    Cell *arg;
-    struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
-    if((codeaddr = compile_prim1arg(N_lit,&arg)) == NULL)
-      return 0;
-    *arg = (Cell)PFA(tcp[1]);
-    /* we cannot determine the callee now (last_start[1] may be a
-       forward reference), so just register an arbitrary target, and
-       register in dei that we need to fix this before resolving
-       branches */
-    dei->branchinfo = nbranchinfos;
-    dei->xt = (Cell *)(tcp[1]);
-    if(compile_call2(0, &next_code_target)==NULL)
-      return 0;
-  } else if (!is_relocatable(p)) {
-    Cell *branch_target;
-    if((codeaddr = compile_prim1arg(N_set_next_code, &next_code_target)) == NULL)
-      return 0;
-    if(compile_prim1arg(N_branch,&branch_target)==NULL)
-      return 0;
-    set_rel_target(branch_target,vm_prims[p]);
-  } else {
-    unsigned j;
-
-    codeaddr = primstart = append_prim(p);
-  other_prim:
-    for (j=0; j<pi->nimmargs; j++) {
-      struct immarg *ia = &(pi->immargs[j]);
-      Cell *argp = tcp + pi->nimmargs - j;
-      Cell argval = *argp; /* !! specific to prims */
-      if (ia->rel) { /* !! assumption: relative refs are branches */
-	register_branchinfo(primstart + ia->offset, argp);
-      } else /* plain argument */
-	*(Cell *)(primstart + ia->offset) = argval;
-    }
-  }
-  if (next_code_target!=NULL)
-    *next_code_target = (Cell)code_here;
-  return (Cell)codeaddr;
-}
-#else /* !defined(NO_IP) */
 static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
      /* compile prim #p dynamically (mod flags etc.) and return start
         address of generated code for putting it into the threaded code */
@@ -1435,7 +1269,6 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
   return (Cell)old_code_here;
 #endif  /* !defined(NO_DYNAMIC) */
 }
-#endif /* !defined(NO_IP) */
 #endif
 
 #ifndef NO_DYNAMIC

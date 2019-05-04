@@ -86,11 +86,7 @@
      /* gcc 2.95 has a better register allocater */
 #    define SPREG asm("%esi")
 #    define RPREG asm("%edi")
-#    ifdef NO_IP
-#     define spbREG asm("%ebx")
-#    else
-#     define IPREG asm("%ebx")
-#    endif
+#    define IPREG asm("%ebx")
 /* ebp leads to broken code (gcc-3.0); eax, ecx, edx produce compile errors */
 #    define TOSREG asm("%ecx")
 /* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
@@ -127,11 +123,7 @@
 #   if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
 #    define SPREG asm("%esi")
 #    define RPREG asm("%edi")
-#    ifdef NO_IP
-#     define spbREG asm("%ebx")
-#    else
-#     define IPREG asm("%ebx")
-#    endif
+#    define IPREG asm("%ebx")
 #   else /* !(gcc-2.95 or later) */
 #    define SPREG asm("%ebx")
 #   endif  /* !(gcc-2.95 or later) */
