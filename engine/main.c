@@ -1825,8 +1825,6 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
    superinstruction */
 void compile_prim1(Cell *start)
 {
-  if(print_sequences)
-    debugp(stderr,"prim1 %p\n", start);
 #if defined(DOUBLY_INDIRECT)
   Label prim;
 
