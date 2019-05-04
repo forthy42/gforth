@@ -1683,8 +1683,7 @@ void compile_prim1(Cell *start)
   if (start==NULL || ninsts >= MAX_BB ||
       (ninsts>0 && superend[origs[ninsts-1]])) {
     /* after bb, or at the start of the next bb */
-    if(ninsts)
-      optimize_rewrite(instps,origs,ninsts);
+    optimize_rewrite(instps,origs,ninsts);
     /* fprintf(stderr,"optimize_rewrite(...,%d)\n",ninsts); */
     ninsts=0;
     if (start==NULL) {
