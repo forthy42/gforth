@@ -1095,7 +1095,7 @@ static void check_prims(Label symbols1[])
 static void flush_to_here(void)
 {
 #ifndef NO_DYNAMIC
-  if (start_flush!=code_here)
+  if (start_flush)
     FLUSH_ICACHE((caddr_t)start_flush, code_here-start_flush);
   start_flush=code_here;
 #endif
@@ -1332,13 +1332,11 @@ void finish_code(void)
   Cell i;
 
   compile_prim1(NULL);
-#ifdef DOES_CODE1
   for (i=0; i<ndoesexecinfos; i++) {
     struct doesexecinfo *dei = &doesexecinfos[i];
     dei->targetp = (Label *)DOES_CODE1((dei->xt));
     branchinfos[dei->branchinfo].targetpp = &(dei->targetp);
   }
-#endif
   ndoesexecinfos = 0;
   for (i=0; i<nbranchinfos; i++) {
     struct branchinfo *bi=&branchinfos[i];
@@ -1373,12 +1371,11 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
   } else if (p==N_call) {
     if((codeaddr = compile_call2(tcp+1, &next_code_target)) == NULL)
       return 0;
-#ifdef DOES_CODE1
   } else if (p==N_does_exec) {
     Cell *arg;
+    struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
     if((codeaddr = compile_prim1arg(N_lit,&arg)) == NULL)
       return 0;
-    struct doesexecinfo *dei = &doesexecinfos[ndoesexecinfos++];
     *arg = (Cell)PFA(tcp[1]);
     /* we cannot determine the callee now (last_start[1] may be a
        forward reference), so just register an arbitrary target, and
@@ -1388,7 +1385,6 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
     dei->xt = (Cell *)(tcp[1]);
     if(compile_call2(0, &next_code_target)==NULL)
       return 0;
-#endif
   } else if (!is_relocatable(p)) {
     Cell *branch_target;
     if((codeaddr = compile_prim1arg(N_set_next_code, &next_code_target)) == NULL)
