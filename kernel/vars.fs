@@ -27,7 +27,7 @@ hex \ everything now hex!                               11may93jaw
     \ should be defined with TO: OPT-TO:, but not supported by cross.fs
     !!?addr!! >body @ next-task +  !-table to-!exec ;
 opt: ( uvalue-xt to-xt -- )
-    !!?addr!! drop >body @ postpone useraddr , !-table to-!, ;
+    !!?addr!! >body @ postpone useraddr , !-table to-!, ;
 : u-compile, ( xt -- )  >body @ postpone user@ , ;
 
 : UValue ( "name" -- )

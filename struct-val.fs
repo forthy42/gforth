@@ -44,7 +44,7 @@ standard:field
 : wrapper-xts ( xt@ !-table -- xt-does xt-opt xt-to ) { xt@ xt! }
     :noname ]] vfield-int, [[ xt@ compile, postpone ; \ xt-does
     :noname ]] >body vfield-comp, [[ xt@ ]]L compile, ; [[ \ xt-comp,
-    :noname ]] drop >body vfield-comp, [[ xt! ]]L to-!, ; [[ \ xt-to-comp,
+    :noname ]] >body vfield-comp, [[ xt! ]]L to-!, ; [[ \ xt-to-comp,
     :noname ]] >body vfield-int, [[ xt! ]]L to-!exec ; [[ swap set-optimizer ;
 
 : wrap+value: ( n2 xt-align xt@ !-table "name" -- ) rot { xt-align }

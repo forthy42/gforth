@@ -413,12 +413,13 @@ defer compile, ( xt -- )
 \G the same as if @i{xt} is @code{execute}d.
 ' opt-compile, is compile,
 
-' opt-compile, alias opt-something, ( xt1 xt2 -- ) \ gforth-internal
-\ TO: and DEFER@: define not-quite-words that have code-generation
-\ code fragments with the stack effect ( xt1 xt2 -- ), where xt1
-\ identifies the word to which to or defer@ is applied, while xt2
-\ identifies the not-quite-word that implements the TO or DEFER@
-\ behaviour of that
+: opt-something, ( xt1 xt2 -- ) \ gforth-internal
+    \ TO: and DEFER@: define not-quite-words that have code-generation
+    \ code fragments with the stack effect ( xt1 xt2 -- ), where xt1
+    \ identifies the word to which to or defer@ is applied, while xt2
+    \ identifies the not-quite-word that implements the TO or DEFER@
+    \ behaviour of that
+    >namevt @ >vtcompile, perform ;
 
 : ,     ( w -- ) \ core comma
     \G Reserve data space for one cell and store @i{w} in the space.
