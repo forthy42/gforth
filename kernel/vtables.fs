@@ -35,18 +35,14 @@
 \ : :loc, >body ['] call-loc peephole-compile, , ;
 
 : (uv) ( xt addr -- ) 2@ next-task + @ cell- @ swap cells + ;
-: umethod! ( xt xt-method -- )
-    \ this is not a proper word, but a TO: OPT-TO: word (but the
-    \ cross-compiler does not implement them).
+to: umethod! ( xt xt-method -- )
     >body cell+ (uv) ! ;
-opt: ( xt-method -- )
+to-opt: ( xt-method -- )
     >body cell+ lit, postpone (uv) postpone ! ;
 
-: umethod@ ( addr -- xt )
-    \ this is not a proper word, but a DEFER@: OPT-DEFER@: word (but
-    \ the cross-compiler does not implement them).
+defer@: umethod@ ( addr -- xt )
     >body cell+ (uv) @ ;
-opt: ( xt-method -- )
+defer@-opt: ( xt-method -- )
     >body cell+ lit, postpone (uv) postpone @ ;
 
 AVariable vtable-list

@@ -3161,6 +3161,11 @@ ghost :dodefer drop
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
 
+: to: T : H ;
+: defer@: T : H ;
+: to-opt: T opt: H ;
+: defer@-opt: T opt: H ;
+
 variable cross-boot$[]
 variable cross-boot[][]
 

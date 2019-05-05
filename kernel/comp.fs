@@ -396,14 +396,12 @@ include ./recognizer.fs
 
 : s>int ( nt -- xt )  >body @ name>int ;
 : s>comp ( nt -- xt1 xt2 )  >body @ name>comp ;
-: s-to ( val nt -- )
-    \ actually a TO: TO-OPT: word, but cross.fs does not support that
+to: s-to ( val nt -- )
     >body @ (int-to) ;
-opt: >body @ (comp-to) ;
-: s-defer@ ( xt1 -- xt2 )
-    \ actually a DEFER@ DEFER@-OPT: word, but cross.fs does not support that
+to-opt: ( xt -- ) >body @ (comp-to) ;
+defer@: s-defer@ ( xt1 -- xt2 )
     >body @ defer@ ;
-opt: >body @ defer@, ;
+defer@-opt: ( xt -- ) >body @ defer@, ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
 : Alias    ( xt "name" -- ) \ gforth
@@ -495,12 +493,10 @@ defer defer-default ( -- )
     Header Reveal dodefer, ?noname-vt
     ['] defer-default A, ;
 
-\ The following should use DEFER@: and DEFER@-OPT:, but cross.fs does
-\ not support them.
-: defer-defer@ ( xt -- )
+defer@: defer-defer@ ( xt -- )
     \ The defer@ implementation of children of DEFER
     >body @ ;
-opt: ( xt -- )
+defer@-opt: ( xt -- )
     >body lit, postpone @ ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
@@ -643,13 +639,12 @@ interpret/compile: comp:
 ' (int-to) alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
 
-\ The following should use TO: OPT-TO:, but that's not supported by cross.fs
-: value-to ( n value-xt -- ) \ gforth-internal
+to: value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values; it's tickable, but the
     \g only purpose of its xt is to be consumed by @code{set-to}.  It
     \g does not compile like a proper word.
     >body !-table to-!exec ;
-opt: ( value-xt -- ) \ run-time: ( n -- )
+to-opt: ( value-xt -- ) \ run-time: ( n -- )
      >body postpone ALiteral !-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth
