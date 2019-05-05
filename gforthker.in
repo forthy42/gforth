@@ -29,7 +29,7 @@ else
     export C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine"
 fi
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
-  $ENGINE --die-on-signal -i @kernel_fi@ "$@"
+  $ENGINE --die-on-signal -i @kernel_fi@ "$@" || printf "\e[31m*** Gforth kernel failed ***\e[0m\n" >&2
 else
-  @GFORTHKER@ "$@"
+  @GFORTHKER@ "$@" || printf "\e[31m*** Gforth kernel failed ***\e[0m\n" >&2
 fi
