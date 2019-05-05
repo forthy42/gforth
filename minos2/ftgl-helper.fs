@@ -19,7 +19,7 @@
 
 \ freetype stuff
 
-require unix/freetype-gllib.fs
+require ../unix/freetype-gllib.fs
 
 also freetype-gl
 also opengl

@@ -30,13 +30,13 @@ debug: click-o( \ +db click-o( \ )
     #-512 ENOENT - Constant no-file#
 [THEN]
 
-require i18n.fs \ localization
+require ../i18n.fs \ localization
 require gl-terminal.fs
 
 ctx 0= [IF] window-init [THEN]
 require ftgl-helper.fs
-require mini-oof2.fs
-require config.fs
+require ../mini-oof2.fs
+require ../config.fs
 
 get-current
 also [IFDEF] android android [THEN]
