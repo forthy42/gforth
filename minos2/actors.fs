@@ -23,7 +23,7 @@
 
 \ platform specific action handler
 
-require forward.fs
+require ../forward.fs
 
 \ edit actor
 

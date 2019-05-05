@@ -21,7 +21,7 @@
 
 \ :noname source type cr stdout flush-file throw ; is before-line
 
-require unix/pthread.fs
+require ../unix/pthread.fs
 require gl-helper.fs
 
 also opengl also [IFDEF] android android [THEN]

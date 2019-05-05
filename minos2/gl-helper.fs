@@ -17,8 +17,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require unix/mmap.fs
-require mini-oof2.fs
+require ../unix/mmap.fs
+require ../mini-oof2.fs
 
 Variable dpy-w
 Variable dpy-h
@@ -26,11 +26,11 @@ Variable dpy-h
 
 s" os-type" environment? [IF]
     2dup s" linux-android" string-prefix? [IF] 2drop
-	require unix/opengles.fs
+	require ../unix/opengles.fs
 	
 	also opengl
 	
-	require unix/android.fs
+	require ../unix/android.fs
 	also android
 
 	: use-egl ;
@@ -41,15 +41,15 @@ s" os-type" environment? [IF]
 	    [ELSE] false [THEN] \ wayland is experimental, default to x11
 	    [IF]
 		require wayland-gl.fs
-		require unix/opengles.fs
+		require ../unix/opengles.fs
 		also opengl
 		[IFUNDEF] use-egl : use-egl ; [THEN]
 		[IFUNDEF] use-wl : use-wl ; [THEN]
 	    [ELSE] \ it's probably "x11" or undefined
 		[IFDEF] use-glx
-		    require unix/opengl.fs
+		    require ../unix/opengl.fs
 		[ELSE]
-		    require unix/opengles.fs
+		    require ../unix/opengles.fs
 		    : use-egl ;
 		[THEN]
 		also opengl
