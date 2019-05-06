@@ -34,7 +34,7 @@
 : uvar, >body cell+ 2@ ['] u#+ peephole-compile, , , ;
 \ : :loc, >body ['] call-loc peephole-compile, , ;
 
-: (uv) ( xt addr -- ) 2@ next-task + @ cell- @ swap cells + ;
+: (uv) ( ip -- xt-addr ) 2@ next-task + @ cell- @ swap cells + ;
 to: umethod! ( xt xt-method -- )
     >body cell+ (uv) ! ;
 to-opt: ( xt-method -- )
