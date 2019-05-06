@@ -20,7 +20,7 @@
 : post-to, ( nt -- )
     to-style# @ ?dup-IF  lit, ]] to-style# ! [[  THEN  lit, ;
 
-' (int-to) ' (comp-to) ' post-to, rectype: rectype-to
+' (to) ' (to), ' post-to, rectype: rectype-to
 
 : rec-to ( addr u -- xt r:to | rectype-null )
     \G words prefixed with @code{->} are treated as if preceeded by

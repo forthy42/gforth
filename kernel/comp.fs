@@ -397,8 +397,8 @@ include ./recognizer.fs
 : s>int ( nt -- xt )  >body @ name>int ;
 : s>comp ( nt -- xt1 xt2 )  >body @ name>comp ;
 to: s-to ( val nt -- )
-    >body @ (int-to) ;
-to-opt: ( xt -- ) >body @ (comp-to) ;
+    >body @ (to) ;
+to-opt: ( xt -- ) >body @ (to), ;
 defer@: s-defer@ ( xt1 -- xt2 )
     >body @ defer@ ;
 defer@-opt: ( xt -- ) >body @ defer@, ;
@@ -594,7 +594,7 @@ interpret/compile: opt:
 interpret/compile: comp:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
-: (comp-to) ( xt -- ) ( generated code: v -- )
+: (to), ( xt -- ) ( generated code: v -- )
     \g in compiled @code{to @i{name}}, xt is that of @i{name}.  This
     \g word generates code for storing v (of type appropriate for
     \g @i{name}) there.  This word is a factor of @code{to}.
@@ -636,7 +636,7 @@ interpret/compile: comp:
 \g represents @i{name}; this word generates code with stack effect (
 \g -- xt1 ), where xt1 is the result of xt @code{defer@}.
 
-' (int-to) alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
+' (to) alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
 
 to: value-to ( n value-xt -- ) \ gforth-internal
@@ -645,16 +645,16 @@ to: value-to ( n value-xt -- ) \ gforth-internal
     \g does not compile like a proper word.
     >body !-table to-!exec ;
 to-opt: ( value-xt -- ) \ run-time: ( n -- )
-     >body postpone ALiteral !-table to-!, ;
+    >body postpone ALiteral !-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    record-name (') (int-to) ;
+    record-name (') (to) ;
 
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
-    record-name (') (comp-to) ; immediate restrict
+    record-name (') (to), ; immediate restrict
 
 ' <IS> ' [IS] interpret/compile: TO ( value "name" -- ) \ core-ext
 \g changes the value of @var{name} to @var{value}

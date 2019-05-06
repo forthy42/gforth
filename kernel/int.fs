@@ -392,7 +392,7 @@ method opt-compile, ( xt -- ) \ gforth-internal
 \g The intelligent @code{compile,} compiles each word as specified by
 \g @code{set-optimizer} for that word.
 
-method (int-to) ( val xt -- ) \ gforth paren-int-to
+method (to) ( val xt -- ) \ gforth paren-int-to
 \G direct call performs the interpretation semantics of to
 
 method name>int ( nt -- xt ) \ gforth name-to-int
