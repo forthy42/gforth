@@ -583,8 +583,9 @@ Create vttemplate
 : set-defer@    ( defer@-xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
-: set-does>     ( xt -- ) vttemplate >vtextra !
-    created?  IF  ['] does, set-optimizer  THEN
+: set-does>     ( xt -- ) \ gforth
+    vttemplate >vtextra !
+    ['] does, set-optimizer
     dodoes: latestxt ! ;
 
 :noname ( -- colon-sys ) start-xt  set-optimizer ;
