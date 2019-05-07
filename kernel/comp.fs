@@ -583,8 +583,8 @@ Create vttemplate
 : set-defer@    ( defer@-xt -- ) vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
-: set-does>     ( xt -- ) vttemplate >vtextra !
-\   created? 0= warning" does> not on CREATEd word"
+: set-does>     ( xt -- ) \ gforth
+    vttemplate >vtextra !
     ['] does, set-optimizer
     dodoes: latestxt ! ;
 
