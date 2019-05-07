@@ -511,11 +511,11 @@ defer@-opt: ( xt -- )
 : does>-like ( xt -- defstart )
     \ xt ( addr -- ) is !does or !;abi-code etc, addr is the address
     \ that should be stored right after the code address.
-    >r ;-hook ?struc
+    >r ;-hook
     exit-like
     here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
     postpone aliteral r> compile, [compile] exit
-    [ has? peephole [IF] ] finish-code [ [THEN] ]
+    ?colon-sys [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
 \ call with locals - unused
@@ -584,7 +584,8 @@ Create vttemplate
 : set->int      ( xt -- ) vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) vttemplate >vt>comp ! ;
 : set-does>     ( xt -- ) vttemplate >vtextra !
-    created?  IF  ['] does, set-optimizer  THEN
+\   created? 0= warning" does> not on CREATEd word"
+    ['] does, set-optimizer
     dodoes: latestxt ! ;
 
 :noname ( -- colon-sys ) start-xt  set-optimizer ;

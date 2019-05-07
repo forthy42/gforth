@@ -44,7 +44,7 @@ variable last-#lines 0 last-#lines !
     defers key-ior ;
 is key-ior
 
-:noname ( c -- )
+: (more-emit) ( c -- )
     dup defers emit
     #lf =
     if
@@ -54,11 +54,23 @@ is key-ior
 	    ." ... more ?" key drop 10 backspaces 10 spaces 10 backspaces
 	endif
     endif ;
-is emit
 
-:noname ( c-addr u -- )
+: (more-type) ( c-addr u -- )
     bounds
     ?DO
 	I c@ emit
     LOOP ;
-is type
+
+' (more-type) ' (more-emit) action-of cr action-of form output: more-out
+
+action-of page
+action-of at-xy
+action-of at-deltaxy
+action-of attr!
+
+more-out
+
+is attr!
+is at-deltaxy
+is at-xy
+is page
