@@ -729,9 +729,6 @@ defer 0-adjust-locals-size ( -- )
 
 \ does>
 
-: created? ( -- flag )
-    vttemplate >vtcompile, @ ['] variable, = ;
-
 : comp-does>; ( some-sys flag lastxt -- )
     \ used as colon-sys xt; this is executed after ";" has removed the
     \ colon-sys produced by [:

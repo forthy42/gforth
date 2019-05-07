@@ -21,12 +21,24 @@
 \ call, which is buffered on some OSs (notably Unix). If you prefer
 \ the unbuffered behaviour, load this file.
 
-:noname ( c -- )
-  defers emit
-  outfile-id flush-file drop ;
-is emit
-
 :noname ( c-addr u -- )
   defers type
   outfile-id flush-file drop ;
-is type  
+:noname ( c -- )
+  defers emit
+  outfile-id flush-file drop ;
+action-of cr
+action-of form
+output: unbuffer-out
+
+action-of page
+action-of at-xy
+action-of at-deltaxy
+action-of attr!
+
+unbuffer-out
+
+is attr!
+is at-deltaxy
+is at-xy
+is page
