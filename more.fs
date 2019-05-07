@@ -39,10 +39,11 @@ require termsize.fs
 
 variable last-#lines 0 last-#lines !
 
-:noname ( -- c )
-    1 last-#lines !
-    defers key-ior ;
-is key-ior
+: (more-attr!) ( attr -- )
+    dup input-color = IF
+	1 last-#lines !
+    THEN
+    defers attr! ;
 
 : (more-emit) ( c -- )
     dup defers emit
@@ -51,7 +52,8 @@ is key-ior
 	1 last-#lines +!
 	last-#lines @ rows >=
 	if
-	    ." ... more ?" key drop 10 backspaces 10 spaces 10 backspaces
+	    ." ... more ?" key drop 1 last-#lines !
+	    10 backspaces 10 spaces 10 backspaces
 	endif
     endif ;
 
@@ -66,11 +68,10 @@ is key-ior
 action-of page
 action-of at-xy
 action-of at-deltaxy
-action-of attr!
 
 more-out
 
-is attr!
+' (more-attr!) is attr!
 is at-deltaxy
 is at-xy
 is page
