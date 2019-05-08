@@ -35,6 +35,7 @@ AMD64:
 
 ARM64
  sieve bubble matrix fib   fft  release; CPU; gcc
+ 0.180 0.224  0.108 0.208 0.100 20190124; Odroid N2 (1800MHz Cortex-A73), gcc-6.3.0
  0.204 0.232  0.108 0.212 0.100 20190124; RockPro64 (1800MHz Cortex-A72), gcc-6.3.0 (Debian 9)
  0.388 0.424  0.252 0.504 0.276 20190124; RockPro64 (1416MHz Cortex-A53), gcc-6.3.0 (Debian 9)
  0.350 0.390  0.240 0.470 0.280 20190124; Odroid C2 (1536MHz Cortex-A53), gcc-6.3.0 (Debian 9)
