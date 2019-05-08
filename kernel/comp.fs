@@ -604,7 +604,7 @@ interpret/compile: comp:
 ;
 
 : default-to-opt ( xt -- )
-    dup lit, >namevt @ >vtto @ :, ;
+    lit, postpone (to) ;
 : to: ( "name1" -- colon-sys ) \ gforth-internal
     \G Defines a to-word ( v xt -- ) that is not a proper word (it does
     \G not compile properly), but only useful as parameter for
