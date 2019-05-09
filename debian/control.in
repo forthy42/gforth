@@ -82,6 +82,18 @@ Description: GNU Forth
  .
  These are the engines as shared librarys for embedding in C programs
 
+Package: gforth-libcc
+Version: @LIBCCVER@
+Architecture: any
+Multi-Arch: same
+Depends: libltdl7, gforth-common (= @DEBVERSION@)
+Suggests: libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc
+Description: GNU Forth
+ Gforth is the Forth implementation of the GNU project, providing all
+ features of the ANS Forth (Forth-94) and the Forth-2012 standards.
+ .
+ These are the C binding libraries
+
 Package: gforth-dev
 Version: @DEBVERSION@
 Architecture: any
@@ -97,7 +109,7 @@ Package: gforth
 Version: @DEBVERSION@
 Architecture: any
 Multi-Arch: same
-Depends: gforth-bin (= @DEBVERSION@)
+Depends: gforth-bin (= @DEBVERSION@), gforth-libcc (= @LIBCCVER@)
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.
