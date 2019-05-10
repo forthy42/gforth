@@ -35,14 +35,14 @@
 \ : :loc, >body ['] call-loc peephole-compile, , ;
 
 : (uv) ( ip -- xt-addr ) 2@ next-task + @ cell- @ swap cells + ;
-to: umethod! ( xt xt-method -- )
+to: is-umethod ( method-xt -- )
     >body cell+ (uv) ! ;
-to-opt: ( xt-method -- )
+to-opt: ( method-xt -- )
     >body cell+ lit, postpone (uv) postpone ! ;
 
-defer@: umethod@ ( addr -- xt )
+defer@: umethod-defer@ ( method-xt -- xt )
     >body cell+ (uv) @ ;
-defer@-opt: ( xt-method -- )
+defer@-opt: ( method-xt -- )
     >body cell+ lit, postpone (uv) postpone @ ;
 
 AVariable vtable-list

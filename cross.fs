@@ -3039,8 +3039,8 @@ ghost defer-defer@
 ghost value-to
 ghost umethod,
 2drop
-ghost umethod!
-ghost umethod@
+ghost is-umethod
+ghost umethod-defer@
 2drop
 ghost u#exec
 ghost u#+
@@ -3460,8 +3460,8 @@ by UValue
     over >r no-loop on T : H compile u#exec class-o @ T , H
     r> tcell / T , (;) swap cell+ swap H
     [G'] umethod, gset-optimizer
-    [G'] umethod! gset-to
-    [G'] umethod@ gset-defer@ ;
+    [G'] is-umethod gset-to
+    [G'] umethod-defer@ gset-defer@ ;
 
 : uvar ( m v size -- m v' )
     over >r no-loop on T : H compile u#+ class-o @ T , H

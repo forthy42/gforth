@@ -259,7 +259,7 @@ Defer locals-list!
    \ !! print assumption and reality
  then ;
 
-(field) locals-name-size+ 10 cells , \ fields + wiggle room, name size must be added
+(field) locals-name-size+ 8 cells , \ fields + wiggle room, name size must be added
 
 : create-local1 ( "name" -- a-addr )
     create

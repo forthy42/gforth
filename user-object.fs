@@ -11,7 +11,9 @@ Variable class-o
     postpone nocov[
     over >r : postpone u#exec class-o @ , r> cell/ , postpone ;
     swap cell+ swap
-    ['] umethod, set-optimizer ['] umethod! set-to ['] umethod@ set-defer@
+    ['] umethod, set-optimizer
+    ['] is-umethod set-to
+    ['] umethod-defer@ set-defer@
     postpone ]nocov ;
 
 : uvar ( m v size -- m v' )
@@ -21,4 +23,4 @@ Variable class-o
     postpone ]nocov ;
 
 : uclass ( c "name" -- c m v )
-    ' execute next-task - class-o ! dup cell- cell- 2@ ;
+    ' >body @ class-o ! dup cell- cell- 2@ ;
