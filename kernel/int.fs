@@ -414,11 +414,10 @@ defer compile, ( xt -- )
 ' opt-compile, is compile,
 
 : opt-something, ( xt1 xt2 -- ) \ gforth-internal
-    \ TO: and DEFER@: define not-quite-words that have code-generation
-    \ code fragments with the stack effect ( xt1 xt2 -- ), where xt1
-    \ identifies the word to which to or defer@ is applied, while xt2
-    \ identifies the not-quite-word that implements the TO or DEFER@
-    \ behaviour of that
+    \ TO: and DEFER@: define not-quite-words that have code-generation code
+    \ fragments with the stack effect ( xt -- ), where xt identifies the word
+    \ to which to or defer@ is applied, instead of the xt where COMPILE, is
+    \ applied to.
     >namevt @ >vtcompile, perform ;
 
 : ,     ( w -- ) \ core comma
