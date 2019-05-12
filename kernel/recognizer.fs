@@ -106,6 +106,8 @@ rectype: rectype-dnum
     \G pop from top of stack
     >r r@ $@ ?dup IF  + cell- @ r@ $@len cell- r> $!len
     ELSE  drop rdrop  THEN ;
+: stack# ( stack -- elements )
+    $@len cell/ ;
 
 $Variable default-recognizer
 \G The system recognizer

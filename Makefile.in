@@ -31,7 +31,6 @@
 
 VERSION	= @PACKAGE_VERSION@
 DOSVERSION=`echo $(VERSION)|sed 's/\.//g'|sed 's/-.*//g'`
-LIBCCVER = @LIBCCVER@
 
 # -------------	System specific variables	
 
@@ -72,8 +71,8 @@ datarootdir = @datarootdir@
 datadir = $(package)@datadir@
 #read-only architecture-dependent non-ascii files
 libdir = $(package)@libdir@
-libccdir = $(subst $(package),,$(libdir)/gforth/$(LIBCCVER)/$(machine)/libcc-named)
-buildccdir = lib/gforth/$(LIBCCVER)/$(machine)/libcc-named
+libccdir = $(subst $(package),,$(libdir)/gforth/$(VERSION)/$(machine)/libcc-named)
+buildccdir = lib/gforth/$(VERSION)/$(machine)/libcc-named
 includedir = $(package)@includedir@
 infodir = $(package)@infodir@
 htmldir = $(package)@htmldir@
@@ -257,6 +256,7 @@ GFORTH_FI_SRC2=\
 	exboot.fs \
 	except.fs \
 	extend.fs \
+	fold.fs \
 	float.fs \
 	glocals.fs \
 	hash.fs \

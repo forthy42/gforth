@@ -19,13 +19,12 @@
 
 machine=@machine@
 VERSION=@PACKAGE_VERSION@
-LIBCCVER=@LIBCCVER@ # not Gforth, but libcc API
 DEST=$1
 shift
 export CROSS_PREFIX=@CROSS_PREFIX@
 @NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth
 @NO_CROSS@test -f "gforth.fi" && KERNEL="gforth.fi"
-export libccdir="$PWD/lib/gforth/$LIBCCVER/$machine/libcc-named/"
+export libccdir="$PWD/lib/gforth/$VERSION/$machine/libcc-named/"
 export libccnameddir="$libccdir"
 if test -n "$C_INCLUDE_PATH"; then
     export C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine:$C_INCLUDE_PATH"

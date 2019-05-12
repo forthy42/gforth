@@ -224,7 +224,8 @@ defer header ( -- ) \ gforth
     \G Compilation semantics: compile the run-time semantics.@*
     \G Run-time Semantics: push @i{n}.@*
     \G Interpretation semantics: undefined.
-    postpone lit , ; immediate restrict
+    threading-method 1 = IF  postpone lit ,  ELSE  >lits  THEN ;
+immediate restrict
 
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal
     \G Compile appropriate code such that, at run-time, @i{w1 w2} are
@@ -261,6 +262,16 @@ unlock tlastcfa @ lock >body AConstant lastcfa
 \ it won't work in a flash/rom environment, therefore for Gforth EC
 \ we stick to the traditional implementation
 
+Variable litstack
+
+: >lits ( x -- ) litstack >stack ;
+: lits> ( -- x ) litstack stack> ;
+: lits# ( -- u ) litstack stack# ;
+: lits, ( -- )
+    litstack $@ bounds  litstack @ >r  litstack off
+    ?DO  postpone lit  I @ ,  cell +LOOP
+    r> free throw ;
+
 : cfa,     ( code-address -- )  \ gforth	cfa-comma
     here
     dup lastcfa !
@@ -270,7 +281,7 @@ unlock tlastcfa @ lock >body AConstant lastcfa
 defer basic-block-end ( -- )
 
 :noname ( -- )
-    0 compile-prim1 ;
+    lits, 0 compile-prim1 ;
 is basic-block-end
 
 \ record locations
@@ -289,7 +300,7 @@ has? primcentric [IF]
 	\ dynamic only    
 	: peephole-compile, ( xt -- )
 	    \ compile xt, appending its code to the current dynamic superinstruction
-	    here swap , xt-location compile-prim1 ;
+	    lits, here swap , xt-location compile-prim1 ;
     [ELSE]
 	: peephole-compile, ( xt -- addr ) @ , ;
     [THEN]

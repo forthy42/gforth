@@ -119,8 +119,8 @@ defer if-like
 : >mark? ( -- orig )
     >mark if-like ;
 : >resolve    ( addr -- )
-    here swap !
-    basic-block-end ;
+    basic-block-end
+    here swap ! ;
 : <resolve    ( addr -- )        , ;
 
 : BUT
@@ -165,7 +165,7 @@ immediate restrict
     POSTPONE then ; immediate restrict
 
 Defer begin-like ( -- )
-' noop IS begin-like
+' lits, IS begin-like
 
 : BEGIN ( compilation -- dest ; run-time -- ) \ core
     begin-like cs-push-part dest

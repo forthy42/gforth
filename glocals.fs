@@ -659,6 +659,7 @@ is free-old-local-names
     then ;
 
 : (begin-like) ( -- )
+    defers begin-like
     dead-code @ if
 	\ set up an assumption of the locals visible here.  if the
 	\ users want something to be visible, they have to declare

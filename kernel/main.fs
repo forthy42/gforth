@@ -70,14 +70,8 @@ has? kernel-size
 
 doc-off
 reset-included
-has? prims [IF]
-    include kernel/aliases.fs             \ primitive aliases, are config-generated
-[ELSE]
-    prims-include
-    undef-words
-    include kernel/prim.fs
-    all-words
-[THEN]
+
+include kernel/aliases.fs             \ primitive aliases, are config-generated
 doc-on
 
 has? header [IF]
@@ -101,23 +95,10 @@ has? file [IF]
 [THEN]
 
 has? compiler [IF]
-    has? glocals [IF]
-        include kernel/cond.fs            \ IF and co.
-    [ELSE]
-        include kernel/cond-old.fs        \ IF and co. withoutlocals
-    [THEN]
-    \ these two games can be added to provide complex examples for the 4stack
-    \ and misc simulators (see arch/4stack/README and arch/misc/README).
-    has? games [IF]
-	include arch/misc/tt.fs
-        \ disabled, as cross-compilation support seems broken currently:
-        include arch/misc/sokoban.fs
-    [THEN]
+    include kernel/cond.fs            \ IF and co.
 [THEN]
 include kernel/quotes.fs
-has? ec 0= [IF]
 include kernel/toolsext.fs
-[THEN]
 include kernel/tools.fs               \ load tools ( .s dump )
 include kernel/getdoers.fs
 include kernel/copydoers.fs
