@@ -18,12 +18,10 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : value, >body ['] lit@ peephole-compile, , ;
-: constant, >body @ ['] lit peephole-compile, , ;
-: 2constant, >body 2@ swap
-    ['] lit peephole-compile, ,
-    ['] lit peephole-compile, , ;
+: constant, >body @ lit, ;
+: 2constant, >body 2@ swap lit, lit, ;
 : :, >body ['] call peephole-compile, , ;
-: variable, >body ['] lit peephole-compile, , ;
+: variable, >body lit, ;
 : user, >body @ ['] useraddr peephole-compile, , ;
 : defer, >body ['] lit-perform peephole-compile, , ;
 : field+, >body @ ['] lit+ peephole-compile, , ;

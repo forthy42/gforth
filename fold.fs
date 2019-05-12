@@ -20,19 +20,19 @@
 : fold1 ( xt -- )
     \G check if can fold by one literals; if so, does so, otherwise
     \G compiles the primitive
-    lits# 1 >= IF  >r lits> r> execute >lits
+    lits# 1 u>= IF  >r lits> r> execute >lits
     ELSE  peephole-compile,  THEN ;
 
 : fold2 ( xt -- )
     \G check if can fold by two literals; if so, does so, otherwise
     \G compiles the primitive
-    lits# 1 > IF  >r lits> lits> swap r> execute >lits
+    lits# 2 u>= IF  >r lits> lits> swap r> execute >lits
     ELSE  peephole-compile,  THEN ;
 
 : fold2:2 ( xt -- )
     \G check if can fold by two literals; if so, does so, otherwise
     \G compiles the primitive
-    lits# 1 > IF  >r lits> lits> swap r> execute swap >lits >lits
+    lits# 2 u>= IF  >r lits> lits> swap r> execute swap >lits >lits
     ELSE  peephole-compile,  THEN ;
 
 : fold1: ( "name" -- )
@@ -82,6 +82,15 @@ fold2: lshift
 fold2: arshift
 fold2: rol
 fold2: ror
+fold2: =
+fold2: >
+fold2: >=
+fold2: <
+fold2: <=
+fold2: u>
+fold2: u>=
+fold2: u<
+fold2: u<=
 
 fold2:2: m*
 fold2:2: um*
