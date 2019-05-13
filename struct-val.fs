@@ -46,7 +46,7 @@ standard:field
 
 : vfield-to: ( xt! -- )
     Create ,
-    [: ( body -- ) >r >body vfield-int, r> @ to-!exec ;] set-does>
+    [: ( xt body -- ) >r >body vfield-int, r> @ to-!exec ;] set-does>
     [: ( xt -- ) >r lits# 0= IF  r> does,  EXIT  THEN
 	lits> >body vfield-comp, r> >body @ to-!, ;] set-optimizer ;
 
