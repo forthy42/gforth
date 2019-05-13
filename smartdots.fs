@@ -81,5 +81,5 @@ Variable smart.s-skip
     fdepth IF
 	cr ." F:" f.s THEN ;
 
-\ ' ... IS printdebugdata
+' ... IS printdebugdata
 
