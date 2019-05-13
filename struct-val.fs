@@ -21,7 +21,10 @@ Defer +field,
 
 : standard+field, ( addr body -- addr' )
     @ + ;
-opt: drop @ ?dup-IF ['] lit+ peephole-compile, , THEN ;
+opt: drop @ ?dup-IF
+	lits# 0> IF  lits> + >lits
+	ELSE  ['] lit+ peephole-compile, ,  THEN
+    THEN ;
 
 :noname ( -- )
     defers standard:field ['] standard+field, IS +field, ; is standard:field
@@ -41,11 +44,16 @@ standard:field
     [: ( addr -- xt ) >body vfield-int, @ ;
     defer@-opt: ( xt -- ) >body vfield-comp, postpone @ ;] set-defer@ ;
 
+: vfield-to: ( xt! -- )
+    Create ,
+    [: ( body -- ) >r >body vfield-int, r> @ to-!exec ;] set-does>
+    [: ( xt -- ) >r lits# 0= IF  r> does,  EXIT  THEN
+	lits> >body vfield-comp, r> >body @ to-!, ;] set-optimizer ;
+
 : wrapper-xts ( xt@ !-table -- xt-does xt-opt xt-to ) { xt@ xt! }
     :noname ]] vfield-int, [[ xt@ compile, postpone ; \ xt-does
     :noname ]] >body vfield-comp, [[ xt@ ]]L compile, ; [[ \ xt-comp,
-    :noname ]] >body vfield-comp, [[ xt! ]]L to-!, ; [[ \ xt-to-comp,
-    :noname ]] >body vfield-int, [[ xt! ]]L to-!exec ; [[ swap set-optimizer ;
+    xt! noname vfield-to: latestxt ;
 
 : wrap+value: ( n2 xt-align xt@ !-table "name" -- ) rot { xt-align }
     wrapper-xts :noname ]] >r [[ xt-align compile, ]] r> create+value ; [[
