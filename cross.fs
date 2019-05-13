@@ -3128,16 +3128,17 @@ End-Struct vtable-struct
 ghost imm>comp
 
 : immediate     ( immediate-mask flag! )
-                [G'] imm>comp gset->comp
-                ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
-                <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
-                <imm> ^imm @ ! ;
+    [G'] imm>comp gset->comp
+    ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
+    <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
+    <imm> ^imm @ ! ;
 
 ghost a>int drop
 ghost a>comp drop
 ghost a-to drop
 ghost s-to drop
 ghost :dodefer drop
+ghost ?fold-to drop
 
 : Alias    ( cfa -- ) \ name
     >in @ skip? IF  2drop  EXIT  THEN  >in !
@@ -3163,8 +3164,8 @@ ghost :dodefer drop
 
 : to: T : H ;
 : defer@: T : H ;
-: to-opt: T opt: H ;
-: defer@-opt: T opt: H ;
+: to-opt: T opt: H compile ?fold-to ;
+: defer@-opt: T opt: H compile ?fold-to ;
 
 variable cross-boot$[]
 variable cross-boot[][]

@@ -413,13 +413,6 @@ defer compile, ( xt -- )
 \G the same as if @i{xt} is @code{execute}d.
 ' opt-compile, is compile,
 
-: opt-something, ( xt1 xt2 -- ) \ gforth-internal
-    \ TO: and DEFER@: define not-quite-words that have code-generation code
-    \ fragments with the stack effect ( xt -- ), where xt identifies the word
-    \ to which to or defer@ is applied, instead of the xt where COMPILE, is
-    \ applied to.
-    >namevt @ >vtcompile, perform ;
-
 : ,     ( w -- ) \ core comma
     \G Reserve data space for one cell and store @i{w} in the space.
     cell small-allot ! ;

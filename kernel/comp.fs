@@ -315,13 +315,13 @@ has? primcentric [IF]
     name>int ['] compile, ;
 
 : [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth bracket-paren-tick
-    (') postpone ALiteral ; immediate restrict
+    (') postpone Literal ; immediate restrict
 
 : [']  ( compilation. "name" -- ; run-time. -- xt ) \ core      bracket-tick
     \g @i{xt} represents @i{name}'s interpretation
     \g semantics. Perform @code{-14 throw} if the word has no
     \g interpretation semantics.
-    ' postpone ALiteral ; immediate restrict
+    ' postpone Literal ; immediate restrict
 
 : COMP'    ( "name" -- w xt ) \ gforth  comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
@@ -329,7 +329,7 @@ has? primcentric [IF]
 
 : [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth bracket-comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
-    COMP' swap POSTPONE Aliteral POSTPONE ALiteral ; immediate restrict
+    COMP' swap POSTPONE literal POSTPONE Literal ; immediate restrict
 
 : postpone, ( w xt -- ) \ gforth	postpone-comma
     \g Compile the compilation semantics represented by the
@@ -398,7 +398,7 @@ include ./recognizer.fs
 \ : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
 
 : defer@, ( xt -- )
-    dup >namevt @ >vtdefer@ @ opt-something, ;
+    dup lit, >namevt @ >vtdefer@ @ opt-compile, ;
 
 : a>int ( nt -- )  >body @ ;
 : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
@@ -407,12 +407,12 @@ include ./recognizer.fs
 
 : s>int ( nt -- xt )  >body @ name>int ;
 : s>comp ( nt -- xt1 xt2 )  >body @ name>comp ;
-to: s-to ( val nt -- )
+: s-to ( val nt -- )
     >body @ (to) ;
-to-opt: ( xt -- ) >body @ (to), ;
-defer@: s-defer@ ( xt1 -- xt2 )
+opt: ( xt -- ) ?fold-to >body @ (to), ;
+: s-defer@ ( xt1 -- xt2 )
     >body @ defer@ ;
-defer@-opt: ( xt -- ) >body @ defer@, ;
+opt: ( xt -- ) ?fold-to >body @ defer@, ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
 : Alias    ( xt "name" -- ) \ gforth
@@ -507,8 +507,8 @@ defer defer-default ( -- )
 defer@: defer-defer@ ( xt -- )
     \ The defer@ implementation of children of DEFER
     >body @ ;
-defer@-opt: ( xt -- )
-    >body lit, postpone @ ;
+opt: ( xt -- )
+    ?fold-to >body lit, postpone @ ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
     \G Compiles the present contents of the deferred word @i{name}
@@ -610,12 +610,12 @@ interpret/compile: comp:
     \g in compiled @code{to @i{name}}, xt is that of @i{name}.  This
     \g word generates code for storing v (of type appropriate for
     \g @i{name}) there.  This word is a factor of @code{to}.
-    dup >namevt @ >vtto @ opt-something, \ this OPT-SOMETHING, calls the
-    \ TO-OPT: part of the SET-TO part of the defining word of <name>.
+    dup >lits >namevt @ >vtto @ opt-compile,
+    \ OPT: part of the SET-TO part of the defining word of <name>.
+    \ This here needs to be optimizing even for gforth-itc, because
+    \ otherwise this code won't work.
 ;
 
-: default-to-opt ( xt -- )
-    lit, postpone (to) ;
 : to: ( "name1" -- colon-sys ) \ gforth-internal
     \G Defines a to-word ( v xt -- ) that is not a proper word (it does
     \G not compile properly), but only useful as parameter for
@@ -625,14 +625,16 @@ interpret/compile: comp:
     \G the xt of <name>).  It is usually used only for interpretive
     \G @code{to}; the compiled @code{to} uses the part after
     \G @code{to-opt:}.
-    : ['] default-to-opt set-optimizer ;
-' opt: alias to-opt: ( -- colon-sys ) \ gforth-internal
+    : ;
+: ?fold-to ( xt -- lit )  lits# 0= IF  :, rdrop  EXIT  THEN  drop lits> ;
+: to-opt: ( -- colon-sys ) \ gforth-internal
     \G Must only be used to modify a preceding to-word defined with
     \G \code{to:}.  It defines a part of the TO <name> run-time
-    \G semantics used with compiled \code{TO}.  The stack effect of the
-    \G code following @code{to-opt:} must be: ( xt -- ) ( generated: v
-    \G -- ).  The generated code stores v in the storage represented by
-    \G xt.
+    \G semantics used with compiled @code{TO}.  The stack effect of the
+    \G code following @code{to-opt:} must be: @code{( xt -- ) ( generated: v
+    \G -- )}.  The generated code stores @i{v} in the storage represented by
+    \G @i{xt}.
+    start-xt set-optimizer postpone ?fold-to ;
 
 \ defer and friends
 
@@ -651,10 +653,14 @@ interpret/compile: comp:
 ' (to) alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
 
-to: value-to ( n value-xt -- ) \ gforth-internal
+: value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values; it's tickable, but the
     \g only purpose of its xt is to be consumed by @code{set-to}.  It
     \g does not compile like a proper word.
+    >body !-table to-!exec ;
+opt: ( value-xt -- ) \ run-time: ( n -- )
+    ?fold-to >body postpone ALiteral !-table to-!, ;
+to: value-to'
     >body !-table to-!exec ;
 to-opt: ( value-xt -- ) \ run-time: ( n -- )
     >body postpone ALiteral !-table to-!, ;

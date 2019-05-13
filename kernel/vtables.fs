@@ -24,7 +24,9 @@
 : variable, >body lit, ;
 : user, >body @ ['] useraddr peephole-compile, , ;
 : defer, >body ['] lit-perform peephole-compile, , ;
-: field+, >body @ ['] lit+ peephole-compile, , ;
+: field+, >body @
+    lits# 0> IF  lits> + lit,
+    ELSE  ['] lit+ peephole-compile, ,  THEN ;
 : abi-code, >body ['] abi-call peephole-compile, , ;
 : ;abi-code, ['] ;abi-code-exec peephole-compile, , ;
 : does, ['] does-xt peephole-compile, , ;
@@ -35,12 +37,12 @@
 : (uv) ( ip -- xt-addr ) 2@ next-task + @ cell- @ swap cells + ;
 to: is-umethod ( method-xt -- )
     >body cell+ (uv) ! ;
-to-opt: ( method-xt -- )
-    >body cell+ lit, postpone (uv) postpone ! ;
+opt: ( method-xt -- )
+    ?fold-to >body cell+ lit, postpone (uv) postpone ! ;
 
 defer@: umethod-defer@ ( method-xt -- xt )
     >body cell+ (uv) @ ;
-defer@-opt: ( method-xt -- )
-    >body cell+ lit, postpone (uv) postpone @ ;
+opt: ( method-xt -- )
+    ?fold-to >body cell+ lit, postpone (uv) postpone @ ;
 
 AVariable vtable-list
