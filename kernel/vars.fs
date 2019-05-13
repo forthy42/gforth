@@ -22,9 +22,7 @@ hex \ everything now hex!                               11may93jaw
 \ important definers
 
 : uvalue-to ( n uvalue-xt -- )
-    \g uvalue-to is the to-method for uvalues; it's xt is only
-    \g there to be consumed by @code{set-to}.
-    \ should be defined with TO: OPT-TO:, but not supported by cross.fs
+    \g uvalue-to is the to-method for uvalues
     !!?addr!! >body @ next-task +  !-table to-!exec ;
 opt: ( uvalue-xt to-xt -- )
     ?fold-to !!?addr!! >body @ postpone useraddr , !-table to-!, ;

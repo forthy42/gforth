@@ -658,9 +658,7 @@ interpret/compile: comp:
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
 
 : value-to ( n value-xt -- ) \ gforth-internal
-    \g this is the TO-method for normal values; it's tickable, but the
-    \g only purpose of its xt is to be consumed by @code{set-to}.  It
-    \g does not compile like a proper word.
+    \g this is the TO-method for normal values
     >body !-table to-!exec ;
 opt: ( value-xt -- ) \ run-time: ( n -- )
     ?fold-to >body postpone ALiteral !-table to-!, ;
