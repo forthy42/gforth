@@ -664,10 +664,6 @@ interpret/compile: comp:
     >body !-table to-!exec ;
 opt: ( value-xt -- ) \ run-time: ( n -- )
     ?fold-to >body postpone ALiteral !-table to-!, ;
-to: value-to'
-    >body !-table to-!exec ;
-to-opt: ( value-xt -- ) \ run-time: ( n -- )
-    >body postpone ALiteral !-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
