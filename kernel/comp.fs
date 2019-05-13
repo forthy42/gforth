@@ -233,7 +233,7 @@ immediate restrict
     swap postpone Literal  postpone Literal ; immediate restrict
 
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
-    postpone lit A, ; immediate restrict
+    postpone Literal ; immediate restrict
 
 Defer char@ ( addr u -- char addr' u' )
 :noname  over c@ -rot 1 /string ; IS char@
@@ -338,7 +338,7 @@ has? primcentric [IF]
     if
 	drop compile,
     else
-	swap POSTPONE aliteral compile,
+	swap POSTPONE literal compile,
     then ;
 
 include ./recognizer.fs
@@ -525,7 +525,7 @@ opt: ( xt -- )
     >r ;-hook
     exit-like
     here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
-    postpone aliteral r> compile, [compile] exit
+    postpone literal r> compile, [compile] exit
     ?colon-sys [ has? peephole [IF] ] finish-code [ [THEN] ]
     defstart ;
 
@@ -661,7 +661,7 @@ interpret/compile: comp:
     \g this is the TO-method for normal values
     >body !-table to-!exec ;
 opt: ( value-xt -- ) \ run-time: ( n -- )
-    ?fold-to >body postpone ALiteral !-table to-!, ;
+    ?fold-to >body postpone Literal !-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.

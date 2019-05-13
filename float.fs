@@ -83,7 +83,7 @@ Create f!-table ' f! , ' f+! ,
 
 to: fvalue-to ( r xt-fvalue -- ) \ gforth
     >body f!-table to-!exec ;
-to-opt: >body postpone ALiteral f!-table to-!, ;
+to-opt: >body postpone Literal f!-table to-!, ;
 
 : fvalue ( r "name" -- ) \ float-ext f-value
     fconstant ['] fvalue-to set-to ['] opt-fval set-optimizer ;

@@ -370,7 +370,7 @@ defer adjust-locals-list ( wid -- )
     locals-list !
     postpone THEN
     wrap!
-    r> postpone ALiteral ;
+    r> postpone Literal ;
 
 : int-[: ( -- flag colon-sys )
     wrap@ ['] (int-;]) :noname ;
