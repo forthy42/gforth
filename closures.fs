@@ -164,7 +164,7 @@ forth definitions
     r@ dup >namevt @ >vtextra !
     ['] does, set-optimizer
     vt, postpone THEN wrap!
-    r> >namevt @ lit, lits, ;
+    r> >namevt @ lit, ;
 
 : n-closure> ( n vt -- xt )
     [ cell 4 = ] [IF]  0 >l  [THEN]
