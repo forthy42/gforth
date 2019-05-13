@@ -49,7 +49,7 @@ Variable extra-locals ( additional hidden locals size )
 locals-types definitions
 
 : :}* ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... xt -- ) \ gforth close-brace-dictionary
-    0 lit, here cell- >r
+    0 lit, lits, here cell- >r
     compile, ]] >lp [[
     :}
     locals-size @ extra-locals @ + r> !
@@ -101,8 +101,7 @@ forth definitions
 
 : (closure-;]) ( closure-sys lastxt -- )
     >r r@ dup >namevt @ >vtextra !
-    ['] does, set-optimizer
-    vt,
+    ['] does, set-optimizer  vt,
     postpone THEN
     orig? r> >namevt @ swap ! drop
     wrap! pop-locals ;
@@ -165,7 +164,7 @@ forth definitions
     r@ dup >namevt @ >vtextra !
     ['] does, set-optimizer
     vt, postpone THEN wrap!
-    r> >namevt @ lit, ;
+    r> >namevt @ lit, lits, ;
 
 : n-closure> ( n vt -- xt )
     [ cell 4 = ] [IF]  0 >l  [THEN]
