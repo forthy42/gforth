@@ -29,18 +29,42 @@
     lits# 2 u>= IF  >r lits> lits> swap r> execute >lits
     ELSE  peephole-compile,  THEN ;
 
+: fold1:2 ( xt -- )
+    \G check if can fold by one literals; if so, does so, otherwise
+    \G compiles the primitive
+    lits# 1 u>= IF  >r lits> r> execute swap >lits >lits
+    ELSE  peephole-compile,  THEN ;
+
 : fold2:2 ( xt -- )
     \G check if can fold by two literals; if so, does so, otherwise
     \G compiles the primitive
     lits# 2 u>= IF  >r lits> lits> swap r> execute swap >lits >lits
     ELSE  peephole-compile,  THEN ;
 
+: fold2:3 ( xt -- )
+    \G check if can fold by one literals; if so, does so, otherwise
+    \G compiles the primitive
+    lits# 2 u>= IF  >r lits> lits> swap r> execute rot >lits swap >lits >lits
+    ELSE  peephole-compile,  THEN ;
+
+: fold3:3 ( xt -- )
+    \G check if can fold by two literals; if so, does so, otherwise
+    \G compiles the primitive
+    lits# 3 u>= IF  >r lits> lits> swap lits> -rot r> execute rot >lits swap >lits >lits
+    ELSE  peephole-compile,  THEN ;
+
 : fold1: ( "name" -- )
     ' dup (make-latest) ['] fold1 set-compiler vt, ;
 : fold2: ( "name" -- )
     ' dup (make-latest) ['] fold2 set-compiler vt, ;
+: fold1:2: ( "name" -- )
+    ' dup (make-latest) ['] fold1:2 set-compiler vt, ;
 : fold2:2: ( "name" -- )
     ' dup (make-latest) ['] fold2:2 set-compiler vt, ;
+: fold2:3: ( "name" -- )
+    ' dup (make-latest) ['] fold2:3 set-compiler vt, ;
+: fold3:3: ( "name" -- )
+    ' dup (make-latest) ['] fold3:3 set-compiler vt, ;
 
 fold1: invert
 fold1: abs
@@ -91,7 +115,17 @@ fold2: u>
 fold2: u>=
 fold2: u<
 fold2: u<=
+fold2: drop
+fold2: nip
+
+fold1:2: dup
 
 fold2:2: m*
 fold2:2: um*
 fold2:2: /mod
+fold2:2: swap
+
+fold2:3: over
+fold2:3: tuck
+
+fold3:3: rot
