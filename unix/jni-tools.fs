@@ -262,12 +262,10 @@ Variable argstring
 
 : cstring@1 ( -- index ) cstring1 $@ drop c@ 'A' - cells ;
 
-: field-to, ( xt1 xt2 -- ) >r lit, r> :, ;
-
 : jni-field: ( "forth-name" "name" "signature" -- )
     >in @ parse-name 2drop jni-fid >in @ { old-in fid new-in }
     :noname postpone drop postpone o fid lit,
-    cstring@1 'field! + @ compile, postpone ; >r ['] field-to, set-optimizer
+    cstring@1 'field! + @ compile, postpone ; >r
     old-in >in !
     : ( o:jobject -- retval ) postpone o fid lit,
     cstring@1 'field@ + @ compile, postpone ;
