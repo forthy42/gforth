@@ -609,6 +609,8 @@ text class
     value: start-curpos \ selection mode
 end-class edit
 
+$3F7FFF7F text-color, FValue selection-color
+
 : edit-marking ( -- )
     cursize 0< ?EXIT  text-font to font
     text$ curpos umin layout-string fdrop fdrop
@@ -625,7 +627,7 @@ end-class edit
     x0 cw f+ fround
     y h border borderv f+ bordert f+ f- f- { f: x1 f: y1 }
     -2e to t.i0  6 ?flush-tris  i>off
-    cursize 0> IF  m2c:selectioncolor# @ color,  ELSE  text-color  THEN >v
+    cursize 0> IF  selection-color  ELSE  text-color  THEN >v
     x0 y0 >xy fdup i>c n> 2e 2e >st v+
     x1 y0 >xy fdup i>c n> 3e 2e >st v+
     x0 y1 >xy fdup i>c n> 2e 3e >st v+

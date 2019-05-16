@@ -33,6 +33,7 @@ color-h 1 > [IF]
     $FFFFBBFF re-text-color dark-blue
     $000000FF re-text-color whitish
     $40C0FFFF $000000FF $000000FF $FFFFFFFF re-text-emoji-fade-color toggle-color
+    $1F3F7F7F re-text-color selection-color
     day-mode
 [THEN]
 
