@@ -62,7 +62,7 @@ cat <<EOF
 [Setup]
 AppName=Gforth
 AppVersion=$VERSION
-AppCopyright=Copyright © 1995-2017,2018 Free Software Foundation
+AppCopyright=Copyright © 1995-2019 Free Software Foundation
 DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
 AllowNoIcons=1
@@ -72,7 +72,7 @@ DisableStartupPrompt=yes
 ChangesEnvironment=yes
 OutputBaseFilename=gforth-$VERSION
 AppPublisher=Free Software Foundation, Gforth team
-AppPublisherURL=http://bernd-paysan.de/gforth.html
+AppPublisherURL=https://gforth.org/
 SignTool=sha1
 SignTool=sha256
 ; add the following sign tools:
