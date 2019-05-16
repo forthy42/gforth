@@ -169,7 +169,7 @@ comp: drop ]] o ]xref o> [[ ;
 
 : xref! ( xref addr -- )  dup @ ?dup-IF  ]xref  THEN ! ;
 : jvalue! ( xref xt -- )  >body xref! ;
-opt: drop >body postpone ALiteral postpone xref! ;
+to-opt: >body postpone ALiteral postpone xref! ;
 
 : JValue ( "name" -- ) 0 Value ['] jvalue! set-to ;
 
