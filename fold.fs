@@ -161,6 +161,7 @@ fold2:3: over
 fold2:3: tuck
 
 fold3:3: rot
+fold3:3: -rot
 
 fold3:2: um/mod
 fold3:2: fm/mod
