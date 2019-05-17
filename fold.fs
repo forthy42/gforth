@@ -17,155 +17,55 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: fold1 ( xt -- )
-    \G check if can fold one literal;
-    \G if so, does so, otherwise compiles the
-    \G primitive
-    lits# 1 u>= IF >r lits> r> execute >lits
-    ELSE peephole-compile, THEN ;
-
 : 2lits> ( -- d )  lits> lits> swap ;
 : >2lits ( d -- )  swap >lits >lits ;
 : 3lits> ( -- t )  2lits> lits> -rot ;
 : >3lits ( -- t )  rot >lits >2lits ;
+: 4lits> ( -- q )  2lits> 2lits> 2swap ;
+: >4lits ( q -- )  2swap >2lits >2lits ;
 
-: fold2 ( xt -- )
-    \G check if can fold two literals;
-    \G if so, does so, otherwise
-    \G compiles the primitive
-    lits# 2 u>= IF
-	>r 2lits> r> execute >lits
-    ELSE  peephole-compile,  THEN ;
+: folder [{: n xt: pop xt: push :}d
+	lits# n u>= IF
+	    >r pop r> execute push
+	ELSE  peephole-compile,  THEN ;] ( xt ) ;
+: folds {: folder-xt -- :}
+    BEGIN  >in @ >r parse-name r> >in !
+	nip  WHILE
+	    vt, ' dup (make-latest)
+	    folder-xt set-optimizer
+    REPEAT ;
 
-: fold1:2 ( xt -- )
-    \G check if can fold one literal;
-    \G if so, does so (returning 2), otherwise
-    \G compiles the primitive
-    lits# 1 u>= IF
-	>r lits> r> execute >2lits
-    ELSE peephole-compile, THEN ;
-
-: fold2:2 ( xt -- )
-    \G check if can fold two literals;
-    \G if so, does so (returning 2),
-    \G otherwise compiles the primitive
-    lits# 2 u>= IF
-	>r 2lits> r> execute >2lits
-    ELSE peephole-compile, THEN ;
-
-: fold2:3 ( xt -- )
-    \G check if can fold two literals;
-    \G if so, does so (returning 3), otherwise
-    \G compiles the primitive
-    lits# 2 u>= IF
-	>r 2lits> r> execute >3lits
-    ELSE peephole-compile, THEN ;
-
-: fold3:3 ( xt -- )
-    \G check if can fold three literals;
-    \G if so, does so (returning 3),
-    \G otherwise compiles the primitive
-    lits# 3 u>= IF
-	>r 3lits> r> execute >3lits
-    ELSE peephole-compile, THEN ;
-
-: fold3:2 ( xt -- )
-    \G check if can fold three literals;
-    \G if so, does so (returning 2),
-    \G otherwise compiles the primitive
-    lits# 3 u>= IF
-	>r 3lits> r> execute >2lits
-    ELSE peephole-compile, THEN ;
-
-: fold3:1 ( xt -- )
-    \G check if can fold three literals;
-    \G if so, does so (returning 1),
-    \G otherwise compiles the primitive
-    lits# 3 u>= IF
-	>r 3lits> r> execute >lits
-    ELSE peephole-compile, THEN ;
-
-: folder ( xt "name" -- )
-    create , does> vt,
-    ' dup (make-latest) @ set-optimizer ;
-
-' fold1 folder fold1:
-' fold2 folder fold2:
-' fold1:2 folder fold1:2:
-' fold2:2 folder fold2:2:
-' fold2:3 folder fold2:3:
-' fold3:3 folder fold3:3:
-' fold3:2 folder fold3:2:
-' fold3:1 folder fold3:1:
-
-fold1: invert
-fold1: abs
-fold1: negate
-fold1: >pow2
-fold1: w><
-fold1: l><
-fold1: x><
-fold1: 1+
-fold1: 1-
-fold1: 2*
-fold1: 2/
-fold1: cells
-fold1: cell/
-fold1: wcwidth
-fold1: floats
-fold1: sfloats
-fold1: dfloats
-fold1: float/
-fold1: sfloat/
-fold1: dfloat/
-
-fold2: +
-fold2: -
-fold2: *
-fold2: /
-fold2: mod
-fold2: u/
-fold2: umod
-fold2: and
-fold2: or
-fold2: xor
-fold2: min
-fold2: max
-fold2: umin
-fold2: umax
-fold2: rshift
-fold2: lshift
-fold2: arshift
-fold2: rol
-fold2: ror
-fold2: =
-fold2: >
-fold2: >=
-fold2: <
-fold2: <=
-fold2: u>
-fold2: u>=
-fold2: u<
-fold2: u<=
-fold2: drop
-fold2: nip
-
-fold1:2: dup
-
-fold2:2: m*
-fold2:2: um*
-fold2:2: /mod
-fold2:2: swap
-
-fold2:3: over
-fold2:3: tuck
-
-fold3:3: rot
-fold3:3: -rot
-
-fold3:2: um/mod
-fold3:2: fm/mod
-fold3:2: sm/rem
-fold3:2: */mod
-
-fold3:1: */
+1 ' lits>  ' >lits folder
+dup folds invert abs negate >pow2
+dup folds 1+ 1- 2* 2/ cells cell/
+dup folds floats sfloats dfloats
+dup folds float/ sfloat/ dfloat/
+dup folds c>s w>s l>s w>< l>< x><
+dup folds wcwidth
+    folds 0> 0= 0<
+1 ' lits>  ' >2lits folder
+    folds dup s>d
+2 ' 2lits> ' >lits folder
+dup folds + - * / mod u/ umod and or xor
+dup folds min max umin umax
+dup folds drop nip
+dup folds rshift lshift arshift rol ror
+dup folds = > >= < <= u> u>= u< u<=
+    folds d0> d0< d0=
+2 ' 2lits> ' >2lits folder
+    folds m* um* /mod swap d2*
+2 ' 2lits> ' >3lits folder
+    folds over tuck
+3 ' 3lits> ' >lits folder
+    folds */
+3 ' 3lits> ' >2lits folder
+    folds um/mod fm/mod sm/rem */mod du/mod
+3 ' 3lits> ' >3lits folder
+    folds rot -rot
+4 ' 4lits> ' >lits folder
+    folds d= d> d>= d< d<= du> du>= du< du<=
+4 ' 4lits> ' >2lits folder
+dup folds d+ d-
+    folds 2drop 2nip
+4 ' 4lits> ' >4lits folder
+    folds 2swap
