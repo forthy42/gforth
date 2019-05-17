@@ -318,7 +318,8 @@ also opengl
 
 : !widgets ( -- )
     top-widget .htop-resize
-    1e ambient% sf! set-uniforms ;
+    1e ambient% sf! [IFDEF] android 2e gain% sf! [THEN]
+    set-uniforms ;
 
 [IFDEF] writeout-en
     lsids ' .lsids s" ef2018/en" r/w create-file throw

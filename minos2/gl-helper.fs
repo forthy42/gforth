@@ -320,6 +320,7 @@ uniform vec2 u_TexScale2;       // scale texture coordinates
 uniform vec2 u_TexScale3;       // scale texture coordinates
 uniform sampler2D u_ColorTex;   // Color palette (texture)
 uniform float u_ColorMode;      // Color mode
+uniform float u_Gain;           // gain for color, workaround for Android ???
  
 attribute vec4 a_Position;      // Per-vertex position information we will pass in.
 attribute vec4 a_Normal;        // Per-vertex normal information we will pass in.
@@ -338,7 +339,7 @@ void main()
 {
     // pass through the extras
     v_Extras = a_Extras;
-    v_Color = texture2D(u_ColorTex, vec2(v_Extras.y, u_ColorMode));
+    v_Color = texture2D(u_ColorTex, vec2(v_Extras.y, u_ColorMode))*u_Gain;
  
     // Transform the vertex into eye space.
     v_Position = vec3(u_MVMatrix * a_Position);
@@ -440,6 +441,7 @@ void main() {
 0 Value TexScale3
 0 Value ColorTex
 0 Value ColorMode
+0 Value Gain
 
 0 Value LightPos
 0 Value Texture0
@@ -504,7 +506,7 @@ void main() {
         vec3 mid3 = vec3(mid, mid, mid);
         col.rgb = (u_Saturate * (col.rgb - mid3)) + mid3;
     }
-    if(u_Ambient != 1.0) {
+    if(u_Ambient < 0.9) {
         // Will be used for attenuation.
         float distance = length(u_LightPos - v_Position);
     
@@ -758,6 +760,7 @@ require soil-texture.fs
 [THEN]
 
 1 sfloats buffer: color%
+1 sfloats buffer: gain%     1.0e gain% sf!
 1 sfloats buffer: ambient%  1.0e ambient% sf!
 1 sfloats buffer: saturate% 1.0e saturate% sf!
 3 sfloats buffer: lightpos-xyz
@@ -777,6 +780,7 @@ require soil-texture.fs
     dup "u_TexScale3" glGetUniformLocation to TexScale3
     dup "u_ColorTex"  glGetUniformLocation to ColorTex
     dup "u_ColorMode" glGetUniformLocation to ColorMode
+    dup "u_Gain"      glGetUniformLocation to Gain
     \ Pixel shader
     dup "u_LightPos"  glGetUniformLocation to LightPos
     dup "u_Texture0"  glGetUniformLocation to Texture0
@@ -828,9 +832,10 @@ color-w color-h * sfloats allocate throw to color-pal
     Texture3 3 glUniform1i
     ColorTex 4 glUniform1i
     ColorMode 1 color% glUniform1fv
-    Ambient 1 ambient% glUniform1fv
-    Saturate 1 saturate% glUniform1fv
-    LightPos 1 lightpos-xyz glUniform3fv ;
+    Gain      1 gain%  glUniform1fv
+    Ambient   1 ambient% glUniform1fv
+    Saturate  1 saturate% glUniform1fv
+    LightPos  1 lightpos-xyz glUniform3fv ;
 
 : day-mode    ( -- )  0 to color-theme 0.5e ColorMode! ;
 color-h 1 > [IF]
