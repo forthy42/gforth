@@ -44,7 +44,7 @@ dup folds c>s w>s l>s w>< l>< x><
 dup folds wcwidth
     folds 0> 0= 0<
 1 ' lits>  ' >2lits folder
-    folds dup s>d
+    folds dup
 2 ' 2lits> ' >lits folder
 dup folds + - * / mod u/ umod and or xor
 dup folds min max umin umax

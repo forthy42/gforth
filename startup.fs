@@ -40,6 +40,7 @@ require iloops.fs
 require float.fs
 require stuff.fs
 require closures.fs
+require fold.fs
 require wordinfo.fs
 require vt100.fs
 require bufio.fs
