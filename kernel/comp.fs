@@ -235,21 +235,6 @@ immediate restrict
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
     postpone Literal ; immediate restrict
 
-Defer char@ ( addr u -- char addr' u' )
-:noname  over c@ -rot 1 /string ; IS char@
-
-: char   ( '<spaces>ccc' -- c ) \ core
-    \G Skip leading spaces. Parse the string @i{ccc} and return @i{c}, the
-    \G display code representing the first character of @i{ccc}.
-    parse-name char@ 2drop ;
-
-: [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
-    \G Compilation: skip leading spaces. Parse the string
-    \G @i{ccc}. Run-time: return @i{c}, the display code
-    \G representing the first character of @i{ccc}.  Interpretation
-    \G semantics for this word are undefined.
-    char postpone Literal ; immediate restrict
-
 \ \ threading							17mar93py
 
 ' noop Alias recurse
@@ -354,7 +339,7 @@ include ./recognizer.fs
     here over allot swap move ;
 
 : ," ( "string"<"> -- )
-    [char] " parse s, ;
+    '"' parse s, ;
 
 \ \ Header states						23feb93py
 

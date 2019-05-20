@@ -60,7 +60,7 @@ Variable /dump
 : .chars ( addr -- )
     /dump @ 0 max bounds
     ?DO I c@ dup 7f bl within
-	IF  drop [char] .  THEN  emit
+	IF  drop '.'  THEN  emit
     LOOP ;
 
 : .line ( addr -- )

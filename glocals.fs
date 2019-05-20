@@ -490,7 +490,7 @@ synonym :} }
 
 : -- ( vtaddr u latest latestxt wid 0 ... -- ) \ gforth dash-dash
     }
-    BEGIN  [char] } parse dup WHILE
+    BEGIN  '}' parse dup WHILE
         + 1- c@ dup bl = swap ':' = or  UNTIL
     ELSE  2drop  THEN ;
 

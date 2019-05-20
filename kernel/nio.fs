@@ -69,7 +69,7 @@ require ./io.fs
     \G to the pictured numeric output string. Since the string is
     \G built up ``backwards'' this is usually used immediately prior
     \G to @code{#>}, as shown in the examples below.
-    0< IF  [char] - hold  THEN ;
+    0< IF  '-' hold  THEN ;
 
 : #       ( ud1 -- ud2 ) \ core		number-sign
     \G Used within @code{<#} and @code{#>}. Add the next
@@ -82,7 +82,7 @@ require ./io.fs
     \G to the string.
     base @ ud/mod rot dup 9 u>
     [ char A char 9 1+ - ] Literal and +
-    [char] 0 + hold ;
+    '0' + hold ;
 
 : #s      ( ud -- 0 0 ) \ core	number-sign-s
     \G Used within @code{<#} and @code{#>}. Convert all remaining digits

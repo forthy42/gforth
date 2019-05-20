@@ -49,10 +49,20 @@ $80 Constant max-single-byte
 
 \ plug-in so that char and '<char> work for UTF-8
 
-[ifundef] char@ \ !! bootstrapping help
-    Defer char@ ( addr u -- char addr' u' )
-    :noname  over c@ -rot 1 /string ; IS char@
-[then]
+Defer char@ ( addr u -- char addr' u' )
+:noname  over c@ -rot 1 /string ; IS char@
+
+: char   ( '<spaces>ccc' -- c ) \ core
+    \G Skip leading spaces. Parse the string @i{ccc} and return @i{c}, the
+    \G display code representing the first character of @i{ccc}.
+    parse-name char@ 2drop ;
+
+: [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
+    \G Compilation: skip leading spaces. Parse the string
+    \G @i{ccc}. Run-time: return @i{c}, the display code
+    \G representing the first character of @i{ccc}.  Interpretation
+    \G semantics for this word are undefined.
+    char postpone Literal ; immediate restrict
 
 :noname  ( addr u -- char addr' u' )
     \ !! the if here seems to work around some breakage, but not

@@ -91,7 +91,7 @@ decimal
 	hex 2 /string
 	1 >num-state @ or >num-state !  EXIT
     endif
-    over c@ [char] # - dup 4 u<
+    over c@ '#' - dup 4 u<
     IF
 	cells bases + @ base ! 1 /string
 	1 >num-state @ or >num-state !
@@ -100,7 +100,7 @@ decimal
     THEN ;
 
 : sign? ( addr u -- addr1 u1 flag )
-    over c@ [char] - = >num-state @ 2 and 0= and  dup >r
+    over c@ '-' = >num-state @ 2 and 0= and  dup >r
     IF
 	1 /string  2 >num-state +!
     THEN
@@ -199,7 +199,7 @@ Defer ?warn#  ' noop is ?warn#
     \G ** this will not get annotated. The alias in glocals.fs will instead **
     \G It does not work to use "wordset-" prefix since this file is glossed
     \G by cross.fs which doesn't have the same functionalty as makedoc.fs
-    [char] ) parse 2drop ; immediate
+    ')' parse 2drop ; immediate
 
 : \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ thisone- core-ext,block-ext backslash
     \G ** this will not get annotated. The alias in glocals.fs will instead ** 
@@ -694,7 +694,7 @@ User error-stack  0 error-stack !
     \G Display @i{u} as an unsigned hex number, prefixed with a "$" and
     \G followed by a space.
     \ !! not used...
-    [char] $ emit base @ swap hex u. base ! ;
+    '$' emit base @ swap hex u. base ! ;
 
 : -trailing  ( c_addr u1 -- c_addr u2 ) \ string dash-trailing
 \G Adjust the string specified by @i{c-addr, u1} to remove all

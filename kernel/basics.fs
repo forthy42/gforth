@@ -174,7 +174,7 @@ has? ec has? primcentric 0= and [IF]
 \ digit?                                               17dec92py
 
 : digit?   ( char -- digit true/ false ) \ gforth
-  toupper [char] 0 - dup 9 u> IF
+  toupper '0' - dup 9 u> IF
     [ char A char 9 1 + -  ] literal -
     dup 9 u<= IF
       drop false EXIT
