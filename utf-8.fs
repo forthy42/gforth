@@ -47,29 +47,6 @@ $80 Constant max-single-byte
     REPEAT  $7F xor 2* or  r>
     BEGIN   over $80 u>= WHILE  tuck c! 1+  REPEAT  nip ;
 
-\ plug-in so that char and '<char> work for UTF-8
-
-Defer char@ ( addr u -- char addr' u' )
-:noname  over c@ -rot 1 /string ; IS char@
-
-: char   ( '<spaces>ccc' -- c ) \ core
-    \G Skip leading spaces. Parse the string @i{ccc} and return @i{c}, the
-    \G display code representing the first character of @i{ccc}.
-    parse-name char@ 2drop ;
-
-: [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
-    \G Compilation: skip leading spaces. Parse the string
-    \G @i{ccc}. Run-time: return @i{c}, the display code
-    \G representing the first character of @i{ccc}.  Interpretation
-    \G semantics for this word are undefined.
-    char postpone Literal ; immediate restrict
-
-:noname  ( addr u -- char addr' u' )
-    \ !! the if here seems to work around some breakage, but not
-    \ entirely; e.g., try 'ç' with LANG=C.
-    dup 1 u<= IF defers char@ EXIT THEN
-    over + >r u8@+ swap r> over - ; IS char@
-
 \ scan to next/previous character
 
 \ alternative names: u8char+ u8char-
