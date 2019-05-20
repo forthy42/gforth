@@ -24,12 +24,18 @@
 : 4lits> ( -- q )  2lits> 2lits> 2swap ;
 : >4lits ( q -- )  2swap >2lits >2lits ;
 
-: folder [{: n xt: pop xt: push :}d
-	lits# n u>= IF
+: folder ( m xt-pop xt-push -- xt1 )
+    \ xt1 ( xt -- ) compiles xt with constant folding: xt ( m*n -- l*n ).
+    \ xt-pop pops m items from literal stack to data stack, xt-push
+    \ pushes l items from data stack to literal stack.
+    [{: m xt: pop xt: push :}d ( xt -- )
+	lits# m u>= IF
 	    >r pop r> execute push
-	ELSE  peephole-compile,  THEN ;] ( xt ) ;
-: folds {: folder-xt -- :}
-    BEGIN  >in @ >r parse-name r> >in !
+	ELSE  peephole-compile,  THEN ;] ;
+
+: folds ( folder-xt "name1" ... "namen" <eol> -- )
+    {: folder-xt :} BEGIN
+	>in @ >r parse-name r> >in !
 	nip  WHILE
 	    vt, ' dup (make-latest)
 	    folder-xt set-optimizer
