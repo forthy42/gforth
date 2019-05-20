@@ -49,7 +49,7 @@ Redefinitions-start
     loadfile @ 0= IF  postpone (  EXIT  THEN
     BEGIN
 	>in @
-	[char] ) parse nip
+	')' parse nip
 	>in @ rot - = \ is there no delimter?
     WHILE
 	refill 0=

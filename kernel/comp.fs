@@ -235,24 +235,9 @@ immediate restrict
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
     postpone Literal ; immediate restrict
 
-Defer char@ ( addr u -- char addr' u' )
-:noname  over c@ -rot 1 /string ; IS char@
-
-: parse-name? ( -- addr u )
+: ?parse-name ( -- addr u )
     \G same as parse-name, but fails with an error
-    parse-name dup 0= #-2061 and throw ;
-
-: char   ( '<spaces>ccc' -- c ) \ core
-    \G Skip leading spaces. Parse the string @i{ccc} and return @i{c}, the
-    \G display code representing the first character of @i{ccc}.
-    parse-name? char@ 2drop ;
-
-: [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
-    \G Compilation: skip leading spaces. Parse the string
-    \G @i{ccc}. Run-time: return @i{c}, the display code
-    \G representing the first character of @i{ccc}.  Interpretation
-    \G semantics for this word are undefined.
-    char postpone Literal ; immediate restrict
+    parse-name dup 0= #-16 and throw ;
 
 \ \ threading							17mar93py
 
@@ -329,7 +314,7 @@ has? primcentric [IF]
 
 : COMP'    ( "name" -- w xt ) \ gforth  comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
-    parse-name forth-recognizer recognize '-error name>comp ;
+    ?parse-name forth-recognizer recognize '-error name>comp ;
 
 : [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth bracket-comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
@@ -358,7 +343,7 @@ include ./recognizer.fs
     here over allot swap move ;
 
 : ," ( "string"<"> -- )
-    [char] " parse s, ;
+    '"' parse s, ;
 
 \ \ Header states						23feb93py
 
@@ -430,7 +415,7 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
     Header  ['] on vtcopy
-    parse-name find-name dup 0= #-13 and throw
+    ?parse-name find-name dup 0= #-13 and throw
     dodefer, dup A,
     dup compile-only? IF  compile-only  THEN  name>int lastcfa !
     ['] s>int set->int ['] s>comp set->comp ['] s-to set-to

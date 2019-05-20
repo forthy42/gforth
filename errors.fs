@@ -136,4 +136,3 @@ s" Bug in Gforth, please report" exception
 >r : never-happens ( -- ) [ r> ] Literal
     \ you can use this when you have to provide an xt that is never reached
     throw ;
-s" empty parsed argument" exception drop

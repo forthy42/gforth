@@ -29,7 +29,7 @@ decimal
   \G delimited by a @code{)} (right parenthesis). Display the
   \G string. This is often used to display progress information during
   \G compilation; see examples below.
-  [char] ) parse type ; immediate
+  ')' parse type ; immediate
 
 \ VALUE 2>R 2R> 2R@                                     17may93jaw
 
@@ -63,7 +63,7 @@ decimal
     \G (double quote). At run-time, return @i{c-addr} which
     \G specifies the counted string @i{ccc}.  Interpretation
     \G semantics are undefined.
-    [char] " parse postpone CLiteral ; immediate restrict
+    '"' parse postpone CLiteral ; immediate restrict
 
 \ [COMPILE]                                             17may93jaw
 

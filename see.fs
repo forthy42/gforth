@@ -421,7 +421,7 @@ VARIABLE C-Pass
         count 2dup + aligned -rot
         Display?
         IF      bl cemit 0 .string
-                [char] " cemit bl cemit
+                '"' cemit bl cemit
         ELSE    2drop
         THEN ;
 
@@ -625,8 +625,8 @@ VARIABLE C-Pass
         count 2dup + aligned -rot
         Display?
         IF      S" ABORT" .struc
-                [char] " cemit bl cemit 0 .string
-                [char] " cemit bl cemit
+                '"' cemit bl cemit 0 .string
+                '"' cemit bl cemit
         ELSE    2drop
         THEN ;
 

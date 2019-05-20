@@ -1901,7 +1901,7 @@ One way around this problem would be to not use the @code{spTOS}
 supported by Vmgen, but to use explicit top-of-stack variables (one for
 integers, one for FP values), and having a kind of accumulator+stack
 architecture (e.g., Ocaml bytecode uses this approach); however, this is
-a major change, and it's ramifications are not completely clear.
+a major change, and its ramifications are not completely clear.
 
 @c **********************************************************
 @node The future, Changes, Hints, Top

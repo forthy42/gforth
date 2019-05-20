@@ -47,19 +47,6 @@ $80 Constant max-single-byte
     REPEAT  $7F xor 2* or  r>
     BEGIN   over $80 u>= WHILE  tuck c! 1+  REPEAT  nip ;
 
-\ plug-in so that char and '<char> work for UTF-8
-
-[ifundef] char@ \ !! bootstrapping help
-    Defer char@ ( addr u -- char addr' u' )
-    :noname  over c@ -rot 1 /string ; IS char@
-[then]
-
-:noname  ( addr u -- char addr' u' )
-    \ !! the if here seems to work around some breakage, but not
-    \ entirely; e.g., try 'ç' with LANG=C.
-    dup 1 u<= IF defers char@ EXIT THEN
-    over + >r u8@+ swap r> over - ; IS char@
-
 \ scan to next/previous character
 
 \ alternative names: u8char+ u8char-

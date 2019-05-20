@@ -43,22 +43,22 @@ require ./vars.fs
 \G If any bit of @i{f} is non-zero, perform the function of @code{-2 throw},
 \G displaying the string @i{ccc} if there is no exception frame on the
 \G exception stack.
-    postpone if [char] " parse postpone cliteral postpone c(abort")
+    postpone if '"' parse postpone cliteral postpone c(abort")
     dead-code on postpone then ; immediate restrict
 
 : warning" ( compilation 'ccc"' -- ; run-time f -- ) \ gforth
     \G if @i{f} is non-zero, display the string @i{ccc} as warning message.
-    postpone if [char] " parse postpone cliteral postpone c(warning")
+    postpone if '"' parse postpone cliteral postpone c(warning")
     postpone then ; immediate restrict
 
 \ create s"-buffer /line chars allot
 :noname
-    [char] " parse
+    '"' parse
 [ has? OS [IF] ]
     save-mem
 [ [THEN] ]
 ;
-:noname [char] " parse postpone SLiteral ;
+:noname '"' parse postpone SLiteral ;
 interpret/compile: s" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,file	s-quote
   \G Compilation: Parse a string @i{ccc} delimited by a @code{"}
   \G (double quote). At run-time, return the length, @i{u}, and the
@@ -80,7 +80,7 @@ interpret/compile: ."  ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
   \G for this word are undefined in ANS Forth. Gforth's interpretation
   \G semantics are to display the string. This is the simplest way to
   \G display a string from within a definition; see examples below.
-\    [char] " parse type ;
+\    '"' parse type ;
 \ has? compiler [IF]
-\     comp: drop [char] " parse postpone sLiteral postpone type ;
+\     comp: drop '"' parse postpone sLiteral postpone type ;
 \ [THEN]

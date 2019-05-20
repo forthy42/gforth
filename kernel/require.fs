@@ -102,11 +102,11 @@ Defer >include ( c-addr1 u1 -- c-addr2 u2 )
 
 : include  ( ... "file" -- ... ) \ gforth
     \G @code{include-file} the file @var{file}.
-    parse-name? >include included ;
+    ?parse-name >include included ;
 
 : require  ( ... "file" -- ... ) \ gforth
     \G @code{include-file} @var{file} only if it is not included already.
-    parse-name? >include required ;
+    ?parse-name >include required ;
 
 \ : \I
 \   here 

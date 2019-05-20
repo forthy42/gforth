@@ -26,8 +26,8 @@ decimal
 : #esc[ ( -- ) '[' hold #esc hold ;
 
 : pn    base @ swap decimal 0 u.r base ! ;
-: ;pn   [char] ; emit pn ;
-: ESC[  #esc emit [char] [ emit ;
+: ;pn   ';' emit pn ;
+: ESC[  #esc emit '[' emit ;
 
 : vt100-at-xy ( u1 u2 -- ) \ facility at-x-y
   \G Position the cursor so that subsequent text output will take

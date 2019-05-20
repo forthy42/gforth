@@ -133,7 +133,7 @@ User tfile
     S" ./" string-prefix?
     r> r> r> or or or ;
 
-: pathsep? dup [char] / = swap [char] \ = or ;
+: pathsep? dup '/' = swap '\' = or ;
 
 : need/   ofile $@ 1- + c@ pathsep? 0= IF s" /" ofile $+! THEN ;
 

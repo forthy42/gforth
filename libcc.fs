@@ -299,7 +299,7 @@ drop
     libcc-type ;
 
 : parse-libcc-type ( "libcc-type" -- u )
-    parse-name >libcc-type ;
+    ?parse-name >libcc-type ;
 
 : parse-libcc-cast ( "<{>cast<}>" -- addr u )
     source >in @ /string IF  c@ '{' =  IF
@@ -887,7 +887,7 @@ tmp$ $execstr-ptr !
     is-funptr? IF
 	'{' parse 2drop '}' parse
     ELSE
-	parse-name
+	?parse-name
     THEN ;
 
 : ?compile-wrapper ( addr -- addr )
@@ -1069,7 +1069,7 @@ is 'cold
 
 : c-library ( "name" -- ) \ gforth
 \G Parsing version of @code{c-library-name}
-    parse-name save-mem c-library-name ;
+    ?parse-name save-mem c-library-name ;
 
 : end-c-library ( -- ) \ gforth
     \G Finish and (if necessary) build the latest C library interface.

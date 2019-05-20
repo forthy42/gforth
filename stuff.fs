@@ -681,3 +681,19 @@ end-struct buffer%
     addr1 u1 u2 + dup { u } resize throw { addr }
     addr2 addr u1 + u2 move
     addr u ;
+
+\ char/[char]
+
+: char   ( '<spaces>ccc' -- c ) \ core
+    \G Skip leading spaces. Parse the string @i{ccc} and return @i{c}, the
+    \G display code representing the first character of @i{ccc}.
+    ?parse-name
+    2dup x-size u< #-16 and throw
+    xc@ ;
+
+: [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
+    \G Compilation: skip leading spaces. Parse the string
+    \G @i{ccc}. Run-time: return @i{c}, the display code
+    \G representing the first character of @i{ccc}.  Interpretation
+    \G semantics for this word are undefined.
+    char postpone Literal ; immediate restrict

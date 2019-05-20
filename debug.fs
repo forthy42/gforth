@@ -164,18 +164,18 @@ s" debugger aborted" exception Constant end-debug#
     BEGIN
       Unnest @ IF 0 ELSE key THEN
       CASE
-        [char] a OF     dup 256 cr dump cr ENDOF
-        [char] b OF     2dup cr dump cr ENDOF
-        [char] c OF     Unnest on true EXIT ENDOF
-        [char] d OF     Leave-D cr ." Done..." cr
-                        Nesting off
-                        r> drop dbg-ip @ >r
-                        EXIT ENDOF
-        [char] n OF     dbg-ip @ @ nestXT EXIT ENDOF
-        [char] s OF     Leave-D end-debug# THROW ENDOF
-        [char] u OF     Unnest on true EXIT ENDOF
-        [char] ? OF     dbg-help ENDOF
-        ( Default)      drop true EXIT
+        'a' OF     dup 256 cr dump cr ENDOF
+        'b' OF     2dup cr dump cr ENDOF
+        'c' OF     Unnest on true EXIT ENDOF
+        'd' OF     Leave-D cr ." Done..." cr
+                   Nesting off
+                   r> drop dbg-ip @ >r
+                   EXIT ENDOF
+        'n' OF     dbg-ip @ @ nestXT EXIT ENDOF
+        's' OF     Leave-D end-debug# THROW ENDOF
+        'u' OF     Unnest on true EXIT ENDOF
+        '?' OF     dbg-help ENDOF
+        ( Default) drop true EXIT
       ENDCASE
     AGAIN ;
 
