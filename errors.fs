@@ -108,21 +108,7 @@ decimal
 
 \ Gforth's errors:
 
--2048 s" Cannot tick compile-only word (try COMP' ... DROP)" rot errstring
--2049 s" Write to broken pipe" rot errstring
--2050 s" Double free error" rot errstring
--2051 s" Data before memory block was modified" rot errstring
--2052 s" Data after memory block was modified" rot errstring
--2053 s" Can't tick literal" rot errstring
--2054 s" Warning treated as error" rot errstring
--2055 s" Can't defer@ from this xt" rot errstring
--2056 s" Can't ADDR on locals/uvalues" rot errstring
--2057 s" wrong file type" rot errstring
--2058 s" locals stack overflow" rot errstring
--2059 s" locals stack underflow" rot errstring
--2060 s" Bug in Gforth, please report" rot errstring
-
-variable next-exception -2061 next-exception !
+variable next-exception -2048 next-exception !
 
 : exception ( addr u -- n ) \ exception- gforth
     \G @var{n} is a previously unused @code{throw} value in the range
@@ -133,11 +119,21 @@ variable next-exception -2061 next-exception !
     next-exception @
     -1 next-exception +! ;
 
--2049 constant broken-pipe-error ( -- n ) \ gforth
+s" Cannot tick compile-only word (try COMP' ... DROP)" exception drop
+s" Write to broken pipe" exception constant broken-pipe-error ( -- n ) \ gforth
 \G the error number for a broken pipe
-
--2054 constant warning-error ( -- n )
-
-: never-happens ( -- )
+s" Double free error" exception drop
+s" Data before memory block was modified" exception drop
+s" Data after memory block was modified" exception drop
+s" Can't tick literal" exception drop
+s" Warning treated as error" exception constant warning-error ( -- n )
+s" Can't defer@ from this xt" exception drop
+s" Can't ADDR on locals/uvalues" exception drop
+s" wrong file type" exception drop
+s" locals stack overflow" exception drop
+s" locals stack underflow" exception drop
+s" Bug in Gforth, please report" exception
+>r : never-happens ( -- ) [ r> ] Literal
     \ you can use this when you have to provide an xt that is never reached
-    -2060 throw ;
+    throw ;
+s" empty parsed argument" exception drop

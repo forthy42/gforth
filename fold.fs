@@ -24,10 +24,10 @@
 : 4lits> ( -- q )  2lits> 2lits> 2swap ;
 : >4lits ( q -- )  2swap >2lits >2lits ;
 
-: folder [{: n xt: pop xt: push :}d
+: folder [{: n xt: pop xt: push xt: comp, :}d
 	lits# n u>= IF
 	    >r pop r> execute push
-	ELSE  peephole-compile,  THEN ;] ( xt ) ;
+	ELSE  comp,  THEN ;] ( xt ) ;
 : folds {: folder-xt -- :}
     BEGIN  >in @ >r parse-name r> >in !
 	nip  WHILE
@@ -35,7 +35,7 @@
 	    folder-xt set-optimizer
     REPEAT ;
 
-1 ' lits>  ' >lits folder
+1 ' lits>  ' >lits ' peephole-compile, folder
 dup folds invert abs negate >pow2
 dup folds 1+ 1- 2* 2/ cells cell/
 dup folds floats sfloats dfloats
@@ -43,29 +43,33 @@ dup folds float/ sfloat/ dfloat/
 dup folds c>s w>s l>s w>< l>< x><
 dup folds wcwidth
     folds 0> 0= 0<
-1 ' lits>  ' >2lits folder
+1 ' lits>  ' >2lits ' peephole-compile, folder
     folds dup
-2 ' 2lits> ' >lits folder
+1 ' lits> ' >2lits ' :, folder
+    folds s>d
+2 ' 2lits> ' >lits ' peephole-compile, folder
 dup folds + - * / mod u/ umod and or xor
 dup folds min max umin umax
 dup folds drop nip
 dup folds rshift lshift arshift rol ror
 dup folds = > >= < <= u> u>= u< u<=
     folds d0> d0< d0=
-2 ' 2lits> ' >2lits folder
+2 ' 2lits> ' >2lits ' peephole-compile, folder
     folds m* um* /mod swap d2*
-2 ' 2lits> ' >3lits folder
+2 ' 2lits> ' >2lits ' :, folder
+    folds bounds
+2 ' 2lits> ' >3lits ' peephole-compile, folder
     folds over tuck
-3 ' 3lits> ' >lits folder
-    folds */
-3 ' 3lits> ' >2lits folder
+3 ' 3lits> ' >lits ' peephole-compile, folder
+    folds */ within
+3 ' 3lits> ' >2lits ' peephole-compile, folder
     folds um/mod fm/mod sm/rem */mod du/mod
-3 ' 3lits> ' >3lits folder
+3 ' 3lits> ' >3lits ' peephole-compile, folder
     folds rot -rot
-4 ' 4lits> ' >lits folder
+4 ' 4lits> ' >lits ' peephole-compile, folder
     folds d= d> d>= d< d<= du> du>= du< du<=
-4 ' 4lits> ' >2lits folder
+4 ' 4lits> ' >2lits ' peephole-compile, folder
 dup folds d+ d-
     folds 2drop 2nip
-4 ' 4lits> ' >4lits folder
+4 ' 4lits> ' >4lits ' peephole-compile, folder
     folds 2swap

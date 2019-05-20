@@ -238,10 +238,14 @@ immediate restrict
 Defer char@ ( addr u -- char addr' u' )
 :noname  over c@ -rot 1 /string ; IS char@
 
+: parse-name? ( -- addr u )
+    \G same as parse-name, but fails with an error
+    parse-name dup 0= #-2061 and throw ;
+
 : char   ( '<spaces>ccc' -- c ) \ core
     \G Skip leading spaces. Parse the string @i{ccc} and return @i{c}, the
     \G display code representing the first character of @i{ccc}.
-    parse-name char@ 2drop ;
+    parse-name? char@ 2drop ;
 
 : [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
     \G Compilation: skip leading spaces. Parse the string
