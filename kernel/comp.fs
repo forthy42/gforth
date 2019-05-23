@@ -608,7 +608,10 @@ interpret/compile: comp:
     dup >lits >namevt @ >vtto @ opt!-compile,
     \ OPT: part of the SET-TO part of the defining word of <name>.
     \ This here needs to be optimizing even for gforth-itc, because
-    \ otherwise this code won't work.
+    \ otherwise this code won't work: for locals, the xt is no longer
+    \ valid at run-time, so we have to optimize it away at compile
+    \ time; this is achived by explicitly calling >LITS and
+    \ OPT!-COMPILE,.
 ;
 
 : to: ( "name1" -- colon-sys ) \ gforth-internal
