@@ -595,11 +595,17 @@ interpret/compile: opt:
 interpret/compile: comp:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
+: opt!-compile, ( xt -- )
+    \G force optimizing compile,
+    ['] compile, defer@ >r ['] opt-compile, is compile,
+    ['] compile, catch
+    r> is compile,  throw ;
+
 : (to), ( xt -- ) ( generated code: v -- )
     \g in compiled @code{to @i{name}}, xt is that of @i{name}.  This
     \g word generates code for storing v (of type appropriate for
     \g @i{name}) there.  This word is a factor of @code{to}.
-    dup >lits >namevt @ >vtto @ opt-compile,
+    dup >lits >namevt @ >vtto @ opt!-compile,
     \ OPT: part of the SET-TO part of the defining word of <name>.
     \ This here needs to be optimizing even for gforth-itc, because
     \ otherwise this code won't work.
@@ -650,7 +656,7 @@ interpret/compile: comp:
     \g this is the TO-method for normal values
     >body !-table to-!exec ;
 opt: ( value-xt -- ) \ run-time: ( n -- )
-    ?fold-to >body postpone Literal !-table to-!, ;
+    drop postpone >body !-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.

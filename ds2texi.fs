@@ -56,16 +56,16 @@ create description-buffer 4096 chars allot
 : skip-prefix ( c-addr1 u1 -- c-addr2 u2 )
     2dup s" --" string-prefix?
     IF
-	[char] - skip [char] - scan 1 /string
+	'-' skip '-' scan 1 /string
     THEN ;
 
 : replace-_ ( c-addr u -- )
     \ replaces _ with -
     chars bounds
     +DO
-	i c@ [char] _ =
+	i c@ '_' =
 	if
-	    [char] - i c!
+	    '-' i c!
 	endif
 	1 chars
     +loop ;
@@ -88,7 +88,7 @@ create description-buffer 4096 chars allot
     get-current documentation set-current
     create
 	latest name>string skip-prefix 2,		\ name
-	[char] ) parse save-mem 2,	\ stack-effect
+	')' parse save-mem 2,	\ stack-effect
 	bl sword condition-wordset 2,	\ wordset
 	bl sword dup	\ pronounciation
 	if
@@ -104,7 +104,7 @@ create description-buffer 4096 chars allot
     >r
     s" @{}" r@ scan 0<>
     if
-	[char] @ emit
+	'@' emit
     endif
     drop r> emit ;
 
@@ -126,7 +126,7 @@ create description-buffer 4096 chars allot
     ." @cindex "
     ." @code{" r@ doc-name 2@ typetexi ." }"
     cr
-    r@ doc-name 2@ drop c@ [char] : <> if
+    r@ doc-name 2@ drop c@ ':' <> if
 	\ cut out words starting with :, info-lookup cannot handle them
 	\ !! deal with : by replacing it here and in info-lookup?
 	." @kindex "

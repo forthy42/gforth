@@ -154,7 +154,7 @@ $12340000 immarg !
     endif ;
 
 : quote ( -- )
-    [char] " emit ;
+    '"' emit ;
 
 \ count output lines to generate sync lines for output
 
@@ -1421,7 +1421,7 @@ is output-c-prim-num
     stacks stack# th @ { stack }
     items 0 +do
 	effect-endp @ { item }
-	i 0 <# #s stack stack-pointer 2@ holds [char] _ hold #> save-mem
+	i 0 <# #s stack stack-pointer 2@ holds '_' hold #> save-mem
 	item item-name 2!
 	stack item item-stack !
 	stack stack-type @ item item-type !
@@ -1778,8 +1778,8 @@ print-token !
 	endif
 	0. r> 6 chars + 20 >number drop >r drop line ! r> ( c-addr )
 	dup c@ bl = if
-	    char+ dup c@ [char] " <> 0= s" sync line syntax" ?print-error
-	    char+ dup 100 [char] " scan drop swap 2dup - save-mem filename 2!
+	    char+ dup c@ '"' <> 0= s" sync line syntax" ?print-error
+	    char+ dup 100 '"' scan drop swap 2dup - save-mem filename 2!
 	    char+
 	endif
 	dup c@ nl-char <> 0= s" sync line syntax" ?print-error

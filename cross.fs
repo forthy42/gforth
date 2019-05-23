@@ -107,7 +107,7 @@ defined? emit-file defined? toupper and \ drop 0
   ELSE ' >body ! THEN ; immediate
 : 0>= 0< 0= ;
 : d<> rot <> -rot <> or ;
-: toupper dup [char] a [char] z 1+ within IF [char] A [char] a - + THEN ;
+: toupper dup 'a' 'z' 1+ within IF 'A' 'a' - + THEN ;
 Variable ebuf
 : emit-file ( c fd -- ior ) swap ebuf c! ebuf 1 chars rot write-file ;
 0a Constant #lf
@@ -127,7 +127,7 @@ Create bases   10 ,   2 ,   A , 100 ,
 
 \ !! protect BASE saving wrapper against exceptions
 : getbase ( addr u -- addr' u' )
-    over c@ [char] $ - dup 4 u<
+    over c@ '$' - dup 4 u<
     IF
 	cells bases + @ base ! 1 /string
     ELSE
@@ -135,14 +135,14 @@ Create bases   10 ,   2 ,   A , 100 ,
     THEN ;
 
 : sign? ( addr u -- addr u flag )
-    over c@ [char] - =  dup >r
+    over c@ '-' =  dup >r
     IF
 	1 /string
     THEN
     r> ;
 
 : s>unumber? ( addr u -- ud flag )
-    over [char] ' =
+    over ''' =
     IF 	\ a ' alone is rather unusual :-)
 	drop char+ c@ 0 true EXIT 
     THEN
@@ -153,7 +153,7 @@ Create bases   10 ,   2 ,   A , 100 ,
     WHILE \ there are characters left
 	dup r> -
     WHILE \ the last >number parsed something
-	dup 1- dpl ! over c@ [char] . =
+	dup 1- dpl ! over c@ '.' =
     WHILE \ the current char is '.'
 	1 /string
     REPEAT  THEN \ there are unparseable characters left
@@ -265,7 +265,7 @@ hex     \ the defualt base for the cross-compiler is hex !!
     \ puts down string as cstring
     dup c, here swap chars dup allot move ;
 
-: ," [char] " parse string, ;
+: ," '"' parse string, ;
 
 : SetValue ( n -- <name> )
 \G Same behaviour as "Value" if the <name> is not defined
@@ -473,7 +473,7 @@ sourcepath value fpath
 
 : path= ( path-addr "dir1|dir2|dir3" ) \ gforth
     \G Make a complete new search path; the path separator is |.
-    name 2dup bounds ?DO i c@ [char] | = IF 0 i c! THEN LOOP
+    name 2dup bounds ?DO i c@ '|' = IF 0 i c! THEN LOOP
     rot only-path ;
 
 : fpath= ( "dir1|dir2|dir3" ) \ gforth
@@ -506,9 +506,9 @@ sourcepath value fpath
     \G or if it is in the form ./*, extended regexp: ^[/~]|./, or if
     \G it has a colon as second character ("C:...").  Paths simply
     \G containing a / are not absolute!
-    2dup 2 u> swap 1+ c@ [char] : = and >r \ dos absoulte: c:/....
-    over c@ [char] / = >r
-    over c@ [char] ~ = >r
+    2dup 2 u> swap 1+ c@ ':' = and >r \ dos absoulte: c:/....
+    over c@ '/' = >r
+    over c@ '~' = >r
     \ 2dup S" ../" string-prefix? r> or >r \ not catered for in expandtopic
     S" ./" string-prefix?
     r> r> r> or or or ;
@@ -516,7 +516,7 @@ sourcepath value fpath
 Create ofile 0 c, 255 chars allot
 Create tfile 0 c, 255 chars allot
 
-: pathsep? dup [char] / = swap [char] \ = or ;
+: pathsep? dup '/' = swap '\' = or ;
 
 : need/   ofile dup c@ + c@ pathsep? 0= IF s" /" ofile +place THEN ;
 
@@ -1426,7 +1426,7 @@ Variable mirrored-link          \ linked list for mirrored regions
 \G prints a 16 or 32 Bit nice hex value
   base @ >r hex
   tcell 2 u>
-  IF s>d <# # # # # [char] . hold # # # # #> type
+  IF s>d <# # # # # '.' hold # # # # #> type
   ELSE s>d <# # # # # # #> type
   THEN r> base ! space ;
 
@@ -2240,10 +2240,10 @@ Variable to-doc  to-doc on
 
 	Last-Header-Ghost @ >ghostname doc-file-id write-file throw
 	>in @
-	[char] ( parse 2drop
-	[char] ) parse doc-file-id write-file throw
+	'(' parse 2drop
+	')' parse doc-file-id write-file throw
 	s"  )" doc-file-id write-file throw
-	[char] \ parse 2drop					
+	'\' parse 2drop					
 	T-\G
 	>in !
     THEN ;
@@ -2280,7 +2280,7 @@ Create tag-tab 1 c,  09 c,
 	tag-file-id write-file throw
 	tag-end count tag-file-id write-file throw
 	base @ decimal sourceline# 0 <# #s #> tag-file-id write-file throw
-\	>in @ 0 <# #s [char] , hold #> tag-file-id write-line throw
+\	>in @ 0 <# #s ',' hold #> tag-file-id write-line throw
 	s" ,0" tag-file-id write-line throw
 	base !
     ELSE  2drop  THEN ;
@@ -2369,8 +2369,8 @@ NoHeaderFlag off
 \G escapes / and \ to produce sed output
   bounds 
   DO I c@ dup
-	CASE	[char] / OF drop ." \/" ENDOF
-		[char] \ OF drop ." \\" ENDOF
+	CASE	'/' OF drop ." \/" ENDOF
+		'\' OF drop ." \\" ENDOF
 		dup OF emit ENDOF
 	ENDCASE
     LOOP ;
@@ -3800,7 +3800,7 @@ Cond: NEXT	1 ncontrols? next, ;Cond
 
 \ String words                                         23feb93py
 
-: ,"            [char] " parse ht-string, X align ;
+: ,"            '"' parse ht-string, X align ;
 
 X has? control-rack [IF]
 Cond: ."        compile (.")     T ," H ;Cond
@@ -3812,11 +3812,11 @@ Cond: ."        '" parse tuck 2>r ahead, there 2r> ht-mem, X align
                 >r then, r> compile ALiteral compile Literal compile type ;Cond
 Cond: S"        '" parse tuck 2>r ahead, there 2r> ht-mem, X align
                 >r then, r> compile ALiteral compile Literal ;Cond
-Cond: C"        ahead, there [char] " parse ht-string, X align
+Cond: C"        ahead, there '"' parse ht-string, X align
                 >r then, r> compile ALiteral ;Cond
-Cond: ABORT"    if, ahead, there [char] " parse ht-string, X align
+Cond: ABORT"    if, ahead, there '"' parse ht-string, X align
                 >r then, r> compile ALiteral compile c(abort") then, ;Cond
-Cond: WARNING"  if, ahead, there [char] " parse ht-string, X align
+Cond: WARNING"  if, ahead, there '"' parse ht-string, X align
                 >r then, r> compile ALiteral compile c(warning") then, ;Cond
 [THEN]
 
@@ -3847,12 +3847,12 @@ Cond: defers	T ' >body @ compile, H ;Cond
 : chained	T linked A, H ;
 
 : err"   s" ErrLink linked" evaluate T , H
-         [char] " parse ht-string, X align ;
+         '"' parse ht-string, X align ;
 
-: env"  [char] " parse s" EnvLink linked" evaluate
+: env"  '"' parse s" EnvLink linked" evaluate
         ht-string, X align X , ;
 
-: 2env" [char] " parse s" EnvLink linked" evaluate
+: 2env" '"' parse s" EnvLink linked" evaluate
         here >r ht-string, X align X , X ,
         r> dup T c@ H 80 and swap T c! H ;
 
@@ -4296,7 +4296,7 @@ also forth
 \ [IFDEF] builttag	: builttag builttag ;	[THEN]
 previous
 
-: s" [char] " parse s-buffer place s-buffer count ; \ for environment?
+: s" '"' parse s-buffer place s-buffer count ; \ for environment?
 : + + ;
 : 1+ 1 + ;
 : 2+ 2 + ;
@@ -4340,13 +4340,13 @@ previous
 : included swap >image swap included ;
 : require require ;
 : needs require ;
-: .( [char] ) parse type ;
-: ERROR" [char] " parse 
+: .( ')' parse type ;
+: ERROR" '"' parse 
   rot 
   IF cr ." *** " type ."  ***" -1 ABORT" CROSS: Target error, see text above" 
   ELSE 2drop 
   THEN ;
-: ." [char] " parse type ;
+: ." '"' parse type ;
 : cr cr ;
 
 : times 0 ?DO dup X c, LOOP drop ; \ used for space table creation
