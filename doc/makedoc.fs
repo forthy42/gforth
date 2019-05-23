@@ -88,11 +88,11 @@ normal-dp value check-dp
                 s" unknown " \ default stack comment
             endif
         endif
-	[char] \ parse 2drop
+	'\' parse 2drop
         >in @
         parse-name dup
 	IF
-	    2dup 1- chars + c@ [char] - =
+	    2dup 1- chars + c@ '-' =
 	    IF
 		s" --" >file
 		>file drop
