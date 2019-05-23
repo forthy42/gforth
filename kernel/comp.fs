@@ -615,18 +615,20 @@ interpret/compile: comp:
     \G @code{to}; the compiled @code{to} uses the part after
     \G @code{to-opt:}.
     : ;
-: ?fold-to ( set-to-xt -- to-xt )
-    \G Prepare partial constant folding for @code{SET-TO} methods: if there's
-    \G no literal on the folding stack, just compile the set-to method as is.
-    \G If there is, drop the xt of the set-to method, and retrieve the
-    \G @i{to-xt} of the word TO is applied to from the folding stack.
-    lits# 0= IF  :, rdrop  EXIT  THEN  drop lits> ;
-: to-opt: ( -- colon-sys ) \ gforth-internal Must only be used to modify a
-    \G preceding to-word defined with \code{to:}.  It defines a part of the TO
-    \G <name> run-time semantics used with compiled @code{TO}.  The stack
-    \G effect of the code following @code{to-opt:} must be: @code{( xt -- ) (
-    \G generated: v -- )}.  The generated code stores @i{v} in the storage
-    \G represented by @i{xt}.
+: ?fold-to ( <to>-xt -- name-xt )
+    \G Prepare partial constant folding for @code{(to)} methods: if
+    \G there's no literal on the folding stack, just compile the
+    \G @code{(to)} method as is.  If there is, drop the xt of the
+    \G \code{(to)} method, and retrieve the @i{name-xt} of the word TO
+    \G is applied to from the folding stack.
+    lits# 0= IF :, rdrop EXIT THEN drop lits> ;
+: to-opt: ( -- colon-sys ) \ gforth-internal
+    \G Must only be used to modify a preceding to-word defined with
+    \G \code{to:}.  It defines a part of the TO <name> run-time
+    \G semantics used with compiled @code{TO}.  The stack effect of
+    \G the code following @code{to-opt:} must be: @code{( xt -- ) (
+    \G generated: v -- )}.  The generated code stores @i{v} in the
+    \G storage represented by @i{xt}.
     start-xt set-optimizer postpone ?fold-to ;
 
 \ defer and friends
