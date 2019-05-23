@@ -48,7 +48,7 @@ dup folds floats sfloats dfloats
 dup folds float/ sfloat/ dfloat/
 dup folds c>s w>s l>s w>< l>< x><
 dup folds wcwidth
-    folds 0> 0= 0<
+folds 0> 0= 0<
 1 ' lits>  ' >2lits ' peephole-compile, folder
     folds dup
 1 ' lits> ' >2lits ' :, folder

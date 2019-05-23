@@ -405,6 +405,8 @@ method name>comp ( nt -- w xt ) \ gforth name-to-comp
 method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
 \G @i{xt} represents the word currently associated with the deferred
 \G word @i{xt-deferred}.
+opt: ( xt-defer@ -- )
+    ?fold-to defer@, ;
 drop cell+ Constant vtsize \ vtable size
 
 defer compile, ( xt -- )
