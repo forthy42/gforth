@@ -656,6 +656,8 @@ interpret/compile: comp:
 
 ' (to) alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
+opt: ( xt-defer! -- )
+    ?fold-to (to), ;
 
 : value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
