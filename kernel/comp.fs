@@ -654,7 +654,8 @@ interpret/compile: comp:
 \g represents @i{name}; this word generates code with stack effect (
 \g -- xt1 ), where xt1 is the result of xt @code{defer@}.
 
-' (to) alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
+: defer! ( xt xt-deferred -- ) \ gforth  defer-store
+    (to) ;
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
 opt: ( xt-defer! -- )
     ?fold-to (to), ;
