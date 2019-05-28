@@ -185,6 +185,7 @@ object class
     method touchmove ( $rxy*n bmask -- ) \ raw click, bmask=0 is hover
     method ukeyed ( addr u -- ) \ printable unicode characters
     method ekeyed ( ekey -- ) \ non-printable keys
+    method ?inside ( rx ry -- act / 0 )
     method focus ( -- )
     method defocus ( -- )
     method entered ( -- )
@@ -266,17 +267,19 @@ end-class widget
 
 0 Value w.indent#
 
+: inside? ( o:widget rx ry -- flag )
+    y f- fdup d f< h fnegate f> and
+    x f- fdup w f< f0> and
+    and ;
+:noname ( rx ry -- act / 0 )
+    caller-w .inside? o and ; actor is ?inside
+
 : w.widget ( -- ) w.indent# spaces name$ type ." : "
     x f. y f. w f. h f. d f. space
     baseline f. gap f. space
     kerning f. raise f. space
     border f. borderv f. bordert f. borderl f. ;
 :noname w.widget cr ; widget is .widget
-
-: inside? ( o:widget rx ry -- flag )
-    y f- fdup d f< h fnegate f> and
-    x f- fdup w f< f0> and
-    and ;
 
 : name! ( o addr u -- )  2 pick >o to name$ o> ;
 : !act ( o:widget actor -- o:widget )

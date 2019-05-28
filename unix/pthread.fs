@@ -163,6 +163,7 @@ c-library pthread
 end-c-library
 
 require libc.fs
+require set-compsem.fs
 
 User pthread-id  -1 cells pthread+ uallot drop
 
@@ -175,7 +176,7 @@ User wake#
 : user' ( 'user' -- n ) \ gforth-experimental
     \G USER' computes the task offset of a user variable
     ' >body @ ;
-comp: drop ' >body @ postpone Literal ;
+compsem: ' >body @ postpone Literal ;
 
 ' next-task alias up@ ( -- addr ) \ gforth-experimental
 \G the current user pointer

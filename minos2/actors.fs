@@ -126,6 +126,11 @@ end-class box-actor
 : engage-edit ( addr u object -- )
     dup engage >o tuck to text$ 0 to curpos to cursize o> ;
 
+:noname ( rx ry -- act )
+    0 [{: f: rx f: ry :}l
+	act ?dup-IF  >o rx ry ?inside dup IF  nip  ELSE  drop  THEN o>  THEN ;]
+    box-touched# do-childs-act? ; box-actor is ?inside
+
 :noname ( rx ry b n -- )
     click( o hex. caller-w .name$ type space caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
     grab-move? IF
@@ -135,16 +140,7 @@ end-class box-actor
 	    box-touched# do-childs-act?
 	    EXIT  THEN
     THEN
-    o [: { c-act }  fover fover inside? IF
-	    click( ." click passed through " .parents cr )
-	    c-act re-focus
-	    fover fover 2dup act .clicked
-	ELSE
-	    click-o( ." click outside " name$ type space
-	    x f. y f. w f. h f. ." <> " fover fover f. f. 
-	    .parents cr )
-	THEN
-	c-act ;] box-touched# do-childs-act? drop
+    fover fover ?inside ?dup-IF  dup engage  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 box-actor is clicked
 :noname ( addr u -- )
@@ -177,6 +173,7 @@ box-actor is clicked
     2drop ; box-actor is touchmove
 :noname ( -- )
     [: act .defocus ;] box-defocus# do-childs-act?
+    0 to active-w
 ; box-actor is defocus
 ' noop box-actor is entered
 
@@ -236,6 +233,7 @@ end-class scroll-actor
 
 box-actor class
     field: txy$ \ translated xy$
+    value: ?inside-mode
     fvalue: vmotion-time
     sfvalue: vstart-x
     sfvalue: vstart-y
@@ -316,6 +314,11 @@ forward sin-t
 forward anim-del
 forward >animate
 
+:noname
+    ?inside-mode
+    IF    [ box-actor :: ?inside ]
+    ELSE  [ actor :: ?inside ]
+    THEN ; vp-actor is ?inside
 :noname ( rx ry bmask n -- )
     click( o hex. caller-w .name$ type space ." vp click" cr )
     grab-move? o <> IF
@@ -356,9 +359,12 @@ forward >animate
 	$10 and IF  fdup +to vmotion-dy  THEN  fdrop fdrop fdrop
 	0.333e o ['] vp-scroll >animate
 	EXIT  THEN
-    caller-w >o
-    tx [: act >o [ box-actor :: clicked ] o> ;] vp-needed
-    vp-need-or o> ; vp-actor is clicked
+    1 to ?inside-mode
+    [: caller-w >o
+	tx [: act >o [ box-actor :: clicked ] o> ;] vp-needed
+	vp-need-or o> ;] catch
+    0 to ?inside-mode  throw
+; vp-actor is clicked
 :noname ( $rxy*n bmask -- )
     caller-w >o
     >r tx$ r> [: act >o [ box-actor :: touchdown ] o> ;] vp-needed
