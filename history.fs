@@ -131,14 +131,32 @@ Variable vt100-modifier \ shift, ctrl, alt
 
 \ Create lfpad #lf c,
 
+$10 buffer: lastline#
+$10 buffer: thisline#
+
+: lastline<> ( addr u -- flag )
+    false thisline# dup $10 erase hashkey2
+    thisline# $10 lastline# over str= 0= dup IF
+	thisline# lastline# $10 move
+    THEN ;
+
+: write-history ( addr u -- )
+    2dup -trailing nip IF
+	2dup lastline<>  IF
+	    end^ 2@ hist-setpos
+	    history
+	    ?dup-IF  write-line drop \ don't worry about errors
+	    ELSE  2drop  THEN
+	    hist-pos 2dup backward^ 2! end^ 2!
+	    EXIT
+	ELSE
+	    hist-pos 2dup backward^ 2! end^ 2!
+	THEN
+    THEN
+    2drop ;
+
 : (enter)  ( max span addr pos1 -- max span addr pos2 true )
-    >r 2dup swap -trailing nip IF
-	end^ 2@ hist-setpos
-	2dup swap history
-	?dup-IF  write-line drop \ don't worry about errors
-	ELSE  2drop  THEN
-	hist-pos 2dup backward^ 2! end^ 2!
-    THEN  r> (ret) ;
+    >r 2dup swap write-history r> (ret) ;
 
 : extract-word ( addr len -- addr' len' )
     dup >r
@@ -331,13 +349,7 @@ info-color Value setstring-color
 
 : (xenter)  ( max span addr pos1 -- max span addr span true )
     setstring$ $@ xins-string  setstring$ $free
-    drop 2dup swap -trailing nip IF
-	end^ 2@ hist-setpos
-	2dup swap history
-	?dup-IF  write-line drop \ don't worry about errors
-	ELSE  2drop  THEN
-	hist-pos 2dup backward^ 2! end^ 2!
-    THEN
+    drop 2dup swap write-history
     over edit-update true ;
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )

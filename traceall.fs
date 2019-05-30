@@ -18,7 +18,11 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : rec-trace
-    [: drop >r .s ." | " r> source + over - type cr ;] do-debug rectype-null ;
+    [: drop >r
+	sourceline# .
+	depth  IF            .s  THEN
+	fdepth IF  'F' emit f.s  THEN
+	." | " r> source + over - type cr ;] do-debug rectype-null ;
 
 : traceall  get-recognizers ['] rec-trace swap 1+ set-recognizers ;
 : notrace   get-recognizers over ['] rec-trace = IF  nip 1-  THEN
