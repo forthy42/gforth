@@ -126,10 +126,17 @@ end-class box-actor
 : engage-edit ( addr u object -- )
     dup engage >o tuck to text$ 0 to curpos to cursize o> ;
 
-:noname ( rx ry -- act )
+: box-?inside ( rx ry -- act )
     0 [{: f: rx f: ry :}l
-	act ?dup-IF  >o rx ry ?inside dup IF  nip  ELSE  drop  THEN o>  THEN ;]
-    box-touched# do-childs-act? ; box-actor is ?inside
+	act ?dup-IF  >o rx ry
+	    r@ caller-w >r to caller-w ['] ?inside catch
+	    r> to caller-w  throw
+	    dup IF  nip  ELSE  drop  THEN o>  THEN ;]
+    box-touched# do-childs-act? ;
+
+:noname ( rx ry -- act )
+    fover fover [ actor :: ?inside ] 0= IF  fdrop fdrop 0  EXIT  THEN
+    box-?inside ; box-actor is ?inside
 
 :noname ( rx ry b n -- )
     click( o hex. caller-w .name$ type space caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
@@ -149,13 +156,11 @@ box-actor is clicked
     active-w ?dup-IF  .act .ekeyed  ELSE  drop   THEN ; box-actor is ekeyed
 : xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
 :noname ( $xy b -- )
-    [: over xy@ inside?  IF  2dup act .touchdown   THEN
-    ;] box-touched# do-childs-act?
-    2drop ; box-actor is touchdown
+    over xy@ ?inside ?dup-IF  .touchdown  ELSE  2drop  THEN
+; box-actor is touchdown
 :noname ( $xy b -- )
-    [: over xy@ inside?  IF  2dup act .touchup   THEN
-    ;] box-touched# do-childs-act?
-    2drop ; box-actor is touchup
+    over xy@ ?inside ?dup-IF  .touchup  ELSE  2drop  THEN
+; box-actor is touchup
 :noname ( $xy b -- )
     event( o hex. caller-w hex. ." box move " 2dup .touch )
     grab-move? IF
@@ -258,8 +263,11 @@ end-class vp-actor
     [ 2 sfloats ]L +LOOP  drop  act .txy$ ;
 
 : vp-need-or ( -- )
+    \G converge needs between viewport and main need mask
     vp-need @ need-mask @ over $FF and over $FF and or >r
     $-100 and swap $-100 and max r> or need-mask ! ;
+: vp-needed| ( xt -- )
+    vp-needed vp-need-or ;
 
 screen-pwh max s>f FValue drag-rate \ 1 screen/s²
 50m FValue min-dt \ measure over 50ms at least
@@ -314,12 +322,17 @@ forward sin-t
 forward anim-del
 forward >animate
 
-:noname
+:noname ( rx ry -- act )
     ?inside-mode
-    IF    [ box-actor :: ?inside ]
+    click( ." vp-inside: " fover f. fdup f. dup . )
+    IF    box-?inside
     ELSE  [ actor :: ?inside ]
-    THEN ; vp-actor is ?inside
-:noname ( rx ry bmask n -- )
+    THEN
+    click( dup hex. cr )
+; vp-actor is ?inside
+: 1-?inside ( rx ry xt -- act )
+    1 to ?inside-mode  catch  0 to ?inside-mode  throw ;
+:noname ( rx ry bmask n -- ) 
     click( o hex. caller-w .name$ type space ." vp click" cr )
     grab-move? o <> IF
 	fover fover caller-w .inside? 0= IF  2drop fdrop fdrop  EXIT  THEN
@@ -359,36 +372,28 @@ forward >animate
 	$10 and IF  fdup +to vmotion-dy  THEN  fdrop fdrop fdrop
 	0.333e o ['] vp-scroll >animate
 	EXIT  THEN
-    1 to ?inside-mode
-    [: caller-w >o
-	tx [: act >o [ box-actor :: clicked ] o> ;] vp-needed
-	vp-need-or o> ;] catch
-    0 to ?inside-mode  throw
+    [: caller-w >o tx
+	[: act >o [ box-actor :: clicked ] o> ;] vp-needed| o> ;] 1-?inside
 ; vp-actor is clicked
 :noname ( $rxy*n bmask -- )
-    caller-w >o
-    >r tx$ r> [: act >o [ box-actor :: touchdown ] o> ;] vp-needed
-    vp-need-or o> ; vp-actor is touchdown
+    [: caller-w >o >r tx$ r>
+	[: act >o [ box-actor :: touchdown ] o> ;] vp-needed| o> ;] 1-?inside ; vp-actor is touchdown
 :noname ( $rxy*n bmask -- )
-    caller-w >o
-    >r tx$ r> [: act >o [ box-actor :: touchup ] o> ;] vp-needed
-    vp-need-or o> ; vp-actor is touchup
+    [: caller-w >o >r tx$ r>
+	[: act >o [ box-actor :: touchup ] o> ;] vp-needed| o> ;] 1-?inside ; vp-actor is touchup
 :noname ( $rxy*n bmask -- )
     dup 2 or 2 = grab-move? o = and IF
 	drop xy@ vpxy!
     ELSE
-	caller-w >o
-	>r tx$ r> [: act >o [ box-actor :: touchmove ] o> ;] vp-needed
-	vp-need-or o>
+	[: caller-w >o >r tx$ r>
+	    [: act >o [ box-actor :: touchmove ] o> ;] vp-needed| o> ;] 1-?inside
     THEN ; vp-actor is touchmove
 :noname ( ekey -- )
     caller-w >o
-    [: act >o [ box-actor :: ekeyed ] o> ;] vp-needed
-    vp-need-or o> ; vp-actor is ekeyed
+    [: act >o [ box-actor :: ekeyed ] o> ;] vp-needed| o> ; vp-actor is ekeyed
 :noname ( ekey -- )
     caller-w >o
-    [: act >o [ box-actor :: ukeyed ] o> ;] vp-needed
-    vp-need-or o> ; vp-actor is ukeyed
+    [: act >o [ box-actor :: ukeyed ] o> ;] vp-needed| o> ; vp-actor is ukeyed
 
 : vp[] ( o -- o )
     >o vp-actor new !act o o> ;
@@ -445,13 +450,13 @@ end-class hsliderright-actor
 	slide-vp >o w         act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dx  0e to vmotion-dt  0e to vmotion-dy
 	0.333e o ['] vp-scroll >animate o>  ELSE fdrop THEN
-    THEN ; hsliderleft-actor to clicked
+    THEN ; hsliderleft-actor is clicked
 :noname ( rx ry b n -- )
     fdrop fdrop  1 and 0= swap 1 u<= and IF
 	slide-vp >o w fnegate act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dx  0e to vmotion-dt  0e to vmotion-dy
 	0.333e o ['] vp-scroll >animate o>  ELSE fdrop THEN
-    THEN ; hsliderright-actor to clicked
+    THEN ; hsliderright-actor is clicked
 
 : hsliderleft[] ( vp o -- ) hsliderleft-actor (hslider[]) ;
 : hsliderright[] ( vp o -- ) hsliderright-actor (hslider[]) ;
@@ -497,13 +502,13 @@ end-class vsliderdown-actor
 	slide-vp >o h         act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dy  0e to vmotion-dt  0e to vmotion-dx
 	0.333e o ['] vp-scroll >animate o>  ELSE  fdrop  THEN
-    THEN ; vsliderup-actor to clicked
+    THEN ; vsliderup-actor is clicked
 :noname ( rx ry b n -- )
     fdrop fdrop  1 and 0= swap 1 u<= and IF
 	slide-vp >o h fnegate act o> ?dup-IF  >o  o anim-del
 	set-startxy to vmotion-dy  0e to vmotion-dt  0e to vmotion-dx
 	0.333e o ['] vp-scroll >animate o>  ELSE  fdrop  THEN
-    THEN ; vsliderdown-actor to clicked
+    THEN ; vsliderdown-actor is clicked
 
 : vsliderup[] ( vp o -- ) vsliderup-actor (vslider[]) ;
 : vsliderdown[] ( vp o -- ) vsliderdown-actor (vslider[]) ;

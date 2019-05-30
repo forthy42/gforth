@@ -272,7 +272,8 @@ end-class widget
     x f- fdup w f< f0> and
     and ;
 :noname ( rx ry -- act / 0 )
-    caller-w .inside? o and ; actor is ?inside
+    caller-w .inside? o and
+; actor is ?inside
 
 : w.widget ( -- ) w.indent# spaces name$ type ." : "
     x f. y f. w f. h f. d f. space
@@ -1238,7 +1239,7 @@ $10 stack: box-depth \ this $10 here is no real limit
 : }}p ( n1 .. nm -- parbox ) }}h parbox new >o to subbox subbox .par-init o o> ;
 : unbox ( parbox -- n1 .. nm ) click( ." unbox " )
     >o baseline gap 0 childs[] $[] @ >o to gap to baseline o>
-    childs[] get-stack 0 ?DO  I pick act swap click( dup hex. ) >o to act o>  LOOP o> click( cr ) ;
+    childs[] get-stack 0 ?DO  I pick act .clone swap click( dup hex. ) .!act  LOOP o> click( cr ) ;
 
 \ tab helper glues
 
@@ -1316,6 +1317,7 @@ end-class viewport
     vp-vslider ?dup-IF  .parent-w >o !size xywhd resize o>  THEN ;
 
 : vp-needed ( xt -- )
+    \G collect needs in viewport's vp-need
     need-mask >r vp-need to need-mask
     catch r> to need-mask throw ;
 
