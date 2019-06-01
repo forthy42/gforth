@@ -1239,10 +1239,10 @@ $10 stack: box-depth \ this $10 here is no real limit
 : }}p ( n1 .. nm -- parbox ) }}h parbox new >o to subbox subbox .par-init o o> ;
 : unbox ( parbox -- n1 .. nm )
     >o baseline gap 0 childs[] $[] @ >o to gap to baseline o>
-    act IF  childs[] get-stack 0 ?DO
+    childs[] get-stack  act IF  0 ?DO
 	    I pick act .clone swap .!act
 	LOOP
-    THEN  o> ;
+    ELSE  drop  THEN  o> ;
 
 \ tab helper glues
 
