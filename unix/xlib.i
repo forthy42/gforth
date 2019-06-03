@@ -8,15 +8,28 @@
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
 #include <X11/extensions/sync.h>
+#include <X11/extensions/Xrandr.h>
 %}
 
-#define SWIG_FORTH_GFORTH_LIBRARY "X11 -lXext"
+#define SWIG_FORTH_GFORTH_LIBRARY "X11 -lXext -lXrandr"
 
 #define _XFUNCPROTOBEGIN
 #define _XFUNCPROTOEND
 #define _Xconst const
 #define _X_DEPRECATED
 #define _X_SENTINEL(x)
+
+#define _XRRModeInfo
+#define _XRRScreenResources
+#define _XRROutputInfo
+#define _XRRCrtcInfo
+#define _XRRCrtcGamma
+#define _XRRCrtcTransformAttributes
+#define _XRRPanning
+#define _XRRProviderResources
+#define _XRRProviderInfo
+#define _XRRMonitorInfo
+
 %apply short { wchar_t };
 %apply unsigned long long { XSyncValue };
 %apply unsigned int { XID, XSyncCounter, XSyncAlarm, XSyncFence };
@@ -31,3 +44,4 @@
 %include <X11/keysymdef.h>
 %include <X11/XF86keysym.h>
 %include <X11/extensions/sync.h>
+%include <X11/extensions/Xrandr.h>

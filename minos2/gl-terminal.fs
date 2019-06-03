@@ -420,14 +420,13 @@ Sema gl-sema
 [ELSE]
     [IFDEF] x11
 	also x11
-	: screen-wh ( -- rw rh )
-	    dpy XDefaultScreenOfDisplay >r
-	    r@ Screen-mwidth  l@ s>f dpy-w @ r@ Screen-width  l@ fm*/
-	    r@ Screen-mheight l@ s>f dpy-h @ r> Screen-height l@ fm*/ ;
 	: screen-pwh ( -- w h ) \ w h in pixels
-	    dpy XDefaultScreenOfDisplay >r
-	    r@ Screen-width  l@
-	    r> Screen-height l@ ;
+	    rr-crt0 XRRCrtcInfo-width l@
+	    rr-crt0 XRRCrtcInfo-height l@ ;
+	: screen-wh ( -- rw rh )
+	    screen-pwh
+	    dpy-h @ rr-out0 XRROutputInfo-mm_height l@ s>f fm*/
+	    dpy-w @ rr-out0 XRROutputInfo-mm_width  l@ s>f fm*/ fswap ;
     [ELSE]
 	: screen-wh ( -- rw rh )
 	    wl-metrics 2@ swap s>f s>f ;

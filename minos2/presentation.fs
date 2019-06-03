@@ -30,7 +30,7 @@ require minos2/font-style.fs
 : update-size# ( -- )
     dpy-w @ s>f 42e f/ fround to font-size#
     font-size# 16e f/ m2c:curminwidth% f!
-    dpy-h @ s>f dpy-w @ s>f f/ 45% f/ font-size# f* fround to baseline#
+    dpy-h @ s>f dpy-w @ fm/ 45% f/ font-size# f* fround to baseline#
     dpy-w @ s>f 1280e f/ to pixelsize# ;
 
 update-size#

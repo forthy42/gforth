@@ -31,6 +31,10 @@ also x11
 0 Value im
 0 Value xim
 0 Value fontset
+0 Value root-win
+0 Value rr-res
+0 Value rr-crt0
+0 Value rr-out0
 
 &31 Constant XA_STRING8
 1 Constant XA_PRIMARY
@@ -84,8 +88,16 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     dpy XDefaultScreen to screen
     best-im to im  set-fontset
     dpy #38 0 XKeycodeToKeysym drop
-    screen-struct Screen-width l@
-    screen-struct Screen-height l@ ;
+    dpy screen XRootWindow to root-win
+    dpy root-win XRRGetScreenResourcesCurrent to rr-res
+    dpy rr-res dup XRRScreenResources-crtcs @ @ XRRGetCrtcInfo to rr-crt0
+    rr-crt0 XRRCrtcInfo-noutput l@ 0 ?DO
+	dpy rr-res rr-crt0 XRRCrtcInfo-outputs @ I cells + @
+	XRRGetOutputInfo
+	dup XRROutputInfo-npreferred l@ IF  to rr-out0  ELSE  drop  THEN
+    LOOP
+    rr-crt0 XRRCrtcInfo-width l@
+    rr-crt0 XRRCrtcInfo-height l@ ;
 
 4 buffer: spot \ spot location, two shorts
 
