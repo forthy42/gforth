@@ -53,6 +53,8 @@ super27 = dup @
 \ super28 = lit execute \ currently not supported
 super29 = o#+ @
 super30 = o#+ !
+super31 = lit f@
+super32 = lit f!
 
 \ compare-and-branch; comment them out if we take up work on gforth-native again
 cb1 = 0< ?branch
