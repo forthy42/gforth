@@ -23,8 +23,6 @@
 
 warnings off
 
-: some-code + + + + + ;
-
 : include-main-time ( addr u -- )
     cputime d+ 2>r
     included s" main" evaluate
