@@ -7,6 +7,7 @@ install_linux() {
   sudo apt-get -y install libtool-bin
   sudo apt-get -y install autoconf-archive
   sudo apt-get -y install libx11-dev
+  sudo apt-get -y install x11proto-randr-dev
   sudo apt-get -y install libgles2-mesa-dev
   sudo apt-get -y install libgl1-mesa-dev
   sudo apt-get -y install libwayland-dev
