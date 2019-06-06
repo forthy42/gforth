@@ -69,13 +69,14 @@
     here cell+ dup faligned <> IF  postpone noop  THEN
     postpone flit f, ;  immediate
 
-: opt-fcon ( xt -- )  >body f@ postpone FLiteral ;
 : opt-fval ( xt -- )  >body postpone Literal postpone f@ ;
+\ the following is worse, because fliteral is worse
+\ : opt-fcon ( xt -- )  >body f@ postpone FLiteral ;
 
 : fconstant  ( r "name" -- ) \ float f-constant
     Create f,
     ['] f@ set-does>
-    ['] opt-fcon set-optimizer ;
+    ['] opt-fval set-optimizer ;
 
 : f+! ( r addr -- ) dup f@ f+ f! ;
 
