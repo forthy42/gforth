@@ -4809,6 +4809,7 @@ doc-m*/
 doc-um/mod
 doc-fm/mod
 doc-sm/rem
+doc-ud/mod
 
 
 @node Floating Point,  , Mixed precision, Arithmetic
