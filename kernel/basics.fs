@@ -219,7 +219,7 @@ has? ec has? primcentric 0= and [IF]
     dup 0< ;
 
 : ud/mod ( ud1 u2 -- urem udquot ) \ gforth
-    \G divide unsigned double @i{ud1} by @{u2}, resulting in a unsigned double
+    \G divide unsigned double @i{ud1} by @i{u2}, resulting in a unsigned double
     \G quotient @i{udquot} and a single remainder @i{urem}.
     >r 0 r@ um/mod r> swap >r
     um/mod r> ;
