@@ -393,7 +393,9 @@ method opt-compile, ( xt -- ) \ gforth-internal
 \g @code{set-optimizer} for that word.
 
 method (to) ( val xt -- ) \ gforth paren-int-to
-\G direct call performs the interpretation semantics of to
+\G @i{xt} is of a value like word @i{name}.  Stores @i{val} @code{to} @i{name}.
+opt: ( xt-(to -- )
+    ?fold-to (to), ;
 
 method name>int ( nt -- xt ) \ gforth name-to-int
 \G @i{xt} represents the interpretation semantics of the word
