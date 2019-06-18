@@ -763,7 +763,7 @@ also freetype-gl
     program glUseProgram
     -1e 1e >apxy  .01e 100e 100e >ap
     Ambient 1 ambient% glUniform1fv
-    0e fdup fdup fdup glClearColor clear ;
+    0e fdup fdup 1e glClearColor clear ;
 
 : draw-init> ( -- ) ;
 previous
@@ -1569,8 +1569,10 @@ require animation.fs
 	!size 0e 1e dh* 1e dw* 1e dh* 0e resize
     THEN
     [IFDEF] ?sync-update
-	wm_sync_value wm_sync_value' 8 move
-	?sync-update on
+	wm_sync_value 8 wm_sync_value' over str= 0= IF
+	    wm_sync_value wm_sync_value' 8 move
+	    ?sync-update on
+	THEN
     [THEN]
     time( ." resize: " .!time cr ) ;
 

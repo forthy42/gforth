@@ -200,10 +200,13 @@ app_input_state buffer: *input
 Variable rendering -2 rendering !
 Variable ?sync-update
 4 buffer: wm_delete_window
+4 buffer: wm_ping
 4 buffer: wm_sync_request
 4 buffer: wm_sync_counter
 8 buffer: wm_sync_value
 8 buffer: wm_sync_value'
+4 buffer: wm_sync_maj
+4 buffer: wm_sync_min
 
 : xsv! ( ud addr -- )
     >r 2dup #32 drshift drop r@ l! drop r> 4 + l! ;
@@ -211,7 +214,9 @@ Variable ?sync-update
     >r r@ 4 + l@ 0 r> sl@ s>d #32 dlshift d+ ;
 
 : sync-counter-update ( -- )
-    dpy wm_sync_counter l@ wm_sync_value' XSyncSetCounter drop ;
+    wm_sync_counter l@ IF
+	dpy wm_sync_counter l@ wm_sync_value' XSyncSetCounter drop
+    THEN ;
 
 [IFUNDEF] level#
     Variable level#
@@ -223,6 +228,7 @@ object class
     drop 0 XGenericEvent-type        lvalue: e.type
     drop 0 XMotionEvent-time         value: e.kbm.time \ key, button, motion, crossing
     drop 0 XPropertyEvent-time       value: e.psc.time
+    drop 0 XPropertyEvent-atom       value: e.psc.atom
     drop 0 XSelectionRequestEvent-time  value: e.sr.time
     drop 0 XSelectionEvent-time      value: e.s.time
     drop 0 XGenericEvent-serial      value: e.serial
@@ -440,13 +446,16 @@ previous
 ' noop handler-class to DoMapRequest
 ' noop handler-class to DoReparentNotify
 :noname  e.c-height e.c-width dpy-w ! dpy-h !
-    ctx IF  config-changed  ELSE  getwh  THEN ; handler-class to DoConfigureNotify
+    ctx IF  config-changed  ELSE  getwh  THEN
+; handler-class to DoConfigureNotify
 ' noop handler-class to DoConfigureRequest
 ' noop handler-class to DoGravityNotify
 :noname  e.r-width dpy-w ! e.r-height dpy-h ! config-changed ; handler-class to DoResizeRequest
 ' noop handler-class to DoCirculateNotify
 ' noop handler-class to DoCirculateRequest
-:noname e.psc.time XTime0 - to timeoffset ; handler-class to DoPropertyNotify
+:noname e.psc.time XTime0 - to timeoffset
+    ( ." Property changed: " dpy e.psc.atom XGetAtomName cstring>sstring type cr )
+; handler-class to DoPropertyNotify
 :noname  e.psc.time XTime0 - to timeoffset
     own-selection off ; handler-class to DoSelectionClear
 
@@ -505,7 +514,18 @@ previous
 ; handler-class to DoSelectionNotify
 ' noop handler-class to DoColormapNotify
 :noname ( -- )  e.data
-    wm_delete_window l@ =  IF  -1 level# +!  THEN
+    case
+	wm_delete_window l@ of  -1 level# +!  endof
+	wm_ping          l@ of  root-win  to e.window
+	    dpy root-win 0
+	    SubstructureRedirectMask SubstructureNotifyMask or
+	    event XSendEvent drop
+	endof
+	wm_sync_request  l@ of
+	    addr e.data 2 cells + 2@ 0 rot s>d #32 dlshift d+
+	    wm_sync_value xsv!
+	endof
+    endcase
 ; handler-class to DoClientMessage
 ' noop handler-class to DoMappingNotify
 ' noop handler-class to DoGenericEvent
@@ -592,15 +612,18 @@ Defer looper-hook ( -- ) ' noop is looper-hook
 	s" "
     THEN ;
 
-: set-protocol ( -- )
-    dpy "WM_DELETE_WINDOW" 0 XInternAtom wm_delete_window l!
+: protocol! ( addr u id-addr -- )  >r
+    dpy -rot 0 XInternAtom r@ l!
     dpy win over "WM_PROTOCOLS" 0 XInternAtom
-    4 #32 1 wm_delete_window 1 XChangeProperty drop ;
+    4 #32 1 r> 1 XChangeProperty drop ;
+: set-protocol ( -- )
+    "WM_DELETE_WINDOW" wm_delete_window protocol!
+    "_NET_WM_PING" wm_ping protocol! ;
 
 : set-sync-request ( -- )
-    dpy "_NET_WM_SYNC_REQUEST" 0 XInternAtom  wm_sync_request l!
-    dpy win over "WM_PROTOCOLS" 0 XInternAtom
-    4 #32 1 wm_sync_request 1 XChangeProperty drop
+    dpy wm_sync_maj wm_sync_min XSyncInitialize drop
+    
+    "_NET_WM_SYNC_REQUEST" wm_sync_request protocol!
 
     #0. wm_sync_value xsv!
     dpy wm_sync_value XSyncCreateCounter wm_sync_counter l!
