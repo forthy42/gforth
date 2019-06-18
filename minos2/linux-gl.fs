@@ -651,6 +651,18 @@ XWMHints buffer: WMhints
     dpy win WMhints XSetWMHints drop ;
 
 XSetWindowAttributes buffer: xswa
+XVisualInfo buffer: visual-info
+
+#24 Value minos-depth#
+
+: match-visual ( -- )
+    dpy dup XDefaultScreen minos-depth# TrueColor visual-info
+    XMatchVisualInfo drop ;
+: set-colormap ( -- )
+    dpy dup XDefaultRootWindow visual-info XVisualInfo-visual @ AllocNone
+    XCreateColormap xswa XSetWindowAttributes-colormap !
+    None xswa XSetWindowAttributes-background_pixmap !
+    0 xswa XSetWindowAttributes-border_pixel ! ;
 
 : set-xswa ( events -- )
     xswa XSetWindowAttributes-event_mask !
@@ -662,12 +674,16 @@ XSetWindowAttributes buffer: xswa
     dpy 0 XSync drop >exposed ;
 
 : simple-win ( events string len w h -- )
-    2>r rot set-xswa 
+    2>r rot set-xswa match-visual set-colormap 
     dpy dup XDefaultRootWindow
     0 0 2r>
-    0 dpy dup XDefaultScreen XDefaultDepth InputOutput
-    dpy dup XDefaultScreen XDefaultVisual
-    [ CWEventMask CWBitGravity CWWinGravity or or ]L xswa XCreateWindow  to win
+    0
+    visual-info XVisualInfo-depth l@
+    InputOutput
+    visual-info XVisualInfo-visual @
+    [ CWEventMask CWBitGravity or CWWinGravity or
+      CWColormap or CWBackPixmap or CWBorderPixel or ]L
+    xswa XCreateWindow to win
     dpy win 2swap XStoreName drop
     get-atoms  set-hint  set-protocol
     win get-ic ;
