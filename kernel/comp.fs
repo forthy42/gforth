@@ -654,11 +654,8 @@ interpret/compile: comp:
 \g represents @i{name}; this word generates code with stack effect (
 \g -- xt1 ), where xt1 is the result of xt @code{defer@}.
 
-: defer! ( xt xt-deferred -- ) \ gforth  defer-store
-    (to) ;
+' (to) Alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
-opt: ( xt-defer! -- )
-    ?fold-to (to), ;
 
 : value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
