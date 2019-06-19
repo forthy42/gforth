@@ -690,8 +690,8 @@ Variable comp-state
   ['] pi-undefined , \ action
   ['] pi-undefined , \ target plugin action
   8765 ,     \ plugin magic
-[IFDEF] value!
-  ['] value! set-to
+[IFDEF] value-to
+  ['] value-to set-to
 [THEN]
   DOES> perform ;
 
