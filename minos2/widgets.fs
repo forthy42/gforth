@@ -761,7 +761,7 @@ previous
 also freetype-gl
 : <draw-init ( -- )
     program glUseProgram
-    -1e 1e >apxy  .01e 100e 100e >ap
+    -1e 1e >apxy  .01e 100e fdup >ap
     Ambient 1 ambient% glUniform1fv
     0e fdup fdup 1e glClearColor clear ;
 
@@ -1075,7 +1075,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     x y w h d widget-resize
     hglue+ frot bxx f- f-rot  w bxx f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
-    wtotal wmin f- a f/ 0e 0e x bx f+
+    wtotal wmin f- a f/ 0e fdup x bx f+
     ['] hglue-step box-hvisible# ?do-childs
     fdrop fdrop fdrop fdrop
     y h d ['] hbox-resize1 box-hvisible# ?do-childs  fdrop fdrop fdrop
@@ -1161,7 +1161,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     hglue* glue-drop  vglue+ dglue+ glue+ frot byd f- f-rot
     h d f+ byd f- { f: htotal }
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
-    htotal hmin f- a f/ 0e 0e
+    htotal hmin f- a f/ 0e fdup
     y byy f+ h f- 0e
     box-flags baseline-start# and 0<>
     ['] vglue-step box-vvisible# ?do-childs
@@ -1333,15 +1333,15 @@ end-class viewport
     Ambient 1 vp-ambient% glUniform1fv
     Saturate 1 vp-saturate% glUniform1fv
     0e fdup fdup fdup glClearColor clear
-    vt-x vt-w f/ f2* fnegate -1e f+
+    -1e vt-x vt-w f/ f2* f-
     vp-h vt-h f- vt-y f- vt-h f/ f2* 1e f+ >apxy
-    .01e 100e 100e vt-w f>s vt-h f>s >apwh ;
+    .01e 100e fdup vt-w f>s vt-h f>s >apwh ;
 : draw-vp> ( -- )
     0>framebuffer
     Ambient 1 ambient% glUniform1fv
     Saturate 1 saturate% glUniform1fv
     0e fdup x-apos sf! y-apos sf!
-    -1e 1e >apxy  .01e 100e 100e >ap ;
+    -1e 1e >apxy  .01e 100e fdup >ap ;
 
 : search-tree ( ... array xt -- ... ) >r
     $@ 0 { a x x/2 }

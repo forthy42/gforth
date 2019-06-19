@@ -267,30 +267,28 @@ $variable wheres
 field: where-nt
 field: where-loc
 constant where-struct
+Create new-where where-struct allot
 
-: where-duplicate? ( nt -- f )
+: where-duplicate? ( -- f )
     \ true if the current where tuple would be a duplicate of the last
     \ one; these duplicates occur due to FIND-NAME-IN being called
     \ once for LOOKUP and then again for the individual wordlists.
-    wheres $@ dup if ( nt addr u )
-	where-struct - + >r
-	dup r@ where-nt @ =
-	r> where-loc @ current-sourceview = and if
-	    drop true exit then
-    else
-	2drop then
-    drop false ;
+    wheres $@ dup if ( addr u )
+	where-struct - + new-where where-struct tuck str=  exit
+    then
+    nip ;
 
 : where, ( nt -- )
     \ store nt and the current source position for use by WHERE
     dup if ( nt )
-	source-id dup -1 <> and if ( nt )
-	    dup where-duplicate? 0= if
-		where-struct wheres $+!len >r
-		dup r@ where-nt !
-		current-sourceview r> where-loc !
+	new-where where-nt !
+	current-sourceview new-where where-loc !
+	source-id dup -1 <> and if
+	    where-duplicate? 0= if
+		new-where where-struct wheres $+!
 	    then
 	then
+	exit
     then
     drop ;
 
