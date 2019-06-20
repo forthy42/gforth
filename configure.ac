@@ -438,7 +438,7 @@ Dynamic NC generation disabled."
 		if [ "$host_alias" = "`echo $build_alias | sed -e s/x86_64/i686/g`" ]
 		then
 			cross_compiling=no # we can actually execute the code
-		esac
+		fi
 		;;
 	x86_64)
 		case $CC
