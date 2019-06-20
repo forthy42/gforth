@@ -425,7 +425,8 @@ Dynamic NC generation disabled."
 		machine=386
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		CFLAGS_1="$CFLAGS"
-		CFLAGS="$CFLAGS -march=pentium -mtune=generic"
+		CFLAGS="$CFLAGS_1 -march=athlon64"
+		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -march=pentium -mtune=generic")
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -march=pentium")
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
 		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
