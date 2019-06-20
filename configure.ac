@@ -435,7 +435,7 @@ Dynamic NC generation disabled."
 			FAST="yes" # build extra fast libraries
 			;;
 		esac
-		if [ "$host_alias" = "`echo $build_alias | sed -e s/x86_64/i686/g" ]
+		if [ "$host_alias" = "`echo $build_alias | sed -e s/x86_64/i686/g`" ]
 		then
 			cross_compiling=no # we can actually execute the code
 		esac
