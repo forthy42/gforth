@@ -1011,7 +1011,7 @@ else
 fi
 
 #check how to do asm(".skip 16")
-if [ "$host_alias" = "`echo $build_alias | sed -e s/x86_64/i686/g`" ]
+if test "$host_alias" = "`echo $build_alias | sed -e s/x86_64/i686/g`"
 then
     cross_compiling=no # we can actually execute the code
 fi
