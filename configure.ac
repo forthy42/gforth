@@ -436,6 +436,11 @@ Dynamic NC generation disabled."
 			;;
 		esac
 		;;
+		case "$build_alias" in
+		     *x86*)
+			cross_compiling=no # we can actually execute the code
+			;;
+		esac
 	x86_64)
 		case $CC
 		in
