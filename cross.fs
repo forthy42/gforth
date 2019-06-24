@@ -2098,7 +2098,6 @@ Defer resolve-warning
   (gexecute) ;
 
 : addr,  ( ghost -- )
-    T here cell- H gxt-location drop
     dup 0= IF  T a, H  EXIT  THEN
     dup forward? IF  1 refered 0 T a, H ELSE >link @ T a, H THEN ;
 
@@ -2427,9 +2426,11 @@ Defer vt, \ forward rference only
     dup >ghostname there symentry
     dup Last-Header-Ghost ! dup to lastghost
     dup >magic ^imm !     \ a pointer for immediate
+    input-lexeme 2@ 2>r
     [IFDEF] alias-mask alias-mask flag! [THEN]
     cross-doc-entry cross-tag-entry 
     setup-execution-semantics
+    2r> input-lexeme 2!
     ;
 
 \ this is the resolver information from ":"
