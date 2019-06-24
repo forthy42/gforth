@@ -292,11 +292,12 @@ Defer xt-location
     current-sourceview dup r> 1+ locs[] $[] cell- 2! ;
 ' xt-location1 is xt-location
 
-: addr>view ( addr -- view / 0 )
+: name>view ( addr -- viewaddr )
     dup cell- locs-start here within locs-start and ?dup-IF
-	over cell- swap - cell/ locs[] $[] @
-	?dup-IF  nip  EXIT  THEN
+	- cell/ 1- locs[] $[]  EXIT
     THEN  drop 0 ;
+: addr>view ( addr -- view / 0 )
+    name>view ?dup-IF  @  THEN ;
 
 has? primcentric [IF]
     has? peephole [IF]

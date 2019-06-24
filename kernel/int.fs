@@ -437,8 +437,8 @@ defer compile, ( xt -- )
 \    dup >namevt @ >vt>int @ ['] noop = IF  drop 0 0  EXIT  THEN
     >f+c dup @ lcount-mask and tuck - swap ;
 
-: name>view ( nt -- addr ) \ gforth   name-to-view
-    name>string drop cell negate and cell- ;
+\ : name>view ( nt -- addr ) \ gforth   name-to-view
+\     name>string drop cell negate and cell- ;
 
 : default-name>int ( nt -- xt ) \ gforth paren-name-to-int
     \G @i{xt} represents the interpretation semantics of the word
