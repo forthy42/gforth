@@ -70,6 +70,7 @@ has? kernel-size
 
 doc-off
 reset-included
+reset-locs
 
 include kernel/aliases.fs             \ primitive aliases, are config-generated
 doc-on

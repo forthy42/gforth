@@ -1058,6 +1058,18 @@ constant gwhere-struct
 	tsourceview r> gwhere-loc !
     THEN  drop ;
 
+\ locations
+
+0 Value glocs-start
+Variable cross-locs[]
+
+: gxt-location ( addr -- addr )
+\ note that an xt was compiled at addr, for backtrace-locate functionality
+    dup glocs-start - T 1 cells H / >r
+    tsourceview dup r> 1+ cross-locs[] $[] cell- 2! ;
+
+\ search for ghosts
+
 : gfind   ( string -- ghost true / string false )
 \ searches for string in word-list ghosts
   \ dup count type space
@@ -1920,7 +1932,8 @@ previous
 
 >TARGET
 : compile, ( xt -- )
-  dup xt>ghost >comp @ EXECUTE ;
+    T here H gxt-location drop
+    dup xt>ghost >comp @ EXECUTE ;
 >CROSS
 
 \ resolve structure
@@ -2077,13 +2090,15 @@ Defer resolve-warning
 \ gexecute ghost,                                      01nov92py
 
 : (gexecute)   ( ghost -- )
-  dup >comp @ EXECUTE ;
+    T here H gxt-location drop
+    dup >comp @ EXECUTE ;
 
 : gexecute ( ghost -- )
   dup >magic @ <imm> = ABORT" CROSS: gexecute on immediate word"
   (gexecute) ;
 
 : addr,  ( ghost -- )
+    T here cell- H gxt-location drop
     dup 0= IF  T a, H  EXIT  THEN
     dup forward? IF  1 refered 0 T a, H ELSE >link @ T a, H THEN ;
 
@@ -2196,6 +2211,8 @@ X has? f83headerstring [IF]
     [ELSE] 0 allocate throw 0 included-files 2! [THEN]
     [IFDEF] loadfilename#  loadfilename# off  [THEN]
     s" kernel/main.fs" h-add-included-file ;
+: reset-locs ( -- )  T here H to glocs-start ;
+: glocs-start glocs-start ;
 : tsourcepos1 ( -- xpos )
     [IFDEF] replace-sourceview
 	replace-sourceview  0 to replace-sourceview ?dup ?EXIT
@@ -2743,8 +2760,9 @@ ghost :-dummy Constant :-ghost
 
 : (:) ( ghost -- ) 
 \ common factor of : and :noname. Prepare ;Resolve and start definition
-   ;Resolve ! there ;Resolve cell+ !
-   docol, ]comp  colon-start depth T ] H ;
+    ;Resolve ! there ;Resolve cell+ !
+    T here cell- H gxt-location drop
+    docol, ]comp  colon-start depth T ] H ;
 
 : : ( -- colon-sys ) \ Name
   defempty?
@@ -3184,6 +3202,13 @@ variable cross-boot[][]
     T A, , H 2 cells +LOOP ;
 
 : wheres-off H 0 cross-wheres $!len ;
+
+: locs[], ( -- )
+    \ transfer locations to target
+    cross-locs[] $@len cell/ T cells , H
+    cross-locs[] $@ bounds DO
+	I @ T , H
+    cell +LOOP ;
 
 >CROSS
 

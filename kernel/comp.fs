@@ -153,7 +153,8 @@ Defer check-shadow ( addr u wid -- )
     view,
     dup here + dup maxaligned >align
     nlstring,
-    r> 1 or A, here xt-location drop 0 A, here last !
+    here xt-location drop \ add location stamps on vt+cf
+    r> 1 or A, 0 A, here last !
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     \   alias-mask lastflags cset
@@ -196,7 +197,11 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname, ( -- )
-    0 last ! vt,  here dup cfaligned >align 0 ( alias-mask ) , 0 , 0 , ;
+    0 last ! vt,  here dup cfaligned >align 0 ( alias-mask ) ,
+    0 , \ link field
+    here xt-location drop \ add location stamps on vt+cf
+    0 , \ vtable field
+;
 : noname-header ( -- )
     noname, input-stream ;
 
