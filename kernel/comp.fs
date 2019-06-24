@@ -153,7 +153,8 @@ Defer check-shadow ( addr u wid -- )
     view,
     dup here + dup maxaligned >align
     nlstring,
-    r> 1 or A, 0 A, here last !  \ link field; before revealing, it contains the
+    r> 1 or A, here xt-location drop 0 A, here last !
+    \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     \   alias-mask lastflags cset
     [ [IFDEF] prelude-mask ]
@@ -279,10 +280,18 @@ is basic-block-end
 0 AValue locs-start
 $variable locs[]
 
-: xt-location ( addr -- addr )
+Defer xt-location
+: xt-location1 ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
     dup locs-start - cell/ >r
     current-sourceview dup r> 1+ locs[] $[] cell- 2! ;
+' xt-location1 is xt-location
+
+: addr>view ( addr -- view / 0 )
+    dup cell- locs-start here within locs-start and ?dup-IF
+	over cell- swap - cell/ locs[] $[] @
+	?dup-IF  nip  EXIT  THEN
+    THEN  drop 0 ;
 
 has? primcentric [IF]
     has? peephole [IF]

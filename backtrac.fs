@@ -91,12 +91,6 @@ is defer-default
 
 \ print backtrace location
 
-: addr>view ( addr -- view / 0 )
-    dup cell- locs-start here within locs-start and ?dup-IF
-	over cell- swap - cell/ locs[] $[] @
-	?dup-IF  nip  EXIT  THEN
-    THEN  drop 0 ;
-
 : .sourceview-width ( view -- u )
     \ prints sourceview, returns width of printed string
     ['] .sourceview $tmp 2dup type x-width ;

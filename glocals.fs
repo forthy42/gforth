@@ -274,11 +274,14 @@ variable dict-execute-dp \ the special dp for DICT-EXECUTE
     \ execute xt with HERE set to addr1 and USABLE-DICTIONARY-END set to addr2
     dict-execute-dp @ dp 2>r
     dict-execute-ude ['] usable-dictionary-end defer@ 2>r
+    ['] xt-location defer@ >r
     swap to dict-execute-ude
     ['] dict-execute-ude is usable-dictionary-end
     swap dict-execute-dp !
     dict-execute-dp dpp !
+    ['] noop is xt-location
     catch
+    r> is xt-location
     2r> is usable-dictionary-end to dict-execute-ude
     2r> dpp ! dict-execute-dp !
     throw ;
