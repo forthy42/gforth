@@ -94,7 +94,7 @@ has? rom
 : PrimStart ['] true >head-noprim ;
 
 : look ( xt -- nt flag )
-    dup xt? ;
+    dup xt? IF  dup name>string nip 0>  ELSE  0  THEN ;
 
 [THEN]
 [THEN]

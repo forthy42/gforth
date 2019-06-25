@@ -446,9 +446,9 @@ defer compile, ( xt -- )
 : named>link ( nt1 -- nt2 / 0 ) \ gforth	named-to-link
     >link @ ;
 
-: noname>string ( nt -- 0 0 ) \ gforth    noname-to-string
-    drop 0 0 ;
-: noname>link ( nt -- 0 ) \ gforth    noname-to-string
+: noname>string ( nt -- vt 0 ) \ gforth    noname-to-string
+    cell- 0 ;
+: noname>link ( nt -- 0 ) \ gforth    noname-to-link
     drop 0 ;
 
 \ : name>view ( nt -- addr ) \ gforth   name-to-view

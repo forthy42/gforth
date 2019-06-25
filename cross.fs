@@ -2878,10 +2878,12 @@ X has? primcentric [IF]
   IF  there resolve  THEN ;
 
 Cond: DOES>
-    T here cfaligned H [ T has? primcentric H [IF] ] #6 [ [ELSE] ] #7 [ [THEN] ] T cells
-    H + alit, compile set-does> compile ;
+    T here cfaligned H
+    [ T has? primcentric H [IF] ] #6 [ [ELSE] ] #7 [ [THEN] ]
+    T cells H + alit, compile set-does> compile ;
     Last-Header-Ghost @ >do:ghost @ >r
 T :noname H
+    vt-noname
     r> ?dup IF  swap resolve  ELSE  drop  THEN
 ;Cond
 
@@ -3075,9 +3077,10 @@ ghost defer-defer@
 ghost named>string
 ghost named>link
 2drop
+ghost (noname->comp)
 ghost noname>string
 ghost noname>link
-2drop
+2drop drop
 ghost value-to
 ghost umethod,
 2drop
@@ -3145,18 +3148,20 @@ End-Struct vtable-struct
 : vt-template, ( -- )
     T here 0 A, H vttemplate ! ;
 :noname ( -- )
+    [G'] default-name>int  vttemplate g>vt>int !
+    [G'] default-name>comp vttemplate g>vt>comp !
     [G'] named>string      vttemplate g>vt>string !
     [G'] named>link        vttemplate g>vt>link ! ; is vt-named
 :noname ( -- )
+    [G'] noop              vttemplate g>vt>int !
+    [G'] (noname->comp)    vttemplate g>vt>comp !
     [G'] noname>string     vttemplate g>vt>string !
     [G'] noname>link       vttemplate g>vt>link ! ; is vt-noname
 : vt-populate ( -- )
     [G'] :,                vttemplate g>vtcompile, !
-    0                      vttemplate g>vtextra !
     [G'] no-to             vttemplate g>vtto !
-    [G'] default-name>int  vttemplate g>vt>int !
-    [G'] default-name>comp vttemplate g>vt>comp !
     [G'] no-defer@         vttemplate g>vtdefer@ !
+    TNIL                   vttemplate g>vtextra !
     vt-named ;
 
 :noname ( ghost -- )  vttemplate g>vtcompile, ! ; IS gset-optimizer
