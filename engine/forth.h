@@ -320,10 +320,12 @@ typedef Label *Xt;
 #define VTLINK 0
 #define VTCOMPILE 1
 #define VTTO 2
-#define VT2INT 3
-#define VT2COMP 4
-#define VTDEFER 5
-#define VTEXTRA 6
+#define VTDEFER 3
+#define VTEXTRA 4
+#define VT2INT 5
+#define VT2COMP 6
+#define VT2STRING 7
+#define VT2LINK 8
 #define EXTRA_CODE(cfa) ((Xt *)(((Cell **)cfa)[-1][VTEXTRA]))
 #define EXTRA_CODEXT(cfa) ((Xt)(((Cell **)cfa)[-1][VTEXTRA]))
 

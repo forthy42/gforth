@@ -2405,6 +2405,8 @@ NoHeaderFlag off
 
 Defer setup-execution-semantics  ' noop IS setup-execution-semantics
 Defer vt, \ forward rference only
+Defer vt-named
+Defer vt-noname
 0 Value lastghost
 
 : (THeader ( "name" -- ghost )
@@ -2414,6 +2416,7 @@ Defer vt, \ forward rference only
     \ build header in target
     NoHeaderFlag @
     IF  NoHeaderFlag off
+	vt-noname
     ELSE
 	[ X has? f83headerstring ] [IF]
 	    T align H tlast @ T A, H
@@ -2429,6 +2432,7 @@ Defer vt, \ forward rference only
 	[THEN]
 	there tlast !
 	1 headers-named +!	\ Statistic
+	vt-named
     THEN
     T ( cfalign ) here H tlastcfa !
     \ Old Symbol table sed-script
@@ -2790,7 +2794,7 @@ ghost :-dummy Constant :-ghost
     docol, ]comp colon-start depth ;Resolve off T ] H r> ;
 
 : :noname ( -- xt colon-sys )
-    switchrom vt,
+    switchrom vt, vt-noname
     [ X has? f83headerstring 0= ] [IF]
 	T 0 cell+ cfalign# 0 , 0 , here cell+ H
 	[IFDEF] alias-mask t>flag >r alias-mask T r@ c@ xor r> c! H
@@ -2874,7 +2878,7 @@ X has? primcentric [IF]
   IF  there resolve  THEN ;
 
 Cond: DOES>
-    T here cfaligned H [ T has? primcentric H [IF] ] 8 [ [ELSE] ] 7 [ [THEN] ] T cells
+    T here cfaligned H [ T has? primcentric H [IF] ] #8 [ [ELSE] ] #7 [ [THEN] ] T cells
     H + alit, compile set-does> compile ;
     Last-Header-Ghost @ >do:ghost @ >r
 T :noname H
@@ -2883,7 +2887,7 @@ T :noname H
 
 : DOES>
     ['] does-resolved created >comp !
-    T here cfaligned #10 cells H \ includes noname header+vtable
+    T here cfaligned #12 cells H \ includes noname header+vtable
     + !newdoes
     T :noname H 2drop
     instant-interpret-does>-hook
@@ -3031,10 +3035,10 @@ Variable gvtable-list
 Ghost docol-vt drop
 
 >TARGET
-7 T cells H Constant vtsize
+9 T cells H Constant vtsize
 >CROSS
 
-7 cells Constant gvtsize \ ghost vtables for comparison
+9 cells Constant gvtsize \ ghost vtables for comparison
 
 ghost :,
 ghost peephole-compile,
@@ -3068,6 +3072,12 @@ ghost no-to
 ghost no-defer@
 ghost defer-defer@
 2drop drop
+ghost named>string
+ghost named>link
+2drop
+ghost noname>string
+ghost noname>link
+2drop
 ghost value-to
 ghost umethod,
 2drop
@@ -3091,19 +3101,23 @@ findghost no-to ,
 findghost default-name>int ,
 findghost default-name>comp ,
 findghost no-defer@ ,
+findghost named>string ,
+findghost named>link ,
 0 ,
 
 Struct
-    cell% field >vtlink
-    cell% field >vtcompile,
-    cell% field >vtto
-    cell% field >vt>int
-    cell% field >vt>comp
-    cell% field >vtdefer@
-    cell% field >vtextra
+    cell% field g>vtlink
+    cell% field g>vtcompile,
+    cell% field g>vtto
+    cell% field g>vtdefer@
+    cell% field g>vtextra
+    cell% field g>vt>int
+    cell% field g>vt>comp
+    cell% field g>vt>string
+    cell% field g>vt>link
 End-Struct vtable-struct
 
-\ stores 7 ghosts and a link
+\ stores 8 ghosts and a link
 
 : vt= ( vt1 vt2 -- flag )
     cell+ swap gvtsize cell /string tuck compare 0= ;
@@ -3130,20 +3144,27 @@ End-Struct vtable-struct
 
 : vt-template, ( -- )
     T here 0 A, H vttemplate ! ;
+:noname ( -- )
+    [G'] named>string      vttemplate g>vt>string !
+    [G'] named>link        vttemplate g>vt>link ! ; is vt-named
+:noname ( -- )
+    [G'] noname>string     vttemplate g>vt>string !
+    [G'] noname>link       vttemplate g>vt>link ! ; is vt-noname
 : vt-populate ( -- )
-    [G'] :,                vttemplate >vtcompile, !
-    0                      vttemplate >vtextra !
-    [G'] no-to             vttemplate >vtto !
-    [G'] default-name>int  vttemplate >vt>int !
-    [G'] default-name>comp vttemplate >vt>comp !
-    [G'] no-defer@         vttemplate >vtdefer@ ! ;
+    [G'] :,                vttemplate g>vtcompile, !
+    0                      vttemplate g>vtextra !
+    [G'] no-to             vttemplate g>vtto !
+    [G'] default-name>int  vttemplate g>vt>int !
+    [G'] default-name>comp vttemplate g>vt>comp !
+    [G'] no-defer@         vttemplate g>vtdefer@ !
+    vt-named ;
 
-:noname ( ghost -- )  vttemplate >vtcompile, ! ; IS gset-optimizer
-: gset-to ( ghost -- )        vttemplate >vtto ! ;
-: gset-defer@   ( ghost -- )  vttemplate >vtdefer@ ! ;
-: gset->int ( ghost -- )      vttemplate >vt>int ! ;
-: gset->comp ( ghost -- )     vttemplate >vt>comp ! ;
-:noname ( ghost -- )     vttemplate >vtextra ! ; is gset-extra
+:noname ( ghost -- )  vttemplate g>vtcompile, ! ; IS gset-optimizer
+: gset-to ( ghost -- )        vttemplate g>vtto ! ;
+: gset-defer@   ( ghost -- )  vttemplate g>vtdefer@ ! ;
+: gset->int ( ghost -- )      vttemplate g>vt>int ! ;
+: gset->comp ( ghost -- )     vttemplate g>vt>comp ! ;
+:noname ( ghost -- )     vttemplate g>vtextra ! ; is gset-extra
 
 : set-optimizer ( xt -- ) xt>ghost gset-optimizer ;
 : set-to       ( xt -- )  xt>ghost gset-to ;
@@ -3190,7 +3211,7 @@ ghost ?fold-to drop
     [G'] no-to   gset-to
     [G'] no-defer@ gset-defer@
     [G'] a>int   gset->int
-    [G'] i/c>comp vttemplate >vt>comp ! ;
+    [G'] i/c>comp vttemplate g>vt>comp ! ;
 
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;

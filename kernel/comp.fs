@@ -154,14 +154,14 @@ Defer check-shadow ( addr u wid -- )
     dup here + dup maxaligned >align
     nlstring,
     here xt-location drop \ add location stamps on vt+cf
-    r> 1 or A, 0 A, here last !
+    r> 1 or A, vttemplate A, here last !
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     \   alias-mask lastflags cset
     [ [IFDEF] prelude-mask ]
 	next-prelude @ 0<> prelude-mask and lastflags cset
 	next-prelude off
-    [ [THEN] ] ;
+    [ [THEN] ] named-vt ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -200,8 +200,8 @@ defer header ( -- ) \ gforth
     0 last ! vt,  here dup cfaligned >align 0 ( alias-mask ) ,
     0 , \ link field
     here xt-location drop \ add location stamps on vt+cf
-    0 , \ vtable field
-;
+    vttemplate , \ vtable field
+    noname-vt ;
 : noname-header ( -- )
     noname, input-stream ;
 
@@ -430,19 +430,18 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     >namevt @ >vt>int 2@ ['] a>comp ['] a>int d= ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
-    Header  ['] on vtcopy
+    Header reveal  ['] on vtcopy
     ?parse-name find-name dup 0= #-13 and throw
     dodefer, dup A,
     dup compile-only? IF  compile-only  THEN  name>int lastcfa !
     ['] s>int set->int ['] s>comp set->comp ['] s-to set-to
-    ['] s-defer@ set-defer@  ['] s-compile, set-optimizer
-    reveal ;
+    ['] s-defer@ set-defer@  ['] s-compile, set-optimizer ;
 
 : synonym? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;
 
 : Create ( "name" -- ) \ core
-    Header reveal dovar, ?noname-vt ;
+    Header reveal dovar, ;
 
 : buffer: ( u "name" -- ) \ core ext
     Create here over 0 fill allot ;
@@ -460,14 +459,14 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     udp @ swap udp +! ;
 
 : User ( "name" -- ) \ gforth
-    Header reveal douser, ?noname-vt cell uallot , ;
+    Header reveal douser, cell uallot , ;
 
 : AUser ( "name" -- ) \ gforth
     User ;
 
-: (Constant)  Header reveal docon, ?noname-vt ;
+: (Constant)  Header reveal docon, ;
 
-: (Value)  Header reveal dovalue, ?noname-vt ;
+: (Value)  Header reveal dovalue, ;
 
 : Constant ( w "name" -- ) \ core
     \G Define a constant @i{name} with value @i{w}.
@@ -494,7 +493,7 @@ Variable to-style# 0 to-style# !
 
 : !!?addr!! ( -- ) to-style# @ -1 = -2056 and throw ;
 
-: (Field)  Header reveal dofield, ?noname-vt ;
+: (Field)  Header reveal dofield, ;
 
 \ IS Defer What's Defers TO                            24feb93py
 
@@ -506,7 +505,7 @@ defer defer-default ( -- )
 \G Define a deferred word @i{name}; its execution semantics can be
 \G set with @code{defer!} or @code{is} (and they have to, before first
 \G executing @i{name}.
-    Header Reveal dodefer, ?noname-vt
+    Header Reveal dodefer, 
     ['] defer-default A, ;
 
 defer@: defer-defer@ ( xt -- )
@@ -542,10 +541,12 @@ opt: ( xt -- )
 
 Create vttemplate
 0 A,                   \ link field
-' peephole-compile, A, \ compile, field
-' no-to A,             \ to field
 ' default-name>int A,  \ name>int field
 ' default-name>comp A, \ name>comp field
+' named>string A,      \ name>string field
+' named>link A,        \ name>link field
+' peephole-compile, A, \ compile, field
+' no-to A,             \ to field
 ' no-defer@ A,         \ defer@
 0 A,                   \ extra field
 
@@ -603,6 +604,8 @@ Create vttemplate
     vttemplate >vtextra !
     ['] does, set-optimizer
     dodoes: latestxt ! ;
+: set-name>string ( xt -- ) vttemplate >vt>string ! ;
+: set-name>link   ( xt -- ) vttemplate >vt>link   ! ;
 
 :noname ( -- colon-sys ) start-xt  set-optimizer ;
 :noname ['] set-optimizer start-xt-like ;
@@ -731,15 +734,24 @@ defer 0-adjust-locals-size ( -- )
 
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
-    Header (:noname) ?noname-vt ;
+    Header (:noname) ;
 
 : noname-vt ( -- )
     \G modify vt for noname words
-    ['] noop set->int  ['] (noname->comp) set->comp ;
-: ?noname-vt ( -- ) last @ 0= IF  noname-vt  THEN ;
+    ['] noop set->int
+    ['] (noname->comp) set->comp
+    ['] noname>string set-name>string
+    ['] noname>link set-name>link ;
+: named-vt ( -- )
+    \G modify vt for named words
+    ['] default-name>int set->int
+    ['] default-name>comp set->comp
+    ['] named>string set-name>string
+    ['] named>link set-name>link ;
+: ?noname-vt ( -- ) last @ 0= IF  noname-vt  ELSE  named-vt  THEN ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    noname, here (:noname) noname-vt ;
+    noname, here (:noname) ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook [compile] exit ?colon-sys

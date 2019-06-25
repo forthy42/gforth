@@ -206,14 +206,14 @@ opt: drop postpone swap postpone >l postpone >l ;
 : list-length ( list -- u )
     0 swap begin ( u1 list1 )
        dup while
-           >link @ swap 1+ swap
+           name>link swap 1+ swap
     repeat
     drop ;
 
 : /list ( list1 u -- list2 )
     \ list2 is list1 with the first u elements removed
     0 ?do
-	>link @
+	name>link
     loop ;
 
 : common-list ( list1 list2 -- list3 )
@@ -224,7 +224,7 @@ opt: drop postpone swap postpone >l postpone >l ;
     rot swap /list
     begin ( list3 list4 )
 	2dup u<> while
-	    >link @ swap >link @
+	    name>link swap name>link
     repeat
     drop ;
 
@@ -240,7 +240,7 @@ opt: drop postpone swap postpone >l postpone >l ;
     while
 	over
 	((name>)) >body @ max
-	swap >link @ swap ( get next )
+	swap name>link swap ( get next )
     repeat
     faligned nip ;
 
@@ -259,7 +259,7 @@ Defer locals-list!
    \ !! print assumption and reality
  then ;
 
-(field) locals-name-size+ 8 cells , \ fields + wiggle room, name size must be added
+(field) locals-name-size+ vtsize cell+ , \ fields + wiggle room, name size must be added
 
 : create-local1 ( "name" -- a-addr )
     create

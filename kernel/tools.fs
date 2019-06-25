@@ -93,7 +93,7 @@ include  ./../termsize.fs
     BEGIN
 	dup
     WHILE
-	    r@ over >r execute r> >link @
+	    r@ over >r execute r> name>link
     REPEAT  drop rdrop ;
 
 : traverse-wordlist ( ... xt wid -- ... )
@@ -103,7 +103,7 @@ include  ./../termsize.fs
     BEGIN
 	dup
     WHILE
-	    r@ over >r execute  WHILE r> >link @
+	    r@ over >r execute  WHILE r> name>link
 	REPEAT  r>
     THEN  drop rdrop ;
 

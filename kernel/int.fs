@@ -372,13 +372,15 @@ $00ffffff constant lcount-mask
 
 ' noop Alias ((name>)) ( nfa -- cfa )
 
-(field) >vtlink      0 cells ,
-(field) >vtcompile,  1 cells ,
-(field) >vtto        2 cells ,
-(field) >vt>int      3 cells ,
-(field) >vt>comp     4 cells ,
-(field) >vtdefer@    5 cells ,
-(field) >vtextra     6 cells ,
+(field) >vtlink        0 cells ,
+(field) >vtcompile,    1 cells ,
+(field) >vtto          2 cells ,
+(field) >vtdefer@      3 cells ,
+(field) >vtextra       4 cells ,
+(field) >vt>int        5 cells ,
+(field) >vt>comp       6 cells ,
+(field) >vt>string     7 cells ,
+(field) >vt>link       8 cells ,
 
 1 cells -3 cells \ mini-oof class declaration with methods
 \ the offsets are a bit odd to keep the xt as point of reference
@@ -395,6 +397,14 @@ method (to) ( val xt -- ) \ gforth paren-int-to
 opt: ( xt-(to -- )
     ?fold-to (to), ;
 
+method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
+\G @i{xt} represents the word currently associated with the deferred
+\G word @i{xt-deferred}.
+opt: ( xt-defer@ -- )
+    ?fold-to defer@, ;
+
+swap cell+ swap \ vtextra
+
 method name>int ( nt -- xt ) \ gforth name-to-int
 \G @i{xt} represents the interpretation semantics of the word
 \G @i{nt}.
@@ -402,12 +412,11 @@ method name>int ( nt -- xt ) \ gforth name-to-int
 method name>comp ( nt -- w xt ) \ gforth name-to-comp
 \G @i{w xt} is the compilation token for the word @i{nt}.
 
-method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
-\G @i{xt} represents the word currently associated with the deferred
-\G word @i{xt-deferred}.
-opt: ( xt-defer@ -- )
-    ?fold-to defer@, ;
-drop cell+ Constant vtsize \ vtable size
+method name>string ( nt -- addr u ) \ gforth name-to-string
+    \g @i{addr count} is the name of the word represented by @i{nt}.
+method name>link ( nt1 -- nt2 / 0 ) \ gforth name-to-link
+
+drop Constant vtsize \ vtable size
 
 defer compile, ( xt -- )
 \G Append the semantics represented by @i{xt} to the current
@@ -432,10 +441,15 @@ defer compile, ( xt -- )
 \G compile-only
     ?compile-only name>int ;
 
-: name>string ( nt -- addr count ) \ gforth     name-to-string
-    \g @i{addr count} is the name of the word represented by @i{nt}.
-\    dup >namevt @ >vt>int @ ['] noop = IF  drop 0 0  EXIT  THEN
+: named>string ( nt -- addr count ) \ gforth     named-to-string
     >f+c dup @ lcount-mask and tuck - swap ;
+: named>link ( nt1 -- nt2 / 0 ) \ gforth	named-to-link
+    >link @ ;
+
+: noname>string ( nt -- 0 0 ) \ gforth    noname-to-string
+    drop 0 0 ;
+: noname>link ( nt -- 0 ) \ gforth    noname-to-string
+    drop 0 ;
 
 \ : name>view ( nt -- addr ) \ gforth   name-to-view
 \     name>string drop cell negate and cell- ;
