@@ -541,22 +541,24 @@ opt: ( xt -- )
 
 Create vttemplate
 0 A,                   \ link field
-' default-name>int A,  \ name>int field
-' default-name>comp A, \ name>comp field
-' named>string A,      \ name>string field
-' named>link A,        \ name>link field
 ' peephole-compile, A, \ compile, field
 ' no-to A,             \ to field
 ' no-defer@ A,         \ defer@
 0 A,                   \ extra field
+' default-name>int A,  \ name>int field
+' default-name>comp A, \ name>comp field
+' named>string A,      \ name>string field
+' named>link A,        \ name>link field
 
 \ initialize to one known vt
 
-: (make-latest) ( xt1 xt2 -- )
-    swap >namevt @ vttemplate vtsize move
+: vt-activate ( xt -- )
     >namevt vttemplate over ! vttemplate ! ;
+: (make-latest) ( xt1 xt2 -- )
+    swap >namevt @ vttemplate vtsize move vt-activate ;
 : vtcopy ( xt -- ) \ gforth vtcopy
-    here (make-latest) ;
+    >namevt @ vttemplate 0 >vt>int move
+    here vt-activate ;
 
 : vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
     dup vtcopy here >r dup >code-address cfa, cell+ @ r> cell+ ! ;
