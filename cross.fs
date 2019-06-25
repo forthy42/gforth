@@ -1078,7 +1078,7 @@ Variable cross-locs[]
 : gxt-location ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
     dup glocs-start - T 1 cells H / >r
-    tsourceview dup r> 1+ cross-locs[] $[] cell- 2! ;
+    tsourceview dup r> 1+ cross-locs[] $[] 1 cells - 2! ;
 
 \ search for ghosts
 
