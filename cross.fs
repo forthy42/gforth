@@ -2511,7 +2511,7 @@ Variable prim#
   2dup >exec2 !
   ['] prim-resolved over >comp !
   dup >ghost-flags <primitive> set-flag
-  T here cell- H gxt-location drop
+  T here 1 cells - H gxt-location drop
   s" EC" T $has? H 0=
   IF
       T here H resolve-noforwards $8000 xor T A, H
@@ -2775,7 +2775,7 @@ ghost :-dummy Constant :-ghost
 : (:) ( ghost -- ) 
 \ common factor of : and :noname. Prepare ;Resolve and start definition
     ;Resolve ! there ;Resolve cell+ !
-    T here cell- H gxt-location drop
+    T here 1 cells - H gxt-location drop
     docol, ]comp  colon-start depth T ] H ;
 
 : : ( -- colon-sys ) \ Name
@@ -3179,7 +3179,7 @@ ghost ?fold-to drop
     [G'] a>int  gset->int
     [G'] a>comp gset->comp
     [G'] s-to   gset-to
-    T here cell- H gxt-location drop
+    T here 1 cells - H gxt-location drop
     over resolve [G'] :dodefer (doer,) T A, H ;
 
 : interpret/compile: ( xt1 xt2 "name" -- )
