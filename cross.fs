@@ -2796,7 +2796,7 @@ ghost :-dummy Constant :-ghost
 : :noname ( -- xt colon-sys )
     switchrom vt, vt-noname
     [ X has? f83headerstring 0= ] [IF]
-	T 0 cell+ cfalign# 0 , 0 , here cell+ H
+	T 0 cell+ cfalign# here cell+ H
 	[IFDEF] alias-mask t>flag >r alias-mask T r@ c@ xor r> c! H
 	[ELSE] drop [THEN]
 	:-ghost >do:ghost @ >exec2 @ execute
@@ -2878,7 +2878,7 @@ X has? primcentric [IF]
   IF  there resolve  THEN ;
 
 Cond: DOES>
-    T here cfaligned H [ T has? primcentric H [IF] ] #8 [ [ELSE] ] #7 [ [THEN] ] T cells
+    T here cfaligned H [ T has? primcentric H [IF] ] #6 [ [ELSE] ] #7 [ [THEN] ] T cells
     H + alit, compile set-does> compile ;
     Last-Header-Ghost @ >do:ghost @ >r
 T :noname H
@@ -2887,7 +2887,7 @@ T :noname H
 
 : DOES>
     ['] does-resolved created >comp !
-    T here cfaligned #12 cells H \ includes noname header+vtable
+    T here cfaligned #10 cells H \ includes noname header+vtable
     + !newdoes
     T :noname H 2drop
     instant-interpret-does>-hook

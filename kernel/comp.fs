@@ -197,8 +197,7 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname, ( -- )
-    0 last ! vt,  here dup cfaligned >align 0 ( alias-mask ) ,
-    0 , \ link field
+    0 last ! vt,  here dup cfaligned >align
     here xt-location drop \ add location stamps on vt+cf
     vttemplate , \ vtable field
     noname-vt ;
