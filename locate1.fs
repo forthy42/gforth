@@ -104,7 +104,7 @@ variable included-file-buffers
     l1 ;
 
 : name-set-located-view ( nt -- )
-    dup name>view @ swap name>string nip set-located-view ;
+    dup name>view swap name>string nip set-located-view ;
 
 : locate-name ( nt -- )
      name-set-located-view l ;

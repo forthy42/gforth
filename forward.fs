@@ -65,7 +65,7 @@ s" forward must be resolved with :" exception constant forward-needs-:
 
 : .unresolved ( -- )
     \G print all unresolved forward references
-    [: [:   replace-sourceview >r dup name>view @ to replace-sourceview
+    [: [:   replace-sourceview >r dup name>view to replace-sourceview
 	    dup is-forward? [: dup .name ." is unresolved" cr ;] ?warning
 	    r> to replace-sourceview
             drop true ;] swap traverse-wordlist ;] map-vocs ;

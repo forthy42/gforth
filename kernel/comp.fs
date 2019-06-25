@@ -292,12 +292,13 @@ Defer xt-location
     current-sourceview dup r> 1+ locs[] $[] cell- 2! ;
 ' xt-location1 is xt-location
 
-: name>view ( addr -- viewaddr )
+: addr>view ( ip-addr -- view / 0 )
+    \G give @i{view} information for instruction address @i{ip-addr}
     dup cell- locs-start here within locs-start and ?dup-IF
-	- cell/ 1- locs[] $[]  EXIT
+	- cell/ 1- locs[] $[] @  EXIT
     THEN  drop 0 ;
-: addr>view ( addr -- view / 0 )
-    name>view ?dup-IF  @  THEN ;
+' addr>view alias name>view ( nt -- view / 0 )
+\G give @i{view} information for name token @i{nt}
 
 has? primcentric [IF]
     has? peephole [IF]
