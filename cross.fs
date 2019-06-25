@@ -1063,6 +1063,18 @@ constant gwhere-struct
 0 Value glocs-start
 Variable cross-locs[]
 
+[IFUNDEF] $[]
+: $room ( u $addr -- )
+    \G generate room for at least u bytes, erase when expanding
+    >r dup r@ $@len tuck u<= IF  rdrop 2drop EXIT  THEN
+    - dup r> $+!len swap 0 fill ;
+
+: $[] ( u $[]addr -- addr' )
+    \G index into the string array and return the address at index @var{u}
+    \G The array will be resized as needed
+    >r cells dup cell+ r@ $room  r> $@ drop + ;
+[THEN]
+
 : gxt-location ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
     dup glocs-start - T 1 cells H / >r
