@@ -412,12 +412,12 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 		  }
 #endif
 		} else {
-		  fprintf(stderr,"Primitive %ld used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
 		  Char * dumpa = (Char*)&image[i];
 		  for(; dumpa < (Char*)&image[i+8]; dumpa++) {
 		    fprintf(stderr, "%02x ", *dumpa);
 		  }
 		  fprintf(stderr, "\n");
+		  fprintf(stderr,"Primitive %ld used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
 		}
 	      }
 	    } else {
@@ -444,8 +444,14 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 		  MAKE_CF(image+i,symbols[groups[group]+tok]);
 		}
 #endif
-	      } else
+	      } else {
+		Char * dumpa = (Char*)&image[i];
+		for(; dumpa < (Char*)&image[i+8]; dumpa++) {
+		  fprintf(stderr, "%02x ", *dumpa);
+		}
+		fprintf(stderr, "\n");
 		fprintf(stderr,"Primitive %lx, %d of group %d used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n", (long)-token, tok, group, &image[i],i,PACKAGE_VERSION);
+	      }
 	    }
 	  } else {
 	    /* if base is > 0: 0 is a null reference so don't adjust*/
