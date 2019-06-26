@@ -138,9 +138,6 @@ variable next-prelude
 : current-view ( -- xpos )
     replace-sourceview current-sourceview over select ;
 
-: view, ( -- )
-    current-view , 0 to replace-sourceview ;
-
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
@@ -149,8 +146,6 @@ Defer check-shadow ( addr u wid -- )
     get-current >r
     dup max-name-length @ max max-name-length !
     [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
-    dup cell+ aligned here + dup maxaligned >align
-    view,
     dup here + dup maxaligned >align
     nlstring,
     here xt-location drop \ add location stamps on vt+cf
@@ -288,7 +283,8 @@ Defer xt-location
 : xt-location1 ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
     dup locs-start - cell/ >r
-    current-sourceview dup r> 1+ locs[] $[] cell- 2! ;
+    current-view dup r> 1+ locs[] $[] cell- 2!
+    0 to replace-sourceview ;
 ' xt-location1 is xt-location
 
 : addr>view ( ip-addr -- view / 0 )

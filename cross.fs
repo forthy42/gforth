@@ -1075,10 +1075,15 @@ Variable cross-locs[]
     >r cells dup cell+ r@ $room  r> $@ drop + ;
 [THEN]
 
+: tsourcepos1 ( -- xpos )
+    [IFDEF] replace-sourceview
+	replace-sourceview  0 to replace-sourceview ?dup ?EXIT
+    [THEN]
+    tsourceview ;
 : gxt-location ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
     dup glocs-start - T 1 cells H / >r
-    tsourceview dup r> 1+ cross-locs[] $[] 1 cells - 2! ;
+    tsourcepos1 dup r> 1+ cross-locs[] $[] 1 cells - 2! ;
 
 \ search for ghosts
 
@@ -2224,12 +2229,6 @@ X has? f83headerstring [IF]
     s" kernel/main.fs" h-add-included-file ;
 : reset-locs ( -- )  T here H to glocs-start ;
 : glocs-start glocs-start ;
-: tsourcepos1 ( -- xpos )
-    [IFDEF] replace-sourceview
-	replace-sourceview  0 to replace-sourceview ?dup ?EXIT
-    [THEN]
-    tsourceview ;
-: view,   ( -- ) tsourcepos1 T , H ;
 : shorten-path ( addr u -- addr' u' )  2>r
     fpath path>string  BEGIN  next-path dup  WHILE
 	    2r@ 2over string-prefix? IF  2r> 2 pick 1+ /string 2>r  THEN
@@ -2409,6 +2408,9 @@ Defer vt-named
 Defer vt-noname
 0 Value lastghost
 
+: >loc ( -- )
+    T here H tcell - gxt-location drop ;
+
 : (THeader ( "name" -- ghost )
     \  >in @ bl-word count type 2 spaces >in !
     \ wordheaders will always be compiled to rom
@@ -2422,7 +2424,7 @@ Defer vt-noname
 	    T align H tlast @ T A, H
 	    >in @ parse-name T name, H >in !
 	[ELSE]
-	    >in @ parse-name dup T cell+ aligned cfalign# view, name, H >in !
+	    >in @ parse-name dup T aligned cfalign# name, H >in !
 	    tlast @ T A, H
 	    executed-ghost @ ?dup IF
 		>do:ghost @ >exec2 @ execute
@@ -2434,7 +2436,7 @@ Defer vt-noname
 	1 headers-named +!	\ Statistic
 	vt-named
     THEN
-    T ( cfalign ) here H tlastcfa !
+    T ( cfalign ) here H tlastcfa ! >loc
     \ Old Symbol table sed-script
 \    >in @ cr ." sym:s/CFA=" there 4 0.r ." /"  bl-word count .sym ." /g" cr >in !
     HeaderGhost
@@ -2515,7 +2517,6 @@ Variable prim#
   2dup >exec2 !
   ['] prim-resolved over >comp !
   dup >ghost-flags <primitive> set-flag
-  T here H tcell - gxt-location drop
   s" EC" T $has? H 0=
   IF
       T here H resolve-noforwards $8000 xor T A, H
@@ -2779,7 +2780,7 @@ ghost :-dummy Constant :-ghost
 : (:) ( ghost -- ) 
 \ common factor of : and :noname. Prepare ;Resolve and start definition
     ;Resolve ! there ;Resolve cell+ !
-    T here H tcell - gxt-location drop
+    >loc
     docol, ]comp  colon-start depth T ] H ;
 
 : : ( -- colon-sys ) \ Name
@@ -3205,7 +3206,6 @@ ghost ?fold-to drop
     [G'] a>int  gset->int
     [G'] a>comp gset->comp
     [G'] s-to   gset-to
-    T here H tcell - gxt-location drop
     over resolve [G'] :dodefer (doer,) T A, H ;
 
 : interpret/compile: ( xt1 xt2 "name" -- )
