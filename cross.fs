@@ -2795,7 +2795,7 @@ ghost :-dummy Constant :-ghost
     docol, ]comp colon-start depth ;Resolve off T ] H r> ;
 
 : :noname ( -- xt colon-sys )
-    switchrom vt, vt-noname
+    switchrom vt,
     [ X has? f83headerstring 0= ] [IF]
 	T 0 cell+ cfalign# here cell+ H
 	[IFDEF] alias-mask t>flag >r alias-mask T r@ c@ xor r> c! H
@@ -2807,7 +2807,7 @@ ghost :-dummy Constant :-ghost
     there 
     \ define a nameless ghost
     here ghostheader dup last-header-ghost ! dup to lastghost
-    (:) ;  
+    (:) vt-noname ;
 
 Cond: EXIT ( -- )   compile ;S  ;Cond
 
