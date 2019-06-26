@@ -417,6 +417,7 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 		  for(; dumpa < (Char*)&image[i+8]; dumpa++) {
 		    fprintf(stderr, "%02x ", *dumpa);
 		  }
+		  fprintf(stderr, "\n");
 		}
 	      }
 	    } else {
