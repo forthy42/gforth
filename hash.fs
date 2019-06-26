@@ -210,6 +210,10 @@ has? cross 0=
     defers 'cold
     hash-cold
 ; is 'cold
+:noname
+    defers 'image
+    HashPointer off
+; is 'image
 
 : .words  ( -- )
   base @ >r hex HashTable  Hashlen 0
