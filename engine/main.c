@@ -411,8 +411,13 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 		    compile_prim1(&image[i]);
 		  }
 #endif
-		} else
+		} else {
 		  fprintf(stderr,"Primitive %ld used in this image at %p (offset $%x) is not implemented by this\n engine (%s); executing this code will crash.\n",(long)CF(token), &image[i], i, PACKAGE_VERSION);
+		  Char * dumpa = (Char*)&image[i];
+		  for(; dumpa < (Char*)&image[i+8]; dumpa++) {
+		    fprintf(stderr, "%02x ", *dumpa);
+		  }
+		}
 	      }
 	    } else {
 	      int tok = -token & 0x1FF;
