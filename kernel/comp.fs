@@ -410,31 +410,25 @@ opt: ( xt -- ) ?fold-to >body @ (to), ;
 opt: ( xt -- ) ?fold-to >body @ defer@, ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
-: (synonym) ( ... xt "name" -- ) \ gforth
-    Header reveal ['] on vtcopy  dodefer,
-    execute A,
+: synonym, ( last xt int comp -- ) \ gforth
+    set->comp set->int
     ['] s-to       set-to
     ['] s-defer@   set-defer@
     ['] s-compile, set-optimizer
+    cell negate allot A,
     lastcfa ! ;
 
-: make-alias ( xt -- last xt )
-    ['] a>int set->int ['] a>comp set->comp  dup ;
-
 : Alias    ( xt "name" -- ) \ gforth
-    ['] make-alias (synonym) ;
+    Defer dup ['] a>int ['] a>comp synonym, ;
 
 : alias? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] a>comp ['] a>int d= ;
 
-: make-synonym ( "name" -- last xt )
-    ?parse-name find-name dup 0= #-13 and throw
-    ['] s>int set->int ['] s>comp set->comp
-    dup compile-only? IF  compile-only  THEN
-    dup name>int swap ;
-
 : Synonym ( "name" "oldname" -- ) \ Forth200x
-    ['] make-synonym (synonym) ;
+    Defer
+    ?parse-name find-name dup 0= #-13 and throw
+    dup compile-only? IF  compile-only  THEN
+    dup name>int swap ['] s>int ['] s>comp synonym, ;
 
 : synonym? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;
