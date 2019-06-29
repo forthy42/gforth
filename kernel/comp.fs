@@ -310,9 +310,8 @@ has? primcentric [IF]
 
 \ \ ticks
 
-: default-name>comp ( nt -- w xt ) \ gforth name-to-comp
+' compile, AConstant default-name>comp ( nt -- w xt ) \ gforth default-name-to-comp
     \G @i{w xt} is the compilation token for the word @i{nt}.
-    name>int ['] compile, ;
 
 : [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth bracket-paren-tick
     (') postpone Literal ; immediate restrict
@@ -395,15 +394,11 @@ include ./recognizer.fs
 
 \ \ Create Variable User Constant                        	17mar93py
 
-\ : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
-
 : defer@, ( xt -- )
     dup lit, >namevt @ >vtdefer@ @ opt-compile, ;
 
 : a>int ( nt -- )  >body @ ;
 : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
-\ dup >r >body @
-\    ['] execute ['] compile, r> >f+c @ immediate-mask and select ;
 
 : s>int ( nt -- xt )  >body @ name>int ;
 : s>comp ( nt -- xt1 xt2 )  >body @ name>comp ;
@@ -415,22 +410,31 @@ opt: ( xt -- ) ?fold-to >body @ (to), ;
 opt: ( xt -- ) ?fold-to >body @ defer@, ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
-: Alias    ( xt "name" -- ) \ gforth
+: (synonym) ( ... xt "name" -- ) \ gforth
     Header reveal ['] on vtcopy  dodefer,
-    ['] a>int set->int ['] a>comp set->comp ['] s-to set-to
-    ['] s-defer@ set-defer@  ['] s-compile, set-optimizer
-    dup A, lastcfa ! ;
+    execute A,
+    ['] s-to       set-to
+    ['] s-defer@   set-defer@
+    ['] s-compile, set-optimizer
+    lastcfa ! ;
+
+: make-alias ( xt -- last xt )
+    ['] a>int set->int ['] a>comp set->comp  dup ;
+
+: Alias    ( xt "name" -- ) \ gforth
+    ['] make-alias (synonym) ;
 
 : alias? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] a>comp ['] a>int d= ;
 
-: Synonym ( "name" "oldname" -- ) \ Forth200x
-    Header reveal  ['] on vtcopy
+: make-synonym ( "name" -- last xt )
     ?parse-name find-name dup 0= #-13 and throw
-    dodefer, dup A,
-    dup compile-only? IF  compile-only  THEN  name>int lastcfa !
-    ['] s>int set->int ['] s>comp set->comp ['] s-to set-to
-    ['] s-defer@ set-defer@  ['] s-compile, set-optimizer ;
+    ['] s>int set->int ['] s>comp set->comp
+    dup compile-only? IF  compile-only  THEN
+    dup name>int swap ;
+
+: Synonym ( "name" "oldname" -- ) \ Forth200x
+    ['] make-synonym (synonym) ;
 
 : synonym? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;
@@ -540,7 +544,7 @@ Create vttemplate
 ' no-to A,             \ to field
 ' no-defer@ A,         \ defer@
 0 A,                   \ extra field
-' default-name>int A,  \ name>int field
+' noop A,  \ name>int field
 ' default-name>comp A, \ name>comp field
 ' named>string A,      \ name>string field
 ' named>link A,        \ name>link field
@@ -724,7 +728,6 @@ defer 0-adjust-locals-size ( -- )
     \ by ;-hook before this stuff here is processed).
     ['] noop defstart ;
 
-: (noname->comp) ( nt -- nt xt )  ['] compile, ;
 : (:noname) ( -- colon-sys )
     \ common factor of : and :noname
     docol, colon-sys ] :-hook ( unlocal-state off ) ;
@@ -733,16 +736,17 @@ defer 0-adjust-locals-size ( -- )
     free-old-local-names
     Header (:noname) ;
 
+: default-i/c ( -- )
+    ['] noop set->int
+    ['] default-name>comp set->comp ;
 : noname-vt ( -- )
     \G modify vt for noname words
-    ['] noop set->int
-    ['] (noname->comp) set->comp
+    default-i/c
     ['] noname>string set-name>string
     ['] noname>link set-name>link ;
 : named-vt ( -- )
     \G modify vt for named words
-    ['] default-name>int set->int
-    ['] default-name>comp set->comp
+    default-i/c
     ['] named>string set-name>string
     ['] named>link set-name>link ;
 : ?noname-vt ( -- ) last @ 0= IF  noname-vt  ELSE  named-vt  THEN ;

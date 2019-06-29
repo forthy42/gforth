@@ -83,8 +83,10 @@ end-class click-actor
     rot >o click-actor new >o to data is ck-action o o> !act o o> ;
 
 :noname ( rx ry b n -- )
-    click( o hex. ." is clicked, do-action " action-of ck-action xt-see cr )
-    fdrop fdrop 1 and 0= swap 1 <= and IF  do-action  THEN
+    fdrop fdrop 2 = swap 1 <= and IF
+	click( o hex. ." is clicked, do-action " action-of ck-action xt-see cr )
+	do-action
+    THEN
 ; click-actor is clicked
 :noname ( ukeyaddr u -- )
     bounds ?DO  I c@ bl = IF  do-action  THEN

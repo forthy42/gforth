@@ -3065,9 +3065,8 @@ ghost abi-code,
 2drop
 ghost ;abi-code,
 drop
-ghost default-name>int
 ghost default-name>comp
-2drop
+drop
 ghost i/c>int
 ghost i/c>comp
 2drop
@@ -3078,10 +3077,9 @@ ghost defer-defer@
 ghost named>string
 ghost named>link
 2drop
-ghost (noname->comp)
 ghost noname>string
 ghost noname>link
-2drop drop
+2drop
 ghost value-to
 ghost umethod,
 2drop
@@ -3102,7 +3100,7 @@ Create vttemplate
 0 ,
 findghost :, ,
 findghost no-to ,
-findghost default-name>int ,
+findghost noop ,
 findghost default-name>comp ,
 findghost no-defer@ ,
 findghost named>string ,
@@ -3149,13 +3147,13 @@ End-Struct vtable-struct
 : vt-template, ( -- )
     T here 0 A, H vttemplate ! ;
 :noname ( -- )
-    [G'] default-name>int  vttemplate g>vt>int !
+    [G'] noop              vttemplate g>vt>int !
     [G'] default-name>comp vttemplate g>vt>comp !
     [G'] named>string      vttemplate g>vt>string !
     [G'] named>link        vttemplate g>vt>link ! ; is vt-named
 :noname ( -- )
     [G'] noop              vttemplate g>vt>int !
-    [G'] (noname->comp)    vttemplate g>vt>comp !
+    [G'] default-name>comp vttemplate g>vt>comp !
     [G'] noname>string     vttemplate g>vt>string !
     [G'] noname>link       vttemplate g>vt>link ! ; is vt-noname
 : vt-populate ( -- )
