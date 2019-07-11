@@ -263,7 +263,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	(("char") non-immediate (font-lock-keyword-face . 1)
 	 "[ \t\n]" t string (font-lock-string-face . 1))
 	("'.'?" non-immediate (font-lock-string-face . 1))
-	(("s\"" "c\"" "s\\\"") immediate (font-lock-string-face . 1)
+	(("s\"" "c\"" "l\"" "x\"" "s\\\"") immediate (font-lock-string-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
 	((".\"" ".\\\"") compile-only (font-lock-string-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
