@@ -291,8 +291,26 @@ void throw(int code)
      I_##name:
 #define LABEL_UU(name) H_##name: MAYBE_UNUSED asm(ASMCOMMENT "I " #name); \
      I_##name: MAYBE_UNUSED
-#define LABEL3(name) J_##name: asm(ASMCOMMENT "J " #name);
-#define LABEL3_UU(name) J_##name: MAYBE_UNUSED asm(ASMCOMMENT "J " #name);
+#define LABEL3(name) J_##name: { \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+  }
+#define LABEL3_UU(name) J_##name: MAYBE_UNUSED { \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+  }
 
 #elif ENGINE==2
 /* variant with padding between VM instructions for finding out
@@ -308,8 +326,26 @@ void throw(int code)
    some constants after the final branch, and may refer to them from
    the code before label3.  Since we don't copy the constants, we have
    to make sure that such code is recognized as non-relocatable. */
-#define LABEL3(name) J_##name: asm(ASMCOMMENT "J " #name); SKIP16;
-#define LABEL3_UU(name) J_##name: MAYBE_UNUSED asm(ASMCOMMENT "J " #name); SKIP16;
+#define LABEL3(name) J_##name: { \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+  } SKIP16;
+#define LABEL3_UU(name) J_##name: MAYBE_UNUSED { \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+  } SKIP16;
 
 #elif ENGINE==3
 /* variant with different immediate arguments for finding out
@@ -321,8 +357,26 @@ void throw(int code)
     I_##name:
 #define LABEL_UU(name) H_##name: MAYBE_UNUSED asm(ASMCOMMENT "I " #name); \
     I_##name: MAYBE_UNUSED 
-#define LABEL3(name) J_##name: asm(ASMCOMMENT "J " #name);
-#define LABEL3_UU(name) J_##name: MAYBE_UNUSED asm(ASMCOMMENT "J " #name);
+#define LABEL3(name) J_##name: { \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+  }
+#define LABEL3_UU(name) J_##name: MAYBE_UNUSED { \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);                  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+    asm(ASMCOMMENT "J " #name);  \
+  }
 #else
 #error illegal ENGINE value
 #endif /* ENGINE */
