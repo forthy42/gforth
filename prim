@@ -300,7 +300,7 @@ SET_IP((Xt *)a_target);
 \ condbranch(forthname,stackeffect,restline,code1,code2,forthcode)
 \ this is non-syntactical: code must open a brace that is closed by the macro
 define(condbranch,
-$1 ( `#'a_target $2 ) $3
+$1 ( $7 `#'a_target $2 ) $3
 $4 $5 SET_IP((Xt *)a_target);
 ifelse(condbranch_opt,`1',`INST_TAIL; NEXT_P2;',`/* condbranch_opt=0 */')
 }
@@ -309,7 +309,7 @@ $6
 
 \+glocals
 
-$1-lp+!`#' ( `#'a_target `#'nlocals $2 ) $3_lp_plus_store_number
+$1-lp+!`#' ( $7 `#'a_target `#'nlocals $2 ) $3_lp_plus_store_number
 $4	$5	lp += nlocals;
 SET_IP((Xt *)a_target);
 ifelse(condbranch_opt,`1',`INST_TAIL; NEXT_P2;',`/* condbranch_opt=0 */')
@@ -391,6 +391,11 @@ UCell olddiff = n1-nlimit;
 n2=n1-u;
 ,if (olddiff>u) {
 ,)
+
+condbranch((/loop)`#',R:nlimit R:n1 -- R:nlimit R:n2,gforth-internal paren_slash_loop,
+n2=n1+u;
+,if (n2-nlimit>=u) {
+,,`#'u)
 
 condbranch((s+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth	paren_symmetric_plus_loop,
 ""The run-time procedure compiled by S+LOOP. It loops until the index

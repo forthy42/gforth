@@ -79,3 +79,21 @@ dup folds d+ d-
     folds 2drop 2nip
 4 ' 4lits> ' >4lits ' peephole-compile, folder
     folds 2swap
+
+\ optimize +loop (not quite folding)
+: replace-(+loop)
+    case
+	['] (+loop)       of ['] (/loop)# endof
+	['] (+loop)-lp+!# of ['] (/loop)#-lp+!# endof
+	-21 throw
+    endcase ;
+
+: (+loop)-optimizer ( xt -- )
+    lits# 1 u>= if
+	lits> dup 0> if
+	    swap replace-(+loop) peephole-compile, , exit then
+	>lits then
+    peephole-compile, ;
+
+vt, ' (+loop)       dup (make-latest) ' (+loop)-optimizer set-optimizer
+vt, ' (+loop)-lp+!# dup (make-latest) ' (+loop)-optimizer set-optimizer
