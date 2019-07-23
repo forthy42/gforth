@@ -206,28 +206,6 @@ AUser CSP
     ['] postponer-r is parser1 state on ; immediate restrict
 [then]
 
-comp'  literal drop alias postpone-literal
-comp' 2literal drop alias postpone-2literal
-comp' fliteral drop alias postpone-fliteral
-comp' sliteral drop alias postpone-sliteral
-
-: ]]L ( postponing: x -- ; compiling: -- x ) \ gforth right-bracket-bracket-l
-\G Shortcut for @code{]] literal}.
-    ]] postpone-literal ]] [[ ; immediate
-
-: ]]2L ( postponing: x1 x2 -- ; compiling: -- x1 x2 ) \ gforth right-bracket-bracket-two-l
-\G Shortcut for @code{]] 2literal}.
-    ]] postpone-2literal ]] [[ ; immediate
-
-: ]]FL ( postponing: r -- ; compiling: -- r ) \ gforth right-bracket-bracket-f-l
-\G Shortcut for @code{]] fliteral}.
-    ]] postpone-fliteral ]] [[ ; immediate
-
-: ]]SL ( postponing: addr1 u -- ; compiling: -- addr2 u ) \ gforth right-bracket-bracket-s-l
-\G Shortcut for @code{]] sliteral}; if the string already has been
-\G allocated permanently, you can use @code{]]2L} instead.
-    ]] postpone-sliteral ]] [[ ; immediate
-
 \ interp
 
 : >interp ( .. rectype -- )

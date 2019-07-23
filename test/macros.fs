@@ -24,17 +24,17 @@ decimal
 { : word1 macro1 ; -> }
 { 5 word1 -> 25 }
 
-{ : macro2 7 ]]l + [[ ; immediate -> }
+{ : macro2 7 ]] literal + [[ ; immediate -> }
 { : word2 macro2 ; -> }
 { 8 word2 -> 15 }
 
-{ : macro3 s" test" ]]2l compare [[ ; immediate -> }
+{ : macro3 s" test" ]] 2literal compare [[ ; immediate -> }
 { : word3 macro3 ; -> }
 { s" tess" word3 -> -1 }
 { s" test" word3 -> 0 }
 { s" tesu" word3 -> 1 }
 
-{ : macro4 4e ]]fl f+ [[ ; immediate -> }
+{ : macro4 4e ]] fliteral f+ [[ ; immediate -> }
 { : word4 macro4 ; -> }
 { 5e word4 -> 9e }
 
