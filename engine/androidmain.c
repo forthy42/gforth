@@ -247,6 +247,7 @@ void startForth(jniargs * startargs)
   char statepointer[2*sizeof(char*)+3]; // 0x+hex digits+trailing 0
   char* patharg;
   int retvalue;
+  int needhide=0;
   int epipe[2];
   JavaVM *vm=startargs->vm;
   JNIEnv *env;
@@ -270,6 +271,7 @@ void startForth(jniargs * startargs)
     if(unpackFiles(gforth_gz, "gforth/current/sha256sum", sha256sum) &&
        unpackFiles(dirbuf, "gforth/" ARCH "/gforth/current/sha256sum", sha256arch)) {
       post("doneprog");
+      needhide=1;
     }
     unlink(gforth_gz); // remove temporary copy of gforth.gz
     free(gforth_gz);
@@ -306,7 +308,10 @@ void startForth(jniargs * startargs)
   retvalue=gforth_start(argc, argv);
   LOGI("Started, rval=%d\n", retvalue);
 
-  if(retvalue == -56) {
+  if(retvalue == -56) { // success is "quit"
+    if(needhide) {
+      post("hideprog");
+    }
     gforth_setwinch();
     gforth_bootmessage();
     LOGI("starting gforth_quit\n");

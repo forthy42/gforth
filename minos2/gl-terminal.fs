@@ -553,7 +553,7 @@ default-out op-vector !
 :noname defers reload-textures  term-textures ; is reload-textures
 
 : term-init ( -- )
-    [IFDEF] clazz [ also jni ] ['] hideprog post-it [ previous ] [THEN]
+\    [IFDEF] clazz [ also jni ] ['] hideprog post-it [ previous ] [THEN]
     >screen-orientation
     create-terminal-program to terminal-program
     terminal-program terminal-init

@@ -52,7 +52,7 @@ standard:field
 
 : wrapper-xts ( xt@ !-table -- xt-does xt-opt xt-to ) { xt@ xt! }
     :noname ]] vfield-int, [[ xt@ compile, postpone ; \ xt-does
-    :noname ]] >body vfield-comp, [[ xt@ ]]L compile, ; [[ \ xt-comp,
+    :noname ]] >body vfield-comp, [[ xt@ lit, ]] compile, ; [[ \ xt-comp,
     xt! noname vfield-to: latestxt ;
 
 : wrap+value: ( n2 xt-align xt@ !-table "name" -- ) rot { xt-align }
