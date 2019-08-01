@@ -80,8 +80,12 @@ dup folds d+ d-
 4 ' 4lits> ' >4lits ' peephole-compile, folder
     folds 2swap
 
+: optimizes ( xt "name" -- )
+    \ xt is optimizer of "name"
+    vt, ' dup (make-latest) set-optimizer ;
+
 \ optimize +loop (not quite folding)
-: replace-(+loop)
+: replace-(+loop) ( xt1 -- xt2 )
     case
 	['] (+loop)       of ['] (/loop)# endof
 	['] (+loop)-lp+!# of ['] (/loop)#-lp+!# endof
@@ -95,5 +99,37 @@ dup folds d+ d-
 	>lits then
     peephole-compile, ;
 
-vt, ' (+loop)       dup (make-latest) ' (+loop)-optimizer set-optimizer
-vt, ' (+loop)-lp+!# dup (make-latest) ' (+loop)-optimizer set-optimizer
+' (+loop)-optimizer optimizes (+loop)
+' (+loop)-optimizer optimizes (+loop)-lp+!#
+
+\ optimize pick and fpick
+
+:noname ( xt -- )
+    lits# 1 u>= if
+	lits> case
+	    0 of postpone dup  drop exit endof
+	    1 of postpone over drop exit endof
+	    [defined] fourth [if]
+		2 of postpone third drop exit endof
+		3 of postpone fourth drop exit endof
+	    [then]
+	    dup >lits
+	endcase
+    then
+    peephole-compile, ;
+optimizes pick
+
+:noname ( xt -- )
+    lits# 1 u>= if
+	lits> case
+	    0 of postpone fdup  drop exit endof
+	    1 of postpone fover drop exit endof
+	    [defined] ffourth [if]
+		2 of postpone fthird drop exit endof
+		3 of postpone ffourth drop exit endof
+	    [then]
+	    dup >lits
+	endcase
+    then
+    peephole-compile, ;
+optimizes fpick

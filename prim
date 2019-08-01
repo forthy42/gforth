@@ -1432,6 +1432,10 @@ w = sp[u];
 :
  1+ cells sp@ + @ ;
 
+third	  ( w1 w2 w3 -- w1 w2 w3 w1 )	gforth
+
+fourth	  ( w1 w2 w3 w4 -- w1 w2 w3 w4 w1 )	gforth
+
 2drop	( w1 w2 -- )		core	two_drop
 :
  drop drop ;
@@ -2768,6 +2772,10 @@ fpick	( f:... u -- f:... r )		gforth
 r = fp[u];
 :
  floats fp@ + f@ ;
+
+fthird	  ( r1 r2 r3 -- r1 r2 r3 r1 )	gforth
+
+ffourth	  ( r1 r2 r3 r4 -- r1 r2 r3 r4 r1 )	gforth
 
 \+
 \+
