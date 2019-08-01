@@ -273,7 +273,10 @@ csswaplfetch = ul@ l>< l>s
 \E prim-states float+               \ 78
 \ \E prim-states (for)                \ 68
 \E prim-states 2rdrop               \ 60 \ --
-\ \E prim-states f!                   \ 14
+\E prim-states f@
+\E prim-states f+
+\E prim-states f*
+\E prim-states f!                   \ 14
 \E prim-states >l                   \ 14
 \ \E prim-states close-file           \ 5
 \ \E prim-states call-c               \ 4
