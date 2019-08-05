@@ -212,3 +212,6 @@ s" ( testing ( without being delimited by newline in non-files" evaluate
 \ testing '(' without ')' at end-of-file
 ." expect ``warning: ')' missing''" cr
 (
+
+\ constant folding must not produce a compile-time error
+: test 1 0 / ;

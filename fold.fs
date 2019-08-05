@@ -41,6 +41,10 @@
 	    folder-xt set-optimizer
     REPEAT ;
 
+: optimizes ( xt "name" -- )
+    \ xt is optimizer of "name"
+    vt, ' dup (make-latest) set-optimizer ;
+
 1 ' lits>  ' >lits ' peephole-compile, folder
 dup folds invert abs negate >pow2
 dup folds 1+ 1- 2* 2/ cells cell/
@@ -54,7 +58,7 @@ folds 0> 0= 0<
 1 ' lits> ' >2lits ' :, folder
     folds s>d
 2 ' 2lits> ' >lits ' peephole-compile, folder
-dup folds + - * / mod u/ umod and or xor
+dup folds * and or xor
 dup folds min max umin umax
 dup folds drop nip
 dup folds rshift lshift arshift rol ror
@@ -79,10 +83,6 @@ dup folds d+ d-
     folds 2drop 2nip
 4 ' 4lits> ' >4lits ' peephole-compile, folder
     folds 2swap
-
-: optimizes ( xt "name" -- )
-    \ xt is optimizer of "name"
-    vt, ' dup (make-latest) set-optimizer ;
 
 \ optimize +loop (not quite folding)
 : replace-(+loop) ( xt1 -- xt2 )
@@ -133,3 +133,28 @@ optimizes pick
     then
     peephole-compile, ;
 optimizes fpick
+
+\ optimize + -
+
+:noname {: xt: op -- :}
+    lits# 2 u>= if
+	2lits> op >lits exit then
+    lits# 1 = if
+	0 lits> op ['] lit+ peephole-compile, , exit then
+    action-of op peephole-compile, ;
+dup optimizes +
+optimizes -
+
+\ optimize division instructions; needs special treatmeant of divide by 0
+
+:noname {: xt: op -- :}
+    lits# 2 u>= if
+	2lits> dup if
+	    op >lits exit then
+	>2lits then
+    action-of op peephole-compile, ;
+dup optimizes /
+dup optimizes mod
+dup optimizes u/
+dup optimizes umod
+drop
