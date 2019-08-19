@@ -12690,7 +12690,7 @@ their semantics.
 @subsection Ptheads
 @cindex pthread
 
-Tasks can be created with @code{newtask} or @code{newtast4} with a
+Tasks can be created with @code{newtask} or @code{newtask4} with a
 given amount of stack space (either all the same or each stack's size
 specified); these tasks neet to be @code{activate}d or send an
 @var{xt} through @code{initiate}.  Tasks can @code{stop} themselves
