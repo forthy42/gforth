@@ -39,7 +39,7 @@ LIBPNG=libpng-1.6.36
 BZIP2=bzip2-1.0.6
 
 fine=yes
-for i in git wget ragel hg
+for i in git wget
 do
     if ! which $i >/dev/null 2>/dev/null
     then
