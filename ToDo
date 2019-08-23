@@ -1,10 +1,20 @@
+-*- Waxeneck Session 2019 -*-
+ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done
+  G  [ ] f
+ABG  [ ] 1.0
+ bG  [ ] Klaut
+ B   [ ] Header Interface - autodetect duplication, simpler interface
+           Set interface should encompass the functionality
+ B       [ ] Generate header from prototype without duplcation
+
 -*- RoadMap for gforth 1.0 -*-
 ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done
  B   [x] Multithreading API
- B       [ ] Documentation
+ B       [x] Documentation
+A        [ ] Documentation review
   G      [ ] Examples
  B   [x] Save images that contain C bindings
-  G      [ ] Interface files for .h-files; build on install
+  G      [ ] Interface files for .h-files; build on install Port typical C-Libraries like stdio. Allow for `include c/stdio` Same structure as in C
 A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
@@ -14,21 +24,25 @@ ABGO [ ] Documentation for Undocumented features
 A        [ ]*Search changelogs for features
 A    [ ]*Sections
 A        [ ] integrate for: quotations, strings, locals
- B       [ ] loader for images with sections
+A        [ ] saver for images with sections
+ B       [x] loader for images with sections
 AB   [ ]*locate, view, where & edit
          [ ] documented view>*
          [x]*help or doc - get documentation of word
-         [ ]*backtrace os-commandline
-         [ ]*where: interaction with editors
+abG      [ ] Website manual
+A        [ ] Add tex-section support
+A        [ ] Add documentation explaining help so that "help help" yields it
+A        [ ]*backtrace os-commandline
+A        [ ]*where: interaction with editors - g can be used
 A    [x]*2012 Implementieren
 A        [x] update ansreport
 A        [x] system documentation requirements
- B   [ ] Configure Scripts
+ B   [x] Configure Scripts
  B       [x] make -j
   G      [x] ./BUILD-FROM-SCRATCH mit make -j
  B       [x] ./BUILD-FROM-SCRATCH for android
  B       [x] libtool-Fehler when it cannot be found (why is ./libtool not enough?) - better error reporting in configure
- B       [ ]*sudo make install does not clean up stuff - check if something is still owned by root
+ B       [x]*sudo make install does not clean up stuff - check if something is still owned by root
  B       [x]*Warnings are added to string variables: present summary at the end
   G      [x] hash -r show or document
  B   [x]*version comparison 001.000.000 -> upgrade path: 000.007.009
@@ -38,9 +52,9 @@ A        [x] system documentation requirements
   G  [ ] better vim support
 A    [ ] changelog
 A    [ ] news-file
-A    [x] update this ToDo file
+A    [ ] update this ToDo file
  BG  [x]*implement smart .s "..."
-AB   [ ]*~~ uses ... and prints floating stack
+AB   [x]*~~ uses ... and prints floating stack
 
 -*- RoadMap for gforth post 1.0 -*-
  B   [ ] Multithreading: Use sections to allow compilation in every threading
