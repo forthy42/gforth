@@ -300,11 +300,14 @@ included-files $[]# 1- constant doc-file#
             {: c-addr3 u3 :} c-addr1 u1 u3 - count-lfs 2 +
             doc-file# swap 1 encode-view u set-located-view l exit
         else
-            2drop cr ." No documentation for " c-addr u type then
+	    2drop c-addr u cr
+	    [: ." No documentation for " type ;] error-color color-execute
+	then
     else
-        cr ." Documentation file not found"
+        cr [: ." Documentation file not found" ;] error-color color-execute
     then
-    ." , LOCATEing source" c-addr u find-name dup 0= -13 and throw locate-name ;
+    [: ." , LOCATEing source" ;] info-color color-execute
+    c-addr u find-name dup 0= -13 and throw locate-name ;
 
 : help ( "name" -- ) \ gforth
     \G If no name is given, show basic help.  Otherwise, show the
