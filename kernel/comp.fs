@@ -142,21 +142,16 @@ Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
 : header, ( c-addr u -- ) \ gforth
-    name-too-long?  vt,
+    vt,
+    name-too-long?
     get-current >r
-    dup max-name-length @ max max-name-length !
-    [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
     dup here + dup maxaligned >align
     nlstring,
     here xt-location drop \ add location stamps on vt+cf
     r> 1 or A, vttemplate A, here last !
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
-    \   alias-mask lastflags cset
-    [ [IFDEF] prelude-mask ]
-	next-prelude @ 0<> prelude-mask and lastflags cset
-	next-prelude off
-    [ [THEN] ] named-vt ;
+    named-vt ;
 
 defer record-name ( -- )
 ' noop is record-name

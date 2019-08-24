@@ -192,19 +192,7 @@ UValue dp               \ initialized at boot time with normal-dp
 			\ the pointer to the current dictionary pointer
                         \ ist reset to normal-dp on (doerror)
                         \  (i.e. any throw caught by quit)
-has? ec [IF]
-    AUser LastCFA
-[THEN]
 AUser Last
-
-has? flash [IF]
-    AUser flash-dp
-    : rom  flash-dp dpp ! ;
-    : ram  normal-dp dpp ! ;
-[THEN]
-
-Variable max-name-length \ maximum length of all names defined yet
-32 max-name-length ! \ is global!
 
 Variable warnings ( -- addr ) \ gforth
 \G set warnings level to
