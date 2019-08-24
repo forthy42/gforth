@@ -309,10 +309,22 @@ included-files $[]# 1- constant doc-file#
     [: ." , LOCATEing source" ;] info-color color-execute
     c-addr u find-name dup 0= -13 and throw locate-name ;
 
-: help ( "name" -- ) \ gforth
-    \G If no name is given, show basic help.  Otherwise, show the
-    \G documentation of the word if it exists, or its source code if
-    \G not.
-    parse-name dup if
-        help-word exit then
-    2drop basic-help ;
+: help-section {: c-addr u -- :}
+    ." help for section" c-addr u type ;
+
+[ifdef] string-suffix?
+: help ( "rest-of-line" -- ) \ gforth
+    \G If no name is given, show basic help.  If a documentation node
+    \G name is given followed by "::", show the start of the node.  If
+    \G the name of a word is given, show the documentation of the word
+    \G if it exists, or its source code if not.  Use @code{g} to enter
+    \G the editor at the point shown by @code[help}.
+    >in @ >r parse-name dup 0= if
+        rdrop 2drop basic-help exit then
+    drop 0 parse + over - -trailing 2dup s" ::" string-suffix? if
+        rdrop help-section exit then
+    r@ >in ! parse-name 2dup find-name if
+        rdrop help-word 2drop exit then
+    2drop r> >in ! 0 parse 2drop
+    [: ." Not a section or word" ;] error-color color-execute ;
+[then]
