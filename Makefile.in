@@ -647,7 +647,7 @@ vpath %.fs $(srcdir):.:$(srcdir)/unix:$(srcdir)/test:unix
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-all: kernel/version.fs more @NO_CHECKX@ check extras
+all: kernel/version.fs more @NO_CHECKX@ doc check extras
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;

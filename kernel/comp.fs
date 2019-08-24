@@ -582,6 +582,13 @@ Create vttemplate
 : make-latest ( xt -- )
     vt, dup last ! dup lastcfa ! dup (make-latest) ;
 
+: ?vtname ( -- addr )
+    \G check if deduplicated, duplicate if necessary and return vtname
+    \G of latest definition
+    lastcfa @ >namevt @ vttemplate <> IF
+	lastcfa @ dup (make-latest)
+    THEN  vttemplate ;
+
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
 : start-xt ( -- colonsys xt ) \ incomplete, will not be a full xt
