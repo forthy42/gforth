@@ -76,7 +76,7 @@ variable backedge-locals
 
 3 constant cs-item-size
 
-: CS-PICK ( ... u -- ... destu ) \ tools-ext c-s-pick
+: CS-PICK ( dest0 orig1/dest1 ... origu/destu u -- ... dest0 ) \ tools-ext c-s-pick
  1+ cs-item-size * 1- >r
  r@ pick  r@ pick  r@ pick
  rdrop
@@ -88,8 +88,8 @@ variable backedge-locals
  rdrop
  dup cs-item? ; 
 
-: CS-DROP ( dest/orig -- ) \ gforth
-    drop 2drop ;
+: CS-DROP ( dest -- ) \ gforth
+    dest? 2drop ;
 
 : cs-push-part ( -- list addr )
  locals-list @ here ;
@@ -133,14 +133,20 @@ defer if-like
 \ Structural Conditionals                              12dec92py
 
 : AHEAD ( compilation -- orig ; run-time -- ) \ tools-ext
+    \G At run-time, execution continues after the @code{THEN} that
+    \G consumes the @i{orig}.
     POSTPONE branch  >mark  POSTPONE unreachable ; immediate restrict
 
 : IF ( compilation -- orig ; run-time f -- ) \ core
+    \G At run-time, if @i{f}=0, execution continues after the
+    \G @code{THEN} (or @code{ELSE}) that consumes the @i{orig},
+    \G otherwise right after the @code{IF} (@pxref{Selection}).
     POSTPONE ?branch >mark? ; immediate restrict
 
 : ?DUP-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-if
-\G This is the preferred alternative to the idiom "@code{?DUP IF}", since it can be
-\G better handled by tools like stack checkers. Besides, it's faster.
+    \G This is the preferred alternative to the idiom "@code{?DUP
+    \G IF}", since it can be better handled by tools like stack
+    \G checkers. Besides, it's faster.
     POSTPONE ?dup-?branch >mark? ;       immediate restrict
 
 : ?DUP-0=-IF ( compilation -- orig ; run-time n -- n| ) \ gforth	question-dupe-zero-equals-if
@@ -151,15 +157,20 @@ Defer then-like ( orig -- )
 ' cs>addr IS then-like
 
 : THEN ( compilation orig -- ; run-time -- ) \ core
+    \G The @code{IF}, @code{AHEAD}, @code{ELSE} or @code{WHILE} that
+    \G pushed @i{orig} jumps right after the @code{THEN}
+    \G (@pxref{Selection}).
     dup orig?  then-like ; immediate restrict
 
 ' THEN alias ENDIF ( compilation orig -- ; run-time -- ) \ gforth
+\G Same as @code{THEN}.
 immediate restrict
-\ Same as "THEN". This is what you use if your program will be seen by
-\ people who have not been brought up with Forth (or who have been
-\ brought up with fig-Forth).
 
 : ELSE ( compilation orig1 -- orig2 ; run-time -- ) \ core
+    \G At run-time, execution continues after the @code{THEN} that
+    \G consumes the @i{orig}; the @code{IF}, @code{AHEAD}, @code{ELSE}
+    \G or @code{WHILE} that pushed @i{orig1} jumps right after the
+    \G @code{ELSE}.  (@pxref{Selection}).
     POSTPONE ahead  dead-code off
     1 cs-roll
     POSTPONE then ; immediate restrict
@@ -168,6 +179,9 @@ Defer begin-like ( -- )
 ' lits, IS begin-like
 
 : BEGIN ( compilation -- dest ; run-time -- ) \ core
+    \G The @code{UNTIL}, @code{AGAIN} or @code{REPEAT} that consumes
+    \G the @i{dest} jumps right behind the @code{BEGIN} (@pxref{Simple
+    \G Loops}).
     begin-like cs-push-part dest
     basic-block-end ; immediate restrict
 
@@ -175,6 +189,8 @@ Defer again-like ( dest -- addr )
 ' nip IS again-like
 
 : AGAIN ( compilation dest -- ; run-time -- ) \ core-ext
+    \G At run-time, execution continues after the @code{BEGIN} that
+    \G produced the @i{dest} (@pxref{Simple Loops}).
     dest? again-like  POSTPONE branch  <resolve ; immediate restrict
 
 Defer until-like ( list addr xt1 xt2 -- )
@@ -183,13 +199,24 @@ Defer until-like ( list addr xt1 xt2 -- )
 IS until-like
 
 : UNTIL ( compilation dest -- ; run-time f -- ) \ core
+    \G At run-time, if @i{f}=0, execution continues after the
+    \G @code{BEGIN} that produced @i{dest}, otherwise right after
+    \G the @code{UNTIL} (@pxref{Simple Loops}).
     dest? ['] ?branch ['] ?branch-lp+!# until-like ; immediate restrict
 
 : WHILE ( compilation dest -- orig dest ; run-time f -- ) \ core
+    \G At run-time, if @i{f}=0, execution continues after the
+    \G @code{REPEAT} (or @code{THEN} or @code{ELSE}) that consumes the
+    \G @i{orig}, otherwise right after the @code{WHILE} (@pxref{Simple
+    \G Loops}).
     POSTPONE if
     1 cs-roll ; immediate restrict
 
 : REPEAT ( compilation orig dest -- ; run-time -- ) \ core
+    \G At run-time, execution continues after the @code{BEGIN} that
+    \G produced the @i{dest}; the @code{WHILE}, @code{IF},
+    \G @code{AHEAD} or @code{ELSE} that pushed @i{orig} jumps right
+    \G after the @code{REPEAT}.  (@pxref{Simple Loops}).
     POSTPONE again
     POSTPONE then ; immediate restrict
 
@@ -254,13 +281,16 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
     >leave rdrop ; immediate restrict
 
 : LEAVE ( compilation -- ; run-time loop-sys -- ) \ core
+    \G @xref{Counted Loops}.
     POSTPONE ahead >leave ; immediate compile-only
 
 : ?LEAVE ( compilation -- ; run-time f | f loop-sys -- ) \ gforth	question-leave
+    \G @xref{Counted Loops}.
     POSTPONE 0= POSTPONE if
     >leave ; immediate restrict
 
 : DO ( compilation -- do-sys ; run-time w1 w2 -- loop-sys ) \ core
+    \G @xref{Counted Loops}.
     POSTPONE (do)
     POSTPONE begin drop do-dest
     ( 0 0 0 >leave ) ; immediate restrict
@@ -271,21 +301,27 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
     POSTPONE begin drop do-dest ;
 
 : ?DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ core-ext	question-do
+    \G @xref{Counted Loops}.
     POSTPONE (?do) ?do-like ; immediate restrict
 
 : +DO ( compilation -- do-sys ; run-time n1 n2 -- | loop-sys )	\ gforth	plus-do
+    \G @xref{Counted Loops}.
     POSTPONE (+do) ?do-like ; immediate restrict
 
 : U+DO ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys )	\ gforth	u-plus-do
+    \G @xref{Counted Loops}.
     POSTPONE (u+do) ?do-like ; immediate restrict
 
 : -DO ( compilation -- do-sys ; run-time n1 n2 -- | loop-sys )	\ gforth	minus-do
+    \G @xref{Counted Loops}.
     POSTPONE (-do) ?do-like ; immediate restrict
 
 : U-DO ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys )	\ gforth	u-minus-do
+    \G @xref{Counted Loops}.
     POSTPONE (u-do) ?do-like ; immediate restrict
 
 : FOR ( compilation -- do-sys ; run-time u -- loop-sys )	\ gforth
+    \G @xref{Counted Loops}.
     POSTPONE (for)
     POSTPONE begin drop do-dest
     ( 0 0 0 >leave ) ; immediate restrict
@@ -297,23 +333,28 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
     until-like  POSTPONE done  POSTPONE unloop ;
 
 : LOOP ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 )	\ core
+    \G @xref{Counted Loops}.
  ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
 
 : +LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ core	plus-loop
+    \G @xref{Counted Loops}.
  ['] (+loop) ['] (+loop)-lp+!# loop-like ; immediate restrict
 
 \ !! should the compiler warn about +DO..-LOOP?
 : -LOOP ( compilation do-sys -- ; run-time loop-sys1 u -- | loop-sys2 )	\ gforth	minus-loop
+    \G @xref{Counted Loops}.
  ['] (-loop) ['] (-loop)-lp+!# loop-like ; immediate restrict
 
 \ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP"
 \ will iterate as often as "high low ?DO inc S+LOOP". For positive
 \ increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for
 \ negative increments.
-: S+LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ gforth	s-plus-loop
+: S+LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ gforth-obsolete	s-plus-loop
+    \G @xref{Counted Loops}.
  ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate restrict
 
 : NEXT ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 ) \ gforth
+    \G @xref{Counted Loops}.
  ['] (next) ['] (next)-lp+!# loop-like ; immediate restrict
 
 \ Structural Conditionals                              12dec92py

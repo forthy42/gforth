@@ -5799,13 +5799,16 @@ doc-until
 doc-again
 doc-cs-pick
 doc-cs-roll
-
+doc-cs-drop
 
 The Standard words @code{CS-PICK} and @code{CS-ROLL} allow you to
 manipulate the control-flow stack in a portable way. Without them, you
 would need to know how many stack items are occupied by a control-flow
 entry (many systems use one cell. In Gforth they currently take three,
 but this may change in the future).
+
+@code{CS-PICK} can only pick a dest and @code{CS-DROP} can only drop a
+dest, because an orig must be resolved exactly once.
 
 Some standard control structure words are built from these words:
 
