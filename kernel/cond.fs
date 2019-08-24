@@ -89,7 +89,7 @@ variable backedge-locals
  dup cs-item? ; 
 
 : CS-DROP ( dest -- ) \ gforth
-    drop 2drop ;
+    dest? 2drop ;
 
 : cs-push-part ( -- list addr )
  locals-list @ here ;
@@ -281,13 +281,16 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
     >leave rdrop ; immediate restrict
 
 : LEAVE ( compilation -- ; run-time loop-sys -- ) \ core
+    \G @xref{Counted Loops}.
     POSTPONE ahead >leave ; immediate compile-only
 
 : ?LEAVE ( compilation -- ; run-time f | f loop-sys -- ) \ gforth	question-leave
+    \G @xref{Counted Loops}.
     POSTPONE 0= POSTPONE if
     >leave ; immediate restrict
 
 : DO ( compilation -- do-sys ; run-time w1 w2 -- loop-sys ) \ core
+    \G @xref{Counted Loops}.
     POSTPONE (do)
     POSTPONE begin drop do-dest
     ( 0 0 0 >leave ) ; immediate restrict
@@ -298,21 +301,27 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
     POSTPONE begin drop do-dest ;
 
 : ?DO ( compilation -- do-sys ; run-time w1 w2 -- | loop-sys )	\ core-ext	question-do
+    \G @xref{Counted Loops}.
     POSTPONE (?do) ?do-like ; immediate restrict
 
 : +DO ( compilation -- do-sys ; run-time n1 n2 -- | loop-sys )	\ gforth	plus-do
+    \G @xref{Counted Loops}.
     POSTPONE (+do) ?do-like ; immediate restrict
 
 : U+DO ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys )	\ gforth	u-plus-do
+    \G @xref{Counted Loops}.
     POSTPONE (u+do) ?do-like ; immediate restrict
 
 : -DO ( compilation -- do-sys ; run-time n1 n2 -- | loop-sys )	\ gforth	minus-do
+    \G @xref{Counted Loops}.
     POSTPONE (-do) ?do-like ; immediate restrict
 
 : U-DO ( compilation -- do-sys ; run-time u1 u2 -- | loop-sys )	\ gforth	u-minus-do
+    \G @xref{Counted Loops}.
     POSTPONE (u-do) ?do-like ; immediate restrict
 
 : FOR ( compilation -- do-sys ; run-time u -- loop-sys )	\ gforth
+    \G @xref{Counted Loops}.
     POSTPONE (for)
     POSTPONE begin drop do-dest
     ( 0 0 0 >leave ) ; immediate restrict
@@ -324,23 +333,28 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
     until-like  POSTPONE done  POSTPONE unloop ;
 
 : LOOP ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 )	\ core
+    \G @xref{Counted Loops}.
  ['] (loop) ['] (loop)-lp+!# loop-like ; immediate restrict
 
 : +LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ core	plus-loop
+    \G @xref{Counted Loops}.
  ['] (+loop) ['] (+loop)-lp+!# loop-like ; immediate restrict
 
 \ !! should the compiler warn about +DO..-LOOP?
 : -LOOP ( compilation do-sys -- ; run-time loop-sys1 u -- | loop-sys2 )	\ gforth	minus-loop
+    \G @xref{Counted Loops}.
  ['] (-loop) ['] (-loop)-lp+!# loop-like ; immediate restrict
 
 \ A symmetric version of "+LOOP". I.e., "-high -low ?DO -inc S+LOOP"
 \ will iterate as often as "high low ?DO inc S+LOOP". For positive
 \ increments it behaves like "+LOOP". Use S+LOOP instead of +LOOP for
 \ negative increments.
-: S+LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ gforth	s-plus-loop
+: S+LOOP ( compilation do-sys -- ; run-time loop-sys1 n -- | loop-sys2 )	\ gforth-obsolete	s-plus-loop
+    \G @xref{Counted Loops}.
  ['] (s+loop) ['] (s+loop)-lp+!# loop-like ; immediate restrict
 
 : NEXT ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 ) \ gforth
+    \G @xref{Counted Loops}.
  ['] (next) ['] (next)-lp+!# loop-like ; immediate restrict
 
 \ Structural Conditionals                              12dec92py
