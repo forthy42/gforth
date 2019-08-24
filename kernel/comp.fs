@@ -141,22 +141,20 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
-: header, ( c-addr u -- ) \ gforth
-    name-too-long?  vt,
-    get-current >r
-    dup max-name-length @ max max-name-length !
-    [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
-    dup here + dup maxaligned >align
+: name, ( c-addr u -- ) \ gforth
+    \G compile the named part of a header
+    name-too-long?
+    dup here + dup cfaligned >align
     nlstring,
-    here xt-location drop \ add location stamps on vt+cf
-    r> 1 or A, vttemplate A, here last !
+    get-current 1 or A, ;
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
-    \   alias-mask lastflags cset
-    [ [IFDEF] prelude-mask ]
-	next-prelude @ 0<> prelude-mask and lastflags cset
-	next-prelude off
-    [ [THEN] ] named-vt ;
+: namevt, ( namevt -- )
+    here xt-location drop , ; \ add location stamps on vt+cf
+
+: header, ( c-addr u -- ) \ gforth
+    vt, name, vttemplate namevt,
+    named-vt ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -192,9 +190,8 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname, ( -- )
-    0 last ! vt,  here dup cfaligned >align
-    here xt-location drop \ add location stamps on vt+cf
-    vttemplate , \ vtable field
+    vt, 0 last !   here dup cfaligned >align
+    vttemplate namevt, \ vtable field
     noname-vt ;
 : noname-header ( -- )
     noname, input-stream ;
@@ -582,6 +579,13 @@ Create vttemplate
 : make-latest ( xt -- )
     vt, dup last ! dup lastcfa ! dup (make-latest) ;
 
+: ?vtname ( -- addr )
+    \G check if deduplicated, duplicate if necessary and return vtname
+    \G of latest definition
+    lastcfa @ >namevt @ vttemplate <> IF
+	lastcfa @ dup (make-latest)
+    THEN  vttemplate ;
+
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
 : start-xt ( -- colonsys xt ) \ incomplete, will not be a full xt
@@ -740,6 +744,7 @@ defer 0-adjust-locals-size ( -- )
     ['] noname>link set-name>link ;
 : named-vt ( -- )
     \G modify vt for named words
+    here last ! \ set last header
     default-i/c
     ['] named>string set-name>string
     ['] named>link set-name>link ;
