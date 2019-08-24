@@ -141,16 +141,19 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
-: header, ( c-addr u -- ) \ gforth
-    vt,
+: name, ( c-addr u -- ) \ gforth
+    \G compile the named part of a header
     name-too-long?
-    get-current >r
-    dup here + dup maxaligned >align
+    dup here + dup cfaligned >align
     nlstring,
-    here xt-location drop \ add location stamps on vt+cf
-    r> 1 or A, vttemplate A, here last !
+    get-current 1 or A, ;
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
+: namevt, ( namevt -- )
+    here xt-location drop , ; \ add location stamps on vt+cf
+
+: header, ( c-addr u -- ) \ gforth
+    vt, name, vttemplate namevt,
     named-vt ;
 
 defer record-name ( -- )
@@ -187,9 +190,8 @@ defer header ( -- ) \ gforth
     ['] nextname-header IS (header) ;
 
 : noname, ( -- )
-    0 last ! vt,  here dup cfaligned >align
-    here xt-location drop \ add location stamps on vt+cf
-    vttemplate , \ vtable field
+    vt, 0 last !   here dup cfaligned >align
+    vttemplate namevt, \ vtable field
     noname-vt ;
 : noname-header ( -- )
     noname, input-stream ;
@@ -742,6 +744,7 @@ defer 0-adjust-locals-size ( -- )
     ['] noname>link set-name>link ;
 : named-vt ( -- )
     \G modify vt for named words
+    here last ! \ set last header
     default-i/c
     ['] named>string set-name>string
     ['] named>link set-name>link ;
