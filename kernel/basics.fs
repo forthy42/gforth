@@ -32,10 +32,6 @@ hex
 
 \ Aliases
 
-[IFUNDEF] r@
-' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
-[THEN]
-
 \ !! this is machine-dependent, but works on all but the strangest machines
 
 : maxaligned ( addr1 -- addr2 ) \ gforth
