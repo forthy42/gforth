@@ -1,12 +1,3 @@
--*- Waxeneck Session 2019 -*-
-ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done
-  G  [ ] f
-ABG  [ ] 1.0
- bG  [ ] Klaut
- B   [ ] Header Interface - autodetect duplication, simpler interface
-           Set interface should encompass the functionality
- B       [ ] Generate header from prototype without duplcation
-
 -*- RoadMap for gforth 1.0 -*-
 ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done
  B   [x] Multithreading API
@@ -14,7 +5,7 @@ ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done
 A        [ ] Documentation review
   G      [ ] Examples
  B   [x] Save images that contain C bindings
-  G      [ ] Interface files for .h-files; build on install Port typical C-Libraries like stdio. Allow for `include c/stdio` Same structure as in C
+  G      [ ]*Interface files for .h-files; build on install Port typical C-Libraries like stdio. Allow for `include c/stdio` Same structure as in C
 A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
@@ -24,13 +15,15 @@ ABGO [ ] Documentation for Undocumented features
 A        [ ]*Search changelogs for features
 A    [ ]*Sections
 A        [ ] integrate for: quotations, strings, locals
-A        [ ] saver for images with sections
+A        [ ]*saver for images with sections
  B       [x] loader for images with sections
+ B   [ ]*Header Interface - autodetect duplication, simpler interface, setters have to duplicate if not already
+ B       [ ] Generate header from prototype without duplcation
 AB   [ ]*locate, view, where & edit
          [ ] documented view>*
          [x]*help or doc - get documentation of word
-abG      [ ] Website manual
-A        [ ] Add tex-section support
+  G      [ ] Website manual - doc/crossdoc.fd doc/doc.fd doc/gforth.texi.in|grep doc- doc/gforth.txt
+A        [ ]*Add tex-section support
 A        [ ] Add documentation explaining help so that "help help" yields it
 A        [ ]*backtrace os-commandline
 A        [ ]*where: interaction with editors - g can be used
@@ -61,7 +54,7 @@ AB   [x]*~~ uses ... and prints floating stack
 ABG  [ ] fork-marker use fork instead of classic marker
 AB   [ ] marker für sections
 AB   [ ] bin-utils disassembler
-
+  G  [ ] Klaut
 
 -*- outline -*-
 
