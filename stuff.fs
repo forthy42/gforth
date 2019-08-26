@@ -522,35 +522,6 @@ previous
     sword dup word-pno-size u>= IF  -18 throw  THEN
     here place  bl here count + c!  here ;
 
-\ quotations
-
-[ifundef] [:
-: int-[: ( -- flag colon-sys )
-  false :noname ;
-: comp-[: ( -- quotation-sys flag colon-sys )
-    vtsave locals-wordlist last @ lastcfa @ leave-sp @
-    postpone AHEAD
-    locals-list @ locals-list off
-    postpone SCOPE
-    true  :noname  ;
-' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
-\G Starts a quotation
-
-: (;]) ( some-sys lastxt -- )
-    >r
-    ] postpone ENDSCOPE
-    locals-list !
-    postpone THEN
-    leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore
-    r> postpone ALiteral ;
-
-: ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
-    \g ends a quotation
-    POSTPONE ; swap IF
-        (;])
-    ELSE  r>  THEN ( xt ) ; immediate
-[then]
-
 \ multiple values to and from return stack
 
 : n>r ( x1 .. xn n -- r:xn..x1 r:n )

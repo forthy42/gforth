@@ -3219,8 +3219,6 @@ ghost ?fold-to drop
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
 
-: to: T : H ;
-: defer@: T : H ;
 : to-opt: T opt: H compile ?fold-to ;
 : defer@-opt: T opt: H compile ?fold-to ;
 

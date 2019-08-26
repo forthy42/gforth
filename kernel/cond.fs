@@ -57,13 +57,16 @@ variable backedge-locals
 5 constant scopestart
 
 : orig? ( n -- )
- dup live-orig <> swap dead-orig <> and abort" expected orig " ;
+ dead-orig 1+ live-orig within abort" expected orig " ;
 
 : dest? ( n -- )
  dest <> abort" expected dest " ;
 
 : do-dest? ( n -- )
  do-dest <> abort" expected do-dest " ;
+
+: *dest? ( n -- )
+ do-dest 1+ dest within abort" expected dest/do-dest " ;
 
 : scope? ( n -- )
  scopestart <> abort" expected scope " ;
@@ -89,7 +92,7 @@ variable backedge-locals
  dup cs-item? ; 
 
 : CS-DROP ( dest -- ) \ gforth
-    dest? 2drop ;
+    *dest? 2drop ;
 
 : cs-push-part ( -- list addr )
  locals-list @ here ;

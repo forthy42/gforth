@@ -157,7 +157,10 @@ Defer check-shadow ( addr u wid -- )
     vt, name, vttemplate namevt, named-vt ;
 : copy-header, ( xt c-addr u -- ) \ gforth
     \G create a header by example for a named word
-    vt, name, >namevt 2@ , here last ! cfa, ;
+    vt, name,   >namevt 2@ , here last ! cfa, ;
+: copy-noname, ( xt -- ) \ gforth
+    \G create a headerless word by example
+    vt, cfalign >namevt 2@ , cfa, ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -499,7 +502,7 @@ defer defer-default ( -- )
     Header Reveal dodefer, 
     ['] defer-default A, ;
 
-defer@: defer-defer@ ( xt -- )
+: defer-defer@ ( xt -- )
     \ The defer@ implementation of children of DEFER
     >body @ ;
 opt: ( xt -- )
