@@ -74,17 +74,18 @@ reset-locs
 
 include kernel/aliases.fs             \ primitive aliases, are config-generated
 doc-on
-\ primitive aliases must be before first use, because resolving
-\ forward references works only for high level words
-[IFUNDEF] r@
-' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
-[THEN]
 
 has? header [IF]
 1802 <> [IF] .s cr .( header start address expected!) cr uffz [THEN]
 wheres-off
 AConstant image-header
 : forthstart image-header @ ;
+[THEN]
+
+\ primitive aliases must be before first use, because resolving
+\ forward references works only for high level words
+[IFUNDEF] r@
+' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
 [THEN]
 
 \ 0 AConstant forthstart

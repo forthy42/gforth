@@ -406,16 +406,15 @@ opt: ( xt -- ) ?fold-to >body @ (to), ;
 opt: ( xt -- ) ?fold-to >body @ defer@, ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
-: synonym, ( last xt int comp -- ) \ gforth
+: synonym, ( xt int comp -- ) \ gforth
     set->comp set->int
     ['] s-to       set-to
     ['] s-defer@   set-defer@
     ['] s-compile, set-optimizer
-    A,
-    lastcfa ! ;
+    A, ;
 
 : Alias    ( xt "name" -- ) \ gforth
-    header dodefer, dup ['] a>int ['] a>comp synonym, reveal ;
+    header dodefer, ['] a>int ['] a>comp synonym, reveal ;
 
 : alias? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] a>comp ['] a>int d= ;
@@ -424,7 +423,7 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     header dodefer,
     ?parse-name find-name dup 0= #-13 and throw
     dup compile-only? IF  compile-only  THEN
-    dup name>int swap ['] s>int ['] s>comp synonym, reveal ;
+    ['] s>int ['] s>comp synonym, reveal ;
 
 : synonym? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;
@@ -544,6 +543,7 @@ Create vttemplate
 : vt-activate ( xt -- )
     >namevt vttemplate over ! vttemplate ! ;
 : (make-latest) ( xt1 xt2 -- )
+    dup lastcfa !
     swap >namevt @ vttemplate vtsize move vt-activate ;
 : vtcopy ( xt -- ) \ gforth vtcopy
     >namevt @ vttemplate 0 >vt>int move
@@ -576,13 +576,14 @@ Create vttemplate
     REPEAT  drop (vt,) ;
 
 : make-latest ( xt -- )
-    vt, dup last ! dup lastcfa ! dup (make-latest) ;
+    vt, dup last ! dup (make-latest) ;
 
 : ?vtname ( -- )
     \G check if deduplicated, duplicate if necessary
     \ !!FIXME!! make sure lastcfa already points to where it should
     lastcfa @ >namevt @ vttemplate <> IF
-\	." need duplication " lastcfa @ name>string type space
+\	source type cr
+\	." need duplication " lastcfa @ named>string type space
 \	lastcfa @ >namevt @ hex. vttemplate hex. cr
 	\ lastcfa @ dup (make-latest)
     THEN ;
@@ -590,7 +591,7 @@ Create vttemplate
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
 : start-xt ( -- colonsys xt ) \ incomplete, will not be a full xt
-    here >r docol: cfa, colon-sys ] :-hook r> ;
+    lastcfa @ >r here >r docol: cfa, colon-sys ] :-hook r> r> lastcfa ! ;
 : start-xt-like ( colonsys xt -- colonsys )
     reveal does>-like drop start-xt drop ;
 
