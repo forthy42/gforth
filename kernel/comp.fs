@@ -583,9 +583,8 @@ Create vttemplate
     \G by @{immediate} and @code{set-*} operations
     vt, dup last ! lastcfa ! ;
 
-: ?vtname ( -- )
+: ?vt ( -- )
     \G check if deduplicated, duplicate if necessary
-    \ !!FIXME!! make sure lastcfa already points to where it should
     lastcfa @ >namevt @ vttemplate <> IF
 	lastcfa @
 	dup >namevt @ vttemplate vtsize move
@@ -594,18 +593,18 @@ Create vttemplate
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
-: set-optimizer ( xt -- ) ?vtname vttemplate >vtcompile, ! ;
+: set-optimizer ( xt -- ) ?vt vttemplate >vtcompile, ! ;
 ' set-optimizer alias set-compiler
-: set-to        ( to-xt -- ) ?vtname vttemplate >vtto ! ;
-: set-defer@    ( defer@-xt -- ) ?vtname vttemplate >vtdefer@ ! ;
-: set->int      ( xt -- ) ?vtname vttemplate >vt>int ! ;
-: set->comp     ( xt -- ) ?vtname vttemplate >vt>comp ! ;
+: set-to        ( to-xt -- ) ?vt vttemplate >vtto ! ;
+: set-defer@    ( defer@-xt -- ) ?vt vttemplate >vtdefer@ ! ;
+: set->int      ( xt -- ) ?vt vttemplate >vt>int ! ;
+: set->comp     ( xt -- ) ?vt vttemplate >vt>comp ! ;
 : set-does>     ( xt -- ) \ gforth
-    ?vtname vttemplate >vtextra !
+    ?vt vttemplate >vtextra !
     ['] does, set-optimizer
     dodoes: latestxt ! ;
-: set-name>string ( xt -- ) ?vtname vttemplate >vt>string ! ;
-: set-name>link   ( xt -- ) ?vtname vttemplate >vt>link   ! ;
+: set-name>string ( xt -- ) ?vt vttemplate >vt>string ! ;
+: set-name>link   ( xt -- ) ?vt vttemplate >vt>link   ! ;
 
 : int-opt; ( flag lastxt -- )
     nip >r vt, wrap! r> set-optimizer ;
