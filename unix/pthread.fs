@@ -401,7 +401,7 @@ synonym sleep halt ( task -- )
 
 \ User deferred words, user values
 
-defer@: udefer@ ( xt -- )
+: udefer@ ( xt -- )
     >body @ up@ + @ ;
 defer@-opt: ( xt -- ) >body @ postpone useraddr , postpone @ ;
 

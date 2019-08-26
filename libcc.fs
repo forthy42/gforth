@@ -980,7 +980,7 @@ latestxt to rt-vtable
     >r Create here dup ccb% dup allot erase
     lib-handle-addr @ swap dup >r ccb-lha !
     parse-function-types
-    here lastxt name>string string, count sanitize
+    here latestxt name>string string, count sanitize
     callback# 1- r> ccb-num !
     r> c-source-file-execute
     ['] callback-does> set-does> ;

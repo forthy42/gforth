@@ -320,16 +320,16 @@ variable locals-dp \ so here's the special dp for locals.
 
 Create 2!-table ' 2! , ' 2+! ,
 Create c!-table ' c! , ' c+! ,
-to: to-w: ( -- ) -14 throw ;
+: to-w: ( -- ) -14 throw ;
 to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
-to: to-d: ( -- ) -14 throw ;
+: to-d: ( -- ) -14 throw ;
 to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
-to: to-c: ( -- ) -14 throw ;
+: to-c: ( -- ) -14 throw ;
 to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
-to: to-f: ( -- ) -14 throw ;
+: to-f: ( -- ) -14 throw ;
 to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
-defer@: defer@-xt: ( -- ) -14 throw ;
+: defer@-xt: ( -- ) -14 throw ;
 defer@-opt: ( xt -- ) POSTPONE laddr# >body @ lp-offset, postpone @ ;
 
 : val-part-off ( -- ) val-part off ;
@@ -397,21 +397,19 @@ locals-types definitions
 : | val-part on ['] val-part-off ;
 
 \ you may want to make comments in a locals definitions group:
-' \ alias \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
+synonym \ \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
 \G Comment till the end of the line if @code{BLK} contains 0 (i.e.,
 \G while not loading a block), parse and discard the remainder of the
 \G parse area. Otherwise, parse and discard all subsequent characters
 \G in the parse area corresponding to the current line.
-immediate
 
-' ( alias ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
+synonym ( ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
 \G Comment, usually till the next @code{)}: parse and discard all
 \G subsequent characters in the parse area until ")" is
 \G encountered. During interactive input, an end-of-line also acts as
 \G a comment terminator. For file input, it does not; if the
 \G end-of-file is encountered whilst parsing for the ")" delimiter,
 \G Gforth will generate a warning.
-immediate
 
 forth definitions
 also locals-types
@@ -430,7 +428,7 @@ f^ some-faddr 2drop
 w^ some-waddr 2drop
 
 ' dict-execute1 is dict-execute \ now the real thing
-    
+
 \ the following gymnastics are for declaring locals without type specifier.
 \ we exploit a feature of our dictionary: every wordlist
 \ has it's own methods for finding words etc.

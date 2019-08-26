@@ -150,7 +150,7 @@ Defer check-shadow ( addr u wid -- )
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
 : namevt, ( namevt -- )
-    here xt-location drop , ; \ add location stamps on vt+cf
+    here xt-location drop , here lastcfa ! ; \ add location stamps on vt+cf
 
 : header, ( c-addr u -- ) \ gforth
     vt, name, vttemplate namevt,
@@ -386,7 +386,6 @@ include ./recognizer.fs
 \G interpreter and @code{'} will warn when they encounter such a word.
 
 \ !!FIXME!! new flagless versions:
-\ : immediate [: name>int ['] execute ;] set->comp ;
 \ : compile-only [: drop ['] compile-only-error ;] set->int ;
 
 \ \ Create Variable User Constant                        	17mar93py
@@ -412,20 +411,20 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     ['] s-to       set-to
     ['] s-defer@   set-defer@
     ['] s-compile, set-optimizer
-    cell negate allot A,
+    A,
     lastcfa ! ;
 
 : Alias    ( xt "name" -- ) \ gforth
-    Defer dup ['] a>int ['] a>comp synonym, ;
+    header dodefer, dup ['] a>int ['] a>comp synonym, reveal ;
 
 : alias? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] a>comp ['] a>int d= ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
-    Defer
+    header dodefer,
     ?parse-name find-name dup 0= #-13 and throw
     dup compile-only? IF  compile-only  THEN
-    dup name>int swap ['] s>int ['] s>comp synonym, ;
+    dup name>int swap ['] s>int ['] s>comp synonym, reveal ;
 
 : synonym? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;
@@ -579,12 +578,14 @@ Create vttemplate
 : make-latest ( xt -- )
     vt, dup last ! dup lastcfa ! dup (make-latest) ;
 
-: ?vtname ( -- addr )
-    \G check if deduplicated, duplicate if necessary and return vtname
-    \G of latest definition
+: ?vtname ( -- )
+    \G check if deduplicated, duplicate if necessary
+    \ !!FIXME!! make sure lastcfa already points to where it should
     lastcfa @ >namevt @ vttemplate <> IF
-	lastcfa @ dup (make-latest)
-    THEN  vttemplate ;
+\	." need duplication " lastcfa @ name>string type space
+\	lastcfa @ >namevt @ hex. vttemplate hex. cr
+	\ lastcfa @ dup (make-latest)
+    THEN ;
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
@@ -593,18 +594,18 @@ Create vttemplate
 : start-xt-like ( colonsys xt -- colonsys )
     reveal does>-like drop start-xt drop ;
 
-: set-optimizer ( xt -- ) vttemplate >vtcompile, ! ;
+: set-optimizer ( xt -- ) ?vtname vttemplate >vtcompile, ! ;
 ' set-optimizer alias set-compiler
-: set-to        ( to-xt -- ) vttemplate >vtto ! ;
-: set-defer@    ( defer@-xt -- ) vttemplate >vtdefer@ ! ;
-: set->int      ( xt -- ) vttemplate >vt>int ! ;
-: set->comp     ( xt -- ) vttemplate >vt>comp ! ;
+: set-to        ( to-xt -- ) ?vtname vttemplate >vtto ! ;
+: set-defer@    ( defer@-xt -- ) ?vtname vttemplate >vtdefer@ ! ;
+: set->int      ( xt -- ) ?vtname vttemplate >vt>int ! ;
+: set->comp     ( xt -- ) ?vtname vttemplate >vt>comp ! ;
 : set-does>     ( xt -- ) \ gforth
     vttemplate >vtextra !
     ['] does, set-optimizer
     dodoes: latestxt ! ;
-: set-name>string ( xt -- ) vttemplate >vt>string ! ;
-: set-name>link   ( xt -- ) vttemplate >vt>link   ! ;
+: set-name>string ( xt -- ) ?vtname vttemplate >vt>string ! ;
+: set-name>link   ( xt -- ) ?vtname vttemplate >vt>link   ! ;
 
 :noname ( -- colon-sys ) start-xt  set-optimizer ;
 :noname ['] set-optimizer start-xt-like ;
@@ -632,16 +633,6 @@ interpret/compile: comp:
     \ OPT!-COMPILE,.
 ;
 
-: to: ( "name1" -- colon-sys ) \ gforth-internal
-    \G Defines a to-word ( v xt -- ) that is not a proper word (it does
-    \G not compile properly), but only useful as parameter for
-    \G @code{set-to}.  The to-word constitutes a part of the TO <name>
-    \G run-time semantics: it stores v (a stack item of the appropriate
-    \G type for <name>) in the storage represented by the xt (which is
-    \G the xt of <name>).  It is usually used only for interpretive
-    \G @code{to}; the compiled @code{to} uses the part after
-    \G @code{to-opt:}.
-    : ;
 : ?fold-to ( <to>-xt -- name-xt )
     \G Prepare partial constant folding for @code{(to)} methods: if
     \G there's no literal on the folding stack, just compile the
@@ -650,22 +641,14 @@ interpret/compile: comp:
     \G is applied to from the folding stack.
     lits# 0= IF :, rdrop EXIT THEN drop lits> ;
 : to-opt: ( -- colon-sys ) \ gforth-internal
-    \G Must only be used to modify a preceding to-word defined with
-    \G \code{to:}.  It defines a part of the TO <name> run-time
-    \G semantics used with compiled @code{TO}.  The stack effect of
-    \G the code following @code{to-opt:} must be: @code{( xt -- ) (
-    \G generated: v -- )}.  The generated code stores @i{v} in the
-    \G storage represented by @i{xt}.
+    \G Defines a part of the TO <name> run-time semantics used with compiled
+    \G @code{TO}.  The stack effect of the code following @code{to-opt:} must
+    \G be: @code{( xt -- ) ( generated: v -- )}.  The generated code stores
+    \G @i{v} in the storage represented by @i{xt}.
     start-xt set-optimizer postpone ?fold-to ;
 
 \ defer and friends
 
-' to: alias defer@:  ( "name1" -- colon-sys ) \ gforth-internal
-\g Defines @i{name1}, not a proper word, only useful as parameter for
-\g @code{set-defer@}.  It defines what @code{defer@} does for the word
-\g to which the @code{set-defer@} is applied.  If there is a
-\g @code{defer@-opt:} following it, that provides optimized code
-\g generation for compiled @code{action-of}.
 ' to-opt: alias defer@-opt: ( -- colon-sys ) \ gforth-internal
 \g Optimized code generation for compiled @code{action-of @i{name}}.
 \g The stack effect of the following code must be ( xt -- ), where xt

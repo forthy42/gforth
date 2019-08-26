@@ -82,7 +82,7 @@
 
 Create f!-table ' f! , ' f+! ,
 
-to: fvalue-to ( r xt-fvalue -- ) \ gforth
+: fvalue-to ( r xt-fvalue -- ) \ gforth
     >body f!-table to-!exec ;
 opt: drop postpone >body f!-table to-!, ;
 

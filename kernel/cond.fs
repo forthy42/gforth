@@ -397,10 +397,10 @@ defer adjust-locals-list ( wid -- )
 : endscope ( compilation scope -- ; run-time  -- ) \ gforth
     scope?
     drop  adjust-locals-list ; immediate
- 
+
 \ quotations
 : wrap@ ( -- wrap-sys )
-    vtsave last @ lastcfa @ leave-sp @ locals-wordlist ( unlocal-state @ ) ;
+    vtsave latest latestxt leave-sp @ locals-wordlist ( unlocal-state @ ) ;
 : wrap! ( wrap-sys -- )
     ( unlocal-state ! ) to locals-wordlist leave-sp ! lastcfa ! last ! vtrestore ;
 
