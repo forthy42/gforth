@@ -25,9 +25,9 @@ Defer default-method ' noop IS default-method
 
 Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
 opt: ( xt -- ) >body @ postpone o#+ , ;
-to: m-to ( xt -- ) >body @ + ! ;
+: m-to ( xt -- ) >body @ + ! ;
 to-opt: ( xt -- ) >body @ postpone lit+ , postpone ! ;
-defer@: m-defer@ ( xt -- ) >body @ + @ ;
+: m-defer@ ( xt -- ) >body @ + @ ;
 defer@-opt: ( xt -- ) >body @ postpone lit+ , postpone @ ;
 Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
 opt: ( xt -- ) >body @ cell/ postpone o#exec , ;

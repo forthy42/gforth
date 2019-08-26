@@ -153,8 +153,11 @@ Defer check-shadow ( addr u wid -- )
     here xt-location drop , here lastcfa ! ; \ add location stamps on vt+cf
 
 : header, ( c-addr u -- ) \ gforth
-    vt, name, vttemplate namevt,
-    named-vt ;
+    \G create a header for a named word
+    vt, name, vttemplate namevt, named-vt ;
+: copy-header, ( xt c-addr u -- ) \ gforth
+    \G create a header by example for a named word
+    vt, name, >namevt 2@ , here last ! cfa, ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -542,9 +545,6 @@ Create vttemplate
 
 : vt-activate ( xt -- )
     >namevt vttemplate over ! vttemplate ! ;
-: (make-latest) ( xt1 xt2 -- )
-    dup lastcfa !
-    swap >namevt @ vttemplate vtsize move vt-activate ;
 : vtcopy ( xt -- ) \ gforth vtcopy
     >namevt @ vttemplate 0 >vt>int move
     here vt-activate ;
@@ -576,16 +576,17 @@ Create vttemplate
     REPEAT  drop (vt,) ;
 
 : make-latest ( xt -- )
-    vt, dup last ! dup (make-latest) ;
+    \G make @i{xt} the latest definition, which can be manipulated
+    \G by @{immediate} and @code{set-*} operations
+    vt, dup last ! lastcfa ! ;
 
 : ?vtname ( -- )
     \G check if deduplicated, duplicate if necessary
     \ !!FIXME!! make sure lastcfa already points to where it should
     lastcfa @ >namevt @ vttemplate <> IF
-\	source type cr
-\	." need duplication " lastcfa @ named>string type space
-\	lastcfa @ >namevt @ hex. vttemplate hex. cr
-	\ lastcfa @ dup (make-latest)
+	lastcfa @
+	dup >namevt @ vttemplate vtsize move
+	vt-activate
     THEN ;
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
@@ -597,7 +598,7 @@ Create vttemplate
 : set->int      ( xt -- ) ?vtname vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) ?vtname vttemplate >vt>comp ! ;
 : set-does>     ( xt -- ) \ gforth
-    vttemplate >vtextra !
+    ?vtname vttemplate >vtextra !
     ['] does, set-optimizer
     dodoes: latestxt ! ;
 : set-name>string ( xt -- ) ?vtname vttemplate >vt>string ! ;

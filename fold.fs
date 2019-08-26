@@ -37,13 +37,13 @@
     {: folder-xt :} BEGIN
 	>in @ >r parse-name r> >in !
 	nip  WHILE
-	    vt, ' dup (make-latest)
+	    ' make-latest
 	    folder-xt set-optimizer
     REPEAT ;
 
 : optimizes ( xt "name" -- )
     \ xt is optimizer of "name"
-    vt, ' dup (make-latest) set-optimizer ;
+    ' make-latest set-optimizer ;
 
 1 ' lits>  ' >lits ' peephole-compile, folder
 dup folds invert abs negate >pow2
