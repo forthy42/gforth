@@ -590,11 +590,6 @@ Create vttemplate
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
-: start-xt ( -- colonsys xt ) \ incomplete, will not be a full xt
-    lastcfa @ >r here >r docol: cfa, colon-sys ] :-hook r> r> lastcfa ! ;
-: start-xt-like ( colonsys xt -- colonsys )
-    reveal does>-like drop start-xt drop ;
-
 : set-optimizer ( xt -- ) ?vtname vttemplate >vtcompile, ! ;
 ' set-optimizer alias set-compiler
 : set-to        ( to-xt -- ) ?vtname vttemplate >vtto ! ;
@@ -608,11 +603,12 @@ Create vttemplate
 : set-name>string ( xt -- ) ?vtname vttemplate >vt>string ! ;
 : set-name>link   ( xt -- ) ?vtname vttemplate >vt>link   ! ;
 
-:noname ( -- colon-sys ) start-xt  set-optimizer ;
-:noname ['] set-optimizer start-xt-like ;
-over over
-interpret/compile: opt:
-interpret/compile: comp:
+: int-opt; ( flag lastxt -- )
+    nip >r vt, wrap! r> set-optimizer ;
+: opt: ( -- colon-sys )
+    int-[:
+    ['] int-opt; colon-sys-xt-offset stick ; \ replace noop with :does>;
+' opt: alias comp:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
 : opt!-compile, ( xt -- )
@@ -646,7 +642,7 @@ interpret/compile: comp:
     \G @code{TO}.  The stack effect of the code following @code{to-opt:} must
     \G be: @code{( xt -- ) ( generated: v -- )}.  The generated code stores
     \G @i{v} in the storage represented by @i{xt}.
-    start-xt set-optimizer postpone ?fold-to ;
+    opt: postpone ?fold-to ;
 
 \ defer and friends
 

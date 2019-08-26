@@ -19,7 +19,7 @@
 
 : set-compsem ( xt -- )
     \G change compilation semantics of the last defined word
-    >r start-xt set->comp r> ['] execute ]] drop 2literal ; [[ ;
+    [n:d nip ['] execute ;] set->comp ;
 
 \ silly example:
 \ :noname ." compiling" ;
@@ -28,7 +28,7 @@
 : intsem: ( xt "name" -- )
     \G defines a word, which has a special compilation semantics
     \G provided as @var{xt} on the stack
-    >r :noname r> ['] execute ]] drop 2Literal ; [[ >r
+    [n:d nip ['] execute ;] >r
     : r> set->comp ;
 
 \ silly example:
@@ -37,7 +37,7 @@
 : compsem: ( -- )
     \G adds a non default compilation semantics to the last
     \G definition
-    start-xt [n:h set-compsem ;] colon-sys-xt-offset stick ;
+    int-[: [: nip >r vt, wrap! r> set-compsem ;] colon-sys-xt-offset stick ;
 
 \ silly example
 \ : foo ." interpreting" ; compsem: ." compiling" ;
