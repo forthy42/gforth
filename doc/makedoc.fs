@@ -110,8 +110,4 @@ normal-dp value check-dp
 	r> >in !
     endif ;
 
-: (doc-header) ( -- )
-    defers header
-    put-doc-entry ;
-
-' (doc-header) IS header
+' put-doc-entry IS header-extra

@@ -119,8 +119,4 @@ create tags-line 128 chars allot
 	latest name>string put-tags-string
     then ;
 
-: (tags-header) ( -- )
-    defers header
-    put-tags-entry ;
-
-' (tags-header) IS header
+' put-tags-entry IS header-extra

@@ -178,16 +178,17 @@ defer record-name ( -- )
 ' noop is record-name
 \ record next name in tags file
 defer header-name,
-defer header ( -- ) \ gforth
-: default-header vt, header-name, vttemplate namevt, ?noname-vt ;
-' default-header is header
+defer header-extra ' noop is header-extra
+: header ( -- ) \ gforth
+    \G create a header for a word
+    vt, header-name, vttemplate namevt, ?noname-vt header-extra ;
 
 : create-from ( xt -- ) \ gforth
     \G create a word using the example @i{xt}'s vt.
     \G @i{xt} must have a name.  The resulting header
     \G is not yet revealed.
     vt, header-name,   >namevt 2@ , cfa,
-    last @ 0= IF  noname-vt  THEN ;
+    last @ 0= IF  noname-vt  THEN  header-extra ;
 : noname-from ( xt -- ) \ gforth
     \G create a headerless using the example @i{xt}'s vt.
     \G @i{xt} must be headerless.
