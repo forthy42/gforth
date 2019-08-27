@@ -750,7 +750,7 @@ defer 0-adjust-locals-size ( -- )
 
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
-    Header (:noname) ;
+    ['] on create-from colon-sys ] :-hook ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
     noname, here (:noname) ;
