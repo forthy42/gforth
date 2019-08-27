@@ -744,16 +744,14 @@ defer 0-adjust-locals-size ( -- )
     \ by ;-hook before this stuff here is processed).
     ['] noop defstart ;
 
-: (:noname) ( -- colon-sys )
-    \ common factor of : and :noname
-    docol, colon-sys ] :-hook ( unlocal-state off ) ;
-
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
     ['] on create-from colon-sys ] :-hook ;
 
+:noname ; aconstant dummy-noname
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    noname, here (:noname) ;
+    dummy-noname noname-from
+    latestxt colon-sys ] :-hook ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook [compile] exit ?colon-sys
