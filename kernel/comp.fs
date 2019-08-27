@@ -593,16 +593,31 @@ Create vttemplate
 
 : !namevt ( addr -- )  latestxt >namevt ! ;
 
+: general-compile, ( xt -- )
+    postpone literal postpone execute ;
+
 : set-optimizer ( xt -- ) ?vt vttemplate >vtcompile, ! ;
 ' set-optimizer alias set-compiler
+: set-execute ( ca -- ) \ gforth
+    \G Changes the current word such that it jumps to the native code
+    \G at @i{ca}.  Also changes the \code{compile,} implementation to
+    \G the most general (and slowest) one.  Call
+    \G @code{set-optimizer} afterwards if you want a more efficient
+    \G implementation.
+    ['] general-compile, set-optimizer
+    latestxt code-address! ;
+: set-does> ( xt -- ) \ gforth
+    \G Changes the current word such that it pushes its body address
+    \G and then executes @i{xt}.  Also changes the \code{compile,}
+    \G implementation accordingly.  Call @code{set-optimizer}
+    \G afterwards if you want a more efficient implementation.
+    ['] does, set-optimizer
+    vttemplate >vtextra !
+    dodoes: latestxt code-address! ;
 : set-to        ( to-xt -- ) ?vt vttemplate >vtto ! ;
 : set-defer@    ( defer@-xt -- ) ?vt vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) ?vt vttemplate >vt>int ! ;
 : set->comp     ( xt -- ) ?vt vttemplate >vt>comp ! ;
-: set-does>     ( xt -- ) \ gforth
-    ?vt vttemplate >vtextra !
-    ['] does, set-optimizer
-    dodoes: latestxt ! ;
 : set-name>string ( xt -- ) ?vt vttemplate >vt>string ! ;
 : set-name>link   ( xt -- ) ?vt vttemplate >vt>link   ! ;
 
