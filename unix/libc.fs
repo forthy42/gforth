@@ -71,6 +71,7 @@ c-library libc
 	c-function getentropy getentropy a n -- n ( buffer len -- n )
     [THEN]
     getrandom? [IF]
+	\c #include <sys/random.h>
 	c-function getrandom getrandom a n u -- n ( buffer len flag -- n )
     [THEN]
     c-value environ environ -- a ( -- env )
