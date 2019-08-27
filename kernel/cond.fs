@@ -65,9 +65,6 @@ variable backedge-locals
 : do-dest? ( n -- )
  do-dest <> abort" expected do-dest " ;
 
-: *dest? ( n -- )
- do-dest 1+ dest within abort" expected dest/do-dest " ;
-
 : scope? ( n -- )
  scopestart <> abort" expected scope " ;
 
@@ -92,7 +89,7 @@ variable backedge-locals
  dup cs-item? ; 
 
 : CS-DROP ( dest -- ) \ gforth
-    *dest? 2drop ;
+    non-orig? 2drop ;
 
 : cs-push-part ( -- list addr )
  locals-list @ here ;

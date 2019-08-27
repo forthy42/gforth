@@ -160,7 +160,7 @@ Defer check-shadow ( addr u wid -- )
     vt, name,   >namevt 2@ , here last ! cfa, ;
 : copy-noname, ( xt -- ) \ gforth
     \G create a headerless word by example
-    vt, cfalign >namevt 2@ , cfa, ;
+    vt, cfalign >namevt 2@ , 0 last ! cfa, ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -178,25 +178,21 @@ defer header ( -- ) \ gforth
 
 ' input-stream-header IS (header)
 
-2variable nextname-string
+variable nextname$
 
 : nextname-header ( -- )
-    nextname-string 2@ header,
-    nextname-string free-mem-var
-    input-stream ;
+    nextname$ $@ header, nextname$ $free  input-stream ;
 
 \ the next name is given in the string
 
 : nextname ( c-addr u -- ) \ gforth
     \g The next defined word will have the name @var{c-addr u}; the
     \g defining word will leave the input stream alone.
-    name-too-long?
-    nextname-string free-mem-var
-    save-mem nextname-string 2!
+    name-too-long? nextname$ $!
     ['] nextname-header IS (header) ;
 
 : noname, ( -- )
-    vt, 0 last !   here dup cfaligned >align
+    vt, 0 last ! cfalign
     vttemplate namevt, \ vtable field
     noname-vt ;
 : noname-header ( -- )

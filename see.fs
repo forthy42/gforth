@@ -937,13 +937,13 @@ set-current
 
 : name-see ( nfa -- )
     dup synonym? IF
-	." Synonym " dup .name dup @ .name
+	." Synonym " dup .name dup >body @ .name
     ELSE
 	dup alias? IF
-	    dup @ name>string nip 0= IF
-		dup @ hex.
+	    dup >body @ name>string nip 0= IF
+		dup >body @ hex.
 	    ELSE
-		." ' " dup @ .name
+		." ' " dup >body @ .name
 	    THEN ." Alias " dup .name
 	THEN
     THEN
