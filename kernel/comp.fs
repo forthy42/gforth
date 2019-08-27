@@ -146,42 +146,66 @@ Defer check-shadow ( addr u wid -- )
     name-too-long?
     dup here + dup cfaligned >align
     nlstring,
-    get-current 1 or A, ;
+    get-current 1 or A,
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
+    here cell+ last ! ; \ set last header
+: 0name, ( -- )
+    cfalign 0 last ! ;
 : namevt, ( namevt -- )
     here xt-location drop , here lastcfa ! ; \ add location stamps on vt+cf
+
+: noname-vt ( -- )
+    \G modify vt for noname words
+    default-i/c
+    ['] noname>string set-name>string
+    ['] noname>link set-name>link ;
+: named-vt ( -- )
+    \G modify vt for named words
+    default-i/c
+    ['] named>string set-name>string
+    ['] named>link set-name>link ;
+: ?noname-vt ( -- ) last @ 0= IF  noname-vt  ELSE  named-vt  THEN ;
 
 : header, ( c-addr u -- ) \ gforth
     \G create a header for a named word
     vt, name, vttemplate namevt, named-vt ;
-: copy-header, ( xt c-addr u -- ) \ gforth
-    \G create a header by example for a named word
-    vt, name,   >namevt 2@ , here last ! cfa, ;
-: copy-noname, ( xt -- ) \ gforth
-    \G create a headerless word by example
-    vt, cfalign >namevt 2@ , 0 last ! cfa, ;
+: noname, ( -- ) \ gforth
+    \G create an empty header for an unnamed word
+    vt, 0name, vttemplate namevt, noname-vt ;
 
 defer record-name ( -- )
 ' noop is record-name
 \ record next name in tags file
-defer (header)
+defer header-name,
 defer header ( -- ) \ gforth
-' (header) IS header
+: default-header vt, header-name, vttemplate namevt, ?noname-vt ;
+' default-header is header
+
+: create-from ( xt -- ) \ gforth
+    \G create a word using the example @i{xt}'s vt.
+    \G @i{xt} must have a name.  The resulting header
+    \G is not yet revealed.
+    vt, header-name,   >namevt 2@ , cfa,
+    last @ 0= IF  noname-vt  THEN ;
+: noname-from ( xt -- ) \ gforth
+    \G create a headerless using the example @i{xt}'s vt.
+    \G @i{xt} must be headerless.
+    vt, 0name,  >namevt 2@ , cfa, ;
 
 : input-stream-header ( "name" -- )
-    parse-name name-too-short? header, ;
+    parse-name name-too-short? name, ;
 
 : input-stream ( -- )  \ general
     \G switches back to getting the name from the input stream ;
-    ['] input-stream-header IS (header) ;
+    ['] input-stream-header IS header-name, ;
 
-' input-stream-header IS (header)
+' input-stream-header IS header-name,
 
 variable nextname$
 
 : nextname-header ( -- )
-    nextname$ $@ header, nextname$ $free  input-stream ;
+    nextname$ $@ name, nextname$ $free  input-stream ;
 
 \ the next name is given in the string
 
@@ -189,12 +213,8 @@ variable nextname$
     \g The next defined word will have the name @var{c-addr u}; the
     \g defining word will leave the input stream alone.
     name-too-long? nextname$ $!
-    ['] nextname-header IS (header) ;
+    ['] nextname-header IS header-name, ;
 
-: noname, ( -- )
-    vt, 0 last ! cfalign
-    vttemplate namevt, \ vtable field
-    noname-vt ;
 : noname-header ( -- )
     noname, input-stream ;
 
@@ -202,7 +222,7 @@ variable nextname$
     \g The next defined word will be anonymous. The defining word will
     \g leave the input stream alone. The xt of the defined word will
     \g be given by @code{latestxt}.
-    ['] noname-header IS (header) ;
+    ['] noname-header IS header-name, ;
 
 : latestxt ( -- xt ) \ gforth
     \G @i{xt} is the execution token of the last word defined.
@@ -311,6 +331,9 @@ has? primcentric [IF]
 
 ' compile, AConstant default-name>comp ( nt -- w xt ) \ gforth default-name-to-comp
     \G @i{w xt} is the compilation token for the word @i{nt}.
+: default-i/c ( -- )
+    ['] noop set->int
+    ['] default-name>comp set->comp ;
 
 : [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth bracket-paren-tick
     (') postpone Literal ; immediate restrict
@@ -431,7 +454,7 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;
 
 : Create ( "name" -- ) \ core
-    Header reveal dovar, ;
+    ['] udp create-from reveal ;
 
 : buffer: ( u "name" -- ) \ core ext
     Create here over 0 fill allot ;
@@ -449,14 +472,14 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     udp @ swap udp +! ;
 
 : User ( "name" -- ) \ gforth
-    Header reveal douser, cell uallot , ;
+    ['] sp0 create-from reveal cell uallot , ;
 
 : AUser ( "name" -- ) \ gforth
     User ;
 
-: (Constant)  Header reveal docon, ;
+: (Constant) ['] bl create-from reveal ;
 
-: (Value)  Header reveal dovalue, ;
+: (Value)    ['] def#tib create-from reveal ;
 
 : Constant ( w "name" -- ) \ core
     \G Define a constant @i{name} with value @i{w}.
@@ -483,7 +506,7 @@ Variable to-style# 0 to-style# !
 
 : !!?addr!! ( -- ) to-style# @ -1 = -2056 and throw ;
 
-: (Field)  Header reveal dofield, ;
+: (Field)  ['] >body create-from reveal ;
 
 \ IS Defer What's Defers TO                            24feb93py
 
@@ -495,7 +518,7 @@ defer defer-default ( -- )
 \G Define a deferred word @i{name}; its execution semantics can be
 \G set with @code{defer!} or @code{is} (and they have to, before first
 \G executing @i{name}.
-    Header Reveal dodefer, 
+    ['] parser1 create-from reveal
     ['] defer-default A, ;
 
 : defer-defer@ ( xt -- )
@@ -727,22 +750,6 @@ defer 0-adjust-locals-size ( -- )
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
     Header (:noname) ;
-
-: default-i/c ( -- )
-    ['] noop set->int
-    ['] default-name>comp set->comp ;
-: noname-vt ( -- )
-    \G modify vt for noname words
-    default-i/c
-    ['] noname>string set-name>string
-    ['] noname>link set-name>link ;
-: named-vt ( -- )
-    \G modify vt for named words
-    here last ! \ set last header
-    default-i/c
-    ['] named>string set-name>string
-    ['] named>link set-name>link ;
-: ?noname-vt ( -- ) last @ 0= IF  noname-vt  ELSE  named-vt  THEN ;
 
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
     noname, here (:noname) ;
