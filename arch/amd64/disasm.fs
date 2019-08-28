@@ -416,7 +416,9 @@ Create fopatable
 \ sse instructions
 
 : .s/p ( -- ) 's' 'p' s? select emit ;
+: .p/s ( -- ) 'p' 's' s? select emit ;
 : .s/d ( -- ) 's' 'd' s? IF ss? ELSE length @ 0= THEN select emit ;
+: .d/s ( -- ) 'd' 's' s? IF ss? ELSE length @ 0= THEN select emit ;
 
 : .sse-suff ( -- ) .s/p .s/d ;
 : .ssereg ( n -- n ) 'y' 'x' l? select emit ." mm" #.r ;
@@ -443,6 +445,13 @@ Create fopatable
 : .cvtb ( ip -- ip' ) .sse-suff '2' emit .s/p 'i' emit tab mod@ >r?
     >r .sseaddr ., r> .ssereg
     vex? IF vvvv @ .ssereg ., THEN ;
+: .cvt2 ( ip -- ip' ) .sse-suff '2' emit .s/p .d/s tab mod@ >r?
+    .ssereg ., .sseaddr
+    vex? IF vvvv @ .ssereg ., THEN ;
+: .cvt3 ( ip -- ip' ) \ incomplete, undested!
+    .sse-suff '2' emit .s/p tab mod@ >r?
+    .ssereg ., .sseaddr
+    vex? IF vvvv @ .ssereg ., THEN ;
 : .ssec ( ip -- ip' )
     .s/d tab mod@ >r? .ssereg .,
     vex? IF vvvv @ .ssereg ., THEN
@@ -467,6 +476,7 @@ FF 52 t, .sse rsqrt"            FF 53 t, .sse rcp"
 FF 54 t, .sse and"              FF 55 t, .sse andn"
 FF 56 t, .sse or"               FF 57 t, .sse xor"
 FF 58 t, .sse add"              FF 59 t, .sse mul"
+FF 5A t, .cvt2 cvt"             FF 5B t, .cvt3 cvt"
 FF 5C t, .sse sub"              FF 5D t, .sse min"
 FF 5E t, .sse div"              FF 5F t, .sse max"
 F0 80 t, .jl j"                 F0 90 t, .set set"

@@ -832,6 +832,11 @@ c-extender !
     >body dup dup next-head 
     swap - discode
     ." end-code" cr ;
+: see;abicode ( xt -- )
+    dup s" ;ABI-Code" .defname
+    >body dup dup next-head 
+    swap - discode
+    ." end-code" cr ;
 : seevar ( xt -- )
     s" Variable" .defname cr ;
 : seeuser ( xt -- )
@@ -918,6 +923,9 @@ set-current
 [THEN]
 [IFDEF] doabicode:
         doabicode: of seeabicode endof
+[THEN]
+[IFDEF] do;abicode:
+        do;abicode: of see;abicode endof
 [THEN]
 	over       of seecode endof \ direct threaded code words
 	over >body of seecode endof \ indirect threaded code words

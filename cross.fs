@@ -3291,7 +3291,8 @@ vt: [G'] peephole-compile, gset-optimizer ;vt
 Builder does>-dummy
 Build: ;Build
 by: :dodoes ;DO
-vt: [G'] does, gset-optimizer ;vt
+vt: [G'] does, gset-optimizer
+    [G'] noop  gset-extra  ;vt
 \ vtghost: dodoes-vt
 
 \ Variables and Constants                              05dec92py
