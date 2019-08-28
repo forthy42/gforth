@@ -479,6 +479,7 @@ FF 28 t, .sse mova"             FF 29 t, .ssea mova"
 FF 2A t, .cvt cvt"              FF 2B t, .ssea movnt"
 FF 2C t, .cvta cvtt"            FF 2D t, .cvta cvt"
 FF 2E t, .ssec ucomis"          FF 2F t, .ssec comis"
+FF 30 t, noop wrmsr"            FF 32 t, noop rdmsr"
 F0 40 t, .cmov cmov"            FF 51 t, .sse sqrt"
 FF 52 t, .sse rsqrt"            FF 53 t, .sse rcp"
 FF 54 t, .sse and"              FF 55 t, .sse andn"
@@ -487,6 +488,8 @@ FF 58 t, .sse add"              FF 59 t, .sse mul"
 FF 5A t, .cvt2 cvt"             FF 5B t, .cvt3 cvt"
 FF 5C t, .sse sub"              FF 5D t, .sse min"
 FF 5E t, .sse div"              FF 5F t, .sse max"
+\ !!FIXME!! here is a list of opcodes up to $7F missing
+FC 70 t, .mmi ps"
 F0 80 t, .jl j"                 F0 90 t, .set set"
 F7 A0 t, .pseg push"            F7 A1 t, .pseg pop"
 FE A4 t, .shd shld"             FE AC t, .shd shrd"
@@ -499,13 +502,11 @@ FF BD t, .modt bsr"             FF C7 t, .ev cmpxchg8b"
 
 \ 0Ffld                                                12apr98py
 
-FC 70 t, .mmi ps"
-FF 30 t, noop wrmsr"            FF 32 t, noop rdmsr"
 
 
 FF D5 t, .mmq pmullw"           FF E5 t, .mmq pmulhw"
 FF F5 t, .mmq pmaddwd"
-FF DB t, .mmq pand"             FF $DF t, .mmq pandn"
+FF DB t, .mmq pand"             FF DF t, .mmq pandn"
 FF EB t, .mmq por"              FF EF t, .mmq pxor"
 FC D0 t, .mmx psrl"             FC D8 t, .mmx psubu"
 FC E0 t, .mmx psra"             FC E8 t, .mmx psubs"
