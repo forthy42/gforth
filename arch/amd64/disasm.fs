@@ -404,7 +404,7 @@ Create fopatable
 
 \ .mmi                                                 02mar97py
 
-: .mmr ( reg -- )  ." MM" 7 and 0 .r ;
+: .mmr ( reg -- )  length @ 1 and IF  'x' emit  THEN  ." mm" 7 and 0 .r ;
 : .mma ( r/m -- )  dup $C0 <
   IF ." QUAD PTR " .addr  ELSE  .mmr  THEN ;
 : .mmq ( ip -- ip' )  tab mod@ .mmr ., .mma ;
@@ -415,6 +415,11 @@ Create fopatable
 
 \ sse instructions
 
+: s/d# ( -- n )
+    sd? IF  3  EXIT  THEN
+    ss? IF  1  EXIT  THEN
+    length @ 1 and 2* ;
+
 : .s/p ( -- ) 's' 'p' s? select emit ;
 : .p/s ( -- ) 'p' 's' s? select emit ;
 : .s/d ( -- ) 's' 'd' s? IF ss? ELSE length @ 0= THEN select emit ;
@@ -423,11 +428,13 @@ Create fopatable
 : .sse-suff ( -- ) .s/p .s/d ;
 : .ssereg ( n -- n ) 'y' 'x' l? select emit ." mm" #.r ;
 
-: .sseaddr ( addr r/m -- addr' ) dup 7 and >r 6 rshift
-  dup 3 =            IF  drop r> >b? .ssereg    exit  THEN
-  dup 0= r@ 5 = and  IF  drop rdrop .[ .32u .] exit  THEN
-  r@  4 =            IF       rdrop    .sib    exit  THEN
-  cells .disp + perform  r> .[ .sib/reg .] ;
+: .sseaddr ( addr r/m -- addr' )
+    rex @ 8 xor rex !
+    dup 7 and >r 6 rshift
+    dup 3 =            IF  drop r> >b? .ssereg    exit  THEN
+    dup 0= r@ 5 = and  IF  drop rdrop .[ .32u .] exit  THEN
+    r@  4 =            IF       rdrop    .sib    exit  THEN
+    cells .disp + perform  r> .[ .sib/reg .] ;
 
 : .sse ( ip -- ip' )
     .sse-suff tab mod@ >r? .ssereg .,
@@ -445,12 +452,13 @@ Create fopatable
 : .cvtb ( ip -- ip' ) .sse-suff '2' emit .s/p 'i' emit tab mod@ >r?
     >r .sseaddr ., r> .ssereg
     vex? IF vvvv @ .ssereg ., THEN ;
-: .cvt2 ( ip -- ip' ) .sse-suff '2' emit .s/p .d/s tab mod@ >r?
-    .ssereg ., .sseaddr
+: .cvt2 ( ip -- ip' )
+    s" ps2pdss2sdpd2pssd2ss" s/d# 5 * /string 5 umin type
+    tab mod@ >r? .ssereg ., .sseaddr
     vex? IF vvvv @ .ssereg ., THEN ;
-: .cvt3 ( ip -- ip' ) \ !!FIXME!! incomplete, untested
-    .sse-suff '2' emit .s/p tab mod@ >r?
-    .ssereg ., .sseaddr
+: .cvt3 ( ip -- ip' )
+    s" dq2ps tps2dqps2dq ???   " s/d# 6 * /string 6 umin -trailing type
+    tab mod@ >r? .ssereg ., .sseaddr
     vex? IF vvvv @ .ssereg ., THEN ;
 : .ssec ( ip -- ip' )
     .s/d tab mod@ >r? .ssereg .,
