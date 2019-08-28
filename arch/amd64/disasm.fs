@@ -448,7 +448,7 @@ Create fopatable
 : .cvt2 ( ip -- ip' ) .sse-suff '2' emit .s/p .d/s tab mod@ >r?
     .ssereg ., .sseaddr
     vex? IF vvvv @ .ssereg ., THEN ;
-: .cvt3 ( ip -- ip' ) \ incomplete, undested!
+: .cvt3 ( ip -- ip' ) \ !!FIXME!! incomplete, untested
     .sse-suff '2' emit .s/p tab mod@ >r?
     .ssereg ., .sseaddr
     vex? IF vvvv @ .ssereg ., THEN ;
