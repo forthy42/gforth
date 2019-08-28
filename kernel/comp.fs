@@ -147,13 +147,15 @@ Defer check-shadow ( addr u wid -- )
     dup here + dup cfaligned >align
     nlstring,
     get-current 1 or A,
+    here xt-location drop
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     here cell+ last ! ; \ set last header
 : 0name, ( -- )
-    cfalign 0 last ! ;
+    cfalign 0 last !
+    here xt-location drop ;
 : namevt, ( namevt -- )
-    here xt-location drop , here lastcfa ! ; \ add location stamps on vt+cf
+    , here lastcfa ! ; \ add location stamps on vt+cf
 
 : noname-vt ( -- )
     \G modify vt for noname words
