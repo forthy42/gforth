@@ -1343,10 +1343,12 @@ start-gforth.el:	gforth.el
 #Documentation
 
 doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) $(EXTRA_DOC)
-		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs except.fs startup.fs $(EXTRA_DOC) -e bye
+		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs $(EXTRA_DOC) -e bye
+		$(srcdir)/move-if-change doc/doc.fd.tmp $@
 
 doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs" include kernel/main.fs' -e bye
+		$(srcdir)/move-if-change doc/crossdoc.fd.tmp $@
 
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd preforth @kernel_fi@
@@ -1360,7 +1362,7 @@ checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdo
 
 doc/gforth.txt:	txt
 
-doc pdf dvi txt ps html:	gforth.fi $(GFORTH_TEXI) $(VMGEN_TEXI) TAGS doc/Makefile
+doc pdf dvi txt ps html: $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
 		-cd doc; $(MAKE) $@
 
 # For an explanation of the following Makefile rules, see node
