@@ -307,11 +307,21 @@ Variable rec'
 
 \ print name vtable
 
+: .name? ( xt -- )
+    \ prints name of xt if named, otherwise prints xt as hex number
+    dup >name if
+	.name
+    else
+	hex.
+    then ;
+
 : .vt ( nt -- )
     >namevt @ cr
-    ." opt:    " dup >vtcompile, @ .name cr
-    ." to:     " dup >vtto       @ .name cr
-    ." >int:   " dup >vt>int     @ .name cr
-    ." >comp:  " dup >vt>comp    @ .name cr
-    ." defer@: " dup >vtdefer@   @ .name cr
-    ." extra:  "     >vtextra    @ hex. ;
+    ." opt:    " dup >vtcompile, @ .name? cr
+    ." to:     " dup >vtto       @ .name? cr
+    ." >int:   " dup >vt>int     @ .name? cr
+    ." >comp:  " dup >vt>comp    @ .name? cr
+    ." defer@: " dup >vtdefer@   @ .name? cr
+    ." extra:  " dup >vtextra    @ .name? cr
+    ." >string " dup >vt>string  @ .name? cr
+    ." >link   "     >vt>link    @ .name? ;

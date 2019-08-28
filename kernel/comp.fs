@@ -192,8 +192,8 @@ defer header-extra ' noop is header-extra
     vt, header-name,   >namevt 2@ , cfa,
     last @ 0= IF  noname-vt  THEN  header-extra ;
 : noname-from ( xt -- ) \ gforth
-    \G create a headerless using the example @i{xt}'s vt.
-    \G @i{xt} must be headerless.
+    \G create a nameless word using the example @i{xt}'s vt.
+    \G @i{xt} must be nameless.
     vt, 0name,  >namevt 2@ , cfa, ;
 
 : input-stream-header ( "name" -- )
