@@ -185,16 +185,21 @@ defer header-extra ' noop is header-extra
     \G create a header for a word
     vt, header-name, vttemplate namevt, ?noname-vt header-extra ;
 
-: create-from ( xt -- ) \ gforth
-    \G create a word using the example @i{xt}'s vt.
-    \G @i{xt} must have a name.  The resulting header
-    \G is not yet revealed.
-    vt, header-name,   >namevt 2@ , cfa,
-    last @ 0= IF  noname-vt  THEN  header-extra ;
+: create-from ( nt "name" -- ) \ gforth
+    \G Create a word @i{name} that behaves like @i{nt}, but with an
+    \G empty body.  @i{nt} must be the nt of a named word.  The
+    \G resulting header is not yet revealed.  Creating a word with
+    \G @code{create-from} without using any @code{set-} words is
+    \G faster than if you create a word using @code{set-} words,
+    \G @code{immediate}, or @code{does>}.  You can use @code{noname}
+    \G with @code{create-from}.
+    vt, header-name, >namevt 2@ , cfa,
+    last @ 0= IF noname-vt THEN header-extra ;
+
 : noname-from ( xt -- ) \ gforth
-    \G create a nameless word using the example @i{xt}'s vt.
-    \G @i{xt} must be nameless.
-    vt, 0name,  >namevt 2@ , cfa, ;
+    \G Create a nameless word that behaves like @i{xt}, but with an
+    \G empty body.  @i{xt} must be the nt of a nameless word.
+    vt, 0name, >namevt 2@ , cfa, ;
 
 : input-stream-header ( "name" -- )
     parse-name name-too-short? name, ;
