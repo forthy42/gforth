@@ -19,7 +19,8 @@
 
 : prelude ( xt -- )
     \G prelude adds a prelude to the current definition without special
-    \G compilation semantics.  a prelude is executed in the interpreter before
-    \G the words compilation or interpretation or postpone semantics is used.
+    \G compilation semantics.  The prelude @i{xt} is executed by the outer
+    \G interpreter before the words compilation or interpretation semantics is
+    \G performed.
     dup [n:d execute ;] set->int
     [n:d execute default-name>comp ;] set->comp ;
