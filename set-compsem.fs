@@ -25,14 +25,16 @@
 \ :noname ." compiling" ;
 \ : foo ." interpreting" ; set-compsem
 
-: intsem: ( xt "name" -- )
-    \G defines a word, which has a special compilation semantics
-    \G provided as @var{xt} on the stack
-    [n:d nip ['] execute ;] >r
-    : r> set->comp ;
+: intsem: ( -- )
+    \G changes the current semantics to be the non-default compilation
+    \G semantics, and adds another interpretation semantics to the last
+    \G definition
+    [: ['] execute ;] set->comp
+    int-[: [: nip >r vt, wrap! r> [n:d nip ;] set->int ;]
+    colon-sys-xt-offset stick ;
 
 \ silly example:
-\ :noname ." compiling" ; intsem: foo ." interpreting" ;
+\ : foo ." compiling" ; intsem: ." interpreting" ;
 
 : compsem: ( -- )
     \G adds a non default compilation semantics to the last
