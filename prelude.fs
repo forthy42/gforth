@@ -17,17 +17,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Defer prelude-execute ( ... xt -- ... )
-\G execute a prelude, only active in the outer interpreter
-
 : prelude ( xt -- )
     \G prelude adds a prelude to the current definition without special
     \G compilation semantics.  The prelude @i{xt} is executed by the outer
     \G interpreter before the words compilation or interpretation semantics is
     \G performed.
-    dup [n:d prelude-execute ;] set->int
-    [n:d prelude-execute default-name>comp ;] set->comp ;
-
-:noname ( -- )
-    [: execute ['] drop is prelude-execute ;] is prelude-execute
-    r> { r } defers int-execute r >r ; is int-execute
+    dup [n:d execute ;] set->int
+    [n:d execute default-name>comp ;] set->comp ;
