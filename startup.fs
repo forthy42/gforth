@@ -67,7 +67,6 @@ require debug.fs
 require dis-gdb.fs
 require struct0x.fs
 require libcc.fs
-require prelude.fs
 require str-exec.fs
 require gforthrc.fs
 require ansi.fs

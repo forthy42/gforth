@@ -115,7 +115,8 @@ $004 Constant POLLOUT
 
 [defined] int-execute [if]
     variable saved-errno 0 saved-errno !
-    :noname r> { r } saved-errno @ ->errno execute errno saved-errno ! r >r ;
+    :noname r> { r } saved-errno @ ->errno defers int-execute
+	errno saved-errno ! r >r ;
     is int-execute
 [then]
 
