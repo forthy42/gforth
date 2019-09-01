@@ -400,9 +400,9 @@ defer adjust-locals-list ( wid -- )
 
 \ quotations
 : wrap@ ( -- wrap-sys )
-    vtsave latest latestxt leave-sp @ locals-wordlist ( unlocal-state @ ) ;
+    vtsave latest latestnt leave-sp @ locals-wordlist ( unlocal-state @ ) ;
 : wrap! ( wrap-sys -- )
-    ( unlocal-state ! ) to locals-wordlist leave-sp ! lastcfa ! last ! vtrestore ;
+    ( unlocal-state ! ) to locals-wordlist leave-sp ! lastnt ! last ! vtrestore ;
 
 : (int-;]) ( some-sys lastxt -- ) >r vt, wrap! r> ;
 : (;]) ( some-sys lastxt -- )

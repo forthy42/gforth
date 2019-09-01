@@ -39,6 +39,6 @@ Create cs-wordlist-search-map ( -- wordlist-map )
 
 : cs-vocabulary ( "name" -- ) \ gforth
     \g Create a case-senisitve vocabulary
-    Vocabulary cs-wordlist-search-map latestxt >body ! ;
+    Vocabulary cs-wordlist-search-map latestnt >body ! ;
 
 ' cs-vocabulary alias voctable

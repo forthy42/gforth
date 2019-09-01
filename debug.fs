@@ -220,7 +220,7 @@ set-current
     ' NestXT IF EXIT THEN (debug) Leave-D ;
 
 : break:, ( -- )
-  latestxt postpone literal ;
+  latestnt postpone literal ;
   
 : break: ( -- ) \ gforth
     break:, postpone (break:) ; immediate

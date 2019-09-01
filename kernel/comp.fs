@@ -155,7 +155,7 @@ Defer check-shadow ( addr u wid -- )
     cfalign 0 last !
     here xt-location drop ;
 : namevt, ( namevt -- )
-    , here lastcfa ! ; \ add location stamps on vt+cf
+    , here lastnt ! ; \ add location stamps on vt+cf
 
 : noname-vt ( -- )
     \G modify vt for noname words
@@ -232,10 +232,14 @@ variable nextname$
     \g be given by @code{latestxt}.
     ['] noname-header IS header-name, ;
 
+: latestnt ( -- nt ) \ gforth
+    \G @i{nt} is the name token of the last word defined.
+    \ The main purpose of this word is to get the nt of words defined using noname
+    lastnt @ ;
 : latestxt ( -- xt ) \ gforth
     \G @i{xt} is the execution token of the last word defined.
     \ The main purpose of this word is to get the xt of words defined using noname
-    lastcfa @ ;
+    lastnt @ name>int ;
 
 ' latestxt alias lastxt \ gforth-obsolete
 \G old name for @code{latestxt}.
@@ -271,9 +275,9 @@ immediate restrict
 ' noop Alias recurse
 \g Alias to the current definition.
 
-unlock tlastcfa @ lock >body AConstant lastcfa
-\ this is the alias pointer in the recurse header, named lastcfa.
-\ changing lastcfa now changes where recurse aliases to
+unlock tlastcfa @ lock >body AConstant lastnt
+\ this is the alias pointer in the recurse header, named lastnt.
+\ changing lastnt now changes where recurse aliases to
 \ it's always an alias of the current definition
 \ it won't work in a flash/rom environment, therefore for Gforth EC
 \ we stick to the traditional implementation
@@ -290,7 +294,7 @@ Variable litstack
 
 : cfa,     ( code-address -- )  \ gforth	cfa-comma
     here
-    dup lastcfa !
+    dup lastnt !
     0 A,
     code-address! ;
 
@@ -608,17 +612,17 @@ Create vttemplate
 : make-latest ( xt -- )
     \G make @i{xt} the latest definition, which can be manipulated
     \G by @{immediate} and @code{set-*} operations
-    vt, dup last ! lastcfa ! ;
+    vt, dup last ! lastnt ! ;
 
 : ?vt ( -- )
     \G check if deduplicated, duplicate if necessary
-    lastcfa @ >namevt @ vttemplate <> IF
-	lastcfa @
+    lastnt @ >namevt @ vttemplate <> IF
+	lastnt @
 	dup >namevt @ vttemplate vtsize move
 	vt-activate
     THEN ;
 
-: !namevt ( addr -- )  latestxt >namevt ! ;
+: !namevt ( addr -- )  latestnt >namevt ! ;
 
 : general-compile, ( xt -- )
     postpone literal postpone execute ;
@@ -632,7 +636,7 @@ Create vttemplate
     \G @code{set-optimizer} afterwards if you want a more efficient
     \G implementation.
     ['] general-compile, set-optimizer
-    latestxt code-address! ;
+    latestnt code-address! ;
 : set-does> ( xt -- ) \ gforth
     \G Changes the current word such that it pushes its body address
     \G and then executes @i{xt}.  Also changes the \code{compile,}
@@ -640,7 +644,7 @@ Create vttemplate
     \G afterwards if you want a more efficient implementation.
     ['] does, set-optimizer
     vttemplate >vtextra !
-    dodoes: latestxt code-address! ;
+    dodoes: latestnt code-address! ;
 : set-to        ( to-xt -- ) ?vt vttemplate >vtto ! ;
 : set-defer@    ( defer@-xt -- ) ?vt vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) ?vt vttemplate >vt>int ! ;
@@ -758,7 +762,7 @@ defer 0-adjust-locals-size ( -- )
 :noname ; aconstant dummy-noname
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
     dummy-noname noname-from
-    latestxt colon-sys ] :-hook ;
+    latestnt colon-sys ] :-hook ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook [compile] exit ?colon-sys

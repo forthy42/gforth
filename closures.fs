@@ -48,7 +48,7 @@ Variable extra-locals ( additional hidden locals size )
 
 locals-types definitions
 
-: :}* ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... xt -- ) \ gforth close-brace-dictionary
+: :}* ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... xt -- ) \ gforth close-brace-dictionary
     0 lit, lits, here cell- >r
     compile, ]] >lp [[
     :}
@@ -57,19 +57,19 @@ locals-types definitions
     ['] execute is end-d  ['] noop is endref,
     extra-locals off ;
 
-: :}xt ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
+: :}xt ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
     \G end a closure's locals declaration.  The closure will be allocated by
     \G the xt on the stack, so the closure's run-time stack effect is @code{(
     \G xt-alloc -- xt-closure}.
     \ run-time: ( xt size -- ... )
     [: swap execute ;] :}* ;
 
-: :}d ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+: :}d ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
     \G end a closure's locals declaration.  The closure will be allocated in
     \G the dictionary.
     ['] allocd :}* ;
 
-: :}h ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-heap
+: :}h ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-heap
     \G end a closure's locals declaration.  The closure will be allocated on
     \G the heap.
     ['] alloch :}* ;
@@ -86,7 +86,7 @@ forth definitions
 
 locals-types definitions
 
-: :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
+: :}l ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
     \G end a closure's locals declaration.  The closure will be allocated on
     \G the local's stack.
     :}
@@ -108,7 +108,7 @@ forth definitions
 
 : closure-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
-    latest latestxt
+    latest latestnt
     clear-leave-stack
     dead-code off
     defstart ;
@@ -130,7 +130,7 @@ forth definitions
     endcase
     ['] (closure-;]) colon-sys-xt-offset stick ;
 
-: [{: ( -- vtaddr u latest latestxt wid 0 ) \ gforth-experimental start-closure
+: [{: ( -- vtaddr u latest latestnt wid 0 ) \ gforth-experimental start-closure
     \G starts a closure.  Closures first declare the locals frame they are
     \G going to use, and then the code that is executed with those locals.
     \G Closures end like quotations with a @code{;]}.  The locals declaration
@@ -147,7 +147,7 @@ forth definitions
     postpone {:
 ; immediate compile-only
 
-: <{: ( -- vtaddr u latest latestxt wid 0 ) \ gforth-experimental start-homelocation
+: <{: ( -- vtaddr u latest latestnt wid 0 ) \ gforth-experimental start-homelocation
     \G starts a home location
     #0. push-locals postpone {:
 ; immediate compile-only

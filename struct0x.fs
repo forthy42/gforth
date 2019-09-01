@@ -44,7 +44,7 @@ standard:field
 
 : extend-structure ( n "name" -- struct-sys n ) \ Gforth
     \g extend an existing structure
-    standard:field >r 0 value latestxt >body r> ;
+    standard:field >r 0 value latestnt >body r> ;
 
 : begin-structure ( "name" -- struct-sys 0 ) \ X:structures
     0 extend-structure ;

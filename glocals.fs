@@ -457,22 +457,22 @@ create new-locals-map ( -- wordlist-map )
 new-locals-map mappedwordlist Constant new-locals-wl
 
 \ and now, finally, the user interface words
-: { ( -- vtaddr u latest latestxt wid 0 ) \ gforth open-brace
+: { ( -- vtaddr u latest latestnt wid 0 ) \ gforth open-brace
     ( >docolloc ) vtsave \ as locals will mess with their own vttemplate
-    latest latestxt get-current
+    latest latestnt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
     val-part off
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
-synonym {: { ( -- vtaddr u latest latestxt wid 0 ) \ forth-2012 open-brace-colon
+synonym {: { ( -- vtaddr u latest latestnt wid 0 ) \ forth-2012 open-brace-colon
 \G Start standard locals declaration.  All Gforth locals extensions are
 \G supported by Gforth, though the standard only supports the subset of cells.
 
 locals-types definitions
 
-: } ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace
+: } ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace
     \ ends locals definitions
     ]
     begin
@@ -483,13 +483,13 @@ locals-types definitions
     drop vt,
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
     previous previous
-    set-current lastcfa ! last !
+    set-current lastnt ! last !
     vtrestore
     locals-list 0 wordlist-id - TO locals-wordlist ;
 
 synonym :} }
 
-: -- ( vtaddr u latest latestxt wid 0 ... -- ) \ gforth dash-dash
+: -- ( vtaddr u latest latestnt wid 0 ... -- ) \ gforth dash-dash
     }
     BEGIN  '}' parse dup WHILE
         + 1- c@ dup bl = swap ':' = or  UNTIL
@@ -611,7 +611,7 @@ is adjust-locals-list
 : locals-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
     DEFERS :-hook
-    latest latestxt
+    latest latestnt
     clear-leave-stack
     0 locals-size !
     0 locals-list!
@@ -628,7 +628,7 @@ is free-old-local-names
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
     0 TO locals-wordlist
-    lastcfa ! last !
+    lastnt ! last !
     DEFERS ;-hook ;
 
 \ THEN (another control flow from before joins the current one):

@@ -919,7 +919,7 @@ named-vt \ but is actually a named vt
 ' cfun, set-optimizer
 ' rt-does> set-does>
 
-latestxt to rt-vtable
+latestnt to rt-vtable
 
 : (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
     { xt-parse-types }
@@ -980,7 +980,7 @@ latestxt to rt-vtable
     >r Create here dup ccb% dup allot erase
     lib-handle-addr @ swap dup >r ccb-lha !
     parse-function-types
-    here latestxt name>string string, count sanitize
+    here latestnt name>string string, count sanitize
     callback# 1- r> ccb-num !
     r> c-source-file-execute
     ['] callback-does> set-does> ;
