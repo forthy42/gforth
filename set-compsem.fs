@@ -26,9 +26,12 @@
 \ : foo ." interpreting" ; set-compsem
 
 : intsem: ( -- )
-    \G changes the current semantics to be the non-default compilation
-    \G semantics, and adds another interpretation semantics to the last
-    \G definition
+    \G The current definition's compilation semantics are changed to
+    \G perform its execution semantics (the word becomes immediate).
+    \G Then its interpretation semantics are changed to perform the
+    \G definition starting at the @code{intsem:}.  Note that if you
+    \G then call @code{immediate}, the compilation semantics are
+    \G changed to perform the word's new interpretation semantics.
     [: ['] execute ;] set->comp
     int-[: [: nip >r vt, wrap! r> [n:d nip ;] set->int ;]
     colon-sys-xt-offset stick ;
@@ -37,8 +40,8 @@
 \ : foo ." compiling" ; intsem: ." interpreting" ;
 
 : compsem: ( -- )
-    \G adds a non default compilation semantics to the last
-    \G definition
+    \G Changes the compilation semantics of the current definition to
+    \G perform the definition starting at the @code{compsem:}.
     int-[: [: nip >r vt, wrap! r> set-compsem ;] colon-sys-xt-offset stick ;
 
 \ silly example
