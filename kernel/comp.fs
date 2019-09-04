@@ -609,9 +609,13 @@ Create vttemplate
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
     REPEAT  drop (vt,) ;
 
-: make-latest ( xt -- )
-    \G make @i{xt} the latest definition, which can be manipulated
-    \G by @{immediate} and @code{set-*} operations
+: make-latest ( nt -- )
+    \G Make @i{nt} the latest definition, which can be manipulated by
+    \G @{immediate} and @code{set-*} operations.  If you have used
+    \G (especially compiled) the word referred to by nt already, do
+    \G not change the behaviour of the word (only its implementation),
+    \G otherwise you may get a surprising mix of behaviours that is
+    \G not consistent between Gforth engines and versions.
     vt, dup last ! lastnt ! ;
 
 : ?vt ( -- )
