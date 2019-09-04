@@ -33,6 +33,12 @@ Variable fontname[] \ array of fontnames
 16e FValue baseline#  \ basic baseline size
 1e FValue pixelsize#  \ basic pixel size
 
+: update-size# { f: lines -- }
+    dpy-w @ s>f lines f/ fround to font-size#
+    font-size# 16e f/ m2c:curminwidth% f!
+    font-size# 133% f* fround to baseline#
+    dpy-w @ s>f 1280e f/ to pixelsize# ;
+
 : fontsize: ( n "name" -- n+1 )
     Create dup , 1+ DOES> @ to font-size ;
 : fontshape: ( n "name" -- n+1 )

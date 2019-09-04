@@ -20,19 +20,36 @@
 \ Inspiration: wf.fs, a markdown-like parser, which converts to HTML
 
 require jpeg-exif.fs
+require user-object.fs
 
 get-current also minos definitions
 
 Defer .char
 
-Variable md-text$
-Variable preparse$
-Variable last-cchar
-Variable last-emph-flags
-Variable emph-flags \ emphasis flags
-Variable up-emph
-Variable count-emph
-Variable us-state
+uval-o md-style
+
+object uclass md-style
+    cell uvar md-text$
+    cell uvar preparse$
+    cell uvar last-cchar
+    cell uvar last-emph-flags
+    cell uvar emph-flags \ emphasis flags
+    cell uvar up-emph
+    cell uvar count-emph
+    cell uvar us-state
+    cell uvar imgs#
+    umethod .md-text
+    umethod .h1
+    umethod .h2
+    umethod .h3
+    umethod .#.
+    umethod .##.
+    umethod .item
+    umethod .desc
+    umethod .image
+    umethod .link
+    umethod .pagebreak
+end-class md-styler
 
 : reset-emph ( -- )
     last-emph-flags off
@@ -77,10 +94,6 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     {{ }}p box[] >bl dup v-box .child+
     dup >o "p-box" to name$ o>
     dup .subbox >o to parent-w "subbox" to name$ o o> box[] to p-box ;
-: .md-text ( -- )
-    md-text$ $@len IF
-	us-state @ md-text$ $@ }}text-us p-box .child+ md-text$ $free
-    THEN ;
 
 : /source ( -- addr u )
     source >in @ safe/string ;
@@ -96,7 +109,6 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 	>thumb-scan  img-orient 1- 0 max
     ELSE  2drop 0  THEN ;
 
-Variable imgs#
 -1 Value imgs#max
 
 : load/thumb { w^ fn$ -- w h res flag }
@@ -137,6 +149,18 @@ Variable imgs#
 
 : >lhang ( o -- o )
     p-box .parent-w >o dup to lhang o> ;
+
+\ style class implementation
+
+md-styler new Constant default-md-styler
+default-md-styler to md-style
+
+:noname ( -- )
+    md-text$ $@len IF
+	us-state @ md-text$ $@ }}text-us p-box .child+ md-text$ $free
+    THEN ; is .md-text
+
+\ interpretation
 
 : default-char ( char -- )
     emph-flags @ last-emph-flags @ over last-emph-flags ! <> IF
@@ -195,20 +219,23 @@ md-char: \ ( char -- )
     drop /source IF  c@ .char  1 >in +!  ELSE  drop  THEN ;
 md-char: ! ( char -- )
     /source "[" string-prefix? IF
-	drop 1 >in +! ]-parse
-	.md-text dark-blue
-	dup 0= IF  2drop " "  THEN
-	1 -rot }}text-us +image p-box .child+ blackish
+	drop 1 >in +! ]-parse .image
     ELSE  .char  THEN ;
+:noname ( desc-addr u1 img-addr u2 -- )
+    .md-text ( dark-blue )
+    dup 0= IF  2drop " "  THEN
+    1 -rot }}text-us +image p-box .child+ ( blackish ) ; is .image
 md-char: [ ( char -- )
     drop ]-parse 2dup "![" search nip nip IF
 	drop ')' parse 2drop ]-parse + over -  THEN
+    .link ;
+:noname ( link-addr u1 desc-addr u2 -- )
     .md-text
     dup 0= IF  2drop " "  THEN
     us-state @ >r p-box >r {{ }}h box[] to p-box
     [ underline #dark-blue or ]L render-line .md-text
     p-box r> to p-box r> us-state ! blackish
-    +link p-box .child+ ;
+    +link p-box .child+ ; is .link
 md-char: : ( char -- )
     drop /source ":" string-prefix? IF
 	>in @ >r
@@ -220,11 +247,12 @@ md-char: : ( char -- )
     THEN  ':' .char ;
 md-char: 	 ( tab -- )
     drop dark-blue ['] wspace md-text$ $exec
-    " " md-text$ 0 $ins
+    " " md-text$ 0 $ins md-text$ $@ .desc  md-text$ $free ;
+:noname ( addr u -- ) 2>r
     {{
-	{{ us-state @ md-text$ $@ }}text-us glue*l }}glue }}h box[]
+	{{ us-state @ 2r> }}text-us glue*l }}glue }}h box[]
     }}z box[] bx-tab >lhang
-    p-box .child+ blackish  md-text$ $free ;
+    p-box .child+ blackish ; is .desc
 
 $10 cells buffer: indent#s
 0 Value cur#indent
@@ -249,90 +277,75 @@ get-current also markdown definitions
 
 \ headlines limited to h1..h3
 : # ( -- )
-    /source 2dup + 2 - 2 " #" str= -2 and +
-    \huge cbl bold render-line .md-text .\\ \normal \regular ;
+    /source 2dup + 2 - 2 " #" str= -2 and + .h1 ;
+:noname
+    \huge cbl bold render-line .md-text .\\ \normal \regular ; is .h1
 : ## ( -- )
-    /source 2dup + 3 - 3 " ##" str= -3 and +
-    \large cbl bold render-line .md-text .\\ \normal \regular ;
+    /source 2dup + 3 - 3 " ##" str= -3 and + .h2 ;
+:noname
+    \large cbl bold render-line .md-text .\\ \normal \regular ; is .h2
 : ### ( -- )
-    /source 2dup + 4 - 4 " ###" str= -4 and +
-    \normal cbl bold render-line .md-text .\\ \normal \regular ;
+    /source 2dup + 4 - 4 " ###" str= -4 and + .h3 ;
+:noname
+    \normal cbl bold render-line .md-text .\\ \normal \regular ; is .h3
 : 1. ( -- )
     \ render counted line
-    -3 >indent dark-blue
+    -3 >indent .#. ;
+:noname ( -- ) dark-blue
     {{ 0 [: cur#indent 2* 2 + spaces indent# 0 .r ." . " ;]
 	$tmp }}text-us
     }}z /hfix box[] >lhang p-box .child+ blackish
-    /source 0 render-line .md-text .\\ ;
-synonym 2. 1.
-synonym 3. 1.
-synonym 4. 1.
-synonym 5. 1.
-synonym 6. 1.
-synonym 7. 1.
-synonym 8. 1.
-synonym 9. 1.
+    /source 0 render-line .md-text .\\ ; is .#.
+10 2 [DO] [I] 0 <# '.' hold #S #> nextname synonym 1. [LOOP]
+
 : 10. ( -- )
     \ render counted line
-    -4 >indent dark-blue
+    -4 >indent .##. ;
+:noname ( -- ) dark-blue
     {{ 0 [: cur#indent 2* 1+ spaces indent# 0 .r ." . " ;]
     $tmp }}text-us }}z /hfix box[] >lhang p-box .child+ blackish
-    /source 0 render-line .md-text .\\ ;
-synonym 11. 10.
-synonym 12. 10.
-synonym 13. 10.
-synonym 14. 10.
-synonym 15. 10.
-synonym 16. 10.
-synonym 17. 10.
-synonym 18. 10.
-synonym 19. 10.
-synonym 20. 10.
-synonym 21. 10.
-synonym 22. 10.
-synonym 23. 10.
-synonym 24. 10.
-synonym 25. 10.
-synonym 26. 10.
-synonym 27. 10.
-synonym 28. 10.
-synonym 29. 10.
-synonym 30. 10.
-: * ( -- )
-    -2 >indent dark-blue
-    {{ 0 [: cur#indent 1+ wspaces
-	    cur#indent bullet-char xemit wspace ;] $tmp }}text-us
+    /source 0 render-line .md-text .\\ ; is .##.
+100 11 [DO] [I] 0 <# '.' hold #S #> nextname synonym 10. [LOOP]
+
+: * ( -- )33
+    -2 >indent cur#indent bullet-char .item ;
+:noname { bchar -- } dark-blue
+    {{ 0 bchar [: cur#indent 1+ wspaces xemit wspace ;] $tmp }}text-us
     }}z /hfix box[] >lhang p-box .child+
-    blackish /source 0 render-line .md-text .\\ ;
-: +  ( -- )
-    -2 >indent dark-blue
-    {{ 0 [: cur#indent 1+ wspaces
-	'+' xemit wspace ;] $tmp }}text-us
-    }}z /hfix box[] >lhang p-box .child+
-    blackish /source 0 render-line .md-text .\\ ;
-: -  ( -- )
-    -2 >indent dark-blue
-    {{ 0 [: cur#indent 1+ wspaces
-	'–' xemit wspace ;] $tmp }}text-us
-    }}z /hfix box[] >lhang p-box .child+
-    blackish /source 0 render-line .md-text .\\ ;
-: ±  ( -- )
-    -2 >indent dark-blue
-    {{ 0 [: cur#indent 1+ wspaces
-	'±' xemit wspace ;] $tmp }}text-us
-    }}z /hfix box[] >lhang p-box .child+
-    blackish /source 0 render-line .md-text .\\ ;
-: > ( -- )
-    -2 >indent dark-blue
-    {{ 0 [: cur#indent 1+ wspaces
-	'|' xemit wspace ;] $tmp }}text-us
-    }}z /hfix box[] >lhang p-box .child+
-    blackish /source 0 render-line .md-text .\\ ;
+    blackish /source 0 render-line .md-text .\\ ; is .item
+: +  ( -- ) -2 >indent '+' .item ;
+: -  ( -- ) -2 >indent '–' .item ;
+: ±  ( -- ) -2 >indent '±' .item ;
+: > ( -- )  -2 >indent '|' .item ;
 : ::album:: ( -- )
     imgs# @ 1+ to imgs#max ;
+: --- ( -- )
+    .pagebreak ;
+synonym *** ---
+synonym ___ ---
+
 previous set-current
 
 warnings !
+
+md-styler uclass md-style
+end-class md-presenter
+
+md-presenter new Constant presenter-md-styler
+
+: presentation-size
+    44e update-size# ;
+
+get-current also markdown definitions
+: ::presentation::
+    presentation-size
+    presenter-md-styler to md-style ;
+::presentation::
+previous set-current
+
+84e update-size#
+
+\ generic formatting
 
 : p-format ( rw -- )
     [{: f: rw :}l rw par-split ;] v-box .do-childs ;
@@ -395,6 +408,7 @@ warnings !
     REPEAT ;
 
 : markdown-parse ( addr u -- )
+    default-md-styler to md-style
     -1 to imgs#max  imgs# off
     {{ }}v box[] to v-box nt open-fpath-file throw
     ['] markdown-loop execute-parsing-named-file
