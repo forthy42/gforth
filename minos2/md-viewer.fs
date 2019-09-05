@@ -340,7 +340,7 @@ get-current also markdown definitions
 : ::presentation::
     presentation-size
     presenter-md-styler to md-style ;
-::presentation::
+presenter-md-styler to md-style
 previous set-current
 
 84e update-size#
