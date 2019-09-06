@@ -57,50 +57,50 @@ variable backedge-locals
 5 constant scopestart
 
 : orig? ( n -- )
- dead-orig 1+ live-orig within abort" expected orig " ;
+    dead-orig 1+ live-orig within abort" expected orig " ;
 
 : dest? ( n -- )
- dest <> abort" expected dest " ;
+    dest <> abort" expected dest " ;
 
 : do-dest? ( n -- )
- do-dest <> abort" expected do-dest " ;
+    do-dest <> abort" expected do-dest " ;
 
 : scope? ( n -- )
- scopestart <> abort" expected scope " ;
+    scopestart <> abort" expected scope " ;
 
 : non-orig? ( n -- )
- dest scopestart 1+ within 0= abort" expected dest, do-dest or scope" ;
+    dest scopestart 1+ within 0= abort" expected dest, do-dest or scope" ;
 
 : cs-item? ( n -- )
- live-orig scopestart 1+ within 0= abort" expected control flow stack item" ;
+    live-orig scopestart 1+ within 0= abort" expected control flow stack item" ;
 
 3 constant cs-item-size
 
 : CS-PICK ( dest0 orig1/dest1 ... origu/destu u -- ... dest0 ) \ tools-ext c-s-pick
- 1+ cs-item-size * 1- >r
- r@ pick  r@ pick  r@ pick
- rdrop
- dup non-orig? ;
+    1+ cs-item-size * 1- >r
+    r@ pick  r@ pick  r@ pick
+    rdrop
+    dup non-orig? ;
 
 : CS-ROLL ( destu/origu .. dest0/orig0 u -- .. dest0/orig0 destu/origu ) \ tools-ext c-s-roll
- 1+ cs-item-size * 1- >r
- r@ roll r@ roll r@ roll
- rdrop
- dup cs-item? ; 
+    1+ cs-item-size * 1- >r
+    r@ roll r@ roll r@ roll
+    rdrop
+    dup cs-item? ; 
 
 : CS-DROP ( dest -- ) \ gforth
-    non-orig? 2drop ;
+    cs-item? 2drop ;
 
 : cs-push-part ( -- list addr )
- locals-list @ here ;
+    locals-list @ here ;
 
 : cs-push-orig ( -- orig )
- cs-push-part dead-code @
- if
-   dead-orig
- else
-   live-orig
- then ;   
+    cs-push-part dead-code @
+    if
+	dead-orig
+    else
+	live-orig
+    then ;   
 
 \ Structural Conditionals                              12dec92py
 
