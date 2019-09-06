@@ -360,12 +360,12 @@ LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BU
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
-MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	    \
-	wayland-gl.fs soil-texture.fs gl-sample.fs gl-slideshow.fs	    \
-	ftgl-helper.fs ftgl-sample.fs widgets.fs actors.fs x11-actors.fs    \
-	android-actors.fs wayland-actors.fs widgets-test.fs presentation.fs \
-	mts-tools.fs mkv-tools.fs omx-example.fs mkv-tags.fs		    \
-	android-recorder.fs animation.fs need-x.fs font-style.fs	    \
+MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
+	wayland-gl.fs soil-texture.fs gl-sample.fs gl-slideshow.fs	     \
+	ftgl-helper.fs ftgl-sample.fs widgets.fs actors.fs x11-actors.fs     \
+	android-actors.fs wayland-actors.fs widgets-test.fs presentation.fs  \
+	presentation-support.fs mts-tools.fs mkv-tools.fs omx-example.fs     \
+	mkv-tags.fs android-recorder.fs animation.fs need-x.fs font-style.fs \
 	text-style.fs gst-helper.fs plot.fs md-viewer.fs md-test.fs
 
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
