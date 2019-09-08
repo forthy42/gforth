@@ -807,7 +807,7 @@ install-gensources:
 		echo "\\ empty site-init" > $(siteforthdir)/siteinit.fs
 
 install-txt:	doc
-		$(INSTALL_DATA) doc/gforth.txt $(datadir)/gforth/$(VERSION)/gforth.txt
+		$(INSTALL_DATA) doc/gforth.txt $(datadir)/gforth/$(VERSION)/doc/gforth.txt
 
 install-images:
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
