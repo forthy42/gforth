@@ -405,7 +405,7 @@ include ./recognizer.fs
 : lastflags ( -- c-addr )
     \ the address of the flags byte in the last header
     \ aborts if the last defined word was headerless
-    latest dup 0= abort" last word was headerless"
+    latest dup 0= abort" last word was nameless"
     >f+c ;
 
 : imm>comp  name>int ['] execute ;

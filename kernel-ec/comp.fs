@@ -306,7 +306,7 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
 : lastflags ( -- c-addr )
     \ the address of the flags byte in the last header
     \ aborts if the last defined word was headerless
-    latest dup 0= abort" last word was headerless" cell+ ;
+    latest dup 0= abort" last word was nameless" cell+ ;
 
 : immediate ( -- ) \ core
     \G Make the compilation semantics of a word be to @code{execute}
