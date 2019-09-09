@@ -137,3 +137,22 @@ glue-right >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 : pres-frame ( colorday colornight -- o1 o2 )
     day-mode new-color, night-mode -1 +to color,# new-color, fdrop day-mode
     glue*wh slide-frame dup .button1 simple[] ;
+
+$10 stack: vp-tops
+
+also opengl
+
+: !pres-widgets ( -- )
+    set-fullscreen-hint 1 set-compose-hint
+    top-widget .htop-resize
+    vp-tops get-stack 0 ?DO  .vp-top  LOOP
+    1e ambient% sf! set-uniforms ;
+
+[IFDEF] android android [THEN]
+
+: presentation ( -- )
+    1config
+    [IFDEF] hidestatus hidekb hidestatus [THEN]
+    !pres-widgets widgets-loop ;
+
+previous
