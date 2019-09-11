@@ -454,11 +454,9 @@ defer compile, ( xt -- )
 \ : name>view ( nt -- addr ) \ gforth   name-to-view
 \     name>string drop cell negate and cell- ;
 
-: default-name>int ( nt -- xt ) \ gforth paren-name-to-int
-    \G @i{xt} represents the interpretation semantics of the word
-    \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
-    \G @code{compile-only}), @i{xt} is the execution token for
-    \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
+\ DEFAULT-NAME>INT is never used, delete?
+: default-name>int ( nt -- xt ) \ gforth default-name-to-int
+    \G Default @code{name>interpret} implementation.  For words where nt=xt.
 ;
 
 : (name>intn) ( nfa -- xt +-1 )
