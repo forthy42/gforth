@@ -588,7 +588,7 @@ longtags set-current
 : red> -env ;
 : >>  -env ;
 : *> ;
-: ::  interpret ;
+: ::  ['] interpret bt-rp0-wrapper ;
 : .   end-sec on 0 indent ;
 : :code s" pre" >env
     BEGIN  source >in @ /string .type cr refill  WHILE

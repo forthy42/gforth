@@ -84,8 +84,10 @@ Variable argc ( -- addr ) \ gforth
 : args-required ( i*x addr u -- i*x ) \ gforth
     2dup ['] args-required1 os-execute-parsing ;
 
+: interpret2 ['] interpret bt-rp0-wrapper ;
+
 : args-evaluate ( i*x addr u -- j*x ) \ gforth
-    ['] interpret os-execute-parsing ;
+    ['] interpret2 os-execute-parsing ;
 
 \ main words
 

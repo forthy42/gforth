@@ -51,7 +51,7 @@ Variable echo  -1 echo !
 : included ( addr u -- )
     2 emit dup $20 + emit type
     echo @ IF
-	echo off ['] refill-loop catch
+	echo off ['] refill-loop bt-rp0-catch
 	dup IF  4 emit  THEN  echo on  throw
     THEN ;
 : include ( "file" -- )  parse-name included ;
