@@ -585,6 +585,7 @@ defer int-execute ( ... xt -- ... )
 
 : interpret ( ... -- ... ) \ gforth
     \ interpret/compile the (rest of the) input buffer
+    [ cell 4 = [IF] ] false >l [ [THEN] ] \ align LP stack for 32 bit engine
     r> >l rp@ backtrace-rp0 !
     [ has? EC 0= [IF] ] before-line [ [THEN] ]
     BEGIN
