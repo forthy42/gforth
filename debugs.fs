@@ -102,11 +102,27 @@ $10 stack: cov-stack
 
 \ launch a debug shell, quit with emtpy line
 
+[ifundef] bt-rp0-catch
+: bt-rp0-catch ( ... xt -- ... ball )
+    backtrace-rp0 @ >r	
+    catch
+    r> backtrace-rp0 ! ;
+
+: bt-rp0-wrapper ( ... xt -- ... )
+    bt-rp0-catch throw ;
+[then]
+
+: ???-loop ( ... -- ... )
+    BEGIN
+        ." dbg> " refill  WHILE
+            source nip WHILE
+                interpret ."  ok" cr
+        REPEAT  THEN ;
+
 : ??? ( -- )
     \G Open a debuging shell
     create-input cr
-    BEGIN  ." dbg> " refill  WHILE  source nip WHILE
-		interpret ."  ok" cr  REPEAT  THEN
+    ['] ???-loop bt-rp0-catch throw
     0 pop-file drop ;
 ' ??? alias dbg-shell
 

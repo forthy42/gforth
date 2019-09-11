@@ -585,22 +585,26 @@ defer int-execute ( ... xt -- ... )
 \ like EXECUTE, but restores and saves ERRNO if present
 ' execute IS int-execute
 
-: interpret1 ( ... -- ... )
-    rp@ backtrace-rp0 !
+: interpret ( ... -- ... ) \ gforth
+    \ interpret/compile the (rest of the) input buffer
+    r> >l rp@ backtrace-rp0 !
     [ has? EC 0= [IF] ] before-line [ [THEN] ]
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
 	parser1 int-execute
     REPEAT
-    2drop ;
+    2drop @local0 >r lp+ ;
     
-: interpret ( ?? -- ?? ) \ gforth
-    \ interpret/compile the (rest of the) input buffer
+: bt-rp0-catch ( ... xt -- ... ball )
     backtrace-rp0 @ >r	
-    ['] interpret1 catch
-    r> backtrace-rp0 !
-    throw ;
+    catch
+    r> backtrace-rp0 ! ;
+
+: bt-rp0-wrapper ( ... xt -- ... )
+    bt-rp0-catch throw ;
+
+: interpret2 ['] interpret bt-rp0-wrapper ;
 
 \ interpreter                                 	30apr92py
 
@@ -652,7 +656,7 @@ defer prompt
     ."  ok" ;
 ' (prompt) is prompt
 
-: (quit) ( -- )
+: (quit1) ( -- )
     \ exits only through THROW etc.
     BEGIN
 	[ has? ec [IF] ] cr [ [ELSE] ]
@@ -664,8 +668,10 @@ defer prompt
 	endif [ [THEN] ]
 	get-input-colored WHILE
 	    interpret prompt
-    REPEAT
-    bye ;
+    REPEAT ;
+
+: (quit) ( -- )
+    ['] (quit1) bt-rp0-wrapper bye ;
 
 ' (quit) IS 'quit
 

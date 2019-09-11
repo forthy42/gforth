@@ -226,7 +226,7 @@ Create block-input   A, A, A, A, A,
     \g Text-interpret block @i{u}.  Block 0 cannot be @code{load}ed.
     dup 0= -35 and throw
     block-input 0 new-tib dup loadline ! blk !  -3 loadfilename# !
-    ['] interpret catch pop-file throw ;
+    ['] interpret bt-rp0-catch pop-file throw ;
 
 : thru ( i*x n1 n2 -- j*x ) \ block-ext
     \G @code{load} the blocks @i{n1} through @i{n2} in sequence.

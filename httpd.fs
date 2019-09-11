@@ -120,7 +120,7 @@ Variable maxnum
   #tib @ 1 >= IF  source 1- + c@ #cr = #tib +!  THEN ;
 : refill-loop ( -- flag )
   base @ >r base off
-  BEGIN  refill ?cr  WHILE  ['] interpret catch drop  >in @ 0=  UNTIL
+  BEGIN  refill ?cr  WHILE  ['] interpret bt-rp0-catch drop  >in @ 0=  UNTIL
   true  ELSE  maxnum off false  THEN  r> base ! ;
 : get-input ( -- flag ior )
   s" /nosuchfile" url $!  s" HTTP/1.0" protocol $!
