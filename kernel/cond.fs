@@ -76,11 +76,11 @@ variable backedge-locals
 
 3 constant cs-item-size
 
-: CS-PICK ( dest0 orig1/dest1 ... origu/destu u -- ... dest0 ) \ tools-ext c-s-pick
+: CS-PICK ( orig0/dest0 orig1/dest1 ... origu/destu u -- ... orig0/dest0 ) \ tools-ext c-s-pick
     1+ cs-item-size * 1- >r
     r@ pick  r@ pick  r@ pick
     rdrop
-    dup non-orig? ;
+    dup cs-item? ;
 
 : CS-ROLL ( destu/origu .. dest0/orig0 u -- .. dest0/orig0 destu/origu ) \ tools-ext c-s-roll
     1+ cs-item-size * 1- >r

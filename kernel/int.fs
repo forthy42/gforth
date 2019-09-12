@@ -594,7 +594,7 @@ defer int-execute ( ... xt -- ... )
 	parser1 int-execute
     REPEAT
     2drop @local0 >r lp+ ;
-    
+
 : bt-rp0-catch ( ... xt -- ... ball )
     backtrace-rp0 @ >r	
     catch
