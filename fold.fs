@@ -140,7 +140,9 @@ optimizes fpick
     lits# 2 u>= if
 	2lits> op >lits exit then
     lits# 1 = if
-	0 lits> op ['] lit+ peephole-compile, , exit then
+        0 lits> op ?dup-if
+            ['] lit+ peephole-compile, , then
+        exit then
     action-of op peephole-compile, ;
 dup optimizes +
 optimizes -
