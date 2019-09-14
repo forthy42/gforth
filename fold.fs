@@ -47,8 +47,8 @@
 
 1 ' lits>  ' >lits ' peephole-compile, folder
 dup folds invert abs negate >pow2
-dup folds 1+ 1- 2* 2/ cells cell/
-dup folds floats sfloats dfloats
+dup folds 1+ 1- 2* 2/ cells cell/ cell+ cell-
+dup folds floats sfloats dfloats float+
 dup folds float/ sfloat/ dfloat/
 dup folds c>s w>s l>s w>< l>< x><
 dup folds wcwidth
