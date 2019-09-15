@@ -22,5 +22,5 @@
     \G compilation semantics.  The prelude @i{xt} is executed by the outer
     \G interpreter before the words compilation or interpretation semantics is
     \G performed.
-    dup [n:d execute ;] set->int
-    [n:d execute default-name>comp ;] set->comp ;
+    set->int
+    [: name>int ['] compile, ;] set->comp ;
