@@ -331,3 +331,8 @@ t{ : pick-test 4 pick 3 pick 2 pick 1 pick 0 pick ; -> }t
 t{ 5 6 7 8 9 pick-test -> 5 6 7 8 9 5 7 9 7 7 }t
 t{ : fpick-test 4 fpick 3 fpick 2 fpick 1 fpick 0 fpick ; -> }t
 t{ 5e 6e 7e 8e 9e fpick-test -> 5e 6e 7e 8e 9e 5e 7e 9e 7e 7e }t
+
+\ `<word> and ``<word>
+
+t{ `to -> ' to }t
+t{ ``to -> "to" find-name }t

@@ -18,12 +18,25 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: rec-tick ( addr u -- xt rectype-tick | rectype-null )
-    \G words prefixed with @code{'`'} return their xt.
+: rec-tick ( addr u -- xt rectype-num | rectype-null )
+    \G words prefixed with @code{`} return their xt.
     \G Example: @code{`dup} gives the xt of dup
-    over c@ '`' <> if 2drop rectype-null exit then
-    1 /string find-name
-    dup 0= if drop rectype-null exit then
-    rectype-num ;
+    over c@ '`' = if
+	1 /string find-name dup if
+	    name>interpret rectype-num exit then
+	dup then
+    2drop rectype-null ;
 
 ' rec-tick forth-recognizer >back
+
+: rec-dtick ( addr u -- nt rectype-num | rectype-null )
+    \G words prefixed with @code{``} return their nt.
+    \G Example: @code{``S"} gives the nt of @code{S"}
+    2dup "``" string-prefix? if
+	2 /string find-name dup if
+	    rectype-num exit then
+	dup then
+    2drop rectype-null ;
+
+' rec-dtick forth-recognizer >back
+
