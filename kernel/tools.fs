@@ -97,8 +97,9 @@ include  ./../termsize.fs
     REPEAT  drop rdrop ;
 
 : traverse-wordlist ( ... xt wid -- ... )
-    \G xt: ( ... nt -- f ... ) free to use the stack underneath
-    \G run as long as f is true
+    \G perform @i{xt} ( ... nt -- f ... ) once for every word @i{nt}
+    \G in the wordlist @i{wid}, until @i{f} is false or the wordlist
+    \G is exhausted.  @i{xt} is free to use the stack underneath.
     swap >r wordlist-id @
     BEGIN
 	dup
