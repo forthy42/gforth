@@ -215,14 +215,28 @@ variable code-locations 0 code-locations !
 
 : unbounds ( c-start c-end -- c-start u )
     over - ;
-    
-: .wheretype ( c-addr u view -- )
-    view>char >r -trailing over r> + {: c-pos :} 2dup + {: c-lineend :}
+
+: type-notabs ( c-addr u -- )
+    \G like type, but type a space for each tab
+    bounds ?do
+        i c@ dup #tab = if drop bl then emit loop ;
+
+: width-type ( c-addr u uwidth -- uwidth1 )
+    \g type the part of the string that fits in uwidth; uwidth1 is the
+    \g remaining width; replaces tabs with spaces
+    { uwidth } begin
+        2dup x-width dup uwidth u> while
+            drop x\string- repeat
+    >r type-notabs uwidth r> - ;
+
+: .wheretype1 ( c-addr u view urest -- )
+    { urest } view>char >r -trailing over r> + { c-pos } 2dup + { c-lineend }
     (parse-white) drop ( c-addr1 )
-    info-color  attr! c-pos unbounds type
-    error-color attr! c-pos c-lineend unbounds (parse-white) tuck type
-    info-color  attr! c-pos + c-lineend unbounds type
-    default-color attr! ;
+    info-color  attr! c-pos unbounds urest width-type ->urest
+    error-color attr! c-pos c-lineend unbounds (parse-white) tuck
+    urest width-type ->urest
+    info-color  attr! c-pos + c-lineend unbounds urest width-type ->urest
+    default-color attr! urest spaces ;
     
 : .whereline {: view u -- :}
     \ print the part of the source line around view that fits in the
@@ -230,18 +244,20 @@ variable code-locations 0 code-locations !
     view view>buffer
     1 case ( c-addr u lineno1 )
 	over 0= ?of endof
-	dup view view>line = ?of locate-line view .wheretype endof
+	dup view view>line = ?of locate-line view u .wheretype1 endof
 	locate-next-line
     next-case
     drop 2drop ;
 
-: .whereview ( view -- )
-    dup .sourceview-width ": " type 2 + .whereline ;
+: .whereview1 ( view wno -- )
+    0 <<# `#s #10 base-execute #> rot ( c-addr u view )
+    dup .sourceview-width ." : " 3 + 2 pick + cols swap - .whereline type #>> ;
 
 : forwheres ( ... xt -- ... )
-    { xt } wheres $@ bounds u+do
+    1 { xt wno } wheres $@ bounds u+do
 	i where-nt @ xt execute if
-	    i where-loc @ cr .whereview
+            i where-loc @ cr wno .whereview1
+            wno 1+ ->wno
 	then
     where-struct +loop ;
 
