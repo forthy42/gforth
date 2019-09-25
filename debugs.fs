@@ -306,13 +306,12 @@ Variable rec'
 
 : prompt-ok ( -- )
     ."  ok"
-    fdepth depth 1- 2dup or if
-        space 0 dec.r ?dup if
-            ."  f:" 0 dec.r
-        then
-    else
-        2drop
-    then ;
+    depth ?dup-if
+        space 0 dec.r then
+    fdepth ?dup-if
+        ."  f:" 0 dec.r then
+    rp0 @ rp@ - cell/ 30 - ?dup-if
+        ."  r:" 0 dec.r then ;
 
 : prompt-text    state @ IF ."  compiled" EXIT THEN  prompt-ok ;
 
