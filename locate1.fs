@@ -17,6 +17,9 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+$variable where-results
+\ addresses in WHERES that contain the results of the last WHERE
+
 variable included-file-buffers
 \ Bernd-array of c-addr u descriptors for read-only buffers that
 \ contain the contents of the included files (same index as
@@ -254,15 +257,28 @@ variable code-locations 0 code-locations !
     dup .sourceview-width ." : " 3 + 2 pick + cols swap - .whereline type #>> ;
 
 : forwheres ( ... xt -- ... )
-    1 { xt wno } wheres $@ bounds u+do
+    where-results $free
+    0 { xt wno } wheres $@ bounds u+do
 	i where-nt @ xt execute if
             i where-loc @ cr wno .whereview1
+            i { w^ ip } ip cell where-results $+!
             wno 1+ ->wno
 	then
     where-struct +loop ;
 
 : where ( "name" -- )
     parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres drop ;
+
+: wr-location ( u -- f )
+    \ locate-setup where result with index u; returns true iff successful
+    where-results $@ rot cells tuck u<= if
+        2drop false exit then
+    + @ 2@ name>string nip set-located-view true ;
+
+: lw ( u -- ) \ gforth
+    \G locate the @i{u}th where result
+    wr-location if
+        l then ;
 
 \ count word usage
 
