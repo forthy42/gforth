@@ -57,6 +57,7 @@ require quotes.fs
 require rec-string.fs
 require rec-to.fs
 require rec-tick.fs
+require rec-body.fs
 require substitute.fs
 require code.fs
 require see.fs

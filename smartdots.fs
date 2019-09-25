@@ -33,8 +33,9 @@
     '"' emit type '"' emit space ;
 : .addr. ( addr -- )
     dup xt? if
-	dup name>string dup if
-	    ." `" type space drop exit
+        dup name>string dup if
+            2 pick >namevt @ >vt>int @ ['] noop <> if '`' emit then
+            ." `" type space drop exit
 	else
 	    2drop
 	then
