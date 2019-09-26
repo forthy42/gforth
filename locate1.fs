@@ -21,6 +21,8 @@ $variable where-results
 \ addresses in WHERES that contain the results of the last WHERE
 variable where-index -1 where-index !
 
+-1 0 set-located-view
+
 variable included-file-buffers
 \ Bernd-array of c-addr u descriptors for read-only buffers that
 \ contain the contents of the included files (same index as
@@ -88,6 +90,14 @@ variable included-file-buffers
 : located-buffer ( -- c-addr u )
     located-view @ view>buffer ;
 
+: current-location?1 ( -- f )
+    located-view @ -1 = if
+        true [: ." no current location" ;] ?warning true exit then
+    false ;
+
+: current-location? ( -- )
+    ]] current-location?1 ?exit [[ ; immediate
+
 : l1 ( -- )
     located-buffer 1 case ( c-addr u lineno1 )
 	over 0= ?of endof
@@ -103,9 +113,8 @@ variable included-file-buffers
 
 : l ( -- )
     \g Display line of source after compiler error or locate
-    located-view @ dup -1 = if
-        true [: ." no current location" ;] ?warning drop exit then
-    cr view>filename type  ': emit
+    current-location?
+    cr located-view @ view>filename type  ': emit
     located-top @ dec.
     l1 ;
 
@@ -120,17 +129,20 @@ variable included-file-buffers
 
 : n ( -- )
     \g Display next lines after locate or error
+    current-location?
     located-bottom @ dup located-top ! form drop 2/ + located-bottom !
     set-bn-view l1 ;
 
 : b ( -- )
     \g Display previous lines after locate.
+    current-location?
     located-top @ dup located-bottom ! form drop 2/ - 0 max located-top !
-    set-bn-view l ;
+    set-bn-view l1 ;
 
 : extern-g ( -- )
     \g Enter the external editor at the place of the latest error,
     \g @code{locate}, @code{n} or @code{b}.
+    current-location?
     bn-view @ ['] editor-cmd >string-execute 2dup system drop free
     throw ;
 
