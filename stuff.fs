@@ -333,7 +333,7 @@ AUser CSP
     loop ;
 [then]
 
-16 Value f.s-precision
+14 Value f.s-precision
 \G the field width for f.s output. Other precision details are derived
 \G from that value.
 
@@ -341,9 +341,10 @@ AUser CSP
 \G Display the number of items on the floating-point stack, followed
 \G by a list of the items (but not more than specified by
 \G @code{maxdepth-.s}; TOS is the right-most item.
-    ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 
-    ?DO  dup i - 1- floats fp@ + f@
-	f.s-precision dup 2 - 3 max dup 3 - 3 max f.rdp space LOOP  drop ; 
+    ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 ?DO
+	dup i - 1- floats fp@ + f@
+	f.s-precision 7 max dup 0 f.rdp space LOOP
+    drop ; 
 
 \ new interpret/compile:
 
