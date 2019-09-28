@@ -77,7 +77,7 @@ User Attr   0 Attr !
 
 : (Attr!) ( attr -- )
     \G set attribute
-    dup Attr @ = over 0= or IF drop EXIT THEN
+    dup Attr @ = IF drop EXIT THEN
     dup $6600 = Attr @ 0= and IF drop EXIT THEN
     dup Attr !
     <<# 'm' hold

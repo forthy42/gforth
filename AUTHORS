@@ -15,17 +15,25 @@ S: D-81477 München
 S: Germany
 P: rsa4096/3B7FA946 60E7 1A15 9357 5330 99A0 AAF9 CAF0 21DB 3B7F A946
 
-N: Gerald Wodni
-E: gerald.wodni@gee.at
-D: SWIG module for C libraries
-
 N: David Kühling
 E: dvdkhlng@gmx.de
 D: Emacs integration
 
+N: Gerald Wodni
+E: gerald.wodni@gee.at
+D: SWIG module for C libraries
+
+N: Heinz Schnitter
+E: heinz.schnitter@muenchen-mail.de
+D: R8C assembler
+
 N: Jens Wilke
 E: jens.wilke@headissue.com
 D: Embedded Control versions (non-gcc), decompiler, cross compiler refinement
+
+N: Klaus Kohl-Schöpe
+E: kks@designin.de
+D: 8086 Gforth EC
 
 N: Neal Crook
 E: neal@pinga.free-online.co.uk

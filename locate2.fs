@@ -1,5 +1,11 @@
 require unix/libc.fs
 
+#24 #80 2Constant plain-form
+
+' (type) ' (emit) ' (cr) ' plain-form output: plain-out
+: plain-output ( xt -- )
+    op-vector @ >r  plain-out  catch  r> op-vector !  throw ;
+
 : whereg ( "name" -- ) \ gforth
     \g Like @code{where}, but puts the output in the editor.  In
     \g Emacs, you can then use the compilation-mode commands
@@ -9,6 +15,6 @@ require unix/libc.fs
     [:  "-*- mode: compilation; default-directory: \"" type
 	here unused getcwd dup 0= ?errno-throw dup strlen type
 	"\" -*-" type
-	where
+	['] where plain-output
     ;] over outfile-execute close-file throw
     `edit-file-cmd >string-execute 2dup system drop free throw ;

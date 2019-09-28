@@ -1,6 +1,5 @@
 
-The Gforth manual is available on
-https://www.complang.tuwien.ac.at/forth/gforth/Docs-html/
+The Gforth manual is available on http://gforth.org/manual/
 or through your favourite info reader (e.g., "info gforth" from the shell)
 or you can just type "help <word>" to display the relevant help section.
 To leave Gforth, type "bye", or use Ctrl-D at the start of a line.

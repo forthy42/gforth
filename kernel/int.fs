@@ -859,12 +859,17 @@ defer reset-dpp
 
 \ \ Cold Boot                                    	13feb93py
 
+: (c) ( -- )
+    ." Copyright " xc-vector @ fixed-width =
+    IF  ." (C)"  ELSE  '©' xemit  THEN ;
 : gforth ( -- )
-    ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2018 Free Software Foundation, Inc." cr
+    ." Gforth " version-string type cr
+    (c) ."  1994-2019 Anton Ertl, Bernd Paysan, Jens Wilke et al." cr
+    (c) ."  1995-2018 Free Software Foundation, Inc. (US+UK only)" cr
+    ." License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>" cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
-     cr ." Type `help' for basic help"
+     cr ." Type `help' for basic help, `authors' for full author list"
 [ [THEN] ] ;
 
 defer bootmessage ( -- ) \ gforth

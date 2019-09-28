@@ -1321,8 +1321,10 @@ end-class viewport
 
 : vp-needed ( xt -- )
     \G collect needs in viewport's vp-need
-    need-mask >r vp-need to need-mask
-    catch r> to need-mask throw ;
+    vp-need need-mask <> IF
+	need-mask >r vp-need to need-mask
+	catch r> to need-mask throw
+    ELSE  drop  THEN ;
 
 1 sfloats buffer: vp-ambient%  1.0e vp-ambient% sf!
 1 sfloats buffer: vp-saturate% 1.0e vp-saturate% sf!
