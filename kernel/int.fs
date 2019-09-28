@@ -865,7 +865,7 @@ defer reset-dpp
 : gforth ( -- )
     ." Gforth " version-string type cr
     (c) ."  1994-2019 Anton Ertl, Bernd Paysan, Jens Wilke et al." cr
-    (c) ."  1995-2018 Free Software Foundation, Inc. (US+UK only)" cr
+    (c) ."  1995-2018 Free Software Foundation, Inc. (US+UK law)" cr
     ." License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>" cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
