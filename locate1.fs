@@ -282,6 +282,10 @@ variable code-locations 0 code-locations !
     where-struct +loop ;
 
 : where ( "name" -- ) \ gforth
+    \g Show all places where @i{name} is used (text-interpreted).  You
+    \g can then use @code{ww}, @code{nw} or @code{bw} in combination
+    \g with @code{l} or @code{g} to inspect specific occurences more
+    \g closely.
     parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres
     drop -1 where-index ! ;
 

@@ -295,6 +295,15 @@ Variable rec'
 \G EDITOR=joe|mcedit|nano  #if you like other simple editors
 \G @end example
 
+: edit-file-cmd ( c-addr u -- )
+    \ prints the editor command for editing the file with the name c-addr u
+    s" EDITOR" getenv dup 0= IF
+	2drop s" vi" \ if you don't set EDITOR, use vi as default
+    THEN
+    2dup 2>r type space
+    2r@ s" emacsclient" string-prefix? IF  ." -n "  THEN
+    ''' emit esc'type ''' emit  2rdrop ;
+
 \ insert a different location
 
 : #loc ( nline nchar "file" -- )

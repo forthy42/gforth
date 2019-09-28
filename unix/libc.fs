@@ -67,6 +67,9 @@ c-library libc
     c-function readlink readlink s a n -- n ( path len buf len2 -- ret )
     c-function rmdir rmdir s -- n ( path len -- ret )
     c-function mknod mknod s n n -- n ( path mode dev -- ret )
+    c-function mkstemp mkstemp a -- n ( c-addr -- n )
+    c-function getcwd getcwd a u -- a ( c-addr u -- c-addr )
+    c-function strlen strlen a -- n
     getentropy? [IF]
 	c-function getentropy getentropy a n -- n ( buffer len -- n )
     [THEN]
@@ -109,9 +112,13 @@ $004 Constant POLLOUT
     over $@len over 1+ pollfd * umax 2 pick $!len
     pollfd * swap $@ drop + tuck events w! fd l! ;
 
+: ?errno-throw ( f -- )
+    \ throw code computed from errno if f!=0
+    IF  -512 errno - throw THEN ;
+
 : ?ior ( x -- )
     \G use errno to generate throw when failing
-    -1 = IF  errno ?dup-IF  -512 swap - throw  THEN  THEN ;
+    -1 = ?errno-throw ;
 
 [defined] int-execute [if]
     variable saved-errno 0 saved-errno !
@@ -120,7 +127,8 @@ $004 Constant POLLOUT
     is int-execute
 [then]
 
-: fd>file ( fd -- file )  s" w+" fdopen ;
+: fd>file ( fd -- fid )
+    s" w+" fdopen dup 0= ?errno-throw ;
 
 (getpid) Value getpid
 
