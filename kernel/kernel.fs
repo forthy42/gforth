@@ -28,7 +28,7 @@ include ./accept.fs
 include ./input.fs
 has? os [IF]
     include ./license.fs
-    include ./authors.fs
+    include kernel/authors.fs
     include ./xchars.fs
 [THEN]
 \ include ./nio.fs
