@@ -80,7 +80,7 @@ c-library libc
     c-value environ environ -- a ( -- env )
 end-c-library
 
-getpagesize constant pagesize
+getpagesize Value pagesize
 
 begin-structure pollfd
     lfield: fd
@@ -146,3 +146,7 @@ e? os-type s" linux-gnu" string-prefix? [IF]
     fork() dup 0= IF  drop ['] exit() is throw  execvp exit()
     ELSE  fpid ! drop 2drop  THEN ;
 [THEN]
+
+:noname defers 'cold
+    getpagesize to pagesize
+    (getpid) to getpid ; is 'cold
