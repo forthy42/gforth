@@ -861,7 +861,7 @@ defer reset-dpp
 
 : (c) ( -- )
     ." Copyright " xc-vector @ fixed-width =
-    IF  ." (c)"  ELSE  '©' xemit  THEN ;
+    IF  ." (c)"  ELSE  $A9 ( '©' ) xemit  THEN ;
 : gforth ( -- )
     ." Gforth " version-string type cr
     (c) ."  1994-2019 Anton Ertl, Bernd Paysan, Jens Wilke et al." cr
