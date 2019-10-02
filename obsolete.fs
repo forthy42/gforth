@@ -17,6 +17,43 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+\ WORD SWORD
+
+: (word) ( addr1 n1 char -- addr2 n2 )
+  dup >r skip 2dup r> scan  nip - ;
+
+\ (word) should fold white spaces
+\ this is what (parse-white) does
+
+: sword  ( char -- addr len ) \ gforth-obsolete s-word
+\G Parses like @code{word}, but the output is like @code{parse} output.
+\G @xref{core-idef}.
+    \ this word was called PARSE-WORD until 0.3.0, but Open Firmware and
+    \ dpANS6 A.6.2.2008 have a word with that name that behaves
+    \ differently (like NAME).
+    source 2dup >r >r >in @ over min /string
+    rot dup bl = IF
+        drop (parse-white)
+    ELSE
+        (word)
+    THEN
+[ has? new-input [IF] ]
+    2dup input-lexeme!
+[ [THEN] ]
+    2dup + r> - 1+ r> min >in ! ;
+
+: word   ( char "<chars>ccc<char>-- c-addr ) \ core
+    \G Skip leading delimiters. Parse @i{ccc}, delimited by
+    \G @i{char}, in the parse area. @i{c-addr} is the address of a
+    \G transient region containing the parsed string in
+    \G counted-string format. If the parse area was empty or
+    \G contained no characters other than delimiters, the resulting
+    \G string has zero length. A program may replace characters within
+    \G the counted string. OBSOLESCENT: the counted string has a
+    \G trailing space that is not included in its length.
+    sword dup word-pno-size u>= IF  -18 throw  THEN
+    here place  bl here count + c!  here ;
+
 \ these transformations are used for legacy words like find
 
 : sfind ( c-addr u -- 0 / xt +-1  ) \ gforth-obsolete

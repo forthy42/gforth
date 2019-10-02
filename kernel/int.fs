@@ -37,12 +37,6 @@ require ./nio.fs	\ . <# ...
 require ./errore.fs	\ .error ...
 require kernel/version.fs \ version-string
 
-: (word) ( addr1 n1 char -- addr2 n2 )
-  dup >r skip 2dup r> scan  nip - ;
-
-\ (word) should fold white spaces
-\ this is what (parse-white) does
-
 \ parse                                           23feb93py
 
 : (parse)    ( char "ccc<char>" -- c-addr u ) \ core-ext
