@@ -1032,7 +1032,7 @@ all-bench allbench:
 	./gforth-ditc$(EXT) onebench.fs
 	@libbench@./libgforth-ditc$(EXT) onebench.fs
 
-EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=" "FAST=$(FAST)" "GFVER=$(VERSION)"
+EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/@kernel_fi@ exboot.fs startup-libcc.fs" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)" "ARCH=" "FAST=$(FAST)" "GFVER=$(VERSION)"
 
 extras:	gforth.fi $(EXTRAS:%=%.extras)
 

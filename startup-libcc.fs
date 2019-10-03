@@ -31,7 +31,7 @@ warnings off
 require search.fs
 require options.fs
 require environ.fs
-require ~+/envos.fs
+require envos.fs
 require errors.fs
 require hash.fs
 require compat/strcomp.fs
