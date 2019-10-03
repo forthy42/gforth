@@ -33,7 +33,7 @@ else
 fi
 EXTRAPATH="also c-lib :noname 2drop s\" $DEST\" ; is replace-rpath previous 0 warnings !@ get-current environment-wordlist set-current : os-type ( -- c-addr u ) s\" @host_os@\" ; set-current warnings !"
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
-  $ENGINE -i $KERNEL -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" --die-on-signal -e "$EXTRAPATH" exboot.fs startup-libcc.fs "$@"
+  $ENGINE -i $KERNEL -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" --die-on-signal exboot.fs startup-libcc.fs -e "$EXTRAPATH" "$@"
 else
   export includedir=`pwd`/include
   @GFORTHKER@ -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" exboot.fs startup-libcc.fs \
