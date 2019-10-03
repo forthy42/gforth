@@ -122,9 +122,9 @@ $004 Constant POLLOUT
 
 [defined] int-execute [if]
     variable saved-errno 0 saved-errno !
-    :noname r> { r } saved-errno @ ->errno defers int-execute
+    : int-errno-exec r> { r } saved-errno @ ->errno defers int-execute
 	errno saved-errno ! r >r ;
-    is int-execute
+    host? [IF] ' int-errno-exec is int-execute [THEN]
 [then]
 
 : fd>file ( fd -- fid )
@@ -148,5 +148,6 @@ e? os-type s" linux-gnu" string-prefix? [IF]
 [THEN]
 
 :noname defers 'cold
+    ['] int-errno-exec is int-execute
     getpagesize to pagesize
     (getpid) to getpid ; is 'cold
