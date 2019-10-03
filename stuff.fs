@@ -49,7 +49,7 @@ AUser CSP
 
 \ shell commands
 
-0 UValue $? ( -- n ) \ gforth dollar-question
+UValue $? ( -- n ) \ gforth dollar-question
 \G @code{Value} -- the exit status returned by the most recently executed
 \G @code{system} command.
 

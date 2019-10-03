@@ -411,7 +411,8 @@ require unix/libc.fs
 : delete-whereg ( -- )
     \ delete whereg file
     whereg-filename 2@ dup if
-	2dup delete-file throw drop free throw then ;
+	2dup delete-file throw drop free throw
+    else  2drop  then ;
 
 : whereg ( "name" -- ) \ gforth
     \g Like @code{where}, but puts the output in the editor.  In

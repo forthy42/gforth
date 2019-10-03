@@ -23,7 +23,7 @@ DEST=$1
 shift
 export CROSS_PREFIX=@CROSS_PREFIX@
 @NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth
-@NO_CROSS@test -f "gforth.fi" && KERNEL="gforth.fi"
+@NO_CROSS@test -f "@kernel_fi@" && KERNEL="@kernel_fi@"
 export libccdir="$PWD/lib/gforth/$VERSION/$machine/libcc-named/"
 export libccnameddir="$libccdir"
 if test -n "$C_INCLUDE_PATH"; then
@@ -33,9 +33,9 @@ else
 fi
 EXTRAPATH="also c-lib :noname 2drop s\" $DEST\" ; is replace-rpath previous 0 warnings !@ get-current environment-wordlist set-current : os-type ( -- c-addr u ) s\" @host_os@\" ; set-current warnings !"
 if test -f "$ENGINE" -a -f "$KERNEL"; then 
-  $ENGINE -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" --die-on-signal -e "$EXTRAPATH" "$@"
+  $ENGINE -i $KERNEL -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" --die-on-signal -e "$EXTRAPATH" exboot.fs startup-libcc.fs "$@"
 else
   export includedir=`pwd`/include
-  @GFORTHKER@ -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" exboot.fs startup.fs \
+  @GFORTHKER@ -p ".@PATHSEP@~+@PATHSEP@@srcdir@@PATHSEP@$PWD" exboot.fs startup-libcc.fs \
       -e "$EXTRAPATH" "$@"
 fi
