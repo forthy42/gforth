@@ -60,6 +60,7 @@ if [ ! -z "@extraccdir@" ]
 then
     export libccdir="@extraccdir@"
 fi
+export HOSTPREFIX="@HOSTPREFIX@"
 tmpfile=./temp-image.fi
 if test x$system = xyes; then
     $GFORTHD --clear-dictionary --no-offset-im --die-on-signal $startup -e "savesystem $tmpfile"1+$$" bye"
