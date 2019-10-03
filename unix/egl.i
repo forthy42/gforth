@@ -17,12 +17,14 @@ extern struct _IO_FILE *stderr;
 #define ANDROID
 #define EGLAPI
 #define EGLAPIENTRY
+#define EGLAPIENTRYP void *
 %apply SWIGTYPE * { EGLNativeDisplayType, EGLNativeWindowType, EGLNativePixmapType };
 #endif
 #if defined(host_os_linux_gnu) || defined(host_os_linux_gnueabi) || defined(host_os_linux_gnueabihf)
 #define __unix__
 #define EGLAPI
 #define EGLAPIENTRY
+#define EGLAPIENTRYP void *
 %apply SWIGTYPE * { EGLNativeDisplayType };
 %apply long { EGLNativeWindowType, EGLNativePixmapType };
 #endif
@@ -30,12 +32,14 @@ extern struct _IO_FILE *stderr;
 #define __unix__
 #define EGLAPI
 #define EGLAPIENTRY
+#define EGLAPIENTRYP void *
 %apply SWIGTYPE * { EGLNativeDisplayType };
 %apply long { EGLNativeWindowType, EGLNativePixmapType };
 #endif
 #ifdef host_os_cygwin
 #define EGLAPI
 #define EGLAPIENTRY
+#define EGLAPIENTRYP void *
 %apply SWIGTYPE * { EGLNativeDisplayType };
 %apply long { EGLNativeWindowType, EGLNativePixmapType };
 #endif
