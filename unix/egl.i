@@ -24,7 +24,7 @@ extern struct _IO_FILE *stderr;
 #define __unix__
 #define EGLAPI
 #define EGLAPIENTRY
-#define EGLAPIENTRYP void *
+#define EGLAPIENTRYP *
 %apply SWIGTYPE * { EGLNativeDisplayType };
 %apply long { EGLNativeWindowType, EGLNativePixmapType };
 #endif
@@ -32,14 +32,14 @@ extern struct _IO_FILE *stderr;
 #define __unix__
 #define EGLAPI
 #define EGLAPIENTRY
-#define EGLAPIENTRYP void *
+#define EGLAPIENTRYP *
 %apply SWIGTYPE * { EGLNativeDisplayType };
 %apply long { EGLNativeWindowType, EGLNativePixmapType };
 #endif
 #ifdef host_os_cygwin
 #define EGLAPI
 #define EGLAPIENTRY
-#define EGLAPIENTRYP void *
+#define EGLAPIENTRYP *
 %apply SWIGTYPE * { EGLNativeDisplayType };
 %apply long { EGLNativeWindowType, EGLNativePixmapType };
 #endif
