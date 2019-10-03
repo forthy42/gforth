@@ -161,7 +161,7 @@ synonym c-function \c
 synonym add-lib \c
 synonym clear-libs \c
 
-: host? ( -- flag )  s" HOSTCC" getenv d0= ;
+: host? ( -- flag )  s" HOSTPREFIX" getenv nip 0= ;
 
 Vocabulary c-lib
 
