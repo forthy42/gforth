@@ -161,6 +161,8 @@ synonym c-function \c
 synonym add-lib \c
 synonym clear-libs \c
 
+: host? ( -- flag )  s" HOSTCC" getenv d0= ;
+
 Vocabulary c-lib
 
 get-current also c-lib definitions
@@ -867,7 +869,8 @@ tmp$ $execstr-ptr !
 	['] compile-cmd $tmp system $? 0<> !!libcompile!! and throw
 	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
 	open-wrappers dup 0= if
-	    .lib-error !!openlib!! throw
+	    .lib-error
+	    host? IF  !!openlib!! throw  THEN
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif

@@ -80,7 +80,7 @@ c-library libc
     c-value environ environ -- a ( -- env )
 end-c-library
 
-getpagesize Value pagesize
+host? [IF] getpagesize [ELSE] $400 [THEN] Value pagesize
 
 begin-structure pollfd
     lfield: fd
@@ -130,7 +130,7 @@ $004 Constant POLLOUT
 : fd>file ( fd -- fid )
     s" w+" fdopen dup 0= ?errno-throw ;
 
-(getpid) Value getpid
+host? [IF] (getpid) [ELSE] 0 [THEN] Value getpid
 
 : fork() ( -- pid )
     (fork) (getpid) to getpid ;
