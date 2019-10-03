@@ -881,7 +881,8 @@ tmp$ $execstr-ptr !
 ' compile-wrapper-function1 IS compile-wrapper-function
 
 : link-wrapper-function { cff -- sym }
-    cff cff-rtype wrapper-function-name host? 0= ?EXIT
+    cff cff-rtype wrapper-function-name
+    host? 0= IF  2drop 0  EXIT  THEN
     cff cff-lha @ @ assert( dup ) lib-sym dup 0= if
         .lib-error -&32 throw
     endif ;
