@@ -11,6 +11,7 @@ extern struct _IO_FILE *stderr;
 %apply int { EGLint };
 
 #define SWIG_FORTH_GFORTH_LIBRARY "EGL"
+#define SWIG_FORTH_OPTIONS "no-callbacks"
 
 #if defined(host_os_linux_android) || defined(host_os_linux_androideabi)
 #define __ANDROID__
