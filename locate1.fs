@@ -434,4 +434,5 @@ require unix/libc.fs
 
 : bye delete-whereg bye ;
 
+    [THEN]
 [THEN]
