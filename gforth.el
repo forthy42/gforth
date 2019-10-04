@@ -1224,6 +1224,7 @@ exceeds 64 characters."
   ;(setq comment-end " )")
   (make-local-variable 'comment-column)
   (setq comment-column 40)
+  (setq compilation-error-screen-columns nil) ;; for WHEREG
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip "\\\\ ")
   (make-local-variable 'comment-indent-function)
