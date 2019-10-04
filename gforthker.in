@@ -23,7 +23,8 @@ export HOSTPREFIX="@HOSTPREFIX@"
 @NO_CROSS@test -z "$ENGINE" && ENGINE=./gforth
 @NO_CROSS@test -f "@srcdir@/@kernel_fi@" && KERNEL="@srcdir@/@kernel_fi@"
 @NO_CROSS@test -f "@kernel_fi@" && KERNEL="@kernel_fi@"
-export libccdir=$PWD/lib/gforth/$VERSION/$machine/libcc-named/
+export libccdir="$PWD/lib/gforth/$VERSION/$machine/libcc-named/"
+export libccnameddir="$libccdir"
 if test -n "$C_INCLUDE_PATH"; then
     export C_INCLUDE_PATH="@srcdir@/include/gforth/$VERSION/$machine:@srcdir@/engine:$C_INCLUDE_PATH"
 else
