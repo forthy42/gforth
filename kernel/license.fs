@@ -18,6 +18,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : license ( -- ) \ gforth
+    \G print the license statement
  cr
  ." This program is free software; you can redistribute it and/or modify" cr
  ." it under the terms of the GNU General Public License as published by" cr

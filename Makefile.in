@@ -1050,6 +1050,7 @@ extra-install:	gforth.fi $(EXTRAS:%=%.extrasinst)
 
 kernel/authors.fs:	AUTHORS Makefile.in
 	echo ": authors ( -- ) cr" >kernel/authors.fs
+	echo "  \G show the list of authors" >>kernel/authors.fs
 	grep '^[ND]:' $< | sed -e 's/^N: \(.*\)/  1 attr\! ." \1:" 0 attr\! cr /g' -e 's/^D: \(.*\)/  ."   \1" cr /g'>>kernel/authors.fs
 	echo ";" >>kernel/authors.fs
 
