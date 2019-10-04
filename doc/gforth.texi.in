@@ -156,6 +156,7 @@ Gforth Environment
 
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
+* Help on Gforth::              Getting help
 * Command-line editing::
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
@@ -659,6 +660,7 @@ material in this chapter.
 @menu
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
+* Help on Gforth::              Getting help
 * Command-line editing::
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
@@ -930,7 +932,7 @@ printing the boot message, the user initialization file
 option @code{--no-rc} is given.
 
 @comment ----------------------------------------------
-@node Leaving Gforth, Command-line editing, Invoking Gforth, Gforth Environment
+@node Leaving Gforth, Help on Gforth, Invoking Gforth, Gforth Environment
 @section Leaving Gforth
 @cindex Gforth - leaving
 @cindex leaving Gforth
@@ -943,9 +945,19 @@ leaving Gforth see @ref{Image Files}.
 
 doc-bye
 
+@comment ----------------------------------------------
+@node Help on Gforth, Command-line editing, Leaving Gforth, Gforth Environment
+@section Help on Gforth
+@cindex help
+
+Gforth has a simple, text-based online help system.
+
+doc-help
+doc-authors
+doc-license
 
 @comment ----------------------------------------------
-@node Command-line editing, Environment variables, Leaving Gforth, Gforth Environment
+@node Command-line editing, Environment variables, Help on Gforth, Gforth Environment
 @section Command-line editing
 @cindex command-line editing
 
