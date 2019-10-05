@@ -398,13 +398,16 @@ included-files $[]# 1- constant doc-file#
 
 \ whereg
 
-require unix/libc.fs
-
 #24 #80 2Constant plain-form
 
 ' (type) ' (emit) ' (cr) ' plain-form output: plain-out
 : plain-output ( xt -- )
     op-vector @ >r  plain-out  catch  r> op-vector !  throw ;
+
+s" os-type" environment? [IF]
+    s" linux-android" string-prefix? 0= [IF]
+
+require unix/libc.fs
 
 2variable whereg-filename 0 0 whereg-filename 2!
 
@@ -430,3 +433,6 @@ require unix/libc.fs
     `edit-file-cmd >string-execute 2dup system drop free throw ;
 
 : bye delete-whereg bye ;
+
+    [THEN]
+[THEN]
