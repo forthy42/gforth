@@ -1,5 +1,6 @@
 \ fix path in gforth*.exe
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2000,2003,2006,2007,2008,2012,2015 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

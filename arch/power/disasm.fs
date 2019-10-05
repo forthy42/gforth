@@ -1,5 +1,6 @@
 \ disasm.fs	disassembler file (for PPC32/64)
 \
+\ Author: Anton Ertl
 \ Copyright (C) 2006,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

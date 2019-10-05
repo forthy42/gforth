@@ -1,5 +1,6 @@
 \ config file reader/writer
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2016   Bernd Paysan
 
 \ This program is free software: you can redistribute it and/or modify

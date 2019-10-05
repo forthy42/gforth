@@ -1,5 +1,6 @@
 // -*- mode: pascal -*-
 
+// Authors: Anton Ertl, Bernd Paysan
 // Copyright (C) 2012,2014,2015 Free Software Foundation, Inc.
 
 // This file is part of Gforth.

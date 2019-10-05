@@ -2,6 +2,7 @@
   This is a generic file for 32-bit machines with IEEE FP arithmetic (no VMS).
   It only supports indirect threading.
 
+  Authors: Anton Ertl, Bernd Paysan, Jens Wilke
   Copyright (C) 1995,1998,1999,2003,2007,2008,2010,2012,2018 Free Software Foundation, Inc.
 
   This file is part of Gforth.

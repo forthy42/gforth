@@ -1,8 +1,8 @@
 \ Simple ARM RPN Assembler
 
-\ Author: David Kühling <dvdkhlng AT gmx DOT de>
 \ Created: 2007
 
+\ Authors: David KÃ¼hling, Anton Ertl, Andreas Bolka
 \ Copyright (C) 2000,2007,2008,2010 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

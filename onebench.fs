@@ -1,5 +1,6 @@
 \ run timings on some small Forth benchmarks
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2007,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

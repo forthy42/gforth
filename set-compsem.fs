@@ -1,5 +1,6 @@
 \ set-compsem, dual-xt version to set compilation semantics
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2015,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

@@ -1,5 +1,6 @@
 /* This is the machine-specific part for the 68000 and family
 
+  Authors: Anton Ertl, Bernd Paysan, Jens Wilke
   Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2007,2014,2018 Free Software Foundation, Inc.
 
   This file is part of Gforth.

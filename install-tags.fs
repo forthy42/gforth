@@ -1,5 +1,6 @@
 \ enhance TAGS file with install directory
 
+\ Author: Anton Ertl
 \ Copyright (C) 2008 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

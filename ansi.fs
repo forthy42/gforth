@@ -1,5 +1,6 @@
 \ ansi.fs      Define terminal attributes              20may93jaw
 
+\ Authors: Bernd Paysan, Anton Ertl, Gerald Wodni, Neal Crook
 \ Copyright (C) 1995,1996,1997,1998,2001,2003,2007,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

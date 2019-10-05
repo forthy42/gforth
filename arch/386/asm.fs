@@ -1,6 +1,6 @@
 \         *** Assembler for the Intel i486 ***         07nov92py
 
-\ Copyright (C) 1992-2000 by Bernd Paysan
+\ Authors: Anton Ertl, Bernd Paysan
 
 \ Copyright (C) 2000,2001,2003,2007 Free Software Foundation, Inc.
 

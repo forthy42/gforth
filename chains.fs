@@ -1,5 +1,6 @@
 \ chains.fs execution chains for gforth			21jun97jaw
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
 \ Copyright (C) 1998,2000,2003,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

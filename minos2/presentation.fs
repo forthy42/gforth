@@ -1,5 +1,6 @@
 \ Presentation on ΜΙΝΩΣ2 made in ΜΙΝΩΣ2
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2018 Bernd Paysan
 
 \ This program is free software: you can redistribute it and/or modify

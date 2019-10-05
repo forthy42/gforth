@@ -1,6 +1,7 @@
 #
 # spec file for package gforth
 #
+# Author: Bernd Paysan
 # Copyright (c) 2015 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties

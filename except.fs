@@ -1,5 +1,6 @@
 \ catch, throw, etc.
 
+\ Authors: Anton Ertl, Bernd Paysan, Gerald Wodni
 \ Copyright (C) 1999,2000,2003,2006,2007,2010,2013,2014,2015,2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

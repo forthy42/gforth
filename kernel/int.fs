@@ -1,5 +1,6 @@
 \ definitions needed for interpreter only
 
+\ Authors: Bernd Paysan, Anton Ertl, Neal Crook, Gerald Wodni, Jens Wilke
 \ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012,2013,2014,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -852,6 +853,7 @@ defer reset-dpp
 \ \ Cold Boot                                    	13feb93py
 
 : (c) ( -- )
+    ." Authors: Bernd Paysan, Anton Ertl, Neal Crook, Gerald Wodni, Jens Wilke
     ." Copyright " $A9 ( '©' ) xemit ;
 : gforth ( -- )
     ." Gforth " version-string type cr

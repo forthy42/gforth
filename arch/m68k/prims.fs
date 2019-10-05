@@ -1,5 +1,6 @@
 \ m68k primitives
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2009 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

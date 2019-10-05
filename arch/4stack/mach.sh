@@ -1,4 +1,5 @@
 #!/bin/sh
+# Authors: Anton Ertl, Bernd Paysan, Neal Crook
 # Copyright (C) 2001,2003,2004,2007 Free Software Foundation, Inc.
 
 # This file is part of Gforth.

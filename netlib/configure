@@ -2,6 +2,7 @@
 
 # Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version 2.12 
+# Authors: Anton Ertl, Jens Wilke
 # Copyright (C) 1992, 93, 94, 95, 96,1999,2003 Free Software Foundation, Inc.
 #
 # This configure script is free software; the Free Software Foundation

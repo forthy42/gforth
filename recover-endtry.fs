@@ -1,5 +1,6 @@
 \ provide TRY...RECOVER...ENDTRY on newer Gforths
 
+\ Author: Anton Ertl
 \ Copyright (C) 2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

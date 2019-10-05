@@ -1,5 +1,6 @@
 \ wrap TYPE and EMIT into strings using string.fs
 \
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2013,2014,2015,2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

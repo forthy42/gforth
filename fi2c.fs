@@ -1,5 +1,6 @@
 \ Convert image to C include file
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 1998,1999,2002,2003,2007,2010,2015 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

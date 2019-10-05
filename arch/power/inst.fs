@@ -1,5 +1,6 @@
 \ PPC32/64 instruction encoding descriptions common to asm.fs and disasm.fs
 
+\ Author: Anton Ertl
 \ Copyright (C) 2006,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

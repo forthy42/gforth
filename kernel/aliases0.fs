@@ -1,5 +1,6 @@
 \ run-time routine headers
 
+\ Authors: Anton Ertl, Bernd Paysan, David Kühling
 \ Copyright (C) 1997,1998,2002,2003,2006,2007,2010,2013,2015,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

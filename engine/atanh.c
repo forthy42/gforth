@@ -1,6 +1,7 @@
 /* replacement for asinh, acosh, and atanh */
 
 /* 
+  Authors: Anton Ertl, Bernd Paysan
   Copyright (C) 1996,2000,2003,2007,2017 Free Software Foundation, Inc.
 
   This file is part of Gforth.

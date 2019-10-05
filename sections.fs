@@ -1,5 +1,6 @@
 \ Sections for the dictionary (like sections in assembly language)
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2016,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

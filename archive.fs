@@ -1,5 +1,6 @@
 \ very simple archive format                          29jul2012py
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2012,2013,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

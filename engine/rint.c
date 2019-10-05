@@ -1,5 +1,6 @@
 /* rint replacement
 
+  Authors: Anton Ertl, Bernd Paysan
   Copyright (C) 2002,2007,2017 Free Software Foundation, Inc.
 
   This file is part of Gforth.

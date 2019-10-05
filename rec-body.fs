@@ -1,6 +1,7 @@
 \ <body[+offset]> recognizer
 \ <foo> puts the body of foo on the stack like ' foo >body does
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

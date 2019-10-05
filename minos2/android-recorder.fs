@@ -1,6 +1,7 @@
 \ video recorder, can be used to capture a video stream
 \ or just the preview image
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2014,2016,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

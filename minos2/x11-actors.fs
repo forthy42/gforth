@@ -1,5 +1,6 @@
 \ MINOS2 actors on X11
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

@@ -1,5 +1,6 @@
 \ wordlib.fs Handle shared library with forth primitive extentions 9oct97jaw
 
+\ Authors: Anton Ertl, Jens Wilke
 \ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

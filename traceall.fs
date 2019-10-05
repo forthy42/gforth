@@ -1,5 +1,6 @@
 \ replacement for name
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 1999,2000,2003,2007,2015,2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

@@ -1,5 +1,6 @@
 \ image dump                                           15nov94py
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 1995,1997,2003,2006,2007,2010,2011,2012,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

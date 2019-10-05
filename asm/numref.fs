@@ -1,5 +1,6 @@
 \ numref.fs
 
+\ Authors: Anton Ertl, Bernd Paysan, Neal Crook
 \ Copyright (C) 1998,2001,2003,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
