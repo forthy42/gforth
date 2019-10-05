@@ -232,7 +232,7 @@ variable code-locations 0 code-locations !
 \ where
 
 : unbounds ( c-start c-end -- c-start u )
-    over - ;
+    over - 0 max ;
 
 : type-notabs ( c-addr u -- )
     \G like type, but type a space for each tab
