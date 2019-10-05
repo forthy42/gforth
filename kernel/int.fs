@@ -766,28 +766,26 @@ Defer .error-level ( n -- )
     r@ 0 = IF  ." info: "     THEN  rdrop ;
 ' (.error-level) is .error-level
 
-: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] errlevel -- throwcode )
-    \ addr3 u3: filename of included file - optional
+: .error-frame ( throwcode addr1 u1 addr2 u2 n2 addr3 u3 errlevel -- throwcode )
+    \ addr3 u3: filename of included file
     \ n2:       line number
     \ addr2 u2: parsed lexeme (should be marked as causing the error)
     \ addr1 u1: input line
     \ errlevel: 0: info, 1: warning, 2: error
     >r error-stack $@len
     IF ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
-        [ has? file [IF] ] \ !! unbalanced stack effect
-	  over IF
-	      cr ." in file included from "
-	      type ." :"
-	      0 dec.r  2drop 2drop
-          ELSE
-              2drop 2drop 2drop drop
-          THEN
-          [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
+	over IF
+	    cr ." in file included from "
+	    type ." :"
+	    0 dec.r ." :" drop nip swap - 1+ 0 dec.r ." : "
+	ELSE
+	    2drop 2drop 2drop drop
+	THEN
     ELSE ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
-        [ has? file [IF] ]
-            cr type ." :"
-            [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
-	dup 0 dec.r ." : "
+	cr type ." :"
+	( throwcode addr1 u1 n0 n1 n2 )
+	dup 0 dec.r ." :"
+	>r 2over 2over drop nip swap - 1+ 0 dec.r ." : " r>
 	r@ .error-level
 	5 pick .error-string
 	r@ 2 = and warnings @ abs 1 > or

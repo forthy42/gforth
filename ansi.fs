@@ -111,10 +111,10 @@ User Attr   0 Attr !
 Variable mark-attr
 : m>>> ( -- )
     attr @ dup mark-attr !
-    dup Underline xor attr!
-    ." >>>" Invers xor attr! ;
+    dup error-hl-ul xor attr!
+    ." >>>" error-hl-inv xor attr! ;
 : <<<m ( -- )
-    mark-attr @ dup Underline xor attr! ." <<<" attr! ;
+    mark-attr @ dup error-hl-ul xor attr! ." <<<" attr! ;
 ' m>>> is mark-start
 ' <<<m is mark-end
 

@@ -33,17 +33,22 @@ require glocals.fs
 
 \ string array words
 
-: $[]! ( addr u n $[]addr -- )  $[] $! ;
-\G store a string into an array at index @i{n}
-: $[]+! ( addr u n $[]addr -- )  $[] $+! ;
-\G add a string to the string at index @i{n}
-: $[]# ( addr -- len )          $@len cell/ ;
+: $[]! ( addr u n $[]addr -- ) \ gforth string-array-store
+    \G store a string into an array at index @i{n}
+    $[] $! ;
+: $[]+! ( addr u n $[]addr -- ) \ gforth string-array-plus-store
+    \G add a string to the string at index @i{n}
+    $[] $+! ;
+: $[]# ( addr -- len ) \ gforth string-array-num
 \G return the number of elements in an array
-: $[]@ ( n $[]addr -- addr u ) 2dup $[]# u< IF $[] $@ ELSE 2drop 0. THEN ;
+    $@len cell/ ;
+: $[]@ ( n $[]addr -- addr u ) \ gforth string-array-fetch
 \G fetch a string from array index @i{n} --- return the zero string if
 \G empty, and don't accidentally grow the array.
-: $+[]! ( addr u $[]addr -- ) dup $[]# swap $[]! ;
+    2dup $[]# u< IF $[] $@ ELSE 2drop 0. THEN ;
+: $+[]! ( addr u $[]addr -- ) \ gforth string-append-array
 \G add a string at the end of the array
+    dup $[]# swap $[]! ;
 
 User tmp$[] \ temporary string buffers
 User tmp$#  \ temporary string buffer counter
