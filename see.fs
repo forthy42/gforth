@@ -45,30 +45,40 @@ VARIABLE XPos
 VARIABLE YPos
 VARIABLE Level
 
-: Format        C-Formated @ C-Output @ and
-                IF dup spaces XPos +! ELSE drop THEN ;
+    
+: Format ( u -- )
+    C-Formated @ C-Output @ and if ( u )
+	dup spaces dup XPos +! then
+    drop ;
 
-: level+        7 Level +!
-                Level @ XPos @ -
-                dup 0> IF Format ELSE drop THEN ;
 
-: level-        -7 Level +! ;
+: level+ ( -- )
+    7 Level +!
+    Level @ XPos @ - dup 0> IF Format ELSE drop THEN ;
+
+: level- ( -- )
+    -7 Level +! ;
 
 VARIABLE nlflag
 VARIABLE uppercase	\ structure words are in uppercase
 
-DEFER nlcount ' noop IS nlcount
+DEFER nlcount ( -- )
+' noop IS nlcount
 
-: nl            nlflag on ;
-: (nl)          nlcount
-                XPos @ Level @ = IF EXIT THEN \ ?Exit
-                C-Formated @ IF
-                C-Output @
-                IF C-Clearline @ IF cols XPos @ - spaces
-                                 ELSE cr THEN
-                1 YPos +! 0 XPos !
-                Level @ spaces
-                THEN Level @ XPos ! THEN ;
+: nl ( -- )
+    nlflag on ;
+: (nl) ( -- )
+    nlcount
+    XPos @ Level @ = IF EXIT THEN \ ?Exit
+    C-Formated @ IF
+	C-Output @ IF
+	    C-Clearline @ IF
+		cols XPos @ - spaces
+	    ELSE
+		cr THEN
+	    1 YPos +! 0 XPos !
+	    Level @ spaces THEN
+	Level @ XPos ! THEN ;
 
 : warp?         ( len -- len )
                 nlflag @ IF (nl) nlflag off THEN
@@ -80,10 +90,13 @@ DEFER nlcount ' noop IS nlcount
 				  uppercase off ELSE type THEN
 		ELSE 2drop THEN ;
 
-: cemit         1 warp?
-                over bl = Level @ XPos @ = and
-                IF 2drop ELSE XPos +! C-Output @ IF emit ELSE drop THEN
-                THEN ;
+: cemit ( c -- )
+    1 warp?
+    over bl = Level @ XPos @ = and IF
+	2drop
+    ELSE
+	XPos +! C-Output @ IF emit ELSE drop THEN
+    THEN ;
 
 	    
 Defer xt-see-xt ( xt -- )
@@ -185,7 +198,7 @@ VARIABLE Colors Colors on
     2drop ;
 
 Variable struct-pre
-: .struc        
+: .struc ( c-addr u -- )       
 	uppercase on Str# struct-pre $@ Str# .string .string struct-pre $off ;
 
 \ CODES (Branchtypes)                                    15may93jaw
@@ -217,55 +230,47 @@ CREATE BranchTable 128 cells allot
 here 3 cells -
 ACONSTANT MaxTable
 
-: FirstBranch BranchTable cell+ SearchPointer ! ;
+: FirstBranch ( -- )
+    BranchTable cell+ SearchPointer ! ;
 
 : (BranchAddr?) ( a-addr1 -- a-addr2 true | false )
-\ searches a branch with destination a-addr1
-\ a-addr1: branch destination
-\ a-addr2: pointer in branch table
-        SearchPointer @
-        BEGIN   dup BranchPointer @ u<
-        WHILE
-                dup @ 2 pick <>
-        WHILE   3 cells +
-        REPEAT
-        nip dup  3 cells + SearchPointer ! true
-        ELSE
-        2drop false
-        THEN ;
+    \ searches a branch with destination a-addr1
+    \ a-addr1: branch destination
+    \ a-addr2: pointer in branch table
+    SearchPointer @ BEGIN
+	dup BranchPointer @ u< WHILE
+	    dup @ 2 pick <> WHILE
+		3 cells +
+	REPEAT
+	nip dup  3 cells + SearchPointer ! true
+    ELSE
+	2drop false THEN ;
 
-: BranchAddr?
+: BranchAddr? ( a-addr1 -- a-addr2 true | false )
         FirstBranch (BranchAddr?) ;
 
-' (BranchAddr?) ALIAS MoreBranchAddr?
+' (BranchAddr?) ALIAS MoreBranchAddr? ( a-addr1 -- a-addr2 true | false )
 
 : CheckEnd ( a-addr -- true | false )
-        BranchTable cell+
-        BEGIN   dup BranchPointer @ u<
-        WHILE
-                dup @ 2 pick u<=
-        WHILE   3 cells +
-        REPEAT
-        2drop false
-        ELSE
-        2drop true
-        THEN ;
+    BranchTable cell+ BEGIN
+	dup BranchPointer @ u< WHILE
+	    dup @ 2 pick u<= WHILE
+		3 cells + REPEAT
+	2drop false
+    ELSE
+	2drop true THEN ;
 
-[IFUNDEF] cell- : cell- cell - ; [THEN]
+[IFUNDEF] cell- : cell- ( addr1 -- addr2 ) cell - ; [THEN]
     
 : MyBranch      ( a-addr -- a-addr a-addr2 )
 \ finds branch table entry for branch at a-addr
-                dup @
-                BranchAddr?
-                BEGIN
-                WHILE cell- @
-                      over <>
-                WHILE dup @
-                      MoreBranchAddr?
-                REPEAT
-                SearchPointer @ 3 cells -
-                ELSE    true ABORT" SEE: Table failure"
-                THEN ;
+    dup @ BranchAddr? BEGIN
+    WHILE
+	    cell- @ over <> WHILE
+		dup @ MoreBranchAddr? REPEAT
+	SearchPointer @ 3 cells -
+    ELSE
+	true ABORT" SEE: Table failure" THEN ;
 
 \
 \                 addrw               addrt
@@ -278,15 +283,14 @@ ACONSTANT MaxTable
 \
 
 : CheckWhile ( a-addrw a-addrt -- true | false )
-        BranchTable >r
-        BEGIN   r@ BranchPointer @ u<
-        WHILE   2dup r@ @ within
-                IF  over r@ cell+ @ u>
-                        IF 2drop rdrop true EXIT THEN
-                THEN
-                r> 3 cells + >r
-        REPEAT
-        2drop rdrop false ;
+    BranchTable >r BEGIN
+	r@ BranchPointer @ u< WHILE
+	    2dup r@ @ within IF
+		over r@ cell+ @ u> IF
+		    2drop rdrop true EXIT THEN
+	    THEN
+	    r> 3 cells + >r REPEAT
+    2drop rdrop false ;
 
 : ,Branch ( a-addr -- )
         BranchPointer @ dup MaxTable u> ABORT" SEE: Table overflow"
@@ -320,8 +324,7 @@ VARIABLE C-Pass
     \ print x as a word if possible
     dup look 0= IF
 	drop dup threaded>name dup 0= if
-	    drop over cell- @ dup body> look
-	    IF
+	    drop over cell- @ dup body> look IF
 		nip nip dup ." <" name>string rot wordinfo .string ." > "
 	    ELSE
 		2drop ." <$" 0 ['] .r $10 base-execute ." > "
@@ -329,8 +332,7 @@ VARIABLE C-Pass
 	    EXIT
 	then
     THEN
-    nip dup immediate?
-    IF
+    nip dup immediate? IF
 	bl cemit  ." [COMPILE] "
     THEN
     dup name>string rot wordinfo .string
@@ -352,8 +354,9 @@ VARIABLE C-Pass
 \ here over - 2constant doers
 
 [IFDEF] !does
-: c-does>               \ end of create part
-        Display? IF S" DOES> " Com# .string THEN ;
+    : c-does> ( -- )
+	\ end of create part
+	Display? IF S" DOES> " Com# .string THEN ;
 \	maxaligned /does-handler + ; \ !! no longer needed for non-cross stuff
 [THEN]
 
@@ -485,122 +488,120 @@ VARIABLE C-Pass
     THEN ;
 
 : RepeatCheck ( a-addr1 a-addr2 true | false -- false )
-        IF  BEGIN  2dup
-                   cell- @ swap @
-                   u<=
-            WHILE  drop dup cell+
-                   MoreBranchAddr? 0=
-            UNTIL  false
-            ELSE   true
-            THEN
-        ELSE false
-        THEN ;
+    IF
+	BEGIN
+	    2dup cell- @ swap @ u<= WHILE
+		drop dup cell+ MoreBranchAddr? 0=
+	    UNTIL
+	    false
+	ELSE
+	    true THEN
+    ELSE
+	false THEN ;
 
 : c-branch ( addr1 -- addr2 )
-    c-string? ?exit
-        Scan?
-        IF      dup @ Branch!
-                dup @ back?
-                IF                      \ might be: AGAIN, REPEAT
-                        dup cell+ BranchAddr? Forward?
-                        RepeatCheck
-                        IF      RepeatCode Type!
-                                cell+ Disable swap !
-                        ELSE    AgainCode Type!
-                        THEN
-                ELSE    dup cell+ BranchAddr? Forward?
-                        IF      ElseCode Type! drop
-                        ELSE    AheadCode Type!
-                        THEN
-                THEN
-        THEN
-        Display?
-        IF
-                dup @ back?
-                IF                      \ might be: AGAIN, REPEAT
-                        level- nl
-                        dup cell+ BranchAddr? Forward?
-                        RepeatCheck
-                        IF      drop S" REPEAT " .struc nl
-                        ELSE    S" AGAIN " .struc nl
-                        THEN
-                ELSE    MyBranch cell+ @ LeaveCode =
-			IF 	S" LEAVE " .struc
-			ELSE
-				dup cell+ BranchAddr? Forward?
-       	                 	IF      dup cell+ @ WhileCode2 =
-       	                         	IF nl S" ELSE " .struc level+
-                                	ELSE level- nl S" ELSE" .struc level+ THEN
-                                	cell+ Disable swap !
-                        	ELSE    S" AHEAD " .struc level+
-                        	THEN
-			THEN
-                THEN
-        THEN
-        Debug?
-        IF      @ \ !!! cross-interacts with debugger !!!
-        ELSE    cell+
-        THEN ;
-
-: DebugBranch
-        Debug?
-        IF      dup @ swap THEN ; \ return 2 different addresses
-
-: c-?branch
-        Scan?
-        IF      dup @ Branch!
-                dup @ Back?
-                IF      UntilCode Type! THEN
-        THEN
-        Display?
-        IF      dup @ Back?
-                IF      level- nl S" UNTIL " .struc nl
-                ELSE    dup    dup @
-                        CheckWhile
-                        IF      MyBranch
-                                cell+ dup @ 0=
-                                         IF WhileCode2 swap !
-                                         ELSE drop THEN
-                                level- nl
-                                S" WHILE " .struc
-                                level+
-                        ELSE    MyBranch cell+ @ LeaveCode =
-				IF   s" 0= ?LEAVE " .struc
-				ELSE nl S" IF " .struc level+
-				THEN
-                        THEN
-                THEN
-        THEN
-        DebugBranch
-        cell+ ;
-
-: c-?dup-?branch Scan? 0= IF  s" ?dup-" struct-pre $!  THEN
-	c-?branch ;
-    
-: c-for
-    Display? IF nl S" FOR" .struc level+ THEN ;
-
-: c-loop
-        scan? IF  dup @ Branch!  LoopCode Type! THEN
-        Display? IF level- nl .name-without nl bl cemit THEN
-        DebugBranch cell+ 
-	Scan? 
-	IF 	dup BranchAddr? 
-		BEGIN   WHILE cell+ LeaveCode swap !
-			dup MoreBranchAddr?
-		REPEAT
+    c-string? ?exit Scan? IF
+	dup @ Branch! dup @ back? IF
+	    \ might be: AGAIN, REPEAT
+	    dup cell+ BranchAddr? Forward? RepeatCheck IF
+		RepeatCode Type! cell+ Disable swap !
+	    ELSE
+		AgainCode Type! THEN
+	ELSE
+	    dup cell+ BranchAddr? Forward? IF
+		ElseCode Type! drop
+	    ELSE
+		AheadCode Type! THEN
 	THEN
-	cell+ ;
-
-: c-do
+    THEN
     Display? IF
-	dup BranchAddr?
-	IF  cell+ dup @ LoopCode =
-	    IF
-		Disable swap !
-		nl .name-without level+
-	    ELSE  drop ." 2>r "  THEN
-	ELSE  ." 2>r "  THEN
+	dup @ back? IF
+	    \ might be: AGAIN, REPEAT
+	    level- nl dup cell+ BranchAddr? Forward? RepeatCheck IF
+		drop S" REPEAT " .struc nl
+	    ELSE
+		S" AGAIN " .struc nl THEN
+	ELSE
+	    MyBranch cell+ @ LeaveCode = IF
+		S" LEAVE " .struc
+	    ELSE
+		dup cell+ BranchAddr? Forward? IF
+		    dup cell+ @ WhileCode2 = IF
+			nl S" ELSE " .struc level+
+		    ELSE
+			level- nl S" ELSE" .struc level+ THEN
+		    cell+ Disable swap !
+		ELSE
+		    S" AHEAD " .struc level+ THEN
+	    THEN
+	THEN
+    THEN
+    Debug? IF
+	@ \ !!! cross-interacts with debugger !!!
+    ELSE
+	cell+ THEN ;
+
+: DebugBranch ( addr -- x addr | addr )
+    \ !! reconstructed stack effect, code looks broken
+    \ should probably be ( addr -- addr )
+    Debug? IF
+	dup @ swap THEN ; \ return 2 different addresses
+
+: c-?branch ( addr -- addr2 )
+    Scan? IF
+	dup @ Branch!  dup @ Back? IF ( addr )
+	    UntilCode Type! THEN
+    THEN ( addr )
+    Display? IF
+	dup @ Back? IF ( addr )
+	    level- nl S" UNTIL " .struc nl
+	ELSE
+	    dup dup @ CheckWhile IF ( addr )
+		MyBranch cell+ dup @ 0= IF ( addr addr2 )
+		    WhileCode2 swap !
+		ELSE
+		    drop THEN ( addr )
+		level- nl  S" WHILE " .struc  level+
+	    ELSE ( addr )
+		MyBranch cell+ @ LeaveCode = IF ( addr )
+		    s" 0= ?LEAVE " .struc
+		ELSE
+		    nl S" IF " .struc level+ THEN
+	    THEN
+	THEN ( addr )
+    THEN ( addr )
+    DebugBranch cell+ ;
+
+: c-?dup-?branch ( addr -- addr2 )
+    Scan? 0= IF
+	s" ?dup-" struct-pre $!  THEN
+    c-?branch ;
+    
+: c-for ( -- )
+    Display? IF
+	nl S" FOR" .struc level+ THEN ;
+
+: c-loop ( addr -- addr1 )
+    scan? IF
+	dup @ Branch!  LoopCode Type! THEN
+    Display? IF
+	level- nl .name-without nl bl cemit THEN
+    DebugBranch cell+  Scan? IF
+	dup BranchAddr? BEGIN ( addr1 addr2 f )
+	WHILE ( addr1 addr2 )
+		cell+ LeaveCode swap ! dup MoreBranchAddr? REPEAT 
+    THEN ( addr1 ) \ perverse stack effect of MoreBranchAddr?
+    cell+ ;
+
+: c-do ( addr -- addr )
+    Display? IF
+	dup BranchAddr? IF ( addr addr1 )
+	    cell+ dup @ LoopCode = IF ( addr addr2 )
+		Disable swap !	nl .name-without level+
+	    ELSE
+		drop ." 2>r "  THEN ( addr )
+	ELSE ( addr ) \ perverse stack effect of ?BranchAddr
+	    ." 2>r "  THEN
     THEN ;
 
 : c-?do ( addr1 -- addr2 )
@@ -611,29 +612,26 @@ VARIABLE C-Pass
     DebugBranch cell+ ;
 
 : c-exit ( addr1 -- addr2 )
-    dup cell-
-    CheckEnd
-    IF
-	Display? IF nlflag off S" ;" Com# .string THEN
+    dup cell- CheckEnd IF ( addr1 )
+	Display? IF
+	    nlflag off S" ;" Com# .string THEN
 	C-Stop on
     ELSE
 	Display? IF S" EXIT " .struc THEN
     THEN
-    Debug? IF drop THEN ; \ !!! cross-interacts with debugger !!!
+    Debug? IF drop THEN ( !! unbalanced! ) ; \ !!! cross-interacts with debugger !!!
 
-: c-abort"
-        count 2dup + aligned -rot
-        Display?
-        IF      S" ABORT" .struc
-                '"' cemit bl cemit 0 .string
-                '"' cemit bl cemit
-        ELSE    2drop
-        THEN ;
+: c-abort" ( c-addr -- c-addr-end )
+    count 2dup + aligned -rot Display? IF (  c-addr-end c-addr1 u )
+	S" ABORT" .struc
+	'"' cemit bl cemit 0 .string
+	'"' cemit bl cemit
+    ELSE
+	2drop THEN ;
 
 [IFDEF] (compile)
-: c-(compile)
-    Display?
-    IF
+: c-(compile) ( addr -- )
+    Display? IF
 	s" POSTPONE " Com# .string
 	dup @ look 0= ABORT" SEE: No valid XT"
 	name>string 0 .string bl cemit
@@ -734,6 +732,7 @@ CREATE C-Table \ primitives map to code only
         	' (+loop) A,        ' c-loop A,
 [IFDEF] (s+loop) ' (s+loop) A,      ' c-loop A, [THEN]
 [IFDEF] (-loop) ' (-loop) A,        ' c-loop A, [THEN]
+[IFDEF] (/loop)# ' (/loop)# A,      ' c-loop A, [THEN]
         	' (next) A,         ' c-loop A,
         	' ;s A,             ' c-exit A,
 \ [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
@@ -799,7 +798,7 @@ c-extender !
 	drop
     THEN ;
 
-: c-init
+: c-init ( -- )
         0 YPos ! 0 XPos !
         0 Level ! nlflag off
         BranchTable BranchPointer !
