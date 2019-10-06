@@ -1,5 +1,6 @@
 \ WORDINFO.FS  V1.0                                    17may93jaw
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
 \ Copyright (C) 1995,1996,1998,2000,2003,2007,2012,2013,2014,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

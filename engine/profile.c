@@ -1,5 +1,6 @@
 /* VM profiling support stuff
 
+  Authors: Anton Ertl, Bernd Paysan
   Copyright (C) 2001,2002,2003,2007,2016 Free Software Foundation, Inc.
 
   This file is part of Gforth.

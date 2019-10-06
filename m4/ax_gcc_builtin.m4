@@ -84,6 +84,7 @@
 #
 # LICENSE
 #
+#   Author: Bernd Paysan
 #   Copyright (c) 2013 Gabriele Svelto <gabriele.svelto@gmail.com>
 #
 #   Copying and distribution of this file, with or without modification, are

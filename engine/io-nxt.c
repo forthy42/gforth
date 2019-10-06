@@ -1,5 +1,6 @@
 /* direct key io driver for NXT brick
 
+  Authors: Bernd Paysan, Anton Ertl
   Copyright (C) 2007,2008 Free Software Foundation, Inc.
 
   This file is part of Gforth.

@@ -50,6 +50,7 @@ programs written for the present version (e.g., requiring a few
 additional macro definitions).
 
 -----
+Author: Anton Ertl
 Copyright (C) 2001, 2002, 2003,2007,2008 Free Software Foundation, Inc.
 
 This file is part of Gforth.

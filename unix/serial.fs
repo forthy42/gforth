@@ -1,5 +1,6 @@
 \ serial interface for Gforth under Unix
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2015 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

@@ -1,5 +1,6 @@
 \ envos.fs set os-specific environmental queries 	07jul97jaw
 
+\ Authors: Anton Ertl, Jens Wilke
 \ Copyright (C) 1997,2000,2003,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

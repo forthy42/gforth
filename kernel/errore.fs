@@ -1,5 +1,6 @@
 \ ERRORE.FS English error strings                      9may93jaw
 
+\ Authors: Bernd Paysan, Anton Ertl, Gerald Wodni, Jens Wilke
 \ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2006,2007,2012,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -92,6 +93,10 @@ has? OS [IF]
     \G color for success: green
     $6601 Value input-color   ( -- x ) \ gforth
     \G color for user-input: black/white (both bold)
+    2 Value error-hl-ul ( -- ) \ gforth
+    \G color mod for error highlight underline
+    8 Value error-hl-inv ( -- ) \ gforth
+    \G color mod for error highlight inverse
     true Value white?
     \G reset to current colors
     : white-colors ( -- ) \ gforth
@@ -102,7 +107,9 @@ has? OS [IF]
 	$B600 to warning-color
 	$D600 to info-color
 	$D600 to success-color
-	$6601 to input-color ;
+	$6601 to input-color
+	2 to error-hl-ul
+	8 to error-hl-inv ;
     : black-colors ( -- ) \ gforth
 	\G color theme for black background
 	false to white?
@@ -111,7 +118,9 @@ has? OS [IF]
 	$C601 to warning-color
 	$9601 to info-color
 	$D601 to success-color
-	$6601 to input-color ;
+	$6601 to input-color
+	2 to error-hl-ul
+	8 to error-hl-inv ;
     : no-colors ( -- ) \ gforth
 	\G use the default color
 	false to white?
@@ -120,7 +129,9 @@ has? OS [IF]
 	false to warning-color
 	false to info-color
 	false to success-color
-	false to input-color ;
+	false to input-color
+	false to error-hl-ul
+	false to error-hl-inv ;
     : magenta-input ( -- ) \ gforth
 	\G make input color easily recognizable (useful in presentations)
         $A601 white? + to input-color ;

@@ -1,5 +1,6 @@
 \ libcc.fs	foreign function interface implemented using a C compiler
 
+\ Authors: Bernd Paysan, Anton Ertl, David Kühling
 \ Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

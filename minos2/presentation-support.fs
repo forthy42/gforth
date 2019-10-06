@@ -1,5 +1,6 @@
 \ Presentation support
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

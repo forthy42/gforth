@@ -1,7 +1,9 @@
 \ *** Disassembler for amd64 ***
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 1992-2000 by Bernd Paysan (486 disassembler)
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

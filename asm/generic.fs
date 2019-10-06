@@ -1,5 +1,6 @@
 \ generic.fs implements generic assembler definitions		13aug97jaw
 
+\ Authors: Anton Ertl, David Kühling, Bernd Paysan
 \ Copyright (C) 1998,2000,2003,2007,2010 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

@@ -1,5 +1,6 @@
 \ definitions needed for interpreter only
 
+\ Authors: Bernd Paysan, Anton Ertl, Neal Crook, Gerald Wodni, Jens Wilke
 \ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012,2013,2014,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -766,28 +767,26 @@ Defer .error-level ( n -- )
     r@ 0 = IF  ." info: "     THEN  rdrop ;
 ' (.error-level) is .error-level
 
-: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] errlevel -- throwcode )
-    \ addr3 u3: filename of included file - optional
+: .error-frame ( throwcode addr1 u1 addr2 u2 n2 addr3 u3 errlevel -- throwcode )
+    \ addr3 u3: filename of included file
     \ n2:       line number
     \ addr2 u2: parsed lexeme (should be marked as causing the error)
     \ addr1 u1: input line
     \ errlevel: 0: info, 1: warning, 2: error
     >r error-stack $@len
     IF ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
-        [ has? file [IF] ] \ !! unbalanced stack effect
-	  over IF
-	      cr ." in file included from "
-	      type ." :"
-	      0 dec.r  2drop 2drop
-          ELSE
-              2drop 2drop 2drop drop
-          THEN
-          [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
+	over IF
+	    cr ." in file included from "
+	    type ." :"
+	    0 dec.r ." :" drop nip swap - 1+ 0 dec.r ." : "
+	ELSE
+	    2drop 2drop 2drop drop
+	THEN
     ELSE ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
-        [ has? file [IF] ]
-            cr type ." :"
-            [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
-	dup 0 dec.r ." : "
+	cr type ." :"
+	( throwcode addr1 u1 n0 n1 n2 )
+	dup 0 dec.r ." :"
+	>r 2over 2over drop nip swap - 1+ 0 dec.r ." : " r>
 	r@ .error-level
 	5 pick .error-string
 	r@ 2 = and warnings @ abs 1 > or
@@ -854,11 +853,12 @@ defer reset-dpp
 \ \ Cold Boot                                    	13feb93py
 
 : (c) ( -- )
+    ." Authors: Bernd Paysan, Anton Ertl, Neal Crook, Gerald Wodni, Jens Wilke
     ." Copyright " $A9 ( '©' ) xemit ;
 : gforth ( -- )
     ." Gforth " version-string type cr
     ." Authors: Anton Ertl, Bernd Paysan, Jens Wilke et al., for more type `authors'" cr
-    (c) ."  1995-2018 Free Software Foundation, Inc." cr
+    (c) ."  2019 Free Software Foundation, Inc." cr
     ." License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>" cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]

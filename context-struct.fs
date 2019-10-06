@@ -1,5 +1,6 @@
 \ Current object structure
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

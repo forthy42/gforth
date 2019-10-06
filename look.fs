@@ -1,5 +1,6 @@
 \ LOOK.FS      xt -> lfa                               22may93jaw
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
 \ Copyright (C) 1995,1996,1997,2000,2003,2007,2011,2012,2013,2014,2015,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

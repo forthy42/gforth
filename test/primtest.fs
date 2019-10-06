@@ -1,5 +1,6 @@
 \ test for Gforth primitives
 
+\ Author: Anton Ertl
 \ Copyright (C) 2003,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

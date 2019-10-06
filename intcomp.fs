@@ -1,5 +1,6 @@
 \ defining words for words with non-default and non-immediate compilation semantics
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 1996,1997,2000,2003,2007,2010,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

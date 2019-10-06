@@ -1,5 +1,6 @@
 \ a http proxy
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2000,2002,2003,2006,2007,2010 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

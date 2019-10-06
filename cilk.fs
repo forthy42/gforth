@@ -1,5 +1,6 @@
 \ Cilk-like sync+spawn interface
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

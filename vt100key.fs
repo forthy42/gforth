@@ -1,5 +1,6 @@
 \ vt100 key interpreter                                17oct94py
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 1995,1996,1998,2000,2003,2007,2015,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

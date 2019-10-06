@@ -1,5 +1,6 @@
 \ quote: S\" and .\" words
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2002,2003,2005,2007,2008,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

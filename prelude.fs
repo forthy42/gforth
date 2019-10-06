@@ -1,5 +1,6 @@
 \ prelude  higher-level words
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

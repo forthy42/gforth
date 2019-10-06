@@ -42,7 +42,7 @@
 
 @c Don't use UTF-8; it will produce a large number of non-ASCII chars.
 @c Instead, recode afterwards if necessary.
-@documentencoding ISO-8859-1
+@documentencoding UTF-8
 
 
 @macro progstyle {}
@@ -77,6 +77,7 @@ a fast and portable implementation of the Standard Forth language.  It
 serves as reference manual, but it also contains an introduction to
 Forth and a Forth tutorial.
 
+Authors: Bernd Paysan, Anton Ertl, Gerald Wodni
 Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 @quotation
@@ -6702,7 +6703,7 @@ default).
 
 @c anton:
 @c www.dictionary.com says:
-@c at·a·vism: 1.The reappearance of a characteristic in an organism after
+@c atÂ·aÂ·vism: 1.The reappearance of a characteristic in an organism after
 @c several generations of absence, usually caused by the chance
 @c recombination of genes.  2.An individual or a part that exhibits
 @c atavism. Also called throwback.  3.The return of a trait or recurrence
@@ -13168,9 +13169,9 @@ c-callback vector4single: f@{float@} f@{float@} f@{float@} f@{float@} -- void
 @c 
 @c Irgendwie muss ich den Callback ja testen. Und es soll ja auch 
 @c vorkommen, dass man von irgendwelchen kranken Interfaces einen 
-@c Funktionspointer übergeben bekommt, den man dann bei Gelegenheit 
+@c Funktionspointer Ã¼bergeben bekommt, den man dann bei Gelegenheit 
 @c aufrufen muss. Also kann man den deklarieren, und das damit deklarierte 
-@c Wort verhält sich dann wie ein EXECUTE für alle C-Funktionen mit 
+@c Wort verhÃ¤lt sich dann wie ein EXECUTE fÃ¼r alle C-Funktionen mit 
 @c demselben Prototyp.
 
 

@@ -1,5 +1,6 @@
 \ testasm.fs	tests for LatticeMico32 assembler
 \
+\ Author: David Kühling
 \ Copyright (C) 2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

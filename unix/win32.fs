@@ -1,5 +1,6 @@
 \ useful windows functions (kernel32 and imm32)
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2015,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

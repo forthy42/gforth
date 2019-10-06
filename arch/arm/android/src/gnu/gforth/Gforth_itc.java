@@ -1,5 +1,6 @@
 /* Android activity for Gforth on Android
 
+  Authors: Bernd Paysan, Anton Ertl
   Copyright (C) 2013,2015 Free Software Foundation, Inc.
 
   This file is part of Gforth.

@@ -1,5 +1,6 @@
 \ A powerful closure implementation
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

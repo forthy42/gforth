@@ -1,5 +1,6 @@
 \ the additional Forth 200x words and their wordsets and other info
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
