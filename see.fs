@@ -409,16 +409,17 @@ VARIABLE C-Pass
 
 : .name-without ( addr -- addr )
     \ !! the stack effect cannot be correct
-    \ prints a name without a() e.g. a(+LOOP) or (s")
+    \ prints a name without () and without -LP+!#, e.g. a (+LOOP) or (s")
     dup cell- @ threaded>name dup IF
-	name>string over c@ 'a = IF
+	dup ``(/loop)# = over ``(/loop)#-lp+!# = or if drop ``+loop then
+	over c@ '( = IF
 	    1 /string
 	THEN
-	 over c@ '( = IF
-	    1 /string
-	THEN
-	2dup + 1- c@ ') = IF 1- THEN .struc ELSE drop 
-    THEN ;
+	2dup "-lp+!#" string-suffix? if 6 - then
+	2dup + 1- c@ ') = IF 1- THEN
+	.struc
+    ELSE
+	drop THEN ;
 
 : c-c"
 	Display? IF nl .name-without THEN
@@ -594,6 +595,11 @@ VARIABLE C-Pass
     THEN ( addr1 ) \ perverse stack effect of MoreBranchAddr?
     cell+ ;
 
+: c-loop# ( addr -- addr1 )
+    Display? if
+	dup @ c-. then
+    c-loop cell+ ;
+
 : c-do ( addr -- addr )
     Display? IF
 	dup BranchAddr? IF ( addr addr1 )
@@ -733,7 +739,7 @@ CREATE C-Table \ primitives map to code only
         	' (+loop) A,        ' c-loop A,
 [IFDEF] (s+loop) ' (s+loop) A,      ' c-loop A, [THEN]
 [IFDEF] (-loop) ' (-loop) A,        ' c-loop A, [THEN]
-[IFDEF] (/loop)# ' (/loop)# A,      ' c-loop A, [THEN]
+[IFDEF] (/loop)# ' (/loop)# A,      ' c-loop# A, [THEN]
         	' (next) A,         ' c-loop A,
         	' ;s A,             ' c-exit A,
 \ [IFDEF] (abort") ' (abort") A,      ' c-abort" A, [THEN]
