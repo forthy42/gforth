@@ -328,7 +328,7 @@ VARIABLE C-Pass
 	    drop over cell- @ dup body> look IF
 		nip nip dup ." <" name>string rot wordinfo .string ." > "
 	    ELSE
-		2drop ." <$" 0 ['] .r $10 base-execute ." > "
+		2drop smart.
 	    THEN
 	    EXIT
 	then
@@ -361,7 +361,7 @@ VARIABLE C-Pass
 \	maxaligned /does-handler + ; \ !! no longer needed for non-cross stuff
 [THEN]
 
-: c># ( n -- addr u ) dup abs 0 <# #S rot sign #> ;
+: c># ( n -- addr u ) `smart. $tmp ;
 : c-. ( n -- ) c># 0 .string bl cemit ;
 
 : c-lit ( addr1 -- addr2 )
