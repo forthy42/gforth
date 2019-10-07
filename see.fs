@@ -362,7 +362,7 @@ VARIABLE C-Pass
 [THEN]
 
 : c># ( n -- addr u ) `smart. $tmp ;
-: c-. ( n -- ) c># 0 .string bl cemit ;
+: c-. ( n -- ) c># 0 .string ;
 
 : c-lit ( addr1 -- addr2 )
     dup @ dup body> dup cfaligned over = swap in-dictionary? and if
