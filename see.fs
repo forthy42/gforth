@@ -389,16 +389,9 @@ VARIABLE C-Pass
 	    endif
 	[THEN]
     endif
-    Display? if
-	\ !! test for cfa here, and print "['] ..."
-	dup >name dup IF
-	    nip ." ['] " name>string
-	ELSE
-	    drop c>#
-	THEN
-	0 .string bl cemit
-    else  drop  then
-    cell+ ;
+    Display? if ( addr1 addr1@ )
+	dup c-. then
+    drop cell+ ;
 
 : c-lit+ ( addr1 -- addr2 )
     Display? if
