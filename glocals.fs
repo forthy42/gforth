@@ -199,6 +199,10 @@ opt: drop postpone swap postpone >l postpone >l ;
     locals-size @ swap !
     val-part @ IF  postpone false  THEN  postpone lp@ postpone c! ;
 
+: compile-pushlocal-[ ( size a-addr -- ) ( run-time: -- )
+    swap maxaligned negate compile-lp+!
+    locals-size @ swap ! ;
+
 \ locals list operations
 
 [IFUNDEF] >link ' noop Alias >link [THEN]
@@ -395,6 +399,12 @@ locals-types definitions
     \ compiles a local variable access
     @ lp-offset compile-@local postpone execute ;
 
+:noname ( "name" -- a-addr u ) \ gforth <local>bracket (unnamed)
+    create-local
+    ['] compile-pushlocal-[
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, ;
+
 : | val-part on ['] val-part-off ;
 
 \ you may want to make comments in a locals definitions group:
@@ -427,6 +437,7 @@ c^ some-caddr 2drop
 d^ some-daddr 2drop
 f^ some-faddr 2drop
 w^ some-waddr 2drop
+dup execute some-carray 2drop
 
 ' dict-execute1 is dict-execute \ now the real thing
 
@@ -436,13 +447,17 @@ w^ some-waddr 2drop
 \ So we create a vocabulary new-locals, that creates a 'w:' local named x
 \ when it is asked if it contains x.
 
+>r
 : new-locals-find ( caddr u w -- nfa )
 \ this is the find method of the new-locals vocabulary
 \ make a new local with name caddr u; w is ignored
 \ the returned nfa denotes a word that produces what W: produces
 \ !! do the whole thing without nextname
-    drop nextname
-    ['] W: ;
+    drop 2dup nextname
+    + 1- c@ '[' = IF  ']' parse
+	get-order 2 - -rot 2>r set-order  evaluate
+	get-order 2 + 2r> rot  set-order  -rot [ r> ] Literal
+    ELSE  ['] W:  THEN ;
 
 previous
 
@@ -473,7 +488,7 @@ synonym {: { ( -- vtaddr u latest latestnt wid 0 ) \ forth-2012 open-brace-colon
 
 locals-types definitions
 
-: } ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace
+: } ( vtaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
     \ ends locals definitions
     ]
     begin

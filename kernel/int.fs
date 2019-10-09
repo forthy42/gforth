@@ -853,7 +853,6 @@ defer reset-dpp
 \ \ Cold Boot                                    	13feb93py
 
 : (c) ( -- )
-    ." Authors: Bernd Paysan, Anton Ertl, Neal Crook, Gerald Wodni, Jens Wilke
     ." Copyright " $A9 ( '©' ) xemit ;
 : gforth ( -- )
     ." Gforth " version-string type cr
