@@ -10006,8 +10006,25 @@ left). E.g., the standard word @code{emit} can be defined in terms of
 A local without type specifier is a @code{W:} local. Both flavours of
 locals are initialized with values from the data or FP stack.
 
-Currently there is no way to define locals with user-defined data
-structures, but we are working on it.
+@cindex data structure locals
+Gforth supports the square bracket notation of local data structures.
+These locals are similar to variable-flavored locals; they are however
+never initialized from the data stack, and the size is specified as a
+number on the stack.  A declaration looks @code{@i{name}[ @i{size}
+]}.  The Forth expression @code{@i{size}} is evaluated during
+declaration, it must have the stack effect @code{( -- +n )}.  The
+square bracket @code{[} is part of the defined name.  Example:
+
+@example
+begin-structure test-struct
+  field: a1
+  field: a2
+end-structure
+
+: test-local { foo[ test-struct ] }
+    foo[ a1 !  foo[ a2 !
+    foo[ test-struct dump ;
+@end example
 
 Gforth allows defining locals everywhere in a colon definition. This
 poses the following questions:
