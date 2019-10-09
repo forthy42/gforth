@@ -10008,12 +10008,19 @@ locals are initialized with values from the data or FP stack.
 
 @cindex data structure locals
 Gforth supports the square bracket notation of local data structures.
-These locals are similar to variable-flavored locals; they are however
-never initialized from the data stack, and the size is specified as a
-number on the stack.  A declaration looks @code{@i{name}[ @i{size}
-]}.  The Forth expression @code{@i{size}} is evaluated during
-declaration, it must have the stack effect @code{( -- +n )}.  The
-square bracket @code{[} is part of the defined name.  Example:
+These locals are similar to variable-flavored locals, the size is
+specified as a constant expression.  A declaration looks
+@code{@i{name}[ @i{size} ]}.  The Forth expression @code{@i{size}} is
+evaluated during declaration, it must have the stack effect @code{( --
++n )}, giving the size in bytes.  The square bracket @code{[} is part
+of the defined name.
+
+Local data structures are initialized by copying @i{size} bytes from
+an address passed on the stack; uninitialized local data structures
+(after @code{|} in the declaration) are not erased, they just contain
+whatever data there was on the locals stack before.
+
+Example:
 
 @example
 begin-structure test-struct

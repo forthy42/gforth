@@ -199,8 +199,9 @@ opt: drop postpone swap postpone >l postpone >l ;
     locals-size @ swap !
     val-part @ IF  postpone false  THEN  postpone lp@ postpone c! ;
 
-: compile-pushlocal-[ ( size a-addr -- ) ( run-time: -- )
-    swap maxaligned negate compile-lp+!
+: compile-pushlocal-[ ( size a-addr -- ) ( run-time: addr -- )
+    swap maxaligned dup negate compile-lp+!
+    val-part @ IF  drop  ELSE  postpone lp@ lit, postpone move  THEN
     locals-size @ swap ! ;
 
 \ locals list operations
