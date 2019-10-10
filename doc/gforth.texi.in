@@ -10028,7 +10028,7 @@ begin-structure test-struct
   field: a2
 end-structure
 
-: test-local { foo[ test-struct ] }
+: test-local @{: foo[ test-struct ] :@}
     foo[ a1 !  foo[ a2 !
     foo[ test-struct dump ;
 @end example
