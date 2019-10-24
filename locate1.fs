@@ -408,7 +408,16 @@ included-files $[]# 1- constant doc-file#
 s" os-type" environment? [IF]
     s" linux-android" string-prefix? 0= [IF]
 
-require unix/libc.fs
+User sh$  cell uallot drop
+: sh-get ( addr u -- addr' u' )
+    \G open command addr u, and read in the result
+    sh$ free-mem-var
+    r/o open-pipe throw dup >r slurp-fid
+    r> close-pipe throw to $? 2dup sh$ 2! ;
+
+:noname '`' parse sh-get ;
+:noname '`' parse postpone SLiteral postpone sh-get ;
+interpret/compile: s` ( "eval-string" -- addr u )
 
 2variable whereg-filename 0 0 whereg-filename 2!
 
@@ -424,10 +433,10 @@ require unix/libc.fs
     \g (@pxref{Compilation Mode,,,emacs,GNU Emacs Manual}) to inspect
     \g specific occurences more closely.
     delete-whereg
-    "/tmp/gforth-whereg-XXXXXX\0" save-mem 1- 2dup whereg-filename 2!
-    over mkstemp dup ?ior fd>file
+    s` mktemp /tmp/gforth-whereg-XXXXXX` 1- save-mem 2dup whereg-filename 2!
+    2dup r/w open-file throw
     [:  "-*- mode: compilation; default-directory: \"" type
-	here unused getcwd dup 0= ?errno-throw dup strlen type
+	s` pwd` 1- type
 	"\" -*-" type
 	['] where plain-output
     ;] over outfile-execute close-file throw
