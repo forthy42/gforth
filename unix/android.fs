@@ -31,65 +31,55 @@ get-current also android definitions
 
 Defer akey
 
-c-library android
-    :noname open-path-lib drop ; is prefetch-lib
+also c-lib
+:noname open-path-lib drop ; is prefetch-lib
+previous
 
-    \c #include <android/input.h>
-    \c #include <android/keycodes.h>
-    \c #include <android/native_window.h>
-    \c #include <android/native_window_jni.h>
-    \c #include <android/native_activity.h>
-    \c #include <android/looper.h>
+begin-structure app_input_state
+    field: action
+    field: flags
+    field: metastate
+    field: edgeflags
+    field: pressure
+    field: size
+    2field: downtime
+    2field: eventtime
+    2field: eventtime'
+    field: tcount
+    field: x0
+    field: y0
+    field: x1
+    field: y1
+    field: x2
+    field: y2
+    field: x3
+    field: y3
+    field: x4
+    field: y4
+    field: x5
+    field: y5
+    field: x6
+    field: y6
+    field: x7
+    field: y7
+    field: x8
+    field: y8
+    field: x9
+    field: y9
+end-structure
 
-    begin-structure app_input_state
-	field: action
-	field: flags
-	field: metastate
-	field: edgeflags
-	field: pressure
-	field: size
-	2field: downtime
-	2field: eventtime
-	2field: eventtime'
-	field: tcount
-	field: x0
-	field: y0
-	field: x1
-	field: y1
-	field: x2
-	field: y2
-	field: x3
-	field: y3
-	field: x4
-	field: y4
-	field: x5
-	field: y5
-	field: x6
-	field: y6
-	field: x7
-	field: y7
-	field: x8
-	field: y8
-	field: x9
-	field: y9
-    end-structure
-    
-    begin-structure startargs
-	field: app-vm
-	field: app-env
-	field: obj
-	field: cls
-	field: thread-id
-	lfield: ke-fd0
-	lfield: ke-fd1
-	field: window \ native window
-    end-structure
-    
-    s" android" add-lib
+begin-structure startargs
+    field: app-vm
+    field: app-env
+    field: obj
+    field: cls
+    field: thread-id
+    lfield: ke-fd0
+    lfield: ke-fd1
+    field: window \ native window
+end-structure
 
-    include unix/androidlib.fs
-    
-end-c-library
+include unix/androidlib.fs
 
 s" APP_STATE" getenv s>number drop Value app
 

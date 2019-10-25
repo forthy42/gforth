@@ -481,7 +481,6 @@ public class Gforth
         String libname = "gforth";
 
 	gforth=this;
-	verifyStoragePermissions(this);
 	
 	progress=null;
 	cameraPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
@@ -662,6 +661,12 @@ public class Gforth
 
     @Override protected void onStart() {
 	super.onStart();
+	if(verifyStoragePermissions(this)) {
+	    doStart();
+	}
+    }
+
+    public void doStart() {
 	if(!started) {
 	    startForth(getApplicationInfo().nativeLibraryDir,
 		       Locale.getDefault().toString() + ".UTF-8",
@@ -671,7 +676,7 @@ public class Gforth
 	activated = -1;
 	if(surfaced) onEventNative(18, activated);
     }
-
+    
     @Override protected void onNewIntent (Intent intent) {
 	super.onNewIntent(intent);
 	setIntent(intent);
@@ -860,10 +865,7 @@ public class Gforth
 
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
+    ;
     
     /**
      * Checks if the app has permission to write to device storage
@@ -872,15 +874,31 @@ public class Gforth
      *
      * @param activity
      */
-    public static void verifyStoragePermissions(Activity activity) {
+    public static String[] REQUEST_STRING = {
+	Manifest.permission.READ_EXTERNAL_STORAGE,
+	Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+    public boolean verifyStoragePermissions(Activity activity) {
 	// Check if we have write permission
-	int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+	int permission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 	
 	if (permission != PackageManager.PERMISSION_GRANTED) {
 	    // We don't have permission so prompt the user
-	    ActivityCompat.requestPermissions(activity,
-					      PERMISSIONS_STORAGE,
-					      REQUEST_EXTERNAL_STORAGE);
+	    requestPermissions(REQUEST_STRING, REQUEST_EXTERNAL_STORAGE);
+	    return false;
+	} else {
+	    return true;
 	}
+    }
+
+    @Override
+    public void onRequestPermissionsResult (int requestCode, 
+					    String[] permissions, 
+					    int[] grantResults) {
+	if(requestCode != REQUEST_EXTERNAL_STORAGE) return;
+	for(int i = 0; i <= grantResults.length - 1; i++) {
+	    if(grantResults[i] != PackageManager.PERMISSION_GRANTED) return;
+	}
+	doStart();
     }
 }
