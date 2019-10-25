@@ -34,10 +34,10 @@ case "$TARGET" in
 	;;
 esac
 
-FREETYPE=freetype-2.9.1
-HARFBUZZ=harfbuzz-2.3.1
-LIBPNG=libpng-1.6.36
-BZIP2=bzip2-1.0.6
+FREETYPE=freetype-2.10.1
+HARFBUZZ=harfbuzz-2.6.2
+LIBPNG=libpng-1.6.37
+BZIP2=bzip2-1.0.8
 
 fine=yes
 for i in git wget
@@ -84,8 +84,8 @@ function gen_bzip2 {
 
 function gen_freetype {
     (cd ~/Downloads
-     test -f $FREETYPE.tar.bz2 || wget http://download.savannah.gnu.org/releases/freetype/$FREETYPE.tar.bz2)
-    tar jxvf ~/Downloads/$FREETYPE.tar.bz2
+     test -f $FREETYPE.tar.xz || wget https://sourceforge.net/projects/freetype/files/freetype2/${FREETYPE#*-}/$FREETYPE.tar.xz)
+    tar jxvf ~/Downloads/$FREETYPE.tar.xz
     (cd $FREETYPE
      ./autogen.sh # get fresh libtool&co
      ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-zlib=no --with-harfbuzz=no 
@@ -97,8 +97,8 @@ function gen_freetype {
 
 function gen_harfbuzz {
     (cd ~/Downloads
-     test -f $HARFBUZZ.tar.bz2 || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.bz2)
-    tar jxvf ~/Downloads/$HARFBUZZ.tar.bz2
+     test -f $HARFBUZZ.tar.xz || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.xz)
+    tar Jxvf ~/Downloads/$HARFBUZZ.tar.xz
     (cd $HARFBUZZ
      ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-glib=no --with-icu=no --with-uniscribe=no --with-cairo=no
      make -j$nprocs
