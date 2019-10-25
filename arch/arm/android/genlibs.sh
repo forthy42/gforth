@@ -85,7 +85,7 @@ function gen_bzip2 {
 function gen_freetype {
     (cd ~/Downloads
      test -f $FREETYPE.tar.xz || wget https://sourceforge.net/projects/freetype/files/freetype2/${FREETYPE#*-}/$FREETYPE.tar.xz)
-    tar jxvf ~/Downloads/$FREETYPE.tar.xz
+    tar Jxvf ~/Downloads/$FREETYPE.tar.xz
     (cd $FREETYPE
      ./autogen.sh # get fresh libtool&co
      ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-zlib=no --with-harfbuzz=no 
@@ -159,7 +159,7 @@ function gen_soil2 {
 }
 
 function gen_typeset {
-    $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $HARFBUZZ -name libharfbuzz_la*.lo) $HARFBUZZ/src/hb-ucdn/libhb_ucdn_la-ucdn.lo $(find $FREETYPE $LIBPNG freetype-gl -name '*.lo') -lm -lGLESv2 -lz -lbz2 -llog
+    $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $HARFBUZZ -name libharfbuzz_la*.lo) $(find $FREETYPE $LIBPNG freetype-gl -name '*.lo') -lm -lGLESv2 -lz -lbz2 -llog
     cp .libs/libtypeset.{a,so} $TOOLCHAIN/sysroot/usr/lib
 }
 
