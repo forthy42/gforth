@@ -438,7 +438,7 @@ public class Gforth
     public void errProgress() {
 	if(progress!=null) {
 	    Log.v(TAG, "Error spinner");
-	    progress.setMessage("error: no space left");
+	    progress.setMessage("error: can't write to storage, no permission/space left?");
 	}
     }
 
@@ -481,18 +481,7 @@ public class Gforth
         String libname = "gforth";
 
 	gforth=this;
-
-	if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-	    != PackageManager.PERMISSION_GRANTED) {
-	    if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-		Log.v(TAG, "Write to SD card needs explanation");
-		// Show an explanation to the user *asynchronously* -- don't block
-		// this thread waiting for the user's response! After the user
-		// sees the explanation, try again to request the permission.
-	    }
-	    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-			       1);
-	}
+	verifyStoragePermissions(this);
 	
 	progress=null;
 	cameraPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
@@ -867,5 +856,31 @@ public class Gforth
 	}
 	Log.v(TAG, "Return back");
 	return filename;
+    }
+
+    // Storage Permissions
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+    
+    /**
+     * Checks if the app has permission to write to device storage
+     *
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+	// Check if we have write permission
+	int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+	
+	if (permission != PackageManager.PERMISSION_GRANTED) {
+	    // We don't have permission so prompt the user
+	    ActivityCompat.requestPermissions(activity,
+					      PERMISSIONS_STORAGE,
+					      REQUEST_EXTERNAL_STORAGE);
+	}
     }
 }
