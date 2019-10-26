@@ -448,6 +448,8 @@ Defer android-notification ( intent -- )
 ( :noname drop ." Got intent" cr ; ) ' drop is android-notification
 Defer android-context-menu ( id -- )
 :noname 2 = IF  paste  THEN ; is android-context-menu
+Defer android-permission-result ( jstring -- )
+' drop is android-permission-result
 
 Create aevents
 ' android-key ,
@@ -470,11 +472,12 @@ Create aevents
 ' android-config! ,
 ' android-active ,
 ' android-setcur ,
-' android-setsel ,
-' android-alarm ,
-' android-network ,
-' android-notification ,
-' android-context-menu ,
+( 20 ) ' android-setsel ,
+( 21 ) ' android-alarm ,
+( 22 ) ' android-network ,
+( 23 ) ' android-notification ,
+( 24 ) ' android-context-menu ,
+( 25 ) ' android-permission-result ,
 here aevents - cell/
 ' drop ,
 Constant max-event#

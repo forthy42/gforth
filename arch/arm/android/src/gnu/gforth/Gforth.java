@@ -291,16 +291,16 @@ public class Gforth
 	    public boolean performContextMenuAction(int id) {
 		switch (id) {
 		case android.R.id.copy:
-		    mView.mActivity.onEventNative(23, 0);
+		    mView.mActivity.onEventNative(24, 0);
 		    return true;
 		case android.R.id.cut:
-		    mView.mActivity.onEventNative(23, 1);
+		    mView.mActivity.onEventNative(24, 1);
 		    return true;
 		case android.R.id.paste:
-		    mView.mActivity.onEventNative(23, 2);
+		    mView.mActivity.onEventNative(24, 2);
 		    return true;
 		case android.R.id.selectAll:
-		    mView.mActivity.onEventNative(23, 3);
+		    mView.mActivity.onEventNative(24, 3);
 		    return true;
 		}
 		return false;
@@ -895,7 +895,14 @@ public class Gforth
     public void onRequestPermissionsResult (int requestCode, 
 					    String[] permissions, 
 					    int[] grantResults) {
-	if(requestCode != REQUEST_EXTERNAL_STORAGE) return;
+	if(requestCode != REQUEST_EXTERNAL_STORAGE) {
+	    for(int i = 0; i <= grantResults.length - 1; i++) {
+		if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+		    onEventNative(25, permissions[i]);
+		}
+	    }
+	    return;
+	}
 	for(int i = 0; i <= grantResults.length - 1; i++) {
 	    if(grantResults[i] != PackageManager.PERMISSION_GRANTED) return;
 	}
