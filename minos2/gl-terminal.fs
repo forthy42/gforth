@@ -292,6 +292,7 @@ Variable gl-emit-buf
 	'✔' of 11 endof
 	'✘' of 12 endof
 	'▀' of $10 endof
+	'©' of $11 endof
 	dup wcwidth -1 = IF  drop $7F
 	ELSE  dup wcwidth 2 = IF  drop  13  ELSE  $7F umin  THEN
 	THEN
