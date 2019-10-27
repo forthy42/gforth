@@ -222,21 +222,31 @@ previous
 		2>r k-delete top-act .ekeyed 2r> 4 /string  REPEAT  THEN
     ?dup-IF  top-act .ukeyed  ELSE  drop  THEN
     s$ $free ;
-
+: edit-context-menu ( n -- )
+    case
+	0 of  ctrl C top-act .ukeyed  endof \ copy
+	1 of  ctrl X top-act .ukeyed  endof \ cut
+	2 of  ctrl V top-act .ukeyed  endof \ paste
+	3 of  k-sel  top-act .ekeyed  endof \ select all
+    endcase ;
 previous
 
 : enter-minos ( -- )
     edit-widget edit-out !
-    ['] touch>action   is android-touch
-    ['] key>action     is android-key
-    ['] edit-setstring is android-setstring
-    ['] edit-commit    is android-commit ;
+    ['] touch>action      is android-touch
+    ['] key>action        is android-key
+    ['] edit-setstring    is android-setstring
+    ['] edit-commit       is android-commit
+    ['] edit-context-menu is android-context-menu ;
+: preserve ( "name" -- )
+    ' dup defer@ lit, (to), ; immediate
 : leave-minos ( -- )
     edit-terminal edit-out !
-    ['] touch>event is android-touch
-    ['] key>event   is android-key
-    [ action-of android-setstring ]L is android-setstring
-    [ action-of android-commit ]L is android-commit
+    preserve android-touch
+    preserve android-key
+    preserve android-setstring
+    preserve android-commit
+    preserve android-context-menu
     [IFDEF] terminal-program
 	terminal-program terminal-init term-textures [THEN]
     +sync +config +show ;
