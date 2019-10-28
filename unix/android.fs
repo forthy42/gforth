@@ -448,8 +448,8 @@ Defer android-notification ( intent -- )
 ( :noname drop ." Got intent" cr ; ) ' drop is android-notification
 Defer android-context-menu ( id -- )
 :noname ( n -- )
-    case ~~
-\	$0102001f of  k-sel   top-act .ekeyed  endof \ select all
+    case
+	$0102001f of  "\e[S"  inskeys endof \ select all
 	$01020020 of  ctrl X  inskey  endof \ cut
 	$01020021 of  ctrl C  inskey  endof \ copy
 	$01020022 of  ctrl V  inskey  endof \ paste
