@@ -223,11 +223,12 @@ previous
     ?dup-IF  top-act .ukeyed  ELSE  drop  THEN
     s$ $free ;
 : edit-context-menu ( n -- )
-    case
-	0 of  ctrl C top-act .ukeyed  endof \ copy
-	1 of  ctrl X top-act .ukeyed  endof \ cut
-	2 of  ctrl V top-act .ukeyed  endof \ paste
-	3 of  k-sel  top-act .ekeyed  endof \ select all
+    case ~~
+	$0102001f of  k-sel   top-act .ekeyed  endof \ select all
+	$01020020 of  ctrl X  top-act .ukeyed  endof \ cut
+	$01020021 of  ctrl C  top-act .ukeyed  endof \ copy
+	$01020022 of  ctrl V  top-act .ukeyed  endof \ paste
+	$0102002c of  k-home  top-act .ekeyed  endof \ home
     endcase ;
 previous
 

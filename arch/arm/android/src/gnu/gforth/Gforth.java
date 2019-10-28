@@ -289,21 +289,8 @@ public class Gforth
 
 	    @Override
 	    public boolean performContextMenuAction(int id) {
-		switch (id) {
-		case android.R.id.copy:
-		    mView.mActivity.onEventNative(24, 0);
-		    return true;
-		case android.R.id.cut:
-		    mView.mActivity.onEventNative(24, 1);
-		    return true;
-		case android.R.id.paste:
-		    mView.mActivity.onEventNative(24, 2);
-		    return true;
-		case android.R.id.selectAll:
-		    mView.mActivity.onEventNative(24, 3);
-		    return true;
-		}
-		return false;
+		mView.mActivity.onEventNative(24, id);
+		return true;
 	    }
 	}
 	

@@ -447,7 +447,14 @@ Defer android-network ( metered -- )
 Defer android-notification ( intent -- )
 ( :noname drop ." Got intent" cr ; ) ' drop is android-notification
 Defer android-context-menu ( id -- )
-:noname 2 = IF  paste  THEN ; is android-context-menu
+:noname ( n -- )
+    case ~~
+\	$0102001f of  k-sel   top-act .ekeyed  endof \ select all
+	$01020020 of  ctrl X  inskey  endof \ cut
+	$01020021 of  ctrl C  inskey  endof \ copy
+	$01020022 of  ctrl V  inskey  endof \ paste
+	$0102002c of  ctrl A  inskey  endof \ home
+    endcase ; is android-context-menu
 Defer android-permission-result ( jstring -- )
 ' drop is android-permission-result
 
