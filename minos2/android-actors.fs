@@ -225,9 +225,9 @@ previous
 : edit-context-menu ( n -- )
     case ~~
 	$0102001f of  k-sel   top-act .ekeyed  endof \ select all
-	$01020020 of  ctrl X  top-act .ukeyed  endof \ cut
-	$01020021 of  ctrl C  top-act .ukeyed  endof \ copy
-	$01020022 of  ctrl V  top-act .ukeyed  endof \ paste
+	$01020020 of  ctrl X  top-act .ekeyed  endof \ cut
+	$01020021 of  ctrl C  top-act .ekeyed  endof \ copy
+	$01020022 of  ctrl V  top-act .ekeyed  endof \ paste
 	$0102002c of  k-home  top-act .ekeyed  endof \ home
     endcase ;
 previous
