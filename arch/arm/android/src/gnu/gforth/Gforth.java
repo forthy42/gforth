@@ -459,7 +459,8 @@ public class Gforth
     }
     public void setEditLine(String line, int curpos, int len) {
 	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos + " len: " + len);
-	if(mView!=null) mView.mInputConnection.setEditLine(line, curpos, len);
+	if(mView!=null && mView.mInputConnection!=null)
+	    mView.mInputConnection.setEditLine(line, curpos, len);
     }
 
     @Override
