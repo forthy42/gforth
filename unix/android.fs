@@ -342,8 +342,11 @@ Defer android-inskey ' inskey is android-inskey
     0 -rot bounds ?DO  1+ I I' over - x-size +LOOP ;
 
 : android-edit-update ( span addr pos1 -- span addr pos1 )
-    xedit-update  2dup xcs swap >r >r
-    2dup swap make-jstring r> 0 clazz .setEditLine r> ;
+    xedit-update
+    clazz IF
+	2dup xcs swap >r >r
+	2dup swap make-jstring r> 0 clazz .setEditLine r>
+    THEN ;
 ' android-edit-update is edit-update
 
 : android-setcur ( +n -- ) setcur# ! ;
