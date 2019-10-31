@@ -320,6 +320,7 @@ compsem: '"' parse ]] SLiteral >class [[ ;
     env -rot JNIEnv-GetObjectArrayElement() ;
 
 2 Value req#
+0 Value android-perm#
 
 : ?permission ( -- )
     BEGIN  >looper android-perm# req# =  UNTIL ;

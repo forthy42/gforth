@@ -461,7 +461,6 @@ Defer android-context-menu ( id -- )
 	$0102002c of  ctrl A  inskey  endof \ home
     endcase ; is android-context-menu
 Defer android-permission# ( n -- )
-0 Value android-perm#
 :noname to android-perm# ; is android-permission#
 Defer android-permission-result ( jstring -- )
 Variable android-permissions[]
