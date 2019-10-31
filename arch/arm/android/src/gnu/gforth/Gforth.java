@@ -210,7 +210,7 @@ public class Gforth
 	    }
 	    
 	    public void setEditLine(String line, int curpos, int len) {
-		Log.v(TAG, "IC.setEditLine: \"" + line + "\" at: " + curpos);
+		// Log.v(TAG, "IC.setEditLine: \"" + line + "\" at: " + curpos);
 		getEditable().clear();
 		getEditable().append(line);
 		if(mExtractedTextRequest != null) {
@@ -458,7 +458,7 @@ public class Gforth
 	}
     }
     public void setEditLine(String line, int curpos, int len) {
-	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos + " len: " + len);
+	// Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos + " len: " + len);
 	if(mView!=null && mView.mInputConnection!=null)
 	    mView.mInputConnection.setEditLine(line, curpos, len);
     }
