@@ -583,7 +583,7 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	debian/rules debian/control.in debian/changelog.in debian/compat      \
 	gforth.ico .travis.yml install-deps.sh install-swig.sh		      \
 	install-freetype-gl.sh install-soil2.sh $(SWIG_WRAP)		      \
-	m4/ax_gcc_builtin.m4
+	m4/ax_gcc_builtin.m4 move-if-change
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
 	libforth gforthker engine/Makefile engine/gforth.h		\
