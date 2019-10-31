@@ -287,7 +287,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
     BEGIN  ?looper-timeouts  0 poll? 0=  UNTIL  poll? drop ;
 : >looper ( -- ) looper-to# #looper ;
 : ?looper  BEGIN  >looper  app window @ UNTIL ;
-	    
+
 \ : >looper  BEGIN  0 poll_looper 0<  UNTIL looper-to# poll_looper drop ;
 \ : ?looper  BEGIN >looper app window @ UNTIL ;
 
@@ -458,8 +458,14 @@ Defer android-context-menu ( id -- )
 	$01020022 of  ctrl V  inskey  endof \ paste
 	$0102002c of  ctrl A  inskey  endof \ home
     endcase ; is android-context-menu
+Defer android-permission# ( n -- )
+0 Value android-perm#
+:noname to android-perm# ; is android-permission#
 Defer android-permission-result ( jstring -- )
-' drop is android-permission-result
+Variable android-permissions[]
+:noname ( jstring -- )
+    jstring>sstring android-permissions[] $+[]! jfree ;
+is android-permission-result
 
 Create aevents
 (  0 ) ' android-key ,
@@ -487,7 +493,8 @@ Create aevents
 ( 22 ) ' android-network ,
 ( 23 ) ' android-notification ,
 ( 24 ) ' android-context-menu ,
-( 25 ) ' android-permission-result ,
+( 25 ) ' android-permission# ,
+( 26 ) ' android-permission-result ,
 here aevents - cell/
 ' drop ,
 Constant max-event#

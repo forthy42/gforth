@@ -321,10 +321,15 @@ compsem: '"' parse ]] SLiteral >class [[ ;
 
 2 Value req#
 
+: ?permission ( -- )
+    BEGIN  >looper android-perm# req# =  UNTIL ;
+
 : ask-permissions ( addr1 u1 .. addrn un n -- )
     { n } n jc" java/lang/String" new[] { s[] }
     0 n 1- DO make-jstring s[] I j[]! -1 +LOOP
-    s[] req# clazz .requestPermissions
-    1 +to req#  s[] ]ref ;
+    false  n 0 DO s[] I j[]@ clazz .checkSelfPermission 1 <> or  LOOP
+    IF  s[] req# clazz .requestPermissions
+	?permission  1 +to req#
+    THEN  s[] ]ref ;
 
 previous previous definitions

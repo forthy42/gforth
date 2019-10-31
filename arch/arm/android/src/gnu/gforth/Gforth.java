@@ -886,9 +886,10 @@ public class Gforth
 	if(requestCode != REQUEST_EXTERNAL_STORAGE) {
 	    for(int i = 0; i <= grantResults.length - 1; i++) {
 		if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-		    onEventNative(25, permissions[i]);
+		    onEventNative(26, permissions[i]);
 		}
 	    }
+	    onEventNative(25, requestCode);
 	    return;
 	}
 	for(int i = 0; i <= grantResults.length - 1; i++) {
