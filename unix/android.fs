@@ -83,6 +83,8 @@ include unix/androidlib.fs
 
 s" APP_STATE" getenv s>number drop Value app
 
+Defer >looper
+
 get-current also forth definitions
 
 require unix/cpu.fs
@@ -285,7 +287,7 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 : #looper  looper-init
     BEGIN  ?looper-timeouts  0 poll? 0=  UNTIL  poll? drop ;
-: >looper ( -- ) looper-to# #looper ;
+:noname ( -- ) looper-to# #looper ; is >looper
 : ?looper  BEGIN  >looper  app window @ UNTIL ;
 
 \ : >looper  BEGIN  0 poll_looper 0<  UNTIL looper-to# poll_looper drop ;

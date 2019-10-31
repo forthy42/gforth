@@ -80,7 +80,12 @@ jni-field: sensorManager sensorManager Landroid/hardware/SensorManager;
 
 also android
 
-: start-gps ( -- ) ['] startgps post-it ;
+: start-gps ( -- )
+    "android.permission.ACCESS_COARSE_LOCATION"
+    "android.permission.ACCESS_FINE_LOCATION"
+    "android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"
+    3 ask-permissions
+    ['] startgps post-it ;
 
 : stop-gps ( -- ) ['] stopgps post-it ;
 
