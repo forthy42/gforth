@@ -164,7 +164,7 @@ c-library pthread
 end-c-library
 
 require libc.fs
-require set-compsem.fs
+require ../set-compsem.fs
 
 User pthread-id  -1 cells pthread+ uallot drop
 
