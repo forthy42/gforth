@@ -1,5 +1,15 @@
 #!/bin/bash
 
+case `uname`
+in
+    Linux)
+	OS=linux
+	;;
+    Darwin)
+	OS=macosx
+	;;
+esac
+
 function gen_soil2 {
     if [ -f soil2/.git/config ]
     then
@@ -17,9 +27,9 @@ function gen_soil2 {
 	 *)
 	     premake4 gmake
      esac
-     (cd make/linux
+     (cd make/$OS
       make config=release)
-     cp lib/linux/libsoil2.a $TOOLCHAIN/sysroot/usr/lib
+     cp lib/$OS/libsoil2.a $TOOLCHAIN/sysroot/usr/lib
      cp src/SOIL2/SOIL2.h $TOOLCHAIN/sysroot/usr/include)
 }
 gen_soil2
