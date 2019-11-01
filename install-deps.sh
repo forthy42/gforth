@@ -36,7 +36,7 @@ install_osx() {
   brew tap forthy42/homebrew-zsh
   brew update > /dev/null
   brew upgrade > /dev/null
-  brew install yodl gforth gcc harfbuzz texinfo xz
+  brew install yodl gforth gcc harfbuzz texinfo xz mesa
   export PATH="/usr/local/opt/texinfo/bin:$PATH"
   brew cask install xquartz mactex
   export PATH="/Library/TeX/texbin:$PATH"
@@ -47,4 +47,4 @@ install_osx() {
 install_${TRAVIS_OS_NAME:-linux}
 ./install-swig.sh
 ./install-freetype-gl.sh
-./install-soil2.sh
+#./install-soil2.sh
