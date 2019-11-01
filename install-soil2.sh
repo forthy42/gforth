@@ -22,3 +22,4 @@ function gen_soil2 {
      cp lib/linux/libsoil2.a $TOOLCHAIN/sysroot/usr/lib
      cp src/SOIL2/SOIL2.h $TOOLCHAIN/sysroot/usr/include)
 }
+gen_soil2
