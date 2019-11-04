@@ -1189,7 +1189,7 @@ MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
 MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
 MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h gforth.fi $(kernel_anti_dependence)
+gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h $(kernel_anti_dependence)
 
 gforth$(OPT)$(EXT):
 	if test -z "$(OPT)"; then \

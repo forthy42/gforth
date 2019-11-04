@@ -1309,7 +1309,7 @@ else
   "$GFORTH" -i "$KERNLX_FI1" -e bye && KERNLX_FI="$KERNLX_FI1" || \
   "$GFORTH" -i "$KERNLX_FI2" -e bye && KERNLX_FI="$KERNLX_FI2"
   GFORTHKER="\"$GFORTH\" -i \"$KERNLX_FI\"" ;
-  kernel_anti_dependence='$(kernel_fi)'
+  kernel_anti_dependence='gforth.fi'
 fi
 AC_SUBST(PREFORTH)
 AC_SUBST(GFORTHKER)
