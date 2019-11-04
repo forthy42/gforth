@@ -129,6 +129,9 @@ is reset-dpp
 
 : sections-ude ( -- addr )
     current-section-addr section-end @ ;
+: sections-id? ( addr -- flag )
+    current-section-addr section-start @
+    current-section-addr section-dp @ within ;
 
 : init-sections ( -- )
     section-desc allocate throw to sections
@@ -140,7 +143,8 @@ is reset-dpp
     here                  sections section-dp !
     [ ' noname >name ]L   sections section-name !
     sections section-dp dpp ! \ !! dpp is reset to normal-dp on throw
-    ['] sections-ude is usable-dictionary-end ;
+    ['] sections-ude is usable-dictionary-end
+    ['] sections-id? IS in-dictionary? ;
 
 :noname ( -- )
     init-sections

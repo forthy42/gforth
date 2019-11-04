@@ -54,8 +54,7 @@ here 1802 over
     A,                  \ base address
     0 ,                 \ checksum
     0 ,                 \ image size (without tags)
-has? kernel-size
-    ,                   \ dict size
+    has? kernel-size ,  \ dict size
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size

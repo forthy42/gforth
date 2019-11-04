@@ -56,21 +56,24 @@ hex
 \    here cell allot A! ;
 ' ! alias A! ( addr1 addr2 -- ) \ gforth
 
-\ UNUSED                                                17may93jaw
+\ dictionary
 
-has? ec [IF]
-unlock ram-dictionary borders nip lock
-AConstant dictionary-end
-[ELSE]
-    has? header [IF]
-	: dictionary-end ( -- addr )
-	    forthstart [ 3 cells image-header + ] Aliteral @ + ;
-    [ELSE]
-	: forthstart 0 ;
-	: dictionary-end ( -- addr )
-	    forthstart [ has? kernel-size ] Literal + ;
-    [THEN]
-[THEN]
+(
+user-o current-section
+
+0 0
+cell uvar sbase
+cell uvar send
+cell uvar sdp
+cell uvar slocs[]
+cell uvar sname
+
+Constant section-desc
+drop
+)
+
+: dictionary-end ( -- addr )
+    forthstart [ 3 cells image-header + ] Aliteral @ + ;
 
 : usable-dictionary-end1 ( -- addr )
     dictionary-end [ word-pno-size pad-minsize + ] Literal - ;
@@ -83,13 +86,10 @@ defer usable-dictionary-end ( -- addr )
     \G the region addressed by @code{here}.
     usable-dictionary-end here - ;
 
-has? ec has? primcentric 0= and [IF]
-: in-dictionary? ( x -- f )
-    dictionary-end u< ;
-[ELSE]    
-: in-dictionary? ( x -- f )
+Defer in-dictionary? ( x -- f )
+: in-dictionary1? ( x -- f )
     forthstart dictionary-end within ;
-[THEN]
+' in-dictionary1? is in-dictionary?
 
 \ here is used for pad calculation!
 
