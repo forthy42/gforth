@@ -37,6 +37,7 @@ DOSVERSION=`echo $(VERSION)|sed 's/\.//g'|sed 's/-.*//g'`
 
 machine=@machine@
 kernel_fi=@kernel_fi@
+kernel_anti_dependence=@kernel_anti_dependence@
 EXE=@EXEEXT@
 
 # this is the type of machine
@@ -1188,7 +1189,7 @@ MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
 MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
 MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h gforth.fi @kernel_anti_dependence@
+gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h gforth.fi $(kernel_anti_dependence)
 
 gforth$(OPT)$(EXT):
 	if test -z "$(OPT)"; then \
@@ -1243,7 +1244,7 @@ gforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/
 
 gforths: $(ENGINES) $(ENGINES_FAST)
 
-libgforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
+libgforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h $(kernel_anti_dependence)
 
 libgforth$(OPT)$(EXT): $(ENGINE_SOURCES)
 	if test -z "$(OPT)"; then \
@@ -1393,10 +1394,8 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-kernel/version.fs: Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/gforth.h.in gforthmi.sh.in kernel/version.fs.in engine/config.h.in
+$(CONFIG_GEN): Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/gforth.h.in gforthmi.sh.in kernel/version.fs.in engine/config.h.in
 	./config.status
-
-$(CONFIG_GEN): kernel/version.fs
 
 config.status: configure
 	./config.status --recheck

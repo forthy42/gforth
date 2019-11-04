@@ -22,9 +22,8 @@ require sections.fs
 
 unused extra-section coverage
 
-' Create coverage cover-start
-
 : cover-end ( -- addr ) ['] here coverage ;
+cover-end Constant cover-start
 : cover, ( n -- ) ['] , coverage ;
 : cover-end! ( addr -- )  [: dp ! ;] coverage ;
 
