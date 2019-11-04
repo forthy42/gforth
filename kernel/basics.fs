@@ -62,11 +62,11 @@ hex
 user-o current-section
 
 0 0
-cell uvar sbase
-cell uvar send
-cell uvar sdp
-cell uvar slocs[]
-cell uvar sname
+cell uvar section-start
+cell uvar section-end
+cell uvar section-dp
+cell uvar section-name
+cell uvar locs[]
 
 Constant section-desc
 drop
