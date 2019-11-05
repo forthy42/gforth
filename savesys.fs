@@ -50,7 +50,6 @@
 
 : dump-fi ( c-addr u -- )
     prepare-for-dump
-    here forthstart - forthstart 2 cells + !
     w/o bin create-file throw >r
     preamble-start here over - r@ write-file throw
     r> close-file throw ;

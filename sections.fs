@@ -166,7 +166,6 @@ init-sections
 	r@ section-dp @ maxaligned dup r> section-dp !
 	over - save-mem-dict 2drop loop
     here forthstart - forthstart 2 cells + !
-    here normal-dp !
     w/o bin create-file throw >r
     preamble-start here over - r@ write-file throw
     sect0-here sections section-dp !

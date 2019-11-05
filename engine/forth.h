@@ -385,7 +385,7 @@ typedef struct {
 typedef struct {
   Address base;		/* base address of image (0 if relocatable) */
   UCell dict_size;
-  UCell image_size;	/* all sizes in bytes */
+  Address image_dp;	/* all sizes in bytes */
   Address sect_name;
   Address sect_locs;
   UCell data_stack_size;

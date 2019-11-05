@@ -53,7 +53,7 @@ has? header [IF]
 here 1802 over 
     A,                  \ base address
     has? kernel-size ,  \ dict size
-    0 ,                 \ image size (without tags)
+    0 A,                \ image dp (without tags)
     0 A,                \ section name
     0 A,                \ locs[]
     has? stack-size ,   \ data stack size
@@ -119,7 +119,7 @@ include kernel/pass.fs                    \ pass pointers from cross to target
 
 has? header [IF]
     \ set image size
-    here image-header #02 cells + !         
+    here image-header + image-header #02 cells + !
     .( set image entry point) cr
     ' boot       >body  image-header #09 cells + !
     ' quit       >body  image-header #11 cells + !

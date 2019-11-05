@@ -137,7 +137,7 @@ synonym section-offset section-end
     section-desc allocate throw {: sect :}
     image @ sect section-start !
     image @ negate sect section-offset !
-    image 2 cells + @ image @ + sect section-dp !
+    image 2 cells + @ sect section-dp !
     sect 1 an.sections
     sect ;
 
@@ -152,7 +152,7 @@ synonym section-offset section-end
 	dup i section-start @ - i section-offset !
 	i section-dp @ i section-start @ - +
     section-desc +loop
-    assert( dup image 2 cells + @ = )
+    assert( dup image 2 cells + @ image @ - = )
     im-sects #im-sects an.sections
     drop ;
 
@@ -161,7 +161,7 @@ synonym section-offset section-end
     image size + cell- dup @ { #im-sects } ( addr )
     #im-sects section-desc * - { im-sects }
     im-sects image - { size' }
-    assert( image 2 cells + @ size' = )
+    assert( image 2 cells + @ image @ - size' = )
     assert( im-sects section-start @ image @ = )
     im-sects #im-sects image process-sections
     im-sects #im-sects size' ;
@@ -180,7 +180,7 @@ synonym section-offset section-end
     check-sections ;
 
 : prepare-sections ( -- )
-    image1 2 cells + @ size1 = if
+    image1 2 cells + @ image1 @ - size1 = if
 	old-image-format
     else
 	new-image-format

@@ -50,4 +50,4 @@ locs[],
 align here wheres !
 wheres,
 
->ram here normal-dp !
+>ram

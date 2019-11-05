@@ -1966,7 +1966,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
 #endif
   debugp(stderr,"pagesize=%ld\n",(unsigned long) pagesize);
 
-  sizes[0]=header.image_size;
+  sizes[0]=header.image_dp-header.base;
   bases[0]=(Cell)header.base;
 
   image = dict_alloc_read(imagefile, preamblesize+sizes[0],
