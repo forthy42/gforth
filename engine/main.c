@@ -1966,20 +1966,21 @@ ImageHeader* gforth_loader(char* imagename, char* path)
 #endif
   debugp(stderr,"pagesize=%ld\n",(unsigned long) pagesize);
 
-  image = dict_alloc_read(imagefile, preamblesize+header.image_size,
+  sizes[0]=header.image_size;
+  bases[0]=(Cell)header.base;
+
+  image = dict_alloc_read(imagefile, preamblesize+sizes[0],
 			  dictsize, data_offset);
   if(image==NULL) return NULL;
 
   sections[0]=imp=image+preamblesize;
-  sizes[0]=header.image_size;
-  bases[0]=(Cell)header.base;
 
   set_stack_sizes((ImageHeader*)imp);
 
   if (clear_dictionary)
-    memset(imp+header.image_size, 0, dictsize-header.image_size-preamblesize);
+    memset(imp+sizes[0], 0, dictsize-sizes[0]-preamblesize);
   
-  fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
+  fseek(imagefile, preamblesize+sizes[0], SEEK_SET);
     
   int i;
   for(i=0; i<0xFE; ) {
