@@ -74,8 +74,11 @@ is in-dictionary?
 : create-section ( size -- section )
     current-section @ >r
     dup allocate throw dup current-section !
-    dup section-start !  section-desc + section-dp !  section-size !
+    dup section-start !
+    section-desc + section-dp !
+    section-size !
     ``noname section-name !
+    locs[] $saved
     current-section @ r> current-section ! ;
 
 : new-section ( -- )
