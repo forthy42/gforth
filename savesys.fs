@@ -48,10 +48,13 @@
 	dup 4 s" #! /" str=
     until ( imagestart ) ;
 
+Defer dump-sections ' drop is dump-sections
+
 : dump-fi ( c-addr u -- )
     prepare-for-dump
     w/o bin create-file throw >r
     preamble-start here over - r@ write-file throw
+    r@ dump-sections
     r> close-file throw ;
 
 : savesystem ( "name" -- ) \ gforth

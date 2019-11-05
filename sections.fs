@@ -25,157 +25,110 @@
 \ anpassen: in-dictionary? one-head? head? dictionary-end allot
 \ Deal with MARKERs and the native code thingies
 
-0
-field: section-start \ during run-time
-field: section-end
-field: section-dp
-field: section-name \ nt, for named sections
-constant section-desc
+$Variable sections   \ section stack (grows in both directions)
+user #extra-sections \ hidden extra sections not part of the next/prev
+		     \ section stack
 
-uvalue sections \ address base of descriptor table (grows in both dirs)
-user #sections
-user current-section \ index
-user #extra-sections \ counts up, but the extra sections are below SECTIONS
-
-256 1024 * value section-size
+256 1024 * value section-defaultsize
 
 s" at first section" exception constant first-section-error
 s" extra sections have no previous or next section" exception
 constant extra-section-error
 
-: section-addr ( i -- addr )
-    section-desc * sections + ;
-
-: current-section-addr ( -- addr )
-    current-section @ section-addr ;
-
-: .sections ( -- )
-    cr ."             start              end               dp "
-    sections hex. 
-    #sections @ #extra-sections @ negate +do
-        cr i current-section @ = if '>' else bl then emit
-        i section-desc * sections +
-        dup section-start @ #16 hex.r
-        dup section-end   @ #17 hex.r
-        dup section-dp    @ #17 hex.r
-        space section-name @ id.
-    loop ;
-
-: init-section ( section size -- )
-    \ initialize section descriptor 
-    swap >r
-    dup allocate throw
-    dup r@ section-start !
-    dup r@ section-dp !
-    + r@ section-end !
-
-: new-section ( -- )
-    sections #extra-sections @ section-desc * -
-    #sections @ #extra-sections @ + section-desc * section-desc extend-mem drop
-    #extra-sections @ section-desc * + to sections
-    section-size init-section
-    1 #sections +! ;
-
 : set-section ( -- )
     \ any changes to other things after changing the section
-    current-section-addr section-dp dpp !
-    [IFDEF] check-dp  current-section-addr section-dp to check-dp [THEN] ;
+    section-dp dpp !
+    [IFDEF] check-dp  section-dp to check-dp [THEN] ;
 
-:noname ( -- )
-    0 current-section ! set-section ;
-is reset-dpp
-
-: next-section ( -- )
-    \ switch to the next section, creating it if necessary
-    current-section @ 0< extra-section-error and throw 
-    1 current-section +!
-    current-section @ #sections @ = if
-	new-section
-    then
-    assert( current-section @ #sections @ < )
-    set-section ;
-
-: previous-section ( -- )
-    \ switch to previous section
-    current-section @ 0< extra-section-error and throw
-    current-section @ 0= first-section-error and throw
-    -1 current-section +! set-section ;
-
-\ extra sections
-
-: add-extra-section ( -- section )
-    sections #extra-sections @ section-desc * -
-    #sections @ #extra-sections @ + {: #total-sections :}
-    #total-sections 1+ section-desc * resize throw {: sections-base :}
-    sections-base dup section-desc + #total-sections section-desc * move
-    1 #extra-sections +!
-    sections-base #extra-sections @ section-desc * + to sections
-    set-section sections-base ;
-
-: extra-section ( size "name" -- )
-    add-extra-section dup rot init-section
-    create #extra-sections @ negate ,
-    latest swap section-name !
-  does> ( xt -- )
+: section-execute ( xt section -- )
     \ execute xt with the current section being in the extra section
     current-section @ {: old-section :} try
-         ( xt addr ) @ current-section ! set-section execute 0
+         ( xt section ) current-section ! set-section execute 0
     restore
         old-section current-section ! set-section endtry
     throw ;
+
+: sections-execute {: xt -- :}
+    sections $@ bounds u+do
+	xt i @ section-execute
+    cell +loop ;
+
+: .sections ( -- )
+    cr ."             start      size               dp name"
+    current-section @
+    [:  cr dup current-section @ = if '>' else bl then emit
+	section-start @ #16 hex.r
+	section-size  @ #10 hex.r
+	section-dp    @ #17 hex.r space
+	section-name @ id. ;] sections-execute  drop ;
+
+: create-section ( size -- section )
+    current-section @ >r
+    dup allocate throw dup current-section !
+    dup section-start !  section-desc + section-dp !  section-size !
+    ``noname section-name !
+    current-section @ r> current-section ! ;
+
+: new-section ( -- )
+    section-defaultsize create-section sections >stack ;
+
+:noname ( -- )
+    forthstart current-section ! set-section ;
+is reset-dpp
+
+: section# ( -- n )
+    0 sections $@ bounds u+do
+	I @ current-section @ = IF
+	    unloop  EXIT  THEN
+	1+
+    cell +loop  drop -1 ;
+
+: #>section ( n -- )
+    cells >r sections $@ r> safe/string IF
+	@ current-section ! set-section
+    ELSE
+	drop
+    THEN ;
+
+: next-section ( -- )
+    \ switch to the next section, creating it if necessary
+    section# dup #extra-sections @ < extra-section-error and throw
+    1+ dup sections stack# = IF  new-section  THEN
+    #>section ;
+
+: previous-section ( -- )
+    \ switch to previous section
+    section#
+    dup #extra-sections @ < extra-section-error and throw
+    dup #extra-sections @ = first-section-error and throw
+    1- #>section ;
+
+\ extra sections
+
+: >extra-sections ( section -- )
+    sections >back 1 #extra-sections +! ;
+
+: extra-section ( size "name" -- )
+    create-section dup >extra-sections
+    create dup ,
+    latest [: section-name ! ;] rot section-execute
+  does> ( xt -- ) @ section-execute ;
     
 \ initialization
 
-: sections-ude ( -- addr )
-    current-section-addr section-end @ ;
-: sections-id? ( addr -- flag )
-    current-section-addr section-start @
-    current-section-addr section-dp @ within ;
-
-: init-sections ( -- )
-    section-desc allocate throw to sections
-    0 current-section !
-    1 #sections !
-    0 #extra-sections !
-    forthstart            sections section-start !
-    usable-dictionary-end sections section-end !
-    here                  sections section-dp !
-    [ ' noname >name ]L   sections section-name !
-    sections section-dp dpp ! \ !! dpp is reset to normal-dp on throw
-    ['] sections-ude is usable-dictionary-end
-    ['] sections-id? IS in-dictionary? ;
-
-:noname ( -- )
-    init-sections
-    defers 'cold ;
-is 'cold
-
-init-sections
+``forth section-name !
+forthstart sections >stack
 
 \ savesystem
 
-0 warnings !@
-: dump-fi ( c-addr u -- )
-    prepare-for-dump
-    0 current-section ! set-section
-    maxalign here { sect0-here }
-    #sections @ 1 u+do
-	i section-addr >r
-	r@ section-start @ assert( dup dup maxaligned = )
-	r@ section-dp @ maxaligned dup r> section-dp !
-	over - save-mem-dict 2drop loop
-    here forthstart - forthstart 2 cells + !
-    w/o bin create-file throw >r
-    preamble-start here over - r@ write-file throw
-    sect0-here sections section-dp !
-    sections #sections @ section-desc * r@ write-file throw
-    .sections cr
-    #sections 1 cells r@ write-file throw
-    r> close-file throw ;
-warnings !
+:noname ( fid -- )
+    [: section-name @ ``forth <> IF
+	    section-start 2@ maxaligned 2 pick write-file throw
+	THEN ;] sections-execute  drop
+; is dump-sections
 
 [defined] test-it [if] 
-section-size extra-section bla
+section-defaultsize extra-section bla
 cr .sections
 :noname 50 allot ; bla
 .sections
