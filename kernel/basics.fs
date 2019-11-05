@@ -89,7 +89,7 @@ defer usable-dictionary-end ( -- addr )
 
 Defer in-dictionary? ( x -- f )
 : in-dictionary1? ( x -- f )
-    forthstart dictionary-end within ;
+    section-start 2@ over + within ;
 ' in-dictionary1? is in-dictionary?
 
 \ here is used for pad calculation!

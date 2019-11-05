@@ -310,23 +310,20 @@ is basic-block-end
 40 value bt-pos-width
 
 Defer xt-location
-: has-locs? ( -- flag )
-    locs[] @ 0<> ;
 : xt-location1 ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
-    has-locs?  IF
-	dup section-start @ - cell/ >r
-	current-view dup r> 1+ locs[] $[] cell- 2!
-    THEN
+    dup section-start @ - cell/ >r
+    current-view dup r> 1+ locs[] $[] cell- 2!
     0 to replace-sourceview ;
 ' xt-location1 is xt-location
 
-: addr>view ( ip-addr -- view / 0 )
+Defer addr>view
+:noname ( ip-addr -- view / 0 )
     \G give @i{view} information for instruction address @i{ip-addr}
-    dup cell- section-start @ here within  has-locs? and
+    dup cell- section-start @ section-dp @ within
     section-start @ and ?dup-IF
 	- cell/ 1- locs[] $[] @  EXIT
-    THEN  drop 0 ;
+    THEN  drop 0 ; is addr>view
 ' addr>view alias name>view ( nt -- view / 0 )
 \G give @i{view} information for name token @i{nt}
 
