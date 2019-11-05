@@ -33,12 +33,14 @@ s" address-unit-bits" environment? drop constant bits/au
 0 value im-sects2
 0 value #im-sects
 
-synonym section-offset section-end
-\ reused here: section-offset is the number you have to add to an
-\ address that points into [section-start,section-dp] to get an offset
+0
+field: sect-start
+field: sect-offset
+field: sect-dp
+drop
+\ reused here: sect-offset is the number you have to add to an
+\ address that points into [sect-start,sect-dp] to get an offset
 \ from forthstart in the current image
-(') section-end name>string erase
-\ only use the new name, make old name unfindable
 
 : write-cell { w^ w  file-id -- ior }
     \ write a cell to the file
@@ -79,8 +81,8 @@ synonym section-offset section-end
     \ at the end of a section, so we include that in our section check
     \ (the "1+" below).
     sects #im-sects section-desc * bounds u+do
-	x1 i section-start @ i section-dp @ 1+ within if
-	    x1 i section-offset @ + unloop exit then
+	x1 i sect-start @ i sect-dp @ 1+ within if
+	    x1 i sect-offset @ + unloop exit then
     section-desc +loop
     x1 ;
 
@@ -127,17 +129,17 @@ synonym section-offset section-end
     cr ."            start           offset               dp " sections hex.
     u 0 u+do
         cr i section-desc * sections +
-        dup section-start  @ #16 hex.r
-        dup section-offset @ #17 hex.r
-        section-dp         @ #17 hex.r
+        dup sect-start  @ #16 hex.r
+        dup sect-offset @ #17 hex.r
+        sect-dp         @ #17 hex.r
     loop ;
 
 : gen-section {: image -- im-sect :}
     \ generate a section for an old-style image (without sections)
     section-desc allocate throw {: sect :}
-    image @ sect section-start !
-    image @ negate sect section-offset !
-    image 2 cells + @ sect section-dp !
+    image @ sect sect-start !
+    image @ negate sect sect-offset !
+    image 2 cells + @ sect sect-dp !
     sect 1 an.sections
     sect ;
 
@@ -149,8 +151,8 @@ synonym section-offset section-end
 : process-sections { im-sects #im-sects image -- }
     \ im-sects #im-sects an.sections
     0 im-sects #im-sects section-desc * + im-sects u+do ( sect-offset )
-	dup i section-start @ - i section-offset !
-	i section-dp @ i section-start @ - +
+	dup i sect-start @ - i sect-offset !
+	i sect-dp @ i sect-start @ - +
     section-desc +loop
     assert( dup image 2 cells + @ image @ - = )
     im-sects #im-sects an.sections
@@ -162,15 +164,15 @@ synonym section-offset section-end
     #im-sects section-desc * - { im-sects }
     im-sects image - { size' }
     assert( image 2 cells + @ image @ - size' = )
-    assert( im-sects section-start @ image @ = )
+    assert( im-sects sect-start @ image @ = )
     im-sects #im-sects image process-sections
     im-sects #im-sects size' ;
 
 : check-sections ( -- )
     #im-sects section-desc * 0 +do
-	assert( im-sects1 i + section-start @ im-sects2 i + section-start @ <> )
-	assert( im-sects1 i + dup section-start @ swap section-offset @ +
-	        im-sects2 i + dup section-start @ swap section-offset @ + = )
+	assert( im-sects1 i + sect-start @ im-sects2 i + sect-start @ <> )
+	assert( im-sects1 i + dup sect-start @ swap sect-offset @ +
+	        im-sects2 i + dup sect-start @ swap sect-offset @ + = )
     section-desc +loop ;	
 
 : new-image-format ( -- )
