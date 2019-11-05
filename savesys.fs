@@ -47,7 +47,7 @@
 	8 -
 	dup 4 s" #! /" str=
     until ( imagestart ) ;
-    
+
 : dump-fi ( c-addr u -- )
     prepare-for-dump
     here forthstart - forthstart 2 cells + !

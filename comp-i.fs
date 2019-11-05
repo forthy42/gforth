@@ -97,9 +97,10 @@ synonym section-offset section-end
     \G offset is the difference for relocated addresses
     \ this definition is certainly to long and too complex, but is
     \ hard to factor.
-    cr ."  code" cell  26 cells image-data { cbase coffset }
-    ."    xt" 13 cells 22 cells image-data { xbase xoffset }
-    ." label" 14 cells 18 cells image-data { lbase loffset }
+    cr
+    ."  code" 14 cells 26 cells image-data { cbase coffset }
+    ."    xt" 15 cells 22 cells image-data { xbase xoffset }
+    ." label" 16 cells 18 cells image-data { lbase loffset }
     size 0 u+do
 	image1 i th @ image2 i th @ { cell1 cell2 }
 	case 

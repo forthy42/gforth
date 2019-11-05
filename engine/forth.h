@@ -384,11 +384,10 @@ typedef struct {
 
 typedef struct {
   Address base;		/* base address of image (0 if relocatable) */
-  UCell checksum;	/* checksum of ca's to protect against some
-			   incompatible	binary/executable combinations
-			   (0 if relocatable) */
-  UCell image_size;	/* all sizes in bytes */
   UCell dict_size;
+  UCell image_size;	/* all sizes in bytes */
+  Address sect_name;
+  Address sect_locs;
   UCell data_stack_size;
   UCell fp_stack_size;
   UCell return_stack_size;
@@ -398,6 +397,9 @@ typedef struct {
   Xt *quit_entry;
   Xt *execute_entry;
   Xt *find_entry;
+  UCell checksum;	/* checksum of ca's to protect against some
+			   incompatible	binary/executable combinations
+			   (0 if relocatable) */
   Label *xt_base;         /* base of DOUBLE_INDIRECT xts[], for comp-i.fs */
   Label *label_base;      /* base of DOUBLE_INDIRECT labels[], for comp-i.fs */
 } ImageHeader;

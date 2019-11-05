@@ -80,7 +80,7 @@ UValue $? ( -- n ) \ gforth dollar-question
 [endif]
 
 : in-return-stack? ( addr -- f )
-    rp0 @ swap - [ forthstart 6 cells + ]L @ u< ;
+    rp0 @ swap - [ forthstart 7 cells + ]L @ u< ;
 
 \ const-does>
 

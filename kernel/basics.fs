@@ -63,7 +63,7 @@ user-o current-section
 
 0 0
 cell uvar section-start
-cell uvar section-end
+cell uvar section-size
 cell uvar section-dp
 cell uvar section-name
 cell uvar locs[]
@@ -73,7 +73,7 @@ drop
 )
 
 : dictionary-end ( -- addr )
-    forthstart [ 3 cells image-header + ] Aliteral @ + ;
+    forthstart 2@ + ;
 
 : usable-dictionary-end1 ( -- addr )
     dictionary-end [ word-pno-size pad-minsize + ] Literal - ;

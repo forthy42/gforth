@@ -52,9 +52,10 @@ has? rom 0= [IF]
 has? header [IF]
 here 1802 over 
     A,                  \ base address
-    0 ,                 \ checksum
-    0 ,                 \ image size (without tags)
     has? kernel-size ,  \ dict size
+    0 ,                 \ image size (without tags)
+    0 ,                 \ section name
+    0 ,                 \ locs[]
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
@@ -64,6 +65,7 @@ here 1802 over
     0 A,                \ quit entry point
     0 A,                \ execute entry point
     0 A,                \ find entry point
+    0 ,                 \ checksum
     0 ,                 \ base of DOUBLE_INDIRECT xts[], for comp-i.fs
     0 ,                 \ base of DOUBLE_INDIRECT labels[], for comp-i.fs
 [THEN]
@@ -117,12 +119,12 @@ include kernel/pass.fs                    \ pass pointers from cross to target
 
 has? header [IF]
     \ set image size
-    here image-header 2 cells + !         
+    here image-header #02 cells + !         
     .( set image entry point) cr
-    ' boot       >body  image-header #08 cells + !
-    ' quit       >body  image-header #10 cells + !
-    ' do-execute >body  image-header #11 cells + !
-    ' do-find    >body  image-header #12 cells + !
+    ' boot       >body  image-header #09 cells + !
+    ' quit       >body  image-header #11 cells + !
+    ' do-execute >body  image-header #12 cells + !
+    ' do-find    >body  image-header #13 cells + !
 [ELSE]
     >boot
 [THEN]

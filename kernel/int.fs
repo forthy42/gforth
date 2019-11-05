@@ -897,21 +897,6 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 [ [THEN] ]
     -56 (bye) ; \ indicate QUIT
 
-has? new-input 0= [IF]
-: clear-tibstack ( -- )
-[ has? glocals [IF] ]
-    lp@ forthstart 7 cells + @ - 
-[ [ELSE] ]
-    [ has? os [IF] ]
-    r0 @ forthstart 6 cells + @ -
-    [ [ELSE] ]
-    sp@ cell+
-    [ [THEN] ]
-[ [THEN] ]
-    dup >tib ! tibstack ! #tib off
-    input-start-line ;
-[THEN]
-
 : boot ( path n **argv argc -- )
     threading-method 1 = if
 	['] , is compile,
