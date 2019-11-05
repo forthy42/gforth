@@ -68,7 +68,6 @@ constant extra-section-error
     dup r@ section-start !
     dup r@ section-dp !
     + r@ section-end !
-    [ ' noname >name ]L r> section-name ! ;
 
 : new-section ( -- )
     sections #extra-sections @ section-desc * -
