@@ -49,7 +49,7 @@ constant extra-section-error
     throw ;
 
 : .sections ( -- )
-    cr ."             start       end               dp name"
+    cr ."             start      size               dp name"
     sections $@ bounds u+do
 	cr i @ dup current-section @ = if '>' else bl then emit
 	[:  section-start @ #16 hex.r
