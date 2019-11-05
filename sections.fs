@@ -122,8 +122,7 @@ is reset-dpp
 
 : extra-section ( size "name" -- )
     create-section dup >extra-sections
-    create dup ,
-    latest [: section-name ! ;] rot section-execute
+    [: create , latest section-name ! ;] over section-execute
   does> ( xt -- ) @ section-execute ;
     
 \ initialization
