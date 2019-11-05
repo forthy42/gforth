@@ -308,16 +308,14 @@ is basic-block-end
 \ record locations
 
 40 value bt-pos-width
-0 AValue locs-start
-$variable locs[]
 
 Defer xt-location
 : has-locs? ( -- flag )
-    locs-start in-dictionary? ;
+    locs[] @ 0<> ;
 : xt-location1 ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
     has-locs?  IF
-	dup locs-start - cell/ >r
+	dup section-start @ - cell/ >r
 	current-view dup r> 1+ locs[] $[] cell- 2!
     THEN
     0 to replace-sourceview ;
@@ -325,8 +323,8 @@ Defer xt-location
 
 : addr>view ( ip-addr -- view / 0 )
     \G give @i{view} information for instruction address @i{ip-addr}
-    dup cell- locs-start here within  has-locs? and
-    locs-start and ?dup-IF
+    dup cell- section-start @ here within  has-locs? and
+    section-start @ and ?dup-IF
 	- cell/ 1- locs[] $[] @  EXIT
     THEN  drop 0 ;
 ' addr>view alias name>view ( nt -- view / 0 )

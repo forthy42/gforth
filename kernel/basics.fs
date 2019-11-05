@@ -58,7 +58,6 @@ hex
 
 \ dictionary
 
-(
 user-o current-section
 
 0 0
@@ -70,10 +69,12 @@ cell uvar locs[]
 
 Constant section-desc
 drop
-)
+
+image-header current-section !
+image-header 4 cells + unlock cross-boot$[] >stack lock
 
 : dictionary-end ( -- addr )
-    forthstart 2@ + ;
+    section-start 2@ + ;
 
 : usable-dictionary-end1 ( -- addr )
     dictionary-end [ word-pno-size pad-minsize + ] Literal - ;

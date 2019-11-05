@@ -33,8 +33,6 @@ dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !
 
 unlock vt, tvtable-list @ lock vtable-list !
 
-glocs-start .s cr to locs-start
-
 \ list of arrays to restore at boot
 align here boot[][] ! boot[][],
 
@@ -46,10 +44,10 @@ included-files, included-files !
 align here default-recognizer !
 2 cells , ' rec-num A, ' rec-word A,
 
+align here image-header 4 cells + !
+locs[],
+
 align here wheres !
 wheres,
-
-align here locs[] !
-locs[],
 
 >ram here normal-dp !

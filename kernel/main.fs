@@ -54,8 +54,8 @@ here 1802 over
     A,                  \ base address
     has? kernel-size ,  \ dict size
     0 ,                 \ image size (without tags)
-    0 ,                 \ section name
-    0 ,                 \ locs[]
+    0 A,                \ section name
+    0 A,                \ locs[]
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
