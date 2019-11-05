@@ -170,7 +170,8 @@ forth definitions
 : n-closure> ( n vt -- xt )
     [ cell 4 = ] [IF]  0 >l  [THEN]
     swap >l dodoes: >l >l lp@ cell+ ;
-: (n;]) ( xt -- )  (;*]) postpone n-closure> ;
+: (n;]) ( xt -- )  (;*]) postpone n-closure>
+    3 cells maxaligned locals-size +! ;
 : [n:l ( -- colon-sys ) ]] [: @ [[ ['] (n;]) colon-sys-xt-offset 2 + stick ;
     immediate restrict
 
@@ -183,7 +184,8 @@ forth definitions
 
 : d-closure> ( d vt -- xt )
     -rot 2>l dodoes: >l >l lp@ cell+ ;
-: (d;]) ( xt -- )  (;*]) postpone d-closure> ;
+: (d;]) ( xt -- )  (;*]) postpone d-closure>
+    4 cells locals-size +! ;
 : [d:l ( -- colon-sys ) ]] [: 2@ [[ ['] (d;]) colon-sys-xt-offset 2 + stick ;
     immediate restrict
 
@@ -196,7 +198,8 @@ forth definitions
 
 : f-closure> ( r vt -- xt )
     f>l dodoes: >l >l lp@ cell+ ;
-: (f;]) ( xt -- )  (;*]) postpone f-closure> ;
+: (f;]) ( xt -- )  (;*]) postpone f-closure>
+    4 cells locals-size +! ;
 : [f:l ( -- colon-sys ) ]] [: f@ [[ ['] (f;]) colon-sys-xt-offset 2 + stick ;
     immediate restrict
 

@@ -55,11 +55,11 @@ constant extra-section-error
 
 :noname ( ip-addr -- view / 0 )
     0 swap
-    [{: a :}l a defers addr>view dup 0= select ;] sections-execute ;
+    [n:l defers addr>view dup 0= select ;] sections-execute ;
 is addr>view
 
 :noname ( x -- f )
-    0 swap [{: a :}l a in-dictionary1? or ;] sections-execute ;
+    0 swap [n:l in-dictionary1? or ;] sections-execute ;
 is in-dictionary?
 
 : .sections ( -- )
