@@ -85,6 +85,12 @@ forth definitions
     locals-lists stack> locals-list !
     locals-sizes stack> locals-size ! ;
 
+: dummy-local, ( n -- )
+    locals-size +!
+    get-current >r  0 warnings !@ >r  [ ' locals >body ]l set-current
+    s" " nextname create-local locals-size @ locals,
+    r> warnings !  r> set-current ;
+
 locals-types definitions
 
 : :}l ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
@@ -92,10 +98,8 @@ locals-types definitions
     \G the local's stack.
     :}
     locals-size @ locals-list @ over 2>r  pop-locals
-    [ 2 cells maxaligned ]L + locals-size +!
-    get-current >r  0 warnings !@ >r  [ ' locals >body ]l set-current
-    s" " nextname create-local locals-size @ locals,
-    r> warnings !  r> set-current  2r> push-locals
+    [ 2 cells maxaligned ]L + dummy-local,
+    2r> push-locals
     ['] noop end-d ;
 
 forth definitions
@@ -160,55 +164,44 @@ forth definitions
 
 \ stack-based closures without name
 
-: (;*]) ( -- )
+: (;*]) ( xt -- vt )
     >r ] postpone endscope locals-list !
     r@ dup >namevt @ >vtextra !
     ['] does, set-optimizer
     vt, postpone THEN wrap!
-    r> >namevt @ lit, ;
+    r> >namevt @ ;
 
-: n-closure> ( n vt -- xt )
-    [ cell 4 = ] [IF]  0 >l  [THEN]
-    swap >l dodoes: >l >l lp@ cell+ ;
-: (n;]) ( xt -- )  (;*]) postpone n-closure>
-    3 cells maxaligned locals-size +! ;
-: [n:l ( -- colon-sys ) ]] [: @ [[ ['] (n;]) colon-sys-xt-offset 2 + stick ;
-    immediate restrict
+cell 4 = [IF]
+    : n>l ( n -- xt )  false >l >l ;
+[ELSE]
+    synonym n>l >l
+[THEN]
 
-: (n;]*) ( xt -- )  (;*]) [ 3 cells maxaligned ]L lit, compile,
-    ]] >lp n-closure> lp> [[ ;
-: ([n:*) ( xt -- colon-sys )
-    ]] [: @ [[ ['] (n;]*) colon-sys-xt-offset 2 + stick ;
-: [n:h ( -- colon-sys )  ['] alloch ([n:*) ; immediate restrict
-: [n:d ( -- colon-sys )  ['] allocd ([n:*) ; immediate restrict
+: (;]) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
+    compile, r> lit, ]] closure> [[ ;
+: (;]*) ( xt0 xt1 n xt2 -- )  (;*]) >r lit, swap compile,
+    ]] >lp [[ compile, r> lit, ]] closure> lp> [[ ;
 
-: d-closure> ( d vt -- xt )
-    -rot 2>l dodoes: >l >l lp@ cell+ ;
-: (d;]) ( xt -- )  (;*]) postpone d-closure>
-    4 cells locals-size +! ;
-: [d:l ( -- colon-sys ) ]] [: 2@ [[ ['] (d;]) colon-sys-xt-offset 2 + stick ;
-    immediate restrict
+: ([n:*) ( xt xt2 -- colon-sys ) >r ['] n>l [ 3 cells maxaligned ]L
+    ]] [: @ [[ r> colon-sys-xt-offset 2 + stick ;
 
-: (d;]*) ( xt -- )  (;*]) [ 4 cells maxaligned ]L lit, compile,
-    ]] >lp d-closure> lp> [[ ;
-: ([d:*) ( xt -- colon-sys )
-    ]] [: 2@ [[ ['] (d;]*) colon-sys-xt-offset 2 + stick ;
-: [d:h ( -- colon-sys )  ['] alloch ([d:*) ; immediate restrict
-: [d:d ( -- colon-sys )  ['] allocd ([d:*) ; immediate restrict
+: [n:l ( -- colon-sys )             ['] (;])  ([n:*) ; immediate restrict
+: [n:h ( -- colon-sys )  ['] alloch ['] (;]*) ([n:*) ; immediate restrict
+: [n:d ( -- colon-sys )  ['] allocd ['] (;]*) ([n:*) ; immediate restrict
 
-: f-closure> ( r vt -- xt )
-    f>l dodoes: >l >l lp@ cell+ ;
-: (f;]) ( xt -- )  (;*]) postpone f-closure>
-    4 cells locals-size +! ;
-: [f:l ( -- colon-sys ) ]] [: f@ [[ ['] (f;]) colon-sys-xt-offset 2 + stick ;
-    immediate restrict
+: ([d:*) ( xt xt2 -- colon-sys ) >r ['] 2>l [ 4 cells maxaligned ]L
+    ]] [: 2@ [[ r> colon-sys-xt-offset 2 + stick ;
 
-: (f;]*) ( xt -- )  (;*]) [ 2 cells float+ maxaligned ]L lit, compile,
-    ]] >lp f-closure> lp> [[ ;
-: ([f:*) ( xt -- colon-sys )
-    ]] [: f@ [[ ['] (f;]*) colon-sys-xt-offset 2 + stick ;
-: [f:h ( -- colon-sys )  ['] alloch ([f:*) ; immediate restrict
-: [f:d ( -- colon-sys )  ['] allocd ([f:*) ; immediate restrict
+: [d:l ( -- colon-sys )             ['] (;])  ([d:*) ; immediate restrict
+: [d:h ( -- colon-sys )  ['] alloch ['] (;]*) ([d:*) ; immediate restrict
+: [d:d ( -- colon-sys )  ['] allocd ['] (;]*) ([d:*) ; immediate restrict
+
+: ([f:*) ( xt xt2 -- colon-sys ) >r ['] f>l [ 2 cells float+ maxaligned ]L
+    ]] [: f@ [[ r> colon-sys-xt-offset 2 + stick ;
+
+: [f:l ( -- colon-sys )             ['] (;])  ([f:*) ; immediate restrict
+: [f:h ( -- colon-sys )  ['] alloch ['] (;]*) ([f:*) ; immediate restrict
+: [f:d ( -- colon-sys )  ['] allocd ['] (;]*) ([f:*) ; immediate restrict
 
 false [IF]
     : foo [{: a f: b d: c xt: d :}d a . b f. c d. d ;] ;
