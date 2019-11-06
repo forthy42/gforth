@@ -171,12 +171,6 @@ forth definitions
     wrap!
     r> >namevt @ ;
 
-cell 4 = [IF]
-    : n>l ( n -- xt )  false >l >l ;
-[ELSE]
-    synonym n>l >l
-[THEN]
-
 : (;]) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
     compile, r> lit, ]] closure> [[ ;
 : (;]*) ( xt0 xt1 n xt2 -- )  (;*]) >r lit, swap compile,
@@ -186,12 +180,15 @@ cell 4 = [IF]
 : :h ( -- xt1 xt2 )  ['] alloch ['] (;]*) ; immediate restrict
 : :d ( -- xt1 xt2 )  ['] allocd ['] (;]*) ; immediate restrict
 
-: [n: ( xt -- colon-sys ) >r ['] n>l [ 3 cells maxaligned ]L
-    ]] [: @ [[ r> colon-sys-xt-offset 2 + stick ; immediate restrict
-: [d: ( xt -- colon-sys ) >r ['] 2>l [ 4 cells maxaligned ]L
-    ]] [: 2@ [[ r> colon-sys-xt-offset 2 + stick ; immediate restrict
-: [f: ( xt -- colon-sys ) >r ['] f>l [ 2 cells float+ maxaligned ]L
-    ]] [: f@ [[ r> colon-sys-xt-offset 2 + stick ; immediate restrict
+: [*:: ( xt@ xt>l size -- )
+    Create immediate restrict 2 cells + , , ,
+  DOES> 2>r r@ 2@ postpone [: r> 2 cells + @ compile,
+    r> colon-sys-xt-offset 2 + stick ;
+
+cell 4 = [IF]  :noname ( n -- xt )  false >l >l ;  [ELSE]  ' >l  [THEN]
+' @  swap  1 cells  [*:: [n: ( xt -- colon-sys )
+' 2@ ' 2>l 2 cells  [*:: [d: ( xt -- colon-sys )
+' f@ ' f>l 1 floats [*:: [f: ( xt -- colon-sys )
 
 : [n:l ( -- colon-sys ) ]] :l [n: [[ ; immediate restrict
 : [n:h ( -- colon-sys ) ]] :h [n: [[ ; immediate restrict
