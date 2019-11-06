@@ -168,8 +168,7 @@ forth definitions
     >r ] postpone endscope locals-list !
     r@ dup >namevt @ >vtextra !
     ['] does, set-optimizer  vt,  postpone THEN
-    wrap!
-    r> >namevt @ ;
+    wrap!  r> >namevt @ ;
 
 : (;]) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
     compile, r> lit, ]] closure> [[ ;
@@ -189,6 +188,8 @@ cell 4 = [IF]  :noname ( n -- xt )  false >l >l ;  [ELSE]  ' >l  [THEN]
 ' @  swap  1 cells  [*:: [n: ( xt -- colon-sys )
 ' 2@ ' 2>l 2 cells  [*:: [d: ( xt -- colon-sys )
 ' f@ ' f>l 1 floats [*:: [f: ( xt -- colon-sys )
+
+\ combined names (used in existing code)
 
 : [n:l ( -- colon-sys ) ]] :l [n: [[ ; immediate restrict
 : [n:h ( -- colon-sys ) ]] :h [n: [[ ; immediate restrict
