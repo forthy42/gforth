@@ -203,7 +203,7 @@ cell 4 = [IF]  :noname ( n -- xt )  false >l >l ;  [ELSE]  ' >l  [THEN]
 : [f:h ( -- colon-sys ) ]] :h [f: [[ ; immediate restrict
 : [f:d ( -- colon-sys ) ]] :d [f: [[ ; immediate restrict
 
-false [IF]
+[IFDEF] test-it
     : foo [{: a f: b d: c xt: d :}d a . b f. c d. d ;] ;
     5 3.3e #1234. ' cr foo execute
     : homeloc <{: w^ a w^ b w^ c :}h a b c ;> ;
