@@ -182,26 +182,28 @@ cell 4 = [IF]
 : (;]*) ( xt0 xt1 n xt2 -- )  (;*]) >r lit, swap compile,
     ]] >lp [[ compile, r> lit, ]] closure> lp> [[ ;
 
-: ([n:*) ( xt xt2 -- colon-sys ) >r ['] n>l [ 3 cells maxaligned ]L
-    ]] [: @ [[ r> colon-sys-xt-offset 2 + stick ;
+: :l ( -- xt )                  ['] (;])  ; immediate restrict
+: :h ( -- xt1 xt2 )  ['] alloch ['] (;]*) ; immediate restrict
+: :d ( -- xt1 xt2 )  ['] allocd ['] (;]*) ; immediate restrict
 
-: [n:l ( -- colon-sys )             ['] (;])  ([n:*) ; immediate restrict
-: [n:h ( -- colon-sys )  ['] alloch ['] (;]*) ([n:*) ; immediate restrict
-: [n:d ( -- colon-sys )  ['] allocd ['] (;]*) ([n:*) ; immediate restrict
+: [n: ( xt -- colon-sys ) >r ['] n>l [ 3 cells maxaligned ]L
+    ]] [: @ [[ r> colon-sys-xt-offset 2 + stick ; immediate restrict
+: [d: ( xt -- colon-sys ) >r ['] 2>l [ 4 cells maxaligned ]L
+    ]] [: 2@ [[ r> colon-sys-xt-offset 2 + stick ; immediate restrict
+: [f: ( xt -- colon-sys ) >r ['] f>l [ 2 cells float+ maxaligned ]L
+    ]] [: f@ [[ r> colon-sys-xt-offset 2 + stick ; immediate restrict
 
-: ([d:*) ( xt xt2 -- colon-sys ) >r ['] 2>l [ 4 cells maxaligned ]L
-    ]] [: 2@ [[ r> colon-sys-xt-offset 2 + stick ;
+: [n:l ( -- colon-sys ) ]] :l [n: [[ ; immediate restrict
+: [n:h ( -- colon-sys ) ]] :h [n: [[ ; immediate restrict
+: [n:d ( -- colon-sys ) ]] :d [n: [[ ; immediate restrict
 
-: [d:l ( -- colon-sys )             ['] (;])  ([d:*) ; immediate restrict
-: [d:h ( -- colon-sys )  ['] alloch ['] (;]*) ([d:*) ; immediate restrict
-: [d:d ( -- colon-sys )  ['] allocd ['] (;]*) ([d:*) ; immediate restrict
+: [d:l ( -- colon-sys ) ]] :l [d: [[ ; immediate restrict
+: [d:h ( -- colon-sys ) ]] :h [d: [[ ; immediate restrict
+: [d:d ( -- colon-sys ) ]] :d [d: [[ ; immediate restrict
 
-: ([f:*) ( xt xt2 -- colon-sys ) >r ['] f>l [ 2 cells float+ maxaligned ]L
-    ]] [: f@ [[ r> colon-sys-xt-offset 2 + stick ;
-
-: [f:l ( -- colon-sys )             ['] (;])  ([f:*) ; immediate restrict
-: [f:h ( -- colon-sys )  ['] alloch ['] (;]*) ([f:*) ; immediate restrict
-: [f:d ( -- colon-sys )  ['] allocd ['] (;]*) ([f:*) ; immediate restrict
+: [f:l ( -- colon-sys ) ]] :l [f: [[ ; immediate restrict
+: [f:h ( -- colon-sys ) ]] :h [f: [[ ; immediate restrict
+: [f:d ( -- colon-sys ) ]] :d [f: [[ ; immediate restrict
 
 false [IF]
     : foo [{: a f: b d: c xt: d :}d a . b f. c d. d ;] ;
