@@ -105,9 +105,9 @@ locals-types definitions
 forth definitions
 
 : (closure-;]) ( closure-sys lastxt -- )
-    >r r@ dup >namevt @ >vtextra !
-    ['] does, set-optimizer  vt,
-    postpone THEN
+    >r
+    r@ dup >namevt @ >vtextra !
+    ['] does, set-optimizer  vt,  postpone THEN
     orig? r> >namevt @ swap ! drop
     wrap! pop-locals ;
 
@@ -167,8 +167,8 @@ forth definitions
 : (;*]) ( xt -- vt )
     >r ] postpone endscope locals-list !
     r@ dup >namevt @ >vtextra !
-    ['] does, set-optimizer
-    vt, postpone THEN wrap!
+    ['] does, set-optimizer  vt,  postpone THEN
+    wrap!
     r> >namevt @ ;
 
 cell 4 = [IF]
