@@ -179,10 +179,10 @@ forth definitions
 : :h ( -- xt1 xt2 )  ['] alloch ['] (;]*) ; immediate restrict
 : :d ( -- xt1 xt2 )  ['] allocd ['] (;]*) ; immediate restrict
 
-: [*:: ( xt@ xt>l size -- )
-    Create immediate restrict 2 cells + , , ,
-  DOES> 2>r r@ 2@ postpone [: r> 2 cells + @ compile,
-    r> colon-sys-xt-offset 2 + stick ;
+: [*:: [{: xt@ xt>l size :}d
+	>r xt>l size 2 cells + postpone [: xt@ compile,
+	r> colon-sys-xt-offset 2 + stick ;]
+    alias immediate restrict ;
 
 cell 4 = [IF]  :noname ( n -- xt )  false >l >l ;  [ELSE]  ' >l  [THEN]
 ' @  swap  1 cells  [*:: [n: ( xt -- colon-sys )
