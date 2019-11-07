@@ -180,7 +180,7 @@ forth definitions
 : :d ( -- xt1 xt2 )  ['] allocd ['] (;]*) ; immediate restrict
 
 : [*:: [{: xt@ xt>l size :}d
-	>r xt>l size [ 2 cells ]L + postpone [: xt@ compile,
+	>r xt>l size [ 2 cells ]L + maxaligned postpone [: xt@ compile,
 	r> [ colon-sys-xt-offset 2 + ]L stick ;]
     alias immediate restrict ;
 
