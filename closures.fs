@@ -170,12 +170,12 @@ forth definitions
     ['] does, set-optimizer  vt,  postpone THEN
     wrap!  r> >namevt @ ;
 
-: (;]) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
+: (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
     compile, r> lit, ]] closure> [[ ;
 : (;]*) ( xt0 xt1 n xt2 -- )  (;*]) >r lit, swap compile,
     ]] >lp [[ compile, r> lit, ]] closure> lp> [[ ;
 
-: :l ( -- xt )                  ['] (;])  ; immediate restrict
+: :l ( -- xt )                  ['] (;]l) ; immediate restrict
 : :h ( -- xt1 xt2 )  ['] alloch ['] (;]*) ; immediate restrict
 : :d ( -- xt1 xt2 )  ['] allocd ['] (;]*) ; immediate restrict
 
