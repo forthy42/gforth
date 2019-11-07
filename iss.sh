@@ -63,7 +63,6 @@ cat <<EOF
 [Setup]
 AppName=Gforth
 AppVersion=$VERSION
-AppCopyright=Authors: Bernd Paysan, Anton Ertl
 AppCopyright=Copyright © 1995-2019 Free Software Foundation
 DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
