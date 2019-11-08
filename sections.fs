@@ -133,7 +133,7 @@ forthstart sections >stack
 
 :noname ( fid -- )
     [: section-name @ ``forth <> IF
-	    section-start 2@ maxaligned 2 pick write-file throw
+	    section-start 2@ swap maxaligned 2 pick write-file throw
 	THEN ;] sections-execute  drop
 ; is dump-sections
 
