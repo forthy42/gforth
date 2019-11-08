@@ -87,8 +87,8 @@ tmp$ $execstr-ptr !
 
 : $tmp ( xt -- addr u )
     \G generate a temporary string from the output of a word
-    1 tmp$# +!@ drop
-    tmp$ $off  tmp$ $exec  tmp$ $@ ;
+    1 tmp$# +!@ drop 0 { w^ tmp$$ } tmp$$ $exec
+    tmp$$ @ tmp$ tuck dup $free ! $@ ;
 
 :noname ( -- )  defers 'cold  tmp$[] off ;  is 'cold
 
