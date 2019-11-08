@@ -48,18 +48,17 @@ constant extra-section-error
         old-section current-section ! set-section endtry
     throw ;
 
-: sections-execute {: xt -- :}
+: sections-execute ( xt -- )  >r
     sections $@ bounds u+do
-	xt i @ section-execute
-    cell +loop ;
+	j i @ section-execute
+    cell +loop rdrop ;
 
 :noname ( ip-addr -- view / 0 )
-    0 swap
-    [n:l defers addr>view dup 0= select ;] sections-execute ;
+    0 [: over defers addr>view dup 0= select ;] sections-execute nip ;
 is addr>view
 
 :noname ( x -- f )
-    0 swap [n:l in-dictionary1? or ;] sections-execute ;
+    0 [: over in-dictionary1? or ;] sections-execute nip ;
 is in-dictionary?
 
 : .sections ( -- )
