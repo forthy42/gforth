@@ -58,10 +58,12 @@ folds 0> 0= 0<
     folds dup
 1 ' lits> ' >2lits ' :, folder
     folds s>d
+1 ' lits> ' noop ' peephole-compile, folder
+    folds drop
 2 ' 2lits> ' >lits ' peephole-compile, folder
 dup folds * and or xor
 dup folds min max umin umax
-dup folds drop nip
+dup folds nip
 dup folds rshift lshift arshift rol ror
 dup folds = > >= < <= u> u>= u< u<=
     folds d0> d0< d0=
@@ -81,7 +83,9 @@ dup folds = > >= < <= u> u>= u< u<=
     folds d= d> d>= d< d<= du> du>= du< du<=
 4 ' 4lits> ' >2lits ' peephole-compile, folder
 dup folds d+ d-
-    folds 2drop 2nip
+    folds 2nip
+2 ' 2lits> ' noop ' peephole-compile, folder
+    folds 2drop
 4 ' 4lits> ' >4lits ' peephole-compile, folder
     folds 2swap
 
