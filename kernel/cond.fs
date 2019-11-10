@@ -410,7 +410,7 @@ defer adjust-locals-list ( wid -- )
     >r
     ] postpone ENDSCOPE vt,
     locals-list !
-    postpone THEN
+    previous-section
     wrap!
     r> postpone Literal ;
 
@@ -418,7 +418,7 @@ defer adjust-locals-list ( wid -- )
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
     wrap@
-    postpone AHEAD
+    next-section
     locals-list @ locals-list off
     postpone SCOPE
     ['] (;])  :noname  ;

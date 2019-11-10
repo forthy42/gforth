@@ -107,7 +107,7 @@ forth definitions
 : (closure-;]) ( closure-sys lastxt -- )
     >r
     r@ dup >namevt @ >vtextra !
-    ['] does, set-optimizer  vt,  postpone THEN
+    ['] does, set-optimizer  vt,  previous-section
     orig? r> >namevt @ swap ! drop
     wrap! pop-locals ;
 
@@ -124,7 +124,7 @@ forth definitions
 : end-dclosure ( unravel-xt -- closure-sys )
     >r wrap@
     postpone lit >mark
-    ]] closure> [[ r> execute ]] AHEAD [[
+    ]] closure> [[ r> execute next-section
     action-of :-hook >r  ['] closure-:-hook is :-hook
     :noname
     r> is :-hook
@@ -167,7 +167,7 @@ forth definitions
 : (;*]) ( xt -- vt )
     >r ] postpone endscope locals-list !
     r@ dup >namevt @ >vtextra !
-    ['] does, set-optimizer  vt,  postpone THEN
+    ['] does, set-optimizer  vt,  previous-section
     wrap!  r> >namevt @ ;
 
 : (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,

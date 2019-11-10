@@ -24,9 +24,14 @@ require ./vars.fs
 
 \ String literals
 
+Defer next-section     \ put some data within a definition
+Defer previous-section \ end that part
+
+:noname  postpone ahead ; is next-section
+:noname  dead-code on postpone then ; is previous-section
+
 : CLiteral ( Compilation c-addr1 u ; run-time -- c-addr )
-    2>r postpone ahead here 2r> s, >r
-    dead-code on postpone then
+    2>r next-section here 2r> s, >r  previous-section
     r> postpone literal ; immediate restrict
 
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
@@ -34,8 +39,7 @@ require ./vars.fs
 \G @i{u} into the current definition. Run-time: return
 \G @i{c-addr2 u} describing the address and length of the
     \G string.
-    tuck 2>r postpone ahead here 2r> chars mem, align >r
-    dead-code on postpone then
+    tuck 2>r next-section here 2r> chars mem, align >r previous-section
     r> postpone literal postpone literal ; immediate restrict
 
 \ \ abort"							22feb93py

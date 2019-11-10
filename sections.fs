@@ -101,19 +101,6 @@ is reset-dpp
 	drop
     THEN ;
 
-: next-section ( -- )
-    \ switch to the next section, creating it if necessary
-    section# dup #extra-sections @ < extra-section-error and throw
-    1+ dup sections stack# = IF  new-section  THEN
-    #>section ;
-
-: previous-section ( -- )
-    \ switch to previous section
-    section#
-    dup #extra-sections @ < extra-section-error and throw
-    dup #extra-sections @ = first-section-error and throw
-    1- #>section ;
-
 \ extra sections
 
 : >extra-sections ( section -- )
@@ -136,6 +123,21 @@ forthstart sections >stack
 	    section-start 2@ swap maxaligned 2 pick write-file throw
 	THEN ;] sections-execute  drop
 ; is dump-sections
+
+\ initialize next&previous-section
+
+:noname ( -- )
+    \ switch to the next section, creating it if necessary
+    section# dup #extra-sections @ < extra-section-error and throw
+    1+ dup sections stack# = IF  new-section  THEN
+    #>section ; is next-section
+
+:noname ( -- )
+    \ switch to previous section
+    section#
+    dup #extra-sections @ < extra-section-error and throw
+    dup #extra-sections @ = first-section-error and throw
+    1- #>section ; is previous-section
 
 [defined] test-it [if] 
 section-defaultsize extra-section bla
