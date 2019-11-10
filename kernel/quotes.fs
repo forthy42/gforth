@@ -28,7 +28,7 @@ Defer next-section     \ put some data within a definition
 Defer previous-section \ end that part
 
 :noname  postpone ahead ; is next-section
-:noname  dead-code on postpone then ; is previous-section
+:noname  postpone then ; is previous-section
 
 : CLiteral ( Compilation c-addr1 u ; run-time -- c-addr )
     2>r next-section here 2r> s, >r  previous-section

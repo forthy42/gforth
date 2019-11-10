@@ -44,9 +44,8 @@ Variable lsids
 : new-lsid ( addr u -- lsid )
     here dup >r lsids append-list 0 , lsid# dup , 1+ to lsid# $l, r> ;
 : [new-lsid] ( addr u -- addr )
-    2>r postpone AHEAD 2r> align new-lsid >r
-    [defined] bigFORTH [IF] 0 :r T&P [THEN]
-    postpone THEN r> ;
+    2>r next-section 2r> align new-lsid >r
+    previous-section r> ;
 
 : LLiteral ( addr u -- )
     2dup search-lsid dup  IF
