@@ -408,8 +408,7 @@ defer adjust-locals-list ( wid -- )
 : (int-;]) ( some-sys lastxt -- ) >r vt, wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
-    ] postpone ENDSCOPE vt,
-    locals-list !
+    ] third locals-list ! postpone ENDSCOPE vt,
     previous-section
     wrap!
     r> postpone Literal ;
@@ -417,11 +416,10 @@ defer adjust-locals-list ( wid -- )
 : int-[: ( -- flag colon-sys )
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
-    postpone noop| basic-block-end
+    section|
     wrap@
     next-section
-    locals-list @ locals-list off
-    postpone SCOPE
+    postpone SCOPE locals-list off
     ['] (;])  :noname  ;
 ' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
 \G Starts a quotation

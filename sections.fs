@@ -144,6 +144,8 @@ Variable lits<>
     litstack $free lits<> stack> litstack !
 ; is previous-section
 
+:noname ( -- ) postpone noop| ; is section|
+
 [defined] test-it [if] 
 section-defaultsize extra-section bla
 cr .sections

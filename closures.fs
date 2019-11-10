@@ -124,7 +124,7 @@ forth definitions
 : end-dclosure ( unravel-xt -- closure-sys )
     >r wrap@
     postpone lit >mark
-    ]] closure> [[ r> execute next-section
+    ]] closure> [[ r> execute section| next-section
     action-of :-hook >r  ['] closure-:-hook is :-hook
     :noname
     r> is :-hook
@@ -165,7 +165,7 @@ forth definitions
 \ stack-based closures without name
 
 : (;*]) ( xt -- vt )
-    >r ] postpone endscope locals-list !
+    >r ] third locals-list ! postpone endscope
     r@ dup >namevt @ >vtextra !
     ['] does, set-optimizer  vt,  previous-section
     wrap!  r> >namevt @ ;
