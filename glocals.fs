@@ -606,17 +606,6 @@ forth definitions
 
 \ explicit scoping
 
-[ifundef] scope
-: scope ( compilation  -- scope ; run-time  -- ) \ gforth
-    cs-push-part scopestart ; immediate
-
-defer adjust-locals-list ( wid -- )
-
-: endscope ( compilation scope -- ; run-time  -- ) \ gforth
-    scope?
-    drop  adjust-locals-list ; immediate
-[then]
-
 :noname ( wid -- )
     locals-list @ common-list
     dup list-size adjust-locals-size

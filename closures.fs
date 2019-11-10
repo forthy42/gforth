@@ -165,10 +165,10 @@ forth definitions
 \ stack-based closures without name
 
 : (;*]) ( xt -- vt )
-    >r ] third locals-list ! postpone endscope
+    >r ] postpone endscope third locals-list ! postpone endscope
     r@ dup >namevt @ >vtextra !
     ['] does, set-optimizer  vt,  previous-section
-    wrap!  r> >namevt @ ;
+    wrap!  dead-code off  r> >namevt @ ;
 
 : (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
     compile, r> lit, ]] closure> [[ ;
