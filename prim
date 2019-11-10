@@ -3298,10 +3298,12 @@ decompile-prim ( a_code -- a_prim ) gforth-internal decompile_prim
 compile_prim1ed to a_code""
 a_prim = (Cell *)decompile_code((Label)a_code);
 
-
 tag-offsets ( -- a_addr ) gforth tag_offsets
 extern Cell groups[32];
 a_addr = groups;
+
+noop| ( -- ) gforth noop_endblock
+SUPER_END;
 
 \+
 
