@@ -126,9 +126,12 @@ forthstart sections >stack
 
 \ initialize next&previous-section
 
+Variable lits<>
+
 :noname ( -- )
     \ switch to the next section, creating it if necessary
     section# dup #extra-sections @ < extra-section-error and throw
+    litstack @ lits<> >stack  litstack off
     1+ dup sections stack# = IF  new-section  THEN
     #>section ; is next-section
 
@@ -137,7 +140,9 @@ forthstart sections >stack
     section#
     dup #extra-sections @ < extra-section-error and throw
     dup #extra-sections @ = first-section-error and throw
-    1- #>section ; is previous-section
+    1- #>section
+    litstack $free lits<> stack> litstack !
+; is previous-section
 
 [defined] test-it [if] 
 section-defaultsize extra-section bla
