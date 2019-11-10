@@ -417,7 +417,7 @@ defer adjust-locals-list ( wid -- )
 : int-[: ( -- flag colon-sys )
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
-    [ has? peephole [IF] ] finish-code [ [THEN] ]
+    basic-block-end
     wrap@
     next-section
     locals-list @ locals-list off
