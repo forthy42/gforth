@@ -3302,9 +3302,6 @@ tag-offsets ( -- a_addr ) gforth tag_offsets
 extern Cell groups[32];
 a_addr = groups;
 
-noop| ( -- ) gforth noop_endblock
-SUPER_END;
-
 \+
 
 \g primitive_centric
