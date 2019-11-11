@@ -1255,6 +1255,9 @@ Label decompile_code(Label _code)
 void finish_code(void)
 {
   compile_prim1(NULL);
+#ifndef NO_DYNAMIC
+  append_jump();
+#endif
   flush_to_here();
 }
 

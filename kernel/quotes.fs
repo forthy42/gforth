@@ -26,7 +26,6 @@ require ./vars.fs
 
 Defer next-section     \ put some data within a definition
 Defer previous-section \ end that part
-Defer section| ' noop is section| \ compile section switch barrier
 
 :noname  postpone ahead ; is next-section
 :noname  postpone then ; is previous-section
