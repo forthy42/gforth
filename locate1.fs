@@ -298,7 +298,7 @@ variable code-locations 0 code-locations !
         2drop -1 0 -1 where-index !
     else
         + @ 2@ name>string nip then
-    set-located-view ;
+    set-located-view l ;
 
 : nw ( -- ) \ gforth
     \G The next @code{l} or @code{g} shows the next @code{where}
