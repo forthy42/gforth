@@ -2012,8 +2012,9 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     
     bases[i] = INSECTION(section.base);
     sizes[i] = section.dp-section.base;
-    sections[i] = alloc_mmap_guard(section.end-section.base);
+    sections[i] = alloc_mmap_guard(section.end);
     fseek(imagefile, -sizeof(SectionHeader), SEEK_CUR);
+    debugp(stderr, "section base=%p, dp=%p, end=%p\n", section.base, section.dp, section.end);
     if(fread(sections[i], 1, sizes[i], imagefile) != sizes[i]) break;
   }
   gforth_relocate(sections, reloc_bits, sizes, bases, vm_prims);

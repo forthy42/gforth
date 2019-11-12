@@ -30,6 +30,8 @@ user #extra-sections \ hidden extra sections not part of the next/prev
 		     \ section stack
 
 256 1024 * value section-defaultsize
+: image-offset ( -- n )
+    forthstart dup -$1000 and tuck - 0 skip drop $FFF and ;
 
 s" at first section" exception constant first-section-error
 s" extra sections have no previous or next section" exception
@@ -72,7 +74,8 @@ is in-dictionary?
 
 : create-section ( size -- section )
     current-section @ >r
-    dup allocate throw dup current-section !
+    image-offset >r
+    dup r@ + allocate throw r> + dup current-section !
     dup section-start !
     section-desc + section-dp !
     section-size !
@@ -120,7 +123,9 @@ forthstart sections >stack
 
 :noname ( fid -- )
     [: section-name @ ``forth <> IF
-	    section-start 2@ swap maxaligned 2 pick write-file throw
+	    s" Section." 2 pick write-file throw
+	    section-start @ section-dp @ over - maxaligned
+	    2 pick write-file throw
 	THEN ;] sections-execute  drop
 ; is dump-sections
 
