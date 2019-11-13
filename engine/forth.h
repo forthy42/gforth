@@ -572,6 +572,7 @@ void vm_count_block(Xt *ip);
 /* dynamic superinstruction stuff */
 void compile_prim1(Cell *start);
 void finish_code(void);
+void finish_code_barrier(void);
 int forget_dyncode(Address code);
 Label decompile_code(Label prim);
 

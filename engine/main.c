@@ -318,7 +318,7 @@ Cell groups[32] = {
 };
 
 static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
-			      int size, Cell base)
+				     int size, Cell base, int sect)
      /* produce a bitmask marking all the branch targets */
 {
   int i=0, j, k, steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
@@ -332,8 +332,9 @@ static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring
       if(bits & (1U << (RELINFOBITS-1))) {
 	assert(i*sizeof(Cell) < size);
         token=image[i];
-	if (token>=base) { /* relocatable address */
-	  UCell bitnum=(token-base)/sizeof(Cell);
+	if ((token>=base) &&
+	    (SECTION(token) == sect)) { /* relocatable address */
+	  UCell bitnum=(INSECTION(token)-INSECTION(base))/sizeof(Cell);
 	  if (bitnum/RELINFOBITS < (UCell)steps)
 	    result[bitnum/RELINFOBITS] |= 1U << ((~bitnum)&(RELINFOBITS-1));
 	}
@@ -367,7 +368,7 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
     
     if(!bitstring) break;
     
-    unsigned char *targets = branch_targets(image, bitstring, size, base);
+    unsigned char *targets = branch_targets(image, bitstring, size, base, ii);
     
     /* group index into table */
     if(groups[31]==0) {
@@ -472,8 +473,8 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
     free(targets);
     if(ii==0)
       image[0] = (Cell)image;
+    finish_code();
   }
-  finish_code();
 }
 
 #ifndef DOUBLY_INDIRECT
@@ -1255,6 +1256,12 @@ Label decompile_code(Label _code)
 }
 
 void finish_code(void)
+{
+  compile_prim1(NULL);
+  flush_to_here();
+}
+
+void finish_code_barrier(void)
 {
   compile_prim1(NULL);
 #ifndef NO_DYNAMIC

@@ -3302,6 +3302,13 @@ tag-offsets ( -- a_addr ) gforth tag_offsets
 extern Cell groups[32];
 a_addr = groups;
 
+finish-code| ( ... -- ... ) gforth finish_code_barrier
+""Perform delayed steps in code generation (branch resolution, I-cache
+flushing).""
+/* The ... above are a workaround for a bug in gcc-2.95, which fails
+   to save spTOS (gforth-fast --enable-force-reg) */
+finish_code_barrier();
+
 \+
 
 \g primitive_centric

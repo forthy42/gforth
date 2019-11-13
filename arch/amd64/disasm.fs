@@ -594,9 +594,7 @@ Forth definitions
     $10 base-execute ;
 
 : disasm ( addr u -- ) \ gforth
-    [: over + >r
-	begin  dup r@ u<  while  cr disline  repeat
-	cr rdrop drop ;] $10 base-execute ;
+    [: bounds u+do  cr i disline i - +loop  cr ;] $10 base-execute ;
 
 ' disasm is discode
 

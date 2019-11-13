@@ -282,6 +282,7 @@ GFORTH_FI_SRC2=\
 	rec-body.fs \
 	recognizer2.fs \
 	search.fs \
+	sections.fs \
 	see.fs \
 	see-ext.fs \
 	simp-see.fs \
@@ -401,8 +402,8 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
 	sieve.fs list.fs endtry-iferror.fs recover-endtry.fs $(patsubst %,    \
 	unix/%, $(UNIX_SRC)) date.fs script.fs wf.fs traceall.fs rec-scope.fs \
 	rec-env.fs rec-meta.fs notfound.fs utf16.fs archive.fs cilk.fs	      \
-	sections.fs fixfiles.fs bits.fs reverse-words.fs config.fs	      \
-	set-compsem.fs coverage.fs tokenize.fs startup-libcc.fs
+	fixfiles.fs bits.fs reverse-words.fs config.fs set-compsem.fs	      \
+	coverage.fs tokenize.fs startup-libcc.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
