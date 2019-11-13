@@ -64,12 +64,12 @@ is addr>view
 is in-dictionary?
 
 : .sections ( -- )
-    cr ."             start      size               dp name"
+    cr ."             start      size       +dp name"
     current-section @
     [:  cr dup current-section @ = if '>' else bl then emit
 	section-start @ #16 hex.r
 	section-size  @ #10 hex.r
-	section-dp    @ #17 hex.r space
+	section-dp    @ section-start @ - #10 hex.r space
 	section-name @ id. ;] sections-execute  drop ;
 
 : create-section ( size -- section )
