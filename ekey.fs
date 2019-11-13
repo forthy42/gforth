@@ -212,7 +212,7 @@ Variable ekey-buffer
 	key? \ ?dup-0=-if  1 ms key?  endif \ workaround for Windows 1607 Linux
     WHILE
 	    key ekey-buffer c$+!
-	    ekey-buffer $@ esc-mask >r
+	    ekey-buffer $@ ['] esc-mask #10 base-execute >r
 	    esc-sequences search-wordlist
 	    if
 		execute r> or clear-ekey-buffer exit
