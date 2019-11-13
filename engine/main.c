@@ -362,6 +362,8 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
     Cell base=bases[ii];
 
     int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
+
+    debugp(stderr, "relocate section %i, %p:%p\n", ii, base, size);
     
     if(!bitstring) break;
     
@@ -384,12 +386,12 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
       ;
     max_symbols--;
     
-    for(k=0; k<steps; k++) {
+    for(i=k=0; k<steps; k++) {
       for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
 	/*      fprintf(stderr,"relocate: image[%d]\n", i);*/
 	if(bits & (1U << (RELINFOBITS-1))) {
+	  // debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
 	  assert(i*sizeof(Cell) < size);
-	  /* fprintf(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell)); */
 	  token=image[i];
 	  if(SECTION(token)==0xFF) {
 	    int group = (-token & 0x3E00) >> 9;
