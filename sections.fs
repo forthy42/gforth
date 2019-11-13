@@ -79,7 +79,7 @@ is in-dictionary?
     dup section-start !
     section-desc + section-dp !
     section-size !
-    ``noname section-name !
+    ['] noname section-name !
     locs[] $saved
     current-section @ r> current-section ! ;
 
@@ -116,18 +116,26 @@ is reset-dpp
     
 \ initialization
 
-``forth section-name !
+' forth section-name !
 forthstart sections >stack
 
 \ savesystem
 
-:noname ( fid -- )
-    [: section-name @ ``forth <> IF
-	    s" Section." 2 pick write-file throw
-	    section-start @ section-dp @ over - maxaligned
-	    2 pick write-file throw
-	THEN ;] sections-execute  drop
-; is dump-sections
+[IFDEF] dump-sections
+    :noname
+	[: section-name @ ['] forth <> IF
+		s" Section." 2 pick write-file throw
+		section-start @ section-dp @ over - maxaligned
+		2 pick write-file throw
+	    THEN ;] sections-execute  drop ; is dump-sections
+[ELSE]
+    : dump-sections ( fid -- )
+	[: section-name @ ['] forth <> IF
+		s" Section." 2 pick write-file throw
+		section-start @ section-dp @ over - maxaligned
+		2 pick write-file throw
+	    THEN ;] sections-execute  drop ;
+[THEN]
 
 \ initialize next&previous-section
 

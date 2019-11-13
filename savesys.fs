@@ -48,7 +48,9 @@
 	dup 4 s" #! /" str=
     until ( imagestart ) ;
 
-Defer dump-sections ' drop is dump-sections
+[IFUNDEF] dump-sections
+    Defer dump-sections ' drop is dump-sections
+[THEN]
 
 : dump-fi ( c-addr u -- )
     prepare-for-dump
