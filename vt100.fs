@@ -44,10 +44,10 @@ decimal
     \ over 0< over 0= and IF  drop abs backspaces  EXIT  THEN
     [: <<#
       ?dup-IF
-	  dup 0< IF  'A'  ELSE  'B'  THEN  hold abs 0 #s 2drop #esc[
+	  dup 0< 'A' 'B' rot select  hold abs 0 #s 2drop #esc[
       THEN
       ?dup-IF
-	  dup 0< IF  'D'  ELSE  'C'  THEN  hold abs 0 #s 2drop #esc[
+	  dup 0< 'D' 'C' rot select  hold abs 0 #s 2drop #esc[
       THEN #0. #> type #>> ;] #10 base-execute ;
 
 : vt100-page ( -- ) \ facility
