@@ -80,14 +80,16 @@ is in-dictionary?
     section-desc + section-dp !
     section-size !
     ['] noname section-name !
-    locs[] $saved
+    locs[] dup off $saved
     current-section @ r> current-section ! ;
 
 : new-section ( -- )
     section-defaultsize create-section sections >stack ;
 
+Variable lits<>
+
 :noname ( -- )
-    forthstart current-section ! set-section ;
+    forthstart current-section ! set-section  lits<> off ;
 is reset-dpp
 
 : section# ( -- n )
@@ -138,8 +140,6 @@ forthstart sections >stack
 [THEN]
 
 \ initialize next&previous-section
-
-Variable lits<>
 
 :noname ( -- )
     \ switch to the next section, creating it if necessary
