@@ -29,11 +29,14 @@ opt: ( uvalue-xt to-xt -- )
     ?fold-to !!?addr!! >body @ postpone useraddr , !-table to-!, ;
 : u-compile, ( xt -- )  >body @ postpone user@ , ;
 
-: UValue ( "name" -- )
+: (UValue) ( "name" -- )
     \G Define a per-thread value
-    Create cell uallot , ['] uvalue-to set-to
-    ['] u-compile, set-optimizer
+    Create cell uallot ,
   DOES> @ next-task + @ ;
+: UValue ( "name" -- )
+    (UValue)
+    ['] uvalue-to set-to
+    ['] u-compile, set-optimizer ;
 
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
     Create ( w1 w2 "name" -- )

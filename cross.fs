@@ -3433,7 +3433,7 @@ T has? rom H [IF]
     by (Value)
 [THEN]
 
-Builder UValue
+Builder (UValue)
 Build: 0 u, T , H ;Build
 DO: X @ tup@ + X @ ;DO
 vt: [G'] u-compile, gset-optimizer [G'] uvalue-to gset-to ;vt
@@ -3518,7 +3518,7 @@ by User
 Builder uval-o
 DO: true abort" not in cross compiler!" ;DO
 Build: 0 au, dup class-o ! X , ;Build
-by UValue
+by (UValue)
 
 >TARGET
 : umethod ( m v -- m' v )
@@ -3620,7 +3620,7 @@ compile: g>body compile lit-perform T A, H ;compile
 Builder (Field)
 compile: g>body T @ H compile lit+ T V, H ;compile
 
-Builder UValue
+Builder (UValue)
 compile: g>body compile user@ T @ V, H ;compile
 
 Builder 2Constant
@@ -3785,6 +3785,8 @@ Cond: ?LEAVE    ?leave, ;Cond
   compile drop 0 ?DO 1 ncontrols? then, LOOP ;	' (endcase,) plugin-of endcase,
 
 >TARGET
+: UValue T (UValue) H ;
+
 Cond: AHEAD     ahead, ;Cond
 Cond: IF        if,  ;Cond
 Cond: ?dup-IF   ?dup-if,  ;Cond
