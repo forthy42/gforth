@@ -104,12 +104,15 @@ locals-types definitions
 
 forth definitions
 
+: set-closure ( xt -- )
+    dup >namevt @ >vtextra !
+    ['] does, set-optimizer
+    vt,  previous-section  wrap!  dead-code off ;
+
 : (closure-;]) ( closure-sys lastxt -- )
-    >r
-    r@ dup >namevt @ >vtextra !
-    ['] does, set-optimizer  vt,  previous-section
+    >r r@ set-closure
     orig? r> >namevt @ swap ! drop
-    wrap! pop-locals ;
+    pop-locals ;
 
 : closure-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
@@ -122,9 +125,10 @@ forth definitions
     \G create trampoline head
     dodoes: >l >l lp@ cell+ ;
 : end-dclosure ( unravel-xt -- closure-sys )
-    >r wrap@
+    >r
     postpone lit >mark
-    ]] closure> [[ r> execute next-section finish-code|
+    ]] closure> [[ r> execute
+    wrap@ next-section finish-code|
     action-of :-hook >r  ['] closure-:-hook is :-hook
     :noname
     r> is :-hook
@@ -166,9 +170,8 @@ forth definitions
 
 : (;*]) ( xt -- vt )
     >r ] postpone endscope third locals-list ! postpone endscope
-    r@ dup >namevt @ >vtextra !
-    ['] does, set-optimizer  vt,  previous-section
-    wrap!  dead-code off  r> >namevt @ ;
+    r@ set-closure
+    r> >namevt @ ;
 
 : (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
     compile, r> lit, ]] closure> [[ ;

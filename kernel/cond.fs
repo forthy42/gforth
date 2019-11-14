@@ -408,9 +408,8 @@ defer adjust-locals-list ( wid -- )
 : (int-;]) ( some-sys lastxt -- ) >r vt, wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
-    ] postpone ENDSCOPE third locals-list ! postpone ENDSCOPE vt,
-    previous-section
-    wrap!  dead-code off
+    ] postpone ENDSCOPE third locals-list ! postpone ENDSCOPE
+    vt,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 
 : int-[: ( -- flag colon-sys )
