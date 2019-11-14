@@ -104,13 +104,12 @@ locals-types definitions
 
 forth definitions
 
-: set-closure ( xt -- )
-    dup >namevt @ >vtextra !
-    ['] does, set-optimizer
-    vt,  previous-section  wrap!  dead-code off ;
+: wrap-closure ( xt -- )
+    dup >namevt @ >vtextra !  ['] does, set-optimizer
+    finish-code  vt,  previous-section  wrap!  dead-code off ;
 
 : (closure-;]) ( closure-sys lastxt -- )
-    >r r@ set-closure
+    >r r@ wrap-closure
     orig? r> >namevt @ swap ! drop
     pop-locals ;
 
@@ -170,8 +169,7 @@ forth definitions
 
 : (;*]) ( xt -- vt )
     >r ] postpone endscope third locals-list ! postpone endscope
-    r@ set-closure
-    r> >namevt @ ;
+    r@ wrap-closure  r> >namevt @ ;
 
 : (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
     compile, r> lit, ]] closure> [[ ;
