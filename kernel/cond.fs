@@ -416,9 +416,7 @@ defer adjust-locals-list ( wid -- )
 : int-[: ( -- flag colon-sys )
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
-    lits, latest >body here <> IF  finish-code|  THEN
-    wrap@
-    next-section
+    wrap@  next-section  finish-code|
     postpone SCOPE locals-list off postpone SCOPE
     ['] (;])  :noname  ;
 ' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
