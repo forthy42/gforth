@@ -41,8 +41,8 @@
 	    2drop
 	then
     then
-    dup in-dictionary? if
-	forthstart over [ 1 maxaligned negate ]L and U-DO
+    dup which-section? ?dup-if
+	@ >body over [ 1 maxaligned negate ]L and U-DO
 	    I body> xt? if
 		I body> name>string dup if
 		    '<' emit type I - ?dup-if

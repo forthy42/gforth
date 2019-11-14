@@ -416,7 +416,7 @@ defer adjust-locals-list ( wid -- )
 : int-[: ( -- flag colon-sys )
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
-    latest >body here <> IF  finish-code|  THEN
+    lits, latest >body here <> IF  finish-code|  THEN
     wrap@
     next-section
     postpone SCOPE locals-list off postpone SCOPE

@@ -59,9 +59,10 @@ constant extra-section-error
     0 [: over defers addr>view dup 0= select ;] sections-execute nip ;
 is addr>view
 
-:noname ( x -- f )
-    0 [: over in-dictionary1? or ;] sections-execute nip ;
-is in-dictionary?
+: which-section? ( x -- f )
+    0 [: over in-dictionary1? section-start @ and over select ;]
+    sections-execute nip ;
+:noname which-section? 0<> ; is in-dictionary?
 
 : .sections ( -- )
     cr ."             start      size       +dp name"
