@@ -127,14 +127,14 @@ forthstart sections >stack
     :noname
 	[: section-name @ ['] forth <> IF
 		s" Section." 2 pick write-file throw
-		section-start @ section-dp @ over - maxaligned
+		section-start @ section-dp @ over - aligned
 		2 pick write-file throw
 	    THEN ;] sections-execute  drop ; is dump-sections
 [ELSE]
     : dump-sections ( fid -- )
 	[: section-name @ ['] forth <> IF
 		s" Section." 2 pick write-file throw
-		section-start @ section-dp @ over - maxaligned
+		section-start @ section-dp @ over - aligned
 		2 pick write-file throw
 	    THEN ;] sections-execute  drop ;
 [THEN]
