@@ -124,7 +124,7 @@ forth definitions
 : end-dclosure ( unravel-xt -- closure-sys )
     >r wrap@
     postpone lit >mark
-    ]] closure> [[ r> execute finish-code| next-section
+    ]] closure> [[ r> execute next-section finish-code|
     action-of :-hook >r  ['] closure-:-hook is :-hook
     :noname
     r> is :-hook
