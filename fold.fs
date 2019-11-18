@@ -46,6 +46,8 @@
     \ xt is optimizer of "name"
     ' make-latest set-optimizer ;
 
+1 ' lits>  ' noop ' peephole-compile, folder
+    folds drop
 1 ' lits>  ' >lits ' peephole-compile, folder
 dup folds invert abs negate >pow2
 dup folds 1+ 1- 2* 2/ cells cell/ cell+ cell-
@@ -56,10 +58,10 @@ dup folds wcwidth
 folds 0> 0= 0<
 1 ' lits>  ' >2lits ' peephole-compile, folder
     folds dup
-1 ' lits> ' >2lits ' :, folder
+1 ' lits>  ' >2lits ' :, folder
     folds s>d
-1 ' lits> ' noop ' peephole-compile, folder
-    folds drop
+2 ' 2lits> ' noop ' peephole-compile, folder
+    folds 2drop
 2 ' 2lits> ' >lits ' peephole-compile, folder
 dup folds * and or xor
 dup folds min max umin umax
@@ -74,7 +76,7 @@ dup folds = > >= < <= u> u>= u< u<=
 2 ' 2lits> ' >3lits ' peephole-compile, folder
     folds over tuck
 3 ' 3lits> ' >lits ' peephole-compile, folder
-    folds */ within
+    folds */ within select mux
 3 ' 3lits> ' >2lits ' peephole-compile, folder
     folds um/mod fm/mod sm/rem */mod du/mod
 3 ' 3lits> ' >3lits ' peephole-compile, folder
@@ -84,8 +86,6 @@ dup folds = > >= < <= u> u>= u< u<=
 4 ' 4lits> ' >2lits ' peephole-compile, folder
 dup folds d+ d-
     folds 2nip
-2 ' 2lits> ' noop ' peephole-compile, folder
-    folds 2drop
 4 ' 4lits> ' >4lits ' peephole-compile, folder
     folds 2swap
 
