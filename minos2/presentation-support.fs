@@ -144,7 +144,11 @@ $10 stack: vp-tops
 also opengl
 
 : !pres-widgets ( -- )
+[IFDEF] set-fullscreen-hint
     set-fullscreen-hint 1 set-compose-hint
+[ELSE]
+    [IFDEF] hidestatus hidekb hidestatus [THEN]
+[THEN]
     top-widget .htop-resize
     vp-tops get-stack 0 ?DO  .vp-top  LOOP
     1e ambient% sf! set-uniforms ;
@@ -152,8 +156,6 @@ also opengl
 [IFDEF] android android [THEN]
 
 : presentation ( -- )
-    1config
-    [IFDEF] hidestatus hidekb hidestatus [THEN]
-    !pres-widgets widgets-loop ;
+    1config !pres-widgets widgets-loop ;
 
 previous

@@ -70,15 +70,13 @@ dup folds rshift lshift arshift rol ror
 dup folds = > >= < <= u> u>= u< u<=
     folds d0> d0< d0=
 2 ' 2lits> ' >2lits ' peephole-compile, folder
-    folds m* um* /mod swap d2*
+    folds m* um* swap d2*
 2 ' 2lits> ' >2lits ' :, folder
     folds bounds
 2 ' 2lits> ' >3lits ' peephole-compile, folder
     folds over tuck
 3 ' 3lits> ' >lits ' peephole-compile, folder
-    folds */ within select mux
-3 ' 3lits> ' >2lits ' peephole-compile, folder
-    folds um/mod fm/mod sm/rem */mod du/mod
+    folds within select mux
 3 ' 3lits> ' >3lits ' peephole-compile, folder
     folds rot -rot
 4 ' 4lits> ' >lits ' peephole-compile, folder
@@ -164,4 +162,30 @@ dup optimizes /
 dup optimizes mod
 dup optimizes u/
 dup optimizes umod
+drop
+:noname {: xt: op -- :}
+    lits# 2 u>= if
+	2lits> dup if
+	    op >2lits exit then
+	>2lits then
+    action-of op peephole-compile, ;
+optimizes /mod
+:noname {: xt: op -- :}
+    lits# 3 u>= if
+	3lits> dup if
+	    op >lits exit then
+	>3lits then
+    action-of op peephole-compile, ;
+optimizes */
+:noname {: xt: op -- :}
+    lits# 3 u>= if
+	3lits> dup if
+	    op >2lits exit then
+	>3lits then
+    action-of op peephole-compile, ;
+dup optimizes um/mod
+dup optimizes fm/mod
+dup optimizes sm/rem
+dup optimizes */mod
+dup optimizes du/mod
 drop
