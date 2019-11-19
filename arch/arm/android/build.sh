@@ -58,7 +58,7 @@ then
     echo "Extra builds in$arch"
     APP_PACKAGE=gnu.gforth
 else
-    APP_PACKAGE=gnu.gforth-$machine
+    APP_PACKAGE=gnu.gforth_$machine
 fi
 
 APP_VERSION=$[$(cat ~/.app-version)+1]
