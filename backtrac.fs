@@ -30,6 +30,7 @@
 	rp@ [ 2 cells ]L +
     else \ throw by signal handler with insufficient information
 	rp0 @ [ forthstart 7 cells + ]L @ -
+	$FFF + -$1000 and \ align to next pagesize
 	\ handler @ cell - \ beyond that we know nothing
     then
     backtrace-rp0 @ [ 1 cells ]L - over - 0 max ;
