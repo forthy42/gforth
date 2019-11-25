@@ -80,7 +80,7 @@ UValue $? ( -- n ) \ gforth dollar-question
 [endif]
 
 : in-return-stack? ( addr -- f )
-    rp0 @ swap - [ forthstart 7 cells + ]L @ u< ;
+    rp0 @ [ forthstart 7 cells + ]L @ - $FFF + -$1000 and rp0 @ within ;
 
 \ const-does>
 
@@ -480,7 +480,7 @@ previous
     throw ;
 
 : hex.r ( u1 u2 -- )
-    ['] .r #16 base-execute ;
+    ['] u.r #16 base-execute ;
 
 : dump ( addr u -- ) ['] dump $10 base-execute ;
 \ wrap dump into base-execute

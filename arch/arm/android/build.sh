@@ -22,7 +22,7 @@ nprocs=`nproc || echo 1`
 function extra_apps {
     for i in $EXTRADIRS
     do
-	test -f $i/AndroidManifest/apps && cat $i/AndroidManifest/apps
+	test -f $i/AndroidManifest/apps && . $i/AndroidManifest/apps
     done
 }
 
@@ -56,6 +56,9 @@ if [ ! -z "$arch" ]
 then
     (cd $SRC; ./autogen.sh) >autogen.log
     echo "Extra builds in$arch"
+    APP_PACKAGE=gnu.gforth
+else
+    APP_PACKAGE=gnu.gforth_$machine
 fi
 
 APP_VERSION=$[$(cat ~/.app-version)+1]

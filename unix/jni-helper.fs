@@ -226,10 +226,12 @@ jni-method: toString toString ()Ljava/lang/String;
 jni-class: android/content/res/Resources
 jni-method: getIdentifier getIdentifier (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
-jni-class: android/content/ContextWrapper
-jni-method: checkSelfPermission checkSelfPermission (Ljava/lang/String;)I
-jni-class: android/app/Activity
-jni-method: requestPermissions requestPermissions ([Ljava/lang/String;I)V
+SDK_INT 23 >= [IF]
+    jni-class: android/content/ContextWrapper
+    jni-method: checkSelfPermission checkSelfPermission (Ljava/lang/String;)I
+    jni-class: android/app/Activity
+    jni-method: requestPermissions requestPermissions ([Ljava/lang/String;I)V
+[THEN]
 
 jvalue res clazz .getResources to res
 : R.id ( addr u -- id ) make-jstring 0 0 res .getIdentifier ;
@@ -326,11 +328,15 @@ compsem: '"' parse ]] SLiteral >class [[ ;
     BEGIN  >looper android-perm# req# =  UNTIL ;
 
 : ask-permissions ( addr1 u1 .. addrn un n -- )
-    { n } n jc" java/lang/String" new[] { s[] }
-    0 n 1- DO make-jstring s[] I j[]! -1 +LOOP
-    false  n 0 DO s[] I j[]@ clazz .checkSelfPermission 1 <> or  LOOP
-    IF  s[] req# clazz .requestPermissions
-	?permission  1 +to req#
-    THEN  s[] ]ref ;
+    [IFDEF] checkSelfPermission
+	{ n } n jc" java/lang/String" new[] { s[] }
+	0 n 1- DO make-jstring s[] I j[]! -1 +LOOP
+	false  n 0 DO s[] I j[]@ clazz .checkSelfPermission 1 <> or  LOOP
+	IF  s[] req# clazz .requestPermissions
+	    ?permission  1 +to req#
+	THEN  s[] ]ref
+    [ELSE]
+	0 ?DO  2drop  LOOP
+    [THEN] ;
 
 previous previous definitions

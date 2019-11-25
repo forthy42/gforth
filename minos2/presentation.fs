@@ -178,26 +178,12 @@ to top-widget
 
 also opengl
 
-: !widgets ( -- )
-    top-widget .htop-resize
-    1e ambient% sf! [IFDEF] android 2e gain% sf! [THEN]
-    set-uniforms ;
-
 [IFDEF] writeout-en
     lsids ' .lsids s" ef2018/en" r/w create-file throw
     dup >r outfile-execute r> close-file throw
 [THEN]
 
 previous
-
-[IFDEF] android also android also jni [THEN]
-
-: presentation ( -- )
-    1config
-    [IFDEF] hidestatus hidekb hidestatus [THEN]
-    !widgets widgets-loop ;
-
-[IFDEF] android previous previous [THEN]
 
 script? [IF]
     next-arg s" time" str= [IF]  +db time( \ ) [THEN]

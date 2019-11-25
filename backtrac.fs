@@ -29,7 +29,8 @@
     if
 	rp@ [ 2 cells ]L +
     else \ throw by signal handler with insufficient information
-	rp0 @ [ forthstart 7 cells + ]L @ -
+	rp0 @ 1- -$1000 and \ align to next pagesize
+	BEGIN  dup @ 0=  WHILE  cell+  REPEAT
 	\ handler @ cell - \ beyond that we know nothing
     then
     backtrace-rp0 @ [ 1 cells ]L - over - 0 max ;
