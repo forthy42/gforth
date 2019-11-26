@@ -1,5 +1,6 @@
 \ definitions needed for interpreter only
 
+\ Authors: Bernd Paysan, Anton Ertl, Neal Crook, Gerald Wodni, Jens Wilke
 \ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012,2013,2014,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -37,24 +38,19 @@ require ./nio.fs	\ . <# ...
 require ./errore.fs	\ .error ...
 require kernel/version.fs \ version-string
 
-: (word) ( addr1 n1 char -- addr2 n2 )
-  dup >r skip 2dup r> scan  nip - ;
-
-\ (word) should fold white spaces
-\ this is what (parse-white) does
-
 \ parse                                           23feb93py
 
-: (parse)    ( char "ccc<char>" -- c-addr u ) \ core-ext
-\G Parse @i{ccc}, delimited by @i{char}, in the parse
-\G area. @i{c-addr u} specifies the parsed string within the
-\G parse area. If the parse area was empty, @i{u} is 0.
+: (parse)    ( char "ccc<char>" -- c-addr u )
     >r  source  >in @ over min /string ( c-addr1 u1 )
     over  swap r>  scan >r
     over - dup r@ IF 1+ THEN  >in +!
     2dup r> 0<> - input-lexeme! ;
 
-Defer parse  ' (parse) is parse
+Defer parse ( xchar "ccc<xchar>" -- c-addr u ) \ core-ext,xchar
+\G Parse @i{ccc}, delimited by @i{xchar}, in the parse
+\G area. @i{c-addr u} specifies the parsed string within the
+\G parse area. If the parse area was empty, @i{u} is 0.
+' (parse) is parse
 
 \ name                                                 13feb93py
 
@@ -454,11 +450,9 @@ defer compile, ( xt -- )
 \ : name>view ( nt -- addr ) \ gforth   name-to-view
 \     name>string drop cell negate and cell- ;
 
-: default-name>int ( nt -- xt ) \ gforth paren-name-to-int
-    \G @i{xt} represents the interpretation semantics of the word
-    \G @i{nt}. If @i{nt} has no interpretation semantics (i.e. is
-    \G @code{compile-only}), @i{xt} is the execution token for
-    \G @code{ticking-compile-only-error}, which performs @code{-2048 throw}.
+\ DEFAULT-NAME>INT is never used, delete?
+: default-name>int ( nt -- xt ) \ gforth default-name-to-int
+    \G Default @code{name>interpret} implementation.  For words where nt=xt.
 ;
 
 : (name>intn) ( nfa -- xt +-1 )
@@ -585,22 +579,27 @@ defer int-execute ( ... xt -- ... )
 \ like EXECUTE, but restores and saves ERRNO if present
 ' execute IS int-execute
 
-: interpret1 ( ... -- ... )
-    rp@ backtrace-rp0 !
+: interpret ( ... -- ... ) \ gforth
+    \ interpret/compile the (rest of the) input buffer
+    [ cell 4 = [IF] ] false >l [ [THEN] ] \ align LP stack for 32 bit engine
+    r> >l rp@ backtrace-rp0 !
     [ has? EC 0= [IF] ] before-line [ [THEN] ]
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
 	parser1 int-execute
     REPEAT
-    2drop ;
-    
-: interpret ( ?? -- ?? ) \ gforth
-    \ interpret/compile the (rest of the) input buffer
+    2drop @local0 >r lp+ ;
+
+: bt-rp0-catch ( ... xt -- ... ball )
     backtrace-rp0 @ >r	
-    ['] interpret1 catch
-    r> backtrace-rp0 !
-    throw ;
+    catch
+    r> backtrace-rp0 ! ;
+
+: bt-rp0-wrapper ( ... xt -- ... )
+    bt-rp0-catch throw ;
+
+: interpret2 ['] interpret bt-rp0-wrapper ;
 
 \ interpreter                                 	30apr92py
 
@@ -652,7 +651,7 @@ defer prompt
     ."  ok" ;
 ' (prompt) is prompt
 
-: (quit) ( -- )
+: (quit1) ( -- )
     \ exits only through THROW etc.
     BEGIN
 	[ has? ec [IF] ] cr [ [ELSE] ]
@@ -664,8 +663,10 @@ defer prompt
 	endif [ [THEN] ]
 	get-input-colored WHILE
 	    interpret prompt
-    REPEAT
-    bye ;
+    REPEAT ;
+
+: (quit) ( -- )
+    ['] (quit1) bt-rp0-wrapper bye ;
 
 ' (quit) IS 'quit
 
@@ -767,28 +768,26 @@ Defer .error-level ( n -- )
     r@ 0 = IF  ." info: "     THEN  rdrop ;
 ' (.error-level) is .error-level
 
-: .error-frame ( throwcode addr1 u1 addr2 u2 n2 [addr3 u3] errlevel -- throwcode )
-    \ addr3 u3: filename of included file - optional
+: .error-frame ( throwcode addr1 u1 addr2 u2 n2 addr3 u3 errlevel -- throwcode )
+    \ addr3 u3: filename of included file
     \ n2:       line number
     \ addr2 u2: parsed lexeme (should be marked as causing the error)
     \ addr1 u1: input line
     \ errlevel: 0: info, 1: warning, 2: error
     >r error-stack $@len
     IF ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
-        [ has? file [IF] ] \ !! unbalanced stack effect
-	  over IF
-	      cr ." in file included from "
-	      type ." :"
-	      0 dec.r  2drop 2drop
-          ELSE
-              2drop 2drop 2drop drop
-          THEN
-          [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
+	over IF
+	    cr ." in file included from "
+	    type ." :"
+	    0 dec.r ." :" drop nip swap - 1+ 0 dec.r ." : "
+	ELSE
+	    2drop 2drop 2drop drop
+	THEN
     ELSE ( throwcode addr1 u1 n0 n1 n2 [addr2 u2] )
-        [ has? file [IF] ]
-            cr type ." :"
-            [ [THEN] ] ( throwcode addr1 u1 n0 n1 n2 )
-	dup 0 dec.r ." : "
+	cr type ." :"
+	( throwcode addr1 u1 n0 n1 n2 )
+	dup 0 dec.r ." :"
+	>r 2over 2over drop nip swap - 1+ 0 dec.r ." : " r>
 	r@ .error-level
 	5 pick .error-string
 	r@ 2 = and warnings @ abs 1 > or
@@ -801,7 +800,7 @@ Defer .error-level ( n -- )
     THEN  rdrop ;
 
 defer reset-dpp
-:noname normal-dp dpp ! ; is reset-dpp
+:noname section-dp dpp ! ; is reset-dpp
 
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
@@ -854,9 +853,13 @@ defer reset-dpp
 
 \ \ Cold Boot                                    	13feb93py
 
+: (c) ( -- )
+    ." Copyright " $A9 ( '©' ) xemit ;
 : gforth ( -- )
-    ." Gforth " version-string type 
-    ." , Copyright (C) 1995-2018 Free Software Foundation, Inc." cr
+    ." Gforth " version-string type cr
+    ." Authors: Anton Ertl, Bernd Paysan, Jens Wilke et al., for more type `authors'" cr
+    (c) ."  2019 Free Software Foundation, Inc." cr
+    ." License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>" cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
      cr ." Type `help' for basic help"
@@ -894,21 +897,6 @@ Defer 'cold ( -- ) \ gforth  tick-cold
     loadline off
 [ [THEN] ]
     -56 (bye) ; \ indicate QUIT
-
-has? new-input 0= [IF]
-: clear-tibstack ( -- )
-[ has? glocals [IF] ]
-    lp@ forthstart 7 cells + @ - 
-[ [ELSE] ]
-    [ has? os [IF] ]
-    r0 @ forthstart 6 cells + @ -
-    [ [ELSE] ]
-    sp@ cell+
-    [ [THEN] ]
-[ [THEN] ]
-    dup >tib ! tibstack ! #tib off
-    input-start-line ;
-[THEN]
 
 : boot ( path n **argv argc -- )
     threading-method 1 = if

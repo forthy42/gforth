@@ -1,5 +1,6 @@
 /* a memcmp implementation
 
+  Authors: Anton Ertl, Bernd Paysan
   Copyright (C) 1995,1998,2000,2003,2007,2014,2017 Free Software Foundation, Inc.
 
   This file is part of Gforth.

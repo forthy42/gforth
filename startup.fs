@@ -1,5 +1,6 @@
 \ startup file
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Gerald Wodni
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -39,6 +40,7 @@ require glocals.fs
 require iloops.fs
 require float.fs
 require stuff.fs
+require sections.fs
 require closures.fs
 require fold.fs
 require wordinfo.fs
@@ -57,6 +59,7 @@ require quotes.fs
 require rec-string.fs
 require rec-to.fs
 require rec-tick.fs
+require rec-body.fs
 require substitute.fs
 require code.fs
 require see.fs
@@ -67,7 +70,6 @@ require debug.fs
 require dis-gdb.fs
 require struct0x.fs
 require libcc.fs
-require prelude.fs
 require str-exec.fs
 require gforthrc.fs
 require ansi.fs

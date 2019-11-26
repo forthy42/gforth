@@ -1,5 +1,6 @@
 \ lib.fs	shared library support package 		11may97py
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2006,2007,2008 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

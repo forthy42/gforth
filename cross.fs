@@ -1,6 +1,7 @@
 \ CROSS.FS     The Cross-Compiler                      06oct92py
 \ Idea and implementation: Bernd Paysan (py)
 
+\ Authors: Bernd Paysan, Anton Ertl, Jens Wilke, David Kühling, Neal Crook
 \ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2004,2005,2006,2007,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -2227,7 +2228,7 @@ X has? f83headerstring [IF]
     [ELSE] 0 allocate throw 0 included-files 2! [THEN]
     [IFDEF] loadfilename#  loadfilename# off  [THEN]
     s" kernel/main.fs" h-add-included-file ;
-: reset-locs ( -- )  T here H to glocs-start ;
+: reset-locs ( -- )  $100 to glocs-start ;
 : glocs-start glocs-start ;
 : shorten-path ( addr u -- addr' u' )  2>r
     fpath path>string  BEGIN  next-path dup  WHILE
@@ -2250,7 +2251,7 @@ X has? f83headerstring [IF]
 
 \ Target Document Creation (goes to crossdoc.fd)       05jul95py
 
-s" ./doc/crossdoc.fd" r/w create-file throw value doc-file-id
+s" ./doc/crossdoc.fd.tmp" r/w create-file throw value doc-file-id
 \ contains the file-id of the documentation file
 
 : T-\G ( -- )
@@ -3219,8 +3220,6 @@ ghost ?fold-to drop
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
 
-: to: T : H ;
-: defer@: T : H ;
 : to-opt: T opt: H compile ?fold-to ;
 : defer@-opt: T opt: H compile ?fold-to ;
 
@@ -3293,7 +3292,8 @@ vt: [G'] peephole-compile, gset-optimizer ;vt
 Builder does>-dummy
 Build: ;Build
 by: :dodoes ;DO
-vt: [G'] does, gset-optimizer ;vt
+vt: [G'] does, gset-optimizer
+    [G'] noop  gset-extra  ;vt
 \ vtghost: dodoes-vt
 
 \ Variables and Constants                              05dec92py
@@ -3433,7 +3433,7 @@ T has? rom H [IF]
     by (Value)
 [THEN]
 
-Builder UValue
+Builder (UValue)
 Build: 0 u, T , H ;Build
 DO: X @ tup@ + X @ ;DO
 vt: [G'] u-compile, gset-optimizer [G'] uvalue-to gset-to ;vt
@@ -3518,7 +3518,7 @@ by User
 Builder uval-o
 DO: true abort" not in cross compiler!" ;DO
 Build: 0 au, dup class-o ! X , ;Build
-by UValue
+by (UValue)
 
 >TARGET
 : umethod ( m v -- m' v )
@@ -3620,7 +3620,7 @@ compile: g>body compile lit-perform T A, H ;compile
 Builder (Field)
 compile: g>body T @ H compile lit+ T V, H ;compile
 
-Builder UValue
+Builder (UValue)
 compile: g>body compile user@ T @ V, H ;compile
 
 Builder 2Constant
@@ -3785,6 +3785,8 @@ Cond: ?LEAVE    ?leave, ;Cond
   compile drop 0 ?DO 1 ncontrols? then, LOOP ;	' (endcase,) plugin-of endcase,
 
 >TARGET
+: UValue T (UValue) H ;
+
 Cond: AHEAD     ahead, ;Cond
 Cond: IF        if,  ;Cond
 Cond: ?dup-IF   ?dup-if,  ;Cond

@@ -1,5 +1,6 @@
 \ wiki forth
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2003,2004,2005,2006,2007,2008,2010,2013,2014,2015 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -588,7 +589,7 @@ longtags set-current
 : red> -env ;
 : >>  -env ;
 : *> ;
-: ::  interpret ;
+: ::  ['] interpret bt-rp0-wrapper ;
 : .   end-sec on 0 indent ;
 : :code s" pre" >env
     BEGIN  source >in @ /string .type cr refill  WHILE

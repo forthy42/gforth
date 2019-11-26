@@ -1,5 +1,6 @@
 \ DEBUG.FS     Debugger                                12jun93jaw
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Neal Crook
 \ Copyright (C) 1995,1996,1997,2000,2003,2004,2007,2014,2015,2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -220,7 +221,7 @@ set-current
     ' NestXT IF EXIT THEN (debug) Leave-D ;
 
 : break:, ( -- )
-  latestxt postpone literal ;
+  latestnt postpone literal ;
   
 : break: ( -- ) \ gforth
     break:, postpone (break:) ; immediate

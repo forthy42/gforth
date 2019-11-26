@@ -1,5 +1,6 @@
 \ simple-minded see (good for seeing what the compiler produces)
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2001,2003,2007,2014,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

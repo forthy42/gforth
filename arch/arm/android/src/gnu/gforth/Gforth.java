@@ -1,5 +1,6 @@
 /* Android activity for Gforth on Android
 
+  Authors: Bernd Paysan, Anton Ertl
   Copyright (C) 2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
   This file is part of Gforth.
@@ -209,7 +210,7 @@ public class Gforth
 	    }
 	    
 	    public void setEditLine(String line, int curpos, int len) {
-		Log.v(TAG, "IC.setEditLine: \"" + line + "\" at: " + curpos);
+		// Log.v(TAG, "IC.setEditLine: \"" + line + "\" at: " + curpos);
 		getEditable().clear();
 		getEditable().append(line);
 		if(mExtractedTextRequest != null) {
@@ -288,21 +289,8 @@ public class Gforth
 
 	    @Override
 	    public boolean performContextMenuAction(int id) {
-		switch (id) {
-		case android.R.id.copy:
-		    mView.mActivity.onEventNative(23, 0);
-		    return true;
-		case android.R.id.cut:
-		    mView.mActivity.onEventNative(23, 1);
-		    return true;
-		case android.R.id.paste:
-		    mView.mActivity.onEventNative(23, 2);
-		    return true;
-		case android.R.id.selectAll:
-		    mView.mActivity.onEventNative(23, 3);
-		    return true;
-		}
-		return false;
+		mView.mActivity.onEventNative(24, id);
+		return true;
 	    }
 	}
 	
@@ -437,7 +425,7 @@ public class Gforth
     public void errProgress() {
 	if(progress!=null) {
 	    Log.v(TAG, "Error spinner");
-	    progress.setMessage("error: no space left");
+	    progress.setMessage("error: can't write to storage, no permission/space left?");
 	}
     }
 
@@ -470,8 +458,9 @@ public class Gforth
 	}
     }
     public void setEditLine(String line, int curpos, int len) {
-	Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos + " len: " + len);
-	if(mView!=null) mView.mInputConnection.setEditLine(line, curpos, len);
+	// Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos + " len: " + len);
+	if(mView!=null && mView.mInputConnection!=null)
+	    mView.mInputConnection.setEditLine(line, curpos, len);
     }
 
     @Override
@@ -480,18 +469,6 @@ public class Gforth
         String libname = "gforth";
 
 	gforth=this;
-
-	if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-	    != PackageManager.PERMISSION_GRANTED) {
-	    if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-		Log.v(TAG, "Write to SD card needs explanation");
-		// Show an explanation to the user *asynchronously* -- don't block
-		// this thread waiting for the user's response! After the user
-		// sees the explanation, try again to request the permission.
-	    }
-	    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-			       1);
-	}
 	
 	progress=null;
 	cameraPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
@@ -672,6 +649,12 @@ public class Gforth
 
     @Override protected void onStart() {
 	super.onStart();
+	if(verifyStoragePermissions(this)) {
+	    doStart();
+	}
+    }
+
+    public void doStart() {
 	if(!started) {
 	    startForth(getApplicationInfo().nativeLibraryDir,
 		       Locale.getDefault().toString() + ".UTF-8",
@@ -681,7 +664,7 @@ public class Gforth
 	activated = -1;
 	if(surfaced) onEventNative(18, activated);
     }
-
+    
     @Override protected void onNewIntent (Intent intent) {
 	super.onNewIntent(intent);
 	setIntent(intent);
@@ -866,5 +849,53 @@ public class Gforth
 	}
 	Log.v(TAG, "Return back");
 	return filename;
+    }
+
+    // Storage Permissions
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    ;
+    
+    /**
+     * Checks if the app has permission to write to device storage
+     *
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static String[] REQUEST_STRING = {
+	Manifest.permission.READ_EXTERNAL_STORAGE,
+	Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+    public boolean verifyStoragePermissions(Activity activity) {
+	// Check if we have write permission
+	if (Build.VERSION.SDK_INT >= 23) { // reliably works with Android 6+
+	    int permission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+	    if (permission != PackageManager.PERMISSION_GRANTED) {
+		// We don't have permission so prompt the user
+		requestPermissions(REQUEST_STRING, REQUEST_EXTERNAL_STORAGE);
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult (int requestCode, 
+					    String[] permissions, 
+					    int[] grantResults) {
+	if(requestCode != REQUEST_EXTERNAL_STORAGE) {
+	    for(int i = 0; i <= grantResults.length - 1; i++) {
+		if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+		    onEventNative(26, permissions[i]);
+		}
+	    }
+	    onEventNative(25, requestCode);
+	    return;
+	}
+	for(int i = 0; i <= grantResults.length - 1; i++) {
+	    if(grantResults[i] != PackageManager.PERMISSION_GRANTED) return;
+	}
+	doStart();
     }
 }

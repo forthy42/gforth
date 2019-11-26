@@ -1,5 +1,6 @@
 \ Mini-OOF2, using current object+Gforth primitives    09jan12py
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2012,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -25,9 +26,9 @@ Defer default-method ' noop IS default-method
 
 Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
 opt: ( xt -- ) >body @ postpone o#+ , ;
-to: m-to ( xt -- ) >body @ + ! ;
+: m-to ( xt -- ) >body @ + ! ;
 to-opt: ( xt -- ) >body @ postpone lit+ , postpone ! ;
-defer@: m-defer@ ( xt -- ) >body @ + @ ;
+: m-defer@ ( xt -- ) >body @ + @ ;
 defer@-opt: ( xt -- ) >body @ postpone lit+ , postpone @ ;
 Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
 opt: ( xt -- ) >body @ cell/ postpone o#exec , ;

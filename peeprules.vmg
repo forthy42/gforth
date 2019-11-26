@@ -1,5 +1,6 @@
 \ Gforth superinstructions and stack caching replicas
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2003,2004,2005,2007,2010,2012,2013,2015,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -56,8 +57,9 @@ super30 = o#+ !
 super31 = lit f@
 super32 = lit f!
 super33 = noop flit
-super34 = f@ f*
-super35 = f@ f+
+super34 = lit+ @
+super35 = f@ f*
+super36 = f@ f+
 
 \ compare-and-branch; comment them out if we take up work on gforth-native again
 cb1 = 0< ?branch

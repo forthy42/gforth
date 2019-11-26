@@ -1,5 +1,6 @@
 \ ASSEMBLER, CODE etc.
 
+\ Authors: Anton Ertl, Bernd Paysan, David Kühling, Neal Crook
 \ Copyright (C) 1995,1996,1997,1999,2003,2007,2010,2013,2014,2015,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -57,7 +58,7 @@ vocabulary assembler ( -- ) \ tools-ext
 
 : (;code) ( -- ) \ gforth
     \ execution semantics of @code{;code}
-    r> latestxt code-address! ;
+    r> latestnt code-address! ;
 
 [ifundef] ?colon-sys
 : ?colon-sys  ( ... xt tag -- )
@@ -65,7 +66,7 @@ vocabulary assembler ( -- ) \ tools-ext
 [then]
 
 :noname ( -- colon-sys )
-    align here latestxt code-address!
+    align here latestnt code-address!
     defstart init-asm ;
 :noname ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )
@@ -80,7 +81,7 @@ interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	s
 
 [ifdef] do;abicode: 
 : !;abi-code ( addr -- )
-    latestxt do;abicode: any-code! ;
+    latestnt do;abicode: any-code! ;
 
 : ;abi-code ( -- ) \ gforth semicolon-abi-code
     ['] !;abi-code does>-like postpone [ init-asm ; immediate
@@ -91,5 +92,5 @@ interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	s
     \G return from the ABI call (for @code{abi-code}) or the dispatch
     \G to the next VM instruction (for @code{code} and @code{;code})
     \G yourself.
-    latestxt here over - flush-icache
+    latestnt here over - flush-icache
     previous ?struc reveal ;

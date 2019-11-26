@@ -1,5 +1,6 @@
 \ environmental queries
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Neal Crook
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2007,2012,2015,2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -107,16 +108,16 @@ here version-string>internal here over -
 
 : return-stack-cells ( -- n ) \ environment
     \G Maximum size of the return stack, in cells.
-    [ forthstart 6 cells + ] literal @ cell/ ;
+    [ forthstart 7 cells + ] literal @ cell/ ;
 
 : stack-cells ( -- n ) \ environment
     \G Maximum size of the data stack, in cells.
-    [ forthstart 4 cells + ] literal @ cell/ ;
+    [ forthstart 5 cells + ] literal @ cell/ ;
 
 : floating-stack ( -- n ) \ environment
     \G @var{n} is non-zero, showing that Gforth maintains a separate
     \G floating-point stack of depth @var{n}.
-    [ forthstart 5 cells + ] literal @
+    [ forthstart 6 cells + ] literal @
     [IFDEF] float/  float/  [ELSE]  [ 1 floats ] Literal / [THEN] ;
 
 16 constant #locals

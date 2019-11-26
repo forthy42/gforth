@@ -10,6 +10,7 @@ This manual is for Vmgen
 (version @value{VERSION}, @value{UPDATED}),
 the virtual machine interpreter generator
 
+Author: Anton Ertl
 Copyright @copyright{} 2002,2003,2005,2007,2008 Free Software Foundation, Inc.
 
 @quotation

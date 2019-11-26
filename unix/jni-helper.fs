@@ -226,6 +226,13 @@ jni-method: toString toString ()Ljava/lang/String;
 jni-class: android/content/res/Resources
 jni-method: getIdentifier getIdentifier (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
+SDK_INT 23 >= [IF]
+    jni-class: android/content/ContextWrapper
+    jni-method: checkSelfPermission checkSelfPermission (Ljava/lang/String;)I
+    jni-class: android/app/Activity
+    jni-method: requestPermissions requestPermissions ([Ljava/lang/String;I)V
+[THEN]
+
 jvalue res clazz .getResources to res
 : R.id ( addr u -- id ) make-jstring 0 0 res .getIdentifier ;
 
@@ -302,5 +309,34 @@ $00000006 Constant SCREEN_DIM_WAKE_LOCK
 : screen+bright ( -- )  >bright-wl bright-wl >o wl-acquire o> ;
 : screen-bright ( -- )  >bright-wl bright-wl >o wl-release o> ;
 [THEN]
+
+: new[] ( n class -- array-id )
+    env -rot 0 JNIEnv-NewObjectArray() ?javanf ;
+: >class ( addr u -- id )
+    env -rot JNIEnv-FindClass() ?javanf ;
+: jc" ( -- addr )  '"' parse >class ;
+compsem: '"' parse ]] SLiteral >class [[ ;
+: j[]! ( elem array-id n -- )
+    rot >r env -rot r> JNIEnv-SetObjectArrayElement() ;
+: j[]@ ( array-id n -- elem )
+    env -rot JNIEnv-GetObjectArrayElement() ;
+
+2 Value req#
+0 Value android-perm#
+
+: ?permission ( -- )
+    BEGIN  >looper android-perm# req# =  UNTIL ;
+
+: ask-permissions ( addr1 u1 .. addrn un n -- )
+    [IFDEF] checkSelfPermission
+	{ n } n jc" java/lang/String" new[] { s[] }
+	0 n 1- DO make-jstring s[] I j[]! -1 +LOOP
+	false  n 0 DO s[] I j[]@ clazz .checkSelfPermission 1 <> or  LOOP
+	IF  s[] req# clazz .requestPermissions
+	    ?permission  1 +to req#
+	THEN  s[] ]ref
+    [ELSE]
+	0 ?DO  2drop  LOOP
+    [THEN] ;
 
 previous previous definitions

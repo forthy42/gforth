@@ -1,5 +1,6 @@
 \ input output basics				(extra since)	02mar97jaw
 
+\ Authors: Bernd Paysan, Anton Ertl, Jens Wilke, Neal Crook, Gerald Wodni
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

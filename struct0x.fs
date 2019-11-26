@@ -1,5 +1,6 @@
 \ implementation of Forth 200x structures
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2007,2012,2014,2015,2016,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -44,7 +45,7 @@ standard:field
 
 : extend-structure ( n "name" -- struct-sys n ) \ Gforth
     \g extend an existing structure
-    standard:field >r 0 value lastxt >body r> ;
+    standard:field >r 0 value latestnt >body r> ;
 
 : begin-structure ( "name" -- struct-sys 0 ) \ X:structures
     0 extend-structure ;

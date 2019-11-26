@@ -1,5 +1,6 @@
 \ test some core stuff not tested by John Hayes' suite
 
+\ Author: Anton Ertl
 \ Copyright (C) 2006,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

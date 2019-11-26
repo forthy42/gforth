@@ -1,5 +1,6 @@
 \ smart .s                                             09mar2012py
 
+\ Authors: Bernd Paysan, Anton Ertl, Gerald Wodni
 \ Copyright (C) 2012,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -33,14 +34,15 @@
     '"' emit type '"' emit space ;
 : .addr. ( addr -- )
     dup xt? if
-	dup name>string dup if
-	    ." `" type space drop exit
+        dup name>string dup if
+            2 pick >namevt @ >vt>int @ ['] noop <> if '`' emit then
+            ." `" type space drop exit
 	else
 	    2drop
 	then
     then
-    dup in-dictionary? if
-	forthstart over [ 1 maxaligned negate ]L and U-DO
+    dup which-section? ?dup-if
+	@ >body over [ 1 maxaligned negate ]L and U-DO
 	    I body> xt? if
 		I body> name>string dup if
 		    '<' emit type I - ?dup-if
@@ -55,6 +57,15 @@
 : .var. ( addr -- )
     dup body> >name dup IF  .name drop  ELSE  drop hex.  THEN ;
 
+: smart. ( n -- )
+    dup addr? IF
+	dup .var? IF
+	    .var.
+	ELSE
+	    .addr.  THEN
+    ELSE
+	.  THEN ;
+
 Variable smart.s-skip
 
 : smart.s. ( n -- )
@@ -62,8 +73,8 @@ Variable smart.s-skip
     over r> i swap >r - \ we access the .s loop counter
     dup 1 = IF  false  ELSE  pick  2dup string?  THEN  IF
 	.string. smart.s-skip on
-    ELSE  drop dup addr? IF  dup .var? IF  .var.  ELSE  .addr.  THEN
-	ELSE  .  THEN
+    ELSE
+	drop smart.
     THEN ;
 
 : wrap-xt {: xt1 xt2 xt: xt3 -- ... :}

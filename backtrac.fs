@@ -1,5 +1,6 @@
 \ backtrace handling
 
+\ Authors: Anton Ertl, Bernd Paysan, Gerald Wodni
 \ Copyright (C) 1999,2000,2003,2004,2006,2007,2012,2013,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -28,7 +29,8 @@
     if
 	rp@ [ 2 cells ]L +
     else \ throw by signal handler with insufficient information
-	rp0 @ [ forthstart 6 cells + ]L @ -
+	rp0 @ 1- -$1000 and \ align to next pagesize
+	BEGIN  dup @ 0=  WHILE  cell+  REPEAT
 	\ handler @ cell - \ beyond that we know nothing
     then
     backtrace-rp0 @ [ 1 cells ]L - over - 0 max ;

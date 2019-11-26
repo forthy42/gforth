@@ -1,0 +1,12 @@
+#!/bin/bash
+mark=$BASHPID
+for i in `git ls-files|grep -v -x -F -f update-copyright-blacklist`
+do
+    if [ -f $i -a ! -L $i ]
+    then
+	AUTHORS=$(git shortlog -n -s $i| cut -c8- | while read author; do git log -w -b --shortstat --author="$author" $i | grep -E "fil(e|es) changed" | awk "{files+=\$1; inserted+=\$4; deleted+=\$6} END {if(!(files==inserted && files==deleted) || !(files==1 && inserted==1 && deleted==0)) {print \"$author\"}}"; done | sed -e 's/$/,/g' | tr '[\n]' '[ ]' | sed -e 's/, $//g')
+	PLURAL=$(echo $AUTHORS | sed -e 's/[^,]*//g' -e 's/,,*/,/g' | tr [,] [s])
+	sed -e 's/\(.*\)\(Copyright .* Free Software Foundation, Inc\.\)/\1Author'"$PLURAL"': '"$AUTHORS"'\n\1\2/g' <$i >$i.$mark
+	mv $i.$mark $i
+    fi
+done

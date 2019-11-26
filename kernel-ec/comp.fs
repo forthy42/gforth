@@ -1,5 +1,6 @@
 \ compiler definitions						14sep97jaw
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -306,7 +307,7 @@ defer compile, ( xt -- )	\ core-ext	compile-comma
 : lastflags ( -- c-addr )
     \ the address of the flags byte in the last header
     \ aborts if the last defined word was headerless
-    latest dup 0= abort" last word was headerless" cell+ ;
+    latest dup 0= abort" last word was nameless" cell+ ;
 
 : immediate ( -- ) \ core
     \G Make the compilation semantics of a word be to @code{execute}

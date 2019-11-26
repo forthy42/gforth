@@ -1,5 +1,6 @@
 /* vm interpreter wrapper
 
+  Author: Anton Ertl
   Copyright (C) 2001,2002,2003,2007 Free Software Foundation, Inc.
 
   This file is part of Gforth.

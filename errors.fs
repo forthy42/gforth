@@ -1,5 +1,6 @@
 \ Load in error strings
 
+\ Authors: Anton Ertl, Bernd Paysan, Neal Crook, Jens Wilke
 \ Copyright (C) 1995,1996,1997,1998,1999,2003,2007,2013,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

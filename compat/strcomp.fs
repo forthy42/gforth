@@ -22,6 +22,10 @@ s" gforth" environment? [if]
     \G Is @var{c-addr2 u2} a prefix of @var{c-addr1 u1}?
     tuck 2>r umin 2r> str= ;
 
+: string-suffix? ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth
+    \G Is @var{c-addr2 u2} a suffix of @var{c-addr1 u1}?
+    2>r tuck + swap r@ umin tuck - swap 2r> str= ;
+
 : str< ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth
     compare 0< ;
 

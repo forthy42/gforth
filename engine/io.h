@@ -1,5 +1,6 @@
 /* Input driver header
 
+  Authors: Anton Ertl, Bernd Paysan
   Copyright (C) 1995,1996,1997,1998,1999,2003,2007,2012,2015 Free Software Foundation, Inc.
 
   This file is part of Gforth.

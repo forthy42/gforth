@@ -1,4 +1,5 @@
 \ FORTH Assembler for nibz40
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2006,2007,2008,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

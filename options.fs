@@ -1,5 +1,6 @@
 \ process options in an extensible way
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

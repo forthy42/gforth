@@ -1,5 +1,6 @@
 \ Linux bindings for GLES
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2014,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -90,14 +91,22 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     dpy #38 0 XKeycodeToKeysym drop
     dpy screen XRootWindow to root-win
     dpy root-win XRRGetScreenResourcesCurrent to rr-res
-    dpy rr-res dup XRRScreenResources-crtcs @ @ XRRGetCrtcInfo to rr-crt0
-    rr-crt0 XRRCrtcInfo-noutput l@ 0 ?DO
-	dpy rr-res rr-crt0 XRRCrtcInfo-outputs @ I cells + @
-	XRRGetOutputInfo
-	dup XRROutputInfo-npreferred l@ IF  to rr-out0  ELSE  drop  THEN
-    LOOP
-    rr-crt0 XRRCrtcInfo-width l@
-    rr-crt0 XRRCrtcInfo-height l@ ;
+    rr-res XRRScreenResources-noutput l@ 0 DO
+	dpy rr-res dup XRRScreenResources-crtcs @ I cells + @
+	XRRGetCrtcInfo to rr-crt0
+	rr-crt0 XRRCrtcInfo-noutput l@ 0 ?DO
+	    dpy rr-res rr-crt0 XRRCrtcInfo-outputs @ I cells + @
+	    XRRGetOutputInfo
+	    dup XRROutputInfo-npreferred l@
+	    over XRROutputInfo-connection w@ 0= and
+	    IF  to rr-out0  ELSE  drop  THEN
+	LOOP
+	rr-crt0 XRRCrtcInfo-width l@
+	rr-crt0 XRRCrtcInfo-height l@
+	2dup d0<> IF  unloop  EXIT  THEN  2drop
+    LOOP \ fallback: screen struct
+    screen-struct Screen-width l@
+    screen-struct Screen-height l@ ;
 
 4 buffer: spot \ spot location, two shorts
 

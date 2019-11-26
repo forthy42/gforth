@@ -1,6 +1,7 @@
 \ machpc.fs is generated; source: machpc.fs.in
 \ generic mach file for pc gforth				03sep97jaw
 
+\ Authors: Bernd Paysan, Anton Ertl, David Kühling, Jens Wilke
 \ Copyright (C) 1995,1996,1997,2000,2003,2005,2007,2008,2010,2011,2012,2013,2015,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

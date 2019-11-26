@@ -1,5 +1,6 @@
 \ SwiftForth-like locate etc.
 
+\ Authors: Anton Ertl, Bernd Paysan, Gerald Wodni
 \ Copyright (C) 2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -16,6 +17,12 @@
 
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
+
+$variable where-results
+\ addresses in WHERES that contain the results of the last WHERE
+variable where-index -1 where-index !
+
+-1 0 set-located-view
 
 variable included-file-buffers
 \ Bernd-array of c-addr u descriptors for read-only buffers that
@@ -84,6 +91,14 @@ variable included-file-buffers
 : located-buffer ( -- c-addr u )
     located-view @ view>buffer ;
 
+: current-location?1 ( -- f )
+    located-view @ -1 = if
+        true [: ." no current location" ;] ?warning true exit then
+    false ;
+
+: current-location? ( -- )
+    ]] current-location?1 ?exit [[ ; immediate
+
 : l1 ( -- )
     located-buffer 1 case ( c-addr u lineno1 )
 	over 0= ?of endof
@@ -99,6 +114,7 @@ variable included-file-buffers
 
 : l ( -- )
     \g Display line of source after compiler error or locate
+    current-location?
     cr located-view @ view>filename type  ': emit
     located-top @ dec.
     l1 ;
@@ -114,17 +130,20 @@ variable included-file-buffers
 
 : n ( -- )
     \g Display next lines after locate or error
+    current-location?
     located-bottom @ dup located-top ! form drop 2/ + located-bottom !
     set-bn-view l1 ;
 
 : b ( -- )
     \g Display previous lines after locate.
+    current-location?
     located-top @ dup located-bottom ! form drop 2/ - 0 max located-top !
-    set-bn-view l ;
+    set-bn-view l1 ;
 
 : extern-g ( -- )
     \g Enter the external editor at the place of the latest error,
     \g @code{locate}, @code{n} or @code{b}.
+    current-location?
     bn-view @ ['] editor-cmd >string-execute 2dup system drop free
     throw ;
 
@@ -214,15 +233,29 @@ variable code-locations 0 code-locations !
 \ where
 
 : unbounds ( c-start c-end -- c-start u )
-    over - ;
-    
-: .wheretype ( c-addr u view -- )
-    view>char >r -trailing over r> + {: c-pos :} 2dup + {: c-lineend :}
+    over - 0 max ;
+
+: type-notabs ( c-addr u -- )
+    \G like type, but type a space for each tab
+    bounds ?do
+        i c@ dup #tab = if drop bl then emit loop ;
+
+: width-type ( c-addr u uwidth -- uwidth1 )
+    \g type the part of the string that fits in uwidth; uwidth1 is the
+    \g remaining width; replaces tabs with spaces
+    { uwidth } begin
+        2dup x-width dup uwidth u> while
+            drop x\string- repeat
+    >r type-notabs uwidth r> - ;
+
+: .wheretype1 ( c-addr u view urest -- )
+    { urest } view>char >r -trailing over r> + { c-pos } 2dup + { c-lineend }
     (parse-white) drop ( c-addr1 )
-    info-color  attr! c-pos unbounds type
-    error-color attr! c-pos c-lineend unbounds (parse-white) tuck type
-    info-color  attr! c-pos + c-lineend unbounds type
-    default-color attr! ;
+    info-color  attr! c-pos unbounds urest width-type ->urest
+    error-color attr! c-pos c-lineend unbounds (parse-white) tuck
+    urest width-type ->urest
+    info-color  attr! c-pos + c-lineend unbounds urest width-type ->urest
+    default-color attr! urest spaces ;
     
 : .whereline {: view u -- :}
     \ print the part of the source line around view that fits in the
@@ -230,23 +263,58 @@ variable code-locations 0 code-locations !
     view view>buffer
     1 case ( c-addr u lineno1 )
 	over 0= ?of endof
-	dup view view>line = ?of locate-line view .wheretype endof
+	dup view view>line = ?of locate-line view u .wheretype1 endof
 	locate-next-line
     next-case
     drop 2drop ;
 
-: .whereview ( view -- )
-    dup .sourceview-width ": " type 2 + .whereline ;
+: .whereview1 ( view wno -- )
+    0 <<# `#s #10 base-execute #> rot ( c-addr u view )
+    dup .sourceview-width ." : " 3 + 2 pick + cols swap - .whereline type #>> ;
 
 : forwheres ( ... xt -- ... )
-    { xt } wheres $@ bounds u+do
+    where-results $free
+    0 { xt wno } wheres $@ bounds u+do
 	i where-nt @ xt execute if
-	    i where-loc @ cr .whereview
+            i where-loc @ cr wno .whereview1
+            i { w^ ip } ip cell where-results $+!
+            wno 1+ ->wno
 	then
     where-struct +loop ;
 
-: where ( "name" -- )
-    parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres drop ;
+: where ( "name" -- ) \ gforth
+    \g Show all places where @i{name} is used (text-interpreted).  You
+    \g can then use @code{ww}, @code{nw} or @code{bw} in combination
+    \g with @code{l} or @code{g} to inspect specific occurences more
+    \g closely.
+    parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres
+    drop -1 where-index ! ;
+
+: ww ( u -- ) \ gforth
+    \G The next @code{l} or @code{g} shows the @code{where} result
+    \G with index @i{u}
+    dup where-index !
+    where-results $@ rot cells tuck u<= if
+        2drop -1 0 -1 where-index !
+    else
+        + @ 2@ name>string nip then
+    set-located-view l ;
+
+: nw ( -- ) \ gforth
+    \G The next @code{l} or @code{g} shows the next @code{where}
+    \G result; if the current one is the last one, after @code{nw}
+    \G there is no current one.  If there is no current one, after
+    \G @code{nw} the first one is the current one.
+    where-index @ 1+ ww ;
+
+: bw ( -- ) \ gforth
+    \G The next @code{l} or @code{g} shows the previous @code{where}
+    \G result; if the current one is the first one, after @code{bw}
+    \G there is no current one.    If there is no current one, after
+    \G @code{bw} the last one is the current one.
+    where-index @ dup 0< if
+        drop where-results $@ nip cell/ then
+    1- ww ;
 
 \ count word usage
 
@@ -300,16 +368,81 @@ included-files $[]# 1- constant doc-file#
             {: c-addr3 u3 :} c-addr1 u1 u3 - count-lfs 2 +
             doc-file# swap 1 encode-view u set-located-view l exit
         else
-            2drop cr ." No documentation for " c-addr u type then
+	    2drop c-addr u cr
+	    [: ." No documentation for " type ;] error-color color-execute
+	then
     else
-        cr ." Documentation file not found"
+        cr [: ." Documentation file not found" ;] error-color color-execute
     then
-    ." , LOCATEing source" c-addr u find-name dup 0= -13 and throw locate-name ;
+    [: ." , LOCATEing source" ;] info-color color-execute
+    c-addr u find-name dup 0= -13 and throw locate-name ;
 
-: help ( "name" -- ) \ gforth
-    \G If no name is given, show basic help.  Otherwise, show the
-    \G documentation of the word if it exists, or its source code if
-    \G not.
-    parse-name dup if
-        help-word exit then
-    2drop basic-help ;
+: help-section {: c-addr u -- :}
+    ." help for section" c-addr u type ;
+
+[ifdef] string-suffix?
+: help ( "rest-of-line" -- ) \ gforth
+    \G If no name is given, show basic help.  If a documentation node
+    \G name is given followed by "::", show the start of the node.  If
+    \G the name of a word is given, show the documentation of the word
+    \G if it exists, or its source code if not.  Use @code{g} to enter
+    \G the editor at the point shown by @code{help}.
+    >in @ >r parse-name dup 0= if
+        rdrop 2drop basic-help exit then
+    drop 0 parse + over - -trailing 2dup s" ::" string-suffix? if
+        rdrop help-section exit then
+    r@ >in ! parse-name 2dup find-name if
+        rdrop help-word 2drop exit then
+    2drop r> >in ! 0 parse 2drop 2drop
+    [: ." Not a section or word" ;] error-color color-execute ;
+[then]
+
+\ whereg
+
+#24 #80 2Constant plain-form
+
+' (type) ' (emit) ' (cr) ' plain-form output: plain-out
+: plain-output ( xt -- )
+    op-vector @ >r  plain-out  catch  r> op-vector !  throw ;
+
+s" os-type" environment? [IF]
+    s" linux-android" string-prefix? 0= [IF]
+
+User sh$  cell uallot drop
+: sh-get ( addr u -- addr' u' )
+    \G open command addr u, and read in the result
+    sh$ free-mem-var
+    r/o open-pipe throw dup >r slurp-fid
+    r> close-pipe throw to $? 2dup sh$ 2! ;
+
+:noname '`' parse sh-get ;
+:noname '`' parse postpone SLiteral postpone sh-get ;
+interpret/compile: s` ( "eval-string" -- addr u )
+
+2variable whereg-filename 0 0 whereg-filename 2!
+
+: delete-whereg ( -- )
+    \ delete whereg file
+    whereg-filename 2@ dup if
+	2dup delete-file throw drop free throw
+    else  2drop  then ;
+
+: whereg ( "name" -- ) \ gforth
+    \g Like @code{where}, but puts the output in the editor.  In
+    \g Emacs, you can then use the compilation-mode commands
+    \g (@pxref{Compilation Mode,,,emacs,GNU Emacs Manual}) to inspect
+    \g specific occurences more closely.
+    delete-whereg
+    s` mktemp /tmp/gforth-whereg-XXXXXX` 1- save-mem 2dup whereg-filename 2!
+    2dup r/w open-file throw
+    [:  "-*- mode: compilation; default-directory: \"" type
+	s` pwd` 1- type
+	"\" -*-" type
+	['] where plain-output
+    ;] over outfile-execute close-file throw
+    `edit-file-cmd >string-execute 2dup system drop free throw ;
+
+: bye delete-whereg bye ;
+
+    [THEN]
+[THEN]

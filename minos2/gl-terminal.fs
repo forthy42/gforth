@@ -1,5 +1,6 @@
 \ OpenGL terminal
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -291,6 +292,7 @@ Variable gl-emit-buf
 	'✔' of 11 endof
 	'✘' of 12 endof
 	'▀' of $10 endof
+	'©' of $11 endof
 	dup wcwidth -1 = IF  drop $7F
 	ELSE  dup wcwidth 2 = IF  drop  13  ELSE  $7F umin  THEN
 	THEN

@@ -1,5 +1,6 @@
 \ ansi.fs      Define terminal attributes              20may93jaw
 
+\ Authors: Bernd Paysan, Anton Ertl, Gerald Wodni, Neal Crook
 \ Copyright (C) 1995,1996,1997,1998,2001,2003,2007,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -77,7 +78,7 @@ User Attr   0 Attr !
 
 : (Attr!) ( attr -- )
     \G set attribute
-    dup Attr @ = over 0= or IF drop EXIT THEN
+    dup Attr @ = IF drop EXIT THEN
     dup $6600 = Attr @ 0= and IF drop EXIT THEN
     dup Attr !
     <<# 'm' hold
@@ -111,10 +112,10 @@ User Attr   0 Attr !
 Variable mark-attr
 : m>>> ( -- )
     attr @ dup mark-attr !
-    dup Underline xor attr!
-    ." >>>" Invers xor attr! ;
+    dup error-hl-ul xor attr!
+    ." >>>" error-hl-inv xor attr! ;
 : <<<m ( -- )
-    mark-attr @ dup Underline xor attr! ." <<<" attr! ;
+    mark-attr @ dup error-hl-ul xor attr! ." <<<" attr! ;
 ' m>>> is mark-start
 ' <<<m is mark-end
 

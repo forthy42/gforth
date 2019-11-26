@@ -1,5 +1,6 @@
 \ convert Forth strings to zero-terminated strings
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2008,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

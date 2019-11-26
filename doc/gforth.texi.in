@@ -42,7 +42,7 @@
 
 @c Don't use UTF-8; it will produce a large number of non-ASCII chars.
 @c Instead, recode afterwards if necessary.
-@documentencoding ISO-8859-1
+@documentencoding UTF-8
 
 
 @macro progstyle {}
@@ -77,6 +77,7 @@ a fast and portable implementation of the Standard Forth language.  It
 serves as reference manual, but it also contains an introduction to
 Forth and a Forth tutorial.
 
+Authors: Bernd Paysan, Anton Ertl, Gerald Wodni
 Copyright @copyright{} 1995, 1996, 1997, 1998, 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 @quotation
@@ -156,6 +157,7 @@ Gforth Environment
 
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
+* Help on Gforth::              Getting help
 * Command-line editing::
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
@@ -659,6 +661,7 @@ material in this chapter.
 @menu
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
+* Help on Gforth::              Getting help
 * Command-line editing::
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
@@ -930,7 +933,7 @@ printing the boot message, the user initialization file
 option @code{--no-rc} is given.
 
 @comment ----------------------------------------------
-@node Leaving Gforth, Command-line editing, Invoking Gforth, Gforth Environment
+@node Leaving Gforth, Help on Gforth, Invoking Gforth, Gforth Environment
 @section Leaving Gforth
 @cindex Gforth - leaving
 @cindex leaving Gforth
@@ -943,9 +946,19 @@ leaving Gforth see @ref{Image Files}.
 
 doc-bye
 
+@comment ----------------------------------------------
+@node Help on Gforth, Command-line editing, Leaving Gforth, Gforth Environment
+@section Help on Gforth
+@cindex help
+
+Gforth has a simple, text-based online help system.
+
+doc-help
+doc-authors
+doc-license
 
 @comment ----------------------------------------------
-@node Command-line editing, Environment variables, Leaving Gforth, Gforth Environment
+@node Command-line editing, Environment variables, Help on Gforth, Gforth Environment
 @section Command-line editing
 @cindex command-line editing
 
@@ -5799,13 +5812,16 @@ doc-until
 doc-again
 doc-cs-pick
 doc-cs-roll
-
+doc-cs-drop
 
 The Standard words @code{CS-PICK} and @code{CS-ROLL} allow you to
 manipulate the control-flow stack in a portable way. Without them, you
 would need to know how many stack items are occupied by a control-flow
 entry (many systems use one cell. In Gforth they currently take three,
 but this may change in the future).
+
+@code{CS-PICK} can only pick a dest and @code{CS-DROP} can only drop a
+dest, because an orig must be resolved exactly once.
 
 Some standard control structure words are built from these words:
 
@@ -6687,7 +6703,7 @@ default).
 
 @c anton:
 @c www.dictionary.com says:
-@c at·a·vism: 1.The reappearance of a characteristic in an organism after
+@c atÂ·aÂ·vism: 1.The reappearance of a characteristic in an organism after
 @c several generations of absence, usually caused by the chance
 @c recombination of genes.  2.An individual or a part that exhibits
 @c atavism. Also called throwback.  3.The return of a trait or recurrence
@@ -9990,8 +10006,32 @@ left). E.g., the standard word @code{emit} can be defined in terms of
 A local without type specifier is a @code{W:} local. Both flavours of
 locals are initialized with values from the data or FP stack.
 
-Currently there is no way to define locals with user-defined data
-structures, but we are working on it.
+@cindex data structure locals
+Gforth supports the square bracket notation of local data structures.
+These locals are similar to variable-flavored locals, the size is
+specified as a constant expression.  A declaration looks
+@code{@i{name}[ @i{size} ]}.  The Forth expression @code{@i{size}} is
+evaluated during declaration, it must have the stack effect @code{( --
++n )}, giving the size in bytes.  The square bracket @code{[} is part
+of the defined name.
+
+Local data structures are initialized by copying @i{size} bytes from
+an address passed on the stack; uninitialized local data structures
+(after @code{|} in the declaration) are not erased, they just contain
+whatever data there was on the locals stack before.
+
+Example:
+
+@example
+begin-structure test-struct
+  field: a1
+  field: a2
+end-structure
+
+: test-local @{: foo[ test-struct ] :@}
+    foo[ a1 !  foo[ a2 !
+    foo[ test-struct dump ;
+@end example
 
 Gforth allows defining locals everywhere in a colon definition. This
 poses the following questions:
@@ -12690,7 +12730,7 @@ their semantics.
 @subsection Ptheads
 @cindex pthread
 
-Tasks can be created with @code{newtask} or @code{newtast4} with a
+Tasks can be created with @code{newtask} or @code{newtask4} with a
 given amount of stack space (either all the same or each stack's size
 specified); these tasks neet to be @code{activate}d or send an
 @var{xt} through @code{initiate}.  Tasks can @code{stop} themselves
@@ -13153,9 +13193,9 @@ c-callback vector4single: f@{float@} f@{float@} f@{float@} f@{float@} -- void
 @c 
 @c Irgendwie muss ich den Callback ja testen. Und es soll ja auch 
 @c vorkommen, dass man von irgendwelchen kranken Interfaces einen 
-@c Funktionspointer übergeben bekommt, den man dann bei Gelegenheit 
+@c Funktionspointer Ã¼bergeben bekommt, den man dann bei Gelegenheit 
 @c aufrufen muss. Also kann man den deklarieren, und das damit deklarierte 
-@c Wort verhält sich dann wie ein EXECUTE für alle C-Funktionen mit 
+@c Wort verhÃ¤lt sich dann wie ein EXECUTE fÃ¼r alle C-Funktionen mit 
 @c demselben Prototyp.
 
 

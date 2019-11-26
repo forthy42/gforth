@@ -1,5 +1,6 @@
 \ Android based stuff, including wrapper to androidlib.fs
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -30,67 +31,59 @@ get-current also android definitions
 
 Defer akey
 
-c-library android
-    :noname open-path-lib drop ; is prefetch-lib
+also c-lib
+:noname open-path-lib drop ; is prefetch-lib
+previous
 
-    \c #include <android/input.h>
-    \c #include <android/keycodes.h>
-    \c #include <android/native_window.h>
-    \c #include <android/native_window_jni.h>
-    \c #include <android/native_activity.h>
-    \c #include <android/looper.h>
+begin-structure app_input_state
+    field: action
+    field: flags
+    field: metastate
+    field: edgeflags
+    field: pressure
+    field: size
+    2field: downtime
+    2field: eventtime
+    2field: eventtime'
+    field: tcount
+    field: x0
+    field: y0
+    field: x1
+    field: y1
+    field: x2
+    field: y2
+    field: x3
+    field: y3
+    field: x4
+    field: y4
+    field: x5
+    field: y5
+    field: x6
+    field: y6
+    field: x7
+    field: y7
+    field: x8
+    field: y8
+    field: x9
+    field: y9
+end-structure
 
-    begin-structure app_input_state
-	field: action
-	field: flags
-	field: metastate
-	field: edgeflags
-	field: pressure
-	field: size
-	2field: downtime
-	2field: eventtime
-	2field: eventtime'
-	field: tcount
-	field: x0
-	field: y0
-	field: x1
-	field: y1
-	field: x2
-	field: y2
-	field: x3
-	field: y3
-	field: x4
-	field: y4
-	field: x5
-	field: y5
-	field: x6
-	field: y6
-	field: x7
-	field: y7
-	field: x8
-	field: y8
-	field: x9
-	field: y9
-    end-structure
-    
-    begin-structure startargs
-	field: app-vm
-	field: app-env
-	field: obj
-	field: cls
-	field: thread-id
-	lfield: ke-fd0
-	lfield: ke-fd1
-	field: window \ native window
-    end-structure
-    
-    s" android" add-lib
+begin-structure startargs
+    field: app-vm
+    field: app-env
+    field: obj
+    field: cls
+    field: thread-id
+    lfield: ke-fd0
+    lfield: ke-fd1
+    field: window \ native window
+end-structure
 
-    include unix/androidlib.fs
-    
-end-c-library
+include unix/androidlib.fs
 
 s" APP_STATE" getenv s>number drop Value app
+
+Defer >looper
 
 get-current also forth definitions
 
@@ -294,9 +287,9 @@ Defer ?looper-timeouts ' noop is ?looper-timeouts
 
 : #looper  looper-init
     BEGIN  ?looper-timeouts  0 poll? 0=  UNTIL  poll? drop ;
-: >looper ( -- ) looper-to# #looper ;
+:noname ( -- ) looper-to# #looper ; is >looper
 : ?looper  BEGIN  >looper  app window @ UNTIL ;
-	    
+
 \ : >looper  BEGIN  0 poll_looper 0<  UNTIL looper-to# poll_looper drop ;
 \ : ?looper  BEGIN >looper app window @ UNTIL ;
 
@@ -332,13 +325,14 @@ screen-ops     ' noop IS screen-ops
 Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 
 : nostring ( -- ) setstring$ $off ;
-: insstring ( -- )  setstring$ $@ inskeys nostring ;
+: insstring ( -- )  setstring$ $@ 0 skip inskeys nostring ;
 
 : android-characters ( string -- )  jstring>sstring
-    nostring inskeys jfree ;
+    nostring 0 skip inskeys jfree ;
 Defer android-commit
 :noname     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
-	jstring>sstring inskeys jfree setstring$ $off  THEN ; is android-commit
+	jstring>sstring 0 skip inskeys jfree setstring$ $off
+    THEN ; is android-commit
 Defer android-setstring
 Defer android-inskey ' inskey is android-inskey
 :noname  ( string -- ) jstring>sstring setstring$ $! jfree
@@ -351,8 +345,11 @@ Defer android-inskey ' inskey is android-inskey
     0 -rot bounds ?DO  1+ I I' over - x-size +LOOP ;
 
 : android-edit-update ( span addr pos1 -- span addr pos1 )
-    xedit-update  2dup xcs swap >r >r
-    2dup swap make-jstring r> 0 clazz .setEditLine r> ;
+    xedit-update
+    clazz IF
+	2dup xcs swap >r >r
+	2dup swap make-jstring r> 0 clazz .setEditLine r>
+    THEN ;
 ' android-edit-update is edit-update
 
 : android-setcur ( +n -- ) setcur# ! ;
@@ -456,34 +453,50 @@ Defer android-network ( metered -- )
 Defer android-notification ( intent -- )
 ( :noname drop ." Got intent" cr ; ) ' drop is android-notification
 Defer android-context-menu ( id -- )
-:noname 2 = IF  paste  THEN ; is android-context-menu
+:noname ( n -- )
+    case
+	$0102001f of  "\e[S"  inskeys endof \ select all
+	$01020020 of  ctrl X  inskey  endof \ cut
+	$01020021 of  ctrl C  inskey  endof \ copy
+	$01020022 of  ctrl V  inskey  endof \ paste
+	$0102002c of  ctrl A  inskey  endof \ home
+    endcase ; is android-context-menu
+Defer android-permission# ( n -- )
+:noname to android-perm# ; is android-permission#
+Defer android-permission-result ( jstring -- )
+Variable android-permissions[]
+:noname ( jstring -- )
+    jstring>sstring android-permissions[] $+[]! jfree ;
+is android-permission-result
 
 Create aevents
-' android-key ,
-' android-touch ,
-' android-location ,
-' android-sensor ,
-' android-surface-created ,
-' android-surface-changed ,
-' android-surface-redraw ,
-' android-surface-destroyed ,
-' android-global-layout ,
-' android-video-size ,
-' android-log# ,
-' android-log$ ,
-' android-commit ,
-' android-setstring ,
-' android-w! ,
-' android-h! ,
-' clipboard-changed , \ primary clipboard changed
-' android-config! ,
-' android-active ,
-' android-setcur ,
-' android-setsel ,
-' android-alarm ,
-' android-network ,
-' android-notification ,
-' android-context-menu ,
+(  0 ) ' android-key ,
+(  1 ) ' android-touch ,
+(  2 ) ' android-location ,
+(  3 ) ' android-sensor ,
+(  4 ) ' android-surface-created ,
+(  5 ) ' android-surface-changed ,
+(  6 ) ' android-surface-redraw ,
+(  7 ) ' android-surface-destroyed ,
+(  8 ) ' android-global-layout ,
+(  9 ) ' android-video-size ,
+( 10 ) ' android-log# ,
+( 11 ) ' android-log$ ,
+( 12 ) ' android-commit ,
+( 13 ) ' android-setstring ,
+( 14 ) ' android-w! ,
+( 15 ) ' android-h! ,
+( 16 ) ' clipboard-changed , \ primary clipboard changed
+( 17 ) ' android-config! ,
+( 18 ) ' android-active ,
+( 19 ) ' android-setcur ,
+( 20 ) ' android-setsel ,
+( 21 ) ' android-alarm ,
+( 22 ) ' android-network ,
+( 23 ) ' android-notification ,
+( 24 ) ' android-context-menu ,
+( 25 ) ' android-permission# ,
+( 26 ) ' android-permission-result ,
 here aevents - cell/
 ' drop ,
 Constant max-event#

@@ -1,5 +1,6 @@
 /* a strerror implemenation
 
+  Authors: Anton Ertl, Bernd Paysan
   Copyright (C) 1995,2000,2003,2007,2014,2015,2017 Free Software Foundation, Inc.
 
   This file is part of Gforth.

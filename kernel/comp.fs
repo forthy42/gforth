@@ -1,5 +1,6 @@
 \ compiler definitions						14sep97jaw
 
+\ Authors: Bernd Paysan, Anton Ertl, Neal Crook, Jens Wilke, David Kühling, Gerald Wodni
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -141,61 +142,88 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
-: header, ( c-addr u -- ) \ gforth
-    name-too-long?  vt,
-    get-current >r
-    dup max-name-length @ max max-name-length !
-    [ [IFDEF] prelude-mask ] prelude, [ [THEN] ]
-    dup here + dup maxaligned >align
+: name, ( c-addr u -- ) \ gforth
+    \G compile the named part of a header
+    name-too-long?
+    dup here + dup cfaligned >align
     nlstring,
-    here xt-location drop \ add location stamps on vt+cf
-    r> 1 or A, vttemplate A, here last !
+    get-current 1 or A,
+    here xt-location drop
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
-    \   alias-mask lastflags cset
-    [ [IFDEF] prelude-mask ]
-	next-prelude @ 0<> prelude-mask and lastflags cset
-	next-prelude off
-    [ [THEN] ] named-vt ;
+    here cell+ last ! ; \ set last header
+: 0name, ( -- )
+    cfalign 0 last !
+    here xt-location drop ;
+: namevt, ( namevt -- )
+    , here lastnt ! ; \ add location stamps on vt+cf
+
+: noname-vt ( -- )
+    \G modify vt for noname words
+    default-i/c
+    ['] noname>string set-name>string
+    ['] noname>link set-name>link ;
+: named-vt ( -- )
+    \G modify vt for named words
+    default-i/c
+    ['] named>string set-name>string
+    ['] named>link set-name>link ;
+: ?noname-vt ( -- ) last @ 0= IF  noname-vt  ELSE  named-vt  THEN ;
+
+: header, ( c-addr u -- ) \ gforth
+    \G create a header for a named word
+    vt, name, vttemplate namevt, named-vt ;
+: noname, ( -- ) \ gforth
+    \G create an empty header for an unnamed word
+    vt, 0name, vttemplate namevt, noname-vt ;
 
 defer record-name ( -- )
 ' noop is record-name
 \ record next name in tags file
-defer (header)
-defer header ( -- ) \ gforth
-' (header) IS header
+defer header-name,
+defer header-extra ' noop is header-extra
+: header ( -- ) \ gforth
+    \G create a header for a word
+    vt, header-name, vttemplate namevt, ?noname-vt header-extra ;
+
+: create-from ( nt "name" -- ) \ gforth
+    \G Create a word @i{name} that behaves like @i{nt}, but with an
+    \G empty body.  @i{nt} must be the nt of a named word.  The
+    \G resulting header is not yet revealed.  Creating a word with
+    \G @code{create-from} without using any @code{set-} words is
+    \G faster than if you create a word using @code{set-} words,
+    \G @code{immediate}, or @code{does>}.  You can use @code{noname}
+    \G with @code{create-from}.
+    vt, header-name, >namevt 2@ , cfa,
+    last @ 0= IF noname-vt THEN header-extra ;
+
+: noname-from ( xt -- ) \ gforth
+    \G Create a nameless word that behaves like @i{xt}, but with an
+    \G empty body.  @i{xt} must be the nt of a nameless word.
+    vt, 0name, >namevt 2@ , cfa, ;
 
 : input-stream-header ( "name" -- )
-    parse-name name-too-short? header, ;
+    parse-name name-too-short? name, ;
 
 : input-stream ( -- )  \ general
     \G switches back to getting the name from the input stream ;
-    ['] input-stream-header IS (header) ;
+    ['] input-stream-header IS header-name, ;
 
-' input-stream-header IS (header)
+' input-stream-header IS header-name,
 
-2variable nextname-string
+variable nextname$
 
 : nextname-header ( -- )
-    nextname-string 2@ header,
-    nextname-string free-mem-var
-    input-stream ;
+    nextname$ $@ name, nextname$ $free  input-stream ;
 
 \ the next name is given in the string
 
 : nextname ( c-addr u -- ) \ gforth
     \g The next defined word will have the name @var{c-addr u}; the
     \g defining word will leave the input stream alone.
-    name-too-long?
-    nextname-string free-mem-var
-    save-mem nextname-string 2!
-    ['] nextname-header IS (header) ;
+    name-too-long? nextname$ $!
+    ['] nextname-header IS header-name, ;
 
-: noname, ( -- )
-    0 last ! vt,  here dup cfaligned >align
-    here xt-location drop \ add location stamps on vt+cf
-    vttemplate , \ vtable field
-    noname-vt ;
 : noname-header ( -- )
     noname, input-stream ;
 
@@ -203,12 +231,16 @@ defer header ( -- ) \ gforth
     \g The next defined word will be anonymous. The defining word will
     \g leave the input stream alone. The xt of the defined word will
     \g be given by @code{latestxt}.
-    ['] noname-header IS (header) ;
+    ['] noname-header IS header-name, ;
 
+: latestnt ( -- nt ) \ gforth
+    \G @i{nt} is the name token of the last word defined.
+    \ The main purpose of this word is to get the nt of words defined using noname
+    lastnt @ ;
 : latestxt ( -- xt ) \ gforth
     \G @i{xt} is the execution token of the last word defined.
     \ The main purpose of this word is to get the xt of words defined using noname
-    lastcfa @ ;
+    lastnt @ name>int ;
 
 ' latestxt alias lastxt \ gforth-obsolete
 \G old name for @code{latestxt}.
@@ -244,9 +276,9 @@ immediate restrict
 ' noop Alias recurse
 \g Alias to the current definition.
 
-unlock tlastcfa @ lock >body AConstant lastcfa
-\ this is the alias pointer in the recurse header, named lastcfa.
-\ changing lastcfa now changes where recurse aliases to
+unlock tlastcfa @ lock >body AConstant lastnt
+\ this is the alias pointer in the recurse header, named lastnt.
+\ changing lastnt now changes where recurse aliases to
 \ it's always an alias of the current definition
 \ it won't work in a flash/rom environment, therefore for Gforth EC
 \ we stick to the traditional implementation
@@ -263,7 +295,7 @@ Variable litstack
 
 : cfa,     ( code-address -- )  \ gforth	cfa-comma
     here
-    dup lastcfa !
+    dup lastnt !
     0 A,
     code-address! ;
 
@@ -276,22 +308,22 @@ is basic-block-end
 \ record locations
 
 40 value bt-pos-width
-0 AValue locs-start
-$variable locs[]
 
 Defer xt-location
 : xt-location1 ( addr -- addr )
 \ note that an xt was compiled at addr, for backtrace-locate functionality
-    dup locs-start - cell/ >r
+    dup section-start @ - cell/ >r
     current-view dup r> 1+ locs[] $[] cell- 2!
     0 to replace-sourceview ;
 ' xt-location1 is xt-location
 
-: addr>view ( ip-addr -- view / 0 )
+Defer addr>view
+:noname ( ip-addr -- view / 0 )
     \G give @i{view} information for instruction address @i{ip-addr}
-    dup cell- locs-start here within locs-start and ?dup-IF
+    dup cell- section-start @ section-dp @ within
+    section-start @ and ?dup-IF
 	- cell/ 1- locs[] $[] @  EXIT
-    THEN  drop 0 ;
+    THEN  drop 0 ; is addr>view
 ' addr>view alias name>view ( nt -- view / 0 )
 \G give @i{view} information for name token @i{nt}
 
@@ -312,6 +344,9 @@ has? primcentric [IF]
 
 ' compile, AConstant default-name>comp ( nt -- w xt ) \ gforth default-name-to-comp
     \G @i{w xt} is the compilation token for the word @i{nt}.
+: default-i/c ( -- )
+    ['] noop set->int
+    ['] default-name>comp set->comp ;
 
 : [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth bracket-paren-tick
     (') postpone Literal ; immediate restrict
@@ -371,7 +406,7 @@ include ./recognizer.fs
 : lastflags ( -- c-addr )
     \ the address of the flags byte in the last header
     \ aborts if the last defined word was headerless
-    latest dup 0= abort" last word was headerless"
+    latest dup 0= abort" last word was nameless"
     >f+c ;
 
 : imm>comp  name>int ['] execute ;
@@ -389,7 +424,6 @@ include ./recognizer.fs
 \G interpreter and @code{'} will warn when they encounter such a word.
 
 \ !!FIXME!! new flagless versions:
-\ : immediate [: name>int ['] execute ;] set->comp ;
 \ : compile-only [: drop ['] compile-only-error ;] set->int ;
 
 \ \ Create Variable User Constant                        	17mar93py
@@ -410,31 +444,30 @@ opt: ( xt -- ) ?fold-to >body @ (to), ;
 opt: ( xt -- ) ?fold-to >body @ defer@, ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
-: synonym, ( last xt int comp -- ) \ gforth
+: synonym, ( xt int comp -- ) \ gforth
     set->comp set->int
     ['] s-to       set-to
     ['] s-defer@   set-defer@
     ['] s-compile, set-optimizer
-    cell negate allot A,
-    lastcfa ! ;
+    A, ;
 
 : Alias    ( xt "name" -- ) \ gforth
-    Defer dup ['] a>int ['] a>comp synonym, ;
+    header dodefer, ['] a>int ['] a>comp synonym, reveal ;
 
 : alias? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] a>comp ['] a>int d= ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
-    Defer
+    header dodefer,
     ?parse-name find-name dup 0= #-13 and throw
     dup compile-only? IF  compile-only  THEN
-    dup name>int swap ['] s>int ['] s>comp synonym, ;
+    ['] s>int ['] s>comp synonym, reveal ;
 
 : synonym? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;
 
 : Create ( "name" -- ) \ core
-    Header reveal dovar, ;
+    ['] udp create-from reveal ;
 
 : buffer: ( u "name" -- ) \ core ext
     Create here over 0 fill allot ;
@@ -452,14 +485,14 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     udp @ swap udp +! ;
 
 : User ( "name" -- ) \ gforth
-    Header reveal douser, cell uallot , ;
+    ['] sp0 create-from reveal cell uallot , ;
 
 : AUser ( "name" -- ) \ gforth
     User ;
 
-: (Constant)  Header reveal docon, ;
+: (Constant) ['] bl create-from reveal ;
 
-: (Value)  Header reveal dovalue, ;
+: (Value)    ['] def#tib create-from reveal ;
 
 : Constant ( w "name" -- ) \ core
     \G Define a constant @i{name} with value @i{w}.
@@ -486,7 +519,7 @@ Variable to-style# 0 to-style# !
 
 : !!?addr!! ( -- ) to-style# @ -1 = -2056 and throw ;
 
-: (Field)  Header reveal dofield, ;
+: (Field)  ['] >body create-from reveal ;
 
 \ IS Defer What's Defers TO                            24feb93py
 
@@ -498,10 +531,10 @@ defer defer-default ( -- )
 \G Define a deferred word @i{name}; its execution semantics can be
 \G set with @code{defer!} or @code{is} (and they have to, before first
 \G executing @i{name}.
-    Header Reveal dodefer, 
+    ['] parser1 create-from reveal
     ['] defer-default A, ;
 
-defer@: defer-defer@ ( xt -- )
+: defer-defer@ ( xt -- )
     \ The defer@ implementation of children of DEFER
     >body @ ;
 opt: ( xt -- )
@@ -547,8 +580,6 @@ Create vttemplate
 
 : vt-activate ( xt -- )
     >namevt vttemplate over ! vttemplate ! ;
-: (make-latest) ( xt1 xt2 -- )
-    swap >namevt @ vttemplate vtsize move vt-activate ;
 : vtcopy ( xt -- ) \ gforth vtcopy
     >namevt @ vttemplate 0 >vt>int move
     here vt-activate ;
@@ -579,34 +610,59 @@ Create vttemplate
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
     REPEAT  drop (vt,) ;
 
-: make-latest ( xt -- )
-    vt, dup last ! dup lastcfa ! dup (make-latest) ;
+: make-latest ( nt -- )
+    \G Make @i{nt} the latest definition, which can be manipulated by
+    \G @{immediate} and @code{set-*} operations.  If you have used
+    \G (especially compiled) the word referred to by nt already, do
+    \G not change the behaviour of the word (only its implementation),
+    \G otherwise you may get a surprising mix of behaviours that is
+    \G not consistent between Gforth engines and versions.
+    vt, dup last ! lastnt ! ;
 
-: !namevt ( addr -- )  latestxt >namevt ! ;
+: ?vt ( -- )
+    \G check if deduplicated, duplicate if necessary
+    lastnt @ >namevt @ vttemplate <> IF
+	lastnt @
+	dup >namevt @ vttemplate vtsize move
+	vt-activate
+    THEN ;
 
-: start-xt ( -- colonsys xt ) \ incomplete, will not be a full xt
-    here >r docol: cfa, colon-sys ] :-hook r> ;
-: start-xt-like ( colonsys xt -- colonsys )
-    reveal does>-like drop start-xt drop ;
+: !namevt ( addr -- )  latestnt >namevt ! ;
 
-: set-optimizer ( xt -- ) vttemplate >vtcompile, ! ;
+: general-compile, ( xt -- )
+    postpone literal postpone execute ;
+
+: set-optimizer ( xt -- ) ?vt vttemplate >vtcompile, ! ;
 ' set-optimizer alias set-compiler
-: set-to        ( to-xt -- ) vttemplate >vtto ! ;
-: set-defer@    ( defer@-xt -- ) vttemplate >vtdefer@ ! ;
-: set->int      ( xt -- ) vttemplate >vt>int ! ;
-: set->comp     ( xt -- ) vttemplate >vt>comp ! ;
-: set-does>     ( xt -- ) \ gforth
-    vttemplate >vtextra !
+: set-execute ( ca -- ) \ gforth
+    \G Changes the current word such that it jumps to the native code
+    \G at @i{ca}.  Also changes the \code{compile,} implementation to
+    \G the most general (and slowest) one.  Call
+    \G @code{set-optimizer} afterwards if you want a more efficient
+    \G implementation.
+    ['] general-compile, set-optimizer
+    latestnt code-address! ;
+: set-does> ( xt -- ) \ gforth
+    \G Changes the current word such that it pushes its body address
+    \G and then executes @i{xt}.  Also changes the \code{compile,}
+    \G implementation accordingly.  Call @code{set-optimizer}
+    \G afterwards if you want a more efficient implementation.
     ['] does, set-optimizer
-    dodoes: latestxt ! ;
-: set-name>string ( xt -- ) vttemplate >vt>string ! ;
-: set-name>link   ( xt -- ) vttemplate >vt>link   ! ;
+    vttemplate >vtextra !
+    dodoes: latestnt code-address! ;
+: set-to        ( to-xt -- ) ?vt vttemplate >vtto ! ;
+: set-defer@    ( defer@-xt -- ) ?vt vttemplate >vtdefer@ ! ;
+: set->int      ( xt -- ) ?vt vttemplate >vt>int ! ;
+: set->comp     ( xt -- ) ?vt vttemplate >vt>comp ! ;
+: set-name>string ( xt -- ) ?vt vttemplate >vt>string ! ;
+: set-name>link   ( xt -- ) ?vt vttemplate >vt>link   ! ;
 
-:noname ( -- colon-sys ) start-xt  set-optimizer ;
-:noname ['] set-optimizer start-xt-like ;
-over over
-interpret/compile: opt:
-interpret/compile: comp:
+: int-opt; ( flag lastxt -- )
+    nip >r vt, wrap! r> set-optimizer ;
+: opt: ( -- colon-sys )
+    int-[:
+    ['] int-opt; colon-sys-xt-offset stick ; \ replace noop with :does>;
+' opt: alias comp:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
 : opt!-compile, ( xt -- )
@@ -628,16 +684,6 @@ interpret/compile: comp:
     \ OPT!-COMPILE,.
 ;
 
-: to: ( "name1" -- colon-sys ) \ gforth-internal
-    \G Defines a to-word ( v xt -- ) that is not a proper word (it does
-    \G not compile properly), but only useful as parameter for
-    \G @code{set-to}.  The to-word constitutes a part of the TO <name>
-    \G run-time semantics: it stores v (a stack item of the appropriate
-    \G type for <name>) in the storage represented by the xt (which is
-    \G the xt of <name>).  It is usually used only for interpretive
-    \G @code{to}; the compiled @code{to} uses the part after
-    \G @code{to-opt:}.
-    : ;
 : ?fold-to ( <to>-xt -- name-xt )
     \G Prepare partial constant folding for @code{(to)} methods: if
     \G there's no literal on the folding stack, just compile the
@@ -646,22 +692,14 @@ interpret/compile: comp:
     \G is applied to from the folding stack.
     lits# 0= IF :, rdrop EXIT THEN drop lits> ;
 : to-opt: ( -- colon-sys ) \ gforth-internal
-    \G Must only be used to modify a preceding to-word defined with
-    \G \code{to:}.  It defines a part of the TO <name> run-time
-    \G semantics used with compiled @code{TO}.  The stack effect of
-    \G the code following @code{to-opt:} must be: @code{( xt -- ) (
-    \G generated: v -- )}.  The generated code stores @i{v} in the
-    \G storage represented by @i{xt}.
-    start-xt set-optimizer postpone ?fold-to ;
+    \G Defines a part of the TO <name> run-time semantics used with compiled
+    \G @code{TO}.  The stack effect of the code following @code{to-opt:} must
+    \G be: @code{( xt -- ) ( generated: v -- )}.  The generated code stores
+    \G @i{v} in the storage represented by @i{xt}.
+    opt: postpone ?fold-to ;
 
 \ defer and friends
 
-' to: alias defer@:  ( "name1" -- colon-sys ) \ gforth-internal
-\g Defines @i{name1}, not a proper word, only useful as parameter for
-\g @code{set-defer@}.  It defines what @code{defer@} does for the word
-\g to which the @code{set-defer@} is applied.  If there is a
-\g @code{defer@-opt:} following it, that provides optimized code
-\g generation for compiled @code{action-of}.
 ' to-opt: alias defer@-opt: ( -- colon-sys ) \ gforth-internal
 \g Optimized code generation for compiled @code{action-of @i{name}}.
 \g The stack effect of the following code must be ( xt -- ), where xt
@@ -722,31 +760,14 @@ defer 0-adjust-locals-size ( -- )
     \ by ;-hook before this stuff here is processed).
     ['] noop defstart ;
 
-: (:noname) ( -- colon-sys )
-    \ common factor of : and :noname
-    docol, colon-sys ] :-hook ( unlocal-state off ) ;
-
 : : ( "name" -- colon-sys ) \ core	colon
     free-old-local-names
-    Header (:noname) ;
+    ['] on create-from colon-sys ] :-hook ;
 
-: default-i/c ( -- )
-    ['] noop set->int
-    ['] default-name>comp set->comp ;
-: noname-vt ( -- )
-    \G modify vt for noname words
-    default-i/c
-    ['] noname>string set-name>string
-    ['] noname>link set-name>link ;
-: named-vt ( -- )
-    \G modify vt for named words
-    default-i/c
-    ['] named>string set-name>string
-    ['] named>link set-name>link ;
-: ?noname-vt ( -- ) last @ 0= IF  noname-vt  ELSE  named-vt  THEN ;
-
+:noname ; aconstant dummy-noname
 : :noname ( -- xt colon-sys ) \ core-ext	colon-no-name
-    noname, here (:noname) ;
+    dummy-noname noname-from
+    latestnt colon-sys ] :-hook ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook [compile] exit ?colon-sys

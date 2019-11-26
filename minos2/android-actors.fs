@@ -1,5 +1,6 @@
 \ MINOS2 actors on Android
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -221,21 +222,32 @@ previous
 		2>r k-delete top-act .ekeyed 2r> 4 /string  REPEAT  THEN
     ?dup-IF  top-act .ukeyed  ELSE  drop  THEN
     s$ $free ;
-
+: edit-context-menu ( n -- )
+    case
+	$0102001f of  k-sel   top-act .ekeyed  endof \ select all
+	$01020020 of  ctrl X  top-act .ekeyed  endof \ cut
+	$01020021 of  ctrl C  top-act .ekeyed  endof \ copy
+	$01020022 of  ctrl V  top-act .ekeyed  endof \ paste
+	$0102002c of  k-home  top-act .ekeyed  endof \ home
+    endcase ;
 previous
 
 : enter-minos ( -- )
     edit-widget edit-out !
-    ['] touch>action   is android-touch
-    ['] key>action     is android-key
-    ['] edit-setstring is android-setstring
-    ['] edit-commit    is android-commit ;
+    ['] touch>action      is android-touch
+    ['] key>action        is android-key
+    ['] edit-setstring    is android-setstring
+    ['] edit-commit       is android-commit
+    ['] edit-context-menu is android-context-menu ;
+: preserve ( "name" -- )
+    ' dup defer@ lit, (to), ; immediate
 : leave-minos ( -- )
     edit-terminal edit-out !
-    ['] touch>event is android-touch
-    ['] key>event   is android-key
-    [ action-of android-setstring ]L is android-setstring
-    [ action-of android-commit ]L is android-commit
+    preserve android-touch
+    preserve android-key
+    preserve android-setstring
+    preserve android-commit
+    preserve android-context-menu
     [IFDEF] terminal-program
 	terminal-program terminal-init term-textures [THEN]
     +sync +config +show ;

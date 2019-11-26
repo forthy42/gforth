@@ -1,5 +1,6 @@
 \ VARS.FS      Kernal variables
 
+\ Authors: Anton Ertl, Bernd Paysan, Neal Crook, Jens Wilke
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -28,11 +29,14 @@ opt: ( uvalue-xt to-xt -- )
     ?fold-to !!?addr!! >body @ postpone useraddr , !-table to-!, ;
 : u-compile, ( xt -- )  >body @ postpone user@ , ;
 
-: UValue ( "name" -- )
+: (UValue) ( "name" -- )
     \G Define a per-thread value
-    Create cell uallot , ['] uvalue-to set-to
-    ['] u-compile, set-optimizer
+    Create cell uallot ,
   DOES> @ next-task + @ ;
+: UValue ( "name" -- )
+    (UValue)
+    ['] uvalue-to set-to
+    ['] u-compile, set-optimizer ;
 
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
     Create ( w1 w2 "name" -- )
@@ -187,24 +191,11 @@ User state ( -- a-addr ) \ core,tools-ext
 \ version: Don't use @code{state}!
 0 state !
 
-AVariable normal-dp     \ default dictionary pointer before sections
 UValue dp               \ initialized at boot time with normal-dp
 			\ the pointer to the current dictionary pointer
                         \ ist reset to normal-dp on (doerror)
                         \  (i.e. any throw caught by quit)
-has? ec [IF]
-    AUser LastCFA
-[THEN]
 AUser Last
-
-has? flash [IF]
-    AUser flash-dp
-    : rom  flash-dp dpp ! ;
-    : ram  normal-dp dpp ! ;
-[THEN]
-
-Variable max-name-length \ maximum length of all names defined yet
-32 max-name-length ! \ is global!
 
 Variable warnings ( -- addr ) \ gforth
 \G set warnings level to

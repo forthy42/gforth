@@ -1,5 +1,6 @@
 /* common header file
 
+  Authors: Bernd Paysan, Anton Ertl, David Kühling, Jens Wilke, Neal Crook
   Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
   This file is part of Gforth.
@@ -383,11 +384,10 @@ typedef struct {
 
 typedef struct {
   Address base;		/* base address of image (0 if relocatable) */
-  UCell checksum;	/* checksum of ca's to protect against some
-			   incompatible	binary/executable combinations
-			   (0 if relocatable) */
-  UCell image_size;	/* all sizes in bytes */
   UCell dict_size;
+  Address image_dp;	/* all sizes in bytes */
+  Address sect_name;
+  Address sect_locs;
   UCell data_stack_size;
   UCell fp_stack_size;
   UCell return_stack_size;
@@ -397,6 +397,9 @@ typedef struct {
   Xt *quit_entry;
   Xt *execute_entry;
   Xt *find_entry;
+  UCell checksum;	/* checksum of ca's to protect against some
+			   incompatible	binary/executable combinations
+			   (0 if relocatable) */
   Label *xt_base;         /* base of DOUBLE_INDIRECT xts[], for comp-i.fs */
   Label *label_base;      /* base of DOUBLE_INDIRECT labels[], for comp-i.fs */
 } ImageHeader;
@@ -569,6 +572,7 @@ void vm_count_block(Xt *ip);
 /* dynamic superinstruction stuff */
 void compile_prim1(Cell *start);
 void finish_code(void);
+void finish_code_barrier(void);
 int forget_dyncode(Address code);
 Label decompile_code(Label prim);
 

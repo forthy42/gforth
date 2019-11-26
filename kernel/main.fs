@@ -1,5 +1,6 @@
 \ MAIN.FS      Kernel main load file                   20may93jaw
 
+\ Authors: Bernd Paysan, Anton Ertl, Jens Wilke, David Kühling, Neal Crook
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2011,2012,2013,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -51,10 +52,10 @@ has? rom 0= [IF]
 has? header [IF]
 here 1802 over 
     A,                  \ base address
-    0 ,                 \ checksum
-    0 ,                 \ image size (without tags)
-has? kernel-size
-    ,                   \ dict size
+    has? kernel-size ,  \ dict size
+    0 A,                \ image dp (without tags)
+    0 A,                \ section name
+    0 A,                \ locs[]
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
@@ -64,6 +65,7 @@ has? kernel-size
     0 A,                \ quit entry point
     0 A,                \ execute entry point
     0 A,                \ find entry point
+    0 ,                 \ checksum
     0 ,                 \ base of DOUBLE_INDIRECT xts[], for comp-i.fs
     0 ,                 \ base of DOUBLE_INDIRECT labels[], for comp-i.fs
 [THEN]
@@ -80,6 +82,12 @@ has? header [IF]
 wheres-off
 AConstant image-header
 : forthstart image-header @ ;
+[THEN]
+
+\ primitive aliases must be before first use, because resolving
+\ forward references works only for high level words
+[IFUNDEF] r@
+' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
 [THEN]
 
 \ 0 AConstant forthstart
@@ -111,12 +119,12 @@ include kernel/pass.fs                    \ pass pointers from cross to target
 
 has? header [IF]
     \ set image size
-    here image-header 2 cells + !         
+    here image-header + image-header #02 cells + !
     .( set image entry point) cr
-    ' boot       >body  image-header #08 cells + !
-    ' quit       >body  image-header #10 cells + !
-    ' do-execute >body  image-header #11 cells + !
-    ' do-find    >body  image-header #12 cells + !
+    ' boot       >body  image-header #09 cells + !
+    ' quit       >body  image-header #11 cells + !
+    ' do-execute >body  image-header #12 cells + !
+    ' do-find    >body  image-header #13 cells + !
 [ELSE]
     >boot
 [THEN]

@@ -1,5 +1,6 @@
 \ table fomerly in search.fs
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Neal Crook
 \ Copyright (C) 1996,1997,1999,2001,2003,2007,2015,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -39,6 +40,6 @@ Create cs-wordlist-search-map ( -- wordlist-map )
 
 : cs-vocabulary ( "name" -- ) \ gforth
     \g Create a case-senisitve vocabulary
-    Vocabulary cs-wordlist-search-map lastxt >body ! ;
+    Vocabulary cs-wordlist-search-map latestnt >body ! ;
 
 ' cs-vocabulary alias voctable

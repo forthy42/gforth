@@ -1,5 +1,6 @@
 \ Gforth primitives
 
+\ Authors: Bernd Paysan, Anton Ertl, Neal Crook, Jens Wilke, David Kühling, Gerald Wodni
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -1432,6 +1433,10 @@ w = sp[u];
 :
  1+ cells sp@ + @ ;
 
+third	  ( w1 w2 w3 -- w1 w2 w3 w1 )	gforth
+
+fourth	  ( w1 w2 w3 w4 -- w1 w2 w3 w4 w1 )	gforth
+
 2drop	( w1 w2 -- )		core	two_drop
 :
  drop drop ;
@@ -2769,6 +2774,10 @@ r = fp[u];
 :
  floats fp@ + f@ ;
 
+fthird	  ( r1 r2 r3 -- r1 r2 r3 r1 )	gforth
+
+ffourth	  ( r1 r2 r3 r4 -- r1 r2 r3 r4 r1 )	gforth
+
 \+
 \+
 
@@ -3289,10 +3298,16 @@ decompile-prim ( a_code -- a_prim ) gforth-internal decompile_prim
 compile_prim1ed to a_code""
 a_prim = (Cell *)decompile_code((Label)a_code);
 
-
 tag-offsets ( -- a_addr ) gforth tag_offsets
 extern Cell groups[32];
 a_addr = groups;
+
+finish-code| ( ... -- ... ) gforth finish_code_barrier
+""Perform delayed steps in code generation (branch resolution, I-cache
+flushing).""
+/* The ... above are a workaround for a bug in gcc-2.95, which fails
+   to save spTOS (gforth-fast --enable-force-reg) */
+finish_code_barrier();
 
 \+
 

@@ -1,5 +1,6 @@
 \ Input handling (object oriented)                      22oct00py
 
+\ Authors: Anton Ertl, Bernd Paysan, Gerald Wodni
 \ Copyright (C) 2000,2003,2004,2005,2006,2007,2011,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -159,7 +160,7 @@ terminal-input @       \ source -> terminal-input::source
 \G @code{0} and make the string @i{c-addr u} the input source and
 \G input buffer. Interpret. When the parse area is empty, restore the
 \G input source specification.
-    ['] interpret execute-parsing ;
+    ['] interpret2 execute-parsing ;
 
 \ clear tibstack
 
@@ -181,10 +182,13 @@ defer line-end-hook ( -- ) \ gforth
 \G called at every end-of-line when text-interpreting from a file    
 \ alternatively we could use a wrapper for REFILL
 ' noop is line-end-hook
-    
+
+: read-loop1 ( i*x -- j*x )
+    BEGIN  refill  WHILE  interpret line-end-hook REPEAT ;
+
 : read-loop ( i*x -- j*x ) \ gforth
     \G refill and interpret a file until EOF
-    BEGIN  refill  WHILE  interpret line-end-hook REPEAT
+    ['] read-loop1 bt-rp0-wrapper
     state @ warning" EOF reached while compiling" ;
 
 : get-input ( -- flag ) \ gforth

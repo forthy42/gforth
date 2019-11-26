@@ -1,5 +1,6 @@
 \ Terminal for R8C
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

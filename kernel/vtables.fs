@@ -1,5 +1,6 @@
 \ vtables.fs does the intelligent compile, vtable handling
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2012,2013,2014,2015,2016,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -35,12 +36,12 @@
 \ : :loc, >body ['] call-loc peephole-compile, , ;
 
 : (uv) ( ip -- xt-addr ) 2@ next-task + @ cell- @ swap cells + ;
-to: is-umethod ( method-xt -- )
+: is-umethod ( method-xt -- )
     >body cell+ (uv) ! ;
 opt: ( method-xt -- )
     ?fold-to >body cell+ lit, postpone (uv) postpone ! ;
 
-defer@: umethod-defer@ ( method-xt -- xt )
+: umethod-defer@ ( method-xt -- xt )
     >body cell+ (uv) @ ;
 opt: ( method-xt -- )
     ?fold-to >body cell+ lit, postpone (uv) postpone @ ;

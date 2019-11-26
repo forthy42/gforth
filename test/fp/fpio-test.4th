@@ -3,6 +3,7 @@
 \ Evaluate the floating point input/output number conversion of a 
 \ Forth system which uses IEEE floating point format.
 \
+\ Author: Bernd Paysan
 \ Copyright (c) 2010, Krishna Myneni
 \
 \ Permission is granted to use this code for any purpose, 

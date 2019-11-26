@@ -1,5 +1,6 @@
 \ useful libc functions
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -67,16 +68,20 @@ c-library libc
     c-function readlink readlink s a n -- n ( path len buf len2 -- ret )
     c-function rmdir rmdir s -- n ( path len -- ret )
     c-function mknod mknod s n n -- n ( path mode dev -- ret )
+    c-function mkstemp mkstemp a -- n ( c-addr -- n )
+    c-function getcwd getcwd a u -- a ( c-addr u -- c-addr )
+    c-function strlen strlen a -- n
     getentropy? [IF]
 	c-function getentropy getentropy a n -- n ( buffer len -- n )
     [THEN]
     getrandom? [IF]
+	\c #include <sys/random.h>
 	c-function getrandom getrandom a n u -- n ( buffer len flag -- n )
     [THEN]
     c-value environ environ -- a ( -- env )
 end-c-library
 
-getpagesize constant pagesize
+host? [IF] getpagesize [ELSE] $400 [THEN] Value pagesize
 
 begin-structure pollfd
     lfield: fd
@@ -108,19 +113,25 @@ $004 Constant POLLOUT
     over $@len over 1+ pollfd * umax 2 pick $!len
     pollfd * swap $@ drop + tuck events w! fd l! ;
 
+: ?errno-throw ( f -- )
+    \ throw code computed from errno if f!=0
+    IF  -512 errno - throw THEN ;
+
 : ?ior ( x -- )
     \G use errno to generate throw when failing
-    -1 = IF  errno ?dup-IF  -512 swap - throw  THEN  THEN ;
+    -1 = ?errno-throw ;
 
 [defined] int-execute [if]
     variable saved-errno 0 saved-errno !
-    :noname r> { r } saved-errno @ ->errno execute errno saved-errno ! r >r ;
-    is int-execute
+    : int-errno-exec r> { r } saved-errno @ ->errno defers int-execute
+	errno saved-errno ! r >r ;
+    host? [IF] ' int-errno-exec is int-execute [THEN]
 [then]
 
-: fd>file ( fd -- file )  s" w+" fdopen ;
+: fd>file ( fd -- fid )
+    s" w+" fdopen dup 0= ?errno-throw ;
 
-(getpid) Value getpid
+host? [IF] (getpid) [ELSE] 0 [THEN] Value getpid
 
 : fork() ( -- pid )
     (fork) (getpid) to getpid ;
@@ -136,3 +147,8 @@ e? os-type s" linux-gnu" string-prefix? [IF]
     fork() dup 0= IF  drop ['] exit() is throw  execvp exit()
     ELSE  fpid ! drop 2drop  THEN ;
 [THEN]
+
+:noname defers 'cold
+    ['] int-errno-exec is int-execute
+    getpagesize to pagesize
+    (getpid) to getpid ; is 'cold

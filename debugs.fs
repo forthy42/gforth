@@ -1,5 +1,6 @@
 \ Simple debugging aids
 
+\ Authors: Bernd Paysan, Anton Ertl, Gerald Wodni, Neal Crook
 \ Copyright (C) 1995,1997,1999,2002,2003,2004,2005,2006,2007,2009,2011,2012,2013,2014,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -102,11 +103,27 @@ $10 stack: cov-stack
 
 \ launch a debug shell, quit with emtpy line
 
+[ifundef] bt-rp0-catch
+: bt-rp0-catch ( ... xt -- ... ball )
+    backtrace-rp0 @ >r	
+    catch
+    r> backtrace-rp0 ! ;
+
+: bt-rp0-wrapper ( ... xt -- ... )
+    bt-rp0-catch throw ;
+[then]
+
+: ???-loop ( ... -- ... )
+    BEGIN
+        ." dbg> " refill  WHILE
+            source nip WHILE
+                interpret ."  ok" cr
+        REPEAT  THEN ;
+
 : ??? ( -- )
     \G Open a debuging shell
     create-input cr
-    BEGIN  ." dbg> " refill  WHILE  source nip WHILE
-		interpret ."  ok" cr  REPEAT  THEN
+    ['] ???-loop bt-rp0-catch throw
     0 pop-file drop ;
 ' ??? alias dbg-shell
 
@@ -279,6 +296,15 @@ Variable rec'
 \G EDITOR=joe|mcedit|nano  #if you like other simple editors
 \G @end example
 
+: edit-file-cmd ( c-addr u -- )
+    \ prints the editor command for editing the file with the name c-addr u
+    s" EDITOR" getenv dup 0= IF
+	2drop s" vi" \ if you don't set EDITOR, use vi as default
+    THEN
+    2dup 2>r type space
+    2r@ s" emacsclient" string-prefix? IF  ." -n "  THEN
+    ''' emit esc'type ''' emit  2rdrop ;
+
 \ insert a different location
 
 : #loc ( nline nchar "file" -- )
@@ -290,13 +316,12 @@ Variable rec'
 
 : prompt-ok ( -- )
     ."  ok"
-    fdepth depth 1- 2dup or if
-        space 0 dec.r ?dup if
-            ."  f:" 0 dec.r
-        then
-    else
-        2drop
-    then ;
+    depth ?dup-if
+        space 0 dec.r then
+    fdepth ?dup-if
+        ."  f:" 0 dec.r then
+    rp0 @ rp@ - cell/ 30 - ?dup-if
+        ."  r:" 0 dec.r then ;
 
 : prompt-text    state @ IF ."  compiled" EXIT THEN  prompt-ok ;
 
@@ -307,11 +332,21 @@ Variable rec'
 
 \ print name vtable
 
+: .name? ( xt -- )
+    \ prints name of xt if named, otherwise prints xt as hex number
+    dup >name if
+	.name
+    else
+	hex.
+    then ;
+
 : .vt ( nt -- )
     >namevt @ cr
-    ." opt:    " dup >vtcompile, @ .name cr
-    ." to:     " dup >vtto       @ .name cr
-    ." >int:   " dup >vt>int     @ .name cr
-    ." >comp:  " dup >vt>comp    @ .name cr
-    ." defer@: " dup >vtdefer@   @ .name cr
-    ." extra:  "     >vtextra    @ hex. ;
+    ." opt:    " dup >vtcompile, @ .name? cr
+    ." to:     " dup >vtto       @ .name? cr
+    ." >int:   " dup >vt>int     @ .name? cr
+    ." >comp:  " dup >vt>comp    @ .name? cr
+    ." defer@: " dup >vtdefer@   @ .name? cr
+    ." extra:  " dup >vtextra    @ .name? cr
+    ." >string " dup >vt>string  @ .name? cr
+    ." >link   "     >vt>link    @ .name? ;

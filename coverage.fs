@@ -1,5 +1,6 @@
 \ Code coverage tool
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -21,9 +22,8 @@ require sections.fs
 
 unused extra-section coverage
 
-' Create coverage cover-start
-
 : cover-end ( -- addr ) ['] here coverage ;
+cover-end Constant cover-start
 : cover, ( n -- ) ['] , coverage ;
 : cover-end! ( addr -- )  [: dp ! ;] coverage ;
 

@@ -1,5 +1,6 @@
 \ A less simple implementation of the blocks wordset. 
 
+\ Authors: Anton Ertl, Bernd Paysan, Neal Crook, Jens Wilke
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2011,2012,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -226,7 +227,7 @@ Create block-input   A, A, A, A, A,
     \g Text-interpret block @i{u}.  Block 0 cannot be @code{load}ed.
     dup 0= -35 and throw
     block-input 0 new-tib dup loadline ! blk !  -3 loadfilename# !
-    ['] interpret catch pop-file throw ;
+    ['] interpret bt-rp0-catch pop-file throw ;
 
 : thru ( i*x n1 n2 -- j*x ) \ block-ext
     \G @code{load} the blocks @i{n1} through @i{n2} in sequence.

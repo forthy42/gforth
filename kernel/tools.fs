@@ -1,5 +1,6 @@
 \ TOOLS.FS     Toolkit extentions                      2may93jaw
 
+\ Authors: Anton Ertl, Bernd Paysan, Neal Crook, Jens Wilke
 \ Copyright (C) 1995,1998,1999,2001,2003,2006,2007,2011,2013,2014,2015,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -97,8 +98,9 @@ include  ./../termsize.fs
     REPEAT  drop rdrop ;
 
 : traverse-wordlist ( ... xt wid -- ... )
-    \G xt: ( ... nt -- f ... ) free to use the stack underneath
-    \G run as long as f is true
+    \G perform @i{xt} ( ... nt -- f ... ) once for every word @i{nt}
+    \G in the wordlist @i{wid}, until @i{f} is false or the wordlist
+    \G is exhausted.  @i{xt} is free to use the stack underneath.
     swap >r wordlist-id @
     BEGIN
 	dup

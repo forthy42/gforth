@@ -1,5 +1,6 @@
 \ prims2cl.fs	Primitives to c-library code
 
+\ Authors: Anton Ertl, Jens Wilke, Bernd Paysan
 \ Copyright (C) 1998,1999,2001,2003,2007,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

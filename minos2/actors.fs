@@ -1,5 +1,6 @@
 \ MINOS2 actors basis
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -547,7 +548,8 @@ std-ekeys edit-ekeys keycode-limit keycode-start - cells move
 ' grow-edit$    is grow-tib
 ' eins-string   is insert-string
 
-0 value xselw
+0 Value xselw
+0 Value outselw
 
 also
 [IFDEF] android
@@ -614,6 +616,8 @@ previous
 
 : xedit-enter ( max span addr pos1 -- max span addr pos2 true )
     setstring> edit-enter ;
+: edit-selall ( max span addr pos1 -- max span addr pos2 false )
+    drop over to outselw 0 xretype ;
 
 ' edit-next-line ctrl N bindkey
 ' edit-prev-line ctrl P bindkey
@@ -638,6 +642,7 @@ previous
 ' false          k-winch  ebindkey
 ' edit-del       k-delete ebindkey
 ' (xtab-expand)  k-tab    ebindkey
+' edit-selall    k-sel    ebindkey
 
 edit-terminal edit-out !
 
@@ -654,9 +659,9 @@ edit-terminal edit-out !
     history >r  >r  0 to history
     edit-w .text$ to prev-text$ \ backup of previous text
     edit-w >o addr text$ curpos over $@len umin cursize 0 max o> to xselw
-    >r dup edit$ ! $@ swap over swap r>
+    >r dup edit$ ! $@ swap over swap  0 to outselw r>
     r> catch
-    >r edit-w >o to curpos 0 to cursize o> drop
+    >r edit-w >o to curpos  outselw to cursize o> drop
     edit$!len drop  edit-filter
     r>  r> to history  +sync +resize  throw ;
 

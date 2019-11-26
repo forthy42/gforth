@@ -227,6 +227,7 @@ INFOPATH=/usr/local/info:/usr/info
 manually, or use '/sbin/install-info' (man install-info for details).
 
 
+Authors: Anton Ertl, Bernd Paysan, Neal Crook
 Copyright (C) 2003,2007,2008,2016 Free Software Foundation, Inc.
 This file is free documentation; the Free Software Foundation gives
 unlimited permission to copy, distribute and modify it.

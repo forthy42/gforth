@@ -1,7 +1,9 @@
 \ *** Disassembler for amd64 ***
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 1992-2000 by Bernd Paysan (486 disassembler)
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -308,54 +310,54 @@ Create  lbswap  0 c, 3 c, 3 c, 0 c,
 \ .esc                                                 22may93py
 : flt,  c, bl parse here over 1+ allot place ;
 Create fop1table hex
-80 flt, chs     81 flt, abs     84 flt, tst     85 flt, xam
-08 flt, ld1     09 flt, ldl2t   0A flt, ldl2e   0B flt, ldpi
-0C flt, ldlg2   0D flt, ldln2   0E flt, ldz
-90 flt, 2xm1    D1 flt, yl2x    92 flt, ptan    D3 flt, patan
-94 flt, xtract  D5 flt, prem1   16 flt, decstp  17 flt, incstp
-D8 flt, prem    D9 flt, yl2xp1  9A flt, sqrt    9B flt, sincos
-9C flt, rndint  DD flt, scale   9E flt, sin     9F flt, cos
+$80 flt, chs     $81 flt, abs     $84 flt, tst     $85 flt, xam
+$08 flt, ld1     $09 flt, ldl2t   $0A flt, ldl2e   $0B flt, ldpi
+$0C flt, ldlg2   $0D flt, ldln2   $0E flt, ldz
+$90 flt, 2xm1    $D1 flt, yl2x    $92 flt, ptan    $D3 flt, patan
+$94 flt, xtract  $D5 flt, prem1   $16 flt, decstp  $17 flt, incstp
+$D8 flt, prem    $D9 flt, yl2xp1  $9A flt, sqrt    $9B flt, sincos
+$9C flt, rndint  $DD flt, scale   $9E flt, sin     $9F flt, cos
 : .st   ." ST"  ?dup IF  ." (" 1 .r ." )"  THEN ;
-: .st?  dup 40 and IF 1 .st ., THEN  80 and IF 0 .st THEN ;
-: .fop1 ( IP opcode -- IP )  1F and >r fop1table
-  BEGIN  count 1F and r@ <  WHILE  count +  REPEAT
-  dup 1- c@ dup 1F and r> =
+: .st?  dup $40 and IF 1 .st ., THEN  $80 and IF 0 .st THEN ;
+: .fop1 ( IP opcode -- IP )  $1F and >r fop1table
+  BEGIN  count $1F and r@ <  WHILE  count +  REPEAT
+  dup 1- c@ dup $1F and r> =
   IF  swap count type tab  .st?  ELSE  ." ??" 2drop  THEN ;
 \ .esc                                                 18dec93py
 Create fopbtable
-00 flt, add     01 flt, mul     02 flt, com     03 flt, comp
-04 flt, sub     05 flt, subr    06 flt, div     07 flt, divr
-08 flt, ld      09 flt, xch     0A flt, st      0B flt, stp
+$00 flt, add     $01 flt, mul     $02 flt, com     $03 flt, comp
+$04 flt, sub     $05 flt, subr    $06 flt, div     $07 flt, divr
+$08 flt, ld      $09 flt, xch     $0A flt, st      $0B flt, stp
 Create "fptrs ," SFLOATDWORD DFLOATWORD  "      6 "fptrs c!
 : .modst  count type dup 200 and IF  ." p"  THEN  tab
   dup 400 and IF  dup 7 and .st .,  THEN  0 .st
   dup 400 and 0= IF  dup 7 and ., .st  THEN  drop ;
 : .fmodm  over 9 rshift dup >r 1 and IF ." i" THEN  count type tab
-  r> "fptrs *." ."  PTR " FF and .addr ;
+  r> "fptrs *." ."  PTR " $FF and .addr ;
 : .modfb ( IP opcode -- IP' )  dup 1D0 = IF drop ." nop" exit THEN
   dup 7F8 and 5C0 = IF ." free" tab 7 and .st exit  THEN
-  dup dup 38 and 3 rshift swap 100 and 5 rshift or >r fopbtable
-  BEGIN  count 1F and r@ <  WHILE  count +  REPEAT  rdrop
-  over C0 and C0 =  IF  .modst  ELSE  .fmodm  THEN  ;
+  dup dup $38 and 3 rshift swap 100 and 5 rshift or >r fopbtable
+  BEGIN  count $1F and r@ <  WHILE  count +  REPEAT  rdrop
+  over $C0 and $C0 =  IF  .modst  ELSE  .fmodm  THEN  ;
 \ .esc                                                 22may93py
 Create fopatable
-00 flt, ldenv   01 flt, ldcw    02 flt, stenv   03 flt, stcw
-                05 flt, ld                      07 flt, stp
-08 flt, rstor                   0A flt, save    0B flt, stsw
-0C flt, bld     0D flt, ild     0E flt, bstp    0F flt, istp
+$00 flt, ldenv   $01 flt, ldcw    $02 flt, stenv   $03 flt, stcw
+                $05 flt, ld                      $07 flt, stp
+$08 flt, rstor                   $0A flt, save    $0B flt, stsw
+$0C flt, bld     $0D flt, ild     $0E flt, bstp    $0F flt, istp
 
 : .modfa  ( IP opcode -- IP' )
     dup 7E0 = IF  drop ." stsw" tab ." AX" exit  THEN
-    dup 600 and 7 rshift over 18 and 3 rshift or >r fopatable
-    BEGIN  count 1F and r@ <  WHILE  count +  REPEAT
+    dup 600 and 7 rshift over $18 and 3 rshift or >r fopatable
+    BEGIN  count $1F and r@ <  WHILE  count +  REPEAT
     dup 1- c@ r> = 0= IF  drop  " ??"  THEN
-    count type tab FF and .addr ;
+    count type tab $FF and .addr ;
 
 
 
 \ .esc                                                 02mar97py
 
-: .fop2   1F and  dup 2 = IF  drop ." clex" exit  THEN
+: .fop2   $1F and  dup 2 = IF  drop ." clex" exit  THEN
   dup 3 = IF  drop ." init" exit THEN ." ??" .  ;
 : .esc  ( ip -- ip' )  count opcode @ 7 and 8 lshift or
   dup 7E0 and 1E0 = IF  .fop1  exit  THEN
@@ -404,7 +406,7 @@ Create fopatable
 
 \ .mmi                                                 02mar97py
 
-: .mmr ( reg -- )  ." MM" 7 and 0 .r ;
+: .mmr ( reg -- )  length @ 1 and IF  'x' emit  THEN  ." mm" 7 and 0 .r ;
 : .mma ( r/m -- )  dup $C0 <
   IF ." QUAD PTR " .addr  ELSE  .mmr  THEN ;
 : .mmq ( ip -- ip' )  tab mod@ .mmr ., .mma ;
@@ -415,17 +417,26 @@ Create fopatable
 
 \ sse instructions
 
+: s/d# ( -- n )
+    sd? IF  3  EXIT  THEN
+    ss? IF  1  EXIT  THEN
+    length @ 1 and 2* ;
+
 : .s/p ( -- ) 's' 'p' s? select emit ;
+: .p/s ( -- ) 'p' 's' s? select emit ;
 : .s/d ( -- ) 's' 'd' s? IF ss? ELSE length @ 0= THEN select emit ;
+: .d/s ( -- ) 'd' 's' s? IF ss? ELSE length @ 0= THEN select emit ;
 
 : .sse-suff ( -- ) .s/p .s/d ;
 : .ssereg ( n -- n ) 'y' 'x' l? select emit ." mm" #.r ;
 
-: .sseaddr ( addr r/m -- addr' ) dup 7 and >r 6 rshift
-  dup 3 =            IF  drop r> >b? .ssereg    exit  THEN
-  dup 0= r@ 5 = and  IF  drop rdrop .[ .32u .] exit  THEN
-  r@  4 =            IF       rdrop    .sib    exit  THEN
-  cells .disp + perform  r> .[ .sib/reg .] ;
+: .sseaddr ( addr r/m -- addr' )
+    rex @ 8 xor rex !
+    dup 7 and >r 6 rshift
+    dup 3 =            IF  drop r> >b? .ssereg    exit  THEN
+    dup 0= r@ 5 = and  IF  drop rdrop .[ .32u .] exit  THEN
+    r@  4 =            IF       rdrop    .sib    exit  THEN
+    cells .disp + perform  r> .[ .sib/reg .] ;
 
 : .sse ( ip -- ip' )
     .sse-suff tab mod@ >r? .ssereg .,
@@ -443,6 +454,14 @@ Create fopatable
 : .cvtb ( ip -- ip' ) .sse-suff '2' emit .s/p 'i' emit tab mod@ >r?
     >r .sseaddr ., r> .ssereg
     vex? IF vvvv @ .ssereg ., THEN ;
+: .cvt2 ( ip -- ip' )
+    s" ps2pdss2sdpd2pssd2ss" s/d# 5 * /string 5 umin type
+    tab mod@ >r? .ssereg ., .sseaddr
+    vex? IF vvvv @ .ssereg ., THEN ;
+: .cvt3 ( ip -- ip' )
+    s" dq2ps tps2dqps2dq ???   " s/d# 6 * /string 6 umin -trailing type
+    tab mod@ >r? .ssereg ., .sseaddr
+    vex? IF vvvv @ .ssereg ., THEN ;
 : .ssec ( ip -- ip' )
     .s/d tab mod@ >r? .ssereg .,
     vex? IF vvvv @ .ssereg ., THEN
@@ -453,112 +472,113 @@ Create fopatable
 
 \ 0Ffld                                                16nov97py
 align here to 0Ftbl
-FE 00 t, .grp6 "
-FF 02 t, .modt lar"             FF 03 t, .modt lsl"
-FF 06 t, noop clts"             F8 20 t, .movrx mov"
-FF 08 t, noop invd"             FF 09 t, noop wbinvd"
-FF 10 t, .sse mov"              FF 11 t, .ssea mov"
-FF 28 t, .sse mova"             FF 29 t, .ssea mova"
-FF 2A t, .cvt cvt"              FF 2B t, .ssea movnt"
-FF 2C t, .cvta cvtt"            FF 2D t, .cvta cvt"
-FF 2E t, .ssec ucomis"          FF 2F t, .ssec comis"
-F0 40 t, .cmov cmov"            FF 51 t, .sse sqrt"
-FF 52 t, .sse rsqrt"            FF 53 t, .sse rcp"
-FF 54 t, .sse and"              FF 55 t, .sse andn"
-FF 56 t, .sse or"               FF 57 t, .sse xor"
-FF 58 t, .sse add"              FF 59 t, .sse mul"
-FF 5C t, .sse sub"              FF 5D t, .sse min"
-FF 5E t, .sse div"              FF 5F t, .sse max"
-F0 80 t, .jl j"                 F0 90 t, .set set"
-F7 A0 t, .pseg push"            F7 A1 t, .pseg pop"
-FE A4 t, .shd shld"             FE AC t, .shd shrd"
-E7 A3 t, .bt bt"                FE A6 t, .modb cmpxchg"
-FE B6 t, .movx movzx"           FF BA t, .grp8 bt"
-F8 B0 t, .lxs l"                FE BE t, .movx movsx"
-FE C0 t, .modb xadd"            F8 C8 t, .gr bswap"
-FF AF t, .modt imul"            FF BC t, .modt bsf"
-FF BD t, .modt bsr"             FF C7 t, .ev cmpxchg8b"
+$FE $00 t, .grp6 "
+$FF $02 t, .modt lar"             $FF $03 t, .modt lsl"
+$FF $06 t, noop clts"             $F8 $20 t, .movrx mov"
+$FF $08 t, noop invd"             $FF $09 t, noop wbinvd"
+$FF $10 t, .sse mov"              $FF $11 t, .ssea mov"
+$FF $28 t, .sse mova"             $FF $29 t, .ssea mova"
+$FF $2A t, .cvt cvt"              $FF $2B t, .ssea movnt"
+$FF $2C t, .cvta cvtt"            $FF $2D t, .cvta cvt"
+$FF $2E t, .ssec ucomis"          $FF $2F t, .ssec comis"
+$FF $30 t, noop wrmsr"            $FF $32 t, noop rdmsr"
+$F0 $40 t, .cmov cmov"            $FF $51 t, .sse sqrt"
+$FF $52 t, .sse rsqrt"            $FF $53 t, .sse rcp"
+$FF $54 t, .sse and"              $FF $55 t, .sse andn"
+$FF $56 t, .sse or"               $FF $57 t, .sse xor"
+$FF $58 t, .sse add"              $FF $59 t, .sse mul"
+$FF $5A t, .cvt2 cvt"             $FF $5B t, .cvt3 cvt"
+$FF $5C t, .sse sub"              $FF $5D t, .sse min"
+$FF $5E t, .sse div"              $FF $5F t, .sse max"
+\ !!FIXME!! here is a list of opcodes up to $7F missing
+$FC $70 t, .mmi ps"
+$F0 $80 t, .jl j"                 $F0 $90 t, .set set"
+$F7 $A0 t, .pseg push"            $F7 $A1 t, .pseg pop"
+$FE $A4 t, .shd shld"             $FE $AC t, .shd shrd"
+$E7 $A3 t, .bt bt"                $FE $A6 t, .modb cmpxchg"
+$FE $B6 t, .movx movzx"           $FF $BA t, .grp8 bt"
+$F8 $B0 t, .lxs l"                $FE $BE t, .movx movsx"
+$FE $C0 t, .modb xadd"            $F8 $C8 t, .gr bswap"
+$FF $AF t, .modt imul"            $FF $BC t, .modt bsf"
+$FF $BD t, .modt bsr"             $FF $C7 t, .ev cmpxchg8b"
 
 \ 0Ffld                                                12apr98py
 
-FC 70 t, .mmi ps"
-FF 30 t, noop wrmsr"            FF 32 t, noop rdmsr"
 
 
-FF D5 t, .mmq pmullw"           FF E5 t, .mmq pmulhw"
-FF F5 t, .mmq pmaddwd"
-FF DB t, .mmq pand"             FF $DF t, .mmq pandn"
-FF EB t, .mmq por"              FF EF t, .mmq pxor"
-FC D0 t, .mmx psrl"             FC D8 t, .mmx psubu"
-FC E0 t, .mmx psra"             FC E8 t, .mmx psubs"
-FC F0 t, .mmx psll"             FC F8 t, .mmx psub"
-FC DC t, .mmx paddu"            FC EC t, .mmx padds"
-FC FC t, .mmx padd"             00 00 t, noop 0F???"
+$FF $D5 t, .mmq pmullw"           $FF $E5 t, .mmq pmulhw"
+$FF $F5 t, .mmq pmaddwd"
+$FF $DB t, .mmq pand"             $FF $DF t, .mmq pandn"
+$FF $EB t, .mmq por"              $FF $EF t, .mmq pxor"
+$FC $D0 t, .mmx psrl"             $FC $D8 t, .mmx psubu"
+$FC $E0 t, .mmx psra"             $FC $E8 t, .mmx psubs"
+$FC $F0 t, .mmx psll"             $FC $F8 t, .mmx psub"
+$FC $DC t, .mmx paddu"            $FC $EC t, .mmx padds"
+$FC $FC t, .mmx padd"             $00 $00 t, noop 0F???"
 
 \ disassembler table                                   22may93py
 align here to mntbl
-FF 0F t, .0f "
-E7 06 t, .pseg push"            E7 07 t, .pseg pop"
-F8 00 t, .ari add"              F8 08 t, .ari or"
-F8 10 t, .ari adc"              F8 18 t, .ari sbb"
-E7 26 t, .seg: "                E7 27 t, .adj "
-F8 20 t, .ari and"              F8 28 t, .ari sub"
-F8 30 t, .ari xor"              F8 38 t, .ari cmp"
-F8 40 t, .rexinc "              F8 48 t, .rexdec "
-F8 50 t, .gr push"              F8 58 t, .gr pop"
-FF 60 t, noop pusha"            FF 61 t, noop popa"
-FF 62 t, .modt bound"           FF 63 t, .arpl "
-FE 64 t, .segx "
-FF 66 t, osize "                FF 67 t, asize "
+$FF $0F t, .0f "
+$E7 $06 t, .pseg push"            $E7 $07 t, .pseg pop"
+$F8 $00 t, .ari add"              $F8 $08 t, .ari or"
+$F8 $10 t, .ari adc"              $F8 $18 t, .ari sbb"
+$E7 $26 t, .seg: "                $E7 $27 t, .adj "
+$F8 $20 t, .ari and"              $F8 $28 t, .ari sub"
+$F8 $30 t, .ari xor"              $F8 $38 t, .ari cmp"
+$F8 $40 t, .rexinc "              $F8 $48 t, .rexdec "
+$F8 $50 t, .gr push"              $F8 $58 t, .gr pop"
+$FF $60 t, noop pusha"            $FF $61 t, noop popa"
+$FF $62 t, .modt bound"           $FF $63 t, .arpl "
+$FE $64 t, .segx "
+$FF $66 t, osize "                $FF $67 t, asize "
 
 \ disassembler table                                   21may94py
 
-FF 68 t, .iv push"              FF 69 t, .modiv imul"
-FF 6A t, .ib push"              FF 6B t, .modib imul"
-FE 6C t, .str ins"              FE 6E t, .str outs"
-F0 70 t, .js j"                 FF 82 t, noop ???"
-FC 80 t, .grp1 "                FE 84 t, .modb test"
-FE 86 t, .modb xchg"            FC 88 t, .ari mov"
-FD 8C t, .movs mov"             FF 8D t, .modt lea"
-FF 8F t, .ev pop"
-FF 90 t, noop nop"              F8 90 t, .xcha xchg"
-FF 98 t, noop cbw"              FF 99 t, noop cwd"
-FF 9A t, .far callf"            FF 9B t, noop wait"
-FF 9C t, noop pushf"            FF 9D t, noop popf"
-FF 9E t, noop sahf"             FF 9F t, noop lahf"
+$FF $68 t, .iv push"              $FF $69 t, .modiv imul"
+$FF $6A t, .ib push"              $FF $6B t, .modib imul"
+$FE $6C t, .str ins"              $FE $6E t, .str outs"
+$F0 $70 t, .js j"                 $FF $82 t, noop ???"
+$FC $80 t, .grp1 "                $FE $84 t, .modb test"
+$FE $86 t, .modb xchg"            $FC $88 t, .ari mov"
+$FD $8C t, .movs mov"             $FF $8D t, .modt lea"
+$FF $8F t, .ev pop"
+$FF $90 t, noop nop"              $F8 $90 t, .xcha xchg"
+$FF $98 t, noop cbw"              $FF $99 t, noop cwd"
+$FF $9A t, .far callf"            $FF $9B t, noop wait"
+$FF $9C t, noop pushf"            $FF $9D t, noop popf"
+$FF $9E t, noop sahf"             $FF $9F t, noop lahf"
 
 \ disassembler table                                   22may93py
 
-FC A0 t, .movo mov"             FE A4 t, .str movs"
-FE A6 t, .str cmps"             FE A8 t, .igr test"
-FE AA t, .str stos"             FE AC t, .str lods"
-FE AE t, .str scas"
-F8 B0 t, .igrb mov"             F8 B8 t, .igrv mov"
-FE C0 t, .grp2i "               FE C2 t, .ret ret"
-FF C4 t, .vexC4 "               FF C5 t, .vexC5 "
-FE C6 t, .movi mov"
-FF C8 t, .enter enter"          FF C9 t, noop leave"
-FE CA t, .ret retf"
-FF CC t, noop int3"            FF 0CD t, .ib int"
-FF CE t, noop into"             FF CF t, noop iret"
-
+$FC $A0 t, .movo mov"             $FE $A4 t, .str movs"
+$FE $A6 t, .str cmps"             $FE $A8 t, .igr test"
+$FE $AA t, .str stos"             $FE $AC t, .str lods"
+$FE $AE t, .str scas"
+$F8 $B0 t, .igrb mov"             $F8 $B8 t, .igrv mov"
+$FE $C0 t, .grp2i "               $FE $C2 t, .ret ret"
+$FF $C4 t, .vexC4 "               $FF $C5 t, .vexC5 "
+$FE $C6 t, .movi mov"
+$FF $C8 t, .enter enter"          $FF $C9 t, noop leave"
+$FE $CA t, .ret retf"
+$FF $CC t, noop int3"             $FF $CD t, .ib int"
+$FF $CE t, noop into"             $FF $CF t, noop iret"
 
 \ disassembler table                                   12aug00py
-FC D0 t, .grp2 "
-FF D4 t, noop aam"              FF D5 t, noop aad"
-FF D6 t, noop salc"
-FF D7 t, noop xlat"             F8 D8 t, .esc f"
-FF E0 t, .jb loopne"            FF E1 t, .jb loope"
-FF E2 t, .jb loop"              FF E3 t, .jb jcxz"
-FE E4 t, .io# in"               FE E6 t, .io# out"
-FF E8 t, .jv call"              FF E9 t, .jv jmp"
-FF EA t, .far jmpf"             FF EB t, .jb jmp"
-FE EC t, .io in"                FE EE t, .io out"
-FF F0 t, .code lock "           FF F2 t, .rep "
-FF F3 t, .repe "                FF F4 t, noop hlt"
-FF F5 t, noop cmc"              FE F6 t, .grp3 "
-FE FE t, .grp4 "                F8 F8 t, .stcl "
-00 00 t, noop ???"
+$FC $D0 t, .grp2 "
+$FF $D4 t, noop aam"              $FF $D5 t, noop aad"
+$FF $D6 t, noop salc"
+$FF $D7 t, noop xlat"             $F8 $D8 t, .esc f"
+$FF $E0 t, .jb loopne"            $FF $E1 t, .jb loope"
+$FF $E2 t, .jb loop"              $FF $E3 t, .jb jcxz"
+$FE $E4 t, .io# in"               $FE $E6 t, .io# out"
+$FF $E8 t, .jv call"              $FF $E9 t, .jv jmp"
+$FF $EA t, .far jmpf"             $FF $EB t, .jb jmp"
+$FE $EC t, .io in"                $FE $EE t, .io out"
+$FF $F0 t, .code lock "           $FF $F2 t, .rep "
+$FF $F3 t, .repe "                $FF $F4 t, noop hlt"
+$FF $F5 t, noop cmc"              $FE $F6 t, .grp3 "
+$FE $FE t, .grp4 "                $F8 $F8 t, .stcl "
+$00 $00 t, noop ???"
 \ addr! dis disw disline                               13may95py
 
 : .86    1 .length !  .alength on  len! ;
@@ -574,9 +594,7 @@ Forth definitions
     $10 base-execute ;
 
 : disasm ( addr u -- ) \ gforth
-    [: over + >r
-	begin  dup r@ u<  while  cr disline  repeat
-	cr rdrop drop ;] $10 base-execute ;
+    [: bounds u+do  cr i disline i - +loop  cr ;] $10 base-execute ;
 
 ' disasm is discode
 

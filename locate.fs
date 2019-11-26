@@ -1,5 +1,6 @@
 \ locate, using the TAGS file
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2002,2003,2007,2015 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

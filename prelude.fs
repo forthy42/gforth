@@ -1,6 +1,7 @@
 \ prelude  higher-level words
 
-\ Copyright (C) 2009 Free Software Foundation, Inc.
+\ Authors: Bernd Paysan, Anton Ertl
+\ Copyright (C) 2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -17,9 +18,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-[defined] next-prelude [if]
-
 : prelude ( xt -- )
-    next-prelude ! ;
-
-[then]
+    \G prelude adds a prelude to the current definition without special
+    \G compilation semantics.  The prelude @i{xt} is executed by the outer
+    \G interpreter before the words compilation or interpretation semantics is
+    \G performed.
+    set->int
+    [: name>int ['] compile, ;] set->comp ;

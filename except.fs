@@ -1,5 +1,6 @@
 \ catch, throw, etc.
 
+\ Authors: Anton Ertl, Bernd Paysan, Gerald Wodni
 \ Copyright (C) 1999,2000,2003,2006,2007,2010,2013,2014,2015,2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -124,7 +125,7 @@ variable located-bottom \ last line to display with l
 
 :noname ( y1 .. ym error/0 -- y1 .. ym / z1 .. zn error ) \ exception
     ?DUP-IF
-	[ here forthstart 9 cells + !
+	[ here forthstart #10 cells + !
 	  here throw-entry ! ]
 	first-throw @ IF
 	    store-backtrace

@@ -1,6 +1,7 @@
 /* command line interpretation, image loading etc. for Gforth
 
 
+  Authors: Anton Ertl, Bernd Paysan, Jens Wilke, David Kühling
   Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
   This file is part of Gforth.
@@ -317,7 +318,7 @@ Cell groups[32] = {
 };
 
 static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring,
-			      int size, Cell base)
+				     int size, Cell base, int sect)
      /* produce a bitmask marking all the branch targets */
 {
   int i=0, j, k, steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
@@ -331,8 +332,9 @@ static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring
       if(bits & (1U << (RELINFOBITS-1))) {
 	assert(i*sizeof(Cell) < size);
         token=image[i];
-	if (token>=base) { /* relocatable address */
-	  UCell bitnum=(token-base)/sizeof(Cell);
+	if ((token>=base) &&
+	    (SECTION(token) == sect)) { /* relocatable address */
+	  UCell bitnum=(INSECTION(token)-INSECTION(base))/sizeof(Cell);
 	  if (bitnum/RELINFOBITS < (UCell)steps)
 	    result[bitnum/RELINFOBITS] |= 1U << ((~bitnum)&(RELINFOBITS-1));
 	}
@@ -361,10 +363,12 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
     Cell base=bases[ii];
 
     int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
+
+    debugp(stderr, "relocate section %i, %p:%p\n", ii, base, size);
     
     if(!bitstring) break;
     
-    unsigned char *targets = branch_targets(image, bitstring, size, base);
+    unsigned char *targets = branch_targets(image, bitstring, size, base, ii);
     
     /* group index into table */
     if(groups[31]==0) {
@@ -383,12 +387,12 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
       ;
     max_symbols--;
     
-    for(k=0; k<steps; k++) {
+    for(i=k=0; k<steps; k++) {
       for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
 	/*      fprintf(stderr,"relocate: image[%d]\n", i);*/
 	if(bits & (1U << (RELINFOBITS-1))) {
+	  // debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
 	  assert(i*sizeof(Cell) < size);
-	  /* fprintf(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell)); */
 	  token=image[i];
 	  if(SECTION(token)==0xFF) {
 	    int group = (-token & 0x3E00) >> 9;
@@ -469,8 +473,8 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
     free(targets);
     if(ii==0)
       image[0] = (Cell)image;
+    finish_code();
   }
-  finish_code();
 }
 
 #ifndef DOUBLY_INDIRECT
@@ -1257,6 +1261,15 @@ void finish_code(void)
   flush_to_here();
 }
 
+void finish_code_barrier(void)
+{
+  compile_prim1(NULL);
+#ifndef NO_DYNAMIC
+  append_jump();
+#endif
+  flush_to_here();
+}
+
 #if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
 static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
      /* compile prim #p dynamically (mod flags etc.) and return start
@@ -1965,20 +1978,21 @@ ImageHeader* gforth_loader(char* imagename, char* path)
 #endif
   debugp(stderr,"pagesize=%ld\n",(unsigned long) pagesize);
 
-  image = dict_alloc_read(imagefile, preamblesize+header.image_size,
+  sizes[0]=header.image_dp-header.base;
+  bases[0]=(Cell)header.base;
+
+  image = dict_alloc_read(imagefile, preamblesize+sizes[0],
 			  dictsize, data_offset);
   if(image==NULL) return NULL;
 
   sections[0]=imp=image+preamblesize;
-  sizes[0]=header.image_size;
-  bases[0]=(Cell)header.base;
 
   set_stack_sizes((ImageHeader*)imp);
 
   if (clear_dictionary)
-    memset(imp+header.image_size, 0, dictsize-header.image_size-preamblesize);
+    memset(imp+sizes[0], 0, dictsize-sizes[0]-preamblesize);
   
-  fseek(imagefile, preamblesize+header.image_size, SEEK_SET);
+  fseek(imagefile, preamblesize+sizes[0], SEEK_SET);
     
   int i;
   for(i=0; i<0xFE; ) {
@@ -2007,8 +2021,9 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     
     bases[i] = INSECTION(section.base);
     sizes[i] = section.dp-section.base;
-    sections[i] = alloc_mmap_guard(section.end-section.base);
+    sections[i] = alloc_mmap_guard(section.end);
     fseek(imagefile, -sizeof(SectionHeader), SEEK_CUR);
+    debugp(stderr, "section base=%p, dp=%p, end=%p\n", section.base, section.dp, section.end);
     if(fread(sections[i], 1, sizes[i], imagefile) != sizes[i]) break;
   }
   gforth_relocate(sections, reloc_bits, sizes, bases, vm_prims);

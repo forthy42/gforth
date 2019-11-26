@@ -1,5 +1,6 @@
 \ kernel.fs    GForth kernel                        17dec92py
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Neal Crook
 \ Copyright (C) 1995,1998,2000,2003,2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -32,10 +33,6 @@ hex
 
 \ Aliases
 
-[IFUNDEF] r@
-' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
-[THEN]
-
 \ !! this is machine-dependent, but works on all but the strangest machines
 
 : maxaligned ( addr1 -- addr2 ) \ gforth
@@ -59,21 +56,25 @@ hex
 \    here cell allot A! ;
 ' ! alias A! ( addr1 addr2 -- ) \ gforth
 
-\ UNUSED                                                17may93jaw
+\ dictionary
 
-has? ec [IF]
-unlock ram-dictionary borders nip lock
-AConstant dictionary-end
-[ELSE]
-    has? header [IF]
-	: dictionary-end ( -- addr )
-	    forthstart [ 3 cells image-header + ] Aliteral @ + ;
-    [ELSE]
-	: forthstart 0 ;
-	: dictionary-end ( -- addr )
-	    forthstart [ has? kernel-size ] Literal + ;
-    [THEN]
-[THEN]
+user-o current-section
+
+0 0
+cell uvar section-start
+cell uvar section-size
+cell uvar section-dp
+cell uvar section-name
+cell uvar locs[]
+
+Constant section-desc
+drop
+
+image-header current-section !
+image-header 4 cells + unlock cross-boot$[] >stack lock
+
+: dictionary-end ( -- addr )
+    section-start 2@ + ;
 
 : usable-dictionary-end1 ( -- addr )
     dictionary-end [ word-pno-size pad-minsize + ] Literal - ;
@@ -86,13 +87,10 @@ defer usable-dictionary-end ( -- addr )
     \G the region addressed by @code{here}.
     usable-dictionary-end here - ;
 
-has? ec has? primcentric 0= and [IF]
-: in-dictionary? ( x -- f )
-    dictionary-end u< ;
-[ELSE]    
-: in-dictionary? ( x -- f )
-    forthstart dictionary-end within ;
-[THEN]
+Defer in-dictionary? ( x -- f )
+: in-dictionary1? ( x -- f )
+    section-start 2@ tuck + within ;
+' in-dictionary1? is in-dictionary?
 
 \ here is used for pad calculation!
 

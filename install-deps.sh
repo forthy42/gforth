@@ -36,15 +36,15 @@ install_osx() {
   brew tap forthy42/homebrew-zsh
   brew update > /dev/null
   brew upgrade > /dev/null
-  brew install yodl gforth gcc harfbuzz texinfo xz
+  brew install yodl gforth gcc harfbuzz texinfo xz mesa
   export PATH="/usr/local/opt/texinfo/bin:$PATH"
   brew cask install xquartz mactex
   export PATH="/Library/TeX/texbin:$PATH"
   brew link --overwrite gcc
-  (cd /usr/local/Cellar/gcc/8.2.0/lib/gcc/8/gcc/x86_64-apple-darwin17.7.0/8.2.0/include-fixed; mv stdio.h stdio.h.botched)
+#  (cd /usr/local/Cellar/gcc/8.2.0/lib/gcc/8/gcc/x86_64-apple-darwin17.7.0/8.2.0/include-fixed && mv stdio.h stdio.h.botched)
 }
 
 install_${TRAVIS_OS_NAME:-linux}
 ./install-swig.sh
 ./install-freetype-gl.sh
-./install-soil2.sh
+#./install-soil2.sh

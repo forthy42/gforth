@@ -1,5 +1,6 @@
 \ Presentation on ΜΙΝΩΣ2 made in ΜΙΝΩΣ2
 
+\ Author: Bernd Paysan
 \ Copyright (C) 2018 Bernd Paysan
 
 \ This program is free software: you can redistribute it and/or modify
@@ -26,12 +27,6 @@ also minos
 ctx 0= [IF]  window-init  [THEN]
 
 require minos2/font-style.fs
-
-: update-size# { f: lines -- }
-    dpy-w @ s>f lines f/ fround to font-size#
-    font-size# 16e f/ m2c:curminwidth% f!
-    dpy-h @ s>f dpy-w @ s>f f/ 45% f/ font-size# f* fround to baseline#
-    dpy-w @ s>f 1280e f/ to pixelsize# ;
 
 84e update-size#
 

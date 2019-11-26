@@ -1,5 +1,6 @@
 \ LOOK.FS      xt -> lfa                               22may93jaw
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
 \ Copyright (C) 1995,1996,1997,2000,2003,2007,2011,2012,2013,2014,2015,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -99,11 +100,18 @@ has? rom
 [THEN]
 [THEN]
 
-: >name ( xt -- nt ) \ gforth to-name
-    \G The primary name token @var{nt} of the word represented by
-    \G @var{xt}.  As of Gforth 1.0, every xt has a primary nt, but other
-    \G named words may have the same interpretation sematics xt.
+: >name ( xt -- nt|0 ) \ gforth to-name
+    \G The primary name token @i{nt} of the word represented by
+    \G @i{xt}.  Returns 0 if @i{xt} is not an xt (using a heuristic
+    \G check that has a small chance of misidentifying a non-xt as
+    \G xt), or if the primary nt is of an unnamed word.  As of Gforth
+    \G 1.0, every xt has a primary nt, but other named words may have
+    \G the same interpretation sematics xt.
     look and ;
+
+synonym xt>name noop ( xt -- nt ) \ gforth xt-to-name
+\G Produces the primary nt for an xt.  If @i{xt} is not an xt, @i{nt}
+\G is not guaranteed to be an nt.
 
 : threaded>name ( ca -- nt|0 )
     threaded>xt >name ;

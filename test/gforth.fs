@@ -1,5 +1,6 @@
 \ test some gforth extension words
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2003,2004,2005,2006,2007,2009,2011,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -325,3 +326,14 @@ t{ pl-test8 -> 123 }t
 t{ : pl-test9 ['] + {: xt: l :} postpone l ; immediate -> }t
 t{ : pl-testa pl-test9 ; -> }t
 t{ 3 6 pl-testa -> 9 }t
+
+\ optimized pick and fpick
+t{ : pick-test 4 pick 3 pick 2 pick 1 pick 0 pick ; -> }t
+t{ 5 6 7 8 9 pick-test -> 5 6 7 8 9 5 7 9 7 7 }t
+t{ : fpick-test 4 fpick 3 fpick 2 fpick 1 fpick 0 fpick ; -> }t
+t{ 5e 6e 7e 8e 9e fpick-test -> 5e 6e 7e 8e 9e 5e 7e 9e 7e 7e }t
+
+\ `<word> and ``<word>
+
+t{ `to -> ' to }t
+t{ ``to -> "to" find-name }t

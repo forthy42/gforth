@@ -2,6 +2,7 @@
 
 # Procedures to build gforth from the CVS sources
 
+#Authors: Bernd Paysan, Anton Ertl, Lars Brinkhoff
 #Copyright (C) 2008,2014,2015,2016 Free Software Foundation, Inc.
 
 #This file is part of Gforth.

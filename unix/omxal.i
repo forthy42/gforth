@@ -26,7 +26,7 @@ extern struct _IO_FILE *stderr;
 %apply long long { XAint64, XAAint64 }
 %apply SWIGTYPE * { void * }
 
-// exec: sed -e s/Itf_-/Itf-/g -e s/ID_-/ID-/g
+// exec: sed -e s/Itf_-/Itf-/g -e s/ID_-/ID-/g -e 's/omxal"/OpenMAXAL"/g' -e 's/^\(.*c-library\)/\\ \1/g'
 
 %include "OMXAL/OpenMAXAL_Platform.h"
 %include "OMXAL/OpenMAXAL.h"

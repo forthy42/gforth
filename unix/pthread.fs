@@ -1,5 +1,6 @@
 \ posix threads
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -163,7 +164,7 @@ c-library pthread
 end-c-library
 
 require libc.fs
-require set-compsem.fs
+require ../set-compsem.fs
 
 User pthread-id  -1 cells pthread+ uallot drop
 
@@ -270,10 +271,10 @@ synonym c-section critical-section
     >r 1- r> 1- pagesize negate mux 1+ ;
 : stacksize ( -- n ) \ gforth-experimental
     \G stacksize for data stack
-    forthstart 4 cells + @ ;
+    forthstart 5 cells + @ ;
 : stacksize4 ( -- dsize fsize rsize lsize ) \ gforth-experimental
     \G This gives you the system stack sizes
-    forthstart 4 cells + 4 cells bounds DO  I @  cell +LOOP
+    forthstart 5 cells + 4 cells bounds DO  I @  cell +LOOP
     2>r >r  sp0 @ >pagealign-stack r> fp0 @ >pagealign-stack 2r> ;
 
 : execute-task ( xt -- task ) \ gforth-experimental
@@ -401,7 +402,7 @@ synonym sleep halt ( task -- )
 
 \ User deferred words, user values
 
-defer@: udefer@ ( xt -- )
+: udefer@ ( xt -- )
     >body @ up@ + @ ;
 defer@-opt: ( xt -- ) >body @ postpone useraddr , postpone @ ;
 

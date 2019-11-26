@@ -32,4 +32,8 @@ base @ hex
 { 2060 xc-width -> 0 }
 { test-string x-width -> 9 }
 
+{ '√' parse abc√ "abc" str= -> true }
+{ '√' parse def
+"def" str= -> true }
+
 base !

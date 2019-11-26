@@ -1,5 +1,6 @@
 \ A powerful locals implementation
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Neal Crook
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2007,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -198,6 +199,11 @@ opt: drop postpone swap postpone >l postpone >l ;
     locals-size @ swap !
     val-part @ IF  postpone false  THEN  postpone lp@ postpone c! ;
 
+: compile-pushlocal-[ ( size a-addr -- ) ( run-time: addr -- )
+    swap maxaligned dup negate compile-lp+!
+    val-part @ IF  drop  ELSE  postpone lp@ lit, postpone move  THEN
+    locals-size @ swap ! ;
+
 \ locals list operations
 
 [IFUNDEF] >link ' noop Alias >link [THEN]
@@ -296,8 +302,8 @@ defer dict-execute ( ... addr1 addr2 xt -- ... )
 : create-local ( "name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
-    nextname-string 2@ 2dup d0= IF
-	2drop parse-name nextname nextname-string 2@  THEN  nip
+    nextname$ $@ 2dup d0= IF
+	2drop parse-name nextname nextname$ $@  THEN  nip
     dfaligned locals-name-size+ >r
     r@ allocate throw
     dup locals-mem-list prepend-list
@@ -320,16 +326,16 @@ variable locals-dp \ so here's the special dp for locals.
 
 Create 2!-table ' 2! , ' 2+! ,
 Create c!-table ' c! , ' c+! ,
-to: to-w: ( -- ) -14 throw ;
+: to-w: ( -- ) -14 throw ;
 to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
-to: to-d: ( -- ) -14 throw ;
+: to-d: ( -- ) -14 throw ;
 to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
-to: to-c: ( -- ) -14 throw ;
+: to-c: ( -- ) -14 throw ;
 to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
-to: to-f: ( -- ) -14 throw ;
+: to-f: ( -- ) -14 throw ;
 to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
-defer@: defer@-xt: ( -- ) -14 throw ;
+: defer@-xt: ( -- ) -14 throw ;
 defer@-opt: ( xt -- ) POSTPONE laddr# >body @ lp-offset, postpone @ ;
 
 : val-part-off ( -- ) val-part off ;
@@ -394,24 +400,28 @@ locals-types definitions
     \ compiles a local variable access
     @ lp-offset compile-@local postpone execute ;
 
+:noname ( "name" -- a-addr u ) \ gforth <local>bracket (unnamed)
+    create-local
+    ['] compile-pushlocal-[
+  does> ( Compilation: -- ) ( Run-time: -- w )
+    postpone laddr# @ lp-offset, ;
+
 : | val-part on ['] val-part-off ;
 
 \ you may want to make comments in a locals definitions group:
-' \ alias \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
+synonym \ \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
 \G Comment till the end of the line if @code{BLK} contains 0 (i.e.,
 \G while not loading a block), parse and discard the remainder of the
 \G parse area. Otherwise, parse and discard all subsequent characters
 \G in the parse area corresponding to the current line.
-immediate
 
-' ( alias ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
+synonym ( ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
 \G Comment, usually till the next @code{)}: parse and discard all
 \G subsequent characters in the parse area until ")" is
 \G encountered. During interactive input, an end-of-line also acts as
 \G a comment terminator. For file input, it does not; if the
 \G end-of-file is encountered whilst parsing for the ")" delimiter,
 \G Gforth will generate a warning.
-immediate
 
 forth definitions
 also locals-types
@@ -428,22 +438,27 @@ c^ some-caddr 2drop
 d^ some-daddr 2drop
 f^ some-faddr 2drop
 w^ some-waddr 2drop
+dup execute some-carray 2drop
 
 ' dict-execute1 is dict-execute \ now the real thing
-    
+
 \ the following gymnastics are for declaring locals without type specifier.
 \ we exploit a feature of our dictionary: every wordlist
 \ has it's own methods for finding words etc.
 \ So we create a vocabulary new-locals, that creates a 'w:' local named x
 \ when it is asked if it contains x.
 
+>r
 : new-locals-find ( caddr u w -- nfa )
 \ this is the find method of the new-locals vocabulary
 \ make a new local with name caddr u; w is ignored
 \ the returned nfa denotes a word that produces what W: produces
 \ !! do the whole thing without nextname
-    drop nextname
-    ['] W: ;
+    drop 2dup nextname
+    + 1- c@ '[' = IF  ']' parse
+	get-order 2 - -rot 2>r set-order  evaluate
+	get-order 2 + 2r> rot  set-order  -rot [ r> ] Literal
+    ELSE  ['] W:  THEN ;
 
 previous
 
@@ -459,22 +474,22 @@ create new-locals-map ( -- wordlist-map )
 new-locals-map mappedwordlist Constant new-locals-wl
 
 \ and now, finally, the user interface words
-: { ( -- vtaddr u latest latestxt wid 0 ) \ gforth open-brace
+: { ( -- vtaddr u latest latestnt wid 0 ) \ gforth open-brace
     ( >docolloc ) vtsave \ as locals will mess with their own vttemplate
-    latest latestxt get-current
+    latest latestnt get-current
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
     val-part off
     0 TO locals-wordlist
     0 postpone [ ; immediate
 
-synonym {: { ( -- vtaddr u latest latestxt wid 0 ) \ forth-2012 open-brace-colon
+synonym {: { ( -- vtaddr u latest latestnt wid 0 ) \ forth-2012 open-brace-colon
 \G Start standard locals declaration.  All Gforth locals extensions are
 \G supported by Gforth, though the standard only supports the subset of cells.
 
 locals-types definitions
 
-: } ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace
+: } ( vtaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
     \ ends locals definitions
     ]
     begin
@@ -485,13 +500,13 @@ locals-types definitions
     drop vt,
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
     previous previous
-    set-current lastcfa ! last !
+    set-current lastnt ! last !
     vtrestore
     locals-list 0 wordlist-id - TO locals-wordlist ;
 
 synonym :} }
 
-: -- ( vtaddr u latest latestxt wid 0 ... -- ) \ gforth dash-dash
+: -- ( vtaddr u latest latestnt wid 0 ... -- ) \ gforth dash-dash
     }
     BEGIN  '}' parse dup WHILE
         + 1- c@ dup bl = swap ':' = or  UNTIL
@@ -591,17 +606,6 @@ forth definitions
 
 \ explicit scoping
 
-[ifundef] scope
-: scope ( compilation  -- scope ; run-time  -- ) \ gforth
-    cs-push-part scopestart ; immediate
-
-defer adjust-locals-list ( wid -- )
-
-: endscope ( compilation scope -- ; run-time  -- ) \ gforth
-    scope?
-    drop  adjust-locals-list ; immediate
-[then]
-
 :noname ( wid -- )
     locals-list @ common-list
     dup list-size adjust-locals-size
@@ -613,7 +617,7 @@ is adjust-locals-list
 : locals-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
     DEFERS :-hook
-    latest latestxt
+    latest latestnt
     clear-leave-stack
     0 locals-size !
     0 locals-list!
@@ -630,7 +634,7 @@ is free-old-local-names
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
     0 TO locals-wordlist
-    lastcfa ! last !
+    lastnt ! last !
     DEFERS ;-hook ;
 
 \ THEN (another control flow from before joins the current one):

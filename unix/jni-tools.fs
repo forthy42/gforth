@@ -190,8 +190,8 @@ Variable jstring#
 	3 of  to jstring3  endof
     endcase ;
 
-: cstr" ( -- addr )  parse-name ;
-: cstr1" ( -- addr ) parse-name 2dup cstring1 $! ;
+: cstr" ( -- addr u )  parse-name ;
+: cstr1" ( -- addr u ) parse-name 2dup cstring1 $! ;
 : make-jstring ( addr u -- jstring-addr )
     env -rot JNIEnv-NewStringUTF() dup to-jstring ;
 : js" ( -- addr )  '"' parse make-jstring ;

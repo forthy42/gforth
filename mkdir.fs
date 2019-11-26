@@ -1,5 +1,6 @@
 \ mkdir wrapper
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2008,2010,2012,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

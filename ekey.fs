@@ -1,5 +1,6 @@
 \ ekey etc.
 
+\ Authors: Bernd Paysan, Anton Ertl, Neal Crook
 \ Copyright (C) 1999,2002,2003,2004,2005,2006,2007,2008,2009,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -211,7 +212,7 @@ Variable ekey-buffer
 	key? \ ?dup-0=-if  1 ms key?  endif \ workaround for Windows 1607 Linux
     WHILE
 	    key ekey-buffer c$+!
-	    ekey-buffer $@ esc-mask >r
+	    ekey-buffer $@ ['] esc-mask #10 base-execute >r
 	    esc-sequences search-wordlist
 	    if
 		execute r> or clear-ekey-buffer exit
@@ -310,6 +311,8 @@ Variable ekey-buffer
     k-voldown s" VD" esc-sequence
 
     k-sel     s" [S"  esc-sequence
+    k-left  k-shift-mask or s" b" esc-sequence
+    k-right k-shift-mask or s" f" esc-sequence
 set-current
 [ENDIF]
 

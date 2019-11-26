@@ -1,6 +1,7 @@
 \ various tests, especially for bugs that have been fixed
 \ or where we don't use the testing framework
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 1997,1998,2000,2003,2007,2013,2015 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -212,3 +213,6 @@ s" ( testing ( without being delimited by newline in non-files" evaluate
 \ testing '(' without ')' at end-of-file
 ." expect ``warning: ')' missing''" cr
 (
+
+\ constant folding must not produce a compile-time error
+: test 1 0 / ;

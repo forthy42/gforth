@@ -1,5 +1,6 @@
 \ converts primitives to, e.g., C code 
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2009,2010,2011,2013,2015,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -61,10 +62,6 @@ require compat/strcomp.fs
 [then]
 
 warnings off
-
-\ redefinitions of kernel words not present in gforth-0.6.1
-: latestxt lastcfa @ ;
-: latest last @ ;
 
 [IFUNDEF] try
 include startup.fs

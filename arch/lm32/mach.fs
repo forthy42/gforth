@@ -1,5 +1,6 @@
 \ mach.fs	mach-file for LatticeMico32 CPU
 \
+\ Author: David Kühling
 \ Copyright (C) 2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

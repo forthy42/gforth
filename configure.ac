@@ -1,5 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
+#Authors: Bernd Paysan, Anton Ertl
 #Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
@@ -20,7 +21,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20190711],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20191121],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
@@ -1308,7 +1309,7 @@ else
   "$GFORTH" -i "$KERNLX_FI1" -e bye && KERNLX_FI="$KERNLX_FI1" || \
   "$GFORTH" -i "$KERNLX_FI2" -e bye && KERNLX_FI="$KERNLX_FI2"
   GFORTHKER="\"$GFORTH\" -i \"$KERNLX_FI\"" ;
-  kernel_anti_dependence='$(kernel_fi)'
+  kernel_anti_dependence='gforth.fi'
 fi
 AC_SUBST(PREFORTH)
 AC_SUBST(GFORTHKER)

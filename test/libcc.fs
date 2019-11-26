@@ -1,5 +1,6 @@
 \ test libcc.fs C interface
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 2007,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

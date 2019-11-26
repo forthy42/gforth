@@ -1,5 +1,6 @@
 \ set-compsem, dual-xt version to set compilation semantics
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2015,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -19,25 +20,30 @@
 
 : set-compsem ( xt -- )
     \G change compilation semantics of the last defined word
-    >r start-xt set->comp r> ['] execute ]] drop 2literal ; [[ ;
+    [n:d nip ['] execute ;] set->comp ;
 
 \ silly example:
 \ :noname ." compiling" ;
 \ : foo ." interpreting" ; set-compsem
 
-: intsem: ( xt "name" -- )
-    \G defines a word, which has a special compilation semantics
-    \G provided as @var{xt} on the stack
-    >r :noname r> ['] execute ]] drop 2Literal ; [[ >r
-    : r> set->comp ;
+: intsem: ( -- )
+    \G The current definition's compilation semantics are changed to
+    \G perform its execution semantics (the word becomes immediate).
+    \G Then its interpretation semantics are changed to perform the
+    \G definition starting at the @code{intsem:}.  Note that if you
+    \G then call @code{immediate}, the compilation semantics are
+    \G changed to perform the word's new interpretation semantics.
+    [: ['] execute ;] set->comp
+    int-[: [: nip >r vt, wrap! r> [n:d nip ;] set->int ;]
+    colon-sys-xt-offset stick ;
 
 \ silly example:
-\ :noname ." compiling" ; intsem: foo ." interpreting" ;
+\ : foo ." compiling" ; intsem: ." interpreting" ;
 
 : compsem: ( -- )
-    \G adds a non default compilation semantics to the last
-    \G definition
-    start-xt [n:h set-compsem ;] colon-sys-xt-offset stick ;
+    \G Changes the compilation semantics of the current definition to
+    \G perform the definition starting at the @code{compsem:}.
+    int-[: [: nip >r vt, wrap! r> set-compsem ;] colon-sys-xt-offset stick ;
 
 \ silly example
 \ : foo ." interpreting" ; compsem: ." compiling" ;

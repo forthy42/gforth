@@ -1,5 +1,6 @@
 \ A powerful closure implementation
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -48,7 +49,7 @@ Variable extra-locals ( additional hidden locals size )
 
 locals-types definitions
 
-: :}* ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... xt -- ) \ gforth close-brace-dictionary
+: :}* ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... xt -- ) \ gforth close-brace-dictionary
     0 lit, lits, here cell- >r
     compile, ]] >lp [[
     :}
@@ -57,19 +58,19 @@ locals-types definitions
     ['] execute is end-d  ['] noop is endref,
     extra-locals off ;
 
-: :}xt ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
+: :}xt ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
     \G end a closure's locals declaration.  The closure will be allocated by
     \G the xt on the stack, so the closure's run-time stack effect is @code{(
     \G xt-alloc -- xt-closure}.
     \ run-time: ( xt size -- ... )
     [: swap execute ;] :}* ;
 
-: :}d ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+: :}d ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
     \G end a closure's locals declaration.  The closure will be allocated in
     \G the dictionary.
     ['] allocd :}* ;
 
-: :}h ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-heap
+: :}h ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-heap
     \G end a closure's locals declaration.  The closure will be allocated on
     \G the heap.
     ['] alloch :}* ;
@@ -84,31 +85,37 @@ forth definitions
     locals-lists stack> locals-list !
     locals-sizes stack> locals-size ! ;
 
+: dummy-local, ( n -- )
+    locals-size +!
+    get-current >r  0 warnings !@ >r  [ ' locals >body ]l set-current
+    s" " nextname create-local locals-size @ locals,
+    r> warnings !  r> set-current ;
+
 locals-types definitions
 
-: :}l ( vtaddr u latest latestxt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
+: :}l ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
     \G end a closure's locals declaration.  The closure will be allocated on
     \G the local's stack.
     :}
     locals-size @ locals-list @ over 2>r  pop-locals
-    [ 2 cells maxaligned ]L + locals-size +!
-    get-current >r  0 warnings !@ >r  [ ' locals >body ]l set-current
-    s" " nextname create-local locals-size @ locals,
-    r> warnings !  r> set-current  2r> push-locals
+    [ 2 cells maxaligned ]L + dummy-local,
+    2r> push-locals
     ['] noop end-d ;
 
 forth definitions
 
+: wrap-closure ( xt -- )
+    dup >namevt @ >vtextra !  ['] does, set-optimizer
+    finish-code  vt,  previous-section  wrap!  dead-code off ;
+
 : (closure-;]) ( closure-sys lastxt -- )
-    >r r@ dup >namevt @ >vtextra !
-    ['] does, set-optimizer  vt,
-    postpone THEN
+    >r r@ wrap-closure
     orig? r> >namevt @ swap ! drop
-    wrap! pop-locals ;
+    pop-locals ;
 
 : closure-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
-    latest latestxt
+    latest latestnt
     clear-leave-stack
     dead-code off
     defstart ;
@@ -117,9 +124,10 @@ forth definitions
     \G create trampoline head
     dodoes: >l >l lp@ cell+ ;
 : end-dclosure ( unravel-xt -- closure-sys )
-    >r wrap@
+    >r
     postpone lit >mark
-    ]] closure> [[ r> execute ]] AHEAD [[
+    ]] closure> [[ r> execute
+    wrap@ next-section finish-code|
     action-of :-hook >r  ['] closure-:-hook is :-hook
     :noname
     r> is :-hook
@@ -130,7 +138,7 @@ forth definitions
     endcase
     ['] (closure-;]) colon-sys-xt-offset stick ;
 
-: [{: ( -- vtaddr u latest latestxt wid 0 ) \ gforth-experimental start-closure
+: [{: ( -- vtaddr u latest latestnt wid 0 ) \ gforth-experimental start-closure
     \G starts a closure.  Closures first declare the locals frame they are
     \G going to use, and then the code that is executed with those locals.
     \G Closures end like quotations with a @code{;]}.  The locals declaration
@@ -147,7 +155,7 @@ forth definitions
     postpone {:
 ; immediate compile-only
 
-: <{: ( -- vtaddr u latest latestxt wid 0 ) \ gforth-experimental start-homelocation
+: <{: ( -- vtaddr u latest latestnt wid 0 ) \ gforth-experimental start-homelocation
     \G starts a home location
     #0. push-locals postpone {:
 ; immediate compile-only
@@ -159,54 +167,44 @@ forth definitions
 
 \ stack-based closures without name
 
-: (;*]) ( -- )
-    >r ] postpone endscope locals-list !
-    r@ dup >namevt @ >vtextra !
-    ['] does, set-optimizer
-    vt, postpone THEN wrap!
-    r> >namevt @ lit, ;
+: (;*]) ( xt -- vt )
+    >r ] postpone endscope third locals-list ! postpone endscope
+    r@ wrap-closure  r> >namevt @ ;
 
-: n-closure> ( n vt -- xt )
-    [ cell 4 = ] [IF]  0 >l  [THEN]
-    swap >l dodoes: >l >l lp@ cell+ ;
-: (n;]) ( xt -- )  (;*]) postpone n-closure> ;
-: [n:l ( -- colon-sys ) ]] [: @ [[ ['] (n;]) colon-sys-xt-offset 2 + stick ;
-    immediate restrict
+: (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
+    compile, r> lit, ]] closure> [[ ;
+: (;]*) ( xt0 xt1 n xt2 -- )  (;*]) >r lit, swap compile,
+    ]] >lp [[ compile, r> lit, ]] closure> lp> [[ ;
 
-: (n;]*) ( xt -- )  (;*]) [ 3 cells maxaligned ]L lit, compile,
-    ]] >lp n-closure> lp> [[ ;
-: ([n:*) ( xt -- colon-sys )
-    ]] [: @ [[ ['] (n;]*) colon-sys-xt-offset 2 + stick ;
-: [n:h ( -- colon-sys )  ['] alloch ([n:*) ; immediate restrict
-: [n:d ( -- colon-sys )  ['] allocd ([n:*) ; immediate restrict
+: :l ( -- xt )                  ['] (;]l) ; immediate restrict
+: :h ( -- xt1 xt2 )  ['] alloch ['] (;]*) ; immediate restrict
+: :d ( -- xt1 xt2 )  ['] allocd ['] (;]*) ; immediate restrict
 
-: d-closure> ( d vt -- xt )
-    -rot 2>l dodoes: >l >l lp@ cell+ ;
-: (d;]) ( xt -- )  (;*]) postpone d-closure> ;
-: [d:l ( -- colon-sys ) ]] [: 2@ [[ ['] (d;]) colon-sys-xt-offset 2 + stick ;
-    immediate restrict
+: [*:: [{: xt@ xt>l size :}d
+	>r xt>l size [ 2 cells ]L + maxaligned postpone [: xt@ compile,
+	r> [ colon-sys-xt-offset 2 + ]L stick ;]
+    alias immediate restrict ;
 
-: (d;]*) ( xt -- )  (;*]) [ 4 cells maxaligned ]L lit, compile,
-    ]] >lp d-closure> lp> [[ ;
-: ([d:*) ( xt -- colon-sys )
-    ]] [: 2@ [[ ['] (d;]*) colon-sys-xt-offset 2 + stick ;
-: [d:h ( -- colon-sys )  ['] alloch ([d:*) ; immediate restrict
-: [d:d ( -- colon-sys )  ['] allocd ([d:*) ; immediate restrict
+cell 4 = [IF]  :noname ( n -- xt )  false >l >l ;  [ELSE]  ' >l  [THEN]
+' @  swap  1 cells  [*:: [n: ( xt -- colon-sys )
+' 2@ ' 2>l 2 cells  [*:: [d: ( xt -- colon-sys )
+' f@ ' f>l 1 floats [*:: [f: ( xt -- colon-sys )
 
-: f-closure> ( r vt -- xt )
-    f>l dodoes: >l >l lp@ cell+ ;
-: (f;]) ( xt -- )  (;*]) postpone f-closure> ;
-: [f:l ( -- colon-sys ) ]] [: f@ [[ ['] (f;]) colon-sys-xt-offset 2 + stick ;
-    immediate restrict
+\ combined names (used in existing code)
 
-: (f;]*) ( xt -- )  (;*]) [ 2 cells float+ maxaligned ]L lit, compile,
-    ]] >lp f-closure> lp> [[ ;
-: ([f:*) ( xt -- colon-sys )
-    ]] [: f@ [[ ['] (f;]*) colon-sys-xt-offset 2 + stick ;
-: [f:h ( -- colon-sys )  ['] alloch ([f:*) ; immediate restrict
-: [f:d ( -- colon-sys )  ['] allocd ([f:*) ; immediate restrict
+: [n:l ( -- colon-sys ) ]] :l [n: [[ ; immediate restrict
+: [n:h ( -- colon-sys ) ]] :h [n: [[ ; immediate restrict
+: [n:d ( -- colon-sys ) ]] :d [n: [[ ; immediate restrict
 
-false [IF]
+: [d:l ( -- colon-sys ) ]] :l [d: [[ ; immediate restrict
+: [d:h ( -- colon-sys ) ]] :h [d: [[ ; immediate restrict
+: [d:d ( -- colon-sys ) ]] :d [d: [[ ; immediate restrict
+
+: [f:l ( -- colon-sys ) ]] :l [f: [[ ; immediate restrict
+: [f:h ( -- colon-sys ) ]] :h [f: [[ ; immediate restrict
+: [f:d ( -- colon-sys ) ]] :d [f: [[ ; immediate restrict
+
+[IFDEF] test-it
     : foo [{: a f: b d: c xt: d :}d a . b f. c d. d ;] ;
     5 3.3e #1234. ' cr foo execute
     : homeloc <{: w^ a w^ b w^ c :}h a b c ;> ;

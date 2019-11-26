@@ -1,5 +1,6 @@
 \ file status and similar stuff                      04oct2013py
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2012,2013,2014,2015,2016 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

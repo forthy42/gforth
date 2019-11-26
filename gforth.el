@@ -1,5 +1,6 @@
 ;;; gforth.el --- major mode for editing (G)Forth sources
 
+;; Authors: Bernd Paysan, Anton Ertl, David Kühling
 ;; Copyright (C) 1995,1996,1997,1998,2000,2001,2003,2004,2007,2008,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 ;; This file is part of Gforth.
@@ -326,13 +327,17 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  "+field" "value:" "cvalue:" "scvalue:" "wvalue:" "swvalue:"
 	  "lvalue:" "slvalue:" "2value:" "fvalue:" "sfvalue:" "dfvalue:"
 	  "$value:" "defer:" "value[]:" "$value[]:"
-	  "wrap+value:")
+	  "wrap+value:" "method" "umethod")
 	 non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 	("\\S-+%" non-immediate (font-lock-type-face . 2))
 	(("defer" "alias" "create-interpret/compile:") 
 	 non-immediate (font-lock-type-face . 1)
 	 "[ \t\n]" t name (font-lock-function-name-face . 3))
+	(("synonym") 
+	 non-immediate (font-lock-type-face . 1)
+	 "[ \t\n]" t name (font-lock-function-name-face . 3)
+	 "[ \t\n]" t name (font-lock-function-name-face . 2))
 	(("end-struct") non-immediate (font-lock-keyword-face . 2)
 	 "[ \t\n]" t name (font-lock-type-face . 3))
 	(("struct" "end-c-library" "c-library-name" "end-structure") 
@@ -390,7 +395,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
      "[ \t\n]" t name (font-lock-function-name-face . 3))
     (("inst-var" "inst-value") non-immediate (font-lock-type-face . 2)
      "[ \t\n]" t name (font-lock-variable-name-face . 3))
-    (("method" "selector")
+    (("method" "selector" "umethod")
      non-immediate (font-lock-type-face . 1)
      "[ \t\n]" t name (font-lock-function-name-face . 3))
     (("end-class" "end-interface")
@@ -475,7 +480,7 @@ INDENT1 and INDENT2 are indentation specifications of the form
 	  "[if]" "[ifdef]" "[ifundef]" "[begin]" "[for]" "[do]" "[?do]" "[:"
 	  "[n:l" "[n:h" "[n:d" "[d:l" "[d:h" "[d:d" "[f:l" "[f:h" "[f:d" "[{:")
 	 (0 . 2) (0 . 2))
-	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" 
+	((":" ":noname" "code" "abi-code" "struct" "m:" ":m" "class" "uclass" 
 	  "interface" "c-library" "c-library-name" "comp:" "opt:" "post:"
 	  "begin-structure" "extend-structure" "event:" "to-opt:" "defer@-opt:" "to:" "defer@:")
 	 (0 . 2) (0 . 2) non-immediate)
@@ -795,7 +800,7 @@ End:\" construct).")
   '("VARIABLE" "CONSTANT" "2VARIABLE" "2CONSTANT" "FVARIABLE" "FCONSTANT"
    "USER" "VALUE" "2Value" "field" "end-struct" "VOCABULARY" "CREATE" ":" "CODE"
    "DEFER" "ALIAS" "interpret/compile:" "debug:" "field:" "2field:" "ffield:"
-   "sffield:" "dffield:" "uvar" "uvalue" "voctable")
+   "sffield:" "dffield:" "uvar" "uvalue" "voctable" "method" "umethod")
   "List of words, that define the following word.
 Used for imenu index generation.")
 
@@ -1220,6 +1225,7 @@ exceeds 64 characters."
   ;(setq comment-end " )")
   (make-local-variable 'comment-column)
   (setq comment-column 40)
+  (setq compilation-error-screen-columns nil) ;; for WHEREG
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip "\\\\ ")
   (make-local-variable 'comment-indent-function)

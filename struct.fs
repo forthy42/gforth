@@ -1,5 +1,6 @@
 \ data structures (like C structs)
 
+\ Authors: Anton Ertl, Bernd Paysan, Neal Crook
 \ Copyright (C) 1995,1997,2000,2003,2007 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

@@ -1,4 +1,5 @@
 #!/bin/bash
+#Authors: Bernd Paysan, Anton Ertl
 #Copyright (C) 2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
@@ -21,7 +22,7 @@ nprocs=`nproc || echo 1`
 function extra_apps {
     for i in $EXTRADIRS
     do
-	test -f $i/AndroidManifest/apps && cat $i/AndroidManifest/apps
+	test -f $i/AndroidManifest/apps && . $i/AndroidManifest/apps
     done
 }
 
@@ -55,6 +56,9 @@ if [ ! -z "$arch" ]
 then
     (cd $SRC; ./autogen.sh) >autogen.log
     echo "Extra builds in$arch"
+    APP_PACKAGE=gnu.gforth
+else
+    APP_PACKAGE=gnu.gforth_$machine
 fi
 
 APP_VERSION=$[$(cat ~/.app-version)+1]

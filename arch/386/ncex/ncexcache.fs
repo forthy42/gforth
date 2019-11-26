@@ -1,5 +1,6 @@
 \  NCEX xt cache
 \
+\  Authors: Anton Ertl, Jens Wilke
 \  Copyright (C) 1998 Lars Krueger 
 \
 \  This file is part of FLK.

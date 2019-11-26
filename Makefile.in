@@ -1,5 +1,6 @@
 #Makefile for Gforth
 
+#Authors: Bernd Paysan, Anton Ertl, Jens Wilke, David Kühling, Neal Crook, Gerald Wodni, Darren Bane
 #Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
@@ -36,6 +37,7 @@ DOSVERSION=`echo $(VERSION)|sed 's/\.//g'|sed 's/-.*//g'`
 
 machine=@machine@
 kernel_fi=@kernel_fi@
+kernel_anti_dependence=@kernel_anti_dependence@
 EXE=@EXEEXT@
 
 # this is the type of machine
@@ -200,6 +202,7 @@ KERN_SRC = \
 	kernel/input.fs \
 	kernel/input-class.fs \
 	kernel/license.fs \
+	kernel/authors.fs \
 	kernel/nio.fs \
 	kernel/saccept.fs \
 	kernel/doers.fs \
@@ -279,6 +282,7 @@ GFORTH_FI_SRC2=\
 	rec-body.fs \
 	recognizer2.fs \
 	search.fs \
+	sections.fs \
 	see.fs \
 	see-ext.fs \
 	simp-see.fs \
@@ -360,12 +364,12 @@ LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BU
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
-MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	    \
-	wayland-gl.fs soil-texture.fs gl-sample.fs gl-slideshow.fs	    \
-	ftgl-helper.fs ftgl-sample.fs widgets.fs actors.fs x11-actors.fs    \
-	android-actors.fs wayland-actors.fs widgets-test.fs presentation.fs \
-	mts-tools.fs mkv-tools.fs omx-example.fs mkv-tags.fs		    \
-	android-recorder.fs animation.fs need-x.fs font-style.fs	    \
+MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
+	wayland-gl.fs soil-texture.fs gl-sample.fs gl-slideshow.fs	     \
+	ftgl-helper.fs ftgl-sample.fs widgets.fs actors.fs x11-actors.fs     \
+	android-actors.fs wayland-actors.fs widgets-test.fs presentation.fs  \
+	presentation-support.fs mts-tools.fs mkv-tools.fs omx-example.fs     \
+	mkv-tags.fs android-recorder.fs animation.fs need-x.fs font-style.fs \
 	text-style.fs gst-helper.fs plot.fs md-viewer.fs md-test.fs
 
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
@@ -391,16 +395,15 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
 	make-app.fs doc/makedoc.fs locate.fs locate1.fs more.fs onebench.fs   \
 	fft-bench.fs other.fs prims2x.fs prims2x0.6.2.fs proxy.fs random.fs   \
 	regexp.fs regexp-test.fs sokoban.fs string.fs table.fs tags.fs tt.fs  \
-	quotations.fs unbuffer.fs wordsets.fs 2012words.fs $(patsubst %,      \
-	test/%, $(TEST_SRC)) bubble.fs siev.fs matrix.fs fib.fs oof.fs	      \
-	oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs	      \
-	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs callable.fs      \
-	add.fs lib.fs oldlib.fs sieve.fs list.fs endtry-iferror.fs	      \
-	recover-endtry.fs $(patsubst %, unix/%, $(UNIX_SRC)) date.fs	      \
-	script.fs wf.fs traceall.fs rec-scope.fs rec-env.fs rec-meta.fs	      \
-	notfound.fs utf16.fs archive.fs cilk.fs sections.fs fixfiles.fs	      \
-	bits.fs reverse-words.fs config.fs set-compsem.fs coverage.fs	      \
-	tokenize.fs
+	unbuffer.fs wordsets.fs 2012words.fs $(patsubst %, test/%,	      \
+	$(TEST_SRC)) bubble.fs siev.fs matrix.fs fib.fs oof.fs oofsampl.fs    \
+	objects.fs objexamp.fs mini-oof.fs moof-exm.fs moofglos.fs fixpath.fs \
+	mini-oof2.fs moof2-example.fs callable.fs add.fs lib.fs oldlib.fs     \
+	sieve.fs list.fs endtry-iferror.fs recover-endtry.fs $(patsubst %,    \
+	unix/%, $(UNIX_SRC)) date.fs script.fs wf.fs traceall.fs rec-scope.fs \
+	rec-env.fs rec-meta.fs notfound.fs utf16.fs archive.fs cilk.fs	      \
+	fixfiles.fs bits.fs reverse-words.fs config.fs set-compsem.fs	      \
+	coverage.fs tokenize.fs startup-libcc.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -581,8 +584,8 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	test/fp/fptest.out $(wildcard cache*.vmg) peeprules.vmg prim	      \
 	debian/rules debian/control.in debian/changelog.in debian/compat      \
 	gforth.ico .travis.yml install-deps.sh install-swig.sh		      \
-	install-freetype-gl.sh install-soil2.sh $(SWIG_WRAP)		      \
-	m4/ax_gcc_builtin.m4
+	install-freetype-gl.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4	      \
+	move-if-change
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
 	libforth gforthker engine/Makefile engine/gforth.h		\
@@ -620,8 +623,8 @@ FORTH_GEN =  $(FORTH_GEN0) @GKERNEL@ gforth.fi
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
 
 #kernel dependencies
-KERN_DEPS = $(KERN_SRC) kernel/aliases.fs kernel/version.fs machpc.fs	\
-	$(FORTH_GEN0) compat/strcomp.fs
+KERN_DEPS = $(KERN_SRC) kernel/aliases.fs kernel/version.fs kernel/authors.fs \
+	machpc.fs $(FORTH_GEN0) compat/strcomp.fs
 
 #distributed documentation
 DOCDIST = doc/gforth.info $(wildcard doc/gforth.info-*) doc/gforth.ps \
@@ -647,7 +650,7 @@ vpath %.fs $(srcdir):.:$(srcdir)/unix:$(srcdir)/test:unix
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-all: kernel/version.fs more @NO_CHECKX@ check extras
+all: kernel/version.fs more @NO_CHECKX@ doc start-gforth.el check extras
 
 # use this dependency for phony targets just as mostlyclean,...
 FORCE: ;
@@ -683,7 +686,7 @@ more:	$(ENGINES) $(FORTH_GEN) $(GEN) @libengines@ @build_libcc_named@
 
 mostlyclean:	FORCE
 		-$(RM) -rf engine/*.s gforth.fi *.fi~ *.fi- kernel/version.fs \
-		*TAGS gforth~ \
+		kernel/authors.fs *TAGS gforth~ \
 		doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
 		doc/gforth.aux doc/gforth.cp doc/gforth.cps \
 		doc/gforth.dvi doc/gforth.fn doc/gforth.ky doc/gforth.log \
@@ -808,11 +811,11 @@ install-gensources:
 		echo "\\ empty site-init" > $(siteforthdir)/siteinit.fs
 
 install-txt:	doc
-		$(INSTALL_DATA) doc/gforth.txt $(datadir)/gforth/$(VERSION)/gforth.txt
+		$(INSTALL_DATA) doc/gforth.txt $(datadir)/gforth/$(VERSION)/doc/gforth.txt
 
-install-images:
+install-images: install-txt
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
-		GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal --debug-mcheck -i $(kernel_fi) $(STARTUP)" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi.install $(FORTHSIZES) $(STARTUP) fixfiles.fs
+		HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal --debug-mcheck -i $(kernel_fi) exboot.fs startup.fs" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi.install $(FORTHSIZES) $(STARTUP) fixfiles.fs
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
 
 install-include:
@@ -1048,6 +1051,12 @@ extra-install:	gforth.fi $(EXTRAS:%=%.extrasinst)
 
 # -------------	Make forth images
 
+kernel/authors.fs:	AUTHORS Makefile.in
+	echo ": authors ( -- ) cr" >kernel/authors.fs
+	echo "  \G show the list of authors" >>kernel/authors.fs
+	grep '^[ND]:' $< | sed -e 's/^N: \(.*\)/  1 attr\! ." \1:" 0 attr\! cr /g' -e 's/^D: \(.*\)/  ."   \1" cr /g'>>kernel/authors.fs
+	echo ";" >>kernel/authors.fs
+
 # How to make new images:
 # 1. Produce an image called kernlXYZ.fi-
 #    the original kernel.fi is not touched because it's needed for creation
@@ -1090,7 +1099,7 @@ kernl%$(EC).fi:	kernl%$(EC).fi-
 #arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
 
 gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
-		GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)~+$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal --debug-mcheck -p .$(PATHSEP)~+$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) bindir=`pwd` libccdir=`pwd`/$(buildccdir) ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
+		HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)~+$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal --debug-mcheck -p .$(PATHSEP)~+$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) bindir=`pwd` libccdir=`pwd`/$(buildccdir) ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
 
 # -------------	Make c-engine
 
@@ -1181,7 +1190,7 @@ MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub.o
 MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
 MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h gforth.fi @kernel_anti_dependence@
+gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h $(kernel_anti_dependence)
 
 gforth$(OPT)$(EXT):
 	if test -z "$(OPT)"; then \
@@ -1236,7 +1245,7 @@ gforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/
 
 gforths: $(ENGINES) $(ENGINES_FAST)
 
-libgforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h @kernel_anti_dependence@
+libgforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h $(kernel_anti_dependence)
 
 libgforth$(OPT)$(EXT): $(ENGINE_SOURCES)
 	if test -z "$(OPT)"; then \
@@ -1343,10 +1352,12 @@ start-gforth.el:	gforth.el
 #Documentation
 
 doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) $(EXTRA_DOC)
-		$(FORTHK) -e "s\" doc/doc.fd\"" doc/makedoc.fs except.fs startup.fs $(EXTRA_DOC) -e bye
+		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs $(EXTRA_DOC) -e bye
+		$(srcdir)/move-if-change doc/doc.fd.tmp $@
 
 doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs" include kernel/main.fs' -e bye
+		$(srcdir)/move-if-change doc/crossdoc.fd.tmp $@
 
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd preforth @kernel_fi@
@@ -1360,7 +1371,7 @@ checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdo
 
 doc/gforth.txt:	txt
 
-doc pdf dvi txt ps html:	gforth.fi $(GFORTH_TEXI) $(VMGEN_TEXI) TAGS doc/Makefile
+doc pdf dvi txt ps html: $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
 		-cd doc; $(MAKE) $@
 
 # For an explanation of the following Makefile rules, see node
@@ -1384,10 +1395,8 @@ engine/config.h: stamp-h
 stamp-h: engine/config.h.in config.status stamp-h.in
 	./config.status
 
-kernel/version.fs: Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/gforth.h.in gforthmi.sh.in kernel/version.fs.in engine/config.h.in
+$(CONFIG_GEN): Makefile.in Makedist.in engine/Makefile.in doc/Makefile.in unix/Makefile.in gforthmi.in vmgen.in preforth.in libforth.in gforthker.in machpc.fs.in doc/version.texi.in config.status configure.ac envos.fs.in build-ec.in engine/gforth.h.in gforthmi.sh.in kernel/version.fs.in engine/config.h.in
 	./config.status
-
-$(CONFIG_GEN): kernel/version.fs
 
 config.status: configure
 	./config.status --recheck

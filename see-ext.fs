@@ -1,5 +1,6 @@
 \ see-ext.fs extentions for see locals, floats
 
+\ Authors: Anton Ertl, Bernd Paysan
 \ Copyright (C) 1995,1996,1997,2003,2007,2012,2014 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -22,6 +23,7 @@
 get-current also see-voc definitions
 
 : c-loop-lp+!#  c-loop cell+ ;
+: c-loop#-lp+!# c-loop# cell+ ;
 : c-?branch-lp+!#  c-?branch cell+ ;
 : c-branch-lp+!#   c-branch  cell+ ;
 
@@ -77,6 +79,7 @@ create c-extend1
         ' (+loop)-lp+!# A,  ' c-loop-lp+!# A,
         ' (s+loop)-lp+!# A, ' c-loop-lp+!# A,
         ' (-loop)-lp+!# A,  ' c-loop-lp+!# A,
+[IFDEF] (/loop)# ' (/loop)#-lp+!# A, ' c-loop#-lp+!# A, [THEN]
         ' (next)-lp+!# A,   ' c-loop-lp+!# A,
 	0 ,		here 0 ,
 

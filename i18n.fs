@@ -1,5 +1,6 @@
 \ Internationalization and localization
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2015,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -40,29 +41,28 @@ Variable lsids
     BEGIN  dup @  WHILE  @  REPEAT  ! ;
 
 : $l, ( addr u -- )  dup , here swap dup allot move align ;
-: lsid, ( addr u -- )
-    here lsids append-list 0 , lsid# dup , 1+ to lsid# $l, ;
-: [lsid,] ( addr u -- addr )
-    2>r postpone AHEAD 2r> align here >r lsid,
-    [defined] bigFORTH [IF] 0 :r T&P [THEN]
-    postpone THEN r> ;
+: new-lsid ( addr u -- lsid )
+    here dup >r lsids append-list 0 , lsid# dup , 1+ to lsid# $l, r> ;
+: [new-lsid] ( addr u -- addr )
+    2>r next-section 2r> align new-lsid >r
+    previous-section r> ;
 
 : LLiteral ( addr u -- )
     2dup search-lsid dup  IF
         nip nip
-    ELSE  drop [lsid,]  THEN
+    ELSE  drop [new-lsid]  THEN
     postpone Literal ; immediate
 
 : L" ( "lsid<">" -- lsid )
     '"' parse 2dup search-lsid dup  IF
 	nip nip
-    ELSE  drop align here >r lsid, r>  THEN ;
+    ELSE  drop align new-lsid  THEN ;
 compsem: '"' parse  postpone LLiteral ;
 
 \ deliberately unique string
 : LU" ( "lsid<">" -- lsid )
-    '"' parse align here >r lsid, r> ;
-compsem: '"' parse [lsid,] postpone Literal ; immediate
+    '"' parse align new-lsid ;
+compsem: '"' parse [new-lsid] postpone Literal ; immediate
 
 : .lsids ( lsids -- )  BEGIN  @ dup  WHILE dup native@ type cr  REPEAT  drop ;
 
@@ -122,7 +122,7 @@ Variable last-namespace
 
 : native-file ( fid -- )
     >r BEGIN  pad $1000 r@ read-line throw  WHILE
-	    pad swap lsid,  REPEAT
+	    pad swap new-lsid drop  REPEAT
     drop r> close-file throw ;
 
 : locale-file ( fid -- )

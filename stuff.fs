@@ -1,5 +1,6 @@
 \ miscelleneous words
 
+\ Authors: Anton Ertl, Bernd Paysan, Neal Crook
 \ Copyright (C) 1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -49,7 +50,7 @@ AUser CSP
 
 \ shell commands
 
-0 UValue $? ( -- n ) \ gforth dollar-question
+UValue $? ( -- n ) \ gforth dollar-question
 \G @code{Value} -- the exit status returned by the most recently executed
 \G @code{system} command.
 
@@ -79,7 +80,7 @@ AUser CSP
 [endif]
 
 : in-return-stack? ( addr -- f )
-    rp0 @ swap - [ forthstart 6 cells + ]L @ u< ;
+    rp0 @ [ forthstart 7 cells + ]L @ - $FFF + -$1000 and rp0 @ within ;
 
 \ const-does>
 
@@ -114,7 +115,7 @@ AUser CSP
     POSTPONE (const-does>)
     POSTPONE ;
     noname : POSTPONE rdrop
-    latestxt r> cell+ ! \ patch the literal
+    latestnt r> cell+ ! \ patch the literal
 ; immediate
 
 \ !! rewrite slurp-file using slurp-fid
@@ -333,12 +334,18 @@ AUser CSP
     loop ;
 [then]
 
+14 Value f.s-precision
+\G the field width for f.s output. Other precision details are derived
+\G from that value.
+
 : f.s ( -- ) \ gforth f-dot-s
 \G Display the number of items on the floating-point stack, followed
 \G by a list of the items (but not more than specified by
 \G @code{maxdepth-.s}; TOS is the right-most item.
-    ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 
-    ?DO  dup i - 1- floats fp@ + f@ 16 5 11 f.rdp space LOOP  drop ; 
+    ." <" fdepth 0 .r ." > " fdepth 0 max maxdepth-.s @ min dup 0 ?DO
+	dup i - 1- floats fp@ + f@
+	f.s-precision 7 max dup 0 f.rdp space LOOP
+    drop ; 
 
 \ new interpret/compile:
 
@@ -473,7 +480,7 @@ previous
     throw ;
 
 : hex.r ( u1 u2 -- )
-    ['] .r #16 base-execute ;
+    ['] u.r #16 base-execute ;
 
 : dump ( addr u -- ) ['] dump $10 base-execute ;
 \ wrap dump into base-execute
@@ -490,66 +497,6 @@ previous
     source-id dup 1 -1 within IF
 	>r r@ file-size throw r> reposition-file throw
 	BEGIN  refill 0= UNTIL  postpone \  THEN ; immediate
-
-\ WORD SWORD
-
-: sword  ( char -- addr len ) \ gforth-obsolete s-word
-\G Parses like @code{word}, but the output is like @code{parse} output.
-\G @xref{core-idef}.
-    \ this word was called PARSE-WORD until 0.3.0, but Open Firmware and
-    \ dpANS6 A.6.2.2008 have a word with that name that behaves
-    \ differently (like NAME).
-    source 2dup >r >r >in @ over min /string
-    rot dup bl = IF
-        drop (parse-white)
-    ELSE
-        (word)
-    THEN
-[ has? new-input [IF] ]
-    2dup input-lexeme!
-[ [THEN] ]
-    2dup + r> - 1+ r> min >in ! ;
-
-: word   ( char "<chars>ccc<char>-- c-addr ) \ core
-    \G Skip leading delimiters. Parse @i{ccc}, delimited by
-    \G @i{char}, in the parse area. @i{c-addr} is the address of a
-    \G transient region containing the parsed string in
-    \G counted-string format. If the parse area was empty or
-    \G contained no characters other than delimiters, the resulting
-    \G string has zero length. A program may replace characters within
-    \G the counted string. OBSOLESCENT: the counted string has a
-    \G trailing space that is not included in its length.
-    sword dup word-pno-size u>= IF  -18 throw  THEN
-    here place  bl here count + c!  here ;
-
-\ quotations
-
-[ifundef] [:
-: int-[: ( -- flag colon-sys )
-  false :noname ;
-: comp-[: ( -- quotation-sys flag colon-sys )
-    vtsave locals-wordlist last @ lastcfa @ leave-sp @
-    postpone AHEAD
-    locals-list @ locals-list off
-    postpone SCOPE
-    true  :noname  ;
-' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
-\G Starts a quotation
-
-: (;]) ( some-sys lastxt -- )
-    >r
-    ] postpone ENDSCOPE
-    locals-list !
-    postpone THEN
-    leave-sp ! lastcfa ! last ! to locals-wordlist vtrestore
-    r> postpone ALiteral ;
-
-: ;] ( compile-time: quotation-sys -- ; run-time: -- xt ) \ gforth semi-bracket
-    \g ends a quotation
-    POSTPONE ; swap IF
-        (;])
-    ELSE  r>  THEN ( xt ) ; immediate
-[then]
 
 \ multiple values to and from return stack
 
@@ -573,7 +520,7 @@ previous
 
 \ 2value
 
-to: (2to) ( addr -- ) >body 2!-table to-!exec ;
+: (2to) ( addr -- ) >body 2!-table to-!exec ;
 to-opt: ( xt -- ) >body postpone literal 2!-table to-!, ;
 
 : 2Value ( d "name" -- ) \ Forth200x
@@ -675,3 +622,21 @@ end-struct buffer%
     \G representing the first character of @i{ccc}.  Interpretation
     \G semantics for this word are undefined.
     char postpone Literal ; immediate restrict
+
+\ xchar version of parse
+
+: (xparse)    ( xchar "ccc<char>" -- c-addr u ) \ core-ext
+\G Parse @i{ccc}, delimited by @i{xchar}, in the parse
+\G area. @i{c-addr u} specifies the parsed string within the
+\G parse area. If the parse area was empty, @i{u} is 0.
+    dup $80 < if (parse) exit then \ for -1, also possibly faster
+    {: | xc[ 8 ] :} xc[ 8 xc!+? 0= #-77 and throw drop xc[ - {: xcu :}
+    source  >in @ over min /string ( c-addr1 u1 )
+    over swap xc[ xcu search if
+	drop over - xcu
+    else
+	nip 0 then
+    over + >in +!
+    2dup input-lexeme! ;
+
+' (xparse) is parse

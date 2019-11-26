@@ -1,5 +1,6 @@
 \ a very simple accept approach
 
+\ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
 \ Copyright (C) 1995,1996,1997,1998,1999,2000,2003,2006,2007,2010 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -51,7 +52,7 @@ Variable echo  -1 echo !
 : included ( addr u -- )
     2 emit dup $20 + emit type
     echo @ IF
-	echo off ['] refill-loop catch
+	echo off ['] refill-loop bt-rp0-catch
 	dup IF  4 emit  THEN  echo on  throw
     THEN ;
 : include ( "file" -- )  parse-name included ;

@@ -1,5 +1,6 @@
 \ search order wordset                                 14may93py
 
+\ Authors: Anton Ertl, Bernd Paysan, Neal Crook, David Kühling, Jens Wilke
 \ Copyright (C) 1995,1996,1997,1998,2000,2003,2005,2007,2011,2015,2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

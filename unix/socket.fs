@@ -1,5 +1,6 @@
 \ socket interface
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 1998,2000,2003,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -280,6 +281,11 @@ machine "mips" str= [IF]
 [THEN]
    0 Constant IPPROTO_IP
   41 Constant IPPROTO_IPV6
+[DEFINED] linux [DEFINED] android or [IF]
+  72 Constant IPV6_ADDR_PREFERENCES
+   1 Constant IPV6_PREFER_SRC_TMP
+   2 Constant IPV6_PREFER_SRC_PUBLIC
+[THEN]
   10 Constant IP_MTU_DISCOVER
   23 Constant IPV6_MTU_DISCOVER
   67 Constant IP_DONTFRAG
@@ -306,6 +312,12 @@ s" sock read error"    exception Constant !!sockread!!
 
 : ipv6-only ( sock -- )  true { w^ sockopt }
     IPPROTO_IPV6 IPV6_V6ONLY sockopt 4 setsockopt ?ior ;
+[IFDEF] IPV6_ADDR_PREFERENCES
+    : ipv6-pref ( sock prefer -- )  { | sockopt[ 4 ] } sockopt[ l!
+	IPPROTO_IPV6 IPV6_ADDR_PREFERENCES sockopt[ 4 setsockopt ?ior ;
+    : ipv6-public ( sock -- )  IPV6_PREFER_SRC_PUBLIC ipv6-pref ;
+    : ipv6-private ( sock -- )  IPV6_PREFER_SRC_TMP ipv6-pref ;
+[THEN]
 
 : new-socket6 ( -- server )  true { w^ sockopt }
     PF_INET6 SOCK_STREAM 0 socket dup 0<= ?ior
@@ -317,8 +329,8 @@ s" sock read error"    exception Constant !!sockread!!
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt ?ior
     [ELSE]
-	IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
-	dup IPPROTO_IP IP_MTU_DISCOVER sockopt 4
+	IP_PMTUDISC_DO { | sockopt[ 4 ] } sockopt[ l!
+	dup IPPROTO_IP IP_MTU_DISCOVER sockopt[ 4
 	setsockopt ?ior
     [THEN] ;
 
@@ -328,8 +340,8 @@ s" sock read error"    exception Constant !!sockread!!
 	\    dup IPPROTO_IP IP_DONTFRAG sockopt-on 1 over l! 4
 	\    setsockopt ?ior
     [ELSE]
-	IP_PMTUDISC_DO 0 { w^ sockopt } sockopt l!
-	dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt 4
+	IP_PMTUDISC_DO { | sockopt[ 4 ] } sockopt[ l!
+	dup IPPROTO_IPV6 IPV6_MTU_DISCOVER sockopt[ 4
 	setsockopt ?ior
     [THEN]
 ;

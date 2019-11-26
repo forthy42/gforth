@@ -1,5 +1,6 @@
 \ wrap TYPE and EMIT into strings using string.fs
 \
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2013,2014,2015,2016,2017 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -33,17 +34,22 @@ require glocals.fs
 
 \ string array words
 
-: $[]! ( addr u n $[]addr -- )  $[] $! ;
-\G store a string into an array at index @i{n}
-: $[]+! ( addr u n $[]addr -- )  $[] $+! ;
-\G add a string to the string at index @i{n}
-: $[]# ( addr -- len )          $@len cell/ ;
+: $[]! ( addr u n $[]addr -- ) \ gforth string-array-store
+    \G store a string into an array at index @i{n}
+    $[] $! ;
+: $[]+! ( addr u n $[]addr -- ) \ gforth string-array-plus-store
+    \G add a string to the string at index @i{n}
+    $[] $+! ;
+: $[]# ( addr -- len ) \ gforth string-array-num
 \G return the number of elements in an array
-: $[]@ ( n $[]addr -- addr u ) 2dup $[]# u< IF $[] $@ ELSE 2drop 0. THEN ;
+    $@len cell/ ;
+: $[]@ ( n $[]addr -- addr u ) \ gforth string-array-fetch
 \G fetch a string from array index @i{n} --- return the zero string if
 \G empty, and don't accidentally grow the array.
-: $+[]! ( addr u $[]addr -- ) dup $[]# swap $[]! ;
+    2dup $[]# u< IF $[] $@ ELSE 2drop 0. THEN ;
+: $+[]! ( addr u $[]addr -- ) \ gforth string-append-array
 \G add a string at the end of the array
+    dup $[]# swap $[]! ;
 
 User tmp$[] \ temporary string buffers
 User tmp$#  \ temporary string buffer counter
@@ -81,8 +87,8 @@ tmp$ $execstr-ptr !
 
 : $tmp ( xt -- addr u )
     \G generate a temporary string from the output of a word
-    1 tmp$# +!@ drop
-    tmp$ $off  tmp$ $exec  tmp$ $@ ;
+    1 tmp$# +!@ drop 0 { w^ tmp$$ } tmp$$ $exec
+    tmp$$ @ tmp$ tuck dup $free ! $@ ;
 
 :noname ( -- )  defers 'cold  tmp$[] off ;  is 'cold
 

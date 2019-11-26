@@ -1,5 +1,6 @@
 \ Etags support for GNU Forth.
 
+\ Authors: Anton Ertl, Bernd Paysan, David Kühling
 \ Copyright (C) 1995,1998,2001,2003,2007,2008,2012 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -119,8 +120,4 @@ create tags-line 128 chars allot
 	latest name>string put-tags-string
     then ;
 
-: (tags-header) ( -- )
-    defers header
-    put-tags-entry ;
-
-' (tags-header) IS header
+' put-tags-entry IS header-extra

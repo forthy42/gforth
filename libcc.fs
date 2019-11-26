@@ -1,5 +1,6 @@
 \ libcc.fs	foreign function interface implemented using a C compiler
 
+\ Authors: Bernd Paysan, Anton Ertl, David Kühling
 \ Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -160,6 +161,8 @@ constant !!0.7-style!!
 synonym c-function \c
 synonym add-lib \c
 synonym clear-libs \c
+
+: host? ( -- flag )  s" HOSTPREFIX" getenv nip 0= ;
 
 Vocabulary c-lib
 
@@ -867,7 +870,8 @@ tmp$ $execstr-ptr !
 	['] compile-cmd $tmp system $? 0<> !!libcompile!! and throw
 	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
 	open-wrappers dup 0= if
-	    .lib-error !!openlib!! throw
+	    .lib-error
+	    host? IF  !!openlib!! throw  THEN
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
@@ -879,6 +883,7 @@ tmp$ $execstr-ptr !
 
 : link-wrapper-function { cff -- sym }
     cff cff-rtype wrapper-function-name
+    host? 0= IF  2drop 0  EXIT  THEN
     cff cff-lha @ @ assert( dup ) lib-sym dup 0= if
         .lib-error -&32 throw
     endif ;
@@ -919,7 +924,7 @@ named-vt \ but is actually a named vt
 ' cfun, set-optimizer
 ' rt-does> set-does>
 
-latestxt to rt-vtable
+latestnt to rt-vtable
 
 : (c-function) ( xt-parse "forth-name" "c-name" "{stack effect}" -- )
     { xt-parse-types }
@@ -980,7 +985,7 @@ latestxt to rt-vtable
     >r Create here dup ccb% dup allot erase
     lib-handle-addr @ swap dup >r ccb-lha !
     parse-function-types
-    here lastxt name>string string, count sanitize
+    here latestnt name>string string, count sanitize
     callback# 1- r> ccb-num !
     r> c-source-file-execute
     ['] callback-does> set-does> ;

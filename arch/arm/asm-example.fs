@@ -1,8 +1,9 @@
 \ Usage examples for ARM assembler
 
-\ Author: David K�hling <dvdkhlng AT gmx DOT de>
+\ Author: David Kühling <dvdkhlng AT gmx DOT de>
 \ Created: January 2008
 
+\ Authors: David KÃ¼hling, Anton Ertl
 \ Copyright (C) 2000,2007,2008,2010 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.

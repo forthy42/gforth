@@ -1,5 +1,6 @@
 \ dynamic string handling                              10aug99py
 
+\ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2000,2005,2007,2010,2011,2012,2013,2014,2015,2016,2017,2018 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -59,17 +60,6 @@
 : $@len ( $addr -- u ) \ gforth-string string-fetch-len
     \G returns the length of the stored string.
     @ dup IF  @  THEN ;
-: $! ( addr1 u $addr -- ) \ gforth-string string-store
-    \G stores a newly allocated string buffer at an address,
-    \G frees the previous buffer if necessary.
-    dup @ IF  \ fast path for strings with similar buffer size
-	over $padding over @ @ $padding = IF
-	    @ 2dup ! cell+ swap move  EXIT
-	THEN  THEN
-    >r $make r> $!buf ;
-: $@ ( $addr -- addr2 u ) \ gforth-string string-fetch
-    \G returns the stored string.
-    @ dup IF  dup cell+ swap @  ELSE  0  THEN ;
 : $!len ( u $addr -- ) \ gforth-string string-store-len
     \G changes the length of the stored string.  Therefore we must
     \G change the memory area and adjust address and count cell as
@@ -78,6 +68,17 @@
 	over @ @ $padding over = IF  drop @ !  EXIT  THEN
     THEN
     over @ swap resize throw over ! @ ! ;
+: $! ( addr1 u $addr -- ) \ gforth-string string-store
+    \G stores a newly allocated string buffer at an address,
+    \G frees the previous buffer if necessary.
+    dup @ IF  \ fast path for strings with similar buffer size
+	over $padding over @ @ $padding = IF
+	    @ 2dup ! cell+ swap move  EXIT
+	THEN  THEN
+    2dup $!len @ cell+ swap move ;
+: $@ ( $addr -- addr2 u ) \ gforth-string string-fetch
+    \G returns the stored string.
+    @ dup IF  dup cell+ swap @  ELSE  0  THEN ;
 : $+!len ( u $addr -- addr )
     \G make room for u bytes at the end of the memory area referenced
     \G by $addr; addr is the address of the first of these bytes.
