@@ -56,6 +56,8 @@ super30 = o#+ !
 super31 = lit f@
 super32 = lit f!
 super33 = noop flit
+super34 = f@ f*
+super35 = f@ f+
 
 \ compare-and-branch; comment them out if we take up work on gforth-native again
 cb1 = 0< ?branch
@@ -273,7 +275,10 @@ csswaplfetch = ul@ l>< l>s
 \E prim-states float+               \ 78
 \ \E prim-states (for)                \ 68
 \E prim-states 2rdrop               \ 60 \ --
-\ \E prim-states f!                   \ 14
+\E prim-states f@
+\E prim-states f+
+\E prim-states f*
+\E prim-states f!                   \ 14
 \E prim-states >l                   \ 14
 \ \E prim-states close-file           \ 5
 \ \E prim-states call-c               \ 4
