@@ -58,6 +58,8 @@ super31 = lit f@
 super32 = lit f!
 super33 = noop flit
 super34 = lit+ @
+super35 = f@ f*
+super36 = f@ f+
 
 \ compare-and-branch; comment them out if we take up work on gforth-native again
 cb1 = 0< ?branch

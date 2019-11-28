@@ -622,3 +622,21 @@ end-struct buffer%
     \G representing the first character of @i{ccc}.  Interpretation
     \G semantics for this word are undefined.
     char postpone Literal ; immediate restrict
+
+\ xchar version of parse
+
+: (xparse)    ( xchar "ccc<char>" -- c-addr u ) \ core-ext
+\G Parse @i{ccc}, delimited by @i{xchar}, in the parse
+\G area. @i{c-addr u} specifies the parsed string within the
+\G parse area. If the parse area was empty, @i{u} is 0.
+    dup $80 < if (parse) exit then \ for -1, also possibly faster
+    {: | xc[ 8 ] :} xc[ 8 xc!+? 0= #-77 and throw drop xc[ - {: xcu :}
+    source  >in @ over min /string ( c-addr1 u1 )
+    over swap xc[ xcu search if
+	drop over - xcu
+    else
+	nip 0 then
+    over + >in +!
+    2dup input-lexeme! ;
+
+' (xparse) is parse
