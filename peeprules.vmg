@@ -106,6 +106,7 @@ csswaplfetch = ul@ l>< l>s
 \E prim-states swap                 \ 737988
 \E S0 S2 state-prim swap
 \E S1 S2 state-prim swap
+\E S2 S1 state-prim swap
 \E S2 S3 state-prim swap
 \E S3 S2 state-prim swap
 \E prim-states c@                   \ 651406
