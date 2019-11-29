@@ -44,7 +44,7 @@ s" address-unit-bits" environment? 0=
   \ if your machine has fewer bits/au, gray will not work
   : (bits/cell)  ( -- n )
       1 0 invert dup 1 rshift xor
-      BEGIN  dup 1 = 0=  WHILE  1 rshift  swap 1+ swap  REPEAT  drop ;
+      BEGIN  dup 1 = 0=  WHILE  1 rshift  1 under+  REPEAT  drop ;
   (bits/cell)
   warnings @ [IF]
       .( You seem to have ) dup 1 cells / . .( bits/address unit) cr

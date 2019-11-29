@@ -29,10 +29,10 @@ s" Invalid data size" exception constant !!ebml-ds!!
 s" Early terminate scanning" exception constant !!ebml-early!!
 s" Early termination of cue reading" exception Constant !!cueterm!!
 
-: id-8x  24 rshift >r 1+  r> ;
-: id-4x  16 rshift >r 2 + r> ;
-: id-2x   8 rshift >r 3 + r> ;
-: id-1x            >r 4 + r> ;
+: id-8x  24 rshift 1 under+ ;
+: id-4x  16 rshift 2 under+ ;
+: id-2x   8 rshift 3 under+ ;
+: id-1x            4 under+ ;
 : id-00   !!ebml-ds!! throw ;
 Create id@-table
 ' id-00 , ' id-1x , ' id-2x , ' id-2x ,
@@ -44,21 +44,21 @@ Create id@-table
 
 : track@+ ( addr -- addr' id )
     dup be-ul@
-    dup $80000000 and IF  24 rshift     $80 xor >r 1+  r>  EXIT  THEN
-    dup $40000000 and IF  16 rshift   $4000 xor >r 2 + r>  EXIT  THEN
-    dup $20000000 and IF   8 rshift $200000 xor >r 3 + r>  EXIT  THEN
-    dup $10000000 and IF          $10000000 xor >r 4 + r>  EXIT  THEN
+    dup $80000000 and IF  24 rshift     $80 xor 1 under+  EXIT  THEN
+    dup $40000000 and IF  16 rshift   $4000 xor 2 under+  EXIT  THEN
+    dup $20000000 and IF   8 rshift $200000 xor 3 under+  EXIT  THEN
+    dup $10000000 and IF          $10000000 xor 4 under+  EXIT  THEN
     !!ebml-id!! throw ;
 
 cell 8 = [IF]
-    : ds-8x  56 rshift             $7F and >r 1+  r> ;
-    : ds-4x  48 rshift           $3FFF and >r 2 + r> ;
-    : ds-2x  40 rshift         $1FFFFF and >r 3 + r> ;
-    : ds-1x  32 rshift        $FFFFFFF and >r 4 + r> ;
-    : ds-08  24 rshift      $7FFFFFFFF and >r 5 + r> ;
-    : ds-04  16 rshift    $3FFFFFFFFFF and >r 6 + r> ;
-    : ds-02   8 rshift  $1FFFFFFFFFFFF and >r 7 + r> ;
-    : ds-01            $FFFFFFFFFFFFFF and >r 8 + r> ;
+    : ds-8x  56 rshift             $7F and 1 under+ ;
+    : ds-4x  48 rshift           $3FFF and 2 under+ ;
+    : ds-2x  40 rshift         $1FFFFF and 3 under+ ;
+    : ds-1x  32 rshift        $FFFFFFF and 4 under+ ;
+    : ds-08  24 rshift      $7FFFFFFFF and 5 under+ ;
+    : ds-04  16 rshift    $3FFFFFFFFFF and 6 under+ ;
+    : ds-02   8 rshift  $1FFFFFFFFFFFF and 7 under+ ;
+    : ds-01            $FFFFFFFFFFFFFF and 8 under+ ;
     Create ds@-table
     ' id-00 , ' ds-01 , ' ds-02 , ' ds-02 ,
     4 0 [DO] ' ds-04 , [LOOP]
@@ -72,17 +72,17 @@ cell 8 = [IF]
 [ELSE]
     : ds@+ ( addr -- addr' ddatasize )
 	dup be-ul@
-	dup $80000000 and IF  24 rshift     $7F and >r 1+  r> 0 EXIT  THEN
-	dup $40000000 and IF  16 rshift   $3FFF and >r 2 + r> 0 EXIT  THEN
-	dup $20000000 and IF   8 rshift $1FFFFF and >r 3 + r> 0 EXIT  THEN
-	dup $10000000 and IF          $0FFFFFFF and >r 4 + r> 0 EXIT  THEN
-	dup $08000000 and IF          $07FFFFFF and >r 5 + r>
+	dup $80000000 and IF  24 rshift     $7F and 1 under+ 0 EXIT  THEN
+	dup $40000000 and IF  16 rshift   $3FFF and 2 under+ 0 EXIT  THEN
+	dup $20000000 and IF   8 rshift $1FFFFF and 3 under+ 0 EXIT  THEN
+	dup $10000000 and IF          $0FFFFFFF and 4 under+ 0 EXIT  THEN
+	dup $08000000 and IF          $07FFFFFF and 5 under+
 	    over 1 - be-ul@ swap 24 drshift EXIT  THEN
-	dup $04000000 and IF          $03FFFFFF and >r 6 + r>
+	dup $04000000 and IF          $03FFFFFF and 6 under+
 	    over 2 - be-ul@ swap 16 drshift EXIT  THEN
-	dup $02000000 and IF          $01FFFFFF and >r 7 + r>
+	dup $02000000 and IF          $01FFFFFF and 7 under+
 	    over 3 - be-ul@ swap  8 drshift EXIT  THEN
-	dup $01000000 and IF          $00FFFFFF and >r 8 + r>
+	dup $01000000 and IF          $00FFFFFF and 8 under+
 	    over 4 - be-ul@ swap            EXIT  THEN
 	!!ebml-id!! throw ;
 [THEN]
@@ -393,7 +393,7 @@ Variable random-access
 : nal-fill-mts ( addr end pid -- addr' ) { pid }
     >r BEGIN  dup r@ u<  WHILE
 	"\0\0\0\1" pid string>mts
-	    dup be-ul@ >r 4 + r> over + tuck pid fill-mts
+	    dup be-ul@ 4 under+ over + tuck pid fill-mts
 	    tuck - ?dup-if r> swap - >r then
     REPEAT  rdrop ;
 : sei-len ( -- n )  0

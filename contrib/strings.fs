@@ -61,7 +61,7 @@
 	\ Use "count" to obtain the length of a counted string.
 	0
 	begin
-	  over c@ 0= dup invert if -rot 1+ swap 1+ swap rot then 
+	  over c@ 0= dup invert if -rot 1+ 1 under+ rot then 
 	until
 	nip ;
 

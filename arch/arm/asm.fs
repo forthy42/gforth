@@ -37,7 +37,7 @@ HEX  \ EVERYTHING BELOW IS IN HEXADECIMAL!
 
 \ Enumerations
 : enumerate:  ( N start "name1" ... "nameN" -- )
-   DUP ROT + SWAP ?DO   I CONSTANT  LOOP ;
+   DUP UNDER+ ?DO   I CONSTANT  LOOP ;
 
 \ operand types
 6 70000000 enumerate: register shifted #immediate psr cxsf-mask offset

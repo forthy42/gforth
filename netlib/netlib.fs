@@ -50,7 +50,7 @@ end-struct sockaddr_in
 : +place ( adr len adr )
         2dup >r >r
         dup c@ char+ + swap move
-        r> r> dup c@ rot + swap c! ;
+        r> r> dup c@ under+ c! ;
 [THEN]
 
 \ ------        IP number conversion                            31dec95jaw
@@ -64,7 +64,7 @@ variable ip-class
         r> r>
         dup 0= IF EXIT THEN
         1 ip-class +!
-        1- swap 1+ swap ;
+        1 /string ;
 
 : dotted>ip     ( adr len -- u )
         0 ip-class !

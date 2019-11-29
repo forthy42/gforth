@@ -45,7 +45,7 @@ Create pn-tab ," 000102030405060708091011121314151617181920212223242526272829303
 : pn    ( n -- )  2* pn-tab 1+ + 2 type ;
 : ;pn   [char] ; emit pn ;
 : ESC[  &27 emit [char] [ emit ;
-: at-xy 1+ swap 1+ swap ESC[ pn ;pn [char] H emit ;
+: at-xy 1+ 1 under+ ESC[ pn ;pn [char] H emit ;
 : page  ESC[ ." 2J" 0 0 at-xy ;
 
 40 Constant /maze  \ maximal maze line
@@ -72,7 +72,7 @@ UNLOCK
     over + swap ?DO  I c@ [char] $ = -  LOOP ;
 : m: ( "string" -- )  \ add a level line (top first!)
     -1 parse tuck 2dup count-$
-    >maze X @ 1 X cells - dup X @ rot + swap X ! 
+    >maze X @ 1 X cells - dup X @ under+ X ! 
     bounds ?DO  I c@ X c,  LOOP
     /maze swap - 0 ?DO  bl X c,  LOOP
     >maze X @ X here over X cell+ - swap X ! ;

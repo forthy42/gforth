@@ -118,7 +118,7 @@ $1000 Value dump#
     count $E and
     >r dup be-uw@ 2/ r> 15 lshift or
     >r 2 + dup be-uw@ 2/ r> 15 lshift or
-    >r 2 + r> ;
+    2 under+ ;
 
 : .pts ( addr -- addr' ) pts@ s>f 90k f/ f. ;
 
@@ -147,7 +147,7 @@ Variable pns s" " pns $!
     2 +LOOP  drop false ;
 
 : be-w@+ ( addr -- addr' len )
-    dup be-uw@ >r 2 + r> ;
+    dup be-uw@ 2 under+ ;
 
 : p>len ( addr -- addr' len )
     dup be-uw@ $3FF and >r

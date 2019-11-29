@@ -934,6 +934,7 @@ static void check_prims(Label symbols1[])
 #ifndef NO_DYNAMIC
   Label *symbols2, *ends1, *ends1j, *ends1jsorted, *goto_p;
   int nends1j;
+  char state_map[10];
 #endif
 
   if (debug)
@@ -972,8 +973,20 @@ static void check_prims(Label symbols1[])
     return;
   }
   goto_start = goto_p[0];
-  
+
   priminfos = calloc(i,sizeof(PrimInfo));
+  
+  /* initialize state mapping */
+  for (i=0; i<10; i++)
+    state_map[i]=i;
+#ifdef USE_TOS
+  state_map[0]=STACK_CACHE_DEFAULT;
+  for (i=0; i<STACK_CACHE_DEFAULT; i++)
+    state_map[i+1]=i;
+  /*  for (i=0; i<10; i++)
+      printf("state_map[%d]=%d\n", i, state_map[i]);*/
+#endif
+
   for (i=0; symbols1[i]!=0; i++) {
     int prim_len = ends1[i]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
@@ -999,7 +1012,7 @@ static void check_prims(Label symbols1[])
     }
 #else
     debugp(stderr, "%-15s %d-%d %4d %p %p len=%3ld rest=%2ld send=%1d",
-	   prim_names[i], sc->state_in, sc->state_out,
+	   prim_names[i], state_map[sc->state_in], state_map[sc->state_out],
 	   i, s1, s2, (long)(pi->length), (long)(pi->restlength),
 	   pi->superend);
 #endif

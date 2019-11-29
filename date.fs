@@ -10,14 +10,14 @@
 
 : j-day2ymd ( day -- y m d )
     1461 /mod 4 * swap
-    365 /mod3 rot + swap
+    365 /mod3 under+
     31 + 5 153 */mod swap 5 / >r
-    2 + dup 12 > IF  12 - swap 1+ swap  THEN
+    2 + dup 12 > IF  12 - 1 under+  THEN
     r> 1+ ;
  
 : (ymd2day) ( y m d -- day year/4 )
     1- -rot
-    2 - dup 0<= IF  12 + swap 1- swap  THEN
+    2 - dup 0<= IF  12 + -1 under+  THEN
     153 5 */mod swap 0= >r 31 - swap
     4 /mod swap 365 * swap >r + + r> swap r> + 1+ swap ;
  
@@ -31,7 +31,7 @@
 : day2ymd ( day -- y m d )
     dup gregorian >= IF
 	2 - 146097 /mod 400 * swap
-	36524 /mod3 100 * rot + swap
+	36524 /mod3 100 * under+
 	j-day2ymd 2>r + 2r>
     ELSE
 	j-day2ymd

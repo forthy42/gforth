@@ -212,7 +212,7 @@ opt: drop postpone swap postpone >l postpone >l ;
 : list-length ( list -- u )
     0 swap begin ( u1 list1 )
        dup while
-           name>link swap 1+ swap
+           name>link 1 under+
     repeat
     drop ;
 

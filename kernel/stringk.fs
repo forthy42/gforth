@@ -92,7 +92,7 @@
 
 : $ins ( addr1 u $addr off -- ) \ gforth-string string-ins
     \G inserts a string at offset @var{off}.
-    >r 2dup dup $@len rot + swap $!len  $@ r> safe/string insert ;
+    >r 2dup dup $@len under+ $!len  $@ r> safe/string insert ;
 : $del ( addr off u -- ) \ gforth-string string-del
     \G deletes @var{u} bytes from a string with offset @var{off}.
     >r >r dup $@ r> safe/string r@ delete

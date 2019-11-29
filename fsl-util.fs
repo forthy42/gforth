@@ -279,7 +279,7 @@ VARIABLE print-width      6 print-width !
 ;
 
 : }}fput ( r11 r12 ... r_nm  n m 'A -- | store r11 ... r_nm into nxm matrix )
-      -ROT 2DUP * >R 1- SWAP 1- SWAP }} R> 
+      -ROT 2DUP * >R 1- -1 UNDER+ }} R> 
       0 ?DO  DUP >R F! R> FLOAT -  LOOP  DROP ;
 
 \ ================= Floating-point local variables ==================

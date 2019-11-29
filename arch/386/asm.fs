@@ -86,7 +86,7 @@ Variable .osize               Variable .onow
 
 \ Extra-Werte compilieren                              01may95py
 : bytes,  ( nr x n -- )
-    0 ?DO  over 0< IF  +rel  swap 1+ swap  THEN  dup ,  $8 rshift
+    0 ?DO  over 0< IF  +rel  1 under+  THEN  dup ,  $8 rshift
     LOOP   2drop ;
 : opcode, ( opcode -- )
     .asize @ .anow @  <> IF  $67 ,  THEN

@@ -51,13 +51,15 @@ attach \ attach this thread
 Create 'args '[' 1+ 'A'
 [DO] ">x" 2dup + 1- [i] swap c! current @ search-wordlist 0= [IF] ' nip [THEN] , [LOOP]
 
-: >args ( x1 .. xn addr u -- ) dup floats callargs @ + -rot
-    swap 1- swap bounds swap U-DO
+: >args ( x1 .. xn addr u -- )
+    dup floats callargs @ + -rot
+    -1 under+ bounds swap U-DO
 	I c@ 'A' - cells 'args + perform
     1 -LOOP  drop ;
 
-: args, ( addr u -- )  dup floats ]] callargs @ Literal + [[
-    swap 1- swap bounds swap U-DO
+: args, ( addr u -- )
+    dup floats ]] callargs @ Literal + [[
+    -1 under+ bounds swap U-DO
 	I c@ 'A' - cells 'args + @ compile,
     1 -LOOP  postpone drop ;
 

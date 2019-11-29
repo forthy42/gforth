@@ -20,7 +20,7 @@
 
 : bits ( n -- n ) 1 swap lshift ;
 
-: >bit ( addr n -- c-addr mask ) 8 /mod rot + swap bits ;
+: >bit ( addr n -- c-addr mask ) 8 /mod under+ bits ;
 : +bit ( addr n -- )  >bit over c@ or swap c! ;
 : +bit@ ( addr n -- flag )  >bit over c@ 2dup and >r
     or swap c! r> 0<> ;

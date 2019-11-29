@@ -118,7 +118,7 @@ S" Ring buffer index out of range!" exception constant RB-E-RANGE
     ROT DROP 
   ELSE ( wrap around ) 			\ rb hp tp
     ROT @ 				\ hp tp length
-    ROT + SWAP 				\ hp+l tp
+    UNDER+ 				\ hp+l tp
   THEN 
   - ;
 

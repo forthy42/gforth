@@ -51,7 +51,7 @@ decimal
 
 : bitset# ( u -- )
 \G returns the number of bits set in a cell
-  0 swap 64 0 DO dup 1 and IF swap 1+ swap THEN 1 rshift LOOP drop ;
+  0 swap 64 0 DO dup 1 and IF 1 under+ THEN 1 rshift LOOP drop ;
 
 : max/bits ( u -- u2 )
 \G returns the highes number that could be represented by u bits

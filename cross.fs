@@ -1662,26 +1662,26 @@ bigendian
 	DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
     : DS@  ( addr -- d )
 	>r 0 0 r> tcell bounds
-	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP ;
+	DO  maxbyte * swap maxbyte um* under+ I c@ + swap  LOOP ;
     : Sc!  ( n addr -- )
 	>r s>d r> tchar bounds swap 1-
 	DO  maxbyte ud/mod rot I c!  -1 +LOOP  2drop ;
     : Sc@  ( addr -- n )
 	>r 0 0 r> tchar bounds
-	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  LOOP d>s ;
+	DO  maxbyte * swap maxbyte um* under+ I c@ + swap  LOOP d>s ;
 [ELSE]
     : DS!  ( d addr -- )
 	tcell bounds
 	DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
     : DS@  ( addr -- n )
 	>r 0 0 r> tcell bounds swap 1-
-	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP ;
+	DO  maxbyte * swap maxbyte um* under+ I c@ + swap  -1 +LOOP ;
     : Sc!  ( n addr -- )
 	>r s>d r> tchar bounds
 	DO  maxbyte ud/mod rot I c!  LOOP  2drop ;
     : Sc@  ( addr -- n )
 	>r 0 0 r> tchar bounds swap 1-
-	DO  maxbyte * swap maxbyte um* rot + swap I c@ + swap  -1 +LOOP d>s ;
+	DO  maxbyte * swap maxbyte um* under+ I c@ + swap  -1 +LOOP d>s ;
 [THEN]
 
 : S! ( n addr -- ) >r s>d r> DS! ;
@@ -1760,7 +1760,7 @@ bigendian
 CREATE Bittable 80 c, 40 c, 20 c, 10 c, 8 c, 4 c, 2 c, 1 c,
 : bits ( n -- n ) chars Bittable + c@ ;
 
-: >bit ( addr n -- c-addr mask ) 8 /mod rot + swap bits ;
+: >bit ( addr n -- c-addr mask ) 8 /mod under+ bits ;
 : +bit ( addr n -- )  >bit over c@ or swap c! ;
 : -bit ( addr n -- )  >bit invert over c@ and swap c! ;
 
@@ -4135,7 +4135,7 @@ Variable outfile-fd
   over align+ tuck tcell swap - rshift swap 0
   ?DO dup 1 and 
      IF drop rdrop snl-calc UNLOOP EXIT THEN 
-     2/ swap 1+ swap 
+     2/ 1 under+ 
   LOOP
   drop r> cell+
   ( S .. taddr2 type-addr ) dup
@@ -4143,7 +4143,7 @@ Variable outfile-fd
   dup >r swap - 1 cells / tcell * + r>
   ( S .. taddr2+skiplencells type-addr )
   @ addr-refs @ 1 tcell lshift or
-  BEGIN dup 1 and 0= WHILE swap 1+ swap 2/ REPEAT drop
+  BEGIN dup 1 and 0= WHILE 1 under+ 2/ REPEAT drop
   ( S .. taddr2+skiplencells+skiplenbytes )
   snl-calc ;
 

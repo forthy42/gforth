@@ -99,7 +99,7 @@ CREATE InfoTable
 : WordInfo ( nfa --- code )
         InfoTable
         BEGIN  dup @ dup
-        WHILE  swap 2 cells + swap
+        WHILE  2 cells under+
                2 pick swap execute
         UNTIL
         cell- @ nip
