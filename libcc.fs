@@ -371,7 +371,7 @@ drop
     2 + ;
 
 : count-stacks-r ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
-    swap 1+ swap ;
+    1 under+ ;
 
 : count-stacks-func ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     1+ ;

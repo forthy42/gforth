@@ -104,7 +104,7 @@ dynamic-a to allocater
 : >inherit ( class1 class2 -- class' ) >dynamic swap >osize @ over >osize ! ;
 : class-resize ( class u -- class' ) over >methods @ umax >r
     class>count r@ 2 cells + umax resize throw
-    r@ over cell+ !@ >r 2 cells + r> r> swap
+    r@ over cell+ !@ 2 cells under+ r> swap
     U+DO  ['] default-method defer@ over I + !  cell +LOOP ;
 
 \ dot parser .foo -> >o foo o>

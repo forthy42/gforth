@@ -21,7 +21,7 @@ variable loops/ms
 : pn    ( n -- )  0 <# # # #> type ;
 : ;pn   [char] ; emit pn ;
 : ESC[  27 emit [char] [ emit ;
-: at-xy 1+ swap 1+ swap ESC[ pn ;pn [char] H emit ;
+: at-xy 1+ 1 under+ ESC[ pn ;pn [char] H emit ;
 : page  ESC[ ." 2J" 0 0 at-xy ;
 : d= rot = >r = r> and ;
 

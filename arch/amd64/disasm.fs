@@ -165,8 +165,8 @@ Create .disp ' noop ,  ' .8b ,   ' .32b ,
   cells .disp + perform  r> .[ .sib/reg .] ;
 \ Register display                                     29may10py
 
-: wcount ( addr -- addr' w ) dup uw@ >r 2 + r> ;
-: wxcount ( addr -- addr' w ) dup sw@ >r 2 + r> ;
+: wcount ( addr -- addr' w ) dup uw@ 2 under+ ;
+: wxcount ( addr -- addr' w ) dup sw@ 2 under+ ;
 : +8b  ( addr -- addr' )  count  .$bs ;
 : +16b ( addr -- addr' )  wcount .$ds ;
 

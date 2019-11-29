@@ -29,7 +29,7 @@
    -rot and or ;                \ first delete then optionally set bit
 : (bits/cell)  ( -- +n )  \ measure number of bits per cell
    1 1 begin  1 lshift dup while
-	 swap 1+ swap
+	 1 under+
    repeat  drop ;
 (bits/cell) CONSTANT bits/cell
 

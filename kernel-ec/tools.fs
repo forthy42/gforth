@@ -100,7 +100,7 @@ include  ./../termsize.fs
 	IF
 	    cr nip 0 swap
 	THEN
-	dup name>string type space r> rot + swap
+	dup name>string type space r> under+
     REPEAT
     2drop ;
 
