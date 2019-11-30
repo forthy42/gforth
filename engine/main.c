@@ -174,6 +174,7 @@ static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
 static int print_metrics=0; /* if true, print metrics on exit */
+static int print_prims=0; /* if true, print primitives on exit */
 static int static_super_number = 10000; /* number of ss used if available */
 #define MAX_STATE 9 /* maximum number of states */
 static int maxstates = MAX_STATE; /* number of states for stack caching */
@@ -213,6 +214,7 @@ typedef struct {
   Label start; /* NULL if not relocatable */
   Cell length; /* only includes the jump iff superend is true*/
   Cell restlength; /* length of the rest (i.e., the jump or (on superend) 0) */
+  unsigned uses; /* number of uses */
   char superend; /* true if primitive ends superinstruction, i.e.,
                      unconditional branch, execute, etc. */
   Cell nimmargs;
@@ -364,7 +366,7 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 
     int steps=(((size-1)/sizeof(Cell))/RELINFOBITS)+1;
 
-    debugp(stderr, "relocate section %i, %p:%p\n", ii, base, size);
+    debugp(stderr, "relocate section %i, %p:%lx\n", ii, (void *)base, size);
     
     if(!bitstring) break;
     
@@ -928,13 +930,34 @@ MAYBE_UNUSED static Label bsearch_next(Label key, Label *a, UCell n)
     return bsearch_next(key, a, mid+1);
 }
 
+static int state_map(int state)
+{
+  if (state==0) return STACK_CACHE_DEFAULT;
+  if (state<=STACK_CACHE_DEFAULT) return state-1;
+  return state;
+}
+
+#ifndef NO_DYNAMIC
+static void gforth_printprims()
+{
+  unsigned i;
+  for (i=0; i<npriminfos; i++) {
+    PrimInfo *pi=&priminfos[i];
+    struct cost *sc=&super_costs[i];
+    fprintf(stderr,"%-15s %d-%d %4d %4d %12p len=%3ld rest=%2ld send=%1d\n",
+	    prim_names[i], state_map(sc->state_in), state_map(sc->state_out),
+	    i, pi->uses, pi->start, (long)(pi->length), (long)(pi->restlength),
+	    pi->superend);
+  }
+}
+#endif
+
 static void check_prims(Label symbols1[])
 {
   int i;
 #ifndef NO_DYNAMIC
   Label *symbols2, *ends1, *ends1j, *ends1jsorted, *goto_p;
   int nends1j;
-  char state_map[10];
 #endif
 
   if (debug)
@@ -976,17 +999,6 @@ static void check_prims(Label symbols1[])
 
   priminfos = calloc(i,sizeof(PrimInfo));
   
-  /* initialize state mapping */
-  for (i=0; i<10; i++)
-    state_map[i]=i;
-#ifdef USE_TOS
-  state_map[0]=STACK_CACHE_DEFAULT;
-  for (i=0; i<STACK_CACHE_DEFAULT; i++)
-    state_map[i+1]=i;
-  /*  for (i=0; i<10; i++)
-      printf("state_map[%d]=%d\n", i, state_map[i]);*/
-#endif
-
   for (i=0; symbols1[i]!=0; i++) {
     int prim_len = ends1[i]-symbols1[i];
     PrimInfo *pi=&priminfos[i];
@@ -1000,6 +1012,7 @@ static void check_prims(Label symbols1[])
     pi->superend = superend[i]|no_super;
     pi->length = prim_len;
     pi->restlength = endlabel - symbols1[i] - pi->length;
+    pi->uses = 0;
     pi->nimmargs = 0;
     relocs++;
 #if defined(BURG_FORMAT)
@@ -1012,7 +1025,7 @@ static void check_prims(Label symbols1[])
     }
 #else
     debugp(stderr, "%-15s %d-%d %4d %p %p len=%3ld rest=%2ld send=%1d",
-	   prim_names[i], state_map[sc->state_in], state_map[sc->state_out],
+	   prim_names[i], state_map(sc->state_in), state_map(sc->state_out),
 	   i, s1, s2, (long)(pi->length), (long)(pi->restlength),
 	   pi->superend);
 #endif
@@ -1289,6 +1302,7 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
         address of generated code for putting it into the threaded code */
 {
   Cell static_prim = (Cell)vm_prims[p];
+
 #if defined(NO_DYNAMIC)
   return static_prim;
 #else /* !defined(NO_DYNAMIC) */
@@ -1296,6 +1310,7 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
 
   if (no_dynamic)
     return static_prim;
+  priminfos[p].uses++;
   if (p>=npriminfos || !is_relocatable(p)) {
     append_jump();
     return static_prim;
@@ -2246,6 +2261,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"dynamic", no_argument, &no_dynamic, 0},
       {"code-block-size", required_argument, NULL, opt_code_block_size},
       {"print-metrics", no_argument, &print_metrics, 1},
+      {"print-prims", no_argument, &print_prims, 1},
       {"print-sequences", no_argument, &print_sequences, 1},
       {"ss-number", required_argument, NULL, ss_number},
       {"ss-states", required_argument, NULL, ss_states},
@@ -2623,6 +2639,10 @@ Cell gforth_main(int argc, char **argv, char **env)
   }
   gforth_cleanup();
   gforth_printmetrics();
+#ifndef NO_DYNAMIC
+  if (print_prims)
+    gforth_printprims();
+#endif
   // gforth_free_dict();
 
   return retvalue;
