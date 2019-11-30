@@ -625,7 +625,10 @@ end-struct buffer%
 
 \ xchar version of parse
 
-: string-parse ( addr u "ccc<string>" -- c-addr u )
+: string-parse ( c-addr1 u1 "ccc<string>" -- c-addr2 u2 )
+\G Parse @i{ccc}, delimited by the string @i{c-addr1 u1}, in the parse
+\G area. @i{c-addr2 u2} specifies the parsed string within the
+\G parse area. If the parse area was empty, @i{u2} is 0.
     2>r source  >in @ over min /string ( c-addr1 u1 )
     over swap 2r@ search if
 	drop over - r> rdrop
