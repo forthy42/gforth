@@ -643,7 +643,7 @@ end-struct buffer%
 \G area. @i{c-addr u} specifies the parsed string within the
 \G parse area. If the parse area was empty, @i{u} is 0.
     dup $80 < if (parse) exit then \ for -1, also possibly faster
-    {: | xc[ 8 ] :} xc[ 8 xc!+? 0= #-77 and throw drop
-    xc[ tuck - string-parse ;
+    {: | xc[ 2 cells ] :} xc[ tuck xc!+ over - string-parse ;
+\ 2 cells are absolutely sufficient
 
 ' (xparse) is parse
