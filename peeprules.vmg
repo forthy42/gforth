@@ -117,7 +117,7 @@ csswaplfetch = ul@ l>< l>s
 \E S0 S1 state-prim dup
 \E S1 S1 state-prim dup
 \E prim-states +                    \ 566003
-\E prim-states under+
+\E prim-states under+               \ 154
 \E S2 S1 state-prim under+
 \E S1 S0 state-prim under+
 \E prim-states i                    \ 502908
@@ -273,7 +273,6 @@ csswaplfetch = ul@ l>< l>s
 \E S4 S2 state-prim 2over
 \E S5 S3 state-prim 2over
 \E S6 S4 state-prim 2over
-\E prim-states under+               \ 154
 \E prim-states dnegate              \ 128
 \E prim-states u<>                  \ 128
 \E prim-states 0>                   \ 122
