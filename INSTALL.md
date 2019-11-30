@@ -1,15 +1,14 @@
 # Install
 ## Build from git:
 
-    git clone http://savannah.gnu.org/git/?group=gforth
-    sudo apt-get install gforth libffi-dev libltdl-dev libsoil-dev libtool-bin yodl
-    ./install-swig.sh # optional for C-bindings (e.g. OpenGL, posix )
+    git clone https://git.savannah.gnu.org/git/gforth.git
+    cd gforth
+    ./install-deps.sh # install all known dependencies for a full build
     ./BUILD-FROM-SCRATCH
     sudo make install
 
 ## Alternative: Build from Tarball
 If you are building from the tarball, please consult [INSTALL](INSTALL).
-
 
 Authors: Gerald Wodni, Anton Ertl, Bernd Paysan
 Copyright (C) 2016,2017 Free Software Foundation, Inc.
