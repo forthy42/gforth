@@ -2334,6 +2334,7 @@ Engine Options:\n\
   --offset-image		    Load image at a different position\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
+  --print-prims			    Print primitives with usage counts on exit\n\
   --print-sequences		    Print primitive sequences for optimization\n\
   -r SIZE, --return-stack-size=SIZE Specify return stack size\n\
   --ss-greedy			    Greedy, not optimal superinst selection\n\
