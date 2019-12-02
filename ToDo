@@ -13,9 +13,11 @@ AB       [ ] Documentation in manual
 ABGO [ ] Documentation for Undocumented features
  B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
 A        [ ]*Search changelogs for features
-A    [ ]*Sections
-A        [ ] integrate for: quotations, strings, locals
-A        [ ]*saver for images with sections
+A    [x]*Sections
+ B       [x] integrate for: quotations, strings
+A        [ ] locals
+ B       [ ] header vtables
+ B       [x]*saver for images with sections
  B       [x] loader for images with sections
  B   [ ]*Header Interface - autodetect duplication, simpler interface, setters have to duplicate if not already
  B       [ ] Generate header from prototype without duplcation

@@ -1,7 +1,7 @@
 %module png16
 %insert("include")
 %{
-#include "libpng16/png.h"
+#include <libpng16/png.h>
 #ifdef __gnu_linux__
 #undef stderr
 extern struct _IO_FILE *stderr;
