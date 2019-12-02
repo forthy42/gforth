@@ -1033,7 +1033,7 @@ elif test -z "$skipcode"; then
 [int foo(int,int,int);
 main()
 {
-  exit(foo(0,0,0)!=16);
+  exit(foo(0,0,0)>=16);
 }
 int foo(int x, int y, int z)
 {
