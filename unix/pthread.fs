@@ -268,7 +268,7 @@ synonym sema semaphore
 synonym c-section critical-section
 
 : >pagealign-stack ( n addr -- n' ) \ gforth-experimental
-    >r 1- r> 1- pagesize negate mux 1+ ;
+    -1 under+ 1- pagesize negate mux 1+ ;
 : stacksize ( -- n ) \ gforth-experimental
     \G stacksize for data stack
     forthstart 5 cells + @ ;
