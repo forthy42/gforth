@@ -352,6 +352,7 @@ set-current
     [IFDEF] max-single-byte
 	get-xkey
     [THEN]
+    dup $89 = IF  drop k-tab k-alt-mask or  THEN
 ;
 
 [IFDEF] max-single-byte
