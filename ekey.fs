@@ -70,6 +70,8 @@ keycode k-f9  ( -- u ) \ X:ekeys
 keycode k-f10 ( -- u ) \ X:ekeys
 keycode k-f11 ( -- u ) \ X:ekeys
 keycode k-f12 ( -- u ) \ X:ekeys
+
+keycode k-tab
 drop
     
 ' k-f1  alias k1  ( -- u ) \ gforth-obsolete
@@ -200,6 +202,8 @@ k-prior  s" [5~" esc-sequence
 k-next   s" [6~" esc-sequence
 k-insert s" [2~" esc-sequence
 k-delete s" [3~" esc-sequence
+
+k-tab    k-shift-mask or s" [Z"    esc-sequence
 
 k-left   k-shift-mask or s" [1;2D" esc-sequence
 k-right  k-shift-mask or s" [1;2C" esc-sequence
