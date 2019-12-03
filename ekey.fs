@@ -260,6 +260,7 @@ Variable ekey-buffer
     k-insert s" [2~" esc-sequence
     k-delete s" [3~" esc-sequence
     k-tab    k-shift-mask or s" [Z" esc-sequence
+    k-tab    k-alt-mask   or s" x" over #tab swap c! esc-sequence
 
     k-enter  k-shift-mask or s" OM" esc-sequence
     k-enter  k-alt-mask or   s" x" over #cr swap c! esc-sequence
