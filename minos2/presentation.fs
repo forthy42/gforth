@@ -46,14 +46,14 @@ tex: minos2
 ' }}i18n-text is }}text'
 
 {{
-{{ glue-left }}glue
+{{ glue-left @ }}glue
 
 \ page 0
 {{
     $FFFFFFFF dup pres-frame
     {{
 	glue*l }}glue \ ) $CCDDDD3F color, 4e }}frame dup .button1
-	l" ΜΙΝΩΣ2 GUI”" /title
+	l" ΜΙΝΩΣ2 GUI" /title
 	l" Lightweight GUI library" /subtitle
 	glue*2 }}glue
 	l" Bernd Paysan" /author
@@ -168,7 +168,7 @@ $BFFFFFFF dup pres-frame
 ' }}text is }}text'
 
 \ end
-glue-right }}glue
+glue-right @ }}glue
 }}h box[]
 {{
     ' minos2     minos2-glue logo-img solid-frame

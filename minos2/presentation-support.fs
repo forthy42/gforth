@@ -18,17 +18,25 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Variable slides[]
-Variable slide#
+uval-o slide-deck
+
+object uclass slide-deck
+    cell uvar slides[]
+    cell uvar slide#
+    cell uvar glue-left
+    cell uvar glue-right
+end-class slide-class
+
+slide-class new to slide-deck
+
+glue new glue-left !
+glue new glue-right !
 
 : >slides ( o -- ) slides[] >stack ;
 
-glue ' new static-a with-allocater Constant glue-left
-glue ' new static-a with-allocater Constant glue-right
-
 : glue0 ( -- ) 0e fdup
-    [ glue-left  .hglue-c ]L df!
-    [ glue-right .hglue-c ]L df! ;
+    glue-left  @ .hglue-c df!
+    glue-right @ .hglue-c df! ;
 : trans-frame ( o -- )
     >o transp# to frame-color o> ;
 : solid-frame ( o -- )
@@ -45,8 +53,8 @@ glue ' new static-a with-allocater Constant glue-right
     r> >o to frame-color parent-w .parent-w /flop drop o> ;
 : anim!slides ( r0..1 n -- )
     slides[] $[] @ /flop drop
-    fdup fnegate dpy-w @ fm* glue-left  .hglue-c df!
-    -1e f+       dpy-w @ fm* glue-right .hglue-c df! ;
+    fdup fnegate dpy-w @ fm* glue-left  @ .hglue-c df!
+    -1e f+       dpy-w @ fm* glue-right @ .hglue-c df! ;
 
 : prev-anim ( n r0..1 -- )
     dup 0<= IF  drop fdrop  EXIT  THEN
@@ -132,8 +140,8 @@ end-class slide-actor
 : slide[] ( o -- o )
     >o slide-actor new to act o act >o to caller-w o> o o> ;
 
-glue-left  >o 1glue vglue-c glue! 1glue dglue-c glue! o>
-glue-right >o 1glue vglue-c glue! 1glue dglue-c glue! o>
+glue-left  @ >o 1glue vglue-c glue! 1glue dglue-c glue! o>
+glue-right @ >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 
 : pres-frame ( colorday colornight -- o1 o2 )
     day-mode new-color, night-mode -1 +to color,# new-color, fdrop day-mode

@@ -1320,11 +1320,15 @@ end-class viewport
     vp-hslider ?dup-IF  .parent-w >o !size xywhd resize o>  THEN
     vp-vslider ?dup-IF  .parent-w >o !size xywhd resize o>  THEN ;
 
+$10 stack: vp<>
+
 : vp-needed ( xt -- )
     \G collect needs in viewport's vp-need
     vp-need need-mask <> IF
+	o vp<> >stack
 	need-mask >r vp-need to need-mask
-	catch r> to need-mask throw
+	catch r> to need-mask
+	vp<> stack> drop  throw
     ELSE  drop  THEN ;
 
 1 sfloats buffer: vp-ambient%  1.0e vp-ambient% sf!

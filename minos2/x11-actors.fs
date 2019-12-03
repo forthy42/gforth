@@ -102,9 +102,10 @@ DOES> ( x-key [addr] -- ekey )
     lastpos 2@ swap s>f s>f
     clicks 2* flags #lastdown bit@ -
     flags #pending -bit
-    top-act ?dup-IF
-	.clicked
-    ELSE  2drop fdrop fdrop  THEN ;
+    grab-move? ?dup-IF  fswap gx-sum f+ fswap gy-sum f+
+	[: .clicked ;] vp-needed<>|  EXIT  THEN
+    top-act    ?dup-IF  .clicked  EXIT  THEN
+    2drop fdrop fdrop ;
 Variable xy$
 : >xy$ ( x1 y1 .. xn yn n -- $rxy )
     2* sfloats xy$ $!len
@@ -143,7 +144,10 @@ Variable xy$
     flags #pending bit@  e.x e.y samepos? 0= and IF
 	buttonmask le-ul@ send-clicks  0 to clicks
     THEN
-    top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchmove  THEN
+    grab-move? IF  e.x e.y 1 >xy$ >dxy buttonmask le-ul@
+	[: grab-move? .touchmove ;] vp-needed<>|  EXIT
+    THEN
+    top-act    IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act    .touchmove  THEN
 ; x11-handler to DoMotionNotify
 :noname ; x11-handler to DoEnterNotify
 :noname ; x11-handler to DoLeaveNotify

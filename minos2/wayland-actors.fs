@@ -53,12 +53,13 @@ $60000. 2Value samepos      \ position difference square-summed less than is sam
     ev-xy 2@
     2dup samepos? 0= IF   0 to clicks  THEN  lastpos 2! ;
 : send-clicks ( -- )
-    top-act IF
-	lastpos 2@ swap 1/256 fm* 1/256 fm* buttonmask le-ul@
-	clicks 2* flags #lastdown bit@ - top-act .clicked  THEN
-    flags #pending -bit ;
+    lastpos 2@ swap 1/256 fm* 1/256 fm* buttonmask le-ul@
+    clicks 2* flags #lastdown bit@ -
+    flags #pending -bit
+    grab-move? ?dup-IF  .clicked  EXIT  THEN
+    top-act    ?dup-IF  .clicked  EXIT  THEN
+    2drop fdrop fdrop ;
 
-Variable xy$
 : >xy$ ( x1 y1 .. xn yn n -- $rxy )
     2* sfloats xy$ $!len
     xy$ $@ bounds 1 sfloats - swap 1 sfloats - U-DO

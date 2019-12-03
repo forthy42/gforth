@@ -34,14 +34,52 @@ end-class edit-widget-c
 
 edit-widget-c ' new static-a with-allocater Constant edit-widget
 
+false value grab-move?   \ set to object to grab moves
+false value inside-move? \ set to object if touched
+0e FValue tx-sum
+0e FValue ty-sum
+0e FValue gx-sum
+0e FValue gy-sum
+$10 stack: vp'<>
+
+: vp-need-or ( -- )
+    \G converge needs between viewport and main need mask
+    vp-need @ need-mask @ over $FF and over $FF and or >r
+    $-100 and swap $-100 and max r> or need-mask ! ;
+: vp-needed<>| ( xt -- )
+    vp'<> stack# 0= IF  execute  EXIT  THEN
+    need-mask >r
+    vp'<> stack# 1- vp'<> $[] @ .vp-need to need-mask
+    catch
+    0 vp'<> stack# 1- -DO
+	I 1- vp'<> $[] @ .vp-need to need-mask
+	I    vp'<> $[] @ .vp-need-or
+    1 -LOOP
+    r> to need-mask
+    0 vp'<> $[] @ .vp-need-or
+    throw ;
+
+: >grab-move? ( o -- )
+    to grab-move?  tx-sum to gx-sum  ty-sum to gy-sum
+    vp<> $@ vp'<> $! ;
+
+: >txy ( -- l:tx l:ty )
+    tx-sum f>l  ty-sum f>l ;
+: txy> ( l:tx l:ty )
+    f@local0 to ty-sum  f@local1 to tx-sum  lp+ lp+ ;
+: dxy$ ( rx ry adest addr u -- )
+    { f: dx f: dy } bounds U+DO
+	I         sf@ dx f+ sf!+
+	I sfloat+ sf@ dy f+ sf!+
+    [ 2 sfloats ]L +LOOP drop ;
+: >dxy ( $addr -- $addr )
+    dup gx-sum gy-sum $@ over swap dxy$ ;
+
 [IFDEF] x11      include x11-actors.fs      [ELSE]
 [IFDEF] wayland  include wayland-actors.fs  [ELSE]
 [IFDEF] android  include android-actors.fs  [THEN] [THEN] [THEN]
 
 \ generic actor stuff
-
-false value grab-move?   \ set to true to grab moves
-false value inside-move? \ set to object if touched
 
 actor class
 end-class simple-actor
@@ -143,13 +181,13 @@ end-class box-actor
 
 :noname ( rx ry b n -- )
     click( o hex. caller-w .name$ type space caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
-    grab-move? IF
-	active-w ?dup-IF
-	    [{: f: rx f: ry b n ox :}l ox .act
-		?dup-IF >o rx ry b n clicked o> THEN ;]
-	    box-touched# do-childs-act?
-	    EXIT  THEN
-    THEN
+\    grab-move? IF
+\	active-w ?dup-IF
+\	    [{: f: rx f: ry b n ox :}l ox .act
+\		?dup-IF >o rx ry b n clicked o> THEN ;]
+\	    box-touched# do-childs-act?
+\	    EXIT  THEN
+\    THEN
     fover fover ?inside ?dup-IF  dup engage  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 box-actor is clicked
@@ -166,9 +204,9 @@ box-actor is clicked
 ; box-actor is touchup
 :noname ( $xy b -- )
     event( o hex. caller-w hex. ." box move " 2dup .touch )
-    grab-move? IF
-	active-w ?dup-IF  .act .touchmove  EXIT  THEN
-    THEN
+\    grab-move? IF
+\	active-w ?dup-IF  .act .touchmove  EXIT  THEN
+\    THEN
     [: over xy@ inside?
 	event( o hex. caller-w hex. ." move inside? " dup . cr )
 	IF
@@ -255,20 +293,13 @@ box-actor class
 end-class vp-actor
 
 : tx ( rx ry -- rx' ry' )
-    fswap x f- vp-x         f+
-    fswap y f- vp-h vp-y f- f+ ;
+    fswap vp-x         x f- fdup +to tx-sum f+
+    fswap vp-h vp-y f- y f- fdup +to ty-sum f+ ;
 : tx$ ( $rxy*n -- $rxy*n' )
-    0e fdup tx { f: dx f: dy }
+    0e fdup tx
     dup $@len act .txy$ $!len
-    act .txy$ $@ drop swap $@ bounds U+DO
-	I         sf@ dx f+ sf!+
-	I sfloat+ sf@ dy f+ sf!+
-    [ 2 sfloats ]L +LOOP  drop  act .txy$ ;
+    act .txy$ $@ drop swap $@ dxy$  act .txy$ ;
 
-: vp-need-or ( -- )
-    \G converge needs between viewport and main need mask
-    vp-need @ need-mask @ over $FF and over $FF and or >r
-    $-100 and swap $-100 and max r> or need-mask ! ;
 : vp-needed| ( xt -- )
     vp-needed vp-need-or ;
 
@@ -348,7 +379,7 @@ forward >animate
 	    ftime to vmotion-time
 	    0e to vmotion-dt
 	    set-startxy
-	    o to grab-move?  EXIT
+	    o >grab-move?  EXIT
 	ELSE
 	    grab-move? o = IF  2drop vpxy!
 		false to grab-move?
@@ -375,21 +406,25 @@ forward >animate
 	$10 and IF  fdup +to vmotion-dy  THEN  fdrop fdrop fdrop
 	0.333e o ['] vp-scroll >animate
 	EXIT  THEN
-    [: caller-w >o tx
-	[: act >o [ box-actor :: clicked ] o> ;] vp-needed| o> ;] 1-?inside
+    [: caller-w >o  >txy  tx
+	[: act >o [ box-actor :: clicked ] o> ;] vp-needed|
+	txy> o> ;] 1-?inside
 ; vp-actor is clicked
 :noname ( $rxy*n bmask -- )
-    [: caller-w >o >r tx$ r>
-	[: act >o [ box-actor :: touchdown ] o> ;] vp-needed| o> ;] 1-?inside ; vp-actor is touchdown
+    [: caller-w >o  >txy  >r tx$ r>
+	[: act >o [ box-actor :: touchdown ] o> ;] vp-needed|
+	txy> o> ;] 1-?inside ; vp-actor is touchdown
 :noname ( $rxy*n bmask -- )
-    [: caller-w >o >r tx$ r>
-	[: act >o [ box-actor :: touchup ] o> ;] vp-needed| o> ;] 1-?inside ; vp-actor is touchup
+    [: caller-w >o  >txy  >r tx$ r>
+	[: act >o [ box-actor :: touchup ] o> ;] vp-needed|
+	txy> o> ;] 1-?inside ; vp-actor is touchup
 :noname ( $rxy*n bmask -- )
     dup 2 or 2 = grab-move? o = and IF
 	drop xy@ vpxy!
     ELSE
-	[: caller-w >o >r tx$ r>
-	    [: act >o [ box-actor :: touchmove ] o> ;] vp-needed| o> ;] 1-?inside
+	[: caller-w >o  >txy  >r tx$ r>
+	    [: act >o [ box-actor :: touchmove ] o> ;] vp-needed|
+	    txy> o> ;] 1-?inside
     THEN ; vp-actor is touchmove
 :noname ( ekey -- )
     caller-w >o
@@ -430,7 +465,7 @@ end-class vslider-actor
     slide-vp .act anim-del
     1 and IF
 	drop fdrop caller-w .parent-w .childs[] $@ drop @ .w f- to slider-sxy
-	o to grab-move?
+	o >grab-move?
     ELSE
 	drop fdrop >hslide
 	false to grab-move?
@@ -483,7 +518,7 @@ end-class hsliderright-actor
     1 and IF
 	drop fnip caller-w .parent-w .childs[] $@ cell- + @ .h f+
 	to slider-sxy
-	o to grab-move?
+	o >grab-move?
     ELSE
 	drop fnip >vslide
 	false to grab-move?
@@ -687,10 +722,11 @@ edit-terminal edit-out !
     0 to curpos text$ nip to cursize +sync ;
 : sel>primary ( o:edit-w -- )
     text$ curpos safe/string cursize min 0 max primary! ;
+: pos>select ( -- )
+    curpos start-curpos 2dup - abs to cursize umin to curpos +sync ;
 : end-selection ( o:edit-w -- )
     start-curpos 0>= IF
-	curpos start-curpos 2dup - abs to cursize +sync
-	umin to curpos
+	pos>select
 	case select-mode
 	    1 of select-word endof
 	    2 of select-line endof
@@ -712,7 +748,7 @@ edit-terminal edit-out !
 	curpos  to start-curpos
 	cursize to start-cursize
 	o>
-	o to grab-move?
+	o >grab-move?
     ELSE
 	false to grab-move?
 	2drop fdrop fdrop
@@ -721,9 +757,7 @@ edit-terminal edit-out !
     edit-w .start-curpos 0>= IF
 	['] setstring> edit-xt
 	xy@ fdrop edit>curpos
-	edit-w >o
-	curpos start-curpos 2dup - abs to cursize +sync
-	umin to curpos
+	edit-w >o pos>select
 	case  select-mode
 	    1 of select-word endof
 	    2 of select-line endof
@@ -745,8 +779,7 @@ edit-terminal edit-out !
     +keyboard ; edit-actor is focus
 :noname ( $rxy*n bmask -- )
     case
-	0 of  expand-selection  endof
-	1 of  expand-selection  endof
+	dup 1 u<= ?of drop  expand-selection  endof
 	nip
     endcase +sync +resize
 ; edit-actor is touchmove
