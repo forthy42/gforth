@@ -42,7 +42,7 @@ glue new glue-right !
 : solid-frame ( o -- )
     >o white# to frame-color o> ;
 : !slides ( nprev n -- )
-    44e update-size# update-glue
+\   44e update-size# update-glue
     over slide# !
     slides[] $[] @ /flip drop
     slides[] $[] @ /flop drop glue0 ;

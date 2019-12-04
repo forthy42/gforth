@@ -181,13 +181,6 @@ end-class box-actor
 
 :noname ( rx ry b n -- )
     click( o hex. caller-w .name$ type space caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
-\    grab-move? IF
-\	active-w ?dup-IF
-\	    [{: f: rx f: ry b n ox :}l ox .act
-\		?dup-IF >o rx ry b n clicked o> THEN ;]
-\	    box-touched# do-childs-act?
-\	    EXIT  THEN
-\    THEN
     fover fover ?inside ?dup-IF  dup engage  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 box-actor is clicked
@@ -204,9 +197,6 @@ box-actor is clicked
 ; box-actor is touchup
 :noname ( $xy b -- )
     event( o hex. caller-w hex. ." box move " 2dup .touch )
-\    grab-move? IF
-\	active-w ?dup-IF  .act .touchmove  EXIT  THEN
-\    THEN
     [: over xy@ inside?
 	event( o hex. caller-w hex. ." move inside? " dup . cr )
 	IF

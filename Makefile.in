@@ -869,7 +869,7 @@ install-elc:
 			echo '>>>>>Please install start-gforth.{el,elc} in your .../emacs/.../site-start.d directory'; \
 		fi
 
-installdeps:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim gforth.fi start-gforth.el
+installdeps:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 prim gforth.fi start-gforth.el @build_libcc_named@
 
 install-indep:	installdeps installdirs-indep install-sources install-man install-elc
 
