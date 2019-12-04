@@ -37,18 +37,54 @@ Defer exif-read ( u -- addr u )
 Defer exif>read ( addr u -- )
 Defer >exif-open ( addr u -- )
 
-: file-exb ( -- c ) jpeg-fd key-file ;  ' file-exb is exb
-: file-ex-seek? ( -- )
-    jpeg-fd file-position throw drop ;  ' file-ex-seek? is ex-seek?
+\ file variant
+
+: file-exb ( -- c ) jpeg-fd key-file ;
+: file-ex-seek? ( -- u )
+    jpeg-fd file-position throw drop ;
 : file-ex-seek ( u -- )
-    0 jpeg-fd reposition-file throw ;   ' file-ex-seek is ex-seek
+    0 jpeg-fd reposition-file throw ;
 : file-exif-read ( n -- addr u )
     pad swap jpeg-fd read-file throw
-    pad swap ;                          ' file-exif-read is exif-read
-: file-exif>read ( addr u -- )
-    jpeg-fd read-file throw ;           ' file-exif>read is exif>read
+    pad swap ;
+: file-exif>read ( addr u -- u' )
+    jpeg-fd read-file throw ;
 : file>exif-open ( addr u -- )
-    r/o open-file throw to jpeg-fd ;    ' file>exif-open is >exif-open
+    r/o open-file throw to jpeg-fd ;
+
+: file-exif ( -- )
+    ['] file-exb is exb
+    ['] file-ex-seek? is ex-seek?
+    ['] file-ex-seek is ex-seek
+    ['] file-exif-read is exif-read
+    ['] file-exif>read is exif>read
+    ['] file>exif-open is >exif-open ;
+file-exif
+
+\ memory variant
+
+2Variable exif-mem
+0 Value exif-pos
+: mem-exif/ ( -- addr u )  exif-mem 2@ exif-pos safe/string ;
+: mem-exb ( -- c )
+    mem-exif/ drop c@  1 +to exif-pos ;
+: mem-ex-seek ( u -- )
+    to exif-pos ;
+: mem-exif-read ( u -- addr u )
+    >r mem-exif/ r@ umin pad swap 2dup 2>r move 2r>
+    r> +to exif-pos ;
+: mem-exif>read ( addr u -- u' )
+    2>r mem-exif/ r> umin dup +to exif-pos r> swap dup >r move r> ;
+: mem>exif-open ( addr u -- )
+    exif-mem 2!  0 to exif-pos ;
+
+: mem-exif ( -- )
+    ['] mem-exb is exb
+    ['] exif-pos is ex-seek?
+    ['] mem-ex-seek is ex-seek
+    ['] mem-exif-read is exif-read
+    ['] mem-exif>read is exif>read
+    ['] mem>exif-open is >exif-open ;
 
 : jpeg+seek ( n -- )  ex-seek? + ex-seek ;
 
