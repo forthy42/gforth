@@ -30,57 +30,67 @@ s" Invalid JPEG file" exception Constant !!no-jpeg!!
 s" Exif exhausted"    exception Constant !!oo-exif!!
 s" Not an Exif chunk" exception Constant !!no-exif!!
 
+Defer exb
+Defer ex-seek? ( -- u )
+Defer ex-seek ( u -- )
+Defer exif-read ( u -- addr u )
+Defer exif>read ( addr u -- )
+Defer >exif-open ( addr u -- )
+
+: file-exb ( -- c ) jpeg-fd key-file ;  ' file-exb is exb
+: file-ex-seek? ( -- )
+    jpeg-fd file-position throw drop ;  ' file-ex-seek? is ex-seek?
+: file-ex-seek ( u -- )
+    0 jpeg-fd reposition-file throw ;   ' file-ex-seek is ex-seek
+: file-exif-read ( n -- addr u )
+    pad swap jpeg-fd read-file throw
+    pad swap ;                          ' file-exif-read is exif-read
+: file-exif>read ( addr u -- )
+    jpeg-fd read-file throw ;           ' file-exif>read is exif>read
+: file>exif-open ( addr u -- )
+    r/o open-file throw to jpeg-fd ;    ' file>exif-open is >exif-open
+
+: jpeg+seek ( n -- )  ex-seek? + ex-seek ;
+
 : ?tag ( -- )
-    jpeg-fd key-file $FF <> IF  !!no-jpeg!! throw  THEN ;
+    exb $FF <> IF  !!no-jpeg!! throw  THEN ;
 
-: read-tag ( -- tag ) ?tag jpeg-fd key-file ;
+: read-tag ( -- tag ) ?tag exb ;
 
-: read-len ( -- len )  jpeg-fd key-file 8 lshift jpeg-fd key-file or 2 - ;
+: read-len ( -- len )  exb 8 lshift exb or 2 - ;
 
 : ?soi ( -- )  read-tag $D8 <> IF  !!no-jpeg!! throw  THEN ;
-
-: jpeg+seek ( n -- )  s>d
-    jpeg-fd file-position throw d+
-    jpeg-fd reposition-file throw ;
 
 : search-exif ( -- len )
     BEGIN  read-tag dup $D9 $DB within IF  drop 0  EXIT  THEN
 	$E1 <>  WHILE  read-len jpeg+seek  REPEAT
     read-len ;
 
+: >exif-st ( -- flag )
+    ?soi search-exif  dup 0= ?EXIT  ex-seek? + to exif-end  true ;
 : >exif ( addr u -- flag )
-    r/o open-file throw to jpeg-fd ?soi search-exif
-    dup 0= ?EXIT
-    jpeg-fd file-position throw drop + to exif-end
-    true ;
+    >exif-open  >exif-st ;
 
 \ exif tags
 
-: exif-seek ( n -- )  exif-start + 0 jpeg-fd reposition-file throw ;
-
-: exif-read ( n -- addr u )
-    pad swap jpeg-fd read-file throw
-    pad swap ;
+: exif-seek ( n -- )  exif-start + ex-seek ;
 
 : exif-read-at ( n offset -- addr u )
-    jpeg-fd file-position throw 2>r exif-seek exif-read
-    2r> jpeg-fd reposition-file throw ;
+    ex-seek? >r exif-seek exif-read  r> ex-seek ;
 
 : exif-slurp ( u offset -- addr u )
-    jpeg-fd file-position throw 2>r exif-seek >r
-    r@ allocate throw dup r> jpeg-fd read-file throw
-    2r> jpeg-fd reposition-file throw ;
+    ex-seek? >r exif-seek >r
+    r@ allocate throw dup r> exif>read
+    r> ex-seek ;
 
 : ex>< ( n1 n2 -- n3 n4 )  exif-endian IF  swap  THEN ;
-: exb ( -- byte )
-    jpeg-fd key-file ;
 : exw ( -- word )
     exb exb ex><  8 lshift or ;
 : exl ( -- long )
     exw exw ex>< 16 lshift or ;
 
 : >exif-start ( -- )
-    jpeg-fd file-position throw drop to exif-start ;
+    ex-seek? to exif-start ;
 
 : ?exif ( -- )
     6 exif-read "Exif\0\0" str= 0= IF  !!no-exif!! throw  THEN
@@ -130,8 +140,9 @@ DOES> + c@ ;
     LOOP ;
 
 : >thumb-scan ( fn-addr u1 -- )
+    >exif-open
     0 to img-orient  0 to thumb-off  0 to thumb-len
-    >exif IF  ?exif exw 12 * jpeg+seek exl exif-seek >thumb  THEN ;
+    >exif-st IF  ?exif exw 12 * jpeg+seek exl exif-seek >thumb  THEN ;
 
 : exif-close ( -- )
     jpeg-fd ?dup-IF   close-file 0 to jpeg-fd throw  THEN ;
