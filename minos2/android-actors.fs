@@ -62,25 +62,28 @@ Variable xy$
     lastpos 2sf@ buttonmask @
     clicks 2* flags #lastdown bit@ -
     flags #pending -bit
-    grab-move? ?dup-IF  [: .clicked ;] vp-needed<>| EXIT  THEN
+    grab-move? ?dup-IF  fswap gx-sum f+ fswap gy-sum f+
+	[: .clicked ;] vp-needed<>| EXIT  THEN
     top-act    ?dup-IF  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 
 : action-down ( -- )
     getButtonState buttonmask !
-    top-act IF  xy$ buttonmask @ top-act .touchdown  THEN
+    grab-move? IF  xy$ >dxy buttonmask @ [: grab-move? .touchdown ;] vp-needed<>|  ELSE
+    top-act    IF  xy$ buttonmask @ top-act .touchdown  THEN  THEN
     ?samepos  flags #lastdown +bit  flags #pending +bit ;
 : action-up ( -- )
     ?samepos
     getButtonState buttonmask !
-    top-act IF  xy$ buttonmask @ top-act .touchup  THEN
+    grab-move? IF  xy$ >dxy buttonmask @ [: grab-move? .touchup ;] vp-needed<>|  ELSE
+    top-act IF  xy$ buttonmask @ top-act .touchup  THEN  THEN
     flags #lastdown -bit@  IF
 	1 +to clicks  flags #clearme +bit  send-clicks  THEN ;
 : action-move ( -- )
     flags #pending bit@  0 getXY samepos? 0= and IF
 	send-clicks  0 to clicks
     THEN
-    grab-move?  IF  xy$ buttonmask @ grab-move? [: .touchmove ;] vp-needed<>|  EXIT
+    grab-move?  IF  xy$ >dxy buttonmask @ grab-move? [: .touchmove ;] vp-needed<>|  EXIT
     THEN
     top-act     IF  xy$ buttonmask @ top-act    .touchmove  THEN ;
 : action-cancel ( -- ) ;
@@ -93,7 +96,7 @@ Variable xy$
     getButtonState buttonmask ! ;
 : action-hover-move ( -- )
     getButtonState buttonmask !
-    grab-move?  IF  xy$ 0 grab-move? [: .touchmove ;] vp-needed<>|  EXIT  THEN
+    grab-move?  IF  xy$ >dxy 0 grab-move? [: .touchmove ;] vp-needed<>|  EXIT  THEN
     top-act     IF  xy$ 0 top-act    .touchmove  THEN ;
 : action-scroll ( -- ) ;
 : action-henter ( -- ) ;
