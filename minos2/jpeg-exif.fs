@@ -189,6 +189,7 @@ DOES> + c@ ;
     exw 0 ?DO
 	exw exw exl { cmd type len }
 	exl case cmd
+	    $103 of  img-orient !  endof
 	    $112 of  img-orient !  endof
 	    $201 of  thumb-off  !  endof
 	    $202 of  thumb-len  !  endof
