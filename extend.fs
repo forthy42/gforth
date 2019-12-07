@@ -249,7 +249,7 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
 	@ dup 
     WHILE
 	over @ over 0 wordlist-link - wordlist-id !
-	swap cell+ swap
+	cell under+
     REPEAT
     drop
     \ rehash wordlists to remove forgotten words

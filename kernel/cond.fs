@@ -330,7 +330,7 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
 \ LOOP etc. are just like UNTIL
 
 : loop-like ( do-sys xt1 xt2 -- )
-    >r >r 0 cs-pick swap cell - swap 1 cs-roll r> r> rot do-dest?
+    >r >r 0 cs-pick swap cell- swap 1 cs-roll r> r> rot do-dest?
     until-like  POSTPONE done  POSTPONE unloop ;
 
 : LOOP ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 )	\ core

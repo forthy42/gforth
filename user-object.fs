@@ -10,7 +10,7 @@ Variable class-o
 : umethod ( m v -- m' v )
     postpone nocov[
     over >r : postpone u#exec class-o @ , r> cell/ , postpone ;
-    swap cell+ swap
+    cell under+
     ['] umethod, set-optimizer
     ['] is-umethod set-to
     ['] umethod-defer@ set-defer@
