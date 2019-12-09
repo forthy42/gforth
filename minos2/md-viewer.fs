@@ -22,6 +22,10 @@
 
 require jpeg-exif.fs
 require user-object.fs
+require text-style.fs
+require presentation-support.fs
+
+[IFDEF] update-gsize# update-gsize# [THEN]
 
 get-current also minos definitions
 
@@ -60,8 +64,8 @@ end-class md-styler
     count-emph off
     us-state off ;
 
-0 Value p-box \ paragraph box
-0 Value v-box \ vertical box
+0 Value md-p-box \ paragraph box
+0 Value md-box \ vertical box
 
 [IFUNDEF] bits:
     : bit ( n "name" -- n*2 )   dup Constant 2* ;
@@ -90,11 +94,11 @@ end-class md-styler
 glue new Constant glue*\\
 glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 : .\\ ( -- )
-    glue*\\ }}glue p-box .child+ x-baseline p-box .parent-w >o to baseline' o> ;
+    glue*\\ }}glue md-p-box .child+ x-baseline md-p-box .parent-w >o to baseline' o> ;
 : +p-box ( -- )
-    {{ }}p box[] >bl dup v-box .child+
+    {{ }}p box[] >bl dup md-box .child+
     dup >o "p-box" to name$ o>
-    dup .subbox >o to parent-w "subbox" to name$ o o> box[] to p-box ;
+    dup .subbox >o to parent-w "subbox" to name$ o o> box[] to md-p-box ;
 
 : /source ( -- addr u )
     source >in @ safe/string ;
@@ -109,6 +113,111 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     2dup jpeg? IF
 	>thumb-scan  img-orient @ 1- 0 max
     ELSE  2drop 0  THEN ;
+
+\ album viewer
+
+
+slide-deck Constant default-sd
+slide-class new Constant album-sd
+album-sd to slide-deck
+
+glue new glue-left !
+glue new glue-right !
+
+Variable imgs[]
+
+: >imgs ( o -- o ) dup imgs[] >stack ;
+
+0 Value imgs-box
+
+: swap-images ( -- )
+    imgs-box .childs[] dup >r get-stack >r 2swap r> r> set-stack ;
+
+: /mid ( o -- o' ) >r
+    {{  glue*wh }}glue
+	{{ glue*l }}glue r> /center glue*l }}glue }}v box[] >bl
+    }}z box[] ;
+
+$000000CC new-color, FValue album-bg-col#
+
+0 Value album-viewer
+
+{{
+    glue*wh album-bg-col# slide-frame dup .button1 ' noop 0 click[]
+    {{
+	glue-left @ }}glue
+	tex: img0 ' img0 "doc/thumb.png" 0.666e }}image-file drop >imgs
+	/mid        dup >slides
+	tex: img1 ' img1 "doc/thumb.png" 0.666e }}image-file drop >imgs
+	/mid /hflip dup >slides
+	tex: img2 ' img2 "doc/thumb.png" 0.666e }}image-file drop >imgs
+	/mid /hflip dup >slides
+	tex: img3 ' img3 "doc/thumb.png" 0.666e }}image-file drop >imgs
+	/mid /hflip dup >slides
+	glue-right @ }}glue
+    }}h dup to imgs-box
+    {{  \large blackish
+	{{
+	    glue*ll }}glue
+	    "    " }}text
+	    glue*ll }}glue
+	}}v ' prev-slide 0 click[]
+	glue*ll }}glue
+	{{
+	    glue*ll }}glue
+	    "    " }}text
+	    glue*ll }}glue
+	}}v ' next-slide 0 click[]
+	\normal
+    }}h box[]
+    {{
+	s" ❌" }}text 25%b
+	[:  album-viewer .parent-w .childs[] stack> drop
+	    default-sd to slide-deck
+	    +sync +resize ;] 0 click[] /right
+	glue*ll }}glue
+    }}v box[]
+}}z box[] to album-viewer
+
+default-sd to slide-deck
+
+: wh>tile-glue ( w h -- )
+    tile-glue >o
+    pixelsize# fm* fdup vglue-c df! dpy-h @ fm/
+    pixelsize# fm* fdup hglue-c df! dpy-w @ fm/ fmax 1/f fdup
+    vglue-c df@ f* vglue-c df!
+    hglue-c df@ f* hglue-c df!
+    o> ;
+
+: album-prepare ( n -- )
+    album-sd to slide-deck
+    3 and slide# !
+    4 0 DO
+	I slides[] $[] @
+	I slide# @ = IF  /flop  ELSE  /flip  THEN  drop
+    LOOP ;
+
+: album-image ( addr u n -- )
+    imgs[] $[] @ >o image-tex
+    mem-exif  [: 2dup >thumb-scan ;] catch drop
+    mem>texture  img-orient @ 1- 0 max dup to rotate#
+    4 and IF  swap  THEN
+    exif> wh>tile-glue o> ;
+
+Variable album-imgs[]
+0 Value md-frame
+
+: >md-album-viewer ( n -- )
+    dup -4 and >r album-prepare
+    { | i# } album-imgs[] $@ r> cells safe/string 4 cells min bounds U+DO
+	I $@ slurp-file  i# album-image
+	1 +to i#
+    cell +LOOP
+    md-frame album-viewer >o to parent-w o>
+    album-viewer md-frame .childs[] >stack
+    +sync +resize ;
+
+\ image/thumb loader
 
 -1 Value imgs#max
 
@@ -128,12 +237,14 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     imgs# @ imgs#max u>=
     fn$ $@ jpeg? IF  thumbnail@ nip 0<> and  THEN
     IF
-	thumbnail@ load-thumb  drop  fix-thumb-wh  fn$ $free  true
+	thumbnail@ load-thumb  drop  fix-thumb-wh  true
     ELSE
 	tex-xt dup >r image-tex[] >stack r@ execute
 	fn$ @ image-file[] >stack
 	fn$ $@ slurp-file mem>texture r> false
-    THEN  1 imgs# +! ;
+    THEN
+    fn$ @ album-imgs[] >stack
+    1 imgs# +! ;
 
 : wh>glue ( w h w% h% -- glue ) { f: w% f: h% }
     2dup dpy-h @ s>f fm/ h% f* dpy-w @ s>f fm/ w% f* fmin
@@ -147,7 +258,9 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     img-rot# 4 and IF  swap  THEN
     imgs# @ imgs#max u>  IF  20% f* fswap 20% f* fswap  THEN  wh>glue
     -rot IF  }}thumb  ELSE  white# }}image  THEN
-    >o img-rot# to rotate# o o>  exif-close ;
+    >o img-rot# to rotate# o o>
+    [: data album-imgs[] $[]@ data >md-album-viewer ;] imgs# @ 1- click[]
+    exif-close ;
 : +image ( o -- o )
     /source IF  c@ '(' =  IF  1 >in +! ')' parse
 	    2dup "file:" string-prefix? IF  5 /string
@@ -161,7 +274,7 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     ELSE  drop  THEN ;
 
 : >lhang ( o -- o )
-    p-box .parent-w >o dup to lhang o> ;
+    md-p-box .parent-w >o dup to lhang o> ;
 
 \ style class implementation
 
@@ -170,7 +283,7 @@ default-md-styler to md-style
 
 :noname ( -- )
     md-text$ $@len IF
-	us-state @ md-text$ $@ }}text-us p-box .child+ md-text$ $free
+	us-state @ md-text$ $@ }}text-us md-p-box .child+ md-text$ $free
     THEN ; is .md-text
 
 \ interpretation
@@ -237,7 +350,7 @@ md-char: ! ( char -- )
 :noname ( desc-addr u1 img-addr u2 -- )
     .md-text ( dark-blue )
     dup 0= IF  2drop " "  THEN
-    1 -rot }}text-us +image p-box .child+ ( blackish ) ; is .image
+    1 -rot }}text-us +image md-p-box .child+ ( blackish ) ; is .image
 md-char: [ ( char -- )
     drop ]-parse 2dup "![" search nip nip IF
 	drop ')' parse 2drop ]-parse + over -  THEN
@@ -245,10 +358,10 @@ md-char: [ ( char -- )
 :noname ( link-addr u1 desc-addr u2 -- )
     .md-text
     dup 0= IF  2drop " "  THEN
-    us-state @ >r p-box >r {{ }}h box[] to p-box
+    us-state @ >r md-p-box >r {{ }}h box[] to md-p-box
     [ underline #dark-blue or ]L render-line .md-text
-    p-box r> to p-box r> us-state ! blackish
-    +link p-box .child+ ; is .link
+    md-p-box r> to md-p-box r> us-state ! blackish
+    +link md-p-box .child+ ; is .link
 md-char: : ( char -- )
     drop /source ":" string-prefix? IF
 	>in @ >r
@@ -265,7 +378,7 @@ md-char: 	 ( tab -- )
     {{
 	{{ us-state @ 2r> }}text-us glue*l }}glue }}h box[]
     }}z box[] bx-tab >lhang
-    p-box .child+ blackish ; is .desc
+    md-p-box .child+ blackish ; is .desc
 
 $10 cells buffer: indent#s
 0 Value cur#indent
@@ -307,7 +420,7 @@ get-current also markdown definitions
 :noname ( -- ) dark-blue
     {{ 0 [: cur#indent 2* 2 + spaces indent# 0 .r ." . " ;]
 	$tmp }}text-us
-    }}z /hfix box[] >lhang p-box .child+ blackish
+    }}z /hfix box[] >lhang md-p-box .child+ blackish
     /source 0 render-line .md-text .\\ ; is .#.
 10 2 [DO] [I] 0 <# '.' hold #S #> nextname synonym 1. [LOOP]
 
@@ -316,7 +429,7 @@ get-current also markdown definitions
     -4 >indent .##. ;
 :noname ( -- ) dark-blue
     {{ 0 [: cur#indent 2* 1+ spaces indent# 0 .r ." . " ;]
-    $tmp }}text-us }}z /hfix box[] >lhang p-box .child+ blackish
+    $tmp }}text-us }}z /hfix box[] >lhang md-p-box .child+ blackish
     /source 0 render-line .md-text .\\ ; is .##.
 100 11 [DO] [I] 0 <# '.' hold #S #> nextname synonym 10. [LOOP]
 
@@ -324,7 +437,7 @@ get-current also markdown definitions
     -2 >indent cur#indent bullet-char .item ;
 :noname { bchar -- } dark-blue
     {{ 0 bchar [: cur#indent 1+ wspaces xemit wspace ;] $tmp }}text-us
-    }}z /hfix box[] >lhang p-box .child+
+    }}z /hfix box[] >lhang md-p-box .child+
     blackish /source 0 render-line .md-text .\\ ; is .item
 : +  ( -- ) -2 >indent '+' .item ;
 : -  ( -- ) -2 >indent '–' .item ;
@@ -361,7 +474,7 @@ previous set-current
 \ generic formatting
 
 : p-format ( rw -- )
-    [{: f: rw :}l rw par-split ;] v-box .do-childs ;
+    [{: f: rw :}l rw par-split ;] md-box .do-childs ;
 
 : ?md-token ( -- token )
     parse-name [ ' markdown >body ]L find-name-in ;
@@ -423,7 +536,7 @@ previous set-current
 : markdown-parse ( addr u -- )
     default-md-styler to md-style
     -1 to imgs#max  imgs# off
-    {{ }}v box[] to v-box nt open-fpath-file throw
+    {{ }}v box[] to md-box nt open-fpath-file throw
     ['] markdown-loop execute-parsing-named-file
     reset-emph \regular \sans \normal ;
 
