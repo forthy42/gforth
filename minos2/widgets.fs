@@ -817,10 +817,11 @@ also soil also freetype-gl
 : mem>thumb ( addr u -- ivec4-addr )
     GL_TEXTURE1 glActiveTexture
     thumb-tex-rgba thumb-rgba addr thumb-rgba# (mem>style) ;
+: $top[] ( $addr[] -- addr u / 0 0 )  $@ + cell- $@ ;
 : load-thumb ( addr u -- w h thumb )
     mem>thumb >r r@ i.w r@ i.h r>
     atlas-region thumbs[] $+[]!
-    thumbs[] $[]# 1- thumbs[] $[]@ drop ;
+    thumbs[] $top[] ;
 
 previous previous
 

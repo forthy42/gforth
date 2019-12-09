@@ -41,6 +41,8 @@ object uclass exif-o
     cell uvar exif-gps
     cell uvar intop-idf
     cell uvar img-orient
+    cell uvar img-w
+    cell uvar img-h
 
     umethod exb
     umethod ex-seek? ( -- u )
@@ -193,6 +195,8 @@ DOES> + c@ ;
 	exw exw exl exl { cmd typ len offset }
 	\ cmd hex. typ hex. len hex. offset hex. cr
 	offset  case cmd
+	    $100  of  img-w      !  endof
+	    $101  of  img-h      !  endof
 	    $112  of  img-orient !  endof
 	    $201  of  thumb-off  !  endof
 	    $202  of  thumb-len  !  endof

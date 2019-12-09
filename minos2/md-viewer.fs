@@ -112,11 +112,23 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 
 -1 Value imgs#max
 
+: l+! ( n addr -- )  dup >r l@ + r> l! ;
+
+: fix-thumb-wh { w h thumb -- w h thumb }
+    1e w h fm*/ img-h @ img-w @ fm*/ fdup 1e f< IF
+	h dup fm* f>s dup to h
+	dup thumb $C + l!  - 2/ thumb 4 + l+!
+    ELSE  1/f
+	w dup fm* f>s dup to w
+	dup thumb 8 + l!  - 2/ thumb l+!
+    THEN
+    w h thumb ;
+
 : load/thumb { w^ fn$ -- w h res flag }
     imgs# @ imgs#max u>=
     fn$ $@ jpeg? IF  thumbnail@ nip 0<> and  THEN
     IF
-	thumbnail@ load-thumb  fn$ $free  true
+	thumbnail@ load-thumb  drop  fix-thumb-wh  fn$ $free  true
     ELSE
 	tex-xt dup >r image-tex[] >stack r@ execute
 	fn$ @ image-file[] >stack
@@ -133,7 +145,7 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     fn$ $@ img-orient? { img-rot# }
     fn$ @ load/thumb 2swap
     img-rot# 4 and IF  swap  THEN
-    imgs# @ imgs#max u>  IF  15% f* fswap 15% f* fswap  THEN  wh>glue
+    imgs# @ imgs#max u>  IF  20% f* fswap 20% f* fswap  THEN  wh>glue
     -rot IF  }}thumb  ELSE  white# }}image  THEN
     >o img-rot# to rotate# o o>  exif-close ;
 : +image ( o -- o )
@@ -145,7 +157,7 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 	    THEN
 	    50% 100% }}image-file'
 	    >r {{ glue*l }}glue r> glue*l }}glue }}v box[]
-	    swap .dispose-widget THEN
+	    swap .dispose-widget  THEN
     ELSE  drop  THEN ;
 
 : >lhang ( o -- o )
