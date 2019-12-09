@@ -107,7 +107,7 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     dup 4 - 0 max safe/string ".jpg" str= ;
 : img-orient? ( addr u -- flag )
     2dup jpeg? IF
-	>thumb-scan  img-orient 1- 0 max
+	>thumb-scan  img-orient @ 1- 0 max
     ELSE  2drop 0  THEN ;
 
 -1 Value imgs#max
@@ -132,7 +132,7 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     file>fpath fn$ $!
     fn$ $@ img-orient? { img-rot# }
     fn$ @ load/thumb 2swap
-    img-rot# 1 and IF  swap  THEN
+    img-rot# 4 and IF  swap  THEN
     imgs# @ imgs#max u>  IF  15% f* fswap 15% f* fswap  THEN  wh>glue
     -rot IF  }}thumb  ELSE  white# }}image  THEN
     >o img-rot# to rotate# o o>  exif-close ;

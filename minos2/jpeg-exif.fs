@@ -37,6 +37,9 @@ object uclass exif-o
     cell uvar jpeg-fd
     cell uvar thumb-off
     cell uvar thumb-len
+    cell uvar exif-idf
+    cell uvar exif-gps
+    cell uvar intop-idf
     cell uvar img-orient
 
     umethod exb
@@ -187,12 +190,16 @@ DOES> + c@ ;
 
 : >thumb ( -- )
     exw 0 ?DO
-	exw exw exl { cmd type len }
-	exl case cmd
-	    $103 of  img-orient !  endof
-	    $112 of  img-orient !  endof
-	    $201 of  thumb-off  !  endof
-	    $202 of  thumb-len  !  endof
+	exw exw exl exl { cmd typ len offset }
+	\ cmd hex. typ hex. len hex. offset hex. cr
+	offset  case cmd
+	    $112  of  img-orient !  endof
+	    $201  of  thumb-off  !  endof
+	    $202  of  thumb-len  !  endof
+	    $8769 of  exif-idf   !  endof
+	    $8825 of  exif-gps   !  endof
+	    $A005 of  intop-idf  !  endof
+	    $FFFF of  drop LEAVE    endof
 	    nip
 	endcase
     LOOP ;
@@ -200,12 +207,13 @@ DOES> + c@ ;
 : >thumb-scan ( fn-addr u1 -- )
     >exif-open
     img-orient off  thumb-off off  thumb-len off
-    >exif-st IF  ?exif exw 12 * jpeg+seek exl exif-seek >thumb  THEN ;
+    >exif-st IF  ?exif >thumb  exl exif-seek >thumb
+    THEN ;
 
 : exif-close ( -- )
     jpeg-fd @ ?dup-IF   close-file jpeg-fd off throw
     ELSE  exif-o @ .dispose  file-exif  THEN ;
 : thumbnail@ ( -- addr u )
-    thumb-off @ thumb-len @ exif-slurp ;
+    thumb-off @ thumb-len @ dup IF  exif-slurp  THEN ;
 : >thumbnail ( fn-addr u1 -- jpeg-addr u2 )
     >thumb-scan thumbnail@ exif-close ;

@@ -402,9 +402,9 @@ Create rot-sts \ exif rotation
     3 c, 1 c, 2 c, 0 c, \ turn left+flip
     1 c, 3 c, 0 c, 2 c, \ turn left
 : rot>st ( n -- )
-    rot-sts + c@ dup 1 and s>f 2/ 1 and s>f >st ;
+    $1F and rot-sts + c@ dup 1 and s>f 2/ 1 and s>f >st ;
 : rot#>st ( frame n -- )
-    rot-sts + c@ dup 1 and s>f 2/ 1 and s>f #>st ;
+    $1F and rot-sts + c@ dup 1 and s>f 2/ 1 and s>f #>st ;
 : xywh-rect ( fcolor -- )
     xywh >xyxy rotate# 2 lshift { f: x1 f: y1 f: x2 f: y2 fx# -- }
     6 ?flush-tris  i>off  >v
