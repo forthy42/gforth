@@ -23,16 +23,21 @@ uval-o slide-deck
 object uclass slide-deck
     cell uvar slides[]
     cell uvar slide#
+    cell uvar slide#max
     cell uvar glue-left
     cell uvar glue-right
+    umethod load-prev
+    umethod load-next
 end-class slide-class
 
 slide-class new to slide-deck
 
+' noop dup is load-prev is load-next
+
 glue new glue-left !
 glue new glue-right !
 
-: >slides ( o -- ) slides[] >stack ;
+: >slides ( o -- ) slides[] >stack  1 slide#max +! ;
 
 : glue0 ( -- ) 0e fdup
     glue-left  @ .hglue-c df!
@@ -46,6 +51,11 @@ glue new glue-right !
     over slide# !
     slides[] $[] @ /flip drop
     slides[] $[] @ /flop drop glue0 ;
+: slide-flipflop ( -- )
+    4 0 DO
+	I slides[] $[] @
+	I slide# @ = IF  /flop  ELSE  /flip  THEN  drop
+    LOOP ;
 : fade-img ( r0..1 img1 img2 -- ) >r >r
     [ whitish x-color 1e f+ ] Fliteral fover f-
     r> >o to frame-color parent-w .parent-w /flop drop o>
@@ -65,7 +75,7 @@ glue new glue-right !
     1- sin-t anim!slides +sync +resize ;
 
 : next-anim ( n r0..1 -- )
-    dup slides[] $[]# 1- u>= IF  drop fdrop  EXIT  THEN
+    dup slide#max @ 1- u>= IF  drop fdrop  EXIT  THEN
     fdup 1e f>= IF  fdrop
 	dup 1+ swap !slides +sync +resize  EXIT
     THEN
@@ -74,9 +84,11 @@ glue new glue-right !
 1e FValue slide-time%
 
 : prev-slide ( -- )
+    slide# @ 0<= IF  load-prev  THEN
     slide-time% anims[] $@len IF  anim-end .2e f*  THEN
     slide# @ ['] prev-anim >animate ;
 : next-slide ( -- )
+    slide# @ 1+ slide#max @ u>= IF  load-next  THEN
     slide-time% anims[] $@len IF  anim-end .2e f*  THEN
     slide# @ ['] next-anim >animate ;
 
