@@ -134,6 +134,19 @@ end-class click-actor
     k-enter = IF  do-action  THEN
 ; click-actor is ekeyed
 
+\ key actor
+
+click-actor class
+end-class key-actor
+
+: key[] ( o xt data -- o ) \ xt takes ( data -- )
+    rot >o key-actor new >o to data is ck-action o o> !act o o> ;
+
+actor action-of clicked key-actor is clicked
+:noname ( ukeyaddr u -- )
+    bounds ?DO  I xc@+ swap I - >r  do-action  r>  +LOOP ; key-actor is ukeyed
+' do-action key-actor is ekeyed
+
 \ toggle actor
 
 click-actor class

@@ -58,11 +58,16 @@ glue new glue-right !
     hglue-c df@ f* hglue-c df!
     o> ;
 
+:noname defers re-config
+    imgs[] $@ bounds U+DO
+	I @ >o image-w image-h wh>tile-glue o>
+    cell +LOOP ; is re-config
+
 : album-image ( addr u n -- )
     imgs[] $[] @ >o image-tex
     mem-exif  [: 2dup >thumb-scan ;] catch drop
     mem>texture  img-orient @ 1- 0 max dup to rotate#
-    4 and IF  swap  THEN
+    4 and IF  swap  THEN  dup to image-h over to image-w
     exif> wh>tile-glue o> ;
 
 : album-reload ( n -- )
@@ -94,7 +99,8 @@ glue new glue-right !
 : solid-frame ( o -- )
     >o white# to frame-color o> ;
 : !slides ( nprev n -- )
-\   44e update-size# update-glue
+\   44e update-size#
+    update-glue
     over slide# !
     slides[] $[] @ /flip drop
     slides[] $[] @ /flop drop glue0 ;

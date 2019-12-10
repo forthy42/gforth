@@ -454,6 +454,8 @@ end-class glue-tile
 
 tile class
     defer: image-tex
+    value: image-w
+    value: image-h
 end-class image
 
 :noname ( -- )  render>
@@ -1584,8 +1586,10 @@ require animation.fs
     [THEN]
     time( ." resize: " .!time cr ) ;
 
+Defer re-config ' noop is re-config
+
 : widgets-redraw ( -- )
-    ?config   IF  +resize -config  THEN
+    ?config   IF  +resize re-config -config  THEN
     ?resize   IF  htop-resize -resize +sync  THEN
     ?sync     IF  widget-draw time( ." animate: " .!time cr ) -sync -vpsync
 	[IFDEF] ?sync-update

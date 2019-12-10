@@ -128,16 +128,41 @@ glue new glue-left !
 glue new glue-right !
 
 : /mid ( o -- o' ) >r
-    {{  glue*wh }}glue
+    {{  glue*wh }}glue >o font-size# 70% f* to border o o>
 	{{ glue*l }}glue r> /center glue*l }}glue }}v box[] >bl
     }}z box[] ;
 
-$000000CC new-color, FValue album-bg-col#
-
 0 Value album-viewer
+0 Value md-frame
+
+: album-close ( -- )
+    album-viewer .parent-w .childs[] stack> drop
+    md-frame .act >o 0 to active-w o>
+    default-sd to slide-deck
+    +sync +resize ;
+
+$000000E0 new-color, FValue album-bg-col#
+
+box-actor class
+end-class album-actor
+
+:noname ( key -- )
+    case
+	k-left    of  prev-slide   endof
+	k-right   of  next-slide   endof
+	k-volup   of  prev-slide   endof
+	k-voldown of  next-slide   endof
+	#esc      of  album-close  endof
+    endcase ; album-actor is ekeyed
+:noname ( ukeyaddr u -- )
+    bounds ?DO  I c@ bl = IF  ekeyed  THEN
+    LOOP ; album-actor is ukeyed
+
+: album[] ( o -- o )
+    >o album-actor new to act o act >o to caller-w o> o o> ;
 
 {{
-    glue*wh album-bg-col# slide-frame dup .button1 ' noop 0 click[]
+    glue*wh album-bg-col# slide-frame dup .button1
     {{
 	glue-left @ }}glue
 	tex: img0 ' img0 "doc/thumb.png" 0.666e }}image-file drop >imgs
@@ -166,12 +191,10 @@ $000000CC new-color, FValue album-bg-col#
     }}h box[]
     {{
 	s" ❌" }}text 25%b
-	[:  album-viewer .parent-w .childs[] stack> drop
-	    default-sd to slide-deck
-	    +sync +resize ;] 0 click[] /right
+	' album-close 0 click[] /right
 	glue*ll }}glue
     }}v box[]
-}}z box[] to album-viewer
+}}z album[] to album-viewer
 
 default-sd to slide-deck
 
@@ -179,12 +202,11 @@ default-sd to slide-deck
     album-sd to slide-deck
     dup 3 and slide# !  -4 and album/# !  slide-flipflop ;
 
-0 Value md-frame
-
 : >md-album-viewer ( n -- )
-    album-prepare  4 album-reload
+    album-prepare  ['] slurp-file is load-img  4 album-reload
     md-frame album-viewer >o to parent-w o>
     album-viewer md-frame .childs[] >stack
+    album-viewer engage
     +sync +resize ;
 
 \ image/thumb loader
@@ -216,17 +238,18 @@ default-sd to slide-deck
     fn$ @ album-imgs[] >stack
     1 imgs# +! ;
 
-: wh>glue ( w h w% h% -- glue ) { f: w% f: h% }
+: wh>glue ( w h w% h% o:glue -- ) { f: w% f: h% }
     2dup dpy-h @ s>f fm/ h% f* dpy-w @ s>f fm/ w% f* fmin
     \ not bigger than x% of screen
-    glue new >o fdup fm* vglue-c df!  fm* hglue-c df!  o o> ;
+    fdup fm* vglue-c df!  fm* hglue-c df! ;
 
 : }}image-file' ( addr u hmax vmax -- o ) { | w^ fn$ }
     file>fpath fn$ $!
     fn$ $@ img-orient? { img-rot# }
     fn$ @ load/thumb 2swap
     img-rot# 4 and IF  swap  THEN
-    imgs# @ imgs#max u>  IF  20% f* fswap 20% f* fswap  THEN  wh>glue
+    imgs# @ imgs#max u>  IF  20% f* fswap 20% f* fswap  THEN
+    glue new >o wh>glue o o>
     -rot IF  }}thumb  ELSE  white# }}image  THEN
     >o img-rot# to rotate# o o>
     [: data album-imgs[] $[]@ data >md-album-viewer ;] imgs# @ 1- click[]

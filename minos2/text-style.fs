@@ -236,10 +236,14 @@ is reload-textures
 glue new Constant glue*wh
 
 : update-glue
-    glue*wh >o 0g 0g dpy-w @ s>f font-size# 140% f* f- hglue-c glue!
-    0glue dglue-c glue! 1glue vglue-c glue! o> ;
+    glue*wh >o
+    dpy-w @ s>f font-size# 140% f* f- 0g fdup hglue-c glue!
+    dpy-h @ s>f font-size# 140% f* f- 0g fdup vglue-c glue!
+    0glue dglue-c glue! o> ;
 
 update-glue
+
+:noname defers re-config update-glue ; is re-config
 
 : tab-glue: ( glue "name" -- )
     Create , ['] value-to set-to
