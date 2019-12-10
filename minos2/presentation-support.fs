@@ -20,24 +20,71 @@
 
 uval-o slide-deck
 
+Variable album-imgs[]
+
 object uclass slide-deck
     cell uvar slides[]
+    cell uvar imgs[]
     cell uvar slide#
     cell uvar slide#max
+    cell uvar album/# \ index into album-imgs[]
     cell uvar glue-left
     cell uvar glue-right
-    umethod load-prev
-    umethod load-next
+    umethod load-img
 end-class slide-class
 
 slide-class new to slide-deck
 
-' noop dup is load-prev is load-next
+' slurp-file is load-img
 
 glue new glue-left !
 glue new glue-right !
 
 : >slides ( o -- ) slides[] >stack  1 slide#max +! ;
+: >imgs ( o -- o ) dup imgs[] >stack ;
+
+0 Value imgs-box
+
+: swap-images ( -- )
+    imgs-box .childs[] dup >r get-stack 2>r 2swap 2r> r> set-stack
+    imgs[] get-stack >r 2swap r> imgs[] set-stack
+    slides[] get-stack >r 2swap r> slides[] set-stack ;
+
+: wh>tile-glue ( w h -- )
+    tile-glue >o
+    pixelsize# fm* fdup vglue-c df! dpy-h @ fm/
+    pixelsize# fm* fdup hglue-c df! dpy-w @ fm/ fmax 1/f fdup
+    vglue-c df@ f* vglue-c df!
+    hglue-c df@ f* hglue-c df!
+    o> ;
+
+: album-image ( addr u n -- )
+    imgs[] $[] @ >o image-tex
+    mem-exif  [: 2dup >thumb-scan ;] catch drop
+    mem>texture  img-orient @ 1- 0 max dup to rotate#
+    4 and IF  swap  THEN
+    exif> wh>tile-glue o> ;
+
+: album-reload ( n -- )
+    >r { | i# } album-imgs[] $@ album/# @ cells safe/string r> cells umin
+    dup cell/ slide#max !
+    bounds U+DO
+	I $@ load-img  i# album-image
+	1 +to i#
+    cell +LOOP ;
+
+: !album/# ( -- )
+    album-imgs[] $[]# album/# @ - 4 min slide#max ! ;
+: load-prev ( -- )
+    album/# @ 0> IF
+	swap-images  2 slide# +!
+	-2 album/# +!  2 album-reload  !album/#
+    THEN ;
+: load-next ( -- )
+    album-imgs[] $[]# album/# @ 4 + u>= IF
+	4 album/# +!  2 album-reload  -2 album/# +!
+	swap-images  -2 slide# +!  !album/#
+    THEN ;
 
 : glue0 ( -- ) 0e fdup
     glue-left  @ .hglue-c df!

@@ -119,7 +119,6 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 slide-deck Constant default-sd
 
 slide-class uclass slide-deck
-    cell uvar album/# \ index into album-imgs[]
 end-class album-slide-class
 
 album-slide-class new Value album-sd
@@ -127,56 +126,6 @@ album-sd to slide-deck
 
 glue new glue-left !
 glue new glue-right !
-
-Variable album-imgs[]
-Variable imgs[]
-
-: >imgs ( o -- o ) dup imgs[] >stack ;
-
-0 Value imgs-box
-
-: swap-images ( -- )
-    imgs-box .childs[] dup >r get-stack 2>r 2swap 2r> r> set-stack
-    imgs[] get-stack >r 2swap r> imgs[] set-stack
-    slides[] get-stack >r 2swap r> slides[] set-stack ;
-
-: wh>tile-glue ( w h -- )
-    tile-glue >o
-    pixelsize# fm* fdup vglue-c df! dpy-h @ fm/
-    pixelsize# fm* fdup hglue-c df! dpy-w @ fm/ fmax 1/f fdup
-    vglue-c df@ f* vglue-c df!
-    hglue-c df@ f* hglue-c df!
-    o> ;
-
-: album-image ( addr u n -- )
-    imgs[] $[] @ >o image-tex
-    mem-exif  [: 2dup >thumb-scan ;] catch drop
-    mem>texture  img-orient @ 1- 0 max dup to rotate#
-    4 and IF  swap  THEN
-    exif> wh>tile-glue o> ;
-
-: album-reload ( n -- )
-    >r { | i# } album-imgs[] $@ album/# @ cells safe/string r> cells umin
-    dup cell/ slide#max !
-    bounds U+DO
-	I $@ slurp-file  i# album-image
-	1 +to i#
-    cell +LOOP ;
-
-: !album/# ( -- )
-    album-imgs[] $[]# album/# @ - 4 min slide#max ! ;
-:noname ( -- )
-    album/# @ 0> IF
-	swap-images  2 slide# +!
-	-2 album/# +!  2 album-reload  !album/#
-    THEN
-; is load-prev
-:noname ( -- )
-    album-imgs[] $[]# album/# @ 4 + u>= IF
-	4 album/# +!  2 album-reload  -2 album/# +!
-	swap-images  -2 slide# +!  !album/#
-    THEN
-; is load-next
 
 : /mid ( o -- o' ) >r
     {{  glue*wh }}glue
