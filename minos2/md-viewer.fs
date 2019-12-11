@@ -146,20 +146,29 @@ $000000E0 new-color, FValue album-bg-col#
 box-actor class
 end-class album-actor
 
+simple-actor class
+end-class album-scroll-actor
+
 :noname ( key -- )
     case
+	ctrl P k-ctrl-mask or   of  prev-slide   endof
+	ctrl N k-ctrl-mask or   of  next-slide   endof
 	k-left    of  prev-slide   endof
 	k-right   of  next-slide   endof
 	k-volup   of  prev-slide   endof
 	k-voldown of  next-slide   endof
 	#esc      of  album-close  endof
     endcase ; album-actor is ekeyed
-:noname ( ukeyaddr u -- )
-    bounds ?DO  I c@ bl = IF  ekeyed  THEN
-    LOOP ; album-actor is ukeyed
-
 : album[] ( o -- o )
     >o album-actor new to act o act >o to caller-w o> o o> ;
+
+:noname ( fx fy b n -- )
+    over $180 and IF  4 to scroll<<  THEN
+    over $08 scroll<< lshift and IF  prev-slide  2drop fdrop fdrop  EXIT  THEN
+    over $10 scroll<< lshift and IF  next-slide  2drop fdrop fdrop  EXIT  THEN
+    2drop fdrop fdrop ; album-scroll-actor is clicked
+: album-scroll[] ( o -- o )
+    >o album-scroll-actor new to act o act >o to caller-w o> o o> ;
 
 {{
     glue*wh album-bg-col# slide-frame dup .button1
@@ -181,7 +190,7 @@ end-class album-actor
 	    "    " }}text
 	    glue*ll }}glue
 	}}v ' prev-slide 0 click[]
-	glue*ll }}glue
+	glue*ll }}glue album-scroll[]
 	{{
 	    glue*ll }}glue
 	    "    " }}text
