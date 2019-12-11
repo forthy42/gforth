@@ -177,13 +177,13 @@ end-class album-scroll-actor
     glue*wh album-bg-col# slide-frame dup .button1
     {{
 	glue-left @ }}glue
-	tex: img0 ' img0 "doc/thumb.png" 0.666e }}image-file drop >imgs
+	tex: img0 ' img0 "thumb.png" 0.666e }}image-file drop >imgs
 	/mid        dup >slides
-	tex: img1 ' img1 "doc/thumb.png" 0.666e }}image-file drop >imgs
+	tex: img1 ' img1 "thumb.png" 0.666e }}image-file drop >imgs
 	/mid /hflip dup >slides
-	tex: img2 ' img2 "doc/thumb.png" 0.666e }}image-file drop >imgs
+	tex: img2 ' img2 "thumb.png" 0.666e }}image-file drop >imgs
 	/mid /hflip dup >slides
-	tex: img3 ' img3 "doc/thumb.png" 0.666e }}image-file drop >imgs
+	tex: img3 ' img3 "thumb.png" 0.666e }}image-file drop >imgs
 	/mid /hflip dup >slides
 	glue-right @ }}glue
     }}h dup to imgs-box
