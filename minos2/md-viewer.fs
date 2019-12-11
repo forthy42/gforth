@@ -135,11 +135,14 @@ glue new glue-right !
 0 Value album-viewer
 0 Value md-frame
 
+also [IFDEF] android android [THEN]
 : album-close ( -- )
     album-viewer .parent-w .childs[] stack> drop
     md-frame .act >o 0 to active-w o>
     default-sd to slide-deck
+    [IFDEF] aback  [ action-of aback ]L is aback  [THEN]
     +sync +resize ;
+previous
 
 $000000E0 new-color, FValue album-bg-col#
 
@@ -211,12 +214,15 @@ default-sd to slide-deck
     album-sd to slide-deck
     dup 3 and slide# !  -4 and album/# !  slide-flipflop ;
 
+also [IFDEF] android android [THEN]
 : >md-album-viewer ( n -- )
     album-prepare  ['] slurp-file is load-img  4 album-reload
     md-frame album-viewer >o to parent-w o>
     album-viewer md-frame .childs[] >stack
+    [IFDEF] aback  [: #esc rdrop ;] is aback [THEN]
     album-viewer engage
     +sync +resize ;
+previous
 
 \ image/thumb loader
 
