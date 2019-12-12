@@ -87,11 +87,13 @@ $1010107F #Variable shadow-color#
 Variable curminchars#
 FVariable curminwidth%
 FVariable pwtime%
+FVariable scale%
 set-current
 
 0 curminchars# !
 1e curminwidth% f!
 0.5e pwtime% f!
+1e scale% f!
 
 previous
 
