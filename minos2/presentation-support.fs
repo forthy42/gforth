@@ -214,21 +214,28 @@ glue-right @ >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 
 $10 stack: vp-tops
 
-also opengl
+also opengl also [IFDEF] android android [THEN]
+
+: >fullscreen ( -- )
+    [IFDEF] set-fullscreen-hint
+	set-fullscreen-hint 1 set-compose-hint
+    [ELSE]
+	[IFDEF] hidestatus hidekb hidestatus [THEN]
+    [THEN] ;
+: >normalscreen
+    [IFDEF] reset-fullscreen-hint
+	reset-fullscreen-hint 0 set-compose-hint
+    [ELSE]
+	[IFDEF] showstatus showstatus [THEN]
+    [THEN] ;
 
 : !pres-widgets ( -- )
-[IFDEF] set-fullscreen-hint
-    set-fullscreen-hint 1 set-compose-hint
-[ELSE]
-    [IFDEF] hidestatus hidekb hidestatus [THEN]
-[THEN]
     top-widget .htop-resize
     vp-tops get-stack 0 ?DO  .vp-top  LOOP
     1e ambient% sf! set-uniforms ;
 
-[IFDEF] android android [THEN]
-
 : presentation ( -- )
-    1config !pres-widgets widgets-loop ;
+    1config >fullscreen !pres-widgets widgets-loop
+    >normalscreen ;
 
-previous
+previous previous

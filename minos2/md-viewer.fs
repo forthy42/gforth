@@ -141,7 +141,7 @@ also [IFDEF] android android [THEN]
     md-frame .act >o 0 to active-w o>
     default-sd to slide-deck
     [IFDEF] aback  [ action-of aback ]L is aback  [THEN]
-    +sync +resize ;
+    >normalscreen +sync +resize ;
 previous
 
 $000000E0 new-color, FValue album-bg-col#
@@ -211,7 +211,7 @@ end-class album-scroll-actor
 default-sd to slide-deck
 
 : album-prepare ( n -- )
-    album-sd to slide-deck
+    >fullscreen  album-sd to slide-deck
     dup 3 and slide# !  -4 and album/# !  slide-flipflop ;
 
 also [IFDEF] android android [THEN]

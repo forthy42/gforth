@@ -47,6 +47,7 @@ also x11
 0 Value _NET_WM_BYPASS_COMPOSITOR
 0 Value _NET_WM_STATE
 0 Value _NET_WM_STATE_FULLSCREEN
+0 Value _NET_WM_FULLSCREEN_MONITORS
 
 require need-x.fs
 
@@ -132,6 +133,7 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     dpy "_NET_WM_BYPASS_COMPOSITOR" 0 XInternAtom to _NET_WM_BYPASS_COMPOSITOR
     dpy "_NET_WM_STATE" 0 XInternAtom to _NET_WM_STATE
     dpy "_NET_WM_STATE_FULLSCREEN" 0 XInternAtom to _NET_WM_STATE_FULLSCREEN
+    dpy "_NET_WM_FULLSCREEN_MONITORS" 0 XInternAtom to _NET_WM_FULLSCREEN_MONITORS
     max-single-byte $80 = IF
 	dpy "UTF8_STRING" 0 XInternAtom  ELSE  XA_STRING8  THEN
     to XA_STRING ;
@@ -321,7 +323,7 @@ $100 /propfetch * Constant propfetchs
     -rot 2dup dpy -rot XStoreBytes drop
     event-handler @ >o
     >r >r
-    dpy dpy XDefaultRootWindow 9 \ cut buffer 0
+    dpy root-win 9 \ cut buffer 0
     XA_STRING 8 PropModeReplace
     r> r> XChangeProperty drop
     dpy swap win CurrentTime XSetSelectionOwner drop
@@ -641,15 +643,39 @@ Defer looper-hook ( -- ) ' noop is looper-hook
 
 : set-compose-hint ( n -- ) { w^ compose }
     dpy win _NET_WM_BYPASS_COMPOSITOR 6 ( XA_CARDINAL )
-    #32 1 compose 1 XChangeProperty drop ;
+    #32 PropModeReplace compose 1 XChangeProperty drop ;
+
+: send-fullscreen ( flag s0 s1 s2 s3 -- )
+    { flag s0 s1 s2 s3 | xev[ XEvent ] }
+    ClientMessage xev[ XClientMessageEvent-type l!
+    win           xev[ XClientMessageEvent-window !
+    _NET_WM_STATE xev[ XClientMessageEvent-type l!
+    #32           xev[ XClientMessageEvent-format l!
+    flag          xev[ 0 cells XClientMessageEvent-data + !
+    s0            xev[ 1 cells XClientMessageEvent-data + !
+    s1            xev[ 2 cells XClientMessageEvent-data + !
+    s2            xev[ 3 cells XClientMessageEvent-data + !
+    s3            xev[ 4 cells XClientMessageEvent-data + !
+    dpy root-win 0
+    SubstructureRedirectMask SubstructureNotifyMask or
+    xev[ XSendEvent drop ;
 
 : set-fullscreen-hint ( -- )
-    _NET_WM_STATE_FULLSCREEN { w^ fullscreen }
-    dpy win _NET_WM_STATE 4 ( XA_ATOM )
-    #32 1 fullscreen 1 XChangeProperty drop ;
+    exposed @ IF
+	_NET_WM_FULLSCREEN_MONITORS 0 dup 2dup send-fullscreen
+	1 _NET_WM_STATE_FULLSCREEN 0 1 0 send-fullscreen
+    ELSE
+	_NET_WM_STATE_FULLSCREEN { w^ fullscreen }
+	dpy win _NET_WM_STATE 4 ( XA_ATOM )
+	#32 PropModePrepend fullscreen 1 XChangeProperty drop
+    THEN ;
 
 : reset-fullscreen-hint ( -- )
-    dpy win _NET_WM_STATE XDeleteProperty drop ;
+    exposed @ IF
+	0 _NET_WM_STATE_FULLSCREEN 0 1 0 send-fullscreen
+    ELSE
+	dpy win _NET_WM_STATE XDeleteProperty drop
+    THEN ;
 
 XWMHints buffer: WMhints
 
