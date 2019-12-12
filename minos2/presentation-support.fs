@@ -214,7 +214,7 @@ glue-right @ >o 1glue vglue-c glue! 1glue dglue-c glue! o>
 
 $10 stack: vp-tops
 
-also opengl also [IFDEF] android android [THEN]
+also opengl also also [IFDEF] android previous android also jni [THEN]
 
 : >fullscreen ( -- )
     [IFDEF] set-fullscreen-hint
@@ -238,4 +238,4 @@ also opengl also [IFDEF] android android [THEN]
     1config >fullscreen !pres-widgets widgets-loop
     >normalscreen ;
 
-previous previous
+previous previous previous
