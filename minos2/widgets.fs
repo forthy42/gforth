@@ -100,10 +100,17 @@ previous
 Variable configured?
 Variable config-file$  s" ~/.minos2rc" config-file$ $!
 
+[IFUNDEF] !wrapper
+    : !wrapper ( val addr xt -- .. ) { a xt -- .. }
+	a !@ >r xt catch r> a ! throw ;
+[THEN]
+
 : ?.minos-config ( -- )  true configured? !@ ?EXIT
     s" MINOS2_CONF" getenv dup IF  config-file$ $!  ELSE  2drop  THEN
     config-file$ $@ 2dup file-status nip ['] m2c >body swap
-    no-file# = IF  write-config  ELSE  read-config  THEN ;
+    no-file# = IF  write-config  ELSE
+	0 addr config-throw ['] read-config !wrapper
+    THEN ;
 
 ?.minos-config
 
