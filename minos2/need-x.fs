@@ -28,8 +28,6 @@ need-root Value need-mask
 : -need: ( mask -- )
     Create dup invert , 2* DOES> @ need-mask @ and need-mask ! ;
 
-$100 Constant ?config#
-
 1
 ?need: ?sync      \ sync screen needed
 ?need: ?show      \ show hidden object needed
@@ -39,7 +37,9 @@ $100 Constant ?config#
 ?need: ?resize
 ?need: ?colors
 ?need: ?vpsync    \ sync viewport
-drop
+dup Constant ?config#
+dup negate Constant config-mux
+0 swap 1 [DO] 1+ [I] [+LOOP] Constant config>>
 
 1
 +need: +sync
@@ -63,9 +63,9 @@ drop
 -need: -vpsync    \ sync viewport
 drop
 
-: ?config ( -- flag ) need-mask @ 8 arshift 0> ;
-: +config ( -- flag ) $1000 need-mask @ -$100 mux need-mask ! ;
-: 1+config ( -- flag ) $100 need-mask +! ;
-: 1config ( -- flag ) $100 need-mask @ -$100 mux need-mask ! ;
-: -config ( -- flag ) ?config IF  -$100 need-mask +!  THEN ;
-: 0-config ( -- flag ) need-mask @ $FF and need-mask ! ;
+: ?config ( -- flag ) need-mask @ config>> arshift 0> ;
+: +config ( -- flag ) ?config# 4 lshift need-mask @ config-mux mux need-mask ! ;
+: 1+config ( -- flag ) ?config# need-mask +! ;
+: 1config ( -- flag ) ?config# need-mask @ config-mux mux need-mask ! ;
+: -config ( -- flag ) ?config IF  config-mux need-mask +!  THEN ;
+: 0-config ( -- flag ) need-mask @ config-mux invert and need-mask ! ;
