@@ -65,10 +65,12 @@ glue new glue-right !
 
 : album-image ( addr u n -- )
     imgs[] $[] @ >o image-tex
-    mem-exif  [: 2dup >thumb-scan ;] catch drop
+    2dup "\xFF\xD8\xFF" string-prefix?
+    IF    mem-exif  [: 2dup >thumb-scan ;] catch drop exif>
+    ELSE  img-orient off  THEN
     mem>texture  img-orient @ 1- 0 max dup to rotate#
     4 and IF  swap  THEN  dup to image-h over to image-w
-    exif> wh>tile-glue o> ;
+    wh>tile-glue o> ;
 
 : album-reload ( n -- )
     >r { | i# } album-imgs[] $@ album/# @ cells safe/string r> cells umin
