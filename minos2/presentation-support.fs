@@ -53,7 +53,7 @@ glue new glue-right !
 : wh>tile-glue ( w h -- )
     tile-glue >o
     pixelsize# fm* fdup vglue-c df! dpy-h @ fm/
-    pixelsize# fm* fdup hglue-c df! dpy-w @ fm/ fmax 1/f fdup
+    pixelsize# fm* fdup hglue-c df! dpy-w @ fm/ fmax 1/f 2e fmin fdup
     vglue-c df@ f* vglue-c df!
     hglue-c df@ f* hglue-c df!
     o> ;
@@ -66,7 +66,7 @@ glue new glue-right !
 : album-image ( addr u n -- )
     imgs[] $[] @ >o image-tex
     2dup "\xFF\xD8\xFF" string-prefix?
-    IF  mem-exif  [: 2dup >thumb-scan ;] catch drop
+    IF  mem-exif  [: 2dup >thumb-scan ;] catch drop nothrow
 	img-orient @ 1- 0 max dup to rotate#  exif>
     ELSE  0  THEN  >r
     mem>texture

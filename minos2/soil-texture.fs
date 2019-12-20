@@ -33,7 +33,7 @@ also soil
 : >texture ( addr w h -- )
     2 pick >r rgba-texture wrap-texture mipmap linear-mipmap r> free throw ;
 : mem>texture ( addr u -- w h )
-    over >r  0 0 0 { w^ w w^ h w^ ch# }
+    over >r  { | w^ w w^ h w^ ch# }
     w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
     r> free throw w @ h @  2dup 2>r >texture 2r> ;
 : load-texture ( addr u -- w h )
@@ -41,7 +41,7 @@ also soil
 : >subtex ( addr x y w h -- )
     4 pick >r rgba-subtex wrap-texture mipmap linear-mipmap r> free throw ;
 : mem>subtex ( x y addr u -- w h )
-    over >r  0 0 0 { w^ w w^ h w^ ch# }
+    over >r  { | w^ w w^ h w^ ch# }
     w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
     r> free throw -rot w @ h @  2dup 2>r >subtex 2r> ;
 : load-subtex ( x y addr u -- w h )
