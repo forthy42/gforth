@@ -258,12 +258,17 @@ previous
     \ not bigger than x% of screen
     fdup fm* vglue-c df!  fm* hglue-c df! ;
 
+66 Value maxcols#
+
+: default-imgwh% ( -- w h )
+    dpy-w @ s>f font-size# maxcols# fm* f/ 1/f 100% fmin 100% ;
+
 : }}image-file' ( addr u hmax vmax -- o ) { | w^ fn$ }
     file>fpath fn$ $!
     fn$ $@ img-orient? { img-rot# }
     fn$ @ load/thumb 2swap
     img-rot# 4 and IF  swap  THEN
-    imgs# @ imgs#max u>  IF  20% f* fswap 20% f* fswap  THEN
+    imgs# @ imgs#max u>  IF  15% f* fswap 20% f* fswap  THEN
     glue new >o wh>glue o o>
     -rot IF  }}thumb  ELSE  white# }}image  THEN
     >o img-rot# to rotate# o o>
@@ -276,7 +281,7 @@ previous
 		2dup "http:" string-prefix? >r
 		2dup "https:" string-prefix? r> or IF  link[]  EXIT  THEN
 	    THEN
-	    50% 100% }}image-file'
+	    default-imgwh% }}image-file'
 	    >r {{ glue*l }}glue r> glue*l }}glue }}v box[]
 	    swap .dispose-widget  THEN
     ELSE  drop  THEN ;
