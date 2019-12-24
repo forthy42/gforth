@@ -123,7 +123,7 @@ Variable xy$
 	    0 to clicks
 	THEN
     THEN
-    o> ; is ?looper-timeouts
+    o> ; x11-handler is ?looper-timeouts
 :noname ( -- )
     buttonmask e.button 1- +bit
     top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchdown  THEN

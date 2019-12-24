@@ -308,6 +308,7 @@ object class
     method DoClientMessage
     method DoMappingNotify
     method DoGenericEvent
+    method ?looper-timeouts
 end-class handler-class
 
 User event-handler  handler-class new event-handler !
@@ -414,61 +415,61 @@ previous
     ?dup-IF  dpy swap XGetAtomName cstring>sstring type
     ELSE  ." atom (null)"  THEN ;
 
-' noop handler-class to DoNull \ doesn't exist
-' noop handler-class to DoOne  \ doesn't exit, either
+' noop handler-class is DoNull \ doesn't exist
+' noop handler-class is DoOne  \ doesn't exit, either
 :noname  ic event look_chars $FF look_key comp_stat  Xutf8LookupString
     dup 1 = IF  look_chars c@ dup $7F = swap 8 = or +  THEN \ we want the other delete
     ?dup-IF  look_chars swap
     ELSE   look_key l@ x-key>ekey  THEN
     2dup "\e" str= level# @ 0> and IF  2drop -1 level# +!  ELSE  inskeys  THEN
-; handler-class to DoKeyPress
-' noop handler-class to DoKeyRelease
+; handler-class is DoKeyPress
+' noop handler-class is DoKeyRelease
 :noname  0 *input action ! 1 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
     e.kbm.time s>d *input eventtime 2!  #0. *input downtime 2!
     e.kbm.time XTime0 - to timeoffset
-    e.x e.y *input y0 ! *input x0 ! ; handler-class to DoButtonPress
+    e.x e.y *input y0 ! *input x0 ! ; handler-class is DoButtonPress
 :noname  1 *input action ! 0 *input pressure !
     *input eventtime 2@ *input eventtime' 2!
     e.kbm.time s>d 2dup *input eventtime 2@ d- *input downtime 2!
     e.kbm.time XTime0 - to timeoffset
     *input eventtime 2!
-    e.x *input x0 ! e.y *input y0 ! ; handler-class to DoButtonRelease
+    e.x *input x0 ! e.y *input y0 ! ; handler-class is DoButtonRelease
 :noname
     *input pressure @ IF
 	2 *input action !
 	e.kbm.time s>d *input eventtime 2@ d- *input downtime 2!
 	e.kbm.time XTime0 - to timeoffset
 	e.x e.y *input y0 ! *input x0 !
-    THEN ; handler-class to DoMotionNotify
-' noop handler-class to DoEnterNotify
-' noop handler-class to DoLeaveNotify
-:noname e.window focus-ic ; handler-class to DoFocusIn
-' noop handler-class to DoFocusOut
-' noop handler-class to DoKeymapNotify
-:noname exposed on ; handler-class to DoExpose
-:noname exposed on ; handler-class to DoGraphicsExpose
-' noop handler-class to DoNoExpose
-' noop handler-class to DoVisibilityNotify
-' noop handler-class to DoCreateNotify
-' noop handler-class to DoDestroyNotify
-' noop handler-class to DoUnmapNotify
-' noop handler-class to DoMapNotify
-' noop handler-class to DoMapRequest
-' noop handler-class to DoReparentNotify
+    THEN ; handler-class is DoMotionNotify
+' noop handler-class is DoEnterNotify
+' noop handler-class is DoLeaveNotify
+:noname e.window focus-ic ; handler-class is DoFocusIn
+' noop handler-class is DoFocusOut
+' noop handler-class is DoKeymapNotify
+:noname exposed on ; handler-class is DoExpose
+:noname exposed on ; handler-class is DoGraphicsExpose
+' noop handler-class is DoNoExpose
+' noop handler-class is DoVisibilityNotify
+' noop handler-class is DoCreateNotify
+' noop handler-class is DoDestroyNotify
+' noop handler-class is DoUnmapNotify
+' noop handler-class is DoMapNotify
+' noop handler-class is DoMapRequest
+' noop handler-class is DoReparentNotify
 :noname  e.c-height e.c-width dpy-w ! dpy-h !
     ctx IF  config-changed  ELSE  getwh  THEN
-; handler-class to DoConfigureNotify
-' noop handler-class to DoConfigureRequest
-' noop handler-class to DoGravityNotify
-:noname  e.r-width dpy-w ! e.r-height dpy-h ! config-changed ; handler-class to DoResizeRequest
-' noop handler-class to DoCirculateNotify
-' noop handler-class to DoCirculateRequest
+; handler-class is DoConfigureNotify
+' noop handler-class is DoConfigureRequest
+' noop handler-class is DoGravityNotify
+:noname  e.r-width dpy-w ! e.r-height dpy-h ! config-changed ; handler-class is DoResizeRequest
+' noop handler-class is DoCirculateNotify
+' noop handler-class is DoCirculateRequest
 :noname e.psc.time XTime0 - to timeoffset
     ( ." Property changed: " dpy e.psc.atom XGetAtomName cstring>sstring type cr )
-; handler-class to DoPropertyNotify
+; handler-class is DoPropertyNotify
 :noname  e.psc.time XTime0 - to timeoffset
-    own-selection off ; handler-class to DoSelectionClear
+    own-selection off ; handler-class is DoSelectionClear
 
 : rest-request { addr n mode format type -- }
     dpy e.requestor e.property
@@ -512,7 +513,7 @@ previous
     SelectionNotify xev XSelectionEvent-type l!
     e.target do-request
     dpy e.requestor 0 0 xev XSendEvent drop ;
-' selection-request handler-class to DoSelectionRequest
+' selection-request handler-class is DoSelectionRequest
 :noname ( -- )
     e.s.time XTime0 - to timeoffset
     e.requestor' e.property'
@@ -522,8 +523,8 @@ previous
 	XA_CLIPBOARD  of  paste$    endof
 	drop 2drop  got-selection on ( we got nothing ) EXIT
     endcase  e.target' swap fetch-property
-; handler-class to DoSelectionNotify
-' noop handler-class to DoColormapNotify
+; handler-class is DoSelectionNotify
+' noop handler-class is DoColormapNotify
 :noname ( -- )  e.data
     case
 	wm_delete_window l@ of  -1 level# +!  endof
@@ -537,9 +538,10 @@ previous
 	    wm_sync_value xsv!
 	endof
     endcase
-; handler-class to DoClientMessage
-' noop handler-class to DoMappingNotify
-' noop handler-class to DoGenericEvent
+; handler-class is DoClientMessage
+' noop handler-class is DoMappingNotify
+' noop handler-class is DoGenericEvent
+' noop handler-class is ?looper-timeouts
 
 : handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
 #16 Value looper-to# \ 16ms, don't sleep too long
@@ -580,11 +582,10 @@ Defer >poll-events ( delay -- )
 	xptimeout 2@ #1000 * swap #1000000 / + poll 0>
     [THEN] ;
 
-Defer ?looper-timeouts ' noop is ?looper-timeouts
 Defer looper-hook ( -- ) ' noop is looper-hook
 
 : #looper ( delay -- ) #1000000 *
-    ?looper-timeouts >poll-events
+    event-handler @ .?looper-timeouts >poll-events
     dpy IF  dpy XPending IF  get-events ?events
 	    looper-hook  EXIT  THEN  THEN
     xpollfds $@ pollfd / xpoll
