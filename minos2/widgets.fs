@@ -1108,7 +1108,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     hbox new { newbox }
     act ?dup-IF  .clone newbox .!act  THEN
     childs# start floor f>s U+DO
-	firstflag newbox .childs[] $[]# 0= or
+	firstflag newbox .childs[] $[]# 0<> or
 	startx rw I childs[] $[] @ .split to startx
 	0e { f: ow }
 	?dup-IF

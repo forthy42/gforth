@@ -108,8 +108,7 @@ Variable configs
 Variable numconfigs
 Variable eglformat
 
-: ??gl ... ." gl: " glGetError . ." o: " o hex.
-    fdepth IF  cr ." F:" f.s  THEN  ; ' ??gl is printdebugdata
+: ??gl ... ." gl: " glGetError . ." o: " o hex. ; ' ??gl is printdebugdata
 
 [IFDEF] android
     : win app window @ ;
@@ -760,7 +759,7 @@ require soil-texture.fs
     ext-tex: media-tex
 [THEN]
 
-1 sfloats buffer: color%
+1 sfloats buffer: color%    0.5e color% sf!
 1 sfloats buffer: gain%     1.0e gain% sf!
 1 sfloats buffer: ambient%  1.0e ambient% sf!
 1 sfloats buffer: saturate% 1.0e saturate% sf!
