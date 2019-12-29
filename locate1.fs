@@ -156,6 +156,38 @@ Defer g ' extern-g is g
     (') name-set-located-view g ;
 
 
+\ avoid needing separate edit and locate words for the rest
+
+defer l|g ( -- )
+\ either do l or g, and then possibly change l|g
+
+variable next-l|g ( -- addr )
+
+: l-once ( -- )
+    l next-l|g @ is l|g ;
+
+: ll ( -- ) \ gforth
+    \g The next @code{ww}, @code{nw}, @code{bw}, @code{bb}, @code{nb},
+    \g @code{lb} (but not @code{locate}, @code{edit}, @code{l} or
+    \g @code{g}) displays in the Forth system (like @code{l}).  Use
+    \g @code{ll ll} to make this permanent rather than one-shot.
+    `l|g defer@ next-l|g !
+    `l-once is l|g ;
+
+: g-once ( -- )
+    g next-l|g @ is l|g ;
+
+: gg ( -- ) \ gforth
+    \g The next @code{ww}, @code{nw}, @code{bw}, @code{bb}, @code{nb},
+    \g @code{lb} (but not @code{locate}, @code{edit}, @code{l} or
+    \g @code{g}) puts it result in the editor (like @code{g}).  Use
+    \g @code{gg gg} to make this permanent rather than one-shot.
+    `l|g defer@ next-l|g !
+    `g-once is l|g ;
+
+ll ll \ set default to use L
+
+
 \ backtrace locate stuff:
 
 \ an alternative implementation of much of this stuff is elsewhere.
@@ -298,7 +330,7 @@ variable code-locations 0 code-locations !
         2drop -1 0 -1 where-index !
     else
         + @ 2@ name>string nip then
-    set-located-view l ;
+    set-located-view l|g ;
 
 : nw ( -- ) \ gforth
     \G The next @code{l} or @code{g} shows the next @code{where}
