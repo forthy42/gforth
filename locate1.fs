@@ -21,6 +21,7 @@
 $variable where-results
 \ addresses in WHERES that contain the results of the last WHERE
 variable where-index -1 where-index !
+variable backtrace-index -1 backtrace-index !
 
 -1 0 set-located-view
 
@@ -87,7 +88,6 @@ variable included-file-buffers
 : locate-print-line ( c-addr1 u1 lineno -- c-addr2 u2 lineno+1 )
     dup >r locate-line r> locate-type ;
 
-
 : located-buffer ( -- c-addr u )
     located-view @ view>buffer ;
 
@@ -125,8 +125,10 @@ variable included-file-buffers
 : locate-name ( nt -- )
      name-set-located-view l ;
 
-: locate ( "name" -- )
+: locate ( "name" -- ) \ gforth
     (') locate-name ;
+
+' locate alias view ( "name" -- ) \ gforth
 
 : n ( -- )
     \g Display next lines after locate or error
@@ -255,12 +257,23 @@ variable code-locations 0 code-locations !
 	r> + @ cell- addr>view dup if ( view )
 	    1 set-located-view true exit then
     else
-	rdrop then
+        rdrop then
     drop ." no location for this backtrace index" false ;
 
-: lb ( u -- )
+: tt ( u -- ) \ gforth
+    dup backtrace-index !
     bt-location if
-	l then ;
+        l|g
+    else
+        -1 backtrace-index ! then ;
+
+: nt (  -- ) \ gforth
+    backtrace-index @ 1+ tt ;
+
+: bt ( -- ) \ gforth
+    backtrace-index @ dup 0< if
+        drop stored-backtrace $@ nip cell/ then
+    1- tt ; 
 
 \ where
 

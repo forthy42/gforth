@@ -76,7 +76,7 @@ defer .backtrace-pos ( addr -- )
     +loop
     drop ;
 
-: bt ( -- )
+: .bt ( -- )
     \G backtrace for interactive use
     backtrace-rp0 @ #10 cells + dup 3 cells - @ cell- print-backtrace ;
 comp: drop ]] store-backtrace dobacktrace [[ ;
