@@ -29,7 +29,7 @@ cover-end Constant cover-start
 
 [IFUNDEF] coverage?
     0 Value coverage? ( -- flag ) \ gforth-exp
-    \G Coverage check on/off
+    \G Coverage check on/off.
 [THEN]
 0 value dead-cov?
 
@@ -41,7 +41,7 @@ cover-end Constant cover-start
     false to dead-cov? ;
 
 : cov+ ( -- ) \ gforth-exp
-    \G add a coverage tag here
+    \G Add a coverage tag here.
     dead-cov? 0= state @ and  IF  cov+,  THEN
     false to dead-cov? ; immediate compile-only
 : ?cov+ ( flag -- flag ) \ gforth-exp
@@ -55,14 +55,15 @@ cover-end Constant cover-start
 :noname defers before-line        postpone cov+ ; is before-line
 
 : cov% ( -- ) \ gforth-exp
-    \G print the coverage percentage
+    \G Print the percentage of basic blocks loaded after
+    \G @file{coverage.fs} that are executed at least once.
     0 cover-end cover-start U+DO
 	I cell+ @ 0<> -
     2 cells +LOOP  #2000 cells cover-end cover-start - */
     0 <# '%' hold # '.' hold #s #> type ."  coverage" ;
 
 : .cover-raw ( -- ) \ gforth-exp
-    \G print all raw coverage data
+    \G Print raw execution counts.
     cover-end cover-start U+DO
 	I @ .sourceview ." : " I cell+ ? cr
     2 cells +LOOP ;
@@ -75,13 +76,13 @@ Defer .cov#
 : .paren-cov# ( n -- ) ."  ( " 0 .r ." ) " ;
 
 : color-cover ( -- ) ['] .ansi-cov#  is .cov# ;
-\G print coverage with colors
+\G Print execution counts in colours (default).
 : bw-cover    ( -- ) ['] .paren-cov# is .cov# ;
-\G print coverage with parents (source-code compatible)
+\G Print execution counts in parentheses (source-code compatible).
 color-cover
 
 : ?del-cover ( addr u -- n )
-    \G remove coverage comment
+    \G Remove coverage comment.
     2dup s"  ( " string-prefix?  IF
 	3 dup >r /string
 	BEGIN  over c@ digit?  WHILE  drop 1 /string r> 1+ >r  REPEAT
@@ -89,7 +90,7 @@ color-cover
     ELSE  2drop  0  THEN ;
 
 : .cover-file { fn -- } \ gforth-exp
-    \G pretty print coverage in a file
+    \G Print coverage in included file with index @var{fn}.
     fn included-buffer 0 locate-line 0 { d: buf lpos d: line cpos }
     cover-end cover-start U+DO
 	I @ view>filename# fn = IF
@@ -107,13 +108,13 @@ color-cover
     line cpos safe/string type cr  default-color attr!  buf type ;
 
 : covered? ( fn -- flag ) \ gforth-exp
-    \G check if file number @var{fn} has coverage information
+    \G Check if included file with index @var{fn} has coverage information.
     false cover-end cover-start U+DO 
 	over I @ view>filename# = or
     2 cells +LOOP  nip ;
 
 : .coverage ( -- ) \ gforth-exp
-    \G pretty print coverage
+    \G Show code with execution frequencies.
     cr included-files $[]# 0 ?DO
 	I covered? IF
 	    I [: included-files $[]@ type ':' emit cr ;]
@@ -123,7 +124,10 @@ color-cover
     LOOP ;
 
 : annotate-cov ( -- ) \ gforth-exp
-    \G annotate files with coverage information
+    \G For every file with coverage information, produce a @code{.cov}
+    \G file that has the execution frequencies inserted.  We recommend
+    \G to use @code{bw-cover} first (with the default
+    \G @code{color-cover} you get escape sequences in the files).
     included-files $[]# 0 ?DO
 	I covered? IF
 	    I [: included-files $[]@ type ." .cov" ;] $tmp
@@ -155,13 +159,13 @@ $10 buffer: cover-hash
     ['] $tmp $10 base-execute ;
 
 : save-cov ( -- ) \ gforth-exp
-    \G save coverage counters
+    \G Save coverage counters.
     cover-filename r/w create-file throw >r
     cover-start cover-end over - r@ write-file throw
     r> close-file throw ;
 
 : load-cov ( -- ) \ gforth-exp
-    \G load coverage counters
+    \G Load coverage counters.
     cover-filename r/o open-file dup #-514 = IF
 	2drop true [: ." no saved coverage found" cr ;] ?warning
 	EXIT  THEN  throw  >r

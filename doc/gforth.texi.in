@@ -158,10 +158,10 @@ Gforth Environment
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
 * Help on Gforth::              Getting help
-* Command-line editing::
+* Command-line editing::        Gforth's command-line editor
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
-* Gforth in pipes::
+* Gforth in pipes::             Piping into or out of Gforth
 * Startup speed::               When 14ms is not fast enough ...
 
 Forth Tutorial
@@ -374,6 +374,7 @@ Gforth locals
 * How long do locals live?::
 * Locals programming style::
 * Locals implementation::
+* Closures::
 
 Structures
 
@@ -429,6 +430,7 @@ Programming Tools
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
+* Code Coverage::               Measure execution frequency.
 
 Multitasker
 
@@ -662,10 +664,10 @@ material in this chapter.
 * Invoking Gforth::             Getting in
 * Leaving Gforth::              Getting out
 * Help on Gforth::              Getting help
-* Command-line editing::
+* Command-line editing::        Gforth's command-line editor
 * Environment variables::       that affect how Gforth starts up
 * Gforth Files::                What gets installed and where
-* Gforth in pipes::
+* Gforth in pipes::             Piping into or out of Gforth
 * Startup speed::               When 14ms is not fast enough ...
 @end menu
 
@@ -1134,8 +1136,8 @@ You can select different places for installation by using
 @section Gforth in pipes
 @cindex pipes, Gforth as part of
 
-Gforth can be used in pipes created elsewhere (described here).  It can
-also create pipes on its own (@pxref{Pipes}).
+Gforth can be used in pipes created elsewhere (described in the
+following).  It can also create pipes on its own (@pxref{Pipes}).
 
 @cindex input from pipes
 If you pipe into Gforth, your program should read with @code{read-file}
@@ -4605,7 +4607,7 @@ program must use upper case for all Standard words. You can use whatever
 case you like for words that you define, but in a Standard program you
 have to use the words in the same case that you defined them.
 
-Gforth supports case sensitivity through @code{table}s (case-sensitive
+Gforth supports case sensitivity through @code{cs-wordlist}s (case-sensitive
 wordlists, @pxref{Word Lists}).
 
 Two people have asked how to convert Gforth to be case-sensitive; while
@@ -10442,7 +10444,7 @@ they are no longer visible in any control-flow path. In a few cases
 this may lead to increased space needs for the locals name area, but
 usually less than reclaiming this space would cost in code size.
 
-@node Closures, , Locals implementation, Gforth locals
+@node Closures,  , Locals implementation, Gforth locals
 @subsubsection Closures
 @cindex closures
 
@@ -12401,7 +12403,7 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 * Debugging::                   Simple and quick.
 * Assertions::                  Making your programs self-checking.
 * Singlestep Debugger::         Executing your program word by word.
-* Code Coverage::               Check how much code is used.
+* Code Coverage::               Measure execution frequency.
 @end menu
 
 @node Examining, Forgetting words, Programming Tools, Programming Tools
@@ -12679,36 +12681,48 @@ doc-break:
 doc-break"
 
 @c -------------------------------------------------------------
-@node Code Coverage, , Singlestep Debugger, Programming Tools
-@subsection Code Coverage
+@node Code Coverage,  , Singlestep Debugger, Programming Tools
+@subsection Code Coverage and Execution Frequency
 @cindex code coverage
+@cindex execution frequency
 
 If you run extensive tests on your code, you often want to figure out
-if all parts of the code run, so measuring code coverage is
-important.  Gforth has a file @file{coverage.fs}, which contains the
-necessary tools.
+if the tests exercise all parts of the code.  This is called (test)
+coverage.  The file @file{coverage.fs} contains tools for measuring
+the coverage as well as execution frequency.
 
-Code coverage inserts code into crucial positions of a word.  Each
-time that code is run, a specific counter is incremented, so you can
-know how often that part is executed.  You can save and reload the
-coverage counters in binary format, and use that to annotate the
-source files.  Annotation is done by ANSI color escape sequences, so
-the coverage shows nicely in the terminal.
+Code coverage inserts counting code in every basic block
+(straight-line code sequence) loaded after @file{coverage.fs}.  Each
+time that code is run, it increments the counter for that basic block.
+Later you can show the source file with the counts inserted in these
+basic blocks.
 
-doc-coverage?
-doc-nocov[
-doc-]nocov
-doc-cov+
-doc-.cover-raw
-doc-.cover-file
-doc-color-cover
-doc-bw-cover
-doc-covered?
 doc-.coverage
 doc-annotate-cov
+doc-cov%
+doc-.cover-raw
+@c commented out because the included-file index is not a
+@c   user-friendly way to pass a file (yet).
+@c doc-.cover-file
+@c doc-covered?
+
+By default, the counts are shown in colour (using ANSI escape
+sequences), but you can use @code{bw-cover} to show them in
+parenthesized form without escape sequences.
+
+doc-bw-cover
+doc-color-cover
+
+You can save and reload the coverage counters in binary format, to
+aggregate coverage counters across several test runs.
+
 doc-save-cov
 doc-load-cov
-doc-cov%
+doc-cov+
+@c commented out because these words have no effect (yet?)
+@c doc-coverage?
+@c doc-nocov[
+@c doc-]nocov
 
 @c -------------------------------------------------------------
 @node Multitasker, C Interface, Programming Tools, Words

@@ -74,8 +74,8 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 
 \ code coverage helpers that are always present
 
-0 Value coverage?
-\G Coverage check on/off
+0 Value coverage? ( -- f )
+\G Value: Coverage check on/off
 $10 stack: cov-stack
 
 : nocov[ ( -- )
