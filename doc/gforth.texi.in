@@ -12414,6 +12414,7 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 
 The following words inspect the stack non-destructively:
 
+doc-...
 doc-.s
 doc-f.s
 doc-maxdepth-.s
@@ -12431,7 +12432,11 @@ The following words inspect memory.
 doc-?
 doc-dump
 
-And finally, @code{see} allows to inspect code:
+And finally, @code{see} and friends show compiled code.  Some of the
+things in the native code are not present in the compiled code (e.g.,
+formatting and comments), but this is useful to see what threaded code
+or native code is produced by macros and Gforth's optimization
+features.
 
 doc-see
 doc-xt-see
