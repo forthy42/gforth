@@ -1,7 +1,7 @@
 \ count execution of control-flow edges
 
 \ Author: Anton Ertl
-\ Copyright (C) 2004,2007 Free Software Foundation, Inc.
+\ Copyright (C) 2004,2007,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

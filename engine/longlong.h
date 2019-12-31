@@ -1,7 +1,7 @@
 /* taken from gcc-4.1.1 */
 /* longlong.h -- definitions for mixed size 32/64 bit arithmetic.
    Author: Anton Ertl
-   Copyright (C) 1991, 1992, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2004, 2005,2006,2007 Free Software Foundation, Inc.
+   Copyright (C) 1991, 1992, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2004, 2005,2006,2007,2019 Free Software Foundation, Inc.
 
    This definition file is free software: you can redistribute it and/or
    modify it under the terms of the GNU General Public License

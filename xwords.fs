@@ -1,7 +1,7 @@
 \ extension words from CfVs on www.forth200x.org
 
 \ Author: Anton Ertl
-\ Copyright (C) 2006,2007,2009 Free Software Foundation, Inc.
+\ Copyright (C) 2006,2007,2009,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

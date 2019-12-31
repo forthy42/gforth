@@ -1,7 +1,7 @@
 \ asm.fs	assembler file (for MIPS32)
 \
 \ Authors: Anton Ertl, David Kühling
-\ Copyright (C) 2000,2007,2010,2014 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2007,2010,2014,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

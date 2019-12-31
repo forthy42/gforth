@@ -1,7 +1,7 @@
 \ >STRING-EXECUTE >BUFFER-EXECUTE
 \
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 2011,2016 Free Software Foundation, Inc.
+\ Copyright (C) 2011,2016,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,7 +1,7 @@
 \ paths.fs path file handling                                    03may97jaw
 
 \ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Neal Crook
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2010,2013,2016,2017,2018 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2005,2006,2007,2008,2010,2013,2016,2017,2018,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

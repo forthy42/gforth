@@ -1,7 +1,7 @@
 \ assembler in forth for alpha
 
 \ Author: Anton Ertl
-\ Copyright (C) 1999,2000,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2000,2007,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

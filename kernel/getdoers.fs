@@ -1,7 +1,7 @@
 \ 
 
 \ Authors: Anton Ertl, Bernd Paysan, David Kühling, Neal Crook
-\ Copyright (C) 1996, 1998,1999,2003,2005,2006,2007,2010,2013,2015,2016 Free Software Foundation, Inc.
+\ Copyright (C) 1996, 1998,1999,2003,2005,2006,2007,2010,2013,2015,2016,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

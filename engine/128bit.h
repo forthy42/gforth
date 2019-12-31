@@ -1,7 +1,7 @@
 /* supply [u]int128_t as DOUBLE_CELL_TYPEs under some conditions
 
   Authors: Anton Ertl, Bernd Paysan
-  Copyright (C) 2005,2007,2008,2015 Free Software Foundation, Inc.
+  Copyright (C) 2005,2007,2008,2015,2019 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

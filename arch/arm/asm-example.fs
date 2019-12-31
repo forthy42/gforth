@@ -4,7 +4,7 @@
 \ Created: January 2008
 
 \ Authors: David KÃ¼hling, Anton Ertl
-\ Copyright (C) 2000,2007,2008,2010 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2007,2008,2010,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -3,7 +3,7 @@
 #use this with parameters and env variables like "configure"
 
 #Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Gerald Wodni
-#Copyright (C) 2000,2002,2003,2006,2007,2008,2013,2017 Free Software Foundation, Inc.
+#Copyright (C) 2000,2002,2003,2006,2007,2008,2013,2017,2019 Free Software Foundation, Inc.
 
 #This file is part of Gforth.
 

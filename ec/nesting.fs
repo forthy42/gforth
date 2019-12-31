@@ -1,7 +1,7 @@
 \ nesting.fs displays nesting for primitive trace	12jun97jaw
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1998,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1998,2000,2003,2007,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

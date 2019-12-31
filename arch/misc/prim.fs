@@ -1,7 +1,7 @@
 \ MISC primitives
 
 \ Authors: Bernd Paysan, Anton Ertl, Jens Wilke
-\ Copyright (C) 1998,2000,2003,2004,2006,2007,2008,2016 Free Software Foundation, Inc.
+\ Copyright (C) 1998,2000,2003,2004,2006,2007,2008,2016,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

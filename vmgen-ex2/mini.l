@@ -2,7 +2,7 @@
 /* front-end scanner for vmgen example
 
   Author: Anton Ertl
-  Copyright (C) 2001,2003,2007 Free Software Foundation, Inc.
+  Copyright (C) 2001,2003,2007,2019 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

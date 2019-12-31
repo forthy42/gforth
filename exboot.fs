@@ -2,7 +2,7 @@
 \ an exception frame for the exception handler.
 
 \ Authors: Anton Ertl, Bernd Paysan, Jens Wilke
-\ Copyright (C) 2000,2001,2003,2004,2007,2013,2016,2017,2018 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2001,2003,2004,2007,2013,2016,2017,2018,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

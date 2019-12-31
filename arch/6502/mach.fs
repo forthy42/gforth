@@ -1,7 +1,7 @@
 \ Parameter for target systems                         06oct92py
 
 \ Authors: Anton Ertl, Bernd Paysan, Jens Wilke, Neal Crook
-\ Copyright (C) 1995,1999,2001,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1999,2001,2003,2007,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,7 +1,7 @@
 \ TOOLS.FS     Toolkit extentions                      2may93jaw
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1995,1998,1999,2001,2003,2006,2007,2011,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,1999,2001,2003,2006,2007,2011,2012,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

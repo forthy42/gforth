@@ -2,7 +2,7 @@
   This is the machine-specific part for Intel 386 compatible processors
 
   Authors: Anton Ertl, Bernd Paysan
-  Copyright (C) 1995,2000,2003,2005,2007 Free Software Foundation, Inc.
+  Copyright (C) 1995,2000,2003,2005,2007,2019 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

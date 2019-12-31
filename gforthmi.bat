@@ -1,6 +1,6 @@
 REM @ECHO OFF
 REM Authors: Anton Ertl, Bernd Paysan
-REM Copyright (C) 1997-1998,2000,2003,2007 Free Software Foundation, Inc.
+REM Copyright (C) 1997-1998,2000,2003,2007,2019 Free Software Foundation, Inc.
 
 REM This file is part of Gforth.
 

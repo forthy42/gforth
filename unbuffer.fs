@@ -1,7 +1,7 @@
 \ unbuffered TYPE and EMIT
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1996,2000,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1996,2000,2007,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,7 +1,7 @@
 \ multi-line loops in the interpeter
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2018 Free Software Foundation, Inc.
+\ Copyright (C) 2018,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

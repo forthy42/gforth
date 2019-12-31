@@ -1,7 +1,7 @@
 /* alignment-clean replacements for library functions
 
   Authors: Anton Ertl, Bernd Paysan, Jens Wilke
-  Copyright (C) 1995,1997,2000,2003,2007,2017 Free Software Foundation, Inc.
+  Copyright (C) 1995,1997,2000,2003,2007,2017,2019 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

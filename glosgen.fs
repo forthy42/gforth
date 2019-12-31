@@ -4,7 +4,7 @@
 \ This file is part of Gforth.
 
 \ Author: Anton Ertl
-\ Copyright (C) 1995,1997,2000,2003,2007 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1997,2000,2003,2007,2019 Free Software Foundation, Inc.
 \ Author: Anton Ertl
 \ Copyright (c)1993 L.C. Benschop Eindhoven.
 

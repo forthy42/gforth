@@ -1,7 +1,7 @@
 \ OTHER.FS     Ansforth extentions for CROSS           9may93jaw
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1995,1998,2000,2003,2007,2013 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2000,2003,2007,2013,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

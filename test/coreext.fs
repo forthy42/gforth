@@ -1,7 +1,7 @@
 \ test some core ext words
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 2005,2007,2010,2011 Free Software Foundation, Inc.
+\ Copyright (C) 2005,2007,2010,2011,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

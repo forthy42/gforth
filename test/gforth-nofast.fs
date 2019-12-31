@@ -1,7 +1,7 @@
 \ test stuff that is not guaranteed in gforth-fast, but elsewhere
 
 \ Author: Anton Ertl
-\ Copyright (C) 2006,2007 Free Software Foundation, Inc.
+\ Copyright (C) 2006,2007,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

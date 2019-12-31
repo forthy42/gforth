@@ -1,7 +1,7 @@
 \ Structural Conditionals, branches with plugins		10May99jaw
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 1995-1997,1999,2000,2003,2007,2012 Free Software Foundation, Inc.
+\ Copyright (C) 1995-1997,1999,2000,2003,2007,2012,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

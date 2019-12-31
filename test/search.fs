@@ -1,7 +1,7 @@
 \ test search order wordset partially
 
 \ Author: Anton Ertl
-\ Copyright (C) 2007,2010 Free Software Foundation, Inc.
+\ Copyright (C) 2007,2010,2019 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

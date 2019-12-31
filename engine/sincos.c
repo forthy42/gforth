@@ -1,7 +1,7 @@
 /* a simple sincos implementation
 
   Authors: Bernd Paysan, Anton Ertl
-  Copyright (C) 2012,2017 Free Software Foundation, Inc.
+  Copyright (C) 2012,2017,2019 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

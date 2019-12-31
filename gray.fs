@@ -1,7 +1,7 @@
 \ recursive descent parser generator )
 
 \ Authors: Anton Ertl, Bernd Paysan, David Kühling
-\ Copyright (C) 1995,1996,1997,2000,2003,2007,2008,2012,2015 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,2000,2003,2007,2008,2012,2015,2019 Free Software Foundation, Inc.
 \ Authors: Anton Ertl, Bernd Paysan, David Kühling
 \ Copyright 1990, 1991, 1994 Martin Anton Ertl
 
