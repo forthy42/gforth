@@ -253,12 +253,12 @@ previous
     fn$ @ album-imgs[] >stack
     1 imgs# +! ;
 
+66 Value maxcols#
+
 : wh>glue ( w h w% h% o:glue -- ) { f: w% f: h% }
     2dup dpy-h @ s>f fm/ h% f* dpy-w @ s>f fm/ w% f* fmin
     \ not bigger than x% of screen
     fdup fm* vglue-c df!  fm* hglue-c df! ;
-
-66 Value maxcols#
 
 : default-imgwh% ( -- w h )
     dpy-w @ s>f font-size# maxcols# fm* f/ 1/f 100% fmin 100% ;

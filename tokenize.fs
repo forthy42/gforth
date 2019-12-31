@@ -132,8 +132,8 @@ Variable recursive?
 		over ?token IF  2 emit xemit
 		ELSE  1 i,  THEN
 	    THEN
-	    nextname-string 2@ d0<> IF
-		9 emit nextname-string 2@ dup xemit type
+	    nextname$ $@ d0<> IF
+		9 emit nextname$ $@ dup xemit type
 	    THEN
 	endof
 	rectype-num of
