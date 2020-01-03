@@ -165,13 +165,13 @@ $0 Value default-bg
 : auto-color ( -- )
     is-terminal? is-color-terminal? and 0= if
         \ TODO: no terminal - switch to other output class
-	no-colors  EXIT
+	default-mode  EXIT
     then
     is-xterm? if term-bg? else default-bg then
     rgb-split + + $17F u> IF
-	white-colors
+	light-mode
     ELSE
-	black-colors
+	dark-mode
     THEN ;
 
 :noname auto-color defers 'cold ; is 'cold

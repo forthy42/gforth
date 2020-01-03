@@ -50,7 +50,7 @@ tex: minos2
 
 \ page 0
 {{
-    $FFFFFFFF dup pres-frame
+    $000000FF $FFFFFFFF pres-frame
     {{
 	glue*l }}glue \ ) $CCDDDD3F color, 4e }}frame dup .button1
 	l" ΜΙΝΩΣ2 GUI" /title
@@ -64,7 +64,7 @@ tex: minos2
 
 \ page 6
 {{
-    $FFBFFFFF dup pres-frame
+    $440044FF $FFBFFFFF pres-frame
     {{
 	l" ΜΙΝΩΣ2 Widgets" /title
 	l" Design principle is a Lego–style combination of many extremely simple objects" \\
@@ -95,7 +95,7 @@ tex: minos2
 
 \ page 7
 {{
-$BFFFFFFF dup pres-frame
+$004444FF $BFFFFFFF pres-frame
 {{
     l" ΜΙΝΩΣ2 Boxes" /title
     {{
@@ -121,7 +121,7 @@ $BFFFFFFF dup pres-frame
 
 \ page 8
 {{
-    $FFFFBFFF dup pres-frame
+    $444400FF $FFFFBFFF pres-frame
     {{
 	l" ΜΙΝΩΣ2 Displays" /title
 	l" Render into different kinds of displays" \\
@@ -136,7 +136,7 @@ $BFFFFFFF dup pres-frame
 
 \ page 9
 {{
-    $BFDFFFFF dup pres-frame
+    $002244FF $BFDFFFFF pres-frame
     {{
 	l" Minimize Draw Calls" /title
 	l" OpenGL wants as few draw–calls per frame, so different contexts are drawn in stacks with a draw–call each" p\\
@@ -153,7 +153,7 @@ $BFFFFFFF dup pres-frame
 
 \ page 17
 {{
-    $FFFFFFFF dup pres-frame
+    $000000FF $FFFFFFFF pres-frame
     {{
 	l" Literatur & Links" /title
 	vt{{

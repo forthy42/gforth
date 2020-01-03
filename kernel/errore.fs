@@ -99,7 +99,7 @@ has? OS [IF]
     \G color mod for error highlight inverse
     true Value white?
     \G reset to current colors
-    : white-colors ( -- ) \ gforth
+    : light-mode ( -- ) \ gforth
 	\G color theme for white background
 	true to white?
 	$6600 to default-color
@@ -110,7 +110,7 @@ has? OS [IF]
 	$6601 to input-color
 	2 to error-hl-ul
 	8 to error-hl-inv ;
-    : black-colors ( -- ) \ gforth
+    : dark-mode ( -- ) \ gforth
 	\G color theme for black background
 	false to white?
 	$6600 to default-color
@@ -121,7 +121,7 @@ has? OS [IF]
 	$6601 to input-color
 	2 to error-hl-ul
 	8 to error-hl-inv ;
-    : no-colors ( -- ) \ gforth
+    : default-mode ( -- ) \ gforth
 	\G use the default color
 	false to white?
 	$6600 to default-color \ reset colors even in no-color mode

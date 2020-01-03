@@ -29,13 +29,13 @@ $000000FF $000000FF $40C0FFFF $FFFFFFFF text-emoji-fade-color: toggle-color
 \ night mode colors
 color-h 1 > [IF]
     1 new-theme
-    night-mode
+    dark-gui
     $FFFFFFFF re-text-color blackish
     $FFFFBBFF re-text-color dark-blue
     $000000FF re-text-color whitish
     $40C0FFFF $000000FF $000000FF $FFFFFFFF re-text-emoji-fade-color toggle-color
     $1F3F7F7F re-text-color selection-color
-    day-mode
+    light-gui
 [THEN]
 
 blackish

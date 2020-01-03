@@ -169,13 +169,13 @@ $8F00 Value gl-default-color \ real default color
 : std-bg! ( index -- )  dup bg! dup std-bg ! bg>clear ;
 Black White white? [IF] swap [THEN] fg! bg!
 
-: >white white-colors White std-bg! White err-bg! Black fg! Red err-fg!
+: >light light-mode White std-bg! White err-bg! Black fg! Red err-fg!
     White >bg Black >fg or to gl-default-color
     $70004000 dup color-index ! error-color-index ! ;
-: >black black-colors Black std-bg! Black err-bg! White fg! Red err-fg!
+: >dark dark-mode Black std-bg! Black err-bg! White fg! Red err-fg!
     Black >bg White >fg or to gl-default-color
     $704000 dup color-index ! error-color-index ! ;
-[IFDEF] android >black [THEN]
+[IFDEF] android >dark [THEN]
 
 256 Value videocols
 0   Value videorows
@@ -545,7 +545,7 @@ default-out op-vector !
 : >screen ( -- )
     ctx 0= IF  window-init  [IFDEF] map-win map-win [THEN] config-changer  THEN
     err>screen op-vector @ debug-vector ! out>screen
-    white? IF  >white  ELSE  >black  THEN ;
+    white? IF  >light  ELSE  >dark  THEN ;
 
 \ initialize
 

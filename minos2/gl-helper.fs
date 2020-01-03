@@ -837,9 +837,9 @@ color-w color-h * sfloats allocate throw to color-pal
     Saturate  1 saturate% glUniform1fv
     LightPos  1 lightpos-xyz glUniform3fv ;
 
-: day-mode    ( -- )  0 to color-theme 0.5e ColorMode! ;
+: light-gui    ( -- )  0 to color-theme 0.5e ColorMode! ;
 color-h 1 > [IF]
-    : night-mode  ( -- )  1 to color-theme 1.5e ColorMode! ;
+    : dark-gui  ( -- )  1 to color-theme 1.5e ColorMode! ;
 [THEN]
 
 tex: palette-tex
