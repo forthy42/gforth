@@ -68,7 +68,7 @@ glue new glue-right !
     2dup "\xFF\xD8\xFF" string-prefix?
     IF  mem-exif  [: 2dup >thumb-scan ;] catch drop nothrow
 	img-orient @ 1- 0 max dup to rotate#  exif>
-    ELSE  0  THEN  >r
+    ELSE  0  0 to rotate#  THEN  >r
     mem>texture
     r> 4 and IF  swap  THEN  dup to image-h over to image-w
     wh>tile-glue o> ;
