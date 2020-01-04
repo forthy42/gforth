@@ -425,12 +425,17 @@ The @file{mini-oof.fs} model
 
 Programming Tools
 
-* Examining::                   Data and Code.
-* Forgetting words::            Usually before reloading.
-* Debugging::                   Simple and quick.
-* Assertions::                  Making your programs self-checking.
-* Singlestep Debugger::         Executing your program word by word.
-* Code Coverage::               Measure execution frequency.
+* Locating source code definitions:: and editing
+* Locating documentation::           @code{help}.
+* Locating uses of a word::          @code{where}.
+* Locating exception source::        Examining backtraces.
+* Examining compiled code::          @code{see} and friends.
+* Examining data::                   Stacks and Memory.
+* Forgetting words::                 Usually before reloading.
+* Debugging::                        By inserting @code{~~} tracers.
+* Assertions::                       Making your programs self-checking.
+* Singlestep Debugger::              Executing your program word by word.
+* Code Coverage::                    Measure execution frequency.
 
 Multitasker
 
@@ -12398,19 +12403,44 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 @c !! move this and assembler down below OO stuff.
 
 @menu
-* Examining::                   Data and Code.
-* Forgetting words::            Usually before reloading.
-* Debugging::                   Simple and quick.
-* Assertions::                  Making your programs self-checking.
-* Singlestep Debugger::         Executing your program word by word.
-* Code Coverage::               Measure execution frequency.
+* Locating source code definitions:: and editing
+* Locating documentation::           @code{help}.
+* Locating uses of a word::          @code{where}.
+* Locating exception source::        Examining backtraces.
+* Examining compiled code::          @code{see} and friends.
+* Examining data::                   Stacks and Memory.
+* Forgetting words::                 Usually before reloading.
+* Debugging::                        By inserting @code{~~} tracers.
+* Assertions::                       Making your programs self-checking.
+* Singlestep Debugger::              Executing your program word by word.
+* Code Coverage::                    Measure execution frequency.
 @end menu
 
-@node Examining, Forgetting words, Programming Tools, Programming Tools
+@node Locating source code definitions, Locating documentation, Programming Tools, Programming Tools
+@subsection Locating source code definitions
+@cindex source code of a word
+
+@node Locating documentation, Locating uses of a word, Locating source code definitions, Programming Tools
+@subsection Locating documentation
+@cindex documentation for a word
+
+@node Locating uses of a word, Locating exception source, Locating documentation, Programming Tools
+@subsection Locating uses of a word
+@cindex Uses of a word
+
+@node Locating exception source, Examining compiled code, Locating uses of a word, Programming Tools
+@subsection Locating exception source
+@cindex exception source code
+@cindex source code for exception
+@cindex backtrace examination
+
+@node Examining compiled code, Examining data, Locating exception source, Programming Tools
+@subsection Examining compiled code
+@cindex compiled code examination
+
+@node Examining data, Forgetting words, Examining compiled code, Programming Tools
 @subsection Examining data and code
 @cindex examining data and code
-@cindex data examination
-@cindex code examination
 
 The following words inspect the stack non-destructively:
 
@@ -12445,7 +12475,7 @@ doc-simple-see-range
 doc-see-code
 doc-see-code-range
 
-@node Forgetting words, Debugging, Examining, Programming Tools
+@node Forgetting words, Debugging, Examining data, Programming Tools
 @subsection Forgetting words
 @cindex words, forgetting
 @cindex forgeting words
