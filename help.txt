@@ -6,6 +6,7 @@ To leave Gforth, type "bye", or use Ctrl-D at the start of a line.
 To input floating-point numbers, use an exponent, e.g. "1e".
 To input double-cell integers without warnings, use a base-prefix and put
 the '.' only in the last position, e.g. "#1.".
-For better colors on dark background, type "black-colors".
+For better colors on dark background, type "dark-mode".
 Disable warnings with "warnings off" and reduce warnings with "-1 warnings !"
-Config in ~/.config/gforthrc0 before loading anything, ~/.config/gforthrc for interactive mode
+~/.config/gforthrc0 is loaded before processing the OS command line.
+~/.config/gforthrc is loaded before entering the Forth command line.
