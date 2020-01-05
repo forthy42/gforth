@@ -124,9 +124,10 @@ variable included-file-buffers
     dup name>view swap name>string nip set-located-view ;
 
 : locate-name ( nt -- )
-     name-set-located-view l ;
+    name-set-located-view l ;
 
 : locate ( "name" -- ) \ gforth
+    \g Show the source code of the word @i{name}.
     (') locate-name ;
 
 ' locate alias view ( "name" -- ) \ gforth

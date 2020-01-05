@@ -117,11 +117,11 @@ previous
 	zln z2/ zexp  THEN ;
 : z**      ( z1 z2 -- z1**z2 ) zswap zln z* zexp ;
 \ Test: Fibonacci-Zahlen
-1e 5e fsqrt f+ f2/ fconstant g  1e g f- fconstant -h
+1e 5e fsqrt f+ f2/ fconstant phi  1e phi f- fconstant -h
 : zfib     ( z1 -- fib[z1] )
-    zdup z>r g 0e zswap z**
+    zdup z>r phi 0e zswap z**
     zr> zswap z>r -h 0e zswap z** znegate zr> z+
-    [ g -h f- 1/f ] FLiteral zscale ;
+    [ phi -h f- 1/f ] FLiteral zscale ;
 
 \ complexe Operationen                                 02mar05py
 

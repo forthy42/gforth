@@ -12450,17 +12450,21 @@ doc-edit
 
 doc-help
 
+@code{Help} sets the current location, so you can use @code{n} and
+@code{b} to show more of the text, or @code{g} to visit the
+documentation in an editor (@pxref{Locating source code definitions}).
+
 @node Locating uses of a word, Locating exception source, Locating documentation, Programming Tools
 @subsection Locating uses of a word
 @cindex Uses of a word
 
 doc-where
-doc-whereg
 doc-ww
 doc-nw
 doc-bw
 doc-gg
 doc-ll
+doc-whereg
 
 @node Locating exception source, Examining compiled code, Locating uses of a word, Programming Tools
 @subsection Locating exception source
