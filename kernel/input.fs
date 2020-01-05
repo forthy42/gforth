@@ -200,12 +200,13 @@ defer line-end-hook ( -- ) \ gforth
     ['] refill input-color ['] color-execute catch
     dup -56 = IF  bye  THEN  throw ;
 
-Defer ?set-current-xpos  ' noop is ?set-current-xpos
+Defer ?set-current-view ( -- )
+' noop is ?set-current-view
 
 : execute-parsing-named-file ( i*x wfileid filename-addr filename-u xt -- j*x )
     >r push-file \ dup 2* cells included-files 2@ drop + 2@ type
     str>loadfilename# loadfilename# !  loadfile !  error-stack $free
-    r> catch  dup IF  ?set-current-xpos  THEN
+    r> catch  dup IF  ?set-current-view  THEN
     loadfile @ close-file swap 2dup or
     pop-file  drop throw throw ;
 

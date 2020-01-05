@@ -12419,14 +12419,48 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 @node Locating source code definitions, Locating documentation, Programming Tools, Programming Tools
 @subsection Locating source code definitions
 @cindex source code of a word
+@cindex @code{view} (called @code{locate} in Gforth)
+@cindex integrated development environment
+@cindex IDE (integrated development environment)
+
+Many programming systems are organized as an integrated development
+environment (IDE) where the editor is the hub of the system, and
+allows building and running programs.  If you want that, Gforth has
+it, too (@pxref{Emacs and Gforth}).
+
+However, several Forth systems have a different kind of IDE: The Forth
+command line is the hub of the environment; you can view the source
+from there in various ways, and call an editor if needed.  An
+advantage of this approach is that it allows you to use your favourite
+editor.
+
+Gforth also implements such an IDE.  It mostly follows the conventions
+of SwiftForth where they exist, but implements features beyond them.
+
+doc-locate
+doc-n
+doc-b
+doc-l
+doc-g
+doc-edit
 
 @node Locating documentation, Locating uses of a word, Locating source code definitions, Programming Tools
 @subsection Locating documentation
 @cindex documentation for a word
 
+doc-help
+
 @node Locating uses of a word, Locating exception source, Locating documentation, Programming Tools
 @subsection Locating uses of a word
 @cindex Uses of a word
+
+doc-where
+doc-whereg
+doc-ww
+doc-nw
+doc-bw
+doc-gg
+doc-ll
 
 @node Locating exception source, Examining compiled code, Locating uses of a word, Programming Tools
 @subsection Locating exception source
@@ -12434,9 +12468,26 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 @cindex source code for exception
 @cindex backtrace examination
 
+doc-tt
+doc-nt
+doc-bt
+
 @node Examining compiled code, Examining data, Locating exception source, Programming Tools
 @subsection Examining compiled code
 @cindex compiled code examination
+
+And finally, @code{see} and friends show compiled code.  Some of the
+things in the native code are not present in the compiled code (e.g.,
+formatting and comments), but this is useful to see what threaded code
+or native code is produced by macros and Gforth's optimization
+features.
+
+doc-see
+doc-xt-see
+doc-simple-see
+doc-simple-see-range
+doc-see-code
+doc-see-code-range
 
 @node Examining data, Forgetting words, Examining compiled code, Programming Tools
 @subsection Examining data and code
@@ -12461,19 +12512,6 @@ The following words inspect memory.
 
 doc-?
 doc-dump
-
-And finally, @code{see} and friends show compiled code.  Some of the
-things in the native code are not present in the compiled code (e.g.,
-formatting and comments), but this is useful to see what threaded code
-or native code is produced by macros and Gforth's optimization
-features.
-
-doc-see
-doc-xt-see
-doc-simple-see
-doc-simple-see-range
-doc-see-code
-doc-see-code-range
 
 @node Forgetting words, Debugging, Examining data, Programming Tools
 @subsection Forgetting words
