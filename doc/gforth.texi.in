@@ -12430,18 +12430,42 @@ it, too (@pxref{Emacs and Gforth}).
 
 However, several Forth systems have a different kind of IDE: The Forth
 command line is the hub of the environment; you can view the source
-from there in various ways, and call an editor if needed.  An
-advantage of this approach is that it allows you to use your favourite
-editor.
+from there in various ways, and call an editor if needed.
 
 Gforth also implements such an IDE.  It mostly follows the conventions
 of SwiftForth where they exist, but implements features beyond them.
 
+An advantage of this approach is that it allows you to use your
+favourite editor: set the environment variable @code{EDITOR} to your
+favourite editor, and the editing commands will call that editor;
+Gforth invokes some GUI editors in the background (so you do not need
+to finish editing to continue with your Forth session), terminal
+editors in the foreground (default for editors not known to Gforth is
+foreground).  If you have not set @code{EDITOR}, the default editor is
+@file{vi}.
+
 doc-locate
+
+The @emph{current location} is set by a number of other words in
+addition to @code{locate}.  Also, when an error happens while loading
+a file, the location of the error becomes the current location.
+
+A number of words work with the current location:
+
+doc-l
 doc-n
 doc-b
-doc-l
 doc-g
+
+You can control how many lines @code{l}, @code{n} and @code{b} show by
+changing the values:
+
+doc-before-locate
+doc-after-locate
+
+Finally, you can directly go to the source code of a word in the
+editor with
+
 doc-edit
 
 @node Locating documentation, Locating uses of a word, Locating source code definitions, Programming Tools

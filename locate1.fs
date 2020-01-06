@@ -113,8 +113,7 @@ variable included-file-buffers
     view>filename# loadfilename#>str ;
 
 : l ( -- )
-    \g Display source code lines at compiler error location, or
-    \g @code{locate}, @code{help}, @code{ww}, or @code{tt} location.
+    \g Display source code lines at the current location.
     current-location?
     cr located-view @ view>filename type ': emit
     located-top @ dec.
@@ -127,23 +126,22 @@ variable included-file-buffers
     name-set-located-view l ;
 
 : locate ( "name" -- ) \ gforth
-    \g Show the source code of the word @i{name}.
+    \g Show the source code of the word @i{name} and set the current
+    \g location there.
     (') locate-name ;
 
 ' locate alias view ( "name" -- ) \ gforth
 
 : n ( -- ) \ gforth
-    \g Display lines after the last source or documentation file
-    \g display (error, @code{locate}, @code{help}, @code{ww},
-    \g @code{tt}).
+    \g Display lines behind the current location, or behind the last
+    \g @code{n} or @code{b} output (whichever was later).
     current-location?
     located-bottom @ dup located-top ! form drop 2/ + located-bottom !
     set-bn-view l1 ;
 
 : b ( -- ) \ gforth
-    \g Display lines before the last source or documentation
-    \g file display (error, @code{locate}, @code{help}, @code{ww},
-    \g @code{tt}).
+    \g Display lines before the current location, or before the last
+    \g @code{n} or @code{b} output (whichever was later).
     current-location?
     located-top @ dup located-bottom ! form drop 2/ - 0 max located-top !
     set-bn-view l1 ;
@@ -156,9 +154,8 @@ variable included-file-buffers
     throw ;
 
 Defer g ( -- ) \ gforth
-    \g Enter the editor at the compiler error location, or the
-    \g @code{locate}, @code{n}, @code{b}, @code{help}, @code{ww}, or
-    \g @code{tt} location.
+    \g Enter the editor at the current location, or at the start of
+    \g the last @code{n} or @code{b} output (whichever was later).
 ' extern-g is g
 
 : edit ( "name" -- ) \ gforth
