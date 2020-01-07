@@ -95,8 +95,10 @@ variable located-bottom \ last line to display with l
 2variable located-slurped \ the contents of the file in located-view, or 0 0
 
 \ lines to show before and after locate
-3 value before-locate
-12 value after-locate
+3 value before-locate ( -- u ) \ gforth
+\G number of lines shown before current location (default 3).
+12 value after-locate ( -- u ) \ gforth
+\G number of lines shown after current location (default 12).
 
 : view>filename# ( view -- u )
     \G filename-number of view (obtained by @code{name>view}) see @code{filename#>str}
