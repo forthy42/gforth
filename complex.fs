@@ -117,7 +117,7 @@ previous
 	zln z2/ zexp  THEN ;
 : z**      ( z1 z2 -- z1**z2 ) zswap zln z* zexp ;
 \ Test: Fibonacci-Zahlen
-1e 5e fsqrt f+ f2/ fconstant phi  1e phi f- fconstant 1-phi
+1e 5e fsqrt f+ f2/ fconstant phi
 : zfib     ( z1 -- fib[z1] )
     zdup z>r phi 0e zswap z**
     zr> zswap z>r [ 1e phi f- ] FLiteral
