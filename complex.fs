@@ -117,11 +117,12 @@ previous
 	zln z2/ zexp  THEN ;
 : z**      ( z1 z2 -- z1**z2 ) zswap zln z* zexp ;
 \ Test: Fibonacci-Zahlen
-1e 5e fsqrt f+ f2/ fconstant phi  1e phi f- fconstant -h
+1e 5e fsqrt f+ f2/ fconstant phi  1e phi f- fconstant 1-phi
 : zfib     ( z1 -- fib[z1] )
     zdup z>r phi 0e zswap z**
-    zr> zswap z>r -h 0e zswap z** znegate zr> z+
-    [ phi -h f- 1/f ] FLiteral zscale ;
+    zr> zswap z>r [ 1e phi f- ] FLiteral
+    0e zswap z** znegate zr> z+
+    [ 5e fsqrt 1/f ] FLiteral zscale ;
 
 \ complexe Operationen                                 02mar05py
 
@@ -161,8 +162,8 @@ Defer fc.       ' f. IS fc.
            zdup z0= IF  zdrop ." 0 "  exit  THEN
            fdup f0= IF  fdrop fc. exit  THEN   fswap
            fdup f0= IF    fdrop
-                    ELSE  fc.
-                          fdup f0> IF  1 backspaces ." +"  THEN  THEN
+                    ELSE  fc.  1 backspaces
+                          fdup f0> IF  ." +"  THEN  THEN
            fc. 1 backspaces ." i " ;
 : z.s ( z1 .. zn -- z1 .. zn )
 	   zdepth 0 ?DO  i zpick zswap z>r z. zr>  LOOP ;
