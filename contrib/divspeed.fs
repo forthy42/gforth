@@ -73,19 +73,22 @@ s" :noname [ xt @ >name name>string ] 2literal type ms@" 2constant s1
 testA  /
 testA  MOD
 testB  /MOD
+testA  U/
+testA  UMOD
+testB  U/MOD
 testE  */
 testC  */MOD
 testC  FM/MOD
 testC  SM/REM
 testD  UM/MOD   ( testC causes overflow for UM/MOD )
 testF  M*/
-9 table tests
+12 table tests
 
 : .elapsed ( starttime -- ) ms@ 9 emit swap - 4 .r ."  ms" ;
 
 : run-tests
     cr ." Speed Tests:"
-    9 0 DO  cr I cells tests + @ execute .elapsed LOOP cr ;
+    12 0 DO  cr I cells tests + @ execute .elapsed LOOP cr ;
 
 
 run-tests

@@ -123,7 +123,7 @@ definitions
 : next-head ( addr1 -- addr2 ) \ gforth
     \G find the next header starting after addr1, up to here (unreliable).
     here swap u+do
-	i xt? -2 and if
+	i xt? if
 	    i name>string drop cell negate and unloop exit
 	then
     cell +loop
