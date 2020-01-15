@@ -85,7 +85,7 @@ is addr>view
     current-section @ r> current-section ! ;
 
 : new-section ( -- )
-    section-defaultsize create-section sections >stack ;
+    section-size @ 2/ 2/ create-section sections >stack ;
 
 Variable lits<>
 
