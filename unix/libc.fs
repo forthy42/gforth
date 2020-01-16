@@ -78,6 +78,8 @@ c-library libc
 	\c #include <sys/random.h>
 	c-function getrandom getrandom a n u -- n ( buffer len flag -- n )
     [THEN]
+    c-function setenv setenv s s n -- n ( name un value uv overwrie -- n )
+    c-function unsetenv unsetenv s -- n ( name u -- n )
     c-value environ environ -- a ( -- env )
 end-c-library
 
