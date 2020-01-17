@@ -22,4 +22,4 @@ package gnu.gforth;
 
 import gnu.gforth.Gforth;
 
-public class Gforth_n2o_gui extends gnu.gforth.Gforth { };
+public class Gforth_n2o extends gnu.gforth.Gforth { };

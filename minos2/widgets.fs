@@ -924,7 +924,7 @@ end-class box
     vglue vglue-c glue! ;
 ' box-!size box is !size
 
-:noname ( -- ) ['] draw-init      box-visible# ?do-childs ; box is draw-init
+:noname ( -- ) ['] draw-init box-visible# ?do-childs ; box is draw-init
 :noname ( -- ) ['] draw      box-visible# ?do-childs ; box is draw
 
 :noname ( -- )

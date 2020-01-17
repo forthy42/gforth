@@ -187,7 +187,7 @@ end-class album-scroll-actor
 	/mid /hflip dup >slides
 	glue-right @ }}glue
     }}h dup to imgs-box
-    {{  \large blackish
+    {{  \huge blackish
 	{{
 	    glue*ll }}glue
 	    "    " }}text
@@ -199,13 +199,13 @@ end-class album-scroll-actor
 	    "    " }}text
 	    glue*ll }}glue
 	}}v ' next-slide 0 click[]
-	\normal
     }}h box[]
-    {{
-	s" ❌" }}text 25%b
+    {{ \large
+	{{ "❌" }}text }}h 25%b
 	' album-close 0 click[] /right
 	glue*ll }}glue
     }}v box[]
+    \normal
 }}z album[] to album-viewer
 
 default-sd to slide-deck
