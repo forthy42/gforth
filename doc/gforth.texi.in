@@ -2066,11 +2066,34 @@ Actually they are bitwise operations:
 @end example
 
 You can convert a zero/non-zero flag into a canonical flag with
-@code{0<>} (and complement it on the way with @code{0=}).
+@code{0<>} (and complement it on the way with @code{0=}; indeed, it is
+more common to use @code{0=} instead of @code{invert} for canonical
+flags).
 
 @example
 1 0= .
 1 0<> .
+@end example
+
+While you can use @code{if} without @code{0<>} to test for
+zero/non-zero, you sometimes need to use @code{0<>} when combining
+zero/non-zero values with @code{and or xor} because of their bitwise
+nature.  The simplest, least error-prone, and probably clearest way is
+to use @code{0<>} in all these cases, but in some cases you can use
+fewer @code{0<>}s.  Here are some stack effects, where @i{flag}
+represents a canonical flag, and @i{x} represents zero/non-zero:
+
+@example
+or ( x1 x2 -- x3 )
+and ( x1 flag -- x2 )
+and ( flag x1 -- x2 )
+@end example
+
+So, if you want to do something if n1 is non-zero, and n2 is non-zero,
+you can write:
+
+@example
+( n1 n2 ) 0<> and if ...
 @end example
 
 You can use the all-bits-set feature of canonical flags and the bitwise
