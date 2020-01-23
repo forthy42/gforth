@@ -293,10 +293,12 @@ variable code-locations 0 code-locations !
 : width-type ( c-addr u uwidth -- uwidth1 )
     \g type the part of the string that fits in uwidth; uwidth1 is the
     \g remaining width; replaces tabs with spaces
-    { uwidth } begin
-        2dup x-width dup uwidth u> while
-            drop x\string- repeat
-    >r type-notabs uwidth r> - ;
+    >r over + swap case ( end c-addr1 r: uwidth2 )
+	2dup u<= ?of endof
+	xc@+ dup #tab = if drop bl endif ( end c-addr1 xc r: uwidth2 )
+	dup xc-width dup r@ u> ?of 2drop endof ( end c-addr1 xc u r: uwidth2 )
+	r> swap - >r xemit next-case 
+    2drop r> ;
 
 : .wheretype1 ( c-addr u view urest -- )
     { urest } view>char >r -trailing over r> + { c-pos } 2dup + { c-lineend }
@@ -334,9 +336,8 @@ variable code-locations 0 code-locations !
 
 : where ( "name" -- ) \ gforth
     \g Show all places where @i{name} is used (text-interpreted).  You
-    \g can then use @code{ww}, @code{nw} or @code{bw} in combination
-    \g with @code{l} or @code{g} to inspect specific occurences more
-    \g closely.
+    \g can then use @code{ww}, @code{nw} or @code{bw} to inspect
+    \g specific occurences more closely.
     parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres
     drop -1 where-index ! ;
 

@@ -187,7 +187,7 @@ end-class album-scroll-actor
 	/mid /hflip dup >slides
 	glue-right @ }}glue
     }}h dup to imgs-box
-    {{  \huge blackish
+    {{  \huge \sans \regular blackish
 	{{
 	    glue*ll }}glue
 	    "    " }}text
@@ -200,7 +200,7 @@ end-class album-scroll-actor
 	    glue*ll }}glue
 	}}v ' next-slide 0 click[]
     }}h box[]
-    {{ \large
+    {{ \Large
 	{{ "❌" }}text }}h 25%b
 	' album-close 0 click[] /right
 	glue*ll }}glue

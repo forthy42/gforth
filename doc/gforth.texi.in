@@ -2066,12 +2066,40 @@ Actually they are bitwise operations:
 @end example
 
 You can convert a zero/non-zero flag into a canonical flag with
-@code{0<>} (and complement it on the way with @code{0=}).
+@code{0<>} (and complement it on the way with @code{0=}; indeed, it is
+more common to use @code{0=} instead of @code{invert} for canonical
+flags).
 
 @example
 1 0= .
 1 0<> .
 @end example
+
+While you can use @code{if} without @code{0<>} to test for
+zero/non-zero, you sometimes need to use @code{0<>} when combining
+zero/non-zero values with @code{and or xor} because of their bitwise
+nature.  The simplest, least error-prone, and probably clearest way is
+to use @code{0<>} in all these cases, but in some cases you can use
+fewer @code{0<>}s.  Here are some stack effects, where @i{fc}
+represents a canonical flag, and @i{fz} represents zero/non-zero
+(every @i{fc} also works as @i{fz}):
+
+@example
+or  ( fz1 fz2 -- fz3 )
+and ( fz1 fc  -- fz2 )
+and ( fc  fz1 -- fz2 )
+@end example
+
+So, if you see code like this:
+
+@example
+( n1 n2 ) 0<> and if
+@end example
+
+This tests whether n1 and n2 are non-zero and if yes, performs the
+code after @code{if}; it treats n1 as zero/non-zero and uses @code{0<>} to
+convert n2 into a canonical flag; the @code{and} then produces an fz,
+which is consumed by the @code{if}.
 
 You can use the all-bits-set feature of canonical flags and the bitwise
 operation of the Boolean operations to avoid @code{if}s:
@@ -12468,6 +12496,7 @@ editor with
 
 doc-edit
 
+
 @node Locating documentation, Locating uses of a word, Locating source code definitions, Programming Tools
 @subsection Locating documentation
 @cindex documentation for a word
@@ -12477,6 +12506,7 @@ doc-help
 @code{Help} sets the current location, so you can use @code{n} and
 @code{b} to show more of the text, or @code{g} to visit the
 documentation in an editor (@pxref{Locating source code definitions}).
+
 
 @node Locating uses of a word, Locating exception source, Locating documentation, Programming Tools
 @subsection Locating uses of a word
