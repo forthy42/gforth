@@ -775,7 +775,7 @@ edit-terminal edit-out !
 :noname ( addr u o:actor -- )
     [: 2rot prefix-off edit-ins$ edit-update +sync +resize ;] edit-xt ; edit-actor is ukeyed
 :noname ( o:actor -- )
-    edit-w >o -1 to cursize o> +sync
+    ['] setstring> edit-xt edit-w >o -1 to cursize o> +sync
     -keyboard ; edit-actor is defocus
 :noname ( o:actor -- )
     edit-w >o  0 to cursize o> +sync
