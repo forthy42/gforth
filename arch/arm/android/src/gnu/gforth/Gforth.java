@@ -325,14 +325,13 @@ public class Gforth
 	@Override
 	public InputConnection onCreateInputConnection (EditorInfo outAttrs) {
 	    moutAttrs=outAttrs;
-	    outAttrs.inputType = (InputType.TYPE_CLASS_TEXT |
-				  InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE |
+	    outAttrs.inputType = (InputType.TYPE_CLASS_TEXT | /*
+				  InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | */
 				  InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
 	    outAttrs.initialSelStart = mcurpos;
 	    outAttrs.initialSelEnd = mcurpos+mlen;
 	    outAttrs.packageName = "gnu.gforth";
-	    outAttrs.imeOptions = (EditorInfo.IME_ACTION_SEND |
-				   EditorInfo.IME_FLAG_NO_FULLSCREEN);
+	    outAttrs.imeOptions = (EditorInfo.IME_FLAG_NO_FULLSCREEN);
 	    mInputConnection = new MyInputConnection(this, true);
 	    return mInputConnection;
 	}
