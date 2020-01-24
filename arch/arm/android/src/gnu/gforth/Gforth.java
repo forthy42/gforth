@@ -161,6 +161,7 @@ public class Gforth
 	InputMethodManager mManager;
 	EditorInfo moutAttrs;
 	MyInputConnection mInputConnection;
+	int mcurpos=0, mlen=0;
 	
 	static class MyInputConnection extends BaseInputConnection {
 	    private SpannableStringBuilder mEditable;
@@ -327,11 +328,11 @@ public class Gforth
 	    outAttrs.inputType = (InputType.TYPE_CLASS_TEXT |
 				  InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE |
 				  InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
-	    outAttrs.initialSelStart = 1;
-	    outAttrs.initialSelEnd = 1;
+	    outAttrs.initialSelStart = mcurpos;
+	    outAttrs.initialSelEnd = mcurpos+mlen;
 	    outAttrs.packageName = "gnu.gforth";
-	    outAttrs.imeOptions = (EditorInfo.IME_FLAG_NO_FULLSCREEN |
-				   EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+	    outAttrs.imeOptions = (EditorInfo.IME_ACTION_SEND |
+				   EditorInfo.IME_FLAG_NO_FULLSCREEN);
 	    mInputConnection = new MyInputConnection(this, true);
 	    return mInputConnection;
 	}
@@ -459,8 +460,11 @@ public class Gforth
     }
     public void setEditLine(String line, int curpos, int len) {
 	// Log.v(TAG, "setEditLine: \"" + line + "\" at: " + curpos + " len: " + len);
-	if(mView!=null && mView.mInputConnection!=null)
+	if(mView!=null && mView.mInputConnection!=null) {
+	    mView.mcurpos = curpos;
+	    mView.mlen = len;
 	    mView.mInputConnection.setEditLine(line, curpos, len);
+	}
     }
 
     @Override
