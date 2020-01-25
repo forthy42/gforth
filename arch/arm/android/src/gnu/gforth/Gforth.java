@@ -522,13 +522,19 @@ public class Gforth
 	    notificationManager.createNotificationChannel(notificationChannel);
 	}
 	
-	wl = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
-	wl_cpu = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyCpuLock");
+	wl = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"gnu.gforth:MyLock");
+	wl_cpu = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"gnu.gforth:MyCpuLock");
 	
 	handler=new Handler();
 	startgps=new Runnable() {
 		public void run() {
-		    locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
+		    int permission = PackageManager.PERMISSION_GRANTED;
+		    if (Build.VERSION.SDK_INT >= 23) { // reliably works with Android 6+
+			checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+		    }
+		    if (permission == PackageManager.PERMISSION_GRANTED) {
+			locationManager.requestLocationUpdates(args0, argj0, (float)argf0, (LocationListener)gforth);
+		    }
 		}
 	    };
 	stopgps=new Runnable() {

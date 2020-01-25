@@ -191,7 +191,9 @@ done
 echo -n " ant " 1>&3
 
 #ant debug
-ant release || exit 1
+#ant release
+./gradlew build
+./gradlew bundle
 cp bin/Gforth-release.apk bin/Gforth.apk
 cp bin/Gforth-release.apk bin/Gforth-$(date +%Y%m%d).apk
 
