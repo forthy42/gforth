@@ -31,7 +31,7 @@ cat <<EOF
      android:targetSdkVersion="28" />
 
     <application android:icon="@drawable/ic_launcher"
-                android:resizeableActivity="true">
+                 android:resizeableActivity="true">
         <!-- Our activity is a homebrewn variant of the NativeAcitivity.
              This will take care of integrating with our NDK code. -->
         <activity android:name="gnu.gforth.Gforth"
