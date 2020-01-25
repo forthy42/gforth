@@ -190,11 +190,16 @@ done
 
 echo -n " ant " 1>&3
 
+#ant build
 #ant debug
 #ant release
+#cp bin/Gforth-release.apk bin/Gforth.apk
+#cp bin/Gforth-release.apk bin/Gforth-$(date +%Y%m%d).apk
+
+#gradle build – get gradlew and put the script right here
 ./gradlew build
 ./gradlew bundle
-cp bin/Gforth-release.apk bin/Gforth.apk
-cp bin/Gforth-release.apk bin/Gforth-$(date +%Y%m%d).apk
+cp build/outputs/apk/release/gnu.gforth-release.apk bin/Gforth.apk
+cp build/outputs/apk/release/gnu.gforth-release.apk bin/Gforth-$(date +%Y%m%d).apk
 
 printf '\e[32msuccess!\e[0m\n' 1>&3
