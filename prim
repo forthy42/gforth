@@ -1165,7 +1165,7 @@ if (CHECK_DIVISION_SW && u2 == 0)
 :
  u/mod drop ;
 
-u/mod	( u1 u2 -- u3 u4 )		gfprtj		u_slash_mod
+u/mod	( u1 u2 -- u3 u4 )		gforth		u_slash_mod
 u4 = u1/u2;
 u3 = u1%u2;
 if (CHECK_DIVISION_SW && u2 == 0)
