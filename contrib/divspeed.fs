@@ -10,7 +10,7 @@
 \ Mostly rewritten by Anton Ertl
 
 : ms@ ( -- u | return time in ms)  cputime d+ 1 1000 m*/ d>s ;
-: .elapsed ( starttime -- ) ms@ #tab emit swap - 4 .r ."  ms" ;
+: .elapsed ( starttime -- ) ms@ #tab emit swap - 5 .r ." ms" ;
 
 1 31 lshift 1- constant  DIVIDEND
 100000 constant DIVISOR
