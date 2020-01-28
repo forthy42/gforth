@@ -48,14 +48,6 @@ AC_SUBST(LTDL_LDLIBS)
 #suppress the "-g -O2" default
 test "$CFLAGS" || CFLAGS=-O2
 
-AC_ARG_ENABLE(force-cdiv,
-	AC_HELP_STRING([--enable-force-cdiv],
-		       [  Use the native C division - symmetric - instead of
-		          floored division (default disabled).]),
-	,enable_force_cdiv=no)
-test "$enable_force_cdiv" = "no"||
-  AC_DEFINE(FORCE_CDIV,,[Define if you want to use explicit symmetric division for better performance])
-
 AC_SUBST(PROFEXES)
 AC_SUBST(PROFOBJS)
 AC_ARG_ENABLE(prof,

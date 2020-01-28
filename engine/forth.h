@@ -153,13 +153,6 @@ typedef struct {
   Float* fpx;
 } ptrpair;
 
-/* define this false if you want native division */
-#ifdef FORCE_CDIV
-#define FLOORED_DIV 0
-#else
-#define FLOORED_DIV ((1%-3)>0)
-#endif
-
 // prior to 4.8, gcc did not provide __builtin_bswap16 on some platforms so we emulate it
 // see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
 // Clang has a similar problem, but their feature test macros make it easier to detect
