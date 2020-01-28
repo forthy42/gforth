@@ -53,8 +53,8 @@ cover-end Constant cover-start
 :noname defers basic-block-end    postpone cov+ ; is basic-block-end
 :noname defers exit-like      true to dead-cov? ; is exit-like
 :noname defers before-line        postpone cov+ ; is before-line
-:noname dead-code @ dup >r IF  true to dead-cov?  THEN
-    defers then-like r> IF  postpone cov+  THEN ; is then-like
+:noname true to dead-cov?
+    defers then-like  postpone cov+ ; is then-like
 
 : cov% ( -- ) \ gforth-exp
     \G Print the percentage of basic blocks loaded after
