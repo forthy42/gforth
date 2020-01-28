@@ -751,28 +751,30 @@ n = n1*n2;
  um* drop ;
 
 /f	( n1 n2 -- n )		core	slash_f
-n = n1/n2;
-Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n1%n2 != 0));
-n += correct;
-if (CHECK_DIVISION_SW && n2 == 0)
-  throw(BALL_DIVZERO);
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
+Cell correct = ((n1^n2) < 0);
+if(n2 < 0) { n1=-n1; n2=-n2; }
+n = ((n1+correct)/n2)-correct;
+if (CHECK_DIVISION_SW && n2 == 0)
+  throw(BALL_DIVZERO);
 :
  /modf nip ;
 
 modf	( n1 n2 -- n )		core
+if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
+  throw(BALL_RESULTRANGE);
 n = n1%n2;
 Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n != 0));
 n += correct & n2;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
-if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
-  throw(BALL_RESULTRANGE);
 :
  /modf drop ;
 
 /modf	( n1 n2 -- n3 n4 )		core		slash_mod_f
+if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
+  throw(BALL_RESULTRANGE);
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
 Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n3!=0));
@@ -780,8 +782,6 @@ n4 += correct;
 n3 += correct & n2;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
-if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
-  throw(BALL_RESULTRANGE);
 :
  >r s>d r> fm/mod ;
 
