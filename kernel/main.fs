@@ -89,6 +89,13 @@ AConstant image-header
 [IFUNDEF] r@
 ' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
 [THEN]
+[IFUNDEF] /
+    ' /f     alias /
+    ' modf   alias mod
+    ' /modf  alias /mod
+    ' */modf alias */mod
+    ' */f    alias */
+[THEN]
 
 \ 0 AConstant forthstart
 
