@@ -172,7 +172,7 @@ immediate restrict
     \G consumes the @i{orig}; the @code{IF}, @code{AHEAD}, @code{ELSE}
     \G or @code{WHILE} that pushed @i{orig1} jumps right after the
     \G @code{ELSE}.  (@pxref{Selection}).
-    POSTPONE ahead  dead-code off
+    POSTPONE ahead
     1 cs-roll
     POSTPONE then ; immediate restrict
 
