@@ -49,12 +49,12 @@
 
 [defined] t{ [defined] cov% and [IF]
     t{ 0 3 1 ymd2day dup day2dow -> 0 1 }t cov% cr
-    t{ -61 day2ymd -> -1 12 31 }t cov% cr \ check if we can go negative
     t{ 1582 10 15 ymd2day 1- day2ymd -> 1582 10 4 }t cov% cr
     t{ 1400 3 1 ymd2day 1- day2ymd -> 1400 2 29 }t cov% cr
     t{ 2018 1 1 ymd2day 1- day2ymd -> 2017 12 31 }t cov% cr
     \ the tests up to here are sufficient for a full code coverage.
     \ they are not sufficient to ensure functionality.
+    t{ -61 day2ymd -> -1 12 31 }t cov% cr \ check if we can go negative
     t{ 1900 3 1 ymd2day 1- day2ymd -> 1900 2 28 }t cov% cr
     t{ 1582 10 4 ymd2day 1+ day2ymd -> 1582 10 15 }t cov% cr
     13 1 [DO] t{ 2018 [I] 13 ymd2day day2ymd -> 2018 [I] 13 }t [LOOP] cov% cr
