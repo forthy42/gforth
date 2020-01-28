@@ -754,7 +754,9 @@ n = n1*n2;
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 Cell correct = ((n1^n2) < 0);
-if(n2 < 0) { n1=-n1; n2=-n2; }
+Cell neg = (n2 < 0);
+n1 = neg ? -n1 : n1;
+n2 = neg ? -n2 : n2;
 n = ((n1+correct)/n2)-correct;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
