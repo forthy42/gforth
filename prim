@@ -765,8 +765,8 @@ modf	( n1 n2 -- n )		core
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 n = n1%n2;
-Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n != 0));
-n += correct & n2;
+if ((Cell)((n1^n2) < 0) && (Cell)(n != 0))
+  n += n2; 
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
 :
@@ -777,9 +777,10 @@ if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
-Cell correct = -((Cell)((n1^n2) < 0) & (Cell)(n3!=0));
-n4 += correct;
-n3 += correct & n2;
+if ((n1^n2)<0 && n3!=0) {
+  n4 -= 1;
+  n3 += n2;
+}
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
 :
@@ -800,7 +801,7 @@ if (CHECK_DIVISION && correct && n5 == CELL_MIN)
 n5 += correct;
 n4 += correct & n3;
 #else
-DCell r = fmdiv(d,n3)
+DCell r = fmdiv(d,n3);
 n4=DHI(r);
 n5=DLO(r);
 #endif
