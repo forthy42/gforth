@@ -802,7 +802,7 @@ if (CHECK_DIVISION && correct && n5 == CELL_MIN)
 n5 += correct;
 n4 += correct & n3;
 #else
-DCell r = fmdiv(d,n3)
+DCell r = fmdiv(d,n3);
 n4=DHI(r);
 n5=DLO(r);
 #endif
