@@ -208,7 +208,7 @@ FVariable factor  1e factor f!
 
 : size-css ( file< > -- )
     outfile-id >r
-    bl sword r/w create-file throw to outfile-id
+    parse-name r/w create-file throw to outfile-id
     img-sizes wordlist-id
     BEGIN  @ dup  WHILE
 	    dup name>int execute  >link
@@ -366,6 +366,7 @@ Variable expand-postfix
 
 \ line handling
 
+: char ( -- c )  parse-name drop c@ ;
 : char? ( -- c )  >in @ char swap >in ! $FF umin ;
 
 : parse-tag ( addr u char -- )
@@ -382,7 +383,7 @@ Create do-words  $100 0 [DO] ' .text , [LOOP]
 : bind-char ( xt -- )  char cells do-words + ! ;
 
 : char>tag ( -- ) char >r
-:noname bl sword postpone SLiteral r@ postpone Literal
+:noname parse-name postpone SLiteral r@ postpone Literal
     postpone parse-tag postpone ; r> cells do-words + ! ;
 
 : >tag '\ parse type '\ parse tag ;
@@ -399,7 +400,7 @@ char>tag # code
 
 : do-word ( char -- )  cells do-words + perform ;
 
-: word? ( -- addr u )  >in @ >r bl sword r> >in ! ;
+: word? ( -- addr u )  >in @ >r parse-name r> >in ! ;
 
 wordlist Constant autoreplacements
 
@@ -409,7 +410,7 @@ wordlist Constant autoreplacements
 : parse-line+ ( -- )
     BEGIN
 	word? autoreplacements search-wordlist
-	IF    execute  bl sword 2drop
+	IF    execute  parse-name 2drop
 	    source >in @ 1- /string drop c@ bl = >in +!
 	ELSE  char? do-word  THEN
 	source nip >in @ = UNTIL ;
@@ -417,7 +418,7 @@ wordlist Constant autoreplacements
 : parse-to ( char -- ) >r
     BEGIN
 	word? autoreplacements search-wordlist
-	IF    execute  bl sword 2drop
+	IF    execute  parse-name 2drop
 	    source >in @ 1- /string drop c@ bl = >in +! bl true
 	ELSE  char? dup r@ <>  THEN  WHILE
 	do-word source nip >in @ = UNTIL  ELSE  drop  THEN
@@ -602,7 +603,7 @@ longtags set-current
 definitions
 
 : LT  get-order longtags swap 1+ set-order
-    bl sword parser previous ; immediate
+    parse-name parser previous ; immediate
 
 \ Table
 
@@ -643,7 +644,7 @@ longtags set-current
 
 : <| ( -- )  table-starts &20 erase
     s" table" class= s" div" >env
-    bl sword table-format $! bl sword
+    parse-name table-format $! parse-name
     dup IF  s" border" opt  ELSE  2drop  THEN
     s" table" >env ;
 : |> -env -env cr cr ;
@@ -660,7 +661,7 @@ definitions
 \ parse a section
 
 : section-par ( -- )  >in off
-    bl sword longtags search-wordlist
+    parse-name longtags search-wordlist
     IF    execute
     ELSE  source nip IF  >in off s" p" par  THEN  THEN ;
 : parse-section ( -- )  end-sec off
@@ -753,23 +754,23 @@ Variable impressum-url
 : maintainer ( -- )
     '< sword -trailing mail-name $! '> sword mail $! ;
 : pgp-key ( -- )
-    bl sword -trailing public-key $! ;
+    parse-name -trailing public-key $! ;
 : charset ( -- )  s" application/xhtml+xml; charset=" content $!
-    bl sword -trailing 2dup content $+! _charset $! ;
+    parse-name -trailing 2dup content $+! _charset $! ;
 : impressum ( -- )
     0 parse impressum-url $! ;
 
 charset iso-8859-1
 
 : created ( -- )
-    bl sword orig-date $! ;
+    parse-name orig-date $! ;
 : icons
-    bl sword icon-prefix $! ;
+    parse-name icon-prefix $! ;
 : lang
-    bl sword _lang $! ;
+    parse-name _lang $! ;
 : favicon
-    bl sword _favicon $! ;
-: expands '# sword expand-prefix $! bl sword expand-postfix $! ;
+    parse-name _favicon $! ;
+: expands '# sword expand-prefix $! parse-name expand-postfix $! ;
 
 icons icons
 
@@ -791,7 +792,7 @@ Variable style$
 
 : wf ( -- )
     outfile-id >r
-    bl sword r/w create-file throw to outfile-id
+    parse-name r/w create-file throw to outfile-id
     parse" .title
     +env style> s" body" env env?
     ['] parse-section catch .trailer
