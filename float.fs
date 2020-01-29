@@ -276,11 +276,15 @@ fdrop
 \ proposals from Krishna Myeni in <cjsp2d$47l$1@ngspool-d02.news.aol.com>
 \ not sure if they are a good idea
 
+: fmod ( r1 r2 -- r )
+    \ modulus of r1/r2
+    fover fover f/ floor f* f- ;
+
 : ftrunc ( r1 -- r2 ) \ X:ftrunc
     \ round towards 0
     fdup fabs floor fswap fcopysign ;
 
-: FMOD ( r1 r2 -- r )
-    \ remainder of r1/r2
-    FOVER FOVER F/ ftrunc F* F- ;
+: frem ( r1 r2 -- r )
+    \ modulus of r1/r2
+    fover fover f/ ftrunc f* f- ;
 
