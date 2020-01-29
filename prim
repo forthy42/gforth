@@ -753,9 +753,9 @@ n = n1*n2;
 /f	( n1 n2 -- n )		core	slash_f
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
-Cell correct = ((n1 ^ n2) < 0);
-if(n2 < 0) { n1 = -n1; n2 = -n2; }
-n = ((n1+correct)/n2)-correct;
+n=n1/n2;
+if ((n1^n2)<0 && (n1%n2 != 0))
+  n--;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
 :
