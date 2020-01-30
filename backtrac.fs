@@ -22,6 +22,7 @@
 \ backtrace stuff
 
 0 Value extra-backtrace#
+\G add further cells to backtrace stack for non-debugging engine exceptions
 
 : backtrace-return-stack ( -- addr u )
     \ addr is the address of top element of return stack (the stack
