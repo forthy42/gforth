@@ -21,6 +21,8 @@
 
 \ backtrace stuff
 
+0 Value extra-backtrace#
+
 : backtrace-return-stack ( -- addr u )
     \ addr is the address of top element of return stack (the stack
     \ grows downwards), u is the number of aus that interest us on the
@@ -29,11 +31,13 @@
     if
 	rp@ [ 2 cells ]L +
     else \ throw by signal handler with insufficient information
-	rp0 @ 1- -$1000 and \ align to next pagesize
-	BEGIN  dup @ 0=  WHILE  cell+  REPEAT
-	\ handler @ cell - \ beyond that we know nothing
+	handler @ cell- \ beyond that we know nothing
+	extra-backtrace# ?dup-IF  cells -
+	    rp0 @ [ forthstart 7 cells + ]L @ - $FFF + -$1000 and umax
+	    BEGIN  dup @ 0=  WHILE  cell+  REPEAT
+	THEN
     then
-    backtrace-rp0 @ [ 1 cells ]L - over - 0 max ;
+    backtrace-rp0 @ cell- over - 0 max ;
 
 :noname ( -- )
     backtrace-return-stack stored-backtrace $! first-throw off ;
