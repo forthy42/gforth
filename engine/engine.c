@@ -114,9 +114,12 @@ extern Char *gforth_memset(Char * s, Cell c, UCell n);
 #ifdef GFORTH_DEBUGGING
 #define CHECK_DIVISION_SW 1
 #define CHECK_DIVISION 1
+/* we reuse gforth_SP for saving the divisor, as it is not used at the time */
+#define SAVE_DIVISOR(x) (gforth_SP = (Cell *)(x))
 #else
 #define CHECK_DIVISION_SW 0
 #define CHECK_DIVISION 0
+#define SAVE_DIVISOR(x) ((void)0)
 #endif
 
 /* conversion on fetch */

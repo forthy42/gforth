@@ -579,6 +579,7 @@ extern Label *vm_prims;
 extern Label *xts;
 extern Label *labels;
 extern Cell npriminfos;
+extern char gforth_debugging;
 
 #ifdef HAS_DEBUG
 extern int debug, debug_mcheck;

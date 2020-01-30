@@ -136,6 +136,12 @@ jmp_buf throw_jmp_handler;
 
 #define maxaligned(n)	(typeof(n))((((Cell)n)+sizeof(Float)-1)&-sizeof(Float))
 
+#ifdef GFORTH_DEBUGGING
+char gforth_debugging=1;
+#else
+char gforth_debugging=0;
+#endif
+
 static UCell dictsize=0;
 static UCell dsize=0;
 static UCell rsize=0;
