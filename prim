@@ -750,7 +750,7 @@ n = n1*n2;
 :
  um* drop ;
 
-/f	( n1 n2 -- n )		core	slash_f
+/f	( n1 n2 -- n )		gforth	slash_f
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 n=n1/n2;
@@ -761,7 +761,7 @@ if (CHECK_DIVISION_SW && n2 == 0)
 :
  /modf nip ;
 
-modf	( n1 n2 -- n )		core
+modf	( n1 n2 -- n )		gforth
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 n = n1%n2;
@@ -772,7 +772,7 @@ if (CHECK_DIVISION_SW && n2 == 0)
 :
  /modf drop ;
 
-/modf	( n1 n2 -- n3 n4 )		core		slash_mod_f
+/modf	( n1 n2 -- n3 n4 )		gforth		slash_mod_f
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 n4 = n1/n2;
@@ -786,7 +786,7 @@ if (CHECK_DIVISION_SW && n2 == 0)
 :
  >r s>d r> fm/mod ;
 
-*/modf	( n1 n2 n3 -- n4 n5 )	core	star_slash_mod_f
+*/modf	( n1 n2 n3 -- n4 n5 )	gforth	star_slash_mod_f
 ""n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being double.""
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
@@ -809,7 +809,7 @@ n5=DLO(r);
 :
  >r m* r> fm/mod ;
 
-*/f	( n1 n2 n3 -- n4 )	core	star_slash_f
+*/f	( n1 n2 n3 -- n4 )	gforth	star_slash_f
 ""n4=(n1*n2)/n3, with the intermediate result being double.""
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
@@ -831,35 +831,35 @@ n4=DLO(r);
 :
  */modf nip ;
 
-/s	( n1 n2 -- n )		core	slash_s
+/s	( n1 n2 -- n )		gforth	slash_s
+if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
+  throw(BALL_RESULTRANGE);
 n = n1/n2;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
-if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
-  throw(BALL_RESULTRANGE);
 :
  /mods nip ;
 
-mods	( n1 n2 -- n )		core
+mods	( n1 n2 -- n )		gforth  mod_s
+if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
+  throw(BALL_RESULTRANGE);
 n = n1%n2;
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
-if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
-  throw(BALL_RESULTRANGE);
 :
  /mods drop ;
 
-/mods	( n1 n2 -- n3 n4 )		core		slash_mod_s
+/mods	( n1 n2 -- n3 n4 )		gforth		slash_mod_s
+if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
+  throw(BALL_RESULTRANGE);
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
-if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
-  throw(BALL_RESULTRANGE);
 :
  >r s>d r> sm/rem ;
 
-*/mods	( n1 n2 n3 -- n4 n5 )	core	star_slash_mod_s
+*/mods	( n1 n2 n3 -- n4 n5 )	gforth	star_slash_mod_s
 ""n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being double.""
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
@@ -876,7 +876,7 @@ n5=DLO(r);
 :
  >r m* r> sm/rem ;
 
-*/s	( n1 n2 n3 -- n4 )	core	star_slash_s
+*/s	( n1 n2 n3 -- n4 )	gforth	star_slash_s
 ""n4=(n1*n2)/n3, with the intermediate result being double.""
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
@@ -1227,6 +1227,40 @@ if (CHECK_DIVISION_SW && u2 == 0)
   throw(BALL_DIVZERO);
 :
  0 swap um/mod ;
+
+u*/mod	( u1 u2 u3 -- u4 u5 )	gforth	u_star_slash_mod
+""u1*u2=u3*u5+u4, with the intermediate result (u1*u2) being double.""
+#ifdef BUGGY_LL_MUL
+UDCell ud = ummul(u1,u2);
+#else
+UDCell ud = (UDCell)u1 * (UDCell)u2;
+#endif
+#ifdef ASM_UM_SLASH_MOD
+ASM_UM_SLASH_MOD(DLO(ud), DHI(ud), u3, u4, u5);
+#else
+UDCell r = umdiv(ud,u3);
+u4=DHI(r);
+u5=DLO(r);
+#endif
+:
+ >r um* r> um/mod ;
+
+u*/	( u1 u2 u3 -- u4 )	gforth	u_star_slash
+""u4=(u1*u2)/u3, with the intermediate result being double.""
+#ifdef BUGGY_LL_MUL
+UDCell ud = ummul(u1,u2);
+#else
+UDCell ud = (UDCell)u1 * (UDCell)u2;
+#endif
+#ifdef ASM_SM_SLASH_REM
+UCell remainder;
+ASM_UM_SLASH_MOD(DLO(ud), DHI(ud), u3, remainder, u4);
+#else
+UDCell r = umdiv(ud,u3);
+u4=DLO(r);
+#endif
+:
+ */mods nip ;
 
 arshift	( n1 n -- n2 )		core	ar_shift
 ""signed shift right by @i{n} bits.""

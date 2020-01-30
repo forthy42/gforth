@@ -82,9 +82,11 @@ create F-operand2 1 DIVISOR 2,
     \ testE  */
     testE  */S
     testE  */F
+    testE  U*/
     \ testC  */MOD
     testC  */MODS
     testC  */MODF
+    testC  U*/MOD
     testC  FM/MOD
     testC  SM/REM
     testD  UM/MOD   ( testC causes overflow for UM/MOD )
