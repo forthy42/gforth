@@ -173,7 +173,12 @@ static void fpe_handler(int sig, siginfo_t *info, void *_)
 
   switch(info->si_code) {
 #ifdef FPE_INTDIV
-  case FPE_INTDIV: code=BALL_DIVZERO; break;
+  case FPE_INTDIV:
+    if (gforth_debugging && ((Cell)gforth_SP)!=0)
+      code = BALL_RESULTRANGE;
+    else
+      code= BALL_DIVZERO;
+    break;
 #endif
 #ifdef FPE_INTOVF
   case FPE_INTOVF: code=BALL_RESULTRANGE; break; /* integer overflow */
