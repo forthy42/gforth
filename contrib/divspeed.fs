@@ -18,8 +18,10 @@ DIVIDEND negate s>d 2constant D_DIVIDEND
 100000000     constant  N
 create AB-operands DIVIDEND DIVISOR 2,
 create CEF-operand1 D_DIVIDEND 2,
+create E1-operand1 DIVIDEND 2 2,
 create CDE-operand2 DIVISOR ,
 create D-operand1 DIVIDEND s>d 2,
+create D1-operand1 DIVIDEND 0 2,
 create F-operand2 1 DIVISOR 2,
 
 : '. ( "op" -- xt )
@@ -43,6 +45,12 @@ create F-operand2 1 DIVISOR 2,
     ms@ CEF-operand1 N 1 DO 2@ CDE-operand2 @ [[ r@ compile, CEF-operand1 dup 2@ CDE-operand2 @ r@ execute + - ]] + literal + LOOP drop .elapsed
     [[ rdrop ; immediate
 
+: testC1 ( "op" -- )
+    '. >r ]]
+    ms@ E1-operand1 2@ N 1 DO 2dup I [[ r@ compile, ]] 2drop LOOP 2drop .elapsed
+    ms@ E1-operand1 N 1 DO 2@ CDE-operand2 @ [[ r@ compile, E1-operand1 dup 2@ CDE-operand2 @ r@ execute + - ]] + literal + LOOP drop .elapsed
+    [[ rdrop ; immediate
+
 : testD ( "op" -- )
     '. >r ]]
     ms@ DIVIDEND s>d N 1 DO 2dup I [[ r@ compile, ]] 2drop LOOP 2drop .elapsed
@@ -53,6 +61,12 @@ create F-operand2 1 DIVISOR 2,
     '. >r ]]
     ms@ D_DIVIDEND N 1 DO 2dup I [[ r@ compile, ]] drop LOOP 2drop .elapsed
     ms@ CEF-operand1 N 1 DO 2@ CDE-operand2 @ [[ r@ compile, CEF-operand1 dup 2@ CDE-operand2 @ r@ execute - ]] literal + LOOP drop .elapsed
+    [[ rdrop ; immediate
+
+: testE1 ( "op" -- )
+    '. >r ]]
+    ms@ E1-operand1 2@ N 1 DO 2dup I [[ r@ compile, ]] drop LOOP 2drop .elapsed
+    ms@ E1-operand1 N 1 DO 2@ CDE-operand2 @ [[ r@ compile, E1-operand1 dup 2@ CDE-operand2 @ r@ execute - ]] literal + LOOP drop .elapsed
     [[ rdrop ; immediate
 
 : testF ( "op" -- )
@@ -82,11 +96,11 @@ create F-operand2 1 DIVISOR 2,
     \ testE  */
     testE  */S
     testE  */F
-    testE  U*/
+    testE1  U*/
     \ testC  */MOD
     testC  */MODS
     testC  */MODF
-    testC  U*/MOD
+    testC1  U*/MOD
     testC  FM/MOD
     testC  SM/REM
     testD  UM/MOD   ( testC causes overflow for UM/MOD )
