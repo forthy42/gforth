@@ -751,30 +751,34 @@ n = n1*n2;
  um* drop ;
 
 /f	( n1 n2 -- n )		gforth	slash_f
+if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
+  throw(BALL_RESULTRANGE);
+if (CHECK_DIVISION_SW && n2 == 0)
+  throw(BALL_DIVZERO);
 SAVE_DIVISOR(n2);
 n=n1/n2;
 if ((n1^n2)<0 && (n1%n2 != 0))
   n--;
-if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
-  throw(BALL_RESULTRANGE);
-if (CHECK_DIVISION_SW && n2 == 0)
-  throw(BALL_DIVZERO);
 :
  /modf nip ;
 
 modf	( n1 n2 -- n )		gforth
-SAVE_DIVISOR(n2);
-n = n1%n2;
-if ((Cell)((n1^n2) < 0) && (Cell)(n != 0))
-  n += n2; 
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
+SAVE_DIVISOR(n2);
+n = n1%n2;
+if ((Cell)((n1^n2) < 0) && (Cell)(n != 0))
+  n += n2; 
 :
  /modf drop ;
 
 /modf	( n1 n2 -- n3 n4 )		gforth		slash_mod_f
+if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
+  throw(BALL_RESULTRANGE);
+if (CHECK_DIVISION_SW && n2 == 0)
+  throw(BALL_DIVZERO);
 SAVE_DIVISOR(n2);
 n4 = n1/n2;
 n3 = n1%n2; /* !! is this correct? look into C standard! */
@@ -782,10 +786,6 @@ if ((n1^n2)<0 && n3!=0) {
   n4 -= 1;
   n3 += n2;
 }
-if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
-  throw(BALL_RESULTRANGE);
-if (CHECK_DIVISION_SW && n2 == 0)
-  throw(BALL_DIVZERO);
 :
  >r s>d r> fm/mod ;
 
@@ -837,33 +837,33 @@ n4=DLO(r);
  */modf nip ;
 
 /s	( n1 n2 -- n )		gforth	slash_s
-SAVE_DIVISOR(n2);
-n = n1/n2;
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
+SAVE_DIVISOR(n2);
+n = n1/n2;
 :
  /mods nip ;
 
 mods	( n1 n2 -- n )		gforth  mod_s
-SAVE_DIVISOR(n2);
-n = n1%n2;
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
+SAVE_DIVISOR(n2);
+n = n1%n2;
 :
  /mods drop ;
 
 /mods	( n1 n2 -- n3 n4 )		gforth		slash_mod_s
-SAVE_DIVISOR(n2);
-n4 = n1/n2;
-n3 = n1%n2; /* !! is this correct? look into C standard! */
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
+SAVE_DIVISOR(n2);
+n4 = n1/n2;
+n3 = n1%n2; /* !! is this correct? look into C standard! */
 :
  >r s>d r> sm/rem ;
 
@@ -1222,27 +1222,27 @@ u1=DLO(r);
  >r dup 0< r@ and + r> um/mod ;
 
 u/	( u1 u2 -- u )		gforth	u_slash
-SAVE_DIVISOR(u2);
-u = u1/u2;
 if (CHECK_DIVISION_SW && u2 == 0)
   throw(BALL_DIVZERO);
+SAVE_DIVISOR(u2);
+u = u1/u2;
 :
  u/mod nip ;
 
 umod	( u1 u2 -- u )		gforth
-SAVE_DIVISOR(u2);
-u = u1%u2;
 if (CHECK_DIVISION_SW && u2 == 0)
   throw(BALL_DIVZERO);
+SAVE_DIVISOR(u2);
+u = u1%u2;
 :
  u/mod drop ;
 
 u/mod	( u1 u2 -- u3 u4 )		gforth		u_slash_mod
+if (CHECK_DIVISION_SW && u2 == 0)
+  throw(BALL_DIVZERO);
 SAVE_DIVISOR(u2);
 u4 = u1/u2;
 u3 = u1%u2;
-if (CHECK_DIVISION_SW && u2 == 0)
-  throw(BALL_DIVZERO);
 :
  0 swap um/mod ;
 
