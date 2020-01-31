@@ -35,6 +35,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <signal.h>
 #include "io.h"
 #include "threaded.h"
 #ifndef STANDALONE
@@ -112,16 +113,16 @@ extern Char *gforth_memset(Char * s, Cell c, UCell n);
    switch appropriately, but currently don't.  The CHECK_DIVISION flag
    is for the other cases. */
 #ifdef GFORTH_DEBUGGING
-#if defined(DIVISION_SIGNAL) && defined(SA_SIGACTION)
+#if defined(DIVISION_SIGNAL) && defined(SA_SIGINFO)
 /* we know that we get a signal with si_code on division by zero or
    division overflow */
 #define CHECK_DIVISION_SW 0
 /* we reuse gforth_SP for saving the divisor, as it is not used at the time */
-#define SAVE_DIVISOR(x) (gforth_SP = (Cell *)(x))
-#else /* !(defined(DIVISION_SIGNAL) && defined(SA_SIGACTION)) */
+#define SAVE_DIVISOR(x) do { gforth_SP = (Cell *)(x); asm("":"+g"(x)::"memory"); } while (0)
+#else /* !(defined(DIVISION_SIGNAL) && defined(SA_SIGINFO)) */
 #define CHECK_DIVISION_SW 1
 #define SAVE_DIVISOR(x) ((void)0)
-#endif /* !(defined(DIVISION_SIGNAL) && defined(SA_SIGACTION)) */
+#endif /* !(defined(DIVISION_SIGNAL) && defined(SA_SIGINFO)) */
 #define CHECK_DIVISION 1
 #else
 #define CHECK_DIVISION_SW 0
