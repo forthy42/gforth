@@ -112,16 +112,16 @@ extern Char *gforth_memset(Char * s, Cell c, UCell n);
    switch appropriately, but currently don't.  The CHECK_DIVISION flag
    is for the other cases. */
 #ifdef GFORTH_DEBUGGING
-#ifdef DIVISION_SIGNAL
+#if defined(DIVISION_SIGNAL) && defined(SA_SIGACTION)
 /* we know that we get a signal with si_code on division by zero or
    division overflow */
 #define CHECK_DIVISION_SW 0
-#define SAVE_DIVISOR(x) (gforth_SP = (Cell *)(x))
-#else /* !defined(DIVISION_SIGNAL) */
-#define CHECK_DIVISION_SW 1
 /* we reuse gforth_SP for saving the divisor, as it is not used at the time */
+#define SAVE_DIVISOR(x) (gforth_SP = (Cell *)(x))
+#else /* !(defined(DIVISION_SIGNAL) && defined(SA_SIGACTION)) */
+#define CHECK_DIVISION_SW 1
 #define SAVE_DIVISOR(x) ((void)0)
-#endif /* !defined(DIVISION_SIGNAL) */
+#endif /* !(defined(DIVISION_SIGNAL) && defined(SA_SIGACTION)) */
 #define CHECK_DIVISION 1
 #else
 #define CHECK_DIVISION_SW 0
