@@ -104,6 +104,8 @@ create F-operand2 1 DIVISOR 2,
     testC  FM/MOD
     testC  SM/REM
     testD  UM/MOD   ( testC causes overflow for UM/MOD )
+    testc  DU/MOD
+    \ ud/mod
     testF  M*/
     cr ;
 

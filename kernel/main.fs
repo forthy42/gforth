@@ -90,11 +90,17 @@ AConstant image-header
 ' i Alias r@ ( -- w ; R: w -- w ) \ core r-fetch
 [THEN]
 [IFUNDEF] /
-    ' /f     alias /
-    ' modf   alias mod
-    ' /modf  alias /mod
-    ' */modf alias */mod
-    ' */f    alias */
+    ' /f     alias /      ( n1 n2 -- n ) \ core slash
+    \g n=n1/n2
+    ' modf   alias mod    ( n1 n2 -- n ) \ core
+    \g n is the modulus of n1/n2
+    ' /modf  alias /mod   ( n1 n2 -- n3 n4 ) \ core slash_mod
+    \G n1=n2*n4+n3; n3 is the modulus, n4 the quotient.
+    ' */modf alias */mod  ( n1 n2 n3 -- n4 n5 ) \ core star_slash_mod
+    \G n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being
+    \G double; n4 is the modulus, n5 the quotient.
+    ' */f alias */ ( ( n1 n2 n3 -- n4 ) \ core star_slash
+    \G n4=(n1*n2)/n3, with the intermediate result being double
 [THEN]
 
 \ 0 AConstant forthstart

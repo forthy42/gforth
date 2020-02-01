@@ -775,13 +775,14 @@ if ((Cell)((n1^n2) < 0) && (Cell)(n != 0))
  /modf drop ;
 
 /modf	( n1 n2 -- n3 n4 )		gforth		slash_mod_f
+""n3 is the modulus, n4 the quotient""
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
 SAVE_DIVISOR(n2);
 n4 = n1/n2;
-n3 = n1%n2; /* !! is this correct? look into C standard! */
+n3 = n1%n2;
 if ((n1^n2)<0 && n3!=0) {
   n4 -= 1;
   n3 += n2;
@@ -789,8 +790,9 @@ if ((n1^n2)<0 && n3!=0) {
 :
  >r s>d r> fm/mod ;
 
-*/modf	( n1 n2 n3 -- n4 n5 )	gforth	star_slash_mod_f
-""n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being double.""
+*/modf  ( n1 n2 n3 -- n4 n5 )   gforth  star_slash_mod_f
+""n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being
+double; n4 is the modulus, n5 the quotient""
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
 #else
@@ -814,7 +816,7 @@ n5=DLO(r);
  >r m* r> fm/mod ;
 
 */f	( n1 n2 n3 -- n4 )	gforth	star_slash_f
-""n4=(n1*n2)/n3, with the intermediate result being double.""
+""n4=(n1*n2)/n3, with the intermediate result being double""
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
 #else
@@ -857,18 +859,20 @@ n = n1%n2;
  /mods drop ;
 
 /mods	( n1 n2 -- n3 n4 )		gforth		slash_mod_s
+""n3 is the remainder, n4 the quotient""
 if (CHECK_DIVISION_SW && n2 == -1 && n1 == CELL_MIN)
   throw(BALL_RESULTRANGE);
 if (CHECK_DIVISION_SW && n2 == 0)
   throw(BALL_DIVZERO);
 SAVE_DIVISOR(n2);
 n4 = n1/n2;
-n3 = n1%n2; /* !! is this correct? look into C standard! */
+n3 = n1%n2;
 :
  >r s>d r> sm/rem ;
 
 */mods	( n1 n2 n3 -- n4 n5 )	gforth	star_slash_mod_s
-""n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being double.""
+""n1*n2=n3*n5+n4, with the intermediate result (n1*n2) being double;
+n4 is the remainder, n5 the quotient""
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
 #else
@@ -886,7 +890,7 @@ n5=DLO(r);
  >r m* r> sm/rem ;
 
 */s	( n1 n2 n3 -- n4 )	gforth	star_slash_s
-""n4=(n1*n2)/n3, with the intermediate result being double.""
+""n4=(n1*n2)/n3, with the intermediate result being double""
 #ifdef BUGGY_LL_MUL
 DCell d = mmul(n1,n2);
 #else
@@ -985,7 +989,7 @@ ud = (UDCell)u1 * (UDCell)u2;
    >r 2dup d+ r> 0 d+ r> ;
 
 um/mod	( ud u1 -- u2 u3 )		core	u_m_slash_mod
-""ud=u3*u1+u2, u1>u2>=0""
+""ud=u3*u1+u2, 0<=u2<u1""
 #ifdef ASM_UM_SLASH_MOD
 SAVE_DIVISOR(u1);
 ASM_UM_SLASH_MOD(DLO(ud), DHI(ud), u1, u2, u3);
@@ -1202,8 +1206,8 @@ u &= 2*CELL_BITS-1;
 ud2 = (ud1 >> u) | (ud1 << (2*CELL_BITS-u));
 #endif
 
-du/mod	( d u -- n u1 )	gforth du_div_mod
-""d=n*u+u1, u>u1>=0; PolyForth style mixed division""
+du/mod	( d u -- n u1 )	gforth du_slash_mod
+""d=n*u+u1, 0<=u1<u; PolyForth style mixed division""
 Cell up = DHI(d);
 Cell correct = -(up < 0);
 up += correct & u;
@@ -1238,6 +1242,7 @@ u = u1%u2;
  u/mod drop ;
 
 u/mod	( u1 u2 -- u3 u4 )		gforth		u_slash_mod
+""u3 is the modulus, u4 the quotient""
 if (CHECK_DIVISION_SW && u2 == 0)
   throw(BALL_DIVZERO);
 SAVE_DIVISOR(u2);
