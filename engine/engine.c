@@ -118,7 +118,8 @@ extern Char *gforth_memset(Char * s, Cell c, UCell n);
    division overflow */
 #define CHECK_DIVISION_SW 0
 /* we reuse gforth_SP for saving the divisor, as it is not used at the time */
-#define SAVE_DIVISOR(x) do { gforth_SP = (Cell *)(x); asm("":"+g"(x)::"memory"); } while (0)
+#define SAVE_DIVISOR(x) do { gforth_SP = (Cell *)(x); \
+    asm volatile("":"+g"(x)::"memory"); } while (0)
 #else /* !(defined(DIVISION_SIGNAL) && defined(SA_SIGINFO)) */
 #define CHECK_DIVISION_SW 1
 #define SAVE_DIVISOR(x) ((void)0)
