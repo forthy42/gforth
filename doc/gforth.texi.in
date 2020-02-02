@@ -4826,6 +4826,8 @@ difference, you should think about which variant is the right one for
 you, and then use either the appropriately suffixed Gforth words, or
 the standard words @code{fm/mod} or @code{sm/rem}.
 
+Single-by-single-cell division:
+
 doc-/
 doc-/s
 doc-/f
@@ -4838,6 +4840,16 @@ doc-/mod
 doc-/mods
 doc-/modf
 doc-u/mod
+
+Double-by-single-cell division with single-cell results; these words
+are roughly as fast as the words above on some architectures (e.g.,
+AMD64), but much slower on others (e.g., an order of magnitude on
+various Aarch64 CPUs).
+
+doc-fm/mod
+doc-sm/rem
+doc-um/mod
+doc-du/mod
 doc-*/
 doc-*/s
 doc-*/f
@@ -4846,12 +4858,16 @@ doc-*/mod
 doc-*/mods
 doc-*/modf
 doc-u*/mod
-doc-fm/mod
-doc-sm/rem
-doc-um/mod
-doc-du/mod
+
+Division with double-cell results; these words are much slower than
+the words above.
+
 doc-ud/mod
 doc-m*/
+
+You can use the following environmental query to learn whether @code{/
+mod /mod */ */mod m*/} use floored or symmetric division.
+
 doc-floored
 
 @cindex Floating-point unidentified fault (on integer division)
