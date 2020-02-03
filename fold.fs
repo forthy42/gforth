@@ -156,20 +156,27 @@ optimizes -
     lits# 2 u>= if
 	2lits> dup if
 	    op >lits exit then
-	>2lits then
+        >2lits then
     action-of op peephole-compile, ;
-dup optimizes /
-dup optimizes mod
+dup optimizes /f
+dup optimizes modf
+dup optimizes /s
+dup optimizes mods
 dup optimizes u/
 dup optimizes umod
 drop
+
 :noname {: xt: op -- :}
     lits# 2 u>= if
 	2lits> dup if
 	    op >2lits exit then
 	>2lits then
     action-of op peephole-compile, ;
-optimizes /mod
+dup optimizes /modf
+dup optimizes /mods
+dup optimizes u/mod
+drop
+
 :noname {: xt: op -- :}
     lits# 3 u>= if
 	3lits> dup if
