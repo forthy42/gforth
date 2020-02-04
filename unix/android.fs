@@ -317,7 +317,8 @@ Defer screen-ops ' noop IS screen-ops
 ' android-deadline IS deadline
 
 : android-everyline ( -- )
-    defers everyline restartkb ; is everyline
+    defers everyline restartkb ;
+' android-everyline is everyline
 
 Defer config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
