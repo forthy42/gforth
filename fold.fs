@@ -25,14 +25,21 @@
 : 4lits> ( -- q )  2lits> 2lits> 2swap ;
 : >4lits ( q -- )  2swap >2lits >2lits ;
 
-: folder ( m xt-pop xt-push xt-compile, -- xt1 )
+
+: folder1 ( m xt-pop xt-unpop xt-push -- xt1 )
     \ xt1 ( xt -- ) compiles xt with constant folding: xt ( m*n -- l*n ).
     \ xt-pop pops m items from literal stack to data stack, xt-push
     \ pushes l items from data stack to literal stack.
-    [{: m xt: pop xt: push xt: comp, :}d
-	lits# m u>= IF
-	    >r pop r> execute push
-	ELSE  comp,  THEN ;] ;
+    [{: m xt: pop xt: unpop xt: push :}d {: xt -- }
+	lits# m u>= if
+	    pop xt catch 0= if
+		push rdrop exit then
+	    unpop then
+	xt dup >code-address docol: = if
+	    :,
+	else
+	    peephole-compile, then
+    ;] ;
 
 : folds ( folder-xt "name1" ... "namen" <eol> -- )
     {: folder-xt :} BEGIN
@@ -46,45 +53,44 @@
     \ xt is optimizer of "name"
     ' make-latest set-optimizer ;
 
-1 ' lits>  ' noop ' peephole-compile, folder
+1 ' lits> ' >lits ' noop folder1
     folds drop
-1 ' lits>  ' >lits ' peephole-compile, folder
-dup folds invert abs negate >pow2
-dup folds 1+ 1- 2* 2/ cells cell/ cell+ cell-
-dup folds floats sfloats dfloats float+
-dup folds float/ sfloat/ dfloat/
-dup folds c>s w>s l>s w>< l>< x><
-dup folds wcwidth
-folds 0> 0= 0<
-1 ' lits>  ' >2lits ' peephole-compile, folder
-    folds dup
-1 ' lits>  ' >2lits ' :, folder
-    folds s>d
-2 ' 2lits> ' noop ' peephole-compile, folder
+1 ' lits> ' >lits ' >lits folder1
+    dup folds invert abs negate >pow2
+    dup folds 1+ 1- 2* 2/ cells cell/ cell+ cell-
+    dup folds floats sfloats dfloats float+
+    dup folds float/ sfloat/ dfloat/
+    dup folds c>s w>s l>s w>< l>< x><
+    dup folds wcwidth
+    dup folds 0> 0= 0<
+    drop
+1 ' lits> ' >lits ' >2lits folder1
+    folds dup s>d
+2 ' 2lits> ' >lits ' noop folder1
     folds 2drop
-2 ' 2lits> ' >lits ' peephole-compile, folder
-dup folds * and or xor
-dup folds min max umin umax
-dup folds nip
-dup folds rshift lshift arshift rol ror
-dup folds = > >= < <= u> u>= u< u<=
-    folds d0> d0< d0=
-2 ' 2lits> ' >2lits ' peephole-compile, folder
-    folds m* um* swap d2*
-2 ' 2lits> ' >2lits ' :, folder
-    folds bounds
-2 ' 2lits> ' >3lits ' peephole-compile, folder
+2 ' 2lits> ' >2lits ' >lits folder1
+    dup folds * and or xor
+    dup folds min max umin umax
+    dup folds nip
+    dup folds rshift lshift arshift rol ror
+    dup folds = > >= < <= u> u>= u< u<=
+    dup folds d0> d0< d0=
+    drop
+2 ' 2lits> ' >2lits ' >2lits folder1
+    folds m* um* swap d2* /modf /mods u/mod bounds
+2 ' 2lits> ' >2lits ' >3lits folder1
     folds over tuck
-3 ' 3lits> ' >lits ' peephole-compile, folder
-    folds within select mux
-3 ' 3lits> ' >3lits ' peephole-compile, folder
+3 ' 3lits> ' >3lits ' >lits folder1
+    folds within select mux */f */s u*/
+3 ' 3lits> ' >3lits ' >2lits folder1
+    folds um/mod fm/mod sm/rem du/mod */modf */mods u*/mod
+3 ' 3lits> ' >3lits ' >3lits folder1
     folds rot -rot
-4 ' 4lits> ' >lits ' peephole-compile, folder
+4 ' 4lits> ' >4lits ' >lits folder1
     folds d= d> d>= d< d<= du> du>= du< du<=
-4 ' 4lits> ' >2lits ' peephole-compile, folder
-dup folds d+ d-
-    folds 2nip
-4 ' 4lits> ' >4lits ' peephole-compile, folder
+4 ' 4lits> ' >4lits ' >2lits folder1
+    folds d+ d- 2nip
+4 ' 4lits> ' >4lits ' >4lits folder1
     folds 2swap
 
 \ optimize +loop (not quite folding)
@@ -150,14 +156,9 @@ optimizes fpick
 dup optimizes +
 optimizes -
 
-\ optimize division instructions; needs special treatmeant of divide by 0
+\ optimize division instructions
 
-:noname {: xt: op -- :}
-    lits# 2 u>= if
-	2lits> dup if
-	    op >lits exit then
-        >2lits then
-    action-of op peephole-compile, ;
+2 ' 2lits> ' >2lits ' >lits folder1
 dup optimizes /f
 dup optimizes modf
 dup optimizes /s
@@ -166,33 +167,3 @@ dup optimizes u/
 dup optimizes umod
 drop
 
-:noname {: xt: op -- :}
-    lits# 2 u>= if
-	2lits> dup if
-	    op >2lits exit then
-	>2lits then
-    action-of op peephole-compile, ;
-dup optimizes /modf
-dup optimizes /mods
-dup optimizes u/mod
-drop
-
-:noname {: xt: op -- :}
-    lits# 3 u>= if
-	3lits> dup if
-	    op >lits exit then
-	>3lits then
-    action-of op peephole-compile, ;
-optimizes */
-:noname {: xt: op -- :}
-    lits# 3 u>= if
-	3lits> dup if
-	    op >2lits exit then
-	>3lits then
-    action-of op peephole-compile, ;
-dup optimizes um/mod
-dup optimizes fm/mod
-dup optimizes sm/rem
-dup optimizes */mod
-dup optimizes du/mod
-drop
