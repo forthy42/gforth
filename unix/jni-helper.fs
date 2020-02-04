@@ -22,6 +22,7 @@ jni-method: getWindow getWindow ()Landroid/view/Window;
 jni-method: getResources getResources ()Landroid/content/res/Resources;
 jni-method: showIME showIME ()V
 jni-method: hideIME hideIME ()V
+jni-method: restartIME restartIME ()V
 jni-method: setEditLine setEditLine (Ljava/lang/String;II)V
 jni-method: set_alarm set_alarm (J)V
 jni-method: screen_on screen_on (I)V
@@ -236,16 +237,17 @@ SDK_INT 23 >= [IF]
 jvalue res clazz .getResources to res
 : R.id ( addr u -- id ) make-jstring 0 0 res .getIdentifier ;
 
-: l[] ( n list -- object )  >o l-get o> ;
-: l# ( list -- n )  >o l-size o> ;
+: l[] ( n list -- object )  .l-get ;
+: l# ( list -- n )  .l-size ;
 
 : l-map ( xt list -- )  >o { xt } ( -- )
     l-size 0 ?DO  I l-get >o xt execute ref>  LOOP o> ;
 
 Variable kbflag     kbflag off
 
-: hidekb ( -- )  clazz >o hideIME o> kbflag off ;
-: showkb ( -- )  clazz >o showIME o> kbflag on ;
+: hidekb ( -- )  clazz .hideIME kbflag off ;
+: showkb ( -- )  clazz .showIME kbflag on ;
+: restartkb ( -- )  clazz .restartIME ;
 
 : togglekb ( -- )
     kbflag @ IF  hidekb  ELSE  showkb  THEN ;
@@ -297,8 +299,8 @@ $0000000a Constant SCREEN_BRIGHT_WAKE_LOCK
 $00000006 Constant SCREEN_DIM_WAKE_LOCK
 
 : get-wakelock ( type -- pm )
-    clazz >o POWER_SERVICE getSystemService o>
-    >o js" Gforth wakelock" newWakeLock o> ;
+    js" Gforth wakelock" POWER_SERVICE clazz .getSystemService
+    .newWakeLock ;
 
 0 Value bright-wl
 
@@ -306,8 +308,8 @@ $00000006 Constant SCREEN_DIM_WAKE_LOCK
     ON_AFTER_RELEASE SCREEN_BRIGHT_WAKE_LOCK or
     get-wakelock to bright-wl ;
 
-: screen+bright ( -- )  >bright-wl bright-wl >o wl-acquire o> ;
-: screen-bright ( -- )  >bright-wl bright-wl >o wl-release o> ;
+: screen+bright ( -- )  >bright-wl bright-wl .wl-acquire ;
+: screen-bright ( -- )  >bright-wl bright-wl .wl-release ;
 [THEN]
 
 : new[] ( n class -- array-id )
