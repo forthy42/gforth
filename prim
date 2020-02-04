@@ -1499,6 +1499,11 @@ over	( w1 w2 -- w1 w2 w1 )		core
  sp@ cell+ @ ;
 
 drop	( w -- )		core
+#if defined(GFORTH_DEBUGGING)
+/* make sure that w is used, so that w's load is not optimized away,
+   so that a stack underflow is noticed right away */
+asm volatile("#drop"::"X"(w):"memory");
+#endif
 :
  IF THEN ;
 
