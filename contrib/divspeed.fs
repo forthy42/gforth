@@ -57,6 +57,12 @@ create F-operand2 1 DIVISOR 2,
     ms@ D-operand1 N 1 DO 2@ CDE-operand2 @ [[ r@ compile, D-operand1 dup 2@ CDE-operand2 @ r@ execute + - ]] + literal + LOOP drop .elapsed
     [[ rdrop ; immediate
 
+: testD2 ( "op" -- )
+    '. >r ]]
+    ms@ DIVIDEND s>d N 1 DO 2dup I [[ r@ compile, ]] 2drop drop LOOP 2drop .elapsed
+    ms@ D-operand1 N 1 DO 2@ CDE-operand2 @ [[ r@ compile, D-operand1 dup 2@ CDE-operand2 @ r@ execute + + - ]] + + literal + LOOP drop .elapsed
+    [[ rdrop ; immediate
+
 : testE ( "op" -- )
     '. >r ]]
     ms@ D_DIVIDEND N 1 DO 2dup I [[ r@ compile, ]] drop LOOP 2drop .elapsed
@@ -93,6 +99,10 @@ create F-operand2 1 DIVISOR 2,
     testB  /MODS
     testB  /MODF
     testB  U/MOD
+    testC  FM/MOD
+    testC  SM/REM
+    testD  UM/MOD   ( testC causes overflow for UM/MOD )
+    testc  DU/MOD
     \ testE  */
     testE  */S
     testE  */F
@@ -100,10 +110,8 @@ create F-operand2 1 DIVISOR 2,
     \ testC  */MOD
     testC  */MODS
     testC  */MODF
-    testC1  U*/MOD
-    testC  FM/MOD
-    testC  SM/REM
-    testD  UM/MOD   ( testC causes overflow for UM/MOD )
+    testC1 U*/MOD
+    testD2 UD/MOD
     testF  M*/
     cr ;
 

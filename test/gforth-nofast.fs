@@ -27,6 +27,25 @@ decimal
 { 1 0 ' /mod catch 0= -> 1 0 false }
 { 1 1 0 ' */mod catch 0= -> 1 1 0 false }
 { 1 1 0 ' */    catch 0= -> 1 1 0 false }
+
+{ 1 0 ' /s    catch 0= -> 1 0 false }
+{ 1 0 ' mods  catch 0= -> 1 0 false }
+{ 1 0 ' /mods catch 0= -> 1 0 false }
+{ 1 1 0 ' */mods catch 0= -> 1 1 0 false }
+{ 1 1 0 ' */s    catch 0= -> 1 1 0 false }
+
+{ 1 0 ' /s    catch 0= -> 1 0 false }
+{ 1 0 ' mods  catch 0= -> 1 0 false }
+{ 1 0 ' /mods catch 0= -> 1 0 false }
+{ 1 1 0 ' */mods catch 0= -> 1 1 0 false }
+{ 1 1 0 ' */s    catch 0= -> 1 1 0 false }
+
+{ 1 0 ' u/    catch 0= -> 1 0 false }
+{ 1 0 ' umod  catch 0= -> 1 0 false }
+{ 1 0 ' u/mod catch 0= -> 1 0 false }
+{ 1 1 0 ' u*/mod catch 0= -> 1 1 0 false }
+{ 1 1 0 ' u*/    catch 0= -> 1 1 0 false }
+
 { 1. 0 ' fm/mod catch 0= -> 1. 0 false }
 { 1. 0 ' sm/rem catch 0= -> 1. 0 false }
 { 1. 0 ' um/mod catch 0= -> 1. 0 false }
@@ -38,11 +57,30 @@ environment-wordlist >order
 { max-n invert -1 ' /mod catch 0= -> max-n invert -1 false }
 { 1 max-n invert -1 ' */     catch 0= -> 1 max-n invert -1 false }
 { 1 max-n invert -1 ' */mod  catch 0= -> 1 max-n invert -1 false }
+
+{ max-n invert -1 ' /s    catch 0= -> max-n invert -1 false }
+{ max-n invert -1 ' mods  catch 0= -> max-n invert -1 false }
+{ max-n invert -1 ' /mods catch 0= -> max-n invert -1 false }
+{ 1 max-n invert -1 ' */s     catch 0= -> 1 max-n invert -1 false }
+{ 1 max-n invert -1 ' */mods  catch 0= -> 1 max-n invert -1 false }
+
+{ max-n invert -1 ' /f    catch 0= -> max-n invert -1 false }
+{ max-n invert -1 ' modf  catch 0= -> max-n invert -1 false }
+{ max-n invert -1 ' /modf catch 0= -> max-n invert -1 false }
+{ 1 max-n invert -1 ' */f     catch 0= -> 1 max-n invert -1 false }
+{ 1 max-n invert -1 ' */modf  catch 0= -> 1 max-n invert -1 false }
+
 { max-n invert s>d -1 ' fm/mod catch 0= -> max-n invert s>d -1 false }
 { max-n invert s>d -1 ' sm/rem catch 0= -> max-n invert s>d -1 false }
 
 { 2 max-n 2/ 1+ 1 ' */    catch 0= -> 2 max-n 2/ 1+ 1 false }
 { 2 max-n 2/ 1+ 1 ' */mod catch 0= -> 2 max-n 2/ 1+ 1 false }
+{ 2 max-n 2/ 1+ 1 ' */s    catch 0= -> 2 max-n 2/ 1+ 1 false }
+{ 2 max-n 2/ 1+ 1 ' */mods catch 0= -> 2 max-n 2/ 1+ 1 false }
+{ 2 max-n 2/ 1+ 1 ' */f    catch 0= -> 2 max-n 2/ 1+ 1 false }
+{ 2 max-n 2/ 1+ 1 ' */modf catch 0= -> 2 max-n 2/ 1+ 1 false }
+{ 2 max-u 1 rshift 1+ 1 ' u*/    catch 0= -> 2 max-u 1 rshift 1+ 1 false }
+{ 2 max-u 1 rshift 1+ 1 ' u*/mod catch 0= -> 2 max-u 1 rshift 1+ 1 false }
 { max-n 0 1. d+ 1 ' fm/mod catch 0= -> max-n 0 1. d+ 1 false }
 { max-n 0 1. d+ 1 ' sm/rem catch 0= -> max-n 0 1. d+ 1 false }
 { max-u 0 1. d+ 1 ' um/mod catch 0= -> max-u 0 1. d+ 1 false }

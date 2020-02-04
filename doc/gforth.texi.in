@@ -253,9 +253,10 @@ Arithmetic
 
 * Single precision::
 * Double precision::            Double-cell integer arithmetic
+* Mixed precision::             Operations with single and double-cell integers
+* Integer division::
 * Bitwise operations::
 * Numeric comparison::
-* Mixed precision::             Operations with single and double-cell integers
 * Floating Point::
 
 Stack Manipulation
@@ -2169,8 +2170,8 @@ In Forth there are a number of combinations/abbreviations, like
 @code{1+}.  However, @code{2/} is not one of them; it shifts its
 argument right by one bit (arithmetic shift right), and viewed as
 division that always rounds towards negative infinity (floored
-division).  In contrast, @code{/} rounds towards zero on some systems
-(not on default installations of gforth (>=0.7.0), however).
+division), like Gforth's @code{/} (since Gforth 0.7), but unlike
+@code{/} in many other Forth systems.
 
 @example
 -5 2 / . \ -2 or -3
@@ -4695,20 +4696,20 @@ doc-off
 Forth arithmetic is not checked, i.e., you will not hear about integer
 overflow on addition or multiplication, you may hear about division by
 zero if you are lucky. The operator is written after the operands, but
-the operands are still in the original order. I.e., the infix @code{2-1}
-corresponds to @code{2 1 -}. Forth offers a variety of division
-operators. If you perform division with potentially negative operands,
-you do not want to use @code{/} or @code{/mod} with its undefined
-behaviour, but rather @code{fm/mod} or @code{sm/mod} (probably the
-former, @pxref{Mixed precision}).
-@comment TODO discuss the different division forms and the std approach
+the operands are still in the original order. I.e., the infix
+@code{2-1} corresponds to @code{2 1 -}. Forth offers a variety of
+division operators. If you perform division with potentially negative
+operands, you do not want to use @code{/} or @code{/mod} with its
+implementation-defined behaviour, but, e.g., @code{/f}, @code{/modf}
+or @code{fm/mod} (@pxref{Integer division}).
 
 @menu
 * Single precision::
 * Double precision::            Double-cell integer arithmetic
+* Mixed precision::             Operations with single and double-cell integers
+* Integer division::
 * Bitwise operations::
 * Numeric comparison::
-* Mixed precision::             Operations with single and double-cell integers
 * Floating Point::
 @end menu
 
@@ -4733,17 +4734,13 @@ doc-under+
 doc--
 doc-1-
 doc-*
-doc-/
-doc-mod
-doc-/mod
 doc-negate
 doc-abs
 doc-min
 doc-max
-doc-floored
 
 
-@node Double precision, Bitwise operations, Single precision, Arithmetic
+@node Double precision, Mixed precision, Single precision, Arithmetic
 @subsection Double precision
 @cindex double precision arithmetic words
 
@@ -4772,7 +4769,125 @@ doc-dmin
 doc-dmax
 
 
-@node Bitwise operations, Numeric comparison, Double precision, Arithmetic
+@node Mixed precision, Integer division, Double precision, Arithmetic
+@subsection Mixed precision
+@cindex mixed precision arithmetic words
+
+doc-m+
+doc-m*
+doc-um*
+
+@node Integer division, Bitwise operations, Mixed precision, Arithmetic
+@subsection Integer division
+@cindex dividing integers
+@cindex modulus
+@cindex remainder
+@cindex Floating-point unidentified fault
+@cindex Division by zero
+@cindex Result out of range
+
+Below you find a considerable number of words for dealing with
+divisions.  A major difference between them is in dealing with signed
+division: Do the words support signed division (those with the
+@code{U} prefix do not)?
+
+@cindex floored division
+@cindex symmetric division
+If they do, do they round towards negative infinity (floored division,
+suffix @code{F}), or towards 0 (symmetric division, suffix @code{S}).
+The standard leaves the issue implementation-defined for most standard
+words (@code{/ mod /mod */ */mod m*/}), and different systems have
+made different choices.  Gforth implements these words as floored
+(since Gforth 0.7).  There is only a difference between floored and
+symmetric division if the dividend and the divisor have different
+signs, and the dividend is not a multiple of the divisor.  The
+following table illustrates the results:
+
+@example
+                      floored          symmetric
+dividend divisor remainder quotient remainder quotient
+    10      7           3   1              3   1
+   -10      7           4  -2             -3  -1
+    10     -7          -4  -2              3  -1
+   -10     -7          -3   1             -3   1
+@end example
+
+The common case where floored vs.@: symmetric makes a difference is when
+dividends n1 with varying sign are divided by the same positive
+divisor n2; in that case you usually want floored division, because
+then the remainder is always positive and does not change sign
+depending on the dividend; also, with floored division, the quotient
+always increases by 1 when n1 increases by n2, while with symmetric
+division there is no increase in the quotient for -n2<n1<n2 (the
+quotient is 0 in this range).
+
+In any case, if you divide numbers where floored vs.@: symmetric makes a
+difference, you should think about which variant is the right one for
+you, and then use either the appropriately suffixed Gforth words, or
+the standard words @code{fm/mod} or @code{sm/rem}.
+
+Single-by-single-cell division:
+
+doc-/
+doc-/s
+doc-/f
+doc-u/
+doc-mod
+doc-mods
+doc-modf
+doc-umod
+doc-/mod
+doc-/mods
+doc-/modf
+doc-u/mod
+
+Double-by-single-cell division with single-cell results; these words
+are roughly as fast as the words above on some architectures (e.g.,
+AMD64), but much slower on others (e.g., an order of magnitude on
+various Aarch64 CPUs).
+
+doc-fm/mod
+doc-sm/rem
+doc-um/mod
+doc-du/mod
+doc-*/
+doc-*/s
+doc-*/f
+doc-u*/
+doc-*/mod
+doc-*/mods
+doc-*/modf
+doc-u*/mod
+
+Division with double-cell results; these words are much slower than
+the words above.
+
+doc-ud/mod
+doc-m*/
+
+You can use the following environmental query to learn whether @code{/
+mod /mod */ */mod m*/} use floored or symmetric division.
+
+doc-floored
+
+@cindex Floating-point unidentified fault (on integer division)
+@cindex Division by zero
+@cindex Result out of range (on integer division)
+One other aspect of the integer division words is that most of them
+can overflow, and division by zero is mathematically undefined.  What
+happens if you hit one of these conditions depends on the engine, the
+hardware, and the operating system: The engine @code{gforth} tries
+hard to throw the appropriate error -10 (Division by zero) or -11
+(Result out of range), but on some platforms throws -55
+(Floating-point unidentified fault).  The engine @code{gforth-fast}
+may produce an inappropriate throw code (and error message), or may
+produce no error, just produce a bogus value.  I.e., you should not
+bet on such conditions being thrown, but for quicker debugging
+@code{gforth} catches more and produces more accurate errors than
+@code{gforth-fast}.
+
+
+@node Bitwise operations, Numeric comparison, Integer division, Arithmetic
 @subsection Bitwise operations
 @cindex bitwise operation words
 
@@ -4789,7 +4904,7 @@ doc-2/
 doc-d2/
 
 
-@node Numeric comparison, Mixed precision, Bitwise operations, Arithmetic
+@node Numeric comparison, Floating Point, Bitwise operations, Arithmetic
 @subsection Numeric comparison
 @cindex numeric comparison words
 
@@ -4843,24 +4958,7 @@ doc-du>
 doc-du>=
 
 
-@node Mixed precision, Floating Point, Numeric comparison, Arithmetic
-@subsection Mixed precision
-@cindex mixed precision arithmetic words
-
-
-doc-m+
-doc-*/
-doc-*/mod
-doc-m*
-doc-um*
-doc-m*/
-doc-um/mod
-doc-fm/mod
-doc-sm/rem
-doc-ud/mod
-
-
-@node Floating Point,  , Mixed precision, Arithmetic
+@node Floating Point,  , Numeric comparison, Arithmetic
 @subsection Floating Point
 @cindex floating point arithmetic words
 
@@ -16869,7 +16967,7 @@ direct threading, and @code{execute} and similar words, which dispatch
 to xts on the data stack, use indirect threaded code.  We call this
 @emph{hybrid direct/indirect} threaded code.
 
-@cindex engines, gforth vs. gforth-fast vs. gforth-itc
+@cindex engines, gforth vs.@: gforth-fast vs.@: gforth-itc
 @cindex gforth engine
 @cindex gforth-fast engine
 The engines @command{gforth} and @command{gforth-fast} use hybrid
