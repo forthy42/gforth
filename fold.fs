@@ -26,72 +26,80 @@
 : >4lits ( q -- )  2swap >2lits >2lits ;
 
 
-: folder1 ( m xt-pop xt-unpop xt-push -- xt1 )
-    \ xt1 ( xt -- ) compiles xt with constant folding: xt ( m*n -- l*n ).
+: fold-constants {: xt m xt: pop xt: unpop xt: push -- :}
+    \ compiles xt with constant folding: xt ( m*n -- l*n ).
     \ xt-pop pops m items from literal stack to data stack, xt-push
     \ pushes l items from data stack to literal stack.
-    [{: m xt: pop xt: unpop xt: push :}d {: xt -- }
-	lits# m u>= if
-	    pop xt catch 0= if
-		push rdrop exit then
-	    unpop then
-	xt dup >code-address docol: = if
-	    :,
-	else
-	    peephole-compile, then
-    ;] ;
-
-: folds ( folder-xt "name1" ... "namen" <eol> -- )
-    {: folder-xt :} BEGIN
-	>in @ >r parse-name r> >in !
-	nip  WHILE
-	    ' make-latest
-	    folder-xt set-optimizer
-    REPEAT ;
+    lits# m u>= if
+	pop xt catch 0= if
+	    push rdrop exit then
+	unpop then
+    xt dup >code-address docol: = if
+	:,
+    else
+	peephole-compile,
+    then ;
 
 : optimizes ( xt "name" -- )
     \ xt is optimizer of "name"
     ' make-latest set-optimizer ;
 
-1 ' lits> ' >lits ' noop folder1
-    folds drop
-1 ' lits> ' >lits ' >lits folder1
-    dup folds invert abs negate >pow2
-    dup folds 1+ 1- 2* 2/ cells cell/ cell+ cell-
-    dup folds floats sfloats dfloats float+
-    dup folds float/ sfloat/ dfloat/
-    dup folds c>s w>s l>s w>< l>< x><
-    dup folds wcwidth
-    dup folds 0> 0= 0<
-    drop
-1 ' lits> ' >lits ' >2lits folder1
-    folds dup s>d
-2 ' 2lits> ' >lits ' noop folder1
-    folds 2drop
-2 ' 2lits> ' >2lits ' >lits folder1
-    dup folds * and or xor
-    dup folds min max umin umax
-    dup folds nip
-    dup folds rshift lshift arshift rol ror
-    dup folds = > >= < <= u> u>= u< u<=
-    dup folds d0> d0< d0=
-    drop
-2 ' 2lits> ' >2lits ' >2lits folder1
-    folds m* um* swap d2* /modf /mods u/mod bounds
-2 ' 2lits> ' >2lits ' >3lits folder1
-    folds over tuck
-3 ' 3lits> ' >3lits ' >lits folder1
-    folds within select mux */f */s u*/
-3 ' 3lits> ' >3lits ' >2lits folder1
-    folds um/mod fm/mod sm/rem du/mod */modf */mods u*/mod
-3 ' 3lits> ' >3lits ' >3lits folder1
-    folds rot -rot
-4 ' 4lits> ' >4lits ' >lits folder1
-    folds d= d> d>= d< d<= du> du>= du< du<=
-4 ' 4lits> ' >4lits ' >2lits folder1
-    folds d+ d- 2nip
-4 ' 4lits> ' >4lits ' >4lits folder1
-    folds 2swap
+: folds ( folder-xt "name1" ... "namen" <eol> -- )
+    {: folder-xt :} BEGIN
+	>in @ >r parse-name r> >in !
+	nip  WHILE
+	    folder-xt optimizes
+    REPEAT ;
+
+: fold1-0 ( xt -- ) 1 ['] lits> ['] >lits ['] noop fold-constants ;
+' fold1-0 folds drop
+
+: fold1-1 ( xt -- ) 1 ['] lits> ['] >lits ['] >lits fold-constants ;
+' fold1-1 folds invert abs negate >pow2
+' fold1-1 folds 1+ 1- 2* 2/ cells cell/ cell+ cell-
+' fold1-1 folds floats sfloats dfloats float+
+' fold1-1 folds float/ sfloat/ dfloat/
+' fold1-1 folds c>s w>s l>s w>< l>< x><
+' fold1-1 folds wcwidth
+' fold1-1 folds 0> 0= 0<
+
+: fold1-2 ( xt -- ) 1 ['] lits> ['] >lits ['] >2lits fold-constants ;
+' fold1-2 folds dup s>d
+
+: fold2-0 ( xt -- ) 2 ['] 2lits> ['] >lits ['] noop fold-constants ;
+' fold2-0    folds 2drop
+: fold2-1 ( xt -- ) 2 ['] 2lits> ['] >2lits ['] >lits fold-constants ;
+' fold2-1 folds * and or xor
+' fold2-1 folds min max umin umax
+' fold2-1 folds nip
+' fold2-1 folds rshift lshift arshift rol ror
+' fold2-1 folds = > >= < <= u> u>= u< u<=
+' fold2-1 folds d0> d0< d0=
+' fold2-1 folds /s mods
+
+: fold2-2 ( xt -- ) 2 ['] 2lits> ['] >2lits ['] >2lits fold-constants ;
+' fold2-2 folds m* um* swap d2* /modf /mods u/mod bounds
+
+: fold2-3 ( xt -- ) 2 ['] 2lits> ['] >2lits ['] >3lits fold-constants ;
+' fold2-3 folds over tuck
+
+: fold3-1 ( xt -- ) 3 ['] 3lits> ['] >3lits ['] >lits fold-constants ;
+' fold3-1 folds within select mux */f */s u*/
+
+: fold3-2 ( xt -- ) 3 ['] 3lits> ['] >3lits ['] >2lits fold-constants ;
+' fold3-2 folds um/mod fm/mod sm/rem du/mod */modf */mods u*/mod
+
+: fold3-3 ( xt -- ) 3 ['] 3lits> ['] >3lits ['] >3lits fold-constants ;
+' fold3-3 folds rot -rot
+
+: fold4-1 ( xt -- ) 4 ['] 4lits> ['] >4lits ['] >lits fold-constants ;
+' fold4-1 folds d= d> d>= d< d<= du> du>= du< du<=
+
+: fold4-2 ( xt -- ) 4 ['] 4lits> ['] >4lits ['] >2lits fold-constants ;
+' fold4-2 folds d+ d- 2nip
+
+: fold4-4 ( xt -- ) 4 ['] 4lits> ['] >4lits ['] >4lits fold-constants ;
+' fold4-4 folds 2swap
 
 \ optimize +loop (not quite folding)
 : replace-(+loop) ( xt1 -- xt2 )
@@ -158,12 +166,9 @@ optimizes -
 
 \ optimize division instructions
 
-2 ' 2lits> ' >2lits ' >lits folder1
-dup optimizes /f
-dup optimizes modf
-dup optimizes /s
-dup optimizes mods
-dup optimizes u/
-dup optimizes umod
-drop
+' fold2-1 optimizes /f
+' fold2-1 optimizes modf
+' fold2-1 optimizes u/
+' fold2-1 optimizes umod
+
 
