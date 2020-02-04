@@ -387,6 +387,9 @@ public class Gforth
 	public void hideIME() {
 	    mManager.hideSoftInputFromWindow(getWindowToken(), 0);
 	}
+	public void restartIME() {
+	    mManager.restartInput(this);
+	}
     }
 
     public class RunForth implements Runnable {
@@ -434,6 +437,9 @@ public class Gforth
     }
     public void hideIME() {
 	if(mView!=null) mView.hideIME();
+    }
+    public void restartIME() {
+	if(mView!=null) mView.restartIME();
     }
     public void showStatus() {
 	if (Build.VERSION.SDK_INT < 16) {
