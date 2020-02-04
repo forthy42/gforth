@@ -646,12 +646,13 @@ Defer anim-ins
 
 [IFDEF] android also android also jni [THEN]
 : setstring> ( max span addr pos1 - max span addr pos2 )
+    setstring$ $@len 0> xselw 0> and  IF  edit-cut  THEN
     setstring$ $@ xins-string  setstring$ $free edit-update
     [IFDEF] restartkb restartkb [THEN] ;
 
 : edit-paste ( max span addr pos1 - max span addr pos2 false )
     setstring> clipboard@ edit-split-ins$ edit-update 0 ;
-previous previous
+[IFDEF] android previous previous [THEN]
 
 : xedit-enter ( max span addr pos1 -- max span addr pos2 true )
     setstring> edit-enter ;
