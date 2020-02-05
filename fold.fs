@@ -153,22 +153,52 @@ optimizes fpick
 
 \ optimize + -
 
-:noname {: xt: op -- :}
-    lits# 2 u>= if
-	2lits> op >lits exit then
+: opt+- {: xt: op -- :}
     lits# 1 = if
         0 lits> op ?dup-if
             ['] lit+ peephole-compile, , then
-        exit then
-    action-of op peephole-compile, ;
-dup optimizes +
-optimizes -
+	exit then
+    action-of op fold2-1 ;
+' opt+- folds + -
 
 \ optimize division instructions
 
-' fold2-1 optimizes /f
-' fold2-1 optimizes modf
-' fold2-1 optimizes u/
-' fold2-1 optimizes umod
+: pow2? ( u -- f )
+    dup dup 1- and 0= and 0<> ;
 
+: ctz ( x -- u )
+    \g count trailing zeros in binary representation of x
+    \ !! slow implementation
+    dup 0= if
+	drop 8 cells exit then
+    0 swap begin
+	dup 1 and 0= while
+	    1 rshift 1 under+ repeat
+    drop ;
+
+: opt-/f ( xt -- )
+    lits# 1 = if
+	lits> dup 0> over pow2? and if
+	    ctz ]] literal arshift [[ drop exit then
+	>lits then
+    fold2-1 ;
+' opt-/f optimizes /f
+
+: opt-u/ ( xt -- )
+    lits# 1 = if
+	lits> dup pow2? if
+	    ctz ]] literal rshift [[ drop exit then
+	>lits then
+    fold2-1 ;
+' opt-u/ optimizes u/
+
+: opt-modf ( xt -- )
+    lits# 1 = if
+	lits> dup 0> over pow2? and if
+	    1- ]] literal and [[ drop exit then
+	>lits then
+    fold2-1 ;
+' opt-modf optimizes modf
+' opt-modf optimizes umod
+\ does not optimize MIN-N UMOD; add another optimizer if you want that.
 
