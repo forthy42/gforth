@@ -131,6 +131,16 @@ extern Char *gforth_memset(Char * s, Cell c, UCell n);
 #define SAVE_DIVISOR(x) ((void)0)
 #endif
 
+/* ALIVE_DEBUGGING(x) makes x appear to be used (in the debugging engine);
+   we use this in words like DROP to avoid the dead-code elimination
+   of the load of the bottom stack item, in order to get precise stack
+   underflow errors */
+#ifdef GFORTH_DEBUGGING
+#define ALIVE_DEBUGGING(x) asm volatile(""::"X"(x):"memory")
+#else
+#define ALIVE_DEBUGGING(x) ((void)0)
+#endif
+
 /* conversion on fetch */
 
 #define vm_Cell2f(_cell,_x)		((_x)=(Bool)(_cell))
