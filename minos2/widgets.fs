@@ -631,7 +631,7 @@ $3F7FFF7F text-color, FValue selection-color
     cursize 0< ?EXIT  text-font to font
     text$ curpos umin layout-string fdrop fdrop
     x-scale f* { f: ww }
-    setstring$ $@len IF
+    setstring$ $@len cursize 0>= and IF
 	setstring$ $@ layout-string fdrop fdrop x-scale f* +to ww  0e
     ELSE
 	text$ curpos cursize m2c:curminchars# @ umax + umin
@@ -653,7 +653,7 @@ $3F7FFF7F text-color, FValue selection-color
 : edit-text ( -- )
     w text-w text-scale! edit-marking
     text-xy!
-    setstring$ $@len IF
+    setstring$ $@len cursize 0>= and IF
 	text$ curpos umin render-string
 	setstring$ $@ 1 render-us-string
 	text$ curpos cursize 0 max + safe/string render-string
@@ -662,7 +662,7 @@ $3F7FFF7F text-color, FValue selection-color
     THEN ;
 : edit-!size ( -- )
     text-font to font
-    setstring$ $@len IF
+    setstring$ $@len cursize 0>= and IF
 	[: text$ curpos umin type setstring$ $.
 	    text$ curpos cursize 0 max + safe/string type ;] $tmp
     ELSE
