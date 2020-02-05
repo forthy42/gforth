@@ -105,7 +105,7 @@ jni-method: toggleSoftInput toggleSoftInput (II)V
 jni-method: displayCompletions displayCompletions (Landroid/view/View;[Landroid/view/inputmethod/CompletionInfo;)V
 
 jni-class: android/view/inputmethod/CompletionInfo
-jni:new newCompletionInfo (JILjava/lang/CharSequence;)V
+jni-new: newCompletionInfo (JILjava/lang/CharSequence;)V
 
 jni-class: android/view/View
 jni-method: getWindowVisibleDisplayFrame getWindowVisibleDisplayFrame (Landroid/graphics/Rect;)V
