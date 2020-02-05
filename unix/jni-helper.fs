@@ -33,6 +33,7 @@ SDK_INT 26 >= [IF]
     jni-field: notificationChannel notificationChannel Landroid/app/NotificationChannel;
 [THEN]
 jni-field: inputMethodManager inputMethodManager Landroid/view/inputmethod/InputMethodManager;
+jni-field: mView mView Lgnu/gforth/Gforth$GforthView;
 jni-field: gforthintent gforthintent Landroid/app/PendingIntent;
 jni-field: hideprog hideprog Ljava/lang/Runnable;
 jni-field: gforth-handler handler Landroid/os/Handler;
@@ -101,6 +102,10 @@ jni-field: scaledDensity scaledDensity F
 jni-class: android/view/inputmethod/InputMethodManager
 
 jni-method: toggleSoftInput toggleSoftInput (II)V
+jni-method: displayCompletions displayCompletions (Landroid/view/View;[Landroid/view/inputmethod/CompletionInfo;)V
+
+jni-class: android/view/inputmethod/CompletionInfo
+jni:new newCompletionInfo (JILjava/lang/CharSequence;)V
 
 jni-class: android/view/View
 jni-method: getWindowVisibleDisplayFrame getWindowVisibleDisplayFrame (Landroid/graphics/Rect;)V
