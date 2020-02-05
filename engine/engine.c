@@ -136,9 +136,11 @@ extern Char *gforth_memset(Char * s, Cell c, UCell n);
    of the load of the bottom stack item, in order to get precise stack
    underflow errors */
 #ifdef GFORTH_DEBUGGING
-#define ALIVE_DEBUGGING(x) asm volatile(""::"X"(x):"memory")
+#define ALIVE_DEBUGGING(x) { Cell xx=(x); asm volatile(""::"X"(xx):"memory"); } while(0)
+#define ALIVE_DEBUGGINGF(x) { Float xx=(x); asm volatile(""::"X"(xx):"memory"); } while(0)
 #else
 #define ALIVE_DEBUGGING(x) ((void)0)
+#define ALIVE_DEBUGGINGF(x) ((void)0)
 #endif
 
 /* conversion on fetch */
