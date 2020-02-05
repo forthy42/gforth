@@ -646,8 +646,9 @@ Defer anim-ins
 
 [IFDEF] android also android also jni [THEN]
 : setstring> ( max span addr pos1 - max span addr pos2 )
-    setstring$ $@len 0> xselw 0> and  IF  edit-cut  THEN
-    setstring$ $@ xins-string  setstring$ $free edit-update
+    setstring$ $@len 0> xselw 0> and  IF
+	edit-cut drop  setstring$ $@ xins-string  setstring$ $free
+    THEN  edit-update
     [IFDEF] restartkb restartkb [THEN] ;
 
 : edit-paste ( max span addr pos1 - max span addr pos2 false )
@@ -778,10 +779,10 @@ edit-terminal edit-out !
     [: 2rot prefix-off edit-ins$ edit-update +sync +resize ;] edit-xt ; edit-actor is ukeyed
 :noname ( o:actor -- )
     ['] setstring> edit-xt edit-w >o -1 to cursize o> +sync
-    -keyboard ; edit-actor is defocus
+; edit-actor is defocus
 :noname ( o:actor -- )
-    edit-w >o  0 to cursize o> +sync
-    +keyboard ; edit-actor is focus
+    edit-w >o  0 to cursize o> +sync +keyboard
+; edit-actor is focus
 :noname ( $rxy*n bmask -- )
     case
 	dup 1 u<= ?of drop  expand-selection  endof

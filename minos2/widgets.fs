@@ -653,18 +653,18 @@ $3F7FFF7F text-color, FValue selection-color
 : edit-text ( -- )
     w text-w text-scale! edit-marking
     text-xy!
-    cursize 0= setstring$ $@len and IF
+    setstring$ $@len IF
 	text$ curpos umin render-string
 	setstring$ $@ 1 render-us-string
-	text$ curpos safe/string render-string
+	text$ curpos cursize 0 max + safe/string render-string
     ELSE
 	text$ start end text$-part render-string
     THEN ;
 : edit-!size ( -- )
     text-font to font
-    cursize 0= setstring$ $@len and IF
+    setstring$ $@len IF
 	[: text$ curpos umin type setstring$ $.
-	    text$ curpos safe/string type ;] $tmp
+	    text$ curpos cursize 0 max + safe/string type ;] $tmp
     ELSE
 	text$
     THEN  start end text$-part layout-string
