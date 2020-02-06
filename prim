@@ -289,7 +289,7 @@ VM_JUMP(EXEC1(EXTRA_CODEXT(a_cfa)));
 branch-lp+!# ( #a_target #nlocals -- )	gforth	branch_lp_plus_store_number
 /* this will probably not be used */
 lp += nlocals;
-ALIVE_DEBUGGING(*lp);
+ALIVE_DEBUGGING((Cell)*lp);
 SET_IP((Xt *)a_target);
 
 \+
@@ -313,7 +313,7 @@ $6
 
 $1-lp+!`#' ( $7 `#'a_target `#'nlocals $2 ) $3_lp_plus_store_number
 $4	$5	lp += nlocals;
-ALIVE_DEBUGGING(*lp);
+ALIVE_DEBUGGING((Cell)*lp);
 SET_IP((Xt *)a_target);
 ifelse(condbranch_opt,`1',`INST_TAIL; NEXT_P2;',`/* condbranch_opt=0 */')
 }
@@ -2510,7 +2510,7 @@ fnegate	( r1 -- r2 )	float	f_negate
 r2 = - r1;
 
 fdrop	( r -- )		float	f_drop
-ALIVE_DEBUGGINGF(r);
+ALIVE_DEBUGGING(r);
 
 fdup	( r -- r r )	float	f_dupe
 
@@ -2866,18 +2866,18 @@ lp+!#	( #noffset -- )	gforth	lp_plus_store_number
 local stack, a positive immediate argument drops memory from the local
 stack""
 lp += noffset;
-ALIVE_DEBUGGING(*lp);
+ALIVE_DEBUGGING((Cell)*lp);
 
 lp-	( -- )	new	lp_minus
 lp += -sizeof(Cell);
 
 lp+	( -- )	new	lp_plus
 lp += sizeof(Float);
-ALIVE_DEBUGGING(*lp);
+ALIVE_DEBUGGING((Cell)*lp);
 
 lp+2	( -- )	new	lp_plus_two
 lp += 2*sizeof(Float);
-ALIVE_DEBUGGING(*lp);
+ALIVE_DEBUGGING((Cell)*lp);
 
 lp!	( c_addr -- )	gforth	lp_store
 lp = (Address)c_addr;
