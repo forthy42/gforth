@@ -2510,7 +2510,7 @@ fnegate	( r1 -- r2 )	float	f_negate
 r2 = - r1;
 
 fdrop	( r -- )		float	f_drop
-ALIVE_DEBUGGINGF(r);
+ALIVE_DEBUGGING(r);
 
 fdup	( r -- r r )	float	f_dupe
 
