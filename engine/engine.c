@@ -134,13 +134,20 @@ extern Char *gforth_memset(Char * s, Cell c, UCell n);
 /* ALIVE_DEBUGGING(x) makes x appear to be used (in the debugging
    engine); we use this in words like DROP to avoid the dead-code
    elimination of the load of the bottom stack item, in order to get
-   precise stack underflow errors; if x is a memory reference (e.g,
-   "*lp"), this will not have an effect, so you have to replace the
-   memory reference with something that does something with the
-   resulting value (e.g., casting it to a Cell if it is not
-   already) */
+   precise stack underflow errors.
+
+   Here's how it works: We first copy x into a variable _x.  The
+   second asm statement makes the compiler believe that it makes use
+   of _x.  The first asm statement makes the compiler believe that the
+   memory location of x may be clobbered, so the compiler actually has
+   to load x into _x if x is a memory reference (e.g., "*lp").
+ */
 #ifdef GFORTH_DEBUGGING
-#define ALIVE_DEBUGGING(x) do { asm volatile(""::"X"(x):"memory"); } while(0)
+#define ALIVE_DEBUGGING(x) \
+  do { typeof(x) _x=(x);         \
+    asm volatile("":::"memory"); \
+    asm volatile(""::"X"(_x):"memory");        \
+  } while(0)
 #else
 #define ALIVE_DEBUGGING(x) ((void)0)
 #endif

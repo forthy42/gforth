@@ -102,3 +102,18 @@ environment-wordlist >order
 
 { 0 max-u -1. d+ max-u ' um/mod catch 0= -> max-u 1- max-u true }
 { 0 max-u max-u ' um/mod catch 0= -> 0 max-u max-u false }
+
+
+\ underflow of various stacks; if one of these tests fails, probably
+\ the C compiler has not compiled ALIVE_DEBUGGING as intended.
+
+\ in some cases we THROW at the end to restore the stack depths.
+
+{ :noname rp@ 1000 begin rdrop 1- dup 0= until drop rp! ;          catch dup    -6 = swap -9 = or -> true }
+{ :noname rp@ 1000 begin 2rdrop 1- dup 0= until drop rp! ;         catch dup    -6 = swap -9 = or -> true }
+{ :noname drop drop drop fdrop fdrop fdrop ;                       catch dup    -4 = swap -9 = or -> true }
+{ :noname 2drop 2drop 2drop fdrop fdrop fdrop ;                    catch dup    -4 = swap -9 = or -> true }
+{ :noname fdrop fdrop fdrop 1 throw ;                              catch dup   -45 = swap -9 = or -> true }
+{ :noname 1000 begin lp+!# [ 16 , ] 1- dup 0= until drop 1 throw ; catch dup -2059 = swap -9 = or -> true }
+{ :noname 1000 begin lp+            1- dup 0= until drop 1 throw ; catch dup -2059 = swap -9 = or -> true }
+{ :noname 1000 begin lp+2           1- dup 0= until drop 1 throw ; catch dup -2059 = swap -9 = or -> true }
