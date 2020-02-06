@@ -202,3 +202,20 @@ optimizes fpick
 ' opt-modf optimizes umod
 \ does not optimize MIN-N UMOD; add another optimizer if you want that.
 
+: opt-/modf ( xt -- )
+    lits# 1 = if
+	lits> dup 0> over pow2? and if
+	    dup 1- ]] dup literal and [[ ctz ]] swap literal arshift [[
+	    drop exit then
+	>lits then
+    fold2-2 ;
+' opt-/modf optimizes /modf
+
+: opt-u/mod ( xt -- )
+    lits# 1 = if
+	lits> dup pow2? if
+	    dup 1- ]] dup literal and [[ ctz ]] swap literal rshift [[
+	    drop exit then
+	>lits then
+    fold2-2 ;
+' opt-u/mod optimizes u/mod

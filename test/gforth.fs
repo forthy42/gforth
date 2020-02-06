@@ -409,3 +409,12 @@ t{  2 5 -7 */mod  -> -4 -2 }t
 t{ -2 5 -7 */mod  -> -3  1 }t
 
 t{ -2 15 -1 u*/mod -> -16 14 }t
+
+\ optimization of division words
+
+t{ :noname -21 4 /f    ; execute -> -6 }t
+t{ :noname -21 4 modf  ; execute ->  3 }t
+t{ :noname -21 4 /modf ; execute ->  3 -6 }t
+t{ :noname  25 4 u/    ; execute ->  6 }t
+t{ :noname  25 4 umod  ; execute ->  1 }t
+t{ :noname  25 4 u/mod ; execute ->  1 6 }t
