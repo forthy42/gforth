@@ -21,7 +21,7 @@
 \ idea: Gerald Wodni
 
 : addr? ( addr -- flag )
-    TRY  c@  IFERROR  2drop  false nothrow  ELSE  drop  true  THEN   ENDTRY ;
+    ['] c@ catch  IF  drop  false nothrow  ELSE  drop  true  THEN ;
 : .var? ( addr -- flag )
     TRY  body> @ dovar: <> throw  IFERROR  2drop false nothrow
 	ELSE  true  THEN   ENDTRY ;
