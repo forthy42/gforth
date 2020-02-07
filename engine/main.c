@@ -2453,6 +2453,13 @@ user_area* gforth_stacks(Cell dsize, Cell fsize, Cell rsize, Cell lsize)
   totalsize += 2*SIGSTKSZ;
 #endif
 #ifdef HAVE_MMAP
+#ifdef GFORTH_DEBUGGING
+  /* make sure the stack bottom is page-aligned for stack underflow detection*/
+  dsize = dsizep;
+  rsize = rsizep;
+  fsize = fsizep;
+  lsize = lsizep;
+#endif
   a = (Cell)alloc_mmap(totalsize);
   if (a != (Cell)MAP_FAILED) {
     up0=(user_area*)a; a+=pagesize;
