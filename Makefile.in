@@ -566,7 +566,8 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in			\
 	engine/memmove.c engine/pow10.c engine/atanh.c			\
 	engine/cleanalign.c engine/strerror.c engine/strsignal.c	\
 	engine/dblsub.c engine/fnmatch.h engine/fnmatch.c		\
-	engine/zexpand.c engine/androidmain.c engine/sincos.c
+	engine/zexpand.c engine/androidmain.c engine/sincos.c           \
+	$(INCLUDES)
 
 SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in	      \
@@ -578,7 +579,7 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	ChangeLog Benchres aclocal.m4 doc/Makefile.in doc/gforth.texi.in      \
 	doc/gforth.1 doc/version.texi.in doc/vmgen.texi doc/fdl.texi	      \
 	doc/gpl.texi gforth.el $(ARCHS) mkinstalldirs siteinit.fs	      \
-	versions.bsh glosgen.glo doc/glossaries.doc $(INCLUDES) $(FORTH_SRC)  \
+	versions.bsh glosgen.glo doc/glossaries.doc $(FORTH_SRC)              \
 	$(LIBCC_DIST_SRC) $(LIBCC_GEN_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	timings.sc test/coretest.out test/checkans.out test/gforth.out	      \
 	test/fp/fptest.out $(wildcard cache*.vmg) peeprules.vmg prim	      \
