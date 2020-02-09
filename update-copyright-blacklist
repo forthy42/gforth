@@ -387,6 +387,7 @@ engine/getopt.h
 engine/getopt1.c
 engine/hppa-cache.c
 engine/ia64-flush_icache_block.c
+engine/longlong.h
 engine/mips_check_prim.c
 engine/power_sync_cache_range.c
 engine/strtol.c

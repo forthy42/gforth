@@ -405,7 +405,7 @@ VARIABLE C-Pass
     \ prints a name without () and without -LP+!#, e.g. a (+LOOP) or (s")
     dup cell- @ threaded>name dup IF
 	dup ``(/loop)# = over ``(/loop)#-lp+!# = or if drop ``+loop then
-	over c@ '( = IF
+	name>string over c@ '( = IF
 	    1 /string
 	THEN
 	2dup "-lp+!#" string-suffix? if 6 - then
