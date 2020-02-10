@@ -7,6 +7,10 @@
     ./BUILD-FROM-SCRATCH
     sudo make install
 
+## Additional info for MacOS ##
+
+You'll get brew installed if it is not already there.
+
 ## Alternative: Build from Tarball
 If you are building from the tarball, please consult [INSTALL](INSTALL).
 

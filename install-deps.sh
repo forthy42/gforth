@@ -34,6 +34,7 @@ install_linux() {
 }
 
 install_osx() {
+  which brew || /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   brew tap forthy42/homebrew-zsh
   brew update > /dev/null
   brew upgrade > /dev/null
@@ -45,7 +46,16 @@ install_osx() {
 #  (cd /usr/local/Cellar/gcc/8.2.0/lib/gcc/8/gcc/x86_64-apple-darwin17.7.0/8.2.0/include-fixed && mv stdio.h stdio.h.botched)
 }
 
-install_${TRAVIS_OS_NAME:-linux}
+case `uname` in
+    Linux)
+	OS=linux
+	;;
+    Darwin)
+	OS=osx
+	;;
+esac
+
+install_${TRAVIS_OS_NAME:-$OS}
 ./install-swig.sh
 ./install-freetype-gl.sh
 #./install-soil2.sh
