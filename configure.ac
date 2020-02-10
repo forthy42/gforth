@@ -1364,26 +1364,26 @@ then
       AC_CHECK_HEADER(w32api/winbase.h, SWIGLIBS="$SWIGLIBS win32.fs", ,
 #include <w32api/wtypes.h>
 ) ,)
-    if test x$has_swig = xyes || test -f $srcdir/unix/gl-fsi.c; then
+    if test x$has_swig = xyes || (test -f $srcdir/unix/gl-fsi.c && test -f $srcdir/unix/glx-fsi.c); then
       AC_CHECK_HEADER(GL/gl.h, 
-      AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
-      SWIGLIBS="$SWIGLIBS gl.fs", ,
+      AC_CHECK_HEADER(GL/glext.h,
+      AC_CHECK_LIB(GLX,glXCreateWindow,
+      AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES gl.fs glx.fs"
+      SWIGLIBS="$SWIGLIBS gl.fs glx.fs", ,
+), ,), ,
 #include <GL/gl.h>
-), )
+))
     fi
 else
-    if test x$has_swig = xyes || test -f $srcdir/unix/gl-fsi.c; then
-      AC_CHECK_LIB(GL,glBegin,
+    if test x$has_swig = xyes || (test -f $srcdir/unix/gl-fsi.c && test -f $srcdir/unix/glx-fsi.c); then
       AC_CHECK_HEADER(GL/gl.h, 
-      AC_CHECK_HEADER(GL/glext.h, SWIGMODULES="$SWIGMODULES gl.fs"
-      SWIGLIBS="$SWIGLIBS gl.fs", ,
-#include <GL/gl.h>
-) ,) ,)
-    fi
-    if test x$has_swig = xyes || test -f $srcdir/unix/glx-fsi.c; then
+      AC_CHECK_HEADER(GL/glext.h,
       AC_CHECK_LIB(GLX,glXCreateWindow,
-      AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES glx.fs"
-      SWIGLIBS="$SWIGLIBS gl.fs", ,),)
+      AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES gl.fs glx.fs"
+      SWIGLIBS="$SWIGLIBS gl.fs glx.fs", ,
+), ,), ,
+#include <GL/gl.h>
+))
     fi
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gles-fsi.c; then

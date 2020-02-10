@@ -72,6 +72,7 @@ c-library libc
     c-function getcwd getcwd a u -- a ( c-addr u -- c-addr )
     c-function strlen strlen a -- n
     getentropy? [IF]
+	\c #include <sys/random.h>
 	c-function getentropy getentropy a n -- n ( buffer len -- n )
     [THEN]
     getrandom? [IF]
