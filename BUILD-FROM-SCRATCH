@@ -22,6 +22,11 @@
 
 # if we don't have nproc, it's better to assume just one core
 
+case `uname` in
+    Darwin)
+	alias nproc='sysctl -n hw.ncpu'
+	;;
+esac
 nprocs=`nproc || echo 1`
 
 # created: 2may00jaw
