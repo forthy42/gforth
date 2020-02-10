@@ -42,7 +42,7 @@ Variable lsids
 
 : $l, ( addr u -- )  dup , here swap dup allot move align ;
 : new-lsid ( addr u -- lsid )
-    here dup >r lsids append-list 0 , lsid# dup , 1+ to lsid# $l, r> ;
+    align here dup >r lsids append-list 0 , lsid# dup , 1+ to lsid# $l, r> ;
 : [new-lsid] ( addr u -- addr )
     2>r next-section 2r> align new-lsid >r
     previous-section r> ;

@@ -25,6 +25,7 @@ debug: time(    \ +db time( \ )
 debug: gui(     \ +db gui( \ )
 debug: click(   \ +db click( \ )
 debug: click-o( \ +db click-o( \ )
+debug: resize(  \ +db resize( \ )
 
 [IFUNDEF] no-file#
     2 Constant ENOENT
@@ -302,7 +303,8 @@ end-class widget
 :noname w border f2* f+ borderl f+ kerning f+ 0e fdup ; widget is hglue
 :noname h border borderv f+ bordert f+ raise f- f+ 0e fdup ; widget is vglue
 :noname d border borderv f+ raise f+ f+ 0e fdup ; widget is dglue
-: widget-resize to d to h to w to y to x ;
+: widget-resize to d to h to w to y to x
+    resize( w.indent# spaces name$ type ." : " x f. y f. w f. h f. d f. cr ) ;
 ' widget-resize widget is resize
 ' hglue widget is hglue@
 ' vglue widget is vglue@
@@ -450,7 +452,7 @@ tile class
     value: cv-data
 end-class canvas
 
-:noname draw-canvas text-canvas ; canvas is draw
+:noname render> draw-canvas text-canvas vi0 ; canvas is draw
 
 \ tile that doesn't draw
 
@@ -863,13 +865,32 @@ glue class
     method map
 end-class box
 
+1e20 fconstant 1fil
+1fil fdup f* fconstant 1fill
+1fil 1fill f* fconstant 1filll
+1fil 1/f fconstant 0g \ minimum glue, needs to be bigger than zero to avoid 0/0
+
+: .fil[l[l]] ( f -- )
+    fdup 0g 10e f* f< IF  0g f/ f. 'g' emit space  EXIT  THEN
+    fdup 1fil f< IF  f.  EXIT  THEN
+    1fil f/ fdup 1fil f< IF  f. ." fil" EXIT  THEN
+    1fil f/ fdup 1fil f< IF  f. ." fill" EXIT  THEN
+    1fil f/ f. ." filll" ;
+
+: .glue { f: t f: s f: a -- }
+    t f. s .fil[l[l]] space a .fil[l[l]] ;
+: gdup ( glue -- glue glue ) fthird fthird fthird ;
+
 : >glue0 ( -- )
     aidglue ?dup-IF  .aidglue0  THEN ;
 : >hglue!@ ( glue -- glue' )
+    resize( w.indent# spaces name$ type ." : h " gdup .glue cr )
     aidglue ?dup-IF  .hglue!@  THEN ;
 : >vglue!@ ( glue -- glue' )
+    resize( w.indent# spaces name$ type ." : v " gdup .glue cr )
     aidglue ?dup-IF  .vglue!@  THEN ;
 : >dglue!@ ( glue -- glue' )
+    resize( w.indent# spaces name$ type ." : d " gdup .glue cr )
     aidglue ?dup-IF  .dglue!@  THEN ;
 
 : do-childs { xt: xt -- .. }
@@ -948,11 +969,6 @@ box class
 end-class vbox \ vertical alignment
 box class end-class zbox \ overlay alignment
 
-1e20 fconstant 1fil
-1fil fdup f* fconstant 1fill
-1fil 1fill f* fconstant 1filll
-1fil 1/f fconstant 0g \ minimum glue, needs to be bigger than zero to avoid 0/0
-
 : fils ( f -- f' ) 1fil f* ;
 : fills ( f -- f' ) 1fill f* ;
 : fillls ( f -- f' ) 1filll f* ;
@@ -962,14 +978,6 @@ box class end-class zbox \ overlay alignment
 : 1kglue ( -- t s a ) 0e 0g 1fill ;
 : 1Mglue ( -- t s a ) 0e 0g 1filll ;
 
-: .fil[l[l]] ( f -- )
-    fdup 1fil f< IF  f.  EXIT  THEN
-    1fil f/ fdup 1fil f< IF  f. ." fil" EXIT  THEN
-    1fil f/ fdup 1fil f< IF  f. ." fill" EXIT  THEN
-    1fil f/ f. ." filll" ;
-
-: .glue { f: t f: s f: a -- }
-    t f. s f. a .fil[l[l]] ;
 : .rec { f: x f: y f: w f: h f: d -- }
     x f. y f. w f. h f. d f. ;
 
@@ -1085,13 +1093,14 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 \    ." hchild resized: " x f. y f. w f. h f. d f. cr
     y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
-    x y w h d widget-resize
+    1 +to w.indent# x y w h d widget-resize
     hglue+ frot bxx f- f-rot  w bxx f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
     wtotal wmin f- a f/ 0e fdup x bx f+
     ['] hglue-step box-hvisible# ?do-childs
     fdrop fdrop fdrop fdrop
     y h d ['] hbox-resize1 box-hvisible# ?do-childs  fdrop fdrop fdrop
+    -1 +to w.indent# 
 \    ." hbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
@@ -1170,6 +1179,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 \    ." vchild resized: " x f. y f. w f. h f. d f. cr
     x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
+    1 +to w.indent# 
     x y w h d widget-resize
     hglue* glue-drop  vglue+ dglue+ glue+ frot byd f- f-rot
     h d f+ byd f- { f: htotal }
@@ -1182,6 +1192,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     x bx f+ w bxx f-
     ['] vbox-resize1 box-vvisible# ?do-childs
     fdrop fdrop
+    -1 +to w.indent# 
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
@@ -1193,11 +1204,13 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     x y w h d ;
 
 : zbox-resize { f: x f: y f: w f: h f: d -- }
+    1 +to w.indent# 
     x y w h d widget-resize
     x bx f+ y byy f+ w bxx f-
     h byy f- d bdd f-
     ['] zbox-resize1 box-visible# ?do-childs
     fdrop fdrop fdrop fdrop fdrop
+    -1 +to w.indent# 
 \    ." zbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
@@ -1340,7 +1353,7 @@ $10 stack: vp<>
 	o vp<> >stack
 	need-mask >r vp-need to need-mask
 	catch r> to need-mask
-	vp<> stack> drop  throw
+	vp<> stack> >o rdrop  throw
     ELSE  drop  THEN ;
 
 1 sfloats buffer: vp-ambient%  1.0e vp-ambient% sf!
@@ -1467,25 +1480,31 @@ $10 stack: vp<>
 ; viewport is resize
 :noname ( -- glue )
     box-flags vp-hfix# and IF  [ vbox :: hglue ]
-    ELSE  vp-glue .hglue >hglue!@  THEN ; viewport is hglue
+    ELSE  vp-glue .hglue >hglue!@  THEN
+    resize( ." vp.hglue: " gdup .glue cr ) ; viewport is hglue
 :noname ( -- glue )
     box-flags vp-dfix# and IF  [ vbox :: dglue ]
-    ELSE  vp-glue .dglue >dglue!@  THEN  ; viewport is dglue
+    ELSE  vp-glue .dglue >dglue!@  THEN
+    resize( ." vp.dglue: " gdup .glue cr ) ; viewport is dglue
 :noname ( -- glue )
     box-flags vp-vfix# and IF  [ vbox :: vglue ]
-    ELSE  vp-glue .vglue >vglue!@  THEN  ; viewport is vglue
+    ELSE  vp-glue .vglue >vglue!@  THEN
+    resize( ." vp.vglue: " gdup .glue cr ) ; viewport is vglue
 :noname ( -- glue )
     box-flags vp-hfix# and IF  [ vbox :: hglue@ ]
-    ELSE  vp-glue .hglue@ THEN  ; viewport is hglue@
+    ELSE  vp-glue .hglue@ THEN
+    resize( ." vp.hglue@: " gdup .glue cr ) ; viewport is hglue@
 :noname ( -- glue )
     box-flags vp-dfix# and IF  [ vbox :: dglue@ ]
-    ELSE  vp-glue .dglue@  THEN ; viewport is dglue@
+    ELSE  vp-glue .dglue@  THEN
+    resize( ." vp.dglue@: " gdup .glue cr ) ; viewport is dglue@
 :noname ( -- glue )
     box-flags vp-vfix# and IF  [ vbox :: vglue@ ]
-    ELSE   vp-glue .vglue@  THEN ; viewport is vglue@
-
+    ELSE   vp-glue .vglue@  THEN
+    resize( ." vp.vglue@: " gdup .glue cr ) ; viewport is vglue@
 : }}vp ( b:n1 .. b:nm glue vp-tex -- viewport ) { g t }
-    }} viewport new >o "vp" to name$ +childs t is vp-tex g to vp-glue o o> ;
+    }} viewport new >o -1 to baseline-offset "vp" to name$
+    +childs t is vp-tex g to vp-glue o o> ;
 
 \ slider (simple composit object)
 

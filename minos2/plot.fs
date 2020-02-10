@@ -54,7 +54,7 @@
     bounds ?DO
 	fdup I f@ i>off >v
 	ysc f*  y0 f+ >xy  xsc f+
-	color i>c n> 0.5e fdup f# #>st v+> i-off @ i,
+	color i>c n> 1/2 fdup f# #>st v+> i-off @ i,
 	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
     +LOOP  fdrop line-strip> ;
 
@@ -67,7 +67,7 @@
 	dup f@ xsc f* x0 f+ float+
 	I   f@ ysc f* y0 f+
 	i>off >v >xy
-	color i>c n> 0.5e fdup f# #>st v+>  i-off @ i,
+	color i>c n> 1/2 fdup f# #>st v+>  i-off @ i,
 	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
     +LOOP  drop line-strip> ;
 
@@ -81,7 +81,7 @@
 	dup f@ xsc f*    f+ fswap float+
 	I   f@ ysc f* y0 f+
 	i>off >v >xy
-	color i>c n> 0.5e fdup f# #>st v+>  i-off @ i,
+	color i>c n> 1/2 fdup f# #>st v+>  i-off @ i,
 	1 flush-lines? IF  0  ELSE  [ 1 floats ]L  THEN
     +LOOP  fdrop drop line-strip> ;
 

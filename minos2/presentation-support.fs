@@ -192,10 +192,10 @@ end-class slide-actor
 	k-f4      of  saturate% sf@ 0.1e f- 0e fmax saturate% sf!
 	    Saturate 1 saturate% opengl:glUniform1fv  +sync endof
 	k-f5 of  color-theme 0<> IF  anim-end 0.25e o
-		[: 1e fswap f- fdup f>s to color-theme 0.5e f+ ColorMode! +sync +vpsync ;]
+		[: 1e fswap f- fdup f>s to color-theme 1/2 f+ ColorMode! +sync +vpsync ;]
 		>animate  THEN   endof
 	k-f6 of  color-theme 0=  IF  anim-end 0.25e o
-		[:             fdup f>s to color-theme 0.5e f+ ColorMode! +sync +vpsync ;]
+		[:             fdup f>s to color-theme 1/2 f+ ColorMode! +sync +vpsync ;]
 		>animate  THEN   endof
 	k-f1      of  top-widget ..widget  endof
 	[ box-actor :: ekeyed ]  EXIT

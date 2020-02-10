@@ -230,7 +230,7 @@ is reload-textures
     [:  [: o font-size# 15% f* fround >lowered ;] caller-w .parent-w .do-childs
 	caller-w 0e >lowered
 	[: o /vflip drop ;] data @ .parent-w .do-childs
-	data @ /flop drop +resize +sync
+	data @ /flop drop +lang +resize +sync
     ;] swap click[] ;
 
 glue new Constant glue*wh
