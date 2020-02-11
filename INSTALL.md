@@ -3,13 +3,14 @@
 
     git clone https://git.savannah.gnu.org/git/gforth.git
     cd gforth
-    ./install-deps.sh # install all known dependencies for a full build
+    . ./install-deps.sh # install all known dependencies for a full build
     ./BUILD-FROM-SCRATCH
     sudo make install
 
 ## Additional info for MacOS ##
 
-You'll get brew installed if it is not already there.
+You'll get brew and XCode command line tools installed (git will trigger the
+latter) if it is not already there.  The install-deps.sh
 
 ## Alternative: Build from Tarball
 If you are building from the tarball, please consult [INSTALL](INSTALL).
