@@ -904,10 +904,11 @@ case "$host_os" in
 			;;
 			*)
 				host_os=darwin # remove version number
-				test -d /opt/X11/include && CPPFLAGS="$CPPFLAGS -I/opt/X11/include"
-				test -d /opt/X11/lib && LDFLAGS="$LDFLAGS -L/opt/X11/lib"
-				test -d /sw/include && CPPFLAGS="$CPPFLAGS -I/sw/include"
-				test -d /sw/lib && LDFLAGS="$LDFLAGS -L/sw/lib"
+				for i in /opt/X11 /sw /usr/local
+				do
+					test -d $i/include && CPPFLAGS="$CPPFLAGS -I$i/include"
+					test -d $i/lib && LDFLAGS="$LDFLAGS -L$i/lib"
+				done
 			;;
 		esac
                 #the following magic value was suggested by
