@@ -136,7 +136,11 @@ signal_throw(int sig)
   case SIGINT: code=-28; break;
   case SIGFPE: code=-55; break;
 #ifdef SIGBUS
+#ifdef __APPLE__
+  case SIGBUS: code=-9; break; /* On MacOS, this is not an alignment exception */
+#else
   case SIGBUS: code=-23; break;
+#endif
 #endif
   case SIGSEGV: code=-9; break;
 #ifdef SIGPIPE
