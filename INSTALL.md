@@ -3,14 +3,16 @@
 
     git clone https://git.savannah.gnu.org/git/gforth.git
     cd gforth
-    . ./install-deps.sh # install all known dependencies for a full build
+    source ./install-deps.sh # install all known dependencies for a full build
     ./BUILD-FROM-SCRATCH
     sudo make install
 
 ## Additional info for MacOS ##
 
 You'll get brew and XCode command line tools installed (git will trigger the
-latter) if it is not already there.  The install-deps.sh
+latter) if it is not already there.  The `install-deps.sh` exports a few
+variables, and you probably should put those into your shell setup if you want
+to build Gforth latest without sourcing `install-deps.sh` again.
 
 ## Alternative: Build from Tarball
 If you are building from the tarball, please consult [INSTALL](INSTALL).
