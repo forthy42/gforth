@@ -38,7 +38,7 @@ install_osx() {
   brew tap forthy42/homebrew-zsh
   brew update > /dev/null
   brew upgrade > /dev/null
-  brew install yodl gforth gcc harfbuzz texinfo xz mesa premake automake
+  brew install gforth gcc harfbuzz texinfo xz mesa premake automake yodl
   export PATH="/usr/local/opt/texinfo/bin:$PATH"
   brew cask install xquartz mactex
   export PATH="/Library/TeX/texbin:$PATH"
