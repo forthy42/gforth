@@ -7,6 +7,8 @@ os:
     env: M32=-m32
   - linux
     arch: arm64
+  - linux
+    arch: ppc64le
   - osx
 language: c
 compiler: gcc
