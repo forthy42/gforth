@@ -1,19 +1,20 @@
 version: ~> 1.0
-os:
-  - linux
-    arch: amd64
-    env: M32=
-  - linux
-    arch: amd64
-    env: M32=-m32
-  - linux
-    arch: arm64
-    env: M32=
-  - linux
-    arch: ppc64le
-    env: M32=
-  - osx
-    env: M32=
+jobs:
+  include:
+    - os: linux
+      arch: amd64
+      env: M32=
+    - os: linux
+      arch: amd64
+      env: M32=-m32
+    - os: linux
+      arch: arm64
+      env: M32=
+    - os: linux
+      arch: ppc64le
+      env: M32=
+    - os: osx
+      env: M32=
 language: c
 compiler: gcc
 dist: bionic
