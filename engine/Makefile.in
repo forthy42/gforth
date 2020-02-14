@@ -247,7 +247,7 @@ main-itc$(OPT).o libmain-itc$(OPT).lo:	$(MAIN_DEPS)
 		$(COMPILER) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ $(srcdir)/main.c
 
 main-ditc$(OPT).o libmain-ditc$(OPT).lo:	$(MAIN_DEPS)
-		$(COMPILER) -DDOUBLY_INDIRECT -o $@ $(srcdir)/main.c
+		$(COMPILER) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ $(srcdir)/main.c
 
 main-prof$(OPT).o libmain-prof$(OPT).lo:	$(MAIN_DEPS)
 		$(COMPILER) -DVM_PROFILING -o $@ $(srcdir)/main.c
