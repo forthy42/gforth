@@ -232,7 +232,7 @@ engine-itc$(OPT).o libengine-itc$(OPT).lo:	$(ENGINE_DEPS)
 		$(COMPILER) $(ENGINE_FLAGS) -DINDIRECT_THREADED -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c
 
 engine-ditc$(OPT).o libengine-ditc$(OPT).lo:	$(ENGINE_DEPS)
-		$(COMPILER) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -o $@ $(srcdir)/engine.c
+		$(COMPILER) $(ENGINE_FLAGS) -DDOUBLY_INDIRECT -DGFORTH_DEBUGGING -o $@ $(srcdir)/engine.c
 
 engine-prof$(OPT).o libengine-prof$(OPT).lo:	$(ENGINE_DEPS)
 		$(COMPILER) $(ENGINE_FLAGS) -DVM_PROFILING -o $@ $(srcdir)/engine.c
