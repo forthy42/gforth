@@ -162,7 +162,7 @@ typedef struct {
 # ifdef HAVE___BUILTIN_BSWAP32
 #  define BSWAP16(x) __builtin_bswap32((x) << 16)
 # else
-#  define BSWAP16(x) ((((x)>>8) & 0xff) | ((x)<<8) & 0xff00)
+#  define BSWAP16(x) ((((x)>>8) & 0xff) | (((x)<<8) & 0xff00))
 # endif
 #endif
 #ifdef HAVE___BUILTIN_BSWAP32
