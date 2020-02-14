@@ -435,10 +435,10 @@ UCell hashkey2a(Char *s, UCell n)
   int rot1 = w*4-1;
   size_t pagesize=4096; /* a power-of-2 that's at most as large as a page
                            if you change this, change test/other.fs */
-  UCell k0 = w==8 ? 0xb64d532aaaaaaad5 : 0xb653aad5;
+  UCell k0 = w==8 ? 0xb64d532aaaaaaad5LL : 0xb653aad5L;
   /* the 64-bit k0 gives not-so-catastrophic avalanche results on a
      case-insensitive version; the 32-bit version is based on that */
-  UCell upmask = w==8 ? 0x2020202020202020L : 0x20202020L;
+  UCell upmask = w==8 ? 0x2020202020202020LL : 0x20202020L;
   
   UCell h,h1;
   if (n<=w) {
