@@ -1337,7 +1337,7 @@ fi
 
 if test x$has_swig = xyes; then
    > conftest.$ac_ext
-   SWIGINCLUDES=`eval $ac_compiler $CFLAGS $CPPFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ \(.*\) (framework directory)$/-F\1/g' -e 's/^ /-I/g' | tr '\n' ' '`
+   SWIGINCLUDES=`eval $ac_compiler $CFLAGS $CPPFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ \(.*\) (framework directory)$/-F\1/g' -e 's/^ /-I/g' | grep '^-./' | tr '\n' ' '`
 fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/xlib-fsi.c; then
@@ -1503,7 +1503,8 @@ fi
 AC_SUBST(SWIGMODULES)
 
 #remove duplicates
-SWIGINCLUDES=`echo $SWIGINCLUDES | tr ' ' '\n' | sort -u  | tr '\n' ' '`
+SWIGINCLUDES=`echo $SWIGINCLUDES | tr ' ' '\n' | sort -u | tr '\n' ' '`
+echo "SWIG includes: $SWIGINCLUDES"
 
 AC_SUBST(SWIGINCLUDES)
 AC_SUBST(SWIGLIBS)

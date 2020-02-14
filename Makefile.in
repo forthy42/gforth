@@ -944,7 +944,9 @@ libccdir:	$(buildccdir)
 $(buildccdir):
 		$(MKDIR) -p $(buildccdir)
 
-build-libcc-swig:
+build-libcc-swig: $(LIBCC_SRC)
+
+$(LIBCC_SRC):
 		(cd unix; $(MAKE))
 
 check:		gforths	gforth.fi more
