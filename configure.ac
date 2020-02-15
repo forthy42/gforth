@@ -440,6 +440,7 @@ Dynamic NC generation disabled."
 			;;
 		    *)
 		    	machine=amd64
+			CFLAGS="$CFLAGS -fomit-frame-pointer"
 			;;
 		esac
 		;;
