@@ -9,7 +9,7 @@ extern struct _IO_FILE *stderr;
 #endif
 %}
 
-// exec: sed -e 's/\(s" soil2" add-lib\)/\1`e? os-type s" linux-android" string-prefix? \[IF]`\ts" EGL" add-lib`\ts" GLESv2" add-lib`\ts" m" add-lib`\[THEN]/g' | tr '`' '\n'
+// exec: sed -e 's/\(s" soil2" add-lib\)/\1`e? os-type s" linux-android" string-prefix? \[IF]`    s" EGL" add-lib`    s" GLESv2" add-lib`    s" m" add-lib`\[THEN]/g' | tr '`' '\n'
 
 
 %apply SWIGTYPE * { unsigned char const *const };
