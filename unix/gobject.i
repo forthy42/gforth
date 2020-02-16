@@ -6,7 +6,7 @@
 #include <glib-object.h>
 %}
 
-// exec: sed -e 's/s" gobject"/s" gobject-2.0"/g' -e 's/\(c-function g_once_init\)/\\ \1/g' -e 's/\(c-function [^ ]*_valist\)/\\ \1/g' -e 's/\(c-function g_[^_]*_object\)/\\ \1/g' -e 's/\(c-function g_clear_handle_id\)/\\ \1/g' -e 's/\(c-function g_main_context_wait\)/\\ \1/g' -e 's/\(c-function g_source_get_current_time\)/\\ \1/g' -e 's/\(c-function g_[^_]*_weak_pointer\)/\\ \1/g' -e 's/\(c-function g_object_compat_control\)/\\ \1/g' -e 's/\(c-function g_value_set_object_take_ownership\)/\\ \1/g' -e 's/\(c-function g_object_newv\)/\\ \1/g' -e 's/add-lib/add-lib\ns" a 0" vararg$ $!/g' -e 's/g_clear_signal_handler a a/g_clear_signal_handler a{(gulong*)} a/g'
+// exec: sed -e 's/s" gobject"/s" gobject-2.0"/g' -e 's/\(c-function g_once_init\)/\\ \1/g' -e 's/\(c-function [^ ]*_valist\)/\\ \1/g' -e 's/\(c-function g_[^_]*_object\)/\\ \1/g' -e 's/\(c-function g_clear_handle_id\)/\\ \1/g' -e 's/\(c-function g_main_context_wait\)/\\ \1/g' -e 's/\(c-function g_source_get_current_time\)/\\ \1/g' -e 's/\(c-function g_[^_]*_weak_pointer\)/\\ \1/g' -e 's/\(c-function g_object_compat_control\)/\\ \1/g' -e 's/\(c-function g_value_set_object_take_ownership\)/\\ \1/g' -e 's/\(c-function g_object_newv\)/\\ \1/g' -e 's/add-lib/add-lib`s" a 0" vararg$ $!/g' -e 's/g_clear_signal_handler a a/g_clear_signal_handler a{(gulong*)} a/g' | tr '`' '\n'
 
 %apply SWIGTYPE * { gpointer, GClosureNotify, GCallback, GSignalCVaMarshaller, GSignalCMarshaller, GDuplicateFunc, GPollFunc };
 

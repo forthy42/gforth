@@ -118,6 +118,7 @@ Name: "{app}\\..\\tmp"; Permissions: users-modify
 ;   "Source filename", "Dest. filename", Copy mode, Flags
 Source: "README.txt"; DestDir: "{app}"; Flags: isreadme
 Source: "C:\\$CYGWIN64\\bin\\sh.exe"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
+Source: "C:\\$CYGWIN64\\bin\\nproc.exe"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
 Source: "C:\\$CYGWIN64\\bin\\cygwin-console-helper.exe"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
 Source: "C:\\$CYGWIN64\\bin\\cygwin1.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
 Source: "C:\\$CYGWIN64\\bin\\cyggcc_s-seh-1.dll"; DestDir: "{app}\\..\\bin"; Check: Is64BitInstallMode
@@ -137,6 +138,7 @@ Source: "c:\\$CYGWIN64\\bin\\mintty.exe"; DestDir: "{app}"; Check: Is64BitInstal
 Source: "c:\\$CYGWIN64\\bin\\run.exe"; DestDir: "{app}"; Check: Is64BitInstallMode
 Source: "c:\\$CYGWIN64\\bin\\env.exe"; DestDir: "{app}"; Check: Is64BitInstallMode
 Source: "c:\\$CYGWIN32\\bin\\sh.exe"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
+Source: "c:\\$CYGWIN32\\bin\\nproc.exe"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
 Source: "c:\\$CYGWIN32\\bin\\cygwin-console-helper.exe"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
 Source: "c:\\$CYGWIN32\\bin\\cygwin1.dll"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode
 Source: "c:\\$CYGWIN32\\bin\\cyggcc_s-1.dll"; DestDir: "{app}\\..\\bin"; Check: not Is64BitInstallMode

@@ -5,12 +5,12 @@ which gsed >/dev/null 2>/dev/null && alias sed=gsed
 
 if [ -f $2/${1%fs}i ]
 then
-    execs=$(grep '^// exec:' $2/${1%fs}i | cut -f3- -d' ')
+    execs="$(grep '^// exec:' $2/${1%fs}i | cut -f3- -d' ')"
 fi
 
 if [ -z "$execs" ]
 then
     cat
 else
-    eval $execs
+    eval "$execs"
 fi

@@ -20,8 +20,9 @@
 
 require unix/pthread.fs
 
-s" grep siblings /proc/cpuinfo | head -1 | cut -f2 -d:" r/o open-pipe throw
-include-file Value cores
+e? os-type s" darwin" string-prefix? [IF]  s" sysctl -n hw.ncpu"
+[ELSE]  s" nproc"  [THEN]
+r/o open-pipe throw slurp-fid s>number drop 1 max Value cores
 
 Variable sync#
 Variable workers
