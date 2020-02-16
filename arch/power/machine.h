@@ -26,6 +26,14 @@
 #include "../generic/machine.h"
 #include <sys/types.h>
 
+#ifdef FLUSH_ICACHE
+/* __builtin___clear_cache is broken for PPC on at least gcc 4.3, 4.4 and 5.5*/
+/* looking at <https://github.com/mono/mono/issues/11527>, they
+   mention gcc versions up to 8.0.1, and don't mention a gcc version
+   where it works */
+#undef FLUSH_ICACHE
+#endif
+
 #ifndef FLUSH_ICACHE
 extern void _sync_cache_range (caddr_t eaddr, size_t count);
 # define FLUSH_ICACHE(addr,size)   _sync_cache_range(addr,size)

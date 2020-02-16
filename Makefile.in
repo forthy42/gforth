@@ -957,55 +957,55 @@ check:		gforths	gforth.fi more
 
 checkones:	checkg checkgi checkgdi checkgf checkgd checkgfd @libbench@checklibg checklibgi checklibgdi checklibgf checklibgd checklibgfd
 
-CHECK = >check.out 2>&1 || cat check.out this-file-does-not-exist 2>/dev/null
+CHECK = >check-$<.out 2>&1 || cat check-$<.out this-file-does-not-exist 2>/dev/null
 
 checklibg:
 		$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT) --no-dynamic" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checklibgi:
 		$(MAKE) checkone check-nofast ENGINE="./libgforth-itc$(EXT)" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checklibgdi:
 		$(MAKE) checkone check-nofast ENGINE="./libgforth-ditc$(EXT)" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checklibgf:
 		$(MAKE) checkone ENGINE="./libgforth-fast$(EXT) --no-dynamic" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checklibgd:
 		$(MAKE) checkone check-nofast ENGINE="./libgforth$(EXT)" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checklibgfd:
 		$(MAKE) checkone ENGINE="./libgforth-fast$(EXT)" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checkg:
 		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT) --no-dynamic" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checkgi:
 		$(MAKE) checkone check-nofast ENGINE="./gforth-itc$(EXT)" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checkgdi:
 		$(MAKE) checkone check-nofast ENGINE="./gforth-ditc$(EXT)" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checkgf:
 		$(MAKE) checkone ENGINE="./gforth-fast$(EXT) --no-dynamic" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checkgd:
 		$(MAKE) checkone check-nofast ENGINE="./gforth$(EXT)" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checkgfd:
 		$(MAKE) checkone ENGINE="./gforth-fast$(EXT)" $(CHECK)
-		-@$(RM) check.out
+		-@$(RM) check-$<.out
 
 checkone test: gforth.fi engine/prim-s.i
 		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
