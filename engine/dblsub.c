@@ -65,3 +65,11 @@ DCell mmul (Cell a, Cell b)		/* signed multiply, mixed precision */
     res.hi -= a;
   return res;
 }
+
+UDCell dadd(UDCell d1, UDCell d2)
+{
+  UDCell d;
+  DLO_IS(d, DLO(d1) + DLO(d2));
+  DHI_IS(d, DHI(d1) + DHI(d2) + (d.lo<DLO(d1)));
+  return d;
+}

@@ -203,6 +203,8 @@ typedef struct {
 #define DHI_IS(x,y) (x).hi=(y)
 #define DLO_IS(x,y) (x).lo=(y)
 #define D_IS(x,y,z) ({ (x).hi=(y); (x).lo=(z); })
+#define DCELL(x,y)  ((DCell){(x),(y)})
+#define UDCELL(x,y) ((UDCell){(x),(y)})
 
 #define UD2D(ud)	({UDCell _ud=(ud); (DCell){_ud.hi,_ud.lo};})
 #define D2UD(d)		({DCell _d1=(d); (UDCell){_d1.hi,_d1.lo};})
@@ -238,6 +240,8 @@ typedef DOUBLE_UCELL_TYPE UDCell;
 #define DHI_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.high=(y); (x)=_d.d; })
 #define DLO_IS(x,y) ({ Double_Store _d; _d.d=(x); _d.cells.low =(y); (x)=_d.d; })
 #define D_IS(x,y,z) ({ Double_Store _d; _d.cells.high=(y); _d.cells.low =(z); (x)=_d.d; })
+#define DCELL(x,y)  ((Double_Store){.cells={.high=(x),.low=(y)}}.d)
+#define UDCELL(x,y) ((Double_Store){.cells={.high=(x),.low=(y)}}.ud)
 
 #define UD2D(ud)	((DCell)(ud))
 #define D2UD(d)		((UDCell)(d))
@@ -551,11 +555,25 @@ Sigfunc *bsd_signal(int signo, Sigfunc *func);
 
 /* dblsub routines */
 DCell dnegate(DCell d1);
-UDCell ummul (UCell a, UCell b);
 DCell mmul (Cell a, Cell b);
 UDCell umdiv (UDCell u, UCell v);
 DCell smdiv (DCell num, Cell denom);
 DCell fmdiv (DCell num, Cell denom);
+#ifdef BUGGY_LL_MUL
+UDCell ummul (UCell a, UCell b);
+#else
+#define ummul(u1,u2) ((UDCell)(u1) * (UDCell)(u2))
+#endif
+#ifdef BUGGY_LL_ADD
+UDCell dadd(UDCell x, UDCell y);
+#define umadd(ud,u) dadd(ud, UDCELL(0,u))
+#else
+#define dadd(x,y) (((UDCell)(x))+(UDCell)(y))
+#define umadd(ud,u) (((UDCell)(ud))+(UCell)(u))
+#endif
+
+#define uslashstage2(u1,stage1) \
+  DHI(umadd(ummul(u1,stage1->inverse_hi), DHI(ummul(u1,stage1->inverse))))
 
 Cell memcasecmp(const Char *s1, const Char *s2, Cell n);
 

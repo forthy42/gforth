@@ -131,6 +131,13 @@ extern Char *gforth_memset(Char * s, Cell c, UCell n);
 #define SAVE_DIVISOR(x) ((void)0)
 #endif
 
+/* buffer for keeping results of stage1 of staged division */
+typedef struct {
+  UCell inverse;    /* (low part of) the inverse */
+  UCell inverse_hi; /* hi part for U/, shift for /F */
+  UCell divisor;    /* for computing the modulus */
+} stagediv_t;
+
 /* ALIVE_DEBUGGING(x) makes x appear to be used (in the debugging
    engine); we use this in words like DROP to avoid the dead-code
    elimination of the load of the bottom stack item, in order to get
