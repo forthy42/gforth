@@ -179,6 +179,16 @@ AC_ARG_WITH(extras,
 fi])
 AC_SUBST(EXTRAS)
 
+AC_ARG_WITH(install,
+	AC_HELP_STRING([--with-install=<things>],
+			[  Install extra <things>]),
+[if test "$withval" != "no"; then
+    for i in ${withval//,/ }
+    do
+        ./install-$i.sh
+    done
+fi])
+
 DITCENGINE="./gforth-ditc"
 AC_ARG_WITH(ditc,
 	AC_HELP_STRING([--with-ditc=<engine>],

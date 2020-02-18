@@ -3,6 +3,7 @@
 %insert("include")
 %{
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 %}
 
 %apply unsigned long long { uint64_t };
