@@ -976,11 +976,7 @@ d = (DCell)n1 * (DCell)n2;
 
 um*	( u1 u2 -- ud )		core	u_m_star
 /* use u* as alias */
-#ifdef BUGGY_LL_MUL
 ud = ummul(u1,u2);
-#else
-ud = (UDCell)u1 * (UDCell)u2;
-#endif
 :
    0 -rot dup [ 8 cells ] literal -
    DO
@@ -1010,6 +1006,20 @@ u3=DLO(r);
    over MINI and >r 
    >r 2dup d+ r> 0 d+ r> ;
 
+u/-stage2m	( u1 a_stage1 -- uquotient ) gforth u_slash_stage2m
+stagediv_t *stage1 = (stagediv_t *)a_stage1;
+uquotient = uslashstage2(u1,stage1);
+
+umod-stage2m	( u1 a_stage1 -- umodulus ) gforth u_mod_stage2m
+stagediv_t *stage1 = (stagediv_t *)a_stage1;
+UCell uquotient = uslashstage2(u1,stage1);
+umodulus = u1 - uquotient*stage1->divisor;
+
+u/mod-stage2m	( u1 a_stage1 -- umodulus uquotient ) gforth u_slash_mod_stage2m
+stagediv_t *stage1 = (stagediv_t *)a_stage1;
+uquotient = uslashstage2(u1,stage1);
+umodulus = u1 - uquotient*stage1->divisor;
+
 m+	( d1 n -- d2 )		double		m_plus
 #ifdef BUGGY_LL_ADD
 DLO_IS(d2, DLO(d1)+n);
@@ -1020,13 +1030,8 @@ d2 = d1+n;
 :
  s>d d+ ;
 
-d+	( d1 d2 -- d )		double	d_plus
-#ifdef BUGGY_LL_ADD
-DLO_IS(d, DLO(d1) + DLO(d2));
-DHI_IS(d, DHI(d1) + DHI(d2) + (d.lo<DLO(d1)));
-#else
-d = d1+d2;
-#endif
+d+	( ud1 ud2 -- ud )		double	d_plus
+ud=dadd(ud1,ud2);
 :
  rot + >r tuck + swap over u> r> swap - ;
 

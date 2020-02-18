@@ -57,6 +57,8 @@ constant staged/-size ( -- u )
 \   url =          {https://www.hb.dhbw-stuttgart.de/kps2019/kps2019_Tagungsband.pdf}
 \ }
 
+0 [if]
+    \ commented out because it is a primitive
 : u/-stage2m {: udividend addr -- uquotient :}
     udividend addr staged/-inverse @ um* nip 0
     udividend addr staged/-inverse-hi @ um* d+ nip ;
@@ -66,6 +68,7 @@ constant staged/-size ( -- u )
 
 : u/mod-stage2m {: udividend addr -- umodulus uquotient :}
     udividend addr u/-stage2m udividend over addr staged/-divisor @ * - swap ;
+[then]
 
 : u/-stage1m {: udivisor addr -- :}
     udivisor 2 u< -24 and throw
@@ -87,12 +90,39 @@ constant staged/-size ( -- u )
 	u buf[ u/-stage2m 1 = check
 	-1 u u/ dup {: q1 :} u * {: hi :}
 	hi buf[ u/-stage2m q1 = check
-	hi 1- buf[ u/-stage2m q1 1- = check ;
+        hi 1- buf[ u/-stage2m q1 1- = check
+        hi buf[ umod-stage2m 0= check
+        hi 1- buf[ umod-stage2m u 1- = check
+        -1 buf[ u/mod-stage2m u * + -1 = check ;
 
     : utests ( -- )
 	10000000 2 do i utest loop
 	min-n 5000000 + min-n 5000000 - do i utest loop
 	-1 -10000000 do i utest loop ;
+
+    : u/stagebench ( -- )
+        {: | buf[ staged/-size ] :}
+        3 buf[ u/-stage1m
+        -1 -1 -100000000 do i - buf[ u/-stage2m loop drop ;
+
+    : u/bench ( -- )
+        -1 -1 -100000000 do i - 3 u/ loop drop ;
+    
+    : umodstagebench ( -- )
+        {: | buf[ staged/-size ] :}
+        3 buf[ u/-stage1m
+        -1 -1 -100000000 do i - buf[ umod-stage2m loop drop ;
+
+    : umodbench ( -- )
+        -1 -1 -100000000 do i - 3 umod loop drop ;
+
+    : u/modstagebench ( -- )
+        {: | buf[ staged/-size ] :}
+        3 buf[ u/-stage1m
+        -1 -1 -100000000 do i - buf[ u/mod-stage2m - loop drop ;
+
+    : u/modbench ( -- )
+        -1 -1 -100000000 do i - 3 u/mod - loop drop ;
 
     \ utests
 [then]
