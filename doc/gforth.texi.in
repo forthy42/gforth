@@ -13394,7 +13394,10 @@ necessary, and you usually want to put @code{add-lib} calls inside
 
 doc-clear-libs
 doc-add-lib
-
+doc-add-libpath
+doc-add-incdir
+doc-add-cflags
+doc-add-ldflags
 
 @node Callbacks, C interface internals, Declaring OS-level libraries, C Interface
 @subsection Callbacks
