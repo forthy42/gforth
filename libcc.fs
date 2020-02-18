@@ -224,12 +224,17 @@ defer replace-rpath ( c-addr1 u1 -- c-addr2 u2 )
 : const+ ( n1 "name" -- n2 )
     dup constant 1+ ;
 
+Variable c-flags \ include flags
 Variable c-libs \ library names in a string (without "lib")
 
 : lib-prefix ( -- addr u )  s" libgf" ;
 
-: add-flags ( c-addr u -- ) \ gforth
-    \G add flag to list of arguments
+: add-cflags ( c-addr u -- ) \ gforth
+    \G add cflag to compilation
+    [: type space ;] c-flags $exec ;
+
+: add-ldflags ( c-addr u -- ) \ gforth
+    \G add flag to linker
     [: type space ;] c-libs $exec ;
 
 : add-lib ( c-addr u -- ) \ gforth
@@ -826,7 +831,7 @@ DEFER compile-wrapper-function ( -- )
     0= if
 	lha,
     endif
-    c-libs $init
+    c-libs $init  c-flags $init
     libcc$ $init libcc-include
 ;
 : end-libs ( -- )
@@ -847,7 +852,7 @@ tmp$ $execstr-ptr !
 	  pad $100 get-dir $type s" /" $type version-string $type
 	  s" /include" $type  [THEN]
       s" '" $type s" extrastuff" getenv $type
-      tmp$ $@ ] sliteral type
+      tmp$ $@ ] sliteral type c-flags $. c-flags $free
     ."  -O -c " lib-filename $. ." .c -o "
     lib-filename $. ." .lo" ;
 
@@ -859,13 +864,13 @@ tmp$ $execstr-ptr !
     lib-filename $. ." .lo -o "
     lib-filename $@ dirname type lib-prefix type
     lib-filename $@ basename type ." .la"
-    c-libs $.  c-libs $off ;
+    c-libs $.  c-libs $free ;
 
 : compile-wrapper-function1 ( -- )
     hash-c-source check-c-hash
     0= if
 	c-library-name-create
-	libcc$ $@ c-source-file write-file throw  libcc$ $off
+	libcc$ $@ c-source-file write-file throw  libcc$ $free
 	c-source-file close-file throw
 	['] compile-cmd $tmp system $? 0<> !!libcompile!! and throw
 	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
@@ -878,7 +883,7 @@ tmp$ $execstr-ptr !
     s" gforth_libcc_init" lib-handle lib-sym  ?dup-if
 	gforth-pointers swap call-c  endif
     0 c-source-file-id !
-    lib-filename $off clear-libs ;
+    lib-filename $free clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
 
 : link-wrapper-function { cff -- sym }
@@ -1070,7 +1075,7 @@ Defer prefetch-lib ( addr u -- )
 
 :noname ( -- )
     defers 'cold
-    init-libcc reopen-libs rebind-libcc lib-filename $off ;
+    init-libcc reopen-libs rebind-libcc lib-filename $free ;
 is 'cold
 
 : c-library ( "name" -- ) \ gforth
