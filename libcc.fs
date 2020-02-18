@@ -230,15 +230,19 @@ Variable c-libs \ library names in a string (without "lib")
 : lib-prefix ( -- addr u )  s" libgf" ;
 
 : add-cflags ( c-addr u -- ) \ gforth
-    \G add cflag to compilation
-    [: type space ;] c-flags $exec ;
+    \G add any kind of cflags to compilation
+    [: space type ;] c-flags $exec ;
+
+: add-incdir ( c-addr u -- ) \ gforth
+    \G Add path @i{c-addr u} to the list of include search pathes
+    [: ."  -I" type ;] c-flags $exec ;
 
 : add-ldflags ( c-addr u -- ) \ gforth
     \G add flag to linker
-    [: type space ;] c-libs $exec ;
+    [: space type ;] c-libs $exec ;
 
 : add-lib ( c-addr u -- ) \ gforth
-\G Add library lib@i{string} to the list of libraries, where
+    \G Add library lib@i{string} to the list of libraries, where
     \G @i{string} is represented by @i{c-addr u}.
     [: ."  -l" type ;] c-libs $exec ;
 
