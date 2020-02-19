@@ -964,11 +964,7 @@ n3=DLO(r);
  r>        0< IF  swap negate swap  THEN ;
 
 m*	( n1 n2 -- d )		core	m_star
-#ifdef BUGGY_LL_MUL
 d = mmul(n1,n2);
-#else
-d = (DCell)n1 * (DCell)n2;
-#endif
 :
  2dup      0< and >r
  2dup swap 0< and >r
@@ -1019,6 +1015,19 @@ u/mod-stage2m	( u1 a_stage1 -- umodulus uquotient ) gforth u_slash_mod_stage2m
 stagediv_t *stage1 = (stagediv_t *)a_stage1;
 uquotient = uslashstage2(u1,stage1);
 umodulus = u1 - uquotient*stage1->divisor;
+
+/f-stage2m	( n1 a_stage1 -- nquotient ) gforth slash_f_stage2m
+nquotient = slashfstage2(n1,((stagediv_t *)a_stage1));
+
+modf-stage2m	( n1 a_stage1 -- umodulus ) gforth mod_f_stage2m
+stagediv_t *stage1 = (stagediv_t *)a_stage1;
+Cell nquotient = slashfstage2(n1,stage1);
+umodulus = n1 - nquotient*stage1->divisor;
+
+/modf-stage2m	( n1 a_stage1 -- umodulus nquotient ) gforth slash_mod_f_stage2m
+stagediv_t *stage1 = (stagediv_t *)a_stage1;
+nquotient = slashfstage2(n1,stage1);
+umodulus = n1 - nquotient*stage1->divisor;
 
 m+	( d1 n -- d2 )		double		m_plus
 #ifdef BUGGY_LL_ADD

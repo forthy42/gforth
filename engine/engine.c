@@ -138,6 +138,51 @@ typedef struct {
   UCell divisor;    /* for computing the modulus */
 } stagediv_t;
 
+/* Both the function and the macro work, but on Haswell the function is
+   faster because of better register allocation, despite not being inlined */
+#if 1
+static inline UCell uslashstage2(UCell u1, stagediv_t *stage1)
+{
+  UDCell hi=ummul(u1,stage1->inverse_hi);
+  UDCell lo=ummul(u1,stage1->inverse);
+  return DHI(umadd(hi,DHI(lo)));
+}
+#else
+#define uslashstage2(u1,stage1)                                         \
+  DHI(umadd(ummul(u1,stage1->inverse_hi), DHI(ummul(u1,stage1->inverse))))
+#endif
+
+/* using a function because I did not get macros to work correctly; it
+   also happens to have better register allocation on AMD64, at the
+   cost of a function call (and non-relocatability) */
+static inline Cell slashfstage2(Cell n1, stagediv_t *stage1)
+{
+  Cell inv=stage1->inverse;
+  UDCell ud1=D2UD(mmul(n1,inv));
+  UDCell ud2=umadd(ud1,((UCell)inv)>>1);
+  Cell n2 = DHI(ud2)+n1;
+  return n2>>stage1->inverse_hi;
+}
+
+/* these macros did not work */
+/*
+#define slashfstage2(n1,stage1)                                       \
+  (((Cell)(DHI(umadd(D2UD(mmul(n1,stage1->inverse)),stage1->inverse>>1))+n1))>> \
+   stage1->inverse_hi)
+*/
+/*
+#define slashfstage2(_n1,_stage1) \
+  ({                              \
+  Cell n=_n1; \
+  stagediv_t *stage1=(stagediv_t *)_stage1; \
+  Cell inv=stage1->inverse; \
+  UDCell ud1=D2UD(mmul(n,inv)); \
+  UDCell ud2=umadd(ud1,((UCell)inv)>>1); \
+  Cell n2 = DHI(ud2)+n; \
+  n2>>stage1->inverse_hi; \
+  })
+*/
+
 /* ALIVE_DEBUGGING(x) makes x appear to be used (in the debugging
    engine); we use this in words like DROP to avoid the dead-code
    elimination of the load of the bottom stack item, in order to get

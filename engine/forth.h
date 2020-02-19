@@ -555,14 +555,15 @@ Sigfunc *bsd_signal(int signo, Sigfunc *func);
 
 /* dblsub routines */
 DCell dnegate(DCell d1);
-DCell mmul (Cell a, Cell b);
 UDCell umdiv (UDCell u, UCell v);
 DCell smdiv (DCell num, Cell denom);
 DCell fmdiv (DCell num, Cell denom);
 #ifdef BUGGY_LL_MUL
 UDCell ummul (UCell a, UCell b);
+DCell mmul (Cell a, Cell b);
 #else
 #define ummul(u1,u2) ((UDCell)(u1) * (UDCell)(u2))
+#define mmul(n1,n2) (((DCell)(n1)) * (DCell)(n2))
 #endif
 #ifdef BUGGY_LL_ADD
 UDCell dadd(UDCell x, UDCell y);
@@ -571,9 +572,6 @@ UDCell dadd(UDCell x, UDCell y);
 #define dadd(x,y) (((UDCell)(x))+(UDCell)(y))
 #define umadd(ud,u) (((UDCell)(ud))+(UCell)(u))
 #endif
-
-#define uslashstage2(u1,stage1) \
-  DHI(umadd(ummul(u1,stage1->inverse_hi), DHI(ummul(u1,stage1->inverse))))
 
 Cell memcasecmp(const Char *s1, const Char *s2, Cell n);
 
