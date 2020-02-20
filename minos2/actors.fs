@@ -198,9 +198,9 @@ end-class box-actor
     2drop fdrop fdrop ;
 box-actor is clicked
 :noname ( addr u -- )
-    active-w ?dup-IF  .act .ukeyed  ELSE  2drop  THEN ; box-actor is ukeyed
+    active-w ?dup-IF  .act ?dup-IF .ukeyed  EXIT  THEN  THEN  2drop ; box-actor is ukeyed
 :noname ( ekey -- )
-    active-w ?dup-IF  .act .ekeyed  ELSE  drop   THEN ; box-actor is ekeyed
+    active-w ?dup-IF  .act ?dup-IF .ekeyed  EXIT  THEN  THEN  drop ; box-actor is ekeyed
 : xy@ ( addr -- rx ry )  $@ drop dup sf@ sfloat+ sf@ ;
 :noname ( $xy b -- )
     over xy@ ?inside ?dup-IF  .touchdown  ELSE  2drop  THEN
@@ -215,7 +215,7 @@ box-actor is clicked
 	IF
 	    inside-move? >r
 	    act inside-move? <> IF  act .entered  THEN
-	    r@ inside-move? <>
+	    r@ inside-move? <> act and
 	    IF  r@ ?dup-IF  .left  THEN  THEN  rdrop
 	    2dup act .touchmove  THEN
     ;] box-touched# do-childs-act?

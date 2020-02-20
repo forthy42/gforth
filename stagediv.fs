@@ -255,7 +255,7 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
 
 
 \ tests and benchmarks
-1 [if]
+0 [if]
     -1 1 rshift dup constant max-n
     1+ constant min-n
 
