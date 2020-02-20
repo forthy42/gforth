@@ -255,6 +255,7 @@ Arithmetic
 * Double precision::            Double-cell integer arithmetic
 * Mixed precision::             Operations with single and double-cell integers
 * Integer division::
+* Two-stage integer division::
 * Bitwise operations::
 * Numeric comparison::
 * Floating Point::
@@ -4708,6 +4709,7 @@ or @code{fm/mod} (@pxref{Integer division}).
 * Double precision::            Double-cell integer arithmetic
 * Mixed precision::             Operations with single and double-cell integers
 * Integer division::
+* Two-stage integer division::
 * Bitwise operations::
 * Numeric comparison::
 * Floating Point::
@@ -4777,7 +4779,7 @@ doc-m+
 doc-m*
 doc-um*
 
-@node Integer division, Bitwise operations, Mixed precision, Arithmetic
+@node Integer division, Two-stage integer division, Mixed precision, Arithmetic
 @subsection Integer division
 @cindex dividing integers
 @cindex modulus
@@ -4887,7 +4889,103 @@ bet on such conditions being thrown, but for quicker debugging
 @code{gforth-fast}.
 
 
-@node Bitwise operations, Numeric comparison, Integer division, Arithmetic
+@node Two-stage integer division, Bitwise operations, Integer division, Arithmetic
+@subsection Two-stage integer division
+@cindex dividing many integers with the same divisor
+@cindex reciprocal of integer
+
+On most hardware, multiplication is significantly faster than
+division.  So if you have to divide many numbers by the same divisor,
+it is usually faster to determine the reciprocal of the divisor once
+and multiply the numbers with the reciprocal.  For integers, this is
+tricky, so Gforth packages this work into the words described in this
+section.
+
+Let's start with an example: You want to divide all elements of an
+array of cells by the same number n.  A straightforward way to
+implement this is:
+
+@example
+: array/ ( addr u n -- )
+  -rot cells bounds u+do
+    i @@ over / i !
+  1 cells +loop
+  drop ;
+@end example
+
+A more efficient version looks like this:
+
+@example
+: array/ ( addr u n -- )
+  @{: | reci[ staged/-size ] :@}
+  reci[ /f-stage1m
+  cells bounds u+do
+    i @@ reci[ /f-stage2m i !
+  1 cells +loop ;
+@end example
+
+This example first creates a local buffer @code{reci[} with size
+@code{staged/-size} for storing the reciprocal data.  Then
+@code{/f-stage1m} computes the reciprocal of @i{n} and stores it in
+@code{reci[}.  Finally, inside the loop @code{/f-stage2m} uses the
+data in @code{reci[} to compute the quotient.
+
+There are some limitations: Only positive divisors are supported for
+@code{/f-stage1m}; for @code{u/-stage1m} you can use a divisor of 2 or
+higher.  You get an error if you try to use an unsupported divisor.
+You must initalize the reciprocal buffer for the floored second-stage
+words with @code{/f-stage1m} and for the unsigned second-stage words
+with @code{u/-stage1m}.  You must not modify the reciprocal buffer
+between the first stage and the second stage; basically, don't treat
+it as a memory buffer, but as something that is only mutable by the
+first stage; the point of this rule is that future versions of Gforth
+will not consider aliasing of this buffer.
+
+The words are:
+
+doc-staged/-size
+doc-/f-stage1m
+doc-/f-stage2m
+doc-modf-stage2m
+doc-/modf-stage2m
+doc-u/-stage1m
+doc-u/-stage2m
+doc-umod-stage2m
+doc-u/mod-stage2m
+
+Gforth currently does not support staged symmetrical division.
+
+You can recover the divisor from (the address of) a reciprocal with
+@code{staged/-divisor @@}:
+
+doc-staged/-divisor
+
+This can be useful when looking at the decompiler output of Gforth: a
+division by a constant is often compiled to a literal containing the
+address of a reciprocal followed by a second-stage word.
+
+The performance impact of using these words strongly depends on the
+architecture (does it have hardware division) and the specific
+implementation (how fast is hardware division?), but just to give you
+an idea about the relative performance of these words, here are the
+cycles per iteration of a microbenchmark (which performs the mentioned
+word once per iteration) on two AMD64 implementations:
+
+@example
+ Skylake              Zen2
+norm stag           norm stag
+41.3 15.5 u/        35.2 21.4 u/   
+39.8 19.8 umod      36.9 25.8 umod 
+44.0 25.3 u/mod     43.0 33.9 u/mod
+48.7 16.9 /f        36.2 22.5 /f   
+47.8 20.4 modf      37.9 27.2 modf 
+52.9 24.6 /modf     45.8 35.3 /modf
+    229.4 u/stage1      102.2 u/stage1
+    466.9 /fstage1      546.0 /fstage1
+@end example
+
+
+@node Bitwise operations, Numeric comparison, Two-stage integer division, Arithmetic
 @subsection Bitwise operations
 @cindex bitwise operation words
 
