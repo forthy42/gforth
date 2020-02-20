@@ -1,4 +1,4 @@
-\ 2-stage division
+\ 2-stage division and optimizing division by constants
 
 \ Authors: Anton Ertl
 \ Copyright (C) 2020 Free Software Foundation, Inc.
@@ -134,6 +134,20 @@ constant staged/-size ( -- u )
 	    1 rshift 1 under+ repeat
     drop ;
 
+: pow2? ( u -- f )
+    dup dup 1- and 0= and 0<> ;
+
+: ctz ( x -- u )
+    \g count trailing zeros in binary representation of x
+    \ !! slow implementation
+    dup 0= if
+	drop 8 cells exit then
+    0 swap begin
+	dup 1 and 0= while
+	    1 rshift 1 under+ repeat
+    drop ;
+
+
 0 [if]
     \ these are now primitives
 : /f-stage2m {: ndividend addr -- :}
@@ -160,8 +174,78 @@ constant staged/-size ( -- u )
     \ ua 1 rshift addr staged/-offset !
     um addr staged/-shift ! ;
 
-/ tests and benchmarks
-0 [if]
+
+\ optimize division instructions
+
+: lit/, {: divisor xt: stage1 xt: stage2 -- :}
+    next-section staged/-size small-allot previous-section {: addr :}
+    divisor addr stage1 ]] addr stage2 [[ ;
+
+: opt-/f ( xt -- )
+    lits# 1 = if
+        lits> dup 0> if
+            dup pow2? if
+                ctz ]] literal arshift [[ drop exit then
+            ['] /f-stage1m ['] /f-stage2m lit/, drop exit then
+	>lits then
+    fold2-1 ;
+' opt-/f optimizes /f
+
+: opt-u/ ( xt -- )
+    lits# 1 = if
+        lits> dup 0<> if
+            dup pow2? if
+                ctz ]] literal rshift [[ drop exit then
+            ['] u/-stage1m ['] u/-stage2m lit/, drop exit then
+        >lits then
+    fold2-1 ;
+' opt-u/ optimizes u/
+
+: opt-modf ( xt -- )
+    lits# 1 = if
+        lits> dup 0> if
+            dup pow2? if
+                1- ]] literal and [[ drop exit then
+            ['] /f-stage1m ['] modf-stage2m lit/, drop exit then
+	>lits then
+    fold2-1 ;
+' opt-modf optimizes modf
+
+: opt-umod ( xt -- )
+    lits# 1 = if
+        lits> dup 0<> if
+            dup pow2? if
+                1- ]] literal and [[ drop exit then
+            ['] u/-stage1m ['] umod-stage2m lit/, drop exit then
+        >lits then
+    fold2-1 ;
+' opt-umod optimizes umod
+
+: opt-/modf ( xt -- )
+    lits# 1 = if
+        lits> dup 0> if
+            dup pow2? if
+                dup 1- ]] dup literal and swap [[ ctz ]] literal arshift [[
+                drop exit then
+            ['] /f-stage1m ['] /modf-stage2m lit/, drop exit then
+	>lits then
+    fold2-2 ;
+' opt-/modf optimizes /modf
+
+: opt-u/mod ( xt -- )
+    lits# 1 = if
+        lits> dup 0<> if
+            dup pow2? if
+                dup 1- ]] dup literal and swap [[ ctz ]] literal rshift [[
+                drop exit then
+            ['] u/-stage1m ['] u/mod-stage2m lit/, drop exit then
+        >lits then
+    fold2-2 ;
+' opt-u/mod optimizes u/mod
+
+
+\ tests and benchmarks
+1 [if]
     -1 1 rshift dup constant max-n
     1+ constant min-n
 
@@ -197,7 +281,7 @@ constant staged/-size ( -- u )
         -1 -1 -100000000 do i - buf[ /f-stage2m loop drop ;
 
     : /fbench ( -- )
-        -1 -1 -100000000 do i - 3 /f loop drop ;
+        3 {: x :} -1 -1 -100000000 do i - x /f loop drop ;
 
     : modfstagebench ( -- )
         {: | buf[ staged/-size ] :}
@@ -205,7 +289,7 @@ constant staged/-size ( -- u )
         -1 -1 -100000000 do i - buf[ modf-stage2m loop drop ;
 
     : modfbench ( -- )
-        -1 -1 -100000000 do i - 3 modf loop drop ;
+        3 {: x :} -1 -1 -100000000 do i - x modf loop drop ;
 
     : /modfstagebench ( -- )
         {: | buf[ staged/-size ] :}
@@ -213,7 +297,7 @@ constant staged/-size ( -- u )
         -1 -1 -100000000 do i - buf[ /modf-stage2m - loop drop ;
 
     : /modfbench ( -- )
-        -1 -1 -100000000 do i - 3 /modf - loop drop ;
+        3 {: x :} -1 -1 -100000000 do i - x /modf - loop drop ;
 
     : /fstage1bench ( -- )
         {: | buf[ staged/-size ] :}
@@ -242,7 +326,7 @@ constant staged/-size ( -- u )
         -1 -1 -100000000 do i - buf[ u/-stage2m loop drop ;
 
     : u/bench ( -- )
-        -1 -1 -100000000 do i - 3 u/ loop drop ;
+        3 {: x :} -1 -1 -100000000 do i - x u/ loop drop ;
     
     : umodstagebench ( -- )
         {: | buf[ staged/-size ] :}
@@ -250,7 +334,7 @@ constant staged/-size ( -- u )
         -1 -1 -100000000 do i - buf[ umod-stage2m loop drop ;
 
     : umodbench ( -- )
-        -1 -1 -100000000 do i - 3 umod loop drop ;
+        3 {: x :} -1 -1 -100000000 do i - x umod loop drop ;
 
     : u/modstagebench ( -- )
         {: | buf[ staged/-size ] :}
@@ -258,7 +342,7 @@ constant staged/-size ( -- u )
         -1 -1 -100000000 do i - buf[ u/mod-stage2m - loop drop ;
 
     : u/modbench ( -- )
-        -1 -1 -100000000 do i - 3 u/mod - loop drop ;
+        3 {: x :} -1 -1 -100000000 do i - x u/mod - loop drop ;
 
     : u/stage1bench ( -- )
         {: | buf[ staged/-size ] :}
@@ -272,7 +356,7 @@ constant staged/-size ( -- u )
             cyc=`perf stat -x " " -e cycles gforth-fast stagediv.fs -e "${i}bench bye" 2>&1 | awk '{printf("%5.1f",$1/100000000)}'`;
             cycstage=`perf stat -x " " -e cycles gforth-fast stagediv.fs -e "${i}stagebench bye" 2>&1 | awk '{printf("%5.1f",$1/100000000)}'`;
             echo $cyc $cycstage" "$i;
-         done
+         done; \
          for i in u/stage1 /fstage1; do
              perf stat -x " " -e cycles gforth-fast stagediv.fs -e "${i}bench bye" 2>&1 | awk '{printf("%10.1f '$i'\n",$1/10000000)}';
          done

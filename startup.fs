@@ -40,9 +40,11 @@ require glocals.fs
 require iloops.fs
 require float.fs
 require stuff.fs
-require sections.fs
-require closures.fs
 require fold.fs
+require sections.fs
+require struct0x.fs
+require stagediv.fs
+require closures.fs
 require wordinfo.fs
 require vt100.fs
 require bufio.fs
@@ -68,7 +70,6 @@ require backtrac.fs
 require simp-see.fs
 require debug.fs
 require dis-gdb.fs
-require struct0x.fs
 require libcc.fs
 require str-exec.fs
 require gforthrc.fs

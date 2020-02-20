@@ -412,9 +412,23 @@ t{ -2 15 -1 u*/mod -> -16 14 }t
 
 \ optimization of division words
 
+\ division by power of 2
 t{ :noname -21 4 /f    ; execute -> -6 }t
 t{ :noname -21 4 modf  ; execute ->  3 }t
 t{ :noname -21 4 /modf ; execute ->  3 -6 }t
 t{ :noname  25 4 u/    ; execute ->  6 }t
 t{ :noname  25 4 umod  ; execute ->  1 }t
 t{ :noname  25 4 u/mod ; execute ->  1 6 }t
+
+\ division by other optimizable divisor
+t{ :noname -20 3 /f    ; execute -> -7 }t
+t{ :noname -20 3 modf  ; execute ->  1 }t
+t{ :noname -20 3 /modf ; execute ->  1 -7 }t
+t{ :noname  39 5 u/    ; execute ->  7 }t
+t{ :noname  39 5 umod  ; execute ->  4 }t
+t{ :noname  39 5 u/mod ; execute ->  4 7 }t
+
+\ division by non-optimizable divisor
+t{ :noname -20 -3 /f    ; execute ->  6 }t
+t{ :noname -20 -3 modf  ; execute ->  -2 }t
+t{ :noname -20 -3 /modf ; execute ->  -2 6 }t
