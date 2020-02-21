@@ -1115,7 +1115,7 @@ fi
 AC_SUBST(gforth_elc)
 
 #MacOS X has a libtool that does something else
-AC_CHECK_PROGS(GNU_LIBTOOL,"glibtool --tag=CC" libtool)
+AC_CHECK_PROGS(GNU_LIBTOOL,glibtool libtool)
 if test -z "$GNU_LIBTOOL"; then
   AC_MSG_WARN([No GNU_LIBTOOL found, using "libtool" as name.])
   AC_MSG_WARN([libcc.fs won't work until you have installed (GNU) libtool.])

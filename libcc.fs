@@ -835,12 +835,12 @@ DEFER compile-wrapper-function ( -- )
     0= if
 	lha,
     endif
-    c-libs $init  c-flags $init
-    libcc$ $init libcc-include
+    ptr-declare off  c-libs off  c-flags off
+    libcc$ off  libcc-include
 ;
 : end-libs ( -- )
-    ptr-declare $[]off
-    vararg$ $free ;
+    ptr-declare $[]free
+    vararg$ $free  c-flags $free  c-libs $free ;
 clear-libs
 end-libs
 
@@ -1037,7 +1037,6 @@ latestnt to rt-vtable
 	2drop libcc-tmp-dir
     THEN
     libcc-named-dir$ $!
-    ptr-declare $init
     clear-libs libcc>named-path
     s" libccdir" getenv 2dup d0= IF
 	2drop [ s" libccdir" getenv ':' 0 substc ] SLiteral
