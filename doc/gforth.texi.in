@@ -4969,19 +4969,22 @@ architecture (does it have hardware division) and the specific
 implementation (how fast is hardware division?), but just to give you
 an idea about the relative performance of these words, here are the
 cycles per iteration of a microbenchmark (which performs the mentioned
-word once per iteration) on two AMD64 implementations:
+word once per iteration) on two AMD64 implementations; the @i{norm}
+column shows the normal division word (e.g., @code{u/}), while the
+@i{stag} column shows the corresponding stage2 word (e.g.,
+@code{u/-stage2m}):
 
 @example
  Skylake              Zen2
 norm stag           norm stag
-41.3 15.5 u/        35.2 21.4 u/   
-39.8 19.8 umod      36.9 25.8 umod 
-44.0 25.3 u/mod     43.0 33.9 u/mod
-48.7 16.9 /f        36.2 22.5 /f   
-47.8 20.4 modf      37.9 27.2 modf 
-52.9 24.6 /modf     45.8 35.3 /modf
-    229.4 u/stage1      102.2 u/stage1
-    466.9 /fstage1      546.0 /fstage1
+41.3 15.8 u/	    35.2 21.4 u/	   
+39.8 19.7 umod	    36.9 25.8 umod	   
+44.0 25.3 u/mod	    43.0 33.9 u/mod	   
+48.7 16.9 /f	    36.2 22.5 /f	   
+47.9 20.5 modf	    37.9 27.1 modf	   
+53.0 24.6 /modf	    45.8 35.4 /modf	   
+    227.2 u/stage1      101.9 u/stage1
+    159.8 /fstage1       97.7 /fstage1
 @end example
 
 

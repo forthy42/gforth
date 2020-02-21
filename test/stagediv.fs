@@ -135,12 +135,12 @@
     \ Results (in cycles per iteration of the microbenchmark):
      Haswell             Skylake              Zen2
     norm stag           norm stag           norm stag
-    48.1 21.5 u/        41.3 15.5 u/        35.2 21.4 u/   
-    46.6 26.0 umod      39.8 19.8 umod      36.9 25.8 umod 
-    53.4 32.1 u/mod     44.0 25.3 u/mod     43.0 33.9 u/mod
-    56.4 23.4 /f        48.7 16.9 /f        36.2 22.5 /f   
-    55.8 27.2 modf      47.8 20.4 modf      37.9 27.2 modf 
-    64.4 33.3 /modf     52.9 24.6 /modf     45.8 35.3 /modf
-        224.3 u/stage1      229.4 u/stage1     102.2 u/stage1
-        592.5 /fstage1      466.9 /fstage1     546.0 /fstage1
+    47.7 21.4 u/        41.3 15.8 u/	    35.2 21.4 u/	   
+    46.5 25.9 umod	39.8 19.7 umod	    36.9 25.8 umod	   
+    53.3 32.1 u/mod	44.0 25.3 u/mod	    43.0 33.9 u/mod	   
+    56.3 23.5 /f	48.7 16.9 /f	    36.2 22.5 /f	   
+    56.2 27.3 modf	47.9 20.5 modf	    37.9 27.1 modf	   
+    63.4 33.3 /modf	53.0 24.6 /modf	    45.8 35.4 /modf	   
+        225.4 u/stage1      227.2 u/stage1      101.9 u/stage1
+        158.5 /fstage1      159.8 /fstage1       97.7 /fstage1
 [then]
