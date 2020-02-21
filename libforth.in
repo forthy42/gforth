@@ -27,7 +27,7 @@ export CROSS_PREFIX=@CROSS_PREFIX@
 @NO_CROSS@test -f "gforth.fi" && KERNEL="gforth.fi"
 export libccdir="$PWD/lib/gforth/$VERSION/$machine/libcc-named/"
 export libccnameddir="$libccdir"
-if [ x"@LIB_SUFFIX@" == "x.so" ]; then
+if test x"@LIB_SUFFIX@" = "x.so" ; then
    export libccdir="$libccdir/.libs/"
 fi
 if test -n "$C_INCLUDE_PATH"; then
