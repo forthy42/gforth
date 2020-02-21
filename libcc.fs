@@ -1024,15 +1024,21 @@ latestnt to rt-vtable
     c-named-library-name
     also c-lib ; \ setup of a named c library also extends vocabulary stack
 
+: libcc>named-path ( -- )
+    libcc-path clear-path  libcc-named-dir
+    [ lib-suffix s" .so" str= ] [IF]
+	[: type ." .libs/" ;] $tmp
+    [THEN]
+    libcc-path also-path ;
+
 : init-libcc ( -- )
     libcc-named-dir$ $init
     s" libccnameddir" getenv 2dup d0= IF
 	2drop libcc-tmp-dir
     THEN
     libcc-named-dir$ $!
-    libcc-path $init  ptr-declare $init
-    clear-libs
-    libcc-named-dir libcc-path also-path
+    ptr-declare $init
+    clear-libs libcc>named-path
     s" libccdir" getenv 2dup d0= IF
 	2drop [ s" libccdir" getenv ':' 0 substc ] SLiteral
     ELSE  ':' 0 substc  THEN  libcc-path also-path

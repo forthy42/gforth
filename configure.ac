@@ -1135,7 +1135,14 @@ AC_CHECK_LIB(m,asin)
 AC_CHECK_LIB(ltdl,lt_dlinit)
 #,LIB_SUFFIX=.la,LIB_SUFFIX=.so)
 if test "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
-  LIB_SUFFIX=.la
+   case "$host_os" in
+   *linux*)
+     LIB_SUFFIX=.so
+     ;;
+   *)
+     LIB_SUFFIX=.la
+     ;;
+   esac
 else
   LIB_SUFFIX=.so
 fi

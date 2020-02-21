@@ -21,8 +21,6 @@
 cs-vocabulary gps \ needs to be case sensitive
 get-current also gps definitions
 
-also c-lib s" n" vararg$ $! previous
-
 include unix/gps.fs
 
 set-current
