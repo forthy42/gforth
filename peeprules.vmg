@@ -160,8 +160,8 @@ csswaplfetch = ul@ l>< l>s
 \E prim-states drop                 \ 173995
 \E S0 S0 state-prim drop
 \E prim-states lshift               \ 164671
-\E prim-states /modf                 \ 164670
-\E prim-states /mods
+\ \E prim-states /modf                 \ 164670
+\ \E prim-states /mods
 \E prim-states >r                   \ 145247
 \E prim-states r>                   \ 133792
 \ \E branch-states does-exec            \ 120944
@@ -293,10 +293,10 @@ csswaplfetch = ul@ l>< l>s
 \ \E prim-states close-file           \ 5
 \ \E prim-states call-c               \ 4
 \ \E prim-states reposition-file      \ 3
-\E prim-states /f                    \ 3
-\E prim-states /s
-\E prim-states modf
-\E prim-states mods
+\ \E prim-states /f                    \ 3
+\ \E prim-states /s
+\ \E prim-states modf
+\ \E prim-states mods
 \ \E prim-states resize-file          \ 2
 \ \E prim-states free                 \ 2
 \E prim-states 2/                   \ 2

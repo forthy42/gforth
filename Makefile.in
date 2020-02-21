@@ -376,8 +376,9 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
 	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png
 
-TEST_SRC = tester.fs ttester.fs coretest.fs postpone.fs dbltest.fs string.fs \
-	float.fs search.fs gforth.fs forward.fs other.fs signals.fs checkans.fs \
+TEST_SRC = tester.fs ttester.fs checkans.fs coretest.fs dbltest.fs	     \
+	float.fs gforth.fs forward.fs other.fs postpone.fs		     \
+	search.fs signals.fs stagediv.fs string.fs			     \
 	primtest.fs coreext.fs deferred.fs coremore.fs gforth-nofast.fs	     \
 	libcc.fs macros.fs fp/ak-fp-test.fth fp/fatan2-test.fs		     \
 	fp/fpio-test.4th fp/fpzero-test.4th fp/ieee-arith-test.fs	     \

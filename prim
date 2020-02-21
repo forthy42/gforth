@@ -3392,6 +3392,27 @@ u1 |= u1>>32;
 u2 = u1+1;
 #endif
 
+log2	( u -- n )	gforth
+""@i{N} is the rounded-down binary logarithm of @i{u}, i.e., the index of
+the first set bit; if @i{u}=0, @i{n}=-1.""
+#ifdef HAVE___BUILTIN_CLZL
+if (u==0)
+   n=-1;
+else
+   n=(8*sizeof(long)-1)-__builtin_clzl(u);
+#else /* !defined(HAVE___BUILTIN_CLZL) */
+UCell s;
+n = -(u==0);
+#if SIZEOF_CHAR_P == 8
+s = (u>0xffffffff) ? 32 : 0; n |= s; u >>= s;
+#endif
+s = (u>0xffff)     ? 16 : 0; n |= s; u >>= s;
+s = (u>0xff)       ?  8 : 0; n |= s; u >>= s;
+s = (u>0xf)        ?  4 : 0; n |= s; u >>= s;
+s = (u>0x3)        ?  2 : 0; n |= s; u >>= s;
+s = (u>0x1)        ?  1 : 0; n |= s;
+#endif /* !defined(HAVE___BUILTIN_CLZL) */
+
 \g atomic
 
 !@ ( u1 a_addr -- u2 )	gforth-experimental store_fetch
