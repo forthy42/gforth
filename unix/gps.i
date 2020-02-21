@@ -10,4 +10,5 @@
 
 %include <gps.h>
 
+// exec: sed -e 's/add-lib/add-lib`s" a" vararg$ $!/g' | tr '`' '\n'
 // prep: sed -e 's/enum \$unnamed[0-9]*\$/int/g'

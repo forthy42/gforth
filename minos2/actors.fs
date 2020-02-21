@@ -684,6 +684,7 @@ Defer anim-ins
 ' edit-del       k-delete ebindkey
 ' (xtab-expand)  k-tab    ebindkey
 ' edit-selall    k-sel    ebindkey
+\ ' edit-copy      'W' k-alt-mask or ebindkey
 
 edit-terminal edit-out !
 
