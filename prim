@@ -1002,32 +1002,46 @@ u3=DLO(r);
    over MINI and >r 
    >r 2dup d+ r> 0 d+ r> ;
 
-u/-stage2m	( u1 a_stage1 -- uquotient ) gforth u_slash_stage2m
-stagediv_t *stage1 = (stagediv_t *)a_stage1;
-uquotient = uslashstage2(u1,stage1);
+u/-stage2m	( u1 a_reci -- uquotient ) gforth u_slash_stage2m
+""@i{Uquotient} is the result of dividing @i{u1} by the divisor represented
+by @i{a-reci}, which was computed by @code{u/-stage1m}.""
+stagediv_t *reci = (stagediv_t *)a_reci;
+uquotient = uslashstage2(u1,reci);
 
-umod-stage2m	( u1 a_stage1 -- umodulus ) gforth u_mod_stage2m
-stagediv_t *stage1 = (stagediv_t *)a_stage1;
-UCell uquotient = uslashstage2(u1,stage1);
-umodulus = u1 - uquotient*stage1->divisor;
+umod-stage2m	( u1 a_reci -- umodulus ) gforth u_mod_stage2m
+""@i{Umodulus} is the remainder of dividing @i{u1} by the divisor represented
+by @i{a-reci}, which was computed by @code{u/-stage1m}.""
+stagediv_t *reci = (stagediv_t *)a_reci;
+UCell uquotient = uslashstage2(u1,reci);
+umodulus = u1 - uquotient*reci->divisor;
 
-u/mod-stage2m	( u1 a_stage1 -- umodulus uquotient ) gforth u_slash_mod_stage2m
-stagediv_t *stage1 = (stagediv_t *)a_stage1;
-uquotient = uslashstage2(u1,stage1);
-umodulus = u1 - uquotient*stage1->divisor;
+u/mod-stage2m	( u1 a_reci -- umodulus uquotient ) gforth u_slash_mod_stage2m
+""@i{Uquotient} is the quotient and @i{umodulus} is the remainder of
+dividing @i{u1} by the divisor represented by @i{a-reci}, which was
+computed by @code{u/-stage1m}.""
+stagediv_t *reci = (stagediv_t *)a_reci;
+uquotient = uslashstage2(u1,reci);
+umodulus = u1 - uquotient*reci->divisor;
 
-/f-stage2m	( n1 a_stage1 -- nquotient ) gforth slash_f_stage2m
-nquotient = slashfstage2(n1,((stagediv_t *)a_stage1));
+/f-stage2m	( n1 a_reci -- nquotient ) gforth slash_f_stage2m
+""@i{Nquotient} is the result of dividing @i{n1} by the divisor represented
+by @i{a-reci}, which was computed by @code{/f-stage1m}.""
+nquotient = slashfstage2(n1,((stagediv_t *)a_reci));
 
-modf-stage2m	( n1 a_stage1 -- umodulus ) gforth mod_f_stage2m
-stagediv_t *stage1 = (stagediv_t *)a_stage1;
-Cell nquotient = slashfstage2(n1,stage1);
-umodulus = n1 - nquotient*stage1->divisor;
+modf-stage2m	( n1 a_reci -- umodulus ) gforth mod_f_stage2m
+""@i{Umodulus} is the remainder of dividing @i{n1} by the divisor represented
+by @i{a-reci}, which was computed by @code{/f-stage1m}.""
+stagediv_t *reci = (stagediv_t *)a_reci;
+Cell nquotient = slashfstage2(n1,reci);
+umodulus = n1 - nquotient*reci->divisor;
 
-/modf-stage2m	( n1 a_stage1 -- umodulus nquotient ) gforth slash_mod_f_stage2m
-stagediv_t *stage1 = (stagediv_t *)a_stage1;
-nquotient = slashfstage2(n1,stage1);
-umodulus = n1 - nquotient*stage1->divisor;
+/modf-stage2m	( n1 a_reci -- umodulus nquotient ) gforth slash_mod_f_stage2m
+""@i{Nquotient} is the quotient and @i{umodulus} is the remainder of
+dividing @i{n1} by the divisor represented by @i{a-reci}, which was
+computed by @code{/f-stage1m}.""
+stagediv_t *reci = (stagediv_t *)a_reci;
+nquotient = slashfstage2(n1,reci);
+umodulus = n1 - nquotient*reci->divisor;
 
 m+	( d1 n -- d2 )		double		m_plus
 #ifdef BUGGY_LL_ADD

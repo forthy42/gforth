@@ -22,10 +22,12 @@
 field: staged/-inverse \ for staged u/: the low cell of the inverse
 field: staged/-shift   \ for staged /f
 ' staged/-shift alias staged/-inverse-hi \ high cell of the inverse for u/
-field: staged/-divisor \ for computing the modulus
+field: staged/-divisor ( addr1 -- addr2 ) \ gforth staged-slash-divisor
+\G @i{Addr1} is the address of a reciprocal, @i{addr2} is the address
+\G containing the divisor from which the reciprocal was computed.
 \ field: staged/-offset  \ the b value of Robison's algorithms
-constant staged/-size ( -- u )
-\g size of buffer for @code{u/-stage1m} or @code{/f-stage1m}.
+constant staged/-size ( -- u ) \ gforth staged-slash-size
+\g Size of buffer for @code{u/-stage1m} or @code{/f-stage1m}.
 
 
 \ unsigned division
@@ -74,7 +76,11 @@ constant staged/-size ( -- u )
     udividend addr u/-stage2m udividend over addr staged/-divisor @ * - swap ;
 [then]
 
-: u/-stage1m {: udivisor addr -- :}
+: u/-stage1m ( u addr-reci -- ) \ gforth u-slash-stage1m
+    \G Compute the reciprocal of @i{u} and store it in the buffer
+    \G @i{addr-reci} of size @code{staged/-size}.  Throws an error if
+    \G @i{u}<2.
+    {: udivisor addr :}
     udivisor 2 u< -24 and throw
     udivisor addr staged/-divisor !
     0 1 udivisor um/mod addr staged/-inverse-hi !
@@ -161,7 +167,11 @@ constant staged/-size ( -- u )
     ndividend addr /f-stage2m ndividend over addr staged/-divisor @ * - swap ;
 [then]
 
-: /f-stage1m {: ndivisor addr -- :}
+: /f-stage1m ( n addr-reci -- ) \ gforth slash-f-stage1m
+    \G Compute the reciprocal of @i{n} and store it in the buffer
+    \G @i{addr-reci} of size @code{staged/-size}.  Throws an error if
+    \G @i{n}<1.
+    {: ndivisor addr -- :}
     ndivisor 1 < -24 and throw
     ndivisor log2 {: um :}
     ndivisor pow2? if
@@ -361,15 +371,23 @@ constant staged/-size ( -- u )
              perf stat -x " " -e cycles gforth-fast stagediv.fs -e "${i}bench bye" 2>&1 | awk '{printf("%10.1f '$i'\n",$1/10000000)}';
          done
         \ Results (in cycles per iteration of the microbenchmark):
-         Haswell              Zen2
-        norm stag           norm stag
-        48.1 21.5 u/        35.2 21.4 u/   
-        46.6 26.0 umod      36.9 25.8 umod 
-        53.4 32.1 u/mod     43.0 33.9 u/mod
-        56.4 23.4 /f        36.2 22.5 /f   
-        55.8 27.2 modf      37.9 27.2 modf 
-        64.4 33.3 /modf     45.8 35.3 /modf
-            224.3 u/stage1     102.2 u/stage1
-            592.5 /fstage1     546.0 /fstage1
+         Haswell             Skylake              Zen2
+        norm stag           norm stag           norm stag
+        48.1 21.5 u/        41.3 15.5 u/        35.2 21.4 u/   
+        46.6 26.0 umod      39.8 19.8 umod      36.9 25.8 umod 
+        53.4 32.1 u/mod     44.0 25.3 u/mod     43.0 33.9 u/mod
+        56.4 23.4 /f        48.7 16.9 /f        36.2 22.5 /f   
+        55.8 27.2 modf      47.8 20.4 modf      37.9 27.2 modf 
+        64.4 33.3 /modf     52.9 24.6 /modf     45.8 35.3 /modf
+            224.3 u/stage1      229.4 u/stage1     102.2 u/stage1
+            592.5 /fstage1      466.9 /fstage1     546.0 /fstage1
     [then]
 [then]
+
+
+
+
+
+
+
+
