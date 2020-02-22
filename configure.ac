@@ -185,7 +185,8 @@ AC_ARG_WITH(install,
 [if test "$withval" != "no"; then
     for i in ${withval//,/ }
     do
-        ./install-$i.sh
+	echo "install $i with $ac_configure_args ..."
+	eval ./install-$i.sh $ac_configure_args
     done
 fi])
 

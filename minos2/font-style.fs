@@ -162,8 +162,14 @@ previous
 \ font paths
 
 Variable font-path
+Variable font-prefix$
+
+"GFORTHFONTS" getenv 2dup d0= [IF] 2drop "/usr/share/fonts/" [THEN]
+font-prefix$ $!
+
 : font-path+ ( "font" -- )
-    parse-name 2dup open-dir 0= IF
+    parse-name [: font-prefix$ $. type ;] $tmp
+    2dup open-dir 0= IF
 	close-dir throw font-path also-path
     ELSE  drop 2drop  THEN ;
 : ?font ( addr u -- addr' u' true / false )
@@ -178,18 +184,19 @@ Variable font-path
     fontname@ $! ;
 
 [IFDEF] android
+    font-prefix$ $free
     font-path+ /system/fonts
     font-path+ /sdcard/gforth/current/minos2/fonts
 [ELSE]
-    font-path+ /usr/share/fonts/ttf/
-    font-path+ /usr/share/fonts/truetype/
-    font-path+ /usr/share/fonts/truetype/noto
-    font-path+ /usr/share/fonts/truetype/droid
-    font-path+ /usr/share/fonts/truetype/liberation
-    font-path+ /usr/share/fonts/truetype/arphic-gkai00mp
-    font-path+ /usr/share/fonts/truetype/emoji
-    font-path+ /usr/share/fonts/opentype/
-    font-path+ /usr/share/fonts/opentype/noto
+    font-path+ ttf/
+    font-path+ truetype/
+    font-path+ truetype/noto
+    font-path+ truetype/droid
+    font-path+ truetype/liberation
+    font-path+ truetype/arphic-gkai00mp
+    font-path+ truetype/emoji
+    font-path+ opentype/
+    font-path+ opentype/noto
 [THEN]
 
 Vocabulary fonts

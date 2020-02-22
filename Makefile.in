@@ -881,7 +881,7 @@ install-arch:	installdeps installdirs-arch normal-install rm-install install-pro
 install-seq:	install-indep install-arch install-txt install-info
 
 post-inst:
-		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
+		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el* libgforth*
 		$(POST_INSTALL)
 		@test 0$$SUDO_UID -ne 0 && find . -user root | sed -e 's/^/failed to clean: /g' || true
 		@echo
@@ -1318,7 +1318,7 @@ libgforths:	$(LIBENGINES) $(LIBENGINES_FAST)
 
 .SUFFIXES:	.c .pri
 
-.pri.c:		$< prim2cl.fs
+.pri.c:		gforth$(EXT) $< prim2cl.fs
 		$(FORTHK) prim2cl.fs -e "file $< altogether bye" >$@
 
 .c.so:		$<
@@ -1370,11 +1370,11 @@ start-gforth.el:	gforth.el
 
 #Documentation
 
-doc/doc.fd:	doc/makedoc.fs $(GFORTH_FI_SRC) $(EXTRA_DOC)
+doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC)
 		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs $(EXTRA_DOC) -e bye
 		$(srcdir)/move-if-change doc/doc.fd.tmp $@
 
-doc/crossdoc.fd:	$(KERN_SRC) kernel/version.fs $(FORTH_GEN0)
+doc/crossdoc.fd:	$(KERN_SRC) gforth$(EXT) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs" include kernel/main.fs' -e bye
 		$(srcdir)/move-if-change doc/crossdoc.fd.tmp $@
 
