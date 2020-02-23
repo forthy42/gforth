@@ -34,7 +34,7 @@ s" os-type" environment? [IF]
 	require ../unix/android.fs
 	also android
 
-	: use-egl ;
+	synonym use-egl noop
     [ELSE]
 	2dup s" darwin" str= >r s" linux-gnu" string-prefix? r> or [IF]
 	    [IFDEF] use-wl
@@ -44,14 +44,16 @@ s" os-type" environment? [IF]
 		require wayland-gl.fs
 		require ../unix/opengles.fs
 		also opengl
-		[IFUNDEF] use-egl : use-egl ; [THEN]
-		[IFUNDEF] use-wl : use-wl ; [THEN]
+		[IFUNDEF] use-egl synonym use-egl noop [THEN]
+		[IFUNDEF] use-wl synonym use-wl noop [THEN]
 	    [ELSE] \ it's probably "x11" or undefined
-		[IFDEF] use-glx
+		[DEFINED] use-glx s" GFORTH_GL" getenv s" glx" str= or
+		[DEFINED] use-egl 0= and [IF]
 		    require ../unix/opengl.fs
+		    [IFUNDEF] use-glx synonym use-glx noop [THEN]
 		[ELSE]
 		    require ../unix/opengles.fs
-		    : use-egl ;
+		    [IFUNDEF] use-egl synonym use-egl noop [THEN]
 		[THEN]
 		also opengl
 		require linux-gl.fs \ same voc stack effect as on android
@@ -182,7 +184,7 @@ Variable eglformat
 	    egldpy configs @ 0 eglattribs eglCreateContext to ctx
 	    egldpy surface dup ctx eglMakeCurrent drop ;
 
-	: >screen-orientation ;
+	synonym >screen-orientation noop
 
 	: sync ( -- )
 	    egldpy surface eglSwapBuffers drop ;
@@ -235,7 +237,7 @@ Variable eglformat
 	    dpy win ctx glXMakeCurrent drop
 	    visuals XFree drop 0 to visuals 0 to visual ;
 
-	: >screen-orientation ;
+	synonym >screen-orientation noop
 
 	: sync ( -- )
 	    dpy win glXSwapBuffers ;
@@ -1065,7 +1067,7 @@ Variable last-y0  -100 last-y0 !
 : !click ( -- )  0e motion-x0 f! 0e motion-y0 f! ftime drag-time f! ;
 
 also [IFDEF] jni jni [THEN]
-[IFUNDEF] togglekb : togglekb ; [THEN]
+[IFUNDEF] togglekb synonym togglekb noop [THEN]
 : ?toggle ( -- )
     short? motion-y0 f@ 2e f< and IF  togglekb -show  THEN ;
 previous
