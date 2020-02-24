@@ -46,7 +46,13 @@ AC_SUBST(LIBLTDL)
 AC_SUBST(LTDL_LDLIBS)
 
 #suppress the "-g -O2" default
-test "$CFLAGS" || CFLAGS=-O2
+case "$CFLAGS" in
+     *-O*)
+	;;
+     *)
+	CFLAGS="$CFLAGS -O2"
+	;;
+esac
 
 AC_SUBST(PROFEXES)
 AC_SUBST(PROFOBJS)
