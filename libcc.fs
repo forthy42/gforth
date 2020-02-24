@@ -249,7 +249,7 @@ Variable c-libs \ library names in a string (without "lib")
 : add-framework ( c-addr u -- ) \ gforth
     \G Add framework lib@i{string} to the list of frameworks, where
     \G @i{string} is represented by @i{c-addr u}.
-    [: ."  -framework" type ;] c-libs $exec ;
+    [: ."  -framework " type ;] c-libs $exec ;
 
 : add-libpath ( c-addr u -- ) \ gforth
 \G Add path @i{string} to the list of library search pathes, where
