@@ -319,7 +319,7 @@ Variable gl-emit-buf
 	ELSE \ slow path for xchars
 	    gl-emit-buf c$+!  gl-emit-buf $@ tuck
 	    ['] x-size catch UTF-8-err = IF
-		2drop $7F 1
+		2drop drop $7F 1
 	    ELSE  u< IF  rdrop  EXIT  THEN
 		gl-emit-buf $@ drop ['] xc@ catch UTF-8-err =
 		IF  drop $7F 1  ELSE  xchar>glascii
