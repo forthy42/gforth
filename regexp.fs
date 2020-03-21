@@ -55,6 +55,9 @@
 : ..char ( start end -- ) \ regexp-cg
     \G add a range of chars to the current charclass
     1+ swap ?DO  I +char  LOOP ;
+: +chars ( addr u -- ) \ regexp-cg
+    \G add a string of chars to the current charclass
+    bounds ?DO  I c@ +char  LOOP ;
 : or! ( n addr -- )  dup @ rot or swap ! ;
 : and! ( n addr -- )  dup @ rot and swap ! ;
 : +class ( class -- ) \ regexp-cg

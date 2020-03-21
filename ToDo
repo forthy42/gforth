@@ -20,7 +20,7 @@ A        [ ] locals
  B       [x]*saver for images with sections
  B       [x] loader for images with sections
  B   [ ]*Header Interface - autodetect duplication, simpler interface, setters have to duplicate if not already
- B       [ ] Generate header from prototype without duplcation
+ B       [x] Generate header from prototype without duplcation
 AB   [ ]*locate, view, where & edit
          [ ] documented view>*
          [x]*help or doc - get documentation of word
