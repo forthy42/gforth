@@ -164,6 +164,10 @@ gforth_stackpointers gforth_libcc_init(GFORTH_ARGS)
             : 0); \
   } while (0);
 
+#define c_str2gforth_str(str,addr,u) \
+    (addr) = (Char *) str; \
+    (u) = strlen(str);
+
 #define gforth_ll2ud(ll,lo,hi) \
   do { \
     UClongest _ll = (ll); \
