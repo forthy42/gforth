@@ -522,6 +522,10 @@ create gen-call-types
 : gen-wrapped-a ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     2dup gen-par-sp 2>r ." =(Cell)" gen-wrapped-call 2r> ;
 
+: gen-wrapped-s ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
+    ." c_str2gforth_str(" gen-wrapped-void
+    ." ," gen-par-sp ." ," gen-par-sp ." )" ;
+
 : gen-wrapped-d ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     ." gforth_ll2d(" gen-wrapped-void
     ." ," gen-par-sp ." ," gen-par-sp ." )" ;
@@ -545,7 +549,7 @@ create gen-wrapped-types
 ' gen-wrapped-r ,
 ' gen-wrapped-func ,
 ' gen-wrapped-void ,
-' gen-wrapped-a ,
+' gen-wrapped-s ,
 ' gen-wrapped-a ,
 ' gen-wrapped-void ,
 
