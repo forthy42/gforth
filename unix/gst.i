@@ -25,7 +25,6 @@
 #define G_GNUC_CONST const
 #define G_GNUC_INTERNAL
 #define gchar char
-#define GLIB_AVAILABLE_TYPE_IN_2_64
 
 // exec: sed -e 's/\(c-function .*_valist\)/\\ \1/g' -e 's/\(c-function _gst_gl_feature_check\)/\\ \1/g' -e 's/add-lib/add-lib`s" gstgl-1.0" add-lib`8 to callback#`s" a 0" vararg$ $!/g' -e 's/end-c-library/2 to callback#`end-c-library/g' -e 's/\(.* callbacks .*\)/\1`c-callback reshapeCallback: u u a -- void`c-callback drawCallback: u u u a -- void/g' -e 's/c-function gst_clear_/\\ c-function gst_clear_/g' | tr '`' '\n'
 
