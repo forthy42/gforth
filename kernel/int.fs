@@ -944,7 +944,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 has? os [IF]
 : bye ( -- ) \ tools-ext
 [ has? file [IF] ]
-    script? 0= IF  cr  THEN
+    script? 0= IF  .unstatus cr  THEN
 [ [ELSE] ]
     cr
 [ [THEN] ]

@@ -32,6 +32,7 @@
 
 : .scanning ( -- )
     ." scanning for [THEN]" cr ;
+Defer .unstatus ' noop is .unstatus
 
 :noname ( in 1 -- ) 1 <> -12 and throw >in ! ;
                        \ restore-input
@@ -41,6 +42,7 @@
     [ has? file [IF] ] stdin file-eof?  IF  false  EXIT  THEN [ [THEN] ]
     scanning? IF  ['] .scanning warning-color color-execute  THEN
     tib max#tib @ accept #tib !
+    .unstatus
     input-start-line true 1 loadline +! ;     \ refill
 :noname ( -- addr u ) tib #tib @ ;   \ source
 

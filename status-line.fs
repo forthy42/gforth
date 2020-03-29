@@ -19,14 +19,23 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 blue >bg white >fg or bold or Value status-attr
+: redraw-status ( addr u -- )
+    .\" \e7"
+    0 rows 2 - at-xy   cols 2* spaces .\" \e[A\n"
+    status-attr attr! type default-color attr!
+    .\" \e8" ;
+: .unstatus-line ( -- )
+    .\" \e7"
+    0 rows 1 - at-xy   cols spaces
+    .\" \e8" ;
 : .status-line ( -- ) { | w^ status$ }
     base @
-    [:  ." gforth 😷 | " unused u.
-	." free | order: " order
+    [:  ." gforth 😷 | " unused 1024 / 0 u.r
+	." k free | order: " order
 	." | base=" .
 	." | " depth 0= IF ." ∅" ELSE  ...  THEN ;]
-    [:  ." gforth 😷 | " unused u.
-	." f|o " order
+    [:  ." gforth 😷 | " unused 1024 / 0 u.r
+	." k free|o " order
 	." |b=" 0 .r
 	." | " depth 0= IF ." ∅" ELSE  ...  THEN ;]
     cols 100 > select
@@ -42,10 +51,10 @@ blue >bg white >fg or bold or Value status-attr
 	    r> I - +LOOP  drop
 	THEN
     THEN
-    .\" \n\n\e[2A\e7"
-    0 rows 2 - at-xy   cols spaces  cr
-    status-attr attr! status$ $. default-color attr!
-    .\" \e8"
+    .\" \n\n\e[2A" status$ $@ redraw-status
     status$ $free ;
 
-' .status-line is .status
+: +status ['] .status-line is .status ['] .unstatus-line is .unstatus ;
+: -status ['] noop is .status ['] noop is .unstatus ;
+
++status
