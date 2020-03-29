@@ -22,11 +22,11 @@ blue >bg white >fg or bold or Value status-attr
 : .status-line ( -- ) { | w^ status$ }
     [:  ." gforth 😷 | free: " unused u.
 	." | order: " order
-	." | base: " base ['] ? #10 base-execute
+	." | base: " base @ ['] . #10 base-execute
 	." | " depth 0= IF ." ∅" ELSE  ['] ... #10 base-execute  THEN ;]
     [:  ." gforth 😷 |f " unused u.
 	." |o " order
-	." |b " base ['] ? #10 base-execute
+	." |b " base @ ['] . #10 base-execute
 	." | " depth 0= IF ." ∅" ELSE  ['] ... #10 base-execute  THEN ;]
     cols 100 > select
     status$ $exec
