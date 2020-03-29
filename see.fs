@@ -364,6 +364,8 @@ VARIABLE C-Pass
 : c># ( n -- addr u ) `smart. $tmp ;
 : c-. ( n -- ) c># 0 .string ;
 
+: c>lit ( addr1 -- addr2 )
+    dup @ >lits cell+ ;
 : c-lit ( addr1 -- addr2 )
     dup @ dup body> dup cfaligned over = swap in-dictionary? and if
 	( addr1 addr1@ )
@@ -751,7 +753,14 @@ c-extender !
 \ DOTABLE                                               15may93jaw
 
 : DoTable ( ca/cfa -- flag )
-    decompile-prim C-Table BEGIN ( cfa table-entry )
+    decompile-prim dup ['] lit xt= IF  drop c>lit true  EXIT  THEN
+    display? IF
+	sp@ >r
+	litstack get-stack dup 0 ?DO  dup I - pick smart.s.  LOOP  drop
+	r> sp!
+    THEN
+    litstack $free
+    C-Table BEGIN ( cfa table-entry )
 	dup @ dup 0=  IF
 	    drop cell+ @ dup IF ( next table!)
 		dup @
