@@ -21,7 +21,7 @@
 blue >bg white >fg or bold or Value status-attr
 : redraw-status ( addr u -- )
     .\" \e7"
-    0 rows 2 - at-xy   cols 2* spaces .\" \e[A\n"
+    0 rows 1 - at-xy
     status-attr attr! type default-color attr!
     .\" \e8" ;
 : .unstatus-line ( -- )
