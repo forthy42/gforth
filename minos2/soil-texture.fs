@@ -31,7 +31,7 @@ require jpeg-exif.fs
 also soil
 
 : >texture ( addr w h -- )
-    2 pick >r rgba-texture wrap-texture mipmap linear-mipmap r> free throw ;
+    2 pick >r rgba-texture mipmap linear-mipmap r> free throw ;
 : mem>texture ( addr u -- w h )
     over >r  { | w^ w w^ h w^ ch# }
     w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
