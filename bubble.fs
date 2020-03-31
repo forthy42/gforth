@@ -36,7 +36,7 @@ align create list elements cells allot
 
 : bubble ( -- )
 \ ." bubbling..." cr
-  1 elements 1 do
+  elements 1 do
     list elements i - cells mybounds do
       i 2@ > if i 2@ swap i 2! then
     cell +loop 

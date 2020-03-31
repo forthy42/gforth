@@ -24,6 +24,8 @@
 
 warnings off
 
+marker onebench
+
 : include-main-time ( addr u -- )
     cputime d+ 2>r
     included s" main" evaluate
@@ -35,4 +37,5 @@ s" bubble.fs"    include-main-time space
 s" matrix.fs"    include-main-time
 s" fib.fs"       include-main-time
 s" fft-bench.fs" include-main-time
+onebench
 script? [IF] cr bye [THEN]
