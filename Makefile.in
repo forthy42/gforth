@@ -368,7 +368,7 @@ LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
 	wayland-gl.fs soil-texture.fs gl-sample.fs gl-slideshow.fs	     \
 	ftgl-helper.fs ftgl-sample.fs widgets.fs actors.fs x11-actors.fs     \
-	android-actors.fs wayland-actors.fs widgets-test.fs presentation.fs  \
+	android-actors.fs wayland-actors.fs presentation.fs		     \
 	presentation-support.fs mts-tools.fs mkv-tools.fs omx-example.fs     \
 	mkv-tags.fs android-recorder.fs animation.fs need-x.fs font-style.fs \
 	text-style.fs gst-helper.fs plot.fs md-viewer.fs md-test.fs	     \
