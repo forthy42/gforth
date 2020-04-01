@@ -35,11 +35,11 @@ blue >bg white >fg or bold or Value status-attr
 : .status-line ( -- ) { | w^ status$ }
     base @
     [:	dup #10 <> IF  ." base=" 0 .r ." | "  ELSE  drop  THEN
-	depth 0= fdepth 0= and IF ." ∅" ELSE  ...  THEN
-	."  | order: " order ;]
+	depth 0= fdepth 0= and IF ." ∅ " ELSE  ...  THEN
+	." | order: " order ;]
     [:	dup #10 <> IF  ." b=" 0 .r ." | "  ELSE  drop  THEN
-	depth 0= fdepth 0= and IF ." ∅" ELSE  ...  THEN
-	."  |o " order ;]
+	depth 0= fdepth 0= and IF ." ∅ " ELSE  ...  THEN
+	." |o " order ;]
     cols 100 > select
     #10 ['] base-execute status$ $exec
     #lf '|' status$ $@ replace-char
