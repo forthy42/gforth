@@ -1512,6 +1512,13 @@ if test x$has_swig = xyes || test -f $srcdir/unix/gobject-fsi.c; then
    AC_CHECK_HEADER(glib-object.h, SWIGMODULES="$SWIGMODULES gobject.fs"
 		   SWIGLIBS="$SWIGLIBS gobject.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gobject-2.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/avcodec-fsi.c; then
+   CPPFLAGS_1="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS `pkg-config --cflags libavcodec`"
+   AC_CHECK_LIB(avcodec,avcodec_version,
+   AC_CHECK_HEADER(libavcodec/avcodec.h,  SWIGMODULES="$SWIGMODULES avcodec.fs"
+		   SWIGLIBS="$SWIGLIBS avcodec.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags libavcodec | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
+fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags gstreamer-gl-1.0`"

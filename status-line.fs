@@ -28,18 +28,21 @@ blue >bg white >fg or bold or Value status-attr
     .\" \e7"
     0 rows 1 - at-xy   cols spaces
     .\" \e8" ;
+: replace-char ( c1 c2 addr u -- )
+    bounds U+DO
+	over I c@ = IF  dup I c!  THEN
+    LOOP  2drop ;
 : .status-line ( -- ) { | w^ status$ }
     base @
-    [:  ." gforth 😷 | " unused 1024 / 0 u.r
-	." k free | order: " order
-	." | base=" .
-	." | " depth 0= IF ." ∅" ELSE  ...  THEN ;]
-    [:  ." gforth 😷 | " unused 1024 / 0 u.r
-	." k free|o " order
-	." |b=" 0 .r
-	." | " depth 0= IF ." ∅" ELSE  ...  THEN ;]
+    [:	dup #10 <> IF  ." base=" 0 .r ." | "  ELSE  drop  THEN
+	depth 0= fdepth 0= and IF ." ∅" ELSE  ...  THEN
+	."  | order: " order ;]
+    [:	dup #10 <> IF  ." b=" 0 .r ." | "  ELSE  drop  THEN
+	depth 0= fdepth 0= and IF ." ∅" ELSE  ...  THEN
+	."  |o " order ;]
     cols 100 > select
     #10 ['] base-execute status$ $exec
+    #lf '|' status$ $@ replace-char
     cols status$ $@ x-width - dup 0> IF
 	['] spaces status$ $exec
     ELSE  0< IF
