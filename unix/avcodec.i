@@ -3,6 +3,7 @@
 %insert("include")
 %{
 #include <libavcodec/avcodec.h>
+#include <libavutil/pixfmt.h>
 #undef gforth_d2ll
 #define gforth_d2ll(x1,x2) av_make_q(x1,x2)
 %}
@@ -14,3 +15,4 @@
 // exec: sed -e 's/add-lib/add-lib`s" ((struct AV:x.spx[arg0]" ptr-declare $+[]!/g' | tr '`' '\n'
 
 %include <libavcodec/avcodec.h>
+%include <libavutil/pixfmt.h>
