@@ -11,4 +11,6 @@
 
 %apply long long { AVRational }
 
+// exec: sed -e 's/add-lib/add-lib`s" ((struct AV:x.spx[arg0]" ptr-declare $+[]!/g' | tr '`' '\n'
+
 %include <libavcodec/avcodec.h>
