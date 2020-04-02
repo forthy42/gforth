@@ -206,7 +206,7 @@ Variable iscopy
     over >r fieldenv JNIEnv-ReleaseStringUTFChars() r> ]xref ;
 : jstring>sstring ( string -- addr u )  jfree
     dup >r iscopy fieldenv JNIEnv-GetStringUTFChars()
-    r> third to-release 2! ;
+    r> over to-release 2! cstring>sstring ;
 : .jstring ( string -- ) jstring>sstring type jfree ;
 
 0 Value jniclass
