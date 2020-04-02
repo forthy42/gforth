@@ -93,6 +93,16 @@ DOES> ( x-key [addr] -- ekey )
     ELSE   look_key l@ x-key>ekey# ?dup-IF
 	    top-act ?dup-IF  .ekeyed  ELSE  #esc = level# +!  THEN  THEN  THEN
 ; x11-handler to DoKeyPress
+
+here
+' (key) A,
+' (key?) A,
+A, here AConstant default-in'
+:noname
+    default-in' ip-vector !@ >r ekey r> ip-vector !
+    ekey>xchar IF  [: xemit ;] $tmp top-act .ukeyed  EXIT  THEN
+    top-act .ekeyed
+; is looper-ekey
 \ ' noop x11-handler to DoKeyRelease
 : samepos? ( x y -- flag )
     lastpos 2@ rot - dup * -rot - dup * + samepos < ;

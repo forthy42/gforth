@@ -583,6 +583,7 @@ Defer >poll-events ( delay -- )
     [THEN] ;
 
 Defer looper-hook ( -- ) ' noop is looper-hook
+Defer looper-ekey ( -- ) ' noop is looper-ekey
 
 : #looper ( delay -- ) #1000000 *
     event-handler @ .?looper-timeouts >poll-events
@@ -591,6 +592,7 @@ Defer looper-hook ( -- ) ' noop is looper-hook
     xpollfds $@ pollfd / xpoll
     IF
 	xpollfds $@ drop revents w@ POLLIN and IF  ?events  THEN
+	xpollfds $@ drop pollfd + revents w@ POLLIN and IF  looper-ekey  THEN
 	dpy IF
 	    dpy XPending  xpollfds $@ drop
 	    [ pollfd 2* ]L + revents w@ POLLIN and or IF  get-events  THEN
