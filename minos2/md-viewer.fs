@@ -549,7 +549,8 @@ previous set-current
 : markdown-parse ( addr u -- )
     default-md-styler to md-style
     -1 to imgs#max  imgs# off
-    {{ }}v box[] to md-box nt open-fpath-file throw
+    {{ }}v box[] to md-box  0 to md-p-box
+    nt open-fpath-file throw
     ['] markdown-loop execute-parsing-named-file
     reset-emph \regular \sans \normal ;
 

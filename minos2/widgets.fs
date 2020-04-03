@@ -26,6 +26,7 @@ debug: gui(     \ +db gui( \ )
 debug: click(   \ +db click( \ )
 debug: click-o( \ +db click-o( \ )
 debug: resize(  \ +db resize( \ )
+debug: dispose( \ +db dispose( \ )
 
 [IFUNDEF] no-file#
     2 Constant ENOENT
@@ -189,6 +190,7 @@ box-vflip# box-dphantom# box-vphantom# or or Constant box-hvisible#
 object class
     value: caller-w
     value: active-w
+    value: act-name$
     method clicked ( rx ry bmask n -- ) \ processed clicks
     method scrolled ( axis dir -- ) \ process scrolling
     method touchdown ( $rxy*n bmask -- ) \ raw click
@@ -313,8 +315,16 @@ end-class widget
     !size hglue@ fdrop fdrop f>= or IF   o fdrop 1e
     ELSE  0  fdrop 0e  THEN ; widget is split
 \ if rstart2 < 0, no split happened
-:noname ( -- ) ( act ?dup-IF .dispose THEN ) \ !!FIXME!!
-    dispose ; widget is dispose-widget
+\ Defer dispose-check ' noop is dispose-check
+: dispose-nodict ( o:object -- )
+    \ o in-dictionary? 0= IF
+	dispose( o hex. name$ type ."  dispose" cr )
+	addr name$ $free
+	dispose \ dispose-check
+    \ ELSE  dispose( ." in dictionary, don't dispose" cr )  THEN
+;
+:noname ( -- )  act ?dup-IF  .dispose-nodict  THEN
+    dispose-nodict ; widget is dispose-widget
 ' noop widget is lastfit
 
 : dw* ( f -- f' ) dpy-w @ fm* ;
@@ -897,6 +907,13 @@ end-class box
     childs[] $@ bounds U+DO
 	I @ .xt
     cell +LOOP ;
+: do-childs~~ { xt: xt -- .. }
+    ." Childs: " childs[] $@ bounds U+DO
+	I @ hex. I @ .name$ type space
+    cell +LOOP cr
+    childs[] $@ bounds U+DO
+	I @ .xt
+    cell +LOOP ;
 : do-childs-?act { xt: xt -- .. }
     childs[] $@ bounds U+DO
 	I @ >o act IF  xt  THEN  o>
@@ -928,7 +945,7 @@ end-class box
     childs[] $[]# IF  0 childs[] $[] @ .execute ELSE  drop  THEN ;
 
 : dispose-childs ( -- )
-    ['] dispose-widget do-childs childs[] $free ;
+    ['] dispose-widget do-childs~~ childs[] $free ;
 
 : b.widget ( -- )
     w.widget hglue-c x.glue vglue-c x.glue dglue-c x.glue cr
@@ -957,7 +974,7 @@ box is resized
 
 : +child ( o -- ) o over >o to parent-w o> childs[] >back ;
 : child+ ( o -- ) o over >o to parent-w o> childs[] >stack ;
-: +childs ( o1 .. on n -- )
+: +childs ( o1 .. on n -- ) [: ~~ ;] ['] do-debug $10 base-execute
     n>r childs[] get-stack { x } nr> x + childs[] set-stack
     o [: dup to parent-w ;] do-childs drop ;
 
@@ -1235,6 +1252,11 @@ end-class parbox
 
 : dispose[] ( $addr[] -- )
     dup $@ bounds ?DO  I @ .dispose  cell +LOOP  $free ;
+
+:noname ( -- )
+    childs[] dispose[]
+    subbox .dispose-widget ; parbox is dispose-widget
+
 : par-split { f: w -- } \ split a hbox into chunks
     childs[] dispose[] 0e false
     BEGIN  w
