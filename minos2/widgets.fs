@@ -907,13 +907,13 @@ end-class box
     childs[] $@ bounds U+DO
 	I @ .xt
     cell +LOOP ;
-: do-childs~~ { xt: xt -- .. }
-    ." Childs: " childs[] $@ bounds U+DO
-	I @ hex. I @ .name$ type space
-    cell +LOOP cr
-    childs[] $@ bounds U+DO
-	I @ .xt
-    cell +LOOP ;
+\ : do-childs~~ { xt: xt -- .. }
+\     ." Childs: " childs[] $@ bounds U+DO
+\ 	I @ hex. I @ .name$ type space
+\     cell +LOOP cr
+\     childs[] $@ bounds U+DO
+\ 	I @ .xt
+\     cell +LOOP ;
 : do-childs-?act { xt: xt -- .. }
     childs[] $@ bounds U+DO
 	I @ >o act IF  xt  THEN  o>
@@ -945,7 +945,7 @@ end-class box
     childs[] $[]# IF  0 childs[] $[] @ .execute ELSE  drop  THEN ;
 
 : dispose-childs ( -- )
-    ['] dispose-widget do-childs~~ childs[] $free ;
+    ['] dispose-widget do-childs childs[] $free ;
 
 : b.widget ( -- )
     w.widget hglue-c x.glue vglue-c x.glue dglue-c x.glue cr
@@ -974,7 +974,7 @@ box is resized
 
 : +child ( o -- ) o over >o to parent-w o> childs[] >back ;
 : child+ ( o -- ) o over >o to parent-w o> childs[] >stack ;
-: +childs ( o1 .. on n -- ) [: ~~ ;] ['] do-debug $10 base-execute
+: +childs ( o1 .. on n -- ) \ [: ~~ ;] ['] do-debug $10 base-execute
     n>r childs[] get-stack { x } nr> x + childs[] set-stack
     o [: dup to parent-w ;] do-childs drop ;
 
@@ -1128,9 +1128,11 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : par-init ( -- ) \ set paragraph to maximum horizontal extent
     !size xywhd resize ;
 
+1e-10 FConstant split-fudge
+
 : hbox-split { firstflag f: start f: rw -- o start' )
-    childs[] $[]# { childs# } childs# start fm* to start
-    start fdup floor f- { f: startx }
+    childs[] $[]# { childs# } childs# start fm* split-fudge f+ to start
+    start fdup floor f- split-fudge f- 0e fmax { f: startx }
     hbox new { newbox }
     act ?dup-IF  .clone newbox .!act  THEN
     childs# start floor f>s U+DO
