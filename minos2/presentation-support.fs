@@ -240,5 +240,9 @@ also opengl also also [IFDEF] android previous android also jni [THEN]
 : presentation ( -- )
     1config >fullscreen !pres-widgets widgets-loop
     >normalscreen ;
+: >presentation-key ( -- )  1 level# +!
+    1config >fullscreen !pres-widgets enter-minos top-widget .widget-draw
+    ['] looper-keyior is key-ior
+    [: looper-keys $@len 0> ;] is key? ;
 
 previous previous previous

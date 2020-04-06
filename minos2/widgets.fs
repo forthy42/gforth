@@ -1668,14 +1668,29 @@ previous
 
 ' widget-sync is screen-ops
 
+: widgets-looper ( -- )
+    0 looper-to# anims[] $@len ?sync or select
+    #looper  time( ." looper: " .!time cr ) ;
 : widgets-loop ( -- ) depth fdepth { d fd }
     level# @ 0= IF  enter-minos  THEN
     1 level# +!@ >r  top-widget .widget-draw
-    BEGIN  0 looper-to# anims[] $@len ?sync or select
-	#looper  time( ." looper: " .!time cr )
+    BEGIN
+	widgets-looper
 	widget-sync  gui( depth d u>  fdepth fd u> or IF  ~~bt
 	    depth to d  fdepth to fd  THEN )
     level# @ r@ = UNTIL  r> 0= IF  leave-minos  THEN ;
+
+: >inskeys ( -- )
+    BEGIN  (key?)  WHILE  (key) inskey  REPEAT ;
+
+Variable looper-keys
+
+: looper-keyior ( -- key-ior )
+    [: (key?) IF (key) looper-keys c$+! THEN ;] is looper-ekey
+    BEGIN  widgets-looper widget-sync looper-keys $@len UNTIL
+    ['] noop is looper-ekey
+    looper-keys $@ drop c@
+    looper-keys 0 1 $del ;
 
 previous previous previous
 set-current
