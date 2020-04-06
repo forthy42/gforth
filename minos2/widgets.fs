@@ -1687,7 +1687,11 @@ Variable looper-keys
 
 : looper-keyior ( -- key-ior )
     [: (key?) IF (key) looper-keys c$+! THEN ;] is looper-ekey
-    BEGIN  widgets-looper widget-sync looper-keys $@len UNTIL
+    edit-widget edit-out !
+    BEGIN
+	widgets-looper widget-sync
+    looper-keys $@len UNTIL
+    edit-terminal edit-out !
     ['] noop is looper-ekey
     looper-keys $@ drop c@
     looper-keys 0 1 $del ;
