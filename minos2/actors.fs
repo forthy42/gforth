@@ -36,6 +36,12 @@ edit-widget-c ' new static-a with-allocater Constant edit-widget
 
 false value grab-move?   \ set to object to grab moves
 false value inside-move? \ set to object if touched
+
+:noname ( o:disposed -- )
+    o grab-move?   = IF  false to grab-move?    THEN
+    o inside-move? = IF  false to inside-move?  THEN ;
+is dispose-check
+
 0e FValue tx-sum
 0e FValue ty-sum
 0e FValue gx-sum

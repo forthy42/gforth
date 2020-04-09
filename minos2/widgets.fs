@@ -315,13 +315,13 @@ end-class widget
     !size hglue@ fdrop fdrop f>= or IF   o fdrop 1e
     ELSE  0  fdrop 0e  THEN ; widget is split
 \ if rstart2 < 0, no split happened
-\ Defer dispose-check ' noop is dispose-check
+Defer dispose-check ' noop is dispose-check
 : dispose-nodict ( o:object -- )
-    \ o in-dictionary? 0= IF
+\    o in-dictionary? 0= IF
 	dispose( o hex. name$ type ."  dispose" cr )
 	addr name$ $free
-	dispose \ dispose-check
-    \ ELSE  dispose( ." in dictionary, don't dispose" cr )  THEN
+	dispose dispose-check
+\    ELSE  dispose( ." in dictionary, don't dispose" cr )  THEN
 ;
 :noname ( -- )  act ?dup-IF  .dispose-nodict  THEN
     dispose-nodict ; widget is dispose-widget
@@ -1683,18 +1683,20 @@ previous
 : >inskeys ( -- )
     BEGIN  (key?)  WHILE  (key) inskey  REPEAT ;
 
+[IFDEF] looper-ekey
 Variable looper-keys
-
-: looper-keyior ( -- key-ior )
-    [: (key?) IF (key) looper-keys c$+! THEN ;] is looper-ekey
-    edit-widget edit-out !
-    BEGIN
-	widgets-looper widget-sync
-    looper-keys $@len UNTIL
-    edit-terminal edit-out !
-    ['] noop is looper-ekey
-    looper-keys $@ drop c@
-    looper-keys 0 1 $del ;
+    
+    : looper-keyior ( -- key-ior )
+	[: (key?) IF (key) looper-keys c$+! THEN ;] is looper-ekey
+	edit-widget edit-out !
+	BEGIN
+	    widgets-looper widget-sync
+	looper-keys $@len UNTIL
+	edit-terminal edit-out !
+	['] noop is looper-ekey
+	looper-keys $@ drop c@
+	looper-keys 0 1 $del ;
+[THEN]
 
 previous previous previous
 set-current

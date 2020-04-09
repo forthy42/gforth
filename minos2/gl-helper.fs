@@ -1026,7 +1026,7 @@ Variable i-off
 
 \ window closed/reopened
 
-: helper-init  init-opengl texture-init
+: helper-init ( -- )  init-opengl texture-init
     ['] VertexShader ['] FragmentShader create-program to program
     program init  buffer-init ;
 
