@@ -323,7 +323,8 @@ Defer dispose-check ' noop is dispose-check
 	dispose dispose-check
 \    ELSE  dispose( ." in dictionary, don't dispose" cr )  THEN
 ;
-:noname ( -- )  act ?dup-IF  .dispose-nodict  THEN
+: dispose-act ( o:widget -- ) act ?dup-IF  .dispose-nodict  THEN ;
+:noname ( -- )
     dispose-nodict ; widget is dispose-widget
 ' noop widget is lastfit
 
