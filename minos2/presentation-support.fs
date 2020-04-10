@@ -245,6 +245,7 @@ also opengl also also [IFDEF] android previous android also jni [THEN]
     edit-terminal edit-out !
     top-widget .widget-draw
     ['] looper-keyior is key-ior
-    [: looper-keys $@len 0> ;] is key? ;
+    [: [: widgets-looper widget-sync ;] looper-do
+	looper-keys $@len 0> ;] is key? ;
 
 previous previous previous

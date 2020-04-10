@@ -1685,15 +1685,17 @@ previous
 
 [IFDEF] looper-ekey
 Variable looper-keys
-    
-    : looper-keyior ( -- key-ior )
-	[: (key?) IF (key) looper-keys c$+! THEN ;] is looper-ekey
+
+    : looper-do ( xt -- )
+	[: BEGIN  (key?)  WHILE  (key) looper-keys c$+!  REPEAT ;] is looper-ekey
 	edit-widget edit-out !
-	BEGIN
-	    widgets-looper widget-sync
-	looper-keys $@len UNTIL
+	catch
 	edit-terminal edit-out !
 	['] noop is looper-ekey
+	throw ;
+    : looper-keyior ( -- key-ior )
+	[: BEGIN  widgets-looper widget-sync
+	    looper-keys $@len UNTIL ;] looper-do
 	looper-keys $@ drop c@
 	looper-keys 0 1 $del ;
 [THEN]
