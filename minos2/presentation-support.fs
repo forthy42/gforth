@@ -240,12 +240,14 @@ also opengl also also [IFDEF] android previous android also jni [THEN]
 : presentation ( -- )
     1config >fullscreen !pres-widgets widgets-loop
     >normalscreen ;
-: >presentation-key ( -- )  1 level# +!
-    1config !pres-widgets enter-minos
-    edit-terminal edit-out !
-    top-widget .widget-draw
-    ['] looper-keyior is key-ior
-    [: [: widgets-looper widget-sync ;] looper-do
-	looper-keys $@len 0> ;] is key? ;
+[IFDEF] looper-keyior
+    : >presentation-key ( -- )  1 level# +!
+	1config !pres-widgets enter-minos
+	edit-terminal edit-out !
+	top-widget .widget-draw
+	['] looper-keyior is key-ior
+	[: [: widgets-looper widget-sync ;] looper-do
+	    looper-keys $@len 0> ;] is key? ;
+[THEN]
 
 previous previous previous
