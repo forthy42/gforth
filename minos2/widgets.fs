@@ -1681,14 +1681,12 @@ previous
 	    depth to d  fdepth to fd  THEN )
     level# @ r@ = UNTIL  r> 0= IF  leave-minos  THEN ;
 
-: >inskeys ( -- )
-    BEGIN  (key?)  WHILE  (key) inskey  REPEAT ;
-
 [IFDEF] looper-ekey
-Variable looper-keys
+    Variable looper-keys
 
     : looper-do ( xt -- )
-	[: BEGIN  (key?)  WHILE  (key) looper-keys c$+!  REPEAT ;] is looper-ekey
+	[: BEGIN  term-prep? IF  (key?)  ELSE  0  THEN
+	    WHILE  (key) looper-keys c$+!  REPEAT ;] is looper-ekey
 	edit-widget edit-out !
 	catch
 	edit-terminal edit-out !
