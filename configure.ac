@@ -1519,6 +1519,11 @@ if test x$has_swig = xyes || test -f $srcdir/unix/avcodec-fsi.c; then
    AC_CHECK_HEADER(libavcodec/avcodec.h,  SWIGMODULES="$SWIGMODULES avcodec.fs"
 		   SWIGLIBS="$SWIGLIBS avcodec.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags libavcodec | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/pulse-fsi.c; then
+   AC_CHECK_LIB(pulse,pa_context_new,
+   AC_CHECK_HEADER(pulse/pulseaudio.h, SWIGMODULES="$SWIGMODULES pulse.fs"
+		   SWIGLIBS="$SWIGLIBS pulse.fs",), ,)
+fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
