@@ -1524,6 +1524,11 @@ if test x$has_swig = xyes || test -f $srcdir/unix/pulse-fsi.c; then
    AC_CHECK_HEADER(pulse/pulseaudio.h, SWIGMODULES="$SWIGMODULES pulse.fs"
 		   SWIGLIBS="$SWIGLIBS pulse.fs",), ,)
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/opus-fsi.c; then
+   AC_CHECK_LIB(opus,opus_encode,
+   AC_CHECK_HEADER(opus/opus.h, SWIGMODULES="$SWIGMODULES opus.fs"
+		   SWIGLIBS="$SWIGLIBS opus.fs",), ,)
+fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
