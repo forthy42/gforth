@@ -24,6 +24,7 @@ require unix/pthread.fs
 pulse also
 
 debug: pulse( \ )
++db pulse( \ )
 
 0 Value pa-ml
 0 Value pa-api
@@ -41,30 +42,44 @@ $Variable app-name
 
 0 Value pa-ready
 Variable inputs[]
+Variable input-descs[]
 Variable def-input$
 Variable outputs[]
+Variable output-descs[]
 Variable def-output$
 
 : c$@ ( addr -- addr u )
     @ cstring>sstring ;
 
+: .channels ( addr -- )
+    ." Channels["
+    dup pa_channel_map-channels c@ dup 0 u.r ." ]: "
+    >r pa_channel_map-map r> sfloats bounds U+DO
+	I l@ .
+    1 sfloats +LOOP cr ;
 : +input-list { ctx inputinfo eol -- }
     inputinfo IF
 	inputinfo pa_source_info-name c$@ 
 	inputinfo pa_source_info-index l@ inputs[] $[]!
+	inputinfo pa_source_info-description c$@
+	inputinfo pa_source_info-index l@ input-descs[] $[]!
 	pulse(
 	." Name: " inputinfo pa_source_info-name c$@ type cr
 	." Desc: " inputinfo pa_source_info-description c$@ type cr
-	." Index: " inputinfo pa_source_info-index l@ . cr )
+	." Index: " inputinfo pa_source_info-index l@ . cr
+	inputinfo pa_source_info-channel_map .channels )
     THEN ;
 : +output-list { ctx outputinfo eol -- }
     outputinfo IF
 	outputinfo pa_sink_info-name c$@
 	outputinfo pa_sink_info-index l@ outputs[] $[]!
+	outputinfo pa_sink_info-description c$@
+	outputinfo pa_sink_info-index l@ output-descs[] $[]!
 	pulse(
 	." Name: " outputinfo pa_sink_info-name c$@ type cr
 	." Desc: " outputinfo pa_sink_info-description c$@ type cr
-	." Index: " outputinfo pa_sink_info-index l@ . cr )
+	." Index: " outputinfo pa_sink_info-index l@ . cr
+	outputinfo pa_sink_info-channel_map .channels )
     THEN ;
 : +server-info { ctx serverinfo -- }
     serverinfo IF
@@ -104,9 +119,14 @@ Variable def-output$
     endcase ;
 
 : pa-subscribe { ctx ev-t idx -- }
-    case ev-t ." event type: " dup . cr PA_SUBSCRIPTION_EVENT_FACILITY_MASK and
-	PA_SUBSCRIPTION_EVENT_SINK   of  >output-list  endof
-	PA_SUBSCRIPTION_EVENT_SOURCE of  >input-list   endof
+    case ev-t pulse( ." event type: " dup . cr )
+	PA_SUBSCRIPTION_EVENT_FACILITY_MASK and
+	PA_SUBSCRIPTION_EVENT_SOURCE of
+	    inputs[] $[]free  input-descs[] $[]free
+	    >input-list   endof
+	PA_SUBSCRIPTION_EVENT_SINK   of
+	    outputs[] $[]free  output-descs[] $[]free
+	    >output-list  endof
 	PA_SUBSCRIPTION_EVENT_SERVER of  >server-info  endof
     endcase ;
 
@@ -118,8 +138,10 @@ Variable def-output$
 	pa-api pa_signal_init drop
 	pa-api app-name $@ pa_context_new to pa-ctx
 	pa-ctx 0 0 PA_CONTEXT_NOAUTOSPAWN 0 pa_context_connect drop
-	pa-ctx pa-context-notify-cb ['] pa-notify-state pa_context_set_state_callback
-	pa-ctx pa-context-subscribe-cb ['] pa-subscribe pa_context_set_subscribe_callback
+	pa-ctx pa-context-notify-cb ['] pa-notify-state
+	pa_context_set_state_callback
+	pa-ctx pa-context-subscribe-cb ['] pa-subscribe
+	pa_context_set_subscribe_callback
 	BEGIN
 	    ?events { | w^ retval }
 	    pa-ml 1 retval pa_mainloop_iterate drop
