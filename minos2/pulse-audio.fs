@@ -21,7 +21,7 @@
 require unix/pulse.fs
 require unix/pthread.fs
 
-pulse also
+get-current pulse also definitions
 
 debug: pulse( \ )
 +db pulse( \ )
@@ -32,6 +32,11 @@ debug: pulse( \ )
 0 Value pa-task
 $Variable app-name
 "Gforth" app-name $!
+$Variable request-queue
+: >request ( addr -- ) request-queue >stack ;
+: requests@ ( -- addr1 .. addrn n )
+    request-queue get-stack
+    request-queue $free ;
 
 ' execute pa_context_notify_cb_t: Constant pa-context-notify-cb
 ' execute pa_server_info_cb_t: Constant pa-server-info-cb
@@ -94,20 +99,20 @@ Variable def-output$
 
 : >input-list ( -- )
     pa-ctx pa-source-info-cb ['] +input-list
-    pa_context_get_source_info_list drop ;
+    pa_context_get_source_info_list >request ;
 : >output-list ( -- )
     pa-ctx pa-sink-info-cb ['] +output-list
-    pa_context_get_sink_info_list drop ;
+    pa_context_get_sink_info_list >request ;
 : >server-info ( -- )
     pa-ctx pa-server-info-cb ['] +server-info
-    pa_context_get_server_info drop ;
+    pa_context_get_server_info >request ;
 
 : pa-success { ctx success -- }
     pulse( ." success: " success . cr ) ;
 
 : >subscribe ( -- )
     pa-ctx PA_SUBSCRIPTION_MASK_ALL pa-context-success-cb ['] pa-success
-    pa_context_subscribe drop ;
+    pa_context_subscribe >request ;
 
 : pa-notify-state { ctx -- }
     case  ctx pa_context_get_state
@@ -135,7 +140,6 @@ Variable def-output$
     pa-task activate   debug-out debug-vector !
     [:  pa_mainloop_new to pa-ml
 	pa-ml pa_mainloop_get_api to pa-api
-	pa-api pa_signal_init drop
 	pa-api app-name $@ pa_context_new to pa-ctx
 	pa-ctx 0 0 PA_CONTEXT_NOAUTOSPAWN 0 pa_context_connect drop
 	pa-ctx pa-context-notify-cb ['] pa-notify-state
@@ -145,6 +149,10 @@ Variable def-output$
 	BEGIN
 	    ?events { | w^ retval }
 	    pa-ml 1 retval pa_mainloop_iterate drop
+	    requests@ 0 ?DO
+		dup pa_operation_get_state
+		PA_OPERATION_RUNNING = IF  >request  ELSE  drop  THEN
+	    LOOP
 	AGAIN ;] catch DoError ;
 
 event: :>exec ( xt -- ) execute ;
@@ -152,8 +160,41 @@ event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
 : pulse-exec ( xt -- ) { xt }
     <event xt elit, :>exec  pa-task event>
     pa-ml pa_mainloop_wakeup ;
+: pulse-exec# ( lit xt -- ) { xt }
+    <event elit, xt elit, :>exec  pa-task event>
+    pa-ml pa_mainloop_wakeup ;
 : pulse-execq ( xt -- ) { xt }
     <event xt elit, :>execq pa-task event>
     pa-ml pa_mainloop_wakeup ;
 
-previous
+: pa-sample! ( rate channels ss -- ) { ss }
+    ss pa_sample_spec-channels c!
+    ss pa_sample_spec-rate l!
+    PA_SAMPLE_S16LE ss pa_sample_spec-format l! ;
+
+0 Value stereo-rec
+0 Value mono-rec
+0 Value stereo-play
+0 Value mono-play
+
+#100 Value frames/s
+
+: record-mono ( rate -- )
+    { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
+    dup 2* ba[ pa_buffer_attr-maxlength l!
+    dup frames/s / 2* ba[ pa_buffer_attr-fragsize l!
+    1 ss[ pa-sample!
+    pa-ctx "mono-rec" ss[ cm[ pa_channel_map_init_mono
+    pa_stream_new to mono-rec
+    mono-rec def-input$ $@ ba[ 0 pa_stream_connect_record drop ;
+
+: record-stereo ( rate -- )
+    { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
+    dup 2* 2* ba[ pa_buffer_attr-maxlength l!
+    dup frames/s / 2* 2* ba[ pa_buffer_attr-fragsize l!
+    2 ss[ pa-sample!
+    pa-ctx "stereo-rec" ss[ cm[ pa_channel_map_init_stereo
+    pa_stream_new to stereo-rec
+    stereo-rec def-input$ $@ ba[ 0 pa_stream_connect_record drop ;
+
+previous set-current
