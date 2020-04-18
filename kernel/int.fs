@@ -559,8 +559,9 @@ Defer parse-name ( "name" -- c-addr u ) \ gforth
 ' (name) IS parse-name
 
 ' parse-name alias parse-word ( -- c-addr u ) \ gforth-obsolete
-\G old name for @code{parse-name}
-    
+\G old name for @code{parse-name}; this word has a conflicting
+\G behaviour in some other systems.
+
 ' parse-name alias name ( -- c-addr u ) \ gforth-obsolete
 \G old name for @code{parse-name}
     

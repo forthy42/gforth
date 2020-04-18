@@ -8680,7 +8680,6 @@ of the word that does not parse, but takes the parameters on the stack.
 To implement the parsing word on top if it, you can use the following
 words:
 
-@c anton: these belong in the input stream section
 doc-parse
 doc-parse-name
 doc-parse-word
@@ -8688,11 +8687,19 @@ doc-name
 doc-word
 doc-refill
 
-Conversely, if you have the bad luck (or lack of foresight) to have to
-deal with parsing words without having such factors, how do you pass a
-string that is not in the input stream to it?
+If you have to deal with a parsing word that does not have a
+non-parsing factor, you can use @code{execute-parsing} to pass a
+string to it:
 
 doc-execute-parsing
+
+Example:
+
+@example
+5 s" foo" ' constant execute-parsing
+\ equivalent to
+5 constant foo
+@end example
 
 A definition of this word in Standard Forth is provided in
 @file{compat/execute-parsing.fs}.
