@@ -197,4 +197,9 @@ event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
     pa_stream_new to stereo-rec
     stereo-rec def-input$ $@ ba[ 0 pa_stream_connect_record drop ;
 
+: record@ ( stream -- addr n ) { | w^ data w^ n }
+    dup data n pa_stream_peek drop
+    n @ IF  pa_stream_drop  THEN  drop
+    data @ n @ ;
+
 previous set-current
