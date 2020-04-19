@@ -15,6 +15,8 @@
 #define PA_GCC_ALLOC_SIZE2(x, y)
 #define PA_GCC_PRINTF_ATTR(x, y)
 
+%apply long long { int64_t }
+
 // exec: sed -e 's/^c-library/vocabulary pulse``get-current also pulse definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/add-lib/add-lib`s" ((struct pa_:x.spx[arg0]" ptr-declare $+[]!/g' -e 's/\(c-function .*_autoload\)/\\ \1/g' | tr '`' '\n'
 
 %include <pulse/direction.h>

@@ -45,6 +45,7 @@ $Variable request-queue
 ' execute pa_context_subscribe_cb_t: Constant pa-context-subscribe-cb
 ' execute pa_context_success_cb_t: Constant pa-context-success-cb
 ' execute pa_stream_request_cb_t: Constant pa-stream-request-cb
+:noname free throw ; pa_free_cb_t: Constant pa-free-cb
 
 0 Value pa-ready
 Variable inputs[]
@@ -180,17 +181,23 @@ event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
 
 #100 Value frames/s
 
-"test.pcm" r/w create-file throw Value test-file
+"test.pcm" r/w create-file throw Value rec-file
 
 Defer write-record
-:noname test-file write-file throw ; is write-record
+:noname rec-file write-file throw ; is write-record
+
+0 Value play-file
+Defer read-record
+:noname play-file read-file throw ; is read-record
+: open-play ( addr u -- )
+    r/o open-file throw to play-file ;
 
 : record@ ( stream -- ) { | w^ data w^ n }
     dup data n pa_stream_peek drop
     data @ n @ write-record
     n @ IF  pa_stream_drop drop  THEN ;
 
-: write-mono { stream bytes -- }
+: write-stream { stream bytes -- }
     stream record@ ;
 
 : rec-buffer! ( size buffer -- )
@@ -203,14 +210,11 @@ Defer write-record
     1 ss[ pa-sample!
     pa-ctx "mono-rec" ss[ cm[ pa_channel_map_init_mono
     pa_stream_new to mono-rec
-    mono-rec pa-stream-request-cb ['] write-mono
+    mono-rec pa-stream-request-cb ['] write-stream
     pa_stream_set_read_callback
     mono-rec def-input$ $@ ba[ PA_STREAM_ADJUST_LATENCY
     pa_stream_connect_record drop
     !time ;
-
-: write-stereo { stream bytes -- }
-    stream record@ ;
 
 : record-stereo ( rate -- )
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
@@ -218,10 +222,48 @@ Defer write-record
     2 ss[ pa-sample!
     pa-ctx "stereo-rec" ss[ cm[ pa_channel_map_init_stereo
     pa_stream_new to stereo-rec
-    stereo-rec pa-stream-request-cb ['] write-stereo
+    stereo-rec pa-stream-request-cb ['] write-stream
     pa_stream_set_read_callback
     stereo-rec def-input$ $@ ba[ PA_STREAM_ADJUST_LATENCY
     pa_stream_connect_record drop
+    !time ;
+
+: record! ( stream -- ) { | w^ data w^ n }
+    data @ n @
+    n @ IF  pa_stream_drop drop  THEN ;
+
+: read-stream { stream bytes -- }
+    bytes allocate throw >r
+    r@ bytes read-record
+    stream r> bytes pa-free-cb #0. PA_SEEK_RELATIVE
+    pa_stream_write drop ;
+
+: play-buffer! ( size buffer -- )
+    >r r@ pa_buffer_attr $FF fill
+    frames/s / r> pa_buffer_attr-tlength l! ;
+
+: play-mono ( rate -- )
+    { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
+    dup ba[ play-buffer!
+    1 ss[ pa-sample!
+    pa-ctx "mono-play" ss[ cm[ pa_channel_map_init_mono
+    pa_stream_new to mono-play
+    mono-play pa-stream-request-cb ['] read-stream
+    pa_stream_set_write_callback
+    mono-play def-output$ $@ ba[ PA_STREAM_ADJUST_LATENCY 0 0
+    pa_stream_connect_playback drop
+    !time ;
+
+: play-stereo ( rate -- )
+    { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
+    dup 2* ba[ play-buffer!
+    2 ss[ pa-sample!
+    pa-ctx "stereo-play" ss[ cm[ pa_channel_map_init_stereo
+    pa_stream_new to stereo-play
+    stereo-play pa-stream-request-cb ['] read-stream
+    pa_stream_set_write_callback
+    stereo-play def-output$ $@ ba[ PA_STREAM_ADJUST_LATENCY 0 0
+    pa_stream_connect_playback drop
     !time ;
 
 previous set-current
