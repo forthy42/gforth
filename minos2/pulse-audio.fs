@@ -44,6 +44,7 @@ $Variable request-queue
 ' execute pa_sink_info_cb_t: Constant pa-sink-info-cb
 ' execute pa_context_subscribe_cb_t: Constant pa-context-subscribe-cb
 ' execute pa_context_success_cb_t: Constant pa-context-success-cb
+' execute pa_stream_request_cb_t: Constant pa-stream-request-cb
 
 0 Value pa-ready
 Variable inputs[]
@@ -179,27 +180,48 @@ event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
 
 #100 Value frames/s
 
+"test.pcm" r/w create-file throw Value test-file
+
+Defer write-record
+:noname test-file write-file throw ; is write-record
+
+: record@ ( stream -- ) { | w^ data w^ n }
+    dup data n pa_stream_peek drop
+    data @ n @ write-record
+    n @ IF  pa_stream_drop drop  THEN ;
+
+: write-mono { stream bytes -- }
+    stream record@ ;
+
+: rec-buffer! ( size buffer -- )
+    >r r@ pa_buffer_attr $FF fill
+    frames/s / r> pa_buffer_attr-fragsize l! ;
+
 : record-mono ( rate -- )
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
-    dup 2* ba[ pa_buffer_attr-maxlength l!
-    dup frames/s / 2* ba[ pa_buffer_attr-fragsize l!
+    dup ba[ rec-buffer!
     1 ss[ pa-sample!
     pa-ctx "mono-rec" ss[ cm[ pa_channel_map_init_mono
     pa_stream_new to mono-rec
-    mono-rec def-input$ $@ ba[ 0 pa_stream_connect_record drop ;
+    mono-rec pa-stream-request-cb ['] write-mono
+    pa_stream_set_read_callback
+    mono-rec def-input$ $@ ba[ PA_STREAM_ADJUST_LATENCY
+    pa_stream_connect_record drop
+    !time ;
+
+: write-stereo { stream bytes -- }
+    stream record@ ;
 
 : record-stereo ( rate -- )
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
-    dup 2* 2* ba[ pa_buffer_attr-maxlength l!
-    dup frames/s / 2* 2* ba[ pa_buffer_attr-fragsize l!
+    dup 2* ba[ rec-buffer!
     2 ss[ pa-sample!
     pa-ctx "stereo-rec" ss[ cm[ pa_channel_map_init_stereo
     pa_stream_new to stereo-rec
-    stereo-rec def-input$ $@ ba[ 0 pa_stream_connect_record drop ;
-
-: record@ ( stream -- addr n ) { | w^ data w^ n }
-    dup data n pa_stream_peek drop
-    n @ IF  pa_stream_drop  THEN  drop
-    data @ n @ ;
+    stereo-rec pa-stream-request-cb ['] write-stereo
+    pa_stream_set_read_callback
+    stereo-rec def-input$ $@ ba[ PA_STREAM_ADJUST_LATENCY
+    pa_stream_connect_record drop
+    !time ;
 
 previous set-current
