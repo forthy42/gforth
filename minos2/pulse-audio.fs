@@ -20,8 +20,17 @@
 
 require unix/pulse.fs
 require unix/pthread.fs
+require unix/opus.fs
 
-get-current pulse also definitions
+get-current opus also pulse also definitions
+
+$100 buffer: pa-error$
+
+: ?pa-ior ( n -- )
+    ?dup-IF  [: pa_strerror pa-error$ place
+	    pa-error$ "error \ "
+	    ! -2  throw ;] do-debug
+	THEN ;
 
 debug: pulse( \ )
 +db pulse( \ )
@@ -143,14 +152,14 @@ Variable def-output$
     [:  pa_mainloop_new to pa-ml
 	pa-ml pa_mainloop_get_api to pa-api
 	pa-api app-name $@ pa_context_new to pa-ctx
-	pa-ctx 0 0 PA_CONTEXT_NOAUTOSPAWN 0 pa_context_connect drop
+	pa-ctx 0 0 PA_CONTEXT_NOAUTOSPAWN 0 pa_context_connect ?pa-ior
 	pa-ctx pa-context-notify-cb ['] pa-notify-state
 	pa_context_set_state_callback
 	pa-ctx pa-context-subscribe-cb ['] pa-subscribe
 	pa_context_set_subscribe_callback
 	BEGIN
 	    ?events { | w^ retval }
-	    pa-ml 1 retval pa_mainloop_iterate drop
+	    pa-ml 1 retval pa_mainloop_iterate drop \ ?pa-ior
 	    requests@ 0 ?DO
 		dup pa_operation_get_state
 		PA_OPERATION_RUNNING = IF  >request  ELSE  drop  THEN
@@ -179,23 +188,53 @@ event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
 0 Value stereo-play
 0 Value mono-play
 
+\ Opus en/decoder
+
+: opus-encoder ( -- encoder ) { | w^ err }
+    #48000 1 OPUS_APPLICATION_VOIP err opus_encoder_create ;
+: opus-decoder ( -- decoder ) { | w^ err }
+    #48000 1 err opus_decoder_create ;
+
+opus-encoder Value opus-enc
+opus-decoder Value opus-dec
+
 #100 Value frames/s
 
-"test.pcm" r/w create-file throw Value rec-file
+"test.opus" r/w create-file throw Value rec-file
 
 Defer write-record
-:noname rec-file write-file throw ; is write-record
+
+Variable write$
+Variable write-opus
+Variable read-opus
+
+:noname ( addr u -- )
+    write$ $+!
+    BEGIN
+	write$ $@len #480 2* u>= WHILE
+	    #480 2* write-opus $!len
+	    opus-enc write$ $@ drop #480 2*
+	    write-opus $@ opus_encode write-opus $!len
+	    write-opus $@ dup rec-file emit-file throw
+	    rec-file write-file throw
+	    write$ 0 #480 2* $del
+    REPEAT ; is write-record
 
 0 Value play-file
 Defer read-record
-:noname play-file read-file throw ; is read-record
+:noname ( addr u -- ) { | c^ len }
+    len 1 play-file read-file throw drop
+    len c@ read-opus $!len
+    read-opus $@ play-file read-file throw drop
+    2>r opus-dec read-opus $@ 2r> 0 opus_decode drop
+; is read-record
 : open-play ( addr u -- )
     r/o open-file throw to play-file ;
 
 : record@ ( stream -- ) { | w^ data w^ n }
-    dup data n pa_stream_peek drop
+    dup data n pa_stream_peek ?pa-ior
     data @ n @ write-record
-    n @ IF  pa_stream_drop drop  THEN ;
+    n @ IF  pa_stream_drop ?pa-ior  THEN ;
 
 : write-stream { stream bytes -- }
     stream record@ ;
@@ -213,7 +252,7 @@ Defer read-record
     mono-rec pa-stream-request-cb ['] write-stream
     pa_stream_set_read_callback
     mono-rec def-input$ $@ ba[ PA_STREAM_ADJUST_LATENCY
-    pa_stream_connect_record drop
+    pa_stream_connect_record ?pa-ior
     !time ;
 
 : record-stereo ( rate -- )
@@ -225,18 +264,18 @@ Defer read-record
     stereo-rec pa-stream-request-cb ['] write-stream
     pa_stream_set_read_callback
     stereo-rec def-input$ $@ ba[ PA_STREAM_ADJUST_LATENCY
-    pa_stream_connect_record drop
+    pa_stream_connect_record ?pa-ior
     !time ;
 
 : record! ( stream -- ) { | w^ data w^ n }
     data @ n @
-    n @ IF  pa_stream_drop drop  THEN ;
+    n @ IF  pa_stream_drop ?pa-ior  THEN ;
 
 : read-stream { stream bytes -- }
     bytes allocate throw >r
     r@ bytes read-record
     stream r> bytes pa-free-cb #0. PA_SEEK_RELATIVE
-    pa_stream_write drop ;
+    pa_stream_write ?pa-ior ;
 
 : play-buffer! ( size buffer -- )
     >r r@ pa_buffer_attr $FF fill
@@ -251,7 +290,7 @@ Defer read-record
     mono-play pa-stream-request-cb ['] read-stream
     pa_stream_set_write_callback
     mono-play def-output$ $@ ba[ PA_STREAM_ADJUST_LATENCY 0 0
-    pa_stream_connect_playback drop
+    pa_stream_connect_playback ?pa-ior
     !time ;
 
 : play-stereo ( rate -- )
@@ -263,7 +302,7 @@ Defer read-record
     stereo-play pa-stream-request-cb ['] read-stream
     pa_stream_set_write_callback
     stereo-play def-output$ $@ ba[ PA_STREAM_ADJUST_LATENCY 0 0
-    pa_stream_connect_playback drop
+    pa_stream_connect_playback ?pa-ior
     !time ;
 
-previous set-current
+previous previous pulse set-current

@@ -166,7 +166,7 @@ gforth_stackpointers gforth_libcc_init(GFORTH_ARGS)
 
 #define c_str2gforth_str(str,addr,u) \
     (addr) = (Cell) str; \
-    (u) = str ? strlen(str) : 0;
+    (u) = (addr) ? strlen((char*)(addr)) : 0;
 
 #define gforth_ll2ud(ll,lo,hi) \
   do { \
