@@ -201,12 +201,53 @@ opus-decoder Value opus-dec
 #100 Value frames/s
 
 "test.opus" r/w create-file throw Value rec-file
+"test.idx" r/w create-file throw Value index-file
 
 Defer write-record
 
 Variable write$
+Variable idx$
 Variable write-opus
 Variable read-opus
+
+: >amplitude ( addr u -- avgamp )
+    0 -rot bounds ?DO
+	I sw@ abs max
+    2 +LOOP ;
+
+\ index file for fast seeking:
+\ One block per second. Block format:
+\ Magic | 8b channels | 8b subblocks# | 16b samples/subblock | 64b index |
+\ { 16b amplitude | 16b len }*
+
+begin-structure idx-head
+    4 +field idx-magic
+    cfield: idx-channels
+    cfield: idx-frames
+    wfield: idx-samples
+    8 +field idx-pos
+end-structure
+
+begin-structure idx-tuple
+    wfield: idx-amp
+    wfield: idx-len
+end-structure
+
+frames/s 4 * $10 + Constant /idx-block
+
+: write-idx ( -- )
+    idx$ $@ /idx-block umin index-file write-file throw
+    idx$ $free ;
+: w$+! ( value addr -- )  2 swap $+!len le-w! ;
+: >idx-frame ( dpos -- )
+    "Opus"   idx$ $!
+    1        idx$ c$+!
+    frames/s idx$ c$+!
+    #480     idx$ w$+!
+    8 idx$ $+!len le-xd! ;
+: >idx-block ( len amp -- )
+    idx$ w$+!
+    idx$ w$+! ;
 
 :noname ( addr u -- )
     write$ $+!
@@ -214,21 +255,60 @@ Variable read-opus
 	write$ $@len #480 2* u>= WHILE
 	    #480 2* write-opus $!len
 	    opus-enc write$ $@ drop #480 2*
-	    write-opus $@ opus_encode write-opus $!len
-	    write-opus $@ dup rec-file emit-file throw
-	    rec-file write-file throw
+	    2dup >amplitude >r write-opus $@ opus_encode write-opus $!len
+	    idx$ $@len 0= IF
+		rec-file file-position throw >idx-frame
+	    THEN
+	    write-opus $@len r> >idx-block
+	    write-opus $@ rec-file write-file throw
+	    idx$ $@len /idx-block u>= IF  write-idx  THEN
 	    write$ 0 #480 2* $del
     REPEAT ; is write-record
 
 0 Value play-file
+0 Value play-idx
+Variable idx-block
+0 Value idx-pos#
+Variable opus-out
+Variable opus-buffer
+#480 12 * 2 * opus-buffer $!len
+
+: $alloc ( u string -- addr u )
+    over >r $+!len r> ;
+
+: ?opus-ior ( n -- )
+    dup 0< IF  [: opus_strerror pa-error$ place
+	    pa-error$ "error \ "
+	    ! -2  throw ;] do-debug
+    THEN ;
+: read-idx-block ( -- )
+    $10 idx-block $!len
+    idx-block $@ play-idx read-file throw drop
+    idx-block $@ drop idx-frames c@ 4 * idx-block $alloc
+    play-idx read-file throw drop
+    idx-block $@ drop idx-pos le-uxd@
+    play-file reposition-file throw ;
+: read-opus-block ( n -- )
+    4 * idx-block $@ drop idx-head + + idx-len w@ read-opus $!len
+    read-opus $@ play-file read-file throw drop ;
+: dec-opus-block ( -- )
+    opus-dec read-opus $@ opus-buffer $@ 0 opus_decode ?opus-ior
+    opus-buffer $@ drop swap opus-out $+! ;
+
 Defer read-record
-:noname ( addr u -- ) { | c^ len }
-    len 1 play-file read-file throw drop
-    len c@ read-opus $!len
-    read-opus $@ play-file read-file throw drop
-    2>r opus-dec read-opus $@ 2r> 0 opus_decode drop
+:noname ( addr u -- )  2>r
+    BEGIN  opus-out $@len r@ u<  WHILE
+	    idx-pos# frames/s mod dup 0= IF
+		read-idx-block
+	    THEN
+	    read-opus-block dec-opus-block
+	    1 +to idx-pos#
+    REPEAT
+    opus-out $@ 2r@ rot umin move
+    opus-out 0 r> $del rdrop
 ; is read-record
-: open-play ( addr u -- )
+: open-play ( addr-play u addr-idx u -- )
+    r/o open-file throw to play-idx
     r/o open-file throw to play-file ;
 
 : record@ ( stream -- ) { | w^ data w^ n }
@@ -271,7 +351,7 @@ Defer read-record
     data @ n @
     n @ IF  pa_stream_drop ?pa-ior  THEN ;
 
-: read-stream { stream bytes -- }
+: read-stream over { stream bytes -- }
     bytes allocate throw >r
     r@ bytes read-record
     stream r> bytes pa-free-cb #0. PA_SEEK_RELATIVE
