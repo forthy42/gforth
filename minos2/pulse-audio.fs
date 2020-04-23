@@ -27,10 +27,10 @@ get-current opus also pulse also definitions
 $100 buffer: pa-error$
 
 : ?pa-ior ( n -- )
-    ?dup-IF  [: pa_strerror pa-error$ place
+    dup 0< IF  [: pa_strerror pa-error$ place
 	    pa-error$ "error \ "
 	    ! -2  throw ;] do-debug
-	THEN ;
+    THEN drop ;
 
 debug: pulse( \ )
 +db pulse( \ )
@@ -159,7 +159,7 @@ Variable def-output$
 	pa_context_set_subscribe_callback
 	BEGIN
 	    ?events { | w^ retval }
-	    pa-ml 1 retval pa_mainloop_iterate drop \ ?pa-ior
+	    pa-ml 1 retval pa_mainloop_iterate ?pa-ior
 	    requests@ 0 ?DO
 		dup pa_operation_get_state
 		PA_OPERATION_RUNNING = IF  >request  ELSE  drop  THEN
@@ -168,15 +168,14 @@ Variable def-output$
 
 event: :>exec ( xt -- ) execute ;
 event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
+: pa-event> ( -- ) pa-task event>
+    pa-ml pa_mainloop_wakeup ;
 : pulse-exec ( xt -- ) { xt }
-    <event xt elit, :>exec  pa-task event>
-    pa-ml pa_mainloop_wakeup ;
+    <event xt elit, :>exec pa-event>  ;
 : pulse-exec# ( lit xt -- ) { xt }
-    <event elit, xt elit, :>exec  pa-task event>
-    pa-ml pa_mainloop_wakeup ;
+    <event elit, xt elit, :>exec  pa-event> ;
 : pulse-execq ( xt -- ) { xt }
-    <event xt elit, :>execq pa-task event>
-    pa-ml pa_mainloop_wakeup ;
+    <event xt elit, :>execq pa-event> ;
 
 : pa-sample! ( rate channels ss -- ) { ss }
     ss pa_sample_spec-channels c!
@@ -191,7 +190,7 @@ event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
 \ Opus en/decoder
 
 : opus-encoder ( -- encoder ) { | w^ err }
-    #48000 1 OPUS_APPLICATION_VOIP err opus_encoder_create ;
+    #48000 1 OPUS_APPLICATION_AUDIO err opus_encoder_create ;
 : opus-decoder ( -- decoder ) { | w^ err }
     #48000 1 err opus_decoder_create ;
 
@@ -276,7 +275,7 @@ Variable opus-buffer
 : $alloc ( u string -- addr u )
     over >r $+!len r> ;
 
-: ?opus-ior ( n -- )
+: ?opus-ior ( n -- n )
     dup 0< IF  [: opus_strerror pa-error$ place
 	    pa-error$ "error \ "
 	    ! -2  throw ;] do-debug
@@ -292,11 +291,11 @@ Variable opus-buffer
     4 * idx-block $@ drop idx-head + + idx-len w@ read-opus $!len
     read-opus $@ play-file read-file throw drop ;
 : dec-opus-block ( -- )
-    opus-dec read-opus $@ opus-buffer $@ 0 opus_decode ?opus-ior
+    opus-dec read-opus $@ opus-buffer $@ 2/ 0 opus_decode ?opus-ior
     opus-buffer $@ drop swap opus-out $+! ;
 
 Defer read-record
-:noname ( addr u -- )  2>r
+:noname ( addr u -- len ) 2>r
     BEGIN  opus-out $@len r@ u<  WHILE
 	    idx-pos# frames/s mod dup 0= IF
 		read-idx-block
@@ -304,8 +303,8 @@ Defer read-record
 	    read-opus-block dec-opus-block
 	    1 +to idx-pos#
     REPEAT
-    opus-out $@ 2r@ rot umin move
-    opus-out 0 r> $del rdrop
+    opus-out $@ 2r@ rot umin dup { len } move
+    opus-out 0 r> $del rdrop len
 ; is read-record
 : open-play ( addr-play u addr-idx u -- )
     r/o open-file throw to play-idx
@@ -351,11 +350,13 @@ Defer read-record
     data @ n @
     n @ IF  pa_stream_drop ?pa-ior  THEN ;
 
-: read-stream over { stream bytes -- }
-    bytes allocate throw >r
-    r@ bytes read-record
-    stream r> bytes pa-free-cb #0. PA_SEEK_RELATIVE
-    pa_stream_write ?pa-ior ;
+: read-stream { stream bytes -- }
+    bytes allocate throw { addr }
+    addr bytes read-record { len }
+    len IF
+	stream addr len pa-free-cb #0. PA_SEEK_RELATIVE
+	pa_stream_write ?pa-ior
+    THEN ;
 
 : play-buffer! ( size buffer -- )
     >r r@ pa_buffer_attr $FF fill
