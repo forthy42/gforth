@@ -20,9 +20,8 @@
 
 require unix/pulse.fs
 require unix/pthread.fs
-require unix/opus.fs
 
-get-current opus also pulse also definitions
+get-current pulse also definitions
 
 $100 buffer: pa-error$
 
@@ -54,7 +53,7 @@ $Variable request-queue
 ' execute pa_context_subscribe_cb_t: Constant pa-context-subscribe-cb
 ' execute pa_context_success_cb_t: Constant pa-context-success-cb
 ' execute pa_stream_request_cb_t: Constant pa-stream-request-cb
-:noname free throw ; pa_free_cb_t: Constant pa-free-cb
+:noname cell- free throw ; pa_free_cb_t: Constant pa-free-cb
 
 0 Value pa-ready
 Variable inputs[]
@@ -187,128 +186,10 @@ event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
 0 Value stereo-play
 0 Value mono-play
 
-\ Opus en/decoder
-
-: opus-encoder ( -- encoder ) { | w^ err }
-    #48000 1 OPUS_APPLICATION_AUDIO err opus_encoder_create ;
-: opus-decoder ( -- decoder ) { | w^ err }
-    #48000 1 err opus_decoder_create ;
-
-opus-encoder Value opus-enc
-opus-decoder Value opus-dec
-
-#100 Value frames/s
-
-"test.opus" r/w create-file throw Value rec-file
-"test.idx" r/w create-file throw Value index-file
-
+Defer read-record
 Defer write-record
 
-Variable write$
-Variable idx$
-Variable write-opus
-Variable read-opus
-
-: >amplitude ( addr u -- avgamp )
-    0 -rot bounds ?DO
-	I sw@ abs max
-    2 +LOOP ;
-
-\ index file for fast seeking:
-\ One block per second. Block format:
-\ Magic | 8b channels | 8b subblocks# | 16b samples/subblock | 64b index |
-\ { 16b amplitude | 16b len }*
-
-begin-structure idx-head
-    4 +field idx-magic
-    cfield: idx-channels
-    cfield: idx-frames
-    wfield: idx-samples
-    8 +field idx-pos
-end-structure
-
-begin-structure idx-tuple
-    wfield: idx-amp
-    wfield: idx-len
-end-structure
-
-frames/s 4 * $10 + Constant /idx-block
-
-: write-idx ( -- )
-    idx$ $@ /idx-block umin index-file write-file throw
-    idx$ $free ;
-: w$+! ( value addr -- )  2 swap $+!len le-w! ;
-: >idx-frame ( dpos -- )
-    "Opus"   idx$ $!
-    1        idx$ c$+!
-    frames/s idx$ c$+!
-    #480     idx$ w$+!
-    8 idx$ $+!len le-xd! ;
-: >idx-block ( len amp -- )
-    idx$ w$+!
-    idx$ w$+! ;
-
-:noname ( addr u -- )
-    write$ $+!
-    BEGIN
-	write$ $@len #480 2* u>= WHILE
-	    #480 2* write-opus $!len
-	    opus-enc write$ $@ drop #480 2*
-	    2dup >amplitude >r write-opus $@ opus_encode write-opus $!len
-	    idx$ $@len 0= IF
-		rec-file file-position throw >idx-frame
-	    THEN
-	    write-opus $@len r> >idx-block
-	    write-opus $@ rec-file write-file throw
-	    idx$ $@len /idx-block u>= IF  write-idx  THEN
-	    write$ 0 #480 2* $del
-    REPEAT ; is write-record
-
-0 Value play-file
-0 Value play-idx
-Variable idx-block
-0 Value idx-pos#
-Variable opus-out
-Variable opus-buffer
-#480 12 * 2 * opus-buffer $!len
-
-: $alloc ( u string -- addr u )
-    over >r $+!len r> ;
-
-: ?opus-ior ( n -- n )
-    dup 0< IF  [: opus_strerror pa-error$ place
-	    pa-error$ "error \ "
-	    ! -2  throw ;] do-debug
-    THEN ;
-: read-idx-block ( -- )
-    $10 idx-block $!len
-    idx-block $@ play-idx read-file throw drop
-    idx-block $@ drop idx-frames c@ 4 * idx-block $alloc
-    play-idx read-file throw drop
-    idx-block $@ drop idx-pos le-uxd@
-    play-file reposition-file throw ;
-: read-opus-block ( n -- )
-    4 * idx-block $@ drop idx-head + + idx-len w@ read-opus $!len
-    read-opus $@ play-file read-file throw drop ;
-: dec-opus-block ( -- )
-    opus-dec read-opus $@ opus-buffer $@ 2/ 0 opus_decode ?opus-ior
-    opus-buffer $@ drop swap opus-out $+! ;
-
-Defer read-record
-:noname ( addr u -- len ) 2>r
-    BEGIN  opus-out $@len r@ u<  WHILE
-	    idx-pos# frames/s mod dup 0= IF
-		read-idx-block
-	    THEN
-	    read-opus-block dec-opus-block
-	    1 +to idx-pos#
-    REPEAT
-    opus-out $@ 2r@ rot umin dup { len } move
-    opus-out 0 r> $del rdrop len
-; is read-record
-: open-play ( addr-play u addr-idx u -- )
-    r/o open-file throw to play-idx
-    r/o open-file throw to play-file ;
+#100 Value frames/s
 
 : record@ ( stream -- ) { | w^ data w^ n }
     dup data n pa_stream_peek ?pa-ior
@@ -351,10 +232,9 @@ Defer read-record
     n @ IF  pa_stream_drop ?pa-ior  THEN ;
 
 : read-stream { stream bytes -- }
-    bytes allocate throw { addr }
-    addr bytes read-record { len }
-    len IF
-	stream addr len pa-free-cb #0. PA_SEEK_RELATIVE
+    read-record { w^ buf }
+    buf @ IF
+	stream buf $@ pa-free-cb #0. PA_SEEK_RELATIVE
 	pa_stream_write ?pa-ior
     THEN ;
 
@@ -386,4 +266,4 @@ Defer read-record
     pa_stream_connect_playback ?pa-ior
     !time ;
 
-previous previous pulse set-current
+previous pulse set-current
