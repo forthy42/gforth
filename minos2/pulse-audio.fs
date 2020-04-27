@@ -234,6 +234,7 @@ Defer write-record
 : read-stream { stream bytes -- }
     read-record { w^ buf }
     BEGIN  buf $@len bytes u<  WHILE
+	    pause \ give the other task a chance to do something
 	    read-record { w^ buf2 }
 	    buf2 $@ buf $+!  buf2 $free
     REPEAT
