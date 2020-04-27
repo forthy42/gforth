@@ -240,7 +240,7 @@ Defer write-record
 
 : play-buffer! ( size buffer -- )
     >r r@ pa_buffer_attr $FF fill
-    frames/s / r> pa_buffer_attr-tlength l! ;
+    frames/s / 2* r> pa_buffer_attr-tlength l! ;
 
 : play-mono ( rate -- )
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }

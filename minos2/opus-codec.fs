@@ -19,21 +19,28 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require unix/opus.fs
+require unix/pthread.fs
 
 also opus
 
 \ Opus en/decoder
 
+#48000 Value sample-rate
+2 Value channels
+[IFUNDEF] frames/s
+    sample-rate #480 / Value frames/s
+[THEN]
+
 : opus-encoder ( -- encoder ) { | w^ err }
-    #48000 1 OPUS_APPLICATION_AUDIO err opus_encoder_create ;
+    sample-rate channels OPUS_APPLICATION_AUDIO err opus_encoder_create ;
 : opus-decoder ( -- decoder ) { | w^ err }
-    #48000 1 err opus_decoder_create ;
+    sample-rate channels err opus_decoder_create ;
 
 opus-encoder Value opus-enc
 opus-decoder Value opus-dec
 
-"test.opus" r/w create-file throw Value rec-file
-"test.idx" r/w create-file throw Value index-file
+0 Value rec-file
+0 Value rec-idx
 
 Variable write$
 Variable idx$
@@ -58,41 +65,42 @@ begin-structure idx-head
     8 +field idx-pos
 end-structure
 
-begin-structure idx-tuple
-    wfield: idx-amp
-    wfield: idx-len
-end-structure
-
-frames/s 4 * $10 + Constant /idx-block
+frames/s 2* $10 + Constant /idx-block
 
 : write-idx ( -- )
-    idx$ $@ /idx-block umin index-file write-file throw
+    idx$ $@ /idx-block umin rec-idx write-file throw
     idx$ $free ;
 : w$+! ( value addr -- )  2 swap $+!len le-w! ;
 : >idx-frame ( dpos -- )
     "Opus"   idx$ $!
-    1        idx$ c$+!
+    channels idx$ c$+!
     frames/s idx$ c$+!
     #480     idx$ w$+!
     8 idx$ $+!len le-xd! ;
 : >idx-block ( len amp -- )
-    idx$ w$+!
-    idx$ w$+! ;
+    $7FFF min 2* $FC00 and or idx$ w$+! ;
+
+[IFUNDEF] write-record
+    Defer write-record
+    Defer read-record
+[THEN]
 
 :noname ( addr u -- )
-    write$ $+!
+    write$ $+!  #480 2* channels * { bytes }
     BEGIN
-	write$ $@len #480 2* u>= WHILE
-	    #480 2* write-opus $!len
-	    opus-enc write$ $@ drop #480 2*
-	    2dup >amplitude >r write-opus $@ opus_encode write-opus $!len
+	write$ $@len bytes u>= WHILE
+	    bytes write-opus $!len
+	    opus-enc write$ $@ bytes umin
+	    2dup >amplitude >r
+	    2/ channels / write-opus $@ opus_encode write-opus $!len
 	    idx$ $@len 0= IF
+		rec-file flush-file throw
 		rec-file file-position throw >idx-frame
 	    THEN
 	    write-opus $@len r> >idx-block
 	    write-opus $@ rec-file write-file throw
 	    idx$ $@len /idx-block u>= IF  write-idx  THEN
-	    write$ 0 #480 2* $del
+	    write$ 0 bytes $del
     REPEAT ; is write-record
 
 0 Value play-file
@@ -104,29 +112,31 @@ Variable opus-out
 : $alloc ( u string -- addr u )
     over >r $+!len r> ;
 
+$100 buffer: opus-error$
+
 : ?opus-ior ( n -- n )
-    dup 0< IF  [: opus_strerror pa-error$ place
-	    pa-error$ "error \ "
+    dup 0< IF  [: opus_strerror opus-error$ place
+	    opus-error$ "error \ "
 	    ! -2  throw ;] do-debug
     THEN ;
 : read-idx-block ( -- )
     $10 idx-block $!len
     idx-block $@ play-idx read-file throw drop
-    idx-block $@ drop idx-frames c@ 4 * idx-block $alloc
+    idx-block $@ drop idx-frames c@ 2* idx-block $alloc 2dup erase
     play-idx read-file throw drop
     idx-block $@ drop idx-pos le-uxd@
     play-file reposition-file throw ;
-: read-opus-block ( n -- )
-    4 * idx-block $@ drop idx-head + + idx-len w@ read-opus $!len
+: read-opus-block ( frame -- )
+    2* idx-block $@ drop idx-head + + w@ $3FF and read-opus $!len
     read-opus $@ play-file read-file throw drop ;
 
 Variable opus-blocks
 Semaphore opus-block-sem
 
 : dec-opus-block ( -- ) { | w^ opus-buffer }
-    #480 12 * 2 * opus-buffer $!len
-    opus-dec read-opus $@ opus-buffer $@ 2/ 0 opus_decode ?opus-ior
-    opus-buffer $!len
+    #480 12 * 2 * channels * opus-buffer $!len
+    opus-dec read-opus $@ opus-buffer $@ 2/ channels / 0 opus_decode ?opus-ior
+    2* channels * opus-buffer $!len
     opus-buffer $@len 0= IF  opus-buffer $free
     ELSE
 	opus-buffer @ [: opus-blocks >stack ;] opus-block-sem c-section
@@ -134,26 +144,36 @@ Semaphore opus-block-sem
 
 0 Value opus-task
 
+: ?read-idx-block ( -- frame )
+    idx-pos# frames/s mod dup 0= IF
+	read-idx-block
+    THEN ;
+
+: 1-opus-block ( -- )
+    ?read-idx-block read-opus-block
+    read-opus $@len  IF  dec-opus-block  THEN
+    1 +to idx-pos# ;
+
 : opus-block-task ( -- )
     stacksize4 NewTask4 to opus-task
     opus-task activate   debug-out debug-vector !
     BEGIN
-	opus-blocks $[]# 2 > IF  stop  THEN
-	idx-pos# frames/s mod dup 0= IF
-	    read-idx-block
-	THEN
-	read-opus-block read-opus $@len  WHILE
-	dec-opus-block
-	1 +to idx-pos#
-    REPEAT  0 to opus-task ;
+	opus-blocks $[]# 4 >= IF  stop  THEN
+    1-opus-block read-opus $@len 0= UNTIL
+    0 to opus-task ;
 	    
 :noname ( -- buf )
     [: opus-blocks back> ;] opus-block-sem c-section
-    opus-task wake
+    opus-task ?dup-IF  wake  THEN
 ; is read-record
 : open-play ( addr-play u addr-idx u -- )
     r/o open-file throw to play-idx
     r/o open-file throw to play-file
     opus-block-task ;
+: open-rec ( addr-rec u addr-idx u -- )
+    w/o create-file throw to rec-idx
+    w/o create-file throw to rec-file ;
+: close-rec ( -- )
+    write-idx rec-idx close-file rec-file close-file throw throw ;
 
 previous
