@@ -201,7 +201,7 @@ Defer write-record
 
 : rec-buffer! ( size buffer -- )
     >r r@ pa_buffer_attr $FF fill
-    frames/s / r> pa_buffer_attr-fragsize l! ;
+    frames/s / 2* r> pa_buffer_attr-fragsize l! ;
 
 : record-mono ( rate -- )
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
@@ -233,6 +233,10 @@ Defer write-record
 
 : read-stream { stream bytes -- }
     read-record { w^ buf }
+    BEGIN  buf $@len bytes u<  WHILE
+	    read-record { w^ buf2 }
+	    buf2 $@ buf $+!  buf2 $free
+    REPEAT
     buf @ IF
 	stream buf $@ pa-free-cb #0. PA_SEEK_RELATIVE
 	pa_stream_write ?pa-ior
@@ -242,10 +246,10 @@ Defer write-record
     >r r@ pa_buffer_attr $FF fill
     frames/s / 2* r> pa_buffer_attr-tlength l! ;
 
-: play-mono ( rate -- )
+: play-mono { rate -- }
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
-    dup ba[ play-buffer!
-    1 ss[ pa-sample!
+    rate ba[ play-buffer!
+    rate 1 ss[ pa-sample!
     pa-ctx "mono-play" ss[ cm[ pa_channel_map_init_mono
     pa_stream_new to mono-play
     mono-play pa-stream-request-cb ['] read-stream
@@ -254,10 +258,10 @@ Defer write-record
     pa_stream_connect_playback ?pa-ior
     !time ;
 
-: play-stereo ( rate -- )
+: play-stereo { rate -- }
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
-    dup 2* ba[ play-buffer!
-    2 ss[ pa-sample!
+    rate 2* ba[ play-buffer!
+    rate 2 ss[ pa-sample!
     pa-ctx "stereo-play" ss[ cm[ pa_channel_map_init_stereo
     pa_stream_new to stereo-play
     stereo-play pa-stream-request-cb ['] read-stream
