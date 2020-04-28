@@ -173,6 +173,8 @@ event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
     <event xt elit, :>exec pa-event>  ;
 : pulse-exec# ( lit xt -- ) { xt }
     <event elit, xt elit, :>exec  pa-event> ;
+: pulse-exec## ( lit lit xt -- ) { xt }
+    <event swap elit, elit, xt elit, :>exec  pa-event> ;
 : pulse-execq ( xt -- ) { xt }
     <event xt elit, :>execq pa-event> ;
 
@@ -186,7 +188,6 @@ event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
 0 Value stereo-play
 0 Value mono-play
 
-Defer read-record
 Defer write-record
 
 #100 Value frames/s
@@ -231,7 +232,7 @@ Defer write-record
     data @ n @
     n @ IF  pa_stream_drop ?pa-ior  THEN ;
 
-: read-stream { stream bytes -- }
+: read-stream { stream bytes xt: read-record -- }
     read-record { w^ buf }
     BEGIN  buf $@len bytes u<  WHILE
 	    pause \ give the other task a chance to do something
@@ -247,28 +248,24 @@ Defer write-record
     >r r@ pa_buffer_attr $FF fill
     frames/s / 2* r> pa_buffer_attr-tlength l! ;
 
-: play-mono { rate -- }
+: play-rest ( stream ba read-record -- ) 2>r
+    dup pa-stream-request-cb r> [{: rd :}h rd read-stream ;]
+    pa_stream_set_write_callback
+    def-output$ $@ r> PA_STREAM_ADJUST_LATENCY 0 0
+    pa_stream_connect_playback ?pa-ior ;
+
+: play-mono { rate read-record -- }
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
     rate ba[ play-buffer!
     rate 1 ss[ pa-sample!
     pa-ctx "mono-play" ss[ cm[ pa_channel_map_init_mono
-    pa_stream_new to mono-play
-    mono-play pa-stream-request-cb ['] read-stream
-    pa_stream_set_write_callback
-    mono-play def-output$ $@ ba[ PA_STREAM_ADJUST_LATENCY 0 0
-    pa_stream_connect_playback ?pa-ior
-    !time ;
+    pa_stream_new dup to mono-play  ba[ read-record play-rest ;
 
-: play-stereo { rate -- }
+: play-stereo { rate read-record -- }
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
     rate 2* ba[ play-buffer!
     rate 2 ss[ pa-sample!
     pa-ctx "stereo-play" ss[ cm[ pa_channel_map_init_stereo
-    pa_stream_new to stereo-play
-    stereo-play pa-stream-request-cb ['] read-stream
-    pa_stream_set_write_callback
-    stereo-play def-output$ $@ ba[ PA_STREAM_ADJUST_LATENCY 0 0
-    pa_stream_connect_playback ?pa-ior
-    !time ;
+    pa_stream_new dup to stereo-play  ba[ read-record play-rest ;
 
 previous pulse set-current

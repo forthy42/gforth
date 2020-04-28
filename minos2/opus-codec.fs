@@ -54,8 +54,8 @@ Variable read-opus
 
 \ index file for fast seeking:
 \ One block per second. Block format:
-\ Magic | 8b channels | 8b subblocks# | 16b samples/subblock | 64b index |
-\ { 16b amplitude | 16b len }*
+\ Magic | 8b channels | 8b frames/s | 16b samples/frame | 64b index |
+\ { 6b amplitude | 10b len }16b*
 
 begin-structure idx-head
     4 +field idx-magic
@@ -71,13 +71,18 @@ frames/s 2* $10 + Constant /idx-block
     idx$ $@ /idx-block umin rec-idx write-file throw
     idx$ $free ;
 : w$+! ( value addr -- )  2 swap $+!len le-w! ;
+: xd$+! ( dvalue addr -- ) 8 swap $+!len le-xd! ;
 : >idx-frame ( dpos -- )
     "Opus"   idx$ $!
     channels idx$ c$+!
     frames/s idx$ c$+!
-    #480     idx$ w$+!
-    8 idx$ $+!len le-xd! ;
+    sample-rate frames/s / idx$ w$+!
+    xd$+! ;
 : >idx-block ( len amp -- )
+    idx$ $@len 0= IF
+	rec-file flush-file throw
+	rec-file file-position throw >idx-frame
+    THEN
     $7FFF min 2* $FC00 and or idx$ w$+! ;
 
 [IFUNDEF] write-record
@@ -86,17 +91,13 @@ frames/s 2* $10 + Constant /idx-block
 [THEN]
 
 :noname ( addr u -- )
-    write$ $+!  #480 2* channels * { bytes }
+    write$ $+!  sample-rate frames/s / 2* channels * { bytes }
     BEGIN
 	write$ $@len bytes u>= WHILE
 	    bytes write-opus $!len
 	    opus-enc write$ $@ bytes umin
 	    2dup >amplitude >r
 	    2/ channels / write-opus $@ opus_encode write-opus $!len
-	    idx$ $@len 0= IF
-		rec-file flush-file throw
-		rec-file file-position throw >idx-frame
-	    THEN
 	    write-opus $@len r> >idx-block
 	    write-opus $@ rec-file write-file throw
 	    idx$ $@len /idx-block u>= IF  write-idx  THEN
@@ -134,7 +135,7 @@ Variable opus-blocks
 Semaphore opus-block-sem
 
 : dec-opus-block ( -- ) { | w^ opus-buffer }
-    #480 12 * 2 * channels * opus-buffer $!len
+    sample-rate 12 2 * channels * frames/s */ opus-buffer $!len
     opus-dec read-opus $@ opus-buffer $@ 2/ channels / 0 opus_decode ?opus-ior
     2* channels * opus-buffer $!len
     opus-buffer $@len 0= IF  opus-buffer $free
@@ -161,15 +162,21 @@ Semaphore opus-block-sem
 	opus-blocks $[]# 4 >= IF  stop  THEN
     1-opus-block read-opus $@len 0= UNTIL
     0 to opus-task ;
-	    
-:noname ( -- buf )
+
+: read-stereo ( -- buf )
     [: opus-blocks back> ;] opus-block-sem c-section
-    opus-task ?dup-IF  wake  THEN
-; is read-record
+    opus-task ?dup-IF  wake  THEN ;
+
 : open-play ( addr-play u addr-idx u -- )
     r/o open-file throw to play-idx
     r/o open-file throw to play-file
-    opus-block-task ;
+    0 to idx-pos#
+    opus-task ?dup-IF  wake  ELSE  opus-block-task  THEN ;
+: open-play+ ( addr u -- ) { | w^ play$ w^ idx$ }
+    2dup play$ $! ".opus" play$ $+!
+    idx$ $! ".idx" idx$ $+!
+    play$ $@ idx$ $@ open-play
+    play$ $free idx$ $free ;
 : open-rec ( addr-rec u addr-idx u -- )
     w/o create-file throw to rec-idx
     w/o create-file throw to rec-file ;
