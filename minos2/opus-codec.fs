@@ -31,13 +31,15 @@ also opus
     sample-rate #480 / Value frames/s
 [THEN]
 
-: opus-encoder ( -- encoder ) { | w^ err }
-    sample-rate channels OPUS_APPLICATION_AUDIO err opus_encoder_create ;
+: opus-encoder ( channels -- encoder ) { | w^ err }
+    sample-rate swap OPUS_APPLICATION_AUDIO err opus_encoder_create ;
 : opus-decoder ( -- decoder ) { | w^ err }
-    sample-rate channels err opus_decoder_create ;
+    sample-rate swap err opus_decoder_create ;
 
-opus-encoder Value opus-enc
-opus-decoder Value opus-dec
+1 opus-encoder Value opus-mono-enc
+1 opus-decoder Value opus-mono-dec
+2 opus-encoder Value opus-stereo-enc
+2 opus-decoder Value opus-stereo-dec
 
 0 Value rec-file
 0 Value rec-idx
@@ -77,7 +79,7 @@ frames/s 2* $10 + Constant /idx-block
     channels idx$ c$+!
     frames/s idx$ c$+!
     sample-rate frames/s / idx$ w$+!
-    xd$+! ;
+    idx$ xd$+! ;
 : >idx-block ( len amp -- )
     idx$ $@len 0= IF
 	rec-file flush-file throw
@@ -95,7 +97,8 @@ frames/s 2* $10 + Constant /idx-block
     BEGIN
 	write$ $@len bytes u>= WHILE
 	    bytes write-opus $!len
-	    opus-enc write$ $@ bytes umin
+	    opus-mono-enc opus-stereo-enc channels 1 = select
+	    write$ $@ bytes umin
 	    2dup >amplitude >r
 	    2/ channels / write-opus $@ opus_encode write-opus $!len
 	    write-opus $@len r> >idx-block
@@ -130,14 +133,22 @@ $100 buffer: opus-error$
 : read-opus-block ( frame -- )
     2* idx-block $@ drop idx-head + + w@ $3FF and read-opus $!len
     read-opus $@ play-file read-file throw drop ;
+: /frame ( -- u )
+    idx-block $@ drop dup idx-channels c@ swap idx-samples le-uw@ * 2* ;
+: /sample ( -- u ) idx-block $@ drop idx-channels c@ 2* ;
 
-Variable opus-blocks
+Variable opus-mono-blocks
+Variable opus-stereo-blocks
 Semaphore opus-block-sem
 
+: opus-blocks ( -- addr )
+    opus-mono-blocks opus-stereo-blocks /sample 2 = select ;
+
 : dec-opus-block ( -- ) { | w^ opus-buffer }
-    sample-rate 12 2 * channels * frames/s */ opus-buffer $!len
-    opus-dec read-opus $@ opus-buffer $@ 2/ channels / 0 opus_decode ?opus-ior
-    2* channels * opus-buffer $!len
+    /frame 3 * opus-buffer $!len
+    opus-mono-dec opus-stereo-dec /sample 2 = select
+    read-opus $@ opus-buffer $@ 2/ 0 opus_decode ?opus-ior
+    /sample * opus-buffer $!len
     opus-buffer $@len 0= IF  opus-buffer $free
     ELSE
 	opus-buffer @ [: opus-blocks >stack ;] opus-block-sem c-section
@@ -158,12 +169,13 @@ Semaphore opus-block-sem
 : opus-block-task ( -- )
     stacksize4 NewTask4 to opus-task
     opus-task activate   debug-out debug-vector !
-    BEGIN
-	opus-blocks $[]# 4 >= IF  stop  THEN
-    1-opus-block read-opus $@len 0= UNTIL
+    [: BEGIN
+	    1-opus-block
+	    opus-blocks $[]# 4 >= IF  stop  THEN
+	read-opus $@len 0= UNTIL ;] catch DoError
     0 to opus-task ;
 
-: read-stereo ( -- buf )
+: read-opus-buf ( -- buf )
     [: opus-blocks back> ;] opus-block-sem c-section
     opus-task ?dup-IF  wake  THEN ;
 
@@ -180,7 +192,16 @@ Semaphore opus-block-sem
 : open-rec ( addr-rec u addr-idx u -- )
     w/o create-file throw to rec-idx
     w/o create-file throw to rec-file ;
+: open-rec+ ( addr u -- ) { | w^ rec$ w^ idx$ }
+    2dup rec$ $! ".opus" rec$ $+!
+    idx$ $! ".idx" idx$ $+!
+    rec$ $@ idx$ $@ open-rec
+    rec$ $free idx$ $free ;
 : close-rec ( -- )
     write-idx rec-idx close-file rec-file close-file throw throw ;
+: raw>opus ( addr u -- ) { | w^ raw$ }
+    2dup open-rec+ raw$ $! ".raw" raw$ $+!
+    raw$ $@ write$ $slurp-file
+    "" write-record close-rec raw$ $free ;
 
 previous
