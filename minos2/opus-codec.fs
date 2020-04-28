@@ -168,11 +168,11 @@ Semaphore opus-block-sem
 
 : opus-block-task ( -- )
     stacksize4 NewTask4 to opus-task
-    opus-task activate   debug-out debug-vector !
+    opus-task activate   debug-out debug-vector !  nothrow
     [: BEGIN
 	    1-opus-block
 	    opus-blocks $[]# 4 >= IF  stop  THEN
-	read-opus $@len 0= UNTIL ;] catch DoError
+	read-opus $@len 0= UNTIL ;] catch ?dup-IF  DoError  THEN
     0 to opus-task ;
 
 : read-opus-buf ( -- buf )

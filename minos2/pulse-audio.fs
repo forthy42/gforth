@@ -147,7 +147,7 @@ Variable def-output$
 
 : pulse-init ( -- )
     stacksize4 NewTask4 to pa-task
-    pa-task activate   debug-out debug-vector !
+    pa-task activate   debug-out debug-vector !  nothrow
     [:  pa_mainloop_new to pa-ml
 	pa-ml pa_mainloop_get_api to pa-api
 	pa-api app-name $@ pa_context_new to pa-ctx
@@ -163,7 +163,7 @@ Variable def-output$
 		dup pa_operation_get_state
 		PA_OPERATION_RUNNING = IF  >request  ELSE  drop  THEN
 	    LOOP
-	AGAIN ;] catch DoError ;
+	AGAIN ;] catch ?dup-IF  DoError  THEN ;
 
 event: :>exec ( xt -- ) execute ;
 event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
