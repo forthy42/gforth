@@ -26,6 +26,8 @@ also opus
 \ Opus en/decoder
 
 2 Value channels
+[IFUNDEF] sample-rate  #48000 Value sample-rate    [THEN]
+[IFUNDEF] samples/frame  #960 Value samples/frame  [THEN]
 
 : opus-encoder ( channels -- encoder ) { | w^ err }
     sample-rate swap OPUS_APPLICATION_AUDIO err opus_encoder_create ;
@@ -198,12 +200,16 @@ Semaphore opus-block-sem
     write-idx rec-idx close-file rec-file close-file
     0 to rec-idx  0 to rec-file
     throw throw ;
-: close-rec-mono ( -- )
-    [:  mono-rec pa_stream_disconnect ?pa-ior
-	mono-rec pa_stream_unref  0 to mono-rec ;] pulse-exec close-rec ;
-: close-rec-stereo ( -- )
-    [:  stereo-rec pa_stream_disconnect ?pa-ior
-	stereo-rec pa_stream_unref  0 to stereo-rec ;] pulse-exec close-rec ;
+[IFDEF] mono-rec
+    : close-rec-mono ( -- )
+	[:  mono-rec pa_stream_disconnect ?pa-ior
+	    mono-rec pa_stream_unref  0 to mono-rec ;] pulse-exec close-rec ;
+[THEN]
+[IFDEF] stereo-rec
+    : close-rec-stereo ( -- )
+	[:  stereo-rec pa_stream_disconnect ?pa-ior
+	    stereo-rec pa_stream_unref  0 to stereo-rec ;] pulse-exec close-rec ;
+[THEN]
 
 : raw>opus ( addr u -- ) { | w^ raw$ }
     2dup open-rec+ raw$ $! ".raw" raw$ $+!
