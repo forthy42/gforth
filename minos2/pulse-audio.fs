@@ -190,7 +190,8 @@ event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
 
 Defer write-record
 
-#100 Value frames/s
+#48000 Value sample-rate
+#960 Value samples/frame
 
 : record@ ( stream -- ) { | w^ data w^ n }
     dup data n pa_stream_peek ?pa-ior
@@ -200,9 +201,9 @@ Defer write-record
 : write-stream { stream bytes -- }
     stream record@ ;
 
-: rec-buffer! ( size buffer -- )
+: rec-buffer! ( channels buffer -- )
     >r r@ pa_buffer_attr $FF fill
-    frames/s / 2* r> pa_buffer_attr-fragsize l! ;
+    samples/frame 2* * r> pa_buffer_attr-fragsize l! ;
 
 : record-mono ( rate -- )
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
@@ -218,7 +219,7 @@ Defer write-record
 
 : record-stereo ( rate -- )
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
-    dup 2* ba[ rec-buffer!
+    2 ba[ rec-buffer!
     2 ss[ pa-sample!
     pa-ctx "stereo-rec" ss[ cm[ pa_channel_map_init_stereo
     pa_stream_new to stereo-rec
@@ -244,9 +245,9 @@ Defer write-record
 	pa_stream_write ?pa-ior
     THEN ;
 
-: play-buffer! ( size buffer -- )
+: play-buffer! ( channels buffer -- )
     >r r@ pa_buffer_attr $FF fill
-    frames/s / 2* r> pa_buffer_attr-tlength l! ;
+    samples/frame 2* * r> pa_buffer_attr-tlength l! ;
 
 : play-rest ( stream ba read-record -- ) 2>r
     dup pa-stream-request-cb r> [{: rd :}h rd read-stream ;]
@@ -256,14 +257,14 @@ Defer write-record
 
 : play-mono { rate read-record -- }
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
-    rate ba[ play-buffer!
+    1 ba[ play-buffer!
     rate 1 ss[ pa-sample!
     pa-ctx "mono-play" ss[ cm[ pa_channel_map_init_mono
     pa_stream_new dup to mono-play  ba[ read-record play-rest ;
 
 : play-stereo { rate read-record -- }
     { | ss[ pa_sample_spec ] cm[ pa_channel_map ] ba[ pa_buffer_attr ] }
-    rate 2* ba[ play-buffer!
+    2 ba[ play-buffer!
     rate 2 ss[ pa-sample!
     pa-ctx "stereo-play" ss[ cm[ pa_channel_map_init_stereo
     pa_stream_new dup to stereo-play  ba[ read-record play-rest ;

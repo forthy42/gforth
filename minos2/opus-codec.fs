@@ -25,11 +25,7 @@ also opus
 
 \ Opus en/decoder
 
-#48000 Value sample-rate
 2 Value channels
-[IFUNDEF] frames/s
-    sample-rate #480 / Value frames/s
-[THEN]
 
 : opus-encoder ( channels -- encoder ) { | w^ err }
     sample-rate swap OPUS_APPLICATION_AUDIO err opus_encoder_create ;
@@ -56,7 +52,7 @@ Variable read-opus
 
 \ index file for fast seeking:
 \ One block per second. Block format:
-\ Magic | 8b channels | 8b frames/s | 16b samples/frame | 64b index |
+\ Magic | 8b channels | 8b frames | 16b samples/frame | 64b index |
 \ { 6b amplitude | 10b len }16b*
 
 begin-structure idx-head
@@ -67,7 +63,7 @@ begin-structure idx-head
     8 +field idx-pos
 end-structure
 
-frames/s 2* $10 + Constant /idx-block
+sample-rate samples/frame / 2* $10 + Constant /idx-block
 
 : write-idx ( -- )
     idx$ $@ /idx-block umin rec-idx write-file throw
@@ -77,8 +73,8 @@ frames/s 2* $10 + Constant /idx-block
 : >idx-frame ( dpos -- )
     "Opus"   idx$ $!
     channels idx$ c$+!
-    frames/s idx$ c$+!
-    sample-rate frames/s / idx$ w$+!
+    sample-rate samples/frame / idx$ c$+!
+    samples/frame idx$ w$+!
     idx$ xd$+! ;
 : >idx-block ( len amp -- )
     idx$ $@len 0= IF
@@ -93,7 +89,7 @@ frames/s 2* $10 + Constant /idx-block
 [THEN]
 
 :noname ( addr u -- )
-    write$ $+!  sample-rate frames/s / 2* channels * { bytes }
+    write$ $+!  samples/frame 2* channels * { bytes }
     BEGIN
 	write$ $@len bytes u>= WHILE
 	    bytes write-opus $!len
@@ -157,7 +153,8 @@ Semaphore opus-block-sem
 0 Value opus-task
 
 : ?read-idx-block ( -- frame )
-    idx-pos# frames/s mod dup 0= IF
+    idx-pos# dup IF  idx-block $@ drop idx-frames c@ mod THEN
+    dup 0= IF
 	read-idx-block
     THEN ;
 
@@ -198,7 +195,16 @@ Semaphore opus-block-sem
     rec$ $@ idx$ $@ open-rec
     rec$ $free idx$ $free ;
 : close-rec ( -- )
-    write-idx rec-idx close-file rec-file close-file throw throw ;
+    write-idx rec-idx close-file rec-file close-file
+    0 to rec-idx  0 to rec-file
+    throw throw ;
+: close-rec-mono ( -- )
+    [:  mono-rec pa_stream_disconnect ?pa-ior
+	mono-rec pa_stream_unref  0 to mono-rec ;] pulse-exec close-rec ;
+: close-rec-stereo ( -- )
+    [:  stereo-rec pa_stream_disconnect ?pa-ior
+	stereo-rec pa_stream_unref  0 to stereo-rec ;] pulse-exec close-rec ;
+
 : raw>opus ( addr u -- ) { | w^ raw$ }
     2dup open-rec+ raw$ $! ".raw" raw$ $+!
     raw$ $@ write$ $slurp-file
