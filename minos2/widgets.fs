@@ -817,19 +817,23 @@ atlas-region buffer: (ar)
 
 also soil also freetype-gl
 
-: (mem>style) { atlas val -- ivec4-addr }
+: img>mem ( addr u -- memimg w h )
     0 0 0 { w^ w w^ h w^ ch# }
-    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
+    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory ( memimg-addr )
+    w @ h @ ;
+: rgba>style { memimg w h atlas val -- ivec4-addr }
     BEGIN
-	atlas w @ 1+ h @ 1+ (ar) texture_atlas_get_region
+	atlas w 1+ h 1+ (ar) texture_atlas_get_region
 	(ar) i.x (ar) i.y -1 -1 d= WHILE
 	    atlas val @ 2* dup >r val !
 	    r> dup texture_atlas_enlarge_texture
     REPEAT
-    >r atlas (ar) i.x (ar) i.y (ar) i.w 1- (ar) i.h 1- r@ (ar) i.w 1- 2* 2*
+    atlas (ar) i.x (ar) i.y (ar) i.w 1- (ar) i.h 1- memimg (ar) i.w 1- 2* 2*
     texture_atlas_set_region
-    r> free throw  (ar)
+    memimg free throw  (ar)
     GL_TEXTURE0 glActiveTexture ;
+: (mem>style) ( addr u atlas val -- ivec4-addr )
+    2>r img>mem 2r> rgba>style ;
 : mem>style ( addr u -- ivec4-addr )
     over >r
     GL_TEXTURE2 glActiveTexture
