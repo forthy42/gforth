@@ -90,20 +90,47 @@ explicit register allocation and efforts to stop coalescing.
 */
 
 #if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
-/* tested with gcc 4.4, 4.6, 4.7, 4.8, 5.2 */
-#define RPREG asm("%r13")
+/* tested with gcc 4.4, 4.8, 4.9, 7.4, 8.3 */
 #define FPREG asm("%r12")
-#define TOSREG asm("%r14")
-# define SPREG asm("%r15")
-# define IPREG asm("%rbx")
 #if ((__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=6) || (__GNUC__>=5))
-#define LPREG asm("%rbp") /* inefficient wit gcc-4.4 */
+#define LPREG asm("%rbp") /* inefficient with gcc-4.4 */
 #endif
 #define FTOSREG asm("%xmm15")
 #ifdef __clang__
 /* maybe we need some other options for clang */
 /* but so far, clang doesn't support manual register allocation */
 #endif
+
+/* Results of explicit register allocation
+
+for i in 4.4 4.9 7.4 8.3; do echo $i; perf stat -x' ' -e cycles:u -e instructions:u gforth-fast-reg-$i onebench.fs >/dev/null; perf stat -x' ' -e cycles:u -e instructions:u gforth-fast-newreg-$i onebench.fs >/dev/null; done
+
+For various gcc versions; the upper results are with the old explicit
+register allocation, the lower results with this one:
+
+Haswell                     Zen2
+4.4                         4.4         
+1471993782  cycles:u        1331162435  
+3829917395  instructions:u  3828147564  
+1431364615  cycles:u        1274677422  
+3372490900  instructions:u  3370798243  
+4.9                         4.9         
+1388148914  cycles:u        1242016559  
+3295249015  instructions:u  3293099054  
+1403757388  cycles:u        1267331033  
+3400541439  instructions:u  3398124383  
+7.4                         7.4         
+1433156560  cycles:u        1252978107  
+3376331020  instructions:u  3374174822  
+1411925157  cycles:u        1261224513  
+3216957194  instructions:u  3214914874  
+8.3                         8.3         
+1386077004  cycles:u        1239162675  
+3295249024  instructions:u  3293098814  
+1386562707  cycles:u        1253242147  
+3204296317  instructions:u  3202150063  
+
+*/
 #endif
 
 #define GOTO_ALIGN asm(".p2align 4,,7");
