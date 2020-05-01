@@ -108,27 +108,27 @@ for i in 4.4 4.9 7.4 8.3; do echo $i; perf stat -x' ' -e cycles:u -e instruction
 For various gcc versions; the upper results are with the old explicit
 register allocation, the lower results with this one:
 
-Haswell                     Zen2
-4.4                         4.4         
-1471993782  cycles:u        1331162435  
-3829917395  instructions:u  3828147564  
-1431364615  cycles:u        1274677422  
-3372490900  instructions:u  3370798243  
-4.9                         4.9         
-1388148914  cycles:u        1242016559  
-3295249015  instructions:u  3293099054  
-1403757388  cycles:u        1267331033  
-3400541439  instructions:u  3398124383  
-7.4                         7.4         
-1433156560  cycles:u        1252978107  
-3376331020  instructions:u  3374174822  
-1411925157  cycles:u        1261224513  
-3216957194  instructions:u  3214914874  
-8.3                         8.3         
-1386077004  cycles:u        1239162675  
-3295249024  instructions:u  3293098814  
-1386562707  cycles:u        1253242147  
-3204296317  instructions:u  3202150063  
+Haswell                     Zen2        Goldmont
+4.4                         4.4         4.4       
+1471993782  cycles:u        1331162435  2338608502
+3829917395  instructions:u  3828147564  3829372879
+1431364615  cycles:u        1274677422  2228754145
+3372490900  instructions:u  3370798243  3371941456
+4.9                         4.9         4.9       
+1388148914  cycles:u        1242016559  2169850504
+3295249015  instructions:u  3293099054  3294788843
+1403757388  cycles:u        1267331033  2185304203
+3400541439  instructions:u  3398124383  3400032204
+7.4                         7.4         7.4       
+1433156560  cycles:u        1252978107  2212397812
+3376331020  instructions:u  3374174822  3375864973
+1411925157  cycles:u        1261224513  2137450203
+3216957194  instructions:u  3214914874  3216485013
+8.3                         8.3         8.3       
+1386077004  cycles:u        1239162675  2170227276
+3295249024  instructions:u  3293098814  3294788948
+1386562707  cycles:u        1253242147  2152653048
+3204296317  instructions:u  3202150063  3203823888
 
 */
 #endif
