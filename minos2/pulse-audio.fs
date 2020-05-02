@@ -32,7 +32,7 @@ $100 buffer: pa-error$
     THEN drop ;
 
 debug: pulse( \ )
-+db pulse( \ )
+\ +db pulse( \ )
 
 0 Value pa-ml
 0 Value pa-api
@@ -233,16 +233,22 @@ Defer write-record
     data @ n @
     n @ IF  pa_stream_drop ?pa-ior  THEN ;
 
+: pause-stream ( stream -- )
+    1 0 0 pa_stream_cork ?pa-ior ;
+: resume-stream ( stream -- )
+    0 0 0 pa_stream_cork ?pa-ior ;
 : read-stream { stream bytes xt: read-record -- }
     read-record { w^ buf }
     BEGIN  buf $@len bytes u<  WHILE
 	    pause \ give the other task a chance to do something
-	    read-record { w^ buf2 }
-	    buf2 $@ buf $+!  buf2 $free
-    REPEAT
-    buf @ IF
+	    read-record { w^ buf2 }  buf2 $@len  WHILE
+		buf2 $@ buf $+!  buf2 $free
+    REPEAT  THEN
+    buf $@len IF
 	stream buf $@ pa-free-cb #0. PA_SEEK_RELATIVE
 	pa_stream_write ?pa-ior
+    ELSE
+	stream pause-stream
     THEN ;
 
 : play-buffer! ( channels buffer -- )

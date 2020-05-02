@@ -122,6 +122,10 @@ $100 buffer: opus-error$
 	    ! -2  throw ;] do-debug
     THEN ;
 : read-idx-block ( -- )
+    idx-block $@ drop ?dup-IF
+	idx-pos# swap idx-frames c@ dup >r /
+	r> 2* idx-head + * 0 play-idx reposition-file throw
+    THEN
     $10 idx-block $!len
     idx-block $@ play-idx read-file throw drop
     idx-block $@ drop idx-frames c@ 2* idx-block $alloc 2dup erase
@@ -162,7 +166,8 @@ Semaphore opus-block-sem
 
 : 1-opus-block ( -- )
     ?read-idx-block read-opus-block
-    read-opus $@len  IF  dec-opus-block  THEN
+    read-opus $@len  IF  dec-opus-block
+    ELSE  "" $make [: opus-blocks >stack ;] opus-block-sem c-section  THEN
     1 +to idx-pos# ;
 
 : opus-block-task ( -- )
@@ -185,7 +190,7 @@ Semaphore opus-block-sem
     opus-task ?dup-IF  wake  ELSE  opus-block-task  THEN ;
 : open-play+ ( addr u -- ) { | w^ play$ w^ idx$ }
     2dup play$ $! ".opus" play$ $+!
-    idx$ $! ".idx" idx$ $+!
+    idx$ $! ".aidx" idx$ $+!
     play$ $@ idx$ $@ open-play
     play$ $free idx$ $free ;
 : open-rec ( addr-rec u addr-idx u -- )
@@ -193,7 +198,7 @@ Semaphore opus-block-sem
     w/o create-file throw to rec-file ;
 : open-rec+ ( addr u -- ) { | w^ rec$ w^ idx$ }
     2dup rec$ $! ".opus" rec$ $+!
-    idx$ $! ".idx" idx$ $+!
+    idx$ $! ".aidx" idx$ $+!
     rec$ $@ idx$ $@ open-rec
     rec$ $free idx$ $free ;
 : close-rec ( -- )
