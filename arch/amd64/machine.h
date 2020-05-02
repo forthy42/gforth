@@ -91,6 +91,17 @@ explicit register allocation and efforts to stop coalescing.
 
 #if defined(FORCE_REG) && !defined(DOUBLY_INDIRECT) && !defined(VM_PROFILING)
 /* tested with gcc 4.4, 4.8, 4.9, 7.4, 8.3 */
+
+/* If the compiler allocates a register to the variable by itself, it
+   tends to produce fewer instructions (in particular, fewer mov
+   instructions); the compiler tends to allocate a register to
+   frequently-used variables like ip, sp, spTOS, rp, so we don't
+   define explicit registers for them.  gcc-8.3 fails to allocate
+   registers to lp and FTOS, possibly because they occur in too few
+   places in engine().  So we allocate registers for them explicitly.
+   We also allocate a register for fp explicitly, because if FTOS does
+   not occur frequently enough, fp seems to be endangered, too */
+
 #define FPREG asm("%r12")
 #if ((__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=6) || (__GNUC__>=5))
 #define LPREG asm("%rbp") /* inefficient with gcc-4.4 */
@@ -106,30 +117,52 @@ explicit register allocation and efforts to stop coalescing.
 for i in 4.4 4.9 7.4 8.3; do echo $i; perf stat -x' ' -e cycles:u -e instructions:u gforth-fast-reg-$i onebench.fs >/dev/null; perf stat -x' ' -e cycles:u -e instructions:u gforth-fast-newreg-$i onebench.fs >/dev/null; done
 
 For various gcc versions; the upper results are with the old explicit
-register allocation, the lower results with this one:
+register allocation (with explicit registers for ip, sp, spTOS, rp),
+the lower results with the present one:
 
-Haswell                     Zen2        Goldmont
-4.4                         4.4         4.4       
-1471993782  cycles:u        1331162435  2338608502
-3829917395  instructions:u  3828147564  3829372879
-1431364615  cycles:u        1274677422  2228754145
-3372490900  instructions:u  3370798243  3371941456
-4.9                         4.9         4.9       
-1388148914  cycles:u        1242016559  2169850504
-3295249015  instructions:u  3293099054  3294788843
-1403757388  cycles:u        1267331033  2185304203
-3400541439  instructions:u  3398124383  3400032204
-7.4                         7.4         7.4       
-1433156560  cycles:u        1252978107  2212397812
-3376331020  instructions:u  3374174822  3375864973
-1411925157  cycles:u        1261224513  2137450203
-3216957194  instructions:u  3214914874  3216485013
-8.3                         8.3         8.3       
-1386077004  cycles:u        1239162675  2170227276
-3295249024  instructions:u  3293098814  3294788948
-1386562707  cycles:u        1253242147  2152653048
-3204296317  instructions:u  3202150063  3203823888
+Haswell     Skylake     Zen2        Goldmont                 
+4.4         4.4         4.4         4.4                      
+1471993782  1416141953  1331162435  2338608502 cycles:u      
+3829917395  3829922109  3828147564  3829372879 instructions:u
+1431364615  1336941234  1274677422  2228754145 cycles:u      
+3372490900  3372496012  3370798243  3371941456 instructions:u
+4.9         4.9         4.9         4.9                      
+1388148914  1309576145  1242016559  2169850504 cycles:u      
+3295249015  3295190837  3293099054  3294788843 instructions:u
+1403757388  1327685590  1267331033  2185304203 cycles:u      
+3400541439  3400536165  3398124383  3400032204 instructions:u
+7.4         7.4         7.4         7.4                      
+1433156560  1339449495  1252978107  2212397812 cycles:u      
+3376331020  3376264573  3374174822  3375864973 instructions:u
+1411925157  1325356723  1261224513  2137450203 cycles:u      
+3216957194  3216899609  3214914874  3216485013 instructions:u
+8.3         8.3         8.3         8.3                      
+1386077004  1309633582  1239162675  2170227276 cycles:u      
+3295249024  3295190826  3293098814  3294788948 instructions:u
+1386562707  1307231176  1253242147  2152653048 cycles:u      
+3204296317  3204244893  3202150063  3203823888 instructions:u
 
+Dynamic native code size (note that they are only comparable if the
+same primitives are relocatable):
+
+for i in 4.4 4.9 7.4 8.3; do echo $i `gforth-fast-reg-$i --print-metrics -e bye 2>&1 |awk '/code size/ {print $4}'` `gforth-fast-newreg-$i --print-metrics -e bye 2>&1 |awk '/code size/ {print $4}'`; done
+    old    present
+4.4 587607 522052
+4.9 503129 500224
+7.4 506729 463706
+8.3 503129 472987
+
+Number of non-relocatable primitives:
+for i in 4.4 4.9 7.4 8.3; do echo $i `gforth-fast-reg-$i --debug -e bye 2>&1 |grep non_reloc|wc -l` `gforth-fast-newreg-$i --debug -e bye 2>&1 |grep non_reloc|wc -l`; done
+    old pres
+4.4 152 151
+4.9 117 149
+7.4 117 117
+8.3 117 117
+
+The differences in primitives between old and prev with gcc-4.9 come
+from uw@ and friends.  With the new register allocation, gcc-4.9
+actually compiles the call to memcpy into a call to memcpy.
 */
 #endif
 
