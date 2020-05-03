@@ -1220,6 +1220,7 @@ if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP
 fi
+AC_HEADER_STDC
 AC_CHECK_LIB(dl,dlopen)
 AC_REPLACE_FUNCS(memmove strtoul pow10 sincos strerror strsignal atanh)
 AC_FUNC_FSEEKO
@@ -1229,6 +1230,7 @@ AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,[true],[AC_LIBOBJ(getopt) AC_LIBOBJ(getopt1)])
 AC_CHECK_FUNCS(expm1 log1p)
 AC_CHECK_FUNCS(mcheck mprobe)
+AC_CHECK_FUNCS(qecvt_r)
 AC_REPLACE_FUNCS(rint ecvt_r)
 #No check for select, because our replacement is no good under
 #anything but DOS
