@@ -106,7 +106,6 @@ sample-rate samples/frame / 2* $10 + Constant /idx-block
     REPEAT ; is write-record
 
 0 Value play-file
-0 Value play-idx
 Variable idx-block
 0 Value idx-pos#
 Variable opus-out
@@ -121,19 +120,18 @@ $100 buffer: opus-error$
 	    opus-error$ "error \ "
 	    ! -2  throw ;] do-debug
     THEN ;
-: read-idx-block ( -- )
-    idx-block $@ drop ?dup-IF
-	idx-pos# swap idx-frames c@ dup >r /
-	r> 2* idx-head + * 0 play-idx reposition-file throw
-    THEN
-    $10 idx-block $!len
-    idx-block $@ play-idx read-file throw drop
-    idx-block $@ drop idx-frames c@ 2* idx-block $alloc 2dup erase
-    play-idx read-file throw drop
-    idx-block $@ drop idx-pos le-uxd@
+: >idx-pos ( block -- )
+    idx-block $@ drop + idx-pos le-uxd@
     play-file reposition-file throw ;
-: read-opus-block ( frame -- )
-    2* idx-block $@ drop idx-head + + w@ $3FF and read-opus $!len
+: read-idx-block ( -- frame-size )
+    idx-block $@len 0= IF  0 EXIT  THEN
+    idx-pos# idx-block $@ drop idx-frames c@ dup >r /mod
+    r> 2* idx-head + *
+    over 0= IF  dup >idx-pos  THEN
+    swap 2* + idx-head + >r
+    idx-block $@ r> safe/string 2 u>= IF  le-uw@  ELSE  drop 0  THEN ;
+: read-opus-block ( frame-size -- )
+    $3FF and read-opus $!len
     read-opus $@ play-file read-file throw drop ;
 : /frame ( -- u )
     idx-block $@ drop dup idx-channels c@ swap idx-samples le-uw@ * 2* ;
@@ -158,14 +156,8 @@ Semaphore opus-block-sem
 
 0 Value opus-task
 
-: ?read-idx-block ( -- frame )
-    idx-pos# dup IF  idx-block $@ drop idx-frames c@ mod THEN
-    dup 0= IF
-	read-idx-block
-    THEN ;
-
 : 1-opus-block ( -- )
-    ?read-idx-block read-opus-block
+    read-idx-block read-opus-block
     read-opus $@len  IF  dec-opus-block
     ELSE  "" $make [: opus-blocks >stack ;] opus-block-sem c-section  THEN
     1 +to idx-pos# ;
@@ -184,7 +176,7 @@ Semaphore opus-block-sem
     opus-task ?dup-IF  wake  THEN ;
 
 : open-play ( addr-play u addr-idx u -- )
-    r/o open-file throw to play-idx
+    idx-block $slurp-file
     r/o open-file throw to play-file
     0 to idx-pos#
     opus-task ?dup-IF  wake  ELSE  opus-block-task  THEN ;
