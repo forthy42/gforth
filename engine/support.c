@@ -594,6 +594,63 @@ struct Cellpair file_status(Char *c_addr, UCell u)
   return r;
 }
 
+static void repstr(Address s, Address t, UCell u)
+{
+  UCell slen = strlen(s);
+  if (slen>u)
+    slen = u;
+  memcpy(t,s,slen);
+  memset(t+slen,' ',u-slen);
+}
+
+struct Cellpair represent(Float r, Address c_addr, UCell u, Cell *np)
+{
+  Cell ok, sign, decpt;
+  struct Cellpair fs;
+  Address s;
+  Address t;
+  Char buf[u+8]; /* extra chars: .e-9999\0 */
+  if (isnan(r)) {
+    sign = 0;
+    decpt = 0;
+    ok = 0;
+    repstr("NaN",c_addr,u);
+  } else {
+    sign = FLAG(r<0);
+    if (isinf(r)) {
+      decpt=0;
+      ok = 0;
+      if (r<0 && u>0) {
+	*c_addr++ = '-';
+	u--;
+      }
+      repstr("infinity",c_addr,u);
+    } else {
+      ok = -1;
+      r = fabs(r);
+      snprintf(buf,u+8,"%.*e",r,u-1);
+      for (s=buf, t=c_addr;; s++) {
+	char c = *s;
+	if ('0'<=c && c<='9')
+	  *t++ = c;
+	else if (c != '.')
+	  break;
+      }
+      /* fprintf(stderr,"r=%.*e, t=%p, c_addr=%p, u=%ld\n",r,u-1,t,c_addr,u);*/
+      assert(t == c_addr+u);
+      assert(*s == 'e');
+      s++;
+      if (*s == '+')
+	s++;
+      decpt = atoi(s)+1;
+    }
+  }
+  *np = decpt;
+  fs.n1 = sign;
+  fs.n2 = ok;
+  return fs;
+}
+
 Cell to_float(Char *c_addr, UCell u, Float *rp, Char dot)
 {
   /* convertible string := <significand>[<exponent>]
