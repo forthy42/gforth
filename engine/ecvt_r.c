@@ -1,4 +1,4 @@
-/* cheap ecvt replacement
+/* ecvt_r adapted from glibc-2.31/misc/efgcvt_r.c
 
   Authors: Bernd Paysan, Anton Ertl
   Copyright (C) 1998,2000,2007,2014,2015,2016,2017,2019 Free Software Foundation, Inc.
@@ -19,102 +19,9 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
-#include <stdio.h>
-#include "config.h"
-#include <math.h>
-#include <string.h>
-extern double floor(double);
-extern double pow10(double);
-
-#define MAXCONV 0x40
-
-int ecvt_r(double x, int ndigits, int* exp, int* sign, char *buf, size_t len)
-{
-   int i, j;
-   double z;
-   double dexp;
-   
-   if (isnan(x)) {
-     *sign=0;
-     *exp=0;
-     strncpy(buf, "nan", len);
-     return 0;
-   }
-   if (isinf(x)) {
-     *sign=0; /* this mimics the glibc ecvt */
-     *exp=0;
-     if (x<0)
-       strncpy(buf, "-inf", len);
-     else
-       strncpy(buf, "inf", len);
-     return 0;
-   }
-       
-   if(ndigits > (MAXCONV-1)) ndigits = MAXCONV-1;
-   if(ndigits >= len) ndigits = len-1;
- 
-   if(x<0.) {
-     *sign = 1;
-     x = -x;
-   } else {
-     *sign = 0;
-   }
-
-   dexp = (x==0)?-1.:floor(log10(x));
-   if(dexp < -300.) { /* maybe a denormal: do this in two steps */
-     x = x * pow10(300.);
-     x = x * pow10(-dexp-300.);
-   } else {
-     x = x * pow10(-dexp);
-   }
-   
-   dexp += 1.;
-
-   /* correct for imprecision in log10/pow10 
-      <https://savannah.gnu.org/bugs/?50221> */
-   while (x<1. && x!=0.) {
-     x = x * 10.;
-     dexp -= 1.;
-   }
-   while (floor(x)>=10) {
-     x = x / 10.;
-     dexp += 1.;
-   }
-   /* now, hopefully 1.<=x<10. */
-   
-   for(i=0; i < ndigits; i++) {
-     z=floor(x);
-     if(z<0) z = 0;
-     buf[i]='0'+(char)((int)z);
-     x = (x-z)*10;
-   }
-   
-   if((x >= 5) && i) {
-     for(j=i-1; j>=0; j--) {
-       if(buf[j]!='9') {
-	 buf[j]+=1; break;
-       } else {
-	 buf[j]='0';
-       }
-     }
-     if(j<0) {
-       buf[0]='1';
-       dexp += 1.;
-     }
-   }
-   
-   buf[i]='\0';
-   *exp = (int)dexp;
-   return 0;
-}
-
-#ifdef TEST
-int main(int argc, char ** argv)
-{
-   int a, b;
-   char * conv=ecvt(9e0,20,&a,&b);
-   
-   printf("ecvt Test: %f -> %s, %d, %d\n",9e0,conv,a,b);
-}
-#endif
-
+#define __ECVT_R ecvt_r
+#define __FCVT_R fcvt_r
+#define SNPRINTF snprintf
+#define __set_errno(x) (void)0
+#include "efgcvt-dbl-macros.h"
+#include "efgcvt_r-template.c"
