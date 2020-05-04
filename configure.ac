@@ -243,10 +243,6 @@ AC_ARG_VAR(asmcomment, [assembler comment start string])
 AC_ARG_VAR(arm_cacheflush, [file containing ARM cacheflush function (without .c)])
 AC_ARG_VAR(LTDL_LIBRARY_PATH, [additional directories for libltdl (for some 64-bit platforms)])
 
-#ecvt_r is buggy on at least MacOS X, and not better than our ecvt_r
-# in glibc, so use our ecvt_r by default
-test -z "$ac_cv_func_ecvt_r" && ac_cv_func_ecvt_r=no
-
 test -z "$HOSTCC" && HOSTCC='$(GCC)'
 
 #set up feature test macros, so the tests get them right:
@@ -1230,8 +1226,7 @@ AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,[true],[AC_LIBOBJ(getopt) AC_LIBOBJ(getopt1)])
 AC_CHECK_FUNCS(expm1 log1p)
 AC_CHECK_FUNCS(mcheck mprobe)
-AC_CHECK_FUNCS(qecvt_r)
-AC_REPLACE_FUNCS(rint ecvt_r)
+AC_REPLACE_FUNCS(rint)
 #No check for select, because our replacement is no good under
 #anything but DOS
 AC_CHECK_HEADERS(sys/mman.h sys/epoll.h fnmatch.h alloca.h wchar.h endian.h spawn.h)
