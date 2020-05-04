@@ -206,6 +206,25 @@ Semaphore opus-block-sem
 	ELSE  drop  THEN
     [THEN] ;
 
+: pause-play ( -- )
+    [IFDEF] pulse-exec##
+	idx-block $@ $10 u> IF
+   	    idx-channels c@ 1 = >r
+	    mono-play stereo-play r> select ?dup-IF
+		pause-stream
+	    THEN
+	ELSE  drop  THEN
+    [THEN] ;
+: resume-play ( -- )
+    [IFDEF] pulse-exec##
+	idx-block $@ $10 u> IF
+   	    idx-channels c@ 1 = >r
+	    mono-play stereo-play r> select ?dup-IF
+		resume-stream
+	    THEN
+	ELSE  drop  THEN
+    [THEN] ;
+
 : open-play ( addr-play u addr-idx u -- )
     idx-block $slurp-file
     play-block $slurp-file \ r/o open-file throw to play-file
