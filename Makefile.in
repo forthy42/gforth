@@ -883,7 +883,7 @@ install-arch:	installdeps installdirs-arch normal-install rm-install install-pro
 install-seq:	install-indep install-arch install-txt install-info
 
 post-inst:
-		$(RM) install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
+		$(RM) TAGS gforth.TAGS install.TAGS prim.TAGS gforth.fi.install start-gforth.el*
 		-$(RM) libgforth*
 		$(POST_INSTALL)
 		@test 0$$SUDO_UID -ne 0 && find . -user root | sed -e 's/^/failed to clean: /g' || true

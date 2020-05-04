@@ -190,11 +190,26 @@ Semaphore opus-block-sem
     [: opus-blocks back> ;] opus-block-sem c-section
     opus-task ?dup-IF  wake  THEN ;
 
+: start-play ( -- )
+    0 to idx-pos#  0 to play-pos#
+    opus-task ?dup-IF  wake  ELSE  opus-block-task  THEN
+    [IFDEF] pulse-exec##
+	idx-block $@ $10 u> IF
+	    idx-channels c@ 1 = >r
+	    mono-play stereo-play r@ select ?dup-IF
+		resume-stream  rdrop
+	    ELSE
+		sample-rate ['] read-opus-buf
+		['] play-mono ['] play-stereo r> select
+		pulse-exec##
+	    THEN
+	ELSE  drop  THEN
+    [THEN] ;
+
 : open-play ( addr-play u addr-idx u -- )
     idx-block $slurp-file
     play-block $slurp-file \ r/o open-file throw to play-file
-    0 to idx-pos#  0 to play-pos#
-    opus-task ?dup-IF  wake  ELSE  opus-block-task  THEN ;
+    start-play ;
 : open-play+ ( addr u -- ) { | w^ play$ w^ idx$ }
     2dup play$ $! ".opus" play$ $+!
     idx$ $! ".aidx" idx$ $+!
