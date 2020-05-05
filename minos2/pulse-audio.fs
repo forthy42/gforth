@@ -53,6 +53,7 @@ $Variable request-queue
 ' execute pa_context_subscribe_cb_t: Constant pa-context-subscribe-cb
 ' execute pa_context_success_cb_t: Constant pa-context-success-cb
 ' execute pa_stream_request_cb_t: Constant pa-stream-request-cb
+' execute pa_stream_success_cb_t: Constant pa-stream-success-cb
 :noname cell- free throw ; pa_free_cb_t: Constant pa-free-cb
 
 0 Value pa-ready
@@ -145,6 +146,20 @@ Variable def-output$
 	PA_SUBSCRIPTION_EVENT_SERVER of  >server-info  endof
     endcase ;
 
+: ?requests ( -- )
+    \G check if requests have completed
+    requests@ 0 ?DO
+	dup pa_operation_get_state
+	PA_OPERATION_RUNNING = IF  >request  ELSE  drop  THEN
+    LOOP ;
+: requests| ( -- )
+    \G block until all requests are done
+    BEGIN
+	request-queue $@len ~~ WHILE  { | w^ retval }
+	    pa-ml 1 retval pa_mainloop_iterate ?pa-ior
+	    ?requests
+    REPEAT ;
+
 : pulse-init ( -- )
     stacksize4 NewTask4 to pa-task
     pa-task activate   debug-out debug-vector !  nothrow
@@ -159,10 +174,7 @@ Variable def-output$
 	BEGIN
 	    ?events { | w^ retval }
 	    pa-ml 1 retval pa_mainloop_iterate ?pa-ior
-	    requests@ 0 ?DO
-		dup pa_operation_get_state
-		PA_OPERATION_RUNNING = IF  >request  ELSE  drop  THEN
-	    LOOP
+	    ?requests
 	AGAIN ;] catch ?dup-IF  DoError  THEN ;
 
 event: :>exec ( xt -- ) execute ;
@@ -234,9 +246,13 @@ Defer write-record
     n @ IF  pa_stream_drop ?pa-ior  THEN ;
 
 : pause-stream ( stream -- )
-    1 0 0 pa_stream_cork ?pa-ior ;
+    1 0 0 pa_stream_cork >request ;
 : resume-stream ( stream -- )
-    0 0 0 pa_stream_cork ?pa-ior ;
+    0 0 0 pa_stream_cork >request ;
+: flush-stream ( stream -- )
+    pa-stream-success-cb [: drop pause-stream ;] pa_stream_flush >request ;
+: drain-stream ( stream -- )
+    pa-stream-success-cb [: drop pause-stream ;] pa_stream_drain >request ;
 : read-stream { stream bytes xt: read-record -- }
     read-record { w^ buf }
     BEGIN  buf $@len bytes u<  WHILE

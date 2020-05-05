@@ -190,9 +190,18 @@ Semaphore opus-block-sem
     [: opus-blocks back> ;] opus-block-sem c-section
     opus-task ?dup-IF  wake  THEN ;
 
+[IFDEF] pulse-exec##
+    : stream@ ( -- stream )
+	idx-block $@ $10 u> IF
+	    idx-channels c@ 1 = >r
+	    mono-play stereo-play r> select
+	ELSE  drop 0  THEN ;
+[THEN]
+
+: opus-go ( -- )
+    opus-task ?dup-IF  wake  ELSE  opus-block-task  THEN ;
 : start-play ( -- )
-    0 to idx-pos#  0 to play-pos#
-    opus-task ?dup-IF  wake  ELSE  opus-block-task  THEN
+    0 to idx-pos#  0 to play-pos#  opus-go
     [IFDEF] pulse-exec##
 	idx-block $@ $10 u> IF
 	    idx-channels c@ 1 = >r
@@ -208,24 +217,24 @@ Semaphore opus-block-sem
 
 : pause-play ( -- )
     [IFDEF] pulse-exec##
-	idx-block $@ $10 u> IF
-   	    idx-channels c@ 1 = >r
-	    mono-play stereo-play r> select ?dup-IF
-		pause-stream
-	    THEN
-	ELSE  drop  THEN
+	stream@ ?dup-IF  ['] pause-stream pulse-exec#  THEN
+	    opus-task ?dup-IF  halt  THEN
     [THEN] ;
 : resume-play ( -- )
     [IFDEF] pulse-exec##
-	idx-block $@ $10 u> IF
-   	    idx-channels c@ 1 = >r
-	    mono-play stereo-play r> select ?dup-IF
-		resume-stream
-	    THEN
-	ELSE  drop  THEN
+	stream@ ?dup-IF  opus-go  ['] resume-stream pulse-exec#  THEN
     [THEN] ;
 
+: discard-opus-blocks ( -- )
+    [:  opus-blocks get-stack 0 ?DO  { | w^ buf } buf $free  LOOP
+	opus-blocks $free ;]
+    opus-block-sem c-section ;
+    
 : open-play ( addr-play u addr-idx u -- )
+    opus-task ?dup-IF  halt discard-opus-blocks  THEN
+    [IFDEF] pulse-exec#
+	stream@ ?dup-IF  ['] flush-stream pulse-exec#  THEN
+    [THEN]
     idx-block $slurp-file
     play-block $slurp-file \ r/o open-file throw to play-file
     start-play ;
