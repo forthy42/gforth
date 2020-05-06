@@ -272,3 +272,10 @@ Semaphore opus-block-sem
     "" write-record close-rec raw$ $free ;
 
 previous
+
+0 warnings !@
+: bye ( -- )
+    opus-task ?dup-IF
+	opus-task kill  0 to opus-task  5 ms
+    THEN  bye ;
+warnings !

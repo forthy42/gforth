@@ -291,4 +291,24 @@ Defer write-record
     pa-ctx "stereo-play" ss[ cm[ pa_channel_map_init_stereo
     pa_stream_new dup to stereo-play  ba[ read-record play-rest ;
 
-previous pulse set-current
+event: :>kill-pulse ( -- )
+    mono-play   ?dup-IF  pa_stream_disconnect ?pa-ior  0 to mono-play    THEN
+    stereo-play ?dup-IF  pa_stream_disconnect ?pa-ior  0 to stereo-play  THEN
+    mono-rec    ?dup-IF  pa_stream_disconnect ?pa-ior  0 to mono-rec     THEN
+    stereo-rec  ?dup-IF  pa_stream_disconnect ?pa-ior  0 to stereo-rec   THEN
+    pa-ml       ?dup-IF  pa_mainloop_free              0 to pa-ml        THEN
+    0 to pa-task  kill-task ;
+
+: kill-pulse ( -- )
+    pa-task IF
+	<event :>kill-pulse pa-task event>
+	5 0 DO  pa-task 0= ?LEAVE  1 ms  LOOP
+    THEN ;
+
+set-current
+previous pulse
+
+0 warnings !@
+: bye ( -- )
+    kill-pulse bye ;
+warnings !
