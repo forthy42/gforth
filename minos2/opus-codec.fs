@@ -257,13 +257,17 @@ Semaphore opus-block-sem
     throw throw ;
 [IFDEF] mono-rec
     : close-rec-mono ( -- )
-	[:  mono-rec pa_stream_disconnect ?pa-ior
-	    mono-rec pa_stream_unref  0 to mono-rec ;] pulse-exec close-rec ;
+	[:  mono-rec flush-stream
+	    mono-rec pa_stream_disconnect ?pa-ior
+	    mono-rec pa_stream_unref  0 to mono-rec
+	;] pulse-exec 10 ms close-rec ;
 [THEN]
 [IFDEF] stereo-rec
     : close-rec-stereo ( -- )
-	[:  stereo-rec pa_stream_disconnect ?pa-ior
-	    stereo-rec pa_stream_unref  0 to stereo-rec ;] pulse-exec close-rec ;
+	[:  stereo-rec flush-stream
+	    stereo-rec pa_stream_disconnect ?pa-ior
+	    stereo-rec pa_stream_unref  0 to stereo-rec
+	;] pulse-exec 10 ms close-rec ;
 [THEN]
 
 : raw>opus ( addr u -- ) { | w^ raw$ }

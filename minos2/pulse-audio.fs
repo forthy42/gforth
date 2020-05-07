@@ -155,7 +155,7 @@ Variable def-output$
 : requests| ( -- )
     \G block until all requests are done
     BEGIN
-	request-queue $@len ~~ WHILE  { | w^ retval }
+	request-queue $@len WHILE  { | w^ retval }
 	    pa-ml 1 retval pa_mainloop_iterate ?pa-ior
 	    ?requests
     REPEAT ;
