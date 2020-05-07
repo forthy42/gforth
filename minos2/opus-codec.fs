@@ -139,7 +139,8 @@ $100 buffer: opus-error$
     r> 2* idx-head + *
     over 0= IF  dup >idx-pos  THEN
     swap 2* + idx-head +
-    in-idx-block 2 u>= IF  le-uw@  ELSE  drop 0  THEN ;
+    in-idx-block 2 u>= IF  le-uw@  ELSE  drop 0  THEN
+    1 +to idx-pos# ;
 : read-opus-block ( frame-size -- )
     $3FF and  play-file IF
 	read-opus $!len
@@ -149,8 +150,11 @@ $100 buffer: opus-error$
 	r> umin dup +to play-pos# read-opus $!
     THEN ;
 : /frame ( -- u )
-    idx-block $@ drop dup idx-channels c@ swap idx-samples le-uw@ * 2* ;
-: /sample ( -- u ) idx-block $@ drop idx-channels c@ 2* ;
+    idx-block $@ $10 u>= IF
+	dup idx-channels c@ swap idx-samples le-uw@ * 2*
+    ELSE  drop 0  THEN ;
+: /sample ( -- u ) idx-block $@ $10 u>= IF
+	idx-channels c@ 2*  ELSE  drop 0  THEN ;
 
 Variable opus-mono-blocks
 Variable opus-stereo-blocks
@@ -162,8 +166,12 @@ Semaphore opus-block-sem
 : dec-opus-block ( -- ) { | w^ opus-buffer }
     /frame 3 * opus-buffer $!len
     opus-mono-dec opus-stereo-dec /sample 2 = select
-    read-opus $@ opus-buffer $@ 2/ 0 opus_decode ?opus-ior
-    /sample * opus-buffer $!len
+    read-opus $@ opus-buffer $@ 2/ 0 opus_decode dup 0>= IF
+	/sample * opus-buffer $!len
+    ELSE
+	drop /frame opus-buffer $!len
+	opus-buffer $@ erase
+    THEN
     opus-buffer $@len 0= IF  opus-buffer $free
     ELSE
 	opus-buffer @ [: opus-blocks >stack ;] opus-block-sem c-section
@@ -174,15 +182,14 @@ Semaphore opus-block-sem
 : 1-opus-block ( -- )
     read-idx-block read-opus-block
     read-opus $@len  IF  dec-opus-block
-    ELSE  "" $make [: opus-blocks >stack ;] opus-block-sem c-section  THEN
-    1 +to idx-pos# ;
+    ELSE  "" $make [: opus-blocks >stack ;] opus-block-sem c-section  THEN ;
 
 : opus-block-task ( -- )
     stacksize4 NewTask4 to opus-task
     opus-task activate   debug-out debug-vector !  nothrow
     [: BEGIN
 	    1-opus-block
-	    opus-blocks $[]# 4 >= IF  stop  THEN
+	    opus-blocks $[]# 2 >= IF  stop  THEN
 	read-opus $@len 0= UNTIL ;] catch ?dup-IF  DoError  THEN
     0 to opus-task ;
 
@@ -192,10 +199,10 @@ Semaphore opus-block-sem
 
 [IFDEF] pulse-exec##
     : stream@ ( -- stream )
-	idx-block $@ $10 u> IF
-	    idx-channels c@ 1 = >r
-	    mono-play stereo-play r> select
-	ELSE  drop 0  THEN ;
+	case /sample
+	    2 of  mono-play    endof
+	    4 of  stereo-play  endof
+	    0 swap endcase ;
 [THEN]
 
 : opus-go ( -- )
@@ -203,16 +210,14 @@ Semaphore opus-block-sem
 : start-play ( -- )
     0 to idx-pos#  0 to play-pos#  opus-go
     [IFDEF] pulse-exec##
-	idx-block $@ $10 u> IF
-	    idx-channels c@ 1 = >r
-	    mono-play stereo-play r@ select ?dup-IF
-		resume-stream  rdrop
-	    ELSE
-		sample-rate ['] read-opus-buf
-		['] play-mono ['] play-stereo r> select
-		pulse-exec##
-	    THEN
-	ELSE  drop  THEN
+	stream@ ?dup-IF
+	    resume-stream  rdrop
+	ELSE
+	    sample-rate ['] read-opus-buf
+	    ['] play-mono ['] play-stereo
+	    /sample 2 = select
+	    pulse-exec##
+	THEN
     [THEN] ;
 
 : pause-play ( -- )
