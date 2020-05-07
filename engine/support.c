@@ -638,7 +638,6 @@ struct Cellpair represent(Float r, Address c_addr, UCell u, Cell *np)
 	else if (c != '.')
 	  break;
       }
-      fprintf(stderr, "ret=%d, r=%s, t=%p, c_addr=%p, u=%ld\n", ret, buf, t, c_addr, u);
       /* fprintf(stderr,"r=%.*e, t=%p, c_addr=%p, u=%ld\n",r,u-1,t,c_addr,u);*/
       assert(t == c_addr+u);
       assert(*s == 'e');
