@@ -594,7 +594,7 @@ struct Cellpair file_status(Char *c_addr, UCell u)
   return r;
 }
 
-static void repstr(Address s, Address t, UCell u)
+static void repstr(char * s, char * t, UCell u)
 {
   UCell slen = strlen(s);
   if (slen>u)
@@ -603,13 +603,14 @@ static void repstr(Address s, Address t, UCell u)
   memset(t+slen,' ',u-slen);
 }
 
-struct Cellpair represent(Float r, Address c_addr, UCell u, Cell *np)
+struct Cellpair represent(Float r, Address c_addr1, UCell u, Cell *np)
 {
   Cell ok, sign, decpt;
   struct Cellpair fs;
-  Address s;
-  Address t;
-  Char buf[u+8]; /* extra chars: .e-9999\0 */
+  char *c_addr=(char *)c_addr1;
+  char *s;
+  char *t;
+  char buf[u+8]; /* extra chars: .e-9999\0 */
   if (isnan(r)) {
     sign = 0;
     decpt = 0;
@@ -626,10 +627,9 @@ struct Cellpair represent(Float r, Address c_addr, UCell u, Cell *np)
       }
       repstr("infinity",c_addr,u);
     } else {
-      int ret;
       ok = -1;
       r = fabs(r);
-      if(snprintf(buf,u+8,"%.*e",r,u-1)<0)
+      if(snprintf(buf,u+8,"%.*e",(int)u-1,r)<0)
 	fprintf(stderr,"represent error: %s\n", strerror(errno));
       for (s=buf, t=c_addr;; s++) {
 	char c = *s;
@@ -638,7 +638,7 @@ struct Cellpair represent(Float r, Address c_addr, UCell u, Cell *np)
 	else if (c != '.')
 	  break;
       }
-      /* fprintf(stderr,"r=%.*e, t=%p, c_addr=%p, u=%ld\n",r,u-1,t,c_addr,u);*/
+      /* fprintf(stderr,"r=%.*e, t=%p, c_addr=%p, u=%ld\n",(int)u-1,r,t,c_addr,u);*/
       assert(t == c_addr+u);
       assert(*s == 'e');
       s++;

@@ -1227,7 +1227,7 @@ AC_CHECK_FUNC(getopt_long,[true],[AC_LIBOBJ(getopt) AC_LIBOBJ(getopt1)])
 AC_CHECK_FUNCS(expm1 log1p)
 AC_CHECK_FUNCS(mcheck mprobe)
 AC_REPLACE_FUNCS(rint)
-if test $machine = 386 || test $machine = arm
+if false && (test $machine = 386 || test $machine = arm)
 then
   test -z "$ac_cv_func_ecvt_r" && ac_cv_func_ecvt_r=no
   AC_REPLACE_FUNCS(ecvt_r)
