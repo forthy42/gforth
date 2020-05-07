@@ -429,6 +429,8 @@ Dynamic NC generation disabled."
 		;;
 	i*86)
 		machine=386
+		test -z "$ac_cv_func_ecvt_r" && ac_cv_func_ecvt_r=no
+		AC_REPLACE_FUNCS(ecvt_r)
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS_1 -march=athlon64 -mtune=generic"
