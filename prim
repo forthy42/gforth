@@ -2589,7 +2589,7 @@ else
   r3 = r2;
 
 represent	( r c_addr u -- n f1 f2 )	float
-#ifdef HAVE_ECVT_R
+#ifdef ECVT_FLAG
 char sig[0x40];
 size_t siglen;
 int flag;

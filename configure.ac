@@ -429,8 +429,6 @@ Dynamic NC generation disabled."
 		;;
 	i*86)
 		machine=386
-		test -z "$ac_cv_func_ecvt_r" && ac_cv_func_ecvt_r=no
-		AC_REPLACE_FUNCS(ecvt_r)
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS_1 -march=athlon64 -mtune=generic"
@@ -1229,6 +1227,12 @@ AC_CHECK_FUNC(getopt_long,[true],[AC_LIBOBJ(getopt) AC_LIBOBJ(getopt1)])
 AC_CHECK_FUNCS(expm1 log1p)
 AC_CHECK_FUNCS(mcheck mprobe)
 AC_REPLACE_FUNCS(rint)
+if test $machine = 386
+then
+  test -z "$ac_cv_func_ecvt_r" && ac_cv_func_ecvt_r=no
+  AC_REPLACE_FUNCS(ecvt_r)
+  AC_DEFINE(ECVT_FLAG,,[Define if you want to use ECVT])
+fi
 #No check for select, because our replacement is no good under
 #anything but DOS
 AC_CHECK_HEADERS(sys/mman.h sys/epoll.h fnmatch.h alloca.h wchar.h endian.h spawn.h)

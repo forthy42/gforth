@@ -626,9 +626,11 @@ struct Cellpair represent(Float r, Address c_addr, UCell u, Cell *np)
       }
       repstr("infinity",c_addr,u);
     } else {
+      int ret;
       ok = -1;
       r = fabs(r);
-      snprintf(buf,u+8,"%.*e",r,u-1);
+      if(snprintf(buf,u+8,"%.*e",r,u-1)<0)
+	fprintf(stderr,"represent error: %s\n", strerror(errno));
       for (s=buf, t=c_addr;; s++) {
 	char c = *s;
 	if ('0'<=c && c<='9')
@@ -636,6 +638,7 @@ struct Cellpair represent(Float r, Address c_addr, UCell u, Cell *np)
 	else if (c != '.')
 	  break;
       }
+      fprintf(stderr, "ret=%d, r=%s, t=%p, c_addr=%p, u=%ld\n", ret, buf, t, c_addr, u);
       /* fprintf(stderr,"r=%.*e, t=%p, c_addr=%p, u=%ld\n",r,u-1,t,c_addr,u);*/
       assert(t == c_addr+u);
       assert(*s == 'e');
