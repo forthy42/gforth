@@ -1532,6 +1532,11 @@ if test x$has_swig = xyes || test -f $srcdir/unix/opus-fsi.c; then
    AC_CHECK_HEADER(opus/opus.h, SWIGMODULES="$SWIGMODULES opus.fs"
 		   SWIGLIBS="$SWIGLIBS opus.fs",), ,)
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/va-fsi.c; then
+   AC_CHECK_LIB(va,vaCreateContext,
+   AC_CHECK_HEADER(va/va.h, SWIGMODULES="$SWIGMODULES va.fs"
+		   SWIGLIBS="$SWIGLIBS va.fs",), ,)
+fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
