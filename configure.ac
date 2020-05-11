@@ -1537,6 +1537,21 @@ if test x$has_swig = xyes || test -f $srcdir/unix/va-fsi.c; then
    AC_CHECK_HEADER(va/va.h, SWIGMODULES="$SWIGMODULES va.fs"
 		   SWIGLIBS="$SWIGLIBS va.fs",), ,)
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/va-glx-fsi.c; then
+   AC_CHECK_LIB(va-glx,vaGetDisplayGLX,
+   AC_CHECK_HEADER(va/va_glx.h, SWIGMODULES="$SWIGMODULES va-glx.fs"
+		   SWIGLIBS="$SWIGLIBS va-glx.fs",), ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/va-x11-fsi.c; then
+   AC_CHECK_LIB(va-x11,vaGetDisplay,
+   AC_CHECK_HEADER(va/va_x11.h, SWIGMODULES="$SWIGMODULES va-x11.fs"
+		   SWIGLIBS="$SWIGLIBS va-x11.fs",), ,)
+fi
+if test x$has_swig = xyes || test -f $srcdir/unix/va-drm-fsi.c; then
+   AC_CHECK_LIB(va-drm,vaGetDisplayDRM,
+   AC_CHECK_HEADER(va/va_drm.h, SWIGMODULES="$SWIGMODULES va-drm.fs"
+		   SWIGLIBS="$SWIGLIBS va-drm.fs",), ,)
+fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
