@@ -37,15 +37,27 @@ $100 buffer: va-error$
 0 Value va-dpy
 0 Value profile-list
 0 Value profiles#
+#0. 2Value profile-mask
+
+: >profile-mask ( -- )
+    #0. profile-list profiles# sfloats bounds U+DO
+	#1. I l@ $10 cells 1- and dlshift rot or >r or r>
+    1 sfloats +LOOP  to profile-mask ;
+: profile? ( profile -- flag )
+    >r #1. r> dlshift profile-mask rot and >r and r> or 0<> ;
+
+[: rot execute ;] VAMessageCallback: Constant VAMessageCB
 
 : va-display ( dpy -- )
     { | w^ major w^ minor }
     vaGetDisplayGLX to va-dpy
+    va-dpy VaMessageCB ['] 2drop vaSetInfoCallback drop
     va-dpy major minor vaInitialize ?va-ior
     va( ." VA-API version: " major l@ 0 .r '.' emit minor l@ 0 .r cr
     dup vaQueryVendorString type cr )
     va-dpy vaMaxNumEntrypoints sfloats allocate throw to profile-list
-    va-dpy profile-list addr profiles# vaQueryConfigProfiles ?va-ior ;
+    va-dpy profile-list addr profiles# vaQueryConfigProfiles ?va-ior
+    >profile-mask ;
 
 ' VAProfileNone , here
 ' VAProfileMPEG2Simple ,
