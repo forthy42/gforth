@@ -15,20 +15,6 @@
 // prep: sed -e 's,\(^ *[^} ].*_bit.*$\),// \1,g' -e 's,\(^ *[^} ].*_fields.*$\),// \1,g' -e 's,\(^ *[^} ].*_flags.*$\),// \1,g' -e 's,\(^ *[^} ].*_mb.*$\),// \1,g' -e 's,\(^ *[^} ].*_VAEncFEIMVPredictor.*_ref_idx.*$\),// \1,g' -e 's,\(^ *[^} ].*VADriverVTable.*$\),// \1,g'
 
 %include <va/va.h>
-%include <va/va_dec_hevc.h>
-%include <va/va_dec_jpeg.h>
-%include <va/va_dec_vp8.h>
-%include <va/va_dec_vp9.h>
-%include <va/va_dec_av1.h>
-%include <va/va_enc_hevc.h>
-%include <va/va_fei_hevc.h>
-%include <va/va_enc_h264.h>
-%include <va/va_enc_jpeg.h>
-%include <va/va_enc_mpeg2.h>
-%include <va/va_enc_vp8.h>
-%include <va/va_enc_vp9.h>
-%include <va/va_fei.h>
-%include <va/va_fei_h264.h>
 %include <va/va_vpp.h>
 %include <va/va_backend.h>
 %include <va/va_backend_wayland.h>
