@@ -363,7 +363,7 @@ LIBCC_FORTH_SRC = libffi.fs fflib.fs $(UNIXLIBS_SRC) $(LIBCC_SRC1)
 LIBCC_GEN_SRC = unix/stat.fs $(patsubst %, unix/%, $(SWIGMODULES))
 
 LIBCC_BUILD_SRC = $(LIBCC_SRC) @LIBCC_BUILD_SRC@
-LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BUILD_SRC) $(LIBCC_SRC1) test/libcc.fs | sed -e s,unix/,,g))
+LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BUILD_SRC) $(LIBCC_SRC1) test/libcc.fs | sed -e s,unix/,,g -e s,-,_,g))
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
