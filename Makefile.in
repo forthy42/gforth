@@ -350,8 +350,8 @@ SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i    \
 	unix/soil.i unix/soil2.i unix/xlib.i unix/ios-gles.i unix/ios-gles3.i \
 	unix/freetype_gl.i unix/wingdi.i unix/winuser.i unix/wayland.i	      \
 	unix/gps.i unix/vulkan.i unix/harfbuzz.i unix/gobject.i unix/gst.i    \
-	unix/avcodec.i unix/pulse.i unix/opus.i unix/va.i unix/va-glx.i	      \
-	unix/va-drm.i unix/va-x11.i
+	unix/avcodec.i unix/pulse.i unix/opus.i unix/va.i unix/va_glx.i	      \
+	unix/va_drm.i unix/va_x11.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_SRC)
@@ -363,7 +363,7 @@ LIBCC_FORTH_SRC = libffi.fs fflib.fs $(UNIXLIBS_SRC) $(LIBCC_SRC1)
 LIBCC_GEN_SRC = unix/stat.fs $(patsubst %, unix/%, $(SWIGMODULES))
 
 LIBCC_BUILD_SRC = $(LIBCC_SRC) @LIBCC_BUILD_SRC@
-LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BUILD_SRC) $(LIBCC_SRC1) test/libcc.fs | sed -e s,unix/,,g -e s,-,_,g))
+LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BUILD_SRC) $(LIBCC_SRC1) test/libcc.fs | sed -e s,unix/,,g))
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
