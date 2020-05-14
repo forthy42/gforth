@@ -21,6 +21,7 @@ install_linux() {
   sudo apt-get -y install libgstreamer-plugins-base1.0-dev
   sudo apt-get -y install libpulse-dev
   sudo apt-get -y install libopus-dev
+  sudo apt-get -y install libva-dev
   sudo apt-get -y install libavcodec-dev libavutil-dev
   if [ `uname -m`$M32 = x86_64-m32 ]; then
     sudo apt-get -y --fix-missing install gcc-multilib
