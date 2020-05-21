@@ -26,9 +26,9 @@
 \ no new prim-nums for supers and state-replicas
 \E ' noop is output-c-prim-num
 
-super1 = lit +
+\ super1 = lit +
 super2 = lit call
-super3 = lit @
+\ super3 = lit @
 \ super4 = lit @ call
 \ super5 = @ call
 super6 = lit !
@@ -43,13 +43,13 @@ super15 = useraddr @
 super16 = + @
 \ super17 = lit @ ?branch
 super18 = lit ! ;s
-super19 = lit @ and
+super19 = lit@ and
 \ super21 = lit lit !
 \ super22 = @ ?branch
 super23 = useraddr !
 \ super24 = dup ?branch
 super25 = @ ;s
-super26 = lit @ +
+super26 = lit@ +
 super27 = dup @
 \ super28 = lit execute \ currently not supported
 super29 = o#+ @

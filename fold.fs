@@ -160,3 +160,11 @@ optimizes fpick
 	exit then
     action-of op fold2-1 ;
 ' opt+- folds + -
+
+\ optimize lit @ into lit@
+: opt@ ( xt -- )
+    drop lits# 1 u>= if
+	lits> ['] lit@ peephole-compile, ,
+    else
+	['] @ peephole-compile, then ;
+' opt@ optimizes @
