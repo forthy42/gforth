@@ -3,6 +3,7 @@
 %insert("include")
 %{
 #include <va/va.h>
+#include <va/va_vpp.h>
 #include <va/va_backend.h>
 %}
 
