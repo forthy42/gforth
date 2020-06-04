@@ -111,7 +111,7 @@ function gen_opus {
      test -f $OPUS.tar.gz || wget https://archive.mozilla.org/pub/opus/$OPUS.tar.gz)
     tar zxvf ~/Downloads/$OPUS.tar.gz
     (cd $OPUS
-     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/
+     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --libdir=$PREFIX/sysroot/usr/lib
      make -j$nprocs
      make install)
 }

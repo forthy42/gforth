@@ -103,6 +103,7 @@ then
     cp $TOOLCHAIN/sysroot/usr/lib/libsoil.so $LIBS
 fi
 cp .libs/libtypeset.so $LIBS
+cp $TOOLCHAIN/sysroot/usr/lib/libopus.so $LIBS
 
 EXTRAS=""
 EXTRADIRS=""
