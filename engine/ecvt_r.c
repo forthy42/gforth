@@ -22,6 +22,9 @@
 #define __ECVT_R ecvt_r
 #define __FCVT_R fcvt_r
 #define SNPRINTF snprintf
+#ifdef __set_errno
+#undef __set_errno
+#endif
 #define __set_errno(x) (void)0
 #include "efgcvt-dbl-macros.h"
 #include "efgcvt_r-template.c"
