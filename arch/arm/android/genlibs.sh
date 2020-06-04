@@ -38,6 +38,7 @@ FREETYPE=freetype-2.10.1
 HARFBUZZ=harfbuzz-2.6.2
 LIBPNG=libpng-1.6.37
 BZIP2=bzip2-1.0.8
+OPUS=opus-1.3.1.tar.gz
 
 fine=yes
 for i in git wget
@@ -100,6 +101,16 @@ function gen_harfbuzz {
      test -f $HARFBUZZ.tar.xz || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.xz)
     tar Jxvf ~/Downloads/$HARFBUZZ.tar.xz
     (cd $HARFBUZZ
+     ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-glib=no --with-icu=no --with-uniscribe=no --with-cairo=no
+     make -j$nprocs
+     make install)
+}
+
+function gen_opus {
+    (cd ~/Downloads
+     test -f $OPUS.tar.gz || wget https://archive.mozilla.org/pub/opus/$OPUS.tar.gz)
+    tar zxvf ~/Downloads/$OPUS.tar.gz
+    (cd $OPUS
      ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-glib=no --with-icu=no --with-uniscribe=no --with-cairo=no
      make -j$nprocs
      make install)
@@ -169,6 +180,7 @@ then
     gen_bzip2
     gen_freetype
     gen_harfbuzz
+    gen_opus
     gen_fthb
     gen_ftgl
     gen_soil2
