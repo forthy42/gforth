@@ -38,7 +38,7 @@ FREETYPE=freetype-2.10.1
 HARFBUZZ=harfbuzz-2.6.2
 LIBPNG=libpng-1.6.37
 BZIP2=bzip2-1.0.8
-OPUS=opus-1.3.1.tar.gz
+OPUS=opus-1.3.1
 
 fine=yes
 for i in git wget
