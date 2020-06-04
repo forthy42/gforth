@@ -3,6 +3,10 @@
 %insert("include")
 %{
 #include <opus/opus.h>
+#ifdef __gnu_linux__
+#undef stderr
+extern struct _IO_FILE *stderr;
+#endif
 %}
 
 #define PA_GCC_CONST
