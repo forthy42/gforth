@@ -2429,10 +2429,10 @@ You can create a global variable @code{v} with
 variable v ( -- addr )
 @end example
 
-@code{v} pushes the address of a cell in memory on the stack.  This cell
-was reserved by @code{variable}.  You can use @code{!} (store) to store
-values into this cell and @code{@@} (fetch) to load the value from the
-stack into memory:
+@code{v} pushes the address of a cell in memory on the stack.  This
+cell was reserved by @code{variable}.  You can use @code{!} (store) to
+store values from the stack into this cell and @code{@@} (fetch) to
+load the value from memory onto the stack:
 
 @example
 v .
