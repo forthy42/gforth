@@ -425,7 +425,10 @@ defer compile, ( xt -- )
     cell small-allot ! ;
 
 : immediate? ( nt -- flag )    name>comp nip ['] compile, <> ;
-: compile-only? ( nt -- flag ) >f+c @ restrict-mask and 0<> ;
+: compile-only? ( nt -- flag )
+    dup name>string nip IF
+	>f+c @ restrict-mask and 0<>
+    ELSE  drop false  THEN ;
 : ?compile-only ( nt -- nt )
     dup compile-only? IF
 	<<# s"  is compile-only" holds dup name>string holds #0. #>
