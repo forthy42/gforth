@@ -400,6 +400,7 @@ locals-types definitions
     \ compiles a local variable access
     @ lp-offset compile-@local postpone execute ;
 
+0 , 0 , \ insert zeros to avoid compile-only detection
 :noname ( "name" -- a-addr u ) \ gforth <local>bracket (unnamed)
     create-local
     ['] compile-pushlocal-[
