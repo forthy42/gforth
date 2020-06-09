@@ -1460,6 +1460,10 @@ if test x$has_swig = xyes || test -f $srcdir/unix/omxal-fsi.c; then
     AC_CHECK_HEADER(OMXAL/OpenMAXAL.h, SWIGMODULES="$SWIGMODULES omxal.fs"
 		    SWIGLIBS="$SWIGLIBS openmax.fs", ,)
 fi
+if test x$has_swig = xyes || test -f $srcdir/unix/opensles-fsi.c; then
+    AC_CHECK_HEADER(SLES/OpenSLES_Android.h, SWIGMODULES="$SWIGMODULES opensles.fs"
+		    SWIGLIBS="$SWIGLIBS opensles.fs", ,)
+fi
 if test x$has_swig = xyes || test -f $srcdir/unix/png16-fsi.c; then
     AC_CHECK_HEADER(libpng16/png.h, SWIGMODULES="$SWIGMODULES png16.fs"
 		    SWIGLIBS="$SWIGLIBS png16.fs", ,)
