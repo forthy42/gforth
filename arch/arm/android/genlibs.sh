@@ -72,7 +72,7 @@ function gen_png {
 
 function gen_bzip2 {
     (cd ~/Downloads
-     test -f $BZIP2.tar.gz || wget http://www.bzip.org/${BZIP2#bzip2-}/$BZIP2.tar.gz)
+     test -f $BZIP2.tar.gz || wget https://sourceware.org/pub/bzip2/$BZIP2.tar.gz)
     tar zxvf ~/Downloads/$BZIP2.tar.gz
     (cd $BZIP2
      PREFIX=$TOOLCHAIN/sysroot/usr

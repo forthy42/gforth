@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NDK=${NDK-12b}
+NDK=${NDK-17c}
 LIBT=${LIBT-2.4.6}
 CPU=$(uname -p)
 CCVER=${CCVER-4.9}
@@ -77,17 +77,18 @@ function set_abix {
 }
 
 function gen_toolchain {
-    for i in arm aarch64 x86 x86_64 mipsel mips64el
+    for i in arm aarch64 x86 x86_64 #mipsel mips64el
     do
 	set_abix
 	mkdir -p ~/proj/android-toolchain-$ARCH
 	(cd ~/proj/android-toolchain-$ARCH
 	 ~/proj/android-ndk-r$NDK/build/tools/make_standalone_toolchain.py --arch $ARCHX --api $API --install-dir $PWD --force)
+	cp stddef.h ~/proj/android-toolchain-$ARCH/include/c++/4.9.x/*-linux-android*/
     done
 }
 
 function gen_libtool {
-    for i in arm aarch64 x86 x86_64 mipsel mips64el
+    for i in arm aarch64 x86 x86_64 #mipsel mips64el
     do
 	set_abix
 	PREFIX=$HOME/proj/android-toolchain-$ARCH
@@ -99,7 +100,7 @@ function gen_libtool {
 }
 
 function gen_libs {
-    for i in arm arm64 386 amd64 mips
+    for i in arm arm64 386 amd64 #mips
     do
 	(cd ../../$i/android
 	 ./genlibs.sh)
@@ -109,7 +110,7 @@ function gen_libs {
 function add_path {
     cat <<EOF
 Add the following line to your .bashrc:
-PATH=\$PATH:\$(echo ~/proj/android-toolchain-{arm,arm64,x86,x86_64,mips,mips64}/bin | tr ' ' ':')
+PATH=\$PATH:\$(echo ~/proj/android-toolchain-{arm,arm64,x86,x86_64}/bin | tr ' ' ':')
 EOF
 }
 
