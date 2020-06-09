@@ -37,7 +37,7 @@ function set_abix {
 	    ABI=-linux-androideabi
 	    ARCHX=$i
 	    ARCHY=$i
-	    API=19
+	    API=21
 	    ;;
 	aarch64)
 	    ABI=-linux-android
@@ -64,7 +64,7 @@ function set_abix {
 	    ARCHX=$i
 	    ABIX=-linux-android
 	    ARCHY=i686
-	    API=19
+	    API=21
 	    ;;
 	x86_64)
 	    ABIX=-linux-android

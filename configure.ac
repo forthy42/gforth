@@ -338,8 +338,8 @@ case "$host_os" in
 		ANDROID_EXTRA=-D__ANDROID_API__=21
 		;;
 	    *)
-	    	AC_DEFINE(__ANDROID_API__,19,[Define if you use Android])
-		ANDROID_EXTRA=-D__ANDROID_API__=19
+	    	AC_DEFINE(__ANDROID_API__,21,[Define if you use Android])
+		ANDROID_EXTRA=-D__ANDROID_API__=21
 		;;
 	esac
 	;;

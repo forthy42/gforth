@@ -30,7 +30,7 @@ case "$TARGET" in
 	export CC="$TARGET-gcc -D__ANDROID_API__=21"
 	;;
     *)
-	export CC="$TARGET-gcc -D__ANDROID_API__=19"
+	export CC="$TARGET-gcc -D__ANDROID_API__=21"
 	;;
 esac
 
@@ -111,7 +111,7 @@ function gen_opus {
      test -f $OPUS.tar.gz || wget https://archive.mozilla.org/pub/opus/$OPUS.tar.gz)
     tar zxvf ~/Downloads/$OPUS.tar.gz
     (cd $OPUS
-     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --libdir=$PREFIX/sysroot/usr/lib
+     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --libdir=$TOOLCHAIN/sysroot/usr/lib
      make -j$nprocs
      make install)
 }
