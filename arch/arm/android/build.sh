@@ -104,6 +104,7 @@ then
 fi
 cp .libs/libtypeset.so $LIBS
 cp $TOOLCHAIN/sysroot/usr/lib/libopus.so $LIBS
+cp $(find $TOOLCHAIN/$TARGET -name libc++_shared.so) $LIBS
 
 EXTRAS=""
 EXTRADIRS=""
