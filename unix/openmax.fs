@@ -727,6 +727,16 @@ c-library openmax
 $FFFFFFFF.FFFFFFFF 2constant XA_DATALOCATOR_ANDROIDFD_USE_FILE_SIZE
 : XA_ANDROID_MIME_MP2TS ( --- addr ) "video/mp2ts\0" drop ;
 
+\ ------===< structs >===-------
+begin-structure XAVideoStreamInformation
+    4 +field XAVideoStreamInformation-codecId
+    4 +field XAVideoStreamInformation-width
+    4 +field XAVideoStreamInformation-height
+    4 +field XAVideoStreamInformation-frameRate
+    4 +field XAVideoStreamInformation-bitRate
+    4 +field XAVideoStreamInformation-duration
+end-structure
+
 \ ------===< values >===-------
 c-value XA_IID_NULL XA_IID_NULL -- a
 c-value XA_IID_OBJECT XA_IID_OBJECT -- a
