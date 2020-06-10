@@ -408,7 +408,8 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
 	unix/%, $(UNIX_SRC)) date.fs script.fs wf.fs traceall.fs rec-scope.fs \
 	rec-env.fs rec-meta.fs notfound.fs utf16.fs archive.fs cilk.fs	      \
 	fixfiles.fs bits.fs reverse-words.fs config.fs set-compsem.fs	      \
-	coverage.fs tokenize.fs startup-libcc.fs status-line.fs
+	coverage.fs tokenize.fs startup-libcc.fs status-line.fs		      \
+	unix/opensles-vals.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -591,7 +592,7 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	debian/rules debian/control.in debian/changelog.in debian/compat      \
 	gforth.ico .travis.yml install-deps.sh install-swig.sh		      \
 	install-freetype-gl.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4	      \
-	move-if-change unix/opensles-vals.fs
+	move-if-change
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
 	libforth gforthker engine/Makefile engine/gforth.h		\
