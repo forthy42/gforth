@@ -10,7 +10,7 @@ extern struct _IO_FILE *stderr;
 #endif
 %}
 
-#define SWIG_FORTH_OPTIONS "no-prefix"
+#define SWIG_FORTH_OPTIONS "no-prefix no-use-structs"
 
 #define __ANDROID__
 #define ANDROID
