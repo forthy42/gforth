@@ -66,7 +66,7 @@ previous
     sles-object realize ;
 
 : create-engine ( -- )
-    sles-object XA_IID_ENGINE addr sles-engine SLObjectItf-GetInterface()
+    sles-object SL_IID_ENGINE addr sles-engine SLObjectItf-GetInterface()
     ?sles-error ;
 
 : sles-init ( -- )

@@ -243,6 +243,13 @@ also android
 	EXIT  THEN
     ts-fd file-size throw ts-fd file-position throw d>f d>f f/ ;
 
+: f>c ( r g b a -- )
+    $FF fm* f>s 0 min $FF max
+    $FF fm* f>s 0 min $FF max $08 lshift or
+    $FF fm* f>s 0 min $FF max $10 lshift or
+    $FF fm* f>s 0 min $FF max $18 lshift or
+    color, i>c ;
+
 : triangle ( c% -- )
     fdup fnegate get-m 1.1e f/ 0.05e f+ fdup f2* 1e f-
     { f: c f: -c f: r% f: rx } 
