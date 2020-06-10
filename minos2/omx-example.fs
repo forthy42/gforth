@@ -333,6 +333,8 @@ true value show-mcursor
     THEN
     rdrop ;
 
+also jni
+
 : play-loop ( -- )
     hidekb >changed
     hidestatus >changed
@@ -345,6 +347,9 @@ true value show-mcursor
 	cues>mts-run? 0= pplay? and  IF  ppause  THEN
     level# @ 0= UNTIL
     ppause screen-keep  showstatus ;
+
+previous
+
 : play-ts ( addr u -- ) ['] read-ts-file is read-ts
     open-mts start-file play-loop ;
 : set-mkv ( addr u -- )
