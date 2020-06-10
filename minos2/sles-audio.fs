@@ -28,6 +28,14 @@ debug: sles( \ )
 
 0 Value sles-object
 0 Value sles-engine
+0 Value slex-mix
+0 Value sles-player
+0 Value sles-recorder
+0 Value play-source
+0 Value play-sink
+0 Value record-source
+0 Value record-sink
+
 0 Value sles-task
 
 : ?sles-error ( ior -- )
@@ -69,11 +77,28 @@ previous
     sles-object SL_IID_ENGINE addr sles-engine SLObjectItf-GetInterface()
     ?sles-error ;
 
+: create-mix ( -- )
+    sles-engine addr sles-mix 0 0 0 SLEngineItf-CreateOutputMix() ?sles-error ;
+
+: create-player ( -- )
+    { | ids[ 2 cells ] reqs[ 2 4 * ] }
+    SL_IID_ANDROIDCONFIGURATION SL_IID_BUFFERQUEUE ids[ 2!
+    1 reqs[ l!  1 reqs[ 4 + l!
+    sles-engine addr sles-player addr play-source addr play-sink 2
+    ids[ reqs[ SLEngineItf-CreateAudioPlayer() ?sles-error ;
+
+: create-recorder ( -- )
+    { | ids[ 2 cells ] reqs[ 2 4 * ] }
+    SL_IID_ANDROIDCONFIGURATION SL_IID_ANDROIDSIMPLEBUFFERQUEUE ids[ 2!
+    1 reqs[ l!  1 reqs[ 4 + l!
+    sles-engine addr sles-recorder addr record-source addr record-sink 2
+    ids[ reqs[ SLEngineItf-CreateAudioRecorder() ?sles-error ;
+
 : sles-init ( -- )
     ?audio-permissions
     stacksize4 NewTask4 to sles-task
     sles-task activate   debug-out debug-vector !  nothrow
-    [:  create-sles
+    [:  create-sles create-engine create-mix
 	BEGIN  stop  AGAIN ;] catch ?dup-IF  DoError  THEN ;
 
 event: :>kill-sles ( -- )
