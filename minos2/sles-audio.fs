@@ -102,6 +102,28 @@ previous
     [:  create-sles create-engine create-mix
 	BEGIN  stop  AGAIN ;] catch ?dup-IF  DoError  THEN ;
 
+[IFUNDEF] l,
+    : l, ( n -- ) here 4 allot l! ;
+[THEN]
+
+Create PCM-format-stereo
+2      l, \ format=PCM
+2      l, \ channels
+#48000 l, \ sample rate
+#16    l, \ bits per sample
+#16    l, \ container size
+3      l, \ speaker mask
+2      l, \ little endian
+
+Create PCM-format-mono
+2      l, \ format=PCM
+1      l, \ channels
+#48000 l, \ sample rate
+#16    l, \ bits per sample
+#16    l, \ container size
+4      l, \ speaker mask
+2      l, \ little endian
+
 event: :>kill-sles ( -- )
     0 to sles-task  kill-task ;
 
