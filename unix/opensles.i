@@ -9,9 +9,7 @@ extern struct _IO_FILE *stderr;
 #endif
 %}
 
-#define SWIG_FORTH_OPTIONS "no-use-structs"
-
-// exec: sed -e 's/^c-library\( .*\)/vocabulary opensles``get-current also opensles definitions``c-library\1`s" ((struct SL:*(Cell*)(x.spx[arg0])" ptr-declare $+[]!/g' -e 's|^end-c-library|include unix/opensles-vals.fs`end-c-library`previous set-current|g' -e 's/s" opensles" add-lib/s" OpenSLES" add-lib/g' -e 's/_-/-/g' -e 's/\([^_]\)_$/\1/g' | tr '`' '\n'
+// exec: sed -e 's/^c-library\( .*\)/vocabulary opensles``get-current also opensles definitions``c-library\1`s" ((struct SL:*(Cell*)(x.spx[arg0])" ptr-declare $+[]!/g' -e 's|^end-c-library|include unix/opensles-vals.fs`end-c-library`previous set-current|g' -e 's/s" opensles" add-lib/s" OpenSLES" add-lib/g' -e 's/_-/-/g' -e 's/\([^_]\)_$/\1/g' | tr '`' '\n' | awk '/^begin-structure .*Itf$/{print "("; p++} 1; p && /end-structure$/{print ")"; p=0}'
 
 #define const
 #define SL_API

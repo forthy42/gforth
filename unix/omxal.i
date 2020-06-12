@@ -10,8 +10,6 @@ extern struct _IO_FILE *stderr;
 #endif
 %}
 
-#define SWIG_FORTH_OPTIONS "no-prefix no-use-structs"
-
 #define __ANDROID__
 #define ANDROID
 #define XA_API
@@ -26,7 +24,7 @@ extern struct _IO_FILE *stderr;
 %apply long long { XAint64, XAAint64 }
 %apply SWIGTYPE * { void * }
 
-// exec: sed -e s/Itf_-/Itf-/g -e s/ID_-/ID-/g -e 's/omxal"/OpenMAXAL"/g' -e 's/^\(.*c-library\)/\\ \1/g'
+// exec: sed -e s/Itf_-/Itf-/g -e s/ID_-/ID-/g -e 's/omxal"/OpenMAXAL"/g' -e 's/^\(.*c-library\)/\\ \1/g' -e 's/\([^_]\)_$/\1/g' | awk '/^begin-structure .*Itf$/{print "("; p++} 1; p && /end-structure$/{print ")"; p=0}'
 
 %include "OMXAL/OpenMAXAL_Platform.h"
 %include "OMXAL/OpenMAXAL.h"
