@@ -78,7 +78,8 @@ previous
     ?sles-error ;
 
 : create-mix ( -- )
-    sles-engine addr sles-mix 0 0 0 SLEngineItf-CreateOutputMix() ?sles-error ;
+    sles-engine addr sles-mix 0 0 0 SLEngineItf-CreateOutputMix() ?sles-error
+    sles-mix realize ;
 
 : create-player ( -- )
     { | ids[ 2 cells ] reqs[ 2 4 * ] }
