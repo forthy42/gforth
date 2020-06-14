@@ -23,13 +23,9 @@ require unix/pthread.fs
 
 get-current pulse also definitions
 
-$100 buffer: pa-error$
-
-: ?pa-ior ( n -- )
-    dup 0< IF  [: pa_strerror pa-error$ place
-	    pa-error$ "error \ "
-	    ! -2  throw ;] do-debug
-    THEN drop ;
+:noname negate pa_strerror ; PA_ERR_MAX exceptions
+>r : ?pa-ior ( n -- )
+    dup 0< IF  [ r> ]L + throw  THEN drop ;
 
 debug: pulse( \ )
 \ +db pulse( \ )

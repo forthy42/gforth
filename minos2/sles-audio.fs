@@ -28,7 +28,7 @@ debug: sles( \ )
 
 0 Value sles-object
 0 Value sles-engine
-0 Value slex-mix
+0 Value sles-mix
 0 Value sles-player
 0 Value sles-recorder
 0 Value play-source

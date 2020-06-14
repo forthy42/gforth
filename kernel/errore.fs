@@ -27,6 +27,8 @@ require ./nio.fs
 
 AVariable ErrLink              \ Linked list entry point
 NIL ErrLink !
+AVariable ErrRanges            \ List of entry ranges
+NIL ErrRanges !
 
 decimal
 
@@ -57,8 +59,7 @@ has? OS [IF]
     catch  r> op-vector !  throw ;
 [THEN]
 
-: error$ ( n -- addr u ) \ gforth
-    \G converts an error to a string
+: errlink>string ( n -- addr u )
     ErrLink
     BEGIN @ dup
     WHILE
@@ -67,20 +68,22 @@ has? OS [IF]
 	    2 cells + count rot drop EXIT THEN
     REPEAT
     drop
-[ has? os [IF] ]
-    dup -511 -255 within
-    IF
-	256 + negate strsignal EXIT
-    THEN
-    dup -2047 -511 within
-    IF
-	512 + negate strerror EXIT
-    THEN
-[ [THEN] ]
     base @ >r decimal
     s>d tuck dabs <# #s rot sign s" error #" holds #> r> base ! ;
 
+: error$ ( n -- addr u )
+    ErrRanges
+    BEGIN  @ dup  WHILE
+	    2dup cell+ 2@ within
+	    IF  >r r@ cell+ @ 1- - negate
+		r> 3 cells + perform  EXIT  THEN
+    REPEAT
+    drop errlink>string ;
+
 has? OS [IF]
+    ErrRanges @ here ErrRanges A! A, -255 , -511 , ' strsignal A,
+    ErrRanges @ here ErrRanges A! A, -511 , -2047 , ' strerror A,
+
     $6600 Value default-color ( -- x ) \ gforth
     \G use system-default color
     $E600 Value error-color   ( -- x ) \ gforth
