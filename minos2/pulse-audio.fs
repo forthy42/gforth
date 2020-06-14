@@ -23,7 +23,7 @@ require unix/pthread.fs
 
 get-current pulse also definitions
 
-:noname negate pa_strerror ; PA_ERR_MAX exceptions
+' pa_strerror PA_ERR_MAX exceptions
 >r : ?pa-ior ( n -- )
     dup 0< IF  [ r> ]L + throw  THEN drop ;
 
