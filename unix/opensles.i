@@ -15,6 +15,8 @@ extern struct _IO_FILE *stderr;
 #define SL_API
 #define SLAPIENTRY
 
+%include <SLES/OpenSLES_Platform.h>
 %include <SLES/OpenSLES.h>
 %include <SLES/OpenSLES_AndroidConfiguration.h>
 %include <SLES/OpenSLES_AndroidMetadata.h>
+%include <SLES/OpenSLES_Android.h>
