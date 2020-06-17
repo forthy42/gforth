@@ -91,6 +91,10 @@ previous
 #48000 Value sample-rate
 #960 Value samples/frame
 
+[IFUNDEF] l,
+    : l, ( n -- ) here 4 allot l! ;
+[THEN]
+
 Create loc-bufq \ for a buffer
 0x800007BD ( SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE ) l,
 2 l,
@@ -187,10 +191,6 @@ Variable stream-bufs<>
     sles-task activate   debug-out debug-vector !  nothrow
     [:  create-sles create-engine create-mix
 	BEGIN  stop  AGAIN ;] catch ?dup-IF  DoError  THEN ;
-
-[IFUNDEF] l,
-    : l, ( n -- ) here 4 allot l! ;
-[THEN]
 
 event: :>kill-sles ( -- )
     0 to sles-task  kill-task ;
