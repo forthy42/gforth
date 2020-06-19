@@ -57,7 +57,7 @@ debug: sles( \ )
 "SLES control lost"           exception drop
 
 : ?sles-ior ( ior -- )
-    ?dup-IF  r> swap - throw  THEN ;
+    ?dup-IF  [ r> ]L swap - throw  THEN ;
 
 : ev-exec ( caller pcontext event -- )  swap execute ;
 : ch-exec ( caller pcontext deviceid numinputs isnew -- ) 3 roll execute ;
@@ -151,11 +151,12 @@ Variable stream-bufs<>
     stream +stereo-buf ;
 
 : create-player ( format rd -- )
-    { rd | ids[ 2 cells ] reqs[ 2 sfloats ] src[ 2 cells ] snk[ 2 cells ] }
+    { rd | ids[ 2 cells ] mix[ 2 cells ] reqs[ 2 sfloats ] src[ 2 cells ] snk[ 2 cells ] }
     SL_IID_BUFFERQUEUE SL_IID_VOLUME ids[ 2!
     1 reqs[ l!  1 reqs[ sfloat+ l!
     loc-bufq src[ 2!
-    sles-mix 0x00000004 ( SL_DATALOCATOR_OUTPUTMIX ) snk[ 2!
+    sles-mix 0x00000004 ( SL_DATALOCATOR_OUTPUTMIX ) mix[ 2!
+    0 mix[ snk[ 2!
     sles-engine addr sles-player  src[  snk[
     2 ids[ reqs[ SLEngineItf-CreateAudioPlayer() ?sles-ior
     sles-player realize
@@ -166,8 +167,7 @@ Variable stream-bufs<>
     sles-player SL_IID_VOLUME addr sles-playvol
     SLObjectItf-GetInterface() ?sles-ior
     sles-playerq buffer-queue-cb rd [{: rd :}h rd read-stream ;]
-    SLBufferQueueItf-RegisterCallback() ?sles-ior
-    sles-player resume-stream ;
+    SLBufferQueueItf-RegisterCallback() ?sles-ior ;
 
 : create-recorder ( format wr -- )
     { wr | ids[ 1 cells ] reqs[ 1 sfloats ] src[ 2 cells ] snk[ 2 cells ] }
