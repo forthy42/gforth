@@ -24,7 +24,7 @@ require unix/pthread.fs
 get-current opensles also definitions
 
 debug: sles( \ )
-\ +db pulse( \ )
+\ +db sles( \ )
 
 0 Value sles-object
 0 Value sles-engine
@@ -90,10 +90,6 @@ previous
 
 #48000 Value sample-rate
 #960 Value samples/frame
-
-[IFUNDEF] l,
-    : l, ( n -- ) here 4 allot l! ;
-[THEN]
 
 Create loc-bufq \ for a buffer
 0x800007BD ( SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE ) l,
