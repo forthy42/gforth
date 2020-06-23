@@ -118,11 +118,19 @@ sample-rate #1000 * l, \ sample rate in mHz
 4      l, \ speaker mask
 2      l, \ little endian
 
-: drain-stream  ( stream -- ) 1 SLPlayItf-SetPlayState() ?sles-ior ;
-: pause-stream  ( stream -- ) 2 SLPlayItf-SetPlayState() ?sles-ior ;
-: resume-stream ( stream -- ) 3 SLPlayItf-SetPlayState() ?sles-ior ;
+: drain-play  ( play -- ) 1 SLPlayItf-SetPlayState() ?sles-ior ;
+: pause-play  ( play -- ) 2 SLPlayItf-SetPlayState() ?sles-ior ;
+: resume-play ( play -- ) 3 SLPlayItf-SetPlayState() ?sles-ior ;
 
-: read-stream { stream xt: read-record -- }
+: drain-record  ( record -- ) 1 SLRecordItf-SetRecordState() ?sles-ior ;
+: pause-record  ( record -- ) 2 SLRecordItf-SetRecordState() ?sles-ior ;
+: resume-record ( record -- ) 3 SLRecordItf-SetRecordState() ?sles-ior ;
+
+: set-vol ( volume playvol -- ) swap SLVolumeItf-SetVolumeLevel() ?sles-ior ;
+: get-vol ( playvol -- volume ) { | w^ volume }
+    volume SLVolumeItf-GetVolumeLevel() ?sles-ior volume l@ ;
+
+: read-stream { queue xt: read-record -- }
     read-record { w^ buf }
     BEGIN  buf $@len 0=  WHILE
 	    pause \ give the other task a chance to do something
@@ -130,21 +138,27 @@ sample-rate #1000 * l, \ sample rate in mHz
 		buf2 $@ buf $+!  buf2 $free
     REPEAT  THEN
     buf $@len IF
-	stream buf $@ SLBufferQueueItf-Enqueue() ?sles-ior
+	queue buf $@ SLBufferQueueItf-Enqueue() ?sles-ior
     ELSE
-	stream pause-stream
+	queue pause-play
     THEN ;
 
 Variable stream-bufs<>
 
-: +stereo-buf { stream | w^ buf -- }
+: +stereo-buf { queue | w^ buf -- }
     samples/frame 2* 2* buf $!len
-    stream buf $@ SLBufferQueueItf-Enqueue() ?sles-ior
+    queue buf $@ SLBufferQueueItf-Enqueue() ?sles-ior
     buf @ stream-bufs<> >back ;
 
-: write-stream { stream xt: write-record -- }
+: write-stream { queue xt: write-record -- }
     stream-bufs<> stack> { w^ buf } buf $@ write-record buf $free
-    stream +stereo-buf ;
+    queue +stereo-buf ;
+
+\ in OpenSL ES, a player is an object.
+\ It has a Play interface, a Bufferqueue interface, and a Volume interface
+\ You can start/stop/pause the Play interface
+\ You can write to the Bufferqueue interface
+\ and you can set the volume on the volume interface
 
 : create-player ( format rd -- )
     { rd | ids[ 2 cells ] mix[ 2 cells ] reqs[ 2 sfloats ] src[ 2 cells ] snk[ 2 cells ] }
