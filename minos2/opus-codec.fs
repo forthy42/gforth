@@ -87,7 +87,6 @@ sample-rate samples/frame / 2* $10 + Constant /idx-block
 
 [IFUNDEF] write-record
     Defer write-record
-    Defer read-record
 [THEN]
 
 :noname ( addr u -- )
@@ -115,9 +114,17 @@ Variable opus-out
 : $alloc ( u string -- addr u )
     over >r $+!len r> ;
 
-:noname negate opus_strerror ; #10 exceptions \ really only 7, but allow more
->r : ?opus-ior ( n -- )
-    dup 0< IF  [ r> ]L + throw  THEN drop ;
+[IFDEF] exceptions
+    :noname negate opus_strerror ; #10 exceptions \ really only 7, but allow more
+    >r : ?opus-ior ( n -- )
+	dup 0< IF  [ r> ]L + throw  THEN drop ;
+[ELSE]
+    $100 buffer: opus-error$
+    : ?opus-ior ( n -- n )
+	dup 0< IF  [: opus_strerror opus-error$ place
+		opus-error$ "error ( " ( meh ) ! -2  throw ;] do-debug
+	THEN ;
+[THEN]
 
 : in-idx-block ( pos -- addr len )
     idx-block $@ rot safe/string ;
@@ -215,17 +222,26 @@ Semaphore opus-block-sem
 	    /sample 2 = select
 	    pulse-exec##
 	THEN
+    [ELSE]
+	[IFDEF] play-mono
+	    sample-rate ['] read-opus-buf
+	    /sample 2 = IF  play-mono  ELSE  play-stereo  THEN
+	[THEN]
     [THEN] ;
 
-: pause-play ( -- )
-    [IFDEF] pulse-exec##
-	stream@ ?dup-IF  ['] pause-stream pulse-exec#  THEN
+[IFUNDEF] pause-play
+    : pause-play ( -- )
+	[IFDEF] pulse-exec##
+	    stream@ ?dup-IF  ['] pause-stream pulse-exec#  THEN
 	    opus-task ?dup-IF  halt  THEN
-    [THEN] ;
-: resume-play ( -- )
-    [IFDEF] pulse-exec##
-	stream@ ?dup-IF  opus-go  ['] resume-stream pulse-exec#  THEN
-    [THEN] ;
+	[THEN] ;
+[THEN]
+[IFUNDEF] resume-play
+    : resume-play ( -- )
+	[IFDEF] pulse-exec##
+	    stream@ ?dup-IF  opus-go  ['] resume-stream pulse-exec#  THEN
+	[THEN] ;
+[THEN]
 
 : discard-opus-blocks ( -- )
     [:  opus-blocks get-stack 0 ?DO  { | w^ buf } buf $free  LOOP

@@ -37,8 +37,6 @@ debug: sles( \ )
 0 Value sles-recorderq
 0 Value sles-record
 
-0 Value sles-task
-
 "SLES preconditions violated" exception 1+ >r
 "SLES parameter invalid"      exception drop
 "SLES memory failure"         exception drop
@@ -88,8 +86,16 @@ previous
     sles-engine addr sles-mix 0 0 0 SLEngineItf-CreateOutputMix() ?sles-ior
     sles-mix realize ;
 
+: destroy-mix ( -- )
+    sles-mix SLObjectITF-Destroy()  0 to sles-mix ;
+
+: destroy-engine ( -- )
+    sles-engine SLObjectITF-Destroy()  0 to sles-engine ;
+
 #48000 Value sample-rate
 #960 Value samples/frame
+
+: mHz ( hz -- mhz ) #1000 * ;
 
 Create loc-bufq \ for a buffer
 0x800007BD ( SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE ) l,
@@ -103,7 +109,7 @@ align 0 ,
 Create PCM-format-stereo
 2      l, \ format=PCM
 2      l, \ channels
-sample-rate #1000 * l, \ sample rate in mHz
+sample-rate mHz l, \ sample rate in mHz
 #16    l, \ bits per sample
 #16    l, \ container size
 3      l, \ speaker mask
@@ -112,19 +118,19 @@ sample-rate #1000 * l, \ sample rate in mHz
 Create PCM-format-mono
 2      l, \ format=PCM
 1      l, \ channels
-sample-rate #1000 * l, \ sample rate in mHz
+sample-rate mHz l, \ sample rate in mHz
 #16    l, \ bits per sample
 #16    l, \ container size
 4      l, \ speaker mask
 2      l, \ little endian
 
-: drain-play  ( play -- ) 1 SLPlayItf-SetPlayState() ?sles-ior ;
-: pause-play  ( play -- ) 2 SLPlayItf-SetPlayState() ?sles-ior ;
-: resume-play ( play -- ) 3 SLPlayItf-SetPlayState() ?sles-ior ;
+: drain-play  ( -- ) sles-play 1 SLPlayItf-SetPlayState() ?sles-ior ;
+: pause-play  ( -- ) sles-play 2 SLPlayItf-SetPlayState() ?sles-ior ;
+: resume-play ( -- ) sles-play 3 SLPlayItf-SetPlayState() ?sles-ior ;
 
-: drain-record  ( record -- ) 1 SLRecordItf-SetRecordState() ?sles-ior ;
-: pause-record  ( record -- ) 2 SLRecordItf-SetRecordState() ?sles-ior ;
-: resume-record ( record -- ) 3 SLRecordItf-SetRecordState() ?sles-ior ;
+: drain-record  ( -- ) sles-record 1 SLRecordItf-SetRecordState() ?sles-ior ;
+: pause-record  ( -- ) sles-record 2 SLRecordItf-SetRecordState() ?sles-ior ;
+: resume-record ( -- ) sles-record 3 SLRecordItf-SetRecordState() ?sles-ior ;
 
 : set-vol ( volume playvol -- ) swap SLVolumeItf-SetVolumeLevel() ?sles-ior ;
 : get-vol ( playvol -- volume ) { | w^ volume }
@@ -140,7 +146,7 @@ sample-rate #1000 * l, \ sample rate in mHz
     buf $@len IF
 	queue buf $@ SLBufferQueueItf-Enqueue() ?sles-ior
     ELSE
-	queue pause-play
+	pause-play
     THEN ;
 
 Variable stream-bufs<>
@@ -179,6 +185,28 @@ Variable stream-bufs<>
     sles-playerq buffer-queue-cb rd [{: rd :}h rd read-stream ;]
     SLBufferQueueItf-RegisterCallback() ?sles-ior ;
 
+: destroy-player ( -- )
+    sles-player ?dup-IF
+	SLObjectITF-Destroy()
+	0 to sles-player
+	0 to sles-play
+	0 to sles-playerq
+	0 to sles-playvol
+    THEN ;
+
+: mono-srate! ( rate -- )
+    mhz PCM-format-mono 2 sfloats + l! ;
+: stereo-srate! ( rate -- )
+    mhz PCM-format-stereo 2 sfloats + l! ;
+
+: play-mono ( rate read-record -- )
+    destroy-player  swap mono-srate!
+    PCM-format-mono swap create-player ;
+
+: play-stereo ( rate read-record -- )
+    destroy-player  swap stereo-srate!
+    PCM-format-stereo swap create-player ;
+
 : create-recorder ( format wr -- )
     { wr | ids[ 1 cells ] reqs[ 1 sfloats ] src[ 2 cells ] snk[ 2 cells ] }
     SL_IID_ANDROIDSIMPLEBUFFERQUEUE ids[ !
@@ -195,26 +223,30 @@ Variable stream-bufs<>
     sles-recorderq buffer-queue-cb wr [{: wr :}h wr write-stream ;]
     SLBufferQueueItf-RegisterCallback() ?sles-ior ;
 
+: destroy-recorder ( -- )
+    sles-recorder ?dup-IF
+	SLObjectITF-Destroy()
+	0 to sles-recorder
+	0 to sles-record
+	0 to sles-recorderq
+    THEN ;
+
+: record-mono ( rate read-record -- )
+    destroy-recorder  swap mono-srate!
+    PCM-format-mono swap create-recorder ;
+
+: record-stereo ( rate read-record -- )
+    destroy-recorder  swap stereo-srate!
+    PCM-format-stereo swap create-recorder ;
+
 : sles-init ( -- )
     ?audio-permissions
-    stacksize4 NewTask4 to sles-task
-    sles-task activate   debug-out debug-vector !  nothrow
-    [:  create-sles create-engine create-mix
-	BEGIN  stop  AGAIN ;] catch ?dup-IF  DoError  THEN ;
-
-event: :>kill-sles ( -- )
-    0 to sles-task  kill-task ;
-
-: kill-sles ( -- )
-    sles-task IF
-	<event :>kill-sles sles-task event>
-	5 0 DO  sles-task 0= ?LEAVE  1 ms  LOOP
-    THEN ;
+    create-sles create-engine create-mix ;
 
 set-current
 previous opensles
 
 0 warnings !@
 : bye ( -- )
-    kill-sles bye ;
+    destroy-player destroy-recorder destroy-mix destroy-engine  bye ;
 warnings !
