@@ -234,11 +234,11 @@ Variable stream-bufs<>
 	0 to sles-recorderq
     THEN ;
 
-: record-mono ( rate read-record -- )
+: record-mono ( rate -- )
     destroy-recorder  swap mono-srate!
     PCM-format-mono swap create-recorder ;
 
-: record-stereo ( rate read-record -- )
+: record-stereo ( rate -- )
     destroy-recorder  swap stereo-srate!
     PCM-format-stereo swap create-recorder ;
 

@@ -291,6 +291,10 @@ Semaphore opus-block-sem
 	    stereo-rec pa_stream_unref  0 to stereo-rec
 	;] pulse-exec 10 ms close-rec ;
 [THEN]
+[IFDEF] drain-record
+    : close-rec-mono ( -- )  drain-record close-rec ;
+    synonym close-rec-stereo close-rec-mono
+[THEN]
 
 : raw>opus ( addr u -- ) { | w^ raw$ }
     2dup open-rec+ raw$ $! ".raw" raw$ $+!
