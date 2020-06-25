@@ -23,6 +23,9 @@ require unix/pthread.fs
 
 also opus
 
+debug: opus( \ )
+\ +db opus( \ )
+
 \ Opus en/decoder
 
 2 Value channels
@@ -178,6 +181,7 @@ Semaphore opus-block-sem
     THEN
     opus-buffer $@len 0= IF  opus-buffer $free
     ELSE
+	opus( ." push opus buffer" cr )
 	opus-buffer @ [: opus-blocks >stack ;] opus-block-sem c-section
     THEN ;
 

@@ -183,7 +183,9 @@ Variable stream-bufs<>
     sles-player SL_IID_VOLUME addr sles-playvol
     SLObjectItf-GetInterface() ?sles-ior
     sles-playerq buffer-queue-cb rd [{: rd :}h rd read-stream ;]
-    SLBufferQueueItf-RegisterCallback() ?sles-ior ;
+    SLBufferQueueItf-RegisterCallback() ?sles-ior
+    5 ms sles-playerq rd read-stream
+    resume-play ;
 
 : destroy-player ( -- )
     sles-player ?dup-IF
@@ -221,7 +223,8 @@ Variable stream-bufs<>
     sles-recorder SL_IID_ANDROIDSIMPLEBUFFERQUEUE addr sles-recorderq
     SLObjectItf-GetInterface() ?sles-ior
     sles-recorderq buffer-queue-cb wr [{: wr :}h wr write-stream ;]
-    SLBufferQueueItf-RegisterCallback() ?sles-ior ;
+    SLBufferQueueItf-RegisterCallback() ?sles-ior
+    sles-recorderq +stereo-buf  resume-record ;
 
 : destroy-recorder ( -- )
     sles-recorder ?dup-IF
