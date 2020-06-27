@@ -35,6 +35,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.AssetFileDescriptor;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.location.Location;
@@ -107,6 +108,7 @@ public class Gforth
     private SensorManager sensorManager;
     private ClipboardManager clipboardManager;
     private AlarmManager alarmManager;
+    private AudioManager audioManager;
     private ConnectivityManager connectivityManager;
     private InputMethodManager inputMethodManager;
     private BroadcastReceiver recKeepalive, recConnectivity;
@@ -516,12 +518,13 @@ public class Gforth
 	sensorManager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
 	clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
 	alarmManager=(AlarmManager)getSystemService(Context.ALARM_SERVICE);
-	connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-	inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-	powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
-	notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+	audioManager=(AudioManager)getSystemService(Context.AUDIO_SERVICE);
+	connectivityManager=(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+	inputMethodManager=(InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+	powerManager=(PowerManager)getSystemService(Context.POWER_SERVICE);
+	notificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 	if (Build.VERSION.SDK_INT >= 26) {
-	    notificationChannel = new NotificationChannel("gnu.gforth.notifications", "Messages", NotificationManager.IMPORTANCE_DEFAULT);
+	    notificationChannel=new NotificationChannel("gnu.gforth.notifications", "Messages", NotificationManager.IMPORTANCE_DEFAULT);
 	    notificationChannel.enableLights(true);
 	    notificationChannel.setShowBadge(true);
 	    

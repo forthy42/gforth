@@ -26,6 +26,7 @@ jni-method: restartIME restartIME ()V
 jni-method: setEditLine setEditLine (Ljava/lang/String;II)V
 jni-method: set_alarm set_alarm (J)V
 jni-method: screen_on screen_on (I)V
+jni-field: audioManager audioManager Landroid/media/AudioManager;
 jni-field: clipboardManager clipboardManager Landroid/text/ClipboardManager;
 jni-field: connectivityManager connectivityManager Landroid/net/ConnectivityManager;
 jni-field: notificationManager notificationManager Landroid/app/NotificationManager;
@@ -194,6 +195,9 @@ jni-method: notify notify (ILandroid/app/Notification;)V
 SDK_INT 26 >= [IF] \ need channels
     jni-method: createNotificationChannel createNotificationChannel (Landroid/app/NotificationChannel;)V
 [THEN]
+
+jni-class: android/media/AudioManager
+jni-method: adjustVolume adjustVolume (II)V
 
 SDK_INT 10 <= [IF] \ 2.3.x uses a different clipboard manager
     jni-class: android/text/ClipboardManager
