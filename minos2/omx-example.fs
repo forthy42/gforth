@@ -37,22 +37,38 @@ also openmax
 
 "Media Player failed" exception Constant !!fail!!
 
-: ?success ( value -- )  ]] dup XA_RESULT_SUCCESS <> IF
-	~~ !!fail!! throw
-    ELSE  drop  THEN [[ ; immediate
+"OpenMAX AL Preconditions violated" exception 1+ >r
+"OpenMAX AL Parameter invalid"      exception drop
+"OpenMAX AL Memory failure"         exception drop
+"OpenMAX AL Resource error"         exception drop
+"OpenMAX AL Resource lost"          exception drop
+"OpenMAX AL IO error"               exception drop
+"OpenMAX AL Buffer insufficient"    exception drop
+"OpenMAX AL Content corrupted"      exception drop
+"OpenMAX AL Content unsupported"    exception drop
+"OpenMAX AL Content not found"      exception drop
+"OpenMAX AL Permission denied"      exception drop
+"OpenMAX AL Feature unsupported"    exception drop
+"OpenMAX AL Internal error"         exception drop
+"OpenMAX AL Unknown error"          exception drop
+"OpenMAX AL Operation aborted"      exception drop
+"OpenMAX AL Control lost"           exception drop
 
-: realize ( object -- ) 0 XAObjectItf-Realize() ?success ;
+: ?omx ( value -- )
+    ?dup-IF  [ r> ]L swap - throw  THEN ;
+
+: realize ( object -- ) 0 XAObjectItf-Realize() ?omx ;
 
 : create-object ( -- )
-    addr mp-object 0 0 0 0 0 xaCreateEngine ?success
+    addr mp-object 0 0 0 0 0 xaCreateEngine ?omx
     mp-object realize ;
 
 : create-engine ( -- )
     mp-object XA_IID_ENGINE addr engine XAObjectItf-GetInterface()
-    ?success ;
+    ?omx ;
 
 : create-mix ( -- )
-    engine addr mix 0 0 0 XAEngineItf-CreateOutputMix() ?success
+    engine addr mix 0 0 0 XAEngineItf-CreateOutputMix() ?omx
     mix realize ;
 
 : create-stuff ( -- )
@@ -134,7 +150,7 @@ Variable found-video
 
 ' stream-info-cb xaStreamEventChangeCallback: Constant c-stream-info-cb
 
-: clear-queue ( -- ) BQitf XAAndroidBufferQueueItf-Clear() ?success ;
+: clear-queue ( -- ) BQitf XAAndroidBufferQueueItf-Clear() ?omx ;
 
 : init-enqueue { flag -- }
     flag IF  clear-queue  THEN
@@ -142,26 +158,26 @@ Variable found-video
     dup MPEG2_TS_PACKET_SIZE mod - cache swap bounds U+DO
 	BQitf 0 I BUFFER_SIZE I' I - umin
 	flag IF  items 8  0 to flag  ELSE  0 0  THEN
-	XAAndroidBufferQueueItf-Enqueue() ?success
+	XAAndroidBufferQueueItf-Enqueue() ?omx
     BUFFER_SIZE +LOOP ;
 
 : get-interfaces ( -- )
     player XA_IID_PLAY addr playitf
-    XAObjectItf-GetInterface() ?success
+    XAObjectItf-GetInterface() ?omx
     player XA_IID_STREAMINFORMATION addr infoitf
-    XAObjectItf-GetInterface() ?success
+    XAObjectItf-GetInterface() ?omx
     player XA_IID_VOLUME addr volitf
-    XAObjectItf-GetInterface() ?success
+    XAObjectItf-GetInterface() ?omx
     player XA_IID_ANDROIDBUFFERQUEUESOURCE addr BQItf
-    XAObjectItf-GetInterface() ?success ;
+    XAObjectItf-GetInterface() ?omx ;
 
 : set-callbacks ( -- )
     BQitf XA_ANDROIDBUFFERQUEUEEVENT_PROCESSED
-    XAAndroidBufferQueueItf-SetCallbackEventsMask() ?success
+    XAAndroidBufferQueueItf-SetCallbackEventsMask() ?omx
     BQitf c-buffer-queue-cb 0
-    XAAndroidBufferQueueItf-RegisterCallback() ?success
+    XAAndroidBufferQueueItf-RegisterCallback() ?omx
     infoitf c-stream-info-cb 0
-    XAStreamInformationItf-RegisterStreamChangeCallback() ?success ;
+    XAStreamInformationItf-RegisterStreamChangeCallback() ?omx ;
 
 : create-sf ( -- )
     media-sf  >o o IF  release     THEN o>
@@ -178,7 +194,7 @@ also jni also android
     mix loc_mix cell+ !
     engine addr player
     data< 0 audio> video> 0 0 NB_MAXAL_INTERFACES iidArray req
-    XAEngineITF-CreateMediaPlayer() ?success
+    XAEngineITF-CreateMediaPlayer() ?omx
     player realize ;
 
 : destroy-player ( -- )
@@ -190,14 +206,14 @@ previous previous
     mediaplayer0 >o media-sf setSurface  mp-start o> ;
 
 Variable playstate
-: pplay? ( -- flag ) playitf playstate XAPlayItf-GetPlayState() ?success
+: pplay? ( -- flag ) playitf playstate XAPlayItf-GetPlayState() ?omx
     playstate @ XA_PLAYSTATE_PLAYING = ;
 : ppause ( -- )
-    playitf XA_PLAYSTATE_PAUSED XAPlayItf-SetPlayState() ?success ;
+    playitf XA_PLAYSTATE_PAUSED XAPlayItf-SetPlayState() ?omx ;
 : pplay ( -- )
-    playitf XA_PLAYSTATE_PLAYING XAPlayItf-SetPlayState() ?success ;
+    playitf XA_PLAYSTATE_PLAYING XAPlayItf-SetPlayState() ?omx ;
 : pvol ( n -- )
-    volitf swap XAVolumeItf-SetVolumeLevel() ?success ;
+    volitf swap XAVolumeItf-SetVolumeLevel() ?omx ;
 
 : queue-flush ( -- )
     cues>mts-run? IF

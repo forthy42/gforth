@@ -682,6 +682,8 @@ Defer anim-ins
 
 ' edit-next-line k-down   ebindkey
 ' edit-prev-line k-up     ebindkey
+' edit-next-line k-voldown ebindkey
+' edit-prev-line k-volup  ebindkey
 ' edit-next-line k-next   ebindkey
 ' edit-prev-line k-prior  ebindkey
 ' edit-enter     k-eof    ebindkey
