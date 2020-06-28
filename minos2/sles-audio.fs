@@ -65,6 +65,8 @@ debug: sles( \ )
 ' ev-exec slRecordCallback: Constant record-cb
 ' ev-exec slPrefetchCallback: Constant prefetch-cb
 
+Sema sles-sema
+
 also jni
 : ?audio-permissions ( -- )
     "android.permission.RECORD_AUDIO"
@@ -142,18 +144,20 @@ sample-rate mHz l, \ sample rate in mHz
 	    pause \ give the other task a chance to do something
 	    read-record { w^ buf2 }  buf2 $@len  WHILE
 		buf2 $@ buf $+!  buf2 $free
-    REPEAT  THEN
+	REPEAT  THEN
     buf $@len IF
-	queue buf $@ SLBufferQueueItf-Enqueue() ?sles-ior
+	queue buf $@ [: SLBufferQueueItf-Enqueue() ?sles-ior ;]
+	sles-sema c-section
     ELSE
-	pause-play
+	['] pause-play sles-sema c-section
     THEN ;
 
 Variable stream-bufs<>
 
 : +stereo-buf { queue | w^ buf -- }
     samples/frame 2* 2* buf $!len
-    queue buf $@ SLBufferQueueItf-Enqueue() ?sles-ior
+    queue buf $@ [: SLBufferQueueItf-Enqueue() ?sles-ior ;]
+    sles-sema c-section
     buf @ stream-bufs<> >back ;
 
 : write-stream { queue xt: write-record -- }
