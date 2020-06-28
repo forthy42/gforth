@@ -36,6 +36,7 @@
 \G If a recognizer fails, it returns @code{rectype-null}
 
 : lit, ( n -- ) postpone Literal ;
+: 2lit, ( n -- ) postpone 2literal ;
 
 : rectype>int  ( rectype -- xt ) @ ;
 : rectype>comp ( rectype -- xt ) cell+ @ ;
@@ -68,7 +69,7 @@ dup
 rectype: rectype-num
 
 ' noop
-:noname ( d -- ) postpone 2Literal ;
+' 2lit,
 dup
 rectype: rectype-dnum
 

@@ -537,7 +537,7 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 
 :noname drop execute ;
 :noname 0> IF execute ELSE compile, THEN ;
-:noname postpone 2literal ;
+[ifdef] 2lit, ' 2lit, [else] :noname postpone 2literal ; [then]
 rectype: rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
 
 \ concat recognizers to another recognizer
