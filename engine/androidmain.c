@@ -244,10 +244,11 @@ void addfileargs(char* filename)
   if(argfile==NULL) return; // no file, nothing to do
 
   while((line=fgetln(argfile, &n))) {
-    if(n > 0 && line[n-1]=='\n') {
-      n--;
-      addarg(line, n);
-    }
+    // remove CR/LF line endings
+    if(n > 0 && line[n-1]=='\n') n--;
+    if(n > 0 && line[n-1]=='\r') n--;
+    // only add non-empty lines
+    if(n > 0) addarg(line, n);
   }
 }
 
