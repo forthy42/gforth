@@ -255,7 +255,7 @@ Defer write-record
 	    pause \ give the other task a chance to do something
 	    read-record { w^ buf2 }  buf2 $@len  WHILE
 		buf2 $@ buf $+!  buf2 $free
-    REPEAT  THEN
+    REPEAT  buf2 $free  THEN
     buf $@len IF
 	stream buf $@ pa-free-cb #0. PA_SEEK_RELATIVE
 	pa_stream_write ?pa-ior

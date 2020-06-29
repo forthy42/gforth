@@ -29,13 +29,33 @@ debug: sles( \ )
 0 Value sles-object
 0 Value sles-engine
 0 Value sles-mix
+
 0 Value sles-player
 0 Value sles-playerq
 0 Value sles-play
 0 Value sles-playvol
+
 0 Value sles-recorder
 0 Value sles-recorderq
 0 Value sles-record
+
+0 Value sles-mono-player
+0 Value sles-mono-playerq
+0 Value sles-mono-play
+0 Value sles-mono-playvol
+
+0 Value sles-mono-recorder
+0 Value sles-mono-recorderq
+0 Value sles-mono-record
+
+0 Value sles-stereo-player
+0 Value sles-stereo-playerq
+0 Value sles-stereo-play
+0 Value sles-stereo-playvol
+
+0 Value sles-stereo-recorder
+0 Value sles-stereo-recorderq
+0 Value sles-stereo-record
 
 "SLES preconditions violated" exception 1+ >r
 "SLES parameter invalid"      exception drop
@@ -126,13 +146,19 @@ sample-rate mHz l, \ sample rate in mHz
 4      l, \ speaker mask
 2      l, \ little endian
 
-: drain-play  ( -- ) sles-play 1 SLPlayItf-SetPlayState() ?sles-ior ;
-: pause-play  ( -- ) sles-play 2 SLPlayItf-SetPlayState() ?sles-ior ;
-: resume-play ( -- ) sles-play 3 SLPlayItf-SetPlayState() ?sles-ior ;
+: drain-play  ( -- )
+    sles-play ?dup-IF  1 SLPlayItf-SetPlayState() ?sles-ior  THEN ;
+: pause-play  ( -- )
+    sles-play ?dup-IF  2 SLPlayItf-SetPlayState() ?sles-ior  THEN ;
+: resume-play ( -- )
+    sles-play ?dup-IF  3 SLPlayItf-SetPlayState() ?sles-ior  THEN ;
 
-: drain-record  ( -- ) sles-record 1 SLRecordItf-SetRecordState() ?sles-ior ;
-: pause-record  ( -- ) sles-record 2 SLRecordItf-SetRecordState() ?sles-ior ;
-: resume-record ( -- ) sles-record 3 SLRecordItf-SetRecordState() ?sles-ior ;
+: drain-record  ( -- )
+    sles-record ?dup-IF  1 SLRecordItf-SetRecordState() ?sles-ior  THEN ;
+: pause-record  ( -- )
+    sles-record ?dup-IF  2 SLRecordItf-SetRecordState() ?sles-ior  THEN ;
+: resume-record ( -- )
+    sles-record ?dup-IF  3 SLRecordItf-SetRecordState() ?sles-ior  THEN ;
 
 : set-vol ( volume playvol -- ) swap SLVolumeItf-SetVolumeLevel() ?sles-ior ;
 : get-vol ( playvol -- volume ) { | w^ volume }
@@ -144,7 +170,7 @@ sample-rate mHz l, \ sample rate in mHz
 	    pause \ give the other task a chance to do something
 	    read-record { w^ buf2 }  buf2 $@len  WHILE
 		buf2 $@ buf $+!  buf2 $free
-	REPEAT  THEN
+	REPEAT  buf2 $free  THEN
     buf $@len IF
 	queue buf $@ [: SLBufferQueueItf-Enqueue() ?sles-ior ;]
 	sles-sema c-section
@@ -170,34 +196,28 @@ Variable stream-bufs<>
 \ You can write to the Bufferqueue interface
 \ and you can set the volume on the volume interface
 
-: create-player ( format rd -- )
-    { rd | ids[ 2 cells ] mix[ 2 cells ] reqs[ 2 sfloats ] src[ 2 cells ] snk[ 2 cells ] }
+: create-player ( format rd player play playerq playvol -- )
+    { rd player play playerq playvol | ids[ 2 cells ] mix[ 2 cells ] reqs[ 2 sfloats ] src[ 2 cells ] snk[ 2 cells ] }
     SL_IID_BUFFERQUEUE SL_IID_VOLUME ids[ 2!
     1 reqs[ l!  1 reqs[ sfloat+ l!
     loc-bufq src[ 2!
     sles-mix 0x00000004 ( SL_DATALOCATOR_OUTPUTMIX ) mix[ 2!
     0 mix[ snk[ 2!
-    sles-engine addr sles-player  src[  snk[
+    sles-engine player  src[  snk[
     2 ids[ reqs[ SLEngineItf-CreateAudioPlayer() ?sles-ior
-    sles-player realize
-    sles-player SL_IID_PLAY addr sles-play
+    player @ realize
+    player @ SL_IID_PLAY play
     SLObjectItf-GetInterface() ?sles-ior
-    sles-player SL_IID_BUFFERQUEUE addr sles-playerq
+    player @ SL_IID_BUFFERQUEUE playerq
     SLObjectItf-GetInterface() ?sles-ior
-    sles-player SL_IID_VOLUME addr sles-playvol
+    player @ SL_IID_VOLUME playvol
     SLObjectItf-GetInterface() ?sles-ior
-    sles-playerq buffer-queue-cb rd [{: rd :}h rd read-stream ;]
-    SLBufferQueueItf-RegisterCallback() ?sles-ior
-    5 ms sles-playerq rd read-stream
-    resume-play ;
+    playerq @ buffer-queue-cb rd [{: rd :}h rd read-stream ;]
+    SLBufferQueueItf-RegisterCallback() ?sles-ior ;
 
-: destroy-player ( -- )
-    sles-player ?dup-IF
+: destroy-player ( player -- )
+    ?dup-IF
 	SLObjectITF-Destroy()
-	0 to sles-player
-	0 to sles-play
-	0 to sles-playerq
-	0 to sles-playvol
     THEN ;
 
 : mono-srate! ( rate -- )
@@ -206,29 +226,56 @@ Variable stream-bufs<>
     mhz PCM-format-stereo 2 sfloats + l! ;
 
 : play-mono ( rate read-record -- )
-    destroy-player  swap mono-srate!
-    PCM-format-mono swap create-player ;
+    pause-play
+    sles-mono-player 0= IF
+	swap mono-srate!
+	PCM-format-mono over
+	addr sles-mono-player addr sles-mono-play
+	addr sles-mono-playerq addr sles-mono-playvol create-player
+    ELSE
+	nip
+    THEN
+    5 ms sles-mono-playerq swap read-stream
+    sles-mono-player    to sles-player
+    sles-mono-play      to sles-play
+    sles-mono-playerq   to sles-playerq
+    sles-mono-playvol   to sles-playvol
+    resume-play ;
 
 : play-stereo ( rate read-record -- )
-    destroy-player  swap stereo-srate!
-    PCM-format-stereo swap create-player ;
+    pause-play
+    sles-stereo-player 0= IF
+	swap stereo-srate!
+	PCM-format-stereo over
+	addr sles-stereo-player addr sles-stereo-play
+	addr sles-stereo-playerq addr sles-stereo-playvol create-player
+    ELSE
+	nip
+    THEN
+    5 ms sles-stereo-playerq swap read-stream
+    sles-stereo-player    to sles-player
+    sles-stereo-play      to sles-play
+    sles-stereo-playerq   to sles-playerq
+    sles-stereo-playvol   to sles-playvol
+    resume-play ;
 
-: create-recorder ( format wr -- )
-    { wr | ids[ 1 cells ] reqs[ 1 sfloats ] src[ 2 cells ] snk[ 2 cells ] }
+: create-recorder ( format wr recorder record recorderq -- )
+    { wr recorder record recorderq | ids[ 1 cells ] reqs[ 1 sfloats ] src[ 2 cells ] snk[ 2 cells ] }
     SL_IID_ANDROIDSIMPLEBUFFERQUEUE ids[ !
     1 reqs[ l!
     0 loc-dev src[ 2!
     loc-bufq snk[ 2!
-    sles-engine addr sles-recorder  src[  snk[
+    sles-engine recorder  src[  snk[
     1 ids[ reqs[ SLEngineItf-CreateAudioRecorder() ?sles-ior
-    sles-recorder realize
-    sles-recorder SL_IID_RECORD addr sles-record
+    recorder @ realize
+    recorder @ SL_IID_RECORD record
     SLObjectItf-GetInterface() ?sles-ior
-    sles-recorder SL_IID_ANDROIDSIMPLEBUFFERQUEUE addr sles-recorderq
+    recorder @ SL_IID_ANDROIDSIMPLEBUFFERQUEUE recorderq
     SLObjectItf-GetInterface() ?sles-ior
-    sles-recorderq buffer-queue-cb wr [{: wr :}h wr write-stream ;]
+    sles-recorderq @ buffer-queue-cb wr [{: wr :}h wr write-stream ;]
     SLBufferQueueItf-RegisterCallback() ?sles-ior
-    sles-recorderq +stereo-buf  resume-record ;
+    sles-recorderq @ +stereo-buf
+    record @ 3 SLRecordItf-SetRecordState() ?sles-ior ;
 
 : destroy-recorder ( -- )
     sles-recorder ?dup-IF
@@ -238,13 +285,25 @@ Variable stream-bufs<>
 	0 to sles-recorderq
     THEN ;
 
-: record-mono ( rate -- )
-    destroy-recorder  swap mono-srate!
-    PCM-format-mono swap create-recorder ;
+: record-mono ( rate write-record -- )
+    drain-record
+    sles-mono-recorder 0= IF
+	swap mono-srate!
+	PCM-format-mono swap create-recorder
+    ELSE  2drop  THEN
+    sles-mono-recorder    to sles-recorder
+    sles-mono-record      to sles-record
+    sles-mono-recorderq   to sles-recorderq ;
 
-: record-stereo ( rate -- )
-    destroy-recorder  swap stereo-srate!
-    PCM-format-stereo swap create-recorder ;
+: record-stereo ( rate write-record -- )
+    drain-record
+    sles-mono-recorder 0= IF
+	swap stereo-srate!
+	PCM-format-stereo swap create-recorder
+    ELSE  2drop  THEN
+    sles-stereo-recorder    to sles-recorder
+    sles-stereo-record      to sles-record
+    sles-stereo-recorderq   to sles-recorderq ;
 
 : sles-init ( -- )
     ?audio-permissions
