@@ -277,10 +277,10 @@ also android
 
 : rectangle ( -- )
     i>off >v
-    -1e  1e >xy n> 0e 0e >st  black# i>c v+
-     1e  1e >xy n> 1e 0e >st  black# i>c v+
-     1e -1e >xy n> 1e 1e >st  black# i>c v+
-    -1e -1e >xy n> 0e 1e >st  black# i>c v+
+    -1e  1e >xy n> 0e 0e >st  white# i>c v+
+     1e  1e >xy n> 1e 0e >st  white# i>c v+
+     1e -1e >xy n> 1e 1e >st  white# i>c v+
+    -1e -1e >xy n> 0e 1e >st  white# i>c v+
     v> 0 i, 1 i, 2 i, 0 i, 2 i, 3 i, ;
 
 \ player
@@ -391,6 +391,8 @@ Variable stpath
 
 : gs "Filme/gangnamstyle.mkv" >stpath  play-mkv ;
 : jb "Filme/jb.mkv"           >stpath  play-mkv ;
+
+light-mode
 
 cue-converter \ start task a bit ahead of game
 
