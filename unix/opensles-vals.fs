@@ -23,7 +23,7 @@
 \c      free(buffer);
 \c    }
 \c    pthread_mutex_unlock(pContext->lock);
-\c    fwrite(wk, 1, sizeof(wk), pContext->wakeup); 
+\c    fwrite((void*)&wk, 1, sizeof(wk), pContext->wakeup); 
 \c }
 
 c-value simple-buffer-cb &simple_buffer_cb -- a

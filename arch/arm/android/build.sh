@@ -190,7 +190,7 @@ do
     test -d $i/src && (cd $i/src; tar cf - .) | (cd src; tar xf -)
 done
 
-echo -n " ant " 1>&3
+echo -n " gradle " 1>&3
 
 #ant build
 #ant debug
