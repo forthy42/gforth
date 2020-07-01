@@ -1,5 +1,33 @@
 \ OpenSLES values
 
+\c #include <pthread.h>
+\c typedef struct {
+\c    Cell ** queue;
+\c    pthread_mutex_t *lock;
+\c    FILE * wakeup;
+\c } sl_queue;
+\c typedef struct {
+\c        Char litx;
+\c        Cell lit;
+\c        Char wakex;
+\c    } wakeup __attribute__((packed));
+\c void simple_buffer_cb(SLBufferQueueItf *caller, sl_queue* pContext) {
+\c    Cell size;
+\c    wakeup wk = { 1, 0, 3 };
+\c    pthread_mutex_lock(pContext->lock);
+\c    if((size=(Cell)queue[0])) {
+\c      Cell * buffer=queue[1];
+\c      queue[0]=size-=sizof(Cell);
+\c      memmove(queue+1, queue+2, size);
+\c      (*caller)->Enqueue(caller, buffer+1, buffer[0]);
+\c      free(buffer);
+\c    }
+\c    pthread_mutex_unlock(pContext->lock);
+\c    fwrite(wk, 1, sizeof(wk), pContext->wakeup); 
+\c }
+
+c-value simple-buffer-cb &simple_buffer_cb -- a
+
 c-value SL_IID_ANDROIDEFFECT SL_IID_ANDROIDEFFECT -- a
 c-value SL_IID_ANDROIDEFFECTSEND SL_IID_ANDROIDEFFECTSEND -- a
 c-value SL_IID_ANDROIDEFFECTCAPABILITIES SL_IID_ANDROIDEFFECTCAPABILITIES -- a
