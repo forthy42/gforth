@@ -11,14 +11,14 @@
 \c        Cell lit;
 \c        Char wakex;
 \c    } wakeup __attribute__((packed));
-\c void simple_buffer_cb(SLBufferQueueItf *caller, sl_queue* pContext) {
+\c void simple_buffer_cb(SLAndroidSimpleBufferQueueItf *caller, sl_queue* pContext) {
 \c    Cell size;
 \c    wakeup wk = { 1, 0, 3 };
 \c    pthread_mutex_lock(pContext->lock);
-\c    if((size=(Cell)queue[0])) {
-\c      Cell * buffer=queue[1];
-\c      queue[0]=size-=sizof(Cell);
-\c      memmove(queue+1, queue+2, size);
+\c    if((size=(Cell)pContext->queue[0])) {
+\c      Cell * buffer=pContext->queue[1];
+\c      pContext->queue[0]=size-=sizeof(Cell);
+\c      memmove(pContext->queue+1, pContext->queue+2, size);
 \c      (*caller)->Enqueue(caller, buffer+1, buffer[0]);
 \c      free(buffer);
 \c    }
