@@ -8,9 +8,9 @@
 \c } sl_queue;
 \c typedef struct {
 \c        Char litx;
-\c        Cell lit;
+\c        Cell lit __attribute__((aligned(1)));
 \c        Char wakex;
-\c    } wakeup __attribute__((packed));
+\c    } wakeup;
 \c void simple_buffer_cb(SLAndroidSimpleBufferQueueItf *caller, sl_queue* pContext) {
 \c    Cell size;
 \c    wakeup wk = { 1, 0, 3 };
