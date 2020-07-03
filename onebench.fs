@@ -24,18 +24,17 @@
 
 warnings off
 
-marker onebench
-
 : include-main-time ( addr u -- )
     cputime d+ 2>r
     included s" main" evaluate
     cputime d+ 2r> d-
     <# # # # # # # '. hold #s #> 9 over - spaces 3 - type ;
-
-s" siev.fs"      include-main-time space
-s" bubble.fs"    include-main-time space
-s" matrix.fs"    include-main-time
-s" fib.fs"       include-main-time
-s" fft-bench.fs" include-main-time
-onebench
-script? [IF] cr bye [THEN]
+: run-bench
+    s" siev.fs"      include-main-time space
+    s" bubble.fs"    include-main-time space
+    s" matrix.fs"    include-main-time
+    s" fib.fs"       include-main-time
+    s" fft-bench.fs" include-main-time ;
+marker onebench
+run-bench
+script? [IF] cr argc @ 2 < [IF] bye [THEN] [ELSE] onebench [THEN]

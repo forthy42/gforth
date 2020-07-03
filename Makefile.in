@@ -1045,6 +1045,9 @@ bench:		gforth-fast$(EXT) gforth.fi
 onebench one-bench:
 	$(FORTH_FAST) onebench.fs
 
+threebench 3-bench:
+	$(FORTH_FAST) onebench.fs -e "run-bench cr run-bench cr bye"
+
 all-bench allbench:
 	./gforth-fast$(EXT) --dynamic onebench.fs
 	@libbench@./libgforth-fast$(EXT) --dynamic onebench.fs
