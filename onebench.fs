@@ -30,11 +30,12 @@ warnings off
     cputime d+ 2r> d-
     <# # # # # # # '. hold #s #> 9 over - spaces 3 - type ;
 : run-bench
+    s" marker onebench" evaluate
     s" siev.fs"      include-main-time space
     s" bubble.fs"    include-main-time space
     s" matrix.fs"    include-main-time
     s" fib.fs"       include-main-time
-    s" fft-bench.fs" include-main-time ;
-marker onebench
+    s" fft-bench.fs" include-main-time
+    s" onebench" evaluate ;
 run-bench
-script? [IF] cr argc @ 2 < [IF] bye [THEN] [ELSE] onebench [THEN]
+script? [IF] cr argc @ 2 < [IF] bye [THEN] [THEN]
