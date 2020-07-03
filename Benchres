@@ -17,7 +17,9 @@ All times are given in seconds of user time.
 After 0.7.0:
 AMD64:
  sieve bubble matrix fib   fft  release; CPU; gcc
- 0.095 0.069  0.042 0.065 0.025 2020-07-02; AMD Ryzen 4700U 4,1GHz; gcc-10.1
+ 0.095 0.069  0.042 0.065 0.025 2020-07-02; AMD Ryzen 4700U 4.1GHz; gcc-10.1
+ 0.092 0.086  0.038 0.068 0.022 2020-07-03; AMD Ryzen 3900X 4.36GHz; gcc-8.3
+ 0.105 0.122  0.046 0.111 0.032 2020-07-03; AMD Ryzen 1600X 3.628GHz; gcc-8.3
  0.093 0.099  0.042 0.104 0.030 2017-07-05; AMD Ryzen 1600X 4GHz; gcc-6.3
  0.492 0.556  0.424 0.700 0.396 2017-05-25; Intel Atom 330 (Bonnell) 1.6GHz; gcc-4.9
  0.132 0.136  0.056 0.124 0.048 2017-05-25; AMD Athlon X4 845 (Carrizo/Excavator) 3.5GHz; gcc-4.9
