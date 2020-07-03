@@ -250,6 +250,7 @@ Defer write-record
 : drain-stream ( stream -- )
     pa-stream-success-cb [: drop pause-stream ;] pa_stream_drain >request ;
 : read-stream { stream bytes xt: read-record -- }
+    pulse( ." cb: request " bytes . ." bytes" cr )
     read-record { w^ buf }
     BEGIN  buf $@len bytes u<  WHILE
 	    pause \ give the other task a chance to do something

@@ -192,12 +192,14 @@ Semaphore opus-block-sem
     read-opus $@len  IF  dec-opus-block
     ELSE  "" $make [: opus-blocks >stack ;] opus-block-sem c-section  THEN ;
 
+8 Value max-queue#
+
 : opus-block-task ( -- )
     stacksize4 NewTask4 to opus-task
     opus-task activate   debug-out debug-vector !  nothrow
     [: BEGIN
 	    1-opus-block
-	    opus-blocks $[]# 2 >= IF  stop  THEN
+	    opus-blocks $[]# max-queue# >= IF  stop  THEN
 	read-opus $@len 0= UNTIL ;] catch ?dup-IF  DoError  THEN
     0 to opus-task ;
 
