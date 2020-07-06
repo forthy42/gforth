@@ -56,12 +56,12 @@ defer >postpone-replacer ( ... rectype1 -- ... rectype2 )
 :noname name?int  execute-;s ;
 ' name-compsem
 ' lit,
-rectype: rectype-name ( takes nt, i.e. result of find-name and find-name-in )
+rectype: rectype-nt ( takes nt, i.e. result of find-name and find-name-in )
 
-: rec-word ( addr u -- nt rectype-name | rectype-null )
+: rec-nt ( addr u -- nt rectype-name | rectype-null )
     \G Searches a word in the wordlist stack
     find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
-    dup IF  rectype-name  ELSE  drop rectype-null  THEN ;
+    dup IF  rectype-nt  ELSE  drop rectype-null  THEN ;
 
 ' noop
 ' lit,

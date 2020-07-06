@@ -826,7 +826,7 @@ warnings @ warnings off \ disable all those compile-only warnings
     \ correct behaviour for read-only locals.  This is wrong for
     \ read/write locals, but it's better than what we get without this
     \ replacer.
-    dup rectype-name = if
+    dup rectype-nt = if
         over name>int >does-code case
             0 of endof
             [ ' some-clocal  >does-code ] literal of drop post-wlocal endof

@@ -128,7 +128,7 @@ Variable maxnum
   s" close" connection $!
   infile-id push-file loadfile !  loadline off  blk off
   get-order n>r get-recognizers n>r
-  commands 1 set-order  ['] rec-word 1 set-recognizers
+  commands 1 set-order  ['] rec-nt 1 set-recognizers
   command? on  ['] refill-loop catch
   Keep-Alive $@ snumber? dup 0> IF  nip  THEN  IF  maxnum !  THEN
   active @ IF  s" " posted $! Content-Length $@ snumber? drop

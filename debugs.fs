@@ -264,7 +264,7 @@ Variable rec'
     [: rec' ! ;] is trace-recognizer
     forth-recognizer recognize 2r> rot >r fp! sp! r>  r> is trace-recognizer
     dup rectype-null = -#13 and throw
-    rectype-name <> IF  drop rec' @  THEN ;
+    rectype-nt <> IF  drop rec' @  THEN ;
 
 : kate-l:c ( line pos -- )
     swap ." -l " . ." -c " . ;
