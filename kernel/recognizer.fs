@@ -96,6 +96,8 @@ rectype: rectype-dnum
 : stack: ( n "name" -- )
     \G create a named stack with at least @var{n} cells space
     drop $Variable ;
+: do-stack: ( x1 .. xn n xt "name" -- )
+    >r dup stack: r> set-does> latest >body set-stack ;
 : stack ( n -- addr )
     \G create an unnamed stack with at least @var{n} cells space
     drop align here 0 , ;
@@ -110,18 +112,6 @@ rectype: rectype-dnum
     ELSE  drop rdrop  THEN ;
 : stack# ( stack -- elements )
     $@len cell/ ;
-
-$Variable default-recognizer
-\G The system recognizer
-
-default-recognizer AValue forth-recognizer
-
-: get-recognizers ( -- xt1 .. xtn n )
-    \G push the content on the recognizer stack
-    forth-recognizer get-stack ;
-: set-recognizers ( xt1 .. xtn n )
-    \G set the recognizer stack from content on the stack
-    forth-recognizer set-stack ;
 
 \ recognizer loop
 
@@ -138,6 +128,21 @@ Defer trace-recognizer  ' drop is trace-recognizer
 	2r>
     cell -LOOP
     2drop rectype-null ;
+
+: rec-sequence: ( x1 .. xn n "name" -- )
+    ['] recognize do-stack: ;
+
+$Variable default-recognizer
+\G The system recognizer
+
+default-recognizer AValue forth-recognizer
+
+: get-recognizers ( -- xt1 .. xtn n )
+    \G push the content on the recognizer stack
+    forth-recognizer get-stack ;
+: set-recognizers ( xt1 .. xtn n )
+    \G set the recognizer stack from content on the stack
+    forth-recognizer set-stack ;
 
 \ nested recognizer helper
 

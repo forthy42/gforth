@@ -111,6 +111,8 @@ environment-wordlist >order
 
 { :noname rp@ 1000 begin rdrop 1- dup 0= until drop rp! ;          catch dup    -6 = swap -9 = or -> true }
 { :noname rp@ 1000 begin 2rdrop 1- dup 0= until drop rp! ;         catch dup    -6 = swap -9 = or -> true }
+\ in Cygwin, these drops will cause silent exit of the system
+s" os-type" environment? [IF] s" cygwin" str= [IF] \\\ [THEN] [THEN]
 { :noname drop drop drop fdrop fdrop fdrop ;                       catch dup    -4 = swap -9 = or -> true }
 { :noname 2drop 2drop 2drop fdrop fdrop fdrop ;                    catch dup    -4 = swap -9 = or -> true }
 { :noname fdrop fdrop fdrop 1 throw ;                              catch dup   -45 = swap -9 = or -> true }
