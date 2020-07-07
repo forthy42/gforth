@@ -1,5 +1,5 @@
 // this file is in the public domain
-%module wingdi
+%module user32
 %insert("include")
 %{
 #include <w32api/minwindef.h>
@@ -174,7 +174,7 @@
      DRAWSTATEPROC, FARPROC, SENDASYNCPROC, PDWORD_PTR, PSECURITY_DESCRIPTOR,
      PSECURITY_INFORMATION, HWINSTA, LPSECURITY_ATTRIBUTES, HDESK, va_list };
 
-// exec: sed -e 's/c-function \(.*Shutdown\|DisableProcessWindowsGhosting\|IsWow64Message\|GetWindowRgnBox\|RegisterShellHookWindow\)/\\ &/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g'
+// exec: sed -e 's/^c-library/cs-vocabulary user32``get-current also user32 definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/add-lib/add-lib`s" imm32" add-lib`/g' -e 's/c-function \(.*Shutdown\|DisableProcessWindowsGhosting\|IsWow64Message\|GetWindowRgnBox\|RegisterShellHookWindow\)/\\ &/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g' | tr '`' '\n'
 
 %include <w32api/minwindef.h>
 %include <w32api/windef.h>

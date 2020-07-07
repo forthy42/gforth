@@ -345,13 +345,14 @@ UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
 	unix/png.fs unix/waylandlib.fs unix/gpslib.fs unix/vulkanlib.fs	   \
 	unix/harfbuzzlib.fs unix/gstlib.fs
 
-SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i    \
-	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/png16.i	      \
-	unix/soil.i unix/soil2.i unix/xlib.i unix/ios-gles.i unix/ios-gles3.i \
-	unix/freetype_gl.i unix/wingdi.i unix/winuser.i unix/wayland.i	      \
-	unix/gps.i unix/vulkan.i unix/harfbuzz.i unix/gobject.i unix/gst.i    \
-	unix/avcodec.i unix/pulse.i unix/opus.i unix/va.i unix/va_glx.i	      \
-	unix/va_drm.i unix/va_x11.i unix/opensles.i
+SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i	\
+	unix/gl.i unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i	\
+	unix/png16.i unix/soil.i unix/soil2.i unix/xlib.i		\
+	unix/ios-gles.i unix/ios-gles3.i unix/freetype_gl.i		\
+	unix/gdi32.i unix/user32.i unix/wayland.i unix/gps.i		\
+	unix/vulkan.i unix/harfbuzz.i unix/gobject.i unix/gst.i		\
+	unix/avcodec.i unix/pulse.i unix/opus.i unix/va.i		\
+	unix/va_glx.i unix/va_drm.i unix/va_x11.i unix/opensles.i
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_SRC)
@@ -389,7 +390,7 @@ TEST_SRC = tester.fs ttester.fs checkans.fs coretest.fs dbltest.fs	     \
 	fp/runfptests.fth fp/to-float-test.4th fp/ttester.fs
 
 UNIX_SRC = terminal-server.fs jni-helper.fs jni-tools.fs jni-media.fs	\
-	jni-location.fs sensors.fs gdi.fs user.fs win32.fs
+	jni-location.fs sensors.fs win32.fs
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
 	$(patsubst %, minos2/%, $(MINOS2_SRC)) $(patsubst %, minos2/%,	      \

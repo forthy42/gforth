@@ -1375,10 +1375,10 @@ fi
 
 if test "$host_os" == "cygwin"
 then
-    if test x$has_swig = xyes || test -f $srcdir/unix/wingdi-fsi.c; then
+    if test x$has_swig = xyes || test -f $srcdir/unix/gdi32-fsi.c; then
       AC_CHECK_HEADER(w32api/wtypes.h,
-      AC_CHECK_HEADER(w32api/wingdi.h, SWIGMODULES="$SWIGMODULES wingdi.fs"
-      				       SWIGLIBS="$SWIGLIBS gdi.fs", ,
+      AC_CHECK_HEADER(w32api/wingdi.h, SWIGMODULES="$SWIGMODULES gdi32.fs"
+      				       SWIGLIBS="$SWIGLIBS gdi32.fs", ,
 #include <w32api/wtypes.h>
 ) ,)
     fi

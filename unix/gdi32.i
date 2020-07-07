@@ -1,5 +1,5 @@
 // this file is in the public domain
-%module wingdi
+%module gdi32
 %insert("include")
 %{
 #include <w32api/wtypes.h>
@@ -31,6 +31,6 @@
      LPLOGFONTW, HBRUSH, LPLOGFONTA, LPDEVMODE, HWND, HMODULE, HGLOBAL,
      LPPIXELFORMATDESCRIPTOR };
 
-// exec: sed -e 's/AlphaBlend a n n n n a n n n n u/&{*(BLENDFUNCTION*)\&}/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g'
+// exec: sed -e 's/^c-library/cs-vocabulary gdi32``get-current also gdi32 definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/add-lib/add-lib`s" opengl32" add-lib`s" msimg32" add-lib`s" winspool" add-lib`/g' -e 's/AlphaBlend a n n n n a n n n n u/&{*(BLENDFUNCTION*)\&}/' -e 's/c-function .*A /\\ &/' -e 's/\(c-function [^ ]*\)W /\1 /g' | tr '`' '\n'
 
 %include <w32api/wingdi.h>
