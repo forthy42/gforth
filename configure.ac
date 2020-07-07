@@ -1382,10 +1382,10 @@ then
 #include <w32api/wtypes.h>
 ) ,)
     fi
-    if test x$has_swig = xyes || test -f $srcdir/unix/winuser-fsi.c; then
+    if test x$has_swig = xyes || test -f $srcdir/unix/user32-fsi.c; then
       AC_CHECK_HEADER(w32api/wtypes.h,
-      AC_CHECK_HEADER(w32api/winuser.h, SWIGMODULES="$SWIGMODULES winuser.fs"
-      				        SWIGLIBS="$SWIGLIBS user.fs", ,
+      AC_CHECK_HEADER(w32api/winuser.h, SWIGMODULES="$SWIGMODULES user32.fs"
+      				        SWIGLIBS="$SWIGLIBS user32.fs", ,
 #include <w32api/wtypes.h>
 ) ,)
     fi
