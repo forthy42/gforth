@@ -74,14 +74,14 @@ forth-recognizer value backup-recognizer
 
 : >nt ( -- nt )
     >parsed 2dup find-name dup IF  dup +nt nip nip
-    ELSE  drop backup-recognize rectype-name <> !!token!! and throw
+    ELSE  drop backup-recognize rectype-nt <> !!token!! and throw
 	dup +nt  THEN ;
 : nt@ ( -- nt )
     tokens[] $@ xc-token cells safe/string drop @ ;
 
 \ token format:
-\ 1 count string  -> nt rectype-name ( need to convert string to nt first)
-\ 2 xchar         -> nt rectype-name
+\ 1 count string  -> nt rectype-nt ( need to convert string to nt first)
+\ 2 xchar         -> nt rectype-nt
 \ 3 cell          -> n rectype-num
 \ 4 2*cell        -> d rectype-dnum
 \ 5 float         -> f rectype-float
@@ -118,7 +118,7 @@ Variable recursive?
 : tokenize-it ( rectype rec-xt -- rectype )
     drop recursive? @ ?EXIT
     case dup
-	rectype-name of
+	rectype-nt of
 	    over ?blacklist dup IF
 		[ also locals-types ]
 		dup ['] w: <> blacklisted !
@@ -204,10 +204,10 @@ tokenizer definitions
 	!!token!! throw
     endcase ;
 
-: token-nt-name ( -- nt rectype-name )
-    >nt rectype-name ;
-: token-nt ( -- nt rectype-name )
-    nt@ rectype-name ;
+: token-nt-name ( -- nt rectype-nt )
+    >nt rectype-nt ;
+: token-nt ( -- nt rectype-nt )
+    nt@ rectype-nt ;
 : token-num ( -- n rectype-num )
     token-pos# @ 1 cells +to token-pos# rectype-num ;
 : token-dnum ( -- n rectype-num )
