@@ -221,7 +221,7 @@ Defer ?warn#  ' noop is ?warn#
 
 struct
   cell% field find-method   \ xt: ( c_addr u wid -- nt )
-  cell% field reveal-method \ xt: ( nt wid -- ) \ used by dofield:, must be field
+  cell% field reveal-method \ xt: ( nt wid -- )
   cell% field rehash-method \ xt: ( wid -- )	   \ re-initializes a "search-data" (hashtables)
   cell% field hash-method   \ xt: ( wid -- )    \ initializes ""
 \   \ !! what else
