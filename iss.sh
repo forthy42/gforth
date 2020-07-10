@@ -165,11 +165,13 @@ $(ls lib/gforth/$VERSION/amd64/libcc-named/.libs/*.dll | sed -e 's,^\(..*\)$,Sou
 $(ls lib/gforth/$VERSION/386/libcc-named/*.la | sed -e 's,^\(..*\)$,Source: "C:\\cygwin'$(pwd)'\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named"; Check: not Is64BitInstallMode,g' -e 's:/:\\:g')
 $(ls lib/gforth/$VERSION/386/libcc-named/.libs/*.dll | sed -e 's,^\(..*\)$,Source: "C:\\cygwin'$(pwd)'\\\1"; DestDir: "{app}\\lib\\gforth\\'$VERSION'\\386\\libcc-named\.libs"; Check: not Is64BitInstallMode,g' -e 's:/:\\:g')
 $(make distfiles -f Makedist EXE=.exe | tr ' ' '\n' | grep -v engine.*exe | grep -v -E $fsis | (while read i; do
-  if [ -d $i -o -L $i ]; then echo -n ""; else echo $i; fi
+  if [ -d $i ]; then echo -n ""; else if [ -L $i ]; then echo "$i -> $(readlink $i)"; else echo $i; fi; fi
 done) | sed \
   -e 's:/:\\:g' \
-  -e 's,^\(..*\)\\\([^\\]*\)$,Source: "\1\\\2"; DestDir: "{app}\\\1",g' \
-  -e 's,^\([^\\]*\)$,Source: "\1"; DestDir: "{app}",g' \
+  -e 's,^\(..*\)\\\([^\\]*\) -> \([^ ]*\)$,Source: "\1\\\3"; DestDir: "{app}\\\1",g' \
+  -e 's,^\([^\\ ]*\) -> \([^ ]*\)$,Source: "\2"; DestDir: "{app}",g' \
+  -e 's,^\([^ ][^ ]*\)\\\([^\\ ]*\)$,Source: "\1\\\2"; DestDir: "{app}\\\1",g' \
+  -e 's,^\([^\\ ]*\)$,Source: "\1"; DestDir: "{app}",g' \
   -e 's,^\(.*\.[oibc]".*\),\1; Components: objects,g' \
   -e 's,^\(.*\.p\)s\(".*\),\1df\2; Components: print,g' \
   -e 's,^\(.*\.info.*".*\),\1; Components: info,g')
