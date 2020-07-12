@@ -212,7 +212,8 @@ Variable stream-bufs<>
     SLObjectItf-GetInterface() ?sles-ior
     player @ SL_IID_VOLUME playvol
     SLObjectItf-GetInterface() ?sles-ior
-    playerq @ buffer-queue-cb rd [{: rd :}h rd read-stream ;]
+    playerq @ \ buffer-queue-cb rd [{: rd :}h rd read-stream ;]
+    simple-buffer-cb rd
     SLBufferQueueItf-RegisterCallback() ?sles-ior ;
 
 : destroy-player ( player -- )
@@ -225,34 +226,34 @@ Variable stream-bufs<>
 : stereo-srate! ( rate -- )
     mhz PCM-format-stereo 2 sfloats + l! ;
 
-: play-mono ( rate read-record -- )
+: play-mono ( rate read-record read-init -- ) >r
     pause-play
     sles-mono-player 0= IF
 	swap mono-srate!
-	PCM-format-mono over
+	PCM-format-mono swap
 	addr sles-mono-player addr sles-mono-play
 	addr sles-mono-playerq addr sles-mono-playvol create-player
     ELSE
 	nip
     THEN
-    5 ms sles-mono-playerq swap read-stream
+    5 ms sles-mono-playerq r> read-stream
     sles-mono-player    to sles-player
     sles-mono-play      to sles-play
     sles-mono-playerq   to sles-playerq
     sles-mono-playvol   to sles-playvol
     resume-play ;
 
-: play-stereo ( rate read-record -- )
+: play-stereo ( rate read-record read-init -- ) >r
     pause-play
     sles-stereo-player 0= IF
 	swap stereo-srate!
-	PCM-format-stereo over
+	PCM-format-stereo swap
 	addr sles-stereo-player addr sles-stereo-play
 	addr sles-stereo-playerq addr sles-stereo-playvol create-player
     ELSE
 	nip
     THEN
-    5 ms sles-stereo-playerq swap read-stream
+    5 ms sles-stereo-playerq r> read-stream
     sles-stereo-player    to sles-player
     sles-stereo-play      to sles-play
     sles-stereo-playerq   to sles-playerq

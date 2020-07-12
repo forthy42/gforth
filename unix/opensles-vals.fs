@@ -8,15 +8,15 @@
 \c } sl_queue;
 \c typedef struct {
 \c        Char litx;
-\c        Cell lit __attribute__((aligned(1)));
+\c        Char lit[sizeof(Cell)];
 \c        Char wakex;
 \c    } wakeup;
-\c void simple_buffer_cb(SLBufferQueueItf *caller, sl_queue* pContext) {
+\c void simple_buffer_cb(SLBufferQueueItf caller, sl_queue* pContext) {
 \c    Cell size;
-\c    wakeup wk = { 1, 0, 3 };
+\c    static wakeup wk = { 1, "", 3 };
 \c    pthread_mutex_lock(pContext->lock);
 \c    if((size=(Cell)pContext->queue[0])) {
-\c      struct SLBufferQueueItf_* ptr = *caller;
+\c      const struct SLBufferQueueItf_* ptr = *caller;
 \c      Cell * buffer=pContext->queue[1];
 \c      pContext->queue[0]=(Cell*)(size-=sizeof(Cell));
 \c      memmove(pContext->queue+1, pContext->queue+2, size);

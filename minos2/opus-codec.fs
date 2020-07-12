@@ -163,9 +163,18 @@ Variable opus-out
 : /sample ( -- u ) idx-block $@ $10 u>= IF
 	idx-channels c@ 2*  ELSE  drop 0  THEN ;
 
-Variable opus-mono-blocks
-Variable opus-stereo-blocks
 Semaphore opus-block-sem
+
+Variable opus-mono-blocks
+[IFDEF] opensles
+    opus-block-sem ,
+    0 ,
+[THEN]
+Variable opus-stereo-blocks
+[IFDEF] opensles
+    opus-block-sem ,
+    0 ,
+[THEN]
 
 : opus-blocks ( -- addr )
     opus-mono-blocks opus-stereo-blocks /sample 2 = select ;
@@ -217,20 +226,22 @@ Semaphore opus-block-sem
 
 : opus-go ( -- )
     opus-task ?dup-IF  wake  ELSE  opus-block-task  THEN ;
+
 : start-play ( -- )
     0 to idx-pos#  0 to play-pos#  opus-go
     [IFDEF] pulse-exec##
 	stream@ ?dup-IF
 	    resume-stream  rdrop
 	ELSE
-	    sample-rate ['] read-opus-buf
+	    sample-rate ['] read-opus-buf dup
 	    ['] play-mono ['] play-stereo
 	    /sample 2 = select
 	    pulse-exec##
 	THEN
-    [ELSE]
-	[IFDEF] play-mono
-	    sample-rate ['] read-opus-buf
+    [ELSE] \ opensles based?
+	[IFDEF] opensles
+	    epipew opus-task 's @ opus-blocks 2 cells + !
+	    sample-rate opus-blocks ['] read-opus-buf
 	    /sample 2 = IF  play-mono  ELSE  play-stereo  THEN
 	[THEN]
     [THEN] ;
