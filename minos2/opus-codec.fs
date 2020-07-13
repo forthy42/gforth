@@ -169,10 +169,12 @@ Variable opus-mono-blocks
 [IFDEF] opensles
     opus-block-sem ,
     0 ,
+    0 ,
 [THEN]
 Variable opus-stereo-blocks
 [IFDEF] opensles
     opus-block-sem ,
+    0 ,
     0 ,
 [THEN]
 
@@ -240,7 +242,7 @@ Variable opus-stereo-blocks
 	THEN
     [ELSE] \ opensles based?
 	[IFDEF] opensles
-	    epipew opus-task 's @ opus-blocks 2 cells + !
+	    sles-play epipew opus-task 's @ opus-blocks 2 cells + 2!
 	    sample-rate opus-blocks ['] read-opus-buf
 	    /sample 2 = IF  play-mono  ELSE  play-stereo  THEN
 	[THEN]
