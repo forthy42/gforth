@@ -5,6 +5,7 @@
 \c    Cell ** queue;
 \c    pthread_mutex_t *lock;
 \c    FILE * wakeup;
+\c    SLPlayItf player;
 \c } sl_queue;
 \c typedef struct {
 \c        Char litx;
@@ -15,29 +16,34 @@
 \c    Cell size;
 \c    static wakeup wk = { 1, "", 3 };
 \c    pthread_mutex_lock(pContext->lock);
-\c    Cell * buffer=0;
-\c    while((size=(Cell)(pContext->queue[0])) > 0) {
-\c      Cell * buffer1=pContext->queue[1];
-\c      pContext->queue[0]=(Cell*)(size-=sizeof(Cell));
-\c      memmove(pContext->queue+1, pContext->queue+2, size);
-\c      if(buffer) {
-\c        buffer=realloc(buffer, buffer[0]+buffer1[0]+sizeof(Cell));
-\c        memmove((Char*)(buffer+1)+buffer[0], (Char*)(buffer1+1), buffer1[0]);
-\c        buffer[0]+=buffer1[0];
-\c        free(buffer1);
-\c      } else {
-\c        buffer = buffer1;
+\c    if(pContext->queue) {
+\c      Cell * buffer=0;
+\c      while((size=(Cell)(pContext->queue[0])) > 0) {
+\c        Cell * buffer1=pContext->queue[1];
+\c        pContext->queue[0]=(Cell*)(size-=sizeof(Cell));
+\c        memmove(pContext->queue+1, pContext->queue+2, size);
+\c        if(buffer) {
+\c          buffer=realloc(buffer, buffer[0]+buffer1[0]+sizeof(Cell));
+\c          memmove((Char*)(buffer+1)+buffer[0], (Char*)(buffer1+1), buffer1[0]);
+\c          buffer[0]+=buffer1[0];
+\c          free(buffer1);
+\c        } else {
+\c          buffer = buffer1;
+\c        }
 \c      }
+\c      if(buffer && buffer[0]) {
+\c        const struct SLBufferQueueItf_* ptr = *caller;
+\c        ptr->Enqueue(caller, buffer+1, buffer[0]);
+\c        free(buffer);
+\c      } else {
+\c        const struct SLPlayItf_ *ptr = *(pContext->player);
+\c        ptr->SetPlayState(pContext->player, 2);
+\c      }
+\c      free(pContext->queue);
+\c      pContext->queue=0;
+\c      fwrite((void*)&wk, 1, sizeof(wk), pContext->wakeup); 
 \c    }
-\c    if(buffer) {
-\c      const struct SLBufferQueueItf_* ptr = *caller;
-\c      ptr->Enqueue(caller, buffer+1, buffer[0]);
-\c      free(buffer);
-\c    }
-\c    free(pContext->queue);
-\c    pContext->queue=0;
 \c    pthread_mutex_unlock(pContext->lock);
-\c    fwrite((void*)&wk, 1, sizeof(wk), pContext->wakeup); 
 \c }
 
 c-value simple-buffer-cb &simple_buffer_cb -- a

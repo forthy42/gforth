@@ -88,13 +88,22 @@ $(extra_apps)
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 $(extra_perms)
 
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
-    <uses-feature android:name="android.hardware.microphone" android:required="false" />
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
-    <uses-feature android:name="android.hardware.location" android:required="false" />
-    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
-    <uses-feature android:name="android.hardware.location.network" android:required="false" />
+    <uses-feature android:name="android.hardware.camera"
+		  android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus"
+		  android:required="false" />
+    <uses-feature android:name="android.hardware.microphone"
+		  android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen"
+		  android:required="false" />
+    <uses-feature android:name="android.hardware.location"
+		  android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps"
+		  android:required="false" />
+    <uses-feature android:name="android.hardware.location.network"
+		  android:required="false" />
+    <uses-feature android:name="android.hardware.audio.low_latency"
+		  android:required="false" />
     <uses-feature android:glEsVersion="0x00020000" />
 $(extra_features)
 </manifest> 
