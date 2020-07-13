@@ -234,7 +234,7 @@ Variable stream-bufs<>
 	addr sles-mono-player addr sles-mono-play
 	addr sles-mono-playerq addr sles-mono-playvol create-player
     ELSE
-	nip
+	nip nip
     THEN
     5 ms sles-mono-playerq r> read-stream
     sles-mono-player    to sles-player
@@ -251,7 +251,7 @@ Variable stream-bufs<>
 	addr sles-stereo-player addr sles-stereo-play
 	addr sles-stereo-playerq addr sles-stereo-playvol create-player
     ELSE
-	nip
+	nip nip
     THEN
     5 ms sles-stereo-playerq r> read-stream
     sles-stereo-player    to sles-player
