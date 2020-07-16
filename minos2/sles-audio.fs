@@ -275,7 +275,7 @@ Variable stream-bufs<>
     SLObjectItf-GetInterface() ?sles-ior
     sles-recorderq @ buffer-queue-cb wr [{: wr :}h wr write-stream ;]
     SLBufferQueueItf-RegisterCallback() ?sles-ior
-    sles-recorderq @ +stereo-buf
+    4 0 DO  sles-recorderq @ +stereo-buf  LOOP
     record @ 3 SLRecordItf-SetRecordState() ?sles-ior ;
 
 : destroy-recorder ( -- )
