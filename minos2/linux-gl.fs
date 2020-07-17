@@ -564,15 +564,15 @@ previous set-current
 
 User xptimeout  cell uallot drop
 looper-to# #1000000 um* xptimeout 2!
-3 Value xpollfd#
+2 Value xpollfd#
 User xpollfds
 
 Defer >poll-events ( delay -- )
 :noname
     0 xptimeout 2!
     epiper @ fileno  POLLIN  xpollfds 0 fds[]!
-    infile-id fileno POLLIN  xpollfds 1 fds[]!
-    dpy IF  dpy XConnectionNumber POLLIN  xpollfds 2 fds[]!  THEN
+\    infile-id fileno POLLIN  xpollfds 1 fds[]!
+    dpy IF  dpy XConnectionNumber POLLIN  xpollfds 1 fds[]!  THEN
 ; IS >poll-events
 
 : xpoll ( -- flag )
@@ -592,10 +592,10 @@ Defer looper-ekey ( -- ) ' noop is looper-ekey
     xpollfds $@ pollfd / xpoll
     IF
 	xpollfds $@ drop revents w@ POLLIN and IF  ?events  THEN
-	xpollfds $@ drop pollfd + revents w@ POLLIN and IF  looper-ekey  THEN
+	\ xpollfds $@ drop pollfd + revents w@ POLLIN and IF  looper-ekey  THEN
 	dpy IF
 	    dpy XPending  xpollfds $@ drop
-	    [ pollfd 2* ]L + revents w@ POLLIN and or IF  get-events  THEN
+	    pollfd + revents w@ POLLIN and or IF  get-events  THEN
 	THEN
     THEN  looper-hook ;
 
