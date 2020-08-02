@@ -936,6 +936,7 @@ MAYBE_UNUSED static Label bsearch_next(Label key, Label *a, UCell n)
     return bsearch_next(key, a, mid+1);
 }
 
+#ifndef NO_DYNAMIC
 static int state_map(int state)
 {
   if (state==0) return STACK_CACHE_DEFAULT;
@@ -943,7 +944,6 @@ static int state_map(int state)
   return state;
 }
 
-#ifndef NO_DYNAMIC
 static void gforth_printprims()
 {
   unsigned i;
@@ -2055,9 +2055,9 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     
     bases[i] = INSECTION(section.base);
     sizes[i] = section.dp-section.base;
-    sections[i] = alloc_mmap_guard(section.end);
+    sections[i] = alloc_mmap_guard(section.size);
     fseek(imagefile, -sizeof(SectionHeader), SEEK_CUR);
-    debugp(stderr, "section base=%p, dp=%p, end=%p\n", section.base, section.dp, section.end);
+    debugp(stderr, "section base=%p, dp=%p, size=%lx\n", section.base, section.dp, section.size);
     if(fread(sections[i], 1, sizes[i], imagefile) != sizes[i]) break;
   }
   gforth_relocate(sections, reloc_bits, sizes, bases, vm_prims);

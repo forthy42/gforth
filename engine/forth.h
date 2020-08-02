@@ -404,7 +404,7 @@ typedef struct {
 
 typedef struct {
   Address base;
-  Address end;
+  Cell size;
   Address dp;
 } SectionHeader;
 
