@@ -162,6 +162,10 @@ int optind = 1;
 #ifndef MAP_NORESERVE
 #define MAP_NORESERVE 0
 #endif
+int map_32bit=0; /* mmap option, can be set to MAP_32BIT with --map_32bit */
+#ifndef MAP_32BIT
+#ddefine MAP_32BIT
+#endif
 #if defined(__CYGWIN__) && defined(__x86_64)
 #define MAP_NORESERVE 0
 #endif
@@ -556,7 +560,7 @@ static Address alloc_mmap(Cell size)
 
 #if defined(MAP_ANON)
   debugp(stderr,"try mmap(%p, $%lx, ..., MAP_ANON, ...); ", NULL, size);
-  r = mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, -1, 0);
+  r = mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_32bit, -1, 0);
 #else /* !defined(MAP_ANON) */
   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
      apparently defaults) */
@@ -570,7 +574,7 @@ static Address alloc_mmap(Cell size)
 	      strerror(errno));
   } else {
     debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FILE, dev_zero, ...); ", NULL, size);
-    r=mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE|map_noreserve, dev_zero, 0);
+    r=mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE|map_noreserve|map_32bit, dev_zero, 0);
   }
 #endif /* !defined(MAP_ANON) */
   after_alloc(r, size);
@@ -636,7 +640,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
       void *image1;
       debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
       debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
-      image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
+      image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve|map_32bit, fileno(file), 0);
       after_alloc(image1,dictsize);
       if (image1 == (void *)MAP_FAILED)
 	goto read_image;
@@ -2250,6 +2254,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"fp-stack-size", required_argument, NULL, 'f'},
       {"locals-stack-size", required_argument, NULL, 'l'},
       {"vm-commit", no_argument, &map_noreserve, 0},
+      {"map-32bit", no_argument, &map_32bit, MAP_32BIT},
       {"path", required_argument, NULL, 'p'},
       {"version", no_argument, NULL, 'v'},
       {"help", no_argument, NULL, 'h'},
@@ -2334,6 +2339,7 @@ Engine Options:\n\
   -i FILE, --image-file=FILE	    Use image FILE instead of `gforth.fi'\n\
   -l SIZE, --locals-stack-size=SIZE Specify locals stack size\n\
   -m SIZE, --dictionary-size=SIZE   Specify Forth dictionary size\n\
+  --map-32bit			    Try to put the dictionary in the first 2GB\n\
   --no-dynamic			    Use only statically compiled primitives\n\
   --no-offset-im		    Load image at normal position\n\
   --no-super			    No dynamically formed superinstructions\n\
