@@ -711,9 +711,6 @@ static void usbtty_init_instances (void)
 		endpoint_instance[i].tx_packetSize =
 			le16_to_cpu(ep_descriptor_ptrs[i - 1]->wMaxPacketSize);
 
-		endpoint_instance[i].tx_attributes =
-			ep_descriptor_ptrs[i - 1]->bmAttributes;
-
 		urb_link_init (&endpoint_instance[i].rcv);
 		urb_link_init (&endpoint_instance[i].rdy);
 		urb_link_init (&endpoint_instance[i].tx);
