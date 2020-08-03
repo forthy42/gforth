@@ -164,7 +164,7 @@ int optind = 1;
 #endif
 int map_32bit=0; /* mmap option, can be set to MAP_32BIT with --map_32bit */
 #ifndef MAP_32BIT
-#ddefine MAP_32BIT
+#define MAP_32BIT 0
 #endif
 #if defined(__CYGWIN__) && defined(__x86_64)
 #define MAP_NORESERVE 0
@@ -556,15 +556,13 @@ static void after_alloc(Address r, Cell size)
 #if defined(HAVE_MMAP)
 static Address alloc_mmap(Cell size)
 {
-  void *r;
+  void *r=MAP_FAILED;
+  static int dev_zero=-1;
 
-#if defined(MAP_ANON)
-  debugp(stderr,"try mmap(%p, $%lx, ..., MAP_ANON, ...); ", NULL, size);
-  r = mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|map_32bit, -1, 0);
-#else /* !defined(MAP_ANON) */
+#if !defined(MAP_ANON)
   /* Ultrix (at least) does not define MAP_FILE and MAP_PRIVATE (both are
      apparently defaults) */
-  static int dev_zero=-1;
+  int MAP_ANON=MAP_FILE;
 
   if (dev_zero == -1)
     dev_zero = open("/dev/zero", O_RDONLY);
@@ -572,11 +570,15 @@ static Address alloc_mmap(Cell size)
     r = MAP_FAILED;
     debugp(stderr, "open(\"/dev/zero\"...) failed (%s), no mmap; ", 
 	      strerror(errno));
-  } else {
-    debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FILE, dev_zero, ...); ", NULL, size);
-    r=mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FILE|MAP_PRIVATE|map_noreserve|map_32bit, dev_zero, 0);
+    after_alloc(r, size);
+    return r;
   }
 #endif /* !defined(MAP_ANON) */
+  debugp(stderr,"try mmap(%p, $%lx, ..., dev_zero, ...); ", NULL, size);
+  if (MAP_32BIT && map_32bit)
+    r=mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|MAP_32BIT, dev_zero, 0);
+  if (r==MAP_FAILED)
+    r=mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, dev_zero, 0);
   after_alloc(r, size);
   return r;  
 }
@@ -620,7 +622,7 @@ Address gforth_alloc(Cell size)
   Address r;
 
   r=alloc_mmap(size);
-  if (r!=(Address)MAP_FAILED) {
+  if (r!=MAP_FAILED) {
     debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)size, r);
     return r;
   }
@@ -640,7 +642,7 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
       void *image1;
       debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
       debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
-      image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve|map_32bit, fileno(file), 0);
+      image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
       after_alloc(image1,dictsize);
       if (image1 == (void *)MAP_FAILED)
 	goto read_image;
@@ -2254,7 +2256,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"fp-stack-size", required_argument, NULL, 'f'},
       {"locals-stack-size", required_argument, NULL, 'l'},
       {"vm-commit", no_argument, &map_noreserve, 0},
-      {"map-32bit", no_argument, &map_32bit, MAP_32BIT},
+      {"map-32bit", no_argument, &map_32bit, 1},
       {"path", required_argument, NULL, 'p'},
       {"version", no_argument, NULL, 'v'},
       {"help", no_argument, NULL, 'h'},
