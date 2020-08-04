@@ -22,7 +22,7 @@
 
 if [ -d ~/net2o ]
 then
-    ./build.sh +mips +386 +arm64 +amd64
+    ./build.sh +386 +arm64 +amd64
 else
-    ./build.sh +mips +386 +arm64 +amd64 ~/net2o
+    ./build.sh +386 +arm64 +amd64 ~/net2o
 fi
