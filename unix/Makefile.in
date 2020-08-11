@@ -81,4 +81,12 @@ clean:
 	rm -f $(TARGETS) stat.fs
 	rm -f $(GENWRAPPERS)
 	rm -f $(WRAPPERS) stat.fsx
+	rm -f example.o example example-fast example.fs
 
+# Example for C program that wraps Gforth
+
+example: example.o example.fs
+	$(CC) -o $@ -rdynamic -lgforth $(CFLAGS) $(LDFLAGS) example.o
+
+example-fast: example.o example.fs
+	$(CC) -o $@ -rdynamic -lgforth-fast $(CFLAGS) $(LDFLAGS) example.o
