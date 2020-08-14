@@ -32,16 +32,26 @@ blue >bg white >fg or bold or Value status-attr
     bounds U+DO
 	over I c@ = IF  dup I c!  THEN
     LOOP  2drop ;
+
+0 Value wide?
+
+: .base ( -- )
+    base @ #10 <> IF  wide? IF  ." base="  ELSE  ." b="  THEN
+	base @ 0 ['] .r #10 base-execute cr  THEN ;
+: .stacks ( -- )
+    f.s-precision >r  wide? IF  #14  ELSE  #10  THEN  to f.s-precision
+    depth 0= fdepth 0= and IF ." ∅ " ELSE  ['] ... #10 base-execute  THEN cr
+    r> to f.s-precision ;
+: .order ( -- )
+    wide? IF  ."  order: " ELSE  ." o:" THEN  order ;
+
+10 stack: status-xts
+\G status line prints a stack of status words
+' .base ' .stacks ' .order 3 status-xts set-stack
+
 : .status-line ( -- ) { | w^ status$ }
-    base @
-    [:	dup #10 <> IF  ." base=" 0 .r ." | "  ELSE  drop  THEN
-	depth 0= fdepth 0= and IF ." ∅ " ELSE  ...  THEN
-	." | order: " order ;]
-    [:	dup #10 <> IF  ." b=" 0 .r ." | "  ELSE  drop  THEN
-	depth 0= fdepth 0= and IF ." ∅ " ELSE  ...  THEN
-	." |o " order ;]
-    cols 100 > select
-    #10 ['] base-execute status$ $exec
+    cols #100 > to wide?
+    [: status-xts $@ bounds DO  I perform  cell +LOOP ;] status$ $exec
     #lf '|' status$ $@ replace-char
     cols status$ $@ x-width - dup 0> IF
 	['] spaces status$ $exec
