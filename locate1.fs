@@ -412,12 +412,20 @@ included-files $[]# 1- constant doc-file#
     0 -rot bounds ?do
         i c@ #lf = - loop ;
 
+: set-help-view ( view charlen endline -- )
+    located-bottom !
+    located-len ! dup located-view ! dup bn-view !
+    view>line
+    located-top ! ;
+
 : help-word {: c-addr u -- :}
     doc-file# included-buffer {: c-addr1 u1 :} u1 if
         c-addr1 u1 c-addr u [: "\l'" type type "'    " type ;] $tmp
         capssearch if
-            {: c-addr3 u3 :} c-addr1 u1 u3 - count-lfs 2 +
-            doc-file# swap 1 encode-view u set-located-view l exit
+            {: c-addr3 u3 :} c-addr1 u1 u3 - count-lfs 2 + {: top-line :}
+	    top-line doc-file# swap 1 encode-view u
+	    c-addr3 u3 2dup "\l\l" search if nip - else 2drop then
+	    count-lfs top-line + ~~ set-help-view l exit
         else
 	    2drop c-addr u cr
 	    [: ." No documentation for " type ;] error-color color-execute
@@ -429,6 +437,7 @@ included-files $[]# 1- constant doc-file#
     c-addr u find-name dup 0= -13 and throw locate-name ;
 
 : help-section {: c-addr u -- :}
+    \ !! implement this!
     ." help for section" c-addr u type ;
 
 [ifdef] string-suffix?
