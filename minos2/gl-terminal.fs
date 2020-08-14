@@ -22,6 +22,8 @@
 
 \ :noname source type cr stdout flush-file throw ; is before-line
 
+[IFDEF] -status  -status [THEN] \ turn off status line
+
 require ../unix/pthread.fs
 require gl-helper.fs
 
