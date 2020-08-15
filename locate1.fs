@@ -425,7 +425,7 @@ included-files $[]# 1- constant doc-file#
             {: c-addr3 u3 :} c-addr1 u1 u3 - count-lfs 2 + {: top-line :}
 	    top-line doc-file# swap 1 encode-view u
 	    c-addr3 u3 2dup "\l\l" search if nip - else 2drop then
-	    count-lfs top-line + ~~ set-help-view l exit
+	    count-lfs top-line + set-help-view l exit
         else
 	    2drop c-addr u cr
 	    [: ." No documentation for " type ;] error-color color-execute
