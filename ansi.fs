@@ -175,3 +175,31 @@ $0 Value default-bg
     THEN ;
 
 :noname auto-color defers 'cold ; is 'cold
+
+
+\ scrolling etc: (thanks to Ulrich Hoffmann)
+
+\ !! the next two already exist in command-line editing, but where?
+: save-cursor-position ( -- ) 27 emit '7' emit ;
+: restore-cursor-position  ( -- ) 27 emit '8' emit ;
+
+: control-sequence: ( c -- )
+    \ defines ESC [ num <c>
+    Create c,
+  Does> ( u -- )
+    "\e[" type swap 0 dec.r c@ emit ;
+
+'L' control-sequence: insert-lines ( u -- )
+'J' control-sequence: erase-display ( u -- )
+'E' control-sequence: cursor-next-line ( u -- )
+'F' control-sequence: cursor-previous-line ( u -- )
+'S' control-sequence: scroll-up ( u -- )
+'T' control-sequence: scroll-down ( u -- )
+
+\ : text-above ( u1 u2 -- ) \ u1 lines up  show u2 new lines
+\    \ 0 ED \ from here to end of display
+\    save-cursor-position
+\    dup SU   swap over + CPL
+\    dup IL
+\    drop \ 0 DO I . cr LOOP
+\    restore-cursor-position ;

@@ -99,25 +99,44 @@ variable included-file-buffers
 : current-location? ( -- )
     ]] current-location?1 ?exit [[ ; immediate
 
-: l1 ( -- )
+: view>filename ( view -- c-addr u )
+    \G filename of view (obtained by @code{name>view})
+    view>filename# loadfilename#>str ;
+
+: print-locate-header ( -- )
+    cr located-view @ view>filename type ': emit
+    located-top @ dec. ;
+
+: l2 ( -- c-addr u lineno )
     located-buffer 1 case ( c-addr u lineno1 )
 	over 0= ?of endof
 	dup located-bottom @ >= ?of endof
 	dup located-top @ >= ?of locate-print-line contof
 	locate-next-line
-    next-case
-    2drop drop ;
+    next-case ;
 
-: view>filename ( view -- c-addr u )
-    \G filename of view (obtained by @code{name>view})
-    view>filename# loadfilename#>str ;
+: prepend-locate-line ( -- )
+    \ go back to the top line, and insert the line before it
+    located-bottom @ located-top @ - 1+ cursor-previous-line
+    0 erase-display \ clear to end of screen
+    located-top @ 1- 0 max located-top !
+    print-locate-header l2 2drop drop ;
+
+: after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 )
+    \ allow to scroll around right after LOCATE and friends:
+    case
+	key dup unkey #esc <> ?of endof
+	ekey
+	k-down of locate-print-line dup located-bottom ! contof
+	k-up   of prepend-locate-line contof
+    endcase ;
+
+: l1 ( -- )
+    l2 after-l 2drop drop ;
 
 : l ( -- )
     \g Display source code lines at the current location.
-    current-location?
-    cr located-view @ view>filename type ': emit
-    located-top @ dec.
-    l1 ;
+    current-location? print-locate-header l1 ;
 
 : name-set-located-view ( nt -- )
     dup name>view swap name>string nip set-located-view ;
