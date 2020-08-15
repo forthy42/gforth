@@ -120,9 +120,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
 : recognize ( addr u rec-addr -- ... rectype )
     \G apply a recognizer stack to a string, delivering a token
     $@ bounds cell- swap cell- U-DO
-	2dup I -rot 2>r
-	['] trace-recognizer defer@ >r  ['] drop is trace-recognizer
-	perform  r> is trace-recognizer \ no tracing on recursive invocation
+	2dup I -rot 2>r  perform
 	dup rectype-null <>  IF
 	    2rdrop I @ trace-recognizer  UNLOOP  EXIT  THEN  drop
 	2r>

@@ -128,7 +128,7 @@ variable included-file-buffers
 : locate ( "name" -- ) \ gforth
     \g Show the source code of the word @i{name} and set the current
     \g location there.
-    (') locate-name ;
+    view' locate-name ;
 
 ' locate alias view ( "name" -- ) \ gforth
 
