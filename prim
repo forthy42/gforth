@@ -371,7 +371,6 @@ n2=n1+1;
  ELSE >r >r @ >r THEN ;)
 
 condbranch((+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth paren_plus_loop,
-/* !! check this thoroughly */
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
 /* dependent upon two's complement arithmetic */
 Cell olddiff = n1-nlimit;
