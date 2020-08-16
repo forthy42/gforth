@@ -47,7 +47,7 @@ dpy-w @ s>f font-size# fover 25% f* f+ f2* f- p-format
 {{
     $FFFFFFFF pres-frame
     {{
-	v-box
+	md-box
 	glue*ll }}glue
 	tex: vp-md
     glue*l ' vp-md }}vp vp[] >o font-size# dpy-w @ s>f 25% f* fdup fnegate to borderv f+ to border o o>
