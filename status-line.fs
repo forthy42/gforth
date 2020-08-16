@@ -22,7 +22,9 @@ blue >bg white >fg or bold or Value status-attr
 : redraw-status ( addr u -- )
     save-cursor-position
     0 rows 1 - at-xy
-    status-attr attr! type default-color attr!
+    status-attr attr!
+    type
+    default-color attr!
     restore-cursor-position ;
 : .unstatus-line ( -- )
     0 erase-display ;
@@ -38,7 +40,7 @@ blue >bg white >fg or bold or Value status-attr
 	base @ 0 ['] .r #10 base-execute cr  THEN ;
 : .stacks ( -- )
     f.s-precision >r  wide? IF  #14  ELSE  #10  THEN  to f.s-precision
-    depth 0= fdepth 0= and IF ." ∅ " ELSE  ['] ... #10 base-execute  THEN cr
+    ['] ... #10 base-execute cr
     r> to f.s-precision ;
 : .order ( -- )
     wide? IF  ."  order: " ELSE  ." o:" THEN  order ;

@@ -178,27 +178,27 @@ $0 Value default-bg
 
 \ scrolling etc: (thanks to Ulrich Hoffmann)
 
-: (csi) ( u char -- )
+: (control-sequence) ( u char -- )
     ?dup-IF  .\" \e[" swap 0 dec.r emit  ELSE  #esc emit 0 dec.r  THEN ;
 
-' (csi) IS csi
+' (control-sequence) IS control-sequence
 
 [IFDEF] debug-out
     debug-out op-vector !
     
-    ' (csi) IS csi
+    ' (control-sequence) IS control-sequence
     
     default-out op-vector !
 [THEN]
 
 \ !! the next two already exist in command-line editing, but where?
-: save-cursor-position ( -- ) 7 0 csi ;
-: restore-cursor-position  ( -- ) 8 0 csi ;
+: save-cursor-position ( -- ) 7 0 control-sequence ;
+: restore-cursor-position  ( -- ) 8 0 control-sequence ;
 
 : control-sequence: ( c -- )
     \ defines ESC [ num <c>
     Create c,
-  Does> ( u -- )  c@ csi ;
+  Does> ( u -- )  c@ control-sequence ;
 
 'A' control-sequence: cursor-up
 'B' control-sequence: cursor-down

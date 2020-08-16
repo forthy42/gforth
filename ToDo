@@ -5,7 +5,9 @@ ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done
 A        [ ] Documentation review
   G      [ ] Examples
  B   [x] Save images that contain C bindings
-  G      [ ]*Interface files for .h-files; build on install Port typical C-Libraries like stdio. Allow for `include c/stdio` Same structure as in C
+  G      [x] Interface files for .h-files; build on install Port typical C-Libraries like stdio
+  G      [ ]*Allow for `#?include (c/)?stdio` Same structure as in C
+  G      [x] Hinweis auf SWIG für das C-interface Link auf https://github.com/GeraldWodni/posix
 A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
@@ -13,50 +15,45 @@ AB       [ ] Documentation in manual
 ABGO [ ] Documentation for Undocumented features
  B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
 A        [ ]*Search changelogs for features
-A    [x]*Sections
- B       [x] integrate for: quotations, strings
-A        [ ] locals
- B       [ ] header vtables
- B       [x]*saver for images with sections
- B       [x] loader for images with sections
- B   [ ]*Header Interface - autodetect duplication, simpler interface, setters have to duplicate if not already
- B       [x] Generate header from prototype without duplcation
-AB   [ ]*locate, view, where & edit
-         [ ] documented view>*
-         [x]*help or doc - get documentation of word
-  G      [ ] Website manual - doc/crossdoc.fd doc/doc.fd doc/gforth.texi.in|grep doc- doc/gforth.txt
+A        [ ] Document what is stable and what is not
+AB   [x] "IDE" locate, view, where & edit
+         [x] help or doc - get documentation of word
+A        [ ] help for recognizer
+AB       [x] locate of recognized thing
+  G      [x] Website manual - doc/crossdoc.fd doc/doc.fd doc/gforth.texi.in|grep doc- doc/gforth.txt
 A        [ ]*Add tex-section support
-A        [ ] Add documentation explaining help so that "help help" yields it
-A        [ ]*backtrace os-commandline
-A        [ ]*where: interaction with editors - g can be used
-A    [x]*2012 Implementieren
-A        [x] update ansreport
-A        [x] system documentation requirements
- B   [x] Configure Scripts
- B       [x] make -j
-  G      [x] ./BUILD-FROM-SCRATCH mit make -j
- B       [x] ./BUILD-FROM-SCRATCH for android
- B       [x] libtool-Fehler when it cannot be found (why is ./libtool not enough?) - better error reporting in configure
- B       [x]*sudo make install does not clean up stuff - check if something is still owned by root
- B       [x]*Warnings are added to string variables: present summary at the end
-  G      [x] hash -r show or document
- B   [x]*version comparison 001.000.000 -> upgrade path: 000.007.009
+A        [x] Add documentation explaining help so that "help help" yields it
+A        [ ]*backtrace os-commandline - saving backtraces
+A        [x] where: interaction with editors - g can be used
+ B       [x] implement ANSI control sequences in a way that gl-terminal can emulate them easily
+ B       [ ] implement ANSI control sequences in GL terminal
+ B   [x] version comparison 001.000.000 -> upgrade path: 000.007.009
   G  [ ] theforth.net - client: look for local version or use global version
-  G  [ ] swig
+  G  [ ]*SWIG: SWIG-forth rename as proper fork, create docker and flatpak
   G  [x]*find out why GLforth stopped working
-  G  [ ] better vim support
+  G  [x] better vim support
 A    [ ] changelog
 A    [ ] news-file
 A    [ ] update this ToDo file
  BG  [x]*implement smart .s "..."
 AB   [x]*~~ uses ... and prints floating stack
+ B   [ ] compare-image warnings überprüfen
 
 -*- RoadMap for gforth post 1.0 -*-
  B   [ ] Multithreading: Use sections to allow compilation in every threading
 ABG  [ ] fork-marker use fork instead of classic marker
 AB   [ ] marker für sections
 AB   [ ] bin-utils disassembler
+AB   [ ]*documented view>* (internal words) in IDE
+AB   [ ] locate of nested recognizers
+     [ ] new words get the current build attached to its wordlist i.e. gforth-1.0_2021... which is renamed by the release script to gforth-1.1
   G  [ ] Klaut
+AB   [ ] sections
+A        [ ] locals in sections
+ B       [ ] header vtables in sections for better performance
+ABG  [ ] access bitfields in C
+  G      [ ] for SWIG-forth: use mask-of and shift-of
+  G      [ ] for SWIG (new version): native support with getter and setter
 
 -*- outline -*-
 
