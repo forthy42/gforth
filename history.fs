@@ -404,10 +404,10 @@ Variable setsel# \ size of selection relative to the end
     delete
     swap setstring$ $@len - swap r> xretype ;
 : xreformat ( max span addr pos1 -- max span addr pos1 0 )
-    xedit-startpos
+    .unstatus xedit-startpos
     edit-linew @ screenw @ /mod cols dup screenw ! * +
     dup spaces dup edit-curpos ! edit-linew !
-    xretype ;
+    .resizeline .all 2>r 2>r .status 2r> 2r> .rest false ;
 
 Create xchar-ctrlkeys ( -- )
     ' false        , ' xfirst-pos   , ' xback        , ' false        ,

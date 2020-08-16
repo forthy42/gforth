@@ -88,6 +88,7 @@ umethod at-xy ( x y -- )
 umethod at-deltaxy ( dx dy -- )
 umethod attr! ( attr -- ) \ gforth
 \G apply attribute to terminal (i.e. set color)
+umethod csi ( n char -- ) \ gforth
 2drop
 
 user-o ip-vector
@@ -120,6 +121,7 @@ here
 ' 2drop A, \ at-xy
 ' 2drop A, \ at-deltaxy
 ' drop A, \ attr!
+' 2drop a, \ csi
 A, here AConstant default-out
 
 here
@@ -131,6 +133,7 @@ here
 ' 2drop A, \ at-xy
 ' 2drop A, \ at-deltaxy
 ' drop A, \ attr!
+' 2drop a, \ csi
 A, here AConstant debug-out
 
 default-out op-vector !
@@ -151,7 +154,7 @@ default-in ip-vector !
 
 : output: ( type-xt emit-xt cr-xt form-xt -- )
     Create here cell+ , swap 2swap swap , , , ,
-    ['] noop , ['] 2drop , ['] 2drop , ['] drop ,
+    ['] noop , ['] 2drop , ['] 2drop , ['] drop , ['] 2drop ,
   DOES> cell+ op-vector ! ;
 
 \ Input                                                13feb93py

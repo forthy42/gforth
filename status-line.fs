@@ -20,14 +20,12 @@
 
 blue >bg white >fg or bold or Value status-attr
 : redraw-status ( addr u -- )
-    .\" \e7"
+    save-cursor-position
     0 rows 1 - at-xy
     status-attr attr! type default-color attr!
-    .\" \e8" ;
+    restore-cursor-position ;
 : .unstatus-line ( -- )
-    .\" \e7"
-    0 rows 1 - at-xy   cols spaces
-    .\" \e8" ;
+    0 erase-display ;
 : replace-char ( c1 c2 addr u -- )
     bounds U+DO
 	over I c@ = IF  dup I c!  THEN
@@ -64,7 +62,8 @@ blue >bg white >fg or bold or Value status-attr
 	    r> I - +LOOP  drop
 	THEN
     THEN
-    .\" \n\n\e[2A" status$ $@ redraw-status
+    cr cr 2 cursor-up
+    status$ $@ redraw-status
     status$ $free ;
 
 : +status ['] .status-line is .status ['] .unstatus-line is .unstatus ;

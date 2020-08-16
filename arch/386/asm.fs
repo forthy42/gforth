@@ -243,10 +243,10 @@ $AB bc.b: stos  $AD bc.b: lods  $AF bc.b: scas
 
 \ not neg mul (imul div idiv                           29mar94py
 
-: modf  ( r/m reg opcode -- )  -rot >mod finish   ;
+: modf, ( r/m reg opcode -- )  -rot >mod finish   ;
 : modfb ( r/m reg opcode -- )  -rot >mod finishb  ;
 : mod0F ( r/m reg opcode -- )  -rot >mod finish0F ;
-: modf:  Create  c,  DOES>  c@ modf ;
+: modf:  Create  c,  DOES>  c@ modf, ;
 : not: ( mode -- )  Create c, DOES> ( r/m -- ) c@ $F7 modfb ;
 
 00 not: test#                 22 not: NOT     33 not: NEG
@@ -286,11 +286,11 @@ $AB bc.b: stos  $AD bc.b: lods  $AF bc.b: scas
   imm# @     IF  $68 finish exit  THEN
   reg?       IF  7 and $50 or finish exit  THEN
   sr?        IF  0 pushs  exit  THEN
-  66 $FF modf ;
+  66 $FF modf, ;
 : pop   ( reg -- )
   reg?       IF  7 and $58 or finish exit  THEN
   sr?        IF  1 pushs  exit  THEN
-  06 $8F modf ;
+  06 $8F modf, ;
 
 \ Ascii Arithmetics                                    22may93py
 
@@ -330,17 +330,17 @@ $E0 sb: LOOPNE  $E1 sb: LOOPE   $E2 sb: LOOP    $E3 sb: JCXZ
 
 : call  ( reg / disp -- ) rel?
   IF  drop $E8 disp @ [A] here [F] 1+ asize@ + - disp ! finish
-      exit  THEN  22 $FF modf ;
+      exit  THEN  22 $FF modf, ;
 : callf ( reg / seg -- )
-  seg? IF  drop $9A  finish exit  THEN  33 $FF modf ;
+  seg? IF  drop $9A  finish exit  THEN  33 $FF modf, ;
 
 : jmp   ( reg / disp -- )
   rel? IF  drop disp @ [A] here [F] 2 + - dup -$80 $80 within
            IF    disp ! 1 disp# !  $EB
            ELSE  3 - disp ! $E9  THEN  finish exit  THEN
-  44 $FF modf ;
+  44 $FF modf, ;
 : jmpf  ( reg / seg -- )
-  seg? IF  drop $EA  finish exit  THEN  55 $FF modf ;
+  seg? IF  drop $EA  finish exit  THEN  55 $FF modf, ;
 
 : next ['] noop >code-address rel) jmp ;
 
@@ -377,7 +377,7 @@ $10 sets: seto setno  setb  setnb  sete setne  setna seta  sets setns  setpe set
 \ misc                                                 16nov97py
 
 : ENTER ( imm8 -- ) 2 imm# ! $C8 finish [A] , [F] ;
-: ARPL ( reg r/m -- )  swap $63 modf ;
+: ARPL ( reg r/m -- )  swap $63 modf, ;
 $62 modf: BOUND ( mem reg -- )
 
 : mod0F:  Create c,  DOES> c@ mod0F ;
@@ -440,7 +440,7 @@ Variable fsize
     st? dup 0< 0= IF  swap r> >mod 2* $D8 + finish exit  THEN
     drop ?mem r> >mod $D8 fsize @ dup 1 and dup 2* + - +
     finish ;
-: f@!: Create c,  DOES>  ( fm -- ) c@ $D9 modf ;
+: f@!: Create c,  DOES>  ( fm -- ) c@ $D9 modf, ;
 
 \ Floating point instructions                          08jun92py
 
@@ -461,31 +461,31 @@ $FC D9: FRNDINT $FD D9: FSCALE  $FE D9: FSIN    $FF D9: FCOS
 44 fop: FSUB    55 fop: FSUBR   66 fop: FDIV    77 fop: FDIVR
 
 : FCOMPP ( -- )  [A] 1 stp fcomp [F] ;
-: FBLD   ( fm -- ) 44 $D8 modf ;
-: FBSTP  ( fm -- ) 66 $DF modf ;
-: FFREE  ( st -- ) 00 $DD modf ;
-: FSAVE  ( fm -- ) 66 $DD modf ;
-: FRSTOR ( fm -- ) 44 $DD modf ;
+: FBLD   ( fm -- ) 44 $D8 modf, ;
+: FBSTP  ( fm -- ) 66 $DF modf, ;
+: FFREE  ( st -- ) 00 $DD modf, ;
+: FSAVE  ( fm -- ) 66 $DD modf, ;
+: FRSTOR ( fm -- ) 44 $DD modf, ;
 : FINIT  ( -- )  [A] DB, $E3 , [F] ;
-: FXCH   ( st -- ) 11 $D9 modf ;
+: FXCH   ( st -- ) 11 $D9 modf, ;
 
 44 f@!: FLDENV  55 f@!: FLDCW   66 f@!: FSTENV  77 f@!: FSTCW
 
 \ fild fst fstsw fucom                                 22may93py
-: FUCOM ( st -- )  ?st st? IF 77 ELSE 66 THEN $DD modf ;
+: FUCOM ( st -- )  ?st st? IF 77 ELSE 66 THEN $DD modf, ;
 : FUCOMPP ( -- )  [A] DA, $E9 , [F] ;
 : FNCLEX  ( -- )  [A] DB, $E2 , [F] ;
 : FCLEX   ( -- )  [A] fwait fnclex [F] ;
 : FSTSW ( r/m -- )
-  dup AX = IF  44  ELSE  ?mem 77  THEN  $DF modf ;
+  dup AX = IF  44  ELSE  ?mem 77  THEN  $DF modf, ;
 : f@!,  fsize @ 1 and IF  drop  ELSE  nip  THEN
-    fsize @ $D9 or modf ;
+    fsize @ $D9 or modf, ;
 : fx@!, ( mem/st l x -- )  rot  st? 0=
-    IF  swap $DD modf drop exit  THEN  ?mem -rot
-    fsize @ 3 = IF drop $DB modf exit THEN  f@!, ;
+    IF  swap $DD modf, drop exit  THEN  ?mem -rot
+    fsize @ 3 = IF drop $DB modf, exit THEN  f@!, ;
 : FST  ( st/m -- ) st?  0=
-  IF  22 $DD modf exit  THEN  ?mem 77 22 f@!, ;
-: FLD  ( st/m -- )  st? 0= IF 0 $D9 modf exit THEN 55 0 fx@!, ;
+  IF  22 $DD modf, exit  THEN  ?mem 77 22 f@!, ;
+: FLD  ( st/m -- )  st? 0= IF 0 $D9 modf, exit THEN 55 0 fx@!, ;
 : FSTP ( st/m -- )  77 33 fx@!, ;
 
 \ PPro instructions                                    28feb97py

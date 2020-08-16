@@ -36,7 +36,9 @@
 ;; Added support for block files.
 ;; Replaced forth-process code with comint-based implementation.
 
-;; Tested with Emacs 19.34, 20.5, 21 and XEmacs 21
+;; Tested with Emacs 25, 26
+;; The last version with support for Emacs <21 is in commit
+;; 8ebfcc8f5efcbdf2aaef807b7968f4ca8efa6516
  
 ;;-------------------------------------------------------------------
 ;; A Forth indentation, documentation search and interaction library
@@ -53,72 +55,11 @@
 
 ;;; Code:
 
-;(setq debug-on-error t)
-
-;; Code ripped from `version.el' for compatability with Emacs versions
-;; prior to 19.23.
-(if (not (boundp 'emacs-major-version))
-    (defconst emacs-major-version
-      (progn (string-match "^[0-9]+" emacs-version)
-	     (string-to-number (match-string 0 emacs-version)))))
-
-;; Code ripped from `subr.el' for compatability with Emacs versions
-;; prior to 20.1
-(eval-when-compile 
-(defun forth-emacs-older (major minor)
-  (or (< emacs-major-version major)
-      (and (= emacs-major-version major) (< emacs-minor-version minor))))
-
-  (if (forth-emacs-older 20 1)
-      (progn
-	(defmacro when (cond &rest body)
-	  "If COND yields non-nil, do BODY, else return nil."
-	  (list 'if cond (cons 'progn body)))
-	(defmacro unless (cond &rest body)
-	  "If COND yields nil, do BODY, else return nil."
-	  (cons 'if (cons cond (cons nil body)))))))
-
-;; `no-error' argument of require not supported in Emacs versions
-;; prior to 20.4 :-(
-(eval-and-compile
-(defun forth-require (feature)
-    (condition-case err (require feature) (error nil))))
-
 (require 'font-lock)
 
-;; define `font-lock-warning-face' in emacs-versions prior to 20.1
-;; (ripped from `font-lock.el')
-(unless (boundp 'font-lock-warning-face)
-  (message "defining font-lock-warning-face")
-  (make-face 'font-lock-warning-face)
-  (defvar font-lock-warning-face 'font-lock-warning-face)
-  (set-face-foreground font-lock-warning-face "red")
-  (make-face-bold font-lock-warning-face))
-
-;; define `font-lock-constant-face' in XEmacs (just copy
-;; `font-lock-preprocessor-face')
-(unless (boundp 'font-lock-constant-face)
-  (copy-face font-lock-preprocessor-face 'font-lock-constant-face))
-
-
-;; define `regexp-opt' in emacs versions prior to 20.1 
-;; (this implementation is extremely inefficient, though)
-(eval-and-compile (forth-require 'regexp-opt))
-(unless (memq 'regexp-opt features)
-  (message (concat 
-	    "Warning: your Emacs version doesn't support `regexp-opt'. "
-            "Hilighting will be slow."))
-  (defun regexp-opt (STRINGS &optional PAREN)
-    (let ((open (if PAREN "\\(" "")) (close (if PAREN "\\)" "")))
-      (concat open (mapconcat 'regexp-quote STRINGS "\\|") close)))
-  (defun regexp-opt-depth (re)
-    (if (string= (substring re 0 2) "\\(") 1 0)))
 
 ; todo:
 ;
-
-; screen-height existiert nicht in XEmacs, frame-height ersetzen?
-; 
 
 ; Wörter ordentlich hilighten, die nicht auf Whitespace beginnen ( ..)IF
 ; -- mit aktueller Konzeption nicht möglich??
@@ -139,8 +80,6 @@
 ;
 ; forth-help Kram rausschmeißen
 ;
-; XEmacs Kompatibilität? imenu/speedbar -> fume?
-; 
 ; Folding neuschreiben (neue Parser-Informationen benutzen)
 
 ;;; Motion-hooking (dk)
@@ -830,7 +769,7 @@ Used for imenu index generation.")
     index))
 
 ;; top-level require is executed at byte-compile and load time
-(eval-and-compile (forth-require 'speedbar))
+(eval-and-compile (require 'speedbar))
 
 ;; this code is executed at load-time only
 (when (memq 'speedbar features)
@@ -1161,7 +1100,7 @@ exceeds 64 characters."
 (define-key forth-mode-map "\e." 'forth-find-tag)
 
 ;; setup for C-h C-i to work
-(eval-and-compile (forth-require 'info-look))
+(eval-and-compile (require 'info-look))
 (when (memq 'info-look features)
   (defvar forth-info-lookup '(symbol (forth-mode "\\S-+" t 
 						  (("(gforth)Word Index"))
@@ -1248,7 +1187,7 @@ exceeds 64 characters."
   (make-local-variable 'forth-use-objects) 
   (setq forth-screen-marker (copy-marker 0))
   (add-hook 'after-change-functions 'forth-change-function)
-  (if (and forth-jit-parser (>= emacs-major-version 21))
+  (if forth-jit-parser
       (add-hook 'fontification-functions 'forth-fontification-function))
   (setq imenu-create-index-function 'forth-create-index))
 
@@ -1452,39 +1391,6 @@ bell during block file read/write operations."
 	(goto-char (point-max))
 	(other-window 1))))
 
-;;; Forth menu
-;;; Mikael Karlsson <qramika@eras70.ericsson.se>
-
-;; (dk) code commented out due to complaints of XEmacs users.  After
-;; all, there's imenu/speedbar, which uses much smarter scanning
-;; rules.
-
-;; (cond ((string-match "XEmacs\\|Lucid" emacs-version)
-;;        (require 'func-menu)
-
-;;   (defconst fume-function-name-regexp-forth
-;;    "^\\(:\\)[ \t]+\\([^ \t]*\\)"
-;;    "Expression to get word definitions in Forth.")
-
-;;   (setq fume-function-name-regexp-alist
-;;       (append '((forth-mode . fume-function-name-regexp-forth) 
-;;              ) fume-function-name-regexp-alist))
-
-;;   ;; Find next forth word in the buffer
-;;   (defun fume-find-next-forth-function-name (buffer)
-;;     "Searches for the next forth word in BUFFER."
-;;     (set-buffer buffer)
-;;     (if (re-search-forward fume-function-name-regexp nil t)
-;;       (let ((beg (match-beginning 2))
-;;             (end (match-end 2)))
-;;         (cons (buffer-substring beg end) beg))))
-
-;;   (setq fume-find-function-name-method-alist
-;;   (append '((forth-mode    . fume-find-next-forth-function-name))))
-
-;;   ))
-;;; End Forth menu
-
 ;;; File folding of forth-files
 ;;; uses outline
 ;;; Toggle activation with M-x fold-f (when editing a forth-file) 
@@ -1536,26 +1442,12 @@ bell during block file read/write operations."
 
 ;;; end file folding
 
-;;; func-menu is a package that scans your source file for function definitions
-;;; and makes a menubar entry that lets you jump to any particular function
-;;; definition by selecting it from the menu.  The following code turns this on
-;;; for all of the recognized languages.  Scanning the buffer takes some time,
-;;; but not much.
-;;;
-;; (cond ((string-match "XEmacs\\|Lucid" emacs-version)
-;;        (require 'func-menu)
-;; ;;       (define-key global-map 'f8 'function-menu)
-;;        (add-hook 'find-fible-hooks 'fume-add-menubar-entry)
-;; ;       (define-key global-map "\C-cg" 'fume-prompt-function-goto)
-;; ;       (define-key global-map '(shift button3) 'mouse-function-menu)
-;; ))
-
 ;;;
 ;;; Inferior Forth interpreter 
 ;;;	-- mostly copied from `cmuscheme.el' of Emacs 21.2
 ;;;
 
-(eval-and-compile (forth-require 'comint))
+(eval-and-compile (require 'comint))
 
 (when (memq 'comint features)
 
@@ -1754,7 +1646,7 @@ processes.")
 				      forth-process-buffer))))
       (or proc
 	  (error "No current process.  See variable `forth-process-buffer'"))))
-  )  ; (memq 'comint features)
+  )
 
 (provide 'forth-mode)
 
