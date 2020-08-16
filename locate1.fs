@@ -18,6 +18,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+require status-line.fs
+
 $variable where-results
 \ addresses in WHERES that contain the results of the last WHERE
 variable where-index -1 where-index !
@@ -42,15 +44,6 @@ variable included-file-buffers
     i' included-files $[]@ r@ ['] $slurp-file catch IF
 	drop 2drop 0 0  r> $free rdrop  EXIT  THEN
     r> $@ rdrop ;
-
-    \ >r included-file-buffers $@len r@ 2* cells u< if
-    \ 	r@ 1+ 2* cells included-file-buffers $!len then
-    \ included-file-buffers $@ drop r@ 2* cells + ( addr r:u )
-    \ dup 2@ over 0= if ( addr c-addr3 u3 r:u )
-    \ 	2drop r@ included-files $[]@ ['] slurp-file catch if
-    \ 	    2drop 0 0 then
-    \ 	2dup 4 pick 2! then
-    \ rot r> 2drop ;
 
 : view>buffer ( view -- c-addr u )
     view>filename# included-buffer ;
@@ -104,8 +97,10 @@ variable included-file-buffers
     view>filename# loadfilename#>str ;
 
 : print-locate-header ( -- )
+    status-attr attr!
     located-view @ view>filename type ': emit
-    located-top @ dec. ;
+    located-top @ 0 dec.r
+    default-color attr! ;
 
 : l2 ( -- c-addr u lineno )
     located-buffer 1 case ( c-addr u lineno1 )
@@ -115,22 +110,33 @@ variable included-file-buffers
 	locate-next-line
     next-case ;
 
-: prepend-locate-lines ( u -- )
-    \ go back to the top line, and insert the line before it
+: display-locate-lines {: utop ubottom -- :}
     located-bottom @ located-top @ - cursor-previous-line
-    0 erase-display \ clear to end of screen
-    located-top @ swap - 0 max located-top !
-    located-bottom @ located-top @ rows + 1- min located-bottom !
+    0 erase-display
+    utop located-top !
+    ubottom located-bottom !
     print-locate-header l2 2drop drop ;
+    
+: prepend-locate-lines ( u -- )
+    \ insert the u lines before the last locate display
+    located-top @ swap - 1 max located-bottom @ over rows + 1- min
+    display-locate-lines ;
+
+: append-locate-lines ( u -- )
+    \ show the u lines after the last locate display, possibly
+    \ scrolling away earlier stuff
+    located-bottom @ + dup rows - 1+ located-top @ max swap
+    display-locate-lines ;
 
 : after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 )
     \ allow to scroll around right after LOCATE and friends:
     case
 	key dup unkey #esc <> ?of endof
 	ekey
-	k-down  of locate-print-line dup located-bottom ! contof
 	k-up    of 1 prepend-locate-lines contof
+	k-down  of 1  append-locate-lines contof
 	k-prior of rows 2/ prepend-locate-lines contof
+	k-next  of rows 2/  append-locate-lines contof
     endcase ;
 
 : l1 ( -- )

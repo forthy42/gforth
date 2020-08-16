@@ -204,6 +204,8 @@ $0 Value default-bg
 'B' control-sequence: cursor-down
 'L' control-sequence: insert-lines ( u -- )
 'J' control-sequence: erase-display ( u -- )
+\g 0: erase cursor and below; 1: erase above cursor; 2: erase screen
+
 'E' control-sequence: cursor-next-line ( u -- )
 'F' control-sequence: cursor-previous-line ( u -- )
 'S' control-sequence: scroll-up ( u -- )
