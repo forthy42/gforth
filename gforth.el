@@ -56,7 +56,7 @@
 ;;; Code:
 
 (require 'font-lock)
-
+(require 'ansi-color)
 
 ; todo:
 ;
@@ -953,7 +953,8 @@ Used for imenu index generation.")
 	(forth-newline-remove-trailing))
       (when (= (+ (point) forth-c/l) (mark t))
 	(forth-remove-trailing))
-      (mark t))))
+      (mark t)))
+  (set-buffer-modified-p 'nil))
 
 ;; Pad a line of a block file up to `forth-c/l' characters, positioning `point'
 ;; at the end of line.
@@ -1650,8 +1651,21 @@ processes.")
 
 (provide 'forth-mode)
 
+;; coverage mode
+
+(defun display-ansi-colors ()
+  (interactive)
+  (ansi-color-apply-on-region (point-min) (point-max))
+  (set-buffer-modified-p 'nil))
+
+(define-derived-mode forth-coverage-mode fundamental-mode "Forth Coverage Mode"
+  "Major mode for viewing coverage files"
+  )
+
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.fs\\'" . forth-mode))
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.fs.cov\\'" . forth-coverage-mode))
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.fb\\'" . forth-block-mode))
 ;;;###autoload
