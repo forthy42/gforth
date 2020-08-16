@@ -184,6 +184,7 @@ Black White white? [IF] swap [THEN] fg! bg!
 0   Value actualrows
 
 2Variable gl-xy  0 0 gl-xy 2!
+2Variable gl-xy-save  0 0 gl-xy 2!
 2Variable gl-wh 24 80 gl-wh 2!
 Variable gl-lineend
 Variable scroll-y
@@ -230,6 +231,10 @@ $20 Value minpow2#
 \     1 sfloats +LOOP  drop ;
 \ blank-screen
 
+: gl-mem-erase ( addr u -- )
+    color-index @ -rot bounds U+DO
+	dup I le-l!
+    [ 1 sfloats ]L +LOOP drop ;
 : resize-screen ( -- )
     gl-xy @ 1+ actualrows max to actualrows
     gl-wh @ videocols u> gl-xy @ videorows u>= or IF
@@ -239,10 +244,7 @@ $20 Value minpow2#
 	videomem videocols videorows * sfloats dup >r
 	videorows sfloats + resize throw
 	to videomem
-	color-index @
-	videomem r> r> /string bounds U+DO
-	    dup I le-l!
-	[ 1 sfloats ]L +LOOP drop
+	videomem r> r> /string gl-mem-erase
     THEN ;
 
 2 sfloats buffer: texsize.xy
@@ -300,13 +302,16 @@ Variable gl-emit-buf
 	THEN
     0 endcase ;
 
-: gl-atxy ( x y -- )
+: (gl-atxy) ( x y -- )
     >r gl-wh @ min 0 max r> gl-xy 2!
     gl-xy cell+ @ out ! ;
 
 : gl-at-deltaxy ( x y -- )
     >r s>d screenw @ sm/rem r> +
-    gl-xy 2@ rot + >r + r> gl-atxy ;
+    gl-xy 2@ rot + >r + r> (gl-atxy) ;
+
+: gl-atxy ( x y -- )
+    scroll-y @ + (gl-atxy) ;
 
 : (gl-emit) ( char color -- )
     over 7 = IF  2drop  EXIT  THEN
@@ -374,6 +379,27 @@ Sema gl-sema
 : gl-err-attr! ( attribute -- )
     [: dup attr ! >default ?invers  dup bg> err-bg! fg> err-fg! ;]
     gl-sema c-section ;
+: gl-control-sequence ( u char -- )
+    [: case
+	    0 of
+		case
+		    7 of  gl-xy 2@  gl-xy-save 2!  endof \ save curpos
+		    8 of  gl-xy-save 2@  gl-xy 2!  endof \ restore curpos
+		endcase
+	    endof
+	    'J' of  >r
+		videomem videocols videorows * sfloats
+		gl-xy 2@ videocols * + sfloats
+		case r>
+		    0 of  safe/string  endof \ cursor + below
+		    1 of  nip          endof \ above cursor
+		    2 of  drop         endof \ erase all
+		    nip
+		endcase
+		gl-mem-erase
+	    endof
+	    nip
+	endcase ;] gl-sema c-section ;
 
 4e FConstant scroll-deltat
 : >scroll-pos ( -- 0..1 )
@@ -535,12 +561,14 @@ out>screen
 ' gl-at-deltaxy IS at-deltaxy
 ' gl-page IS page
 ' gl-attr! IS attr!
+' gl-control-sequence IS control-sequence
 
 err>screen
 ' gl-atxy IS at-xy
 ' gl-at-deltaxy IS at-deltaxy
 ' gl-page IS page
 ' gl-err-attr! IS attr!
+' gl-control-sequence IS control-sequence
 
 default-out op-vector !
 
