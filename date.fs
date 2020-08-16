@@ -47,6 +47,7 @@
 	1461 * +
     THEN ;
 
+\ load with: gforth test/ttester.fs coverage.fs date.fs
 [defined] t{ [defined] cov% and [IF]
     t{ 0 3 1 ymd2day dup day2dow -> 0 1 }t cov% cr
     t{ 1582 10 15 ymd2day 1- day2ymd -> 1582 10 4 }t cov% cr
