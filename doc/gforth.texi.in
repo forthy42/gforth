@@ -453,6 +453,7 @@ C Interface
 * Callbacks::
 * C interface internals::
 * Low-Level C Interface Words::
+* Automated interface generation using SWIG::
 * Migrating the C interface from earlier Gforth::
 
 Assembler and Code Words
@@ -13204,6 +13205,7 @@ with a SWIG plugin, which is still not completed.
 * Callbacks::
 * C interface internals::
 * Low-Level C Interface Words::
+* Automated interface generation using SWIG::
 * Migrating the C interface from earlier Gforth::
 @end menu
 
@@ -13582,7 +13584,7 @@ causing these libraries to be dynamically linked when the wrapper
 function is linked.
 
 
-@node Low-Level C Interface Words, Migrating the C interface from earlier Gforth, C interface internals, C Interface
+@node Low-Level C Interface Words, Automated interface generation using SWIG, C interface internals, C Interface
 @subsection Low-Level C Interface Words
 
 doc-open-lib
@@ -13590,7 +13592,48 @@ doc-lib-sym
 doc-lib-error
 doc-call-c
 
-@node Migrating the C interface from earlier Gforth,  , Low-Level C Interface Words, C Interface
+@node Automated interface generation using SWIG, Migrating the C interface from earlier Gforth, Low-Level C Interface Words, C Interface
+@subsection Automated interface generation using SWIG
+
+SWIG, the Simple Wrapper Interface Generator, is used to create C interfaces for a lot of programming languages.
+The SWIG version extended with a Forth module can be found on @uref{https://github.com/GeraldWodni/swig,github}.
+
+@subsubsection Basic operation
+C-headers are parsed and converted to Forth-Sourcecode which uses the previously describe C interface functions.
+
+@subsubsection Detailed operation:
+@enumerate 1
+@item Select a target, in this example we are using @code{example.h}
+@item Create an interface file for the header. This can be used to pass options, switches and define variables.
+    In the simplest case it just instructs to translate all of @code{example.h}:@/
+@example
+%module example
+%insert("include")
+@{
+    #include "example.h"
+@}
+%include "example.h"
+@end example
+@item Use SWIG to create a @code{.fsi-c} file. @*
+    @code{swig -forth -stackcomments -use-structs -enumcomments -o example-fsi.c example.i}. @*
+    FSI stands ``Forth Source Independent'' meaning it can be transferred to any host having a C-compiler. SWIG is not required past this point.
+@item On the target machine compile the @code{.fsi-c} file to a @code{.fsx} (x stands for executable) @*
+    @code{gcc -o example.fsx example-fsi.c} @*
+    The compilation will resolve all constants to the values on the target.
+@item The last step is to run the executable and capture its output to a @code{.fs} ``Forth Source'' file. @*
+    @code{./example.fsx -gforth > example.fs} @*
+    This code can now be used on the target platform.
+@end enumerate
+
+@subsubsection Examples
+You can find some examples in SWIG's @uref{https://github.com/GeraldWodni/swig/tree/master/Examples/forth, Forth Example section}.
+
+A lot of interface files can be found in @uref{https://github.com/GeraldWodni/posix, Forth Posix C-Interface}
+and @uref{https://github.com/GeraldWodni/forth-c-interfaces, Forth C-Interface Modules}.
+
+Contribution to the @uref{https://github.com/GeraldWodni/forth-c-interfaces, Forth C-Interface Module repository} is always welcome.
+
+@node Migrating the C interface from earlier Gforth,  , Automated interface generation using SWIG, C Interface
 @subsection Migrating from Gforth 0.7
 @cindex Must now be used inside C-LIBRARY, see C interface doc
 

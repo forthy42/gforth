@@ -104,7 +104,7 @@ variable included-file-buffers
     view>filename# loadfilename#>str ;
 
 : print-locate-header ( -- )
-    cr located-view @ view>filename type ': emit
+    located-view @ view>filename type ': emit
     located-top @ dec. ;
 
 : l2 ( -- c-addr u lineno )
@@ -115,11 +115,12 @@ variable included-file-buffers
 	locate-next-line
     next-case ;
 
-: prepend-locate-line ( -- )
+: prepend-locate-lines ( u -- )
     \ go back to the top line, and insert the line before it
-    located-bottom @ located-top @ - 1+ cursor-previous-line
+    located-bottom @ located-top @ - cursor-previous-line
     0 erase-display \ clear to end of screen
-    located-top @ 1- 0 max located-top !
+    located-top @ swap - 0 max located-top !
+    located-bottom @ located-top @ rows + 1- min located-bottom !
     print-locate-header l2 2drop drop ;
 
 : after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 )
@@ -127,8 +128,9 @@ variable included-file-buffers
     case
 	key dup unkey #esc <> ?of endof
 	ekey
-	k-down of locate-print-line dup located-bottom ! contof
-	k-up   of prepend-locate-line contof
+	k-down  of locate-print-line dup located-bottom ! contof
+	k-up    of 1 prepend-locate-lines contof
+	k-prior of rows 2/ prepend-locate-lines contof
     endcase ;
 
 : l1 ( -- )
@@ -136,7 +138,7 @@ variable included-file-buffers
 
 : l ( -- )
     \g Display source code lines at the current location.
-    current-location? print-locate-header l1 ;
+    current-location? cr print-locate-header l1 ;
 
 : name-set-located-view ( nt -- )
     dup name>view swap name>string nip set-located-view ;
