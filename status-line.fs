@@ -54,7 +54,8 @@ blue >bg white >fg or bold or Value status-attr
     [: status-xts $@ bounds DO  I perform  cell +LOOP ;] status$ $exec
     #lf '|' status$ $@ replace-char
     cols status$ $@ x-width - dup 0> IF
-	['] spaces status$ $exec
+	['] spaces $tmp
+	status$ dup $@ '|' -scan nip $ins
     ELSE  0< IF
 	    0 status$ $@ bounds U+DO
 		I xc@+ swap >r

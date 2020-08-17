@@ -309,7 +309,7 @@ Variable gl-emit-buf
 
 : gl-at-deltaxy ( x y -- )
     gl-xy 2@ rot + 0 max >r + 0 max r>
-    >r s>d screenw @ sm/rem r> +
+    \ >r s>d screenw @ sm/rem r> +
     (gl-atxy) ;
 
 : gl-atxy ( x y -- )
