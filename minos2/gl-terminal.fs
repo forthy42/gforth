@@ -22,8 +22,6 @@
 
 \ :noname source type cr stdout flush-file throw ; is before-line
 
-[IFDEF] -status  -status [THEN] \ turn off status line
-
 require ../unix/pthread.fs
 require gl-helper.fs
 
@@ -201,7 +199,7 @@ FVariable scroll-time
     dup dpy-h @ dpy-w @ 2* */ swap gl-wh 2! ;
 
 : show-rows ( -- n ) videorows scroll-y @ - rows 1+ min ;
-$20 Value minpow2#
+$40 Value minpow2#
 : nextpow2 ( n -- n' )
     minpow2#  BEGIN  2dup u>  WHILE 2*  REPEAT  nip ;
 
@@ -304,7 +302,7 @@ Variable gl-emit-buf
     0 endcase ;
 
 : (gl-atxy) ( x y -- )
-    >r gl-wh @ min 0 max r> gl-xy 2!
+    >r gl-wh @ 1- min 0 max r> gl-xy 2!
     gl-xy cell+ @ out ! ;
 
 : gl-at-deltaxy ( x y -- )
@@ -313,7 +311,8 @@ Variable gl-emit-buf
     (gl-atxy) ;
 
 : gl-atxy ( x y -- )
-    scroll-y @ + (gl-atxy) ;
+    scroll-y @ gl-xy @ gl-wh cell+ @ 3 - - 0 max max
+    + (gl-atxy) ;
 
 : (gl-emit) ( char color -- )
     over 7 = IF  2drop  EXIT  THEN
@@ -430,8 +429,8 @@ Sema gl-sema
 
 : show-cursor ( -- )  ?show 0= ?EXIT
     rows ( kbflag @ IF  dup 10 / - 14 -  THEN ) >r
-    gl-xy @ scroll-y @ dup r@ + within 0= IF
-       gl-xy @ 1+ r@ - 0 max s>f set-scroll
+    gl-xy @ scroll-y @ dup r@ status-offset - + within 0= IF
+       gl-xy @ 1+ r@ status-offset - - 0 max s>f set-scroll
     THEN  rdrop  -show ;
 
 [IFUNDEF] win : win app window @ ; [THEN]

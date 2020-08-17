@@ -69,7 +69,11 @@ blue >bg white >fg or bold or Value status-attr
     status$ $@ redraw-status
     status$ $free ;
 
-: +status ['] .status-line is .status ['] .unstatus-line is .unstatus ;
-: -status ['] noop is .status ['] noop is .unstatus ;
+0 Value status-offset
+
+: +status ['] .status-line is .status ['] .unstatus-line is .unstatus
+    1 to status-offset ;
+: -status ['] noop is .status ['] noop is .unstatus
+    0 to status-offset ;
 
 +status
