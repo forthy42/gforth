@@ -111,7 +111,7 @@ variable included-file-buffers
     next-case ;
 
 : display-locate-lines {: utop ubottom -- :}
-    located-bottom @ located-top @ - cursor-previous-line
+    cols negate located-bottom @ located-top @ - negate at-deltaxy
     0 erase-display
     utop located-top !
     ubottom located-bottom !

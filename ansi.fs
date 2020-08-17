@@ -191,7 +191,7 @@ $0 Value default-bg
     default-out op-vector !
 [THEN]
 
-\ !! the next two already exist in command-line editing, but where?
+\ special cases for safe/restore cursor position
 : save-cursor-position ( -- ) 7 0 control-sequence ;
 : restore-cursor-position  ( -- ) 8 0 control-sequence ;
 
