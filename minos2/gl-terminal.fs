@@ -187,6 +187,7 @@ Black White white? [IF] swap [THEN] fg! bg!
 2Variable gl-xy-save  0 0 gl-xy 2!
 2Variable gl-wh 24 80 gl-wh 2!
 Variable gl-lineend
+Variable gl-lineend-save
 Variable scroll-y
 FVariable scroll-dest
 FVariable scroll-source
@@ -363,7 +364,7 @@ Sema gl-sema
 : gl-type-err ( addr u -- )  2dup (err-type)
     [: bounds ?DO  I c@ error-color-index @ (gl-emit)  LOOP ;] gl-sema c-section ;
 
-: gl-page ( -- ) [: 0 0 gl-atxy  0 to videorows  0 to actualrows
+: gl-page ( -- ) [: 0 0 (gl-atxy)  0 to videorows  0 to actualrows
     0e screen-scroll  0e fdup scroll-source f! scroll-dest f!
     resize-screen +sync ;] gl-sema c-section ;
 
@@ -383,8 +384,10 @@ Sema gl-sema
     [: case
 	    0 of
 		case
-		    7 of  gl-xy 2@  gl-xy-save 2!  endof \ save curpos
-		    8 of  gl-xy-save 2@  gl-xy 2!  endof \ restore curpos
+		    7 of  gl-xy 2@  gl-xy-save 2!
+			gl-lineend @ gl-lineend-save !  endof \ save curpos
+		    8 of  gl-xy-save 2@  gl-xy 2!
+			gl-lineend-save @ gl-lineend !  endof \ restore curpos
 		endcase
 	    endof
 	    'J' of  >r
