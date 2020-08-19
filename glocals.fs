@@ -460,7 +460,7 @@ dup execute some-carray 2drop
 	get-order 2 + 2r> rot  set-order  -rot [ r> ] Literal
     ELSE  ['] W:  THEN ;
 : new-locals-rec ( caddr u w -- nfa rectype-nt / rectype-null )
-    new-locals-find dup IF  rectype-nt  ELSE  drop  rectype-null  THEN ;
+    new-locals-find nt>rec ;
 previous
 
 : new-locals-reveal ( -- )

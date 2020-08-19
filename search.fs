@@ -116,7 +116,7 @@ Variable slowvoc   0 slowvoc !
     0 (vocfind) ;
 
 : locals-rec ( addr count wid -- nfa rectype-nt | rectype-null )
-    (localsvocfind) dup IF  rectype-nt  ELSE  drop  rectype-null  THEN ;
+    (localsvocfind) nt>rec ;
 
 \ In the kernel the dictionary search works on only one wordlist.
 \ The following stuff builds a thing that looks to the kernel like one

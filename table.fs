@@ -25,8 +25,7 @@ require hash.fs
 : table-find ( addr len wordlist -- nfa / false )
     >r 2dup r> bucket @ (tablelfind) ;
 : table-rec ( addr len wordlist-id -- nfa rectype-nt / rectype-null )
-    0 wordlist-id - table-find
-    dup IF  rectype-nt  ELSE  drop  rectype-null  THEN ;
+    0 wordlist-id - table-find nt>rec ;
 
 Create tablesearch-map ( -- wordlist-map )
     ' table-find A, ' table-reveal A, ' (rehash) A, 0 , ' table-rec A,

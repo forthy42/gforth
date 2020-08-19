@@ -236,8 +236,10 @@ end-struct wordlist-struct
 
 : f83find      ( addr len wordlist -- nt / false )
     wordlist-id @ (listlfind) ;
+: nt>rec ( nt / 0 -- nt rectype-nt / rectype-null )
+    dup IF  rectype-nt  ELSE  drop rectype-null  THEN ;
 : rec-f83 ( addr len wordlist-id-addr -- nt rectype-nt / rectype-null )
-    @ (listlfind) dup IF  rectype-nt  ELSE  drop rectype-null  THEN ;
+    @ (listlfind) nt>rec ;
 
 : initvoc		( wid -- )
   dup wordlist-map @ hash-method perform ;
