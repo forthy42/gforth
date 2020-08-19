@@ -843,9 +843,6 @@ defer 0-adjust-locals-size ( -- )
 	then
     then ;
 
-: rehash  ( wid -- )
-    dup wordlist-map @ rehash-method perform ;
-
 ' reveal alias recursive ( compilation -- ; run-time -- ) \ gforth
 \g Make the current definition visible, enabling it to call itself
 \g recursively.

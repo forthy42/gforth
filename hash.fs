@@ -82,6 +82,9 @@ Defer hash-alloc ( addr -- addr )
 
 : hash-find ( addr len wordlist -- nfa / false )
     >r 2dup r> bucket @ (hashlfind) ;
+: hash-rec ( addr len wordlist-id -- nfa rectype-nt / rectype-null )
+    0 wordlist-id - hash-find
+    dup IF  rectype-nt  ELSE  drop rectype-null  THEN ;
 
 \ hash vocabularies                                    16jul94py
 
@@ -162,7 +165,7 @@ Defer hash-alloc ( addr -- addr )
     addall r> throw ;
 
 const Create (hashsearch-map)
-' hash-find A, ' hash-reveal A, ' (rehash) A, ' (rehash) A,
+' hash-find A, ' hash-reveal A, ' (rehash) A, 0 , ' hash-rec A,
 (hashsearch-map) to hashsearch-map
 
 \ hash allocate and vocabulary initialization          10oct94py

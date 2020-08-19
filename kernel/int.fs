@@ -222,7 +222,6 @@ Defer ?warn#  ' noop is ?warn#
 struct
   cell% field find-method   \ xt: ( c_addr u wid -- nt )
   cell% field reveal-method \ xt: ( nt wid -- )
-  cell% field rehash-method \ xt: ( wid -- )	   \ re-initializes a "search-data" (hashtables)
   cell% field hash-method   \ xt: ( wid -- )    \ initializes ""
 \   \ !! what else
 end-struct wordlist-map-struct
@@ -237,15 +236,17 @@ end-struct wordlist-struct
 
 : f83find      ( addr len wordlist -- nt / false )
     wordlist-id @ (listlfind) ;
+: rec-f83 ( addr len wordlist-id-addr -- nt rectype-nt / rectype-null )
+    @ (listlfind) dup IF  rectype-nt  ELSE  drop rectype-null  THEN ;
 
 : initvoc		( wid -- )
   dup wordlist-map @ hash-method perform ;
 
 \ Search list table: find reveal
 Create f83search ( -- wordlist-map )
-    ' f83find A,  ' drop A,  ' drop A, ' drop A,
+    ' f83find A,  ' drop A,  ' drop A, 0 , ' rec-f83 A,
 
-here f83search A, NIL A, NIL A, NIL A, NIL A,
+here f83search A, ' :dodoes A, NIL A, NIL A, NIL A,
 AValue forth-wordlist \ variable, will be redefined by search.fs
 
 AVariable lookup       	forth-wordlist lookup !

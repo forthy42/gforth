@@ -23,9 +23,10 @@ Variable endif?  -1 cells allot -1 1 cells times
 
 : dummy ;  immediate
 : scanIF   f83find  dup 0=  IF  drop ['] dummy ( >head-noprim )  THEN  ;
+: scan-rec  @ (listlfind)  dup 0=  IF  drop ['] dummy  THEN  rectype-nt ;
 
-Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A, ' drop A,
-Create [struct]-voc       [struct]-search A,  NIL A, NIL A,  NIL A,
+Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A, 0 , ' scan-rec A,
+Create [struct]-voc       [struct]-search A,  ' :dodoes A, NIL A,  NIL A,
 
 : scanif-r ( addr u -- xt )
     [struct]-voc find-name-in name?int ;
