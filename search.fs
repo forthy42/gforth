@@ -115,6 +115,9 @@ Variable slowvoc   0 slowvoc !
     THEN
     0 (vocfind) ;
 
+: locals-rec ( addr count wid -- nfa rectype-nt | rectype-null )
+    (localsvocfind) dup IF  rectype-nt  ELSE  drop  rectype-null  THEN ;
+
 \ In the kernel the dictionary search works on only one wordlist.
 \ The following stuff builds a thing that looks to the kernel like one
 \ wordlist, but when searched it searches the whole search order
@@ -122,7 +125,7 @@ Variable slowvoc   0 slowvoc !
 
 \ this is the wordlist-map of the dictionary
 Create vocsearch ( -- wordlist-map )
-' (localsvocfind) A, ' (reveal) A,  ' drop A, ' drop A,
+' (localsvocfind) A, ' (reveal) A,  ' drop A, ' drop A, ' locals-rec A,
 
 \ create dummy wordlist for kernel
 slowvoc on

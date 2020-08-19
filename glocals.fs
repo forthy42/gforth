@@ -459,7 +459,8 @@ dup execute some-carray 2drop
 	get-order 2 - -rot 2>r set-order  evaluate
 	get-order 2 + 2r> rot  set-order  -rot [ r> ] Literal
     ELSE  ['] W:  THEN ;
-
+: new-locals-rec ( caddr u w -- nfa rectype-nt / rectype-null )
+    new-locals-find dup IF  rectype-nt  ELSE  drop  rectype-null  THEN ;
 previous
 
 : new-locals-reveal ( -- )
@@ -469,7 +470,8 @@ create new-locals-map ( -- wordlist-map )
 ' new-locals-find A,
 ' new-locals-reveal A,
 ' drop A, \ rehash method
-' drop A,
+0 ,
+' new-locals-rec A,
 
 new-locals-map mappedwordlist Constant new-locals-wl
 

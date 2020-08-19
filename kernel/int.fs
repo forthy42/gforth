@@ -299,7 +299,7 @@ forth-wordlist current !
     \G search the word list identified by @i{wid} for the definition
     \G named by the string at @i{c-addr u}. Return its @i{nt}, if
     \G found, otherwise 0.
-    dup wordlist-map @ find-method perform dup where, ;
+    wordlist-exec execute rectype-null = IF  0  ELSE  dup where,  THEN ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
     \G Search the word list identified by @i{wid} for the definition
