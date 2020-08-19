@@ -228,10 +228,11 @@ struct
 end-struct wordlist-map-struct
 
 struct
-  cell% field wordlist-map \ pointer to a wordlist-map-struct
-  cell% field wordlist-id \ linked list of words (for WORDS etc.)
-  cell% field wordlist-link \ link field to other wordlists
-  cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
+    cell% field wordlist-map \ pointer to a wordlist-map-struct
+    cell% field wordlist-exec \ exec pointer for wordlist-map-struct
+    cell% field wordlist-id \ linked list of words (for WORDS etc.)
+    cell% field wordlist-link \ link field to other wordlists
+    cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
 end-struct wordlist-struct
 
 : f83find      ( addr len wordlist -- nt / false )
@@ -244,7 +245,7 @@ end-struct wordlist-struct
 Create f83search ( -- wordlist-map )
     ' f83find A,  ' drop A,  ' drop A, ' drop A,
 
-here f83search A, NIL A, NIL A, NIL A,
+here f83search A, NIL A, NIL A, NIL A, NIL A,
 AValue forth-wordlist \ variable, will be redefined by search.fs
 
 AVariable lookup       	forth-wordlist lookup !

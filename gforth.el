@@ -1661,11 +1661,10 @@ processes.")
 (define-derived-mode forth-coverage-mode fundamental-mode "Forth Coverage Mode"
   "Major mode for viewing coverage files"
   )
+;(add-to-list 'auto-mode-alist '("\\.fs.cov\\'" . forth-coverage-mode))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.fs\\'" . forth-mode))
-;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.fs.cov\\'" . forth-coverage-mode))
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.fb\\'" . forth-block-mode))
 ;;;###autoload

@@ -25,7 +25,7 @@ Variable endif?  -1 cells allot -1 1 cells times
 : scanIF   f83find  dup 0=  IF  drop ['] dummy ( >head-noprim )  THEN  ;
 
 Create [struct]-search    ' scanIF A,  ' (reveal) A,  ' drop A, ' drop A,
-Create [struct]-voc       [struct]-search A,  NIL A,  NIL A,
+Create [struct]-voc       [struct]-search A,  NIL A, NIL A,  NIL A,
 
 : scanif-r ( addr u -- xt )
     [struct]-voc find-name-in name?int ;
@@ -66,7 +66,7 @@ UNLOCK  Tlast @ TNIL Tlast !  LOCK
 
 UNLOCK Tlast @ swap Tlast ! LOCK
 \ last @ swap last !
-[struct]-voc cell+ !
+[struct]-voc wordlist-id !
 
 \ Interpretative Structuren                            30apr92py
 
