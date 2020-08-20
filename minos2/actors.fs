@@ -665,6 +665,13 @@ Defer anim-ins
     setstring> edit-enter ;
 : edit-selall ( max span addr pos1 -- max span addr pos2 false )
     drop over to outselw 0 xretype ;
+: edit-insert ( max span addr pos1 -- max span addr pos2 false )
+    case vt100-modifier @
+	1 of  edit-paste  endof
+	4 of  >r 2dup swap r@ safe/string xselw min clipboard! r> 0   endof
+	5 of  setstring> primary@ edit-split-ins$ edit-update 0  endof
+    false swap
+    endcase ;
 
 ' edit-next-line ctrl N bindkey
 ' edit-prev-line ctrl P bindkey
@@ -692,6 +699,7 @@ Defer anim-ins
 ' edit-del       k-delete ebindkey
 ' (xtab-expand)  k-tab    ebindkey
 ' edit-selall    k-sel    ebindkey
+' edit-insert    k-insert ebindkey
 \ ' edit-copy      'W' k-alt-mask or ebindkey
 
 edit-terminal edit-out !
