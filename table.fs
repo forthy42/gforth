@@ -28,9 +28,9 @@ require hash.fs
     0 wordlist-id - table-find nt>rec ;
 
 Create tablesearch-map ( -- wordlist-map )
-    ' table-find A, ' table-reveal A, ' (rehash) A, 0 , ' table-rec A,
+0 , 0 , ' table-reveal A, ' (rehash) A, ' table-rec A,
 Create cs-wordlist-search-map ( -- wordlist-map )
-    ' table-find A, ' hash-reveal A,  ' (rehash) A, 0 , ' table-rec A,
+0 , 0 , ' hash-reveal A,  ' (rehash) A, ' table-rec A,
 
 : table ( -- wid ) \ gforth
     \g Create a lookup table (case-sensitive, no warnings).

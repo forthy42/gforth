@@ -467,10 +467,9 @@ previous
   true abort" this should not happen: new-locals-reveal" ;
 
 create new-locals-map ( -- wordlist-map )
-' new-locals-find A,
+0 , 0 ,
 ' new-locals-reveal A,
 ' drop A, \ rehash method
-0 ,
 ' new-locals-rec A,
 
 new-locals-map mappedwordlist Constant new-locals-wl

@@ -165,7 +165,7 @@ Defer hash-alloc ( addr -- addr )
     addall r> throw ;
 
 const Create (hashsearch-map)
-' hash-find A, ' hash-reveal A, ' (rehash) A, 0 , ' hash-rec A,
+0 , 0 , ' hash-reveal A, ' (rehash) A, ' hash-rec A,
 (hashsearch-map) to hashsearch-map
 
 \ hash allocate and vocabulary initialization          10oct94py

@@ -220,9 +220,9 @@ Defer ?warn#  ' noop is ?warn#
 \ word list structure:
 
 struct
-  cell% field find-method   \ xt: ( c_addr u wid -- nt )
-  cell% field reveal-method \ xt: ( nt wid -- )
-  cell% field hash-method   \ xt: ( wid -- )    \ initializes ""
+    2 cells +
+    cell% field reveal-method \ xt: ( nt wid -- )
+    cell% field hash-method   \ xt: ( wid -- )    \ initializes ""
 \   \ !! what else
 end-struct wordlist-map-struct
 
@@ -234,8 +234,6 @@ struct
     cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
 end-struct wordlist-struct
 
-: f83find      ( addr len wordlist -- nt / false )
-    wordlist-id @ (listlfind) ;
 : nt>rec ( nt / 0 -- nt rectype-nt / rectype-null )
     dup IF  rectype-nt  ELSE  drop rectype-null  THEN ;
 : rec-f83 ( addr len wordlist-id-addr -- nt rectype-nt / rectype-null )
@@ -246,7 +244,7 @@ end-struct wordlist-struct
 
 \ Search list table: find reveal
 Create f83search ( -- wordlist-map )
-    ' f83find A,  ' drop A,  ' drop A, 0 , ' rec-f83 A,
+    0 , 0 , ' drop A,  ' drop A, ' rec-f83 A,
 
 here f83search A, ' :dodoes A, NIL A, NIL A, NIL A,
 AValue forth-wordlist \ variable, will be redefined by search.fs
@@ -372,15 +370,17 @@ $00ffffff constant lcount-mask
 
 ' noop Alias ((name>)) ( nfa -- cfa )
 
-(field) >vtlink        0 cells ,
-(field) >vtcompile,    1 cells ,
-(field) >vtto          2 cells ,
-(field) >vtdefer@      3 cells ,
-(field) >vtextra       4 cells ,
-(field) >vt>int        5 cells ,
-(field) >vt>comp       6 cells ,
-(field) >vt>string     7 cells ,
-(field) >vt>link       8 cells ,
+struct
+    cell% field >vtlink
+    cell% field >vtcompile,
+    cell% field >vtto
+    cell% field >vtdefer@
+    cell% field >vtextra
+    cell% field >vt>int
+    cell% field >vt>comp
+    cell% field >vt>string
+    cell% field >vt>link
+2drop \ vtsize is defined below
 
 1 cells -3 cells \ mini-oof class declaration with methods
 \ the offsets are a bit odd to keep the xt as point of reference

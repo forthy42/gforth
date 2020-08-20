@@ -125,7 +125,7 @@ Variable slowvoc   0 slowvoc !
 
 \ this is the wordlist-map of the dictionary
 Create vocsearch ( -- wordlist-map )
-' (localsvocfind) A, ' (reveal) A,  ' drop A, ' drop A, ' locals-rec A,
+0 , 0 , ' (reveal) A,  ' drop A, ' locals-rec A,
 
 \ create dummy wordlist for kernel
 slowvoc on
