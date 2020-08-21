@@ -19,4 +19,4 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 s" GFORTHDESTDIR" getenv ." Fix prefix: '" type ." '" cr
-included-files $[]# 0 [?DO]  [I] included-files $[]@ 2dup s" /kernel" string-prefix? negate /string 2dup s" /compat" string-prefix? negate /string ." Fix file: " 2dup type over [IF] open-fpath-file 0= [IF] rot close-file throw 2dup s" GFORTHDESTDIR" getenv string-prefix? [IF] s" GFORTHDESTDIR" getenv nip /string compact-filename [THEN] ."  with " 2dup type cr [I] included-files $[] off [I] included-files $[]! [THEN] [ELSE] 2drop [THEN] [LOOP] 2drop
+included-files $[]# 0 [?DO]  [I] included-files $[]@ 2dup s" /kernel" string-prefix? negate /string 2dup s" /compat" string-prefix? negate /string ." Fix file: " 2dup type over [IF] open-fpath-file 0= [IF] rot close-file throw 2dup s" GFORTHDESTDIR" getenv string-prefix? [IF] s" GFORTHDESTDIR" getenv nip /string compact-filename [THEN] ."  with " 2dup type cr [I] included-files $[] off [I] included-files $[]! [THEN] [ELSE] 2drop [THEN] [LOOP]
