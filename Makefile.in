@@ -601,7 +601,7 @@ CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
 	doc/version.texi doc/Makefile unix/Makefile debian/changelog	\
 	debian/control build-ec $(CONFIG_FORTH)
 
-CONFIG_FORTH = machpc.fs kernel/version.fs kernel/authors.fs envos.fs
+CONFIG_FORTH = machpc.fs kernel/version.fs envos.fs
 
 RCS_FILES =  ToDo model high-level
 
@@ -814,7 +814,7 @@ install-gensources:
 		for i in $(LIBCC_GEN_SRC) envos.fs machpc.fs; do \
 			$(INSTALL_DATA) $$i $(libdir)/gforth/$(VERSION)/$$i; \
 		done
-		for i in kernel/prim.fs kernel/aliases.fs kernel/version.fs; do \
+		for i in kernel/prim.fs kernel/aliases.fs kernel/version.fs kernel/authors.fs; do \
 			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 		echo "\\ empty site-init" > $(siteforthdir)/siteinit.fs
