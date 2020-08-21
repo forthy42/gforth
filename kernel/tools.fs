@@ -86,7 +86,7 @@ Variable /dump
 
 \ words visible in roots                               14may93py
 
-include  ./../termsize.fs
+include  ./termsize.fs
 
 : map-wordlist ( ... wid xt -- ... )
     \G xt: ( ... nt -- ... ) free to use the stack underneath

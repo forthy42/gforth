@@ -26,7 +26,6 @@
 \ Ideas:        Level should be a stack
 
 require look.fs
-require termsize.fs
 require wordinfo.fs
 
 decimal

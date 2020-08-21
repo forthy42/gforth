@@ -211,7 +211,8 @@ KERN_SRC = \
 	kernel/pass.fs \
 	kernel/vtables.fs \
 	kernel/xchars.fs \
-	kernel/stringk.fs
+	kernel/stringk.fs \
+	kernel/termsize.fs
 
 KERN_EC_SRC = kernel-ec/args.fs kernel-ec/basics.fs kernel-ec/cbr.fs	\
 	kernel-ec/cbrpi.fs kernel-ec/cloop.fs kernel-ec/comp.fs		\
@@ -298,7 +299,6 @@ GFORTH_FI_SRC2=\
 	substitute.fs \
 	tasker.fs \
 	table.fs \
-	termsize.fs \
 	user-object.fs \
 	utf-8.fs \
 	vt100.fs \
