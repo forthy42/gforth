@@ -2230,9 +2230,12 @@ X has? f83headerstring [IF]
     s" kernel/main.fs" h-add-included-file ;
 : reset-locs ( -- )  $100 to glocs-start ;
 : glocs-start glocs-start ;
-: shorten-path ( addr u -- addr' u' )  2>r
+: shorten-path ( addr u -- addr' u' )
+    2>r
     fpath path>string  BEGIN  next-path dup  WHILE
-	    2r@ 2over string-prefix? IF  2r> 2 pick 1+ /string 2>r  THEN
+	    2r@ 2over string-prefix?
+	    over 2r@ drop + c@ '/' = and
+	    IF  2r> 2 pick 1+ /string 2>r  THEN
 	    2drop  REPEAT
     2drop 2drop  2r> compact-filename ;
 : included-files, ( -- addr )
