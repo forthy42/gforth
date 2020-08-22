@@ -549,7 +549,7 @@ opt: ( xt -- )
 \ No longer used for DOES>; integrate does>-like with ;abi-code, and
 \ eliminate the extra stuff?
 
-: does>-like ( xt -- defstart )
+: does>-like ( xt -- colon-sys )
     \ xt ( addr -- ) is !does or !;abi-code etc, addr is the address
     \ that should be stored right after the code address.
     >r ;-hook
@@ -557,7 +557,7 @@ opt: ( xt -- )
     here [ has? peephole [IF] ] 5 [ [ELSE] ] 4 [ [THEN] ] cells +
     postpone literal r> compile, [compile] exit
     ?colon-sys [ has? peephole [IF] ] finish-code [ [THEN] ]
-    defstart ;
+    colon-sys ;
 
 \ call with locals - unused
 
@@ -750,7 +750,7 @@ defer 0-adjust-locals-size ( -- )
 1 value colon-sys-xt-offset
 \g you get the xt in a colon-sys with COLON-SYS-XT-OFFSET PICK
 
-0 Constant defstart
+Create defstart
 : colon-sys ( -- colon-sys )
     \ a colon-sys consists of an xt for an action to be executed at
     \ the end of the definition, possibly some data consumed by the xt

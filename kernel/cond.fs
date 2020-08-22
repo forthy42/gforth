@@ -49,13 +49,13 @@ variable backedge-locals
 
 \ types
 [IFUNDEF] defstart 
-0 constant defstart	\ usally defined in comp.fs
+Create defstart	\ usally defined in comp.fs
 [THEN]
-1 constant live-orig
-2 constant dead-orig
-3 constant dest \ the loopback branch is always assumed live
-4 constant do-dest
-5 constant scopestart
+Create live-orig
+Create dead-orig
+Create dest \ the loopback branch is always assumed live
+Create do-dest
+Create scopestart
 
 : orig? ( n -- )
     dead-orig 1+ live-orig within abort" expected orig " ;

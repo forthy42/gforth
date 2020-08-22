@@ -3663,7 +3663,8 @@ X has? abranch [IF]
   IS ?dup-?branchmark, ( -- branchtoken )
 :noname T here 0 H offset, ;
   IS ?domark, ( -- branchtoken )
-:noname dup X @ ?struc X here over branchoffset swap X ! ;
+:noname dup X @ 0= defstart and ?struc
+    X here over branchoffset swap X ! ;
   IS branchtoresolve, ( branchtoken -- )
 :noname branchto, X here ;
   IS branchtomark, ( -- target-addr )

@@ -20,6 +20,8 @@
 
 \ idea: Gerald Wodni
 
+Variable smart.s-skip
+
 : addr? ( addr -- flag )
     ['] c@ catch  IF  drop  false nothrow  ELSE  drop  true  THEN ;
 : .var? ( addr -- flag )
@@ -31,6 +33,10 @@
 	    I xc@+ bl < IF  -1 throw  THEN
 	I - +LOOP
 	IFERROR  2drop drop false nothrow ELSE  true  THEN  ENDTRY ;
+Create cs? ( addr -- flag )
+defstart , live-orig , dead-orig , dest , do-dest , scopestart ,
+does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
+      cell +LOOP  drop false ;
 
 : .string. ( addr u -- )
     '"' emit type '"' emit space ;
@@ -61,6 +67,11 @@
 
 : smart. ( n -- )
     dup addr? IF
+	dup cs? if  '<' emit
+	    dup defstart = IF  ." colon-sys" drop
+	    ELSE  body> name>string type  THEN
+	    '>' emit space
+	    cs-item-size 1- smart.s-skip ! exit  then
 	dup .var? IF
 	    .var.
 	ELSE
@@ -68,13 +79,11 @@
     ELSE
 	.  THEN ;
 
-Variable smart.s-skip
-
 : smart.s. ( n -- )
-    smart.s-skip @  smart.s-skip off IF  drop  EXIT  THEN
+    smart.s-skip @ dup 1- 0 max smart.s-skip ! IF  drop  EXIT  THEN
     over r> i swap >r - \ we access the .s loop counter
     dup 1 = IF  false  ELSE  pick  2dup string?  THEN  IF
-	.string. smart.s-skip on
+	.string. 1 smart.s-skip !
     ELSE
 	drop smart.
     THEN ;
