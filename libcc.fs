@@ -936,7 +936,7 @@ tmp$ $execstr-ptr !
     IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
     postpone call-c# , ;
 
-cfaligned 0 , 0 , noname Create
+cfalign 0 , 0 , noname Create
 \ can not be named due to rebind-libcc
 named-vt \ but is actually a named vt
 ' cfun, set-optimizer
