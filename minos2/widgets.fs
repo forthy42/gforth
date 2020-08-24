@@ -109,7 +109,7 @@ Variable config-file$  s" ~/.minos2rc" config-file$ $!
 
 : ?.minos-config ( -- )  true configured? !@ ?EXIT
     s" MINOS2_CONF" getenv dup IF  config-file$ $!  ELSE  2drop  THEN
-    config-file$ $@ 2dup file-status nip ['] m2c >body swap
+    config-file$ $@ 2dup file-status nip ['] m2c >wordlist swap
     no-file# = IF  write-config  ELSE
 	0 addr config-throw ['] read-config !wrapper
     THEN ;
