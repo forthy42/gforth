@@ -87,7 +87,7 @@ forth definitions
 
 : dummy-local, ( n -- )
     locals-size +!
-    get-current >r  0 warnings !@ >r  [ ' locals >body ]l set-current
+    get-current >r  0 warnings !@ >r  [ ' locals >wordlist ]l set-current
     s" " nextname create-local locals-size @ locals,
     r> warnings !  r> set-current ;
 

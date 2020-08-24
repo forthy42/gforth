@@ -19,7 +19,7 @@
 require rec-scope.fs
 
 Vocabulary config
-' config >body Value config-wl
+' config >wordlist Value config-wl
 
 3 stack: config-recognizer
 \G The config recognizer
