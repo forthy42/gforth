@@ -124,7 +124,10 @@ Defer trace-recognizer  ' drop is trace-recognizer
 	dup rectype-null <>  IF
 	    2rdrop I @ trace-recognizer  UNLOOP  EXIT  THEN  drop
 	2r>
-    cell -LOOP
+	cell [ 2 cells ] Literal I cell- 2@ <> select \ skip double entries
+	\ note that we search first and then skip, because the first search
+	\ has a very likely hit.  So doubles will be skipped, tripples not
+    -loop
     2drop rectype-null ;
 
 : rec-sequence: ( x1 .. xn n "name" -- )

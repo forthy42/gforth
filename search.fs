@@ -93,7 +93,7 @@ Variable slowvoc   0 slowvoc !
 
 : (vocfind)  ( addr count wid -- nfa|false )
     \ !! generalize this to be independent of vp
-    drop vocstack $@ bounds cell- swap cell- -DO
+    $@ bounds cell- swap cell- -DO
 	( addr count ) \ note that the loop does not reach 0
 	2dup I @ find-name-in ?dup-IF ( addr count nt )
 	    nip nip unloop exit THEN
@@ -107,18 +107,15 @@ Variable slowvoc   0 slowvoc !
     0 value locals-wordlist
 [then]
 
-: (localsvocfind)  ( addr count wid -- nfa|false )
+: locals-rec ( addr count wid -- nfa rectype-nt | rectype-null )
     \ !! use generalized (vocfind)
     drop locals-wordlist
-    IF 2dup locals-wordlist find-name-in dup
-	IF nip nip
+    IF 2dup locals-wordlist execute dup rectype-nt =
+	IF  2nip
 	    EXIT
 	THEN drop
     THEN
-    0 (vocfind) ;
-
-: locals-rec ( addr count wid -- nfa rectype-nt | rectype-null )
-    (localsvocfind) nt>rec ;
+    vocstack (vocfind) nt>rec ;
 
 \ In the kernel the dictionary search works on only one wordlist.
 \ The following stuff builds a thing that looks to the kernel like one
