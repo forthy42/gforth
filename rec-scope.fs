@@ -31,7 +31,7 @@
 	2swap r> find-name?in
 	dup WHILE
 	    dup >does-code [ ' forth >does-code ]L = WHILE
-		>body  REPEAT  THEN
+		>wordlist  REPEAT  THEN
     drop 2drop 0 ;
 
 : rec-scope ( addr u -- xt | rectype-null )
@@ -59,7 +59,7 @@ get-recognizers 1+ ' rec-scope -rot set-recognizers
 	2swap r> find-name?in
 	dup  WHILE
 	    dup >does-code [ ' forth >does-code ]L =  WHILE
-		>body >r 2nip r>  REPEAT  THEN
+		>wordlist >r 2nip r>  REPEAT  THEN
     nip nip ?search-prefix ;
 
 ' scope-search-prefix is search-prefix

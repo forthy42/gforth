@@ -53,7 +53,7 @@ Variable slowvoc   0 slowvoc !
 
 : mappedwordlist ( map-struct -- wid )	\ gforth
 \G Create a wordlist with a special map-structure.
-  align here swap A, dodoes: A, 0 A, voclink @ A, 0 A,
+  cfalign A, here dodoes: A, 0 A, voclink @ A, 0 A,
   dup wordlist-link voclink !
   dup initvoc ;
 
@@ -71,7 +71,9 @@ Variable slowvoc   0 slowvoc !
   \G The run-time effect of "name" is to replace the @i{wid} at the
   \G top of the search order with the @i{wid} associated with the new
   \G word list.
-  Create wordlist drop  DOES> context ! ;
+  Create wordlist drop  DOES> 0 wordlist-map - context ! ;
+: >wordlist ( voc-xt -- wordlist ) [ 0 wordlist-map negate >body ] Literal + ;
+: >voc ( wordlist -- voc-xt ) [ 0 >body negate wordlist-map ] Literal + ;
 
 : >order ( wid -- ) \ gforth to-order
     \g Push @var{wid} on the search order.
@@ -156,11 +158,11 @@ Only Forth also definitions
 
 \ set initial search order                             14may93py
 
-Forth-wordlist wordlist-id @ ' Forth >body wordlist-id !
+Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
 
 lookup ! \ our dictionary search order becomes the law ( -- )
 
-' Forth >body to Forth-wordlist \ "forth definitions get-current" and "forth-wordlist" should produce the same wid
+' Forth >wordlist to Forth-wordlist \ "forth definitions get-current" and "forth-wordlist" should produce the same wid
 
 
 \ get-order set-order                                  14may93py
@@ -209,7 +211,7 @@ lookup ! \ our dictionary search order becomes the law ( -- )
 \G print the name of the wordlist represented by @var{wid}.  Can
 \G only print names defined with @code{vocabulary} or
     \G @code{wordlist constant}, otherwise prints @samp{address}.
-    dup body> xt?  IF  body> id.  EXIT  THEN
+    dup >voc xt?  IF  >voc id.  EXIT  THEN
     #10 cells 2 cells DO
 	dup wordlist-struct %size + I + xt?
 	true = if ( wid nt )

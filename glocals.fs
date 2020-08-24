@@ -140,7 +140,7 @@ User locals-size \ this is the current size of the locals stack
 slowvoc @
 slowvoc on \ we want a linked list for the vocabulary locals
 vocabulary locals \ this contains the local variables
-' locals >body wordlist-id ' locals-list >body !
+' locals >wordlist wordlist-id ' locals-list >body !
 slowvoc !
 
 variable locals-mem-list \ linked list of all locals name memory in

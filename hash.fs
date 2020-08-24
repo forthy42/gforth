@@ -191,7 +191,7 @@ has? cross 0=
 : make-hash
   forth-wordlist hash-wordlist
   environment-wordlist hash-wordlist
-  ['] Root >body hash-wordlist
+  ['] Root >wordlist hash-wordlist
   addall ;
   make-hash \ Baumsuche ist installiert.
 [ELSE]

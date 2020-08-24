@@ -227,6 +227,7 @@ struct
 end-struct wordlist-map-struct
 
 struct
+    1 cells - \ wordlist-map is at offset -1 cell like vtable
     cell% field wordlist-map \ pointer to a wordlist-map-struct
     cell% field wordlist-exec \ exec pointer for wordlist-map-struct
     cell% field wordlist-id \ linked list of words (for WORDS etc.)
@@ -246,7 +247,7 @@ end-struct wordlist-struct
 Create f83search ( -- wordlist-map )
     0 , 0 , ' drop A,  ' drop A, ' rec-f83 A,
 
-here f83search A, ' :dodoes A, NIL A, NIL A, NIL A,
+f83search A,  here ' :dodoes A, NIL A, NIL A, NIL A,
 AValue forth-wordlist \ variable, will be redefined by search.fs
 
 AVariable lookup       	forth-wordlist lookup !

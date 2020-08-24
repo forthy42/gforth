@@ -35,7 +35,7 @@
 vocabulary environment ( -- ) \ gforth
 \ for win32forth compatibility
 
-' environment >body constant environment-wordlist ( -- wid ) \ gforth
+' environment >wordlist constant environment-wordlist ( -- wid ) \ gforth
   \G @i{wid} identifies the word list that is searched by environmental
   \G queries.
 
