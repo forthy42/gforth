@@ -28,7 +28,7 @@ cat <<EOF
     <!-- However, we use OpenMAX AL, so 10 doesn't work any longer -->
     <uses-sdk
      android:minSdkVersion="14"
-     android:targetSdkVersion="28" />
+     android:targetSdkVersion="29" />
 
     <application android:icon="@drawable/ic_launcher"
                  android:resizeableActivity="true">
