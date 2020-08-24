@@ -236,7 +236,7 @@ struct
 end-struct wordlist-struct
 
 : nt>rec ( nt / 0 -- nt rectype-nt / rectype-null )
-    dup IF  rectype-nt  ELSE  drop rectype-null  THEN ;
+    dup IF  dup where, rectype-nt  ELSE  drop rectype-null  THEN ;
 : rec-f83 ( addr len wordlist-id-addr -- nt rectype-nt / rectype-null )
     @ (listlfind) nt>rec ;
 
@@ -300,7 +300,7 @@ forth-wordlist current !
     \G search the word list identified by @i{wid} for the definition
     \G named by the string at @i{c-addr u}. Return its @i{nt}, if
     \G found, otherwise 0.
-    wordlist-exec execute rectype-null = IF  0  ELSE  dup where,  THEN ;
+    wordlist-exec execute rectype-null = IF  0  THEN ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
     \G Search the word list identified by @i{wid} for the definition
