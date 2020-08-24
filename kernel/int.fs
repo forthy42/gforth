@@ -664,13 +664,13 @@ defer prompt
     \ exits only through THROW etc.
     BEGIN
 	[ has? ec [IF] ] cr [ [ELSE] ]
-	.status ['] cr catch if
+	    ['] cr catch if
 	    [ has? OS [IF] ] >stderr [ [THEN] ]
 	    cr ." Can't print to stdout, leaving" cr
 	    \ if stderr does not work either, already DoError causes a hang
 	    -2 (bye)
 	endif [ [THEN] ]
-	get-input-colored WHILE
+    .status get-input-colored WHILE
 	    interpret prompt
     REPEAT ;
 

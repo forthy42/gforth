@@ -65,7 +65,7 @@ blue >bg white >fg or bold or Value status-attr
 	    r> I - +LOOP  drop
 	THEN
     THEN
-    cr cr 0 -2 at-deltaxy
+    cr 0 -1 at-deltaxy
     status$ $@ redraw-status
     status$ $free ;
 
