@@ -311,7 +311,7 @@ Variable gl-emit-buf
     (gl-atxy) ;
 
 : gl-atxy ( x y -- )
-    scroll-y @ gl-xy @ gl-wh cell+ @ 3 - - 0 max max
+    scroll-y @ gl-xy @ gl-wh cell+ @ 2 - - 0 max max
     + (gl-atxy) ;
 
 : (gl-emit) ( char color -- )

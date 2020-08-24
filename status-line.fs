@@ -18,6 +18,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+0 Value status-offset
+
 blue >bg white >fg or bold or Value status-attr
 : redraw-status ( addr u -- )
     save-cursor-position
@@ -27,7 +29,8 @@ blue >bg white >fg or bold or Value status-attr
     default-color attr!
     restore-cursor-position ;
 : .unstatus-line ( -- )
-    0 erase-display ;
+    0 erase-display
+    0 to status-offset ;
 : replace-char ( c1 c2 addr u -- )
     bounds U+DO
 	over I c@ = IF  dup I c!  THEN
@@ -67,13 +70,10 @@ blue >bg white >fg or bold or Value status-attr
     THEN
     cr 0 -1 at-deltaxy
     status$ $@ redraw-status
-    status$ $free ;
-
-0 Value status-offset
-
-: +status ['] .status-line is .status ['] .unstatus-line is .unstatus
+    status$ $free
     1 to status-offset ;
-: -status ['] noop is .status ['] noop is .unstatus
-    0 to status-offset ;
+
+: +status ['] .status-line is .status ['] .unstatus-line is .unstatus ;
+: -status ['] noop is .status ['] noop is .unstatus ;
 
 +status
