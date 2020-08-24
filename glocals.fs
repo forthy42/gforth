@@ -400,7 +400,7 @@ locals-types definitions
     \ compiles a local variable access
     @ lp-offset compile-@local postpone execute ;
 
-:noname ( "name" -- a-addr u ) \ gforth <local>bracket (unnamed)
+:noname ( c-addr u1 "name" -- a-addr u2 ) \ gforth <local>bracket (unnamed)
     create-local
     ['] compile-pushlocal-[
   does> ( Compilation: -- ) ( Run-time: -- w )
@@ -455,9 +455,11 @@ dup execute some-carray 2drop
 \ the returned nfa denotes a word that produces what W: produces
 \ !! do the whole thing without nextname
     drop 2dup nextname
-    + 1- c@ '[' = IF  ']' parse
-	get-order 2 - -rot 2>r set-order  evaluate
-	get-order 2 + 2r> rot  set-order  -rot [ r> ] Literal
+    + 1- c@ '[' = IF
+	get-order -rot 2>r 2 - set-order
+	']' parse evaluate
+	get-order 2r> rot 2 +  set-order
+	[ r> ] Literal
     ELSE  ['] W:  THEN ;
 : new-locals-rec ( caddr u w -- nfa rectype-nt / rectype-null )
     new-locals-find nt>rec ;
@@ -493,6 +495,7 @@ locals-types definitions
 : } ( vtaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
     \ ends locals definitions
     ]
+    previous previous
     begin
 	dup
     while
@@ -500,7 +503,6 @@ locals-types definitions
     repeat
     drop vt,
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
-    previous previous
     set-current lastnt ! last !
     vtrestore
     locals-list 0 wordlist-id - TO locals-wordlist ;

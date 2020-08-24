@@ -91,18 +91,6 @@ Variable slowvoc   0 slowvoc !
 
 \ vocabulary find                                      14may93py
 
-: (vocfind)  ( addr count wid -- nfa|false )
-    \ !! generalize this to be independent of vp
-    $@ bounds cell- swap cell- -DO
-	( addr count ) \ note that the loop does not reach 0
-	2dup I @ find-name-in ?dup-IF ( addr count nt )
-	    nip nip unloop exit THEN
-	cell [ 2 cells ] Literal I cell- 2@ <> select \ skip double entries
-	\ note that we search first and then skip, because the first search
-	\ has a very likely hit.  So doubles will be skipped, tripples not
-    -loop
-    2drop false ;
-
 [ifundef] locals-wordlist
     0 value locals-wordlist
 [then]
@@ -115,7 +103,7 @@ Variable slowvoc   0 slowvoc !
 	    EXIT
 	THEN drop
     THEN
-    vocstack (vocfind) nt>rec ;
+    vocstack recognize ;
 
 \ In the kernel the dictionary search works on only one wordlist.
 \ The following stuff builds a thing that looks to the kernel like one
