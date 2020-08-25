@@ -21,7 +21,6 @@
 here 0 , \ just a dummy, the real value of locals-list is patched into it in glocals.fs
 AValue locals-list \ acts like a variable that contains
 		      \ a linear list of locals names
-0 value locals-wordlist
 
 variable dead-code \ true if normal code at "here" would be dead
 variable backedge-locals
@@ -400,10 +399,12 @@ defer adjust-locals-list ( wid -- )
     drop  adjust-locals-list ; immediate
 
 \ quotations
-: wrap@ ( -- wrap-sys )
-    vtsave latest latestnt leave-sp @ locals-wordlist ( unlocal-state @ ) ;
-: wrap! ( wrap-sys -- )
-    ( unlocal-state ! ) to locals-wordlist leave-sp ! lastnt ! last ! vtrestore ;
+Defer wrap@
+Defer wrap!
+:noname ( -- wrap-sys )
+    vtsave latest latestnt leave-sp @ ( unlocal-state @ ) ; is wrap@
+:noname ( wrap-sys -- )
+    ( unlocal-state ! ) leave-sp ! lastnt ! last ! vtrestore ; is wrap!
 
 : (int-;]) ( some-sys lastxt -- ) >r vt, wrap! r> ;
 : (;]) ( some-sys lastxt -- )

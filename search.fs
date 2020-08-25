@@ -90,22 +90,6 @@ Variable slowvoc   0 slowvoc !
   \G Drop the wordlist at the top of the search order.
   vocstack stack> drop ;
 
-\ vocabulary find                                      14may93py
-
-[ifundef] locals-wordlist
-    0 value locals-wordlist
-[then]
-
-: locals-rec ( addr count -- nfa rectype-nt | rectype-null )
-    \ !! use generalized (vocfind)
-    locals-wordlist
-    IF 2dup locals-wordlist execute dup rectype-nt =
-	IF  2nip
-	    EXIT
-	THEN drop
-    THEN
-    rec-nt0 ;
-
 \ In the kernel the dictionary search works on only one wordlist.
 \ The following stuff builds a thing that looks to the kernel like one
 \ wordlist, but when searched it searches the whole search order
@@ -134,7 +118,7 @@ Only Forth also definitions
 
 Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
 
-' locals-rec is rec-nt \ our dictionary search order becomes the law ( -- )
+' rec-nt0 is rec-nt \ our dictionary search order becomes the law ( -- )
 
 ' Forth >wordlist to Forth-wordlist \ "forth definitions get-current" and "forth-wordlist" should produce the same wid
 

@@ -56,7 +56,7 @@ locals-types definitions
     locals-size @ extra-locals @ + r> !
     ['] endref, end-d
     ['] execute is end-d  ['] noop is endref,
-    extra-locals off ;
+    extra-locals off ['] rec-locals is rec-nt ;
 
 : :}xt ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
     \G end a closure's locals declaration.  The closure will be allocated by

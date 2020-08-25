@@ -140,8 +140,13 @@ User locals-size \ this is the current size of the locals stack
 slowvoc @
 slowvoc on \ we want a linked list for the vocabulary locals
 vocabulary locals \ this contains the local variables
-' locals >wordlist wordlist-id ' locals-list >body !
+' locals >wordlist wordlist-id to locals-list
 slowvoc !
+
+' rec-nt0 ' locals >wordlist 2 rec-sequence: rec-locals
+
+:noname defers wrap@ ['] rec-nt defer@ ['] rec-nt0 is rec-nt ; is wrap@
+:noname is rec-nt defers wrap! ; is wrap!
 
 variable locals-mem-list \ linked list of all locals name memory in
 0 locals-mem-list !      \ the current (outer-level) definition
@@ -483,7 +488,7 @@ new-locals-map mappedwordlist Constant new-locals-wl
     get-order new-locals-wl swap 1+ set-order
     also locals definitions locals-types
     val-part off
-    0 TO locals-wordlist
+    ['] rec-nt0 is rec-nt
     0 postpone [ ; immediate
 
 synonym {: { ( -- vtaddr u latest latestnt wid 0 ) \ forth-2012 open-brace-colon
@@ -505,7 +510,7 @@ locals-types definitions
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
     set-current lastnt ! last !
     vtrestore
-    locals-list 0 wordlist-id - TO locals-wordlist ;
+    ['] rec-locals is rec-nt ;
 
 synonym :} }
 
@@ -636,7 +641,7 @@ is free-old-local-names
 
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
-    0 TO locals-wordlist
+    ['] rec-nt0 is rec-nt
     lastnt ! last !
     DEFERS ;-hook ;
 
