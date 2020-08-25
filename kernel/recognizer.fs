@@ -58,10 +58,9 @@ defer >postpone-replacer ( ... rectype1 -- ... rectype2 )
 ' lit,
 rectype: rectype-nt ( takes nt, i.e. result of find-name and find-name-in )
 
-: rec-nt ( addr u -- nt rectype-name | rectype-null )
-    \G Searches a word in the wordlist stack
-    find-name [ [IFDEF] prelude-mask ] run-prelude [ [THEN] ]
-    dup IF  rectype-nt  ELSE  drop rectype-null  THEN ;
+Defer rec-nt ( addr u -- nt rectype-name | rectype-null )
+forth-wordlist is rec-nt
+:noname ['] rec-nt >body ; is context
 
 ' noop
 ' lit,

@@ -250,7 +250,6 @@ Create f83search ( -- wordlist-map )
 f83search A,  here ' :dodoes A, NIL A, NIL A, NIL A,
 AValue forth-wordlist \ variable, will be redefined by search.fs
 
-AVariable lookup       	forth-wordlist lookup !
 \ !! last is user and lookup?! jaw
 AVariable current ( -- addr ) \ gforth
 \G @code{Variable} -- holds the @i{wid} of the compilation word list.
@@ -293,7 +292,6 @@ Create new-where where-struct allot
 
 \ find and friends
 
-' lookup is context
 forth-wordlist current !
 
 : find-name-in  ( c-addr u wid -- nt | 0 )
@@ -317,7 +315,7 @@ forth-wordlist current !
 : find-name ( c-addr u -- nt | 0 ) \ gforth
     \g Find the name @i{c-addr u} in the current search
     \g order. Return its @i{nt}, if found, otherwise 0.
-    lookup @ find-name-in ;
+    rec-nt rectype-null = IF  0  THEN ;
 
 \ \ header, finding, ticks                              17dec92py
 
