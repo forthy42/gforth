@@ -276,7 +276,7 @@ Variable gl-emit-buf
 
 : gl-cr ( -- )
     gl-lineend @ 0= IF
-	gl-xy 2@ 1+ nip 0 swap gl-xy 2! THEN
+	gl-xy @ 1+ 0 swap gl-xy 2! THEN
     resize-screen  +sync  out off ;
 
 : xchar>glascii ( xchar -- 0..7F )
@@ -303,7 +303,7 @@ Variable gl-emit-buf
 
 : (gl-atxy) ( x y -- )
     >r gl-wh @ 1- min 0 max r> gl-xy 2!
-    gl-xy cell+ @ out ! ;
+    gl-xy cell+ @ out !  gl-lineend off ;
 
 : gl-at-deltaxy ( x y -- )
     gl-xy 2@ rot + 0 max >r + 0 max r>
