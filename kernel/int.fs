@@ -219,12 +219,12 @@ Defer ?warn#  ' noop is ?warn#
 
 \ word list structure:
 
-struct
-    2 cells +
-    cell% field reveal-method \ xt: ( nt wid -- )
-    cell% field hash-method   \ xt: ( wid -- )    \ initializes ""
+\ struct
+\    2 cells +
+\    cell% field reveal-method \ xt: ( nt wid -- )
+\    cell% field hash-method   \ xt: ( wid -- )    \ initializes ""
 \   \ !! what else
-end-struct wordlist-map-struct
+\ end-struct wordlist-map-struct
 
 struct
     1 cells - \ wordlist-map is at offset -1 cell like vtable
@@ -240,8 +240,8 @@ end-struct wordlist-struct
 : rec-f83 ( addr len wordlist-id-addr -- nt rectype-nt / rectype-null )
     @ (listlfind) nt>rec ;
 
-: initvoc		( wid -- )
-  dup wordlist-map @ hash-method perform ;
+\ : initvoc		( wid -- )
+\   dup wordlist-map @ hash-method perform ;
 
 \ Search list table: find reveal
 Create f83search ( -- wordlist-map )
@@ -403,6 +403,9 @@ method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
 \G word @i{xt-deferred}.
 opt: ( xt-defer@ -- )
     ?fold-to defer@, ;
+
+' defer@ alias initvoc \ gforth init-voc
+\G initialises a vocabulary. Mapped to defer@
 
 swap cell+ swap \ vtextra
 

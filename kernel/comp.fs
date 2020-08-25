@@ -829,7 +829,7 @@ Create defstart
     (nocheck-reveal) ;
 
 \ make entry in wordlist-map
-' (reveal) f83search reveal-method !
+' (reveal) f83search >vtto !
 
 : reveal ( -- ) \ gforth
     last?
@@ -837,7 +837,7 @@ Create defstart
 	dup >link @ 1 and
 	if \ it is still hidden
 	    dup >link @ 1 xor		( nt wid )
-	    dup wordlist-map @ reveal-method perform
+	    (to) \ dup wordlist-map @ reveal-method perform
 	else
 	    drop
 	then

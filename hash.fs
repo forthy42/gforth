@@ -120,7 +120,7 @@ Defer hash-alloc ( addr -- addr )
     HashPop off voclink
     BEGIN  @ dup WHILE
 	    dup 0 wordlist-link -
-	    dup wordlist-map @ reveal-method @
+	    dup wordlist-map @ >vtto @
 	    dup ['] hash-reveal = swap ['] table-reveal = or
 	    IF  inithash ELSE drop THEN
     REPEAT  drop ;
