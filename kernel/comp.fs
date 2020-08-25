@@ -707,6 +707,8 @@ Create vttemplate
 \g -- xt1 ), where xt1 is the result of xt @code{defer@}.
 
 ' (to) Alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
+' (to) Alias reveal! ( xt wid -- ) \ gforth reveal!
+' >vtto Alias reveal-method ( wid -- field ) \ gforth reveal-method
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
 
 : value-to ( n value-xt -- ) \ gforth-internal
@@ -829,7 +831,7 @@ Create defstart
     (nocheck-reveal) ;
 
 \ make entry in wordlist-map
-' (reveal) f83search >vtto !
+' (reveal) f83search reveal-method !
 
 : reveal ( -- ) \ gforth
     last?
@@ -837,7 +839,7 @@ Create defstart
 	dup >link @ 1 and
 	if \ it is still hidden
 	    dup >link @ 1 xor		( nt wid )
-	    (to) \ dup wordlist-map @ reveal-method perform
+	    reveal!
 	else
 	    drop
 	then
