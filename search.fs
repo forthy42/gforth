@@ -21,7 +21,6 @@
 require struct.fs
 
 0 rec-sequence: rec-nt0
-' rec-nt0 >body constant vocstack
 
 : >back ( x stack -- )
     \G push to bottom of stack
@@ -38,7 +37,7 @@ require struct.fs
   current ! ;
 
 :noname ( -- addr )
-    vocstack $@ + cell- ;
+    ['] rec-nt0 >body $@ + cell- ;
 is context
 
 : definitions  ( -- ) \ search
@@ -78,7 +77,7 @@ Variable slowvoc   0 slowvoc !
 
 : >order ( wid -- ) \ gforth to-order
     \g Push @var{wid} on the search order.
-    vocstack >stack ;
+    ['] rec-nt0 >body >stack ;
 
 : also  ( -- ) \ search-ext
   \G Like @code{DUP} for the search order. Usually used before a
@@ -88,7 +87,7 @@ Variable slowvoc   0 slowvoc !
 
 : previous ( -- ) \ search-ext
   \G Drop the wordlist at the top of the search order.
-  vocstack stack> drop ;
+  ['] rec-nt0 >body stack> drop ;
 
 \ In the kernel the dictionary search works on only one wordlist.
 \ The following stuff builds a thing that looks to the kernel like one
@@ -110,7 +109,7 @@ Vocabulary Root ( -- ) \ gforth
 : Only ( -- ) \ search-ext
   \G Set the search order to the implementation-defined minimum search
   \G order (for Gforth, this is the word list @code{Root}).
-  0 1 vocstack set-stack Root also ;
+  0 1 ['] rec-nt0 >body set-stack Root also ;
 
 Only Forth also definitions
 
@@ -131,7 +130,7 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
   \G that is searched first (the word list at the top of the search
   \G order) and @i{widn} represents the wordlist that is searched
   \G last.
-    vocstack get-stack ;
+    ['] rec-nt0 >body get-stack ;
 
 : set-order  ( widn .. wid1 n -- ) \ search
     \G If @var{n}=0, empty the search order.  If @var{n}=-1, set the
@@ -144,7 +143,7 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
     dup -1 = IF
 	drop only exit
     THEN
-    vocstack set-stack ;
+    ['] rec-nt0 >body set-stack ;
 
 : seal ( -- ) \ gforth
   \G Remove all word lists from the search order stack other than the word

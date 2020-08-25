@@ -58,7 +58,6 @@ defer >postpone-replacer ( ... rectype1 -- ... rectype2 )
 ' lit,
 rectype: rectype-nt ( takes nt, i.e. result of find-name and find-name-in )
 
-Defer rec-nt ( addr u -- nt rectype-name | rectype-null )
 forth-wordlist is rec-nt
 :noname ['] rec-nt >body ; is context
 

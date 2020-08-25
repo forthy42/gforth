@@ -298,7 +298,7 @@ forth-wordlist current !
     \G search the word list identified by @i{wid} for the definition
     \G named by the string at @i{c-addr u}. Return its @i{nt}, if
     \G found, otherwise 0.
-    wordlist-exec execute rectype-null = IF  0  THEN ;
+    execute rectype-null = IF  0  THEN ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
     \G Search the word list identified by @i{wid} for the definition
@@ -312,10 +312,13 @@ forth-wordlist current !
 	(name>intn)
     then ;
 
+Defer rec-nt ( addr u -- nt rectype-name | rectype-null )
+\G recognize a name token
+
 : find-name ( c-addr u -- nt | 0 ) \ gforth
     \g Find the name @i{c-addr u} in the current search
     \g order. Return its @i{nt}, if found, otherwise 0.
-    rec-nt rectype-null = IF  0  THEN ;
+    ['] rec-nt find-name-in ;
 
 \ \ header, finding, ticks                              17dec92py
 
