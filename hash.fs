@@ -83,8 +83,7 @@ Defer hash-alloc ( addr -- addr )
 : hash-find ( addr len wordlist -- nfa / false )
     >r 2dup r> bucket @ (hashlfind) ;
 : hash-rec ( addr len wordlist-id -- nfa rectype-nt / rectype-null )
-    0 wordlist-id - hash-find
-    dup IF  rectype-nt  ELSE  drop rectype-null  THEN ;
+    0 wordlist-id - hash-find nt>rec ;
 
 \ hash vocabularies                                    16jul94py
 

@@ -248,21 +248,30 @@ info-color Value setstring-color
 : .resizeline ( span addr pos -- span addr pos )
     >r 2dup swap x-width set-width+
     dup >r edit-linew @ u< IF
-	xedit-startpos  edit-linew @ spaces  edit-linew @ edit-curpos !
+	xedit-startpos
+	edit-linew @ spaces  edit-linew @ edit-curpos !
+    ELSE
+	r@ 1+ screenw @ / 0> IF
+	    xedit-startpos  0 edit-curpos !  .unstatus  THEN
     THEN
     r> edit-linew !  r> ;
 : .all ( span addr pos -- span addr pos )
     xedit-startpos  2dup type  setstring$ $@
     dup IF  ['] type setstring-color color-execute  ELSE  2drop  THEN
     >edit-rest type  edit-linew @ edit-curpos !  ;
+: .all-rest ( span addr pos -- span addr pos )
+    xedit-startpos  2dup x-width set-width+ edit-curpos !
+    2dup type ;
 : .rest ( span addr pos -- span addr pos )
     dup 3 pick = IF
 	2dup x-width set-width+ edit-curpos !  EXIT  THEN
-    xedit-startpos  2dup x-width set-width+ edit-curpos !
-    2dup type ;
+    .all-rest ;
 : xedit-update ( span addr pos1 -- span addr pos1 )
     \G word to update the editor display
-    .resizeline .all .rest ;
+    .resizeline .all
+    edit-linew @ 1+ screenw @ / 0> IF
+	2>r 2>r .status 2r> 2r> .all-rest
+    ELSE  .rest  THEN ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
     over 0 tuck edit-update 2drop drop  false ;
