@@ -390,6 +390,8 @@ Sema gl-sema
 			gl-lineend-save @ gl-lineend !  endof \ restore curpos
 		endcase
 	    endof
+	    'E' of         gl-xy @ + 0 swap (gl-atxy)  endof
+	    'F' of  negate gl-xy @ + 0 swap (gl-atxy)  endof
 	    'J' of  >r
 		videomem videocols videorows * sfloats
 		gl-xy 2@ videocols * + sfloats
