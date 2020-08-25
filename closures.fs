@@ -100,7 +100,8 @@ locals-types definitions
     locals-size @ locals-list @ over 2>r  pop-locals
     [ 2 cells maxaligned ]L + dummy-local,
     2r> push-locals
-    ['] noop end-d ;
+    ['] noop end-d
+    ['] rec-locals is rec-nt ;
 
 forth definitions
 
