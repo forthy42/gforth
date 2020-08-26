@@ -163,6 +163,11 @@ Create .disp ' noop ,  ' .8b ,   ' .32b ,
   dup 0= r@ 5 = and  IF  drop rdrop .[ .32u .] exit  THEN
   r@  4 =            IF       rdrop    .sib    exit  THEN
   cells .disp + perform  r> .[ .sib/reg .] ;
+: .64a  ( addr r/m -- addr' ) dup 7 and >r 6 rshift
+  dup 3 =            IF  drop r>       .s/reg    exit  THEN
+  dup 0= r@ 5 = and  IF  drop rdrop .[ .64u .] exit  THEN
+  r@  4 =            IF       rdrop    .sib    exit  THEN
+  cells .disp + perform  r> .[ .sib/reg .] ;
 \ Register display                                     29may10py
 
 : wcount ( addr -- addr' w ) dup uw@ 2 under+ ;
@@ -184,6 +189,9 @@ Create .16disp  ' noop , ' +8b , ' +16b ,
 : .addr ( addr r/m -- addr' )
   seg: @ 0< 0= IF  seg: @ .seg ': emit  THEN
   alength @  IF  .16a  ELSE  .32a  THEN ;
+: .addr64 ( addr r/m -- addr' )
+  seg: @ 0< 0= IF  seg: @ .seg ': emit  THEN
+  alength @  IF  .16a  ELSE  .64a  THEN ;
 
 : .ptr  ( addr r/m -- addr' )
   dup 300 < IF  length @ "ptrs *." ."  PTR "  THEN  .addr ;
@@ -255,7 +263,8 @@ Defer .code
   .: swap alength @ IF  wcount .$du  ELSE  .32u  THEN .] drop ;
 \ .movo .movx .str                                     23jan93py
 : .movo   tab .b?
-  opcode @ 2 and 0= IF  0 .r/reg .,  THEN  $05 alength @ - .addr
+  opcode @ 2 and 0= IF  0 .r/reg .,  THEN
+  $05 alength @ - .addr64
   opcode @ 2 and    IF  ., 0 .r/reg  THEN ;
 : .movx   tab mod@ .r/reg ., 1 length ! .b? .ptr ;
 : .movdx   tab mod@ .r/reg ., 0 length ! .b? .ptr ;
