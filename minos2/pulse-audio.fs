@@ -286,6 +286,7 @@ Defer write-record
     2 ba[ play-buffer!
     rate 2 ss[ pa-sample!
     pa-ctx "stereo-play" ss[ cm[ pa_channel_map_init_stereo
+    pulse( ss[ pa_sample_spec dump  cm[ pa_channel_map dump )
     pa_stream_new dup to stereo-play  ba[ read-record play-rest ;
 
 event: :>kill-pulse ( -- )

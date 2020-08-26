@@ -235,7 +235,7 @@ Variable opus-stereo-blocks
 	stream@ ?dup-IF
 	    resume-stream  rdrop
 	ELSE
-	    sample-rate ['] read-opus-buf dup
+	    sample-rate ['] read-opus-buf
 	    ['] play-mono ['] play-stereo
 	    /sample 2 = select
 	    pulse-exec##
