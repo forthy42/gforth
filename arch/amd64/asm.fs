@@ -166,6 +166,8 @@ Variable dquad?
 : DI) ( disp reg1 reg2 -- ireg )  I) D) ;
 : A: ( -- )  Adisp? on ;        : A::  ( -- )  -2 Adisp? ! ;
 : A#) ( imm -- )  A: #) ;       : Aseg) ( * -- ) A: seg) ;
+: ?fix-i ( r/m reg -- r/m reg )
+    2dup 44 300 d= disp# @ 0= and  IF  >r 0 swap d) r>  THEN ;
 
 \ # A# rel) CR DR TR ST <ST STP                        01jan98py
 : # ( imm -- ) dup imm !  -$80 $80 within  byte? @ or
@@ -176,8 +178,6 @@ Variable dquad?
 : L) ( disp reg -- reg ) ) >r disp ! 200 asize@ disp# ! r> or ;
 : LI) ( disp reg1 reg2 -- reg ) I) L) ;
 : >>mod ( reg1 reg2 -- mod )
-   \ bug?  This can only add $10 to .rex.  However only bits 0..3 of .rex are
-   \ used
     2dup or $80000 and $0F rshift .rex +!  
     dup $10000 and $0E rshift .rex +! 70 and swap
     dup $30000 and $10 rshift .rex +! 307 and or ;
@@ -269,7 +269,8 @@ $AB bc.b: stos  $AD bc.b: lods  $AF bc.b: scas
 : ?64off  .64bit @ .anow @ 0= and IF  10 disp# ! THEN  0 sib# ! ;
 : ?ofax ( reg ax -- flag )
     .64bit @ IF  44  ELSE  .anow @ IF 55 ELSE 66 THEN  THEN AX d= ;
-: mov ( r/m reg / reg r/m / reg -- ) imm# @
+: mov ( r/m reg / reg r/m / reg -- )
+  ?fix-i imm# @
   IF    assign#  reg?
         IF    >reg  $B8 or byte? @ 3 lshift xor  byte? off
 	      .64now @ IF  10 imm# !  THEN

@@ -65,7 +65,7 @@ Create nrc  ' c, A, ' here A, ' allot A, ' c! A, ' (+rel A,
 >exec +rel
 drop
 
-\ Stack-Buffer fÅr Extra-Werte                         22dec93py
+\ Stack-Buffer f√ºr Extra-Werte                         22dec93py
 
 Variable ModR/M               Variable ModR/M#
 Variable SIB                  Variable SIB#
