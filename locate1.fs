@@ -111,11 +111,11 @@ variable included-file-buffers
     next-case ;
 
 : display-locate-lines {: utop ubottom -- :}
-    cols negate located-bottom @ located-top @ - negate at-deltaxy
+    located-bottom @ located-top @ - cursor-previous-line
     0 erase-display
     utop located-top !
     ubottom located-bottom !
-    print-locate-header l2 2drop drop ;
+    print-locate-header l2 located-bottom ! 2drop ;
     
 : prepend-locate-lines ( u -- )
     \ insert the u lines before the last locate display
@@ -140,7 +140,7 @@ variable included-file-buffers
     endcase ;
 
 : l1 ( -- )
-    l2 after-l 2drop drop ;
+    l2 dup located-bottom ! after-l 2drop drop ;
 
 : l ( -- )
     \g Display source code lines at the current location.
