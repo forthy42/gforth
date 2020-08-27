@@ -274,7 +274,7 @@ info-color Value setstring-color
     ELSE  .rest  THEN ;
 
 : xhide ( max span addr pos1 -- max span addr pos1 f )
-    over 0 tuck edit-update 2drop drop  false ;
+    over 0 tuck edit-update .unstatus 2drop drop  false ;
 
 \ In the following, addr max is the buffer, addr span is the current
 \ string in the buffer, and pos1 is the cursor position in the buffer.
