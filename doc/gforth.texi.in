@@ -14011,7 +14011,30 @@ Windows x64 passes the first four integer parameters in rcx, rdx, r8
 and r9 and return the integer result in rax.  The other caller-saved
 registers are r10 and r11.
 
-Here is an example of an AMD64 @code{abi-code} word:
+On the Linux platform, according to
+@url{https://uclibc.org/docs/psABI-x86_64.pdf} page 21 the registers AX
+CX DX SI DI R8 R9 R10 R11 are available for scratch.
+
+The addressing modes for the AMD64 are:
+
+@example
+\ running word A produces a memory error as the registers are not initialised ;-)
+ABI-CODE A  ( -- )
+    500        #               AX  MOV     \ immediate
+        DX              AX  MOV     \ register
+        200             AX  MOV     \ direct addressing
+        DX  )           AX  MOV     \ indirect addressing
+    40  DX  D)          AX  MOV     \ base with displacement
+        DX  CX      I)  AX  MOV     \ scaled index
+        DX  CX  *4  I)  AX  MOV     \ scaled index
+    40  DX  CX  *4  DI) AX  MOV     \ scaled index with displacement
+
+        DI              AX  MOV     \ SP Out := SP in
+                            RET
+END-CODE
+@end example
+
+Here are a few examples of an AMD64 @code{abi-code} words:
 
 @example
 abi-code my+  ( n1 n2 -- n3 )
@@ -14021,6 +14044,138 @@ di )    dx mov        \ get old tos
 dx    ax ) add        \ add to new tos
 ret
 end-code
+@end example
+
+@example
+\ Do nothing
+ABI-CODE aNOP  ( -- )
+       DI  )       AX      LEA          \ SP out := SP in  
+                           RET
+END-CODE
+@end example
+
+
+@example
+\ Drop TOS
+ABI-CODE aDROP  ( n -- )
+   8   DI  D)      AX      LEA          \ SPout := SPin - 1
+                           RET
+END-CODE
+@end example
+
+
+@example
+\ Push 5 on the data stack
+ABI-CODE aFIVE   ( -- 5 )
+   -8  DI  D)      AX      LEA          \ SPout := SPin + 1
+   5   #           AX  )   MOV          \ TOS := 5
+                           RET
+END-CODE
+@end example
+
+
+@example
+\ Push 10 and 20 into data stack
+ABI-CODE aTOS2  ( -- n n )
+   -16 DI  D)      AX      LEA          \ SPout := SPin + 2
+   10  #       8   AX  D)  MOV          \ TOS - 1 := 10
+   20  #           AX  )   MOV          \ TOS := 20
+                           RET
+END-CODE
+@end example
+
+
+@example
+\ Get Time Stamp Counter as two 32 bit integers
+\ The TSC is incremented every CPU clock pulse
+ABI-CODE aRDTSC   ( -- TSCl TSCh )
+                           RDTSC        \ DX:AX := TSC
+   $FFFFFFFF #     AX      AND          \ Clear upper 32 bit AX
+  0xFFFFFFFF #     DX      AND          \ Clear upper 32 bit DX
+       AX          R8      MOV          \ Tempory save AX
+   -16 DI  D)      AX      LEA          \ SPout := SPin + 2
+       R8      8   AX  D)  MOV          \ TOS-1 := saved AX = TSC low
+       DX          AX  )   MOV          \ TOS := Dx = TSC high
+                           RET
+END-CODE
+@end example
+
+
+@example
+\ Get Time Stamp Counter as 64 bit integer
+ABI-CODE RDTSC   ( -- TSC )
+                           RDTSC        \ DX:AX := TSC
+   $FFFFFFFF #     AX      AND          \ Clear upper 32 bit AX
+   32  #           DX      SHL          \ Move lower 32 bit DX to upper 32 bit
+       AX          DX      OR           \ Combine AX wit DX in DX
+   -8  DI  D)      AX      LEA          \ SPout := SPin + 1
+       DX          AX  )   MOV          \ TOS := DX
+                           RET
+END-CODE
+@end example
+
+
+@example
+VARIABLE V
+
+\ Assign 4 to variable V
+ABI-CODE V=4 ( -- )
+       BX                  PUSH         \ Save BX, used by gforth
+   V   #           BX      MOV          \ BX := address of V
+   4   #           BX )    MOV          \ Write 4 to V
+       BX                  POP          \ Restore BX
+       DI  )       AX      LEA          \ SPout := SPin
+                           RET
+END-CODE
+@end example
+
+
+@example
+VARIABLE V
+
+\ Assign 5 to variable V
+ABI-CODE V=5 ( -- )
+   V   #           CX      MOV          \ CX := address of V
+   5   #           CX )    MOV          \ Write 5 to V
+   DI )            AX      LEA          \ SPout := SPin
+                           RET
+END-CODE
+@end example
+
+
+@example
+ABI-CODE TEST2  ( -- n n )
+   -16 DI  D)  AX          LEA          \ SPout := SPin + 2
+   5   #       CX          MOV          \ CX := 5
+   5   #       CX          CMP
+   0= IF
+       1   #   8   AX  D)      MOV      \ If CX = 5 then TOS - 1 := 1  <--
+   ELSE
+       2   #   8   AX  D)      MOV      \ else TOS - 1 := 2
+   THEN
+   6   #       CX          CMP
+   0= IF
+       3   #       AX  )       MOV      \ If CX = 6 then TOS := 3
+   ELSE
+       4   #       AX  )       MOV      \ else TOS := 4  <--
+   THEN
+                           RET
+END-CODE
+@end example
+
+
+@example
+\ Do four loops. Expect : ( 4 3 2 1 -- )
+ABI-CODE LOOP4  ( -- n n n n )
+       DI          AX      MOV          \ SPout := SPin
+   4   #           DX      MOV          \ DX := 4  loop counter
+   BEGIN
+       8   #           AX      SUB      \ SP := SP + 1
+           DX          AX  )   MOV      \ TOS := DX
+       1   #           DX      SUB      \ DX := DX - 1
+   0= UNTIL
+                           RET
+END-CODE
 @end example
 
 Here's a AMD64 example that deals with FP values:
