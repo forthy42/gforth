@@ -258,7 +258,7 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
     BEGIN
 	@ dup
     WHILE
-	dup 0 wordlist-link - initvoc
+	dup 0 wordlist-link - initwl
     REPEAT
     drop
     \ restore udp and dp

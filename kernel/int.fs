@@ -405,7 +405,7 @@ method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
 opt: ( xt-defer@ -- )
     ?fold-to defer@, ;
 
-' defer@ alias initvoc \ gforth init-voc
+' defer@ alias initwl \ gforth init-voc
 \G initialises a vocabulary. Mapped to defer@
 
 swap cell+ swap \ vtextra

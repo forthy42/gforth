@@ -55,7 +55,7 @@ Variable slowvoc   0 slowvoc !
 \G Create a wordlist with a special map-structure.
   cfalign A, here dodoes: A, 0 A, voclink @ A, 0 A,
   dup wordlist-link voclink !
-  dup initvoc ;
+  dup initwl ;
 
 : wordlist  ( -- wid ) \ search
   \G Create a new, empty word list represented by @i{wid}.
