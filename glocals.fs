@@ -454,38 +454,25 @@ dup execute some-carray 2drop
 \ when it is asked if it contains x.
 
 >r
-: new-locals-find ( caddr u w -- nfa )
+: new-locals-rec ( caddr u -- nfa )
 \ this is the find method of the new-locals vocabulary
 \ make a new local with name caddr u; w is ignored
 \ the returned nfa denotes a word that produces what W: produces
 \ !! do the whole thing without nextname
-    drop 2dup nextname
+    2dup nextname
     + 1- c@ '[' = IF
 	get-order -rot 2>r 2 - set-order
 	']' parse evaluate
 	get-order 2r> rot 2 +  set-order
 	[ r> ] Literal
-    ELSE  ['] W:  THEN ;
-: new-locals-rec ( caddr u w -- nfa rectype-nt / rectype-null )
-    new-locals-find nt>rec ;
+    ELSE  ['] W:  THEN  nt>rec ;
 previous
-
-: new-locals-reveal ( -- )
-  true abort" this should not happen: new-locals-reveal" ;
-
-create new-locals-map ( -- wordlist-map )
-0 , 0 ,
-' new-locals-reveal A,
-' drop A, \ rehash method
-' new-locals-rec A,
-
-new-locals-map mappedwordlist Constant new-locals-wl
 
 \ and now, finally, the user interface words
 : { ( -- vtaddr u latest latestnt wid 0 ) \ gforth open-brace
     ( >docolloc ) vtsave \ as locals will mess with their own vttemplate
     latest latestnt get-current
-    get-order new-locals-wl swap 1+ set-order
+    get-order ['] new-locals-rec swap 1+ set-order
     also locals definitions locals-types
     val-part off
     ['] rec-nt0 is rec-nt
