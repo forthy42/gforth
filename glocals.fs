@@ -145,7 +145,10 @@ slowvoc !
 
 ' rec-nt0 ' locals >wordlist 2 rec-sequence: rec-locals
 
-:noname defers wrap@ ['] rec-nt defer@ ['] rec-nt0 is rec-nt ; is wrap@
+: activate-locals   ['] rec-locals is rec-nt ;
+: deactivate-locals ['] rec-nt0 is rec-nt ;
+
+:noname defers wrap@ ['] rec-nt defer@ deactivate-locals ; is wrap@
 :noname is rec-nt defers wrap! ; is wrap!
 
 variable locals-mem-list \ linked list of all locals name memory in
@@ -448,13 +451,10 @@ dup execute some-carray 2drop
 ' dict-execute1 is dict-execute \ now the real thing
 
 \ the following gymnastics are for declaring locals without type specifier.
-\ we exploit a feature of our dictionary: every wordlist
-\ has it's own methods for finding words etc.
-\ So we create a vocabulary new-locals, that creates a 'w:' local named x
-\ when it is asked if it contains x.
+\ we use a catch-all recognizer to do t' new-locals-rec  hat
 
 >r
-: new-locals-rec ( caddr u -- nfa )
+: new-locals-rec ( caddr u -- [size] nfa )
 \ this is the find method of the new-locals vocabulary
 \ make a new local with name caddr u; w is ignored
 \ the returned nfa denotes a word that produces what W: produces
@@ -477,7 +477,6 @@ previous
     ['] new-locals forth-recognizer >stack
     ['] locals >wordlist set-current
     val-part off
-    ['] rec-nt0 is rec-nt
     0 postpone [ ; immediate
 
 synonym {: { ( -- vtaddr u latest latestnt wid 0 ) \ forth-2012 open-brace-colon
@@ -499,7 +498,7 @@ locals-types definitions
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
     set-current lastnt ! last !
     vtrestore
-    ['] rec-locals is rec-nt ;
+    activate-locals ;
 
 synonym :} }
 
@@ -630,7 +629,7 @@ is free-old-local-names
 
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
-    ['] rec-nt0 is rec-nt
+    deactivate-locals
     lastnt ! last !
     DEFERS ;-hook ;
 
