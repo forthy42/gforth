@@ -461,19 +461,21 @@ dup execute some-carray 2drop
 \ !! do the whole thing without nextname
     2dup nextname
     + 1- c@ '[' = IF
-	get-order -rot 2>r 2 - set-order
+	forth-recognizer stack> >r
 	']' parse evaluate
-	get-order 2r> rot 2 +  set-order
+	r> forth-recognizer >stack
 	[ r> ] Literal
     ELSE  ['] W:  THEN  nt>rec ;
 previous
+
+' new-locals-rec  ' locals-types >wordlist 2 rec-sequence: new-locals
 
 \ and now, finally, the user interface words
 : { ( -- vtaddr u latest latestnt wid 0 ) \ gforth open-brace
     ( >docolloc ) vtsave \ as locals will mess with their own vttemplate
     latest latestnt get-current
-    get-order ['] new-locals-rec swap 1+ set-order
-    also locals definitions locals-types
+    ['] new-locals forth-recognizer >stack
+    ['] locals >wordlist set-current
     val-part off
     ['] rec-nt0 is rec-nt
     0 postpone [ ; immediate
@@ -487,7 +489,7 @@ locals-types definitions
 : } ( vtaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
     \ ends locals definitions
     ]
-    previous previous
+    forth-recognizer stack> drop
     begin
 	dup
     while
