@@ -51,11 +51,19 @@ Variable slowvoc   0 slowvoc !
 
 \ Forth-wordlist AConstant Forth-wordlist
 
+: wl, ( -- )
+    0 A, here voclink @ A, voclink ! 0 A, ;
+
+: set-wordlist ( reveal-xt init-xt rec-xt -- )
+    set-does>  set-defer@  set-to ;
+
+: wordlist-class ( reveal-xt init-xt rec-xt -- wid )
+    forth-wordlist noname-from here body> >r wl,
+    set-wordlist  r@ initwl r> ;
+
 : mappedwordlist ( map-struct -- wid )	\ gforth
 \G Create a wordlist with a special map-structure.
-  cfalign A, here dodoes: A, 0 A, voclink @ A, 0 A,
-  dup wordlist-link voclink !
-  dup initwl ;
+    cfalign A, here dodoes: A, wl, dup initwl ;
 
 : wordlist  ( -- wid ) \ search
   \G Create a new, empty word list represented by @i{wid}.
@@ -71,7 +79,7 @@ Variable slowvoc   0 slowvoc !
   \G The run-time effect of "name" is to replace the @i{wid} at the
   \G top of the search order with the @i{wid} associated with the new
   \G word list.
-  Create wordlist drop  DOES> 0 wordlist-map - context ! ;
+  Create  [: 0 wordlist-map - context ! ;] set-does> wordlist drop ;
 : >wordlist ( voc-xt -- wordlist ) [ 0 wordlist-map negate >body ] Literal + ;
 : >voc ( wordlist -- voc-xt ) [ 0 >body negate wordlist-map ] Literal + ;
 
