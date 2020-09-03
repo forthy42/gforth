@@ -55,11 +55,11 @@ Variable slowvoc   0 slowvoc !
     0 A, here voclink @ A, voclink ! 0 A, ;
 
 : set-wordlist ( reveal-xt init-xt rec-xt -- )
-    set-does>  set-defer@  set-to ;
+    noname-vt  set-does>  set-defer@  set-to ;
 
 : wordlist-class ( reveal-xt init-xt rec-xt -- wid )
-    forth-wordlist noname-from here body> >r wl,
-    set-wordlist  r@ initwl r> ;
+    vtsave 2>r forth-wordlist noname-from here body> >r wl,
+    set-wordlist  r@ initwl r>  vt, 2r> vtrestore ;
 
 : mappedwordlist ( map-struct -- wid )	\ gforth
 \G Create a wordlist with a special map-structure.
@@ -70,7 +70,7 @@ Variable slowvoc   0 slowvoc !
   slowvoc @
   IF    \ this is now f83search because hashing may be loaded already
 	\ jaw
-	f83search 
+	f83search
   ELSE  Forth-wordlist wordlist-map @   THEN
   mappedwordlist ;
 

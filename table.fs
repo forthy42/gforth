@@ -40,6 +40,7 @@ Create cs-wordlist-search-map ( -- wordlist-map )
 
 : cs-vocabulary ( "name" -- ) \ gforth
     \g Create a case-senisitive vocabulary
-    Vocabulary cs-wordlist-search-map latestnt >body ! ;
+    Create  [: 0 wordlist-map - context ! ;] set-does>  cs-wordlist drop ;
+\    Vocabulary cs-wordlist-search-map latestnt >body ! ;
 
 ' cs-vocabulary alias voctable
