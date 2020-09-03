@@ -35,12 +35,8 @@ require hash.fs
     \g Create a case-sensitive wordlist.
     ['] hash-reveal  ['] (rehash) ['] table-rec wordlist-class ;
 
-Create cs-wordlist-search-map ( -- wordlist-map )
-0 , 0 , ' hash-reveal A,  ' (rehash) A, ' table-rec A,
-
 : cs-vocabulary ( "name" -- ) \ gforth
     \g Create a case-senisitive vocabulary
     Create  [: 0 wordlist-map - context ! ;] set-does>  cs-wordlist drop ;
-\    Vocabulary cs-wordlist-search-map latestnt >body ! ;
 
 ' cs-vocabulary alias voctable
