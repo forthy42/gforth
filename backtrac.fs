@@ -100,7 +100,7 @@ is defer-default
 
 : .sourceview-width ( view -- u )
     \ prints sourceview, returns width of printed string
-    ['] .sourceview $tmp 2dup type x-width ;
+    [: .sourceview ':' emit ;] $tmp 2dup type x-width ;
     
 : .backtrace-view ( addr -- )
     addr>view dup IF
