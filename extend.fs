@@ -267,7 +267,7 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
 [THEN]
     dup @ udp !  cell+ @ vtable-list !  dp !
     \ clean up vocabulary stack
-    0 ['] rec-nt0 >body $@ bounds
+    0 ['] search-order >body $@ bounds
     U+DO
 	I @ dup here u>
 	IF  drop  ELSE  swap 1+  THEN

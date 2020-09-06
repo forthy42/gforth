@@ -143,10 +143,10 @@ vocabulary locals \ this contains the local variables
 ' locals >wordlist wordlist-id to locals-list
 slowvoc !
 
-' rec-nt0 ' locals >wordlist 2 rec-sequence: rec-locals
+' search-order ' locals >wordlist 2 rec-sequence: rec-locals
 
 : activate-locals   ['] rec-locals is rec-nt ;
-: deactivate-locals ['] rec-nt0 is rec-nt ;
+: deactivate-locals ['] search-order is rec-nt ;
 
 :noname defers wrap@ ['] rec-nt defer@ deactivate-locals ; is wrap@
 :noname is rec-nt defers wrap! ; is wrap!
