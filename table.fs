@@ -40,3 +40,24 @@ require hash.fs
     Create  [: 0 wordlist-map - context ! ;] set-does>  cs-wordlist drop ;
 
 ' cs-vocabulary alias voctable
+Create tablesearch-map ( -- wordlist-map )
+0 , 0 , ' table-reveal A, ' (rehash) A, ' table-rec A,
+Create cs-wordlist-search-map ( -- wordlist-map )
+0 , 0 , ' hash-reveal A,  ' (rehash) A, ' table-rec A,
+
+ : table ( -- wid ) \ gforth
+     \g Create a lookup table (case-sensitive, no warnings).
+     tablesearch-map mappedwordlist ;
+\    ['] table-reveal ['] (rehash) ['] table-rec wordlist-class ;
+ 
+ : cs-wordlist ( -- wid ) \ gforth
+     \g Create a case-sensitive wordlist.
+    cs-wordlist-search-map mappedwordlist ;
+\    ['] hash-reveal  ['] (rehash) ['] table-rec wordlist-class ;
+
+Create cs-wordlist-search-map ( -- wordlist-map )
+0 , 0 , ' hash-reveal A,  ' (rehash) A, ' table-rec A,
+ 
+ : cs-vocabulary ( "name" -- ) \ gforth
+     \g Create a case-sensitive vocabulary
+     Vocabulary cs-wordlist-search-map latestnt >body ! ;
