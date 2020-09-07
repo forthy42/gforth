@@ -27,21 +27,20 @@ require hash.fs
 : table-rec ( addr len wordlist-id -- nfa rectype-nt / rectype-null )
     0 wordlist-id - table-find nt>rec ;
 
-Create cs-wordlist-search-map ( -- wordlist-map )
-0 , 0 , ' hash-reveal A,  ' (rehash) A, ' table-rec A,
+' table-reveal  ' (rehash)  ' table-rec wordlist-class
+vt, cell- @ Constant tablesearch-map
+' hash-reveal  ' (rehash)  ' table-rec wordlist-class
+vt, cell- @ Constant cs-wordlist-search-map
+
+voclink @ @ @ voclink !
 
 : table ( -- wid ) \ gforth
     \g Create a lookup table (case-sensitive, no warnings).
-    \     tablesearch-map mappedwordlist ;
-    ['] table-reveal ['] (rehash) ['] table-rec wordlist-class ;
+    tablesearch-map mappedwordlist ;
 
 : cs-wordlist ( -- wid ) \ gforth
     \g Create a case-sensitive wordlist.
-    \    cs-wordlist-search-map mappedwordlist ;
-    ['] hash-reveal  ['] (rehash) ['] table-rec wordlist-class ;
-
-cs-wordlist vt, cell- @ Constant cs-wordlist-search-map'
-voclink @ @ voclink ! \ unlink last wordli
+    cs-wordlist-search-map mappedwordlist ;
 
 : cs-vocabulary ( "name" -- ) \ gforth
     \g Create a case-sensitive vocabulary
