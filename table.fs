@@ -41,9 +41,6 @@ Create cs-wordlist-search-map ( -- wordlist-map )
      \g Create a case-sensitive wordlist.
     cs-wordlist-search-map mappedwordlist ;
 \    ['] hash-reveal  ['] (rehash) ['] table-rec wordlist-class ;
-
-Create cs-wordlist-search-map ( -- wordlist-map )
-0 , 0 , ' hash-reveal A,  ' (rehash) A, ' table-rec A,
  
  : cs-vocabulary ( "name" -- ) \ gforth
      \g Create a case-sensitive vocabulary
