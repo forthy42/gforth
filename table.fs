@@ -42,9 +42,6 @@ voclink @ @ @ voclink !
     \g Create a case-sensitive wordlist.
     cs-wordlist-search-map mappedwordlist ;
 
-Create cs-wordlist-search-map ( -- wordlist-map )
-0 , 0 , ' hash-reveal A,  ' (rehash) A, ' table-rec A,
-
 : cs-vocabulary ( "name" -- ) \ gforth
     \g Create a case-sensitive vocabulary
     Vocabulary cs-wordlist-search-map latestnt >body ! ;
