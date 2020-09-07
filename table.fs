@@ -28,9 +28,9 @@ require hash.fs
     0 wordlist-id - table-find nt>rec ;
 
 ' table-reveal  ' (rehash)  ' table-rec wordlist-class
-vt, cell- @ Constant tablesearch-map
+>namevt @ Constant tablesearch-map
 ' hash-reveal  ' (rehash)  ' table-rec wordlist-class
-vt, cell- @ Constant cs-wordlist-search-map
+>namevt @ Constant cs-wordlist-search-map
 
 voclink @ @ @ voclink !
 
@@ -41,6 +41,9 @@ voclink @ @ @ voclink !
 : cs-wordlist ( -- wid ) \ gforth
     \g Create a case-sensitive wordlist.
     cs-wordlist-search-map mappedwordlist ;
+
+Create cs-wordlist-search-map ( -- wordlist-map )
+0 , 0 , ' hash-reveal A,  ' (rehash) A, ' table-rec A,
 
 : cs-vocabulary ( "name" -- ) \ gforth
     \g Create a case-sensitive vocabulary
