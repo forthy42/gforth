@@ -665,6 +665,7 @@ Defer anim-ins
     setstring> edit-enter ;
 : edit-selall ( max span addr pos1 -- max span addr pos2 false )
     drop over to outselw 0 xretype ;
+also [IFDEF] jni jni [THEN]
 : edit-insert ( max span addr pos1 -- max span addr pos2 false )
     case vt100-modifier @
 	1 of  edit-paste  endof
@@ -672,6 +673,7 @@ Defer anim-ins
 	5 of  setstring> primary@ edit-split-ins$ edit-update 0  endof
     false swap
     endcase ;
+previous
 
 ' edit-next-line ctrl N bindkey
 ' edit-prev-line ctrl P bindkey
