@@ -266,9 +266,12 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	  "+field" "value:" "cvalue:" "scvalue:" "wvalue:" "swvalue:"
 	  "lvalue:" "slvalue:" "2value:" "fvalue:" "sfvalue:" "dfvalue:"
 	  "$value:" "defer:" "value[]:" "$value[]:"
-	  "wrap+value:" "method" "umethod")
+	  "wrap+value:")
 	 non-immediate (font-lock-type-face . 2)
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
+	(("method" "umethod")
+	 non-immediate (font-lock-type-face . 2)
+	 "[ \t\n]" t name (font-lock-function-name-face . 3))
 	("\\S-+%" non-immediate (font-lock-type-face . 2))
 	(("defer" "alias" "create-interpret/compile:") 
 	 non-immediate (font-lock-type-face . 1)
