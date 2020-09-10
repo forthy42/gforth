@@ -10,6 +10,7 @@
 %}
 
 #define GST_API
+#define GST_DEPRECATED
 #define GST_GL_API
 #define GST_DEPRECATED_FOR(x)
 #define GST_USE_UNSTABLE_API
