@@ -204,11 +204,9 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     v? r> + points# u>= or
     IF  render>  THEN ;
 
-$AD Constant 'soft-hyphen'
-
 : ?soft-hyphen { I' I -- xaddr xs }
-    I I' over - x-size { xs }
-    I [: xc@ 'soft-hyphen' = ;] catch 0= and
+    I I' over - 2dup x-size { xs }
+    "\u00AD" string-prefix?
     IF  I xs + I' =
 	IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
     ELSE  I  THEN  xs ;
