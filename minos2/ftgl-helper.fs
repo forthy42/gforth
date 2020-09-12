@@ -208,7 +208,8 @@ $AD Constant 'soft-hyphen'
 
 : ?soft-hyphen { I' I -- xaddr xs }
     I I' over - x-size { xs }
-    I xc@ 'soft-hyphen' = IF  I xs + I' =
+    I [: xc@ 'soft-hyphen' = ;] catch 0= and
+    IF  I xs + I' =
 	IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
     ELSE  I  THEN  xs ;
 

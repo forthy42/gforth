@@ -659,13 +659,12 @@ Defer anim-ins
 
 : edit-paste ( max span addr pos1 - max span addr pos2 false )
     setstring> clipboard@ edit-split-ins$ edit-update 0 ;
-[IFDEF] android previous previous [THEN]
 
 : xedit-enter ( max span addr pos1 -- max span addr pos2 true )
     setstring> edit-enter ;
 : edit-selall ( max span addr pos1 -- max span addr pos2 false )
     drop over to outselw 0 xretype ;
-also [IFDEF] jni jni [THEN]
+
 : edit-insert ( max span addr pos1 -- max span addr pos2 false )
     case vt100-modifier @
 	1 of  edit-paste  endof
@@ -673,7 +672,7 @@ also [IFDEF] jni jni [THEN]
 	5 of  setstring> primary@ edit-split-ins$ edit-update 0  endof
     false swap
     endcase ;
-previous
+[IFDEF] android previous previous [THEN]
 
 ' edit-next-line ctrl N bindkey
 ' edit-prev-line ctrl P bindkey

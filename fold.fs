@@ -168,3 +168,10 @@ optimizes fpick
     else
 	['] @ peephole-compile, then ;
 ' opt@ optimizes @
+
+\ optimize lit execute into call
+:noname ( xt -- )
+    lits# 1 u>= if
+	drop lits> compile,
+    else  peephole-compile, then ;
+optimizes execute
