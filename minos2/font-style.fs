@@ -262,22 +262,22 @@ also fonts definitions
 [THEN]
 
 \emoji \sans
-\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
-\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
-\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
-\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 
 \serif
-\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
-\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
-\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
-\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 
 \mono
-\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
-\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
-\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
-\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|TwitterColorEmojiv2.ttf|SamsungColorEmoji.ttf
+\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 
 \icons
 \sans
