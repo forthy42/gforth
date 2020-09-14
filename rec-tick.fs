@@ -23,9 +23,10 @@
     \G words prefixed with @code{`} return their xt.
     \G Example: @code{`dup} gives the xt of dup
     over c@ '`' = if
-	1 /string find-name dup if
-	    name>interpret rectype-num exit then
-	dup then
+	1 /string sp@ >r >in @ >r
+	forth-recognizer recognize dup rectype-nt = if
+	    drop name>interpret rectype-num rdrop rdrop exit then
+	r> >in ! r> sp! then
     2drop rectype-null ;
 
 ' rec-tick forth-recognizer >back
@@ -34,10 +35,10 @@
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}
     2dup "``" string-prefix? if
-	2 /string find-name dup if
-	    rectype-num exit then
-	dup then
+	2 /string sp@ >r >in @ >r
+	forth-recognizer recognize dup rectype-nt = if
+	    drop rectype-num rdrop rdrop exit then
+	r> >in ! r> sp! then
     2drop rectype-null ;
 
 ' rec-dtick forth-recognizer >back
-
