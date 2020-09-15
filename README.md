@@ -77,26 +77,33 @@ not necessary for building Gforth. Not all of them are mentioned in
 the rest of the documentation, so here's a short overview:
 
 __Add-ons:__
+
     code.fs random.fs more.fs ansi.fs colorize.fs
     oof.fs oofsampl.fs objects.fs blocked.fb tasker.fs
 
 __Utilities:__
+
     ans-report.fs etags.fs glosgen.fs filedump.fs
 
 __Games:__
+
     tt.fs sokoban.fs
 
 __Test programs (for testing Forth systems):__
-    test/\*.fs
+
+    test/*.fs
 
 __Benchmarks:__
+
     bubble.fs siev.fs matrix.fs fib.fs
 
 __ANS Forth implementations of Gforth extensions:__
-    compat/\*.fs
+
+    compat/*.fs
 
 __C-Bindings:__
-    unix/\*.fs
+
+    unix/*.fs
 
 ## Support
 

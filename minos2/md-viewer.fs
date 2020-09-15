@@ -379,7 +379,7 @@ md-char: : ( char -- )
     drop /source ":" string-prefix? IF
 	>in @ >r
 	1 >in +! ':' parse /source ":" string-prefix? IF
-	    ['] md-tokens >body find-name-in ?dup-IF
+	    ['] md-tokens >wordlist find-name-in ?dup-IF
 		name?int execute
 		rdrop EXIT  THEN  THEN
 	r> >in !
@@ -490,7 +490,7 @@ previous set-current
     [{: f: rw :}l rw par-split ;] md-box .do-childs ;
 
 : ?md-token ( -- token )
-    parse-name [ ' markdown >body ]L find-name-in ;
+    parse-name [ ' markdown >wordlist ]L find-name-in ;
 : ===/---? ( -- )
     source nip 0<> IF
 	source '=' skip nip 0= IF  "# " preparse$ 0 $ins " #" preparse$ $+!

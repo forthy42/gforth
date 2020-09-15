@@ -35,7 +35,8 @@ require minos2/md-viewer.fs
 
 fpath+ ~+
 
-next-arg markdown-parse
+next-arg 2dup d0= [IF] 2drop "README.md" [THEN]
+markdown-parse
 
 dpy-w @ s>f font-size# fover 25% f* f+ f2* f- p-format
 
