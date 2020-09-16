@@ -19,13 +19,21 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+[IFUNDEF] ?rec-nt
+    : ?rec-nt ( addr u -- xt true / something 0 )
+	sp@ >in @ 2>r
+	forth-recognizer recognize rectype-nt =
+	2r> 2over 2>r >in ! sp!
+	2drop 2r> ;
+[THEN]
+
 : rec-body ( addr u -- xt rectype-tick | rectype-null )
     \G words bracketed with @code{'<'} @code{'>'} return their body.
     \G Example: @code{<dup>} gives the body of dup
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or
     if 2drop rectype-null exit then
-    1 /string 1- '+' $split 2>r find-name
-    dup 0= if  drop 2rdrop rectype-null exit then
+    1 /string 1- '+' $split 2>r ?rec-nt
+    0= if  drop 2rdrop rectype-null exit then
     name>int >body
     2r> dup 0= if  2drop rectype-num  exit  then
     case  rec-num

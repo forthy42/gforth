@@ -91,10 +91,12 @@ end-class md-styler
 
 : md-text+ ( -- )
     md-text$ $@len IF  bl md-text$ c$+!  THEN ;
+
 glue new Constant glue*\\
 glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 : .\\ ( -- )
     glue*\\ }}glue md-p-box .child+ x-baseline md-p-box .parent-w >o to baseline' o> ;
+
 : +p-box ( -- )
     {{ }}p box[] >bl dup md-box .child+
     dup >o "p-box" to name$ o>

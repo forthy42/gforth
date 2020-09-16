@@ -63,7 +63,7 @@ cat <<EOF
 [Setup]
 AppName=Gforth
 AppVersion=$VERSION
-AppCopyright=Copyright © 1995-2019 Free Software Foundation
+AppCopyright=Copyright © 1995-2020 Free Software Foundation
 DefaultDirName={pf}\gforth
 DefaultGroupName=Gforth
 AllowNoIcons=1

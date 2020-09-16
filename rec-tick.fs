@@ -19,14 +19,21 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+[IFUNDEF] ?rec-nt
+    : ?rec-nt ( addr u -- xt true / something 0 )
+	sp@ >in @ 2>r
+	forth-recognizer recognize rectype-nt =
+	2r> 2over 2>r >in ! sp!
+	2drop 2r> ;
+[THEN]
+
 : rec-tick ( addr u -- xt rectype-num | rectype-null )
     \G words prefixed with @code{`} return their xt.
     \G Example: @code{`dup} gives the xt of dup
     over c@ '`' = if
-	1 /string sp@ >r >in @ >r
-	forth-recognizer recognize dup rectype-nt = if
-	    drop name>interpret rectype-num rdrop rdrop exit then
-	r> >in ! r> sp! then
+	1 /string ?rec-nt
+	if  name>interpret rectype-num exit  then  0
+    then
     2drop rectype-null ;
 
 ' rec-tick forth-recognizer >back
@@ -35,10 +42,8 @@
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}
     2dup "``" string-prefix? if
-	2 /string sp@ >r >in @ >r
-	forth-recognizer recognize dup rectype-nt = if
-	    drop rectype-num rdrop rdrop exit then
-	r> >in ! r> sp! then
+	2 /string ?rec-nt if  rectype-num exit then  0
+	then
     2drop rectype-null ;
 
 ' rec-dtick forth-recognizer >back
