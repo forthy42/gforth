@@ -36,8 +36,6 @@
     then
     2drop rectype-null ;
 
-' rec-tick forth-recognizer >back
-
 : rec-dtick ( addr u -- nt rectype-num | rectype-null )
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}
@@ -47,3 +45,4 @@
     2drop rectype-null ;
 
 ' rec-dtick forth-recognizer >back
+' rec-tick forth-recognizer >back
