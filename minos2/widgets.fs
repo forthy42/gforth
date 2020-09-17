@@ -276,6 +276,7 @@ object class
     method !size ( -- ) \ set your own size
     method dispose-widget ( -- ) \ get rid of a widget
     method .widget
+    method par-split ( w -- )
 end-class widget
 
 0 Value w.indent#
@@ -287,6 +288,8 @@ end-class widget
 :noname ( rx ry -- act / 0 )
     caller-w .inside? o and
 ; actor is ?inside
+
+' fdrop widget is par-split
 
 : w.widget ( -- ) w.indent# spaces name$ type ." : "
     x f. y f. w f. h f. d f. space
@@ -362,7 +365,8 @@ widget class
     value: rotate#
 end-class tile
 
-:noname tile-glue .hglue { f: s f: a } border f2* borderl f+ f+ s a ; tile is hglue
+: borderh ( -- b ) borderl border f2* f+ ;
+:noname tile-glue .hglue { f: s f: a } borderh f+ s a ; tile is hglue
 :noname tile-glue .dglue { f: s f: a } border borderv f+ f+ s a ; tile is dglue
 :noname tile-glue .vglue { f: s f: a } border borderv f+ bordert f+ f+ s a ; tile is vglue
 
@@ -551,7 +555,7 @@ end-class text
 : text! ( addr u font -- )
     to text-font to text$ 0e to start 1e to end ;
 : text-scale! ( w text-w -- ) { f: tx-w }
-    border f2* borderl f+ f- kerning f- tx-w fdup f0= IF  f*  ELSE  f/  THEN
+    borderh f- kerning f- tx-w fdup f0= IF  f*  ELSE  f/  THEN
     to x-scale ;
 : text-xy! ( -- )
     x border kerning f+ borderl f+ f+ fround penxy         sf!
@@ -566,7 +570,7 @@ end-class text
 : >text+border ( w d h -- )
     border borderv f+ bordert f+ f+ to h
     border borderv f+ f+ to d
-    fdup to text-w  border f2* borderl f+ f+ to w ;
+    fdup to text-w  borderh f+ to w ;
 : text-!size ( addr u -- )
     text-font to font
     layout-string >text+border ;
@@ -1037,7 +1041,7 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
     baseline 0g 1filll ;
 
 : bxx ( -- b )
-    borderl border f2* f+ kerning f+ ;
+    borderh kerning f+ ;
 : bx ( -- b ) border borderl f+ kerning f+ ;
 : byy ( -- b )
     borderv border f+ bordert f+ raise f- ;
@@ -1098,6 +1102,11 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 :noname hglue* hfix| >hglue!@ ; zbox is hglue
 :noname dglue* dfix| >dglue!@ ; zbox is dglue
 :noname vglue* vfix| >vglue!@ ; zbox is vglue
+
+:noname ( rw -- )
+    borderh f- [{: f: rw :}l rw par-split ;] do-childs ; dup
+vbox is par-split
+zbox is par-split
 
 \ add glues up for hboxes
 
@@ -1264,7 +1273,7 @@ end-class parbox
     childs[] dispose[]
     subbox .dispose-widget ; parbox is dispose-widget
 
-: par-split { f: w -- } \ split a hbox into chunks
+:noname { f: w -- } \ split a hbox into chunks
     childs[] dispose[] 0e false
     BEGIN  w
 	childs[] $[]# IF
@@ -1279,7 +1288,8 @@ end-class parbox
 	childs[] $[]# IF
 	    lhang ?dup-IF  }}glue r@ .+child  THEN  THEN
 	rhang ?dup-IF  }}glue r@ .child+  THEN
-    r> o .child+ true fdup 1e f>=  UNTIL  fdrop drop ;
+    r> o .child+ true fdup 1e f>=  UNTIL  fdrop drop
+; parbox is par-split
 
 \ create boxes
 

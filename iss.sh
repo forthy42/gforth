@@ -74,7 +74,7 @@ ChangesEnvironment=yes
 OutputBaseFilename=gforth-$VERSION
 AppPublisher=Free Software Foundation, Gforth team
 AppPublisherURL=https://gforth.org/
-SignTool=sha1
+; SignTool=sha1
 SignTool=sha256
 ; add the following sign tools:
 ; sha1=signtool sign /a /fd sha1 /tr http://timestamp.entrust.net/TSS/RFC3161sha2TS /td sha1 $f
