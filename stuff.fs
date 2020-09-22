@@ -525,9 +525,9 @@ to-opt: ( xt -- ) >body postpone literal 2!-table to-!, ;
 
 : 2Value ( d "name" -- ) \ Forth200x
     Create 2,
+    ['] 2@ set-does>
     [: >body postpone Literal postpone 2@ ;] set-optimizer
-    ['] (2to) set-to
-  DOES> 2@ ;
+    ['] (2to) set-to ;
 
 s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 2>r : basic-help ( -- ) [ 2r> ] 2literal type ;
