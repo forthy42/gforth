@@ -19,6 +19,12 @@
   along with this program; if not, see http://www.gnu.org/licenses/.
 */
 
+#ifndef __GFORTH_H__
+#define __GFORTH_H__ 1
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <setjmp.h>
 #include <gforth/@PACKAGE_VERSION@/@machine@/config.h>
 
@@ -107,3 +113,8 @@ extern void gforth_cleanup();
 extern void gforth_printmetrics();
 extern void gforth_setwinch();
 extern void gforth_setstacks(user_area * t);
+
+#ifdef __cplusplus
+}
+#endif
+#endif /* __GFORTH_H__ */
