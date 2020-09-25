@@ -3179,6 +3179,7 @@ End-Struct vtable-struct
 : set-defer@   ( xt -- )  xt>ghost gset-defer@ ;
 : set->int     ( xt -- )  xt>ghost gset->int ;
 : set->comp    ( xt -- )  xt>ghost gset->comp ;
+: set-extra    ( xt -- )  xt>ghost gset-extra ;
 
 : vt: ( -- xt colon-sys )
     :noname postpone vt-template, postpone vt-populate ;

@@ -830,9 +830,6 @@ Create defstart
     over name>string 2 pick check-shadow
     (nocheck-reveal) ;
 
-\ make entry in wordlist-map
-' (reveal) f83search reveal-method !
-
 : reveal ( -- ) \ gforth
     last?
     if \ the last word has a header

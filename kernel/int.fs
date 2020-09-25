@@ -244,10 +244,18 @@ end-struct wordlist-struct
 \   dup wordlist-map @ hash-method perform ;
 
 \ Search list table: find reveal
-Create f83search ( -- wordlist-map )
-    0 , 0 , ' drop A,  ' drop A, ' rec-f83 A,
 
-f83search A,  here ' :dodoes A, NIL A, NIL A, NIL A,
+unlock
+vt, cfalign vt-template, vt-noname
+lock
+here ' :dodoes A, NIL A, NIL A, NIL A,
+unlock
+ghost rec-f83 gset-extra
+ghost (reveal) gset-to
+ghost drop gset-defer@
+ghost does, gset-optimizer
+vt, lock
+dup 1 cells - @ AConstant f83search
 AValue forth-wordlist \ variable, will be redefined by search.fs
 
 \ !! last is user and lookup?! jaw

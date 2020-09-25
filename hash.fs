@@ -163,9 +163,13 @@ Defer hash-alloc ( addr -- addr )
     r> free >r  0 to HashTable
     addall r> throw ;
 
-const Create (hashsearch-map)
-0 , 0 , ' hash-reveal A, ' (rehash) A, ' hash-rec A,
-(hashsearch-map) to hashsearch-map
+\ Create a wordlist by example
+
+forth-wordlist noname-from
+' hash-reveal set-to
+' (rehash) set-defer@
+' hash-rec set-does>
+vt, latestxt cell- @ to hashsearch-map
 
 \ hash allocate and vocabulary initialization          10oct94py
 
