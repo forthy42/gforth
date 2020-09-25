@@ -254,9 +254,9 @@ ghost rec-f83 gset-extra
 ghost (reveal) gset-to
 ghost drop gset-defer@
 ghost does, gset-optimizer
-vt, lock
-dup 1 cells - @ AConstant f83search
+lock
 AValue forth-wordlist \ variable, will be redefined by search.fs
+forth-wordlist 1 cells - @ AConstant f83search
 
 \ !! last is user and lookup?! jaw
 AVariable current ( -- addr ) \ gforth
