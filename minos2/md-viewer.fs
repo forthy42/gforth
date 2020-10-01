@@ -66,6 +66,8 @@ end-class md-styler
 
 0 Value md-p-box \ paragraph box
 0 Value md-box \ vertical box
+0 Value pre-box
+0 Value pre-p-box
 
 [IFUNDEF] bits:
     : bit ( n "name" -- n*2 )   dup Constant 2* ;
@@ -100,6 +102,21 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
 : +p-box ( -- )
     {{ }}p box[] >bl dup md-box .child+
     dup >o "p-box" to name$ o>
+    dup .subbox >o to parent-w "subbox" to name$ o o> box[] to md-p-box ;
+
+$FFFFFFFF new-color, FValue pre-color#
+
+: +pre-box ( -- )
+    pre-box 0= IF  .\\
+	{{
+	glue*l pre-color# font-size# 40% f* }}frame dup .button3
+	{{
+	}}v box[] 25%b >bl dup to pre-p-box
+	}}z box[] >bl dup md-box .child+
+	dup >o "pre-box" to name$ o> to pre-box
+    THEN
+    {{ }}p box[] >bl dup pre-p-box .child+
+    dup >o "pre-p-box" to name$ o>
     dup .subbox >o to parent-w "subbox" to name$ o o> box[] to md-p-box ;
 
 : /source ( -- addr u )
@@ -509,7 +526,7 @@ previous set-current
 	preparse$ $+! r> 1+ >r  source + 1- c@ '\' =  refill 0= or UNTIL
 	rdrop  EXIT  THEN  rdrop 2drop ;
 : read-pre ( -- )
-    source 4 /string preparse$ $!  refill drop ;
+    source over c@ #tab = 1 4 rot select /string preparse$ $!  refill drop ;
 : hang-source ( -- addr u hang )
     source dup >r bl skip r> over - >r
     dup >r #tab skip r> over - 2* 2* r> max ;
@@ -528,6 +545,7 @@ previous set-current
     BEGIN  source nip 0=  WHILE  refill 0=  UNTIL  false  ELSE  true  THEN ;
 
 : typeset ( -- )
+    0 to pre-box
     +p-box  preparse$ $@
     \ ." typesetting: '" 2dup type ''' emit cr
     [: ?md-token ?dup-IF   name?int execute
@@ -535,14 +553,15 @@ previous set-current
     execute-parsing  preparse$ $free ;
 
 : pre-typeset ( -- )
-    +p-box preparse$ $@ mono +emphs md-text$ $! .md-text .\\
+    +pre-box preparse$ $@ mono +emphs md-text$ $! .md-text .\\
     preparse$ $free ;
 
 : markdown-loop ( -- )
     BEGIN  refill-empty  WHILE  reset-emph >in off
 	    ?md-token  IF  hang-read typeset
 	    ELSE  reset-hang
-		source "    " string-prefix? IF
+		source "    " string-prefix?
+		source "	" string-prefix? or IF
 		    read-pre pre-typeset  ELSE
 		    read-par typeset  THEN
 	    THEN
