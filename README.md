@@ -64,13 +64,13 @@ or at\
 
 On popular request, here are the meanings of unusual file extensions:
 
-\*.fs	Forth stream source file (include with "`include _<file>_`" from within
+`\*.fs`	Forth stream source file (include with "`include _<file>_`" from within
         gforth, or start with "`gforth _<file1> <file2>_ ...`")\
-\*.fi	Forth image files (start with "`gforth -i _<image file>_`")\
-\*.fb	Forth blocks file (load with "`use _<block file>_ 1 load`")\
-\*.i	C include files\
-\*.texi.in	documenation source\
-\*TAGS	etags files
+`\*.fi`	Forth image files (start with "`gforth -i _<image file>_`")\
+`\*.fb`	Forth blocks file (load with "`use _<block file>_ 1 load`")\
+`\*.i`	C include files\
+`\*.texi.in`	documenation source\
+`\*TAGS`	etags files
 
 A number of Forth source files are included in this package that are
 not necessary for building Gforth. Not all of them are mentioned in

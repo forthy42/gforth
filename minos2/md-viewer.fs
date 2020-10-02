@@ -326,7 +326,7 @@ default-md-styler to md-style
     THEN
     md-text$ c$+!  last-cchar off ;
 
-: wspace ( -- ) ' ' xemit ;
+: wspace ( -- ) font-family <\mono> @ = IF  2 spaces  ELSE  ' ' xemit  THEN ;
 : wspaces ( n -- ) 0 ?DO wspace LOOP ;
 
 ' default-char is .char
@@ -405,7 +405,8 @@ md-char: : ( char -- )
     THEN  ':' .char ;
 md-char: 	 ( tab -- )
     drop dark-blue ['] wspace md-text$ $exec
-    " " md-text$ 0 $ins md-text$ $@ .desc  md-text$ $free ;
+    font-family <\mono> @ = IF  "  "  ELSE  " "  THEN
+    md-text$ 0 $ins md-text$ $@ .desc  md-text$ $free ;
 :noname ( addr u -- ) 2>r
     {{
 	{{ us-state @ 2r> }}text-us glue*l }}glue }}h box[]
