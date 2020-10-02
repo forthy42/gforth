@@ -111,7 +111,7 @@ $FFFFFFFF new-color, FValue pre-color#
 	{{
 	glue*l pre-color# font-size# 40% f* }}frame dup .button3
 	{{
-	}}v box[] 25%b >bl dup to pre-p-box
+	}}vtop box[] 25%b >bl dup to pre-p-box
 	}}z box[] >bl dup md-box .child+
 	dup >o "pre-box" to name$ o> to pre-box
     THEN
