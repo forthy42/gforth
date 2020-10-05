@@ -120,13 +120,16 @@ previous
 : fontname@ ( -- addr )
     0 font-index fontname[] $[] ;
 
+s" No font specified" exception constant !!no-font!!
+s" No suitable font found" exception constant !!no-suitable-font!!
+
 : font-load ( font-addr -- font-addr )
     dup font[] $@ drop - cell/ dup >r fontnames[]# mod >r \ font index size 0
     atlas-bgra atlas r@ font-langs# mod [ ' \emoji >body @ ]L = select
     r@ fontname[] $[]@ 2dup d0= IF
 	." font matrix: " r@
 	font-langs# /mod font-shapes# /mod font-families# /mod . . . . cr
-	true abort" No font specified"
+	!!no-font!! throw
     THEN
     font-size# 0 font-size% f* fround open-font fonts! rdrop
     drop r> font[] $[] ;
@@ -180,13 +183,14 @@ font-prefix$ $!
     THEN ;
 : fonts= ( "font1|font2|..." -- addr u )
     parse-name  BEGIN  dup  WHILE  '|' $split 2swap ?font  UNTIL  2nip
-    ELSE  true abort" No suitable font found"  THEN
+    ELSE  !!no-suitable-font!! throw  THEN
     fontname@ $! ;
 
 [IFDEF] android
     font-prefix$ $free
     font-path+ /system/fonts
-    font-path+ /sdcard/gforth/current/minos2/fonts
+    "minos2/fonts" open-fpath-file 0=
+    [IF]  font-path also-path close-file throw  [THEN]
 [ELSE]
     font-path+ ttf/
     font-path+ truetype/
