@@ -29,8 +29,25 @@ require presentation-support.fs
 
 get-current also minos definitions
 
-Defer .char
+\ colors
 
+$FFFFFFFF new-color, FValue pre-color#
+$0000BFFF text-color: link-blue
+$0000BFFF text-color: heading-blue
+$0000BFFF text-color: item-blue
+$553300FF text-color: mono-col
+color-h 1 > [IF]
+    color,#
+    1 new-theme
+    dark-gui
+    $333333FF re-color pre-color#
+    $FFFFBBFF re-text-color link-blue
+    $FFFFBBFF re-text-color heading-blue
+    $FFFFBBFF re-text-color item-blue
+    $FFFFDDFF re-text-color mono-col
+    light-gui
+    to color,#
+[THEN]
 uval-o md-style
 
 object uclass md-style
@@ -75,14 +92,20 @@ end-class md-styler
 	0 ?DO bit LOOP drop ;
 [THEN]
 
-1 8 bits: italic underline 2underline sitalic bold mono strikethrough #dark-blue
+1 9 bits: italic underline 2underline sitalic bold mono strikethrough #link-blue #heading-blue
+#link-blue #heading-blue or Constant #item-blue
 
 : +emphs ( flags -- )
-    \regular \sans
+    \regular \sans  blackish
     dup [ underline 2underline or ]L and 2/  us-state !
     dup strikethrough and 4 rshift us-state +!
-    dup mono and IF  \mono  THEN
-    dup #dark-blue and IF  dark-blue  ELSE  blackish  THEN
+    dup mono and IF  \mono mono-col  THEN
+    dup #item-blue and
+    case
+	#link-blue    of  link-blue     endof
+	#heading-blue of  heading-blue  endof
+	#item-blue    of  item-blue     endof
+    endcase
     [ italic sitalic bold or or ]L and
     dup 1 and swap 3 rshift xor
     case
@@ -103,8 +126,6 @@ glue*\\ >o 0e 0g 1fill hglue-c glue! 0glue dglue-c glue! 1glue vglue-c glue! o>
     {{ }}p box[] >bl dup md-box .child+
     dup >o "p-box" to name$ o>
     dup .subbox >o to parent-w "subbox" to name$ o o> box[] to md-p-box ;
-
-$FFFFFFFF new-color, FValue pre-color#
 
 : +pre-box ( -- )
     pre-box 0= IF  .\\
@@ -329,6 +350,8 @@ default-md-styler to md-style
 : wspace ( -- ) font-family <\mono> @ = IF  2 spaces  ELSE  ' ' xemit  THEN ;
 : wspaces ( n -- ) 0 ?DO wspace LOOP ;
 
+Defer .char
+
 ' default-char is .char
 
 Create do-char $100 0 [DO] ' .char , [LOOP]
@@ -380,7 +403,7 @@ md-char: ! ( char -- )
 	drop 1 >in +! ]-parse .image
     ELSE  .char  THEN ;
 :noname ( desc-addr u1 img-addr u2 -- )
-    .md-text ( dark-blue )
+    .md-text ( link-blue )
     dup 0= IF  2drop " "  THEN
     1 -rot }}text-us +image md-p-box .child+ ( blackish ) ; is .image
 md-char: [ ( char -- )
@@ -391,7 +414,7 @@ md-char: [ ( char -- )
     .md-text
     dup 0= IF  2drop " "  THEN
     us-state @ >r md-p-box >r {{ }}h box[] to md-p-box
-    [ underline #dark-blue or ]L render-line .md-text
+    [ underline #link-blue or ]L render-line .md-text
     md-p-box r> to md-p-box r> us-state ! blackish
     +link md-p-box .child+ ; is .link
 md-char: : ( char -- )
@@ -404,7 +427,7 @@ md-char: : ( char -- )
 	r> >in !
     THEN  ':' .char ;
 md-char: 	 ( tab -- )
-    drop dark-blue ['] wspace md-text$ $exec
+    drop item-blue ['] wspace md-text$ $exec
     font-family <\mono> @ = IF  "  "  ELSE  " "  THEN
     md-text$ 0 $ins md-text$ $@ .desc  md-text$ $free ;
 :noname ( addr u -- ) 2>r
@@ -438,19 +461,19 @@ get-current also markdown definitions
 : # ( -- )
     /source 2dup + 2 - 2 " #" str= -2 and + .h1 ;
 :noname
-    \huge cbl bold render-line .md-text .\\ \normal \regular ; is .h1
+    \huge cbl bold #heading-blue or render-line .md-text .\\ \normal \regular ; is .h1
 : ## ( -- )
     /source 2dup + 3 - 3 " ##" str= -3 and + .h2 ;
 :noname
-    \large cbl bold render-line .md-text .\\ \normal \regular ; is .h2
+    \large cbl bold #heading-blue or render-line .md-text .\\ \normal \regular ; is .h2
 : ### ( -- )
     /source 2dup + 4 - 4 " ###" str= -4 and + .h3 ;
 :noname
-    \normal cbl bold render-line .md-text .\\ \normal \regular ; is .h3
+    \normal cbl bold #heading-blue or render-line .md-text .\\ \normal \regular ; is .h3
 : 1. ( -- )
     \ render counted line
     -3 >indent .#. ;
-:noname ( -- ) dark-blue
+:noname ( -- ) item-blue
     {{ 0 [: cur#indent 2* 2 + spaces indent# 0 .r ." . " ;]
 	$tmp }}text-us
     }}z /hfix box[] >lhang md-p-box .child+ blackish
@@ -460,7 +483,7 @@ get-current also markdown definitions
 : 10. ( -- )
     \ render counted line
     -4 >indent .##. ;
-:noname ( -- ) dark-blue
+:noname ( -- ) item-blue
     {{ 0 [: cur#indent 2* 1+ spaces indent# 0 .r ." . " ;]
     $tmp }}text-us }}z /hfix box[] >lhang md-p-box .child+ blackish
     /source 0 render-line .md-text .\\ ; is .##.
@@ -468,7 +491,7 @@ get-current also markdown definitions
 
 : * ( -- )33
     -2 >indent cur#indent bullet-char .item ;
-:noname { bchar -- } dark-blue
+:noname { bchar -- } item-blue
     {{ 0 bchar [: cur#indent 1+ wspaces xemit wspace ;] $tmp }}text-us
     }}z /hfix box[] >lhang md-p-box .child+
     blackish /source 0 render-line .md-text .\\ ; is .item
