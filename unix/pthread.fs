@@ -29,6 +29,13 @@ c-library pthread
     \c #ifndef FIONREAD
     \c #include <sys/socket.h>
     \c #endif
+    \c #ifdef __x86_64
+    \c #ifdef FORCE_SYMVER
+    \c #define TOSTRING(x) #x
+    \c #define STRINGIFY(x) TOSTRING(x) /* Two stages necessary */
+    \c __asm__(".symver pthread_sigmask,pthread_sigmask@GLIBC_" STRINGIFY(FORCE_SYMVER));
+    \c #endif
+    \c #endif
     \c 
     \c void create_pipe(FILE ** addr)
     \c {
