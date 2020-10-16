@@ -98,6 +98,7 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
     throw ;
 
 : ... ( x1 .. xn -- x1 .. xn )
+    smart.s-skip off
     ['] smart.s. ['] .s. ['] .s wrap-xt
     fdepth IF
 	cr ." F:" f.s THEN ;

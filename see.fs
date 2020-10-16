@@ -754,7 +754,7 @@ c-extender !
 : DoTable ( ca/cfa -- flag )
     decompile-prim dup ['] lit xt= IF  drop c>lit true  EXIT  THEN
     display? IF
-	sp@ >r
+	sp@ >r  smart.s-skip off
 	litstack get-stack dup 0 ?DO  dup I - pick smart.s.  LOOP  drop
 	r> sp!
     THEN
