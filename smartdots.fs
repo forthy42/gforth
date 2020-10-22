@@ -20,7 +20,7 @@
 
 \ idea: Gerald Wodni
 
-Variable smart.s-skip
+User smart.s-skip
 
 : addr? ( addr -- flag )
     ['] c@ catch  IF  drop  false nothrow  ELSE  drop  true  THEN ;
