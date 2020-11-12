@@ -19,5 +19,5 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 s" GFORTHDESTDIR" getenv ." Fix prefix: '" type ." '" cr
-included-files $[]# 0 [?DO]  [I] included-files $[]@ ." Fix file: " 2dup type over [IF] open-fpath-file 0= [IF] rot close-file throw 2dup s" GFORTHDESTDIR" getenv string-prefix? [IF] s" GFORTHDESTDIR" getenv nip /string compact-filename [THEN] ."  with " 2dup type cr [I] included-files $[] off [I] included-files $[]! [THEN] [ELSE] 2drop [THEN] [LOOP]
+included-files $[]# 0 [?DO]  [I] included-files $[]@ ." Fix file: " 2dup type over [IF] open-fpath-file 0= [IF] rot close-file throw 2dup s" GFORTHDESTDIR" getenv string-prefix? [IF] s" GFORTHDESTDIR" getenv nip /string compact-filename [THEN] ."  with " 2dup type cr [I] included-files $[] off s" GFORTHINSDIR" getenv [I] included-files $[]+! [I] included-files $[]+! [THEN] [ELSE] 2drop [THEN] [LOOP]
 included-files $[]# 1- cells included-files $!len

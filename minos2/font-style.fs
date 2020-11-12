@@ -140,7 +140,7 @@ s" No suitable font found" exception constant !!no-suitable-font!!
 \ font selector
 
 : xc>font ( xc-addr font-addr -- xc-addr font )
-    >r dup xc@
+    >r dup ['] xc@ catch IF  drop r>  ?font-load @  EXIT  THEN
     cjk?   IF  drop r> cell+          ?font-load @  EXIT  THEN
     emoji? IF  drop r> [ 2 cells ]L + ?font-load @  EXIT  THEN
     icons? IF  drop r> [ 3 cells ]L + ?font-load @  EXIT  THEN

@@ -101,7 +101,7 @@ Defer check-xy  ' noop IS check-xy
     \ length of UTF-8 char starting at u8-addr (accesses only u8-addr)
     drop c@
     dup $80 u< if drop 1 exit endif
-    dup $c0 u< if UTF-8-err throw endif
+    dup $c0 u< if drop 1 exit ( UTF-8-err throw ) endif
     dup $e0 u< if drop 2 exit endif
     dup $f0 u< if drop 3 exit endif
     dup $f8 u< if drop 4 exit endif
