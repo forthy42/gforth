@@ -825,7 +825,7 @@ also soil also freetype-gl
     0 0 0 { w^ w w^ h w^ ch# }
     w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory ( memimg-addr )
     w @ h @ ;
-: rgba>style { memimg w h atlas val ar[ atlas-region ] -- ivec4-addr }
+: rgba>style { memimg w h atlas val | ar[ atlas-region ] -- ivec4-addr }
     BEGIN
 	atlas w 1+ h 1+ ar[ texture_atlas_get_region
 	ar[ i.x ar[ i.y -1 -1 d= WHILE
