@@ -76,7 +76,7 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
 	ELSE
 	    .addr.  THEN
     ELSE
-	.  THEN ;
+	'#' emit dec.  THEN ;
 
 : smart.s. ( n -- )
     smart.s-skip @ dup 1- 0 max smart.s-skip ! IF  drop  EXIT  THEN
