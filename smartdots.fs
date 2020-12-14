@@ -80,7 +80,7 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
 
 : smart.s. ( n -- )
     smart.s-skip @ dup 1- 0 max smart.s-skip ! IF  drop  EXIT  THEN
-    over r> i swap >r - \ we access the .s loop counter
+    over i' ( r> i swap >r ) - \ we access the .s loop counter
     dup 1 = IF  false  ELSE  pick  2dup string?  THEN  IF
 	.string. 1 smart.s-skip !
     ELSE
