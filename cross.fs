@@ -3552,7 +3552,7 @@ by (Field)
 
 Builder end-class
 Build: ( addr m v -- )
-   T here >r , dup , 2 cells H ?DO T ['] noop , 1 cells H +LOOP
+   T here >r , dup , 2 cells H ?DO T ['] noop A, 1 cells H +LOOP
    T cell+ dup cell+ r> rot @ 2 cells /string move H ;Build
 by Create
 
@@ -3563,7 +3563,7 @@ by Create
 
 Builder rectype:
 Build: ( xtint xtcomp xtpost --- )
-    T rot A, swap A, A, H ;Build
+    T rot A, swap A, A, H 7 0 DO [T'] noop X A, LOOP ;Build
 by Create
 
 \ Peephole optimization					05sep01jaw
