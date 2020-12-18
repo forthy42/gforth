@@ -100,7 +100,7 @@ set-current
 previous
 
 Variable configured?
-Variable config-file$  s" ~/.minos2rc" config-file$ $!
+Variable config-file$  s" ~/.config/minos2rc" config-file$ $!
 
 [IFUNDEF] !wrapper
     : !wrapper ( val addr xt -- .. ) { a xt -- .. }

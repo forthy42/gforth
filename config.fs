@@ -17,6 +17,9 @@
 \ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require rec-scope.fs
+require recognizer-ext.fs
+
+rec-method rectype-config
 
 Vocabulary config
 ' config >wordlist Value config-wl
@@ -37,14 +40,17 @@ s" Config error" exception Value config-throw
     ?dup-IF  execute r> execute rdrop
     ELSE rdrop r> execute .config-err THEN ;
 
-: eval-config ( .. rec addr u -- )  rot
-    case
-	rectype-string of  '$' ['] $! [: drop free throw ;] exec-config  endof
-	rectype-num    of  '#' ['] !  ['] drop exec-config               endof
-	rectype-dnum   of  '&' ['] 2! ['] 2drop exec-config              endof
-	rectype-float  of  '%' ['] f! ['] fdrop exec-config              endof
-	2drop .config-err
-    endcase ;
+: eval-config ( .. rec addr u -- )  rot rectype-config ;
+
+:noname '$' ['] $! [: drop free throw ;] exec-config ;
+rectype-string is rectype-config
+:noname '#' ['] !  ['] drop exec-config ;
+rectype-num    is rectype-config
+:noname '&' ['] 2! ['] 2drop exec-config ;
+rectype-dnum   is rectype-config
+:noname '%' ['] f! ['] fdrop exec-config ;
+rectype-float  is rectype-config
+' .config-err rectype-null is rectype-config
 
 : config-line ( -- )
     '=' parse 2>r
