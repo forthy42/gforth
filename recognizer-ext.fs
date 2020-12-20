@@ -19,6 +19,8 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 0 Value rec-method-offset
+#10 cells constant rec-method-max-offset#
+"No more rec method slots free" exception constant rec-method-overflow
 
 : is-rec-method ( xt rectype recmethod -- )
     >body @ + ! ;
@@ -27,6 +29,8 @@ to-opt: ( xt -- ) >body @ postpone lit+ , postpone ! ;
 defer@-opt: ( xt -- ) >body @ postpone lit+ , postpone @ ;
 
 : rec-method ( "name" -- )
+    rec-method-offset rec-method-max-offset# u>=
+    rec-method-overflow and throw
     Create rec-method-offset ,  cell +to rec-method-offset
     [: ( rec-type ) @ + @ execute-;s ;] set-does>
     ['] is-rec-method set-to
