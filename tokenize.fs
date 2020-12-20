@@ -18,6 +18,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+require recognizer-ext.fs
+
 :noname ( ... -- ... )
     depth IF  ...  THEN
     fdepth IF  cr "F:" type f.s  THEN ; is printdebugdata
@@ -96,6 +98,7 @@ Variable parsed-name$
     emit input-lexeme 2@ dup xemit type ;
 : nt, ( nt token -- )
     emit name>string dup xemit type ;
+: n, ( addr u -- ) 9 emit dup xemit type ;
 
 Create blacklist \ things we don't want to tokenize, e.g. comments
 ' ( ,   ' noop , \ )
@@ -115,45 +118,41 @@ Variable recursive?
 	dup I @ = IF  drop I cell+ @  UNLOOP  EXIT  THEN
     2 cells +LOOP  drop false ;
 
+rec-method rectype-tokenize
+
+:noname ( xt -- xt )
+    dup ?blacklist dup IF
+	[ also locals-types ]
+	dup ['] w: <> blacklisted !
+	[ previous ]
+	dup ['] noop <> IF
+	    dup ?token  IF  2 emit xemit drop
+	    ELSE  1 nt,  THEN
+	ELSE  drop  THEN
+    ELSE
+	drop dup ?token IF  2 emit xemit
+	ELSE  1 i,  THEN
+    THEN
+    nextname$ $@ d0<> IF
+	nextname$ $@ n,
+    THEN ; rectype-nt is rectype-tokenize
+:noname ( n -- n )
+    3 emit dup { w^ x } x cell type ; rectype-num is rectype-tokenize
+:noname ( d -- d )
+    4 emit 2dup { d^ x } x 2 cells type ; rectype-dnum is rectype-tokenize
+:noname ( r -- r )
+    5 emit fdup { f^ x } x 1 floats type ; rectype-float is rectype-tokenize
+:noname ( addr u -- addr u )
+    6 emit 2dup dup xemit type ; rectype-string is rectype-tokenize
+:noname ( xt -- )
+    over ?token IF  8 emit xemit
+    ELSE  7 i,  THEN ; rectype-to is rectype-tokenize
+:noname 9 i, ; rectype-null is rectype-tokenize
+
 : tokenize-it ( rectype rec-xt -- rectype )
     drop recursive? @ ?EXIT
-    case dup
-	rectype-nt of
-	    over ?blacklist dup IF
-		[ also locals-types ]
-		dup ['] w: <> blacklisted !
-		[ previous ]
-		dup ['] noop <> IF
-		    dup ?token  IF  2 emit xemit drop
-		    ELSE  1 nt,  THEN
-		ELSE  drop  THEN
-	    ELSE
-		drop
-		over ?token IF  2 emit xemit
-		ELSE  1 i,  THEN
-	    THEN
-	    nextname$ $@ d0<> IF
-		9 emit nextname$ $@ dup xemit type
-	    THEN
-	endof
-	rectype-num of
-	    3 emit >r dup { w^ x } x cell type r>
-	endof
-	rectype-dnum of
-	    4 emit >r 2dup { d^ x } x 2 cells type r>
-	endof
-	rectype-float of
-	    5 emit >r fdup { f^ x } x 1 floats type r>
-	endof
-	rectype-string of
-	    6 emit >r 2dup dup xemit type r>
-	endof
-	rectype-to of
-	    over ?token IF  8 emit xemit
-	    ELSE  7 i,  THEN
-	endof
-	9 i,
-    endcase  parsed-name$ $free ;
+    dup >r rectype-tokenize r>
+    parsed-name$ $free ;
 
 0 Value token-file
 
@@ -161,20 +160,20 @@ Variable recursive?
     token-file outfile-execute ;
 
 : tokenize ( rectype rec-xt -- rectype )
-    ['] tokenize-it t, ;
+    ['] tokenize-it t,  recursive? on ;
 
 : parse-name' ( -- addr u )
     parsed-name$ $@len blacklisted @ 0= and IF
-	parsed-name$ $@ [: 9 emit dup xemit type ;] t,
+	parsed-name$ $@ ['] n, t,
     THEN
-    blacklisted off
+    blacklisted off  recursive? off
     defers parse-name 2dup parsed-name$ $! ;
 
 : parse' ( char -- addr u )
     defers parse
     blacklisted @ 0= IF
 	[: 9 emit dup xemit 2dup type ;] t,
-    THEN  blacklisted off ;
+    THEN  blacklisted off  recursive? off ;
 
 : reset-interpreter ( -- )
     [ action-of parse-name       ]L is parse-name

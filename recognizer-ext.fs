@@ -38,4 +38,3 @@ rec-method rectype-post
 
 : rectype-by-state ( rectype -- )
     state @ abs cells + @ execute-;s ;
-
