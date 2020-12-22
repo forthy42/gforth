@@ -111,7 +111,6 @@ also locals-types
 previous
 here Constant blacklist-end
 Variable blacklisted
-Variable recursive?
 
 : ?blacklist ( nt -- nt' )
     blacklist-end blacklist ?DO
@@ -147,11 +146,12 @@ rec-method rectype-tokenize
 :noname ( xt -- )
     over ?token IF  8 emit xemit
     ELSE  7 i,  THEN ; rectype-to is rectype-tokenize
-:noname 9 i, ; rectype-null is rectype-tokenize
 
 : tokenize-it ( rectype rec-xt -- rectype )
-    drop recursive? @ ?EXIT
-    dup >r rectype-tokenize r>
+    drop rec-level @ 0> ?EXIT
+    \ dup [: .addr. space rec-level ? cr ;] stdout outfile-execute
+    dup >r ['] rectype-tokenize catch
+    dup #-13 = IF  2drop  9 i,  ELSE  throw  THEN  r>
     parsed-name$ $free ;
 
 0 Value token-file
@@ -160,20 +160,20 @@ rec-method rectype-tokenize
     token-file outfile-execute ;
 
 : tokenize ( rectype rec-xt -- rectype )
-    ['] tokenize-it t,  recursive? on ;
+    ['] tokenize-it t, ;
 
 : parse-name' ( -- addr u )
     parsed-name$ $@len blacklisted @ 0= and IF
 	parsed-name$ $@ ['] n, t,
     THEN
-    blacklisted off  recursive? off
+    blacklisted off
     defers parse-name 2dup parsed-name$ $! ;
 
 : parse' ( char -- addr u )
     defers parse
     blacklisted @ 0= IF
 	[: 9 emit dup xemit 2dup type ;] t,
-    THEN  blacklisted off  recursive? off ;
+    THEN  blacklisted off ;
 
 : reset-interpreter ( -- )
     [ action-of parse-name       ]L is parse-name

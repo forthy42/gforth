@@ -3098,7 +3098,8 @@ ghost :loc,
 drop
 ghost x#exec
 ghost noop
-2drop
+ghost no.extensions
+2drop drop
 
 Create vttemplate
 0 ,
@@ -3563,7 +3564,7 @@ by Create
 
 Builder rectype:
 Build: ( xtint xtcomp xtpost --- )
-    T rot A, swap A, A, H 7 0 DO [T'] noop X A, LOOP ;Build
+    T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
 by Create
 
 \ Peephole optimization					05sep01jaw

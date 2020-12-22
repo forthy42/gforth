@@ -833,9 +833,9 @@ defer reset-dpp
 	error>
 	2 .error-frame
     /error +LOOP
-    drop 
+    drop
     dobacktrace
-    default-color attr! endif? on
+    default-color attr!  endif? on  rec-level off
   reset-dpp ;
 
 ' (DoError) IS DoError

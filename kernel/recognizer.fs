@@ -115,17 +115,22 @@ rectype: rectype-dnum
 
 Defer trace-recognizer  ' drop is trace-recognizer
 
+Variable rec-level
+
 : recognize ( addr u rec-addr -- ... rectype )
     \G apply a recognizer stack to a string, delivering a token
+    1 rec-level +!
     $@ bounds cell- swap cell- U-DO
 	2dup I -rot 2>r  perform
 	dup rectype-null <>  IF
+	    -1 rec-level +!
 	    2rdrop I @ trace-recognizer  UNLOOP  EXIT  THEN  drop
 	2r>
 	cell [ 2 cells ] Literal I cell- 2@ <> select \ skip double entries
 	\ note that we search first and then skip, because the first search
 	\ has a very likely hit.  So doubles will be skipped, tripples not
     -loop
+    -1 rec-level +!
     2drop rectype-null ;
 
 : rec-sequence: ( x1 .. xn n "name" -- )
