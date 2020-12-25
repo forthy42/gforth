@@ -46,17 +46,13 @@ variable bcol
 
 \ stupid random number generator
 
+1 cells 2 u> [IF]
+    require random.fs
+[ELSE]
 variable seed
 
-: randomize	time&date + + + + + seed ! ;
+: seed-init	time&date + + + + + seed ! ;
 
-1 cells 4 = [IF]
-$10450405 Constant generator
-
-: rnd  ( -- n )  seed @ generator um* drop 1+ dup seed ! ;
-
-: random ( n -- 0..n-1 )  rnd um* nip ;
-[ELSE]
 : random	\ max --- n ; return random number < max
 		seed @ 13 * [ hex ] 07FFF [ decimal ] and
 		dup seed !  swap mod ;
@@ -329,7 +325,7 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 		endcase  true ;
 
 : initialize	\ --- ; prepare for playing
-		randomize empty-pit refresh
+		seed-init empty-pit refresh
 		0 score !  0 pieces !  0 levels !  100 delay ! ;
 
 : adjust-delay	\ --- ; make it faster with increasing score
