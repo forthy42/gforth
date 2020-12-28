@@ -394,14 +394,11 @@ include ./recognizer.fs
 
 \ problematic only for big endian machines
 
-: cset ( bmask c-addr -- )
+: or! ( bmask addr -- )
     tuck @ or swap ! ; 
 
-: creset ( bmask c-addr -- )
-    tuck @ swap invert and swap ! ; 
-
-: ctoggle ( bmask c-addr -- )
-    tuck @ xor swap ! ; 
+\ cset creset ctoggle: incompatible change between 0.5 and 0.6,
+\   removed in 2020 for name cooldown
 
 : lastflags ( -- c-addr )
     \ the address of the flags byte in the last header
@@ -417,7 +414,7 @@ include ./recognizer.fs
 
 : restrict ( -- ) \ gforth
     \G A synonym for @code{compile-only}
-    restrict-mask lastflags cset ;
+    restrict-mask lastflags or! ;
 
 ' restrict alias compile-only ( -- ) \ gforth
 \G Mark the last definition as compile-only; as a result, the text
