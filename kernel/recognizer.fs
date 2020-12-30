@@ -153,12 +153,12 @@ default-recognizer AValue forth-recognizer
 \ : nest-recognizer ( addr u -- token table | rectype-null )
 \   xxx-recognizer recognize ;
 
-: recognize-parser ( addr u -- ... )
+: forth-parser ( addr u -- ... )
     forth-recognizer recognize
     state @ abs
     dup 2 = IF  drop >postpone  ELSE  cells + @ execute-;s  THEN ;
 
-' recognize-parser IS parser
+' forth-parser IS parser
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
