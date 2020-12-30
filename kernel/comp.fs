@@ -528,7 +528,7 @@ defer defer-default ( -- )
 \G Define a deferred word @i{name}; its execution semantics can be
 \G set with @code{defer!} or @code{is} (and they have to, before first
 \G executing @i{name}.
-    ['] parser1 create-from reveal
+    ['] parser create-from reveal
     ['] defer-default A, ;
 
 : defer-defer@ ( xt -- )

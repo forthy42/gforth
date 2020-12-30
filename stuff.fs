@@ -154,58 +154,14 @@ UValue $? ( -- n ) \ gforth dollar-question
     \ this is only a marker; it is never really interpreted
     compile-only-error ; immediate
 
-[ifdef] compiler1
-: compile-literal ( n -- )
-    postpone literal ;
-
-: compile-compile-literal ( n -- )
-    compile-literal postpone compile-literal ;
-
-: compile-2literal ( n1 n2 -- )
-    postpone 2literal ;
-
-: compile-compile-2literal ( n1 n2 -- )
-    compile-2literal postpone compile-2literal ;
-
-: postponer1 ( c-addr u -- ... xt )
-    2dup find-name
-    [ifdef] run-prelude run-prelude [then]
-    dup if ( c-addr u nt )
-	nip nip name>comp
-	2dup [comp'] [[ d= if
-	    2drop ['] compiler1 is parser1 ['] noop
-	else
-	    ['] postpone,
-	endif
-    else
-	drop
-	2dup 2>r snumber? dup if
-	    0> IF
-		['] compile-compile-2literal
-            ELSE
-                ['] compile-compile-literal
-	    THEN
-	    2rdrop
-	ELSE
-	    drop 2r> no.extensions
-	THEN
-    then ;
+: postponer-r ( addr u -- ... )
+    forth-recognizer recognize 2dup
+    [ s" [[" forth-recognizer recognize ] 2Literal d=
+    IF  2drop ]  ELSE  >postpone  THEN ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
-    ['] postponer1 is parser1 state on ; immediate restrict
-[then]
-
-[ifdef] compiler-r
-: postponer-r ( addr u -- ... xt )
-    forth-recognizer recognize over
-    [ s" [[" find-name ] Literal =
-    IF  2drop [comp'] ] drop ELSE  ['] >postpone  THEN ;
-
-: ]] ( -- ) \ gforth right-bracket-bracket
-    \G switch into postpone state
-    ['] postponer-r is parser1 state on ; immediate restrict
-[then]
+    ['] postponer-r is parser -2 state ! ; immediate restrict
 
 \ interp
 

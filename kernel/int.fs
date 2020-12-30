@@ -568,12 +568,9 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 \ interpret                                            10mar92py
 
-Defer parser1 ( c-addr u -- ... xt)
+Defer parser ( c-addr u -- ... xt)
 \ "... xt" is the action to be performed by the text-interpretation of c-addr u
 
-: parser ( c-addr u -- ... )
-\ text-interpret the word/number c-addr u, possibly producing a number
-    parser1 execute ;
 Defer parse-name ( "name" -- c-addr u ) \ gforth
 \G Get the next word from the input buffer
 ' (name) IS parse-name
@@ -608,7 +605,7 @@ defer int-execute ( ... xt -- ... )
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
-	parser1 int-execute
+	parser
     REPEAT
     2drop @local0 >r lp+ ;
 
