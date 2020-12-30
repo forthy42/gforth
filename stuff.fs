@@ -164,7 +164,8 @@ UValue $? ( -- n ) \ gforth dollar-question
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
     ['] rec-[[ forth-recognizer >stack
-    ['] postponer-r is parser -2 state ! ; immediate restrict
+    [IFDEF] compiler-r  ['] postponer-r is parser  [THEN]
+    -2 state ! ; immediate restrict
 
 \ interp
 

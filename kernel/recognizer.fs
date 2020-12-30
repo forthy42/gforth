@@ -153,21 +153,20 @@ default-recognizer AValue forth-recognizer
 \ : nest-recognizer ( addr u -- token table | rectype-null )
 \   xxx-recognizer recognize ;
 
-: interpreter-r ( addr u -- ... )
-    forth-recognizer recognize rectype>int execute-;s ;
+: recognize-parser ( addr u -- ... )
+    forth-recognizer recognize
+    state @ abs
+    dup 2 = IF  drop >postpone  ELSE  cells + @ execute-;s  THEN ;
 
-' interpreter-r IS parser
-
-: compiler-r ( addr u -- ... )
-    forth-recognizer recognize rectype>comp execute-;s ;
+' recognize-parser IS parser
 
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
-    ['] interpreter-r  IS parser state off ; immediate
+    state off ; immediate
 
 : ] ( -- ) \ core	right-bracket
     \G Enter compilation state.
-    ['] compiler-r     IS parser state on  ;
+    state on  ;
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
