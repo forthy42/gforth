@@ -149,18 +149,21 @@ UValue $? ( -- n ) \ gforth dollar-question
 
 \ ]] ... [[
 
-: [[ ( -- ) \ gforth left-bracket-bracket
+' noop ' noop
+:noname  ] forth-recognizer stack> drop
+    rdrop rdrop \ get out of >postpone
+; rectype: rectype-[[
+
+: rec-[[ ( addr u -- token ) \ gforth left-bracket-bracket
 \G switch from postpone state to compile state
-    \ this is only a marker; it is never really interpreted
-    compile-only-error ; immediate
+    s" [[" str=  rectype-[[ rectype-null rot select ;
 
 : postponer-r ( addr u -- ... )
-    forth-recognizer recognize 2dup
-    [ s" [[" forth-recognizer recognize ] 2Literal d=
-    IF  2drop ]  ELSE  >postpone  THEN ;
+    forth-recognizer recognize >postpone ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
+    ['] rec-[[ forth-recognizer >stack
     ['] postponer-r is parser -2 state ! ; immediate restrict
 
 \ interp
