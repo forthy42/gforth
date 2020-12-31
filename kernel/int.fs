@@ -568,8 +568,8 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 \ interpret                                            10mar92py
 
-Defer parser ( c-addr u -- ... xt)
-\ "... xt" is the action to be performed by the text-interpretation of c-addr u
+Defer parser ( c-addr u -- ... )
+\G text-interpretation of @var{c-addr u}
 
 Defer parse-name ( "name" -- c-addr u ) \ gforth
 \G Get the next word from the input buffer
