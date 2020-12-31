@@ -1,7 +1,7 @@
 /* ecvt_r adapted from glibc-2.31/misc/efgcvt_r.c
 
   Authors: Bernd Paysan, Anton Ertl
-  Copyright (C) 1998,2000,2007,2014,2015,2016,2017,2019 Free Software Foundation, Inc.
+  Copyright (C) 1998,2000,2007,2014,2015,2016,2017,2019,2020 Free Software Foundation, Inc.
 
   This file is part of Gforth.
 

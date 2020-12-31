@@ -126,7 +126,7 @@ anton@mips.complang.tuwien.ac.at
 ---
 
 Authors: Bernd Paysan, Anton Ertl, Gerald Wodni
-Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2008,2009,2016,2017,2018,2019 Free Software Foundation, Inc.
+Copyright (C) 1995,1996,1997,1998,2000,2003,2004,2006,2007,2008,2009,2016,2017,2018,2019,2020 Free Software Foundation, Inc.
 
 This file is part of Gforth.
 

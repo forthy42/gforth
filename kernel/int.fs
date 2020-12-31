@@ -1,7 +1,7 @@
 \ definitions needed for interpreter only
 
 \ Authors: Bernd Paysan, Anton Ertl, Neal Crook, Gerald Wodni, Jens Wilke
-\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012,2013,2014,2017,2018 Free Software Foundation, Inc.
+\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012,2013,2014,2017,2018,2020 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
@@ -876,7 +876,7 @@ defer reset-dpp
 : gforth ( -- )
     ." Gforth " version-string type cr
     ." Authors: Anton Ertl, Bernd Paysan, Jens Wilke et al., for more type `authors'" cr
-    (c) ."  2019 Free Software Foundation, Inc." cr
+    (c) ."  2019,2020 Free Software Foundation, Inc." cr
     ." License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>" cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
