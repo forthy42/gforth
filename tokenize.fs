@@ -245,7 +245,7 @@ Create token-actions
 
 : token-int ( -- )
     BEGIN  ?stack token-pos# tokens$ $@ + u< WHILE
-	    token@ 0 parser1 int-execute
+	    token@ 0 parser
     REPEAT ;
 
 set-current
