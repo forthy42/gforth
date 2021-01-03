@@ -568,8 +568,8 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 \ interpret                                            10mar92py
 
-Defer parser ( c-addr u -- ... xt)
-\ "... xt" is the action to be performed by the text-interpretation of c-addr u
+Defer parser ( c-addr u -- ... )
+\G text-interpretation of @var{c-addr u}
 
 Defer parse-name ( "name" -- c-addr u ) \ gforth
 \G Get the next word from the input buffer
@@ -876,7 +876,7 @@ defer reset-dpp
 : gforth ( -- )
     ." Gforth " version-string type cr
     ." Authors: Anton Ertl, Bernd Paysan, Jens Wilke et al., for more type `authors'" cr
-    (c) ."  2019,2020 Free Software Foundation, Inc." cr
+    (c) ."  2020 Free Software Foundation, Inc." cr
     ." License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>" cr
     ." Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'"
 [ has? os [IF] ]
