@@ -24,13 +24,12 @@
 \ wordlist constant environment-wordlist
 
 : (0s) ( n -- ) 0 +do '0' c, loop ;
-: type, ( addr u -- ) here over allot swap move ;
 : version-string>internal ( -- )
     version-string
-    '.' $split 2swap 3 over - (0s) type, '.' c,
-    '.' $split 2swap 3 over - (0s) type, '.' c,
-    '_' $split 2swap 3 over - (0s) type, dup
-    IF '_' c, type, ELSE 2drop THEN ;
+    '.' $split 2swap 3 over - (0s) mem, '.' c,
+    '.' $split 2swap 3 over - (0s) mem, '.' c,
+    '_' $split 2swap 3 over - (0s) mem, dup
+    IF '_' c, mem, ELSE 2drop THEN ;
 
 vocabulary environment ( -- ) \ gforth
 \ for win32forth compatibility
