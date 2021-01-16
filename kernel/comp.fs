@@ -96,17 +96,21 @@
 \ information through global variables), but they are useful for dealing
 \ with existing/independent defining words
 
+: mem, ( addr u -- ) \ gforth
+    \ allot the memory block HERE (do alignment yourself)
+    here over allot swap move ;
+
 : string, ( c-addr u -- ) \ gforth
     \G puts down string as cstring
-    dup c, here swap chars dup allot move ;
+    dup c, mem, ;
 
 : longstring, ( c-addr u -- ) \ gforth
     \G puts down string as longcstring
-    dup , here swap chars dup allot move ;
+    dup , mem, ;
 
 : nlstring, ( c-addr u -- ) \ gforth
     \G puts down string as longcstring
-    tuck here swap chars dup allot move , ;
+    tuck mem, , ;
 
 
 [IFDEF] prelude-mask
@@ -382,10 +386,6 @@ include ./recognizer.fs
 : S, ( addr u -- )
     \ allot string as counted string
     here over char+ allot  place align ;
-
-: mem, ( addr u -- )
-    \ allot the memory block HERE (do alignment yourself)
-    here over allot swap move ;
 
 : ," ( "string"<"> -- )
     '"' parse s, ;
