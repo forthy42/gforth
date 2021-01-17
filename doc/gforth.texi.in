@@ -10099,7 +10099,7 @@ encoding used. An xchar may use a variable number of chars in memory.
 
 @item
 @var{xc-addr} @var{u} is a buffer of xchars in memory, starting at
-@var{xc-addr}, @var{u} chars (not xchars) long.
+@var{xc-addr}, @var{u} chars (i.e., bytes, not xchars) long.
 
 @end itemize
 
