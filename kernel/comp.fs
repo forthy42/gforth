@@ -388,7 +388,7 @@ include ./recognizer.fs
     string, align ;
 
 : ," ( "string"<"> -- )
-    '"' parse s, ;
+    '"' parse string, ;
 
 \ \ Header states						23feb93py
 
