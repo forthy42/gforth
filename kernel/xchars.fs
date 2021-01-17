@@ -39,14 +39,14 @@ umethod xchar- ( xc-addr1 -- xc-addr2 ) \ xchar-ext
 \G @var{xc_addr1}.
 umethod +x/string ( xc-addr1 u1 -- xc-addr2 u2 ) \ xchar	plus-x-slash-string
 \G Step forward by one xchar in the buffer defined by address
-\G @var{xc-addr1}, size @var{u1} pchars. @var{xc-addr2} is the address
-\G and u2 the size in pchars of the remaining buffer after stepping
+\G @var{xc-addr1}, size @var{u1} chars. @var{xc-addr2} is the address
+\G and u2 the size in chars of the remaining buffer after stepping
 \G over the first xchar in the buffer.
-umethod x\string- ( xc-addr1 u1 -- xc-addr1 u2 ) \ xchar	x-back-string-minus
+umethod x\string- ( xc-addr u1 -- xc-addr u2 ) \ xchar	x-back-string-minus
 \G Step backward by one xchar in the buffer defined by address
-\G @var{xc-addr1} and size @var{u1} in pchars, starting at the end of
-\G the buffer. @var{xc-addr1} is the address and @var{u2} the size in
-\G pchars of the remaining buffer after stepping backward over the
+\G @var{xc-addr} and size @var{u1} in chars, starting at the end of
+\G the buffer. @var{xc-addr} is the address and @var{u2} the size in
+\G chars of the remaining buffer after stepping backward over the
 \G last xchar in the buffer.
 umethod xc@ ( xc-addr -- xc ) \ xchar-ext	xc-fetch
 \G Fetchs the xchar @var{xc} at @var{xc-addr1}.
@@ -55,7 +55,7 @@ umethod xc!+ ( xc xc-addr1 -- xc-addr2 ) \ xchar-ext	xc-store
 \G unused address in the buffer.
 umethod xc!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ xchar-ext	xc-store-plus-query
 \G Stores the xchar @var{xc} into the buffer starting at address
-\G @var{xc-addr1}, @var{u1} pchars large. @var{xc-addr2} points to the
+\G @var{xc-addr1}, @var{u1} chars large. @var{xc-addr2} points to the
 \G first memory location after @var{xc}, @var{u2} is the remaining
 \G size of the buffer. If the xchar @var{xc} did fit into the buffer,
 \G @var{f} is true, otherwise @var{f} is false, and @var{xc-addr2}
@@ -65,19 +65,19 @@ umethod xc@+ ( xc-addr1 -- xc-addr2 xc ) \ xchar-ext	xc-fetch-plus
 \G Fetchs the xchar @var{xc} at @var{xc-addr1}. @var{xc-addr2} points
 \G to the first memory location after @var{xc}.
 umethod xc-size ( xc -- u ) \ xchar-ext
-\G Computes the memory size of the xchar @var{xc} in pchars.
+\G Computes the memory size of the xchar @var{xc} in chars.
 umethod x-size ( xc-addr u1 -- u2 ) \ xchar
 \G Computes the memory size of the first xchar stored at @var{xc-addr}
-\G in pchars.
+\G in chars.
 umethod x-width ( xc-addr u -- n ) \ xchar-ext
-\G @var{n} is the number of monospace ASCII pchars that take the same
+\G @var{n} is the number of monospace ASCII chars that take the same
 \G space to display as the the xchar string starting at @var{xc-addr},
-\G using @var{u} pchars; assuming a monospaced display font,
-\G i.e. pchar width is always an integer multiple of the width of an
-\G ASCII pchar.
-umethod -trailing-garbage ( xc-addr u1 -- addr u2 ) \ xchar-ext
+\G using @var{u} chars; assuming a monospaced display font,
+\G i.e. char width is always an integer multiple of the width of an
+\G ASCII char.
+umethod -trailing-garbage ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext
 \G Examine the last XCHAR in the buffer @var{xc-addr} @var{u1}---if
-\G the encoding is correct and it repesents a full pchar, @var{u2}
+\G the encoding is correct and it repesents a full char, @var{u2}
 \G equals @var{u1}, otherwise, @var{u2} represents the string without
 \G the last (garbled) xchar.
 2drop
