@@ -385,7 +385,7 @@ include ./recognizer.fs
 
 : S, ( addr u -- )
     \ allot string as counted string
-    here over char+ allot  place align ;
+    string, align ;
 
 : ," ( "string"<"> -- )
     '"' parse s, ;

@@ -19,8 +19,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : save-mem-dict ( addr1 u -- addr2 u )
-    here swap dup allot ( addr1 addr2 u )
-    2dup 2>r move 2r> ;
+    here over 2swap mem, ;
 
 require glocals.fs
 
