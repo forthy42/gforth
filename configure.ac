@@ -1218,7 +1218,7 @@ then
 fi
 AC_HEADER_STDC
 AC_CHECK_LIB(dl,dlopen)
-AC_REPLACE_FUNCS(memmove strtoul pow10 sincos strerror strsignal atanh)
+AC_REPLACE_FUNCS(memmove strtoul exp10 sincos strerror strsignal atanh)
 AC_FUNC_FSEEKO
 AC_CHECK_FUNCS(ftello dlopen sys_siglist getrusage nanosleep clock_gettime)
 AC_CHECK_TYPES(stack_t,,,[#include <signal.h>])

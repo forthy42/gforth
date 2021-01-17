@@ -2710,9 +2710,9 @@ CLOBBER_TOS_WORKAROUND_END;
 
 falog	( r1 -- r2 )	float-ext	f_a_log
 ""@i{r2}=10**@i{r1}""
-extern double pow10(double);
+extern double exp10(double);
 CLOBBER_TOS_WORKAROUND_START;
-r2 = pow10(r1);
+r2 = exp10(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
 fsin	( r1 -- r2 )	float-ext	f_sine

@@ -1,4 +1,4 @@
-/* a simple pow10 implementation
+/* a simple exp10 implementation
 
   Authors: Anton Ertl, Bernd Paysan
   Copyright (C) 1995,1998,2000,2003,2007,2017,2019 Free Software Foundation, Inc.
@@ -34,7 +34,7 @@ extern double exp(double);
 
 #endif /* _ANSI_MATH_H */
 
-double pow10(double x)
+double exp10(double x)
 {
   return exp(x*M_LN10);
 }

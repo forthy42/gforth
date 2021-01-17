@@ -571,7 +571,7 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in			\
 	engine/getopt.c engine/getopt1.c engine/getopt.h		\
 	engine/select.c engine/memcmp.c engine/rint.c	                \
 	engine/strtol.c engine/strtoul.c engine/ansidecl.h		\
-	engine/memmove.c engine/pow10.c engine/atanh.c			\
+	engine/memmove.c engine/exp10.c engine/atanh.c			\
 	engine/cleanalign.c engine/strerror.c engine/strsignal.c	\
 	engine/dblsub.c engine/fnmatch.h engine/fnmatch.c		\
 	engine/zexpand.c engine/androidmain.c engine/sincos.c           \
