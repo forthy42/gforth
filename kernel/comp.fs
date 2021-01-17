@@ -383,10 +383,6 @@ include ./recognizer.fs
 
 \ \ Strings							22feb93py
 
-: S, ( addr u -- )
-    \ allot string as counted string
-    string, align ;
-
 : ," ( "string"<"> -- )
     '"' parse string, ;
 

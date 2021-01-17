@@ -31,7 +31,7 @@ Defer previous-section \ end that part
 :noname  postpone then ; is previous-section
 
 : CLiteral ( Compilation c-addr1 u ; run-time -- c-addr )
-    2>r next-section here 2r> s, >r  previous-section
+    2>r next-section here 2r> string, align >r  previous-section
     r> postpone literal ; immediate restrict
 
 : SLiteral ( Compilation c-addr1 u ; run-time -- c-addr2 u ) \ string
