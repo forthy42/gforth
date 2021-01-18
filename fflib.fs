@@ -245,7 +245,7 @@ DOES> ( -- )  dup thislib ! proc: ;
     r> compile,  postpone EXIT ;
 
 : symbol, ( "c-symbol" -- )
-    here thisproc @ 2 cells + ! parse-name s,
+    here thisproc @ 2 cells + ! parse-name string, align
     thislib @ thisproc @ @proc ;
 
 : rettype ( endxt startxt "name" -- )

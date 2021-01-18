@@ -19,22 +19,24 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require gl-helper.fs
-s" unix/soil2.fs" open-fpath-file 0= [IF]
-    \ prefer soil2 over soil
-    2drop close-file throw
-    require ../unix/soil2lib.fs
-[ELSE]
-    require ../unix/soillib.fs
-[THEN]
+require unix/stb-image.fs
+\ s" unix/soil2.fs" open-fpath-file 0= [IF]
+\     \ prefer soil2 over soil
+\     2drop close-file throw
+\     require ../unix/soil2lib.fs
+\ [ELSE]
+\     require ../unix/soillib.fs
+\ [THEN]
 require jpeg-exif.fs
 
-also soil
+\ also soil
 
 : >texture ( addr w h -- )
     2 pick >r rgba-texture mipmap linear-mipmap r> free throw ;
 : mem>texture ( addr u -- w h )
     over >r  { | w^ w w^ h w^ ch# }
-    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
+    w h ch# 4 stbi_load_from_memory
+\    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
     r> free throw w @ h @  2dup 2>r >texture 2r> ;
 : load-texture ( addr u -- w h )
     open-fpath-file throw 2drop slurp-fid mem>texture ;
@@ -42,7 +44,8 @@ also soil
     4 pick >r rgba-subtex wrap-texture mipmap linear-mipmap r> free throw ;
 : mem>subtex ( x y addr u -- w h )
     over >r  { | w^ w w^ h w^ ch# }
-    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
+    w h ch# 4 stbi_load_from_memory
+\    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory
     r> free throw -rot w @ h @  2dup 2>r >subtex 2r> ;
 : load-subtex ( x y addr u -- w h )
     open-fpath-file throw 2drop slurp-fid mem>subtex ;
@@ -54,4 +57,4 @@ tex: thumbnails
 : load-subthumb ( x y addr u -- w h )
     >thumbnail mem>subtex ;
 
-previous
+\ previous

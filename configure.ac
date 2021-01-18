@@ -1468,15 +1468,17 @@ if test x$has_swig = xyes || test -f $srcdir/unix/png16-fsi.c; then
     AC_CHECK_HEADER(libpng16/png.h, SWIGMODULES="$SWIGMODULES png16.fs"
 		    SWIGLIBS="$SWIGLIBS png16.fs", ,)
 fi
-if test x$has_swig = xyes || test -f $srcdir/unix/soil2-fsi.c; then
-    AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
-		    SWIGLIBS="$SWIGLIBS soil2.fs", ,)
-fi
-if test x$has_swig = xyes || test -f $srcdir/unix/soil-fsi.c; then
-    AC_CHECK_LIB(SOIL,SOIL_load_image,
-    AC_CHECK_HEADER(SOIL/SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
-		    SWIGLIBS="$SWIGLIBS soil.fs", ,))
-fi
+AC_CHECK_HEADER(stb/stb_image.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image.fs", , )
+AC_CHECK_HEADER(stb/stb_image_write.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image-write.fs", , )
+#if test x$has_swig = xyes || test -f $srcdir/unix/soil2-fsi.c; then
+#    AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
+#		    SWIGLIBS="$SWIGLIBS soil2.fs", ,)
+#fi
+#if test x$has_swig = xyes || test -f $srcdir/unix/soil-fsi.c; then
+#    AC_CHECK_LIB(SOIL,SOIL_load_image,
+#    AC_CHECK_HEADER(SOIL/SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
+#		    SWIGLIBS="$SWIGLIBS soil.fs", ,))
+#fi
 if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
     AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
 		    SWIGLIBS="$SWIGLIBS freetype_gl.fs", ,)

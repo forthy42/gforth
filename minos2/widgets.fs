@@ -819,11 +819,12 @@ previous
 
 atlas-region buffer: (ar)
 
-also soil also freetype-gl
+also freetype-gl
 
 : img>mem ( addr u -- memimg w h )
     0 0 0 { w^ w w^ h w^ ch# }
-    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory ( memimg-addr )
+    w h ch# 4 stbi_load_from_memory ( memimg-addr )
+\    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory ( memimg-addr )
     w @ h @ ;
 : rgba>style { memimg w h atlas val | ar[ atlas-region ] -- ivec4-addr }
     BEGIN
@@ -855,7 +856,7 @@ also soil also freetype-gl
     atlas-region thumbs[] $+[]!
     thumbs[] $top[] ;
 
-previous previous
+previous
 
 : style: load-style Create here atlas-region dup allot move
   DOES> to frame# ;
