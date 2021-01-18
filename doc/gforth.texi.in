@@ -10058,30 +10058,48 @@ languages however fit somewhat into the Forth frame, since a byte is
 sufficient to encode the few special characters in each (though not
 always the same encoding can be used; latin-1 is most widely used,
 though). For other languages, different char-sets have to be used,
-several of them variable-width. Most prominent representant is
-UTF-8. Let's call these extended characters xchars. The primitive
-fixed-size characters stored as bytes are called pchars in this
-section.
+several of them variable-width.  To deal with this problem, characters
+are often represented as Unicode codepoints on the stack, and as UTF-8
+byte strings in memory.  An Unicode codepoint often represents one
+application-level character, but Unicode also supports decomposed
+characters that consist of several code points, e.g., a base letter
+and a combining diacritical mark.
+
+An Unicode codepoint can consume more than one byte in memory, so we
+adjust our terminology: A char is a raw byte in memory or a value in
+the range 0-255 on the stack.  An xchar (for extended char) stands for
+one codepoint; it is represented by one or more bytes in memory and
+may have larger values on the stack.  ASCII characters are the same as
+chars and as xchars: values in the range 0-127, and a single byte with
+that value in memory.
+
+When using UTF-8 encoding, all other codepoints take more than one
+byte/char.  In most cases, you can just treat such characters as
+strings in memory and don't need to use the following words, but if
+you want to deal with individual codepoints, the following words are
+useful.  We currently have no words for dealing with decomposed
+characters.
 
 The xchar words add a few data types:
 
 @itemize
 
 @item
-@var{xc} is an extended char (xchar) on the stack. It occupies one cell,
-and is a subset of unsigned cell. Note: UTF-8 can not store more that
-31 bits; on 16 bit systems, only the UCS16 subset of the UTF-8
-character set can be used.
+@var{xc} is an extended char (xchar) on the stack. It occupies one
+cell, and is a subset of unsigned cell.  On 16 bit systems, only the
+BMP subset of the Unicode character set (i.e., codepoints <65536) can
+be represented on the stack.  If you represent your application
+characters as strings at all times, you can avoid this limitation.
 
 @item
 @var{xc-addr} is the address of an xchar in memory. Alignment
 requirements are the same as @var{c-addr}. The memory representation of an
 xchar differs from the stack representation, and depends on the
-encoding used. An xchar may use a variable number of pchars in memory.
+encoding used. An xchar may use a variable number of chars in memory.
 
 @item
 @var{xc-addr} @var{u} is a buffer of xchars in memory, starting at
-@var{xc-addr}, @var{u} pchars long.
+@var{xc-addr}, @var{u} chars (i.e., bytes, not xchars) long.
 
 @end itemize
 
