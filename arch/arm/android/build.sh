@@ -90,6 +90,11 @@ GFORTH_VERSION=$($GFORTH_DITC --version 2>&1 | cut -f2 -d' ')
 
 LIBCCNAMED=lib/gforth/current/$machine/libcc-named/.libs
 
+if [ ! -L $TOOLCHAIN/sysroot/usr/include/stb ]
+then
+    ln -fs /usr/include/stb $TOOLCHAIN/sysroot/usr/include/
+fi
+
 if [ ! -f $SRC/configure ]
 then
     (cd $SRC; ./autogen.sh)
@@ -98,10 +103,6 @@ fi
 rm -rf $LIBS
 mkdir -p $LIBS
 
-if [ ! -f $TOOLCHAIN/sysroot/usr/lib/libsoil2.a ]
-then
-    cp $TOOLCHAIN/sysroot/usr/lib/libsoil.so $LIBS
-fi
 cp .libs/libtypeset.so $LIBS
 cp $TOOLCHAIN/sysroot/usr/lib/libopus.so $LIBS
 cp $(find $TOOLCHAIN/$TARGET -name libc++_shared.so) $LIBS

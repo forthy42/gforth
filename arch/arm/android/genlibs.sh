@@ -183,7 +183,7 @@ then
     gen_opus
     gen_fthb
     gen_ftgl
-    gen_soil2
+    #gen_soil2
     gen_typeset
 else
     while [ "$1" != "" ]
