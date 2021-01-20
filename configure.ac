@@ -929,7 +929,7 @@ case "$host_os" in
                 #http://mail.python.org/pipermail/pythonmac-sig/2005-October/015190.html
                 AC_DEFINE_UNQUOTED(MACOSX_DEPLOYMENT_TARGET,"10.10",[an environment variable value needed by libtool on some MacOS X versions])
 		;;
-	*win*|mingw-w*)
+	*win*|w*-mingw*)
 		# !!!FIXME!!! problems with cygwin and ';' as path separator
 		DIRSEP="/" # normal dirsep
 		PATHSEP=":" # colon as pathsep
