@@ -352,7 +352,7 @@ case "$host_cpu" in
 		machine=arm64
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
                 test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
-		if test -z $arm_cacheflush; then
+		if test -z "$arm_cacheflush"; then
 		   AC_LIBOBJ(arm64-cacheflush)
 		fi
 		;;
@@ -525,7 +525,7 @@ Dynamic Code generation disabled (relocation and delay slot issues).]"
 Generic machine description used."
 		machine=generic
 		#I-cache flushing would be needed for dynamic code generation
-		if test -z $no_dynamic_default; then
+		if test -z "$no_dynamic_default"; then
 		    if test no = $ax_cv_have___builtin___clear_cache; then
 			AC_MSG_WARN([FLUSH-ICACHE will do nothing, so END-CODE may not work properly!])
 			AC_MSG_WARN([Disabling default dynamic native code generation (no I-Cache synchronization)])
@@ -1064,7 +1064,7 @@ fi
 AC_MSG_RESULT($skipcode)
 if test "$skipcode" = no
 then 
-    if test -z $no_dynamic_default; then
+    if test -z "$no_dynamic_default"; then
 	no_dynamic_default=1
 	AC_MSG_WARN(Disabling default dynamic native code generation)
 	config_warns="$config_warns
