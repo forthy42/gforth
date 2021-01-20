@@ -2,6 +2,7 @@
 
 c-library stb-image-write
     s" -O3" add-cflags
+    s" -lm" add-lib
     \c #define STB_IMAGE_WRITE_IMPLEMENTATION
     \c #define STBIW_WINDOWS_UTF8
     \c #include <stb/stb_image_write.h>
