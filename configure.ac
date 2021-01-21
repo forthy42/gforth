@@ -1482,6 +1482,12 @@ AC_CHECK_HEADER(stb/stb_image_write.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/st
 if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
     AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
 		    SWIGLIBS="$SWIGLIBS freetype_gl.fs", ,)
+else
+    if test -d freetype-gl; then
+# we actually ship freetype-gl
+        SWIGMODULES="$SWIGMODULES freetype_gl.fs"
+        SWIGLIBS="$SWIGLIBS freetype_gl.fs"
+    fi
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
@@ -1631,7 +1637,7 @@ test -d kernel||mkdir kernel
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
 $srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION/$machine
 $srcdir/mkinstalldirs arch/$machine
-ln -sf $PWD/engine/config.h `cd $srcdir; pwd`/engine/libcc.h include/gforth/$PACKAGE_VERSION/$machine]],
+ln -sf $PWD/engine/config.h `cd $srcdir; pwd`/engine/libcc.h `cd $srcdir; pwd`/freetype-gl include/gforth/$PACKAGE_VERSION/$machine]],
 [PACKAGE_VERSION=$PACKAGE_VERSION
  machine=$machine])
 AC_OUTPUT

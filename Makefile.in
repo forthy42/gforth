@@ -356,6 +356,15 @@ SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i	\
 	unix/avcodec.i unix/pulse.i unix/opus.i unix/va.i		\
 	unix/va_glx.i unix/va_drm.i unix/va_x11.i unix/opensles.i
 
+FREETYPE_GL_SRC = freetype-gl/freetype-gl-err.c				      \
+	freetype-gl/freetype-gl-errdef.h freetype-gl/freetype-gl-err.h	      \
+	freetype-gl/freetype-gl.h freetype-gl/opengl.h freetype-gl/platform.c \
+	freetype-gl/platform.h freetype-gl/texture-atlas.c		      \
+	freetype-gl/texture-atlas.h freetype-gl/texture-font.c		      \
+	freetype-gl/texture-font.h freetype-gl/utf8-utils.c		      \
+	freetype-gl/utf8-utils.h freetype-gl/vec234.h freetype-gl/vector.c    \
+	freetype-gl/vector.h
+
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_SRC)
 
@@ -588,12 +597,12 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	ChangeLog Benchres aclocal.m4 doc/Makefile.in doc/gforth.texi.in      \
 	doc/gforth.1 doc/version.texi.in doc/vmgen.texi doc/fdl.texi	      \
 	doc/gpl.texi gforth.el $(ARCHS) mkinstalldirs siteinit.fs	      \
-	versions.bsh glosgen.glo doc/glossaries.doc $(FORTH_SRC)              \
+	versions.bsh glosgen.glo doc/glossaries.doc $(FORTH_SRC)	      \
 	$(LIBCC_DIST_SRC) $(LIBCC_GEN_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
-	timings.sc test/coretest.out test/checkans.out test/gforth.out	      \
-	test/fp/fptest.out $(wildcard cache*.vmg) peeprules.vmg prim	      \
-	debian/rules debian/control.in debian/changelog.in debian/compat      \
-	gforth.ico .travis.yml install-deps.sh install-swig.sh		      \
+	$(FREETYPE_GL_SRC) timings.sc test/coretest.out test/checkans.out     \
+	test/gforth.out test/fp/fptest.out $(wildcard cache*.vmg)	      \
+	peeprules.vmg prim debian/rules debian/control.in debian/changelog.in \
+	debian/compat gforth.ico .travis.yml install-deps.sh install-swig.sh  \
 	install-freetype-gl.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4	      \
 	move-if-change
 

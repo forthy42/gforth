@@ -226,7 +226,7 @@ DOES> ( -- )  dup thislib ! proc: ;
 ' init-shared-libs IS 'cold
 
 : symbol, ( "c-symbol" -- )
-    here thisproc @ 2 cells + ! parse-name s,
+    here thisproc @ 2 cells + ! parse-name string, align
     thislib @ thisproc @ @proc ;
 
 : func@ >body cell+ @ ;
