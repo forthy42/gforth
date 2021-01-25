@@ -527,7 +527,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 \G If @i{xt} is the execution token of a child of a @code{DOES>} word,
 \G @i{a-addr} is the start of the Forth code after the @code{DOES>};
 \G Otherwise @i{a-addr} is 0.
-    dup @ dodoes: = if
+    dup >code-address dodoes: = if
 	>namevt @ >vtextra @ >body
     else
 	drop 0

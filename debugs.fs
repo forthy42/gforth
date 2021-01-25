@@ -192,7 +192,7 @@ is ?warning
 \ replacing one word with another
 
 : >colon-body ( xt -- addr )
-    dup @ docol: <> -12 and throw >body ;
+    dup >code-address docol: <> -12 and throw >body ;
 
 : >prim-code ( xt -- x )
     \ converts xt of a primitive into a form usable in the code of

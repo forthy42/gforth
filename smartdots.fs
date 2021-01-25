@@ -25,7 +25,7 @@ User smart.s-skip
 : addr? ( addr -- flag )
     ['] c@ catch  IF  drop  false nothrow  ELSE  drop  true  THEN ;
 : .var? ( addr -- flag )
-    TRY  body> @ dovar: <> throw  IFERROR  2drop false nothrow
+    TRY  body> >code-address dovar: <> throw  IFERROR  2drop false nothrow
 	ELSE  true  THEN   ENDTRY ;
 
 : string? ( addr u -- flag )

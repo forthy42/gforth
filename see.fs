@@ -368,7 +368,7 @@ VARIABLE C-Pass
 : c-lit ( addr1 -- addr2 )
     dup @ dup body> dup cfaligned over = swap in-dictionary? and if
 	( addr1 addr1@ )
-	dup body> @ dovar: = if
+	dup body> >code-address dovar: = if
 	    drop c-call EXIT
 	endif
     endif
@@ -643,7 +643,7 @@ VARIABLE C-Pass
 [IFDEF] u#exec
     Variable u#what \ global variable to specify what to search for
     : search-u#gen ( 0 offset1 offset2 nt -- xt/0 offset1 offset2 flag )
-	name>int dup @ docol: = IF
+	name>int dup >code-address docol: = IF
 	    dup >body @ decompile-prim u#what @ xt=
 	    over >body 3 cells + @ decompile-prim ['] ;S xt= and
 	    IF  >r 2dup r@ >body cell+ 2@ d=
