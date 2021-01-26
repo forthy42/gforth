@@ -349,7 +349,7 @@ variable code-locations 0 code-locations !
 
 : .whereview1 ( view wno -- )
     0 <<# `#s #10 base-execute #> rot ( c-addr u view )
-    dup .sourceview-width ." : " 3 + 2 pick + cols swap - .whereline type #>> ;
+    dup .sourceview-width space 2 + 2 pick + cols swap - .whereline type #>> ;
 
 : forwheres ( ... xt -- ... )
     where-results $free
