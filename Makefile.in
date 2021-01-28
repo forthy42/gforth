@@ -842,7 +842,8 @@ install-include:
 		$(srcdir)/mkinstalldirs $(includedir)/gforth/$(VERSION)/$(machine) $(includedir)/freetype-gl
 		$(INSTALL_DATA) engine/config.h $(srcdir)/engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
 		$(INSTALL_DATA) engine/gforth.h $(includedir)
-		$(INSTALL_DATA) $(FREETYPE_GL_INCLUDE) $(includedir)/freetype-gl
+		for i in $(FREETYPE_GL_INCLUDE); do \
+		$(INSTALL_DATA) $(srcdir)/$$i $(includedir)/freetype-gl; done
 
 install-libcc:
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_SRC1) $(LIBCC_BUILD_SRC); do \
