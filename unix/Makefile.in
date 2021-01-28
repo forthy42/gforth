@@ -18,11 +18,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
-INCLUDES   = @SWIGINCLUDES@
+INCLUDES   = @SWIGINCLUDES@ -I@srcdir@
 SWIG       = @SWIG@
 TARGETS    = @SWIGMODULES@
 WRAPPERS   = $(patsubst %.fs, %.fsx, $(TARGETS))
 GENWRAPPERS   = $(patsubst %.fs, %-fsi.c, $(TARGETS))
+GENWRAPPERS_PLUS   = $(patsubst %.fs, %-fsi.c+, $(TARGETS))
 LIBRARY    = @SWIGLIBS@
 HOST_OS    = $(subst -,_,@host_os@)
 OPTIONS    = -forth -cpperraswarn -Dhost_os_$(HOST_OS) -no-sectioncomments -use-structs -stackcomments $(subst -F,-I, $(INCLUDES))
@@ -79,7 +80,7 @@ run: $(DEMO)
 
 clean:
 	rm -f $(TARGETS) stat.fs
-	rm -f $(GENWRAPPERS)
+	rm -f $(GENWRAPPERS) $(GENWRAPPERS_PLUS)
 	rm -f $(WRAPPERS) stat.fsx
 	rm -f example.o example example-fast example.fs
 

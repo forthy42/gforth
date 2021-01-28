@@ -356,14 +356,14 @@ SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i	\
 	unix/avcodec.i unix/pulse.i unix/opus.i unix/va.i		\
 	unix/va_glx.i unix/va_drm.i unix/va_x11.i unix/opensles.i
 
-FREETYPE_GL_SRC = freetype-gl/freetype-gl-err.c				      \
-	freetype-gl/freetype-gl-errdef.h freetype-gl/freetype-gl-err.h	      \
-	freetype-gl/freetype-gl.h freetype-gl/opengl.h freetype-gl/platform.c \
-	freetype-gl/platform.h freetype-gl/texture-atlas.c		      \
-	freetype-gl/texture-atlas.h freetype-gl/texture-font.c		      \
-	freetype-gl/texture-font.h freetype-gl/utf8-utils.c		      \
-	freetype-gl/utf8-utils.h freetype-gl/vec234.h freetype-gl/vector.c    \
-	freetype-gl/vector.h
+FREETYPE_GL_INCLUDE = freetype-gl/freetype-gl-errdef.h			   \
+	freetype-gl/freetype-gl-err.h freetype-gl/freetype-gl.h		   \
+	freetype-gl/opengl.h freetype-gl/platform.h			   \
+	freetype-gl/texture-atlas.h freetype-gl/texture-font.h		   \
+	freetype-gl/utf8-utils.h freetype-gl/vec234.h freetype-gl/vector.h
+FREETYPE_GL_SRC = freetype-gl/freetype-gl-err.c freetype-gl/platform.c	     \
+	freetype-gl/texture-atlas.c freetype-gl/texture-font.c		     \
+	freetype-gl/utf8-utils.c freetype-gl/vector.c $(FREETYPE_GL_INCLUDE)
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_SRC)
@@ -731,6 +731,7 @@ clean:		mostlyclean
 	engine/prim-s.i
 	for i in gforth gforth-fast; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EXT) $$i$${j}$(EXT); done; done
 	-$(RM) -rf $(buildccdir)
+	(cd unix; $(MAKE) clean)
 
 distclean:	clean
 		-$(RM) -rf config.cache config.log config.status \
@@ -838,9 +839,10 @@ install-images: install-txt
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
 
 install-include:
-		$(srcdir)/mkinstalldirs $(includedir)/gforth/$(VERSION)/$(machine)
+		$(srcdir)/mkinstalldirs $(includedir)/gforth/$(VERSION)/$(machine) $(includedir)/freetype-gl
 		$(INSTALL_DATA) engine/config.h $(srcdir)/engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
 		$(INSTALL_DATA) engine/gforth.h $(includedir)
+		$(INSTALL_DATA) $(FREETYPE_GL_INCLUDE) $(includedir)/freetype-gl
 
 install-libcc:
 		if test -n "$(LIBTOOL)"; then for i in $(LIBCC_SRC1) $(LIBCC_BUILD_SRC); do \
