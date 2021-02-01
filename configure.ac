@@ -1481,8 +1481,12 @@ AC_CHECK_HEADER(stb/stb_image_write.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/st
 #fi
 CPPFLAGS="$CPPFLAGS -I$srcdir/freetype-gl"
 if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
-    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
-		    SWIGLIBS="$SWIGLIBS freetype_gl.fs", ,)
+   CPPFLAGS_1="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS `pkg-config --cflags freetype2`"
+   AC_CHECK_HEADER(ft2build.h,
+   AC_CHECK_LIB(freetype,FT_Get_Char_Index,
+   AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
+		    SWIGLIBS="$SWIGLIBS freetype_gl.fs", ,), ,), ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"

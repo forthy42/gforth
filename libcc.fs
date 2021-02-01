@@ -442,14 +442,17 @@ create count-stacks-types
 	2dup type s"   return " str= IF  ." (void *)"  THEN
     THEN s" (" gen-par-n ." )" ;
 
+: ?return ( cast-addr u -- )
+    2dup  s"   return " str= IF  type  ELSE  2drop  THEN ;
+
 : gen-par-d ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    2drop s" gforth_d2ll(" gen-par-n s" ," gen-par-n ." )" ;
+    ?return s" gforth_d2ll(" gen-par-n s" ," gen-par-n ." )" ;
 
 : gen-par-ud ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    2drop s" gforth_d2ll(" gen-par-n s" ," gen-par-n ." )" ;
+    ?return s" gforth_d2ll(" gen-par-n s" ," gen-par-n ." )" ;
 
 : gen-par-r ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    2drop gen-par-fp ;
+    ?return gen-par-fp ;
 
 : gen-par-func ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     gen-par-a ;
@@ -458,13 +461,13 @@ create count-stacks-types
     2drop ;
 
 : gen-par-s ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    2drop s" gforth_str2c((Char*)" gen-par-n s" ," gen-par-n ." )" ;
+    ?return s" gforth_str2c((Char*)" gen-par-n s" ," gen-par-n ." )" ;
 
 : gen-par-ws ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    2drop s" gforth_str2wc((Char*)" gen-par-n s" ," gen-par-n ." )" ;
+    ?return s" gforth_str2wc((Char*)" gen-par-n s" ," gen-par-n ." )" ;
 
 : gen-par-0 ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
-    2drop ." NULL" ;
+    ?return ." NULL" ;
 
 create gen-par-types
 ' gen-par-n ,
