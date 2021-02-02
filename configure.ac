@@ -1273,7 +1273,7 @@ else
     for prefix in /usr /usr/local
     do
 	lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir)))
-    	test -d $lispdirtest && echo $lispdirtest && exit
+    	test -d $lispdirtest && echo "\$(package)"$lispdirtest && exit
     done)
     echo "lispdir=$lispdir"
 fi

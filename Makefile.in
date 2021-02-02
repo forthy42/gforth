@@ -83,7 +83,7 @@ mandir = $(package)@mandir@
 man1dir= $(mandir)/man1
 man1ext= .1
 #older emacses have their site-lisp in $(libdir)/emacs/
-lispdir=$(package)@lispdir@
+lispdir=@lispdir@
 emacssitestartdir=@elispstartdir@
 siteforthdir=$(libdir)/gforth/site-forth
 
