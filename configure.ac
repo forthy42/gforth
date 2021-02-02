@@ -1263,19 +1263,32 @@ AC_MSG_RESULT($ATOMIC)
 AC_SUBST(ATOMIC)
 
 # Sanitzie broken AM_PATH_LISPDIR result
-lispdir=$(prefix=$ac_default_prefix
-lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir)))
-test -d $lispdirtest && echo $lispdir && exit
-for prefix in /usr /usr/local
-do
+if test x$ac_default_prefix = x/usr
+then
+    echo "lispdir=$lispdir (default prefix)"
+else
+    lispdir=$(prefix=$ac_default_prefix
     lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir)))
-    test -d $lispdirtest && echo $lispdirtest && exit
-done)
+    test -d $lispdirtest && echo $lispdir && exit
+    for prefix in /usr /usr/local
+    do
+	lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir)))
+    	test -d $lispdirtest && echo $lispdirtest && exit
+    done)
+    echo "lispdir=$lispdir"
+fi
 
-elispstartdir=$(for i in /etc/emacs/site-start.d $lispdir/site-start.d/
-do
-    test -d $i && echo $i && exit
-done)
+if test -d /etc/emacs/site-start.d
+then
+    elispstartdir=/etc/emacs/site-start.d
+else if test -d $(prefix=$ac_default_prefix
+    lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir)))
+    echo $lispdirtest)/side-start.d
+then
+    elispstartdir="${lispdir}/site-start.d"
+fi
+fi
+echo "elispstartdir=$elispstartdir"
 
 AC_ARG_WITH(elispstartdir,
 	AC_HELP_STRING([--with-elispstartdir=<dir>],
