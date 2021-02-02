@@ -1139,8 +1139,11 @@ AC_CHECK_LIB(ltdl,lt_dlinit)
 #,LIB_SUFFIX=.la,LIB_SUFFIX=.so)
 if test "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
    case "$host_os" in
-   *linux*)
+   *android*)
      LIB_SUFFIX=.so
+     ;;
+   *linux*)
+     LIB_SUFFIX=.la
      ;;
    *)
      LIB_SUFFIX=.la
