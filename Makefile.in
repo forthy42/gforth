@@ -83,7 +83,7 @@ mandir = $(package)@mandir@
 man1dir= $(mandir)/man1
 man1ext= .1
 #older emacses have their site-lisp in $(libdir)/emacs/
-emacssitelispdir=$(package)@lispdir@
+lispdir=$(package)@lispdir@
 emacssitestartdir=$(package)@elispstartdir@
 siteforthdir=$(libdir)/gforth/site-forth
 
@@ -875,9 +875,9 @@ install-tags:	install.TAGS
 
 install-elc:
 		@if test -n "@lispdir@"; then \
-			$(MKDIR) -p $(emacssitelispdir); \
+			$(MKDIR) -p $(lispdir); \
 			for i in gforth.el @gforth_elc@; do \
-				$(INSTALL_DATA) $$i $(emacssitelispdir); \
+				$(INSTALL_DATA) $$i $(lispdir); \
 			done; \
 		else \
 			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
