@@ -1281,12 +1281,11 @@ fi
 if test -d /etc/emacs/site-start.d
 then
     elispstartdir=/etc/emacs/site-start.d
-else if test -d $(prefix=$ac_default_prefix
-    lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir)))
-    echo $lispdirtest)/side-start.d
-then
-    elispstartdir="${lispdir}/site-start.d"
-fi
+else
+    if test -d $(prefix=$ac_default_prefix; lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir))); echo $lispdirtest)/side-start.d)
+    then
+        elispstartdir="\${lispdir}/site-start.d"
+    fi
 fi
 echo "elispstartdir=$elispstartdir"
 
