@@ -1280,7 +1280,7 @@ fi
 
 if test -d /etc/emacs/site-start.d
 then
-    elispstartdir=/etc/emacs/site-start.d
+    elispstartdir="\$(package)/etc/emacs/site-start.d"
 else
     if test -n "$lispdir"
     then
