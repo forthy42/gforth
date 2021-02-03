@@ -596,9 +596,9 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS	      \
 	BUILD-FROM-SCRATCH model COPYING COPYING.LIB COPYING.DOC AUTHORS      \
 	ChangeLog Benchres aclocal.m4 doc/Makefile.in doc/gforth.texi.in      \
-	doc/gforth.1 doc/version.texi.in doc/vmgen.texi doc/fdl.texi	      \
-	doc/gpl.texi gforth.el $(ARCHS) mkinstalldirs siteinit.fs	      \
-	versions.bsh glosgen.glo doc/glossaries.doc $(FORTH_SRC)	      \
+	doc/gforth.1 doc/gforth.css doc/version.texi.in doc/vmgen.texi	      \
+	doc/fdl.texi doc/gpl.texi gforth.el $(ARCHS) mkinstalldirs	      \
+	siteinit.fs versions.bsh glosgen.glo doc/glossaries.doc $(FORTH_SRC)  \
 	$(LIBCC_DIST_SRC) $(LIBCC_GEN_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	$(FREETYPE_GL_SRC) timings.sc test/coretest.out test/checkans.out     \
 	test/gforth.out test/fp/fptest.out $(wildcard cache*.vmg)	      \
