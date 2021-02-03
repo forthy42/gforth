@@ -17,8 +17,8 @@
 
 
 Name:           gforth
-Version:        0.7.9_20210202
-Release:        0
+Version:        0.7.9_20210203
+Release:        77.1
 Summary:        GNU Forth
 License:        GFDL-1.2-only AND GPL-2.0-or-later AND GPL-3.0-or-later
 Group:          Development/Languages/Other
@@ -49,6 +49,7 @@ BuildRequires:  m4
 BuildRequires:   libtool libltdl7 Mesa-libGL-devel vulkan-devel gpsd-devel
 BuildRequires:   Mesa-libGLESv2-devel libpng16-devel stb-devel freetype2-devel harfbuzz-devel
 BuildRequires:   libpulse-devel libopus-devel libva-devel libva-gl-devel
+BuildRequires:   makeinfo texinfo info
 Requires(post):  %{install_info_prereq}
 Requires(preun): %{install_info_prereq}
 %endif
@@ -57,20 +58,37 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %description
 Gforth is a fast and portable implementation of the ANS Forth language.
 
+%package html
+Summary:        GNU Forth documentation in HTML format
+License:        GFDL-1.2-only
+Group:          Development/Languages/Other
+BuildArch:      noarch
+%description html
+Gforth manual in HTML format
+
+%package pdf
+Summary:        GNU Forth documentation in PDF format
+License:        GFDL-1.2-only
+Group:          Development/Languages/Other
+BuildArch:      noarch
+%description pdf
+Gforth manual in PDF format
+
 %prep
 %setup -q
 
 %build
 %configure
 #make %{?_smp_mflags}
-make --jobs 4
+make --jobs 1
+make doc pdf --jobs 1
 
 %check
-make check %{?_smp_mflags}
-#make check --jobs 1
+#make check %{?_smp_mflags}
+make check --jobs 1
 
 %install
-make DESTDIR=%{buildroot} install --jobs 1
+make DESTDIR=%{buildroot} install install-html install-pdf --jobs 1
 rm -f `find %{buildroot}%{_libdir} -name '*.a' -or -name '*.so'`
 %if 0%{?centos_version}
 rm -f %{buildroot}%{_infodir}/dir
@@ -98,5 +116,15 @@ rm -f %{buildroot}%{_infodir}/dir
 %{_datadir}/emacs/site-lisp/site-start.d/start-gforth.el
 %doc %{_infodir}/*.gz
 %doc %{_mandir}/man?/*
+%dir %{_datadir}/doc/gforth
+%dir %{_datadir}/doc/vmgen
+
+%files html
+%doc %{_datadir}/doc/gforth/html
+%doc %{_datadir}/doc/vmgen/html
+
+%files pdf
+%doc %{_datadir}/doc/gforth/gforth.pdf
+%doc %{_datadir}/doc/vmgen/vmgen.pdf
 
 %changelog
