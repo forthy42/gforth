@@ -1278,6 +1278,13 @@ else
     echo "lispdir=$lispdir"
 fi
 
+case "$lispdir"
+in
+    "${datarootdir}"*)
+	lispdir=""\$(package)$lispdir"
+	;;
+esac
+
 if test -d /etc/emacs/site-start.d
 then
     elispstartdir="\$(package)/etc/emacs/site-start.d"
