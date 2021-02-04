@@ -1293,7 +1293,7 @@ AC_ARG_WITH(elispstartdir,
 	AC_HELP_STRING([--with-elispstartdir=<dir>],
 			[  Use this directory to store the autoload file]),
 [if test $"withval" != "no"; then
-  elispstartdir=${withval}
+  elispstartdir="\$(package)${withval}"
 fi])
 AC_SUBST(elispstartdir)
 
