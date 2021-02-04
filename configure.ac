@@ -1280,7 +1280,7 @@ fi
 
 case "$lispdir"
 in
-    "${datarootdir}"*)
+    *datarootdir*)
 	lispdir="\$(package)$lispdir"
 	;;
 esac
