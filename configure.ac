@@ -1278,7 +1278,7 @@ else
     echo "lispdir=$lispdir"
 fi
 
-case "$lispdir"
+case $lispdir
 in
     *datarootdir*)
 	lispdir="\$(package)$lispdir"
