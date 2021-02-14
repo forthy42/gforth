@@ -53,11 +53,11 @@ override_dh_auto_install:
 	mkdir -p $(DLGL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named
 	mv $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named/libgf{gl,glx}.* $(DLGL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named
 	mkdir -p $(DLGL)/usr/share/gforth/$(GFORTH_VER)/unix
-	mv $(DLC)/usr/share/gforth/$(GFORTH_VER)/unix/{gl,glx}.fs $(DLGL)/usr/share/gforth/$(GFORTH_VER)/unix
+	mv $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/unix/{gl,glx}.fs $(DLGL)/usr/share/gforth/$(GFORTH_VER)/unix
 	mkdir -p $(DLGLES)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named
 	mv $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named/libgf{egl,gles}.* $(DLGLES)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named
 	mkdir -p $(DLGLES)/usr/share/gforth/$(GFORTH_VER)/unix
-	mv $(DLC)/usr/share/gforth/$(GFORTH_VER)/unix/{gles,egl}.fs $(DLGLES)/usr/share/gforth/$(GFORTH_VER)/unix
+	mv $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/unix/{gles,egl}.fs $(DLGLES)/usr/share/gforth/$(GFORTH_VER)/unix
 	mkdir -p $(DLX11)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named
 	mv $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named/libgfx.* $(DLX11)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named
 	mkdir -p $(DLX11)/usr/share/gforth/$(GFORTH_VER)/unix
