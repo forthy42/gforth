@@ -116,22 +116,29 @@ Description: GNU Forth
  .
  This package contains the links to the architecture specific binaries
 
-Package: gforth-gles-dependencies
+Package: gforth-libcc-gles
 Version: @DEBVERSION@
-Architecture: all
+Architecture: any
 Provides: gforth-opengl
 Depends: libgles2, libgl1-mesa-dri
 Recommends: libegl1 | libegl1-mesa
 Description: GNU Forth
- OpenGL ES dependency meta-package
+ Gforth OpenGL ES bindings package
 
-Package: gforth-gl-dependencies
+Package: gforth-libcc-gl
 Version: @DEBVERSION@
-Architecture: all
+Architecture: any
 Provides: gforth-opengl
 Depends: libglx0, libgl1, libgl1-mesa-dri
 Description: GNU Forth
- OpenGL dependency meta-package
+ Gforth OpenGL bindings package
+
+Package: gforth-libcc-x11
+Version: @DEBVERSION@
+Architecture: any
+Depends: libxrandr2, libx11-6
+Description: GNU Forth
+ Gforth X11 bindings package
 
 Package: gforth-noto-fonts
 Version: @DEBVERSION@
@@ -154,7 +161,7 @@ Package: gforth-minos2
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
-Depends: gforth (= @DEBVERSION@), gforth-opengl, libxrandr2, gforth-fonts, gforth-minos2tools
+Depends: gforth (= @DEBVERSION@), gforth-opengl, gforth-libcc-x11, gforth-fonts, gforth-minos2tools
 Recommends: fonts-emoji, fonts-awesome
 Description: GNU Forth Minos2 GUI
  Gforth is the Forth implementation of the GNU project, providing all

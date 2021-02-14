@@ -1,4 +1,4 @@
-gforth (@DEBVERSION@) stable; urgency=low
+gforth (@DEBVERSION@) <@ARCH@> stable; urgency=low
 
   * Dummy entry
 
