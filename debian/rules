@@ -4,7 +4,7 @@
 # Created by Bernd Paysan, in the public domain
 
 GFORTH_VER = `sed -e 's/^[^ ]\+ (\([^)]\+\).*/\1/; 1q' debian/changelog | tr '-' '_'`
-GFORTH_ARCH = `sed -e 's/^[^ ]\+ <\([^>]\+\).*/\1/; 1q' debian/changelog | tr '-' '_'`
+GFORTH_ARCH = `sed -e 's/^.* machine:<\([^>]\+\).*/\1/; 1q' debian/changelog | tail -n 1`
 D = $(CURDIR)/debian/gforth
 DC = $(CURDIR)/debian/gforth-common
 DL = $(CURDIR)/debian/gforth-lib
