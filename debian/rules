@@ -42,6 +42,7 @@ override_dh_auto_install:
 	mv $(DB)/usr/share $(DC)/usr
 	mkdir -p $(DM)/usr/share/gforth/$(GFORTH_VER)/
 	mv $(DC)/usr/share/gforth/$(GFORTH_VER)/minos2 $(DM)/usr/share/gforth/$(GFORTH_VER)/
+	mkdir -p  $(DMT)/usr/share/gforth/$(GFORTH_VER)/minos2/
 	mv $(DM)/usr/share/gforth/$(GFORTH_VER)/minos2/{mts-*.fs,mkv-*.fs,jpeg-exif.fs} $(DMT)/usr/share/gforth/$(GFORTH_VER)/minos2/
 	mv $(DB)/etc $(DC)
 	mv $(DB)/usr/bin/vmgen* $(DC)/usr/bin
