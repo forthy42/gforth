@@ -168,7 +168,6 @@ Description: GNU Forth Minos2 GUI
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.
  .
  This package contains the minos2 GUI stuff, and all the necessary dependencies.
-ion fonts dependency meta-package
 
 Package: gforth-minos2tools
 Version: @DEBVERSION@
