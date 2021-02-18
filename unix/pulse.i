@@ -17,7 +17,7 @@
 
 %apply long long { int64_t }
 
-// exec: sed -e 's/^c-library/vocabulary pulse``get-current also pulse definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/add-lib/add-lib`s" ((struct pa_:x.spx[arg0]" ptr-declare $+[]!/g' -e 's/\(c-function .*_autoload\)/\\ \1/g' | tr '`' '\n'
+// exec: sed -e 's/^c-library/vocabulary pulse``get-current also pulse definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/add-lib/add-lib`s" ((struct pa_:x.spx[arg0]" ptr-declare $+[]!/g' -e 's/\(c-function .*_autoload\)/\\ \1/g' -e 's/c-function pa_proplist_setf /\\ c-function pa_proplist_setf /g' | tr '`' '\n'
 
 %include <pulse/direction.h>
 %include <pulse/mainloop-api.h>
