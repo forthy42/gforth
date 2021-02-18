@@ -31,3 +31,6 @@ __asm__(".symver log,log@GLIBC_" STRINGIFY(FORCE_SYMVER));
 __asm__(".symver memcpy,memcpy@GLIBC_" STRINGIFY(FORCE_SYMVER));
 #endif
 #endif
+#ifdef FORCE_FSTAT_SYMVER
+__asm__(".symver fstat,fstat@GLIBC_" STRINGIFY(FORCE_FSTAT_SYMVER));
+#endif

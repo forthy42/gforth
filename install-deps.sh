@@ -64,5 +64,4 @@ esac
 
 install_${TRAVIS_OS_NAME:-$OS}
 ./install-swig.sh
-./install-freetype-gl.sh
 #./install-soil2.sh
