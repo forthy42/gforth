@@ -119,7 +119,7 @@ OBJECTS_FI =  engine$(OPT).o main-fi$(OPT).o
 
 # In engine subdirectory there are (or should be) only files that belong to
 # our engine, so we can make life easy
-DEPS =  config.h forth.h io.h $(srcdir)/../arch/$(machine)/*.[h]
+DEPS =  config.h forth.h io.h symver.h $(srcdir)/../arch/$(machine)/*.[h]
 ENGINE_DEPS = engine.c $(DEPS) prim_lab.i prim.i @image_i@ fnmatch.h threaded.h
 MAIN_DEPS = main.c $(DEPS) prim_superend.i prim_num.i prim_grp.i costs.i super2.i
 ENGINE_FAST_DEPS = engine.c $(DEPS) prim_lab-fast.i prim-fast.i fnmatch.h threaded.h

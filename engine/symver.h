@@ -27,10 +27,8 @@
 __asm__(".symver pow,pow@GLIBC_" STRINGIFY(FORCE_SYMVER));
 __asm__(".symver exp,exp@GLIBC_" STRINGIFY(FORCE_SYMVER));
 __asm__(".symver log,log@GLIBC_" STRINGIFY(FORCE_SYMVER));
+/* __asm__(".symver fstat_old,fstat@@GLIBC_" STRINGIFY(FORCE_SYMVER)); */
 #ifdef __x86_64
 __asm__(".symver memcpy,memcpy@GLIBC_" STRINGIFY(FORCE_SYMVER));
 #endif
-#endif
-#ifdef FORCE_FSTAT_SYMVER
-__asm__(".symver fstat,fstat@GLIBC_" STRINGIFY(FORCE_FSTAT_SYMVER));
 #endif
