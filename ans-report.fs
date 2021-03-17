@@ -129,9 +129,6 @@ ans-report-words definitions
     \ remember name in the appropriate wordset, unless already there
     \ or the word is defined in the checked program
     dup [ here ]L forthstart within
-    [IFDEF] locals-buffer
-	over locals-buffer dup 1000 + within or  \ or a local
-    [THEN]
     if
 	drop EXIT
     endif
@@ -143,12 +140,8 @@ ans-report-words definitions
     endif
     ( nt wordset ) cell+ add-unless-present ;
 
-: find&note-name ( c-addr u -- nt/0 )
-    \ find-name replacement. Takes note of all the words used.
-    lookup @ find-name-in dup
-    if
-	dup note-name
-    endif ;
+: hash-note-rec ( addr len wordlist-id -- nfa rectype-nt / rectype-null )
+    0 wordlist-id - hash-find dup if dup note-name then nt>rec ;
 
 : print-names ( endaddr startaddr -- )
     space 1 -rot
@@ -163,7 +156,7 @@ ans-report-words definitions
     drop ;
 
 forth definitions
-ans-report-words
+also ans-report-words
 
 : print-ans-report ( -- )
     cr
@@ -183,12 +176,5 @@ ans-report-words
     repeat
     drop ;
 
-: hide ( "name" -- )
-    \ replace the last character of the name of word "name" with a
-    \ blank, so it won't be found
-    bl parse-name lookup @ find-name-in name>string + 1- c! ;
+`hash-note-rec `hash-rec previous replace-word
 
-\ the following sequence "' replace-word forth execute" is necessary
-\ to restore the default search order without effect on the "used
-\ word" lists
-' find&note-name ' find-name ' replace-word forth execute
