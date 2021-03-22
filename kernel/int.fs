@@ -130,7 +130,7 @@ Defer ?warn#  ' noop is ?warn#
     base @ >r  getbase sign?
     over if
 	>r #0. 2swap
-	over c@ dp-char @ = IF  1 /string dup dpl !  THEN
+	over c@ dp-char @ = over 1 u> and IF  1 /string dup dpl !  THEN
 	\ allow an initial '.' to shadow all floating point without 'e'
         BEGIN ( d addr len )
             dup >r >number dup
