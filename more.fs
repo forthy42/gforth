@@ -36,8 +36,6 @@
 \ popen("less","w") and output there. Before getting the next `key`,
 \ we would perform a pclose. This idea due to Marcel Hendrix.
 
-require termsize.fs
-
 variable last-#lines 0 last-#lines !
 
 : (more-attr!) ( attr -- )
