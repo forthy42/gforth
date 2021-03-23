@@ -66,6 +66,10 @@ variable last-#lines 0 last-#lines !
     op-vector @ >r [ op-vector @ ]L op-vector !
     defers .status
     r> op-vector ! ;
+: (more-unstatus)
+    op-vector @ >r [ op-vector @ ]L op-vector !
+    defers .unstatus
+    r> op-vector ! ;
 
 ' (more-type) ' (more-emit) action-of cr action-of form output: more-out
 
@@ -81,3 +85,4 @@ is at-xy
 is page
 
 ' (more-status) is .status
+' (more-unstatus) is .unstatus
