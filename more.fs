@@ -62,27 +62,17 @@ variable last-#lines 0 last-#lines !
 	I c@ emit
     LOOP ;
 
-: (more-status)
-    op-vector @ >r [ op-vector @ ]L op-vector !
-    defers .status
-    r> op-vector ! ;
-: (more-unstatus)
-    op-vector @ >r [ op-vector @ ]L op-vector !
-    defers .unstatus
-    r> op-vector ! ;
-
 ' (more-type) ' (more-emit) action-of cr action-of form output: more-out
 
 action-of page
 action-of at-xy
 action-of at-deltaxy
+action-of control-sequence
 
 more-out
 
 ' (more-attr!) is attr!
+is control-sequence
 is at-deltaxy
 is at-xy
 is page
-
-' (more-status) is .status
-' (more-unstatus) is .unstatus
