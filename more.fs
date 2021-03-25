@@ -38,9 +38,9 @@
 
 variable last-#lines 0 last-#lines !
 
-:noname ( attr -- )
+:noname ( -- )
     -1 last-#lines ! branch [ action-of prompt >body , ] ; is prompt
-:noname
+:noname ( -- )
     defers bootmessage -1 last-#lines ! ; is bootmessage
 
 : (more-emit) ( c -- )
