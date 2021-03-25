@@ -425,6 +425,15 @@ previous
     endtry
     throw ;
 
+\ inherit input/output
+
+: derived-input: ( "name" -- )
+    ['] noop dup input:
+    op-vector @ latestxt >body cell+ 2 cells move ;
+: derived-output: ( "name" -- )
+    ['] noop dup 2dup output:
+    op-vector @ latestxt >body cell+ 9 cells move ;
+
 \ safe BASE wrapper
 
 : base-execute ( i*x xt u -- j*x ) \ gforth

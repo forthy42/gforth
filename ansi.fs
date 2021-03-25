@@ -200,8 +200,8 @@ $0 Value default-bg
     Create c,
   Does> ( u -- )  c@ control-sequence ;
 
-'A' control-sequence: cursor-up
-'B' control-sequence: cursor-down
+'A' control-sequence: cursor-up ( u -- )
+'B' control-sequence: cursor-down ( u -- )
 'L' control-sequence: insert-lines ( u -- )
 'J' control-sequence: erase-display ( u -- )
 \g 0: erase cursor and below; 1: erase above cursor; 2: erase screen
