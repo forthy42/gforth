@@ -122,37 +122,7 @@ has? OS [IF]
     false ,
     false ,
     false ,
-    $0008 , \ status-attr
-
-    theme: light-mode
-    \G color theme for white background
-    true ,  \ white?
-    $6600 , \ default-color
-    $E600 , \ error-color
-    $B600 , \ warning-color
-    $D600 , \ info-color
-    $D600 , \ success-color
-    $6601 , \ input-color
-    $0002 , \ error-hl-uv
-    $0008 , \ error-hl-inv
-    $8B01 , \ status-color
-    
-    theme: dark-mode ( -- ) \ gforth
-	\G color theme for black background
-    false ,
-    $6600 ,
-    $E601 ,
-    $C601 ,
-    $9601 ,
-    $D601 ,
-    $6601 ,
-    $0002 ,
-    $0008 ,
-    $8B01 ,
-    
-    : magenta-input ( -- ) \ gforth
-	\G make input color easily recognizable (useful in presentations)
-        $A601 white? + input-color cells current-theme + ! ;
+    $0008 , \ status-color
 [THEN]
 
 : .error ( n -- )
