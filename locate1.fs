@@ -71,10 +71,10 @@ variable included-file-buffers
 
 : locate-type ( c-addr u lineno -- )
     cr located-view @ view>line = if
-	info-color  attr! located-view @ view>char type-prefix
-	error-color attr! located-len @            type-prefix
-	info-color  attr! type
-	default-color attr! exit
+	info-color  theme-color! located-view @ view>char type-prefix
+	error-color theme-color! located-len @            type-prefix
+	info-color  theme-color! type
+	default-color theme-color! exit
     then
     type ;
 
@@ -100,7 +100,7 @@ variable included-file-buffers
     status-attr attr!
     located-view @ view>filename type ': emit
     located-top @ 0 dec.r
-    default-color attr! ;
+    default-color theme-color! ;
 
 : l2 ( -- c-addr u lineno )
     located-buffer 1 case ( c-addr u lineno1 )
@@ -330,11 +330,11 @@ variable code-locations 0 code-locations !
 : .wheretype1 ( c-addr u view urest -- )
     { urest } view>char >r -trailing over r> + { c-pos } 2dup + { c-lineend }
     (parse-white) drop ( c-addr1 )
-    info-color  attr! c-pos unbounds urest width-type ->urest
-    error-color attr! c-pos c-lineend unbounds (parse-white) tuck
+    info-color  theme-color! c-pos unbounds urest width-type ->urest
+    error-color theme-color! c-pos c-lineend unbounds (parse-white) tuck
     urest width-type ->urest
-    info-color  attr! c-pos + c-lineend unbounds urest width-type ->urest
-    default-color attr! urest spaces ;
+    info-color  theme-color! c-pos + c-lineend unbounds urest width-type ->urest
+    default-color theme-color! urest spaces ;
     
 : .whereline {: view u -- :}
     \ print the part of the source line around view that fits in the

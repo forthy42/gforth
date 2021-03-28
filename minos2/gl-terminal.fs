@@ -567,6 +567,7 @@ out>screen
 ' gl-page IS page
 ' gl-attr! IS attr!
 ' gl-control-sequence IS control-sequence
+' (theme-color!) is theme-color!
 
 err>screen
 ' gl-atxy IS at-xy
@@ -574,6 +575,7 @@ err>screen
 ' gl-page IS page
 ' gl-err-attr! IS attr!
 ' gl-control-sequence IS control-sequence
+' (theme-color!) is theme-color!
 
 default-out op-vector !
 

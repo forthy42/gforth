@@ -84,60 +84,75 @@ has? OS [IF]
     ErrRanges @ here ErrRanges A! A, -255 , -511 , ' strsignal A,
     ErrRanges @ here ErrRanges A! A, -511 , -2047 , ' strerror A,
 
-    $6600 Value default-color ( -- x ) \ gforth
+    0
+    1 + dup constant default-color
     \G use system-default color
-    $E600 Value error-color   ( -- x ) \ gforth
+    1 + dup constant error-color   ( -- x ) \ gforth
     \G error color: red
-    $B600 Value warning-color ( -- x ) \ gforth
+    1 + dup constant warning-color ( -- x ) \ gforth
     \G color for warnings: blue/yellow on black terminals
-    $D600 Value info-color    ( -- x ) \ gforth
+    1 + dup constant info-color    ( -- x ) \ gforth
     \G color for info: green/cyan on black terminals
-    $D600 Value success-color ( -- x ) \ gforth
+    1 + dup constant success-color ( -- x ) \ gforth
     \G color for success: green
-    $6601 Value input-color   ( -- x ) \ gforth
+    1 + dup constant input-color   ( -- x ) \ gforth
     \G color for user-input: black/white (both bold)
-    2 Value error-hl-ul ( -- ) \ gforth
+    1 + dup constant error-hl-ul ( -- ) \ gforth
     \G color mod for error highlight underline
-    8 Value error-hl-inv ( -- ) \ gforth
+    1 + dup constant error-hl-inv ( -- ) \ gforth
     \G color mod for error highlight inverse
-    true Value white?
-    \G reset to current colors
-    : light-mode ( -- ) \ gforth
-	\G color theme for white background
-	true to white?
-	$6600 to default-color
-	$E600 to error-color
-	$B600 to warning-color
-	$D600 to info-color
-	$D600 to success-color
-	$6601 to input-color
-	2 to error-hl-ul
-	8 to error-hl-inv ;
-    : dark-mode ( -- ) \ gforth
+    1 + dup constant status-color ( -- ) \ gforth
+    \G color mod for error highlight inverse
+    drop
+    : white? current-theme @ ;
+    
+    0 AValue current-theme
+    : theme: ( "name" -- )
+	Create DOES> to current-theme ;
+
+    theme: default-mode ( -- ) \ gforth
+    \G use the default color
+    here to current-theme
+    false ,
+    $6600 ,
+    false ,
+    false ,
+    false ,
+    false ,
+    false ,
+    false ,
+    false ,
+    $0008 , \ status-attr
+
+    theme: light-mode
+    \G color theme for white background
+    true ,  \ white?
+    $6600 , \ default-color
+    $E600 , \ error-color
+    $B600 , \ warning-color
+    $D600 , \ info-color
+    $D600 , \ success-color
+    $6601 , \ input-color
+    $0002 , \ error-hl-uv
+    $0008 , \ error-hl-inv
+    $8B01 , \ status-color
+    
+    theme: dark-mode ( -- ) \ gforth
 	\G color theme for black background
-	false to white?
-	$6600 to default-color
-	$E601 to error-color
-	$C601 to warning-color
-	$9601 to info-color
-	$D601 to success-color
-	$6601 to input-color
-	2 to error-hl-ul
-	8 to error-hl-inv ;
-    : default-mode ( -- ) \ gforth
-	\G use the default color
-	false to white?
-	$6600 to default-color \ reset colors even in no-color mode
-	false to error-color
-	false to warning-color
-	false to info-color
-	false to success-color
-	false to input-color
-	false to error-hl-ul
-	false to error-hl-inv ;
+    false ,
+    $6600 ,
+    $E601 ,
+    $C601 ,
+    $9601 ,
+    $D601 ,
+    $6601 ,
+    $0002 ,
+    $0008 ,
+    $8B01 ,
+    
     : magenta-input ( -- ) \ gforth
 	\G make input color easily recognizable (useful in presentations)
-        $A601 white? + to input-color ;
+        $A601 white? + input-color cells current-theme + ! ;
 [THEN]
 
 : .error ( n -- )

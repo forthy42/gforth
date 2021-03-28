@@ -432,7 +432,7 @@ previous
     op-vector @ latestxt >body cell+ 2 cells move ;
 : derived-output: ( "name" -- )
     ['] noop dup 2dup output:
-    op-vector @ latestxt >body cell+ 9 cells move ;
+    op-vector @ latestxt >body cell+ #10 cells move ;
 
 \ safe BASE wrapper
 

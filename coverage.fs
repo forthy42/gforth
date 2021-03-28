@@ -71,7 +71,7 @@ cover-end Constant cover-start
 Defer .cov#
 
 : .ansi-cov# ( n -- )
-    >r info-color error-color r@ select
+    >r info-color error-color r@ select cells theme-colors + @
     dup Invers or attr! space r> 0 .r  attr! ;
 : .paren-cov# ( n -- ) ."  ( " 0 .r ." ) " ;
 
@@ -96,7 +96,7 @@ color-cover
 	I @ view>filename# fn = IF
 	    buf lpos
 	    BEGIN  dup I @ view>line u<  WHILE
-		    line cpos safe/string type cr default-color attr!
+		    line cpos safe/string type cr default-color theme-color!
 		    locate-line  to line  0 to cpos
 	    REPEAT  to lpos  to buf
 	    line cpos safe/string
@@ -105,7 +105,7 @@ color-cover
 	    line cpos safe/string ?del-cover +to cpos
 	THEN
     2 cells +LOOP
-    line cpos safe/string type cr  default-color attr!  buf type ;
+    line cpos safe/string type cr  default-color theme-color!  buf type ;
 
 : covered? ( fn -- flag ) \ gforth-exp
     \G Check if included file with index @var{fn} has coverage information.

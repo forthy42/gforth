@@ -78,7 +78,7 @@
     2000 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
     1580 1 1 ymd2day 1461 bounds [DO] t{ [I] day2ymd ymd2day -> [I] }t [LOOP] cov% cr
     .coverage
-    #ERRORS @ [IF]  error-color attr!  ." had " #ERRORS ? ." errors"
-    [ELSE]  info-color attr!  ." passed successful"  [THEN]
-    default-color attr! cr cov% cr
+    #ERRORS @ [IF]  error-color theme-color!  ." had " #ERRORS ? ." errors"
+    [ELSE]  info-color theme-color!  ." passed successful"  [THEN]
+    default-color theme-color! cr cov% cr
 [THEN]

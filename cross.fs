@@ -3443,6 +3443,11 @@ Build: 0 u, T , H ;Build
 DO: X @ tup@ + X @ ;DO
 vt: [G'] u-compile, gset-optimizer [G'] uvalue-to gset-to ;vt
 
+Builder theme:
+Build: ;Build
+DO: ;DO
+vt: [G'] does, gset-optimizer ;vt
+
 Defer texecute
 
 Builder Defer

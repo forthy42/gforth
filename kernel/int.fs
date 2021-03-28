@@ -662,8 +662,8 @@ Defer .status
 defer prompt
 
 : color-execute ( xt x-color -- ... ) \ gforth
-    \G execute a xt using color
-    attr! catch default-color attr! throw ;
+    \G execute a xt using theme-color
+    theme-color! catch default-color theme-color! throw ;
 
 : (prompt) ( -- )
     ."  ok" ;
@@ -823,7 +823,7 @@ defer reset-dpp
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
     [ has? os [IF] ]
-	>stderr error-color attr!
+	>stderr error-color theme-color!
 	[ [THEN] ]
     input-error-data 2 .error-frame
     error-stack $@len 0 ?DO
@@ -832,7 +832,7 @@ defer reset-dpp
     /error +LOOP
     drop
     dobacktrace
-    default-color attr!  endif? on  rec-level off
+    default-color theme-color!  endif? on  rec-level off
   reset-dpp ;
 
 ' (DoError) IS DoError

@@ -44,13 +44,17 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 \G additional debugging information; the default @code{.debugline}
 \G prints the additional information with @code{printdebugdata}.
 
+[ifundef] theme-color!
+    synonym theme-color! attr!
+[then]
+
 : (.debugline) ( view -- )
-    info-color attr!
+    info-color theme-color!
     cr .sourceview ." :"
     \ it would be nice to print the name of the following word,
     \ but that's not easily possible for primitives
     printdebugdata
-    cr default-color attr! ;
+    cr default-color theme-color! ;
 
 [IFUNDEF] debug-fid
 stderr value debug-fid ( -- fid )

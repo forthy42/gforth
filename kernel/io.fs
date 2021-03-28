@@ -89,6 +89,9 @@ umethod at-deltaxy ( dx dy -- )
 umethod attr! ( attr -- ) \ gforth
 \G apply attribute to terminal (i.e. set color)
 umethod control-sequence ( n char -- ) \ gforth
+\G send a control sequence to the terminal
+umethod theme-color! ( u -- ) \ gforth
+\G Set the terminal to theme-color index @var{u}
 2drop
 
 user-o ip-vector
@@ -121,7 +124,8 @@ here
 ' 2drop A, \ at-xy
 ' 2drop A, \ at-deltaxy
 ' drop A, \ attr!
-' 2drop a, \ control-sequence
+' 2drop A, \ control-sequence
+' drop A, \ theme-color!
 A, here AConstant default-out
 
 here
@@ -133,7 +137,8 @@ here
 ' 2drop A, \ at-xy
 ' 2drop A, \ at-deltaxy
 ' drop A, \ attr!
-' 2drop a, \ control-sequence
+' 2drop A, \ control-sequence
+' drop A, \ theme-color!
 A, here AConstant debug-out
 
 default-out op-vector !
@@ -154,7 +159,7 @@ default-in ip-vector !
 
 : output: ( type-xt emit-xt cr-xt form-xt -- )
     Create here cell+ , swap 2swap swap , , , ,
-    ['] noop , ['] 2drop , ['] 2drop , ['] drop , ['] 2drop ,
+    ['] noop , ['] 2drop , ['] 2drop , ['] drop , ['] 2drop , ['] drop ,
   DOES> cell+ op-vector ! ;
 
 \ Input                                                13feb93py

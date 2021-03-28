@@ -75,6 +75,7 @@ decimal
 : A>    BEGIN over -1 <> WHILE or REPEAT nip ;
 
 User Attr   0 Attr !
+User theme-color  0 theme-color !
 
 : (Attr!) ( attr -- )
     \G set attribute
@@ -96,10 +97,19 @@ User Attr   0 Attr !
 
 ' (Attr!) IS Attr!
 
+: theme-color@ ( u -- color )
+    cells current-theme + @ ;
+
+: (theme-color!) ( u -- )
+    dup theme-color ! theme-color@ attr! ;
+
+' (theme-color!) is theme-color!
+
 [IFDEF] debug-out
     debug-out op-vector !
     
     ' (Attr!) IS Attr!
+    ' (theme-color!) is theme-color!
     
     default-out op-vector !
 [THEN]
@@ -112,10 +122,10 @@ User Attr   0 Attr !
 Variable mark-attr
 : m>>> ( -- )
     attr @ dup mark-attr !
-    dup error-hl-ul xor attr!
-    ." >>>" error-hl-inv xor attr! ;
+    dup error-hl-ul theme-color@ xor attr!
+    ." >>>" error-hl-inv theme-color@ xor attr! ;
 : <<<m ( -- )
-    mark-attr @ dup error-hl-ul xor attr! ." <<<" attr! ;
+    mark-attr @ dup error-hl-ul theme-color@ xor attr! ." <<<" attr! ;
 ' m>>> is mark-start
 ' <<<m is mark-end
 
