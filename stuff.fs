@@ -63,9 +63,9 @@ UValue $? ( -- n ) \ gforth dollar-question
     (system) throw TO $? ;
 
 : sh ( "..." -- ) \ gforth
-\G Parse a string and use @code{system} to pass it to the host
+\G Parse rest of line and use @code{system} to pass it to the host
 \G operating system for execution in a sub-shell.
-    '# parse cr system ;
+    0 parse cr system ;
 
 \ stuff
 
