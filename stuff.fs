@@ -64,8 +64,8 @@ UValue $? ( -- n ) \ gforth dollar-question
     (system) throw TO $? ;
 
 : sh ( "..." -- ) \ gforth
-\G Parse rest of line and use @code{system} to pass it to the host
-\G operating system for execution in a sub-shell.
+\G Execute the rest of the command line as shell command(s).
+\G Afterwards, @code{$?}  produces the exit status of the command.
     0 parse cr system ;
 
 \ stuff
