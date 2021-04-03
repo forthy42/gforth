@@ -17,6 +17,7 @@ All times are given in seconds of user time.
 After 0.7.0:
 AMD64:
  sieve bubble matrix fib   fft  release; CPU; gcc
+ 0.056 0.055  0.033 0.044 0.023 20210218; AMD Ryzen 5800X 4800MHz; gcc-8.3
  0.095 0.069  0.042 0.065 0.025 2020-07-02; AMD Ryzen 4700U 4.1GHz; gcc-10.1
  0.092 0.086  0.038 0.068 0.022 2020-07-03; AMD Ryzen 3900X 4.36GHz; gcc-8.3
  0.105 0.122  0.046 0.111 0.032 2020-07-03; AMD Ryzen 1600X 3.628GHz; gcc-8.3
