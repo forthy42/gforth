@@ -812,9 +812,6 @@ Create defstart
 
 \ \ Search list handling: reveal words, recursive		23feb93py
 
-: last?   ( -- false / nfa nfa )
-    latest ?dup ;
-
 : (nocheck-reveal) ( nt wid -- )
     wordlist-id dup >r
     @ over >link ! 
@@ -824,8 +821,7 @@ Create defstart
     (nocheck-reveal) ;
 
 : reveal ( -- ) \ gforth
-    last?
-    if \ the last word has a header
+    latest ?dup-if \ the last word has a header
 	dup >link @ 1 and
 	if \ it is still hidden
 	    dup >link @ 1 xor		( nt wid )

@@ -184,7 +184,7 @@ Defer ?warn#  ' noop is ?warn#
     then ;
 
 : number ( string -- d )
-    (number?) ?dup 0= abort" ?"  0<
+    (number?) dup 0= abort" ?"  0<
     IF
 	s>d
     THEN ;
@@ -749,7 +749,7 @@ Defer dobacktrace ( -- )
 
 : .error-string ( throw-code -- )
   dup -2 = 
-  IF 	"error @ ?dup IF count type  THEN drop
+  IF 	"error @ ?dup-IF count type  THEN drop
   ELSE	.error
   THEN ;
 

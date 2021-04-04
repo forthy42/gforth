@@ -106,7 +106,7 @@ rectype: rectype-dnum
     r> $@ + cell- ! ;
 : stack> ( stack -- x )
     \G pop from top of stack
-    >r r@ $@ ?dup IF  + cell- @ r@ $@len cell- r> $!len
+    >r r@ $@ ?dup-IF  + cell- @ r@ $@len cell- r> $!len
     ELSE  drop rdrop  THEN ;
 : stack# ( stack -- elements )
     $@len cell/ ;

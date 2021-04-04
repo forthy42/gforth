@@ -91,8 +91,8 @@ User theme-color  0 theme-color !
     dup Invers and IF 7 #n; THEN
     dup Invisible and IF 8 #n; THEN
     dup Strikethrough and IF 9 #n; THEN
-    dup BG> ?dup IF $F xor 40 + #n; THEN
-    dup FG> ?dup IF $F xor 30 + #n; THEN
+    dup BG> ?dup-IF $F xor 40 + #n; THEN
+    dup FG> ?dup-IF $F xor 30 + #n; THEN
     drop 0 #n #esc[ 0. #> type #>> ;
 
 ' (Attr!) IS Attr!

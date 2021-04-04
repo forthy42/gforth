@@ -69,10 +69,21 @@ Defer hash-alloc ( addr -- addr )
 \ DelFix and NewFix are from bigFORTH                  15jul94py
 
 : DelFix ( addr root -- ) dup @ 2 pick ! ! ;
-: NewFix  ( root len # -- addr )
-  BEGIN  2 pick @ ?dup  0= WHILE  2dup * reserve-mem
+1 [if]
+: NewFix  ( root len # -- addr ) \ cr ." a" .s
+  BEGIN  2 pick @  0= WHILE 2dup * reserve-mem
          over 0 ?DO  dup 4 pick DelFix 2 pick +  LOOP  drop
-  REPEAT  >r drop r@ @ rot ! r@ swap erase r> ;
+ REPEAT 2 pick @ >r drop r@ @ rot ! r@ swap erase r> ;
+[else]
+: NewFix  ( root len # -- addr )
+  BEGIN  2 pick @ 0= WHILE cr ." b"  .s  2dup * reserve-mem
+         over 0 ?DO  dup 4 pick DelFix 2 pick +  LOOP  drop
+ REPEAT drop >r dup >r @ dup r> ! dup r> erase ;
+: NewFix  ( root len # -- addr ) \ cr ." a" .s
+  BEGIN  2 pick @ ?dup  0= WHILE cr ." b"  .s 2dup * reserve-mem
+         over 0 ?DO  dup 4 pick DelFix 2 pick +  LOOP  drop
+ REPEAT  >r drop r@ @ rot ! r@ swap erase r> ;
+[then]
 
 : bucket ( addr len wordlist -- bucket-addr )
     \ @var{bucket-addr} is the address of a cell that points to the first

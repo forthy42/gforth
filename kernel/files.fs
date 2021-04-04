@@ -37,7 +37,7 @@
 
 : write-line ( c-addr u wfileid -- ior ) \ file
     dup >r write-file
-    ?dup IF
+    ?dup-IF
 	r> drop EXIT
     THEN
     newline r> write-file ;

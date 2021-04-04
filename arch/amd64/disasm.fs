@@ -326,7 +326,7 @@ $90 flt, 2xm1    $D1 flt, yl2x    $92 flt, ptan    $D3 flt, patan
 $94 flt, xtract  $D5 flt, prem1   $16 flt, decstp  $17 flt, incstp
 $D8 flt, prem    $D9 flt, yl2xp1  $9A flt, sqrt    $9B flt, sincos
 $9C flt, rndint  $DD flt, scale   $9E flt, sin     $9F flt, cos
-: .st   ." ST"  ?dup IF  ." (" 1 .r ." )"  THEN ;
+: .st   ." ST"  ?dup-IF  ." (" 1 .r ." )"  THEN ;
 : .st?  dup $40 and IF 1 .st ., THEN  $80 and IF 0 .st THEN ;
 : .fop1 ( IP opcode -- IP )  $1F and >r fop1table
   BEGIN  count $1F and r@ <  WHILE  count +  REPEAT

@@ -111,7 +111,7 @@ Defer flush-blocks ( -- ) \ gforth
 
 : update ( -- ) \ block
     \G Mark the state of the current block buffer as assigned-dirty.
-    last-block @ ?dup IF  buffer-dirty on  THEN ;
+    last-block @ ?dup-IF  buffer-dirty on  THEN ;
 
 : save-buffer ( buffer -- ) \ gforth
     >r
