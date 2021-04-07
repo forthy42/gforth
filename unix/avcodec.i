@@ -2,6 +2,7 @@
 %module avcodec
 %insert("include")
 %{
+#define FF_API_OLD_BSF 1
 #include <libavcodec/avcodec.h>
 #include <libavutil/pixfmt.h>
 #undef gforth_d2ll
