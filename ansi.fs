@@ -97,6 +97,29 @@ User theme-color  0 theme-color !
 
 ' (Attr!) IS Attr!
 
+\ Themes
+
+0 AValue current-theme
+: theme: ( "name" -- )
+    Create DOES> to current-theme ;
+
+theme: default-mode ( -- ) \ gforth
+\G use the default color
+false ,
+$6600 ,
+false ,
+false ,
+false ,
+false ,
+false ,
+false ,
+false ,
+$0008 , \ status-color
+
+: white? current-theme @ ;
+
+default-mode
+
 : theme-color@ ( u -- color )
     cells current-theme + @ ;
 
@@ -121,11 +144,11 @@ User theme-color  0 theme-color !
 
 Variable mark-attr
 : m>>> ( -- )
-    attr @ dup mark-attr !
-    dup error-hl-ul theme-color@ xor attr!
-    ." >>>" error-hl-inv theme-color@ xor attr! ;
+    attr @ mark-attr !
+    error-hl-ul theme-color!
+    ." >>>" error-hl-inv theme-color! ;
 : <<<m ( -- )
-    mark-attr @ dup error-hl-ul theme-color@ xor attr! ." <<<" attr! ;
+    error-hl-ul theme-color! ." <<<" mark-attr @ attr! ;
 ' m>>> is mark-start
 ' <<<m is mark-end
 
@@ -181,8 +204,8 @@ $B600 , \ warning-color
 $D600 , \ info-color
 $D600 , \ success-color
 $6601 , \ input-color
-$0002 , \ error-hl-uv
-$0008 , \ error-hl-inv
+$E602 , \ error-hl-uv
+$E608 , \ error-hl-inv
 $8B01 , \ status-color
 
 theme: dark-mode ( -- ) \ gforth
@@ -194,8 +217,8 @@ $C601 ,
 $9601 ,
 $D601 ,
 $6601 ,
-$0002 ,
-$0008 ,
+$E602 ,
+$E608 ,
 $8B01 ,
 
 : magenta-input ( -- ) \ gforth

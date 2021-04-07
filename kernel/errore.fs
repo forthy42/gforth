@@ -104,25 +104,6 @@ has? OS [IF]
     1 + dup constant status-color ( -- ) \ gforth
     \G color mod for error highlight inverse
     drop
-    : white? current-theme @ ;
-    
-    0 AValue current-theme
-    : theme: ( "name" -- )
-	Create DOES> to current-theme ;
-
-    theme: default-mode ( -- ) \ gforth
-    \G use the default color
-    here to current-theme
-    false ,
-    $6600 ,
-    false ,
-    false ,
-    false ,
-    false ,
-    false ,
-    false ,
-    false ,
-    $0008 , \ status-color
 [THEN]
 
 : .error ( n -- )
