@@ -597,9 +597,9 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	BUILD-FROM-SCRATCH model COPYING COPYING.LIB COPYING.DOC AUTHORS      \
 	ChangeLog Benchres aclocal.m4 doc/Makefile.in doc/gforth.texi.in      \
 	doc/gforth.1 doc/gforth.css doc/version.texi.in doc/vmgen.texi	      \
-	doc/fdl.texi doc/gpl.texi gforth.el $(ARCHS) mkinstalldirs	      \
-	siteinit.fs versions.bsh glosgen.glo doc/glossaries.doc $(FORTH_SRC)  \
-	$(LIBCC_DIST_SRC) $(LIBCC_GEN_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
+	doc/fdl.texi doc/gpl.texi gforth.el $(ARCHS) siteinit.fs versions.bsh \
+	glosgen.glo doc/glossaries.doc $(FORTH_SRC) $(LIBCC_DIST_SRC)	      \
+	$(LIBCC_GEN_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2)		      \
 	$(FREETYPE_GL_SRC) timings.sc test/coretest.out test/checkans.out     \
 	test/gforth.out test/fp/fptest.out $(wildcard cache*.vmg)	      \
 	peeprules.vmg prim debian/rules debian/control.in debian/changelog.in \
@@ -840,7 +840,7 @@ install-images: install-txt
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
 
 install-include:
-		$(srcdir)/mkinstalldirs $(includedir)/gforth/$(VERSION)/$(machine) $(includedir)/freetype-gl
+		$(MKDIR) -p $(includedir)/gforth/$(VERSION)/$(machine) $(includedir)/freetype-gl
 		$(INSTALL_DATA) engine/config.h $(srcdir)/engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
 		$(INSTALL_DATA) engine/gforth.h $(includedir)
 		for i in $(FREETYPE_GL_INCLUDE); do \
@@ -923,22 +923,22 @@ libinstall:	$(ENGINES:%$(EXT)=lib%$(EXT)) $(ENGINES_FAST:%$(EXT)=lib%$(EXT))
 
 installdirs:	installdirs-arch installdirs-indep
 
-installdirs-arch: 	mkinstalldirs
+installdirs-arch:
 		$(NORMAL_INSTALL)
 		for i in $(bindir) $(libdir)/gforth/$(VERSION) $(siteforthdir) $(siteforthdir) $(package)$(libccdir); do \
-			$(srcdir)/mkinstalldirs $$i; \
+			$(MKDIR) -p $$i; \
 		done
 		for i in $(INSTALL_LIBDIRS); do \
-			$(srcdir)/mkinstalldirs $(libdir)/gforth/$(VERSION)/$$i; \
+			$(MKDIR) -p $(libdir)/gforth/$(VERSION)/$$i; \
 		done
 
-installdirs-indep: 	mkinstalldirs
+installdirs-indep:
 		$(NORMAL_INSTALL)
 		for i in $(man1dir) $(infodir) $(datadir)/gforth/$(VERSION) $(datadir)/gforth/site-forth; do \
-			$(srcdir)/mkinstalldirs $$i; \
+			$(MKDIR) -p $$i; \
 		done
 		for i in $(INSTALLDIRS); do \
-			$(srcdir)/mkinstalldirs $(datadir)/gforth/$(VERSION)/$$i; \
+			$(MKDIR) -p $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 
 #deinstall all files specific to this version of gforth

@@ -1653,8 +1653,8 @@ chmod +x libforth
 chmod +x gforthker
 test -d kernel||mkdir kernel
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
-$srcdir/mkinstalldirs include/gforth/$PACKAGE_VERSION/$machine
-$srcdir/mkinstalldirs arch/$machine
+mkdir -p include/gforth/$PACKAGE_VERSION/$machine
+mkdir -p arch/$machine
 ln -sf $PWD/engine/config.h `cd $srcdir; pwd`/engine/libcc.h `cd $srcdir; pwd`/freetype-gl include/gforth/$PACKAGE_VERSION/$machine]],
 [PACKAGE_VERSION=$PACKAGE_VERSION
  machine=$machine])
