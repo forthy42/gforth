@@ -24,9 +24,9 @@ blue >bg white >fg or bold or Value status-attr
 : redraw-status ( addr u -- )
     save-cursor-position
     0 rows 1 - at-xy
-    status-color theme-color!
+    status-color
     type
-    default-color theme-color!
+    default-color
     restore-cursor-position ;
 : .unstatus-line ( -- )
     0 erase-display

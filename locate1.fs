@@ -71,10 +71,10 @@ variable included-file-buffers
 
 : locate-type ( c-addr u lineno -- )
     cr located-view @ view>line = if
-	info-color  theme-color! located-view @ view>char type-prefix
-	error-color theme-color! located-len @            type-prefix
-	info-color  theme-color! type
-	default-color theme-color! exit
+	info-color  located-view @ view>char type-prefix
+	error-color located-len @            type-prefix
+	info-color  type
+	default-color exit
     then
     type ;
 
@@ -100,7 +100,7 @@ variable included-file-buffers
     status-attr attr!
     located-view @ view>filename type ': emit
     located-top @ 0 dec.r
-    default-color theme-color! ;
+    default-color ;
 
 : l2 ( -- c-addr u lineno )
     located-buffer 1 case ( c-addr u lineno1 )
@@ -330,11 +330,11 @@ variable code-locations 0 code-locations !
 : .wheretype1 ( c-addr u view urest -- )
     { urest } view>char >r -trailing over r> + { c-pos } 2dup + { c-lineend }
     (parse-white) drop ( c-addr1 )
-    info-color  theme-color! c-pos unbounds urest width-type ->urest
-    error-color theme-color! c-pos c-lineend unbounds (parse-white) tuck
+    info-color  c-pos unbounds urest width-type ->urest
+    error-color c-pos c-lineend unbounds (parse-white) tuck
     urest width-type ->urest
-    info-color  theme-color! c-pos + c-lineend unbounds urest width-type ->urest
-    default-color theme-color! urest spaces ;
+    info-color  c-pos + c-lineend unbounds urest width-type ->urest
+    default-color urest spaces ;
     
 : .whereline {: view u -- :}
     \ print the part of the source line around view that fits in the
@@ -455,12 +455,12 @@ included-files $[]# 1- constant doc-file#
 	    count-lfs top-line + set-help-view l exit
         else
 	    2drop c-addr u cr
-	    [: ." No documentation for " type ;] error-color color-execute
+	    error-color ." No documentation for " type default-color
 	then
     else
-        cr [: ." Documentation file not found" ;] error-color color-execute
+	cr error-color ." Documentation file not found" default-color
     then
-    [: ." , LOCATEing source" ;] info-color color-execute
+    info-color ." , LOCATEing source" default-color
     c-addr u find-name dup 0= -13 and throw locate-name ;
 
 : help-section {: c-addr u -- :}
@@ -481,7 +481,7 @@ included-files $[]# 1- constant doc-file#
     r@ >in ! parse-name 2dup find-name if
         rdrop help-word 2drop exit then
     2drop r> >in ! 0 parse 2drop 2drop
-    [: ." Not a section or word" ;] error-color color-execute ;
+    error-color ." Not a section or word" default-color ;
 [then]
 
 \ whereg

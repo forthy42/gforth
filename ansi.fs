@@ -145,10 +145,10 @@ default-mode
 Variable mark-attr
 : m>>> ( -- )
     attr @ mark-attr !
-    error-hl-ul theme-color!
-    ." >>>" error-hl-inv theme-color! ;
+    error-hl-ul
+    ." >>>" error-hl-inv ;
 : <<<m ( -- )
-    error-hl-ul theme-color! ." <<<" mark-attr @ attr! ;
+    error-hl-ul ." <<<" mark-attr @ attr! ;
 ' m>>> is mark-start
 ' <<<m is mark-end
 
@@ -223,7 +223,7 @@ $8B01 ,
 
 : magenta-input ( -- ) \ gforth
     \G make input color easily recognizable (useful in presentations)
-    $A601 white? + input-color cells current-theme + ! ;
+    $A601 white? + ['] input-color >body @ cells current-theme + ! ;
 
 : auto-color ( -- )
     is-terminal? is-color-terminal? and 0= if

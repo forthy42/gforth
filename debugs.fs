@@ -44,17 +44,13 @@ defer .debugline ( nfile nline -- ) \ gforth print-debug-line
 \G additional debugging information; the default @code{.debugline}
 \G prints the additional information with @code{printdebugdata}.
 
-[ifundef] theme-color!
-    synonym theme-color! attr!
-[then]
-
 : (.debugline) ( view -- )
-    info-color theme-color!
+    info-color
     cr .sourceview ." :"
     \ it would be nice to print the name of the following word,
     \ but that's not easily possible for primitives
     printdebugdata
-    cr default-color theme-color! ;
+    cr default-color ;
 
 [IFUNDEF] debug-fid
 stderr value debug-fid ( -- fid )
@@ -151,8 +147,8 @@ s" You've reached a !!FIXME!! marker" exception constant FIXME#
 :noname ( f xt -- )
     \ if f, output a warning by EXECUTEing xt
     swap warnings @ and if
-	[: cr current-view .sourceview ." : warning: " execute
-	;] warning-color ['] color-execute do-debug
+	[: cr warning-color current-view .sourceview ." : warning: " execute
+	default-color ;] do-debug
 	warnings @ abs 4 >= warning-error and throw
 	exit then
     drop ;
@@ -325,13 +321,13 @@ Variable rec'
         space 0 dec.r then
     fdepth ?dup-if
         ."  f:" 0 dec.r then
-    rp0 @ rp@ - cell/ 30 - ?dup-if
+    rp0 @ rp@ - cell/ 22 - ?dup-if
         ."  r:" 0 dec.r then ;
 
 : prompt-text    state @ IF ."  compiled" EXIT THEN  prompt-ok ;
 
 : color-prompt ( -- )
-    ['] prompt-text success-color color-execute ;
+    success-color prompt-text default-color ;
 
 ' color-prompt is prompt
 

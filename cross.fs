@@ -3361,6 +3361,14 @@ Builder $[]Variable
 Build: T here 0 A, H cross-boot[][] >stack ;Build
 by Create
 
+Variable t-theme-color#  1 t-theme-color# !
+
+Builder theme-color:
+Build: t-theme-color# @ T , H  1 t-theme-color# +! ;Build
+DO: ;DO
+compile: g>xt compile does-xt T a, H ;compile
+vt: [G'] does, gset-optimizer ;vt
+
 \ User variables                                       04may94py
 
 : tup@ user-region >rstart @ ;

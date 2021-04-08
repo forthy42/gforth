@@ -114,7 +114,7 @@ Defer word-colorize ' noop is word-colorize
 : .word ( n nt -- n' )
     dup >r name>string tuck 2>r
     1+ tuck + dup cols >=  IF  cr drop  ELSE  nip  THEN
-    2r> r> word-colorize drop type space default-color theme-color! ;
+    2r> r> word-colorize drop type space default-color ;
 
 : wordlist-words ( wid -- ) \ gforth
     \G Display the contents of the wordlist wid.

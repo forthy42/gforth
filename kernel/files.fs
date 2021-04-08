@@ -57,9 +57,9 @@ Redefinitions-start
 	IF
 	    warnings @
 	    IF
-		>stderr warning-color theme-color!
+		>stderr warning-color
 		." warning: ')' missing" cr
-		default-color theme-color!
+		default-color
 	    THEN
 	    EXIT
 	THEN

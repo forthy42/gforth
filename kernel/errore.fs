@@ -83,27 +83,6 @@ has? OS [IF]
 has? OS [IF]
     ErrRanges @ here ErrRanges A! A, -255 , -511 , ' strsignal A,
     ErrRanges @ here ErrRanges A! A, -511 , -2047 , ' strerror A,
-
-    0
-    1 + dup constant default-color
-    \G use system-default color
-    1 + dup constant error-color   ( -- x ) \ gforth
-    \G error color: red
-    1 + dup constant warning-color ( -- x ) \ gforth
-    \G color for warnings: blue/yellow on black terminals
-    1 + dup constant info-color    ( -- x ) \ gforth
-    \G color for info: green/cyan on black terminals
-    1 + dup constant success-color ( -- x ) \ gforth
-    \G color for success: green
-    1 + dup constant input-color   ( -- x ) \ gforth
-    \G color for user-input: black/white (both bold)
-    1 + dup constant error-hl-ul ( -- ) \ gforth
-    \G color mod for error highlight underline
-    1 + dup constant error-hl-inv ( -- ) \ gforth
-    \G color mod for error highlight inverse
-    1 + dup constant status-color ( -- ) \ gforth
-    \G color mod for error highlight inverse
-    drop
 [THEN]
 
 : .error ( n -- )

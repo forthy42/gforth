@@ -49,8 +49,8 @@ $10 buffer: gst-state
 
 : .gst-error ( -- )
     gst-error @ ?dup-IF
-	cell+ @ cstring>sstring [: type cr ;]
-	error-color ['] color-execute do-debug
+	cell+ @ cstring>sstring [: error-color type default-color cr ;]
+	do-debug
     THEN ;
 
 : reshape-cb ( -- ) ." reshape-cb" cr ;

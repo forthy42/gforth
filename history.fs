@@ -234,7 +234,7 @@ Defer search-prefix
 
 require utf-8.fs
 
-info-color Value setstring-color
+synonym setstring-color info-color
 
 \ retype an edited line: this is generic, every word should use edit-update
 \ and nothing else to redraw the edited string
@@ -256,7 +256,7 @@ info-color Value setstring-color
     r> edit-linew !  r> ;
 : .all ( span addr pos -- span addr pos )
     xedit-startpos  2dup type  setstring$ $@
-    dup IF  ['] type setstring-color color-execute  ELSE  2drop  THEN
+    dup IF  setstring-color type input-color  ELSE  2drop  THEN
     >edit-rest type  edit-linew @ edit-curpos !  ;
 : .all-rest ( span addr pos -- span addr pos )
     xedit-startpos  2dup x-width set-width+ edit-curpos !

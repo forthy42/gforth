@@ -181,6 +181,32 @@ default-in ip-vector !
   \G Display one space.
   bl emit ;
 
+\ theme colors
+
+Variable theme-color#
+: theme-color: ( "name" -- )
+    Create 1 theme-color# +!@ ,
+  DOES> @ theme-color! ;
+
+theme-color: default-color ( -- ) \ gforth
+\G use system-default color
+theme-color: error-color   ( -- ) \ gforth
+\G error color: red
+theme-color: warning-color ( -- ) \ gforth
+\G color for warnings: blue/yellow on black terminals
+theme-color: info-color    ( -- ) \ gforth
+\G color for info: green/cyan on black terminals
+theme-color: success-color ( -- ) \ gforth
+\G color for success: green
+theme-color: input-color   ( -- ) \ gforth
+\G color for user-input: black/white (both bold)
+theme-color: error-hl-ul ( -- ) \ gforth
+\G color mod for error highlight underline
+theme-color: error-hl-inv ( -- ) \ gforth
+\G color mod for error highlight inverse
+theme-color: status-color ( -- ) \ gforth
+\G color mod for error highlight inverse
+
 \ space spaces		                                21mar93py
 
 decimal

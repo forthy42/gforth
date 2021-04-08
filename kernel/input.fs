@@ -40,7 +40,7 @@ Defer .unstatus ' noop is .unstatus
 ' false                \ source-id
 :noname ( -- flag )
     [ has? file [IF] ] stdin file-eof?  IF  false  EXIT  THEN [ [THEN] ]
-    scanning? IF  ['] .scanning warning-color color-execute  THEN
+    scanning? IF  warning-color .scanning default-color  THEN
     tib max#tib @ accept #tib !
     .unstatus
     input-start-line true 1 loadline +! ;     \ refill
@@ -199,7 +199,7 @@ defer line-end-hook ( -- ) \ gforth
 
 : get-input-colored ( -- flag ) \ gforth
     \G perform get-input colored with input-color
-    ['] refill input-color ['] color-execute catch
+    input-color ['] refill catch default-color
     dup -56 = IF  bye  THEN  throw ;
 
 Defer ?set-current-view ( -- )
