@@ -3363,11 +3363,16 @@ by Create
 
 Variable t-theme-color#  1 t-theme-color# !
 
+ghost theme!  ghost theme@  2drop
+
 Builder theme-color:
 Build: t-theme-color# @ T , H  1 t-theme-color# +! ;Build
 DO: ;DO
 compile: g>xt compile does-xt T a, H ;compile
-vt: [G'] does, gset-optimizer ;vt
+vt: [G'] does, gset-optimizer
+    [G'] theme! gset-to
+    [G'] theme@ gset-defer@
+;vt
 
 \ User variables                                       04may94py
 

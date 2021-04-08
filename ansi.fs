@@ -103,22 +103,10 @@ User theme-color  0 theme-color !
 : theme: ( "name" -- )
     Create DOES> to current-theme ;
 
-theme: default-mode ( -- ) \ gforth
-\G use the default color
-false ,
-$6600 ,
-false ,
-false ,
-false ,
-false ,
-false ,
-false ,
-false ,
-$0008 , \ status-color
+:noname >body @ cells current-theme + ! ; is theme!
+:noname >body @ cells current-theme + @ ; is theme@
 
 : white? current-theme @ ;
-
-default-mode
 
 : theme-color@ ( u -- color )
     cells current-theme + @ ;
@@ -195,6 +183,23 @@ $Variable term-rgb$
 
 $0 Value default-bg
 
+theme: default-mode ( -- ) \ gforth
+\G use the default color
+
+default-mode
+
+false ,
+$6600 ,
+false ,
+false ,
+false ,
+false ,
+false ,
+false ,
+false ,
+$0008 , \ status-color
+$40 cells allot
+
 theme: light-mode
 \G color theme for white background
 true ,  \ white?
@@ -207,6 +212,7 @@ $6601 , \ input-color
 $E602 , \ error-hl-uv
 $E608 , \ error-hl-inv
 $8B01 , \ status-color
+$40 cells allot
 
 theme: dark-mode ( -- ) \ gforth
 \G color theme for black background
@@ -220,6 +226,7 @@ $6601 ,
 $E602 ,
 $E608 ,
 $8B01 ,
+$40 cells allot
 
 : magenta-input ( -- ) \ gforth
     \G make input color easily recognizable (useful in presentations)

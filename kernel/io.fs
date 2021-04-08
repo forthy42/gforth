@@ -183,9 +183,14 @@ default-in ip-vector !
 
 \ theme colors
 
+Defer theme!  ' 2drop is theme!
+Defer theme@  ' noop is theme@
+
 Variable theme-color#
 : theme-color: ( "name" -- )
     Create 1 theme-color# +!@ ,
+    ['] theme! set-to
+    ['] theme@ set-defer@
   DOES> @ theme-color! ;
 
 theme-color: default-color ( -- ) \ gforth
