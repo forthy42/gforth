@@ -145,24 +145,10 @@ definitions
     then
     r> + ;
 
-DEFER .string ( c-addr u n -- )
+DEFER .string ( c-addr u xt -- )
 
-[IFDEF] Green
-VARIABLE Colors Colors on
-
-: (.string)     ( c-addr u n -- )
-                over warp? drop
-                Colors @
-                IF C-Highlight @ ?dup
-                   IF   CT@ swap CT@ or
-                   ELSE CT@
-                   THEN
-                attr! ELSE drop THEN
-                ctype  ct @ attr! ;
-[ELSE]
-: (.string)     ( c-addr u n -- )
-                drop ctype ;
-[THEN]
+: (.string)     ( c-addr u xt -- )
+    [: execute ctype ;] execute-theme-color ;
 
 ' (.string) IS .string
 
@@ -199,7 +185,9 @@ VARIABLE Colors Colors on
 
 Variable struct-pre
 : .struc ( c-addr u -- )       
-	uppercase on Str# struct-pre $@ Str# .string .string struct-pre $off ;
+    uppercase on ['] Str-color
+    struct-pre $@ ['] Str-color .string
+    .string struct-pre $off ;
 
 \ CODES (Branchtypes)                                    15may93jaw
 
@@ -315,7 +303,7 @@ VARIABLE C-Pass
 : Scan? ( -- flag ) C-Pass @ 0= ;
 : Display? ( -- flag ) C-Pass @ 1 = ;
 : Debug? ( -- flag ) C-Pass @ 2 = ;
-: ?.string  ( c-addr u n -- )   Display? if .string else 2drop drop then ;
+: ?.string  ( c-addr u xt -- )   Display? if .string else 2drop drop then ;
 
 : back? ( addr target -- addr flag )
     over u< ;
@@ -356,12 +344,12 @@ VARIABLE C-Pass
 [IFDEF] !does
     : c-does> ( -- )
 	\ end of create part
-	Display? IF S" DOES> " Com# .string THEN ;
+	Display? IF S" DOES> " ['] Com-color .string THEN ;
 \	maxaligned /does-handler + ; \ !! no longer needed for non-cross stuff
 [THEN]
 
 : c># ( n -- addr u ) `smart. $tmp ;
-: c-. ( n -- ) c># 0 .string ;
+: c-. ( n -- ) c># ['] default-color .string ;
 
 : c>lit ( addr1 -- addr2 )
     dup @ >lits cell+ ;
@@ -377,15 +365,15 @@ VARIABLE C-Pass
 	over 3 cells + @ decompile-prim ['] ;S xt=
 	r> and if
 	    over 2 cells + @ ['] set-does> >body = if  drop
-		S" DOES> " Com# ?.string 4 cells + EXIT endif
+		S" DOES> " ['] Com-color ?.string 4 cells + EXIT endif
 	endif
 	[IFDEF] !;abi-code
 	    over 2 cells + @ ['] !;abi-code >body = if  drop
-		S" ;abi-code " Com# ?.string   4 cells +
+		S" ;abi-code " ['] Com-color ?.string   4 cells +
 		c-stop on
 		Display? if
 		    dup   dup  next-head   over - discode 
-		    S" end-code" Com# ?.string 
+		    S" end-code" ['] Com-color ?.string 
 		then   EXIT
 	    endif
 	[THEN]
@@ -397,7 +385,7 @@ VARIABLE C-Pass
 : c-lit+ ( addr1 -- addr2 )
     Display? if
 	dup @ c-.
-	s" + " 0 .string
+	s" + " ['] default-color .string
     endif
     cell+ ;
 
@@ -419,7 +407,7 @@ VARIABLE C-Pass
 	Display? IF nl .name-without THEN
         count 2dup + aligned -rot
         Display?
-        IF      bl cemit 0 .string
+        IF      bl cemit ['] default-color .string
                 '"' cemit bl cemit
         ELSE    2drop
         THEN ;
@@ -450,7 +438,7 @@ VARIABLE C-Pass
 	    endif
 	    \ !! make newline if string too long?
 	    display? if
-		0 .string r@ cell+ @ r@ 3 cells + @ c-\type '" cemit bl cemit
+		['] default-color .string r@ cell+ @ r@ 3 cells + @ c-\type '" cemit bl cemit
 	    else
 		2drop
 	    endif
@@ -459,13 +447,13 @@ VARIABLE C-Pass
     endif
     ['] f@ xt= if
 	display? if
-	    r@ cell+ @ f@ 10 8 16 f>str-rdp 0 .string bl cemit
+	    r@ cell+ @ f@ 10 8 16 f>str-rdp ['] default-color .string bl cemit
 	endif
 	drop r> 3 cells + true exit
     endif
     \ !! check if count matches space?
     display? if
-	s\" c\" " 0 .string r@ cell+ @ count 0 .string '" cemit bl cemit
+	s\" c\" " ['] default-color .string r@ cell+ @ count ['] default-color .string '" cemit bl cemit
     endif
     drop r> 2 cells + true ;
 
@@ -615,7 +603,7 @@ VARIABLE C-Pass
 : c-exit ( addr1 -- addr2 )
     dup cell- CheckEnd IF ( addr1 )
 	Display? IF
-	    nlflag off S" ;" Com# .string THEN
+	    nlflag off S" ;" ['] Com-color .string THEN
 	C-Stop on
     ELSE
 	Display? IF S" EXIT " .struc THEN
@@ -625,7 +613,7 @@ VARIABLE C-Pass
 : c-abort" ( c-addr -- c-addr-end )
     count 2dup + aligned -rot Display? IF (  c-addr-end c-addr1 u )
 	S" ABORT" .struc
-	'"' cemit bl cemit 0 .string
+	'"' cemit bl cemit ['] default-color .string
 	'"' cemit bl cemit
     ELSE
 	2drop THEN ;
@@ -633,9 +621,9 @@ VARIABLE C-Pass
 [IFDEF] (compile)
 : c-(compile) ( addr -- )
     Display? IF
-	s" POSTPONE " Com# .string
+	s" POSTPONE " ['] Com-color .string
 	dup @ look 0= ABORT" SEE: No valid XT"
-	name>string 0 .string bl cemit
+	name>string ['] default-color .string bl cemit
     THEN
     cell+ ;
 [THEN]
@@ -657,9 +645,9 @@ VARIABLE C-Pass
 	    [: ['] search-u#gen swap traverse-wordlist ;] map-vocs
 	    2drop
 	    ?dup-IF
-		>name name>string Com# .string bl cemit
+		>name name>string ['] Com-color .string bl cemit
 		2 cells + EXIT  THEN
-	    u#what @ name>string com# .string bl cemit
+	    u#what @ name>string ['] Com-color .string bl cemit
 	    dup @ c-. cell+ dup @ c-. cell+
 	ELSE  2 cells +  THEN ;
 
@@ -670,7 +658,7 @@ VARIABLE C-Pass
 [IFDEF] call-c#
     : c-call-c# ( addr -- addr' )
 	display? IF
-	    dup @ body> name>string com# .string bl cemit
+	    dup @ body> name>string ['] Com-color .string bl cemit
 	THEN  cell+ ;
 [THEN]
 
@@ -685,8 +673,8 @@ VARIABLE C-Pass
 	    0 over @
 	    r@ map-vocs drop
 	    display? IF
-		?dup-IF  name>string com# .string bl cemit
-		ELSE  r> 2r@ com# .string >r
+		?dup-IF  name>string ['] Com-color .string bl cemit
+		ELSE  r> 2r@ ['] Com-color .string >r
 		    dup @ c-. bl cemit
 		THEN
 	    THEN
@@ -872,7 +860,7 @@ c-extender !
 : seedoes ( xt -- )
     \ !! make it work for general xt set-does> words
     dup s" create" .defname cr
-    S" DOES> " Com# .string XPos @ Level !
+    s" DOES> " ['] Com-color .string XPos @ Level !
     >does-code see-threaded ;
 : seecol ( xt -- )
     dup s" :" .defname nl

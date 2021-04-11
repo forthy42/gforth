@@ -426,6 +426,12 @@ previous
     endtry
     throw ;
 
+User theme-color  0 theme-color !
+: execute-theme-color ( xt -- )
+    \G execute a theme-color changing xt and return to the previous theme
+    \G color
+    theme-color @ >r catch r> theme-color! throw ;
+
 \ inherit input/output
 
 : derived-input: ( "name" -- )

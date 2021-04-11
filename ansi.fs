@@ -75,7 +75,6 @@ decimal
 : A>    BEGIN over -1 <> WHILE or REPEAT nip ;
 
 User Attr   0 Attr !
-User theme-color  0 theme-color !
 
 : (Attr!) ( attr -- )
     \G set attribute
@@ -104,7 +103,7 @@ User theme-color  0 theme-color !
     $Variable DOES> to current-theme ;
 
 : theme-color@ ( u -- color )
-    cells current-theme $@ drop + @ ;
+    cells current-theme $@ rot safe/string IF  @  ELSE  drop 0  THEN ;
 
 :noname >body @ current-theme $[] ! ; is theme!
 :noname >body @ theme-color@ ; is theme@
@@ -251,11 +250,6 @@ default-mode
     THEN ;
 
 :noname auto-color defers 'cold ; is 'cold
-
-: execute-theme-color ( xt -- )
-    \G execute a theme-color changing xt and return to the previous theme
-    \G color
-    theme-color @ >r catch r> theme-color! throw ;
 
 \ scrolling etc: (thanks to Ulrich Hoffmann)
 

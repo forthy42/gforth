@@ -22,32 +22,21 @@ require ansi.fs
 
 decimal
 
-CREATE CT 30 cells allot
-: CT! cells CT + ! ;
-: CT@ cells CT + @ ;
-
-VARIABLE Color 20 Color !
-
-: Color: Color @ 1 Color +! constant ;
-
 \ define colours for the different stuff that can be found in the
 \ dictionary; see wordinfo.fs for the descriptions/definitions
-Color: Hig#
 
-<A white >bg Black >FG A>             0 CT!
-<A white >bg Black >FG bold A>     Ali# CT!
-<A Magenta >FG A>        Con# CT!
-<A Green >FG A>          Var# CT!
-<A Blue >FG A>           Def# CT!
-<A Magenta >FG A>        Val# CT!
-<A Magenta >FG bold A>   Doe# CT!
-<A black >bg Cyan >FG A> Col# CT!
-<A Blue >FG bold A>      Pri# CT!
-<A Red >FG bold A>       Str# CT!
-<A Green >FG bold A>     Com# CT!
-<A Red >BG A>            Hig# CT!
+<A white >bg Black >FG bold A>     to Ali-color
+<A Magenta >FG A>        to Con-color
+<A Green >FG A>          to Var-color
+<A Blue >FG A>           to Def-color
+<A Magenta >FG A>        to Val-color
+<A Magenta >FG bold A>   to Doe-color
+<A black >bg Cyan >FG A> to Col-color
+<A Blue >FG bold A>      to Pri-color
+<A Red >FG bold A>       to Str-color
+<A Green >FG bold A>     to Com-color
 
 : (word-colorize) ( nfa -- nfa )
-    dup wordinfo cells ct + @ attr! ;
+    dup wordinfo execute ;
 ' (word-colorize) is word-colorize
 

@@ -67,39 +67,39 @@ require look.fs
 
 \ None nestable IDs:
 
-1 CONSTANT Pri#         \ Primitives
-2 CONSTANT Con#         \ Constants
-3 CONSTANT Var#         \ Variables
-4 CONSTANT Val#         \ Values
+theme-color: Pri-color         \ Primitives
+theme-color: Con-color         \ Constants
+theme-color: Var-color         \ Variables
+theme-color: Val-color         \ Values
 
 \ Nestabe IDs:
 
-5 CONSTANT Doe#         \ Does part
-6 CONSTANT Def#         \ Defer
-7 CONSTANT Col#         \ Colon def
-8 CONSTANT Use#         \ User variable
+theme-color: Doe-color         \ Does part
+theme-color: Def-color         \ Defer
+theme-color: Col-color         \ Colon def
+theme-color: Use-color         \ User variable
 
 \ Nobody knows:
 
-9 CONSTANT Ali#         \ Alias
+theme-color: Ali-color         \ Alias
 
-10 CONSTANT Str#         \ Structure words
+theme-color: Str-color         \ Structure words
 
-11 CONSTANT Com#        \ Compiler directives : ; POSTPONE
+theme-color: Com-color        \ Compiler directives : ; POSTPONE
 
 CREATE InfoTable
-        ' Prim?    A, Pri# ,
-        ' Alias?   A, Ali# ,
-        ' Con?     A, Con# ,
-        ' Var?     A, Var# ,
-        ' Value?   A, Val# ,
-        ' Defered? A, Def# ,
-        ' Does?    A, Doe# ,
-        ' Colon?   A, Col# ,
-	' User?    A, Use# ,
+        ' Prim?    , ' Pri-color ,
+        ' Alias?   , ' Ali-color ,
+        ' Con?     , ' Con-color ,
+        ' Var?     , ' Var-color ,
+        ' Value?   , ' Val-color ,
+        ' Defered? , ' Def-color ,
+        ' Does?    , ' Doe-color ,
+        ' Colon?   , ' Col-color ,
+	' User?    , ' Use-color ,
         0 ,
 
-: WordInfo ( nfa --- code )
+: WordInfo ( nfa --- xt )
         InfoTable
         BEGIN  dup @ dup
         WHILE  2 cells under+
@@ -107,6 +107,6 @@ CREATE InfoTable
         UNTIL
         cell- @ nip
         ELSE
-        2drop drop 0
+        2drop drop ['] default-color
         THEN ;
 
