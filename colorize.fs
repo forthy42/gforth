@@ -25,16 +25,37 @@ decimal
 \ define colours for the different stuff that can be found in the
 \ dictionary; see wordinfo.fs for the descriptions/definitions
 
-<A white >bg Black >FG bold A>     to Ali-color
-<A Magenta >FG A>        to Con-color
+current-theme
+
+light-mode
+
+<A defaultcolor >fg invers A>     to Ali-color
 <A Green >FG A>          to Var-color
-<A Blue >FG A>           to Def-color
-<A Magenta >FG A>        to Val-color
+<A Blue >FG bold A>      to Def-color
+<A Yellow >FG A>         to Use-color
+<A Cyan >FG A>           to Con-color
+<A Cyan >FG A>           to Val-color
 <A Magenta >FG bold A>   to Doe-color
-<A black >bg Cyan >FG A> to Col-color
-<A Blue >FG bold A>      to Pri-color
-<A Red >FG bold A>       to Str-color
-<A Green >FG bold A>     to Com-color
+<A defaultcolor >FG A>   to Col-color
+<A Blue >fg A>           to Pri-color
+<A Magenta >FG A>        to Str-color
+<A Red >FG bold A>       to Com-color
+
+dark-mode
+
+<A defaultcolor >fg invers A>     to Ali-color
+<A Green >FG bold A>     to Var-color
+<A Cyan >FG A>           to Def-color
+<A Yellow >FG A>         to Use-color
+<A Cyan >FG bold A>      to Con-color
+<A Cyan >FG bold A>      to Val-color
+<A Magenta >FG bold A>   to Doe-color
+<A defaultcolor >FG A>   to Col-color
+<A Yellow >fg bold A>    to Pri-color
+<A Magenta >FG A>        to Str-color
+<A Red >FG bold A>       to Com-color
+
+to current-theme
 
 : (word-colorize) ( nfa -- nfa )
     dup wordinfo execute ;
