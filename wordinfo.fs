@@ -34,6 +34,9 @@ require look.fs
 : con?  ( nfa -- flag )
     ((name>)) >code-address docon: = ;
 
+: value? ( nfa -- flag )
+    ((name>)) >code-address dovalue: = ;
+
 : user?  ( nfa -- flag )
     ((name>)) >code-address douser: = ;
 
@@ -89,7 +92,7 @@ CREATE InfoTable
         ' Alias?   A, Ali# ,
         ' Con?     A, Con# ,
         ' Var?     A, Var# ,
-\        ' Value?  A, Val# ,
+        ' Value?   A, Val# ,
         ' Defered? A, Def# ,
         ' Does?    A, Doe# ,
         ' Colon?   A, Col# ,

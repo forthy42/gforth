@@ -99,17 +99,20 @@ User theme-color  0 theme-color !
 
 \ Themes
 
-0 AValue current-theme
+0 AValue current-theme \ points to a string containing the current theme
 : theme: ( "name" -- )
-    Create DOES> to current-theme ;
-
-:noname >body @ cells current-theme + ! ; is theme!
-:noname >body @ cells current-theme + @ ; is theme@
-
-: white? current-theme @ ;
+    $Variable DOES> to current-theme ;
 
 : theme-color@ ( u -- color )
-    cells current-theme + @ ;
+    cells current-theme $@ drop + @ ;
+
+:noname >body @ current-theme $[] ! ; is theme!
+:noname >body @ theme-color@ ; is theme@
+
+Create white? 0 ,
+DOES> @ theme-color@ ;
+' theme! set-to
+' theme@ set-defer@
 
 : (theme-color!) ( u -- )
     dup theme-color ! theme-color@ attr! ;
@@ -188,49 +191,52 @@ theme: default-mode ( -- ) \ gforth
 
 default-mode
 
-false ,
-$6600 ,
-false ,
-false ,
-false ,
-false ,
-false ,
-false ,
-false ,
-$0008 , \ status-color
-$40 cells allot
+false to white?
+<a defaultcolor >fg defaultcolor >bg a> to default-color
+false to error-color
+false to warning-color
+false to info-color
+false to success-color
+false to input-color
+false to error-hl-ul
+false to error-hl-inv
+<a invers a> to status-color
 
 theme: light-mode
 \G color theme for white background
-true ,  \ white?
-$6600 , \ default-color
-$E600 , \ error-color
-$B600 , \ warning-color
-$D600 , \ info-color
-$D600 , \ success-color
-$6601 , \ input-color
-$E602 , \ error-hl-uv
-$E608 , \ error-hl-inv
-$8B01 , \ status-color
-$40 cells allot
+
+light-mode
+true  to white?
+<a defaultcolor >fg defaultcolor >bg a> to default-color
+<a red >fg defaultcolor >bg a> to error-color
+<a blue >fg defaultcolor >bg a> to warning-color
+<a green >fg defaultcolor >bg a> to info-color
+<a green >fg defaultcolor >bg a> to success-color
+<a defaultcolor >fg defaultcolor >bg bold a> to input-color
+<a red >fg defaultcolor >bg underline a> to error-hl-ul
+<a red >fg defaultcolor >bg invers a> to error-hl-inv
+<a white >fg blue >bg bold a> to status-color
 
 theme: dark-mode ( -- ) \ gforth
 \G color theme for black background
-false ,
-$6600 ,
-$E601 ,
-$C601 ,
-$9601 ,
-$D601 ,
-$6601 ,
-$E602 ,
-$E608 ,
-$8B01 ,
-$40 cells allot
+
+dark-mode
+false to white?
+<a defaultcolor >fg defaultcolor >bg a> to default-color
+<a red >fg defaultcolor >bg bold a> to error-color
+<a blue >fg defaultcolor >bg bold a> to warning-color
+<a green >fg defaultcolor >bg bold a> to info-color
+<a green >fg defaultcolor >bg bold a> to success-color
+<a defaultcolor >fg defaultcolor >bg bold a> to input-color
+<a red >fg defaultcolor >bg underline bold a> to error-hl-ul
+<a red >fg defaultcolor >bg invers bold a> to error-hl-inv
+<a white >fg blue >bg bold a> to status-color
+
+default-mode
 
 : magenta-input ( -- ) \ gforth
     \G make input color easily recognizable (useful in presentations)
-    $A601 white? + ['] input-color >body @ cells current-theme + ! ;
+    $A601 white? + to input-color ;
 
 : auto-color ( -- )
     is-terminal? is-color-terminal? and 0= if
