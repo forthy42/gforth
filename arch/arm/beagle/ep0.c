@@ -192,8 +192,7 @@ static int ep0_get_descriptor (struct usb_device_instance *device,
 
 	/*dbg_ep0(3, "max: %x type: %x index: %x", max, descriptor_type, index); */
 
-	if (!urb || !urb->buffer || !urb->buffer_length
-	    || (urb->buffer_length < 255)) {
+	if (!urb || !urb->buffer || (urb->buffer_length < 255)) {
 		dbg_ep0 (2, "invalid urb %p", urb);
 		return -1L;
 	}

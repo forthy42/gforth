@@ -407,7 +407,7 @@ void usbd_tx_complete (struct usb_endpoint_instance *endpoint)
 			endpoint->sent += sent;
 			endpoint->last -= sent;
 
-			if( (endpoint->tx_urb->actual_length - endpoint->sent) <= 0 ) {
+			if (endpoint->sent >= endpoint->tx_urb->actual_length) {
 				tx_urb->actual_length = 0;
 				endpoint->sent = 0;
 				endpoint->last = 0;
