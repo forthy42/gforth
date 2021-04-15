@@ -208,7 +208,7 @@ light-mode
 true  to white?
 <a defaultcolor >fg defaultcolor >bg a> to default-color
 <a red >fg defaultcolor >bg a> to error-color
-<a blue >fg defaultcolor >bg a> to warning-color
+<a magenta >fg defaultcolor >bg a> to warning-color
 <a green >fg defaultcolor >bg a> to info-color
 <a green >fg defaultcolor >bg a> to success-color
 <a defaultcolor >fg defaultcolor >bg bold a> to input-color
@@ -223,7 +223,7 @@ dark-mode
 false to white?
 <a defaultcolor >fg defaultcolor >bg a> to default-color
 <a red >fg defaultcolor >bg bold a> to error-color
-<a blue >fg defaultcolor >bg bold a> to warning-color
+<a yellow >fg defaultcolor >bg bold a> to warning-color
 <a green >fg defaultcolor >bg bold a> to info-color
 <a green >fg defaultcolor >bg bold a> to success-color
 <a defaultcolor >fg defaultcolor >bg bold a> to input-color

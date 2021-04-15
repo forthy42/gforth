@@ -138,6 +138,14 @@ lib%.lo:	COMPILER = $(LIBTOOL.c)
 lib%.lo:	%.c
 	$(COMPILER) -o $@ $<
 
+#Since make -j compiles several dblsub in parallel,
+#different .o files are generated
+dblsub-%.o:	dblsub.c
+	$(COMPILER) -o $@ $<
+
+libdblsub-%.lo:	dblsub.c
+	$(COMPILER) -o $@ $<
+
 .s.o:
 	$(COMPILER) -o $@ $<
 
