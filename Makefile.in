@@ -340,8 +340,6 @@ LIBCC_SRC1 = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs	\
 
 LIBCC_SRC = $(patsubst %,unix/%,$(SWIGLIBS))
 
-LIBCC_GEN = $(patsubst %,unix/%,$(SWIGMODULES) stat.fs)
-
 UNIXLIBS_SRC = unix/x.fs unix/opengl.fs unix/opengles.fs unix/opengles3.fs \
 	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs			   \
 	unix/freetype-gllib.fs unix/android.fs unix/openmax.fs unix/cpu.fs \
@@ -377,7 +375,7 @@ LIBCC_DIST_SRC = $(SWIG_SRC) unix/test.i unix/Makefile.in unix/doexec	\
 LIBCC_FORTH_SRC = libffi.fs fflib.fs $(UNIXLIBS_SRC) $(LIBCC_SRC1)
 LIBCC_GEN_SRC = unix/stat.fs $(patsubst %, unix/%, $(SWIGMODULES))
 
-LIBCC_BUILD_SRC = $(LIBCC_SRC) @LIBCC_BUILD_SRC@
+LIBCC_BUILD_SRC = $(LIBCC_GEN_SRC) @LIBCC_BUILD_SRC@
 LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_BUILD_SRC) $(LIBCC_SRC1) test/libcc.fs | sed -e s,unix/,,g))
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
@@ -958,7 +956,7 @@ $(buildccdir)/libgfpthread.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfserial.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfsocket.la: $(buildccdir)/libgflibc.la
 
-$(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_SRC) libforth
+$(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_GEN_SRC) libforth
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
 		-$(TOUCH) $@
 
@@ -969,9 +967,9 @@ libccdir:	$(buildccdir)
 $(buildccdir):
 		$(MKDIR) -p $(buildccdir)
 
-build-libcc-swig: $(LIBCC_SRC)
+build-libcc-swig: $(LIBCC_GEN_SRC)
 
-$(LIBCC_SRC):
+$(LIBCC_GEN_SRC):
 		(cd unix; $(MAKE) $(patsubst unix/%,%,$@))
 
 check:		gforths	gforth.fi more
