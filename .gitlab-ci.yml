@@ -15,7 +15,7 @@ build-distcheck:
     - ./configure
     - make distclean
     - (cd libltdl; make distclean)
-    - dpkg-buildpackage -uc -us -d -b
+    - dpkg-buildpackage -uc -us -d -b -j1
     - mv ../*.deb build/debian
  
   # The files which are to be made available in GitLab
