@@ -162,7 +162,7 @@ Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
 Depends: gforth (= @DEBVERSION@), gforth-opengl, gforth-libcc-x11, gforth-fonts, gforth-minos2tools
-Recommends: fonts-emoji, fonts-awesome
+Recommends: fonts-emoji, fonts-awesome, gforth-libcc-gles
 Description: GNU Forth Minos2 GUI
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.
