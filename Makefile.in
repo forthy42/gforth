@@ -1396,7 +1396,7 @@ start-gforth.el:	gforth.el
 
 #Documentation
 
-doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC)
+doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_GEN_SRC)
 		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs $(EXTRA_DOC) -e bye
 		$(srcdir)/move-if-change doc/doc.fd.tmp $@
 
