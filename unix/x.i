@@ -35,7 +35,7 @@
 %apply unsigned long long { XSyncValue };
 %apply unsigned int { XID, XSyncCounter, XSyncAlarm, XSyncFence };
 
-// exec: sed -e 's/ \(ws\|s\) \([nu]\) / a \2 /g' -e 's/XStoreNamedColor a u a u n/XStoreNamedColor a u s u n/g' -e 's/XInternAtom a a n/XInternAtom a s n/g' -e 's/XListFonts a a n a/XListFonts a s n a/g' -e 's/XListFontsWithInfo a a n a a/XListFontsWithInfo a s n a a/g' -e 's/XGeometry a n s a/XGeometry a n s s/g' -e 's/XStoreNamedColor a u a u n/XStoreNamedColor a u s u n/g' -e 's/XOpenDisplay a/XOpenDisplay s/g' -e 's/\(c-function [^ ]*\)\(.*\)\( \.\.\. .*\)/\1\2\3`\1_2\2 a a\3`\1_3\2 a a a a\3/g' -e 's/ ud/ a{*(XSyncValue*)}/g' | tr '`' '\n'
+// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary X11``get-current also X11 definitions``c-library\1`s" a a 0" vararg$ $!/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/ \(ws\|s\) \([nu]\) / a \2 /g' -e 's/XStoreNamedColor a u a u n/XStoreNamedColor a u s u n/g' -e 's/XInternAtom a a n/XInternAtom a s n/g' -e 's/XListFonts a a n a/XListFonts a s n a/g' -e 's/XListFontsWithInfo a a n a a/XListFontsWithInfo a s n a a/g' -e 's/XGeometry a n s a/XGeometry a n s s/g' -e 's/XStoreNamedColor a u a u n/XStoreNamedColor a u s u n/g' -e 's/XOpenDisplay a/XOpenDisplay s/g' -e 's/\(c-function [^ ]*\)\(.*\)\( \.\.\. .*\)/\1\2\3`\1_2\2 a a\3`\1_3\2 a a a a\3/g' -e 's/ ud/ a{*(XSyncValue*)}/g' | tr '`' '\n'
 
 #define XK_MISCELLANY
 

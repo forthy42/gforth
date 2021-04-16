@@ -1388,7 +1388,7 @@ if test x$has_swig = xyes; then
 fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/xlib-fsi.c; then
-   AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES xlib.fs"
+   AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES x.fs"
 		   SWIGLIBS="$SWIGLIBS x.fs", ,)
 fi
 
@@ -1513,7 +1513,7 @@ if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    AC_CHECK_LIB(wayland-egl,wl_egl_window_create,
    AC_CHECK_LIB(wayland-client,wl_display_get_fd,
    AC_CHECK_HEADER(wayland-egl-core.h, SWIGMODULES="$SWIGMODULES wayland.fs"
-		   SWIGLIBS="$SWIGLIBS waylandlib.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags wayland-client | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1", ,)))
+		   SWIGLIBS="$SWIGLIBS wayland.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags wayland-client | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1", ,)))
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gps-fsi.c; then
    AC_CHECK_LIB(gps,gps_open,
@@ -1523,7 +1523,7 @@ fi
 if test x$has_swig = xyes || test -f $srcdir/unix/vulkan-fsi.c; then
    AC_CHECK_LIB(vulkan,vkGetPhysicalDeviceFeatures,
    AC_CHECK_HEADER(vulkan/vulkan.h, SWIGMODULES="$SWIGMODULES vulkan.fs"
-		   SWIGLIBS="$SWIGLIBS vulkanlib.fs", ,))
+		   SWIGLIBS="$SWIGLIBS vulkan.fs", ,))
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
