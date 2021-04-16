@@ -1227,12 +1227,12 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs preforth.in
 
 OPTS = @OPTS@
 
-MAKELINE-ll-reg   = OPT=-ll-reg OPTDEFINES="-DFORCE_LL -DFORCE_REG" OPTOBJECTS=
-MAKELINE-noll-reg = OPT=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub-noll.o
-MAKELINE-ll       = OPT=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
-MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub-noll.o
-MAKELINE-itc      = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub-itc.o
-MAKELINE-ditc     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub-ditc.o
+MAKELINE-ll-reg   = OPT=-ll-reg OPTX=-ll-reg OPTDEFINES="-DFORCE_LL -DFORCE_REG" OPTOBJECTS=
+MAKELINE-noll-reg = OPT=-noll-reg OPTX=-noll-reg OPTDEFINES=-DFORCE_REG OPTOBJECTS=dblsub-noll.o
+MAKELINE-ll       = OPT=-ll OPTX=-ll OPTDEFINES=-DFORCE_LL OPTOBJECTS=
+MAKELINE-noll     = OPT=-noll OPTX=-noll OPTDEFINES= OPTOBJECTS=dblsub-noll.o
+MAKELINE-itc      = OPT=-noll OPTX=-itc OPTDEFINES= OPTOBJECTS=dblsub-itc.o
+MAKELINE-ditc     = OPT=-noll OPTX=-ditc OPTDEFINES= OPTOBJECTS=dblsub-ditc.o
 
 gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h $(kernel_anti_dependence)
 
