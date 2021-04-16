@@ -8,7 +8,7 @@ stages:
   - build-i386
 
 build-amd64:
-  stage: build
+  stage: build-amd64
   image: amd64/debian:unstable
   script:
     - ./autogen.sh
@@ -24,7 +24,7 @@ build-amd64:
       - build/*
 
 build-i386:
-  stage: build
+  stage: build-i386
   image: i386/debian:unstable
   script:
     - ./autogen.sh
