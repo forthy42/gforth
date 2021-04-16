@@ -3,7 +3,7 @@ image: debian:unstable
 before_script:
   - dpkg --add-architecture i386
   - apt update -qq
-  - apt-get -y install gcc-multilib
+  # apt-get -y install gcc-multilib
   - ./install-deps.sh
  
 stages:
@@ -18,8 +18,8 @@ build-distcheck:
     - (cd libltdl; make distclean)
     - dpkg-buildpackage -uc -us -d -b
     - mv ../*.deb build/debian
-    - env host_alias=i686-linux-gnu CC="gcc -m32" dpkg-buildpackage -uc -us -d -b -ai386
-    - mv ../*i386*.deb build/debian
+    # env host_alias=i686-linux-gnu CC="gcc -m32" dpkg-buildpackage -uc -us -d -b -ai386
+    # mv ../*i386*.deb build/debian
  
   # The files which are to be made available in GitLab
   artifacts:
