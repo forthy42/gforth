@@ -3,7 +3,7 @@ image: debian:unstable
 before_script:
   - dpkg --add-architecture i386
   - apt update -qq
-  - apt install gcc-multilib
+  - apt-get -y install gcc-multilib
   - ./install-deps.sh
  
 stages:
