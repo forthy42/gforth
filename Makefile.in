@@ -367,7 +367,7 @@ FREETYPE_GL_SRC = freetype-gl/freetype-gl-err.c freetype-gl/platform.c	     \
 	freetype-gl/utf8-utils.c freetype-gl/vector.c $(FREETYPE_GL_INCLUDE)
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
-	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_SRC)
+	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_GEN_SRC)
 
 LIBCC_DIST_SRC = $(SWIG_SRC) unix/test.i unix/Makefile.in unix/doexec	\
 	unix/doprep
