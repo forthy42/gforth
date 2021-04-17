@@ -16,12 +16,13 @@ build-amd64:
     - make distclean
     - (cd libltdl; make distclean)
     - dpkg-buildpackage -uc -us -d -b
-    - mv ../*.deb build/debian
+    - mv ../*.deb debian
   
   # The files which are to be made available in GitLab
   artifacts:
     paths:
       - build/*
+      - debian/*.deb
 
 build-i386:
   stage: build-i386
@@ -32,9 +33,10 @@ build-i386:
     - make distclean
     - (cd libltdl; make distclean)
     - dpkg-buildpackage -uc -us -d -b
-    - mv ../*i386*.deb build/debian
+    - mv ../*i386*.deb debian
   
   # The files which are to be made available in GitLab
   artifacts:
     paths:
       - build/*
+      - debian/*.deb
