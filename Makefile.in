@@ -1234,8 +1234,10 @@ MAKELINE-noll     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 MAKELINE-itc      = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 MAKELINE-ditc     = OPT=-noll OPTDEFINES= OPTOBJECTS=dblsub.o
 
-GFORTHOBJECTS = $(patsubst %,engine/%,@signals_o@ @LIBOBJS@ support-ll.o support-noll.o support-ll-reg.o support-noll-reg.o dblsub.o)
-GFORTHLIBOBJECTS = $(patsubst %.o,engine/lib%.lo,@signals_o@ @LIBOBJS@ support-ll.o support-noll.o support-ll-reg.o support-noll-reg.o dblsub.o)
+FIRSTOBJECTS = @signals_o@ @LIBOBJS@ support-ll.o support-noll.o support-ll-reg.o support-noll-reg.o dblsub.o libmain.o
+
+GFORTHOBJECTS = $(patsubst %,engine/%,$(FIRSTOBJECTS))
+GFORTHLIBOBJECTS = $(patsubst %.o,engine/lib%.lo,$(FIRSTOBJECTS))
 
 $(GFORTHOBJECTS) $(GFORTHLIBOBJECTS):
 	(cd engine; $(MAKE) $(patsubst engine/%,%,$@))
