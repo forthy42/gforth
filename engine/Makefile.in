@@ -143,16 +143,16 @@ lib%.lo:	%.c
 .s.o:
 	$(COMPILER) -o $@ $<
 
-support-noll.o libsupport-ll.lo: support.c config.h forth.h longlong.h
+support-noll.o libsupport-noll.lo: support.c config.h forth.h longlong.h
 	$(COMPILER) -o $@ $<
 
 support-ll.o libsupport-ll.lo: support.c config.h forth.h longlong.h
 	$(COMPILER) -DFORCE_LL -o $@ $<
 
-support-noll-reg.o libsupport-ll.lo: support.c config.h forth.h longlong.h
+support-noll-reg.o libsupport-noll-reg.lo: support.c config.h forth.h longlong.h
 	$(COMPILER) -DFORCE_REG -o $@ $<
 
-support-ll-reg.o libsupport-ll.lo: support.c config.h forth.h longlong.h
+support-ll-reg.o libsupport-ll-reg.lo: support.c config.h forth.h longlong.h
 	$(COMPILER) -DFORCE_LL -DFORCE_REG -o $@ $<
 
 strtol.o libstrtol.lo: strtol.c ansidecl.h
