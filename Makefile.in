@@ -728,17 +728,17 @@ clean:		mostlyclean
 	gforth-itc-noll$(EXT)  engine/gforth-itc-noll$(EXT)  \
 	gforth-ditc-noll$(EXT) engine/gforth-ditc-noll$(EXT) \
 	gforth-prof-noll$(EXT) engine/gforth-prof-noll$(EXT) \
-	engine/prim-s.i
+	engine/prim-s.i $(FORTH_GEN_ENGINE) $(FORTH_GEN_ENGINE_FAST)
 	for i in gforth gforth-fast; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EXT) $$i$${j}$(EXT); done; done
 	-$(RM) -rf $(buildccdir)
 	(cd unix; $(MAKE) clean)
 
 distclean:	clean
-		-$(RM) -rf config.cache config.log config.status \
-		engine/config.h Makefile Makedist engine/Makefile \
-		stamp-h engine/stamp-h \
-		doc/version.texi gforthmi vmgen preforth \
-		$(FORTH_GEN0) $(FORTH_GEN_FAST) start-gforth.el
+		-$(RM) -rf config.cache config.log config.status	\
+		engine/config.h engine/gforth.h Makefile Makedist	\
+		engine/Makefile stamp-h engine/stamp-h doc/version.texi	\
+		gforthmi vmgen preforth $(FORTH_GEN0) $(FORTH_GEN_FAST)	\
+		start-gforth.el
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
@@ -1234,9 +1234,15 @@ MAKELINE-noll     = OPT=-noll OPTX=-noll OPTDEFINES= OPTOBJECTS=dblsub-noll.o
 MAKELINE-itc      = OPT=-noll OPTX=-itc OPTDEFINES= OPTOBJECTS=dblsub-itc.o
 MAKELINE-ditc     = OPT=-noll OPTX=-ditc OPTDEFINES= OPTOBJECTS=dblsub-ditc.o
 
-gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h $(kernel_anti_dependence)
+GFORTHOBJECTS = $(patsubst %,engine/%,@signals_o@ @LIBOBJS@)
+GFORTHLIBOBJECTS = $(patsubst %.o,engine/lib%.lo,@signals_o@ @LIBOBJS@)
 
-gforth$(OPT)$(EXT):
+$(GFORTHOBJECTS) $(GFORTHLIBOBJECTS):
+	(cd engine; $(MAKE) $(patsubst engine/%,%,$@))
+
+gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h $(kernel_anti_dependence) $(GFORTHOBJECTS)
+
+gforth$(OPT)$(EXT): $(GFORTHOBJECTS)
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(RM) gforth$${i}$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
 	else \
@@ -1250,12 +1256,12 @@ gforth$(OPT)$(EXT):
 
 .PHONY: optgforth optgforth-fast
 
-optgforth:
+optgforth: $(GFORTHOBJECTS)
 	$(MAKE) gforth$(OPT)$(EXT) $(MAKELINE$(OPT))
 
-gforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_FAST) engine/config.h
+gforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_FAST) engine/config.h $(GFORTHOBJECTS)
 
-gforth-fast$(OPT)$(EXT):
+gforth-fast$(OPT)$(EXT): $(GFORTHOBJECTS)
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(RM) gforth-fast$${i}$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
 	else \
@@ -1267,31 +1273,31 @@ gforth-fast$(OPT)$(EXT):
 	fi
 	$(DOSTRIP) $@
 
-optgforth-fast:
+optgforth-fast: $(GFORTHOBJECTS)
 	$(MAKE) DOSTRIP=$(DOSTRIP) gforth-fast$(OPT)$(EXT) $(MAKELINE$(OPT))
 
-gforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+gforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h $(GFORTHOBJECTS)
 	cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) gforth-itc-noll$(EXT) $(MAKELINE-itc)
 	$(CP) engine/gforth-itc-noll$(EXT) $@
 	$(DOSTRIP) $@
 	@GFORTHITC_EXE@
 
-gforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+gforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h $(GFORTHOBJECTS)
 	cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) gforth-ditc-noll$(EXT) $(MAKELINE-ditc)
 	$(CP) engine/gforth-ditc-noll$(EXT) $@
 	$(DOSTRIP) $@
 	@GFORTHDITC_EXE@
 
-gforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+gforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h $(GFORTHOBJECTS)
 	cd engine && $(MAKE) DOSTRIP=$(DOSTRIP) gforth-prof-noll$(EXT) $(MAKELINE-noll)
 	$(CP) engine/gforth-prof-noll$(EXT) $@
 	$(DOSTRIP) $@
 
-gforths: $(ENGINES) $(ENGINES_FAST)
+gforths: $(GFORTHOBJECTS) $(ENGINES) $(ENGINES_FAST)
 
-libgforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h $(kernel_anti_dependence)
+libgforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h $(kernel_anti_dependence) $(GFORTHLIBOBJECTS)
 
-libgforth$(OPT)$(EXT): $(ENGINE_SOURCES)
+libgforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS)
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth OPT=$$i && $(MAKE) optlibgforth2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
@@ -1299,15 +1305,15 @@ libgforth$(OPT)$(EXT): $(ENGINE_SOURCES)
 		@NO_CHECK@ $(MAKE) checkone check-nofast ENGINE=./engine/$@; \
 	fi
 
-optlibgforth:
+optlibgforth: $(GFORTHLIBOBJECTS)
 	$(MAKE) libgforth$(OPT)$(EXT) $(MAKELINE$(OPT))
 
-optlibgforth2:
+optlibgforth2: $(GFORTHLIBOBJECTS)
 	(cd engine && $(MAKE) libgforth$(EXT) $(MAKELINE$(OPT)))
 
-libgforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h
+libgforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h $(GFORTHLIBOBJECTS)
 
-libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES)
+libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS)
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth-fast OPT=$$i && $(MAKE) optlibgforth-fast2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
@@ -1315,29 +1321,29 @@ libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES)
 		@NO_CHECK@ $(MAKE) checkone ENGINE=./engine/$@; \
 	fi
 
-optlibgforth-fast:
+optlibgforth-fast: $(GFORTHLIBOBJECTS)
 	$(MAKE) libgforth-fast$(OPT)$(EXT) $(MAKELINE$(OPT))
 
-optlibgforth-fast2:
+optlibgforth-fast2: $(GFORTHLIBOBJECTS)
 	(cd engine && $(MAKE) libgforth-fast$(EXT) $(MAKELINE$(OPT)))
 
-libgforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+libgforth-itc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h $(GFORTHLIBOBJECTS)
 		cd engine && $(MAKE) libgforth-itc$(EXT) $(MAKELINE-itc)
 		$(LN_S) engine/$@ $@
 		$(MASSAGE_EXE) $@ || true
 
-libgforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+libgforth-ditc$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h $(GFORTHLIBOBJECTS)
 		cd engine && $(MAKE) libgforth-ditc$(EXT) $(MAKELINE-ditc)
 		$(LN_S) engine/$@ $@
 		$(MASSAGE_EXE) $@ || true
 
-libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h
+libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engine/config.h $(GFORTHLIBOBJECTS)
 		cd engine && $(MAKE) libgforth-prof$(EXT) $(MAKELINE-noll)
 		$(LN_S) engine/$@ $@
 		$(MASSAGE_EXE) $@ || true
 
 .PHONY: libgforths
-libgforths:	$(LIBENGINES) $(LIBENGINES_FAST)
+libgforths:	$(GFORTHLIBOBJECTS) $(LIBENGINES) $(LIBENGINES_FAST)
 
 # ------------- additional C primitives
 
