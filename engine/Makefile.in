@@ -106,7 +106,7 @@ XLDFLAGS = @LDFLAGS@
 LDFLAGS =  $(DEBUGFLAG) $(XLDFLAGS)
 LDLIBS  = @LIBS@ @LTDL_LDLIBS@
 
-AOBJECTS = @signals_o@ support$(OPTX).o @LIBOBJS@ $(OPTOBJECTS)
+AOBJECTS = @signals_o@ support$(OPT).o @LIBOBJS@ $(OPTOBJECTS)
 
 @MAKEINC@
 
@@ -141,9 +141,6 @@ lib%.lo:	%.c
 #Since make -j compiles several dblsub in parallel,
 #different .o files are generated
 .s.o:
-	$(COMPILER) -o $@ $<
-
-dblsub-%.o libdblsub-%.lo:	dblsub.c
 	$(COMPILER) -o $@ $<
 
 support-%.o libsupport-%.lo: support.c config.h forth.h longlong.h
