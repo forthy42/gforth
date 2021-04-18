@@ -30,8 +30,8 @@
 : zdup     ( z -- z z ) fover fover ;
 : zdrop    ( z -- ) fdrop fdrop ;
 : zover    ( z1 z2 -- z1 z2 z1 ) 3 fpick 3 fpick ;
-: z>r      ( z -- l:z )  fswap f>l f>l ;
-: zr>      ( r:z -- z )  fl> fl> fswap ;
+: z>r      ( z -- l:z )  f>l f>l ;
+: zr>      ( r:z -- z )  fl> fl> ;
 : zswap    ( z1 z2 -- z2 z1 ) frot f>l frot fl> ;
 : zpick    ( z1 .. zn n -- z1 .. zn z1 ) 2* 1+ >r r@ fpick r> fpick ;
 \ : zpin     2* 1+ >r r@ fpin r> fpin ;
