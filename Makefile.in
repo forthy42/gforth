@@ -204,7 +204,6 @@ KERN_SRC = \
 	kernel/input.fs \
 	kernel/input-class.fs \
 	kernel/license.fs \
-	kernel/authors.fs \
 	kernel/nio.fs \
 	kernel/saccept.fs \
 	kernel/doers.fs \
@@ -636,7 +635,8 @@ FORTH_GEN_ENGINE_FAST= engine/prim-fast.i \
 	engine/prim_superend-fast.i engine/profile-fast.i \
 	engine/prim_num-fast.i engine/prim_grp-fast.i \
 	engine/costs-fast.i engine/super2-fast.i
-FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs
+FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs\
+	kernel/authors.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
 FORTH_GEN_FAST = prim-fast.b $(FORTH_GEN_ENGINE_FAST)
 FORTH_GEN =  $(FORTH_GEN0) @GKERNEL@ gforth.fi
