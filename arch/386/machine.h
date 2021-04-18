@@ -95,9 +95,11 @@
 #   else /* !(gcc-2.95 or gcc-3.x) */
 #    if (__GNUC__>4 || (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2))
 #     if defined(PIC)
+#      warning "386 lib registers"
 #      define SPREG asm("%esi")
 #      define IPREG asm("%edi")
 #     elif defined(__ANDROID__)
+#      warning "386 android registers"
 #      define SPREG asm("%esi")
 #      define IPREG asm("%edi")
 #     else
@@ -126,9 +128,15 @@
 #   endif /* !(gcc-2.95 or later) */
 #  else /* !defined(USE_TOS) || defined(CFA_NEXT) */
 #   if ((__GNUC__==2 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=95) || (__GNUC__>2))
-#    define SPREG asm("%esi")
-#    define RPREG asm("%edi")
-#    define IPREG asm("%ebx")
+#    if defined(PIC)
+#     warning "386 lib registers, noTOS"
+#     define SPREG asm("%esi")
+#     define IPREG asm("%edi")
+#    else
+#     define SPREG asm("%esi")
+#     define RPREG asm("%edi")
+#     define IPREG asm("%ebx")
+#    endif
 #   else /* !(gcc-2.95 or later) */
 #    define SPREG asm("%ebx")
 #   endif  /* !(gcc-2.95 or later) */
