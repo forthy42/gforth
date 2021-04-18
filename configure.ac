@@ -1098,9 +1098,11 @@ AC_DEFINE_UNQUOTED(NO_DYNAMIC_DEFAULT,$no_dynamic_default,default value for no_d
 
 #Checks for programs.
 AC_PROG_LN_S
+AC_PROG_MKDIR_P
 AC_PROG_INSTALL
 AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
 AC_CHECK_PROGS(RECODE,recode iconv)
+AC_CHECK_PROGS(TIMEOUT,timeout)
 
 if test x$RECODE == xrecode; then
    RECODE_ARGS=l1..
@@ -1108,6 +1110,10 @@ else
    RECODE_ARGS="-f LATIN1"
 fi
 AC_SUBST(RECODE_ARGS)
+if test x$TIMEOUT == xtimeout; then
+   TIMEOUT_ARGS=60s
+fi
+AC_SUBST(TIMEOUT_ARGS)
 #check for the presence of Emacs
 AC_CHECK_PROGS(EMACS,emacs xemacs)
 if test -n "$EMACS"; then
@@ -1582,13 +1588,13 @@ if test x$has_swig = xyes || test -f $srcdir/unix/va_drm-fsi.c; then
    AC_CHECK_HEADER(va/va_drm.h, SWIGMODULES="$SWIGMODULES va_drm.fs"
 		   SWIGLIBS="$SWIGLIBS va_drm.fs",), ,)
 fi
-if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
-   CPPFLAGS_1="$CPPFLAGS"
-   CPPFLAGS="$CPPFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
-   AC_CHECK_LIB(gstreamer-1.0,gst_init,
-   AC_CHECK_HEADER(gst/gst.h, SWIGMODULES="$SWIGMODULES gst.fs"
-		   SWIGLIBS="$SWIGLIBS gst.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
-fi
+#if test x$has_swig = xyes || test -f $srcdir/unix/gst-fsi.c; then
+#   CPPFLAGS_1="$CPPFLAGS"
+#   CPPFLAGS="$CPPFLAGS `pkg-config --cflags gstreamer-gl-1.0`"
+#   AC_CHECK_LIB(gstreamer-1.0,gst_init,
+#   AC_CHECK_HEADER(gst/gst.h, SWIGMODULES="$SWIGMODULES gst.fs"
+#		   SWIGLIBS="$SWIGLIBS gst.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
+#fi
 
 if test x$has_swig = xno; then
    AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])

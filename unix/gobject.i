@@ -22,6 +22,7 @@
 #define GLIB_AVAILABLE_IN_2_62
 #define GLIB_AVAILABLE_IN_2_64
 #define GLIB_AVAILABLE_IN_2_66
+#define GLIB_AVAILABLE_IN_2_68
 #define GLIB_AVAILABLE_TYPE_IN_2_64
 #define GLIB_DEPRECATED_FOR(x)
 #define GLIB_DEPRECATED_IN_2_28_FOR(x) GLIB_DEPRECATED_FOR(x)
@@ -51,6 +52,8 @@
 #define GLIB_SYSDEF_POLLNVAL =32
 #define GLIB_VAR extern
 #define G_GNUC_PURE
+#define G_DEFINE_AUTOPTR_CLEANUP_FUNC(x,y)
+#define G_DEFINE_AUTO_CLEANUP_FREE_FUNC(x,y,z)
 
 %include <glib.h>
 %include <glib/gtypes.h>

@@ -97,6 +97,8 @@ MV	= mv
 TOUCH   = touch -c
 TAR	= tar cf -
 MKDIR	= mkdir
+MKDIR_P = @MKDIR_P@
+TIMEOUT = @TIMEOUT@ @TIMEOUT_ARGS@
 ACLOCAL_AMFLAGS = -I m4
 INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -839,7 +841,7 @@ install-images: install-txt
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
 
 install-include:
-		$(MKDIR) -p $(includedir)/gforth/$(VERSION)/$(machine) $(includedir)/freetype-gl
+		$(MKDIR_P) $(includedir)/gforth/$(VERSION)/$(machine) $(includedir)/freetype-gl
 		$(INSTALL_DATA) engine/config.h $(srcdir)/engine/libcc.h $(includedir)/gforth/$(VERSION)/$(machine)
 		$(INSTALL_DATA) engine/gforth.h $(includedir)
 		for i in $(FREETYPE_GL_INCLUDE); do \
@@ -854,19 +856,19 @@ install-man:
 		-$(INSTALL_DATA) $(srcdir)/doc/gforth.1 $(man1dir)
 
 install-info:	doc
-		$(MKDIR) -p $(infodir)
+		$(MKDIR_P) $(infodir)
 		$(INSTALL_INFO) --info-dir=$(infodir) doc/gforth.info $(infodir)/gforth.info
 		$(INSTALL_INFO) --info-dir=$(infodir) doc/vmgen.info $(infodir)/vmgen.info
 
 install-html:	html
-		$(MKDIR) -p $(htmldir)/html
+		$(MKDIR_P) $(htmldir)/html
 		$(CP) doc/gforth/* $(htmldir)/html
-		$(MKDIR) -p $(htmldir)/../vmgen/html
+		$(MKDIR_P) $(htmldir)/../vmgen/html
 		$(CP) doc/vmgen/* $(htmldir)/../vmgen/html
 
 install-pdf:	pdf
-		$(MKDIR) -p $(pdfdir)
-		$(MKDIR) -p $(pdfdir)/../vmgen
+		$(MKDIR_P) $(pdfdir)
+		$(MKDIR_P) $(pdfdir)/../vmgen
 		$(CP) doc/gforth.pdf $(pdfdir)
 		$(CP) doc/vmgen.pdf $(pdfdir)/../vmgen/
 
@@ -875,7 +877,7 @@ install-tags:	install.TAGS
 
 install-elc:
 		@if test -n "@lispdir@"; then \
-			$(MKDIR) -p $(lispdir); \
+			$(MKDIR_P) $(lispdir); \
 			for i in gforth.el @gforth_elc@; do \
 				$(INSTALL_DATA) $$i $(lispdir); \
 			done; \
@@ -883,7 +885,7 @@ install-elc:
 			echo '>>>>>Please install gforth.{el,elc} in your .../emacs/site-lisp directory'; \
 		fi
 		@if test -n "@elispstartdir@"; then \
-			$(MKDIR) -p $(emacssitestartdir); \
+			$(MKDIR_P) $(emacssitestartdir); \
 			for i in start-gforth.el; do \
 				$(INSTALL_DATA) $$i $(emacssitestartdir) || true; \
 			done; \
@@ -925,19 +927,19 @@ installdirs:	installdirs-arch installdirs-indep
 installdirs-arch:
 		$(NORMAL_INSTALL)
 		for i in $(bindir) $(libdir)/gforth/$(VERSION) $(siteforthdir) $(siteforthdir) $(package)$(libccdir); do \
-			$(MKDIR) -p $$i; \
+			$(MKDIR_P) $$i; \
 		done
 		for i in $(INSTALL_LIBDIRS); do \
-			$(MKDIR) -p $(libdir)/gforth/$(VERSION)/$$i; \
+			$(MKDIR_P) $(libdir)/gforth/$(VERSION)/$$i; \
 		done
 
 installdirs-indep:
 		$(NORMAL_INSTALL)
 		for i in $(man1dir) $(infodir) $(datadir)/gforth/$(VERSION) $(datadir)/gforth/site-forth; do \
-			$(MKDIR) -p $$i; \
+			$(MKDIR_P) $$i; \
 		done
 		for i in $(INSTALLDIRS); do \
-			$(MKDIR) -p $(datadir)/gforth/$(VERSION)/$$i; \
+			$(MKDIR_P) $(datadir)/gforth/$(VERSION)/$$i; \
 		done
 
 #deinstall all files specific to this version of gforth
@@ -964,7 +966,7 @@ build-libcc-named libcc: build-libcc-swig $(LIBCC_BUILD_LA) libccdir
 libccdir:	$(buildccdir)
 
 $(buildccdir):
-		$(MKDIR) -p $(buildccdir)
+		$(MKDIR_P) $(buildccdir)
 
 build-libcc-swig: $(LIBCC_GEN_SRC)
 
@@ -975,7 +977,9 @@ check:		gforths	gforth.fi more
 		$(MAKE) checkones
 		@echo "*** Check successful ***"
 		./gforth-fast$(EXT) --diag -e '."     in gforth-fast" cr bye'
+		./gforth$(EXT) --diag -e '."     in gforth" cr bye'
 		@libbench@./libgforth-fast$(EXT) --diag -e '."     in libgforth-fast" cr bye'
+		@libbench@./libgforth$(EXT) --diag -e '."     in libgforth" cr bye'
 
 checkones:	checkg checkgi checkgdi checkgf checkgd checkgfd @libbench@checklibg checklibgi checklibgdi checklibgf checklibgd checklibgfd
 
@@ -1030,21 +1034,21 @@ checkgfd:
 		-@$(RM) $@.check
 
 checkone test: gforth.fi engine/prim-s.i
-		$(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
-		$(FORTH) test/other.fs -e bye
-		$(FORTHS) test/signals.fs -e bye
-		$(FORTHS) test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
-		$(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -u $(srcdir)/test/checkans.out -
-		$(FORTH) prims2x.fs -e \
+		$(TIMEOUT) $(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
+		$(TIMEOUT) $(FORTH) test/other.fs -e bye
+		$(TIMEOUT) $(FORTHS) test/signals.fs -e bye
+		$(TIMEOUT) $(FORTHS) test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
+		$(TIMEOUT) $(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -u $(srcdir)/test/checkans.out -
+		$(TIMEOUT) $(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -u engine/prim-s.i -
-		-$(FORTH) test/fp/runfptests.fth -e bye | diff -u $(srcdir)/test/fp/fptest.out - || echo "Floating point test failed"
+		-$(TIMEOUT) $(FORTH) test/fp/runfptests.fth -e bye | diff -u $(srcdir)/test/fp/fptest.out - || echo "Floating point test failed"
 
 check-nofast: gforth.fi
-		$(FORTHS) test/gforth-nofast.fs -e bye
+		$(TIMEOUT) $(FORTHS) test/gforth-nofast.fs -e bye
 
 test/primtest.fi: test/primtest.fs mach32l.fs cross.fs
-		$(FORTHB) -e 's" mach32l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
+		$(TIMEOUT) $(FORTHB) -e 's" mach32l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 primtest:	gforth test/primtest.fi FORCE
 		(echo rs|ENVVAR=bla ./gforth -i test/primtest.fi); echo $$?
