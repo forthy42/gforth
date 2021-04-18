@@ -40,20 +40,23 @@
 : z-rot    ( z1 z2 z3 -- z3 z1 z2 ) zswap z>r zswap zr> ;
 : z@       ( zaddr -- z ) dup >r f@ r> float+ f@ ;
 : z!       ( z zaddr -- ) dup >r float+ f! r> f! ;
+: z+!      ( z zaddr -- ) dup >r float+ f+! r> f+! ;
 
 \ locals                                               10jan15py
 
+Create z!-table ' z! , ' z+! ,
+
 : to-z: ( -- ) -14 throw ;
-comp: drop POSTPONE laddr# >body @ lp-offset, POSTPONE z! ;
+to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, z!-table to-!, ;
 : compile-pushlocal-z ( a-addr -- ) ( run-time: z -- )
     locals-size @ alignlp-f float+ float+ dup locals-size !
     swap !
-    postpone z>r ;
+    ]] f>l f>l [[ ;
 : compile-z@local ( n -- )
     case
-	0        of  postpone f@local1 postpone f@local0 endof
-	1 floats of  postpone f@local# 2 floats , postpone f@local1  endof
-	dup postpone f@local# dup float+ , postpone f@local# ,
+	0        of  ]] f@local0 f@local1 [[ endof
+	1 floats of  ]] f@local1 f@local# [[ 2 floats ,  endof
+	dup postpone f@local# dup , postpone f@local# float+ ,
     endcase ;
 
 also locals-types definitions
