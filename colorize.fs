@@ -29,7 +29,7 @@ current-theme
 
 light-mode
 
-<A defaultcolor >fg invers A>     to Ali-color
+<A Black >fg dim A>      to Ali-color
 <A Green >FG A>          to Var-color
 <A Blue >FG bold A>      to Def-color
 <A Yellow >FG A>         to Use-color
@@ -43,7 +43,7 @@ light-mode
 
 dark-mode
 
-<A defaultcolor >fg invers A>     to Ali-color
+<A White >fg dim A>      to Ali-color
 <A Green >FG bold A>     to Var-color
 <A Cyan >FG A>           to Def-color
 <A Yellow >FG A>         to Use-color
