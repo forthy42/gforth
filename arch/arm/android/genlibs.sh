@@ -170,7 +170,7 @@ function gen_soil2 {
 }
 
 function gen_typeset {
-    $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $HARFBUZZ -name libharfbuzz_la*.lo) $(find $FREETYPE $LIBPNG freetype-gl -name '*.lo') -lm -lGLESv2 -lz -lbz2 -llog
+    $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $HARFBUZZ -name libharfbuzz_la*.lo) $(find $FREETYPE $LIBPNG -name '*.lo') -lm -lGLESv2 -lz -lbz2 -llog
     cp .libs/libtypeset.{a,so} $TOOLCHAIN/sysroot/usr/lib
 }
 
@@ -182,7 +182,7 @@ then
     gen_harfbuzz
     gen_opus
     gen_fthb
-    gen_ftgl
+    #gen_ftgl
     #gen_soil2
     gen_typeset
 else
