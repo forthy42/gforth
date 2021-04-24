@@ -25,7 +25,16 @@ require unix/mmap.fs
 
 : reg: ( offset -- )
     Create sfloats ,
-    DOES> @ gpio-base + ;
+  DOES> @ gpio-base + ;
+
+\ register access
+
+: lor! ( l addr -- )
+    >r r@ l@ or r> l! ;
+: land! ( l addr -- )
+    >r r@ l@ and r> l! ;
+
+\ device specific stuff
 
 s" /sys/firmware/devicetree/base/model" slurp-file 2Constant model
 
@@ -37,6 +46,11 @@ model s" ODROID-N2" search nip nip [IF]
     [THEN]
     $FF634000 Constant GPIO-Base-map
 
+    \ actual offset is $FF634400, i.e. starts at reg $100
+
+    \ mux is 0 for IO, 1..F for other functions
+    \ FSEL bit is 0 for Output, 1 for Input
+    
     $116 reg: N2_GPIOX_FSEL_REG
     $117 reg: N2_GPIOX_OUTP_REG
     $118 reg: N2_GPIOX_INP_REG
@@ -56,6 +70,30 @@ model s" ODROID-N2" search nip nip [IF]
     $1D6 reg: N2_GPIOA_DS_REG_5A
     $1BD reg: N2_GPIOA_MUX_D_REG
     $1BE reg: N2_GPIOA_MUX_E_REG
+
+    \ pins to GPIO table: X=$000+, A=$100+
+    Create gpio[] ( pin -- gpio )
+    -1   , -1   ,
+    $011 , -1   ,
+    $012 , -1   ,
+    $10D , $00C ,
+    -1   , $00D ,
+    $003 , $010 ,
+    $004 , -1   ,
+    $007 , $000 ,
+    -1   , $001 ,
+    $008 , -1   ,
+    $009 , $002 ,
+    $00B , $00A ,
+    -1   , $104 ,
+    $10E , $10F ,
+    $00E , -1   ,
+    $00F , $10C ,
+    $005 , -1   ,
+    $006 , $013 ,
+    -1   , -1   ,
+    -1   , -1   ,
+    DOES> swap 1- #39 umin cells + @ ;
 [THEN]
 model s" ODROID-C2" search nip nip [IF]
     : odroid-c2 ;
@@ -87,6 +125,30 @@ model s" ODROID-C2" search nip nip [IF]
     $131 reg: C2_MUX_REG_5
     $133 reg: C2_MUX_REG_7
     $134 reg: C2_MUX_REG_8
+    
+    \ pins to GPIO table: X=$000+, Y=$100+
+    Create gpio[] ( pin -- gpio )
+    -1   , -1   ,
+    -1   , -1   ,
+    -1   , -1   ,
+    $015 , -1   ,
+    -1   , -1   ,
+    $013 , $00A ,
+    $00B , -1   ,
+    $009 , $008 ,
+    -1   , $005 ,
+    $007 , -1   ,
+    $004 , $003 ,
+    $002 , $001 ,
+    -1   , $10E ,
+    -1   , -1   ,
+    $000 , -1   ,
+    $108 , $10D ,
+    $006 , -1   ,
+    $103 , $107 ,
+    -1   , -1   ,
+    -1   , -1   ,
+    DOES> swap 1- #39 umin cells + @ ;
 [THEN]
 model s" Raspberry Pi 4 Model B" search nip nip [IF]
     : rpi-4 ;
@@ -114,3 +176,4 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     r> close-file throw dup 0= ?ior to gpio-base ;
 
 map-gpio
+
