@@ -88,8 +88,29 @@ model s" ODROID-C2" search nip nip [IF]
     $133 reg: C2_MUX_REG_7
     $134 reg: C2_MUX_REG_8
 [THEN]
+model s" Raspberry Pi 4 Model B" search nip nip [IF]
+    : rpi-4 ;
+    $00200000 Constant GPIO-Base-map
+
+    $000 reg: RPI_GPFSEL0
+    $001 reg: RPI_GPFSEL1
+    $002 reg: RPI_GPFSEL2
+    $003 reg: RPI_GPFSEL3
+    $004 reg: RPI_GPFSEL4
+    $005 reg: RPI_GPFSEL5
+
+    $007 reg: RPI_GPSET0
+    $008 reg: RPI_GPSET1
+
+    $00A reg: RPI_GPCLR0
+    $00B reg: RPI_GPCLR1
+
+    $00D reg: RPI_GPLEV0
+[THEN]
 
 : map-gpio ( -- )
     s" /dev/gpiomem" r/w open-file throw dup >r fileno >r
     0 $1000 PROT_READ PROT_WRITE or MAP_SHARED r> GPIO-Base-map mmap
     r> close-file throw dup 0= ?ior to gpio-base ;
+
+map-gpio
