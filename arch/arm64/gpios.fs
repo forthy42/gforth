@@ -33,6 +33,10 @@ require unix/mmap.fs
     >r r@ l@ or r> l! ;
 : land! ( l addr -- )
     >r r@ l@ and r> l! ;
+: lmask! ( l mask addr -- )
+    \G set the bits where @var{mask} is 1 in @var{addr} by the corresponding
+    \G bits in @var{l}.
+    >r r@ l@ swap mux r> l! ;
 
 \ device specific stuff
 
@@ -50,17 +54,18 @@ model s" ODROID-N2" search nip nip [IF]
 
     \ mux is 0 for IO, 1..F for other functions
     \ FSEL bit is 0 for Output, 1 for Input
+    \ pins have pullups/downs, which can be enabled
     
     $116 reg: N2_GPIOX_FSEL_REG
     $117 reg: N2_GPIOX_OUTP_REG
     $118 reg: N2_GPIOX_INP_REG
     $13C reg: N2_GPIOX_PUPD_REG
     $14A reg: N2_GPIOX_PUEN_REG
-    $1D2 reg: N2_GPIOX_DS_REG_2A
-    $1D3 reg: N2_GPIOX_DS_REG_2B
-    $1B3 reg: N2_GPIOX_MUX_3_REG
-    $1B4 reg: N2_GPIOX_MUX_4_REG
-    $1B5 reg: N2_GPIOX_MUX_5_REG
+    $1D2 reg: N2_GPIOX_DS_REG_2A \ GPIOX[0:15]
+    $1D3 reg: N2_GPIOX_DS_REG_2B \ GPIOX[16:19]
+    $1B3 reg: N2_GPIOX_MUX_3_REG \ GPIOX[0:7]
+    $1B4 reg: N2_GPIOX_MUX_4_REG \ GPIOX[8:15]
+    $1B5 reg: N2_GPIOX_MUX_5_REG \ GPIOX[16:19]
     
     $120 reg: N2_GPIOA_FSEL_REG
     $121 reg: N2_GPIOA_OUTP_REG
@@ -68,9 +73,37 @@ model s" ODROID-N2" search nip nip [IF]
     $13F reg: N2_GPIOA_PUPD_REG
     $14D reg: N2_GPIOA_PUEN_REG
     $1D6 reg: N2_GPIOA_DS_REG_5A
-    $1BD reg: N2_GPIOA_MUX_D_REG
-    $1BE reg: N2_GPIOA_MUX_E_REG
+    $1BD reg: N2_GPIOA_MUX_D_REG \ GPIOA[0:7]
+    $1BE reg: N2_GPIOA_MUX_E_REG \ GPIOA[8:15]
 
+    Create shift/type 0 c, 0 c, 0 c, 0 c, 0 c, 1 c, 2 c,
+
+    -1
+    1+ dup Constant fsel#
+    1+ dup Constant outp#
+    1+ dup Constant inp#
+    1+ dup Constant pupd#
+    1+ dup Constant puen#
+    1+ dup Constant ds#
+    1+ dup Constant mux#
+    drop
+    
+    Create gpio-reg[]
+    N2_GPIOX_FSEL_REG  , N2_GPIOA_FSEL_REG  ,
+    N2_GPIOX_OUTP_REG  , N2_GPIOA_OUTP_REG  ,
+    N2_GPIOX_INP_REG   , N2_GPIOA_INP_REG   ,
+    N2_GPIOX_PUPD_REG  , N2_GPIOA_PUPD_REG  ,
+    N2_GPIOX_PUEN_REG  , N2_GPIOA_PUEN_REG  ,
+    N2_GPIOX_DS_REG_2A , N2_GPIOA_DS_REG_5A ,
+    N2_GPIOX_MUX_3_REG , N2_GPIOA_MUX_D_REG ,
+  DOES> ( pin type -- shift mask addr )
+    over shift/type + c@ { s/t }
+    swap 2 cells + over $100 and IF  cell+  THEN  @
+    swap $FF and { gpio# }
+    gpio# s/t lshift dup >r 5 rshift sfloats +
+    r> $1F and tuck
+    1 1 s/t lshift lshift 1- swap lshift ;
+    
     \ pins to GPIO table: X=$000+, A=$100+
     Create gpio[] ( pin -- gpio )
     -1   , -1   ,
@@ -154,6 +187,8 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     : rpi-4 ;
     $00200000 Constant GPIO-Base-map
 
+    \ fsel are 3 bits per function, 000 is input, 001 is output
+
     $000 reg: RPI_GPFSEL0
     $001 reg: RPI_GPFSEL1
     $002 reg: RPI_GPFSEL2
@@ -168,6 +203,32 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     $00B reg: RPI_GPCLR1
 
     $00D reg: RPI_GPLEV0
+    $00E reg: RPI_GPLEV1
+
+    $010 reg: RPI_GPEDS0
+    $011 reg: RPI_GPEDS1
+
+    $013 reg: RPI_GPREN0
+    $014 reg: RPI_GPREN1
+
+    $016 reg: RPI_GPFEN0
+    $017 reg: RPI_GPFEN1
+
+    $019 reg: RPI_GPHEN0
+    $01A reg: RPI_GPHEN1
+
+    $01C reg: RPI_GPLEN0
+    $01D reg: RPI_GPLEN1
+
+    $01F reg: RPI_GPAREN0
+    $020 reg: RPI_GPAREN1
+
+    $022 reg: RPI_GPAFEN0
+    $023 reg: RPI_GPAFEN1
+    
+    $025 reg: RPI_GPPUD
+    $026 reg: RPI_GPPUDCLK0
+    $027 reg: RPI_GPPUDCLK1
 [THEN]
 
 : map-gpio ( -- )
