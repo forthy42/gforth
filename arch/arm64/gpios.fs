@@ -102,7 +102,7 @@ model s" ODROID-N2" search nip nip [IF]
     swap $FF and { gpio# }
     gpio# s/t lshift dup >r 5 rshift sfloats +
     r> $1F and tuck
-    1 1 s/t lshift lshift 1- swap lshift ;
+    1 1 s/t lshift lshift 1- swap lshift swap gpio-base + ;
     
     \ pins to GPIO table: X=$000+, A=$100+
     Create gpio[] ( pin -- gpio )
@@ -144,11 +144,11 @@ model s" ODROID-C2" search nip nip [IF]
     $13B reg: C2_GPIOY_PUPD_REG
     $149 reg: C2_GPIOY_PUEN_REG
     
-    $10C reg: C2_GPIODV_FSEL_REG
-    $10D reg: C2_GPIODV_OUTP_REG
-    $10E reg: C2_GPIODV_INP_REG
-    $148 reg: C2_GPIODV_PUPD_REG
-    $13A reg: C2_GPIODV_PUEN_REG
+\    $10C reg: C2_GPIODV_FSEL_REG
+\    $10D reg: C2_GPIODV_OUTP_REG
+\    $10E reg: C2_GPIODV_INP_REG
+\    $148 reg: C2_GPIODV_PUPD_REG
+\    $13A reg: C2_GPIODV_PUEN_REG
     
     $12C reg: C2_MUX_REG_0
     $12D reg: C2_MUX_REG_1
@@ -158,7 +158,33 @@ model s" ODROID-C2" search nip nip [IF]
     $131 reg: C2_MUX_REG_5
     $133 reg: C2_MUX_REG_7
     $134 reg: C2_MUX_REG_8
+ 
+    Create shift/type 0 c, 0 c, 0 c, 0 c, 0 c, 1 c, 2 c,
+
+    -1
+    1+ dup Constant fsel#
+    1+ dup Constant outp#
+    1+ dup Constant inp#
+    1+ dup Constant pupd#
+    1+ dup Constant puen#
+    1+ dup Constant mux#
+    drop
     
+    Create gpio-reg[]
+    C2_GPIOX_FSEL_REG  , C2_GPIOY_FSEL_REG  ,
+    C2_GPIOX_OUTP_REG  , C2_GPIOY_OUTP_REG  ,
+    C2_GPIOX_INP_REG   , C2_GPIOY_INP_REG   ,
+    C2_GPIOX_PUPD_REG  , C2_GPIOY_PUPD_REG  ,
+    C2_GPIOX_PUEN_REG  , C2_GPIOY_PUEN_REG  ,
+    C2_MUX_REG_0       , C2_MUX_REG_4       ,
+  DOES> ( gpio type -- shift mask addr )
+    over shift/type + c@ { s/t }
+    swap 2* cells + over $100 and IF  cell+  THEN  @
+    swap $FF and { gpio# }
+    gpio# s/t lshift dup >r 5 rshift sfloats +
+    r> $1F and tuck
+    1 1 s/t lshift lshift 1- swap lshift swap gpio-base + ;
+   
     \ pins to GPIO table: X=$000+, Y=$100+
     Create gpio[] ( pin -- gpio )
     -1   , -1   ,
