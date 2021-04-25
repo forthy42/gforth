@@ -98,7 +98,7 @@ model s" ODROID-N2" search nip nip [IF]
     N2_GPIOX_MUX_3_REG , N2_GPIOA_MUX_D_REG ,
   DOES> ( pin type -- shift mask addr )
     over shift/type + c@ { s/t }
-    swap 2 cells + over $100 and IF  cell+  THEN  @
+    swap 2* cells + over $100 and IF  cell+  THEN  @
     swap $FF and { gpio# }
     gpio# s/t lshift dup >r 5 rshift sfloats +
     r> $1F and tuck
