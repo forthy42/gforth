@@ -78,6 +78,14 @@ model s" ODROID-N2" search nip nip [IF]
 
     Create shift/type 0 c, 0 c, 0 c, 0 c, 0 c, 1 c, 2 c,
 
+    : gpio>mask ( gpio type table -- shift mask addr )
+	over shift/type + c@ { s/t }
+	swap 2* cells + over $100 and IF  cell+  THEN  @
+	swap $FF and { gpio# }
+	gpio# s/t lshift dup >r 5 rshift sfloats +
+	r> $1F and tuck
+	1 1 s/t lshift lshift 1- swap lshift swap ;
+
     -1
     1+ dup Constant fsel#
     1+ dup Constant outp#
@@ -96,13 +104,10 @@ model s" ODROID-N2" search nip nip [IF]
     N2_GPIOX_PUEN_REG  , N2_GPIOA_PUEN_REG  ,
     N2_GPIOX_DS_REG_2A , N2_GPIOA_DS_REG_5A ,
     N2_GPIOX_MUX_3_REG , N2_GPIOA_MUX_D_REG ,
-  DOES> ( pin type -- shift mask addr )
-    over shift/type + c@ { s/t }
-    swap 2* cells + over $100 and IF  cell+  THEN  @
-    swap $FF and { gpio# }
-    gpio# s/t lshift dup >r 5 rshift sfloats +
-    r> $1F and tuck
-    1 1 s/t lshift lshift 1- swap lshift swap gpio-base + ;
+      DOES> ( pin type -- shift mask addr )
+	gpio>mask gpio-base + ;
+    [: lits# 2 u>= IF  2lits> rot gpio>mask >3lits ]] gpio-base + [[
+	ELSE  does,  THEN ;] optimizes gpio-reg[]
     
     \ pins to GPIO table: X=$000+, A=$100+
     Create gpio[] ( pin -- gpio )
@@ -161,6 +166,14 @@ model s" ODROID-C2" search nip nip [IF]
  
     Create shift/type 0 c, 0 c, 0 c, 0 c, 0 c, 1 c, 2 c,
 
+    : gpio>mask ( gpio type table -- shift mask addr )
+	over shift/type + c@ { s/t }
+	swap 2* cells + over $100 and IF  cell+  THEN  @
+	swap $FF and { gpio# }
+	gpio# s/t lshift dup >r 5 rshift sfloats +
+	r> $1F and tuck
+	1 1 s/t lshift lshift 1- swap lshift swap ;
+
     -1
     1+ dup Constant fsel#
     1+ dup Constant outp#
@@ -177,14 +190,10 @@ model s" ODROID-C2" search nip nip [IF]
     C2_GPIOX_PUPD_REG  , C2_GPIOY_PUPD_REG  ,
     C2_GPIOX_PUEN_REG  , C2_GPIOY_PUEN_REG  ,
     C2_MUX_REG_0       , C2_MUX_REG_4       ,
-  DOES> ( gpio type -- shift mask addr )
-    over shift/type + c@ { s/t }
-    swap 2* cells + over $100 and IF  cell+  THEN  @
-    swap $FF and { gpio# }
-    gpio# s/t lshift dup >r 5 rshift sfloats +
-    r> $1F and tuck
-    1 1 s/t lshift lshift 1- swap lshift swap gpio-base + ;
-   
+      DOES> ( gpio type -- shift mask addr )
+	gpio>mask gpio-base + ;
+    ' fold2-3 folds giop-reg[]
+    
     \ pins to GPIO table: X=$000+, Y=$100+
     Create gpio[] ( pin -- gpio )
     -1   , -1   ,
