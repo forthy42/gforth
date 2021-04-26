@@ -131,7 +131,9 @@ model s" ODROID-N2" search nip nip [IF]
     $006 , $013 ,
     -1   , -1   ,
     -1   , -1   ,
-    DOES> swap 1- #39 umin cells + @ ;
+      DOES> swap 1- #39 umin cells + @ ;
+    [: lits# 1 u>= IF  lits> swap 1- #39 umin cells + @ >lits
+	ELSE  does,  THEN ;] optimizes gpio[]
 [THEN]
 model s" ODROID-C2" search nip nip [IF]
     : odroid-c2 ;
