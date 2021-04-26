@@ -275,3 +275,6 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 
 map-gpio
 
+: pin-check { mode -- }
+    41 1 DO I gpio[] dup -1 = IF drop ." -"
+	ELSE mode gpio-reg[] l@ and swap rshift 0 .r THEN LOOP ;
