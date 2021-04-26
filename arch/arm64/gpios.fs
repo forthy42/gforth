@@ -106,7 +106,7 @@ model s" ODROID-N2" search nip nip [IF]
     N2_GPIOX_MUX_3_REG , N2_GPIOA_MUX_D_REG ,
       DOES> ( pin type -- shift mask addr )
 	gpio>mask gpio-base + ;
-    [: lits# 2 u>= IF  2lits> rot gpio>mask >3lits ]] gpio-base + [[
+    [: lits# 2 u>= IF  2lits> rot >body gpio>mask >3lits ]] gpio-base + [[
 	ELSE  does,  THEN ;] optimizes gpio-reg[]
     
     \ pins to GPIO table: X=$000+, A=$100+
