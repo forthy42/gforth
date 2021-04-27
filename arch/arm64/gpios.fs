@@ -292,11 +292,11 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     1+ dup Constant set#
     1+ dup Constant clr#
     1+ dup Constant inp#
-    1+ dup Constant puclk#
+    1+ dup Constant pumode#
     drop
  
     Create shift/type
-    ' 3bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit ,
+    ' 3bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit ,
 
     Variable gpio-dummy
     
@@ -450,6 +450,14 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 	    r@ >lits ]] puclk!  150cyc  0 [[
 	    r> >lits ]] puclk!  0 RPI_GPPUD l! [[
 	ELSE  :,  THEN ;
+[THEN]
+[IFDEF] pumode#
+    : pumode! ( val n -- ) pin>gpio pumode# gpio-reg[] 2>r lshift 2r> lmask! ;
+    opt: lits# 1 u>= IF  drop  pumode# lmask!,  ELSE  :,  THEN ;
+    : pullupdown-mode! ( val n -- )
+	>r dup 1 rshift swap 1 lshift or 3 and r> pumode! ;
+    opt: lits# 1 u>= IF lits> ]] dup 1 rshift swap 1 lshift or 3 and [[
+	    >lits ]] pumode! [[  ELSE  :,  THEN ;
 [THEN]
 
 : map-gpio ( -- )
