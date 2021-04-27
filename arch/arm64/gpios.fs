@@ -38,6 +38,16 @@ require unix/mmap.fs
     \G bits in @var{l}.
     >r r@ l@ swap mux r> l! ;
 
+\ mask generation
+
+1 Constant 1bit ( addr gpio -- addr gpio mask )
+: 2bit ( addr gpio -- addr' gpio' mask )
+    2* tuck 5 rshift sfloats + swap $1F and 3 ;
+: 3bit ( addr gpio -- addr' gpio' mask )
+    #10 /mod swap >r sfloats + r> dup 2* + 7 ;
+: 4bit ( addr gpio -- addr' gpio' mask )
+    2* 2* tuck 5 rshift sfloats + swap $1F and $F ;
+
 \ device specific stuff
 
 s" /sys/firmware/devicetree/base/model" slurp-file 2Constant model
@@ -59,32 +69,38 @@ model s" ODROID-N2" search nip nip [IF]
     $116 reg: N2_GPIOX_FSEL_REG
     $117 reg: N2_GPIOX_OUTP_REG
     $118 reg: N2_GPIOX_INP_REG
+
+    $120 reg: N2_GPIOA_FSEL_REG
+    $121 reg: N2_GPIOA_OUTP_REG
+    $122 reg: N2_GPIOA_INP_REG
+
     $13C reg: N2_GPIOX_PUPD_REG
+    $13F reg: N2_GPIOA_PUPD_REG
+
     $14A reg: N2_GPIOX_PUEN_REG
-    $1D2 reg: N2_GPIOX_DS_REG_2A \ GPIOX[0:15]
-    $1D3 reg: N2_GPIOX_DS_REG_2B \ GPIOX[16:19]
+    $14D reg: N2_GPIOA_PUEN_REG
+
     $1B3 reg: N2_GPIOX_MUX_3_REG \ GPIOX[0:7]
     $1B4 reg: N2_GPIOX_MUX_4_REG \ GPIOX[8:15]
     $1B5 reg: N2_GPIOX_MUX_5_REG \ GPIOX[16:19]
     
-    $120 reg: N2_GPIOA_FSEL_REG
-    $121 reg: N2_GPIOA_OUTP_REG
-    $122 reg: N2_GPIOA_INP_REG
-    $13F reg: N2_GPIOA_PUPD_REG
-    $14D reg: N2_GPIOA_PUEN_REG
-    $1D6 reg: N2_GPIOA_DS_REG_5A
     $1BD reg: N2_GPIOA_MUX_D_REG \ GPIOA[0:7]
     $1BE reg: N2_GPIOA_MUX_E_REG \ GPIOA[8:15]
 
-    Create shift/type 0 c, 0 c, 0 c, 0 c, 0 c, 1 c, 2 c,
+    $1D2 reg: N2_GPIOX_DS_REG_2A \ GPIOX[0:15]
+    $1D3 reg: N2_GPIOX_DS_REG_2B \ GPIOX[16:19]
+    $1D6 reg: N2_GPIOA_DS_REG_5A
 
+    Create shift/type
+    ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit , ' 4bit c,
+
+    Variable dummy
+    
     : gpio>mask ( gpio type table -- shift mask addr )
-	over shift/type + c@ { s/t }
-	swap 2* cells + over $100 and IF  cell+  THEN  @
-	swap $FF and { gpio# }
-	gpio# s/t lshift dup >r 5 rshift sfloats +
-	r> $1F and tuck
-	1 1 s/t lshift lshift 1- swap lshift swap ;
+	third -1 = IF  2drop drop 0 0 dummy  EXIT  THEN
+	swap { s/t }
+	s/t 2* cells + over 5 rshift cells + @
+	swap $1F and shift/type s/t cells + perform over lshift rot ;
 
     -1
     1+ dup Constant fsel#
@@ -109,12 +125,12 @@ model s" ODROID-N2" search nip nip [IF]
     [: lits# 2 u>= IF  2lits> rot >body gpio>mask >3lits ]] gpio-base + [[
 	ELSE  does,  THEN ;] optimizes gpio-reg[]
     
-    \ pins to GPIO table: X=$000+, A=$100+
+    \ pins to GPIO table: X=$000+, A=$020+
     Create gpio[] ( pin -- gpio )
     -1   , -1   ,
     $011 , -1   ,
     $012 , -1   ,
-    $10D , $00C ,
+    $02D , $00C ,
     -1   , $00D ,
     $003 , $010 ,
     $004 , -1   ,
@@ -123,10 +139,10 @@ model s" ODROID-N2" search nip nip [IF]
     $008 , -1   ,
     $009 , $002 ,
     $00B , $00A ,
-    -1   , $104 ,
-    $10E , $10F ,
+    -1   , $024 ,
+    $02E , $02F ,
     $00E , -1   ,
-    $00F , $10C ,
+    $00F , $02C ,
     $005 , -1   ,
     $006 , $013 ,
     -1   , -1   ,
@@ -166,15 +182,16 @@ model s" ODROID-C2" search nip nip [IF]
     $133 reg: C2_MUX_REG_7
     $134 reg: C2_MUX_REG_8
  
-    Create shift/type 0 c, 0 c, 0 c, 0 c, 0 c, 1 c, 2 c,
+    Create shift/type
+    ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit , ' 4bit c,
 
+    Variable dummy
+    
     : gpio>mask ( gpio type table -- shift mask addr )
-	over shift/type + c@ { s/t }
-	swap 2* cells + over $100 and IF  cell+  THEN  @
-	swap $FF and { gpio# }
-	gpio# s/t lshift dup >r 5 rshift sfloats +
-	r> $1F and tuck
-	1 1 s/t lshift lshift 1- swap lshift swap ;
+	third -1 = IF  2drop drop 0 0 dummy  EXIT  THEN
+	swap { s/t }
+	s/t 2* cells + over 5 rshift cells + @
+	swap $1F and shift/type s/t cells + perform over lshift rot ;
 
     -1
     1+ dup Constant fsel#
@@ -194,9 +211,10 @@ model s" ODROID-C2" search nip nip [IF]
     C2_MUX_REG_0       , C2_MUX_REG_4       ,
       DOES> ( gpio type -- shift mask addr )
 	gpio>mask gpio-base + ;
-    ' fold2-3 folds giop-reg[]
+    [: lits# 2 u>= IF  2lits> rot >body gpio>mask >3lits ]] gpio-base + [[
+	ELSE  does,  THEN ;] optimizes gpio-reg[]
     
-    \ pins to GPIO table: X=$000+, Y=$100+
+    \ pins to GPIO table: X=$000+, Y=$020+
     Create gpio[] ( pin -- gpio )
     -1   , -1   ,
     -1   , -1   ,
@@ -210,15 +228,17 @@ model s" ODROID-C2" search nip nip [IF]
     $007 , -1   ,
     $004 , $003 ,
     $002 , $001 ,
-    -1   , $10E ,
+    -1   , $02E ,
     -1   , -1   ,
     $000 , -1   ,
-    $108 , $10D ,
+    $028 , $02D ,
     $006 , -1   ,
-    $103 , $107 ,
+    $023 , $027 ,
     -1   , -1   ,
     -1   , -1   ,
     DOES> swap 1- #39 umin cells + @ ;
+    [: lits# 1 u>= IF  lits> swap 1- #39 umin cells + @ >lits
+	ELSE  does,  THEN ;] optimizes gpio[]
 [THEN]
 model s" Raspberry Pi 4 Model B" search nip nip [IF]
     : rpi-4 ;
@@ -266,6 +286,103 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     $025 reg: RPI_GPPUD
     $026 reg: RPI_GPPUDCLK0
     $027 reg: RPI_GPPUDCLK1
+
+    -1
+    1+ dup Constant fsel#
+    1+ dup Constant set#
+    1+ dup Constant clr#
+    1+ dup Constant inp#
+    1+ dup Constant puen#
+    drop
+ 
+    Create shift/type
+    ' 3bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit ,
+
+    Variable dummy
+    
+    : gpio>mask ( gpio type table -- shift mask addr )
+	third -1 = IF  2drop drop 0 0 dummy  EXIT  THEN
+	swap { s/t }
+	s/t cells + over 5 rshift cells + @
+	swap $1F and shift/type s/t cells + perform over lshift rot ;
+
+    Create gpio-reg[]
+    RPI_GPFSEL0 ,
+    RPI_GPSET0  ,
+    RPI_GPCLR0  ,
+    RPI_GPLEV0  ,
+    RPI_GPPUD   ,
+      DOES> ( gpio type -- shift mask addr )
+	gpio>mask gpio-base + ;
+    [: lits# 2 u>= IF  2lits> rot >body gpio>mask >3lits ]] gpio-base + [[
+	ELSE  does,  THEN ;] optimizes gpio-reg[]
+   
+    \ pins to GPIO table:
+    Create gpio[] ( pin -- gpio )
+    -1   , -1   ,
+    $002 , -1   ,
+    $003 , -1   ,
+    $004 , $00E ,
+    -1   , $00F ,
+    $011 , $012 ,
+    $01B , -1   ,
+    $016 , $017 ,
+    -1   , $018 ,
+    $00A , -1   ,
+    $009 , $019 ,
+    $00B , $008 ,
+    -1   , $007 ,
+    $000 , $001 ,
+    $005 , -1   ,
+    $006 , $00C ,
+    $00D , -1   ,
+    $013 , $010 ,
+    $01A , $014 ,
+    -1   , $015 ,
+    DOES> swap 1- #39 umin cells + @ ;
+    [: lits# 1 u>= IF  lits> swap 1- #39 umin cells + @ >lits
+	ELSE  does,  THEN ;] optimizes gpio[]
+[THEN]
+
+[IFDEF] fsel#
+    : fsel! ( val n -- ) gpio[] fsel# gpio-reg[] 2>r lshift 2r> lmask! ;
+    : fsel@ ( n -- val ) gpio[] fsel# gpio-reg[] l@ and swap rshift ;
+[THEN]
+[IFDEF] inp#
+    : inp@ ( n -- val ) gpio[] inp# gpio-reg[] l@ and swap rshift ;
+[THEN]
+[IFDEF] outp#
+    : outp! ( val n -- ) gpio[] outp# gpio-reg[] 2>r lshift 2r> lmask! ;
+    : outp@ ( n -- val ) gpio[] outp# gpio-reg[] l@ and swap rshift ;
+[THEN]
+[IFDEF] set#
+    : set! ( n -- ) gpio[] set# gpio-reg[] l! drop ;
+[THEN]
+[IFDEF] clr#
+    : clr! ( n -- ) gpio[] clr# gpio-reg[] l! drop ;
+[THEN]
+[defined] set# [defined] clr# and [IF]
+    : outp! ( val n -- ) swap IF  set!  ELSE  clr!  THEN ;
+[ELSE]
+    : set! ( n -- )  1 swap outp! ;
+    : clr! ( n -- )  0 swap outp! ;
+[THEN]
+[IFDEF] mux#
+    : mux! ( val n -- ) gpio[] mux# gpio-reg[] 2>r lshift 2r> lmask! ;
+    : mux@ ( n -- val ) gpio[] mux# gpio-reg[] l@ and swap rshift ;
+    : make-input ( n -- )   0 over mux!  1 swap fsel! ;
+    : make-output ( n -- )  0 over mux!  0 swap fsel! ;
+[ELSE]
+    : make-input ( n -- )  0 swap fsel! ;
+    : make-output ( n -- ) 1 swap fsel! ;
+[THEN]
+[IFDEF] puen#
+    : puen! ( val n -- ) gpio[] puen# gpio-reg[] 2>r lshift 2r> lmask! ;
+    : puen@ ( n -- val ) gpio[] puen# gpio-reg[] l@ and swap rshift ;
+[THEN]
+[IFDEF] pupd!
+    : pupd! ( val n -- ) gpio[] pupd# gpio-reg[] 2>r lshift 2r> lmask! ;
+    : pupd@ ( n -- val ) gpio[] pupd# gpio-reg[] l@ and swap rshift ;
 [THEN]
 
 : map-gpio ( -- )
@@ -275,6 +392,30 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 
 map-gpio
 
-: pin-check { mode -- }
+: pin-show { mode -- }
     41 1 DO I gpio[] dup -1 = IF drop ." -"
 	ELSE mode gpio-reg[] l@ and swap rshift 0 .r THEN LOOP ;
+: pin#s ( -- ) cr
+    ." pin " 41 1 DO  I 10 / 0 .r  LOOP cr
+    ." pin " 41 1 DO  I 10 mod 0 .r  LOOP ;
+: .pins ( -- ) .pin#s cr
+    ." fsel" fsel# pin-show cr
+    ." inp " inp#  pin-show cr
+    ." outp" outp# pin-show cr
+    ." puen" puen# pin-show cr
+    ." pupd" pupd# pin-show cr
+    ." mux " mux#  pin-show ;
+: inps@ ( -- u ) 0 41 1 DO  I inp@ I lshift or  LOOP ;
+
+: pin-connect? ( n -- )
+    >r 0 r@ mux! 0 r@ fsel!
+    0 r@ outp!  inps@
+    1 r@ outp!  inps@
+    41 1 DO
+	over 1 I lshift and 0=
+	over 1 I lshift and 0<> and IF  I .  THEN
+    LOOP  2drop
+    1 r> fsel! ;
+
+: .pin-matrix ( -- )
+    41 1 DO cr I pin-connect? LOOP ;
