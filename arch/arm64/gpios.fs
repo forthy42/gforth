@@ -126,7 +126,7 @@ model s" ODROID-N2" search nip nip [IF]
 	ELSE  does,  THEN ;] optimizes gpio-reg[]
     
     \ pins to GPIO table: X=$000+, A=$020+
-    Create gpio[] ( pin -- gpio )
+    Create pin>gpio ( pin -- gpio )
     -1   , -1   ,
     $011 , -1   ,
     $012 , -1   ,
@@ -149,7 +149,7 @@ model s" ODROID-N2" search nip nip [IF]
     -1   , -1   ,
       DOES> swap 1- #39 umin cells + @ ;
     [: lits# 1 u>= IF  lits> swap 1- #39 umin cells + @ >lits
-	ELSE  does,  THEN ;] optimizes gpio[]
+	ELSE  does,  THEN ;] optimizes pin>gpio
 [THEN]
 model s" ODROID-C2" search nip nip [IF]
     : odroid-c2 ;
@@ -215,7 +215,7 @@ model s" ODROID-C2" search nip nip [IF]
 	ELSE  does,  THEN ;] optimizes gpio-reg[]
     
     \ pins to GPIO table: X=$000+, Y=$020+
-    Create gpio[] ( pin -- gpio )
+    Create pin>gpio ( pin -- gpio )
     -1   , -1   ,
     -1   , -1   ,
     -1   , -1   ,
@@ -238,7 +238,7 @@ model s" ODROID-C2" search nip nip [IF]
     -1   , -1   ,
     DOES> swap 1- #39 umin cells + @ ;
     [: lits# 1 u>= IF  lits> swap 1- #39 umin cells + @ >lits
-	ELSE  does,  THEN ;] optimizes gpio[]
+	ELSE  does,  THEN ;] optimizes pin>gpio
 [THEN]
 model s" Raspberry Pi 4 Model B" search nip nip [IF]
     : rpi-4 ;
@@ -318,7 +318,7 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 	ELSE  does,  THEN ;] optimizes gpio-reg[]
    
     \ pins to GPIO table:
-    Create gpio[] ( pin -- gpio )
+    Create pin>gpio ( pin -- gpio )
     -1   , -1   ,
     $002 , -1   ,
     $003 , -1   ,
@@ -341,25 +341,25 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     -1   , $015 ,
     DOES> swap 1- #39 umin cells + @ ;
     [: lits# 1 u>= IF  lits> swap 1- #39 umin cells + @ >lits
-	ELSE  does,  THEN ;] optimizes gpio[]
+	ELSE  does,  THEN ;] optimizes pin>gpio
 [THEN]
 
 [IFDEF] fsel#
-    : fsel! ( val n -- ) gpio[] fsel# gpio-reg[] 2>r lshift 2r> lmask! ;
-    : fsel@ ( n -- val ) gpio[] fsel# gpio-reg[] l@ and swap rshift ;
+    : fsel! ( val n -- ) pin>gpio fsel# gpio-reg[] 2>r lshift 2r> lmask! ;
+    : fsel@ ( n -- val ) pin>gpio fsel# gpio-reg[] l@ and swap rshift ;
 [THEN]
 [IFDEF] inp#
-    : inp@ ( n -- val ) gpio[] inp# gpio-reg[] l@ and swap rshift ;
+    : inp@ ( n -- val ) pin>gpio inp# gpio-reg[] l@ and swap rshift ;
 [THEN]
 [IFDEF] outp#
-    : outp! ( val n -- ) gpio[] outp# gpio-reg[] 2>r lshift 2r> lmask! ;
-    : outp@ ( n -- val ) gpio[] outp# gpio-reg[] l@ and swap rshift ;
+    : outp! ( val n -- ) pin>gpio outp# gpio-reg[] 2>r lshift 2r> lmask! ;
+    : outp@ ( n -- val ) pin>gpio outp# gpio-reg[] l@ and swap rshift ;
 [THEN]
 [IFDEF] set#
-    : set! ( n -- ) gpio[] set# gpio-reg[] l! drop ;
+    : set! ( n -- ) pin>gpio set# gpio-reg[] l! drop ;
 [THEN]
 [IFDEF] clr#
-    : clr! ( n -- ) gpio[] clr# gpio-reg[] l! drop ;
+    : clr! ( n -- ) pin>gpio clr# gpio-reg[] l! drop ;
 [THEN]
 [defined] set# [defined] clr# and [IF]
     : outp! ( val n -- ) swap IF  set!  ELSE  clr!  THEN ;
@@ -368,8 +368,8 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     : clr! ( n -- )  0 swap outp! ;
 [THEN]
 [IFDEF] mux#
-    : mux! ( val n -- ) gpio[] mux# gpio-reg[] 2>r lshift 2r> lmask! ;
-    : mux@ ( n -- val ) gpio[] mux# gpio-reg[] l@ and swap rshift ;
+    : mux! ( val n -- ) pin>gpio mux# gpio-reg[] 2>r lshift 2r> lmask! ;
+    : mux@ ( n -- val ) pin>gpio mux# gpio-reg[] l@ and swap rshift ;
     : make-input ( n -- )   0 over mux!  1 swap fsel! ;
     : make-output ( n -- )  0 over mux!  0 swap fsel! ;
 [ELSE]
@@ -377,12 +377,12 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     : make-output ( n -- ) 1 swap fsel! ;
 [THEN]
 [IFDEF] puen#
-    : puen! ( val n -- ) gpio[] puen# gpio-reg[] 2>r lshift 2r> lmask! ;
-    : puen@ ( n -- val ) gpio[] puen# gpio-reg[] l@ and swap rshift ;
+    : puen! ( val n -- ) pin>gpio puen# gpio-reg[] 2>r lshift 2r> lmask! ;
+    : puen@ ( n -- val ) pin>gpio puen# gpio-reg[] l@ and swap rshift ;
 [THEN]
 [IFDEF] pupd!
-    : pupd! ( val n -- ) gpio[] pupd# gpio-reg[] 2>r lshift 2r> lmask! ;
-    : pupd@ ( n -- val ) gpio[] pupd# gpio-reg[] l@ and swap rshift ;
+    : pupd! ( val n -- ) pin>gpio pupd# gpio-reg[] 2>r lshift 2r> lmask! ;
+    : pupd@ ( n -- val ) pin>gpio pupd# gpio-reg[] l@ and swap rshift ;
 [THEN]
 
 : map-gpio ( -- )
@@ -393,8 +393,10 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 map-gpio
 
 : pin-show { mode -- }
-    41 1 DO I gpio[] dup -1 = IF drop ." -"
-	ELSE mode gpio-reg[] l@ and swap rshift 0 .r THEN LOOP ;
+    41 1 DO
+	I pin>gpio dup -1 = IF drop ." -"
+	ELSE  mode gpio-reg[] l@ and swap rshift 0 .r  THEN
+    LOOP ;
 : .pin#s ( -- ) cr
     ." pin " 41 1 DO  I 10 / 0 .r  LOOP cr
     ." pin " 41 1 DO  I 10 mod 0 .r  LOOP ;
@@ -408,6 +410,7 @@ map-gpio
 : inps@ ( -- u ) 0 41 1 DO  I inp@ I lshift or  LOOP ;
 
 : pin-connect? ( n -- )
+    dup pin>gpio -1 = IF  drop  EXIT  THEN
     >r r@ make-output
     r@ clr!  inps@
     r@ set!  inps@
