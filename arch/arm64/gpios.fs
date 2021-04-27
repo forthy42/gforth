@@ -1,6 +1,6 @@
 \ gpios.fs	GPIO access
 \
-\ Authors: Bernd Paysan,
+\ Authors: Bernd Paysan
 \ Copyright (C) 2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
@@ -292,7 +292,7 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     1+ dup Constant set#
     1+ dup Constant clr#
     1+ dup Constant inp#
-    1+ dup Constant puen#
+    1+ dup Constant puclk#
     drop
  
     Create shift/type
@@ -421,11 +421,35 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     : puen@ ( n -- val ) pin>gpio puen# gpio-reg[] l@ and swap rshift ;
     opt: lits# 1 u>= IF  drop  puen# l@,  ELSE  :,  THEN ;
 [THEN]
-[IFDEF] pupd!
+[IFDEF] pupd#
     : pupd! ( val n -- ) pin>gpio pupd# gpio-reg[] 2>r lshift 2r> lmask! ;
     opt: lits# 1 u>= IF  drop  pupd# lmask!,  ELSE  :,  THEN ;
     : pupd@ ( n -- val ) pin>gpio pupd# gpio-reg[] l@ and swap rshift ;
     opt: lits# 1 u>= IF  drop  pupd# l@,  ELSE  :,  THEN ;
+    : pullupdown-mode! ( mode n -- )
+	>r case
+	    0 of  0 r> puen!  endof
+	    1 of  1 r@ puen!  0 r> pupd!  endof
+	    2 of  1 r@ puen!  1 r> pupd!  endof
+	    rdrop  endcase ;
+    opt: lits# 2 u>= IF  drop
+	    2lits> >r  case
+		0 of  0 r> >2lits ]] puen! [[  endof
+		1 of  1 r@ >2lits ]] puen! [[  0 r> >2lits ]] pupd! [[  endof
+		2 of  1 r@ >2lits ]] puen! [[  1 r> >2lits ]] pupd! [[  endof
+	    rdrop  endcase
+	ELSE  :,  THEN ;
+[THEN]
+[IFDEF] puclk#
+    : puclk! ( val n -- ) pin>gpio puclk# gpio-reg[] 2>r lshift 2r> lmask! ;
+    opt: lits# 1 u>= IF  drop  puclk# lmask!,  ELSE  :,  THEN ;
+    : 150cyc  25 0 DO  LOOP ; \ assumes 5 cycles per iteration
+    : pullupdown-mode! ( mode n -- )  >r RPI_GPPUD l!
+	150cyc  1 r@ puclk!  150cyc  0 RPI_GPPUD l!  150cyc  0 r> puclk! ;
+    opt: lits# 1 u>= IF  drop lits> >r ]] RPI_GPPUD l!  150cyc  1 [[
+	    r@ >lits ]] puclk!  150cyc  0 RPI_GPPUD l!  150cyc  0 [[
+	    r> >lits ]] puclk! [[
+	ELSE  :,  THEN ;
 [THEN]
 
 : map-gpio ( -- )
