@@ -94,10 +94,10 @@ model s" ODROID-N2" search nip nip [IF]
     Create shift/type
     ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit , ' 4bit ,
 
-    Variable dummy
+    Variable gpio-dummy
     
     : gpio>mask ( gpio type table -- shift mask addr )
-	third -1 = IF  2drop drop 0 0 dummy gpio-base -  EXIT  THEN
+	third -1 = IF  2drop drop 0 0 gpio-dummy gpio-base -  EXIT  THEN
 	swap { s/t }
 	s/t 2* cells + over 5 rshift cells + @
 	swap $1F and shift/type s/t cells + perform over lshift rot ;
@@ -185,10 +185,10 @@ model s" ODROID-C2" search nip nip [IF]
     Create shift/type
     ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit , ' 4bit ,
 
-    Variable dummy
+    Variable gpio-dummy
     
     : gpio>mask ( gpio type table -- shift mask addr )
-	third -1 = IF  2drop drop 0 0 dummy gpio-base -  EXIT  THEN
+	third -1 = IF  2drop drop 0 0 gpio-dummy gpio-base -  EXIT  THEN
 	swap { s/t }
 	s/t 2* cells + over 5 rshift cells + @
 	swap $1F and shift/type s/t cells + perform over lshift rot ;
@@ -298,10 +298,10 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     Create shift/type
     ' 3bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit ,
 
-    2Variable dummy
+    Variable gpio-dummy
     
     : gpio>mask ( gpio type table -- shift mask addr )
-	third -1 = IF  2drop drop 0 0 dummy gpio-base -  EXIT  THEN
+	third -1 = IF  2drop drop 0 0 gpio-dummy gpio-base -  EXIT  THEN
 	swap { s/t }
 	s/t cells + over 5 rshift cells + @
 	swap $1F and shift/type s/t cells + perform over lshift rot ;
@@ -421,4 +421,4 @@ map-gpio
     r> make-input ;
 
 : .pin-matrix ( -- )
-    41 1 DO cr I pin-connect? LOOP ;
+    41 1 DO cr I pin-connect? LOOP cr ;
