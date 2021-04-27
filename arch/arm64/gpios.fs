@@ -415,7 +415,7 @@ map-gpio
     r@ clr!  inps@ invert
     r@ set!  inps@ and dup $20 ['] .r 2 base-execute
     41 1 DO
-	over 1 I lshift and  IF  I .  THEN
+	dup 1 I lshift and  IF  I .  THEN
     LOOP  drop
     r> make-input ;
 
