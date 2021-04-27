@@ -445,10 +445,10 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     opt: lits# 1 u>= IF  drop  puclk# lmask!,  ELSE  :,  THEN ;
     : 150cyc  25 0 DO  LOOP ; \ assumes 5 cycles per iteration
     : pullupdown-mode! ( mode n -- )  >r RPI_GPPUD l!
-	150cyc  1 r@ puclk!  150cyc  0 RPI_GPPUD l!  150cyc  0 r> puclk! ;
+	150cyc  1 r@ puclk!  150cyc  0 RPI_GPPUD l!  0 r> puclk! ;
     opt: lits# 1 u>= IF  drop lits> >r ]] RPI_GPPUD l!  150cyc  1 [[
-	    r@ >lits ]] puclk!  150cyc  0 RPI_GPPUD l!  150cyc  0 [[
-	    r> >lits ]] puclk! [[
+	    r@ >lits ]] puclk!  150cyc  0 [[
+	    r> >lits ]] puclk!  0 RPI_GPPUD l! [[
 	ELSE  :,  THEN ;
 [THEN]
 
