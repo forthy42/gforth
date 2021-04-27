@@ -344,42 +344,41 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 	ELSE  does,  THEN ;] optimizes pin>gpio
 [THEN]
 
+\ optimizing helpers
+
+: lmask, ( lits:n mode -- ) >r
+    lits> pin>gpio r> gpio-reg[] rot >lits ]] lshift [[
+    gpio-base - >2lits ]] gpio-base + lmask! [[ ;
+: l@, ( lits:n mode -- )  >r
+    lits> pin>gpio r> gpio-reg[]
+    gpio-base - >2lits ]] gpio-base + l@ and [[
+    >lits ]] rshift [[ ;
+: l!, ( lits:n mode -- )  >r
+    lits> pin>gpio r> gpio-reg[] rot drop
+    gpio-base - >2lits ]] gpio-base + l! [[ ;
 [IFDEF] fsel#
     : fsel! ( val n -- ) pin>gpio fsel# gpio-reg[] 2>r lshift 2r> lmask! ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio fsel# gpio-reg[] rot >lits ]] lshift [[
-	    >2lits ]] lmask! [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop  fsel# lmask, ELSE  :,  THEN ;
     : fsel@ ( n -- val ) pin>gpio fsel# gpio-reg[] l@ and swap rshift ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio fsel# gpio-reg[] >2lits ]] l@ and [[
-	    >lits ]] rshift [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop  fsel# l@,  ELSE  :,  THEN ;
 [THEN]
 [IFDEF] inp#
     : inp@ ( n -- val ) pin>gpio inp# gpio-reg[] l@ and swap rshift ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio inp# gpio-reg[] >2lits ]] l@ and [[
-	    >lits ]] rshift [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop inp# l@,  ELSE  :,  THEN ;
 [THEN]
 [IFDEF] outp#
     : outp! ( val n -- ) pin>gpio outp# gpio-reg[] 2>r lshift 2r> lmask! ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio outp# gpio-reg[] rot >lits ]] lshift [[
-	    >2lits ]] lmask! [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop outp# lmask!,  ELSE  :,  THEN ;
     : outp@ ( n -- val ) pin>gpio outp# gpio-reg[] l@ and swap rshift ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio outp# gpio-reg[] >2lits ]] l@ and [[
-	    >lits ]] rshift [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop outp# l@,  ELSE  :,  THEN ;
 [THEN]
 [IFDEF] set#
     : set! ( n -- ) pin>gpio set# gpio-reg[] l! drop ;
-    opt: lits# 1 u>= IF  drop lits> pin>gpio set# gpio-reg[] rot drop
-	    >2lits ]] l! [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop set# l!,  ELSE  :,  THEN ;
 [THEN]
 [IFDEF] clr#
     : clr! ( n -- ) pin>gpio clr# gpio-reg[] l! drop ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio clr# gpio-reg[] rot drop
-	    >2lits ]] l! [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop clr# l!,  ELSE  :,  THEN ;
 [THEN]
 [defined] set# [defined] clr# and [IF]
     : outp! ( val n -- ) swap IF  set!  ELSE  clr!  THEN ;
@@ -395,13 +394,9 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 [THEN]
 [IFDEF] mux#
     : mux! ( val n -- ) pin>gpio mux# gpio-reg[] 2>r lshift 2r> lmask! ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio mux# gpio-reg[] rot >lits ]] lshift [[
-	    >2lits ]] lmask! [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop  mux# lmask!,  ELSE  :,  THEN ;
     : mux@ ( n -- val ) pin>gpio mux# gpio-reg[] l@ and swap rshift ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio mux# gpio-reg[] >2lits ]] l@ and [[
-	    >lits ]] rshift [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop  mux# l@,  ELSE  :,  THEN ;
     : make-input ( n -- )   0 over mux!  1 swap fsel! ;
     opt: drop ]] 0 over mux!  1 swap fsel! [[ ;
     : make-output ( n -- )  0 over mux!  0 swap fsel! ;
@@ -414,23 +409,15 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 [THEN]
 [IFDEF] puen#
     : puen! ( val n -- ) pin>gpio puen# gpio-reg[] 2>r lshift 2r> lmask! ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio puen# gpio-reg[] rot >lits ]] lshift [[
-	    >2lits ]] l! [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop  puen# lmask!,  ELSE  :,  THEN ;
     : puen@ ( n -- val ) pin>gpio puen# gpio-reg[] l@ and swap rshift ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio puen# gpio-reg[] >2lits ]] l@ and [[
-	    >lits ]] rshift [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop  puen# l@,  ELSE  :,  THEN ;
 [THEN]
 [IFDEF] pupd!
     : pupd! ( val n -- ) pin>gpio pupd# gpio-reg[] 2>r lshift 2r> lmask! ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio pupd# gpio-reg[] rot >lits ]] lshift [[
-	    >2lits ]] l! [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop  pupd# lmask!,  ELSE  :,  THEN ;
     : pupd@ ( n -- val ) pin>gpio pupd# gpio-reg[] l@ and swap rshift ;
-    opt: lits# 1 u>= IF  drop
-	    lits> pin>gpio pupd# gpio-reg[] >2lits ]] l@ and [[
-	    >lits ]] rshift [[  ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop  pupd# l@,  ELSE  :,  THEN ;
 [THEN]
 
 : map-gpio ( -- )
