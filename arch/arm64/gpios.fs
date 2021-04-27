@@ -408,14 +408,14 @@ map-gpio
 : inps@ ( -- u ) 0 41 1 DO  I inp@ I lshift or  LOOP ;
 
 : pin-connect? ( n -- )
-    >r 0 r@ mux! 0 r@ fsel!
-    0 r@ outp!  inps@
-    1 r@ outp!  inps@
+    >r r@ make-output
+    r@ clr!  inps@
+    r@ set!  inps@
     41 1 DO
 	over 1 I lshift and 0=
 	over 1 I lshift and 0<> and IF  I .  THEN
     LOOP  2drop
-    1 r> fsel! ;
+    r> make-input ;
 
 : .pin-matrix ( -- )
     41 1 DO cr I pin-connect? LOOP ;
