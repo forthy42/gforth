@@ -507,7 +507,7 @@ map-gpio
     [IFDEF] outp# ." outp" outp# pin-show cr [THEN]
     [IFDEF] puen# ." puen" puen# pin-show cr [THEN]
     [IFDEF] pupd# ." pupd" pupd# pin-show cr [THEN]
-    [IFDEF] pudmode# ." pumd" pudmode# pin-show cr [THEN]
+    [IFDEF] pudmode# ." pud " pudmode# pin-show cr [THEN]
     [IFDEF] mux#  ." mux " mux#  pin-show cr [THEN] ;
 : inps@ ( -- u ) 0 41 1 DO  I inp@ I lshift or  LOOP ;
 
