@@ -461,6 +461,8 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 [IFDEF] pumode#
     : pumode! ( val n -- ) pin>gpio pumode# gpio-reg[] 2>r lshift 2r> lmask! ;
     opt: lits# 1 u>= IF  drop  pumode# lmask!,  ELSE  :,  THEN ;
+    : pumode@ ( n -- val ) pin>gpio pumode# gpio-reg[] l@ and swap rshift ;
+    opt: lits# 1 u>= IF  drop  pumode# l@,  ELSE  :,  THEN ;
     : pullupdown-mode! ( val n -- )
 	>r dup 1 rshift swap 1 lshift or 3 and r> pumode! ;
     opt: lits# 1 u>= IF lits> ]] dup 1 rshift swap 1 lshift or 3 and [[
@@ -488,6 +490,7 @@ map-gpio
     [IFDEF] outp# ." outp" outp# pin-show cr [THEN]
     [IFDEF] puen# ." puen" puen# pin-show cr [THEN]
     [IFDEF] pupd# ." pupd" pupd# pin-show cr [THEN]
+    [IFDEF] pumode# ." pumd" pumode# pin-show cr [THEN]
     [IFDEF] mux#  ." mux " mux#  pin-show cr [THEN] ;
 : inps@ ( -- u ) 0 41 1 DO  I inp@ I lshift or  LOOP ;
 
