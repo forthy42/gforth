@@ -240,8 +240,7 @@ model s" ODROID-C2" search nip nip [IF]
     [: lits# 1 u>= IF  >body lits> 1- #39 umin cells + @ >lits
 	ELSE  does,  THEN ;] optimizes pin>gpio
 [THEN]
-model s" Raspberry Pi 4 Model B" search nip nip [IF]
-    : rpi-4 ;
+model s" Raspberry Pi" search nip nip [IF]
     $00200000 Constant GPIO-Base-map
 
     \ fsel are 3 bits per function, 000 is input, 001 is output
@@ -299,12 +298,24 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     1+ dup Constant set#
     1+ dup Constant clr#
     1+ dup Constant inp#
-    1+ dup Constant pudmode#
-    drop
- 
-    Create shift/type
-    ' 3bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit ,
+    model s" Raspberry Pi 4 Model B" search nip nip [IF]
+	1+ dup Constant pudmode#
+	drop
+	
+	Create shift/type
+	' 3bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit ,
+	
+	: rpi-4 ;
+    [ELSE]
+	1+ dup Constant puclk#
+	drop
+	
+	Create shift/type
+	' 3bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit ,
 
+	: rpi ; \ model 0-3
+    [THEN]
+ 
     Variable gpio-dummy
     
     : gpio>mask ( gpio type table -- shift mask addr )
@@ -318,7 +329,11 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     RPI_GPSET0    ,
     RPI_GPCLR0    ,
     RPI_GPLEV0    ,
-    RPI_GPIO_PUP_PDN_CNTRL_REG0 ,
+    model s" Raspberry Pi 4 Model B" search nip nip [IF]
+	RPI_GPIO_PUP_PDN_CNTRL_REG0 ,
+    [ELSE]
+	RPI_GPPUDCLK0 ,
+    [THEN]
       DOES> ( gpio type -- shift mask addr )
 	gpio>mask gpio-base + ;
     [: lits# 2 u>= IF  2lits> rot >body gpio>mask >3lits ]] gpio-base + [[
