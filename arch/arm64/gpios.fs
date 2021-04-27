@@ -385,7 +385,15 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     opt: lits# 2 u>= IF  drop
 	    lits> lits> swap >lits
 	    IF  ]] set! [[  ELSE  ]] clr! [[  THEN
-	ELSE  :,  THEN ;
+	ELSE
+	    lits# 1 u>= IF  drop
+		lits> >r
+		]] IF [[ r@ >lits ]] set!  ELSE [[
+		    r> >lits  ]] clr!  THEN [[
+	    ELSE
+		:,
+	    THEN
+	THEN ;
 [ELSE]
     : set! ( n -- )  1 swap outp! ;
     opt: drop ]] 1 swap outp! [[ ;
