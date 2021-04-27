@@ -92,7 +92,7 @@ model s" ODROID-N2" search nip nip [IF]
     $1D6 reg: N2_GPIOA_DS_REG_5A
 
     Create shift/type
-    ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit , ' 4bit c,
+    ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit , ' 4bit ,
 
     Variable dummy
     
@@ -183,7 +183,7 @@ model s" ODROID-C2" search nip nip [IF]
     $134 reg: C2_MUX_REG_8
  
     Create shift/type
-    ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit , ' 4bit c,
+    ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 1bit , ' 2bit , ' 4bit ,
 
     Variable dummy
     
