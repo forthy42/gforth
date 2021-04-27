@@ -410,7 +410,7 @@ map-gpio
 : inps@ ( -- u ) 0 41 1 DO  I inp@ I lshift or  LOOP ;
 
 : pin-connect? ( n -- )
-    dup pin>gpio -1 = IF  drop  EXIT  THEN
+    dup pin>gpio -1 = IF  ." -/-"  drop  EXIT  THEN
     >r r@ make-output
     r@ clr!  inps@
     r@ set!  inps@
