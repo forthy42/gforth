@@ -413,7 +413,7 @@ map-gpio
     dup pin>gpio -1 = IF  ." -/-"  drop  EXIT  THEN
     >r r@ make-output
     r@ clr!  inps@ invert
-    r@ set!  inps@ and dup #40 ['] .r 2 base-execute
+    r@ set!  inps@ and dup #40 ['] .r 2 base-execute space
     41 1 DO
 	dup 1 I lshift and  IF  I .  THEN
     LOOP  drop
