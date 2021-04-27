@@ -282,11 +282,18 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 
     $022 reg: RPI_GPAFEN0
     $023 reg: RPI_GPAFEN1
-    
+
+    \ BCM2825 variant
     $025 reg: RPI_GPPUD
     $026 reg: RPI_GPPUDCLK0
     $027 reg: RPI_GPPUDCLK1
-
+    
+    \ BCM2711 variant
+    $039 reg: RPI_GPIO_PUP_PDN_CNTRL_REG0
+    $03A reg: RPI_GPIO_PUP_PDN_CNTRL_REG1
+    $03B reg: RPI_GPIO_PUP_PDN_CNTRL_REG2
+    $03C reg: RPI_GPIO_PUP_PDN_CNTRL_REG3
+    
     -1
     1+ dup Constant fsel#
     1+ dup Constant set#
@@ -311,7 +318,7 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     RPI_GPSET0    ,
     RPI_GPCLR0    ,
     RPI_GPLEV0    ,
-    RPI_GPPUDCLK0 ,
+    RPI_GPIO_PUP_PDN_CNTRL_REG0 ,
       DOES> ( gpio type -- shift mask addr )
 	gpio>mask gpio-base + ;
     [: lits# 2 u>= IF  2lits> rot >body gpio>mask >3lits ]] gpio-base + [[
