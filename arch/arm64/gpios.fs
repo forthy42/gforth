@@ -412,12 +412,11 @@ map-gpio
 : pin-connect? ( n -- )
     dup pin>gpio -1 = IF  ." -/-"  drop  EXIT  THEN
     >r r@ make-output
-    r@ clr!  inps@
-    r@ set!  inps@
+    r@ clr!  inps@ invert
+    r@ set!  inps@ and dup $20 ['] .r 2 base-execute
     41 1 DO
-	over 1 I lshift and 0=
-	over 1 I lshift and 0<> and IF  I .  THEN
-    LOOP  2drop
+	over 1 I lshift and  IF  I .  THEN
+    LOOP  drop
     r> make-input ;
 
 : .pin-matrix ( -- )
