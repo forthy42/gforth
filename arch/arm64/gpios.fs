@@ -346,7 +346,6 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 
 [IFDEF] fsel#
     : fsel! ( val n -- ) pin>gpio fsel# gpio-reg[] 2>r lshift 2r> lmask! ;
-    [: 
     : fsel@ ( n -- val ) pin>gpio fsel# gpio-reg[] l@ and swap rshift ;
 [THEN]
 [IFDEF] inp#
