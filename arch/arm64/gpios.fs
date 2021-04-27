@@ -358,7 +358,7 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     gpio-base - >2lits ]] gpio-base + l! [[ ;
 [IFDEF] fsel#
     : fsel! ( val n -- ) pin>gpio fsel# gpio-reg[] 2>r lshift 2r> lmask! ;
-    opt: lits# 1 u>= IF  drop  fsel# lmask, ELSE  :,  THEN ;
+    opt: lits# 1 u>= IF  drop  fsel# lmask!,  ELSE  :,  THEN ;
     : fsel@ ( n -- val ) pin>gpio fsel# gpio-reg[] l@ and swap rshift ;
     opt: lits# 1 u>= IF  drop  fsel# l@,  ELSE  :,  THEN ;
 [THEN]
