@@ -395,16 +395,16 @@ map-gpio
 : pin-show { mode -- }
     41 1 DO I gpio[] dup -1 = IF drop ." -"
 	ELSE mode gpio-reg[] l@ and swap rshift 0 .r THEN LOOP ;
-: pin#s ( -- ) cr
+: .pin#s ( -- ) cr
     ." pin " 41 1 DO  I 10 / 0 .r  LOOP cr
     ." pin " 41 1 DO  I 10 mod 0 .r  LOOP ;
 : .pins ( -- ) .pin#s cr
-    ." fsel" fsel# pin-show cr
-    ." inp " inp#  pin-show cr
-    ." outp" outp# pin-show cr
-    ." puen" puen# pin-show cr
-    ." pupd" pupd# pin-show cr
-    ." mux " mux#  pin-show ;
+    [IFDEF] fsel# ." fsel" fsel# pin-show cr [THEN]
+    [IFDEF] inp#  ." inp " inp#  pin-show cr [THEN]
+    [IFDEF] outp# ." outp" outp# pin-show cr [THEN]
+    [IFDEF] puen# ." puen" puen# pin-show cr [THEN]
+    [IFDEF] pupd# ." pupd" pupd# pin-show cr [THEN]
+    [IFDEF] mux#  ." mux " mux#  pin-show cr [THEN] ;
 : inps@ ( -- u ) 0 41 1 DO  I inp@ I lshift or  LOOP ;
 
 : pin-connect? ( n -- )
