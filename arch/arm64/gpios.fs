@@ -307,11 +307,11 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 	swap $1F and shift/type s/t cells + perform over lshift rot ;
 
     Create gpio-reg[]
-    RPI_GPFSEL0 ,
-    RPI_GPSET0  ,
-    RPI_GPCLR0  ,
-    RPI_GPLEV0  ,
-    RPI_GPPUD   ,
+    RPI_GPFSEL0   ,
+    RPI_GPSET0    ,
+    RPI_GPCLR0    ,
+    RPI_GPLEV0    ,
+    RPI_GPPUDCLK0 ,
       DOES> ( gpio type -- shift mask addr )
 	gpio>mask gpio-base + ;
     [: lits# 2 u>= IF  2lits> rot >body gpio>mask >3lits ]] gpio-base + [[
