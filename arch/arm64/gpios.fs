@@ -148,7 +148,7 @@ model s" ODROID-N2" search nip nip [IF]
     -1   , -1   ,
     -1   , -1   ,
       DOES> swap 1- #39 umin cells + @ ;
-    [: lits# 1 u>= IF  lits> swap 1- #39 umin cells + @ >lits
+    [: lits# 1 u>= IF  >body lits> 1- #39 umin cells + @ >lits
 	ELSE  does,  THEN ;] optimizes pin>gpio
 [THEN]
 model s" ODROID-C2" search nip nip [IF]
@@ -237,7 +237,7 @@ model s" ODROID-C2" search nip nip [IF]
     -1   , -1   ,
     -1   , -1   ,
     DOES> swap 1- #39 umin cells + @ ;
-    [: lits# 1 u>= IF  lits> swap 1- #39 umin cells + @ >lits
+    [: lits# 1 u>= IF  >body lits> 1- #39 umin cells + @ >lits
 	ELSE  does,  THEN ;] optimizes pin>gpio
 [THEN]
 model s" Raspberry Pi 4 Model B" search nip nip [IF]
@@ -340,12 +340,13 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
     $01A , $014 ,
     -1   , $015 ,
     DOES> swap 1- #39 umin cells + @ ;
-    [: lits# 1 u>= IF  lits> swap 1- #39 umin cells + @ >lits
+    [: lits# 1 u>= IF  >body lits> 1- #39 umin cells + @ >lits
 	ELSE  does,  THEN ;] optimizes pin>gpio
 [THEN]
 
 [IFDEF] fsel#
     : fsel! ( val n -- ) pin>gpio fsel# gpio-reg[] 2>r lshift 2r> lmask! ;
+    [: 
     : fsel@ ( n -- val ) pin>gpio fsel# gpio-reg[] l@ and swap rshift ;
 [THEN]
 [IFDEF] inp#
