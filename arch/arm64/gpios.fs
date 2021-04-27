@@ -346,7 +346,7 @@ model s" Raspberry Pi 4 Model B" search nip nip [IF]
 
 \ optimizing helpers
 
-: lmask, ( lits:n mode -- ) >r
+: lmask!, ( lits:n mode -- ) >r
     lits> pin>gpio r> gpio-reg[] rot >lits ]] lshift [[
     gpio-base - >2lits ]] gpio-base + lmask! [[ ;
 : l@, ( lits:n mode -- )  >r
