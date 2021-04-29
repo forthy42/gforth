@@ -30,5 +30,8 @@ Variable words[]
     cell -LOOP  2drop ;
 
 : wordlist-mwords ( addr u wid -- )  wid>words[] .mwords[] words[] $free ;
-: mwords ( ["pattern"] -- ) bl parse dup 0= IF  2drop s" *"  THEN
+: mwords ( ["pattern"] -- )
+    \G list all words matching the optional parameter @var{pattern}; if none,
+    \G all words match.  Words are listed old to new.
+    bl parse dup 0= IF  2drop s" *"  THEN
     context @ wordlist-mwords ;

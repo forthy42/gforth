@@ -29,41 +29,41 @@ get-current also see-voc definitions
 
 : c-@local#
     Display? IF
-	S" @local" 0 .string
-	dup @ dup cell/ abs 0 <# #S rot sign #> 0 .string bl cemit
+	S" @local" ['] pri-color .string
+	dup @ dup cell/ abs 0 <# #S rot sign #> ['] default-color .string bl cemit
     THEN
     cell+ ;
 
 : c-flit
     Display? IF
 	dup f@ scratch represent 0=
-	IF    2drop  scratch 3 min 0 .string
+	IF    2drop  scratch 3 min ['] default-color .string
 	ELSE
 	    IF  '- cemit  THEN  1-
-	    scratch over c@ cemit '. cemit 1 /string 0 .string
+	    scratch over c@ cemit '. cemit 1 /string ['] default-color .string
 	    'E cemit
-	    dup abs 0 <# #S rot sign #> 0 .string bl cemit
+	    dup abs 0 <# #S rot sign #> ['] default-color .string bl cemit
 	THEN THEN
     float+ ;
 
 : c-f@local#
     Display? IF
-	S" f@local" 0 .string
-	dup @ dup float/ abs 0 <# #S rot sign #> 0 .string bl cemit
+	S" f@local" ['] pri-color .string
+	dup @ dup float/ abs 0 <# #S rot sign #> ['] default-color .string bl cemit
     THEN
     cell+ ;
 
 : c-laddr#
     Display? IF
-	S" laddr# " 0 .string
-	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
+	S" laddr# " ['] pri-color .string
+	dup @ dup abs 0 <# #S rot sign #> ['] default-color .string bl cemit
     THEN
     cell+ ;
 
 : c-lp+!#
     Display? IF
-	S" lp+!# " 0 .string
-	dup @ dup abs 0 <# #S rot sign #> 0 .string bl cemit
+	S" lp+!# " ['] pri-color .string
+	dup @ dup abs 0 <# #S rot sign #> ['] default-color .string bl cemit
     THEN
     cell+ ;
 
