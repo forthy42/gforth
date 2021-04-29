@@ -5,6 +5,6 @@
 #include <linux/spi/spidev.h>
 %}
 
-// exec: sed -e 's/s" spi" add-lib//g'
+#define SWIG_FORTH_OPTIONS "no-pre-postfix"
 
 %include <linux/spi/spidev.h>

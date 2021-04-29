@@ -309,6 +309,7 @@ GFORTH_FI_SRC2=\
 	options.fs \
 	smartdots.fs \
 	status-line.fs	\
+	mwords.fs \
 	arch/386/asm.fs arch/386/disasm.fs \
 	arch/amd64/asm.fs arch/amd64/disasm.fs \
 	arch/alpha/asm.fs arch/alpha/disasm.fs arch/alpha/testasm.fs\

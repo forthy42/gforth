@@ -6,7 +6,7 @@
 #include <linux/i2c-dev.h>
 %}
 
-// exec: sed -e 's/s" i2c" add-lib//g'
+#define SWIG_FORTH_OPTIONS "no-pre-postfix"
 
 %include <linux/i2c.h>
 %include <linux/i2c-dev.h>

@@ -1496,12 +1496,10 @@ fi
 AC_CHECK_HEADER(stb/stb_image.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image.fs", , )
 AC_CHECK_HEADER(stb/stb_image_write.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image-write.fs", , )
 if test x$has_swig = xyes || test -f $srcdir/unix/i2c-fsi.c; then
-    AC_CHECK_HEADER(linux/i2c.h, SWIGMODULES="$SWIGMODULES i2c.fs"
-		    SWIGLIBS="$SWIGLIBS i2c.fs", ,)
+    AC_CHECK_HEADER(linux/i2c.h, SWIGMODULES="$SWIGMODULES i2c.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/spi-fsi.c; then
-    AC_CHECK_HEADER(linux/spi/spidev.h, SWIGMODULES="$SWIGMODULES spi.fs"
-		    SWIGLIBS="$SWIGLIBS spi.fs", ,)
+    AC_CHECK_HEADER(linux/spi/spidev.h, SWIGMODULES="$SWIGMODULES spi.fs", ,)
 fi
 #if test x$has_swig = xyes || test -f $srcdir/unix/soil2-fsi.c; then
 #    AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
