@@ -50,7 +50,8 @@ require unix/mmap.fs
 
 \ device specific stuff
 
-s" /sys/firmware/devicetree/base/model" slurp-file 2Constant model
+s" /sys/firmware/devicetree/base/model" ' slurp-file catch
+[IF] 2drop s" unknown" [THEN] 2Constant model
 
 model s" ODROID-N2" search nip nip [IF]
     model s" ODROID-N2Plus" search nip nip [IF]
@@ -384,59 +385,74 @@ model s" Raspberry Pi" search nip nip [IF]
     : fsel@ ( n -- val ) pin>gpio fsel# gpio-reg[] l@ and swap rshift ;
     opt: lits# 1 u>= IF  drop  fsel# l@,  ELSE  :,  THEN ;
 [THEN]
-[IFDEF] inp#
-    : inp@ ( n -- val ) pin>gpio inp# gpio-reg[] l@ and swap rshift ;
-    opt: lits# 1 u>= IF  drop inp# l@,  ELSE  :,  THEN ;
-[THEN]
-[IFDEF] outp#
-    : outp! ( val n -- ) pin>gpio outp# gpio-reg[] 2>r lshift 2r> lmask! ;
-    opt: lits# 1 u>= IF  drop outp# lmask!,  ELSE  :,  THEN ;
-    : outp@ ( n -- val ) pin>gpio outp# gpio-reg[] l@ and swap rshift ;
-    opt: lits# 1 u>= IF  drop outp# l@,  ELSE  :,  THEN ;
-[THEN]
+: pin@ ( pin -- val )
+    \G get input level of pin
+    pin>gpio inp# gpio-reg[] l@ and swap rshift ;
+opt: lits# 1 u>= IF  drop inp# l@,  ELSE  :,  THEN ;
 [IFDEF] set#
-    : set! ( n -- ) pin>gpio set# gpio-reg[] l! drop ;
+    : pinset ( n -- ) pin>gpio set# gpio-reg[] l! drop ;
     opt: lits# 1 u>= IF  drop set# l!,  ELSE  :,  THEN ;
 [THEN]
 [IFDEF] clr#
-    : clr! ( n -- ) pin>gpio clr# gpio-reg[] l! drop ;
+    : pinclr ( n -- ) pin>gpio clr# gpio-reg[] l! drop ;
     opt: lits# 1 u>= IF  drop clr# l!,  ELSE  :,  THEN ;
 [THEN]
-[defined] set# [defined] clr# and [IF]
-    : outp! ( val n -- ) swap IF  set!  ELSE  clr!  THEN ;
-    opt: lits# 2 u>= IF  drop
-	    lits> lits> swap >lits
-	    IF  ]] set! [[  ELSE  ]] clr! [[  THEN
-	ELSE
-	    lits# 1 u>= IF  drop
-		lits> >r
-		]] IF [[ r@ >lits ]] set!  ELSE [[
-		    r> >lits  ]] clr!  THEN [[
+: pin! ( val pin -- )
+    \G set output level of pin to @var{val}
+    [IFDEF] outp#
+	pin>gpio outp# gpio-reg[] 2>r lshift 2r> lmask! ;
+    opt: lits# 1 u>= IF  drop outp# lmask!,  ELSE  :,  THEN
+    [ELSE] [IFDEF] pinset
+	    swap 1 and IF  pinset  ELSE  pinclr  THEN ;
+	opt: lits# 2 u>= IF  drop
+		lits> lits> swap >lits
+		1 and IF  ]] pinset [[  ELSE  ]] pinclr [[  THEN
 	    ELSE
-		:,
+		lits# 1 u>= IF  drop
+		    lits> >r
+		    ]] 1 and IF [[ r@ >lits ]] pinset  ELSE [[
+			r> >lits  ]] pinclr  THEN [[
+		ELSE
+		    :,
+		THEN
 	    THEN
-	THEN ;
-[ELSE]
-    : set! ( pin -- )  1 swap outp! ;
-    opt: drop ]] 1 swap outp! [[ ;
-    : clr! ( pin -- )  0 swap outp! ;
-    opt: drop ]] 0 swap outp! [[ ;
+    [THEN] [THEN] ;
+[IFUNDEF] pinset
+    : pinset ( pin -- )
+	\G set pin to high
+	1 swap pin! ;
+    opt: drop ]] 1 swap pin! [[ ;
+[THEN]
+[IFUNDEF] pinclr
+    : pinclr ( pin -- )
+	\G set pin to low
+	0 swap pin! ;
+    opt: drop ]] 0 swap pin! [[ ;
 [THEN]
 [IFDEF] mux#
     : mux! ( val pin -- ) pin>gpio mux# gpio-reg[] 2>r lshift 2r> lmask! ;
     opt: lits# 1 u>= IF  drop  mux# lmask!,  ELSE  :,  THEN ;
     : mux@ ( pin -- val ) pin>gpio mux# gpio-reg[] l@ and swap rshift ;
     opt: lits# 1 u>= IF  drop  mux# l@,  ELSE  :,  THEN ;
-    : make-input ( pin -- )   0 over mux!  1 swap fsel! ;
-    opt: drop ]] 0 over mux!  1 swap fsel! [[ ;
-    : make-output ( pin -- )  0 over mux!  0 swap fsel! ;
-    opt: drop ]] 0 over mux!  0 swap fsel! [[ ;
-[ELSE]
-    : make-input ( pin -- )  0 swap fsel! ;
-    opt: drop ]] 0 swap fsel! [[ ;
-    : make-output ( pin -- ) 1 swap fsel! ;
-    opt: drop ]] 1 swap fsel! [[ ;
 [THEN]
+: input-pin ( pin -- )
+    \G set pin mode to input
+    [IFDEF] mux!
+	0 over mux!  1 swap fsel! ;
+    opt: drop ]] 0 over mux!  1 swap fsel! [[
+    [ELSE]
+	0 swap fsel! ;
+    opt: drop ]] 0 swap fsel! [[
+    [THEN] ;
+: output-pin ( pin -- )
+    \G set pin mode to output
+    [IFDEF] mux!
+	0 over mux!  0 swap fsel! ;
+    opt: drop ]] 0 over mux!  0 swap fsel! [[
+    [ELSE]
+	1 swap fsel! ;
+    opt: drop ]] 1 swap fsel! [[
+    [THEN] ;
 [IFDEF] puen#
     : puen! ( val pin -- ) pin>gpio puen# gpio-reg[] 2>r lshift 2r> lmask! ;
     opt: lits# 1 u>= IF  drop  puen# lmask!,  ELSE  :,  THEN ;
@@ -448,13 +464,21 @@ model s" Raspberry Pi" search nip nip [IF]
     opt: lits# 1 u>= IF  drop  pupd# lmask!,  ELSE  :,  THEN ;
     : pupd@ ( pin -- val ) pin>gpio pupd# gpio-reg[] l@ and swap rshift ;
     opt: lits# 1 u>= IF  drop  pupd# l@,  ELSE  :,  THEN ;
-    : pudmode! ( mode pin -- )
-	\G set pullup/down mode of pin @var{n} to:
-	\G @enumerate 0
-	\G @item none
-	\G @item pullup
-	\G @item pulldown
-	\G @end enumerate
+[THEN]
+[IFDEF] puclk#
+    : puclk! ( val pin -- ) pin>gpio puclk# gpio-reg[] 2>r lshift 2r> lmask! ;
+    opt: lits# 1 u>= IF  drop  puclk# lmask!,  ELSE  :,  THEN ;
+    : 150cyc  25 0 DO  LOOP ; \ assumes 5 cycles per iteration
+    : 0<>1 ( pin -- n' ) dup 1 rshift swap 1 lshift or 3 and ;
+[THEN]
+: pin-resmode ( mode pin -- )
+    \G set pullup/down mode of pin @var{n} to:
+    \G @enumerate 0
+    \G @item none
+    \G @item pullup
+    \G @item pulldown
+    \G @end enumerate
+    [IFDEF] pupd#
 	>r case
 	    0 of  0 r> puen!  endof
 	    1 of  1 r@ puen!  1 r> pupd!  endof
@@ -465,42 +489,28 @@ model s" Raspberry Pi" search nip nip [IF]
 		0 of  0 r> >2lits ]] puen! [[  endof
 		1 of  1 r@ >2lits ]] puen! [[  1 r> >2lits ]] pupd! [[  endof
 		2 of  1 r@ >2lits ]] puen! [[  0 r> >2lits ]] pupd! [[  endof
-	    rdrop  endcase
-	ELSE  :,  THEN ;
-[THEN]
-[IFDEF] puclk#
-    : puclk! ( val pin -- ) pin>gpio puclk# gpio-reg[] 2>r lshift 2r> lmask! ;
-    opt: lits# 1 u>= IF  drop  puclk# lmask!,  ELSE  :,  THEN ;
-    : 150cyc  25 0 DO  LOOP ; \ assumes 5 cycles per iteration
-    : 0<>1 ( pin -- n' ) dup 1 rshift swap 1 lshift or 3 and ;
-    : pudmode! ( mode pin -- )
-	\G set pullup/down mode of pin @var{n} to:
-	\G @enumerate 0
-	\G @item none
-	\G @item pullup
-	\G @item pulldown
-	\G @end enumerate
+		rdrop  endcase
+	ELSE  :,  THEN
+    [THEN]
+    [IFDEF] puclk#
 	>r 0<>1 RPI_GPPUD l!
 	150cyc  1 r@ puclk!  150cyc  0 RPI_GPPUD l!  0 r> puclk! ;
     opt: lits# 1 u>= IF  drop lits> >r ]] 0<>1 RPI_GPPUD l!  150cyc  1 [[
 	    r@ >lits ]] puclk!  150cyc  0 [[
 	    r> >lits ]] puclk!  0 RPI_GPPUD l! [[
-	ELSE  :,  THEN ;
-[THEN]
+	ELSE  :,  THEN
+    [THEN]
 [IFDEF] pudmode#
-    : pudmode! ( val pin -- )
-	\G set pullup/down mode of pin @var{n} to:
-	\G @enumerate 0
-	\G @item none
-	\G @item pullup
-	\G @item pulldown
-	\G @end enumerate
 	pin>gpio pudmode# gpio-reg[] 2>r lshift 2r> lmask! ;
-    opt: lits# 1 u>= IF  drop  pudmode# lmask!,  ELSE  :,  THEN ;
-    : pudmode@ ( pin -- val ) pin>gpio pudmode# gpio-reg[] l@ and swap rshift ;
+    opt: lits# 1 u>= IF  drop  pudmode# lmask!,  ELSE  :,  THEN
+[THEN]
+;
+[IFDEF] pudmode#
+    : pin-resmode@ ( pin -- val )
+	pin>gpio pudmode# gpio-reg[] l@ and swap rshift ;
     opt: lits# 1 u>= IF  drop  pudmode# l@,  ELSE  :,  THEN ;
 [THEN]
-
+    
 : map-gpio ( -- )
     s" /dev/gpiomem" r/w open-file throw dup >r fileno >r
     0 $1000 PROT_READ PROT_WRITE or MAP_SHARED r> GPIO-Base-map mmap
@@ -524,18 +534,18 @@ map-gpio
     [IFDEF] pupd# ." pupd" pupd# pin-show cr [THEN]
     [IFDEF] pudmode# ." pud " pudmode# pin-show cr [THEN]
     [IFDEF] mux#  ." mux " mux#  pin-show cr [THEN] ;
-: inps@ ( -- u ) 0 41 1 DO  I inp@ I lshift or  LOOP ;
+: inps@ ( -- u ) 0 41 1 DO  I pin@ I lshift or  LOOP ;
 
 : pin-connect? ( pin -- )
     dup pin>gpio -1 = IF  ." -/-"  drop  EXIT  THEN
-    >r r@ make-output
-    r@ clr!  inps@ invert
-    r@ set!  inps@ and
+    >r r@ output-pin
+    r@ pinclr  inps@ invert
+    r@ pinset  inps@ and
     dup 2/ #40 ['] .r 2 base-execute space
     41 1 DO
 	dup 1 I lshift and  IF  I .  THEN
     LOOP  drop
-    r> make-input ;
+    r> input-pin ;
 
 : .pin-matrix ( -- )
     41 1 DO cr I pin-connect? LOOP cr ;
