@@ -50,8 +50,10 @@ variable last-#lines 0 last-#lines !
 	1 last-#lines +!
 	last-#lines @ rows >=
 	if
-	    ." ... more ?" key drop 1 last-#lines !
+	    [: status-color ." ... more ?" ;] execute-theme-color
+	    key 1 last-#lines !
 	    10 backspaces 10 spaces 10 backspaces
+	    #esc = IF  1 cursor-up -1 throw  THEN
 	endif
     endif ;
 
