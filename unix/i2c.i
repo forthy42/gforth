@@ -6,5 +6,7 @@
 #include <linux/i2c-dev.h>
 %}
 
+// exec: sed -e 's/s" i2c" add-lib//g'
+
 %include <linux/i2c.h>
 %include <linux/i2c-dev.h>

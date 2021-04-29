@@ -5,4 +5,6 @@
 #include <linux/spi/spidev.h>
 %}
 
+// exec: sed -e 's/s" spi" add-lib//g'
+
 %include <linux/spi/spidev.h>
