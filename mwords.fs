@@ -33,5 +33,5 @@ Variable words[]
 : mwords ( ["pattern"] -- )
     \G list all words matching the optional parameter @var{pattern}; if none,
     \G all words match.  Words are listed old to new.
-    bl parse dup 0= IF  2drop s" *"  THEN
+    parse-name dup 0= IF  2drop s" *"  THEN
     context @ wordlist-mwords ;
