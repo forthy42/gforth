@@ -18,26 +18,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-[IFDEF] large-wordlists
-    \ solution for wordlists greater than the stack
-    Variable words[]
+require mwords.fs
 
-    : wid>words[] ( wid -- )
-	[: words[] >stack true ;] swap traverse-wordlist ;
-    : .words[] ( -- )
-	cr 0  words[] $@ bounds cell- swap cell- U-DO
-	    I @ .word
-	cell -LOOP  drop ;
-
-    0 warnings !@
-    : wordlist-words ( wid -- )  wid>words[] .words[] words[] $free ;
-[ELSE]
-    \ solution for smaller wordlists
-    : wid@ ( wid -- nt1 .. ntn n )
-	depth >r ['] true swap traverse-wordlist depth r> - 1+ ;
-    : .wids ( nt1 .. ntn n ) cr 0 swap 0 ?DO swap .word LOOP drop ;
-    0 warnings !@
-    : wordlist-words ( wid -- )  wid@ .wids ;
-[THEN]
-: words ( -- ) context @ wordlist-words ;
+0 warnings !@
+: words ( -- ) s" *" context @ wordlist-mwords ;
 warnings !
