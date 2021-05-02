@@ -14,6 +14,14 @@ interpreter is direct threaded with several optimizations, but you can
 also use a traditional-style indirect threaded interpreter.  Gforth is
 distributed under the GNU General Public license (see COPYING).
 
+This is a GNU program, developed by contributors to the GNU Project and part
+of the GNU Operating System. If you are the author of an awesome program and
+want to join us in writing Free Software, please consider making it an
+official GNU program and become a GNU maintainer.  You can find instructions
+on how to do so at
+[http://www.gnu.org/help/evaluation](http://www.gnu.org/help/evaluation).  We
+are looking forward to hacking with you!
+
 ## Supported Systems
 
 Gforth runs under GNU, BSD, and similar systems, MS Windows and MacOS X
