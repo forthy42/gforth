@@ -16,7 +16,7 @@ distributed under the GNU General Public license (see COPYING).
 
 This is a GNU program, developed by contributors to the GNU Project and part
 of the GNU Operating System. If you are the author of an awesome program and
-want to join us in writing Free Software, please consider making it an
+want to join us in writing Free (libre) Software, please consider making it an
 official GNU program and become a GNU maintainer.  You can find instructions
 on how to do so at
 [http://www.gnu.org/help/evaluation](http://www.gnu.org/help/evaluation).  We
