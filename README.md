@@ -4,23 +4,24 @@
 [![pipeline status](https://gitlab.com/forthy42/gforth/badges/master/pipeline.svg)](https://gitlab.com/forthy42/gforth/commits/master)
 [![pipeline status](https://git.net2o.de/bernd/gforth/badges/master/pipeline.svg)](https://git.net2o.de/bernd/gforth/commits/master)
 
-Gforth is a fast and portable implementation of the ANS Forth
-language. It works nicely with the Emacs editor, offers some nice
-features such as input completion and history, backtraces, a
-decompiler and a powerful locals facility, and it has a comprehensive
-manual. Gforth combines traditional implementation techniques with
-newer techniques for portability and performance: its inner
-interpreter is direct threaded with several optimizations, but you can
-also use a traditional-style indirect threaded interpreter.  Gforth is
-distributed under the GNU General Public license (see COPYING).
+Gforth is a fast and portable implementation of the ANS Forth/Forth 200x
+language. It works nicely with the Emacs editor, offers some nice features
+such as input completion and history, backtraces, a decompiler and a powerful
+locals facility, and it has a comprehensive manual. Gforth combines
+traditional implementation techniques with newer techniques for portability
+and performance: its inner interpreter is direct threaded with several
+optimizations, but you can also use a traditional-style indirect threaded
+interpreter.  Gforth is distributed under the GNU General Public license (see
+COPYING).
 
-This is a GNU program, developed by contributors to the GNU Project and part
-of the GNU Operating System. If you are the author of an awesome program and
-want to join us in writing Free (libre) Software, please consider making it an
-official GNU program and become a GNU maintainer.  You can find instructions
-on how to do so at
-[http://www.gnu.org/help/evaluation](http://www.gnu.org/help/evaluation).  We
-are looking forward to hacking with you!
+Gforth is part of the GNU Operating System, developed by the GNU Project.  To
+learn more about Free (libre) Software, you can read this page:
+https://gnu.org/philosophy/free-sw.html
+
+If you are the author of an awesome program and want to join us in
+writing Free (libre) Software, please consider making it an official
+GNU program and become a GNU Maintainer.  You can find instructions 
+on how to do this here: http://www.gnu.org/help/evaluation
 
 ## Supported Systems
 
