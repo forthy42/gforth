@@ -1393,7 +1393,7 @@ if test x$has_swig = xyes; then
    SWIGINCLUDES=`eval $ac_compiler $CFLAGS $CPPFLAGS -E -Wp,-v conftest.$ac_ext 2>&1 | grep '^ ' | sed -e 's/^ \(.*\) (framework directory)$/-F\1/g' -e 's/^ /-I/g' | grep '^-./' | tr '\n' ' '`
 fi
 
-if test x$has_swig = xyes || test -f $srcdir/unix/xlib-fsi.c; then
+if test x$has_swig = xyes || test -f $srcdir/unix/x-fsi.c; then
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES x.fs"
 		   SWIGLIBS="$SWIGLIBS x.fs", ,)
 fi
