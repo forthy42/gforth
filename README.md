@@ -21,7 +21,10 @@ https://gnu.org/philosophy/free-sw.html
 If you are the author of an awesome program and want to join us in
 writing Free (libre) Software, please consider making it an official
 GNU program and become a GNU Maintainer.  You can find instructions 
-on how to do this here: http://www.gnu.org/help/evaluation
+on how to do this here: https://www.gnu.org/help/evaluation
+
+Another way to contribute to the Forth community is by uploading your program
+as a package to the Forth Net: https://theforth.net
 
 ## Supported Systems
 
