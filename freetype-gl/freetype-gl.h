@@ -27,6 +27,7 @@
 #include "utf8-utils.c"
 #include "freetype-gl-err.c"
 #include "distance-field.c"
+#include "edtaa3func.c"
 #endif
 
 #ifdef __cplusplus
