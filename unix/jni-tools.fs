@@ -202,7 +202,7 @@ compsem: '"' parse ]] SLiteral make-jstring [[ ;
 Variable iscopy
 2Variable to-release
 : jfree ( -- )
-    to-release 2@ 2dup d0= IF  2drop  EXIT  THEN  0. to-release 2!
+    to-release 2@ 2dup d0= IF  2drop  EXIT  THEN  #0. to-release 2!
     over >r fieldenv JNIEnv-ReleaseStringUTFChars() r> ]xref ;
 : jstring>sstring ( string -- addr u )  jfree
     dup >r iscopy fieldenv JNIEnv-GetStringUTFChars()

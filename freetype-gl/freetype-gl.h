@@ -26,6 +26,7 @@
 #include "vector.c"
 #include "utf8-utils.c"
 #include "freetype-gl-err.c"
+#include "distance-field.c"
 #endif
 
 #ifdef __cplusplus
