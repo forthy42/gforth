@@ -34,11 +34,11 @@
 \c      if(buffer && buffer[0]) {
 \c        const struct SLBufferQueueItf_* ptr = *caller;
 \c        ptr->Enqueue(caller, buffer+1, buffer[0]);
-\c        free(buffer);
 \c      } else {
-\c        const struct SLPlayItf_ *ptr = *(pContext->player);
-\c        ptr->SetPlayState(pContext->player, 2);
+\ c        const struct SLPlayItf_ *ptr = *(pContext->player);
+\ c        ptr->SetPlayState(pContext->player, 2);
 \c      }
+\c      if(buffer) free(buffer);
 \c      free(pContext->queue);
 \c      pContext->queue=0;
 \c      fwrite((void*)&wk, 1, sizeof(wk), pContext->wakeup); 
