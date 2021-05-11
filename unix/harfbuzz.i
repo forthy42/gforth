@@ -5,7 +5,7 @@
 #include <harfbuzz/hb.h>
 #ifdef __gnu_linux__
 #undef stderr
-extern struct _IO_FILE *stderr;
+extern FILE *stderr;
 #endif
 %}
 

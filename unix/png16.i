@@ -4,7 +4,7 @@
 #include <libpng16/png.h>
 #ifdef __gnu_linux__
 #undef stderr
-extern struct _IO_FILE *stderr;
+extern FILE *stderr;
 #endif
 %}
 
