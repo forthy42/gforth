@@ -114,7 +114,7 @@ opt: drop postpone >body f!-table to-!, ;
 
 : f$ ( f -- n )
     scratch represent 0=
-    IF  2drop  scratch 3 min type  rdrop  EXIT  THEN
+    IF  2drop  scratch -trailing type  rdrop  EXIT  THEN
     IF  '- emit  THEN ;
 
 : f.  ( r -- ) \ float-ext f-dot
