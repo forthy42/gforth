@@ -10,6 +10,7 @@ extern FILE *stderr;
 #endif
 %}
 
+#define __user
 #define SWIG_FORTH_OPTIONS "no-pre-postfix"
 
 %include <linux/i2c.h>
