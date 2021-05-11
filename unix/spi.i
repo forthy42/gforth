@@ -5,7 +5,7 @@
 #include <linux/spi/spidev.h>
 #ifdef __gnu_linux__
 #undef stderr
-extern struct FILE *stderr;
+extern FILE *stderr;
 #endif
 %}
 
