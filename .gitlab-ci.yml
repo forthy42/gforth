@@ -16,7 +16,7 @@ build-amd64:
     - make distclean
     - (cd libltdl; make distclean)
     - dpkg-buildpackage -uc -us -d -b
-    - rm debian/*
+    - rm debian/*.deb
     - mv ../*.deb debian
   
   # The files which are to be made available in GitLab
