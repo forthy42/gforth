@@ -64,7 +64,7 @@ override_dh_auto_install:
 	mkdir -p $(DLM2)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/unix
 	mkdir -p $(DLM2)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named
 	mv $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/unix/{freetype_gl,opus,png16,pulse}.fs $(DLM2)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/unix
-	mv $(DLC)/usr/share/gforth/$(GFORTH_VER)/unix/{png,freetype-gllib,stb-image,stb-image-write}.fs $(DLM2)/usr/share/gforth/$(GFORTH_VER)/unix
+	mv $(DC)/usr/share/gforth/$(GFORTH_VER)/unix/{png,freetype-gllib,stb-image,stb-image-write}.fs $(DLM2)/usr/share/gforth/$(GFORTH_VER)/unix
 	mv $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/unix/libgf{freetype_gl,opus,png16,pulse,stb-image,stb-image-write}.* $(DLM2)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/$(GFORTH_VER)/$(GFORTH_ARCH)/libcc-named
 	mkdir -p $(D)/usr/bin
 	mv $(DB)/usr/bin/gforth $(DB)/usr/bin/gforth-fast $(DB)/usr/bin/gforth-itc $(DB)/usr/bin/gforth-ditc $(DB)/usr/bin/gforthmi $(DB)/usr/bin/gforth-$(GFORTH_VER) $(DB)/usr/bin/gforth-fast-$(GFORTH_VER) $(DB)/usr/bin/gforth-itc-$(GFORTH_VER) $(DB)/usr/bin/gforth-ditc-$(GFORTH_VER) $(DB)/usr/bin/gforthmi-$(GFORTH_VER) $(D)/usr/bin
