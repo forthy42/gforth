@@ -240,10 +240,10 @@ Diagnosis resumes after milestone Number 160
 Searching for Overflow threshold:
 This may generate an error.
 Can `Z = -Y' overflow?
-Trying it on Y = -in
+Trying it on Y = -infi
 Seems O.K.
 Overflow threshold is V  = 1.7977E308 
-Overflow saturates at V0 = inf
+Overflow saturates at V0 = infin
 No Overflow should be signaled for V * 1 = 1.7977E308 
                           nor for V / 1 = 1.7977E308 
 Any overflow signal separating this * from the one
