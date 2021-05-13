@@ -10,7 +10,7 @@ Architecture: any
 Multi-Arch: same
 Depends: libltdl7, gforth-common (= @DEBVERSION@)
 Recommends: gforth-lib (= @DEBVERSION@)
-Suggests: libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc, freetype-gl, libsoil2
+Suggests: libtool, libtool-bin, libffi6 | libffi5, build-essential, gcc
 License: GPLv3
 Description: GNU Forth
  Gforth is the Forth implementation of the GNU project, providing all
@@ -140,6 +140,13 @@ Depends: libxrandr2, libx11-6
 Description: GNU Forth
  Gforth X11 bindings package
 
+Package: gforth-libcc-minos2
+Version: @DEBVERSION@
+Architecture: any
+Depends: libpulse0, libopus0, libpng16-16, libfreetype6
+Description: GNU Forth
+ Gforth MINOS2 additional libraries
+
 Package: gforth-noto-fonts
 Version: @DEBVERSION@
 Architecture: all
@@ -161,7 +168,7 @@ Package: gforth-minos2
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
-Depends: gforth (= @DEBVERSION@), gforth-opengl, gforth-libcc-x11, gforth-fonts, gforth-minos2tools
+Depends: gforth (= @DEBVERSION@), gforth-opengl, gforth-libcc-x11, gforth-fonts, gforth-minos2tools, gforth-libcc-minos2
 Recommends: fonts-emoji, fonts-awesome, gforth-libcc-gles
 Description: GNU Forth Minos2 GUI
  Gforth is the Forth implementation of the GNU project, providing all
