@@ -5,6 +5,7 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #ifdef __gnu_linux__
+#include <bits/types/FILE.h>
 #undef stderr
 extern FILE *stderr;
 #endif

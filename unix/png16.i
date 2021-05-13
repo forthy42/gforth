@@ -3,6 +3,7 @@
 %{
 #include <libpng16/png.h>
 #ifdef __gnu_linux__
+#include <bits/types/FILE.h>
 #undef stderr
 extern FILE *stderr;
 #endif
