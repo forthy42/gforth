@@ -143,9 +143,16 @@ Description: GNU Forth
 Package: gforth-libcc-minos2
 Version: @DEBVERSION@
 Architecture: any
-Depends: libpulse0, libopus0, libpng16-16, libfreetype6
+Depends: libfreetype6
 Description: GNU Forth
  Gforth MINOS2 additional libraries
+
+Package: gforth-libcc-audio
+Version: @DEBVERSION@
+Architecture: any
+Depends: libpulse0, libopus0
+Description: GNU Forth
+ Gforth Audio additional libraries
 
 Package: gforth-noto-fonts
 Version: @DEBVERSION@
