@@ -183,6 +183,17 @@ Description: GNU Forth Minos2 GUI
  .
  This package contains the minos2 GUI stuff, and all the necessary dependencies.
 
+Package: gforth-minos2audio
+Version: @DEBVERSION@
+Architecture: all
+Multi-Arch: foreign
+Depends: gforth (= @DEBVERSION@), gforth-libcc-audio
+Description: GNU Forth Minos2 GUI
+ Gforth is the Forth implementation of the GNU project, providing all
+ features of the ANS Forth (Forth-94) and the Forth-2012 standards.
+ .
+ This package contains the minos2 audio stuff
+
 Package: gforth-minos2tools
 Version: @DEBVERSION@
 Architecture: all
