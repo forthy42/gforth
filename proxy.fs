@@ -19,12 +19,9 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require unix/socket.fs
-require string.fs
-
-Create crlf #cr c, #lf c,
 
 : writeln ( addr u fd -- )
-    dup >r write-file throw crlf 2 r> write-file throw ;
+    dup >r write-file throw crlf count r> write-file throw ;
 
 : request ( host u request u proxy-host u port -- fid )
     open-socket >r
@@ -103,10 +100,11 @@ Forth definitions
 
 \ response handling
 
-: get-response ( fid -- ior )
+: get-response ( fid -- ior / flag 0 )
+    get-order n>r
     push-file loadfile !  loadline off  blk off
     response 1 set-order  ['] refill-loop catch
-    only forth also  pop-file ;
+    nr> set-order  pop-file ;
 
 \ data handling
 
@@ -159,10 +157,12 @@ Variable data-buffer
 
 \ handle proxy request
 
+: curl-fid ( fid -- )
+    dup >r get-response throw drop
+    r@ read-data r> close-file throw ;
+
 : handle-request ( fid -- )
-    dup >r get-response throw
-    r@ read-data r> close-file throw
-    convert-data write-response write-data ;
+    curl-fid convert-data write-response write-data ;
 
 \ request redirection
 
