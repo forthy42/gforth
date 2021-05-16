@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-\ This relies on inetd or xinetd:
+\ This relies on inetd/xinetd/systemd:
 
 \ To run the server on port 4444, do the following:
 
@@ -27,10 +27,18 @@
 \ gforth          4444/tcp
 \ ==========================================================
 
+\ If the user wwwrun hasn't been created yet, create it now (as root):
+\ useradd -r -g nogroup -d /var/www -s /usr/sbin/nologin wwwrun
+
+\ === inetd ===
+
 \ If you use inetd, add the following line to /etc/inetd.conf:
 \ ==========================================================
-\ gforth stream tcp nowait.10000   wwwrun   /usr/users/bernd/bin/httpd
+\ gforth stream tcp nowait.10000   wwwrun   /usr/share/gforth/<version>/httpd.fs
 \ ==========================================================
+\ and make sure httpd.fs is made executable
+
+\ === xinetd ===
 
 \ If you use xinetd, create the following service as
 \ /etc/xinetd.d/gforth:
@@ -41,19 +49,21 @@
 \         protocol        = tcp
 \         wait            = no
 \         user            = wwwrun
-\         server          = /usr/local/bin/gforth
-\         server_args     = /usr/local/share/gforth/<version>/httpd.fs
+\         server          = /usr/bin/gforth
+\         server_args     = httpd.fs
 \ }
 \ ==========================================================
 
-\ if you use systemd, create the following socket as
+\ === systemd ===
+
+\ If you use systemd, create the following socket as
 \ /usr/lib/systemd/system/gforth-httpd.socket:
 \ ==========================================================
 \ [Unit]
 \ Description=Gforth httpd socket
 \ 
 \ [Socket]
-\ ListenStream=80
+\ ListenStream=4444
 \ Accept=yes
 \ 
 \ [Install]
@@ -67,6 +77,7 @@
 \ 
 \ [Service]
 \ ExecStart=-/usr/bin/gforth httpd.fs
+\ User=wwwrun
 \ StandardInput=socket
 \ ==========================================================
 \ enable with: systemctl enable gforth-httpd.socket
