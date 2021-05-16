@@ -765,14 +765,14 @@ Create callback-&style c-var c,
     filename basename lib-modulename $! lib-modulename $@ sanitize ;
 
 : c-library-name-create ( -- )
+    libcc-named-dir $1ff mkdir-parents drop
     [: lib-filename $. ." .c" ;] $tmp r/w create-file throw
     c-source-file-id ! ;
 
 : c-named-library-name ( c-addr u -- )
     \ set up filenames for a (possibly new) library; c-addr u is the
     \ basename of the library
-    libcc-named-dir 2dup  $1ff mkdir-parents drop
-    prepend-dirname c-library-name-setup
+    libcc-named-dir prepend-dirname c-library-name-setup
     open-wrappers lib-handle-addr @ ! ;
 
 : c-tmp-library-name ( c-addr u -- )

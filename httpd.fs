@@ -23,12 +23,18 @@
 \ To run the server on port 4444, do the following:
 
 \ Add the following line to /etc/services:
+\ ==========================================================
 \ gforth          4444/tcp
+\ ==========================================================
 
 \ If you use inetd, add the following line to /etc/inetd.conf:
+\ ==========================================================
 \ gforth stream tcp nowait.10000   wwwrun   /usr/users/bernd/bin/httpd
+\ ==========================================================
 
-\ If you use xinetd, create the folliwing service in /etc/xinetd.d:
+\ If you use xinetd, create the following service as
+\ /etc/xinetd.d/gforth:
+\ ==========================================================
 \ service gforth
 \ {
 \         socket_type     = stream
@@ -38,6 +44,34 @@
 \         server          = /usr/local/bin/gforth
 \         server_args     = /usr/local/share/gforth/<version>/httpd.fs
 \ }
+\ ==========================================================
+
+\ if you use systemd, create the following socket as
+\ /usr/lib/systemd/system/gforth-httpd.socket:
+\ ==========================================================
+\ [Unit]
+\ Description=Gforth httpd socket
+\ 
+\ [Socket]
+\ ListenStream=80
+\ Accept=yes
+\ 
+\ [Install]
+\ WantedBy=sockets.target
+\ ==========================================================
+\ And create the following service as
+\ /usr/lib/systemd/system/gforth-httpd@.service:
+\ ==========================================================
+\ [Unit]
+\ Description=Gforth httpd server
+\ 
+\ [Service]
+\ ExecStart=-/usr/bin/gforth httpd.fs
+\ StandardInput=socket
+\ ==========================================================
+\ enable with: systemctl enable gforth-httpd.socket
+\ start with: systemctl start gforth-httpd.socket
+\ check with: systemctl status gforth-httpd.socket
 
 \ If you want port 80, replace the service "gforth" with "http"
 
