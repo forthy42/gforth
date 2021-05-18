@@ -28,7 +28,10 @@ namespace ftgl {
 
 
 typedef void (*error_callback_t) (const char *fmt, ...);
-extern error_callback_t log_error;
+#ifndef IMPLEMENT_FREETYPE_GL
+extern
+#endif
+error_callback_t log_error;
 
 /**
  * Prints input to stderr
@@ -54,25 +57,32 @@ extern error_callback_t log_error;
  * freetype_gl_errno    is the error number if a freetype-gl function fails
  *                      Errors < FTGL_ERR_BASE are pass-through from Freetype
  */
-extern __THREAD int freetype_gl_errno;
+#ifndef IMPLEMENT_FREETYPE_GL
+extern
+#endif
+__THREAD int freetype_gl_errno;
 /**
  * freetype_gl_warnings is a flag that activates output of warnings.
  *                      Default is warnings off
  */
-extern __THREAD int freetype_gl_warnings;
+#ifndef IMPLEMENT_FREETYPE_GL
+extern
+#endif
+__THREAD int freetype_gl_warnings;
 /**
  * freetype_gl_message  is the error message if a freetype-gl function fails
  */
-extern __THREAD const char * freetype_gl_message;
-/**
- * freetype_gl_errhook  is a function pointer to display error number
- *                      and message, default is using fprintf on stderr
- */
-extern void (*freetype_gl_errhook)(int errno, char* message, char* string, ...);
+#ifndef IMPLEMENT_FREETYPE_GL
+extern
+#endif
+__THREAD const char * freetype_gl_message;
 /**
  * freetype_gl_errstr   converts an errno to the message (including FT_errors)
  */
-extern const char* freetype_gl_errstr(int errno);
+#ifndef IMPLEMENT_FREETYPE_GL
+extern
+#endif
+const char* freetype_gl_errstr(int errno);
 
 #ifndef FTGL_ERR_PREFIX
 # define FTGL_ERR_PREFIX  FTGL_Err_
@@ -84,33 +94,36 @@ extern const char* freetype_gl_errstr(int errno);
 #endif
 #define FTGL_ERR_BASE  0x100 /* Freetype GL errors start at 0x100 */
     
-extern const char* freetype_gl_errstrs[];
+#ifndef IMPLEMENT_FREETYPE_GL
+extern
+#endif
+const char* freetype_gl_errstrs[];
 
 #define freetype_gl_error(errno) {			     \
 	freetype_gl_errno = FTGL_ERR_CAT( FTGL_ERR_PREFIX, errno);	\
 	freetype_gl_message = freetype_gl_errstrs[freetype_gl_errno]; \
-	freetype_gl_errhook(freetype_gl_errno, "FTGL Error %s:%d: %s\n", __FILE__, __LINE__, freetype_gl_message); \
+	log_error("FTGL Error %s:%d: %s\n", __FILE__, __LINE__, freetype_gl_message); \
     }
 
 #define freetype_gl_error_str(errno, string) {					\
 	freetype_gl_errno = FTGL_ERR_CAT( FTGL_ERR_PREFIX, errno);	\
 	freetype_gl_message = freetype_gl_errstrs[freetype_gl_errno]; \
-	freetype_gl_errhook(freetype_gl_errno, "FTGL Error %s:%d: %s '%s'\n", __FILE__, __LINE__, freetype_gl_message, string); \
+	log_error("FTGL Error %s:%d: %s '%s'\n", __FILE__, __LINE__, freetype_gl_message, string); \
     }
 
 #define freetype_gl_warning(errno) {			     \
 	freetype_gl_errno = FTGL_ERR_CAT( FTGL_ERR_PREFIX, errno);	\
 	freetype_gl_message = freetype_gl_errstrs[freetype_gl_errno]; \
-	if(freetype_gl_warnings) freetype_gl_errhook(freetype_gl_errno, "FTGL Warning %s:%d: %s\n", __FILE__, __LINE__, freetype_gl_message); \
+	if(freetype_gl_warnings) log_error("FTGL Warning %s:%d: %s\n", __FILE__, __LINE__, freetype_gl_message); \
     }
 
 #define freetype_error(errno) {			     \
 	freetype_gl_errno = errno;	\
 	freetype_gl_message = freetype_gl_errstrs[errno]; \
-	freetype_gl_errhook(freetype_gl_errno, "FTGL Error %s:%d: %s\n", __FILE__, __LINE__, freetype_gl_message); \
+	log_error("Freetype Error %s:%d: %s\n", __FILE__, __LINE__, freetype_gl_message); \
     }
 
-#define FTGL_ERRSTR_MAX 0x100
+#define FTGL_ERRSTR_MAX 0x120
 
 #ifndef FTGL_ERRORDEF_
 # ifndef FTGL_ERRORDEF
@@ -121,7 +134,10 @@ extern const char* freetype_gl_errstrs[];
 
 #  ifdef __cplusplus
 #   define FTGL_NEED_EXTERN_C
-  extern "C" {
+#ifndef IMPLEMENT_FREETYPE_GL
+extern
+#endif
+"C" {
 #  endif
     
 # endif /* !FTGL_ERRORDEF */

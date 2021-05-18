@@ -25,7 +25,7 @@ require ../unix/freetype-gllib.fs
 also freetype-gl
 also opengl
 
-' freetype_gl_errstr $200 exceptions
+' freetype_gl_errstr $120 exceptions
 >r : ?ftgl-ior ( addr -- addr )
     dup 0= IF  [ r> ]L freetype_gl_errno - throw  THEN ;
 

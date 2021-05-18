@@ -54,6 +54,7 @@ __THREAD const char * freetype_gl_message=NULL;
 const char* freetype_gl_errstrs[] = {
   #include <freetype/fterrdef.h>
   #include "freetype-gl-errdef.h"
+  [FTGL_ERRSTR_MAX] = NULL
 };
 
 const char* freetype_gl_errstr(int errno)
