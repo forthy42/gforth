@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "vector.h"
-#include "freetype-gl-err.h"
+#include "ftgl-utils.h"
 
 
 // ------------------------------------------------------------- vector_new ---

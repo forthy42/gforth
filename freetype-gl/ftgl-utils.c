@@ -11,7 +11,7 @@ error_callback_t log_error = error_callback_default;
 #ifdef __ANDROID__
 #include <android/log.h>
 #define  LOG_TAG    "freetype-gl"
-void error_callback_default(char* fmt, ...)
+void error_callback_default(const char* fmt, ...)
 {
   va_list myargs;
   va_start(myargs, fmt);
@@ -22,7 +22,7 @@ void error_callback_default(char* fmt, ...)
   va_end(myargs);
 }
 #else
-void error_callback_default(char* fmt, ...)
+void error_callback_default(const char* fmt, ...)
 {
   va_list myargs;
   va_start(myargs, fmt);
@@ -48,6 +48,8 @@ __THREAD const char * freetype_gl_message=NULL;
 #define FTGL_ERRORDEF_( e, v, s )  [v] = s,
 #define FT_ERROR_START_LIST
 #define FT_ERROR_END_LIST
+#define FTGL_ERROR_START_LIST
+#define FTGL_ERROR_END_LIST
 
 const char* freetype_gl_errstrs[] = {
   #include <freetype/fterrdef.h>
@@ -61,5 +63,7 @@ const char* freetype_gl_errstr(int errno)
 
 #undef FTGL_ERRORDEF_
 #undef __FREETYPE_GL_ERRORS_H__
+#undef FT_ERROR_START_LIST
+#undef FT_ERROR_END_LIST
 #undef FTGL_ERROR_START_LIST
 #undef FTGL_ERROR_END_LIST

@@ -28,4 +28,4 @@ extern FILE *stderr;
 %include "vector.h"
 %include "texture-atlas.h"
 %include "texture-font.h"
-%include "freetype-gl-err.h"
+%include "ftgl-utils.h"

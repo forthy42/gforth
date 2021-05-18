@@ -10,7 +10,7 @@
 #include <limits.h>
 #include "texture-atlas.h"
 #include "texture-font.h"
-#include "freetype-gl-err.h"
+#include "ftgl-utils.h"
 
 // -------------------------------------------------- texture_atlas_special ---
 

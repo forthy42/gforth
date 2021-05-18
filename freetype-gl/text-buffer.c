@@ -12,7 +12,7 @@
 #include "opengl.h"
 #include "text-buffer.h"
 #include "utf8-utils.h"
-#include "freetype-gl-err.h"
+#include "ftgl-utils.h"
 
 #define SET_GLYPH_VERTEX(value,x0,y0,z0,s0,t0,r,g,b,a,sh,gm) { \
         glyph_vertex_t *gv=&value;                                 \

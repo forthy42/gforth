@@ -131,7 +131,12 @@ extern const char* freetype_gl_errstrs[];
           FTGL_ERRORDEF( FTGL_ERR_CAT( FTGL_ERR_PREFIX, e ), v + FTGL_ERR_BASE, s )
 # endif /* !FTGL_ERRORDEF_ */
 
-#include <freetype-gl-errdef.h>
+#include "freetype-gl-errdef.h"
+
+#undef FTGL_ERRORDEF_
+#undef __FREETYPE_GL_ERRORS_H__
+#undef FTGL_ERROR_START_LIST
+#undef FTGL_ERROR_END_LIST
 
 #ifdef __cplusplus
 }

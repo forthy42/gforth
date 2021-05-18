@@ -24,7 +24,7 @@
 #include "texture-font.h"
 #include "platform.h"
 #include "utf8-utils.h"
-#include "freetype-gl-err.h"
+#include "ftgl-utils.h"
 
 #define HRES  64
 #define HRESf 64.f
