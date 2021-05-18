@@ -33,6 +33,8 @@ FTGL_ERRORDEF_( Vertex_Attribute_Format_Wrong,		0x0A,
 		"Vertex attribute format not understood" )
 FTGL_ERRORDEF_( Load_Color_Not_Available,		0x0B,
 		"FT_LOAD_COLOR not available" )
+FTGL_ERRORDEF_( No_Fixed_Size_In_Color_Font,		0x0C,
+		"No fixed size in color font" )
 
 FTGL_ERROR_END_LIST
 

@@ -25,6 +25,10 @@ require ../unix/freetype-gllib.fs
 also freetype-gl
 also opengl
 
+' freetype_gl_errstr $200 exceptions
+>r : ?ftgl-ior ( addr -- addr )
+    dup 0= IF  [ r> ]L freetype_gl_errno - throw  THEN ;
+
 ctx 0= [IF]  window-init  [THEN]
 
 $200 Value atlas#
@@ -289,7 +293,8 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 : load-glyph$ ( addr u -- )
     bounds ?DO  I font font-select nip
 	I texture_font_get_glyph
-	0= IF  I double-atlas drop 0
+	0=  IF  freetype_gl_errno $100 = IF  I double-atlas drop 0
+	    ELSE  0 ?ftgl-ior  THEN
 	ELSE  I I' over - x-size  THEN
     +LOOP ;
 

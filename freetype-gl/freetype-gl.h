@@ -6,28 +6,22 @@
 #ifndef __FREETYPE_GL_H__
 #define __FREETYPE_GL_H__
 
-#ifndef SOURCE_PATH_SIZE
-#define SOURCE_PATH_SIZE 0
-#endif
-
 /* Mandatory */
-#include "platform.h"
 #include "opengl.h"
 #include "vec234.h"
 #include "vector.h"
 #include "texture-atlas.h"
 #include "texture-font.h"
-#include "freetype-gl-err.h"
+#include "ftgl-util.h"
 
 #ifdef IMPLEMENT_FREETYPE_GL
-#include "platform.c"
 #include "texture-atlas.c"
 #include "texture-font.c"
 #include "vector.c"
 #include "utf8-utils.c"
-#include "freetype-gl-err.c"
-#include "distance-field.c"
-#include "edtaa3func.c"
+#include "ftgl-util.c"
+#endif
+
 #endif
 
 #ifdef __cplusplus

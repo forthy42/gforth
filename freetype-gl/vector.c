@@ -20,8 +20,7 @@ vector_new( size_t item_size )
 
     if( !self )
     {
-        freetype_gl_error( Out_Of_Memory,
-			   "line %d: No more memory for allocating data\n", __LINE__ );
+	freetype_gl_error( Out_Of_Memory );
 	return NULL;
     }
     self->item_size = item_size;
