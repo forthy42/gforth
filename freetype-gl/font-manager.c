@@ -155,7 +155,8 @@ font_manager_get_from_description( font_manager_t *self,
         filename = font_manager_match_description( self, family, size, bold, italic );
         if( !filename )
         {
-            char * string[0x101] = [0x100] '\0';
+	    char string[0x101];
+	    string[0x100] = '\0';
             snprintf(string, 0x100,
                      "%s (size=%.1f, bold=%d, italic=%d)",
                      family, size, bold, italic );
