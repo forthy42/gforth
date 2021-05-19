@@ -30,10 +30,19 @@
 #define HRESf 64.f
 #define DPI   72
 
+static float convert_F26Dot6_to_float(FT_F26Dot6 value)
+{
+  return ((float)value) / 64.0;
+}
+static FT_F26Dot6 convert_float_to_F26Dot6(float value)
+{
+  return (FT_F26Dot6) (value * 64.0);
+}
+
 // per-thread library
 
 __THREAD texture_font_library_t * freetype_gl_library = NULL;
-__THREAD font_mode_t mode_default=MODE_AUTO_CLOSE;
+__THREAD font_mode_t mode_default=MODE_FREE_CLOSE;
 
 // rol8 ror8
 
@@ -167,6 +176,7 @@ texture_font_generate_kerning( texture_font_t *self,
         
         GLYPHS_ITERATOR(j, prev_glyph, self->glyphs ) {
             prev_index = FT_Get_Char_Index( *face, prev_glyph->codepoint );
+            // FT_KERNING_UNFITTED returns FT_F26Dot6 values.
             FT_Get_Kerning( *face, prev_index, glyph_index, FT_KERNING_UNFITTED, &kerning );
             // printf("%c(%d)-%c(%d): %ld\n",
             //       prev_glyph->codepoint, prev_glyph->codepoint,
@@ -174,7 +184,7 @@ texture_font_generate_kerning( texture_font_t *self,
             if( kerning.x ) {
                 texture_font_index_kerning( glyph,
                                             prev_glyph->codepoint,
-                                            kerning.x / (float)(HRESf*HRESf) );
+                                            convert_F26Dot6_to_float(kerning.x) / HRESf );
             }
             // also insert kerning with the current added element
             FT_Get_Kerning( *face, glyph_index, prev_index, FT_KERNING_UNFITTED, &kerning );
@@ -237,7 +247,7 @@ texture_font_set_size ( texture_font_t *self, float size )
         self->scale = self->size / self->face->available_sizes[best_match].width;
     } else {
         /* Set char size */
-        error = FT_Set_Char_Size(self->face, (int)(size * HRES), 0, DPI * HRES, DPI);
+        error = FT_Set_Char_Size(self->face, convert_float_to_F26Dot6(size), 0, DPI * HRES, DPI);
         
         if(error) {
             freetype_error( error );
@@ -272,9 +282,9 @@ texture_font_init_size( texture_font_t * self)
     }
 
     metrics = self->face->size->metrics;
-    self->ascender = (metrics.ascender >> 6) / 100.f;
-    self->descender = (metrics.descender >> 6) / 100.f;
-    self->height = (metrics.height >> 6) / 100.f;
+    self->ascender  = metrics.ascender  >> 6;
+    self->descender = metrics.descender >> 6;
+    self->height    = metrics.height    >> 6;
     self->linegap = self->height - self->ascender + self->descender;
 }
 
@@ -309,7 +319,7 @@ texture_font_init(texture_font_t *self)
     self->lcd_weights[3] = 0x40;
     self->lcd_weights[4] = 0x10;
 
-    if (!texture_font_load_face(self, self->size * 100.f))
+    if (!texture_font_load_face(self, self->size))
         return -1;
 
     texture_font_init_size( self );
@@ -425,14 +435,11 @@ texture_font_clone( texture_font_t *old, float pt_size)
         return NULL;
     }
     
-    if(!texture_font_set_size ( self, pt_size * 100.f ))
+    if(!texture_font_set_size ( self, pt_size ))
         return NULL;
 
     texture_font_init_size( self );
     
-    if(!texture_font_set_size ( self, pt_size ))
-        return NULL;
-
     if(self->size / self->scale != native_size)
         self->glyphs = vector_new(sizeof(texture_glyph_t *));
     return self;
@@ -726,6 +733,18 @@ texture_font_load_glyph_gi( texture_font_t * self,
             FT_Library_SetLcdFilterWeights( self->library->library, self->lcd_weights );
         }
     }
+    else if (HRES == 1)
+    {
+        /* “FT_LOAD_TARGET_LIGHT
+         *  A lighter hinting algorithm for gray-level modes. Many generated
+         *  glyphs are fuzzier but better resemble their original shape.
+         *  This is achieved by snapping glyphs to the pixel grid
+         *  only vertically (Y-axis), as is done by FreeType's new CFF engine
+         *  or Microsoft's ClearType font renderer.”
+         * https://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#ft_load_target_xxx
+         */
+        flags |= FT_LOAD_TARGET_LIGHT;
+    }
 
     if( self->atlas->depth == 4 )
     {
@@ -843,6 +862,14 @@ cleanup_stroker:
         padding.left = 1;
     }
 
+    if( self->padding != 0 )
+    {
+        padding.top += self->padding;
+        padding.left += self->padding;
+        padding.right += self->padding;
+        padding.bottom += self->padding;
+    }
+
     size_t src_w = self->atlas->depth == 3 ? ft_bitmap.width/3 : ft_bitmap.width;
     size_t src_h = ft_bitmap.rows;
 
@@ -932,8 +959,8 @@ cleanup_stroker:
         glyph->advance_x = slot->advance.x;
         glyph->advance_y = slot->advance.y;
     } else {
-        glyph->advance_x = slot->advance.x * self->scale / HRESf;
-        glyph->advance_y = slot->advance.y * self->scale / HRESf;
+	glyph->advance_x = convert_F26Dot6_to_float(slot->advance.x) * self->scale;
+        glyph->advance_y = convert_F26Dot6_to_float(slot->advance.y) * self->scale;
     }
 
     int free_glyph = texture_font_index_glyph(self, glyph, ucodepoint);
@@ -1037,7 +1064,7 @@ texture_font_enlarge_texture( texture_font_t * self, size_t width_new,
 
     texture_atlas_enlarge_texture ( self->atlas, width_new, height_new);
 }
-// -------------------------------------------- texture_font_enlarge_atlas ---
+// -------------------------------------------- texture_font_enlarge_glyphs ---
 void
 texture_font_enlarge_glyphs( texture_font_t * self, float mulw, float mulh)
 {
@@ -1054,8 +1081,15 @@ texture_font_enlarge_glyphs( texture_font_t * self, float mulw, float mulh)
 // -------------------------------------------  texture_font_enlarge_atlas ---
 void
 texture_font_enlarge_atlas( texture_font_t * self, size_t width_new,
-                            size_t height_new)
+                            size_t height_new )
 {
+    assert(self);
+    assert(self->atlas);
+    //ensure size increased
+    assert(width_new >= self->atlas->width);
+    assert(height_new >= self->atlas->height);
+    assert(width_new + height_new > self->atlas->width + self->atlas->height);    
+    assert(width_new + height_new > self->atlas->width + self->atlas->height);
     texture_atlas_t* ta = self->atlas;
     size_t width_old = ta->width;
     size_t height_old = ta->height;    

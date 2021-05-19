@@ -77,12 +77,12 @@ extern
 #endif
 __THREAD const char * freetype_gl_message;
 /**
- * freetype_gl_errstr   converts an errno to the message (including FT_errors)
+ * FTGL_Error_String  converts an errno to the message (including FT_errors)
  */
 #ifndef IMPLEMENT_FREETYPE_GL
 extern
 #endif
-const char* freetype_gl_errstr(int errno);
+const char* FTGL_Error_String( unsigned int error_code );
 
 #ifndef FTGL_ERR_PREFIX
 # define FTGL_ERR_PREFIX  FTGL_Err_
@@ -93,7 +93,7 @@ const char* freetype_gl_errstr(int errno);
 # define FTGL_ERR_CAT( x, y )   FTGL_ERR_XCAT( x, y )
 #endif
 #define FTGL_ERR_BASE  0x100 /* Freetype GL errors start at 0x100 */
-    
+
 #ifndef IMPLEMENT_FREETYPE_GL
 extern
 #endif
@@ -123,7 +123,7 @@ const char* freetype_gl_errstrs[];
 	log_error("Freetype Error %s:%d: %s\n", __FILE__, __LINE__, freetype_gl_message); \
     }
 
-#define FTGL_ERRSTR_MAX 0x120
+#define FTGL_ERRSTR_MAX 0x11F
 
 #ifndef FTGL_ERRORDEF_
 # ifndef FTGL_ERRORDEF

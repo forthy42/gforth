@@ -33,7 +33,6 @@ c-library serial
     c-function cfsetispeed cfsetispeed a n -- n ( termios speed -- r )
     c-function cfsetospeed cfsetospeed a n -- n ( termios speed -- r )
     c-function tcflow tcflow n n -- n ( fd action -- n )
-    c-function ioctl ioctl n n a -- n ( fd cmd ptr -- n )
     c-function setvbuf setvbuf a a n n -- n ( file* buf mode size -- r )
 end-c-library
 

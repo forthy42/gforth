@@ -6,6 +6,9 @@
 #ifndef __OPEN_GL_H__
 #define __OPEN_GL_H__
 
+#if defined(GL_WITH_GLAD)
+#   include <glad/glad.h>
+#else
 #if defined(__APPLE__)
 #   include "TargetConditionals.h"
 #   if TARGET_OS_SIMULATOR || TARGET_OS_IPHONE
@@ -18,6 +21,7 @@
 #     include <OpenGL/gl.h>
 #   endif
 #elif defined(_WIN32) || defined(_WIN64)
+#  include <GL/glew.h>
 #  include <GL/wglew.h>
 #elif defined(__ANDROID_API__)
 #  if defined(FREETYPE_GL_ES_VERSION_3_0)
@@ -26,7 +30,9 @@
 #    include <GLES2/gl2.h>
 #  endif
 #else
+#  include <GL/glew.h>
 #  include <GL/gl.h>
 #endif
+#endif /* GL_WITH_GLAD */
 
 #endif /* OPEN_GL_H */

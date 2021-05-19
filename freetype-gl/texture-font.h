@@ -385,6 +385,12 @@ typedef struct texture_font_t
     float underline_thickness;
 
     /**
+    * The padding to be add to the glyph's texture that are loaded by this font.
+    * Usefull when adding effects with shaders.
+    */
+    int padding;
+
+    /**
      * Flag for mode
      */
     font_mode_t mode;
@@ -521,9 +527,9 @@ typedef struct texture_font_t
   texture_font_get_glyph( texture_font_t * self,
                           const char * codepoint );
 
-/** 
- * Request an already loaded glyph from the font. 
- * 
+/**
+ * Request an already loaded glyph from the font.
+ *
  * @param self      A valid texture font
  * @param codepoint Character codepoint to be found in UTF-8 encoding.
  *
@@ -614,23 +620,25 @@ texture_font_load_glyph_gi( texture_font_t * self,
   texture_font_load_glyphs( texture_font_t * self,
                             const char * codepoints );
 /**
-   *Increases the size of a fonts texture atlas
-   *Invalidates all pointers to font->atlas->data
-   *Changes the UV Coordinates of existing glyphs in the font
-   *
-   *@param self A valid texture font
-   *@param width_new Width of the texture atlas after resizing (must be bigger or equal to current width)
-   *@param height_new Height of the texture atlas after resizing (must be bigger or equal to current height)
-   */
+ * Increases the size of a fonts texture atlas
+ * Invalidates all pointers to font->atlas->data
+ * Changes the UV Coordinates of existing glyphs in the font
+ *
+ * @param self A valid texture font
+ * @param width_new Width of the texture atlas after resizing (must be bigger
+ *                  or equal to current width)
+ * @param height_new Height of the texture atlas after resizing (must be bigger or
+ *                   equal to current height)
+ */
   void
   texture_font_enlarge_atlas( texture_font_t * self, size_t width_new,
-			      size_t height_new);
+			      size_t height_new );
   void
-  texture_font_enlarge_glyphs( texture_font_t * self, float mulw, float mulh);
+  texture_font_enlarge_glyphs( texture_font_t * self, float mulw, float mulh );
   
   void
   texture_font_enlarge_texture( texture_font_t * self, size_t width_new,
-				size_t height_new);
+				size_t height_new );
 /**
  * Get the kerning between two horizontal glyphs.
  *
