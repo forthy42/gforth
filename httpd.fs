@@ -38,6 +38,8 @@
 \ ==========================================================
 \ and make sure httpd.fs is made executable
 
+\ If you want port 80, replace the service "gforth" with "http"
+
 \ === xinetd ===
 
 \ If you use xinetd, create the following service as
@@ -53,6 +55,8 @@
 \         server_args     = httpd.fs
 \ }
 \ ==========================================================
+
+\ If you want port 80, replace the service "gforth" with "http"
 
 \ === systemd ===
 
@@ -84,14 +88,14 @@
 \ start with: systemctl start gforth-httpd.socket
 \ check with: systemctl status gforth-httpd.socket
 
-\ If you want port 80, replace the service "gforth" with "http"
+\ If you want port 80, replace port 4444 with 80
 
 warnings off
 
 require string.fs
 
-Variable DocumentRoot  s" /srv/www/htdocs/" DocumentRoot $!
-Variable UserDir       s" public_html/"     UserDir      $!
+Variable DocumentRoot  s" /var/www/html/" DocumentRoot $!
+Variable UserDir       s" public_html/"   UserDir      $!
 
 Variable url
 Variable posted
