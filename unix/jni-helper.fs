@@ -294,6 +294,7 @@ SDK_INT 10 u<= [IF]
 : clipboard! ( addr u -- )
     2dup defers paste! setclip ;
 ' clipboard! is paste!
+' clipboard@ is paste@
 
 0 [IF]
 jni-class: android/os/PowerManager

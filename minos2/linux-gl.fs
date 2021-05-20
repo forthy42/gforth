@@ -485,16 +485,16 @@ previous
     dpy e.requestor e.property
     type format mode addr n
     XChangeProperty drop dpy 0 XSync drop ;
-: paste@ ( -- addr u )
+: x11-paste@ ( -- addr u )
     case  e.selection
 	XA_PRIMARY   of  primary$ $@  endof
 	XA_CLIPBOARD of  paste$   $@  endof
 	s" " rot
     endcase ;
 : string-request ( -- )
-    paste@ PropModeReplace 8 XA_STRING rest-request ;
+    x11-paste@ PropModeReplace 8 XA_STRING rest-request ;
 \ : string8-request ( -- )
-\     paste@ PropModeReplace 8 XA_STRING8 rest-request ;
+\     x11-paste@ PropModeReplace 8 XA_STRING8 rest-request ;
 : compound-request ( -- )  string-request ;
 4 buffer: 'string
 : target-request ( -- )

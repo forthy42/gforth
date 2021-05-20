@@ -25,6 +25,7 @@ edit-out next-task - class-o !
 
 kernel-editor cell- @ 2 cells - 2@ \ extend edit-out class
 umethod paste! ( addr u -- )
+umethod paste@ ( -- addr u )
 umethod grow-tib ( max span addr pos1 more -- max span addr pos1 flag )
 umethod edit-error
 umethod ekeys
@@ -37,7 +38,7 @@ Variable paste$ \ global paste buffer
 align , , here
 ' (ins) , ' (ins-string) , ' (edit-control) ,
 ' noop ,  ' noop , ' noop , ' std-ctrlkeys , \ kernel stuff
-' noop ,  ' 0> , ' bell , ' noop , \ extended stuff
+' noop ,  ' noop ,  ' 0> , ' bell , ' noop , \ extended stuff
 , here  0 , 0 , 0 , 0 , 0 , 0 ,
 Constant edit-terminal
 edit-terminal cell- @ Constant edit-terminal-c
@@ -384,8 +385,11 @@ synonym setstring-color info-color
     key? IF  #tab (xins) 0  EXIT  THEN
     (xtab-expand) ;
 
+: xpaste@ ( -- addr u )
+    paste$ $@ ;
+
 : xpaste ( max span addr pos -- max span' addr pos' false )
-    paste$ $@ xins-string  edit-update  0 ;
+    paste@ xins-string  edit-update  0 ;
 
 : xtranspose ( max span addr pos -- max span' addr pos' false )
     dup IF
@@ -424,7 +428,7 @@ Create xchar-ctrlkeys ( -- )
     ' xreformat    , ' (xenter)     , ' next-line    , ' false        ,
 
     ' prev-line    , ' false        , ' false        , ' setsel       ,
-    ' xtranspose   , ' xclear-first , ' false        , ' false        ,
+    ' xtranspose   , ' xclear-first , ' xpaste       , ' false        ,
     ' <xdel>       , ' xpaste       , ' xhide        , ' false        ,
     ' false        , ' false        , ' false        , ' false        ,
 
@@ -455,6 +459,7 @@ xchar-history
 ' edit-curpos-off IS everyline
 ' xedit-update    IS edit-update
 ' xpaste!         IS paste!
+' xpaste@         IS paste@
 ' xgrow-tib       IS grow-tib
 ' xchar-ctrlkeys  IS ctrlkeys
 ' bell            IS edit-error

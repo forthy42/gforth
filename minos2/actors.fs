@@ -610,6 +610,7 @@ also
 ' clipboard!     is paste!
 [IFUNDEF] primary!     ' clipboard! alias primary! [THEN]
 [IFUNDEF] primary@     ' clipboard@ alias primary@ [THEN]
+' clipboard@     is paste@
 previous
 
 \ extra key bindings for editors
