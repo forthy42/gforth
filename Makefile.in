@@ -362,7 +362,7 @@ FREETYPE_GL_INCLUDE = freetype-gl/freetype-gl-errdef.h			   \
 	freetype-gl/texture-atlas.h freetype-gl/texture-font.h		   \
 	freetype-gl/utf8-utils.h freetype-gl/vec234.h freetype-gl/vector.h \
 	freetype-gl/distance-field.h freetype-gl/edtaa3func.h
-FREETYPE_GL_SRC = freetype-gl/fgl-utils.c freetype-gl/platform.c	\
+FREETYPE_GL_SRC = freetype-gl/ftgl-utils.c freetype-gl/platform.c	\
 	freetype-gl/texture-atlas.c freetype-gl/texture-font.c		\
 	freetype-gl/utf8-utils.c freetype-gl/distance-field.c		\
 	freetype-gl/vector.c freetype-gl/edtaa3func.c $(FREETYPE_GL_INCLUDE)
