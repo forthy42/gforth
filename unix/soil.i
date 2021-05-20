@@ -4,9 +4,8 @@
 %{
 #include <SOIL/SOIL.h>
 #ifdef __gnu_linux__
-#include <bits/types/FILE.h>
 #undef stderr
-extern FILE *stderr;
+extern struct _IO_FILE *stderr;
 #endif
 %}
 

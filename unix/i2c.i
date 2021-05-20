@@ -5,9 +5,8 @@
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #ifdef __gnu_linux__
-#include <bits/types/FILE.h>
 #undef stderr
-extern FILE *stderr;
+extern struct _IO_FILE *stderr;
 #endif
 %}
 

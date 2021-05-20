@@ -5,9 +5,8 @@
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
 #ifdef __gnu_linux__
-#include <bits/types/FILE.h>
 #undef stderr
-extern FILE *stderr;
+extern struct _IO_FILE *stderr;
 #endif
 %}
 %apply float { GLfloat, GLclampf };
