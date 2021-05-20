@@ -21,7 +21,6 @@
 #include "texture-font.c"
 #include "vector.c"
 #include "utf8-utils.c"
-#include "freetype-gl-err.c"
 #include "distance-field.c"
 #include "edtaa3func.c"
 #include "ftgl-utils.c"
