@@ -17,6 +17,9 @@
 #include <math.h>
 #ifdef __APPLE__
 # include <machine/endian.h>
+# define __BIG_ENDIAN __ORDER_BIG_ENDIAN__
+# define __LITTLE_ENDIAN __ORDER_LITTLE_ENDIAN__
+# define __BYTE_ORDER __BYTE_ORDER__
 #elif defined(_WIN32) || defined(_WIN64)
 # define __LITTLE_ENDIAN 1234
 # define __BIG_ENDIAN 4321
@@ -347,7 +350,7 @@ texture_font_init(texture_font_t *self)
 
 // ---------------------------------------------------- texture_library_new ---
 texture_font_library_t *
-texture_library_new()
+texture_library_new(void)
 {
     texture_font_library_t *self = calloc(1, sizeof(*self));
     
@@ -683,7 +686,7 @@ texture_font_load_glyph_gi( texture_font_t * self,
 
     FT_Error error;
     FT_Face face;
-    FT_Glyph ft_glyph;
+    FT_Glyph ft_glyph = NULL;
     FT_GlyphSlot slot;
     FT_Bitmap ft_bitmap;
 

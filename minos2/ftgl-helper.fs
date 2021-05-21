@@ -25,7 +25,7 @@ require ../unix/freetype-gllib.fs
 also freetype-gl
 also opengl
 
-' FTGL_Error_String FTGL_ERRSTR_MAX 1+ exceptions
+' FTGL_Error_String FTGL_ERR_MAX 1+ exceptions
 >r : ?ftgl-ior ( addr -- addr )
     dup 0= IF  [ r> ]L freetype_gl_errno - throw  THEN ;
 
@@ -162,7 +162,7 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 	2e +to xy-color -1e to t.i0  THEN ;
 
 : double-atlas ( xc-addr -- xc-addr )
-    freetype_gl_errno $100 = IF
+    freetype_gl_errno FTGL_ERR_BASE = IF
 	font font-select
 	dup texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
 	    atlas-bgra# 2* dup >r to atlas-bgra#
