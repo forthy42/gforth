@@ -107,7 +107,7 @@ forth definitions
 
 : wrap-closure ( xt -- )
     dup >namevt @ >vtextra !  ['] does, set-optimizer
-    finish-code  vt,  previous-section  wrap!  dead-code off ;
+    finish-code  vt,  wrap!  vt,  previous-section  dead-code off ;
 
 : (closure-;]) ( closure-sys lastxt -- )
     >r r@ wrap-closure
