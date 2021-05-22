@@ -378,7 +378,7 @@ LIBCC_GEN_SRC = unix/stat.fs $(patsubst %, unix/%, $(SWIGMODULES))
 LIBCC_LIB_SRC = $(patsubst %, unix/%, $(SWIGLIBS)) @LIBCC_BUILD_SRC@
 
 LIBCC_BUILD_SRC = $(LIBCC_GEN_SRC) @LIBCC_BUILD_SRC@
-LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_LIB_SRC) $(LIBCC_SRC1) test/libcc.fs | sed -e s,unix/,,g))
+LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_LIB_SRC) $(LIBCC_SRC1) libcc.fs | sed -e s,unix/,,g))
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
@@ -960,6 +960,10 @@ $(buildccdir)/libgfserial.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfsocket.la: $(buildccdir)/libgflibc.la
 
 $(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_LIB_SRC) libforth
+		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
+		-$(TOUCH) $@
+
+$(buildccdir)/libgflibcc.la: test/libcc.fs $(FORTH_GEN) $(GEN) $(LIBCC_LIB_SRC) libforth
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
 		-$(TOUCH) $@
 
