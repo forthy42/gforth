@@ -109,12 +109,23 @@ Value font-langs#
     font-shapes# font-families# font-langs# * * ;
 
 also freetype-gl
-: fonts! ( font-addr addr -- ) \ set current font for all sizes
+: fonts! ( font-addr addr subset -- )
+    \ set current font for all subsets
     over font[] $@ drop - cell/ fontnames[]# mod { idx }
     font-sizes# 0 U+DO
 	dup I fontnames[]# * idx + font[] $[] !
 	I 1+ I' <> IF
 	    I 1+ font-size% font-size# f* fround clone-font
+	THEN
+    LOOP  drop ;
+: fontsfs! ( font-addr addr -- )
+    \ set current font for all sizes+family+shape
+    over font[] $@ drop - cell/ font-langs# mod { idx }
+    font-sizes# font-families# * font-shapes# * 0 U+DO
+	dup I font-langs# * idx + font[] $[] !
+	I 1+ I' <> IF
+	    I 1+ font-families# font-shapes# * /
+	    font-size% font-size# f* fround clone-font
 	THEN
     LOOP  drop ;
 previous
@@ -133,7 +144,8 @@ s" No suitable font found" exception constant !!no-suitable-font!!
 	font-langs# /mod font-shapes# /mod font-families# /mod . . . . cr
 	!!no-font!! throw
     THEN
-    font-size# 0 font-size% f* fround open-font fonts! rdrop
+    font-size# 0 font-size% f* fround open-font
+    r@ font-langs# mod 2 u< IF  fonts!  ELSE  fontsfs!  THEN  rdrop
     drop r> font[] $[] ;
 
 : ?font-load ( font-addr -- font-addr )
@@ -270,40 +282,14 @@ also fonts definitions
     \bold-italic fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|gkai00mp.ttf
 [THEN]
 
+\ emojis and icons don't differ between different shapes and styles
+
 \emoji \sans
 \regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-
-\serif
-\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-
-\mono
-\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-\bold fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-\italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-\bold-italic fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 
 \icons
 \sans
 \regular fonts= fa-merged-900.ttf
-\bold fonts= fa-merged-900.ttf
-\italic fonts= fa-merged-900.ttf
-\bold-italic fonts= fa-merged-900.ttf
-\serif
-\regular fonts= fa-merged-900.ttf
-\bold fonts= fa-merged-900.ttf
-\italic fonts= fa-merged-900.ttf
-\bold-italic fonts= fa-merged-900.ttf
-\mono
-\regular fonts= fa-merged-900.ttf
-\bold fonts= fa-merged-900.ttf
-\italic fonts= fa-merged-900.ttf
-\bold-italic fonts= fa-merged-900.ttf
 
 \latin \sans \regular
 
