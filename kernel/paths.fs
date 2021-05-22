@@ -128,8 +128,8 @@ User tfile
     \G it has a colon as second character ("C:...").  Paths simply
     \G containing a / are not absolute!
     2dup 2 u> swap 1+ c@ ':' = and >r \ dos absoulte: c:/....
-    over c@ '/ = >r
-    over c@ '~ = >r
+    over c@ '/' = >r
+    over c@ '~' = >r
     \ 2dup S" ../" string-prefix? r> or >r \ not catered for in expandtopic
     S" ./" string-prefix?
     r> r> r> or or or ;
@@ -169,7 +169,7 @@ User tfile
     \ deletes (/*./)* at the start of the string
     BEGIN ( current-addr u )
 	BEGIN ( current-addr u )
-	    over c@ '/ = WHILE
+	    over c@ '/' = WHILE
 		1 del-string
 	REPEAT
 	2dup s" ./" string-prefix? WHILE
@@ -177,7 +177,7 @@ User tfile
     REPEAT ;
 
 : preserve-root ( addr1 u1 -- addr2 u2 )
-    over c@ '/ = if \ preserve / at start
+    over c@ '/' = if \ preserve / at start
 	1 /string
     endif ;
 
@@ -193,7 +193,7 @@ User tfile
     \ rewrite filename in place, eliminating multiple slashes, "./", and "x/.."
     over swap preserve-root skip-..-prefixes
     ( start current-addr u )
-    over swap '/ scan dup if ( start addr3 addr4 u4 )
+    over swap '/' scan dup if ( start addr3 addr4 u4 )
 	1 /string del-./s compact-filename
 	2dup s" ../" string-prefix? if ( start addr3 addr4 u4 )
 	    3 /string ( start to from count )

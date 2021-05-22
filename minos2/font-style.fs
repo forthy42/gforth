@@ -20,6 +20,8 @@
 
 \ font array
 
+require cstr.fs
+
 get-current also minos definitions
 
 Variable font[]     \ array of fonts
@@ -171,13 +173,14 @@ Variable font-prefix$
 font-prefix$ $!
 
 : font-path+ ( "font" -- )
-    parse-name [: font-prefix$ $. type ;] $tmp
+    parse-name
+    2dup absolut-path? 0= IF  [: font-prefix$ $. type ;] $tmp  THEN
     2dup open-dir 0= IF
 	close-dir throw font-path also-path
     ELSE  drop 2drop  THEN ;
 : ?font ( addr u -- addr' u' true / false )
     font-path open-path-file 0= IF
-	rot close-file throw true
+	rot close-file throw tilde_cstr cstring>sstring true
     ELSE
 	false
     THEN ;
@@ -185,6 +188,8 @@ font-prefix$ $!
     parse-name  BEGIN  dup  WHILE  '|' $split 2swap ?font  UNTIL  2nip
     ELSE  !!no-suitable-font!! throw  THEN
     fontname@ $! ;
+
+font-path+ ~/.fonts
 
 [IFDEF] android
     font-prefix$ $free

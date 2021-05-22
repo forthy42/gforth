@@ -236,7 +236,7 @@ texture_font_set_size ( texture_font_t *self, float size )
         (int)((0.0)      * 0x10000L),
         (int)((1.0)      * 0x10000L)};
 
-    if( texture_is_color_font( self ) ) {
+    if( FT_HAS_FIXED_SIZES( self->face ) ) {
         /* Select best size */
         if (self->face->num_fixed_sizes == 0) {
             freetype_gl_error( No_Fixed_Size_In_Color_Font );
@@ -969,7 +969,7 @@ cleanup_stroker:
         glyph->t1       = y + tgt_h - 0.5;
     }
     slot = self->face->glyph;
-    if( self->atlas->depth == 4 ) {
+    if( FT_HAS_FIXED_SIZES( self->face ) ) {
         // color fonts use actual pixels, not subpixels
         glyph->advance_x = slot->advance.x;
         glyph->advance_y = slot->advance.y;
