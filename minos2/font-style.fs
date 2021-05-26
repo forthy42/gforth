@@ -109,8 +109,8 @@ Value font-langs#
     font-shapes# font-families# font-langs# * * ;
 
 also freetype-gl
-: fonts! ( font-addr addr subset -- )
-    \ set current font for all subsets
+: fonts! ( font-addr addr -- )
+    \ set current font for all sizes
     over font[] $@ drop - cell/ fontnames[]# mod { idx }
     font-sizes# 0 U+DO
 	dup I fontnames[]# * idx + font[] $[] !
@@ -123,7 +123,9 @@ also freetype-gl
     over font[] $@ drop - cell/ font-langs# mod { idx }
     font-sizes# font-families# * font-shapes# * 0 U+DO
 	dup I font-langs# * idx + font[] $[] !
-	I 1+ I' <> IF
+	I font-families# font-shapes# * /
+	I 1+ font-families# font-shapes# * / <>
+	I 1+ I' <> and IF
 	    I 1+ font-families# font-shapes# * /
 	    font-size% font-size# f* fround clone-font
 	THEN
@@ -285,7 +287,7 @@ also fonts definitions
 \ emojis and icons don't differ between different shapes and styles
 
 \emoji \sans
-\regular fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\regular fonts= AppleColorEmoji.ttc|NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 
 \icons
 \sans

@@ -25,6 +25,9 @@ require ../unix/freetype-gllib.fs
 also freetype-gl
 also opengl
 
+\ If you want to see warnings, uncomment this:
+\ 1 freetype_gl_warnings l!
+
 ' FTGL_Error_String FTGL_ERR_MAX 1+ exceptions
 >r : ?ftgl-ior ( addr -- addr )
     dup 0= IF  [ r> ]L freetype_gl_errno - throw  THEN ;
