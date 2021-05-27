@@ -92,8 +92,6 @@
 
 warnings off
 
-require string.fs
-
 Variable DocumentRoot  s" /var/www/html/" DocumentRoot $!
 Variable UserDir       s" public_html/"   UserDir      $!
 
@@ -240,12 +238,11 @@ Variable htmldir
     r/o open-file throw
     push-file loadfile !  0 loadline ! blk off
     BEGIN  refill  WHILE
-	char '# <> >in off name nip 0<> and  IF
-	    >in off name
-	    BEGIN  >in @ >r name nip  WHILE
-		r> >in ! 2dup transparent:  REPEAT
-	    2drop rdrop
-	THEN
+	    parse-name over c@ '#' <> over 0<> and  IF
+		BEGIN  parse-name dup  WHILE
+			nextname 2dup transparent:  REPEAT
+		2drop
+	    THEN  2drop
     REPEAT  loadfile @ close-file pop-file throw ;
 
 : lastrequest
