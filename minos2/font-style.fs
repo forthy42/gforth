@@ -138,6 +138,7 @@ previous
 s" No font specified" exception constant !!no-font!!
 s" No suitable font found" exception constant !!no-suitable-font!!
 
+also freetype-gl
 : font-load ( font-addr -- font-addr )
     dup font[] $@ drop - cell/ dup >r fontnames[]# mod >r \ font index size 0
     atlas-bgra atlas r@ font-langs# mod [ ' \emoji >body @ ]L = select
@@ -149,6 +150,7 @@ s" No suitable font found" exception constant !!no-suitable-font!!
     font-size# 0 font-size% f* fround open-font
     r@ font-langs# mod 2 u< IF  fonts!  ELSE  fontsfs!  THEN  rdrop
     drop r> font[] $[] ;
+previous
 
 : ?font-load ( font-addr -- font-addr )
     dup @ 0= IF  font-load  THEN ;
@@ -286,12 +288,11 @@ also fonts definitions
 
 \ emojis and icons don't differ between different shapes and styles
 
-\emoji \sans
-\regular fonts= AppleColorEmoji.ttc|NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\emoji \sans \regular
+fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 
-\icons
-\sans
-\regular fonts= fa-merged-900.ttf
+\icons \sans \regular
+fonts= fa-merged-900.ttf
 
 \latin \sans \regular
 
