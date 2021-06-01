@@ -63,17 +63,18 @@ readbuf 2 + spi-rd-msg2 spi_ioc_transfer-rx_buf !
 8 spi-rd-msgs spi_ioc_transfer-bits_per_word c!
 8 spi-rd-msg2 spi_ioc_transfer-bits_per_word c!
 
-: spi-c@ ( addr -- byte )
+: spi-read ( addr len -- )
+    spi-rd-msg2 spi_ioc_transfer-len l!
     readbuf 1+ c!
-    1 spi-rd-msg2 spi_ioc_transfer-len l!
-    2 spi-rd-msgs spioctl
-    readbuf 2 + c@ ;
-
-Create spi-wr-msgs
-spi_ioc_transfer alloz
-
-spi-hz spi-wr-msgs spi_ioc_transfer-speed_hz l!
-8 spi-wr-msgs spi_ioc_transfer-bits_per_word c!
+    2 spi-rd-msgs spioctl ;
+: spi-c@ ( addr -- byte )
+    1 spi-read  readbuf 2 + c@ ;
+: spi-w@ ( addr -- word )
+    2 spi-read  readbuf 2 + w@ ;
+: spi-l@ ( addr -- long )
+    4 spi-read  readbuf 2 + l@ ;
+: spi-x@ ( addr -- extra )
+    8 spi-read  readbuf 2 + x@ ;
 
 Create stbuf $5 c, 0 c,
 
@@ -86,7 +87,7 @@ spi-hz spi-st-msgs spi_ioc_transfer-speed_hz l!
 stbuf spi-st-msgs spi_ioc_transfer-tx_buf !
 1 spi-st-msgs spi_ioc_transfer-len l!
 spi-hz spi-st-msg2 spi_ioc_transfer-speed_hz l!
-stbuf spi-st-msg2 spi_ioc_transfer-rx_buf !
+stbuf 1+ spi-st-msg2 spi_ioc_transfer-rx_buf !
 1 spi-st-msg2 spi_ioc_transfer-len l!
 8 spi-st-msgs spi_ioc_transfer-bits_per_word c!
 8 spi-st-msg2 spi_ioc_transfer-bits_per_word c!
@@ -95,6 +96,11 @@ stbuf spi-st-msg2 spi_ioc_transfer-rx_buf !
     $5 stbuf c!
     2 spi-st-msgs spioctl
     stbuf 1+ c@ ;
+: spi-status! ( status -- )
+    $1 stbuf c!  stbuf 1+ c!
+    2 spi-st-msgs spi_ioc_transfer-len l!
+    1 spi-st-msgs spioctl
+    1 spi-st-msgs spi_ioc_transfer-len l! ;
 
 : spi-wren ( -- )
     $6 stbuf c!
@@ -102,3 +108,30 @@ stbuf spi-st-msg2 spi_ioc_transfer-rx_buf !
 : spi-wrdi ( -- )
     $4 stbuf c!
     1 spi-st-msgs spioctl ;
+
+: spi-wip| ( -- )
+    BEGIN  spi-status@ 1 and 0=  UNTIL ;
+
+Create spi-wr-msgs
+spi_ioc_transfer alloz
+
+spi-hz spi-wr-msgs spi_ioc_transfer-speed_hz l!
+8 spi-wr-msgs spi_ioc_transfer-bits_per_word c!
+writebuf spi-wr-msgs spi_ioc_transfer-tx_buf !
+
+: spi-write ( addr len -- )
+    2 + spi-wr-msgs spi_ioc_transfer-len l!
+    writebuf 1+ c!
+    1 spi-wr-msgs spioctl spi-wip| ;
+: spi-c! ( byte addr -- )
+    swap write-buf 2 + c!
+    1 spi-write ;
+: spi-w! ( word addr -- )
+    swap write-buf 2 + w!
+    2 spi-write ;
+: spi-l! ( long addr -- )
+    swap write-buf 2 + l!
+    4 spi-write ;
+: spi-x! ( extra addr -- )
+    swap write-buf 2 + x!
+    8 spi-write ;
