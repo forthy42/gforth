@@ -124,14 +124,14 @@ writebuf spi-wr-msgs spi_ioc_transfer-tx_buf !
     writebuf 1+ c!
     1 spi-wr-msgs spioctl spi-wip| ;
 : spi-c! ( byte addr -- )
-    swap write-buf 2 + c!
+    swap writebuf 2 + c!
     1 spi-write ;
 : spi-w! ( word addr -- )
-    swap write-buf 2 + w!
+    swap writebuf 2 + w!
     2 spi-write ;
 : spi-l! ( long addr -- )
-    swap write-buf 2 + l!
+    swap writebuf 2 + l!
     4 spi-write ;
 : spi-x! ( extra addr -- )
-    swap write-buf 2 + x!
+    swap writebuf 2 + x!
     8 spi-write ;
