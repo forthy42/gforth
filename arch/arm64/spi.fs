@@ -47,8 +47,16 @@ s" /dev/spidev0.0" r/w open-file throw Value spi-fd
 
 #3000000 constant spi-hz
 
-Create readbuf  $3 c, 0 c, $10 allot
-Create writebuf $2 c, 0 c, $10 allot
+1 Constant MC-WRSR
+2 Constant MC-WRITE
+3 Constant MC-READ
+4 Constant MC-WRDI
+5 Constant MC-RDSR
+6 Constant MC-WREN
+
+$20 buffer: pagebuf
+Create readbuf  MC-READ  c, 0 w,
+Create writebuf MC-WRITE c, 0 w,
 
 Create spi-rd-msgs
 spi_ioc_transfer 2* alloz
@@ -59,24 +67,30 @@ spi-hz spi-rd-msgs spi_ioc_transfer-speed_hz l!
 readbuf spi-rd-msgs spi_ioc_transfer-tx_buf !
 2 spi-rd-msgs spi_ioc_transfer-len l!
 spi-hz spi-rd-msg2 spi_ioc_transfer-speed_hz l!
-readbuf 2 + spi-rd-msg2 spi_ioc_transfer-rx_buf !
+pagebuf spi-rd-msg2 spi_ioc_transfer-rx_buf !
 8 spi-rd-msgs spi_ioc_transfer-bits_per_word c!
 8 spi-rd-msg2 spi_ioc_transfer-bits_per_word c!
 
-: spi-read ( addr len -- )
+: spi-readb ( addr len -- )
     spi-rd-msg2 spi_ioc_transfer-len l!
+    2 spi-rd-msgs spi_ioc_transfer-len l!
     readbuf 1+ c!
     2 spi-rd-msgs spioctl ;
-: spi-c@ ( addr -- byte )
-    1 spi-read  readbuf 2 + c@ ;
-: spi-w@ ( addr -- word )
-    2 spi-read  readbuf 2 + w@ ;
-: spi-l@ ( addr -- long )
-    4 spi-read  readbuf 2 + l@ ;
-: spi-x@ ( addr -- extra )
-    8 spi-read  readbuf 2 + x@ ;
+: spi-readw ( addr len -- )
+    spi-rd-msg2 spi_ioc_transfer-len l!
+    3 spi-rd-msgs spi_ioc_transfer-len l!
+    readbuf 1+ be-w!
+    2 spi-rd-msgs spioctl ;
+: spi-c@ ( addr -- byte )    1 spi-readb  pagebuf c@ ;
+: spi-w@ ( addr -- word )    2 spi-readb  pagebuf w@ ;
+: spi-l@ ( addr -- long )    4 spi-readb  pagebuf l@ ;
+: spi-x@ ( addr -- extra )   8 spi-readb  pagebuf x@ ;
+: spiw-c@ ( addr -- byte )   1 spi-readw  pagebuf c@ ;
+: spiw-w@ ( addr -- word )   2 spi-readw  pagebuf w@ ;
+: spiw-l@ ( addr -- long )   4 spi-readw  pagebuf l@ ;
+: spiw-x@ ( addr -- extra )  8 spi-readw  pagebuf x@ ;
 
-Create stbuf $5 c, 0 c,
+Create stbuf MC-RDSR c, 0 c,
 
 Create spi-st-msgs
 spi_ioc_transfer 2* alloz
@@ -93,45 +107,52 @@ stbuf 1+ spi-st-msg2 spi_ioc_transfer-rx_buf !
 8 spi-st-msg2 spi_ioc_transfer-bits_per_word c!
 
 : spi-status@ ( -- status )
-    $5 stbuf c!
+    MC-RDSR stbuf c!
     2 spi-st-msgs spioctl
     stbuf 1+ c@ ;
 : spi-status! ( status -- )
-    $1 stbuf c!  stbuf 1+ c!
+    MC-WRSR stbuf c!  stbuf 1+ c!
     2 spi-st-msgs spi_ioc_transfer-len l!
     1 spi-st-msgs spioctl
     1 spi-st-msgs spi_ioc_transfer-len l! ;
 
 : spi-wren ( -- )
-    $6 stbuf c!
+    MC-WREN stbuf c!
     1 spi-st-msgs spioctl ;
 : spi-wrdi ( -- )
-    $4 stbuf c!
+    MC-WRDI stbuf c!
     1 spi-st-msgs spioctl ;
 
 : spi-wip| ( -- )
     BEGIN  spi-status@ 1 and 0=  UNTIL ;
 
 Create spi-wr-msgs
-spi_ioc_transfer alloz
+spi_ioc_transfer 2* alloz
+
+spi-wr-msgs spi_ioc_transfer + Constant spi-wr-msg2
 
 spi-hz spi-wr-msgs spi_ioc_transfer-speed_hz l!
 8 spi-wr-msgs spi_ioc_transfer-bits_per_word c!
 writebuf spi-wr-msgs spi_ioc_transfer-tx_buf !
+spi-hz spi-wr-msg2 spi_ioc_transfer-speed_hz l!
+8 spi-wr-msg2 spi_ioc_transfer-bits_per_word c!
+pagebuf spi-wr-msg2 spi_ioc_transfer-tx_buf !
 
-: spi-write ( addr len -- )
-    2 + spi-wr-msgs spi_ioc_transfer-len l!
+: spi-writeb ( addr len -- )
+    2 spi-wr-msgs spi_ioc_transfer-len l!
+    spi-wr-msg2 spi_ioc_transfer-len l!
     writebuf 1+ c!
-    1 spi-wr-msgs spioctl spi-wip| ;
-: spi-c! ( byte addr -- )
-    swap writebuf 2 + c!
-    1 spi-write ;
-: spi-w! ( word addr -- )
-    swap writebuf 2 + w!
-    2 spi-write ;
-: spi-l! ( long addr -- )
-    swap writebuf 2 + l!
-    4 spi-write ;
-: spi-x! ( extra addr -- )
-    swap writebuf 2 + x!
-    8 spi-write ;
+    2 spi-wr-msgs spioctl spi-wip| ;
+: spi-writew ( addr len -- )
+    3 spi-wr-msgs spi_ioc_transfer-len l!
+    spi-wr-msg2 spi_ioc_transfer-len l!
+    writebuf 1+ be-w!
+    2 spi-wr-msgs spioctl spi-wip| ;
+: spi-c! ( byte addr -- )   swap pagebuf c!  1 spi-writeb ;
+: spi-w! ( word addr -- )   swap pagebuf w!  2 spi-writeb ;
+: spi-l! ( long addr -- )   swap pagebuf l!  4 spi-writeb ;
+: spi-x! ( extra addr -- )  swap pagebuf x!  8 spi-writeb ;
+: spiw-c! ( byte addr -- )  swap pagebuf c!  1 spi-writew ;
+: spiw-w! ( word addr -- )  swap pagebuf w!  2 spi-writew ;
+: spiw-l! ( long addr -- )  swap pagebuf l!  4 spi-writew ;
+: spiw-x! ( extra addr -- ) swap pagebuf x!  8 spi-writew ;
