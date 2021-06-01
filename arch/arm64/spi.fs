@@ -1,4 +1,4 @@
-\ spi.fs	SPI access
+\ spi.fs	SPI access to Microchip EEPROMs
 \
 \ Authors: Bernd Paysan
 \ Copyright (C) 2021 Free Software Foundation, Inc.
@@ -33,13 +33,16 @@ require unix/spi.fs
 s" /dev/spidev0.0" r/w open-file throw Value spi-fd
 
 [DEFINED] odroid-n2+ [DEFINED] odroid-n2 or [IF]
+    #22 Value wp-pin   \ write protect pin
+    #24 Value cs-pin   \ chip select pin
+    #26 Value hold-pin \ hold pin
     : mux-spi ( -- )
 	#4 #19 mux!  #4 #21 mux!  #4 #23 mux!
-	#22 output-pin  #24 output-pin  #26 output-pin
-	#22 pinset  #24 pinset  #26 pinset ;
+	hold-pin output-pin  cs-pin output-pin  wp-pin output-pin
+	hold-pin pinset      cs-pin pinset      wp-pin pinset ;
     : spioctl ( n buf -- )
-	#24 pinclr
-	>r >r spi-fd fileno r> SPI_IOC_MESSAGE r> ioctl #24 pinset ?ior ;
+	cs-pin pinclr
+	>r >r spi-fd fileno r> SPI_IOC_MESSAGE r> ioctl cs-pin pinset ?ior ;
 [THEN]
 
 : alloz ( n -- )
@@ -71,16 +74,14 @@ pagebuf spi-rd-msg2 spi_ioc_transfer-rx_buf !
 8 spi-rd-msgs spi_ioc_transfer-bits_per_word c!
 8 spi-rd-msg2 spi_ioc_transfer-bits_per_word c!
 
+: spi-readrest ( len readlen -- )
+    spi-rd-msgs spi_ioc_transfer-len l!
+    spi-rd-msg2 spi_ioc_transfer-len l!
+    2 spi-rd-msgs spioctl ;
 : spi-readb ( addr len -- )
-    spi-rd-msg2 spi_ioc_transfer-len l!
-    2 spi-rd-msgs spi_ioc_transfer-len l!
-    readbuf 1+ c!
-    2 spi-rd-msgs spioctl ;
+    swap readbuf 1+ c!     2 spi-readrest ;
 : spi-readw ( addr len -- )
-    spi-rd-msg2 spi_ioc_transfer-len l!
-    3 spi-rd-msgs spi_ioc_transfer-len l!
-    readbuf 1+ be-w!
-    2 spi-rd-msgs spioctl ;
+    swap readbuf 1+ be-w!  3 spi-readrest ;
 : spi-c@ ( addr -- byte )    1 spi-readb  pagebuf c@ ;
 : spi-w@ ( addr -- word )    2 spi-readb  pagebuf w@ ;
 : spi-l@ ( addr -- long )    4 spi-readb  pagebuf l@ ;
@@ -138,16 +139,14 @@ spi-hz spi-wr-msg2 spi_ioc_transfer-speed_hz l!
 8 spi-wr-msg2 spi_ioc_transfer-bits_per_word c!
 pagebuf spi-wr-msg2 spi_ioc_transfer-tx_buf !
 
+: spi-writerest ( len writelen -- )
+    spi-wr-msgs spi_ioc_transfer-len l!
+    spi-wr-msg2 spi_ioc_transfer-len l!
+    2 spi-wr-msgs spioctl spi-wip| ;
 : spi-writeb ( addr len -- )
-    2 spi-wr-msgs spi_ioc_transfer-len l!
-    spi-wr-msg2 spi_ioc_transfer-len l!
-    writebuf 1+ c!
-    2 spi-wr-msgs spioctl spi-wip| ;
+    swap writebuf 1+ c!     2 spi-writerest ;
 : spi-writew ( addr len -- )
-    3 spi-wr-msgs spi_ioc_transfer-len l!
-    spi-wr-msg2 spi_ioc_transfer-len l!
-    writebuf 1+ be-w!
-    2 spi-wr-msgs spioctl spi-wip| ;
+    swap writebuf 1+ be-w!  3 spi-writerest ;
 : spi-c! ( byte addr -- )   swap pagebuf c!  1 spi-writeb ;
 : spi-w! ( word addr -- )   swap pagebuf w!  2 spi-writeb ;
 : spi-l! ( long addr -- )   swap pagebuf l!  4 spi-writeb ;
