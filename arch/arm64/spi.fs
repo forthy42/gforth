@@ -45,8 +45,10 @@ s" /dev/spidev0.0" r/w open-file throw Value spi-fd
 	>r >r spi-fd fileno r> SPI_IOC_MESSAGE r> ioctl cs-pin pinset ?ior ;
 [THEN]
 
+[IFUNDEF] alloz
 : alloz ( n -- )
     here swap dup allot erase ;
+[THEN]
 
 #3000000 constant spi-hz
 
