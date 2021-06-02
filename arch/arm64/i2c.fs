@@ -45,13 +45,13 @@ i2c-1-fd Value i2c-fd
 $12 buffer: i2c-writebuf \ 1 or 2 bytes command, rest write buffer
 $10 buffer: i2c-readbuf
 i2c_msg buffer: i2c-writemsg
-i2c_writebuf i2c-writemsg i2c_msg-buf !
+i2c-writebuf i2c-writemsg i2c_msg-buf !
 
 i2c_msg 2* buffer: i2c-readmsgs
 i2c-readmsgs i2c_msg + Constant i2c-readmsg2
 
-i2c_writebuf i2c-readmsgs i2c_msg-buf !
-i2c_readbuf i2c-readmsg2 i2c_msg-buf !
+i2c-writebuf i2c-readmsgs i2c_msg-buf !
+i2c-readbuf i2c-readmsg2 i2c_msg-buf !
 
 : i2c-addr ( addr -- )
     \G specify device address
