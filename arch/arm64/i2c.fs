@@ -63,7 +63,7 @@ i2c-readbuf i2c-readmsg2 i2c_msg-buf !
     swap i2c-writebuf c!
     1+ i2c-writemsg i2c_msg-len w!
     i2c-writemsg 1 i2ctl ;
-: i2c-write2 ( cmd len -- )
+: i2c-writew ( cmd len -- )
     swap i2c-writebuf be-w!
     2 + i2c-writemsg i2c_msg-len w!
     i2c-writemsg 1 i2ctl ;
