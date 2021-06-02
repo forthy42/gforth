@@ -61,21 +61,21 @@ i2c-readbuf i2c-readmsg2 i2c_msg-buf !
 
 : i2c-writeb ( cmd len -- )
     swap i2c-writebuf c!
-    1+ i2c_writemsg i2c_msg-len w!
+    1+ i2c-writemsg i2c_msg-len w!
     i2c-writemsg 1 i2ctl ;
 : i2c-write2 ( cmd len -- )
     swap i2c-writebuf be-w!
-    2 + i2c_writemsg i2c_msg-len w!
+    2 + i2c-writemsg i2c_msg-len w!
     i2c-writemsg 1 i2ctl ;
 : i2c-readb ( cmd len -- )
     swap i2c-writebuf c!
-    1 i2c_readmsgs i2c_msg-len w!
-    i2c-rreadmsg2 i2c_msg-len w!
+    1 i2c-readmsgs i2c_msg-len w!
+    i2c-readmsg2 i2c_msg-len w!
     i2c-readmsgs 2 i2ctl ;
 : i2c-readw ( cmd len -- )
     swap i2c-writebuf be-w!
-    2 i2c_readmsgs i2c_msg-len w!
-    i2c-rreadmsg2 i2c_msg-len w!
+    2 i2c-readmsgs i2c_msg-len w!
+    i2c-readmsg2 i2c_msg-len w!
     i2c-readmsgs 2 i2ctl ;
 
 : i2c-c@ ( cmd -- byte )    1 i2c-readb  i2c-readbuf c@ ;
