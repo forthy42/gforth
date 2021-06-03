@@ -81,7 +81,7 @@ I2C_M_RD ( I2C_M_NOSTART or ) i2c-readmsg2 i2c_msg-flags w!
 : i2cw-x@ ( cmd -- extra )  8 i2c-readw  i2c-readbuf x@ ;
 
 : i2c-wip| ( -- )
-    BEGIN  0 ['] i2c-c@ catch  WHILE  drop  REPEAT  drop ;  ok
+    BEGIN  0 ['] i2c-c@ catch  WHILE  drop  REPEAT  drop ;
 
 : i2c-writeb ( cmd len -- )
     swap i2c-writebuf c!
