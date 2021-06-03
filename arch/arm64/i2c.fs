@@ -60,14 +60,6 @@ I2C_M_RD ( I2C_M_NOSTART or ) i2c-readmsg2 i2c_msg-flags w!
     dup i2c-readmsgs i2c_msg-addr w!
     i2c-readmsg2 i2c_msg-addr w! ;
 
-: i2c-writeb ( cmd len -- )
-    swap i2c-writebuf c!
-    1+ i2c-writemsg i2c_msg-len w!
-    i2c-writemsg 1 i2ctl ;
-: i2c-writew ( cmd len -- )
-    swap i2c-writebuf be-w!
-    2 + i2c-writemsg i2c_msg-len w!
-    i2c-writemsg 1 i2ctl ;
 : i2c-readb ( cmd len -- )
     swap i2c-writebuf c!
     1 i2c-readmsgs i2c_msg-len w!
@@ -87,6 +79,18 @@ I2C_M_RD ( I2C_M_NOSTART or ) i2c-readmsg2 i2c_msg-flags w!
 : i2cw-w@ ( cmd -- word )   2 i2c-readw  i2c-readbuf w@ ;
 : i2cw-l@ ( cmd -- long )   4 i2c-readw  i2c-readbuf l@ ;
 : i2cw-x@ ( cmd -- extra )  8 i2c-readw  i2c-readbuf x@ ;
+
+: i2c-wip| ( -- )
+    BEGIN  0 ['] i2c-c@ catch  WHILE  drop  REPEAT  drop ;  ok
+
+: i2c-writeb ( cmd len -- )
+    swap i2c-writebuf c!
+    1+ i2c-writemsg i2c_msg-len w!
+    i2c-writemsg 1 i2ctl  i2c-wip| ;
+: i2c-writew ( cmd len -- )
+    swap i2c-writebuf be-w!
+    2 + i2c-writemsg i2c_msg-len w!
+    i2c-writemsg 1 i2ctl  i2c-wip| ;
 
 : i2c-c! ( byte cmd -- )   swap i2c-writebuf 1+ c!  1 i2c-writeb ;
 : i2c-w! ( word cmd -- )   swap i2c-writebuf 1+ w!  2 i2c-writeb ;
