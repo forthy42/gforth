@@ -21,7 +21,7 @@
 require arch/arm64/gpios.fs
 require unix/i2c.fs
 
-s" /dev/i2c-1" r/2 open-file throw Value i2c-fd
+s" /dev/i2c-1" r/w open-file throw Value i2c-fd
 
 [DEFINED] odroid-n2+ [DEFINED] odroid-n2 or [IF]
     : mux-i2c-0 ( -- )
