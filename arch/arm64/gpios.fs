@@ -440,7 +440,9 @@ opt: lits# 1 u>= IF  drop inp# l@,  ELSE  :,  THEN ;
     \G set pin mode to input
     [IFDEF] mux!
 	0 over mux!  1 swap fsel! ;
-    opt: drop ]] 0 over mux!  1 swap fsel! [[
+    opt: drop lits# 1 u>= IF
+	    lits> dup ]] 0 Literal mux!  1 Literal fsel! [[
+	ELSE  ]] 0 over mux!  1 swap fsel! [[  THEN
     [ELSE]
 	0 swap fsel! ;
     opt: drop ]] 0 swap fsel! [[
