@@ -28,6 +28,8 @@ s" /dev/i2c-1" r/w open-file throw Value i2c-fd
 	#1 #3 mux! #1 #5 mux! ;
     : mux-i2c-1 ( -- )
 	#2 #27 mux! #2 #28 mux! ;
+    : wren ( -- ) \ set write enable
+	#29 output-pin #29 pinset ;
     : i2ctl ( msgs n -- )
 	{ | msgbuf[ i2c_rdwr_ioctl_data ] }
 	msgbuf[ i2c_rdwr_ioctl_data-nmsgs l!
