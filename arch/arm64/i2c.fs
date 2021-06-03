@@ -28,14 +28,22 @@ s" /dev/i2c-1" r/w open-file throw Value i2c-fd
 	#1 #3 mux! #1 #5 mux! ;
     : mux-i2c-1 ( -- )
 	#2 #27 mux! #2 #28 mux! ;
-    : wren ( -- ) \ set write enable
-	#29 output-pin #29 pinset ;
-    : i2ctl ( msgs n -- )
-	{ | msgbuf[ i2c_rdwr_ioctl_data ] }
-	msgbuf[ i2c_rdwr_ioctl_data-nmsgs l!
-	msgbuf[ i2c_rdwr_ioctl_data-msgs !
-	i2c-fd fileno I2C_RDWR msgbuf[ ioctl ?ior ;
 [THEN]
+[DEFINED] rpi-4 [DEFINED] rpi or [IF]
+    : mux-i2c-0 ( -- )
+	#2 #3 fsel!  #2 #5 fsel! ;
+    : mix-i2c-1 ( -- )
+	#2 #27 fsel!  #2 #28 fsel! ;
+[THEN]
+
+#29 Value wren-pin
+: wren ( -- ) \ set write enable
+    wren-pin output-pin  wren-pin pinset ;
+: i2ctl ( msgs n -- )
+    { | msgbuf[ i2c_rdwr_ioctl_data ] }
+    msgbuf[ i2c_rdwr_ioctl_data-nmsgs l!
+    msgbuf[ i2c_rdwr_ioctl_data-msgs !
+    i2c-fd fileno I2C_RDWR msgbuf[ ioctl ?ior ;
 
 [IFUNDEF] alloz
     : alloz ( n -- )
