@@ -21,9 +21,7 @@
 require arch/arm64/gpios.fs
 require unix/i2c.fs
 
-s" /dev/i2c-0" r/w open-file throw Value i2c-0-fd
-s" /dev/i2c-1" r/w open-file throw Value i2c-1-fd
-i2c-1-fd Value i2c-fd
+s" /dev/i2c-1" r/2 open-file throw Value i2c-fd
 
 [DEFINED] odroid-n2+ [DEFINED] odroid-n2 or [IF]
     : mux-i2c-0 ( -- )
@@ -52,6 +50,7 @@ i2c-readmsgs i2c_msg + Constant i2c-readmsg2
 
 i2c-writebuf i2c-readmsgs i2c_msg-buf !
 i2c-readbuf i2c-readmsg2 i2c_msg-buf !
+I2C_M_RD ( I2C_M_NOSTART or ) i2c-readmsg2 i2c_msg-flags w!
 
 : i2c-addr ( addr -- )
     \G specify device address
