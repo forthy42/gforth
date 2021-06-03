@@ -86,11 +86,11 @@ I2C_M_RD ( I2C_M_NOSTART or ) i2c-readmsg2 i2c_msg-flags w!
 : i2cw-l@ ( cmd -- long )   4 i2c-readw  i2c-readbuf l@ ;
 : i2cw-x@ ( cmd -- extra )  8 i2c-readw  i2c-readbuf x@ ;
 
-: i2c-c! ( byte cmd -- )   swap i2c-writebuf c!  1 i2c-writeb ;
-: i2c-w! ( word cmd -- )   swap i2c-writebuf w!  2 i2c-writeb ;
-: i2c-l! ( long cmd -- )   swap i2c-writebuf l!  4 i2c-writeb ;
-: i2c-x! ( extra cmd -- )  swap i2c-writebuf x!  8 i2c-writeb ;
-: i2cw-c! ( byte cmd -- )  swap i2c-writebuf c!  1 i2c-writew ;
-: i2cw-w! ( word cmd -- )  swap i2c-writebuf w!  2 i2c-writew ;
-: i2cw-l! ( long cmd -- )  swap i2c-writebuf l!  4 i2c-writew ;
-: i2cw-x! ( extra cmd -- ) swap i2c-writebuf x!  8 i2c-writew ;
+: i2c-c! ( byte cmd -- )   swap i2c-writebuf 1+ c!  1 i2c-writeb ;
+: i2c-w! ( word cmd -- )   swap i2c-writebuf 1+ w!  2 i2c-writeb ;
+: i2c-l! ( long cmd -- )   swap i2c-writebuf 1+ l!  4 i2c-writeb ;
+: i2c-x! ( extra cmd -- )  swap i2c-writebuf 1+ x!  8 i2c-writeb ;
+: i2cw-c! ( byte cmd -- )  swap i2c-writebuf 2 + c!  1 i2c-writew ;
+: i2cw-w! ( word cmd -- )  swap i2c-writebuf 2 + w!  2 i2c-writew ;
+: i2cw-l! ( long cmd -- )  swap i2c-writebuf 2 + l!  4 i2c-writew ;
+: i2cw-x! ( extra cmd -- ) swap i2c-writebuf 2 + x!  8 i2c-writew ;
