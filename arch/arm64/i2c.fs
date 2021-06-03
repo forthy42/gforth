@@ -36,7 +36,7 @@ s" /dev/i2c-1" r/w open-file throw Value i2c-fd
 	#2 #27 fsel!  #2 #28 fsel! ;
 [THEN]
 
-#29 Value wren-pin
+#29 Constant wren-pin
 : wren ( -- ) \ set write enable
     wren-pin output-pin  wren-pin pinset ;
 : i2ctl ( msgs n -- )

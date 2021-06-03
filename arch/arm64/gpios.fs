@@ -34,7 +34,8 @@ require unix/mmap.fs
 : land! ( l addr -- )
     >r r@ l@ and r> l! ;
 : lmask! ( l mask addr -- )
-    \G set the bits where @var{mask} is 1 in @var{addr} by the corresponding
+    \G set the bits where @var{mask} is 1
+    \G in @var{addr} by the corresponding
     \G bits in @var{l}.
     >r r@ l@ swap mux r> l! ;
 
@@ -283,7 +284,7 @@ model s" Raspberry Pi" search nip nip [IF]
     $022 reg: RPI_GPAFEN0
     $023 reg: RPI_GPAFEN1
 
-    \ BCM2825 variant
+    \ BCM2835 variant
     $025 reg: RPI_GPPUD
     $026 reg: RPI_GPPUDCLK0
     $027 reg: RPI_GPPUDCLK1

@@ -41,9 +41,9 @@ s" /dev/spidev0.0" r/w open-file throw Value spi-fd
 	#2 #19 fsel!  #2 #21 fsel!  #2 #23 fsel! ;
 [THEN]
 
-#22 Value wp-pin   \ write protect pin
-#24 Value cs-pin   \ chip select pin
-#26 Value hold-pin \ hold pin
+#22 Constant wp-pin   \ write protect pin
+#24 Constant cs-pin   \ chip select pin
+#26 Constant hold-pin \ hold pin
 : gpio-spi ( -- )
     hold-pin output-pin  cs-pin output-pin  wp-pin output-pin
     hold-pin pinset      cs-pin pinset      wp-pin pinset ;
