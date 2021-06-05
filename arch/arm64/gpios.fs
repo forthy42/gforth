@@ -53,9 +53,11 @@ require unix/mmap.fs
 
 s" /sys/firmware/devicetree/base/model" ' slurp-file catch
 [IF] 2drop s" unknown" [THEN] 2Constant model
+: model?" ( "name"<"> -- flag )
+    model '"' parse search nip nip ;
 
-model s" ODROID-N2" search nip nip [IF]
-    model s" ODROID-N2Plus" search nip nip [IF]
+model?" ODROID-N2" [IF]
+    model?" ODROID-N2Plus" [IF]
 	: odroid-n2+ ;
     [ELSE]
 	: odroid-n2 ;
@@ -153,7 +155,7 @@ model s" ODROID-N2" search nip nip [IF]
     [: lits# 1 u>= IF  >body lits> 1- #39 umin cells + @ >lits
 	ELSE  does,  THEN ;] optimizes pin>gpio
 [THEN]
-model s" ODROID-C2" search nip nip [IF]
+model?" ODROID-C2" [IF]
     : odroid-c2 ;
     $C8834000 Constant GPIO-Base-map
 
@@ -242,7 +244,7 @@ model s" ODROID-C2" search nip nip [IF]
     [: lits# 1 u>= IF  >body lits> 1- #39 umin cells + @ >lits
 	ELSE  does,  THEN ;] optimizes pin>gpio
 [THEN]
-model s" Raspberry Pi" search nip nip [IF]
+model?" Raspberry Pi" [IF]
     $00200000 Constant GPIO-Base-map
 
     \ fsel are 3 bits per function, 000 is input, 001 is output
