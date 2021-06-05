@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require arch/arm64/gpios.fs
+require ./gpios.fs
 require unix/i2c.fs
 
 s" /dev/i2c-1" r/w open-file throw Value i2c-fd

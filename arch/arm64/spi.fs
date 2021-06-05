@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require arch/arm64/gpios.fs
+require ./gpios.fs
 require unix/spi.fs
 
 : _IOC ( dir type nr size -- constant )
