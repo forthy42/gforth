@@ -38,12 +38,7 @@
     \g next field, and @var{align2} is the alignment of all fields.@*
     \g @code{name} execution: @var{addr1} -- @var{addr2}.@*
     \g @var{addr2}=@var{addr1}+@var{offset1}
-    [IFDEF]  (Field)
-	(Field)
-    [ELSE]
-	Header reveal dofield: cfa,
-    [THEN]
-    field, ;
+    (Field) field, ;
 
 : end-struct ( align size "name" -- ) \ gforth
 \g Define a structure/type descriptor @var{name} with alignment
