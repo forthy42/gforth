@@ -19,12 +19,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : standard+field ( n1 n2 "name" -- n3 ) \ X:structures plus-field
-    over if
-        (field) over , dup ,
-    else
-        create dozerofield over , dup ,
-    then
-    + ;
+    (field) over , dup , + ;
 
 : (sizeof) ( "name" -- size ) ' >body cell+ @ ;
 : [sizeof] ( "name" -- size )

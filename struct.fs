@@ -25,17 +25,6 @@
 
 ' naligned alias nalign \ old name, obsolete
 
-: dozerofield ( -- )
-    \ a field that makes no change
-    \ to enable accessing the offset with "['] <field> >body @" this
-    \ is not implemented with "['] noop alias"
-    latest
-    if
-	immediate
-    then
-does> ( name execution: -- )
-    drop ;
-
 : field, ( align1 offset1 align size --  align2 offset2 )
     swap rot over nalign dup , ( align1 size align offset )
     rot + >r nalign r> ;
@@ -49,16 +38,11 @@ does> ( name execution: -- )
     \g next field, and @var{align2} is the alignment of all fields.@*
     \g @code{name} execution: @var{addr1} -- @var{addr2}.@*
     \g @var{addr2}=@var{addr1}+@var{offset1}
-    2 pick 
-    if \ field offset <> 0
-	[IFDEF]  (Field)
-	    (Field)
-	[ELSE]
-	    Header reveal dofield: cfa,
-	[THEN]
-    else
-	create dozerofield
-    then
+    [IFDEF]  (Field)
+	(Field)
+    [ELSE]
+	Header reveal dofield: cfa,
+    [THEN]
     field, ;
 
 : end-struct ( align size "name" -- ) \ gforth

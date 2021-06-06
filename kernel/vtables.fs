@@ -25,9 +25,7 @@
 : variable, >body lit, ;
 : user, >body @ ['] useraddr peephole-compile, , ;
 : defer, >body ['] lit-perform peephole-compile, , ;
-: field+, >body @
-    lits# 0> IF  lits> + lit,
-    ELSE  ['] lit+ peephole-compile, ,  THEN ;
+: field+, >body @ lit, postpone + ;
 : abi-code, >body ['] abi-call peephole-compile, , ;
 : ;abi-code, ['] ;abi-code-exec peephole-compile, , ;
 : does, ['] does-xt peephole-compile, , ;
