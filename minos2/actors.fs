@@ -200,7 +200,7 @@ end-class box-actor
 
 :noname ( rx ry b n -- )
     click( o hex. caller-w .name$ type space caller-w hex. ." box click: " fover f. fdup f. over . dup . cr )
-    fover fover ?inside ?dup-IF  dup engage  .clicked  EXIT  THEN
+    fover fover ?inside ?dup-IF  .clicked  EXIT  THEN
     2drop fdrop fdrop ;
 box-actor is clicked
 :noname ( addr u -- )
@@ -810,6 +810,7 @@ edit-terminal edit-out !
 ; edit-actor is touchmove
 :noname ( o:actor rx ry b n -- )
     click( o hex. caller-w hex. ." edit click " fover f. fdup f. over . dup . cr )
+    o engage
     ['] setstring> edit-xt
     dup 1 and IF  start-selection
     ELSE

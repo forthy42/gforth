@@ -190,9 +190,16 @@ previous
     ke_getMetaState meta-key# !
     getAction dup 2 = IF  drop
 	getKeyCode
-	?dup-IF  keycode>ekey ?dup-IF top-act .ekeyed THEN
+	?dup-IF  keycode>ekey
+	    dup bl keycode-start within
+	    IF    >xstring top-act .ukeyed
+	    ELSE  ?dup-IF top-act .ekeyed THEN  THEN
 	ELSE  nostring getCharacters jstring>sstring
-	    top-act .ukeyed jfree
+	    dup 1 = over c@ bl < and IF
+		drop c@ top-act .ekeyed
+	    ELSE
+		top-act .ukeyed
+	    THEN  jfree
 	THEN
     ELSE
 	0= IF
