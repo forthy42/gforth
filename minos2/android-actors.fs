@@ -185,18 +185,24 @@ also android
 
 previous
 
+: ctrls? ( addr u -- flag )
+    false -rot bounds ?DO
+	I c@ bl < or \ all UTF-8 codepoints are > bl
+    LOOP ;
+: u/ekeyed ( ekey -- )
+    dup 0= IF  drop  EXIT  THEN
+    dup bl keycode-start within
+    IF    >xstring top-act .ukeyed
+    ELSE  ?dup-IF top-act .ekeyed THEN  THEN ;
 : key>action ( event -- )
     dup to key-event >o
     ke_getMetaState meta-key# !
     getAction dup 2 = IF  drop
 	getKeyCode
-	?dup-IF  keycode>ekey
-	    dup bl keycode-start within
-	    IF    >xstring top-act .ukeyed
-	    ELSE  ?dup-IF top-act .ekeyed THEN  THEN
+	?dup-IF  keycode>ekey u/ekeyed
 	ELSE  nostring getCharacters jstring>sstring
-	    dup 1 = over c@ bl < and IF
-		drop c@ top-act .ekeyed
+	    2dup ctrls? IF
+		bounds ?DO  I xc@+ u/ekeyed  I -  +LOOP
 	    ELSE
 		top-act .ukeyed
 	    THEN  jfree
@@ -204,10 +210,8 @@ previous
     ELSE
 	0= IF
 	    getUnicodeChar
-	    ?dup-IF
-		dup bl < IF  top-act .ekeyed \ pass control characters to ekeyed
-		ELSE  >xstring top-act .ukeyed  THEN
-	    ELSE  getKeyCode keycode>ekey ?dup-IF top-act .ekeyed THEN
+	    ?dup-IF  u/ekeyed
+	    ELSE  getKeyCode keycode>ekey u/ekeyed
 	    THEN
 	THEN
     THEN o> ;
