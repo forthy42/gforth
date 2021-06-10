@@ -419,7 +419,7 @@ Variable setsel# \ size of selection relative to the end
     .unstatus xedit-startpos
     edit-linew @ screenw @ /mod cols dup screenw ! * +
     dup spaces dup edit-curpos ! edit-linew !
-    .resizeline .all 2>r 2>r .status 2r> 2r> .rest false ;
+    .resizeline .all 2>r 2>r .status 2r> 2r> .all-rest false ;
 
 Create xchar-ctrlkeys ( -- )
     ' false        , ' xfirst-pos   , ' xback        , ' false        ,
