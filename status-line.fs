@@ -69,7 +69,7 @@ blue >bg white >fg or bold or Value status-attr
 	    r> I - +LOOP  drop
 	THEN
     THEN
-    cr 0 -1 at-deltaxy
+    cr edit-linew @ screenw @ mod -1 at-deltaxy
     status$ $@ redraw-status
     status$ $free
     1 to status-offset ;
