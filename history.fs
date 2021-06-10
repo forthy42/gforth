@@ -360,7 +360,7 @@ synonym setstring-color info-color
 : (xenter)  ( max span addr pos1 -- max span addr span true )
     setstring$ $@ xins-string  setstring$ $free
     drop 2dup swap write-history
-    over edit-update true ;
+    over edit-update edit-curpos-off true ;
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )
     prefix-found cell+ @ ?dup-IF  >r
