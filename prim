@@ -2181,6 +2181,13 @@ IF_fpTOS(fpTOS=fp[0]);
 gforth-pointers ( -- a_addr )  gforth get_gforth_pointers
 a_addr = (Cell*)gforth_pointers;
 
+winch? ( -- a_addr )	gforth winch_query
+#ifdef SIGWINCH
+a_addr = &winch_addr;
+#else
+a_addr = NULL;
+#endif
+
 \+
 \+file
 

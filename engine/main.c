@@ -2613,22 +2613,15 @@ Xt gforth_find(Char * name)
   return xt;
 }
 
-Cell* winch_addr=0;
-
-void gforth_setwinch()
-{
-  Xt winch_query=gforth_find((Char*)"winch?");
-  if(winch_query != 0) {
-    gforth_execute(winch_query);
-    winch_addr = (Cell*)*gforth_SP++;
-  }
-}
+Cell winch_addr=0;
 
 void gforth_bootmessage()
 {
   Xt bootmessage=gforth_find((Char*)"bootmessage");
   if(bootmessage != 0) {
     gforth_execute(bootmessage);
+  } else {
+    debugp(stderr, "Can't print bootmessage\n");
   }
 }
 
@@ -2655,7 +2648,6 @@ Cell gforth_main(int argc, char **argv, char **env)
   debugp(stderr, "Start returned %ld\n", retvalue);
 
   while(retvalue == -56) { /* throw-code for quit */
-    gforth_setwinch();
     gforth_bootmessage();
     retvalue = gforth_quit();
   }

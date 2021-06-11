@@ -48,8 +48,6 @@ User out ( -- addr ) \ gforth
     debug-fid emit-file drop \ !! use ?DUP-IF THROW ENDIF instead of DROP ?
 ;
 
-Variable winch?
-
 #-512 Constant EOK
 #-516 Constant EINTR \ error returned for window change
 

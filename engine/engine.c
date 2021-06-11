@@ -355,6 +355,10 @@ static inline Cell slashfstage2(Cell n1, stagediv_t *stage1)
   char * name = LONGNAME_NAME(__cfa);
 #endif
 
+#ifdef SIGWINCH
+extern Cell winch_addr;
+#endif
+
 #ifdef STANDALONE
 jmp_buf * throw_jmp_handler;
 
