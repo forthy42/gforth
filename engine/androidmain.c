@@ -108,6 +108,7 @@ typedef struct {
   char* libdir;
   char* locale;
   char* startfile;
+  char* extfiledir;
   char* filedir;
 } jniargs;
 
