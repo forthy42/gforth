@@ -374,7 +374,6 @@ void startForth(jniargs * startargs)
     if(needhide) {
       post("hideprog");
     }
-    gforth_setwinch();
     gforth_bootmessage();
     LOGI("starting gforth_quit\n");
     retvalue = gforth_quit();
