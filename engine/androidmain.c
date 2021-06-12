@@ -317,9 +317,9 @@ void startForth(jniargs * startargs)
 
   asprintf(&path,
 	   "--path=.:%s/current:%s/" ARCH "/gforth/current:%s/site-forth:%s/" ARCH "/gforth/site-forth",
-	   startargs.filedir, startargs.filedir,
-	   startargs.filedir, startargs.filedir);
-  folder[0]=startargs.filedir;
+	   startargs->filedir, startargs->filedir,
+	   startargs->filedir, startargs->filedir);
+  folder[0]=startargs->filedir;
   paths[0]=path;
 
   if(!checkFiles(&patharg)) {
