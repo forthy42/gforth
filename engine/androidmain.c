@@ -260,7 +260,7 @@ char *homedir;
 
 int checkFiles(char ** patharg)
 {
-  int i, shacheck;
+  int i, shacheck=0;
   FILE * test;
   char * logfile;
 
@@ -268,24 +268,33 @@ int checkFiles(char ** patharg)
     *patharg=paths[i];
     LOGI("folder[%i] = \"%s\"\n", i, folder[i]);
     if(!chdir(folder[i])) {
+      LOGI("chdir(%s)+shacheck\n", folder[i]);
       // check if the files already have been successfully unpacked
       if((shacheck =
 	  checksha256sum(sha256sum, "current/sha256sum") &&
 	  checksha256sum(sha256arch, ARCH "/gforth/current/sha256sum"))) break;
-      // if this failed, check if you can create a directory
-      mkdir(folder[i], S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-      // and write into that directory
+    }
+  }
+  // if this failed, check if you can create a directory
+  // and write into that directory
+  if(!shacheck) {
+    for(i=0; i<2; i++) {
+      *patharg=paths[i];
+      LOGI("try create folder[%i] = \"%s\"\n", i, folder[i]);
+      if(chdir(folder[i])) {
+	mkdir(folder[i], S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+      }
       if(!chdir(folder[i])) {
+	LOGI("chdir(%s)+test-stamp\n", folder[i]);
 	if((test=fopen("test-stamp", "w+"))) {
 	  fclose(test);
 	  unlink("test-stamp");
-	  LOGI("chdir(%s)\n", folder[i]);
 	  break;
 	}
       }
     }
   }
-
+  
   rootdir=folder[i];
   LOGI("Extra arg: %s\n", *patharg);
 
