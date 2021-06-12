@@ -677,7 +677,8 @@ public class Gforth
 	    startForth(getApplicationInfo().nativeLibraryDir,
 		       Locale.getDefault().toString() + ".UTF-8",
 		       startfile,
-		       getExternalFileDir().toString());
+		       getExternalFileDir().toString(),
+		       getFileDir().toString());
 	    started=true;
 	}
 	activated = -1;
