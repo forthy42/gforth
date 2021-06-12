@@ -668,7 +668,7 @@ public class Gforth
     @Override protected void onStart() {
 	super.onStart();
 	if(verifyStoragePermissions(this)) {
-	    doStart();
+	    doStart(mActivity);
 	}
     }
 
