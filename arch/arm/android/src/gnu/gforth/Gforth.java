@@ -672,13 +672,13 @@ public class Gforth
 	}
     }
 
-    public void doStart() {
+    public void doStart(Context context) {
 	if(!started) {
 	    startForth(getApplicationInfo().nativeLibraryDir,
 		       Locale.getDefault().toString() + ".UTF-8",
 		       startfile,
-		       Context.getExternalFileDir().toString() + "/gforth",
-		       Context.getFileDir().toString());
+		       context.getExternalFileDir().toString() + "/gforth",
+		       context.getFileDir().toString());
 	    started=true;
 	}
 	activated = -1;
@@ -916,6 +916,6 @@ public class Gforth
 	for(int i = 0; i <= grantResults.length - 1; i++) {
 	    if(grantResults[i] != PackageManager.PERMISSION_GRANTED) return;
 	}
-	doStart();
+	doStart(mActivity);
     }
 }
