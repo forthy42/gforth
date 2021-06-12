@@ -668,17 +668,17 @@ public class Gforth
     @Override protected void onStart() {
 	super.onStart();
 	if(verifyStoragePermissions(this)) {
-	    doStart(this);
+	    doStart();
 	}
     }
 
-    public void doStart(Context context) {
+    public void doStart() {
 	if(!started) {
 	    startForth(getApplicationInfo().nativeLibraryDir,
 		       Locale.getDefault().toString() + ".UTF-8",
 		       startfile,
-		       context.getExternalFileDir().toString() + "/gforth",
-		       context.getFileDir().toString());
+		       this.getExternalFileDir().toString() + "/gforth",
+		       this.getFileDir().toString());
 	    started=true;
 	}
 	activated = -1;
@@ -916,6 +916,6 @@ public class Gforth
 	for(int i = 0; i <= grantResults.length - 1; i++) {
 	    if(grantResults[i] != PackageManager.PERMISSION_GRANTED) return;
 	}
-	doStart(this);
+	doStart();
     }
 }
