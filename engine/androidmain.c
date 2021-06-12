@@ -253,8 +253,8 @@ void addfileargs(char* filename)
   }
 }
 
-static char *paths[2];
-static char *folder[2];
+static char *paths[3] = { "--", NULL, NULL };
+static char *folder[3] = { "/sdcard", NULL, NULL };
 char *rootdir;
 char *homedir;
 
@@ -264,15 +264,15 @@ int checkFiles(char ** patharg)
   FILE * test;
   char * logfile;
 
-  for(i=0; i<2; i++) {
+  for(i=0; i<3; i++) {
     *patharg=paths[i];
     LOGI("folder[%i] = \"%s\"\n", i, folder[i]);
     if(!chdir(folder[i])) {
       LOGI("chdir(%s)+shacheck\n", folder[i]);
       // check if the files already have been successfully unpacked
       if((shacheck =
-	  checksha256sum(sha256sum, "current/sha256sum") &&
-	  checksha256sum(sha256arch, ARCH "/gforth/current/sha256sum"))) break;
+	  checksha256sum(sha256sum, "gforth/current/sha256sum") &&
+	  checksha256sum(sha256arch, "gforth/" ARCH "/gforth/current/sha256sum"))) break;
     }
   }
   // if this failed, check if you can create a directory
@@ -281,14 +281,12 @@ int checkFiles(char ** patharg)
     for(i=0; i<2; i++) {
       *patharg=paths[i];
       LOGI("try create folder[%i] = \"%s\"\n", i, folder[i]);
-      if(chdir(folder[i])) {
-	mkdir(folder[i], S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-      }
       if(!chdir(folder[i])) {
-	LOGI("chdir(%s)+test-stamp\n", folder[i]);
-	if((test=fopen("test-stamp", "w+"))) {
+	mkdir("gforth", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	if((test=fopen("gforth/test-stamp", "w+"))) {
 	  fclose(test);
-	  unlink("test-stamp");
+	  unlink("gforth/test-stamp");
+	  LOGI("chdir(%s)+test-stamp succeeded\n", folder[i]);
 	  break;
 	}
       }
@@ -328,17 +326,17 @@ void startForth(jniargs * startargs)
   startargs->env = env;
 
   asprintf(&path,
-	   "--path=.:%s/current:%s/" ARCH "/gforth/current:%s/site-forth:%s/" ARCH "/gforth/site-forth",
+	   "--path=.:%s/gforth/current:%s/gforth/" ARCH "/gforth/current:%s/gforth/site-forth:%s/gforth/" ARCH "/gforth/site-forth",
 	   startargs->filedir, startargs->filedir,
 	   startargs->filedir, startargs->filedir);
   asprintf(&extpath,
-	   "--path=.:%s/current:%s/" ARCH "/gforth/current:%s/site-forth:%s/" ARCH "/gforth/site-forth",
+	   "--path=.:%s/gforth/current:%s/gforth/" ARCH "/gforth/current:%s/gforth/site-forth:%s/gforth/" ARCH "/gforth/site-forth",
 	   startargs->extfiledir, startargs->extfiledir,
 	   startargs->extfiledir, startargs->extfiledir);
-  folder[0]=startargs->extfiledir;
-  folder[1]=startargs->filedir;
-  paths[0]=extpath;
-  paths[1]=path;
+  folder[1]=startargs->extfiledir;
+  folder[2]=startargs->filedir;
+  paths[1]=extpath;
+  paths[2]=path;
 
   if(!checkFiles(&patharg)) {
     char *dir = startargs->libdir;
