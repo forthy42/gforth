@@ -155,7 +155,7 @@ public class Gforth
     public native void onEventNative(int type, Object event);
     public native void onEventNative(int type, int event);
     public native void callForth(long xt); // !! use long for 64 bits !!
-    public native void startForth(String libdir, String locale, String startfile);
+    public native void startForth(String libdir, String locale, String startfile, String extfiledir, String filedir);
 
     // own subclasses
     static class GforthView extends SurfaceView implements SurfaceHolder.Callback2 {
