@@ -253,8 +253,10 @@ void addfileargs(char* filename)
   }
 }
 
-static char *paths[3] = { "--", NULL, NULL };
-static char *folder[3] = { "/sdcard", NULL, NULL };
+#define FOLDERS 3
+
+static char *paths[FOLDERS] = { "--", NULL, NULL };
+static char *folder[FOLDERS] = { "/sdcard", NULL, NULL };
 char *rootdir;
 char *homedir;
 
@@ -264,7 +266,7 @@ int checkFiles(char ** patharg)
   FILE * test;
   char * logfile;
 
-  for(i=0; i<3; i++) {
+  for(i=0; i<FOLDERS; i++) {
     *patharg=paths[i];
     LOGI("folder[%i] = \"%s\"\n", i, folder[i]);
     if(!chdir(folder[i])) {
@@ -278,7 +280,7 @@ int checkFiles(char ** patharg)
   // if this failed, check if you can create a directory
   // and write into that directory
   if(!shacheck) {
-    for(i=0; i<2; i++) {
+    for(i=0; i<FOLDERS; i++) {
       *patharg=paths[i];
       LOGI("try create folder[%i] = \"%s\"\n", i, folder[i]);
       if(!chdir(folder[i])) {
