@@ -108,6 +108,7 @@ typedef struct {
   char* libdir;
   char* locale;
   char* startfile;
+  char* filedir;
 } jniargs;
 
 jniargs startargs;
@@ -150,8 +151,7 @@ int checksha256sum(const char * sha256, const char* sha256file)
     LOGI("cksha256: size %d wrong\n", checkread);
     return 0;
   }
-  if(memcmp(sha256buffer, sha256, 64)) return 0;
-  return 1;
+  return !memcmp(sha256buffer, sha256, 64);
 }
 
 void post(char * doprog)
@@ -252,24 +252,29 @@ void addfileargs(char* filename)
   }
 }
 
-static const char *paths[] = { "--",
+static const char *paths[] = { NULL,
 			       "--path=.:/mnt/sdcard/gforth/current:/mnt/sdcard/gforth/" ARCH "/gforth/current:/mnt/sdcard/gforth/site-forth:/mnt/sdcard/gforth/" ARCH "/gforth/site-forth",
 			       "--path=.:/data/data/gnu.gforth/files/gforth/current:/data/data/gnu.gforth/files/gforth/" ARCH "/gforth/current:/data/data/gnu.gforth/files/gforth/site-forth:/data/data/gnu.gforth/files/gforth/" ARCH "/gforth/site-forth" };
-static const char *folder[] = { "/sdcard", "/mnt/sdcard", "/data/data/gnu.gforth/files" };
+static const char *folder[] = { NULL, "/mnt/sdcard", "/data/data/gnu.gforth/files" };
 char *rootdir;
 char *homedir;
 
 int checkFiles(char ** patharg)
 {
-  int i;
+  int i, shacheck;
   FILE * test;
   char * logfile;
 
   for(i=0; i<=2; i++) {
     *patharg=paths[i];
     if(!chdir(folder[i])) {
+      // check if the files already have been successfully unpacked
+      if((shacheck =
+	  checksha256sum(sha256sum, "gforth/current/sha256sum") &&
+	  checksha256sum(sha256arch, "gforth/" ARCH "/gforth/current/sha256sum"))) break;
+      // if this failed, check if you can create a directory
       mkdir("gforth", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-      // may fail, because it exists
+      // and write into that directory
       if((test=fopen("gforth/test-stamp", "w+"))) {
 	fclose(test);
 	unlink("gforth/test-stamp");
@@ -282,16 +287,13 @@ int checkFiles(char ** patharg)
   rootdir=folder[i];
   LOGI("Extra arg: %s\n", *patharg);
 
-  if(i != 0) {
-    asprintf(&logfile, "%s/gforthout.log", rootdir);
-    freopen(logfile, "w+", stdout);
-    asprintf(&logfile, "%s/gfortherr.log", rootdir);
-    freopen(logfile, "w+", stderr);
-    free(logfile);
-  }
+  asprintf(&logfile, "%s/gforthout.log", rootdir);
+  freopen(logfile, "w+", stdout);
+  asprintf(&logfile, "%s/gfortherr.log", rootdir);
+  freopen(logfile, "w+", stderr);
+  free(logfile);
 
-  return checksha256sum(sha256sum, "gforth/current/sha256sum") &&
-    checksha256sum(sha256arch, "gforth/" ARCH "/gforth/current/sha256sum");
+  return shacheck;
 }
 
 void startForth(jniargs * startargs)
@@ -304,6 +306,7 @@ void startForth(jniargs * startargs)
   JavaVM *vm=startargs->vm;
   JNIEnv *env;
   JavaVMAttachArgs vmAA = { JNI_VERSION_1_6, "NativeThread", 0 };
+  char * path;
 
   pipe(epipe);
   ((real_FILE*)(stdin))->_file=epipe[0];
@@ -311,6 +314,13 @@ void startForth(jniargs * startargs)
   (*vm)->AttachCurrentThread(vm, &env, &vmAA);
   
   startargs->env = env;
+
+  asprintf(&path,
+	   "--path=.:%s/current:%s/" ARCH "/gforth/current:%s/site-forth:%s/" ARCH "/gforth/site-forth",
+	   startargs.filedir, startargs.filedir,
+	   startargs.filedir, startargs.filedir);
+  folder[0]=startargs.filedir;
+  paths[0]=path;
 
   if(!checkFiles(&patharg)) {
     char *dir = startargs->libdir;
@@ -388,13 +398,14 @@ pthread_attr_t * pthread_detach_attr(void)
   return &attr;
 }
 
-void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale, jstring startfile)
+void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale, jstring startfile, jstring filedir)
 {
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
   startargs.libdir = getjstring(env, libdir);
   startargs.locale = getjstring(env, locale);
   startargs.startfile = getjstring(env, startfile);
+  startargs.filedir = getjstring(env, filedir);
 
   pthread_create(&(startargs.id), pthread_detach_attr(), startForth, (void*)&startargs);
 }
@@ -432,7 +443,7 @@ static JNINativeMethod GforthMethods[] = {
   {"onEventNative", "(ILjava/lang/Object;)V", (void*) JNI_onEventNative},
   {"onEventNative", "(II)V",                  (void*) JNI_onEventNativeInt},
   {"callForth",     "(J)V",                   (void*) JNI_callForth},
-  {"startForth",    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",  (void*) JNI_startForth},
+  {"startForth",    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",  (void*) JNI_startForth},
 };
 
 #define alen(array)  sizeof(array)/sizeof(array[0])
@@ -446,8 +457,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
   
   LOGI("Enter onload\n");
   
-  freopen("/sdcard/gforthout.log", "w+", stdout);
-  freopen("/sdcard/gfortherr.log", "w+", stderr);
+  // freopen("/sdcard/gforthout.log", "w+", stdout);
+  // freopen("/sdcard/gfortherr.log", "w+", stderr);
 
   pipe(startargs.ke_fd);
 
