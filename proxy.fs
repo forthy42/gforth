@@ -40,8 +40,10 @@ Variable proxy-port     \ 8080 proxy-port !  \ replace that with your proxy port
 \ set proxy to your local proxy, and proxy-port to your local proxy port
 \ if you need any.
 
+#80 Value http-port
+
 : http-open ( host u request u -- fid )
-    proxy @ 0= IF  2over 80  ELSE  proxy $@ proxy-port @  THEN request ;
+    proxy @ 0= IF  2over http-port  ELSE  proxy $@ proxy-port @  THEN request ;
 
 wordlist Constant response
 wordlist Constant response-values
