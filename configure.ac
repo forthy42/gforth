@@ -21,7 +21,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20210701],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20210705],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
@@ -80,6 +80,9 @@ AC_ARG_WITH(check,
 [  --with-check		  enables sanity check during build (default)
   --without-check	  disables sanity check during build],
 if test "$withval" = "no"; then NO_CHECK="$COMMENT"; fi)
+
+AC_ARG_VAR(check_option, [pass engine additional options for check])
+AC_SUBST(check_option)
 
 GCC_LD="\$(GCC)"
 EC_MODE="false"

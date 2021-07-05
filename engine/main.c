@@ -199,6 +199,7 @@ static int nonrelocs = 0;
 #ifdef HAS_DEBUG
 int debug=0;
 int debug_mcheck=0;
+int debug_prim=1;
 # define debugp(x...) do { if (debug) fprintf(x); } while (0)
 #else
 # define perror(x...)
@@ -427,7 +428,7 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 		    compile_prim1(&image[i]);
 		  }
 #endif
-		} else {
+		} else if(debug_prim) {
 		  Char * dumpa = (Char*)&image[i];
 		  for(; dumpa < (Char*)&image[i+8]; dumpa++) {
 		    fprintf(stderr, "%02x ", *dumpa);
@@ -2266,6 +2267,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"clear-dictionary", no_argument, &clear_dictionary, 1},
       {"debug", no_argument, &debug, 1},
       {"debug-mcheck", no_argument, &debug_mcheck, 1},
+      {"no-debug-prim", no_argument, &debug_prim, 0},
       {"diag", no_argument, NULL, 'D'},
       {"die-on-signal", no_argument, &die_on_signal, 1},
       {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
