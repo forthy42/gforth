@@ -461,7 +461,7 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 		  MAKE_CF(image+i,symbols[groups[group]+tok]);
 		}
 #endif
-	      } else {
+	      } else if(debug_prim) {
 		Char * dumpa = (Char*)&image[i];
 		for(; dumpa < (Char*)&image[i+8]; dumpa++) {
 		  fprintf(stderr, "%02x ", *dumpa);

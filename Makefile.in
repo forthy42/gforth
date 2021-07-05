@@ -116,12 +116,12 @@ CC	= $(GCC)
 EXTRAPATH = $(PATHSEP)/usr/share/gforth/site-forth$(PATHSEP)/usr/local/share/gforth/site-forth
 FORTHPATH = .$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/site-forth$(PATHSEP)$(libdir)/gforth/$(VERSION)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(EXTRAPATH)
 FORTHSIZES = @FORTHSIZES@
-FORTHS_ARGS =  -p "$(FORTHPATH)$(PATHSEP)$(srcdir)"
+FORTHS_ARGS = @check_option@ -p "$(FORTHPATH)$(PATHSEP)$(srcdir)"
 FORTH_ARGS = --die-on-signal $(FORTHS_ARGS)
 ENGINE = ./gforth
 DITCENGINE = @DITCENGINE@
-FORTH	= $(ENGINE) $(FORTH_ARGS) @check_option@
-FORTHS	= $(ENGINE) $(FORTHS_ARGS) @check_option@
+FORTH	= $(ENGINE) $(FORTH_ARGS)
+FORTHS	= $(ENGINE) $(FORTHS_ARGS)
 # the (existing) forth system to use for cross compiling and primitives tables
 # per default we use the one in this directory for a rebuild. It is also
 # possible to override this variable at the command line for an initial build (jaw)
