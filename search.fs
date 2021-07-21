@@ -82,8 +82,8 @@ Variable slowvoc   0 slowvoc !
   \G top of the search order with the @i{wid} associated with the new
   \G word list.
   Create  [: 0 wordlist-map - context ! ;] set-does> wordlist drop ;
-: >wordlist ( voc-xt -- wordlist ) [ 0 wordlist-map negate >body ] Literal + ;
-: >voc ( wordlist -- voc-xt ) [ 0 >body negate wordlist-map ] Literal + ;
+(field) >wordlist ( voc-xt -- wordlist ) 0 wordlist-map negate >body ,
+(field) >voc ( wordlist -- voc-xt ) 0 >body negate wordlist-map ,
 
 : >order ( wid -- ) \ gforth to-order
     \g Push @var{wid} on the search order.
