@@ -1197,6 +1197,22 @@ ror	( u1 u -- u2 )		gforth ror
 ""rotate right""
 u2 = (u1 >> u) | (u1 << (CELL_BITS-u));
 
+wrol	( u1 u -- u2 )		gforth wrol
+""rotate left word""
+u2 = (((uint16_t)u1 << u) | ((uint16_t)u1 >> (16-u))) & 0xFFFF;
+
+wror	( u1 u -- u2 )		gforth wror
+""rotate right word""
+u2 = (((uint16_t)u1 >> u) | ((uint16_t)u1 << (16-u))) & 0xFFFF;
+
+lrol	( u1 u -- u2 )		gforth lrol
+""rotate left long""
+u2 = (((uint32_t)u1 << u) | ((uint32_t)u1 >> (32-u))) & 0xFFFFFFFF;
+
+lror	( u1 u -- u2 )		gforth lror
+""rotate right long""
+u2 = (((uint32_t)u1 >> u) | ((uint32_t)u1 << (32-u))) & 0xFFFFFFFF;
+
 drol	( ud1 u -- ud2 )	gforth drol
 ""rotate left""
 #ifdef BUGGY_LL_SHIFT
