@@ -1112,21 +1112,22 @@ w2 = ~w1;
 :
  MAXU xor ;
 
-rshift	( u1 n -- u2 )		core	r_shift
-""Logical shift right by @i{n} bits.""
+rshift	( u1 u -- u2 )		core	r_shift
+""Shift @i{u1} right by @i{u} bits.""
 #ifdef BROKEN_SHIFT
-  u2 = rshift(u1, n);
+  u2 = rshift(u1, u);
 #else
-  u2 = u1 >> n;
+  u2 = u1 >> u;
 #endif
 :
     0 ?DO 2/ MAXI and LOOP ;
 
-lshift	( u1 n -- u2 )		core	l_shift
+lshift	( u1 u -- u2 )		core	l_shift
+""Shift @i{u1} left by @i{u} bits.""
 #ifdef BROKEN_SHIFT
-  u2 = lshift(u1, n);
+  u2 = lshift(u1, u);
 #else
-  u2 = u1 << n;
+  u2 = u1 << u;
 #endif
 :
     0 ?DO 2* LOOP ;
@@ -1148,19 +1149,21 @@ else
  2dup u< select ;
 
 mux   ( u1 u2 u3 -- u )	   gforth
-""multiplex @i{u1} for 1 bits in @i{u3}, @i{u2} for 0 bits in @i{u3} into @i{u}""
+""Multiplex: For every bit in @i{u3}: for a 1 bit, select the
+corresponding bit from @i{u1}, otherwise the corresponding bit from @i{u2}.
+E.g., @code{%0011 %1100 %1010 mux} gives @code{%0110}""
 u = (u3 & u1) | (~u3 & u2);
 :
  tuck invert and rot rot and or ;
 
 select ( u1 u2 f -- u )	   gforth
-""select @i{u1} if @i{f} is true, @i{u2} if false.""
+""If @i{f} is false, @i{u} is @i{u2}, otherwise @i{u1}.""
 u = f ? u1 : u2;
 :
  IF swap THEN nip ;
 
 dlshift	 ( ud1 u -- ud2 )	gforth dlshift
-""double arithmetic shift left""
+""Shift @i{ud1} left by @i{u} bits.""
 #ifdef BUGGY_LL_SHIFT
 if(u>=CELL_BITS) {
   u &= CELL_BITS-1;
@@ -1175,7 +1178,7 @@ if(u>=CELL_BITS) {
 #endif
 
 drshift	 ( ud1 u -- ud2 )	gforth drshift
-""double logic shift right""
+""Shift @i{ud1} right by @i{u} bits""
 #ifdef BUGGY_LL_SHIFT
 if(u>=CELL_BITS) {
   u &= CELL_BITS-1;
@@ -1190,15 +1193,15 @@ if(u>=CELL_BITS) {
 #endif
 
 rol	( u1 u -- u2 )		gforth rol
-""rotate left""
+""Rotate @i{u1} left by @i{u} bits""
 u2 = (u1 << u) | (u1 >> (CELL_BITS-u));
 
 ror	( u1 u -- u2 )		gforth ror
-""rotate right""
+""Rotate @i{u1} right by @i{u} bits""
 u2 = (u1 >> u) | (u1 << (CELL_BITS-u));
 
 drol	( ud1 u -- ud2 )	gforth drol
-""rotate left""
+""Rotate @i{ud1} left by @i{u} bits""
 #ifdef BUGGY_LL_SHIFT
 unsigned int u1 = u & (CELL_BITS-1);
 UCell uh, ul;
@@ -1217,7 +1220,7 @@ ud2 = (ud1 << u) | (ud1 >> (2*CELL_BITS-u));
 #endif
 
 dror	( ud1 u -- ud2 )	gforth dror
-""rotate right""
+""Rotate @i{ud1} right by @i{u} bits""
 #ifdef BUGGY_LL_SHIFT
 unsigned int u1 = u & (CELL_BITS-1);
 UCell uh, ul;
@@ -1316,14 +1319,14 @@ u4=DLO(r);
 :
  */mods nip ;
 
-arshift	( n1 n -- n2 )		core	ar_shift
-""signed shift right by @i{n} bits.""
-n2 = n1 >> n;
+arshift	( n1 u -- n2 )		core	ar_shift
+""Shift @i{n1} right by @i{u} bits.""
+n2 = n1 >> u;
 :
  0 ?DO 2/ LOOP ;
 
 darshift ( d1 u -- d2 )	gforth darshift
-""double arithmetic shift right""
+""Shift @i{d1} right by @i{u} bits.""
 #ifdef BUGGY_LL_SHIFT
 if(u>=CELL_BITS) {
   u &= CELL_BITS-1;
@@ -1765,7 +1768,7 @@ a_addr2 = a_addr1-1;
 :
  cell - ;
 
-inc#   ( #a_addr -- )	gforth	one_plus_store
+inc#   ( #a_addr -- )	gforth-internal	one_plus_store
 *a_addr += 1;
 :
  1 r> dup cell+ >r @ +! ;
