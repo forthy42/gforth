@@ -4741,7 +4741,8 @@ doc-negate
 doc-abs
 doc-min
 doc-max
-
+doc-umin
+doc-umax
 
 @node Double precision, Mixed precision, Single precision, Arithmetic
 @subsection Double precision
@@ -5002,18 +5003,28 @@ doc-mux
 doc-lshift
 doc-rshift
 doc-arshift
-doc-rol
-doc-ror
-doc-2*
-doc-2/
 doc-dlshift
 doc-drshift
 doc-darshift
-doc-drol
-doc-dror
+doc-2*
+doc-2/
 doc-d2*
 doc-d2/
 
+Unlike most other operations, rotation of narrower units cannot easily
+be synthesized from rotation of wider units, so using cell-wide and
+double-wide rotation operations means that the results depend on the
+cell width.  For published algorithms or cell-width-independent
+results, you usually need to use a fixed-width rotation operation.
+
+doc-wrol
+doc-wror
+doc-lrol
+doc-lror
+doc-rol
+doc-ror
+doc-drol
+doc-dror
 
 @node Numeric comparison, Floating Point, Bitwise operations, Arithmetic
 @subsection Numeric comparison

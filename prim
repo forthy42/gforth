@@ -1078,7 +1078,7 @@ d2 = -d1;
  invert swap negate tuck 0= - ;
 
 d2*	( d1 -- d2 )		double		d_two_star
-""Shift left by 1; also works on unsigned numbers""
+""Shift double-cell left by 1; also works on unsigned numbers""
 d2 = DLSHIFT(d1,1);
 :
  2dup d+ ;
@@ -1113,7 +1113,8 @@ w2 = ~w1;
  MAXU xor ;
 
 rshift	( u1 u -- u2 )		core	r_shift
-""Shift @i{u1} right by @i{u} bits.""
+""Shift @i{u1} (cell) right by @i{u} bits,
+filling the shifted-in bits with zero (logical/unsigned shift).""
 #ifdef BROKEN_SHIFT
   u2 = rshift(u1, u);
 #else
@@ -1132,7 +1133,7 @@ lshift	( u1 u -- u2 )		core	l_shift
 :
     0 ?DO 2* LOOP ;
 
-umax	( u1 u2 -- u )	core
+umax	( u1 u2 -- u )	gforth
 if (u1<u2)
   u = u2;
 else
@@ -1140,7 +1141,7 @@ else
 :
  2dup u> select ;
 
-umin	( u1 u2 -- u )	core
+umin	( u1 u2 -- u )	gforth
 if (u1<u2)
   u = u1;
 else
@@ -1163,7 +1164,7 @@ u = f ? u1 : u2;
  IF swap THEN nip ;
 
 dlshift	 ( ud1 u -- ud2 )	gforth dlshift
-""Shift @i{ud1} left by @i{u} bits.""
+""Shift @i{ud1} (double-cell) left by @i{u} bits.""
 #ifdef BUGGY_LL_SHIFT
 if(u>=CELL_BITS) {
   u &= CELL_BITS-1;
@@ -1178,7 +1179,8 @@ if(u>=CELL_BITS) {
 #endif
 
 drshift	 ( ud1 u -- ud2 )	gforth drshift
-""Shift @i{ud1} right by @i{u} bits""
+""Shift @i{ud1} (double-cell) right by @i{u} bits,
+filling the shifted-in bits with zero (logical/unsigned shift).""
 #ifdef BUGGY_LL_SHIFT
 if(u>=CELL_BITS) {
   u &= CELL_BITS-1;
@@ -1193,31 +1195,35 @@ if(u>=CELL_BITS) {
 #endif
 
 rol	( u1 u -- u2 )		gforth rol
-""Rotate @i{u1} left by @i{u} bits""
+""Rotate all bits of @i{u1} left by @i{u} bits.""
 u2 = (u1 << u) | (u1 >> (CELL_BITS-u));
 
 ror	( u1 u -- u2 )		gforth ror
-""Rotate @i{u1} right by @i{u} bits""
+""Rotate all bits of @i{u1} right by @i{u} bits.""
 u2 = (u1 >> u) | (u1 << (CELL_BITS-u));
 
 wrol	( u1 u -- u2 )		gforth wrol
-""rotate left word""
+""Rotate the least significant 16 bits of @i{u1} left by @i{u} bits,
+set the other bits to 0.""
 u2 = (((uint16_t)u1 << u) | ((uint16_t)u1 >> (16-u))) & 0xFFFF;
 
 wror	( u1 u -- u2 )		gforth wror
-""rotate right word""
+""Rotate the least significant 16 bits of @i{u1} right by @i{u} bits,
+set the other bits to 0.""
 u2 = (((uint16_t)u1 >> u) | ((uint16_t)u1 << (16-u))) & 0xFFFF;
 
 lrol	( u1 u -- u2 )		gforth lrol
-""rotate left long""
+""Rotate the least significant 32 bits of @i{u1} left by @i{u} bits,
+set the other bits to 0.""
 u2 = (((uint32_t)u1 << u) | ((uint32_t)u1 >> (32-u))) & 0xFFFFFFFF;
 
 lror	( u1 u -- u2 )		gforth lror
-""rotate right long""
+""Rotate the least significant 32 bits of @i{u1} right by @i{u} bits,
+set the other bits to 0.""
 u2 = (((uint32_t)u1 >> u) | ((uint32_t)u1 << (32-u))) & 0xFFFFFFFF;
 
 drol	( ud1 u -- ud2 )	gforth drol
-""Rotate @i{ud1} left by @i{u} bits""
+""Rotate all bits of @i{ud1} (double-cell) left by @i{u} bits.""
 #ifdef BUGGY_LL_SHIFT
 unsigned int u1 = u & (CELL_BITS-1);
 UCell uh, ul;
@@ -1236,7 +1242,7 @@ ud2 = (ud1 << u) | (ud1 >> (2*CELL_BITS-u));
 #endif
 
 dror	( ud1 u -- ud2 )	gforth dror
-""Rotate @i{ud1} right by @i{u} bits""
+""Rotate all bits of @i{ud1} (double-cell) right by @i{u} bits.""
 #ifdef BUGGY_LL_SHIFT
 unsigned int u1 = u & (CELL_BITS-1);
 UCell uh, ul;
@@ -1335,14 +1341,16 @@ u4=DLO(r);
 :
  */mods nip ;
 
-arshift	( n1 u -- n2 )		core	ar_shift
-""Shift @i{n1} right by @i{u} bits.""
+arshift	( n1 u -- n2 )		gforth	ar_shift
+""Shift @i{n1} (cell) right by @i{u} bits, filling the shifted-in bits
+from the sign bit of @i{n1} (arithmetic shift).""
 n2 = n1 >> u;
 :
  0 ?DO 2/ LOOP ;
 
 darshift ( d1 u -- d2 )	gforth darshift
-""Shift @i{d1} right by @i{u} bits.""
+""Shift @i{d1} (double-cell) right by @i{u} bits, filling the shifted-in bits
+from the sign bit of @i{d1} (arithmetic shift).""
 #ifdef BUGGY_LL_SHIFT
 if(u>=CELL_BITS) {
   u &= CELL_BITS-1;
