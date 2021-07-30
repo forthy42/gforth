@@ -4688,7 +4688,7 @@ doc-true
 doc-false
 doc-on
 doc-off
-
+doc-select
 
 @node Arithmetic, Stack Manipulation, Boolean Flags, Words
 @section Arithmetic
@@ -4741,7 +4741,8 @@ doc-negate
 doc-abs
 doc-min
 doc-max
-
+doc-umin
+doc-umax
 
 @node Double precision, Mixed precision, Single precision, Arithmetic
 @subsection Double precision
@@ -4966,18 +4967,18 @@ division by a constant is often compiled to a literal containing the
 address of a reciprocal followed by a second-stage word.
 
 The performance impact of using these words strongly depends on the
-architecture (does it have hardware division) and the specific
+architecture (does it have hardware division?) and the specific
 implementation (how fast is hardware division?), but just to give you
 an idea about the relative performance of these words, here are the
 cycles per iteration of a microbenchmark (which performs the mentioned
 word once per iteration) on two AMD64 implementations; the @i{norm}
 column shows the normal division word (e.g., @code{u/}), while the
-@i{stag} column shows the corresponding stage2 word (e.g.,
+@i{stg2} column shows the corresponding stage2 word (e.g.,
 @code{u/-stage2m}):
 
 @example
  Skylake              Zen2
-norm stag           norm stag
+norm stg2           norm stg2
 41.3 15.8 u/	    35.2 21.4 u/	   
 39.8 19.7 umod	    36.9 25.8 umod	   
 44.0 25.3 u/mod	    43.0 33.9 u/mod	   
@@ -4998,13 +4999,32 @@ doc-and
 doc-or
 doc-xor
 doc-invert
+doc-mux
 doc-lshift
 doc-rshift
+doc-arshift
+doc-dlshift
+doc-drshift
+doc-darshift
 doc-2*
-doc-d2*
 doc-2/
+doc-d2*
 doc-d2/
 
+Unlike most other operations, rotation of narrower units cannot easily
+be synthesized from rotation of wider units, so using cell-wide and
+double-wide rotation operations means that the results depend on the
+cell width.  For published algorithms or cell-width-independent
+results, you usually need to use a fixed-width rotation operation.
+
+doc-wrol
+doc-wror
+doc-lrol
+doc-lror
+doc-rol
+doc-ror
+doc-drol
+doc-dror
 
 @node Numeric comparison, Floating Point, Bitwise operations, Arithmetic
 @subsection Numeric comparison
@@ -5209,6 +5229,8 @@ doc-drop
 doc-nip
 doc-dup
 doc-over
+doc-third
+doc-fourth
 doc-tuck
 doc-swap
 doc-pick
@@ -5236,6 +5258,8 @@ doc-fdrop
 doc-fnip
 doc-fdup
 doc-fover
+doc-fthird
+doc-ffourth
 doc-ftuck
 doc-fswap
 doc-fpick
@@ -5484,6 +5508,8 @@ doc-chars
 doc-char+
 doc-cells
 doc-cell+
+doc-cell-
+doc-cell/
 doc-cell
 doc-aligned
 doc-floats
