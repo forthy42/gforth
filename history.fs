@@ -48,7 +48,7 @@ edit-terminal edit-out !
 
 : >edit-rest  ( span addr pos1 -- span addr pos1 addr2 len )
     \G get rest of the string
-    over 3 pick 2 pick chars /string ;
+    over fourth third chars /string ;
 
 : bindkey ( xt key -- )  cells ctrlkeys + ! ;
 : ebindkey ( xt key -- )  keycode-start - cells ekeys + ! ;
@@ -263,7 +263,7 @@ synonym setstring-color info-color
     xedit-startpos  2dup x-width set-width+ edit-curpos !
     2dup type ;
 : .rest ( span addr pos -- span addr pos )
-    dup 3 pick = IF
+    dup fourth = IF
 	2dup x-width set-width+ edit-curpos !  EXIT  THEN
     .all-rest ;
 : xedit-update ( span addr pos1 -- span addr pos1 )
@@ -305,11 +305,11 @@ synonym setstring-color info-color
 	0 max edit-update
     ELSE  edit-error  THEN 0 ;
 : xforw  ( max span addr pos1 -- max span addr pos2 f )
-    2 pick over <> IF
+    third over <> IF
 	vt100-modifier @ IF
-	    BEGIN  2 pick over u> >r 2dup + c@ bl = r> and  WHILE
+	    BEGIN  third over u> >r 2dup + c@ bl = r> and  WHILE
 		    over + xchar+ over -  REPEAT
-	    BEGIN  2 pick over u> >r 2dup + c@ bl <> r> and  WHILE
+	    BEGIN  third over u> >r 2dup + c@ bl <> r> and  WHILE
 		    over + xchar+ over -  REPEAT
 	ELSE
 	    over + xchar+ over -
@@ -332,9 +332,9 @@ synonym setstring-color info-color
     ELSE  dup IF   xdel  THEN  THEN  0 ;
 : <xdel> ( max span addr pos1 -- max span addr pos2 0 )
     vt100-modifier @ IF  ?xdel  EXIT  THEN  \ emacs binds Alt-Del to Alt-Backspace
-    2 pick over <>
+    third over <>
     IF  xforw drop xdel  ELSE  edit-error  THEN  0 ;
-: xeof  2 pick over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
+: xeof  third over or 0=  IF  -56 throw  ELSE  <xdel>  THEN ;
 
 : xfirst-pos  ( max span addr pos1 -- max span addr 0 0 )
   drop 0 xretype ;
@@ -349,7 +349,7 @@ synonym setstring-color info-color
 
 : xclear-first ( max span addr pos -- max pos addr pos false )
     2dup paste!  >r
-    2dup swap r@ /string 2 pick swap move
+    2dup swap r@ /string third swap move
     swap r> - swap 0 xretype ;
 
 : xins-string ( max span addr pos addr1 u1 -- max span' addr pos' )
@@ -393,7 +393,7 @@ synonym setstring-color info-color
 
 : xtranspose ( max span addr pos -- max span' addr pos' false )
     dup IF
-	2 pick over = IF  over + xchar- over -  THEN
+	third over = IF  over + xchar- over -  THEN
 	2dup + xchar- xc@ >r (xdel)
 	over + xchar+ over - r> (xins)
     THEN 0 ;
@@ -421,6 +421,30 @@ Variable setsel# \ size of selection relative to the end
     dup spaces dup edit-curpos ! edit-linew !
     .resizeline .all 2>r 2>r .status 2r> 2r> .rest false ;
 
+Create xchar-altkeys ( -- )
+$100 0 [DO] ' false , [LOOP]
+
+: altbindkey ( xt key -- )
+    toupper cells xchar-altkeys + ! ;
+
+: xchar-altkey ( max span addr pos1 -- max span addr pos2 flag )
+    key? IF
+	key 2 over 'A' 'Z' 1+ within -
+	vt100-modifier @ or vt100-modifier !
+	toupper cells xchar-altkeys + perform
+    ELSE  false  THEN ;
+
+: xdelw ( max span addr pos1 -- max span addr pos2 flag )
+    BEGIN  third over u> >r 2dup + c@ bl = r> and  WHILE
+	    over + xchar+ over - (xdel)  REPEAT
+    BEGIN  third over u> >r 2dup + c@ bl <> r> and  WHILE
+	    over + xchar+ over - (xdel)  REPEAT
+    edit-update false ;
+
+' xback 'B' altbindkey
+' xdelw 'D' altbindkey
+' xforw 'F' altbindkey
+
 Create xchar-ctrlkeys ( -- )
     ' false        , ' xfirst-pos   , ' xback        , ' false        ,
     ' xeof         , ' xend-pos     , ' xforw        , ' false        ,
@@ -429,7 +453,7 @@ Create xchar-ctrlkeys ( -- )
 
     ' prev-line    , ' false        , ' false        , ' setsel       ,
     ' xtranspose   , ' xclear-first , ' xpaste       , ' false        ,
-    ' <xdel>       , ' xpaste       , ' xhide        , ' false        ,
+    ' <xdel>       , ' xpaste       , ' xhide        , ' xchar-altkey ,
     ' false        , ' false        , ' false        , ' false        ,
 
 Create std-ekeys
