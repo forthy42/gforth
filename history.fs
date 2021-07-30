@@ -470,7 +470,9 @@ Create std-ekeys
     dup mask-shift# rshift 7 and vt100-modifier !
     dup 1 mask-shift# lshift 1- and swap keycode-start u>= IF
 	cells ekeys + perform  EXIT  THEN
-    cells ctrlkeys + perform ;
+    vt100-modifier @ 2 and IF  toupper  THEN
+    cells xchar-altkeys ctrlkeys vt100-modifier @ 2 and select
+    + perform ;
 
 : xchar-history ( -- )
     edit-terminal edit-out ! ;

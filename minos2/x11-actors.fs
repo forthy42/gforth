@@ -89,7 +89,13 @@ DOES> ( x-key [addr] -- ekey )
 	event look_chars $FF look_key comp_stat  XLookupString
     THEN
     dup 1 = IF  look_chars c@ dup $7F = swap bl < or +  THEN \ we want the other delete
-    ?dup-IF  look_chars swap top-act ?dup-IF  .ukeyed  ELSE  2drop  THEN
+    ?dup-IF  look_chars swap
+	e.state xmeta@ 2 and IF
+	    bounds ?DO  I xc@+ swap >r
+		e.state xmeta@ mask-shift# lshift or
+		top-act ?dup-IF  .ekeyed  ELSE  drop  THEN
+	    r> I - +LOOP
+	ELSE  top-act ?dup-IF  .ukeyed  ELSE  2drop  THEN  THEN
     ELSE   look_key l@ x-key>ekey# ?dup-IF
 	    top-act ?dup-IF  .ekeyed  ELSE  #esc = level# +!  THEN  THEN  THEN
 ; x11-handler to DoKeyPress
