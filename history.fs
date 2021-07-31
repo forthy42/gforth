@@ -425,13 +425,13 @@ Create xchar-altkeys ( -- )
 $100 0 [DO] ' false , [LOOP]
 
 : altbindkey ( xt key -- )
-    toupper cells xchar-altkeys + ! ;
+    cells xchar-altkeys + ! ;
 
 : xchar-altkey ( max span addr pos1 -- max span addr pos2 flag )
     key? IF
 	key 2 over 'A' 'Z' 1+ within -
 	vt100-modifier @ or vt100-modifier !
-	toupper cells xchar-altkeys + perform
+	cells xchar-altkeys + perform
     ELSE  false  THEN ;
 
 : xdelw ( max span addr pos1 -- max span addr pos2 flag )
@@ -441,9 +441,9 @@ $100 0 [DO] ' false , [LOOP]
 	    over + xchar+ over - (xdel)  REPEAT
     edit-update false ;
 
-' xback 'B' altbindkey
-' xdelw 'D' altbindkey
-' xforw 'F' altbindkey
+' xback 'b' altbindkey
+' xdelw 'd' altbindkey
+' xforw 'f' altbindkey
 
 Create xchar-ctrlkeys ( -- )
     ' false        , ' xfirst-pos   , ' xback        , ' false        ,
@@ -470,7 +470,6 @@ Create std-ekeys
     dup mask-shift# rshift 7 and vt100-modifier !
     dup 1 mask-shift# lshift 1- and swap keycode-start u>= IF
 	cells ekeys + perform  EXIT  THEN
-    vt100-modifier @ 2 and IF  toupper  THEN
     cells xchar-altkeys ctrlkeys vt100-modifier @ 2 and select
     + perform ;
 
