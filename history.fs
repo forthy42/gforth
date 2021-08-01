@@ -37,7 +37,7 @@ Variable paste$ \ global paste buffer
 
 align , , here
 ' (ins) , ' (ins-string) , ' (edit-control) ,
-' noop ,  ' noop , ' noop , ' std-ctrlkeys , \ kernel stuff
+' noop ,  ' noop , ' noop , ' std-ctrlkeys , ' false , \ kernel stuff
 ' noop ,  ' noop ,  ' 0> , ' bell , ' noop , \ extended stuff
 , here  0 , 0 , 0 , 0 , 0 , 0 ,
 Constant edit-terminal
@@ -425,25 +425,21 @@ Create xchar-altkeys ( -- )
 $100 0 [DO] ' false , [LOOP]
 
 : altbindkey ( xt key -- )
-    cells xchar-altkeys + ! ;
+    cells altkeys + ! ;
 
 : xchar-altkey ( max span addr pos1 -- max span addr pos2 flag )
     key? IF
 	key 2 over 'A' 'Z' 1+ within -
 	vt100-modifier @ or vt100-modifier !
-	cells xchar-altkeys + perform
+	cells altkeys + perform
     ELSE  false  THEN ;
 
 : xdelw ( max span addr pos1 -- max span addr pos2 flag )
-    BEGIN  third over u> >r 2dup + c@ bl = r> and  WHILE
-	    over + xchar+ over - (xdel)  REPEAT
-    BEGIN  third over u> >r 2dup + c@ bl <> r> and  WHILE
-	    over + xchar+ over - (xdel)  REPEAT
+    dup >r xforw drop >edit-rest r> -rot 2>r
+    tuck - >r 2dup + r@ paste! \ set paste$
+    rot r> - -rot \ update span
+    2r> 2over + swap move
     edit-update false ;
-
-' xback 'b' altbindkey
-' xdelw 'd' altbindkey
-' xforw 'f' altbindkey
 
 Create xchar-ctrlkeys ( -- )
     ' false        , ' xfirst-pos   , ' xback        , ' false        ,
@@ -470,7 +466,7 @@ Create std-ekeys
     dup mask-shift# rshift 7 and vt100-modifier !
     dup 1 mask-shift# lshift 1- and swap keycode-start u>= IF
 	cells ekeys + perform  EXIT  THEN
-    cells xchar-altkeys ctrlkeys vt100-modifier @ 2 and select
+    cells altkeys ctrlkeys vt100-modifier @ 2 and select
     + perform ;
 
 : xchar-history ( -- )
@@ -487,9 +483,14 @@ xchar-history
 ' xpaste@         IS paste@
 ' xgrow-tib       IS grow-tib
 ' xchar-ctrlkeys  IS ctrlkeys
+' xchar-altkeys   IS altkeys
 ' bell            IS edit-error
 ' std-ekeys       IS ekeys
 ' xchar-edit-ctrl IS edit-control
+
+' xback 'b' altbindkey
+' xdelw 'd' altbindkey
+' xforw 'f' altbindkey
 
 \ initializing history
 

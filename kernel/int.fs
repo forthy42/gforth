@@ -829,7 +829,7 @@ defer reset-dpp
     drop
     dobacktrace
     default-color  endif? on  rec-level off
-  reset-dpp ;
+    reset-dpp ;
 
 ' (DoError) IS DoError
 

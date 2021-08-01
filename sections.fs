@@ -50,10 +50,11 @@ constant extra-section-error
         old-section current-section ! set-section endtry
     throw ;
 
-: sections-execute ( xt -- )  >r
+: sections-execute ( xt -- )
+    dpp @ >r  >r
     sections $@ bounds u+do
 	j i @ section-execute
-    cell +loop rdrop ;
+    cell +loop rdrop  r> dpp ! ;
 
 :noname ( ip-addr -- view / 0 )
     0 [: over defers addr>view dup 0= select ;] sections-execute nip ;

@@ -28,6 +28,7 @@ umethod everychar
 umethod everyline
 umethod edit-update ( span addr pos1 -- span addr pos1 )
 umethod ctrlkeys
+umethod altkeys
 cell uvar edit-linew
 
 : (ins) ( max span addr pos1 key -- max span addr pos2 )
@@ -72,6 +73,7 @@ align , , here
 ' (edit-everyline) A,  \ IS everyline
 ' (edit-update) A, \ IS edit-update
 ' std-ctrlkeys A,
+' false A,
 A, here 0 , AConstant kernel-editor
 kernel-editor edit-out !
 
