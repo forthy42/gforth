@@ -312,8 +312,6 @@ Variable ekey-buffer
     k-voldown s" VD" esc-sequence
 
     k-sel     s" [S"  esc-sequence
-    k-left  k-shift-mask or s" b" esc-sequence
-    k-right k-shift-mask or s" f" esc-sequence
 set-current
 [ENDIF]
 

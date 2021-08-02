@@ -428,11 +428,7 @@ $100 0 [DO] ' false , [LOOP]
     cells altkeys + ! ;
 
 : xchar-altkey ( max span addr pos1 -- max span addr pos2 flag )
-    key? IF
-	key 2 over 'A' 'Z' 1+ within -
-	vt100-modifier @ or vt100-modifier !
-	cells altkeys + perform
-    ELSE  false  THEN ;
+    8 vt100-modifier !  false ;
 
 : xdelw ( max span addr pos1 -- max span addr pos2 flag )
     dup >r xforw drop >edit-rest r> -rot 2>r
@@ -469,12 +465,17 @@ Create std-ekeys
     cells altkeys ctrlkeys vt100-modifier @ 2 and select
     + perform ;
 
+: xins ( max span addr pos1 char -- max span addr pos2 )
+    vt100-modifier @ 8 and IF
+	2 mask-shift# lshift or xchar-edit-ctrl drop
+    ELSE  (xins)  THEN ;
+
 : xchar-history ( -- )
     edit-terminal edit-out ! ;
 
 xchar-history
 
-' (xins)          IS insert-char
+' xins            IS insert-char
 ' xins-string     IS insert-string
 ' kill-prefix     IS everychar
 ' edit-curpos-off IS everyline

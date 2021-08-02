@@ -795,7 +795,11 @@ edit-terminal edit-out !
     [: 4 roll dup keycode-start and 0= k-ctrl-mask and invert and
 	everychar >control edit-control drop +sync +resize ;] edit-xt ; edit-actor is ekeyed
 :noname ( addr u o:actor -- )
-    [: 2rot prefix-off edit-ins$ edit-update +sync +resize ;] edit-xt ; edit-actor is ukeyed
+    dup 1 = vt100-modifier @ 8 = and IF
+	drop c@ 2 mask-shift# lshift or ekeyed
+    ELSE
+	[: 2rot prefix-off edit-ins$ edit-update +sync +resize ;] edit-xt
+    THEN ; edit-actor is ukeyed
 :noname ( o:actor -- )
     ['] setstring> edit-xt edit-w >o -1 to cursize o> +sync
 ; edit-actor is defocus
