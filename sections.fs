@@ -44,17 +44,19 @@ constant extra-section-error
 
 : section-execute ( xt section -- )
     \ execute xt with the current section being in the extra section
-    current-section @ {: old-section :} try
+    dpp @ current-section @ {: old-dpp old-section :} try
          ( xt section ) current-section ! set-section execute 0
     restore
-        old-section current-section ! set-section endtry
+	old-section current-section ! set-section
+	old-dpp dpp !
+    endtry
     throw ;
 
 : sections-execute ( xt -- )
-    dpp @ >r  >r
+    >r
     sections $@ bounds u+do
 	j i @ section-execute
-    cell +loop rdrop  r> dpp ! ;
+    cell +loop rdrop ;
 
 :noname ( ip-addr -- view / 0 )
     0 [: over defers addr>view dup 0= select ;] sections-execute nip ;
