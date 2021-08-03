@@ -50,8 +50,12 @@ edit-terminal edit-out !
     \G get rest of the string
     over fourth third chars /string ;
 
-: bindkey ( xt key -- )  cells ctrlkeys + ! ;
-: ebindkey ( xt key -- )  keycode-start - cells ekeys + ! ;
+: bindkey ( xt key -- )
+    dup bl u>= abort" Ctrl codes only!"
+    cells ctrlkeys + ! ;
+: ebindkey ( xt key -- )
+    dup keycode-limit keycode-start within abort" Ekeys only!"
+    keycode-start - cells ekeys + ! ;
 
 : ctrl-i ( "<char>" -- c )
     char toupper $40 xor ;
@@ -422,9 +426,10 @@ Variable setsel# \ size of selection relative to the end
     .resizeline .all 2>r 2>r .status 2r> 2r> .rest false ;
 
 Create xchar-altkeys ( -- )
-$100 0 [DO] ' false , [LOOP]
+$80 0 [DO] ' false , [LOOP]
 
 : altbindkey ( xt key -- )
+    dup $80 u>= abort" Alt+ASCII only!"
     cells altkeys + ! ;
 
 : xchar-altkey ( max span addr pos1 -- max span addr pos2 flag )
@@ -462,6 +467,8 @@ Create std-ekeys
     dup mask-shift# rshift 7 and vt100-modifier !
     dup 1 mask-shift# lshift 1- and swap keycode-start u>= IF
 	cells ekeys + perform  EXIT  THEN
+    dup $80 $20 vt100-modifier @ 2 and select
+    u>= IF  drop false  EXIT  THEN
     cells altkeys ctrlkeys vt100-modifier @ 2 and select
     + perform ;
 
