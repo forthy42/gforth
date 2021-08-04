@@ -285,6 +285,7 @@ GFORTH_FI_SRC2=\
 	recognizer2.fs \
 	search.fs \
 	sections.fs \
+	sections2.fs \
 	see.fs \
 	see-ext.fs \
 	simp-see.fs \

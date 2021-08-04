@@ -44,13 +44,13 @@ constant extra-section-error
 
 : section-execute ( xt section -- )
     \ execute xt with the current section being in the extra section
-    dpp @ current-section @ {: old-dpp old-section :} try
+    dpp @ current-section @ >l >l try
          ( xt section ) current-section ! set-section execute 0
     restore
-	old-section current-section ! set-section
-	old-dpp dpp !
+	@local1 current-section ! set-section
+	@local0 dpp !
     endtry
-    throw ;
+    throw lp+2 ;
 
 : sections-execute ( xt -- )
     >r
@@ -66,15 +66,6 @@ is addr>view
     0 [: over in-dictionary1? section-start @ and over select ;]
     sections-execute nip ;
 :noname which-section? 0<> ; is in-dictionary?
-
-: .sections ( -- )
-    cr ."             start      size       +dp name"
-    current-section @
-    [:  cr dup current-section @ = if '>' else bl then emit
-	section-start @ #16 hex.r
-	section-size  @ #10 hex.r
-	section-dp    @ section-start @ - #10 hex.r space
-	section-name @ id. ;] sections-execute  drop ;
 
 : create-section ( size -- section )
     current-section @ >r

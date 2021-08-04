@@ -42,6 +42,7 @@ require float.fs
 require stuff.fs
 require fold.fs
 require sections.fs
+require sections2.fs
 require struct0x.fs
 require stagediv.fs
 require closures.fs
