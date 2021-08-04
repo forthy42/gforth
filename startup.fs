@@ -36,12 +36,12 @@ require ~+/envos.fs
 require errors.fs
 require hash.fs
 require compat/strcomp.fs
+require sections.fs
 require glocals.fs
 require iloops.fs
 require float.fs
 require stuff.fs
 require fold.fs
-require sections.fs
 require sections2.fs
 require struct0x.fs
 require stagediv.fs
