@@ -579,8 +579,9 @@ is adjust-locals-list
 [then]
 
 [IFDEF] free-old-local-names
+    ' here locals-headers Value locals-start
 :noname ( -- )
-    [ ' here locals-headers ] literal ['] ->here locals-headers ;
+    locals-start ['] ->here locals-headers ;
 is free-old-local-names
 [THEN]
 
