@@ -96,9 +96,13 @@ Defer in-dictionary? ( x -- f )
 
 : dpp   ( -- addr ) \ gforth
     uaddr dp ;
+
 : here  ( -- addr ) \ core
     \G Return the address of the next free location in data space.
     dp @ ;
+
+: ->here ( addr -- ) \ gforth to-here
+    dp ! ;
 
 \ on off                                               23feb93py
 

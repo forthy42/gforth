@@ -152,23 +152,6 @@ slowvoc !
 :noname defers wrap@ ['] rec-nt defer@ deactivate-locals ; is wrap@
 :noname is rec-nt defers wrap! ; is wrap!
 
-variable locals-mem-list \ linked list of all locals name memory in
-0 locals-mem-list !      \ the current (outer-level) definition
-
-: free-list ( addr -- )
-    \ free all members of a linked list (link field is first)
-    begin
-	dup while
-	    dup @ swap free throw
-    repeat
-    drop ;
-
-: prepend-list ( addr1 addr2 -- )
-    \ addr1 is the address of a list element, addr2 is the address of
-    \ the cell containing the address of the first list element
-    2dup @ swap ! \ store link to next element
-    ! ; \ store pointer to new first element
-
 : alignlp-w ( n1 -- n2 )
     \ cell-align size and generate the corresponding code for aligning lp
     aligned dup adjust-locals-size ;
@@ -281,44 +264,16 @@ Defer locals-list!
     immediate restrict
     here 0 , ( place for the offset ) ;
 
-variable dict-execute-dp \ the special dp for DICT-EXECUTE
-
-0 value dict-execute-ude \ USABLE-DICTIONARY-END during DICT-EXECUTE
-
-: dict-execute1 ( ... addr1 addr2 xt -- ... )
-    \ execute xt with HERE set to addr1 and USABLE-DICTIONARY-END set to addr2
-    dict-execute-dp @ dp 2>r
-    dict-execute-ude ['] usable-dictionary-end defer@ 2>r
-    ['] xt-location defer@ >r
-    swap to dict-execute-ude
-    ['] dict-execute-ude is usable-dictionary-end
-    swap dict-execute-dp !
-    dict-execute-dp dpp !
-    ['] noop is xt-location
-    catch
-    r> is xt-location
-    2r> is usable-dictionary-end to dict-execute-ude
-    2r> dpp ! dict-execute-dp !
-    throw ;
-
-defer dict-execute ( ... addr1 addr2 xt -- ... )
-
-: dummy-dict ( ... addr1 addr2 xt -- ... )
-    \ first have a dummy routine, for SOME-CLOCAL etc. below
-    nip nip execute ;
-' dummy-dict is dict-execute
+16384 extra-section locals-headers
 
 : create-local ( "name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr
-    nextname$ $@ 2dup d0= IF
-	2drop parse-name nextname nextname$ $@  THEN  nip
-    dfaligned locals-name-size+ >r
-    r@ allocate throw
-    dup locals-mem-list prepend-list
-    r> cell /string over + ['] create-local1 dict-execute ;
-
-variable locals-dp \ so here's the special dp for locals.
+    nextname$ $@ d0= IF
+	parse-name nextname THEN
+    ['] xt-location defer@ >r ['] noop is xt-location
+    ['] create-local1 locals-headers
+    r> is xt-location ;
 
 : lp-offset ( n1 -- n2 )
 \ converts the offset from the frame start to an offset from lp and
@@ -352,7 +307,7 @@ defer@-opt: ( xt -- ) POSTPONE laddr# >body @ lp-offset, postpone @ ;
 vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
 
-: W: ( "name" -- a-addr u ) \ gforth w-colon
+: W: ( "name" -- a-addr xt ) \ gforth w-colon
     create-local ['] to-w: set-to
     \ xt produces the appropriate locals pushing code when executed
     ['] compile-pushlocal-w
@@ -360,56 +315,56 @@ locals-types definitions
     \ compiles a local variable access
     @ lp-offset compile-@local ;
 
-: W^ ( "name" -- a-addr u ) \ gforth w-caret
+: W^ ( "name" -- a-addr xt ) \ gforth w-caret
     create-local
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-: F: ( "name" -- a-addr u ) \ gforth f-colon
+: F: ( "name" -- a-addr xt ) \ gforth f-colon
     create-local ['] to-f: set-to
     ['] compile-pushlocal-f
   does> ( Compilation: -- ) ( Run-time: -- w )
     @ lp-offset compile-f@local ;
 
-: F^ ( "name" -- a-addr u ) \ gforth f-caret
+: F^ ( "name" -- a-addr xt ) \ gforth f-caret
     create-local
     ['] compile-pushlocal-f
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-: D: ( "name" -- a-addr u ) \ gforth d-colon
+: D: ( "name" -- a-addr xt ) \ gforth d-colon
     create-local ['] to-d: set-to
     ['] compile-pushlocal-d
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, postpone 2@ ;
 
-: D^ ( "name" -- a-addr u ) \ gforth d-caret
+: D^ ( "name" -- a-addr xt ) \ gforth d-caret
     create-local
     ['] compile-pushlocal-d
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-: C: ( "name" -- a-addr u ) \ gforth c-colon
+: C: ( "name" -- a-addr xt ) \ gforth c-colon
     create-local ['] to-c: set-to
     ['] compile-pushlocal-c
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, postpone c@ ;
 
-: C^ ( "name" -- a-addr u ) \ gforth c-caret
+: C^ ( "name" -- a-addr xt ) \ gforth c-caret
     create-local
     ['] compile-pushlocal-c
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-: XT: ( "name" -- a-addr u ) \ gforth w-colon
+: XT: ( "name" -- a-addr xt ) \ gforth w-colon
     create-local  ['] to-w: set-to  ['] defer@-xt: set-defer@
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: .. -- .. )
     \ compiles a local variable access
     @ lp-offset compile-@local postpone execute ;
 
-:noname ( c-addr u1 "name" -- a-addr u2 ) \ gforth <local>bracket (unnamed)
+:noname ( c-addr u1 "name" -- a-addr xt ) \ gforth <local>bracket (unnamed)
     create-local
     ['] compile-pushlocal-[
   does> ( Compilation: -- ) ( Run-time: -- w )
@@ -448,8 +403,6 @@ d^ some-daddr 2drop
 f^ some-faddr 2drop
 w^ some-waddr 2drop
 dup execute some-carray 2drop
-
-' dict-execute1 is dict-execute \ now the real thing
 
 \ the following gymnastics are for declaring locals without type specifier.
 \ we use a catch-all recognizer to do t' new-locals-rec  hat
@@ -621,10 +574,13 @@ is adjust-locals-list
     dead-code off
     defstart ;
 
+[ifundef] ->here
+    : ->here dp ! ;
+[then]
+
 [IFDEF] free-old-local-names
 :noname ( -- )
-    locals-mem-list @ free-list
-    0 locals-mem-list ! ;
+    [ ' here locals-headers ] literal ['] ->here locals-headers ;
 is free-old-local-names
 [THEN]
 
