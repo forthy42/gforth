@@ -44,13 +44,10 @@ constant extra-section-error
 
 : section-execute ( xt section -- )
     \ execute xt with the current section being in the extra section
-    dpp @ current-section @ >l >l try
-         ( xt section ) current-section ! set-section execute 0
-    restore
-	@local1 current-section ! set-section
-	@local0 dpp !
-    endtry
-    throw lp+2 ;
+    current-section @ >r current-section ! set-section
+    catch
+    r> current-section ! set-section
+    throw ;
 
 : sections-execute ( xt -- )
     >r
