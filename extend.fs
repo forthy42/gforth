@@ -265,7 +265,7 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
 [IFDEF] forget-dyncode
     dup cell+ @ forget-dyncode drop
 [THEN]
-    dup @ udp !  cell+ @ vtable-list !  dp !
+    dup @ udp !  cell+ @ vtable-list !  ->here
     \ clean up vocabulary stack
     0 ['] search-order >body $@ bounds
     U+DO

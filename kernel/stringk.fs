@@ -176,7 +176,7 @@ AVariable boot[][] \ arrays to be booted
     boot$[] $@ bounds ?DO
 	I @ $boot
     cell +LOOP
-    r> dp ! ;
+    r> ->here ;
 : save-strings ( -- )
     boot[][] $save
     boot$[] $save

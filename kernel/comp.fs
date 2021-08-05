@@ -43,7 +43,7 @@
     \G The system does not check this restriction.
     here +
     dup 1- usable-dictionary-end forthstart within -8 and throw
-    dp ! ;
+    ->here ;
 [THEN]
 
 : small-allot ( n -- addr )

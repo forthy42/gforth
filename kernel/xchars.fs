@@ -93,7 +93,7 @@ umethod -trailing-garbage ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext
     \G Put xc into the pictured numeric output
     dup xc-size dup +hold swap xc!+? 2drop drop ;
 
-: xc, ( xchar -- ) here unused xc!+? 2drop dp ! ;
+: xc, ( xchar -- ) here unused xc!+? 2drop ->here ;
 
 \ fixed-size versions of these words
 

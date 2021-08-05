@@ -392,7 +392,7 @@ previous
 [IFDEF] x!  : x, ( l -- )  here x!  8 allot ;  [THEN]
 
 : *aligned ( addr n -- addr' )  tuck 1- + swap negate and ;
-: *align ( n -- )  here swap *aligned dp ! ;
+: *align ( n -- )  here swap *aligned ->here ;
 : walign ( -- )  2 *align ;
 : waligned ( addr -- addr' )  2 *aligned ;
 : lalign ( -- )  4 *align ;
