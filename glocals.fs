@@ -551,7 +551,7 @@ is adjust-locals-list
 : locals-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
     DEFERS :-hook
-    latest latestnt
+    ['] here locals-headers latest latestnt
     clear-leave-stack
     0 locals-size !
     0 locals-list!
@@ -562,17 +562,10 @@ is adjust-locals-list
     : ->here dp ! ;
 [then]
 
-[IFDEF] free-old-local-names
-    ' here locals-headers Value locals-start
-:noname ( -- )
-    locals-start ['] ->here locals-headers ;
-is free-old-local-names
-[THEN]
-
 : locals-;-hook ( sys addr xt sys -- sys )
     ?struc
     deactivate-locals
-    lastnt ! last !
+    lastnt ! last ! ['] ->here locals-headers
     DEFERS ;-hook ;
 
 \ THEN (another control flow from before joins the current one):
@@ -651,7 +644,7 @@ is free-old-local-names
     :noname 0 adjust-locals-size ; is 0-adjust-locals-size
 [then]
 [ifdef] colon-sys-xt-offset
-colon-sys-xt-offset 3 + to colon-sys-xt-offset
+colon-sys-xt-offset 4 + to colon-sys-xt-offset
 [then]
 
 ' (then-like)  IS then-like

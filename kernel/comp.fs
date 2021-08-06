@@ -738,7 +738,6 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
 \ \ : ;                                                  	24feb93py
 
 defer :-hook ( sys1 -- sys2 )
-defer free-old-local-names ( -- )
 defer ;-hook ( sys2 -- sys1 )
 defer 0-adjust-locals-size ( -- )
 
@@ -756,7 +755,6 @@ Create defstart
     ['] noop defstart ;
 
 : : ( "name" -- colon-sys ) \ core	colon
-    free-old-local-names
     ['] on create-from colon-sys ] :-hook ;
 
 :noname ; aconstant dummy-noname
