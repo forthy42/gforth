@@ -328,10 +328,7 @@ locals-types definitions
     @ lp-offset compile-f@local ;
 
 : F^ ( "name" -- a-addr xt ) \ gforth f-caret
-    create-local
-    ['] compile-pushlocal-f
-  does> ( Compilation: -- ) ( Run-time: -- w )
-    postpone laddr# @ lp-offset, ;
+    W^ drop ['] compile-pushlocal-f ;
 
 : D: ( "name" -- a-addr xt ) \ gforth d-colon
     create-local ['] to-d: set-to
@@ -340,10 +337,7 @@ locals-types definitions
     postpone laddr# @ lp-offset, postpone 2@ ;
 
 : D^ ( "name" -- a-addr xt ) \ gforth d-caret
-    create-local
-    ['] compile-pushlocal-d
-  does> ( Compilation: -- ) ( Run-time: -- w )
-    postpone laddr# @ lp-offset, ;
+    W^ drop ['] compile-pushlocal-d ;
 
 : C: ( "name" -- a-addr xt ) \ gforth c-colon
     create-local ['] to-c: set-to
@@ -352,10 +346,7 @@ locals-types definitions
     postpone laddr# @ lp-offset, postpone c@ ;
 
 : C^ ( "name" -- a-addr xt ) \ gforth c-caret
-    create-local
-    ['] compile-pushlocal-c
-  does> ( Compilation: -- ) ( Run-time: -- w )
-    postpone laddr# @ lp-offset, ;
+    W^ drop ['] compile-pushlocal-c ;
 
 : XT: ( "name" -- a-addr xt ) \ gforth w-colon
     create-local  ['] to-w: set-to  ['] defer@-xt: set-defer@
@@ -365,10 +356,7 @@ locals-types definitions
     @ lp-offset compile-@local postpone execute ;
 
 :noname ( c-addr u1 "name" -- a-addr xt ) \ gforth <local>bracket (unnamed)
-    create-local
-    ['] compile-pushlocal-[
-  does> ( Compilation: -- ) ( Run-time: -- w )
-    postpone laddr# @ lp-offset, ;
+    W^ drop ['] compile-pushlocal-[ ;
 
 : | val-part on ['] val-part-off ;
 
@@ -398,11 +386,7 @@ w: some-wlocal 2drop
 xt: some-xtlocal 2drop
 
 \ these "locals" create the associated vts
-c^ some-caddr 2drop
-d^ some-daddr 2drop
-f^ some-faddr 2drop
 w^ some-waddr 2drop
-dup execute some-carray 2drop
 
 \ the following gymnastics are for declaring locals without type specifier.
 \ we use a catch-all recognizer to do t' new-locals-rec  hat
@@ -768,11 +752,14 @@ colon-sys-xt-offset 3 + to colon-sys-xt-offset
 \G like @code{noop}, but compiles to nothing
 opt: drop ;
 
+: no-post -48 throw ;
+
 \ these rectypes are only used for POSTPONEing
 ' never-happens '  literal ' name-compsem rectype: post-wlocal
 ' never-happens ' 2literal ' name-compsem rectype: post-dlocal
 ' never-happens ' fliteral ' name-compsem rectype: post-flocal
 ' never-happens ' nocomp ' xtlocal-postpone rectype: post-xtlocal
+' never-happens ' nocomp ' no-post rectype: post-addr
 
 warnings @ warnings off \ disable all those compile-only warnings
 : >postpone-replacer-locals ( ... rectype1 -- ... rectype2 )
@@ -788,10 +775,7 @@ warnings @ warnings off \ disable all those compile-only warnings
             [ ' some-flocal  >does-code ] literal of drop post-flocal endof
             [ ' some-wlocal  >does-code ] literal of drop post-wlocal endof
             [ ' some-xtlocal >does-code ] literal of drop post-xtlocal endof
-            [ ' some-caddr   >does-code ] literal of drop post-wlocal endof
-            [ ' some-daddr   >does-code ] literal of drop post-wlocal endof
-            [ ' some-faddr   >does-code ] literal of drop post-wlocal endof
-            [ ' some-waddr   >does-code ] literal of drop post-wlocal endof
+            [ ' some-waddr   >does-code ] literal of drop post-addr   endof
         endcase
     then
     defers >postpone-replacer ;
