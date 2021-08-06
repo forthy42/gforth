@@ -64,11 +64,12 @@ Variable fpath ( -- path-addr ) \ gforth
 User ofile
 User tfile
 
-: os-cold ( -- )
+: clear-paths ( -- )
     fpath off
     ofile off
-    tfile off
-    pathstring 2@ fpath only-path ;
+    tfile off ;
+: os-cold ( -- )
+    clear-paths pathstring 2@ fpath only-path ;
 
 \ The path Gforth uses for @code{included} and friends.
 
