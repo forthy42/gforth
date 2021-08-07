@@ -274,6 +274,7 @@ GFORTH_FI_SRC2=\
 	locals.fs \
 	locate1.fs \
 	look.fs \
+	marker.fs \
 	mkdir.fs \
 	obsolete.fs \
 	prelude.fs \
