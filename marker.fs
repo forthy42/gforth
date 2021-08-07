@@ -25,6 +25,28 @@
 : included-files-mark ( -- u )
     included-files $@len ;
 
+\ sections-marker:
+\ #extra-sections
+\ size of sections
+\ section-dps (as many as given by size)
+
+: sections-marker, ( -- )
+    #extra-sections @ ,
+    sections $@ dup , bounds ?do
+	' section-dp i @ section-execute @ ,
+    cell +loop ;
+
+: sections-marker! ( addr1 -- addr2 )
+    #extra-sections @ over @ ?do
+	sections back> free throw loop
+    cell+ sections $@ third @ ?do
+	sections stack> free throw loop
+    assert( sections $@ nip third @ = )
+    cell+ sections $@ bounds ?do
+	dup @ ' section-dp i @ section-execute !
+	cell+
+    cell +loop ;
+    
 \ hmm, most of the saving appears to be pretty unnecessary: we could
 \ derive the wordlists and the words that have to be kept from the
 \ saved value of dp value. - anton
