@@ -64,18 +64,12 @@ also locals-types definitions
     create-local  ['] to-z: set-to ['] compile-pushlocal-z
 does> @ lp-offset compile-z@local ;
 : z^ ( "name" -- a-addr xt )
-    create-local  ['] compile-pushlocal-z
-does> postpone laddr# @ lp-offset, ;
+    w^ drop  ['] compile-pushlocal-z ;
 previous definitions
 
 also locals-types
 
-' dummy-dict is dict-execute \ dummy for headers and vts
-
 z: some-zlocal 2drop
-z^ some-zaddr 2drop
-
-' dict-execute1 is dict-execute \ now the real thing
 
 previous
 
