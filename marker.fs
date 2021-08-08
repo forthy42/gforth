@@ -31,19 +31,24 @@
 \ section-dps (as many as given by size)
 
 : sections-marker, ( -- )
+    here drop
+    current-section @ ,
     #extra-sections @ ,
     sections $@ dup , bounds ?do
-	' section-dp i @ section-execute @ ,
+	['] section-dp i @ section-execute @ ,
     cell +loop ;
 
 : sections-marker! ( addr1 -- addr2 )
-    #extra-sections @ over @ ?do
+    dup @ current-section ! set-section
+    cell+ #extra-sections @ over @ ?do
 	sections back> free throw loop
-    cell+ sections $@ third @ ?do
-	sections stack> free throw loop
-    assert( sections $@ nip third @ = )
+    dup @ #extra-sections !
+    cell+ sections $@len over @ ?do
+	sections stack> free throw
+    cell +loop
+    assert( sections $@len over @ = )
     cell+ sections $@ bounds ?do
-	dup @ ' section-dp i @ section-execute !
+	dup @ ['] section-dp i @ section-execute !
 	cell+
     cell +loop ;
     
@@ -69,7 +74,9 @@
     \ remember vtable-list
     vtable-list @ ,
     \ remember dyncode-ptr
-    here ['] noop , compile-prim1 finish-code ;
+    here ['] noop , compile-prim1 finish-code
+    sections-marker, \ here is stored and restored separately
+;
 
 : marker! ( mark -- )
     \ reset included files count; resize will happen on next add-included-file
@@ -97,10 +104,12 @@
     REPEAT
     drop
     \ restore udp and dp
-[IFDEF] forget-dyncode
-    dup cell+ cell+ @ forget-dyncode drop
-[THEN]
-    dup @ udp !  cell+ @ vtable-list !  ->here
+    dup @ udp !
+    cell+ dup @ vtable-list !
+    cell+ [IFDEF] forget-dyncode dup @ forget-dyncode drop [then]
+    cell+ sections-marker!
+    drop
+    ->here
     \ clean up vocabulary stack
     0 ['] search-order >body $@ bounds
     U+DO
