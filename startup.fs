@@ -37,9 +37,10 @@ require errors.fs
 require hash.fs
 require compat/strcomp.fs
 require sections.fs
+require float.fs
+require extend.fs
 require glocals.fs
 require iloops.fs
-require float.fs
 require stuff.fs
 require fold.fs
 require sections2.fs
@@ -80,6 +81,7 @@ require obsolete.fs
 require locate1.fs
 require status-line.fs
 require mwords.fs
+require marker.fs
 
 \ define the environmental queries for all the loaded wordsets
 \ since the blocks wordset is loaded in a single file, its queries
