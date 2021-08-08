@@ -98,7 +98,7 @@
     drop
     \ restore udp and dp
 [IFDEF] forget-dyncode
-    dup cell+ @ forget-dyncode drop
+    dup cell+ cell+ @ forget-dyncode drop
 [THEN]
     dup @ udp !  cell+ @ vtable-list !  ->here
     \ clean up vocabulary stack
