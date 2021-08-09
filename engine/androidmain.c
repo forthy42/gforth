@@ -403,7 +403,7 @@ pthread_attr_t * pthread_detach_attr(void)
 
 void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale, jstring startfile, jobjectArray filedirs)
 {
-  int i, filedirsnum = (*env)->getArrayLength(env, filedirs);
+  int i, filedirsnum = (*env)->GetArrayLength(env, filedirs);
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
   startargs.libdir = getjstring(env, libdir);
@@ -412,7 +412,7 @@ void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale, j
   startargs.filedirs = malloc((filedirsnum+1)*sizeof(char*));
   
   for(i=0; i<filedirsnum; i++) {
-    startargs.filedirs[i] = getjstring(env, (jstring)(*env)->getObjectArrayElement(env, filedirs, i));
+    startargs.filedirs[i] = getjstring(env, (jstring)(*env)->GetObjectArrayElement(env, filedirs, i));
   }
   startargs.filedirs[filedirsnum] = NULL;
 
