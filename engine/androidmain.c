@@ -256,7 +256,7 @@ char *paths;
 char *rootdir;
 char *homedir;
 
-int checkFiles(char * patharg, char * filedirs[])
+int checkFiles(char ** patharg, char * filedirs[])
 {
   int i, shacheck=0;
   FILE * test;
@@ -293,9 +293,9 @@ int checkFiles(char * patharg, char * filedirs[])
 
   asprintf(&paths,
 	   "--path=.:%s/gforth/current:%s/gforth/" ARCH "/gforth/current:%s/gforth/site-forth:%s/gforth/" ARCH "/gforth/site-forth",
-	   rootdir, rootdir,
-	   rootdir, rootdir);
+	   rootdir, rootdir, rootdir, rootdir);
   LOGI("Extra arg: %s\n", paths);
+  *patharg=paths;
 
   asprintf(&logfile, "%s/gforthout.log", rootdir);
   freopen(logfile, "w+", stdout);
