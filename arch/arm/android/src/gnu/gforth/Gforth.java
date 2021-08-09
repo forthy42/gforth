@@ -675,8 +675,7 @@ public class Gforth
     public void doStart() {
 	if(!started) {
 	    String filedirs[] = {
-		"/sdcard",
-		"/mnt/sdcard",
+		getExternalStorageDirectory().toString(),
 		getExternalFilesDir(null).toString(),
 		getFilesDir().toString() };
 	    startForth(getApplicationInfo().nativeLibraryDir,
