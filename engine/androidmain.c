@@ -108,7 +108,7 @@ typedef struct {
   char* libdir;
   char* locale;
   char* startfile;
-  char* filedirs[];
+  char** filedirs;
 } jniargs;
 
 jniargs startargs;
@@ -316,8 +316,6 @@ void startForth(jniargs * startargs)
   JavaVM *vm=startargs->vm;
   JNIEnv *env;
   JavaVMAttachArgs vmAA = { JNI_VERSION_1_6, "NativeThread", 0 };
-  char * extpath;
-  char * path;
 
   pipe(epipe);
   ((real_FILE*)(stdin))->_file=epipe[0];
