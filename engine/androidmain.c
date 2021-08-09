@@ -341,14 +341,12 @@ void startForth(jniargs * startargs)
     free(gforth_gz);
   }
 
-  if(rootdir) {
+  if(strcmp(rootdir, "/sdcard")) {
     asprintf(&homedir, "%s/gforth/home", rootdir);
     setenv("HOME", homedir, 1);
     free(homedir);
-    if((rootdir != startargs->filedirs[0])) {
-      setenv("GFORTHDESTDIR", startargs->filedirs[0], 1);
-      setenv("GFORTHINSDIR", rootdir, 1);
-    }
+    setenv("GFORTHDESTDIR", "/sdcard", 1);
+    setenv("GFORTHINSDIR", rootdir, 1);
   } else {
     setenv("HOME", "/sdcard/gforth/home", 1);
   }

@@ -26,7 +26,6 @@ s" GFORTHDESTDIR" getenv d0<> [IF]
     .included
 [THEN]
 ." load terminal-server" cr stdout flush-file throw
-require ansi.fs
 require unix/terminal-server.fs
 : t get-connection ;
 ." load android" cr stdout flush-file throw
