@@ -155,7 +155,7 @@ public class Gforth
     public native void onEventNative(int type, Object event);
     public native void onEventNative(int type, int event);
     public native void callForth(long xt); // !! use long for 64 bits !!
-    public native void startForth(String libdir, String locale, String startfile, String extfiledir, String filedir);
+    public native void startForth(String libdir, String locale, String startfile, String filedirs[]);
 
     // own subclasses
     static class GforthView extends SurfaceView implements SurfaceHolder.Callback2 {
@@ -674,11 +674,14 @@ public class Gforth
 
     public void doStart() {
 	if(!started) {
+	    String filedirs[] = {
+		"/sdcard",
+		"/mnt/sdcard",
+		getExternalFilesDir(null).toString(),
+		getFilesDir().toString() };
 	    startForth(getApplicationInfo().nativeLibraryDir,
 		       Locale.getDefault().toString() + ".UTF-8",
-		       startfile,
-		       getExternalFilesDir(null).toString(),
-		       getFilesDir().toString());
+		       startfile, filedirs);
 	    started=true;
 	}
 	activated = -1;

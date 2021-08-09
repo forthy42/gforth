@@ -108,8 +108,7 @@ typedef struct {
   char* libdir;
   char* locale;
   char* startfile;
-  char* extfiledir;
-  char* filedir;
+  char* filedirs[];
 } jniargs;
 
 jniargs startargs;
@@ -253,24 +252,20 @@ void addfileargs(char* filename)
   }
 }
 
-#define FOLDERS 3
-
-static char *paths[FOLDERS] = { "--", NULL, NULL };
-static char *folder[FOLDERS] = { "/sdcard", NULL, NULL };
+char *paths;
 char *rootdir;
 char *homedir;
 
-int checkFiles(char ** patharg)
+int checkFiles(char * patharg, char * filedirs[])
 {
   int i, shacheck=0;
   FILE * test;
   char * logfile;
 
-  for(i=0; i<FOLDERS; i++) {
-    *patharg=paths[i];
-    LOGI("folder[%i] = \"%s\"\n", i, folder[i]);
-    if(!chdir(folder[i])) {
-      LOGI("chdir(%s)+shacheck\n", folder[i]);
+  for(i=0; filedirs[i]!=NULL; i++) {
+    LOGI("folder[%i] = \"%s\"\n", i, filedirs[i]);
+    if(!chdir(filedirs[i])) {
+      LOGI("chdir(%s)+shacheck\n", filedirs[i]);
       // check if the files already have been successfully unpacked
       if((shacheck =
 	  checksha256sum(sha256sum, "gforth/current/sha256sum") &&
@@ -280,23 +275,27 @@ int checkFiles(char ** patharg)
   // if this failed, check if you can create a directory
   // and write into that directory
   if(!shacheck) {
-    for(i=0; i<FOLDERS; i++) {
-      *patharg=paths[i];
-      LOGI("try create folder[%i] = \"%s\"\n", i, folder[i]);
-      if(!chdir(folder[i])) {
+    for(i=0; filedirs[i]!=NULL; i++) {
+      LOGI("try create folder[%i] = \"%s\"\n", i, filedirs[i]);
+      if(!chdir(filedirs[i])) {
 	mkdir("gforth", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	if((test=fopen("gforth/test-stamp", "w+"))) {
 	  fclose(test);
 	  unlink("gforth/test-stamp");
-	  LOGI("chdir(%s)+test-stamp succeeded\n", folder[i]);
+	  LOGI("chdir(%s)+test-stamp succeeded\n", filedirs[i]);
 	  break;
 	}
       }
     }
   }
   
-  rootdir=folder[i];
-  LOGI("Extra arg: %s\n", *patharg);
+  rootdir=filedirs[i];
+
+  asprintf(&paths,
+	   "--path=.:%s/gforth/current:%s/gforth/" ARCH "/gforth/current:%s/gforth/site-forth:%s/gforth/" ARCH "/gforth/site-forth",
+	   rootdir, rootdir,
+	   rootdir, rootdir);
+  LOGI("Extra arg: %s\n", paths);
 
   asprintf(&logfile, "%s/gforthout.log", rootdir);
   freopen(logfile, "w+", stdout);
@@ -327,20 +326,7 @@ void startForth(jniargs * startargs)
   
   startargs->env = env;
 
-  asprintf(&path,
-	   "--path=.:%s/gforth/current:%s/gforth/" ARCH "/gforth/current:%s/gforth/site-forth:%s/gforth/" ARCH "/gforth/site-forth",
-	   startargs->filedir, startargs->filedir,
-	   startargs->filedir, startargs->filedir);
-  asprintf(&extpath,
-	   "--path=.:%s/gforth/current:%s/gforth/" ARCH "/gforth/current:%s/gforth/site-forth:%s/gforth/" ARCH "/gforth/site-forth",
-	   startargs->extfiledir, startargs->extfiledir,
-	   startargs->extfiledir, startargs->extfiledir);
-  folder[1]=startargs->extfiledir;
-  folder[2]=startargs->filedir;
-  paths[1]=extpath;
-  paths[2]=path;
-
-  if(!checkFiles(&patharg)) {
+  if(!checkFiles(&patharg, startargs->filedirs)) {
     char *dir = startargs->libdir;
     const char *zip = "libgforth-" ARCH "gz.so";
     int  dirlen=strlen(dir)+strlen(zip)+2;
@@ -361,8 +347,8 @@ void startForth(jniargs * startargs)
     asprintf(&homedir, "%s/gforth/home", rootdir);
     setenv("HOME", homedir, 1);
     free(homedir);
-    if((rootdir != folder[0])) {
-      setenv("GFORTHDESTDIR", folder[0], 1);
+    if((rootdir != startargs->filedirs[0])) {
+      setenv("GFORTHDESTDIR", startargs->filedirs[0], 1);
       setenv("GFORTHINSDIR", rootdir, 1);
     }
   } else {
@@ -415,15 +401,20 @@ pthread_attr_t * pthread_detach_attr(void)
   return &attr;
 }
 
-void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale, jstring startfile, jstring extfiledir, jstring filedir)
+void JNI_startForth(JNIEnv * env, jobject obj, jstring libdir, jstring locale, jstring startfile, jobjectArray filedirs)
 {
+  int i, filedirsnum = getArrayLength(env, filedirs);
   startargs.obj = (*env)->NewGlobalRef(env, obj);
   startargs.win = 0; // is a native window
   startargs.libdir = getjstring(env, libdir);
   startargs.locale = getjstring(env, locale);
   startargs.startfile = getjstring(env, startfile);
-  startargs.extfiledir = getjstring(env, extfiledir);
-  startargs.filedir = getjstring(env, filedir);
+  startargs.filedirs = malloc((filedirsnum+1)*sizeof(char*));
+  
+  for(i=0; i<filedirsnum; i++) {
+    startargs.filedirs[i] = getjstring(env, (jstring)getObjectArrayElement(env, filedirs, i));
+  }
+  startargs.filedirs[filedirsnum] = NULL;
 
   pthread_create(&(startargs.id), pthread_detach_attr(), startForth, (void*)&startargs);
 }
@@ -461,7 +452,7 @@ static JNINativeMethod GforthMethods[] = {
   {"onEventNative", "(ILjava/lang/Object;)V", (void*) JNI_onEventNative},
   {"onEventNative", "(II)V",                  (void*) JNI_onEventNativeInt},
   {"callForth",     "(J)V",                   (void*) JNI_callForth},
-  {"startForth",    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",  (void*) JNI_startForth},
+  {"startForth",    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V",  (void*) JNI_startForth},
 };
 
 #define alen(array)  sizeof(array)/sizeof(array[0])
