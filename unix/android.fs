@@ -77,6 +77,10 @@ begin-structure startargs
     lfield: ke-fd0
     lfield: ke-fd1
     field: window \ native window
+    field: libdir
+    field: locale
+    field: startfile
+    field: filedirs[]
 end-structure
 
 include unix/androidlib.fs
