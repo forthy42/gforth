@@ -56,7 +56,7 @@ override_dh_auto_install:
 	mkdir -p $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mkdir -p $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth
-	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/*.f* $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth
+	mv $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/*.f* $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth
 	mkdir -p $(DLGLES)$(LIBCC)
 	-mv $(DLC)$(LIBCC)/libgfegl.* $(DLC)$(LIBCC)/libgfgles.* $(DLGLES)$(LIBCC)
 	mkdir -p $(DLGLES)$(LIB)/unix
