@@ -55,7 +55,7 @@ override_dh_auto_install:
 	mv $(DB)/usr/include/gforth.h $(DV)/usr/include
 	mkdir -p $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)
 	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth $(DLC)/usr/lib/$(DEB_HOST_MULTIARCH)
-	mkdir $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth
+	mkdir -p $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth
 	mv $(DL)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth/*.f* $(DB)/usr/lib/$(DEB_HOST_MULTIARCH)/gforth
 	mkdir -p $(DLGLES)$(LIBCC)
 	-mv $(DLC)$(LIBCC)/libgfegl.* $(DLC)$(LIBCC)/libgfgles.* $(DLGLES)$(LIBCC)
