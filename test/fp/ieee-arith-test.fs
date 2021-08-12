@@ -72,6 +72,8 @@ error.
 \ does not require that 0/0 be a nan with zero load:
   0e 0e f/ fabs fconstant +nan
   +nan fnegate  fconstant -nan
+\ Result of using -nan, does not need to have a sign
+  -nan 2e f+    fconstant r-nan
 [THEN]
 
 \ The following huge kludge is just for testing sqrt(-1)!
@@ -146,14 +148,14 @@ t{ -0 +0 f+ -> +0 }t
 t{ -0 -0 f+ -> -0 }t
 
 t{ +nan  2e  f+ -> +nan }t
-t{ -nan  2e  f+ -> -nan }t
+t{ -nan  2e  f+ -> r-nan }t
 t{  3e  +nan f+ -> +nan }t
-t{  3e  -nan f+ -> -nan }t
+t{  3e  -nan f+ -> r-nan }t
 
 t{ +nan +nan f+ -> +nan }t
 t{ -nan +nan f+ fabs -> +nan }t
 t{ +nan -nan f+ fabs -> +nan }t
-t{ -nan -nan f+ -> -nan }t
+t{ -nan -nan f+ -> r-nan }t
 
 t{  2e  +inf f+ -> +inf }t
 t{ +inf  7e  f+ -> +inf }t
@@ -164,10 +166,10 @@ t{ +nan +inf f+ -> +nan }t
 t{ +inf +nan f+ -> +nan }t
 t{ +nan -inf f+ -> +nan }t
 t{ -inf +nan f+ -> +nan }t
-t{ -nan +inf f+ -> -nan }t
-t{ +inf -nan f+ -> -nan }t
-t{ -nan -inf f+ -> -nan }t
-t{ -inf -nan f+ -> -nan }t
+t{ -nan +inf f+ -> r-nan }t
+t{ +inf -nan f+ -> r-nan }t
+t{ -nan -inf f+ -> r-nan }t
+t{ -inf -nan f+ -> r-nan }t
 
 t{ +inf +inf f+      -> +inf }t
 t{ +inf -inf f+ fabs -> +nan }t
@@ -182,14 +184,14 @@ t{ -0 +0 f- -> -0 }t
 t{ -0 -0 f- -> +0 }t
 
 t{ +nan  2e  f- -> +nan }t
-t{ -nan  2e  f- -> -nan }t
+t{ -nan  2e  f- -> r-nan }t
 t{  3e  +nan f- -> +nan }t
-t{  3e  -nan f- -> -nan }t
+t{  3e  -nan f- -> r-nan }t
 
 t{ +nan +nan f-      -> +nan }t
 t{ -nan +nan f- fabs -> +nan }t
 t{ +nan -nan f- fabs -> +nan }t
-t{ -nan -nan f-      -> -nan }t
+t{ -nan -nan f-      -> r-nan }t
 
 t{  2e  +inf f- -> -inf }t
 t{ +inf  7e  f- -> +inf }t
@@ -200,10 +202,10 @@ t{ +nan +inf f- -> +nan }t
 t{ +inf +nan f- -> +nan }t
 t{ +nan -inf f- -> +nan }t
 t{ -inf +nan f- -> +nan }t
-t{ -nan +inf f- -> -nan }t
-t{ +inf -nan f- -> -nan }t
-t{ -nan -inf f- -> -nan }t
-t{ -inf -nan f- -> -nan }t
+t{ -nan +inf f- -> r-nan }t
+t{ +inf -nan f- -> r-nan }t
+t{ -nan -inf f- -> r-nan }t
+t{ -inf -nan f- -> r-nan }t
 
 t{ +inf +inf f- fabs -> +nan }t
 t{ +inf -inf f-      -> +inf }t
@@ -226,15 +228,17 @@ t{  2e -0 f* -> -0 }t
 t{ -2e +0 f* -> -0 }t
 t{ -2e -0 f* -> +0 }t
 
+t{ r-nan -nan fexactly= r-nan +nan fexactly= or -> true }t
+
 t{ +nan  2e  f* -> +nan }t
-t{ -nan  2e  f* -> -nan }t
+t{ -nan  2e  f* -> r-nan }t
 t{  3e  +nan f* -> +nan }t
-t{  3e  -nan f* -> -nan }t
+t{  3e  -nan f* -> r-nan }t
 
 t{ +nan +nan f*      -> +nan }t
 t{ -nan +nan f* fabs -> +nan }t
 t{ +nan -nan f* fabs -> +nan }t
-t{ -nan -nan f*      -> -nan }t
+t{ -nan -nan f*      -> r-nan }t
 
 t{  2e  +inf f* -> +inf }t
 t{ +inf  7e  f* -> +inf }t
@@ -245,10 +249,10 @@ t{ +nan +inf f* -> +nan }t
 t{ +inf +nan f* -> +nan }t
 t{ +nan -inf f* -> +nan }t
 t{ -inf +nan f* -> +nan }t
-t{ -nan +inf f* -> -nan }t
-t{ +inf -nan f* -> -nan }t
-t{ -nan -inf f* -> -nan }t
-t{ -inf -nan f* -> -nan }t
+t{ -nan +inf f* -> r-nan }t
+t{ +inf -nan f* -> r-nan }t
+t{ -nan -inf f* -> r-nan }t
+t{ -inf -nan f* -> r-nan }t
 
 t{ +inf +inf f* -> +inf }t
 t{ +inf -inf f* -> -inf }t
@@ -271,14 +275,14 @@ t{ -2e +0 f/ -> -inf }t
 t{ -2e -0 f/ -> +inf }t
 
 t{ +nan  2e  f/ -> +nan }t
-t{ -nan  2e  f/ -> -nan }t
+t{ -nan  2e  f/ -> r-nan }t
 t{  3e  +nan f/ -> +nan }t
-t{  3e  -nan f/ -> -nan }t
+t{  3e  -nan f/ -> r-nan }t
 
 t{ +nan +nan f/      -> +nan }t
 t{ -nan +nan f/ fabs -> +nan }t
 t{ +nan -nan f/ fabs -> +nan }t
-t{ -nan -nan f/      -> -nan }t
+t{ -nan -nan f/      -> r-nan }t
 
 t{  2e  +inf f/ -> +0 }t
 t{ +inf  7e  f/ -> +inf }t
@@ -289,10 +293,10 @@ t{ +nan +inf f/ -> +nan }t
 t{ +inf +nan f/ -> +nan }t
 t{ +nan -inf f/ -> +nan }t
 t{ -inf +nan f/ -> +nan }t
-t{ -nan +inf f/ -> -nan }t
-t{ +inf -nan f/ -> -nan }t
-t{ -nan -inf f/ -> -nan }t
-t{ -inf -nan f/ -> -nan }t
+t{ -nan +inf f/ -> r-nan }t
+t{ +inf -nan f/ -> r-nan }t
+t{ -nan -inf f/ -> r-nan }t
+t{ -inf -nan f/ -> r-nan }t
 
 t{ +inf +inf f/ fabs -> +nan }t
 t{ +inf -inf f/ fabs -> +nan }t
@@ -305,7 +309,7 @@ t{ -0   fsqrt -> -0 }t
 t{ +inf fsqrt -> +inf }t
 t{ -inf fsqrt -> -1e fsqrt }t
 t{ +nan fsqrt -> +nan }t
-t{ -nan fsqrt -> -nan }t
+t{ -nan fsqrt -> r-nan }t
 VALID-FNAN?-DEFINED [IF]
 t{ -1e  fsqrt fnan? -> true }t
 [ELSE]

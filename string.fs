@@ -90,7 +90,7 @@ tmp$ $execstr-ptr !
     1 tmp$# +!@ drop 0 { w^ tmp$$ } tmp$$ $exec
     tmp$$ @ tmp$ tuck dup $free ! $@ ;
 
-:noname ( -- )  defers 'cold  tmp$[] off ;  is 'cold
+:noname ( -- )  defers 'image tmp$[] off $execstr-ptr off ; is 'image
 
 \ slurp in lines and files into strings and string-arrays
 
