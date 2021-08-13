@@ -436,8 +436,8 @@ defer get-socket-options ( socket -- socket )
 : $+ 	( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     { c-addr1 u1 c-addr2 u2 }
     u1 u2 + allocate throw 
-    c-addr1 u1  2 pick       $put 
-    c-addr2 u2  2 pick u1 +  $put  
+    c-addr1 u1  third       $put 
+    c-addr2 u2  third u1 +  $put  
     u1 u2 + ;
 
 Create hostname$ 0 c, 255 chars allot
@@ -474,7 +474,7 @@ Create crlf 2 c, 13 c, 10 c,
 : close-socket ( socket -- ) close-file throw ;
 
 : (rs)  ( socket c-addr maxlen -- c-addr size ) 
-    2 pick >r r@ false blocking-mode  rot fileno -rot
+    third >r r@ false blocking-mode  rot fileno -rot
     over >r msg_waitall recv
     dup 0<  IF  0 max
 	errno dup 0<> swap ewouldblock <> and ?ior
@@ -492,7 +492,7 @@ Create crlf 2 c, 13 c, 10 c,
     REPEAT ;
 
 : (rs-from)  ( socket c-addr maxlen -- c-addr size ) 
-    2 pick >r  r@ false blocking-mode  rot fileno -rot
+    third >r  r@ false blocking-mode  rot fileno -rot
     over >r msg_waitall sockaddr-tmp alen  recvfrom
     dup 0<  IF  0 max
 	errno dup 0<> swap ewouldblock <> and ?ior

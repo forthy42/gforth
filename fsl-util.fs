@@ -71,7 +71,7 @@ TRUE CONSTANT HAS-MEMORY-WORDS?
 : dand  ( d1 d2 -- d )  ROT AND >R AND R>  ;          \ double and
 
 : sd*   ( multiplicand multiplier_double -- product_double )
-      2 PICK * >R   UM*   R> +  ;                \ single * double = double
+      THIRD * >R   UM*   R> +  ;                \ single * double = double
 
 : % BL WORD COUNT >FLOAT 0= ABORT" NAN"
                   STATE @ IF POSTPONE FLITERAL THEN ; IMMEDIATE

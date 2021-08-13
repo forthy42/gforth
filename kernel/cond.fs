@@ -38,7 +38,7 @@ variable backedge-locals
     \ above.  causes the BEGIN to assume that the same locals are live
     \ as at the orig point
     dup orig?
-    2 pick backedge-locals ! ; immediate
+    third backedge-locals ! ; immediate
     
 \ Control Flow Stack
 \ orig, etc. have the following structure:

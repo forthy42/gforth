@@ -143,7 +143,7 @@ also  Assembler Definitions
                               IF  5 or  X c,  X ,  wexit  THEN
                               4 or  X c,  X c, wexit  THEN THEN
          r@ or  $80 size @ or   r> (0<
-         IF  size @ IF  2 pick long? 0= IF  2 or  size off  THEN
+         IF  size @ IF  third long? 0= IF  2 or  size off  THEN
          THEN       THEN  X c,  X c, direct,  data,  wexit
      THEN  r> dw, r/m,  wexit ;
 

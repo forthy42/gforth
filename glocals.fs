@@ -625,7 +625,7 @@ is adjust-locals-list
     \ list and addr are a fragment of a cs-item
     \ xt1 is the conditional branch without lp adjustment, xt2 is with
     >r >r
-    locals-size @ 2 pick list-size - dup if ( list dest-addr adjustment )
+    locals-size @ third list-size - dup if ( list dest-addr adjustment )
 	r> drop r> compile,
 	swap <resolve ( list adjustment ) ,
     else ( list dest-addr adjustment )

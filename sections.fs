@@ -118,16 +118,16 @@ forthstart sections >stack
 [IFDEF] dump-sections
     :noname
 	[: section-name @ ['] forth <> IF
-		s" Section." 2 pick write-file throw
+		s" Section." third write-file throw
 		section-start @ section-dp @ over - aligned
-		2 pick write-file throw
+		third write-file throw
 	    THEN ;] sections-execute  drop ; is dump-sections
 [ELSE]
     : dump-sections ( fid -- )
 	[: section-name @ ['] forth <> IF
-		s" Section." 2 pick write-file throw
+		s" Section." third write-file throw
 		section-start @ section-dp @ over - aligned
-		2 pick write-file throw
+		third write-file throw
 	    THEN ;] sections-execute  drop ;
 [THEN]
 

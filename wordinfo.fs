@@ -103,7 +103,7 @@ CREATE InfoTable
         InfoTable
         BEGIN  dup @ dup
         WHILE  2 cells under+
-               2 pick swap execute
+               third swap execute
         UNTIL
         cell- @ nip
         ELSE

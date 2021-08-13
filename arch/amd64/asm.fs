@@ -191,7 +191,7 @@ Variable dquad?
 : STP ( n -- )  7 and       $8C0 or ;
 
 \ reg?                                                 10apr93py
-: reg= ( reg flag mask -- flag ) 2 pick and = ;
+: reg= ( reg flag mask -- flag ) third and = ;
 : reg? ( reg -- reg flag )  $C0 $FFC0 reg= ;
 : ?reg ( reg -- reg )  reg? 0= abort" reg expected!" ;
 : ?mem ( mem -- mem )  dup $C0 < 0= abort" mem expected!" ;

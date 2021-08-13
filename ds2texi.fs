@@ -159,7 +159,7 @@ create description-buffer 4096 chars allot
     \ with the prefix addr2 u2 and continuing with a word in the
     \ wordlist `documentation'. f is true if xt is executed.
     >r dup >r
-    3 pick over str=
+    fourth over str=
     if \ addr2 u2 is a prefix of addr1 u1
 	r> safe/string -trailing documentation search-wordlist
 	if \ the rest of addr1 u1 is in documentation

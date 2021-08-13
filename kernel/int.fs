@@ -766,12 +766,12 @@ Defer mark-end
 
 : part-type ( addr1 u1 u -- addr2 u2 )
     \ print first u characters of addr1 u1, addr2 u2 is the rest
-    over umin 2 pick over type /string ;
+    over umin third over type /string ;
 
 : .error-line ( c-addr1 u1 c-addr2 u2 -- )
     \ print error in line c-addr1 u1, where the error-causing lexeme
     \ is c-addr2 u2
-    >r 2 pick - part-type ( c-addr3 u3 R: u2 )
+    >r third - part-type ( c-addr3 u3 R: u2 )
     mark-start r> part-type mark-end ( c-addr4 u4 )
     type ;
 

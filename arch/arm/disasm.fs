@@ -76,7 +76,7 @@ also disassembler definitions
 
 \ --
 
-: fld# ( w mask32 ) dup cnttz tuck rshift ( w s m ) 2 pick rot rshift and ;
+: fld# ( w mask32 ) dup cnttz tuck rshift ( w s m ) third rot rshift and ;
 : fld: ( mask32 "name" ) create , does> @ fld# ;
 
 \ core fields

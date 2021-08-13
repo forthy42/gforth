@@ -298,7 +298,7 @@ end-class widget
     border f. borderv f. bordert f. borderl f. ;
 :noname w.widget cr ; widget is .widget
 
-: name! ( o addr u -- )  2 pick >o to name$ o> ;
+: name! ( o addr u -- )  third >o to name$ o> ;
 : !act ( o:widget actor -- o:widget )
     to act o act >o to caller-w o> ;
 
@@ -1626,16 +1626,16 @@ require animation.fs
 : hslider ( viewport-link sd sh -- o )
     >r {{ glue*l slider-color slider-border }}frame dup .button3
     {{ hslider-parts r@ 0g frot f2/ frot f2/ slider
-	r@ 3 pick hsliderleft[]
-	r@ 2 pick hslider[]
+	r@ fourth hsliderleft[]
+	r@ third hslider[]
 	r> 1 pick hsliderright[]
     }}h box[]
     }}z box[] ;
 : vslider ( viewport-link sw sd -- o )
     >r {{ glue*l slider-color slider-border }}frame dup .button3
     {{ vslider-parts r@ 0g slider
-	r@ 3 pick vsliderup[]
-	r@ 2 pick vslider[]
+	r@ fourth vsliderup[]
+	r@ third vslider[]
 	r> 1 pick vsliderdown[]
     }}v box[]
     }}z box[] ;

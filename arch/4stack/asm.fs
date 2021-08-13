@@ -708,8 +708,8 @@ Defer char-mode
   r@ cell+ @ 0=  IF  rdrop drop  EXIT  THEN
 \ cr ." Writing " r@ @ . ." len " r@ cell+ @ .
   r@ cell+ @ 7 + -8 and r@ cell+ !
-  r@ 4 2 pick write-file throw
-  r@ cell+ 4 2 pick write-file throw
+  r@ 4 third write-file throw
+  r@ cell+ 4 third write-file throw
   r@ cell+ cell+ @  dup 7 and 2 =  IF  2drop rdrop  EXIT  THEN
   r> cell+ @  rot write-file throw ;
 

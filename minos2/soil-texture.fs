@@ -32,7 +32,7 @@ require jpeg-exif.fs
 \ also soil
 
 : >texture ( addr w h -- )
-    2 pick >r rgba-texture mipmap linear-mipmap r> free throw ;
+    third >r rgba-texture mipmap linear-mipmap r> free throw ;
 : mem>texture ( addr u -- w h )
     over >r  { | w^ w w^ h w^ ch# }
     w h ch# 4 stbi_load_from_memory

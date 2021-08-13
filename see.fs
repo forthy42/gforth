@@ -227,7 +227,7 @@ ACONSTANT MaxTable
     \ a-addr2: pointer in branch table
     SearchPointer @ BEGIN
 	dup BranchPointer @ u< WHILE
-	    dup @ 2 pick <> WHILE
+	    dup @ third <> WHILE
 		3 cells +
 	REPEAT
 	nip dup  3 cells + SearchPointer ! true
@@ -242,7 +242,7 @@ ACONSTANT MaxTable
 : CheckEnd ( a-addr -- true | false )
     BranchTable cell+ BEGIN
 	dup BranchPointer @ u< WHILE
-	    dup @ 2 pick u<= WHILE
+	    dup @ third u<= WHILE
 		3 cells + REPEAT
 	2drop false
     ELSE
@@ -756,7 +756,7 @@ c-extender !
 	    THEN 
 	THEN
 	\ jump over to extender, if any 26jan97jaw
-	2 pick swap xt= 0=
+	third swap xt= 0=
     WHILE
 	    2 cells +
     REPEAT

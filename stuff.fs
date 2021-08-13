@@ -239,7 +239,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     \ However, I have not been able to construct an example where this
     \ leads to an unexpected result.
     swap 0 max swap 0 max
-    fdup 2over 2over 2 pick f>buf-rdp-try f>buf-rdp-try drop ;
+    fdup 2over 2over third f>buf-rdp-try f>buf-rdp-try drop ;
 
 : f>str-rdp ( rf +nr +nd +np -- c-addr nr ) \ gforth
 \G Convert @i{rf} into a string at @i{c-addr nr}.  The conversion
