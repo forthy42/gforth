@@ -128,7 +128,7 @@ Variable last-namespace
 : locale-file ( fid -- )
     >r  lsids
     BEGIN  @ dup  WHILE  pad $1000 r@ read-line throw
-	    IF  pad swap 2 pick locale!  ELSE  drop  THEN  REPEAT
+	    IF  pad swap third locale!  ELSE  drop  THEN  REPEAT
     drop r> close-file throw ;
 
 : included-locale ( addr u -- )  open-fpath-file throw 2drop locale-file ;

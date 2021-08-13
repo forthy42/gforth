@@ -164,7 +164,7 @@ User tfile
 
 : del-string ( addr u u1 -- addr u2 )
     \ delete u1 characters from string by moving stuff from further up
-    2 pick >r /string r@ over >r swap cmove 2r> ;
+    third >r /string r@ over >r swap cmove 2r> ;
 
 : del-./s ( addr u -- addr u2 )
     \ deletes (/*./)* at the start of the string

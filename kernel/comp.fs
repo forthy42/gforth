@@ -815,7 +815,7 @@ Create defstart
     @ over >link ! 
     r> ! ;
 : (reveal) ( nt wid -- )
-    over name>string 2 pick check-shadow
+    over name>string third check-shadow
     (nocheck-reveal) ;
 
 : reveal ( -- ) \ gforth

@@ -115,7 +115,7 @@ $004 Constant POLLOUT
 : fds!+ ( fileno flag addr -- addr' )
     >r r@ events w!  r@ fd l!  0 r@ revents w!  r> pollfd + ;
 : fds[]! ( fileno flag addr index -- )
-    over $@len over 1+ pollfd * umax 2 pick $!len
+    over $@len over 1+ pollfd * umax third $!len
     pollfd * swap $@ drop + tuck events w! fd l! ;
 
 : ?errno-throw ( f -- )

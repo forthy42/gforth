@@ -20,7 +20,7 @@
 
 : del-included-files ( addr u -- )
     included-files $@ bounds ?DO
-	I $@ 2over string-prefix? IF  I 0 2 pick $del  THEN
+	I $@ 2over string-prefix? IF  I 0 third $del  THEN
     cell +LOOP  2drop ;
 
 : repl-included-files ( addr1 u1 addr2 u2 -- )

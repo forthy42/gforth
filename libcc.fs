@@ -798,7 +798,7 @@ Create callback-&style c-var c,
 
 : replace-hash { addr u -- }
     libcc$ $@  BEGIN  s" _replace_this_with_the_hash_code" search  WHILE
-	    addr 2 pick u move $20 /string  REPEAT
+	    addr third u move $20 /string  REPEAT
     2drop ;
 
 : c-source-hash ( -- addr )
