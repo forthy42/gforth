@@ -285,7 +285,7 @@ create decode_code
 : decode_Bra ( addr instruction tbentry -- addr )
   swap
   dup $03e00000 and 21 rshift decode_register
-  $001fffff and 2* 2* 2 pick + 4 + hex.
+  $001fffff and 2* 2* third + 4 + hex.
   print_string
 ;
 

@@ -220,11 +220,11 @@ Variable ,space ,space on
     THEN ;
 
 : .st/ld ( opcode -- opcode )
-    s" stld" 2 pick #22 rshift $1 and .2" ;
+    s" stld" third #22 rshift $1 and .2" ;
 : .st/ld3 ( opcode -- opcode )
-    s" stldldld" 2 pick #22 rshift $3 and .2" ;    
+    s" stldldld" third #22 rshift $3 and .2" ;    
 : .bhw ( opcode -- opcode )
-    s" bhw " 2 pick #30 rshift .1" ;
+    s" bhw " third #30 rshift .1" ;
 : ldstex  ( opcode -- )
     .st/ld
     dup #22 rshift $1 and 'a' 'l' rot select
@@ -258,12 +258,12 @@ Variable ,space ,space on
 : ldstr# ( opcode -- )
     dup v? IF
 	.st/ld
-	s" u t " 2 pick #10 rshift $3 and .1" 'r' emit tab
+	s" u t " third #10 rshift $3 and .1" 'r' emit tab
 	.smd-size dup $1F and #.r
     ELSE
 	.st/ld3
-	s" u t " 2 pick #10 rshift $3 and .1" 'r' emit
-	s"   ss" 2 pick #22 rshift $3 and .1"
+	s" u t " third #10 rshift $3 and .1" 'r' emit
+	s"   ss" third #22 rshift $3 and .1"
 	.bhw
 	tab dup .rt
     THEN  .,
@@ -279,7 +279,7 @@ Variable ,space ,space on
 	.smd-size dup $1F and #.r
     ELSE
 	.st/ld3
-	s"   ss" 2 pick #22 rshift $3 and .1"
+	s"   ss" third #22 rshift $3 and .1"
 	.bhw tab dup .rt
     THEN  .,
     .[ dup .rn ., .imm12' .] ;

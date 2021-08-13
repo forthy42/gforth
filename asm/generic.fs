@@ -111,15 +111,15 @@ Variable I-Len
   I-Latch I-len @ bounds DO i c@ X c, LOOP reset ;
 
 : (g!) ( val addr n -1/1 -- )
-  dup 0< IF rot 2 pick + 1- -rot THEN
+  dup 0< IF rot third + 1- -rot THEN
   swap >r -rot r> 0 
-  DO 2dup c! 2 pick + swap 8 rshift swap LOOP 
+  DO 2dup c! third + swap 8 rshift swap LOOP 
   2drop drop ;
 
 : (g@) ( addr n -1/1 -- val )
-  negate dup 0< IF rot 2 pick + 1- -rot THEN
+  negate dup 0< IF rot third + 1- -rot THEN
   swap >r swap 0 swap r> 0 
-  DO swap 8 lshift over c@ or swap 2 pick + LOOP
+  DO swap 8 lshift over c@ or swap third + LOOP
   drop nip ;
 
 Variable ByteDirection	\ -1 = big endian; 1 = little endian

@@ -1593,7 +1593,7 @@ Variable c-flag
 
 (( ` \ comment-body nleof )) <- comment ( -- )
 
-(( {{ start }} stack-ident {{ end 2 pick init-item item% %size + }} white ** )) **
+(( {{ start }} stack-ident {{ end third init-item item% %size + }} white ** )) **
 <- stack-items
 
 (( {{ prim prim-effect-in }}  stack-items {{ prim prim-effect-in-end ! }}

@@ -89,7 +89,7 @@
     >r 2dup minmax r> plot-x-minmax ;
 
 : plot-xy ( addrx addry uy color o:canvas -- )
-    >r 2 pick over minmax 2dup minmax r> plot-xy-minmax ;
+    >r third over minmax 2dup minmax r> plot-xy-minmax ;
 
 : plot-dxy ( addrdx addry uy color o:canvas -- )
-    >r 2 pick over 1 floats - fsum 2dup minmax r> plot-dxy-minmax ;
+    >r third over 1 floats - fsum 2dup minmax r> plot-dxy-minmax ;

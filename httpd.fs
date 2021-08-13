@@ -278,10 +278,10 @@ s" text/plain" transparent: txt
     s" os-class" environment? IF  type  THEN  ." )" cr ;
 : .ok  ( -- ) ." HTTP/1.1 200 OK" cr .server ;
 : html-error ( n addr u -- )
-    ." HTTP/1.1 " 2 pick . 2dup type cr .server
-    2 pick &405 = IF ." Allow: GET, HEAD, POST" cr  THEN
+    ." HTTP/1.1 " third . 2dup type cr .server
+    third &405 = IF ." Allow: GET, HEAD, POST" cr  THEN
     lastrequest
-    ." <HTML><HEAD><TITLE>" 2 pick . 2dup type
+    ." <HTML><HEAD><TITLE>" third . 2dup type
     ." </TITLE></HEAD>" cr
     ." <BODY><H1>" type drop ." </H1>" cr ;
 : .trailer ( -- )

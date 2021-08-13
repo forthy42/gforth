@@ -108,9 +108,9 @@ Defer }}text' ' }}text IS }}text'
 Variable image-tex[]
 Variable image-file[]
 : }}image-file ( xt addr u r -- o glue-o ) pixelsize# f*
-    2 pick image-tex[] >stack
+    third image-tex[] >stack
     file>fpath $make dup image-file[] >stack dup cell+ swap @
-    2 pick execute
+    third execute
     load-texture glue new >o
     fdup fm* vglue-c df!  fm* hglue-c df!  o o> dup >r
     swap white# }}image r> ;

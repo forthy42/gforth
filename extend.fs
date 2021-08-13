@@ -201,5 +201,5 @@ variable span ( -- c-addr ) \ core-ext-obsolescent
 	xkey decode ( maxlen span c-addr pos2 flag )
 	>r 2over = r> or
     UNTIL
-    2 pick swap /string type
+    third swap /string type
     nip span ! ;
