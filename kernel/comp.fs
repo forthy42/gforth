@@ -333,10 +333,12 @@ Defer addr>view
 
 has? primcentric [IF]
     has? peephole [IF]
-	\ dynamic only    
+	defer prim-check ( xt -- xt ) ' noop is prim-check
+	\ hook for stack depth (and maybe later type) checker
+	
 	: peephole-compile, ( xt -- )
 	    \ compile xt, appending its code to the current dynamic superinstruction
-	    lits, here swap , xt-location compile-prim1 ;
+	    lits, prim-check here swap , xt-location compile-prim1 ;
     [ELSE]
 	: peephole-compile, ( xt -- addr ) @ , ;
     [THEN]
