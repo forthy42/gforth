@@ -73,15 +73,11 @@ Variable fonts[] \ stack of used fonts
 [THEN]
 
 : open-font ( atlas rfontsize addr u -- font )
-    texture_font_new_from_file
-    [IFDEF] texture_font_t-scaletex
-	0 over texture_font_t-scaletex
-	[ sizeof texture_font_t-scaletex 4 = ] [IF] l! [THEN]
-	[ sizeof texture_font_t-scaletex 2 = ] [IF] w! [THEN]
-	[ sizeof texture_font_t-scaletex 1 = ] [IF] c! [THEN]
-    [ELSE]
-	dup fonts[] >stack
-    [THEN] ;
+    r/o map-file-private texture_font_new_from_memory
+    0 over texture_font_t-scaletex
+    [ sizeof texture_font_t-scaletex 4 = ] [IF] l! [THEN]
+    [ sizeof texture_font_t-scaletex 2 = ] [IF] w! [THEN]
+    [ sizeof texture_font_t-scaletex 1 = ] [IF] c! [THEN] ;
 
 ' texture_font_clone alias clone-font ( rfontsize font -- font )
 

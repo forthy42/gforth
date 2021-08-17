@@ -21,6 +21,7 @@
 \ font array
 
 require cstr.fs
+require unix/harfbuzzlib.fs
 
 get-current also minos definitions
 
@@ -108,12 +109,17 @@ Value font-langs#
 : fontnames[]# ( -- n ) \ size of font array
     font-shapes# font-families# font-langs# * * ;
 
-also freetype-gl
+also freetype-gl also harfbuzz
+: ?referenced ( font -- font )
+    dup texture_font_t-hb_font @ ?EXIT
+    dup texture_font_t-face @ hb_ft_font_create_referenced
+    over texture_font_t-hb_font ! ;
+
 : fonts! ( font-addr addr -- )
     \ set current font for all sizes
     over font[] $@ drop - cell/ fontnames[]# mod { idx }
     font-sizes# 0 U+DO
-	dup I fontnames[]# * idx + font[] $[] !
+	dup I fontnames[]# * idx + font[] $[] !  ?referenced
 	I 1+ I' <> IF
 	    I 1+ font-size% font-size# f* fround clone-font
 	THEN
@@ -122,7 +128,7 @@ also freetype-gl
     \ set current font for all sizes+family+shape
     over font[] $@ drop - cell/ font-langs# mod { idx }
     font-sizes# font-families# * font-shapes# * 0 U+DO
-	dup I font-langs# * idx + font[] $[] !
+	dup I font-langs# * idx + font[] $[] !  ?referenced
 	I font-families# font-shapes# * /
 	I 1+ font-families# font-shapes# * / <>
 	I 1+ I' <> and IF
@@ -130,7 +136,7 @@ also freetype-gl
 	    font-size% font-size# f* fround clone-font
 	THEN
     LOOP  drop ;
-previous
+previous previous
 
 : fontname@ ( -- addr )
     0 font-index fontname[] $[] ;

@@ -226,8 +226,6 @@ t{  2e -0 f* -> -0 }t
 t{ -2e +0 f* -> -0 }t
 t{ -2e -0 f* -> +0 }t
 
-t{ r-nan -nan fexactly= r-nan +nan fexactly= or -> true }t
-
 t{ +nan  2e  f* fnan? -> true }t
 t{ -nan  2e  f* fnan? -> true }t
 t{  3e  +nan f* fnan? -> true }t
