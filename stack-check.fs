@@ -18,7 +18,9 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-3 constant stacks \ 0: data, 1: return, 2: fp
+"xRr" save-mem \ x: data, R: return, r: fp
+constant stacks
+constant stack-letters
 
 0
 cfield: sd-in  \ number of stack items of a stack consumed by word or sequence
@@ -28,8 +30,20 @@ constant sd-size
 0
 field: anchor-parent \ a root references itself
 sd-size chars +field anchor-offsets \ offsets from immediate parent
-sd-size stacks * +field anchor-stacks
+sd-size stacks * +field anchor-effects
 constant anchor-size
+
+
+: .stacks ( a -- )
+    \ a is the address of a field of the first sd in a stack effect description
+    stacks 0 ?do
+	dup c@ 0 ?do
+	    stack-letters i + c@ emit loop
+	sd-size + loop
+    drop ;
+
+: .stack-effects ( se -- )
+    dup sd-in .stacks '-' emit sd-out .stacks ;
 
 : anchor-init ( a -- )
     dup anchor-size erase
@@ -39,6 +53,10 @@ constant anchor-size
     begin
 	dup anchor-parent @ tuck =
     until ;
+
+: .anchor ( a -- )
+    
+
 
 : compare-anchors {: a1 a2 -- :}
     ... ;

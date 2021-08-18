@@ -1195,6 +1195,9 @@ engine/costs.i:	prim.b prims2x.fs
 engine/prim_num.i:	prim.b prims2x.fs
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-c-prim-num ' noop process-file bye" >$@
 
+prim_effects.fs: prim.b prims2x.fs
+	$(PREFORTH) prims2x.fs -e "c-flag off s\" "$<"\" ' output-stack-effects ' noop process-file bye" >$@
+
 # fast prim rules...
 
 engine/prim-fast.i:	prim-fast.b prims2x.fs

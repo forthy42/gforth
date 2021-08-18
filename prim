@@ -81,6 +81,9 @@
 \E stack fp-stack     fp Float
 \E stack return-stack rp Cell
 \E
+\E here to prim-stacks data-stack , return-stack , fp-stack , 0 ,
+\E    \ for output-stack-effects
+\E
 \E get-current prefixes set-current
 \E 
 \E s" Bool"		single data-stack type-prefix f
