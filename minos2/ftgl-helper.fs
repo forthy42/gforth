@@ -214,7 +214,10 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 	IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
     ELSE  I  THEN  xs ;
 
+Variable last-font
+
 : render-string ( addr u -- )
+    last-font off
     0 -rot  bounds ?DO
 	6 ?flush-tris I' I ?soft-hyphen { xs }
 	xchar+xy
