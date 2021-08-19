@@ -6,10 +6,6 @@ before_script:
 stages:
   - build-amd64
   - build-i386
-  - build-amd64-stable
-  - build-i386-stable
-  - build-amd64-oldstable
-  - build-i386-oldstable
 
 build-amd64:
   stage: build-amd64
@@ -47,7 +43,7 @@ build-i386:
       - debian/*.deb
 
 build-amd64-stable:
-  stage: build-amd64-stable
+  stage: build-amd64
   image: amd64/debian:stable
   script:
     - ./autogen.sh
@@ -66,7 +62,7 @@ build-amd64-stable:
       - debian/stable/*.deb
 
 build-i386-stable:
-  stage: build-i386-stable
+  stage: build-i386
   image: i386/debian:stable
   script:
     - ./autogen.sh
@@ -83,7 +79,7 @@ build-i386-stable:
       - debian/stable/*.deb
 
 build-amd64-oldstable:
-  stage: build-amd64-oldstable
+  stage: build-amd64
   image: amd64/debian:oldstable
   script:
     - ./autogen.sh
@@ -102,7 +98,7 @@ build-amd64-oldstable:
       - debian/oldstable/*.deb
 
 build-i386-oldstable:
-  stage: build-i386-oldstable
+  stage: build-i386
   image: i386/debian:oldstable
   script:
     - ./autogen.sh
