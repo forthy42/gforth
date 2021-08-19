@@ -33,6 +33,34 @@ sd-size chars +field anchor-offsets \ offsets from immediate parent
 sd-size stacks * +field anchor-effects
 constant anchor-size
 
+: do-one-stack-effect {: sd1 sd2 -- :}
+    \ given a one-stack effect sd1, change it to be the one-stack
+    \ effect of sd1 followed by sd2.
+    sd1 sd-out c@ sd2 sd-in c@ - dup 0< if
+	negate dup sd1 sd-in c+!
+	0 then
+    sd2 sd-out c@ + sd1 sd-out c! ;
+
+: do-stack-effect ( sds1 sds2 -- )
+    \ given a stack effect sds1, change it to be the stack effect of
+    \ sds1 followed by sds2.
+    stacks 0 ?do
+	2dup do-one-stack-effect
+	sd-size + swap sd-size + swap loop
+    2drop ;
+
+wordlist constant prim-stack-effects
+
+: current-execute ( ... wordlist xt -- ... )
+    get-current >r swap set-current catch r> set-current ;
+
+: stack-effect ( "name" -- )
+    ' {: w^ xt :} xt cell next-name
+    prim-stack-effects ['] create current-execute
+    ['] do-stack-effect set-does> ;
+
+: stack-effect-unknown ( "name" -- )
+    stack-effect ;
 
 : .stacks ( a -- )
     \ a is the address of a field of the first sd in a stack effect description

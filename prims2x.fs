@@ -1137,7 +1137,12 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     stack stack-in @ bl emit . ." c, " stack stack-out @ . ." c," ;
 
 : output-stack-effects ( -- )
-    ." stack-effect " prim prim-name 2@ type
+    ." stack-effect"
+    0 max-stacks 0 do
+	prim prim-stacks-sync i th @ or loop ( f )
+    prim prim-c-code 2@  s" SUPER_END" search nip nip or ( f )
+    if ." -unknown" then
+    space prim prim-name 2@ type
     prim-stacks begin
 	dup @ dup while
 	    output-stack-effect
