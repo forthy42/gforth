@@ -1520,7 +1520,8 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
    AC_CHECK_HEADER(ft2build.h,
    AC_CHECK_LIB(freetype,FT_Get_Char_Index,
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
-		    SWIGLIBS="$SWIGLIBS freetype_gl.fs", ,), ,), ,)
+		    SWIGLIBS="$SWIGLIBS freetype_gl.fs"
+		    SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags freetype2 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,), ,), ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
@@ -1543,13 +1544,6 @@ fi
 if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags harfbuzz`"
-   case "$CPPFLAGS" in
-   	*freetype2*)
-		;;
-	*)
-		CPPFLAGS="$CPPFLAGS `pkg-config --cflags freetype2`"
-		;;
-   esac
    AC_CHECK_LIB(harfbuzz,hb_buffer_create,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
 		   SWIGLIBS="$SWIGLIBS harfbuzz.fs"
