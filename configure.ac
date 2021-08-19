@@ -1543,6 +1543,13 @@ fi
 if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags harfbuzz`"
+   case "$CPPFLAGS" in
+   	*freetype2*)
+		;;
+	*)
+		CPPFLAGS="$CPPFLAGS `pkg-config --cflags freetype2`"
+		;;
+   esac
    AC_CHECK_LIB(harfbuzz,hb_buffer_create,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
 		   SWIGLIBS="$SWIGLIBS harfbuzz.fs"
