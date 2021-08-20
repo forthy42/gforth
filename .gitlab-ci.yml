@@ -1,7 +1,7 @@
  
 before_script:
-  - apt update -qq
-  - ./install-deps.sh
+  # - apt update -qq
+  # - ./install-deps.sh
  
 stages:
   - build-amd64
@@ -9,7 +9,8 @@ stages:
 
 build-amd64:
   stage: build-amd64
-  image: amd64/debian:unstable
+  # image: amd64/debian:unstable
+  image: forthy42/gforth-builder-amd64:unstable
   script:
     - ./autogen.sh
     - ./configure
@@ -27,7 +28,8 @@ build-amd64:
 
 build-i386:
   stage: build-i386
-  image: i386/debian:unstable
+  # image: i386/debian:unstable
+  image: forthy42/gforth-builder-i386:unstable
   script:
     - ./autogen.sh
     - ./configure --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
@@ -44,7 +46,8 @@ build-i386:
 
 build-amd64-stable:
   stage: build-amd64
-  image: amd64/debian:stable
+  # image: amd64/debian:stable
+  image: forthy42/gforth-builder-amd64:stable
   script:
     - ./autogen.sh
     - ./configure
@@ -63,7 +66,8 @@ build-amd64-stable:
 
 build-i386-stable:
   stage: build-i386
-  image: i386/debian:stable
+  #image: i386/debian:stable
+  image: forthy42/gforth-builder-i386:stable
   script:
     - ./autogen.sh
     - ./configure --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
@@ -80,7 +84,8 @@ build-i386-stable:
 
 build-amd64-oldstable:
   stage: build-amd64
-  image: amd64/debian:oldstable
+  # image: amd64/debian:oldstable
+  image: forthy42/gforth-builder-amd64:oldstable
   script:
     - ./autogen.sh
     - ./configure
@@ -99,7 +104,8 @@ build-amd64-oldstable:
 
 build-i386-oldstable:
   stage: build-i386
-  image: i386/debian:oldstable
+  # image: i386/debian:oldstable
+  image: forthy42/gforth-builder-i386:oldstable
   script:
     - ./autogen.sh
     - ./configure --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
