@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VERSIONS="unstable stable oldstable"
-ARCHS="amd64 i386"
+VERSIONS=${VERSIONS-"unstable stable oldstable"}
+ARCHS=${ARCHS-"amd64 i386"}
 
 #docker login -u forthy42 <token
 
