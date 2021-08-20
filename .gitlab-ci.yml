@@ -1,5 +1,6 @@
  
 before_script:
+  apt-get install -y libpulse-dev libharfbuzz-dev
   # - apt update -qq
   # - ./install-deps.sh
  
