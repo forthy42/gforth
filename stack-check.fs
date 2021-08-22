@@ -25,53 +25,59 @@ constant stack-letters
 0
 cfield: sd-in  \ number of stack items of a stack consumed by word or sequence
 cfield: sd-out \ number of stack items of a stack produced by word or sequence
-constant sd-size
+constant sd-size \ stack effect for one stack
 
-0
-field: anchor-parent \ a root references itself
-sd-size chars +field anchor-offsets \ offsets from immediate parent
-sd-size stacks * +field anchor-effects
+sd-size
+cfield: anchor-offset \ !!! document
+field: anchor-parent \ address of parent anchor, or to itself (if no parent)
 constant anchor-size
+
+anchor-size stacks * constant ase-size
+\ an anchored stack effect constists of STACKS anchors (one anchor for
+\ each stack)
 
 : do-one-stack-effect {: sd1 sd2 -- :}
     \ given a one-stack effect sd1, change it to be the one-stack
-    \ effect of sd1 followed by sd2.
-    sd1 sd-out c@ sd2 sd-in c@ - dup 0< if
-	negate dup sd1 sd-in c+!
-	0 then
-    sd2 sd-out c@ + sd1 sd-out c! ;
+    \ effect of sd1 followed by sd2.  
+    sd2 sd-in c@ sd1 sd-out c@ - ( n )
+    sd2 sd-out c@ over 0 min - sd1 sd-out assert( over 0>= ) c! ( +n )
+    0 max sd1 sd-in c+! ;
 
-: do-stack-effect ( sds1 sds2 -- )
-    \ given a stack effect sds1, change it to be the stack effect of
-    \ sds1 followed by sds2.
+: do-stack-effect ( as sds -- )
+    \ given an anchored stack effect as, change it to be the stack effect of
+    \ as followed by sds.
     stacks 0 ?do
 	2dup do-one-stack-effect
-	sd-size + swap sd-size + swap loop
+	sd-size + swap anchor-size + swap loop
     2drop ;
 
-wordlist constant prim-stack-effects
+table constant prim-stack-effects
 
 : current-execute ( ... wordlist xt -- ... )
-    get-current >r swap set-current catch r> set-current ;
+    get-current >r swap set-current catch r> set-current throw ;
 
 : stack-effect ( "name" -- )
-    ' {: w^ xt :} xt cell next-name
-    prim-stack-effects ['] create current-execute
-    ['] do-stack-effect set-does> ;
+    parse-name find-name ?dup-if
+	name>interpret {: w^ xt :}
+	xt cell nextname prim-stack-effects ['] create current-execute
+	['] do-stack-effect set-does>
+    then ;
 
 : stack-effect-unknown ( "name" -- )
     stack-effect ;
 
-: .stacks ( a -- )
+require prim_effects.fs
+
+: .se-side {: a stride -- :}
     \ a is the address of a field of the first sd in a stack effect description
-    stacks 0 ?do
+    a stacks 0 ?do
 	dup c@ 0 ?do
-	    stack-letters i + c@ emit loop
-	sd-size + loop
+	    stack-letters j + c@ emit loop
+	stride + loop
     drop ;
 
-: .stack-effects ( se -- )
-    dup sd-in .stacks '-' emit sd-out .stacks ;
+: .stack-effects ( se stride -- )
+    over sd-in over .se-side '-' emit swap sd-out swap .se-side ;
 
 : anchor-init ( a -- )
     dup anchor-size erase
@@ -82,10 +88,38 @@ wordlist constant prim-stack-effects
 	dup anchor-parent @ tuck =
     until ;
 
-: .anchor ( a -- )
+: ase-init ( ase -- )
+    stacks 0 ?do
+	dup anchor-init
+	anchor-size + loop
+    drop ;
+
+: .ase ( ase -- )
+    \ print an anchored stack effect:
+    \ !! deal with parent and offset
+    anchor-size .stack-effects ;
+
+: prim-stack-check ( xt -- xt )
+    dup {: w^ xt :}
+    xt cells prim-stack-effects find-name-in name>int execute ;
     
+true [if] \ test
+    create ase1 ase-size allot
+    ase1 ase-init
+    ase1 .ase cr
+    ase1 `r> pad ! pad cell prim-stack-effects find-name-in name>int execute
+    ase1 .ase cr
+    ase1 `>r pad ! pad cell prim-stack-effects find-name-in name>int execute
+    ase1 .ase cr
+    ase1 `f@ pad ! pad cell prim-stack-effects find-name-in name>int execute
+    ase1 .ase cr
+    
+    
+[then]
 
 
+
+0 [if]
 : compare-anchors {: a1 a2 -- :}
     ... ;
 
@@ -101,3 +135,4 @@ wordlist constant prim-stack-effects
 
 
 ' noop is prim-check ( xt -- xt )
+[then]
