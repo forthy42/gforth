@@ -1,17 +1,16 @@
  
 before_script:
-  - apt update -qq
-  - ./install-deps.sh
+  # - apt update -qq
+  # - ./install-deps.sh
  
 stages:
   - build-amd64
   - build-i386
-  - build-amd64-stable
-  - build-i386-stable
 
 build-amd64:
   stage: build-amd64
-  image: amd64/debian:unstable
+  # image: amd64/debian:unstable
+  image: forthy42/gforth-builder-amd64:unstable
   script:
     - ./autogen.sh
     - ./configure
@@ -29,7 +28,8 @@ build-amd64:
 
 build-i386:
   stage: build-i386
-  image: i386/debian:unstable
+  # image: i386/debian:unstable
+  image: forthy42/gforth-builder-i386:unstable
   script:
     - ./autogen.sh
     - ./configure --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
@@ -45,8 +45,9 @@ build-i386:
       - debian/*.deb
 
 build-amd64-stable:
-  stage: build-amd64-stable
-  image: amd64/debian:stable
+  stage: build-amd64
+  # image: amd64/debian:stable
+  image: forthy42/gforth-builder-amd64:stable
   script:
     - ./autogen.sh
     - ./configure
@@ -64,8 +65,9 @@ build-amd64-stable:
       - debian/stable/*.deb
 
 build-i386-stable:
-  stage: build-i386-stable
-  image: i386/debian:stable
+  stage: build-i386
+  #image: i386/debian:stable
+  image: forthy42/gforth-builder-i386:stable
   script:
     - ./autogen.sh
     - ./configure --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
@@ -79,3 +81,41 @@ build-i386-stable:
     paths:
       - build/*
       - debian/stable/*.deb
+
+build-amd64-oldstable:
+  stage: build-amd64
+  # image: amd64/debian:oldstable
+  image: forthy42/gforth-builder-amd64:oldstable
+  script:
+    - ./autogen.sh
+    - ./configure
+    - make distclean
+    - (cd libltdl; make distclean)
+    - dpkg-buildpackage -uc -us -d -b
+    - mkdir -p debian/oldstable
+    - rm -f debian/oldstable/*.deb
+    - mv ../*.deb debian/oldstable
+  
+  # The files which are to be made available in GitLab
+  artifacts:
+    paths:
+      - build/*
+      - debian/oldstable/*.deb
+
+build-i386-oldstable:
+  stage: build-i386
+  # image: i386/debian:oldstable
+  image: forthy42/gforth-builder-i386:oldstable
+  script:
+    - ./autogen.sh
+    - ./configure --host=i686-pc-linux-gnu --build=i686-pc-linux-gnu
+    - make distclean
+    - (cd libltdl; make distclean)
+    - dpkg-buildpackage -uc -us -d -b
+    - mv ../*i386*.deb debian/oldstable
+  
+  # The files which are to be made available in GitLab
+  artifacts:
+    paths:
+      - build/*
+      - debian/oldstable/*.deb

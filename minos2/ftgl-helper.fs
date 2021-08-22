@@ -73,15 +73,11 @@ Variable fonts[] \ stack of used fonts
 [THEN]
 
 : open-font ( atlas rfontsize addr u -- font )
-    texture_font_new_from_file
-    [IFDEF] texture_font_t-scaletex
-	0 over texture_font_t-scaletex
-	[ sizeof texture_font_t-scaletex 4 = ] [IF] l! [THEN]
-	[ sizeof texture_font_t-scaletex 2 = ] [IF] w! [THEN]
-	[ sizeof texture_font_t-scaletex 1 = ] [IF] c! [THEN]
-    [ELSE]
-	dup fonts[] >stack
-    [THEN] ;
+    r/o map-file-private texture_font_new_from_memory
+    0 over texture_font_t-scaletex
+    [ sizeof texture_font_t-scaletex 4 = ] [IF] l! [THEN]
+    [ sizeof texture_font_t-scaletex 2 = ] [IF] w! [THEN]
+    [ sizeof texture_font_t-scaletex 1 = ] [IF] c! [THEN] ;
 
 ' texture_font_clone alias clone-font ( rfontsize font -- font )
 
@@ -218,7 +214,10 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 	IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
     ELSE  I  THEN  xs ;
 
+Variable last-font
+
 : render-string ( addr u -- )
+    last-font off
     0 -rot  bounds ?DO
 	6 ?flush-tris I' I ?soft-hyphen { xs }
 	xchar+xy

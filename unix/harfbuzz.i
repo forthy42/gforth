@@ -3,14 +3,17 @@
 %insert("include")
 %{
 #include <harfbuzz/hb.h>
+#include <harfbuzz/hb-ft.h>
 #ifdef __gnu_linux__
 #undef stderr
 extern struct _IO_FILE *stderr;
 #endif
 %}
 
-%apply unsigned int { hb_codepoint_t, hb_tag_t };
+%apply unsigned int { hb_codepoint_t, hb_tag_t, hb_color_t };
+%apply unsigned char { uint8_t };
 %apply int { hb_position_t };
+%apply SWIGTYPE * { FT_Face };
 
 // exec: sed -e 's/ s n / a n /g' -e 's/c-function hb_glyph_info_get_glyph_flags/\\ c-function hb_glyph_info_get_glyph_flags/g'
 
@@ -30,3 +33,4 @@ extern struct _IO_FILE *stderr;
 %include "harfbuzz/hb-shape-plan.h"
 %include "harfbuzz/hb-unicode.h"
 %include "harfbuzz/hb-version.h"
+%include "harfbuzz/hb-ft.h"

@@ -21,7 +21,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20210812],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20210819],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ(2.54)
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
@@ -1520,7 +1520,8 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
    AC_CHECK_HEADER(ft2build.h,
    AC_CHECK_LIB(freetype,FT_Get_Char_Index,
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
-		    SWIGLIBS="$SWIGLIBS freetype_gl.fs", ,), ,), ,)
+		    SWIGLIBS="$SWIGLIBS freetype_gl.fs"
+		    SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags freetype2 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,), ,), ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"

@@ -21,6 +21,7 @@
 \ font array
 
 require cstr.fs
+require unix/harfbuzzlib.fs
 
 get-current also minos definitions
 
@@ -108,12 +109,17 @@ Value font-langs#
 : fontnames[]# ( -- n ) \ size of font array
     font-shapes# font-families# font-langs# * * ;
 
-also freetype-gl
+also freetype-gl also harfbuzz
+: ?referenced ( font -- font )
+    dup texture_font_t-hb_font @ ?EXIT
+    dup texture_font_t-face @ hb_ft_font_create_referenced
+    over texture_font_t-hb_font ! ;
+
 : fonts! ( font-addr addr -- )
     \ set current font for all sizes
     over font[] $@ drop - cell/ fontnames[]# mod { idx }
     font-sizes# 0 U+DO
-	dup I fontnames[]# * idx + font[] $[] !
+	dup I fontnames[]# * idx + font[] $[] !  ?referenced
 	I 1+ I' <> IF
 	    I 1+ font-size% font-size# f* fround clone-font
 	THEN
@@ -122,7 +128,7 @@ also freetype-gl
     \ set current font for all sizes+family+shape
     over font[] $@ drop - cell/ font-langs# mod { idx }
     font-sizes# font-families# * font-shapes# * 0 U+DO
-	dup I font-langs# * idx + font[] $[] !
+	dup I font-langs# * idx + font[] $[] !  ?referenced
 	I font-families# font-shapes# * /
 	I 1+ font-families# font-shapes# * / <>
 	I 1+ I' <> and IF
@@ -130,7 +136,7 @@ also freetype-gl
 	    font-size% font-size# f* fround clone-font
 	THEN
     LOOP  drop ;
-previous
+previous previous
 
 : fontname@ ( -- addr )
     0 font-index fontname[] $[] ;
@@ -153,15 +159,32 @@ also freetype-gl
 previous
 
 : ?font-load ( font-addr -- font-addr )
-    dup @ 0= IF  font-load  THEN ;
+    dup @ 0= IF  font-load  THEN  dup @ last-font ! ;
 
 \ font selector
 
+: combiner-font? ( xc -- xc font )
+    \ Some sort of characters need to stay in the current active font
+    dup bl =               IF  last-font @  EXIT  THEN
+    dup  $300  $370 within IF  last-font @  EXIT  THEN
+    dup $1AB0 $1B00 within IF  last-font @  EXIT  THEN
+    dup $1DC0 $1E00 within IF  last-font @  EXIT  THEN
+    dup $2000 $2010 within IF  last-font @  EXIT  THEN
+    dup $205F $2070 within IF  last-font @  EXIT  THEN
+    dup $20D0 $2100 within IF  last-font @  EXIT  THEN
+    dup $FE00 $FE10 within IF  last-font @  EXIT  THEN \ variant selectors
+    dup $FE20 $FE30 within IF  last-font @  EXIT  THEN
+    dup $E0100 $E01F0 within IF  last-font @  EXIT  THEN \ variant selectors
+    false ;
+\ other combiners are within their language block, and don't need
+\ special care
+
 : xc>font ( xc-addr font-addr -- xc-addr font )
     >r dup ['] xc@ catch IF  drop r>  ?font-load @  EXIT  THEN
+    combiner-font? dup IF  nip rdrop  EXIT  THEN  drop
     cjk?   IF  drop r> cell+          ?font-load @  EXIT  THEN
-    emoji? IF  drop r> [ 2 cells ]L + ?font-load @  EXIT  THEN
-    icons? IF  drop r> [ 3 cells ]L + ?font-load @  EXIT  THEN
+    emoji? IF  drop r> [ 2 cells ]L + ?font-load @ last-font off  EXIT  THEN
+    icons? IF  drop r> [ 3 cells ]L + ?font-load @ last-font off  EXIT  THEN
     drop r> ?font-load @ ;
 
 ' xc>font IS font-select
