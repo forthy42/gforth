@@ -81,7 +81,7 @@
 \E stack fp-stack     fp Float
 \E stack return-stack rp Cell
 \E
-\E here to prim-stacks data-stack , return-stack , fp-stack , 0 ,
+\E [IFDEF] prim-stacks here to prim-stacks data-stack , return-stack , fp-stack , 0 , [THEN]
 \E    \ for output-stack-effects
 \E
 \E get-current prefixes set-current
