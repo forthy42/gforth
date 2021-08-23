@@ -1131,6 +1131,24 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     ."   goto _endif_;" cr
     ." }" cr ;
 
+0 value prim-stacks \ stacks to output stack effects for
+
+: output-stack-effect { stack -- }
+    stack stack-in @ bl emit . ." c, " stack stack-out @ . ." c," ;
+
+: output-stack-effects ( -- )
+    ." stack-effect"
+    0 max-stacks 0 do
+	prim prim-stacks-sync i th @ or loop ( f )
+    prim prim-c-code 2@  s" SUPER_END" search nip nip or ( f )
+    if ." -unknown" then
+    space prim prim-name 2@ type
+    prim-stacks begin
+	dup @ dup while
+	    output-stack-effect
+	    cell+ repeat
+    2drop cr ;
+
 : output-profile ( -- )
     \ generate code for postprocessing the VM block profile stuff
     ." if (VM_IS_INST(*ip, " function-number @ 0 .r ." )) {" cr
