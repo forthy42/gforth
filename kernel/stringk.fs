@@ -47,7 +47,6 @@
 : $free ( $addr -- ) \ gforth-string string-free
     \G free the string pointed to by addr, and set addr to 0
     0 swap !@ ?dup-IF  free throw  THEN ;
-' $free alias $off \ set the string to the neutral element
 
 : $!buf ( $buf $addr -- ) \ gforth-string string-store-buf
     \G stores a buffer in a string variable and frees the previous buffer

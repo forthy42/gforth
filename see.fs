@@ -187,7 +187,7 @@ Variable struct-pre
 : .struc ( c-addr u -- )       
     uppercase on ['] Str-color
     struct-pre $@ ['] Str-color .string
-    .string struct-pre $off ;
+    .string struct-pre $free ;
 
 \ CODES (Branchtypes)                                    15may93jaw
 

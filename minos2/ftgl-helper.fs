@@ -214,10 +214,27 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 	IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
     ELSE  I  THEN  xs ;
 
-Variable last-font
+-1 value bl/null?
+
+Variable $splits[]
+
+: stacktop ( stack -- addr )
+    $@ + cell- ;
+
+: lang-split-string ( addr u -- )
+    -1 to bl/null? 0 { lastfont }
+    $splits[] $[]free
+    bounds ?DO
+	I' I ?soft-hyphen { xs }
+	font font-select
+	lastfont over to lastfont <> IF
+	    addr lastfont cell $make $splits[] >stack
+	THEN
+	xs $splits[] stacktop $+!
+    xs +LOOP ;
 
 : render-string ( addr u -- )
-    last-font off
+    -1 to bl/null?
     0 -rot  bounds ?DO
 	6 ?flush-tris I' I ?soft-hyphen { xs }
 	xchar+xy

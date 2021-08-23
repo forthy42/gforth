@@ -104,7 +104,7 @@ Variable envs 30 0 [DO] 0 , [LOOP]
 : env ( addr u -- ) env$ $! ;
 : env? ( -- ) envs @ oldenv @ over oldenv !
     2dup > IF  env$ $@ tag  THEN
-    2dup < IF  env$ cell+ $@ /tag  env$ cell+ $off  THEN
+    2dup < IF  env$ cell+ $@ /tag  env$ cell+ $free  THEN
     2drop ;
 : +env  1 envs +! ;
 : -env end-sec @ envs @ 1 > or  IF  -1 envs +! env?  THEN ;
@@ -289,7 +289,7 @@ Defer parse-line
     r> close-dir throw ;
 
 : link-icon? ( -- )  do-icon @ 0= ?EXIT
-    iconpath @  IF  iconpath $off  THEN
+    iconpath @  IF  iconpath $free  THEN
     link $@ + 1- c@ '/ = IF  s" index.html"  ELSE  link $@  THEN
     '# $split 2drop
     BEGIN  '. $split 2swap 2drop dup  WHILE

@@ -80,7 +80,7 @@
 
 : marker! ( mark -- )
     \ reset included files count; resize will happen on next add-included-file
-    dup @ dup >r included-files $@ r> /string bounds +DO  I $off  cell +LOOP
+    dup @ dup >r included-files $@ r> /string bounds +DO  I $free  cell +LOOP
     included-files $!len cell+
     \ rest of marker!
     dup @ swap cell+ ( here rest-of-marker )

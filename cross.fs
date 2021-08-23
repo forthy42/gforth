@@ -2224,7 +2224,7 @@ X has? f83headerstring [IF]
 	dup /maxalign + T cfalign# H ht-nlstring, ;
 [THEN]
 : reset-included ( -- )
-    [IFDEF] current-sourcepos1    included-files $off
+    [IFDEF] current-sourcepos1    included-files $free
     [ELSE] 0 allocate throw 0 included-files 2! [THEN]
     [IFDEF] loadfilename#  loadfilename# off  [THEN]
     s" kernel/main.fs" h-add-included-file ;
