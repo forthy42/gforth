@@ -36,6 +36,10 @@ anchor-size stacks * constant ase-size
 \ an anchored stack effect constists of STACKS anchors (one anchor for
 \ each stack)
 
+unused extra-section in-stack-check-section
+  \ for now don't do proper memory reclamation
+0 value colon-ase
+
 : do-one-stack-effect {: sd1 sd2 -- :}
     \ given a one-stack effect sd1, change it to be the one-stack
     \ effect of sd1 followed by sd2.  
@@ -101,18 +105,32 @@ require prim_effects.fs
 
 : prim-stack-check ( xt -- xt )
     dup {: w^ xt :}
-    xt cells prim-stack-effects find-name-in name>int execute ;
+    colon-ase xt cell prim-stack-effects find-name-in name>int execute
+    cr colon-ase .ase ;
+
+: stack-check-:-hook ( -- )
+    defers :-hook
+    [: here dup to colon-ase ase-size allot ase-init ;] in-stack-check-section ;
+
+: stack-check-;-hook ( -- )
+    cr ." at ;: " colon-ase .ase defers ;-hook ;
     
+
 true [if] \ test
-    create ase1 ase-size allot
-    ase1 ase-init
-    ase1 .ase cr
-    ase1 `r> pad ! pad cell prim-stack-effects find-name-in name>int execute
-    ase1 .ase cr
-    ase1 `>r pad ! pad cell prim-stack-effects find-name-in name>int execute
-    ase1 .ase cr
-    ase1 `f@ pad ! pad cell prim-stack-effects find-name-in name>int execute
-    ase1 .ase cr
+    `prim-stack-check is prim-check
+    `stack-check-:-hook is :-hook
+    `stack-check-;-hook is ;-hook
+
+    : foo r> >r f@ ;
+    \ create ase1 ase-size allot
+    \ ase1 ase-init
+    \ ase1 .ase cr
+    \ ase1 `r> pad ! pad cell prim-stack-effects find-name-in name>int execute
+    \ ase1 .ase cr
+    \ ase1 `>r pad ! pad cell prim-stack-effects find-name-in name>int execute
+    \ ase1 .ase cr
+    \ ase1 `f@ pad ! pad cell prim-stack-effects find-name-in name>int execute
+    \ ase1 .ase cr
     
     
 [then]
