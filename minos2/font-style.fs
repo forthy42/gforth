@@ -158,36 +158,23 @@ also freetype-gl
     drop r> font[] $[] ;
 previous
 
-Variable last-font
-
 : ?font-load ( font-addr -- font-addr )
-    dup @ 0= IF  font-load  THEN  dup @ last-font ! ;
+    dup @ 0= IF  font-load  THEN ;
 
 \ font selector
 
-: combiner-font? ( xc -- xc font )
-    \ Some sort of characters need to stay in the current active font
-    dup bl/null? =         IF  last-font @  EXIT  THEN  bl to bl/null?
-    dup  $300  $370 within IF  last-font @  EXIT  THEN
-    dup $1AB0 $1B00 within IF  last-font @  EXIT  THEN
-    dup $1DC0 $1E00 within IF  last-font @  EXIT  THEN
-    dup $2000 $2010 within IF  last-font @  EXIT  THEN
-    dup $205F $2070 within IF  last-font @  EXIT  THEN
-    dup $20D0 $2100 within IF  last-font @  EXIT  THEN
-    dup $FE00 $FE10 within IF  last-font @  EXIT  THEN \ variant selectors
-    dup $FE20 $FE30 within IF  last-font @  EXIT  THEN
-    dup $E0100 $E01F0 within IF  last-font @  EXIT  THEN \ variant selectors
-    false ;
 \ other combiners are within their language block, and don't need
 \ special care
 
-: xc>font ( xc-addr font-addr -- xc-addr font )
-    >r dup ['] xc@ catch IF  drop r>  ?font-load @  EXIT  THEN
-    combiner-font? dup IF  nip rdrop  EXIT  THEN  drop
-    cjk?   IF  drop r> cell+          ?font-load @  EXIT  THEN
-    emoji? IF  drop r> [ 2 cells ]L + ?font-load @  -1 to bl/null?  EXIT  THEN
-    icons? IF  drop r> [ 3 cells ]L + ?font-load @  -1 to bl/null?  EXIT  THEN
-    drop r> ?font-load @ ;
+: xc>font# ( xc-addr -- xc-addr font# )
+    dup ['] xc@ catch IF  drop 0  EXIT  THEN
+    combiner-font? IF  drop last-font# @  EXIT  THEN
+    cjk?   IF  drop 1  bl to bl/null?  EXIT  THEN
+    emoji? IF  drop 2  -1 to bl/null?  EXIT  THEN
+    icons? IF  drop 3  -1 to bl/null?  EXIT  THEN
+    drop 0  bl to bl/null? ;
+: xc>font ( xc-addr font-base -- xcaddr font )
+    >r xc>font# dup last-font# ! cells r> + ?font-load @ ;
 
 ' xc>font IS font-select
 \ ' @ IS font-select

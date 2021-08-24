@@ -215,6 +215,7 @@ Defer font-select ( xcaddr font -- xcaddr font' )
     ELSE  I  THEN  xs ;
 
 -1 value bl/null?
+Variable last-font#
 
 Variable $splits[]
 
@@ -222,7 +223,7 @@ Variable $splits[]
     $@ + cell- ;
 
 : lang-split-string ( addr u -- )
-    -1 to bl/null? 0 { lastfont }
+    -1 to bl/null?  last-font# off  0 { lastfont }
     $splits[] $[]free
     bounds ?DO
 	I' I ?soft-hyphen { xs }
