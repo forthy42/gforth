@@ -37,8 +37,11 @@ anchor-size stacks * constant ase-size
 \ each stack)
 
 unused extra-section in-stack-check-section
-  \ for now don't do proper memory reclamation
-0 value colon-ase
+\ for now don't do proper memory reclamation
+ase-size ' allocd in-stack-check-section constant dummy-ase
+
+dummy-ase value current-ase
+0 value colon-ase \ ase at the start of a colon definition
 
 : do-one-stack-effect {: sd1 sd2 -- :}
     \ given a one-stack effect sd1, change it to be the one-stack
@@ -71,6 +74,10 @@ table constant prim-stack-effects
     stack-effect ;
 
 require prim_effects.fs
+
+\ redefine some prim-effects for control-flow primitives
+stack-effect call 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
+stack-effect ;s 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
 
 : .se-side {: a stride -- :}
     \ a is the address of a field of the first sd in a stack effect description
@@ -105,15 +112,20 @@ require prim_effects.fs
 
 : prim-stack-check ( xt -- xt )
     dup {: w^ xt :}
-    colon-ase xt cell prim-stack-effects find-name-in name>int execute
-    cr colon-ase .ase ;
+    current-ase xt cell prim-stack-effects find-name-in name>int execute
+    cr current-ase .ase ;
 
 : stack-check-:-hook ( -- )
     defers :-hook
-    [: here dup to colon-ase ase-size allot ase-init ;] in-stack-check-section ;
+    [:  ase-size allocd dup ase-init
+	dup to current-ase to colon-ase ;] in-stack-check-section ;
 
 : stack-check-;-hook ( -- )
-    cr ." at ;: " colon-ase .ase defers ;-hook ;
+    \ !! is current-ase connected with start-ase?
+    current-ase anchor-size + dup sd-in c@ swap sd-out c@ ~~ or ~~ 0<>
+    [: ." return stack error in " lastnt @ .name  current-ase .ase ;] ?warning
+    cr ." at ;: " current-ase .ase
+    dummy-ase to current-ase defers ;-hook ;
     
 
 true [if] \ test
