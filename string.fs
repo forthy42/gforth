@@ -31,6 +31,7 @@ require glocals.fs
 	r@ $@ rot /string bl fill
     THEN
     r> $@ rot /string rot umin move ;
+synonym $off $free \ legacy, don't use
 
 \ string array words
 
