@@ -38,7 +38,7 @@ anchor-size stacks * constant ase-size
 
 unused extra-section in-stack-check-section
 \ for now don't do proper memory reclamation
-ase-size ' allocd in-stack-check-section constant dummy-ase
+ase-size ' small-allot in-stack-check-section constant dummy-ase
 
 dummy-ase value current-ase
 0 value colon-ase \ ase at the start of a colon definition
@@ -63,11 +63,13 @@ table constant prim-stack-effects
 : current-execute ( ... wordlist xt -- ... )
     get-current >r swap set-current catch r> set-current throw ;
 
+: xt-stack-effect {: w^ xt -- :}
+    xt cell nextname prim-stack-effects ['] create current-execute
+    ['] do-stack-effect set-does> ;
+
 : stack-effect ( "name" -- )
     parse-name find-name ?dup-if
-	name>interpret {: w^ xt :}
-	xt cell nextname prim-stack-effects ['] create current-execute
-	['] do-stack-effect set-does>
+	name>interpret xt-stack-effect
     then ;
 
 : stack-effect-unknown ( "name" -- )
@@ -78,6 +80,7 @@ require prim_effects.fs
 \ redefine some prim-effects for control-flow primitives
 stack-effect call 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
 stack-effect ;s 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
+stack-effect-unknown does-xt 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
 
 : .se-side {: a stride -- :}
     \ a is the address of a field of the first sd in a stack effect description
@@ -112,28 +115,61 @@ stack-effect ;s 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
 
 : prim-stack-check ( xt -- xt )
     dup {: w^ xt :}
-    current-ase xt cell prim-stack-effects find-name-in name>int execute
+    current-ase xt cell prim-stack-effects find-name-in dup if
+	name>int execute
+    else
+	2drop cr ." unknown" then
     cr current-ase .ase ;
 
 : stack-check-:-hook ( -- )
     defers :-hook
-    [:  ase-size allocd dup ase-init
+    [:  ase-size small-allot dup ase-init
 	dup to current-ase to colon-ase ;] in-stack-check-section ;
+
+: current>stack-effect ( xt -- )
+    xt-stack-effect
+    current-ase stacks 0 ?do
+	dup sd-in c@ c, dup sd-out c@ c, anchor-size + loop
+    drop ;
+
+: call-stack-check ( xt -- xt )
+    prim-stack-check ;
+
+: does-stack-check ( xt -- xt )
+    ['] lit prim-stack-check drop
+    dup >namevt @ >vtextra @ prim-stack-check drop ;
+
+: :stack-effect ( -- )
+    \ create stack effect header for the current colon definition
+    latestnt @
+    lastxt ['] current>stack-effect in-stack-check-section
+    make-latest ;
 
 : stack-check-;-hook ( -- )
     \ !! is current-ase connected with start-ase?
-    current-ase anchor-size + dup sd-in c@ swap sd-out c@ ~~ or ~~ 0<>
+    current-ase anchor-size + dup sd-in c@ swap sd-out c@ or 0<>
     [: ." return stack error in " lastnt @ .name  current-ase .ase ;] ?warning
+    :stack-effect
     cr ." at ;: " current-ase .ase
     dummy-ase to current-ase defers ;-hook ;
+
+
     
 
 true [if] \ test
+    : myconst create , `@ set-does> ;
+
     `prim-stack-check is prim-check
+    `call-stack-check is call-check
+    `does-stack-check is does-check
     `stack-check-:-hook is :-hook
     `stack-check-;-hook is ;-hook
 
+    5 myconst five
     : foo r> >r f@ ;
+    : bar >r foo r> ;
+    : bla five ;
+    
     \ create ase1 ase-size allot
     \ ase1 ase-init
     \ ase1 .ase cr

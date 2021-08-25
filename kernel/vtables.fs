@@ -18,17 +18,20 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+defer call-check ( xt -- xt ) ' noop is call-check
+defer does-check ( xt -- xt ) ' noop is does-check
+
 : value, >body ['] lit@ peephole-compile, , ;
 : constant, >body @ lit, ;
 : 2constant, >body 2@ swap lit, lit, ;
-: :, >body ['] call peephole-compile, , ;
+: :, ( xt -- ) call-check >body ['] call peephole-compile, , ;
 : variable, >body lit, ;
 : user, >body @ ['] useraddr peephole-compile, , ;
 : defer, >body ['] lit-perform peephole-compile, , ;
 : field+, >body @ lit, postpone + ;
 : abi-code, >body ['] abi-call peephole-compile, , ;
 : ;abi-code, ['] ;abi-code-exec peephole-compile, , ;
-: does, ['] does-xt peephole-compile, , ;
+: does, ( xt -- ) does-check ['] does-xt peephole-compile, , ;
 : umethod, >body cell+ 2@ ['] u#exec peephole-compile, , , ;
 : uvar, >body cell+ 2@ ['] u#+ peephole-compile, , , ;
 \ : :loc, >body ['] call-loc peephole-compile, , ;
