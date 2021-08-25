@@ -173,10 +173,10 @@ previous
     emoji? IF  drop 2  -1 to bl/null?  EXIT  THEN
     icons? IF  drop 3  -1 to bl/null?  EXIT  THEN
     drop 0  bl to bl/null? ;
-: xc>font ( xc-addr font-base -- xcaddr font )
-    >r xc>font# dup last-font# ! cells r> + ?font-load @ ;
 
-' xc>font IS font-select
+:noname ( font# -- font )
+    cells font + ?font-load @ ; is font#-load
+' xc>font# IS font-select#
 \ ' @ IS font-select
 
 \ font indices
