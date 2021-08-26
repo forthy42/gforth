@@ -235,7 +235,7 @@ Variable $splits[]
 	I' I ?soft-hyphen { xs }
 	font-select#
 	last-font# @ over last-font# ! <> $splits[] stack# 0= or  IF
-	    [ last-font# cell 1- pad ! pad cell+ 1- c@ + ]L
+	    [ cell 1- dup pad ! pad + c@ last-font# + ]L
 	    1 $make $splits[] >stack
 	THEN
 	xs $splits[] stacktop $+!
