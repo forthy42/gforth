@@ -28,17 +28,23 @@ cfield: sd-out \ number of stack items of a stack produced by word or sequence
 constant sd-size \ stack effect for one stack
 
 sd-size
-cfield: anchor-offset \ !!! document
+sd-size +field anchor-offset \ when following the link to the parent,
+                             \ apply the offset (as if compiling a
+                             \ word) to get the corresponding stack
+                             \ descriptor for the parent.
 field: anchor-parent \ address of parent anchor, or to itself (if no parent)
 constant anchor-size
 
 anchor-size stacks * constant ase-size
-\ an anchored stack effect constists of STACKS anchors (one anchor for
+\ an anchored stack effect (ase) consists of STACKS anchors (one anchor for
 \ each stack)
 
 unused extra-section in-stack-check-section
-  \ for now don't do proper memory reclamation
-0 value colon-ase
+\ for now don't do proper memory reclamation
+ase-size ' small-allot in-stack-check-section constant dummy-ase
+
+dummy-ase value current-ase
+0 value colon-ase \ ase at the start of a colon definition
 
 : do-one-stack-effect {: sd1 sd2 -- :}
     \ given a one-stack effect sd1, change it to be the one-stack
@@ -60,17 +66,24 @@ table constant prim-stack-effects
 : current-execute ( ... wordlist xt -- ... )
     get-current >r swap set-current catch r> set-current throw ;
 
+: xt-stack-effect {: w^ xt -- :}
+    xt cell nextname prim-stack-effects ['] create current-execute
+    ['] do-stack-effect set-does> ;
+
 : stack-effect ( "name" -- )
     parse-name find-name ?dup-if
-	name>interpret {: w^ xt :}
-	xt cell nextname prim-stack-effects ['] create current-execute
-	['] do-stack-effect set-does>
+	name>interpret xt-stack-effect
     then ;
 
 : stack-effect-unknown ( "name" -- )
     stack-effect ;
 
 require prim_effects.fs
+
+\ redefine some prim-effects for control-flow primitives
+stack-effect call 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
+stack-effect ;s 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
+stack-effect-unknown does-xt 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
 
 : .se-side {: a stride -- :}
     \ a is the address of a field of the first sd in a stack effect description
@@ -105,23 +118,104 @@ require prim_effects.fs
 
 : prim-stack-check ( xt -- xt )
     dup {: w^ xt :}
-    colon-ase xt cell prim-stack-effects find-name-in name>int execute
-    cr colon-ase .ase ;
+    current-ase xt cell prim-stack-effects find-name-in dup if
+	name>int execute
+    else
+	2drop cr ." unknown" then
+    cr current-ase .ase ;
 
 : stack-check-:-hook ( -- )
     defers :-hook
-    [: here dup to colon-ase ase-size allot ase-init ;] in-stack-check-section ;
+    [:  ase-size small-allot dup ase-init
+	dup to current-ase to colon-ase ;] in-stack-check-section ;
+
+: current>stack-effect ( xt -- )
+    xt-stack-effect
+    current-ase stacks 0 ?do
+	dup sd-in c@ c, dup sd-out c@ c, anchor-size + loop
+    drop ;
+
+: call-stack-check ( xt -- xt )
+    prim-stack-check ;
+
+: does-stack-check ( xt -- xt )
+    ['] lit prim-stack-check drop
+    dup >namevt @ >vtextra @ prim-stack-check drop ;
+
+: :stack-effect ( -- )
+    \ create stack effect header for the current colon definition
+    latestnt @
+    lastxt ['] current>stack-effect in-stack-check-section
+    make-latest ;
 
 : stack-check-;-hook ( -- )
-    cr ." at ;: " colon-ase .ase defers ;-hook ;
-    
+    \ !! is current-ase connected with start-ase?
+    current-ase anchor-size + dup sd-in c@ swap sd-out c@ or 0<>
+    [: ." return stack error in " lastnt @ .name  current-ase .ase ;] ?warning
+    :stack-effect
+    cr ." at ;: " current-ase .ase
+    dummy-ase to current-ase defers ;-hook ;
+
+: copy-ase ( -- ase )
+    \ ase is a copy of current-ase; used in cs-item-pushing words
+    ase-size ' small-allot in-stack-check-section
+    current-ase over ase-size move
+    dup stacks 0 ?do \ the copy has 0 offsets from the original
+	dup anchor-offset 0 over sd-in c! 0 swap sd-out c!
+	anchor-size + loop
+    drop ;
+
+: anchor-effect {: a -- nin nout :}
+    \ !! follow roots, applying offsets
+    a sd-in c@ a sd-out c@ ;
+
+: compare-anchors {: a1 a2 -- :}
+    a1 anchor-effect {: a1-in a1-out :}
+    a2 anchor-effect {: a2-in a2-out :}
+    a1-in a2-in - 0 max dup a2 sd-in c+! a2 sd-out c+!
+    a2-in a1-in - 0 max dup a1 sd-in c+! a1 sd-out c+!
+    a1 anchor-effect a2 anchor-effect assert( fourth third = ) d<>
+    [: ." stack depth mismatch in "lastnt @ .name current-ase .ase ;] ?warning
+    \ !! also print the ase compared to
+    \ adjust the anchors for common maximum depth
+;
+
+: synchronize-anchors {: a1 a2 -- :}
+    abort ; \ not yet implemented
+
+: match-anchors {: a1 a2 -- :}
+    \ match the two anchors; if they don't already have a common root,
+    \ they have it afterwards; if they have a common root, compare the
+    \ stack effects (taking offsets into account), and report if they
+    \ do not match
+    a1 anchor-root a2 anchor-root = if
+	a1 a2 compare-anchors	
+    else
+	a1 a2 synchronize-anchors
+    then ;
+
+: match-ase ( ase -- )
+    \ make ase match with current-ase; if they mismatch, produce a warning.
+    \ used in cs-item-consuming words
+    current-ase stack 0 ?do
+	2dup match-anchors
+	anchor-size + swap anchor-size + swap loop
+    2drop ;
 
 true [if] \ test
+    : myconst create , `@ set-does> ;
+
     `prim-stack-check is prim-check
+    `call-stack-check is call-check
+    `does-stack-check is does-check
     `stack-check-:-hook is :-hook
     `stack-check-;-hook is ;-hook
 
+    5 myconst five
     : foo r> >r f@ ;
+    : bar >r foo r> ;
+    : bla five ;
+    
     \ create ase1 ase-size allot
     \ ase1 ase-init
     \ ase1 .ase cr
