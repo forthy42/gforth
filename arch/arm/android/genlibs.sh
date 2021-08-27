@@ -39,6 +39,7 @@ HARFBUZZ=harfbuzz-2.9.0
 LIBPNG=libpng-1.6.37
 BZIP2=bzip2-1.0.8
 OPUS=opus-1.3.1
+BROTLI=brotli-1.0.9
 
 fine=yes
 for i in git wget
@@ -80,6 +81,22 @@ function gen_bzip2 {
      cp -f libbz2.a $PREFIX/lib
      cp -f bzlib.h $PREFIX/include)
 }
+
+function gen_brotli {
+    (cd ~/Downloads
+     test -f $BROTLI.tar.gz || wget https://github.com/google/brotli/archive/refs/tags/v${BROTLI#*-}.tar.gz && mv v${BROTLI#*-}.tar.gz $BROTLI.tar.gz)
+    tar zxvf ~/Downloads/$BROTLI.tar.gz
+    (cd $BROTLI
+     mkdir out &&
+	 cd    out &&
+	 cmake -DCMAKE_INSTALL_PREFIX=$TOOLCHAIN/sysroot/usr \
+	       -DCMAKE_BUILD_TYPE=Release  \
+	       ..  &&
+	 make &&
+	 make install)
+}
+
+https://github.com/google/brotli/archive/refs/tags/v1.0.9.tar.gz
 
 #make and install freetype, part 1 (no harfbuzz)
 
@@ -172,7 +189,7 @@ function gen_soil2 {
 }
 
 function gen_typeset {
-    $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $HARFBUZZ -name libharfbuzz_la*.lo) $(find $FREETYPE $LIBPNG -name '*.lo') -lm -lGLESv2 -lz -lbz2 -llog
+    $TARGET-libtool  --tag=CC   --mode=link $TARGET-gcc  -O2   -o libtypeset.la -rpath $TOOLCHAIN/sysroot/usr/lib $(find $HARFBUZZ -name libharfbuzz_la*.lo) $(find $FREETYPE $LIBPNG -name '*.lo') -lm -lz -lbz2 -lbrotlidec -llog
     cp .libs/libtypeset.{a,so} $TOOLCHAIN/sysroot/usr/lib
 }
 
@@ -180,6 +197,7 @@ if [ "$1" = "" ]
 then
     gen_png
     gen_bzip2
+    gen_brotli
     gen_freetype
     gen_harfbuzz
     gen_opus
