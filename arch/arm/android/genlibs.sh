@@ -34,8 +34,8 @@ case "$TARGET" in
 	;;
 esac
 
-FREETYPE=freetype-2.10.1
-HARFBUZZ=harfbuzz-2.6.2
+FREETYPE=freetype-2.11.0
+HARFBUZZ=harfbuzz-2.9.0
 LIBPNG=libpng-1.6.37
 BZIP2=bzip2-1.0.8
 OPUS=opus-1.3.1
