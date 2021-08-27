@@ -101,6 +101,8 @@ function gen_harfbuzz {
      test -f $HARFBUZZ.tar.xz || wget https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ#*-}/$HARFBUZZ.tar.xz)
     tar Jxvf ~/Downloads/$HARFBUZZ.tar.xz
     (cd $HARFBUZZ
+     sed -e 's/TESTS +=/#\0/g' 's/noinst_PROGRAMS/#\0/g' <src/Makefile.am >src/Makefile.am+
+     mv src/Makefile.am+ src/Makefile.am
      ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-glib=no --with-icu=no --with-uniscribe=no --with-cairo=no
      make -j$nprocs
      make install)
