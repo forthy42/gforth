@@ -98,7 +98,7 @@ function gen_freetype {
 
 function gen_harfbuzz {
     (cd ~/Downloads
-     test -f $HARFBUZZ.tar.xz || wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ.tar.xz)
+     test -f $HARFBUZZ.tar.xz || wget https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ#*-}/$HARFBUZZ.tar.xz)
     tar Jxvf ~/Downloads/$HARFBUZZ.tar.xz
     (cd $HARFBUZZ
      ./autogen.sh --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-glib=no --with-icu=no --with-uniscribe=no --with-cairo=no
