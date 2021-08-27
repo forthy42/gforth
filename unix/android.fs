@@ -332,14 +332,14 @@ screen-ops     ' noop IS screen-ops
 
 Variable rendering  -2 rendering ! \ -2: on, -1: pause, 0: stop
 
-: nostring ( -- ) setstring$ $off ;
+: nostring ( -- ) setstring$ $free ;
 : insstring ( -- )  setstring$ $@ 0 skip inskeys nostring ;
 
 : android-characters ( string -- )  jstring>sstring
     nostring 0 skip inskeys jfree ;
 Defer android-commit
 :noname     ( string/0 -- ) ?dup-0=-IF  insstring  ELSE
-	jstring>sstring 0 skip inskeys jfree setstring$ $off
+	jstring>sstring 0 skip inskeys jfree setstring$ $free
     THEN ; is android-commit
 Defer android-setstring
 Defer android-inskey ' inskey is android-inskey

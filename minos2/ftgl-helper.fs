@@ -152,8 +152,15 @@ color f@ FValue xy-color
     v> 2 quad ;
 
 0 Value font
-Defer font-select ( xcaddr font -- xcaddr font' )
-' noop is font-select
+Variable last-font#
+
+Defer font#-load ( font# -- font )
+Defer font-select# ( xcaddr -- xcaddr num )
+' false is font-select#
+' noop is font#-load
+
+: font-select ( xc-addr -- xc-addr font )
+    font-select# dup last-font# ! font#-load ;
 
 : font->t.i0 ( font -- )
     -2e to t.i0  color f@ to xy-color
@@ -162,7 +169,7 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 
 : double-atlas ( xc-addr -- xc-addr )
     freetype_gl_errno FTGL_ERR_BASE = IF
-	font font-select
+	font-select
 	dup texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
 	    atlas-bgra# 2* dup >r to atlas-bgra#
 	ELSE
@@ -177,7 +184,7 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 	    drop double-atlas  REPEAT ;
 
 : xchar+xy ( xc-addrp xc-addr -- xc-addr )
-    tuck font font-select \ xc-addr xc-addrp xc-addr font
+    tuck font-select \ xc-addr xc-addrp xc-addr font
     dup font->t.i0
     dup texture_font_t-scale sf@ to f-scale
     swap glyph@ \ xc-addr xc-addrp font xc-addr
@@ -214,10 +221,28 @@ Defer font-select ( xcaddr font -- xcaddr font' )
 	IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
     ELSE  I  THEN  xs ;
 
-Variable last-font
+-1 value bl/null?
+
+Variable $splits[]
+
+: stacktop ( stack -- addr )
+    $@ + cell- ;
+
+: lang-split-string ( addr u -- )
+    -1 to bl/null?  last-font# off
+    $splits[] $[]free
+    bounds ?DO
+	I' I ?soft-hyphen { xs }
+	font-select#
+	last-font# @ over last-font# ! <> $splits[] stack# 0= or  IF
+	    [ cell 1- dup pad ! pad + c@ last-font# + ]L
+	    1 $make $splits[] >stack
+	THEN
+	xs $splits[] stacktop $+!
+    xs +LOOP ;
 
 : render-string ( addr u -- )
-    last-font off
+    -1 to bl/null?
     0 -rot  bounds ?DO
 	6 ?flush-tris I' I ?soft-hyphen { xs }
 	xchar+xy
@@ -228,7 +253,7 @@ Variable last-font
     render-string  #12 ?flush-tris
     penxy dup sf@ fround 1/2 f+
     sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
-    s" g" drop font font-select { ft } drop
+    s" g" drop font-select { ft } drop
     ft font->t.i0
     ft "–" drop glyph@ { g- } 2drop
     ft "g" drop glyph@ { gg } 2drop
@@ -261,7 +286,7 @@ Variable last-font
 
 : xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
     { f: fd f: fh }
-    tuck font font-select
+    tuck font-select
     dup texture_font_t-scale sf@ { f: f-scale }
     swap
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
@@ -293,7 +318,7 @@ Variable last-font
     drop rdrop r> fdrop fdrop ;
 
 : load-glyph$ ( addr u -- )
-    bounds ?DO  I font font-select nip
+    bounds ?DO  I font-select nip
 	I texture_font_get_glyph
 	0=  IF  freetype_gl_errno $100 = IF  I double-atlas drop 0
 	    ELSE  0 ?ftgl-ior  THEN

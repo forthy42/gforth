@@ -25,7 +25,7 @@ extern struct _IO_FILE *stderr;
 %include "harfbuzz/hb-blob.h"
 %include "harfbuzz/hb-buffer.h"
 %include "harfbuzz/hb-common.h"
-%include "harfbuzz/hb-deprecated.h"
+ // %include "harfbuzz/hb-deprecated.h"
 %include "harfbuzz/hb-face.h"
 %include "harfbuzz/hb-font.h"
 %include "harfbuzz/hb-set.h"

@@ -335,7 +335,7 @@ Variable gl-emit-buf
 		    IF  2drop 1  THEN  abs
 		THEN
 	    THEN
-	    gl-emit-buf $off
+	    gl-emit-buf $free
 	THEN  $10
     THEN  { n m }
 
@@ -612,6 +612,6 @@ previous previous \ remove opengl from search order
 0 warnings !@
 : system ( addr u -- )
     r/o open-pipe throw 0 { fd w^ string }
-    fd string $[]slurp string $[]. string $[]off ;
+    fd string $[]slurp string $[]. string $[]free ;
 : sh '#' parse cr system ;
 warnings !

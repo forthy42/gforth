@@ -205,7 +205,7 @@ Variable ekey-buffer
     0 ;
 
 : clear-ekey-buffer ( -- )
-    ekey-buffer $off ;
+    ekey-buffer $free ;
 
 : esc-prefix ( -- u )
     BEGIN

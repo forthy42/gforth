@@ -119,6 +119,20 @@ Variable config-file$  s" ~/.config/minos2rc" config-file$ $!
 \ helper for languages and splitting texts
 \ cjk and emoji can be split at any letter
 
+: combiner-font? ( xc -- xc flag )
+    \ Some sort of characters need to stay in the current active font
+    dup bl/null? =         ?dup-IF  EXIT  THEN
+    dup  $300  $370 within ?dup-IF  EXIT  THEN
+    dup $1AB0 $1B00 within ?dup-IF  EXIT  THEN
+    dup $1DC0 $1E00 within ?dup-IF  EXIT  THEN
+    dup $2000 $2010 within ?dup-IF  EXIT  THEN
+    dup $205F $2070 within ?dup-IF  EXIT  THEN
+    dup $20D0 $2100 within ?dup-IF  EXIT  THEN
+    dup $FE00 $FE10 within ?dup-IF  EXIT  THEN \ variant selectors
+    dup $FE20 $FE30 within ?dup-IF  EXIT  THEN
+    dup $E0100 $E01F0 within ?dup-IF  EXIT  THEN \ variant selectors
+    false ;
+
 : cjk? ( xchar -- xchar flag )
     \G true if CJK Unified Ideographs
     dup  $2E80  $A000 within ?dup-IF  EXIT  THEN \ Common

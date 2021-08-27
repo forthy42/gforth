@@ -187,7 +187,7 @@ DOES> ( -- addr u )
 : (redirect?) ( addr u -- addr' u' t / f )
     htmldir $! htmldir $@ bounds ?DO
 	I c@ '/ = IF  #lf I c!  THEN  LOOP
-    redirects 1 set-order redir$ $off
+    redirects 1 set-order redir$ $free
     htmldir $@ ['] evaluate catch
     IF  2drop false  ELSE  redir$ @ 0<>  THEN ;
 
