@@ -15,7 +15,7 @@ extern struct _IO_FILE *stderr;
 %apply int { hb_position_t };
 %apply SWIGTYPE * { FT_Face };
 
-// exec: sed -e 's/ s n / a n /g' -e 's/c-function hb_glyph_info_get_glyph_flags/\\ c-function hb_glyph_info_get_glyph_flags/g'
+// exec: sed -e 's/ s n / a n /g' -e 's/c-function hb_glyph_info_get_glyph_flags/\\ c-function hb_glyph_info_get_glyph_flags/g' -e 's/s" harfbuzz" add-lib/e? os-type s" linux-android" string-prefix? [IF] s" typeset" [ELSE] s" harfbuzz" [THEN] add-lib/g'
 
 #define HB_EXTERN extern
 #define HB_BEGIN_DECLS

@@ -82,6 +82,8 @@ function gen_bzip2 {
      cp -f bzlib.h $PREFIX/include)
 }
 
+#make and install of brotli
+
 function gen_brotli {
     (cd ~/Downloads
      test -f $BROTLI.tar.gz || wget https://github.com/google/brotli/archive/refs/tags/v${BROTLI#*-}.tar.gz && mv v${BROTLI#*-}.tar.gz $BROTLI.tar.gz)
@@ -92,11 +94,19 @@ function gen_brotli {
 	 cmake -DCMAKE_INSTALL_PREFIX=$TOOLCHAIN/sysroot/usr \
 	       -DCMAKE_BUILD_TYPE=Release  \
 	       ..  &&
+	 for i in $(find . -name link.txt); do \
+	     sed -e 's/\(soname,[^ ]*\.so\)[0-9.]*/\1/g' $i > $i+; \
+	     mv $i+ $i; \
+	 done &&
 	 make -j$nprocs &&
-	 make install)
+	 make install
+     (cd $TOOLCHAIN/sysroot/usr/lib;
+      for i in libbrotli*.so
+      do
+	  rm $i $i.1
+	  mv $i.${BROTLI#*-} $i
+      done))
 }
-
-https://github.com/google/brotli/archive/refs/tags/v1.0.9.tar.gz
 
 #make and install freetype, part 1 (no harfbuzz)
 

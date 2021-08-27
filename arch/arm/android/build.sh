@@ -104,7 +104,8 @@ rm -rf $LIBS
 mkdir -p $LIBS
 
 cp .libs/libtypeset.so $LIBS
-cp $TOOLCHAIN/sysroot/usr/lib/lib{opus,brotlidec,brotlicommon}.so $LIBS
+cp $TOOLCHAIN/sysroot/usr/lib/libopus.so $LIBS
+cp $TOOLCHAIN/sysroot/usr/lib/lib{brotlidec,brotlicommon}.so $LIBS
 cp $(find $TOOLCHAIN/$TARGET -name libc++_shared.so) $LIBS
 
 EXTRAS=""

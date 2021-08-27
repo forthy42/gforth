@@ -93,3 +93,4 @@ image_i=""
 LIBS="-llog -lz"
 signals_o="io.o signals.o $XLIBS androidmain.o zexpand.o"
 GFORTH=`which gforth-386`
+export PKG_CONFIG_SYSROOT_DIR=$TOOLCHAIN/sysroot
