@@ -28,12 +28,15 @@ cfield: sd-out \ number of stack items of a stack produced by word or sequence
 constant sd-size \ stack effect for one stack
 
 sd-size
-cfield: anchor-offset \ !!! document
+sd-size +field anchor-offset \ when following the link to the parent,
+                             \ apply the offset (as if compiling a
+                             \ word) to get the corresponding stack
+                             \ descriptor for the parent.
 field: anchor-parent \ address of parent anchor, or to itself (if no parent)
 constant anchor-size
 
 anchor-size stacks * constant ase-size
-\ an anchored stack effect constists of STACKS anchors (one anchor for
+\ an anchored stack effect (ase) consists of STACKS anchors (one anchor for
 \ each stack)
 
 unused extra-section in-stack-check-section
@@ -153,8 +156,51 @@ stack-effect-unknown does-xt 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
     cr ." at ;: " current-ase .ase
     dummy-ase to current-ase defers ;-hook ;
 
+: copy-ase ( -- ase )
+    \ ase is a copy of current-ase; used in cs-item-pushing words
+    ase-size ' small-allot in-stack-check-section
+    current-ase over ase-size move
+    dup stacks 0 ?do \ the copy has 0 offsets from the original
+	dup anchor-offset 0 over sd-in c! 0 swap sd-out c!
+	anchor-size + loop
+    drop ;
 
-    
+: anchor-effect {: a -- nin nout :}
+    \ !! follow roots, applying offsets
+    a sd-in c@ a sd-out c@ ;
+
+: compare-anchors {: a1 a2 -- :}
+    a1 anchor-effect {: a1-in a1-out :}
+    a2 anchor-effect {: a2-in a2-out :}
+    a1-in a2-in - 0 max dup a2 sd-in c+! a2 sd-out c+!
+    a2-in a1-in - 0 max dup a1 sd-in c+! a1 sd-out c+!
+    a1 anchor-effect a2 anchor-effect assert( fourth third = ) d<>
+    [: ." stack depth mismatch in "lastnt @ .name current-ase .ase ;] ?warning
+    \ !! also print the ase compared to
+    \ adjust the anchors for common maximum depth
+;
+
+: synchronize-anchors {: a1 a2 -- :}
+    abort ; \ not yet implemented
+
+: match-anchors {: a1 a2 -- :}
+    \ match the two anchors; if they don't already have a common root,
+    \ they have it afterwards; if they have a common root, compare the
+    \ stack effects (taking offsets into account), and report if they
+    \ do not match
+    a1 anchor-root a2 anchor-root = if
+	a1 a2 compare-anchors	
+    else
+	a1 a2 synchronize-anchors
+    then ;
+
+: match-ase ( ase -- )
+    \ make ase match with current-ase; if they mismatch, produce a warning.
+    \ used in cs-item-consuming words
+    current-ase stack 0 ?do
+	2dup match-anchors
+	anchor-size + swap anchor-size + swap loop
+    2drop ;
 
 true [if] \ test
     : myconst create , `@ set-does> ;
