@@ -92,7 +92,7 @@ function gen_brotli {
 	 cmake -DCMAKE_INSTALL_PREFIX=$TOOLCHAIN/sysroot/usr \
 	       -DCMAKE_BUILD_TYPE=Release  \
 	       ..  &&
-	 make &&
+	 make -j$nprocs &&
 	 make install)
 }
 
