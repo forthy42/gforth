@@ -28,51 +28,6 @@ variable backedge-locals
     \ the back edge if the BEGIN is unreachable from above. Set by
     \ ASSUME-LIVE, reset by UNREACHABLE.
 
-\ Control Flow Stack
-\ orig, etc. have the following structure:
-\ type ( defstart, live-orig, dead-orig, dest, do-dest, scopestart) ( TOS )
-\ address (of the branch or the instruction to be branched to) (second)
-\ locals-list (valid at address) (third)
-
-\ types
-[IFUNDEF] defstart 
-Create defstart	\ usally defined in comp.fs
-[THEN]
-Create live-orig1
-Create dead-orig1
-Create dest1 \ the loopback branch is always assumed live
-Create do-dest1
-Create scopestart
-
-defer live-orig ( -- x ) ' live-orig1 is live-orig
-defer dead-orig ( -- x ) ' dead-orig1 is dead-orig
-defer dest      ( -- x ) ' dest1      is dest
-defer do-dest   ( -- x ) ' do-dest1   is do-dest
-
-defer >cs-type ( x1 -- x2 ) ' noop is >cs-type
-\ x1 may be the address of a struct with additional control-flow data,
-\ x2 is the type (orig, dest, etc.) of the cs-item associated with the struct.
-\ This just gives you the type, and performs no other action
-
-defer sync-cs-type ( x1 -- x2 ) ' noop is sync-cs-type
-\ like >cs-type, but consumes the additional control-flow data, e.g.,
-\ it may sync stack effects in a checker
-
-: orig? ( n -- )
-    sync-cs-type dead-orig1 1+ live-orig1 within abort" expected orig " ;
-
-: dest? ( n -- )
-    sync-cs-type dest1 <> abort" expected dest " ;
-
-: do-dest? ( n -- )
-    sync-cs-type do-dest1 <> abort" expected do-dest " ;
-
-: scope? ( n -- )
-    scopestart <> abort" expected scope " ;
-
-: cs-item? ( n -- )
-    >cs-type live-orig1 scopestart 1+ within 0= abort" expected control flow stack item" ;
-
 : UNREACHABLE ( -- ) \ gforth
     \ declares the current point of execution as unreachable
     dead-code on
@@ -84,6 +39,40 @@ defer sync-cs-type ( x1 -- x2 ) ' noop is sync-cs-type
     \ as at the orig point
     dup orig?
     third backedge-locals ! ; immediate
+    
+\ Control Flow Stack
+\ orig, etc. have the following structure:
+\ type ( defstart, live-orig, dead-orig, dest, do-dest, scopestart) ( TOS )
+\ address (of the branch or the instruction to be branched to) (second)
+\ locals-list (valid at address) (third)
+
+\ types
+[IFUNDEF] defstart 
+Create defstart	\ usally defined in comp.fs
+[THEN]
+Create live-orig
+Create dead-orig
+Create dest \ the loopback branch is always assumed live
+Create do-dest
+Create scopestart
+
+: orig? ( n -- )
+    dead-orig 1+ live-orig within abort" expected orig " ;
+
+: dest? ( n -- )
+    dest <> abort" expected dest " ;
+
+: do-dest? ( n -- )
+    do-dest <> abort" expected do-dest " ;
+
+: scope? ( n -- )
+    scopestart <> abort" expected scope " ;
+
+: non-orig? ( n -- )
+    dest scopestart 1+ within 0= abort" expected dest, do-dest or scope" ;
+
+: cs-item? ( n -- )
+    live-orig scopestart 1+ within 0= abort" expected control flow stack item" ;
 
 3 constant cs-item-size
 
