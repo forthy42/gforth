@@ -112,7 +112,7 @@ forth definitions
 
 : (closure-;]) ( closure-sys lastxt -- )
     >r r@ wrap-closure
-    orig? r> >namevt @ swap ! drop
+    orig? r> >namevt @ swap ! 2drop
     pop-locals ;
 
 : closure-:-hook ( sys -- sys addr xt n )
@@ -168,6 +168,10 @@ forth definitions
 ; immediate compile-only
 
 \ stack-based closures without name
+
+\ hex cr .s
+\ : bar [ cr .s ] [: [ cr .s ] ;]  [ cr .s ] ;
+\ : foo [ cr cr .s ] [{: :}d [ cr .s ] ;] ;
 
 : (;*]) ( xt -- vt )
     >r ] postpone endscope third locals-list ! postpone endscope

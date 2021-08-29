@@ -45,6 +45,12 @@ variable backedge-locals
 \ type ( defstart, live-orig, dead-orig, dest, do-dest, scopestart) ( TOS )
 \ address (of the branch or the instruction to be branched to) (second)
 \ locals-list (valid at address) (third)
+\ stack state address for checking (fourth)
+
+defer push-stack-state ( -- addr ) ' false is push-stack-state
+\ push (a copy of) the current stack state
+defer pop-stack-state ( addr -- )  ' drop is pop-stack-state
+\ check if the stack state pointed to by addr matches the current stack state
 
 \ types
 [IFUNDEF] defstart 
@@ -74,25 +80,25 @@ Create scopestart
 : cs-item? ( n -- )
     live-orig scopestart 1+ within 0= abort" expected control flow stack item" ;
 
-3 constant cs-item-size
+4 constant cs-item-size
 
 : CS-PICK ( orig0/dest0 orig1/dest1 ... origu/destu u -- ... orig0/dest0 ) \ tools-ext c-s-pick
     1+ cs-item-size * 1- >r
-    r@ pick  r@ pick  r@ pick
+    r@ pick  r@ pick  r@ pick  r@ pick
     rdrop
     dup cs-item? ;
 
 : CS-ROLL ( destu/origu .. dest0/orig0 u -- .. dest0/orig0 destu/origu ) \ tools-ext c-s-roll
     1+ cs-item-size * 1- >r
-    r@ roll r@ roll r@ roll
+    r@ roll r@ roll r@ roll r@ roll
     rdrop
     dup cs-item? ; 
 
 : CS-DROP ( dest -- ) \ gforth
-    cs-item? 2drop ;
+    cs-item? 2drop drop ; \ maximum depth information of propagated on pushing
 
-: cs-push-part ( -- list addr )
-    locals-list @ here ;
+: cs-push-part ( -- stack-state list addr )
+    push-stack-state locals-list @ here ;
 
 : cs-push-orig ( -- orig )
     cs-push-part dead-code @
@@ -153,7 +159,7 @@ defer if-like
     POSTPONE ?dup-0=-?branch >mark? ;       immediate restrict
 
 Defer then-like ( orig -- )
-: cs>addr ( orig/dest -- )  drop >resolve drop ;
+: cs>addr ( orig/dest -- )  drop >resolve drop pop-stack-state ;
 ' cs>addr IS then-like
 
 : THEN ( compilation orig -- ; run-time -- ) \ core
@@ -185,17 +191,18 @@ Defer begin-like ( -- )
     begin-like cs-push-part dest
     basic-block-end ; immediate restrict
 
-Defer again-like ( dest -- addr )
+Defer again-like ( stack-state locals-list addr -- stack-state addr )
 ' nip IS again-like
 
 : AGAIN ( compilation dest -- ; run-time -- ) \ core-ext
     \G At run-time, execution continues after the @code{BEGIN} that
     \G produced the @i{dest} (@pxref{Simple Loops}).
-    dest? again-like  POSTPONE branch  <resolve ; immediate restrict
+    dest? again-like  POSTPONE branch  <resolve
+    pop-stack-state ; immediate restrict
 
-Defer until-like ( list addr xt1 xt2 -- )
-:noname ( list addr xt1 xt2 -- )
-    drop compile, <resolve drop ;
+Defer until-like ( stack-state list addr xt1 xt2 -- )
+:noname ( stack-state list addr xt1 xt2 -- )
+    drop compile, <resolve drop pop-stack-state ;
 IS until-like
 
 : UNTIL ( compilation dest -- ; run-time f -- ) \ core
@@ -257,21 +264,23 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
     tuck ! cell+
     tuck ! cell+
     tuck ! cell+
+    tuck ! cell+
     leave-sp ! ;
 
 : leave> ( -- orig )
     \ pop from leave-stack
     leave-sp @
     dup leave-stack <= IF
-       drop 0 0 0  EXIT  THEN
-    cell - dup @ swap
-    cell - dup @ swap
-    cell - dup @ swap
+       drop 0 0 0 0  EXIT  THEN
+    cell- dup @ swap
+    cell- dup @ swap
+    cell- dup @ swap
+    cell- dup @ swap
     leave-sp ! ;
 
 : DONE ( compilation orig -- ; run-time -- ) \ gforth
     \g resolves all LEAVEs up to the compilaton orig (from a BEGIN)
-    drop >r drop
+    drop >r 2drop
     begin
 	leave>
 	over r@ u>=
@@ -292,11 +301,9 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
 : DO ( compilation -- do-sys ; run-time w1 w2 -- loop-sys ) \ core
     \G @xref{Counted Loops}.
     POSTPONE (do)
-    POSTPONE begin drop do-dest
-    ( 0 0 0 >leave ) ; immediate restrict
+    POSTPONE begin drop do-dest ; immediate restrict
 
 : ?do-like ( -- do-sys )
-    ( 0 0 0 >leave )
     >mark >leave
     POSTPONE begin drop do-dest ;
 
@@ -323,8 +330,7 @@ Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
 : FOR ( compilation -- do-sys ; run-time u -- loop-sys )	\ gforth
     \G @xref{Counted Loops}.
     POSTPONE (for)
-    POSTPONE begin drop do-dest
-    ( 0 0 0 >leave ) ; immediate restrict
+    POSTPONE begin drop do-dest ; immediate restrict
 
 \ LOOP etc. are just like UNTIL
 
@@ -396,15 +402,16 @@ defer adjust-locals-list ( wid -- )
 
 : endscope ( compilation scope -- ; run-time  -- ) \ gforth
     scope?
-    drop  adjust-locals-list ; immediate
+    drop  adjust-locals-list drop ; immediate
 
 \ quotations
-Defer wrap@
-Defer wrap!
-:noname ( -- wrap-sys )
-    vtsave latest latestnt leave-sp @ ( unlocal-state @ ) ; is wrap@
-:noname ( wrap-sys -- )
-    ( unlocal-state ! ) leave-sp ! lastnt ! last ! vtrestore ; is wrap!
+: wrap@-kernel ( -- wrap-sys )
+    vtsave latest latestnt leave-sp @ ( unlocal-state @ ) ;
+: wrap!-kernel ( wrap-sys -- )
+    ( unlocal-state ! ) leave-sp ! lastnt ! last ! vtrestore ;
+
+Defer wrap@ ( -- wrap-sys ) ' wrap@-kernel is wrap@
+Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 
 : (int-;]) ( some-sys lastxt -- ) >r vt, wrap! r> ;
 : (;]) ( some-sys lastxt -- )

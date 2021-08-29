@@ -348,7 +348,7 @@ locals-types definitions
 : C^ ( "name" -- a-addr xt ) \ gforth c-caret
     W^ drop ['] compile-pushlocal-c ;
 
-: XT: ( "name" -- a-addr xt ) \ gforth w-colon
+: XT: ( "name" -- a-addr xt ) \ gforth x-t-colon
     create-local  ['] to-w: set-to  ['] defer@-xt: set-defer@
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: .. -- .. )
@@ -584,7 +584,7 @@ is adjust-locals-list
 : (then-like) ( orig -- )
     dead-orig =
     if
-	>resolve drop
+	>resolve 2drop
     else
         dead-code @
         if
@@ -594,6 +594,7 @@ is adjust-locals-list
 	    >resolve
 	    adjust-locals-list
 	then
+	pop-stack-state
     then ;
 
 : (begin-like) ( -- )
@@ -612,7 +613,7 @@ is adjust-locals-list
 \ lp+!# (current-local-size - dest-locals-size)
 \ branch <begin>
 
-: (again-like) ( dest -- addr )
+: (again-like) ( stack-state locals-list addr -- stack-state addr )
     over list-size adjust-locals-size
     swap check-begin  POSTPONE unreachable ;
 
@@ -621,7 +622,7 @@ is adjust-locals-list
 \ ones. The following code is generated:
 \ ?branch-lp+!# <begin> (current-local-size - dest-locals-size)
 
-: (until-like) ( list addr xt1 xt2 -- )
+: (until-like) ( stack-state list addr xt1 xt2 -- )
     \ list and addr are a fragment of a cs-item
     \ xt1 is the conditional branch without lp adjustment, xt2 is with
     >r >r
@@ -633,7 +634,7 @@ is adjust-locals-list
 	r> compile, <resolve
 	r> drop
     then ( list )
-    check-begin ;
+    check-begin pop-stack-state ;
 
 : (exit-like) ( -- )
     0 adjust-locals-size ;
