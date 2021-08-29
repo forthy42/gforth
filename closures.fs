@@ -169,10 +169,6 @@ forth definitions
 
 \ stack-based closures without name
 
-\ hex cr .s
-\ : bar [ cr .s ] [: [ cr .s ] ;]  [ cr .s ] ;
-\ : foo [ cr cr .s ] [{: :}d [ cr .s ] ;] ;
-
 : (;*]) ( xt -- vt )
     >r ] postpone endscope third locals-list ! postpone endscope
     r@ wrap-closure  r> >namevt @ ;
