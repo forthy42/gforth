@@ -112,7 +112,7 @@ forth definitions
 
 : (closure-;]) ( closure-sys lastxt -- )
     >r r@ wrap-closure
-    orig? r> >namevt @ swap ! 2drop
+    r> >namevt @ swap !
     pop-locals ;
 
 : closure-:-hook ( sys -- sys addr xt n )
@@ -127,7 +127,7 @@ forth definitions
     dodoes: >l >l lp@ cell+ ;
 : end-dclosure ( unravel-xt -- closure-sys )
     >r
-    postpone lit >mark
+    postpone lit here 0 ,
     ]] closure> [[ r> execute
     wrap@ next-section finish-code|
     action-of :-hook >r  ['] closure-:-hook is :-hook
