@@ -21,6 +21,7 @@
 \ freetype stuff
 
 require ../unix/freetype-gllib.fs
+require ../unix/harfbuzzlib.fs
 
 also freetype-gl
 also opengl
@@ -240,6 +241,43 @@ Variable $splits[]
 	THEN
 	xs $splits[] stacktop $+!
     xs +LOOP ;
+
+also harfbuzz
+Variable infos[]
+Variable positions[]
+
+hb_buffer_create Value hb-buffer
+hb-buffer hb_language_get_default hb_buffer_set_language
+
+1 Value numfeatures
+Create userfeatures numfeatures hb_feature_t * allot
+DOES> swap hb_feature_t * + ;
+
+: hb-tag ( addr u -- tag )
+    4 <> abort" hb-tags are 4 characters each" be-ul@ ;
+: hb-feature! ( feature value addr -- ) >r
+    r@ hb_feature_t-tag l!
+    r@ hb_feature_t-value l!
+    0  r@ hb_feature_t-start l!
+    -1 r> hb_feature_t-end l! ;
+
+"dlig" 1 0 userfeatures hb-feature!
+
+: shape-splits ( -- )
+    $splits[] stack# 0 ?DO
+	hb-buffer I $splits[] $[]@ over c@ >r 1 /string
+	0 over hb_buffer_add_utf8
+	hb-buffer hb_buffer_guess_segment_properties
+	r> font#-load texture_font_t-hb_font @ hb-buffer
+	0 userfeatures numfeatures hb_shape
+	{ | w^ glyph-count }
+	hb-buffer glyph-count hb_buffer_get_glyph_infos
+	glyph-count l@ hb_glyph_info_t * I infos[] $[]!
+	hb-buffer glyph-count hb_buffer_get_glyph_positions
+	glyph-count l@ hb_glyph_position_t * I positions[] $[]!
+	hb-buffer hb_buffer_reset
+    LOOP ;
+previous
 
 : render-string ( addr u -- )
     -1 to bl/null?

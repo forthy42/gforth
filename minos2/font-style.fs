@@ -21,7 +21,6 @@
 \ font array
 
 require cstr.fs
-require unix/harfbuzzlib.fs
 
 get-current also minos definitions
 
