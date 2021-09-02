@@ -46,12 +46,18 @@ ase-size ' small-allot in-stack-check-section constant dummy-ase
 dummy-ase value current-ase
 0 value colon-ase \ ase at the start of a colon definition
 
+: one-stack-effect1 {: nin1 nout1 nin2 nout2 -- nin3 nout3 :}
+    nin2 nout1 - ( n )
+    nin1 over 0 max +
+    nout2 rot 0 min - ;
+    
+: sd@ ( sd -- nin nout )
+    dup sd-in c@ swap sd-out c@ ;
+
 : do-one-stack-effect {: sd1 sd2 -- :}
     \ given a one-stack effect sd1, change it to be the one-stack
-    \ effect of sd1 followed by sd2.  
-    sd2 sd-in c@ sd1 sd-out c@ - ( n )
-    sd2 sd-out c@ over 0 min - sd1 sd-out assert( over 0>= ) c! ( +n )
-    0 max sd1 sd-in c+! ;
+    \ effect of sd1 followed by sd2.
+    sd1 sd@ sd2 sd@ one-stack-effect1 sd1 sd-out c! sd1 sd-in c! ;
 
 : do-stack-effect ( as sds -- )
     \ given an anchored stack effect as, change it to be the stack effect of
