@@ -70,7 +70,8 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
 	dup cs? if  '<' emit
 	    dup defstart = IF  drop ['] colon-sys >body  THEN
 	    body> name>string type '>' emit space
-	    cs-item-size 1- smart.s-skip ! exit  then
+	    \ cs-item-size 1- smart.s-skip !
+	    exit  then
 	dup .var? IF
 	    .var.
 	ELSE
