@@ -158,7 +158,7 @@ stack-effect-unknown does-xt 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
 
 : copy-ase ( -- ase )
     \ ase is a copy of current-ase; used in cs-item-pushing words
-    ase-size ' small-allot in-stack-check-section
+    ase-size ['] small-allot in-stack-check-section
     current-ase over ase-size move
     dup stacks 0 ?do \ the copy has 0 offsets from the original
 	dup anchor-offset 0 over sd-in c! 0 swap sd-out c!
@@ -197,7 +197,7 @@ stack-effect-unknown does-xt 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
 : match-ase ( ase -- )
     \ make ase match with current-ase; if they mismatch, produce a warning.
     \ used in cs-item-consuming words
-    current-ase stack 0 ?do
+    current-ase stacks 0 ?do
 	2dup match-anchors
 	anchor-size + swap anchor-size + swap loop
     2drop ;
@@ -215,6 +215,16 @@ true [if] \ test
     : foo r> >r f@ ;
     : bar >r foo r> ;
     : bla five ;
+
+    `copy-ase is push-stack-state
+    `match-ase is pop-stack-state
+
+    : if0 if swap then ;
+    : begin0 begin dup until ;
+    : begin1 begin dup + again ;
+    : do0 do i @ + loop ;
+    : doerr do i loop ;
+    \ : if1 if nip else drop then ;
     
     \ create ase1 ase-size allot
     \ ase1 ase-init
