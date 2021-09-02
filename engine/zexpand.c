@@ -20,7 +20,6 @@
 
 #include "config.h"
 #include <stdio.h>
-#include <zlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -38,21 +37,115 @@
 #define LOGE(...) fprintf(stderr, __VA_ARGS__);
 #endif
 
+#ifdef USE_BROTLI
+#include <brotli/decode.h>
+
+struct brFile {
+  BrotliDecoderState* s;
+  FILE *file;
+  BrotliDecoderResult result;
+} brFile;
+
+brFile* bropen(const char* file, const char* mode) {
+  BROTLI_BOOL is_ok = BROTLI_TRUE;
+  brFile* br = malloc(sizeof(brFile));
+  if (!br) {
+    LOGE("out of memory\n");
+    return 0;
+  }
+  br->s = BrotliDecoderCreateInstance(NULL, NULL, NULL);
+  if (!br->s) {
+    LOGE("out of memory\n");
+    free(br);
+    return 0;
+  }
+  /* This allows decoding "large-window" streams. Though it creates
+     fragmentation (new builds decode streams that old builds don't),
+     it is better from used experience perspective. */
+  BrotliDecoderSetParameter(br->s, BROTLI_DECODER_PARAM_LARGE_WINDOW, 1u);
+  br->result = BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT;
+  br->file = fopen(file, mode);
+  (if !br->file) {
+    LOGE("can't open file\n");
+    BrotliDecoderDestroyInstance(br->s);
+    free(br);
+    return 0;
+  }
+  return br;
+}
+
+static const size_t kFileBufferSize = 1 << 19;
+
+int brread(brFile *br, char *buf, int size) {
+  for (;;) {
+    if (br->result == BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT) {
+      if (!HasMoreInput(context)) {
+        fprintf(stderr, "corrupt input [%s]\n",
+                PrintablePath(context->current_input_path));
+        return BROTLI_FALSE;
+      }
+      if (!ProvideInput(context)) return BROTLI_FALSE;
+    } else if (result == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT) {
+      if (!ProvideOutput(context)) return BROTLI_FALSE;
+    } else if (result == BROTLI_DECODER_RESULT_SUCCESS) {
+      if (!FlushOutput(context)) return BROTLI_FALSE;
+      int has_more_input =
+          (context->available_in != 0) || (fgetc(context->fin) != EOF);
+      if (has_more_input) {
+        fprintf(stderr, "corrupt input [%s]\n",
+                PrintablePath(context->current_input_path));
+        return BROTLI_FALSE;
+      }
+      if (context->verbosity > 0) {
+        fprintf(stderr, "Decompressed ");
+        PrintFileProcessingProgress(context);
+        fprintf(stderr, "\n");
+      }
+      return BROTLI_TRUE;
+    } else {
+      fprintf(stderr, "corrupt input [%s]\n",
+              PrintablePath(context->current_input_path));
+      return BROTLI_FALSE;
+    }
+
+    result = BrotliDecoderDecompressStream(s, &context->available_in,
+        &context->next_in, &context->available_out, &context->next_out, 0);
+  }
+}
+
+void brclose(brFile* br) {
+  BrotliDecoderDestroyInstance(br->s);
+  fclose(br->file);
+  free(br);
+}
+
+#define zread(file, buf, size) brread(file, buf, size)
+#define zopen(name, mode) bropen(name, mode)
+#define zclose(file) brclose(file)
+#define zFile brFile
+#else
+#include <zlib.h>
+#define zread(file, buf, size) gzread(file, buf, size)
+#define zopen(name, mode) gzopen(name, mode)
+#define zclose(file) gzclose(file)
+#define zFile gzFile
+#endif
+
 void zexpand(char * zfile)
 {
   int32_t sizebuf, filesize;
-  gzFile file=gzopen(zfile, "rb");
+  zFile file=zopen(zfile, "rb");
   FILE* out;
 
-  while(gzread(file, &sizebuf, sizeof(int32_t))==sizeof(int32_t)) {
+  while(zread(file, &sizebuf, sizeof(int32_t))==sizeof(int32_t)) {
     char filename[sizebuf];
-    int len1=gzread(file, filename, sizebuf);
-    int len2=gzread(file, &filesize, sizeof(int32_t));
+    int len1=zread(file, filename, sizebuf);
+    int len2=zread(file, &filesize, sizeof(int32_t));
     // LOGI("File %c: %s size %d\n", filename[0], filename+1, filesize);
 
     if((len1==sizebuf) && (len2==sizeof(int32_t))) {
       char *filebuf=malloc(filesize);
-      int len3=(filesize==0) ? 0 : gzread(file, filebuf, filesize);
+      int len3=(filesize==0) ? 0 : zread(file, filebuf, filesize);
       
       if((len3==filesize)) {
 	switch(filename[0]) {
@@ -91,7 +184,7 @@ void zexpand(char * zfile)
       free(filebuf);
     }
   }
-  gzclose(file);
+  zclose(file);
 }
 
 #ifdef TEST
