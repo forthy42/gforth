@@ -184,12 +184,10 @@ Defer font-select# ( xcaddr -- xcaddr num )
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
 	    drop double-atlas  REPEAT ;
 
-: xchar+xy ( xc-addrp xc-addr -- xc-addr )
-    tuck font-select \ xc-addr xc-addrp xc-addr font
+: xchar+xy (  xc-addr+ xc-addr font -- )
     dup font->t.i0
     dup texture_font_t-scale sf@ to f-scale
-    swap glyph@ \ xc-addr xc-addrp font xc-addr
-    >r 2drop \ xc-addr xc-addrp r:glyph
+    swap glyph@ >r 2drop
     dup IF
 	r@ swap texture_glyph_get_kerning f-scale f*
 	penxy sf@ f+ penxy sf!
@@ -222,6 +220,19 @@ Defer font-select# ( xcaddr -- xcaddr num )
 	IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
     ELSE  I  THEN  xs ;
 
+: ?emoji-variant { I' I -- xaddr xs t / xaddr f }
+    I I' over - 2dup x-size { xs }  over swap
+    xs /string "\uFE0F" string-prefix?
+    dup IF  [ "\uFE0F" nip ]L xs + swap  THEN ;
+
+2 Value emoji-font#
+
+: ?font-select { I' I | xs -- xaddr+ xaddr font xs }
+    I' I ?emoji-variant IF  to xs  emoji-font#  ELSE
+	drop I' I ?soft-hyphen to xs  font-select#  THEN
+    dup last-font# ! font#-load
+    over xs + dup I' u< and -rot  xs ;
+
 -1 value bl/null?
 
 Variable $splits[]
@@ -233,8 +244,9 @@ Variable $splits[]
     -1 to bl/null?  last-font# off
     $splits[] $[]free
     bounds ?DO
-	I' I ?soft-hyphen { xs }
-	font-select#
+	{ | xs }
+	I' I ?emoji-variant IF  to xs  emoji-font#  ELSE
+	    drop I' I ?soft-hyphen to xs  font-select#  THEN
 	last-font# @ over last-font# ! <> $splits[] stack# 0= or  IF
 	    [ cell 1- dup pad ! pad + c@ last-font# + ]L
 	    1 $make $splits[] >stack
@@ -282,8 +294,8 @@ previous
 : render-string ( addr u -- )
     -1 to bl/null?
     0 -rot  bounds ?DO
-	6 ?flush-tris I' I ?soft-hyphen { xs }
-	xchar+xy
+	6 ?flush-tris
+	I' I ?font-select { xs } xchar+xy
     xs +LOOP  drop ;
 
 : render-us-string ( addr u mask -- )
@@ -322,13 +334,10 @@ previous
 	endcase  f- fround 1/2 f- to y0
     I +LOOP  0e to t.i0 ;
 
-: xchar@xy ( fw fd fh xc-addrp xc-addr -- xc-addr fw' fd' fh' )
+: xchar@xy ( fw fd fh xc-addr+ xc-addr font -- xc-addr fw' fd' fh' )
     { f: fd f: fh }
-    tuck font-select
     dup texture_font_t-scale sf@ { f: f-scale }
-    swap
-    BEGIN  2dup texture_font_get_glyph dup 0= WHILE
-	    drop double-atlas  REPEAT  >r 2drop
+    swap glyph@ >r 2drop
     dup IF
 	r@ swap texture_glyph_get_kerning f-scale f* f+
     ELSE  drop  THEN
@@ -339,13 +348,12 @@ previous
 
 : layout-string ( addr u -- fw fd fh ) \ depth is ow far it goes down
     0 -rot  0e 0e 0e  bounds ?DO
-	I' I ?soft-hyphen { xs } xchar@xy
+	I' I ?font-select { xs } xchar@xy
     xs +LOOP  drop ;
 : pos-string ( fx addr u -- curpos )
     fdup f0< IF  2drop fdrop 0  EXIT  THEN  dup >r over >r
     0 -rot 0e bounds ?DO
-	fdup 0e 0e I' I ?soft-hyphen { xs }
-	xchar@xy
+	fdup 0e 0e  I' I ?font-select { xs } xchar@xy
 	fdrop fdrop
 	{ f: p f: n }
 	fdup p f>= fdup n f< and IF
