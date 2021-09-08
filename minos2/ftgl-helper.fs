@@ -184,10 +184,10 @@ Defer font-select# ( xcaddr -- xcaddr num )
     BEGIN  2dup texture_font_get_glyph dup 0= WHILE
 	    drop double-atlas  REPEAT ;
 
-: xchar+xy (  xc-addr+ xc-addr font -- )
+: xchar+xy (  xc-addrp xc-addr font -- )
     dup font->t.i0
     dup texture_font_t-scale sf@ to f-scale
-    swap glyph@ >r 2drop
+    over glyph@ >r 2drop swap
     dup IF
 	r@ swap texture_glyph_get_kerning f-scale f*
 	penxy sf@ f+ penxy sf!
@@ -227,11 +227,10 @@ Defer font-select# ( xcaddr -- xcaddr num )
 
 2 Value emoji-font#
 
-: ?font-select { I' I | xs -- xaddr+ xaddr font xs }
+: ?font-select { I' I | xs -- xaddr font xs }
     I' I ?emoji-variant IF  to xs  emoji-font#  ELSE
 	drop I' I ?soft-hyphen to xs  font-select#  THEN
-    dup last-font# ! font#-load
-    over xs + dup I' u< and -rot  xs ;
+    dup last-font# ! font#-load  xs ;
 
 -1 value bl/null?
 
@@ -334,10 +333,10 @@ previous
 	endcase  f- fround 1/2 f- to y0
     I +LOOP  0e to t.i0 ;
 
-: xchar@xy ( fw fd fh xc-addr+ xc-addr font -- xc-addr fw' fd' fh' )
+: xchar@xy ( fw fd fh xc-addrp xc-addr font -- xc-addr fw' fd' fh' )
     { f: fd f: fh }
     dup texture_font_t-scale sf@ { f: f-scale }
-    swap glyph@ >r 2drop
+    over glyph@ >r 2drop swap
     dup IF
 	r@ swap texture_glyph_get_kerning f-scale f* f+
     ELSE  drop  THEN
