@@ -46,7 +46,7 @@ ase-size ' small-allot in-stack-check-section constant dummy-ase
 dummy-ase value current-ase
 0 value colon-ase \ ase at the start of a colon definition
 
-: one-stack-effect1 {: nin1 nout1 nin2 nout2 -- nin3 nout3 :}
+: one-stack-effect {: nin1 nout1 nin2 nout2 -- nin3 nout3 :}
     nin2 nout1 - ( n )
     nin1 over 0 max +
     nout2 rot 0 min - ;
@@ -54,10 +54,12 @@ dummy-ase value current-ase
 : sd@ ( sd -- nin nout )
     dup sd-in c@ swap sd-out c@ ;
 
+
+
 : do-one-stack-effect {: sd1 sd2 -- :}
     \ given a one-stack effect sd1, change it to be the one-stack
     \ effect of sd1 followed by sd2.
-    sd1 sd@ sd2 sd@ one-stack-effect1 sd1 sd-out c! sd1 sd-in c! ;
+    sd1 sd@ sd2 sd@ one-stack-effect sd1 sd-out c! sd1 sd-in c! ;
 
 : do-stack-effect ( as sds -- )
     \ given an anchored stack effect as, change it to be the stack effect of
@@ -171,9 +173,14 @@ stack-effect-unknown does-xt 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
 	anchor-size + loop
     drop ;
 
-: anchor-effect {: a -- nin nout :}
-    \ !! follow roots, applying offsets
-    a sd-in c@ a sd-out c@ ;
+: anchor-effect1 {: a -- nin nout a2 :}
+    a sd@ a begin ( nin1 nout1 a1 )
+        dup anchor-parent @ tuck <> while
+            dup >r anchor-offset sd@ one-stack-effect r> repeat
+    assert( dup anchor-offset sd@ #0. d= ) ;
+
+: anchor-effect ( a -- nin nout )
+    anchor-effect1 drop ;
 
 : compare-anchors {: a1 a2 -- :}
     a1 anchor-effect {: a1-in a1-out :}
@@ -183,10 +190,15 @@ stack-effect-unknown does-xt 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
     a1 anchor-effect a2 anchor-effect assert( fourth third = ) d<>
     [: ." stack depth mismatch in "lastnt @ .name current-ase .ase ;] ?warning
     \ !! also print the ase compared to
-    \ adjust the anchors for common maximum depth
+    \ !! adjust the anchors for common maximum depth
 ;
 
 : synchronize-anchors {: a1 a2 -- :}
+    \ make the root of a1 the common root of a1 and a2
+    a1 anchor-effect1 {: a1-in a1-out root1 :}
+    a2 anchor-effect1 {: a2-in a2-out root2 :}
+    a2-in a1-in - 0 max
+    \ !!
     abort ; \ not yet implemented
 
 : match-anchors {: a1 a2 -- :}
@@ -208,22 +220,25 @@ stack-effect-unknown does-xt 0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
 	anchor-size + swap anchor-size + swap loop
     2drop ;
 
-true [if] \ test
+`prim-stack-check is prim-check
+`call-stack-check is call-check
+`does-stack-check is does-check
+`stack-check-:-hook is :-hook
+`stack-check-;-hook is ;-hook
+
+`copy-ase is push-stack-state
+`match-ase is pop-stack-state
+
+
+false [if] \ test
     : myconst create , `@ set-does> ;
 
-    `prim-stack-check is prim-check
-    `call-stack-check is call-check
-    `does-stack-check is does-check
-    `stack-check-:-hook is :-hook
-    `stack-check-;-hook is ;-hook
 
     5 myconst five
     : foo r> >r f@ ;
     : bar >r foo r> ;
     : bla five ;
 
-    `copy-ase is push-stack-state
-    `match-ase is pop-stack-state
 
     : if0 if swap then ;
     : begin0 begin dup until ;
