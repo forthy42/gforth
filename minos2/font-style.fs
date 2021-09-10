@@ -242,16 +242,16 @@ also fonts definitions
 \ default font selection
 
 \sans
-\regular fonts= NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf|DejaVuSansCondensed.ttf|LiberationSans-Regular.ttf
-\italic fonts= NotoSans-Italic.ttf|Roboto-Italic.ttf|DejaVuSansCondensed-Oblique.ttf|LiberationSans-Italic.ttf
-\bold fonts= NotoSans-Bold.ttf|Roboto-Bold.ttf|DejaVuSansCondensed-Bold.ttf|LiberationSans-Bold.ttf
-\bold-italic fonts= NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf|DejaVuSansCondensed-BoldOblique.ttf|LiberationSans-BoldItalic.ttf
+\regular fonts= LiberationSans-Regular.ttf|NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf|DejaVuSansCondensed.ttf
+\italic fonts= LiberationSans-Italic.ttf|NotoSans-Italic.ttf|Roboto-Italic.ttf|DejaVuSansCondensed-Oblique.ttf
+\bold fonts= LiberationSans-Bold.ttf|NotoSans-Bold.ttf|Roboto-Bold.ttf|DejaVuSansCondensed-Bold.ttf
+\bold-italic fonts= LiberationSans-BoldItalic.ttf|NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf|DejaVuSansCondensed-BoldOblique.ttf
 
 \serif
-\regular fonts= NotoSerif-Regular.ttf|LiberationSerif-Regular.ttf
-\bold fonts= NotoSerif-Bold.ttf|LiberationSerif-Bold.ttf
-\italic fonts= NotoSerif-Italic.ttf|LiberationSerif-Italic.ttf
-\bold-italic fonts= NotoSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf
+\regular fonts= LiberationSerif-Regular.ttf|NotoSerif-Regular.ttf
+\bold fonts= LiberationSerif-Bold.ttf|NotoSerif-Bold.ttf
+\italic fonts= LiberationSerif-Italic.ttf|NotoSerif-Italic.ttf
+\bold-italic fonts= LiberationSerif-BoldItalic.ttf|NotoSerif-BoldItalic.ttf
 
 \mono
 \regular fonts= LiberationMono-Regular.ttf|DroidSansMono.ttf

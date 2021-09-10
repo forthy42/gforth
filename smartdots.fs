@@ -36,10 +36,8 @@ User smart.s-skip
 Create cs? ( addr -- flag )
 defstart , live-orig , dead-orig , dest , do-dest , scopestart ,
 does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
-      cell +LOOP  drop false ;
+  cell +LOOP  drop false ;
 
-: .string. ( addr u -- )
-    '"' emit type '"' emit space ;
 : .addr. ( addr -- )
     dup xt? if
         dup name>string dup if
@@ -65,13 +63,13 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
 : .var. ( addr -- )
     dup body> >name dup IF  .name drop  ELSE  drop hex.  THEN ;
 
+: .cs. ( x1 addr -- )
+    '<' emit
+    dup defstart = IF  drop ['] colon-sys >body  THEN
+    body> name>string type '>' emit space  drop ;
+
 : smart. ( n -- )
     dup addr? IF
-	dup cs? if  '<' emit
-	    dup defstart = IF  drop ['] colon-sys >body  THEN
-	    body> name>string type '>' emit space
-	    \ cs-item-size 1- smart.s-skip !
-	    exit  then
 	dup .var? IF
 	    .var.
 	ELSE
@@ -79,10 +77,21 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
     ELSE
 	'#' emit dec.  THEN ;
 
+debug: .string.(
+
+: .string. ( addr u -- )
+    .string.( ." ( " over smart. dup dec. ." ) " )
+    \ print address and length of string?
+    '"' emit type '"' emit space ;
+
 : smart.s. ( n -- )
     smart.s-skip @ dup 1- 0 max smart.s-skip ! IF  drop  EXIT  THEN
-    over i' ( r> i swap >r ) - \ we access the .s loop counter
-    dup 1 = IF  false  ELSE  pick  2dup string?  THEN  IF
+    over i' ( r> i swap >r ) - >r \ we access the .s loop counter
+    r@ cs-item-size 1- < IF  false dup  ELSE
+	r@ cs-item-size 2 - - pick dup cs?  THEN
+    IF  .cs.  cs-item-size 1- smart.s-skip !  rdrop  EXIT  THEN  drop
+    r@ 2 < IF  false dup  ELSE  r@ pick  2dup string?  THEN  rdrop
+    IF
 	.string. 1 smart.s-skip !
     ELSE
 	drop smart.
