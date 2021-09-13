@@ -145,10 +145,18 @@ Variable rec-level
 : rec-sequence: ( x1 .. xn n "name" -- )
     ['] recognize do-stack: ;
 
-$Variable default-recognizer
+( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
+<Builds default-recognize 0 A,
+' default-recognize >body
+unlock
+cross-boot$[] >stack
+ghost recognize gset-extra
+lock
 \G The system recognizer
+Defer forth-recognize
+' default-recognize is forth-recognize
 
-default-recognizer AValue forth-recognizer
+' default-recognize >body AValue forth-recognizer
 
 : get-recognizers ( -- xt1 .. xtn n )
     \G push the content on the recognizer stack

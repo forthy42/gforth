@@ -43,7 +43,7 @@ align here boot$[] !  boot$[],
 
 included-files, included-files !
 
-align here default-recognizer !
+align here ' default-recognize >body !
 2 cells , ' rec-num A, ' rec-nt A,
 
 align here image-header 4 cells + !
