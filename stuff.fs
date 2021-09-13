@@ -166,7 +166,7 @@ UValue $? ( -- n ) \ gforth dollar-question
 \ ]] ... [[
 
 ' noop ' noop
-:noname  ] forth-recognizer stack> drop ;
+:noname  ] ['] forth-parser is parser forth-recognizer stack> drop ;
 [IFDEF] token-descriptor:
     token-descriptor: [[-token
     ' [[-token Constant rectype-[[
@@ -184,7 +184,7 @@ UValue $? ( -- n ) \ gforth dollar-question
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
     ['] rec-[[ forth-recognizer >stack
-    [IFDEF] compiler-r  ['] postponer-r is parser  [THEN]
+    ['] postponer-r is parser
     -2 state ! ; immediate restrict
 
 \ interp
