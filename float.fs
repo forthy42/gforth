@@ -194,7 +194,14 @@ si-prefixes count 2/ + Constant zero-exp
 : >postponer ( xt1 xt2 -- xt1 xt3 ) >r dup >r
     :noname r> r> compile, lit, postpone compile, postpone ; ;
 
-' noop ' fliteral ' fliteral >postponer rectype: rectype-float
+' noop ' fliteral ' fliteral
+[IFDEF] >postponer >postponer [THEN]
+[IFDEF] token-descriptor:
+    token-descriptor: float-token
+    ' float-token Constant rectype-float
+[ELSE]
+    rectype: rectype-float
+[THEN]
 
 : rec-float ( addr u -- r rectype-float | rectype-null )
     \G recognize floating point numbers

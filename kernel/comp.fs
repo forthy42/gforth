@@ -779,7 +779,7 @@ Create defstart
 
 : rectype: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table
-    Create rectype drop ;
+    Create 0 , rectype drop ;
 
 \ does>
 

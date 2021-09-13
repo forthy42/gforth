@@ -150,7 +150,13 @@ UValue $? ( -- n ) \ gforth dollar-question
 \ ]] ... [[
 
 ' noop ' noop
-:noname  ] forth-recognizer stack> drop ; rectype: rectype-[[
+:noname  ] forth-recognizer stack> drop ;
+[IFDEF] token-descriptor:
+    token-descriptor: [[-token
+    ' [[-token Constant rectype-[[
+[ELSE]
+    rectype: rectype-[[
+[THEN]
 
 : rec-[[ ( addr u -- token ) \ gforth left-bracket-bracket
 \G switch from postpone state to compile state
@@ -510,8 +516,14 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 
 :noname drop execute ;
 :noname 0> IF execute ELSE compile, THEN ;
-[ifdef] 2lit, ' 2lit, [else] :noname postpone 2literal ; [then] >postponer
-rectype: rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
+[ifdef] 2lit, ' 2lit, [else] :noname postpone 2literal ; [then]
+[IFDEF] >postponer >postponer [THEN]
+[IFDEF] token-descriptor:
+    token-descriptor: word-token
+    ' word-token Constant rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
+[ELSE]
+    rectype: rectype-word
+[THEN]
 
 \ concat recognizers to another recognizer
 

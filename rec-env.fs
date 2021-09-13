@@ -20,7 +20,8 @@
 
 : env$, ( addr u -- )  slit, postpone getenv ;
 
-' getenv ' env$, ' slit, >postponer rectype: rectype-env
+' getenv ' env$, ' slit, >postponer token-descriptor: env-token
+' env-token Constant rectype-env
 
 : rec-env ( addr u -- addr u rectype-env | rectype-null )
     \G words prefixed with @code{'$'} are passed to @code{getenv}
@@ -30,3 +31,4 @@
     1 /string rectype-env ;
 
 ' rec-env forth-recognizer >back
+

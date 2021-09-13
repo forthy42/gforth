@@ -32,17 +32,17 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, compile it as literal.
 
-' no.extensions dup dup rectype: rectype-null
-\G If a recognizer fails, it returns @code{rectype-null}
+' no.extensions dup dup token-descriptor: notfound
+\G If a recognizer fails, it returns @code{notfound}
 
 : lit, ( n -- ) postpone Literal ;
 : 2lit, ( n -- ) postpone 2literal ;
 
-: rectype>int  ( rectype -- xt ) @ ;
-: rectype>comp ( rectype -- xt ) cell+ @ ;
-: rectype>post ( rectype -- xt ) cell+ cell+ @ ;
+: rectype>int  ( rectype -- xt ) cell+ @ ;
+: rectype>comp ( rectype -- xt ) 2 cells + @ ;
+: rectype>post ( rectype -- xt ) 3 cells + @ ;
 
-: token-exec ( state addr -- ) swap abs cells + @ execute-;s ;
+: token-exec ( state rectype -- ) swap abs cells + @ execute-;s ;
 : token-descriptor: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table.  Items are in order of
     \G @var{STATE} value, which are 0 or negative.  Up to 7 slots
@@ -79,13 +79,14 @@ token-descriptor: num-token
 :noname 2lit, postpone 2lit, ;
 token-descriptor: dnum-token
 
-' nt-token >body AConstant rectype-nt
-' num-token >body AConstant rectype-num
-' dnum-token >body AConstant rectype-dnum
+' notfound AConstant rectype-null
+' nt-token AConstant rectype-nt
+' num-token AConstant rectype-num
+' dnum-token AConstant rectype-dnum
 
 \ snumber? should be implemented as recognizer stack
 
-: rec-num ( addr u -- n/d table | rectype-null )
+: rec-num ( addr u -- n/d table | notfound )
     \G converts a number to a single/double integer
     snumber?  dup
     IF
@@ -167,8 +168,7 @@ default-recognizer AValue forth-recognizer
 
 : forth-parser ( addr u -- ... )
     forth-recognizer recognize
-    state @ abs
-    dup 2 = IF  drop >postpone  ELSE  cells + @ execute-;s  THEN ;
+    state @ abs cells + >body @ execute-;s ;
 
 ' forth-parser IS parser
 

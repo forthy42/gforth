@@ -110,7 +110,8 @@ dynamic-a to allocater
 \ dot parser .foo -> >o foo o>
 
 : >oo> ( xt table -- )  postpone >o name-compsem postpone o> ;
-:noname ( object xt -- ) swap >o execute o> ; ' >oo> ' lit, >postponer rectype: rectype-moof2
+:noname ( object xt -- ) swap >o execute o> ; ' >oo> ' lit, >postponer token-descriptor: moof2-token
+' moof2-token Constant rectype-moof2
 
 : rec-moof2 ( addr u -- xt rectype-moof2 | rectype-null )
     over c@ '.' = over 1 > and
