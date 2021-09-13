@@ -169,20 +169,19 @@ Defer font-select# ( xcaddr -- xcaddr num )
 	2e +to xy-color -1e to t.i0  THEN ;
 
 : double-atlas ( xc-addr -- xc-addr )
-    freetype_gl_errno FTGL_ERR_BASE = IF
-	font-select
-	dup texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
-	    atlas-bgra# 2* dup >r to atlas-bgra#
-	ELSE
-	    atlas# 2* dup >r to atlas#
-	THEN
+    font-select
+    dup texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
+	atlas-bgra# 2* dup >r to atlas-bgra#
+    ELSE
+	atlas# 2* dup >r to atlas#
+    THEN
 	r> dup texture_font_enlarge_texture
-	atlas-scaletex atlas-bgra-scaletex
-    THEN ;
+    atlas-scaletex atlas-bgra-scaletex ;
 
 : glyph@ ( font xc-addr -- font xc-addr glyph )
-    BEGIN  2dup texture_font_get_glyph dup 0= WHILE
-	    drop double-atlas  REPEAT ;
+    BEGIN  2dup texture_font_get_glyph dup 0=  WHILE
+	    freetype_gl_errno FTGL_ERR_BASE =
+	WHILE  drop double-atlas  REPEAT  THEN  ?ftgl-ior ;
 
 : xchar+xy (  xc-addrp xc-addr font -- )
     dup font->t.i0
@@ -365,7 +364,7 @@ previous
 : load-glyph$ ( addr u -- )
     bounds ?DO  I font-select nip
 	I texture_font_get_glyph
-	0=  IF  freetype_gl_errno $100 = IF  I double-atlas drop 0
+	0=  IF  freetype_gl_errno FTGL_ERR_BASE = IF  I double-atlas drop 0
 	    ELSE  0 ?ftgl-ior  THEN
 	ELSE  I I' over - x-size  THEN
     +LOOP ;

@@ -92,7 +92,7 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     dpy #38 0 XKeycodeToKeysym drop
     dpy screen XRootWindow to root-win
     dpy root-win XRRGetScreenResourcesCurrent to rr-res
-    rr-res XRRScreenResources-noutput l@ 0 DO
+    rr-res XRRScreenResources-noutput l@ 0 ?DO
 	dpy rr-res dup XRRScreenResources-crtcs @ I cells + @
 	XRRGetCrtcInfo to rr-crt0
 	rr-crt0 XRRCrtcInfo-noutput l@ 0 ?DO
