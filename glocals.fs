@@ -749,11 +749,11 @@ opt: drop ;
 : no-post -48 throw ;
 
 \ these rectypes are only used for POSTPONEing
-' never-happens '  literal ' name-compsem >postponer rectype: post-wlocal
-' never-happens ' 2literal ' name-compsem >postponer rectype: post-dlocal
-' never-happens ' fliteral ' name-compsem >postponer rectype: post-flocal
-' never-happens ' nocomp ' xtlocal-postpone >postponer rectype: post-xtlocal
-' never-happens ' nocomp ' no-post rectype: post-addr
+' never-happens '  literal ' name-compsem >postponer token-descriptor: post-wlocal
+' never-happens ' 2literal ' name-compsem >postponer token-descriptor: post-dlocal
+' never-happens ' fliteral ' name-compsem >postponer token-descriptor: post-flocal
+' never-happens ' nocomp ' xtlocal-postpone >postponer token-descriptor: post-xtlocal
+' never-happens ' nocomp ' no-post token-descriptor: post-addr
 
 warnings @ warnings off \ disable all those compile-only warnings
 : >postpone-replacer-locals ( ... rectype1 -- ... rectype2 )
@@ -764,12 +764,12 @@ warnings @ warnings off \ disable all those compile-only warnings
     dup rectype-nt = if
         over name>int >does-code case
             0 of endof
-            [ ' some-clocal  >does-code ] literal of drop post-wlocal endof
-            [ ' some-dlocal  >does-code ] literal of drop post-dlocal endof
-            [ ' some-flocal  >does-code ] literal of drop post-flocal endof
-            [ ' some-wlocal  >does-code ] literal of drop post-wlocal endof
-            [ ' some-xtlocal >does-code ] literal of drop post-xtlocal endof
-            [ ' some-waddr   >does-code ] literal of drop post-addr   endof
+            [ ' some-clocal  >does-code ] literal of drop ['] post-wlocal endof
+            [ ' some-dlocal  >does-code ] literal of drop ['] post-dlocal endof
+            [ ' some-flocal  >does-code ] literal of drop ['] post-flocal endof
+            [ ' some-wlocal  >does-code ] literal of drop ['] post-wlocal endof
+            [ ' some-xtlocal >does-code ] literal of drop ['] post-xtlocal endof
+            [ ' some-waddr   >does-code ] literal of drop ['] post-addr   endof
         endcase
     then
     defers >postpone-replacer ;

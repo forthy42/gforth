@@ -147,6 +147,22 @@ UValue $? ( -- n ) \ gforth dollar-question
 : file>fpath ( addr1 u1 -- addr2 u2 ) \ gforth
     fpath file>path ;
 
+\ legacy rectype stuff
+
+[IFDEF] token-descriptor:
+    : rectype>int  ( rectype -- xt ) cell+ @ ;
+    : rectype>comp ( rectype -- xt ) 2 cells + @ ;
+    : rectype>post ( rectype -- xt ) 3 cells + @ ;
+    
+    : rectype ( int-xt comp-xt post-xt -- rectype )
+	\G create a new unnamed recognizer token
+	noname token-descriptor: latestxt ; 
+    
+    : rectype: ( int-xt comp-xt post-xt "name" -- )
+	\G create a new recognizer table
+	rectype Constant ;
+[THEN]
+
 \ ]] ... [[
 
 ' noop ' noop

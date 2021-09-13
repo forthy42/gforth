@@ -38,10 +38,6 @@
 : lit, ( n -- ) postpone Literal ;
 : 2lit, ( n -- ) postpone 2literal ;
 
-: rectype>int  ( rectype -- xt ) cell+ @ ;
-: rectype>comp ( rectype -- xt ) 2 cells + @ ;
-: rectype>post ( rectype -- xt ) 3 cells + @ ;
-
 : token-exec ( state rectype -- ) swap abs cells + @ execute-;s ;
 : token-descriptor: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table.  Items are in order of
@@ -55,7 +51,7 @@ defer >postpone-replacer ( ... rectype1 -- ... rectype2 )
 ' noop is >postpone-replacer
 
 : >postpone ( ... rectype -- )
-    >postpone-replacer rectype>post execute ;
+    >postpone-replacer -2 swap execute ;
 
 : name-compsem ( ... nt -- ... )
     \ perform compilation semantics of nt

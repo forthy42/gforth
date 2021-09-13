@@ -773,14 +773,6 @@ Create defstart
     \ concat two xts into one
     >r >r :noname r> compile, r> compile, postpone ; ;
 
-: rectype ( int-xt comp-xt post-xt -- rectype )
-    \G create a new unnamed recognizer token
-    here >r rot , swap , , 7 0 DO  ['] no.extensions ,  LOOP r> ;
-
-: rectype: ( int-xt comp-xt post-xt "name" -- )
-    \G create a new recognizer table
-    Create 0 , rectype drop ;
-
 \ does>
 
 : comp-does>; ( some-sys flag lastxt -- )
