@@ -3326,6 +3326,11 @@ BuildSmart: ;Build
 by: :dovar ( target-body-addr -- addr ) ;DO
 vt: [G'] variable, gset-optimizer ;vt \ vtghost: dovar-vt
 
+Builder <Builds
+BuildSmart: ;Build
+by: :dodoes ( target-body-addr -- addr ) ;DO
+vt: [G'] does, gset-optimizer ;vt \ vtghost: dovar-vt
+
 Builder Variable
 T has? rom H [IF]
 Build: ( -- ) T here 0 A, H switchram T align here swap ! 0 , H ( switchrom ) ;Build
@@ -3578,7 +3583,15 @@ by Create
 Builder rectype:
 Build: ( xtint xtcomp xtpost --- )
     T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
-by Create
+    by Create
+
+ghost token-exec drop
+Builder token-descriptor:
+Build: ( xtint xtcomp xtpost --- )
+    T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
+by: :dodoes ;DO
+vt: [G'] does, gset-optimizer
+[G'] token-exec gset-extra  ;vt
 
 \ Peephole optimization					05sep01jaw
 

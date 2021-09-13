@@ -42,34 +42,46 @@
 : rectype>comp ( rectype -- xt ) cell+ @ ;
 : rectype>post ( rectype -- xt ) cell+ cell+ @ ;
 
+: token-exec ( state addr -- ) swap abs cells + @ execute-;s ;
+: token-descriptor: ( int-xt comp-xt post-xt "name" -- )
+    \G create a new recognizer table.  Items are in order of
+    \G @var{STATE} value, which are 0 or negative.  Up to 7 slots
+    \G are available for extensions.
+    Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
+    ['] token-exec set-does> ;
+
 defer >postpone-replacer ( ... rectype1 -- ... rectype2 )
 \ may replace recognizer result for postponing (used for postponing locals)
 ' noop is >postpone-replacer
 
 : >postpone ( ... rectype -- )
-    >postpone-replacer dup >r rectype>post execute r> rectype>comp compile, ;
+    >postpone-replacer rectype>post execute ;
 
 : name-compsem ( ... nt -- ... )
     \ perform compilation semantics of nt
     name>comp execute-;s ;
 
-:noname name?int  execute-;s ;
-' name-compsem
-' lit,
-rectype: rectype-nt ( takes nt, i.e. result of find-name and find-name-in )
-
 forth-wordlist is rec-nt
 :noname ['] rec-nt >body ; is context
 
+:noname name?int  execute-;s ;
+' name-compsem
+:noname  lit, postpone name-compsem ;
+token-descriptor: nt-token ( takes nt, i.e. result of find-name and find-name-in )
+
 ' noop
 ' lit,
-dup
-rectype: rectype-num
+:noname lit, postpone lit, ;
+token-descriptor: num-token
 
 ' noop
 ' 2lit,
-dup
-rectype: rectype-dnum
+:noname 2lit, postpone 2lit, ;
+token-descriptor: dnum-token
+
+' nt-token >body AConstant rectype-nt
+' num-token >body AConstant rectype-num
+' dnum-token >body AConstant rectype-dnum
 
 \ snumber? should be implemented as recognizer stack
 

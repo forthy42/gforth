@@ -20,7 +20,7 @@
 
 : slit,  postpone sliteral ;
 
-' noop ' slit, dup rectype: rectype-string
+' noop ' slit, dup >postponer rectype: rectype-string
 
 : rec-string ( addr u -- addr u' r:string | rectype-null )
     \G Convert strings enclosed in double quotes into string literals,
@@ -33,7 +33,7 @@
 
 0 [IF] \ dot-quoted strings, we don't need them
 : .slit slit, postpone type ;
-' type ' .slit ' slit, recognizer rectype-."
+' type ' .slit ' slit, >postponer rectype: rectype-."
 
 : rec-."  ( addr u -- addr u' r:." | addr u rectype-null )
     2dup ".\"" string-prefix?

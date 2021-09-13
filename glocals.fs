@@ -749,10 +749,10 @@ opt: drop ;
 : no-post -48 throw ;
 
 \ these rectypes are only used for POSTPONEing
-' never-happens '  literal ' name-compsem rectype: post-wlocal
-' never-happens ' 2literal ' name-compsem rectype: post-dlocal
-' never-happens ' fliteral ' name-compsem rectype: post-flocal
-' never-happens ' nocomp ' xtlocal-postpone rectype: post-xtlocal
+' never-happens '  literal ' name-compsem >postponer rectype: post-wlocal
+' never-happens ' 2literal ' name-compsem >postponer rectype: post-dlocal
+' never-happens ' fliteral ' name-compsem >postponer rectype: post-flocal
+' never-happens ' nocomp ' xtlocal-postpone >postponer rectype: post-xtlocal
 ' never-happens ' nocomp ' no-post rectype: post-addr
 
 warnings @ warnings off \ disable all those compile-only warnings
