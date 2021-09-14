@@ -21,7 +21,7 @@
 : notfound: ( "name" -- )
     \G special defer word to recover the input lexeme
     Create ['] no.extensions ,
-    [: >r input-lexeme 2@ r> perform ;] set-does>
+    [: >r input-lexeme 2@ r> @ execute-;s ;] set-does>
     ['] defer-defer@ set-defer@
     ['] value-to set-to ;
 
