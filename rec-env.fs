@@ -28,7 +28,7 @@
     \G to get the environment variable as string.
     \G Example: @code{$HOME} gives the home directory
     over c@ '$' <> IF  2drop  ['] notfound  EXIT  THEN
-    1 /string rectype-env ;
+    1 /string ['] env-token ;
 
 ' rec-env forth-recognizer >back
 

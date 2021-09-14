@@ -140,7 +140,7 @@ ans-report-words definitions
     endif
     ( nt wordset ) cell+ add-unless-present ;
 
-: hash-note-rec ( addr len wordlist-id -- nfa rectype-nt / rectype-null )
+: hash-note-rec ( addr len wordlist-id -- nfa nt-token / notfound )
     0 wordlist-id - hash-find dup if dup note-name then nt>rec ;
 
 : print-names ( endaddr startaddr -- )

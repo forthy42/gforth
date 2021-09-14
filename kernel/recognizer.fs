@@ -74,10 +74,6 @@ token-descriptor: dnum-token
 : nt>rec ( nt / 0 -- nt nt-token / notfound )
     dup IF  dup where, ['] nt-token  ELSE  drop ['] notfound  THEN ;
 
-' nt-token AConstant rectype-nt
-' num-token AConstant rectype-num
-' dnum-token AConstant rectype-dnum
-
 \ snumber? should be implemented as recognizer stack
 
 : rec-num ( addr u -- n/d table | notfound )

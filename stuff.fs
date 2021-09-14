@@ -163,6 +163,9 @@ UValue $? ( -- n ) \ gforth dollar-question
 	rectype Constant ;
 
     ' notfound AConstant rectype-null
+    ' nt-token AConstant rectype-nt
+    ' num-token AConstant rectype-num
+    ' dnum-token AConstant rectype-dnum
 [THEN]
 
 \ ]] ... [[
