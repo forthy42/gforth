@@ -32,7 +32,7 @@
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
-    IF    drop source drop - 1+ >in !  \"-parse save-mem rectype-string
+    IF    drop source drop - 1+ >in !  \"-parse save-mem ['] string-token
     ELSE  2drop ['] notfound  THEN ;
 
 ' rec-string forth-recognizer >back
@@ -44,7 +44,7 @@
 
 : rec-."  ( addr u -- addr u' r:." | addr u rectype-null )
     2dup ".\"" string-prefix?
-    IF    drop source drop - 2 + >in !  \"-parse save-mem rectype-."
+    IF    drop source drop - 2 + >in !  \"-parse save-mem ['] ."-token
     ELSE  ['] notfound  THEN ;
 
 ' rec-." forth-recognizer >back

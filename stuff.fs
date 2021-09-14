@@ -161,6 +161,8 @@ UValue $? ( -- n ) \ gforth dollar-question
     : rectype: ( int-xt comp-xt post-xt "name" -- )
 	\G create a new recognizer table
 	rectype Constant ;
+
+    ' notfound AConstant rectype-null
 [THEN]
 
 \ ]] ... [[
@@ -516,14 +518,9 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 
 :noname drop execute ;
 :noname 0> IF execute ELSE compile, THEN ;
-[ifdef] 2lit, ' 2lit, [else] :noname postpone 2literal ; [then]
-[IFDEF] >postponer >postponer [THEN]
-[IFDEF] token-descriptor:
-    token-descriptor: word-token
-    ' word-token Constant rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
-[ELSE]
-    rectype: rectype-word
-[THEN]
+' 2lit, >postponer
+token-descriptor: word-token
+' word-token Constant rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
 
 \ concat recognizers to another recognizer
 

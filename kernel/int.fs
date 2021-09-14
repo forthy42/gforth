@@ -557,7 +557,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 : '-error ( nt -- nt )
     dup ['] notfound = #-13 and throw
-    nt-token? #-2053 and throw ;
+    nt-token? 0= #-2053 and throw ;
 
 : (') ( "name" -- nt ) \ gforth
     parse-name name-too-short? forth-recognize '-error ;

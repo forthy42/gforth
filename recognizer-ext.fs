@@ -18,27 +18,27 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-0 Value rec-method-offset
-#10 cells constant rec-method-max-offset#
-"No more rec method slots free" exception constant rec-method-overflow
+0 Value token-method-offset
+#10 cells constant token-method-max-offset#
+"No more rec method slots free" exception constant token-method-overflow
 
-: is-rec-method ( xt rectype recmethod -- )
-    >body @ + ! ;
-to-opt: ( xt -- ) >body @ postpone lit+ , postpone ! ;
-: rec-method-defer@ ( xt -- ) >body @ + @ ;
-defer@-opt: ( xt -- ) >body @ postpone lit+ , postpone @ ;
+: is-token-method ( xt rectype recmethod -- )
+    >body @ >body + ! ;
+to-opt: ( xt -- ) >body @ lit, ]] >body + ! [[ ;
+: token-method-defer@ ( xt -- ) >body @ >body + @ ;
+defer@-opt: ( xt -- ) >body @ lit, ]] >body + @ [[ ;
 
-: rec-method ( "name" -- )
-    rec-method-offset rec-method-max-offset# u>=
-    rec-method-overflow and throw
-    Create rec-method-offset ,  cell +to rec-method-offset
-    [: ( rec-type ) @ + @ execute-;s ;] set-does>
-    ['] is-rec-method set-to
-    ['] rec-method-defer@ set-defer@ ;
+: token-method: ( "name" -- )
+    token-method-offset token-method-max-offset# u>=
+    token-method-overflow and throw
+    Create token-method-offset ,  cell +to token-method-offset
+    [: ( rec-type ) @ + >body @ execute-;s ;] set-does>
+    ['] is-token-method set-to
+    ['] token-method-defer@ set-defer@ ;
 
-rec-method token-int
-rec-method token-comp
-rec-method token-post
+token-method: token-int
+token-method: token-comp
+token-method: token-post
 
-: token-by-state ( rectype -- )
-    state @ abs cells + @ execute-;s ;
+: token-by-state ( token -- )
+    state @ swap execute-;s ;

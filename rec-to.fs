@@ -21,11 +21,13 @@
 : post-to, ( nt -- )
     to-style# @ ?dup-IF  lit, ]] to-style# ! [[  THEN  lit, ;
 
-' (to) ' (to), ' post-to, >postponer rectype: rectype-to
+' (to) ' (to), ' post-to, >postponer token-descriptor: to-token
+' to-token Constant rectype-to
 
 : rec-to ( addr u -- xt r:to | rectype-null )
     \G words prefixed with @code{->} are treated as if preceeded by
-    \G @code{TO} or @code{IS}
+    \G @code{TO} or @code{IS}, with @code{+>} as @code{+TO} and with
+    \G @code{'>} as @code{ADDR}.
     dup 3 u< IF  2drop ['] notfound  EXIT  THEN
     over 1+ c@ '>' <> IF  2drop ['] notfound  EXIT  THEN
     case  over c@
@@ -35,7 +37,7 @@
 	drop 2drop ['] notfound  EXIT
     endcase
     2 /string forth-recognize
-    nt-token? IF  to-style# off  ['] notfound EXIT  THEN
-    name?int rectype-to ;
+    nt-token? 0= IF  to-style# off  ['] notfound EXIT  THEN
+    name?int ['] to-token ;
 
 ' rec-to forth-recognizer >back

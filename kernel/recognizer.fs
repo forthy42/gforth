@@ -44,7 +44,7 @@
     ['] token-exec set-does> ;
 
 : >postpone ( ... rectype -- )
-    -2 swap execute ;
+    -2 swap execute-;s ;
 
 : name-compsem ( ... nt -- ... )
     \ perform compilation semantics of nt
@@ -70,11 +70,10 @@ token-descriptor: dnum-token
 
 : nt-token? ( token -- flag )
     \G check if name token; postpone action may differ
-    >body 2@ ['] nt-token >body 2@ d<> ;
+    >body 2@ ['] nt-token >body 2@ d= ;
 : nt>rec ( nt / 0 -- nt nt-token / notfound )
     dup IF  dup where, ['] nt-token  ELSE  drop ['] notfound  THEN ;
 
-' notfound AConstant rectype-null
 ' nt-token AConstant rectype-nt
 ' num-token AConstant rectype-num
 ' dnum-token AConstant rectype-dnum
@@ -170,8 +169,7 @@ Defer forth-recognize
 \   xxx-recognizer recognize ;
 
 : forth-parser ( addr u -- ... )
-    forth-recognize
-    state @ abs cells + >body @ execute-;s ;
+    forth-recognize state @ swap execute-;s ;
 
 ' forth-parser IS parser
 

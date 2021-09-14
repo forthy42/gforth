@@ -19,7 +19,7 @@
 require rec-scope.fs
 require recognizer-ext.fs
 
-rec-method rectype-config
+token-method: token-config
 
 Vocabulary config
 ' config >wordlist Value config-wl
@@ -40,17 +40,17 @@ s" Config error" exception Value config-throw
     ?dup-IF  execute r> execute rdrop
     ELSE rdrop r> execute .config-err THEN ;
 
-: eval-config ( .. rec addr u -- )  rot rectype-config ;
+: eval-config ( .. rec addr u -- )  rot token-config ;
 
 :noname '$' ['] $! [: drop free throw ;] exec-config ;
-rectype-string is rectype-config
+' string-token is token-config
 :noname '#' ['] !  ['] drop exec-config ;
-rectype-num    is rectype-config
+' num-token    is token-config
 :noname '&' ['] 2! ['] 2drop exec-config ;
-rectype-dnum   is rectype-config
+' dnum-token   is token-config
 :noname '%' ['] f! ['] fdrop exec-config ;
-rectype-float  is rectype-config
-' .config-err ' notfound is rectype-config
+' float-token  is token-config
+' .config-err ' notfound is token-config
 
 : config-line ( -- )
     '=' parse 2>r
