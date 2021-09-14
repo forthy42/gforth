@@ -32,9 +32,6 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, compile it as literal.
 
-: nt>rec ( nt / 0 -- nt rectype-nt / rectype-null )
-    dup IF  dup where, rectype-nt  ELSE  drop ['] notfound  THEN ;
-
 : lit, ( n -- ) postpone Literal ;
 : 2lit, ( n -- ) postpone 2literal ;
 
@@ -46,12 +43,8 @@
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
     ['] token-exec set-does> ;
 
-defer >postpone-replacer ( ... rectype1 -- ... rectype2 )
-\ may replace recognizer result for postponing (used for postponing locals)
-' noop is >postpone-replacer
-
 : >postpone ( ... rectype -- )
-    >postpone-replacer -2 swap execute ;
+    -2 swap execute ;
 
 : name-compsem ( ... nt -- ... )
     \ perform compilation semantics of nt
@@ -75,6 +68,12 @@ token-descriptor: num-token
 :noname 2lit, postpone 2lit, ;
 token-descriptor: dnum-token
 
+: nt-token? ( token -- flag )
+    \G check if name token; postpone action may differ
+    >body 2@ ['] nt-token >body 2@ d<> ;
+: nt>rec ( nt / 0 -- nt rectype-nt / rectype-null )
+    dup IF  dup where, ['] nt-token  ELSE  drop ['] notfound  THEN ;
+
 ' notfound AConstant rectype-null
 ' nt-token AConstant rectype-nt
 ' num-token AConstant rectype-num
@@ -86,7 +85,7 @@ token-descriptor: dnum-token
     \G converts a number to a single/double integer
     snumber?  dup
     IF
-	0> IF  rectype-dnum   ELSE  rectype-num  THEN  EXIT
+	0> IF  ['] dnum-token  ELSE  ['] num-token  THEN  EXIT
     THEN
     drop ['] notfound ;
 

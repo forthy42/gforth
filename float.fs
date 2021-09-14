@@ -205,9 +205,9 @@ si-prefixes count 2/ + Constant zero-exp
     rectype: rectype-float
 [THEN]
 
-: rec-float ( addr u -- r rectype-float | rectype-null )
+: rec-float ( addr u -- r float-token | notfound )
     \G recognize floating point numbers
-    prefix-number rectype-float rectype-null rot select ;
+    prefix-number ['] float-token ['] notfound rot select ;
 
 ' rec-float forth-recognizer >back
 

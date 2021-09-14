@@ -144,7 +144,14 @@ vocabulary locals \ this contains the local variables
 ' locals >wordlist wordlist-id to locals-list
 slowvoc !
 
-: locals-rec [ ' locals >wordlist ] Literal execute ;
+: no-post -48 throw ;
+
+' nt-token >body 2@ swap
+' no-post
+token-descriptor: locals-token ( takes nt, i.e. result of find-name and find-name-in )
+
+: locals-rec [ ' locals >wordlist ] Literal execute
+    dup ['] nt-token = IF  drop ['] locals-token  THEN ;
 
 ' search-order ' locals-rec 2 rec-sequence: rec-locals
 
@@ -740,55 +747,14 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 
 \ POSTPONEing locals
 
-: xtlocal-postpone ( nt -- )
-    \ this is used in the postpone slot, but it does everything
-    >body @ lp-offset compile-@local postpone compile, ;
-
-' noop alias nocomp ( -- ) \ gforth
-\G like @code{noop}, but compiles to nothing
-opt: drop ;
-
-: no-post -48 throw ;
-
-\ these rectypes are only used for POSTPONEing
-' never-happens '  literal ' name-compsem >postponer token-descriptor: post-wlocal
-' never-happens ' 2literal ' name-compsem >postponer token-descriptor: post-dlocal
-' never-happens ' fliteral ' name-compsem >postponer token-descriptor: post-flocal
-' never-happens ' nocomp ' xtlocal-postpone >postponer token-descriptor: post-xtlocal
-' never-happens ' nocomp ' no-post token-descriptor: post-addr
-
-warnings @ warnings off \ disable all those compile-only warnings
-: >postpone-replacer-locals ( ... rectype1 -- ... rectype2 )
-    \ Input: any recognizer result; if it is for a local, produce
-    \ correct behaviour for read-only locals.  This is wrong for
-    \ read/write locals, but it's better than what we get without this
-    \ replacer.
-    dup rectype-nt = if
-        over name>int >does-code case
-            0 of endof
-            [ ' some-clocal  >does-code ] literal of drop ['] post-wlocal endof
-            [ ' some-dlocal  >does-code ] literal of drop ['] post-dlocal endof
-            [ ' some-flocal  >does-code ] literal of drop ['] post-flocal endof
-            [ ' some-wlocal  >does-code ] literal of drop ['] post-wlocal endof
-            [ ' some-xtlocal >does-code ] literal of drop ['] post-xtlocal endof
-            [ ' some-waddr   >does-code ] literal of drop ['] post-addr   endof
-        endcase
-    then
-    defers >postpone-replacer ;
-warnings !
-
-' >postpone-replacer-locals is >postpone-replacer
-
-[IFDEF] locals-token
-    :noname ( locals-nt -- )
-	dup name>int >does-code case
-	    [ ' some-clocal  >does-code ] literal of name-compsem postpone lit, endof
-	    [ ' some-dlocal  >does-code ] literal of name-compsem postpone 2lit, endof
-	    [ ' some-flocal  >does-code ] literal of name-compsem postpone flit, endof
-	    [ ' some-wlocal  >does-code ] literal of name-compsem postpone lit, endof
-	    [ ' some-xtlocal >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
-	    [ ' some-waddr   >does-code ] literal of no-post   endof
-	    >r lit, postpone name-compsem r>
-	endcase ;
-    ' locals-token >body 2 cells + ! \ replace stub
-[THEN]
+:noname ( locals-nt -- )
+    dup name>int >does-code case
+	[ ' some-clocal  >does-code ] literal of name-compsem postpone lit, endof
+	[ ' some-dlocal  >does-code ] literal of name-compsem postpone 2lit, endof
+	[ ' some-flocal  >does-code ] literal of name-compsem postpone flit, endof
+	[ ' some-wlocal  >does-code ] literal of name-compsem postpone lit, endof
+	[ ' some-xtlocal >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
+	[ ' some-waddr   >does-code ] literal of no-post   endof
+	>r lit, postpone name-compsem r>
+    endcase ;
+' locals-token >body 2 cells + ! \ replace stub

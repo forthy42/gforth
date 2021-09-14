@@ -110,13 +110,14 @@ dynamic-a to allocater
 \ dot parser .foo -> >o foo o>
 
 : >oo> ( xt table -- )  postpone >o name-compsem postpone o> ;
-:noname ( object xt -- ) swap >o execute o> ; ' >oo> ' lit, >postponer token-descriptor: moof2-token
+:noname ( object xt -- ) swap >o execute o> ;
+' >oo> ' lit, >postponer token-descriptor: moof2-token
 ' moof2-token Constant rectype-moof2
 
-: rec-moof2 ( addr u -- xt rectype-moof2 | rectype-null )
+: rec-moof2 ( addr u -- xt moof2-token | notfound )
     over c@ '.' = over 1 > and
     IF  1 /string sp@ >r forth-recognize
-	rectype-nt = IF  rdrop rectype-moof2
+	['] nt-token = IF  rdrop ['] moof2-token
 	ELSE  r> sp!  2drop ['] notfound  THEN
     ELSE  2drop ['] notfound  THEN ;
 

@@ -36,9 +36,9 @@ defer@-opt: ( xt -- ) >body @ postpone lit+ , postpone @ ;
     ['] is-rec-method set-to
     ['] rec-method-defer@ set-defer@ ;
 
-rec-method rectype-int
-rec-method rectype-comp
-rec-method rectype-post
+rec-method token-int
+rec-method token-comp
+rec-method token-post
 
-: rectype-by-state ( rectype -- )
+: token-by-state ( rectype -- )
     state @ abs cells + @ execute-;s ;

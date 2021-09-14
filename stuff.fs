@@ -166,7 +166,7 @@ UValue $? ( -- n ) \ gforth dollar-question
 \ ]] ... [[
 
 ' noop ' noop
-:noname  ] ['] forth-parser is parser forth-recognizer stack> drop ;
+:noname  ] forth-recognizer stack> drop ;
 token-descriptor: [[-token
 ' [[-token Constant rectype-[[
 
@@ -174,22 +174,10 @@ token-descriptor: [[-token
 \G switch from postpone state to compile state
     s" [[" str=  ['] [[-token ['] notfound rot select ;
 
-: postponer-r ( addr u -- ... )
-    forth-recognize >postpone ;
-
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
     ['] rec-[[ forth-recognizer >stack
-    ['] postponer-r is parser
     -2 state ! ; immediate restrict
-
-\ interp
-
-: >interp ( .. rectype -- )
-    dup >r rectype>post execute r> rectype>int compile, ;
-: [interp] ( "name" -- )
-    \G Compiles the interpretation semantics of @i{name}, see @code{postpone}.
-    parse-name forth-recognize >interp ; immediate compile-only
 
 \ f.rdp
 

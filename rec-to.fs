@@ -35,7 +35,7 @@
 	drop 2drop ['] notfound  EXIT
     endcase
     2 /string forth-recognize
-    rectype-nt <> IF  to-style# off  ['] notfound EXIT  THEN
+    nt-token? IF  to-style# off  ['] notfound EXIT  THEN
     name?int rectype-to ;
 
 ' rec-to forth-recognizer >back
