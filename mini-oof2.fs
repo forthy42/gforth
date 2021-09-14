@@ -115,7 +115,7 @@ dynamic-a to allocater
 
 : rec-moof2 ( addr u -- xt rectype-moof2 | rectype-null )
     over c@ '.' = over 1 > and
-    IF  1 /string sp@ >r forth-recognizer recognize
+    IF  1 /string sp@ >r forth-recognize
 	rectype-nt = IF  rdrop rectype-moof2
 	ELSE  r> sp!  2drop rectype-null  THEN
     ELSE  2drop rectype-null  THEN ;

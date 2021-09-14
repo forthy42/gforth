@@ -365,7 +365,7 @@ has? primcentric [IF]
 
 : COMP'    ( "name" -- w xt ) \ gforth  comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
-    ?parse-name forth-recognizer recognize '-error name>comp ;
+    ?parse-name forth-recognize '-error name>comp ;
 
 : [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth bracket-comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.

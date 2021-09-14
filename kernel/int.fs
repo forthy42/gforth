@@ -556,7 +556,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
     rectype-nt    <> #-2053 and throw ;
 
 : (') ( "name" -- nt ) \ gforth
-    parse-name name-too-short? forth-recognizer recognize '-error ;
+    parse-name name-too-short? forth-recognize '-error ;
 
 : '    ( "name" -- xt ) \ core	tick
     \g @i{xt} represents @i{name}'s interpretation

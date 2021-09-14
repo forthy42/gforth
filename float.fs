@@ -64,11 +64,13 @@
     \G @i{f} in the space.
     1 floats small-allot f! ;
 
+: flit, ( r -- )
+    here cell+ dup faligned <> IF  postpone noop  THEN
+    postpone flit f, ;
 : FLiteral ( compilation r -- ; run-time -- r ) \ float f-literal
     \G Compile appropriate code such that, at run-time, @i{r} is placed
     \G on the (floating-point) stack. Interpretation semantics are undefined.
-    here cell+ dup faligned <> IF  postpone noop  THEN
-    postpone flit f, ;  immediate
+    flit, ;  immediate
 
 : opt-fval ( xt -- )  >body postpone Literal postpone f@ ;
 \ the following is worse, because fliteral is worse

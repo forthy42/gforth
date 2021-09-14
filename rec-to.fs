@@ -34,7 +34,7 @@
 	''' of  -1 to-style# !  endof
 	drop 2drop rectype-null  EXIT
     endcase
-    2 /string forth-recognizer recognize
+    2 /string forth-recognize
     rectype-nt <> IF  to-style# off  rectype-null EXIT  THEN
     name?int rectype-to ;
 

@@ -171,7 +171,7 @@ Defer forth-recognize
 \   xxx-recognizer recognize ;
 
 : forth-parser ( addr u -- ... )
-    forth-recognizer recognize
+    forth-recognize
     state @ abs cells + >body @ execute-;s ;
 
 ' forth-parser IS parser
@@ -186,5 +186,5 @@ Defer forth-recognize
 
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
-    parse-name forth-recognizer recognize >postpone
+    parse-name forth-recognize >postpone
 ; immediate restrict

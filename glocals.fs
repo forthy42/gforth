@@ -776,3 +776,17 @@ warnings @ warnings off \ disable all those compile-only warnings
 warnings !
 
 ' >postpone-replacer-locals is >postpone-replacer
+
+[IFDEF] locals-token
+    :noname ( locals-nt -- )
+	dup name>int >does-code case
+	    [ ' some-clocal  >does-code ] literal of name-compsem postpone lit, endof
+	    [ ' some-dlocal  >does-code ] literal of name-compsem postpone 2lit, endof
+	    [ ' some-flocal  >does-code ] literal of name-compsem postpone flit, endof
+	    [ ' some-wlocal  >does-code ] literal of name-compsem postpone lit, endof
+	    [ ' some-xtlocal >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
+	    [ ' some-waddr   >does-code ] literal of no-post   endof
+	    >r lit, postpone name-compsem r>
+	endcase ;
+    ' locals-token >body 2 cells + ! \ replace stub
+[THEN]

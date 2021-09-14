@@ -179,7 +179,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     s" [[" str=  rectype-[[ rectype-null rot select ;
 
 : postponer-r ( addr u -- ... )
-    forth-recognizer recognize >postpone ;
+    forth-recognize >postpone ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
@@ -193,7 +193,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     dup >r rectype>post execute r> rectype>int compile, ;
 : [interp] ( "name" -- )
     \G Compiles the interpretation semantics of @i{name}, see @code{postpone}.
-    parse-name forth-recognizer recognize >interp ; immediate compile-only
+    parse-name forth-recognize >interp ; immediate compile-only
 
 \ f.rdp
 

@@ -22,7 +22,7 @@
 [IFUNDEF] ?rec-nt
     : ?rec-nt ( addr u -- xt true / something 0 )
 	sp@ >in @ 2>r
-	forth-recognizer recognize rectype-nt = dup
+	forth-recognize rectype-nt = dup
 	if  2r> 2over  else  2r> #0.  then  2>r >in ! sp!
 	2drop 2r> ;
 [THEN]
