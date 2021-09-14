@@ -26,7 +26,7 @@
 \ The "design pattern" used here is the *factory*, even though
 \ the recognizer does not return a full-blown object.
 \ A recognizer has the stack effect
-\ ( addr u -- token table | addr u rectype-null )
+\ ( addr u -- token table | addr u notfound )
 \ where the token is the result of the parsing action (can be more than
 \ one stack or live on other stacks, e.g. on the FP stack)
 \ and the table contains three actions (as array of three xts):
@@ -71,7 +71,7 @@ token-descriptor: dnum-token
 : nt-token? ( token -- flag )
     \G check if name token; postpone action may differ
     >body 2@ ['] nt-token >body 2@ d<> ;
-: nt>rec ( nt / 0 -- nt rectype-nt / rectype-null )
+: nt>rec ( nt / 0 -- nt nt-token / notfound )
     dup IF  dup where, ['] nt-token  ELSE  drop ['] notfound  THEN ;
 
 ' notfound AConstant rectype-null
@@ -166,7 +166,7 @@ Defer forth-recognize
 
 \ nested recognizer helper
 
-\ : nest-recognizer ( addr u -- token table | rectype-null )
+\ : nest-recognizer ( addr u -- token table | notfound )
 \   xxx-recognizer recognize ;
 
 : forth-parser ( addr u -- ... )

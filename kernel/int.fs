@@ -235,7 +235,7 @@ struct
     cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
 end-struct wordlist-struct
 
-: rec-f83 ( addr len wordlist-id-addr -- nt rectype-nt / rectype-null )
+: rec-f83 ( addr len wordlist-id-addr -- nt nt-token / notfound )
     @ (listlfind) nt>rec ;
 
 \ : initvoc		( wid -- )
@@ -324,7 +324,7 @@ forth-wordlist current !
 	(name>intn)
     then ;
 
-Defer rec-nt ( addr u -- nt rectype-name | rectype-null )
+Defer rec-nt ( addr u -- nt nt-token | notfound )
 \G recognize a name token
 
 : find-name ( c-addr u -- nt | 0 ) \ gforth
