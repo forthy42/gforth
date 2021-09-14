@@ -18,17 +18,20 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Defer interpret-notfound1 ( addr u -- )
+: notfound: ( "name" -- )
+    \G special defer word to recover the input lexeme
+    Create ['] no.extensions ,
+    [: >r input-lexeme 2@ r> perform ;] set-does>
+    ['] defer-defer@ set-defer@
+    ['] value-to set-to ;
+
+notfound: interpret-notfound1 ( addr u -- )
 \g Legacy hook for words not found during interpretation
-Defer compiler-notfound1 ( addr u -- )
+notfound: compiler-notfound1 ( addr u -- )
 \g Legacy hook for words not found during compilation
-Defer postpone-notfound1 ( addr u -- )
+notfound: postpone-notfound1 ( addr u -- )
 \g Legacy hook for words not found during postpone
-' no.extensions is interpret-notfound1
-' no.extensions is compiler-notfound1
-' no.extensions is postpone-notfound1
 
-' interpret-notfound1 ' compiler-notfound1 ' postpone-notfound1
-rectype: rectype-notfound
-
-' rectype-notfound forth-recognizer >back
+' interpret-notfound1 ' notfound >body !
+' compiler-notfound1  ' notfound >body cell+ !
+' postpone-notfound1  ' notfound >body 2 cells + !
