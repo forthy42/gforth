@@ -26,16 +26,16 @@
 : rec-to ( addr u -- xt r:to | rectype-null )
     \G words prefixed with @code{->} are treated as if preceeded by
     \G @code{TO} or @code{IS}
-    dup 3 u< IF  2drop rectype-null  EXIT  THEN
-    over 1+ c@ '>' <> IF  2drop rectype-null  EXIT  THEN
+    dup 3 u< IF  2drop ['] notfound  EXIT  THEN
+    over 1+ c@ '>' <> IF  2drop ['] notfound  EXIT  THEN
     case  over c@
 	'-' of   0 to-style# !  endof
 	'+' of   1 to-style# !  endof
 	''' of  -1 to-style# !  endof
-	drop 2drop rectype-null  EXIT
+	drop 2drop ['] notfound  EXIT
     endcase
     2 /string forth-recognize
-    rectype-nt <> IF  to-style# off  rectype-null EXIT  THEN
+    rectype-nt <> IF  to-style# off  ['] notfound EXIT  THEN
     name?int rectype-to ;
 
 ' rec-to forth-recognizer >back

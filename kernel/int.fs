@@ -235,8 +235,6 @@ struct
     cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
 end-struct wordlist-struct
 
-: nt>rec ( nt / 0 -- nt rectype-nt / rectype-null )
-    dup IF  dup where, rectype-nt  ELSE  drop rectype-null  THEN ;
 : rec-f83 ( addr len wordlist-id-addr -- nt rectype-nt / rectype-null )
     @ (listlfind) nt>rec ;
 
@@ -302,11 +300,17 @@ Create new-where where-struct allot
 
 forth-wordlist current !
 
+: no.extensions  ( -- )
+    -&13 throw ;
+
+' no.extensions dup dup token-descriptor: notfound
+\G If a recognizer fails, it returns @code{notfound}
+
 : find-name-in  ( c-addr u wid -- nt | 0 )
     \G search the word list identified by @i{wid} for the definition
     \G named by the string at @i{c-addr u}. Return its @i{nt}, if
     \G found, otherwise 0.
-    execute rectype-null = IF  0  THEN ;
+    execute ['] notfound = IF  0  THEN ;
 
 : search-wordlist ( c-addr count wid -- 0 | xt +-1 ) \ search
     \G Search the word list identified by @i{wid} for the definition
@@ -552,7 +556,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 \ ticks in interpreter
 
 : '-error ( nt -- nt )
-    dup rectype-null = #-13 and throw
+    dup ['] notfound = #-13 and throw
     rectype-nt    <> #-2053 and throw ;
 
 : (') ( "name" -- nt ) \ gforth
@@ -582,9 +586,6 @@ Defer parse-name ( "name" -- c-addr u ) \ gforth
 ' parse-name alias name ( -- c-addr u ) \ gforth-obsolete
 \G old name for @code{parse-name}
     
-: no.extensions  ( -- )
-    -&13 throw ;
-
 Defer before-word ( -- ) \ gforth
 \ called before the text interpreter parses the next word
 ' noop IS before-word

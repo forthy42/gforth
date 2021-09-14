@@ -34,7 +34,7 @@
 	1 /string ?rec-nt
 	if  name>interpret rectype-num exit  then  0
     then
-    2drop rectype-null ;
+    2drop ['] notfound ;
 
 : rec-dtick ( addr u -- nt rectype-num | rectype-null )
     \G words prefixed with @code{``} return their nt.
@@ -42,7 +42,7 @@
     2dup "``" string-prefix? if
 	2 /string ?rec-nt if  rectype-num exit then  0
 	then
-    2drop rectype-null ;
+    2drop ['] notfound ;
 
 ' rec-dtick forth-recognizer >back
 ' rec-tick forth-recognizer >back

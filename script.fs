@@ -28,7 +28,7 @@
     over source drop = IF
 	drop source drop - >in ! source >in @ /string dup >in +!
 	rectype-eval
-    ELSE  2drop rectype-null  THEN ;
+    ELSE  2drop ['] notfound  THEN ;
 ' rec-shell get-recognizers 1+ set-recognizers
 
 User sh$  cell uallot drop

@@ -174,7 +174,7 @@ is ?warning
     ['] shadow-warning ?warning IF  2drop  EXIT  THEN
     warnings @ >r warnings off
     sp@ fp@ 2>r 2dup warning-recs recognize 2r> rot >r
-    fp! sp! r> rectype-null <>  r> dup warnings ! 0<> and
+    fp! sp! r> ['] notfound <>  r> dup warnings ! 0<> and
     ['] shadow-num-warning ?warning  2drop
 ; is check-shadow
 [then]
@@ -264,7 +264,7 @@ Variable rec'
     [: rec' ! ;] is trace-recognizer
     forth-recognize  dup rectype-nt = IF  swap rec' !  THEN
     2r> rot >r fp! sp! r>  r> is trace-recognizer
-    rectype-null = -#13 and throw
+    ['] notfound = -#13 and throw
     rec' @ ;
 
 : kate-l:c ( line pos -- )

@@ -29,6 +29,6 @@
 	    name?int execute  EXIT
 	THEN
     THEN
-    2drop rectype-null ;
+    2drop ['] notfound ;
 
 ' rec-meta forth-recognizer >back

@@ -144,7 +144,9 @@ vocabulary locals \ this contains the local variables
 ' locals >wordlist wordlist-id to locals-list
 slowvoc !
 
-' search-order ' locals >wordlist 2 rec-sequence: rec-locals
+: locals-rec [ ' locals >wordlist ] Literal execute ;
+
+' search-order ' locals-rec 2 rec-sequence: rec-locals
 
 : activate-locals   ['] rec-locals is rec-nt ;
 : deactivate-locals ['] search-order is rec-nt ;

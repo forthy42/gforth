@@ -167,16 +167,12 @@ UValue $? ( -- n ) \ gforth dollar-question
 
 ' noop ' noop
 :noname  ] ['] forth-parser is parser forth-recognizer stack> drop ;
-[IFDEF] token-descriptor:
-    token-descriptor: [[-token
-    ' [[-token Constant rectype-[[
-[ELSE]
-    rectype: rectype-[[
-[THEN]
+token-descriptor: [[-token
+' [[-token Constant rectype-[[
 
 : rec-[[ ( addr u -- token ) \ gforth left-bracket-bracket
 \G switch from postpone state to compile state
-    s" [[" str=  rectype-[[ rectype-null rot select ;
+    s" [[" str=  ['] [[-token ['] notfound rot select ;
 
 : postponer-r ( addr u -- ... )
     forth-recognize >postpone ;
@@ -549,7 +545,7 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
     \G like on the recognizer stack
     n>r : nr> ]] 2>r [[ 0 ?DO
 	]] 2r@ [[ compile,
-	]] dup rectype-null <> IF 2rdrop EXIT THEN drop [[
+	]] dup ['] notfound <> IF 2rdrop EXIT THEN drop [[
     LOOP ]] 2rdrop ; [[ ;
 
 \ growing buffers that need not be full

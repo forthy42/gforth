@@ -31,9 +31,9 @@
     \G words bracketed with @code{'<'} @code{'>'} return their body.
     \G Example: @code{<dup>} gives the body of dup
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or
-    if 2drop rectype-null exit then
+    if 2drop ['] notfound exit then
     1 /string 1- '+' $split 2>r ?rec-nt
-    0= if  drop 2rdrop rectype-null exit then
+    0= if  drop 2rdrop ['] notfound exit then
     name>int >body
     2r> dup 0= if  2drop rectype-num  exit  then
     case  rec-num

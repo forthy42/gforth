@@ -117,8 +117,8 @@ dynamic-a to allocater
     over c@ '.' = over 1 > and
     IF  1 /string sp@ >r forth-recognize
 	rectype-nt = IF  rdrop rectype-moof2
-	ELSE  r> sp!  2drop rectype-null  THEN
-    ELSE  2drop rectype-null  THEN ;
+	ELSE  r> sp!  2drop ['] notfound  THEN
+    ELSE  2drop ['] notfound  THEN ;
 
 ' rec-moof2 get-recognizers 1+ set-recognizers
 

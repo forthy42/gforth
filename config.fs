@@ -50,7 +50,7 @@ rectype-num    is rectype-config
 rectype-dnum   is rectype-config
 :noname '%' ['] f! ['] fdrop exec-config ;
 rectype-float  is rectype-config
-' .config-err rectype-null is rectype-config
+' .config-err ' notfound is rectype-config
 
 : config-line ( -- )
     '=' parse 2>r

@@ -27,7 +27,7 @@
     \G words prefixed with @code{'$'} are passed to @code{getenv}
     \G to get the environment variable as string.
     \G Example: @code{$HOME} gives the home directory
-    over c@ '$' <> IF  2drop  rectype-null  EXIT  THEN
+    over c@ '$' <> IF  2drop  ['] notfound  EXIT  THEN
     1 /string rectype-env ;
 
 ' rec-env forth-recognizer >back

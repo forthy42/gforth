@@ -32,8 +32,8 @@
 \ and the table contains three actions (as array of three xts):
 \ interpret it, compile it, compile it as literal.
 
-' no.extensions dup dup token-descriptor: notfound
-\G If a recognizer fails, it returns @code{notfound}
+: nt>rec ( nt / 0 -- nt rectype-nt / rectype-null )
+    dup IF  dup where, rectype-nt  ELSE  drop ['] notfound  THEN ;
 
 : lit, ( n -- ) postpone Literal ;
 : 2lit, ( n -- ) postpone 2literal ;
@@ -88,7 +88,7 @@ token-descriptor: dnum-token
     IF
 	0> IF  rectype-dnum   ELSE  rectype-num  THEN  EXIT
     THEN
-    drop rectype-null ;
+    drop ['] notfound ;
 
 \ generic stack get/set
 
@@ -131,7 +131,7 @@ Variable rec-level
     1 rec-level +!
     $@ bounds cell- swap cell- U-DO
 	2dup I -rot 2>r  perform
-	dup rectype-null <>  IF
+	dup ['] notfound <>  IF
 	    -1 rec-level +!
 	    2rdrop I @ trace-recognizer  UNLOOP  EXIT  THEN  drop
 	2r>
@@ -140,7 +140,7 @@ Variable rec-level
 	\ has a very likely hit.  So doubles will be skipped, tripples not
     -loop
     -1 rec-level +!
-    2drop rectype-null ;
+    2drop ['] notfound ;
 
 : rec-sequence: ( x1 .. xn n "name" -- )
     ['] recognize do-stack: ;
