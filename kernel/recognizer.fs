@@ -35,13 +35,13 @@
 : lit, ( n -- ) postpone Literal ;
 : 2lit, ( n -- ) postpone 2literal ;
 
-: token-exec ( state rectype -- ) swap abs cells + @ execute-;s ;
-: token-descriptor: ( int-xt comp-xt post-xt "name" -- )
+: translate ( state rectype -- ) swap abs cells + @ execute-;s ;
+: translator: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table.  Items are in order of
     \G @var{STATE} value, which are 0 or negative.  Up to 7 slots
     \G are available for extensions.
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
-    ['] token-exec set-does> ;
+    ['] translate set-does> ;
 
 : >postpone ( ... rectype -- )
     -2 swap execute-;s ;
@@ -56,23 +56,23 @@ forth-wordlist is rec-nt
 :noname name?int  execute-;s ;
 ' name-compsem
 :noname  lit, postpone name-compsem ;
-token-descriptor: nt-token ( takes nt, i.e. result of find-name and find-name-in )
+translator: nt-translate ( takes nt, i.e. result of find-name and find-name-in )
 
 ' noop
 ' lit,
 :noname lit, postpone lit, ;
-token-descriptor: num-token
+translator: num-translate
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
-token-descriptor: dnum-token
+translator: dnum-translate
 
-: nt-token? ( token -- flag )
+: nt-translate? ( token -- flag )
     \G check if name token; postpone action may differ
-    >body 2@ ['] nt-token >body 2@ d= ;
-: nt>rec ( nt / 0 -- nt nt-token / notfound )
-    dup IF  dup where, ['] nt-token  ELSE  drop ['] notfound  THEN ;
+    >body 2@ ['] nt-translate >body 2@ d= ;
+: nt>rec ( nt / 0 -- nt nt-translate / notfound )
+    dup IF  dup where, ['] nt-translate  ELSE  drop ['] notfound  THEN ;
 
 \ snumber? should be implemented as recognizer stack
 
@@ -80,7 +80,7 @@ token-descriptor: dnum-token
     \G converts a number to a single/double integer
     snumber?  dup
     IF
-	0> IF  ['] dnum-token  ELSE  ['] num-token  THEN  EXIT
+	0> IF  ['] dnum-translate  ELSE  ['] num-translate  THEN  EXIT
     THEN
     drop ['] notfound ;
 

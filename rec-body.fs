@@ -22,12 +22,12 @@
 [IFUNDEF] ?rec-nt
     : ?rec-nt ( addr u -- xt true / something 0 )
 	sp@ >in @ 2>r
-	forth-recognize ['] nt-token = dup
+	forth-recognize ['] nt-translate = dup
 	if  2r> 2over  else  2r> #0.  then  2>r >in ! sp!
 	2drop 2r> ;
 [THEN]
 
-: rec-body ( addr u -- xt tick-token | null-token )
+: rec-body ( addr u -- xt tick-translate | null-translate )
     \G words bracketed with @code{'<'} @code{'>'} return their body.
     \G Example: @code{<dup>} gives the body of dup
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or
@@ -35,10 +35,10 @@
     1 /string 1- '+' $split 2>r ?rec-nt
     0= if  drop 2rdrop ['] notfound exit then
     name>int >body
-    2r> dup 0= if  2drop ['] num-token  exit  then
+    2r> dup 0= if  2drop ['] num-translate  exit  then
     case  rec-num
-    ['] dnum-token of  drop + ['] num-token   endof
-    ['] num-token  of       + ['] num-token   endof
+    ['] dnum-translate of  drop + ['] num-translate   endof
+    ['] num-translate  of       + ['] num-translate   endof
     swap  endcase ;
 
 ' rec-body forth-recognizer >back

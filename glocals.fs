@@ -146,12 +146,12 @@ slowvoc !
 
 : no-post -48 throw ;
 
-' nt-token >body 2@ swap
+' nt-translate >body 2@ swap
 ' no-post
-token-descriptor: locals-token ( takes nt, i.e. result of find-name and find-name-in )
+translator: locals-translate ( takes nt, i.e. result of find-name and find-name-in )
 
 : locals-rec [ ' locals >wordlist ] Literal execute
-    dup ['] nt-token = IF  drop ['] locals-token  THEN ;
+    dup ['] nt-translate = IF  drop ['] locals-translate  THEN ;
 
 ' search-order ' locals-rec 2 rec-sequence: rec-locals
 
@@ -757,4 +757,4 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 	[ ' some-waddr   >does-code ] literal of no-post   endof
 	>r lit, postpone name-compsem r>
     endcase ;
-' locals-token >body 2 cells + ! \ replace stub
+' locals-translate >body 2 cells + ! \ replace stub

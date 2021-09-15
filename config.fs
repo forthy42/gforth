@@ -19,15 +19,13 @@
 require rec-scope.fs
 require recognizer-ext.fs
 
-token-method: token-config
+translate-method: config-translate
 
 Vocabulary config
 ' config >wordlist Value config-wl
 
-3 stack: config-recognizer
+' rec-string ' rec-num ' rec-float 3 rec-sequence: config-recognize
 \G The config recognizer
-
-' rec-string ' rec-num ' rec-float 3 config-recognizer set-stack
 
 s" Config error" exception Value config-throw
 \ if you don't want an exception, set config-throw to 0
@@ -40,21 +38,21 @@ s" Config error" exception Value config-throw
     ?dup-IF  execute r> execute rdrop
     ELSE rdrop r> execute .config-err THEN ;
 
-: eval-config ( .. rec addr u -- )  rot token-config ;
+: eval-config ( .. rec addr u -- )  rot config-translate ;
 
 :noname '$' ['] $! [: drop free throw ;] exec-config ;
-' string-token is token-config
+' string-translate is config-translate
 :noname '#' ['] !  ['] drop exec-config ;
-' num-token    is token-config
+' num-translate    is config-translate
 :noname '&' ['] 2! ['] 2drop exec-config ;
-' dnum-token   is token-config
+' dnum-translate   is config-translate
 :noname '%' ['] f! ['] fdrop exec-config ;
-' float-token  is token-config
-' .config-err ' notfound is token-config
+' float-translate  is config-translate
+' .config-err ' notfound is config-translate
 
 : config-line ( -- )
-    '=' parse 2>r
-    parse-name config-recognizer recognize 2r> eval-config
+    '=' parse -trailing 2>r
+    parse-name config-recognize 2r> eval-config
     postpone \ ;
 
 : read-config-loop ( -- )

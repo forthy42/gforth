@@ -18,27 +18,27 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-0 Value token-method-offset
-#10 cells constant token-method-max-offset#
-"No more rec method slots free" exception constant token-method-overflow
+0 Value translate-method-offset
+#10 cells constant translate-method-max-offset#
+"No more rec method slots free" exception constant translate-method-overflow
 
-: is-token-method ( xt rectype recmethod -- )
+: is-translate-method ( xt rectype recmethod -- )
     >body @ >body + ! ;
 to-opt: ( xt -- ) >body @ lit, ]] >body + ! [[ ;
-: token-method-defer@ ( xt -- ) >body @ >body + @ ;
+: translate-method-defer@ ( xt -- ) >body @ >body + @ ;
 defer@-opt: ( xt -- ) >body @ lit, ]] >body + @ [[ ;
 
-: token-method: ( "name" -- )
-    token-method-offset token-method-max-offset# u>=
-    token-method-overflow and throw
-    Create token-method-offset ,  cell +to token-method-offset
+: translate-method: ( "name" -- )
+    translate-method-offset translate-method-max-offset# u>=
+    translate-method-overflow and throw
+    Create translate-method-offset ,  cell +to translate-method-offset
     [: ( rec-type ) @ + >body @ execute-;s ;] set-does>
-    ['] is-token-method set-to
-    ['] token-method-defer@ set-defer@ ;
+    ['] is-translate-method set-to
+    ['] translate-method-defer@ set-defer@ ;
 
-token-method: token-int
-token-method: token-comp
-token-method: token-post
+translate-method: translate-int
+translate-method: translate-comp
+translate-method: translate-post
 
-: token-by-state ( token -- )
+: translate-by-state ( token -- )
     state @ swap execute-;s ;
