@@ -111,13 +111,13 @@ dynamic-a to allocater
 
 : >oo> ( xt -- )  postpone >o name-compsem postpone o> ;
 :noname ( object xt -- ) swap >o execute o> ;
-' >oo> ' lit, >postponer translator: moof2-translate
-' moof2-translate Constant rectype-moof2
+' >oo> ' lit, >postponer translator: translate-moof2
+' translate-moof2 Constant rectype-moof2
 
-: rec-moof2 ( addr u -- xt moof2-translate | notfound )
+: rec-moof2 ( addr u -- xt translate-moof2 | notfound )
     over c@ '.' = over 1 > and
     IF  1 /string sp@ >r forth-recognize
-	nt-translate? IF  rdrop ['] moof2-translate
+	translate-nt? IF  rdrop ['] translate-moof2
 	ELSE  r> sp!  2drop ['] notfound  THEN
     ELSE  2drop ['] notfound  THEN ;
 

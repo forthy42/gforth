@@ -20,8 +20,8 @@
 
 : >system ( addr u -- ) cr system ;
 : system, slit, postpone >system ;
-' >system ' system, ' slit, >postponer translator: eval-translate
-' eval-translate Constant rectype-eval
+' >system ' system, ' slit, >postponer translator: translate-eval
+' translate-eval Constant rectype-eval
 
 : rec-shell ( addr u -- addr u' rectype-eval | rectype-null )
     \G evaluate string + rest of command line

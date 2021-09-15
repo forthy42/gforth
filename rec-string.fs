@@ -21,26 +21,26 @@
 : slit,  postpone sliteral ;
 
 ' noop ' slit, dup >postponer
-translator: string-translate
-' string-translate Constant rectype-string
+translator: translate-string
+' translate-string Constant rectype-string
 
 : rec-string ( addr u -- addr u' r:string | rectype-null )
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
-    IF    drop source drop - 1+ >in !  \"-parse save-mem ['] string-translate
+    IF    drop source drop - 1+ >in !  \"-parse save-mem ['] translate-string
     ELSE  2drop ['] notfound  THEN ;
 
 ' rec-string forth-recognizer >back
 
 0 [IF] \ dot-quoted strings, we don't need them
 : .slit slit, postpone type ;
-' type ' .slit ' slit, >postponer translator: ."-translate
-' ."-translate Constant rectype-."
+' type ' .slit ' slit, >postponer translator: translate-."
+' translate-." Constant rectype-."
 
 : rec-."  ( addr u -- addr u' r:." | addr u rectype-null )
     2dup ".\"" string-prefix?
-    IF    drop source drop - 2 + >in !  \"-parse save-mem ['] ."-translate
+    IF    drop source drop - 2 + >in !  \"-parse save-mem ['] translate-"
     ELSE  ['] notfound  THEN ;
 
 ' rec-." forth-recognizer >back

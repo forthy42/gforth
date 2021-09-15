@@ -19,7 +19,7 @@
 require rec-scope.fs
 require recognizer-ext.fs
 
-translate-method: config-translate
+translate-method: translate-config
 
 Vocabulary config
 ' config >wordlist Value config-wl
@@ -38,17 +38,17 @@ s" Config error" exception Value config-throw
     ?dup-IF  execute r> execute rdrop
     ELSE rdrop r> execute .config-err THEN ;
 
-: eval-config ( .. rec addr u -- )  rot config-translate ;
+: eval-config ( .. rec addr u -- )  rot translate-config ;
 
 :noname '$' ['] $! [: drop free throw ;] exec-config ;
-' string-translate is config-translate
+' translate-string is translate-config
 :noname '#' ['] !  ['] drop exec-config ;
-' num-translate    is config-translate
+' translate-num    is translate-config
 :noname '&' ['] 2! ['] 2drop exec-config ;
-' dnum-translate   is config-translate
+' translate-dnum   is translate-config
 :noname '%' ['] f! ['] fdrop exec-config ;
-' float-translate  is config-translate
-' .config-err ' notfound is config-translate
+' translate-float  is translate-config
+' .config-err ' notfound is translate-config
 
 : config-line ( -- )
     '=' parse -trailing 2>r

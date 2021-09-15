@@ -163,21 +163,21 @@ UValue $? ( -- n ) \ gforth dollar-question
 	rectype Constant ;
 
     ' notfound AConstant rectype-null
-    ' nt-translate AConstant rectype-nt
-    ' num-translate AConstant rectype-num
-    ' dnum-translate AConstant rectype-dnum
+    ' translate-nt AConstant rectype-nt
+    ' translate-num AConstant rectype-num
+    ' translate-dnum AConstant rectype-dnum
 [THEN]
 
 \ ]] ... [[
 
 ' noop ' noop
 :noname  ] forth-recognizer stack> drop ;
-translator: [[-translate
-' [[-translate Constant rectype-[[
+translator: [[translate-
+' [[translate- Constant rectype-[[
 
 : rec-[[ ( addr u -- token ) \ gforth left-bracket-bracket
 \G switch from postpone state to compile state
-    s" [[" str=  ['] [[-translate ['] notfound rot select ;
+    s" [[" str=  ['] [[translate- ['] notfound rot select ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
@@ -522,8 +522,8 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 :noname drop execute ;
 :noname 0> IF execute ELSE compile, THEN ;
 ' 2lit, >postponer
-translator: word-translate
-' word-translate Constant rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
+translator: translate-word
+' translate-word Constant rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
 
 \ concat recognizers to another recognizer
 

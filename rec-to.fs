@@ -21,8 +21,8 @@
 : post-to, ( nt -- )
     to-style# @ ?dup-IF  lit, ]] to-style# ! [[  THEN  lit, ;
 
-' (to) ' (to), ' post-to, >postponer translator: to-translate
-' to-translate Constant rectype-to
+' (to) ' (to), ' post-to, >postponer translator: translate-to
+' translate-to Constant rectype-to
 
 : rec-to ( addr u -- xt r:to | rectype-null )
     \G words prefixed with @code{->} are treated as if preceeded by
@@ -37,7 +37,7 @@
 	drop 2drop ['] notfound  EXIT
     endcase
     2 /string forth-recognize
-    nt-translate? 0= IF  to-style# off  ['] notfound EXIT  THEN
-    name?int ['] to-translate ;
+    translate-nt? 0= IF  to-style# off  ['] notfound EXIT  THEN
+    name?int ['] translate-to ;
 
 ' rec-to forth-recognizer >back

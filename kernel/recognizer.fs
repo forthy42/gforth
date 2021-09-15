@@ -56,23 +56,23 @@ forth-wordlist is rec-nt
 :noname name?int  execute-;s ;
 ' name-compsem
 :noname  lit, postpone name-compsem ;
-translator: nt-translate ( takes nt, i.e. result of find-name and find-name-in )
+translator: translate-nt ( takes nt, i.e. result of find-name and find-name-in )
 
 ' noop
 ' lit,
 :noname lit, postpone lit, ;
-translator: num-translate
+translator: translate-num
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
-translator: dnum-translate
+translator: translate-dnum
 
-: nt-translate? ( token -- flag )
+: translate-nt? ( token -- flag )
     \G check if name token; postpone action may differ
-    >body 2@ ['] nt-translate >body 2@ d= ;
-: nt>rec ( nt / 0 -- nt nt-translate / notfound )
-    dup IF  dup where, ['] nt-translate  ELSE  drop ['] notfound  THEN ;
+    >body 2@ ['] translate-nt >body 2@ d= ;
+: nt>rec ( nt / 0 -- nt translate-nt / notfound )
+    dup IF  dup where, ['] translate-nt  ELSE  drop ['] notfound  THEN ;
 
 \ snumber? should be implemented as recognizer stack
 
@@ -80,7 +80,7 @@ translator: dnum-translate
     \G converts a number to a single/double integer
     snumber?  dup
     IF
-	0> IF  ['] dnum-translate  ELSE  ['] num-translate  THEN  EXIT
+	0> IF  ['] translate-dnum  ELSE  ['] translate-num  THEN  EXIT
     THEN
     drop ['] notfound ;
 
