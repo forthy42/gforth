@@ -68,12 +68,7 @@ s" unexpected token" exception constant !!token!!
 
 \ backup recognizer
 
-action-of forth-recognize value backup-recognizer
-
-: backup-recognize ( addr u -- ... token )
-    action-of forth-recognize >r
-    backup-recognizer is forth-recognize
-    forth-recognize  r> is forth-recognize ;
+Defer backup-recognize
 
 : >nt ( -- nt )
     >parsed 2dup find-name dup IF  dup +nt nip nip
@@ -250,12 +245,12 @@ set-current
 : tokenize> ( addr u -- )
     open-fpath-file throw 2drop tokens$ $slurp
     tokens$ $@ drop to token-pos#
-    action-of forth-recognize to backup-recognizer
+    action-of forth-recognize is backup-recognize
     ['] token-recognize is forth-recognize
     ['] token-parse is parse-name
     [: drop token-parse ;] is parse
     ['] token-int catch  reset-interpreter
-    backup-recognizer is forth-recognize
+    action-of backup-recognize is forth-recognize
     dup IF
 	." Error at byte " token-pos# tokens$ $@ drop - hex. cr
     THEN
