@@ -150,14 +150,8 @@ lock
 Defer forth-recognize
 ' default-recognize is forth-recognize
 
-' default-recognize >body AValue forth-recognizer
-
-: get-recognizers ( -- xt1 .. xtn n )
-    \G push the content on the recognizer stack
-    forth-recognizer get-stack ;
-: set-recognizers ( xt1 .. xtn n )
-    \G set the recognizer stack from content on the stack
-    forth-recognizer set-stack ;
+: forth-recognizer ( -- stack-addr )
+    ['] forth-recognize defer@ >body ;
 
 \ nested recognizer helper
 

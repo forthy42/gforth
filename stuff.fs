@@ -149,24 +149,29 @@ UValue $? ( -- n ) \ gforth dollar-question
 
 \ legacy rectype stuff
 
-[IFDEF] recognized:
-    : rectype>int  ( rectype -- xt ) >body @ ;
-    : rectype>comp ( rectype -- xt ) cell >body + @ ;
-    : rectype>post ( rectype -- xt ) 2 cells >body + @ ;
-    
-    : rectype ( int-xt comp-xt post-xt -- rectype )
-	\G create a new unnamed recognizer token
-	noname recognized: latestxt ; 
-    
-    : rectype: ( int-xt comp-xt post-xt "name" -- )
-	\G create a new recognizer table
-	rectype Constant ;
+: rectype>int  ( rectype -- xt ) >body @ ;
+: rectype>comp ( rectype -- xt ) cell >body + @ ;
+: rectype>post ( rectype -- xt ) 2 cells >body + @ ;
 
-    ' notfound AConstant rectype-null
-    ' recognized-nt AConstant rectype-nt
-    ' recognized-num AConstant rectype-num
-    ' recognized-dnum AConstant rectype-dnum
-[THEN]
+: rectype ( int-xt comp-xt post-xt -- rectype )
+    \G create a new unnamed recognizer token
+    noname recognized: latestxt ; 
+
+: rectype: ( int-xt comp-xt post-xt "name" -- )
+    \G create a new recognizer table
+    rectype Constant ;
+
+' notfound AConstant rectype-null
+' recognized-nt AConstant rectype-nt
+' recognized-num AConstant rectype-num
+' recognized-dnum AConstant rectype-dnum
+
+: get-recognizers ( -- xt1 .. xtn n )
+    \G push the content on the recognizer stack
+    forth-recognizer get-stack ;
+: set-recognizers ( xt1 .. xtn n )
+    \G set the recognizer stack from content on the stack
+    forth-recognizer set-stack ;
 
 \ ]] ... [[
 
