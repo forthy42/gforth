@@ -22,7 +22,7 @@
 [IFUNDEF] ?rec-nt
     : ?rec-nt ( addr u -- xt true / something 0 )
 	sp@ >in @ 2>r
-	forth-recognize ['] translate-nt = dup
+	forth-recognize ['] recognized-nt = dup
 	if  2r> 2over  else  2r> #0.  then  2>r >in ! sp!
 	2drop 2r> ;
 [THEN]
@@ -32,7 +32,7 @@
     \G Example: @code{`dup} gives the xt of dup
     over c@ '`' = if
 	1 /string ?rec-nt
-	if  name>interpret ['] translate-num exit  then  0
+	if  name>interpret ['] recognized-num exit  then  0
     then
     2drop ['] notfound ;
 
@@ -40,7 +40,7 @@
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}
     2dup "``" string-prefix? if
-	2 /string ?rec-nt if  ['] translate-num exit then  0
+	2 /string ?rec-nt if  ['] recognized-num exit then  0
 	then
     2drop ['] notfound ;
 
