@@ -166,15 +166,16 @@ UValue $? ( -- n ) \ gforth dollar-question
 ' recognized-num AConstant rectype-num
 ' recognized-dnum AConstant rectype-dnum
 
-: defers@ ( xt -- stack )
+: defers@ ( xt -- xt' )
     BEGIN  dup >namevt @ >vtdefer@ @ ['] no-defer@ <>  WHILE
-	    defer@  REPEAT
+	    defer@  REPEAT ;
+: >rec-stack ( xt -- stack )
     dup >code-address docol: =
     IF  >body cell+ @ @  ELSE  >body  THEN ;
 : get-rec-sequence ( recs-xt -- x1 .. xtn n )
-    defers@ get-stack ;
+    defers@ >rec-stack get-stack ;
 : set-rec-sequence ( x1 .. xtn n recs-xt -- )
-    defers@ set-stack ;
+    defers@ >rec-stack set-stack ;
 
 : get-recognizers ( -- xt1 .. xtn n )
     \G push the content on the recognizer stack
