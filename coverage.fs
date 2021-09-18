@@ -71,7 +71,7 @@ cover-end Constant cover-start
 Defer .cov#
 
 : .ansi-cov# ( n -- )
-    >r info-color error-color r@ select cells theme-colors + @
+    >r ['] info-color ['] error-color r@ select >body @ theme-color@
     dup Invers or attr! space r> 0 .r  attr! ;
 : .paren-cov# ( n -- ) ."  ( " 0 .r ." ) " ;
 
@@ -118,7 +118,7 @@ color-cover
     cr included-files $[]# 0 ?DO
 	I covered? IF
 	    I [: included-files $[]@ type ':' emit cr ;]
-	    warning-color color-execute
+	    ['] warning-color execute-theme-color
 	    I .cover-file
 	THEN
     LOOP ;
@@ -136,7 +136,7 @@ color-cover
 		I ['] .cover-file fd outfile-execute  fd close-file throw
 	    ELSE
 		I [: included-files $[]@ type space
-		    .error-string cr ;] warning-color color-execute
+		    .error-string cr ;] ['] warning-color execute-theme-color
 		drop  THEN \ ignore write errors
 	THEN
     LOOP ;

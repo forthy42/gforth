@@ -18,27 +18,27 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-0 Value token-method-offset
-#10 cells constant token-method-max-offset#
-"No more rec method slots free" exception constant token-method-overflow
+0 Value recognized-method-offset
+#10 cells constant recognized-method-max-offset#
+"No more rec method slots free" exception constant recognized-method-overflow
 
-: is-token-method ( xt rectype recmethod -- )
+: is-recognized-method ( xt rectype recmethod -- )
     >body @ >body + ! ;
 to-opt: ( xt -- ) >body @ lit, ]] >body + ! [[ ;
-: token-method-defer@ ( xt -- ) >body @ >body + @ ;
+: recognized-method-defer@ ( xt -- ) >body @ >body + @ ;
 defer@-opt: ( xt -- ) >body @ lit, ]] >body + @ [[ ;
 
-: token-method: ( "name" -- )
-    token-method-offset token-method-max-offset# u>=
-    token-method-overflow and throw
-    Create token-method-offset ,  cell +to token-method-offset
+: recognized-method: ( "name" -- )
+    recognized-method-offset recognized-method-max-offset# u>=
+    recognized-method-overflow and throw
+    Create recognized-method-offset ,  cell +to recognized-method-offset
     [: ( rec-type ) @ + >body @ execute-;s ;] set-does>
-    ['] is-token-method set-to
-    ['] token-method-defer@ set-defer@ ;
+    ['] is-recognized-method set-to
+    ['] recognized-method-defer@ set-defer@ ;
 
-token-method: token-int
-token-method: token-comp
-token-method: token-post
+recognized-method: recognized-int
+recognized-method: recognized-comp
+recognized-method: recognized-post
 
-: token-by-state ( token -- )
+: recognized-by-state ( token -- )
     state @ swap execute-;s ;

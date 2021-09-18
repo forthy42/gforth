@@ -111,13 +111,13 @@ dynamic-a to allocater
 
 : >oo> ( xt -- )  postpone >o name-compsem postpone o> ;
 :noname ( object xt -- ) swap >o execute o> ;
-' >oo> ' lit, >postponer token-descriptor: moof2-token
-' moof2-token Constant rectype-moof2
+' >oo> ' lit, >postponer recognized: recognized-moof2
+' recognized-moof2 Constant rectype-moof2
 
-: rec-moof2 ( addr u -- xt moof2-token | notfound )
+: rec-moof2 ( addr u -- xt recognized-moof2 | notfound )
     over c@ '.' = over 1 > and
     IF  1 /string sp@ >r forth-recognize
-	nt-token? IF  rdrop ['] moof2-token
+	recognized-nt? IF  rdrop ['] recognized-moof2
 	ELSE  r> sp!  2drop ['] notfound  THEN
     ELSE  2drop ['] notfound  THEN ;
 

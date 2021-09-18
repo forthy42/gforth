@@ -197,12 +197,12 @@ si-prefixes count 2/ + Constant zero-exp
     :noname r> r> compile, lit, postpone compile, postpone ; ;
 
 ' noop ' fliteral ' fliteral >postponer
-token-descriptor: float-token
-' float-token Constant rectype-float
+recognized: recognized-float
+' recognized-float Constant rectype-float
 
-: rec-float ( addr u -- r float-token | notfound )
+: rec-float ( addr u -- r recognized-float | notfound )
     \G recognize floating point numbers
-    prefix-number ['] float-token ['] notfound rot select ;
+    prefix-number ['] recognized-float ['] notfound rot select ;
 
 ' rec-float forth-recognizer >back
 

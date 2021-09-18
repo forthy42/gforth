@@ -3585,13 +3585,13 @@ Build: ( xtint xtcomp xtpost --- )
     T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
     by Create
 
-ghost token-exec drop
-Builder token-descriptor:
+ghost do-rec drop
+Builder recognized:
 Build: ( xtint xtcomp xtpost --- )
     T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
 by: :dodoes ;DO
 vt: [G'] does, gset-optimizer
-[G'] token-exec gset-extra  ;vt
+[G'] do-rec gset-extra  ;vt
 
 \ Peephole optimization					05sep01jaw
 

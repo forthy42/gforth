@@ -68,11 +68,7 @@ s" unexpected token" exception constant !!token!!
 
 \ backup recognizer
 
-forth-recognizer value backup-recognizer
-
-: backup-recognize ( addr u -- ... token )
-    forth-recognizer >r backup-recognizer dup to forth-recognizer
-    recognize  r> to forth-recognizer ;
+Defer backup-recognize
 
 : >nt ( -- nt )
     >parsed 2dup find-name dup IF  dup +nt nip nip
@@ -117,7 +113,7 @@ Variable blacklisted
 	dup I @ = IF  drop I cell+ @  UNLOOP  EXIT  THEN
     2 cells +LOOP  drop false ;
 
-rec-method rectype-tokenize
+recognized-method: rectype-tokenize
 
 :noname ( xt -- xt )
     dup ?blacklist dup IF
@@ -234,14 +230,10 @@ Create token-actions
 ' token-to       ,
 ' token-generic  ,
 
-: token-recognizer ( n 0 / addr u -- ... rectype )
+: token-recognize ( n 0 / addr u -- ... rectype )
     ?dup-IF  backup-recognize  ELSE
 	cells token-actions + perform
     THEN ;
-
-1 stack: token-recognizers
-
-' token-recognizer 1 token-recognizers set-stack
 
 : token-int ( -- )
     BEGIN  ?stack token-pos# tokens$ $@ + u< WHILE
@@ -253,12 +245,12 @@ set-current
 : tokenize> ( addr u -- )
     open-fpath-file throw 2drop tokens$ $slurp
     tokens$ $@ drop to token-pos#
-    forth-recognizer to backup-recognizer
-    token-recognizers to forth-recognizer
+    action-of forth-recognize is backup-recognize
+    ['] token-recognize is forth-recognize
     ['] token-parse is parse-name
     [: drop token-parse ;] is parse
     ['] token-int catch  reset-interpreter
-    backup-recognizer to forth-recognizer
+    action-of backup-recognize is forth-recognize
     dup IF
 	." Error at byte " token-pos# tokens$ $@ drop - hex. cr
     THEN

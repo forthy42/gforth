@@ -35,13 +35,13 @@
 : lit, ( n -- ) postpone Literal ;
 : 2lit, ( n -- ) postpone 2literal ;
 
-: token-exec ( state rectype -- ) swap abs cells + @ execute-;s ;
-: token-descriptor: ( int-xt comp-xt post-xt "name" -- )
+: do-rec ( state rectype -- ) swap abs cells + @ execute-;s ;
+: recognized: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table.  Items are in order of
     \G @var{STATE} value, which are 0 or negative.  Up to 7 slots
     \G are available for extensions.
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
-    ['] token-exec set-does> ;
+    ['] do-rec set-does> ;
 
 : >postpone ( ... rectype -- )
     -2 swap execute-;s ;
@@ -56,23 +56,23 @@ forth-wordlist is rec-nt
 :noname name?int  execute-;s ;
 ' name-compsem
 :noname  lit, postpone name-compsem ;
-token-descriptor: nt-token ( takes nt, i.e. result of find-name and find-name-in )
+recognized: recognized-nt ( takes nt, i.e. result of find-name and find-name-in )
 
 ' noop
 ' lit,
 :noname lit, postpone lit, ;
-token-descriptor: num-token
+recognized: recognized-num
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
-token-descriptor: dnum-token
+recognized: recognized-dnum
 
-: nt-token? ( token -- flag )
+: recognized-nt? ( token -- flag )
     \G check if name token; postpone action may differ
-    >body 2@ ['] nt-token >body 2@ d= ;
-: nt>rec ( nt / 0 -- nt nt-token / notfound )
-    dup IF  dup where, ['] nt-token  ELSE  drop ['] notfound  THEN ;
+    >body 2@ ['] recognized-nt >body 2@ d= ;
+: nt>rec ( nt / 0 -- nt recognized-nt / notfound )
+    dup IF  dup where, ['] recognized-nt  ELSE  drop ['] notfound  THEN ;
 
 \ snumber? should be implemented as recognizer stack
 
@@ -80,7 +80,7 @@ token-descriptor: dnum-token
     \G converts a number to a single/double integer
     snumber?  dup
     IF
-	0> IF  ['] dnum-token  ELSE  ['] num-token  THEN  EXIT
+	0> IF  ['] recognized-dnum  ELSE  ['] recognized-num  THEN  EXIT
     THEN
     drop ['] notfound ;
 
@@ -139,25 +139,14 @@ Variable rec-level
 : rec-sequence: ( x1 .. xn n "name" -- )
     ['] recognize do-stack: ;
 
+$Variable default-recognizer
+default-recognizer AValue forth-recognizer
+
 ( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
-<Builds default-recognize 0 A,
-' default-recognize >body
-unlock
-cross-boot$[] >stack
-ghost recognize gset-extra
-lock
+: default-recognize forth-recognizer recognize ;
 \G The system recognizer
 Defer forth-recognize
 ' default-recognize is forth-recognize
-
-' default-recognize >body AValue forth-recognizer
-
-: get-recognizers ( -- xt1 .. xtn n )
-    \G push the content on the recognizer stack
-    forth-recognizer get-stack ;
-: set-recognizers ( xt1 .. xtn n )
-    \G set the recognizer stack from content on the stack
-    forth-recognizer set-stack ;
 
 \ nested recognizer helper
 

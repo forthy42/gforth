@@ -21,30 +21,26 @@
 : slit,  postpone sliteral ;
 
 ' noop ' slit, dup >postponer
-[IFDEF] token-descriptor:
-    token-descriptor: string-token
-    ' string-token Constant rectype-string
-[ELSE]
-    rectype: rectype-string
-[THEN]
+recognized: recognized-string
+' recognized-string Constant rectype-string
 
 : rec-string ( addr u -- addr u' r:string | rectype-null )
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?
-    IF    drop source drop - 1+ >in !  \"-parse save-mem ['] string-token
+    IF    drop source drop - 1+ >in !  \"-parse save-mem ['] recognized-string
     ELSE  2drop ['] notfound  THEN ;
 
 ' rec-string forth-recognizer >back
 
 0 [IF] \ dot-quoted strings, we don't need them
 : .slit slit, postpone type ;
-' type ' .slit ' slit, >postponer token-descriptor: ."-token
-' ."-token Constant rectype-."
+' type ' .slit ' slit, >postponer recognized: recognized-."
+' recognized-." Constant rectype-."
 
 : rec-."  ( addr u -- addr u' r:." | addr u rectype-null )
     2dup ".\"" string-prefix?
-    IF    drop source drop - 2 + >in !  \"-parse save-mem ['] ."-token
+    IF    drop source drop - 2 + >in !  \"-parse save-mem ['] recognized-."
     ELSE  ['] notfound  THEN ;
 
 ' rec-." forth-recognizer >back

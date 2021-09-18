@@ -262,7 +262,7 @@ Variable rec'
     rec' off  what's trace-recognizer >r
     sp@ fp@ 2>r parse-name  name-too-short?
     [: rec' ! ;] is trace-recognizer
-    forth-recognize  dup nt-token? IF  swap rec' !  THEN
+    forth-recognize  dup recognized-nt? IF  swap rec' !  THEN
     2r> rot >r fp! sp! r>  r> is trace-recognizer
     ['] notfound = -#13 and throw
     rec' @ ;

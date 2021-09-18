@@ -149,35 +149,51 @@ UValue $? ( -- n ) \ gforth dollar-question
 
 \ legacy rectype stuff
 
-[IFDEF] token-descriptor:
-    : rectype>int  ( rectype -- xt ) cell+ @ ;
-    : rectype>comp ( rectype -- xt ) 2 cells + @ ;
-    : rectype>post ( rectype -- xt ) 3 cells + @ ;
-    
-    : rectype ( int-xt comp-xt post-xt -- rectype )
-	\G create a new unnamed recognizer token
-	noname token-descriptor: latestxt ; 
-    
-    : rectype: ( int-xt comp-xt post-xt "name" -- )
-	\G create a new recognizer table
-	rectype Constant ;
+: rectype>int  ( rectype -- xt ) >body @ ;
+: rectype>comp ( rectype -- xt ) cell >body + @ ;
+: rectype>post ( rectype -- xt ) 2 cells >body + @ ;
 
-    ' notfound AConstant rectype-null
-    ' nt-token AConstant rectype-nt
-    ' num-token AConstant rectype-num
-    ' dnum-token AConstant rectype-dnum
-[THEN]
+: rectype ( int-xt comp-xt post-xt -- rectype )
+    \G create a new unnamed recognizer token
+    noname recognized: latestxt ; 
+
+: rectype: ( int-xt comp-xt post-xt "name" -- )
+    \G create a new recognizer table
+    rectype Constant ;
+
+' notfound AConstant rectype-null
+' recognized-nt AConstant rectype-nt
+' recognized-num AConstant rectype-num
+' recognized-dnum AConstant rectype-dnum
+
+: defers@ ( xt -- xt' )
+    BEGIN  dup >namevt @ >vtdefer@ @ ['] no-defer@ <>  WHILE
+	    defer@  REPEAT ;
+: >rec-stack ( xt -- stack )
+    dup >code-address docol: =
+    IF  >body cell+ @ @  ELSE  >body  THEN ;
+: get-rec-sequence ( recs-xt -- x1 .. xtn n )
+    defers@ >rec-stack get-stack ;
+: set-rec-sequence ( x1 .. xtn n recs-xt -- )
+    defers@ >rec-stack set-stack ;
+
+: get-recognizers ( -- xt1 .. xtn n )
+    \G push the content on the recognizer stack
+    forth-recognizer get-stack ;
+: set-recognizers ( xt1 .. xtn n )
+    \G set the recognizer stack from content on the stack
+    forth-recognizer set-stack ;
 
 \ ]] ... [[
 
 ' noop ' noop
 :noname  ] forth-recognizer stack> drop ;
-token-descriptor: [[-token
-' [[-token Constant rectype-[[
+recognized: recognized-[[
+' recognized-[[ Constant rectype-[[
 
 : rec-[[ ( addr u -- token ) \ gforth left-bracket-bracket
 \G switch from postpone state to compile state
-    s" [[" str=  ['] [[-token ['] notfound rot select ;
+    s" [[" str=  ['] recognized-[[ ['] notfound rot select ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
@@ -522,8 +538,8 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 :noname drop execute ;
 :noname 0> IF execute ELSE compile, THEN ;
 ' 2lit, >postponer
-token-descriptor: word-token
-' word-token Constant rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
+recognized: recognized-word
+' recognized-word Constant rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
 
 \ concat recognizers to another recognizer
 
