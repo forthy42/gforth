@@ -300,12 +300,21 @@ typedef union {
 
 typedef Label *Xt;
 
+#ifdef NEW_CFA
+/* PFA gives the parameter field address corresponding to a cfa */
+#define PFA(cfa)	(((Cell *)cfa))
+/* PFA1 is a special version for use just after a NEXT1 */
+#define PFA1(cfa)	PFA(cfa)
+/* CODE_ADDRESS is the address of the code jumped to through the code field */
+#define CODE_ADDRESS(cfa)	((Xt)(cfa)[-2])
+#else
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+1)
 /* PFA1 is a special version for use just after a NEXT1 */
 #define PFA1(cfa)	PFA(cfa)
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
 #define CODE_ADDRESS(cfa)	(*(Xt)(cfa))
+#endif
 
 /* DOES_CODE is the Forth code does jumps to */
 #if !defined(DOUBLY_INDIRECT)
@@ -418,11 +427,15 @@ struct F83Name {
 #define F83NAME_COUNT(np)	((np)->countetc & 0x1f)
 #endif
 
+#ifdef NEW_CFA
+#define LONGNAME_OFF 4
+#else
 #define LONGNAME_OFF 3
+#endif
 #define RESERVED_BITS 8
-#define LONGNAME_COUNT(np)     ((((Cell*)np)[-LONGNAME_OFF]) & (((~((UCell)0))<<RESERVED_BITS)>>RESERVED_BITS))
+#define LONGNAME_COUNT(np)     ((((Cell*)np)[-LONGNAME_OFF]) & (~((UCell)0)>>RESERVED_BITS))
 #define LONGNAME_NAME(np)      ((Char *)(np)-LONGNAME_OFF*sizeof(Cell)-LONGNAME_COUNT(np))
-#define LONGNAME_NEXT(np)      ((struct Longname*)(((Cell*)np)[-2]))
+#define LONGNAME_NEXT(np)      ((struct Longname*)(((Cell*)np)[-LONGNAME_OFF+1]))
 
 struct Cellpair {
   Cell n1;
