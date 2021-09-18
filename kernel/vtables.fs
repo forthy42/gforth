@@ -23,7 +23,6 @@ defer does-check ( xt -- xt ) ' noop is does-check
 
 : value, >body ['] lit@ peephole-compile, , ;
 : constant, >body @ lit, ;
-: 2constant, >body 2@ swap lit, lit, ;
 : :, ( xt -- ) call-check >body ['] call peephole-compile, , ;
 : variable, >body lit, ;
 : user, >body @ ['] useraddr peephole-compile, , ;

@@ -3056,8 +3056,9 @@ ghost value,
 ghost constant,
 2drop
 ghost 2constant,
+ghost 2@
 ghost variable,
-2drop
+2drop drop
 ghost user,
 ghost defer,
 2drop
@@ -3318,8 +3319,9 @@ by (Constant)
 
 Builder 2Constant
 Build:  ( d -- ) T , , H ;Build
-DO: ( ghost -- d ) T dup cell+ @ swap @ H ;DO
-vt: [G'] 2constant, gset-optimizer ;vt
+by: :dodoes ( ghost -- d ) T dup cell+ @ swap @ H ;DO
+vt: [G'] 2constant, gset-optimizer
+    [G'] 2@ gset-extra ;vt
 
 Builder Create
 BuildSmart: ;Build
