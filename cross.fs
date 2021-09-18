@@ -2509,6 +2509,13 @@ Defer setup-prim-semantics
   Ghost
   tuck swap resolve-noforwards <do:> swap >magic ! ;
 
+-9 Doer: :dodoes1
+-9 Doer: :dodoes2
+-9 Doer: :dodoes3
+-9 Doer: :dodoes4
+-9 Doer: :dodoes5
+-9 Doer: :dodoes6
+
 Ghost prim-dummy Constant prim-ghost
 
 Variable prim#
@@ -3319,7 +3326,7 @@ by (Constant)
 
 Builder 2Constant
 Build:  ( d -- ) T , , H ;Build
-by: :dodoes ( ghost -- d ) T dup cell+ @ swap @ H ;DO
+by: :dodoes1 ( ghost -- d ) T dup cell+ @ swap @ H ;DO
 vt: [G'] 2constant, gset-optimizer
     [G'] 2@ gset-extra ;vt
 
@@ -3330,7 +3337,7 @@ vt: [G'] variable, gset-optimizer ;vt \ vtghost: dovar-vt
 
 Builder <Builds
 BuildSmart: ;Build
-by: :dodoes ( target-body-addr -- addr ) ;DO
+by: :dodoes2 ( target-body-addr -- addr ) ;DO
 vt: [G'] does, gset-optimizer ;vt \ vtghost: dovar-vt
 
 Builder Variable
@@ -3591,7 +3598,7 @@ ghost do-rec drop
 Builder recognized:
 Build: ( xtint xtcomp xtpost --- )
     T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
-by: :dodoes ;DO
+by: :dodoes3 ;DO
 vt: [G'] does, gset-optimizer
 [G'] do-rec gset-extra  ;vt
 
