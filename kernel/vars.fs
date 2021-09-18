@@ -38,10 +38,15 @@ opt: ( uvalue-xt to-xt -- )
     ['] uvalue-to set-to
     ['] u-compile, set-optimizer ;
 
+: 2constant, ( xt -- )
+    execute 2lit, ;
+\ : 2Constant ( w1 w2 "name" -- ) \ double two-constant
+\     Create 2,
+\     ['] 2@ set-does>
+\     ['] 2constant, set-optimizer ;
 : 2Constant ( w1 w2 "name" -- ) \ double two-constant
-    Create ( w1 w2 "name" -- )
-    2,
-  DOES> ( -- w1 w2 )
+    Create 2, ( w1 w2 "name" -- )
+  does> ( -- w1 w2 )
     2@ ;
 
 \ important constants                                  17dec92py
