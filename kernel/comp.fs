@@ -297,11 +297,17 @@ Variable litstack
     ?DO  postpone lit  I @ ,  cell +LOOP
     r> free throw ;
 
-: cfa,     ( code-address -- )  \ gforth	cfa-comma
-    here
-    dup lastnt !
-    0 A,
-    code-address! ;
+has? new-cfa [IF]
+    : cfa,     ( code-address -- )  \ gforth	cfa-comma
+	here  dup lastnt !
+	2 cells - code-address! ;
+[ELSE]
+    : cfa,     ( code-address -- )  \ gforth	cfa-comma
+	here
+	dup lastnt !
+	0 A,
+	code-address! ;
+[THEN]
 
 defer basic-block-end ( -- )
 

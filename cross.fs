@@ -2184,9 +2184,18 @@ variable ResolveFlag
 
 X has? f83headerstring bigendian or [IF] 0 [ELSE] tcell 1- [THEN]
 Constant flag+
+X has? new-cfa [IF]
+: t>f+c    tcell 4 * - ;
+: t>flag   t>f+c flag+ + ; \ points to the flag byte
+: t>link   tcell 3 * - ;
+: t>cfa    tcell 2* - ;
+: cfa,     ( cfa -- ) T here t>cfa A! H ;
+[ELSE]
 : t>f+c    tcell 3 * - ;
 : t>flag   t>f+c flag+ + ; \ points to the flag byte
 : t>link   tcell 2* - ;
+: cfa,     ( cfa -- ) T A, H ;
+[THEN]
 : t>namevt tcell - ;
 
 Struct
@@ -2440,6 +2449,9 @@ Defer vt-noname
 	[ELSE]
 	    >in @ parse-name dup T aligned cfalign# name, H >in !
 	    tlast @ T A, H
+	    [ X has? new-cfa ] [IF]
+		0 T , H
+	    [THEN]
 	    executed-ghost @ ?dup IF
 		>do:ghost @ >exec2 @ execute
 	    ELSE
@@ -2501,7 +2513,7 @@ Variable last-prim-ghost
 Defer setup-prim-semantics
 
 : mapprim   ( "forthname" "asmlabel" -- ) 
-  THeader -1 aprim-nr +! aprim-nr @ T A, H
+  THeader -1 aprim-nr +! aprim-nr @ cfa,
   asmprimname, 
   setup-prim-semantics ;
 
@@ -2533,10 +2545,10 @@ Variable prim#
   dup >ghost-flags <primitive> set-flag
   s" EC" T $has? H 0=
   IF
-      T here H resolve-noforwards $8000 xor T A, H
+      T here H resolve-noforwards $8000 xor cfa,
 \      alias-mask flag!
   ELSE
-      T here H resolve-noforwards T A, H
+      T here H resolve-noforwards cfa,
   THEN ;
 : Primitive  ( -- ) \ name
   >in @ skip? IF  drop  EXIT  THEN  >in !
@@ -3141,7 +3153,7 @@ End-Struct vtable-struct
     cell+ swap gvtsize cell /string tuck compare 0= ;
 
 : (vt,) ( -- )
-    T align  here H tvtable-list @ T A, H  dup tvtable-list !
+    T align  here H tvtable-list @ cfa,  dup tvtable-list !
     vttemplate gvtsize cell /string bounds DO
 	I @ addr,
     cell +LOOP

@@ -126,6 +126,13 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
 #define FIRST_NEXT LABEL_UU(first_goto) do {DEF_CA NEXT_P1; FIRST_NEXT_P2;} while(0)
 #define IPTOS NEXT_INST
 
+#ifndef CODE_ADDRESS
+# ifdef NEW_CFA
+#  define CODE_ADDRESS(cfa)	((cfa)[-2])
+# else
+#  define CODE_ADDRESS(cfa)	((cfa)[0])
+# endif
+#endif
 
 #ifdef DOUBLY_INDIRECT
 # ifndef DEBUG_DITC
@@ -144,11 +151,11 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
   if (DEBUG_DITC && (cfa<=vm_prims+DOER_MAX || cfa>=vm_prims+npriminfos)) \
     fprintf(stderr,"NEXT encountered prim %p at ip=%p\n", cfa, ip); \
   ip++;} while(0)
-#  define NEXT_P1_5	do {ca=**cfa; GOTO(ca);} while(0)
+#  define NEXT_P1_5	do {ca=*CODE_ADDRESS(cfa); GOTO(ca);} while(0)
 #  define EXEC1(XT)	({DEF_CA cfa=(XT);\
   if (DEBUG_DITC && (cfa>vm_prims+DOER_MAX && cfa<vm_prims+npriminfos)) \
     fprintf(stderr,"EXEC encountered xt %p at ip=%p, vm_prims=%p, xts=%p\n", cfa, ip, vm_prims, xts); \
- ca=**cfa; ca;})
+ ca=*CODE_ADDRESS(cfa); ca;})
 
 #else  /* !defined(DOUBLY_INDIRECT) */
 
@@ -185,7 +192,7 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
 #  define DEF_CA
 #  define NEXT_P1	(ip++)
 #  define NEXT_P1_5	do {KILLS GOTO(*(ip-1));} while(0)
-#  define EXEC1(XT)	({cfa=(XT); *cfa;})
+#  define EXEC1(XT)	({cfa=(XT); CODE_ADDRESS(cfa);})
 
 /* direct threaded */
 #else
@@ -200,8 +207,8 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
 #  define INC_IP(const_inc)	do {ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P1_5	do {cfa=*ip++; GOTO(*cfa);} while(0)
-#  define EXEC1(XT)	({cfa=(XT); *cfa;})
+#  define NEXT_P1_5	do {cfa=*ip++; GOTO(CODE_ADDRESS(cfa));} while(0)
+#  define EXEC1(XT)	({cfa=(XT); CODE_ADDRESS(cfa);})
 
 /* indirect threaded */
 #endif
