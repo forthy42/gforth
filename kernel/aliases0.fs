@@ -26,6 +26,15 @@
 -7 Doer: :dofield
 -8 Doer: :dovalue
 -9 Doer: :dodoes
+-9 Doer: :dodoes1
+-9 Doer: :dodoes2
+-9 Doer: :dodoes3
+-9 Doer: :dodoes4
+-9 Doer: :dodoes5
+-9 Doer: :dodoes6
+-9 Doer: :dodoes7
+-9 Doer: :dodoes8
+-9 Doer: :dodoes9
 -&10 Doer: :doabicode
 -&11 Doer: :do;abicode
 -&2 first-primitive

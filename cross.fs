@@ -1224,7 +1224,17 @@ Ghost does-xt drop
 Ghost no-to drop
 Ghost refill drop
 
-Ghost :docol    Ghost :dodoes   2drop
+Ghost :docol    drop
+Ghost :dodoes   drop
+Ghost :dodoes1   drop
+Ghost :dodoes2   drop
+Ghost :dodoes3   drop
+Ghost :dodoes4   drop
+Ghost :dodoes5   drop
+Ghost :dodoes6   drop
+Ghost :dodoes7   drop
+Ghost :dodoes8   drop
+Ghost :dodoes9   drop
 Ghost :dovar	drop
 
 \ \ Parameter for target systems                         06oct92py
@@ -2508,13 +2518,6 @@ Defer setup-prim-semantics
   THEN
   Ghost
   tuck swap resolve-noforwards <do:> swap >magic ! ;
-
--9 Doer: :dodoes1
--9 Doer: :dodoes2
--9 Doer: :dodoes3
--9 Doer: :dodoes4
--9 Doer: :dodoes5
--9 Doer: :dodoes6
 
 Ghost prim-dummy Constant prim-ghost
 
