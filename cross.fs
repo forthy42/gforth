@@ -2623,11 +2623,18 @@ Cond: [']  T ' H alit, ;Cond
 
 T 1 cells H Value xt>body
 
+X has? new-cfa [IF]
+    : cfaddr, ( ghost -- )
+	T tcell -2 * allot addr, tcell allot H ;
+[ELSE]
+    : cfaddr, ( ghost -- ) addr, ;
+[THEN]
+
 : (>body)   ( cfa -- pfa ) 
   xt>body + ;						' (>body) plugin-of t>body
 
 : (doer,)   ( ghost -- ) 
-  addr, ;   					' (doer,) plugin-of doer,
+  cfaddr, ;   					' (doer,) plugin-of doer,
 
 : (docol,)  ( -- ) [G'] :docol (doer,) ;		' (docol,) plugin-of docol,
 
@@ -2642,7 +2649,7 @@ T 1 cells H Value xt>body
 Defer gset-extra
 
 : (dodoes,) ( does-action-ghost -- )
-    ]comp [G'] :dodoes addr, comp[
+    ]comp [G'] :dodoes cfaddr, comp[
     gset-extra ;					' (dodoes,) plugin-of dodoes,
 
 : (dlit,) ( n -- ) compile lit td, ;			' (dlit,) plugin-of dlit,
@@ -2823,9 +2830,8 @@ ghost :-dummy Constant :-ghost
 : :noname ( -- xt colon-sys )
     switchrom vt,
     [ X has? f83headerstring 0= ] [IF]
-	T 0 cell+ cfalign# here cell+ H
-	[IFDEF] alias-mask t>flag >r alias-mask T r@ c@ xor r> c! H
-	[ELSE] drop [THEN]
+	0 [ X has? new-cfa 0= ] T [IF] cell+ [THEN] cfalign# H
+	[ X has? new-cfa ] [IF] T 0 A, H [THEN]
 	:-ghost >do:ghost @ >exec2 @ execute
     [ELSE]
 	X cfalign
@@ -3055,7 +3061,7 @@ Cond: DOES>
 
 : vtghost:  ( ghost -- )
     Ghost >r
-    :noname r> postpone Literal postpone addr, postpone ;
+    :noname r> postpone Literal postpone cfaddr, postpone ;
     built >do:ghost @ >exec2 ! ;
 
 Variable tvtable-list
