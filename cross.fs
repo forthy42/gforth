@@ -2189,7 +2189,7 @@ X has? new-cfa [IF]
 : t>flag   t>f+c flag+ + ; \ points to the flag byte
 : t>link   tcell 3 * - ;
 : t>cfa    tcell 2* - ;
-: cfa,     ( cfa -- ) T here t>cfa A! H ;
+: cfa,     ( cfa -- ) T here H t>cfa T A! H ;
 [ELSE]
 : t>f+c    tcell 3 * - ;
 : t>flag   t>f+c flag+ + ; \ points to the flag byte
@@ -2621,11 +2621,11 @@ Cond: [']  T ' H alit, ;Cond
 \ \ threading model					13dec92py
 \ modularized						14jun97jaw
 
-T 1 cells H Value xt>body
+X has? new-cfa [IF] 0 [ELSE] T 1 cells H [THEN] Value xt>body
 
 X has? new-cfa [IF]
     : cfaddr, ( ghost -- )
-	T tcell -2 * allot addr, tcell allot H ;
+	tcell -2 * T allot H addr, tcell T allot H ;
 [ELSE]
     : cfaddr, ( ghost -- ) addr, ;
 [THEN]
@@ -2830,8 +2830,8 @@ ghost :-dummy Constant :-ghost
 : :noname ( -- xt colon-sys )
     switchrom vt,
     [ X has? f83headerstring 0= ] [IF]
-	0 [ X has? new-cfa 0= ] T [IF] cell+ [THEN] cfalign# H
-	[ X has? new-cfa ] [IF] T 0 A, H [THEN]
+	[ X has? new-cfa ] [IF] T cfalign 0 A, H
+	[ELSE] T 0 cell+ cfalign# H [THEN]
 	:-ghost >do:ghost @ >exec2 @ execute
     [ELSE]
 	X cfalign

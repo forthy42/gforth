@@ -396,11 +396,20 @@ struct
     cell% field >vt>link
 2drop \ vtsize is defined below
 
-1 cells -3 cells \ mini-oof class declaration with methods
-\ the offsets are a bit odd to keep the xt as point of reference
-cell var >f+c
-cell var >link
-cell var >namevt
+has? new-cfa [IF]
+    1 cells -4 cells \ mini-oof class declaration with methods
+    \ the offsets are a bit odd to keep the xt as point of reference
+    cell var >f+c
+    cell var >link
+    cell var >cfa
+    cell var >namevt
+[ELSE]
+    1 cells -3 cells \ mini-oof class declaration with methods
+    \ the offsets are a bit odd to keep the xt as point of reference
+    cell var >f+c
+    cell var >link
+    cell var >namevt
+[THEN]
 
 method opt-compile, ( xt -- ) \ gforth-internal
 \g The intelligent @code{compile,} compiles each word as specified by
@@ -516,6 +525,12 @@ const Create ???
 : >head-noprim ( xt -- nt ) \ gforth  to-head-noprim
     dup xt? 0= IF  drop ['] ???  THEN ;
 
+has? new-cfa [IF]
+    ' noop alias >body  ' drop set-optimizer
+    ' noop alias body>  ' drop set-optimizer
+
+    : >code-address >cfa @ ;
+[ELSE]
 cell% 0 0 field >body ( xt -- a_addr ) \ core to-body
 \G Get the address of the body of the word represented by @i{xt} (the
 \G address of the word's data field).
@@ -526,6 +541,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 ' @ alias >code-address ( xt -- c_addr ) \ gforth
 \G @i{c-addr} is the code address of the word @i{xt}.
+[THEN]
 
 : >does-code ( xt -- a_addr ) \ gforth
 \G If @i{xt} is the execution token of a child of a @code{DOES>} word,
