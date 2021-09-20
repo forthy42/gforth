@@ -3159,7 +3159,7 @@ End-Struct vtable-struct
     cell+ swap gvtsize cell /string tuck compare 0= ;
 
 : (vt,) ( -- )
-    T align  here H tvtable-list @ cfa,  dup tvtable-list !
+    T align  here H tvtable-list @ T A, H  dup tvtable-list !
     vttemplate gvtsize cell /string bounds DO
 	I @ addr,
     cell +LOOP
