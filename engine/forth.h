@@ -302,7 +302,7 @@ typedef Label *Xt;
 
 #ifdef NEW_CFA
 /* PFA gives the parameter field address corresponding to a cfa */
-#define PFA(cfa)	(((Cell *)cfa))
+#define PFA(cfa)	(((Cell *)(cfa))+2)
 /* PFA1 is a special version for use just after a NEXT1 */
 #define PFA1(cfa)	PFA(cfa)
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
@@ -429,8 +429,10 @@ struct F83Name {
 
 #ifdef NEW_CFA
 #define LONGNAME_OFF 4
+#define CFA_OFF -3
 #else
 #define LONGNAME_OFF 3
+#define CFA_OFF 0
 #endif
 #define RESERVED_BITS 8
 #define LONGNAME_COUNT(np)     ((((Cell*)np)[-LONGNAME_OFF]) & (~((UCell)0)>>RESERVED_BITS))

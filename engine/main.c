@@ -128,10 +128,15 @@ int ufileattr[6]= {
 jmp_buf throw_jmp_handler;
 #endif
 
-#if defined(DOUBLY_INDIRECT)
-#  define CFA(n)	({Cell _n = (n); ((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)));})
+#ifdef NEW_CFA
+#define CFA_OFF         (2*sizeof(Cell))
 #else
-#  define CFA(n)	((Cell)(symbols+((n)&~0x4000UL)))
+#define CFA_OFf         0
+#endif
+#if defined(DOUBLY_INDIRECT)
+#  define CFA(n)	(({Cell _n = (n); ((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)));})+CFA_OFF)
+#else
+#  define CFA(n)	(((Cell)(symbols+((n)&~0x4000UL)))+CFA_OFF)
 #endif
 
 #define maxaligned(n)	(typeof(n))((((Cell)n)+sizeof(Float)-1)&-sizeof(Float))
