@@ -227,9 +227,15 @@ Defer ?warn#  ' noop is ?warn#
 \ end-struct wordlist-map-struct
 
 struct
-    1 cells - \ wordlist-map is at offset -1 cell like vtable
-    cell% field wordlist-map \ pointer to a wordlist-map-struct
-    cell% field wordlist-exec \ exec pointer for wordlist-map-struct
+    has? new-cfa [IF]
+	2 cells - \ wordlist-map is at offset -1 cell like vtable
+	cell% field wordlist-exec \ exec pointer for wordlist-map-struct
+	cell% field wordlist-map \ pointer to a wordlist-map-struct
+    [ELSE]
+	1 cells - \ wordlist-map is at offset -1 cell like vtable
+	cell% field wordlist-map \ pointer to a wordlist-map-struct
+	cell% field wordlist-exec \ exec pointer for wordlist-map-struct
+    [THEN]
     cell% field wordlist-id \ linked list of words (for WORDS etc.)
     cell% field wordlist-link \ link field to other wordlists
     cell% field wordlist-extend \ wordlist extensions (eg bucket offset)
@@ -244,9 +250,14 @@ end-struct wordlist-struct
 \ Search list table: find reveal
 
 unlock
-vt, cfalign vt-template, vt-noname
+vt, cfalign
 lock
-here ' :dodoes A, NIL A, NIL A, NIL A,
+has? new-cfa [IF]  ' :dodoes A,  [THEN]
+unlock
+vt-template, vt-noname
+lock
+here has? new-cfa [IF] [ELSE] ' :dodoes A, [THEN]
+NIL A, NIL A, NIL A,
 unlock
 ghost rec-f83 gset-extra
 ghost (reveal) gset-to
