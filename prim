@@ -3618,6 +3618,9 @@ VM_JUMP(EXEC1(((Xt**)op)[-1][w]));
 
 x#exec	( c_addr #w -- c_addr )		new	x_lit_exec
 ""method invocation using the stack""
+#ifdef DEBUG
+	   debugp(stderr,"%08lx: x#exec %08lx %04lx\n",(Cell)ip,(Cell)c_addr,(Cell)w);
+#endif
 ip=IP;
 SUPER_END;
 VM_JUMP(EXEC1(((Xt**)c_addr)[-1][w]));
