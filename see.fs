@@ -389,6 +389,13 @@ VARIABLE C-Pass
     endif
     cell+ ;
 
+: c-lit@ ( addr1 -- addr2 )
+    Display? if
+	dup @ c-.
+	s" @ " ['] default-color .string
+    then
+    cell+ ;
+
 : .name-without ( addr -- addr )
     \ !! the stack effect cannot be correct
     \ prints a name without () and without -LP+!#, e.g. a (+LOOP) or (s")
@@ -697,7 +704,7 @@ CREATE C-Table \ primitives map to code only
 [IFDEF] does-xt ' does-xt A,        ' c-callxt A, [THEN]
 [IFDEF] extra-exec ' extra-exec A,	    ' c-callxt A, [THEN]
 [IFDEF] extra-xt ' extra-xt A,	    ' c-callxt A, [THEN]
-		' lit@ A,	    ' c-call A,
+		' lit@ A,	    ' c-lit@ A,
 [IFDEF] call	' call A,           ' c-call A, [THEN]
 [IFDEF] call-loc ' call-loc A,      ' c-call A, [THEN]
 \		' useraddr A,	    ....
