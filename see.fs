@@ -391,8 +391,13 @@ VARIABLE C-Pass
 
 : c-lit@ ( addr1 -- addr2 )
     Display? if
-	dup @ c-.
-	s" @ " ['] default-color .string
+	dup @
+	dup body> xt? IF
+	    dup body> >code-address dovalue: = IF
+		dup body> name>string dup IF
+		    ['] val-color .string space  drop cell+  EXIT
+		ELSE  2drop  THEN  THEN  THEN
+	c-. s" @ " ['] default-color .string
     then
     cell+ ;
 
