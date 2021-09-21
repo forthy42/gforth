@@ -155,10 +155,12 @@ Defer check-shadow ( addr u wid -- )
     here xt-location drop
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
+    [ has? new-cfa [IF] ] 0 A, [ [THEN] ]
     here cell+ last ! ; \ set last header
 : 0name, ( -- )
     cfalign 0 last !
-    here xt-location drop ;
+    here xt-location drop
+    [ has? new-cfa [IF] ] 0 A, [ [THEN] ] ;
 : namevt, ( namevt -- )
     , here lastnt ! ; \ add location stamps on vt+cf
 
@@ -176,10 +178,12 @@ Defer check-shadow ( addr u wid -- )
 
 : header, ( c-addr u -- ) \ gforth
     \G create a header for a named word
-    vt, name, vttemplate namevt, named-vt ;
+    vt, name, [ has? new-cfa [IF] ] 0 , [ [THEN] ]
+    vttemplate namevt, named-vt ;
 : noname, ( -- ) \ gforth
     \G create an empty header for an unnamed word
-    vt, 0name, vttemplate namevt, noname-vt ;
+    vt, 0name, [ has? new-cfa [IF] ] 0 , [ [THEN] ]
+    vttemplate namevt, noname-vt ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -188,7 +192,8 @@ defer header-name,
 defer header-extra ' noop is header-extra
 : header ( -- ) \ gforth
     \G create a header for a word
-    vt, header-name, vttemplate namevt, ?noname-vt header-extra ;
+    vt, header-name, [ has? new-cfa [IF] ] 0 , [ [THEN] ]
+    vttemplate namevt, ?noname-vt header-extra ;
 
 : create-from ( nt "name" -- ) \ gforth
     \G Create a word @i{name} that behaves like @i{nt}, but with an
@@ -198,13 +203,17 @@ defer header-extra ' noop is header-extra
     \G faster than if you create a word using @code{set-} words,
     \G @code{immediate}, or @code{does>}.  You can use @code{noname}
     \G with @code{create-from}.
-    vt, header-name, >namevt 2@ , cfa,
+    vt, header-name,
+    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namevt 2@ [ [THEN] ]
+    , cfa,
     last @ 0= IF noname-vt THEN header-extra ;
 
 : noname-from ( xt -- ) \ gforth
     \G Create a nameless word that behaves like @i{xt}, but with an
     \G empty body.  @i{xt} must be the nt of a nameless word.
-    vt, 0name, >namevt 2@ , cfa, ;
+    vt, 0name,
+    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namevt 2@ [ [THEN] ]
+    , cfa, ;
 
 : input-stream-header ( "name" -- )
     parse-name name-too-short? name, ;
@@ -300,7 +309,7 @@ Variable litstack
 has? new-cfa [IF]
     : cfa,     ( code-address -- )  \ gforth	cfa-comma
 	here  dup lastnt !
-	2 cells - code-address! ;
+	>cfa code-address! ;
 [ELSE]
     : cfa,     ( code-address -- )  \ gforth	cfa-comma
 	here

@@ -2920,10 +2920,11 @@ T :noname H
     r> ?dup IF  swap resolve  ELSE  drop  THEN
 ;Cond
 
+X has? new-cfa [IF] #11 [ELSE] #10 [THEN] Constant does-xt-off
 : DOES>
     ['] does-resolved created >comp !
-    T here cfaligned #10 cells H \ includes noname header+vtable
-    + !newdoes
+    T here does-xt-off cells H + T cfaligned H \ includes noname header+vtable
+    !newdoes
     T :noname H 2drop
     instant-interpret-does>-hook
     depth ;
