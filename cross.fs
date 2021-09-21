@@ -2824,7 +2824,7 @@ ghost :-dummy Constant :-ghost
   :-ghost executed-ghost !  (THeader (:) ;
 
 : gstart-xt ( -- colon-sys xt )
-    [ x has? new-cfa ] [IF] T 2 cells allot H
+    [ x has? new-cfa ] [IF] T 2 cells allot H [THEN]
     there >r here ghostheader r@ resolve
     docol, ]comp colon-start depth ;Resolve off T ] H r> ;
 
