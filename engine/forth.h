@@ -301,13 +301,15 @@ typedef union {
 typedef Label *Xt;
 
 #ifdef NEW_CFA
+#define CFA_OFFSET	2
 /* PFA gives the parameter field address corresponding to a cfa */
-#define PFA(cfa)	(((Cell *)(cfa))+2)
+#define PFA(cfa)	(((Cell *)(cfa))+CFA_OFFSET)
 /* PFA1 is a special version for use just after a NEXT1 */
 #define PFA1(cfa)	PFA(cfa)
 /* CODE_ADDRESS is the address of the code jumped to through the code field */
-#define CODE_ADDRESS(cfa)	((Xt)(cfa)[-2])
+#define CODE_ADDRESS(cfa)	(((Xt)(cfa))[-CFA_OFFSET])
 #else
+#define CFA_OFFSET	0
 /* PFA gives the parameter field address corresponding to a cfa */
 #define PFA(cfa)	(((Cell *)cfa)+1)
 /* PFA1 is a special version for use just after a NEXT1 */
