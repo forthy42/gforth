@@ -146,6 +146,16 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
+' noop Alias recurse
+\g Alias to the current definition.
+
+unlock tlastcfa @ lock >body AConstant lastnt
+\ this is the alias pointer in the recurse header, named lastnt.
+\ changing lastnt now changes where recurse aliases to
+\ it's always an alias of the current definition
+\ it won't work in a flash/rom environment, therefore for Gforth EC
+\ we stick to the traditional implementation
+
 : name, ( c-addr u -- ) \ gforth
     \G compile the named part of a header
     name-too-long?
@@ -156,9 +166,9 @@ Defer check-shadow ( addr u wid -- )
     \ link field; before revealing, it contains the
     \ tagged reveal-into wordlist
     [ has? new-cfa [IF] ] 0 A, [ [THEN] ]
-    here cell+ last ! ; \ set last header
+    here cell+ dup last ! lastnt ! ; \ set last header
 : 0name, ( -- )
-    cfalign 0 last !
+    cfalign 0 last ! 0 lastnt !
     here xt-location drop
     [ has? new-cfa [IF] ] 0 A, [ [THEN] ] ;
 : namevt, ( namevt -- )
@@ -174,7 +184,7 @@ Defer check-shadow ( addr u wid -- )
     default-i/c
     ['] named>string set-name>string
     ['] named>link set-name>link ;
-: ?noname-vt ( -- ) last @ 0= IF  noname-vt  ELSE  named-vt  THEN ;
+: ?noname-vt ( -- ) lastnt @ 0= IF  noname-vt  ELSE  named-vt  THEN ;
 
 : header, ( c-addr u -- ) \ gforth
     \G create a header for a named word
@@ -204,9 +214,9 @@ defer header-extra ' noop is header-extra
     \G @code{immediate}, or @code{does>}.  You can use @code{noname}
     \G with @code{create-from}.
     vt, header-name,
-    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namevt 2@ [ [THEN] ]
-    , cfa,
-    last @ 0= IF noname-vt THEN header-extra ;
+    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namevt 2@ [ [THEN] ] ,
+    lastnt @ 0= IF noname-vt THEN cfa,
+    header-extra ;
 
 : noname-from ( xt -- ) \ gforth
     \G Create a nameless word that behaves like @i{xt}, but with an
@@ -285,16 +295,6 @@ immediate restrict
     parse-name dup 0= #-16 and throw ;
 
 \ \ threading							17mar93py
-
-' noop Alias recurse
-\g Alias to the current definition.
-
-unlock tlastcfa @ lock >body AConstant lastnt
-\ this is the alias pointer in the recurse header, named lastnt.
-\ changing lastnt now changes where recurse aliases to
-\ it's always an alias of the current definition
-\ it won't work in a flash/rom environment, therefore for Gforth EC
-\ we stick to the traditional implementation
 
 Variable litstack
 
