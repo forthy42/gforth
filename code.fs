@@ -58,7 +58,7 @@ vocabulary assembler ( -- ) \ tools-ext
 
 : (;code) ( -- ) \ gforth
     \ execution semantics of @code{;code}
-    r> latestnt code-address! ;
+    r> latestnt [IFDEF] >cfa >cfa [THEN] code-address! ;
 
 [ifundef] ?colon-sys
 : ?colon-sys  ( ... xt tag -- )
@@ -66,7 +66,7 @@ vocabulary assembler ( -- ) \ tools-ext
 [then]
 
 :noname ( -- colon-sys )
-    align here latestnt code-address!
+    align here latestnt [IFDEF] >cfa >cfa [THEN] code-address!
     defstart init-asm ;
 :noname ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )

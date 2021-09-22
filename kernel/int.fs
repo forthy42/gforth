@@ -572,7 +572,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 : any-code! ( a-addr cfa code-addr -- )
     \ for implementing DOES> and ;ABI-CODE, maybe :
     \ code-address is stored at cfa, a-addr at cfa+cell
-    over !  >namevt @ >vtextra ! ;
+    over [ [IFDEF] >cfa ] >cfa [ [THEN] ] code-address!  >namevt @ >vtextra ! ;
 
 : does-code! ( xt1 xt2 -- ) \ gforth
 \G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;
