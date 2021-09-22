@@ -229,10 +229,12 @@ Defer ?warn#  ' noop is ?warn#
 struct
     has? new-cfa [IF]
 	2 cells - \ wordlist-map is at offset -1 cell like vtable
+	0 0 field wordlist-start
 	cell% field wordlist-exec \ exec pointer for wordlist-map-struct
 	cell% field wordlist-map \ pointer to a wordlist-map-struct
     [ELSE]
 	1 cells - \ wordlist-map is at offset -1 cell like vtable
+	0 0 field wordlist-start
 	cell% field wordlist-map \ pointer to a wordlist-map-struct
 	cell% field wordlist-exec \ exec pointer for wordlist-map-struct
     [THEN]

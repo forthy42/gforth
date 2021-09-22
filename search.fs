@@ -65,7 +65,9 @@ Variable slowvoc   0 slowvoc !
 
 : mappedwordlist ( map-struct -- wid )	\ gforth
 \G Create a wordlist with a special map-structure.
-    cfalign A, here dodoes: A, wl, dup initwl ;
+    cfalign
+    [ 0 >body ] [IF] A, here dodoes: A, [ELSE] dodoes: A, A, here [THEN]
+    wl, dup initwl ;
 
 : wordlist  ( -- wid ) \ search
   \G Create a new, empty word list represented by @i{wid}.
@@ -81,9 +83,9 @@ Variable slowvoc   0 slowvoc !
   \G The run-time effect of "name" is to replace the @i{wid} at the
   \G top of the search order with the @i{wid} associated with the new
   \G word list.
-  Create  [: 0 wordlist-map - context ! ;] set-does> wordlist drop ;
-(field) >wordlist ( voc-xt -- wordlist ) 0 wordlist-map negate >body ,
-(field) >voc ( wordlist -- voc-xt ) 0 >body negate wordlist-map ,
+  Create  [: 0 wordlist-start - context ! ;] set-does> wordlist drop ;
+(field) >wordlist ( voc-xt -- wordlist ) 0 wordlist-start negate >body ,
+(field) >voc ( wordlist -- voc-xt ) 0 >body negate wordlist-start ,
 
 : >order ( wid -- ) \ gforth to-order
     \g Push @var{wid} on the search order.

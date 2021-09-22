@@ -462,13 +462,13 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     A, ;
 
 : Alias    ( xt "name" -- ) \ gforth
-    header dodefer, ['] a>int ['] a>comp synonym, reveal ;
+    ['] parser create-from ['] a>int ['] a>comp synonym, reveal ;
 
 : alias? ( nt -- flag )
     >namevt @ >vt>int 2@ ['] a>comp ['] a>int d= ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
-    header dodefer,
+    ['] parser create-from
     ?parse-name find-name dup 0= #-13 and throw
     dup compile-only? IF  compile-only  THEN
     ['] s>int ['] s>comp synonym, reveal ;
@@ -529,7 +529,7 @@ Variable to-style# 0 to-style# !
 
 : !!?addr!! ( -- ) to-style# @ -1 = -2056 and throw ;
 
-: (Field)  ['] >body create-from reveal ;
+: (Field)  ['] wordlist-map create-from reveal ;
 
 \ IS Defer What's Defers TO                            24feb93py
 
@@ -651,7 +651,7 @@ Create vttemplate
     \G @code{set-optimizer} afterwards if you want a more efficient
     \G implementation.
     ['] general-compile, set-optimizer
-    latestnt code-address! ;
+    latestnt [ [IFDEF] >cfa ] >cfa [ [THEN] ] code-address! ;
 : set-does> ( xt -- ) \ gforth
     \G Changes the current word such that it pushes its body address
     \G and then executes @i{xt}.  Also changes the \code{compile,}
@@ -659,7 +659,7 @@ Create vttemplate
     \G afterwards if you want a more efficient implementation.
     ['] does, set-optimizer
     vttemplate >vtextra !
-    dodoes: latestnt code-address! ;
+    dodoes: latestnt [ [IFDEF] >cfa ] >cfa [ [THEN] ] code-address! ;
 : set-to        ( to-xt -- ) ?vt vttemplate >vtto ! ;
 : set-defer@    ( defer@-xt -- ) ?vt vttemplate >vtdefer@ ! ;
 : set->int      ( xt -- ) ?vt vttemplate >vt>int ! ;
