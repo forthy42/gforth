@@ -14604,7 +14604,9 @@ doc-getenv
 
 doc-ms
 doc-time&date
+doc->time&date
 doc-utime
+doc-ntime
 doc-cputime
 
 

@@ -648,3 +648,12 @@ end-struct buffer%
 \ 2 cells are absolutely sufficient
 
 ' (xparse) is parse
+
+\ time&date
+
+[IFDEF] >time&date
+    : time&date ( -- nsec nmin nhour nday nmonth nyear )
+	\G Report the current time of day. Seconds, minutes and hours are
+	\G numbered from 0. Months are numbered from 1.
+	utime #1000000 um/mod nip >time&date ;
+[THEN]

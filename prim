@@ -2159,10 +2159,10 @@ close-pipe	( wfileid -- wretval wior )		gforth	close_pipe
 wretval = pclose((FILE *)wfileid);
 wior = IOR(wretval==-1);
 
-time&date	( -- nsec nmin nhour nday nmonth nyear )	facility-ext	time_and_date
-""Report the current time of day. Seconds, minutes and hours are numbered from 0.
+>time&date	( ntime -- nsec nmin nhour nday nmonth nyear )	gforth	to_time_and_date
+""Convert time in seconds since 1.1.1970 0:00Z to the current time of day. Seconds, minutes and hours are numbered from 0.
 Months are numbered from 1.""
-time_t now;
+time_t now=(time_t)ntime;
 struct tm ltime;
 time(&now);
 localtime_r(&now, &ltime); /* thread save version */
@@ -2455,7 +2455,7 @@ Create "newline e? crlf [IF] 2 c, $0D c, [ELSE] 1 c, [THEN] $0A c,
 \+os
 
 utime	( -- dtime )	gforth
-""Report the current time in microseconds since some epoch.""
+""Report the current time in microseconds since some epoch.  Use @code{#1000000 um/mod nip} to convert to seconds""
 struct timeval time1;
 gettimeofday(&time1,NULL);
 dtime = timeval2us(&time1);
