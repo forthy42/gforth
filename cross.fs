@@ -2913,7 +2913,9 @@ X has? primcentric [IF]
 
 Cond: DOES>
     T here cfaligned H
-    [ T has? primcentric H [IF] ] #6 [ [ELSE] ] #7 [ [THEN] ]
+[ T has? primcentric H [IF]
+    T has? new-cfa H [IF] ] #7 [ [ELSE] ] #6 [ [THEN]
+[ELSE] ] #7 [ [THEN] ]
     T cells H + alit, compile set-does> compile ;
     Last-Header-Ghost @ >do:ghost @ >r
 T :noname H

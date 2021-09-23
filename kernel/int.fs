@@ -539,8 +539,13 @@ const Create ???
     dup xt? 0= IF  drop ['] ???  THEN ;
 
 has? new-cfa [IF]
-    ' noop alias >body  ' drop set-optimizer
-    ' noop alias body>  ' drop set-optimizer
+0 0 0 0 field >body ( xt -- a_addr ) \ core to-body
+\G Get the address of the body of the word represented by @i{xt} (the
+\G address of the word's data field).
+drop drop
+
+0 0 0 0 field body> ( xt -- a_addr )
+    drop drop
 
     : >code-address >cfa @ ;
 [ELSE]
