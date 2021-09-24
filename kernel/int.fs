@@ -947,9 +947,11 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 [ [THEN] ]
     -56 (bye) ; \ indicate QUIT
 
+: xt, ( xt -- ) here swap , xt-location drop ;
+
 : boot ( path n **argv argc -- )
     threading-method 1 = if
-	['] , is compile,
+	['] xt, is compile,
     then
 [ has? no-userspace 0= [IF] ]
     next-task 0= IF  main-task up!

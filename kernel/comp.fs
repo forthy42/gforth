@@ -358,7 +358,7 @@ has? primcentric [IF]
 	: peephole-compile, ( xt -- addr ) @ , ;
     [THEN]
 [ELSE]
-' , is compile,
+    ' xt, is compile,
 [THEN]
 
 \ \ ticks
