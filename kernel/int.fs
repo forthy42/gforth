@@ -422,6 +422,7 @@ has? new-cfa [IF]
     cell var >f+c
     cell var >link
     cell var >namevt
+    cell var >cfa
 [THEN]
 
 method opt-compile, ( xt -- ) \ gforth-internal
