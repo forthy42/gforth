@@ -528,7 +528,7 @@ const Create ???
     dup in-dictionary? IF
 	dup >body dup maxaligned = IF
 	    dup >namevt @ vt? IF
-		dup @ tuck body> = swap
+		dup >code-address tuck body> = swap
 		docol:  ['] u#+ @ 1+ within or  EXIT
 	    THEN
 	THEN
