@@ -42,10 +42,10 @@ require extend.fs
 require glocals.fs
 require iloops.fs
 require stuff.fs
-require fold.fs
+threading-method 1 <> [IF] require fold.fs [THEN]
 require sections2.fs
 require struct0x.fs
-require stagediv.fs
+threading-method 1 <> [IF] require stagediv.fs [THEN]
 require closures.fs
 require wordinfo.fs
 require vt100.fs

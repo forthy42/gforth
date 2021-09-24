@@ -122,9 +122,10 @@ forth definitions
     dead-code off
     defstart ;
 
-: closure> ( body -- addr ) \ gforth-experimental closure-end
+: closure> ( vtable -- addr ) \ gforth-experimental closure-end
     \G create trampoline head
-    dodoes: >l >l lp@ cell+ ;
+    [ 0 >body ] [IF] dodoes: >l >l lp@ cell+
+    [ELSE] >l dodoes: >l lp@ cell+ cell+ [THEN] ;
 : end-dclosure ( unravel-xt -- closure-sys )
     >r
     postpone lit here 0 ,
