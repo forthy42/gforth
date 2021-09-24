@@ -528,8 +528,8 @@ const Create ???
     dup in-dictionary? IF
 	dup >body dup maxaligned = IF
 	    dup >namevt @ vt? IF
-		dup >code-address tuck body> = swap
-		docol:  ['] u#+ >code-address 1+ within or  EXIT
+		dup [ has? new-cfa [IF] ] >code-address [ [ELSE] ] @ [ [THEN] ] tuck body> = swap
+		docol:  ['] u#+ [ has? new-cfa [IF] ] >code-address [ [ELSE] ] @ [ [THEN] ] 1+ within or  EXIT
 	    THEN
 	THEN
     THEN
