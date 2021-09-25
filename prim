@@ -2164,7 +2164,6 @@ wior = IOR(wretval==-1);
 Months are numbered from 1.""
 time_t now=(time_t)ntime;
 struct tm ltime;
-time(&now);
 localtime_r(&now, &ltime); /* thread save version */
 nyear =ltime.tm_year+1900;
 nmonth=ltime.tm_mon+1;
