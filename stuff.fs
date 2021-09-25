@@ -639,7 +639,7 @@ end-struct buffer%
     over + >in +!
     2dup input-lexeme! ;
 
-: (xparse)    ( xchar "ccc<char>" -- c-addr u ) \ core-ext
+: (xparse)    ( xchar "ccc<char>" -- c-addr u )
 \G Parse @i{ccc}, delimited by @i{xchar}, in the parse
 \G area. @i{c-addr u} specifies the parsed string within the
 \G parse area. If the parse area was empty, @i{u} is 0.
@@ -652,7 +652,7 @@ end-struct buffer%
 \ time&date
 
 [IFDEF] >time&date
-    : time&date ( -- nsec nmin nhour nday nmonth nyear )
+    : time&date ( -- nsec nmin nhour nday nmonth nyear ) \ facility-ext time-and-date
 	\G Report the current time of day. Seconds, minutes and hours are
 	\G numbered from 0. Months are numbered from 1.
 	utime #1000000 um/mod nip >time&date ;
