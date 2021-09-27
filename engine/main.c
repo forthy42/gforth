@@ -134,7 +134,7 @@ jmp_buf throw_jmp_handler;
 #define CFA_OFf         0
 #endif
 #if defined(DOUBLY_INDIRECT)
-#  define CFA(n)	(({Cell _n = (n); ((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)));})+CFA_OFF)
+#  define CFA(n)	({Cell _n = (n); (((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)))+((_n & 0x4000) ? CFA_OFF : 0));})
 #else
 #  define CFA(n)	(((Cell)(symbols+((n)&~0x4000UL)))+CFA_OFF)
 #endif
