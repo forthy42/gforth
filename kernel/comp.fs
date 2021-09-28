@@ -355,7 +355,8 @@ has? primcentric [IF]
 	    \ compile xt, appending its code to the current dynamic superinstruction
 	    lits, prim-check here swap , xt-location compile-prim1 ;
     [ELSE]
-	: peephole-compile, ( xt -- addr ) @ , ;
+	: peephole-compile, ( xt -- addr )
+	    lits, here xt-location drop , ;
     [THEN]
 [ELSE]
     ' xt, is compile,

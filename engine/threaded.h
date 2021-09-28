@@ -128,9 +128,9 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
 
 #ifndef CODE_ADDRESS
 # ifdef NEW_CFA
-#  define CODE_ADDRESS(cfa)	((cfa)[-2])
+#  define CODE_ADDRESS(cfa)	(((Label*)(cfa))[-2])
 # else
-#  define CODE_ADDRESS(cfa)	((cfa)[0])
+#  define CODE_ADDRESS(cfa)	(((Label*)(cfa))[0])
 # endif
 #endif
 

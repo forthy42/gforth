@@ -1736,11 +1736,11 @@ void compile_prim1(Cell *start)
     return;
   prim = (Label)*start;
   if (prim<((Label)(xts+DOER_MAX)) || prim>((Label)(xts+npriminfos))) {
-    debugp(stderr,"compile_prim encountered xt %p [%lx]\n", prim, (*(Cell*)prim-(Cell)labels));
-    *start = (Cell)((*(Cell*)prim-(Cell)labels)+(Cell)vm_prims);
+    debugp(stderr,"compile_prim encountered xt %p [%lx]\n", prim, (((Cell)CODE_ADDRESS(prim)-(Cell)labels)));
+    *start = (Cell)(((Cell)CODE_ADDRESS(prim)-(Cell)labels)+(Cell)vm_prims)+CFA_OFF;
     return;
   } else {
-    *start = (Cell)(prim-((Label)xts)+((Label)vm_prims));
+    *start = (Cell)(prim-((Cell)xts)+((Cell)vm_prims));
     return;
   }
 #elif defined(INDIRECT_THREADED)
