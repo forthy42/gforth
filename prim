@@ -315,7 +315,7 @@ SUPER_END;
 VM_JUMP(EXEC1(*(Xt *)a_addr));
 
 does-xt ( #a_cfa -- a_body )	new	extra_xt
-a_body = PFA(a_cfa);
+a_body = XT2PFA(a_cfa);
 #ifdef DEBUG
     {
       CFA_TO_NAME(a_cfa);
@@ -3584,7 +3584,7 @@ fp = fp_mem;
 /* primitive for performing ;ABI-CODE words */
 Float *fp_mem = fp;
 semiabifunc *f = (semiabifunc *)EXTRA_CODE(a_cfa);
-Address body = (Address)PFA(a_cfa);
+Address body = (Address)XT2PFA(a_cfa);
 sp = (*f)(sp, &fp_mem, body);
 fp = fp_mem;
 
