@@ -121,7 +121,7 @@ Vocabulary Root ( -- ) \ gforth
 : Only ( -- ) \ search-ext
   \G Set the search order to the implementation-defined minimum search
   \G order (for Gforth, this is the word list @code{Root}).
-  0 1 ['] search-order >body set-stack Root also ;
+  ['] Root >wordlist dup 2 ['] search-order >body set-stack ;
 
 Only Forth also definitions
 
