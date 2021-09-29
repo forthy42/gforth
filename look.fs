@@ -36,7 +36,8 @@ decimal
 : xt= ( ca xt -- flag )
     \G compare threaded-code cell with the primitive xt
     first-throw @ >r first-throw off
-    @ swap threading-method 1 umin 0 +DO  ['] @ catch drop  LOOP  =
+    >code-address swap >cfa
+    threading-method 1 umin 0 +DO  ['] @ catch drop  LOOP  =
     r> first-throw ! ;
 
 : threaded>xt ( ca -- xt|0 )
