@@ -129,14 +129,14 @@ jmp_buf throw_jmp_handler;
 #endif
 
 #ifdef NEW_CFA
-#define CFA_OFF         (2*sizeof(Cell))
+#define CFA_BYTE_OFFSET         (2*sizeof(Cell))
 #else
-#define CFA_OFf         0
+#define CFA_BYTE_OFFSET         0
 #endif
 #if defined(DOUBLY_INDIRECT)
-#  define CFA(n)	({Cell _n = (n); (((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)))+((_n & 0x4000) ? CFA_OFF : 0));})
+#  define CFA(n)	({Cell _n = (n); (((Cell)(((_n & 0x4000) ? symbols : xts)+(_n&~0x4000UL)))+((_n & 0x4000) ? CFA_BYTE_OFFSET : 0));})
 #else
-#  define CFA(n)	(((Cell)(symbols+((n)&~0x4000UL)))+CFA_OFF)
+#  define CFA(n)	(((Cell)(symbols+((n)&~0x4000UL)))+CFA_BYTE_OFFSET)
 #endif
 
 #define maxaligned(n)	(typeof(n))((((Cell)n)+sizeof(Float)-1)&-sizeof(Float))
@@ -1737,7 +1737,7 @@ void compile_prim1(Cell *start)
   prim = (Label)*start;
   if (prim<((Label)(xts+DOER_MAX)) || prim>((Label)(xts+npriminfos))) {
     debugp(stderr,"compile_prim encountered xt %p [%lx]\n", prim, (((Cell)CODE_ADDRESS(prim)-(Cell)labels)));
-    *start = (Cell)(((Cell)CODE_ADDRESS(prim)-(Cell)labels)+(Cell)vm_prims)+CFA_OFF;
+    *start = (Cell)(((Cell)CODE_ADDRESS(prim)-(Cell)labels)+(Cell)vm_prims)+CFA_BYTE_OFFSET;
     return;
   } else {
     *start = (Cell)(prim-((Cell)xts)+((Cell)vm_prims));
@@ -1762,11 +1762,11 @@ void compile_prim1(Cell *start)
       return;
     }
   }
-  prim_num = ((Xt)*start)-vm_prims;
+  prim_num = (((Xt)*start)-vm_prims)-CFA_OFFSET;
   if(prim_num >= npriminfos) {
     /* try search prim number in vm_prims */
     int step, i;
-    UCell inst = **(UCell**)start;
+    UCell inst = CODE_ADDRESS(*(UCell**)start);
     for(i=1; i<npriminfos; i*=2);
     i/=2;
     for(step=i/2; step>0; step/=2) {
@@ -1787,7 +1787,7 @@ void compile_prim1(Cell *start)
     // debugp(stderr,"optimize_rewrite(...,%d)\n",ninsts);
     ninsts=0;
     append_jump();
-    *start = *(Cell *)*start;
+    *start = (Cell)CODE_ADDRESS(*start);
     return;
   }    
   assert(ninsts<MAX_BB);
