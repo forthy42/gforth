@@ -38,7 +38,7 @@ vocabulary assembler ( -- ) \ tools-ext
     \G @code{code} definition with a dispatch to the next virtual
     \G machine instruction.
     header ['] noop vtcopy,
-    here latest !
+    here latest >cfa code-address!
     defstart init-asm ;
 
 [ifdef] doabicode:
@@ -52,7 +52,7 @@ vocabulary assembler ( -- ) \ tools-ext
    \G memory location containing the FP stack pointer and is passed
    \G out by storing the changed FP stack pointer there (if necessary).
     header  ['] (abi-code-dummy) vtcopy,
-    doabicode: latest !
+    doabicode: latest >cfa code-address!
     defstart init-asm ;
 [endif]
 
