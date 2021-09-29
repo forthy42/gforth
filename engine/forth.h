@@ -300,6 +300,8 @@ typedef union {
 
 typedef Label *Xt;
 
+#define NEW_CFA /* undefine if you want old cfa */
+
 #ifdef NEW_CFA
 #define CFA_OFFSET	2
 /* PFA gives the parameter field address corresponding to a cfa */
