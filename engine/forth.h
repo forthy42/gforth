@@ -303,9 +303,9 @@ typedef Label *Xt;
 #ifdef NEW_CFA
 #define CFA_OFFSET	2
 /* PFA gives the parameter field address corresponding to a cfa */
-#define PFA(cfa)	(((Cell *)(cfa))+CFA_OFFSET)
+#define PFA_FROM_CA(cfa)	(((Cell *)(cfa))+CFA_OFFSET)
 /* XT2PFA gives the parameter field address corresponding to an xt */
-#define XT2PFA(cfa)	(((Cell *)(cfa)))
+#define PFA(cfa)	(((Cell *)(cfa)))
 /* PFA1 is a special version for use just after a NEXT1 */
 #define PFA1(cfa)	PFA(cfa)
 /* CODE_ADDRESS is the address of the code jumped to through the code field */

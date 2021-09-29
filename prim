@@ -157,9 +157,6 @@ undefine(`symbols')
 
 (docol)	( -- R:a_retaddr )	gforth-internal	paren_docol
 ""run-time routine for colon definitions""
-#ifdef NEW_CFA
-  CFA-=2;
-#endif
 #ifdef DEBUG
     {
       CFA_TO_NAME(CFA);
@@ -175,65 +172,38 @@ SET_IP((Xt *)PFA(CFA));
 
 (docon) ( -- w )	gforth-internal	paren_docon
 ""run-time routine for constants""
-#ifdef NEW_CFA
-  CFA-=2;
-#endif
 w = *(Cell *)PFA(CFA);
 
 (dovar) ( -- a_body )	gforth-internal	paren_dovar
 ""run-time routine for variables and CREATEd words""
-#ifdef NEW_CFA
-  CFA-=2;
-#endif
 a_body = PFA(CFA);
 
 (douser) ( -- a_user )	gforth-internal	paren_douser
 ""run-time routine for constants""
-#ifdef NEW_CFA
-  CFA-=2;
-#endif
 a_user = (Cell *)(((Address)up)+*(Cell *)PFA(CFA));
 
 (dodefer) ( -- )	gforth-internal	paren_dodefer
 ""run-time routine for deferred words""
-#ifdef NEW_CFA
-  CFA-=2;
-#endif
 ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
 SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
 VM_JUMP(EXEC1(*(Xt *)PFA(CFA)));
 
 (dofield) ( n1 -- n2 )	gforth-internal	paren_field
 ""run-time routine for fields""
-#ifdef NEW_CFA
-  CFA-=2;
-#endif
 n2 = n1 + *(Cell *)PFA(CFA);
 
 (dovalue) ( -- w )	gforth-internal	paren_doval
 ""run-time routine for constants""
-#ifdef NEW_CFA
-  CFA-=2;
-#endif
 w = *(Cell *)PFA(CFA);
 
 (dodoes) ( -- a_body )  gforth-internal       paren_dodoes
-#ifdef NEW_CFA
-  CFA-=2;
-#endif
 a_body = PFA(CFA);
-#ifdef NEW_CFA
-  CFA+=2;
-#endif
 ip=IP; /* undo any ip updating that may have been performed by NEXT_P0 */
 SUPER_END; /* !! probably unnecessary and may lead to measurement errors */
 VM_JUMP(EXEC1(EXTRA_CODEXT(CFA)));
 
 (doabicode) ( ... -- ...)	gforth-internal	paren_doabicode
 ""run-time routine for @code{ABI-code} definitions""
-#ifdef NEW_CFA
-  CFA-=2;
-#endif
 abifunc *f = (abifunc *)PFA(CFA);
 Float *fp_mem = fp;
 sp = (*f)(sp, &fp_mem);
@@ -241,9 +211,6 @@ fp = fp_mem;
 
 (do;abicode) ( ... -- ... ) gforth-internal paren_do_semicolon_abi_code
 ""run-time routine for @code{;abi-code}-defined words""
-#ifdef NEW_CFA
-  CFA-=2;
-#endif
 Float *fp_mem = fp;
 Address body = (Address)PFA(CFA);
 semiabifunc *f = (semiabifunc *)EXTRA_CODE(CFA);
@@ -315,7 +282,7 @@ SUPER_END;
 VM_JUMP(EXEC1(*(Xt *)a_addr));
 
 does-xt ( #a_cfa -- a_body )	new	extra_xt
-a_body = XT2PFA(a_cfa);
+a_body = PFA(a_cfa);
 #ifdef DEBUG
     {
       CFA_TO_NAME(a_cfa);
@@ -3584,7 +3551,7 @@ fp = fp_mem;
 /* primitive for performing ;ABI-CODE words */
 Float *fp_mem = fp;
 semiabifunc *f = (semiabifunc *)EXTRA_CODE(a_cfa);
-Address body = (Address)XT2PFA(a_cfa);
+Address body = (Address)PFA(a_cfa);
 sp = (*f)(sp, &fp_mem, body);
 fp = fp_mem;
 
