@@ -529,8 +529,8 @@ const Create ???
     dup in-dictionary? IF
 	dup >body dup maxaligned = IF
 	    dup >namevt @ vt? IF
-		dup [ has? new-cfa [IF] ] >code-address [ [ELSE] ] @ [ [THEN] ] tuck body> = swap
-		docol:  ['] u#+ [ has? new-cfa [IF] ] >code-address [ [ELSE] ] @ [ [THEN] ] 1+ within or  EXIT
+		dup >code-address tuck body> = swap
+		docol:  ['] u#+ >code-address 1+ within or  EXIT
 	    THEN
 	THEN
     THEN
@@ -558,7 +558,7 @@ drop drop
 cell% -1 * 0 0 field body> ( xt -- a_addr )
     drop drop
 
-' @ alias >code-address ( xt -- c_addr ) \ gforth
+    : >code-address @ ; ( xt -- c_addr ) \ gforth
 \G @i{c-addr} is the code address of the word @i{xt}.
 [THEN]
 
