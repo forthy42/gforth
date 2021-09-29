@@ -188,12 +188,10 @@ unlock tlastcfa @ lock >body AConstant lastnt
 
 : header, ( c-addr u -- ) \ gforth
     \G create a header for a named word
-    vt, name, [ has? new-cfa [IF] ] 0 , [ [THEN] ]
-    vttemplate namevt, named-vt ;
+    vt, name, vttemplate namevt, named-vt ;
 : noname, ( -- ) \ gforth
     \G create an empty header for an unnamed word
-    vt, 0name, [ has? new-cfa [IF] ] 0 , [ [THEN] ]
-    vttemplate namevt, noname-vt ;
+    vt, 0name, vttemplate namevt, noname-vt ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -202,8 +200,7 @@ defer header-name,
 defer header-extra ' noop is header-extra
 : header ( -- ) \ gforth
     \G create a header for a word
-    vt, header-name, [ has? new-cfa [IF] ] 0 , [ [THEN] ]
-    vttemplate namevt, ?noname-vt header-extra ;
+    vt, header-name, vttemplate namevt, ?noname-vt header-extra ;
 
 : create-from ( nt "name" -- ) \ gforth
     \G Create a word @i{name} that behaves like @i{nt}, but with an
