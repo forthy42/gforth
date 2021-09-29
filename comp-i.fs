@@ -126,7 +126,7 @@ drop
 		i reloc-bits set-bit endof
 	    drop
 	    cell1 coffset + cell2 = ?of
-		cell1 cbase - $4000 file-id i write-symbol endof
+		cell1 cbase - >cfa $4000 file-id i write-symbol endof
 	    cell1 xoffset + cell2 = ?of
 		cell1 xbase -     0 file-id i write-symbol endof
 	    cell1 loffset + cell2 = ?of

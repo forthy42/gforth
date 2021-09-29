@@ -197,7 +197,7 @@ is ?warning
 : >prim-code ( xt -- x )
     \ converts xt of a primitive into a form usable in the code of
     \ colon definitions on the current engine
-    threading-method 0= IF @ THEN ;
+    threading-method 0= IF >code-address THEN ;
 
 : replace-word ( xt1 xt2 -- ) \ gforth
   \G make xt2 do xt1, both need to be colon definitions

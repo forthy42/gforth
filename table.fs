@@ -44,6 +44,6 @@ voclink @ @ @ voclink !
 
 : cs-vocabulary ( "name" -- ) \ gforth
     \g Create a case-sensitive vocabulary
-    Vocabulary cs-wordlist-search-map latestnt >body ! ;
+    Vocabulary cs-wordlist-search-map latestnt >wordlist >namevt ! ;
 
 ' cs-vocabulary alias voctable
