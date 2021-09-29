@@ -751,14 +751,20 @@ c-extender !
 
 \ DOTABLE                                               15may93jaw
 
-: DoTable ( ca/cfa -- flag )
-    decompile-prim dup ['] lit xt= IF  drop c>lit true  EXIT  THEN
+: c-lits ( -- )
     display? IF
 	sp@ >r  smart.s-skip off
 	litstack get-stack dup 0 ?DO  dup I - pick smart.s.  LOOP  drop
 	r> sp!
     THEN
-    litstack $free
+    litstack $free ;
+
+: DoTable ( ca/cfa -- flag )
+    decompile-prim
+    C-Output @ IF
+	dup ['] lit xt= IF  drop c>lit true  EXIT  THEN
+    THEN
+    c-lits
     C-Table BEGIN ( cfa table-entry )
 	dup @ dup 0=  IF
 	    drop cell+ @ dup IF ( next table!)

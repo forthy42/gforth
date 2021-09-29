@@ -69,13 +69,14 @@ get-current also see-voc definitions
         Base !
         save-see-flags
         NoFine 10 XPos !
-        dbg-ip @ DisplayMode c-pass ! Analyse drop
+        dbg-ip @ DisplayMode c-pass !
+	Analyse c-lits drop
         25 XPos @ - spaces ." -> " 
         restore-see-flags ;
 
 : get-next ( -- n | n n )
-        DebugMode c-pass !
-        dbg-ip @ Analyse ;
+        DebugMode c-pass ! C-Output off
+        dbg-ip @ Analyse  C-Output on ;
 
 : jump          ( addr -- )
     r> drop \ discard last ip
@@ -106,7 +107,7 @@ CREATE DT 0 , 0 ,
 VARIABLE Body
 
 : nestXT-checkSpecial ( xt -- xt2 | cfa xt2 )
-    dup ['] call = IF
+    dup ['] call xt= IF
 	drop dbg-ip @ cell+ @ body>  EXIT
     THEN
     dup >does-code IF
@@ -114,11 +115,11 @@ VARIABLE Body
 	\ the body address on stack as does> does...
 	dup >body swap EXIT
     THEN
-    dup ['] EXECUTE = IF   
+    dup ['] EXECUTE xt= IF   
 	\ xt to EXECUTE is next stack item...
 	drop EXIT 
     THEN
-    dup ['] PERFORM = IF
+    dup ['] PERFORM xt= IF
 	\ xt to EXECUTE is addressed by next stack item
 	drop @ EXIT 
     THEN
@@ -191,9 +192,9 @@ s" debugger aborted" exception Constant end-debug#
                 BEGIN   d.s disp-step D-Key
                 WHILE   C-Stop @ 0=
                 WHILE   0 get-next set-bp
-                        dbg-ip @ jump
+			input-color dbg-ip @ jump
                         [ here DebugLoop ! ]
-                        restore-bp
+                        restore-bp default-color
                 REPEAT
                 Nesting @ 0= IF EXIT THEN
                 -1 Nesting +! r>
