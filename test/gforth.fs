@@ -432,3 +432,33 @@ t{ :noname  39 5 u/mod ; execute ->  4 7 }t
 t{ :noname -20 -3 /f    ; execute ->  6 }t
 t{ :noname -20 -3 modf  ; execute ->  -2 }t
 t{ :noname -20 -3 /modf ; execute ->  -2 6 }t
+
+\ closures
+
+: A {: w^ k x1 x2 x3 xt: x4 xt: x5 | w^ B :} recursive
+    k @ 0<= IF  x4 x5 +  ELSE
+	B k x1 x2 x3 action-of x4 [{: B k x1 x2 x3 x4 :}L
+	    -1 k +!
+	    k @ B @ x1 x2 x3 x4 A ;] dup B !
+	execute  THEN ;
+: man-or-boy? ( n -- n' ) [: 1 ;] [: -1 ;] 2dup swap [: 0 ;] A ;
+
+t{ 0 man-or-boy? -> 1 }t
+t{ 1 man-or-boy? -> 0 }t
+t{ 2 man-or-boy? -> -2 }t
+t{ 3 man-or-boy? -> 0 }t
+t{ 4 man-or-boy? -> 1 }t
+t{ 5 man-or-boy? -> 0 }t
+t{ 6 man-or-boy? -> 1 }t
+t{ 7 man-or-boy? -> -1 }t
+t{ 8 man-or-boy? -> -10 }t
+
+: homeloc <{: w^ a w^ b w^ c :}h a b c ;> ;
+
+t{ 1 2 3 homeloc >r @ swap @ rot @ r> free -> 1 2 3 0 }t
+
+: adder [{: a b :}h a b + ;] ;
+
+t{ 1 2 adder dup execute swap >addr free -> 3 0 }t
+t{ #1234 #5678 adder dup execute swap >addr free -> #6912 0 }t
+t{ 0 0 adder #1234 #5678 third >body 2! dup execute swap >addr free -> #6912 0 }t
