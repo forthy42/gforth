@@ -948,7 +948,8 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 [ [THEN] ]
     -56 (bye) ; \ indicate QUIT
 
-: xt, ( xt -- ) here swap , xt-location drop ;
+: xt, ( xt -- )
+    lits, here xt-location drop , ;
 
 : boot ( path n **argv argc -- )
     threading-method 1 = if

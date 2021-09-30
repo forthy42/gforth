@@ -276,7 +276,7 @@ variable nextname$
     \G Compilation semantics: compile the run-time semantics.@*
     \G Run-time Semantics: push @i{n}.@*
     \G Interpretation semantics: undefined.
-    threading-method 1 = IF  postpone lit ,  ELSE  >lits  THEN ;
+    >lits ; \ threading-method 1 = IF  postpone lit ,  ELSE  >lits  THEN ;
 immediate restrict
 
 : 2Literal ( compilation w1 w2 -- ; run-time  -- w1 w2 ) \ double two-literal

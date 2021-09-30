@@ -445,7 +445,6 @@ t{ 1 2 ' + combiner dup execute swap >addr free -> 3 0 }t
 t{ #1234 #5678 ' xor combiner dup execute swap >addr free -> #4860 0 }t
 t{ 0 0 ' + combiner #1234 #5678 third >body 2! dup execute swap >addr free -> #6912 0 }t
 
-threading-method 1 <> [IF]
 : A {: w^ k x1 x2 x3 xt: x4 xt: x5 | w^ B :} recursive
     k @ 0<= IF  x4 x5 +  ELSE
 	B k x1 x2 x3 action-of x4 [{: B k x1 x2 x3 x4 :}L
@@ -463,4 +462,3 @@ t{ 5 man-or-boy? -> 0 }t
 t{ 6 man-or-boy? -> 1 }t
 t{ 7 man-or-boy? -> -1 }t
 t{ 8 man-or-boy? -> -10 }t
-[THEN]
