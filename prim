@@ -2126,7 +2126,7 @@ close-pipe	( wfileid -- wretval wior )		gforth	close_pipe
 wretval = pclose((FILE *)wfileid);
 wior = IOR(wretval==-1);
 
->time&date	( ntime -- nsec nmin nhour nday nmonth nyear )	gforth	to_time_and_date
+>time&date&tz	( ntime -- nsec nmin nhour nday nmonth nyear fdst ndstoff c_addrtz utz )	gforth	to_time_and_date
 ""Convert time in seconds since 1.1.1970 0:00Z to the current time of day. Seconds, minutes and hours are numbered from 0.
 Months are numbered from 1.""
 time_t now=(time_t)ntime;
@@ -2138,6 +2138,16 @@ nday  =ltime.tm_mday;
 nhour =ltime.tm_hour;
 nmin  =ltime.tm_min;
 nsec  =ltime.tm_sec;
+fdst  =FLAG(ltime.tm_isdst);
+#ifdef __USE_MISC
+ndstoff=ltime.tm_gmtoff;
+c_addrtz=ltime.tm_zone;
+utz     =strlen(ltime.tm_zone);
+#else
+ndstoff = 0;
+c_addrtz= 0;
+utz     = 0;
+#endif
 
 (ms)	( u -- )	facility-ext	paren_ms
 ""Wait at least @i{n} milli-second.""

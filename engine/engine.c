@@ -25,6 +25,10 @@
 #define USE_TOS
 #endif
 
+#ifdef __gnu_linux__
+#define __USE_MISC 1
+#endif
+
 #include "config.h"
 #include "forth.h"
 #include "symver.h"
