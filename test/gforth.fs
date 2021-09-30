@@ -457,8 +457,8 @@ t{ 8 man-or-boy? -> -10 }t
 
 t{ 1 2 3 homeloc >r @ swap @ rot @ r> free -> 1 2 3 0 }t
 
-: adder [{: a b :}h a b + ;] ;
+: combiner [{: a b xt: do-it :}h a b do-it ;] ;
 
-t{ 1 2 adder dup execute swap >addr free -> 3 0 }t
-t{ #1234 #5678 adder dup execute swap >addr free -> #6912 0 }t
-t{ 0 0 adder #1234 #5678 third >body 2! dup execute swap >addr free -> #6912 0 }t
+t{ 1 2 ' + combiner dup execute swap >addr free -> 3 0 }t
+t{ #1234 #5678 ' xor combiner dup execute swap >addr free -> #4860 0 }t
+t{ 0 0 ' + combiner #1234 #5678 third >body 2! dup execute swap >addr free -> #6912 0 }t
