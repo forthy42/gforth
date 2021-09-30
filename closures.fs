@@ -31,10 +31,10 @@ Defer endref, ( -- )
 \ pushes a reference to the location
 ' noop is endref,
 
-: >addr ( xt -- addr ) \ gforth-experimental to-addr
+-2 cells field: >addr ( xt -- addr ) \ gforth-experimental to-addr
     \G convert the xt of a closure on the heap to the @var{addr} with can be
     \G passed to @code{free} to get rid of the closure
-    cell- ;
+drop
 : alloch ( size -- addr ) \ addr is the end of the allocated region
     dup allocate throw + ;
 : allocd ( size -- addr ) \ addr is the end of the allocated region
