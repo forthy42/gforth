@@ -437,7 +437,7 @@ include ./recognizer.fs
 \ \ Create Variable User Constant                        	17mar93py
 
 : defer@, ( xt -- )
-    dup lit, >namevt @ >vtdefer@ @ opt-compile, ;
+    dup lit, >namevt @ >vtdefer@ @ opt!-compile, ;
 
 : a>int ( nt -- )  >body @ ;
 : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;

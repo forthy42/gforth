@@ -440,7 +440,7 @@ threading-method 1 <> [IF]
 
 \ t{ 1 2 3 homeloc >r @ swap @ rot @ r> free -> 1 2 3 0 }t
 
-: combiner [{: a b xt: do-it :}h a b do-it ;] ;
+: combiner [{: a b xt: do-it | c :}h a b do-it ;] ;
 
 t{ 1 2 ' + combiner dup execute swap >addr free -> 3 0 }t
 t{ #1234 #5678 ' xor combiner dup execute swap >addr free -> #4860 0 }t
