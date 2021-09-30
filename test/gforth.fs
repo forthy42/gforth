@@ -435,7 +435,6 @@ t{ :noname -20 -3 /modf ; execute ->  -2 6 }t
 
 \ closures
 
-threading-method 1 <> [IF]
 \ : homeloc <{: w^ a w^ b w^ c :}h a b c ;> ;
 
 \ t{ 1 2 3 homeloc >r @ swap @ rot @ r> free -> 1 2 3 0 }t
@@ -446,6 +445,7 @@ t{ 1 2 ' + combiner dup execute swap >addr free -> 3 0 }t
 t{ #1234 #5678 ' xor combiner dup execute swap >addr free -> #4860 0 }t
 t{ 0 0 ' + combiner #1234 #5678 third >body 2! dup execute swap >addr free -> #6912 0 }t
 
+threading-method 1 <> [IF]
 : A {: w^ k x1 x2 x3 xt: x4 xt: x5 | w^ B :} recursive
     k @ 0<= IF  x4 x5 +  ELSE
 	B k x1 x2 x3 action-of x4 [{: B k x1 x2 x3 x4 :}L
