@@ -271,7 +271,7 @@ DOES> swap hb_feature_t * + ;
     0  r@ hb_feature_t-start l!
     -1 r> hb_feature_t-end l! ;
 
-"dlig" 1 0 userfeatures hb-feature!
+"dlig" hb-tag 1 0 userfeatures hb-feature!
 
 : shape-splits ( -- )
     $splits[] stack# 0 ?DO
