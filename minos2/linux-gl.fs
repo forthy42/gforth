@@ -208,7 +208,8 @@ end-structure
 
 app_input_state buffer: *input
 
-Variable rendering -2 rendering !
+[IFUNDEF] rendering  Variable rendering  [THEN]
+-2 rendering !
 Variable ?sync-update
 4 buffer: wm_delete_window
 4 buffer: wm_ping

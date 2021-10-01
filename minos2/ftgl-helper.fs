@@ -21,7 +21,7 @@
 \ freetype stuff
 
 require ../unix/freetype-gllib.fs
-require ../unix/harfbuzzlib.fs
+require unix/harfbuzz.fs
 
 also freetype-gl
 also opengl
