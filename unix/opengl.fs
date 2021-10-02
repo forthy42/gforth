@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Vocabulary opengl
+CS-Vocabulary opengl
 get-current also opengl definitions
 
 include unix/gl.fs

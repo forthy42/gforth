@@ -1,6 +1,6 @@
 \ wrapper to load Swig-generated libraries
 
-Vocabulary opengl
+CS-Vocabulary opengl
 get-current also opengl definitions
 
 e? os-type s" ios" str= [IF]
