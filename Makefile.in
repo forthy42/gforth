@@ -345,11 +345,10 @@ LIBCC_SRC1 = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs	\
 
 LIBCC_SRC = $(patsubst %,unix/%,$(SWIGLIBS))
 
-UNIXLIBS_SRC = unix/opengl.fs unix/opengles.fs unix/opengles3.fs	   \
-	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs			   \
-	unix/freetype-gllib.fs unix/android.fs unix/openmax.fs unix/cpu.fs \
-	unix/png.fs unix/gpslib.fs unix/gstlib.fs unix/stb-image.fs	   \
-	unix/stb-image-write.fs
+UNIXLIBS_SRC = unix/opengl.fs unix/opengles.fs unix/opengles3.fs	      \
+	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs unix/android.fs	      \
+	unix/openmax.fs unix/cpu.fs unix/png.fs unix/gpslib.fs unix/gstlib.fs \
+	unix/stb-image.fs unix/stb-image-write.fs
 
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i \
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/png16.i	   \

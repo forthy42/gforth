@@ -20,7 +20,7 @@
 
 \ freetype stuff
 
-require ../unix/freetype-gllib.fs
+require unix/freetype-gl.fs
 require unix/harfbuzz.fs
 
 also freetype-gl
