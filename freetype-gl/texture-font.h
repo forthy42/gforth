@@ -482,6 +482,15 @@ typedef struct texture_font_t
 		      float size);
 
 /**
+ * activate font for a different size
+ *
+ * @param self         a valid texture font
+ */
+
+  int
+  texture_font_activate_size( texture_font_t * self );
+
+/**
  * Close the freetype structures from a font and the associated library
  *
  * @param self         a valid texture font

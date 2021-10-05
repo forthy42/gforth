@@ -678,6 +678,19 @@ texture_font_load_glyph( texture_font_t * self,
                                        ucodepoint);
 }
 
+// ---------------------------------------------- texture_font_activate_size ---
+
+int
+texture_font_activate_size( texture_font_t * self )
+{
+  int error = FT_Activate_Size( self->ft_size );
+  if(error) {
+    freetype_error( error );
+    return 0;
+  }
+  return 1;
+}
+
 // ------------------------------------------------ texture_font_load_glyph ---
 int
 texture_font_load_glyph_gi( texture_font_t * self,

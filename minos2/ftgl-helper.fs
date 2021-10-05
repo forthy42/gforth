@@ -119,7 +119,7 @@ color f@ FValue xy-color
 : s0t1>st- ( si ti addr -- ) dup sf@ 75% f* dup 8 + sf@ 25% f* f+ t.s sf!  12 + l@ t.t l! ;
 : s1t1>st- ( si ti addr -- ) dup sf@ 25% f* dup 8 + sf@ 75% f* f+ t.s sf!  12 + l@ t.t l! ;
 
-: xy, { glyph -- }
+: xy, { glyph -- dx dy }
     \ glyph texture_glyph_t-codepoint l@
     x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
@@ -136,20 +136,28 @@ color f@ FValue xy-color
     x0 y1 >xy n> xy-color i>c dup s0t1>st v+
     x1 y1 >xy n> xy-color i>c     s1t1>st v+
     v>
-    xp glyph texture_glyph_t-advance_x sf@ xs f* f+ penxy sf!
-    yp glyph texture_glyph_t-advance_y sf@ ys f* f+ penxy sfloat+ sf!
-\    drop
-;
+    glyph texture_glyph_t-advance_x sf@ xs f*
+    glyph texture_glyph_t-advance_y sf@ ys f* ;
 
+[IFUNDEF] sf+!
+    : sf+! ( f addr -- )
+	dup sf@ f+ sf! ;
+[THEN]
+
+: xy+ ( x y -- )
+    penxy sfloat+ sf+!  penxy sf+! ;
+
+: glyph, ( glyph -- dx dy )
+    i>off  xy, 2 quad ;
 : glyph+xy ( glyph -- )
-    i>off  xy,  2 quad ;
+    glyph, xy+ ;
 
-: all-glyphs ( -- )
+: all-glyphs ( -- ) 0e atlas# s>f { f: l# f: r# }
     i>off >v
-    0e 0e >xy n> color @ i>c 0e 0e >st v+
-    512e 0e >xy n> color @ i>c 1e 0e >st v+
-    0e 512e >xy n> color @ i>c 0e 1e >st v+
-    512e 512e >xy n> color @ i>c 1e 1e >st v+
+    l# l# >xy n> color @ i>c 0e 0e >st v+
+    r# l# >xy n> color @ i>c 1e 0e >st v+
+    l# r# >xy n> color @ i>c 0e 1e >st v+
+    r# r# >xy n> color @ i>c 1e 1e >st v+
     v> 2 quad ;
 
 0 Value font
@@ -165,11 +173,11 @@ Defer font-select# ( xcaddr -- xcaddr num )
 
 : font->t.i0 ( font -- )
     -2e to t.i0  color f@ to xy-color
+    dup texture_font_t-scale sf@ to f-scale
     texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
 	2e +to xy-color -1e to t.i0  THEN ;
 
-: double-atlas ( xc-addr -- xc-addr )
-    font-select
+: double-atlas ( font -- )
     dup texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
 	atlas-bgra# 2* dup >r to atlas-bgra#
     ELSE
@@ -181,11 +189,15 @@ Defer font-select# ( xcaddr -- xcaddr num )
 : glyph@ ( font xc-addr -- font xc-addr glyph )
     BEGIN  2dup texture_font_get_glyph dup 0=  WHILE
 	    freetype_gl_errno FTGL_ERR_BASE =
-	WHILE  drop double-atlas  REPEAT  THEN  ?ftgl-ior ;
+	WHILE  drop over double-atlas  REPEAT  THEN  ?ftgl-ior ;
+
+: glyph-gi@ ( font glyph-index -- font glyph-index glyph )
+    BEGIN  2dup texture_font_get_glyph_gi dup 0=  WHILE
+	    freetype_gl_errno FTGL_ERR_BASE =
+	WHILE  drop over double-atlas  REPEAT  THEN  ?ftgl-ior ;
 
 : xchar+xy (  xc-addrp xc-addr font -- )
     dup font->t.i0
-    dup texture_font_t-scale sf@ to f-scale
     over glyph@ >r 2drop swap
     dup IF
 	r@ swap texture_glyph_get_kerning f-scale f*
@@ -246,8 +258,8 @@ Variable $splits[]
 	I' I ?emoji-variant IF  to xs  emoji-font#  ELSE
 	    drop I' I ?soft-hyphen to xs  font-select#  THEN
 	last-font# @ over last-font# ! <> $splits[] stack# 0= or  IF
-	    [ cell 1- dup pad ! pad + c@ last-font# + ]L
-	    1 $make $splits[] >stack
+	    last-font# @ font#-load { w^ font^ }
+	    font^ cell $make $splits[] >stack
 	THEN
 	xs $splits[] stacktop $+!
     xs +LOOP ;
@@ -259,8 +271,9 @@ Variable positions[]
 hb_buffer_create Value hb-buffer
 hb-buffer hb_language_get_default hb_buffer_set_language
 
-1 Value numfeatures
-Create userfeatures numfeatures hb_feature_t * allot
+0 Value numfeatures
+#10 Constant maxfeatures
+Create userfeatures maxfeatures hb_feature_t * allot
 DOES> swap hb_feature_t * + ;
 
 : hb-tag ( addr u -- tag )
@@ -272,13 +285,16 @@ DOES> swap hb_feature_t * + ;
     -1 r> hb_feature_t-end l! ;
 
 "dlig" hb-tag 1 0 userfeatures hb-feature!
+"liga" hb-tag 1 1 userfeatures hb-feature!
+2 to numfeatures
 
 : shape-splits ( -- )
     $splits[] stack# 0 ?DO
-	hb-buffer I $splits[] $[]@ over c@ >r 1 /string
+	hb-buffer I $splits[] $[]@ over @ >r cell /string
+	r@ texture_font_activate_size ?ftgl-ior drop
 	0 over hb_buffer_add_utf8
 	hb-buffer hb_buffer_guess_segment_properties
-	r> font#-load texture_font_t-hb_font @ hb-buffer
+	r> texture_font_t-hb_font @ hb-buffer
 	0 userfeatures numfeatures hb_shape
 	{ | w^ glyph-count }
 	hb-buffer glyph-count hb_buffer_get_glyph_infos
@@ -287,9 +303,37 @@ DOES> swap hb_feature_t * + ;
 	glyph-count l@ hb_glyph_position_t * I positions[] $[]!
 	hb-buffer hb_buffer_reset
     LOOP ;
+
+64e 64e f* 1/f FConstant pos*
+64e 1/f FConstant pos*icon
+
+Defer render-string
+Defer layout-string
+Defer pos-string
+
+: render-shape-string ( addr u -- )
+    lang-split-string shape-splits
+    $splits[] stack# 0 ?DO
+	I $splits[] $[]@ drop @ { font }
+	font font->t.i0
+	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN
+	f-scale f* x-scale f*  { f: pos* }
+	I positions[] $[]@ drop
+	I infos[] $[]@ { pos infos len }
+	len 0 ?DO
+	    6 ?flush-tris
+	    pos I + hb_glyph_position_t-x_offset l@ pos* fm*
+	    pos I + hb_glyph_position_t-y_offset l@ pos* fm* { f: xo f: yo }
+	    xo yo xy+
+	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@
+	    nip nip  glyph,  fdrop fdrop
+	    pos I + hb_glyph_position_t-x_advance l@ pos* fm* xo f-
+	    pos I + hb_glyph_position_t-y_advance l@ pos* fm* yo f- xy+
+	hb_glyph_info_t +LOOP
+    LOOP ;
 previous
 
-: render-string ( addr u -- )
+: render-simple-string ( addr u -- )
     -1 to bl/null?
     0 -rot  bounds ?DO
 	6 ?flush-tris
@@ -344,12 +388,40 @@ previous
     r> texture_glyph_t-height @ f-scale fm*
     fover f- fd fmax fswap fh fmax ;
 
-: layout-string ( addr u -- fw fd fh ) \ depth is ow far it goes down
+: layout-simple-string ( addr u -- fw fd fh ) \ depth is how far it goes down
     0 -rot  0e 0e 0e  bounds ?DO
 	I' I ?font-select { xs } xchar@xy
     xs +LOOP  drop ;
-: pos-string ( fx addr u -- curpos )
-    fdup f0< IF  2drop fdrop 0  EXIT  THEN  dup >r over >r
+also harfbuzz
+
+0e FValue last-pos+
+: layout-shape-string ( addr u -- fw fd fh ) \ depth is how far it goes down
+    lang-split-string shape-splits  0e to last-pos+
+    { | f: fw f: fd f: fh }
+    $splits[] stack# 0 ?DO
+	I $splits[] $[]@ drop @ { font }
+	font font->t.i0
+	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN f-scale f*  { f: pos* }
+	I positions[] $[]@ drop
+	I infos[] $[]@ { pos infos len }
+	len 0 ?DO
+	    pos I + hb_glyph_position_t-x_offset l@ pos* fm*
+	    pos I + hb_glyph_position_t-y_offset l@ pos* fm* { f: xo f: yo }
+	    xo yo xy+
+	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@ >r 2drop
+	    r@ texture_glyph_t-offset_y sl@ f-scale fm*
+	    r> texture_glyph_t-height @ f-scale fm*
+	    fover f- fd fmax to fd fh fmax to fh
+	    pos I + hb_glyph_position_t-x_advance l@ pos* fm*
+	    fdup to last-pos+ +to fw
+	hb_glyph_info_t +LOOP
+    LOOP
+    fw fd fh ;
+previous
+
+: pos-simple-string ( fx addr u -- curpos )
+    fdup f0< IF  2drop fdrop 0  EXIT  THEN
+    dup >r over >r
     0 -rot 0e bounds ?DO
 	fdup 0e 0e  I' I ?font-select { xs } xchar@xy
 	fdrop fdrop
@@ -360,14 +432,34 @@ previous
 	THEN  n
     xs +LOOP
     drop rdrop r> fdrop fdrop ;
+: pos-shape-string { f: fx addr u -- curpos }
+    fx f0< IF  0  EXIT  THEN
+    u 0 U+DO
+	addr u I /string x-size { x+ }
+	addr I x+ +
+	layout-string fdrop fdrop last-pos+ f2/ f- fx f>
+	IF  I unloop  EXIT  THEN
+	x+ +LOOP
+    u ;
+	
+: use-shaper
+    ['] render-shape-string is render-string
+    ['] layout-shape-string is layout-string
+    ['] pos-shape-string is pos-string ;
+: use-simple ( -- )
+    ['] render-simple-string is render-string
+    ['] layout-simple-string is layout-string
+    ['] pos-simple-string is pos-string ;
 
-: load-glyph$ ( addr u -- )
-    bounds ?DO  I font-select nip
-	I texture_font_get_glyph
-	0=  IF  freetype_gl_errno FTGL_ERR_BASE = IF  I double-atlas drop 0
-	    ELSE  0 ?ftgl-ior  THEN
-	ELSE  I I' over - x-size  THEN
-    +LOOP ;
+use-shaper
+
+: load-glyph$ ( addr u -- )  layout-string fdrop fdrop fdrop ;
+\    bounds ?DO  I font-select nip
+\	I texture_font_get_glyph
+\	0=  IF  freetype_gl_errno FTGL_ERR_BASE = IF  I double-atlas drop 0
+\	    ELSE  0 ?ftgl-ior  THEN
+\	ELSE  I I' over - x-size  THEN
+\    +LOOP ;
 
 : load-ascii ( -- )
     "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" load-glyph$ ;

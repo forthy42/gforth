@@ -109,10 +109,11 @@ Value font-langs#
     font-shapes# font-families# font-langs# * * ;
 
 also freetype-gl also harfbuzz
-: ?referenced ( font -- font )
-    dup texture_font_t-hb_font @ ?EXIT
+: referenced ( font -- font )
     dup texture_font_t-face @ hb_ft_font_create_referenced
     over texture_font_t-hb_font ! ;
+: ?referenced ( font -- font )
+    dup texture_font_t-hb_font @ ?EXIT referenced ;
 
 : fonts! ( font-addr addr -- )
     \ set current font for all sizes
@@ -121,6 +122,7 @@ also freetype-gl also harfbuzz
 	dup I fontnames[]# * idx + font[] $[] !  ?referenced
 	I 1+ I' <> IF
 	    I 1+ font-size% font-size# f* fround clone-font
+	    referenced
 	THEN
     LOOP  drop ;
 : fontsfs! ( font-addr addr -- )
@@ -133,6 +135,7 @@ also freetype-gl also harfbuzz
 	I 1+ I' <> and IF
 	    I 1+ font-families# font-shapes# * /
 	    font-size% font-size# f* fround clone-font
+	    referenced
 	THEN
     LOOP  drop ;
 previous previous
