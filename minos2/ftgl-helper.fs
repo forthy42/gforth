@@ -186,19 +186,21 @@ Defer font-select# ( xcaddr -- xcaddr num )
 	r> dup texture_font_enlarge_texture
     atlas-scaletex atlas-bgra-scaletex ;
 
-: glyph@ ( font xc-addr -- font xc-addr glyph )
+: glyph@ ( font xc-addr -- glyph )
     BEGIN  2dup texture_font_get_glyph dup 0=  WHILE
 	    freetype_gl_errno FTGL_ERR_BASE =
-	WHILE  drop over double-atlas  REPEAT  THEN  ?ftgl-ior ;
+	WHILE  drop over double-atlas  REPEAT  THEN
+    ?ftgl-ior nip nip ;
 
-: glyph-gi@ ( font glyph-index -- font glyph-index glyph )
+: glyph-gi@ ( font glyph-index -- glyph )
     BEGIN  2dup texture_font_get_glyph_gi dup 0=  WHILE
 	    freetype_gl_errno FTGL_ERR_BASE =
-	WHILE  drop over double-atlas  REPEAT  THEN  ?ftgl-ior ;
+	WHILE  drop over double-atlas  REPEAT  THEN
+    ?ftgl-ior nip nip ;
 
 : xchar+xy (  xc-addrp xc-addr font -- )
     dup font->t.i0
-    over glyph@ >r 2drop swap
+    over glyph@ >r swap
     dup IF
 	r@ swap texture_glyph_get_kerning f-scale f*
 	penxy sf@ f+ penxy sf!
@@ -326,12 +328,11 @@ Defer pos-string
 	    pos I + hb_glyph_position_t-y_offset sl@ pos* fm* { f: xo f: yo }
 	    xo yo xy+
 	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@
-	    nip nip  glyph,  fdrop fdrop
+	    glyph,  fdrop fdrop
 	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm* xo f-
 	    pos I + hb_glyph_position_t-y_advance sl@ pos* fm* yo f- xy+
 	hb_glyph_info_t +LOOP
     LOOP ;
-previous
 
 : render-simple-string ( addr u -- )
     -1 to bl/null?
@@ -340,15 +341,33 @@ previous
 	I' I ?font-select { xs } xchar+xy
     xs +LOOP  drop ;
 
+defer get-glyphs
+
+: get-simple-glyphs ( addr u -- glyph1 .. glyphn )
+    bounds ?DO
+	I' I ?font-select { ft xs }
+	ft font->t.i0
+	ft swap glyph@
+    xs +LOOP ;
+
+: get-shape-glyphs ( addr u -- glyph1 .. glyphn )
+    lang-split-string shape-splits
+    $splits[] stack# 0 ?DO
+	I $splits[] $[]@ drop @ { font }
+	font font->t.i0
+	I infos[] $[]@ { infos len }
+	len 0 ?DO
+	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@
+	hb_glyph_info_t +LOOP
+    LOOP ;
+previous
+
 : render-us-string ( addr u mask -- )
     penxy sf@ fround 1/2 f+ { f: x0 mask }
     render-string  #12 ?flush-tris
     penxy dup sf@ fround 1/2 f+
     sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
-    s" g" drop font-select { ft } drop
-    ft font->t.i0
-    ft "–" drop glyph@ { g- } 2drop
-    ft "g" drop glyph@ { gg } 2drop
+    "g–" get-glyphs { gg g- }
     y
     gg texture_glyph_t-height   sl@
     gg texture_glyph_t-offset_y sl@ - 20% fm*
@@ -379,7 +398,7 @@ previous
 : xchar@xy ( fw fd fh xc-addrp xc-addr font -- xc-addr fw' fd' fh' )
     { f: fd f: fh }
     dup texture_font_t-scale sf@ { f: f-scale }
-    over glyph@ >r 2drop swap
+    over glyph@ >r swap
     dup IF
 	r@ swap texture_glyph_get_kerning f-scale f* f+
     ELSE  drop  THEN
@@ -408,7 +427,7 @@ also harfbuzz
 	    pos I + hb_glyph_position_t-x_offset sl@ pos* fm*
 	    pos I + hb_glyph_position_t-y_offset sl@ pos* fm* { f: xo f: yo }
 	    xo yo xy+
-	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@ >r 2drop
+	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@ >r
 	    r@ texture_glyph_t-offset_y sl@ f-scale fm*
 	    r> texture_glyph_t-height @ f-scale fm*
 	    fover f- fd fmax to fd fh fmax to fh
@@ -455,21 +474,17 @@ previous
 : use-shaper
     ['] render-shape-string is render-string
     ['] layout-shape-string is layout-string
-    ['] pos-shape-string is pos-string ;
+    ['] pos-shape-string is pos-string
+    ['] get-shape-glyphs is get-glyphs ;
 : use-simple ( -- )
     ['] render-simple-string is render-string
     ['] layout-simple-string is layout-string
-    ['] pos-simple-string is pos-string ;
+    ['] pos-simple-string is pos-string
+    ['] get-simple-glyphs is get-glyphs ;
 
 use-shaper
 
 : load-glyph$ ( addr u -- )  layout-string fdrop fdrop fdrop ;
-\    bounds ?DO  I font-select nip
-\	I texture_font_get_glyph
-\	0=  IF  freetype_gl_errno FTGL_ERR_BASE = IF  I double-atlas drop 0
-\	    ELSE  0 ?ftgl-ior  THEN
-\	ELSE  I I' over - x-size  THEN
-\    +LOOP ;
 
 : load-ascii ( -- )
     "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" load-glyph$ ;
