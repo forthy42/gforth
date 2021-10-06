@@ -610,7 +610,7 @@ end-class part-text
 
 : pos>fp ( addr -- r )  text$ -rot - s>f fm/ ;
 : (text-split) { firstflag class f: start1 f: rx -- o rstart2 }
-    text-font to font
+    text-font to font  1e to x-scale
     rx start1 1e text$ text$-part 2dup pos-string
     { t p } p t p <> IF
 	<split dup 0= firstflag and IF
@@ -659,7 +659,7 @@ end-class edit
 $3F7FFF7F text-color, FValue selection-color
 
 : edit-marking ( -- )
-    cursize 0< ?EXIT  text-font to font
+    cursize 0< ?EXIT  text-font to font  w text-w text-scale!
     text$ curpos umin layout-string fdrop fdrop
     x-scale f* { f: ww }
     setstring$ $@len cursize 0>= and IF
@@ -682,7 +682,7 @@ $3F7FFF7F text-color, FValue selection-color
     v> 2 quad ;
 
 : edit-text ( -- )
-    w text-w text-scale! edit-marking
+    edit-marking
     text-xy!
     setstring$ $@len cursize 0>= and IF
 	text$ curpos umin render-string

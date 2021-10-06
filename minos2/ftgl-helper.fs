@@ -322,13 +322,13 @@ Defer pos-string
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
 	    6 ?flush-tris
-	    pos I + hb_glyph_position_t-x_offset l@ pos* fm*
-	    pos I + hb_glyph_position_t-y_offset l@ pos* fm* { f: xo f: yo }
+	    pos I + hb_glyph_position_t-x_offset sl@ pos* fm*
+	    pos I + hb_glyph_position_t-y_offset sl@ pos* fm* { f: xo f: yo }
 	    xo yo xy+
 	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@
 	    nip nip  glyph,  fdrop fdrop
-	    pos I + hb_glyph_position_t-x_advance l@ pos* fm* xo f-
-	    pos I + hb_glyph_position_t-y_advance l@ pos* fm* yo f- xy+
+	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm* xo f-
+	    pos I + hb_glyph_position_t-y_advance sl@ pos* fm* yo f- xy+
 	hb_glyph_info_t +LOOP
     LOOP ;
 previous
@@ -405,19 +405,18 @@ also harfbuzz
 	I positions[] $[]@ drop
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
-	    pos I + hb_glyph_position_t-x_offset l@ pos* fm*
-	    pos I + hb_glyph_position_t-y_offset l@ pos* fm* { f: xo f: yo }
+	    pos I + hb_glyph_position_t-x_offset sl@ pos* fm*
+	    pos I + hb_glyph_position_t-y_offset sl@ pos* fm* { f: xo f: yo }
 	    xo yo xy+
 	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@ >r 2drop
 	    r@ texture_glyph_t-offset_y sl@ f-scale fm*
 	    r> texture_glyph_t-height @ f-scale fm*
 	    fover f- fd fmax to fd fh fmax to fh
-	    pos I + hb_glyph_position_t-x_advance l@ pos* fm*
+	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm*
 	    fdup to last-pos+ +to fw
 	hb_glyph_info_t +LOOP
     LOOP
     fw fd fh ;
-previous
 
 : pos-simple-string ( fx addr u -- curpos )
     fdup f0< IF  2drop fdrop 0  EXIT  THEN
@@ -432,15 +431,26 @@ previous
 	THEN  n
     xs +LOOP
     drop rdrop r> fdrop fdrop ;
-: pos-shape-string { f: fx addr u -- curpos }
-    fx f0< IF  0  EXIT  THEN
-    u 0 U+DO
-	addr u I /string x-size { x+ }
-	addr I x+ +
-	layout-string fdrop fdrop last-pos+ f2/ f- fx f>
-	IF  I unloop  EXIT  THEN
-	x+ +LOOP
-    u ;
+: pos-shape-string ( addr u fx -- curpos ) \ depth is how far it goes down
+    lang-split-string shape-splits { | offset }
+    $splits[] stack# 0 ?DO
+	I $splits[] $[]@ drop @ { font }
+	font font->t.i0
+	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN
+	f-scale f* x-scale f* { f: pos* }
+	I positions[] $[]@ drop
+	I infos[] $[]@ { pos infos len }
+	len 0 ?DO
+	    pos I + hb_glyph_position_t-x_advance l@ pos* fm*
+	    fover fover f2/ f< IF
+		infos I + hb_glyph_info_t-cluster l@ offset +
+		fdrop fdrop  unloop unloop  EXIT
+	    THEN  f-
+	hb_glyph_info_t +LOOP
+	I $splits[] $[]@ cell /string +to offset drop
+    LOOP
+    fdrop offset ;
+previous
 	
 : use-shaper
     ['] render-shape-string is render-string

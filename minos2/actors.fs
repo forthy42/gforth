@@ -718,7 +718,8 @@ edit-terminal edit-out !
     *ins-o off
     history >r  >r  0 to history
     edit-w .text$ to prev-text$ \ backup of previous text
-    edit-w >o addr text$ curpos over $@len umin cursize 0 max o> to xselw
+    edit-w >o
+    addr text$ curpos over $@len umin cursize 0 max o> to xselw
     >r dup edit$ ! $@ swap over swap  0 to outselw r>
     r> catch
     >r edit-w >o to curpos  outselw to cursize o> drop
@@ -726,7 +727,7 @@ edit-terminal edit-out !
     r>  r> to history  +sync +resize  throw ;
 
 : edit>curpos ( x o:actor -- )
-    edit-w >o  text-font to font
+    edit-w >o  text-font to font  w text-w text-scale! 
     x f- border f- w border f2* f- text-w f/ f/
     text$ pos-string to curpos  prefix-off
     o>  +sync ;
