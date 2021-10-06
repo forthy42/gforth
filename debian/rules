@@ -72,7 +72,7 @@ override_dh_auto_install:
 	mkdir -p $(DLM2)$(SHARE)/unix
 	mkdir -p $(DLM2)$(LIB)/unix
 	mkdir -p $(DLM2)$(LIBCC)
-	mv $(DLC)$(LIB)/unix/{freetype_gl,harfbuzz}.fs $(DLM2)$(LIB)/unix
+	bash -c "mv $(DLC)$(LIB)/unix/{freetype_gl,harfbuzz}.fs $(DLM2)$(LIB)/unix"
 	bash -c "mv $(DC)$(SHARE)/unix/{stb-image,stb-image-write}.fs $(DLM2)$(SHARE)/unix"
 	bash -c "mv $(DLC)$(LIBCC)/libgf{harfbuzz,freetype_gl,stb-image,stb-image-write}.* $(DLM2)$(LIBCC)"
 	mkdir -p $(DLA)$(LIB)/unix
