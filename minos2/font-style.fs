@@ -245,22 +245,22 @@ also fonts definitions
 \ default font selection
 
 \sans
-\regular fonts= LiberationSans-Regular.ttf|NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf|DejaVuSansCondensed.ttf
-\italic fonts= LiberationSans-Italic.ttf|NotoSans-Italic.ttf|Roboto-Italic.ttf|DejaVuSansCondensed-Oblique.ttf
-\bold fonts= LiberationSans-Bold.ttf|NotoSans-Bold.ttf|Roboto-Bold.ttf|DejaVuSansCondensed-Bold.ttf
-\bold-italic fonts= LiberationSans-BoldItalic.ttf|NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf|DejaVuSansCondensed-BoldOblique.ttf
+\regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf
+\italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSans-Italic.ttf|Roboto-Italic.ttf
+\bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSans-Bold.ttf|Roboto-Bold.ttf
+\bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf
 
 \serif
-\regular fonts= LiberationSerif-Regular.ttf|NotoSerif-Regular.ttf
-\bold fonts= LiberationSerif-Bold.ttf|NotoSerif-Bold.ttf
-\italic fonts= LiberationSerif-Italic.ttf|NotoSerif-Italic.ttf
-\bold-italic fonts= LiberationSerif-BoldItalic.ttf|NotoSerif-BoldItalic.ttf
+\regular fonts= DejaVuSerif.ttf|LiberationSerif-Regular.ttf|NotoSerif-Regular.ttf
+\bold fonts= DejaVuSerif-Bold.ttf|LiberationSerif-Bold.ttf|NotoSerif-Bold.ttf
+\italic fonts= DejaVuSerif-Oblique.ttf|LiberationSerif-Italic.ttf|NotoSerif-Italic.ttf
+\bold-italic fonts= DejaVuSerif-BoldOblique.ttf|LiberationSerif-BoldItalic.ttf|NotoSerif-BoldItalic.ttf
 
 \mono
-\regular fonts= LiberationMono-Regular.ttf|DroidSansMono.ttf
-\bold fonts= LiberationMono-Bold.ttf|DroidSansMono.ttf
-\italic fonts= LiberationMono-Italic.ttf|DroidSansMono.ttf
-\bold-italic fonts= LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
+\regular fonts= DejaVuSansMono.ttf|LiberationMono-Regular.ttf|DroidSansMono.ttf
+\bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|DroidSansMono.ttf
+\italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|DroidSansMono.ttf
+\bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
 \chinese
 \sans
