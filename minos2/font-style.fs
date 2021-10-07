@@ -229,6 +229,7 @@ font-path+ ~/.fonts
 [ELSE]
     font-path+ ttf/
     font-path+ truetype/
+    font-path+ truetype/dejavu
     font-path+ truetype/noto
     font-path+ truetype/droid
     font-path+ truetype/liberation
