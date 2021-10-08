@@ -158,8 +158,7 @@ Package: gforth-noto-fonts
 Version: @DEBVERSION@
 Architecture: all
 Provides: gforth-fonts
-Depends: fonts-noto, fonts-noto-emoji, fonts-liberation | liberation-fonts
-Recomments: fonts-noto-cjk
+Depends: fonts-noto, fonts-noto-emoji, fonts-noto-cjk
 Description: GNU Forth
  Noto fonts dependency meta-package
 
@@ -171,12 +170,21 @@ Depends: fonts-liberation | liberation-fonts, fonts-arphic-gkai00mp
 Description: GNU Forth
  Liberation fonts dependency meta-package
 
-Package: gforth-minos2
+PPackage: gforth-dejavu-fonts
+Version: @DEBVERSION@
+Architecture: all
+Provides: gforth-fonts
+Depends: fonts-dejavu, fonts-arphic-gkai00mp
+Description: GNU Forth
+ DejaVu fonts dependency meta-package
+
+ackage: gforth-minos2
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
 Depends: gforth (= @DEBVERSION@), gforth-opengl, gforth-libcc-x11, gforth-fonts, gforth-minos2tools, gforth-libcc-minos2
 Recommends: fonts-emoji, fonts-awesome, gforth-libcc-gles
+Suggests: gforth-dejavu-fonts
 Description: GNU Forth Minos2 GUI
  Gforth is the Forth implementation of the GNU project, providing all
  features of the ANS Forth (Forth-94) and the Forth-2012 standards.

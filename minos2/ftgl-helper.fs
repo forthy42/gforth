@@ -269,6 +269,8 @@ Variable $splits[]
 also harfbuzz
 Variable infos[]
 Variable positions[]
+Variable directions[]
+Variable segment-lens[]
 
 hb_buffer_create Value hb-buffer
 hb-buffer hb_language_get_default hb_buffer_set_language
@@ -303,6 +305,7 @@ DOES> swap hb_feature_t * + ;
 	glyph-count l@ hb_glyph_info_t * I infos[] $[]!
 	hb-buffer glyph-count hb_buffer_get_glyph_positions
 	glyph-count l@ hb_glyph_position_t * I positions[] $[]!
+	hb-buffer hb_buffer_get_direction I directions[] $[] !
 	hb-buffer hb_buffer_reset
     LOOP ;
 
@@ -311,6 +314,7 @@ DOES> swap hb_feature_t * + ;
 
 Defer render-string
 Defer layout-string
+Defer curpos-string
 Defer pos-string
 
 : render-shape-string ( addr u -- )
@@ -413,26 +417,33 @@ previous
     xs +LOOP  drop ;
 also harfbuzz
 
-0e FValue last-pos+
+cell 4 = [IF]
+    ' sf! alias seg-len!
+    ' sf@ alias seg-len@
+[ELSE]
+    ' df! alias seg-len!
+    ' df@ alias seg-len@
+[THEN]
+
 : layout-shape-string ( addr u -- fw fd fh ) \ depth is how far it goes down
-    lang-split-string shape-splits  0e to last-pos+
+    lang-split-string shape-splits
     { | f: fw f: fd f: fh }
     $splits[] stack# 0 ?DO
 	I $splits[] $[]@ drop @ { font }
 	font font->t.i0
 	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN f-scale f*  { f: pos* }
+	0e  I positions[] $[]@ bounds ?DO
+	    I hb_glyph_position_t-x_advance l@ pos* fm* f+
+	hb_glyph_position_t +LOOP
+	I segment-lens[] $[] seg-len!
 	I positions[] $[]@ drop
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
-	    pos I + hb_glyph_position_t-x_offset sl@ pos* fm*
-	    pos I + hb_glyph_position_t-y_offset sl@ pos* fm* { f: xo f: yo }
-	    xo yo xy+
 	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@ >r
 	    r@ texture_glyph_t-offset_y sl@ f-scale fm*
 	    r> texture_glyph_t-height @ f-scale fm*
 	    fover f- fd fmax to fd fh fmax to fh
-	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm*
-	    fdup to last-pos+ +to fw
+	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm* +to fw
 	hb_glyph_info_t +LOOP
     LOOP
     fw fd fh ;
@@ -450,6 +461,7 @@ also harfbuzz
 	THEN  n
     xs +LOOP
     drop rdrop r> fdrop fdrop ;
+
 : pos-shape-string ( addr u fx -- curpos ) \ depth is how far it goes down
     lang-split-string shape-splits { | offset }
     $splits[] stack# 0 ?DO
@@ -469,18 +481,37 @@ also harfbuzz
 	I $splits[] $[]@ cell /string +to offset drop
     LOOP
     fdrop offset ;
+
+: curpos-simple-string ( addr u pos -- fcurpos )
+    umin layout-simple-string fdrop fdrop x-scale f* ;
+
+: curpos-shape-string { addr u pos -- fcurpos }
+    addr u layout-shape-string fdrop fdrop fdrop
+    { | rtl? f: len f: lastlen }
+    0 addr pos bounds ?DO
+	dup directions[] $[] @ HB_DIRECTION_RTL = to rtl?
+	dup segment-lens[] $[] seg-len@ fdup to lastlen +to len
+	dup 1+ swap $splits[] $[]@ nip cell-
+    +LOOP  drop
+    addr u pos umin layout-shape-string fdrop fdrop
+    rtl? IF  lastlen fnegate +to len
+	len f- lastlen fswap f- len f+  THEN
+    x-scale f* ;
+
 previous
 	
 : use-shaper
     ['] render-shape-string is render-string
     ['] layout-shape-string is layout-string
     ['] pos-shape-string is pos-string
-    ['] get-shape-glyphs is get-glyphs ;
+    ['] get-shape-glyphs is get-glyphs
+    ['] curpos-shape-string is curpos-string ;
 : use-simple ( -- )
     ['] render-simple-string is render-string
     ['] layout-simple-string is layout-string
     ['] pos-simple-string is pos-string
-    ['] get-simple-glyphs is get-glyphs ;
+    ['] get-simple-glyphs is get-glyphs
+    ['] curpos-simple-string is curpos-string ;
 
 use-shaper
 

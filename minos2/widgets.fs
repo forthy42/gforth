@@ -660,13 +660,12 @@ $3F7FFF7F text-color, FValue selection-color
 
 : edit-marking ( -- )
     cursize 0< ?EXIT  text-font to font  w text-w text-scale!
-    text$ curpos umin layout-string fdrop fdrop
-    x-scale f* { f: ww }
+    text$ curpos curpos-string { f: ww }
     setstring$ $@len cursize 0>= and IF
-	setstring$ $@ layout-string fdrop fdrop x-scale f* +to ww  0e
+	setstring$ $@ dup curpos-string +to ww  0e
     ELSE
-	text$ curpos cursize m2c:curminchars# @ umax + umin
-	layout-string fdrop fdrop x-scale f* ww f-
+	text$ curpos cursize m2c:curminchars# @ umax +
+	curpos-string ww f-
     THEN  fdup f0= IF  fdrop m2c:curminwidth% f@ fdup f2/ fnegate
     ELSE  0e   THEN  { f: cw f: cw- }
     x cw- f+ ww f+ border f+ borderl f+ fround
