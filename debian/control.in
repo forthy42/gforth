@@ -170,7 +170,7 @@ Depends: fonts-liberation | liberation-fonts, fonts-arphic-gkai00mp
 Description: GNU Forth
  Liberation fonts dependency meta-package
 
-PPackage: gforth-dejavu-fonts
+Package: gforth-dejavu-fonts
 Version: @DEBVERSION@
 Architecture: all
 Provides: gforth-fonts
@@ -178,7 +178,7 @@ Depends: fonts-dejavu, fonts-arphic-gkai00mp
 Description: GNU Forth
  DejaVu fonts dependency meta-package
 
-ackage: gforth-minos2
+Package: gforth-minos2
 Version: @DEBVERSION@
 Architecture: all
 Multi-Arch: foreign
