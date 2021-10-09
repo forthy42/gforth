@@ -611,7 +611,7 @@ end-class part-text
 : pos>fp ( addr -- r )  text$ -rot - s>f fm/ ;
 : (text-split) { firstflag class f: start1 f: rx -- o rstart2 }
     text-font to font  1e to x-scale
-    rx start1 1e text$ text$-part 2dup pos-string
+    rx start1 1e text$ text$-part 2dup pos-string-l2r
     { t p } p t p <> IF
 	<split dup 0= firstflag and IF
 	    drop p t split>

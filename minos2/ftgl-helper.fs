@@ -292,12 +292,13 @@ DOES> swap hb_feature_t * + ;
 "liga" hb-tag 1 1 userfeatures hb-feature!
 2 to numfeatures
 
-: shape-splits ( -- )
+: shape-splits { xt: setbuf -- }
     $splits[] stack# 0 ?DO
 	hb-buffer I $splits[] $[]@ over @ >r cell /string
 	r@ texture_font_activate_size ?ftgl-ior drop
 	0 over hb_buffer_add_utf8
 	hb-buffer hb_buffer_guess_segment_properties
+	hb-buffer setbuf
 	r> texture_font_t-hb_font @ hb-buffer
 	0 userfeatures numfeatures hb_shape
 	{ | w^ glyph-count }
@@ -316,9 +317,11 @@ Defer render-string
 Defer layout-string
 Defer curpos-string
 Defer pos-string
+Defer pos-string-l2r
+Defer get-glyphs
 
 : render-shape-string ( addr u -- )
-    lang-split-string shape-splits
+    lang-split-string ['] drop shape-splits
     $splits[] stack# 0 ?DO
 	I $splits[] $[]@ drop @ { font }
 	font font->t.i0
@@ -345,8 +348,6 @@ Defer pos-string
 	I' I ?font-select { xs } xchar+xy
     xs +LOOP  drop ;
 
-defer get-glyphs
-
 : get-simple-glyphs ( addr u -- glyph1 .. glyphn )
     bounds ?DO
 	I' I ?font-select { ft xs }
@@ -355,7 +356,7 @@ defer get-glyphs
     xs +LOOP ;
 
 : get-shape-glyphs ( addr u -- glyph1 .. glyphn )
-    lang-split-string shape-splits
+    lang-split-string ['] drop shape-splits
     $splits[] stack# 0 ?DO
 	I $splits[] $[]@ drop @ { font }
 	font font->t.i0
@@ -426,7 +427,7 @@ cell 4 = [IF]
 [THEN]
 
 : layout-shape-string ( addr u -- fw fd fh ) \ depth is how far it goes down
-    lang-split-string shape-splits
+    lang-split-string ['] drop shape-splits
     { | f: fw f: fd f: fh }
     $splits[] stack# 0 ?DO
 	I $splits[] $[]@ drop @ { font }
@@ -462,8 +463,7 @@ cell 4 = [IF]
     xs +LOOP
     drop rdrop r> fdrop fdrop ;
 
-: pos-shape-string ( addr u fx -- curpos ) \ depth is how far it goes down
-    lang-split-string shape-splits { | offset }
+: pos-shape-rest ( -- curpos ) { | offset }
     $splits[] stack# 0 ?DO
 	I $splits[] $[]@ drop @ { font }
 	font font->t.i0
@@ -481,6 +481,14 @@ cell 4 = [IF]
 	I $splits[] $[]@ cell /string +to offset drop
     LOOP
     fdrop offset ;
+
+: pos-shape-string ( addr u fx -- curpos ) \ depth is how far it goes down
+    lang-split-string ['] drop shape-splits pos-shape-rest ;
+
+: pos-shape-string-l2r ( addr u fx -- curpos ) \ depth is how far it goes down
+    lang-split-string
+    [: HB_DIRECTION_LTR hb_buffer_set_direction ;] shape-splits
+    pos-shape-rest ;
 
 : curpos-simple-string ( addr u pos -- fcurpos )
     umin layout-simple-string fdrop fdrop x-scale f* ;
@@ -504,12 +512,14 @@ previous
     ['] render-shape-string is render-string
     ['] layout-shape-string is layout-string
     ['] pos-shape-string is pos-string
+    ['] pos-shape-string-l2r is pos-string-l2r
     ['] get-shape-glyphs is get-glyphs
     ['] curpos-shape-string is curpos-string ;
 : use-simple ( -- )
     ['] render-simple-string is render-string
     ['] layout-simple-string is layout-string
     ['] pos-simple-string is pos-string
+    ['] pos-simple-string is pos-string-l2r
     ['] get-simple-glyphs is get-glyphs
     ['] curpos-simple-string is curpos-string ;
 
