@@ -142,6 +142,13 @@ pollfd buffer: port-poll
     dup fileno POLLIN port-poll fds!+ drop
     port-poll 1 -1 poll 0< ?ior ;
 
+11 Constant EAGAIN
+-512 EAGAIN - Constant eagain-throw#
+
+: throw-serial ( throw-code -- )
+    \G ignores eagain, otherwise throws as usual
+    dup eagain-throw# = IF  drop  ELSE  throw  THEN ;
+
 \ get and set control lines
 
 $5415 CONSTANT TIOCMGET
