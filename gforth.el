@@ -259,8 +259,8 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[ \t\n]" t name (font-lock-variable-name-face . 3))
 
 	(("create" "variable" "constant" "2variable" "2constant" "fvariable"
-	  "$variable" "fconstant" "value" "2value" "fvalue" "field" "user"
-	  "vocabulary" "cs-vocabulary" "create-interpret/compile"
+	  "$variable" "$[]variable" "fconstant" "value" "2value" "fvalue"
+	  "field" "user" "vocabulary" "cs-vocabulary" "create-interpret/compile"
 	  "interpret/compile:" "debug:" "field:" "2field:" "ffield:"
 	  "sffield:" "dffield:" "uvar" "uvalue" "cfield:" "wfield:" "lfield:"
 	  "+field" "value:" "cvalue:" "scvalue:" "wvalue:" "swvalue:"

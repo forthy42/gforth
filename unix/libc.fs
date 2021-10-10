@@ -157,3 +157,6 @@ e? os-type s" linux-gnu" string-prefix? [IF]
     ['] int-errno-exec is int-execute
     getpagesize to pagesize
     (getpid) to getpid ; is 'cold
+
+:noname drop ->errno ; opt: drop ]] drop ->errno [[ ;
+' errno make-latest set-to vt,

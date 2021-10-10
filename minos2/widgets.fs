@@ -119,45 +119,36 @@ Variable config-file$  s" ~/.config/minos2rc" config-file$ $!
 \ helper for languages and splitting texts
 \ cjk and emoji can be split at any letter
 
-$Variable ranges>lang[]
+$[]Variable ranges>lang[]
 
-begin-structure range-struct
-    2 cells +field ranges
-    field: range-type
-end-structure
+: +range ( type end start -- )
+    U+DO
+	I 8 rshift ranges>lang[] $[] { range }
+	I $FF and 0= I' I $100 + u>= and IF
+	    range @ $100 >= IF  range $free  THEN
+	    dup range !
+	ELSE
+	    range @ 0= IF
+		{ | zeros[ $100 ] }
+		zeros[ $100 2dup erase range $!
+	    THEN
+	    range $@ I $FF and /string I' I - umin third fill
+	THEN
+    $100 I $FF and - +LOOP  drop ;
+: range@ ( codepoint -- type )
+    dup >r 8 rshift ranges>lang[] $[]
+    dup @ dup $100 < IF  nip rdrop  EXIT  THEN
+    drop $@ drop r> $FF and + c@ c>s ;
 
-: insert-range ( start end type -- )
-    { | range[ range-struct ] }
-    range[ range-type ! range[ ranges 2!
-    ranges>lang[] $@ tuck  0 ?DO
-	dup I + ranges @ range[ @ u> IF  nip I swap  LEAVE  THEN
-    range-struct +LOOP  drop >r
-    range[ range-struct ranges>lang[] r> $ins ;
-: range@ ( codepoint -- type ) >r
-    ranges>lang[] $@len range-struct / >pow2 2/ dup { increment index }
-    BEGIN  increment  WHILE
-	    increment 2/ to increment
-	    ranges>lang[] $@ index range-struct * safe/string  IF
-		dup ranges 2@  over r@ 2swap within IF
-		    drop range-type @  rdrop  EXIT  THEN
-		nip r@ u< IF  increment +to index  ELSE
-		    increment negate +to index  THEN
-	    ELSE  drop increment negate +to index  THEN
-	REPEAT  rdrop 0 ;
-: .ranges ( -- )
-    ranges>lang[] $@ bounds U+DO
-	I ranges 2@ swap hex. hex. I range-type @ . cr
-    range-struct +LOOP ;
-
-$00300 $00370 -1 insert-range
-$01AB0 $01B00 -1 insert-range
-$01DC0 $01E00 -1 insert-range
-$02000 $02010 -1 insert-range
-$0205F $02070 -1 insert-range
-$020D0 $02100 -1 insert-range
-$0FE00 $0FE10 -1 insert-range
-$0FE20 $0FE30 -1 insert-range
-$E0100 $E01F0 -1 insert-range
+-1 $00370 $00300 +range
+-1 $01B00 $01AB0 +range
+-1 $01E00 $01DC0 +range
+-1 $02010 $02000 +range
+-1 $02070 $0205F +range
+-1 $02100 $020D0 +range
+-1 $0FE10 $0FE00 +range
+-1 $0FE30 $0FE20 +range
+-1 $E01F0 $E0100 +range
 
 $Variable split$ " !&,-_.\\/:;|<=>@­␣‧‐‒–—―‖           　" split$ $!
 $Variable spaces$ "            　" spaces$ $!

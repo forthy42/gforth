@@ -265,10 +265,10 @@ also fonts definitions
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
 \chinese
- $2E80  $A000 font-lang insert-range
-$20000 $31390 font-lang insert-range
- $F900  $FB00 font-lang insert-range
- $FF00  $FFF0 font-lang insert-range
+font-lang  $A000  $2E80 +range
+font-lang $31390 $20000 +range
+font-lang  $FB00  $F900 +range
+font-lang  $FFF0  $FF00 +range
 \sans
 [IFDEF] android
     \regular fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
@@ -309,21 +309,21 @@ $20000 $31390 font-lang insert-range
 \ emojis and icons don't differ between different shapes and styles
 
 \emoji
- $2600  $2C00 font-lang insert-range
-$1F000 $20000 font-lang insert-range
+font-lang  $2C00  $2600 +range
+font-lang $20000 $1F000 +range
 \sans \regular
 fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 
 \icons
-$F000 $F900 font-lang insert-range
+font-lang $F900 $F000 +range
 \sans \regular
 fonts= fa-merged-900.ttf
 
 \devanagari
-$900 $980 font-lang insert-range
-$1CD0 $1D00 font-lang insert-range
-$A830 $A840 font-lang insert-range
-$A8E0 $A900 font-lang insert-range
+font-lang  $980  $900 +range
+font-lang $1D00 $1CD0 +range
+font-lang $A840 $A830 +range
+font-lang $A900 $A8E0 +range
 \sans \regular
 fonts= NotoSansDevanagari-Regular.ttf
 \bold
