@@ -440,8 +440,9 @@ cell 4 = [IF]
 	I positions[] $[]@ drop
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
+	    pos I + hb_glyph_position_t-y_offset sl@ pos* fm* { f: yo }
 	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@ >r
-	    r@ texture_glyph_t-offset_y sl@ f-scale fm*
+	    r@ texture_glyph_t-offset_y sl@ f-scale fm* yo f+
 	    r> texture_glyph_t-height @ f-scale fm*
 	    fover f- fd fmax to fd fh fmax to fh
 	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm* +to fw
@@ -508,7 +509,7 @@ cell 4 = [IF]
 
 previous
 	
-: use-shaper
+: use-shaper ( -- )
     ['] render-shape-string is render-string
     ['] layout-shape-string is layout-string
     ['] pos-shape-string is pos-string

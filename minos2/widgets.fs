@@ -119,33 +119,45 @@ Variable config-file$  s" ~/.config/minos2rc" config-file$ $!
 \ helper for languages and splitting texts
 \ cjk and emoji can be split at any letter
 
-: combiner-font? ( xc -- xc flag )
-    \ Some sort of characters need to stay in the current active font
-    dup bl/null? =         ?dup-IF  EXIT  THEN
-    dup  $300  $370 within ?dup-IF  EXIT  THEN
-    dup $1AB0 $1B00 within ?dup-IF  EXIT  THEN
-    dup $1DC0 $1E00 within ?dup-IF  EXIT  THEN
-    dup $2000 $2010 within ?dup-IF  EXIT  THEN
-    dup $205F $2070 within ?dup-IF  EXIT  THEN
-    dup $20D0 $2100 within ?dup-IF  EXIT  THEN
-    dup $FE00 $FE10 within ?dup-IF  EXIT  THEN \ variant selectors
-    dup $FE20 $FE30 within ?dup-IF  EXIT  THEN
-    dup $E0100 $E01F0 within ?dup-IF  EXIT  THEN \ variant selectors
-    false ;
+$Variable ranges>lang[]
 
-: cjk? ( xchar -- xchar flag )
-    \G true if CJK Unified Ideographs
-    dup  $2E80  $A000 within ?dup-IF  EXIT  THEN \ Common
-    dup $20000 $31390 within ?dup-IF  EXIT  THEN \ Ext B-E
-    dup  $F900  $FB00 within ?dup-IF  EXIT  THEN \ Duplicates
-    dup  $FF00  $FFF0 within ; \ fullwidth forms
+begin-structure range-struct
+    2 cells +field ranges
+    field: range-type
+end-structure
 
-: emoji? ( xchar -- xchar flag )
-    dup  $2600  $2C00 within ?dup-IF  EXIT  THEN \ misc. symbols
-    dup $1F000 $20000 within ;                   \ pictograms
+: insert-range ( start end type -- )
+    { | range[ range-struct ] }
+    range[ range-type ! range[ ranges 2!
+    ranges>lang[] $@ tuck  0 ?DO
+	dup I + ranges @ range[ @ u> IF  nip I swap  LEAVE  THEN
+    range-struct +LOOP  drop >r
+    range[ range-struct ranges>lang[] r> $ins ;
+: range@ ( codepoint -- type ) >r
+    ranges>lang[] $@len range-struct / >pow2 2/ dup { increment index }
+    BEGIN  increment  WHILE
+	    increment 2/ to increment
+	    ranges>lang[] $@ index range-struct * safe/string  IF
+		dup ranges 2@  over r@ 2swap within IF
+		    drop range-type @  rdrop  EXIT  THEN
+		nip r@ u< IF  increment +to index  ELSE
+		    increment negate +to index  THEN
+	    ELSE  drop increment negate +to index  THEN
+	REPEAT  rdrop 0 ;
+: .ranges ( -- )
+    ranges>lang[] $@ bounds U+DO
+	I ranges 2@ swap hex. hex. I range-type @ . cr
+    range-struct +LOOP ;
 
-: icons? ( xchar -- xchar flag )
-    dup $F000 $F900 within ; \ private space
+$00300 $00370 -1 insert-range
+$01AB0 $01B00 -1 insert-range
+$01DC0 $01E00 -1 insert-range
+$02000 $02010 -1 insert-range
+$0205F $02070 -1 insert-range
+$020D0 $02100 -1 insert-range
+$0FE00 $0FE10 -1 insert-range
+$0FE20 $0FE30 -1 insert-range
+$E0100 $E01F0 -1 insert-range
 
 $Variable split$ " !&,-_.\\/:;|<=>@­␣‧‐‒–—―‖           　" split$ $!
 $Variable spaces$ "            　" spaces$ $!
@@ -157,7 +169,7 @@ $Variable spaces$ "            　" spaces$ $!
 : split? ( xchar -- flag )  split$ $@ xcs? ;
 : spaces? ( xchar -- flag )  spaces$ $@ xcs? ;
 : breakable? ( xchar -- flag )
-    cjk? >r emoji? >r split? r> r> or or ;
+    dup range@ 1 4 within >r split? r> or ;
 : <split ( addr u -- addr u' )  dup 0= ?EXIT
     BEGIN  dup >r x\string- dup 0> WHILE
 	    2dup + xc@ breakable? IF

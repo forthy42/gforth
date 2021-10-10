@@ -93,6 +93,7 @@ fontlang: \latin
 fontlang: \chinese
 fontlang: \emoji
 fontlang: \icons
+fontlang: \devanagari
 Value font-langs#
 
 \latin
@@ -170,11 +171,11 @@ previous
 
 : xc>font# ( xc-addr -- xc-addr font# )
     dup ['] xc@ catch IF  drop 0  EXIT  THEN
-    combiner-font? IF  drop last-font# @  EXIT  THEN
-    cjk?   IF  drop 1  bl to bl/null?  EXIT  THEN
-    emoji? IF  drop 2  -1 to bl/null?  EXIT  THEN
-    icons? IF  drop 3  -1 to bl/null?  EXIT  THEN
-    drop 0  bl to bl/null? ;
+    case
+	dup bl/null? = swap range@ or
+	-1 of  last-font# @  endof
+	dup 2 4 within IF  -1  ELSE  bl  THEN  to bl/null?
+	0 endcase ;
 
 :noname ( font# -- font )
     cells font + ?font-load @ ; is font#-load
@@ -264,6 +265,10 @@ also fonts definitions
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
 \chinese
+ $2E80  $A000 font-lang insert-range
+$20000 $31390 font-lang insert-range
+ $F900  $FB00 font-lang insert-range
+ $FF00  $FFF0 font-lang insert-range
 \sans
 [IFDEF] android
     \regular fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
@@ -303,11 +308,30 @@ also fonts definitions
 
 \ emojis and icons don't differ between different shapes and styles
 
-\emoji \sans \regular
+\emoji
+ $2600  $2C00 font-lang insert-range
+$1F000 $20000 font-lang insert-range
+\sans \regular
 fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 
-\icons \sans \regular
+\icons
+$F000 $F900 font-lang insert-range
+\sans \regular
 fonts= fa-merged-900.ttf
+
+\devanagari
+$900 $980 font-lang insert-range
+$1CD0 $1D00 font-lang insert-range
+$A830 $A840 font-lang insert-range
+$A8E0 $A900 font-lang insert-range
+\sans \regular
+fonts= NotoSansDevanagari-Regular.ttf
+\bold
+fonts= NotoSansDevanagari-Bold.ttf
+\serif \regular
+fonts= NotoSerifDevanagari-Regular.ttf
+\bold
+fonts= NotoSerifDevanagari-Bold.ttf
 
 \latin \sans \regular
 
