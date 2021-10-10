@@ -90,6 +90,7 @@ Variable curminchars#
 FVariable curminwidth%
 FVariable pwtime%
 FVariable scale%
+$Variable translate$
 set-current
 
 0 curminchars# !
@@ -112,7 +113,9 @@ Variable config-file$  s" ~/.config/minos2rc" config-file$ $!
     config-file$ $@ 2dup file-status nip ['] m2c >wordlist swap
     no-file# = IF  write-config  ELSE
 	0 addr config-throw ['] read-config !wrapper
-    THEN ;
+    THEN
+    m2c:translate$ $@ ['] translators >wordlist find-name-in
+    dup 0= IF  drop ['] noop  THEN  is translator ;
 
 ?.minos-config
 
@@ -128,9 +131,10 @@ $[]Variable ranges>lang[]
 	    range @ $100 >= IF  range $free  THEN
 	    dup range !
 	ELSE
-	    range @ 0= IF
+	    range @ $100 < IF
 		{ | zeros[ $100 ] }
-		zeros[ $100 2dup erase range $!
+		zeros[ $100 2dup range @ fill
+		range off  range $!
 	    THEN
 	    range $@ I $FF and /string I' I - umin third fill
 	THEN
@@ -159,8 +163,11 @@ $Variable spaces$ "            　" spaces$ $!
     I - +LOOP  false ;
 : split? ( xchar -- flag )  split$ $@ xcs? ;
 : spaces? ( xchar -- flag )  spaces$ $@ xcs? ;
+$100 buffer: breakable-langs
+: >breakable ( lang -- )
+    breakable-langs + 1 swap c! ;
 : breakable? ( xchar -- flag )
-    dup range@ 1 4 within >r split? r> or ;
+    dup range@ breakable-langs + c@ 0<> >r split? r> or ;
 : <split ( addr u -- addr u' )  dup 0= ?EXIT
     BEGIN  dup >r x\string- dup 0> WHILE
 	    2dup + xc@ breakable? IF

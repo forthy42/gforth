@@ -226,6 +226,39 @@ Defer font-select# ( xcaddr -- xcaddr num )
     v? r> + points# u>= or
     IF  render>  THEN ;
 
+\ unihan support
+
+$[]Variable >sc[]
+$[]Variable >tc[]
+
+: translate! ( from to addr -- )
+    >r swap dup 8 rshift r> $[] >r
+    r@ @ 0= IF  { | zeros[ $400 ] } zeros[ $400 r@ $!  THEN
+    r> $@ rot $FF and sfloats /string drop l! ;
+: translate@ ( from addr -- to )
+    >r dup 8 rshift r> $[] >r
+    r@ @ 0= IF  rdrop  EXIT  THEN
+    r> $@ third $FF and sfloats /string drop l@ tuck select ;
+
+Defer >tc :noname ( from to -- ) >tc[] translate! ; is >tc
+Defer >sc :noname ( from to -- ) >sc[] translate! ; is >sc
+: >tc@ ( from -- to ) >tc[] translate@ ;
+: >sc@ ( from -- to ) >sc[] translate@ ;
+
+Vocabulary translators
+get-current also translators definitions
+: tcify ( addr u -- addr' u' )
+    [: bounds ?DO  I xc@ >tc@ xemit  I I' over - x-size +LOOP ;] $tmp ;
+: scify ( addr u -- addr' u' )
+    [: bounds ?DO  I xc@ >sc@ xemit  I I' over - x-size +LOOP ;] $tmp ;
+previous set-current
+
+Defer translator ' noop is translator
+
+include unihan.fs
+
+\ text rendering
+
 : ?soft-hyphen { I' I -- xaddr xs }
     I I' over - 2dup x-size { xs }
     "\u00AD" string-prefix?
@@ -253,6 +286,7 @@ Variable $splits[]
     $@ + cell- ;
 
 : lang-split-string ( addr u -- )
+    translator
     -1 to bl/null?  last-font# off
     $splits[] $[]free
     bounds ?DO
