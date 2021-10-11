@@ -316,6 +316,8 @@ font-lang  $3130  $3100 +range \ bopomofo
 :noname ( simple traditional -- )
     2dup = IF  2drop  EXIT  THEN
     nip dup 1+ swap font-lang -rot +range ; is >tc
+:noname ( traditional -- )
+    dup 1+ swap font-lang -rot +range ; is >tc2
 include unihan.fs
 \sans
 [IFDEF] android
