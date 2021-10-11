@@ -234,7 +234,8 @@ $[]Variable >tc[]
 : translate! ( from to addr -- )
     >r swap dup 8 rshift r> $[] >r
     r@ @ 0= IF  { | zeros[ $400 ] } zeros[ $400 r@ $!  THEN
-    r> $@ rot $FF and sfloats /string drop l! ;
+    r> $@ rot $FF and sfloats /string drop
+    dup l@ IF  2drop  ELSE  l!  THEN ;
 : translate@ ( from addr -- to )
     >r dup 8 rshift r> $[] >r
     r@ @ 0= IF  rdrop  EXIT  THEN
