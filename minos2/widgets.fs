@@ -164,10 +164,11 @@ $Variable spaces$ "            　" spaces$ $!
 : split? ( xchar -- flag )  split$ $@ xcs? ;
 : spaces? ( xchar -- flag )  spaces$ $@ xcs? ;
 $100 buffer: breakable-langs
-: >breakable ( lang -- )
-    breakable-langs + 1 swap c! ;
+: >breakable ( n lang -- )
+    breakable-langs + c! ;
+1 Value break-threshold
 : breakable? ( xchar -- flag )
-    dup range@ breakable-langs + c@ 0<> >r split? r> or ;
+    dup range@ breakable-langs + c@ break-threshold u>= >r split? r> or ;
 : <split ( addr u -- addr u' )  dup 0= ?EXIT
     BEGIN  dup >r x\string- dup 0> WHILE
 	    2dup + xc@ breakable? IF

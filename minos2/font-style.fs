@@ -268,7 +268,7 @@ also fonts definitions
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
 \simplified-chinese
-font-lang >breakable
+2 font-lang >breakable
 font-lang  $A000  $2E80 +range
 font-lang $31390 $20000 +range
 font-lang  $FB00  $F900 +range
@@ -311,7 +311,7 @@ font-lang  $FFF0  $FF00 +range
 [THEN]
 
 \traditional-chinese
-font-lang >breakable
+2 font-lang >breakable
 font-lang  $3130  $3100 +range \ bopomofo
 :noname ( traditional simple -- )
     drop dup 1+ swap font-lang -rot +range ; is >sc
@@ -359,37 +359,58 @@ include unihan.fs
 [THEN]
 
 \japanese
-font-lang >breakable
+2 font-lang >breakable
 font-lang $3100 $3000 +range \ Japanese-style punctuation, Hiragana, Katakana
 font-lang $3200 $31F0 +range
 font-lang $3244 $3220 +range
 font-lang $3380 $3280 +range
 font-lang $FFA0 $FF5F +range \ half width Katakana&punctation
-
-\regular fonts= NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-\bold fonts= NotoSansJP-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-\italic fonts= NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-\bold-italic fonts= NotoSansJP-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+\sans
+\regular fonts= gkai00mp.ttf|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+\bold fonts= gkai00mp.ttf|NotoSansJP-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+\italic fonts= gkai00mp.ttf|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+\bold-italic fonts= gkai00mp.ttf|NotoSansJP-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+\serif
+\regular fonts= gkai00mp.ttf|NotoSerifCJKjp-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
+\bold fonts= gkai00mp.ttf|NotoSerifCJKjp-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSerifJP-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
+\italic fonts= gkai00mp.ttf|NotoSerifCJKjp-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
+\bold-italic fonts= gkai00mp.ttf|NotoSerifCJKjp-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSerifJP-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
+\mono
 
 \hangul
-font-lang >breakable
+1 font-lang >breakable \ not breakable for ragged layout
 font-lang $1200 $1100 +range
 font-lang $3190 $3130 +range
 font-lang $A980 $A960 +range
 font-lang $D7A4 $AC00 +range
 font-lang $D800 $D7B0 +range
+\sans
+\regular fonts= NotoSansKR-Regular.otf
+\bold fonts= NotoSansKR-Bold.otf
+\italic fonts= NotoSansKR-Regular.otf
+\bold-italic fonts= NotoSansKR-Bold.otf
+\serif
+\regular fonts= NotoSerifCJKkr-Regular.otf
+\bold fonts= NotoSerifCJKkr-Bold.otf
+\italic fonts= NotoSerifCJKkr-Regular.otf
+\bold-italic fonts= NotoSerifCJKkr-Bold.otf
+\mono
+\regular fonts= NotoSansMonoCJKkr-Regular.otf
+\bold fonts= NotoSansMonoCJKkr-Bold.otf
+\italic fonts= NotoSansMonoCJKkr-Regular.otf
+\bold-italic fonts= NotoSansMonoCJKkr-Bold.otf
 
 \ emojis and icons don't differ between different shapes and styles
 
 \emoji
-font-lang >breakable
+2 font-lang >breakable
 font-lang  $2C00  $2600 +range
 font-lang $20000 $1F000 +range
 \sans \regular
 fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 
 \icons
-font-lang >breakable
+2 font-lang >breakable
 font-lang $F900 $F000 +range
 \sans \regular
 fonts= fa-merged-900.ttf
