@@ -314,6 +314,7 @@ font-lang  $3130  $3100 +range \ bopomofo
 :noname ( traditional simple -- )
     drop dup 1+ swap font-lang -rot +range ; is >sc
 :noname ( simple traditional -- )
+    2dup = IF  2drop  EXIT  THEN
     nip dup 1+ swap font-lang -rot +range ; is >tc
 include unihan.fs
 \sans
