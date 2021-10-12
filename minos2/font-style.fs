@@ -40,7 +40,7 @@ Variable font[]     \ array of fonts
 
 : update-size# { f: lines -- }
     dpy-w @ s>f lines f/ fround to font-size#
-    font-size# *curminwidth# m2c:curminwidth% f!
+    font-size# *curminwidth# f* m2c:curminwidth% f@ fmax m2c:curminwidth% f!
     font-size# *baseline# f* fround to baseline#
     dpy-w @ s>f screenwidth# f/ to pixelsize# ;
 
@@ -98,6 +98,7 @@ fontlang: \japanese
 fontlang: \hangul
 fontlang: \emoji
 fontlang: \icons
+fontlang: \semitic
 fontlang: \devanagari
 Value font-langs#
 
@@ -414,6 +415,26 @@ fonts= fa-merged-900.ttf
 \mono \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
 
 100% to font-scaler
+\semitic
+font-lang  $700  $590 +range \ Hebrew+Arabic
+\sans
+\regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf
+\italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSans-Italic.ttf|Roboto-Italic.ttf
+\bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSans-Bold.ttf|Roboto-Bold.ttf
+\bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf
+
+\serif
+\regular fonts= DejaVuSerif.ttf|LiberationSerif-Regular.ttf|NotoSerif-Regular.ttf
+\bold fonts= DejaVuSerif-Bold.ttf|LiberationSerif-Bold.ttf|NotoSerif-Bold.ttf
+\italic fonts= DejaVuSerif-Italic.ttf|LiberationSerif-Italic.ttf|NotoSerif-Italic.ttf
+\bold-italic fonts= DejaVuSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf|NotoSerif-BoldItalic.ttf
+
+\mono
+\regular fonts= DejaVuSansMono.ttf|LiberationMono-Regular.ttf|DroidSansMono.ttf
+\bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|DroidSansMono.ttf
+\italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|DroidSansMono.ttf
+\bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
+
 \devanagari
 font-lang  $980  $900 +range
 font-lang $1D00 $1CD0 +range
