@@ -98,7 +98,8 @@ fontlang: \japanese
 fontlang: \hangul
 fontlang: \emoji
 fontlang: \icons
-fontlang: \semitic
+fontlang: \hebrew
+fontlang: \arabic
 fontlang: \devanagari
 Value font-langs#
 
@@ -415,25 +416,53 @@ fonts= fa-merged-900.ttf
 \mono \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
 
 100% to font-scaler
-\semitic
-font-lang  $700  $590 +range \ Hebrew+Arabic
+\hebrew
+font-lang  $600  $590 +range \ Hebrew
+font-lang $20AB $20AA +range
+font-lang $FB50 $FB00 +range
 \sans
-\regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf
-\italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSans-Italic.ttf|Roboto-Italic.ttf
-\bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSans-Bold.ttf|Roboto-Bold.ttf
-\bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf
+\regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSansHebrew-Regular.ttf|DroidSans.ttf
+\italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSansHebrew-Italic.ttf
+\bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSansHebrew-Bold.ttf
+\bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSansHebrew-BoldItalic.ttf
 
 \serif
-\regular fonts= DejaVuSerif.ttf|LiberationSerif-Regular.ttf|NotoSerif-Regular.ttf
-\bold fonts= DejaVuSerif-Bold.ttf|LiberationSerif-Bold.ttf|NotoSerif-Bold.ttf
-\italic fonts= DejaVuSerif-Italic.ttf|LiberationSerif-Italic.ttf|NotoSerif-Italic.ttf
-\bold-italic fonts= DejaVuSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf|NotoSerif-BoldItalic.ttf
+\regular fonts= DejaVuSerif.ttf|LiberationSerif-Regular.ttf|NotoSerifHebrew-Regular.ttf
+\bold fonts= DejaVuSerif-Bold.ttf|LiberationSerif-Bold.ttf|NotoSerifHebrew-Bold.ttf
+\italic fonts= DejaVuSerif-Italic.ttf|LiberationSerif-Italic.ttf|NotoSerifHebrew-Italic.ttf
+\bold-italic fonts= DejaVuSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf|NotoSerifHebrew-BoldItalic.ttf
 
 \mono
-\regular fonts= DejaVuSansMono.ttf|LiberationMono-Regular.ttf|DroidSansMono.ttf
-\bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|DroidSansMono.ttf
-\italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|DroidSansMono.ttf
-\bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
+\regular fonts= DejaVuSansMono.ttf|LiberationMono-Regular.ttf|NotoSansHebrew-Regular.ttf
+\bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|NotoSansHebrew-Bold.ttf
+\italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|NotoSansHebrew-Italic.ttf
+\bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|NotoSansHebrew-BoldItalic.ttf
+
+
+\arabic
+font-lang  $700  $600 +range \ Arabic
+font-lang  $780  $750 +range
+font-lang  $900  $8A0 +range
+font-lang $FE00 $FB50 +range
+font-lang $FF00 $FE70 +range
+font-lang $1EF00 $1EE00 +range
+\sans
+\regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSansArabic-Regular.ttf|DroidSans.ttf
+\italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSansArabic-Italic.ttf
+\bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSansArabic-Bold.ttf
+\bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSansArabic-BoldItalic.ttf
+
+\serif
+\regular fonts= DejaVuSerif.ttf|LiberationSerif-Regular.ttf|NotoSansArabic-Regular.ttf
+\bold fonts= DejaVuSerif-Bold.ttf|LiberationSerif-Bold.ttf|NotoSansArabic-Bold.ttf
+\italic fonts= DejaVuSerif-Italic.ttf|LiberationSerif-Italic.ttf|NotoSansArabic-Italic.ttf
+\bold-italic fonts= DejaVuSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf|NotoSansArabic-BoldItalic.ttf
+
+\mono
+\regular fonts= DejaVuSansMono.ttf|LiberationMono-Regular.ttf|NotoSansArabic-Regular.ttf
+\bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|NotoSansArabic-Bold.ttf
+\italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|NotoSansArabic-Italic.ttf
+\bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|NotoSansArabic-BoldItalic.ttf
 
 \devanagari
 font-lang  $980  $900 +range
