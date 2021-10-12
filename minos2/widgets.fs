@@ -709,8 +709,8 @@ $3F7FFF7F text-color, FValue selection-color
     ELSE
 	text$
     THEN  start end text$-part layout-string
-    font @ freetype-gl:texture_font_t-ascender  sf@         fmax fswap
-    font @ freetype-gl:texture_font_t-descender sf@ fnegate fmax fswap
+    0 font#-load freetype-gl:texture_font_t-ascender  sf@         fmax fswap
+    0 font#-load freetype-gl:texture_font_t-descender sf@ fnegate fmax fswap
     >text+border ;
 ' edit-text edit is draw
 ' edit-!size edit is !size

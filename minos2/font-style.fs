@@ -25,7 +25,6 @@ require cstr.fs
 get-current also minos definitions
 
 Variable font[]     \ array of fonts
-Variable fontname[] \ array of fontnames
 
 0 Value font-size
 0 Value font-shape
@@ -33,14 +32,17 @@ Variable fontname[] \ array of fontnames
 0 Value font-lang
 
 12e FValue font-size# \ basic font size
+133.333% FValue *baseline#
 16e FValue baseline#  \ basic baseline size
 1e FValue pixelsize#  \ basic pixel size
+1280e FValue screenwidth#
+16e 1/f FValue *curminwidth#
 
 : update-size# { f: lines -- }
     dpy-w @ s>f lines f/ fround to font-size#
-    font-size# 16e f/ m2c:curminwidth% f!
-    font-size# 133% f* fround to baseline#
-    dpy-w @ s>f 1280e f/ to pixelsize# ;
+    font-size# *curminwidth# m2c:curminwidth% f!
+    font-size# *baseline# f* fround to baseline#
+    dpy-w @ s>f screenwidth# f/ to pixelsize# ;
 
 : fontsize: ( n "name" -- n+1 )
     Create dup , 1+ DOES> @ to font-size ;
@@ -103,69 +105,21 @@ Value font-langs#
 
 \ font load on demand
 
-: font-index ( size -- index )
-    font-families# * font-family +
-    font-shapes#   * font-shape  +
-    font-langs#    * font-lang   + ;
-: font[]# ( -- n ) \ size of font array
-    font-sizes# font-shapes# font-families# font-langs# * * * ;
-: fontnames[]# ( -- n ) \ size of font array
-    font-shapes# font-families# font-langs# * * ;
+: font-index ( -- index )
+    font-family
+    font-shapes#   * font-shape +
+    font-langs#    * font-lang  + ;
+font-shapes# font-families# font-langs# * * Constant font[]# ( -- n )
+\G size of font array
 
 also freetype-gl also harfbuzz
 : referenced ( font -- font )
     dup texture_font_t-face @ hb_ft_font_create_referenced
     over texture_font_t-hb_font ! ;
-: ?referenced ( font -- font )
-    dup texture_font_t-hb_font @ ?EXIT referenced ;
-
-: fonts! ( font-addr addr -- )
-    \ set current font for all sizes
-    over font[] $@ drop - cell/ fontnames[]# mod { idx }
-    font-sizes# 0 U+DO
-	dup I fontnames[]# * idx + font[] $[] !  ?referenced
-	I 1+ I' <> IF
-	    I 1+ font-size% font-size# f* fround clone-font
-	    referenced
-	THEN
-    LOOP  drop ;
-: fontsfs! ( font-addr addr -- )
-    \ set current font for all sizes+family+shape
-    over font[] $@ drop - cell/ font-langs# mod { idx }
-    font-sizes# font-families# * font-shapes# * 0 U+DO
-	dup I font-langs# * idx + font[] $[] !  ?referenced
-	I font-families# font-shapes# * /
-	I 1+ font-families# font-shapes# * / <>
-	I 1+ I' <> and IF
-	    I 1+ font-families# font-shapes# * /
-	    font-size% font-size# f* fround clone-font
-	    referenced
-	THEN
-    LOOP  drop ;
 previous previous
-
-: fontname@ ( -- addr )
-    0 font-index fontname[] $[] ;
 
 s" No font specified" exception constant !!no-font!!
 s" No suitable font found" exception constant !!no-suitable-font!!
-
-also freetype-gl
-: font-load ( font-addr -- font-addr )
-    dup font[] $@ drop - cell/ dup >r fontnames[]# mod >r \ font index size 0
-    atlas-bgra atlas r@ font-langs# mod [ ' \emoji >body @ ]L = select
-    r@ fontname[] $[]@ 2dup d0= IF
-	." font matrix: " r@
-	font-langs# /mod font-shapes# /mod font-families# /mod . . . . cr
-	!!no-font!! throw
-    THEN
-    font-size# 0 font-size% f* fround open-font
-    r@ font-langs# mod 2 u< IF  fonts!  ELSE  fontsfs!  THEN  rdrop
-    drop r> font[] $[] ;
-previous
-
-: ?font-load ( font-addr -- font-addr )
-    dup @ 0= IF  font-load  THEN ;
 
 \ font selector
 
@@ -180,20 +134,22 @@ previous
 	dup 2 4 within IF  -1  ELSE  bl  THEN  to bl/null?
 	0 endcase ;
 
+: font-load ( index -- font )
+    font[]# /mod swap cells font[] $@ drop + perform ;
 :noname ( font# -- font )
-    cells font + ?font-load @ ; is font#-load
+    font + font-load ; is font#-load
 ' xc>font# IS font-select#
 \ ' @ IS font-select
 
 \ font indices
 
-: font@ ( -- addr )
-    font-size font-index font[] $[] ?font-load ;
+: font@ ( -- index )
+    font-size font[]# * font-index + ;
 
 : font@h ( -- height )
-    font@ @ freetype-gl:texture_font_t-height  sf@ ;
+    font@ font-load freetype-gl:texture_font_t-height  sf@ ;
 : font@gap ( -- gap )
-    font@ @ freetype-gl:texture_font_t-linegap sf@ ;
+    font@ font-load freetype-gl:texture_font_t-linegap sf@ ;
 
 : current-baseline% ( -- float )
     baseline# font-size font-size% f* font@h fmax fround ;
@@ -206,6 +162,7 @@ Variable font-prefix$
 "GFORTHFONTS" getenv 2dup d0= [IF] 2drop "/usr/share/fonts/" [THEN]
 font-prefix$ $!
 
+also freetype-gl
 : font-path+ ( "font" -- )
     parse-name
     2dup absolut-path? 0= IF  [: font-prefix$ $. type ;] $tmp  THEN
@@ -218,10 +175,47 @@ font-prefix$ $!
     ELSE
 	false
     THEN ;
-: fonts= ( "font1|font2|..." -- addr u )
-    parse-name  BEGIN  dup  WHILE  '|' $split 2swap ?font  UNTIL  2nip
-    ELSE  !!no-suitable-font!! throw  THEN
-    fontname@ $! ;
+: font-loader ( fontaddr atlas -- fontaddr )
+    swap { fontdes }
+    fontdes cell+ $@
+    0 font-size# font-size% f* fontdes 2 cells + f@ f*
+    open-font referenced { font }
+    font 0 fontdes $[] !
+    font-sizes# 1 ?DO
+	font I font-size# font-size% f* fontdes 2 cells + f@ f*
+	clone-font referenced I fontdes $[] !
+    LOOP
+    fontdes ;
+cs-Vocabulary fonts
+
+100% FValue font-scaler
+
+: font: ( addr u -- )
+    get-current >r ['] fonts >wordlist set-current
+    Create 0 , here 0 , $! font-scaler f, r> set-current ;
+: bw-font ( addr -- font )
+    dup @ 0= IF  atlas      font-loader  THEN  $[] @ ;
+: bgra-font ( addr -- font )
+    dup @ 0= IF  atlas-bgra font-loader  THEN  $[] @ ;
+0 Value last-font
+: ?define-font ( addr u xt -- ) >r
+    2dup basename 2dup ['] fonts >wordlist find-name-in dup IF
+	>r 2drop 2drop r> rdrop
+    ELSE  drop nextname font: r> set-does> latestxt  THEN
+    dup to last-font font-index font[] $[] ! ;
+: fonts-parse ( "[<">]font1|font2|...[<">]" -- addr u )
+    >in @ >r  parse-name
+    over c@ '"' = IF  2drop r@ >in !  '"' parse 2drop '"' parse  THEN  rdrop
+    BEGIN  dup  WHILE  '|' $split 2swap ?font  UNTIL  2nip
+    ELSE  !!no-suitable-font!! throw  THEN ;
+
+: fonts= ( "font1|font2|..." -- )
+    fonts-parse ['] bw-font   ?define-font ;
+: color-fonts= ( "font1|font2|..." -- )
+    fonts-parse ['] bgra-font ?define-font ;
+: fonts=same ( -- )
+    last-font font-index font[] $[] ! ;
+previous
 
 font-path+ ~/.fonts
 
@@ -238,14 +232,11 @@ font-path+ ~/.fonts
     font-path+ truetype/droid
     font-path+ truetype/liberation
     font-path+ truetype/arphic-gkai00mp
+    font-path+ truetype/arphic-bkai00mp
     font-path+ truetype/emoji
     font-path+ opentype/
     font-path+ opentype/noto
 [THEN]
-
-Vocabulary fonts
-
-also fonts definitions
 
 \ default font selection
 
@@ -258,8 +249,8 @@ also fonts definitions
 \serif
 \regular fonts= DejaVuSerif.ttf|LiberationSerif-Regular.ttf|NotoSerif-Regular.ttf
 \bold fonts= DejaVuSerif-Bold.ttf|LiberationSerif-Bold.ttf|NotoSerif-Bold.ttf
-\italic fonts= DejaVuSerif-Oblique.ttf|LiberationSerif-Italic.ttf|NotoSerif-Italic.ttf
-\bold-italic fonts= DejaVuSerif-BoldOblique.ttf|LiberationSerif-BoldItalic.ttf|NotoSerif-BoldItalic.ttf
+\italic fonts= DejaVuSerif-Italic.ttf|LiberationSerif-Italic.ttf|NotoSerif-Italic.ttf
+\bold-italic fonts= DejaVuSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf|NotoSerif-BoldItalic.ttf
 
 \mono
 \regular fonts= DejaVuSansMono.ttf|LiberationMono-Regular.ttf|DroidSansMono.ttf
@@ -268,6 +259,7 @@ also fonts definitions
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
 \simplified-chinese
+120% to font-scaler
 2 font-lang >breakable
 font-lang  $A000  $2E80 +range
 font-lang $31390 $20000 +range
@@ -341,21 +333,21 @@ include unihan.fs
     \bold-italic fonts= NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
 [ELSE]
     \regular fonts= bkai00mp.ttf|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \italic fonts=same
     \bold fonts= bkai00mp.ttf|NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \italic fonts= bkai00mp.ttf|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \bold-italic fonts= bkai00mp.ttf|NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \bold-italic fonts=same
 [THEN]
 \mono
 [IFDEF] android
     \regular fonts= NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \italic fonts=same
     \bold fonts= NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \italic fonts= NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \bold-italic fonts= NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold-italic fonts=same
 [ELSE]
     \regular fonts= bkai00mp.ttf|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \italic fonts=same
     \bold fonts= bkai00mp.ttf|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \italic fonts= bkai00mp.ttf|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \bold-italic fonts= bkai00mp.ttf|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \bold-italic fonts=same
 [THEN]
 
 \japanese
@@ -367,14 +359,14 @@ font-lang $3380 $3280 +range
 font-lang $FFA0 $FF5F +range \ half width Katakana&punctation
 \sans
 \regular fonts= gkai00mp.ttf|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+\italic fonts=same
 \bold fonts= gkai00mp.ttf|NotoSansJP-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-\italic fonts= gkai00mp.ttf|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-\bold-italic fonts= gkai00mp.ttf|NotoSansJP-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+\bold-italic fonts=same
 \serif
 \regular fonts= gkai00mp.ttf|NotoSerifCJKjp-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
+\italic fonts=same
 \bold fonts= gkai00mp.ttf|NotoSerifCJKjp-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSerifJP-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
-\italic fonts= gkai00mp.ttf|NotoSerifCJKjp-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
-\bold-italic fonts= gkai00mp.ttf|NotoSerifCJKjp-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSerifJP-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
+\bold-italic fonts=same
 \mono
 
 \hangul
@@ -402,19 +394,26 @@ font-lang $D800 $D7B0 +range
 
 \ emojis and icons don't differ between different shapes and styles
 
-\emoji
+\emoji \regular
 2 font-lang >breakable
 font-lang  $2C00  $2600 +range
 font-lang $20000 $1F000 +range
 \sans \regular
-fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+color-fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
+\bold fonts=same \italic fonts=same \bold-italic fonts=same
+\serif \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
+\mono \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
 
-\icons
+\icons \regular
 2 font-lang >breakable
 font-lang $F900 $F000 +range
 \sans \regular
 fonts= fa-merged-900.ttf
+\bold fonts=same \italic fonts=same \bold-italic fonts=same
+\serif \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
+\mono \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
 
+100% to font-scaler
 \devanagari
 font-lang  $980  $900 +range
 font-lang $1D00 $1CD0 +range
@@ -431,4 +430,4 @@ fonts= NotoSerifDevanagari-Bold.ttf
 
 \latin \sans \regular
 
-previous previous set-current
+previous set-current
