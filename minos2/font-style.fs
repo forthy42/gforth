@@ -22,7 +22,7 @@
 
 require cstr.fs
 
-get-current also minos definitions
+get-current >r also minos definitions
 
 Variable font[]     \ array of fonts
 
@@ -98,8 +98,14 @@ fontlang: \japanese
 fontlang: \hangul
 fontlang: \emoji
 fontlang: \icons
+fontlang: \armenian
 fontlang: \hebrew
 fontlang: \arabic
+fontlang: \syriac
+fontlang: \thaana
+fontlang: \nko
+fontlang: \samaritan
+fontlang: \mandaic
 fontlang: \devanagari
 fontlang: \bengali
 fontlang: \gurmukhi
@@ -107,6 +113,35 @@ fontlang: \gujarati
 fontlang: \oriya
 fontlang: \tamil
 fontlang: \telugu
+fontlang: \kannada
+fontlang: \malayalam
+fontlang: \sinhala
+fontlang: \thai
+fontlang: \lao
+fontlang: \tibetan
+fontlang: \myanmar
+fontlang: \georgian
+fontlang: \ethiopic
+fontlang: \cherokee
+fontlang: \canadianaboriginal
+fontlang: \ogham
+fontlang: \runic
+fontlang: \tagalog
+fontlang: \hanunoo
+fontlang: \buhid
+fontlang: \tagbanwa
+fontlang: \khmer
+fontlang: \mongolian
+fontlang: \limbu
+fontlang: \taile
+fontlang: \newtailue
+fontlang: \buginese
+fontlang: \taitham
+fontlang: \balinese
+fontlang: \sundanese
+fontlang: \batak
+fontlang: \lepcha
+fontlang: \olchiki
 Value font-langs#
 
 \latin
@@ -215,16 +250,49 @@ cs-Vocabulary fonts
     dup to last-font font-index font[] $[] ! ;
 : fonts-parse ( "[<">]font1|font2|...[<">]" -- addr u )
     >in @ >r  parse-name
-    over c@ '"' = IF  2drop r@ >in !  '"' parse 2drop '"' parse  THEN  rdrop
+    over c@ '"' = IF  2drop r@ >in !  '"' parse 2drop '"' parse  THEN  rdrop ;
+: fonts-scan ( addr u -- )
+    $substitute drop
     BEGIN  dup  WHILE  '|' $split 2swap ?font  UNTIL  2nip
     ELSE  !!no-suitable-font!! throw  THEN ;
 
 : fonts= ( "font1|font2|..." -- )
-    fonts-parse ['] bw-font   ?define-font ;
+    fonts-parse fonts-scan ['] bw-font   ?define-font ;
 : color-fonts= ( "font1|font2|..." -- )
-    fonts-parse ['] bgra-font ?define-font ;
-: fonts=same ( -- )
+    fonts-parse fonts-scan ['] bgra-font ?define-font ;
+: font=same ( -- )
     last-font font-index font[] $[] ! ;
+: fonts[bi]=same ( -- )
+    \bold font=same \italic font=same \bold-italic font=same \regular ;
+: fonts[ssm]=same ( -- )
+    fonts[bi]=same
+    \serif font=same fonts[bi]=same
+    \mono  font=same fonts[bi]=same
+    \sans ;
+: font=%% ( -- )
+    "%family%%style%%lang%-%shape%.ttf" fonts-scan ['] bw-font ?define-font ;
+: +ranges ( range1 .. rangen n -- )
+    0 ?DO  font-lang -rot +range  LOOP ;
+: fonts=shapes[rb] ( range1 .. rangen n -- 0 )
+    \regular "Regular" "shape" replaces font=%%
+    dup IF  fonts[ssm]=same  THEN  +ranges 0
+    \italic font=same
+    \bold "Bold" "shape" replaces font=%%
+    \bold-italic font=same ;
+: fonts=shapes[r] ( range1 .. rangen n -- 0 )
+    \regular "Regular" "shape" replaces font=%%
+    +ranges fonts[ssm]=same ;
+: fonts=template[rb] ( range1 .. rangen n addr u -- )
+    [: "lang" replaces
+	\sans  "Sans"  "style" replaces fonts=shapes[rb]
+	\serif "Serif" "style" replaces fonts=shapes[rb]
+	\mono  "Sans"  "style" replaces fonts=shapes[rb] drop ;] catch
+    IF  clearstack "%lang%" $substitute drop type ."  failed" cr THEN ;
+: fonts=template[r] ( range1 .. rangen n addr u -- )
+    [: "lang" replaces
+	\sans  "Sans"  "style" replaces fonts=shapes[r] ;] catch
+    IF  clearstack "%lang%" $substitute drop type ."  failed" cr THEN ;
+
 previous
 
 font-path+ ~/.fonts
@@ -345,21 +413,21 @@ font-lang  $FFF0  $FF00 +range
     \bold-italic fonts= NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
 [ELSE] \ android
     \regular fonts= bkai00mp.ttf|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \italic fonts=same
+    \italic font=same
     \bold fonts= bkai00mp.ttf|NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \bold-italic fonts=same
+    \bold-italic font=same
 [THEN] \ android
 \mono
 [IFDEF] android
     \regular fonts= NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \italic fonts=same
+    \italic font=same
     \bold fonts= NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \bold-italic fonts=same
+    \bold-italic font=same
 [ELSE] \ android
     \regular fonts= bkai00mp.ttf|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \italic fonts=same
+    \italic font=same
     \bold fonts= bkai00mp.ttf|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \bold-italic fonts=same
+    \bold-italic font=same
 [THEN] \ android
 font-lang  $3130  $3100 +range \ bopomofo
 :noname ( traditional simple -- )
@@ -377,14 +445,14 @@ include unihan.fs
 2 font-lang >breakable
 \sans
 \regular fonts= gkai00mp.ttf|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-\italic fonts=same
+\italic font=same
 \bold fonts= gkai00mp.ttf|NotoSansJP-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-\bold-italic fonts=same
+\bold-italic font=same
 \serif
 \regular fonts= gkai00mp.ttf|NotoSerifCJKjp-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
-\italic fonts=same
+\italic font=same
 \bold fonts= gkai00mp.ttf|NotoSerifCJKjp-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSerifJP-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
-\bold-italic fonts=same
+\bold-italic font=same
 \mono
 font-lang $3100 $3000 +range \ Japanese-style punctuation, Hiragana, Katakana
 font-lang $3200 $31F0 +range
@@ -398,6 +466,12 @@ font-lang $FFA0 $FF5F +range \ half width Katakana&punctation
 1 font-lang >breakable \ not breakable for ragged layout
 \sans
 \regular fonts= NotoSansKR-Regular.otf
+fonts[ssm]=same
+font-lang $1200 $1100 +range
+font-lang $3190 $3130 +range
+font-lang $A980 $A960 +range
+font-lang $D7A4 $AC00 +range
+font-lang $D800 $D7B0 +range
 \bold fonts= NotoSansKR-Bold.otf
 \italic fonts= NotoSansKR-Regular.otf
 \bold-italic fonts= NotoSansKR-Bold.otf
@@ -411,11 +485,6 @@ font-lang $FFA0 $FF5F +range \ half width Katakana&punctation
 \bold fonts= NotoSansMonoCJKkr-Bold.otf
 \italic fonts= NotoSansMonoCJKkr-Regular.otf
 \bold-italic fonts= NotoSansMonoCJKkr-Bold.otf
-font-lang $1200 $1100 +range
-font-lang $3190 $3130 +range
-font-lang $A980 $A960 +range
-font-lang $D7A4 $AC00 +range
-font-lang $D800 $D7B0 +range
 [THEN]
 
 \ emojis and icons don't differ between different shapes and styles
@@ -425,9 +494,7 @@ font-lang $D800 $D7B0 +range
 2 font-lang >breakable
 \sans \regular
 color-fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
-\bold fonts=same \italic fonts=same \bold-italic fonts=same
-\serif \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
-\mono \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
+fonts[ssm]=same
 font-lang  $2C00  $2600 +range
 font-lang $20000 $1F000 +range
 [THEN]
@@ -437,9 +504,7 @@ font-lang $20000 $1F000 +range
 2 font-lang >breakable
 \sans \regular
 fonts= fa-merged-900.ttf
-\bold fonts=same \italic fonts=same \bold-italic fonts=same
-\serif \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
-\mono \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
+fonts[ssm]=same
 font-lang $F900 $F000 +range
 [THEN]
 
@@ -448,6 +513,10 @@ font-lang $F900 $F000 +range
 \hebrew
 \sans
 \regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSansHebrew-Regular.ttf|DroidSans.ttf
+fonts[ssm]=same
+font-lang  $600  $590 +range \ Hebrew
+font-lang $20AB $20AA +range
+font-lang $FB50 $FB00 +range
 \italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSansHebrew-Italic.ttf
 \bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSansHebrew-Bold.ttf
 \bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSansHebrew-BoldItalic.ttf
@@ -463,15 +532,19 @@ font-lang $F900 $F000 +range
 \bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|NotoSansHebrew-Bold.ttf
 \italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|NotoSansHebrew-Italic.ttf
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|NotoSansHebrew-BoldItalic.ttf
-font-lang  $600  $590 +range \ Hebrew
-font-lang $20AB $20AA +range
-font-lang $FB50 $FB00 +range
 [THEN]
 
 [TRY]
 \arabic
 \sans
 \regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSansArabic-Regular.ttf|DroidSans.ttf
+fonts[ssm]=same
+font-lang  $700  $600 +range \ Arabic
+font-lang  $780  $750 +range
+font-lang  $900  $8A0 +range
+font-lang $FE00 $FB50 +range
+font-lang $FF00 $FE70 +range
+font-lang $1EF00 $1EE00 +range
 \italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSansArabic-Italic.ttf
 \bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSansArabic-Bold.ttf
 \bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSansArabic-BoldItalic.ttf
@@ -487,179 +560,56 @@ font-lang $FB50 $FB00 +range
 \bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|NotoSansArabic-Bold.ttf
 \italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|NotoSansArabic-Italic.ttf
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|NotoSansArabic-BoldItalic.ttf
-font-lang  $700  $600 +range \ Arabic
-font-lang  $780  $750 +range
-font-lang  $900  $8A0 +range
-font-lang $FE00 $FB50 +range
-font-lang $FF00 $FE70 +range
-font-lang $1EF00 $1EE00 +range
 [THEN]
 
-[TRY]
+\ all fonts here are Noto
+"Noto" "family" replaces
+
+\armenian {{ $590 $530 }} 2/ "Armenian" fonts=template[rb]
+\syriac {{ $750 $700  $870 $860 }} 2/ "SyriacWestern" fonts=template[r] \ tbd: has three variants
+\thaana {{ $7C0 $780 }} 2/ "Thaana" fonts=template[r]
+\nko {{ $800 $7C0 }} 2/ "NKo" fonts=template[r]
+\samaritan {{ $840 $800 }} 2/ "Samaritan" fonts=template[r]
+\mandaic {{ $860 $840 }} 2/ "Mandaic" fonts=template[r]
 \devanagari
-\sans \regular
-fonts= NotoSansDevanagari-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansDevanagari-Bold.ttf
-\bold-italic fonts=same
-\serif \regular
-fonts= NotoSerifDevanagari-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSerifDevanagari-Bold.ttf
-\bold-italic fonts=same
-\mono \regular
-fonts= NotoSansDevanagari-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansDevanagari-Bold.ttf
-\bold-italic fonts=same
-font-lang  $980  $900 +range
-font-lang $1D00 $1CD0 +range
-font-lang $20BA $20B9 +range \ currency
-font-lang $A840 $A830 +range
-font-lang $A900 $A8E0 +range
-[THEN]
-
-[TRY]
-\bengali
-\sans \regular
-fonts= NotoSansBengali-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansBengali-Bold.ttf
-\bold-italic fonts=same
-\serif \regular
-fonts= NotoSerifBengali-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSerifBengali-Bold.ttf
-\bold-italic fonts=same
-\mono \regular
-fonts= NotoSansBengali-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansBengali-Bold.ttf
-\bold-italic fonts=same
-font-lang  $A00  $980 +range
-[THEN]
-
-[TRY]
-\gurmukhi
-\sans \regular
-fonts= NotoSansGurmukhi-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansGurmukhi-Bold.ttf
-\bold-italic fonts=same
-\serif \regular
-fonts= NotoSansGurmukhi-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansGurmukhi-Bold.ttf
-\bold-italic fonts=same
-\mono \regular
-fonts= NotoSansGurmukhi-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansGurmukhi-Bold.ttf
-\bold-italic fonts=same
-font-lang  $A80  $A00 +range
-[THEN]
-
-[TRY]
-\gujarati
-\sans \regular
-fonts= NotoSansGujarati-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansGujarati-Bold.ttf
-\bold-italic fonts=same
-\serif \regular
-fonts= NotoSerifGujarati-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSerifGujarati-Bold.ttf
-\bold-italic fonts=same
-\mono \regular
-fonts= NotoSansGujarati-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansGujarati-Bold.ttf
-\bold-italic fonts=same
-font-lang  $B00  $A80 +range
-[THEN]
-
-[TRY]
-\oriya
-\sans \regular
-fonts= NotoSansOriya-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansOriya-Bold.ttf
-\bold-italic fonts=same
-\serif \regular
-fonts= NotoSansOriya-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansOriya-Bold.ttf
-\bold-italic fonts=same
-\mono \regular
-fonts= NotoSansOriya-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansOriya-Bold.ttf
-\bold-italic fonts=same
-font-lang  $B80  $B00 +range
-[THEN]
-
-[TRY]
-\tamil
-\sans \regular
-fonts= NotoSansTamil-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansTamil-Bold.ttf
-\bold-italic fonts=same
-\serif \regular
-fonts= NotoSerifTamil-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSerifTamil-Bold.ttf
-\bold-italic fonts=same
-\mono \regular
-fonts= NotoSansTamil-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansTamil-Bold.ttf
-\bold-italic fonts=same
-font-lang  $C00  $B80 +range
-[THEN]
-
-[TRY]
-\telugu
-\sans \regular
-fonts= NotoSansTelugu-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansTelugu-Bold.ttf
-\bold-italic fonts=same
-\serif \regular
-fonts= NotoSerifTelugu-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSerifTelugu-Bold.ttf
-\bold-italic fonts=same
-\mono \regular
-fonts= NotoSansTelugu-Regular.ttf
-\italic fonts=same
-\bold
-fonts= NotoSansTelugu-Bold.ttf
-\bold-italic fonts=same
-font-lang  $C80  $C00 +range
-[THEN]
+{{ $980  $900  $1D00 $1CD0  $20BA $20B9  $A840 $A830  $A900 $A8E0 }} 2/
+"Devanagari" fonts=template[rb]
+\bengali {{ $A00 $980 }} 2/ "Bengali" fonts=template[rb]
+\gurmukhi {{ $A80 $A00 }} 2/ "Gurmukhi" fonts=template[r]
+\gujarati {{ $B00 $A80 }} 2/ "Gujarati" fonts=template[rb]
+\oriya {{ $B80 $B00 }} 2/ "Oriya" fonts=template[r]
+\tamil {{ $C00 $B80 }} 2/ "Tamil" fonts=template[rb]
+\telugu {{ $C80 $C00 }} 2/ "Telugu" fonts=template[rb]
+\kannada {{ $D00 $C80 }} 2/ "Kannada" fonts=template[rb]
+\malayalam {{ $D80 $D00 }} 2/ "Malayalam" fonts=template[rb]
+\sinhala {{ $E00 $D80 }} 2/ "Sinhala" fonts=template[rb]
+\thai {{ $E80 $E00 }} 2/ "Thai" fonts=template[rb]
+\lao {{ $F00 $E80 }} 2/ "Lao" fonts=template[rb]
+\tibetan {{ $1000 $F00 }} 2/ "Tibetan" fonts=template[r]
+\myanmar {{ $10A0 $1000 }} 2/ "Myanmar" fonts=template[rb]
+\georgian {{ $1100 $10A0  $1CC0 $1C90 }} 2/ "Georgian" fonts=template[rb]
+\ethiopic {{ $13A0 $1200 }} 2/ "Ethiopic" fonts=template[rb]
+\cherokee {{ $1400 $13A0 }} 2/ "Cherokee" fonts=template[r]
+\canadianaboriginal {{ $1680 $1400  $1900 $18B0 }} 2/ "CanadianAboriginal" fonts=template[r]
+\ogham {{ $16A0 $1680 }} 2/ "Ogham" fonts=template[r]
+\runic {{ $1700 $16A0 }} 2/ "Runic" fonts=template[r]
+\tagalog {{ $1720 $1700 }} 2/ "Tagalog" fonts=template[r]
+\hanunoo {{ $1740 $1720 }} 2/ "Hanunoo" fonts=template[r]
+\buhid {{ $1760 $1740 }} 2/ "Buhid" fonts=template[r]
+\tagbanwa {{ $1780 $1760 }} 2/ "Tagbanwa" fonts=template[r]
+\khmer {{ $1800 $1780  $1A00 $19E0 }} 2/ "Khmer" fonts=template[rb]
+\mongolian {{ $18B0 $1800 }} 2/ "Mongolian" fonts=template[r]
+\limbu {{ $1950 $1900 }} 2/ "Limbu" fonts=template[r]
+\taile {{ $1980 $1950 }} 2/ "TaiLe" fonts=template[r]
+\newtailue {{ $19E0 $1980 }} 2/ "NewTaiLue" fonts=template[r]
+\buginese {{ $1A20 $1A00 }} 2/ "Buginese" fonts=template[r]
+\taitham {{ $1AB0 $1A20 }} 2/ "TaiTham" fonts=template[r]
+\balinese {{ $1B80 $1B00 }} 2/ "Balinese" fonts=template[r]
+\sundanese {{ $1BC0 $1B80  $1CD0 $1CC0 }} 2/ "Sundanese" fonts=template[r]
+\batak {{ $1C00 $1BC0 }} 2/ "Batak" fonts=template[r]
+\lepcha {{ $1C50 $1C00 }} 2/ "Lepcha" fonts=template[r]
+\olchiki {{ $1C80 $1C50 }} 2/ "OlChiki" fonts=template[r]
 
 \latin \sans \regular
 
-previous set-current
+previous r> set-current
