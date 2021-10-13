@@ -248,6 +248,14 @@ font-path+ ~/.fonts
     font-path+ opentype/noto
 [THEN]
 
+\ skip over fonts when we can't load the font
+
+: [TRY] ( -- )
+    [: BEGIN  refill  WHILE
+		source "[THEN]" str= 0= WHILE
+		    interpret line-end-hook  REPEAT  THEN ;] catch
+    IF  postpone [ELSE]  THEN ;
+
 \ default font selection
 
 \sans
@@ -268,52 +276,91 @@ font-path+ ~/.fonts
 \italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|DroidSansMono.ttf
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
-\simplified-chinese
 120% to font-scaler
+[TRY]
+\simplified-chinese
 2 font-lang >breakable
-font-lang  $A000  $2E80 +range
-font-lang $31390 $20000 +range
-font-lang  $FB00  $F900 +range
-font-lang  $FFF0  $FF00 +range
 \sans
 [IFDEF] android
     \regular fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \bold fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \italic fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \bold-italic fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-[ELSE]
+[ELSE] \ android
     \regular fonts= gkai00mp.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \bold fonts= gkai00mp.ttf|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \italic fonts= gkai00mp.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \bold-italic fonts= gkai00mp.ttf|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
-[THEN]
+[THEN] \ android
 \serif
 [IFDEF] android
     \regular fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \bold fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \italic fonts= NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \bold-italic fonts= NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-[ELSE]
+[ELSE] \ android
     \regular fonts= gkai00mp.ttf|NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \bold fonts= gkai00mp.ttf|NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \italic fonts= gkai00mp.ttf|NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \bold-italic fonts= gkai00mp.ttf|NotoSerifSC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifSC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
-[THEN]
+[THEN] \ android
 \mono
 [IFDEF] android
     \regular fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \bold fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \italic fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \bold-italic fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-[ELSE]
+[ELSE] \ android
     \regular fonts= gkai00mp.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \bold fonts= gkai00mp.ttf|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \italic fonts= gkai00mp.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \bold-italic fonts= gkai00mp.ttf|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
+[THEN] \ android
+font-lang  $A000  $2E80 +range
+font-lang $31390 $20000 +range
+font-lang  $FB00  $F900 +range
+font-lang  $FFF0  $FF00 +range
 [THEN]
 
+[TRY]
 \traditional-chinese
 2 font-lang >breakable
+\sans
+[IFDEF] android
+    \regular fonts= NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold fonts= NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \italic fonts= NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold-italic fonts= NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+[ELSE] \ android
+    \regular fonts= bkai00mp.ttf|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \bold fonts= bkai00mp.ttf|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \italic fonts= bkai00mp.ttf|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \bold-italic fonts= bkai00mp.ttf|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+[THEN] \ android
+\serif
+[IFDEF] android
+    \regular fonts= NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold fonts= NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \italic fonts= NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold-italic fonts= NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+[ELSE] \ android
+    \regular fonts= bkai00mp.ttf|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \italic fonts=same
+    \bold fonts= bkai00mp.ttf|NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \bold-italic fonts=same
+[THEN] \ android
+\mono
+[IFDEF] android
+    \regular fonts= NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \italic fonts=same
+    \bold fonts= NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    \bold-italic fonts=same
+[ELSE] \ android
+    \regular fonts= bkai00mp.ttf|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \italic fonts=same
+    \bold fonts= bkai00mp.ttf|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
+    \bold-italic fonts=same
+[THEN] \ android
 font-lang  $3130  $3100 +range \ bopomofo
 :noname ( traditional simple -- )
     drop dup 1+ swap font-lang -rot +range ; is >sc
@@ -323,50 +370,11 @@ font-lang  $3130  $3100 +range \ bopomofo
 :noname ( traditional -- )
     dup 1+ swap font-lang -rot +range ; is >tc2
 include unihan.fs
-\sans
-[IFDEF] android
-    \regular fonts= NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \bold fonts= NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \italic fonts= NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \bold-italic fonts= NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-[ELSE]
-    \regular fonts= bkai00mp.ttf|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \bold fonts= bkai00mp.ttf|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \italic fonts= bkai00mp.ttf|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \bold-italic fonts= bkai00mp.ttf|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-[THEN]
-\serif
-[IFDEF] android
-    \regular fonts= NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \bold fonts= NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \italic fonts= NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \bold-italic fonts= NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-[ELSE]
-    \regular fonts= bkai00mp.ttf|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \italic fonts=same
-    \bold fonts= bkai00mp.ttf|NotoSerifTC-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSerifTC-Regular.otf|NotoSerifCJK-Regular.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \bold-italic fonts=same
-[THEN]
-\mono
-[IFDEF] android
-    \regular fonts= NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \italic fonts=same
-    \bold fonts= NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
-    \bold-italic fonts=same
-[ELSE]
-    \regular fonts= bkai00mp.ttf|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \italic fonts=same
-    \bold fonts= bkai00mp.ttf|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
-    \bold-italic fonts=same
 [THEN]
 
+[TRY]
 \japanese
 2 font-lang >breakable
-font-lang $3100 $3000 +range \ Japanese-style punctuation, Hiragana, Katakana
-font-lang $3200 $31F0 +range
-font-lang $3244 $3220 +range
-font-lang $3380 $3280 +range
-font-lang $FFA0 $FF5F +range \ half width Katakana&punctation
 \sans
 \regular fonts= gkai00mp.ttf|NotoSansJP-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
 \italic fonts=same
@@ -378,14 +386,16 @@ font-lang $FFA0 $FF5F +range \ half width Katakana&punctation
 \bold fonts= gkai00mp.ttf|NotoSerifCJKjp-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSerifJP-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
 \bold-italic fonts=same
 \mono
+font-lang $3100 $3000 +range \ Japanese-style punctuation, Hiragana, Katakana
+font-lang $3200 $31F0 +range
+font-lang $3244 $3220 +range
+font-lang $3380 $3280 +range
+font-lang $FFA0 $FF5F +range \ half width Katakana&punctation
+[THEN]
 
+[TRY]
 \hangul
 1 font-lang >breakable \ not breakable for ragged layout
-font-lang $1200 $1100 +range
-font-lang $3190 $3130 +range
-font-lang $A980 $A960 +range
-font-lang $D7A4 $AC00 +range
-font-lang $D800 $D7B0 +range
 \sans
 \regular fonts= NotoSansKR-Regular.otf
 \bold fonts= NotoSansKR-Bold.otf
@@ -401,33 +411,41 @@ font-lang $D800 $D7B0 +range
 \bold fonts= NotoSansMonoCJKkr-Bold.otf
 \italic fonts= NotoSansMonoCJKkr-Regular.otf
 \bold-italic fonts= NotoSansMonoCJKkr-Bold.otf
+font-lang $1200 $1100 +range
+font-lang $3190 $3130 +range
+font-lang $A980 $A960 +range
+font-lang $D7A4 $AC00 +range
+font-lang $D800 $D7B0 +range
+[THEN]
 
 \ emojis and icons don't differ between different shapes and styles
 
+[TRY]
 \emoji \regular
 2 font-lang >breakable
-font-lang  $2C00  $2600 +range
-font-lang $20000 $1F000 +range
 \sans \regular
 color-fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 \bold fonts=same \italic fonts=same \bold-italic fonts=same
 \serif \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
 \mono \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
+font-lang  $2C00  $2600 +range
+font-lang $20000 $1F000 +range
+[THEN]
 
+[TRY]
 \icons \regular
 2 font-lang >breakable
-font-lang $F900 $F000 +range
 \sans \regular
 fonts= fa-merged-900.ttf
 \bold fonts=same \italic fonts=same \bold-italic fonts=same
 \serif \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
 \mono \regular fonts=same \bold fonts=same \italic fonts=same \bold-italic fonts=same
+font-lang $F900 $F000 +range
+[THEN]
 
 100% to font-scaler
+[TRY]
 \hebrew
-font-lang  $600  $590 +range \ Hebrew
-font-lang $20AB $20AA +range
-font-lang $FB50 $FB00 +range
 \sans
 \regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSansHebrew-Regular.ttf|DroidSans.ttf
 \italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSansHebrew-Italic.ttf
@@ -445,15 +463,13 @@ font-lang $FB50 $FB00 +range
 \bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|NotoSansHebrew-Bold.ttf
 \italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|NotoSansHebrew-Italic.ttf
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|NotoSansHebrew-BoldItalic.ttf
+font-lang  $600  $590 +range \ Hebrew
+font-lang $20AB $20AA +range
+font-lang $FB50 $FB00 +range
+[THEN]
 
-
+[TRY]
 \arabic
-font-lang  $700  $600 +range \ Arabic
-font-lang  $780  $750 +range
-font-lang  $900  $8A0 +range
-font-lang $FE00 $FB50 +range
-font-lang $FF00 $FE70 +range
-font-lang $1EF00 $1EE00 +range
 \sans
 \regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSansArabic-Regular.ttf|DroidSans.ttf
 \italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSansArabic-Italic.ttf
@@ -471,13 +487,16 @@ font-lang $1EF00 $1EE00 +range
 \bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|NotoSansArabic-Bold.ttf
 \italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|NotoSansArabic-Italic.ttf
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|NotoSansArabic-BoldItalic.ttf
+font-lang  $700  $600 +range \ Arabic
+font-lang  $780  $750 +range
+font-lang  $900  $8A0 +range
+font-lang $FE00 $FB50 +range
+font-lang $FF00 $FE70 +range
+font-lang $1EF00 $1EE00 +range
+[THEN]
 
+[TRY]
 \devanagari
-font-lang  $980  $900 +range
-font-lang $1D00 $1CD0 +range
-font-lang $20BA $20B9 +range \ currency
-font-lang $A840 $A830 +range
-font-lang $A900 $A8E0 +range
 \sans \regular
 fonts= NotoSansDevanagari-Regular.ttf
 \italic fonts=same
@@ -496,9 +515,15 @@ fonts= NotoSansDevanagari-Regular.ttf
 \bold
 fonts= NotoSansDevanagari-Bold.ttf
 \bold-italic fonts=same
+font-lang  $980  $900 +range
+font-lang $1D00 $1CD0 +range
+font-lang $20BA $20B9 +range \ currency
+font-lang $A840 $A830 +range
+font-lang $A900 $A8E0 +range
+[THEN]
 
+[TRY]
 \bengali
-font-lang  $A00  $980 +range
 \sans \regular
 fonts= NotoSansBengali-Regular.ttf
 \italic fonts=same
@@ -517,9 +542,11 @@ fonts= NotoSansBengali-Regular.ttf
 \bold
 fonts= NotoSansBengali-Bold.ttf
 \bold-italic fonts=same
+font-lang  $A00  $980 +range
+[THEN]
 
+[TRY]
 \gurmukhi
-font-lang  $A80  $A00 +range
 \sans \regular
 fonts= NotoSansGurmukhi-Regular.ttf
 \italic fonts=same
@@ -538,9 +565,11 @@ fonts= NotoSansGurmukhi-Regular.ttf
 \bold
 fonts= NotoSansGurmukhi-Bold.ttf
 \bold-italic fonts=same
+font-lang  $A80  $A00 +range
+[THEN]
 
+[TRY]
 \gujarati
-font-lang  $B00  $A80 +range
 \sans \regular
 fonts= NotoSansGujarati-Regular.ttf
 \italic fonts=same
@@ -559,9 +588,11 @@ fonts= NotoSansGujarati-Regular.ttf
 \bold
 fonts= NotoSansGujarati-Bold.ttf
 \bold-italic fonts=same
+font-lang  $B00  $A80 +range
+[THEN]
 
+[TRY]
 \oriya
-font-lang  $B80  $B00 +range
 \sans \regular
 fonts= NotoSansOriya-Regular.ttf
 \italic fonts=same
@@ -580,9 +611,11 @@ fonts= NotoSansOriya-Regular.ttf
 \bold
 fonts= NotoSansOriya-Bold.ttf
 \bold-italic fonts=same
+font-lang  $B80  $B00 +range
+[THEN]
 
+[TRY]
 \tamil
-font-lang  $C00  $B80 +range
 \sans \regular
 fonts= NotoSansTamil-Regular.ttf
 \italic fonts=same
@@ -601,9 +634,11 @@ fonts= NotoSansTamil-Regular.ttf
 \bold
 fonts= NotoSansTamil-Bold.ttf
 \bold-italic fonts=same
+font-lang  $C00  $B80 +range
+[THEN]
 
+[TRY]
 \telugu
-font-lang  $C80  $C00 +range
 \sans \regular
 fonts= NotoSansTelugu-Regular.ttf
 \italic fonts=same
@@ -622,6 +657,8 @@ fonts= NotoSansTelugu-Regular.ttf
 \bold
 fonts= NotoSansTelugu-Bold.ttf
 \bold-italic fonts=same
+font-lang  $C80  $C00 +range
+[THEN]
 
 \latin \sans \regular
 
