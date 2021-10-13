@@ -101,6 +101,12 @@ fontlang: \icons
 fontlang: \hebrew
 fontlang: \arabic
 fontlang: \devanagari
+fontlang: \bengali
+fontlang: \gurmukhi
+fontlang: \gujarati
+fontlang: \oriya
+fontlang: \tamil
+fontlang: \telugu
 Value font-langs#
 
 \latin
@@ -122,6 +128,8 @@ previous previous
 
 s" No font specified" exception constant !!no-font!!
 s" No suitable font found" exception constant !!no-suitable-font!!
+
+0 font[]# 1- [?DO] ' !!no-font!! [I] font[] $[] ! -1 [+LOOP]
 
 \ font selector
 
@@ -467,16 +475,153 @@ font-lang $1EF00 $1EE00 +range
 \devanagari
 font-lang  $980  $900 +range
 font-lang $1D00 $1CD0 +range
+font-lang $20BA $20B9 +range \ currency
 font-lang $A840 $A830 +range
 font-lang $A900 $A8E0 +range
 \sans \regular
 fonts= NotoSansDevanagari-Regular.ttf
+\italic fonts=same
 \bold
 fonts= NotoSansDevanagari-Bold.ttf
+\bold-italic fonts=same
 \serif \regular
 fonts= NotoSerifDevanagari-Regular.ttf
+\italic fonts=same
 \bold
 fonts= NotoSerifDevanagari-Bold.ttf
+\bold-italic fonts=same
+\mono \regular
+fonts= NotoSansDevanagari-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansDevanagari-Bold.ttf
+\bold-italic fonts=same
+
+\bengali
+font-lang  $A00  $980 +range
+\sans \regular
+fonts= NotoSansBengali-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansBengali-Bold.ttf
+\bold-italic fonts=same
+\serif \regular
+fonts= NotoSerifBengali-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSerifBengali-Bold.ttf
+\bold-italic fonts=same
+\mono \regular
+fonts= NotoSansBengali-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansBengali-Bold.ttf
+\bold-italic fonts=same
+
+\gurmukhi
+font-lang  $A80  $A00 +range
+\sans \regular
+fonts= NotoSansGurmukhi-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansGurmukhi-Bold.ttf
+\bold-italic fonts=same
+\serif \regular
+fonts= NotoSansGurmukhi-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansGurmukhi-Bold.ttf
+\bold-italic fonts=same
+\mono \regular
+fonts= NotoSansGurmukhi-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansGurmukhi-Bold.ttf
+\bold-italic fonts=same
+
+\gujarati
+font-lang  $B00  $A80 +range
+\sans \regular
+fonts= NotoSansGujarati-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansGujarati-Bold.ttf
+\bold-italic fonts=same
+\serif \regular
+fonts= NotoSerifGujarati-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSerifGujarati-Bold.ttf
+\bold-italic fonts=same
+\mono \regular
+fonts= NotoSansGujarati-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansGujarati-Bold.ttf
+\bold-italic fonts=same
+
+\oriya
+font-lang  $B80  $B00 +range
+\sans \regular
+fonts= NotoSansOriya-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansOriya-Bold.ttf
+\bold-italic fonts=same
+\serif \regular
+fonts= NotoSansOriya-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansOriya-Bold.ttf
+\bold-italic fonts=same
+\mono \regular
+fonts= NotoSansOriya-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansOriya-Bold.ttf
+\bold-italic fonts=same
+
+\tamil
+font-lang  $C00  $B80 +range
+\sans \regular
+fonts= NotoSansTamil-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansTamil-Bold.ttf
+\bold-italic fonts=same
+\serif \regular
+fonts= NotoSerifTamil-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSerifTamil-Bold.ttf
+\bold-italic fonts=same
+\mono \regular
+fonts= NotoSansTamil-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansTamil-Bold.ttf
+\bold-italic fonts=same
+
+\telugu
+font-lang  $C80  $C00 +range
+\sans \regular
+fonts= NotoSansTelugu-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansTelugu-Bold.ttf
+\bold-italic fonts=same
+\serif \regular
+fonts= NotoSerifTelugu-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSerifTelugu-Bold.ttf
+\bold-italic fonts=same
+\mono \regular
+fonts= NotoSansTelugu-Regular.ttf
+\italic fonts=same
+\bold
+fonts= NotoSansTelugu-Bold.ttf
+\bold-italic fonts=same
 
 \latin \sans \regular
 
