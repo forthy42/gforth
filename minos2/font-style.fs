@@ -142,6 +142,8 @@ fontlang: \sundanese
 fontlang: \batak
 fontlang: \lepcha
 fontlang: \olchiki
+fontlang: \yi
+fontlang: \vai
 Value font-langs#
 
 \latin
@@ -609,6 +611,8 @@ font-lang $1EF00 $1EE00 +range
 \batak {{ $1C00 $1BC0 }} 2/ "Batak" fonts=template[r]
 \lepcha {{ $1C50 $1C00 }} 2/ "Lepcha" fonts=template[r]
 \olchiki {{ $1C80 $1C50 }} 2/ "OlChiki" fonts=template[r]
+\yi {{ $A4D0 $A000 }} 2/ "Yi" fonts=template[r]
+\vai {{ $A640 $A500 }} 2/ "Vai" fonts=template[r]
 
 \latin \sans \regular
 
