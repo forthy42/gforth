@@ -277,7 +277,7 @@ cs-Vocabulary fonts
     0 ?DO  font-lang -rot +range  LOOP ;
 : fonts=shapes[rb] ( range1 .. rangen n -- 0 )
     \regular "Regular" "shape" replaces font=%%
-    dup IF  fonts[ssm]=same  THEN  +ranges 0
+    ?dup-IF  fonts[ssm]=same  +ranges  THEN  0
     \italic font=same
     \bold "Bold" "shape" replaces font=%%
     \bold-italic font=same ;
@@ -346,18 +346,22 @@ font-path+ ~/.fonts
 \italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|DroidSansMono.ttf
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
-120% to font-scaler
+115% to font-scaler
 [TRY]
 \simplified-chinese
 2 font-lang >breakable
 \sans
 [IFDEF] android
     \regular fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
+    fonts[ssm]=same
+{{  $A000  $2E80  $31390 $20000   $FB00  $F900   $FFF0  $FF00 }} 2/ +ranges
     \bold fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \italic fonts= NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
     \bold-italic fonts= NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc|DroidSansFallback.ttf
 [ELSE] \ android
     \regular fonts= gkai00mp.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
+    fonts[ssm]=same
+{{  $A000  $2E80  $31390 $20000   $FB00  $F900   $FFF0  $FF00 }} 2/ +ranges
     \bold fonts= gkai00mp.ttf|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \italic fonts= gkai00mp.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \bold-italic fonts= gkai00mp.ttf|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
@@ -386,10 +390,6 @@ font-path+ ~/.fonts
     \italic fonts= gkai00mp.ttf|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
     \bold-italic fonts= gkai00mp.ttf|NotoSansSC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansSC-Regular.otf|NotoSansCJK-Regular.ttc
 [THEN] \ android
-font-lang  $A000  $2E80 +range
-font-lang $31390 $20000 +range
-font-lang  $FB00  $F900 +range
-font-lang  $FFF0  $FF00 +range
 [THEN]
 
 [TRY]
@@ -431,14 +431,14 @@ font-lang  $FFF0  $FF00 +range
     \bold fonts= bkai00mp.ttf|NotoSansTC-Bold.otf|NotoSansCJK-Bold.ttc|NotoSansTC-Regular.otf|NotoSansCJK-Regular.ttc
     \bold-italic font=same
 [THEN] \ android
-font-lang  $3130  $3100 +range \ bopomofo
+{{  $3130  $3100 }} 2/ +ranges \ bopomofo
 :noname ( traditional simple -- )
-    drop dup 1+ swap font-lang -rot +range ; is >sc
+    drop dup 1+ swap 1 +ranges ; is >sc
 :noname ( simple traditional -- )
     2dup = IF  2drop  EXIT  THEN
-    nip dup 1+ swap font-lang -rot +range ; is >tc
+    nip dup 1+ swap 1 +ranges ; is >tc
 :noname ( traditional -- )
-    dup 1+ swap font-lang -rot +range ; is >tc2
+    dup 1+ swap 1 +ranges ; is >tc2
 include unihan.fs
 [THEN]
 
@@ -456,11 +456,7 @@ include unihan.fs
 \bold fonts= gkai00mp.ttf|NotoSerifCJKjp-Bold.otf|NotoSerifCJK-Bold.ttc|NotoSerifJP-Regular.otf|NotoSerifCJK-Regular.ttc|DroidSansFallback.ttf
 \bold-italic font=same
 \mono
-font-lang $3100 $3000 +range \ Japanese-style punctuation, Hiragana, Katakana
-font-lang $3200 $31F0 +range
-font-lang $3244 $3220 +range
-font-lang $3380 $3280 +range
-font-lang $FFA0 $FF5F +range \ half width Katakana&punctation
+{{ $3100 $3000  $3200 $31F0  $3244 $3220  $3380 $3280  $FFA0 $FF5F }} 2/ +ranges
 [THEN]
 
 [TRY]
@@ -469,11 +465,7 @@ font-lang $FFA0 $FF5F +range \ half width Katakana&punctation
 \sans
 \regular fonts= NotoSansKR-Regular.otf
 fonts[ssm]=same
-font-lang $1200 $1100 +range
-font-lang $3190 $3130 +range
-font-lang $A980 $A960 +range
-font-lang $D7A4 $AC00 +range
-font-lang $D800 $D7B0 +range
+{{ $1200 $1100  $3190 $3130  $A980 $A960  $D7A4 $AC00  $D800 $D7B0 }} 2/ +ranges
 \bold fonts= NotoSansKR-Bold.otf
 \italic fonts= NotoSansKR-Regular.otf
 \bold-italic fonts= NotoSansKR-Bold.otf
@@ -497,28 +489,25 @@ font-lang $D800 $D7B0 +range
 \sans \regular
 color-fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 fonts[ssm]=same
-font-lang  $2C00  $2600 +range
-font-lang $20000 $1F000 +range
+{{  $2C00  $2600  $20000 $1F000 }} 2/ +ranges
 [THEN]
 
+100% to font-scaler
 [TRY]
 \icons \regular
 2 font-lang >breakable
 \sans \regular
 fonts= fa-merged-900.ttf
 fonts[ssm]=same
-font-lang $F900 $F000 +range
+{{ $F900 $F000 }} 2/ +ranges
 [THEN]
 
-100% to font-scaler
 [TRY]
 \hebrew
 \sans
 \regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSansHebrew-Regular.ttf|DroidSans.ttf
 fonts[ssm]=same
-font-lang  $600  $590 +range \ Hebrew
-font-lang $20AB $20AA +range
-font-lang $FB50 $FB00 +range
+{{  $600  $590  $20AB $20AA  $FB50 $FB00 }} 2/ +ranges
 \italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSansHebrew-Italic.ttf
 \bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSansHebrew-Bold.ttf
 \bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSansHebrew-BoldItalic.ttf
@@ -541,12 +530,7 @@ font-lang $FB50 $FB00 +range
 \sans
 \regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSansArabic-Regular.ttf|DroidSans.ttf
 fonts[ssm]=same
-font-lang  $700  $600 +range \ Arabic
-font-lang  $780  $750 +range
-font-lang  $900  $8A0 +range
-font-lang $FE00 $FB50 +range
-font-lang $FF00 $FE70 +range
-font-lang $1EF00 $1EE00 +range
+{{  $700  $600   $780  $750   $900  $8A0  $FE00 $FB50  $FF00 $FE70  $1EF00 $1EE00 }} 2/ +ranges
 \italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSansArabic-Italic.ttf
 \bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSansArabic-Bold.ttf
 \bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSansArabic-BoldItalic.ttf
@@ -567,8 +551,14 @@ font-lang $1EF00 $1EE00 +range
 \ all fonts here are Noto
 "Noto" "family" replaces
 
+[TRY]
+\syriac \sans
+\regular fonts= NotoSansSyriacWestern-Regular.ttf|NotoSansSyriacEstrangela-Regular.ttf|NotoSansSyriacEastern-Regular.ttf
+fonts[ssm]=same
+{{ $750 $700  $870 $860 }} 2/ +ranges
+[THEN]
+
 \armenian {{ $590 $530 }} 2/ "Armenian" fonts=template[rb]
-\syriac {{ $750 $700  $870 $860 }} 2/ "SyriacWestern" fonts=template[r] \ tbd: has three variants
 \thaana {{ $7C0 $780 }} 2/ "Thaana" fonts=template[r]
 \nko {{ $800 $7C0 }} 2/ "NKo" fonts=template[r]
 \samaritan {{ $840 $800 }} 2/ "Samaritan" fonts=template[r]
