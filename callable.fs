@@ -24,10 +24,20 @@ object class
     nip vtsize swap
 end-class callable
 
-' spaces cell- @ callable vtsize move
+' spaces >namevt @ callable vtsize move
 
 : do-callable ( body -- )
     body> >o call-xt perform o> ;
+' do-callable callable >vtextra !
 
 : callable! ( xt callable -- )
-   ['] do-callable >body over does-code! >o call-xt ! o> ;
+   >o call-xt ! o> ;
+
+: new-callable ( class -- o )  dup >osize @ cell+ cell+
+    allocater >o :allocate o> swap over cell+ ! dodoes: over !
+    cell+ cell+ dup dup cell- @ >osize @ erase ;
+: dispose-callable ( o:o -- o:0 )  o cell- dup dup @ >osize @ cell+ erase
+    cell- allocater >o :free o>  0 >o rdrop ;
+: clone-callable ( o:o -- o' )
+    o cell- @ new-callable o cell- cell- over cell- cell- dup cell+ @
+    >osize @ cell+ cell+ move ;
