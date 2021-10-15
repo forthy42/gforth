@@ -142,6 +142,7 @@ fontlang: \sundanese
 fontlang: \batak
 fontlang: \lepcha
 fontlang: \olchiki
+fontlang: \glagolitic
 fontlang: \tifinagh
 fontlang: \yi
 fontlang: \lisu
@@ -149,20 +150,28 @@ fontlang: \vai
 fontlang: \sylotinagri
 fontlang: \phagspa
 fontlang: \saurashtra
+fontlang: \kayahli
 fontlang: \rejang
+fontlang: \javanese
 fontlang: \taiviet
 fontlang: \meeteimayek
 fontlang: \lycian
 fontlang: \olditalic
+fontlang: \gothic
 fontlang: \ugaritic
 fontlang: \oldpersian
 fontlang: \shavian
 fontlang: \osmanya
 fontlang: \osage
+fontlang: \imperialaramaic
 fontlang: \phoenician
-fontlang: \oldsoutharabian
 fontlang: \lydian
+fontlang: \kharoshthi
+fontlang: \oldsoutharabian
+fontlang: \inscriptionalparthian
+fontlang: \inscriptionalpahlavi
 fontlang: \oldturkic
+fontlang: \kaithi
 Value font-langs#
 
 \latin
@@ -620,6 +629,7 @@ fonts[ssm]=same
 \batak {{ $1C00 $1BC0 }} 2/ "Batak" fonts=template[r]
 \lepcha {{ $1C50 $1C00 }} 2/ "Lepcha" fonts=template[r]
 \olchiki {{ $1C80 $1C50 }} 2/ "OlChiki" fonts=template[r]
+\glagolitic {{ $2C00 $60 bounds $1E000 $30 bounds }} 2/ "Glagolitic" fonts=template[r]
 \tifinagh {{ $2D30 $40 bounds }} 2/ "Tifinagh" fonts=template[r]
 \yi {{ $A4D0 $A000 }} 2/ "Yi" fonts=template[r]
 \lisu {{ $A4D0 $30 bounds }} 2/ "Lisu" fonts=template[r]
@@ -627,20 +637,28 @@ fonts[ssm]=same
 \sylotinagri {{ $A800 $30 bounds }} 2/ "SylotiNagri" fonts=template[r]
 \phagspa {{ $A840 $40 bounds }} 2/ "PhagsPa" fonts=template[r]
 \saurashtra {{ $A8E0 $A880 }} 2/ "Saurashtra" fonts=template[r]
+\kayahli {{ $A900 $30 bounds }} 2/ "Kharoshthi" fonts=template[r]
 \rejang {{ $A960 $A930 }} 2/ "Rejang" fonts=template[r]
+\javanese {{ $A9E0 $A980 }} 2/ "Javanese" fonts=template[r]
 \taiviet {{ $AAE0 $AA80 }} 2/ "ThaiViet" fonts=template[r]
 \meeteimayek {{ $ABC0 $AC00  $AAE0 $AB00 }} 2/ "MeeteiMayek" fonts=template[r]
 \lycian {{ $10280 $20 bounds }} 2/ "Lydian" fonts=template[r]
 \olditalic {{ $10300 $30 bounds }} 2/ "OldItalic" fonts=template[r]
+\gothic {{ $10330 $20 bounds }} 2/ "Gothic" fonts=template[r]
 \ugaritic {{ $10380 $20 bounds }} 2/ "Ugaritic" fonts=template[r]
 \oldpersian {{ $103A0 $40 bounds }} 2/ "OldPersian" fonts=template[r]
 \shavian {{ $10450 $30 bounds }} 2/ "Shavian" fonts=template[r]
 \osmanya {{ $104B0 $10480 }} 2/ "Osmanya" fonts=template[r]
 \osage {{ $10500 $104B0 }} 2/ "Osage" fonts=template[r]
+\imperialaramaic {{ $10840 $20 bounds }} 2/ "ImperialAramaic" fonts=template[r]
 \phoenician {{ $10900 $20 bounds }} 2/ "Phoenician" fonts=template[r]
-\oldsoutharabian {{ $10A60 $20 bounds }} 2/ "OldSouthArabian" fonts=template[r]
 \lydian {{ $10920 $20 bounds }} 2/ "Lydian" fonts=template[r]
+\kharoshthi {{ $10A00 $60 bounds }} 2/ "Lydian" fonts=template[r]
+\oldsoutharabian {{ $10A60 $20 bounds }} 2/ "OldSouthArabian" fonts=template[r]
+\inscriptionalparthian {{ $10B40 $20 bounds }} 2/ "InscriptionalParthian" fonts=template[r]
+\inscriptionalpahlavi {{ $10B60 $20 bounds }} 2/ "InscriptionalPahlavi" fonts=template[r]
 \oldturkic {{ $10C00 $50 bounds }} 2/ "OldTurkic" fonts=template[r]
+\kaithi {{ $110D0 $11080 }} 2/ "Kaithi" fonts=template[r]
 
 \latin \sans \regular
 
