@@ -148,6 +148,7 @@ fontlang: \tifinagh
 fontlang: \yi
 fontlang: \lisu
 fontlang: \vai
+fontlang: \bamum
 fontlang: \sylotinagri
 fontlang: \phagspa
 fontlang: \saurashtra
@@ -173,6 +174,7 @@ fontlang: \phoenician
 fontlang: \lydian
 fontlang: \kharoshthi
 fontlang: \oldsoutharabian
+fontlang: \avestan
 fontlang: \inscriptionalparthian
 fontlang: \inscriptionalpahlavi
 fontlang: \oldturkic
@@ -181,6 +183,8 @@ fontlang: \kaithi
 fontlang: \chakma
 fontlang: \cuneiform
 fontlang: \egyptianhieroglyphs
+fontlang: \anatolianhieroglyphs
+fontlang: \adlam
 Value font-langs#
 
 \latin
@@ -327,10 +331,18 @@ cs-Vocabulary fonts
 	\serif "Serif" "style" replaces fonts=shapes[rb]
 	\mono  "Sans"  "style" replaces fonts=shapes[rb] drop ;] catch
     IF  clearstack "%lang%" $substitute drop type ."  failed" cr THEN ;
+: fonts=template[rb]sans ( range1 .. rangen n addr u -- )
+    [: "lang" replaces "Sans"  "style" replaces
+	\sans  fonts=shapes[rb]
+	\serif fonts=shapes[rb]
+	\mono  fonts=shapes[rb] drop ;] catch
+    IF  clearstack "%lang%" $substitute drop type ."  failed" cr THEN ;
 : fonts=template[r] ( range1 .. rangen n addr u -- )
     [: "lang" replaces
 	\sans  "Sans"  "style" replaces fonts=shapes[r] ;] catch
-    IF  clearstack "%lang%" $substitute drop type ."  failed" cr THEN ;
+    IF  clearstack
+	[: error-color "%lang%" $substitute drop type ."  failed" cr ;]
+	['] execute-theme-color do-debug  THEN ;
 
 previous
 
@@ -383,7 +395,7 @@ font-path+ ~/.fonts
 \italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|DroidSansMono.ttf
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
-115% to font-scaler
+120% to font-scaler
 [TRY]
 \simplified-chinese
 2 font-lang >breakable
@@ -520,6 +532,8 @@ fonts[ssm]=same
 
 \ emojis and icons don't differ between different shapes and styles
 
+110% to font-scaler
+
 [TRY]
 \emoji \regular
 2 font-lang >breakable
@@ -602,7 +616,7 @@ fonts[ssm]=same
 \mandaic {{ $860 $840 }} 2/ "Mandaic" fonts=template[r]
 \devanagari
 {{ $980  $900  $1D00 $1CD0  $20BA $20B9  $A840 $A830  $A900 $A8E0 }} 2/
-"Devanagari" fonts=template[rb]
+"Devanagari" fonts=template[rb]sans
 \bengali {{ $A00 $980 }} 2/ "Bengali" fonts=template[rb]
 \gurmukhi {{ $A80 $A00 }} 2/ "Gurmukhi" fonts=template[r]
 \gujarati {{ $B00 $A80 }} 2/ "Gujarati" fonts=template[rb]
@@ -641,17 +655,19 @@ fonts[ssm]=same
 \glagolitic {{ $2C00 $60 bounds $1E000 $30 bounds }} 2/ "Glagolitic" fonts=template[r]
 \coptic {{ $2C80 $80 bounds $370 $10 bounds }} 2/ "Coptic" fonts=template[r]
 \tifinagh {{ $2D30 $40 bounds }} 2/ "Tifinagh" fonts=template[r]
-\yi {{ $A4D0 $A000 }} 2/ "Yi" fonts=template[r]
 \lisu {{ $A4D0 $30 bounds }} 2/ "Lisu" fonts=template[r]
 \vai {{ $A640 $A500 }} 2/ "Vai" fonts=template[r]
+120% to font-scaler
+\bamum {{ $A700 $A6A0  $16800 $240 bounds }} 2/ "Bamum" fonts=template[r]
+100% to font-scaler
 \sylotinagri {{ $A800 $30 bounds }} 2/ "SylotiNagri" fonts=template[r]
 \phagspa {{ $A840 $40 bounds }} 2/ "PhagsPa" fonts=template[r]
 \saurashtra {{ $A8E0 $A880 }} 2/ "Saurashtra" fonts=template[r]
 \kayahli {{ $A900 $30 bounds }} 2/ "Kharoshthi" fonts=template[r]
 \rejang {{ $A960 $A930 }} 2/ "Rejang" fonts=template[r]
 \javanese {{ $A9E0 $A980 }} 2/ "Javanese" fonts=template[r]
-\cham {{ $AA00 $60 bounds }} 2/ "Cham" fonts=template[rb]
-\taiviet {{ $AAE0 $AA80 }} 2/ "ThaiViet" fonts=template[r]
+\cham {{ $AA00 $60 bounds }} 2/ "Cham" fonts=template[rb]sans
+\taiviet {{ $AAE0 $AA80 }} 2/ "TaiViet" fonts=template[r]
 \meeteimayek {{ $ABC0 $AC00  $AAE0 $AB00 }} 2/ "MeeteiMayek" fonts=template[r]
 \lycian {{ $10280 $20 bounds }} 2/ "Lydian" fonts=template[r]
 \carian {{ $102A0 $40 bounds }} 2/ "Carian" fonts=template[r]
@@ -669,14 +685,21 @@ fonts[ssm]=same
 \lydian {{ $10920 $20 bounds }} 2/ "Lydian" fonts=template[r]
 \kharoshthi {{ $10A00 $60 bounds }} 2/ "Lydian" fonts=template[r]
 \oldsoutharabian {{ $10A60 $20 bounds }} 2/ "OldSouthArabian" fonts=template[r]
+\avestan {{ $10B00 $40 bounds }} 2/ "Avestan" fonts=template[r]
 \inscriptionalparthian {{ $10B40 $20 bounds }} 2/ "InscriptionalParthian" fonts=template[r]
 \inscriptionalpahlavi {{ $10B60 $20 bounds }} 2/ "InscriptionalPahlavi" fonts=template[r]
 \oldturkic {{ $10C00 $50 bounds }} 2/ "OldTurkic" fonts=template[r]
 \brahmi {{ $11000 $80 bounds }} 2/ "Brahmi" fonts=template[r]
 \kaithi {{ $110D0 $11080 }} 2/ "Kaithi" fonts=template[r]
 \chakma {{ $11100 $50 bounds }} 2/ "Chakma" fonts=template[r]
+120% to font-scaler
+\yi {{ $A4D0 $A000 }} 2/ "Yi" fonts=template[r]
+200% to font-scaler
 \cuneiform {{ $12000 $550 bounds }} 2/ "Cuneiform" fonts=template[r]
 \egyptianhieroglyphs {{ $13000 $430 bounds }} 2/ "EgyptianHieroglyphs" fonts=template[r]
+\anatolianhieroglyphs {{ $14400 $280 bounds }} 2/ "AnatolianHieroglyphs" fonts=template[r]
+100% to font-scaler
+\adlam {{ $1E900 $60 bounds }} 2/ "Adlam" fonts=template[r]
 
 \latin \sans \regular
 
