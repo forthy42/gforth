@@ -363,6 +363,7 @@ font-path+ ~/.fonts
     font-path+ truetype/arphic-gkai00mp
     font-path+ truetype/arphic-bkai00mp
     font-path+ truetype/emoji
+    font-path+ truetype/ancient-scripts
     font-path+ opentype/
     font-path+ opentype/noto
 [THEN]
@@ -694,9 +695,16 @@ fonts[ssm]=same
 \chakma {{ $11100 $50 bounds }} 2/ "Chakma" fonts=template[r]
 120% to font-scaler
 \yi {{ $A4D0 $A000 }} 2/ "Yi" fonts=template[r]
-200% to font-scaler
 \cuneiform {{ $12000 $550 bounds }} 2/ "Cuneiform" fonts=template[r]
-\egyptianhieroglyphs {{ $13000 $430 bounds }} 2/ "EgyptianHieroglyphs" fonts=template[r]
+200% to font-scaler
+[TRY]
+\egyptianhieroglyphs
+\ Aegyptus is free only for personal use. We use it when you have it
+\sans \regular fonts= Aegyptus.otf|AegyptusR_hint.ttf|NotoSansEgyptianHieroglyphs-Regular.ttf
+{{ $13000 $440 bounds }} 2/ +ranges
+fonts[ssm]=same
+\sans \bold fonts= AegyptusBold.otf|AegyptusB_hint.ttf
+[THEN]
 \anatolianhieroglyphs {{ $14400 $280 bounds }} 2/ "AnatolianHieroglyphs" fonts=template[r]
 100% to font-scaler
 \adlam {{ $1E900 $60 bounds }} 2/ "Adlam" fonts=template[r]
