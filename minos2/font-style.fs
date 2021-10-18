@@ -607,7 +607,7 @@ harfbuzz:HB_DIRECTION_LTR font-bidi font-lang + c!
 \sans
 \regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSansArabic-Regular.ttf|DroidSans.ttf
 fonts[ssm]=same
-{{  $660 #12 bounds  $6F0 #10 bounds }} 2/ +ranges
+{{  $660 #13 bounds  $609 #2 bounds  $6F0 #10 bounds }} 2/ +ranges
 \italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSansArabic-Italic.ttf
 \bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSansArabic-Bold.ttf
 \bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSansArabic-BoldItalic.ttf
