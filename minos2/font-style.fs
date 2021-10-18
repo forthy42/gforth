@@ -695,10 +695,13 @@ fonts[ssm]=same
 \chakma {{ $11100 $50 bounds }} 2/ "Chakma" fonts=template[r]
 120% to font-scaler
 \yi {{ $A4D0 $A000 }} 2/ "Yi" fonts=template[r]
+2 font-lang >breakable
 \cuneiform {{ $12000 $550 bounds }} 2/ "Cuneiform" fonts=template[r]
-200% to font-scaler
+2 font-lang >breakable
+240% to font-scaler
 [TRY]
 \egyptianhieroglyphs
+2 font-lang >breakable
 \ Aegyptus is free only for personal use. We use it when you have it
 \sans \regular fonts= Aegyptus.otf|AegyptusR_hint.ttf|NotoSansEgyptianHieroglyphs-Regular.ttf
 {{ $13000 $440 bounds }} 2/ +ranges
@@ -706,6 +709,7 @@ fonts[ssm]=same
 \sans \bold fonts= AegyptusBold.otf|AegyptusB_hint.ttf
 [THEN]
 \anatolianhieroglyphs {{ $14400 $280 bounds }} 2/ "AnatolianHieroglyphs" fonts=template[r]
+2 font-lang >breakable
 100% to font-scaler
 \adlam {{ $1E900 $60 bounds }} 2/ "Adlam" fonts=template[r]
 
