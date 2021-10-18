@@ -295,8 +295,8 @@ Variable $splits[]
 	I' I ?emoji-variant IF  to xs  emoji-font#  ELSE
 	    drop I' I ?soft-hyphen to xs  font-select#  THEN
 	last-font# @ over last-font# ! <> $splits[] stack# 0= or  IF
-	    last-font# @ font#-load { w^ font^ }
-	    font^ cell $make $splits[] >stack
+	    last-font# @ { c^ font^ }
+	    font^ 1 $make $splits[] >stack
 	THEN
 	xs $splits[] stacktop $+!
     xs +LOOP ;
@@ -327,14 +327,19 @@ DOES> swap hb_feature_t * + ;
 "liga" hb-tag 1 1 userfeatures hb-feature!
 2 to numfeatures
 
+$100 buffer: font-bidi \ 0: leave as guess, 4-7: set direction
+
 : shape-splits { xt: setbuf -- }
     $splits[] stack# 0 ?DO
-	hb-buffer I $splits[] $[]@ over @ >r cell /string
-	r@ texture_font_activate_size ?ftgl-ior drop
+	hb-buffer I $splits[] $[]@ over c@ >r 1 /string
+	r@ font#-load texture_font_activate_size ?ftgl-ior drop
 	0 over hb_buffer_add_utf8
 	hb-buffer hb_buffer_guess_segment_properties
+	r@ font-bidi + c@ ?dup-IF
+	    hb-buffer swap hb_buffer_set_direction
+	THEN
 	hb-buffer setbuf
-	r> texture_font_t-hb_font @ hb-buffer
+	r> font#-load texture_font_t-hb_font @ hb-buffer
 	0 userfeatures numfeatures hb_shape
 	{ | w^ glyph-count }
 	hb-buffer glyph-count hb_buffer_get_glyph_infos
@@ -358,7 +363,7 @@ Defer get-glyphs
 : render-shape-string ( addr u -- )
     lang-split-string ['] drop shape-splits
     $splits[] stack# 0 ?DO
-	I $splits[] $[]@ drop @ { font }
+	I $splits[] $[]@ drop c@ font#-load { font }
 	font font->t.i0
 	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN
 	f-scale f* x-scale f*  { f: pos* }
@@ -393,7 +398,7 @@ Defer get-glyphs
 : get-shape-glyphs ( addr u -- glyph1 .. glyphn )
     lang-split-string ['] drop shape-splits
     $splits[] stack# 0 ?DO
-	I $splits[] $[]@ drop @ { font }
+	I $splits[] $[]@ drop c@ font#-load { font }
 	font font->t.i0
 	I infos[] $[]@ { infos len }
 	len 0 ?DO
@@ -465,7 +470,7 @@ cell 4 = [IF]
     lang-split-string ['] drop shape-splits
     { | f: fw f: fd f: fh }
     $splits[] stack# 0 ?DO
-	I $splits[] $[]@ drop @ { font }
+	I $splits[] $[]@ drop c@ font#-load { font }
 	font font->t.i0
 	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN f-scale f*  { f: pos* }
 	0e  I positions[] $[]@ bounds ?DO
@@ -501,7 +506,7 @@ cell 4 = [IF]
 
 : pos-shape-rest ( -- curpos ) { | offset }
     $splits[] stack# 0 ?DO
-	I $splits[] $[]@ drop @ { font }
+	I $splits[] $[]@ drop c@ font#-load { font }
 	font font->t.i0
 	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN
 	f-scale f* x-scale f* { f: pos* }
@@ -514,7 +519,7 @@ cell 4 = [IF]
 		fdrop fdrop  unloop unloop  EXIT
 	    THEN  f-
 	hb_glyph_info_t +LOOP
-	I $splits[] $[]@ cell /string +to offset drop
+	I $splits[] $[]@ 1 /string +to offset drop
     LOOP
     fdrop offset ;
 
@@ -535,7 +540,7 @@ cell 4 = [IF]
     0 addr pos bounds ?DO
 	dup directions[] $[] @ HB_DIRECTION_RTL = to rtl?
 	dup segment-lens[] $[] seg-len@ fdup to lastlen +to len
-	dup 1+ swap $splits[] $[]@ nip cell-
+	dup 1+ swap $splits[] $[]@ nip 1-
     +LOOP  drop
     addr u pos umin layout-shape-string fdrop fdrop
     rtl? IF  lastlen fnegate +to len
