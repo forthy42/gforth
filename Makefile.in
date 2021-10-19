@@ -392,7 +392,9 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
 	mkv-tags.fs android-recorder.fs animation.fs need-x.fs font-style.fs \
 	text-style.fs gst-helper.fs plot.fs md-viewer.fs md-test.fs	     \
 	mem-texture.fs pulse-audio.fs sles-audio.fs opus-codec.fs va.fs	     \
-	unihan.fs
+	unihan.fs unicode-mirror.fs unicode-bidi.fs
+
+MINOS2_GEN = unicode-mirrors.fs unicode-bidis.fs
 
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
 	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png
@@ -410,7 +412,7 @@ UNIX_SRC = terminal-server.fs jni-helper.fs jni-tools.fs jni-media.fs	\
 	jni-location.fs sensors.fs win32.fs wayland-interfaces.fs
 
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
-	$(patsubst %, minos2/%, $(MINOS2_SRC)) $(patsubst %, minos2/%,	      \
+	$(patsubst %, minos2/%, $(MINOS2_SRC) $(MINOS2_GEN)) $(patsubst %, minos2/%,	      \
 	$(MINOS2_BIN)) ans-report.fs ansi.fs answords.fs colorize.fs	      \
 	comp-i.fs complex.fs depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
 	envos.dos envos.os2 etags.fs fft.fs filedump.fs fi2c.fs forward.fs    \
@@ -628,7 +630,7 @@ ENGINES_FAST = @NO_EC@ gforth-fast$(EXT)
 LIBENGINES = $(ENGINES:%=lib%)
 LIBENGINES_FAST = $(ENGINES_FAST:%=lib%)
 
-GEN = $(ENGINES) $(ENGINES_FAST) @gforth_elc@
+GEN = $(ENGINES) $(ENGINES_FAST) $(patsubst %, minos2/%, $(MINOS2_GEN)) @gforth_elc@
 
 # things that need a working forth system to be generated
 FORTH_GEN_ENGINE=engine/prim.i engine/prim_lab.i engine/prim_names.i \
@@ -1441,6 +1443,14 @@ doc/gforth.txt:	txt
 
 doc pdf dvi txt ps html: $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
 		-cd doc; $(MAKE) $@
+
+# Unicode database extract
+
+minos2/unicode-mirrors.fs: minos2/unicode-mirror.fs
+	$(FORTH) minos2/unicode-mirror.fs -e bye >$@
+
+minos2/unicode-bidis.fs: minos2/unicode-bidi.fs
+	$(FORTH) minos2/unicode-bidi.fs -e bye >$@
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.

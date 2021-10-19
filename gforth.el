@@ -302,11 +302,11 @@ PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
 	 "[\n]" nil comment (font-lock-variable-name-face . 3))
 	(("\\c") non-immediate (font-lock-keyword-face . 1)
 	 "[\n]" nil string (font-lock-string-face . 1))
-	("-?[0-9]+\\(\\.[0-9]*e\\(-?[0-9]+\\)?\\|\\.?[0-9a-f]*\\)" 
+	("-?[0-9a-f]+\\(\\.[0-9]*e\\(-?[0-9]+\\)?\\|\\.?[0-9a-f]*\\)" 
 	 immediate (font-lock-constant-face . 3))
-	("-?\\([&#][0-9.]+\\|\\(0x\\|\\$\\)[0-9a-f.]+\\|%[01]+\\)"
+	("-?\\([&#][0-9a-f.]+\\|\\(0x\\|\\$\\)[0-9a-f.]+\\|%[01]+\\)"
 	 immediate (font-lock-constant-face . 3))
-	("\\([&#]-?[0-9.]+\\|\\(0x-?\\|\\$-?\\)[0-9a-f.]+\\|%-?[01]+\\)"
+	("\\([&#]-?[0-9a-f.]+\\|\\(0x-?\\|\\$-?\\)[0-9a-f.]+\\|%-?[01]+\\)"
 	 immediate (font-lock-constant-face . 3))
 	("\"[^\"]**" immediate (font-lock-string-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
