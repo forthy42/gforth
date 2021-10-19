@@ -59,6 +59,18 @@ Defer .unstatus ' noop is .unstatus
 
 has? file [IF]
 : read-line ( c_addr u1 wfileid -- u2 flag wior ) \ file
+    \G Reads a line from @i{wfileid} into the buffer at @i{c_addr u1}.
+    \G Gforth supports all three common line terminators: LF, CR and
+    \G CRLF.  A non-zero @i{wior} indicates an error.  A false
+    \G @i{flag} indicates that @code{read-line} has been invoked at
+    \G the end of the file. @i{u2} indicates the line length (without
+    \G terminator): @i{u2}$<$@i{u1} indicates that the line is @i{u2}
+    \G chars long; @i{u2}=@i{u1} indicates that the line is at least
+    \G @i{u1} chars long, the @i{u1} chars of the buffer have been
+    \G filled with chars from the line, and the next slice of the line
+    \G with be read with the next @code{read-line}.  If the line is
+    \G @i{u1} chars long, the first @code{read-line} returns
+    \G @i{u2}=@i{u1} and the next read-line returns @i{u2}=0.
     (read-line) nip ;
 
 :noname  ( in line# udpos 4 -- )

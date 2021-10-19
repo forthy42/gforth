@@ -2280,6 +2280,10 @@ resize-file	( ud wfileid -- wior )	file	resize_file
 wior = IOR(ftruncate(fileno((FILE *)wfileid), UD2OFF(ud))==-1);
 
 read-file	( c_addr u1 wfileid -- u2 wior )	file	read_file
+""Read @i{u1} characters from file @i{wfileid} into the buffer at
+@i{c_addr}.  A non-zero @i{wior} indicates an error.  @i{U2} indicates
+the length of the read data.  End-of-file is not an error and is
+indicated by @i{u2}$<$@i{u1} and @i{wior}=0.""
 /* !! fread does not guarantee enough */
 u2 = 0;
 do {
