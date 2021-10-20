@@ -1447,7 +1447,7 @@ doc pdf dvi txt ps html: $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
 # Unicode database extract
 
 minos2/unicode-mirrors.fs: minos2/unicode-mirror.fs
-	$(FORTH) minos2/unicode-mirror.fs -e bye >$@
+	$(PREFORTH) minos2/unicode-mirror.fs -e bye >$@
 
 minos2/unicode-bidis.fs: minos2/unicode-bidi.fs
 	$(FORTH) minos2/unicode-bidi.fs -e bye >$@
