@@ -40,5 +40,6 @@ bidi: RLO
 bidi: S
 bidi: WS
       
+next-arg s" input" replaces
 hex
-s" cut -f1,5 -d';' minos2/UnicodeData.txt | tr ';' ' '" included-pipe
+s" cut -f1,5 -d';' %input% | tr ';' ' '" $substitute drop included-pipe

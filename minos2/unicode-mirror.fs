@@ -19,5 +19,6 @@ Vocabulary mirrors also mirrors definitions
 mirror: Y
 mirror: N
 
+next-arg s" input" replaces
 hex
-s" cut -f1,10 -d';' minos2/UnicodeData.txt | tr ';' ' '" included-pipe
+s" cut -f1,10 -d';' %input% | tr ';' ' '" $substitute drop included-pipe
