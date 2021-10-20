@@ -86,11 +86,11 @@ has? file [IF]
 :noname  ( -- flag )
     #tib off #fill-bytes off input-start-line
     BEGIN
-	tib max#tib @ #tib @ /string
+	tib max#tib @ #tib @ /string dup #fill-bytes @ + >r
 	loadfile @ (read-line) throw #fill-bytes +!
 	swap #tib +!
 	\ auto-expanding the tib
-	dup #tib @ #fill-bytes @ = and WHILE
+	dup r> #fill-bytes @ =  #tib @ #fill-bytes @ = and  and WHILE
 	    drop max#tib @ 2* expand-tib
     REPEAT
     1 loadline +! ;
