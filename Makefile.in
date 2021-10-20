@@ -392,9 +392,9 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
 	mkv-tags.fs android-recorder.fs animation.fs need-x.fs font-style.fs \
 	text-style.fs gst-helper.fs plot.fs md-viewer.fs md-test.fs	     \
 	mem-texture.fs pulse-audio.fs sles-audio.fs opus-codec.fs va.fs	     \
-	unihan.fs unicode-mirror.fs unicode-bidi.fs
+	unicode-mirror.fs unicode-bidi.fs
 
-MINOS2_GEN = unicode-mirrors.fs unicode-bidis.fs
+MINOS2_GEN = unicode-mirrors.fs unicode-bidis.fs unihan.fs
 
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
 	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png
@@ -1446,11 +1446,28 @@ doc pdf dvi txt ps html: $(GFORTH_TEXI) $(VMGEN_TEXI) doc/Makefile
 
 # Unicode database extract
 
-minos2/unicode-mirrors.fs: minos2/unicode-mirror.fs
-	$(PREFORTH) minos2/unicode-mirror.fs -e bye >$@
+minos2/UnicodeData.txt:
+	curl -s https://unicode.org/Public/UNIDATA/UnicodeData.txt -o $@
 
-minos2/unicode-bidis.fs: minos2/unicode-bidi.fs
-	$(FORTH) minos2/unicode-bidi.fs -e bye >$@
+minos2/Unihan_Variants.txt:
+	curl -s https://raw.githubusercontent.com/mahiuchun/zh-hk-data/master/Unihan_Variants.txt -o $@
+
+minos2/unihan.fs: minos2/Unihan_Variants.txt
+	echo "\ automatically generated from Unihan_Variants.txt" >$@
+	grep -E 'kSimplifiedVariant|kTraditionalVariant' minos2/Unihan_Variants.txt | \
+	sed -e 's/U+\([0-9A-F]*\)[ 	]*kSimplifiedVariant[ 	]*U+\([0-9A-F]*\).*/$\1 $\2 >sc/g' \
+	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\) U+\([0-9A-F]*\) U+\([0-9A-F]*\) U+\([0-9A-F]*\)/$\1 $\2 >tc	$\3 >tc2	$\4 >tc2	$\5 >tc2/g' \
+	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\) U+\([0-9A-F]*\) U+\([0-9A-F]*\)/$\1 $\2 >tc	$\3 >tc2	$\4 >tc2/g' \
+	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\) U+\([0-9A-F]*\)/$\1 $\2 >tc	$\3 >tc2/g' \
+	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\).*/$\1 $\2 >tc/g' | \
+	grep -v '^#' >>unihan.fs
+
+
+minos2/unicode-mirrors.fs: minos2/unicode-mirror.fs minos2/UnicodeData.txt
+	$(PREFORTH) $< -e bye >$@
+
+minos2/unicode-bidis.fs: minos2/unicode-bidi.fs minos2/UnicodeData.txt
+	$(PREFORTH) $< -e bye >$@
 
 # For an explanation of the following Makefile rules, see node
 # `Automatic Remaking' in GNU Autoconf documentation.

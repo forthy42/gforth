@@ -41,4 +41,4 @@ bidi: S
 bidi: WS
       
 hex
-s" curl https://unicode.org/Public/UNIDATA/UnicodeData.txt | cut -f1,5 -d';' | tr ';' ' '" included-pipe
+s" cut -f1,5 -d';' minos2/UnicodeData.txt | tr ';' ' '" included-pipe

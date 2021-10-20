@@ -20,4 +20,4 @@ mirror: Y
 mirror: N
 
 hex
-s" curl https://unicode.org/Public/UNIDATA/UnicodeData.txt | cut -f1,10 -d';' | tr ';' ' '" included-pipe
+s" cut -f1,10 -d';' minos2/UnicodeData.txt | tr ';' ' '" included-pipe
