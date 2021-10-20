@@ -39,7 +39,7 @@ bidi: RLI
 bidi: RLO
 bidi: S
 bidi: WS
-      
+
 next-arg s" input" replaces
 hex
 s" cut -f1,5 -d';' %input% | tr ';' ' '" $substitute drop included-pipe

@@ -1671,7 +1671,6 @@ test -d kernel||mkdir kernel
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
 mkdir -p include/gforth/$PACKAGE_VERSION/$machine
 mkdir -p arch/$machine
-mkdir -p minos2
 ln -sf $PWD/engine/config.h `cd $srcdir; pwd`/engine/libcc.h `cd $srcdir; pwd`/freetype-gl include/gforth/$PACKAGE_VERSION/$machine]],
 [PACKAGE_VERSION=$PACKAGE_VERSION
  machine=$machine])
