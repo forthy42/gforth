@@ -45,11 +45,11 @@ Unihan_Variants.txt: Unihan.zip
 unihan.fs: Unihan_Variants.txt
 	echo "\ automatically generated from $^" >$@
 	grep -E 'kSimplifiedVariant|kTraditionalVariant' $< | \
-	sed -e 's/U+\([0-9A-F]*\)[ 	]*kSimplifiedVariant[ 	]*U+\([0-9A-F]*\).*/\$\1 \$\2 >sc/g' \
-	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\) U+\([0-9A-F]*\) U+\([0-9A-F]*\) U+\([0-9A-F]*\)/\$\1 \$\2 >tc	\$\3 >tc2	\$\4 >tc2	\$\5 >tc2/g' \
-	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\) U+\([0-9A-F]*\) U+\([0-9A-F]*\)/\$\1 \$\2 >tc	\$\3 >tc2	\$\4 >tc2/g' \
-	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\) U+\([0-9A-F]*\)/\$\1 \$\2 >tc	\$\3 >tc2/g' \
-	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\).*/\$\1 \$\2 >tc/g' | \
+	sed -e 's/U+\([0-9A-F]*\)[ 	]*kSimplifiedVariant[ 	]*U+\([0-9A-F]*\).*/$$\1 $$\2 >sc/g' \
+	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\) U+\([0-9A-F]*\) U+\([0-9A-F]*\) U+\([0-9A-F]*\)/$$\1 $$\2 >tc	$$\3 >tc2	$$\4 >tc2	$$\5 >tc2/g' \
+	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\) U+\([0-9A-F]*\) U+\([0-9A-F]*\)/$$\1 $$\2 >tc	$$\3 >tc2	$$\4 >tc2/g' \
+	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\) U+\([0-9A-F]*\)/$$\1 $$\2 >tc	$$\3 >tc2/g' \
+	-e 's/U+\([0-9A-F]*\)[ 	]*kTraditionalVariant[ 	]*U+\([0-9A-F]*\).*/$$\1 $$\2 >tc/g' | \
 	grep -v '^#' >>unihan.fs
 
 mirrors.fs: mirror.fs UnicodeData.txt
