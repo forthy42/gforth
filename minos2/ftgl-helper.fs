@@ -244,16 +244,19 @@ $[]Variable >tc[]
 
 Defer >tc :noname ( from to -- ) >tc[] translate! ; is >tc
 Defer >tc2 ( to -- ) ' drop is >tc2
-Defer >sc :noname ( from to -- ) ~~ >sc[] translate! ; is >sc
+Defer >sc :noname ( from to -- ) >sc[] translate! ; is >sc
 : >tc@ ( from -- to ) >tc[] translate@ ;
 : >sc@ ( from -- to ) >sc[] translate@ ;
 
+$Variable $trans
 Vocabulary translators
 get-current also translators definitions
 : tcify ( addr u -- addr' u' )
-    [: bounds ?DO  I xc@ >tc@ xemit  I I' over - x-size +LOOP ;] $tmp ;
+    [: bounds ?DO  I xc@ >tc@ xemit  I I' over - x-size +LOOP ;]
+    $trans dup $free $exec  $trans $@ ;
 : scify ( addr u -- addr' u' )
-    [: bounds ?DO  I xc@ >sc@ xemit  I I' over - x-size +LOOP ;] $tmp ;
+    [: bounds ?DO  I xc@ >sc@ xemit  I I' over - x-size +LOOP ;]
+    $trans dup $free $exec  $trans $@ ;
 previous set-current
 
 Defer translator ' noop is translator
