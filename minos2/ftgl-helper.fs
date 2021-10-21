@@ -231,10 +231,12 @@ Defer font-select# ( xcaddr -- xcaddr num )
 $[]Variable >sc[]
 $[]Variable >tc[]
 
+: l~min! ( value addr -- )
+    dup >r l@ ?dup-IF  umin  THEN  r> l! ;
 : translate! ( from to addr -- )
     >r swap dup 8 rshift r> $[] >r
-    r@ @ 0= IF  { | zeros[ $400 ] } zeros[ $400 r@ $!  THEN
-    r> $@ rot $FF and sfloats /string drop l! ;
+    r@ @ 0= IF  { | zeros[ $400 ] } zeros[ $400 2dup erase r@ $!  THEN
+    r> $@ rot $FF and sfloats /string drop l~min! ;
 : translate@ ( from addr -- to )
     >r dup 8 rshift r> $[] >r
     r@ @ 0= IF  rdrop  EXIT  THEN
@@ -242,7 +244,7 @@ $[]Variable >tc[]
 
 Defer >tc :noname ( from to -- ) >tc[] translate! ; is >tc
 Defer >tc2 ( to -- ) ' drop is >tc2
-Defer >sc :noname ( from to -- ) >sc[] translate! ; is >sc
+Defer >sc :noname ( from to -- ) ~~ >sc[] translate! ; is >sc
 : >tc@ ( from -- to ) >tc[] translate@ ;
 : >sc@ ( from -- to ) >sc[] translate@ ;
 
@@ -256,7 +258,8 @@ previous set-current
 
 Defer translator ' noop is translator
 
-include unicode/unihan.fs
+require unicode/unihan.fs
+read-unihan
 
 \ text rendering
 

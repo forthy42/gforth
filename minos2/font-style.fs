@@ -490,7 +490,7 @@ font-path+ ~/.fonts
     nip dup 1+ swap 1 +ranges ; is >tc
 :noname ( traditional -- )
     dup 1+ swap 1 +ranges ; is >tc2
-include unicode/unihan.fs
+read-unihan
 [THEN]
 
 [TRY]
