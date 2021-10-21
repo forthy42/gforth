@@ -484,12 +484,10 @@ font-path+ ~/.fonts
 [THEN] \ android
 {{  $3130  $3100 }} 2/ +ranges \ bopomofo
 :noname ( traditional simple -- )
-    drop dup 1+ swap 1 +ranges ; is >sc
-:noname ( simple traditional -- )
     2dup = IF  2drop  EXIT  THEN
-    nip dup 1+ swap 1 +ranges ; is >tc
-:noname ( traditional -- )
-    dup 1+ swap 1 +ranges ; is >tc2
+    drop dup 1+ swap 1 +ranges ; is >sc
+' 2drop is >tc
+' drop is >tc2
 read-unihan
 [THEN]
 
