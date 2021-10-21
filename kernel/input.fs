@@ -90,10 +90,11 @@ has? file [IF]
 	loadfile @ (read-line) throw #fill-bytes +!
 	swap #tib +!
 	\ auto-expanding the tib
-	dup r> #fill-bytes @ =  #tib @ #fill-bytes @ = and  and WHILE
-	    drop max#tib @ 2* expand-tib
-    REPEAT
-    1 loadline +! ;
+	dup r> #fill-bytes @ = and  WHILE
+	    #tib @ #fill-bytes @ =  WHILE
+		drop max#tib @ 2* expand-tib
+    REPEAT  THEN
+    #tib @ 0<> or  1 loadline +! ;
                        \ refill
 terminal-input @       \ source -> terminal-input::source
 
