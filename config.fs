@@ -51,6 +51,7 @@ s" Config error" exception Value config-throw
 ' .config-err ' notfound is recognized-config
 
 : config-line ( -- )
+    source nip 0= ?EXIT
     '=' parse -trailing 2>r
     parse-name config-recognize 2r> eval-config
     postpone \ ;
