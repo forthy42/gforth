@@ -462,3 +462,5 @@ t{ 5 man-or-boy? -> 0 }t
 t{ 6 man-or-boy? -> 1 }t
 t{ 7 man-or-boy? -> -1 }t
 t{ 8 man-or-boy? -> -10 }t
+
+.( last line without linefeed test) cr
