@@ -264,6 +264,31 @@ Defer translator ' noop is translator
 require unicode/unihan.fs
 read-unihan
 
+\ bidi code
+
+require unicode/bidi-db.fs
+
+$Variable $bidi-buffer
+$Variable $flag-buffer
+$Variable $level-buffer
+
+: >bidi ( addr u -- )
+    [: bounds ?DO
+	    I xc@+
+	    1 bidi@ IF  c@ emit  ELSE  drop 0 emit  THEN
+	I - +LOOP ;] $bidi-buffer $exec ;
+
+: flag-sep ( -- )
+    $bidi-buffer $@ $flag-buffer $!
+    $bidi-buffer $@ bounds U+DO
+	I c@ $1F and I c!
+    LOOP
+    $flag-buffer $@ bounds U+DO
+	I c@ $E0 and I c!
+    LOOP
+    $bidi-buffer $@len $level-buffer $!len
+    $level-buffer $@ erase ;
+
 \ text rendering
 
 : ?soft-hyphen { I' I -- xaddr xs }
