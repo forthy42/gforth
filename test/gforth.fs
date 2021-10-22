@@ -463,7 +463,10 @@ t{ 6 man-or-boy? -> 1 }t
 t{ 7 man-or-boy? -> -1 }t
 t{ 8 man-or-boy? -> -10 }t
 
-\ refill without newline at end of last line
+\ refill with&without newline at end of last line
 \ (do not add a newline to the end of this buffer!)
 
-.( last line without linefeed test) cr
+5 0 [DO]
+    [I] .
+[LOOP]
+10 5 [DO] [I] . [LOOP] cr
