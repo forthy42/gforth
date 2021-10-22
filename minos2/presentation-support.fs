@@ -137,15 +137,13 @@ glue new glue-right !
     THEN
     1+ sin-t anim!slides +sync +resize ;
 
-1e FValue slide-time%
-
 : prev-slide ( -- )
     slide# @ 0<= IF  load-prev  THEN
-    slide-time% anims[] $@len IF  anim-end .2e f*  THEN
+    m2c:animtime% f@ anims[] $@len IF  anim-end .2e f*  THEN
     slide# @ ['] prev-anim >animate ;
 : next-slide ( -- )
     slide# @ 1+ slide#max @ u>= IF  load-next  THEN
-    slide-time% anims[] $@len IF  anim-end .2e f*  THEN
+    m2c:animtime% f@ anims[] $@len IF  anim-end .2e f*  THEN
     slide# @ ['] next-anim >animate ;
 
 : slide-frame ( glue color -- o )

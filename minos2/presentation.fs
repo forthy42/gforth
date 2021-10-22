@@ -33,6 +33,8 @@ require minos2/font-style.fs
 require minos2/text-style.fs
 require presentation-support.fs
 
+m2c:animtime% f@ 3e f* m2c:animtime% f!
+
 tex: minos2
 ' minos2 "net2o-minos2.png" 0.666e }}image-file Constant minos2-glue drop
 

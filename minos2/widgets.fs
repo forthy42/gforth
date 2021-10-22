@@ -90,6 +90,7 @@ Variable curminchars#
 FVariable curminwidth%
 FVariable pwtime%
 FVariable scale%
+FVariable animtime%
 $Variable translate$
 set-current
 
@@ -97,6 +98,7 @@ set-current
 1e curminwidth% f!
 0.5e pwtime% f!
 1e scale% f!
+0.3e animtime% f!
 
 previous
 
