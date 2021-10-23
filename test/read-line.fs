@@ -12,7 +12,7 @@ create buf 16 allot
 : test ( -- )
     7 2 do
         cr cr i . cr
-        s" test/read-line.input" r/o open-file throw { f }
+        s" read-line.input" open-fpath-file throw 2drop { f }
         begin
             buf 16 erase
             buf 1+ i f (read-line) throw cr . tuck . .
@@ -21,4 +21,3 @@ create buf 16 allot
     loop ;
 
 test bye
-       

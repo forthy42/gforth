@@ -119,7 +119,10 @@ color f@ FValue xy-color
 : s0t1>st- ( si ti addr -- ) dup sf@ 75% f* dup 8 + sf@ 25% f* f+ t.s sf!  12 + l@ t.t l! ;
 : s1t1>st- ( si ti addr -- ) dup sf@ 25% f* dup 8 + sf@ 75% f* f+ t.s sf!  12 + l@ t.t l! ;
 
-: xy, { glyph -- dx dy }
+Defer xy,
+Defer xy+
+
+: xy,default { glyph -- dx dy }
     \ glyph texture_glyph_t-codepoint l@
     x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
@@ -139,13 +142,62 @@ color f@ FValue xy-color
     glyph texture_glyph_t-advance_x sf@ xs f*
     glyph texture_glyph_t-advance_y sf@ ys f* ;
 
+' xy,default is xy,
+
+: xy,mirror { glyph -- dx dy }
+    \ glyph texture_glyph_t-codepoint l@
+    x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
+    penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
+    glyph texture_glyph_t-offset_x sl@ xs fm*
+    glyph texture_glyph_t-offset_y sl@ ys fm* { f: xo f: yo }
+    glyph texture_glyph_t-width  2@ xs fm* ys fm* { f: w f: h }
+    xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f- { f: x0 f: y0 }
+    x0 w f+                 y0 h f+                { f: x1 f: y1 }
+    glyph texture_glyph_t-s0
+    \ over hex. dup $10 dump
+    >v
+    x0 y0 >xy n> xy-color i>c dup s1t0>st v+
+    x1 y0 >xy n> xy-color i>c dup s0t0>st v+
+    x0 y1 >xy n> xy-color i>c dup s1t1>st v+
+    x1 y1 >xy n> xy-color i>c     s0t1>st v+
+    v>
+    glyph texture_glyph_t-advance_x sf@ xs f*
+    glyph texture_glyph_t-advance_y sf@ ys f* ;
+
+: xy,rotright { glyph -- dx dy }
+    \ glyph texture_glyph_t-codepoint l@
+    x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
+    penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
+    glyph texture_glyph_t-offset_x sl@ xs fm*
+    glyph texture_glyph_t-offset_y sl@ ys fm* { f: yo f: xo }
+    glyph texture_glyph_t-width  2@ xs fm* ys fm* { f: h f: w }
+    xp xo f+ fround 1/2 f-  yp yo f+ fround 1/2 f- { f: x0 f: y0 }
+    x0 w f+                 y0 h f+                { f: x1 f: y1 }
+    glyph texture_glyph_t-s0
+    \ over hex. dup $10 dump
+    >v
+    x1 y1 >xy n> xy-color i>c dup s1t0>st v+
+    x1 y0 >xy n> xy-color i>c dup s0t0>st v+
+    x0 y1 >xy n> xy-color i>c dup s1t1>st v+
+    x0 y0 >xy n> xy-color i>c     s0t1>st v+
+    v>
+    glyph texture_glyph_t-advance_x sf@ xs f*
+    glyph texture_glyph_t-advance_y sf@ ys f* ;
+
 [IFUNDEF] sf+!
     : sf+! ( f addr -- )
 	dup sf@ f+ sf! ;
 [THEN]
 
-: xy+ ( x y -- )
+: xy+default ( x y -- )
     penxy sfloat+ sf+!  penxy sf+! ;
+' xy+default is xy+
+: xy+rotright ( x y -- )
+    fnegate penxy sf+!  penxy sfloat+ sf+! ;
+
+: rotright ( -- )
+    ['] xy,rotright is xy,
+    ['] xy+rotright is xy+ ;
 
 : glyph, ( glyph -- dx dy )
     i>off  xy, 2 quad ;
@@ -407,8 +459,9 @@ Defer get-glyphs
 	    xo yo xy+
 	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@
 	    glyph,  fdrop fdrop
-	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm* xo f-
-	    pos I + hb_glyph_position_t-y_advance sl@ pos* fm* yo f- xy+
+	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm*
+	    pos I + hb_glyph_position_t-y_advance sl@ pos* fm* xy+
+	    xo fnegate yo fnegate xy+
 	hb_glyph_info_t +LOOP
     LOOP ;
 
