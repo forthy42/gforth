@@ -400,7 +400,7 @@ MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
 	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png
 
 TEST_SRC = tester.fs ttester.fs checkans.fs coretest.fs dbltest.fs	     \
-	float.fs gforth.fs forward.fs other.fs postpone.fs		     \
+	float.fs gforth.fs forward.fs other.fs postpone.fs read-line.fs	     \
 	search.fs signals.fs stagediv.fs string.fs			     \
 	primtest.fs coreext.fs deferred.fs coremore.fs gforth-nofast.fs	     \
 	libcc.fs macros.fs fp/ak-fp-test.fth fp/fatan2-test.fs		     \
@@ -608,7 +608,8 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	glosgen.glo doc/glossaries.doc $(FORTH_SRC) $(LIBCC_DIST_SRC)	      \
 	$(LIBCC_GEN_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2)		      \
 	$(FREETYPE_GL_SRC) timings.sc test/coretest.out test/checkans.out     \
-	test/gforth.out test/fp/fptest.out $(wildcard cache*.vmg)	      \
+	test/gforth.out test/read-line.input test/read-line.out		      \
+	test/fp/fptest.out $(wildcard cache*.vmg)			      \
 	peeprules.vmg prim debian/rules debian/control.in debian/changelog.in \
 	debian/compat gforth.ico .travis.yml install-deps.sh install-swig.sh  \
 	install-freetype-gl.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4	      \
@@ -1054,6 +1055,7 @@ checkone test: gforth.fi engine/prim-s.i
 		  "c-flag on s\" prim.i\" out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -u engine/prim-s.i -
 		-$(TIMEOUT) $(FORTH) test/fp/runfptests.fth -e bye | diff -u $(srcdir)/test/fp/fptest.out - || echo "Floating point test failed"
+		$(TIMEOUT) $(FORTHS) test/read-line.fs -e bye | diff -u - $(srcdir)/test/read-line.out
 
 check-nofast: gforth.fi
 		$(TIMEOUT) $(FORTHS) test/gforth-nofast.fs -e bye
