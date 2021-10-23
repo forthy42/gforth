@@ -80,7 +80,7 @@ tex: minos2
 		    l" icon " l" icon from an icon texture" b\\
 		    l" image " l" larger image" b\\
 		    {{ l" edit " b0 blackish l" editable text: " }}text'
-		    "中秋节快乐！ Happy autumn festival! 🌙🌕" }}edit dup Value edit-field glue*l }}glue }}h edit-field ' true edit[] >bl
+		    "中秋节快乐！ Happy autumn festival! ‼️‼️🌙🌕" }}edit dup Value edit-field glue*l }}glue }}h edit-field ' true edit[] >bl
 		    \sans \latin \normal \regular
 		    l" text " l" text element/Emoji/Icons/中文/… 🖖‍🏻🖖‍🏼🖖‍🏽🖖‍🏾🖖‍🏿😀🤭😁😂😇😈🙈🙉🙊💓💔💕💖💗💘🍺🍻🎉🎻🎺🎷" b\\
 		    l" part-text " l" pseudo–element for paragraph breaking" b\\

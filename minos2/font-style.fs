@@ -536,6 +536,7 @@ fonts[ssm]=same
 
 [TRY]
 \emoji \regular
+font-lang to emoji-font#
 2 font-lang >breakable
 \sans \regular
 color-fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
