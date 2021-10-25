@@ -23,9 +23,9 @@ UNIHAN = https://raw.githubusercontent.com/XUJiahua/ischinese/master
 
 PREFORTH = gforth
 
-FETCH = UnicodeData.txt VerticalOrientation.txt Unihan.zip
+FETCH = UnicodeData.txt VerticalOrientation.txt BidiBrackets.txt Unihan.zip
 EXTRACT = Unihan_Variants.txt unihan.in
-GEN = unihan.db mirrors.fs bidis.fs verticals.fs
+GEN = unihan.db brackets.db mirrors.fs bidis.fs verticals.fs
 
 all: $(GEN)
 
@@ -35,7 +35,7 @@ clean:
 realclean:
 	rm $(FETCH) $(EXTRACT) $(GEN)
 
-UnicodeData.txt VerticalOrientation.txt Unihan.zip:
+UnicodeData.txt VerticalOrientation.txt BidiBrackets.txt Unihan.zip:
 	curl -s $(UNIDATA)/$@ -o $@
 
 Unihan_Variants.txt: Unihan.zip
@@ -53,7 +53,11 @@ unihan.in: Unihan_Variants.txt
 	grep -v '^#' >>$@
 
 unihan.db: unihan.in
-	gforth -e ': >sc 2drop ; : >tc space swap xemit xemit ; : >tc2 xemit ;' $< -e bye >$@
+	$(PREFORTH) -e ': >sc 2drop ; : >tc space swap xemit xemit ; : >tc2 xemit ;' $< -e bye >$@
+
+brackets.db: BidiBrackets.txt
+	grep '; o #' $< | cut -f1 -d'#' | tr ';' ' ' | \
+	$(PREFORTH) -e ": o swap xemit xemit space ; hex stdin ' read-loop execute-parsing-file bye" >$@
 
 mirrors.fs: mirror.fs UnicodeData.txt
 	echo "\ automatically generated from $^" >$@

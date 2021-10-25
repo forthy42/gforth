@@ -384,6 +384,9 @@ LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_LI
 
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
+UNICODE_SRC = mirror.fs bidi.fs vertical.fs bidi-db.fs mirrors.fs bidis.fs \
+	verticals.fs unihan.fs unihan.db brackets.db Makefile
+
 MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
 	wayland-gl.fs soil-texture.fs gl-sample.fs gl-slideshow.fs	     \
 	ftgl-helper.fs ftgl-sample.fs widgets.fs actors.fs x11-actors.fs     \
@@ -392,9 +395,7 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
 	mkv-tags.fs android-recorder.fs animation.fs need-x.fs font-style.fs \
 	text-style.fs gst-helper.fs plot.fs md-viewer.fs md-test.fs	     \
 	mem-texture.fs pulse-audio.fs sles-audio.fs opus-codec.fs va.fs	     \
-	unicode/mirror.fs unicode/bidi.fs unicode/vertical.fs		     \
-	unicode/bidi-db.fs unicode/mirrors.fs unicode/bidis.fs		     \
-	unicode/verticals.fs unicode/unihan.fs unicode/unihan.db unicode/Makefile
+	$(pathsubst %, unicode/%, $(UNICODE_SRC))
 
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
 	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png
