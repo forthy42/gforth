@@ -580,48 +580,48 @@ fonts[ssm]=same
 [TRY]
 \arabic
 \sans
-\regular fonts= NotoSansArabic-Regular.ttf|DejaVuSans.ttf|LiberationSans-Regular.ttf|DroidSans.ttf
+\regular fonts= NotoSansArabic-Regular.ttf|NotoNaskhArabic-Regular.ttf|DejaVuSans.ttf|LiberationSans-Regular.ttf|DroidKufi-Regular.ttf|DroidSans.ttf
 fonts[ssm]=same
 {{  $700  $600   $780  $750   $900  $8A0  $FE00 $FB50  $FF00 $FE70  $1EF00 $1EE00 }} 2/ +ranges
-\italic fonts= NotoSansArabic-Italic.ttf|DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|
-\bold fonts= NotoSansArabic-Bold.ttf|DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf
-\bold-italic fonts= NotoSansArabic-BoldItalic.ttf|DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf
+\italic fonts= NotoSansArabic-Italic.ttf|NotoNaskhArabic-Regular.ttf|DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|DroidKufi-Regular.ttf
+\bold fonts= NotoSansArabic-Bold.ttf|NotoNaskhArabic-Bold.ttf|DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|DroidKufi-Bold.ttf
+\bold-italic fonts= NotoSansArabic-BoldItalic.ttf|NotoNaskhArabic-Bold.ttf|DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|DroidKufi-Bold.ttf
 
 \serif
-\regular fonts= NotoSansArabic-Regular.ttf
-\bold fonts= NotoSansArabic-Bold.ttf
-\italic fonts= NotoSansArabic-Italic.ttf
-\bold-italic fonts= NotoSansArabic-BoldItalic.ttf
+\regular fonts= NotoSansArabic-Regular.ttf|NotoNaskhArabic-Regular.ttf|DroidNaskh-Regular.ttf
+\bold fonts= NotoSansArabic-Bold.ttf|NotoNaskhArabic-Regular.ttf|DroidNaskh-Regular.ttf
+\italic fonts= NotoSansArabic-Italic.ttf|NotoNaskhArabic-Bold.ttf|DroidNaskh-Bold.ttf
+\bold-italic fonts= NotoSansArabic-BoldItalic.ttf|NotoNaskhArabic-Bold.ttf|DroidNaskh-Bold.ttf
 
 \mono
-\regular fonts= DejaVuSansMono.ttf|NotoSansArabic-Regular.ttf
-\bold fonts= DejaVuSansMono-Bold.ttf|NotoSansArabic-Bold.ttf
-\italic fonts= DejaVuSansMono-Oblique.ttf|NotoSansArabic-Italic.ttf
-\bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|NotoSansArabic-BoldItalic.ttf
+\regular fonts= DejaVuSansMono.ttf|DroidKufi-Regular.ttf|NotoSansArabic-Regular.ttf|NotoNaskhArabic-Regular.ttf
+\bold fonts= DejaVuSansMono-Bold.ttf|DroidKufi-Regular.ttf|NotoSansArabic-Bold.ttf|NotoNaskhArabic-Regular.ttf
+\italic fonts= DejaVuSansMono-Oblique.ttf|DroidKufi-Bold.ttf|NotoSansArabic-Italic.ttf|NotoNaskhArabic-Bold.ttf
+\bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|DroidKufi-Bold.ttf|NotoSansArabic-BoldItalic.ttf|NotoNaskhArabic-Bold.ttf
 [THEN]
 
 [TRY]
 \arabic#
 harfbuzz:HB_DIRECTION_LTR font-bidi font-lang + c!
 \sans
-\regular fonts= NotoSansArabic-Regular.ttf|DejaVuSans.ttf|LiberationSans-Regular.ttf|DroidSans.ttf
+\regular fonts= NotoSansArabic-Regular.ttf|NotoNaskhArabic-Regular.ttf|DejaVuSans.ttf|LiberationSans-Regular.ttf|DroidKufi-Regular.ttf|DroidSans.ttf
 fonts[ssm]=same
 {{  $660 #13 bounds  $609 #2 bounds  $6F0 #10 bounds }} 2/ +ranges
-\italic fonts= NotoSansArabic-Italic.ttf|DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|
-\bold fonts= NotoSansArabic-Bold.ttf|DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf
-\bold-italic fonts= NotoSansArabic-BoldItalic.ttf|DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf
+\italic fonts= NotoSansArabic-Italic.ttf|NotoNaskhArabic-Regular.ttf|DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|DroidKufi-Regular.ttf
+\bold fonts= NotoSansArabic-Bold.ttf|NotoNaskhArabic-Bold.ttf|DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|DroidKufi-Bold.ttf
+\bold-italic fonts= NotoSansArabic-BoldItalic.ttf|NotoNaskhArabic-Bold.ttf|DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|DroidKufi-Bold.ttf
 
 \serif
-\regular fonts= NotoSansArabic-Regular.ttf
-\bold fonts= NotoSansArabic-Bold.ttf
-\italic fonts= NotoSansArabic-Italic.ttf
-\bold-italic fonts= NotoSansArabic-BoldItalic.ttf
+\regular fonts= NotoSansArabic-Regular.ttf|NotoNaskhArabic-Regular.ttf|DroidNaskh-Regular.ttf
+\bold fonts= NotoSansArabic-Bold.ttf|NotoNaskhArabic-Regular.ttf|DroidNaskh-Regular.ttf
+\italic fonts= NotoSansArabic-Italic.ttf|NotoNaskhArabic-Bold.ttf|DroidNaskh-Bold.ttf
+\bold-italic fonts= NotoSansArabic-BoldItalic.ttf|NotoNaskhArabic-Bold.ttf|DroidNaskh-Bold.ttf
 
 \mono
-\regular fonts= DejaVuSansMono.ttf|NotoSansArabic-Regular.ttf
-\bold fonts= DejaVuSansMono-Bold.ttf|NotoSansArabic-Bold.ttf
-\italic fonts= DejaVuSansMono-Oblique.ttf|NotoSansArabic-Italic.ttf
-\bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|NotoSansArabic-BoldItalic.ttf
+\regular fonts= DejaVuSansMono.ttf|DroidKufi-Regular.ttf|NotoSansArabic-Regular.ttf|NotoNaskhArabic-Regular.ttf
+\bold fonts= DejaVuSansMono-Bold.ttf|DroidKufi-Regular.ttf|NotoSansArabic-Bold.ttf|NotoNaskhArabic-Regular.ttf
+\italic fonts= DejaVuSansMono-Oblique.ttf|DroidKufi-Bold.ttf|NotoSansArabic-Italic.ttf|NotoNaskhArabic-Bold.ttf
+\bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|DroidKufi-Bold.ttf|NotoSansArabic-BoldItalic.ttf|NotoNaskhArabic-Bold.ttf
 [THEN]
 
 \ all fonts here are Noto
