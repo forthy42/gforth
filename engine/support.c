@@ -517,6 +517,8 @@ Cell rename_file(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
 
 struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
 {
+  /* like read-line; the additional u3 result is the total number of
+     chars consumed (including newline characters) */
   UCell u2, u3;
   Cell flag, wior;
   Cell c;
@@ -548,7 +550,7 @@ struct Cellquad read_line(Char *c_addr, UCell u1, FILE *wfileid)
         int err=ferror(wfileid);
         clearerr(wfileid);
         wior=FILEIO(err);
-        flag=FLAG(u2!=0);
+        flag=-1;
         break;
       }
       if (c!='\n')
