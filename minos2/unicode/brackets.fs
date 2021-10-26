@@ -1,4 +1,4 @@
-\ unihan simplified <-> traditional chinese
+\ bidi brackets file
 
 \ Authors: Bernd Paysan
 \ Copyright (C) 2021 Free Software Foundation, Inc.
@@ -18,20 +18,20 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: rec-unihan ( addr u type -- )  drop
-    bounds xc@+ { sc } xc@+ { tc }
-    tc sc >sc
-    sc tc >tc
-    U+DO
-	I xc@+ to tc
-	tc sc >sc
-	tc >tc2
-    I - +LOOP ;
+Vocabulary brackets
 
-' rec-unihan Constant unihan-recognizer
+: bracket: ( xc-const xt-name -- )
+    get-current >r
+    ['] brackets >wordlist set-current
+    ['] xemit $tmp nextname Constant
+    r> set-current ;
 
-s" unihan.db" open-fpath-file throw save-mem 2constant unihan.db
-close-file throw
+: rec-brackets ( addr u type -- ) drop
+    bounds xc@+ { open } xc@+ { close } 2drop
+    close open bracket:
+    open close bracket: ;
+
+' rec-brackets Constant brackets-recognizer
 
 [IFUNDEF] recognize-execute
     : recognize-execute ( xt recognizer -- )
@@ -39,6 +39,8 @@ close-file throw
 	catch  r> is forth-recognize  throw ;
 [THEN]
 
-: read-unihan ( -- )
-    [:  unihan.db included ;] ['] unihan-recognizer
-    recognize-execute ;
+s" brackets.db" ' included ' brackets-recognizer recognize-execute
+
+: bracket<> ( xchar -- xchar' / 0 )
+    ['] xemit $tmp ['] brackets >wordlist find-name-in
+    ?dup-IF  execute  THEN ;

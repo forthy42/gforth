@@ -319,6 +319,7 @@ read-unihan
 \ bidi code
 
 require unicode/bidi-db.fs
+require unicode/brackets.fs
 
 $Variable $bidi-buffer
 $Variable $flag-buffer
@@ -340,6 +341,26 @@ $Variable $level-buffer
     LOOP
     $bidi-buffer $@len $level-buffer $!len
     $level-buffer $@ erase ;
+
+Vocabulary bidi
+
+get-current also bidi definitions
+
+#125 Constant max-depth#
+$80 buffer: stack
+Variable stack#
+Variable overflow#
+
+$4 Constant dis
+$0 Constant emtpy
+$1 Constant neutral
+$2 Constant rtl
+$3 Constant ltr
+
+: next-odd ( n -- n' ) 1+ 1 or ;
+: next-even ( n -- n' ) 2 + -2 and ;
+
+previous set-current
 
 \ text rendering
 

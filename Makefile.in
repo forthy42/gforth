@@ -385,7 +385,7 @@ LIBCC_BUILD_LA = $(patsubst %.fs,$(buildccdir)/libgf%.la,$(shell echo $(LIBCC_LI
 LIBCC_BUILD_NOEC = @NO_CHECKX@ $(LIBCC_BUILD_SRC)
 
 UNICODE_SRC = mirror.fs bidi.fs vertical.fs bidi-db.fs mirrors.fs bidis.fs \
-	verticals.fs unihan.fs unihan.db brackets.db Makefile
+	verticals.fs unihan.fs unihan.db brackets.fs brackets.db Makefile
 
 MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
 	wayland-gl.fs soil-texture.fs gl-sample.fs gl-slideshow.fs	     \
