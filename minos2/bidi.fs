@@ -105,8 +105,8 @@ $20 0 [DO] ' noop , [LOOP]
 
 : change-current-char ( -- )
     case stack-top c@ 3 and
-	ltr of  [ ' bidis:..L @ ]L current-char c!  endof
-	rtl of  [ ' bidis:..R @ ]L current-char c!  endof
+	ltr of  [ also bidis ' ..L previous @ ]L current-char c!  endof
+	rtl of  [ also bidis ' ..R previous @ ]L current-char c!  endof
     endcase ;
 
 : x5a ( -- ) \ match on RLI
@@ -137,7 +137,7 @@ $20 0 [DO] ' noop , [LOOP]
 
 : >level ( n -- )
     $level-buffer $@
-    current-char bidi-buffer $@ drop - /string
+    current-char $bidi-buffer $@ drop - /string
     IF  c!  ELSE  2drop  THEN ;
 
 : x6 ( -- )
