@@ -39,7 +39,7 @@ bidi-db $@ erase
 Vocabulary bidis  also bidis definitions
 0
 \ strong left
-synonym ..L 2drop 1+
+bidis: ..L
 bidis: ..LRE
 bidis: ..LRO
 bidis: ..LRI
