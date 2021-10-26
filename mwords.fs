@@ -40,5 +40,5 @@ Defer mword-match
 : mwords ( ["pattern"] -- )
     \G list all words matching the optional parameter @var{pattern}; if none,
     \G all words match.  Words are listed old to new.  Pattern match like
-    \G @code{filename-match}.
+    \G @code{search} (default), possible to switch to @code{filename-match}.
     parse-name context @ wordlist-mwords ;
