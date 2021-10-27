@@ -198,7 +198,6 @@ Defer xy+
 : rotright ( -- )
     ['] xy,rotright is xy,
     ['] xy+rotright is xy+ ;
-rotright
 
 : glyph, ( glyph -- dx dy )
     i>off  xy, 2 quad ;

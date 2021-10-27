@@ -18,18 +18,19 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Vocabulary brackets
+Vocabulary bracket(
+Vocabulary )bracket
 
-: bracket: ( xc-const xt-name -- )
+: bracket: ( xc-const xt-name wordlist -- )
     get-current >r
-    ['] brackets >wordlist set-current
+    >wordlist set-current
     ['] xemit $tmp nextname Constant
     r> set-current ;
 
 : rec-brackets ( addr u type -- ) drop
     bounds xc@+ { open } xc@+ { close } 2drop
-    close open bracket:
-    open close bracket: ;
+    close open ['] bracket( bracket:
+    open close ['] )bracket bracket: ;
 
 ' rec-brackets Constant brackets-recognizer
 
@@ -41,6 +42,7 @@ Vocabulary brackets
 
 s" brackets.db" ' included ' brackets-recognizer recognize-execute
 
+' bracket( >wordlist ' )bracket >wordlist 2 rec-sequence: brackets
+
 : bracket<> ( xchar -- xchar' / 0 )
-    ['] xemit $tmp ['] brackets >wordlist find-name-in
-    ?dup-IF  execute  THEN ;
+    ['] xemit $tmp brackets ['] notfound = IF  0  ELSE  execute  THEN ;
