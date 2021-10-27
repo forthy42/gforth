@@ -77,7 +77,7 @@ $3 Constant ltr
 	[ bm' ..PDI ]L mask and 0<> +
 	dup 0< IF  drop LEAVE  THEN \ end of embedded level
 	dup 0= IF
-	    [ bm' ..L bm' ..R mb' ..AL or or ]L mask and IF
+	    [ bm' ..L bm' ..R bm' ..AL or or ]L mask and IF
 		drop \ p3
 		[ bm' ..R bm' ..AL or ]L mask and 0<> negate
 		unloop  EXIT
@@ -202,8 +202,8 @@ $20 0 [DO] ' noop , [LOOP]
     (p2) x1-rest ;
 ' x8 bind ..B
 
-: x[2..8] ( -- )
-    x2
+: x[1..8] ( -- )
+    x1
     $bidi-buffer $@ bounds U+DO
 	I to current-char
 	I c@ cells x-match + perform
