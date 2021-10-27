@@ -171,8 +171,8 @@ Defer xy+
     glyph texture_glyph_t-offset_x sl@ xs fm*
     glyph texture_glyph_t-offset_y sl@ ys fm* { f: yo f: xo }
     glyph texture_glyph_t-width  2@ xs fm* ys fm* { f: h f: w }
-    xp xo f+ fround 1/2 f-  yp yo f+ fround 1/2 f- { f: x0 f: y0 }
-    x0 w f+                 y0 h f+                { f: x1 f: y1 }
+    xp w xo f- f- fround 1/2 f-  yp yo f+ fround 1/2 f- { f: x0 f: y0 }
+    x0 w f+                      y0 h f+                { f: x1 f: y1 }
     glyph texture_glyph_t-s0
     \ over hex. dup $10 dump
     >v
@@ -198,6 +198,7 @@ Defer xy+
 : rotright ( -- )
     ['] xy,rotright is xy,
     ['] xy+rotright is xy+ ;
+rotright
 
 : glyph, ( glyph -- dx dy )
     i>off  xy, 2 quad ;
