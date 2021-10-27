@@ -63,18 +63,41 @@ $3 Constant ltr
 : next-odd ( n -- n' ) 1+ 1 or ;
 : next-even ( n -- n' ) 2 + -2 and ;
 
+: bidi' ( "name" -- n )
+    parse-name ['] bidis >wordlist find-name-in >body @ ;
+: bm' ( "name" -- mask )
+    1 bidi' lshift ;
+
+\ rules according to https://unicode.org/reports/tr9/#P1
+
+: (p2) ( -- level )
+    0 -rot U+DO
+	1 I c@ lshift { mask }
+	[ bm' ..LRI bm' ..RLI or bm' ..FSI or ]L mask and 0<> -
+	[ bm' ..PDI ]L mask and 0<> +
+	dup 0< IF  drop LEAVE  THEN \ end of embedded level
+	dup 0= IF
+	    [ bm' ..L bm' ..R mb' ..AL or or ]L mask and IF
+		drop \ p3
+		[ bm' ..R bm' ..AL or ]L mask and 0<> negate
+		unloop  EXIT
+	    THEN
+	THEN
+    LOOP  0 ;
+: p2 ( -- level )
+    $bidi-buffer $@ bounds (p2) ;
+
 \ rules according to https://unicode.org/reports/tr9/#X1
 
-: x1 ( -- )
-    stack# off  stack $80 erase
+: x1-rest  stack# !  stack $80 erase  neutral stack-top c!
     isolate# off  overflow-isolate# off  overflow-embedded# off ;
+: x1 ( -- )
+    p2 x1-rest ;
 
 Create x-match
 $20 0 [DO] ' noop , [LOOP]
 : bind ( xt "name" -- )
-    parse-name ['] bidis >wordlist find-name-in dup IF
-	@ cells x-match + !
-    ELSE  2drop  THEN ;
+    bidi' cells x-match + ! ;
 
 0 Value current-char
 
@@ -105,8 +128,8 @@ $20 0 [DO] ' noop , [LOOP]
 
 : change-current-char ( -- )
     case stack-top c@ 3 and
-	ltr of  [ also bidis ' ..L previous @ ]L current-char c!  endof
-	rtl of  [ also bidis ' ..R previous @ ]L current-char c!  endof
+	ltr of  [ bidi' ..L ]L current-char c!  endof
+	rtl of  [ bidi' ..R ]L current-char c!  endof
     endcase ;
 
 : x5a ( -- ) \ match on RLI
@@ -130,8 +153,9 @@ $20 0 [DO] ' noop , [LOOP]
 \ these rules decide on paragraph embedding level 1, treat the FSI as an RLI
 \ in rule X5a. Otherwise, treat it as an LRI in rule X5b.
 
-: x5c ( -- ) !!FIXME!!
-    ( ... ) IF  x5a  ELSE  x5b  THEN
+: x5c ( -- )
+    $bidi-buffer $@ bounds drop current-char 1+
+    (p2)  IF  x5a  ELSE  x5b  THEN
 ;
 ' x5c bind ..FSI
 
@@ -171,10 +195,11 @@ $20 0 [DO] ' noop , [LOOP]
 	-1 overflow-embedded# +!  EXIT  THEN
     stack# @ 2 u>= stack-top c@ dis and 0= and IF
 	0 stack-top c!  -1 stack# +!
-	stack-top c@ 0= stack# +!  THEN
-;
+	stack-top c@ 0= stack# +!  THEN ;
 ' x7 bind ..PDF
-synonym x8 x1 \ paragraph ending are similar to paragraph start
+: x8 ( -- )
+    $bidi-buffer $@ bounds drop current-char 1+
+    (p2) x1-rest ;
 ' x8 bind ..B
 
 : x[2..8] ( -- )
