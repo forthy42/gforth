@@ -241,7 +241,7 @@ end-class album-scroll-actor
 	}}v ' next-slide 0 click[]
     }}h box[]
     {{ \Large
-	{{ "❌" }}text }}h 25%b
+	{{ "❌️" }}text }}h 25%b
 	' album-close 0 click[] /right
 	glue*ll }}glue
     }}v box[]

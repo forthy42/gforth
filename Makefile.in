@@ -389,13 +389,13 @@ UNICODE_SRC = mirror.fs bidi.fs vertical.fs bidi-db.fs mirrors.fs bidis.fs \
 
 MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
 	wayland-gl.fs soil-texture.fs gl-sample.fs gl-slideshow.fs	     \
-	ftgl-helper.fs ftgl-sample.fs widgets.fs actors.fs x11-actors.fs     \
-	android-actors.fs wayland-actors.fs presentation.fs		     \
+	ftgl-helper.fs ftgl-sample.fs bidi.fs widgets.fs actors.fs	     \
+	x11-actors.fs android-actors.fs wayland-actors.fs presentation.fs    \
 	presentation-support.fs mts-tools.fs mkv-tools.fs omx-example.fs     \
 	mkv-tags.fs android-recorder.fs animation.fs need-x.fs font-style.fs \
 	text-style.fs gst-helper.fs plot.fs md-viewer.fs md-test.fs	     \
 	mem-texture.fs pulse-audio.fs sles-audio.fs opus-codec.fs va.fs	     \
-	$(pathsubst %, unicode/%, $(UNICODE_SRC))
+	$(patsubst %, unicode/%, $(UNICODE_SRC))
 
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
 	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png

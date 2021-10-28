@@ -98,6 +98,8 @@ fontlang: \japanese
 fontlang: \hangul
 fontlang: \emoji
 fontlang: \icons
+fontlang: \symbols
+fontlang: \symbols2
 fontlang: \armenian
 fontlang: \hebrew
 fontlang: \arabic
@@ -541,7 +543,7 @@ font-lang to emoji-font#
 \sans \regular
 color-fonts= NotoColorEmoji.ttf|emojione-android.ttf|Twemoji.ttf|SamsungColorEmoji.ttf
 fonts[ssm]=same
-{{  $2C00  $2600  $20000 $1F000 }} 2/ +ranges
+{{ $20000 $1F000 }} 2/ +ranges
 [THEN]
 
 100% to font-scaler
@@ -553,6 +555,10 @@ fonts= fa-merged-900.ttf
 fonts[ssm]=same
 {{ $F900 $F000 }} 2/ +ranges
 [THEN]
+
+"Noto" "family" replaces
+\symbols \sans \regular {{ $2150 $40 bounds  $2300 $100 bounds  $2460 $A0 bounds  $2600 $100 bounds  $1F100 $100 bounds  $1F700 $80 bounds }} 2/ "Symbols" fonts=template[rb]sans
+\symbols2 {{ $2300 $100 bounds  $2400 $60 bounds  $25A0 $60 bounds  $2700 $C0 bounds  $2800 $100 bounds  $2B00 $100 bounds  $4DC0 $40 bounds  $10140 $C0 bounds  $102E0 $20 bounds  $10E60 $20 bounds  $1D300 $80 bounds }} 2/ "Symbols2" fonts=template[r]
 
 [TRY]
 \hebrew
@@ -625,7 +631,6 @@ fonts[ssm]=same
 [THEN]
 
 \ all fonts here are Noto
-"Noto" "family" replaces
 
 [TRY]
 \syriac \sans
@@ -688,7 +693,7 @@ fonts[ssm]=same
 \sylotinagri {{ $A800 $30 bounds }} 2/ "SylotiNagri" fonts=template[r]
 \phagspa {{ $A840 $40 bounds }} 2/ "PhagsPa" fonts=template[r]
 \saurashtra {{ $A8E0 $A880 }} 2/ "Saurashtra" fonts=template[r]
-\kayahli {{ $A900 $30 bounds }} 2/ "Kayahli" fonts=template[r]
+\kayahli {{ $A900 $30 bounds }} 2/ "KayahLi" fonts=template[r]
 \rejang {{ $A960 $A930 }} 2/ "Rejang" fonts=template[r]
 \javanese {{ $A9E0 $A980 }} 2/ "Javanese" fonts=template[r]
 \cham {{ $AA00 $60 bounds }} 2/ "Cham" fonts=template[rb]sans
