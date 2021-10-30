@@ -18,12 +18,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
+# Run this Makefile whenever a new Unicode standard is published.
+
 UNIDATA = https://unicode.org/Public/UNIDATA
-UNIHAN = https://raw.githubusercontent.com/XUJiahua/ischinese/master
 
 PREFORTH = gforth
 
-FETCH = UnicodeData.txt VerticalOrientation.txt BidiBrackets.txt Unihan.zip
+FETCH = UnicodeData.txt VerticalOrientation.txt BidiBrackets.txt Blocks.txt \
+	Unihan.zip
 EXTRACT = Unihan_Variants.txt unihan.in
 GEN = unihan.db brackets.db mirrors.fs bidis.fs verticals.fs
 
@@ -35,7 +37,7 @@ clean:
 realclean:
 	rm $(FETCH) $(EXTRACT) $(GEN)
 
-UnicodeData.txt VerticalOrientation.txt BidiBrackets.txt Unihan.zip:
+$(FETCH):
 	curl -s $(UNIDATA)/$@ -o $@
 
 Unihan_Variants.txt: Unihan.zip

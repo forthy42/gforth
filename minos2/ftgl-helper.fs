@@ -142,8 +142,6 @@ Defer xy+
     glyph texture_glyph_t-advance_x sf@ xs f*
     glyph texture_glyph_t-advance_y sf@ ys f* ;
 
-' xy,default is xy,
-
 : xy,mirror { glyph -- dx dy }
     \ glyph texture_glyph_t-codepoint l@
     x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
@@ -191,13 +189,19 @@ Defer xy+
 
 : xy+default ( x y -- )
     penxy sfloat+ sf+!  penxy sf+! ;
-' xy+default is xy+
 : xy+rotright ( x y -- )
-    fnegate penxy sf+!  penxy sfloat+ sf+! ;
+    fnegate fswap xy+default ;
 
-: rotright ( -- )
+: xy-default ( -- )
+    ['] xy,default is xy,
+    ['] xy+default is xy+ ;
+: xy-mirror ( -- )
+    ['] xy,mirror  is xy,
+    ['] xy+default is xy+ ;
+: xy-rotright ( -- )
     ['] xy,rotright is xy,
     ['] xy+rotright is xy+ ;
+xy-default
 
 : glyph, ( glyph -- dx dy )
     i>off  xy, 2 quad ;
@@ -332,11 +336,18 @@ require bidi.fs
     xs /string "\uFE0F" string-prefix?
     dup IF  [ "\uFE0F" nip ]L xs + swap  THEN ;
 
+: ?text-variant { I' I -- xaddr xs t / xaddr f }
+    I I' over - 2dup x-size { xs }  over swap
+    xs /string "\uFE0E" string-prefix?
+    dup IF  [ "\uFE0E" nip ]L xs + swap  THEN ;
+
 2 Value emoji-font#
+3 Value symbol-font#
 
 : ?font-select { I' I | xs -- xaddr font xs }
     I' I ?emoji-variant IF  to xs  emoji-font#  ELSE
-	drop I' I ?soft-hyphen to xs  font-select#  THEN
+	I' I ?text-variant IF  to xs  symbol-font#  ELSE
+	    drop I' I ?soft-hyphen to xs  font-select#  THEN  THEN
     dup last-font# ! font#-load  xs ;
 
 -1 value bl/null?
@@ -388,6 +399,7 @@ DOES> swap hb_feature_t * + ;
 2 to numfeatures
 
 $100 buffer: font-bidi \ 0: leave as guess, 4-7: set direction
+$100 buffer: font-bidi' \ 0: leave as guess, 4-7: set direction
 
 : shape-splits { xt: setbuf -- }
     $splits[] stack# 0 ?DO
@@ -398,6 +410,7 @@ $100 buffer: font-bidi \ 0: leave as guess, 4-7: set direction
 	r@ font-bidi + c@ ?dup-IF
 	    hb-buffer swap hb_buffer_set_direction
 	THEN
+	r@ font-bidi' + c@ \ direction overload
 	hb-buffer setbuf
 	r> font#-load texture_font_t-hb_font @ hb-buffer
 	0 userfeatures numfeatures hb_shape
@@ -406,7 +419,8 @@ $100 buffer: font-bidi \ 0: leave as guess, 4-7: set direction
 	glyph-count l@ hb_glyph_info_t * I infos[] $[]!
 	hb-buffer glyph-count hb_buffer_get_glyph_positions
 	glyph-count l@ hb_glyph_position_t * I positions[] $[]!
-	hb-buffer hb_buffer_get_direction I directions[] $[] !
+	hb-buffer hb_buffer_get_direction
+	over select I directions[] $[] !
 	hb-buffer hb_buffer_reset
     LOOP ;
 
@@ -427,6 +441,10 @@ Defer get-glyphs
 	font font->t.i0
 	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN
 	f-scale f* x-scale f*  { f: pos* }
+	case  I directions[] $[] @
+	    HB_DIRECTION_TTB  of  xy-rotright  endof
+	    xy-default
+	endcase
 	I positions[] $[]@ drop
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
