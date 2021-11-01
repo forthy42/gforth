@@ -30,46 +30,28 @@ compsem: 1 (b') lshift postpone Literal ;
 : b' ( "name" -- n ) (b') ;
 compsem: (b') postpone Literal ;
 
-0 stack: bracket-buffer
-0 stack: bracketpairs
+0 stack: bracket-queue
 
 $Variable $bidi-buffer
 $Variable $flag-buffer
 $Variable $level-buffer
 
-: bracket-start ( xchar -- xchar )
-    dup bracket< ?dup-IF
-	$bidi-buffer $@len bracket-buffer >stack
-	bracket-buffer >stack
-    THEN ;
-: bracket-end ( xchar -- xchar )
-    dup bracket> IF
-	bracket-buffer $@ over + U-DO
-	    dup I cell- @ = IF
-		I bracket-buffer $@ drop -
-		bracket-buffer $!len
-		bracket-buffer stack> drop
-		bracket-buffer stack> bracketpairs >stack
-		$bidi-buffer $@len    bracketpairs >stack
-		LEAVE  THEN
-	2 cells -LOOP
+: bracket-enqueue ( xchar -- xchar )
+    dup bracket<> IF
+	dup bracket-queue >stack
+	$bidi-buffer $@len bracket-queue >stack
     THEN ;
 
-: bracket-check ( xchar -- xchar )
-    case  dup $1F and
-	b' ..ON of \ all brackets are ONs
-	    I xc@ bracket-end bracket-start drop
-	endof
-	b' ..B of
-	    bracket-buffer $free
-	endof
-    endcase ;
+: bracket-check ( xchar type -- xchar type )
+    dup $1F and b' ..ON = IF \ all brackets are ONs
+	    swap bracket-enqueue swap
+    THEN ;
 
 : >bidi ( addr u -- )
     [: bounds ?DO
-	    I xc@+
-	    1 bidi@ IF  c@ bracket-check
-		emit  ELSE  drop 0 emit  THEN
+	    I xc@+ dup 1 bidi@ IF
+		c@ bracket-check emit drop
+	    ELSE  2drop 0 emit  THEN
 	I - +LOOP ;] $bidi-buffer $exec ;
 
 : flag-sep ( -- )
@@ -343,5 +325,38 @@ $20 0 [DO] ' noop , [LOOP]
     w1 w2 w3 w4 w5 w6 w7 ;
 
 \ identify brackets
+
+0 stack: bracket-stack
+0 stack: bracketpairs
+
+: bracket-start ( pos xchar -- pos xchar )
+    dup bracket< ?dup-IF
+	third bracket-stack >stack
+	bracket-stack >stack
+    THEN ;
+: bracket-end ( pos xchar -- pos xchar )
+    dup bracket> IF
+	bracket-stack $@ over + U-DO
+	    dup I cell- @ = IF
+		I bracket-stack $@ drop -
+		bracket-stack $!len
+		bracket-stack stack> drop
+		bracket-stack stack> bracketpairs >stack
+		over bracketpairs >stack
+		LEAVE  THEN
+	2 cells -LOOP
+    THEN ;
+: bracket-scan { d: range -- }
+    bracket-queue $@ bounds U+DO
+	I 2@ over range within IF  bracket-start bracket-end  THEN  2drop
+    2 cells +LOOP ;
+: run-isolated' { xt: rule -- }
+    isolated-runs $@ bounds U+DO
+	I $@ bounds dup to seg-start  U+DO
+	    I 2@ rule
+	2 cells +LOOP
+    cell +LOOP ;
+
+: bd16 ( -- )  ['] bracket-scan run-isolated' ;
 
 previous r> set-current
