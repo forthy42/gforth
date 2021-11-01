@@ -41,8 +41,16 @@ Vocabulary )bracket
 [THEN]
 
 s" brackets.db" ' included ' brackets-recognizer recognize-execute
+s" quotation.db" ' included ' brackets-recognizer recognize-execute
 
 ' bracket( >wordlist ' )bracket >wordlist 2 rec-sequence: brackets
 
+: ?notfound ( nt rectype-nt / notfound -- value )
+    ['] notfound = IF  0  ELSE  execute  THEN ;
+
 : bracket<> ( xchar -- xchar' / 0 )
-    ['] xemit $tmp brackets ['] notfound = IF  0  ELSE  execute  THEN ;
+    ['] xemit $tmp brackets ?notfound ;
+: bracket< ( xchar -- xchar' / 0 )
+    ['] xemit $tmp [ ' bracket( >wordlist compile, ] ?notfound ;
+: bracket> ( xchar -- xchar' / 0 )
+    ['] xemit $tmp [ ' )bracket >wordlist compile, ] ?notfound ;

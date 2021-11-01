@@ -22,14 +22,54 @@ require unicode/bidi-db.fs
 require unicode/brackets.fs
 require set-compsem.fs
 
+: (b') ( "name" -- n )
+    parse-name ['] bidis >wordlist find-name-in >body @ ;
+: bm' ( "name" -- mask )
+    1 (b') lshift ;
+compsem: 1 (b') lshift postpone Literal ;
+: b' ( "name" -- n ) (b') ;
+compsem: (b') postpone Literal ;
+
+0 stack: bracket-buffer
+0 stack: bracketpairs
+
 $Variable $bidi-buffer
 $Variable $flag-buffer
 $Variable $level-buffer
 
+: bracket-start ( xchar -- xchar )
+    dup bracket< ?dup-IF
+	$bidi-buffer $@len bracket-buffer >stack
+	bracket-buffer >stack
+    THEN ;
+: bracket-end ( xchar -- xchar )
+    dup bracket> IF
+	bracket-buffer $@ over + U-DO
+	    dup I cell- @ = IF
+		I bracket-buffer $@ drop -
+		bracket-buffer $!len
+		bracket-buffer stack> drop
+		bracket-buffer stack> bracketpairs >stack
+		$bidi-buffer $@len    bracketpairs >stack
+		LEAVE  THEN
+	2 cells -LOOP
+    THEN ;
+
+: bracket-check ( xchar -- xchar )
+    case  dup $1F and
+	b' ..ON of \ all brackets are ONs
+	    I xc@ bracket-end bracket-start drop
+	endof
+	b' ..B of
+	    bracket-buffer $free
+	endof
+    endcase ;
+
 : >bidi ( addr u -- )
     [: bounds ?DO
 	    I xc@+
-	    1 bidi@ IF  c@ emit  ELSE  drop 0 emit  THEN
+	    1 bidi@ IF  c@ bracket-check
+		emit  ELSE  drop 0 emit  THEN
 	I - +LOOP ;] $bidi-buffer $exec ;
 
 : flag-sep ( -- )
@@ -63,14 +103,6 @@ $3 Constant ltr
 
 : next-odd ( n -- n' ) 1+ 1 or ;
 : next-even ( n -- n' ) 2 + -2 and ;
-
-: (b') ( "name" -- n )
-    parse-name ['] bidis >wordlist find-name-in >body @ ;
-: bm' ( "name" -- mask )
-    1 (b') lshift ;
-compsem: 1 (b') lshift postpone Literal ;
-: b' ( "name" -- n ) (b') ;
-compsem: (b') postpone Literal ;
 
 \ rules according to https://unicode.org/reports/tr9/#P1
 
