@@ -25,9 +25,10 @@ UNIDATA = https://unicode.org/Public/UNIDATA
 PREFORTH = gforth
 
 FETCH = UnicodeData.txt VerticalOrientation.txt BidiBrackets.txt Blocks.txt \
-	Unihan.zip
-EXTRACT = Unihan_Variants.txt unihan.in
+	BidiCharacterTest.txt Unihan.zip
+EXTRACT = Unihan_Variants.txt unihan.in test.in
 GEN = unihan.db brackets.db mirrors.fs bidis.fs verticals.fs
+SOURCES = mirror.fs bidi.fs vertical.fs testgen.fs
 
 all: $(GEN)
 
@@ -43,6 +44,9 @@ $(FETCH):
 Unihan_Variants.txt: Unihan.zip
 	unzip $< $@
 	touch $@
+
+test.in: BidiCharacterTest.txt testgen.fs
+	grep ';[0-2];[01];' $< | cut -f1 -d';' | $(PREFORTH) testgen.fs -e bye >$@
 
 unihan.in: Unihan_Variants.txt
 	echo "\ automatically generated from $^" >$@

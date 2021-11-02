@@ -35,11 +35,15 @@ compsem: (b') postpone Literal ;
 $Variable $bidi-buffer
 $Variable $flag-buffer
 $Variable $level-buffer
+0 Value current-char
+
+: $bidi-pos ( -- pos )
+    current-char $bidi-buffer $@ drop - ;
 
 : bracket-enqueue ( xchar -- xchar )
     dup bracket<> IF
 	dup bracket-queue >stack
-	$bidi-buffer $@len bracket-queue >stack
+	$bidi-pos bracket-queue >stack
     THEN ;
 
 : bracket-check ( xchar type -- xchar type )
@@ -102,23 +106,45 @@ $3 Constant ltr
 		unloop  EXIT
 	    THEN
 	THEN
-    LOOP  nip 0 ;
+    LOOP  drop 0 ;
 : p2 ( -- level )
     $bidi-buffer $@ bounds (p2) ;
+
+\ isolated regions
+
+0 stack: iso-stack<>
+$[]Variable iso-list[]
+
+begin-structure iso-region-element
+    lvalue: <<reg
+    lvalue: reg>>
+end-structure
+
+iso-region-element buffer: iso-current
+
+: iso-start ( -- )
+    $bidi-pos iso-current to <<reg ;
+: iso-update ( -- ) \ intermediate update
+    $bidi-pos iso-current to reg>>
+    iso-current <<reg iso-current reg>> u< IF
+	iso-current iso-region-element stack# @ iso-stack<> $[]+!
+    THEN ;
+: iso-stack>list ( n -- )
+    0 swap iso-stack<> $[] !@ ?dup-IF  iso-list[] >stack  THEN ;
+: iso-push ( -- ) \ final update&put on list
+    iso-update stack# @ iso-stack>list ;
 
 \ rules according to https://unicode.org/reports/tr9/#X1
 
 : x1-rest  stack# !  stack $80 erase  neutral stack-top c!
     isolate# off  overflow-isolate# off  overflow-embedded# off ;
 : x1 ( -- )
-    p2 x1-rest ;
+    p2 x1-rest iso-start ;
 
 Create x-match
 $20 0 [DO] ' noop , [LOOP]
 : bind ( xt "name" -- )
     (b') cells x-match + ! ;
-
-0 Value current-char
 
 : change-current-char ( -- )
     case stack-top c@ 3 and
@@ -211,12 +237,14 @@ $20 0 [DO] ' noop , [LOOP]
     overflow-embedded# @ IF
 	-1 overflow-embedded# +!  EXIT  THEN
     stack# @ 2 u>= stack-top c@ dis and 0= and IF
+	iso-push
 	0 stack-top c!  -1 stack# +!
 	stack-top c@ 0= stack# +!  THEN ;
 ' x7 bind ..PDF
 : x8 ( -- )
-    $bidi-buffer $@ bounds drop current-char 1+
-    (p2) x1-rest ;
+    iso-push  1 +to current-char
+    $bidi-buffer $@ bounds drop current-char (p2) x1-rest
+    iso-stack<> $[]# 0 ?DO  I iso-stack>list  LOOP  iso-start ;
 ' x8 bind ..B
 : x9 ( -- ) ; \ we don't remove anything
 
@@ -226,15 +254,7 @@ $20 0 [DO] ' noop , [LOOP]
 	I to current-char
 	I c@ cells x-match + perform
     LOOP
-    x9 ;
-
-128 stack: isolated-runs
-
-: >isolated-run ( start len -- )
-    { d^ ir } ir 2 cells $make isolated-runs >stack ;
-
-: x10 ( -- ) \ TBD: level runs
-    0 $bidi-buffer $@len >isolated-run ;
+    x8 x9 ;
 
 \ isolating weak types
 
@@ -243,7 +263,7 @@ $20 0 [DO] ' noop , [LOOP]
 0 Value seg-start
 
 : run-isolated { xt: rule -- }
-    isolated-runs $@ bounds U+DO
+    iso-list[] $@ bounds U+DO
 	sos  I $@ bounds dup to seg-start  U+DO
 	    $bidi-buffer $@ I 2@ >r safe/string r> umin bounds U+DO
 		I rule
@@ -321,8 +341,17 @@ $20 0 [DO] ' noop , [LOOP]
 	1 c c@ lshift  bm' ..L bm' ..R or and  select
     ;] run-isolated ;
 
-: ws ( -- )
-    w1 w2 w3 w4 w5 w6 w7 ;
+: n0 ( -- ) ;
+: n1 ( -- ) ;
+: n2 ( -- ) ;
+
+: i1 ( -- ) ;
+: i2 ( -- ) ;
+
+: x10 ( -- )
+    w1 w2 w3 w4 w5 w6 w7
+    n0 n1 n2
+    i1 i2 ;
 
 \ identify brackets
 
@@ -351,7 +380,7 @@ $20 0 [DO] ' noop , [LOOP]
 	I 2@ over range within IF  bracket-start bracket-end  THEN  2drop
     2 cells +LOOP ;
 : run-isolated' { xt: rule -- }
-    isolated-runs $@ bounds U+DO
+    iso-list[] $@ bounds U+DO
 	I $@ bounds dup to seg-start  U+DO
 	    I 2@ rule
 	2 cells +LOOP
