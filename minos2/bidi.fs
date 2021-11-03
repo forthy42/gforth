@@ -43,7 +43,7 @@ $Variable $level-buffer
 : bracket-enqueue ( xchar -- xchar )
     dup bracket<> IF
 	dup bracket-queue >stack
-	$bidi-pos bracket-queue >stack
+	$bidi-buffer $@len bracket-queue >stack
     THEN ;
 
 : bracket-check ( xchar type -- xchar type )
@@ -139,7 +139,8 @@ iso-region-element buffer: iso-current
 : x1-rest  stack# !  stack $80 erase  neutral stack-top c!
     isolate# off  overflow-isolate# off  overflow-embedded# off ;
 : x1 ( -- )
-    p2 x1-rest iso-start ;
+    p2 x1-rest
+    $bidi-buffer $@ drop to current-char  iso-start ;
 
 Create x-match
 $20 0 [DO] ' noop , [LOOP]
@@ -175,7 +176,7 @@ $20 0 [DO] ' noop , [LOOP]
     ELSE  dup >level  stack# !  rtl stack-top c!  THEN ;
 ' x4 bind ..RLO
 : x5 ( -- ) \ match on LRO
-    stack# @ next-odd dup max-depth# u>
+    stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	drop overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  ltr stack-top c!  THEN ;
@@ -184,13 +185,15 @@ $20 0 [DO] ' noop , [LOOP]
 : x6 ( -- )
     stack# @ >level  change-current-char ;
 : x5a ( -- ) \ match on RLI
+    stack# @ >level
     x6 stack# @ next-odd dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	1 overflow-isolate# +! drop
     ELSE  stack# !  rtl dis or stack-top c!  1 isolate# +!  THEN ;
 ' x5a bind ..RLI
 : x5b ( -- ) \ match on LRI
-    x6 stack# @ next-odd dup max-depth# u>
+    stack# @ >level
+    x6 stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	1 overflow-isolate# +! drop
     ELSE  stack# !  ltr dis or stack-top c!  1 isolate# +!  THEN ;
@@ -203,6 +206,7 @@ $20 0 [DO] ' noop , [LOOP]
 \ in rule X5a. Otherwise, treat it as an LRI in rule X5b.
 
 : x5c ( -- )
+    stack# @ >level
     $bidi-buffer $@ bounds drop current-char 1+
     (p2)  IF  x5a  ELSE  x5b  THEN
 ;
@@ -223,23 +227,26 @@ $20 0 [DO] ' noop , [LOOP]
 ' x6 bind ..BN
 
 : x6a ( -- )
+    stack# @ >level
     overflow-isolate# @ IF
 	-1 overflow-isolate# +!  EXIT  THEN
     isolate# @ 0= ?EXIT
     overflow-embedded# off
     BEGIN  stack# @  WHILE
 	    stack-top c@  0 stack-top c!  -1 stack# +!
+	    stack-top c@ 0= stack# +!
 	dis and UNTIL  THEN
-    x6 ;
+    iso-push iso-start x6 ;
 ' x6a bind ..PDI
 : x7 ( -- )
     overflow-isolate# @ ?EXIT
     overflow-embedded# @ IF
 	-1 overflow-embedded# +!  EXIT  THEN
     stack# @ 2 u>= stack-top c@ dis and 0= and IF
-	iso-push
+	stack# @ >level
 	0 stack-top c!  -1 stack# +!
-	stack-top c@ 0= stack# +!  THEN ;
+	stack-top c@ 0= stack# +!  THEN
+    iso-push 1 +to current-char iso-start ;
 ' x7 bind ..PDF
 : x8 ( -- )
     iso-push  1 +to current-char
@@ -265,10 +272,10 @@ $20 0 [DO] ' noop , [LOOP]
 : run-isolated { xt: rule -- }
     iso-list[] $@ bounds U+DO
 	sos  I $@ bounds dup to seg-start  U+DO
-	    $bidi-buffer $@ I 2@ >r safe/string r> umin bounds U+DO
+	    $bidi-buffer $@ I reg>> umin I <<reg safe/string bounds U+DO
 		I rule
 	    LOOP
-	2 cells +LOOP  drop
+	iso-region-element +LOOP  drop
     cell +LOOP ;
 
 : w1 ( -- )
@@ -341,27 +348,17 @@ $20 0 [DO] ' noop , [LOOP]
 	1 c c@ lshift  bm' ..L bm' ..R or and  select
     ;] run-isolated ;
 
-: n0 ( -- ) ;
-: n1 ( -- ) ;
-: n2 ( -- ) ;
-
-: i1 ( -- ) ;
-: i2 ( -- ) ;
-
-: x10 ( -- )
-    w1 w2 w3 w4 w5 w6 w7
-    n0 n1 n2
-    i1 i2 ;
-
 \ identify brackets
 
 0 stack: bracket-stack
 0 stack: bracketpairs
 
-: bracket-start ( pos xchar -- pos xchar )
+: bracket-start ( pos xchar -- pos xchar flag )
     dup bracket< ?dup-IF
 	third bracket-stack >stack
-	bracket-stack >stack
+	bracket-stack >stack false
+    ELSE
+	true
     THEN ;
 : bracket-end ( pos xchar -- pos xchar )
     dup bracket> IF
@@ -377,15 +374,28 @@ $20 0 [DO] ' noop , [LOOP]
     THEN ;
 : bracket-scan { d: range -- }
     bracket-queue $@ bounds U+DO
-	I 2@ over range within IF  bracket-start bracket-end  THEN  2drop
+	I 2@ over range within IF  bracket-start IF  bracket-end  THEN  THEN  2drop
     2 cells +LOOP ;
 : run-isolated' { xt: rule -- }
     iso-list[] $@ bounds U+DO
 	I $@ bounds dup to seg-start  U+DO
-	    I 2@ rule
-	2 cells +LOOP
+	    I <<reg I reg>> rule
+	iso-region-element +LOOP
     cell +LOOP ;
 
 : bd16 ( -- )  ['] bracket-scan run-isolated' ;
+
+: n0 ( -- ) bd16 ;
+: n1 ( -- ) ;
+: n2 ( -- ) ;
+
+: i1 ( -- ) ;
+: i2 ( -- ) ;
+
+: x10 ( -- )
+    w1 w2 w3 w4 w5 w6 w7
+    n0 n1 n2
+    i1 i2 ;
+
 
 previous r> set-current
