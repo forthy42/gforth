@@ -255,14 +255,6 @@ $20 0 [DO] ' noop , [LOOP]
 ' x8 bind ..B
 : x9 ( -- ) ; \ we don't remove anything
 
-: x1-9 ( -- )
-    x1
-    $bidi-buffer $@ bounds U+DO
-	I to current-char
-	I c@ cells x-match + perform
-    LOOP
-    x8 x9 ;
-
 \ isolating weak types
 
 0 Value sos
@@ -397,5 +389,14 @@ $20 0 [DO] ' noop , [LOOP]
     n0 n1 n2
     i1 i2 ;
 
+r> set-current
 
-previous r> set-current
+: bidi-algorith ( -- )
+    x1
+    $bidi-buffer $@ bounds U+DO
+	I to current-char
+	I c@ cells x-match + perform
+    LOOP
+    x8 x9 x10 ;
+
+previous
