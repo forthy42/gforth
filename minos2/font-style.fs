@@ -580,10 +580,10 @@ fonts[ssm]=same
 \bold-italic fonts= DejaVuSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf|NotoSerifHebrew-BoldItalic.ttf
 
 \mono
-\regular fonts= DejaVuSansMono.ttf|LiberationMono-Regular.ttf|NotoSansHebrew-Regular.ttf
-\bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|NotoSansHebrew-Bold.ttf
-\italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|NotoSansHebrew-Italic.ttf
-\bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|NotoSansHebrew-BoldItalic.ttf
+\regular fonts= LiberationMono-Regular.ttf|NotoSansHebrew-Regular.ttf
+\bold fonts= LiberationMono-Bold.ttf|NotoSansHebrew-Bold.ttf
+\italic fonts= LiberationMono-Italic.ttf|NotoSansHebrew-Italic.ttf
+\bold-italic fonts= LiberationMono-BoldItalic.ttf|NotoSansHebrew-BoldItalic.ttf
 [THEN]
 
 [TRY]
