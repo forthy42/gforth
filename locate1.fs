@@ -157,10 +157,11 @@ variable included-file-buffers
     \g location there.
     view' rec'[] $[]# 0 ?DO
 	I rec'[] $[] @ ?dup-IF  cr ." Recognized by "
+	    2dup = IF  input-color  THEN
 	    dup name>string dup 0= IF  2drop >voc name>string
 		dup IF  ." vocabulary " type  ELSE  2drop ." ???"  THEN
-		drop
-	    ELSE  type  THEN
+	    ELSE  type drop  THEN
+	    default-color
 	THEN
     LOOP
     locate-name ;

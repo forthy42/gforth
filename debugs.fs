@@ -264,7 +264,10 @@ Variable rec'[]
     [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
     forth-recognize
     dup recognized-nt? IF  drop rec'[] $free
-    ELSE  drop 0 rec'[] $[] @  THEN
+    ELSE  drop  0 rec'[] $[] @
+	rec'[] $[]# 1 U+DO
+	    dup >does-code ['] recognize =
+	    IF  drop  I rec'[] $[] @  THEN  LOOP  THEN
     2r> rot >r fp! sp! r>  r> is trace-recognizer
     dup ['] notfound = -#13 and throw ;
 
