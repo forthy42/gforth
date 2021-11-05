@@ -275,6 +275,13 @@ Defer locals-list!
 
 16384 extra-section locals-headers
 
+' where, >code-address dodefer: = [IF]
+    : locals-where, ( nt -- )
+	dup ['] locals-headers @ 2@ swap bounds within
+	IF  defers where,  ELSE  drop  THEN ;
+    ' locals-where, is where,
+[THEN]
+
 : create-local ( "name" -- a-addr )
     \ defines the local "name"; the offset of the local shall be
     \ stored in a-addr

@@ -152,19 +152,21 @@ variable included-file-buffers
 : locate-name ( nt -- )
     name-set-located-view l ;
 
-: locate ( "name" -- ) \ gforth
-    \g Show the source code of the word @i{name} and set the current
-    \g location there.
-    view' rec'[] $[]# 0 ?DO
+: .rec'-stack ( xt -- xt )
+    rec'[] $[]# 0 ?DO
 	I rec'[] $[] @ ?dup-IF  cr ." Recognized by "
-	    2dup = IF  input-color  THEN
+	    2dup = IF  status-color  THEN
 	    dup name>string dup 0= IF  2drop >voc name>string
 		dup IF  ." vocabulary " type  ELSE  2drop ." ???"  THEN
 	    ELSE  type drop  THEN
 	    default-color
 	THEN
-    LOOP
-    locate-name ;
+    LOOP ;
+
+: locate ( "name" -- ) \ gforth
+    \g Show the source code of the word @i{name} and set the current
+    \g location there.
+    view' .rec'-stack locate-name ;
 
 ' locate alias view ( "name" -- ) \ gforth
 
