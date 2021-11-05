@@ -254,18 +254,21 @@ require string.fs
 \ locate/view of recognized tokens show the recognizer, if not a word
 \ Idea: Jenny Brian
 
-Variable rec'
+Variable rec'[]
 
 : view' ( "name" -- xt )
     \G @var{xt} is either the word to view if it is a word
     \G or the recognizer that successfully parsed @var{"name"}
-    rec' off  what's trace-recognizer >r
+    rec'[] $free  what's trace-recognizer >r
     sp@ fp@ 2>r parse-name  name-too-short?
-    [: rec' @ IF  drop  ELSE  rec' ! THEN ;] is trace-recognizer
-    forth-recognize  dup recognized-nt? IF  swap rec' !  THEN
+    [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
+    forth-recognize
+    dup recognized-nt? IF  drop rec'[] $free
+    ELSE  drop 0 rec'[] $[] @  THEN
     2r> rot >r fp! sp! r>  r> is trace-recognizer
-    ['] notfound = -#13 and throw
-    rec' @ ;
+    dup ['] notfound = -#13 and throw ;
+
+:noname  defers 'image rec'[] $free ; is 'image
 
 : kate-l:c ( line pos -- )
     swap ." -l " . ." -c " . ;

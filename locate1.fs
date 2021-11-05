@@ -155,7 +155,15 @@ variable included-file-buffers
 : locate ( "name" -- ) \ gforth
     \g Show the source code of the word @i{name} and set the current
     \g location there.
-    view' locate-name ;
+    view' rec'[] $[]# 0 ?DO
+	I rec'[] $[] @ ?dup-IF  cr ." Recognized by "
+	    dup name>string dup 0= IF  2drop >voc name>string
+		dup IF  ." vocabulary " type  ELSE  2drop ." ???"  THEN
+		drop
+	    ELSE  type  THEN
+	THEN
+    LOOP
+    locate-name ;
 
 ' locate alias view ( "name" -- ) \ gforth
 
