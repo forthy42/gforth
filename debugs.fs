@@ -261,7 +261,7 @@ Variable rec'
     \G or the recognizer that successfully parsed @var{"name"}
     rec' off  what's trace-recognizer >r
     sp@ fp@ 2>r parse-name  name-too-short?
-    [: rec' ! ;] is trace-recognizer
+    [: rec' @ IF  drop  ELSE  rec' ! THEN ;] is trace-recognizer
     forth-recognize  dup recognized-nt? IF  swap rec' !  THEN
     2r> rot >r fp! sp! r>  r> is trace-recognizer
     ['] notfound = -#13 and throw
