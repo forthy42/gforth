@@ -41,7 +41,8 @@ variable included-file-buffers
     dup *terminal*# = IF  drop 0 0  EXIT  THEN \ special files
     >r r@ included-file-buffers $[] >r
     r@ $@ dup IF  rdrop rdrop  EXIT  THEN  2drop
-    i' included-files $[]@ r@ ['] $slurp-file catch IF
+    i' included-files $[]@ r@
+    [: >r open-fpath-file throw 2drop r> $slurp ;] catch IF
 	drop 2drop 0 0  r> $free rdrop  EXIT  THEN
     r> $@ rdrop ;
 
@@ -155,11 +156,17 @@ variable included-file-buffers
 : .rec'-stack ( xt -- xt )
     rec'[] $[]# 0 ?DO
 	I rec'[] $[] @ ?dup-IF  cr ." Recognized by "
-	    2dup = IF  status-color  THEN
+	    2dup = >r
 	    dup name>string dup 0= IF  2drop >voc name>string
-		dup IF  ." vocabulary " type  ELSE  2drop ." ???"  THEN
-	    ELSE  type drop  THEN
-	    default-color
+		dup IF  ." vocabulary "
+		    r@ IF  status-color  ELSE  info-color  THEN  type
+		ELSE  2drop ." ???"  THEN
+	    ELSE
+		rot dup >code-address dodefer: = IF  defer@  THEN
+		>does-code ['] recognize = IF  ." sequence "  THEN
+		r@ IF  status-color  ELSE  info-color  THEN  type
+	    THEN
+	    rdrop default-color
 	THEN
     LOOP ;
 

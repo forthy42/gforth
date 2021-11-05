@@ -1659,6 +1659,7 @@ doc/Makefile
 unix/Makefile
 debian/changelog
 debian/control
+docker/runner/Dockerfile
 build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
 chmod +x gforthmi
