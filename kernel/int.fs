@@ -295,7 +295,9 @@ Create new-where where-struct allot
     then
     nip ;
 
-: where, ( nt -- )
+Defer where,
+
+: (where,) ( nt -- )
     \ store nt and the current source position for use by WHERE
     dup if ( nt )
 	new-where where-nt !
@@ -308,6 +310,8 @@ Create new-where where-struct allot
 	exit
     then
     drop ;
+
+' (where,) is where,
 
 \ find and friends
 
