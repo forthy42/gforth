@@ -4546,16 +4546,41 @@ How the word is pronounced.
 @cindex wordset
 @cindex environment wordset
 @item wordset
-The Forth standard is divided into several word sets. A standard
-system need not support all of them. Therefore, in theory, the fewer
-word sets your program uses the more portable it will be. However, we
-suspect that most Standard Forth systems on personal machines will feature
-all word sets. Words that are not defined in Standard Forth have
-@code{gforth} or @code{gforth-internal} as word set. @code{gforth}
-describes words that will work in future releases of Gforth;
-@code{gforth-internal} words are more volatile. Environmental query
-strings are also displayed like words; you can recognize them by the
-@code{environment} in the word set field.
+The wordset specifies whether a word has been standardized, it is an
+environmental query string, or if it is a Gforth-specific word.  In
+the latter case the wordset contains the string @code{gforth}, other
+wordset names are either @code{environment} of refer to standard word
+sets.
+
+The Forth standard is divided into several word sets. In theory, a
+standard system need not support all of them, but in practice, serious
+systems on non-tiny machines support almost all standardized words
+(some systems require explicit loading of some word sets, however), so
+it does not increase portability in practice to be parsimonious in
+using word sets.
+
+For the Gforth-specific words, we have the following categories:
+
+@table @code
+@item gforth
+@item gforth-@i{version}
+We intend to permanently support this word in Gforth and it has been
+available since Gforth @i{version} (possibly not as supported word at
+that time).
+
+@item gforth-experimental
+This word is available in the present version and may turn into a
+permanent word or may be removed in a future release of Gforth.
+Feedback welcome.
+
+@item gforth-internal
+This word is an internal factor, not a supported word, and it may be
+removed in a future release of Gforth.
+
+@item gforth-obsolete
+This word will be removed in a future release of Gforth.
+@end table
+
 
 @item Description
 A description of the behaviour of the word.
