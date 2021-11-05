@@ -153,6 +153,10 @@ Software Foundation raise funds for GNU development.''
 @detailmenu
  --- The Detailed Node Listing ---
 
+Goals of Gforth
+
+* Stability Goals::
+
 Gforth Environment
 
 * Invoking Gforth::             Getting in
@@ -649,16 +653,51 @@ Available on many machines/easy to port.
 @end itemize
 
 Have we achieved these goals? Gforth conforms to the Forth-94 (ANS
-Forth) and Forth-2012 standards. It may be considered a model, but we
-have not yet documented which parts of the model are stable and which
-parts we are likely to change. It certainly has not yet become a de
-facto standard, but it appears to be quite popular. It has some
+Forth) and Forth-2012 standards.  We have changed some of the internal
+data structures (in particular, the headers) over time, so Gforth
+cannot be considered a stable model.  It certainly has not yet become
+a de facto standard, but it appears to be quite popular. It has some
 similarities to and some differences from previous models. It has some
 powerful features, but not yet everything that we envisioned. We
 certainly have achieved our execution speed goals
 (@pxref{Performance})@footnote{However, in 1998 the bar was raised
 when the major commercial Forth vendors switched to native code
 compilers.}.  It is free and available on many machines.
+
+
+@menu
+* Stability Goals::
+@end menu
+
+@c ******************************************************************
+@node Stability Goals
+@section Stability Goals
+@cindex Gforth stability
+@cindex stability of Gforth
+
+Programs that work on earlier versions of Gforth should also work on
+newer versions.  However, there are some caveats:
+
+Internal data structures (including the representation of code) of
+Gforth may change between versions, unless they are documented.
+
+Moreover, we only feel obliged to keep standard words (i.e., with
+standard wordset names) and words documented as permanent Gforth
+extensions (with wordset name @code{gforth} or
+@code{gforth-@i{<version>}}, @pxref{Notation}).  Other words may be
+removed in newer releases.
+
+In particular, you may find a word by using @code{locate} or otherwise
+inspecting Gforth's source code.  You can see the wordset in a comment
+right after the stack-effect comment.  If there is no wordset for a
+word, it is an internal factor and may be removed in a future version.
+If the wordset is @code{gforth-experimental}, @code{gforth-internal},
+or @code{gforth-obsolete}, the word may also be removed in a future
+version.
+
+If you want to use a particular word that is not marked as permanent,
+please let us know, and we will consider to add the word as permanent
+word (or we may suggest an alternative to using this word).
 
 @c ******************************************************************
 @node Gforth Environment, Tutorial, Goals, Top
@@ -928,7 +967,7 @@ arguments}).
 
 @cindex versions, invoking other versions of Gforth
 If you have several versions of Gforth installed, @code{gforth} will
-invoke the version that was installed last. @code{gforth-@i{version}}
+invoke the version that was installed last. @code{gforth-@i{<version>}}
 invokes a specific version. If your environment contains the variable
 @code{GFORTHPATH}, you may want to override it by using the
 @code{--path} option.
@@ -4563,9 +4602,9 @@ For the Gforth-specific words, we have the following categories:
 
 @table @code
 @item gforth
-@item gforth-@i{version}
+@item gforth-@i{<version>}
 We intend to permanently support this word in Gforth and it has been
-available since Gforth @i{version} (possibly not as supported word at
+available since Gforth @i{<version>} (possibly not as supported word at
 that time).
 
 @item gforth-experimental
