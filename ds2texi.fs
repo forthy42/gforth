@@ -25,6 +25,53 @@
 \ The glossary entries are generated from data present in the wordlist
 \ `documentation'. Each word resides there under its own name.
 
+\ gforth versions for words
+\ words are processed from older to younger versions
+
+\ you can output all words with version numbers with
+\ gforth ds2texi.fs -e "args-gforth-versions print-word-versions bye" doc/words/*-words|sort |less
+
+0. 2value gforth-version-string
+wordlist constant gforth-versions-wl
+
+: current-wrapper ( wordlist xt -- )
+    get-current >r swap set-current catch r> set-current throw ;
+
+: note-word-version ( c-addr u -- )
+    \ keep the first version of the word seen
+    2dup gforth-versions-wl find-name-in if
+        2drop exit then
+    gforth-versions-wl
+    [: nextname gforth-version-string 2constant ;] current-wrapper ;
+
+: each-word ( c-addr u xt -- )
+    \ perform xt for every word in string c-addr u
+    [{: xt: xt :}l begin
+            parse-name dup while
+                xt repeat
+    2drop ;] execute-parsing ;
+
+: file-gforth-versions {: c-addr u :}
+    \ c-addr u is a file name of the form "doc/words/<version>-words".
+    \ Associates all words in the file with <version> unless the words
+    \ already have an earlier association.
+    c-addr u "doc/words/" nip /string "-words" nip - to gforth-version-string
+    c-addr u slurp-file `note-word-version each-word ;
+
+: args-gforth-versions ( -- )
+    begin
+        next-arg dup while
+            file-gforth-versions repeat
+    2drop ;
+
+: print-word-versions ( -- )
+    \ shows in which version the words have appeared
+    gforth-versions-wl
+    [: dup cr name>string type space name>interpret >body 2@ type ;]
+    map-wordlist ;
+
+\ deal with .fd files
+
 script? [IF]
     warnings off
 [THEN]
