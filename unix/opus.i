@@ -19,7 +19,7 @@ extern struct _IO_FILE *stderr;
 #define PA_GCC_ALLOC_SIZE2(x, y)
 #define PA_GCC_PRINTF_ATTR(x, y)
 
-// exec: sed -e 's/^c-library\( .*\)/vocabulary opus``get-current also opus definitions``c-library\1`s" n" vararg$ $!/g' -e 's/^end-c-library/end-c-library`previous set-current/g' | tr '`' '\n'
+// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary opus``get-current also opus definitions``c-library\1`s" n" vararg$ $!/g' -e 's/^end-c-library/end-c-library`previous set-current/g' | tr '`' '\n'
 
 %include <opus/opus_types.h>
 %include <opus/opus_defines.h>

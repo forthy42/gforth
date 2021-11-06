@@ -132,7 +132,13 @@ variable included-file-buffers
 : after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 )
     \ allow to scroll around right after LOCATE and friends:
     case
-	key dup unkey #esc <> ?of endof
+	key
+	ctrl p  of 1 prepend-locate-lines contof
+	ctrl n  of 1  append-locate-lines contof
+	'k'     of 1 prepend-locate-lines contof
+	'j'     of 1  append-locate-lines contof
+	'q'     of endof
+	dup unkey #esc <> ?of endof
 	ekey
 	k-up    of 1 prepend-locate-lines contof
 	k-down  of 1  append-locate-lines contof
@@ -406,7 +412,7 @@ Variable lastfile
     over lastfile @ <> IF
 	over lastfile !
 	[: status-color 2dup expand-file type ':' emit default-color cr ;]
-	do-debug
+	do-debug \ side-emit it on debugging output
     THEN  drop 0 ;
 
 Defer where-file
@@ -546,8 +552,8 @@ included-files $[]# 1- constant doc-file#
         rdrop 2drop basic-help exit then
     drop 0 parse + over - -trailing 2dup s" ::" string-suffix? if
         rdrop help-section exit then
-    r@ >in ! parse-name 2dup find-name if
-        rdrop help-word 2drop exit then
+    r@ >in ! parse-name 2dup (view') ?dup-if
+        rdrop nip nip name>string help-word 2drop exit then
     2drop r> >in ! 0 parse 2drop 2drop
     error-color ." Not a section or word" default-color ;
 [then]

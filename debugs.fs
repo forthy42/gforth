@@ -263,17 +263,20 @@ Variable rec'[]
 	IF  drop  I rec'[] $[] @  THEN
     LOOP ;
 
-: view' ( "name" -- xt )
-    \G @var{xt} is either the word to view if it is a word
-    \G or the recognizer that successfully parsed @var{"name"}
+: (view') ( addr u -- xt )
     rec'[] $free  what's trace-recognizer >r
-    sp@ fp@ 2>r parse-name  name-too-short?
+    sp@ 2 cells + fp@ 2>r  name-too-short?
     [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
-    forth-recognize
+    forth-recognize  0 to-style# !
     dup recognized-nt? IF  drop rec'[] $free
     ELSE  drop  rec'@  THEN
     2r> rot >r fp! sp! r>  r> is trace-recognizer
     dup ['] notfound = -#13 and throw ;
+
+: view' ( "name" -- xt )
+    \G @var{xt} is either the word to view if it is a word
+    \G or the recognizer that successfully parsed @var{"name"}
+    parse-name (view') ;
 
 :noname  defers 'image rec'[] $free ; is 'image
 
