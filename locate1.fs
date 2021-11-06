@@ -413,9 +413,18 @@ Defer where-file
 Defer where-setup
 : where-reset  0 to source-line#  0 to source-pos# ;
 
-: short-where ['] shorten-file is where-file ;
-: expand-where ['] expand-file is where-file ;
-: prepend-where ['] prepend-file is where-file
+: short-where ( -- )
+    \G where uses a short file format (default)
+    ['] shorten-file is where-file
+    ['] noop is where-setup ;
+: expand-where ( -- )
+    \G where uses a fully expanded file format (to pass to e.g. editors)
+    ['] expand-file is where-file
+    ['] noop is where-setup ;
+: prepend-where ( -- )
+    \G where prepends the file to a list of locations in that file (like
+    \G SwiftForth)
+    ['] prepend-file is where-file
     [: 3 to source-line# 2 to source-pos# ;] is where-setup ;
 short-where
 
