@@ -135,8 +135,12 @@ variable included-file-buffers
 	key
 	ctrl p  of 1 prepend-locate-lines contof
 	ctrl n  of 1  append-locate-lines contof
+	ctrl u  of rows 2/ prepend-locate-lines contof
+	ctrl d  of rows 2/  append-locate-lines contof
 	'k'     of 1 prepend-locate-lines contof
 	'j'     of 1  append-locate-lines contof
+	ctrl b  of rows 2 - prepend-locate-lines contof
+	bl      of rows 2 -  append-locate-lines contof
 	'q'     of endof
 	dup unkey #esc <> ?of endof
 	ekey
@@ -519,8 +523,13 @@ included-files $[]# 1- constant doc-file#
     view>line
     located-top ! ;
 
+: open-doc ( -- c-addr u )
+    doc-file# included-buffer dup 0= if
+	cr error-color ." Documentation file not found" default-color
+    THEN ;
+
 : help-word {: c-addr u -- :}
-    doc-file# included-buffer {: c-addr1 u1 :} u1 if
+    open-doc {: c-addr1 u1 :} u1 if
         c-addr1 u1 c-addr u [: "\l'" type type "'    " type ;] $tmp
         capssearch if
             {: c-addr3 u3 :} c-addr1 u1 u3 - count-lfs 2 + {: top-line :}
@@ -531,15 +540,36 @@ included-files $[]# 1- constant doc-file#
 	    2drop c-addr u cr
 	    error-color ." No documentation for " type default-color
 	then
-    else
-	cr error-color ." Documentation file not found" default-color
     then
     info-color ." , LOCATEing source" default-color
     c-addr u find-name dup 0= -13 and throw locate-name ;
 
 : help-section {: c-addr u -- :}
     \ !! implement this!
-    ." help for section" c-addr u type ;
+    c-addr c@ digit? if  drop
+	c-addr u [: #lf emit type space ;] $tmp to u to c-addr
+    then
+    open-doc {: c-addr1 u1 :} u1 if
+	c-addr1 u1
+	BEGIN
+	    c-addr u capssearch WHILE
+		1 safe/string {: c-addr3 u3 :}
+		c-addr3 u3 #lf scan dup if
+		    1 safe/string #lf $split 2swap dup >r
+		    '*' skip '=' skip '-' skip nip 0= r> 0<> and if
+			2drop
+			c-addr1 u1 u3 - count-lfs 1+ {: top-line :}
+			top-line doc-file# swap 0 encode-view 0
+			c-addr3 u3 2dup
+			3 0 ?DO   "\l\l" search if  2 safe/string  then  LOOP
+			nip - count-lfs rows 2/ umax rows 1- umin
+			top-line + set-help-view l exit
+		    then
+		then
+	REPEAT
+	2drop c-addr u #lf skip -trailing cr
+	error-color ." No documentation for " type default-color
+    then ;
 
 [ifdef] string-suffix?
 : help ( "rest-of-line" -- ) \ gforth
@@ -551,7 +581,7 @@ included-files $[]# 1- constant doc-file#
     >in @ >r parse-name dup 0= if
         rdrop 2drop basic-help exit then
     drop 0 parse + over - -trailing 2dup s" ::" string-suffix? if
-        rdrop help-section exit then
+        rdrop 2 - help-section exit then
     r@ >in ! parse-name 2dup (view') ?dup-if
         rdrop nip nip name>string help-word 2drop exit then
     2drop r> >in ! 0 parse 2drop 2drop
