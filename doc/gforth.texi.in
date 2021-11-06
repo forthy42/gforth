@@ -8737,14 +8737,20 @@ it also gets the data and the run-time semantics xt.  You can use
 Recognizers are organized as stack, so you can arrange the sequence of
 recognizers in the same way as the vocabulary stack.
 
-doc-r:fail
-doc-rec:word
-doc-rec:num
-doc-rec:float
+doc-notfound
+doc-rec-nt
+doc-rec-num
+doc-rec-float
+doc-rec-string
+doc-rec-to
+doc-rec-tick
+doc-rec-dtick
+doc-rec-body
 doc-get-recognizers
 doc-set-recognizers
-doc-do-recognizer
-doc-recognizer
+doc-recognize
+doc-rec-sequence:
+doc-forth-recognize
 
 @c -------------------------------------------------------------
 @node The Input Stream, Word Lists, The Text Interpreter, Words
