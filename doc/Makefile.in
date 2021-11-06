@@ -69,7 +69,10 @@ vmgen:		$(VMGEN_TEXI)
 		$(MAKEINFO) --html $<
 
 gforth.txt:	$(GFORTH_TEXI)
-		-$(MAKEINFO) --no-headers --no-split --enable-encoding $< | $(RECODE) >gforth.txt
+		echo "Table of Contents" >gforth.txt
+		echo "*****************" >>gforth.txt
+		echo >>gforth.txt
+		-$(MAKEINFO) --no-headers --no-split --enable-encoding $< | $(RECODE) >>gforth.txt
 
 vmgen.txt:	$(VMGEN_TEXI)
 		-$(MAKEINFO) --no-headers --no-split $< >vmgen.txt
