@@ -379,12 +379,32 @@ variable code-locations 0 code-locations !
 	then
     where-struct +loop ;
 
+: (where) ( "name" -- ) \ gforth-internal
+    parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres
+    drop -1 where-index ! ;
+
+: shorten-file ( addr u -- addr' u' ) { d: fn }
+    fpath path>string BEGIN
+	next-path dup  WHILE
+	    fn 2over string-prefix?
+	    over fn rot safe/string
+	    IF  c@ '/' = and  ELSE  2drop false  THEN
+	    IF  fn rot 1+ /string  rot drop 2nip  EXIT
+	    ELSE  2drop  THEN
+    REPEAT  2drop 2drop fn ;
+
+: expand-file ( addr u -- addr' u' ) { d: fn }
+    fn open-fpath-file IF  fn  ELSE  rot close-file drop  THEN
+    over c@ '/' <> IF
+	{ | pwd[ $1000 ] }
+	pwd[ $1000 get-dir [: type '/' emit type ;] $tmp compact-filename
+    THEN ;
+
 : where ( "name" -- ) \ gforth
     \g Show all places where @i{name} is used (text-interpreted).  You
     \g can then use @code{ww}, @code{nw} or @code{bw} to inspect
     \g specific occurences more closely.
-    parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres
-    drop -1 where-index ! ;
+    ['] shorten-file ['] filename>display ['] (where) wrap-xt ;
 
 : ww ( u -- ) \ gforth
     \G The next @code{l} or @code{g} shows the @code{where} result
@@ -543,7 +563,8 @@ interpret/compile: s` ( "eval-string" -- addr u )
     [:  "-*- mode: compilation; default-directory: \"" type
 	s` pwd` 1- type
 	"\" -*-" type
-	['] where plain-output
+	['] expand-file ['] filename>display
+	[: ['] (where) plain-output ;] wrap-xt
     ;] over outfile-execute close-file throw
     `edit-file-cmd >string-execute 2dup system drop free throw ;
 

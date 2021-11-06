@@ -28,9 +28,11 @@ require string.fs
 
 -1 #23 rshift Constant *terminal*#
 
+Defer filename>display  ' noop is filename>display
+
 : loadfilename#>str ( n -- addr u )
     dup *terminal*# and *terminal*# = IF  drop s" *terminal*"  EXIT  THEN
-    included-files $[]@ ;
+    included-files $[]@ filename>display ;
 
 \ we encode line and character in one cell to keep the interface the same
 
@@ -51,7 +53,7 @@ require string.fs
 
 : .sourceview ( view -- )
     decode-view .sourcepos3 ;
-    
+
 : compile-sourcepos ( compile-time: -- ; run-time: -- view )
     \ compile the current source position as literals: nfile is the
     \ source file index, nline the line number within the file.
