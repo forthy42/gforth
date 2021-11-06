@@ -135,8 +135,12 @@ variable included-file-buffers
 	key
 	ctrl p  of 1 prepend-locate-lines contof
 	ctrl n  of 1  append-locate-lines contof
+	ctrl u  of rows 2/ prepend-locate-lines contof
+	ctrl d  of rows 2/  append-locate-lines contof
 	'k'     of 1 prepend-locate-lines contof
 	'j'     of 1  append-locate-lines contof
+	ctrl b  of rows 2 - prepend-locate-lines contof
+	bl      of rows 2 -  append-locate-lines contof
 	'q'     of endof
 	dup unkey #esc <> ?of endof
 	ekey
@@ -558,10 +562,10 @@ included-files $[]# 1- constant doc-file#
 			top-line doc-file# swap 0 encode-view 0
 			c-addr3 u3 2dup
 			3 0 ?DO   "\l\l" search if  2 safe/string  then  LOOP
-			nip - count-lfs top-line + set-help-view l exit
+			nip - count-lfs rows 2/ umax rows 1- umin
+			top-line + set-help-view l exit
 		    then
 		then
-		#lf skip
 	REPEAT
 	2drop c-addr u #lf skip -trailing cr
 	error-color ." No documentation for " type default-color
