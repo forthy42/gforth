@@ -45,10 +45,13 @@ Defer filename>display  ' noop is filename>display
 : view>char ( view -- u )
     $ff and ;
 
+0 Value source-line#
+0 Value source-pos#
+
 : .sourcepos3 (  nfile nline nchar -- )
     rot loadfilename#>str type ': emit
     base @ decimal
-    rot 0 .r ': emit swap 1+ 0 .r
+    rot source-line# .r ': emit swap 1+ source-pos# .r
     base ! ;
 
 : .sourceview ( view -- )

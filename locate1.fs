@@ -400,11 +400,32 @@ variable code-locations 0 code-locations !
 	pwd[ $1000 get-dir [: type '/' emit type ;] $tmp compact-filename
     THEN ;
 
+Variable lastfile
+
+: prepend-file ( addr u -- addr 0 )
+    over lastfile @ <> IF
+	over lastfile !
+	[: status-color 2dup expand-file type ':' emit default-color cr ;]
+	do-debug
+    THEN  drop 0 ;
+
+Defer where-file
+Defer where-setup
+: where-reset  0 to source-line#  0 to source-pos# ;
+
+: short-where ['] shorten-file is where-file ;
+: expand-where ['] expand-file is where-file ;
+: prepend-where ['] prepend-file is where-file
+    [: 3 to source-line# 2 to source-pos# ;] is where-setup ;
+short-where
+
 : where ( "name" -- ) \ gforth
     \g Show all places where @i{name} is used (text-interpreted).  You
     \g can then use @code{ww}, @code{nw} or @code{bw} to inspect
     \g specific occurences more closely.
-    ['] shorten-file ['] filename>display ['] (where) wrap-xt ;
+    where-setup
+    ['] where-file ['] filename>display ['] (where) wrap-xt
+    where-reset ;
 
 : ww ( u -- ) \ gforth
     \G The next @code{l} or @code{g} shows the @code{where} result
