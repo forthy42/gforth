@@ -2816,8 +2816,11 @@ ghost :-dummy Constant :-ghost
     >loc
     docol, ]comp  colon-start depth T ] H ;
 
+ghost : drop
+ghost :noname drop
+
 : : ( -- colon-sys ) \ Name
-  defempty?
+  defempty? [g'] : gwhere,
   constflag off \ don't let this flag work over colon defs
 		\ just to go sure nothing unwanted happens
   >in @ skip? IF  drop skip-defs  EXIT  THEN  >in !
@@ -2829,7 +2832,7 @@ ghost :-dummy Constant :-ghost
     docol, ]comp colon-start depth ;Resolve off T ] H r> ;
 
 : :noname ( -- xt colon-sys )
-    switchrom vt,
+    switchrom vt, [g'] :noname gwhere,
     [ X has? f83headerstring 0= ] [IF]
 	[ X has? new-cfa ] [IF] T cfalign 0 A, H
 	[ELSE] T 0 cell+ cfalign# H [THEN]
