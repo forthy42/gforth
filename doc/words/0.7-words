@@ -1,0 +1,300 @@
+
+X:structures X:required X:parse-name X:number-prefixes X:fp-stack 
+X:extension-query X:ekeys X:defined X:deferred string-ext string 
+search-order-ext search-order tools-ext tools memory-alloc-ext 
+memory-alloc locals-ext locals floating-ext floating file-ext file 
+facility-ext facility exception-ext exception double-ext double 
+block-ext block xchar-encoding max-float os-type os-class wordlists 
+#locals floating-stack stack-cells return-stack-cells gforth MAX-UD 
+MAX-D MAX-U MAX-N FLOORED CORE-EXT CORE /PAD /HOLD /COUNTED-STRING 
+MAX-CHAR ADDRESS-UNIT-BITS 
+init-callbacks argtype' rettype' callback; callback alloc-callback 
+rtype callbacks (float) (void) (int) _long rettype decl, make-cif 
+create-cif cif@ cif, ffi-call, fptr ind-call start, arg, arg@ 
+argtype args cifreset cifbuf cifs df>x sf>x d>x dl>x p>x is>x i>x 
+>df- >sf- >dl- >d- >p- >i- >df+ >sf+ >dl+ >d+ >p+ >i+ argptr 
+argbuf retbuf maxargs symbol, init-shared-libs library proc: 
+legacy-proc proc, @proc @lib cb-decl c-decl legacy revarg revdec 
+thislib thisproc libs ffi-ret-double ffi-ret-double1 ffi-ret-float 
+ffi-ret-float1 ffi-ret-ptr ffi-ret-ptr1 ffi-ret-long ffi-ret-long1 
+ffi-ret-dlong ffi-ret-dlong1 ffi-ret-longlong ffi-ret-longlong1 
+ffi-ret-int ffi-ret-int1 ffi-ret-void ffi-arg-double ffi-arg-float 
+ffi-arg-ptr ffi-arg-dlong ffi-arg-longlong ffi-arg-long ffi-arg-int 
+ffi-2! ffi-2@ ffi-prep-closure ffi-call ffi-prep-cif ffi-size ffi-type 
+mkdir-parents hamming rfft fft normalize fftscale (fft fft-step 
+butterflies butterfly z2dup+ .rvalues .expix .values points realloc 
+#points reverse r+ expix values Carray z.s z. fc. zacot zatan 
+zacos zasin pi/2 zacoth zatanh zacosh zasinh Im Re Imag Real ztan 
+zcos zsin ztanh zcosh zsinh zfib -h g z** zsqrt z0= zln pln zexp 
+polar> >polar z2* z2/ zabs |z| z/ 1/z zsqabs z/i z*i zconj 
+znegate zscale z* x- x+ zr- z- z+ z! z@ z-rot zrot zdepth zpick 
+zswap zr> z>r zover zdrop zdup fl> complex+ complex' //g s// 
+>>next >>string@ <<" << >> >>string <<ptr >>ptr $iter $split $off 
+$+! $ins $del $!len $@ $@len $! $padding delete \9 \8 \7 \6 \5 
+\4 \3 \2 \1 \:s \: \0 \) \( }} || {{ THENs // +} *} {* {+ 
+++} **} n*} {++ {** drops )) (( \$ \^ ?end start-rex? end-rex? 
+!end start$ end$ var> >var varsmax varstack vars DONE, BEGIN, 
+>loops loops> 3! 3@ loops =" ,=" $= ` -\s -\d .? \s \d any 
+letter blanks digit -c? c? char? -class +class and! or! ..char 
+-char +char charclass cur-class @+ -bit +bit JOIN FORK object :: 
+new defines end-class class var method interface interface-does> 
+object bind static dynamic o[] o> >o o@ ^ ostack Objects 8aligned 
+define? heap-new dict-new xt-new init-object object equal print 
+construct [parent] [current] current' [bind] bind bind' <bind> 
+[to-inst] <to-inst> inst-value do-inst-value inst-var do-inst-var 
+inst-something catch ;m exitm :m m: enterm to-this this 
+implementation front-extend-mem end-class end-class-noname end-methods 
+drop-order class-previous remove-class-order class methods push-order 
+class>order add-class-order public protected public-wordlist 
+end-interface end-interface-noname interface last-interface-offset 
+overrides class-override! unique-interface-map class->map 
+interface-override! selector method do-interface-method do-class-method 
+no-method current-interface selector% selector-interface selector-offset 
+class% class-inst-size class-wordlist class-parent interface% 
+interface-offset interface-map-offset interface-map object% object-map 
+end-code ;code (;code) code init-asm assembler mov-regv-Iv mov-reg8-Ib 
+xchg-ax jcc-short conditions pop-reg push-reg set-add-likes 
+set-add-like set-noarg rAX,Iz AL,Ib Gv,Ev Gb,Eb Ev,Gv Eb,Gb Iv Jz 
+Iz immz Jb Ib Ev Ed Eb Ext mem-modRM mem-SIB print-base 
+base-regnum masksx displacement-info Ox Gv .width*2 .width/2 .width 
+.regv Sw Gb Gnum .invalid .sreg .reg64 .reg32 .reg16 .reg8 .regn 
+dec.- sreg-names reg16-names reg8-names-norex reg8-names 
+address-size-disasm operand-size-disasm immediate-prefix rex-prefix-disasm 
+repeat-prefix-disasm illegal-inst print-rep disasm disasm-addr 
+disasm-addr1 def-opcode1 opcode1-table clear-prefixes rex-prefix 
+repeat-prefix address-size operand-size string-table save-mem-here 
+cell-fill th c@+ dffield: sffield: ffield: 2field: field: cfield: 
+end-structure begin-structure +field init-libcc end-c-library c-library 
+c-library-name c-library-incomplete clear-libs c-function c-function-rt 
+c-function-ft link-wrapper-function compile-wrapper-function1 
+compile-wrapper-function .lib-error c-source-file-execute notype-execute 
+c-source-file init-c-source-file lib-handle c-tmp-library-name 
+c-named-library-name c-library-name-create c-library-name-setup 
+open-wrappers prepend-dirname libcc-tmp-dir libcc-named-dir gen-filename 
+basename dirname scan-back gen-wrapper-function wrapper-function-name 
+gen-wrapped-stmt gen-wrapped-types gen-wrapped-func gen-wrapped-r 
+gen-wrapped-d gen-wrapped-a gen-wrapped-n gen-wrapped-void 
+gen-wrapped-call gen-par gen-par-types gen-par-void gen-par-func 
+gen-par-r gen-par-d gen-par-a gen-par-n count-stacks count-stacks-types 
+count-stacks-void count-stacks-func count-stacks-r count-stacks-d 
+count-stacks-a count-stacks-n type-letter parse-function-types 
+parse-libcc-type libcc-types \c save-c-prefix-line print-c-prefix-lines 
+print-c-prefix-line c-prefix-lines-end c-prefix-lines c-prefix% 
+c-prefix-chars c-prefix-count add-libpath append-l add-lib c-libs 
+c-lib% c-lib-string list-map list-append list-insert list% list-payload 
+list-next append s+ front-char front-string const+ .nb replace-rpath 
+libcc-path libcc-named-dir-v lib-modulename lib-filename lib-handle-addr 
+c-source-file-id cff% cff-ptypes cff-np cff-rtype cff-lha cff-deferred 
+cff-cfr mkdir-parents disasm-gdb check-gdb-syntax #comma 
+gdb-addr-sep-char append-extend-string end-code ;code (;code) code 
+init-asm assembler break" (break") break: (break:) break:, dbg 
+(debug) (_debug) D-KEY Unnest Nesting nestXT nestXT-checkSpecial Body 
+restore-bp set-bp DT BP breaker breaker-size DebugLoop jump get-next 
+disp-step Leave-D NoFine d.s .n scanword restore-see-flags 
+save-see-flags dbg-ip see-code see-code-range see-code-next-inline 
+simple-see simple-see-range simple-see-word print-backtrace 
+print-bt-entry backtrace-return-stack init-backtrace backtrace-rs-buffer 
+adjust-buffer init-buffer buffer% buffer-maxlength buffer-address 
+buffer-length buffer-descriptor c-extend1 c-lp+!# c-laddr# c-f@local# 
+c-flit c-@local# c-branch-lp+!# c-?branch-lp+!# c-loop-lp+!# see 
+name-see (.immediate) (xt-see-xt) xt-see seefield seecol seedoes 
+see-threaded seedefer seevalue seecon seeuser seevar seecode next-prim 
+next-head discode .defname xt-see-xt makepass c-init analyse BranchTo? 
+DoTable c-extender C-Table c-(compile) c-does> c-abort" c-exit c-?do 
+c-do c-loop c-for c-?branch DebugBranch c-branch RepeatCheck Forward? 
+c-string? c-c" .name-without c-lit+ c-lit c-callxt c-call .word back? 
+Debug? Display? Scan? DebugMode DisplayMode ScanMode C-Pass NoOutput 
+Branch! Type! ,Branch CheckWhile MyBranch CheckEnd MoreBranchAddr? 
+BranchAddr? (BranchAddr?) FirstBranch MaxTable BranchTable SearchPointer 
+BranchPointer Branches C-Stop LeaveCode Disable WhileCode2 AheadCode 
+ElseCode UntilCode AgainCode RepeatCode .struc c-\type (.string) 
+.string cemit ctype warp? (nl) nl nlcount uppercase nlflag level- 
+level+ Format Level YPos XPos C-Clearline C-Highlight C-Formated 
+C-Output .\" s\" \"-parse \-escape \-escape-table parse-num 
+parse-num-x char/ ekey? ekey>fkey ekey>char ekey clear-ekey-buffer 
+esc-sequence esc-prefix ekey-buffered ekey-buffer esc-sequences unkeys 
+unkey char-append-buffer key-buffered key-buffer s-k12 s-k11 s-k10 
+s-k9 s-k8 s-k7 s-k6 s-k5 s-k4 s-k3 s-k2 s-k1 k12 k11 k10 k9 k8 
+k7 k6 k5 k4 k3 k2 k1 k-f12 k-f11 k-f10 k-f9 k-f8 k-f7 k-f6 k-f5 
+k-f4 k-f3 k-f2 k-f1 k-delete k-insert k-next k-prior k-end k-home 
+k-down k-up k-right k-left k-alt-mask k-ctrl-mask k-shift-mask keycode 
+table tablesearch-map table-find savesystem dump-fi 
+update-image-included-files delete-prefix save-mem-dict <compilation 
+compilation> (compilation>1) <interpretation interpretation> 
+(interpretation>1) fix-does-code create-interpret/compile 
+no-interpretation-does-code no-compilation-does-code bye block-included 
+--> +thru +load thru load block-input list updated? scr buffer 
+block get-buffer flush empty-buffers save-buffers empty-buffer 
+save-buffer update block-position get-block-fid use open-blocks 
+flush-blocks block-cold offset block-offset block-fid block-limit 
+buffers last-block block-buffers buffer-struct next-buffer block-buffer 
+buffer-dirty buffer-fid buffer-block ) (end-assert) assert( assert3( 
+assert2( assert1( assert0( assertn assert-level ~~ .debugline-stderr 
+(.debugline) .debugline printdebugdata .sourcepos compile-sourcepos 
+current-sourcepos str>loadfilename# loadfilename#>str vt100-decode tcode 
+trans: transcode translate history-cold get-history xchar-history 
+xtab-expand insert xkill-expand (xenter) xclear-tib xclear-line 
+xend-pos xfirst-pos xeof <xdel> ?xdel (xdel) xforw xback (xins) 
+<xins> xretype .all .rest xback-restore xcur-correct at-deltaxy #esc 
+kill-prefix tib-full? search-prefix prefix-string prefix-off search-voc 
+word-lex capscomp sgn prefix-found extract-word (enter) prev-line 
+find-prev-line next-line get-line hist-setpos hist-pos clear-line 
+linew-off screenw linew cur-correct back-restore history-file 
+force-open end^ backward^ forward^ history bindkey >string ctrl 
+ctrl-i utf-8-cold set-encoding-utf-8 u8width -u8trailing-garbage 
+u8addrlen u8!+? u8@ u8\string- +u8/string u8emit u8key check-xy u8<< 
+u8>> u8!+ u8@+ u8len max-single-byte UTF-8-err O-PNT@ O-DEINIT O-INIT 
+TypeXT EmitXT O-EMIT O-TYPE O-PNT O-Buffer page at-xy ESC[ ;pn pn 
+WordInfo InfoTable Com# Str# Ali# Use# Col# Def# Doe# Val# Var# 
+Con# Pri# prim? xtprim? colon? defered? does? user? con? var? 
+alias? >head >name threaded>name look prim>name PrimStart threaded>xt 
+search-name xt>threaded base-execute infile-execute outfile-execute l@ 
+w@ /l /w typewhite what's action-of f.s f.rdp f>str-rdp f>buf-rdp 
+f>buf-rdp-try push-right ]] postponer1 [[ compile-compile-2literal 
+compile-2literal compile-compile-literal compile-literal slurp-fid 
+slurp-file const-does> (const-does>) compile-fliterals compile-literals 
+in-return-stack? ]L sh system $? dmax dmin ?CSP !CSP CSP needs 
+locals| TO definer! >definer (local) (exit-like) (until-like) 
+(again-like) (begin-like) (then-like) locals-;-hook locals-:-hook 
+endscope adjust-locals-list scope { old-dpp new-locals-wl 
+new-locals-map new-locals-reveal new-locals-find some-wlocal some-flocal 
+some-dlocal some-clocal locals-types lp-offset, lp-offset create-local 
+compile-pushlocal-c compile-pushlocal-d compile-pushlocal-f check-begin 
+set-locals-size-list list-size sub-list? common-list compile-pushlocal-w 
+alignlp-f alignlp-w locals-dp locals-buffer locals adjust-locals-size 
+compile-lp+! compile-f@local compile-@local FMOD FTRUNC f~ f~rel f~abs 
+1/f f2/ f2* pi fvariable sfnumber fs. fe. f. f$ -zeros zeros 
+scratch set-precision precision FLiteral fdepth fconstant f, dfloat+ 
+sfloat+ dfalign sfalign .words hash-cold make-hash (hashsearch-map) 
+hashdouble (rehash) rehashall clearhash addall inithash hash-reveal 
+(reveal lastlink! hash-find bucket NewFix DelFix hash-alloc 
+hashsearch-map HashTable HashPop HashIndex HashPointer revealed insRule 
+hash Hashlen hashbits reserve-mem marker marker! marker, 
+included-files-mark expect span search blank erase convert [compile] 
+C" endcase endof of case m*/ d>s .( broken-pipe-error exception 
+next-exception errstring linked include-ffi.h-string libffi-present 
+ffcall-present libtool-flags libtool-cc libtool-command has? $has? e? 
+environment? environment-wordlist environment vocs order .voc .name 
+.id id. seal set-order get-order init-vp update-image-order Only Root 
+Forth vocsearch (localsvocfind) locals-wordlist (vocfind) previous also 
+>order check-maxvp Vocabulary wordlist mappedwordlist slowvoc 
+definitions vp! set-current get-current vp maxvp-limit maxvp %alloc 
+%allocate %allot %align %size %alignment double% sfloat% dfloat% 
+float% char% cell% struct end-struct field create-field field, 
+dozerofield nalign naligned endtry-iferror endtry restore iferror 
+handler-intro, (endtry) try (try) nothrow first-throw store-backtrace 
+dodoes: dofield: dodefer: douser: dovar: docol: dovalue: docon: vlist 
+words wordlist-words cols rows ? dump .line .chars .4 /dump .s 
+maxdepth-.s [WHILE] [AGAIN] [REPEAT] [UNTIL] [BEGIN] [I] [NEXT] [FOR] 
+[LOOP] [+LOOP] [?DO] [DO] (i) [ENDIF] [THEN] [ELSE] [IFUNDEF] 
+[IFDEF] [IF] [undefined] defined [defined] ?if [struct]-voc 
+[struct]-search scanIF >exec dummy countif ." S" abort" SLiteral 
+CLiteral ?EXIT EXIT exit-like NEXT S+LOOP -LOOP +LOOP LOOP loop-like 
+FOR U-DO -DO U+DO +DO ?DO ?do-like DO ?LEAVE LEAVE DONE leave> 
+>leave clear-leave-stack leave-sp leave-stack leave-stack-size REPEAT 
+WHILE UNTIL until-like AGAIN again-like BEGIN begin-like ELSE ENDIF 
+THEN cs>addr then-like ?DUP-0=-IF ?DUP-IF IF AHEAD YET BUT <resolve 
+>resolve >mark sys? ?struc other-control-flow cs-push-orig cs-push-part 
+CS-ROLL CS-PICK cs-item-size cs-item? non-orig? scope? do-dest? dest? 
+orig? def? scopestart do-dest dest dead-orig live-orig ASSUME-LIVE 
+UNREACHABLE backedge-locals dead-code locals-list .included .strings 
+require include required included included1 add-included-file included? 
+init-included-files sourceline# sourcefilename image-included-files 
+included-files open-fpath-file open-path-file check-path open-ofile 
+reworkdir compact-filename skip-..-prefixes preserve-root del-./s 
+del-string expandtopic remove~+ extractpath need/ pathsep? tfile ofile 
+absolut-path? .fpath .path previous-path next-path path>string fpath= 
+path= fpath+ path+ only-path clear-path also-path os-cold make-path 
+fpath +place path-allot ( write-line bin r/o r/w w/o os-boot 
+(process-args) process-option args-evaluate args-required args-required1 
+os-execute-parsing next-arg shift-args script? argc argv pathdirs 
+pathstring #! arg cstring>sstring set-encoding-fixed-width c-size c!+? 
+string- +string char- xhold x@+/string -trailing-garbage x-width 
+x-size xc-size xc@+ xc!+? xc@ x\string- +x/string xchar- xchar+ xkey 
+xemit license include-file execute-parsing-file 
+execute-parsing-named-file read-loop line-end-hook query clear-tibstack 
+evaluate execute-parsing execute-parsing-wrapper create-input 
+restore-input save-input pop-file push-file expand-tib new-tib 
+file-input read-line evaluate-input terminal-input input-start-line 
+input-lexeme! tib+ tib loadfilename #fill-bytes blk loadfile loadline 
+old-input max#tib #tib input-lexeme >in (restore-input) (save-input) 
+source-id refill source input-var input-method accept edit-line decode 
+everyline everychar insert-char ctrlkeys (ret) (bs) (ins) recursive 
+rehash reveal check-shadow (reveal) warnings last? ; :noname : 
+(:noname) defstart ;-hook :-hook interpret/compile? TO IS [IS] <IS> 
+defer! DOES> Defers defer@ Defer defer-default interpret/compile: 
+interpret/compile-struct interpret/compile-comp interpret/compile-int 
+(Field) 2Constant AValue Value AConstant Constant (Value) (Constant) 
+AUser User uallot 2Variable AVariable Variable Create Alias 
+compile-only restrict immediate lastflags ctoggle creset cset ," mem, 
+S, ] [ compiler1 recurse POSTPONE postpone, [COMP'] COMP' ['] [(')] 
+name>comp (compile) dodoes, (does>2) (does>) !does compile-to-prims, 
+peephole-compile, basic-block-end compile, cfa, [char] char char@ 
+ALiteral 2Literal Literal latest lastxt latestxt noname noname-header 
+nextname nextname-header nextname-string input-stream input-stream-header 
+header, longstring, string, header (header) const A, cfalign maxalign 
+falign align 2, , c, allot bye boot cold 'cold process-args 
+bootmessage (bootmessage) quit (DoError) .error-frame .error-line 
+part-type mark-end mark-start umin .error-string dobacktrace DOERROR 
+-trailing hex. dec.r dec. input-error-data >error error> error-stack 
+/error max-errors (quit) prompt .status 'quit extend-mem free-mem-var 
+save-mem interpreter1 interpret interpret1 before-word no.extensions 
+interpreter-notfound1 compiler-notfound1 name parse-word parse-name 
+parser parser1 ' (') find sfind /does-handler does-handler! 
+does-code! code-address! flashc! flash! >does-code >code-address body> 
+>body >head-noprim head? ??? (name>intn) (name>comp) name?int name>int 
+(name>x) ((name>)) name>string (x>int) (cfa>int) compile-only-error 
+ticking-compile-only-error flag-sign lcount-mask restrict-mask 
+immediate-mask alias-mask find-name search-wordlist (search-wordlist) 
+context voclink current lookup forth-wordlist f83search initvoc 
+f83find wordlist-struct wordlist-extend wordlist-link wordlist-id 
+wordlist-map wordlist-map-struct hash-method rehash-method reveal-method 
+find-method \G \ ( number number? snumber? s>number s>number? 
+s>unumber? s'>unumber? ?dnegate sign? getbase bases name-too-long? 
+name-too-short? (name) parse word sword (word) version-string .error 
+>stderr ErrLink u. . ud. d. u.r .r ud.r d.r #s # sign #>> <<# 
+#> <# hold pad backspaces spaces space cr bell #lf #ff #cr #del 
+#tab #bs #bell #eof (S") (.") key? key emit type (key?) (key) 
+(emit) (type) infile-id outfile-id hex decimal "lit clearstacks 
+clearstack depth ?stack abort (abort") c(abort") throw catch lp@ 
+ud/mod s>d >number accumulate digit? skip scan bounds place roll 
+dabs off on here dp in-dictionary? unused usable-dictionary-end 
+dictionary-end A! chars cfaligned maxaligned r@ NIL str< 
+string-prefix? str= locals-size max-name-length Last LastCFA dpp 
+normal-dp state dpl base includefilename current-input "error 
+errorhandler backtrace-rp0 handler lp0 fp0 rp0 sp0 save-task 
+prev-task next-task udp main-task def#tib pad-minsize holdend holdptr 
+holdbuf-end holdbuf word-pno-size chars/block l/s c/l /line bl float 
+cell false true forthstart image-header tag-offsets call2 
+set-next-code decompile-prim forget-dyncode finish-code compile-prim1 
+lib-error l! sl@ ul@ w! sw@ uw@ wcall lib-sym open-lib fpick f>l 
+>l lp! lp+2 lp+ lp- lp+!# laddr# f@local1 f@local0 f@local# @local3 
+@local2 @local1 @local0 @local# faxpy v* dfaligned sfaligned dfloats 
+sfloats fatanh facosh fasinh ftanh fcosh fsinh ftan fsqrt fsincos 
+fsin falog flog flnp1 fln fexpm1 fexp fcos fatan2 fatan fasin 
+facos fabs >float represent fmin fmax fround floor floats float+ 
+ftuck fnip frot fover fswap fdup fdrop fnegate f**2 fm*/ fm/ fm* 
+f** f/ f* f- f+ sf! sf@ df! df@ f@ f! f>s f>d d>f s>f f0>= 
+f0<= f0> f0< f0<> f0= f>= f<= f> f< f<> f= cputime utime newline 
+=mkdir get-dir set-dir filename-match close-dir read-dir open-dir 
+file-eof? file-status flush-file emit-file write-file (read-line) 
+read-file resize-file file-size reposition-file file-position 
+rename-file delete-file create-file open-file close-file call-c 
+strsignal strerror resize free allocate ms time&date close-pipe 
+open-pipe getenv (system) (bye) flush-icache wcwidth form stderr 
+stdout stdin key?-file key-file threading-method faligned aligned 
+(parse-white) (hashkey1) (tablelfind) (hashlfind) (listlfind) count 
+(chars) char+ cells cell+ 2@ 2! c! c@ +! ! lit@ @ 2tuck 2nip 
+2rot 2swap 2over 2dup 2drop pick ?dup tuck nip -rot rot dup swap 
+drop over 2rdrop 2r@ 2r> 2>r rdrop r> >r fp! fp@ rp! rp@ sp! 
+sp@ up! useraddr within du>= du<= du> du< du<> du= d0>= d0<= d0> 
+d0< d0<> d0= d>= d<= d> d< d<> d= u>= u<= u> u< u<> u= >= <= 
+> < <> = 0>= 0<= 0> 0< 0<> 0= lshift rshift invert xor or and 
+d2/ d2* dnegate d- d+ m+ um/mod um* m* sm/rem fm/mod 2/ 2* */ 
+*/mod /mod mod / * abs min max 1- 1+ negate - under+ lit+ + 
+lit /string capscompare toupper compare fill cmove> cmove move k j 
+i' i (u-do) (-do) (u+do) (+do) (?do) (do) (for) (s+loop)-lp+!# 
+(s+loop) (-loop)-lp+!# (-loop) (+loop)-lp+!# (+loop) (loop)-lp+!# 
+(loop) (next)-lp+!# (next) ?dup-0=-?branch ?dup-?branch ?branch-lp+!# 
+?branch branch branch-lp+!# does-exec lit-perform unloop ;s perform 
+execute call noop 
