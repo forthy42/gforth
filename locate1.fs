@@ -551,7 +551,7 @@ included-files $[]# 1- constant doc-file#
 	    c-addr u capssearch WHILE
 		1 safe/string {: c-addr3 u3 :}
 		c-addr3 u3 #lf scan dup if
-		    1 safe/string #lf $split dup >r 2swap
+		    1 safe/string #lf $split 2swap dup >r
 		    '*' skip '=' skip '-' skip nip 0= r> 0<> and if
 			2drop
 			c-addr1 u1 u3 - count-lfs 1+ {: top-line :}
