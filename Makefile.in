@@ -1435,7 +1435,7 @@ doc/crossdoc.fd:	$(KERN_SRC) gforth$(EXT) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs" include kernel/main.fs' -e bye
 		$(srcdir)/move-if-change doc/crossdoc.fd.tmp $@
 
-doc/words/$(RVERSION).words: gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_GEN_SRC)
+doc/words/$(RVERSION)-words: gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_GEN_SRC)
 		$(FORTH) $(EXTRA_DOC) -e "c-lib words see-voc words environment words forth words bye" >$@
 
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
