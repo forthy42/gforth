@@ -164,12 +164,18 @@ create description-buffer 4096 chars allot
     loop
     drop ;
 
+: print-wordset ( doc-entry -- )
+    >r r@ doc-wordset 2@ 2dup type "gforth" str= if
+        r@ doc-name 2@ gforth-versions-wl find-name-in ?dup-if
+            '-' emit name>interpret execute type then then
+    rdrop ;
+
 : print-short ( doc-entry -- )
     >r
     ." @findex "
     r@ doc-name 2@ typetexi
     ."  @var{ " r@ doc-stack-effect 2@ type ."  }  "
-    r@ doc-wordset 2@ type
+    r@ print-wordset
     cr
     ." @cindex "
     ." @code{" r@ doc-name 2@ typetexi ." }"
