@@ -32,6 +32,8 @@
 
 VERSION	= @PACKAGE_VERSION@
 DOSVERSION=`echo $(VERSION)|sed 's/\.//g'|sed 's/-.*//g'`
+#release version (between releases this is the prospective next release) 
+RVERSION = 1.0
 
 # -------------	System specific variables	
 
@@ -1433,8 +1435,12 @@ doc/crossdoc.fd:	$(KERN_SRC) gforth$(EXT) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs" include kernel/main.fs' -e bye
 		$(srcdir)/move-if-change doc/crossdoc.fd.tmp $@
 
+doc/words/$(RVERSION).words: gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_GEN_SRC)
+		$(FORTH) $(EXTRA_DOC) -e "c-lib words see-voc words environment words forth words bye" >$@
+
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
-		doc/doc.fd doc/crossdoc.fd preforth @kernel_fi@
+		doc/doc.fd doc/crossdoc.fd preforth @kernel_fi@ \
+		$(wildcard doc/words/*.words)
 		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" >$@-
 		$(MV) $@- $@
 

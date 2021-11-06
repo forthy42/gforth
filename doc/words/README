@@ -1,0 +1,8 @@
+#Words in various Gforth versions
+#originally generated with the following commands,
+#but there may be manual corrections.
+gforth-0.4.0 code.fs objects.fs oof.fs -e "get-order environment-wordlist swap 1+ set-order words previous forth words bye" >0.4-words
+gforth-0.5.0 code.fs objects.fs oof.fs moofglos.fs -e "environment-wordlist >order words previous forth words bye" >0.5-words
+gforth-0.6.2 code.fs objects.fs oof.fs moofglos.fs fflib.fs -e "environment words forth words bye" >0.6-words
+gforth-0.7.3 code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs mkdir.fs libffi.fs -e "environment words forth words bye" >0.7-words
+#for 1.0 and later the Makefile contains a rule
