@@ -220,6 +220,7 @@ has? cross 0=
 :noname
     defers 'image
     HashPointer off
+    0 to HashTable
 ; is 'image
 
 : .words  ( -- )

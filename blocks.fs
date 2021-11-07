@@ -69,6 +69,8 @@ User block-offset ( -- addr ) \ gforth
     block-cold
 ; is 'cold
 
+:noname ( -- ) defers 'image  block-buffers off ; is 'image
+
 block-cold
 
 Defer flush-blocks ( -- ) \ gforth

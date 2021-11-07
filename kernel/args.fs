@@ -49,14 +49,16 @@ Variable argv ( -- addr ) \ gforth
 \g command-line arguments (including the command-name). Each argument
 \g is represented as a C-style zero-terminated string.  Changed by
 \g @code{next-arg} and @code{shift-args}.
-    
+
 Variable argc ( -- addr ) \ gforth
 \g @code{Variable} -- the number of command-line arguments (including
 \g the command name).  Changed by @code{next-arg} and @code{shift-args}.
 
-    
 0 Value script? ( -- flag )
-    
+
+: clear-args ( -- )
+    #0. pathstring 2! argv off ;
+
 : shift-args ( -- ) \ gforth
 \g @code{1 arg} is deleted, shifting all following OS command line
 \g parameters to the left by 1, and reducing @code{argc @@}.  This word

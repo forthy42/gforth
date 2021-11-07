@@ -69,6 +69,8 @@ interpret/compile: ctrl  ( "<char>" -- ctrl-code )
 
 0 Value history \ history file fid
 
+:noname ( -- ) defers 'image 0 to history ; is 'image
+
 2Variable forward^
 2Variable backward^
 2Variable end^

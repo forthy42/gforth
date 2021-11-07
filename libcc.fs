@@ -1099,6 +1099,11 @@ Defer prefetch-lib ( addr u -- )
     init-libcc reopen-libs rebind-libcc lib-filename $free ;
 is 'cold
 
+:noname ( -- )
+    defers 'image
+    libcc$ off  libcc-named-dir$ off  libcc-path off ;
+is 'image
+
 : c-library ( "name" -- ) \ gforth
 \G Parsing version of @code{c-library-name}
     ?parse-name save-mem c-library-name ;
