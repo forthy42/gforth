@@ -70,4 +70,4 @@ is 'clean-maintask
     r> close-file throw ;
 
 : savesystem ( "name" -- ) \ gforth
-    name dump-fi ;
+    name dump-fi bye ;

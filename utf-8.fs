@@ -269,12 +269,39 @@ here wc-table - Constant #wc-table
 [ELSE]
     ' wcwidth Alias xc-width
 [THEN]
-    
+
+: xc-width+ ( n xc -- n' )
+    dup #tab = IF  drop 1+ dfaligned  ELSE  xc-width +  THEN ;
 : u8width ( xcaddr u -- n )
-    0 rot rot bounds ?DO
-	I xc@+ swap >r
-	dup #tab = IF  drop 1+ dfaligned  ELSE  xc-width +  THEN
+    0 -rot bounds ?DO
+	I xc@+ swap >r xc-width+
     r> I - +LOOP ;
+: x-lines+rest ( c-addr u cols -- lines chars ) {: cols :}
+    \G calculate how many lines an xchar string @var{c-addr u} needs with
+    \G @var{cols} characters per line, plus how many chars the last line needs
+    1 0 2swap bounds U+DO
+	I xc@+ swap >r
+	0 swap xc-width+ tuck + dup cols u> IF
+	    drop swap 1+ swap
+	ELSE  nip  THEN
+    r> I - +LOOP ;
+: x-lines ( c-addr u cols -- lines )
+    x-lines+rest drop ;
+
+: x-maxlines ( c-addr u lines cols -- c-addr u' )
+    \G limit an xchar string @var{c-addr u} to take up at most @var{lines}
+    \G with @var{cols} characters per line
+    2over {: cols start len :}
+    0 2swap bounds U+DO
+	I xc@+ swap >r
+	0 swap xc-width+ tuck + dup cols u> IF
+	    drop swap 1- swap
+	    over 0<= IF
+		rdrop 2drop  start I over -  unloop  EXIT
+	    THEN
+	ELSE  nip  THEN
+    r> I - +LOOP  2drop
+    start len ;
 
 here
 ' u8emit ,

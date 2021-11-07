@@ -23,5 +23,6 @@ require except.fs
 
 \ now boot
 
-cold
+pathstring 2@ argv @ argc @
+:noname save-strings boot ; execute
     

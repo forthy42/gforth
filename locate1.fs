@@ -73,15 +73,11 @@ variable included-file-buffers
 Variable locate-lines#
 
 : locate-lines+ ( c-addr u -- )
-    x-width 1- 0 max cols / 1+ locate-lines# +! ;
+    cols x-lines locate-lines# +! ;
 
 : locate-type ( c-addr u lineno -- )
-    >r locate-lines# @ >r
-    begin
-	2dup locate-lines+
-	locate-lines# @ rows >= while
-	    x\string- r@ locate-lines# !
-    repeat  rdrop
+    >r rows 1- locate-lines# @ - 0 max cols x-maxlines
+    2dup locate-lines+
     r> cr located-view @ view>line = if
 	info-color  located-view @ view>char type-prefix
 	error-color located-len @            type-prefix
@@ -149,7 +145,7 @@ Variable locate-lines#
 : after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 )
     \ allow to scroll around right after LOCATE and friends:
     case
-	key
+	ekey \ k-winch will only be visible with ekey
 	ctrl p  of 1 prepend-locate-lines contof
 	ctrl n  of 1  append-locate-lines contof
 	ctrl u  of rows 2/ prepend-locate-lines contof
@@ -158,13 +154,14 @@ Variable locate-lines#
 	'j'     of 1  append-locate-lines contof
 	ctrl b  of rows 2 - prepend-locate-lines contof
 	bl      of rows 2 -  append-locate-lines contof
+	ctrl l  of 0  append-locate-lines contof
 	'q'     of endof
-	dup unkey #esc <> ?of endof
-	ekey
+	ekey>char ?of dup #esc <> if  unkey  else  drop  then endof
 	k-up    of 1 prepend-locate-lines contof
 	k-down  of 1  append-locate-lines contof
 	k-prior of rows 2/ prepend-locate-lines contof
 	k-next  of rows 2/  append-locate-lines contof
+	k-winch of 0  append-locate-lines contof
     endcase ;
 
 : l1 ( -- )
