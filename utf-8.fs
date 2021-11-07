@@ -84,7 +84,7 @@ Defer check-xy  ' noop IS check-xy
 : +u8/string ( xc-addr1 u1 -- xc-addr2 u2 )
     over dup u8>> swap - safe/string ;
 : u8\string- ( xcaddr u -- xcaddr u' )
-    over + u8<< over - ;
+    over + u8<< over - 0 max ;
 
 : u8@ ( c-addr -- u )
     u8@+ nip ;

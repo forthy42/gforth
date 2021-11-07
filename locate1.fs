@@ -70,8 +70,19 @@ variable included-file-buffers
     \ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
     >r 2dup r> umin tuck type safe/string ;
 
+Variable locate-lines#
+
+: locate-lines+ ( c-addr u -- )
+    x-width 1- 0 max cols / 1+ locate-lines# +! ;
+
 : locate-type ( c-addr u lineno -- )
-    cr located-view @ view>line = if
+    >r locate-lines# @ >r
+    begin
+	2dup locate-lines+
+	locate-lines# @ rows >= while
+	    x\string- r@ locate-lines# !
+    repeat  rdrop
+    r> cr located-view @ view>line = if
 	info-color  located-view @ view>char type-prefix
 	error-color located-len @            type-prefix
 	info-color  type
@@ -98,6 +109,7 @@ variable included-file-buffers
     view>filename# loadfilename#>str ;
 
 : print-locate-header ( -- )
+    locate-lines# off
     status-attr attr!
     located-view @ view>filename type ': emit
     located-top @ 0 dec.r
@@ -107,12 +119,13 @@ variable included-file-buffers
     located-buffer 1 case ( c-addr u lineno1 )
 	over 0= ?of endof
 	dup located-bottom @ >= ?of endof
+	locate-lines# @ rows 1- >= ?of endof
 	dup located-top @ >= ?of locate-print-line contof
 	locate-next-line
     next-case ;
 
 : display-locate-lines {: utop ubottom -- :}
-    located-bottom @ located-top @ - cursor-previous-line
+    locate-lines# @ cursor-previous-line
     0 erase-display
     utop located-top !
     ubottom located-bottom !
@@ -126,7 +139,11 @@ variable included-file-buffers
 : append-locate-lines ( u -- )
     \ show the u lines after the last locate display, possibly
     \ scrolling away earlier stuff
-    located-bottom @ + dup rows - 1+ located-top @ max swap
+    >r
+    located-bottom @ r@ + dup rows - 1+
+    located-top @ locate-lines# @ + r> + rows - 1+
+    located-top @ max max
+    swap
     display-locate-lines ;
 
 : after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 )

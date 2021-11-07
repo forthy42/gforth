@@ -27,7 +27,7 @@ A        [x] Add documentation explaining help so that "help help" yields it
 A        [x] where: interaction with editors - g can be used
  B       [x] implement ANSI control sequences in a way that gl-terminal can emulate them easily
  B       [x] implement ANSI control sequences in GL terminal
- B       [ ] Handle long lines properly in AFTER-L
+ B       [x] Handle long lines properly in AFTER-L
  B   [x] version comparison 001.000.000 -> upgrade path: 000.007.009
   G  [ ]*theforth.net - client: look for local version or use global version
   G  [ ]*SWIG: SWIG-forth rename as proper fork, create docker and flatpak
