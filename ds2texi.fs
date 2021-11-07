@@ -167,7 +167,7 @@ create description-buffer 4096 chars allot
 : print-wordset ( doc-entry -- )
     >r r@ doc-wordset 2@ 2dup type "gforth" str= if
         r@ doc-name 2@ gforth-versions-wl find-name-in ?dup-if
-            '-' emit name>interpret execute type else ~~ then then
+            '-' emit name>interpret execute type then then
     rdrop ;
 
 : print-short ( doc-entry -- )
@@ -190,7 +190,7 @@ create description-buffer 4096 chars allot
     ." @format" cr
     ." @code{" r@ doc-name 2@ typetexi ." }       "
     ." @i{" r@ doc-stack-effect 2@ type ." }       "
-    r@ doc-wordset 2@ type ."        ``"
+    r@ print-wordset ."        ``"
     r@ doc-pronounciation 2@ type ." ''" cr ." @end format" cr
     rdrop ;
 
@@ -258,7 +258,7 @@ create docline doclinelength chars allot
 	execute { doc }
 	wordset doc doc-wordset 2@ capscompare
 	if 
-	    ." wordset: " wordname type ." : '"  doc doc-wordset 2@ type ." ' instead of '" wordset type ." '" cr
+	    ." wordset: " wordname type ." : '"  doc print-wordset ." ' instead of '" wordset type ." '" cr
 	endif
 	pronounciation doc doc-pronounciation 2@ capscompare
 	if
