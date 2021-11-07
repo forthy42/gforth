@@ -174,7 +174,7 @@ create description-buffer 4096 chars allot
     >r
     ." @findex "
     r@ doc-name 2@ typetexi
-    ."  @var{ " r@ doc-stack-effect 2@ type ."  }  "
+    ." ( @var{ " r@ doc-stack-effect 2@ type ."  } ) "
     r@ print-wordset
     cr
     ." @cindex "
@@ -188,9 +188,9 @@ create description-buffer 4096 chars allot
 	cr
     endif
     ." @format" cr
-    ." @code{" r@ doc-name 2@ typetexi ." }       "
-    ." @i{" r@ doc-stack-effect 2@ type ." }       "
-    r@ print-wordset ."        ``"
+    ." @code{" r@ doc-name 2@ typetexi ." } "
+    ." ( @i{" r@ doc-stack-effect 2@ type ." }) "
+    r@ print-wordset ."  ``"
     r@ doc-pronounciation 2@ type ." ''" cr ." @end format" cr
     rdrop ;
 
