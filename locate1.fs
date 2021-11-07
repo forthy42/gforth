@@ -530,7 +530,7 @@ included-files $[]# 1- constant doc-file#
 
 : help-word {: c-addr u -- :}
     open-doc {: c-addr1 u1 :} u1 if
-        c-addr1 u1 c-addr u [: "\l'" type type "'    " type ;] $tmp
+        c-addr1 u1 c-addr u [: "\l'" type type "' ( " type ;] $tmp
         capssearch if
             {: c-addr3 u3 :} c-addr1 u1 u3 - count-lfs 2 + {: top-line :}
 	    top-line doc-file# swap 1 encode-view u
