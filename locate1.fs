@@ -120,9 +120,11 @@ Variable locate-lines#
 	locate-next-line
     next-case ;
 
+: located-erase ( -- )
+    locate-lines# @ cursor-previous-line 0 erase-display ;
+
 : display-locate-lines {: utop ubottom -- :}
-    locate-lines# @ cursor-previous-line
-    0 erase-display
+    located-erase
     utop located-top !
     ubottom located-bottom !
     print-locate-header l2 located-bottom ! 2drop ;
@@ -142,27 +144,7 @@ Variable locate-lines#
     swap
     display-locate-lines ;
 
-: after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 )
-    \ allow to scroll around right after LOCATE and friends:
-    case
-	ekey \ k-winch will only be visible with ekey
-	ctrl p  of 1 prepend-locate-lines contof
-	ctrl n  of 1  append-locate-lines contof
-	ctrl u  of rows 2/ prepend-locate-lines contof
-	ctrl d  of rows 2/  append-locate-lines contof
-	'k'     of 1 prepend-locate-lines contof
-	'j'     of 1  append-locate-lines contof
-	ctrl b  of rows 2 - prepend-locate-lines contof
-	bl      of rows 2 -  append-locate-lines contof
-	ctrl l  of 0  append-locate-lines contof
-	'q'     of endof
-	ekey>char ?of dup #esc <> if  unkey  else  drop  then endof
-	k-up    of 1 prepend-locate-lines contof
-	k-down  of 1  append-locate-lines contof
-	k-prior of rows 2/ prepend-locate-lines contof
-	k-next  of rows 2/  append-locate-lines contof
-	k-winch of 0  append-locate-lines contof
-    endcase ;
+Defer after-l ' noop is after-l
 
 : l1 ( -- )
     l2 dup located-bottom ! after-l 2drop drop ;
@@ -205,14 +187,14 @@ Variable locate-lines#
     \g Display lines behind the current location, or behind the last
     \g @code{n} or @code{b} output (whichever was later).
     current-location?
-    located-bottom @ dup located-top ! form drop 2/ + located-bottom !
+    located-bottom @ dup located-top ! rows 2/ + located-bottom !
     set-bn-view l1 ;
 
 : b ( -- ) \ gforth
     \g Display lines before the current location, or before the last
     \g @code{n} or @code{b} output (whichever was later).
     current-location?
-    located-top @ dup located-bottom ! form drop 2/ - 0 max located-top !
+    located-top @ dup located-bottom ! rows 2/ - 0 max located-top !
     set-bn-view l1 ;
 
 : extern-g ( -- )
@@ -346,7 +328,7 @@ variable code-locations 0 code-locations !
 
 : bt ( -- ) \ gforth
     backtrace-index @ dup 0< if
-        drop stored-backtrace $@ nip cell/ then
+        drop stored-backtrace $@len cell/ then
     1- tt ; 
 
 \ where
@@ -397,9 +379,9 @@ variable code-locations 0 code-locations !
     where-results $free
     0 { xt wno } wheres $@ bounds u+do
 	i where-nt @ xt execute if
-            i where-loc @ cr wno .whereview1
-            i { w^ ip } ip cell where-results $+!
-            wno 1+ ->wno
+	    i where-loc @ cr wno .whereview1
+	    i { w^ ip } ip cell where-results $+!
+	    wno 1+ ->wno
 	then
     where-struct +loop ;
 
@@ -460,15 +442,18 @@ short-where
     ['] where-file ['] filename>display ['] (where) wrap-xt
     where-reset ;
 
+: (ww) ( u -- ) \ gforth-internal
+    dup where-index !
+    where-results $@ rot cells tuck u<= if
+	2drop -1 0 -1 where-index !
+    else
+        + @ 2@ name>string nip then
+    set-located-view ;
+
 : ww ( u -- ) \ gforth
     \G The next @code{l} or @code{g} shows the @code{where} result
     \G with index @i{u}
-    dup where-index !
-    where-results $@ rot cells tuck u<= if
-        2drop -1 0 -1 where-index !
-    else
-        + @ 2@ name>string nip then
-    set-located-view l|g ;
+    (ww) l|g ;
 
 : nw ( -- ) \ gforth
     \G The next @code{l} or @code{g} shows the next @code{where}
@@ -477,14 +462,17 @@ short-where
     \G @code{nw} the first one is the current one.
     where-index @ 1+ ww ;
 
+: where-index-- ( -- n )
+    where-index @ dup 0<= if
+	drop where-results $@len cell/  then
+    1- ;
+
 : bw ( -- ) \ gforth
     \G The next @code{l} or @code{g} shows the previous @code{where}
     \G result; if the current one is the first one, after @code{bw}
     \G there is no current one.    If there is no current one, after
     \G @code{bw} the last one is the current one.
-    where-index @ dup 0< if
-        drop where-results $@ nip cell/ then
-    1- ww ;
+    where-index-- ww ;
 
 \ count word usage
 
@@ -652,3 +640,37 @@ interpret/compile: s` ( "eval-string" -- addr u )
 
     [THEN]
 [THEN]
+
+\ fancy after-l
+
+: located-diff ( -- n )
+    located-bottom @ located-top @ - ;
+
+: fancy-after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 )
+    \ allow to scroll around right after LOCATE and friends:
+    case
+	ekey \ k-winch will only be visible with ekey
+	ctrl p  of 1 prepend-locate-lines contof
+	ctrl n  of 1  append-locate-lines contof
+	ctrl u  of rows 2/ prepend-locate-lines contof
+	ctrl d  of rows 2/  append-locate-lines contof
+	'k'     of 1 prepend-locate-lines contof
+	'j'     of 1  append-locate-lines contof
+	ctrl b  of rows 2 - prepend-locate-lines contof
+	bl      of rows 2 -  append-locate-lines contof
+	ctrl l  of 0  append-locate-lines contof
+	'q'     of endof
+	#esc    of endof
+	ekey>xchar ?of  ['] xemit $tmp unkeys  endof
+	k-up    of 1 prepend-locate-lines contof
+	k-down  of 1  append-locate-lines contof
+	k-prior of rows 2/ prepend-locate-lines contof
+	k-next  of rows 2/  append-locate-lines contof
+	k-winch of 0  append-locate-lines contof
+	k-right of located-diff #10 max >r  where-index @ 1+ (ww)
+	    r> located-diff - append-locate-lines contof
+	k-left  of located-diff #10 max >r  where-index-- (ww)
+	    r> located-diff - append-locate-lines contof
+    endcase ;
+
+' fancy-after-l is after-l
