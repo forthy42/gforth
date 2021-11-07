@@ -1,4 +1,5 @@
 
+z^ z: :}l :}h :}d :}xt :}* -- :} } ( \ | XT: C^ C: D^ D: F^ F: W^ W: 
 rebind-libcc init-libcc libcc>named-path c-library-name c-library-incomplete 
 c-callback-thread c-callback (c-callback) callback-does> setup-callback 
 c-funptr c-variable c-value c-function (c-function) cfun, ft-does> 
@@ -149,35 +150,35 @@ heap>dict disasm disline disassembler marker marker! marker, sections-marker!
 sections-marker, included-files-mark mwords wordlist-mwords .mwords[] 
 wid>words[] mword-filename-match mword-search-match mword-match words[] bye 
 whereg delete-whereg whereg-filename s` sh-get sh$ plain-output plain-out 
-plain-form help help-section help-word set-help-view count-lfs doc-file# 
-unused-words unused-wordlist unused@ unmark-used unused-all -unused +unused 
-.wids unused-mask usage# bw nw ww where prepend-where expand-where short-where 
-where-reset where-setup where-file prepend-file lastfile expand-file 
-shorten-file (where) forwheres .whereview1 .whereline .wheretype1 width-type 
-type-notabs unbounds bt nt tt bt-location gg g-once ll l-once next-l|g l|g 
-edit g extern-g b n view locate .rec'-stack locate-name name-set-located-view 
-l l1 after-l append-locate-lines prepend-locate-lines display-locate-lines l2 
-print-locate-header view>filename current-location? current-location?1 
-located-buffer locate-print-line locate-type type-prefix locate-next-line 
-locate-line set-bn-view view>buffer included-buffer included-file-buffers 
-backtrace-index where-index where-results -status +status .status-line 
-status-xts .order .stacks .base wide? replace-char .unstatus-line 
-redraw-status status-attr status-offset find sfind word sword (word) 
-scroll-down scroll-up cursor-previous-line cursor-next-line erase-display 
-insert-lines cursor-down cursor-up control-sequence: restore-cursor-position 
-save-cursor-position (control-sequence) auto-color magenta-input dark-mode 
-light-mode default-mode default-bg rgb-split term-bg? is-xterm? 
-is-color-terminal? is-terminal? term-rgb$ <<<m m>>> mark-attr BlackSpace 
-(theme-color!) white? theme-color@ theme: current-theme (Attr!) Attr A> <A FG> 
-BG> >FG >BG Dim Invisible Italic Strikethrough Invers Blink Underline Bold 
-defaultcolor White Cyan Magenta Blue Yellow Green Red Black load-rc0 load-rc 
-load-rc? >string-execute >string-out >string-form >string-cr >string-emit 
->string-type >string-len >string-buffer >string-initial-buflen end-c-library 
-c-library reopen-libs .libs map-libs prefetch-lib c-lib host? clear-libs 
-add-lib c-function \c !!0.7-style!! basename dirname scan-back disasm-gdb 
-append-extend-string break" break: break:, dbg dbg-ip see-code xt-see-code 
-simple-see xt-simple-see .backtrace-view .sourceview-width .bt print-backtrace 
-print-bt-entry .backtrace-pos >bt-entry backtrace-return-stack 
+plain-form help help-section help-word open-doc set-help-view count-lfs 
+doc-file# unused-words unused-wordlist unused@ unmark-used unused-all -unused 
++unused .wids unused-mask usage# bw nw ww where prepend-where expand-where 
+short-where where-reset where-setup where-file prepend-file lastfile 
+expand-file shorten-file (where) forwheres .whereview1 .whereline .wheretype1 
+width-type type-notabs unbounds bt nt tt bt-location gg g-once ll l-once 
+next-l|g l|g edit g extern-g b n view locate .rec'-stack locate-name 
+name-set-located-view l l1 after-l append-locate-lines prepend-locate-lines 
+display-locate-lines l2 print-locate-header view>filename current-location? 
+current-location?1 located-buffer locate-print-line locate-type type-prefix 
+locate-next-line locate-line set-bn-view view>buffer included-buffer 
+included-file-buffers backtrace-index where-index where-results -status 
++status .status-line status-xts .order .stacks .base wide? replace-char 
+.unstatus-line redraw-status status-attr status-offset find sfind word sword 
+(word) scroll-down scroll-up cursor-previous-line cursor-next-line 
+erase-display insert-lines cursor-down cursor-up control-sequence: 
+restore-cursor-position save-cursor-position (control-sequence) auto-color 
+magenta-input dark-mode light-mode default-mode default-bg rgb-split term-bg? 
+is-xterm? is-color-terminal? is-terminal? term-rgb$ <<<m m>>> mark-attr 
+BlackSpace (theme-color!) white? theme-color@ theme: current-theme (Attr!) 
+Attr A> <A FG> BG> >FG >BG Dim Invisible Italic Strikethrough Invers Blink 
+Underline Bold defaultcolor White Cyan Magenta Blue Yellow Green Red Black 
+load-rc0 load-rc load-rc? >string-execute >string-out >string-form >string-cr 
+>string-emit >string-type >string-len >string-buffer >string-initial-buflen 
+end-c-library c-library reopen-libs .libs map-libs prefetch-lib c-lib host? 
+clear-libs add-lib c-function \c !!0.7-style!! basename dirname scan-back 
+disasm-gdb append-extend-string break" break: break:, dbg dbg-ip see-code 
+xt-see-code simple-see xt-simple-see .backtrace-view .sourceview-width .bt 
+print-backtrace print-bt-entry .backtrace-pos >bt-entry backtrace-return-stack 
 extra-backtrace# see name-see (.compile-only) (.immediate) (xt-see-xt) xt-see 
 discode see-voc end-code ;abi-code !;abi-code ;code (;code) abi-code code 
 init-asm assembler subst>filename $unescape unescape substitute $substitute 
