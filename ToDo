@@ -28,7 +28,8 @@ A        [x] where: interaction with editors - g can be used
  B       [x] implement ANSI control sequences in a way that gl-terminal can emulate them easily
  B       [x] implement ANSI control sequences in GL terminal
  B       [x] Handle long lines properly in AFTER-L
- B   [x] version comparison 001.000.000 -> upgrade path: 000.007.009
+AB       [x] switch between where or backtrace results with left and right keys
+B   [x] version comparison 001.000.000 -> upgrade path: 000.007.009
   G  [ ]*theforth.net - client: look for local version or use global version
   G  [ ]*SWIG: SWIG-forth rename as proper fork, create docker and flatpak
   G  [x]*find out why GLforth stopped working
@@ -62,7 +63,6 @@ A    [ ] stack depth checker
 A        [ ] formalize stack effect of words
 AB   [x] "IDE" locate, view, where & edit
 A        [ ]*backtrace os-commandline - saving backtraces
-AB       [x] switch between where or backtrace results with left and right keys
 
 -*- outline -*-
 
