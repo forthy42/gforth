@@ -64,7 +64,7 @@ decimal
     \G (double quote). At run-time, return @i{c-addr} which
     \G specifies the counted string @i{ccc}.  Interpretation
     \G semantics are undefined.
-    '"' parse postpone CLiteral ; immediate restrict
+    '"' parse dup 255 u> -18 and throw postpone CLiteral ; immediate restrict
 
 \ [COMPILE]                                             17may93jaw
 
