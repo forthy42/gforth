@@ -607,6 +607,7 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS	      \
 	BUILD-FROM-SCRATCH model COPYING COPYING.LIB COPYING.DOC AUTHORS      \
 	ChangeLog Benchres aclocal.m4 doc/Makefile.in doc/gforth.texi.in      \
+	$(wildcard doc/words/*-words) doc/words/README                        \
 	doc/gforth.1 doc/gforth.css doc/version.texi.in doc/vmgen.texi	      \
 	doc/fdl.texi doc/gpl.texi gforth.el $(ARCHS) siteinit.fs versions.bsh \
 	glosgen.glo doc/glossaries.doc $(FORTH_SRC) $(LIBCC_DIST_SRC)	      \
