@@ -2141,7 +2141,7 @@ nsec  =ltime.tm_sec;
 fdst  =FLAG(ltime.tm_isdst);
 #ifdef __USE_MISC
 ndstoff=ltime.tm_gmtoff;
-c_addrtz=ltime.tm_zone;
+c_addrtz=(Char *)ltime.tm_zone;
 utz     =strlen(ltime.tm_zone);
 #else
 ndstoff = 0;
