@@ -16,18 +16,20 @@ AB       [ ] Documentation in manual
 ABGO [ ] Documentation for Undocumented features
  B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
 A        [ ]*Search changelogs for features
-A        [ ] Document what is stable and what is not
+A        [x] Document what is stable and what is not
 AB   [x] "IDE" locate, view, where & edit
          [x] help or doc - get documentation of word
-A        [ ] help for recognizer
-AB       [x] locate of recognized thing
+ B       [x] help for recognizer
+ B       [x] locate of recognized thing
   G      [x] Website manual - doc/crossdoc.fd doc/doc.fd doc/gforth.texi.in|grep doc- doc/gforth.txt
-A        [ ]*Add tex-section support
+ B       [x]*Add tex-section support
 A        [x] Add documentation explaining help so that "help help" yields it
 A        [ ]*backtrace os-commandline - saving backtraces
 A        [x] where: interaction with editors - g can be used
  B       [x] implement ANSI control sequences in a way that gl-terminal can emulate them easily
  B       [x] implement ANSI control sequences in GL terminal
+         [ ] Handle long lines properly in AFTER-L
+         [ ] switch between where or backtrace results with left and right keys
  B   [x] version comparison 001.000.000 -> upgrade path: 000.007.009
   G  [ ] theforth.net - client: look for local version or use global version
   G  [ ]*SWIG: SWIG-forth rename as proper fork, create docker and flatpak
@@ -49,7 +51,7 @@ ABG  [ ] bin-utils disassembler
 AB   [ ]*documented view>* (internal words) in IDE
 AB   [x] locate of nested recognizers
  B       [ ] print information about recognizer
-     [ ] new words get the current build attached to its wordlist i.e. gforth-1.0_2021... which is renamed by the release script to gforth-1.1
+A    [x] Gforth words are documented with release
   G  [ ] Klaut
 AB   [ ] sections
 A        [x] locals in sections
