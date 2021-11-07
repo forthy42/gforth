@@ -1375,10 +1375,10 @@ libgforths:	$(GFORTHLIBOBJECTS) $(LIBENGINES) $(LIBENGINES_FAST)
 
 .SUFFIXES:	.c .pri
 
-.pri.c:		gforth$(EXT) $< prim2cl.fs
+%.c:            %.pri gforth$(EXT) prim2cl.fs
 		$(FORTHK) prim2cl.fs -e "file $< altogether bye" >$@
 
-.c.so:		$<
+%.so:		%.c
 		$(GCC) -shared $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 # -------------	Make Documentation
