@@ -276,15 +276,17 @@ here wc-table - Constant #wc-table
     0 -rot bounds ?DO
 	I xc@+ swap >r xc-width+
     r> I - +LOOP ;
-: x-lines+rest ( c-addr u cols -- lines chars ) {: cols :}
+: +x-lines+rest ( lines chars c-addr u cols -- lines' chars' )
+    {: cols :} bounds U+DO
+	I xc@+ swap >r
+	dup >r xc-width+ dup cols u> IF
+	    drop 1+ 0 r> xc-width+
+	ELSE  rdrop  THEN
+    r> I - +LOOP ;
+: x-lines+rest ( c-addr u cols -- lines chars )
     \G calculate how many lines an xchar string @var{c-addr u} needs with
     \G @var{cols} characters per line, plus how many chars the last line needs
-    1 0 2swap bounds U+DO
-	I xc@+ swap >r
-	0 swap xc-width+ tuck + dup cols u> IF
-	    drop swap 1+ swap
-	ELSE  nip  THEN
-    r> I - +LOOP ;
+    >r 1 0 2swap r> +x-lines+rest ;
 : x-lines ( c-addr u cols -- lines )
     x-lines+rest drop ;
 
