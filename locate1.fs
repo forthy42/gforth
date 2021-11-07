@@ -104,11 +104,32 @@ Variable locate-lines#
     \G filename of view (obtained by @code{name>view})
     view>filename# loadfilename#>str ;
 
+: shorten-file ( addr u -- addr' u' ) { d: fn }
+    fpath path>string BEGIN
+	next-path dup  WHILE
+	    fn 2over string-prefix?
+	    over fn rot safe/string
+	    IF  c@ '/' = and  ELSE  2drop false  THEN
+	    IF  fn rot 1+ /string  rot drop 2nip  EXIT
+	    ELSE  2drop  THEN
+    REPEAT  2drop 2drop fn ;
+
+: expand-file ( addr u -- addr' u' ) { d: fn }
+    fn open-fpath-file IF  fn  ELSE  rot close-file drop  THEN
+    over c@ '/' <> IF
+	{ | pwd[ $1000 ] }
+	pwd[ $1000 get-dir [: type '/' emit type ;] $tmp compact-filename
+    THEN ;
+
 : print-locate-header ( -- )
-    locate-lines# off
     status-attr attr!
-    located-view @ view>filename type ': emit
-    located-top @ 0 dec.r
+    located-view @ view>filename
+    [: type ': emit located-top @ 0 dec.r ;] $tmp
+    2dup cols x-lines 1- dup 0> IF
+	drop 2drop located-view @ view>filename shorten-file
+	[: type ': emit located-top @ 0 dec.r ;] $tmp
+	2dup cols x-lines 1-  THEN
+    locate-lines# ! type
     default-color ;
 
 : l2 ( -- c-addr u lineno )
@@ -411,29 +432,15 @@ variable code-locations 0 code-locations !
     parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres
     drop -1 where-index ! ;
 
-: shorten-file ( addr u -- addr' u' ) { d: fn }
-    fpath path>string BEGIN
-	next-path dup  WHILE
-	    fn 2over string-prefix?
-	    over fn rot safe/string
-	    IF  c@ '/' = and  ELSE  2drop false  THEN
-	    IF  fn rot 1+ /string  rot drop 2nip  EXIT
-	    ELSE  2drop  THEN
-    REPEAT  2drop 2drop fn ;
-
-: expand-file ( addr u -- addr' u' ) { d: fn }
-    fn open-fpath-file IF  fn  ELSE  rot close-file drop  THEN
-    over c@ '/' <> IF
-	{ | pwd[ $1000 ] }
-	pwd[ $1000 get-dir [: type '/' emit type ;] $tmp compact-filename
-    THEN ;
-
 Variable lastfile
 
 : prepend-file ( addr u -- addr 0 )
     over lastfile @ <> IF
 	over lastfile !
-	[: status-color 2dup expand-file type ':' emit default-color cr ;]
+	[:  status-color 2dup expand-file
+	    1 1 2over cols +x-lines+rest drop 1 > IF
+		2drop 2dup shorten-file  THEN
+	    type ':' emit default-color cr ;]
 	do-debug \ side-emit it on debugging output
     THEN  drop 0 ;
 
