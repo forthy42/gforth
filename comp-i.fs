@@ -143,7 +143,9 @@ drop
     im-sects1 stack# 0 DO
 	I IF  s" Section." file-id write-file throw  THEN
 	i im-sects1 $[] @
-	i im-sects2 $[] @ dup sect-size@ aligned cell/
+	i im-sects2 $[] @
+	dup sect-size@ aligned cell/
+	." Compare section " I . cr
 	file-id compare-section
     LOOP ;
 
@@ -185,5 +187,7 @@ drop
     prepare-sections
     name ( "new-image" ) w/o bin create-file throw { outfile }
     file1 header-offset outfile write-file throw
+    ." compare warnings (add section start to offset):" cr
     outfile ['] compare-sections $10 base-execute
+    ." end warnings" cr
     outfile close-file throw ;

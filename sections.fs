@@ -80,6 +80,8 @@ is addr>view
 
 Variable lits<>
 
+:noname defers 'image  lits<> off ; is 'image
+
 :noname ( -- )
     forthstart current-section ! set-section  lits<> off ;
 is reset-dpp

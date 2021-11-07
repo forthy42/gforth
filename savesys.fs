@@ -36,10 +36,20 @@
 : update-maintask ( -- )
     throw-entry main-task udp @ throw-entry next-task - /string move ;
 
+Defer 'clean-maintask
+:noname
+    [ main-task ' backtrace-rp0 @ + ]L off
+    [ main-task ' infile-id @ + ]L off
+    [ main-task ' outfile-id @ + ]L off
+    [ main-task ' debug-fid @ + ]L off
+    [ main-task ' current-input @ + ]L off ;
+is 'clean-maintask
+
 : prepare-for-dump ( -- )
     update-image-included-files
     'image
-    update-maintask ;
+    update-maintask
+    'clean-maintask ;
 
 : preamble-start ( -- addr )
     \ dump the part from "#! /..." to FORTHSTART

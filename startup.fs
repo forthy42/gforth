@@ -49,7 +49,7 @@ threading-method 1 <> [IF] require stagediv.fs [THEN]
 require closures.fs
 require wordinfo.fs
 require vt100.fs
-require bufio.fs
+\ require bufio.fs \ replaced by $exec
 require utf-8.fs
 require debugs.fs
 require assert.fs
