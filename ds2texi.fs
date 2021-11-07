@@ -31,7 +31,7 @@
 \ you can output all words with version numbers with
 \ gforth ds2texi.fs -e "args-gforth-versions print-word-versions bye" doc/words/*-words|sort |less
 
-0. 2value gforth-version-string
+#0. 2value gforth-version-string
 wordlist constant gforth-versions-wl
 
 : current-wrapper ( wordlist xt -- )
@@ -167,7 +167,7 @@ create description-buffer 4096 chars allot
 : print-wordset ( doc-entry -- )
     >r r@ doc-wordset 2@ 2dup type "gforth" str= if
         r@ doc-name 2@ gforth-versions-wl find-name-in ?dup-if
-            '-' emit name>interpret execute type then then
+            '-' emit name>interpret execute type else ~~ then then
     rdrop ;
 
 : print-short ( doc-entry -- )
