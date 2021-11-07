@@ -146,8 +146,15 @@ Variable locate-lines#
 
 Defer after-l ' noop is after-l
 
+Defer index++
+Defer index--
+: no-</> ( -- )
+    ['] noop is index++
+    ['] noop is index-- ;
+no-</>
+
 : l1 ( -- )
-    l2 dup located-bottom ! after-l 2drop drop ;
+    l2 dup located-bottom ! after-l 2drop drop no-</> ;
 
 : l ( -- )
     \g Display source code lines at the current location.
@@ -316,7 +323,24 @@ variable code-locations 0 code-locations !
         rdrop then
     drop ." no location for this backtrace index" false ;
 
+: backtrace# ( -- n ) stored-backtrace $@len cell/ ;
+
+: backtrace++ ( -- n )
+    backtrace-index @ 1+
+    dup backtrace# = if  drop 0  then ;
+
+: backtrace-- ( -- n )
+    backtrace-index @ dup 0<= if  drop backtrace#  then
+    1- ;
+
+: bt-</> ( -- )
+    [: backtrace# 0 ?DO  backtrace++ dup backtrace-index ! bt-location ?LEAVE
+	LOOP ;] is index++
+    [: backtrace# 0 ?DO  backtrace-- dup backtrace-index ! bt-location ?LEAVE
+	LOOP ;] is index-- ;
+
 : tt ( u -- ) \ gforth
+    bt-</>
     dup backtrace-index !
     bt-location if
         l|g
@@ -324,12 +348,10 @@ variable code-locations 0 code-locations !
         -1 backtrace-index ! then ;
 
 : nt (  -- ) \ gforth
-    backtrace-index @ 1+ tt ;
+    backtrace++ tt ;
 
 : bt ( -- ) \ gforth
-    backtrace-index @ dup 0< if
-        drop stored-backtrace $@len cell/ then
-    1- tt ; 
+    backtrace-- tt ; 
 
 \ where
 
@@ -450,29 +472,37 @@ short-where
         + @ 2@ name>string nip then
     set-located-view ;
 
-: ww ( u -- ) \ gforth
-    \G The next @code{l} or @code{g} shows the @code{where} result
-    \G with index @i{u}
-    (ww) l|g ;
-
-: nw ( -- ) \ gforth
-    \G The next @code{l} or @code{g} shows the next @code{where}
-    \G result; if the current one is the last one, after @code{nw}
-    \G there is no current one.  If there is no current one, after
-    \G @code{nw} the first one is the current one.
-    where-index @ 1+ ww ;
+: where-index++ ( -- n )
+    where-index @ 1+
+    dup where-results $@len cell/ = IF  drop 0  THEN ;
 
 : where-index-- ( -- n )
     where-index @ dup 0<= if
 	drop where-results $@len cell/  then
     1- ;
 
+: where-</> ( -- )
+    [: where-index++ (ww) ;] is index++
+    [: where-index-- (ww) ;] is index-- ;
+
+: ww ( u -- ) \ gforth
+    \G The next @code{l} or @code{g} shows the @code{where} result
+    \G with index @i{u}
+    where-</> (ww) l|g ;
+
+: nw ( -- ) \ gforth
+    \G The next @code{l} or @code{g} shows the next @code{where}
+    \G result; if the current one is the last one, after @code{nw}
+    \G there is no current one.  If there is no current one, after
+    \G @code{nw} the first one is the current one.
+    where-</> where-index++ ww ;
+
 : bw ( -- ) \ gforth
     \G The next @code{l} or @code{g} shows the previous @code{where}
     \G result; if the current one is the first one, after @code{bw}
     \G there is no current one.    If there is no current one, after
     \G @code{bw} the last one is the current one.
-    where-index-- ww ;
+    where-</> where-index-- ww ;
 
 \ count word usage
 
@@ -667,9 +697,9 @@ interpret/compile: s` ( "eval-string" -- addr u )
 	k-prior of rows 2/ prepend-locate-lines contof
 	k-next  of rows 2/  append-locate-lines contof
 	k-winch of 0  append-locate-lines contof
-	k-right of located-diff #10 max >r  where-index @ 1+ (ww)
+	k-right of located-diff #10 max >r  index++
 	    r> located-diff - append-locate-lines contof
-	k-left  of located-diff #10 max >r  where-index-- (ww)
+	k-left  of located-diff #10 max >r  index--
 	    r> located-diff - append-locate-lines contof
     endcase ;
 

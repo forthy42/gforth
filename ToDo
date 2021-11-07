@@ -62,7 +62,7 @@ A    [ ] stack depth checker
 A        [ ] formalize stack effect of words
 AB   [x] "IDE" locate, view, where & edit
 A        [ ]*backtrace os-commandline - saving backtraces
-AB       [ ]*switch between where or backtrace results with left and right keys
+AB       [x] switch between where or backtrace results with left and right keys
 
 -*- outline -*-
 
