@@ -104,23 +104,6 @@ Variable locate-lines#
     \G filename of view (obtained by @code{name>view})
     view>filename# loadfilename#>str ;
 
-: shorten-file ( addr u -- addr' u' ) { d: fn }
-    fpath path>string BEGIN
-	next-path dup  WHILE
-	    fn 2over string-prefix?
-	    over fn rot safe/string
-	    IF  c@ '/' = and  ELSE  2drop false  THEN
-	    IF  fn rot 1+ /string  rot drop 2nip  EXIT
-	    ELSE  2drop  THEN
-    REPEAT  2drop 2drop fn ;
-
-: expand-file ( addr u -- addr' u' ) { d: fn }
-    fn open-fpath-file IF  fn  ELSE  rot close-file drop  THEN
-    over c@ '/' <> IF
-	{ | pwd[ $1000 ] }
-	pwd[ $1000 get-dir [: type '/' emit type ;] $tmp compact-filename
-    THEN ;
-
 : print-locate-header ( -- )
     status-attr attr!
     located-view @ view>filename
@@ -432,44 +415,28 @@ variable code-locations 0 code-locations !
     parse-name find-name dup 0= #-13 and throw [: over = ;] forwheres
     drop -1 where-index ! ;
 
-Variable lastfile
-
-: prepend-file ( addr u -- addr 0 )
-    over lastfile @ <> IF
-	over lastfile !
-	[:  status-color 2dup expand-file
-	    1 1 2over cols +x-lines+rest drop 1 > IF
-		2drop 2dup shorten-file  THEN
-	    type ':' emit default-color cr ;]
-	do-debug \ side-emit it on debugging output
-    THEN  drop 0 ;
-
-Defer where-file
 Defer where-setup
-: where-reset  0 to source-line#  0 to source-pos# ;
+: where-reset ( n1 n2 -- ) to source-line#  to source-pos# ;
 
 : short-where ( -- )
     \G where uses a short file format (default)
-    ['] shorten-file is where-file
-    ['] noop is where-setup ;
+    ['] short~~ is where-setup ;
 : expand-where ( -- )
     \G where uses a fully expanded file format (to pass to e.g. editors)
-    ['] expand-file is where-file
-    ['] noop is where-setup ;
+    ['] expand~~ is where-setup ;
 : prepend-where ( -- )
     \G where prepends the file to a list of locations in that file (like
     \G SwiftForth)
-    ['] prepend-file is where-file
-    [: 3 to source-line# 2 to source-pos# ;] is where-setup ;
+    ['] prepend~~ is where-setup ;
 short-where
 
 : where ( "name" -- ) \ gforth
     \g Show all places where @i{name} is used (text-interpreted).  You
     \g can then use @code{ww}, @code{nw} or @code{bw} to inspect
     \g specific occurences more closely.
-    where-setup
-    ['] where-file ['] filename>display ['] (where) wrap-xt
-    where-reset ;
+    ['] noop ['] filename>display
+    [: where-setup source-pos# source-line# 2>r
+	(where) 2r> where-reset ;] wrap-xt ;
 
 : (ww) ( u -- ) \ gforth-internal
     dup where-index !
@@ -610,7 +577,6 @@ included-files $[]# 1- constant doc-file#
 	error-color ." No documentation for " type default-color
     then ;
 
-[ifdef] string-suffix?
 : help ( "rest-of-line" -- ) \ gforth
     \G If no name is given, show basic help.  If a documentation node
     \G name is given followed by "::", show the start of the node.  If
@@ -625,7 +591,6 @@ included-files $[]# 1- constant doc-file#
         rdrop nip nip name>string help-word 2drop exit then
     2drop r> >in ! 0 parse 2drop 2drop
     error-color ." Not a section or word" default-color ;
-[then]
 
 \ whereg
 

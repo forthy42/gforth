@@ -30,6 +30,56 @@ require string.fs
 
 Defer filename>display  ' noop is filename>display
 
+\ filename>display variants
+
+Variable lastfile
+
+: shorten-file ( addr u -- addr' u' ) { d: fn }
+    fpath path>string BEGIN
+	next-path dup  WHILE
+	    fn 2over string-prefix?
+	    over fn rot safe/string
+	    IF  c@ '/' = and  ELSE  2drop false  THEN
+	    IF  fn rot 1+ /string  rot drop 2nip  EXIT
+	    ELSE  2drop  THEN
+    REPEAT  2drop 2drop fn ;
+
+: expand-file ( addr u -- addr' u' ) { d: fn }
+    fn open-fpath-file IF  fn  ELSE  rot close-file drop  THEN
+    over c@ '/' <> IF
+	{ | pwd[ $1000 ] }
+	pwd[ $1000 get-dir [: type '/' emit type ;] $tmp compact-filename
+    THEN ;
+
+: prepend-file ( addr u -- addr 0 )
+    over lastfile @ <> IF
+	over lastfile !
+	[:  status-color 2dup expand-file
+	    1 1 2over cols +x-lines+rest drop 1 > IF
+		2drop 2dup shorten-file  THEN
+	    type ':' emit default-color cr ;] ['] execute-theme-color
+	do-debug \ side-emit it on debugging output
+    THEN  drop 0 ;
+
+0 Value source-line#
+0 Value source-pos#
+
+: plain~~ ( -- )
+    \G uses the file as is (default)
+    ['] noop is filename>display
+    0 to source-line# 0 to source-pos# ;
+: short~~ ( -- )
+    \G uses a short file format (default)
+    plain~~ ['] shorten-file is filename>display ;
+: expand~~ ( -- )
+    \G uses a fully expanded file format (to pass to e.g. editors)
+    plain~~ ['] expand-file is filename>display ;
+: prepend~~ ( -- )
+    \G prepends the file to a list of locations in that file (like SwiftForth)
+    ['] prepend-file is filename>display
+    3 to source-line# 2 to source-pos# ;
+plain~~
+
 : loadfilename#>str ( n -- addr u )
     dup *terminal*# and *terminal*# = IF  drop s" *terminal*"  EXIT  THEN
     included-files $[]@ filename>display ;
@@ -44,9 +94,6 @@ Defer filename>display  ' noop is filename>display
 
 : view>char ( view -- u )
     $ff and ;
-
-0 Value source-line#
-0 Value source-pos#
 
 : .sourcepos3 (  nfile nline nchar -- )
     rot loadfilename#>str type ': emit
