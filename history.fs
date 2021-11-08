@@ -250,9 +250,17 @@ synonym setstring-color info-color
     \ correction for line=screenw, no wraparound then!
     edit-curpos @ dup screenw @ mod 0= over 0> and \ flag, true=-1
     dup >r + screenw @ /mod negate swap r> - negate swap at-deltaxy ;
-: set-width+ ( width -- width' ) setstring$ $@ x-width + ;
+: get-hw ( addr u -- lines rest )
+    screenw @ x-lines+rest setstring$ $@ screenw @ +x-lines+rest ;
+: hw>width ( lines rest -- ) swap 1- screenw @ * + ;
+: get-width+ ( addr u -- width' )
+    get-hw hw>width ;
+: get-width+all ( span addr pos -- width )
+    2dup get-hw 2>r  >r swap r> safe/string
+    2r> 2swap screenw @ +x-lines+rest
+    hw>width ;
 : .resizeline ( span addr pos -- span addr pos )
-    >r 2dup swap x-width set-width+
+    >r 2dup r@ get-width+all
     dup >r edit-linew @ u< IF
 	xedit-startpos
 	edit-linew @ spaces  edit-linew @ edit-curpos !
@@ -266,11 +274,11 @@ synonym setstring-color info-color
     dup IF  setstring-color type input-color  ELSE  2drop  THEN
     >edit-rest type  edit-linew @ edit-curpos !  ;
 : .all-rest ( span addr pos -- span addr pos )
-    xedit-startpos  2dup x-width set-width+ edit-curpos !
+    xedit-startpos  2dup get-width+ edit-curpos !
     2dup type ;
 : .rest ( span addr pos -- span addr pos )
     dup fourth = IF
-	2dup x-width set-width+ edit-curpos !  EXIT  THEN
+	2dup get-width+ edit-curpos !  EXIT  THEN
     .all-rest ;
 : xedit-update ( span addr pos1 -- span addr pos1 )
     \G word to update the editor display

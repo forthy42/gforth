@@ -271,7 +271,7 @@ here wc-table - Constant #wc-table
 [THEN]
 
 : xc-width+ ( n xc -- n' )
-    dup #tab = IF  drop 1+ dfaligned  ELSE  xc-width +  THEN ;
+    dup #tab = IF  drop 1+ dfaligned  ELSE  xc-width 0 max +  THEN ;
 : u8width ( xcaddr u -- n )
     0 -rot bounds ?DO
 	I xc@+ swap >r xc-width+
