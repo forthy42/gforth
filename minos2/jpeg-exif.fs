@@ -22,7 +22,6 @@
 \ SOI is FF D8
 
 require mini-oof2.fs
-require user-object.fs
 
 s" Invalid JPEG file" exception Constant !!no-jpeg!!
 s" Exif exhausted"    exception Constant !!oo-exif!!

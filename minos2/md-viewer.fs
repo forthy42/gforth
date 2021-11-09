@@ -21,7 +21,6 @@
 \ Inspiration: wf.fs, a markdown-like parser, which converts to HTML
 
 require jpeg-exif.fs
-require user-object.fs
 require text-style.fs
 require presentation-support.fs
 
