@@ -440,7 +440,7 @@ Defer get-glyphs
 	I $splits[] $[]@ drop c@ font#-load { font }
 	font font->t.i0
 	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN
-	f-scale f* x-scale f*  { f: pos* }
+	f-scale f* fdup #-64 fm* fswap x-scale f*  { f: ypos* f: xpos* }
 	case  I directions[] $[] @
 	    HB_DIRECTION_TTB  of  xy-rotright  endof
 	    xy-default
@@ -449,14 +449,13 @@ Defer get-glyphs
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
 	    6 ?flush-tris
-	    pos I + hb_glyph_position_t-x_offset sl@ pos* fm*
-	    pos I + hb_glyph_position_t-y_offset sl@ pos* fm* { f: xo f: yo }
+	    pos I + hb_glyph_position_t-x_offset sl@ xpos* fm*
+	    pos I + hb_glyph_position_t-y_offset sl@ ypos* fm* { f: xo f: yo }
 	    xo yo xy+
 	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@
 	    glyph,  fdrop fdrop
-	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm*
-	    pos I + hb_glyph_position_t-y_advance sl@ pos* fm* xy+
-	    xo fnegate yo fnegate xy+
+	    pos I + hb_glyph_position_t-x_advance sl@ xpos* fm* xo f-
+	    pos I + hb_glyph_position_t-y_advance sl@ ypos* fm* yo f- xy+
 	hb_glyph_info_t +LOOP
     LOOP ;
 
@@ -559,7 +558,7 @@ cell 4 = [IF]
 	I positions[] $[]@ drop
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
-	    pos I + hb_glyph_position_t-y_offset sl@ pos* fm* { f: yo }
+	    pos I + hb_glyph_position_t-y_offset sl@ 6 lshift pos* fm* { f: yo }
 	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@ >r
 	    r@ texture_glyph_t-offset_y sl@ f-scale fm* yo f+
 	    r> texture_glyph_t-height @ f-scale fm*
