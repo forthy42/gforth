@@ -382,20 +382,20 @@ font-path+ ~/.fonts
 \ default font selection
 
 \sans
-\regular fonts= DejaVuSans.ttf|LiberationSans-Regular.ttf|NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf
-\italic fonts= DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|NotoSans-Italic.ttf|Roboto-Italic.ttf
-\bold fonts= DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|NotoSans-Bold.ttf|Roboto-Bold.ttf
-\bold-italic fonts= DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf
+\regular fonts= NotoSans-Regular.ttf|DroidSans.ttf|Roboto-Medium.ttf|DejaVuSans.ttf|LiberationSans-Regular.ttf
+\italic fonts= NotoSans-Italic.ttf|Roboto-Italic.ttf|DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf
+\bold fonts= NotoSans-Bold.ttf|Roboto-Bold.ttf|DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf
+\bold-italic fonts= NotoSans-BoldItalic.ttf|Roboto-BoldItalic.ttf|DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf
 
 \serif
-\regular fonts= DejaVuSerif.ttf|LiberationSerif-Regular.ttf|NotoSerif-Regular.ttf
-\bold fonts= DejaVuSerif-Bold.ttf|LiberationSerif-Bold.ttf|NotoSerif-Bold.ttf
-\italic fonts= DejaVuSerif-Italic.ttf|LiberationSerif-Italic.ttf|NotoSerif-Italic.ttf
-\bold-italic fonts= DejaVuSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf|NotoSerif-BoldItalic.ttf
+\regular fonts= NotoSerif-Regular.ttf|DejaVuSerif.ttf|LiberationSerif-Regular.ttf
+\bold fonts= NotoSerif-Bold.ttf|DejaVuSerif-Bold.ttf|LiberationSerif-Bold.ttf
+\italic fonts= NotoSerif-Italic.ttf|DejaVuSerif-Italic.ttf|LiberationSerif-Italic.ttf
+\bold-italic fonts= NotoSerif-BoldItalic.ttf|DejaVuSerif-BoldItalic.ttf|LiberationSerif-BoldItalic.ttf
 
 \mono
-\regular fonts= DejaVuSansMono.ttf|LiberationMono-Regular.ttf|DroidSansMono.ttf
-\bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|DroidSansMono.ttf
+\regular fonts= DejaVuSansMono.ttf|LiberationMono-Regular.ttf|NotoSansMono-Regular.ttf|DroidSansMono.ttf
+\bold fonts= DejaVuSansMono-Bold.ttf|LiberationMono-Bold.ttf|NotoSansMono-Bold.ttf|DroidSansMono.ttf
 \italic fonts= DejaVuSansMono-Oblique.ttf|LiberationMono-Italic.ttf|DroidSansMono.ttf
 \bold-italic fonts= DejaVuSansMono-BoldOblique.ttf|LiberationMono-BoldItalic.ttf|DroidSansMono.ttf
 
@@ -702,7 +702,7 @@ harfbuzz:HB_DIRECTION_TTB font-bidi' font-lang + c!
 \javanese {{ $A9E0 $A980 }} 2/ "Javanese" fonts=template[r]
 \cham {{ $AA00 $60 bounds }} 2/ "Cham" fonts=template[rb]sans
 \taiviet {{ $AAE0 $AA80 }} 2/ "TaiViet" fonts=template[r]
-\meeteimayek {{ $ABC0 $AC00  $AAE0 $AB00 }} 2/ "MeeteiMayek" fonts=template[r]
+\meeteimayek {{ $AC00 $ABC0  $AB00 $AAE0 }} 2/ "MeeteiMayek" fonts=template[r]
 \lycian {{ $10280 $20 bounds }} 2/ "Lydian" fonts=template[r]
 \carian {{ $102A0 $40 bounds }} 2/ "Carian" fonts=template[r]
 \olditalic {{ $10300 $30 bounds }} 2/ "OldItalic" fonts=template[r]
