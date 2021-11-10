@@ -157,7 +157,7 @@ $[]Variable ranges>lang[]
 \ -1 $E01F0 $E0100 +range \ nobody really needs these variant selectors
 
 $Variable split$ " !&,-_.\\/:;|<=>@­␣‧‐‒–—―‖           　" split$ $!
-$Variable spaces$ "            　" spaces$ $!
+$Variable spaces$ "            　་" spaces$ $!
 
 : xcs? ( xchar addr u -- flag ) rot { xc }
     bounds U+DO

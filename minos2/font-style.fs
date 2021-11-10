@@ -592,9 +592,9 @@ fonts[ssm]=same
 \regular fonts= NotoSansArabic-Regular.ttf|NotoNaskhArabic-Regular.ttf|DejaVuSans.ttf|LiberationSans-Regular.ttf|DroidKufi-Regular.ttf|DroidSans.ttf
 fonts[ssm]=same
 {{  $700  $600   $780  $750   $900  $8A0  $FE00 $FB50  $FF00 $FE70  $1EF00 $1EE00 }} 2/ +ranges
-\italic fonts= NotoSansArabic-Italic.ttf|NotoNaskhArabic-Regular.ttf|DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|DroidKufi-Regular.ttf
+\italic fonts= NotoNastaliqUrdu-Regular.ttf|NotoSansArabic-Regular.ttf|NotoNaskhArabic-Regular.ttf|DejaVuSans-Oblique.ttf|LiberationSans-Italic.ttf|DroidKufi-Regular.ttf
 \bold fonts= NotoSansArabic-Bold.ttf|NotoNaskhArabic-Bold.ttf|DejaVuSans-Bold.ttf|LiberationSans-Bold.ttf|DroidKufi-Bold.ttf
-\bold-italic fonts= NotoSansArabic-BoldItalic.ttf|NotoNaskhArabic-Bold.ttf|DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|DroidKufi-Bold.ttf
+\bold-italic fonts= NotoNastaliqUrdu-Regular.ttf|NotoSansArabic-Bold.ttf|NotoNaskhArabic-Bold.ttf|DejaVuSans-BoldOblique.ttf|LiberationSans-BoldItalic.ttf|DroidKufi-Bold.ttf
 
 \serif
 \regular fonts= NotoSansArabic-Regular.ttf|NotoNaskhArabic-Regular.ttf|DroidNaskh-Regular.ttf
