@@ -290,7 +290,7 @@ here wc-table - Constant #wc-table
 : x-lines+rest ( c-addr u cols -- lines chars )
     \G calculate how many lines an xchar string @var{c-addr u} needs with
     \G @var{cols} characters per line, plus how many chars the last line needs
-    >r 1 0 2swap r> +x-lines+rest ;
+    >r 0 0 2swap r> +x-lines+rest ;
 : x-lines ( c-addr u cols -- lines )
     x-lines+rest drop ;
 

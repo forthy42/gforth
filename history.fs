@@ -252,8 +252,8 @@ synonym setstring-color info-color
     dup >r + screenw @ /mod negate swap r> - negate swap at-deltaxy ;
 : get-hw ( addr u -- lines rest )
     screenw @ x-lines+rest setstring$ $@ screenw @ +x-lines+rest ;
-: hw>width ( lines rest -- ) swap 1- screenw @ * + ;
-: get-width+ ( addr u -- width' )
+: hw>width ( lines rest -- width ) swap screenw @ * + ;
+: get-width+ ( addr u -- width )
     get-hw hw>width ;
 : get-width+all ( span addr pos -- width )
     2dup get-hw 2>r  >r swap r> safe/string

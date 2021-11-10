@@ -73,7 +73,7 @@ variable included-file-buffers
 Variable locate-lines#
 
 : locate-lines+ ( c-addr u -- )
-    cols x-lines locate-lines# +! ;
+    cols x-lines 1+ locate-lines# +! ;
 
 : locate-type ( c-addr u lineno -- )
     >r rows 1- locate-lines# @ - 0 max cols x-maxlines
@@ -108,10 +108,10 @@ Variable locate-lines#
     status-attr attr!
     located-view @ view>filename
     [: type ': emit located-top @ 0 dec.r ;] $tmp
-    2dup cols x-lines 1- dup 0> IF
+    2dup cols x-lines dup 0> IF
 	drop 2drop located-view @ view>filename shorten-file
 	[: type ': emit located-top @ 0 dec.r ;] $tmp
-	2dup cols x-lines 1-  THEN
+	2dup cols x-lines  THEN
     locate-lines# ! type
     default-color ;
 
