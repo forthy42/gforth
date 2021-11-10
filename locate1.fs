@@ -75,8 +75,11 @@ Variable locate-lines#
 : locate-lines+ ( c-addr u -- )
     cols x-lines 1+ locate-lines# +! ;
 
+: located-diff ( -- n )
+    located-bottom @ located-top @ - ;
+
 : locate-type ( c-addr u lineno -- )
-    >r rows 1- locate-lines# @ - 0 max cols x-maxlines
+    >r located-diff locate-lines# @ - 0 max cols x-maxlines
     2dup locate-lines+
     r> cr located-view @ view>line = if
 	info-color  located-view @ view>char type-prefix
@@ -119,7 +122,7 @@ Variable locate-lines#
     located-buffer 1 case ( c-addr u lineno1 )
 	over 0= ?of endof
 	dup located-bottom @ >= ?of endof
-	locate-lines# @ rows 1- >= ?of endof
+	locate-lines# @ located-diff >= ?of endof
 	dup located-top @ >= ?of locate-print-line contof
 	locate-next-line
     next-case ;
@@ -131,7 +134,7 @@ Variable locate-lines#
     located-erase
     utop located-top !
     ubottom located-bottom !
-    print-locate-header l2 located-bottom ! 2drop ;
+    print-locate-header l2 drop ( located-bottom ! ) 2drop ;
     
 : prepend-locate-lines ( u -- )
     \ insert the u lines before the last locate display
@@ -370,12 +373,7 @@ variable code-locations 0 code-locations !
 : width-type ( c-addr u uwidth -- uwidth1 )
     \g type the part of the string that fits in uwidth; uwidth1 is the
     \g remaining width; replaces tabs with spaces
-    >r over + swap case ( end c-addr1 r: uwidth2 )
-	2dup u<= ?of endof
-	xc@+ dup #tab = if drop bl endif ( end c-addr1 xc r: uwidth2 )
-	dup xc-width dup r@ u> ?of 2drop endof ( end c-addr1 xc u r: uwidth2 )
-	r> swap - >r xemit next-case 
-    2drop r> ;
+    1 swap x-maxlines+rest >r type r> ;
 
 : .wheretype1 ( c-addr u view urest -- )
     { urest } view>char >r -trailing over r> + { c-pos } 2dup + { c-lineend }
@@ -645,9 +643,6 @@ interpret/compile: s` ( "eval-string" -- addr u )
 
 \ fancy after-l
 
-: located-diff ( -- n )
-    located-bottom @ located-top @ - ;
-
 : fancy-after-l ( c-addr1 u1 lineno1 -- c-addr2 u2 lineno2 )
     \ allow to scroll around right after LOCATE and friends:
     case
@@ -669,9 +664,9 @@ interpret/compile: s` ( "eval-string" -- addr u )
 	k-prior of rows 2/ prepend-locate-lines contof
 	k-next  of rows 2/  append-locate-lines contof
 	k-winch of 0  append-locate-lines contof
-	k-right of located-diff #10 max >r  index++
+	k-right of located-diff >r  index++
 	    r> located-diff - append-locate-lines contof
-	k-left  of located-diff #10 max >r  index--
+	k-left  of located-diff >r  index--
 	    r> located-diff - append-locate-lines contof
     endcase ;
 

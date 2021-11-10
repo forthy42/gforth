@@ -277,15 +277,18 @@ here wc-table - Constant #wc-table
 	I xc@+ swap >r xc-width+
     r> I - +LOOP ;
 
-: xc-wh+ ( h w xc cols -- h' w' ) {: cols :}
+: xc-hw+ ( h w xc cols -- h' w' ) {: cols :}
     dup #lf = over #cr = or IF  2drop 1+ 0  ELSE
 	dup >r xc-width+ dup cols u> IF
 	    drop 1+ 0 r> xc-width+
 	ELSE  rdrop  THEN
     THEN ;
-: +x-lines+rest ( lines chars c-addr u cols -- lines' chars' )
+: +x-lines+rest ( lines chars c-addr u cols -- lines' chars' ) \ gforth-internal
+    \G Incremental simulated output of string @var{c-addr u}, and how many
+    \G more lines and characters it will use on a terminal with width
+    \G @var{cols}
     {: cols :} bounds U+DO
-	I xc@+ swap >r cols xc-wh+
+	I xc@+ swap >r cols xc-hw+
     r> I I' over - [ #cr pad c!  #lf pad 1+ c!  pad 2 ] SLiteral string-prefix? -
     I - +LOOP ;
 : x-lines+rest ( c-addr u cols -- lines chars )
@@ -295,18 +298,22 @@ here wc-table - Constant #wc-table
 : x-lines ( c-addr u cols -- lines )
     x-lines+rest drop ;
 
-: x-maxlines ( c-addr u lines cols -- c-addr u' )
+: x-maxlines+rest ( c-addr u lines cols -- c-addr u' rest )
     \G limit an xchar string @var{c-addr u} to take up at most @var{lines}
     \G with @var{cols} characters per line
     2over {: cols start len :}
     negate 0 2swap bounds U+DO
-	I xc@+ swap >r cols xc-wh+
+	dup {: oldlen :} I xc@+ swap >r cols xc-hw+
 	over 0>= IF
-	    rdrop 2drop  start I over -  unloop  EXIT
+	    rdrop 2drop  start I over - cols oldlen -  unloop  EXIT
 	THEN
     r> I I' over - [ #cr pad c!  #lf pad 1+ c!  pad 2 ] SLiteral string-prefix? -
-    I - +LOOP  2drop
-    start len ;
+    I - +LOOP
+    >r drop start len cols r> - ;
+: x-maxlines ( c-addr u lines cols -- c-addr u' )
+    \G limit an xchar string @var{c-addr u} to take up at most @var{lines}
+    \G with @var{cols} characters per line
+    x-maxlines+rest drop ;
 
 here
 ' u8emit ,
