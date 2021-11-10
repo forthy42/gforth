@@ -278,7 +278,7 @@ here wc-table - Constant #wc-table
     r> I - +LOOP ;
 
 : xc-wh+ ( h w xc cols -- h' w' ) {: cols :}
-    dup #lf = IF  2drop 1+ 0  ELSE
+    dup #lf = over #cr = or IF  2drop 1+ 0  ELSE
 	dup >r xc-width+ dup cols u> IF
 	    drop 1+ 0 r> xc-width+
 	ELSE  rdrop  THEN
@@ -286,7 +286,8 @@ here wc-table - Constant #wc-table
 : +x-lines+rest ( lines chars c-addr u cols -- lines' chars' )
     {: cols :} bounds U+DO
 	I xc@+ swap >r cols xc-wh+
-    r> I - +LOOP ;
+    r> I I' over - [ #cr pad c!  #lf pad 1+ c!  pad 2 ] SLiteral string-prefix? -
+    I - +LOOP ;
 : x-lines+rest ( c-addr u cols -- lines chars )
     \G calculate how many lines an xchar string @var{c-addr u} needs with
     \G @var{cols} characters per line, plus how many chars the last line needs
@@ -303,7 +304,8 @@ here wc-table - Constant #wc-table
 	over 0>= IF
 	    rdrop 2drop  start I over -  unloop  EXIT
 	THEN
-    r> I - +LOOP  2drop
+    r> I I' over - [ #cr pad c!  #lf pad 1+ c!  pad 2 ] SLiteral string-prefix? -
+    I - +LOOP  2drop
     start len ;
 
 here
