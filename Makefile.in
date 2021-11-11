@@ -599,6 +599,9 @@ ENGINE_SOURCES = engine/Makefile.in engine/config.h.in			\
 	engine/zexpand.c engine/androidmain.c engine/sincos.c           \
 	$(INCLUDES)
 
+DOCKER = docker/runner/Dockerfile.in docker/runner/build.sh	\
+	docker/builder/Dockerfile docker/builder/build.sh
+
 SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	gforthmi.in gforthmi.sh.in vmgen.in preforth.in libforth.in	      \
 	gforthker.in README.vmgen NEWS.vmgen autogen.sh configure.ac	      \
@@ -618,7 +621,7 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	peeprules.vmg prim debian/rules debian/control.in debian/changelog.in \
 	debian/compat gforth.ico .travis.yml install-deps.sh install-swig.sh  \
 	install-freetype-gl.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4	      \
-	move-if-change
+	move-if-change $(DOCKER)
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
 	libforth gforthker engine/Makefile engine/gforth.h		\
