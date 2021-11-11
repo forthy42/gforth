@@ -46,7 +46,7 @@ Variable lastfile
 
 : expand-file ( addr u -- addr' u' ) { d: fn }
     fn open-fpath-file IF  fn  ELSE  rot close-file drop  THEN
-    over c@ '/' <> IF
+    2dup absolut-path? 0= IF
 	{ | pwd[ $1000 ] }
 	pwd[ $1000 get-dir [: type '/' emit type ;] $tmp compact-filename
     THEN ;

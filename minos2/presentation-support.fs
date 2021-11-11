@@ -101,12 +101,14 @@ glue new glue-right !
     >o transp# to frame-color o> ;
 : solid-frame ( o -- )
     >o white# to frame-color o> ;
+Defer slides-updated ' noop is slides-updated
 : !slides ( nprev n -- )
 \   44e update-size#
     update-glue
     over slide# !
     slides[] $[] @ /flip drop
-    slides[] $[] @ /flop drop glue0 ;
+    slides[] $[] @ /flop drop glue0
+    slides-updated ;
 : slide-flipflop ( -- )
     4 0 DO
 	I slides[] $[] @
