@@ -3005,6 +3005,9 @@ ffourth	  ( r1 r2 r3 r4 -- r1 r2 r3 r4 r1 )	gforth
 open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
 u2 = gforth_dlopen(c_addr1, u1);
 
+open-lib2	( c_addr1 u1 -- u2 )	gforth	open_lib2
+u2 = gforth_dlopen2(c_addr1, u1);
+
 lib-sym	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym
 char * string = cstr(c_addr1, u1);
 #ifdef HAVE_LIBLTDL
@@ -3020,6 +3023,9 @@ u3 = 0;
 #  endif
 #endif
 free_l(string);
+
+lib-sym2	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym2
+u3 = gforth_dlsym2(c_addr1, u1, u2);
 
 wcall	( ... u -- ... )	gforth
 gforth_FP=fp;
@@ -3151,6 +3157,9 @@ u = BSWAP32(tb);
 
 close-lib ( u -- )   gforth close_lib
 gforth_dlclose(u);
+
+close-lib2 ( u -- )   gforth close_lib2
+gforth_dlclose2(u);
 
 \+
 

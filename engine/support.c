@@ -845,11 +845,59 @@ UCell gforth_dlopen(Char *c_addr, UCell u)
   return 0;
 }
 
+UCell gforth_dlopen2(Char *c_addr, UCell u)
+{
+  char * file=tilde_cstr(c_addr, u);
+  UCell lib;
+#if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+#ifndef RTLD_GLOBAL
+#define RTLD_GLOBAL 0
+#endif
+#ifndef RTLD_LAZY
+#define RTLD_LAZY 0
+#endif
+  lib = (UCell)dlopen(file, RTLD_LAZY | RTLD_GLOBAL);
+  free_l(file);
+  if(lib) return lib;
+  fprintf(stderr, "%s\n", dlerror());
+#elif defined(_WIN32)
+  lib = (UCell) GetModuleHandle(file);
+  free_l(file);
+  if(lib) return lib;
+#endif
+  return 0;
+}
+
+UCell gforth_dlsym2(Char *c_addr1, UCell u1, UCell u2)
+{
+  char * string = cstr(c_addr1, u1);
+  UCell u3;
+#if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+  u3 = (UCell) dlsym((void*)u2,string);
+#elif defined(_WIN32)
+  u3 = (Cell) GetProcAddress((HMODULE)u2, string);
+#else
+#warning Define lib-sym!
+  u3 = 0;
+#endif
+  free_l(string);
+  return u3;
+}
+
 void gforth_dlclose(UCell lib)
 {
 #if defined(HAVE_LIBLTDL)
   (void)lt_dlclose((lt_dlhandle)lib);
 #elif defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
+  dlclose((void*)lib);
+#elif defined(_WIN32)
+  FreeLibrary(lib);
+#endif
+}
+
+void gforth_dlclose2(UCell lib)
+{
+#if defined(HAVE_LIBDL) || defined(HAVE_DLOPEN)
   dlclose((void*)lib);
 #elif defined(_WIN32)
   FreeLibrary(lib);
