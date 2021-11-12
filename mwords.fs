@@ -23,7 +23,7 @@ Variable words[]
 
 Defer mword-match
 : mword-search-match ( addr1 u1 addr2 u2 -- flag )
-    search nip nip ;
+    capssearch nip nip ;
 : mword-filename-match ( addr1 u1 addr2 u2 -- flag )
     dup 0= IF  2drop s" *"  THEN  filename-match ;
 ' mword-search-match is mword-match
