@@ -1429,7 +1429,7 @@ try a few ways to crash Gforth:
 0 0 !
 here execute
 ' catch >body 20 erase abort
-' (quit) >body 20 erase
+' (quit1) >body 20 erase
 @end example
 
 The last two examples are guaranteed to destroy important parts of
