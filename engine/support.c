@@ -833,7 +833,10 @@ UCell gforth_dlopen(Char *c_addr, UCell u)
 #ifndef RTLD_GLOBAL
 #define RTLD_GLOBAL 0
 #endif
-  lib = (UCell)dlopen(file, RTLD_GLOBAL);
+#ifndef RTLD_LAZY
+#define RTLD_LAZY 0
+#endif
+  lib = (UCell)dlopen(file, RTLD_GLOBAL | RTLD_LAZY);
   free_l(file);
   if(lib) return lib;
   fprintf(stderr, "%s\n", dlerror());

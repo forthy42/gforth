@@ -83,6 +83,7 @@ override_dh_auto_install:
 	bash -c "mv $(DB)/usr/bin/gforth{,-fast,-itc,-ditc,mi}{,-$(GFORTH_VER)}  $(D)/usr/bin"
 	mkdir -p $(DI)/usr/share
 	mv $(DC)/usr/share/info $(DI)/usr/share
+	rm -f $(DI)/usr/share/info/dir.gz
 	mkdir -p $(DH)/usr/share/doc/gforth
 	mkdir -p $(DH)/usr/share/doc/vmgen
 	mv $(DC)/usr/share/doc/gforth/html $(DH)/usr/share/doc/gforth
