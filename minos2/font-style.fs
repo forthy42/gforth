@@ -315,8 +315,14 @@ cs-Vocabulary fonts
     \serif font=same fonts[bi]=same
     \mono  font=same fonts[bi]=same
     \sans ;
+
+: .ttf ( -- ) "ttf" "ext" replaces ;
+: .otf ( -- ) "otf" "ext" replaces ;
+.ttf
+"" "subset" replaces
+
 : font=%% ( -- )
-    "%family%%style%%lang%-%shape%.ttf" fonts-scan ['] bw-font ?define-font ;
+    "%family%%style%%lang%-%shape%%subset%.%ext%" fonts-scan ['] bw-font ?define-font ;
 : +ranges ( range1 .. rangen n -- )
     0 ?DO  font-lang -rot +range  LOOP ;
 : fonts=shapes[rb] ( range1 .. rangen n -- 0 )
@@ -332,6 +338,14 @@ cs-Vocabulary fonts
     [: "lang" replaces
 	\sans  "Sans"  "style" replaces fonts=shapes[rb]
 	\serif "Serif" "style" replaces fonts=shapes[rb]
+	\mono  "Sans"  "style" replaces fonts=shapes[rb] drop ;] catch
+    IF  clearstack "%lang%" $substitute drop type ."  failed" cr THEN ;
+: fonts=template[rb].otf ( range1 .. rangen n addr u -- )
+    [: "lang" replaces
+	\sans  "Sans"  "style" replaces fonts=shapes[rb]
+	\serif
+	[: .otf "Serif" "style" replaces fonts=shapes[rb] ;] catch
+	.ttf IF  "Serif" "style" replaces fonts=shapes[rb]  THEN
 	\mono  "Sans"  "style" replaces fonts=shapes[rb] drop ;] catch
     IF  clearstack "%lang%" $substitute drop type ."  failed" cr THEN ;
 : fonts=template[rb]sans ( range1 .. rangen n addr u -- )
@@ -557,11 +571,20 @@ fonts[ssm]=same
 [THEN]
 
 "Noto" "family" replaces
-\symbols \sans \regular {{ $2150 $40 bounds  $2190 #10 bounds  $2300 $100 bounds  $2460 $A0 bounds  $2600 $100 bounds $1F100 $AC bounds  $1F700 $80 bounds }} 2/ "Symbols" fonts=template[rb]sans
-2 font-lang >breakable
-font-lang to symbol-font#
-\symbols2 {{ $2316 $1 bounds  $2318 $1 bounds  $231A $2 bounds  $2324 $5 bounds $232B $1 bounds  $237B $1 bounds  $237D $3 bounds  $2394 $1 bounds  $23CE $2 bounds  $23E9 $2 bounds  $23ED $3 bounds  $23F1 $E bounds  $2400 $60 bounds  $25A0 $60 bounds  $2600 $A bounds  $260E $5 bounds  $2614 $10 bounds  $2630 $8 bounds  $263C $1 bounds  $2669 $2654   $267F $12 bounds  $269E $4 bounds  $26AA $3 bounds  $26CE $26BD  $26E1 $26CF  $2700 $C0 bounds  $2800 $100 bounds  $2B00 $100 bounds  $4DC0 $40 bounds  $10140 $C0 bounds  $102E0 $20 bounds  $10E60 $20 bounds  $1D300 $80 bounds }} 2/ "Symbols2" fonts=template[r]
-2 font-lang >breakable
+[IFDEF] android
+    "-Subsetted" "subset" replaces
+    \symbols \sans \regular {{ $20D0 $21 bounds  $2100 $50 bounds  $2B5A $2190    $4DC0 $40 bounds  $10200 $10140  $1D250 $1D000  $1D380 $1D300  $1D400 $400 bounds  }} 2/ "Symbols" fonts=template[rb]sans
+    2 font-lang >breakable
+    font-lang to symbol-font#
+    "" "subset" replaces
+[ELSE]
+    \symbols \sans \regular {{ $2150 $40 bounds  $2190 #10 bounds  $2300 $100 bounds  $2460 $A0 bounds  $2600 $100 bounds $1F100 $AC bounds  $1F700 $80 bounds }} 2/ "Symbols" fonts=template[rb]sans
+    \ Android: NotoSansSymbols-Regular-Subsetted.ttf NotoSansSymbols-Regular-Subsetted2.ttf
+    2 font-lang >breakable
+    font-lang to symbol-font#
+    \symbols2 {{ $2316 $1 bounds  $2318 $1 bounds  $231A $2 bounds  $2324 $5 bounds $232B $1 bounds  $237B $1 bounds  $237D $3 bounds  $2394 $1 bounds  $23CE $2 bounds  $23E9 $2 bounds  $23ED $3 bounds  $23F1 $E bounds  $2400 $60 bounds  $25A0 $60 bounds  $2600 $A bounds  $260E $5 bounds  $2614 $10 bounds  $2630 $8 bounds  $263C $1 bounds  $2669 $2654   $267F $12 bounds  $269E $4 bounds  $26AA $3 bounds  $26CE $26BD  $26E1 $26CF  $2700 $C0 bounds  $2800 $100 bounds  $2B00 $100 bounds  $4DC0 $40 bounds  $10140 $C0 bounds  $102E0 $20 bounds  $10E60 $20 bounds  $1D300 $80 bounds }} 2/ "Symbols2" fonts=template[r]
+    2 font-lang >breakable
+[THEN]
 
 [TRY]
 \hebrew
@@ -658,13 +681,13 @@ fonts[ssm]=same
 \telugu {{ $C80 $C00 }} 2/ "Telugu" fonts=template[rb]
 \kannada {{ $D00 $C80 }} 2/ "Kannada" fonts=template[rb]
 \malayalam {{ $D80 $D00 }} 2/ "Malayalam" fonts=template[rb]
-\sinhala {{ $E00 $D80 }} 2/ "Sinhala" fonts=template[rb]
+\sinhala {{ $E00 $D80 }} 2/ "Sinhala" fonts=template[rb].otf
 \thai {{ $E80 $E00 }} 2/ "Thai" fonts=template[rb]
 \lao {{ $F00 $E80 }} 2/ "Lao" fonts=template[rb]
 \tibetan {{ $1000 $F00 }} 2/ "Tibetan" fonts=template[r]
-\myanmar {{ $10A0 $1000 }} 2/ "Myanmar" fonts=template[rb]
+\myanmar {{ $10A0 $1000 }} 2/ "Myanmar" fonts=template[rb].otf
 \georgian {{ $1100 $10A0  $1CC0 $1C90 }} 2/ "Georgian" fonts=template[rb]
-\ethiopic {{ $13A0 $1200 }} 2/ "Ethiopic" fonts=template[rb]
+\ethiopic {{ $13A0 $1200 }} 2/ "Ethiopic" fonts=template[rb].otf
 \cherokee {{ $1400 $13A0 }} 2/ "Cherokee" fonts=template[r]
 \canadianaboriginal {{ $1680 $1400  $1900 $18B0 }} 2/ "CanadianAboriginal" fonts=template[r]
 \ogham {{ $16A0 $1680 }} 2/ "Ogham" fonts=template[r]
@@ -673,7 +696,7 @@ fonts[ssm]=same
 \hanunoo {{ $1740 $1720 }} 2/ "Hanunoo" fonts=template[r]
 \buhid {{ $1760 $1740 }} 2/ "Buhid" fonts=template[r]
 \tagbanwa {{ $1780 $1760 }} 2/ "Tagbanwa" fonts=template[r]
-\khmer {{ $1800 $1780  $1A00 $19E0 }} 2/ "Khmer" fonts=template[rb]
+\khmer {{ $1800 $1780  $1A00 $19E0 }} 2/ "Khmer" fonts=template[rb].otf
 \mongolian {{ $18B0 $1800 }} 2/ "Mongolian" fonts=template[r]
 harfbuzz:HB_DIRECTION_TTB font-bidi' font-lang + c!
 \limbu {{ $1950 $1900 }} 2/ "Limbu" fonts=template[r]
