@@ -573,7 +573,7 @@ fonts[ssm]=same
 "Noto" "family" replaces
 [IFDEF] android
     "-Subsetted" "subset" replaces
-    \symbols \sans \regular {{ $20D0 $21 bounds  $2100 $50 bounds  $2B5A $2190    $4DC0 $40 bounds  $10200 $10140  $1D250 $1D000  $1D380 $1D300  $1D400 $400 bounds  }} 2/ "Symbols" fonts=template[rb]sans
+    \symbols \sans \regular {{ $20D0 $21 bounds  $2100 $50 bounds  $2B5A $2190    $4DC0 $40 bounds  $10200 $10140  $1D250 $1D000  $1D380 $1D300  $1D400 $400 bounds  }} 2/ "Symbols" fonts=template[r]
     2 font-lang >breakable
     font-lang to symbol-font#
     "" "subset" replaces
