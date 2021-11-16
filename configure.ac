@@ -379,7 +379,7 @@ case "$host_cpu" in
 		fi
 		case "$host_os" in
 		     *android*)
-			CFLAGS="$CFLAGS -march=armv5 -mfloat-abi=softfp -mfpu=vfp"
+			CFLAGS="$CFLAGS -march=armv7-a -mfloat-abi=softfp -mfpu=vfp"
 			FAST="yes" # build extra fast libraries
 			;;
 		esac

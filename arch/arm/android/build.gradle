@@ -26,7 +26,8 @@ android {
 
     compileSdkVersion 31
 
-    ndkVersion "17.2.4988734"
+    ndkVersion "23.1.7779620"
+//    ndkVersion "17.2.4988734"
 
     defaultConfig {
         minSdkVersion 16
