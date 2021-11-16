@@ -69,7 +69,8 @@ $(extra_perms)
 		android:windowSoftInputMode="stateHidden|adjustResize"
                 android:configChanges="orientation|screenSize|keyboardHidden"
                 android:theme="@android:style/Theme.NoTitleBar"
-                android:launchMode="singleTop">
+                android:launchMode="singleTop"
+                android:exported="true">
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
                     android:value="gforth-fast" />
@@ -88,7 +89,8 @@ $(extra_perms)
 		android:windowSoftInputMode="stateHidden|adjustResize"
                 android:configChanges="orientation|screenSize|keyboardHidden"
                 android:theme="@android:style/Theme.NoTitleBar"
-                android:launchMode="singleTop">
+                android:launchMode="singleTop"
+                android:exported="true">
             <!-- Tell NativeActivity the name of or .so -->
             <meta-data android:name="android.app.lib_name"
                     android:value="gforth-itc" />
