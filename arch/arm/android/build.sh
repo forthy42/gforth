@@ -179,10 +179,13 @@ do
     shift
 done
 
-for i in $LIBS/*.so
-do
-    echo "strip $i: $(stat --print=%s $i) -> $($TARGET-strip $i && stat --print=%s $i)"
-done
+if [ "$machine" == "arm" ]
+then
+    for i in $LIBS/*.so
+    do
+	echo "strip $i: $(stat --print=%s $i) -> $($TARGET-strip $i && stat --print=%s $i)"
+    done
+fi
 
 #copy resources
 
