@@ -550,20 +550,31 @@ cell 4 = [IF]
     $splits[] stack# 0 ?DO
 	I $splits[] $[]@ drop c@ font#-load { font }
 	font font->t.i0
-	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN f-scale f*  { f: pos* }
+	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN f-scale f*
+	pos*icon f-scale f* { f: xpos* f: ypos* }
 	0e  I positions[] $[]@ bounds ?DO
-	    I hb_glyph_position_t-x_advance l@ pos* fm* f+
+	    I hb_glyph_position_t-x_advance l@ xpos* fm* f+
 	hb_glyph_position_t +LOOP
 	I segment-lens[] $[] seg-len!
 	I positions[] $[]@ drop
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
-	    pos I + hb_glyph_position_t-y_offset sl@ 6 lshift pos* fm* { f: yo }
-	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@ >r
-	    r@ texture_glyph_t-offset_y sl@ f-scale fm* yo f+
-	    r> texture_glyph_t-height @ f-scale fm*
+	    pos I + hb_glyph_position_t-y_offset sl@ ypos* fm* { f: yo }
+	    [ false ] [IF] \ don't render glyph
+		font infos I + hb_glyph_info_t-codepoint l@
+		glyph-gi@ >r
+		r@ texture_glyph_t-offset_y sl@ f-scale fm* yo f+
+		r> texture_glyph_t-height @ f-scale fm*
+	    [ELSE]
+		{ | ge[ hb_glyph_extents_t ] }
+		font texture_font_t-hb_font @
+		infos I + hb_glyph_info_t-codepoint l@
+		ge[ hb_font_get_glyph_extents drop
+		ge[ hb_glyph_extents_t-y_bearing sl@ ypos* fm* yo f+
+		ge[ hb_glyph_extents_t-height sl@ ypos* fm* fnegate
+	    [THEN]
 	    fover f- fd fmax to fd fh fmax to fh
-	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm* +to fw
+	    pos I + hb_glyph_position_t-x_advance sl@ xpos* fm* +to fw
 	hb_glyph_info_t +LOOP
     LOOP
     fw fd fh ;
@@ -591,7 +602,7 @@ cell 4 = [IF]
 	I positions[] $[]@ drop
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
-	    pos I + hb_glyph_position_t-x_advance l@ pos* fm*
+	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm*
 	    fover fover f2/ f< IF
 		infos I + hb_glyph_info_t-cluster l@ offset +
 		fdrop fdrop  unloop unloop  EXIT

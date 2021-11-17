@@ -36,8 +36,7 @@ Vocabulary )bracket
 
 [IFUNDEF] recognize-execute
     : recognize-execute ( xt recognizer -- )
-	action-of forth-recognize >r  is forth-recognize
-	catch  r> is forth-recognize  throw ;
+	['] forth-recognize rot wrap-xt ;
 [THEN]
 
 s" brackets.db" ' included ' brackets-recognizer recognize-execute

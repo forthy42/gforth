@@ -20,8 +20,7 @@
 
 [IFUNDEF] recognize-execute
     : recognize-execute ( xt recognizer -- )
-	action-of forth-recognize >r  is forth-recognize
-	catch  r> is forth-recognize  throw ;
+	['] forth-recognize rot wrap-xt ;
 [THEN]
 
 : rec-xemit ( addr u -- n/d table )

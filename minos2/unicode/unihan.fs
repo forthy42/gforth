@@ -32,13 +32,14 @@
 
 s" unihan.db" open-fpath-file throw save-mem 2constant unihan.db
 close-file throw
+s" japanese.db" open-fpath-file throw save-mem 2constant japanese.db
+close-file throw
 
 [IFUNDEF] recognize-execute
     : recognize-execute ( xt recognizer -- )
-	action-of forth-recognize >r  is forth-recognize
-	catch  r> is forth-recognize  throw ;
+	['] forth-recognize rot wrap-xt ;
 [THEN]
 
 : read-unihan ( -- )
-    [:  unihan.db included ;] ['] unihan-recognizer
-    recognize-execute ;
+    [: unihan.db   included ;] ['] unihan-recognizer recognize-execute
+    [: japanese.db included ;] ['] unihan-recognizer recognize-execute ;

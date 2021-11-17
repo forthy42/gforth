@@ -600,6 +600,7 @@ end-class text
     fdup to text-w  borderh f+ to w ;
 : text-!size ( addr u -- )
     text-font to font
+    \ [: 2dup type cr ;] do-debug
     layout-string >text+border ;
 \    ." text sized to: " x f. y f. w f. h f. d f. cr ;
 :noname text$ text-text ; text is draw
@@ -1181,7 +1182,7 @@ zbox is par-split
 	startx rw I childs[] $[] @ .split to startx
 	0e { f: ow }
 	?dup-IF
-	    >o !size hglue fdrop fdrop o o> to ow
+	    >o !size hglue@ fdrop fdrop o o> to ow
 	    newbox .child+ \ add to children
 	ELSE
 	    newbox .childs[] dup $[]#
