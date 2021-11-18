@@ -870,13 +870,15 @@ also freetype-gl
     over >r
     GL_TEXTURE2 glActiveTexture
     atlas-tex-bgra atlas-bgra addr atlas-bgra# (mem>style)
+    GL_TEXTURE0 glActiveTexture
     r> free throw ;
 : load-style ( addr u -- ivec4-addr )
     open-fpath-file throw 2drop slurp-fid mem>style ;
 
 : mem>thumb ( addr u -- ivec4-addr )
     GL_TEXTURE1 glActiveTexture
-    thumb-tex-rgba thumb-rgba addr thumb-rgba# (mem>style) ;
+    thumb-tex-rgba thumb-rgba addr thumb-rgba# (mem>style)
+    GL_TEXTURE0 glActiveTexture ;
 : $top[] ( $addr[] -- addr u / 0 0 )  $@ + cell- $@ ;
 : load-thumb ( addr u -- w h thumb )
     mem>thumb >r r@ i.w r@ i.h r>

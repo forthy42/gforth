@@ -88,7 +88,8 @@ Variable fonts[] \ stack of used fonts
     GL_TEXTURE_2D 0 r@ alpha/rgba
     r@ texture_atlas_t-width @   r@ texture_atlas_t-height @
     0 r@ alpha/rgba GL_UNSIGNED_BYTE
-    r@ texture_atlas_t-data @ glTexImage2D rdrop ;
+    r@ texture_atlas_t-data @ glTexImage2D rdrop
+    GL_TEXTURE0 glActiveTexture ;
 : gen-atlas-tex ( -- )
     atlas-tex
     GL_TEXTURE_2D atlas texture_atlas_t-id l@ glBindTexture edge linear
