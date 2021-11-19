@@ -302,10 +302,21 @@ cs-Vocabulary fonts
     BEGIN  dup  WHILE  '|' $split 2swap ?font  UNTIL  2nip
     ELSE  !!no-suitable-font!! throw  THEN ;
 
+: .ttf ( -- ) "ttf" "ext" replaces ;
+: .ttc ( -- ) "ttc" "ext" replaces ;
+: .otf ( -- ) "otf" "ext" replaces ;
+.ttf
+
+: try-fonts= ( "font1|font2|..." -- )
+    >in @ >r
+    [: fonts-parse .ttf fonts-scan ;] catch
+    IF  r@ >in ! [: fonts-parse .otf fonts-scan ;] catch
+	IF  r@ >in ! [: fonts-parse .ttc fonts-scan ;] catch
+	    .ttf throw  THEN  THEN rdrop ;
 : fonts= ( "font1|font2|..." -- )
-    fonts-parse fonts-scan ['] bw-font   ?define-font ;
+    try-fonts= ['] bw-font   ?define-font ;
 : color-fonts= ( "font1|font2|..." -- )
-    fonts-parse fonts-scan ['] bgra-font ?define-font ;
+    try-fonts= ['] bgra-font ?define-font ;
 : font=same ( -- )
     last-font font-index font[] $[] ! ;
 : fonts[bi]=same ( -- )
@@ -316,10 +327,6 @@ cs-Vocabulary fonts
     \mono  font=same fonts[bi]=same
     \sans ;
 
-: .ttf ( -- ) "ttf" "ext" replaces ;
-: .ttc ( -- ) "ttc" "ext" replaces ;
-: .otf ( -- ) "otf" "ext" replaces ;
-.ttf
 "" "subset" replaces
 
 : font=%% ( -- )
@@ -330,7 +337,8 @@ cs-Vocabulary fonts
 	    "%family%%style%%lang%-%shape%%subset%.%ext%" fonts-scan ;] catch
 	IF
 	    [:  .ttc
-		"%family%%style%%lang%-%shape%%subset%.%ext%" fonts-scan ;] catch throw
+		"%family%%style%%lang%-%shape%%subset%.%ext%" fonts-scan ;] catch
+	    .ttf throw
 	THEN
     THEN
     .ttf ['] bw-font ?define-font ;
