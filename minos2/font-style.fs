@@ -351,14 +351,14 @@ cs-Vocabulary fonts
 : +ranges ( range1 .. rangen n -- )
     0 ?DO  font-lang -rot +range  LOOP ;
 : fonts=shapes[rb] ( range1 .. rangen n -- 0 )
-    \regular "Regular" "shape" replaces font=%%
-    ?dup-IF  fonts[ssm]=same  +ranges  THEN  0
+    2* n>r \regular "Regular" "shape" replaces font=%%
+    r@ IF  fonts[ssm]=same nr> 2/ +ranges  ELSE  rdrop  THEN  0
     \italic font=same
     \bold "Bold" "shape" replaces font=%%
     \bold-italic font=same ;
 : fonts=shapes[r] ( range1 .. rangen n -- 0 )
-    \regular "Regular" "shape" replaces font=%%
-    +ranges fonts[ssm]=same ;
+    2* n>r \regular "Regular" "shape" replaces font=%%
+    nr> 2/ +ranges fonts[ssm]=same ;
 : ?failed ( throwcode -- )
     IF  clearstack
 	[: "%lang%" $substitute drop type ."  failed" cr ;]
