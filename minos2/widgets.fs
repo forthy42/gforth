@@ -130,10 +130,10 @@ $[]Variable ranges>lang[]
     U+DO
 	I 8 rshift ranges>lang[] $[] { range }
 	I $FF and 0= I' I $100 + u>= and IF
-	    range @ $100 >= IF  range $free  THEN
+	    range @ $100 u>= IF  range $free  THEN
 	    dup range !
 	ELSE
-	    range @ $100 < IF
+	    range @ $100 u< IF
 		{ | zeros[ $100 ] }
 		zeros[ $100 2dup range @ fill
 		range off  range $!
@@ -143,7 +143,7 @@ $[]Variable ranges>lang[]
     $100 I $FF and - +LOOP  drop ;
 : range@ ( codepoint -- type )
     dup >r 8 rshift ranges>lang[] $[]
-    dup @ dup $100 < IF  nip rdrop  EXIT  THEN
+    dup @ dup $100 u< IF  nip rdrop  EXIT  THEN
     drop $@ drop r> $FF and + c@ c>s ;
 
 -1 $00370 $00300 +range
