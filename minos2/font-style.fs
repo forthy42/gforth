@@ -345,8 +345,8 @@ cs-Vocabulary fonts
 : font=%% ( -- )
     "" "ui" replaces font-try IF
 	"UI" "ui" replaces font-try IF
-	    "-VF" "ui" replaces font-try
-	    "" "ui" replaces  throw  THEN  THEN
+	    "" "ui" replaces  "VF" "shape" replaces  font-try
+	    throw  THEN  THEN
     "" "ui" replaces ['] bw-font ?define-font ;
 : +ranges ( range1 .. rangen n -- )
     0 ?DO  font-lang -rot +range  LOOP ;
