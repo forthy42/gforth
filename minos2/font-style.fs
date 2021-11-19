@@ -328,20 +328,26 @@ cs-Vocabulary fonts
     \sans ;
 
 "" "subset" replaces
+"" "ui" replaces
 
-: font=%% ( -- )
+: font-try ( -- throw-code )
     [:  .ttf
-	"%family%%style%%lang%-%shape%%subset%.%ext%" fonts-scan ;] catch
+	"%family%%style%%lang%%ui%-%shape%%subset%.%ext%" fonts-scan ;] catch
     IF
 	[:  .otf
-	    "%family%%style%%lang%-%shape%%subset%.%ext%" fonts-scan ;] catch
+	    "%family%%style%%lang%%ui%-%shape%%subset%.%ext%" fonts-scan ;] catch
 	IF
 	    [:  .ttc
-		"%family%%style%%lang%-%shape%%subset%.%ext%" fonts-scan ;] catch
-	    .ttf throw
+		"%family%%style%%lang%%ui%-%shape%%subset%.%ext%" fonts-scan ;] catch .ttf  EXIT
 	THEN
-    THEN
-    .ttf ['] bw-font ?define-font ;
+    THEN .ttf 0 ;
+
+: font=%% ( -- )
+    "" "ui" replaces font-try IF
+	"UI" "ui" replaces font-try IF
+	    "-VF" "ui" replaces font-try
+	    "" "ui" replaces  throw  THEN  THEN
+    "" "ui" replaces ['] bw-font ?define-font ;
 : +ranges ( range1 .. rangen n -- )
     0 ?DO  font-lang -rot +range  LOOP ;
 : fonts=shapes[rb] ( range1 .. rangen n -- 0 )
@@ -353,25 +359,25 @@ cs-Vocabulary fonts
 : fonts=shapes[r] ( range1 .. rangen n -- 0 )
     \regular "Regular" "shape" replaces font=%%
     +ranges fonts[ssm]=same ;
-: fonts=template[rb] ( range1 .. rangen n addr u -- )
+: ?failed ( throwcode -- )
+    IF  clearstack
+	[: "%lang%" $substitute drop type ."  failed" cr ;]
+	['] execute-theme-color do-debug
+    THEN ;
+: fonts=template[rb] ( range1 .. rangen n addr u -- ... throwcode )
     "lang" replaces
     [:  \sans  "Sans"  "style" replaces fonts=shapes[rb]
 	\serif "Serif" "style" replaces fonts=shapes[rb]
-	\mono  "Sans"  "style" replaces fonts=shapes[rb] drop ;] catch
-    IF  clearstack "%lang%" $substitute drop type ."  failed" cr THEN ;
+	\mono  "Sans"  "style" replaces fonts=shapes[rb] drop ;] catch ?failed ;
 : fonts=template[rb]sans ( range1 .. rangen n addr u -- )
     [: "lang" replaces "Sans"  "style" replaces .ttf
 	\sans  fonts=shapes[rb]
 	\serif fonts=shapes[rb]
 	\mono  fonts=shapes[rb]
-	drop ;] catch
-    IF  clearstack "%lang%" $substitute drop type ."  failed" cr THEN ;
+	drop ;] catch ?failed ;
 : fonts=template[r] ( range1 .. rangen n addr u -- )
     [: "lang" replaces
-	\sans  "Sans"  "style" replaces fonts=shapes[r] ;] catch
-    IF  clearstack
-	[: error-color "%lang%" $substitute drop type ."  failed" cr ;]
-	['] execute-theme-color do-debug  THEN ;
+	\sans  "Sans"  "style" replaces fonts=shapes[r] ;] catch ?failed ;
 
 previous
 
