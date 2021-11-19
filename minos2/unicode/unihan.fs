@@ -34,6 +34,8 @@ s" unihan.db" open-fpath-file throw save-mem 2constant unihan.db
 close-file throw
 s" japanese.db" open-fpath-file throw save-mem 2constant japanese.db
 close-file throw
+s" japanese-tc.db" open-fpath-file throw save-mem 2constant japanese-tc.db
+close-file throw
 
 [IFUNDEF] recognize-execute
     : recognize-execute ( xt recognizer -- )
@@ -41,5 +43,8 @@ close-file throw
 [THEN]
 
 : read-unihan ( -- )
-    [: unihan.db   included ;] ['] unihan-recognizer recognize-execute
+    [: unihan.db   included ;] ['] unihan-recognizer recognize-execute ;
+: read-japanese
     [: japanese.db included ;] ['] unihan-recognizer recognize-execute ;
+: read-japanese-tc
+    [: japanese-tc.db included ;] ['] unihan-recognizer recognize-execute ;

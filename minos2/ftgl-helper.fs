@@ -83,7 +83,8 @@ Variable fonts[] \ stack of used fonts
 ' texture_font_clone alias clone-font ( rfontsize font -- font )
 
 : alpha/rgba ( atlas -- )
-    GL_RGBA GL_ALPHA rot texture_atlas_t-depth @ 4 = select ;
+    texture_atlas_t-depth @ 4 = >r
+    GL_RGBA GL_ALPHA r> select ;
 : upload-atlas-tex ( atlas -- ) >r
     GL_TEXTURE_2D 0 r@ alpha/rgba
     r@ texture_atlas_t-width @   r@ texture_atlas_t-height @
@@ -266,11 +267,13 @@ Defer font-select# ( xcaddr -- xcaddr num )
 
 : ?mod-atlas ( -- )
     atlas texture_atlas_t-modified c@ IF
+	GL_TEXTURE3 glActiveTexture
 	gen-atlas-tex time( ." atlas: " .!time cr )
 	0 atlas texture_atlas_t-modified c!
     THEN ;
 : ?mod-atlas-bgra ( -- )
     atlas-bgra texture_atlas_t-modified c@ IF
+	GL_TEXTURE2 glActiveTexture
 	gen-atlas-tex-bgra time( ." atlas-bgra: " .!time cr )
 	0 atlas-bgra texture_atlas_t-modified c!
     THEN ;
@@ -320,6 +323,8 @@ Defer translator ' noop is translator
 
 require unicode/unihan.fs
 read-unihan
+' 2drop ' >tc ' read-japanese wrap-xt
+' 2drop ' >sc ' read-japanese-tc wrap-xt
 
 require bidi.fs
 

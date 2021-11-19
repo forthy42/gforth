@@ -780,12 +780,14 @@ tex: thumb-tex-rgba
 : thumb-rgba-scaletex ( -- )
     thumb-rgba texscale-xy1 scaletex set-texscale1 ;
 : gen-thumb-tex ( -- )
+    GL_TEXTURE1 glActiveTexture
     thumb-tex-rgba
     GL_TEXTURE_2D thumb-rgba texture_atlas_t-id l@ glBindTexture edge linear
     thumb-rgba upload-atlas-tex ;
 
 : ?mod-thumb ( -- )
     thumb-rgba texture_atlas_t-modified c@ IF
+	GL_TEXTURE1 glActiveTexture
 	gen-thumb-tex time( ." thumb: " .!time cr )
 	0 thumb-rgba texture_atlas_t-modified c!
     THEN ;
