@@ -89,14 +89,10 @@ function gen_brotli {
      test -f $BROTLI.tar.gz || wget https://github.com/google/brotli/archive/refs/tags/v${BROTLI#*-}.tar.gz && mv v${BROTLI#*-}.tar.gz $BROTLI.tar.gz)
     tar zxvf ~/Downloads/$BROTLI.tar.gz
     (cd $BROTLI
-     mkdir out &&
-	 cd    out &&
-	 cmake -DCMAKE_INSTALL_PREFIX=$TOOLCHAIN/sysroot/usr \
-	       -DCMAKE_BUILD_TYPE=Release  \
-	       ..  &&
-	 for i in $(find . -name link.txt); do \
-	     sed -e 's/\(soname,[^ ]*\.so\)[0-9.]*/\1/g' $i > $i+; \
-	     mv $i+ $i; \
+     ./configure-cmake --prefix=$TOOLCHAIN/sysroot/usr CC="$TARGET-gcc" CFLAGS="-D__ANDROID_API__=21 -fPIC"
+     for i in $(find . -name link.txt); do \
+	 sed -e 's/\(soname,[^ ]*\.so\)[0-9.]*/\1/g' $i > $i+; \
+	 mv $i+ $i; \
 	 done &&
 	 make -j$nprocs &&
 	 make install
