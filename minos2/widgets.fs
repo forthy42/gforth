@@ -133,7 +133,7 @@ $[]Variable ranges>lang[]
 	    range @ $100 u>= IF  range $free  THEN
 	    dup range !
 	ELSE
-	    range @ $100 u< IF
+	    range @ 1+ $100 u<= IF
 		{ | zeros[ $100 ] }
 		zeros[ $100 2dup range @ fill
 		range off  range $!
@@ -141,10 +141,11 @@ $[]Variable ranges>lang[]
 	    range $@ I $FF and /string I' I - umin third fill
 	THEN
     $100 I $FF and - +LOOP  drop ;
-: range@ ( codepoint -- type )
+: range@ ( codepoint -- font# )
+    \G -1 as result means the font is meaningless
     dup >r 8 rshift ranges>lang[] $[]
-    dup @ dup $100 u< IF  nip rdrop  EXIT  THEN
-    drop $@ drop r> $FF and + c@ c>s ;
+    dup @ dup 1+ $100 u<= IF  nip rdrop  EXIT  THEN
+    drop $@ drop r> $FF and + c@ dup $FF = or ;
 
 -1 $00370 $00300 +range
 -1 $01B00 $01AB0 +range
