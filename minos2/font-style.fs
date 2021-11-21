@@ -777,10 +777,10 @@ harfbuzz:HB_DIRECTION_TTB font-bidi' font-lang + c!
 \egyptianhieroglyphs
 2 font-lang >breakable
 \ Aegyptus is free only for personal use. We use it when you have it
-\sans \regular fonts= Aegyptus.%ext%|AegyptusR_hint.%ext%|NotoSansEgyptianHieroglyphs-Regular.%ext%
+\sans \regular fonts= Aegyptus.otf|AegyptusR_hint.otf|NotoSansEgyptianHieroglyphs-Regular.ttf
 {{ $13000 $440 bounds }} 2/ +ranges
 fonts[ssm]=same
-\sans \bold fonts= AegyptusBold.%ext%|AegyptusB_hint.%ext%
+\sans \bold fonts= AegyptusBold.otf|AegyptusB_hint.otf
 [THEN]
 \anatolianhieroglyphs {{ $14400 $280 bounds }} 2/ "AnatolianHieroglyphs" fonts=template[r]
 2 font-lang >breakable
