@@ -252,11 +252,11 @@ end-struct wordlist-struct
 \ Search list table: find reveal
 
 unlock
-vt, cfalign
+hm, cfalign
 lock
 has? new-cfa [IF]  ' :dodoes A,  [THEN]
 unlock
-vt-template, vt-noname
+hm-template, hm-noname
 lock
 here has? new-cfa [IF] [ELSE] ' :dodoes A, [THEN]
 NIL A, NIL A, NIL A,
@@ -402,16 +402,16 @@ $00ffffff constant lcount-mask
 ' noop Alias ((name>)) ( nfa -- cfa )
 
 struct
-    cell% field >vtlink
-    cell% field >vtcompile,
-    cell% field >vtto
-    cell% field >vtdefer@
-    cell% field >vtextra
-    cell% field >vt>int
-    cell% field >vt>comp
-    cell% field >vt>string
-    cell% field >vt>link
-2drop \ vtsize is defined below
+    cell% field >hmlink
+    cell% field >hmcompile,
+    cell% field >hmto
+    cell% field >hmdefer@
+    cell% field >hmextra
+    cell% field >hm>int
+    cell% field >hm>comp
+    cell% field >hm>string
+    cell% field >hm>link
+2drop \ hmsize is defined below
 
 has? new-cfa [IF]
     1 cells -4 cells \ mini-oof class declaration with methods
@@ -419,13 +419,13 @@ has? new-cfa [IF]
     cell var >f+c
     cell var >link
     cell var >cfa
-    cell var >namevt
+    cell var >namehm
 [ELSE]
     1 cells -3 cells \ mini-oof class declaration with methods
     \ the offsets are a bit odd to keep the xt as point of reference
     cell var >f+c
     cell var >link
-    cell var >namevt
+    cell var >namehm
     cell var >cfa
 [THEN]
 
@@ -447,7 +447,7 @@ opt: ( xt-defer@ -- )
 ' defer@ alias initwl \ gforth init-voc
 \G initialises a vocabulary. Mapped to defer@
 
-swap cell+ swap \ vtextra
+swap cell+ swap \ hmextra
 
 method name>int ( nt -- xt ) \ gforth name-to-int
 \G @i{xt} represents the interpretation semantics of the word
@@ -460,7 +460,7 @@ method name>string ( nt -- addr u ) \ gforth name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
 method name>link ( nt1 -- nt2 / 0 ) \ gforth name-to-link
 
-drop Constant vtsize \ vtable size
+drop Constant hmsize \ vtable size
 
 defer compile, ( xt -- )
 \G Append the semantics represented by @i{xt} to the current
@@ -493,7 +493,7 @@ defer compile, ( xt -- )
 : named>link ( nt1 -- nt2 / 0 ) \ gforth	named-to-link
     >link @ ;
 
-: noname>string ( nt -- vt 0 ) \ gforth    noname-to-string
+: noname>string ( nt -- hm 0 ) \ gforth    noname-to-string
     cell- 0 ;
 : noname>link ( nt -- 0 ) \ gforth    noname-to-link
     drop 0 ;
@@ -520,9 +520,9 @@ defer compile, ( xt -- )
 
 const Create ???
 
-: vt? ( vt -- flag )
-    \G check if a vt is actually one
-    dup vttemplate = IF  drop true  EXIT  THEN
+: hm? ( hm -- flag )
+    \G check if a hm is actually one
+    dup hmtemplate = IF  drop true  EXIT  THEN
     >r  hm-list
     BEGIN  @ dup  WHILE
 	    dup r@ = IF  rdrop drop true  EXIT  THEN
@@ -532,7 +532,7 @@ const Create ???
     \G check for xt - must be code field or primitive
     dup in-dictionary? IF
 	dup >body dup maxaligned = IF
-	    dup >namevt @ vt? IF
+	    dup >namehm @ hm? IF
 		dup >code-address tuck body> = swap
 		docol:  ['] u#+ >code-address 1+ within or  EXIT
 	    THEN
@@ -571,7 +571,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 \G @i{a-addr} is the start of the Forth code after the @code{DOES>};
 \G Otherwise @i{a-addr} is 0.
     dup >code-address dodoes: = if
-	>namevt @ >vtextra @ >body
+	>namehm @ >hmextra @ >body
     else
 	drop 0
     then ;
@@ -582,7 +582,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 : any-code! ( a-addr cfa code-addr -- )
     \ for implementing DOES> and ;ABI-CODE, maybe :
     \ code-address is stored at cfa, a-addr at cfa+cell
-    over [ [IFDEF] >cfa ] >cfa [ [THEN] ] code-address!  >namevt @ >vtextra ! ;
+    over [ [IFDEF] >cfa ] >cfa [ [THEN] ] code-address!  >namehm @ >hmextra ! ;
 
 : does-code! ( xt1 xt2 -- ) \ gforth
 \G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;

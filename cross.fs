@@ -928,7 +928,7 @@ Struct
 
   cell% field >ghost-name
 
-\  cell% field >ghost-vt
+\  cell% field >ghost-hm
 
 End-Struct ghost-struct
 
@@ -2196,15 +2196,15 @@ X has? new-cfa [IF]
 : t>link   tcell 2* - ;
 : cfa,     ( cfa -- ) T A, H ;
 [THEN]
-: t>namevt tcell - ;
+: t>namehm tcell - ;
 
 Struct
-    tcell dup field >next-vt        \ linked list
+    tcell dup field >next-hm        \ linked list
     tcell dup field >compile,       \ smart compile,
     tcell dup field >extra-code     \ code for DOES> and other purposes
-End-Struct name-vt
+End-Struct name-hm
 
-Create current-name-vt  name-vt %size allot
+Create current-name-hm  name-hm %size allot
 
 : flag! ( w -- )   tlast @ t>flag dup >r T c@ xor r> c! H ;
 
@@ -2426,9 +2426,9 @@ NoHeaderFlag off
     LOOP ;
 
 Defer setup-execution-semantics  ' noop IS setup-execution-semantics
-Defer vt, \ forward rference only
-Defer vt-named
-Defer vt-noname
+Defer hm, \ forward rference only
+Defer hm-named
+Defer hm-noname
 0 Value lastghost
 
 : >loc ( -- )
@@ -2437,11 +2437,11 @@ Defer vt-noname
 : (THeader ( "name" -- ghost )
     \  >in @ bl-word count type 2 spaces >in !
     \ wordheaders will always be compiled to rom
-    switchrom vt,
+    switchrom hm,
     \ build header in target
     NoHeaderFlag @
     IF  NoHeaderFlag off
-	vt-noname
+	hm-noname
     ELSE
 	[ X has? f83headerstring ] [IF]
 	    T align H tlast @ T A, H
@@ -2460,7 +2460,7 @@ Defer vt-noname
 	[THEN]
 	there tlast !
 	1 headers-named +!	\ Statistic
-	vt-named
+	hm-named
     THEN
     T ( cfalign ) here H tlastcfa ! >loc
     \ Old Symbol table sed-script
@@ -2832,7 +2832,7 @@ ghost :noname drop
     docol, ]comp colon-start depth ;Resolve off T ] H r> ;
 
 : :noname ( -- xt colon-sys )
-    switchrom vt, [g'] :noname gwhere,
+    switchrom hm, [g'] :noname gwhere,
     [ X has? f83headerstring 0= ] [IF]
 	[ X has? new-cfa ] [IF] T cfalign 0 A, H
 	[ELSE] T 0 cell+ cfalign# H [THEN]
@@ -2843,7 +2843,7 @@ ghost :noname drop
     there 
     \ define a nameless ghost
     here ghostheader dup last-header-ghost ! dup to lastghost
-    (:) vt-noname ;
+    (:) hm-noname ;
 
 Cond: EXIT ( -- )   compile ;S  ;Cond
 
@@ -2922,14 +2922,14 @@ Cond: DOES>
     T cells H + T cfaligned H alit, compile set-does> compile ;
     Last-Header-Ghost @ >do:ghost @ >r
 T :noname H
-    vt-noname
+    hm-noname
     r> ?dup IF  swap resolve  ELSE  drop  THEN
 ;Cond
 
 X has? new-cfa [IF] #11 [ELSE] #10 [THEN] Constant does-xt-off
 : DOES>
     ['] does-resolved created >comp !
-    T here does-xt-off cells H + T cfaligned H \ includes noname header+vtable
+    T here does-xt-off cells H + T cfaligned H \ includes noname header+hmable
     !newdoes
     T :noname H 2drop
     instant-interpret-does>-hook
@@ -3066,7 +3066,7 @@ Cond: DOES>
   Ghost do:ghost!
   :noname postpone gdoes> ;
 
-: vtghost:  ( ghost -- )
+: hmghost:  ( ghost -- )
     Ghost >r
     :noname r> postpone Literal postpone cfaddr, postpone ;
     built >do:ghost @ >exec2 ! ;
@@ -3074,13 +3074,13 @@ Cond: DOES>
 Variable thm-list
 Variable ghm-list
 
-Ghost docol-vt drop
+Ghost docol-hm drop
 
 >TARGET
-9 T cells H Constant vtsize
+9 T cells H Constant hmsize
 >CROSS
 
-9 cells Constant gvtsize \ ghost vtables for comparison
+9 cells Constant ghmsize \ ghost hmables for comparison
 
 ghost :,
 ghost peephole-compile,
@@ -3137,7 +3137,7 @@ ghost noop
 ghost no.extensions
 2drop drop
 
-Create vttemplate
+Create hmtemplate
 0 ,
 findghost :, ,
 findghost no-to ,
@@ -3149,67 +3149,67 @@ findghost named>link ,
 0 ,
 
 Struct
-    cell% field g>vtlink
-    cell% field g>vtcompile,
-    cell% field g>vtto
-    cell% field g>vtdefer@
-    cell% field g>vtextra
-    cell% field g>vt>int
-    cell% field g>vt>comp
-    cell% field g>vt>string
-    cell% field g>vt>link
+    cell% field g>hmlink
+    cell% field g>hmcompile,
+    cell% field g>hmto
+    cell% field g>hmdefer@
+    cell% field g>hmextra
+    cell% field g>hm>int
+    cell% field g>hm>comp
+    cell% field g>hm>string
+    cell% field g>hm>link
 End-Struct vtable-struct
 
 \ stores 8 ghosts and a link
 
-: vt= ( vt1 vt2 -- flag )
-    cell+ swap gvtsize cell /string tuck compare 0= ;
+: hm= ( hm1 hm2 -- flag )
+    cell+ swap ghmsize cell /string tuck compare 0= ;
 
-: (vt,) ( -- )
+: (hm,) ( -- )
     T align  here H thm-list @ T A, H  dup thm-list !
-    vttemplate gvtsize cell /string bounds DO
+    hmtemplate ghmsize cell /string bounds DO
 	I @ addr,
     cell +LOOP
     \ copy table of ghosts for comparison
-    dup vttemplate @ T ! H  vttemplate off
+    dup hmtemplate @ T ! H  hmtemplate off
     align , here ghm-list @ dup , over ! ghm-list !
-    vttemplate gvtsize cell /string bounds DO
+    hmtemplate ghmsize cell /string bounds DO
 	I @ ,
     cell +LOOP ;
 
 :noname ( -- )
-    vttemplate @ 0= IF EXIT THEN
+    hmtemplate @ 0= IF EXIT THEN
     ghm-list
     BEGIN  @ dup  WHILE
-	    dup vttemplate vt= IF
-		1 cells - @ vttemplate @ T ! H  vttemplate off  EXIT  THEN
-    REPEAT  drop (vt,) ; IS vt,
+	    dup hmtemplate hm= IF
+		1 cells - @ hmtemplate @ T ! H  hmtemplate off  EXIT  THEN
+    REPEAT  drop (hm,) ; IS hm,
 
-: vt-template, ( -- )
-    T here 0 A, H vttemplate ! ;
+: hm-template, ( -- )
+    T here 0 A, H hmtemplate ! ;
 :noname ( -- )
-    [G'] noop              vttemplate g>vt>int !
-    [G'] default-name>comp vttemplate g>vt>comp !
-    [G'] named>string      vttemplate g>vt>string !
-    [G'] named>link        vttemplate g>vt>link ! ; is vt-named
+    [G'] noop              hmtemplate g>hm>int !
+    [G'] default-name>comp hmtemplate g>hm>comp !
+    [G'] named>string      hmtemplate g>hm>string !
+    [G'] named>link        hmtemplate g>hm>link ! ; is hm-named
 :noname ( -- )
-    [G'] noop              vttemplate g>vt>int !
-    [G'] default-name>comp vttemplate g>vt>comp !
-    [G'] noname>string     vttemplate g>vt>string !
-    [G'] noname>link       vttemplate g>vt>link ! ; is vt-noname
-: vt-populate ( -- )
-    [G'] :,                vttemplate g>vtcompile, !
-    [G'] no-to             vttemplate g>vtto !
-    [G'] no-defer@         vttemplate g>vtdefer@ !
-    TNIL                   vttemplate g>vtextra !
-    vt-named ;
+    [G'] noop              hmtemplate g>hm>int !
+    [G'] default-name>comp hmtemplate g>hm>comp !
+    [G'] noname>string     hmtemplate g>hm>string !
+    [G'] noname>link       hmtemplate g>hm>link ! ; is hm-noname
+: hm-populate ( -- )
+    [G'] :,                hmtemplate g>hmcompile, !
+    [G'] no-to             hmtemplate g>hmto !
+    [G'] no-defer@         hmtemplate g>hmdefer@ !
+    TNIL                   hmtemplate g>hmextra !
+    hm-named ;
 
-:noname ( ghost -- )  vttemplate g>vtcompile, ! ; IS gset-optimizer
-: gset-to ( ghost -- )        vttemplate g>vtto ! ;
-: gset-defer@   ( ghost -- )  vttemplate g>vtdefer@ ! ;
-: gset->int ( ghost -- )      vttemplate g>vt>int ! ;
-: gset->comp ( ghost -- )     vttemplate g>vt>comp ! ;
-:noname ( ghost -- )     vttemplate g>vtextra ! ; is gset-extra
+:noname ( ghost -- )  hmtemplate g>hmcompile, ! ; IS gset-optimizer
+: gset-to ( ghost -- )        hmtemplate g>hmto ! ;
+: gset-defer@   ( ghost -- )  hmtemplate g>hmdefer@ ! ;
+: gset->int ( ghost -- )      hmtemplate g>hm>int ! ;
+: gset->comp ( ghost -- )     hmtemplate g>hm>comp ! ;
+:noname ( ghost -- )     hmtemplate g>hmextra ! ; is gset-extra
 
 : set-optimizer ( xt -- ) xt>ghost gset-optimizer ;
 : set-to       ( xt -- )  xt>ghost gset-to ;
@@ -3218,9 +3218,9 @@ End-Struct vtable-struct
 : set->comp    ( xt -- )  xt>ghost gset->comp ;
 : set-extra    ( xt -- )  xt>ghost gset-extra ;
 
-: vt: ( -- xt colon-sys )
-    :noname postpone vt-template, postpone vt-populate ;
-: ;vt ( xt colon-sys -- )
+: hm: ( -- xt colon-sys )
+    :noname postpone hm-template, postpone hm-populate ;
+: ;hm ( xt colon-sys -- )
     postpone ;  built >do:ghost @ >exec2 ! ; immediate
 
 >TARGET
@@ -3252,11 +3252,11 @@ ghost ?fold-to drop
     (THeader <res> over >magic !  there swap >link !
     [G'] :dodefer (doer,)
     swap T A, A, H [ T has? ec H ] [IF] alias-mask flag! [THEN]
-    vt-populate
+    hm-populate
     [G'] no-to   gset-to
     [G'] no-defer@ gset-defer@
     [G'] a>int   gset->int
-    [G'] i/c>comp vttemplate g>vt>comp ! ;
+    [G'] i/c>comp hmtemplate g>hm>comp ! ;
 
 : opt: ( -- colon-sys )   gstart-xt set-optimizer ;
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
@@ -3321,28 +3321,28 @@ IS !newdoes
 Builder :-dummy
 Build: ;Build
 by: :docol ;DO
-vt: [G'] :, gset-optimizer ;vt
+hm: [G'] :, gset-optimizer ;hm
 
 Builder prim-dummy
 Build: ;Build
 by: :doprim ;DO \ :doprim is a dummy, we will not use it
-vt: [G'] peephole-compile, gset-optimizer ;vt
+hm: [G'] peephole-compile, gset-optimizer ;hm
 
 <do:> Ghost :doprim >magic !
 
 Builder does>-dummy
 Build: ;Build
 by: :dodoes ;DO
-vt: [G'] does, gset-optimizer
-    [G'] noop  gset-extra  ;vt
-\ vtghost: dodoes-vt
+hm: [G'] does, gset-optimizer
+    [G'] noop  gset-extra  ;hm
+\ hmghost: dodoes-hm
 
 \ Variables and Constants                              05dec92py
 
 Builder (Constant)
 Build:  ( n -- ) ;Build
 by: :docon ( target-body-addr -- n ) T @ H ;DO
-vt: [G'] constant, gset-optimizer ;vt
+hm: [G'] constant, gset-optimizer ;hm
 
 Builder Constant
 Build:  ( n -- ) T , H ;Build
@@ -3355,18 +3355,18 @@ by (Constant)
 Builder 2Constant
 Build:  ( d -- ) T , , H ;Build
 by: :dodoes1 ( ghost -- d ) T dup cell+ @ swap @ H ;DO
-vt: [G'] 2constant, gset-optimizer
-    [G'] 2@ gset-extra ;vt
+hm: [G'] 2constant, gset-optimizer
+    [G'] 2@ gset-extra ;hm
 
 Builder Create
 BuildSmart: ;Build
 by: :dovar ( target-body-addr -- addr ) ;DO
-vt: [G'] variable, gset-optimizer ;vt \ vtghost: dovar-vt
+hm: [G'] variable, gset-optimizer ;hm \ hmghost: dovar-hm
 
 Builder <Builds
 BuildSmart: ;Build
 by: :dodoes2 ( target-body-addr -- addr ) ;DO
-vt: [G'] does, gset-optimizer ;vt \ vtghost: dovar-vt
+hm: [G'] does, gset-optimizer ;hm \ hmghost: dovar-hm
 
 Builder Variable
 T has? rom H [IF]
@@ -3411,10 +3411,10 @@ Builder theme-color:
 Build: t-theme-color# @ T , H  1 t-theme-color# +! ;Build
 DO: ;DO
 compile: g>xt compile does-xt T a, H ;compile
-vt: [G'] does, gset-optimizer
+hm: [G'] does, gset-optimizer
     [G'] theme! gset-to
     [G'] theme@ gset-defer@
-;vt
+;hm
 
 \ User variables                                       04may94py
 
@@ -3454,7 +3454,7 @@ by AVariable
     Builder User
     Build: 0 u, X , ;Build
     by: :douser ( ghost -- up-addr )  X @ tup@ + ;DO
-    vt: [G'] user, gset-optimizer ;vt
+    hm: [G'] user, gset-optimizer ;hm
     
     Builder 2User
     Build: 0 u, X , 0 u, drop ;Build
@@ -3469,7 +3469,7 @@ T has? rom H [IF]
     Builder (Value)
     Build:  ( n -- ) ;Build
     by: :dovalue ( target-body-addr -- n ) T @ @ H ;DO
-    vt: [G'] value, gset-optimizer [G'] value-to gset-to ;vt
+    hm: [G'] value, gset-optimizer [G'] value-to gset-to ;hm
     
     Builder Value
     Build: T here 0 A, H switchram T align here swap ! , H ;Build
@@ -3482,7 +3482,7 @@ T has? rom H [IF]
     Builder (Value)
     Build:  ( n -- ) ;Build
     by: :dovalue ( target-body-addr -- n ) T @ H ;DO
-    vt: [G'] value, gset-optimizer [G'] value-to gset-to ;vt
+    hm: [G'] value, gset-optimizer [G'] value-to gset-to ;hm
 
     Builder Value
     BuildSmart: T , H ;Build
@@ -3496,7 +3496,7 @@ T has? rom H [IF]
 Builder (UValue)
 Build: 0 u, T , H ;Build
 DO: X @ tup@ + X @ ;DO
-vt: [G'] u-compile, gset-optimizer [G'] uvalue-to gset-to ;vt
+hm: [G'] u-compile, gset-optimizer [G'] uvalue-to gset-to ;hm
 
 Defer texecute
 
@@ -3508,10 +3508,10 @@ T has? rom H [IF]
     BuildSmart:  ( -- ) [T'] noop T A, H ;Build
     by: :dodefer ( ghost -- ) X @ texecute ;DO
 [THEN]
-vt:
+hm:
 [G'] defer, gset-optimizer
 [G'] value-to gset-to
-[G'] defer-defer@ gset-defer@ ;vt
+[G'] defer-defer@ gset-defer@ ;hm
 
 \ Sturctures                                           23feb95py
 
@@ -3522,7 +3522,7 @@ vt:
 Builder (Field)
 Build: ;Build
 by: :dofield T @ H + ;DO
-vt: [G'] field+, gset-optimizer ;vt
+hm: [G'] field+, gset-optimizer ;hm
 
 Builder Field
 Build: ( align1 offset1 align size "name" --  align2 offset2 )
@@ -3559,12 +3559,12 @@ by (Field)
 Builder (ABI-CODE)
 Build: ;Build
 by: :doabicode noop ;DO
-vt: [G'] abi-code, gset-optimizer ;vt
+hm: [G'] abi-code, gset-optimizer ;hm
 
 BUILDER (;abi-code)
 Build: ;Build
 by: :do;abicode noop ;DO
-vt: [G'] ;abi-code, gset-optimizer ;vt
+hm: [G'] ;abi-code, gset-optimizer ;hm
 
 \ User Methods                                         22jun13py
 
@@ -3627,8 +3627,8 @@ Builder recognized:
 Build: ( xtint xtcomp xtpost --- )
     T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
 by: :dodoes3 ;DO
-vt: [G'] does, gset-optimizer
-[G'] do-rec gset-extra  ;vt
+hm: [G'] does, gset-optimizer
+[G'] do-rec gset-extra  ;hm
 
 \ Peephole optimization					05sep01jaw
 

@@ -266,7 +266,7 @@ Defer locals-list!
    \ !! print assumption and reality
  then ;
 
-(field) locals-name-size+ vtsize cell+ , \ fields + wiggle room, name size must be added
+(field) locals-name-size+ hmsize cell+ , \ fields + wiggle room, name size must be added
 
 : create-local1 ( "name" -- a-addr )
     create
@@ -425,21 +425,21 @@ previous
 ' new-locals-rec  ' locals-types >wordlist 2 rec-sequence: new-locals
 
 \ and now, finally, the user interface words
-: { ( -- vtaddr u latest latestnt wid 0 ) \ gforth open-brace
-    ( >docolloc ) vtsave \ as locals will mess with their own vttemplate
+: { ( -- hmaddr u latest latestnt wid 0 ) \ gforth open-brace
+    ( >docolloc ) hmsave \ as locals will mess with their own hmtemplate
     latest latestnt get-current
     ['] new-locals forth-recognizer >stack
     ['] locals >wordlist set-current
     val-part off
     0 postpone [ ; immediate
 
-synonym {: { ( -- vtaddr u latest latestnt wid 0 ) \ forth-2012 open-brace-colon
+synonym {: { ( -- hmaddr u latest latestnt wid 0 ) \ forth-2012 open-brace-colon
 \G Start standard locals declaration.  All Gforth locals extensions are
 \G supported by Gforth, though the standard only supports the subset of cells.
 
 locals-types definitions
 
-: } ( vtaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
+: } ( hmaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
     \ ends locals definitions
     ]
     forth-recognizer stack> drop
@@ -448,15 +448,15 @@ locals-types definitions
     while
 	execute
     repeat
-    drop vt,
+    drop hm,
     locals-size @ alignlp-f locals-size ! \ the strictest alignment
     set-current lastnt ! last !
-    vtrestore
+    hmrestore
     activate-locals ;
 
 synonym :} }
 
-: -- ( vtaddr u latest latestnt wid 0 ... -- ) \ gforth dash-dash
+: -- ( hmaddr u latest latestnt wid 0 ... -- ) \ gforth dash-dash
     }
     BEGIN  '}' parse dup WHILE
         + 1- c@ dup bl = swap ':' = or  UNTIL

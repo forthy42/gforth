@@ -55,13 +55,13 @@ Variable slowvoc   0 slowvoc !
     0 A, here voclink @ A, voclink ! 0 A, ;
 
 : set-wordlist ( reveal-xt init-xt rec-xt -- )
-    noname-vt  set-does>  set-defer@  set-to ;
+    noname-hm  set-does>  set-defer@  set-to ;
 
 : wordlist-class ( reveal-xt init-xt rec-xt -- wid )
-    vtsave 2>r last @ >r
+    hmsave 2>r last @ >r
     forth-wordlist noname-from here body> >r wl,
-    set-wordlist  r@ initwl r>  vt,
-    r> make-latest 2r> vtrestore ;
+    set-wordlist  r@ initwl r>  hm,
+    r> make-latest 2r> hmrestore ;
 
 : mappedwordlist ( map-struct -- wid )	\ gforth
 \G Create a wordlist with a special map-structure.

@@ -171,27 +171,27 @@ unlock tlastcfa @ lock >body AConstant lastnt
     cfalign 0 last ! 0 lastnt !
     here xt-location drop
     [ has? new-cfa [IF] ] 0 A, [ [THEN] ] ;
-: namevt, ( namevt -- )
-    , here lastnt ! ; \ add location stamps on vt+cf
+: namehm, ( namehm -- )
+    , here lastnt ! ; \ add location stamps on hm+cf
 
-: noname-vt ( -- )
-    \G modify vt for noname words
+: noname-hm ( -- )
+    \G modify hm for noname words
     default-i/c
     ['] noname>string set-name>string
     ['] noname>link set-name>link ;
-: named-vt ( -- )
-    \G modify vt for named words
+: named-hm ( -- )
+    \G modify hm for named words
     default-i/c
     ['] named>string set-name>string
     ['] named>link set-name>link ;
-: ?noname-vt ( -- ) lastnt @ 0= IF  noname-vt  ELSE  named-vt  THEN ;
+: ?noname-hm ( -- ) lastnt @ 0= IF  noname-hm  ELSE  named-hm  THEN ;
 
 : header, ( c-addr u -- ) \ gforth
     \G create a header for a named word
-    vt, name, vttemplate namevt, named-vt ;
+    hm, name, hmtemplate namehm, named-hm ;
 : noname, ( -- ) \ gforth
     \G create an empty header for an unnamed word
-    vt, 0name, vttemplate namevt, noname-vt ;
+    hm, 0name, hmtemplate namehm, noname-hm ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -200,7 +200,7 @@ defer header-name,
 defer header-extra ' noop is header-extra
 : header ( -- ) \ gforth
     \G create a header for a word
-    vt, header-name, vttemplate namevt, ?noname-vt header-extra ;
+    hm, header-name, hmtemplate namehm, ?noname-hm header-extra ;
 
 : create-from ( nt "name" -- ) \ gforth
     \G Create a word @i{name} that behaves like @i{nt}, but with an
@@ -210,16 +210,16 @@ defer header-extra ' noop is header-extra
     \G faster than if you create a word using @code{set-} words,
     \G @code{immediate}, or @code{does>}.  You can use @code{noname}
     \G with @code{create-from}.
-    vt, header-name,
-    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namevt 2@ [ [THEN] ] ,
-    lastnt @ 0= IF noname-vt THEN cfa,
+    hm, header-name,
+    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namehm 2@ [ [THEN] ] ,
+    lastnt @ 0= IF noname-hm THEN cfa,
     header-extra ;
 
 : noname-from ( xt -- ) \ gforth
     \G Create a nameless word that behaves like @i{xt}, but with an
     \G empty body.  @i{xt} must be the nt of a nameless word.
-    vt, 0name,
-    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namevt 2@ [ [THEN] ]
+    hm, 0name,
+    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namehm 2@ [ [THEN] ]
     , cfa, ;
 
 : input-stream-header ( "name" -- )
@@ -437,7 +437,7 @@ include ./recognizer.fs
 \ \ Create Variable User Constant                        	17mar93py
 
 : defer@, ( xt -- )
-    dup lit, >namevt @ >vtdefer@ @ opt!-compile, ;
+    dup lit, >namehm @ >hmdefer@ @ opt!-compile, ;
 
 : a>int ( nt -- )  >body @ ;
 : a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
@@ -463,7 +463,7 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     ['] parser create-from ['] a>int ['] a>comp synonym, reveal ;
 
 : alias? ( nt -- flag )
-    >namevt @ >vt>int 2@ ['] a>comp ['] a>int d= ;
+    >namehm @ >hm>int 2@ ['] a>comp ['] a>int d= ;
 
 : Synonym ( "name" "oldname" -- ) \ Forth200x
     ['] parser create-from
@@ -472,7 +472,7 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     ['] s>int ['] s>comp synonym, reveal ;
 
 : synonym? ( nt -- flag )
-    >namevt @ >vt>int 2@ ['] s>comp ['] s>int d= ;
+    >namehm @ >hm>int 2@ ['] s>comp ['] s>int d= ;
 
 : Create ( "name" -- ) \ core
     ['] udp create-from reveal ;
@@ -573,7 +573,7 @@ opt: ( xt -- )
 
 \ opt: to define compile, action
 
-Create vttemplate
+Create hmtemplate
 0 A,                   \ link field
 ' peephole-compile, A, \ compile, field
 ' no-to A,             \ to field
@@ -584,39 +584,39 @@ Create vttemplate
 ' named>string A,      \ name>string field
 ' named>link A,        \ name>link field
 
-\ initialize to one known vt
+\ initialize to one known hm
 
-: vt-activate ( xt -- )
-    >namevt vttemplate over ! vttemplate ! ;
-: vtcopy ( xt -- ) \ gforth vtcopy
-    >namevt @ vttemplate 0 >vt>int move
-    here vt-activate ;
+: hm-activate ( xt -- )
+    >namehm hmtemplate over ! hmtemplate ! ;
+: hmcopy ( xt -- ) \ gforth hmcopy
+    >namehm @ hmtemplate 0 >hm>int move
+    here hm-activate ;
 
-: vtcopy,     ( xt -- )  \ gforth	vtcopy-comma
-    dup vtcopy here >r dup >code-address cfa, cell+ @ r> cell+ ! ;
+: hmcopy,     ( xt -- )  \ gforth	hmcopy-comma
+    dup hmcopy here >r dup >code-address cfa, cell+ @ r> cell+ ! ;
 
-: vtsave ( -- addr u ) \ gforth
-    \g save vttemplate for nested definitions
-    vttemplate vtsize save-mem  vttemplate off ;
+: hmsave ( -- addr u ) \ gforth
+    \g save hmtemplate for nested definitions
+    hmtemplate hmsize save-mem  hmtemplate off ;
 
-: vtrestore ( addr u -- ) \ gforth
-    \g restore vttemplate
-    over >r vttemplate swap move r> free throw ;
+: hmrestore ( addr u -- ) \ gforth
+    \g restore hmtemplate
+    over >r hmtemplate swap move r> free throw ;
 
-: vt= ( vt1 vt2 -- flag )
-    cell+ swap vtsize cell /string tuck compare 0= ;
+: hm= ( hm1 hm2 -- flag )
+    cell+ swap hmsize cell /string tuck compare 0= ;
 
-: (vt,) ( -- )
-    align  here vtsize allot vttemplate over vtsize move
+: (hm,) ( -- )
+    align  here hmsize allot hmtemplate over hmsize move
     hm-list @ over !  dup hm-list !
-    vttemplate @ !  vttemplate off ;
+    hmtemplate @ !  hmtemplate off ;
 
-: vt, ( -- )
-    vttemplate @ 0= IF EXIT THEN
+: hm, ( -- )
+    hmtemplate @ 0= IF EXIT THEN
     hm-list
     BEGIN  @ dup  WHILE
-	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
-    REPEAT  drop (vt,) ;
+	    dup hmtemplate hm= IF  hmtemplate @ !  hmtemplate off  EXIT  THEN
+    REPEAT  drop (hm,) ;
 
 : make-latest ( nt -- )
     \G Make @i{nt} the latest definition, which can be manipulated by
@@ -625,22 +625,22 @@ Create vttemplate
     \G not change the behaviour of the word (only its implementation),
     \G otherwise you may get a surprising mix of behaviours that is
     \G not consistent between Gforth engines and versions.
-    vt, dup last ! lastnt ! ;
+    hm, dup last ! lastnt ! ;
 
-: ?vt ( -- )
+: ?hm ( -- )
     \G check if deduplicated, duplicate if necessary
-    lastnt @ >namevt @ vttemplate <> IF
+    lastnt @ >namehm @ hmtemplate <> IF
 	lastnt @
-	dup >namevt @ vttemplate vtsize move
-	vt-activate
+	dup >namehm @ hmtemplate hmsize move
+	hm-activate
     THEN ;
 
-: !namevt ( addr -- )  latestnt >namevt ! ;
+: !namehm ( addr -- )  latestnt >namehm ! ;
 
 : general-compile, ( xt -- )
     postpone literal postpone execute ;
 
-: set-optimizer ( xt -- ) ?vt vttemplate >vtcompile, ! ;
+: set-optimizer ( xt -- ) ?hm hmtemplate >hmcompile, ! ;
 ' set-optimizer alias set-compiler
 : set-execute ( ca -- ) \ gforth
     \G Changes the current word such that it jumps to the native code
@@ -656,17 +656,17 @@ Create vttemplate
     \G implementation accordingly.  Call @code{set-optimizer}
     \G afterwards if you want a more efficient implementation.
     ['] does, set-optimizer
-    vttemplate >vtextra !
+    hmtemplate >hmextra !
     dodoes: latestnt [ [IFDEF] >cfa ] >cfa [ [THEN] ] code-address! ;
-: set-to        ( to-xt -- ) ?vt vttemplate >vtto ! ;
-: set-defer@    ( defer@-xt -- ) ?vt vttemplate >vtdefer@ ! ;
-: set->int      ( xt -- ) ?vt vttemplate >vt>int ! ;
-: set->comp     ( xt -- ) ?vt vttemplate >vt>comp ! ;
-: set-name>string ( xt -- ) ?vt vttemplate >vt>string ! ;
-: set-name>link   ( xt -- ) ?vt vttemplate >vt>link   ! ;
+: set-to        ( to-xt -- ) ?hm hmtemplate >hmto ! ;
+: set-defer@    ( defer@-xt -- ) ?hm hmtemplate >hmdefer@ ! ;
+: set->int      ( xt -- ) ?hm hmtemplate >hm>int ! ;
+: set->comp     ( xt -- ) ?hm hmtemplate >hm>comp ! ;
+: set-name>string ( xt -- ) ?hm hmtemplate >hm>string ! ;
+: set-name>link   ( xt -- ) ?hm hmtemplate >hm>link   ! ;
 
 : int-opt; ( flag lastxt -- )
-    nip >r vt, wrap! r> set-optimizer ;
+    nip >r hm, wrap! r> set-optimizer ;
 : opt: ( -- colon-sys )
     int-[:
     ['] int-opt; colon-sys-xt-offset stick ; \ replace noop with :does>;
@@ -683,7 +683,7 @@ Create vttemplate
     \g in compiled @code{to @i{name}}, xt is that of @i{name}.  This
     \g word generates code for storing v (of type appropriate for
     \g @i{name}) there.  This word is a factor of @code{to}.
-    dup >lits >namevt @ >vtto @ opt!-compile,
+    dup >lits >namehm @ >hmto @ opt!-compile,
     \ OPT: part of the SET-TO part of the defining word of <name>.
     \ This here needs to be optimizing even for gforth-itc, because
     \ otherwise this code won't work: for locals, the xt is no longer
@@ -716,7 +716,7 @@ Create vttemplate
 
 ' (to) Alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
 ' (to) Alias reveal! ( xt wid -- ) \ gforth reveal!
-' >vtto Alias reveal-method ( wid -- field ) \ gforth reveal-method
+' >hmto Alias reveal-method ( wid -- field ) \ gforth reveal-method
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
 
 : value-to ( n value-xt -- ) \ gforth-internal
@@ -801,7 +801,7 @@ Create defstart
 ; immediate
 
 : int-does>; ( flag lastxt -- )
-    nip >r vt, wrap! r> set-does> ;
+    nip >r hm, wrap! r> set-does> ;
 
 : int-does> ( -- colon-sys )
     int-[:

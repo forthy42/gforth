@@ -159,4 +159,4 @@ e? os-type s" linux-gnu" string-prefix? [IF]
     (getpid) to getpid ; is 'cold
 
 :noname drop ->errno ; opt: drop ]] drop ->errno [[ ;
-' errno make-latest set-to vt,
+' errno make-latest set-to hm,

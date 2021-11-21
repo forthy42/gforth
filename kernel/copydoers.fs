@@ -21,43 +21,43 @@
 doer? :docon [IF]
 : docon, ( -- )	\ gforth
     \G The code address of a @code{CONSTANT}.
-    ['] bl vtcopy, ;
+    ['] bl hmcopy, ;
 [THEN]
 
 doer? :dovalue [IF]
 : dovalue, ( -- )	\ gforth
     \G The code address of a @code{CONSTANT}.
-    ['] def#tib vtcopy, ;
+    ['] def#tib hmcopy, ;
 [THEN]
 
 : docol, ( -- )	\ gforth
     \G The code address of a colon definition.
-    ['] on vtcopy, ;
+    ['] on hmcopy, ;
 
 doer? :dovar [IF]
 : dovar, ( -- )	\ gforth
     \G The code address of a @code{CREATE}d word.
     \ in rom-applications variable might be implemented with constant
     \ use really a created word!
-    ['] udp vtcopy, ;
+    ['] udp hmcopy, ;
 [THEN]
 
 doer? :douser [IF]
 : douser, ( -- )	\ gforth
     \G The code address of a @code{USER} variable.
-    ['] sp0 vtcopy, ;
+    ['] sp0 hmcopy, ;
 [THEN]
 
 doer? :dodefer [IF]
 : dodefer, ( -- )	\ gforth
     \G The code address of a @code{defer}ed word.
-    ['] parser vtcopy, ;
+    ['] parser hmcopy, ;
 [THEN]
 
 doer? :dofield [IF]
 : dofield, ( -- )	\ gforth
     \G The code address of a @code{field}.
-    ['] >body vtcopy, ;
+    ['] >body hmcopy, ;
 [THEN]
 
 doer? :dodoes [IF]
@@ -70,17 +70,17 @@ doer? :doabicode [IF]
 \ (ABI-CODE) (abi-code-dummy)
 : doabicode, ( -- )	\ gforth
     \G The code address of a @code{ABI-CODE} definition.
-    ['] (abi-code-dummy) vtcopy, ;
+    ['] (abi-code-dummy) hmcopy, ;
 [THEN]
 
 doer? :do;abicode [IF]
 \ (;abi-code) (;abi-code-dummy)
 : do;abicode, ( -- )
-    ['] (;abi-code-dummy) vtcopy, ;
+    ['] (;abi-code-dummy) hmcopy, ;
 [THEN]
 
 doer? :doextra [IF]
 \ extra>-dummy (doextra-dummy)
 : doextra, ( -- )
-    ['] (doextra-dummy) vtcopy, ;
+    ['] (doextra-dummy) hmcopy, ;
 [THEN]

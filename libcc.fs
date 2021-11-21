@@ -924,7 +924,7 @@ tmp$ $execstr-ptr !
 0 Value rt-vtable
 
 : make-rt ( addr -- )
-    rt-vtable >namevt @ swap body> >namevt ! ;
+    rt-vtable >namehm @ swap body> >namehm ! ;
 
 : rt-does> @ call-c ;
 : ?link-wrapper ( addr -- xf-cfr )
@@ -941,7 +941,7 @@ tmp$ $execstr-ptr !
 
 cfalign 0 , 0 , noname Create
 \ can not be named due to rebind-libcc
-named-vt \ but is actually a named vt
+named-hm \ but is actually a named hm
 ' cfun, set-optimizer
 ' rt-does> set-does>
 

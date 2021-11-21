@@ -49,7 +49,7 @@ Variable extra-locals ( additional hidden locals size )
 
 locals-types definitions
 
-: :}* ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... xt -- ) \ gforth close-brace-dictionary
+: :}* ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... xt -- ) \ gforth close-brace-dictionary
     0 lit, lits, here cell- >r
     compile, ]] >lp [[
     :}
@@ -58,19 +58,19 @@ locals-types definitions
     ['] execute is end-d  ['] noop is endref,
     extra-locals off activate-locals ;
 
-: :}xt ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
+: :}xt ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
     \G end a closure's locals declaration.  The closure will be allocated by
     \G the xt on the stack, so the closure's run-time stack effect is @code{(
     \G xt-alloc -- xt-closure}.
     \ run-time: ( xt size -- ... )
     [: swap execute ;] :}* ;
 
-: :}d ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+: :}d ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
     \G end a closure's locals declaration.  The closure will be allocated in
     \G the dictionary.
     ['] allocd :}* ;
 
-: :}h ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-heap
+: :}h ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-heap
     \G end a closure's locals declaration.  The closure will be allocated on
     \G the heap.
     ['] alloch :}* ;
@@ -93,7 +93,7 @@ forth definitions
 
 locals-types definitions
 
-: :}l ( vtaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
+: :}l ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-locals
     \G end a closure's locals declaration.  The closure will be allocated on
     \G the local's stack.
     :}
@@ -106,13 +106,13 @@ locals-types definitions
 forth definitions
 
 : wrap-closure ( xt -- )
-    dup >namevt @ >vtextra !  ['] does, set-optimizer
-    finish-code  vt,  wrap!  vttemplate off \ dead vttemplate link
+    dup >namehm @ >hmextra !  ['] does, set-optimizer
+    finish-code  hm,  wrap!  hmtemplate off \ dead hmtemplate link
     previous-section  dead-code off ;
 
 : (closure-;]) ( closure-sys lastxt -- )
     >r r@ wrap-closure
-    r> >namevt @ swap !
+    r> >namehm @ swap !
     pop-locals ;
 
 : closure-:-hook ( sys -- sys addr xt n )
@@ -122,7 +122,7 @@ forth definitions
     dead-code off
     defstart ;
 
-: closure> ( vtable -- addr ) \ gforth-experimental closure-end
+: closure> ( hmaddr -- addr ) \ gforth-experimental closure-end
     \G create trampoline head
     [ 0 >body ] [IF] dodoes: >l >l lp@ cell+
     [ELSE] >l dodoes: >l lp@ cell+ cell+ [THEN] ;
@@ -141,7 +141,7 @@ forth definitions
     endcase
     ['] (closure-;]) colon-sys-xt-offset stick ;
 
-: [{: ( -- vtaddr u latest latestnt wid 0 ) \ gforth-experimental start-closure
+: [{: ( -- hmaddr u latest latestnt wid 0 ) \ gforth-experimental start-closure
     \G starts a closure.  Closures first declare the locals frame they are
     \G going to use, and then the code that is executed with those locals.
     \G Closures end like quotations with a @code{;]}.  The locals declaration
@@ -158,7 +158,7 @@ forth definitions
     postpone {:
 ; immediate compile-only
 
-: <{: ( -- vtaddr u latest latestnt wid 0 ) \ gforth-experimental start-homelocation
+: <{: ( -- hmaddr u latest latestnt wid 0 ) \ gforth-experimental start-homelocation
     \G starts a home location
     #0. push-locals postpone {:
 ; immediate compile-only
@@ -170,9 +170,9 @@ forth definitions
 
 \ stack-based closures without name
 
-: (;*]) ( xt -- vt )
+: (;*]) ( xt -- hm )
     >r ] postpone endscope third locals-list ! postpone endscope
-    r@ wrap-closure  r> >namevt @ ;
+    r@ wrap-closure  r> >namehm @ ;
 
 : (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
     compile, r> lit, ]] closure> [[ ;

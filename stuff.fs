@@ -167,7 +167,7 @@ UValue $? ( -- n ) \ gforth dollar-question
 ' recognized-dnum AConstant rectype-dnum
 
 : defers@ ( xt -- xt' )
-    BEGIN  dup >namevt @ >vtdefer@ @ ['] no-defer@ <>  WHILE
+    BEGIN  dup >namehm @ >hmdefer@ @ ['] no-defer@ <>  WHILE
 	    defer@  REPEAT ;
 : >rec-stack ( xt -- stack )
     dup >code-address docol: =

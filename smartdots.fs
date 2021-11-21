@@ -41,7 +41,7 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
 : .addr. ( addr -- )
     dup xt? if
         dup name>string dup if
-            third >namevt @ >vt>int @ ['] noop <> if '`' emit then
+            third >namehm @ >hm>int @ ['] noop <> if '`' emit then
             ." `" type space drop exit
 	else
 	    2drop

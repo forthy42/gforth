@@ -406,18 +406,18 @@ defer adjust-locals-list ( wid -- )
 
 \ quotations
 : wrap@-kernel ( -- wrap-sys )
-    vtsave latest latestnt leave-sp @ ( unlocal-state @ ) ;
+    hmsave latest latestnt leave-sp @ ( unlocal-state @ ) ;
 : wrap!-kernel ( wrap-sys -- )
-    ( unlocal-state ! ) leave-sp ! lastnt ! last ! vtrestore ;
+    ( unlocal-state ! ) leave-sp ! lastnt ! last ! hmrestore ;
 
 Defer wrap@ ( -- wrap-sys ) ' wrap@-kernel is wrap@
 Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 
-: (int-;]) ( some-sys lastxt -- ) >r vt, wrap! r> ;
+: (int-;]) ( some-sys lastxt -- ) >r hm, wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
     ] postpone ENDSCOPE third locals-list ! postpone ENDSCOPE
-    finish-code  vt,  previous-section  wrap!  dead-code off
+    finish-code  hm,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 
 : int-[: ( -- flag colon-sys )

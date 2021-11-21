@@ -169,7 +169,7 @@ forth-wordlist noname-from
 ' hash-reveal set-to
 ' (rehash) set-defer@
 ' hash-rec set-does>
-vt, latestxt cell- @ to hashsearch-map
+hm, latestxt cell- @ to hashsearch-map
 
 \ hash allocate and vocabulary initialization          10oct94py
 

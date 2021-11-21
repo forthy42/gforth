@@ -354,13 +354,13 @@ Variable rec'[]
 	hex.
     then ;
 
-: .vt ( nt -- )
-    >namevt @ cr
-    ." opt:    " dup >vtcompile, @ .name? cr
-    ." to:     " dup >vtto       @ .name? cr
-    ." >int:   " dup >vt>int     @ .name? cr
-    ." >comp:  " dup >vt>comp    @ .name? cr
-    ." defer@: " dup >vtdefer@   @ .name? cr
-    ." extra:  " dup >vtextra    @ .name? cr
-    ." >string " dup >vt>string  @ .name? cr
-    ." >link   "     >vt>link    @ .name? ;
+: .hm ( nt -- )
+    >namehm @ cr
+    ." opt:    " dup >hmcompile, @ .name? cr
+    ." to:     " dup >hmto       @ .name? cr
+    ." >int:   " dup >hm>int     @ .name? cr
+    ." >comp:  " dup >hm>comp    @ .name? cr
+    ." defer@: " dup >hmdefer@   @ .name? cr
+    ." extra:  " dup >hmextra    @ .name? cr
+    ." >string " dup >hm>string  @ .name? cr
+    ." >link   "     >hm>link    @ .name? ;
