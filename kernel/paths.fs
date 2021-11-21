@@ -213,42 +213,38 @@ User tfile
   ofile $@ compact-filename
   nip ofile $!len ;
 
-: open-ofile ( -- fid ior )
+: open-ofile ( -- wfileid ior )
     \G opens the file whose name is in ofile
-    expandtopic reworkdir
     ofile $@ r/o open-file ;
 
-: check-path ( adr1 len1 adr2 len2 -- fid 0 | 0 ior )
-  >r >r ofile $! need/
-  r> r> ofile $+!
-  open-ofile ;
-
-\ !! allow arbitrary FAMs, not just R/O
-: open-path-file ( addr1 u1 path-addr -- wfileid addr2 u2 0 | ior ) \ gforth
-\G Look in path @var{path-addr} for the file specified by @var{addr1
-\G u1}.  If found, the resulting path and and (read-only) open file
-\G descriptor are returned. If the file is not found, @var{ior} is
-\G what came back from the last attempt at opening the file (in the
-\G current implementation).
-    >r
+: execute-path-file ( addr1 u1 xt path-addr -- wfileid addr2 u2 0 | ior ) \ gforth
+    2>r
     2dup absolut-path? IF
         rdrop
-        ofile $! open-ofile
+	ofile $! expandtopic reworkdir r> execute
         dup 0= IF
             >r ofile $@ r> THEN
         EXIT
     ELSE
         r> -&37 >r path>string BEGIN
             next-path dup WHILE
-                r> drop
-                5 pick 5 pick check-path dup 0= IF
-                    drop >r 2drop 2drop r> ofile $@ 0 EXIT
+		rdrop ofile $! need/ 2over ofile $+! expandtopic reworkdir
+		r@ execute dup 0= IF
+                    drop >r 2drop 2drop r> ofile $@ 0  rdrop EXIT
                 ELSE
                     >r drop
                 THEN
         REPEAT
         2drop 2drop 2drop r>
-  THEN ;
+  THEN  rdrop ;
+
+: open-path-file ( addr1 u1 path-addr -- wfileid addr2 u2 0 | ior ) \ gforth
+\G Look in path @var{path-addr} for the file specified by @var{addr1
+\G u1}.  If found, the resulting path and and (read-only) open file
+\G descriptor are returned. If the file is not found, @var{ior} is
+\G what came back from the last attempt at opening the file (in the
+    \G current implementation).
+    ['] open-ofile swap execute-path-file ;
 
 : open-fpath-file ( addr1 u1 -- wfileid addr2 u2 0 | ior ) \ gforth
     \G Look in the Forth search path for the file specified by @var{addr1 u1}.
