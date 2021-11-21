@@ -164,7 +164,8 @@ void zexpand(char * zfile)
 	case 'd': // directory
 	  LOGI("dir %s\n", filename+1);
 	  if(mkdir(filename+1, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
-	    LOGE("mkdir(%s) failed: %s\n", filename+1, strerror(errno));
+	    if(errno != EEXIST)
+	      LOGE("mkdir(%s) failed: %s\n", filename+1, strerror(errno));
 	  }
 	  break;
 	case 'h': // hard link

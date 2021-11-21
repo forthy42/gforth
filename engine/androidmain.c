@@ -200,13 +200,20 @@ char *get_gforth_gz()
 
 int unpackFiles(const char* zipfile, const char* sumfile, const char* shasum)
 {
-  int csfd, writeout;
+  int csfd, writeout=0;
   post("showprog");
   zexpand(zipfile);
-  csfd=creat(sumfile, O_WRONLY);
-  writeout=write(csfd, shasum, 64);
-  fprintf(stderr, "sha256sum: '%64s'\n", shasum);
-  close(csfd);
+  csfd=open(sumfile, O_WRONLY | O_CREAT, 0644);
+  if(csfd<0) {
+    LOGE("can't create \"%s\": %s\n", sumfile, strerror(errno));
+    unlink(sumfile);
+    csfd=open(sumfile, O_WRONLY | O_CREAT, 0644);
+  }
+  if(csfd>=0) {
+    writeout=write(csfd, shasum, 64);
+    fprintf(stderr, "sha256sum: '%64s'\n", shasum);
+    close(csfd);
+  }
   if(writeout!=64) {
     post("errprog");
     return 0;
