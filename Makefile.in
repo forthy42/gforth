@@ -212,7 +212,7 @@ KERN_SRC = \
 	kernel/getdoers.fs \
 	kernel/copydoers.fs \
 	kernel/pass.fs \
-	kernel/vtables.fs \
+	kernel/header-methods.fs \
 	kernel/xchars.fs \
 	kernel/stringk.fs \
 	kernel/termsize.fs

@@ -608,12 +608,12 @@ Create vttemplate
 
 : (vt,) ( -- )
     align  here vtsize allot vttemplate over vtsize move
-    vtable-list @ over !  dup vtable-list !
+    hm-list @ over !  dup hm-list !
     vttemplate @ !  vttemplate off ;
 
 : vt, ( -- )
     vttemplate @ 0= IF EXIT THEN
-    vtable-list
+    hm-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF  vttemplate @ !  vttemplate off  EXIT  THEN
     REPEAT  drop (vt,) ;

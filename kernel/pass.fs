@@ -33,7 +33,7 @@ dup forth-wordlist has? ec 0= [IF] wordlist-id [THEN] ! Last !
 
 UNLOCK t-theme-color# @ LOCK theme-color# !
 
-unlock vt, tvtable-list @ lock vtable-list !
+unlock vt, thm-list @ lock hm-list !
 
 \ list of arrays to restore at boot
 align here boot[][] ! boot[][],

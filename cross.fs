@@ -3071,8 +3071,8 @@ Cond: DOES>
     :noname r> postpone Literal postpone cfaddr, postpone ;
     built >do:ghost @ >exec2 ! ;
 
-Variable tvtable-list
-Variable gvtable-list
+Variable thm-list
+Variable ghm-list
 
 Ghost docol-vt drop
 
@@ -3166,20 +3166,20 @@ End-Struct vtable-struct
     cell+ swap gvtsize cell /string tuck compare 0= ;
 
 : (vt,) ( -- )
-    T align  here H tvtable-list @ T A, H  dup tvtable-list !
+    T align  here H thm-list @ T A, H  dup thm-list !
     vttemplate gvtsize cell /string bounds DO
 	I @ addr,
     cell +LOOP
     \ copy table of ghosts for comparison
     dup vttemplate @ T ! H  vttemplate off
-    align , here gvtable-list @ dup , over ! gvtable-list !
+    align , here ghm-list @ dup , over ! ghm-list !
     vttemplate gvtsize cell /string bounds DO
 	I @ ,
     cell +LOOP ;
 
 :noname ( -- )
     vttemplate @ 0= IF EXIT THEN
-    gvtable-list
+    ghm-list
     BEGIN  @ dup  WHILE
 	    dup vttemplate vt= IF
 		1 cells - @ vttemplate @ T ! H  vttemplate off  EXIT  THEN

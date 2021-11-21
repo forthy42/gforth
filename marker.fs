@@ -71,8 +71,8 @@
     drop
     \ remember udp
     udp @ ,
-    \ remember vtable-list
-    vtable-list @ ,
+    \ remember hm-list
+    hm-list @ ,
     \ remember dyncode-ptr
     here ['] noop , compile-prim1 finish-code
     sections-marker, \ here is stored and restored separately
@@ -105,7 +105,7 @@
     drop
     \ restore udp and dp
     dup @ udp !
-    cell+ dup @ vtable-list !
+    cell+ dup @ hm-list !
     cell+ [IFDEF] forget-dyncode dup @ forget-dyncode drop [then]
     cell+ sections-marker!
     drop

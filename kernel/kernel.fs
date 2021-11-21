@@ -22,7 +22,7 @@ require ./vars.fs
 include ./input-class.fs
 include ./int.fs
 has? compiler [IF]
-    include ./vtables.fs
+    include ./header-methods.fs
     include ./comp.fs
 [THEN]
 include ./accept.fs

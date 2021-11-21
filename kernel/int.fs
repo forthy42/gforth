@@ -523,7 +523,7 @@ const Create ???
 : vt? ( vt -- flag )
     \G check if a vt is actually one
     dup vttemplate = IF  drop true  EXIT  THEN
-    >r  vtable-list
+    >r  hm-list
     BEGIN  @ dup  WHILE
 	    dup r@ = IF  rdrop drop true  EXIT  THEN
     REPEAT  rdrop ;

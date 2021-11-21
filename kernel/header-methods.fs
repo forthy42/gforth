@@ -1,4 +1,4 @@
-\ vtables.fs does the intelligent compile, vtable handling
+\ header-methods.fs does the intelligent compile, vtable handling
 
 \ Authors: Bernd Paysan, Anton Ertl
 \ Copyright (C) 2012,2013,2014,2015,2016,2018,2019 Free Software Foundation, Inc.
@@ -46,4 +46,4 @@ opt: ( method-xt -- )
 opt: ( method-xt -- )
     ?fold-to >body cell+ lit, postpone (uv) postpone @ ;
 
-AVariable vtable-list
+AVariable hm-list
