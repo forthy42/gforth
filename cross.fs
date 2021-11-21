@@ -2929,7 +2929,7 @@ T :noname H
 X has? new-cfa [IF] #11 [ELSE] #10 [THEN] Constant does-xt-off
 : DOES>
     ['] does-resolved created >comp !
-    T here does-xt-off cells H + T cfaligned H \ includes noname header+hmable
+    T here does-xt-off cells H + T cfaligned H \ includes noname header+vtable
     !newdoes
     T :noname H 2drop
     instant-interpret-does>-hook
@@ -3080,7 +3080,7 @@ Ghost docol-hm drop
 9 T cells H Constant hmsize
 >CROSS
 
-9 cells Constant ghmsize \ ghost hmables for comparison
+9 cells Constant ghmsize \ ghost header method vtables for comparison
 
 ghost :,
 ghost peephole-compile,
