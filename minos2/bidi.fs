@@ -475,10 +475,16 @@ Constant NI-mask
     n0 n1 n2
     i1+2 ;
 
+bm' R bm' RLE bm' RLO bm' RLI bm' AL or or or or Constant R-mask
+: skip-bidi? ( -- flag )
+    $bidi-buffer $@ bounds U+DO
+	1 I c@ lshift R-mask and IF  false  UNLOOP  EXIT  THEN
+    LOOP  true ;
+
 r> set-current
 
-: bidi-algorith ( addr u -- )
-    >bidi flag-sep x1
+: bidi-algorith ( -- )
+    flag-sep skip-bidi? ?EXIT  x1
     $bidi-buffer $@ bounds U+DO
 	I to current-char
 	I c@ cells x-match + perform
