@@ -18,17 +18,33 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+\ Description: https://unicode.org/reports/tr9/
+
 require unicode/bidi-db.fs
 require unicode/brackets.fs
 require set-compsem.fs
 
 : (b') ( "name" -- n )
-    parse-name ['] bidis >wordlist find-name-in >body @ ;
+    parse-name [: ." .." type ;] $tmp
+    ['] bidis >wordlist find-name-in >body @ ;
 : bm' ( "name" -- mask )
     1 (b') lshift ;
 compsem: 1 (b') lshift postpone Literal ;
 : b' ( "name" -- n ) (b') ;
 compsem: (b') postpone Literal ;
+: (b'-') ( t1 t3 -- n )
+    (b') $10 lshift (b') or ;
+: b'-' ( t1 t3 -- n ) (b'-') ;
+compsem: (b'-') postpone Literal ;
+: (b'') ( t1 t2 -- n )
+    (b') 8 lshift (b') or ;
+: b'' ( t1 t2 -- n ) (b'') ;
+compsem: (b'') postpone Literal ;
+: (b''') ( t1 t2 t3 -- n )
+    (b') $10 lshift (b') 8 lshift or (b') or ;
+: b''' ( t1 t2 t3 -- n ) (b''') ;
+compsem: (b''') postpone Literal ;
+
 
 0 stack: bracket-queue
 
@@ -47,7 +63,7 @@ $Variable $level-buffer
     THEN ;
 
 : bracket-check ( xchar type -- xchar type )
-    dup $1F and b' ..ON = IF \ all brackets are ONs
+    dup $1F and b' ON = IF \ all brackets are ONs
 	    swap bracket-enqueue swap
     THEN ;
 
@@ -95,14 +111,14 @@ $3 Constant ltr
 : (p2) ( -- level )
     0 -rot U+DO
 	1 I c@ lshift { mask }
-	bm' ..B mask and ?LEAVE \ end of paragraph
-	bm' ..LRI bm' ..RLI or bm' ..FSI or mask and 0<> -
-	bm' ..PDI mask and 0<> +
+	bm' B mask and ?LEAVE \ end of paragraph
+	bm' LRI bm' RLI or bm' FSI or mask and 0<> -
+	bm' PDI mask and 0<> +
 	dup 0< ?LEAVE \ end of embedded level
 	dup 0= IF
-	    bm' ..L bm' ..R bm' ..AL or or mask and IF
+	    bm' L bm' R bm' AL or or mask and IF
 		drop \ p3
-		bm' ..R bm' ..AL or mask and 0<> negate
+		bm' R bm' AL or mask and 0<> negate
 		unloop  EXIT
 	    THEN
 	THEN
@@ -149,8 +165,8 @@ $20 0 [DO] ' noop , [LOOP]
 
 : change-current-char ( -- )
     case stack-top c@ 3 and
-	ltr of  b' ..L current-char c!  endof
-	rtl of  b' ..R current-char c!  endof
+	ltr of  b' L current-char c!  endof
+	rtl of  b' R current-char c!  endof
     endcase ;
 : >level ( n -- )
     $level-buffer $@
@@ -162,25 +178,25 @@ $20 0 [DO] ' noop , [LOOP]
     overflow-isolate# @ overflow-embedded# @ or or IF
 	drop overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  neutral stack-top c!  THEN ;
-' x2 bind ..RLE
+' x2 bind RLE
 : x3 ( -- ) \ match on LRE
     stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  neutral stack-top c!  THEN ;
-' x3 bind ..LRE
+' x3 bind LRE
 : x4 ( -- ) \ match on RLO
     stack# @ next-odd dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	drop overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  rtl stack-top c!  THEN ;
-' x4 bind ..RLO
+' x4 bind RLO
 : x5 ( -- ) \ match on LRO
     stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	drop overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  ltr stack-top c!  THEN ;
-' x5 bind ..LRO
+' x5 bind LRO
 
 : x6 ( -- )
     stack# @ >level  change-current-char ;
@@ -190,14 +206,14 @@ $20 0 [DO] ' noop , [LOOP]
     overflow-isolate# @ overflow-embedded# @ or or IF
 	1 overflow-isolate# +! drop
     ELSE  stack# !  rtl dis or stack-top c!  1 isolate# +!  THEN ;
-' x5a bind ..RLI
+' x5a bind RLI
 : x5b ( -- ) \ match on LRI
     stack# @ >level
     x6 stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	1 overflow-isolate# +! drop
     ELSE  stack# !  ltr dis or stack-top c!  1 isolate# +!  THEN ;
-' x5b bind ..LRI
+' x5b bind LRI
 
 \ X5c. With each FSI, apply rules P2 and P3 to the sequence of characters
 \ between the FSI and its matching PDI, or if there is no matching PDI, the
@@ -210,21 +226,21 @@ $20 0 [DO] ' noop , [LOOP]
     $bidi-buffer $@ bounds drop current-char 1+
     (p2)  IF  x5a  ELSE  x5b  THEN
 ;
-' x5c bind ..FSI
+' x5c bind FSI
 
-' x6 bind ..L
-' x6 bind ..R
-' x6 bind ..AL
-' x6 bind ..AN
-' x6 bind ..CS
-' x6 bind ..EN
-' x6 bind ..ES
-' x6 bind ..ET
-' x6 bind ..NSM
-' x6 bind ..S
-' x6 bind ..WS
-' x6 bind ..ON
-' x6 bind ..BN
+' x6 bind L
+' x6 bind R
+' x6 bind AL
+' x6 bind AN
+' x6 bind CS
+' x6 bind EN
+' x6 bind ES
+' x6 bind ET
+' x6 bind NSM
+' x6 bind S
+' x6 bind WS
+' x6 bind ON
+' x6 bind BN
 
 : x6a ( -- )
     stack# @ >level
@@ -237,7 +253,7 @@ $20 0 [DO] ' noop , [LOOP]
 	    stack-top c@ 0= stack# +!
 	dis and UNTIL  THEN
     iso-push iso-start x6 ;
-' x6a bind ..PDI
+' x6a bind PDI
 : x7 ( -- )
     overflow-isolate# @ ?EXIT
     overflow-embedded# @ IF
@@ -247,12 +263,12 @@ $20 0 [DO] ' noop , [LOOP]
 	0 stack-top c!  -1 stack# +!
 	stack-top c@ 0= stack# +!  THEN
     iso-push 1 +to current-char iso-start ;
-' x7 bind ..PDF
+' x7 bind PDF
 : x8 ( -- )
     iso-push  1 +to current-char
     $bidi-buffer $@ bounds drop current-char (p2) x1-rest
     iso-stack<> $[]# 0 ?DO  I iso-stack>list  LOOP  iso-start ;
-' x8 bind ..B
+' x8 bind B
 : x9 ( -- ) ; \ we don't remove anything
 
 \ isolating weak types
@@ -271,36 +287,36 @@ $20 0 [DO] ' noop , [LOOP]
     cell +LOOP ;
 
 : w1 ( -- )
-    [: { p c -- p' } c c@ b' ..NSM = IF
-	    b' ..ON  p
-	    1 p lshift bm' ..LRI bm' ..RLI or bm' ..PDI or and
+    [: { p c -- p' } c c@ b' NSM = IF
+	    b' ON  p
+	    1 p lshift bm' LRI bm' RLI or bm' PDI or and
 	    select c c!
 	THEN c c@ ;] run-isolated ;
 
 : w2 ( -- )
-    [: { p c -- p' } c c@ b' ..EN = IF
-	    p b' ..AL = IF  b' ..AN c c!  THEN  p
+    [: { p c -- p' } c c@ b' EN = IF
+	    p b' AL = IF  b' AN c c!  THEN  p
 	ELSE
 	    c c@  p
-	    1 c c@ lshift bm' ..R bm' ..L or bm' ..AL or and select
+	    1 c c@ lshift bm' R bm' L or bm' AL or and select
 	THEN
     ;] run-isolated ;
 
 : w3 ( -- )
     [: { c -- }
-	c c@ b' ..AL = IF  b' ..R c c!  THEN
+	c c@ b' AL = IF  b' R c c!  THEN
     ;] run-isolated ;
 
 : w4 ( -- )
     [: { p c -- p' }
 	p 8 lshift c c@ or dup
 	case
-	    b' ..EN #16 lshift b' ..ES 8 lshift or b' ..EN or
-	    of  b' ..EN  c 1- c!  endof
-	    b' ..EN #16 lshift b' ..CS 8 lshift or b' ..EN or
-	    of  b' ..EN  c 1- c!  endof
-	    b' ..AN #16 lshift b' ..CS 8 lshift or b' ..AN or
-	    of  b' ..AN  c 1- c!  endof
+	    b''' EN ES EN
+	    of  b' EN  c 1- c!  endof
+	    b''' EN CS EN
+	    of  b' EN  c 1- c!  endof
+	    b''' AN CS AN
+	    of  b' AN  c 1- c!  endof
 	endcase
 	$FFFF and ;] run-isolated ;
 
@@ -308,12 +324,12 @@ $20 0 [DO] ' noop , [LOOP]
     [: { p c -- p' }
 	p 8 lshift c c@ or dup
 	case
-	    b' ..ET #16 lshift b' ..ET 8 lshift or b' ..EN or
-	    of  b' ..EN dup 8 lshift or  c 2 - w!  endof
-	    b' ..EN #16 lshift b' ..ET 8 lshift or b' ..ET or
-	    of  b' ..EN dup 8 lshift or  c 1 - w!  endof
-	    b' ..AN #16 lshift b' ..ET 8 lshift or b' ..EN or
-	    of  b' ..EN  c 1- c!  endof
+	    b''' ET ET EN
+	    of  b'' EN EN  c 2 - w!  endof
+	    b''' EN ET ET
+	    of  b'' EN EN  c 1 - w!  endof
+	    b''' AN ET EN
+	    of  b' EN  c 1- c!  endof
 	endcase
 	$FFFF and ;] run-isolated ;
 
@@ -321,23 +337,23 @@ $20 0 [DO] ' noop , [LOOP]
     [: { p c -- p' }
 	p 8 lshift c c@ or dup
 	case
-	    b' ..L #16 lshift b' ..ES 8 lshift or b' ..EN or
-	    of  b' ..ON  c 1- c!  endof
-	    b' ..EN #16 lshift b' ..CS 8 lshift or b' ..AN or
-	    of  b' ..ON  c 1- c!  endof
+	    b''' L ES EN
+	    of  b' ON  c 1- c!  endof
+	    b''' EN CS AN
+	    of  b' ON  c 1- c!  endof
 	    $FFFF and
-	    b' ..AN #8 lshift  b' ..ET or
-	    of  b' ..ON  c c!  endof
-	    b' ..ET #8 lshift  b' ..AN or
-	    of  b' ..ON  c 1- c!  endof
+	    b'' AN ET
+	    of  b' ON  c c!  endof
+	    b'' ET AN
+	    of  b' ON  c 1- c!  endof
 	endcase
 	$FFFF and ;] run-isolated ;
 
 : w7 ( -- )
     [: { p c -- p' }
-	p b' ..L =  c c@ b' ..EN = and  IF  b' ..L c c!  THEN
+	p b' L =  c c@ b' EN = and  IF  b' L c c!  THEN
 	c c@ p
-	1 c c@ lshift  bm' ..L bm' ..R or and  select
+	1 c c@ lshift  bm' L bm' R or and  select
     ;] run-isolated ;
 
 \ identify brackets
@@ -345,13 +361,6 @@ $20 0 [DO] ' noop , [LOOP]
 0 stack: bracket-stack
 0 stack: bracketpairs
 
-: bracket-start ( pos xchar -- pos xchar flag )
-    dup bracket< ?dup-IF
-	third bracket-stack >stack
-	bracket-stack >stack false
-    ELSE
-	true
-    THEN ;
 : bracket-end ( pos xchar -- pos xchar )
     dup bracket> IF
 	bracket-stack $@ over + U-DO
@@ -364,9 +373,16 @@ $20 0 [DO] ' noop , [LOOP]
 		LEAVE  THEN
 	2 cells -LOOP
     THEN ;
+: bracket-check ( pos xchar -- pos xchar )
+    dup bracket< ?dup-IF
+	third bracket-stack >stack
+	bracket-stack >stack
+    ELSE
+	bracket-end
+    THEN ;
 : bracket-scan { d: range -- }
     bracket-queue $@ bounds U+DO
-	I 2@ over range within IF  bracket-start IF  bracket-end  THEN  THEN  2drop
+	I 2@ over range within IF  bracket-check  THEN  2drop
     2 cells +LOOP ;
 : run-isolated' { xt: rule -- }
     iso-list[] $@ bounds U+DO
@@ -377,22 +393,92 @@ $20 0 [DO] ' noop , [LOOP]
 
 : bd16 ( -- )  ['] bracket-scan run-isolated' ;
 
-: n0 ( -- ) bd16 ;
-: n1 ( -- ) ;
-: n2 ( -- ) ;
+: check-strong-type ( a b start end -- a a / a b ) { start end }
+    $level-buffer $@ start safe/string drop c@ 1 and select
+    b' ON
+    $bidi-buffer $@ end umin start 1+ safe/string bounds U+DO
+	over I c@ = IF  drop dup LEAVE  THEN
+    LOOP ;
+: set-bracket-type ( type start end -- type ) 2>r
+    dup $bidi-buffer $@ r> safe/string IF  c!  ELSE  2drop  THEN
+    dup $bidi-buffer $@ r> safe/string IF  c!  ELSE  2drop  THEN ;
 
-: i1 ( -- ) ;
-: i2 ( -- ) ;
+: check-brackets-within { end start -- }
+    b' R b' L start end check-strong-type
+    2dup = IF  start end set-bracket-type  2drop  EXIT  THEN  2drop
+    b' L b' R start end check-strong-type
+    2dup = IF  2drop b' L b' R 0 start check-strong-type
+	2dup = IF  start end set-bracket-type  2drop  EXIT  THEN
+	drop b' R xor start end set-bracket-type  drop  EXIT
+    THEN  2drop ;
+
+: n0 ( -- ) bd16
+    bracketpairs $@ bounds U+DO
+	I 2@ check-brackets-within
+    2 cells +LOOP ;
+
+bm' B bm' S or bm' WS or bm' ON or bm' FSI or bm' LRI or bm' RLI or bm' PDI or
+Constant NI-mask
+
+: n1 ( -- )
+    \ !!FIXME!! this should start with sos and end with eos
+    0 $bidi-buffer $@ 2 umin bounds U+DO
+	8 lshift I c@ or
+    LOOP
+    $bidi-buffer $@ 2 safe/string bounds U+DO
+	8 lshift I c@ or $FFFFFF and
+	1 over 8 rshift $FF and lshift NI-mask and IF
+	    case  dup $FF00FF and
+		b'-' L    L  of  b' L I 1- c!  endof
+		b'-' R    R  of  b' R I 1- c!  endof
+		b'-' R   AN  of  b' R I 1- c!  endof
+		b'-' R   EN  of  b' R I 1- c!  endof
+		b'-' AN   R  of  b' R I 1- c!  endof
+		b'-' AN  AN  of  b' R I 1- c!  endof
+		b'-' AN  EN  of  b' R I 1- c!  endof
+		b'-' EN   R  of  b' R I 1- c!  endof
+		b'-' EN  AN  of  b' R I 1- c!  endof
+		b'-' EN  EN  of  b' R I 1- c!  endof
+	    endcase
+	THEN
+    LOOP drop ;
+
+: n2 ( -- )
+    $level-buffer $@ drop
+    $bidi-buffer $@ bounds U+DO
+	1 I c@ lshift NI-mask and IF
+	    dup c@ 1 and b' R b' L rot select I c!
+	THEN  1+
+    LOOP  drop ;
+
+: i1+2 ( -- )
+    $level-buffer $@ drop
+    $bidi-buffer $@ bounds U+DO
+	dup c@ 1 and IF
+	    case i c@
+		b' L  of  1 over c+!  endof
+		b' AN of  1 over c+!  endof
+		b' EN of  1 over c+!  endof
+	    endcase
+	ELSE
+	    case i c@
+		b' R  of  1 over c+!  endof
+		b' AN of  2 over c+!  endof
+		b' EN of  2 over c+!  endof
+	    endcase
+	THEN  1+
+    LOOP  drop ;
+
 
 : x10 ( -- )
     w1 w2 w3 w4 w5 w6 w7
     n0 n1 n2
-    i1 i2 ;
+    i1+2 ;
 
 r> set-current
 
-: bidi-algorith ( -- )
-    x1
+: bidi-algorith ( addr u -- )
+    >bidi flag-sep x1
     $bidi-buffer $@ bounds U+DO
 	I to current-char
 	I c@ cells x-match + perform
