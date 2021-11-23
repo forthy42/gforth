@@ -514,13 +514,9 @@ Constant NI-mask
 bm' R bm' RLE bm' RLO bm' RLI bm' AL or or or or Constant R-mask
 bm' L bm' LRE bm' LRO bm' LRI or or or Constant L-Mask
 
-: skip-bidi-l? ( -- flag )
+: skip-bidi? { mask -- flag }
     $bidi-buffer $@ bounds U+DO
-	1 I c@ lshift L-mask and IF  false  UNLOOP  EXIT  THEN
-    LOOP  true ;
-: skip-bidi-r? ( -- flag )
-    $bidi-buffer $@ bounds U+DO
-	1 I c@ lshift R-mask and IF  false  UNLOOP  EXIT  THEN
+	1 I c@ lshift mask and IF  false  UNLOOP  EXIT  THEN
     LOOP  true ;
 
 r> set-current
@@ -533,11 +529,11 @@ r> set-current
     x8 x9 x10 ;
 : bidi-algorith ( -- )
     \G auto-detect paragraph direction and do bidi algorithm
-    flag-sep skip-bidi-r? ?EXIT  x1 bidi-rest ;
+    flag-sep R-mask skip-bidi? ?EXIT  x1 bidi-rest ;
 : bidi-algorith# ( level -- )
     \G use @ivar{level} as main direction and do bidi algorithm
     flag-sep dup to embedded-level
-    dup IF  skip-bidi-l?  ELSE  skip-bidi-r?  THEN  ?EXIT
+    L-mask R-mask third select skip-bidi?  IF  drop  EXIT  THEN
     x1-rest x1-start bidi-rest ;
 
 previous
