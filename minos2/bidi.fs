@@ -52,6 +52,13 @@ $Variable $bidi-buffer
 $Variable $flag-buffer
 $Variable $level-buffer
 0 Value current-char
+0 Value embedded-level
+
+: start-bidi ( -- )
+    $bidi-buffer $free
+    $flag-buffer $free
+    $level-buffer $free
+    0 to embedded-level ;
 
 : $bidi-pos ( -- pos )
     current-char $bidi-buffer $@ drop - ;
@@ -82,8 +89,7 @@ $Variable $level-buffer
     $flag-buffer $@ bounds U+DO
 	I c@ $E0 and I c!
     LOOP
-    $bidi-buffer $@len $level-buffer $!len
-    $level-buffer $@ erase ;
+    $bidi-buffer $@len $level-buffer $room ;
 
 Vocabulary bidi
 
@@ -130,6 +136,8 @@ $3 Constant ltr
 
 0 stack: iso-stack<>
 $[]Variable iso-list[]
+$Variable sos$
+$Variable eos$
 
 begin-structure iso-region-element
     lvalue: <<reg
@@ -152,11 +160,13 @@ iso-region-element buffer: iso-current
 
 \ rules according to https://unicode.org/reports/tr9/#X1
 
-: x1-rest  stack# !  stack $80 erase  neutral stack-top c!
+: x1-rest ( level -- )
+    stack# !  stack $80 erase  neutral stack-top c!
     isolate# off  overflow-isolate# off  overflow-embedded# off ;
-: x1 ( -- )
-    p2 x1-rest
+: x1-start ( -- )
     $bidi-buffer $@ drop to current-char  iso-start ;
+: x1 ( -- )
+    p2 dup to embedded-level x1-rest x1-start ;
 
 Create x-match
 $20 0 [DO] ' noop , [LOOP]
@@ -276,14 +286,21 @@ $20 0 [DO] ' noop , [LOOP]
 0 Value sos
 0 Value eos
 0 Value seg-start
+0 Value sos#
 
+: >sos/eos ( -- )
+    sos$ $@ sos# safe/string IF  c@  ELSE  drop b' L  THEN  to sos
+    eos$ $@ sos# safe/string IF  c@  ELSE  drop b' L  THEN  to eos ;
 : run-isolated { xt: rule -- }
+    0 to sos#
     iso-list[] $@ bounds U+DO
-	sos  I $@ bounds dup to seg-start  U+DO
+	>sos/eos sos
+	I $@ bounds dup to seg-start  U+DO
 	    $bidi-buffer $@ I reg>> umin I <<reg safe/string bounds U+DO
 		I rule
 	    LOOP
 	iso-region-element +LOOP  drop
+	1 +to sos#
     cell +LOOP ;
 
 : w1 ( -- )
@@ -391,7 +408,24 @@ $20 0 [DO] ' noop , [LOOP]
 	iso-region-element +LOOP
     cell +LOOP ;
 
+: gen-sos/eos { start end -- }
+    start 0<= IF  embedded-level
+    ELSE  $level-buffer $@ start 1- safe/string
+	IF  c@  ELSE  drop  embedded-level  THEN  THEN
+    $level-buffer $@ start safe/string drop c@ umax
+    1 and b' R b' L rot select
+    sos$ $@ sos# safe/string drop c!
+    $level-buffer $@ end safe/string
+    IF  c@  ELSE  drop  embedded-level  THEN
+    $level-buffer $@ end 1- safe/string drop c@ umax
+    1 and b' R b' L rot select
+    eos$ $@ sos# safe/string drop c!
+    1 +to sos# ;
+
 : bd16 ( -- )  ['] bracket-scan run-isolated' ;
+: sos/eos ( -- )  0 to sos#
+    iso-list[] $[]# dup sos$ $room eos$ $room
+    ['] gen-sos/eos run-isolated' ;
 
 : check-strong-type ( a b start end -- a a / a b ) { start end }
     $level-buffer $@ start safe/string drop c@ 1 and select
@@ -420,28 +454,28 @@ $20 0 [DO] ' noop , [LOOP]
 bm' B bm' S or bm' WS or bm' ON or bm' FSI or bm' LRI or bm' RLI or bm' PDI or
 Constant NI-mask
 
+: n1-replaces ( pattern index -- pattern )
+    >r $FFFFFF and
+    1 over 8 rshift $FF and lshift NI-mask and IF
+	case  dup $FF00FF and
+	    b'-' L    L  of  b' L r@ 1- c!  endof
+	    b'-' R    R  of  b' R r@ 1- c!  endof
+	    b'-' R   AN  of  b' R r@ 1- c!  endof
+	    b'-' R   EN  of  b' R r@ 1- c!  endof
+	    b'-' AN   R  of  b' R r@ 1- c!  endof
+	    b'-' AN  AN  of  b' R r@ 1- c!  endof
+	    b'-' AN  EN  of  b' R r@ 1- c!  endof
+	    b'-' EN   R  of  b' R r@ 1- c!  endof
+	    b'-' EN  AN  of  b' R r@ 1- c!  endof
+	    b'-' EN  EN  of  b' R r@ 1- c!  endof
+	endcase
+    THEN  rdrop ;
+
 : n1 ( -- )
-    \ !!FIXME!! this should start with sos and end with eos
-    0 $bidi-buffer $@ 2 umin bounds U+DO
-	8 lshift I c@ or
-    LOOP
-    $bidi-buffer $@ 2 safe/string bounds U+DO
-	8 lshift I c@ or $FFFFFF and
-	1 over 8 rshift $FF and lshift NI-mask and IF
-	    case  dup $FF00FF and
-		b'-' L    L  of  b' L I 1- c!  endof
-		b'-' R    R  of  b' R I 1- c!  endof
-		b'-' R   AN  of  b' R I 1- c!  endof
-		b'-' R   EN  of  b' R I 1- c!  endof
-		b'-' AN   R  of  b' R I 1- c!  endof
-		b'-' AN  AN  of  b' R I 1- c!  endof
-		b'-' AN  EN  of  b' R I 1- c!  endof
-		b'-' EN   R  of  b' R I 1- c!  endof
-		b'-' EN  AN  of  b' R I 1- c!  endof
-		b'-' EN  EN  of  b' R I 1- c!  endof
-	    endcase
-	THEN
-    LOOP drop ;
+    sos $bidi-buffer $@ IF  c@ swap 8 lshift or  ELSE  drop  THEN
+    $bidi-buffer $@ 1 safe/string bounds U+DO
+	8 lshift I c@ or I n1-replaces
+    LOOP 8 lshift eos or $bidi-buffer $@len n1-replaces  drop ;
 
 : n2 ( -- )
     $level-buffer $@ drop
@@ -471,24 +505,39 @@ Constant NI-mask
 
 
 : x10 ( -- )
+    sos/eos
     w1 w2 w3 w4 w5 w6 w7
     n0 n1 n2
     i1+2 ;
 
+\ strong right or left indicate direction break
 bm' R bm' RLE bm' RLO bm' RLI bm' AL or or or or Constant R-mask
-: skip-bidi? ( -- flag )
+bm' L bm' LRE bm' LRO bm' LRI or or or Constant L-Mask
+
+: skip-bidi-l? ( -- flag )
+    $bidi-buffer $@ bounds U+DO
+	1 I c@ lshift L-mask and IF  false  UNLOOP  EXIT  THEN
+    LOOP  true ;
+: skip-bidi-r? ( -- flag )
     $bidi-buffer $@ bounds U+DO
 	1 I c@ lshift R-mask and IF  false  UNLOOP  EXIT  THEN
     LOOP  true ;
 
 r> set-current
 
-: bidi-algorith ( -- )
-    flag-sep skip-bidi? ?EXIT  x1
+: bidi-rest ( -- )
     $bidi-buffer $@ bounds U+DO
 	I to current-char
 	I c@ cells x-match + perform
     LOOP
     x8 x9 x10 ;
+: bidi-algorith ( -- )
+    \G auto-detect paragraph direction and do bidi algorithm
+    flag-sep skip-bidi-r? ?EXIT  x1 bidi-rest ;
+: bidi-algorith# ( level -- )
+    \G use @ivar{level} as main direction and do bidi algorithm
+    flag-sep dup to embedded-level
+    dup IF  skip-bidi-l?  ELSE  skip-bidi-r?  THEN  ?EXIT
+    x1-rest x1-start bidi-rest ;
 
 previous
