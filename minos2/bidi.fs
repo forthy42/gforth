@@ -325,9 +325,9 @@ $20 0 [DO] ' noop , [LOOP]
 	p 8 lshift c c@ or dup
 	case
 	    b''' ET ET EN
-	    of  b'' EN EN  c 2 - w!  endof
+	    of  b'' EN EN  c 2 - w!  endof \ endianess here is don't care
 	    b''' EN ET ET
-	    of  b'' EN EN  c 1 - w!  endof
+	    of  b'' EN EN  c 1 - w!  endof \ endianess here is don't care
 	    b''' AN ET EN
 	    of  b' EN  c 1- c!  endof
 	endcase
