@@ -328,25 +328,19 @@ $20 0 [DO] ' noop , [LOOP]
     [: { p c -- p' }
 	p 8 lshift c c@ or dup
 	case
-	    b''' EN ES EN
-	    of  b' EN  c 1- c!  endof
-	    b''' EN CS EN
-	    of  b' EN  c 1- c!  endof
-	    b''' AN CS AN
-	    of  b' AN  c 1- c!  endof
+	    b''' EN ES EN  of  b' EN  c 1- c!  endof
+	    b''' EN CS EN  of  b' EN  c 1- c!  endof
+	    b''' AN CS AN  of  b' AN  c 1- c!  endof
 	endcase
 	$FFFF and ;] run-isolated ;
 
 : w5 ( -- )
     [: { p c -- p' }
 	p 8 lshift c c@ or dup
-	case
-	    b''' ET ET EN
-	    of  b'' EN EN  c 2 - w!  endof \ endianess here is don't care
-	    b''' EN ET ET
-	    of  b'' EN EN  c 1 - w!  endof \ endianess here is don't care
-	    b''' AN ET EN
-	    of  b' EN  c 1- c!  endof
+	case \ endianess here is don't care     ↓
+	    b''' ET ET EN  of  b'' EN EN  c 2 - w!  endof
+	    b''' EN ET ET  of  b'' EN EN  c 1-  w!  endof
+	    b''' AN ET EN  of   b' EN     c 1-  c!  endof
 	endcase
 	$FFFF and ;] run-isolated ;
 
@@ -354,15 +348,11 @@ $20 0 [DO] ' noop , [LOOP]
     [: { p c -- p' }
 	p 8 lshift c c@ or dup
 	case
-	    b''' L ES EN
-	    of  b' ON  c 1- c!  endof
-	    b''' EN CS AN
-	    of  b' ON  c 1- c!  endof
+	    b''' L  ES EN  of  b' ON  c 1- c!  endof
+	    b''' EN CS AN  of  b' ON  c 1- c!  endof
 	    $FFFF and
-	    b'' AN ET
-	    of  b' ON  c c!  endof
-	    b'' ET AN
-	    of  b' ON  c 1- c!  endof
+	    b'' AN ET      of  b' ON  c    c!  endof
+	    b'' ET AN      of  b' ON  c 1- c!  endof
 	endcase
 	$FFFF and ;] run-isolated ;
 
@@ -459,16 +449,12 @@ Constant NI-mask
     1 over 8 rshift $FF and lshift NI-mask and IF
 	case  dup $FF00FF and
 	    b'-' L    L  of  b' L r@ 1- c!  endof
-	    b'-' R    R  of  b' R r@ 1- c!  endof
-	    b'-' R   AN  of  b' R r@ 1- c!  endof
-	    b'-' R   EN  of  b' R r@ 1- c!  endof
-	    b'-' AN   R  of  b' R r@ 1- c!  endof
-	    b'-' AN  AN  of  b' R r@ 1- c!  endof
-	    b'-' AN  EN  of  b' R r@ 1- c!  endof
-	    b'-' EN   R  of  b' R r@ 1- c!  endof
-	    b'-' EN  AN  of  b' R r@ 1- c!  endof
-	    b'-' EN  EN  of  b' R r@ 1- c!  endof
-	endcase
+	    1 over $FF and lshift
+	    bm' R bm' AN bm' EN or or and 0<>
+	    1 rot  $10 rshift lshift
+	    bm' R bm' AN bm' EN or or and 0<> and
+	    ?of  b' R r@ 1- c!  endof
+	0 endcase
     THEN  rdrop ;
 
 : n1 ( -- )
