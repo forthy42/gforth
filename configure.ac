@@ -1161,6 +1161,7 @@ fi
 AC_SUBST(LIB_SUFFIX)
 AC_CHECK_LIB(rt,clock_gettime)
 
+AC_CHECK_FUNCS(dlopen)
 if test -n "$GNU_LIBTOOL" -a "x$ac_cv_lib_ltdl_lt_dlinit" = xyes; then
   build_libcc_named=build-libcc-named
 elif test -n "$GNU_LIBTOOL" -a "x$ac_cv_func_dlopen" = xyes; then
@@ -1229,7 +1230,7 @@ AC_HEADER_STDC
 AC_CHECK_LIB(dl,dlopen)
 AC_REPLACE_FUNCS(memmove strtoul exp10 sincos strerror strsignal atanh)
 AC_FUNC_FSEEKO
-AC_CHECK_FUNCS(ftello dlopen sys_siglist getrusage nanosleep clock_gettime)
+AC_CHECK_FUNCS(ftello sys_siglist getrusage nanosleep clock_gettime)
 AC_CHECK_TYPES(stack_t,,,[#include <signal.h>])
 AC_DECL_SYS_SIGLIST
 AC_CHECK_FUNC(getopt_long,[true],[AC_LIBOBJ(getopt) AC_LIBOBJ(getopt1)])
