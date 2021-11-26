@@ -1,16 +1,16 @@
 \input texinfo   @c -*-texinfo-*-
 @comment The source is gforth.texi.in, from which gforth.texi is generated
 
-@c uncomment this if you want a smartphone PDF
-@c iftex
-@c internalpagesizes{150mm}{97mm}{-0.666in}{-0.95in}{0in}{0in}{160mm}{100mm}
-@c contentsrightmargin=0pt
-@c tableindent=0.1in
-@c itemindent=0.2in
-@c tolerance=700
-@c defbodyindent=0.1in
-@c lispnarrowing=0pt
-@c end iftex
+@c s/@c <ebook>/@/g this if you want a smartphone/ebook PDF
+@c <ebook>iftex
+@c <ebook>internalpagesizes{150mm}{97mm}{-0.666in}{-0.95in}{0in}{0in}{160mm}{100mm}
+@c <ebook>contentsrightmargin=0pt
+@c <ebook>tableindent=0.1in
+@c <ebook>itemindent=0.2in
+@c <ebook>tolerance=700
+@c <ebook>defbodyindent=0.1in
+@c <ebook>lispnarrowing=0pt
+@c <ebook>end iftex
 
 @comment TODO: nac29jan99 - a list of things to add in the next edit:
 @comment 1. x-ref all ambiguous or implementation-defined features?

@@ -43,6 +43,12 @@ gforth.dvi gforth.fns:	$(GFORTH_TEXI)
 gforth.pdf:	$(GFORTH_TEXI)
 		$(TEXI2PDF) gforth.texi
 
+gforth-ebook.texi:	$(GFORTH_TEXI)
+		sed -e 's/^@c <ebook>/@/g' <gforth.texi >gforth-ebook.texi
+
+gforth-ebook.pdf:	gforth-ebook.texi
+		$(TEXI2PDF) $<
+
 vmgen.dvi:	$(VMGEN_TEXI)
 		$(TEXI2DVI) $<
 
@@ -80,6 +86,8 @@ vmgen.txt:	$(VMGEN_TEXI)
 dvi:		gforth.dvi vmgen.dvi
 
 pdf:		gforth.pdf vmgen.pdf
+
+ebook:		gforth-ebook.pdf
 
 ps:		gforth.ps vmgen.ps
 
