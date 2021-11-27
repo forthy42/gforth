@@ -87,9 +87,10 @@ FVariable motion 0.01e motion f!
 	r@ action @ abs 1 u> IF
 	    \ ." Touch at " r@ x0 ? r@ y0 ? cr
 	    \ r@ x0 @ 20 < r@ y0 @ 20 < and IF -1 (bye) THEN
-	    r@ x0 @ dpy-w @ 2/ - s>f dpy-h @ 2/ fm/
+	    r@ x0 @ dpy-w @ 2/ - s>f dpy-w @ 2/ fm/
 	    r@ y0 @ dpy-h @ 2/ - s>f dpy-h @ 2/ fm/
-	    fover fover fnegate 1.5e lightpos glUniform3f
+	    fover fover fnegate fswap 0.75e f-rot lightpos-xyz sf!+ sf!+ sf!
+	    LightPos 1 lightpos-xyz glUniform3fv
 	    fatan2
 	    touch f@ -100e f= IF
 		angle f- touch f!
@@ -120,7 +121,7 @@ FVariable motion 0.01e motion f!
     [IFDEF] map-win exposed @ 0= IF  map-win  THEN [THEN]
     ['] VertexShader ['] FragmentShader create-program to program
     program init load-textures .info
-    tri-loop ;
+    color-theme s>f 1/2 f+ ColorMode!  tri-loop ;
 
 previous previous previous previous
 
