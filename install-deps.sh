@@ -49,7 +49,7 @@ install_osx() {
   brew cask install xquartz mactex
   export PATH="/Library/TeX/texbin:$PATH"
   brew link --overwrite gcc
-  export CC=gcc-9
+  export CC=gcc-10
 #  (cd /usr/local/Cellar/gcc/8.2.0/lib/gcc/8/gcc/x86_64-apple-darwin17.7.0/8.2.0/include-fixed && mv stdio.h stdio.h.botched)
 }
 
