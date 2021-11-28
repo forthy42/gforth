@@ -45,8 +45,17 @@ Unihan_Variants.txt: Unihan.zip
 	unzip $< $@
 	touch $@
 
-test.in: BidiCharacterTest.txt testgen.fs
-	grep ';[0-2];[01];' $< | cut -f1 -d';' | $(PREFORTH) testgen.fs -e bye >$@
+test.in: BidiCharacterTest.txt testgen.fs Makefile
+	grep ';[0-2];[01];' $< | cut -f1 -d';' | $(PREFORTH) testgen.fs -e bye >$@.0
+	grep ';[0-2];[01];' $< | cut -f2 -d';' >$@.1
+	paste $@.1 $@.0 | sed -e 's/^0	/l /g' -e 's/^1	/r /g' -e 's/^2	/a /g' >$@
+	rm $@.1 $@.0
+
+test.comp: BidiCharacterTest.txt
+	grep ';[0-2];[01];' $< | cut -f3-4 -d';' >$@
+
+bidi-test: runtest.fs test.in
+	gforth $^ -e bye >$@
 
 unihan.in: Unihan_Variants.txt
 	echo "\ automatically generated from $^" >$@

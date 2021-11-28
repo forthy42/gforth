@@ -45,8 +45,9 @@ compsem: (b'') postpone Literal ;
 : b''' ( t1 t2 t3 -- n ) (b''') ;
 compsem: (b''') postpone Literal ;
 
-
 0 stack: bracket-queue
+0 stack: bracket-stack
+0 stack: bracket-pairs
 
 $Variable $bidi-buffer
 $Variable $flag-buffer
@@ -54,10 +55,22 @@ $Variable $level-buffer
 0 Value current-char
 0 Value embedded-level
 
+0 stack: iso-stack<>
+$[]Variable iso-list[]
+$Variable sos$
+$Variable eos$
+
 : start-bidi ( -- )
     $bidi-buffer $free
     $flag-buffer $free
     $level-buffer $free
+    bracket-queue $free
+    bracket-stack $free
+    bracket-pairs $free
+    iso-stack<> $free
+    iso-list[] $[]free
+    sos$ $free
+    eos$ $free
     0 to embedded-level ;
 
 : $bidi-pos ( -- pos )
@@ -133,11 +146,6 @@ $3 Constant ltr
     $bidi-buffer $@ bounds (p2) ;
 
 \ isolated regions
-
-0 stack: iso-stack<>
-$[]Variable iso-list[]
-$Variable sos$
-$Variable eos$
 
 begin-structure iso-region-element
     lvalue: <<reg
@@ -365,9 +373,6 @@ $20 0 [DO] ' noop , [LOOP]
 
 \ identify brackets
 
-0 stack: bracket-stack
-0 stack: bracketpairs
-
 : bracket-end ( pos xchar -- pos xchar )
     dup bracket> IF
 	bracket-stack $@ over + U-DO
@@ -375,8 +380,8 @@ $20 0 [DO] ' noop , [LOOP]
 		I bracket-stack $@ drop -
 		bracket-stack $!len
 		bracket-stack stack> drop
-		bracket-stack stack> bracketpairs >stack
-		over bracketpairs >stack
+		bracket-stack stack> bracket-pairs >stack
+		over bracket-pairs >stack
 		LEAVE  THEN
 	2 cells -LOOP
     THEN ;
@@ -387,7 +392,7 @@ $20 0 [DO] ' noop , [LOOP]
     ELSE
 	bracket-end
     THEN ;
-: bracket-scan { d: range -- }
+: bracket-scan 1+ { d: range -- }
     bracket-queue $@ bounds U+DO
 	I 2@ over range within IF  bracket-check  THEN  2drop
     2 cells +LOOP ;
@@ -417,7 +422,7 @@ $20 0 [DO] ' noop , [LOOP]
     iso-list[] $[]# dup sos$ $room eos$ $room
     ['] gen-sos/eos run-isolated' ;
 
-: check-strong-type ( a b start end -- a a / a b ) { start end }
+: check-strong-type ( a b start end -- a a / b b / a/b on ) { start end }
     $level-buffer $@ start safe/string drop c@ 1 and select
     b' ON
     $bidi-buffer $@ end umin start 1+ safe/string bounds U+DO
@@ -431,13 +436,13 @@ $20 0 [DO] ' noop , [LOOP]
     b' R b' L start end check-strong-type
     2dup = IF  start end set-bracket-type  2drop  EXIT  THEN  2drop
     b' L b' R start end check-strong-type
-    2dup = IF  2drop b' L b' R 0 start check-strong-type
+    2dup = IF  2drop b' L b' R -1 start check-strong-type
 	2dup = IF  start end set-bracket-type  2drop  EXIT  THEN
 	drop b' R xor start end set-bracket-type  drop  EXIT
     THEN  2drop ;
 
 : n0 ( -- ) bd16
-    bracketpairs $@ bounds U+DO
+    bracket-pairs $@ bounds U+DO
 	I 2@ check-brackets-within
     2 cells +LOOP ;
 
@@ -461,7 +466,7 @@ Constant NI-mask
     sos $bidi-buffer $@ IF  c@ swap 8 lshift or  ELSE  drop  THEN
     $bidi-buffer $@ 1 safe/string bounds U+DO
 	8 lshift I c@ or I n1-replaces
-    LOOP 8 lshift eos or $bidi-buffer $@len n1-replaces  drop ;
+    LOOP 8 lshift eos or $bidi-buffer $@ + 1- n1-replaces  drop ;
 
 : n2 ( -- )
     $level-buffer $@ drop
@@ -513,10 +518,10 @@ r> set-current
 	I c@ cells x-match + perform
     LOOP
     x8 x9 x10 ;
-: bidi-algorith ( -- )
+: bidi-algorithm ( -- )
     \G auto-detect paragraph direction and do bidi algorithm
     flag-sep R-mask skip-bidi? ?EXIT  x1 bidi-rest ;
-: bidi-algorith# ( level -- )
+: bidi-algorithm# ( level -- )
     \G use @ivar{level} as main direction and do bidi algorithm
     flag-sep dup to embedded-level
     L-mask R-mask third select skip-bidi?  IF  drop  EXIT  THEN
