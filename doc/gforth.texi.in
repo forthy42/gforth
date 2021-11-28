@@ -13305,10 +13305,18 @@ doc-pthread_cond_timedwait
 @cindex foreign language interface
 @cindex interface to C functions
 
+Gforth's C interface works by compiling a wrapper library that contains
+C functions which take parameters from the Forth stacks and calls the C
+functions.  This wrapper library is compiled by the C compiler.
+Compilation results are cached, so that Gforth only needs to rerun the C
+compilation if the wrapper library has to change.  This build process is
+automatic, and done at the end of a interface declaration.  Gforth uses
+libtool and GCC for that process.
+
 The C interface is now mostly complete, callbacks have been added, but
 for structs, we use Forth2012 structs, which don't have independent
 scopes.  The offsets of those structs are extracted from header files
-with a SWIG plugin, which is still not completed.
+with a SWIG plugin.
 
 @menu
 * Calling C Functions::
