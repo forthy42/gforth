@@ -60,13 +60,14 @@ $[]Variable iso-list[]
 $Variable sos$
 $Variable eos$
 
+: start-bracket ( -- )
+    bracket-stack $free
+    bracket-pairs $free ;
 : start-bidi ( -- )
     $bidi-buffer $free
     $flag-buffer $free
     $level-buffer $free
     bracket-queue $free
-    bracket-stack $free
-    bracket-pairs $free
     iso-stack<> $free
     iso-list[] $[]free
     sos$ $free
@@ -276,10 +277,11 @@ $20 0 [DO] ' noop , [LOOP]
     overflow-isolate# @ ?EXIT
     overflow-embedded# @ IF
 	-1 overflow-embedded# +!  EXIT  THEN
-    stack# @ 2 u>= stack-top c@ dis and 0= and IF
+    stack# @ 0> stack-top c@ dis and 0= and IF
 	stack# @ >level
 	0 stack-top c!  -1 stack# +!
-	stack-top c@ 0= stack# +!  THEN
+	stack# @ 0> IF  stack-top c@ 0= stack# +!  THEN
+    THEN
     iso-push 1 +to current-char iso-start ;
 ' x7 bind PDF
 : x8 ( -- )
@@ -393,6 +395,8 @@ $20 0 [DO] ' noop , [LOOP]
 	bracket-end
     THEN ;
 : bracket-scan 1+ { d: range -- }
+    \ range swap hex. hex. space
+    start-bracket
     bracket-queue $@ bounds U+DO
 	I 2@ over range within IF  bracket-check  THEN  2drop
     2 cells +LOOP ;
@@ -449,24 +453,32 @@ $20 0 [DO] ' noop , [LOOP]
 bm' B bm' S or bm' WS or bm' ON or bm' FSI or bm' LRI or bm' RLI or bm' PDI or
 Constant NI-mask
 
-: n1-replaces ( pattern index -- pattern )
-    >r $FFFFFF and
-    1 over 8 rshift $FF and lshift NI-mask and IF
-	case  dup $FF00FF and
-	    b'-' L    L  of  b' L r@ 1- c!  endof
-	    1 over $FF and lshift
-	    bm' R bm' AN bm' EN or or and 0<>
-	    1 rot  $10 rshift lshift
-	    bm' R bm' AN bm' EN or or and 0<> and
-	    ?of  b' R r@ 1- c!  endof
-	0 endcase
-    THEN  rdrop ;
+: n1-replaces ( pattern start index -- pattern )
+    over - { d: fill-addr } $FFFF and
+    case  dup
+	b'' L    L  of  fill-addr b' L fill  endof
+	1 over $FF and lshift
+	bm' R bm' AN bm' EN or or and 0<>
+	1 rot  $08 rshift lshift
+	bm' R bm' AN bm' EN or or and 0<> and
+	?of  fill-addr b' R fill  endof
+	0
+    endcase ;
 
-: n1 ( -- )
+: n1 ( -- ) { | first-NI }
     sos $bidi-buffer $@ IF  c@ swap 8 lshift or  ELSE  drop  THEN
+    1 over $FF and lshift NI-mask and
+    IF  8 rshift  $bidi-buffer $@ drop to first-NI  THEN
     $bidi-buffer $@ 1 safe/string bounds U+DO
-	8 lshift I c@ or I n1-replaces
-    LOOP 8 lshift eos or $bidi-buffer $@ + 1- n1-replaces  drop ;
+	1 I c@ lshift NI-mask and IF
+	    first-NI 0= IF  I to first-NI  THEN
+	ELSE
+	    8 lshift I c@ or
+	    first-NI ?dup-IF  I n1-replaces  THEN
+	    0 to first-NI
+	THEN
+    LOOP 8 lshift eos or
+    first-NI ?dup-IF  $bidi-buffer $@ + n1-replaces  THEN  drop ;
 
 : n2 ( -- )
     $level-buffer $@ drop
