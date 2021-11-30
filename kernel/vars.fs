@@ -192,10 +192,10 @@ User state ( -- a-addr ) \ core,tools-ext
 \ version: Don't use @code{state}!
 0 state !
 
-UValue dp               \ initialized at boot time with normal-dp
+UValue dp               \ initialized at boot time with section-dp
 			\ the pointer to the current dictionary pointer
-                        \ ist reset to normal-dp on (doerror)
-                        \  (i.e. any throw caught by quit)
+			\ is reset to section-dp on (doerror)
+                        \ (i.e. any throw caught by quit)
 AUser Last
 
 Variable warnings ( -- addr ) \ gforth

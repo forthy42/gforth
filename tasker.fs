@@ -49,6 +49,8 @@ Create sleepers  sleepers A, sleepers A, 0 ,
 interpret/compile: user' ( 'user' -- n )
 \G USER' computes the task offset of a user variable
 
+User task-dp
+
 : NewTask ( stacksize -- Task )
     \G NEWTASK creates a new, sleeping task
     dup 2* 2* udp @ + dup
@@ -58,8 +60,8 @@ interpret/compile: user' ( 'user' -- n )
     dup r@ user' lp0   + ! over -
     dup r@ user' fp0   + ! over -
     dup r@ user' sp0   + ! over -
-    dup r@ user' normal-dp + dup >r !
-    r> r@ user' dpp  + ! 2drop
+    dup r@ user' task-dp + dup >r !
+    r> r@ user' dp  + ! 2drop
     0 r@ user' current-input + !
     r> dup 2dup 2! dup sleep ;
 
@@ -67,7 +69,7 @@ Create killer killer A, killer A,
 : kill ( task -- )
     \G kills a task - deactivate and free task area
     dup killer link-task  killer dup dup 2!
-    user' normal-dp + @ free throw ;
+    user' task-dp + @ free throw ;
 
 :noname ( -- )
     \G kills the current task, also on bottom of return stack of a new task
