@@ -98,6 +98,7 @@ fontlang: \japanese
 fontlang: \hangul
 fontlang: \emoji
 fontlang: \icons
+fontlang: \iconbrands
 fontlang: \symbols
 fontlang: \symbols2
 fontlang: \math
@@ -374,6 +375,23 @@ cs-Vocabulary fonts
 : fonts=template[r] ( range1 .. rangen n addr u -- )
     [: "lang" replaces
 	\sans  "Sans"  "style" replaces fonts=shapes[r] ;] catch ?failed ;
+: fonts=template[rb]?serif ( range1 .. rangen n addr u -- )
+    "lang" replaces
+    dup 2* 1+ 0 DO  I' 1- pick  LOOP  2* n>r
+    [:	"Sans"  "style" replaces
+	\sans  fonts=shapes[rb]
+	\serif fonts=shapes[rb]
+	\mono  fonts=shapes[rb]
+	drop ;] catch >r clearstack r> IF
+	nr> 2/
+	[: "Serif"  "style" replaces
+	    \sans  fonts=shapes[rb]
+	    \serif fonts=shapes[rb]
+	    \mono  fonts=shapes[rb]
+	    drop ;] catch ?failed
+    ELSE
+	nr> 2/ 0 ?DO  2drop  LOOP
+    THEN ;
 
 previous
 
@@ -386,6 +404,9 @@ font-path+ ~/.fonts
     [IF]  font-path also-path close-file throw  [THEN]
 [ELSE]
     font-path+ ttf/
+    font-path+ noto/
+    font-path+ ttf-dejavu/
+    font-path+ TTF/
     font-path+ truetype/
     font-path+ truetype/dejavu
     font-path+ truetype/noto
@@ -397,13 +418,14 @@ font-path+ ~/.fonts
     font-path+ truetype/ancient-scripts
     font-path+ opentype/
     font-path+ opentype/noto
+    font-path+ texlive-fontawesome5/
 [THEN]
 
 \ skip over fonts when we can't load the font
 
 : [TRY] ( -- )
     [: BEGIN  refill  WHILE
-		source "[THEN]" str= 0= WHILE
+		source "[THEN]" str= source "[ELSE]" str= d0= WHILE
 		    interpret line-end-hook  REPEAT  THEN ;] catch
     IF  postpone [ELSE]  THEN ;
 
@@ -582,6 +604,22 @@ fonts[ssm]=same
 fonts= fa-merged-900
 fonts[ssm]=same
 {{ $F900 $F000 }} 2/ +ranges
+[ELSE]
+[TRY]
+    \icons \regular
+    2 font-lang >breakable
+    \sans \regular
+    fonts= fa-solid-900|FontAwesome5Free-Solid-900
+    fonts[ssm]=same
+    {{ $F900 $F000 }} 2/ +ranges \ catch all
+    \iconbrands \regular
+    2 font-lang >breakable
+    \sans \regular
+    fonts= fa-brands-400|FontAwesome5Brands-Regular-400
+    fonts[ssm]=same
+    \ (echo -n " "; fc-query --format='%{charset}\n' fa-brands-400.ttf) | sed -e 's/\([0-9a-f][0-9a-f][0-9a-f][0-9a-f]\)-\([0-9a-f][0-9a-f][0-9a-f][0-9a-f]\)/ $\2 1+ $\1 /g' -e 's/ \([0-9a-f][0-9a-f][0-9a-f][0-9a-f]\)/ $\1 1 bounds /g'
+    {{ $f082 1+ $f081  $f08c 1 bounds  $f092 1 bounds   $f09b 1+ $f099   $f0d5 1+ $f0d2  $f0e1 1 bounds  $f113 1 bounds  $f136 1 bounds   $f13c 1+ $f13b  $f15a 1 bounds   $f169 1+ $f167   $f16e 1+ $f16b   $f171 1+ $f170   $f174 1+ $f173   $f17e 1+ $f179   $f181 1+ $f180  $f184 1 bounds   $f18d 1+ $f189  $f194 1 bounds  $f198 1 bounds   $f19b 1+ $f19a  $f19e 1 bounds   $f1aa 1+ $f1a0   $f1b7 1+ $f1b4   $f1be 1+ $f1bc   $f1cc 1+ $f1ca   $f1d7 1+ $f1d0   $f1e9 1+ $f1e7   $f1ee 1+ $f1ed   $f1f5 1+ $f1f0   $f203 1+ $f202   $f209 1+ $f208   $f20e 1+ $f20d   $f216 1+ $f210   $f232 1+ $f231  $f237 1 bounds   $f23e 1+ $f23a   $f24c 1+ $f24b  $f25e 1 bounds   $f26b 1+ $f260   $f26e 1+ $f26d  $f270 1 bounds   $f27e 1+ $f27c   $f282 1+ $f280   $f28a 1+ $f284   $f294 1+ $f293   $f299 1+ $f296   $f2a6 1+ $f2a5   $f2ae 1+ $f2a9   $f2b4 1+ $f2b0  $f2b8 1 bounds   $f2c6 1+ $f2c4   $f2da 1+ $f2d5   $f2de 1+ $f2dd  $f2e0 1 bounds  $f35c 1 bounds   $f375 1+ $f368   $f37d 1+ $f378   $f380 1+ $f37f   $f385 1+ $f383  $f388 1 bounds   $f38f 1+ $f38b   $f397 1+ $f391   $f39a 1+ $f399   $f39f 1+ $f39d   $f3a4 1+ $f3a1   $f3b2 1+ $f3a6   $f3bd 1+ $f3b4  $f3c0 1 bounds   $f3c4 1+ $f3c3   $f3c8 1+ $f3c6   $f3cc 1+ $f3ca  $f3d0 1 bounds   $f3dc 1+ $f3d2  $f3df 1 bounds   $f3e4 1+ $f3e1   $f3ec 1+ $f3e6   $f3ef 1+ $f3ee  $f3f3 1 bounds   $f3f9 1+ $f3f5  $f3fe 1 bounds   $f405 1+ $f402   $f40d 1+ $f407   $f421 1+ $f411  $f423 1 bounds   $f431 1+ $f425  $f44d 1 bounds  $f452 1 bounds  $f457 1 bounds  $f459 1 bounds  $f4d5 1 bounds   $f4e5 1+ $f4e4   $f4f9 1+ $f4e7   $f514 1+ $f50a  $f592 1 bounds  $f59e 1 bounds  $f5a3 1 bounds  $f5a8 1 bounds  $f5b2 1 bounds  $f5b5 1 bounds  $f5be 1 bounds  $f5c6 1 bounds  $f5cc 1 bounds  $f5cf 1 bounds  $f5f1 1 bounds  $f5f7 1 bounds  $f5fa 1 bounds  $f60f 1 bounds  $f612 1 bounds  $f63f 1 bounds  $f642 1 bounds  $f69d 1 bounds  $f6af 1 bounds   $f6ca 1+ $f6c9  $f6cc 1 bounds  $f6dc 1 bounds  $f704 1 bounds   $f731 1+ $f730  $f75d 1 bounds  $f778 1 bounds   $f77b 1+ $f77a  $f785 1 bounds  $f789 1 bounds  $f78d 1 bounds   $f791 1+ $f790   $f799 1+ $f797   $f7b1 1+ $f7af  $f7b3 1 bounds   $f7bc 1+ $f7bb  $f7c6 1 bounds  $f7d3 1 bounds  $f7d6 1 bounds   $f7e1 1+ $f7df  $f7e3 1 bounds }} 2/ +ranges
+2 font-lang >breakable
 [THEN]
 
 "Noto" "family" replaces
@@ -718,7 +756,7 @@ fonts[ssm]=same
 \sinhala {{ $E00 $D80 }} 2/ "Sinhala" fonts=template[rb]
 \thai {{ $E80 $E00 }} 2/ "Thai" fonts=template[rb]
 \lao {{ $F00 $E80 }} 2/ "Lao" fonts=template[rb]
-\tibetan {{ $1000 $F00 }} 2/ "Tibetan" fonts=template[r]
+\tibetan {{ $1000 $F00 }} 2/ "Tibetan" fonts=template[rb]?serif
 \myanmar {{ $10A0 $1000 }} 2/ "Myanmar" fonts=template[rb]
 \georgian {{ $1100 $10A0  $1CC0 $1C90 }} 2/ "Georgian" fonts=template[rb]
 \ethiopic {{ $13A0 $1200 }} 2/ "Ethiopic" fonts=template[rb]

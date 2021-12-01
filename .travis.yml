@@ -13,8 +13,6 @@ jobs:
     - os: linux
       arch: ppc64le
       env: M32=
-    - os: osx
-      env: M32=
 language: c
 compiler: gcc
 dist: bionic
