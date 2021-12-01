@@ -1,0 +1,18 @@
+FROM forthy42/gforth:latest
+LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
+ENV LANG C.UTF-8
+ENV XAUTHORITY /home/gforth/.Xauthority
+
+USER root
+
+RUN apk add --no-cache mesa-gles libx11 libxrandr \
+        harfbuzz opus pulseaudio mesa-dri-ati mesa-dri-intel \
+	font-noto-all font-noto-cjk ttf-dejavu \
+    && mv /usr/share/fonts/noto /usr/share/fonts/truetype \
+    && mv /usr/share/fonts/ttf-dejavu/* /usr/share/fonts/truetype
+
+USER gforth
+
+RUN mkdir -p /home/gforth/.config
+
+CMD [ "gforth" ]

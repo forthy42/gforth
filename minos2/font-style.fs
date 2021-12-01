@@ -424,8 +424,8 @@ font-path+ ~/.fonts
 \mono
 \regular fonts= DejaVuSansMono|LiberationMono-Regular|NotoSansMono-Regular|DroidSansMono
 \bold fonts= DejaVuSansMono-Bold|LiberationMono-Bold|NotoSansMono-Bold|DroidSansMono
-\italic fonts= DejaVuSansMono-Oblique|LiberationMono-Italic|DroidSansMono
-\bold-italic fonts= DejaVuSansMono-BoldOblique|LiberationMono-BoldItalic|DroidSansMono
+\italic fonts= DejaVuSansMono-Oblique|LiberationMono-Italic|NotoSansMono-Regular|DroidSansMono
+\bold-italic fonts= DejaVuSansMono-BoldOblique|LiberationMono-BoldItalic|NotoSansMono-Bold|DroidSansMono
 
 120% to font-scaler
 [TRY]
