@@ -1,2 +1,3 @@
+alias swigdk="docker run -ti -v `pwd`:/workdir -v /usr/include:/usr/include --rm forthy42/swig"
 alias gforthdk="docker run -ti --rm forthy42/gforth"
-alias gforth-guidk="docker run -ti -e USER=$USER -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /dev/dri:/dev/dri -v $XAUTHORITY:/home/gforth/.Xauthority --expose 6000 --rm forthy42/gforth-gui"
+alias gforth-guidk="docker run -ti -e USER=$USER -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /dev/dri:/dev/dri -v $XAUTHORITY:/home/gforth/.Xauthority --rm forthy42/gforth-gui"

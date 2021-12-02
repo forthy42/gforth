@@ -7,11 +7,7 @@ USER root
 
 RUN apk add --no-cache mesa-gles libx11 libxrandr \
         harfbuzz opus pulseaudio mesa-dri-gallium \
-	font-noto-all font-noto-cjk font-noto-emoji ttf-font-awesome \
-	ttf-dejavu \
-    && mv /usr/share/fonts/noto /usr/share/fonts/truetype \
-    && mv /usr/share/fonts/ttf-dejavu/* /usr/share/fonts/truetype \
-    && mv /usr/share/fonts/TTF/* /usr/share/fonts/truetype
+	font-noto-all font-noto-cjk font-noto-emoji ttf-font-awesome
 
 USER gforth
 
