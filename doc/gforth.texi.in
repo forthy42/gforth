@@ -14780,6 +14780,10 @@ caught by @code{catch} (e.g., for restoring some state), and then
 @code{throw}n again, the return stack dump will be for the first such
 @code{throw}.
 
+@code{gforth-fast} also does not attempt to differentiate between
+division by zero and division overflow, because that costs time in every
+division.
+
 @c ******************************************************************
 @node Tools, Standard conformance, Error messages, Top
 @chapter Tools

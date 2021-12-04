@@ -12,7 +12,7 @@ RUN apk add --no-cache pcre libstdc++ && apk add --no-cache --virtual \
     --without-ocaml --without-octave --without-perl --without-php \
     --without-pike --without-python --without-r --without-ruby \
     --without-scilab --without-sexp --without-tcl --without-uffi --without-xml \
-    && make && make install && rm -rf swig && apk del .build-deps
+    && make && make install && cd .. && rm -rf swig && apk del .build-deps
 
 CMD [ "swig" ]
 
