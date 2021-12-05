@@ -735,7 +735,8 @@ Create callback-&style c-var c,
     libcc-named-dir$ $! ;
 
 : libcc-tmp-dir ( -- c-addr u )
-    [: ." ~/.cache/gforth/" machine type ." /libcc-tmp/" ;] $tmp ;
+    [:  s" XDG_CACHE_HOME" getenv dup IF  type  ELSE  2drop ." ~/.cache"  THEN
+	." /gforth/" machine type ." /libcc-tmp/" ;] $tmp ;
 
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     [: type type ;] $tmp ;

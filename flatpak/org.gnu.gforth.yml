@@ -3,9 +3,7 @@ runtime: org.freedesktop.Platform
 platform-extensions:
   - org.freedesktop.Platform.GL.default
 runtime-version: "21.08"
-sdk: org.freedesktop.Sdk
-sdk-extensions:
-  - org.freedesktop.Sdk.Extension.stb
+sdk: org.freedesktop.Sdk.Extension.stb
 command: gforth
 
 modules:
@@ -18,5 +16,5 @@ modules:
     no-autogen: true
     sources:
       - type: archive
-        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20211202/gforth-0.7.9_20211202.tar.xz
-        sha256: 7f7c248f116a1239c28fd45076b739a56227e011f8cf0aef125223527d479185
+        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/gforth.tar.xz
+

@@ -8,12 +8,15 @@
 
 /* Mandatory */
 #include "platform.h"
-#include "opengl.h"
 #include "vec234.h"
 #include "vector.h"
 #include "texture-atlas.h"
 #include "texture-font.h"
 #include "ftgl-utils.h"
+#ifdef VERTEX_BUFFER
+#include "opengl.h"
+#include "vertex-buffer.h"
+#endif
 
 #ifdef IMPLEMENT_FREETYPE_GL
 #include "platform.c"
@@ -24,6 +27,10 @@
 #include "distance-field.c"
 #include "edtaa3func.c"
 #include "ftgl-utils.c"
+#ifdef VERTEX_BUFFER
+#include "vertex-attribute.c"
+#include "vertex-buffer.c"
+#endif
 #endif
 
 #ifdef __cplusplus

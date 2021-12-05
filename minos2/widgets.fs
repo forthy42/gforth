@@ -111,6 +111,8 @@ Variable config-file$  s" ~/.config/minos2rc" config-file$ $!
 [THEN]
 
 : ?.minos-config ( -- )  true configured? !@ ?EXIT
+    s" XDG_CONFIG_HOME" getenv dup IF
+	config-file$ $! s" /minos2rc" config-file$ $+!  ELSE  2drop  THEN
     s" MINOS2_CONF" getenv dup IF  config-file$ $!  ELSE  2drop  THEN
     config-file$ $@ 2dup file-status nip ['] m2c >wordlist swap
     no-file# = IF  write-config  ELSE

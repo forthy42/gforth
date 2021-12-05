@@ -7,11 +7,11 @@ runtime-version: '21.08'
 separate-locales: false
 appstream-compose: false
 modules:
-- name: stb
-  buildsystem: simple
-  sources:
-    - type: git
-      url: https://github.com/nothings/stb.git
-  build-commands:
-  - install -d /usr/include/stb
-  - cp -rpv *.h /usr/include/stb
+  - name: stb
+    buildsystem: simple
+    sources:
+      - type: git
+        url: https://github.com/nothings/stb.git
+    build-commands:
+      - install -d /usr/include/stb
+      - cp -rpv *.h /usr/include/stb

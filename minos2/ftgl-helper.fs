@@ -347,8 +347,8 @@ require bidi.fs
     xs /string "\uFE0E" string-prefix?
     dup IF  [ "\uFE0E" nip ]L xs + swap  THEN ;
 
-2 Value emoji-font#
-3 Value symbol-font#
+0 Value emoji-font#  \ patched later if found
+0 Value symbol-font# \ patched later if found
 
 : ?font-select { I' I | xs -- xaddr font xs }
     I' I ?emoji-variant IF  to xs  emoji-font#  ELSE

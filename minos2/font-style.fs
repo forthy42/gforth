@@ -405,6 +405,8 @@ font-path+ ~/.fonts
 [ELSE]
     font-path+ ttf/
     font-path+ noto/
+    font-path+ dejavu/
+    font-path+ openemoji/
     font-path+ ttf-dejavu/
     font-path+ TTF/
     font-path+ truetype/
@@ -450,90 +452,99 @@ font-path+ ~/.fonts
 \bold-italic fonts= DejaVuSansMono-BoldOblique|LiberationMono-BoldItalic|NotoSansMono-Bold|DroidSansMono
 
 120% to font-scaler
+[IFDEF] android
 [TRY]
 \simplified-chinese
 2 font-lang >breakable
 \sans
-[IFDEF] android
     \regular fonts= NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     fonts[ssm]=same
 {{  $A000  $2E80  $31390 $20000   $FB00  $F900   $FFF0  $FF00 }} 2/ +ranges
     \bold fonts= NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \italic fonts= NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold-italic fonts= NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
-[ELSE] \ android
-    \regular fonts= gkai00mp|NotoSansSC-Regular|NotoSansCJK-Regular
-    fonts[ssm]=same
-{{  $A000  $2E80  $31390 $20000   $FB00  $F900   $FFF0  $FF00 }} 2/ +ranges
-    \bold fonts= gkai00mp|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular
-    \italic fonts= gkai00mp|NotoSansSC-Regular|NotoSansCJK-Regular
-    \bold-italic fonts= gkai00mp|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular
-[THEN] \ android
 \serif
-[IFDEF] android
     \regular fonts= NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold fonts= NotoSerifSC-Bold|NotoSerifCJK-Bold|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \italic fonts= NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold-italic fonts= NotoSerifSC-Bold|NotoSerifCJK-Bold|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
-[ELSE] \ android
-    \regular fonts= gkai00mp|NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular
-    \bold fonts= gkai00mp|NotoSerifSC-Bold|NotoSerifCJK-Bold|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular
-    \italic fonts= gkai00mp|NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular
-    \bold-italic fonts= gkai00mp|NotoSerifSC-Bold|NotoSerifCJK-Bold|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular
-[THEN] \ android
 \mono
-[IFDEF] android
     \regular fonts= NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold fonts= NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \italic fonts= NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold-italic fonts= NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular|DroidSansFallback
-[ELSE] \ android
+[THEN]
+
+[IFUNDEF] android
+[TRY]
+\simplified-chinese
+2 font-lang >breakable
+\sans
+    \regular fonts= gkai00mp|NotoSansSC-Regular|NotoSansCJK-Regular
+    fonts[ssm]=same
+{{  $A000  $2E80  $31390 $20000   $FB00  $F900   $FFF0  $FF00 }} 2/ +ranges
+    \bold fonts= gkai00mp|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular
+    \italic fonts= gkai00mp|NotoSansSC-Regular|NotoSansCJK-Regular
+    \bold-italic fonts= gkai00mp|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular
+\serif
+    \regular fonts= gkai00mp|NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular
+    \bold fonts= gkai00mp|NotoSerifSC-Bold|NotoSerifCJK-Bold|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular
+    \italic fonts= gkai00mp|NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular
+    \bold-italic fonts= gkai00mp|NotoSerifSC-Bold|NotoSerifCJK-Bold|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSerifSC-Regular|NotoSerifCJK-Regular|NotoSansSC-Regular|NotoSansCJK-Regular
+\mono
     \regular fonts= gkai00mp|NotoSansSC-Regular|NotoSansCJK-Regular
     \bold fonts= gkai00mp|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular
     \italic fonts= gkai00mp|NotoSansSC-Regular|NotoSansCJK-Regular
     \bold-italic fonts= gkai00mp|NotoSansSC-Bold|NotoSansCJK-Bold|NotoSansSC-Regular|NotoSansCJK-Regular
-[THEN] \ android
 [THEN]
 
+[IFDEF] android
 [TRY]
 \traditional-chinese
 2 font-lang >breakable
 \sans
-[IFDEF] android
     \regular fonts= NotoSansTC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold fonts= NotoSansTC-Bold|NotoSansCJK-Bold|NotoSansTC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \italic fonts= NotoSansTC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold-italic fonts= NotoSansTC-Bold|NotoSansCJK-Bold|NotoSansTC-Regular|NotoSansCJK-Regular|DroidSansFallback
-[ELSE] \ android
-    \regular fonts= bkai00mp|NotoSansTC-Regular|NotoSansCJK-Regular
-    \bold fonts= bkai00mp|NotoSansTC-Bold|NotoSansCJK-Bold|NotoSansTC-Regular|NotoSansCJK-Regular
-    \italic fonts= bkai00mp|NotoSansTC-Regular|NotoSansCJK-Regular
-    \bold-italic fonts= bkai00mp|NotoSansTC-Bold|NotoSansCJK-Bold|NotoSansTC-Regular|NotoSansCJK-Regular
-[THEN] \ android
 \serif
-[IFDEF] android
     \regular fonts= NotoSerifTC-Regular|NotoSerifCJK-Regular|NotoSansTC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold fonts= NotoSerifTC-Bold|NotoSerifCJK-Bold|NotoSansTC-Bold|NotoSansCJK-Bold|NotoSerifTC-Regular|NotoSerifCJK-Regular|NotoSansTC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \italic fonts= NotoSerifTC-Regular|NotoSerifCJK-Regular|NotoSansTC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold-italic fonts= NotoSerifTC-Bold|NotoSerifCJK-Bold|NotoSansTC-Bold|NotoSansCJK-Bold|NotoSerifTC-Regular|NotoSerifCJK-Regular|NotoSansTC-Regular|NotoSansCJK-Regular|DroidSansFallback
-[ELSE] \ android
-    \regular fonts= bkai00mp|NotoSerifTC-Regular|NotoSerifCJK-Regular|NotoSansTC-Regular|NotoSansCJK-Regular
-    \italic font=same
-    \bold fonts= bkai00mp|NotoSerifTC-Bold|NotoSerifCJK-Bold|NotoSansTC-Bold|NotoSansCJK-Bold|NotoSerifTC-Regular|NotoSerifCJK-Regular|NotoSansTC-Regular|NotoSansCJK-Regular
-    \bold-italic font=same
-[THEN] \ android
 \mono
-[IFDEF] android
     \regular fonts= NotoSansTC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \italic font=same
     \bold fonts= NotoSansTC-Bold|NotoSansCJK-Bold|NotoSansTC-Regular|NotoSansCJK-Regular|DroidSansFallback
     \bold-italic font=same
-[ELSE] \ android
+{{  $3130  $3100 }} 2/ +ranges \ bopomofo
+:noname ( traditional simple -- )
+    2dup = IF  2drop  EXIT  THEN
+    drop dup 1+ swap 1 +ranges ; is >sc
+' 2drop is >tc
+' drop is >tc2
+read-unihan
+[THEN]
+
+[IFUNDEF] android
+[TRY]
+\traditional-chinese
+2 font-lang >breakable
+\sans
+    \regular fonts= bkai00mp|NotoSansTC-Regular|NotoSansCJK-Regular
+    \bold fonts= bkai00mp|NotoSansTC-Bold|NotoSansCJK-Bold|NotoSansTC-Regular|NotoSansCJK-Regular
+    \italic fonts= bkai00mp|NotoSansTC-Regular|NotoSansCJK-Regular
+    \bold-italic fonts= bkai00mp|NotoSansTC-Bold|NotoSansCJK-Bold|NotoSansTC-Regular|NotoSansCJK-Regular
+\serif
+    \regular fonts= bkai00mp|NotoSerifTC-Regular|NotoSerifCJK-Regular|NotoSansTC-Regular|NotoSansCJK-Regular
+    \italic font=same
+    \bold fonts= bkai00mp|NotoSerifTC-Bold|NotoSerifCJK-Bold|NotoSansTC-Bold|NotoSansCJK-Bold|NotoSerifTC-Regular|NotoSerifCJK-Regular|NotoSansTC-Regular|NotoSansCJK-Regular
+    \bold-italic font=same
+\mono
     \regular fonts= bkai00mp|NotoSansTC-Regular|NotoSansCJK-Regular
     \italic font=same
     \bold fonts= bkai00mp|NotoSansTC-Bold|NotoSansCJK-Bold|NotoSansTC-Regular|NotoSansCJK-Regular
     \bold-italic font=same
-[THEN] \ android
 {{  $3130  $3100 }} 2/ +ranges \ bopomofo
 :noname ( traditional simple -- )
     2dup = IF  2drop  EXIT  THEN
@@ -591,7 +602,7 @@ fonts[ssm]=same
 font-lang to emoji-font#
 2 font-lang >breakable
 \sans \regular
-color-fonts= NotoColorEmoji|emojione-android|Twemoji|SamsungColorEmoji
+color-fonts= NotoColorEmoji|emojione-android|OpenMoji-Color|Twemoji|SamsungColorEmoji
 fonts[ssm]=same
 {{ $20000 $1F000 }} 2/ +ranges
 [THEN]
