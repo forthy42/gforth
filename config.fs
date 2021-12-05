@@ -63,20 +63,8 @@ s" Config error" exception Value config-throw
 : read-config ( addr u wid -- )  to config-wl
     >included throw ['] read-config-loop execute-parsing-named-file ;
 
-[IFUNDEF] no-file#
-    2 Constant ENOENT
-    #-512 ENOENT - Constant no-file#
-[THEN]
-: init-dir ( addr u mode -- flag ) >r
-    \G create a directory with access mode,
-    \G return true if the dictionary is new, false if it already existed
-    2dup file-status nip no-file# = IF
-	r> mkdir-parents throw  true
-    ELSE  2drop rdrop  false  THEN ;
-
 : write-config ( addr u wid -- )  to config-wl
-    2dup dirname $1FF init-dir drop
-    r/w create-file throw >r
+    force-open >r
     [: config-wl
 	[: dup name>string 1- 2dup + c@ >r type .\" ="
 	    execute r>
