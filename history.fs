@@ -94,9 +94,11 @@ Variable vt100-modifier \ shift, ctrl, alt
 
 : history-file ( -- addr u )
     s" GFORTHHIST" getenv dup 0= IF
-	\ !!TODO!! use ~/.config/gforth and ~/.cache/gforth instead of ~/
-	\ 2drop s" ~/.cache/gforth/history"
-	2drop s" ~/.local/share/gforth/history"
+	2drop s" XDG_DATA_HOME" getenv dup IF
+	    [: type ." /gforth/history" ;] $tmp
+	ELSE
+	    2drop s" ~/.local/share/gforth/history"
+	THEN
     THEN ;
 
 \ moving in history file                               16oct94py
