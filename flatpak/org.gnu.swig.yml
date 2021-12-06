@@ -1,0 +1,12 @@
+app-id: org.gnu.swig
+runtime: org.freedesktop.Platform
+runtime-version: "21.08"
+sdk: org.freedesktop.Sdk
+command: swig
+
+modules:
+  - name: swig
+    buildsystem: autotools
+    sources:
+      - type: git
+        url: https://github.com/GeraldWodni/swig.git
