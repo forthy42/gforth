@@ -220,14 +220,12 @@ $20 0 [DO] ' noop , [LOOP]
 : x6 ( -- )
     stack# @ >level  change-current-char ;
 : x5a ( -- ) \ match on RLI
-    stack# @ >level
     x6 stack# @ next-odd dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	1 overflow-isolate# +! drop
     ELSE  stack# !  rtl dis or stack-top c!  1 isolate# +!  THEN ;
 ' x5a bind RLI
 : x5b ( -- ) \ match on LRI
-    stack# @ >level
     x6 stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	1 overflow-isolate# +! drop
@@ -318,7 +316,11 @@ $20 0 [DO] ' noop , [LOOP]
 	    b' ON  p
 	    1 p lshift bm' LRI bm' RLI or bm' PDI or and
 	    select c c!
-	THEN c c@ ;] run-isolated ;
+	THEN
+	p c c@ 1 over lshift
+	bm' RLE bm' LRE or bm' RLO or bm' LRO or bm' PDF or bm' BN or and
+	select
+    ;] run-isolated ;
 
 : w2 ( -- )
     [: { p c -- p' } c c@ b' EN = IF
