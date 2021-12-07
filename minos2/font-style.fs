@@ -251,17 +251,23 @@ s" No suitable font found" exception constant !!no-suitable-font!!
 
 Variable font-path
 Variable font-ext$
-Variable font-prefix$
+Variable font-prefix
 
-"GFORTHFONTS" getenv 2dup d0= [IF] 2drop "/usr/share/fonts/" [THEN]
-font-prefix$ $!
+"GFORTHFONTS" getenv 2dup d0= [IF] 2drop
+    "container" getenv "flatpak" str=
+    [IF] font-prefix path= /usr/share/fonts|/run/home/fonts
+    [ELSE] font-prefix path= /usr/share/fonts/ [THEN]
+[ELSE]
+    ':' 0 subst-c font-prefix also-path
+[THEN]
 "GFORTHFONTEXT" getenv 2dup d0= [IF] 2drop "ttf:otf:ttc:woff:woff2" [THEN]
 font-ext$ $!
 
 also freetype-gl
 : font-path+ ( "font" -- )
     parse-name
-    2dup absolut-path? 0= IF  [: font-prefix$ $. type ;] $tmp  THEN
+    2dup absolut-path? 0= IF
+	font-prefix open-path-file  ?EXIT  rot close-file throw  THEN
     2dup open-dir 0= IF
 	close-dir throw font-path also-path
     ELSE  drop 2drop  THEN ;
@@ -398,7 +404,7 @@ previous
 font-path+ ~/.fonts
 
 [IFDEF] android
-    font-prefix$ $free
+    font-prefix clear-path
     font-path+ /system/fonts
     "minos2/fonts" open-fpath-file 0=
     [IF]  font-path also-path close-file throw  [THEN]
@@ -602,7 +608,7 @@ fonts[ssm]=same
 font-lang to emoji-font#
 2 font-lang >breakable
 \sans \regular
-color-fonts= NotoColorEmoji|emojione-android|OpenMoji-Color|Twemoji|SamsungColorEmoji
+color-fonts= NotoColorEmoji|emojione-android|Twemoji|SamsungColorEmoji|OpenMoji-Color
 fonts[ssm]=same
 {{ $20000 $1F000 }} 2/ +ranges
 [THEN]

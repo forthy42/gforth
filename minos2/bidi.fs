@@ -285,7 +285,7 @@ $20 0 [DO] ' noop , [LOOP]
     iso-push 1 +to current-char iso-start ;
 ' x7 bind PDF
 : x8 ( -- )
-    iso-push  1 +to current-char
+    1 +to current-char  iso-push
     $bidi-buffer $@ bounds drop current-char (p2) x1-rest
     iso-stack<> $[]# 0 ?DO  I iso-stack>list  LOOP  iso-start ;
 ' x8 bind B
@@ -430,7 +430,8 @@ $20 0 [DO] ' noop , [LOOP]
     $level-buffer $@ start safe/string drop c@ 1 and select
     b' ON
     $bidi-buffer $@ end umin start 1+ safe/string bounds U+DO
-	over I c@ = IF  drop dup LEAVE  THEN
+	over I c@ 1 over lshift bm' EN bm' AN or and IF  drop b' R  THEN
+	= IF  drop dup LEAVE  THEN
     LOOP ;
 : set-bracket-type ( type start end -- type ) 2>r
     dup $bidi-buffer $@ r> safe/string IF  c!  ELSE  2drop  THEN
@@ -488,24 +489,21 @@ Constant NI-mask
 	THEN  1+
     LOOP  drop ;
 
+$40 buffer: <i1+2>
+
+1 b' R  2*    <i1+2> + c!
+2 b' AN 2*    <i1+2> + c!
+2 b' EN 2*    <i1+2> + c!
+
+1 b' L  2* 1+ <i1+2> + c!
+1 b' AN 2* 1+ <i1+2> + c!
+1 b' EN 2* 1+ <i1+2> + c!
+
 : i1+2 ( -- )
     $level-buffer $@ drop
     $bidi-buffer $@ bounds U+DO
-	dup c@ 1 and IF
-	    case i c@
-		b' L  of  1 over c+!  endof
-		b' AN of  1 over c+!  endof
-		b' EN of  1 over c+!  endof
-	    endcase
-	ELSE
-	    case i c@
-		b' R  of  1 over c+!  endof
-		b' AN of  2 over c+!  endof
-		b' EN of  2 over c+!  endof
-	    endcase
-	THEN  1+
+	dup c@ 1 and I c@ 2* or <i1+2> + c@  over c+!  1+
     LOOP  drop ;
-
 
 : x10 ( -- )
     sos/eos
@@ -517,12 +515,14 @@ Constant NI-mask
 bm' R bm' RLE bm' RLO bm' RLI bm' AL or or or or Constant R-mask
 bm' L bm' LRE bm' LRO bm' LRI or or or Constant L-Mask
 
-: skip-bidi? { mask -- flag }
+: (skip-bidi?) { mask -- flag }
     $bidi-buffer $@ bounds U+DO
 	1 I c@ lshift mask and IF  false  UNLOOP  EXIT  THEN
     LOOP  true ;
 
 r> set-current
+
+Defer skip-bidi? ' (skip-bidi?) is skip-bidi?
 
 : bidi-rest ( -- )
     $bidi-buffer $@ bounds U+DO
