@@ -105,7 +105,6 @@ fontlang: \math
 fontlang: \armenian
 fontlang: \hebrew
 fontlang: \arabic
-fontlang: \arabic#
 fontlang: \syriac
 fontlang: \thaana
 fontlang: \nko
@@ -707,30 +706,6 @@ fonts[ssm]=same
 \italic fonts= NotoNastaliqUrdu-Regular|NotoSansArabic-Regular|NotoNaskhArabic-Regular|DejaVuSans-Oblique|LiberationSans-Italic|DroidKufi-Regular
 \bold fonts= NotoSansArabic-Bold|NotoNaskhArabic-Bold|DejaVuSans-Bold|LiberationSans-Bold|DroidKufi-Bold
 \bold-italic fonts= NotoNastaliqUrdu-Regular|NotoSansArabic-Bold|NotoNaskhArabic-Bold|DejaVuSans-BoldOblique|LiberationSans-BoldItalic|DroidKufi-Bold
-
-\serif
-\regular fonts= NotoSansArabic-Regular|NotoNaskhArabic-Regular|DroidNaskh-Regular
-\bold fonts= NotoSansArabic-Bold|NotoNaskhArabic-Regular|DroidNaskh-Regular
-\italic fonts= NotoSansArabic-Italic|NotoNaskhArabic-Bold|DroidNaskh-Bold
-\bold-italic fonts= NotoSansArabic-BoldItalic|NotoNaskhArabic-Bold|DroidNaskh-Bold
-
-\mono
-\regular fonts= DejaVuSansMono|DroidKufi-Regular|NotoSansArabic-Regular|NotoNaskhArabic-Regular
-\bold fonts= DejaVuSansMono-Bold|DroidKufi-Regular|NotoSansArabic-Bold|NotoNaskhArabic-Regular
-\italic fonts= DejaVuSansMono-Oblique|DroidKufi-Bold|NotoSansArabic-Italic|NotoNaskhArabic-Bold
-\bold-italic fonts= DejaVuSansMono-BoldOblique|DroidKufi-Bold|NotoSansArabic-BoldItalic|NotoNaskhArabic-Bold
-[THEN]
-
-[TRY]
-\arabic#
-harfbuzz:HB_DIRECTION_LTR font-bidi font-lang + c!
-\sans
-\regular fonts= NotoSansArabic-Regular|NotoNaskhArabic-Regular|DejaVuSans|LiberationSans-Regular|DroidKufi-Regular|DroidSans
-fonts[ssm]=same
-{{  $660 #13 bounds  $609 #2 bounds  $6F0 #10 bounds }} 2/ +ranges
-\italic fonts= NotoSansArabic-Italic|NotoNaskhArabic-Regular|DejaVuSans-Oblique|LiberationSans-Italic|DroidKufi-Regular
-\bold fonts= NotoSansArabic-Bold|NotoNaskhArabic-Bold|DejaVuSans-Bold|LiberationSans-Bold|DroidKufi-Bold
-\bold-italic fonts= NotoSansArabic-BoldItalic|NotoNaskhArabic-Bold|DejaVuSans-BoldOblique|LiberationSans-BoldItalic|DroidKufi-Bold
 
 \serif
 \regular fonts= NotoSansArabic-Regular|NotoNaskhArabic-Regular|DroidNaskh-Regular

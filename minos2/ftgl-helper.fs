@@ -367,16 +367,17 @@ Variable $splits[]
 
 : lang-split-string ( addr u -- )
     translator
+    start-bidi 2dup >bidi bidi-algorithm
     -1 to bl/null?  last-font# off
-    $splits[] $[]free
+    $splits[] $[]free $level-buffer $@ drop -1 { lbuf last-level }
     bounds ?DO
 	last-font# @ { lf# }
-	I' I ?font-select# { xs }
-	lf# <> $splits[] stack# 0= or  IF
-	    last-font# @ { c^ font^ }
-	    font^ 1 $make $splits[] >stack
+	I' I ?font-select# { xs } lf# <>
+	lbuf c@ last-level over to last-level <> or  IF
+	    last-font# @ 2* last-level 1 and or { w^ font^ }
+	    font^ 2 $make $splits[] >stack
 	THEN
-	xs $splits[] stacktop $+!
+	xs $splits[] stacktop $+!  1 +to lbuf
     xs +LOOP ;
 
 also harfbuzz
@@ -405,29 +406,27 @@ DOES> swap hb_feature_t * + ;
 "liga" hb-tag 1 1 userfeatures hb-feature!
 2 to numfeatures
 
-$100 buffer: font-bidi \ 0: leave as guess, 4-7: set direction
 $100 buffer: font-bidi' \ 0: leave as guess, 4-7: set direction
 
 : shape-splits { xt: setbuf -- }
     $splits[] stack# 0 ?DO
-	hb-buffer I $splits[] $[]@ over c@ >r 1 /string
-	r@ font#-load texture_font_activate_size ?ftgl-ior drop
+	hb-buffer I $splits[] $[]@ over w@
+	dup 2/ { font# } 1 and 4 or { dir# } 2 /string
+	font# font#-load dup { font }
+	texture_font_activate_size ?ftgl-ior drop
 	0 over hb_buffer_add_utf8
 	hb-buffer hb_buffer_guess_segment_properties
-	r@ font-bidi + c@ ?dup-IF
-	    hb-buffer swap hb_buffer_set_direction
-	THEN
-	r@ font-bidi' + c@ \ direction overload
+	\ font# font-bidi' + c@ dir# over select to dir#
+	hb-buffer dir# hb_buffer_set_direction
 	hb-buffer setbuf
-	r> font#-load texture_font_t-hb_font @ hb-buffer
+	font texture_font_t-hb_font @ hb-buffer
 	0 userfeatures numfeatures hb_shape
+	dir# I directions[] $[] !
 	{ | w^ glyph-count }
 	hb-buffer glyph-count hb_buffer_get_glyph_infos
 	glyph-count l@ hb_glyph_info_t * I infos[] $[]!
 	hb-buffer glyph-count hb_buffer_get_glyph_positions
 	glyph-count l@ hb_glyph_position_t * I positions[] $[]!
-	hb-buffer hb_buffer_get_direction
-	over select I directions[] $[] !
 	hb-buffer hb_buffer_reset
     LOOP ;
 
@@ -444,7 +443,7 @@ Defer get-glyphs
 : render-shape-string ( addr u -- )
     lang-split-string ['] drop shape-splits
     $splits[] stack# 0 ?DO
-	I $splits[] $[]@ drop c@ font#-load { font }
+	I $splits[] $[]@ drop w@ 2/ font#-load { font }
 	font font->t.i0
 	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN
 	f-scale f* fdup #-64 fm* fswap x-scale f*  { f: ypos* f: xpos* }
@@ -483,7 +482,7 @@ Defer get-glyphs
 : get-shape-glyphs ( addr u -- glyph1 .. glyphn )
     lang-split-string ['] drop shape-splits
     $splits[] stack# 0 ?DO
-	I $splits[] $[]@ drop c@ font#-load { font }
+	I $splits[] $[]@ drop w@ 2/ font#-load { font }
 	font font->t.i0
 	I infos[] $[]@ { infos len }
 	len 0 ?DO
@@ -555,7 +554,7 @@ cell 4 = [IF]
     lang-split-string ['] drop shape-splits
     { | f: fw f: fd f: fh }
     $splits[] stack# 0 ?DO
-	I $splits[] $[]@ drop c@ font#-load { font }
+	I $splits[] $[]@ drop w@ 2/ font#-load { font }
 	font font->t.i0
 	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN f-scale f*
 	pos*icon f-scale f* { f: xpos* f: ypos* }
@@ -602,7 +601,7 @@ cell 4 = [IF]
 
 : pos-shape-rest ( -- curpos ) { | offset }
     $splits[] stack# 0 ?DO
-	I $splits[] $[]@ drop c@ font#-load { font }
+	I $splits[] $[]@ drop w@ 2/ font#-load { font }
 	font font->t.i0
 	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN
 	f-scale f* x-scale f* { f: pos* }
@@ -615,7 +614,7 @@ cell 4 = [IF]
 		fdrop fdrop  unloop unloop  EXIT
 	    THEN  f-
 	hb_glyph_info_t +LOOP
-	I $splits[] $[]@ 1 /string +to offset drop
+	I $splits[] $[]@ 2 /string +to offset drop
     LOOP
     fdrop offset ;
 
@@ -636,7 +635,7 @@ cell 4 = [IF]
     0 addr pos bounds ?DO
 	dup directions[] $[] @ HB_DIRECTION_RTL = to rtl?
 	dup segment-lens[] $[] seg-len@ fdup to lastlen +to len
-	dup 1+ swap $splits[] $[]@ nip 1-
+	dup 1+ swap $splits[] $[]@ nip 2 -
     +LOOP  drop
     addr u pos umin layout-shape-string fdrop fdrop
     rtl? IF  lastlen fnegate +to len
