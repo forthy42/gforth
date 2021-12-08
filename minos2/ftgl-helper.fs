@@ -337,24 +337,26 @@ require bidi.fs
 	IF  "-" drop  ELSE  I xchar+ dup I' over - x-size +to xs  THEN
     ELSE  I  THEN  xs ;
 
-: ?emoji-variant { I' I -- xaddr xs t / xaddr f }
-    I I' over - 2dup x-size { xs }  over swap
-    xs /string "\uFE0F" string-prefix?
-    dup IF  [ "\uFE0F" nip ]L xs + swap  THEN ;
-
-: ?text-variant { I' I -- xaddr xs t / xaddr f }
-    I I' over - 2dup x-size { xs }  over swap
-    xs /string "\uFE0E" string-prefix?
-    dup IF  [ "\uFE0E" nip ]L xs + swap  THEN ;
+: ?variant { I' I -- xaddr xs variant / xaddr xs -1 }
+    I I' over - 2dup x-size { xs }
+    over swap xs safe/string 3 u>= IF
+	xc@ $FE00 - dup $10 u< IF  xs 3 + swap  EXIT  THEN
+    THEN
+    drop xs -1 ;
 
 0 Value emoji-font#  \ patched later if found
 0 Value symbol-font# \ patched later if found
 
-: ?font-select { I' I | xs -- xaddr font xs }
-    I' I ?emoji-variant IF  to xs  emoji-font#  ELSE
-	I' I ?text-variant IF  to xs  symbol-font#  ELSE
-	    drop I' I ?soft-hyphen to xs  font-select#  THEN  THEN
-    dup last-font# ! font#-load  xs ;
+: ?font-select# { I' I | xs -- xaddr font# xs }
+    case  I' I ?variant
+	-1 of  2drop  I' I ?soft-hyphen to xs  font-select#  endof
+	$F of  to xs  emoji-font#   endof
+	$E of  to xs  symbol-font#  endof
+	drop 3 - to xs  font-select#  0
+    endcase
+    dup last-font# !  xs ;
+: ?font-select ( I' I -- xaddr font xs )
+    ?font-select# >r font#-load r> ;
 
 -1 value bl/null?
 
@@ -368,10 +370,9 @@ Variable $splits[]
     -1 to bl/null?  last-font# off
     $splits[] $[]free
     bounds ?DO
-	{ | xs }
-	I' I ?emoji-variant IF  to xs  emoji-font#  ELSE
-	    drop I' I ?soft-hyphen to xs  font-select#  THEN
-	last-font# @ over last-font# ! <> $splits[] stack# 0= or  IF
+	last-font# @ { lf# }
+	I' I ?font-select# { xs }
+	lf# <> $splits[] stack# 0= or  IF
 	    last-font# @ { c^ font^ }
 	    font^ 1 $make $splits[] >stack
 	THEN

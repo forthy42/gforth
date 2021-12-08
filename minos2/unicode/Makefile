@@ -55,7 +55,7 @@ test.comp: BidiCharacterTest.txt
 	grep ';[0-2];[01];' $< | cut -f3-4 -d';' >$@
 
 bidi-test: runtest.fs test.in
-	gforth $^ -e bye >$@
+	gforth-fast $^ -e bye >$@
 
 unihan.in: Unihan_Variants.txt
 	echo "\ automatically generated from $^" >$@
