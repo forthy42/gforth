@@ -295,6 +295,7 @@ $20 0 [DO] ' noop , [LOOP]
 0 Value eos
 0 Value seg-start
 0 Value sos#
+0 Value et-start
 
 : >sos/eos ( -- )
     sos$ $@ sos# safe/string IF  c@  ELSE  drop b' L  THEN  to sos
@@ -303,10 +304,13 @@ $20 0 [DO] ' noop , [LOOP]
     0 to sos#
     iso-list[] $@ bounds U+DO
 	>sos/eos sos
-	I $@ bounds dup to seg-start  U+DO
+	I $@ bounds dup to seg-start  U+DO  0 to et-start
 	    $bidi-buffer $@ I reg>> umin I <<reg safe/string bounds U+DO
 		I rule
 	    LOOP
+	    et-start ?dup-IF
+		$bidi-buffer $@ I reg>> umin I <<reg safe/string + over - b' EN fill
+	    THEN
 	iso-region-element +LOOP  drop
 	1 +to sos#
     cell +LOOP ;
@@ -327,7 +331,7 @@ $20 0 [DO] ' noop , [LOOP]
 	    p b' AL = IF  b' AN c c!  THEN  p
 	ELSE
 	    c c@  p
-	    1 c c@ lshift bm' R bm' L or bm' AL or and select
+	    1 third lshift bm' R bm' L or bm' AL or and select
 	THEN
     ;] run-isolated ;
 
@@ -348,25 +352,19 @@ $20 0 [DO] ' noop , [LOOP]
 
 : w5 ( -- )
     [: { p c -- p' }
-	p 8 lshift c c@ or dup
-	case \ endianess here is don't care     ↓
-	    b''' ET ET EN  of  b'' EN EN  c 2 - w!  endof
-	    b''' EN ET ET  of  b'' EN EN  c 1-  w!  endof
-	    b''' AN ET EN  of   b' EN     c 1-  c!  endof
-	endcase
-	$FFFF and ;] run-isolated ;
+	et-start IF  c c@ b' EN = IF  et-start c over - b' EN fill  THEN
+	    1 c c@ bm' ET bm' RLE or bm' LRE or bm' RLO or bm' LRO or
+	    bm' PDF or bm' BN or and 0= IF  0 to et-start  THEN
+	ELSE  c c@ b' ET =  IF  c to et-start  THEN
+	THEN
+	p ;] run-isolated ;
 
 : w6 ( -- )
-    [: { p c -- p' }
-	p 8 lshift c c@ or dup
-	case
-	    b''' L  ES EN  of  b' ON  c 1- c!  endof
-	    b''' EN CS AN  of  b' ON  c 1- c!  endof
-	    $FFFF and
-	    b'' AN ET      of  b' ON  c    c!  endof
-	    b'' ET AN      of  b' ON  c 1- c!  endof
-	endcase
-	$FFFF and ;] run-isolated ;
+    [: { c -- }
+	1 c c@ lshift bm' ES bm' CS or bm' ET or and IF
+	    b' ON c c!
+	THEN
+    ;] run-isolated ;
 
 : w7 ( -- )
     [: { p c -- p' }
