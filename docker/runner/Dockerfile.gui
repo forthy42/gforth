@@ -6,8 +6,7 @@ ENV XAUTHORITY /home/gforth/.Xauthority
 USER root
 
 RUN apk add --no-cache mesa-gles libx11 libxrandr \
-        harfbuzz opus pulseaudio mesa-dri-gallium \
-	font-noto-all font-noto-cjk font-noto-emoji ttf-font-awesome
+        harfbuzz opus pulseaudio mesa-dri-gallium
 
 COPY pulse-client.conf /etc/pulse/client.conf
 
