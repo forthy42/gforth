@@ -254,7 +254,7 @@ Variable font-prefix
 
 "GFORTHFONTS" getenv 2dup d0= [IF] 2drop
     "container" getenv "flatpak" str=
-    [IF] font-prefix path= /usr/share/fonts|/run/home/fonts
+    [IF] font-prefix path= /usr/share/fonts|/run/host/fonts
     [ELSE] font-prefix path= /usr/share/fonts/ [THEN]
 [ELSE]
     ':' 0 subst-c font-prefix also-path
@@ -408,13 +408,7 @@ font-path+ ~/.fonts
     "minos2/fonts" open-fpath-file 0=
     [IF]  font-path also-path close-file throw  [THEN]
 [ELSE]
-    font-path+ ttf/
-    font-path+ noto/
-    font-path+ dejavu/
-    font-path+ openemoji/
-    font-path+ ttf-dejavu/
-    font-path+ TTF/
-    font-path+ truetype/
+    font-path+ truetype
     font-path+ truetype/dejavu
     font-path+ truetype/noto
     font-path+ truetype/droid
@@ -423,9 +417,15 @@ font-path+ ~/.fonts
     font-path+ truetype/arphic-bkai00mp
     font-path+ truetype/emoji
     font-path+ truetype/ancient-scripts
-    font-path+ opentype/
+    font-path+ opentype
     font-path+ opentype/noto
-    font-path+ texlive-fontawesome5/
+    font-path+ texlive-fontawesome5
+    font-path+ ttf
+    font-path+ noto
+    font-path+ dejavu
+    font-path+ openemoji
+    font-path+ ttf-dejavu
+    font-path+ TTF
 [THEN]
 
 \ skip over fonts when we can't load the font

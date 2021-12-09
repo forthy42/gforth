@@ -164,24 +164,26 @@ User tfile
 
 : del-string ( addr u u1 -- addr u2 )
     \ delete u1 characters from string by moving stuff from further up
-    third >r /string r@ over >r swap cmove 2r> ;
+    third >r safe/string r@ over >r swap move 2r> ;
 
 : del-./s ( addr u -- addr u2 )
     \ deletes (/*./)* at the start of the string
     BEGIN ( current-addr u )
 	BEGIN ( current-addr u )
+	    dup WHILE
 	    over c@ '/' = WHILE
 		1 del-string
-	REPEAT
+	REPEAT  THEN
 	2dup s" ./" string-prefix? WHILE
 	    2 del-string
     REPEAT ;
 
 : preserve-root ( addr1 u1 -- addr2 u2 )
-    over c@ '/' = if \ preserve / at start
-	1 /string
-    endif ;
-
+    dup if
+	over c@ '/' = if \ preserve / at start
+	    1 safe/string
+	then
+    then ;
 
 : skip-..-prefixes ( addr1 u1 -- addr2 u2 )
     \ deal with ../ at start
@@ -195,9 +197,9 @@ User tfile
     over swap preserve-root skip-..-prefixes
     ( start current-addr u )
     over swap '/' scan dup if ( start addr3 addr4 u4 )
-	1 /string del-./s compact-filename
+	1 safe/string del-./s compact-filename
 	2dup s" ../" string-prefix? if ( start addr3 addr4 u4 )
-	    3 /string ( start to from count )
+	    3 safe/string ( start to from count )
 	    >r swap 2dup r@ move r>
 	endif
     endif
