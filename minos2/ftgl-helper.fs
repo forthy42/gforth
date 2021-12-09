@@ -360,25 +360,38 @@ require bidi.fs
 
 -1 value bl/null?
 
-Variable $splits[]
+Variable $splits<[]> \ stack of arrays
+: $splits[] ( -- addr )
+    $splits<[]> $@ drop ;
 
-: stacktop ( stack -- addr )
-    $@ + cell- ;
+: $splits-top ( level -- addr )
+    $splits<[]> $[]@ + cell- ;
+
+: $splits-level-1 ( -- )
+    $splits<[]> $@ + cell- dup cell- { src dest }
+    src stack# 0 ?DO  src stack> dest >stack  LOOP
+    src $free  $splits<[]> stack> drop ;
+
+: $splits-level ( level -- )
+    $splits<[]> $[]# 1- swap +DO  $splits-level-1  LOOP ;
 
 : lang-split-string ( addr u -- )
     translator
     start-bidi 2dup >bidi bidi-algorithm
     -1 to bl/null?  last-font# off
-    $splits[] $[]free $level-buffer $@ drop -1 { lbuf last-level }
+    $splits<[]> $[]# IF  $splits[] $[]free  THEN
+    $level-buffer $@ drop -1 { lbuf last-level }
     bounds ?DO
 	last-font# @ { lf# }
 	I' I ?font-select# { xs } lf# <>
 	lbuf c@ last-level over to last-level <> or  IF
 	    last-font# @ 2* last-level 1 and or { w^ font^ }
-	    font^ 2 $make $splits[] >stack
+	    font^ 2 $make
+	    last-level $splits-level
+	    last-level $splits<[]> $[] >stack
 	THEN
-	xs $splits[] stacktop $+!  1 +to lbuf
-    xs +LOOP ;
+	xs last-level $splits-top $+!  1 +to lbuf
+    xs +LOOP  0 $splits-level ;
 
 also harfbuzz
 Variable infos[]
