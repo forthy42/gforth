@@ -4,13 +4,16 @@ platform-extensions:
   - org.freedesktop.Platform.GL.default
 runtime-version: "21.08"
 branch: "21.08"
-sdk: org.freedesktop.Sdk.Extension.stb
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.stb
 command: gforth
 
 modules:
   - name: gforth
     buildsystem: autotools
     config-opts:
+      - "CPPFLAGS=-I/usr/lib/sdk/stb/include"
       - "--disable-lib"
       - "--with-lispdir=/app/share/emacs/site-lisp"
       - "--with-elispstartdir=/app/share/emacs/site-start.d"

@@ -2,7 +2,7 @@ id: org.freedesktop.Sdk.Extension.stb
 branch: '21.08'
 runtime: org.freedesktop.Sdk
 sdk: org.freedesktop.Sdk
-build-runtime: true
+build-extension: true
 runtime-version: '21.08'
 separate-locales: false
 appstream-compose: false
@@ -13,5 +13,5 @@ modules:
       - type: git
         url: https://github.com/nothings/stb.git
     build-commands:
-      - install -d /usr/include/stb
-      - cp -rpv *.h /usr/include/stb
+      - install -d ${FLATPAK_DEST}/include/stb
+      - cp -rpv *.h ${FLATPAK_DEST}/include/stb
