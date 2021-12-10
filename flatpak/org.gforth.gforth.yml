@@ -1,4 +1,4 @@
-app-id: org.gnu.gforth
+app-id: org.gforth.gforth
 runtime: org.freedesktop.Platform
 platform-extensions:
   - org.freedesktop.Platform.GL.default
