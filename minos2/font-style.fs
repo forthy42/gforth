@@ -257,7 +257,7 @@ Variable font-prefix
     [IF] font-prefix path= /usr/share/fonts|/run/host/fonts
     [ELSE] font-prefix path= /usr/share/fonts/ [THEN]
 [ELSE]
-    ':' 0 subst-c font-prefix also-path
+    ':' 0 substc font-prefix also-path
 [THEN]
 "GFORTHFONTEXT" getenv 2dup d0= [IF] 2drop "ttf:otf:ttc:woff:woff2" [THEN]
 font-ext$ $!
