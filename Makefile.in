@@ -847,7 +847,7 @@ install-gensources:
 		for i in kernel/prim.fs kernel/aliases.fs kernel/version.fs kernel/authors.fs; do \
 			$(INSTALL_DATA) $$i $(datadir)/gforth/$(VERSION)/$$i; \
 		done
-		echo "\\ empty site-init" > $(siteforthdir)/siteinit.fs
+		$(INSTALL_DATA) $(srcdir)/siteinit.fs $(siteforthdir)/siteinit.fs
 
 install-txt:	txt
 		$(INSTALL_DATA) doc/gforth.txt $(datadir)/gforth/$(VERSION)/doc/gforth.txt

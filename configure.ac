@@ -140,6 +140,11 @@ else
   platform=${withval}
 fi])
 
+AC_ARG_WITH(siteinit,
+	AC_HELP_STRING([--with-siteinit=<string>],
+			[  Add source code to siteinit.fs.]),
+[echo ${withval} >$srcdir/siteinit.fs])			
+
 libbench='#'
 AC_ARG_ENABLE(lib,
 	AC_HELP_STRING([--enable-lib],

@@ -1,0 +1,189 @@
+#!/bin/bash
+GFORTH=$(gforth --version 2>&1 | cut -f2 -d ' ')
+cat <<EOF >snapcraft.yaml
+name: gforth # you probably want to 'snapcraft register <name>'
+base: core20 # the base snap is the execution environment for this snap
+version: '$(echo $GFORTH | tr _ -)' # just for humans, typically '1.2+git' or '1.3.2'
+summary: gforth snap # 79 char long summary
+description: |
+  This is the weekly development snapshot of Gforth in snap format. Building
+  for snap has made considerable progress, all SWIG-generated libraries load,
+  OpenGL via GLX works.
+
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
+type: app
+license: GPL-3.0-or-later # SPDX 2.0 identifiers
+
+package-repositories:
+  - type: apt
+    components: [main]
+    suites: [stable]
+    key-id: 60E71A159357533099A0AAF9CAF021DB3B7FA946
+    url: https://net2o.de/debian
+
+apps:
+  gforth:
+    command: usr/bin/gforth
+    environment:
+      GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
+      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
+      GFORTHFONTS: \$SNAP/usr/share/fonts/
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/dri
+      GFORTH_GL: glx
+      LOCPATH: \$SNAP/usr/lib/locale
+      PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
+    plugs:
+      - home
+      - network
+      - x11
+      - opengl
+      - unity7
+      - locale-control
+      - audio-playback
+      - audio-record
+  gforth-fast:
+    command: usr/bin/gforth-fast
+    environment:
+      GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
+      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
+      GFORTHFONTS: \$SNAP/usr/share/fonts/
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/dri
+      GFORTH_GL: glx
+      LOCPATH: \$SNAP/usr/lib/locale
+      PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
+    plugs:
+      - home
+      - network
+      - x11
+      - opengl
+      - unity7
+      - locale-control
+      - audio-playback
+      - audio-record
+  gforth-itc:
+    command: usr/bin/gforth-itc
+    environment:
+      GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
+      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
+      GFORTHFONTS: \$SNAP/usr/share/fonts/
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/dri
+      GFORTH_GL: glx
+      LOCPATH: \$SNAP/usr/lib/locale
+      PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
+    plugs:
+      - home
+      - network
+      - x11
+      - opengl
+      - unity7
+      - locale-control
+      - audio-playback
+      - audio-record
+  gforth-ditc:
+    command: usr/bin/gforth-ditc
+    environment:
+      GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
+      GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
+      GFORTHFONTS: \$SNAP/usr/share/fonts/
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/dri
+      GFORTH_GL: glx
+      LOCPATH: \$SNAP/usr/lib/locale
+      PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
+    plugs:
+      - home
+      - network
+      - x11
+      - opengl
+      - unity7
+      - locale-control
+      - audio-playback
+      - audio-record
+
+parts:
+  prepare:
+    plugin: nil
+    prime: [-*]
+    build-packages:
+      - software-properties-common
+      - dirmngr
+  desktop-glib-only:
+    source: .
+    source-subdir: glib-only
+    plugin: make
+    build-packages:
+      - libglib2.0-dev
+    stage-packages:
+      - libglib2.0-bin
+      - locales-all
+      - locales
+  gforth:
+    after:
+       - prepare
+       - desktop-glib-only
+    source: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/$GFORTH/gforth-$GFORTH.tar.xz
+    plugin: autotools
+    autotools-configure-parameters:
+      - --prefix=/usr
+      - --with-install=swig
+      - --disable-lib
+      - --with-siteinit=":noname defers 'cold s\" /\" s\" SNAP\" getenv s\" /\" S+ repl-included-files ; is 'cold"
+    build-packages:
+      - libtool-bin
+      - libltdl-dev
+      - libx11-dev
+      - libx11-xcb-dev
+      - libxrandr-dev
+      - libgles2-mesa-dev
+      - libgl1-mesa-dev
+      - libwayland-dev
+      - libvulkan-dev
+      - libpng-dev
+      - libfreetype6-dev
+      - libffi-dev
+      - libgps-dev
+      - libpulse-dev
+      - libopus-dev
+      - libva-dev
+      - libavcodec-dev
+      - libavutil-dev
+      - texinfo
+      - git
+      - g++
+      - yodl
+      - bison
+      - libpcre3-dev
+      - libboost-dev
+      - libsoil2
+      - freetype-gl
+    stage-packages:
+      - locales-all
+      - locales
+      - libltdl7
+      - libfreetype6
+      - libglvnd0
+      - libglx0
+      - libpng16-16
+      - libvulkan1
+      - libpulse0
+      - libopus0
+      - libavcodec58
+      - libavutil56
+      - libwayland-client0
+      - libwayland-cursor0
+      - libwayland-egl1
+      - libegl1-mesa
+      - libgles2-mesa
+      - libgl1
+      - libx11-6
+      - libxau6
+      - libxcb1
+      - libxdmcp6
+      - libxext6
+      - libxrandr2
+      - libxrender1
+      - libva-glx2
+      - gforth-noto-fonts
+      - fonts-awesome
+      - libgps26
+EOF
