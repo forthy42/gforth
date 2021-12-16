@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <stdarg.h>
 #include <pthread.h>
+#include <errno.h>
 
 #if defined(__LP64__)
 struct __real_sbuf {
