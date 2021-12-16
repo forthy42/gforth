@@ -1,0 +1,2 @@
+alias gforthfp-gui="flatpak run --socket=x11 --device=dri --socket=pulseaudio --filesystem=$PWD org.gforth.gforth"
+alias gforthfp-tui="flatpak run --filesystem=$PWD org.gforth.gforth"
