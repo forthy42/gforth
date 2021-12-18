@@ -653,6 +653,10 @@ interpret/compile: s` ( "eval-string" -- addr u )
 	ctrl d  of rows 2/  append-locate-lines contof
 	'k'     of 1 prepend-locate-lines contof
 	'j'     of 1  append-locate-lines contof
+	'l'     of located-diff >r  index++
+	    r> located-diff - append-locate-lines contof
+	'h'     of located-diff >r  index--
+	    r> located-diff - append-locate-lines contof
 	ctrl b  of rows 2 - prepend-locate-lines contof
 	bl      of rows 2 -  append-locate-lines contof
 	ctrl l  of 0  append-locate-lines contof
