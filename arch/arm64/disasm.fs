@@ -54,6 +54,8 @@ Variable ,space ,space on
     s? 'x' 'w' rot select emit ;
 : .regsize' ( opcode -- )
     #30 rshift 3 = 'x' 'w' rot select emit ;
+: .regsize" ( opcode -- )
+    #30 rshift 0= 'w' 'x' rot select emit ;
 : #.r ( n -- ) \ print decimal
     0 ['] .r #10 base-execute ;
 : 0x. ( n -- ) \ print hex
@@ -69,6 +71,8 @@ Variable ,space ,space on
     dup .regsize .spreg ;
 : .rt ( opcode -- )
     dup .regsize' .zrreg ;
+: .rt" ( opcode -- )
+    dup .regsize" .zrreg ;
 : .rt2 ( opcode -- )
     dup .regsize' #16 rshift .zrreg ;
 : .rd' ( opcode -- )
@@ -85,6 +89,8 @@ Variable ,space ,space on
     dup .regsize #10 rshift .zrreg ;
 : .ra' ( opcode -- )
     dup .regsize' #10 rshift .zrreg ;
+: .ra" ( opcode -- )
+    dup .regsize" #10 rshift .zrreg ;
 : .imm5 ( opcode -- ) \ print 5 bit immediate
     #16 rshift $1F and #0x. ;
 : .imm6 ( opcode -- ) \ print 6 bit immediate
@@ -245,7 +251,7 @@ Variable ,space ,space on
     dup v? IF \ simd/fp
 	dup .srd ., dup .sra .,
     ELSE \ normal
-	dup .rt ., dup .ra' .,
+	dup .rt" ., dup .ra" .,
     THEN
     case dup #23 rshift $3 and
 	0 of .[ dup .rn ., .imm7 .]  endof
