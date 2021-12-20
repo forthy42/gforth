@@ -282,6 +282,9 @@ Variable ,space ,space on
 	2 of .[ dup .rn ., .imm9 .]  endof
 	3 of .[ dup .rn ., .imm9 .] '!' emit  endof
     endcase ;
+: ldsti# ( opcode -- )
+    dup v? IF  .st/ld  ELSE  .st/ld3  THEN  'r' emit .bhw tab dup .rt .,
+    .[ dup .rn ., .rm .] ;
 : ldustr# ( opcode -- )
     dup v? IF
 	.st/ld tab
@@ -441,7 +444,8 @@ $D61F0000 , $FE1FFC1F , ' ucbranch ,
 $08000000 , $3F000000 , ' ldstex ,
 $18000000 , $3A000000 , ' ldr# ,
 $28000000 , $3A000000 , ' ldstp ,
-$38000000 , $3B000000 , ' ldstr# ,
+$38000000 , $3B200000 , ' ldstr# ,
+$38200200 , $3B200300 , ' ldsti# ,
 $39000000 , $3B000000 , ' ldustr# ,
 
 \ simd+fp
