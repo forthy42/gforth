@@ -298,7 +298,7 @@ Variable ,space ,space on
 	#7 of  ." ,sxtx #"  endof
     endcase
     dup #12 rshift 1 and
-    IF  0 .r  ELSE  dup #30 rshift 0 .r  THEN  drop
+    IF  0 0 .r  ELSE  dup #30 rshift 0 .r  THEN  drop
     .] ;
 : ldustr# ( opcode -- )
     dup v? IF
