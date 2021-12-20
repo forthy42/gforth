@@ -56,6 +56,8 @@ Variable ,space ,space on
     #30 rshift 3 = 'x' 'w' rot select emit ;
 : .regsize" ( opcode -- )
     #30 rshift 0= 'w' 'x' rot select emit ;
+: .regsizeo ( opcode -- )
+    #22 rshift 1 and 'w' 'x' rot select emit ;
 : #.r ( n -- ) \ print decimal
     0 ['] .r #10 base-execute ;
 : 0x. ( n -- ) \ print hex
@@ -85,6 +87,8 @@ Variable ,space ,space on
     dup .regsize #16 rshift .spreg ;
 : .rm' ( opcode -- )
     dup .regsize #16 rshift .zrreg ;
+: .rm" ( opcode -- )
+    dup .regsizeo #16 rshift .spreg ;
 : .ra ( opcode -- )
     dup .regsize #10 rshift .zrreg ;
 : .ra' ( opcode -- )
@@ -283,8 +287,12 @@ Variable ,space ,space on
 	3 of .[ dup .rn ., .imm9 .] '!' emit  endof
     endcase ;
 : ldsti# ( opcode -- )
-    dup v? IF  .st/ld  ELSE  .st/ld3  THEN  'r' emit .bhw tab dup .rt .,
-    .[ dup .rn ., .rm .] ;
+    dup v? IF  .st/ld  ELSE  .st/ld3  THEN
+    dup #23 rshift $1 and IF  's' emit  THEN
+    'r' emit .bhw tab dup .rt .,
+    .[ dup .rn ., .rm"
+    \ !!FIXME!! extend, shift
+    .] ;
 : ldustr# ( opcode -- )
     dup v? IF
 	.st/ld tab
