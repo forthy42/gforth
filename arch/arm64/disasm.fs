@@ -56,6 +56,10 @@ Variable ,space ,space on
     #30 rshift 3 = 'x' 'w' rot select emit ;
 : #.r ( n -- ) \ print decimal
     0 ['] .r #10 base-execute ;
+: 0x. ( n -- ) \ print hex
+    dup 0< IF  '-' emit negate  THEN  ." 0x" 0 .r ;
+: #0x. ( n -- ) \ print hex
+    ." #" 0x. ;
 : b>sign ( u m -- n ) over and negate or ;
 : .spreg ( opcodeshift -- )
     $1F and dup $1F = IF  drop ." sp"  ELSE  #.r  THEN ;
@@ -82,36 +86,36 @@ Variable ,space ,space on
 : .ra' ( opcode -- )
     dup .regsize' #10 rshift .zrreg ;
 : .imm5 ( opcode -- ) \ print 5 bit immediate
-    #16 rshift $1F and .# 0 .r ;
+    #16 rshift $1F and #0x. ;
 : .imm6 ( opcode -- ) \ print 6 bit immediate
-    #10 rshift $3F and .# 0 .r ;
+    #10 rshift $3F and #0x. ;
 : .imm6' ( opcode -- ) \ print 6 bit immediate
-    #16 rshift $3F and .# 0 .r ;
+    #16 rshift $3F and #0x. ;
 : .imm7 ( opcode -- ) \ print 7 bit immediate
     dup #15 rshift $7F and $40 b>sign
     swap s? IF  dfloats  ELSE  sfloats  THEN
-    .# 0 .r ;
+    #0x. ;
 : .imm9 ( opcode -- ) \ print 9 bit immediate, sign extended
-    #12 rshift $1FF and $100 b>sign .# 0 .r ;
+    #12 rshift $1FF and $100 b>sign #0x. ;
 : .imm12 ( opcode -- ) \ print 12 bit immediate with 2 bit shift
-    #10 rshift dup $FFF and swap #12 rshift 3 and #12 * lshift .# 0 .r ;
+    #10 rshift dup $FFF and swap #12 rshift 3 and #12 * lshift #0x. ;
 : .imm12' ( opcode -- ) \ print 12 bit immediate with 2 bit shift
-    #10 rshift dup $FFF and swap #20 rshift 3 and lshift .# 0 .r ;
+    #10 rshift dup $FFF and swap #20 rshift 3 and lshift #0x. ;
 : .imm14 ( addr opcode -- addr ) \ print 19 bit branch target
-    #5 rshift $3FFF and 2* 2* over + 0 .r ;
+    #5 rshift $3FFF and 2* 2* over + 0x. ;
 : .imm16 ( opcode -- ) \ print 16 bit immediate
     #5 rshift $FFFF and .# . ;
 : .lsl ( opcode -- ) \ print shift
-    #21 rshift $3 and #4 lshift ?dup-IF  ." , lsl #$" 0 .r  THEN ;
+    #21 rshift $3 and #4 lshift ?dup-IF  ." , lsl " #0x.  THEN ;
 : .imm19 ( addr opcode -- addr ) \ print 19 bit branch target
-    #5 rshift $7FFFF and $40000 b>sign 2* 2* over + 0 .r ;
+    #5 rshift $7FFFF and $40000 b>sign 2* 2* over + 0x. ;
 : .imm26 ( addr opcode -- addr ) \ print 19 bit branch target
-    $3FFFFFF and $2000000 b>sign 2* 2* over + 0 .r ;
+    $3FFFFFF and $2000000 b>sign 2* 2* over + 0x. ;
 : .cond ( n -- ) $F and
     s" eqnecsccmiplvsvchilsgeltgtlealnv" rot .2" ;
 
 : unallocated ( opcode -- )
-    ." <" 0 .r ." >" ;
+    ." <" 0x. ." >" ;
 
 \ branches
 
@@ -177,8 +181,7 @@ Variable ,space ,space on
 	simd_size #16 = IF  dup #16 lshift or  THEN
 	simd_size #32 = IF  dup #32 lshift or  THEN
     THEN
-    r> 0= IF  $FFFFFFFF and  THEN  .# 0 .r ;
-
+    r> 0= IF  $FFFFFFFF and  THEN  #0x. ;
 
 : pcrel ( addr opcode -- )
     ." adr" dup $80000000 and IF  'p' emit #12  ELSE  0  THEN  >r
@@ -309,7 +312,7 @@ Variable ,space ,space on
 : .shift ( opcode -- )
     dup #10 rshift $3F and ?dup-0=-IF  drop EXIT  THEN  >r
     ., #22 rshift $3 and s" lsllsrasrror" rot .3" space
-    .# r> 0 .r ;
+    .# r> 0x. ;
 
 : ltst# ( opcode -- ) \ logical with shifted operand, tst case
     ." tst" tab dup .rn' ., dup .rm' .shift ;
@@ -329,7 +332,7 @@ Variable ,space ,space on
 : .ext ( opcode -- )
     #10 rshift dup $7 and >r .,
     #3 rshift $7 and s" uxtbuxthuxtwuxtxsxtbsxthsxtwxstx" rot .4" space
-    .# r> 0 .r ;
+    .# r> 0x. ;
 
 : addext# ( opcode -- ) \ addsub with shifted operand
     dup s" addsub" .op2 dup .ops tab
