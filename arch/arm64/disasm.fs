@@ -57,7 +57,7 @@ Variable ,space ,space on
 : .regsize" ( opcode -- )
     #30 rshift 0= 'w' 'x' rot select emit ;
 : .regsizeo ( opcode -- )
-    #22 rshift 1 and 'w' 'x' rot select emit ;
+    #13 rshift 1 and 'x' 'w' rot select emit ;
 : #.r ( n -- ) \ print decimal
     0 ['] .r #10 base-execute ;
 : 0x. ( n -- ) \ print hex
