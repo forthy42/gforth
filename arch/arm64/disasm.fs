@@ -77,6 +77,8 @@ Variable ,space ,space on
     dup .regsize" .zrreg ;
 : .rt2 ( opcode -- )
     dup .regsize' #16 rshift .zrreg ;
+: .rtw ( opcode -- )
+    'w' emit #16 rshift .zrreg ;
 : .rd' ( opcode -- )
     dup .regsize .zrreg ;
 : .rn ( opcode -- )
@@ -242,8 +244,9 @@ Variable ,space ,space on
     .st/ld
     dup #22 rshift $1 and 'a' 'l' rot select
     over #15 rshift $1 and IF  emit  ELSE  drop  THEN
-    'r' emit .bhw tab
-    dup #22 rshift $1 and 0= IF  dup .rt2 .,  THEN
+    'x' emit
+    dup #21 rshift 1 and 'p' 'r' rot select emit .bhw tab
+    dup #22 rshift $1 and 0= IF  dup .rtw .,  THEN
     dup .rt ., .[ .rn .] ;
     
 : ldr# ( opcode -- )
