@@ -134,7 +134,7 @@ Variable ,space ,space on
 : .?nz ( opcode -- )
     $01000000 and IF  'n' emit  THEN  'z' emit ;
 : .b40 ( opcode -- )  .#
-    dup #18 rshift $1F and dup #24 rshift $20 and or #.r ',' emit ;
+    dup #18 rshift $1F and swap #24 rshift $20 and or #.r ., ;
 
 : c&branch# ( opcode -- )
     ." cb" dup .?nz tab dup .rd ., .imm19 ;
@@ -241,12 +241,23 @@ Variable ,space ,space on
 : .bhw ( opcode -- opcode )
     s" bhw " third #30 rshift .1" ;
 : ldstex  ( opcode -- )
-    .st/ld
-    dup #22 rshift $1 and 'a' 'l' rot select
-    over #15 rshift $1 and IF  emit  ELSE  drop  THEN
-    'x' emit
-    dup #21 rshift 1 and 'p' 'r' rot select emit .bhw tab
-    dup #22 rshift $1 and 0= IF  dup .rtw .,  THEN
+    dup #21 rshift 1 and
+    over #23 rshift 1 and over #31 rshift 1 xor or and
+    IF
+	." cas"
+	dup #15 rshift 1 and IF  'a' emit  THEN
+	dup #22 rshift 1 and IF  'l' emit  THEN
+	.bhw tab
+	dup .rt2 .,
+    ELSE
+	.st/ld
+	dup #22 rshift 1 and 'a' 'l' rot select
+	over #15 rshift 1 and IF  emit  ELSE  drop  THEN
+	'x' emit
+	dup #21 rshift 1 and 'p' 'r' rot select emit
+	.bhw tab
+	dup #22 rshift 1 and 0= IF  dup .rtw .,  THEN
+    THEN
     dup .rt ., .[ .rn .] ;
     
 : ldr# ( opcode -- )
@@ -423,6 +434,11 @@ Fvariable fxx
 : fp3source  unallocated ;
 : simdsc3  unallocated ;
 
+: barriers ( opcode -- )
+    dup #5 rshift $7 and s" -/-  dsb  clrex-/-  dsb  dmb  isb  sb   " rot .5"
+    tab  #8 rshift $F and
+    s" #0   oshldoshstosh  #4   nshldnshstnsh  #8   ishldishstish  #12  ld   st   sy   " rot .5" ;
+
 \ instruction table
 
 Create inst-table
@@ -454,7 +470,7 @@ $54000000 , $FE000000 , ' condbranch# ,
 $D4000000 , $FF000000 , ' exceptions ,
 $14000000 , $7C000000 , ' ucbranch# ,
 $34000000 , $7E000000 , ' c&branch# ,
-$35000000 , $7E000000 , ' t&branch# ,
+$36000000 , $7E000000 , ' t&branch# ,
 \ $D5000000 , $FF000000 , ' system ,
 $D61F0000 , $FE1FFC1F , ' ucbranch ,
 
@@ -476,6 +492,8 @@ $1E200800 , $FF200C00 , ' fp2source ,
 $1E200C00 , $FF200C00 , ' fpcsel ,
 $1F000000 , $FF000000 , ' fp3source ,
 
+\ barriers
+$D503301F , $FFFFF01F , ' barriers ,
 \ catch all
 $00000000 , $00000000 , ' unallocated ,
 
