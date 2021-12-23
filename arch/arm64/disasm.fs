@@ -281,12 +281,13 @@ Variable ,space ,space on
 : .smd-size ( opcode -- opcode )
     dup #30 rshift $3 and over #21 rshift 4 and or
     s" bhsdq   " rot .1" ;
+: .srt ( opcode -- opcode )
+    .smd-size dup $1F and #.r ;
 
 : ldstr# ( opcode -- )
     dup v? IF
 	.st/ld
-	s" u t " third #10 rshift $3 and .1" 'r' emit tab
-	.smd-size dup $1F and #.r
+	s" u t " third #10 rshift $3 and .1" 'r' emit tab .srt
     ELSE
 	.st/ld3
 	s" u t " third #10 rshift $3 and .1" 'r' emit
@@ -304,7 +305,7 @@ Variable ,space ,space on
     dup v? IF  .st/ld  ELSE  .st/ld3  THEN
     dup #23 rshift $1 and IF  's' emit  THEN
     'r' emit .bhw tab
-    dup v? IF  .smd-size dup $1F and #.r
+    dup v? IF  .srt
     ELSE  dup .rt  THEN .,
     .[ dup .rn ., dup .rm"
     case dup #13 rshift $7 and
@@ -318,10 +319,10 @@ Variable ,space ,space on
     .] ;
 : ldustr# ( opcode -- )
     dup v? IF
-	.st/ld tab
-	.smd-size dup $1F and #.r
+	.st/ld 'r' emit tab
+	.srt
     ELSE
-	.st/ld3
+	.st/ld3 'r' emit
 	s"   ss" third #22 rshift $3 and .1"
 	.bhw tab dup .rt
     THEN  .,
@@ -409,8 +410,7 @@ Variable ,space ,space on
     dup .sname' #5 rshift $1F and #.r ;
 : .sm ( opcode -- )
     dup .sname' #16 rshift $1F and #.r ;
-Fvariable fxx
-: .f8 ( float8 -- )
+: .f8 ( float8 -- ) { | f^ fxx }
     dup $80 and #8 lshift swap $7F and
     $40 b>sign $7FFF and $4000 xor or fxx 6 + w! fxx f@ .# f. ;
 
