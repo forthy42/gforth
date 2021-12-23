@@ -443,61 +443,65 @@ Variable ,space ,space on
 
 \ instruction table
 
+: inst, ( val mask "word" -- )
+    2dup over and <> abort" will not match"
+    swap , , ' , ;
+
 Create inst-table
 \ data processing, immediate
-$10000000 , $1F000000 , ' pcrel ,
-$11000000 , $1F000000 , ' addsub# ,
-$7200001F , $7F80001F , ' tst# ,
-$12000000 , $1F800000 , ' logic# ,
-$12800000 , $1F800000 , ' movw# ,
-$13000000 , $1F800000 , ' bitfield# ,
-$13800000 , $1F800000 , ' extract# ,
+$10000000 $1F000000 inst, pcrel
+$11000000 $1F000000 inst, addsub#
+$7200001F $7F80001F inst, tst#
+$12000000 $1F800000 inst, logic#
+$12800000 $1F800000 inst, movw#
+$13000000 $1F800000 inst, bitfield#
+$13800000 $1F800000 inst, extract#
 
 \ data processing, register
-$2A0003E0 , $7FE0FFE0 , ' mov ,
-$5AC00000 , $5FFF0000 , ' 1source ,
-$1AC00000 , $5FC00000 , ' 2source ,
-$1B000000 , $7F000000 , ' 3source ,
-$6A00001F , $7F00001F , ' tstshift# ,
-$0A000000 , $1F000000 , ' logshift# ,
-$0B000000 , $1F200000 , ' addshift# ,
-$0B200000 , $1F200000 , ' addext# ,
-$1A000000 , $1FE0F800 , ' addc# ,
-$3A400000 , $3FE00C10 , ' ccmp ,
-$3A400800 , $3FE00C10 , ' ccmp# ,
-$1A800000 , $3FE00800 , ' csel ,
+$2A0003E0 $7FE0FFE0 inst, mov
+$5AC00000 $5FFF0000 inst, 1source
+$1AC00000 $5FC00000 inst, 2source
+$1B000000 $7F000000 inst, 3source
+$6A00001F $7F00001F inst, tstshift#
+$0A000000 $1F000000 inst, logshift#
+$0B000000 $1F200000 inst, addshift#
+$0B200000 $1F200000 inst, addext#
+$1A000000 $1FE0F800 inst, addc#
+$3A400000 $3FE00C10 inst, ccmp
+$3A400800 $3FE00C10 inst, ccmp#
+$1A800000 $3FE00800 inst, csel
 
 \ branches
-$54000000 , $FE000000 , ' condbranch# ,
-$D4000000 , $FF000000 , ' exceptions ,
-$14000000 , $7C000000 , ' ucbranch# ,
-$34000000 , $7E000000 , ' c&branch# ,
-$36000000 , $7E000000 , ' t&branch# ,
-\ $D5000000 , $FF000000 , ' system ,
-$D61F0000 , $FE1FFC1F , ' ucbranch ,
+$54000000 $FE000000 inst, condbranch#
+$D4000000 $FF000000 inst, exceptions
+$14000000 $7C000000 inst, ucbranch#
+$34000000 $7E000000 inst, c&branch#
+$36000000 $7E000000 inst, t&branch#
+\ $D5000000 $FF000000 inst, system
+$D61F0000 $FE1FFC1F inst, ucbranch
 
 \ load store
-$08000000 , $3F000000 , ' ldstex ,
-$18000000 , $3A000000 , ' ldr# ,
-$28000000 , $3A000000 , ' ldstp ,
-$38000000 , $3B200000 , ' ldstr# ,
-$38200800 , $3B200C00 , ' ldsti# ,
-$39000000 , $3B000000 , ' ldustr# ,
+$08000000 $3F000000 inst, ldstex
+$18000000 $3A000000 inst, ldr#
+$28000000 $3A000000 inst, ldstp
+$38000000 $3B200000 inst, ldstr#
+$38200800 $3B200C00 inst, ldsti#
+$39000000 $3B000000 inst, ldustr#
 
 \ simd+fp
-$5E200400 , $DF200400 , ' simdsc3 ,
-$1E204000 , $FF207C00 , ' fp1source ,
-$1E202000 , $FF203C00 , ' fpcmp ,
-$1E201000 , $FF201C00 , ' fp# ,
-$1E200400 , $FF200C00 , ' fpccmp ,
-$1E200800 , $FF200C00 , ' fp2source ,
-$1E200C00 , $FF200C00 , ' fpcsel ,
-$1F000000 , $FF000000 , ' fp3source ,
+$5E200400 $DF200400 inst, simdsc3
+$1E204000 $FF207C00 inst, fp1source
+$1E202000 $FF203C00 inst, fpcmp
+$1E201000 $FF201C00 inst, fp#
+$1E200400 $FF200C00 inst, fpccmp
+$1E200800 $FF200C00 inst, fp2source
+$1E200C00 $FF200C00 inst, fpcsel
+$1F000000 $FF000000 inst, fp3source
 
 \ barriers
-$D503301F , $FFFFF01F , ' barriers ,
+$D503301F $FFFFF01F inst, barriers
 \ catch all
-$00000000 , $00000000 , ' unallocated ,
+$00000000 $00000000 inst, unallocated
 
 : inst ( opcode -- )  inst-table
     BEGIN  2dup 2@ >r and r> <>  WHILE  3 cells +  REPEAT
