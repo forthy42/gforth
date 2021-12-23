@@ -303,7 +303,9 @@ Variable ,space ,space on
 : ldsti# ( opcode -- )
     dup v? IF  .st/ld  ELSE  .st/ld3  THEN
     dup #23 rshift $1 and IF  's' emit  THEN
-    'r' emit .bhw tab dup .rt .,
+    'r' emit .bhw tab
+    dup v? IF  .smd-size dup $1F and #.r
+    ELSE  dup .rt  THEN .,
     .[ dup .rn ., dup .rm"
     case dup #13 rshift $7 and
 	#2 of  ." ,uxtw #"  endof
