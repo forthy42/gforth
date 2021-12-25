@@ -29,7 +29,7 @@ apps:
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
       GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/dri
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/x86_64-linux-gnu/dri
       GFORTH_GL: glx
       LOCPATH: \$SNAP/usr/lib/locale
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
@@ -48,7 +48,7 @@ apps:
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
       GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/dri
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/x86_64-linux-gnu/dri
       GFORTH_GL: glx
       LOCPATH: \$SNAP/usr/lib/locale
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
@@ -67,7 +67,7 @@ apps:
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
       GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/dri
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/x86_64-linux-gnu/dri
       GFORTH_GL: glx
       LOCPATH: \$SNAP/usr/lib/locale
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
@@ -86,7 +86,7 @@ apps:
       GFORTHPATH: .:\$SNAP/usr/lib/gforth/$GFORTH:\$SNAP/usr/share/gforth/$GFORTH:\$SNAP/usr/share/gforth/site-forth:~+
       GFORTHCCPATH: \$SNAP/usr/lib/gforth/$GFORTH/amd64/libcc-named
       GFORTHFONTS: \$SNAP/usr/share/fonts/
-      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/dri
+      LIBGL_DRIVERS_PATH: \$SNAP/usr/lib/x86_64-linux-gnu/dri
       GFORTH_GL: glx
       LOCPATH: \$SNAP/usr/lib/locale
       PULSE_SERVER: unix:\$XDG_RUNTIME_DIR/pulse/native
@@ -140,6 +140,7 @@ parts:
       - libvulkan-dev
       - libpng-dev
       - libfreetype6-dev
+      - libharfbuzz-dev
       - libffi-dev
       - libgps-dev
       - libpulse-dev
@@ -154,7 +155,7 @@ parts:
       - bison
       - libpcre3-dev
       - libboost-dev
-      - libsoil2
+      - libstb-dev
       - freetype-gl
     stage-packages:
       - locales-all
@@ -186,4 +187,8 @@ parts:
       - gforth-noto-fonts
       - fonts-awesome
       - libgps26
+      - libdrm-intel1
+      - libdrm-radeon1
+      - libdrm-nouveau2
+      - libharfbuzz0b
 EOF
