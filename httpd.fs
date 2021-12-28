@@ -80,7 +80,7 @@
 \ Description=Gforth httpd server
 \ 
 \ [Service]
-\ ExecStart=-/usr/bin/gforth httpd.fs
+\ ExecStart=-/usr/bin/gforth --die-on-signal httpd.fs
 \ User=wwwrun
 \ StandardInput=socket
 \ ==========================================================
@@ -105,14 +105,20 @@ Variable command?
 
 : get ( addr -- )  name rot $! ;
 : get-rest ( addr -- )  source >in @ /string dup >in +! rot $! ;
+: get-rest[] ( addr -- )  source >in @ /string dup >in +! rot $+[]! ;
 
 wordlist constant values
 wordlist constant commands
 
-: value:  ( -- )
-  name Forth definitions 2dup 1- nextname Variable
-  values set-current nextname here cell - Create ,
-  DOES> @ get-rest ;
+: value-def ( "name" -- )
+    get-current >r definitions
+    name 2dup 1- nextname Variable
+    r> set-current nextname here cell - Create , ;
+
+: value:  ( "name" -- )
+    value-def DOES> @ get-rest ;
+: value[]:  ( "name" -- )
+    value-def DOES> @ get-rest[] ;
 : >values  values 1 set-order command? off ;
 
 \ HTTP protocol commands                               26mar00py
@@ -159,6 +165,7 @@ value: Referer:
 value: Content-Type:
 value: Content-Length:
 value: Keep-Alive:
+value[]: Cookie:
 
 definitions
 
