@@ -117,8 +117,6 @@ wordlist constant commands
 
 : value:  ( "name" -- )
     value-def DOES> @ get-rest ;
-: value[]:  ( "name" -- )
-    value-def DOES> @ get-rest[] ;
 : >values  values 1 set-order command? off ;
 
 \ HTTP protocol commands                               26mar00py
@@ -165,7 +163,7 @@ value: Referer:
 value: Content-Type:
 value: Content-Length:
 value: Keep-Alive:
-value[]: Cookie:
+value: Cookie:
 
 definitions
 

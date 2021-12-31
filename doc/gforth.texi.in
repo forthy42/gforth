@@ -9210,6 +9210,7 @@ doc-r/o
 doc-r/w
 doc-w/o
 doc-bin
+doc-+fmode
 
 
 When a file is opened/created, it returns a file identifier,
