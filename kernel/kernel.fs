@@ -1,7 +1,7 @@
 \ kernel.fs this is a master include file for the kernel sources 2may97jaw
 
 \ Authors: Bernd Paysan, Anton Ertl, Jens Wilke, Neal Crook
-\ Copyright (C) 1995,1996,1997,1998,1999,2001,2003,2005,2006,2007,2011,2012,2013,2017,2019 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,1999,2001,2003,2005,2006,2007,2011,2012,2013,2017,2019,2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -2,7 +2,7 @@
 \ <foo> puts the body of foo on the stack like ' foo >body does
 
 \ Author: Bernd Paysan
-\ Copyright (C) 2019,2020 Free Software Foundation, Inc.
+\ Copyright (C) 2019,2020,2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
