@@ -1,7 +1,7 @@
 \ disasm.fs: disassembler for ARM
 
 \ Authors: Andreas Bolka, Anton Ertl, David Kühling
-\ Copyright (C) 2009,2010,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2009,2010,2019,2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

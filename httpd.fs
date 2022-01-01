@@ -1,7 +1,7 @@
 #! /usr/local/bin/gforth
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2000,2002,2003,2004,2006,2007,2008,2013,2015,2016,2017,2019,2020 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2002,2003,2004,2006,2007,2008,2013,2015,2016,2017,2019,2020,2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

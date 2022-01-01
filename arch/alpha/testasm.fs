@@ -1,5 +1,5 @@
 \ Author: Anton Ertl
-\ Copyright (C) 2000,2003,2007,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2003,2007,2019,2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

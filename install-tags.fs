@@ -1,7 +1,7 @@
 \ enhance TAGS file with install directory
 
 \ Author: Anton Ertl
-\ Copyright (C) 2008,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2008,2019,2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

@@ -1,7 +1,7 @@
 \ a simple jpeg parser to read important EXIF stuff
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2014,2016,2019,2020 Free Software Foundation, Inc.
+\ Copyright (C) 2014,2016,2019,2020,2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

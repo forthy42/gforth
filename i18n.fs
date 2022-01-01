@@ -1,7 +1,7 @@
 \ Internationalization and localization
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2015,2018,2019,2020 Free Software Foundation, Inc.
+\ Copyright (C) 2015,2018,2019,2020,2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

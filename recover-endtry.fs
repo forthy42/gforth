@@ -1,7 +1,7 @@
 \ provide TRY...RECOVER...ENDTRY on newer Gforths
 
 \ Author: Anton Ertl
-\ Copyright (C) 2007,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2007,2019,2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

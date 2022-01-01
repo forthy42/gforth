@@ -10,7 +10,7 @@ Example session
 
 ```shell
 $ docker run -ti --rm forthy42/gforth
-Gforth 0.7.9_20180905, Copyright (C) 1995-2017 Free Software Foundation, Inc.
+Gforth 0.7.9_20180905, Copyright (C) 1995-2017,2021 Free Software Foundation, Inc.
 Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'
 Type `help' for basic help
 words 

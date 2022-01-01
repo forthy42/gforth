@@ -2,7 +2,7 @@
 \ and their fixed-size variant
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2005,2006,2007,2008,2011,2012,2015,2016,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2005,2006,2007,2008,2011,2012,2015,2016,2019,2021 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
