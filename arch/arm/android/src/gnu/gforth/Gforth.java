@@ -639,7 +639,7 @@ public class Gforth
 	    };
 	registerReceiver(recKeepalive, new IntentFilter("gnu.gforth.keepalive") );
 	
-	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), 0);
+	pintent = PendingIntent.getBroadcast(this, 0, new Intent("gnu.gforth.keepalive"), PendingIntent.FLAG_MUTABLE);
 
 	// intent for notifications
 	gforthintent = PendingIntent.getActivity
@@ -648,7 +648,7 @@ public class Gforth
 	     .setAction("gnu.gforth.Gforth_n2o.MESSAGE")
 	     .setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
 		       Intent.FLAG_ACTIVITY_SINGLE_TOP),
-	     PendingIntent.FLAG_UPDATE_CURRENT);
+	     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
 
 	// intent for network connectivity (!!use netlink socket!!)
 	recConnectivity = new BroadcastReceiver() {
