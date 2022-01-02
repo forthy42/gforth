@@ -2126,10 +2126,14 @@ close-pipe	( wfileid -- wretval wior )		gforth	close_pipe
 wretval = pclose((FILE *)wfileid);
 wior = IOR(wretval==-1);
 
->time&date&tz	( ntime -- nsec nmin nhour nday nmonth nyear fdst ndstoff c_addrtz utz )	gforth	to_time_and_date
+>time&date&tz	( udtime -- nsec nmin nhour nday nmonth nyear fdst ndstoff c_addrtz utz )	gforth	to_time_and_date
 ""Convert time in seconds since 1.1.1970 0:00Z to the current time of day. Seconds, minutes and hours are numbered from 0.
 Months are numbered from 1.""
-time_t now=(time_t)ntime;
+#ifdef BUGGY_LONG_LONG
+time_t now=(time_t)DLO(udtime);
+#else
+time_t now=(time_t)udtime;
+#endif
 struct tm ltime;
 localtime_r(&now, &ltime); /* thread save version */
 nyear =ltime.tm_year+1900;

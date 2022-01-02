@@ -655,5 +655,5 @@ end-struct buffer%
     : time&date ( -- nsec nmin nhour nday nmonth nyear ) \ facility-ext time-and-date
 	\G Report the current time of day. Seconds, minutes and hours are
 	\G numbered from 0. Months are numbered from 1.
-	utime #1000000 um/mod nip >time&date&tz 2drop 2drop ;
+	utime #1000000 ud/mod rot drop >time&date&tz 2drop 2drop ;
 [THEN]
