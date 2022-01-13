@@ -39,5 +39,5 @@ Variable scope<>
     : class{ ( parent "scope" -- methods vars )
 	class cs-scope: ;
     : }class ( methods vars -- )
-	s" classof" nextname end-class }scope ;
+	s" class" nextname end-class }scope ;
 [THEN]
