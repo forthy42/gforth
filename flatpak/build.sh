@@ -9,4 +9,4 @@ flatpak-builder $OPTS org.gforth.swig.yml
 
 flatpak build-update-repo --generate-static-deltas --gpg-sign=$GPG_ID repo
 
-rsync -az repo root@net2o.de:/var/www/flathub.net2o.net/html
+rsync -avz repo root@net2o.de:/var/www/flathub.net2o.net/html
