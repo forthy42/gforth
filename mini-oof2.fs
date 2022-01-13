@@ -124,3 +124,10 @@ dynamic-a to allocater
 ' rec-moof2 get-recognizers 1+ set-recognizers
 
 standard:field
+
+[IFDEF] cs-scope:
+    : class{ ( parent "scope" -- methods vars )
+	class cs-scope: ;
+    : }class ( methods vars -- )
+	s" class" nextname end-class }scope ;
+[THEN]
