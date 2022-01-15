@@ -134,8 +134,10 @@ in Emacs21 (and newer versions).")
 (defvar forth-words nil 
   "List of words for hilighting and recognition of parsed text areas. 
 
-Hilighting of object-oriented Forth code is achieved, by appending either
-`forth-objects-words' or `forth-oof-words' to the list, depending on the values of `forth-use-objects' or `forth-use-oof'.
+Hilighting of object-oriented Forth code is achieved, by
+appending either `forth-objects-words' or `forth-oof-words' to
+the list, depending on the values of `forth-use-objects' or
+`forth-use-oof'.
 
 After `forth-words' changed, `forth-compile-words' must be called to
 make the changes take effect.
@@ -143,34 +145,36 @@ make the changes take effect.
 Each item of `forth-words' has the form 
    (MATCHER TYPE HILIGHT . &optional PARSED-TEXT ...)
 
-MATCHER is either a list of strings to match, or a REGEXP.
-   If it's a REGEXP, it should not be surrounded by '\\<' or '\\>', since 
-   that'll be done automatically by the search routines.
+MATCHER is either a list of strings to match, or a REGEXP.  If
+   it's a REGEXP, it should not be surrounded by '\\<' or '\\>',
+   since that'll be done automatically by the search routines.
 
-TYPE should be one of 'definiton-starter', 'definition-ender', 'compile-only',
-   'immediate' or 'non-immediate'. Those information are required to determine
-   whether a word actually parses (and whether that parsed text needs to be
-   hilighted).
+TYPE should be one of 'definiton-starter', 'definition-ender',
+   'compile-only', 'immediate' or 'non-immediate'. Those
+   information are required to determine whether a word actually
+   parses (and whether that parsed text needs to be hilighted).
 
-HILIGHT is a cons cell of the form (FACE . MINIMUM-LEVEL)
-   Where MINIMUM-LEVEL specifies the minimum value of `forth-hilight-level',
-   that's required for matching text to be hilighted.
+HILIGHT is a cons cell of the form (FACE . MINIMUM-LEVEL) Where
+   MINIMUM-LEVEL specifies the minimum value of
+   `forth-hilight-level', that's required for matching text to be
+   hilighted.
 
-PARSED-TEXT specifies whether and how a word parses following text. You can
-   specify as many subsequent PARSED-TEXT as you wish, but that shouldn't be
-   necessary very often. It has the following form:
+PARSED-TEXT specifies whether and how a word parses following
+   text. You can specify as many subsequent PARSED-TEXT as you
+   wish, but that shouldn't be necessary very often. It has the
+   following form:
    (DELIM-REGEXP SKIP-LEADING-FLAG PARSED-TYPE HILIGHT)
 
-DELIM-REGEXP is a regular expression that should match strings of length 1,
-   which are delimiters for the parsed text.
+DELIM-REGEXP is a regular expression that should match strings of
+   length 1, which are delimiters for the parsed text.
 
-A non-nil value for PARSE-LEADING-FLAG means, that leading delimiter strings
-   before parsed text should be skipped. This is the parsing behaviour of the
-   Forth word WORD. Set it to t for name-parsing words, nil for comments and
-   strings.
+A non-nil value for PARSE-LEADING-FLAG means, that leading
+   delimiter strings before parsed text should be skipped. This
+   is the parsing behaviour of the Forth word WORD. Set it to t
+   for name-parsing words, nil for comments and strings.
 
-PARSED-TYPE specifies what kind of text is parsed. It should be on of 'name',
-   'string' or 'comment'.")
+PARSED-TYPE specifies what kind of text is parsed. It should be
+   on of 'name', 'string' or 'comment'.")
 (setq forth-words
       '(
 	(("[") definition-ender (font-lock-keyword-face . 1))
@@ -1324,7 +1328,7 @@ bell during block file read/write operations."
 				 '("--S" forth-screen-number-string "-%-"))))
 
 (add-hook 'forth-mode-hook
-      '(lambda () 
+      #'(lambda () 
 	 (make-local-variable 'compile-command)
 	 (setq compile-command "gforth ")
 	 (forth-hack-local-variables)
