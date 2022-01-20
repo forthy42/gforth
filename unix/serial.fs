@@ -36,7 +36,7 @@ c-library serial
     c-function setvbuf setvbuf a a n n -- n ( file* buf mode size -- r )
 end-c-library
 
-require libc.fs
+require ./libc.fs
 
 [IFDEF] android
     ' wfield: alias flagfield: ( offset -- offset' )

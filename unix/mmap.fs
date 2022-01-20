@@ -39,7 +39,7 @@ e? os-type s" linux" string-prefix? [IF]
 [THEN]
 end-c-library
 
-require libc.fs
+require ./libc.fs
 
 $0 Constant PROT_NONE		\ Page can not be accessed. 
 $1 Constant PROT_READ		\ Page can be read. 

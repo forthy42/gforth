@@ -170,7 +170,7 @@ c-library pthread
     c-function pthread_self get_pthread_id a -- void ( pthread-id -- )
 end-c-library
 
-require libc.fs
+require ./libc.fs
 require ../set-compsem.fs
 
 User pthread-id  -1 cells pthread+ uallot drop

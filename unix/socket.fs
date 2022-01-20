@@ -50,7 +50,7 @@ c-library socket
     [THEN]
 end-c-library
 
-require libc.fs
+require ./libc.fs
 
 ' close alias closesocket
 
