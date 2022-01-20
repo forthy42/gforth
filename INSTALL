@@ -3,6 +3,7 @@ For installing from git, read INSTALL.md.
 
                 TL;DR
 
+./autogen.sh
 ./configure
 make
 sudo make install
@@ -31,6 +32,7 @@ at run-time in order for the disassembler to work.
 
 First, type
 
+./autogen.sh
 ./configure
 
 (see Section Configuration Options below for details).
