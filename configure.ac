@@ -315,8 +315,6 @@ if test "$ac_export_dynamic" != no; then
     AC_MSG_CHECKING([whether the linker accepts -Wl,--export-dynamic])
     OLDLDFLAGS=$LDFLAGS
     LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
-    #AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[],[]) gives false positive on rs6000-ibm-aix4.2.1.0
-    #AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_export_dynamic=yes],[ac_export_dynamic=no])
     AC_RUN_IFELSE([AC_LANG_SOURCE([[main(){exit(0);}]])],[ac_export_dynamic=yes],[ac_export_dynamic=no],[ac_export_dynamic=no])
     LDFLAGS=$OLDLDFLAGS
   fi
@@ -1024,7 +1022,7 @@ fi
 #echo "ac_link=$ac_link"
 AC_MSG_CHECKING([if and how we can waste code space])
 if test -z "$skipcode" && test x$cross_compiling = xyes; then
-   # we cannot perform the AC_RUN_IFELSE([AC_LANG_SOURCE([[]])],[],[],[]) check when cross-compiling.  
+   # we cannot perform the AC_RUN_IFELSE check when cross-compiling.  
    skipcode=no
    AC_MSG_RESULT([$skipcode, can't run checks since cross-compiling])
 elif test -z "$skipcode"; then
