@@ -22,7 +22,7 @@ dnl Process this file with autoconf to produce a configure script.
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
 AC_INIT([gforth],[0.7.9_20220120],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
-AC_PREREQ(2.54)
+AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
@@ -57,8 +57,7 @@ esac
 AC_SUBST(PROFEXES)
 AC_SUBST(PROFOBJS)
 AC_ARG_ENABLE(prof,
-	AC_HELP_STRING([--enable-prof],
-			[ Build gforth-prof, which outputs frequently occuring
+	AS_HELP_STRING([--enable-prof],[ Build gforth-prof, which outputs frequently occuring
                           sequences of primitives.]),
 	,enable_prof=no)
 if test "$enable_prof" != "no"; then
@@ -96,8 +95,7 @@ signals_o="io.o signals.o"
 
 AC_CANONICAL_HOST
 AC_ARG_WITH(ec,
-	AC_HELP_STRING([--with-ec=<arch>],
-			[  Build gforth for systems without OS.]),
+	AS_HELP_STRING([--with-ec=<arch>],[  Build gforth for systems without OS.]),
 [if test "$withval" = "no"; then
   echo "defining hosted system"
 else
@@ -141,19 +139,16 @@ else
 fi])
 
 AC_ARG_WITH(siteinit,
-	AC_HELP_STRING([--with-siteinit=<string>],
-			[  Add source code to siteinit.fs.]),
+	AS_HELP_STRING([--with-siteinit=<string>],[  Add source code to siteinit.fs.]),
 [echo "${withval}" >$srcdir/siteinit.fs])			
 
 libbench='#'
 AC_ARG_ENABLE(lib,
-	AC_HELP_STRING([--enable-lib],
-		       [  Compile Gforth as shared library (default enabled).]),
+	AS_HELP_STRING([--enable-lib],[  Compile Gforth as shared library (default enabled).]),
 	,enable_lib=yes)
 
 AC_ARG_WITH(cross,
-	AC_HELP_STRING([--with-cross=<arch>],
-			[  Build gforth using a cross compiler.]),
+	AS_HELP_STRING([--with-cross=<arch>],[  Build gforth using a cross compiler.]),
 [if test "$withval" = "no"; then
   echo "defining hosted system"
 else
@@ -186,16 +181,14 @@ fi])
 
 EXTRAS=""
 AC_ARG_WITH(extras,
-	AC_HELP_STRING([--with-extras=<path>],
-			[  add extra stuff from <path>]),
+	AS_HELP_STRING([--with-extras=<path>],[  add extra stuff from <path>]),
 [if test "$withval" != "no"; then
   EXTRAS+="${withval} "
 fi])
 AC_SUBST(EXTRAS)
 
 AC_ARG_WITH(install,
-	AC_HELP_STRING([--with-install=<things>],
-			[  Install extra <things>]),
+	AS_HELP_STRING([--with-install=<things>],[  Install extra <things>]),
 [if test "$withval" != "no"; then
     for i in ${withval//,/ }
     do
@@ -206,8 +199,7 @@ fi])
 
 DITCENGINE="./gforth-ditc"
 AC_ARG_WITH(ditc,
-	AC_HELP_STRING([--with-ditc=<engine>],
-			[  Use this engine for compilation of gforth.fi]),
+	AS_HELP_STRING([--with-ditc=<engine>],[  Use this engine for compilation of gforth.fi]),
 [if test $"withval" != "no"; then
   DITCENGINE=${withval}
 fi])
@@ -217,8 +209,7 @@ GFORTH_VERSION=$PACKAGE_VERSION
 AC_SUBST(GFORTH_VERSION)
 
 AC_ARG_ENABLE(version,
-	AC_HELP_STRING([--disable-version],
-			[  disable multi-version install]),
+	AS_HELP_STRING([--disable-version],[  disable multi-version install]),
 [if test "$enableval" = "no"; then
     PACKAGE_VERSION=current
 fi],)
@@ -255,7 +246,7 @@ test -z "$HOSTCC" && HOSTCC='$(GCC)'
 
 #set up feature test macros, so the tests get them right:
 # turn on all POSIX, SUSv3, and GNU features if available
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 #AC_DEFINE_UNQUOTED([_GNU_SOURCE],1,[feature test macro])
 
 #Don't define _POSIX_SOURCE etc. because some OSs (in particular
@@ -324,9 +315,9 @@ if test "$ac_export_dynamic" != no; then
     AC_MSG_CHECKING([whether the linker accepts -Wl,--export-dynamic])
     OLDLDFLAGS=$LDFLAGS
     LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
-    #AC_TRY_LINK gives false positive on rs6000-ibm-aix4.2.1.0
-    #AC_TRY_LINK(,,ac_export_dynamic=yes,ac_export_dynamic=no)
-    AC_TRY_RUN(main(){exit(0);},ac_export_dynamic=yes,ac_export_dynamic=no,ac_export_dynamic=no)
+    #AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[],[]) gives false positive on rs6000-ibm-aix4.2.1.0
+    #AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_export_dynamic=yes],[ac_export_dynamic=no])
+    AC_RUN_IFELSE([AC_LANG_SOURCE([[main(){exit(0);}]])],[ac_export_dynamic=yes],[ac_export_dynamic=no],[ac_export_dynamic=no])
     LDFLAGS=$OLDLDFLAGS
   fi
 fi
@@ -427,8 +418,8 @@ Dynamic NC generation disabled."
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS -march=i486"
-		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
-		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[],[CFLAGS="$CFLAGS_1 -m486"])
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[],[CFLAGS="$CFLAGS_1"])
 		case "$host_os" in
 		     *android*)
 			FAST="yes" # build extra fast libraries
@@ -440,10 +431,10 @@ Dynamic NC generation disabled."
 		CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS_1 -march=athlon64 -mtune=generic"
-		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -march=pentium -mtune=generic")
-		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -march=pentium")
-		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1 -m486")
-		AC_TRY_COMPILE(,,,CFLAGS="$CFLAGS_1")
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[],[CFLAGS="$CFLAGS_1 -march=pentium -mtune=generic"])
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[],[CFLAGS="$CFLAGS_1 -march=pentium"])
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[],[CFLAGS="$CFLAGS_1 -m486"])
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[],[CFLAGS="$CFLAGS_1"])
 		case "$host_os" in
 		     *android*)
 			FAST="yes" # build extra fast libraries
@@ -806,7 +797,7 @@ do
     ac_i=$(echo ac_$i | tr '=\-' '__')
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS -f$i"
-    AC_TRY_COMPILE(,,eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS -f$i",eval ac_$ibar=no)
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[eval $ac_i=yes;ENGINE_FLAGS="$ENGINE_FLAGS -f$i"],[eval ac_$ibar=no])
     CFLAGS="$CFLAGS_1"
     ac_result=$(eval echo "\$$ac_i")
     AC_MSG_RESULT($ac_result)
@@ -818,7 +809,7 @@ CFLAGS_1="$CFLAGS"
 LDFLAGS_1="$LDFLAGS"
 CFLAGS="$CFLAGS -pthread"
 LDFLAGS="$LDFLAGS -pthread"
-AC_TRY_COMPILE(,,ac_pthread=yes;ENGINE_FLAGS="$ENGINE_FLAGS -pthread",ac_pthread=no)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_pthread=yes;ENGINE_FLAGS="$ENGINE_FLAGS -pthread"],[ac_pthread=no])
 test "$ac_pthread" == yes || CFLAGS="$CFLAGS_1"
 test "$ac_pthread" == yes || LDFLAGS="$LDFLAGS_1"
 AC_MSG_RESULT($ac_pthread)
@@ -830,7 +821,7 @@ then
   AC_MSG_CHECKING([if $CC understands -Wimplicit-function-declaration])
   CFLAGS_1="$CFLAGS"
   CFLAGS="$CFLAGS -Wimplicit-function-declaration"
-  AC_TRY_COMPILE(,,LIBTOOL_CC="$CC -Wimplicit-function-declaration",)
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[LIBTOOL_CC="$CC -Wimplicit-function-declaration"],[])
   CFLAGS="$CFLAGS_1"
   AC_MSG_RESULT($ac_align_jumps)
 fi
@@ -842,15 +833,13 @@ AC_SUBST(CROSS_PREFIX)
 
 # Try if GCC understands __attribute__((unused))
 AC_MSG_CHECKING([how to suppress 'unused variable' warnings])
-AC_TRY_COMPILE(,[int __attribute__((unused)) foo;], MAYBE_UNUSED='__attribute__((unused))',)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[int __attribute__((unused)) foo;]])],[MAYBE_UNUSED='__attribute__((unused))'],[])
 AC_DEFINE_UNQUOTED(MAYBE_UNUSED,$MAYBE_UNUSED,[attribute for possibly unused variables])
 AC_MSG_RESULT($MAYBE_UNUSED)
 
 # Try if GCC understands __thread
 AC_CACHE_CHECK([whether gcc understands '__thread'], [ac_cv_thread],
-     [AC_TRY_COMPILE(,[extern __thread int foo;],
-                        [ac_cv_thread=yes],
-                        [ac_cv_thread=no])])
+     [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[extern __thread int foo;]])],[ac_cv_thread=yes],[ac_cv_thread=no])])
 test x$ac_cv_thread = xyes && PER_THREAD='__thread'
 AC_DEFINE_UNQUOTED(PER_THREAD,$PER_THREAD,[storage class for thread-local variables])
 
@@ -893,7 +882,7 @@ case "$host_os" in
 		AC_MSG_CHECKING([if $CC understands -no-cpp-precomp on Darwin])
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS -no-cpp-precomp"
-		AC_TRY_COMPILE(,,ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp",ac_no_cpp_precomp=no)
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp"],[ac_no_cpp_precomp=no])
 		test "$ac_no_cpp_precomp" == yes || CFLAGS="$CFLAGS_1"
 		AC_MSG_RESULT($ac_no_cpp_precomp)
 		DIRSEP="/"
@@ -911,7 +900,7 @@ case "$host_os" in
 		AC_MSG_CHECKING([if $CC understands -no-cpp-precomp on Darwin])
 		CFLAGS_1="$CFLAGS"
 		CFLAGS="$CFLAGS -no-cpp-precomp"
-		AC_TRY_COMPILE(,,ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp",ac_no_cpp_precomp=no)
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[ac_no_cpp_precomp=yes;ENGINE_FLAGS="$ENGINE_FLAGS -no-cpp-precomp"],[ac_no_cpp_precomp=no])
 		test "$ac_no_cpp_precomp" == yes || CFLAGS="$CFLAGS_1"
 		AC_MSG_RESULT($ac_no_cpp_precomp)
 		DIRSEP="/"
@@ -1035,7 +1024,7 @@ fi
 #echo "ac_link=$ac_link"
 AC_MSG_CHECKING([if and how we can waste code space])
 if test -z "$skipcode" && test x$cross_compiling = xyes; then
-   # we cannot perform the AC_TRY_RUN check when cross-compiling.  
+   # we cannot perform the AC_RUN_IFELSE([AC_LANG_SOURCE([[]])],[],[],[]) check when cross-compiling.  
    skipcode=no
    AC_MSG_RESULT([$skipcode, can't run checks since cross-compiling])
 elif test -z "$skipcode"; then
@@ -1044,8 +1033,7 @@ elif test -z "$skipcode"; then
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
     for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16"
     do
-	AC_TRY_RUN(
-[int foo(int,int,int);
+	AC_RUN_IFELSE([AC_LANG_SOURCE([[int foo(int,int,int);
 main()
 {
   exit(foo(0,0,0)<16);
@@ -1063,9 +1051,9 @@ int foo(int x, int y, int z)
   if (y) goto *labels[z]; /* workaround for gcc PR12108 */
   return labels[1]-labels[0];
   }
-}]
-	,skipcode=$i; break
-	,,)
+}
+	]])],[skipcode=$i; break
+	],[],[])
     done
     CFLAGS=$CFLAGS_1
 fi
@@ -1091,7 +1079,7 @@ if test -z "$asmcomment"; then
     CFLAGS_1="$CFLAGS"
     CFLAGS="$CFLAGS $ENGINE_FLAGS"
     for i in '"# "' '"! "' '"; "'; do
-	AC_TRY_COMPILE(,[asm($i"fluffystunk");],asmcomment=$i; break,)
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[asm($i"fluffystunk");]])],[asmcomment=$i; break],[])
     done
     CFLAGS=$CFLAGS_1
 fi
@@ -1237,7 +1225,13 @@ AC_REPLACE_FUNCS(memmove strtoul exp10 sincos strerror strsignal atanh)
 AC_FUNC_FSEEKO
 AC_CHECK_FUNCS(ftello sys_siglist getrusage nanosleep clock_gettime)
 AC_CHECK_TYPES(stack_t,,,[#include <signal.h>])
-AC_DECL_SYS_SIGLIST
+AC_CHECK_DECLS([sys_siglist],[],[],[#include <signal.h>
+/* NetBSD declares sys_siglist in unistd.h.  */
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+])
+
 AC_CHECK_FUNC(getopt_long,[true],[AC_LIBOBJ(getopt) AC_LIBOBJ(getopt1)])
 AC_CHECK_FUNCS(expm1 log1p)
 AC_CHECK_FUNCS(mcheck mprobe)
@@ -1312,8 +1306,7 @@ fi
 echo "elispstartdir=$elispstartdir"
 
 AC_ARG_WITH(elispstartdir,
-	AC_HELP_STRING([--with-elispstartdir=<dir>],
-			[  Use this directory to store the autoload file]),
+	AS_HELP_STRING([--with-elispstartdir=<dir>],[  Use this directory to store the autoload file]),
 [if test $"withval" != "no"; then
   elispstartdir="\$(package)${withval}"
 fi])
