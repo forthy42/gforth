@@ -1,10 +1,9 @@
 #!/bin/sh
 which sudo || alias sudo=eval
-install_linux() {
+install_debian() {
   sudo apt-get -y update
   sudo apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc automake texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libpcre3-dev libboost-dev git g++ # yodl, bison, ... git: are for swig
   test `lsb_release -sc` = "buster" && sudo apt-get -y install texlive-latex-base
-  sudo apt-get -y install gforth gforth-lib gforth-common
   sudo apt-get -y install libtool-bin
   sudo apt-get -y install libltdl-dev
   sudo apt-get -y install autoconf-archive
@@ -40,12 +39,28 @@ install_linux() {
   fi
 }
 
+install_alpine() {
+    sudo apk add libltdl libffi
+    sudo apk add wget file xz tar
+    sudo apk add freetype-dev
+        build-base autoconf automake m4 libtool git \
+        coreutils gcc libffi-dev mesa-dev glew-dev libx11-dev \
+        libxrandr-dev glfw-dev harfbuzz-dev gstreamer-dev gst-plugins-base-dev \
+	opus-dev pulseaudio-dev unzip texinfo
+    (cd /tmp && git clone https://github.com/nothings/stb.git \
+    sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
+}
+
+install_linux() {
+    install_debian
+}
+
 install_osx() {
   which brew || /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   brew tap forthy42/homebrew-zsh
   brew update > /dev/null
   brew upgrade > /dev/null
-  brew install gforth gcc harfbuzz texinfo xz mesa premake automake yodl
+  brew install gcc harfbuzz texinfo xz mesa premake automake yodl
   export PATH="/usr/local/opt/texinfo/bin:$PATH"
   brew cask install xquartz mactex
   export PATH="/Library/TeX/texbin:$PATH"
@@ -54,15 +69,40 @@ install_osx() {
 #  (cd /usr/local/Cellar/gcc/8.2.0/lib/gcc/8/gcc/x86_64-apple-darwin17.7.0/8.2.0/include-fixed && mv stdio.h stdio.h.botched)
 }
 
+install_gforth_osx() {
+    brew install gforth
+}
+
+install_gforth_debian() {
+    sudo apt-get -y install gforth gforth-lib gforth-common
+}
+
+install_gforth_alpine() {
+    sudo apk add gforth
+}
+
 case `uname` in
     Linux)
-	OS=linux
+	OS=`. /etc/os-release; echo ${ID%-*}`
 	;;
     Darwin)
 	OS=osx
 	;;
 esac
 
+install_gforth() {
+    install_gforth_${TRAVIS_OS_NAME:-$OS}
+}
+
 install_${TRAVIS_OS_NAME:-$OS}
-./install-swig.sh
-#./install-soil2.sh
+
+case $BUILD_FROM in
+    tarball)
+	;;
+    *)
+	install_gforth
+	./install-swig.sh
+	;;
+esac
+
+unalias sudo

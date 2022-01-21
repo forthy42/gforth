@@ -608,7 +608,7 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	gforthker.in README.vmgen NEWS.vmgen autogen.sh configure.ac	      \
 	configure config.sub config.guess elisp-comp stamp-h.in envos.fs.in   \
 	kernel/version.fs.in iss.sh wininst.sh modpath.iss firewall.iss	      \
-	install-sh INSTALL INSTALL.BINDIST NEWS README ToDo BUGS	      \
+	install-sh INSTALL.md NEWS README README.md ToDo BUGS	      \
 	BUILD-FROM-SCRATCH model COPYING COPYING.LIB COPYING.DOC AUTHORS      \
 	ChangeLog Benchres aclocal.m4 doc/Makefile.in doc/gforth.texi.in      \
 	$(wildcard doc/words/*-words) doc/words/README                        \
