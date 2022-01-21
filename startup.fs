@@ -81,6 +81,7 @@ require obsolete.fs
 require locate1.fs
 require status-line.fs
 require mwords.fs
+require forward.fs
 require marker.fs
 
 \ define the environmental queries for all the loaded wordsets

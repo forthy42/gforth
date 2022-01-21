@@ -263,6 +263,7 @@ GFORTH_FI_SRC2=\
 	exboot.fs \
 	except.fs \
 	extend.fs \
+	forward.fs \
 	fold.fs \
 	float.fs \
 	glocals.fs \
