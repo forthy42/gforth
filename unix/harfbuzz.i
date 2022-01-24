@@ -16,7 +16,7 @@ extern struct _IO_FILE *stderr;
 %apply SWIGTYPE * { FT_Face };
 
 // prep: sed -e 's/^\(.*not_found_glyph.*\)$//g'
-// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary harfbuzz``get-current also harfbuzz definitions``\0/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/ s n / a n /g' -e 's/c-function hb_glyph_info_get_glyph_flags/\\ c-function hb_glyph_info_get_glyph_flags/g' -e 's/s" harfbuzz" add-lib/e? os-type s" linux-android" string-prefix? [IF] s" typeset" [ELSE] s" harfbuzz" [THEN] add-lib/g' | tr '`' '\n'
+// exec: sed -e 's/^c-library \(.*\)/cs-vocabulary \1``get-current also \1 definitions``c-library \1/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/ s n / a n /g' -e 's/c-function hb_glyph_info_get_glyph_flags/\\ c-function hb_glyph_info_get_glyph_flags/g' -e 's/s" harfbuzz" add-lib/e? os-type s" linux-android" string-prefix? [IF] s" typeset" [ELSE] s" harfbuzz" [THEN] add-lib/g' | tr '`' '\n'
 
 #define HB_EXTERN extern
 #define HB_BEGIN_DECLS
