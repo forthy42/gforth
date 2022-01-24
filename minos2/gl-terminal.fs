@@ -454,7 +454,7 @@ Sema gl-sema
 	widthPixels heightPixels o> ;
 [ELSE]
     [IFDEF] x11
-	also x11
+	also x11 also xrandr
 	: screen-pwh ( -- w h ) \ w h in pixels
 	    rr-crt0 XRRCrtcInfo-width l@
 	    rr-crt0 XRRCrtcInfo-height l@ ;
@@ -462,6 +462,7 @@ Sema gl-sema
 	    screen-pwh
 	    dpy-h @ rr-out0 XRROutputInfo-mm_height l@ s>f fm*/
 	    dpy-w @ rr-out0 XRROutputInfo-mm_width  l@ s>f fm*/ fswap ;
+	previous
     [ELSE]
 	: screen-wh ( -- rw rh )
 	    wl-metrics 2@ swap s>f s>f ;

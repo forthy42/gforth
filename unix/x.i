@@ -8,11 +8,10 @@
 #include <X11/keysym.h>
 #include <X11/XF86keysym.h>
 #include <X11/extensions/sync.h>
-#include <X11/extensions/Xrandr.h>
 #define _EVDEVK(x) x
 %}
 
-#define SWIG_FORTH_GFORTH_LIBRARY "X11 -lXext -lXrandr"
+#define SWIG_FORTH_GFORTH_LIBRARY "X11 -lXext"
 
 #define _XFUNCPROTOBEGIN
 #define _XFUNCPROTOEND
@@ -45,4 +44,3 @@
 %include <X11/keysymdef.h>
 %include <X11/XF86keysym.h>
 %include <X11/extensions/sync.h>
-%include <X11/extensions/Xrandr.h>

@@ -19,10 +19,11 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require unix/x.fs
+require unix/xrandr.fs
 require mini-oof2.fs
 require struct-val.fs
 
-also x11
+also x11 also xrandr
 
 0 Value dpy
 0 Value screen-struct
@@ -414,7 +415,7 @@ DOES> ( x-key -- addr u )
   BEGIN  dup cell+ swap @ dup r@ <> and WHILE  count +  REPEAT
   count rdrop e.state xmeta@ +meta ;
 
-previous
+previous previous
 
 0 Value timeoffset
 : XTime0 ( -- ntime ) utime #1000 ud/mod drop nip ;
