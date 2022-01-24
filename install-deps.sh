@@ -62,7 +62,7 @@ install_osx() {
   brew upgrade > /dev/null
   brew install gcc harfbuzz texinfo xz mesa premake automake yodl
   export PATH="/usr/local/opt/texinfo/bin:$PATH"
-  brew cask install xquartz mactex
+  brew install --cask xquartz mactex
   export PATH="/Library/TeX/texbin:$PATH"
   brew link --overwrite gcc
   export CC=gcc-11
