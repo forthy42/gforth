@@ -1097,6 +1097,29 @@ AC_PROG_INSTALL
 AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
 AC_CHECK_PROGS(RECODE,recode iconv)
 AC_CHECK_PROGS(TIMEOUT,timeout)
+eval `LANG=C makeinfo --help|grep css | sed -e 's/^ *//g' |cut -f1 -d' '| while read line
+do
+    case x$line
+    in
+	x--css-include=*)
+	    echo ac_cv_makeinfo_has_css_include=yes;
+	    ;;
+	x--css-ref=*)
+	    echo ac_cv_makeinfo_has_css_ref=yes;
+	    ;;
+    esac
+done`
+
+if test x$ac_cv_makeinfo_has_css_ref == xyes
+then
+    MAKEINFOREF='--css-ref=$(GFORTH_CSS)'
+else
+    if test x$ac_cv_makeinfo_has_css_include == xyes
+    then
+	MAKEINFOREF='--css-include=$(srcdir)/$(GFORTH_CSS)'
+    fi
+fi
+AC_SUBST(MAKEINFOREF)
 
 if test x$RECODE == xrecode; then
    RECODE_ARGS=l1..
