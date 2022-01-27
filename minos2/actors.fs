@@ -622,6 +622,7 @@ simple-actor class
     $value: prev-text$
     defer: edit-enter
     defer: edit-filter
+    defer: edit-engaged
 end-class edit-actor
 
 : edit-copy ( max span addr pos1 -- max span addr pos1 false )
@@ -805,7 +806,7 @@ edit-terminal edit-out !
     ['] setstring> edit-xt edit-w >o -1 to cursize o> +sync
 ; edit-actor is defocus
 :noname ( o:actor -- )
-    edit-w >o  0 to cursize o> +sync +keyboard
+    edit-w >o  0 to cursize o> +sync +keyboard  edit-engaged
 ; edit-actor is focus
 :noname ( $rxy*n bmask -- )
     case
@@ -853,8 +854,11 @@ edit-terminal edit-out !
     xt        is edit-enter
     ['] false is edit-next-line
     ['] false is edit-prev-line
-    ['] noop  is edit-filter o>
+    ['] noop  is edit-filter
+    ['] noop  is edit-engaged o>
     o o> ;
 
 : filter[] ( o xt -- o ) { xt }
     >o act >o xt is edit-filter o> o o> ;
+: engaged[] ( o xt -- o ) { xt }
+    >o act >o xt is edit-engaged o> o o> ;
