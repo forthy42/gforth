@@ -13,7 +13,7 @@ RUN adduser -D gforth \
 	opus-dev pulseaudio-dev unzip texinfo \
     && cd /tmp && git clone https://github.com/nothings/stb.git \
     && mkdir /usr/include/stb && cp stb/*.h /usr/include/stb && rm -rf stb \
-    && wget https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/$VERSION/gforth-$VERSION.tar.xz -O /tmp/gforth.tar.xz \
+    && wget http://www.complang.tuwien.ac.at/forth/gforth/Snapshots/$VERSION/gforth-$VERSION.tar.xz -O /tmp/gforth.tar.xz \
     && xzcat /tmp/gforth.tar.xz | tar xf - -C /tmp  \
     && rm /tmp/gforth.tar.xz \
     && cd /tmp/gforth-* \

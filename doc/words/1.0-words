@@ -4452,10 +4452,10 @@ GL_VERTEX_ARRAY GL_POLYGON GL_QUAD_STRIP GL_QUADS GL_TRIANGLE_FAN
 GL_TRIANGLE_STRIP GL_TRIANGLES GL_LINE_STRIP GL_LINE_LOOP GL_LINES GL_POINTS 
 GL_DOUBLE GL_4_BYTES GL_3_BYTES GL_2_BYTES GL_FLOAT GL_UNSIGNED_INT GL_INT 
 GL_UNSIGNED_SHORT GL_SHORT GL_UNSIGNED_BYTE GL_BYTE GL_TRUE GL_FALSE 
-GL_ARB_imaging GL_VERSION_1_3 GL_VERSION_1_2 GL_VERSION_1_1 X11 load-cov 
-save-cov cover-filename hash-cover cover-hash annotate-cov .coverage covered? 
-.cover-file ?del-cover bw-cover color-cover .paren-cov# .ansi-cov# .cov# 
-.cover-raw cov% ?cov+ cov+ cov+, dead-cov? cover-end! cover, cover-start 
+GL_ARB_imaging GL_VERSION_1_3 GL_VERSION_1_2 GL_VERSION_1_1 Xrandr X11 
+load-cov save-cov cover-filename hash-cover cover-hash annotate-cov .coverage 
+covered? .cover-file ?del-cover bw-cover color-cover .paren-cov# .ansi-cov# 
+.cov# .cover-raw cov% ?cov+ cov+ cov+, dead-cov? cover-end! cover, cover-start 
 cover-end coverage bye spawn2 spawn1 spawn spawn-rest sync start-workers 
 worker-thread ->spawn +worker ->sync worker@ invoker workers sync# cores 
 thread-key prep-key keypollfds UDefer udefer@ event| kill sleep halt :>restart 
@@ -4509,109 +4509,110 @@ do-class-method no-method current-interface selector% selector-interface
 selector-offset class% class-inst-size class-wordlist class-parent interface% 
 interface-offset interface-map-offset interface-map object% object-map 
 heap>dict disasm disline disassembler marker marker! marker, sections-marker! 
-sections-marker, included-files-mark mwords wordlist-mwords .mwords[] 
-wid>words[] mword-filename-match mword-search-match mword-match words[] 
-fancy-after-l bye whereg delete-whereg whereg-filename s` sh-get sh$ 
-plain-output plain-out plain-form help help-section help-word open-doc 
-set-help-view count-lfs doc-file# unused-words unused-wordlist unused@ 
-unmark-used unused-all -unused +unused .wids unused-mask usage# bw nw ww 
-where-</> where-index-- where-index++ (ww) where prepend-where expand-where 
-short-where where-reset where-setup (where) forwheres .whereview1 .whereline 
-.wheretype1 width-type type-notabs unbounds bt nt tt bt-</> backtrace-- 
-backtrace++ backtrace# bt-location gg g-once ll l-once next-l|g l|g edit g 
-extern-g b n view locate .rec'-stack locate-name name-set-located-view l l1 
-no-</> index-- index++ after-l append-locate-lines prepend-locate-lines 
-display-locate-lines located-erase l2 print-locate-header view>filename 
-current-location? current-location?1 located-buffer locate-print-line 
-locate-type located-diff locate-lines+ locate-lines# type-prefix 
-locate-next-line locate-line set-bn-view view>buffer included-buffer 
-included-file-buffers backtrace-index where-index where-results -status 
-+status .status-line status-xts .order .stacks .base wide? replace-char 
-.unstatus-line redraw-status status-attr status-offset find sfind word sword 
-(word) scroll-down scroll-up cursor-previous-line cursor-next-line 
-erase-display insert-lines cursor-down cursor-up control-sequence: 
-restore-cursor-position save-cursor-position (control-sequence) auto-color 
-magenta-input dark-mode light-mode default-mode default-bg rgb-split term-bg? 
-is-xterm? is-color-terminal? is-terminal? term-rgb$ <<<m m>>> mark-attr 
-BlackSpace (theme-color!) white? theme-color@ theme: current-theme (Attr!) 
-Attr A> <A FG> BG> >FG >BG Dim Invisible Italic Strikethrough Invers Blink 
-Underline Bold defaultcolor White Cyan Magenta Blue Yellow Green Red Black 
-load-rc0 load-rc load-rc? >string-execute >string-out >string-form >string-cr 
->string-emit >string-type >string-len >string-buffer >string-initial-buflen 
-end-c-library c-library reopen-libs .libs map-libs prefetch-lib c-lib host? 
-clear-libs add-lib c-function \c !!0.7-style!! basename dirname scan-back 
-disasm-gdb append-extend-string break" break: break:, dbg dbg-ip see-code 
-xt-see-code simple-see xt-simple-see .backtrace-view .sourceview-width .bt 
-print-backtrace print-bt-entry .backtrace-pos >bt-entry backtrace-return-stack 
-extra-backtrace# see name-see (.compile-only) (.immediate) (xt-see-xt) xt-see 
-discode see-voc end-code ;abi-code !;abi-code ;code (;code) abi-code code 
-init-asm assembler subst>filename $unescape unescape substitute $substitute 
-.substitute .% replaces macro: macros-wordlist rec-body rec-dtick rec-tick 
-?rec-nt rec-to rectype-to recognized-to post-to, rec-string rectype-string 
-recognized-string slit, .\" s\" \"-parse \-escape, \-escape-table parse-num 
-parse-num-x char/ history-cold get-history xchar-history xins xchar-edit-ctrl 
-std-ekeys xchar-ctrlkeys xdelw xchar-altkey altbindkey xchar-altkeys xreformat 
-setsel setcur xchars>chars xback-chars setsel# setcur# xtranspose xpaste 
-xpaste@ xtab-expand (xtab-expand) xkill-expand (xenter) xins-string 
-xclear-first xclear-rest xpaste! xend-pos xfirst-pos xeof <xdel> ?xdel xdel 
-(xdel) xforw xback (xins) xgrow-tib xhide xedit-update .rest .all-rest .all 
-.resizeline get-width+all get-width+ hw>width get-hw xedit-startpos 
-setstring-color kill-prefix tib-full? simple-search-prefix search-prefix 
-prefix-string prefix-off search-voc word-lex alphabetic-tab prefix-found 
-extract-word (enter) write-history lastline<> thisline# lastline# prev-line 
-find-prev-line next-line get-line hist-setpos hist-pos xretype clear-line 
-edit-curpos-off history-file force-open -scan vt100-modifier end^ backward^ 
-forward^ history ctrl ctrl-i ebindkey bindkey >edit-rest edit-terminal-c 
-edit-terminal paste$ setstring$ screenw edit-curpos ekeys edit-error grow-tib 
-paste@ paste! mkdir-parents file-exist# EEXIST uclass uvar umethod uval-o 
-user-o class-o ekey? ekey>fkey ekey>xchar ekey>char ekey xkey? get-xkey 
-read-xkey esc-sequence esc-prefix clear-ekey-buffer esc-mask ekey-buffer 
-esc-sequences buf-key? inskeys inskey unkeys unkey buf-key inskey@ 
-char-append-buffer key-buffer s-k12 s-k11 s-k10 s-k9 s-k8 s-k7 s-k6 s-k5 s-k4 
-s-k3 s-k2 s-k1 k12 k11 k10 k9 k8 k7 k6 k5 k4 k3 k2 k1 k-eof k-sel k-tab 
-k-backspace k-voldown k-volup k-mute k-pause k-winch k-f12 k-f11 k-f10 k-f9 
-k-f8 k-f7 k-f6 k-f5 k-f4 k-f3 k-f2 k-f1 k-enter k-delete k-insert k-next 
-k-prior k-end k-home k-down k-up k-right k-left fkey. simple-fkey-string 
-k-ctrl-mask k-alt-mask k-shift-mask mask-shift# keycode keycode-table 
-keycode-limit keycode-start voctable cs-vocabulary cs-wordlist table 
-cs-wordlist-search-map tablesearch-map table-rec table-find savesystem dump-fi 
-preamble-start prepare-for-dump 'clean-maintask update-maintask 
-update-image-included-files repl-included-files del-included-files bye 
-block-included --> +thru +load thru load block-input list updated? scr buffer 
-block get-buffer flush empty-buffers save-buffers empty-buffer save-buffer 
-update block-position get-block-fid use open-blocks flush-blocks block-cold 
-offset block-offset block-fid block-limit buffers last-block block-buffers 
-buffer-struct next-buffer block-buffer buffer-dirty buffer-fid buffer-block 
-... wrap-xt smart.s. .string. .string.( smart. .cs. .var. .addr. cs? string? 
-.var? addr? smart.s-skip .elapsed timer-reset .!time !@time .time (.time) 
-@time !time .times init-timer map-timer timer: timer-list +t 2+! last-tick 
-timer-tick profile( +debug set-debug +-? debug-eval ~db -db +db )else( debug: 
-debug-does> assert( assert3( assert2( assert1( assert0( ) assertn 
-assert-canary assert) (end-assert) assert-level .hm .name? color-prompt 
-prompt-text prompt-ok #loc edit-file-cmd editor-cmd vi-l:c emacs-l:c kate-l:c 
-view' (view') rec'@ rec'[] type-prefix view-vi view-emacs esc'"type esc'type 
--ltrace +ltrace line-tracer ~~Value ~~Variable watch-comp: watch-does> 
-replace-word >prim-code >colon-body ?warn-dp warning-recs shadow-num-warning 
-shadow-warning !!FIXME!! FIXME# WTF?? dbg-shell ??? ???-loop ~~1bt ~~bt once 
-]nocov nocov[ cov-stack coverage? ~~ .debugline-directed (.debugline) 
-.debugline printdebugdata #line save-source-filename# .sourcepos 
-compile-sourcepos .sourceview .sourcepos3 view>char decode-view decode-pos 
-loadfilename#>str prepend~~ expand~~ short~~ plain~~ source-pos# source-line# 
-prepend-file expand-file shorten-file lastfile filename>display *terminal*# 
-utf-8-cold set-encoding-utf-8 utf-8 x-maxlines x-maxlines+rest x-lines 
-x-lines+rest +x-lines+rest xc-hw+ u8width xc-width+ xc-width 
--u8trailing-garbage u8addrlen u8!+? u8@ u8\string- +u8/string u8emit u8key 
-check-xy u8<< u8>> u8!+ u8@+ u8len max-single-byte UTF-8-err vt100-page 
-vt100-at-deltaxy vt100-at-xy ESC[ ;pn pn #esc[ #n; #n WordInfo InfoTable 
-Com-color Str-color Ali-color Use-color Col-color Def-color Doe-color 
-Val-color Var-color Con-color Pri-color prim? xtprim? colon? defered? does? 
-user? value? con? var? .recs prim>name >head threaded>name xt>name >name look 
-PrimStart threaded>xt xt= [f:d [f:h [f:l [d:d [d:h [d:l [n:d [n:h [n:l [f: [d: 
-[n: [*:: :d :h :l (;]*) (;]l) (;*]) ;> <{: [{: end-dclosure closure> 
-closure-:-hook (closure-;]) wrap-closure dummy-local, pop-locals push-locals 
-extra-locals lp> >lp allocd alloch >addr endref, end-d locals-lists 
-locals-sizes opt-u/mod opt-/modf opt-umod opt-modf opt-u/ opt-/f lit/, 
-/f-stage1m ctz pow2? u/-stage1m staged/-size staged/-divisor 
+sections-marker, included-files-mark .unresolved auto-resolve is-forward? 
+forward unfixed-forward unresolved-forward-error forward-needs-: 
+unresolved-forward mwords wordlist-mwords .mwords[] wid>words[] 
+mword-filename-match mword-search-match mword-match words[] fancy-after-l bye 
+whereg delete-whereg whereg-filename s` sh-get sh$ plain-output plain-out 
+plain-form help help-section help-word open-doc set-help-view count-lfs 
+doc-file# unused-words unused-wordlist unused@ unmark-used unused-all -unused 
++unused .wids unused-mask usage# bw nw ww where-</> where-index-- 
+where-index++ (ww) where prepend-where expand-where short-where where-reset 
+where-setup (where) forwheres .whereview1 .whereline .wheretype1 width-type 
+type-notabs unbounds bt nt tt bt-</> backtrace-- backtrace++ backtrace# 
+bt-location gg g-once ll l-once next-l|g l|g edit g extern-g b n view locate 
+.rec'-stack locate-name name-set-located-view l l1 no-</> index-- index++ 
+after-l append-locate-lines prepend-locate-lines display-locate-lines 
+located-erase l2 print-locate-header view>filename current-location? 
+current-location?1 located-buffer locate-print-line locate-type located-diff 
+locate-lines+ locate-lines# type-prefix locate-next-line locate-line 
+set-bn-view view>buffer included-buffer included-file-buffers backtrace-index 
+where-index where-results -status +status .status-line status-xts .order 
+.stacks .base wide? replace-char .unstatus-line redraw-status status-attr 
+status-offset find sfind word sword (word) scroll-down scroll-up 
+cursor-previous-line cursor-next-line erase-display insert-lines cursor-down 
+cursor-up control-sequence: restore-cursor-position save-cursor-position 
+(control-sequence) auto-color magenta-input dark-mode light-mode default-mode 
+default-bg rgb-split term-bg? is-xterm? is-color-terminal? is-terminal? 
+term-rgb$ <<<m m>>> mark-attr BlackSpace (theme-color!) white? theme-color@ 
+theme: current-theme (Attr!) Attr A> <A FG> BG> >FG >BG Dim Invisible Italic 
+Strikethrough Invers Blink Underline Bold defaultcolor White Cyan Magenta Blue 
+Yellow Green Red Black load-rc0 load-rc load-rc? >string-execute >string-out 
+>string-form >string-cr >string-emit >string-type >string-len >string-buffer 
+>string-initial-buflen end-c-library c-library reopen-libs .libs map-libs 
+prefetch-lib c-lib host? clear-libs add-lib c-function \c !!0.7-style!! 
+basename dirname scan-back disasm-gdb append-extend-string break" break: 
+break:, dbg dbg-ip see-code xt-see-code simple-see xt-simple-see 
+.backtrace-view .sourceview-width .bt print-backtrace print-bt-entry 
+.backtrace-pos >bt-entry backtrace-return-stack extra-backtrace# see name-see 
+(.compile-only) (.immediate) (xt-see-xt) xt-see discode see-voc end-code 
+;abi-code !;abi-code ;code (;code) abi-code code init-asm assembler 
+subst>filename $unescape unescape substitute $substitute .substitute .% 
+replaces macro: macros-wordlist rec-body rec-dtick rec-tick ?rec-nt rec-to 
+rectype-to recognized-to post-to, rec-string rectype-string recognized-string 
+slit, .\" s\" \"-parse \-escape, \-escape-table parse-num parse-num-x char/ 
+history-cold get-history xchar-history xins xchar-edit-ctrl std-ekeys 
+xchar-ctrlkeys xdelw xchar-altkey altbindkey xchar-altkeys xreformat setsel 
+setcur xchars>chars xback-chars setsel# setcur# xtranspose xpaste xpaste@ 
+xtab-expand (xtab-expand) xkill-expand (xenter) xins-string xclear-first 
+xclear-rest xpaste! xend-pos xfirst-pos xeof <xdel> ?xdel xdel (xdel) xforw 
+xback (xins) xgrow-tib xhide xedit-update .rest .all-rest .all .resizeline 
+get-width+all get-width+ hw>width get-hw xedit-startpos setstring-color 
+kill-prefix tib-full? simple-search-prefix search-prefix prefix-string 
+prefix-off search-voc word-lex alphabetic-tab prefix-found extract-word 
+(enter) write-history lastline<> thisline# lastline# prev-line find-prev-line 
+next-line get-line hist-setpos hist-pos xretype clear-line edit-curpos-off 
+history-file force-open -scan vt100-modifier end^ backward^ forward^ history 
+ctrl ctrl-i ebindkey bindkey >edit-rest edit-terminal-c edit-terminal paste$ 
+setstring$ screenw edit-curpos ekeys edit-error grow-tib paste@ paste! 
+mkdir-parents file-exist# EEXIST uclass uvar umethod uval-o user-o class-o 
+ekey? ekey>fkey ekey>xchar ekey>char ekey xkey? get-xkey read-xkey 
+esc-sequence esc-prefix clear-ekey-buffer esc-mask ekey-buffer esc-sequences 
+buf-key? inskeys inskey unkeys unkey buf-key inskey@ char-append-buffer 
+key-buffer s-k12 s-k11 s-k10 s-k9 s-k8 s-k7 s-k6 s-k5 s-k4 s-k3 s-k2 s-k1 k12 
+k11 k10 k9 k8 k7 k6 k5 k4 k3 k2 k1 k-eof k-sel k-tab k-backspace k-voldown 
+k-volup k-mute k-pause k-winch k-f12 k-f11 k-f10 k-f9 k-f8 k-f7 k-f6 k-f5 k-f4 
+k-f3 k-f2 k-f1 k-enter k-delete k-insert k-next k-prior k-end k-home k-down 
+k-up k-right k-left fkey. simple-fkey-string k-ctrl-mask k-alt-mask 
+k-shift-mask mask-shift# keycode keycode-table keycode-limit keycode-start 
+voctable cs-vocabulary cs-wordlist table cs-wordlist-search-map 
+tablesearch-map table-rec table-find savesystem dump-fi preamble-start 
+prepare-for-dump 'clean-maintask update-maintask update-image-included-files 
+repl-included-files del-included-files bye block-included --> +thru +load thru 
+load block-input list updated? scr buffer block get-buffer flush empty-buffers 
+save-buffers empty-buffer save-buffer update block-position get-block-fid use 
+open-blocks flush-blocks block-cold offset block-offset block-fid block-limit 
+buffers last-block block-buffers buffer-struct next-buffer block-buffer 
+buffer-dirty buffer-fid buffer-block ... wrap-xt smart.s. .string. .string.( 
+smart. .cs. .var. .addr. cs? string? .var? addr? smart.s-skip .elapsed 
+timer-reset .!time !@time .time (.time) @time !time .times init-timer 
+map-timer timer: timer-list +t 2+! last-tick timer-tick profile( +debug 
+set-debug +-? debug-eval ~db -db +db )else( debug: debug-does> assert( 
+assert3( assert2( assert1( assert0( ) assertn assert-canary assert) 
+(end-assert) assert-level .hm .name? color-prompt prompt-text prompt-ok #loc 
+edit-file-cmd editor-cmd vi-l:c emacs-l:c kate-l:c view' (view') rec'@ rec'[] 
+type-prefix view-vi view-emacs esc'"type esc'type -ltrace +ltrace line-tracer 
+~~Value ~~Variable watch-comp: watch-does> replace-word >prim-code >colon-body 
+?warn-dp warning-recs shadow-num-warning shadow-warning !!FIXME!! FIXME# WTF?? 
+dbg-shell ??? ???-loop ~~1bt ~~bt once ]nocov nocov[ cov-stack coverage? ~~ 
+.debugline-directed (.debugline) .debugline printdebugdata #line 
+save-source-filename# .sourcepos compile-sourcepos .sourceview .sourcepos3 
+view>char decode-view decode-pos loadfilename#>str prepend~~ expand~~ short~~ 
+plain~~ source-pos# source-line# prepend-file expand-file shorten-file 
+lastfile filename>display *terminal*# utf-8-cold set-encoding-utf-8 utf-8 
+x-maxlines x-maxlines+rest x-lines x-lines+rest +x-lines+rest xc-hw+ u8width 
+xc-width+ xc-width -u8trailing-garbage u8addrlen u8!+? u8@ u8\string- 
++u8/string u8emit u8key check-xy u8<< u8>> u8!+ u8@+ u8len max-single-byte 
+UTF-8-err vt100-page vt100-at-deltaxy vt100-at-xy ESC[ ;pn pn #esc[ #n; #n 
+WordInfo InfoTable Com-color Str-color Ali-color Use-color Col-color Def-color 
+Doe-color Val-color Var-color Con-color Pri-color prim? xtprim? colon? 
+defered? does? user? value? con? var? .recs prim>name >head threaded>name 
+xt>name >name look PrimStart threaded>xt xt= [f:d [f:h [f:l [d:d [d:h [d:l 
+[n:d [n:h [n:l [f: [d: [n: [*:: :d :h :l (;]*) (;]l) (;*]) ;> <{: [{: 
+end-dclosure closure> closure-:-hook (closure-;]) wrap-closure dummy-local, 
+pop-locals push-locals extra-locals lp> >lp allocd alloch >addr endref, end-d 
+locals-lists locals-sizes opt-u/mod opt-/modf opt-umod opt-modf opt-u/ opt-/f 
+lit/, /f-stage1m ctz pow2? u/-stage1m staged/-size staged/-divisor 
 staged/-inverse-hi staged/-shift staged/-inverse dffield: sffield: ffield: 
 2field: field: xfield: lfield: wfield: cfield: end-structure begin-structure 
 extend-structure standard:field +field sizeof [sizeof] (sizeof) standard+field 
