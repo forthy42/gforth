@@ -121,7 +121,7 @@ parts:
     after:
        - prepare
        - desktop-glib-only
-    source: http://www.complang.tuwien.ac.at/forth/gforth/Snapshots/$GFORTH/gforth-$GFORTH.tar.xz
+    source: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/$GFORTH/gforth-$GFORTH.tar.xz
     plugin: autotools
     autotools-configure-parameters:
       - --prefix=/usr

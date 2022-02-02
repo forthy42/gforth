@@ -353,13 +353,13 @@ UNIXLIBS_SRC = unix/opengl.fs unix/opengles.fs unix/opengles3.fs	      \
 	unix/openmax.fs unix/cpu.fs unix/png.fs unix/gpslib.fs unix/gstlib.fs \
 	unix/stb-image.fs unix/stb-image-write.fs
 
-SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i  \
-	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/png16.i	    \
-	unix/soil.i unix/soil2.i unix/x.i unix/xrandr.i unix/ios-gles.i	    \
-	unix/ios-gles3.i unix/freetype_gl.i unix/gdi32.i unix/user32.i	    \
-	unix/wayland.i unix/gps.i unix/vulkan.i unix/harfbuzz.i		    \
-	unix/gobject.i unix/gst.i unix/avcodec.i unix/pulse.i unix/opus.i   \
-	unix/va.i unix/va_glx.i unix/va_drm.i unix/va_x11.i unix/opensles.i \
+SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i    \
+	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/png16.i	      \
+	unix/soil.i unix/soil2.i unix/x.i unix/xrandr.i unix/sdl.i	      \
+	unix/ios-gles.i unix/ios-gles3.i unix/freetype_gl.i unix/gdi32.i      \
+	unix/user32.i unix/wayland.i unix/gps.i unix/vulkan.i unix/harfbuzz.i \
+	unix/gobject.i unix/gst.i unix/avcodec.i unix/pulse.i unix/opus.i     \
+	unix/va.i unix/va_glx.i unix/va_drm.i unix/va_x11.i unix/opensles.i   \
 	unix/spi.i unix/i2c.i
 
 FREETYPE_GL_INCLUDE = freetype-gl/freetype-gl-errdef.h			   \

@@ -1426,6 +1426,11 @@ if test x$has_swig = xyes || test -f $srcdir/unix/xrandr-fsi.c; then
 		   SWIGLIBS="$SWIGLIBS xrandr.fs", ,)
 fi
 
+if test x$has_swig = xyes || test -f $srcdir/unix/sdl-fsi.c; then
+   AC_CHECK_HEADER(SDL2/SDL.h, SWIGMODULES="$SWIGMODULES sdl.fs"
+		   SWIGLIBS="$SWIGLIBS sdl.fs", ,)
+fi
+
 if test "$host_os" == "cygwin"
 then
     if test x$has_swig = xyes || test -f $srcdir/unix/gdi32-fsi.c; then
