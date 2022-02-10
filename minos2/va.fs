@@ -19,7 +19,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require unix/va.fs
-require unix/va-glx.fs
+require unix/va_glx.fs
 
 get-current va also definitions
 
@@ -46,7 +46,7 @@ $100 buffer: va-error$
 : profile? ( profile -- flag )
     >r #1. r> dlshift profile-mask rot and >r and r> or 0<> ;
 
-[: rot execute ;] VAMessageCallback: Constant VAMessageCB
+[: rot execute ;] VAMessageCallback: Constant VaMessageCB
 
 : va-display ( dpy -- )
     { | w^ major w^ minor }
