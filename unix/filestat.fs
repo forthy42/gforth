@@ -51,6 +51,7 @@ c-library filestat
     c-function chown chown s n n -- n ( path len uid git -- r )
     c-function fchown fchown n n n -- n ( fd uid git -- r )
     c-function lchown lchown s n n -- n ( path len uid git -- r )
+    c-function umask umask u -- n ( mask -- oldmask )
 end-c-library
 
 e? os-type s" darwin" string-prefix? [IF]

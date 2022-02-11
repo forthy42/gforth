@@ -60,9 +60,6 @@ c-library libc
     c-function read read n a n -- n ( fd addr u -- u' )
     c-function write write n a n -- n ( fd addr u -- u' )
     c-function close close n -- n ( fd -- r )
-    c-function umask umask u -- n ( mask -- oldmask )
-    c-function chown chown s u u -- n
-    c-function lchown lchown s u u -- n
     c-function setlocale setlocale n s -- a ( category locale len -- locale )
     c-function (getpid) getpid -- n ( -- n ) \ for completion
     c-function (fork) fork -- n ( -- pid_t )
