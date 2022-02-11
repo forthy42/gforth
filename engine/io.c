@@ -406,7 +406,7 @@ void deprep_terminal ()
   int oldmask;
 #endif
 
-  if (!terminal_prepped)
+  if (!terminal_prepped || tty<0)
     return;
 
 /* Added by MdG */

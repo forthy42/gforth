@@ -377,6 +377,8 @@ synonym setstring-color info-color
     setstring$ $@ xins-string  setstring$ $free
     drop 2dup swap write-history
     over edit-update edit-curpos-off true ;
+: xeof' ( max span addr pos1 -- max span addr pos2 flag )
+    third over or 0=  IF  -56 throw  ELSE  (xenter)  THEN ;
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )
     prefix-found cell+ @ ?dup-IF  >r
@@ -473,7 +475,7 @@ Create std-ekeys
     ' false ,        ' false ,        ' false ,        ' false ,
     ' false ,        ' false ,        ' false ,        ' xreformat ,
     ' xhide ,        ' false ,        ' prev-line ,    ' next-line ,
-    ' ?xdel ,        ' xtab-expand ,  ' setsel ,       ' (xenter) ,
+    ' ?xdel ,        ' xtab-expand ,  ' setsel ,       ' xeof' ,
 
 : xchar-edit-ctrl ( max span addr pos1 ekey -- max span addr pos2 flag )
     dup mask-shift# rshift 7 and vt100-modifier !

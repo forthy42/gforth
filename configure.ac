@@ -1427,13 +1427,12 @@ if test x$has_swig = xyes || test -f $srcdir/unix/xrandr-fsi.c; then
 fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/sdl-fsi.c; then
-   AC_CHECK_HEADER(SDL2/SDL.h, SWIGMODULES="$SWIGMODULES sdl.fs"
-		   SWIGLIBS="$SWIGLIBS sdl.fs", ,)
+   AC_CHECK_HEADER(SDL2/SDL.h, SWIGMODULES="$SWIGMODULES SDL.fs"
+		   SWIGLIBS="$SWIGLIBS SDL.fs", ,)
 fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/v4l2-fsi.c; then
-   AC_CHECK_HEADER(linux/v4l2-common.h, SWIGMODULES="$SWIGMODULES v4l2.fs"
-		   SWIGLIBS="$SWIGLIBS v4l2.fs", ,)
+   AC_CHECK_HEADER(linux/v4l2-common.h, SWIGMODULES="$SWIGMODULES v4l2.fs", ,)
 fi
 
 if test "$host_os" == "cygwin"

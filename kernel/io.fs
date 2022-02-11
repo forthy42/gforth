@@ -51,6 +51,7 @@ User out ( -- addr ) \ gforth
 
 #-512 Constant EOK
 #-516 Constant EINTR \ error returned for window change
+#-521 Constant EBADF
 
 : key-file ( fd -- key )
     \G Read one character @i{n} from @i{wfileid}.  This word disables
@@ -60,7 +61,7 @@ User out ( -- addr ) \ gforth
     \G exception is @code{stdin}: Gforth automatically puts it into
     \G non-canonical mode.
     BEGIN  dup (key-file) dup EINTR =  WHILE  drop  REPEAT
-    dup EOK = IF  2drop -1  EXIT  THEN \ eof = -1
+    dup EOK = over EBADF = or  IF  2drop -1  EXIT  THEN \ eof = -1
     dup 0< IF  throw  THEN  nip ;
 
 : (key) ( -- c / ior ) \ gforth

@@ -342,7 +342,9 @@ set-current
     ELSE
 	winch? off  k-winch  EXIT
     THEN
-    dup EOK = IF  drop k-eof  EXIT  THEN
+    dup EOK =
+    [IFDEF] EBADF over EBADF = or [THEN]
+    IF  drop k-eof  EXIT  THEN
     dup #esc =
     if
         drop esc-prefix  exit
