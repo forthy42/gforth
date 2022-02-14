@@ -307,13 +307,13 @@ Defer locals-list!
 Create 2!-table ' 2! , ' 2+! ,
 Create c!-table ' c! , ' c+! ,
 : to-w: ( -- ) -14 throw ;
-to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
+to-opt: !!?addr!! POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
 : to-d: ( -- ) -14 throw ;
-to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
+to-opt: !!?addr!! POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
 : to-c: ( -- ) -14 throw ;
-to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
+to-opt: !!?addr!! POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
 : to-f: ( -- ) -14 throw ;
-to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
+to-opt: !!?addr!! POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
 : defer@-xt: ( -- ) -14 throw ;
 defer@-opt: ( xt -- ) POSTPONE laddr# >body @ lp-offset, postpone @ ;
