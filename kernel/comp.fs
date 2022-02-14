@@ -721,9 +721,9 @@ Create hmtemplate
 
 : value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
-    >body !-table to-!exec ;
+    !!?addr!! >body !-table to-!exec ;
 opt: ( value-xt -- ) \ run-time: ( n -- )
-    drop postpone >body !-table to-!, ;
+    drop !!?addr!! postpone >body !-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.

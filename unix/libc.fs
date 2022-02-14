@@ -53,6 +53,7 @@ c-library libc
 	c-function posix_spawnp posix_spawnp a s a a a a -- n ( *pid path addr actions attrp argv envp -- ret )
     [THEN]
     c-function fdopen fdopen n s -- a ( fd fileattr len -- file )
+    c-function freopen freopen s s a -- a ( path mode file -- file )
     c-function fcntl fcntl n n n -- n ( fd n1 n2 -- ior )
     c-function ioctl ioctl n u a -- n ( fd call arg -- ior )
     c-function ioctl2 ioctl n u a a -- n ( fd call arg1 arg2 -- ior )
