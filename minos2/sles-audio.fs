@@ -20,15 +20,16 @@
 
 require unix/opensles.fs
 require unix/pthread.fs
+require varues.fs
 
 get-current opensles also definitions
 
 debug: sles( \ )
 \ +db sles( \ )
 
-0 Value sles-object
-0 Value sles-engine
-0 Value sles-mix
+0 Varue sles-object
+0 Varue sles-engine
+0 Varue sles-mix
 
 0 Value sles-player
 0 Value sles-playerq
@@ -39,19 +40,19 @@ debug: sles( \ )
 0 Value sles-recorderq
 0 Value sles-record
 
-0 Value sles-mono-player
-0 Value sles-mono-playerq
-0 Value sles-mono-play
-0 Value sles-mono-playvol
+0 Varue sles-mono-player
+0 Varue sles-mono-playerq
+0 Varue sles-mono-play
+0 Varue sles-mono-playvol
 
 0 Value sles-mono-recorder
 0 Value sles-mono-recorderq
 0 Value sles-mono-record
 
-0 Value sles-stereo-player
-0 Value sles-stereo-playerq
-0 Value sles-stereo-play
-0 Value sles-stereo-playvol
+0 Varue sles-stereo-player
+0 Varue sles-stereo-playerq
+0 Varue sles-stereo-play
+0 Varue sles-stereo-playvol
 
 0 Value sles-stereo-recorder
 0 Value sles-stereo-recorderq

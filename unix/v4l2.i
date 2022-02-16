@@ -16,6 +16,7 @@ extern struct _IO_FILE *stderr;
 
 #define SWIG_FORTH_OPTIONS "no-pre-postfix"
 #define __inline__
+#define __user
 #define __attribute__(x)
 
 %include <linux/videodev2.h>
