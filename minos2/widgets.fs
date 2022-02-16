@@ -116,7 +116,8 @@ Variable config-file$  s" ~/.config/minos2rc" config-file$ $!
     s" MINOS2_CONF" getenv dup IF  config-file$ $!  ELSE  2drop  THEN
     config-file$ $@ 2dup file-status nip ['] m2c >wordlist swap
     no-file# = IF  write-config  ELSE
-	0 addr config-throw ['] read-config !wrapper
+	config-throw >r  0 to config-throw
+	['] read-config catch  r> to config-throw  throw
     THEN
     m2c:translate$ $@ ['] translators >wordlist find-name-in
     dup 0= IF  drop ['] noop  THEN  is translator ;
@@ -776,7 +777,6 @@ Variable *ins-o
 \ thumb texture
 
 also freetype-gl
-$200 Value thumb-rgba#
 0 Value thumb-rgba
 tex: thumb-tex-rgba
 
@@ -795,8 +795,8 @@ tex: thumb-tex-rgba
 	0 thumb-rgba texture_atlas_t-modified c!
     THEN ;
 
-: init-thumb-atlas ( -- ) $200 to thumb-rgba#
-    thumb-rgba#  dup 4 texture_atlas_new to thumb-rgba
+: init-thumb-atlas ( -- )
+    atlas# dup 4 texture_atlas_new to thumb-rgba
     thumb-tex-rgba current-tex thumb-rgba texture_atlas_t-id l! ;
 
 init-thumb-atlas
@@ -858,23 +858,23 @@ also freetype-gl
     w h ch# 4 stbi_load_from_memory ( memimg-addr )
 \    w h ch# SOIL_LOAD_RGBA SOIL_load_image_from_memory ( memimg-addr )
     w @ h @ ;
-: rgba>style { memimg w h atlas val | ar[ atlas-region ] -- ivec4-addr }
+: rgba>style { memimg w h atlas | ar[ atlas-region ] -- ivec4-addr }
     BEGIN
 	atlas w 1+ h 1+ ar[ texture_atlas_get_region
 	ar[ i.x ar[ i.y -1 -1 d= WHILE
-	    atlas val @ 2* dup >r val !
-	    r> dup texture_atlas_enlarge_texture
+	    atlas dup atlas@wh*2
+	    texture_atlas_enlarge_texture
     REPEAT
     atlas ar[ i.x ar[ i.y ar[ i.w 1- ar[ i.h 1- memimg ar[ i.w 1- 2* 2*
     texture_atlas_set_region
     memimg free throw  ar[ (ar) atlas-region move (ar)
     GL_TEXTURE0 glActiveTexture ;
-: (mem>style) ( addr u atlas val -- ivec4-addr )
-    2>r img>mem 2r> rgba>style ;
+: (mem>style) ( addr u atlas -- ivec4-addr )
+    >r img>mem r> rgba>style ;
 : mem>style ( addr u -- ivec4-addr )
     over >r
     GL_TEXTURE2 glActiveTexture
-    atlas-tex-bgra atlas-bgra addr atlas-bgra# (mem>style)
+    atlas-tex-bgra atlas-bgra (mem>style)
     GL_TEXTURE0 glActiveTexture
     r> free throw ;
 : load-style ( addr u -- ivec4-addr )
@@ -882,7 +882,7 @@ also freetype-gl
 
 : mem>thumb ( addr u -- ivec4-addr )
     GL_TEXTURE1 glActiveTexture
-    thumb-tex-rgba thumb-rgba addr thumb-rgba# (mem>style)
+    thumb-tex-rgba thumb-rgba (mem>style)
     GL_TEXTURE0 glActiveTexture ;
 : $top[] ( $addr[] -- addr u / 0 0 )  $@ + cell- $@ ;
 : load-thumb ( addr u -- w h thumb )
@@ -1385,9 +1385,9 @@ htab-glue is hglue!@
 0 Value maxtexsize#
 0 Value usetexsize#
 : ?texsize ( -- )
-    GL_MAX_TEXTURE_SIZE addr maxtexsize#
-    [ cell 8 = [IF] 1 pad ! pad c@ 0= [IF] ] 4 + [ [THEN] [THEN] ]
-    glGetIntegerv
+    { | result[ 4 ] }
+    GL_MAX_TEXTURE_SIZE result[ glGetIntegerv
+    result[ l@ to maxtexsize#
     maxtexsize# dpy-w @ dpy-h @ max 2* 2* min to usetexsize# ;
 
 ?texsize

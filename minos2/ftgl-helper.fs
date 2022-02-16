@@ -35,8 +35,7 @@ also opengl
 
 ctx 0= [IF]  window-init  [THEN]
 
-$200 Value atlas#
-$200 Value atlas-bgra#
+$200 Value atlas# \ initial size of an atlas
 
 0 Value atlas
 0 Value atlas-bgra
@@ -44,8 +43,8 @@ tex: atlas-tex
 tex: atlas-tex-bgra \ for color emojis, actually flipped to RGBA
 
 : init-atlas
-    atlas#      dup 1 texture_atlas_new to atlas
-    atlas-bgra# dup 4 texture_atlas_new to atlas-bgra
+    atlas# dup 1 texture_atlas_new to atlas
+    atlas# dup 4 texture_atlas_new to atlas-bgra
     atlas-tex      current-tex atlas      texture_atlas_t-id l!
     atlas-tex-bgra current-tex atlas-bgra texture_atlas_t-id l! ;
 
@@ -210,7 +209,7 @@ xy-default
 : glyph+xy ( glyph -- )
     glyph, xy+ ;
 
-: all-glyphs ( -- ) 0e atlas# s>f { f: l# f: r# }
+: all-glyphs ( -- ) 0e atlas texture_atlas_t-width @ s>f { f: l# f: r# }
     i>off >v
     l# l# >xy n> color @ i>c 0e 0e >st v+
     r# l# >xy n> color @ i>c 1e 0e >st v+
@@ -235,13 +234,13 @@ Defer font-select# ( xcaddr -- xcaddr num )
     texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
 	2e +to xy-color -1e to t.i0  THEN ;
 
+: atlas@wh*2 ( atlas -- w h )
+    dup texture_atlas_t-width @ 2*
+    swap texture_atlas_t-height @ 2* ;
+
 : double-atlas ( font -- )
-    dup texture_font_t-atlas @ texture_atlas_t-depth @ 4 = IF
-	atlas-bgra# 2* dup >r to atlas-bgra#
-    ELSE
-	atlas# 2* dup >r to atlas#
-    THEN
-	r> dup texture_font_enlarge_texture
+    dup texture_font_t-atlas @ atlas@wh*2
+    texture_font_enlarge_texture
     atlas-scaletex atlas-bgra-scaletex ;
 
 : glyph@ ( font xc-addr -- glyph )

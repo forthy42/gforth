@@ -136,7 +136,7 @@ s" Data after memory block was modified" exception drop
 s" Can't tick literal" exception drop
 s" Warning treated as error" exception constant warning-error ( -- n )
 s" Can't defer@ from this xt" exception drop
-s" Can't ADDR on locals/uvalues" exception drop
+s" Can't ADDR on this type" exception drop
 s" wrong file type" exception drop
 s" locals stack overflow" exception drop
 s" locals stack underflow" exception drop

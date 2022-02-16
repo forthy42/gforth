@@ -273,12 +273,12 @@ also freetype-gl
 : open-font-ofile ( -- fid ior )
     '.' ofile c$+!
     font-ext$ ':'
-    ofile $@len 0 no-file# {: d: result :} addr result [{: len result^ :}l
-	result^ @ no-file# = IF
+    ofile $@len 0 no-file# {: d^ result :} result [{: len result :}l
+	result @ no-file# = IF
 	    ofile $+! open-ofile dup IF  len ofile $!len  THEN
-	    result^ 2!
+	    result 2!
 	ELSE  2drop  THEN
-    ;] $iter result ;
+    ;] $iter result 2@ ;
 
 : ?font ( addr u -- addr' u' true / false )
     ['] open-font-ofile font-path execute-path-file 0= IF
