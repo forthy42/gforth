@@ -28,3 +28,31 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
 ' varue-to set-to
 
 : Varue  ( n -- ) ['] dummy-varue create-from reveal , ;
+
+synonym &of addr \ for SwiftForth compatibility
+
+\ Locals with addrs
+
+: to-wa: ( -- ) -14 throw ;
+to-opt:  POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
+: to-da: ( -- ) -14 throw ;
+to-opt:  POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
+: to-ca: ( -- ) -14 throw ;
+to-opt:  POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
+: to-fa: ( -- ) -14 throw ;
+to-opt:  POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
+
+also locals-types definitions
+: wa:  w:  ['] to-wa: set-to ;
+: da:  d:  ['] to-wa: set-to ;
+: ca:  c:  ['] to-wa: set-to ;
+: fa:  f:  ['] to-wa: set-to ;
+: xta: xt: ['] to-wa: set-to ;
+
+ca: some-calocal 2drop
+da: some-dalocal 2drop
+fa: some-falocal 2drop
+wa: some-walocal 2drop
+xta: some-xtalocal 2drop
+
+previous definitions

@@ -525,7 +525,9 @@ Variable to-style# 0 to-style# !
 : to-!exec ( table -- )
     0 to-style# !@ dup 2 u< IF  cells + perform  ELSE  2drop  THEN ;
 
-: !!?addr!! ( -- ) to-style# @ -1 = -2056 and throw ;
+: !!?addr!! ( -- ) to-style# @ -1 = IF
+	to-style# off  -2056 throw
+    THEN ;
 
 : (Field)  ['] wordlist-map create-from reveal ;
 
