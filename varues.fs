@@ -58,6 +58,6 @@ xta: some-xtalocal 2drop
 previous definitions
 
 also locals-types
-: default-wa: ['] wa: is default; ;
-: default-w:  ['] w:  is default; ;
+: default-wa: ['] wa: is default: ;
+: default-w:  ['] w:  is default: ;
 previous
