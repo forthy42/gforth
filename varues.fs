@@ -56,3 +56,8 @@ wa: some-walocal 2drop
 xta: some-xtalocal 2drop
 
 previous definitions
+
+also locals-types
+: default-wa: ['] wa: is default; ;
+: default-w:  ['] w:  is default; ;
+previous

@@ -371,6 +371,8 @@ locals-types definitions
     \ compiles a local variable access
     @ lp-offset compile-@local postpone execute ;
 
+Defer default: ' W: is default:
+
 :noname ( c-addr u1 "name" -- a-addr xt ) \ gforth <local>bracket (unnamed)
     W^ drop ['] compile-pushlocal-[ ;
 
@@ -419,7 +421,7 @@ w^ some-waddr 2drop
 	']' parse evaluate
 	r> forth-recognizer >stack
 	[ r> ] Literal
-    ELSE  ['] W:  THEN  nt>rec ;
+    ELSE  ['] default: defer@  THEN  nt>rec ;
 previous
 
 ' new-locals-rec  ' locals-types >wordlist 2 rec-sequence: new-locals
