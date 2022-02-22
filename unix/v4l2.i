@@ -12,7 +12,7 @@ extern struct _IO_FILE *stderr;
 #endif
 %}
 
-// prep: sed -e '0,/_stop;/{s/_raw;/_raw_enc;/}' -e '/_stop;/,/v4l2_format_fmt/{s/_raw;/_raw_dec;/}' -e '/begin-structure v4l2_encoder_cmd/,/end-structure/{s/sizeof( _raw )/sizeof( _raw_enc )/}' -e '/begin-structure v4l2_decoder_cmd/,/end-structure/{s/sizeof( _raw )/sizeof( _raw_dec )/}'
+// prep: sed -e '0,/_stop;/{s/_raw;/_raw_enc;/}' -e '/_stop;/,/v4l2_format_fmt/{s/_raw;/_raw_dec;/}' -e '/begin-structure v4l2_encoder_cmd/,/end-structure/{s/sizeof( _raw )/sizeof( _raw_enc )/}' -e '/begin-structure v4l2_decoder_cmd/,/end-structure/{s/sizeof( _raw )/sizeof( _raw_dec )/}' -e 's/c-function/\\\\ c-function/g'
 
 #define SWIG_FORTH_OPTIONS "no-pre-postfix"
 #define __inline__
