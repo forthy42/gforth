@@ -41,7 +41,7 @@ AMD64:
  0.321 0.479  0.219 0.594 0.229 2012-10-31; AMD E-350 1.6GHz; gcc version 4.7.1 20120723 (SUSE Linux)
  0.284 0.436  0.204 0.516       2012-01-11; AMD E-450 1650MHz; gcc-4.6.1 (Ubuntu/Linaro 4.6.1-9ubuntu3)
 
-ARM64
+ARM64:
  sieve bubble matrix fib   fft  release; CPU; gcc
  0.152 0.176  0.084 0.164 0.080 20210422; Odroid N2+ (2400MHz Cortex-A73), gcc-9.3.0
  0.180 0.224  0.108 0.208 0.100 20190124; Odroid N2 (1800MHz Cortex-A73), gcc-6.3.0
@@ -52,6 +52,11 @@ ARM64
  0.283 0.404  0.169 0.330 0.179 2014-10-31; Apple A7 1.3GHz, clang 3.5 (iOS 8.1.1)
  0.390 0.490  0.270 0.520 0.260 2016-04-27; Odroid C2 Cortex A53 1536MHz, gcc 5.3.1 (Ubuntu Mate 16.04 LTS)
  0.330 0.370  0.250 0.480 0.290 2016-05-27 (3 registers);  Odroid C2 Cortex A53 2.0GHz, gcc 5.3.1 (Ubuntu 16.04)
+
+RV64GC:
+ sieve bubble matrix fib   fft  release; CPU; gcc
+ 0.597 0.796  0.633 0.798 0.622 20220217 (1 reg); 1GHz U74 (JH7100, Visionfive V1); gcc-10.3.1 (Fedora 33)
+ 0.519 0.555  0.483 0.797 0.729 20220226 (3 regs); 1GHz U74 (JH7100, Visionfive V1); gcc-10.3.1 (Fedora 33)
 
 ARM Cortex A73, 32 bit:
  0.208  0.240  0.104 0.268 0.096 2021-04-22; Odroid N2+ (2400MHz Cortex-A73), gcc-4.9.2
