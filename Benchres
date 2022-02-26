@@ -55,7 +55,8 @@ ARM64:
 
 RV64GC:
  sieve bubble matrix fib   fft  release; CPU; gcc
- 0.597 0.796  0.633 0.798 0.622 20220217; 1GHz U74 (JH7100, Visionfive V1); gcc-10.3.1 (Fedora 33)
+ 0.597 0.796  0.633 0.798 0.622 20220217 (1 reg); 1GHz U74 (JH7100, Visionfive V1); gcc-10.3.1 (Fedora 33)
+ 0.519 0.555  0.483 0.797 0.729 20220226 (3 regs); 1GHz U74 (JH7100, Visionfive V1); gcc-10.3.1 (Fedora 33)
 
 ARM Cortex A73, 32 bit:
  0.208  0.240  0.104 0.268 0.096 2021-04-22; Odroid N2+ (2400MHz Cortex-A73), gcc-4.9.2
