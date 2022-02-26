@@ -2168,12 +2168,12 @@ enum {
 static void print_diag()
 {
 
-#if !defined(HAVE_GETRUSAGE) || !defined(HAS_ATOMIC)
+#if !defined(HAVE_GETRUSAGE) || (!defined(HAS_ATOMIC) && !defined(HAS_SYNC))
   fprintf(stderr, "*** missing functionality ***\n"
 #ifndef HAVE_GETRUSAGE
 	  "    no getrusage -> CPUTIME broken\n"
 #endif
-#ifndef HAS_ATOMIC
+#if !defined(HAS_ATOMIC) && !defined(HAS_SYNC)
 	  "    no atomic operations -> !@ and co. broken\n"
 #endif
 	  );

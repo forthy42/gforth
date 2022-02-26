@@ -1284,7 +1284,8 @@ AX_GCC_BUILTIN(__builtin_clzl)
 AX_GCC_BUILTIN(__builtin_bswap16)
 AX_GCC_BUILTIN(__builtin_bswap32)
 AX_GCC_BUILTIN(__builtin_bswap64)
-AC_MSG_CHECKING([for atomic builtins (__sync_...)])
+
+AC_MSG_CHECKING([for legacy atomic builtins (__sync_...)])
 AC_LINK_IFELSE([AC_LANG_SOURCE([[
 void test(char* addr, long val, long val2) {
    __sync_lock_test_and_set(addr, val);
@@ -1293,7 +1294,21 @@ void test(char* addr, long val, long val2) {
    __sync_synchronize();
 }
 int main(){char a[1]; long l=0; test(a, l, l); return 0; }
-]])],[ATOMIC=true; AC_DEFINE(HAS_ATOMIC,,[Define if has atomic operations])],[ATOMIC=false])
+]])],[SYNC=true; AC_DEFINE(HAS_SYNC,,[Define if has legacy atomic operations])],[SYNC=false])
+AC_MSG_RESULT($SYNC)
+AC_SUBST(SYNC)
+
+AC_MSG_CHECKING([for atomic builtins (__atomic_...)])
+AC_LINK_IFELSE([AC_LANG_SOURCE([[
+void test(char* addr, long val, long val2) {
+   __atomic_exchange_n(addr, val, __ATOMIC_SEQ_CST);
+   __atomic_fetch_add(addr, val, __ATOMIC_SEQ_CST);
+   __atomic_compare_exchange_n(addr, &val, val2, 0,
+       __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+   __atomic_thread_fence(__ATOMIC_RELEASE);
+}
+int main(){char a[1]; long l=0; test(a, l, l); return 0; }
+]])],[ATOMIC=true; AC_DEFINE(HAS_ATOMIC,,[Define if has new atomic operations])],[ATOMIC=false])
 AC_MSG_RESULT($ATOMIC)
 AC_SUBST(ATOMIC)
 
