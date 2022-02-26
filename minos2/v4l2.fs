@@ -128,6 +128,8 @@ v4l2_query_ext_ctrl buffer: query-buf
 v4l2_capability     buffer: cap-buf
 v4l2_fmtdesc        buffer: fmtdesc-buf
 v4l2_format         buffer: fmt-buf
+v4l2_frmsizeenum    buffer: frmsize-buf
+v4l2_frmivalenum    buffer: frmival-buf
 
 : query ( -- buffer )
     video-fd fileno VIDIOC_QUERY_EXT_CTRL query-buf ioctl ?ior ;
@@ -149,6 +151,57 @@ v4l2_format         buffer: fmt-buf
     fmtdesc-buf v4l2_fmtdesc-type l!
     fmtdesc-buf v4l2_fmtdesc-index l!
     video-fd fileno VIDIOC_ENUM_FMT fmtdesc-buf ioctl ?ior ;
+: enum-framesize ( index pxfmt -- )
+    frmsize-buf v4l2_frmsizeenum-pixel_format l!
+    frmsize-buf v4l2_frmsizeenum-index l!
+    video-fd fileno VIDIOC_ENUM_FRAMESIZES frmsize-buf ioctl ?ior ;
+: enum-frameival ( index pxfmt w h -- )
+    frmival-buf v4l2_frmivalenum-height l!
+    frmival-buf v4l2_frmivalenum-width l!
+    frmival-buf v4l2_frmivalenum-pixel_format l!
+    frmival-buf v4l2_frmivalenum-index l!
+    video-fd fileno VIDIOC_ENUM_FRAMEINTERVALS frmival-buf ioctl ?ior ;
+: .frame-ival ( -- )
+    case
+	frmival-buf v4l2_frmivalenum-type l@
+	V4L2_FRMIVAL_TYPE_DISCRETE of
+	    frmival-buf v4l2_frmivalenum-discrete
+	    dup v4l2_fract-numerator l@ 0 .r ." /"
+	    v4l2_fract-denominator l@ 0 .r ." s "
+	endof
+	V4L2_FRMIVAL_TYPE_CONTINUOUS of endof
+	V4L2_FRMIVAL_TYPE_STEPWISE of endof
+    endcase ;
+: .framesize ( -- )
+    ." index: " frmsize-buf v4l2_frmsizeenum-index l@ .
+    ." type: " frmsize-buf v4l2_frmsizeenum-type l@ dup .
+    case
+	V4L2_FRMSIZE_TYPE_DISCRETE of
+	    frmsize-buf v4l2_frmsizeenum-discrete v4l2_frmsize_discrete-width l@
+	    dup 0 .r ." /"
+	    frmsize-buf v4l2_frmsizeenum-discrete v4l2_frmsize_discrete-height l@ dup 0 .r space
+	    frmsize-buf v4l2_frmsizeenum-pixel_format l@ { w h pxfmt }
+	    10 0 DO
+		I pxfmt w h ['] enum-frameival catch IF
+		    2drop 2drop LEAVE
+		ELSE  .frame-ival  THEN
+	    LOOP cr
+	endof
+	V4L2_FRMSIZE_TYPE_STEPWISE of
+	    ." ["
+	    frmsize-buf v4l2_frmsizeenum-stepwise v4l2_frmsize_stepwise-min_width l@ 0 .r ." -"
+	    frmsize-buf v4l2_frmsizeenum-stepwise v4l2_frmsize_stepwise-max_width l@ 0 .r ." :"
+	    frmsize-buf v4l2_frmsizeenum-stepwise v4l2_frmsize_stepwise-step_width l@ 0 .r ." /"
+	    frmsize-buf v4l2_frmsizeenum-stepwise v4l2_frmsize_stepwise-min_height l@ 0 .r ." -"
+	    frmsize-buf v4l2_frmsizeenum-stepwise v4l2_frmsize_stepwise-max_height l@ 0 .r ." :"
+	    frmsize-buf v4l2_frmsizeenum-stepwise v4l2_frmsize_stepwise-step_height l@ 0 .r ." ]"
+	endof
+    endcase ;
+: enum-framesizes { pxfmt -- }
+    100 0 DO
+	I pxfmt ['] enum-framesize catch IF  2drop  LEAVE
+	ELSE  .framesize  THEN
+    LOOP ;
 : get-fmt ( type -- )
     fmt-buf v4l2_format-type l!
     video-fd fileno VIDIOC_G_FMT fmt-buf ioctl ?ior ;
@@ -159,6 +212,7 @@ v4l2_format         buffer: fmt-buf
 	    ." desc:  " fmtdesc-buf v4l2_fmtdesc-description .cstring cr
 	    ." flags: " fmtdesc-buf v4l2_fmtdesc-flags l@ hex. cr
 	    ." pxl:   " fmtdesc-buf v4l2_fmtdesc-pixelformat 4 type cr
+	    fmtdesc-buf v4l2_fmtdesc-pixelformat l@ enum-framesizes
 	THEN
     LOOP ;
 : .fmts ( -- )

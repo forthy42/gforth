@@ -51,6 +51,18 @@ install_alpine() {
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
 }
 
+install_fedora() {
+    sudo dnf -y install wget file xz tar
+    sudo dnf -y install freetype-devel
+	@development-tools autoconf automake m4 \
+	libtool libtool-ltdl libtool-ltdl-devel git \
+        coreutils gcc libffi-devel mesa-devel glew-devel libx11-devel \
+        libXrandr-devel glfw-devel harfbuzz-devel gstreamer-devel gst-plugins-base-devel \
+	opus-devel pulseaudio-devel unzip texinfo
+    (cd /tmp && git clone https://github.com/nothings/stb.git \
+    sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
+}
+
 install_linux() {
     install_debian
 }
@@ -79,6 +91,10 @@ install_gforth_debian() {
 
 install_gforth_alpine() {
     sudo apk add gforth
+}
+
+install_gforth_fedora() {
+    sudo dnf -y install gforth
 }
 
 case `uname` in
