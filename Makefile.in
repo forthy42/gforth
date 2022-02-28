@@ -724,7 +724,7 @@ more:	$(ENGINES) $(FORTH_GEN) $(GEN) @libengines@ @build_libcc_named@
 # `realclean' also deletes everything that could be regenerated automatically."
 
 mostlyclean:	FORCE
-		-$(RM) -rf engine/*.s gforth.fi *.fi~ *.fi- kernel/version.fs \
+		-$(RMTREE) engine/*.s gforth.fi *.fi~ *.fi- kernel/version.fs \
 		kernel/authors.fs *TAGS gforth~ \
 		doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
 		doc/gforth.aux doc/gforth.cp doc/gforth.cps \
@@ -736,25 +736,25 @@ mostlyclean:	FORCE
 
 # Just the stuff needed to rebuild the documentation nac03feb1999
 docclean:	FORCE
-		-$(RM) -rf doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
+		-$(RMTREE) doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
 		doc/gforth.aux doc/gforth.cp doc/gforth.cps \
 		doc/gforth.dvi doc/gforth.fn doc/gforth.ky doc/gforth.log \
 		doc/gforth.pg \
 		doc/gforth.toc doc/gforth.tp doc/gforth.vr html
 
 clean:		mostlyclean
-	-$(RM) -rf $(GEN) *.o engine/*.o engine/*.lo engine/*.la \
+	-$(RMTREE) $(GEN) *.o engine/*.o engine/*.lo engine/*.la \
 	engine/.libs engine/libgforth* libgforth* arch/*/*.o \
 	gforth-itc-noll$(EXT)  engine/gforth-itc-noll$(EXT)  \
 	gforth-ditc-noll$(EXT) engine/gforth-ditc-noll$(EXT) \
 	gforth-prof-noll$(EXT) engine/gforth-prof-noll$(EXT) \
 	engine/prim-s.i $(FORTH_GEN_ENGINE) $(FORTH_GEN_ENGINE_FAST)
 	for i in gforth gforth-fast; do for j in $(OPTS); do rm -f engine/$$i$${j}$(EXT) $$i$${j}$(EXT); done; done
-	-$(RM) -rf $(buildccdir)
+	-$(RMTREE) $(buildccdir)
 	(cd unix; $(MAKE) clean)
 
 distclean:	clean
-		-$(RM) -rf config.cache config.log config.status	\
+		-$(RMTREE) config.cache config.log config.status	\
 		engine/config.h engine/gforth.h Makefile Makedist	\
 		engine/Makefile stamp-h engine/stamp-h doc/version.texi	\
 		gforthmi vmgen preforth $(FORTH_GEN0) $(FORTH_GEN_FAST)	\
@@ -763,16 +763,16 @@ distclean:	clean
 
 #realclean is useless, but dangerous, so it's commented out
 realclean:	distclean
-		-$(RM) -rf $(GEN_PRECIOUS) `cat .cvsignore`
+		-$(RMTREE) $(GEN_PRECIOUS) `cat .cvsignore`
 
 kernel-clean:
-		-$(RM) -rf $(KERNLS) $(BKERNLS)
+		-$(RMTREE) $(KERNLS) $(BKERNLS)
 
 fresh: kernel-clean all
 
 #mostlyclean, but also remove some of the stuff that is distributed
 virtualclean:	mostlyclean
-		-$(RM) -rf gforth.fns gforth.texi gforth.ps gforth.info* \
+		-$(RMTREE) gforth.fns gforth.texi gforth.ps gforth.info* \
 		gforth-$(VERSION).tar.gz config.cache *~ */*~
 
 maintainer-clean: realclean
@@ -965,10 +965,11 @@ installdirs-indep:
 #to uninstall version foo, type `make uninstall VERSION=foo'
 uninstall:	FORCE
 		$(NORMAL_UNINSTALL)
-		-$(RM) -rf $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(includedir)/gforth/$(VERSION)/$(machine)
+		-$(RMTREE) $(libdir)/gforth/$(VERSION) $(datadir)/gforth/$(VERSION) $(includedir)/gforth/$(VERSION)/$(machine)
 		-for i in "$(EXT)" -$(VERSION)$(EXT) -$(machine)$(EXT) -$(VERSION)-$(machine)$(EXT); do $(RM) $(bindir)/gforth$$i $(bindir)/gforth-fast$$i $(bindir)/gforth-itc$$i $(bindir)/gforth-ditc$$i $(bindir)/gforthmi$$i ; done
 		-$(RM) $(bindir)/vmgen-$(VERSION)
-		@echo "To remove Gforth completely, type\n$(RM) -rf $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth $(bindir)/vmgen"
+		-$(RMTREE) $(incdir)/gforth/$(VERSION)/$(machine)
+		@echo "To remove Gforth completely, type\n$(RMTREE) $(man1dir)/gforth.1 $(infodir)/gforth.info* $(datadir)/gforth $(libdir)/gforth $(bindir)/vmgen"
 
 # Extra dependency for libraries that use libc
 $(buildccdir)/libgfmmap.la: $(buildccdir)/libgflibc.la
