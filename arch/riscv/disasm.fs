@@ -118,6 +118,8 @@ disassembler also definitions
     r> r> r> or or or ;
 
 : c-addi ( x -- ) .rd ., .rd ., imm-1s 0 .r ;
+: c-andi ( x -- ) .rd' ., .rd' ., imm-1s 0 .r ;
+: c-and ( x -- ) .rd' ., .rs1' ., .rd' drop ;
 : c-li ( x -- ) .rd ., imm-1s 0 .r ;
 : c-lui ( x -- ) .rd ., imm-1s 12 lshift 0 .r ;
 : c-addi16 ( x -- ) .rd ., imm-1s $3F and
@@ -126,6 +128,9 @@ disassembler also definitions
     dup 1 and 6 lshift r> or >r 2/
     dup 1 and 4 lshift r> or >r 6 rshift
     1 and negate 9 lshift r> or 0 .r ;
+: c-j ( addr x -- addr ) offset over + 0 .r ;
+: c-beq ( addr x -- addr )
+    .rd' ., offset' over + 0 .r ;
 
 \ different format outputs
 
@@ -154,6 +159,16 @@ $2001 $E003 inst, c-addi addiw
 $4001 $E003 inst, c-li li
 $6101 $EF83 inst, c-addi16 add16sp
 $6001 $E003 inst, c-lui lui
+$8801 $EC03 inst, c-andi andi
+$8C01 $FC63 inst, c-and sub
+$8C21 $FC63 inst, c-and xor
+$8C41 $FC63 inst, c-and or
+$8C61 $FC63 inst, c-and and
+$9C01 $FC63 inst, c-and subw
+$9C21 $FC63 inst, c-and addw
+$A001 $E003 inst, c-j j
+$C001 $E003 inst, c-beq beqz
+$E001 $E003 inst, c-beq bnez
 $0000 $0000 inst, hex.4 -/-
 
 Create inst-table32
