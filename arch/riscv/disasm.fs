@@ -73,6 +73,7 @@ disassembler also definitions
 : imm-1 ( x -- u ) dup 2 rshift $1F and swap 12 5 - rshift $20 and or ;
 : imm-1s ( x -- n ) imm-1 dup $20 and negate or ;
 : imm-2 ( x -- u ) dup 5 rshift 3 and swap 8 rshift $1C and or 2* ;
+: imm-3 ( x -- u ) dup 7 rshift $3F and ;
 : imm-size ( imm size -- )
     -1 swap lshift >r dup r@ invert and 6 lshift or r> and ;
 : offset ( x -- )  2 rshift
@@ -107,6 +108,9 @@ disassembler also definitions
 : .rd ( x -- x )   dup  7 rshift .reg ;
 : .rs1 ( x -- x )  dup 15 rshift .reg ;
 : .rs2 ( x -- x )  dup 20 rshift .reg ;
+: .rfd ( x -- x )   dup  7 rshift .freg ;
+: .rfs1 ( x -- x )  dup 15 rshift .freg ;
+: .rfs2 ( x -- x )  dup 20 rshift .freg ;
 : imm-i ( x -- x imm ) dup l>s 20 arshift ;
 : imm-s ( x -- x imm ) dup l>s dup 20 arshift -$20 and swap 7 rshift $1F and or ;
 : imm-u ( x -- x imm ) dup l>s -$1000 and ;
@@ -118,7 +122,9 @@ disassembler also definitions
     r> r> r> or or or ;
 
 : c-addi ( x -- ) .rd ., .rd ., imm-1s 0 .r ;
+: c-sli ( x -- ) .rd ., .rd ., imm-1 0 .r ;
 : c-andi ( x -- ) .rd' ., .rd' ., imm-1s 0 .r ;
+: c-sri ( x -- ) .rd' ., .rd' ., imm-1 0 .r ;
 : c-and ( x -- ) .rd' ., .rs1' ., .rd' drop ;
 : c-li ( x -- ) .rd ., imm-1s 0 .r ;
 : c-lui ( x -- ) .rd ., imm-1s 12 lshift 0 .r ;
@@ -131,6 +137,27 @@ disassembler also definitions
 : c-j ( addr x -- addr ) offset over + 0 .r ;
 : c-beq ( addr x -- addr )
     .rd' ., offset' over + 0 .r ;
+: c-ldsp ( x -- )
+    .rd ., imm-1 3 imm-size 0 .r .( 2 .reg .) drop ;
+: c-lwsp ( x -- )
+    .rd ., imm-1 2 imm-size 0 .r .( 2 .reg .) drop ;
+: c-fldsp ( x -- )
+    .rfd ., imm-1 3 imm-size 0 .r .( 2 .reg .) drop ;
+: c-flwsp ( x -- )
+    .rfd ., imm-1 2 imm-size 0 .r .( 2 .reg .) drop ;
+
+: c-sdsp ( x -- )
+    imm-1 3 imm-size 0 .r .( 2 .reg .) ., .rs0 drop ;
+: c-swsp ( x -- )
+    imm-1 2 imm-size 0 .r .( 2 .reg .) ., .rs0 drop ;
+: c-fsdsp ( x -- )
+    imm-1 3 imm-size 0 .r .( 2 .reg .) ., .rs0 drop ;
+: c-fswsp ( x -- )
+    imm-1 2 imm-size 0 .r .( 2 .reg .) ., .rs0 drop ;
+
+: c-jr ( x -- ) .rd drop ;
+: c-mv ( x -- ) .rd ., .rs0 drop ;
+: c-add ( x -- ) .rd ., .rd ., .rs0 drop ;
 
 \ different format outputs
 
@@ -153,12 +180,15 @@ $6000 $E003 inst, c-ldd ld
 $A000 $E003 inst, c-fstd fsd
 $C000 $E003 inst, c-stw sw
 $E000 $E003 inst, c-std sd
+
 $0001 $EF83 inst, drop nop
 $0001 $E003 inst, c-addi addi
 $2001 $E003 inst, c-addi addiw
 $4001 $E003 inst, c-li li
 $6101 $EF83 inst, c-addi16 add16sp
 $6001 $E003 inst, c-lui lui
+$8001 $EC03 inst, c-sri srli
+$8401 $EC03 inst, c-sri srai
 $8801 $EC03 inst, c-andi andi
 $8C01 $FC63 inst, c-and sub
 $8C21 $FC63 inst, c-and xor
@@ -169,6 +199,19 @@ $9C21 $FC63 inst, c-and addw
 $A001 $E003 inst, c-j j
 $C001 $E003 inst, c-beq beqz
 $E001 $E003 inst, c-beq bnez
+
+$0002 $E003 inst, c-sli slli
+$2002 $E003 inst, c-fldsp fldsp
+$4002 $E003 inst, c-lwsp lwsp
+$6002 $E003 inst, c-ldsp ldsp
+$8002 $F07F inst, c-jr jr
+$8002 $F003 inst, c-mv mv
+$9002 $FFFF inst, drop ebreak
+$9002 $F07F inst, c-jr jalr
+$9002 $F003 inst, c-add add
+$A002 $E003 inst, c-fsdsp fsdsp
+$C002 $E003 inst, c-swsp swsp
+$E002 $E003 inst, c-sdsp sdsp
 $0000 $0000 inst, hex.4 -/-
 
 Create inst-table32
