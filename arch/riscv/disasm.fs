@@ -112,13 +112,16 @@ disassembler also definitions
 : .rfs1 ( x -- x )  dup 15 rshift .freg ;
 : .rfs2 ( x -- x )  dup 20 rshift .freg ;
 : imm-i ( x -- x imm ) dup l>s 20 arshift ;
-: imm-s ( x -- x imm ) dup l>s dup 20 arshift -$20 and swap 7 rshift $1F and or ;
+: imm-s ( x -- x imm ) dup l>s dup 20 arshift -$20 and
+    swap 7 rshift $1F and or ;
+: imm-b ( x -- x imm ) imm-s
+    dup 1 and 11 lshift >r -2 and $800 invert and r> or ;
 : imm-u ( x -- x imm ) dup l>s -$1000 and ;
-: imm-b ( x -- x imm )  imm-s
+: imm-j ( x -- x imm )  imm-u
     dup $000FF000 and >r
     dup $00100000 and 9 rshift >r
     dup $7FE00000 and 20 rshift >r
-    -$8000000     and
+    12 arshift -$80000 and
     r> r> r> or or or ;
 
 : c-addi ( x -- ) .rd ., .rd ., imm-1s 0 .r ;
@@ -162,12 +165,21 @@ disassembler also definitions
 \ different format outputs
 
 : r-type ( x -- ) .rd ., .rs1 ., .rs2 drop ;
-: i-type ( x -- ) ;
+: sh-type ( x -- ) .rd ., .rs1 ., .$ 20 rshift $3F and 0 .r ;
+: i-type ( x -- ) .rd ., .rs1 ., $. imm-i 0 .r drop ;
 : l-type ( x -- ) .rd ., .$ imm-i 0 .r .( .rs1 .) drop ;
-: s-type ( x -- ) ;
-: b-type ( x -- ) ;
-: u-type ( x -- ) ;
-: j-type ( x -- ) ;
+: s-type ( x -- ) .rs2 ., .$ imm-s 0 .r .( .rs1 .) drop ;
+: b-type ( x -- ) .rs1 ., .rs2 ., .$ imm-b nip over + 0 .r ;
+: u-type ( x -- ) .rd ., .$ imm-u 0 .r drop ;
+: u-type-pc ( addr x -- addr ) .rd ., .$ imm-u nip over + 0 .r ;
+: j-type ( addr x -- addr ) .rd ., .$ imm-j nip over + 0 .r ;
+
+: .fence ( n -- )
+    $F and s" iorw" bounds DO
+	dup 8 and IF  I c@ emit  THEN  2*
+    LOOP  drop ;
+: fence-type ( x -- )
+    dup 24 rshift .fence ., dup 20 rshift .fence drop ; 
 
 : inst, ( match mask "operation" "name" -- )
     , , ' , parse-name string, align ;
@@ -215,13 +227,57 @@ $E002 $E003 inst, c-sdsp sdsp
 $0000 $0000 inst, hex.4 -/-
 
 Create inst-table32
-$00000003 $0000703F inst, l-type lb
-$00001003 $0000703F inst, l-type lh
-$00002003 $0000703F inst, l-type lw
-$00003003 $0000703F inst, l-type ld
-$00004003 $0000703F inst, l-type lbu
-$00005003 $0000703F inst, l-type lhu
-$00006003 $0000703F inst, l-type lwu
+$00000037 $0000007F inst, u-type lui
+$00000017 $0000007F inst, u-type-pc auipc
+$0000006F $0000007F inst, j-type jal
+$00000067 $0000707F inst, l-type jalr
+$00000063 $0000707F inst, b-type beq
+$00001063 $0000707F inst, b-type bne
+$00004063 $0000707F inst, b-type blt
+$00005063 $0000707F inst, b-type bge
+$00006063 $0000707F inst, b-type bltu
+$00007063 $0000707F inst, b-type bgeu
+$00000003 $0000707F inst, l-type lb
+$00001003 $0000707F inst, l-type lh
+$00002003 $0000707F inst, l-type lw
+$00003003 $0000707F inst, l-type ld
+$00004003 $0000707F inst, l-type lbu
+$00005003 $0000707F inst, l-type lhu
+$00006003 $0000707F inst, l-type lwu
+$00000023 $0000707F inst, s-type sb
+$00001023 $0000707F inst, s-type sh
+$00002023 $0000707F inst, s-type sw
+$00003023 $0000707F inst, s-type sd
+$00000013 $0000707F inst, i-type addi
+$00002013 $0000707F inst, i-type slti
+$00003013 $0000707F inst, i-type sltiu
+$00004013 $0000707F inst, i-type xori
+$00006013 $0000707F inst, i-type ori
+$00007013 $0000707F inst, i-type andi
+$00001013 $FC00707F inst, sh-type slli
+$00005013 $FC00707F inst, sh-type srli
+$40005013 $FC00707F inst, sh-type srai
+$0000101B $FC00707F inst, sh-type slliw
+$0000501B $FC00707F inst, sh-type srliw
+$4000501B $FC00707F inst, sh-type sraiw
+$00000033 $FE00707F inst, r-type add
+$40000033 $FE00707F inst, r-type sub
+$00001033 $FE00707F inst, r-type sll
+$00002033 $FE00707F inst, r-type slt
+$00003033 $FE00707F inst, r-type sltu
+$00004033 $FE00707F inst, r-type xor
+$00005033 $FE00707F inst, r-type srl
+$40005033 $FE00707F inst, r-type sra
+$00006033 $FE00707F inst, r-type or
+$00007033 $FE00707F inst, r-type and
+$0000003B $FE00707F inst, r-type addw
+$4000003B $FE00707F inst, r-type subw
+$0000103B $FE00707F inst, r-type sllw
+$0000503B $FE00707F inst, r-type srlw
+$4000503B $FE00707F inst, r-type sraw
+$0000000F $0000707F inst, fence-type fence
+$00000073 $FFFFFFFF inst, drop ecall
+$00000073 $FFFFFFFF inst, drop ebreak
 $00000000 $00000000 inst, hex.8 -/-
 
 : .inst ( inst table -- ) swap >r
