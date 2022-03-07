@@ -67,6 +67,7 @@ disassembler also definitions
 \ print registers from instructions, 16 bit ops
 
 : .rs0 ( x -- )  dup 2 rshift .reg ;
+: .rfs0 ( x -- )  dup 2 rshift .freg ;
 : .rs1' ( x -- ) dup 7 rshift 7 and 8 + .reg ;
 : .rd' ( x -- )  dup 2 rshift 7 and 8 + .reg ;
 : .rfd' ( x -- )  dup 2 rshift 7 and 8 + .freg ;
@@ -99,9 +100,6 @@ disassembler also definitions
 : c-ldw ( x -- ) .rd' ., .$ dup imm-2 2 imm-size 0 .r .( .rs1' .) drop ;
 : c-ldd ( x -- ) .rd' ., .$ dup imm-2 3 imm-size 0 .r .( .rs1' .) drop ;
 : c-fldd ( x -- ) .rfd' ., .$ dup imm-2 3 imm-size 0 .r .( .rs1' .) drop ;
-: c-stw ( x -- ) .$ dup imm-2 2 imm-size 0 .r .( .rs1' .) ., .rd' drop ;
-: c-std ( x -- ) .$ dup imm-2 3 imm-size 0 .r .( .rs1' .) ., .rd' drop ;
-: c-fstd ( x -- ) .$ dup imm-2 3 imm-size 0 .r .( .rs1' .) ., .rfd' drop ;
 
 \ print registers from instructions, 32 bit ops
 
@@ -111,6 +109,7 @@ disassembler also definitions
 : .rfd ( x -- x )   dup  7 rshift .freg ;
 : .rfs1 ( x -- x )  dup 15 rshift .freg ;
 : .rfs2 ( x -- x )  dup 20 rshift .freg ;
+: .rfs3 ( x -- x )  dup 27 rshift .freg ;
 : imm-i ( x -- x imm ) dup l>s 20 arshift ;
 : imm-s ( x -- x imm ) dup l>s dup 20 arshift -$20 and
     swap 7 rshift $1F and or ;
@@ -141,22 +140,22 @@ disassembler also definitions
 : c-beq ( addr x -- addr )
     .rd' ., offset' over + 0 .r ;
 : c-ldsp ( x -- )
-    .rd ., imm-1 3 imm-size 0 .r .( 2 .reg .) drop ;
+    .rd ., imm-1 3 imm-size 0 .r .( 2 .reg .) ;
 : c-lwsp ( x -- )
-    .rd ., imm-1 2 imm-size 0 .r .( 2 .reg .) drop ;
+    .rd ., imm-1 2 imm-size 0 .r .( 2 .reg .) ;
 : c-fldsp ( x -- )
-    .rfd ., imm-1 3 imm-size 0 .r .( 2 .reg .) drop ;
+    .rfd ., imm-1 3 imm-size 0 .r .( 2 .reg .) ;
 : c-flwsp ( x -- )
-    .rfd ., imm-1 2 imm-size 0 .r .( 2 .reg .) drop ;
+    .rfd ., imm-1 2 imm-size 0 .r .( 2 .reg .) ;
 
 : c-sdsp ( x -- )
-    imm-1 3 imm-size 0 .r .( 2 .reg .) ., .rs0 drop ;
+    .rs0 ., .$ imm-1 3 imm-size 0 .r .( 2 .reg .) ;
 : c-swsp ( x -- )
-    imm-1 2 imm-size 0 .r .( 2 .reg .) ., .rs0 drop ;
+    .rs0 ., .$ imm-1 2 imm-size 0 .r .( 2 .reg .) ;
 : c-fsdsp ( x -- )
-    imm-1 3 imm-size 0 .r .( 2 .reg .) ., .rs0 drop ;
+    .rfs0 ., .$ imm-1 3 imm-size 0 .r .( 2 .reg .) ;
 : c-fswsp ( x -- )
-    imm-1 2 imm-size 0 .r .( 2 .reg .) ., .rs0 drop ;
+    .rfs0 ., .$ imm-1 2 imm-size 0 .r .( 2 .reg .) ;
 
 : c-jr ( x -- ) .rd drop ;
 : c-mv ( x -- ) .rd ., .rs0 drop ;
@@ -165,10 +164,17 @@ disassembler also definitions
 \ different format outputs
 
 : r-type ( x -- ) .rd ., .rs1 ., .rs2 drop ;
+: fr-type ( x -- ) .rfd ., .rfs1 ., .rfs2 drop ;
+: fr2-type ( x -- ) .rfd ., .rfs1 drop ;
+: fri-type ( x -- ) .rd ., .rfs1 drop ;
+: fir-type ( x -- ) .rfd ., .rs1 drop ;
+: fr4-type ( x -- ) .rfd ., .rfs1 ., .rfs2 ., .rfs3 drop ;
 : sh-type ( x -- ) .rd ., .rs1 ., .$ 20 rshift $3F and 0 .r ;
 : i-type ( x -- ) .rd ., .rs1 ., .$ imm-i 0 .r drop ;
 : l-type ( x -- ) .rd ., .$ imm-i 0 .r .( .rs1 .) drop ;
+: fl-type ( x -- ) .rfd ., .$ imm-i 0 .r .( .rs1 .) drop ;
 : s-type ( x -- ) .rs2 ., .$ imm-s 0 .r .( .rs1 .) drop ;
+: fs-type ( x -- ) .rfs2 ., .$ imm-s 0 .r .( .rs1 .) drop ;
 : b-type ( x -- ) .rs1 ., .rs2 ., .$ imm-b nip over + 0 .r ;
 : u-type ( x -- ) .rd ., .$ imm-u 0 .r drop ;
 : u-type-pc ( addr x -- addr ) .rd ., .$ imm-u nip over + 0 .r ;
@@ -186,15 +192,14 @@ disassembler also definitions
 
 : inst, ( match mask "operation" "name" -- )
     , , ' , parse-name string, align ;
-
 Create inst-table16
 $0000 $FFFF inst, drop illegal
 $2000 $E003 inst, c-fldd fld
 $4000 $E003 inst, c-ldw lw
 $6000 $E003 inst, c-ldd ld
-$A000 $E003 inst, c-fstd fsd
-$C000 $E003 inst, c-stw sw
-$E000 $E003 inst, c-std sd
+$A000 $E003 inst, c-fldd fsd
+$C000 $E003 inst, c-ldw sw
+$E000 $E003 inst, c-ldd sd
 
 $0001 $EF83 inst, drop nop
 $0001 $E003 inst, c-addi addi
@@ -280,6 +285,8 @@ $0000503B $FE00707F inst, r-type srlw
 $4000503B $FE00707F inst, r-type sraw
 $0000000F $0000707F inst, fence-type fence
 $0000100F $0000707F inst, fence-type fence.i \ Zifencei
+$00000073 $FFFFFFFF inst, drop ecall
+$00100073 $FFFFFFFF inst, drop ebreak
 $00001073 $0000707F inst, csr-type csrrw \ Zicsr
 $00002073 $0000707F inst, csr-type csrrs
 $00003073 $0000707F inst, csr-type csrrc
@@ -324,8 +331,68 @@ $A000302F $F800707F inst, cond-type amomax.d
 $C000302F $F800707F inst, cond-type amominu.d
 $E000302F $F800707F inst, cond-type amomaxu.d
 
-$00000073 $FFFFFFFF inst, drop ecall
-$00000073 $FFFFFFFF inst, drop ebreak
+$00002007 $0000707F inst, fl-type flw
+$00002027 $0000707F inst, fl-type fsw
+$00000043 $0600007F inst, fr4-type fmadd.s
+$00000047 $0600007F inst, fr4-type fmsub.s
+$0000004B $0600007F inst, fr4-type fnmsub.s
+$0000004F $0600007F inst, fr4-type fnmadd.s
+$00000053 $FE00007F inst, fr-type fadd.s
+$08000053 $FE00007F inst, fr-type fsub.s
+$10000053 $FE00007F inst, fr-type fmul.s
+$18000053 $FE00007F inst, fr-type fdiv.s
+$58000053 $FFF0007F inst, fr2-type fsrqt.s
+$20000053 $FE00707F inst, fr-type fsgnj.s
+$20001053 $FE00707F inst, fr-type fsgnjn.s
+$20002053 $FE00707F inst, fr-type fsgnjx.s
+$28000053 $FE00707F inst, fr-type fmin.s
+$28001053 $FE00707F inst, fr-type fmax.s
+$C0000053 $FFF0007F inst, fri-type fcvt.w.s
+$C0100053 $FFF0007F inst, fri-type fcvt.wu.s
+$C0200053 $FFF0007F inst, fri-type fcvt.l.s
+$C0300053 $FFF0007F inst, fri-type fcvt.lu.s
+$E0000053 $FFF0707F inst, fir-type fmv.x.w
+$A0000053 $FE00707F inst, fr-type fle.s
+$A0001053 $FE00707F inst, fr-type flt.s
+$A0002053 $FE00707F inst, fr-type feq.s
+$E0001053 $FFF0707F inst, fr-type fclass.s
+$D0000053 $FFF0007F inst, fir-type fcvt.s.w
+$D0100053 $FFF0007F inst, fir-type fcvt.s.wu
+$D0200053 $FFF0007F inst, fir-type fcvt.s.l
+$D0300053 $FFF0007F inst, fir-type fcvt.s.lu
+$F0000053 $FFF0707F inst, fri-type fmv.w.x
+
+$00003007 $0000707F inst, fl-type fld
+$00003027 $0000707F inst, fl-type fsd
+$02000043 $0600007F inst, fr4-type fmadd.d
+$02000047 $0600007F inst, fr4-type fmsub.d
+$0200004B $0600007F inst, fr4-type fnmsub.d
+$0200004F $0600007F inst, fr4-type fnmadd.d
+$02000053 $FE00007F inst, fr-type fadd.d
+$0A000053 $FE00007F inst, fr-type fsub.d
+$12000053 $FE00007F inst, fr-type fmul.d
+$1A000053 $FE00007F inst, fr-type fdiv.d
+$5A000053 $FFF0007F inst, fr2-type fsrqt.d
+$22000053 $FE00707F inst, fr-type fsgnj.d
+$22001053 $FE00707F inst, fr-type fsgnjn.d
+$22002053 $FE00707F inst, fr-type fsgnjx.d
+$2A000053 $FE00707F inst, fr-type fmin.d
+$2A001053 $FE00707F inst, fr-type fmax.d
+$C2000053 $FFF0007F inst, fri-type fcvt.w.d
+$C2100053 $FFF0007F inst, fri-type fcvt.wu.d
+$C2200053 $FFF0007F inst, fri-type fcvt.l.d
+$C2300053 $FFF0007F inst, fri-type fcvt.lu.d
+$E2000053 $FFF0707F inst, fir-type fmv.x.d
+$A2000053 $FE00707F inst, fr-type fle.d
+$A2001053 $FE00707F inst, fr-type flt.d
+$A2002053 $FE00707F inst, fr-type feq.d
+$E2001053 $FFF0707F inst, fr-type fclass.d
+$D2000053 $FFF0007F inst, fir-type fcvt.d.w
+$D2100053 $FFF0007F inst, fir-type fcvt.d.wu
+$D2200053 $FFF0007F inst, fir-type fcvt.d.l
+$D2300053 $FFF0007F inst, fir-type fcvt.d.lu
+$F2000053 $FFF0707F inst, fri-type fmv.d.x
+
 $00000000 $00000000 inst, hex.8 -/-
 
 : .inst ( inst table -- ) swap >r
