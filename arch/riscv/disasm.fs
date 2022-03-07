@@ -166,13 +166,16 @@ disassembler also definitions
 
 : r-type ( x -- ) .rd ., .rs1 ., .rs2 drop ;
 : sh-type ( x -- ) .rd ., .rs1 ., .$ 20 rshift $3F and 0 .r ;
-: i-type ( x -- ) .rd ., .rs1 ., $. imm-i 0 .r drop ;
+: i-type ( x -- ) .rd ., .rs1 ., .$ imm-i 0 .r drop ;
 : l-type ( x -- ) .rd ., .$ imm-i 0 .r .( .rs1 .) drop ;
 : s-type ( x -- ) .rs2 ., .$ imm-s 0 .r .( .rs1 .) drop ;
 : b-type ( x -- ) .rs1 ., .rs2 ., .$ imm-b nip over + 0 .r ;
 : u-type ( x -- ) .rd ., .$ imm-u 0 .r drop ;
 : u-type-pc ( addr x -- addr ) .rd ., .$ imm-u nip over + 0 .r ;
 : j-type ( addr x -- addr ) .rd ., .$ imm-j nip over + 0 .r ;
+: csr-type ( x -- ) .rd ., .rs1 ., .$ imm-i 0 .r drop ;
+: csri-type ( x -- ) .rd ., .$ dup 15 rshift $1F and 0 .r ., .$ imm-i 0 .r drop ;
+: cond-type ( x -- ) .rd ., .rs2 ., .( .rs1 .) drop ;
 
 : .fence ( n -- )
     $F and s" iorw" bounds DO
@@ -276,6 +279,51 @@ $0000103B $FE00707F inst, r-type sllw
 $0000503B $FE00707F inst, r-type srlw
 $4000503B $FE00707F inst, r-type sraw
 $0000000F $0000707F inst, fence-type fence
+$0000100F $0000707F inst, fence-type fence.i \ Zifencei
+$00001073 $0000707F inst, csr-type csrrw \ Zicsr
+$00002073 $0000707F inst, csr-type csrrs
+$00003073 $0000707F inst, csr-type csrrc
+$00005073 $0000707F inst, csri-type csrrwi
+$00006073 $0000707F inst, csri-type csrrsi
+$00007073 $0000707F inst, csri-type csrrci
+$02000033 $FE00707F inst, r-type mul \ multiplication&division
+$02001033 $FE00707F inst, r-type mulh
+$02002033 $FE00707F inst, r-type mulhsu
+$02003033 $FE00707F inst, r-type mulhu
+$02004033 $FE00707F inst, r-type div
+$02005033 $FE00707F inst, r-type divu
+$02006033 $FE00707F inst, r-type rem
+$02007033 $FE00707F inst, r-type remu
+$0200003B $FE00707F inst, r-type mulw
+$0200403B $FE00707F inst, r-type divw
+$0200503B $FE00707F inst, r-type divuw
+$0200603B $FE00707F inst, r-type remw
+$0200703B $FE00707F inst, r-type remuw
+
+$0000202F $F800707F inst, cond-type amoadd.w
+$0800202F $F800707F inst, cond-type amoswap.w
+$1000202F $F800707F inst, cond-type lr.w
+$1800202F $F800707F inst, cond-type sc.w
+$2000202F $F800707F inst, cond-type amoxor.w
+$4000202F $F800707F inst, cond-type amoor.w
+$6000202F $F800707F inst, cond-type amoand.w
+$8000202F $F800707F inst, cond-type amomin.w
+$A000202F $F800707F inst, cond-type amomax.w
+$C000202F $F800707F inst, cond-type amominu.w
+$E000202F $F800707F inst, cond-type amomaxu.w
+
+$0000302F $F800707F inst, cond-type amoadd.d
+$0800302F $F800707F inst, cond-type amoswap.d
+$1000302F $F800707F inst, cond-type lr.d
+$1800302F $F800707F inst, cond-type sc.d
+$2000302F $F800707F inst, cond-type amoxor.d
+$4000302F $F800707F inst, cond-type amoor.d
+$6000302F $F800707F inst, cond-type amoand.d
+$8000302F $F800707F inst, cond-type amomin.d
+$A000302F $F800707F inst, cond-type amomax.d
+$C000302F $F800707F inst, cond-type amominu.d
+$E000302F $F800707F inst, cond-type amomaxu.d
+
 $00000073 $FFFFFFFF inst, drop ecall
 $00000073 $FFFFFFFF inst, drop ebreak
 $00000000 $00000000 inst, hex.8 -/-
@@ -296,11 +344,10 @@ $00000000 $00000000 inst, hex.8 -/-
 Forth definitions
 
 : disline ( ip -- ip' )
-    [: dup .lformat tab .code ;]
-    $10 base-execute ;
+    [: dup .lformat tab .code ;] $10 base-execute ;
 
 : disasm ( addr u -- ) \ gforth
-    [: bounds u+do  cr i disline i - +loop  cr ;] $10 base-execute ;
+    bounds u+do  cr i disline i - +loop  cr ;
 
 ' disasm is discode
 
