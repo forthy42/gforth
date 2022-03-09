@@ -181,7 +181,7 @@ disassembler also definitions
 : j-type ( addr x -- addr ) .rd ., .$ imm-j nip over + 0 .r ;
 : csr-type ( x -- ) .rd ., .rs1 ., .$ imm-i 0 .r drop ;
 : csri-type ( x -- ) .rd ., .$ dup 15 rshift $1F and 0 .r ., .$ imm-i 0 .r drop ;
-: cond-type ( x -- ) .rd ., .rs2 ., .( .rs1 .) drop ;
+: atom-type ( x -- ) .rd ., .rs2 ., .( .rs1 .) drop ;
 
 : .fence ( n -- )
     $F and s" iorw" bounds DO
@@ -190,210 +190,68 @@ disassembler also definitions
 : fence-type ( x -- )
     dup 24 rshift .fence ., dup 20 rshift .fence drop ; 
 
-: inst, ( match mask "operation" "name" -- )
-    , , ' , parse-name string, align ;
+: inst, ( match mask operation-xt "name" -- )
+    >r , , r> , parse-name string, align ;
+
+: inst: ( mask "operation" name -- )
+    ' Create , , DOES> 2@ inst, ;
+
+\ 16 bit instruction types
+$FFFF inst: drop c-noarg:
+$E003 inst: c-fldd c-fldd:
+$E003 inst: c-ldw c-ldw:
+$E003 inst: c-ldd c-ldd:
+$E003 inst: c-addi c-addi:
+$E003 inst: c-li c-li:
+$EF83 inst: c-addi16 c-addi16:
+$E003 inst: c-lui c-lui:
+$EC03 inst: c-andi c-andi:
+$FC63 inst: c-and c-and:
+$F003 inst: c-add c-add:
+$E003 inst: c-j c-j:
+$E003 inst: c-beq c-beq:
+$E003 inst: c-sli c-sli:
+$EC03 inst: c-sri c-sri:
+$E003 inst: c-fldsp c-fldsp:
+$E003 inst: c-lwsp c-lwsp:
+$E003 inst: c-ldsp c-ldsp:
+$F07F inst: c-jr c-jr:
+$F003 inst: c-mv c-mv:
+$E003 inst: c-fsdsp c-fsdsp:
+$E003 inst: c-swsp c-swsp:
+$E003 inst: c-sdsp c-sdsp:
+$0000 inst: hex.4 c-catchall:
+
+\ 32 bit instruction types
+$0000007F inst: u-type u-type:
+$0000007F inst: u-type-pc u-type-pc:
+$0000007F inst: j-type j-type:
+$0000707F inst: l-type l-type:
+$0000707F inst: b-type b-type:
+$0000707F inst: s-type s-type:
+$0000707F inst: i-type i-type:
+$FC00707F inst: sh-type sh-type:
+$FE00707F inst: r-type r-type:
+$0000707F inst: fence-type fence-type:
+$FFFFFFFF inst: drop noarg-type:
+$0000707F inst: csr-type csr-type:
+$0000707F inst: csri-type csri-type:
+$F800707F inst: atom-type atom-type:
+$0000707F inst: fl-type fl-type:
+$0600007F inst: fr4-type fr4-type:
+$FE00007F inst: fr-type fr-type:
+$FFF0007F inst: fr2-type fr2-type:
+$FFF0007F inst: fri-type fri-type:
+$FFF0007F inst: fir-type fir-type:
+$00000000 inst: hex.8 catchall-type:
+
 Create inst-table16
-$0000 $FFFF inst, drop illegal
-$2000 $E003 inst, c-fldd fld
-$4000 $E003 inst, c-ldw lw
-$6000 $E003 inst, c-ldd ld
-$A000 $E003 inst, c-fldd fsd
-$C000 $E003 inst, c-ldw sw
-$E000 $E003 inst, c-ldd sd
-
-$0001 $EF83 inst, drop nop
-$0001 $E003 inst, c-addi addi
-$2001 $E003 inst, c-addi addiw
-$4001 $E003 inst, c-li li
-$6101 $EF83 inst, c-addi16 add16sp
-$6001 $E003 inst, c-lui lui
-$8001 $EC03 inst, c-sri srli
-$8401 $EC03 inst, c-sri srai
-$8801 $EC03 inst, c-andi andi
-$8C01 $FC63 inst, c-and sub
-$8C21 $FC63 inst, c-and xor
-$8C41 $FC63 inst, c-and or
-$8C61 $FC63 inst, c-and and
-$9C01 $FC63 inst, c-and subw
-$9C21 $FC63 inst, c-and addw
-$A001 $E003 inst, c-j j
-$C001 $E003 inst, c-beq beqz
-$E001 $E003 inst, c-beq bnez
-
-$0002 $E003 inst, c-sli slli
-$2002 $E003 inst, c-fldsp fldsp
-$4002 $E003 inst, c-lwsp lwsp
-$6002 $E003 inst, c-ldsp ldsp
-$8002 $F07F inst, c-jr jr
-$8002 $F003 inst, c-mv mv
-$9002 $FFFF inst, drop ebreak
-$9002 $F07F inst, c-jr jalr
-$9002 $F003 inst, c-add add
-$A002 $E003 inst, c-fsdsp fsdsp
-$C002 $E003 inst, c-swsp swsp
-$E002 $E003 inst, c-sdsp sdsp
-$0000 $0000 inst, hex.4 -/-
+include ./inst16.fs
+$0000 c-catchall: -/-
 
 Create inst-table32
-$00000037 $0000007F inst, u-type lui
-$00000017 $0000007F inst, u-type-pc auipc
-$0000006F $0000007F inst, j-type jal
-$00000067 $0000707F inst, l-type jalr
-$00000063 $0000707F inst, b-type beq
-$00001063 $0000707F inst, b-type bne
-$00004063 $0000707F inst, b-type blt
-$00005063 $0000707F inst, b-type bge
-$00006063 $0000707F inst, b-type bltu
-$00007063 $0000707F inst, b-type bgeu
-$00000003 $0000707F inst, l-type lb
-$00001003 $0000707F inst, l-type lh
-$00002003 $0000707F inst, l-type lw
-$00003003 $0000707F inst, l-type ld
-$00004003 $0000707F inst, l-type lbu
-$00005003 $0000707F inst, l-type lhu
-$00006003 $0000707F inst, l-type lwu
-$00000023 $0000707F inst, s-type sb
-$00001023 $0000707F inst, s-type sh
-$00002023 $0000707F inst, s-type sw
-$00003023 $0000707F inst, s-type sd
-$00000013 $0000707F inst, i-type addi
-$00002013 $0000707F inst, i-type slti
-$00003013 $0000707F inst, i-type sltiu
-$00004013 $0000707F inst, i-type xori
-$00006013 $0000707F inst, i-type ori
-$00007013 $0000707F inst, i-type andi
-$00001013 $FC00707F inst, sh-type slli
-$00005013 $FC00707F inst, sh-type srli
-$40005013 $FC00707F inst, sh-type srai
-$0000101B $FC00707F inst, sh-type slliw
-$0000501B $FC00707F inst, sh-type srliw
-$4000501B $FC00707F inst, sh-type sraiw
-$00000033 $FE00707F inst, r-type add
-$40000033 $FE00707F inst, r-type sub
-$00001033 $FE00707F inst, r-type sll
-$00002033 $FE00707F inst, r-type slt
-$00003033 $FE00707F inst, r-type sltu
-$00004033 $FE00707F inst, r-type xor
-$00005033 $FE00707F inst, r-type srl
-$40005033 $FE00707F inst, r-type sra
-$00006033 $FE00707F inst, r-type or
-$00007033 $FE00707F inst, r-type and
-$0000003B $FE00707F inst, r-type addw
-$4000003B $FE00707F inst, r-type subw
-$0000103B $FE00707F inst, r-type sllw
-$0000503B $FE00707F inst, r-type srlw
-$4000503B $FE00707F inst, r-type sraw
-$0000000F $0000707F inst, fence-type fence
-$0000100F $0000707F inst, fence-type fence.i \ Zifencei
-$00000073 $FFFFFFFF inst, drop ecall
-$00100073 $FFFFFFFF inst, drop ebreak
-$00001073 $0000707F inst, csr-type csrrw \ Zicsr
-$00002073 $0000707F inst, csr-type csrrs
-$00003073 $0000707F inst, csr-type csrrc
-$00005073 $0000707F inst, csri-type csrrwi
-$00006073 $0000707F inst, csri-type csrrsi
-$00007073 $0000707F inst, csri-type csrrci
-$02000033 $FE00707F inst, r-type mul \ multiplication&division
-$02001033 $FE00707F inst, r-type mulh
-$02002033 $FE00707F inst, r-type mulhsu
-$02003033 $FE00707F inst, r-type mulhu
-$02004033 $FE00707F inst, r-type div
-$02005033 $FE00707F inst, r-type divu
-$02006033 $FE00707F inst, r-type rem
-$02007033 $FE00707F inst, r-type remu
-$0200003B $FE00707F inst, r-type mulw
-$0200403B $FE00707F inst, r-type divw
-$0200503B $FE00707F inst, r-type divuw
-$0200603B $FE00707F inst, r-type remw
-$0200703B $FE00707F inst, r-type remuw
-
-$0000202F $F800707F inst, cond-type amoadd.w
-$0800202F $F800707F inst, cond-type amoswap.w
-$1000202F $F800707F inst, cond-type lr.w
-$1800202F $F800707F inst, cond-type sc.w
-$2000202F $F800707F inst, cond-type amoxor.w
-$4000202F $F800707F inst, cond-type amoor.w
-$6000202F $F800707F inst, cond-type amoand.w
-$8000202F $F800707F inst, cond-type amomin.w
-$A000202F $F800707F inst, cond-type amomax.w
-$C000202F $F800707F inst, cond-type amominu.w
-$E000202F $F800707F inst, cond-type amomaxu.w
-
-$0000302F $F800707F inst, cond-type amoadd.d
-$0800302F $F800707F inst, cond-type amoswap.d
-$1000302F $F800707F inst, cond-type lr.d
-$1800302F $F800707F inst, cond-type sc.d
-$2000302F $F800707F inst, cond-type amoxor.d
-$4000302F $F800707F inst, cond-type amoor.d
-$6000302F $F800707F inst, cond-type amoand.d
-$8000302F $F800707F inst, cond-type amomin.d
-$A000302F $F800707F inst, cond-type amomax.d
-$C000302F $F800707F inst, cond-type amominu.d
-$E000302F $F800707F inst, cond-type amomaxu.d
-
-$00002007 $0000707F inst, fl-type flw
-$00002027 $0000707F inst, fl-type fsw
-$00000043 $0600007F inst, fr4-type fmadd.s
-$00000047 $0600007F inst, fr4-type fmsub.s
-$0000004B $0600007F inst, fr4-type fnmsub.s
-$0000004F $0600007F inst, fr4-type fnmadd.s
-$00000053 $FE00007F inst, fr-type fadd.s
-$08000053 $FE00007F inst, fr-type fsub.s
-$10000053 $FE00007F inst, fr-type fmul.s
-$18000053 $FE00007F inst, fr-type fdiv.s
-$58000053 $FFF0007F inst, fr2-type fsrqt.s
-$20000053 $FE00707F inst, fr-type fsgnj.s
-$20001053 $FE00707F inst, fr-type fsgnjn.s
-$20002053 $FE00707F inst, fr-type fsgnjx.s
-$28000053 $FE00707F inst, fr-type fmin.s
-$28001053 $FE00707F inst, fr-type fmax.s
-$C0000053 $FFF0007F inst, fri-type fcvt.w.s
-$C0100053 $FFF0007F inst, fri-type fcvt.wu.s
-$C0200053 $FFF0007F inst, fri-type fcvt.l.s
-$C0300053 $FFF0007F inst, fri-type fcvt.lu.s
-$E0000053 $FFF0707F inst, fir-type fmv.x.w
-$A0000053 $FE00707F inst, fr-type fle.s
-$A0001053 $FE00707F inst, fr-type flt.s
-$A0002053 $FE00707F inst, fr-type feq.s
-$E0001053 $FFF0707F inst, fr-type fclass.s
-$D0000053 $FFF0007F inst, fir-type fcvt.s.w
-$D0100053 $FFF0007F inst, fir-type fcvt.s.wu
-$D0200053 $FFF0007F inst, fir-type fcvt.s.l
-$D0300053 $FFF0007F inst, fir-type fcvt.s.lu
-$F0000053 $FFF0707F inst, fri-type fmv.w.x
-
-$00003007 $0000707F inst, fl-type fld
-$00003027 $0000707F inst, fl-type fsd
-$02000043 $0600007F inst, fr4-type fmadd.d
-$02000047 $0600007F inst, fr4-type fmsub.d
-$0200004B $0600007F inst, fr4-type fnmsub.d
-$0200004F $0600007F inst, fr4-type fnmadd.d
-$02000053 $FE00007F inst, fr-type fadd.d
-$0A000053 $FE00007F inst, fr-type fsub.d
-$12000053 $FE00007F inst, fr-type fmul.d
-$1A000053 $FE00007F inst, fr-type fdiv.d
-$5A000053 $FFF0007F inst, fr2-type fsrqt.d
-$22000053 $FE00707F inst, fr-type fsgnj.d
-$22001053 $FE00707F inst, fr-type fsgnjn.d
-$22002053 $FE00707F inst, fr-type fsgnjx.d
-$2A000053 $FE00707F inst, fr-type fmin.d
-$2A001053 $FE00707F inst, fr-type fmax.d
-$C2000053 $FFF0007F inst, fri-type fcvt.w.d
-$C2100053 $FFF0007F inst, fri-type fcvt.wu.d
-$C2200053 $FFF0007F inst, fri-type fcvt.l.d
-$C2300053 $FFF0007F inst, fri-type fcvt.lu.d
-$E2000053 $FFF0707F inst, fir-type fmv.x.d
-$A2000053 $FE00707F inst, fr-type fle.d
-$A2001053 $FE00707F inst, fr-type flt.d
-$A2002053 $FE00707F inst, fr-type feq.d
-$E2001053 $FFF0707F inst, fr-type fclass.d
-$D2000053 $FFF0007F inst, fir-type fcvt.d.w
-$D2100053 $FFF0007F inst, fir-type fcvt.d.wu
-$D2200053 $FFF0007F inst, fir-type fcvt.d.l
-$D2300053 $FFF0007F inst, fir-type fcvt.d.lu
-$F2000053 $FFF0707F inst, fri-type fmv.d.x
-
-$00000000 $00000000 inst, hex.8 -/-
+include ./inst32.fs
+$00000000 catchall-type: -/-
 
 : .inst ( inst table -- ) swap >r
     BEGIN  dup 2@ r@ and <>  WHILE
