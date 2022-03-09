@@ -71,6 +71,12 @@ disassembler also definitions
 : .rs1' ( x -- ) dup 7 rshift 7 and 8 + .reg ;
 : .rd' ( x -- )  dup 2 rshift 7 and 8 + .reg ;
 : .rfd' ( x -- )  dup 2 rshift 7 and 8 + .freg ;
+: imm-4spn ( x -- u ) 5 rshift \ [5:4|9:6|2|3]
+    dup 1 and 3 lshift >r 2/
+    dup 1 and 2 lshift r> or >r 2/
+    dup $F and 6 lshift r> or >r 4 rshift
+    3 and 4 lshift r> or ;
+    
 : imm-1 ( x -- u ) dup 2 rshift $1F and swap 12 5 - rshift $20 and or ;
 : imm-1s ( x -- n ) imm-1 dup $20 and negate or ;
 : imm-2 ( x -- u ) dup 5 rshift 3 and swap 8 rshift $1C and or 2* ;
@@ -96,6 +102,8 @@ disassembler also definitions
     dup 3 and 3 lshift r> or >r
     1 and 8 lshift r> or
     dup $100 and negate or ;
+
+: c-addi4spn ( x -- ) .rd' ., 2 .reg ., $. imm-4spn 0 .r ;
 
 : c-ldw ( x -- ) .rd' ., .$ dup imm-2 2 imm-size 0 .r .( .rs1' .) drop ;
 : c-ldd ( x -- ) .rd' ., .$ dup imm-2 3 imm-size 0 .r .( .rs1' .) drop ;
@@ -198,6 +206,7 @@ disassembler also definitions
 
 \ 16 bit instruction types
 $FFFF inst: drop c-noarg:
+$E003 inst: c-addi4spn c-addi4spn:
 $E003 inst: c-fldd c-fldd:
 $E003 inst: c-ldw c-ldw:
 $E003 inst: c-ldd c-ldd:

@@ -19,6 +19,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 $0000 c-noarg: illegal
+$0000 c-addi4spn: addi4spn
 $2000 c-fldd: fld
 $4000 c-ldw: lw
 $6000 c-ldd: ld

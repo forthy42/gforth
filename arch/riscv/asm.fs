@@ -34,10 +34,89 @@ regs: f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 
 : >rs2 ( reg inst -- inst' ) swap $1F and 20 lshift or ;
 : >rs3 ( reg inst -- inst' ) swap $1F and 27 lshift or ;
 
-s" not in compact register range" exception no-reg
-: >c-reg ( reg -- c-reg )
+s" not in compact register range" exception Constant no-reg
+: ?c-reg ( reg -- c-reg )
     8 - dup $8 u>= no-reg and throw ;
-: >rd' ( reg inst -- inst' ) swap >c-reg 2 lshift or ;
-: >rs1' ( reg inst -- inst' ) swap >c-reg 7 lshift or ;
+: >rd' ( reg inst -- inst' ) swap ?c-reg 2 lshift or ;
+: >rs1' ( reg inst -- inst' ) swap ?c-reg 7 lshift or ;
+
+: >imm-4spn ( u x -- x' ) >r
+    \ [5:4|9:6|2|3]
+    dup 4 rshift 3 and >r
+    dup 6 rshift $F and r> 4 lshift or >r
+    dup 2 rshift 1 and r> 2* or >r
+    3 rshift r> or 5 lshift r> or ;
+: >imm-size ( imm size -- )
+    -1 swap lshift >r dup 6 rshift r@ invert and swap r> and or ;
+: >imm-1 ( imm x -- x' ) >r
+    dup $20 and 12 5 - lshift r> or >r
+    $1F and 2 lshift r> or ;
+: >imm-1size ( imm x size -- x' ) swap >r >imm-size r> >imm-1 ;
+: >imm-2 ( imm x -- x' ) >r
+    dup $1C and 10 3 - lshift r> or >r
+    $3 and 2 lshift r> or ;
+: >imm-2size ( imm x size -- x' ) swap >r
+    >r 2/ r> 1- >imm-size r> >imm-2 ;
+: >imm-3 ( imm x -- x' ) >r
+    dup $1F and 7 lshift r> or ;
+: >imm-3size ( imm x size -- x' ) swap >r
+    >imm-size r> >imm-3 ;
+: >imm-cj ( imm x -- x' )  >r here -
+    \ [11|4|9:8|10|6|7|3:1|5]
+    dup 11 rshift 1 and >r
+    dup 4 rshift 1 and r> 2* or >r
+    dup 8 rshift 3 and r> 2* 2* or >r
+    dup 10 rshift 1 and r> 2* or >r
+    dup 6 rshift 1 and r> 2* or >r
+    dup 7 rshift 1 and r> 2* or >r
+    dup 1 rshift 7 and r> 2* 2* 2* or >r
+    5 rshift 1 and r> 2* or
+    2 lshift r> or ;
+: >imm-beq ( imm x -- x' ) >r here -
+    \ imm[8|4:3] rs1 imm[7:6|2:1|5]
+    dup 8 rshift 1 and >r
+    dup 3 rshift 3 and r> 2* 2* or >r
+    dup 6 rshift 3 and r> 5 lshift >r
+    dup 1 rshift 3 and r> 2* 2* or >r
+    5 rshift 1 and r> 2* or
+    2 lshift r> or ;
+: >imm-16 ( imm x -- x' ) >r
+    \  nzimm[9] 2 nzimm[4|6|8:7|5]
+    dup 9 rshift 1 and >r
+    dup 4 rshift 1 and r> 6 lshift or >r
+    dup 6 rshift 1 and r> 2* or >r
+    dup 7 rshift 3 and r> 2* 2* or >r
+    5 rshift 1 and r> 2* or
+    2 lshift r> or ;
+
+: inst: ( "name" -- )
+    : ]] Create , DOES> @ [[ ;
+
+inst: c-noarg:     w, ;
+inst: c-addi4spn:  >imm-4spn >rd' w, ;
+inst: c-ldw:       2 >imm-2size >rs1' >rd' w, ;
+inst: c-ldd:       3 >imm-2size >rs1' >rd' w, ;
+synonym c-fldd: c-ldd:
+inst: c-addi:      >imm-1 >rd w, ;
+synonym c-sli: c-addi:
+synonym c-li: c-addi:
+inst: c-andi:      >imm-1 >rd' w, ;
+synonym c-sri: c-andi:
+inst: c-lui:       >r 12 rshift r> >imm-1 >rd' w, ;
+inst: c-and:       >rs1' >rd' w, ;
+inst: c-j:         >imm-cj w, ;
+inst: c-beq:       >imm-beq >rs1' w, ;
+inst: c-ldsp:      3 >imm-2size >rd w, ;
+synonym c-fldsp: c-ldsp:
+inst: c-lwsp:      2 >imm-3size >rd w, ;
+inst: c-sdsp:      3 >imm-3size >rs0 w, ;
+synonym c-fsdsp: c-sdsp:
+inst: c-swsp:      2 >imm-3size >rs0 w, ;
+inst: c-add:       >rs0 >rd w, ;
+synonym c-mv: c-add:
+inst: c-jr:        >rd w, ;
+inst: c-addi16:    >imm-16 w, ;
+
+include ./inst16.fs
 
 previous previous set-current
