@@ -91,31 +91,35 @@ s" not in compact register range" exception Constant no-reg
 
 : inst: ( "name" -- )
     : ]] Create , DOES> @ [[ ;
+: c.Create ( "name" -- )
+    parse-name [: ." c." type ;] $tmp nextname Create ;
+: c.inst: ( "name" -- )
+    : ]] c.Create , DOES> @ [[ ;
 
-inst: c-noarg:     w, ;
-inst: c-addi4spn:  >imm-4spn >rd' w, ;
-inst: c-ldw:       2 >imm-2size >rs1' >rd' w, ;
-inst: c-ldd:       3 >imm-2size >rs1' >rd' w, ;
+c.inst: c-noarg:     w, ;
+c.inst: c-addi4spn:  >imm-4spn >rd' w, ;
+c.inst: c-ldw:       2 >imm-2size >rs1' >rd' w, ;
+c.inst: c-ldd:       3 >imm-2size >rs1' >rd' w, ;
 synonym c-fldd: c-ldd:
-inst: c-addi:      >imm-1 >rd w, ;
+c.inst: c-addi:      >imm-1 >rd w, ;
 synonym c-sli: c-addi:
 synonym c-li: c-addi:
-inst: c-andi:      >imm-1 >rd' w, ;
+c.inst: c-andi:      >imm-1 >rd' w, ;
 synonym c-sri: c-andi:
-inst: c-lui:       >r 12 rshift r> >imm-1 >rd' w, ;
-inst: c-and:       >rs1' >rd' w, ;
-inst: c-j:         >imm-cj w, ;
-inst: c-beq:       >imm-beq >rs1' w, ;
-inst: c-ldsp:      3 >imm-2size >rd w, ;
+c.inst: c-lui:       >r 12 rshift r> >imm-1 >rd' w, ;
+c.inst: c-and:       >rs1' >rd' w, ;
+c.inst: c-j:         >imm-cj w, ;
+c.inst: c-beq:       >imm-beq >rs1' w, ;
+c.inst: c-ldsp:      3 >imm-2size >rd w, ;
 synonym c-fldsp: c-ldsp:
-inst: c-lwsp:      2 >imm-3size >rd w, ;
-inst: c-sdsp:      3 >imm-3size >rs0 w, ;
+c.inst: c-lwsp:      2 >imm-3size >rd w, ;
+c.inst: c-sdsp:      3 >imm-3size >rs0 w, ;
 synonym c-fsdsp: c-sdsp:
-inst: c-swsp:      2 >imm-3size >rs0 w, ;
-inst: c-add:       >rs0 >rd w, ;
+c.inst: c-swsp:      2 >imm-3size >rs0 w, ;
+c.inst: c-add:       >rs0 >rd w, ;
 synonym c-mv: c-add:
-inst: c-jr:        >rd w, ;
-inst: c-addi16:    >imm-16 w, ;
+c.inst: c-jr:        >rd w, ;
+c.inst: c-addi16:    >imm-16 w, ;
 
 include ./inst16.fs
 
