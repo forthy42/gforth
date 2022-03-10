@@ -546,6 +546,11 @@ ARCHS =	\
 	arch/r8c/tasker.fs \
 	arch/r8c/terminal.fs \
 	arch/r8c/tt.fs \
+	arch/riscv/machine.h \
+	arch/riscv/asm.fs \
+	arch/riscv/disasm.fs \
+	arch/riscv/inst16.fs \
+	arch/riscv/inst32.fs \
 	arch/sharc/unistd.h \
 	arch/lm32/mach.fs \
 	arch/lm32/mach.sh \

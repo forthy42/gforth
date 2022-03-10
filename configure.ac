@@ -513,7 +513,7 @@ Dynamic Code generation disabled (relocation and delay slot issues).]"
 		test "$skipcode" || skipcode="nop\nnop\nnop\nnop"
 		;;
 	riscv*)
-		machine=generic
+		machine=riscv
 		CFLAGS="$CFLAGS -fomit-frame-pointer"
                 test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
 		;;
