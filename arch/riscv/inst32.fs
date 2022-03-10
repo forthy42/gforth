@@ -115,7 +115,7 @@ $C000302F atom-type: amominu.d
 $E000302F atom-type: amomaxu.d
 
 $00002007 fl-type: flw
-$00002027 fl-type: fsw
+$00002027 fs-type: fsw
 $00000043 fr4-type: fmadd.s
 $00000047 fr4-type: fmsub.s
 $0000004B fr4-type: fnmsub.s
@@ -146,7 +146,7 @@ $D0300053 fir-type: fcvt.s.lu
 $F0000053 fri-type: fmv.w.x
 
 $00003007 fl-type: fld
-$00003027 fl-type: fsd
+$00003027 fs-type: fsd
 $02000043 fr4-type: fmadd.d
 $02000047 fr4-type: fmsub.d
 $0200004B fr4-type: fnmsub.d

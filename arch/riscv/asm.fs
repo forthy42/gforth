@@ -22,16 +22,20 @@ get-current also assembler definitions also
 
 : regs: ( -- )
     $20 0 DO I Constant LOOP ;
+: fences: ( -- )
+    $10 1 DO I Constant LOOP ;
 
 regs: zero ra sp gp tp t0 t1 t2 s0 s1 a0 a1 a2 a3 a4 a5 a6 a7 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 t3 t4 t5 t6
 regs: ft0 ft1 ft2 ft3 ft4 ft5 ft6 ft7 fs0 fs1 fa0 fa1 fa2 fa3 fa4 fa5 fa6 fa7 fs2 fs3 fs4 fs5 fs6 fs7 fs8 fs9 fs10 fs11 ft8 ft9 ft10 ft11
 regs: x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20 x21 x22 x23 x24 x25 x26 x27 x28 x29 x30 x31
 regs: f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24 f25 f26 f27 f28 f29 f30 f31
+fences: w r rw o ow or orw i iw ir irw io iow ior iorw
 
 : >rd ( reg inst -- inst' ) swap $1F and 7 lshift or ;
 : >rs0 ( reg inst -- inst' ) swap $1F and 2 lshift or ;
 : >rs1 ( reg inst -- inst' ) swap $1F and 15 lshift or ;
 : >rs2 ( reg inst -- inst' ) swap $1F and 20 lshift or ;
+: >shift ( amount inst -- inst' ) swap $3F and 20 lshift or ;
 : >rs3 ( reg inst -- inst' ) swap $1F and 27 lshift or ;
 
 s" not in compact register range" exception Constant no-reg
@@ -39,6 +43,9 @@ s" not in compact register range" exception Constant no-reg
     8 - dup $8 u>= no-reg and throw ;
 : >rd' ( reg inst -- inst' ) swap ?c-reg 2 lshift or ;
 : >rs1' ( reg inst -- inst' ) swap ?c-reg 7 lshift or ;
+
+: >fence1 ( fence x -- x' ) swap $F and 24 lshift or ;
+: >fence2 ( fence x -- x' ) swap $F and 20 lshift or ;
 
 : >imm-4spn ( u x -- x' ) >r
     \ [5:4|9:6|2|3]
@@ -121,26 +128,33 @@ synonym c-mv: c-add:
 c.inst: c-jr:        >rd w, ;
 c.inst: c-addi16:    >imm-16 w, ;
 
+: >imm-i ( imm x -- x' ) swap $FFF and 20 lshift or ;
+: >imm-s ( imm x -- x' )
+    over $1F and 7 lshift or swap $FE0 and 20 lshift or ;
+: >imm-u ( imm x -- x' )
+    swap $FFFFF000 and or ;
+
 inst: atom-type: >rs1 >rs2 >rd l, ;
 inst: b-type: l, ;
-inst: csri-type: l, ;
-inst: csr-type: l, ;
-inst: fence-type: l, ;
-inst: fl-type: l, ;
+inst: fence-type: >fence2 >fence1 l, ;
 inst: fr2-type: >rs1 >rd l, ;
 inst: fr4-type: >rs3 >rs2 >rs1 >rd l, ;
 inst: fri-type: >rs1 >rd l, ;
 synonym fir-type: fri-type:
-inst: i-type: l, ;
+inst: i-type: >imm-i >rs1 >rd l, ;
+synonym l-type: i-type:
+synonym fl-type: i-type:
+synonym csr-type: i-type:
+synonym csri-type: i-type:
 inst: j-type: l, ;
-inst: l-type: l, ;
 inst: noarg-type: l, ;
 inst: r-type:   >rs2 >rs1 >rd l, ;
 synonym fr-type: r-type:
-inst: sh-type: l, ;
-inst: s-type: l, ;
-inst: u-type: l, ;
-inst: u-type-pc: l, ;
+inst: sh-type: >shift >rs1 >rd l, ;
+inst: s-type: >imm-s >rs2 >rs1 l, ;
+synonym fs-type: s-type:
+inst: u-type: >imm-u >rd l, ;
+inst: u-type-pc: swap here - swap >imm-u >rd l, ;
 
 include ./inst16.fs
 include ./inst32.fs

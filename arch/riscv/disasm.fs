@@ -247,6 +247,7 @@ $0000707F inst: csr-type csr-type:
 $0000707F inst: csri-type csri-type:
 $F800707F inst: atom-type atom-type:
 $0000707F inst: fl-type fl-type:
+$0000707F inst: fs-type fs-type:
 $0600007F inst: fr4-type fr4-type:
 $FE00007F inst: fr-type fr-type:
 $FFF0007F inst: fr2-type fr2-type:
