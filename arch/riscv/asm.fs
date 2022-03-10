@@ -133,9 +133,21 @@ c.inst: c-addi16:    >imm-16 w, ;
     over $1F and 7 lshift or swap $FE0 and 20 lshift or ;
 : >imm-u ( imm x -- x' )
     swap $FFFFF000 and or ;
+: >imm-j ( imm x -- x' ) >r
+    \ imm[20|10:1|11|19:12]
+    dup 20 rshift 1 and >r
+    dup 2/ $3FF and r> 10 lshift or >r
+    dup 11 rshift 1 and r> 2* or >r
+    $FF000 and r> 20 lshift or
+    12 lshift r> or ;
+: >imm-b ( imm x -- x' ) >r
+    \ imm[12|10:5] rs2 rs1 funct3 imm[4:1|11]
+    dup $1000 and 2/ over $7E0 and and 20 lshift r> or >r
+    dup $1E and swap 11 rshift 1 and or
+    7 lshift r> or ;
 
 inst: atom-type: >rs1 >rs2 >rd l, ;
-inst: b-type: l, ;
+inst: b-type: >imm-b >rs1 >rs2 l, ;
 inst: fence-type: >fence2 >fence1 l, ;
 inst: fr2-type: >rs1 >rd l, ;
 inst: fr4-type: >rs3 >rs2 >rs1 >rd l, ;
@@ -146,7 +158,7 @@ synonym l-type: i-type:
 synonym fl-type: i-type:
 synonym csr-type: i-type:
 synonym csri-type: i-type:
-inst: j-type: l, ;
+inst: j-type: >imm-j >rd l, ;
 inst: noarg-type: l, ;
 inst: r-type:   >rs2 >rs1 >rd l, ;
 synonym fr-type: r-type:
