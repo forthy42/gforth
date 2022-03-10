@@ -121,6 +121,28 @@ synonym c-mv: c-add:
 c.inst: c-jr:        >rd w, ;
 c.inst: c-addi16:    >imm-16 w, ;
 
+inst: atom-type: >rs1 >rs2 >rd l, ;
+inst: b-type: l, ;
+inst: csri-type: l, ;
+inst: csr-type: l, ;
+inst: fence-type: l, ;
+inst: fl-type: l, ;
+inst: fr2-type: >rs1 >rd l, ;
+inst: fr4-type: >rs3 >rs2 >rs1 >rd l, ;
+inst: fri-type: >rs1 >rd l, ;
+synonym fir-type: fri-type:
+inst: i-type: l, ;
+inst: j-type: l, ;
+inst: l-type: l, ;
+inst: noarg-type: l, ;
+inst: r-type:   >rs2 >rs1 >rd l, ;
+synonym fr-type: r-type:
+inst: sh-type: l, ;
+inst: s-type: l, ;
+inst: u-type: l, ;
+inst: u-type-pc: l, ;
+
 include ./inst16.fs
+include ./inst32.fs
 
 previous previous set-current
