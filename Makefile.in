@@ -171,7 +171,7 @@ INSTALLDIRS = kernel kernel-ec doc asm ec test test/fp \
 	arch/alpha arch/4stack arch/misc arch/6502 \
 	arch/8086 arch/avr arch/c165 arch/h8 \
 	arch/shboom arch/sharc arch/ia64 arch/amd64 \
-	arch/arm arch/arm64 arch/r8c arch/lm32
+	arch/arm arch/arm64 arch/r8c arch/lm32 arch/riscv
 INSTALL_LIBDIRS = unix
 
 INCLUDES = engine/forth.h engine/threaded.h engine/io.h engine/longlong.h \
