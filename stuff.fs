@@ -495,7 +495,7 @@ User theme-color  0 theme-color !
 : \\\ ( -- ) \ gforth
     \G skip remaining source file
     source-id dup 1 -1 within IF
-	>r r@ file-size throw r> reposition-file throw
+	dup >r file-size throw r> reposition-file throw
 	BEGIN  refill 0= UNTIL  postpone \  THEN ; immediate
 
 \ multiple values to and from return stack
@@ -575,7 +575,7 @@ end-struct buffer%
 \ traverse directory
 
 : try-read-dir { buf handle -- n flag }
-    BEGIN  buf $@ handle read-dir >r r@  WHILE
+    BEGIN  buf $@ handle read-dir dup >r  WHILE
 	    over buf $@len = over and  WHILE
 		buf $@len 3 cells + 2* buf $!len
 		rdrop 2drop  REPEAT  buf $free  r> throw  EXIT

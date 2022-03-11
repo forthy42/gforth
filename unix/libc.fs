@@ -114,7 +114,7 @@ $004 Constant POLLOUT
 12 Constant LC_IDENTIFICATION
 
 : fds!+ ( fileno flag addr -- addr' )
-    >r r@ events w!  r@ fd l!  0 r@ revents w!  r> pollfd + ;
+    dup >r events w!  r@ fd l!  0 r@ revents w!  r> pollfd + ;
 : fds[]! ( fileno flag addr index -- )
     over $@len over 1+ pollfd * umax third $!len
     pollfd * swap $@ drop + tuck events w! fd l! ;

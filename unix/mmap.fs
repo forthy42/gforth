@@ -160,10 +160,10 @@ s" os-type" environment? [IF]
     [ MAP_PRIVATE MAP_ANONYMOUS or MAP_FIXED or ]L -1 0 mmap 0= ?ior ;
 
 : map-fid ( fid -- addr u )
-    >r r@ file-size throw d>s 0 over PROT_RW MAP_SHARED r@ fileno 0 mmap
+    dup >r file-size throw d>s 0 over PROT_RW MAP_SHARED r@ fileno 0 mmap
     dup ?ior swap r> close-file throw ;
 : map-fid-private ( fid -- addr u )
-    >r r@ file-size throw d>s 0 over PROT_RW MAP_PRIVATE r@ fileno 0 mmap
+    dup >r file-size throw d>s 0 over PROT_RW MAP_PRIVATE r@ fileno 0 mmap
     dup ?ior swap r> close-file throw ;
 
 : map-file ( addr1 u1 fam -- addr2 u2 )

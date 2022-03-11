@@ -105,11 +105,11 @@ recognized: recognized-dnum
 
 : >stack ( x stack -- )
     \G push to top of stack
-    >r r@ $@len cell+ r@ $!len
+    dup >r $@len cell+ r@ $!len
     r> $@ + cell- ! ;
 : stack> ( stack -- x )
     \G pop from top of stack
-    >r r@ $@ ?dup-IF  + cell- @ r@ $@len cell- r> $!len
+    dup >r $@ ?dup-IF  + cell- @ r@ $@len cell- r> $!len
     ELSE  drop rdrop  THEN ;
 : stack# ( stack -- elements )
     $@len cell/ ;

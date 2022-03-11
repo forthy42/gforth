@@ -39,7 +39,7 @@ variable included-file-buffers
     \ containing the content of the file, or 0 0, if the file cannot
     \ be read.
     dup *terminal*# = IF  drop 0 0  EXIT  THEN \ special files
-    >r r@ included-file-buffers $[] >r
+    dup >r included-file-buffers $[] >r
     r@ $@ dup IF  rdrop rdrop  EXIT  THEN  2drop
     i' included-files $[]@ r@
     [: >r open-fpath-file throw 2drop r> $slurp ;] catch IF

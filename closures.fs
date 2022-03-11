@@ -111,7 +111,7 @@ forth definitions
     previous-section  dead-code off ;
 
 : (closure-;]) ( closure-sys lastxt -- )
-    >r r@ wrap-closure
+    dup >r wrap-closure
     r> >namehm @ swap !
     pop-locals ;
 

@@ -75,7 +75,7 @@ has? OS [IF]
     ErrRanges
     BEGIN  @ dup  WHILE
 	    2dup cell+ 2@ within
-	    IF  >r r@ cell+ @ 1- - negate
+	    IF  dup >r cell+ @ 1- - negate
 		r> 3 cells + perform  EXIT  THEN
     REPEAT
     drop errlink>string ;

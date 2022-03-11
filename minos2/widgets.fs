@@ -886,7 +886,7 @@ also freetype-gl
     GL_TEXTURE0 glActiveTexture ;
 : $top[] ( $addr[] -- addr u / 0 0 )  $@ + cell- $@ ;
 : load-thumb ( addr u -- w h thumb )
-    mem>thumb >r r@ i.w r@ i.h r>
+    mem>thumb dup >r i.w r@ i.h r>
     atlas-region thumbs[] $+[]!
     thumbs[] $top[] ;
 

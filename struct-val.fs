@@ -36,7 +36,7 @@ standard:field
 : vfield-comp, ( body -- ) dup cell+ @ opt-compile, ;
 
 : create+value ( n1 addr "name" -- n3 )
-    >r r@ cell+ cell+ 2@ r> 2@
+    dup >r cell+ cell+ 2@ r> 2@
     2>r >r Create over , + action-of +field, ,
     r> set-does> 2r> set-to set-optimizer ;
 

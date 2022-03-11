@@ -81,7 +81,7 @@
 : $+!len ( u $addr -- addr )
     \G make room for u bytes at the end of the memory area referenced
     \G by $addr; addr is the address of the first of these bytes.
-    >r r@ $@len tuck + r@ $!len r> @ cell+ + ;
+    dup >r $@len tuck + r@ $!len r> @ cell+ + ;
 : $+! ( addr1 u $addr -- ) \ gforth-string string-plus-store
     \G appends a string to another.
     over >r $+!len r> move ;
