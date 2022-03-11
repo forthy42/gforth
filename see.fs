@@ -183,9 +183,30 @@ DEFER .string ( c-addr u xt -- )
     repeat
     2drop ;
 
+\ DEFER CheckUntil
+VARIABLE NoOutput
+VARIABLE C-Pass
+
+0 CONSTANT ScanMode
+1 CONSTANT DisplayMode
+2 CONSTANT DebugMode
+
+: Scan? ( -- flag ) C-Pass @ 0= ;
+: Display? ( -- flag ) C-Pass @ 1 = ;
+: Debug? ( -- flag ) C-Pass @ 2 = ;
+: ?.string  ( c-addr u xt -- )   Display? if .string else 2drop drop then ;
+
+: c-lits ( -- )
+    display? IF
+	sp@ >r  smart.s-skip off
+	litstack get-stack dup 0 ?DO  dup I - pick smart.s.  LOOP  drop
+	r> sp!
+    THEN
+    litstack $free ;
+
 Variable struct-pre
 : .struc ( c-addr u -- )       
-    uppercase on ['] Str-color
+    c-lits uppercase on ['] Str-color
     struct-pre $@ ['] Str-color .string
     .string struct-pre $free ;
 
@@ -291,19 +312,6 @@ ACONSTANT MaxTable
 : Branch! ( a-addr rel -- a-addr )
     over ,Branch ,Branch 0 ,Branch ;
 \        over + over ,Branch ,Branch 0 ,Branch ;
-
-\ DEFER CheckUntil
-VARIABLE NoOutput
-VARIABLE C-Pass
-
-0 CONSTANT ScanMode
-1 CONSTANT DisplayMode
-2 CONSTANT DebugMode
-
-: Scan? ( -- flag ) C-Pass @ 0= ;
-: Display? ( -- flag ) C-Pass @ 1 = ;
-: Debug? ( -- flag ) C-Pass @ 2 = ;
-: ?.string  ( c-addr u xt -- )   Display? if .string else 2drop drop then ;
 
 : back? ( addr target -- addr flag )
     over u< ;
@@ -679,7 +687,7 @@ VARIABLE C-Pass
 	IF  2dup >body @ = IF  -rot nip false  EXIT
 	    THEN  THEN  drop true ;
     : search-uservar ( offset nt -- offset flag )
-	name>int dup @ douser: = ?type-found ;
+	name>int dup >code-address douser: = ?type-found ;
     : c-searcharg ( addr xt addr u -- addr' ) 2>r >r
 	display? IF
 	    0 over @
@@ -750,14 +758,6 @@ avariable c-extender
 c-extender !
 
 \ DOTABLE                                               15may93jaw
-
-: c-lits ( -- )
-    display? IF
-	sp@ >r  smart.s-skip off
-	litstack get-stack dup 0 ?DO  dup I - pick smart.s.  LOOP  drop
-	r> sp!
-    THEN
-    litstack $free ;
 
 : DoTable ( ca/cfa -- flag )
     decompile-prim
