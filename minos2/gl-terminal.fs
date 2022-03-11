@@ -540,8 +540,8 @@ Defer scale-me ' terminal-scale-me is scale-me
 #20. 2Value glitch#
 
 : screen-slide ( -- )
-    *input >r
-    r@ IF
+    *input dup
+    >r IF
 	r@ action @ \ dup -1 <> IF  dup .  THEN
 	case
 	    1 of

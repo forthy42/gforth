@@ -211,8 +211,8 @@ Variable htmldir
   I c@ '. = ?LEAVE  1-  -1 +LOOP  /string ;
 
 : >file ( addr u -- size fd )
-  r/o bin open-file throw >r
-  r@ file-size throw drop
+  r/o bin open-file throw dup
+  >r file-size throw drop
   ." Accept-Ranges: bytes" cr
   ." Content-Length: " dup 0 .r cr r> ;
 : transparent ( size fd -- )

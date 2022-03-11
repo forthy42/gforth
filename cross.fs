@@ -244,7 +244,7 @@ Create bases   10 ,   2 ,   A , 100 ,
 	over @ swap resize throw over ! @ ! ;
     : >stack ( x stack -- )
 	\G push to top of stack
-	>r r@ $@len cell+ r@ $!len
+	dup >r $@len cell+ r@ $!len
 	r> $@ + 1 cells - ! ;
 [THEN]
 
@@ -1049,7 +1049,7 @@ constant gwhere-struct
 
 [IFUNDEF] $+!len
     : $+!len ( n $addr -- addr )
-	>r r@ $@len tuck + r@ $!len r> @ cell+ + ;
+	dup >r $@len tuck + r@ $!len r> @ cell+ + ;
 [THEN]
 
 : gwhere, ( ghost -- )
@@ -1416,7 +1416,7 @@ Variable mirrored-link          \ linked list for mirrored regions
 
 : (region) ( addr len region -- )
 \G change startaddress and length of an existing region
-  >r r@ last-defined-region !
+  dup >r last-defined-region !
   r@ >rlen ! dup r@ >rstart ! r> >rdp ! ;
 
 : uninitialized -1 ABORT" CROSS: Region is uninitialized" ;
@@ -1478,8 +1478,8 @@ Variable mirrored-link          \ linked list for mirrored regions
   BEGIN dup WHILE dup @ REPEAT drop
   BEGIN dup
   WHILE cr
-        0 >rlink - >r
-        r@ >rname count tuck type
+        0 >rlink - dup
+        >r >rname count tuck type
         12 swap - spaces space
         ." Start: " r@ >rstart @ dup .addr space
         ." End: " r@ >rlen @ + .addr space
@@ -1559,8 +1559,8 @@ T has? rom H
   region-link
   BEGIN @ dup
   WHILE dup
-        0 >rlink - >r
-        r@ >rlen @
+        0 >rlink - dup
+        >r >rlen @
         IF      r@ setup-region
         THEN    rdrop
    REPEAT drop ;
@@ -1703,8 +1703,8 @@ bigendian
   region-link
   BEGIN @ dup
   WHILE dup >r
-        0 >rlink - >r
-        r@ >rlen @
+        0 >rlink - dup
+        >r >rlen @
         IF      dup r@ borders within
                 IF r> r> drop nip 
                    dup >rtouch @ EXECUTE EXIT 
@@ -1738,8 +1738,8 @@ bigendian
   dup
   \ find region we want to address
   taddr>region-abort
-  >r
-  r@ >rrom @ ABORT" CROSS: region is write-protected!"
+  dup
+  >r >rrom @ ABORT" CROSS: region is write-protected!"
   \ calculate offset in region
   r@ >rstart @ -
   \ add regions real address in our memory
@@ -2077,8 +2077,8 @@ Defer resolve-warning
       \ but the very first that really defines it
       dup @ 0= IF ! ELSE 2drop THEN
     THEN
-    swap >r
-    r@ to resolved
+    swap dup
+    >r to resolved
 
 \    r@ >comp @ ['] is-forward =
 \    ABORT" >comp action not set on a resolved ghost"
@@ -2689,8 +2689,8 @@ Defer (end-code)
 
 : Code:
   defempty?
-    Ghost >r 
-    r@ >ghostname there symentry
+    Ghost dup 
+    >r >ghostname there symentry
     r@ there ca>native resolve-noforwards
     <do:> r@ >magic !
     r> drop

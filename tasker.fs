@@ -54,8 +54,8 @@ User task-dp
 : NewTask ( stacksize -- Task )
     \G NEWTASK creates a new, sleeping task
     dup 2* 2* udp @ + dup
-    allocate throw  + >r
-    r@ over - udp @ - next-task over udp @ move
+    allocate throw  + dup
+    >r over - udp @ - next-task over udp @ move
     r> over user' rp0 + ! dup >r
     dup r@ user' lp0   + ! over -
     dup r@ user' fp0   + ! over -
@@ -79,7 +79,7 @@ Create killer killer A, killer A,
 : (pass) ( x1 .. xn n task -- )
   rdrop
   [ ' kill-task >body ] ALiteral r>
-  rot >r r@ user' rp0 + @ 2 cells - dup >r 2!
+  rot dup >r user' rp0 + @ 2 cells - dup >r 2!
   r>              swap 1+
   r@ user' fp0 + @ swap 1+
   r@ user' lp0 + @ swap 1+

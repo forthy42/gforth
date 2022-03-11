@@ -62,8 +62,8 @@ Create marks $10 cells allot
 : 0.r ( n1 n2 -- ) 0 swap <# 0 ?DO # LOOP #> type ;
 
 : tohex ( dest addr u -- )  base @ >r hex
-  ." :" swap >r >r
-  r@ dup 2 0.r  over 4 0.r  ." 00"
+  ." :" swap >r dup
+  >r dup 2 0.r  over 4 0.r  ." 00"
   over 8 rshift + +
   r> r> swap bounds ?DO  I ( 1 xor ) c@ dup 2 0.r +  LOOP
   negate $FF and 2 0.r  r> base ! ;

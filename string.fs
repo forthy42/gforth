@@ -24,8 +24,8 @@ require glocals.fs
 
 : $over ( addr u $addr off -- )
     \G overwrite string at offset off with addr u
-    swap >r
-    r@ @ 0= IF  s" " r@ $!  THEN
+    swap dup
+    >r @ 0= IF  s" " r@ $!  THEN
     2dup + r@ $@len > IF
 	2dup + r@ $@len tuck max r@ $!len
 	r@ $@ rot /string bl fill

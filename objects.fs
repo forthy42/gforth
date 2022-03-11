@@ -225,8 +225,8 @@ variable last-interface-offset 0 last-interface-offset !
 
 : interface ( -- ) \ objects- objects
     \g Start an interface definition.
-    interface% %allot >r
-    r@ current-interface !
+    interface% %allot dup
+    >r current-interface !
     current-interface 1 cells save-mem r@ interface-map 2!
     -1 cells last-interface-offset +!
     last-interface-offset @ r@ interface-offset !

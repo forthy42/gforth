@@ -247,8 +247,8 @@ end-class scroll-actor
 :noname ( rx ry b n -- )
     click( o hex. ." is clicked, do-action " action-of ck-action xt-see cr )
     over $18 and 0<> over 1 and 0= and IF
-	fdrop fdrop 1 and 0= IF  >r
-	    r@ $08 and IF  -1 sr-action  THEN
+	fdrop fdrop 1 and 0= IF  dup
+	    >r $08 and IF  -1 sr-action  THEN
 	    r@ $10 and IF   1 sr-action  THEN
 	    r>
 	THEN  drop

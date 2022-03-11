@@ -29,8 +29,8 @@ object class
   method draw
 end-class button
 
-:noname ( o -- ) >r
- r@ x @ r@ y @ at-xy  r@ text @ r> len @ type ;
+:noname ( o -- ) dup
+ >r x @ r@ y @ at-xy  r@ text @ r> len @ type ;
  button defines draw
 :noname ( addr u o -- ) >r
  0 r@ x ! 0 r@ y ! r@ len ! r> text ! ;

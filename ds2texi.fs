@@ -165,7 +165,7 @@ create description-buffer 4096 chars allot
     drop ;
 
 : print-wordset ( doc-entry -- )
-    >r r@ doc-wordset 2@ 2dup type "gforth" str= if
+    dup >r doc-wordset 2@ 2dup type "gforth" str= if
         r@ doc-name 2@ gforth-versions-wl find-name-in ?dup-if
             '-' emit name>interpret execute type then then
     rdrop ;
@@ -195,8 +195,8 @@ create description-buffer 4096 chars allot
     rdrop ;
 
 : print-doc ( doc-entry -- )
-    >r
-    r@ print-short
+    dup
+    >r print-short
     r@ doc-description 2@ dup 0<>
     if
 	\ ." @iftex" cr ." @vskip-0ex" cr ." @end iftex" cr

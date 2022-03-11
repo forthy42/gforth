@@ -816,8 +816,8 @@ Defer mark-end
     type ;
 
 Defer .error-level ( n -- )
-: (.error-level) >r
-    r@ 2 = IF  ." error: "    THEN
+: (.error-level) dup
+    >r 2 = IF  ." error: "    THEN
     r@ 1 = IF  ." warning: "  THEN
     r@ 0 = IF  ." info: "     THEN  rdrop ;
 ' (.error-level) is .error-level

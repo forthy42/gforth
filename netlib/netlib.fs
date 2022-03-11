@@ -88,15 +88,15 @@ CREATE IP-Num 0 , 30 chars allot align
 
 1 here ! here c@        \ check byte order
 [IF]                    \ little endian
-: htonl         >r
-                r@ 255 and                      24 lshift
+: htonl         dup
+                >r 255 and                      24 lshift
                 r@ [ 255 8 lshift ] literal and 8 lshift
                 r@ [ 255 16 lshift ] literal and 8 rshift
                 r> [ 255 24 lshift ] literal and 24 rshift
                 or or or ;
 
-: htons         >r
-                r@ 255 and                      8 lshift
+: htons         dup
+                >r 255 and                      8 lshift
                 r> [ 255 8 lshift ] literal and 8 rshift
                 or ;
 

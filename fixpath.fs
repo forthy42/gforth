@@ -39,8 +39,8 @@ pathes$ cygpath
 Variable $file
 
 : fix-exe ( addr u -- )
-    r/w bin open-file throw >r
-    r@ $file $slurp
+    r/w bin open-file throw dup
+    >r $file $slurp
     $file $@ 2 arg search IF  drop $file $@ drop -
 	." at: " dup hex. cr
 	0 r@ reposition-file throw

@@ -86,7 +86,7 @@ thumbs: thumbwh
 Variable slidelist
 
 : read-in ( n -- )
-    >r r@ dup slidex @ <> IF
+    dup >r dup slidex @ <> IF
 	r@ slides perform
 	r@ dup slidex !
 	r@ slidelist $[]@ load-texture
@@ -96,7 +96,7 @@ Variable slidelist
     THEN ;
 
 : read-thumb-in ( n -- )
-    >r r@ dup thumbx @ <> IF
+    dup >r dup thumbx @ <> IF
 	r@ thumbs perform
 	r@ dup thumbx !
 	r@ slidelist $[]@ load-thumb
@@ -217,7 +217,7 @@ Variable current-slide
 
 : slide-input ( -- )
     >looper ?esc
-    *input >r r@ IF
+    *input dup >r IF
 	case  r@ action @  r@ action on
 	    1 ( AMOTION_EVENT_ACTION_UP ) of
 		short? IF
@@ -254,7 +254,7 @@ Variable current-slide
 
 : thumb-input ( -- ) up-down
     >looper
-    *input >r r@ IF
+    *input dup >r IF
 	r@ action @
 	case  1 of
 		short? IF

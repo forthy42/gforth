@@ -188,8 +188,8 @@ Variable bitmap-chars
 	$10 +LOOP ;
 
 : read-image ( addr u -- )
-    r/o bin open-file throw >r
-    r@ search-magic
+    r/o bin open-file throw dup
+    >r search-magic
     r@ file-position throw r@ read-header r@ reposition-file throw
     r@ read-dictionary r@ read-bitmap r> close-file throw ;
 

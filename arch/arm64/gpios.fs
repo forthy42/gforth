@@ -30,14 +30,14 @@ require unix/mmap.fs
 \ register access
 
 : lor! ( l addr -- )
-    >r r@ l@ or r> l! ;
+    dup >r l@ or r> l! ;
 : land! ( l addr -- )
-    >r r@ l@ and r> l! ;
+    dup >r l@ and r> l! ;
 : lmask! ( l mask addr -- )
     \G set the bits where @var{mask} is 1
     \G in @var{addr} by the corresponding
     \G bits in @var{l}.
-    >r r@ l@ swap mux r> l! ;
+    dup >r l@ swap mux r> l! ;
 
 \ mask generation
 
@@ -545,7 +545,7 @@ map-gpio
 
 : pin-connect? ( pin -- )
     dup pin>gpio -1 = IF  ." -/-"  drop  EXIT  THEN
-    >r r@ output-pin
+    dup >r output-pin
     r@ pinclr  inps@ invert
     r@ pinset  inps@ and
     dup 2/ #40 ['] .r 2 base-execute space

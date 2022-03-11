@@ -404,7 +404,7 @@ defer get-socket-options ( socket -- socket )
 
 : create-server  ( port# -- server )
     AF_INET port+family
-    new-socket dup ?ior >r r@ reuse-addr
+    new-socket dup ?ior dup >r reuse-addr
     r@ sockaddr-tmp sockaddr_in4 bind ?ior r> ;
 
 : create-server6  ( port# -- server )
@@ -474,7 +474,7 @@ Create crlf 2 c, 13 c, 10 c,
 : close-socket ( socket -- ) close-file throw ;
 
 : (rs)  ( socket c-addr maxlen -- c-addr size ) 
-    third >r r@ false blocking-mode  rot fileno -rot
+    third dup >r false blocking-mode  rot fileno -rot
     over >r msg_waitall recv
     dup 0<  IF  0 max
 	errno dup 0<> swap ewouldblock <> and ?ior
@@ -492,7 +492,7 @@ Create crlf 2 c, 13 c, 10 c,
     REPEAT ;
 
 : (rs-from)  ( socket c-addr maxlen -- c-addr size ) 
-    third >r  r@ false blocking-mode  rot fileno -rot
+    third dup  >r false blocking-mode  rot fileno -rot
     over >r msg_waitall sockaddr-tmp alen  recvfrom
     dup 0<  IF  0 max
 	errno dup 0<> swap ewouldblock <> and ?ior

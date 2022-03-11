@@ -86,8 +86,8 @@ s" os-type" environment? [IF]
 	
 	$541B Constant FIONREAD
 
-	: set-baud ( baud fd -- )  >r
-	    r@ t_old tcgetattr drop
+	: set-baud ( baud fd -- )  dup
+	    >r t_old tcgetattr drop
 	    t_old t_buf termios %size move
 	    [ IGNBRK IGNPAR or         ] Literal    t_buf c_iflag l!
 	    0                                       t_buf c_oflag l!
@@ -131,8 +131,8 @@ s" os-type" environment? [IF]
 	
 	$4004667F Constant FIONREAD
 
-	: set-baud ( baud fd -- )  >r
-	    r@ t_old tcgetattr drop
+	: set-baud ( baud fd -- )  dup
+	    >r t_old tcgetattr drop
 	    t_old t_buf termios %size move
 	    [ IGNBRK IGNPAR or         ] Literal    t_buf c_iflag l!
 	    0                                       t_buf c_oflag l!
@@ -236,8 +236,8 @@ s" os-type" environment? [IF]
 		tuck pad swap move 0 swap pad + c!
 		pad GENERIC_READ GENERIC_WRITE or 0 0 OPEN_EXISTING 0 0 CreateFile
 		to term-fd ;
-	    : set-baud ( baud fd -- )  >r
-		r@ t_old GetCommState drop
+	    : set-baud ( baud fd -- )  dup
+		>r t_old GetCommState drop
 		1 t_old flags !
 		r@ tout_buf GetCommTimeouts drop
 		3 tout_buf ReadIntervalTimeout !

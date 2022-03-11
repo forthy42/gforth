@@ -212,8 +212,8 @@ DOES> ( -- )  dup thislib ! proc: ;
 	    dup  REPEAT
     drop BEGIN
 	dup  WHILE
-	    >r
-	    r@ @lib
+	    dup
+	    >r @lib
 	    r@ 2 cells +  BEGIN
 		@ dup  WHILE
 		    r@ over @proc  REPEAT

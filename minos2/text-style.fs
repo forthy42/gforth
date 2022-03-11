@@ -196,8 +196,8 @@ is reload-textures
     >o font-size# 40% f* fdup fnegate to borderv to bordert o>
     o o> ;
 
-: rgba> ( rgba -- r g b a ) >r
-    r@ #24 rshift $FF and
+: rgba> ( rgba -- r g b a ) dup
+    >r #24 rshift $FF and
     r@ #16 rshift $FF and
     r@ #08 rshift $FF and
     r>            $FF and ;

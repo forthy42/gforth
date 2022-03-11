@@ -304,7 +304,7 @@ synonym setstring-color info-color
     max span addr pos1 false ;
 
 : (xins)  ( max span addr pos1 xc -- max span addr pos2 )
-    >r  r@ xc-size grow-tib 0= IF  rdrop edit-error  EXIT  THEN
+    dup  >r xc-size grow-tib 0= IF  rdrop edit-error  EXIT  THEN
     >edit-rest over r@ xc-size + swap move
     2dup chars + r@ swap r@ xc-size xc!+? 2drop drop
     r> xc-size >r  rot r@ chars + -rot r> chars + ;
@@ -381,13 +381,13 @@ synonym setstring-color info-color
     third over or 0=  IF  -56 throw  ELSE  (xenter)  THEN ;
 
 : xkill-expand ( max span addr pos1 -- max span addr pos2 )
-    prefix-found cell+ @ ?dup-IF  >r
-	r@ - >edit-rest over r@ + -rot move
+    prefix-found cell+ @ ?dup-IF  dup
+	>r - >edit-rest over r@ + -rot move
 	rot r> - -rot  THEN ;
 
 [IFUNDEF] insert
 : insert   ( string length buffer size -- )
-    rot over min >r  r@ - ( left over )
+    rot over min dup  >r - ( left over )
     over dup r@ +  rot move   r> move  ;
 [THEN]
 

@@ -24,8 +24,8 @@ require unix/socket.fs
     dup >r write-file throw crlf count r> write-file throw ;
 
 : request ( host u request u proxy-host u port -- fid )
-    open-socket >r
-    r@ write-file throw s"  HTTP/1.1" r@ writeln
+    open-socket dup
+    >r write-file throw s"  HTTP/1.1" r@ writeln
     s" Host: " r@ write-file throw r@ writeln
     s" Connection: close" r@ writeln
     s" User-Agent: " r@ write-file throw

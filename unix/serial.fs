@@ -116,8 +116,8 @@ $541B Constant FIONREAD
 
 : set-baud ( baud port -- )
     dup 0 _IONBF 0 setvbuf ?ior \ no buffering on serial IO
-    fileno >r
-    r@ t_old tcgetattr ?ior
+    fileno dup
+    >r t_old tcgetattr ?ior
     t_old t_buf termios move
     t_buf cfmakeraw
     t_buf c_iflag dup flag@ CLOCAL or swap flag!

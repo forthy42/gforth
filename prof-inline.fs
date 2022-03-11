@@ -148,8 +148,8 @@ variable all-bbs 0 all-bbs ! \ list of all basic blocks
 : print-profile ( -- )
     profile-points @ begin
 	dup while
-	    dup >r
-	    r@ profile-sourcepos 2@ .sourcepos ." :"
+	    dup dup
+	    >r profile-sourcepos 2@ .sourcepos ." :"
 	    r@ profile-char @ 0 .r ." : "
 	    r@ profile-count 2@ 0 d.r cr
 	    r> list-next @
@@ -159,8 +159,8 @@ variable all-bbs 0 all-bbs ! \ list of all basic blocks
 : print-profile-coldef ( -- )
     profile-points @ begin
 	dup while
-	    dup >r
-	    r@ profile-colondef? @ if
+	    dup dup
+	    >r profile-colondef? @ if
 		r@ profile-sourcepos 2@ .sourcepos ." :"
 		r@ profile-char @ 3 .r ." : "
 		r@ profile-count 2@ 10 d.r

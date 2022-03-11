@@ -24,12 +24,12 @@ require struct.fs
 
 : >back ( x stack -- )
     \G push to bottom of stack
-    >r r@ $@len cell+ r@ $!len
+    dup >r $@len cell+ r@ $!len
     r@ $@ cell- over cell+ swap move
     r> $@ drop ! ;
 : back> ( stack -- x )
     \G pop from bottom of stack
-    >r r@ $@ IF  @ r@ 0 cell $del  ELSE  drop 0  THEN
+    dup >r $@ IF  @ r@ 0 cell $del  ELSE  drop 0  THEN
     rdrop ;
 
 : set-current  ( wid -- )  \ search

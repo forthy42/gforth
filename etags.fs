@@ -92,8 +92,8 @@ create tags-line 128 chars allot
     2>r source-id dup 0<> swap -1 <> and	\ input from a file
     current @ locals-list <> and	\ not a local name
     if
-	tags-file-id >r 
-	r@ put-load-file-name
+	tags-file-id dup 
+	>r put-load-file-name
 	source drop >in @ r@ write-file throw
 	127 r@ emit-file throw
 	r> 2r> rot dup >r write-file throw

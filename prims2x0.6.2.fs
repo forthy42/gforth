@@ -204,8 +204,8 @@ create stacks max-stacks cells allot \ array of stacks
 
 : make-stack ( addr-ptr u1 type "stack-name" -- )
     next-stack-number @ max-stacks < s" too many stacks" ?print-error
-    create stack% %allot >r
-    r@ stacks next-stack-number @ th !
+    create stack% %allot dup
+    >r stacks next-stack-number @ th !
     next-stack-number @ r@ stack-number !
     1 next-stack-number +!
     r@ stack-type !
@@ -484,8 +484,8 @@ defer inst-stream-f ( -- stack )
 
 : same-as-in? ( item -- f )
  \ f is true iff the offset and stack of item is the same as on input
- >r
- r@ item-first @ if
+ dup
+ >r item-first @ if
      rdrop false exit
  endif
  r@ item-name 2@ prim prim-items-wordlist @ search-wordlist 0= abort" bug"
@@ -501,7 +501,7 @@ defer inst-stream-f ( -- stack )
 
 : item-out-index ( item -- n )
     \ n is the index of item (in the in-effect)
-    >r r@ item-stack @ stack-out @ r> item-offset @ - 1- ;
+    dup >r item-stack @ stack-out @ r> item-offset @ - 1- ;
 
 : really-store-single ( item -- )
     >r
@@ -1643,8 +1643,8 @@ warnings @ [IF]
 [IFUNDEF] slurp-file
 : slurp-file ( c-addr1 u1 -- c-addr2 u2 )
     \ c-addr1 u1 is the filename, c-addr2 u2 is the file's contents
-    r/o bin open-file throw >r
-    r@ file-size throw abort" file too large"
+    r/o bin open-file throw dup
+    >r file-size throw abort" file too large"
     dup allocate throw swap
     2dup r@ read-file throw over <> abort" could not read whole file"
     r> close-file throw ;

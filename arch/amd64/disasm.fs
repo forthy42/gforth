@@ -123,7 +123,7 @@ Create grp8 ," ???? src"
 : .regsize ( reg -- reg )
     dup 7 <= IF  'r' 'e' w? select emit  ELSE  'r' emit  THEN  ;
 : .(reg ( n l -- )
-    >r r@ 0= IF  .regsize "regs ( " )  ELSE  r@ 2 = IF
+    dup >r 0= IF  .regsize "regs ( " )  ELSE  r@ 2 = IF
 	    "breg2 "breg p? select  ELSE  "regs ( " ) THEN  THEN
     over >r *." r> 7 > IF  case r@
 	    0 of  w? 0= IF 'd' emit  THEN  endof

@@ -224,7 +224,7 @@ Variable ?sync-update
 : xsv! ( ud addr -- )
     >r 2dup #32 drshift drop r@ l! drop r> 4 + l! ;
 : xsv@ ( addr -- ud )
-    >r r@ 4 + l@ 0 r> sl@ s>d #32 dlshift d+ ;
+    dup >r 4 + l@ 0 r> sl@ s>d #32 dlshift d+ ;
 
 : sync-counter-update ( -- )
     wm_sync_counter l@ IF
@@ -358,8 +358,8 @@ Variable exposed
 
 also x11
 
-: xmeta@ ( state -- meta ) >r
-    r@ ShiftMask   and 0<> 1 and
+: xmeta@ ( state -- meta ) dup
+    >r ShiftMask   and 0<> 1 and
     r@ Mod1Mask    and 0<> 2 and or
     r> ControlMask and 0<> 4 and or ;
 

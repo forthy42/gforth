@@ -203,7 +203,7 @@ $20 $18 conds:  ?f   ?0<> ?0>= ?no  ?u>= ?u<= ?>= ?<=
 \ loop/branch resolve                                  19mar94py
 
 : resolve! ( dist addr -- )
-  >r  r@ op@ drop 3 and
+  dup  >r op@ drop 3 and
   dup 2 =  IF    drop $3FF8 and 0  ELSE
       dup 3 =  IF    drop -8 and 0
 	  r@ op@ [ cell 8 = ] [IF]

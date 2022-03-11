@@ -100,7 +100,7 @@ $1000 Value dump#
     r> dump# u> IF  ." ..."  THEN ;
 
 : .pcr ( addr -- ) \ 27MHz 33 bit timestamp
-    dup be-ul@ 600 um* rot 4 + be-uw@ >r r@ 15 rshift 300 * 0 d+
+    dup be-ul@ 600 um* rot 4 + be-uw@ dup >r 15 rshift 300 * 0 d+
     r> $1ff and 0 d+ d>f 27M f/ f. ;
 
 : .afield ( addr -- addr' )
@@ -274,8 +274,8 @@ $FF c,
     +LOOP
     addr' ;
 
-: .mts-header ( addr 4byte -- addr' )  packet# @ 1- /packet * hex. >r
-    r@ $FF000000 and $47000000 <> IF  ." no TS header" drop rdrop  EXIT  THEN
+: .mts-header ( addr 4byte -- addr' )  packet# @ 1- /packet * hex. dup
+    >r $FF000000 and $47000000 <> IF  ." no TS header" drop rdrop  EXIT  THEN
     r@ $001FFF00 and 8 rshift { pid } ." pid: " pid .
     r@ $0000000F and hex.
     r@ $00000020 and IF  '<' emit .afield '>' emit space  THEN
@@ -431,8 +431,8 @@ Variable tsdp
     $8080 ts-w, <string $21 pts, string> ;
 : video, ( rdts rpts len chan -- )  +psi $1F and $1E0 + ts-l, len,
     $80C0 ts-w, <string $31 pts, $11 pts, string> ;
-: afield, ( [pcr..] flags -- ) >r
-    r@ <af
+: afield, ( [pcr..] flags -- ) dup
+    >r <af
     r@ $10 and IF pcr, THEN
     r> $08 and IF pcr, THEN af> ;
 

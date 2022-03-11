@@ -443,8 +443,8 @@ ACONSTANT MaxTable
     \ !! not recognized anywhere:
     \ abort": if ahead X: len string then lit X c(abort") then
     dup @ back? if false exit endif
-    dup @ >r
-    r@ @ decompile-prim ['] lit xt= 0= if rdrop false exit endif
+    dup @ dup
+    >r @ decompile-prim ['] lit xt= 0= if rdrop false exit endif
     r@ cell+ @ over cell+ <> if rdrop false exit endif
     \ we have at least C"
     r@ 2 cells + @ decompile-prim dup ['] lit xt= if

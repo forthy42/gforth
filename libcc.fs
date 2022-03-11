@@ -981,8 +981,8 @@ latestnt to rt-vtable
     true to is-funptr? ['] parse-function-types (c-function)
     false to is-funptr? ;
 
-: setup-callback ( addr -- ) >r
-    r@ ccb% + 2 + count + count 2dup
+: setup-callback ( addr -- ) dup
+    >r ccb% + 2 + count + count 2dup
     r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
     r@ ccb-lha @ @ lookup-c-array r> ccb-cfuns ! ;
 

@@ -42,7 +42,7 @@ attach \ attach this thread
 : >c ( utf16 addr -- addr )  arg- tuck w! ;
 : >s ( n addr -- addr )  arg- tuck w! ;
 : >i ( n addr -- addr )  arg- tuck l! ;
-: >j ( d addr -- addr )  arg- >r r@ xd! r> ;
+: >j ( d addr -- addr )  arg- dup >r xd! r> ;
 : >f ( r addr -- addr )  arg- dup sf! ;
 : >d ( r addr -- addr )  arg- dup df! ;
 : >l ( object addr -- addr )  arg- tuck ! ;

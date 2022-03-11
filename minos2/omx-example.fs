@@ -326,7 +326,7 @@ true value show-mcursor
 	    k-volup   of pvol# 200 + 0 min dup to pvol# pvol endof 
 	    k-voldown of pvol# 200 - dup       to pvol# pvol endof 
 	ENDCASE  THEN
-    *input >r r@ IF
+    *input dup >r IF
 	r@ action @ AMOTION_EVENT_ACTION_MOVE =
 	r@ action @ AMOTION_EVENT_ACTION_UP = or IF
 	    \ ." move/click at " r@ x0 @ . r@ y0 @ . cr

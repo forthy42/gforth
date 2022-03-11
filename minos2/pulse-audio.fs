@@ -212,7 +212,7 @@ Defer write-record
     stream record@ ;
 
 : rec-buffer! ( channels buffer -- )
-    >r r@ pa_buffer_attr $FF fill
+    dup >r pa_buffer_attr $FF fill
     samples/frame 2* * r> pa_buffer_attr-fragsize l! ;
 
 : record-mono ( rate -- )
@@ -267,7 +267,7 @@ Defer write-record
     THEN ;
 
 : play-buffer! ( channels buffer -- )
-    >r r@ pa_buffer_attr $FF fill
+    dup >r pa_buffer_attr $FF fill
     samples/frame 2* * r> pa_buffer_attr-tlength l! ;
 
 : play-rest ( stream ba read-record -- ) 2>r

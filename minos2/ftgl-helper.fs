@@ -293,12 +293,12 @@ $[]Variable >tc[]
 : l~min! ( value addr -- )
     dup >r l@ ?dup-IF  umin  THEN  r> l! ;
 : translate! ( from to addr -- )
-    >r swap dup 8 rshift r> $[] >r
-    r@ @ 0= IF  { | zeros[ $400 ] } zeros[ $400 2dup erase r@ $!  THEN
+    >r swap dup 8 rshift r> $[] dup
+    >r @ 0= IF  { | zeros[ $400 ] } zeros[ $400 2dup erase r@ $!  THEN
     r> $@ rot $FF and sfloats /string drop l~min! ;
 : translate@ ( from addr -- to )
-    >r dup 8 rshift r> $[] >r
-    r@ @ 0= IF  rdrop  EXIT  THEN
+    >r dup 8 rshift r> $[] dup
+    >r @ 0= IF  rdrop  EXIT  THEN
     r> $@ third $FF and sfloats /string drop l@ tuck select ;
 
 Defer >tc :noname ( from to -- ) >tc[] translate! ; is >tc
@@ -408,8 +408,8 @@ DOES> swap hb_feature_t * + ;
 
 : hb-tag ( addr u -- tag )
     4 <> abort" hb-tags are 4 characters each" be-ul@ ;
-: hb-feature! ( feature value addr -- ) >r
-    r@ hb_feature_t-tag l!
+: hb-feature! ( feature value addr -- ) dup
+    >r hb_feature_t-tag l!
     r@ hb_feature_t-value l!
     0  r@ hb_feature_t-start l!
     -1 r> hb_feature_t-end l! ;
@@ -580,8 +580,8 @@ cell 4 = [IF]
 	    pos I + hb_glyph_position_t-y_offset sl@ ypos* fm* { f: yo }
 	    [ false ] [IF] \ don't render glyph
 		font infos I + hb_glyph_info_t-codepoint l@
-		glyph-gi@ >r
-		r@ texture_glyph_t-offset_y sl@ f-scale fm* yo f+
+		glyph-gi@ dup
+		>r texture_glyph_t-offset_y sl@ f-scale fm* yo f+
 		r> texture_glyph_t-height @ f-scale fm*
 	    [ELSE]
 		{ | ge[ hb_glyph_extents_t ] }

@@ -109,8 +109,8 @@ also jni
     recorder >o mr-stop mr-release o> camera >o c-lock o> ;
 
 : capture-size ( -- d )
-    "/storage/extSdCard/Filme/test.mp4" r/o open-file throw >r
-    r@ file-size throw r> close-file throw ;
+    "/storage/extSdCard/Filme/test.mp4" r/o open-file throw dup
+    >r file-size throw r> close-file throw ;
 
 : cam-loop ( -- )
     1 level# +!  BEGIN camera-frame sync >looper

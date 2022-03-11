@@ -156,8 +156,8 @@ si-prefixes count 2/ + Constant zero-exp
 
 : prefix-number ( c-addr u -- r true | false )
     base @ #10 <> IF  2drop false  EXIT  THEN
-    2dup 'e' scan nip >r 2dup 'E' scan nip r> or >r
-    r@ 0= IF
+    2dup 'e' scan nip >r 2dup 'E' scan nip r> or dup
+    >r 0= IF
 	si-prefixes count bounds DO
 	    2dup 1 safe/string I c@ scan nip dup 0<> IF
 		1 = IF  1- fp-char @  ELSE  I c@  THEN

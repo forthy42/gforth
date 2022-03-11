@@ -83,7 +83,7 @@ FVariable motion 0.01e motion f!
     [IFDEF] ?config-changer ?config-changer [THEN]
     angle draw-tri-angle
     >looper default>ap
-    *input >r r@ IF
+    *input dup >r IF
 	r@ action @ abs 1 u> IF
 	    \ ." Touch at " r@ x0 ? r@ y0 ? cr
 	    \ r@ x0 @ 20 < r@ y0 @ 20 < and IF -1 (bye) THEN

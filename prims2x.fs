@@ -225,8 +225,8 @@ variable next-state-number 0 next-state-number ! \ next state number
 
 : make-stack ( addr-ptr u1 type "stack-name" -- )
     next-stack-number @ max-stacks < s" too many stacks" ?print-error
-    create stack% %allot >r
-    r@ stacks next-stack-number @ th !
+    create stack% %allot dup
+    >r stacks next-stack-number @ th !
     next-stack-number @ r@ stack-number !
     1 next-stack-number +!
     r@ stack-type !
@@ -513,8 +513,8 @@ defer inst-stream-f ( -- stack )
 
 : same-as-in? ( item -- f )
     \ f is true iff the offset and stack of item is the same as on input
-    >r
-    r@ item-stack @ stack-prim-stacks-sync @ if
+    dup
+    >r item-stack @ stack-prim-stacks-sync @ if
 	rdrop false exit
     endif
     r@ item-first @ if
@@ -533,7 +533,7 @@ defer inst-stream-f ( -- stack )
 
 : item-out-index ( item -- n )
     \ n is the index of item (in the out-effect)
-    >r r@ item-stack @ stack-out @ r> item-offset @ - 1- ;
+    dup >r item-stack @ stack-out @ r> item-offset @ - 1- ;
 
 : really-store-single ( item -- )
     >r
@@ -732,8 +732,8 @@ stack inst-stream IP Cell
 : make-register ( type addr u -- )
     \ define register with type TYPE and name ADDR U.
     nregisters @ max-registers < s" too many registers" ?print-error
-    2dup nextname create register% %allot >r
-    r@ register-name 2!
+    2dup nextname create register% %allot dup
+    >r register-name 2!
     r@ register-type !
     nregisters @ r@ register-number !
     1 nregisters +!
@@ -749,8 +749,8 @@ stack inst-stream IP Cell
 \ stack-states
 
 : stack-state ( a-addr u uoffset "name" -- )
-    create ss% %allot >r
-    r@ ss-offset !
+    create ss% %allot dup
+    >r ss-offset !
     r@ ss-registers 2!
     rdrop ;
 
@@ -1964,8 +1964,8 @@ warnings @ [IF]
 [IFUNDEF] slurp-file
 : slurp-file ( c-addr1 u1 -- c-addr2 u2 )
     \ c-addr1 u1 is the filename, c-addr2 u2 is the file's contents
-    r/o bin open-file throw >r
-    r@ file-size throw abort" file too large"
+    r/o bin open-file throw dup
+    >r file-size throw abort" file too large"
     dup allocate throw swap
     2dup r@ read-file throw over <> abort" could not read whole file"
     r> close-file throw ;

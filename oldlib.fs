@@ -116,8 +116,8 @@ DOES> ( pars/ type -- )
 : init-shared-libs ( -- )
     defers 'cold  libs
     0  libs  BEGIN  @ dup  WHILE  dup  REPEAT  drop
-    BEGIN  dup  WHILE  >r
-	r@ @lib
+    BEGIN  dup  WHILE  dup
+	>r @lib
 	r@ 2 cells +  BEGIN  @ dup  WHILE  r@ over @proc  REPEAT
 	drop rdrop
     REPEAT  drop ;

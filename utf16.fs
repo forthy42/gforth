@@ -21,7 +21,7 @@
 : .utf16 ( xchar -- )
     0 { w^ ucs16 }
     dup $10000 u>= IF
-	$10000 - >r r@ 10 rshift $3FF and $D800 +
+	$10000 - dup >r 10 rshift $3FF and $D800 +
 	ucs16 w! ucs16 2 type \ high surrogate
 	r> $3FF and $DC00 + \ low surrogate
     THEN

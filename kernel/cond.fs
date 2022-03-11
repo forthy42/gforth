@@ -83,14 +83,14 @@ Create scopestart
 4 constant cs-item-size
 
 : CS-PICK ( orig0/dest0 orig1/dest1 ... origu/destu u -- ... orig0/dest0 ) \ tools-ext c-s-pick
-    1+ cs-item-size * 1- >r
-    r@ pick  r@ pick  r@ pick  r@ pick
+    1+ cs-item-size * 1- dup
+    >r pick  r@ pick  r@ pick  r@ pick
     rdrop
     dup cs-item? ;
 
 : CS-ROLL ( destu/origu .. dest0/orig0 u -- .. dest0/orig0 destu/origu ) \ tools-ext c-s-roll
-    1+ cs-item-size * 1- >r
-    r@ roll r@ roll r@ roll r@ roll
+    1+ cs-item-size * 1- dup
+    >r roll r@ roll r@ roll r@ roll
     rdrop
     dup cs-item? ; 
 

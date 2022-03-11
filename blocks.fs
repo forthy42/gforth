@@ -116,8 +116,8 @@ Defer flush-blocks ( -- ) \ gforth
     last-block @ ?dup-IF  buffer-dirty on  THEN ;
 
 : save-buffer ( buffer -- ) \ gforth
-    >r
-    r@ buffer-dirty @
+    dup
+    >r buffer-dirty @
     if
 	r@ buffer-block @ block-position
 	r@ block-buffer chars/block  r@ buffer-fid @  write-file throw

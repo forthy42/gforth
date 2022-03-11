@@ -79,7 +79,7 @@ Create bits $80 c, $40 c, $20 c, $10 c, $08 c, $04 c, $02 c, $01 c,
 	8 +LOOP ;
 
 : read-gforth ( addr u -- )  r/o bin open-file throw
-    >r r@ file-size throw drop
+    dup >r file-size throw drop
     ( r@ scan-header - ) dup allocate throw image !
     image @ swap r@ read-file throw drop
     image @ dup $804 ( 8 ) + be@ dup imagesize ! + relinfo !

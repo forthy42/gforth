@@ -21,12 +21,12 @@
 : delete   ( buffer size u -- ) \ gforth-string
     \G deletes the first @var{u} bytes from a buffer and fills the
     \G rest at the end with blanks.
-    over umin >r  r@ - ( left over )
+    over umin dup  >r - ( left over )
     2dup swap dup  r@ +  -rot swap move  + r> bl fill ;
 : insert   ( string length buffer size -- ) \ gforth-string
     \G inserts a string at the front of a buffer. The remaining
     \G bytes are moved on.
-    rot over umin >r  r@ - ( left over )
+    rot over umin dup  >r - ( left over )
     over dup r@ +  rot move   r> move  ;
 
 [IFUNDEF] >pow2

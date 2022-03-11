@@ -402,7 +402,7 @@ Cond: _noinline rest 4 <> ABORT" noinline statement not at beginning!"
   dup X c@ dup dup _br <> swap _bz <> or 0= ?struc
   4 needed              \ align destination to ig
   ( srcbranch opcode )
-  swap >r r@ restbytes r@ + X cell - \ addr of source ig
+  swap dup >r restbytes r@ + X cell - \ addr of source ig
   offset negate dup range?
   r@ restbytes u> ABORT" CROSS: 2 byte forward, not enough?!"
   ( opcode offset R: srcadr )

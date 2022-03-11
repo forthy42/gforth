@@ -275,8 +275,8 @@ Variable eglformat
     REPEAT  0 c, drop rdrop ;
 \    r@ cell+ swap compile-shader r> cell- ! ;
 
-: recompile-shader ( addr -- )  >body >r
-    r@ 2 cells + r@ cell+ @ compile-shader r> ! ;
+: recompile-shader ( addr -- )  >body dup
+    >r 2 cells + r@ cell+ @ compile-shader r> ! ;
 
 : shader>string ( xt -- addr u )
     >body 2 cells + @ cstring>sstring ;

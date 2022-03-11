@@ -33,8 +33,8 @@
 : z>r      ( z -- l:z )  f>l f>l ;
 : zr>      ( r:z -- z )  fl> fl> ;
 : zswap    ( z1 z2 -- z2 z1 ) frot f>l frot fl> ;
-: zpick    ( z1 .. zn n -- z1 .. zn z1 ) 2* 1+ >r r@ fpick r> fpick ;
-\ : zpin     2* 1+ >r r@ fpin r> fpin ;
+: zpick    ( z1 .. zn n -- z1 .. zn z1 ) 2* 1+ dup >r fpick r> fpick ;
+\ : zpin     2* 1+ dup >r fpin r> fpin ;
 : zdepth   ( -- u ) fdepth 2/ ;
 : zrot     ( z1 z2 z3 -- z2 z3 z1 ) z>r zswap zr> zswap ;
 : z-rot    ( z1 z2 z3 -- z3 z1 z2 ) zswap z>r zswap zr> ;

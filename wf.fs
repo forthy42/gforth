@@ -296,8 +296,8 @@ Defer parse-line
 	2dup get-icon  REPEAT  2drop ;
 
 : link-size? ( -- )  do-size @ 0= ?EXIT
-    link $@ r/o open-file IF  drop  EXIT  THEN >r
-    r@ file-size throw $400 um/mod nip
+    link $@ r/o open-file IF  drop  EXIT  THEN dup
+    >r file-size throw $400 um/mod nip
     dup $800 < IF  ."  (" 0 u.r ." k)"
 	ELSE  $400 / ."  (" 0 u.r ." M)" THEN
     r> close-file throw ;
@@ -370,7 +370,7 @@ Variable expand-postfix
 : char? ( -- c )  >in @ char swap >in ! $FF umin ;
 
 : parse-tag ( addr u char -- )
-    >r r@ parse .type
+    dup >r parse .type
     r> parse 2swap tagged ;
 
 : .text ( -- ) 	>in @ >r char drop
@@ -801,8 +801,8 @@ Variable style$
     dup 0< IF  throw  ELSE  drop  THEN ;
 
 : eval-par ( addr u -- )
-  s" wf-temp.wf" r/w create-file throw >r
-  r@ write-file r> close-file throw
+  s" wf-temp.wf" r/w create-file throw dup
+  >r write-file r> close-file throw
   push-file s" wf-temp.wf" r/o open-file throw loadfile !
   parse-par -env parse-section
   loadfile @ close-file swap 2dup or

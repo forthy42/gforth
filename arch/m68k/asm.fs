@@ -200,7 +200,7 @@ D7 Constant WA     \ Working Address register
 | Create extra   here 5 dup allot erase \ temporary storage area
 
 | : extra?   ( {n} mode -- mode )   more?
-    IF  >r  r@ index?  double?  extra 1+ *swap
+    IF  dup  >r index?  double?  extra 1+ *swap
         IF tuck *!   2 +   *!  2  ELSE  *! 1 THEN  extra c!  r>
     ELSE   0 extra !
     THEN  ;
