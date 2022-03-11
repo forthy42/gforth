@@ -250,6 +250,7 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     fold2-2 ;
 ' opt-u/mod optimizes u/mod
 
+[defined] (#) [if]
 : (#1) ( ud1 -- ud2 )
     ?dup-if
         base @ ud/mod
@@ -275,3 +276,4 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     '0' + hold ;
 
 ' (#1) is #
+[then]
