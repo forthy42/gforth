@@ -71,7 +71,7 @@ require ./io.fs
     \G to @code{#>}, as shown in the examples below.
     0< IF  '-' hold  THEN ;
 
-: #       ( ud1 -- ud2 ) \ core		number-sign
+: # ( ud1 -- ud2 ) \ core		number-sign
     \G Used within @code{<#} and @code{#>}. Add the next
     \G least-significant digit to the pictured numeric output
     \G string. This is achieved by dividing @var{ud1} by the number in
@@ -80,7 +80,14 @@ require ./io.fs
     \G code) and appended to the string. If the number has been fully
     \G converted, @var{ud1} will be 0 and @code{#} will append a ``0''
     \G to the string.
-    base @ ud/mod rot dup 9 u>
+    ?dup-if
+        base @ ud/mod
+    else
+        base @ u/mod 0
+        \ special-casing base=#10 does not pay off:
+        \ <2022Mar11.130937@mips.complang.tuwien.ac.at>
+    then
+    rot dup 9 u>
     [ char A char 9 1+ - ] Literal and +
     '0' + hold ;
 
