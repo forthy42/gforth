@@ -249,31 +249,3 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
         >lits then
     fold2-2 ;
 ' opt-u/mod optimizes u/mod
-
-[defined] (#) [if]
-: (#1) ( ud1 -- ud2 )
-    ?dup-if
-        base @ ud/mod
-    else
-        base @ u/mod 0
-    then
-    rot dup 9 u>
-    [ char A char 9 1+ - ] Literal and +
-    '0' + hold ;
-
-: (#2) ( ud1 -- ud2 )
-    ?dup-if
-        base @ ud/mod
-    else
-        base @ 10 <> if
-            base @ u/mod 0
-        else
-            10 u/mod 0
-        then
-    then
-    rot dup 9 u>
-    [ char A char 9 1+ - ] Literal and +
-    '0' + hold ;
-
-' (#1) is #
-[then]
