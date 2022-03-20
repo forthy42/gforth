@@ -80,14 +80,9 @@ require ./io.fs
     \G code) and appended to the string. If the number has been fully
     \G converted, @var{ud1} will be 0 and @code{#} will append a ``0''
     \G to the string.
-    ?dup-if
-        base @ ud/mod
-    else
-        base @ u/mod 0
-        \ special-casing base=#10 does not pay off:
-        \ <2022Mar11.130937@mips.complang.tuwien.ac.at>
-    then
-    rot dup 9 u>
+    \ special-casing base=#10 does not pay off:
+    \ <2022Mar11.130937@mips.complang.tuwien.ac.at>
+    base @ ud/mod rot dup 9 u>
     [ char A char 9 1+ - ] Literal and +
     '0' + hold ;
 
