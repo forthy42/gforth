@@ -1,4 +1,18 @@
 # Install from source
+
+Gforth's build process is partially self-hosted, i.e. it needs a working
+Gforth.  For the tarball, everything needed to build a working Gforth is
+included, but from git, you need to install at least an outdated version of
+Gforth to build successful.
+
+For building the C interface files, a Swig fork is needed.  The tarball also
+contains all files to create these interface files when the Swig fork is not
+available.
+
+The script `install-deps.sh` tries to install all necessary build
+dependencies, depending on the variable `BUILD_FROM` (if set to `tarball`,
+it's a tarball build, otherwise, everything for a git build will be installed).
+
 ## Build from git
 
     git clone https://git.savannah.gnu.org/git/gforth.git
