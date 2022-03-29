@@ -24,6 +24,7 @@ disassembler also definitions
 
 Variable ,space ,space on
 
+: .lformat   ( addr -- )  $C u.r ." :" ;
 : ., ( -- ) ',' emit ,space @ IF space THEN ;
 : .[ ( -- ) '[' emit ,space off ;
 : .] ( -- ) ']' emit ,space on ;
@@ -507,16 +508,15 @@ $00000000 $00000000 inst, unallocated
     BEGIN  2dup 2@ >r and r> <>  WHILE  3 cells +  REPEAT
     2 cells + perform ;
 
+: .code ( addr -- addr' ) dup l@ inst sfloat+ cr ;
+
 Forth definitions
 
+: disline ( ip -- ip' )
+    [: dup .lformat tab .code ;] $10 base-execute ;
+
 : disasm ( addr u -- ) \ gforth
-    [: over + >r
-	begin
-	    dup r@ u<
-	while
-		cr dup 14 .r ." : " dup l@ inst 4 +
-	repeat
-	cr rdrop drop ;] $10 base-execute ;
+    bounds u+do  cr i disline i - +loop  cr ;
 
 ' disasm is discode
 

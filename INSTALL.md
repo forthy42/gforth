@@ -14,7 +14,8 @@
     ./configure
     make
     sudo make install
-		Configuration Options
+
+# Configuration Options
 
 ## Build options
 
