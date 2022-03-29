@@ -23,7 +23,7 @@ If you use GNU make, you can build in a directory different from the
 source directory by changing to the build directory and invoking
 configure thus:
 
-	$srcdir/configure
+    $srcdir/configure
 
 where `$srcdir` is the source directory.
 
@@ -43,23 +43,23 @@ should override them already during configure.  E.g., if you want to
 install in the /gnu hierarchy instead of in the default /usr/local
 hierarchy, say
 
-	./configure --prefix=/gnu
+    ./configure --prefix=/gnu
 
 Moreover, if your GCC is not called gcc (but, e.g., gcc-2.7.1), you
 should say so during configuration. E.g.:
 
-	./configure CC=gcc-2.7.1
+    ./configure CC=gcc-2.7.1
 
 You can also pass additional options to gcc in this way, e.g., if you
 want to generate an a.out executable under Linux with gcc-2.7.0:
 
-	./configure CC="gcc -b i486-linuxaout -V 2.7.0"
+    ./configure CC="gcc -b i486-linuxaout -V 2.7.0"
 
 You can change the sizes of the various areas used in the default
 image `gforth.fi' by passing the appropriate Gforth command line
 options in the FORTHSIZES environment variable:
 
-	./configure "FORTHSIZES=--dictionary-size=1048576 --data-stack-size=16k --fp-stack-size=16K --return-stack-size=15k --locals-stack-size=14848b"
+    ./configure "FORTHSIZES=--dictionary-size=1048576 --data-stack-size=16k --fp-stack-size=16K --return-stack-size=15k --locals-stack-size=14848b"
 
 The line above reaffirms the default sizes. Note that the locals
 stack area is also used as input buffer stack.
@@ -68,20 +68,20 @@ If C's "long long" do not work properly on your machine (i.e., if the
 tests involving double-cell numbers fail), you can build Gforth such
 that it does not use "long long":
 
-	./configure ac_cv_sizeof_long_long=0
+    ./configure ac_cv_sizeof_long_long=0
 
 For MacOS X on Core 2 processors, you might want to use the 64-bit
 version for increased speed (more registers available); you have to
 ask for that on configuration, as follows:
 
-	./configure CC='gcc-4.2 -arch x86_64' --build=x86_64-apple-darwin9.4.0
+    ./configure CC='gcc-4.2 -arch x86_64' --build=x86_64-apple-darwin9.4.0
 
 ## Cross installation
 
 For systems like Android, where you don't build on the actual system, but do
 cross building, there is a
 
-	--with-cross=<subdir>
+    --with-cross=<subdir>
 
 switch for `configure`.  This will cause configure to disable things that
 don't work in cross building, an source a file `config.sh` in the subdir of
@@ -141,7 +141,7 @@ in both areas:
 1. Add an `INFOPATH` environment variable. The easiest place to do
 this is `/etc/profile`, right next to `PATH` and `MANPATH`:
 
-	INFOPATH=/usr/local/info:/usr/info
+    INFOPATH=/usr/local/info:/usr/info
 
 2. Create a file called `dir` in `usr/local/info`. Use the file
 `/usr/info/dir` as a template. You can add the line for gforth
@@ -191,14 +191,14 @@ compiled for the respective Debian systems.
 ## Flatpak
 
     flatpak remote-add --if-not-exists net2o https://flathub.net2o.net/repo/net2o.flatpakrepo
-	flatpak install org.gforth.gforth
+    flatpak install org.gforth.gforth
 
 Since Flatpaks manage access to external resources, you want the following two
 aliases, one for terminal applications, the other if you use MINOS2 GUI
 applications:
 
-	alias gforth="flatpak run --filesystem=$PWD org.gforth.gforth"
-	alias gforth-gui="flatpak run --socket=x11 --device=dri --socket=pulseaudio --filesystem=$PWD org.gforth.gforth"
+    alias gforth="flatpak run --filesystem=$PWD org.gforth.gforth"
+    alias gforth-gui="flatpak run --socket=x11 --device=dri --socket=pulseaudio --filesystem=$PWD org.gforth.gforth"
 
 ## Docker
 
@@ -206,14 +206,14 @@ There are different builts for terminal only Gforth, GUI (with MINOS2) and GUI
 with all the necessary fonts:
 
     docker pull forthy42/gforth
-	docker pull forthy42/gforth-gui
-	docker pull forthy42/gforth-gui-fonts
+    docker pull forthy42/gforth-gui
+    docker pull forthy42/gforth-gui-fonts
 
 Like Flatpak, you want aliases to run it with the necessary permissions
 
-	alias gforthdk="docker run -ti --rm forthy42/gforth"
-	alias gforth-guidk="docker run -ti -e USER=$USER -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /dev/dri:/dev/dri -v /usr/share/fonts:/usr/share/fonts -v $XAUTHORITY:/home/gforth/.Xauthority -v ${XDG_RUNTIME_DIR}/pulse:/run/user/1000/pulse --rm forthy42/gforth-gui"
-	alias gforth-gui-fontsdk="docker run -ti -e USER=$USER -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /dev/dri:/dev/dri -v $XAUTHORITY:/home/gforth/.Xauthority -v ${XDG_RUNTIME_DIR}/pulse:/run/user/1000/pulse --rm forthy42/gforth-gui-fonts"
+    alias gforthdk="docker run -ti --rm forthy42/gforth"
+    alias gforth-guidk="docker run -ti -e USER=$USER -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /dev/dri:/dev/dri -v /usr/share/fonts:/usr/share/fonts -v $XAUTHORITY:/home/gforth/.Xauthority -v ${XDG_RUNTIME_DIR}/pulse:/run/user/1000/pulse --rm forthy42/gforth-gui"
+    alias gforth-gui-fontsdk="docker run -ti -e USER=$USER -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix/ -v /dev/dri:/dev/dri -v $XAUTHORITY:/home/gforth/.Xauthority -v ${XDG_RUNTIME_DIR}/pulse:/run/user/1000/pulse --rm forthy42/gforth-gui-fonts"
 
 ## Snap
 
