@@ -223,8 +223,8 @@ Defer in-dictionary? ( x -- f )
 : ud/mod ( ud1 u2 -- urem udquot ) \ gforth
     \G divide unsigned double @i{ud1} by @i{u2}, resulting in a unsigned double
     \G quotient @i{udquot} and a single remainder @i{urem}.
-    dup >r u/mod r> swap >r
-    um/mod r> ;
+    over 0= if nip u/mod 0 exit then
+    dup >r u/mod r> swap >r um/mod r> ;
 
 \ catch throw                                          23feb93py
 
