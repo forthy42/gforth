@@ -63,6 +63,9 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
 \   url =          {https://www.hb.dhbw-stuttgart.de/kps2019/kps2019_Tagungsband.pdf}
 \ }
 
+\ potential future improvement for implementing staged MOD:
+\ https://arxiv.org/abs/1902.01961
+
 0 [if]
     \ commented out because it is a primitive
 : u/-stage2m {: udividend addr -- uquotient :}

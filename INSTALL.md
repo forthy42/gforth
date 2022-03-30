@@ -3,7 +3,7 @@
 Gforth's build process is partially self-hosted, i.e. it needs a working
 Gforth.  For the tarball, everything needed to build a working Gforth is
 included, but from git, you need to install at least an outdated version of
-Gforth to build successful.
+Gforth to build successfully.
 
 For building the C interface files, a Swig fork is needed.  The tarball also
 contains all files to create these interface files when the Swig fork is not
