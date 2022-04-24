@@ -1567,7 +1567,7 @@ fi
 #    AC_CHECK_HEADER(SOIL/SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
 #		    SWIGLIBS="$SWIGLIBS soil.fs", ,))
 #fi
-CPPFLAGS="$CPPFLAGS -I$srcdir/freetype-gl"
+CPPFLAGS="$CPPFLAGS -I$ac_pwd/$srcdir/freetype-gl"
 if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags freetype2`"
