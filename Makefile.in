@@ -1457,8 +1457,8 @@ doc/words/$(RVERSION)-words: gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_
 
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		doc/doc.fd doc/crossdoc.fd preforth @kernel_fi@ \
-		$(wildcard doc/words/0.*-words)
-		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "args-gforth-versions s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" $(wildcard doc/words/*-words) >$@-
+		$(wildcard $(srcdir)/doc/words/0.*-words)
+		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "args-gforth-versions s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" $(wildcard $(srcdir)/doc/words/*-words) >$@-
 		$(MV) $@- $@
 
 checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd answords.fs doc/gforth.texi
