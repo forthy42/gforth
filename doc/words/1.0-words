@@ -43,17 +43,17 @@ see-code-next-inline simple-see-range simple-see-word xt-range c-extend1
 c-lp+!# c-laddr# c-f@local# c-flit c-@local# c-branch-lp+!# c-?branch-lp+!# 
 c-loop#-lp+!# c-loop-lp+!# umethod? seeumethod seefield seecol seedoes 
 see-threaded seedefer seevalue seecon seeuser seevar see;abicode seeabicode 
-seecode makepass c-init analyse BranchTo? DoTable c-lits c-extender C-Table 
-c-user@ search-userval c-useraddr c-searcharg search-uservar ?type-found 
-c-call-c# c-u#+ c-u#exec c-u#gen search-u#gen u#what c-abort" c-exit c-?do 
-c-do c-loop# c-loop c-for c-?dup-?branch c-?branch DebugBranch c-branch 
-RepeatCheck Forward? c-string? c-c" .name-without c-lit@ c-lit+ c-lit c>lit 
-c-. c># c-callxt c-call .word back? ?.string Debug? Display? Scan? DebugMode 
-DisplayMode ScanMode C-Pass NoOutput Branch! Type! ,Branch CheckWhile MyBranch 
-CheckEnd MoreBranchAddr? BranchAddr? (BranchAddr?) FirstBranch MaxTable 
-BranchTable SearchPointer BranchPointer Branches C-Stop LeaveCode Disable 
-WhileCode2 AheadCode ElseCode LoopCode UntilCode AgainCode RepeatCode .struc 
-struct-pre c-\type c-\emit (.string) .string next-prim next-head .defname 
+seecode makepass c-init analyse BranchTo? DoTable c-extender C-Table c-user@ 
+search-userval c-useraddr c-searcharg search-uservar ?type-found c-call-c# 
+c-u#+ c-u#exec c-u#gen search-u#gen u#what c-abort" c-exit c-?do c-do c-loop# 
+c-loop c-for c-?dup-?branch c-?branch DebugBranch c-branch RepeatCheck 
+Forward? c-string? c-c" .name-without c-lit@ c-lit+ c-lit c>lit c-. c># 
+c-callxt c-call .word back? Branch! Type! ,Branch CheckWhile MyBranch CheckEnd 
+MoreBranchAddr? BranchAddr? (BranchAddr?) FirstBranch MaxTable BranchTable 
+SearchPointer BranchPointer Branches C-Stop LeaveCode Disable WhileCode2 
+AheadCode ElseCode LoopCode UntilCode AgainCode RepeatCode .struc struct-pre 
+c-lits ?.string Debug? Display? Scan? DebugMode DisplayMode ScanMode C-Pass 
+NoOutput c-\type c-\emit (.string) .string next-prim next-head .defname 
 xt-see-xt cemit ctype warp? (nl) nl nlcount uppercase nlflag level- level+ 
 Format Level YPos XPos C-Clearline C-Highlight C-Formated C-Output 
 X:xchar X:traverse-wordlist X:throw-iors X:text-substitution X:synonym 
@@ -483,8 +483,8 @@ g_main_context_acquire g_main_context_wakeup
 g_main_context_find_source_by_funcs_user_data 
 g_main_context_find_source_by_user_data g_main_context_find_source_by_id 
 g_main_context_pending g_main_context_iteration g_main_context_default 
-g_main_context_unref g_main_context_ref g_main_context_new 
-g_rw_lock_reader_locker_free g_rw_lock_reader_locker_new 
+g_main_context_unref g_main_context_ref g_main_context_new_with_flags 
+g_main_context_new g_rw_lock_reader_locker_free g_rw_lock_reader_locker_new 
 g_rw_lock_writer_locker_free g_rw_lock_writer_locker_new 
 g_rec_mutex_locker_free g_rec_mutex_locker_new g_mutex_locker_free 
 g_mutex_locker_new g_get_num_processors g_once_impl g_private_replace 
@@ -497,15 +497,16 @@ g_mutex_unlock g_mutex_trylock g_mutex_lock g_mutex_clear g_mutex_init
 g_thread_yield g_thread_join g_thread_exit g_thread_self g_thread_try_new 
 g_thread_new g_thread_unref g_thread_ref g_thread_error_quark 
 g_intern_static_string g_intern_string g_quark_to_string g_quark_from_string 
-g_quark_from_static_string g_quark_try_string _GLIB_CHECKED_MUL_U64 
-_GLIB_CHECKED_ADD_U64 _GLIB_CHECKED_MUL_U32 _GLIB_CHECKED_ADD_U32 
-GSignalAccumulator: GSignalEmissionHook: GToggleNotify: GWeakNotify: 
-GObjectFinalizeFunc: GObjectSetPropertyFunc: GObjectGetPropertyFunc: 
-GTypeInterfaceCheckFunc: GTypeClassCacheFunc: GInterfaceFinalizeFunc: 
-GInterfaceInitFunc: GInstanceInitFunc: GClassFinalizeFunc: GClassInitFunc: 
-GBaseFinalizeFunc: GBaseInitFunc: GClearHandleFunc: GSourceDummyMarshal: 
-GSourceDisposeFunc: GChildWatchFunc: GSourceFunc: GThreadFunc: GTranslateFunc: 
-GFreeFunc: GCopyFunc: GHFunc: GHashFunc: GFunc: GDestroyNotify: GEqualFunc: 
+g_quark_from_static_string g_quark_try_string _GLIB_CHECKED_MUL_SIZE 
+_GLIB_CHECKED_ADD_SIZE _GLIB_CHECKED_MUL_UINT64 _GLIB_CHECKED_ADD_UINT64 
+_GLIB_CHECKED_MUL_UINT _GLIB_CHECKED_ADD_UINT GSignalAccumulator: 
+GSignalEmissionHook: GToggleNotify: GWeakNotify: GObjectFinalizeFunc: 
+GObjectSetPropertyFunc: GObjectGetPropertyFunc: GTypeInterfaceCheckFunc: 
+GTypeClassCacheFunc: GInterfaceFinalizeFunc: GInterfaceInitFunc: 
+GInstanceInitFunc: GClassFinalizeFunc: GClassInitFunc: GBaseFinalizeFunc: 
+GBaseInitFunc: GClearHandleFunc: GSourceDummyMarshal: GSourceDisposeFunc: 
+GChildWatchFunc: GSourceFunc: GThreadFunc: GTranslateFunc: GFreeFunc: 
+GCopyFunc: GHFunc: GHashFunc: GFunc: GDestroyNotify: GEqualFunc: 
 GCompareDataFunc: GCompareFunc: _GObjectClass-constructed() 
 _GObjectClass-notify() _GObjectClass-dispatch_properties_changed() 
 _GObjectClass-finalize() _GObjectClass-dispose() _GObjectClass-get_property() 
@@ -561,13 +562,14 @@ G_SIGNAL_RUN_CLEANUP G_SIGNAL_RUN_LAST G_SIGNAL_RUN_FIRST G_TYPE_FLAG_FINAL
 G_TYPE_FLAG_VALUE_ABSTRACT G_TYPE_FLAG_ABSTRACT G_TYPE_FLAG_DEEP_DERIVABLE 
 G_TYPE_FLAG_DERIVABLE G_TYPE_FLAG_INSTANTIATABLE G_TYPE_FLAG_CLASSED 
 G_TYPE_DEBUG_MASK G_TYPE_DEBUG_INSTANCE_COUNT G_TYPE_DEBUG_SIGNALS 
-G_TYPE_DEBUG_OBJECTS G_TYPE_DEBUG_NONE G_IO_NVAL G_IO_HUP G_IO_ERR G_IO_PRI 
-G_IO_OUT G_IO_IN G_ONCE_STATUS_READY G_ONCE_STATUS_PROGRESS 
-G_ONCE_STATUS_NOTCALLED G_THREAD_ERROR_AGAIN G_LOG_2_BASE_10 G_SQRT2 G_PI_4 
-G_PI_2 G_PI G_LN10 G_LN2 G_E G_SIGNAL_MATCH_MASK G_SIGNAL_FLAGS_MASK 
-G_TYPE_RESERVED_USER_FIRST G_TYPE_RESERVED_BSE_LAST G_TYPE_RESERVED_BSE_FIRST 
-G_TYPE_RESERVED_GLIB_LAST G_TYPE_RESERVED_GLIB_FIRST G_TYPE_FUNDAMENTAL_SHIFT 
-G_PRIORITY_LOW G_PRIORITY_DEFAULT_IDLE G_PRIORITY_HIGH_IDLE G_PRIORITY_DEFAULT 
+G_TYPE_DEBUG_OBJECTS G_TYPE_DEBUG_NONE G_MAIN_CONTEXT_FLAGS_OWNERLESS_POLLING 
+G_MAIN_CONTEXT_FLAGS_NONE G_IO_NVAL G_IO_HUP G_IO_ERR G_IO_PRI G_IO_OUT 
+G_IO_IN G_ONCE_STATUS_READY G_ONCE_STATUS_PROGRESS G_ONCE_STATUS_NOTCALLED 
+G_THREAD_ERROR_AGAIN G_LOG_2_BASE_10 G_SQRT2 G_PI_4 G_PI_2 G_PI G_LN10 G_LN2 
+G_E G_SIGNAL_MATCH_MASK G_SIGNAL_FLAGS_MASK G_TYPE_RESERVED_USER_FIRST 
+G_TYPE_RESERVED_BSE_LAST G_TYPE_RESERVED_BSE_FIRST G_TYPE_RESERVED_GLIB_LAST 
+G_TYPE_RESERVED_GLIB_FIRST G_TYPE_FUNDAMENTAL_SHIFT G_PRIORITY_LOW 
+G_PRIORITY_DEFAULT_IDLE G_PRIORITY_HIGH_IDLE G_PRIORITY_DEFAULT 
 G_PRIORITY_HIGH G_IEEE754_DOUBLE_BIAS G_IEEE754_FLOAT_BIAS G_PDP_ENDIAN 
 G_BIG_ENDIAN G_LITTLE_ENDIAN harfbuzz vulkan datum_code_string mag_var 
 wgs84_separation earth_distance_and_bearings earth_distance mkgmtime safe_atof 

@@ -616,21 +616,21 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	gforthker.in README.vmgen NEWS.vmgen autogen.sh configure.ac	      \
 	configure config.sub config.guess elisp-comp stamp-h.in envos.fs.in   \
 	kernel/version.fs.in iss.sh wininst.sh modpath.iss firewall.iss	      \
-	install-sh INSTALL.md NEWS README README.md ToDo BUGS	      \
+	install-sh INSTALL.md NEWS README README.md ToDo BUGS		      \
 	BUILD-FROM-SCRATCH model COPYING COPYING.LIB COPYING.DOC AUTHORS      \
-	ChangeLog Benchres aclocal.m4 doc/Makefile.in doc/gforth.texi.in      \
-	$(wildcard $(srcdir)/doc/words/*-words) doc/words/README                        \
-	doc/gforth.1 doc/gforth.css doc/version.texi.in doc/vmgen.texi	      \
-	doc/fdl.texi doc/gpl.texi gforth.el $(ARCHS) siteinit.fs versions.bsh \
-	glosgen.glo doc/glossaries.doc $(FORTH_SRC) $(LIBCC_DIST_SRC)	      \
-	$(LIBCC_GEN_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2)		      \
+	ChangeLog Benchres aclocal.m4 ltmain.sh doc/Makefile.in		      \
+	doc/gforth.texi.in $(wildcard $(srcdir)/doc/words/*-words)	      \
+	doc/words/README doc/gforth.1 doc/gforth.css doc/version.texi.in      \
+	doc/vmgen.texi doc/fdl.texi doc/gpl.texi gforth.el $(ARCHS)	      \
+	siteinit.fs versions.bsh glosgen.glo doc/glossaries.doc $(FORTH_SRC)  \
+	$(LIBCC_DIST_SRC) $(LIBCC_GEN_SRC) $(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) \
 	$(FREETYPE_GL_SRC) timings.sc test/coretest.out test/checkans.out     \
 	test/gforth.out test/read-line.input test/read-line2.input	      \
-	test/read-line.out test/fp/fptest.out $(wildcard $(srcdir)/cache*.vmg)	      \
-	peeprules.vmg prim debian/rules debian/control.in debian/changelog.in \
-	debian/compat gforth.ico .travis.yml install-deps.sh install-swig.sh  \
-	install-freetype-gl.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4	      \
-	move-if-change $(DOCKER)
+	test/read-line.out test/fp/fptest.out $(wildcard		      \
+	$(srcdir)/cache*.vmg) peeprules.vmg prim debian/rules		      \
+	debian/control.in debian/changelog.in debian/compat gforth.ico	      \
+	.travis.yml install-deps.sh install-swig.sh install-freetype-gl.sh    \
+	$(SWIG_WRAP) m4/ax_gcc_builtin.m4 move-if-change $(DOCKER)
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
 	libforth gforthker engine/Makefile engine/gforth.h		\
