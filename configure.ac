@@ -1567,15 +1567,19 @@ fi
 #    AC_CHECK_HEADER(SOIL/SOIL.h, SWIGMODULES="$SWIGMODULES soil.fs"
 #		    SWIGLIBS="$SWIGLIBS soil.fs", ,))
 #fi
-CPPFLAGS="$CPPFLAGS -I$ac_pwd/$srcdir/freetype-gl"
 if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS `pkg-config --cflags freetype2`"
+   CPPFLAGS_2="$CPPFLAGS"
+   CPPFLAGS="$CPPFLAGS -I$ac_pwd/$srcdir/freetype-gl"
    AC_CHECK_HEADER(ft2build.h,
    AC_CHECK_LIB(freetype,FT_Get_Char_Index,
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
 		    SWIGLIBS="$SWIGLIBS freetype_gl.fs"
 		    SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags freetype2 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,), ,), ,)
+   if test x"$CPPFLAGS" != x"$CPPFLAGS_1"; then
+      CPPFLAGS="$CPPFLAGS_2"
+   fi
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/wayland-fsi.c; then
    CPPFLAGS_1="$CPPFLAGS"
