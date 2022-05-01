@@ -52,10 +52,11 @@ wordlist constant gforth-versions-wl
     2drop ;] execute-parsing ;
 
 : file-gforth-versions {: c-addr u :}
-    \ c-addr u is a file name of the form "doc/words/<version>-words".
+    \ c-addr u is a file name of the form "...doc/words/<version>-words".
     \ Associates all words in the file with <version> unless the words
     \ already have an earlier association.
-    c-addr u "doc/words/" nip /string "-words" nip - to gforth-version-string
+    c-addr u "doc/words/" dup >r search 0= #-32 and throw
+    r> /string "-words" nip - to gforth-version-string
     c-addr u slurp-file `note-word-version each-word ;
 
 : args-gforth-versions ( -- )
