@@ -22,7 +22,7 @@ AB   [x] "IDE" locate, view, where & edit
  B       [x] help for recognizer
  B       [x] locate of recognized thing
   G      [x] Website manual - doc/crossdoc.fd doc/doc.fd doc/gforth.texi.in|grep doc- doc/gforth.txt
- B       [x]*Add tex-section support
+ B       [x] Add tex-section support
 A        [x] Add documentation explaining help so that "help help" yields it
 A        [x] where: interaction with editors - g can be used
  B       [x] implement ANSI control sequences in a way that gl-terminal can emulate them easily
@@ -31,7 +31,7 @@ A        [x] where: interaction with editors - g can be used
 AB       [x] switch between where or backtrace results with left and right keys
 B   [x] version comparison 001.000.000 -> upgrade path: 000.007.009
   G  [ ]*theforth.net - client: look for local version or use global version
- BG  [ ]*SWIG: SWIG-forth rename as proper fork, create docker and flatpak
+ BG  [x]*SWIG: SWIG-forth rename as proper fork, create docker and flatpak
   G  [x]*find out why GLforth stopped working
   G  [x] better vim support
 A    [ ] changelog
