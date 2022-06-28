@@ -30,28 +30,40 @@ require minos2/text-style.fs
 require minos2/presentation-support.fs
 
 dark-gui
-$0000EECC new-color, fvalue button-color#
+$FFFFAAFF new-color, fvalue button-color#
 light-gui
-$FFFFAAFF re-color button-color#
+$0000CCFF re-color button-color#
 
 ' }}i18n-text is }}text'
 
+l"  " >r
+: em-space ( -- o ) [ r> ]L }}text' ;
+
 {{
-    $777777FF $888888FF pres-frame
+    $FFFFFFFF $000000FF pres-frame
     {{
+	\large
 	{{
-	    l" 双头龙" }}text' glue*l }}glue
-	    l" 雙頭龍" }}text' glue*l }}glue \normal 
+	    l" 双头龙" }}text'
+	    em-space
+	    l" 雙頭龍" }}text'
+	    glue*ll }}glue
+	}}h box[] >bl
+	\normal
+	{{
 	    l" 🇨🇳 scify 🇲🇾" button-color# }}button
-	    [: ." simpliefied" cr ['] translators:scify is translator +lang ;] over click[] glue*l }}glue
+	    [: ." simpliefied" cr ['] translators:scify is translator +lang ;] over click[]
+	    em-space
 	    l" 🇹🇼 tcify 🇭🇰" button-color# }}button
-	    [: ." traditional" cr ['] translators:tcify is translator +lang ;] over click[] glue*l }}glue
+	    [: ." traditional" cr ['] translators:tcify is translator +lang ;] over click[]
+	    em-space
 	    l" as is" button-color# }}button
-	    [: ." as is" cr ['] noop  is translator +lang ;] over click[] glue*l }}glue  glue*l }}glue 
-	}}h box[]
+	    [: ." as is" cr ['] noop  is translator +lang ;] over click[]
+	    glue*ll }}glue
+	}}h box[] >bl
 	glue*l }}glue
     }}v box[] >bdr
-}}z box[] to top-widget
+}}z box[] slide[] to top-widget
 
 dark-gui
 presentation
