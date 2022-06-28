@@ -1,6 +1,8 @@
 #Words in various Gforth versions
 #originally generated with the following commands,
 #but there may be manual corrections.
+(~/tmp/gforth-0.2.1; setarch `uname -m` -R ./gforth -p. code.fs objects.fs oof.fs -e "get-order environment-wordlist swap 1+ set-order words previous forth words bye" >~/gforth/doc/words/0.2-words)
+run-aout -- /usr/local/bin/gforth-0.3.0 code.fs objects.fs oof.fs -e "get-order environment-wordlist swap 1+ set-order words previous forth words bye" >~anton/gforth/doc/words/0.3-words
 gforth-0.4.0 code.fs objects.fs oof.fs -e "get-order environment-wordlist swap 1+ set-order words previous forth words bye" >0.4-words
 gforth-0.5.0 code.fs objects.fs oof.fs moofglos.fs -e "environment-wordlist >order words previous forth words bye" >0.5-words
 gforth-0.6.2 code.fs objects.fs oof.fs moofglos.fs fflib.fs -e "environment words forth words bye" >0.6-words
