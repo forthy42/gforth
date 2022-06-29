@@ -17837,7 +17837,7 @@ find numbers for Gforth on various machines in @file{Benchres}.
 @c @chapter Binding to System Library
 
 @c ****************************************************************
-@node Cross Compiler, Bugs, Engine, Top
+@node Cross Compiler, MINOS2, Engine, Top
 @chapter Cross Compiler
 @cindex @file{cross.fs}
 @cindex cross-compiler
@@ -17978,6 +17978,18 @@ cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 
 @node How the Cross Compiler Works,  , Using the Cross Compiler, Cross Compiler
 @section How the Cross Compiler Works
+
+@node MINOS2, Bugs, Cross Compiler, Top
+@Section MINOS2, a GUI library
+
+@menu
+* MINOS2 object framework
+* MINOS2 tutorial
+@end menu
+
+@node MINOS2 object framework, MINOS2 tutorial, MINOS2, MINOS2
+
+@node MINOS2 tutorial, , MINOS2 object framework, MINOS2
 
 @node Bugs, Origin, Cross Compiler, Top
 @appendix Bugs

@@ -86,10 +86,10 @@
     +LOOP  fdrop drop line-strip> ;
 
 : plot-x ( addr u color o:canvas -- )
-    >r 2dup minmax r> plot-x-minmax ;
+    2dup minmax plot-x-minmax ;
 
 : plot-xy ( addrx addry uy color o:canvas -- )
-    >r third over minmax 2dup minmax r> plot-xy-minmax ;
+    third over minmax 2dup minmax plot-xy-minmax ;
 
 : plot-dxy ( addrdx addry uy color o:canvas -- )
-    >r third over 1 floats - fsum 2dup minmax r> plot-dxy-minmax ;
+    third over 1 floats - fsum 2dup minmax plot-dxy-minmax ;

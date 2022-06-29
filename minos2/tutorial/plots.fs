@@ -1,4 +1,4 @@
-\ ΜΙΝΩΣ2 Buttons Examples
+\ ΜΙΝΩΣ2 Plots Examples
 
 \ Authors: Bernd Paysan
 \ Copyright (C) 2022 Free Software Foundation, Inc.
@@ -18,30 +18,54 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+require minos2/plot.fs
+
+dark-blue x-color FValue plot-x-color
+
+Create plot-x-addr
+0e f, 1e f, 3e f, 2e f, 0e f,
+here plot-x-addr - Constant plot-x-u
+Create plot-x-addr'
+1e f,
+3e f,
+3e f,
+4e f,
+3e f,
+1e f,
+1e f,
+3e f,
+1e f,
+Create plot-y-addr'
+1e f,
+1e f,
+3e f,
+2e f,
+1e f,
+3e f,
+1e f,
+3e f,
+3e f,
+here plot-y-addr' - Constant plot-xy-u
+
+: plot-x-test ( -- )
+    plot-x-addr plot-x-u plot-x-color plot-x ;
+: plot-xy-test ( -- )
+    plot-y-addr' plot-x-addr' plot-xy-u plot-x-color
+    0e 4e 0e 5e plot-xy-minmax ;
+
 {{
     $000000FF $FFFFFFFF pres-frame
     {{
-	l" ΜΙΝΩΣ2 Button Example" /title \skip
-	\large
-	{{
-	    l" 双头龙" }}text'
-	    em-space
-	    l" 雙頭龍" }}text'
-	    glue*ll }}glue
-	}}h box[] >bl
+	l" ΜΙΝΩΣ2 Plot Example" /title \skip
 	\normal
 	{{
-	    l" 🇨🇳 scify 🇲🇾" button-color# }}button
-	    [: ." simpliefied" cr ['] translators:scify is translator +lang ;] over click[]
-	    em-space
-	    l" 🇹🇼 tcify 🇭🇰" button-color# }}button
-	    [: ." traditional" cr ['] translators:tcify is translator +lang ;] over click[]
-	    em-space
-	    l" as is" button-color# }}button
-	    [: ." as is" cr ['] noop  is translator +lang ;] over click[]
-	    glue*ll }}glue
+	    whitish glue*l x-color ' plot-x-test ' noop }}canvas
+	    {{
+		em-space
+		glue*l }}glue
+	    }}v box[]
+	    whitish glue*l x-color ' plot-xy-test ' noop }}canvas
 	}}h box[] >bl
-	glue*l }}glue
     }}v box[] >bdr
 }}z box[]
 
