@@ -9,7 +9,7 @@ extern struct _IO_FILE *stderr;
 #endif
 %}
 
-// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary SDL2``get-current also SDL2 definitions``c-library\1`s" a a 0" vararg$ $!/g' -e 's/^end-c-library/end-c-library`previous set-current/g' | tr '`' '\n'
+// exec: sed -e 's/^c-library\( .*\)/cs-vocabulary SDL2``get-current also SDL2 definitions``c-library\1`s" a a 0" vararg$ $!/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/s" SDL" add-lib/s" SDL2" add-lib/g' | tr '`' '\n'
 
 %apply unsigned int { Uint32, size_t, Uint16, Uint8, SDL_BlendMode };
 %apply unsigned long long { Uint64 };

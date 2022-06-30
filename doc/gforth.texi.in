@@ -142,6 +142,7 @@ Software Foundation raise funds for GNU development.''
 * Emacs and Gforth::            The Gforth Mode
 * Image Files::                 @code{.fi} files contain compiled code
 * Engine::                      The inner interpreter and the primitives
+* MINOS2::                      The GUI library
 * Cross Compiler::              The Cross Compiler
 * Bugs::                        How to report them
 * Origin::                      Authors and ancestors of Gforth
@@ -17988,8 +17989,8 @@ cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 @chapter MINOS2, a GUI library
 
 @menu
-* MINOS2 object framework
-* MINOS2 tutorial
+* MINOS2 object framework::
+* MINOS2 tutorial::
 @end menu
 
 @node MINOS2 object framework, MINOS2 tutorial, MINOS2, MINOS2
