@@ -35,18 +35,13 @@ $0000BFFF text-color: link-blue
 $0000BFFF text-color: heading-blue
 $0000BFFF text-color: item-blue
 $553300FF text-color: mono-col
-color-h 1 > [IF]
-    color,#
-    1 new-theme
-    dark-gui
-    $333333FF re-color pre-color#
-    $FFFFBBFF re-text-color link-blue
-    $FFFFBBFF re-text-color heading-blue
-    $FFFFBBFF re-text-color item-blue
-    $FFFFDDFF re-text-color mono-col
-    light-gui
-    to color,#
-[THEN]
+dark-gui
+$333333FF re-color pre-color#
+$FFFFBBFF re-text-color link-blue
+$FFFFBBFF re-text-color heading-blue
+$FFFFBBFF re-text-color item-blue
+$FFFFDDFF re-text-color mono-col
+light-gui
 uval-o md-style
 
 object uclass md-style
@@ -488,7 +483,7 @@ get-current also markdown definitions
     /source 0 render-line .md-text .\\ ; is .##.
 100 11 [DO] [I] 0 <# '.' hold #S #> nextname synonym 10. [LOOP]
 
-: * ( -- )33
+: * ( -- )
     -2 >indent cur#indent bullet-char .item ;
 :noname { bchar -- } item-blue
     {{ 0 bchar [: cur#indent 1+ wspaces xemit wspace ;] $tmp }}text-us

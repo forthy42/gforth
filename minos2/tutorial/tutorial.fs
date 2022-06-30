@@ -23,7 +23,7 @@ also minos
 
 require minos2/font-style.fs
 
-44e update-size#
+88e update-size#
 
 require minos2/text-style.fs
 require minos2/presentation-support.fs
@@ -49,6 +49,6 @@ l"  " >r
     }}h box[]
 }}z box[] slide[] to top-widget
 
-dark-gui
+light-gui
 presentation
 bye

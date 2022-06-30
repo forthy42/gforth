@@ -394,7 +394,7 @@ UNICODE_SRC = mirror.fs bidi.fs vertical.fs bidi-db.fs mirrors.fs bidis.fs   \
 	verticals.fs unihan.fs unihan.db japanese.db japanese-tc.db brackets.fs brackets.db \
 	quotation.db Makefile
 
-MINOS2_TUTORIAL = tutorial.fs buttons.fs plots.fs
+MINOS2_TUTORIAL = tutorial.fs buttons.fs plots.fs markdown.fs
 
 MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
 	wayland-gl.fs soil-texture.fs gl-sample.fs gl-slideshow.fs	     \
