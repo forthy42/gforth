@@ -28,11 +28,6 @@ require minos2/font-style.fs
 require minos2/text-style.fs
 require minos2/presentation-support.fs
 
-dark-gui
-$0000CCFF new-color, fvalue button-color#
-light-gui
-$FFFFAAFF re-color button-color#
-
 ' }}i18n-text is }}text'
 
 l"  " >r

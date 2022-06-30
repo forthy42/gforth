@@ -82,5 +82,3 @@ forth-local-indent-words:
      (("}}h" "}}v" "}}z" "}}vp" "}}p" "}}vt") (-2 . 0) (-2 . 0) immediate)
     )
 End:
-
-	    

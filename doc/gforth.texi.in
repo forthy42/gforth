@@ -590,6 +590,11 @@ Primitives
 * TOS Optimization::
 * Produced code::
 
+MINOS2
+
+* MINOS2 object framework::
+* MINOS2 tutorial::
+
 Cross Compiler
 
 * Using the Cross Compiler::
@@ -17980,7 +17985,7 @@ cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 @section How the Cross Compiler Works
 
 @node MINOS2, Bugs, Cross Compiler, Top
-@Section MINOS2, a GUI library
+@chapter MINOS2, a GUI library
 
 @menu
 * MINOS2 object framework
@@ -17988,8 +17993,44 @@ cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 @end menu
 
 @node MINOS2 object framework, MINOS2 tutorial, MINOS2, MINOS2
+@section MINOS2 object framework
+
+MINOS2 is a GUI library, written in @file{mini-oof2.fs}'s object model.
+It has two class hierarchies: @code{widget} for visual components, and
+@code{actor} for the actions bound to a component.  Components are composed
+using a boxes&glue model similar to @LaTeX{}, including paragraph
+breaking.  For the sake of simplicity and portability, MINOS2 only
+supports a single window, and uses OpenGL for rendering.
+
+MINOS2 furthermore supports animations with the @code{animation} class.
+A color index texture is used for different color schemes, and
+transition between neighboring schemes can also be animated.
 
 @node MINOS2 tutorial, , MINOS2 object framework, MINOS2
+@section MINOS2 tutorial
+
+Tutorials are small files, each showing a bit of MINOS2.  For the common
+framework, the file @file{minos2/tutorial/tutorial.fs} needs to be
+loaded first; all other tutorials in the command line argument are
+included from within that file.  Scroll wheel or previous/next mouse
+buttons as well as clicking on the left or right edge of the window
+allow navigation between the different tutorials loaded.
+
+I.e. to load the buttons tutorial, you start Gforth with
+
+@example
+gforth minos2/tutorial/tutorial.fs buttons.fs
+@end example
+
+Available tutorials:
+
+@itemize @bullet
+@item
+@file{buttons.fs}: Clickable buttons
+
+@item
+@file{plots.fs}: Plot functions
+@end itemize
 
 @node Bugs, Origin, Cross Compiler, Top
 @appendix Bugs

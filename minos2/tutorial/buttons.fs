@@ -18,12 +18,18 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+dark-gui
+$0000CCFF new-color, fvalue button-color#
+light-gui
+$FFFFAAFF re-color button-color#
+
 {{
     $000000FF $FFFFFFFF pres-frame
     {{
 	l" ΜΙΝΩΣ2 Button Example" /title \skip
 	\large
 	{{
+	    glue*ll }}glue
 	    l" 双头龙" }}text'
 	    em-space
 	    l" 雙頭龍" }}text'
@@ -31,6 +37,7 @@
 	}}h box[] >bl
 	\normal
 	{{
+	    glue*ll }}glue
 	    l" 🇨🇳 scify 🇲🇾" button-color# }}button
 	    [: ." simpliefied" cr ['] translators:scify is translator +lang ;] over click[]
 	    em-space
@@ -58,5 +65,3 @@ forth-local-indent-words:
      (("}}h" "}}v" "}}z" "}}vp" "}}p" "}}vt") (-2 . 0) (-2 . 0) immediate)
     )
 End:
-
-	    
