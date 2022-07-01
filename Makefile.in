@@ -405,7 +405,7 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	     \
 	text-style.fs gst-helper.fs plot.fs md-viewer.fs md-test.fs	     \
 	mem-texture.fs pulse-audio.fs sles-audio.fs opus-codec.fs va.fs	     \
 	v4l2.fs $(patsubst %, unicode/%, $(UNICODE_SRC))		     \
-	$(pathsubst %, tutorial/%, $(MINOS2_TUTORIAL))
+	$(patsubst %, tutorial/%, $(MINOS2_TUTORIAL))
 
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png \
 	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png
