@@ -865,7 +865,7 @@ install-txt:	txt
 		$(INSTALL_DATA) doc/gforth.txt $(datadir)/gforth/$(VERSION)/doc/gforth.txt
 
 install-md:
-		$(INSTALL_DATA) README.md $(datadir)/gforth/$(VERSION)/doc/README.md
+		$(INSTALL_DATA) $(srcdir)/README.md $(datadir)/gforth/$(VERSION)/doc/README.md
 
 install-images: install-txt install-md
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
