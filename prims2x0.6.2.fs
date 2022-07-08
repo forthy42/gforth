@@ -60,9 +60,11 @@ require compat/strcomp.fs
 
 warnings off
 
+[undefined] latestxt [if]
 \ redefinitions of kernel words not present in gforth-0.6.1
 : latestxt lastcfa @ ;
 : latest last @ ;
+[then]
 
 [IFUNDEF] try
 include startup.fs
