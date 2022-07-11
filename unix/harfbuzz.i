@@ -16,7 +16,7 @@ extern struct _IO_FILE *stderr;
 %apply SWIGTYPE * { FT_Face };
 
 // prep: sed -e 's/^\(.*not_found_glyph.*\)$//g'
-// exec: sed -e 's/^c-library \(.*\)/cs-vocabulary \1``get-current also \1 definitions``c-library \1/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/ s n / a n /g' -e 's/\(c-function \(hb_glyph_info_get_glyph_flags\|hb_segment_properties_overlay\|hb_buffer_create_similar\|hb_font_funcs_set_glyph_shape_func\|hb_font_funcs_set_glyph_name_func\|hb_font_get_glyph_shape\|hb_font_get_serial\|hb_font_changed\|hb_font_set_synthetic_slant\|hb_font_get_synthetic_slant\|hb_font_set_var_coords_design\|hb_set_add_sorted_array\|hb_set_hash\|hb_set_next_many\|hb_ft_hb_font_changed\) .*$\)/\\ \1/g' -e 's/s" harfbuzz" add-lib/e? os-type s" linux-android" string-prefix? [IF] s" typeset" [ELSE] s" harfbuzz" [THEN] add-lib/g' | tr '`' '\n'
+// exec: sed -e 's/^c-library \(.*\)/cs-vocabulary \1``get-current also \1 definitions``c-library \1/g' -e 's/^end-c-library/end-c-library`previous set-current/g' -e 's/ s n / a n /g' -e 's/\(c-function \(hb_glyph_info_get_glyph_flags\|hb_segment_properties_overlay\|hb_buffer_create_similar\|hb_font_funcs_set_glyph_shape_func\|hb_font_funcs_set_glyph_name_func\|hb_font_get_glyph_shape\|hb_font_get_serial\|hb_font_changed\|hb_font_set_synthetic_slant\|hb_font_get_synthetic_slant\|hb_font_set_var_coords_design\|hb_set_add_sorted_array\|hb_set_hash\|hb_set_next_many\|hb_ft_hb_font_changed\|hb_font_get_var_coords_design\) .*$\)/\\ \1/g' -e 's/s" harfbuzz" add-lib/e? os-type s" linux-android" string-prefix? [IF] s" typeset" [ELSE] s" harfbuzz" [THEN] add-lib/g' | tr '`' '\n'
 
 #define HB_EXTERN extern
 #define HB_BEGIN_DECLS
