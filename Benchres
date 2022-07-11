@@ -43,6 +43,8 @@ AMD64:
 
 ARM64:
  sieve bubble matrix fib   fft  release; CPU; gcc
+ 0.091 0.088  0.053 0.080 0.040 20220707; Apple M1 Firestorm 3000MHz; gcc-11.3.0
+ 0.136 0.155  0.081 0.147 0.081 20220707; Apple M1 Icestorm 2064MHz; gcc-11.3.0
  0.152 0.176  0.084 0.164 0.080 20210422; Odroid N2+ (2400MHz Cortex-A73), gcc-9.3.0
  0.180 0.224  0.108 0.208 0.100 20190124; Odroid N2 (1800MHz Cortex-A73), gcc-6.3.0
  0.204 0.232  0.108 0.212 0.100 20190124; RockPro64 (1800MHz Cortex-A72), gcc-6.3.0 (Debian 9)
