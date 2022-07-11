@@ -121,4 +121,4 @@ case $BUILD_FROM in
 	;;
 esac
 
-unalias sudo
+which sudo || unalias sudo
