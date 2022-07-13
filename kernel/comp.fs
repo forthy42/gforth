@@ -146,7 +146,7 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
-' noop Alias recurse
+' noop Alias recurse \ core
 \g Alias to the current definition.
 
 unlock tlastcfa @ lock >body AConstant lastnt
@@ -810,7 +810,8 @@ Create defstart
     ['] int-does>; colon-sys-xt-offset stick \ replace noop with :does>;
 ;
 
-' int-does> ' comp-does> interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 )
+' int-does> ' comp-does>
+interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
 
 \ for cross-compiler's interpret/compile:
 

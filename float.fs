@@ -140,7 +140,7 @@ opt: drop postpone >body f!-table to-!, ;
   '. emit scratch r> /string type
   'E emit r> . ;
 
-: fs. ( r -- ) \ gforth f-s-dot
+: fs. ( r -- ) \ float-ext f-s-dot
 \G Display @i{r} using scientific notation (with exponent), followed
 \G by a space.
   f$ 1-
