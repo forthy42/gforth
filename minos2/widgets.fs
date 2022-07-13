@@ -220,25 +220,45 @@ box-vflip# box-dphantom# box-vphantom# or or Constant box-hvisible#
 
 object class
     value: caller-w
+    \G pointer back to the widget embedding the actor
     value: active-w
+    \G pointer to the active subwidget embedding the actor
     value: act-name$
-    method clicked ( rx ry bmask n -- ) \ processed clicks
-    method scrolled ( axis dir -- ) \ process scrolling
-    method touchdown ( $rxy*n bmask -- ) \ raw click
-    method touchup ( $rxy*n bmask -- ) \ raw click
-    method touchmove ( $rxy*n bmask -- ) \ raw click, bmask=0 is hover
-    method ukeyed ( addr u -- ) \ printable unicode characters
-    method ekeyed ( ekey -- ) \ non-printable keys
+    \G Debugging aid: name of the actor
+    method clicked ( rx ry bmask n -- )
+    \G processed clicks
+    method scrolled ( axis dir -- )
+    \G process scrolling
+    method touchdown ( $rxy*n bmask -- )
+    \G raw click down
+    method touchup ( $rxy*n bmask -- )
+    \G raw click up
+    method touchmove ( $rxy*n bmask -- )
+    \G raw click, move. @var{bmask}=0 is hover
+    method ukeyed ( addr u -- )
+    \G key event, string of printable unicode characters
+    method ekeyed ( ekey -- )
+    \G key event, non-printable key
     method ?inside ( rx ry -- act / 0 )
+    \G check if coordinates are inside the widget
     method focus ( -- )
+    \G put widget into focus
     method defocus ( -- )
+    \G put widget out of focus
     method entered ( -- )
+    \G react on cursor entering the widget area
     method left
+    \G react on cursor leaving the widget area
     method show ( -- )
+    \G widget is shown
     method hide ( -- )
+    \G widget is hidden
     method get ( -- something )
+    \G getter for the value behind the widget
     method set ( something -- )
+    \G setter for the value behind the widget
     method show-you ( -- )
+    \G make widget visible
 end-class actor
 
 object class
@@ -275,8 +295,11 @@ end-class helper-glue
 
 object class
     value: parent-w
+    \G pointer to parent widget
     value: act
+    \G pointer to actor
     $value: name$ \ DOM name, for debugging and searching
+    \G Widget name for debugging and searching
     sfvalue: x
     sfvalue: y
     sfvalue: w
