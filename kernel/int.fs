@@ -462,7 +462,7 @@ method name>link ( nt1 -- nt2 / 0 ) \ gforth name-to-link
 
 drop Constant hmsize \ vtable size
 
-defer compile, ( xt -- )
+defer compile, ( xt -- ) \ core-ext compile-comma
 \G Append the semantics represented by @i{xt} to the current
 \G definition.  When the resulting code fragment is run, it behaves
 \G the same as if @i{xt} is @code{execute}d.
