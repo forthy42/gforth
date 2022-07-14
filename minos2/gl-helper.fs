@@ -36,7 +36,7 @@ s" os-type" environment? [IF]
 
 	synonym use-egl noop
     [ELSE]
-	2dup s" darwin" str= >r s" linux-gnu" string-prefix? r> or [IF]
+	2dup s" darwin" str= >r s" linux-" string-prefix? r> or [IF]
 	    [IFDEF] use-wl
 		s" XDG_SESSION_TYPE" getenv s" wayland" str=
 	    [ELSE] false [THEN] \ wayland is experimental, default to x11

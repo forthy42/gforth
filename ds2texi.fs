@@ -134,7 +134,9 @@ create description-buffer 4096 chars allot
     save-mem 2dup replace-_ ;
 
 : make-doc ( -- )
-    get-current documentation set-current
+    parse-name 2dup documentation find-name-in if
+        2drop get-description 2drop exit then
+    nextname get-current documentation set-current
     create
 	latest name>string skip-prefix 2,		\ name
 	')' parse save-mem 2,	\ stack-effect

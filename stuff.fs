@@ -482,7 +482,8 @@ User theme-color  0 theme-color !
 : hex.r ( u1 u2 -- )
     ['] u.r #16 base-execute ;
 
-: dump ( addr u -- ) ['] dump $10 base-execute ;
+: dump ( addr u -- ) \ tools
+    ['] dump $10 base-execute ;
 \ wrap dump into base-execute
 
 \ th

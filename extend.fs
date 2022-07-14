@@ -84,10 +84,6 @@ decimal
 
 \ ERASE                                                 17may93jaw
 
-: erase ( addr u -- ) \ core-ext
-    \G Clear all bits in @i{u} aus starting at @i{addr}.
-    \ !! dependence on "1 chars 1 ="
-    ( 0 1 chars um/mod nip )  0 fill ;
 : blank ( c-addr u -- ) \ string
     \G Store the space character into @i{u} chars starting at @i{c-addr}.
     bl fill ;

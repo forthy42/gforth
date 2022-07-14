@@ -636,7 +636,8 @@ interpret/compile: s` ( "eval-string" -- addr u )
     ;] over outfile-execute close-file throw
     `edit-file-cmd >string-execute 2dup system drop free throw ;
 
-: bye delete-whereg bye ;
+: bye ( -- ) \ tools-ext
+    delete-whereg bye ;
 
     [THEN]
 [THEN]

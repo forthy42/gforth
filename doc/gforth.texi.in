@@ -17997,11 +17997,36 @@ cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 @section MINOS2 object framework
 
 MINOS2 is a GUI library, written in @file{mini-oof2.fs}'s object model.
-It has two class hierarchies: @code{widget} for visual components, and
-@code{actor} for the actions bound to a component.  Components are composed
-using a boxes&glue model similar to @LaTeX{}, including paragraph
-breaking.  For the sake of simplicity and portability, MINOS2 only
-supports a single window, and uses OpenGL for rendering.
+It has two class hierarchies:
+
+@code{widget} for visual components
+
+@code{actor} for the actions bound to a component.
+
+doc-caller-w
+doc-active-w
+doc-act-name$
+doc-clicked
+doc-scrolled
+doc-touchdown
+doc-touchup
+doc-ukeyed
+doc-ekeyed
+doc-?inside
+doc-focus
+doc-defocus
+doc-entered
+doc-left
+doc-show
+doc-hide
+doc-get
+doc-set
+doc-show-you
+
+Components are composed using a boxes&glue model similar to @LaTeX{},
+including paragraph breaking.  For the sake of simplicity and
+portability, MINOS2 only supports a single window, and uses OpenGL for
+rendering.
 
 MINOS2 furthermore supports animations with the @code{animation} class.
 A color index texture is used for different color schemes, and

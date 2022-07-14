@@ -33,7 +33,8 @@ c-library mmap
     c-function msync msync a n n -- n ( vaddr len flags -- res )
 e? os-type s" linux" string-prefix? [IF]
     c-function mremap mremap a n n n -- a ( addr len newlen flags -- addr' )
-    e? os-type s" linux-gnu" string-prefix? [IF]
+    e? os-type s" linux-gnu" string-prefix?
+    e? os-type s" linux-musl" string-prefix? or [IF]
 	c-function mremapf mremap a n n n a -- a ( addr len newlen flags newaddr -- addr' )
     [THEN]
 [THEN]

@@ -83,9 +83,9 @@ umethod cr ( -- ) \ core c-r
     \G newlines, the preferred way to use @code{cr} is at the start
     \G of a piece of text; e.g., @code{cr ." hello, world"}.
 [IFDEF] (form) umethod form [THEN]
-umethod page ( -- )
-umethod at-xy ( x y -- )
-umethod at-deltaxy ( dx dy -- )
+umethod page ( -- ) \ facility
+umethod at-xy ( x y -- ) \ facility at-x-y
+umethod at-deltaxy ( dx dy -- ) \ gforth
 umethod attr! ( attr -- ) \ gforth
 \G apply attribute to terminal (i.e. set color)
 umethod control-sequence ( n char -- ) \ gforth
@@ -110,7 +110,7 @@ umethod key? ( -- flag ) \ facility key-question
 : (cr) ( -- )
     newline type 0 out ! ;
 
-: key ( -- char )
+: key ( -- char ) \ core
 \G Receive (but do not display) one character, @var{char}.
     BEGIN  key-ior dup EINTR =  WHILE  drop winch? off  REPEAT
     dup 0< IF  throw  THEN ;
@@ -233,5 +233,7 @@ Defer deadline ( d -- )
     #1000000000 um/mod (ns) EINTR <> UNTIL
     2drop ;
 ' kernel-deadline IS deadline
-: ns ( d -- ) ntime d+ deadline ;
-: ms ( n -- ) #1000000 um* ns ;
+: ns ( d -- ) \ gforth
+    ntime d+ deadline ;
+: ms ( n -- ) \ facility-ext
+    #1000000 um* ns ;
