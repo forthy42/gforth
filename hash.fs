@@ -18,10 +18,6 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-[IFUNDEF] erase
-: erase ( addr len -- ) 0 fill ;
-[THEN]
-
 [IFUNDEF] allocate
 : reserve-mem here swap allot ;
 \ move to a kernel/memory.fs
@@ -33,6 +29,11 @@
 11 Value hashbits
 [THEN]
 1 hashbits lshift Value Hashlen
+
+: erase ( addr u -- ) \ core-ext
+    \G Clear all bits in @i{u} aus starting at @i{addr}.
+    \ !! dependence on "1 chars 1 ="
+    ( 0 1 chars um/mod nip )  0 fill ;
 
 \ compute hash key                                     15jul94py
 

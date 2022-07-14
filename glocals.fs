@@ -380,18 +380,10 @@ Defer default: ' W: is default:
 
 \ you may want to make comments in a locals definitions group:
 synonym \ \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
-\G Comment till the end of the line if @code{BLK} contains 0 (i.e.,
-\G while not loading a block), parse and discard the remainder of the
-\G parse area. Otherwise, parse and discard all subsequent characters
-\G in the parse area corresponding to the current line.
+\ The actual documentation is in kernel/int.fs
 
 synonym ( ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
-\G Comment, usually till the next @code{)}: parse and discard all
-\G subsequent characters in the parse area until ")" is
-\G encountered. During interactive input, an end-of-line also acts as
-\G a comment terminator. For file input, it does not; if the
-\G end-of-file is encountered whilst parsing for the ")" delimiter,
-\G Gforth will generate a warning.
+\ The actual documentation is in kernel/int.fs
 
 forth definitions
 also locals-types

@@ -191,16 +191,22 @@ Defer ?warn#  ' noop is ?warn#
 
 \ \ Comments ( \ \G
 
-: ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ thisone- core,file	paren
-    \G ** this will not get annotated. The alias in glocals.fs will instead **
-    \G It does not work to use "wordset-" prefix since this file is glossed
-    \G by cross.fs which doesn't have the same functionalty as makedoc.fs
+: ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
+\G Comment, usually till the next @code{)}: parse and discard all
+\G subsequent characters in the parse area until ")" is
+\G encountered. During interactive input, an end-of-line also acts as
+\G a comment terminator. For file input, it does not; if the
+\G end-of-file is encountered whilst parsing for the ")" delimiter,
+\G Gforth will generate a warning.
     ')' parse 2drop ; immediate
 
-: \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ thisone- core-ext,block-ext backslash
-    \G ** this will not get annotated. The alias in glocals.fs will instead ** 
-    \G It does not work to use "wordset-" prefix since this file is glossed
-    \G by cross.fs which doesn't have the same functionalty as makedoc.fs
+: \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
+\G Comment, usually till the next @code{)}: parse and discard all
+\G subsequent characters in the parse area until ")" is
+\G encountered. During interactive input, an end-of-line also acts as
+\G a comment terminator. For file input, it does not; if the
+\G end-of-file is encountered whilst parsing for the ")" delimiter,
+\G Gforth will generate a warning.
     [ has? file [IF] ]
     blk @
     IF
@@ -266,7 +272,8 @@ ghost (reveal) gset-to
 ghost drop gset-defer@
 ghost does, gset-optimizer
 lock
-AValue forth-wordlist \ variable, will be redefined by search.fs
+AValue forth-wordlist ( -- wid ) \ search
+\ variable, will be redefined by search.fs
 forth-wordlist 1 cells - @ AConstant f83search
 
 \ !! last is user and lookup?! jaw

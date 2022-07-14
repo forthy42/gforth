@@ -146,7 +146,7 @@ variable next-prelude
 Defer check-shadow ( addr u wid -- )
 :noname drop 2drop ; is check-shadow
 
-' noop Alias recurse \ core
+' noop Alias recurse ( ... -- ... ) \ core
 \g Alias to the current definition.
 
 unlock tlastcfa @ lock >body AConstant lastnt
