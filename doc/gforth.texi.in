@@ -9382,19 +9382,24 @@ and use your own search paths, by providing generic equivalents of the
 Forth search path words:
 
 doc-open-path-file
-doc-path-allot
 doc-clear-path
 doc-also-path
 doc-.path
 doc-path+
 doc-path=
 
-@c anton: better define a word for it, say "path-allot ( ucount -- path-addr )
-
-Here's an example of creating an empty search path:
+Here's an example of creating a custom search path:
 @c
 @example
-create mypath 500 path-allot \ maximum length 500 chars (is checked)
+variable mypath \ no special allocation required, just a variable
+mypath path= /lib|/usr/lib \ assign initial directories
+mypath path+ /usr/local/lib \ append directory
+mypath .path \ output:"/lib /usr/lib /usr/local/lib"
+@end example
+
+Search file and show resulting path:
+@example
+s" libm.so" mypath open-path-file throw type close-file \ output:"/lib/libm.so"
 @end example
 
 @c -------------------------------------------------------------
