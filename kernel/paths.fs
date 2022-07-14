@@ -242,7 +242,7 @@ User tfile
 
 : open-path-file ( addr1 u1 path-addr -- wfileid addr2 u2 0 | ior ) \ gforth
 \G Look in path @var{path-addr} for the file specified by @var{addr1
-\G u1}.  If found, the resulting path and and (read-only) open file
+\G u1}.  If found, the resulting path and an (read-only) open file
 \G descriptor are returned. If the file is not found, @var{ior} is
 \G what came back from the last attempt at opening the file (in the
     \G current implementation).

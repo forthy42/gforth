@@ -8,7 +8,7 @@ A        [ ] Documentation review
   G      [x] Interface files for .h-files; build on install Port typical C-Libraries like stdio
   G      [x]*Allow for `#?include (c/)?stdio` Same structure as in C -> supported by posix repo
   G      [x] Hinweis auf SWIG für das C-interface Link auf https://github.com/GeraldWodni/posix
-  G      [ ] Include posix in release
+  G      [ ] Include posix in release (#include or friends?)
 A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
