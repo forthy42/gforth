@@ -1455,11 +1455,11 @@ doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
 		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs -e bye
 		$(srcdir)/move-if-change doc/doc.fd.tmp $@
 
-doc/extradoc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_GEN_SRC) build-libcc-named
+doc/extradoc.fd:	doc/makedoc.fs gforth$(EXT) gforth.fi $(EXTRA_DOC) $(LIBCC_GEN_SRC) build-libcc-named
 		$(FORTHP) -e "s\" doc/extradoc.fd.tmp\"" doc/makedoc.fs $(EXTRA_DOC) -e bye
 		$(srcdir)/move-if-change doc/extradoc.fd.tmp $@
 
-doc/minosdoc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(MINOS_DOC) $(LIBCC_GEN_SRC)
+doc/minosdoc.fd:	doc/makedoc.fs gforth$(EXT) gforth.fi $(MINOS_DOC) $(LIBCC_GEN_SRC) build-libcc-named
 		$(FORTHP) -e "s\" doc/minosdoc.fd.tmp\"" doc/makedoc.fs $(MINOS_DOC) -e bye
 		$(srcdir)/move-if-change doc/minosdoc.fd.tmp $@
 
