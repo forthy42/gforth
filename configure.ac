@@ -1745,11 +1745,24 @@ fi
 
 # print warnings summary if exist
 
+AC_CHECK_PROGS(COWSAY, cowsay)
+AC_CHECK_PROGS(LOLCAT, lolcat)
+
 echo
 if test -z "$config_warns"
 then
-   echo "*** Config summary: everything fine ***"
+   if test -z "$COWSAY" -o -z "$LOLCAT"
+   then
+      echo "*** Config summary: everything fine ***"
+   else
+      cowsay -f dragon-and-cow "*** Config summary: everything fine ***"|lolcat --seed=50 -i
+   fi
 else
-   echo "*** Config summary: Warnings exist ***"
+   if test -z "$COWSAY" -o -z "$LOLCAT"
+   then
+      echo "*** Config summary: Warnings exist ***"
+   else
+      cowsay -f dragon-and-cow "*** Config summary: Warnings exist ***"|lolcat --seed=10 -i
+   fi
    echo "$config_warns"
 fi
