@@ -124,6 +124,7 @@ ENGINE = ./gforth
 DITCENGINE = @DITCENGINE@
 FORTH	= $(ENGINE) $(FORTH_ARGS)
 FORTHS	= $(ENGINE) $(FORTHS_ARGS)
+FORTHP	= $(ENGINE) -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 # the (existing) forth system to use for cross compiling and primitives tables
 # per default we use the one in this directory for a rebuild. It is also
 # possible to override this variable at the command line for an initial build (jaw)
@@ -377,6 +378,8 @@ FREETYPE_GL_SRC = freetype-gl/ftgl-utils.c freetype-gl/platform.c	\
 
 EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
+
+MINOS_DOC = minos2/widgets.fs
 
 LIBCC_DIST_SRC = $(SWIG_SRC) unix/test.i unix/Makefile.in unix/doexec	\
 	unix/doprep
@@ -1448,9 +1451,17 @@ start-gforth.el:	gforth.el
 
 #Documentation
 
-doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_GEN_SRC)
-		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs $(EXTRA_DOC) -e bye
+doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
+		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs -e bye
 		$(srcdir)/move-if-change doc/doc.fd.tmp $@
+
+doc/extradoc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_GEN_SRC)
+		$(FORTHP) -e "s\" doc/extradoc.fd.tmp\"" doc/makedoc.fs $(EXTRA_DOC) -e bye
+		$(srcdir)/move-if-change doc/extradoc.fd.tmp $@
+
+doc/minosdoc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(MINOS_DOC) $(LIBCC_GEN_SRC)
+		$(FORTHP) -e "s\" doc/minosdoc.fd.tmp\"" doc/makedoc.fs $(MINOS_DOC) -e bye
+		$(srcdir)/move-if-change doc/minosdoc.fd.tmp $@
 
 doc/crossdoc.fd:	$(KERN_SRC) gforth$(EXT) kernel/version.fs $(FORTH_GEN0)
 		$(FORTHK) -e 's" mach32l.fs" include kernel/main.fs' -e bye
@@ -1462,9 +1473,9 @@ doc/words/$(RVERSION)-words: gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_
 		$(MV) $@- $@
 
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
-		doc/doc.fd doc/crossdoc.fd preforth @kernel_fi@ \
+		doc/doc.fd doc/extradoc.fd doc/minosdoc.fd doc/crossdoc.fd preforth @kernel_fi@ \
 		$(wildcard $(srcdir)/doc/words/0.*-words)
-		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd -e "args-gforth-versions s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" $(wildcard $(srcdir)/doc/words/*-words) >$@-
+		$(PREFORTH) ds2texi.fs prims2x.fs -e "s\" prim.b\" ' register-doc ' noop process-file" doc/crossdoc.fd doc/doc.fd doc/extradoc.fd doc/minosdoc.fd -e "args-gforth-versions s\" $(srcdir)/doc/gforth.texi.in\" r/o open-file throw ds2texi bye" $(wildcard $(srcdir)/doc/words/*-words) >$@-
 		$(MV) $@- $@
 
 checkdoc:	doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs doc/doc.fd doc/crossdoc.fd answords.fs doc/gforth.texi
