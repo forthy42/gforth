@@ -77,6 +77,19 @@ Defer >included ( c-addr1 u1 -- fd c-addr2 u2 wior )
 Defer >include ( c-addr1 u1 -- c-addr2 u2 )
 ' noop is >include
 
+variable include-auto-extension-filename
+: >include-auto-extension ( c-addr1 u1 -- fd c-addr2 u2 wior )
+    2>r 2r@ open-fpath-file dup if \ if not found extend with .4th suffix
+        drop \ ignore error
+        2r> include-auto-extension-filename $!
+        s" .4th" include-auto-extension-filename $+!
+        include-auto-extension-filename $@
+        open-fpath-file
+    else
+        2rdrop \ drop filename
+    then ;
+' >include-auto-extension is >included
+
 : included ( i*x c-addr u -- j*x ) \ file
     \G @code{include-file} the file whose name is given by the string
     \G @var{c-addr u}.
