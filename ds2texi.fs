@@ -133,8 +133,17 @@ create description-buffer 4096 chars allot
 : condition-pronounciation ( c-addr1 u1 -- c-addr2 u2 )
     save-mem 2dup replace-_ ;
 
+: rest-of-line-ok? ( -- flag )
+    source >in @ /string s" -- " search if
+        s" )" search if
+            -trailing nip 1 > exit then
+    then
+    2drop 0 ;
+
 : make-doc ( -- )
     parse-name 2dup documentation find-name-in if
+        2drop get-description 2drop exit then
+    rest-of-line-ok? 0= if
         2drop get-description 2drop exit then
     nextname get-current documentation set-current
     create
