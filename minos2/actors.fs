@@ -312,7 +312,9 @@ end-class vp-actor
 : vp-needed| ( xt -- )
     vp-needed vp-need-or ;
 
-screen-pwh max s>f FValue drag-rate \ 1 screen/s²
+1024 s>f FValue drag-rate \ 1 screen/s²
+:noname ( -- )
+    defers window-init  screen-pwh max s>f to drag-rate ; is window-init
 50m FValue min-dt \ measure over 50ms at least
 
 : vp-setxy ( rx ry -- )

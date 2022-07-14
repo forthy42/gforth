@@ -168,7 +168,12 @@ Defer config-changed
 Defer screen-ops      ' noop is screen-ops
 Defer reload-textures ' noop is reload-textures
 
-: getwh ( -- )  0 0 dpy-w @ dpy-h @ glViewport ;
+: gl-init ( -- )
+    \G if not already opened, open window and initialize OpenGL
+    ctx 0= IF window-init THEN ;
+
+: getwh ( -- )
+    0 0 dpy-w @ dpy-h @ glViewport ;
 
 :noname ( -- ) +sync +config ( getwh ) ; is config-changed
 
