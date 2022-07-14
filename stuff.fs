@@ -658,3 +658,12 @@ end-struct buffer%
 	\G numbered from 0. Months are numbered from 1.
 	utime #1000000 ud/mod rot drop >time&date&tz 2drop 2drop ;
 [THEN]
+
+\ swig-warpgate helper functions
+: open-warp ( caddr n -- )
+    open-lib2 >r \ store handle
+    r@ s" __SWIG_forth" r> lib-sym2 call-c
+    evaluate \ execute entry code
+    drop \ drop handle used by loader
+    ;
+

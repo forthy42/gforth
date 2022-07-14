@@ -125,7 +125,6 @@ FVariable motion 0.01e motion f!
 
 previous previous previous previous
 
-win 0= [IF] window-init [THEN]
-
+gl-init
 gl-sample
 script? [IF] bye [THEN]

@@ -1418,7 +1418,7 @@ AC_SUBST(incdir)
 #fi
 
 # swig stuff
-test x$SWIG = x && AC_PATH_PROG(SWIG, swig)
+test x$SWIG = x && AC_PATH_PROGS(SWIG,swig-forth swig)
 if test -z "$SWIG"; then
    AC_MSG_WARN([*** Could not find swig in your PATH. The library bindings cannot be built.])
    config_warns="$config_warns
@@ -1667,7 +1667,7 @@ fi
 if test x$has_swig = xno; then
    AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])
    config_warns="$config_warns
-Swig without -forth feature."
+Swig without -forth feature, library interfaces will not be generated."
 fi
 AC_SUBST(SWIGMODULES)
 
@@ -1745,11 +1745,24 @@ fi
 
 # print warnings summary if exist
 
+AC_CHECK_PROGS(COWSAY, cowsay)
+AC_CHECK_PROGS(LOLCAT, lolcat)
+
 echo
 if test -z "$config_warns"
 then
-   echo "*** Config summary: everything fine ***"
+   if test -z "$COWSAY" -o -z "$LOLCAT"
+   then
+      echo "*** Config summary: everything fine ***"
+   else
+      cowsay -f dragon-and-cow "*** Config summary: everything fine ***"|lolcat --seed=50 -i
+   fi
 else
-   echo "*** Config summary: Warnings exist ***"
+   if test -z "$COWSAY" -o -z "$LOLCAT"
+   then
+      echo "*** Config summary: Warnings exist ***"
+   else
+      cowsay -f dragon "*** Config summary: Warnings exist ***"|lolcat --seed=8 -i
+   fi
    echo "$config_warns"
 fi

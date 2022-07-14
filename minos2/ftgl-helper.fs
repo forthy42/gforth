@@ -33,7 +33,7 @@ also opengl
 >r : ?ftgl-ior ( addr -- addr )
     dup 0= IF  [ r> ]L freetype_gl_errno - throw  THEN ;
 
-ctx 0= [IF]  window-init  [THEN]
+\ gl-init
 
 $200 Value atlas# \ initial size of an atlas
 
