@@ -16,7 +16,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require widgets.fs
+require minos2/widgets.fs
 
 [IFDEF] android
     also jni hidekb also android >changed hidestatus >changed previous previous
@@ -31,7 +31,7 @@ require minos2/font-style.fs
 44e update-size#
 
 require minos2/text-style.fs
-require presentation-support.fs
+require minos2/presentation-support.fs
 
 m2c:animtime% f@ 3e f* m2c:animtime% f!
 
