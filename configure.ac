@@ -1762,7 +1762,7 @@ else
    then
       echo "*** Config summary: Warnings exist ***"
    else
-      cowsay -f dragon-and-cow "*** Config summary: Warnings exist ***"|lolcat --seed=10 -i
+      cowsay -f dragon "*** Config summary: Warnings exist ***"|lolcat --seed=8 -i
    fi
    echo "$config_warns"
 fi
