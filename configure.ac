@@ -1418,7 +1418,7 @@ AC_SUBST(incdir)
 #fi
 
 # swig stuff
-test x$SWIG = x && AC_PATH_PROG(SWIG, swig)
+test x$SWIG = x && AC_PATH_PROGS(SWIG,swig-forth swig)
 if test -z "$SWIG"; then
    AC_MSG_WARN([*** Could not find swig in your PATH. The library bindings cannot be built.])
    config_warns="$config_warns
@@ -1667,7 +1667,7 @@ fi
 if test x$has_swig = xno; then
    AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])
    config_warns="$config_warns
-Swig without -forth feature."
+Swig without -forth feature, library interfaces will not be generated."
 fi
 AC_SUBST(SWIGMODULES)
 
