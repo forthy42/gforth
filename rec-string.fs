@@ -24,7 +24,7 @@
 recognized: recognized-string
 ' recognized-string Constant rectype-string
 
-: rec-string ( addr u -- addr u' r:string | rectype-null )
+: rec-string ( addr u -- addr u' r:string | rectype-null ) \ gforth-experimental
     \G Convert strings enclosed in double quotes into string literals,
     \G escapes are treated as in @code{S\"}.
     2dup s\" \"" string-prefix?

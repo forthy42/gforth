@@ -165,7 +165,7 @@ STACK_CACHE_DEFAULT_FAST = @STACK_CACHE_DEFAULT_FAST@
 PROFOBJS = @PROFOBJS@
 PROFEXES = @PROFEXES@
 
-INSTALLDIRS = kernel kernel-ec doc asm ec test test/fp \
+INSTALLDIRS = kernel kernel-ec doc asm ec f test test/fp \
 	compat unix minos2 minos2/unicode minos2/tutorial \
 	arch arch/generic arch/m68k arch/mips \
 	arch/386 arch/hppa arch/sparc arch/power \
@@ -242,6 +242,13 @@ EC_SRC = $(KERN_EC_SRC) \
 	ec/dotx.fs \
 	ec/nesting.fs \
 	build-ec.in
+
+F_SRC=\
+	f/api.4th \
+	f/compat-common.4th \
+	f/compat-gforth.4th \
+	f/f.4th \
+	f/vt100.4th
 
 GFORTH_FI_SRC1=\
 	ansi.fs \
@@ -425,7 +432,8 @@ TEST_SRC = tester.fs ttester.fs checkans.fs coretest.fs dbltest.fs	     \
 UNIX_SRC = terminal-server.fs jni-helper.fs jni-tools.fs jni-media.fs	\
 	jni-location.fs sensors.fs win32.fs wayland-interfaces.fs
 
-FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(LIBCC_FORTH_SRC)    \
+FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(F_SRC)              \
+	$(LIBCC_FORTH_SRC)                                                    \
 	$(patsubst %, minos2/%, $(MINOS2_SRC)) $(patsubst %, minos2/%,	      \
 	$(MINOS2_BIN)) ans-report.fs ansi.fs answords.fs colorize.fs	      \
 	comp-i.fs complex.fs depth-changes.fs dosekey.fs doskey.fs ds2texi.fs \
@@ -1139,8 +1147,10 @@ extra-install:	gforth.fi $(EXTRAS:%=%.extrasinst)
 # -------------	Make forth images
 
 kernel/authors.fs:	AUTHORS Makefile.in
-	echo ": authors ( -- ) cr" >kernel/authors.fs
+	echo "\ generated file; source file: AUTHORS" >kernel/authors.fs
+	echo ": authors ( -- ) \ gforth" >>kernel/authors.fs
 	echo "  \G show the list of authors" >>kernel/authors.fs
+	echo "  cr" >>kernel/authors.fs
 	grep '^[ND]:' $< | sed -e 's/^N: \(.*\)/  1 attr\! ." \1:" 0 attr\! cr /g' -e 's/^D: \(.*\)/  ."   \1" cr /g'>>kernel/authors.fs
 	echo ";" >>kernel/authors.fs
 

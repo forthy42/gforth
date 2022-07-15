@@ -200,7 +200,7 @@ si-prefixes count 2/ + Constant zero-exp
 recognized: recognized-float
 ' recognized-float Constant rectype-float
 
-: rec-float ( addr u -- r recognized-float | notfound )
+: rec-float ( addr u -- r recognized-float | notfound ) \ gforth-experimental
     \G recognize floating point numbers
     prefix-number ['] recognized-float ['] notfound rot select ;
 

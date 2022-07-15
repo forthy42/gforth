@@ -76,7 +76,7 @@ recognized: recognized-dnum
 
 \ snumber? should be implemented as recognizer stack
 
-: rec-num ( addr u -- n/d table | notfound )
+: rec-num ( addr u -- n/d table | notfound ) \ gforth-experimental
     \G converts a number to a single/double integer
     snumber?  dup
     IF
@@ -120,7 +120,7 @@ Defer trace-recognizer  ' drop is trace-recognizer
 
 Variable rec-level
 
-: recognize ( addr u rec-addr -- ... rectype )
+: recognize ( addr u rec-addr -- ... rectype ) \ gforth-experimental
     \G apply a recognizer stack to a string, delivering a token
     1 rec-level +!
     $@ bounds cell- swap cell- U-DO
@@ -136,16 +136,16 @@ Variable rec-level
     -1 rec-level +!
     2drop ['] notfound ;
 
-: rec-sequence: ( x1 .. xn n "name" -- )
+: rec-sequence: ( x1 .. xn n "name" -- ) \ gforth-experimental
     ['] recognize do-stack: ;
 
 $Variable default-recognizer
-default-recognizer AValue forth-recognizer
+default-recognizer AValue forth-recognizer 
 
 ( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
 : default-recognize forth-recognizer recognize ;
 \G The system recognizer
-Defer forth-recognize
+Defer forth-recognize ( c-addr u -- ... recognized ) \ gforth-experimental
 ' default-recognize is forth-recognize
 
 \ nested recognizer helper
