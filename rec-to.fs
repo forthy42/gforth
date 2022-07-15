@@ -24,7 +24,7 @@
 ' (to) ' (to), ' post-to, >postponer recognized: recognized-to
 ' recognized-to Constant rectype-to
 
-: rec-to ( addr u -- xt r:to | rectype-null )
+: rec-to ( addr u -- xt r:to | rectype-null ) \ gforth-experimental
     \G words prefixed with @code{->} are treated as if preceeded by
     \G @code{TO} or @code{IS}, with @code{+>} as @code{+TO} and with
     \G @code{'>} as @code{ADDR}.

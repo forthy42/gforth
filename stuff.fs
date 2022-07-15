@@ -177,10 +177,10 @@ UValue $? ( -- n ) \ gforth dollar-question
 : set-rec-sequence ( x1 .. xtn n recs-xt -- )
     defers@ >rec-stack set-stack ;
 
-: get-recognizers ( -- xt1 .. xtn n )
+: get-recognizers ( -- xt1 .. xtn n ) \ gforth-experimental
     \G push the content on the recognizer stack
     forth-recognizer get-stack ;
-: set-recognizers ( xt1 .. xtn n )
+: set-recognizers ( xt1 .. xtn n ) \ gforth-experimental
     \G set the recognizer stack from content on the stack
     forth-recognizer set-stack ;
 

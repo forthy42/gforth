@@ -27,7 +27,7 @@
 	2drop 2r> ;
 [THEN]
 
-: rec-tick ( addr u -- xt rectype-num | rectype-null )
+: rec-tick ( addr u -- xt rectype-num | rectype-null ) \ gforth-experimental
     \G words prefixed with @code{`} return their xt.
     \G Example: @code{`dup} gives the xt of dup
     over c@ '`' = if
@@ -36,7 +36,7 @@
     then
     2drop ['] notfound ;
 
-: rec-dtick ( addr u -- nt rectype-num | rectype-null )
+: rec-dtick ( addr u -- nt rectype-num | rectype-null ) \ gforth-experimental
     \G words prefixed with @code{``} return their nt.
     \G Example: @code{``S"} gives the nt of @code{S"}
     2dup "``" string-prefix? if

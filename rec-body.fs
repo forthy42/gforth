@@ -27,7 +27,7 @@
 	2drop 2r> ;
 [THEN]
 
-: rec-body ( addr u -- xt recognized-tick | recognized-null )
+: rec-body ( addr u -- xt recognized-tick | recognized-null ) \ gforth-experimental
     \G words bracketed with @code{'<'} @code{'>'} return their body.
     \G Example: @code{<dup>} gives the body of dup
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or

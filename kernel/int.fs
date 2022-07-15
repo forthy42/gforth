@@ -327,7 +327,7 @@ forth-wordlist current !
 : no.extensions  ( -- )
     -&13 throw ;
 
-' no.extensions dup dup recognized: notfound
+' no.extensions dup dup recognized: notfound ( state -- ) \g gforth-experimental
 \G If a recognizer fails, it returns @code{notfound}
 
 : find-name-in  ( c-addr u wid -- nt | 0 ) \ gforth
@@ -348,7 +348,7 @@ forth-wordlist current !
 	(name>intn)
     then ;
 
-Defer rec-nt ( addr u -- nt recognized-nt | notfound )
+Defer rec-nt ( addr u -- nt recognized-nt | notfound ) \ gforth-experimental
 \G recognize a name token
 
 : find-name ( c-addr u -- nt | 0 ) \ gforth
