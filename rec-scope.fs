@@ -21,7 +21,7 @@
 : find-name?in ( addr u wid/0 -- nt/0 )
     ?dup-IF  find-name-in  ELSE  find-name  THEN ;
 
-: nosplit? ( addr1 u1 addr2 u2 --  addr1 u1 addr2 u2 flag )
+: nosplit? ( addr1 u1 addr2 u2 --  addr1 u1 addr2 u2 flag ) \ gforth-experimental
     \G is true if it didn't split
     dup 0= IF  over >r 2over + r> =  ELSE  false  THEN ;
 
@@ -39,7 +39,7 @@
 
 get-recognizers 1+ ' rec-scope -rot set-recognizers
 
-: in ( "voc" "defining-word" -- )
+: in ( "voc" "defining-word" -- ) \ gforth-experimental
     \G execute @var{defining-word} with @var{voc} as one-shot current
     \G directory. Example: @code{in gui : init-gl ... ;} will define
     \G @code{init-gl} in the @code{gui} vocabulary.

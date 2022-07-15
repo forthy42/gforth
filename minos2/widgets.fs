@@ -145,7 +145,7 @@ $[]Variable ranges>lang[]
 	    range $@ I $FF and /string I' I - umin third fill
 	THEN
     $100 I $FF and - +LOOP  drop ;
-: range@ ( codepoint -- font# )
+: range@ ( codepoint -- font# ) \ minos2
     \G Get the @var{font#} for a specific @var{codepoint}.
     \G -1 as result means the font is meaningless
     dup >r 8 rshift ranges>lang[] $[]
