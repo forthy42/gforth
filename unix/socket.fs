@@ -304,7 +304,7 @@ s" accept failed"      exception Constant !!accept!!
 s" blocking-mode failed" exception Constant !!blocking!!
 s" sock read error"    exception Constant !!sockread!!
 
-: close-server ( server -- )
+: close-server ( server -- ) \ gforth-experimental
     \G close raw server socket
     close ?ior ;
 
@@ -366,7 +366,7 @@ s" sock read error"    exception Constant !!sockread!!
 	!!noaddr!! throw  THEN
     addrres @ ;
 
-defer get-socket-options ( socket -- socket )
+defer get-socket-options ( socket -- socket ) \ gforth-experimental
 \G hook to set socket options im get-socket-options
 ' noop is get-socket-options
 

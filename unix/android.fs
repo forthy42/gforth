@@ -222,13 +222,15 @@ false value wake-lock \ doesn't work, why?
 
 Create direct-key# 0 c,
 
-: meta@ ( -- char ) \ return meta in vt100 form
+: meta@ ( -- char ) \ minos2
+    \G return meta in vt100 form
     0
     meta-key# @ AMETA_SHIFT_ON and 0<> 1 and  or
     meta-key# @ AMETA_ALT_ON   and 0<> 2 and  or
     meta-key# @ AMETA_CTRL_ON  and 0<> 4 and  or ;
 
-: +meta ( addr u -- addr' u' ) \ insert meta information
+: +meta ( addr u -- addr' u' ) \ minos2
+    \G insert meta information
     >r over c@ #esc <> IF  rdrop  EXIT  THEN
     r> dup 0= IF  drop  EXIT  THEN  '1' + \ no meta, don't insert
     [: >r 1- 2dup + c@ >r

@@ -743,7 +743,7 @@ tex: none-tex
     GL_TEXTURE_2D current-tex glBindTexture
     w h grey-newtex nearest ;
 
-: new-textbuffer { w h mode -- rb fb }
+: new-textbuffer { w h mode -- rb fb } \ minos2
     \G create new texture buffer to render into
     \G uses the current active texture
     0 w h mode texture-map linear edge

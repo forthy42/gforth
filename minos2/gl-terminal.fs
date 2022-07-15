@@ -445,20 +445,24 @@ Sema gl-sema
 	newDisplayMetrics dup to metrics
 	clazz .getWindowManager .getDefaultDisplay .getMetrics ;
     
-    : screen-wh ( -- rw rh ) \ w h in mm
+    : screen-wh ( -- rw rh ) \ minos2
+	\G get screen @var{rw rh} in mm
 	metrics ?dup-0=-IF  >metrics metrics  THEN >o
 	widthPixels  xdpi 1/f fm* 25.4e f*      \ width in mm
 	heightPixels ydpi 1/f fm* 25.4e f* o> ; \ height in mm
-    : screen-pwh ( -- w h ) \ w h in pixels
+    : screen-pwh ( -- w h ) \ minos2
+	\G get screen @var{w h} in pixel
 	metrics ?dup-0=-IF  >metrics metrics  THEN >o
 	widthPixels heightPixels o> ;
 [ELSE]
     [IFDEF] x11
 	also x11 also xrandr
-	: screen-pwh ( -- w h ) \ w h in pixels
+	: screen-pwh ( -- w h ) \ minos2
+	    \G get screen @var{w h} in pixel
 	    rr-crt0 XRRCrtcInfo-width l@
 	    rr-crt0 XRRCrtcInfo-height l@ ;
-	: screen-wh ( -- rw rh )
+	: screen-wh ( -- rw rh ) \ minos2
+	    \G get screen @var{rw rh} in mm
 	    screen-pwh
 	    dpy-h @ rr-out0 XRROutputInfo-mm_height l@ s>f fm*/
 	    dpy-w @ rr-out0 XRROutputInfo-mm_width  l@ s>f fm*/ fswap ;
@@ -504,7 +508,8 @@ Defer scale-me ' terminal-scale-me is scale-me
 	ELSE  -config  THEN
     THEN ;
 
-: screen-sync ( -- )  rendering @ -2 > ?EXIT \ don't render if paused
+: screen-sync ( -- )
+    rendering @ -2 > ?EXIT \ don't render if paused
     ?config-changer
     win level# @ 0<= and IF
 	?sync IF  -sync show-cursor screen->gl  THEN
