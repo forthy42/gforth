@@ -1426,9 +1426,13 @@ swig not found."
 fi
 
 has_swig=no
+GLXFLAG=false
+GLESFLAG=false
+MINOSFLAG=false
 if swig -forth $srcdir/unix/test.i; then
     echo "Swig works in Forth mode"
     has_swig=yes
+    MINOSFLAG=true
 fi
 
 if test x$has_swig = xyes; then
@@ -1438,12 +1442,12 @@ fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/x-fsi.c; then
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES x.fs"
-		   SWIGLIBS="$SWIGLIBS x.fs", ,)
+		   SWIGLIBS="$SWIGLIBS x.fs", MINOSFLAG=false,)
 fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/xrandr-fsi.c; then
    AC_CHECK_HEADER(X11/extensions/Xrandr.h, SWIGMODULES="$SWIGMODULES xrandr.fs"
-		   SWIGLIBS="$SWIGLIBS xrandr.fs", ,)
+		   SWIGLIBS="$SWIGLIBS xrandr.fs", MINOSFLAG=false,)
 fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/sdl-fsi.c; then
@@ -1480,7 +1484,7 @@ then
       AC_CHECK_HEADER(GL/glext.h,
       AC_CHECK_LIB(GLX,glXCreateWindow,
       AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES gl.fs glx.fs"
-      SWIGLIBS="$SWIGLIBS gl.fs glx.fs", ,
+      SWIGLIBS="$SWIGLIBS gl.fs glx.fs" GLXFLAG=true, ,
 ), ,), ,
 #include <GL/gl.h>
 ))
@@ -1491,7 +1495,7 @@ else
       AC_CHECK_HEADER(GL/glext.h,
       AC_CHECK_LIB(GLX,glXCreateWindow,
       AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES gl.fs glx.fs"
-      SWIGLIBS="$SWIGLIBS gl.fs glx.fs", ,
+      SWIGLIBS="$SWIGLIBS gl.fs glx.fs" GLXFLAG=true, ,
 ), ,), ,
 #include <GL/gl.h>
 ))
@@ -1502,7 +1506,7 @@ if test x$has_swig = xyes || test -f $srcdir/unix/gles-fsi.c; then
    AC_CHECK_HEADER(GLES2/gl2.h,
    AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES gles.fs"
    AC_CHECK_HEADER(EGL/egl.h, SWIGMODULES="$SWIGMODULES egl.fs"
-   SWIGLIBS="$SWIGLIBS gles.fs egl.fs", ,), ,
+   SWIGLIBS="$SWIGLIBS gles.fs egl.fs" GLESFLAG=true, ,), ,
 #include <GLES2/gl2.h>
 ) ,))
 fi
@@ -1510,20 +1514,20 @@ if test x$has_swig = xyes || test -f $srcdir/unix/gles3-fsi.c; then
    AC_CHECK_LIB(GLESv3,glClear,
    AC_CHECK_HEADER(GLES3/gl3.h,
    AC_CHECK_HEADER(GLES3/gl3ext.h, SWIGMODULES="$SWIGMODULES gles3.fs"
-   AC_CHECK_HEADER(EGL/egl.h, SWIGLIBS="$SWIGLIBS gles3.fs egl.fs", ,), ,
+   AC_CHECK_HEADER(EGL/egl.h, SWIGLIBS="$SWIGLIBS gles3.fs egl.fs" GLESFLAG=true, ,), ,
 #include <GLES3/gl3.h>
 ) ,))
 fi
 # iOS varaint
 if test x$has_swig = xyes || test -f $srcdir/unix/ios-gles-fsi.c; then
    AC_CHECK_HEADER(OpenGLES/ES2/gl.h,
-   AC_CHECK_HEADER(OpenGLES/ES2/glext.h, SWIGMODULES="$SWIGMODULES ios-gles.fs" SWIGLIBS="$SWIGLIBS opengles.fs", ,
+   AC_CHECK_HEADER(OpenGLES/ES2/glext.h, SWIGMODULES="$SWIGMODULES ios-gles.fs" SWIGLIBS="$SWIGLIBS ios-gles.fs" GLESFLAG=true, ,
 #include <OpenGLES/ES2/gl.h>
 ) ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/ios-gles3-fsi.c; then
    AC_CHECK_HEADER(OpenGLES/ES3/gl.h,
-   AC_CHECK_HEADER(OpenGLES/ES3/glext.h, SWIGMODULES="$SWIGMODULES ios-gles3.fs" SWIGLIBS="$SWIGLIBS opengles3.fs", ,
+   AC_CHECK_HEADER(OpenGLES/ES3/glext.h, SWIGMODULES="$SWIGMODULES ios-gles3.fs" SWIGLIBS="$SWIGLIBS ios-gles3.fs" GLESFLAG=true, ,
 #include <OpenGLES/ES3/gl.h>
 ) ,)
 fi
@@ -1550,10 +1554,10 @@ if test x$has_swig = xyes || test -f $srcdir/unix/png16-fsi.c; then
     AC_CHECK_HEADER(libpng16/png.h, SWIGMODULES="$SWIGMODULES png16.fs"
 		    SWIGLIBS="$SWIGLIBS png16.fs", ,)
 fi
-AC_CHECK_HEADER(stb/stb_image.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image.fs", , )
-AC_CHECK_HEADER(stb/stb_image_write.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image-write.fs", , )
+AC_CHECK_HEADER(stb/stb_image.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image.fs", MINOSFLAG=false, )
+AC_CHECK_HEADER(stb/stb_image_write.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image-write.fs", MINOSFLAG=false, )
 if test x$has_swig = xyes || test -f $srcdir/unix/i2c-fsi.c; then
-    AC_CHECK_HEADER(linux/i2c.h, SWIGMODULES="$SWIGMODULES i2c.fs", ,)
+    AC_CHECK_HEADER(linux/i2c.h, SWIGMODULES="$SWIGMODULES i2c.fs", MINOSFLAG=false,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/spi-fsi.c; then
     AC_CHECK_HEADER(linux/spi/spidev.h, SWIGMODULES="$SWIGMODULES spi.fs", ,)
@@ -1576,7 +1580,7 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
    AC_CHECK_LIB(freetype,FT_Get_Char_Index,
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
 		    SWIGLIBS="$SWIGLIBS freetype_gl.fs"
-		    SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags freetype2 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,), ,), ,)
+		    SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags freetype2 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", MINOSFLAG=false,), MINOSFLAG=false,), MINOSFLAG=false,)
    if test x"$CPPFLAGS" != x"$CPPFLAGS_1"; then
       CPPFLAGS="$CPPFLAGS_2"
    fi
@@ -1664,12 +1668,25 @@ fi
 #		   SWIGLIBS="$SWIGLIBS gst.fs" SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags gstreamer-gl-1.0 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", CPPFLAGS="$CPPFLAGS_1",), ,)
 #fi
 
+if test x$GLESFLAG = xfalse -a x$GLXFLAG = xfalse
+then
+   MINOSFLAG=false
+fi
+AC_SUBST(MINOSFLAG)
+if test x$MINOSFLAG = xtrue
+then
+   minosdoc=doc/minosdoc.fd
+fi
+AC_SUBST(minosdoc)
+
 if test x$has_swig = xno; then
    AC_MSG_WARN([*** Swig without -forth. Building library buildings $SWIGMODULES from tarball.])
    config_warns="$config_warns
 Swig without -forth feature, library interfaces will not be generated."
 fi
 AC_SUBST(SWIGMODULES)
+AC_SUBST(GLESFLAG)
+AC_SUBST(GLXFLAG)
 
 #remove duplicates
 SWIGINCLUDES=`echo $SWIGINCLUDES | tr ' ' '\n' | sort -u | tr '\n' ' '`

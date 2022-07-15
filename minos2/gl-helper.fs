@@ -47,12 +47,17 @@ s" os-type" environment? [IF]
 		[IFUNDEF] use-egl synonym use-egl noop [THEN]
 		[IFUNDEF] use-wl synonym use-wl noop [THEN]
 	    [ELSE] \ it's probably "x11" or undefined
-		[DEFINED] use-glx s" GFORTH_GL" getenv s" glx" str= or
-		[DEFINED] use-egl 0= and [IF]
+		[DEFINED] use-glx glx? and gles? 0= or
+		s" GFORTH_GL" getenv s" glx" str= or
+		[DEFINED] use-egl gles? and 0= and [IF]
 		    require ../unix/opengl.fs
 		    [IFUNDEF] use-glx synonym use-glx noop [THEN]
 		[ELSE]
-		    require ../unix/opengles.fs
+		    gles? 0= [IF]
+			-21 throw \ No OpenGL variant available
+		    [ELSE]
+			require ../unix/opengles.fs
+		    [THEN]
 		    [IFUNDEF] use-egl synonym use-egl noop [THEN]
 		[THEN]
 		also opengl
