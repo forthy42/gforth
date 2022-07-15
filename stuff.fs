@@ -512,11 +512,11 @@ User theme-color  0 theme-color !
 
 \ x:traverse-wordlist words
 
-' name>int alias name>interpret ( nt -- xt|0 )
+' name>int alias name>interpret ( nt -- xt|0 ) \ tools-ext
     \G @i{xt} represents the interpretation semantics @i{nt}; returns
     \G 0 if @i{nt} has no interpretation semantics
 
-' name>comp alias name>compile ( nt -- w xt )
+' name>comp alias name>compile ( nt -- w xt ) \ tools-ext
 \G @i{w xt} is the compilation token for the word @i{nt}.
 
 \ 2value

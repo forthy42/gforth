@@ -330,7 +330,7 @@ forth-wordlist current !
 ' no.extensions dup dup recognized: notfound
 \G If a recognizer fails, it returns @code{notfound}
 
-: find-name-in  ( c-addr u wid -- nt | 0 )
+: find-name-in  ( c-addr u wid -- nt | 0 ) \ gforth
     \G search the word list identified by @i{wid} for the definition
     \G named by the string at @i{c-addr u}. Return its @i{nt}, if
     \G found, otherwise 0.

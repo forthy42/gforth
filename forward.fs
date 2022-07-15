@@ -39,7 +39,7 @@ s" forward must be resolved with :" exception constant forward-needs-:
     target @ cell- @ dup >body target !
     execute-exit ;
 
-: forward ( "name" -- )
+: forward ( "name" -- ) \ gforth
     \g Defines a forward reference to a colon definition.  Defining a
     \g colon definition with the same name in the same wordlist
     \g resolves the forward references.  Use @code{.unresolved} to
@@ -64,7 +64,7 @@ s" forward must be resolved with :" exception constant forward-needs-:
 
 ' auto-resolve is check-shadow
 
-: .unresolved ( -- )
+: .unresolved ( -- ) \ gforth
     \G print all unresolved forward references
     [: [:   replace-sourceview >r dup name>view to replace-sourceview
 	    dup is-forward? [: dup .name ." is unresolved" cr ;] ?warning

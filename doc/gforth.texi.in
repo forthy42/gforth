@@ -7710,59 +7710,6 @@ M. Anton Ertl,
 @cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,@code{State}-smartness---Why
 it is Evil and How to Exorcise it}}, EuroForth '98.}!
 
-@cindex defining words with arbitrary semantics combinations
-It is also possible to write defining words that define words with
-arbitrary combinations of interpretation and compilation semantics. In
-general, they look like this:
-
-@example
-: def-word
-    create-interpret/compile
-    @i{code1}
-interpretation>
-    @i{code2}
-<interpretation
-compilation>
-    @i{code3}
-<compilation ;
-@end example
-
-For a @i{word} defined with @code{def-word}, the interpretation
-semantics are to push the address of the body of @i{word} and perform
-@i{code2}, and the compilation semantics are to push the address of
-the body of @i{word} and perform @i{code3}. E.g., @code{constant}
-can also be defined like this (except that the defined constants don't
-behave correctly when @code{[compile]}d):
-
-@example
-: constant ( n "name" -- )
-    create-interpret/compile
-    ,
-interpretation> ( -- n )
-    @@
-<interpretation
-compilation> ( compilation. -- ; run-time. -- n )
-    @@ postpone literal
-<compilation ;
-@end example
-
-
-doc-create-interpret/compile
-doc-interpretation>
-doc-<interpretation
-doc-compilation>
-doc-<compilation
-
-
-Words defined with @code{interpret/compile:} and
-@code{create-interpret/compile} have an extended header structure that
-differs from other words; however, unless you try to access them with
-plain address arithmetic, you should not notice this. Words for
-accessing the header structure usually know how to deal with this; e.g.,
-@code{'} @i{word} @code{>body} also gives you the body of a word created
-with @code{create-interpret/compile}.
-
-
 @c -------------------------------------------------------------
 @node Tokens for Words, Compiling words, Interpretation and Compilation Semantics, Words
 @section Tokens for Words
@@ -8057,7 +8004,6 @@ allows us to write @code{[compile-+]} as:
 @end example
 
 doc-]]
-doc-[[
 
 The unusual direction of the brackets indicates their function:
 @code{]]} switches from compilation to postponing (i.e., compilation
@@ -8075,27 +8021,57 @@ written much shorter as follows:
 : compile-map-array ( compilation: xt -- ; run-time: ... addr u -- ... )
 \ at run-time, execute xt ( ... x -- ... ) for each element of the
 \ array beginning at addr and containing u elements
-  @{ xt @}
+  @{: xt: xt :@}
   ]] cells over + swap ?do
-    i @@ [[ xt compile, 
-  1 cells ]]L +loop [[ ;
+    i @@ xt 1 cells +loop [[ ;
+
+: sum-array ( addr u -- n )
+  0 [ ' + compile-map-array ] ;
 @end example
 
-This example also uses @code{]]L} as a shortcut for @code{]] literal}.
-There are also other shortcuts
+If you then say @code{see sum-array}, it shows the following code:
 
-doc-]]L
-doc-]]2L
-doc-]]FL
-doc-]]SL
+@example
+: sum-array
+  #0 over + swap ?do
+    i @ + #8 +LOOP
+;
+@end example
 
-Note that parsing words don't parse at postpone time; if you want to
-provide the parsed string right away, you have to switch back to
+In addition to @code{]]}...@code{[[}, this example shows off some
+other features:
+
+@itemize
+
+@item
+It uses a defer-flavoured (defined with @code{xt:} local @code{xt};
+mentioning the local inside @code{]]}...@code{[[} results in
+@code{compile,}ing the xt in the local.
+
+@item
+It uses the literal @code{1} inside @code{]]}...@code{[[}.  This
+results in @code{postpone}ing the @code{1}, i.e. compiling it when
+@code{compile-map-array} is run.
+
+@item
+When @code{compile-map-array} is run, @code{1 cells} is compiled and
+optimized into @code{#8} by Gforth's constant folding.
+
+@end itemize
+
+Note that parsing words such as @code{s\"} don't parse at postpone
+time and therefore not inside @code{]]}...@code{[[}.  Instead of
+@code{s\" mystring\n"} you can use the string recognizer and write
+@code{"mystring\n"}, which works inside @code{]]}...@code{[[}.
+Likewise for the parsing word @code{[']} and the recognizer notation
+starting with @code{`}.
+
+But if you prefer to use @code{s\"} (or have a parsing word that has
+no recognizer replacement), you can do it by switching back to
 compilation:
 
 @example
-]] ... [[ s" some string" ]]2L ... [[
-]] ... [[ ['] + ]]L ... [[
+]] ... [[ s\" mystring\n" ]] 2literal ... [[
 @end example
 
 Definitions of @code{]]} and friends in Standard Forth are provided in
