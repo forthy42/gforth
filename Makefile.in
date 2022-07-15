@@ -1147,8 +1147,10 @@ extra-install:	gforth.fi $(EXTRAS:%=%.extrasinst)
 # -------------	Make forth images
 
 kernel/authors.fs:	AUTHORS Makefile.in
-	echo ": authors ( -- ) cr" >kernel/authors.fs
+	echo "\ generated file; source file: AUTHORS" >kernel/authors.fs
+	echo ": authors ( -- ) \ gforth" >>kernel/authors.fs
 	echo "  \G show the list of authors" >>kernel/authors.fs
+	echo "  cr" >>kernel/authors.fs
 	grep '^[ND]:' $< | sed -e 's/^N: \(.*\)/  1 attr\! ." \1:" 0 attr\! cr /g' -e 's/^D: \(.*\)/  ."   \1" cr /g'>>kernel/authors.fs
 	echo ";" >>kernel/authors.fs
 
