@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: set-compsem ( xt -- )
+: set-compsem ( xt -- ) \ gforth-experimental
     \G change compilation semantics of the last defined word
     [n:d nip ['] execute ;] set->comp ;
 
@@ -26,7 +26,7 @@
 \ :noname ." compiling" ;
 \ : foo ." interpreting" ; set-compsem
 
-: intsem: ( -- )
+: intsem: ( -- ) \ gforth-experimental
     \G The current definition's compilation semantics are changed to
     \G perform its execution semantics (the word becomes immediate).
     \G Then its interpretation semantics are changed to perform the
@@ -40,7 +40,7 @@
 \ silly example:
 \ : foo ." compiling" ; intsem: ." interpreting" ;
 
-: compsem: ( -- )
+: compsem: ( -- ) \ gforth-experimental
     \G Changes the compilation semantics of the current definition to
     \G perform the definition starting at the @code{compsem:}.
     int-[: [: nip >r hm, wrap! r> set-compsem ;] colon-sys-xt-offset stick ;

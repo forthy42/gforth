@@ -128,7 +128,9 @@ Variable config-file$  s" ~/.config/minos2rc" config-file$ $!
 
 $[]Variable ranges>lang[]
 
-: +range ( type end start -- )
+: +range ( font# end start -- ) \ minos2
+    \G Add a \var{font#} to a range from @var{start} to (excluding}
+    \G @var{end} to the list of ranges.
     U+DO
 	I 8 rshift ranges>lang[] $[] { range }
 	I $FF and 0= I' I $100 + u>= and IF
@@ -144,6 +146,7 @@ $[]Variable ranges>lang[]
 	THEN
     $100 I $FF and - +LOOP  drop ;
 : range@ ( codepoint -- font# )
+    \G Get the @var{font#} for a specific @var{codepoint}.
     \G -1 as result means the font is meaningless
     dup >r 8 rshift ranges>lang[] $[]
     dup @ dup 1+ $100 u<= IF  nip rdrop  EXIT  THEN
@@ -218,45 +221,45 @@ box-hflip# box-hphantom# or Constant box-vvisible#
 box-vflip# box-dphantom# box-vphantom# or or Constant box-hvisible#
 
 object class
-    value: caller-w
+    value: caller-w ( -- optr ) \ minos2
     \G pointer back to the widget embedding the actor
-    value: active-w
+    value: active-w ( -- optr ) \ minos2
     \G pointer to the active subwidget embedding the actor
-    value: act-name$
+    value: act-name$ ( -- addr u ) \ minos2
     \G Debugging aid: name of the actor
-    method clicked ( rx ry bmask n -- )
+    method clicked ( rx ry bmask n -- ) \ minos2
     \G processed clicks
-    method scrolled ( axis dir -- )
+    method scrolled ( axis dir -- ) \ minos2
     \G process scrolling
-    method touchdown ( $rxy*n bmask -- )
+    method touchdown ( $rxy*n bmask -- ) \ minos2
     \G raw click down
-    method touchup ( $rxy*n bmask -- )
+    method touchup ( $rxy*n bmask -- ) \ minos2
     \G raw click up
-    method touchmove ( $rxy*n bmask -- )
+    method touchmove ( $rxy*n bmask -- ) \ minos2
     \G raw click, move. @var{bmask}=0 is hover
-    method ukeyed ( addr u -- )
+    method ukeyed ( addr u -- ) \ minos2
     \G key event, string of printable unicode characters
-    method ekeyed ( ekey -- )
+    method ekeyed ( ekey -- ) \ minos2
     \G key event, non-printable key
-    method ?inside ( rx ry -- act / 0 )
+    method ?inside ( rx ry -- act / 0 ) \ minos2
     \G check if coordinates are inside the widget
-    method focus ( -- )
+    method focus ( -- ) \ minos2
     \G put widget into focus
-    method defocus ( -- )
+    method defocus ( -- ) \ minos2
     \G put widget out of focus
-    method entered ( -- )
+    method entered ( -- ) \ minos2
     \G react on cursor entering the widget area
-    method left
+    method left ( -- ) \ minos2
     \G react on cursor leaving the widget area
-    method show ( -- )
+    method show ( -- ) \ minos2
     \G widget is shown
-    method hide ( -- )
+    method hide ( -- ) \ minos2
     \G widget is hidden
-    method get ( -- something )
+    method get ( -- something ) \ minos2
     \G getter for the value behind the widget
-    method set ( something -- )
+    method set ( something -- ) \ minos2
     \G setter for the value behind the widget
-    method show-you ( -- )
+    method show-you ( -- ) \ minos2
     \G make widget visible
 end-class actor
 
@@ -293,11 +296,11 @@ end-class helper-glue
 ' noop actor is left
 
 object class
-    value: parent-w
+    value: parent-w ( -- optr ) \ minos2
     \G pointer to parent widget
-    value: act
+    value: act ( -- optr ) \ minos2
     \G pointer to actor
-    $value: name$ \ DOM name, for debugging and searching
+    $value: name$ ( -- addr u ) \ minos2
     \G Widget name for debugging and searching
     sfvalue: x
     sfvalue: y
@@ -987,7 +990,7 @@ end-class box
 : ?do-childs { xt flag -- }
     box-flags flag and 0= IF  xt do-childs  THEN ;
 
-: do-childs-act? ( xt flag -- )
+: do-childs-act? ( xt flag -- ) \ minos2
     \G loop prevention: checks flag, sets flag, calls do-child-?act, resets flag
     caller-w >o
     dup box-flags and 0= IF
@@ -1081,10 +1084,10 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 : ?g3>2 ( t s a flag -- min a )
     IF  g3>2grow  ELSE  g3>2shrink  THEN ;
 
-: glue+ { f: t1 f: s1 f: a1 f: t2 f: s2 f: a2 -- t3 s3 a3 }
+: glue+ { f: t1 f: s1 f: a1 f: t2 f: s2 f: a2 -- t3 s3 a3 } \ minos2
     \G stick two glues together
     t1 t2 f+ s1 s2 f+ a1 a2 f+ ;
-: glue* { f: t1 f: s1 f: a1 f: t2 f: s2 f: a2 -- t3 s3 a3 }
+: glue* { f: t1 f: s1 f: a1 f: t2 f: s2 f: a2 -- t3 s3 a3 } \ minos2
     \G overlay two glues together
     t1 s1 f- to s1  t1 a1 f+ to a1
     t2 s2 f- to s2  t2 a2 f+ to a2
@@ -1443,7 +1446,7 @@ end-class viewport
 
 $10 stack: vp<>
 
-: vp-needed ( xt -- )
+: vp-needed ( xt -- ) \ minos2
     \G collect needs in viewport's vp-need
     vp-need need-mask <> IF
 	o vp<> >stack
