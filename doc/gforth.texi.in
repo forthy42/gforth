@@ -14670,7 +14670,7 @@ doc-getenv
 
 doc-ms
 doc-time&date
-doc->time&date
+doc->time&date&tz
 doc-utime
 doc-ntime
 doc-cputime

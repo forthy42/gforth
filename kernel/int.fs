@@ -559,7 +559,9 @@ drop drop
 0 0 0 0 field body> ( xt -- a_addr )
     drop drop
 
-    : >code-address >cfa @ ;
+: >code-address ( xt -- c_addr ) \ gforth
+    \G @i{c-addr} is the code address of the word @i{xt}.
+    >cfa @ ;
 [ELSE]
 cell% 0 0 field >body ( xt -- a_addr ) \ core to-body
 \G Get the address of the body of the word represented by @i{xt} (the
@@ -569,8 +571,9 @@ drop drop
 cell% -1 * 0 0 field body> ( xt -- a_addr )
     drop drop
 
-    : >code-address @ ; ( xt -- c_addr ) \ gforth
-\G @i{c-addr} is the code address of the word @i{xt}.
+: >code-address ( xt -- c_addr ) \ gforth
+    \G @i{c-addr} is the code address of the word @i{xt}.
+    @ ;
 [THEN]
 
 : >does-code ( xt -- a_addr ) \ gforth
