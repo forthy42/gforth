@@ -37,6 +37,7 @@ require ../i18n.fs \ localization
 require gl-terminal.fs
 
 require ftgl-helper.fs
+
 require ../mini-oof2.fs
 require ../config.fs
 
@@ -917,8 +918,15 @@ also freetype-gl
 
 previous
 
-: style: load-style Create here atlas-region dup allot move
-  DOES> to frame# ;
+: style: ( addr u -- ) \ minos2
+    file>fpath Create
+    here 0 , $! here atlas-region dup allot erase
+  DOES>
+    cell+ >r
+    r@ atlas-region 0 skip nip 0= IF
+	r@ cell- $@ load-style r@ atlas-region move
+    THEN
+    r> to frame# ;
 
 "white.png" style: white-tile
 "button.png" style: button1
@@ -926,7 +934,8 @@ previous
 "button3.png" style: button3
 "lbubble.png" style: lbubble
 "rbubble.png" style: rbubble
-' button1 >body Value slider-frame# \ set the frame number to button2 style
+
+' button1 >body cell+ Value slider-frame# \ set the frame number to button2 style
 
 : }}canvas ( glue color xt-lines xt-text -- o )
     canvas new >o
@@ -1415,7 +1424,7 @@ htab-glue is hglue!@
     result[ l@ to maxtexsize#
     maxtexsize# dpy-w @ dpy-h @ max 2* 2* min to usetexsize# ;
 
-?texsize
+:noname defers window-init ?texsize ; is window-init
 
 vbox class
     sfvalue: vp-x \ x offset of visible part of viewport
