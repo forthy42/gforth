@@ -88,7 +88,8 @@ $Variable eos$
 	    swap bracket-enqueue swap
     THEN ;
 
-: >bidi ( addr u -- )
+: >bidi ( addr u -- ) \ minos2-bidi
+    \G Add string @var{addr u} to the buffer for the bidi algorithm
     [: bounds ?DO
 	    I xc@+ dup 1 bidi@ IF
 		c@ bracket-check emit drop
@@ -157,14 +158,16 @@ iso-region-element buffer: iso-current
 
 : iso-start ( -- )
     $bidi-pos iso-current to <<reg ;
-: iso-update ( -- ) \ intermediate update
+: iso-update ( -- )
+    \ intermediate update
     $bidi-pos iso-current to reg>>
     iso-current <<reg iso-current reg>> u< IF
 	iso-current iso-region-element stack# @ iso-stack<> $[]+!
     THEN ;
 : iso-stack>list ( n -- )
     0 swap iso-stack<> $[] !@ ?dup-IF  iso-list[] >stack  THEN ;
-: iso-push ( -- ) \ final update&put on list
+: iso-push ( -- )
+    \ final update&put on list
     iso-update stack# @ iso-stack>list ;
 
 \ rules according to https://unicode.org/reports/tr9/#X1
@@ -192,25 +195,29 @@ $20 0 [DO] ' noop , [LOOP]
     current-char $bidi-buffer $@ drop - /string
     IF  c!  ELSE  2drop  THEN ;
 
-: x2 ( -- ) \ match on RLE
+: x2 ( -- ) \ minos2-bidi
+    \G match on RLE
     stack# @ next-odd dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	drop overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  neutral stack-top c!  THEN ;
 ' x2 bind RLE
-: x3 ( -- ) \ match on LRE
+: x3 ( -- ) \ minos2-bidi
+    \G match on LRE
     stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  neutral stack-top c!  THEN ;
 ' x3 bind LRE
-: x4 ( -- ) \ match on RLO
+: x4 ( -- ) \ minos2-bidi
+    \G match on RLO
     stack# @ next-odd dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	drop overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  rtl stack-top c!  THEN ;
 ' x4 bind RLO
-: x5 ( -- ) \ match on LRO
+: x5 ( -- )  \ minos2-bidi
+    \G match on LRO
     stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	drop overflow-isolate# @ 0= negate  overflow-embedded# +!
@@ -219,13 +226,15 @@ $20 0 [DO] ' noop , [LOOP]
 
 : x6 ( -- )
     stack# @ >level  change-current-char ;
-: x5a ( -- ) \ match on RLI
+: x5a ( -- ) \ minos2-bidi
+    \G match on RLI
     x6 stack# @ next-odd dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	1 overflow-isolate# +! drop
     ELSE  stack# !  rtl dis or stack-top c!  1 isolate# +!  THEN ;
 ' x5a bind RLI
-: x5b ( -- ) \ match on LRI
+: x5b ( -- ) \ minos2-bidi
+    \G match on LRI
     x6 stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	1 overflow-isolate# +! drop
@@ -287,7 +296,8 @@ $20 0 [DO] ' noop , [LOOP]
     $bidi-buffer $@ bounds drop current-char (p2) x1-rest
     iso-stack<> $[]# 0 ?DO  I iso-stack>list  LOOP  iso-start ;
 ' x8 bind B
-: x9 ( -- ) ; \ we don't remove anything
+: x9 ( -- ) ;
+\ we don't remove anything
 
 \ isolating weak types
 
@@ -530,10 +540,10 @@ Defer skip-bidi? ' (skip-bidi?) is skip-bidi?
 	I c@ cells x-match + perform
     LOOP
     x8 x9 x10 ;
-: bidi-algorithm ( -- )
+: bidi-algorithm ( -- ) \ minos2-bidi
     \G auto-detect paragraph direction and do bidi algorithm
     flag-sep R-mask skip-bidi? ?EXIT  x1 bidi-rest ;
-: bidi-algorithm# ( level -- )
+: bidi-algorithm# ( level -- ) \ minos2-bidi
     \G use @ivar{level} as main direction and do bidi algorithm
     flag-sep dup to embedded-level
     L-mask R-mask third select skip-bidi?  IF  drop  EXIT  THEN

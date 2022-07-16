@@ -445,9 +445,14 @@ $100 buffer: font-bidi' \ 0: leave as guess, 4-7: set direction
 64e 64e f* 1/f FConstant pos*
 64e 1/f FConstant pos*icon
 
-Defer render-string
-Defer layout-string
-Defer curpos-string
+Defer render-string ( addr u -- ) \ minos2
+\G Render a string
+Defer layout-string ( addr u -- rw rd rh ) \ minos2
+\G Layout a string, resulting in width @var{rw}, depth (below baseline)
+\G in @var{rd} and height (above baseline) in @var{rh}
+Defer curpos-string ( addr u pos -- rcurpos ) \ minos2
+\G Translate cursor position pointer @var{pos} into distance @var{rcurpos}
+\G from the start of the string
 Defer pos-string
 Defer pos-string-l2r
 Defer get-glyphs
@@ -548,7 +553,8 @@ previous
     r> texture_glyph_t-height @ f-scale fm*
     fover f- fd fmax fswap fh fmax ;
 
-: layout-simple-string ( addr u -- fw fd fh ) \ depth is how far it goes down
+: layout-simple-string ( addr u -- fw fd fh )
+    \ depth is how far it goes down
     0 -rot  0e 0e 0e  bounds ?DO
 	I' I ?font-select { xs } xchar@xy
     xs +LOOP  drop ;
@@ -562,7 +568,8 @@ cell 4 = [IF]
     ' df@ alias seg-len@
 [THEN]
 
-: layout-shape-string ( addr u -- fw fd fh ) \ depth is how far it goes down
+: layout-shape-string ( addr u -- rw rd rh )
+    \ rd: depth is how far it goes down
     lang-split-string ['] drop shape-splits
     { | f: fw f: fd f: fh }
     $splits[] stack# 0 ?DO
@@ -630,18 +637,18 @@ cell 4 = [IF]
     LOOP
     fdrop offset ;
 
-: pos-shape-string ( addr u fx -- curpos ) \ depth is how far it goes down
+: pos-shape-string ( addr u rx -- curpos )
     lang-split-string ['] drop shape-splits pos-shape-rest ;
 
-: pos-shape-string-l2r ( addr u fx -- curpos ) \ depth is how far it goes down
+: pos-shape-string-l2r ( addr u rx -- curpos )
     lang-split-string
     [: HB_DIRECTION_LTR hb_buffer_set_direction ;] shape-splits
     pos-shape-rest ;
 
-: curpos-simple-string ( addr u pos -- fcurpos )
+: curpos-simple-string ( addr u pos -- rcurpos )
     umin layout-simple-string fdrop fdrop x-scale f* ;
 
-: curpos-shape-string { addr u pos -- fcurpos }
+: curpos-shape-string { addr u pos -- rcurpos }
     addr u layout-shape-string fdrop fdrop fdrop
     { | rtl? f: len f: lastlen }
     0 addr pos bounds ?DO

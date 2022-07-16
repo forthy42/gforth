@@ -57,3 +57,6 @@ set-current
 
 @GETENTROPY@ constant getentropy?
 @GETRANDOM@ constant getrandom?
+@GLESFLAG@ constant gles?
+@GLXFLAG@ constant glx?
+@MINOSFLAG@ constant minos?

@@ -168,7 +168,7 @@ Defer config-changed
 Defer screen-ops      ' noop is screen-ops
 Defer reload-textures ' noop is reload-textures
 
-: gl-init ( -- )
+: gl-init ( -- ) \ minos2
     \G if not already opened, open window and initialize OpenGL
     ctx 0= IF window-init THEN ;
 
@@ -363,12 +363,14 @@ Variable exposed
 
 also x11
 
-: xmeta@ ( state -- meta ) dup
-    >r ShiftMask   and 0<> 1 and
+: xmeta@ ( state -- meta ) \ minos2
+    \G return meta in vt100 form
+    dup >r ShiftMask   and 0<> 1 and
     r@ Mod1Mask    and 0<> 2 and or
     r> ControlMask and 0<> 4 and or ;
 
-: +meta ( addr u -- addr' u' ) \ insert meta information
+: +meta ( addr u -- addr' u' ) \ minos2
+    \G insert meta information
     >r over c@ #esc <> IF  rdrop  EXIT  THEN
     r> dup 0= IF  drop  EXIT  THEN  '1' + \ no meta, don't insert
     [: >r 1- 2dup + c@ >r

@@ -57,7 +57,7 @@ set-current
 
 : $substitute ( addr1 len1 -- addr2 len2 n/ior )
     \G substitute all macros in text @var{addr1 len1}.  @var{n} is the
-    \G number of substitutions, if negative, it's a throwable @{ior},
+    \G number of substitutions, if negative, it's a throwable @var{ior},
     \G @var{addr2 len2} the result.
     ['] .substitute $tmp rot ;
 
@@ -73,7 +73,7 @@ set-current
     \G double all delimiters in @var{addr1 u1}, so that substitute
     \G will result in the original text.  Note that the buffer
     \G @var{dest} does not have a size, as in worst case, it will need
-    \G just twice as many characters as @var{u1}. @{dest u2} is the
+    \G just twice as many characters as @var{u1}. @var{dest u2} is the
     \G resulting string.
     dp @ >r dup >r dp !
     bounds ?DO
