@@ -22,7 +22,7 @@ require glocals.fs
 
 \ overwrite
 
-: $over ( addr u $addr off -- )
+: $over ( addr u $addr off -- ) \ gforth string-over
     \G overwrite string at offset off with addr u
     swap dup
     >r @ 0= IF  s" " r@ $!  THEN
@@ -69,7 +69,7 @@ tmp$ $execstr-ptr !
 
 ' $type ' $emit ' $cr ' $form output: $-out
 
-: $exec ( xt addr -- )
+: $exec ( xt addr -- ) \ gforth string-exec
     \G execute xt while the standard output (TYPE, EMIT, and everything
     \G that uses them) is appended to the string variable addr.
     $execstr-ptr @ op-vector @
@@ -82,11 +82,11 @@ tmp$ $execstr-ptr !
 	oldout op-vector !
     endtry
     throw ;
-: $. ( addr -- )
+: $. ( addr -- ) \ gforth string-dot
     \G print a string, shortcut
     $@ type ;
 
-: $tmp ( xt -- addr u )
+: $tmp ( xt -- addr u ) \ gforth string-t-m-p
     \G generate a temporary string from the output of a word
     1 tmp$# +!@ drop 0 { w^ tmp$$ } tmp$$ $exec
     tmp$$ @ tmp$ tuck dup $free ! $@ ;
@@ -99,13 +99,13 @@ tmp$ $execstr-ptr !
     \G slurp a file @var{fid} into a string @var{addr2}, append mode
     swap dup >r file-size throw r@ file-position throw d- drop
     dup rot $+!len swap r> read-file throw drop ;
-: $slurp ( fid addr -- )
+: $slurp ( fid addr -- ) \ gforth string-slurp
     \G slurp a file @var{fid} into a string @var{addr2}
     dup $free $+slurp ;
-: $+slurp-file ( addr1 u1 addr2 -- )
+: $+slurp-file ( addr1 u1 addr2 -- ) \ gforth string-slurp-file
     \G slurp a named file @var{addr1 u1} into a string @var{addr2}, append mode
     >r r/o open-file throw dup r> $+slurp close-file throw ;
-: $slurp-file ( addr1 u1 addr2 -- )
+: $slurp-file ( addr1 u1 addr2 -- ) \ gforth string-slurp-file
     \G slurp a named file @var{addr1 u1} into a string @var{addr2}
     dup $free $+slurp-file ;
 
@@ -114,7 +114,7 @@ tmp$ $execstr-ptr !
 	addr $@len dup { sk } $100 umax dup >r addr $+!len
 	r@ fid read-line throw
 	swap dup r> = WHILE  2drop  REPEAT  sk + addr $!len ;
-: $[]slurp { fid addr -- }
+: $[]slurp { fid addr -- } \ gforth string-array-slurp
     \G slurp a file @var{fid} line by line into a string array @var{addr}
     0 { ii }  BEGIN  fid ii addr $[] $slurp-line  WHILE
 	    ii 1+ to ii   REPEAT
@@ -122,18 +122,18 @@ tmp$ $execstr-ptr !
     ii addr $[]@ nip IF  ii 1+ to ii  THEN
     addr $[]# ii U+DO  I addr $[] $free  LOOP
     ii cells addr $!len ;
-: $[]slurp-file ( addr u $addr -- )
+: $[]slurp-file ( addr u $addr -- ) \ gforth string-array-slurp-file
     \G slurp a named file @var{addr u} line by line into a string array @var{$addr}
     >r r/o open-file throw dup r> $[]slurp close-file throw ;
 
-: $[]map { addr xt -- }
+: $[]map { addr xt -- } \ gforth string-array-map
     \G execute @var{xt} for all elements of the string array @var{addr}.
     \G xt is @var{( addr u -- )}, getting one string at a time
     addr $[]# 0 ?DO  I addr $[]@ xt execute  LOOP ;
-: $[]. ( addr -- )
+: $[]. ( addr -- ) \ gforth string-array-dot
     \G print all array entries
     [: type cr ;] $[]map ;
-: $[]free ( addr -- )
+: $[]free ( addr -- ) \ gforth string-array-free
     \G addr contains the address of a cell-counted string that contains the
     \G addresses of a number of cell-counted strings; $[]free frees
     \G these strings, frees the array, and sets addr to 0

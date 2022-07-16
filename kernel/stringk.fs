@@ -18,12 +18,12 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: delete   ( buffer size u -- ) \ gforth-string
+: delete   ( buffer size u -- ) \ gforth
     \G deletes the first @var{u} bytes from a buffer and fills the
     \G rest at the end with blanks.
     over umin dup  >r - ( left over )
     2dup swap dup  r@ +  -rot swap move  + r> bl fill ;
-: insert   ( string length buffer size -- ) \ gforth-string
+: insert   ( string length buffer size -- ) \ gforth
     \G inserts a string at the front of a buffer. The remaining
     \G bytes are moved on.
     rot over umin dup  >r - ( left over )
@@ -42,13 +42,13 @@
 	[ [THEN] ] 1+ ;
 [THEN]
 
-: $padding ( n -- n' ) \ gforth-string
+: $padding ( n -- n' ) \ gforth
     [ 6 cells ] Literal +  >pow2  [ -4 cells ] Literal and ;
-: $free ( $addr -- ) \ gforth-string string-free
+: $free ( $addr -- ) \ gforth string-free
     \G free the string pointed to by addr, and set addr to 0
     0 swap !@ ?dup-IF  free throw  THEN ;
 
-: $!buf ( $buf $addr -- ) \ gforth-string string-store-buf
+: $!buf ( $buf $addr -- ) \ gforth string-store-buf
     \G stores a buffer in a string variable and frees the previous buffer
     !@ ?dup-IF  free throw  THEN ;
 : $make ( addr1 u -- $buf )
@@ -56,10 +56,10 @@
     \G a string variable, internal factor
     dup $padding allocate throw dup >r
     2dup ! cell+ swap move r> ;
-: $@len ( $addr -- u ) \ gforth-string string-fetch-len
+: $@len ( $addr -- u ) \ gforth string-fetch-len
     \G returns the length of the stored string.
     @ dup IF  @  THEN ;
-: $!len ( u $addr -- ) \ gforth-string string-store-len
+: $!len ( u $addr -- ) \ gforth string-store-len
     \G changes the length of the stored string.  Therefore we must
     \G change the memory area and adjust address and count cell as
     \G well.
@@ -67,7 +67,7 @@
 	over @ @ $padding over = IF  drop @ !  EXIT  THEN
     THEN
     over @ swap resize throw over ! @ ! ;
-: $! ( addr1 u $addr -- ) \ gforth-string string-store
+: $! ( addr1 u $addr -- ) \ gforth string-store
     \G stores a newly allocated string buffer at an address,
     \G frees the previous buffer if necessary.
     dup @ IF  \ fast path for strings with similar buffer size
@@ -75,41 +75,41 @@
 	    @ 2dup ! cell+ swap move  EXIT
 	THEN  THEN
     2dup $!len @ cell+ swap move ;
-: $@ ( $addr -- addr2 u ) \ gforth-string string-fetch
+: $@ ( $addr -- addr2 u ) \ gforth string-fetch
     \G returns the stored string.
     @ dup IF  dup cell+ swap @  ELSE  0  THEN ;
-: $+!len ( u $addr -- addr )
+: $+!len ( u $addr -- addr ) \ gforth string-plus-store-len
     \G make room for u bytes at the end of the memory area referenced
     \G by $addr; addr is the address of the first of these bytes.
     dup >r $@len tuck + r@ $!len r> @ cell+ + ;
-: $+! ( addr1 u $addr -- ) \ gforth-string string-plus-store
+: $+! ( addr1 u $addr -- ) \ gforth string-plus-store
     \G appends a string to another.
     over >r $+!len r> move ;
-: c$+! ( char $addr -- ) \ gforth-string c-string-plus-store
+: c$+! ( char $addr -- ) \ gforth c-string-plus-store
     \G append a character to a string.
     dup $@len 1+ over $!len $@ + 1- c! ;
 
-: $ins ( addr1 u $addr off -- ) \ gforth-string string-ins
+: $ins ( addr1 u $addr off -- ) \ gforth string-ins
     \G inserts a string at offset @var{off}.
     >r 2dup dup $@len under+ $!len  $@ r> safe/string insert ;
-: $del ( addr off u -- ) \ gforth-string string-del
+: $del ( addr off u -- ) \ gforth string-del
     \G deletes @var{u} bytes from a string with offset @var{off}.
     >r >r dup $@ r> safe/string r@ delete
     dup $@len r> - 0 max swap $!len ;
 
-: $init ( $addr -- )
+: $init ( $addr -- ) \ gforth string-init
     \G store an empty string there, regardless of what was in before
     s" " $make swap ! ;
 
 \ dynamic string handling                              12dec99py
 
-: $split ( addr u char -- addr1 u1 addr2 u2 ) \ gforth-string string-split
+: $split ( addr u char -- addr1 u1 addr2 u2 ) \ gforth string-split
     \G divides a string into two, with one char as separator (e.g. '?'
     \G for arguments in an HTML query)
     >r 2dup r> scan dup >r dup IF  1 /string  THEN
     2swap r> - 2swap ;
 
-: $iter ( .. $addr char xt -- .. ) \ gforth-string string-iter
+: $iter ( .. $addr char xt -- .. ) \ gforth string-iter
     \G takes a string apart piece for piece, also with a character as
     \G separator. For each part a passed token will be called. With
     \G this you can take apart arguments -- separated with '&' -- at
@@ -125,26 +125,26 @@
     >r dup r@ $@len tuck u<= IF  rdrop 2drop EXIT  THEN
     - dup r> $+!len swap 0 fill ;
 
-: $[] ( u $[]addr -- addr' )
+: $[] ( u $[]addr -- addr' ) \ gforth string-array
     \G index into the string array and return the address at index @var{u}
     \G The array will be resized as needed
     >r cells dup cell+ r@ $room  r> $@ drop + ;
 
 \ auto-save and restore strings in images
 
-: $boot ( $addr -- )
+: $boot ( $addr -- ) \ gforth string-boot
     \G take string from dictionary to allocated memory.
     \G clean dictionary afterwards.
     dup >r $@ 2dup r> dup off $! 0 fill ;
-: $save ( $addr -- )
+: $save ( $addr -- ) \ gforth string-save
     \G push string to dictionary for savesys
     dup >r $@ here r> ! dup , here swap dup aligned allot move ;
-: $[]boot ( addr -- )
+: $[]boot ( addr -- ) \ gforth string-array-boot
     \G take string array from dictionary to allocated memory
     dup $boot  $@ bounds ?DO
 	I $boot
     cell +LOOP ;
-: $[]save ( addr -- )
+: $[]save ( addr -- ) \ gforth string-array-save
     \G push string array to dictionary for savesys
     dup $save $@ bounds ?DO
 	I $save
@@ -153,16 +153,16 @@
 AVariable boot$[]  \ strings to be booted
 AVariable boot[][] \ arrays to be booted
 
-: $saved ( addr -- )
-    \ mark an address as booted/saved
+: $saved ( addr -- ) \ gforth string-saved
+    \G mark an address as booted/saved
     boot$[] >stack ;
-: $[]saved ( addr -- )
-    \ mark an address as booted/saved
+: $[]saved ( addr -- ) \ gforth string-array-saved
+    \G mark an address as booted/saved
     boot[][] >stack ;
-: $Variable ( -- )
+: $Variable ( -- ) \ gforth string-variable
     \G A string variable which is preserved across savesystem
     Create here $saved 0 , ;
-: $[]Variable ( -- )
+: $[]Variable ( -- ) \ gforth string-array-variable
     \G A string variable which is preserved across savesystem
     Create here $[]saved 0 , ;
 : boot-strings ( -- )

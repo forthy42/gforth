@@ -43,7 +43,7 @@
 17 Constant EEXIST
 #-512 EEXIST - Constant file-exist#
 
-: mkdir-parents { c-addr u mode -- ior }
+: mkdir-parents { c-addr u mode -- ior } \ gforth
     \G create the directory @i{c-addr u} and all its parents with
     \G mode @i{mode} (modified by umask)
     c-addr u begin { d: s }

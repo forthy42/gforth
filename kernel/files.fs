@@ -29,7 +29,7 @@
 
 \ default is rw-rw-rw-
 
-: +fmode ( fam1 rwxrwxrwx -- fam2 )
+: +fmode ( fam1 rwxrwxrwx -- fam2 ) \ gforth plus-f-mode
     \G add file access mode to fam - for create-file only
     $1B6 xor 4 lshift or ;
 

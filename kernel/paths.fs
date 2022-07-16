@@ -98,11 +98,11 @@ User tfile
 : substc ( addr u charold charnew -- addr u )
     2over bounds ?DO over i c@ = IF dup i c! THEN LOOP  2drop ;
 
-: path= ( path-addr "dir1|dir2|dir3" ) \ gforth
+: path= ( path-addr "dir1|dir2|dir3" -- ) \ gforth path-equals
     \G Make a complete new search path; the path separator is |.
     parse-name '|' 0 substc rot only-path ;
 
-: fpath= ( "dir1|dir2|dir3" ) \ gforth
+: fpath= ( "dir1|dir2|dir3" ) \ gforth f-path-equals
     \G Make a complete new Forth search path; the path separator is |.
     fpath path= ;
 

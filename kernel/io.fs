@@ -53,7 +53,7 @@ User out ( -- addr ) \ gforth
 #-516 Constant EINTR \ error returned for window change
 #-521 Constant EBADF
 
-: key-file ( fd -- key )
+: key-file ( fd -- key ) \ gforth
     \G Read one character @i{n} from @i{wfileid}.  This word disables
     \G buffering for @i{wfileid}.  If you want to read characters from a
     \G terminal in non-canonical (raw) mode, you have to put the terminal
