@@ -177,6 +177,11 @@ int map_32bit=0; /* mmap option, can be set to MAP_32BIT with --map_32bit */
 
 static int map_noreserve=MAP_NORESERVE;
 
+#ifndef PROT_EXEC
+#define PROT_EXEC 0
+#endif
+static int prot_exec=PROT_EXEC;
+
 #define CODE_BLOCK_SIZE (512*1024) /* !! overflow handling for -native */
 Address code_area=0;
 Cell code_area_size = CODE_BLOCK_SIZE;
@@ -582,9 +587,9 @@ static Address alloc_mmap(Cell size)
 #endif /* !defined(MAP_ANON) */
   debugp(stderr,"try mmap(%p, $%lx, ..., dev_zero, ...); ", NULL, size);
   if (MAP_32BIT && map_32bit)
-    r=mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|MAP_32BIT, dev_zero, 0);
+    r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve|MAP_32BIT, dev_zero, 0);
   if (r==MAP_FAILED)
-    r=mmap(0, size, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, dev_zero, 0);
+    r=mmap(0, size, prot_exec|PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE|map_noreserve, dev_zero, 0);
   after_alloc(r, size);
   return r;  
 }
@@ -647,18 +652,23 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
     if (image != (void *)MAP_FAILED) {
       void *image1;
       debugp(stderr, "mmap($%lx) succeeds, address=%p\n", (long)dictsize, image);
-      debugp(stderr,"try mmap(%p, $%lx, ..., MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
+      debugp(stderr,"try mmap(%p, $%lx, RWX, MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
       image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
       after_alloc(image1,dictsize);
-      if (image1 == (void *)MAP_FAILED)
-	goto read_image;
+      if (image1 == (void *)MAP_FAILED) {
+        debugp(stderr,"disabling dynamic native code generation");
+        no_dynamic = 1;
+        prot_exec = 0;
+        debugp(stderr,"try mmap(%p, $%lx, RW, MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
+        image1 = mmap(image, imagesize, PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
+        after_alloc(image1,dictsize);
+      }
     }
   }
 #endif /* defined(HAVE_MMAP) */
   if (image == (void *)MAP_FAILED) {
     if((image = gforth_alloc(dictsize+offset)+offset) == NULL)
       return NULL;
-  read_image:
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
     debugp(stderr,"try fread(%p, 1, %lx, file); ", image, imagesize);
     if(imagesize!=fread(image, 1, imagesize, file) || ferror(file)) {
@@ -1766,7 +1776,7 @@ void compile_prim1(Cell *start)
   if(prim_num >= npriminfos) {
     /* try search prim number in vm_prims */
     int step, i;
-    UCell inst = CODE_ADDRESS(*(UCell**)start);
+    UCell inst = (UCell)CODE_ADDRESS(*(UCell**)start);
     for(i=1; i<npriminfos; i*=2);
     i/=2;
     for(step=i/2; step>0; step/=2) {
@@ -1992,21 +2002,6 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   if(imagefile == NULL) return NULL;
   if(gforth_init()) return NULL;
 
-  vm_prims = gforth_engine(0 sr_call);
-  check_prims(vm_prims);
-  prepare_super_table();
-#ifndef DOUBLY_INDIRECT
-#ifdef PRINT_SUPER_LENGTHS
-  print_super_lengths();
-#endif
-  check_sum = checksum(vm_prims);
-#else /* defined(DOUBLY_INDIRECT) */
-  check_sum = (UCell)vm_prims;
-#endif /* defined(DOUBLY_INDIRECT) */
-#if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
-  termstate = make_termstate();
-#endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
-
   if(sizeof(ImageHeader)!=fread((void *)&header, 1, sizeof(ImageHeader), imagefile)) {
     fprintf(stderr, "ImageHeader read failed\n");
   }
@@ -2031,6 +2026,21 @@ ImageHeader* gforth_loader(char* imagename, char* path)
 			  dictsize, data_offset);
   if(image==NULL) return NULL;
 
+  vm_prims = gforth_engine(0 sr_call);
+  check_prims(vm_prims);
+  prepare_super_table();
+#ifndef DOUBLY_INDIRECT
+#ifdef PRINT_SUPER_LENGTHS
+  print_super_lengths();
+#endif
+  check_sum = checksum(vm_prims);
+#else /* defined(DOUBLY_INDIRECT) */
+  check_sum = (UCell)vm_prims;
+#endif /* defined(DOUBLY_INDIRECT) */
+#if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
+  termstate = make_termstate();
+#endif /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
+  
   sections[0]=imp=image+preamblesize;
 
   set_stack_sizes((ImageHeader*)imp);
@@ -2494,19 +2504,17 @@ user_area* gforth_stacks(Cell dsize, Cell fsize, Cell rsize, Cell lsize)
 #endif
     return up0;
   }
-  return 0;
-#else
+#endif
   a = (Cell)verbose_malloc(totalsize);
-  if (a != NULL) {
+  if (a) {
     up0=(user_area*)a; a+=pagesize;
-    a+=pagesize; up0->sp0=a+dsize; a+=dsizep;
-    a+=pagesize; up0->rp0=a+rsize; a+=rsizep;
-    a+=pagesize; up0->fp0=a+fsize; a+=fsizep;
-    a+=pagesize; up0->lp0=a+lsize; a+=lsizep;
+    a+=pagesize; up0->sp0=(Cell *)(a+dsize); a+=dsizep;
+    a+=pagesize; up0->rp0=(Cell *)(a+rsize); a+=rsizep;
+    a+=pagesize; up0->fp0=(Float *)(a+fsize); a+=fsizep;
+    a+=pagesize; up0->lp0=(Address)(a+lsize); a+=lsizep;
     return up0;
   }
   return 0;
-#endif
 }
 
 static inline void gforth_set_sigaltstack(user_area * t)
