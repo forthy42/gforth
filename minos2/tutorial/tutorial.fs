@@ -22,11 +22,11 @@ require minos2/widgets.fs
 also minos
 
 require minos2/font-style.fs
-
-88e update-size#
-
 require minos2/text-style.fs
 require minos2/presentation-support.fs
+
+window-init
+88e update-size#
 
 ' }}i18n-text is }}text'
 

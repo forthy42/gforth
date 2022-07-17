@@ -48,13 +48,7 @@ tex: atlas-tex-bgra \ for color emojis, actually flipped to RGBA
     atlas-tex      current-tex atlas      texture_atlas_t-id l!
     atlas-tex-bgra current-tex atlas-bgra texture_atlas_t-id l! ;
 
-init-atlas
-
 Variable fonts[] \ stack of used fonts
-
-[IFDEF] texture_font_default_mode
-    MODE_FREE_CLOSE texture_font_default_mode
-[THEN]
 
 [IFDEF] texture_font_t-scaletex
     Create texscale-xy0 1e sf, 1e sf,
@@ -685,7 +679,12 @@ use-shaper
 : load-ascii ( -- )
     "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" load-glyph$ ;
 
-program init
+:noname defers window-init init-atlas
+    [IFDEF] texture_font_default_mode
+	MODE_FREE_CLOSE texture_font_default_mode
+    [THEN]
+    program init
+; is window-init
 
 : <render ( -- )
     program glUseProgram

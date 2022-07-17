@@ -24,14 +24,13 @@ require minos2/widgets.fs
 
 also minos
 
-gl-init
 
 require minos2/font-style.fs
-
-44e update-size#
-
 require minos2/text-style.fs
 require minos2/presentation-support.fs
+
+window-init
+44e update-size#
 
 m2c:animtime% f@ 3e f* m2c:animtime% f!
 
