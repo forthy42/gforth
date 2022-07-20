@@ -82,7 +82,9 @@ umethod cr ( -- ) \ core c-r
     \G that due to the way the Forth command line interpreter inserts
     \G newlines, the preferred way to use @code{cr} is at the start
     \G of a piece of text; e.g., @code{cr ." hello, world"}.
-[IFDEF] (form) umethod form [THEN]
+[IFDEF] (form)
+    umethod form ( -- nlines ncols ) \ gforth
+[THEN]
 umethod page ( -- ) \ facility
 umethod at-xy ( x y -- ) \ facility at-x-y
 umethod at-deltaxy ( dx dy -- ) \ gforth

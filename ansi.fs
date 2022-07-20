@@ -201,7 +201,7 @@ false to error-hl-ul
 false to error-hl-inv
 <a invers a> to status-color
 
-theme: light-mode
+theme: light-mode ( -- ) \ gforth
 \G color theme for white background
 
 light-mode

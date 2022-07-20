@@ -107,7 +107,7 @@ debug: .string.(
     endtry
     throw ;
 
-: ... ( x1 .. xn -- x1 .. xn )
+: ... ( x1 .. xn -- x1 .. xn ) \ gforth
     smart.s-skip off
     ['] smart.s. ['] .s. ['] .s wrap-xt
     fdepth IF

@@ -75,10 +75,12 @@ Defer .cov#
     dup Invers or attr! space r> 0 .r  attr! ;
 : .paren-cov# ( n -- ) ."  ( " 0 .r ." ) " ;
 
-: color-cover ( -- ) ['] .ansi-cov#  is .cov# ;
-\G Print execution counts in colours (default).
-: bw-cover    ( -- ) ['] .paren-cov# is .cov# ;
-\G Print execution counts in parentheses (source-code compatible).
+: color-cover ( -- ) \ gforth
+    \G Print execution counts in colours (default).
+    ['] .ansi-cov#  is .cov# ;
+: bw-cover    ( -- ) \ gforth
+    \G Print execution counts in parentheses (source-code compatible).
+    ['] .paren-cov# is .cov# ;
 color-cover
 
 : ?del-cover ( addr u -- n )

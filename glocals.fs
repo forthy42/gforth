@@ -223,7 +223,7 @@ opt: drop postpone swap postpone >l postpone >l ;
 	name>link
     loop ;
 
-: common-list ( list1 list2 -- list3 )
+: common-list ( list1 list2 -- list3 ) \ gforth-internal
     \ list3 is the largest common tail of both lists.
     over list-length over list-length - dup 0< if
 	negate >r swap r>
@@ -235,7 +235,7 @@ opt: drop postpone swap postpone >l postpone >l ;
     repeat
     drop ;
 
-: sub-list? ( list1 list2 -- f )
+: sub-list? ( list1 list2 -- f ) \ gforth-internal
     \ true iff list1 is a sublist of list2
     over list-length over list-length swap - 0 max /list = ;
 

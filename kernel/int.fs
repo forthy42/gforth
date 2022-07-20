@@ -599,9 +599,6 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 \G @i{xt1} is the execution token of the assigned Forth code.
     dodoes: any-code! ;
 
-2 cells constant /does-handler ( -- n ) \ gforth
-\G The size of a @code{DOES>}-handler (includes possible padding).
-
 \ ticks in interpreter
 
 : '-error ( nt -- nt )
