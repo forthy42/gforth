@@ -163,7 +163,7 @@ no-</>
 : l1 ( -- )
     l2 dup located-bottom ! after-l 2drop drop no-</> ;
 
-: l ( -- )
+: l ( -- ) \ gforth
     \g Display source code lines at the current location.
     current-location? cr print-locate-header l1 ;
 

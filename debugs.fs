@@ -87,17 +87,17 @@ $10 stack: cov-stack
 
 \ print a no-overhead backtrace
 
-: once ( -- )
+: once ( -- ) \ gforth
     \G do the following up to THEN only once
     here cell+ >r ]] true if [[ r> ]] Literal off [[ ;
     immediate compile-only
     
-: ~~bt ( -- )
+: ~~bt ( -- ) \ gforth
     \G print stackdump and backtrace
     ]] ~~ store-backtrace dobacktrace nothrow [[ ;
     immediate compile-only
 
-: ~~1bt ( -- )
+: ~~1bt ( -- ) \ gforth
     \G print stackdump and backtrace once
     ]] once ~~bt then [[ ; immediate compile-only
 
@@ -120,14 +120,14 @@ $10 stack: cov-stack
                 interpret ."  ok" cr
         REPEAT  THEN ;
 
-: ??? ( -- )
+: ??? ( -- ) \ gforth
     \G Open a debuging shell
     create-input cr
     ['] ???-loop bt-rp0-catch throw
     0 pop-file drop ;
 ' ??? alias dbg-shell
 
-: WTF?? ( -- )
+: WTF?? ( -- ) \ gforth
     \G Open a debugging shell with backtrace and stack dump
     ]] ~~bt ??? [[ ; immediate compile-only
 
@@ -135,8 +135,10 @@ $10 stack: cov-stack
 
 s" You've reached a !!FIXME!! marker" exception constant FIXME#
 
-: !!FIXME!! ( -- )  FIXME# throw ;
-\G word that should never be reached
+: !!FIXME!! ( -- ) \ gforth
+    \G word that should never be reached
+    FIXME# throw ;
+
 
 \ warn beginners that double numbers clash with floating points
 
@@ -207,11 +209,11 @@ is ?warning
 
 : watch-does> ( -- ) DOES> dup @ ~~ drop ;
 : watch-comp: ( xt -- ) comp: >body ]] Literal dup @ ~~ drop [[ ; 
-: ~~Variable ( "name" -- )
+: ~~Variable ( "name" -- ) \ gforth
     \G Variable that will be watched on every access
   Create 0 , watch-does> watch-comp: ;
 
-: ~~Value ( n "name" -- )
+: ~~Value ( n "name" -- ) \ gforth
     \G Value that will be watched on every access
     Value [: >body ~~ ! ; to-opt: >body ]] Literal ~~ ! [[ ;] set-to ;
 
@@ -219,10 +221,12 @@ is ?warning
 
 : line-tracer ( -- )  ['] ~~ execute ;
 \G print source position and stack on every source line start
-: +ltrace ( -- ) ['] line-tracer is before-line ;
-\G turn on line tracing
-: -ltrace ['] noop is before-line ;
-\G turn off line tracing
+: +ltrace ( -- ) \ gforth
+    \G turn on line tracing
+    ['] line-tracer is before-line ;
+: -ltrace ( -- ) \ gforth
+    \G turn off line tracing
+    ['] noop is before-line ;
 
 \ view/locate
 
@@ -321,7 +325,7 @@ Variable rec'[]
 
 \ insert a different location
 
-: #loc ( nline nchar "file" -- )
+: #loc ( nline nchar "file" -- ) \ gforth
     \G set next word's location to @var{nline nchar} in @var{"file"}
     parse-name 2dup str>loadfilename# dup 0< IF
 	drop add-included-file included-files $[]# 1-

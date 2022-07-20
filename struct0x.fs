@@ -27,7 +27,11 @@
 ' (sizeof) comp' [sizeof] drop
 interpret/compile: sizeof ( "field" -- size )
 
-Defer +field
+Defer +field ( noffset1 nsize "name" -- noffset2 ) \ facility-ext
+\G Defining word; defines @i{name} @code{( addr1 -- addr2 )}, where
+\G @i{addr2} is @i{addr1+noffset1}.  @i{noffset2} is
+\G @i{noffset1+nsize}.
+
 \ A number of things have field-like structure, but not
 \ exactly field-like behavior.  Objects, locals, etc.
 \ Allow them to plug into +field.

@@ -9970,13 +9970,12 @@ doc-info-color
 doc-success-color
 
 doc-attr!
-doc-color-execute
 
 @subsubsection Color themes
 Depending on wether you prefer bright or dark background the foreground colors-theme can be changed by:
 
-doc-white-colors
-doc-black-colors
+doc-light-mode
+doc-dark-mode
 
 @node Single-key input, Line input and conversion, Terminal output, Other I/O
 @subsection Single-key input
@@ -10750,7 +10749,6 @@ the kind of entry, in particular to differentiate between live and dead
 (reachable and unreachable) orig entries.
 
 A few unusual operations have to be performed on locals word lists:
-
 
 doc-common-list
 doc-sub-list?
@@ -14629,8 +14627,6 @@ code.  Finally you have to create a word and modify its behaviour with
 @code{does-handler!}.
 
 doc-does-code!
-doc-does-handler!
-doc-/does-handler
 
 The code addresses produced by various defining words are produced by
 the following words:

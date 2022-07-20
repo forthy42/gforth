@@ -33,7 +33,7 @@ opt: ( uvalue-xt to-xt -- )
     \G Define a per-thread value
     Create cell uallot ,
   DOES> @ next-task + @ ;
-: UValue ( "name" -- )
+: UValue ( "name" -- ) \ gforth
     (UValue)
     ['] uvalue-to set-to
     ['] u-compile, set-optimizer ;
