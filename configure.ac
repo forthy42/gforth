@@ -1700,8 +1700,12 @@ echo "SWIG includes: $SWIGINCLUDES"
 AC_SUBST(SWIGINCLUDES)
 AC_SUBST(SWIGLIBS)
 
-case $CC
+case "$CC"
 in
+	*-*' '*)
+		HOSTPREFIX=${CC%% *}
+		HOSTPREFIX=${HOSTPREFIX%-*}
+		;;
 	*-*)
 		HOSTPREFIX=${CC%-*}
 		;;
