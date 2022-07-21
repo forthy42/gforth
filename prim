@@ -2648,6 +2648,10 @@ else
   r3 = r2;
 
 represent	( r c_addr u -- n f1 f2 )	float
+""Convert the decimal significand (aka mantissa) of @i{r} into a
+string in buffer @i{c-addr u}; @i{n} is the exponent, @i{f1} is true
+if @i{r} is negative, and @i{f2} is true if @i{r} is valid (a finite
+number in Gforth).""
 #ifdef ECVT_FLAG
 char sig[0x40];
 size_t siglen;
