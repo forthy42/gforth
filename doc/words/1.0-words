@@ -4663,7 +4663,7 @@ extend-structure standard:field +field sizeof [sizeof] (sizeof) standard+field
 .sections opt@ opt+- (+loop)-optimizer replace-(+loop) fold4-4 fold4-2 fold4-1 
 fold3-3 fold3-2 fold3-1 fold2-3 fold2-2 fold2-1 fold2-0 fold1-2 fold1-1 
 fold1-0 folds optimizes fold-constants >4lits 4lits> >3lits 3lits> >2lits 
-2lits> time&date (xparse) string-parse [char] char append s+ 
+2lits> open-warp time&date (xparse) string-parse [char] char append s+ 
 traverse-matched-dir traverse-dir try-read-dir adjust-buffer init-buffer 
 buffer% buffer-maxlength buffer-address buffer-length buffer-descriptor 
 rec-sequence rectype-word recognized-word basic-help 2Value (2to) name>compile 
@@ -4694,9 +4694,9 @@ compile-pushlocal-f compile-pushlocal-w locals, val-part alignlp-f alignlp-w
 deactivate-locals activate-locals rec-locals locals-rec recognized-locals 
 no-post locals adjust-locals-size compile-lp+! compile-f@local compile-@local 
 locals-size next-case endcase closecase contof endof of ?of case case-depth 
-expect span capssearch capsstring-prefix? search blank erase convert [compile] 
-C" m*/ d>s .( frem ftrunc fmod fcopysign fsign-offset f~ f~rel f~abs 1/f f2/ 
-f2* pi fvariable rec-float rectype-float recognized-float >postponer fp. 
+expect span capssearch capsstring-prefix? search blank convert [compile] C" 
+m*/ d>s .( frem ftrunc fmod fcopysign fsign-offset f~ f~rel f~abs 1/f f2/ f2* 
+pi fvariable rec-float rectype-float recognized-float >postponer fp. 
 prefix-number zero-exp si-prefixes sfnumber fs. fe. f. f$ -zeros zeros scratch 
 set-precision precision fdepth fvalue fvalue-to f!-table f+! fconstant 
 opt-fcon opt-fval FLiteral flit, f, dfloat+ sfloat+ dfalign sfalign 
@@ -4707,11 +4707,11 @@ section-defaultsize #extra-sections sections .words hash-cold make-hash
 hash-wordlist hashdouble (rehash) rehashall clearhash addall inithash 
 table-reveal hash-reveal (reveal lastlink! hash-rec hash-find bucket NewFix 
 DelFix hash-alloc hashsearch-map HashTable HashPop HashIndex HashPointer 
-revealed insRule hash Hashlen hashbits reserve-mem erase never-happens 
+revealed insRule hash erase Hashlen hashbits reserve-mem never-happens 
 warning-error broken-pipe-error exceptions exception next-exception errstring 
-linked getrandom? getentropy? include-ffi.h-string libffi-present 
-ffcall-present libtool-flags libtool-cc libtool-command machine lib-suffix 
-has? $has? e? environment? environment-wordlist environment 
+linked minos? glx? gles? getrandom? getentropy? include-ffi.h-string 
+libffi-present ffcall-present libtool-flags libtool-cc libtool-command machine 
+lib-suffix has? $has? e? environment? environment-wordlist environment 
 version-string>internal (0s) process-voc-option options image-options vocs 
 map-vocs order .voc .name .id id. seal set-order get-order Only Root Forth 
 previous also >order >voc >wordlist Vocabulary wordlist mappedwordlist 
@@ -4742,23 +4742,24 @@ cs-push-orig cs-push-part CS-DROP CS-ROLL CS-PICK cs-item-size cs-item?
 non-orig? scope? do-dest? dest? orig? scopestart do-dest dest dead-orig 
 live-orig pop-stack-state push-stack-state ASSUME-LIVE UNREACHABLE 
 backedge-locals dead-code locals-list .included .strings require include 
-required included >include >included included1 add-included-file included? 
-str>loadfilename# sourceline# included-filename[] sourcefilename 
-included-files open-fpath-file open-path-file execute-path-file open-ofile 
-reworkdir compact-filename skip-..-prefixes preserve-root del-./s del-string 
-expandtopic remove~+ extractpath need/ pathsep? absolut-path? .fpath .path 
-next-path path>string fpath= path= substc fpath+ path+ only-path clear-path 
-also-path os-cold clear-paths tfile ofile fpath +place 'image save-strings 
-boot-strings $[]Variable $Variable $[]saved $saved boot[][] boot$[] $[]save 
-$[]boot $save $boot $[] $room $iter $split $init $del $ins c$+! $+! $+!len $@ 
-$! $!len $@len $make $!buf $free $padding insert delete ( write-line +fmode 
-bin r/o r/w w/o os-boot (process-args) process-option (process-option) 
-args-evaluate interpret2 args-required args-required1 os-execute-parsing 
-next-arg shift-args clear-args script? argc argv pathdirs pathstring #! arg 
-cstring>sstring set-encoding-fixed-width set-encoding fixed-width ca-size 
-c-size c!+? c!+ string- +string char- xc, xhold x@+/string -trailing-garbage 
-x-width x-size xc-size xc@+ xc!+? xc!+ xc@ x\string- +x/string xchar- xchar+ 
-xkey xemit xc-vector authors license include-file execute-parsing-file 
+required included >include-auto-extension include-auto-extension-filename 
+>include >included included1 add-included-file included? str>loadfilename# 
+sourceline# included-filename[] sourcefilename included-files open-fpath-file 
+open-path-file execute-path-file open-ofile reworkdir compact-filename 
+skip-..-prefixes preserve-root del-./s del-string expandtopic remove~+ 
+extractpath need/ pathsep? absolut-path? .fpath .path next-path path>string 
+fpath= path= substc fpath+ path+ only-path clear-path also-path os-cold 
+clear-paths tfile ofile fpath +place 'image save-strings boot-strings 
+$[]Variable $Variable $[]saved $saved boot[][] boot$[] $[]save $[]boot $save 
+$boot $[] $room $iter $split $init $del $ins c$+! $+! $+!len $@ $! $!len $@len 
+$make $!buf $free $padding insert delete ( write-line +fmode bin r/o r/w w/o 
+os-boot (process-args) process-option (process-option) args-evaluate 
+interpret2 args-required args-required1 os-execute-parsing next-arg shift-args 
+clear-args script? argc argv pathdirs pathstring #! arg cstring>sstring 
+set-encoding-fixed-width set-encoding fixed-width ca-size c-size c!+? c!+ 
+string- +string char- xc, xhold x@+/string -trailing-garbage x-width x-size 
+xc-size xc@+ xc!+? xc!+ xc@ x\string- +x/string xchar- xchar+ xkey xemit 
+xc-vector authors license include-file execute-parsing-file 
 execute-parsing-named-file ?set-current-view get-input-colored get-input 
 read-loop read-loop1 line-end-hook query clear-tibstack evaluate 
 execute-parsing execute-parsing-wrapper create-input restore-input save-input 
@@ -4803,33 +4804,33 @@ part-type mark-end mark-start .error-string dobacktrace DOERROR -trailing hex.
 dec.r dec. input-error-data >error error> error-stack /error (quit) (quit1) 
 (prompt) prompt .status 'quit extend-mem free-mem-var save-mem interpret2 
 bt-rp0-wrapper bt-rp0-catch interpret int-execute before-line before-word name 
-parse-word parse-name parser ' (') '-error /does-handler does-code! any-code! 
-code-address! >does-code >code-address body> >body >head-noprim xt? hm? ??? 
-(name>intn) default-name>int noname>link noname>string named>link named>string 
-name?int ?compile-only compile-only? immediate? , compile, hmsize name>link 
-name>string name>comp name>int initwl defer@ (to) opt-compile, >namehm >cfa 
->link >f+c >hm>link >hm>string >hm>comp >hm>int >hmextra >hmdefer@ >hmto 
->hmcompile, >hmlink ((name>)) (x>int) compile-only-error 
-ticking-compile-only-error flag-sign lcount-mask restrict-mask find-name 
-rec-nt search-wordlist find-name-in notfound no.extensions (where,) where, 
-where-duplicate? new-where where-struct where-loc where-nt wheres context 
-voclink current f83search forth-wordlist rec-f83 wordlist-struct 
-wordlist-extend wordlist-link wordlist-id wordlist-map wordlist-exec 
-wordlist-start \G \ ( number (number?) snumber? s>number s>number? s>unumber? 
-?warn# s'>unumber? ?dnegate sign? getbase bases name-too-long? name-too-short? 
-(name) parse (parse) version-string .error error$ errlink>string do-debug 
->stderr >exec c(warning") .warning ErrRanges ErrLink u. . ud. d. u.r .r ud.r 
-d.r holds #s # sign #>> <<# #> <# hold +hold pad ms ns kernel-deadline 
-deadline backspaces spaces spaces-loop status-color error-hl-inv error-hl-ul 
-input-color success-color info-color warning-color error-color default-color 
-theme-color: theme-color# theme@ theme! space bell #lf #ff #cr #del #esc #tab 
-#bs #bell #eof output: input: default-in debug-vector debug-out default-out 
-key (cr) key? key-ior ip-vector theme-color! control-sequence attr! at-deltaxy 
-at-xy page form cr emit type op-vector (key?) (key) key-file EBADF EINTR EOK 
-(err-emit) (err-type) (emit) (type) out debug-fid outfile-id infile-id hex 
-decimal "lit clearstacks clearstack depth ?stack abort ?warning (abort") 
-c(abort") throw catch lp@ ud/mod s>d >number accumulate digit? bounds place 
-stick roll dabs off on ->here here dpp in-dictionary1? in-dictionary? unused 
+parse-word parse-name parser ' (') '-error does-code! any-code! code-address! 
+>does-code >code-address body> >body >head-noprim xt? hm? ??? (name>intn) 
+default-name>int noname>link noname>string named>link named>string name?int 
+?compile-only compile-only? immediate? , compile, hmsize name>link name>string 
+name>comp name>int initwl defer@ (to) opt-compile, >namehm >cfa >link >f+c 
+>hm>link >hm>string >hm>comp >hm>int >hmextra >hmdefer@ >hmto >hmcompile, 
+>hmlink ((name>)) (x>int) compile-only-error ticking-compile-only-error 
+flag-sign lcount-mask restrict-mask find-name rec-nt search-wordlist 
+find-name-in notfound no.extensions (where,) where, where-duplicate? new-where 
+where-struct where-loc where-nt wheres context voclink current f83search 
+forth-wordlist rec-f83 wordlist-struct wordlist-extend wordlist-link 
+wordlist-id wordlist-map wordlist-exec wordlist-start \G \ ( number (number?) 
+snumber? s>number s>number? s>unumber? ?warn# s'>unumber? ?dnegate sign? 
+getbase bases name-too-long? name-too-short? (name) parse (parse) 
+version-string .error error$ errlink>string do-debug >stderr >exec c(warning") 
+.warning ErrRanges ErrLink u. . ud. d. u.r .r ud.r d.r holds #s # sign #>> <<# 
+#> <# hold +hold pad ms ns kernel-deadline deadline backspaces spaces 
+spaces-loop status-color error-hl-inv error-hl-ul input-color success-color 
+info-color warning-color error-color default-color theme-color: theme-color# 
+theme@ theme! space bell #lf #ff #cr #del #esc #tab #bs #bell #eof output: 
+input: default-in debug-vector debug-out default-out key (cr) key? key-ior 
+ip-vector theme-color! control-sequence attr! at-deltaxy at-xy page form cr 
+emit type op-vector (key?) (key) key-file EBADF EINTR EOK (err-emit) 
+(err-type) (emit) (type) out debug-fid outfile-id infile-id hex decimal "lit 
+clearstacks clearstack depth ?stack abort ?warning (abort") c(abort") throw 
+catch lp@ ud/mod s>d >number accumulate digit? bounds place stick roll dabs 
+off on ->here here dpp in-dictionary1? in-dictionary? unused 
 usable-dictionary-end usable-dictionary-end1 dictionary-end section-desc 
 locs[] section-name section-dp section-size section-start current-section A! 
 chars cfaligned maxaligned NIL str< string-suffix? string-prefix? str= 
