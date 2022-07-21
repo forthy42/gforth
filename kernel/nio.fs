@@ -47,7 +47,9 @@ require ./io.fs
     \G Complete the pictured numeric output string by discarding
     \G @var{xd} and returning @var{addr u}; the address and length of
     \G the formatted string. A Standard program may modify characters
-    \G within the string.
+    \G within the string.  Does not release the hold area; use
+    \G @code{#>>} to release a hold area started with @code{<<#}, or
+    \G @code{<#} to release all hold areas.
     2drop holdptr @ holdend @ over - ;
 
 : <<# ( -- ) \ gforth	less-less-number-sign
@@ -64,15 +66,15 @@ require ./io.fs
     count chars bounds holdptr ! holdend ! ;
 
 : sign    ( n -- ) \ core
-    \G Used within @code{<#} and @code{#>}. If @var{n} (a @var{single}
-    \G number) is negative, append the display code for a minus sign
-    \G to the pictured numeric output string. Since the string is
-    \G built up ``backwards'' this is usually used immediately prior
-    \G to @code{#>}, as shown in the examples below.
-    0< IF  '-' hold  THEN ;
+    \G Used between @code{<<#} and @code{#>}. If @var{n}
+    \G (a @var{single} number) is negative, append the display code
+    \G for a minus sign to the pictured numeric output string. Since
+    \G the string is built up ``backwards'' this is usually used
+    \G immediately prior to @code{#>}, as shown in the examples below.
+    0< IF '-' hold THEN ;
 
 : # ( ud1 -- ud2 ) \ core		number-sign
-    \G Used within @code{<#} and @code{#>}. Add the next
+    \G Used between @code{<<#} and @code{#>}. Add the next
     \G least-significant digit to the pictured numeric output
     \G string. This is achieved by dividing @var{ud1} by the number in
     \G @code{base} to leave quotient @var{ud2} and remainder @var{n};
@@ -87,7 +89,7 @@ require ./io.fs
     '0' + hold ;
 
 : #s      ( ud -- 0 0 ) \ core	number-sign-s
-    \G Used within @code{<#} and @code{#>}. Convert all remaining digits
+    \G Used between @code{<<#} and @code{#>}. Convert all remaining digits
     \G using the same algorithm as for @code{#}. @code{#s} will convert
     \G at least one digit. Therefore, if @var{ud} is 0, @code{#s} will append
     \G a ``0'' to the pictured numeric output string.
@@ -96,7 +98,7 @@ require ./io.fs
     UNTIL ;
 
 : holds ( addr u -- )
-    \G Used within @code{<#} and @code{#>}. Append the string @code{addr u}
+    \G Used between @code{<<#} and @code{#>}. Append the string @code{addr u}
     \G to the pictured numeric output string.
     dup +hold swap move ;
 

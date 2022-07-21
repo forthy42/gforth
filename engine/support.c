@@ -626,7 +626,7 @@ struct Cellpair represent(Float r, Address c_addr1, UCell u, Cell *np)
     ok = 0;
     repstr("NaN",c_addr,u);
   } else {
-    sign = FLAG(r<0);
+    sign = FLAG(signbit(r));
     if (isinf(r)) {
       decpt=0;
       ok = 0;
