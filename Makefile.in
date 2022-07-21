@@ -1130,7 +1130,7 @@ all-bench allbench:
 	./gforth-ditc$(EXT) onebench.fs
 	@libbench@./libgforth-ditc$(EXT) onebench.fs
 
-EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "datadir=$(datadir)/gforth/$(VERSION)" "ARCH=" "FAST=$(FAST)" "GFVER=$(VERSION)"
+EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "prefix=$(EXTRAPREFIX)" "datadir=$(datadir)/gforth/$(VERSION)" "ARCH=" "FAST=$(FAST)" "GFVER=$(VERSION)"
 
 extras:	gforth.fi $(EXTRAS:%=%.extras)
 
@@ -1466,11 +1466,11 @@ doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
 		$(srcdir)/move-if-change doc/doc.fd.tmp $@
 
 doc/extradoc.fd:	doc/makedoc.fs gforth$(EXT) gforth.fi $(EXTRA_DOC) $(LIBCC_GEN_SRC) build-libcc-named
-		$(FORTHP) -e "s\" doc/extradoc.fd.tmp\"" doc/makedoc.fs $(EXTRA_DOC) -e bye
+		@NO_CROSS@$(FORTHP) -e "s\" doc/extradoc.fd.tmp\"" doc/makedoc.fs $(EXTRA_DOC) -e bye
 		$(srcdir)/move-if-change doc/extradoc.fd.tmp $@
 
 doc/minosdoc.fd:	doc/makedoc.fs gforth$(EXT) gforth.fi $(MINOS_DOC) $(LIBCC_GEN_SRC) build-libcc-named
-		$(FORTHP) -e "s\" doc/minosdoc.fd.tmp\"" doc/makedoc.fs $(MINOS_DOC) -e bye
+		@NO_CROSS@$(FORTHP) -e "s\" doc/minosdoc.fd.tmp\"" doc/makedoc.fs $(MINOS_DOC) -e bye
 		$(srcdir)/move-if-change doc/minosdoc.fd.tmp $@
 
 doc/crossdoc.fd:	$(KERN_SRC) gforth$(EXT) kernel/version.fs $(FORTH_GEN0)
@@ -1482,7 +1482,7 @@ doc/words/$(RVERSION)-words: gforth$(EXT) $(GFORTH_FI_SRC) $(EXTRA_DOC) $(LIBCC_
 		$(FORTHS) $(EXTRA_DOC) -e "locals-types words c-lib words see-voc words environment words forth words bye" >$@-
 		$(MV) $@- $@
 
-DOC_GEN = doc/crossdoc.fd doc/doc.fd doc/extradoc.fd @minosdoc@
+DOC_GEN = doc/crossdoc.fd doc/doc.fd @NO_CROSS@doc/extradoc.fd @minosdoc@
 
 doc/gforth.texi: doc/gforth.texi.in prim.b ds2texi.fs prims2x.fs \
 		$(DOC_GEN) preforth @kernel_fi@ \

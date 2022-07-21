@@ -98,6 +98,7 @@ AC_ARG_WITH(ec,
 	AS_HELP_STRING([--with-ec=<arch>],[  Build gforth for systems without OS.]),
 [if test "$withval" = "no"; then
   echo "defining hosted system"
+  CROSS="#"
 else
   echo "defining standalone system (${withval})"
   AC_DEFINE(STANDALONE,,[Define if you want a Gforth without OS])
@@ -107,6 +108,7 @@ else
   NO_CHECK="true"
   NO_CHECKX="#"
   NO_CROSS="#"
+  CROSS=""
   engine2=""
   engine_fast2=""
   no_dynamic="-DNO_DYNAMIC"
@@ -151,6 +153,7 @@ AC_ARG_WITH(cross,
 	AS_HELP_STRING([--with-cross=<arch>],[  Build gforth using a cross compiler.]),
 [if test "$withval" = "no"; then
   echo "defining hosted system"
+  CROSS="#"
 else
   echo "defining cross compiled system (${withval})"
   cpu=$host_cpu
@@ -176,6 +179,7 @@ else
   NO_CHECK="true"
   NO_CHECKX="#"
   NO_CROSS="#"
+  CROSS=""
   NO_FAIL="-"
 fi])
 
@@ -289,6 +293,7 @@ AC_SUBST(NO_EC)
 AC_SUBST(NO_CHECK)
 AC_SUBST(NO_CHECKX)
 AC_SUBST(NO_FAIL)
+AC_SUBST(CROSS)
 AC_SUBST(NO_CROSS)
 AC_SUBST(EC_MODE)
 AC_SUBST(engine2)
@@ -1540,7 +1545,7 @@ if test x$has_swig = xyes || test -f $srcdir/unix/openvg-fsi.c; then
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/androidlib-fsi.c; then
     AC_CHECK_HEADER(android/input.h, SWIGMODULES="$SWIGMODULES androidlib.fs"
-		    SWIGLIBS="$SWIGLIBS android.fs", ,)
+		    SWIGLIBS="$SWIGLIBS androidlib.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/omxal-fsi.c; then
     AC_CHECK_HEADER(OMXAL/OpenMAXAL.h, SWIGMODULES="$SWIGMODULES omxal.fs"
