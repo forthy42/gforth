@@ -26,8 +26,6 @@ require ./io.fs
     \G is available.
     here word-pno-size + aligned ;
 
-\ hold <# #> sign # #s                                 25jan92py
-
 : +hold ( n -- addr )
     \G Reserve space for n chars in the pictured numeric buffer.
     \G -17 THROW if no space
@@ -35,7 +33,7 @@ require ./io.fs
     holdptr @ dup holdbuf u< -&17 and throw ;
 
 : hold    ( char -- ) \ core
-    \G Used within @code{<#} and @code{#>}. Append the character
+    \G Used between @code{<<#} and @code{#>}. Prepend the character
     \G @var{char} to the pictured numeric output string.
     1 +hold c! ;
 
@@ -66,22 +64,17 @@ require ./io.fs
     count chars bounds holdptr ! holdend ! ;
 
 : sign    ( n -- ) \ core
-    \G Used between @code{<<#} and @code{#>}. If @var{n}
-    \G (a @var{single} number) is negative, append the display code
-    \G for a minus sign to the pictured numeric output string. Since
-    \G the string is built up ``backwards'' this is usually used
-    \G immediately prior to @code{#>}, as shown in the examples below.
+    \G Used between @code{<<#} and @code{#>}. If @var{n} (a
+    \G @var{single} number) is negative, prepend ``@code{-}'' to the
+    \G pictured numeric output string.
     0< IF '-' hold THEN ;
 
 : # ( ud1 -- ud2 ) \ core		number-sign
-    \G Used between @code{<<#} and @code{#>}. Add the next
-    \G least-significant digit to the pictured numeric output
-    \G string. This is achieved by dividing @var{ud1} by the number in
-    \G @code{base} to leave quotient @var{ud2} and remainder @var{n};
-    \G @var{n} is converted to the appropriate display code (eg ASCII
-    \G code) and appended to the string. If the number has been fully
-    \G converted, @var{ud1} will be 0 and @code{#} will append a ``0''
-    \G to the string.
+    \G Used between @code{<<#} and @code{#>}. Prepend the
+    \G least-significant digit (according to \code{base}) of \var{ud1}
+    \G to the pictured numeric output string.  @var{ud2} is
+    \G @var{ud1/base}, i.e., the number representing the remaining
+    \G digits.
     \ special-casing base=#10 does not pay off:
     \ <2022Mar11.130937@mips.complang.tuwien.ac.at>
     base @ ud/mod rot dup 9 u>
@@ -89,16 +82,17 @@ require ./io.fs
     '0' + hold ;
 
 : #s      ( ud -- 0 0 ) \ core	number-sign-s
-    \G Used between @code{<<#} and @code{#>}. Convert all remaining digits
-    \G using the same algorithm as for @code{#}. @code{#s} will convert
-    \G at least one digit. Therefore, if @var{ud} is 0, @code{#s} will append
-    \G a ``0'' to the pictured numeric output string.
+    \G Used between @code{<<#} and @code{#>}.  Prepend all digits of
+    \G @var{ud} to the pictured numeric output string.  @code{#s} will
+    \G convert at least one digit. Therefore, if @var{ud} is 0,
+    \G @code{#s} will prepend a ``0'' to the pictured numeric output
+    \G string.
     BEGIN
 	# 2dup or 0=
     UNTIL ;
 
 : holds ( addr u -- )
-    \G Used between @code{<<#} and @code{#>}. Append the string @code{addr u}
+    \G Used between @code{<<#} and @code{#>}. Prepend the string @code{addr u}
     \G to the pictured numeric output string.
     dup +hold swap move ;
 
