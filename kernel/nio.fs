@@ -71,7 +71,7 @@ require ./io.fs
 
 : # ( ud1 -- ud2 ) \ core		number-sign
     \G Used between @code{<<#} and @code{#>}. Prepend the
-    \G least-significant digit (according to \code{base}) of \var{ud1}
+    \G least-significant digit (according to @code{base}) of @var{ud1}
     \G to the pictured numeric output string.  @var{ud2} is
     \G @var{ud1/base}, i.e., the number representing the remaining
     \G digits.
