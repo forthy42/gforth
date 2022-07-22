@@ -22,7 +22,7 @@ dnl Process this file with autoconf to produce a configure script.
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
 AC_INIT([gforth],[0.7.9_20220721],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
-AC_PREREQ([2.69])
+AC_PREREQ([2.71])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
@@ -1250,7 +1250,11 @@ if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP
 fi
-AC_HEADER_STDC
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_CHECK_INCLUDES_DEFAULT
+#AC_PROG_EGREP
+
 AC_CHECK_LIB(dl,dlopen)
 AC_REPLACE_FUNCS(memmove strtoul exp10 sincos strerror strsignal atanh)
 AC_FUNC_FSEEKO
