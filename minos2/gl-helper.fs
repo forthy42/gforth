@@ -23,7 +23,9 @@ require ../mini-oof2.fs
 
 Variable dpy-w
 Variable dpy-h
-0 Value ctx
+[IFUNDEF] ctx
+    0 Value ctx
+[THEN]
 
 s" os-type" environment? [IF]
     2dup s" linux-android" string-prefix? [IF] 2drop

@@ -24,6 +24,10 @@ require struct0x.fs
 
 Defer reload-textures ' noop is reload-textures
 
+[IFUNDEF] ctx
+    0 Value ctx
+[THEN]
+
 \ The rest is in the "android" vocabulary
 
 Vocabulary android
