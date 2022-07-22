@@ -42,7 +42,7 @@ to-opt:  POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
 : to-fa: ( -- ) -14 throw ;
 to-opt:  POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
-also locals-types definitions
+get-current also locals-types definitions
 : wa:  w:  ['] to-wa: set-to ;
 : da:  d:  ['] to-wa: set-to ;
 : ca:  c:  ['] to-wa: set-to ;
@@ -55,7 +55,7 @@ fa: some-falocal 2drop
 wa: some-walocal 2drop
 xta: some-xtalocal 2drop
 
-previous definitions
+previous set-current
 
 also locals-types
 : default-wa: ['] wa: is default: ;
