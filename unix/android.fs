@@ -329,6 +329,8 @@ Defer screen-ops ' noop IS screen-ops
 Defer config-changed
 Defer window-init    :noname [: ." app window " app window @ hex. cr ;] $err ; IS window-init
 screen-ops     ' noop IS screen-ops
+: gl-init ( -- )
+    ctx 0= IF  window-init  THEN ;
 
 :noname ( -- ) +sync +config ; is config-changed
 
