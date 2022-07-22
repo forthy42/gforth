@@ -35,7 +35,7 @@ s" os-type" environment? [IF]
 	also android
 	: gl-init ( -- )
 	    ctx 0= IF  window-init  THEN ;
-
+	
 	synonym use-egl noop
     [ELSE]
 	2dup s" darwin" str= >r s" linux-" string-prefix? r> or [IF]

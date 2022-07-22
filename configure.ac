@@ -1250,10 +1250,12 @@ if test "$host_os" != "nextstep3"
 then
 	AC_FUNC_MEMCMP
 fi
-# Autoupdate added the next two lines to ensure that your configure
-# script's behavior did not change.  They are probably safe to remove.
-AC_CHECK_INCLUDES_DEFAULT
-#AC_PROG_EGREP
+# We need to keep this, as the warning for obsolescence requires to use
+# a too new autoconf for building on older systems
+AC_HEADER_STDC
+# Replace this by
+#AC_CHECK_INCLUDES_DEFAULT
+# once it is safe to use Autoconf 2.71
 
 AC_CHECK_LIB(dl,dlopen)
 AC_REPLACE_FUNCS(memmove strtoul exp10 sincos strerror strsignal atanh)

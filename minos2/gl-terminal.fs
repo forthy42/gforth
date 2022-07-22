@@ -175,7 +175,7 @@ Black White white? [IF] swap [THEN] fg! bg!
 : >dark dark-mode Black std-bg! Black err-bg! White fg! Red err-fg!
     Black >bg White >fg or to gl-default-color
     $704000 dup color-index ! error-color-index ! ;
-[IFDEF] android >dark [THEN]
+[IFDEF] android :noname defers window-init >dark ; is window-init [THEN]
 
 256 Value videocols
 0   Value videorows
