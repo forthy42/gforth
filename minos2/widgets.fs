@@ -825,7 +825,7 @@ tex: thumb-tex-rgba
     atlas# dup 4 texture_atlas_new to thumb-rgba
     thumb-tex-rgba current-tex thumb-rgba texture_atlas_t-id l! ;
 
-:noname defers window-init init-thumb-atlas ; is window-init
+' init-thumb-atlas window-init,
 
 :noname defers reload-textures gen-thumb-tex
     level# @ 0> IF  program init  THEN ;
@@ -1424,7 +1424,7 @@ htab-glue is hglue!@
     result[ l@ to maxtexsize#
     maxtexsize# dpy-w @ dpy-h @ max 2* 2* min to usetexsize# ;
 
-:noname defers window-init ?texsize ; is window-init
+' ?texsize window-init,
 
 vbox class
     sfvalue: vp-x \ x offset of visible part of viewport

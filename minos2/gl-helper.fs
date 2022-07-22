@@ -1038,7 +1038,7 @@ Variable i-off
     ['] VertexShader ['] FragmentShader create-program to program
     program init  buffer-init ;
 
-:noname  defers window-init helper-init ; IS window-init
+' helper-init window-init,
 
 \ click region stuff
 

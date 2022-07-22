@@ -680,12 +680,13 @@ use-shaper
     "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" load-glyph$ ;
 
 [IFDEF] android  also android [THEN]
-:noname defers window-init init-atlas
+: ftgl-init ( -- )
+    init-atlas
     [IFDEF] texture_font_default_mode
 	MODE_FREE_CLOSE texture_font_default_mode
     [THEN]
-    program init
-; is window-init
+    program init ;
+' ftgl-init window-init,
 [IFDEF] android  previous [THEN]
 
 : <render ( -- )
