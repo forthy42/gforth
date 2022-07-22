@@ -655,6 +655,10 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
       debugp(stderr,"try mmap(%p, $%lx, RWX, MAP_FIXED|MAP_FILE, imagefile, 0); ", image, imagesize);
       image1 = mmap(image, imagesize, PROT_EXEC|PROT_READ|PROT_WRITE, MAP_FIXED|MAP_FILE|MAP_PRIVATE|map_noreserve, fileno(file), 0);
       after_alloc(image1,dictsize);
+#ifdef __ANDROID__
+      if (image1 == (void *)MAP_FAILED)
+	goto read_image;
+#endif
       if (image1 == (void *)MAP_FAILED) {
         debugp(stderr,"disabling dynamic native code generation");
         no_dynamic = 1;
@@ -669,6 +673,9 @@ static void *dict_alloc_read(FILE *file, Cell imagesize, Cell dictsize, Cell off
   if (image == (void *)MAP_FAILED) {
     if((image = gforth_alloc(dictsize+offset)+offset) == NULL)
       return NULL;
+#ifdef __ANDROID__
+  read_image: /* on Android, mmap will fail despite RWX allocs are possible */
+#endif
     rewind(file);  /* fseek(imagefile,0L,SEEK_SET); */
     debugp(stderr,"try fread(%p, 1, %lx, file); ", image, imagesize);
     if(imagesize!=fread(image, 1, imagesize, file) || ferror(file)) {
