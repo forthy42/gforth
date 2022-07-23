@@ -23,7 +23,9 @@ require ../mini-oof2.fs
 
 Variable dpy-w
 Variable dpy-h
-0 Value ctx
+[IFUNDEF] ctx
+    0 Value ctx
+[THEN]
 
 s" os-type" environment? [IF]
     2dup s" linux-android" string-prefix? [IF] 2drop
@@ -33,7 +35,9 @@ s" os-type" environment? [IF]
 	
 	require ../unix/android.fs
 	also android
-
+	: gl-init ( -- )
+	    ctx 0= IF  window-init  THEN ;
+	
 	synonym use-egl noop
     [ELSE]
 	2dup s" darwin" str= >r s" linux-" string-prefix? r> or [IF]
@@ -1036,7 +1040,7 @@ Variable i-off
     ['] VertexShader ['] FragmentShader create-program to program
     program init  buffer-init ;
 
-:noname  defers window-init helper-init ; IS window-init
+' helper-init window-init,
 
 \ click region stuff
 

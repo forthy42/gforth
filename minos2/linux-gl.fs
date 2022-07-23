@@ -164,6 +164,10 @@ Constant default-events
 [IFUNDEF] linux  : linux ;  [THEN]
 
 Defer window-init     ' noop is window-init
+: window-init, ( xt -- )
+    >r :noname action-of window-init compile, r@ compile,
+    postpone ; is window-init
+    ctx IF  r@ execute  THEN  rdrop ;
 Defer config-changed
 Defer screen-ops      ' noop is screen-ops
 Defer reload-textures ' noop is reload-textures
