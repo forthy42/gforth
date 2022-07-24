@@ -133,10 +133,10 @@ Defer ?warn#  ' noop is ?warn#
 	over c@ dp-char @ = over 1 u> and IF  1 /string dup dpl !  THEN
 	\ allow an initial '.' to shadow all floating point without 'e'
         BEGIN ( d addr len )
-            dup >r >number dup
+            dup >r >number_ dup
         WHILE \ there are characters left
                 dup r> -
-            WHILE \ the last >number parsed something
+            WHILE \ the last >number_ parsed something
                     dup 1- dpl ! over c@ dp-char @ =
                 WHILE \ the current char is '.'
                         1 /string

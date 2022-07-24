@@ -215,6 +215,16 @@ Defer in-dictionary? ( x -- f )
 	UNLOOP
     THEN ;
 
+: >number_ ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 ) \ gforth-internal to-number-underscore
+    \G like @code{>number}, but accepts @code{_} (and ignores it if
+    \G @code{base<#41}).
+    begin
+        >number
+        dup 0> while
+            over c@ '_' = while
+                1 /string
+        repeat then ;
+
 \ s>d um/mod						21mar93py
 
 : s>d ( n -- d ) \ core		s-to-d
