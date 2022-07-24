@@ -121,7 +121,7 @@ has? os 0= [IF]
 
 Defer ?warn#  ' noop is ?warn#
 Defer .= ( char -- flag ) \ gforth-experimental point-equal
-:noname '. = ; is .=
+: default.= '. = ; ' default.= is .=
 
 : s>unumber? ( c-addr u -- ud flag ) \ gforth
     \G converts string c-addr u into ud, flag indicates success
