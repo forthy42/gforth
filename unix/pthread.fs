@@ -124,8 +124,9 @@ c-library pthread
     \c int stick_to_core(int core_id) {
     \c #ifdef HAVE_PTHREAD_SETAFFINITY_NP
     \c   cpu_set_t cpuset;
+    \c   int num_cores = sysconf(_SC_NPROCESSORS_ONLN);
     \c 
-    \c   core_id %= sysconf(_SC_NPROCESSORS_ONLN);
+    \c   if (core_id < 0 || core_id >= num_cores)
     \c     return EINVAL;
     \c   
     \c   CPU_ZERO(&cpuset);
