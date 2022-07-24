@@ -163,16 +163,6 @@ User dpl ( -- a-addr ) \ gforth
 \G 0. After the conversion of 234123.9 it contains 1, and so forth.
 -1 dpl !
 
-User dp-char ( -- a-addr ) \ VFX
-\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
-\G decimal point character for double number conversion
-'.' dp-char !
-
-User fp-char ( -- a-addr ) \ VFX
-\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
-\G decimal point character for floating point number conversion
-'.' fp-char !
-
 User >num-state ( -- a-addr ) \ Gforth
 \G Internal state of the number conversion
 0 >num-state !

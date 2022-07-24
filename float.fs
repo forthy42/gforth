@@ -147,7 +147,11 @@ opt: drop postpone >body f!-table to-!, ;
   scratch over c@ emit '. emit 1 /string type
   'E emit . ;
 
-[IFDEF] fp-char
+User fp-char ( -- a-addr ) \ VFX
+\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
+\G decimal point character for floating point number conversion
+'.' fp-char !
+
 : sfnumber ( c-addr u -- r true | false )
     fp-char @ >float1 ;
 
@@ -187,11 +191,6 @@ si-prefixes count 2/ + Constant zero-exp
     r@ abs [ zero-exp si-prefixes 1+ - ] Literal <= IF
 	zero-exp r> - c@ emit space
     ELSE  'E emit r> .  THEN ;
-[ELSE]
-: sfnumber ( c-addr u -- r true | false )
-    >float ;
-: prefix-number  sfnumber ;
-[THEN]
 
 : >postponer ( xt1 xt2 -- xt1 xt3 ) >r dup >r
     :noname r> r> compile, lit, postpone compile, postpone ; ;
