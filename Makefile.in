@@ -383,7 +383,7 @@ FREETYPE_GL_SRC = freetype-gl/ftgl-utils.c freetype-gl/platform.c	\
 	freetype-gl/utf8-utils.c freetype-gl/distance-field.c		\
 	freetype-gl/vector.c freetype-gl/edtaa3func.c $(FREETYPE_GL_INCLUDE)
 
-EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
+EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs sf-numbers.fs vfx-numbers.fs \
 	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
 
 MINOS_DOC = minos2/widgets.fs
