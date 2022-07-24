@@ -120,13 +120,14 @@ $004 Constant POLLOUT
     over $@len over 1+ pollfd * umax third $!len
     pollfd * swap $@ drop + tuck events w! fd l! ;
 
-: errno-throw ( errno -- )
+: errno-throw ( errno -- ) \ gforth
+    \G throws code from a C error code on the stack (if not 0)
     ?dup-IF  -512 swap - throw  THEN ;
-: ?errno-throw ( f -- )
-    \ throw code computed from errno if f!=0
+: ?errno-throw ( f -- ) \ gforth
+    \G throw code computed from errno if f!=0
     IF  errno errno-throw  THEN ;
 
-: ?ior ( x -- )
+: ?ior ( x -- ) \ gforth
     \G use errno to generate throw when failing
     -1 = ?errno-throw ;
 
