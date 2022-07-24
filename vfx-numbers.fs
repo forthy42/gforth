@@ -23,4 +23,4 @@ User dp-char ( -- a-addr ) \ VFX
 \G decimal point character for double number conversion
 '.' dp-char !
 
-:noname dp-char @ = ; is d.?
+:noname dp-char @ = ; is .=
