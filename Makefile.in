@@ -383,7 +383,7 @@ FREETYPE_GL_SRC = freetype-gl/ftgl-utils.c freetype-gl/platform.c	\
 	freetype-gl/utf8-utils.c freetype-gl/distance-field.c		\
 	freetype-gl/vector.c freetype-gl/edtaa3func.c $(FREETYPE_GL_INCLUDE)
 
-EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs sf-numbers.fs vfx-numbers.fs \
+EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
 
 MINOS_DOC = minos2/widgets.fs
@@ -451,8 +451,7 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(F_SRC)	      \
 	traceall.fs rec-scope.fs rec-env.fs rec-meta.fs notfound.fs utf16.fs  \
 	archive.fs cilk.fs fixfiles.fs bits.fs reverse-words.fs config.fs     \
 	set-compsem.fs coverage.fs tokenize.fs startup-libcc.fs		      \
-	status-line.fs unix/opensles-vals.fs recognizer-ext.fs vfx-numbers.fs \
-	sf-numbers.fs
+	status-line.fs unix/opensles-vals.fs recognizer-ext.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \

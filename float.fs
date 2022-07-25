@@ -147,13 +147,7 @@ opt: drop postpone >body f!-table to-!, ;
   scratch over c@ emit '. emit 1 /string type
   'E emit . ;
 
-User fp-char ( -- a-addr ) \ VFX
-\G @code{User} variable -- @i{a-addr} is the address of a cell that stores the
-\G decimal point character for floating point number conversion
-'.' fp-char !
-
-: sfnumber ( c-addr u -- r true | false )
-    fp-char @ >float1 ;
+: sfnumber ( c-addr u -- r true | false ) >float ;
 
 Create si-prefixes ," Y  Z  X  P  T  G  M  k    %m  u  n  p  f  a  z  y"
 si-prefixes count 2/ + Constant zero-exp
@@ -164,7 +158,7 @@ si-prefixes count 2/ + Constant zero-exp
     >r 0= IF
 	si-prefixes count bounds DO
 	    2dup 1 safe/string I c@ scan nip dup 0<> IF
-		1 = IF  1- fp-char @  ELSE  I c@  THEN
+		1 = IF  1- '.'  ELSE  I c@  THEN
 		>float1
 		dup IF  #10 s>f zero-exp I - s>f f** f*
 		    warnings @ abs 2 > warning" use of engineering notation is non-standard"
@@ -173,9 +167,9 @@ si-prefixes count 2/ + Constant zero-exp
 	LOOP
     THEN
     \ check for e/E/.
-    2dup fp-char @ scan nip r@ or
+    2dup '.' scan nip r@ or
     IF
-	fp-char @ >float1
+	'.' >float1
 	dup r@ 0= and warnings @ abs 2 > and
 	warning" float without 'e' is non-standard"
     ELSE

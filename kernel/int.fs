@@ -120,8 +120,6 @@ has? os 0= [IF]
     x@+/string 0 s" '" 2rot string-prefix? ;
 
 Defer ?warn#  ' noop is ?warn#
-Defer .= ( char -- flag ) \ gforth-experimental point-equal
-: default.= '. = ; ' default.= is .=
 
 : s>unumber? ( c-addr u -- ud flag ) \ gforth
     \G converts string c-addr u into ud, flag indicates success
@@ -132,14 +130,14 @@ Defer .= ( char -- flag ) \ gforth-experimental point-equal
     base @ >r  getbase sign?
     over if
 	>r #0. 2swap
-	over c@ .= over 1 u> and IF  1 /string dup dpl !  THEN
+	over c@ '. = over 1 u> and IF  1 /string dup dpl !  THEN
 	\ allow an initial '.' to shadow all floating point without 'e'
         BEGIN ( d addr len )
             dup >r >number_ dup
         WHILE \ there are characters left
                 dup r> -
             WHILE \ the last >number_ parsed something
-                    dup 1- dpl ! over c@ .=
+                    dup 1- dpl ! over c@ '. =
                 WHILE \ the current char is '.'
                         1 /string
                 REPEAT  THEN \ there are unparseable characters left
