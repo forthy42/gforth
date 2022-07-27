@@ -27,16 +27,6 @@ Create plot-x-addr
 here plot-x-addr - Constant plot-x-u
 Create plot-x-addr'
 1e f,
-3e f,
-3e f,
-4e f,
-3e f,
-1e f,
-1e f,
-3e f,
-1e f,
-Create plot-y-addr'
-1e f,
 1e f,
 3e f,
 2e f,
@@ -45,12 +35,22 @@ Create plot-y-addr'
 1e f,
 3e f,
 3e f,
+Create plot-y-addr'
+1e f,
+3e f,
+3e f,
+4e f,
+3e f,
+1e f,
+1e f,
+3e f,
+1e f,
 here plot-y-addr' - Constant plot-xy-u
 
 : plot-x-test ( -- )
     plot-x-addr plot-x-u plot-x-color plot-x ;
 : plot-xy-test ( -- )
-    plot-y-addr' plot-x-addr' plot-xy-u plot-x-color
+    plot-x-addr' plot-y-addr' plot-xy-u plot-x-color
     0e 4e 0e 5e plot-xy-minmax ;
 
 {{

@@ -157,13 +157,15 @@ si-prefixes count 2/ + Constant zero-exp
     2dup 'e' scan nip >r 2dup 'E' scan nip r> or dup
     >r 0= IF
 	si-prefixes count bounds DO
-	    2dup 1 safe/string I c@ scan nip dup 0<> IF
-		1 = IF  1- '.'  ELSE  I c@  THEN
-		>float1
-		dup IF  #10 s>f zero-exp I - s>f f** f*
-		    warnings @ abs 2 > warning" use of engineering notation is non-standard"
-		THEN
-		UNLOOP  rdrop EXIT  THEN  drop
+	    I c@ bl <> IF
+		2dup 1 safe/string I c@ scan nip dup 0<> IF
+		    1 = IF  1- '.'  ELSE  I c@  THEN
+		    >float1
+		    dup IF  #10 s>f zero-exp I - s>f f** f*
+			warnings @ abs 2 > warning" use of engineering notation is non-standard"
+		    THEN
+		    UNLOOP  rdrop EXIT  THEN  drop
+	    THEN
 	LOOP
     THEN
     \ check for e/E/.
