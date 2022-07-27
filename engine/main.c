@@ -193,6 +193,7 @@ Cell last_jump=0; /* if the last prim was compiled without jump, this
 static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
+static int no_rc0=0;  /* true if don't load ~/.config/gforthrc0 */
 static int print_metrics=0; /* if true, print metrics on exit */
 static int print_prims=0; /* if true, print primitives on exit */
 static int static_super_number = 10000; /* number of ss used if available */
@@ -2295,6 +2296,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
       {"no-super", no_argument, &no_super, 1},
       {"no-dynamic", no_argument, &no_dynamic, 1},
+      {"no-rc0", no_argument, &no_rc0, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
       {"code-block-size", required_argument, NULL, opt_code_block_size},
       {"print-metrics", no_argument, &print_metrics, 1},
@@ -2369,6 +2371,7 @@ Engine Options:\n\
   --no-dynamic			    Use only statically compiled primitives\n\
   --no-offset-im		    Load image at normal position\n\
   --no-super			    No dynamically formed superinstructions\n\
+  --no-rc0			    do not load ~/.config/gforthrc0\n\
   --offset-image		    Load image at a different position\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
@@ -2653,6 +2656,8 @@ Cell gforth_start(int argc, char ** argv)
 
   if(gforth_args(argc, argv, &path, &imagename))
     return -24; /* Invalid numeric argument */
+  if(no_rc0)
+    setenv("GFORTH_ENV", "off", 1);
 #ifdef HAVE_MCHECK
   mcheck_init(debug_mcheck);
 #endif

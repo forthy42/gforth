@@ -77,4 +77,7 @@ blue >bg white >fg or bold or Value status-attr
 : +status ['] .status-line is .status ['] .unstatus-line is .unstatus ;
 : -status ['] noop is .status ['] noop is .unstatus ;
 
-+status
+:noname
+    defers bootmessage
+    is-color-terminal? IF  +status  ELSE  -status  THEN ;
+is bootmessage

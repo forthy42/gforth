@@ -21,12 +21,12 @@
 Variable load-rc?
 :noname  defers 'cold load-rc? on ; is 'cold
 
-also options definitions
+get-current also options definitions
 : --no-rc ( -- )  load-rc? off ;
-previous definitions
+previous set-current
 
 :noname ( -- ) defers image-options
-    ."   --no-rc			    don't load ~/.gforthrc" cr
+    ."   --no-rc			    don't load ~/.config/gforthrc" cr
 ; is image-options
 
 : load-rc ( -- )
@@ -38,7 +38,7 @@ previous definitions
     THEN ;
 : load-rc0 ( -- )
     \G if available, load @file{~/.config/gforthrc0} or whatever is in the
-    \G environment varialbe @code{GFORTH_ENV} before processing args.
+    \G environment variable @code{GFORTH_ENV} before processing args.
     \G disable loading by setting @code{GFORTH_ENV} to @file{off}.
     s" GFORTH_ENV" getenv 2dup d0= IF  2drop s" ~/.config/gforthrc0"  THEN
     2dup s" off" str= IF  2drop EXIT  THEN
