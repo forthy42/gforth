@@ -533,9 +533,9 @@ xchar-history
     history-file get-history xchar-history edit-curpos-off ;
 
 :noname ( -- )
-    defers 'cold
+    defers bootmessage
     history-cold
-; is 'cold
+; is bootmessage
 
 history-cold
 
