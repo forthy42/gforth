@@ -162,7 +162,8 @@ synonym c-function \c
 synonym add-lib \c
 synonym clear-libs \c
 
-: host? ( -- flag )  s" HOSTPREFIX" getenv nip 0= ;
+: host? ( -- flag )  s" HOSTPREFIX" getenv nip 0=
+    s" GFORTH_IGNLIB" getenv s" true" str= 0= and ;
 
 Vocabulary c-lib
 
@@ -893,8 +894,7 @@ tmp$ $execstr-ptr !
 	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
 	open-wrappers dup 0= if
 	    .lib-error
-	    host? s" GFORTH_IGNLIB" getenv s" true" str= 0= and
-	    IF  !!openlib!! throw  THEN
+	    host?  IF  !!openlib!! throw  THEN
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
