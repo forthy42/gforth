@@ -684,7 +684,7 @@ Create callback-&style c-var c,
 : callback-wrapper ( -- )
     ."   stackpointers x; \" cr
     ."   Cell stack[GFSS+8], rstack[GFSS], lstack[GFSS]; Float fstack[GFSS+2]; \" cr
-    ."   x.spx=stack+GFSS; x.rpx=rstack+GFSS; x.lpx=(char*)(lstack+GFSS); x.fpx=fstack+GFSS; x.upx=gforth_main_UP; x.magic=GFORTH_MAGIC; \" cr
+    ."   x.spx=stack+GFSS; x.rpx=rstack+GFSS; x.lpx=(Address)(lstack+GFSS); x.fpx=fstack+GFSS; x.upx=gforth_main_UP; x.magic=GFORTH_MAGIC; \" cr
     ."   x.handler=0; x.first_throw = ~0; x.wraphandler=0; \" cr ;
 
 : callback-thread-define ( descriptor -- )
@@ -893,7 +893,8 @@ tmp$ $execstr-ptr !
 	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
 	open-wrappers dup 0= if
 	    .lib-error
-	    host? IF  !!openlib!! throw  THEN
+	    host? s" GFORTH_IGNLIB" getenv s" true" str= 0= and
+	    IF  !!openlib!! throw  THEN
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
