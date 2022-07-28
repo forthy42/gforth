@@ -60,7 +60,9 @@ event: ->spawn ( xt task -- )
     \G wait for a worker to become free, and spawn xt there, with two arguments
     <event >r swap elit, elit, r> spawn-rest ;
 
-0 warnings !@
-: bye ( -- )
-    sync workers $@len cell/ 0 ?DO worker@ kill LOOP 1 ms bye ;
-warnings !
+s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
+    0 warnings !@
+    : bye ( -- )
+	sync workers $@len cell/ 0 ?DO worker@ kill LOOP 1 ms bye ;
+    warnings !
+[THEN]

@@ -349,7 +349,11 @@ Variable gl-emit-buf
 	ELSE  r> gl-xy 2!  THEN  m +
     LOOP  drop ;
 
-Sema gl-sema
+s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
+    Sema gl-sema
+[ELSE]
+    Create gl-sema
+[THEN]
 
 : gl-emit ( char -- ) [: color-index @ (gl-emit) ;] gl-sema c-section ;
 : gl-emit-err ( char -- )

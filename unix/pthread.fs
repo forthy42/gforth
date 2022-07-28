@@ -174,9 +174,12 @@ end-c-library
 require ./libc.fs
 require ../set-compsem.fs
 
-User pthread-id  -1 cells pthread+ uallot drop
+User pthread-id
+s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
+    -1 cells pthread+ uallot drop
 
-pthread-id pthread_self
+    pthread-id pthread_self
+[THEN]
 
 User epiper
 User epipew
@@ -196,7 +199,9 @@ compsem: ' >body @ postpone Literal ;
     + up@ - ;
 warnings !
 
-epiper create_pipe \ create pipe for main task
+s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
+    epiper create_pipe \ create pipe for main task
+[THEN]
 
 :noname ( -- )
     epiper @ ?dup-if epiper off close-file drop  THEN
