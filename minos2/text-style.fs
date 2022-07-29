@@ -86,25 +86,25 @@ Defer }}text' ' }}text IS }}text'
 : /right ( o -- o' )
     >r {{ glue*l }}glue r> }}h box[] >bl ;
 : /hflip ( o -- o )
-    >o box-hflip# to box-flags o o> ;
+    >o box-hflip# box-resize# or to box-flags resize-parents o o> ;
 : /vflip ( o -- o )
-    >o box-vflip# to box-flags o o> ;
+    >o box-vflip# box-resize# or to box-flags resize-parents o o> ;
 : /flip ( o -- o )
-    >o box-flip# to box-flags o o> ;
+    >o box-flip# box-resize# or to box-flags resize-parents o o> ;
 : /hphantom ( o -- o )
-    >o box-hphantom# to box-flags o o> ;
+    >o box-hphantom# to box-flags resize-parents o o> ;
 : /vphantom ( o -- o )
-    >o box-vphantom# box-dphantom# or to box-flags o o> ;
+    >o box-vphantom# box-dphantom# or box-resize# or to box-flags resize-parents o o> ;
 : /phantom ( o -- o )
-    >o box-phantom# to box-flags o o> ;
+    >o box-phantom# box-resize# or to box-flags resize-parents o o> ;
 : /hfix ( o -- o )
-    >o box-hfix# to box-flags o o> ;
+    >o box-hfix# box-resize# or to box-flags resize-parents o o> ;
 : /vfix ( o -- o )
-    >o box-vfix# to box-flags o o> ;
+    >o box-vfix# box-resize# or to box-flags resize-parents o o> ;
 : /dfix ( o -- o )
-    >o box-dfix# to box-flags o o> ;
+    >o box-dfix# box-resize# or to box-flags resize-parents o o> ;
 : /flop ( o -- o )
-    >o 0 to box-flags o o> ;
+    >o box-resize# to box-flags resize-parents o o> ;
 Variable image-tex[]
 Variable image-file[]
 : }}image-file ( xt addr u r -- o glue-o ) pixelsize# f*

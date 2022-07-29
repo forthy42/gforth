@@ -37,6 +37,7 @@ need-root Value need-mask
 ?need: ?resize
 ?need: ?colors
 ?need: ?vpsync    \ sync viewport
+?need: ?resizeall
 dup Constant ?config#
 dup negate Constant config-mux
 0 swap 1 [DO] 1+ [I] [+LOOP] Constant config>>
@@ -50,6 +51,7 @@ dup negate Constant config-mux
 +need: +resize
 +need: +colors
 +need: +vpsync    \ sync viewport
++need: +resizeall
 drop
 
 1
@@ -61,6 +63,7 @@ drop
 -need: -resize
 -need: -colors
 -need: -vpsync    \ sync viewport
+-need: -resizeall
 drop
 
 : ?config ( -- flag ) need-mask @ config>> arshift 0> ;

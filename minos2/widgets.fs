@@ -214,6 +214,7 @@ $0800 Constant vp-hfix#
 $1000 Constant vp-vfix#
 $2000 Constant vp-dfix#
 $4000 Constant box-touched#
+$8000 Constant box-resize#
 $10 Constant vp-shadow>>#
 
 box-hphantom# box-vphantom# or box-dphantom# or Constant box-phantom#
@@ -365,7 +366,8 @@ end-class widget
 :noname w border f2* f+ borderl f+ kerning f+ 0e fdup ; widget is hglue
 :noname h border borderv f+ bordert f+ raise f- f+ 0e fdup ; widget is vglue
 :noname d border borderv f+ raise f+ f+ 0e fdup ; widget is dglue
-: widget-resize to d to h to w to y to x
+: widget-resize ( x y w h d -- )
+    to d to h to w to y to x
     resize( w.indent# spaces name$ type ." : " x f. y f. w f. h f. d f. cr ) ;
 ' widget-resize widget is resize
 ' hglue widget is hglue@
@@ -1033,7 +1035,12 @@ end-class box
 :noname ( -- )
     dispose-childs [ widget :: dispose-widget ] ; box is dispose-widget
 
+: resize-me ( -- ) \ make sure you get resized
+    box-resize# box-flags or to box-flags ;
+: resize-parents ( -- )
+    o >o  BEGIN  parent-w dup WHILE  >o rdrop  resize-me  REPEAT  drop o> ;
 : box-!size ( -- )
+    resize-me
     ['] !size do-childs
     hglue hglue-c glue!
     dglue dglue-c glue!
@@ -1050,11 +1057,11 @@ end-class box
 dup widget is resized
 box is resized
 
-: +child ( o -- ) o over >o to parent-w o> childs[] >back ;
-: child+ ( o -- ) o over >o to parent-w o> childs[] >stack ;
+: +child ( o -- ) o over >o to parent-w resize-parents o> childs[] >back ;
+: child+ ( o -- ) o over >o to parent-w resize-parents o> childs[] >stack ;
 : +childs ( o1 .. on n -- ) \ [: ~~ ;] ['] do-debug $10 base-execute
     n>r childs[] get-stack { x } nr> x + childs[] set-stack
-    o [: dup to parent-w ;] do-childs drop ;
+    o [: dup to parent-w resize-parents ;] do-childs drop ;
 
 \ glue arithmetics
 
@@ -1189,11 +1196,20 @@ zbox is par-split
     rg fdup gp/a f*
     fdup rd f- xmin f+  fdup to w  rx f+ ;
 
+: box-resize? { f: x' f: y' f: w' f: h' f: d' -- flag )
+    ?resizeall ?dup-0=-IF
+	x' x f<> y' y f<> w' w f<> h' h f<> d' d f<> or or or or
+	box-flags box-resize# and 0<> or  THEN
+    dup IF  x' y' w' h' d' widget-resize
+	box-flags box-resize# invert and to box-flags
+    THEN ;
+
 : hbox-resize1 { f: y f: h f: d -- y h d } x y w h d resize
 \    ." hchild resized: " x f. y f. w f. h f. d f. cr
     y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
-    1 +to w.indent# x y w h d widget-resize
+    x y w h d box-resize? 0= ?EXIT
+    1 +to w.indent#
     hglue+ frot bxx f- f-rot  w bxx f- { f: wtotal }
     2 fpick wtotal f<= ?g3>2 { f: wmin f: a }
     wtotal wmin f- a f/ 0e fdup x bx f+
@@ -1281,8 +1297,8 @@ zbox is par-split
 \    ." vchild resized: " x f. y f. w f. h f. d f. cr
     x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
+    x y w h d box-resize? 0= ?EXIT
     1 +to w.indent# 
-    x y w h d widget-resize
     hglue* glue-drop  vglue+ dglue+ glue+ frot byd f- f-rot
     h d f+ byd f- { f: htotal }
     2 fpick htotal f<= ?g3>2 { f: hmin f: a }
@@ -1306,8 +1322,8 @@ zbox is par-split
     x y w h d ;
 
 : zbox-resize { f: x f: y f: w f: h f: d -- }
+    x y w h d box-resize? 0= ?EXIT
     1 +to w.indent# 
-    x y w h d widget-resize
     x bx f+ y byy f+ w bxx f-
     h byy f- d bdd f-
     ['] zbox-resize1 box-visible# ?do-childs
@@ -1365,12 +1381,12 @@ end-class parbox
 $10 stack: box-depth \ this $10 here is no real limit
 : {{ ( -- ) depth box-depth >stack ;
 : }} ( n1 .. nm -- n1 .. nm m ) depth box-depth stack> - ;
-: }}h ( n1 .. nm -- hbox ) }} hbox new >o "hbox" to name$ +childs o o> ;
-: }}v ( n1 .. nm -- vbox ) }} vbox new >o "vbox" to name$ +childs
+: }}h ( n1 .. nm -- hbox ) }} hbox new >o resize-me "hbox" to name$ +childs o o> ;
+: }}v ( n1 .. nm -- vbox ) }} vbox new >o resize-me "vbox" to name$ +childs
     -1 to baseline-offset box-flags baseline-start# or to box-flags o o> ;
 : }}vtop ( n1 .. nm -- vbox ) }} vbox new >o +childs 1 to baseline-offset o o> ;
-: }}z ( n1 .. nm -- zbox ) }} zbox new >o "zbox" to name$ +childs o o> ;
-: }}p ( n1 .. nm -- parbox ) }}h parbox new >o to subbox subbox .par-init o o> ;
+: }}z ( n1 .. nm -- zbox ) }} zbox new >o resize-me "zbox" to name$ +childs o o> ;
+: }}p ( n1 .. nm -- parbox ) }}h parbox new >o resize-me to subbox subbox .par-init o o> ;
 : unbox ( parbox -- n1 .. nm )
     >o baseline gap 0 childs[] $[] @ >o to gap to baseline o>
     childs[] get-stack  act IF  0 ?DO
@@ -1573,7 +1589,7 @@ $10 stack: vp<>
 4 buffer: texwh
 
 :noname { f: x f: y f: w f: h f: d -- }
-    x y w h d widget-resize
+    x y w h d box-resize? 0= ?EXIT
     vp-!size  vp-tex
     ?textures IF  [: +textures +sync ;] vp-needed  THEN
     vt-w f>s vt-h f>s
@@ -1712,8 +1728,10 @@ require animation.fs
     tabglues0
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize
     tabglues= 0= IF
+	+resizeall
 	!size 0e 1e dh* 1e dw* 1e dh* 0e resize
     THEN
+    -resizeall
     [IFDEF] ?sync-update
 	wm_sync_value 8 wm_sync_value' over str= 0= IF
 	    wm_sync_value wm_sync_value' 8 move
@@ -1737,7 +1755,7 @@ also [IFDEF] android jni [THEN]
 : widget-sync ( -- ) rendering @ -2 > ?EXIT
     level# @ 0> IF
 	?config-changer
-	?lang         IF  top-widget .widget-init +resize  THEN
+	?lang         IF  top-widget .widget-init +resize +resizeall  THEN
 	?textures     IF  1+config    THEN
 	anims[] $@len IF  animations  THEN
 	top-widget .widgets-redraw
