@@ -1759,8 +1759,9 @@ previous
     level# @ 0= IF  enter-minos  THEN
     1 level# +!@ >r  top-widget .widget-draw
     BEGIN
-	widgets-looper
-	widget-sync  gui( depth d u>  fdepth fd u> or IF  ~~bt
+	time( ." looper: " ) widgets-looper time( .!time
+	." sync: " ) widget-sync time( .!time cr )
+	gui( depth d u>  fdepth fd u> or IF  ~~bt
 	    depth to d  fdepth to fd  THEN )
     level# @ r@ = UNTIL  r> 0= IF  leave-minos  THEN ;
 

@@ -569,12 +569,15 @@ previous previous
 : handle-event ( -- ) e.type cells o#+ [ -1 cells , ] @ + perform ;
 #16 Value looper-to# \ 16ms, don't sleep too long
 : get-events ( -- )
-    looper-to# #4000000 um* ntime d+ { d: timeout }
+    \ looper-to# #1000000 um* ntime d+ { d: timeout }
     event-handler @ >o
-    BEGIN  dpy XPending  ntime timeout du< and
-    WHILE  dpy event XNextEvent drop
-	    event 0 XFilterEvent 0= IF  handle-event  THEN
-    REPEAT o> ;
+    dpy XPending 0 ?DO
+	\ ntime timeout du>= ?LEAVE
+	dpy event XNextEvent drop
+	event 0 XFilterEvent IF
+	    gui( ." filtered " .!time event e.type . cr )
+	ELSE  handle-event  THEN
+    LOOP o> ;
 
 \ polling of FDs
 
@@ -598,7 +601,7 @@ Defer >poll-events ( delay -- )
     dpy IF  dpy XConnectionNumber POLLIN  xpollfds 1 fds[]!  THEN
 ; IS >poll-events
 
-: xpoll ( -- flag )
+: xpoll ( fds n -- flag )
     [IFDEF] ppoll
 	xptimeout 0 ppoll 0>
     [ELSE]
