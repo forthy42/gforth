@@ -1586,8 +1586,6 @@ $10 stack: vp<>
 :noname ( -- )
     ['] +sync vp-needed [ box :: resized ] ; viewport is resized
 
-4 buffer: texwh
-
 :noname { f: x f: y f: w f: h f: d -- }
     x y w h d box-resize? 0= ?EXIT
     vp-!size  vp-tex
