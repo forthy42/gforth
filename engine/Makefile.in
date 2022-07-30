@@ -129,14 +129,12 @@ COMPILE.c = $(GCC) $(CFLAGS) $(CPPFLAGS) -c # simulate BSD sys.mk
 LIBTOOL.c = $(LIBTOOL) --mode=compile $(COMPILE.c)
 COMPILER = $(COMPILE.c)
 
-lib%.lo:	COMPILER = $(LIBTOOL.c)
-
 #some makes don't do the -o $@ correctly, so we help them
 .c.o:
 	$(COMPILER) -o $@ $<
 
 lib%.lo:	%.c
-	$(COMPILER) -o $@ $<
+	$(LIBTOOL.c) -o $@ $<
 
 #Since make -j compiles several dblsub in parallel,
 #different .o files are generated
