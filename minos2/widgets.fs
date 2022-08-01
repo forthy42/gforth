@@ -1184,6 +1184,30 @@ glue*2 >o 1glue f2* hglue-c glue! 0glue f2* dglue-c glue! 1glue f2* vglue-c glue
 vbox is par-split
 zbox is par-split
 
+\ tab helper glues
+
+Variable tab-glues
+
+helper-glue class
+    glues +field htab-c
+    glues +field htab-co
+end-class htab-glue
+
+:noname ( -- )
+    1glue htab-co glue! ; htab-glue is aidglue0
+ :noname ( -- flag )
+    htab-co df@ fdup htab-c df@ f= htab-c df! ; htab-glue is aidglue=
+ :noname ( glue -- glue' )
+    htab-co glue@ glue* htab-co glue!
+    htab-c df@ 0g fdup ; \ don't allow shrinking/growing
+htab-glue is hglue!@
+
+: tabglues0 ( -- )
+    tab-glues get-stack 0 ?DO  .aidglue0  LOOP ;
+: tabglues= ( -- flag )  true { flag }
+    tab-glues get-stack 0 ?DO  .aidglue= flag and to flag  LOOP
+    flag ;
+
 \ add glues up for hboxes
 
 : hglue-step { f: gp/a f: rg f: rd f: rx -- gp/a rg' rd' rx' }
@@ -1201,7 +1225,9 @@ zbox is par-split
 	x' x f<> y' y f<> w' w f<> h' h f<> d' d f<> or or or or
 	box-flags box-resize# and 0<> or  THEN
     dup IF  x' y' w' h' d' widget-resize
-	box-flags box-resize# invert and to box-flags
+	tabglues= IF
+	    box-flags box-resize# invert and to box-flags
+	THEN
     THEN ;
 
 : hbox-resize1 { f: y f: h f: d -- y h d } x y w h d resize
@@ -1394,30 +1420,6 @@ $10 stack: box-depth \ this $10 here is no real limit
 	LOOP
     ELSE  drop  THEN  o> ;
 
-\ tab helper glues
-
-Variable tab-glues
-
-helper-glue class
-    glues +field htab-c
-    glues +field htab-co
-end-class htab-glue
-
-:noname ( -- )
-    1glue htab-co glue! ; htab-glue is aidglue0
- :noname ( -- flag )
-    htab-co df@ fdup htab-c df@ f= htab-c df! ; htab-glue is aidglue=
- :noname ( glue -- glue' )
-    htab-co glue@ glue* htab-co glue!
-    htab-c df@ 0g fdup ; \ don't allow shrinking/growing
-htab-glue is hglue!@
-
-: tabglues0 ( -- )
-    tab-glues get-stack 0 ?DO  .aidglue0  LOOP ;
-: tabglues= ( -- flag )  true { flag }
-    tab-glues get-stack 0 ?DO  .aidglue= flag and to flag  LOOP
-    flag ;
-
 \ draw everything
 
 : widget-init ( o:widget -- )
@@ -1570,18 +1572,20 @@ $10 stack: vp<>
 	fround fdup vt-y f<> to vt-y
     THEN ;
 : vp-!size ( -- )
-    ['] !size do-childs
-    [ vbox :: hglue ] hglue-c glue!
-    [ vbox :: dglue ] dglue-c glue!
-    [ vbox :: vglue ] vglue-c glue!
-    w hglue-c df@ fmax fround
-    fdup vp-w f<> to vp-w vp-w usetexsize# s>f fmin to vt-w
-    h d f+ dglue-c df@ vglue-c df@ f+ fmax fround
-    fdup vp-h f<> to vp-h vp-h usetexsize# s>f fmin to vt-h
-    vp-h h d f+ f- vp-y fmin fround fdup vp-y f<> to vp-y
-    vp-w w f- vp-x fmin fround fdup vp-x f<> to vp-x
-    ?vpt-x ?vpt-y
-    or or or or or IF ['] +sync vp-needed THEN ;
+    vp-need @ [ ' +resize >body @ ]L and IF
+	['] !size do-childs
+	[ vbox :: hglue ] hglue-c glue!
+	[ vbox :: dglue ] dglue-c glue!
+	[ vbox :: vglue ] vglue-c glue!
+	w hglue-c df@ fmax fround
+	fdup vp-w f<> to vp-w vp-w usetexsize# s>f fmin to vt-w
+	h d f+ dglue-c df@ vglue-c df@ f+ fmax fround
+	fdup vp-h f<> to vp-h vp-h usetexsize# s>f fmin to vt-h
+	vp-h h d f+ f- vp-y fmin fround fdup vp-y f<> to vp-y
+	vp-w w f- vp-x fmin fround fdup vp-x f<> to vp-x
+	?vpt-x ?vpt-y
+	or or or or or IF ['] +sync vp-needed THEN
+    THEN ;
 ' vp-!size viewport is !size
 :noname ( -- )
     ['] +sync vp-needed [ box :: resized ] ; viewport is resized
@@ -1599,6 +1603,7 @@ $10 stack: vp<>
     THEN
     0e vp-h vp-w vp-h 0e vbox-resize
     x y w h d widget-resize
+    vp-need @ [ ' +resize >body @ ]L invert and vp-need !
 ; viewport is resize
 :noname ( -- glue )
     box-flags vp-hfix# and IF  [ vbox :: hglue ]
@@ -1626,7 +1631,7 @@ $10 stack: vp<>
     resize( ." vp.vglue@: " gdup .glue cr ) ; viewport is vglue@
 : }}vp ( b:n1 .. b:nm glue vp-tex -- viewport ) { g t }
     }} viewport new >o -1 to baseline-offset "vp" to name$
-    +childs t is vp-tex g to vp-glue o o> ;
+    +childs t is vp-tex g to vp-glue [ ' +resize >body @ ]L vp-need !  o o> ;
 
 \ slider (simple composit object)
 
@@ -1723,10 +1728,10 @@ require animation.fs
     }}z box[] ;
 
 : htop-resize ( -- )
+    +resizeall
     tabglues0
     !size 0e 1e dh* 1e dw* 1e dh* 0e resize
     tabglues= 0= IF
-	+resizeall
 	!size 0e 1e dh* 1e dw* 1e dh* 0e resize
     THEN
     -resizeall
