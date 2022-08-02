@@ -232,6 +232,31 @@ also opengl also also [IFDEF] android previous android also jni [THEN]
 	[IFDEF] showstatus showstatus [THEN]
     [THEN] ;
 
+\ make screenshots of slides
+
+require unix/stb-image-write.fs
+
+$Variable screenshot$
+synonym rgbas sfloats
+90 Value jpeg-quality
+
+: screenshot ( x y w h -- )
+    screenshot$ >r
+    2dup * rgbas r@ $!len
+    GL_RGBA GL_UNSIGNED_BYTE r> $@ drop glReadPixels ;
+: screenshot>png ( addr u -- )
+    1 stbi_flip_vertically_on_write
+    dpy-w @ dpy-h @ 0 0 2over screenshot over >r
+    4 screenshot$ $@ drop r> rgbas stbi_write_png
+    screenshot$ $free ;
+: screenshot>jpg ( addr u -- )
+    1 stbi_flip_vertically_on_write
+    dpy-w @ dpy-h @ 0 0 2over screenshot
+    4 screenshot$ $@ drop jpeg-quality stbi_write_jpg
+    screenshot$ $free ;
+
+\ top level presentation
+
 : !pres-widgets ( -- )
     top-widget .htop-resize
     vp-tops get-stack 0 ?DO  .vp-top  LOOP

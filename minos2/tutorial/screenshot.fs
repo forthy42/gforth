@@ -1,4 +1,4 @@
-\ ΜΙΝΩΣ2 Buttons Examples
+\ ΜΙΝΩΣ2 Screenshot Examples
 
 \ Authors: Bernd Paysan
 \ Copyright (C) 2022 Free Software Foundation, Inc.
@@ -24,30 +24,40 @@
     light-gui
     $FFFFAAFF re-color button-color#
 [THEN]
+[IFUNDEF] edit-color#
+    dark-gui
+    $AAAAAAFF new-color, fvalue edit-color#
+    light-gui
+    $CCCCCCFF re-color edit-color#
+[THEN]
 
 {{
     $000000FF $FFFFFFFF pres-frame
     {{
-	l" ΜΙΝΩΣ2 Button Example" /title \skip
-	\large
-	{{
-	    glue*ll }}glue
-	    l" 双头龙" }}text'
-	    em-space
-	    l" 雙頭龍" }}text'
-	    glue*ll }}glue
-	}}h box[] >bl
+	l" ΜΙΝΩΣ2 Screenshot Example" /title \skip
 	\normal
 	{{
+	    {{
+		l" filename: " }}text'
+		\mono
+		{{
+		    glue*l edit-color# font-size# 40% f* }}frame dup .button3
+		    {{
+			s" screenshot-file" }}edit dup Value shot-filename
+			glue*ll }}glue
+		    }}h box[]
+		}}z box[]
+		\sans
+	    }}h shot-filename ' true edit[] >bl
+	}}h box[] >bl
+	\skip
+	{{
 	    glue*ll }}glue
-	    l" 🇨🇳 scify 🇲🇾" button-color# }}button
-	    [: ." simpliefied" cr ['] translators:scify is translator +lang ;] over click[]
+	    l" Save JPEG" button-color# }}button
+	    [: [: shot-filename .text$ type ." .jpg" ;] $tmp screenshot>jpg ;] over click[]
 	    em-space
-	    l" 🇹🇼 tcify 🇭🇰" button-color# }}button
-	    [: ." traditional" cr ['] translators:tcify is translator +lang ;] over click[]
-	    em-space
-	    l" as is" button-color# }}button
-	    [: ." as is" cr ['] noop  is translator +lang ;] over click[]
+	    l" Save PNG" button-color# }}button
+	    [: [: shot-filename .text$ type ." .png" ;] $tmp screenshot>png ;] over click[]
 	    glue*ll }}glue
 	}}h box[] >bl
 	glue*l }}glue

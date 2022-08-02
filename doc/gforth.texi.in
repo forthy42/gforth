@@ -18064,6 +18064,12 @@ Available tutorials:
 
 @item
 @file{plots.fs}: Plot functions
+
+@item
+@file{markdown.fs}: Markdown document viewer
+
+@item
+@file{screenshot.fs}: Screenshot function
 @end itemize
 
 @node Bugs, Origin, MINOS2, Top
