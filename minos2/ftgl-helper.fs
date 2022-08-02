@@ -177,6 +177,26 @@ Defer xy+
     glyph texture_glyph_t-advance_x sf@ xs f*
     glyph texture_glyph_t-advance_y sf@ ys f* ;
 
+: xy,rotleft { glyph -- dx dy }
+    \ glyph texture_glyph_t-codepoint l@
+    x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
+    penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
+    glyph texture_glyph_t-offset_x sl@ xs fm*
+    glyph texture_glyph_t-offset_y sl@ ys fm* { f: yo f: xo }
+    glyph texture_glyph_t-width  2@ xs fm* ys fm* { f: h f: w }
+    xp xo f- fround 1/2 f-       yp yo f- h f- fround 1/2 f- { f: x0 f: y0 }
+    x0 w f+                      y0 h f+                { f: x1 f: y1 }
+    glyph texture_glyph_t-s0
+    \ over hex. dup $10 dump
+    >v
+    x0 y0 >xy n> xy-color i>c dup s1t0>st v+
+    x0 y1 >xy n> xy-color i>c dup s0t0>st v+
+    x1 y0 >xy n> xy-color i>c dup s1t1>st v+
+    x1 y1 >xy n> xy-color i>c     s0t1>st v+
+    v>
+    glyph texture_glyph_t-advance_x sf@ xs f*
+    glyph texture_glyph_t-advance_y sf@ ys f* ;
+
 [IFUNDEF] sf+!
     : sf+! ( f addr -- )
 	dup sf@ f+ sf! ;
@@ -186,6 +206,8 @@ Defer xy+
     penxy sfloat+ sf+!  penxy sf+! ;
 : xy+rotright ( x y -- )
     fnegate fswap xy+default ;
+: xy+rotleft ( x y -- )
+    fswap fnegate xy+default ;
 
 : xy-default ( -- )
     ['] xy,default is xy,
@@ -196,6 +218,9 @@ Defer xy+
 : xy-rotright ( -- )
     ['] xy,rotright is xy,
     ['] xy+rotright is xy+ ;
+: xy-rotleft ( -- )
+    ['] xy,rotleft is xy,
+    ['] xy+rotleft is xy+ ;
 xy-default
 
 : glyph, ( glyph -- dx dy )

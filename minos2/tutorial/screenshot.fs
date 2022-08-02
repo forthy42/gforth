@@ -38,12 +38,12 @@
 	\normal
 	{{
 	    {{
-		l" filename: " }}text'
+		l" Filename: " }}text'
 		\mono
 		{{
 		    glue*l edit-color# font-size# 40% f* }}frame dup .button3
 		    {{
-			s" screenshot-file" }}edit dup Value shot-filename
+			s" screenshot-file" }}edit 25%b dup Value shot-filename
 			glue*ll }}glue
 		    }}h box[]
 		}}z box[]
