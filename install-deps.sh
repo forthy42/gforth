@@ -2,10 +2,11 @@
 which sudo || alias sudo=eval
 install_debian() {
   sudo apt-get -y update
-  sudo apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc automake texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libpcre3-dev libboost-dev git g++ # yodl, bison, ... git: are for swig
+  sudo apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc automake m4 texinfo texi2html texlive-base install-info dpkg-dev debhelper yodl bison libpcre3-dev libboost-dev git g++ # yodl, bison, ... git: are for swig
   test `lsb_release -sc` = "buster" && sudo apt-get -y install texlive-latex-base
   sudo apt-get -y install libtool-bin
   sudo apt-get -y install libltdl-dev
+  sudo apt-get -y install libffi-dev
   sudo apt-get -y install autoconf-archive
   sudo apt-get -y install libx11-dev
   sudo apt-get -y install libx11-xcb-dev
