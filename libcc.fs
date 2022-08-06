@@ -987,7 +987,9 @@ latestnt to rt-vtable
     r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
     r@ ccb-lha @ @ lookup-c-array r> ccb-cfuns ! ;
 
-: callback-does> ( xt -- addr ) >r \ create a callback instance
+: callback-does> ( xt -- addr )
+    \ create a callback instance
+    >r
     r@ ccb-num @ 0< !!callbacks!! and throw
     r@ ccb-lha @ @ 0= IF
 	compile-wrapper-function

@@ -92,7 +92,8 @@ AVARIABLE DebugLoop
 CREATE BP 0 , 0 ,
 CREATE DT 0 , 0 ,
 
-: set-bp        ( 0 n | 0 n n -- ) \ !!! dependency: ITC
+: set-bp        ( 0 n | 0 n n -- )
+    \ !!! dependency: ITC
                 0. BP 2!
                 ?dup-IF dup BP ! dup @ DT !
                         ['] Breaker swap !
@@ -100,7 +101,8 @@ CREATE DT 0 , 0 ,
                                 ['] Breaker swap ! drop THEN
                      THEN ;
 
-: restore-bp    ( -- ) \ !!! dependency: ITC
+: restore-bp    ( -- )
+    \ !!! dependency: ITC
     BP @ ?dup-IF DT @ swap ! THEN
     BP cell+ @ ?dup-IF DT cell+ @ swap ! THEN ;
 

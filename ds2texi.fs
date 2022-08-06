@@ -173,6 +173,8 @@ false constant gforth-obsolete
 true  constant mini-oof
 true  constant minos2
 true  constant minos2-bidi
+true  constant objects
+true  constant oof
 true  constant regexp-cg
 true  constant regexp-pattern
 true  constant regexp-replace
