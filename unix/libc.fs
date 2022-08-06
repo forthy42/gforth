@@ -63,7 +63,8 @@ c-library libc
     c-function write write n a n -- n ( fd addr u -- u' )
     c-function close close n -- n ( fd -- r )
     c-function setlocale setlocale n s -- a ( category locale len -- locale )
-    c-function (getpid) getpid -- n ( -- n ) \ for completion
+    c-function (getpid) getpid -- n ( -- n )
+    \ for completion
     c-function (fork) fork -- n ( -- pid_t )
     c-function execvp execvp s a -- n ( filename len argv -- ret )
     c-function exit() exit n -- void ( ret -- )

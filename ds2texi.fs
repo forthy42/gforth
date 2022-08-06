@@ -127,6 +127,8 @@ get-current wordsets set-current
 \ true means that a word with that wordset must occur in the
 \ documentation.  false means that the wordset is known, but the word
 \ need not occur in the documentation.
+
+\ standard wordsets
 true  constant block
 true  constant block-ext
 true  constant core
@@ -142,29 +144,38 @@ true  constant core-ext,file
 true  constant core-ext,xchar
 false constant core-ext-obsolescent
 true  constant double
-true  constant environment
 true  constant exception
 true  constant facility
 true  constant facility-ext
 true  constant file
 true  constant float
 true  constant float-ext
-true  constant gforth
-true  constant gforth-environment
-true  constant gforth-experimental
-true  constant gforth-internal
-false constant gforth-obsolete
 true  constant local
 true  constant local-ext
-true  constant mini-oof
-true  constant minos2
-true  constant minos2-bidi
 true  constant search
 true  constant search-ext
 true  constant tools
 true  constant tools-ext
 true  constant xchar
 true  constant xchar-ext
+
+\ environment query names
+true  constant environment
+
+\ wordsets for non-standard words
+true  constant gforth
+true  constant gforth-environment
+true  constant gforth-experimental
+true  constant gforth-internal
+false constant gforth-obsolete
+
+\ libraries independent of Gforth
+true  constant mini-oof
+true  constant minos2
+true  constant minos2-bidi
+true  constant regexp-cg
+true  constant regexp-pattern
+true  constant regexp-replace
 set-current
 
 : check-wordset ( c-addr u -- )

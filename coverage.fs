@@ -38,11 +38,11 @@ cover-end Constant cover-start
     THEN
     false to dead-cov? ;
 
-: cov+ ( -- ) \ gforth-exp
+: cov+ ( -- ) \ gforth-experimental
     \G Add a coverage tag here.
     dead-cov? 0= state @ and  IF  cov+,  THEN
     false to dead-cov? ; immediate compile-only
-: ?cov+ ( flag -- flag ) \ gforth-exp
+: ?cov+ ( flag -- flag ) \ gforth-experimental
     ]] dup IF ELSE THEN [[ ; immediate compile-only
 
 :noname defers :-hook                     cov+, ; is :-hook
@@ -54,7 +54,7 @@ cover-end Constant cover-start
 :noname true to dead-cov?
     defers then-like  postpone cov+ ; is then-like
 
-: cov% ( -- ) \ gforth-exp
+: cov% ( -- ) \ gforth-experimental
     \G Print the percentage of basic blocks loaded after
     \G @file{coverage.fs} that are executed at least once.
     0 cover-end cover-start U+DO
@@ -62,7 +62,7 @@ cover-end Constant cover-start
     2 cells +LOOP  #2000 cells cover-end cover-start - */
     0 <# '%' hold # '.' hold #s #> type ."  coverage" ;
 
-: .cover-raw ( -- ) \ gforth-exp
+: .cover-raw ( -- ) \ gforth-experimental
     \G Print raw execution counts.
     cover-end cover-start U+DO
 	I @ .sourceview ." : " I cell+ ? cr
@@ -91,7 +91,7 @@ color-cover
 	s" ) " string-prefix? IF  r> 2 +  ELSE  rdrop  0  THEN
     ELSE  2drop  0  THEN ;
 
-: .cover-file { fn -- } \ gforth-exp
+: .cover-file { fn -- } \ gforth-experimental
     \G Print coverage in included file with index @var{fn}.
     fn included-buffer 0 locate-line 0 { d: buf lpos d: line cpos }
     cover-end cover-start U+DO
@@ -109,13 +109,13 @@ color-cover
     2 cells +LOOP
     line cpos safe/string type cr  default-color  buf type ;
 
-: covered? ( fn -- flag ) \ gforth-exp
+: covered? ( fn -- flag ) \ gforth-experimental
     \G Check if included file with index @var{fn} has coverage information.
     false cover-end cover-start U+DO 
 	over I @ view>filename# = or
     2 cells +LOOP  nip ;
 
-: .coverage ( -- ) \ gforth-exp
+: .coverage ( -- ) \ gforth-experimental
     \G Show code with execution frequencies.
     cr included-files $[]# 0 ?DO
 	I covered? IF
@@ -125,7 +125,7 @@ color-cover
 	THEN
     LOOP ;
 
-: annotate-cov ( -- ) \ gforth-exp
+: annotate-cov ( -- ) \ gforth-experimental
     \G For every file with coverage information, produce a @code{.cov}
     \G file that has the execution frequencies inserted.  We recommend
     \G to use @code{bw-cover} first (with the default
@@ -147,26 +147,26 @@ color-cover
 
 $10 buffer: cover-hash
 
-: hash-cover ( -- addr u ) \ gforth-exp
+: hash-cover ( -- addr u ) \ gforth-experimental
     cover-hash $10 erase
     cover-end cover-start U+DO
 	I cell false cover-hash hashkey2
     2 cells +LOOP
     cover-hash $10 ;
 
-: cover-filename ( -- addr u ) \ gforth-exp
+: cover-filename ( -- addr u ) \ gforth-experimental
     "~/.cache/gforth/" 2dup $1ff mkdir-parents drop
     [: type
 	hash-cover bounds ?DO  I c@ 0 <# # # #> type LOOP ." .covbin" ;]
     ['] $tmp $10 base-execute ;
 
-: save-cov ( -- ) \ gforth-exp
+: save-cov ( -- ) \ gforth-experimental
     \G Save coverage counters.
     cover-filename r/w create-file throw >r
     cover-start cover-end over - r@ write-file throw
     r> close-file throw ;
 
-: load-cov ( -- ) \ gforth-exp
+: load-cov ( -- ) \ gforth-experimental
     \G Load coverage counters.
     cover-filename r/o open-file dup #-514 = IF
 	2drop true [: ." no saved coverage found" cr ;] ?warning
