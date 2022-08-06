@@ -62,7 +62,8 @@ User block-offset ( -- addr ) \ gforth
 : block-cold ( -- )
     block-fid off  last-block off
     buffer-struct buffers * %alloc dup block-buffers ! ( addr )
-    buffer-struct %size buffers * erase ;
+    dup buffer-struct %size buffers * erase
+    buffers 0 ?DO dup buffer-block on next-buffer LOOP drop ;
 
 :noname ( -- )
     defers 'cold
@@ -83,7 +84,7 @@ Defer flush-blocks ( -- ) \ gforth
 	>r 2drop r>
     endtry-iferror ( c-addr u ior )
 	>r 2dup file-status nip 0= r> and throw \ does it really not exist?
-	r/w bin create-file throw
+	nothrow r/w bin create-file throw
     then
     block-fid @ IF
 	flush-blocks block-fid @ close-file throw
@@ -119,6 +120,7 @@ Defer flush-blocks ( -- ) \ gforth
     dup
     >r buffer-dirty @
     if
+	r@ buffer-fid @ 0= IF  get-block-fid r@ buffer-fid !  THEN
 	r@ buffer-block @ block-position
 	r@ block-buffer chars/block  r@ buffer-fid @  write-file throw
 	r@ buffer-fid @ flush-file throw
