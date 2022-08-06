@@ -318,21 +318,28 @@ object class
     sfvalue: bordert   \ top border offset
     sfvalue: borderl   \ left border offset
     sfvalue: w-color   \ widget color (if any)
-    method draw-init ( -- ) \ init draw
-    method draw ( -- ) \ draw
+    method draw-init ( -- )
+    \ init draw
+    method draw ( -- )
+    \ draw
     method split ( firstflag rstart1 rx -- o rstart2 )
     method lastfit ( -- )
     method hglue ( -- rtyp rsub radd )
     method dglue ( -- rtyp rsub radd )
     method vglue ( -- rtyp rsub radd )
-    method hglue@ ( -- rtyp rsub radd ) \ cached variant
-    method dglue@ ( -- rtyp rsub radd ) \ cached variant
-    method vglue@ ( -- rtyp rsub radd ) \ cached variant
+    method hglue@ ( -- rtyp rsub radd )
+    \ cached variant
+    method dglue@ ( -- rtyp rsub radd )
+    \ cached variant
+    method vglue@ ( -- rtyp rsub radd )
+    \ cached variant
     method xywh ( -- rx0 ry0 rw rh )
     method xywhd ( -- rx ry rw rh rd )
     method resize ( rx ry rw rh rd -- )
-    method !size ( -- ) \ set your own size
-    method dispose-widget ( -- ) \ get rid of a widget
+    method !size ( -- )
+    \ set your own size
+    method dispose-widget ( -- )
+    \ get rid of a widget
     method .widget
     method par-split ( w -- )
 end-class widget
@@ -444,7 +451,8 @@ begin-structure atlas-region
     slvalue: i.h
 end-structure
 
-: #>st ( x y frame -- ) \ using frame#
+: #>st ( x y frame -- )
+    \ using frame#
     dup i.h fm* dup i.y s>f f+ fswap
     dup i.w fm*     i.x s>f f+ fswap >st ;
 
@@ -1035,7 +1043,8 @@ end-class box
 :noname ( -- )
     dispose-childs [ widget :: dispose-widget ] ; box is dispose-widget
 
-: resize-me ( -- ) \ make sure you get resized
+: resize-me ( -- )
+    \ make sure you get resized
     box-resize# box-flags or to box-flags ;
 : resize-parents ( -- )
     o >o  BEGIN  parent-w dup WHILE  >o rdrop  resize-me  REPEAT  drop o> ;
@@ -1059,7 +1068,8 @@ box is resized
 
 : +child ( o -- ) o over >o to parent-w resize-parents o> childs[] >back ;
 : child+ ( o -- ) o over >o to parent-w resize-parents o> childs[] >stack ;
-: +childs ( o1 .. on n -- ) \ [: ~~ ;] ['] do-debug $10 base-execute
+: +childs ( o1 .. on n -- )
+    \ [: ~~ ;] ['] do-debug $10 base-execute
     n>r childs[] get-stack { x } nr> x + childs[] set-stack
     o [: dup to parent-w resize-parents ;] do-childs drop ;
 
@@ -1250,7 +1260,8 @@ htab-glue is hglue!@
 
 : re-glue ( -- w h d )
     hglue fdrop fdrop  vglue fdrop fdrop  dglue fdrop fdrop ;
-: par-init ( -- ) \ set paragraph to maximum horizontal extent
+: par-init ( -- )
+    \ set paragraph to maximum horizontal extent
     !size xywhd resize ;
 
 1e-10 FConstant split-fudge

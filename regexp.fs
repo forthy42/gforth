@@ -270,7 +270,8 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 : \: ( i -- )
     Create 2* 1+ cells vars + ,
   DOES> ( -- addr u ) @ 2@ tuck - ;
-: \:s ( n -- ) 0 ?DO  I \:  LOOP ;
+: \:s ( n -- )
+    0 ?DO  I \:  LOOP ;
 9 \:s \1 \2 \3 \4 \5 \6 \7 \8 \9
 
 \ replacements, needs string.fs

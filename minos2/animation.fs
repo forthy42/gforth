@@ -81,11 +81,14 @@ is anim-ins
 
 \ helper for animation
 
-: sin-t ( r0..1 -- r0..1 ) \ sinusoidal movement
+: sin-t ( r0..1 -- r0..1 )
+    \ sinusoidal movement
     pi f* fcos f2/ 1/2 fswap f- ;
-: sin-at ( r0..r1 -- r0..1 ) \ accellerating
+: sin-at ( r0..r1 -- r0..1 )
+    \ accellerating
     pi f2/ f* fcos 1e fswap f- ;
-: sin-dt ( r0..r1 -- r0..1 ) \ decellerating
+: sin-dt ( r0..r1 -- r0..1 )
+    \ decellerating
     pi f2/ f* fsin ;
 
 \ often used animation

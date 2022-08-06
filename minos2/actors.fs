@@ -124,7 +124,8 @@ end-class click-actor
 
 ' ck-action click-actor is do-action
 
-: click[] ( o xt data -- o ) \ xt takes ( data -- )
+: click[] ( o xt data -- o )
+    \ xt takes ( data -- )
     rot >o click-actor new >o to data is ck-action o o> !act o o> ;
 
 :noname ( rx ry b n -- )
@@ -145,7 +146,8 @@ end-class click-actor
 click-actor class
 end-class key-actor
 
-: key[] ( o xt data -- o ) \ xt takes ( data -- )
+: key[] ( o xt data -- o )
+    \ xt takes ( data -- )
     rot >o key-actor new >o to data is ck-action o o> !act o o> ;
 
 actor action-of clicked key-actor is clicked
@@ -241,7 +243,8 @@ box-actor class
     defer: sr-action
 end-class scroll-actor
 
-: scroll[] ( o xt -- o ) \ xt takes ( data -- )
+: scroll[] ( o xt -- o )
+    \ xt takes ( data -- )
     swap >o scroll-actor new >o is sr-action o o> !act o o> ;
 
 :noname ( rx ry b n -- )
@@ -567,7 +570,8 @@ end-class vsliderdown-actor
 
 \ edit widget
 
-: edit$!len ( len -- ) \ precaution for password edit
+: edit$!len ( len -- )
+    \ precaution for password edit
     edit$ @ $@len over = IF  drop  EXIT  THEN
     0 { w^ new$ } new$ $!len
     edit$ @ $@ new$ $@ rot umin move
