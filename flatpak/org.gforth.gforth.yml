@@ -7,7 +7,11 @@ branch: "21.08"
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.stb
+  - org.freedesktop.Sdk.Extension.texlive
 command: gforth
+append-path:
+  - /usr/lib/sdk/texlive/bin
+  - /usr/lib/sdk/texlive/bin/x86_64-linux
 
 modules:
   - name: gforth
@@ -21,4 +25,4 @@ modules:
     sources:
       - type: archive
         url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20220807/gforth-0.7.9_20220807.tar.xz
-        sha256: 0c8d885a61ef6ff849807fced9e6c82f1575aec23eebfad16d5bfe57fbbcf819
+        sha256: 8ef070d761c97f28e39b98ca69b24289a5a566ee56a9669f8696399cd1dd2490
