@@ -124,6 +124,7 @@ parts:
     source: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/$GFORTH/gforth-$GFORTH.tar.xz
     plugin: autotools
     autotools-configure-parameters:
+      - ac_cv_header_va_va_h=no
       - --prefix=/usr
       - --with-install=swig
       - --disable-lib
