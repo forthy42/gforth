@@ -104,9 +104,8 @@ av_parser_parse2 av_parser_init av_parser_iterate
 avcodec_get_hw_frames_parameters avcodec_receive_packet avcodec_send_frame 
 avcodec_receive_frame avcodec_send_packet avcodec_decode_subtitle2 
 avcodec_chroma_pos_to_enum avcodec_enum_to_chroma_pos 
-avcodec_align_dimensions2 avcodec_align_dimensions 
-avcodec_default_get_encode_buffer avcodec_default_get_buffer2 avsubtitle_free 
-avcodec_close avcodec_open2 avcodec_parameters_to_context 
+avcodec_align_dimensions2 avcodec_align_dimensions avcodec_default_get_buffer2 
+avsubtitle_free avcodec_close avcodec_open2 avcodec_parameters_to_context 
 avcodec_parameters_from_context avcodec_get_subtitle_rect_class 
 avcodec_get_class avcodec_free_context avcodec_alloc_context3 avcodec_license 
 avcodec_configuration avcodec_version AVCodecParser-split() 
@@ -114,8 +113,7 @@ AVCodecParser-parser_close() AVCodecParser-parser_parse()
 AVCodecParser-parser_init() AVHWAccel-frame_params() AVHWAccel-uninit() 
 AVHWAccel-init() AVHWAccel-decode_mb() AVHWAccel-end_frame() 
 AVHWAccel-decode_slice() AVHWAccel-decode_params() AVHWAccel-start_frame() 
-AVHWAccel-alloc_frame() AVCodecContext-get_encode_buffer() 
-AVCodecContext-execute2() AVCodecContext-execute() 
+AVHWAccel-alloc_frame() AVCodecContext-execute2() AVCodecContext-execute() 
 AVCodecContext-get_buffer2() AVCodecContext-get_format() 
 AVCodecContext-draw_horiz_band() AVCodecParser-parser_close 
 AVCodecParser-parser_parse AVCodecParser-parser_init 
@@ -211,10 +209,10 @@ AVCodecContext-active_thread_type AVCodecContext-ildct_cmp
 AVCodecContext-bit_rate_tolerance AVCodecContext-subtitle_header 
 AVCodecContext-pts_correction_num_faulty_pts AVCodecContext-colorspace 
 AVCodecContext-codec_descriptor AVCodecContext-frame_number 
-AVCodecContext-get_encode_buffer AVCodecContext-skip_loop_filter 
-AVCodecContext-priv_data AVCodecContext-chroma_sample_location 
-AVCodecContext-profile AVCodecContext-qblur AVCodecContext-pkt_timebase 
-AVCodecContext-stats_in AVCodecContext-frame_size AVCodecContext-sample_fmt 
+AVCodecContext-skip_loop_filter AVCodecContext-priv_data 
+AVCodecContext-chroma_sample_location AVCodecContext-profile 
+AVCodecContext-qblur AVCodecContext-pkt_timebase AVCodecContext-stats_in 
+AVCodecContext-frame_size AVCodecContext-sample_fmt 
 AVCodecContext-request_sample_fmt AVCodecContext-stats_out 
 AVCodecContext-nsse_weight AVCodecContext-max_qdiff AVCodecContext-qmax 
 AVCodecContext-height AVCodecContext-workaround_bugs AVCodecContext 

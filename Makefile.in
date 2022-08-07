@@ -1466,7 +1466,7 @@ start-gforth.el:	gforth.el
 standard-words.fs: doc/2012-words
 		echo "\\ generated automatically from "$<", which is cut and pasted from" >$@
 		echo "\\ https://forth-standard.org/standard/alpha" >>$@
-		awk -f doc/standard-words.awk $< >>$@
+		awk -f $(srcdir)/doc/standard-words.awk $< >>$@
 
 doc/doc.fd:	doc/makedoc.fs gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_GEN_SRC)
 		$(FORTHK) -e "s\" doc/doc.fd.tmp\"" doc/makedoc.fs except.fs startup.fs -e bye
