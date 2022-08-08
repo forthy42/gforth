@@ -155,7 +155,7 @@ User base ( -- a-addr ) \ core
 \G input and output.  Don't store to @code{base}, use
 \G @code{base-execute} instead.
                        A base !
-User dpl ( -- a-addr ) \ gforth
+User dpl ( -- a-addr ) \ gforth Decimal_PLace
 \G @code{User} variable -- @i{a-addr} is the address of a cell that stores the 		
 \G position of the decimal point in the most recent numeric conversion.
 \G Initialised to -1. After the conversion of a number containing no
