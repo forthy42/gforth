@@ -324,11 +324,7 @@ create docline doclinelength chars allot
     repeat
     drop rdrop ;
 
-: answord ( "name wordset pronounciation" -- )
-    \ check the documentaion of an ans word
-    name { D: wordname }
-    name { D: wordset }
-    name { D: pronounciation }
+: checkword {: D: wordname D: wordset D: pronounciation -- :}
     wordname documentation search-wordlist
     if
 	execute { doc }
@@ -343,3 +339,23 @@ create docline doclinelength chars allot
     else
 	." undocumented: " wordname type cr
     endif ;
+
+: answord ( "name wordset pronounciation" -- )
+    \ check the documentaion of an ans word
+    parse-name parse-name parse-name checkword ;
+
+: input-stream-checkwords ( -- )
+    \ the input stream consists of tab-separated records, one record per line
+    begin
+        #tab parse {: D: section :}
+        #tab parse {: D: name :}
+        #tab parse dup if 1 /string 1- else name then {: D: pronounciation :}
+        #tab parse {: D: wordset :}
+        name wordset pronounciation checkword
+        \ cr ." answord " name type ." |" wordset type ." |" pronounciation type
+    refill 0= until ;
+
+: file-checkwords ( c-addr u -- )
+    \ check all the words in the file named c-addr u
+    \ The file is tab-separated: section name "pronounciation" wordset
+    r/o open-file throw ['] input-stream-checkwords execute-parsing-file ;
