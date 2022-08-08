@@ -155,7 +155,8 @@ $10 buffer: thisline#
 	2dup lastline<>  IF
 	    end^ 2@ hist-setpos
 	    history
-	    ?dup-IF  write-line drop \ don't worry about errors
+	    ?dup-IF  write-line drop
+		history flush-file drop \ don't worry about errors
 	    ELSE  2drop  THEN
 	    hist-pos 2dup backward^ 2! end^ 2!
 	    EXIT
