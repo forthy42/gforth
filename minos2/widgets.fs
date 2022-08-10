@@ -263,7 +263,8 @@ object class
     \G setter for the value behind the widget
     method show-you ( -- ) \ minos2
     \G make widget visible
-end-class actor
+end-class actor ( -- class ) \ minos2
+\G class for the actions bound to a component.
 
 object class
     method hglue!@
@@ -302,47 +303,72 @@ object class
     \G pointer to parent widget
     value: act ( -- optr ) \ minos2
     \G pointer to actor
-    $value: name$ ( -- addr u ) \ minos2
+    $value: name$ ( -- addr u ) \ minos2 name-string
     \G Widget name for debugging and searching
-    sfvalue: x
-    sfvalue: y
-    sfvalue: w
-    sfvalue: h \ above baseline
-    sfvalue: d \ below baseline
-    sfvalue: gap       \ gap between lines
-    sfvalue: baseline  \ minimun skip per line
-    sfvalue: kerning   \ add kerning
-    sfvalue: raise     \ raise/lower box
-    sfvalue: border    \ surrounding border, all directions
-    sfvalue: borderv   \ vertical border offset
-    sfvalue: bordert   \ top border offset
-    sfvalue: borderl   \ left border offset
-    sfvalue: w-color   \ widget color (if any)
-    method draw-init ( -- )
-    \ init draw
-    method draw ( -- )
-    \ draw
-    method split ( firstflag rstart1 rx -- o rstart2 )
-    method lastfit ( -- )
-    method hglue ( -- rtyp rsub radd )
-    method dglue ( -- rtyp rsub radd )
-    method vglue ( -- rtyp rsub radd )
-    method hglue@ ( -- rtyp rsub radd )
-    \ cached variant
-    method dglue@ ( -- rtyp rsub radd )
-    \ cached variant
-    method vglue@ ( -- rtyp rsub radd )
-    \ cached variant
-    method xywh ( -- rx0 ry0 rw rh )
-    method xywhd ( -- rx ry rw rh rd )
-    method resize ( rx ry rw rh rd -- )
-    method !size ( -- )
-    \ set your own size
-    method dispose-widget ( -- )
-    \ get rid of a widget
-    method .widget
-    method par-split ( w -- )
-end-class widget
+    sfvalue: x ( -- r ) \ minos2
+    \G widget x coordinate
+    sfvalue: y ( -- r ) \ minos2
+    \G widget y coordinate
+    sfvalue: w ( -- r ) \ minos2
+    \G widget width
+    sfvalue: h ( -- r ) \ minos2
+    \G widget height above baseline
+    sfvalue: d ( -- r ) \ minos2
+    \G widget depth below baseline
+    sfvalue: gap ( -- r ) \ minos2
+    \G gap between lines
+    sfvalue: baseline ( -- r ) \ minos2
+    \G minimun skip per line
+    sfvalue: kerning ( -- r ) \ minos2
+    \G add kerning
+    sfvalue: raise ( -- r ) \ minos2
+    \G raise/lower box
+    sfvalue: border ( -- r ) \ minos2
+    \G surrounding border, all directions
+    sfvalue: borderv ( -- r ) \ minos2
+    \G vertical border offset
+    sfvalue: bordert ( -- r ) \ minos2
+    \G top border offset
+    sfvalue: borderl ( -- r ) \ minos2
+    \G left border offset
+    sfvalue: w-color ( -- r ) \ minos2
+    \G widget color index (into color map), if any
+    method draw-init ( -- ) \ minos2
+    \G init draw
+    method draw ( -- ) \ minos2
+    \G draw widget
+    method split ( firstflag rstart1 rx -- o rstart2 ) \ minos2
+    \G split a widget into parts for typesetting paragraphs
+    method lastfit ( -- ) \ minos2
+    \G fit last widget element in a box
+    method hglue ( -- rtyp rsub radd ) \ minos2
+    \G calculate horizontal glue
+    method dglue ( -- rtyp rsub radd ) \ minos2
+    \G calculate vertical glue below baseline
+    method vglue ( -- rtyp rsub radd ) \ minos2
+    \G calculate vertical glue above baseline
+    method hglue@ ( -- rtyp rsub radd ) \ minos2 hglue-fetch
+    \G cached variant of @code{hglue}
+    method dglue@ ( -- rtyp rsub radd ) \ minos2 dglue-fetch
+    \G cached variant of @code{dglue}
+    method vglue@ ( -- rtyp rsub radd ) \ minos2 vglue-fetch
+    \G cached variant of @code{vglue}
+    method xywh ( -- rx0 ry0 rw rh ) \ minos2
+    \G widget bounding box, starting at the top left corner
+    method xywhd ( -- rx ry rw rh rd ) \ minos2
+    \G widget bounding box, starting at the left baseline point
+    method resize ( rx ry rw rh rd -- ) \ minos2
+    \G resize a widget
+    method !size ( -- ) \ minos2 store-size
+    \G let the widget self-determine its size
+    method dispose-widget ( -- ) \ minos2
+    \G get rid of a widget
+    method .widget ( -- ) \ minos2 print-widget
+    \G debugging: Print informations about the widget
+    method par-split ( rw -- ) \ minos2
+    \G split a paragraph by width @var{rw}
+end-class widget ( -- class ) \ minos2
+\G class for visual components
 
 0 Value w.indent#
 

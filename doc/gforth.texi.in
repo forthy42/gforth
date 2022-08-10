@@ -18005,11 +18005,12 @@ cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 @section MINOS2 object framework
 
 MINOS2 is a GUI library, written in @file{mini-oof2.fs}'s object model.
-It has two class hierarchies:
+It has two main class hierarchies:
 
-@code{widget} for visual components
+doc-actor
+doc-widget
 
-@code{actor} for the actions bound to a component.
+@subsection @code{actor} methods:
 
 doc-caller-w
 doc-active-w
@@ -18030,6 +18031,43 @@ doc-hide
 doc-get
 doc-set
 doc-show-you
+
+@subsection @code{widget} methods:
+
+doc-parent-w
+doc-act
+doc-name$
+doc-x
+doc-y
+doc-w
+doc-h
+doc-d
+doc-gap
+doc-baseline
+doc-kerning
+doc-raise
+doc-border
+doc-borderv
+doc-bordert
+doc-borderl
+doc-w-color
+doc-draw-init
+doc-draw
+doc-split
+doc-lastfit
+doc-hglue
+doc-dglue
+doc-vglue
+doc-hglue@
+doc-dglue@
+doc-vglue@
+doc-xywh
+doc-xywhd
+doc-resize
+doc-!size
+doc-dispose-widget
+doc-.widget
+doc-par-split
 
 Components are composed using a boxes&glue model similar to @LaTeX{},
 including paragraph breaking.  For the sake of simplicity and
