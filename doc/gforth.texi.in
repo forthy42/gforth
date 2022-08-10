@@ -18004,12 +18004,18 @@ cell 2 = [IF] &32 [ELSE] &256 [THEN] KB DefaultValue kernel-size
 @node MINOS2 object framework, MINOS2 tutorial, MINOS2, MINOS2
 @section MINOS2 object framework
 
+@menu
+* actor methods::
+* widget methods::
+@end menu
+
 MINOS2 is a GUI library, written in @file{mini-oof2.fs}'s object model.
 It has two main class hierarchies:
 
 doc-actor
 doc-widget
 
+@node actor methods, widget methods, MINOS2, MINOS2
 @subsection @code{actor} methods:
 
 doc-caller-w
@@ -18032,6 +18038,7 @@ doc-get
 doc-set
 doc-show-you
 
+@node widget methods, , MINOS2, MINOS2
 @subsection @code{widget} methods:
 
 doc-parent-w
@@ -18063,7 +18070,7 @@ doc-dglue@
 doc-vglue@
 doc-xywh
 doc-xywhd
-doc-resize
+doc-!resize
 doc-!size
 doc-dispose-widget
 doc-.widget

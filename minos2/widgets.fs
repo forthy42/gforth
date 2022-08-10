@@ -227,7 +227,7 @@ object class
     \G pointer back to the widget embedding the actor
     value: active-w ( -- optr ) \ minos2
     \G pointer to the active subwidget embedding the actor
-    value: act-name$ ( -- addr u ) \ minos2
+    value: act-name$ ( -- addr u ) \ minos2 act-name-string
     \G Debugging aid: name of the actor
     method clicked ( rx ry bmask n -- ) \ minos2
     \G processed clicks
@@ -243,7 +243,7 @@ object class
     \G key event, string of printable unicode characters
     method ekeyed ( ekey -- ) \ minos2
     \G key event, non-printable key
-    method ?inside ( rx ry -- act / 0 ) \ minos2
+    method ?inside ( rx ry -- act / 0 ) \ minos2 query-inside
     \G check if coordinates are inside the widget
     method focus ( -- ) \ minos2
     \G put widget into focus
@@ -357,7 +357,7 @@ object class
     \G widget bounding box, starting at the top left corner
     method xywhd ( -- rx ry rw rh rd ) \ minos2
     \G widget bounding box, starting at the left baseline point
-    method resize ( rx ry rw rh rd -- ) \ minos2
+    method !resize ( rx ry rw rh rd -- ) \ minos2 store-resize
     \G resize a widget
     method !size ( -- ) \ minos2 store-size
     \G let the widget self-determine its size
@@ -402,7 +402,7 @@ end-class widget ( -- class ) \ minos2
 : widget-resize ( x y w h d -- )
     to d to h to w to y to x
     resize( w.indent# spaces name$ type ." : " x f. y f. w f. h f. d f. cr ) ;
-' widget-resize widget is resize
+' widget-resize widget is !resize
 ' hglue widget is hglue@
 ' vglue widget is vglue@
 ' dglue widget is dglue@
@@ -1087,7 +1087,7 @@ end-class box
 
 :noname ( -- )
     parent-w ?dup-IF  .resized \ upwards
-    ELSE  !size xywhd resize     \ downwards
+    ELSE  !size xywhd !resize     \ downwards
     THEN ;
 dup widget is resized
 box is resized
@@ -1266,7 +1266,7 @@ htab-glue is hglue!@
 	THEN
     THEN ;
 
-: hbox-resize1 { f: y f: h f: d -- y h d } x y w h d resize
+: hbox-resize1 { f: y f: h f: d -- y h d } x y w h d !resize
 \    ." hchild resized: " x f. y f. w f. h f. d f. cr
     y h d ;
 : hbox-resize { f: x f: y f: w f: h f: d -- }
@@ -1282,13 +1282,13 @@ htab-glue is hglue!@
 \    ." hbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
-' hbox-resize hbox is resize
+' hbox-resize hbox is !resize
 
 : re-glue ( -- w h d )
     hglue fdrop fdrop  vglue fdrop fdrop  dglue fdrop fdrop ;
 : par-init ( -- )
     \ set paragraph to maximum horizontal extent
-    !size xywhd resize ;
+    !size xywhd !resize ;
 
 1e-10 FConstant split-fudge
 
@@ -1356,7 +1356,7 @@ htab-glue is hglue!@
 : vglue-step ( gp/a rd rg ry od flag -- gp/a rd' rg' ry' od flag' )
     vglue-step-h vglue-step-d true ;
 
-: vbox-resize1 { f: x f: w -- x w } x y w h d resize
+: vbox-resize1 { f: x f: w -- x w } x y w h d !resize
 \    ." vchild resized: " x f. y f. w f. h f. d f. cr
     x w ;
 : vbox-resize { f: x f: y f: w f: h f: d -- }
@@ -1377,10 +1377,10 @@ htab-glue is hglue!@
 \    ." vbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
-' vbox-resize vbox is resize
+' vbox-resize vbox is !resize
 
 : zbox-resize1 { f: x f: y f: w f: h f: d -- x y w h d }
-    x y w h d resize
+    x y w h d !resize
 \    ." zchild resized: " x f. y f. w f. h f. d f. cr
     x y w h d ;
 
@@ -1395,7 +1395,7 @@ htab-glue is hglue!@
 \    ." zbox sized to: " x f. y f. w f. h f. d f. cr
 ;
 
-' zbox-resize zbox is resize
+' zbox-resize zbox is !resize
 
 \ parbox
 
@@ -1505,8 +1505,8 @@ end-class viewport
 : vp-right ( o:vp -- )  vp-w w f- fround to vp-x ;
 
 : vp-reslide ( o:vp -- )
-    vp-hslider ?dup-IF  .parent-w >o !size xywhd resize o>  THEN
-    vp-vslider ?dup-IF  .parent-w >o !size xywhd resize o>  THEN ;
+    vp-hslider ?dup-IF  .parent-w >o !size xywhd !resize o>  THEN
+    vp-vslider ?dup-IF  .parent-w >o !size xywhd !resize o>  THEN ;
 
 $10 stack: vp<>
 
@@ -1641,7 +1641,7 @@ $10 stack: vp<>
     0e vp-h vp-w vp-h 0e vbox-resize
     x y w h d widget-resize
     vp-need @ [ ' +resize >body @ ]L invert and vp-need !
-; viewport is resize
+; viewport is !resize
 :noname ( -- glue )
     box-flags vp-hfix# and IF  [ vbox :: hglue ]
     ELSE  vp-glue .hglue >hglue!@  THEN
@@ -1767,9 +1767,9 @@ require animation.fs
 : htop-resize ( -- )
     +resizeall
     tabglues0
-    !size 0e 1e dh* 1e dw* 1e dh* 0e resize
+    !size 0e 1e dh* 1e dw* 1e dh* 0e !resize
     tabglues= 0= IF
-	!size 0e 1e dh* 1e dw* 1e dh* 0e resize
+	!size 0e 1e dh* 1e dw* 1e dh* 0e !resize
     THEN
     -resizeall
     [IFDEF] ?sync-update
