@@ -18015,7 +18015,7 @@ It has two main class hierarchies:
 doc-actor
 doc-widget
 
-@node actor methods, widget methods, MINOS2, MINOS2
+@node actor methods, widget methods, MINOS2 object framework, MINOS2 object framework
 @subsection @code{actor} methods:
 
 doc-caller-w
@@ -18038,7 +18038,7 @@ doc-get
 doc-set
 doc-show-you
 
-@node widget methods, , MINOS2, MINOS2
+@node widget methods, , actor methods, MINOS2 object framework
 @subsection @code{widget} methods:
 
 doc-parent-w
