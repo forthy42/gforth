@@ -18085,6 +18085,8 @@ MINOS2 furthermore supports animations with the @code{animation} class.
 A color index texture is used for different color schemes, and
 transition between neighboring schemes can also be animated.
 
+doc->animate
+
 @node MINOS2 tutorial,  , MINOS2 object framework, MINOS2
 @section MINOS2 tutorial
 

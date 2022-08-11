@@ -33,7 +33,10 @@ end-class animation
     animation new >o to ani-start to ani-delta is animate to ani-addr o o> ;
 : new-anim ( rdelta addr xt -- o )
     ftime new-anim-time ;
-: >animate ( rdelta addr xt -- )
+: >animate ( rdelta addr xt -- ) \ minos2 to-animate
+    \G create a new animation, calling @var{xt} with stack effect
+    \G @code{( addr r0..1 -- )} repeatedly, until the @var{rdelta} timeout
+    \G expired; last call is always with argument @var{1e} for the time.
     new-anim anims[] >stack ;
 
 : anim-t ( time -- r0..1 flag ) ani-start f- ani-delta fabs f/
