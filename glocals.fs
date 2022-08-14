@@ -427,7 +427,7 @@ previous
     val-part off
     0 postpone [ ; immediate
 
-synonym {: { ( -- hmaddr u latest latestnt wid 0 ) \ forth-2012 open-brace-colon
+synonym {: { ( -- hmaddr u latest latestnt wid 0 ) \ local-ext brace-colon
 \G Start standard locals declaration.  All Gforth locals extensions are
 \G supported by Gforth, though the standard only supports the subset of cells.
 

@@ -75,11 +75,13 @@ UNLOCK Tlast @ swap Tlast ! LOCK
 
 \ Interpretative Structuren                            30apr92py
 
-: [defined] ( "<spaces>name" -- flag )   parse-name find-name 0<> ; immediate
-  \G returns true if name is found in current search order
+: [defined] ( "<spaces>name" -- flag ) \ tools-ext bracket-defined
+    \G returns true if name is found in current search order
+       parse-name find-name 0<> ; immediate
 ' [defined] alias defined immediate
-: [undefined] ( "<spaces>name" -- flag ) postpone [defined] 0= ; immediate
-  \G returns false if name is found in current search order
+: [undefined] ( "<spaces>name" -- flag ) \ tools-ext bracket-undefined
+    \G returns false if name is found in current search order
+     postpone [defined] 0= ; immediate
 
 : scanif ( -- )
     countif off endif? off  current-sourcepos3 >r >r >r

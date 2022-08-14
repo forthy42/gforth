@@ -330,7 +330,7 @@ set-current
 		ekey-buffer $@ unkeys key     then
 	    clear-ekey-buffer
 	then ;
-    : xkey? ( -- flag )
+    : xkey? ( -- flag ) \ xchar x-key-query
 	key? dup if
 	    drop key read-xkey ekey-buffer $@ unkeys
 	    clear-ekey-buffer  then ;

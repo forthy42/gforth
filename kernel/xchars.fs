@@ -27,7 +27,7 @@ user-o xc-vector
 0 0
 umethod xemit ( xc -- ) \ xchar-ext
 \G Prints an xchar on the terminal.
-umethod xkey ( -- xc ) \ xchar-ext
+umethod xkey ( -- xc ) \ xchar-ext x-key
 \G Reads an xchar from the terminal. This will discard all input
 \G events up to the completion of the xchar.
 umethod xchar+ ( xc-addr1 -- xc-addr2 ) \ xchar-ext
@@ -42,7 +42,7 @@ umethod +x/string ( xc-addr1 u1 -- xc-addr2 u2 ) \ xchar	plus-x-slash-string
 \G @var{xc-addr1}, size @var{u1} chars. @var{xc-addr2} is the address
 \G and u2 the size in chars of the remaining buffer after stepping
 \G over the first xchar in the buffer.
-umethod x\string- ( xc-addr u1 -- xc-addr u2 ) \ xchar	x-back-string-minus
+umethod x\string- ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext x-backslash-string-minus
 \G Step backward by one xchar in the buffer defined by address
 \G @var{xc-addr} and size @var{u1} in chars, starting at the end of
 \G the buffer. @var{xc-addr} is the address and @var{u2} the size in

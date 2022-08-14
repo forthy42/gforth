@@ -618,7 +618,7 @@ end-struct buffer%
     2dup x-size u< #-16 and throw
     xc@ ;
 
-: [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core bracket-char
+: [char] ( compilation '<spaces>ccc' -- ; run-time -- c ) \ core,xchar-ext bracket-char
     \G Compilation: skip leading spaces. Parse the string
     \G @i{ccc}. Run-time: return @i{c}, the display code
     \G representing the first character of @i{ccc}.  Interpretation

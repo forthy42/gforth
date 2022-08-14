@@ -344,13 +344,20 @@ create docline doclinelength chars allot
     \ check the documentaion of an ans word
     parse-name parse-name parse-name checkword ;
 
+: hyphenate ( c-addr u -- )
+    \ replace spaces with hyphens
+    bounds ?do
+        i c@ bl = if '-' i c! then
+    loop ;
+
 : input-stream-checkwords ( -- )
     \ the input stream consists of tab-separated records, one record per line
     begin
-        #tab parse {: D: section :}
-        #tab parse {: D: name :}
-        #tab parse dup if 1 /string 1- else name then {: D: pronounciation :}
-        #tab parse {: D: wordset :}
+        #tab parse save-mem {: D: section :}
+        #tab parse save-mem {: D: name :}
+        #tab parse dup if 1 /string 1- save-mem else name then
+           {: D: pronounciation :}
+        #tab parse save-mem 2dup hyphenate {: D: wordset :}
         name wordset pronounciation checkword
         \ cr ." answord " name type ." |" wordset type ." |" pronounciation type
     refill 0= until ;
