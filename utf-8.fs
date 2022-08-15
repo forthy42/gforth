@@ -262,12 +262,12 @@ here wc-table - Constant #wc-table
 
 \ inefficient table walk:
 
-: xc-width ( xc -- n )
+: xc-width ( xc -- n ) \ xchar-ext x-c-width
     wc-table #wc-table bounds ?DO
 	dup I 2@ within IF  I 2 cells + @  UNLOOP EXIT  THEN
     3 cells +LOOP  1 ;
 [ELSE]
-    ' wcwidth Alias xc-width
+    ' wcwidth Alias xc-width ( xc -- n ) \ xchar-ext x-c-width
 [THEN]
 
 : xc-width+ ( n xc -- n' )

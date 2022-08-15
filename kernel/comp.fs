@@ -72,7 +72,7 @@
 \ : faligned ( addr -- f-addr ) \ float f-aligned
 \     [ 1 floats 1- ] Literal + [ -1 floats ] Literal and ; 
 
-: falign ( -- ) \ float f-align
+: falign ( -- ) \ floating f-align
     \G If the data-space pointer is not float-aligned, reserve
     \G enough space to align it.
     here dup faligned >align ;
@@ -465,7 +465,7 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
 : alias? ( nt -- flag )
     >namehm @ >hm>int 2@ ['] a>comp ['] a>int d= ;
 
-: Synonym ( "name" "oldname" -- ) \ Forth200x
+: Synonym ( "name" "oldname" -- ) \ tools-ext
     ['] parser create-from
     ?parse-name find-name dup 0= #-13 and throw
     dup compile-only? IF  compile-only  THEN
@@ -477,7 +477,7 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
 : Create ( "name" -- ) \ core
     ['] udp create-from reveal ;
 
-: buffer: ( u "name" -- ) \ core ext
+: buffer: ( u "name" -- ) \ core-ext buffer-colon
     Create here over 0 fill allot ;
 
 : Variable ( "name" -- ) \ core
@@ -537,7 +537,7 @@ defer defer-default ( -- )
 ' abort is defer-default
 \ default action for deferred words (overridden by a warning later)
 
-: Defer ( "name" -- ) \ gforth
+: Defer ( "name" -- ) \ core-ext
 \G Define a deferred word @i{name}; its execution semantics can be
 \G set with @code{defer!} or @code{is} (and they have to, before first
 \G executing @i{name}.
@@ -716,7 +716,7 @@ Create hmtemplate
 \g represents @i{name}; this word generates code with stack effect (
 \g -- xt1 ), where xt1 is the result of xt @code{defer@}.
 
-' (to) Alias defer! ( xt xt-deferred -- ) \ gforth  defer-store
+' (to) Alias defer! ( xt xt-deferred -- ) \ core-ext  defer-store
 ' (to) Alias reveal! ( xt wid -- ) \ gforth reveal!
 ' >hmto Alias reveal-method ( wid -- field ) \ gforth reveal-method
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.

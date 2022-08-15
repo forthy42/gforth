@@ -109,7 +109,7 @@ create \-escape-table
 
 :noname \"-parse save-mem ;
 :noname \"-parse save-mem 2dup postpone sliteral drop free throw ;
-interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ gforth	s-backslash-quote
+interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core-ext,file-ext s-backslash-quote
 \G Like @code{S"}, but translates C-like \-escape-sequences, as follows:
 \G @code{\a} BEL (alert), @code{\b} BS, @code{\e} ESC (not in C99), @code{\f}
 \G FF, @code{\n} newline, @code{\r} CR, @code{\t} HT, @code{\v} VT, @code{\"}

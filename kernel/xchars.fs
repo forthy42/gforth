@@ -25,19 +25,19 @@
 
 user-o xc-vector
 0 0
-umethod xemit ( xc -- ) \ xchar-ext
+umethod xemit ( xc -- ) \ xchar x-emit
 \G Prints an xchar on the terminal.
-umethod xkey ( -- xc ) \ xchar-ext x-key
+umethod xkey ( -- xc ) \ xchar x-key
 \G Reads an xchar from the terminal. This will discard all input
 \G events up to the completion of the xchar.
-umethod xchar+ ( xc-addr1 -- xc-addr2 ) \ xchar-ext
+umethod xchar+ ( xc-addr1 -- xc-addr2 ) \ xchar x-char-plus
 \G Adds the size of the xchar stored at @var{xc-addr1} to this address,
 \G giving @var{xc-addr2}.
-umethod xchar- ( xc-addr1 -- xc-addr2 ) \ xchar-ext
+umethod xchar- ( xc-addr1 -- xc-addr2 ) \ xchar-ext x-char-minus
 \G Goes backward from @var{xc_addr1} until it finds an xchar so that
 \G the size of this xchar added to @var{xc_addr2} gives
 \G @var{xc_addr1}.
-umethod +x/string ( xc-addr1 u1 -- xc-addr2 u2 ) \ xchar	plus-x-slash-string
+umethod +x/string ( xc-addr1 u1 -- xc-addr2 u2 ) \ xchar-ext plus-x-slash-string
 \G Step forward by one xchar in the buffer defined by address
 \G @var{xc-addr1}, size @var{u1} chars. @var{xc-addr2} is the address
 \G and u2 the size in chars of the remaining buffer after stepping
@@ -50,10 +50,10 @@ umethod x\string- ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext x-backslash-string-mi
 \G last xchar in the buffer.
 umethod xc@ ( xc-addr -- xc ) \ xchar-ext	xc-fetch
 \G Fetchs the xchar @var{xc} at @var{xc-addr1}.
-umethod xc!+ ( xc xc-addr1 -- xc-addr2 ) \ xchar-ext	xc-store
+umethod xc!+ ( xc xc-addr1 -- xc-addr2 ) \ xchar	x-c-store
 \G Stores the xchar @var{xc} at @var{xc-addr1}. @var{xc-addr2} is the next
 \G unused address in the buffer.
-umethod xc!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ xchar-ext	xc-store-plus-query
+umethod xc!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ xchar x-c-store-plus-query
 \G Stores the xchar @var{xc} into the buffer starting at address
 \G @var{xc-addr1}, @var{u1} chars large. @var{xc-addr2} points to the
 \G first memory location after @var{xc}, @var{u2} is the remaining
@@ -61,10 +61,10 @@ umethod xc!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ xchar-ext	xc-store-plus-quer
 \G @var{f} is true, otherwise @var{f} is false, and @var{xc-addr2}
 \G @var{u2} equal @var{xc-addr1} @var{u1}. XC!+?  is safe for buffer
 \G overflows, and therefore preferred over XC!+.
-umethod xc@+ ( xc-addr1 -- xc-addr2 xc ) \ xchar-ext	xc-fetch-plus
+umethod xc@+ ( xc-addr1 -- xc-addr2 xc ) \ xchar	x-c-fetch-plus
 \G Fetchs the xchar @var{xc} at @var{xc-addr1}. @var{xc-addr2} points
 \G to the first memory location after @var{xc}.
-umethod xc-size ( xc -- u ) \ xchar-ext
+umethod xc-size ( xc -- u ) \ xchar x-c-size
 \G Computes the memory size of the xchar @var{xc} in chars.
 umethod x-size ( xc-addr u1 -- u2 ) \ xchar
 \G Computes the memory size of the first xchar stored at @var{xc-addr}
@@ -75,7 +75,7 @@ umethod x-width ( xc-addr u -- n ) \ xchar-ext
 \G using @var{u} chars; assuming a monospaced display font,
 \G i.e. char width is always an integer multiple of the width of an
 \G ASCII char.
-umethod -trailing-garbage ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext
+umethod -trailing-garbage ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext minus-trailing-garbage
 \G Examine the last XCHAR in the buffer @var{xc-addr} @var{u1}---if
 \G the encoding is correct and it repesents a full char, @var{u2}
 \G equals @var{u1}, otherwise, @var{u2} represents the string without
@@ -89,12 +89,13 @@ umethod -trailing-garbage ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext
     over >r +x/string
     r> xc@ ;
 
-: xhold ( xc -- )
+: xhold ( xc -- ) \ xchar-ext x-hold
     \G Used between @code{<<#} and @code{#>}. Prepend @var{xc} to the
-    \G pictured numeric output string.
+    \G pictured numeric output string.  Alternatively, use @code{holds}.
     dup xc-size dup +hold swap xc!+? 2drop drop ;
 
-: xc, ( xchar -- ) here unused xc!+? 2drop ->here ;
+: xc, ( xchar -- ) \ xchar x-c-comma
+    here unused xc!+? 2drop ->here ;
 
 \ fixed-size versions of these words
 

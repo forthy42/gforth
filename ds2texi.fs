@@ -148,8 +148,8 @@ true  constant exception
 true  constant facility
 true  constant facility-ext
 true  constant file
-true  constant float
-true  constant float-ext
+true  constant floating
+true  constant floating-ext
 true  constant local
 true  constant local-ext
 true  constant search

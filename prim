@@ -1971,7 +1971,7 @@ a_addr = (Cell *)((((Cell)c_addr)+(sizeof(Cell)-1))&(-sizeof(Cell)));
 :
  [ cell 1- ] Literal + [ -1 cells ] Literal and ;
 
-faligned	( c_addr -- f_addr )	float	f_aligned
+faligned	( c_addr -- f_addr )	floating	f_aligned
 "" @i{f-addr} is the first float-aligned address greater than or equal to @i{c-addr}.""
 f_addr = (Float *)((((Cell)c_addr)+(sizeof(Float)-1))&(-sizeof(Float)));
 :
@@ -2495,13 +2495,13 @@ if(nsec >= 0) {
 
 \g floating
 
-comparisons(f, r1 r2, f_, r1, r2, gforth, gforth, float, gforth)
-comparisons(f0, r, f_zero_, r, 0., float, gforth, float, gforth)
+comparisons(f, r1 r2, f_, r1, r2, gforth, gforth, floating, gforth)
+comparisons(f0, r, f_zero_, r, 0., floating, gforth, floating, gforth)
 
-s>f	( n -- r )		float	s_to_f
+s>f	( n -- r )		floating-ext	s_to_f
 r = n;
 
-d>f	( d -- r )		float	d_to_f
+d>f	( d -- r )		floating	d_to_f
 #ifdef BUGGY_LL_D2F
 extern double ldexp(double x, int exp);
 if (DHI(d)<0) {
@@ -2517,22 +2517,22 @@ if (DHI(d)<0) {
 r = d;
 #endif
 
-f>d	( r -- d )		float	f_to_d
+f>d	( r -- d )		floating	f_to_d
 extern DCell double2ll(Float r);
 d = double2ll(r);
 
-f>s	( r -- n )		float	f_to_s
+f>s	( r -- n )		floating-ext	f_to_s
 n = (Cell)r;
 
-f!	( r f_addr -- )	float	f_store
+f!	( r f_addr -- )	floating	f_store
 ""Store @i{r} into the float at address @i{f-addr}.""
 *f_addr = r;
 
-f@	( f_addr -- r )	float	f_fetch
+f@	( f_addr -- r )	floating	f_fetch
 ""@i{r} is the float at address @i{f-addr}.""
 r = *f_addr;
 
-df@	( df_addr -- r )	float-ext	d_f_fetch
+df@	( df_addr -- r )	floating-ext	d_f_fetch
 ""Fetch the double-precision IEEE floating-point value @i{r} from the address @i{df-addr}.""
 #ifdef IEEE_FP
 r = *df_addr;
@@ -2540,7 +2540,7 @@ r = *df_addr;
 !! df@
 #endif
 
-df!	( r df_addr -- )	float-ext	d_f_store
+df!	( r df_addr -- )	floating-ext	d_f_store
 ""Store @i{r} as double-precision IEEE floating-point value to the
 address @i{df-addr}.""
 #ifdef IEEE_FP
@@ -2549,7 +2549,7 @@ address @i{df-addr}.""
 !! df!
 #endif
 
-sf@	( sf_addr -- r )	float-ext	s_f_fetch
+sf@	( sf_addr -- r )	floating-ext	s_f_fetch
 ""Fetch the single-precision IEEE floating-point value @i{r} from the address @i{sf-addr}.""
 #ifdef IEEE_FP
 r = *sf_addr;
@@ -2557,7 +2557,7 @@ r = *sf_addr;
 !! sf@
 #endif
 
-sf!	( r sf_addr -- )	float-ext	s_f_store
+sf!	( r sf_addr -- )	floating-ext	s_f_store
 ""Store @i{r} as single-precision IEEE floating-point value to the
 address @i{sf-addr}.""
 #ifdef IEEE_FP
@@ -2566,19 +2566,19 @@ address @i{sf-addr}.""
 !! sf!
 #endif
 
-f+	( r1 r2 -- r3 )	float	f_plus
+f+	( r1 r2 -- r3 )	floating	f_plus
 r3 = r1+r2;
 
-f-	( r1 r2 -- r3 )	float	f_minus
+f-	( r1 r2 -- r3 )	floating	f_minus
 r3 = r1-r2;
 
-f*	( r1 r2 -- r3 )	float	f_star
+f*	( r1 r2 -- r3 )	floating	f_star
 r3 = r1*r2;
 
-f/	( r1 r2 -- r3 )	float	f_slash
+f/	( r1 r2 -- r3 )	floating	f_slash
 r3 = r1/r2;
 
-f**	( r1 r2 -- r3 )	float-ext	f_star_star
+f**	( r1 r2 -- r3 )	floating-ext	f_star_star
 ""@i{r3} is @i{r1} raised to the @i{r2}th power.""
 CLOBBER_TOS_WORKAROUND_START;
 r3 = pow(r1,r2);
@@ -2596,58 +2596,58 @@ r2 = (r1*n1)/n2;
 f**2	( r1 -- r2 )	gforth	fm_square
 r2 = r1*r1;
 
-fnegate	( r1 -- r2 )	float	f_negate
+fnegate	( r1 -- r2 )	floating	f_negate
 r2 = - r1;
 
-fdrop	( r -- )		float	f_drop
+fdrop	( r -- )		floating	f_drop
 ALIVE_DEBUGGING(r);
 
-fdup	( r -- r r )	float	f_dupe
+fdup	( r -- r r )	floating	f_dupe
 
-fswap	( r1 r2 -- r2 r1 )	float	f_swap
+fswap	( r1 r2 -- r2 r1 )	floating	f_swap
 
-fover	( r1 r2 -- r1 r2 r1 )	float	f_over
+fover	( r1 r2 -- r1 r2 r1 )	floating	f_over
 
-frot	( r1 r2 r3 -- r2 r3 r1 )	float	f_rote
+frot	( r1 r2 r3 -- r2 r3 r1 )	floating	f_rote
 
 fnip	( r1 r2 -- r2 )	gforth	f_nip
 
 ftuck	( r1 r2 -- r2 r1 r2 )	gforth	f_tuck
 
-float+	( f_addr1 -- f_addr2 )	float	float_plus
+float+	( f_addr1 -- f_addr2 )	floating	float_plus
 ""@code{1 floats +}.""
 f_addr2 = f_addr1+1;
 
-floats	( n1 -- n2 )	float
+floats	( n1 -- n2 )	floating
 ""@i{n2} is the number of address units of @i{n1} floats.""
 n2 = n1*sizeof(Float);
 
-floor	( r1 -- r2 )	float
+floor	( r1 -- r2 )	floating
 ""Round towards the next smaller integral value, i.e., round toward negative infinity.""
 /* !! unclear wording */
 CLOBBER_TOS_WORKAROUND_START;
 r2 = floor(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-fround	( r1 -- r2 )	float	f_round
+fround	( r1 -- r2 )	floating	f_round
 ""Round to the nearest integral value.""
 CLOBBER_TOS_WORKAROUND_START;
 r2 = rint(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-fmax	( r1 r2 -- r3 )	float	f_max
+fmax	( r1 r2 -- r3 )	floating	f_max
 if (r1<r2)
   r3 = r2;
 else
   r3 = r1;
 
-fmin	( r1 r2 -- r3 )	float	f_min
+fmin	( r1 r2 -- r3 )	floating	f_min
 if (r1<r2)
   r3 = r1;
 else
   r3 = r2;
 
-represent	( r c_addr u -- n f1 f2 )	float
+represent	( r c_addr u -- n f1 f2 )	floating
 ""Convert the decimal significand (aka mantissa) of @i{r} into a
 string in buffer @i{c-addr u}; @i{n} is the exponent, @i{f1} is true
 if @i{r} is negative, and @i{f2} is true if @i{r} is valid (a finite
@@ -2682,7 +2682,7 @@ f1 = fs.n1;
 f2 = fs.n2;
 #endif
 
->float	( c_addr u -- f:... flag )	float	to_float
+>float	( c_addr u -- f:... flag )	floating	to_float
 ""Actual stack effect: ( c_addr u -- r t | f ).  Attempt to convert the
 character string @i{c-addr u} to internal floating-point
 representation. If the string represents a valid floating-point number,
@@ -2696,42 +2696,42 @@ if (flag) {
   fp[0]=r;
 }
 
-fabs	( r1 -- r2 )	float-ext	f_abs
+fabs	( r1 -- r2 )	floating-ext	f_abs
 r2 = fabs(r1);
 
-facos	( r1 -- r2 )	float-ext	f_a_cos
+facos	( r1 -- r2 )	floating-ext	f_a_cos
 CLOBBER_TOS_WORKAROUND_START;
 r2 = acos(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-fasin	( r1 -- r2 )	float-ext	f_a_sine
+fasin	( r1 -- r2 )	floating-ext	f_a_sine
 CLOBBER_TOS_WORKAROUND_START;
 r2 = asin(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-fatan	( r1 -- r2 )	float-ext	f_a_tan
+fatan	( r1 -- r2 )	floating-ext	f_a_tan
 CLOBBER_TOS_WORKAROUND_START;
 r2 = atan(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-fatan2	( r1 r2 -- r3 )	float-ext	f_a_tan_two
+fatan2	( r1 r2 -- r3 )	floating-ext	f_a_tan_two
 ""@i{r1/r2}=tan(@i{r3}). ANS Forth does not require, but probably
 intends this to be the inverse of @code{fsincos}. In gforth it is.""
 CLOBBER_TOS_WORKAROUND_START;
 r3 = atan2(r1,r2);
 CLOBBER_TOS_WORKAROUND_END;
 
-fcos	( r1 -- r2 )	float-ext	f_cos
+fcos	( r1 -- r2 )	floating-ext	f_cos
 CLOBBER_TOS_WORKAROUND_START;
 r2 = cos(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-fexp	( r1 -- r2 )	float-ext	f_e_x_p
+fexp	( r1 -- r2 )	floating-ext	f_e_x_p
 CLOBBER_TOS_WORKAROUND_START;
 r2 = exp(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-fexpm1	( r1 -- r2 )	float-ext	f_e_x_p_m_one
+fexpm1	( r1 -- r2 )	floating-ext	f_e_x_p_m_one
 ""@i{r2}=@i{e}**@i{r1}@minus{}1""
 #ifdef HAVE_EXPM1
 extern double
@@ -2746,12 +2746,12 @@ r2 = exp(r1)-1.;
 #endif
 CLOBBER_TOS_WORKAROUND_END;
 
-fln	( r1 -- r2 )	float-ext	f_l_n
+fln	( r1 -- r2 )	floating-ext	f_l_n
 CLOBBER_TOS_WORKAROUND_START;
 r2 = log(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-flnp1	( r1 -- r2 )	float-ext	f_l_n_p_one
+flnp1	( r1 -- r2 )	floating-ext	f_l_n_p_one
 ""@i{r2}=ln(@i{r1}+1)""
 #ifdef HAVE_LOG1P
 extern double
@@ -2766,78 +2766,78 @@ r2 = log(r1+1.);
 #endif
 CLOBBER_TOS_WORKAROUND_END;
 
-flog	( r1 -- r2 )	float-ext	f_log
+flog	( r1 -- r2 )	floating-ext	f_log
 ""The decimal logarithm.""
 CLOBBER_TOS_WORKAROUND_START;
 r2 = log10(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-falog	( r1 -- r2 )	float-ext	f_a_log
+falog	( r1 -- r2 )	floating-ext	f_a_log
 ""@i{r2}=10**@i{r1}""
 extern double exp10(double);
 CLOBBER_TOS_WORKAROUND_START;
 r2 = exp10(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-fsin	( r1 -- r2 )	float-ext	f_sine
+fsin	( r1 -- r2 )	floating-ext	f_sine
 CLOBBER_TOS_WORKAROUND_START;
 r2 = sin(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-fsincos	( r1 -- r2 r3 )	float-ext	f_sine_cos
+fsincos	( r1 -- r2 r3 )	floating-ext	f_sine_cos
 ""@i{r2}=sin(@i{r1}), @i{r3}=cos(@i{r1})""
 CLOBBER_TOS_WORKAROUND_START;
 sincos(r1, &r2, &r3);
 CLOBBER_TOS_WORKAROUND_END;
 
-fsqrt	( r1 -- r2 )	float-ext	f_square_root
+fsqrt	( r1 -- r2 )	floating-ext	f_square_root
 CLOBBER_TOS_WORKAROUND_START;
 r2 = sqrt(r1);
 CLOBBER_TOS_WORKAROUND_END;
 
-ftan	( r1 -- r2 )	float-ext	f_tan
+ftan	( r1 -- r2 )	floating-ext	f_tan
 CLOBBER_TOS_WORKAROUND_START;
 r2 = tan(r1);
 CLOBBER_TOS_WORKAROUND_END;
 :
  fsincos f/ ;
 
-fsinh	( r1 -- r2 )	float-ext	f_cinch
+fsinh	( r1 -- r2 )	floating-ext	f_cinch
 CLOBBER_TOS_WORKAROUND_START;
 r2 = sinh(r1);
 CLOBBER_TOS_WORKAROUND_END;
 :
  fexpm1 fdup fdup 1. d>f f+ f/ f+ f2/ ;
 
-fcosh	( r1 -- r2 )	float-ext	f_cosh
+fcosh	( r1 -- r2 )	floating-ext	f_cosh
 CLOBBER_TOS_WORKAROUND_START;
 r2 = cosh(r1);
 CLOBBER_TOS_WORKAROUND_END;
 :
  fexp fdup 1/f f+ f2/ ;
 
-ftanh	( r1 -- r2 )	float-ext	f_tan_h
+ftanh	( r1 -- r2 )	floating-ext	f_tan_h
 CLOBBER_TOS_WORKAROUND_START;
 r2 = tanh(r1);
 CLOBBER_TOS_WORKAROUND_END;
 :
  f2* fexpm1 fdup 2. d>f f+ f/ ;
 
-fasinh	( r1 -- r2 )	float-ext	f_a_cinch
+fasinh	( r1 -- r2 )	floating-ext	f_a_cinch
 CLOBBER_TOS_WORKAROUND_START;
 r2 = asinh(r1);
 CLOBBER_TOS_WORKAROUND_END;
 :
  fdup fdup f* 1. d>f f+ fsqrt f/ fatanh ;
 
-facosh	( r1 -- r2 )	float-ext	f_a_cosh
+facosh	( r1 -- r2 )	floating-ext	f_a_cosh
 CLOBBER_TOS_WORKAROUND_START;
 r2 = acosh(r1);
 CLOBBER_TOS_WORKAROUND_END;
 :
  fdup fdup f* 1. d>f f- fsqrt f+ fln ;
 
-fatanh	( r1 -- r2 )	float-ext	f_a_tan_h
+fatanh	( r1 -- r2 )	floating-ext	f_a_tan_h
 CLOBBER_TOS_WORKAROUND_START;
 r2 = atanh(r1);
 CLOBBER_TOS_WORKAROUND_END;
@@ -2845,24 +2845,24 @@ CLOBBER_TOS_WORKAROUND_END;
  fdup f0< >r fabs 1. d>f fover f- f/  f2* flnp1 f2/
  r> IF  fnegate  THEN ;
 
-sfloats	( n1 -- n2 )	float-ext	s_floats
+sfloats	( n1 -- n2 )	floating-ext	s_floats
 ""@i{n2} is the number of address units of @i{n1}
 single-precision IEEE floating-point numbers.""
 n2 = n1*sizeof(SFloat);
 
-dfloats	( n1 -- n2 )	float-ext	d_floats
+dfloats	( n1 -- n2 )	floating-ext	d_floats
 ""@i{n2} is the number of address units of @i{n1}
 double-precision IEEE floating-point numbers.""
 n2 = n1*sizeof(DFloat);
 
-sfaligned	( c_addr -- sf_addr )	float-ext	s_f_aligned
+sfaligned	( c_addr -- sf_addr )	floating-ext	s_f_aligned
 ""@i{sf-addr} is the first single-float-aligned address greater
 than or equal to @i{c-addr}.""
 sf_addr = (SFloat *)((((Cell)c_addr)+(sizeof(SFloat)-1))&(-sizeof(SFloat)));
 :
  [ 1 sfloats 1- ] Literal + [ -1 sfloats ] Literal and ;
 
-dfaligned	( c_addr -- df_addr )	float-ext	d_f_aligned
+dfaligned	( c_addr -- df_addr )	floating-ext	d_f_aligned
 ""@i{df-addr} is the first double-float-aligned address greater
 than or equal to @i{c-addr}.""
 df_addr = (DFloat *)((((Cell)c_addr)+(sizeof(DFloat)-1))&(-sizeof(DFloat)));
@@ -2911,7 +2911,7 @@ n2 = n1 / sizeof(DFloat);
 sfloat/ ( n1 -- n2 )	gforth	dfloat_divide
 n2 = n1 / sizeof(SFloat);
 
-f-rot	( r1 r2 r3 -- r3 r1 r2 )	float	f_not_rote
+f-rot	( r1 r2 r3 -- r3 r1 r2 )	floating	f_not_rote
 
 flit	( -- r1 )   gforth
 r1 = *(Float*)ip;

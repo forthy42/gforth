@@ -97,7 +97,7 @@ include  ./termsize.fs
 	    r@ over >r execute r> name>link
     REPEAT  drop rdrop ;
 
-: traverse-wordlist ( ... xt wid -- ... )
+: traverse-wordlist ( ... xt wid -- ... ) \ tools-ext
     \G perform @i{xt} ( ... nt -- f ... ) once for every word @i{nt}
     \G in the wordlist @i{wid}, until @i{f} is false or the wordlist
     \G is exhausted.  @i{xt} is free to use the stack underneath.

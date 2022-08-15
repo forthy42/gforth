@@ -91,7 +91,7 @@ require ./io.fs
 	# 2dup or 0=
     UNTIL ;
 
-: holds ( addr u -- )
+: holds ( addr u -- ) \ core-ext
     \G Used between @code{<<#} and @code{#>}. Prepend the string @code{addr u}
     \G to the pictured numeric output string.
     dup +hold swap move ;

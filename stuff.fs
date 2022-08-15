@@ -501,22 +501,22 @@ User theme-color  0 theme-color !
 
 \ multiple values to and from return stack
 
-: n>r ( x1 .. xn n -- r:xn..x1 r:n )
+: n>r ( x1 .. xn n -- r:xn..x1 r:n ) \ tools-ext n-to-r
     scope r> { n ret }
     0  BEGIN  dup n <  WHILE  swap >r 1+  REPEAT  >r
     ret >r endscope ;
-: nr> ( r:xn..x1 r:n -- x1 .. xn n )
+: nr> ( r:xn..x1 r:n -- x1 .. xn n ) \ tools-ext n-r-from
     scope r> r> { ret n }
     0  BEGIN  dup n <  WHILE  r> swap 1+  REPEAT
     ret >r endscope ;
 
 \ x:traverse-wordlist words
 
-' name>int alias name>interpret ( nt -- xt|0 ) \ tools-ext
+' name>int alias name>interpret ( nt -- xt|0 ) \ tools-ext name-to-interpret
     \G @i{xt} represents the interpretation semantics @i{nt}; returns
     \G 0 if @i{nt} has no interpretation semantics
 
-' name>comp alias name>compile ( nt -- w xt ) \ tools-ext
+' name>comp alias name>compile ( nt -- w xt ) \ tools-ext name-to-compile
 \G @i{w xt} is the compilation token for the word @i{nt}.
 
 \ 2value
@@ -524,7 +524,7 @@ User theme-color  0 theme-color !
 : (2to) ( addr -- ) >body 2!-table to-!exec ;
 to-opt: ( xt -- ) >body postpone literal 2!-table to-!, ;
 
-: 2Value ( d "name" -- ) \ Forth200x
+: 2Value ( d "name" -- ) \ double-ext two-value
     Create 2,
     ['] 2@ set-does>
     [: >body postpone Literal postpone 2@ ;] set-optimizer
@@ -611,7 +611,7 @@ end-struct buffer%
 
 \ char/[char]
 
-: char   ( '<spaces>ccc' -- c ) \ core
+: char   ( '<spaces>ccc' -- c ) \ core,xchar-ext
     \G Skip leading spaces. Parse the string @i{ccc} and return @i{c}, the
     \G display code representing the first character of @i{ccc}.
     ?parse-name
