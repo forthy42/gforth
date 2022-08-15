@@ -186,5 +186,6 @@ AVariable boot[][] \ arrays to be booted
 	I @ $save
     cell +LOOP ;
 
-Defer 'image ( -- ) \G deferred word executed before saving an image
+Defer 'image ( -- )
+\G deferred word executed before saving an image
 :noname clear-paths clear-args save-strings ; IS 'image

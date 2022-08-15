@@ -120,7 +120,7 @@ variable next-exception -2048 next-exception !
     next-exception @
     -1 next-exception +! ;
 
-: exceptions ( xt num -- n ) \ exceptions gforth
+: exceptions ( xt num -- n ) \ gforth
     \G Use @var{xt} to convert errors into strings. The error starting with
     \G @var{n} and lower are converted to [0..num[ when calling @var{xt}
     align ErrRanges @ here ErrRanges ! ,

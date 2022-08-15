@@ -127,9 +127,15 @@ AUser lp0 ( -- a-addr ) \ gforth
 
 AUser throw-entry  \ pointer to task-specific signal handler
 
-: handler ( -- addr ) sps@ cell+ ;	\ pointer to last throw frame
-: first-throw ( -- addr ) sps@ [ 2 cells ] Literal + ; \ contains true if the next throw is the first throw
-: wraphandler ( -- addr ) sps@ [ 3 cells ] Literal + ; \ wrap handler, experimental
+: handler ( -- addr )
+    \ pointer to last throw frame
+    sps@ cell+ ;
+: first-throw ( -- addr )
+    \ contains true if the next throw is the first throw
+    sps@ [ 2 cells ] Literal + ;
+: wraphandler ( -- addr )
+    \ wrap handler, experimental
+    sps@ [ 3 cells ] Literal + ;
 
 has? backtrace [IF]
 AUser backtrace-rp0 \ rp at last call of interpret

@@ -70,7 +70,7 @@ Defer hash-alloc ( addr -- addr )
 \ DelFix and NewFix are from bigFORTH                  15jul94py
 
 : DelFix ( addr root -- ) dup @ third ! ! ;
-: NewFix  ( root len # -- addr ) \ cr ." a" .s
+: NewFix  ( root len # -- addr )
     BEGIN  third @  0= WHILE 2dup * reserve-mem
 	    over 0 ?DO  dup 4 pick DelFix third +  LOOP  drop
     REPEAT third @ >r drop r@ @ rot ! r@ swap erase r> ;

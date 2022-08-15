@@ -225,7 +225,7 @@ defer header-extra ' noop is header-extra
 : input-stream-header ( "name" -- )
     parse-name name-too-short? name, ;
 
-: input-stream ( -- )  \ general
+: input-stream ( -- )  \ gforth-internal
     \G switches back to getting the name from the input stream ;
     ['] input-stream-header IS header-name, ;
 

@@ -109,8 +109,10 @@ keycode k-volup ( -- u ) \ gforth
 keycode k-voldown ( -- u ) \ gforth
 keycode k-backspace ( -- u ) \ gforth
 keycode k-tab ( -- u ) \ gforth
-keycode k-sel ( -- u ) \ gforth - keycode for Android selections
-keycode k-eof ( -- u ) \ gforth, always the last gforth-specific keycode
+keycode k-sel ( -- u ) \ gforth
+\ keycode for Android selections
+keycode k-eof ( -- u ) \ gforth
+\ always the last gforth-specific keycode
 drop
 
 ' k-f1  alias k1  ( -- u ) \ gforth-obsolete

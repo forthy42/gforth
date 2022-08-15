@@ -150,7 +150,8 @@ User tfile
 	ofile 0 3 $del
     THEN ;
 
-: expandtopic ( -- ) \ stack effect correct? - anton
+: expandtopic ( -- )
+    \ stack effect correct? - anton
     \ expands "./" into an absolute name
     ofile $@ s" ./" string-prefix?
     IF

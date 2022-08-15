@@ -168,7 +168,7 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
     \ this name comes from fig-Forth
     name>string type space ;
 
-' id. alias .id ( nt -- ) \ F83  dot-i-d
+' id. alias .id ( nt -- ) \ gforth dot-i-d
 \G F83 name for @code{id.}.
 
 ' id. alias .name ( nt -- ) \ gforth-obsolete  dot-name

@@ -327,7 +327,7 @@ forth-wordlist current !
 : no.extensions  ( -- )
     -&13 throw ;
 
-' no.extensions dup dup recognized: notfound ( state -- ) \g gforth-experimental
+' no.extensions dup dup recognized: notfound ( state -- ) \ gforth-experimental
 \G If a recognizer fails, it returns @code{notfound}
 
 : find-name-in  ( c-addr u wid -- nt | 0 ) \ gforth
