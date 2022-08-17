@@ -1308,7 +1308,8 @@ is output-c-prim-num
     prim prim-stack-string 2@ condition-stack-effect 2,
     prim prim-wordset 2@ 2,
     prim prim-c-name 2@ condition-pronounciation 2,
-    prim prim-doc 2@ 2, ;
+    prim prim-doc 2@ 2,
+    0 , ;
 [THEN]
 
 
