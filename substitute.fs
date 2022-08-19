@@ -6,7 +6,7 @@ wordlist AConstant macros-wordlist
 
 : macro: ( addr u -- ) Create here 0 , $! ['] $@ set-does> ;
 
-: replaces ( addr1 len1 addr2 len2 -- )
+: replaces ( addr1 len1 addr2 len2 -- ) \ string-ext
     \G create a macro with name @var{addr2 len2} and content @var{addr1 len1}.
     \G if the macro already exists, just change the content.
     2dup macros-wordlist search-wordlist
@@ -61,7 +61,7 @@ set-current
     \G @var{addr2 len2} the result.
     ['] .substitute $tmp rot ;
 
-: substitute ( addr1 len1 addr2 len2 -- addr2 len3 n/ior )
+: substitute ( addr1 len1 addr2 len2 -- addr2 len3 n/ior ) \ string-ext
     \G substitute all macros in text @var{addr1 len1}, and copy the
     \G result to @var{addr2 len2}.  @var{n} is the number of
     \G substitutions or, if negative, a throwable @var{ior},
@@ -69,7 +69,7 @@ set-current
     2>r $substitute over r@ u<= -78 swap select -rot
     2r> rot umin 2dup 2>r move 2r> rot -1 tmp$# +!  ;
 
-: unescape ( addr1 u1 dest -- dest u2 )
+: unescape ( addr1 u1 dest -- dest u2 ) \ string-ext
     \G double all delimiters in @var{addr1 u1}, so that substitute
     \G will result in the original text.  Note that the buffer
     \G @var{dest} does not have a size, as in worst case, it will need

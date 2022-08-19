@@ -405,7 +405,8 @@ Variable ob-interface
 : (bound ( obj1 obj2 adr2 -- ) >r over parent?
     nip 0= abort" not the same class !" r> ! ;
 
-: (bind ( addr -- ) \ <name>
+: (bind ( addr -- )
+    \ <name>
     (link state @ IF postpone (bound EXIT THEN (bound ;
 
 : (sbound ( o addr -- ) dup cell+ @ swap (bound ;

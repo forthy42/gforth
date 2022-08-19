@@ -95,7 +95,7 @@ variable include-auto-extension-filename
     \G @var{c-addr u}.
     >included throw included1 ;
 
-: required ( i*x addr u -- i*x ) \ gforth
+: required ( i*x addr u -- i*x ) \ file-ext
     \G @code{include-file} the file with the name given by @var{addr
     \G u}, if it is not @code{included} (or @code{required})
     \G already. Currently this works by comparing the name of the file
@@ -114,11 +114,11 @@ variable include-auto-extension-filename
 
 \ INCLUDE                                               9may93jaw
 
-: include  ( ... "file" -- ... ) \ gforth
+: include  ( ... "file" -- ... ) \ file-ext
     \G @code{include-file} the file @var{file}.
     ?parse-name >include included ;
 
-: require  ( ... "file" -- ... ) \ gforth
+: require  ( ... "file" -- ... ) \ file-ext
     \G @code{include-file} @var{file} only if it is not included already.
     ?parse-name >include required ;
 

@@ -35,9 +35,11 @@ Defer endref, ( -- )
     \G convert the xt of a closure on the heap to the @var{addr} with can be
     \G passed to @code{free} to get rid of the closure
 drop
-: alloch ( size -- addr ) \ addr is the end of the allocated region
+: alloch ( size -- addr )
+    \ addr is the end of the allocated region
     dup allocate throw + ;
-: allocd ( size -- addr ) \ addr is the end of the allocated region
+: allocd ( size -- addr )
+    \ addr is the end of the allocated region
     dp +! dp @ ;
 
 : >lp ( addr -- r:oldlp ) r> lp@ >r >r lp! ;

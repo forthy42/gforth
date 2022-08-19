@@ -48,9 +48,9 @@ create keycode-table keycode-limit keycode-start - cells allot
 
 28 constant mask-shift# ( n -- shift ) 
 
-$1 mask-shift# lshift constant k-shift-mask ( -- u ) \ X:ekeys
-$2 mask-shift# lshift constant k-alt-mask ( -- u )   \ X:ekeys
-$4 mask-shift# lshift constant k-ctrl-mask ( -- u )  \ X:ekeys
+$1 mask-shift# lshift constant k-shift-mask ( -- u ) \ facility-ext
+$2 mask-shift# lshift constant k-alt-mask ( -- u )   \ facility-ext
+$4 mask-shift# lshift constant k-ctrl-mask ( -- u )  \ facility-ext
 
 : simple-fkey-string ( u1 -- c-addr u ) \ gforth
     \G @i{c-addr u} is the string name of the function key @i{u1}.
@@ -71,36 +71,36 @@ $4 mask-shift# lshift constant k-ctrl-mask ( -- u )  \ X:ekeys
     ( ) k-alt-mask   and if ."  k-alt-mask or"   then ;
 
 keycode-start
-keycode k-left   ( -- u ) \ X:ekeys  
-keycode k-right  ( -- u ) \ X:ekeys
-keycode k-up     ( -- u ) \ X:ekeys
-keycode k-down   ( -- u ) \ X:ekeys
-keycode k-home   ( -- u ) \ X:ekeys
+keycode k-left   ( -- u ) \ facility-ext
+keycode k-right  ( -- u ) \ facility-ext
+keycode k-up     ( -- u ) \ facility-ext
+keycode k-down   ( -- u ) \ facility-ext
+keycode k-home   ( -- u ) \ facility-ext
 \G aka Pos1
-keycode k-end    ( -- u ) \ X:ekeys
-keycode k-prior  ( -- u ) \ X:ekeys
+keycode k-end    ( -- u ) \ facility-ext
+keycode k-prior  ( -- u ) \ facility-ext
 \G aka PgUp
-keycode k-next   ( -- u ) \ X:ekeys
+keycode k-next   ( -- u ) \ facility-ext
 \G aka PgDn    
-keycode k-insert ( -- u ) \ X:ekeys
-keycode k-delete ( -- u ) \ X:ekeys
+keycode k-insert ( -- u ) \ facility-ext
+keycode k-delete ( -- u ) \ facility-ext
 \ the DEL key on my xterm, not backspace
 keycode k-enter  ( -- u ) \ gforth
 \ only useful in combinations, but it is keycode+#lf
 
 \ function/keypad keys
-keycode k-f1  ( -- u ) \ X:ekeys
-keycode k-f2  ( -- u ) \ X:ekeys
-keycode k-f3  ( -- u ) \ X:ekeys
-keycode k-f4  ( -- u ) \ X:ekeys
-keycode k-f5  ( -- u ) \ X:ekeys
-keycode k-f6  ( -- u ) \ X:ekeys
-keycode k-f7  ( -- u ) \ X:ekeys
-keycode k-f8  ( -- u ) \ X:ekeys
-keycode k-f9  ( -- u ) \ X:ekeys
-keycode k-f10 ( -- u ) \ X:ekeys
-keycode k-f11 ( -- u ) \ X:ekeys
-keycode k-f12 ( -- u ) \ X:ekeys
+keycode k-f1  ( -- u ) \ facility-ext k-f-1
+keycode k-f2  ( -- u ) \ facility-ext k-f-2
+keycode k-f3  ( -- u ) \ facility-ext k-f-3
+keycode k-f4  ( -- u ) \ facility-ext k-f-4
+keycode k-f5  ( -- u ) \ facility-ext k-f-5
+keycode k-f6  ( -- u ) \ facility-ext k-f-6
+keycode k-f7  ( -- u ) \ facility-ext k-f-7
+keycode k-f8  ( -- u ) \ facility-ext k-f-8
+keycode k-f9  ( -- u ) \ facility-ext k-f-9
+keycode k-f10 ( -- u ) \ facility-ext k-f-10
+keycode k-f11 ( -- u ) \ facility-ext k-f-11
+keycode k-f12 ( -- u ) \ facility-ext k-f-12
 
 keycode k-winch ( -- u ) \ gforth
 keycode k-pause ( -- u ) \ gforth
@@ -109,8 +109,10 @@ keycode k-volup ( -- u ) \ gforth
 keycode k-voldown ( -- u ) \ gforth
 keycode k-backspace ( -- u ) \ gforth
 keycode k-tab ( -- u ) \ gforth
-keycode k-sel ( -- u ) \ gforth - keycode for Android selections
-keycode k-eof ( -- u ) \ gforth, always the last gforth-specific keycode
+keycode k-sel ( -- u ) \ gforth
+\ keycode for Android selections
+keycode k-eof ( -- u ) \ gforth
+\ always the last gforth-specific keycode
 drop
 
 ' k-f1  alias k1  ( -- u ) \ gforth-obsolete
@@ -330,7 +332,7 @@ set-current
 		ekey-buffer $@ unkeys key     then
 	    clear-ekey-buffer
 	then ;
-    : xkey? ( -- flag )
+    : xkey? ( -- flag ) \ xchar x-key-query
 	key? dup if
 	    drop key read-xkey ekey-buffer $@ unkeys
 	    clear-ekey-buffer  then ;
@@ -359,10 +361,10 @@ set-current
 : ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
     \G Convert keyboard event @var{u} into character @code{c} if possible.
     dup max-single-byte u< ; \ k-left must be first!
-: ekey>xchar ( u -- u false | xc true ) \ xchar-ext e-key-to-xchar
+: ekey>xchar ( u -- u false | xc true ) \ xchar-ext e-key-to-x-char
     \G Convert keyboard event @var{u} into xchar @code{xc} if possible.
     dup k-left u< ; \ k-left must be first!
-: ekey>fkey ( u1 -- u2 f ) \ X:ekeys
+: ekey>fkey ( u1 -- u2 f ) \ facility-ext e-key-to-f-key
 \G If u1 is a keyboard event in the special key set, convert
 \G keyboard event @var{u1} into key id @var{u2} and return true;
 \G otherwise return @var{u1} and false.
@@ -373,7 +375,7 @@ set-current
 : ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
     \G Convert keyboard event @var{u} into character @code{c} if possible.
     dup k-left u< ; \ k-left must be first!
-: ekey>fkey ( u1 -- u2 f ) \ X:ekeys
+: ekey>fkey ( u1 -- u2 f ) \ facility-ext
 \G If u1 is a keyboard event in the special key set, convert
 \G keyboard event @var{u1} into key id @var{u2} and return true;
 \G otherwise return @var{u1} and false.

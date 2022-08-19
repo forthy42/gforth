@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: standard+field ( n1 n2 "name" -- n3 ) \ X:structures plus-field
+: standard+field ( n1 n2 "name" -- n3 )
     (field) over , dup , + ;
 
 : (sizeof) ( "name" -- size ) ' >body cell+ @ ;
@@ -27,7 +27,7 @@
 ' (sizeof) comp' [sizeof] drop
 interpret/compile: sizeof ( "field" -- size )
 
-Defer +field ( noffset1 nsize "name" -- noffset2 ) \ facility-ext
+Defer +field ( noffset1 nsize "name" -- noffset2 ) \ facility-ext plus-field
 \G Defining word; defines @i{name} @code{( addr1 -- addr2 )}, where
 \G @i{addr2} is @i{addr1+noffset1}.  @i{noffset2} is
 \G @i{noffset1+nsize}.
@@ -46,35 +46,46 @@ standard:field
     \g extend an existing structure
     standard:field >r 0 value latestnt >body r> ;
 
-: begin-structure ( "name" -- struct-sys 0 ) \ X:structures
+: begin-structure ( "name" -- struct-sys 0 ) \ facility-ext
+    \ Start a structure definition and call it @i{name}
     0 extend-structure ;
 
-: end-structure ( struct-sys +n -- ) \ X:structures
+: end-structure ( struct-sys +n -- ) \ facility-ext
+    \g end a structure started wioth @code{begin-structure}
     swap ! ;
 
-: cfield: ( u1 "name" -- u2 ) \ X:structures
+: cfield: ( u1 "name" -- u2 ) \ facility-ext c-field-colon
+    \g Define a char-sized field
     1 +field ;
 
-: wfield: ( u1 "name" -- u2 ) \ X:structures
+: wfield: ( u1 "name" -- u2 ) \ gforth w-field-colon
+    \g Define a naturally aligned field for a 16-bit value.
     1 + -2 and 2 +field ;
 
-: lfield: ( u1 "name" -- u2 ) \ X:structures
+: lfield: ( u1 "name" -- u2 ) \ gforth l-field-colon
+    \g Define a naturally aligned field for a 32-bit value.
     3 + -4 and 4 +field ;
 
-: xfield: ( offset -- offset' )
+: xfield: ( u1 "name" -- u2 ) \ gforth x-field-colon
+    \g Define a naturally aligned field for a 64-bit-value.
     7 + -8 and 8 +field ;
 
-: field: ( u1 "name" -- u2 ) \ X:structures
+: field: ( u1 "name" -- u2 ) \ facility-ext field-colon
+    \g Define an aligned cell-sized field
     aligned cell +field ;
 
-: 2field: ( u1 "name" -- u2 ) \ gforth
+: 2field: ( u1 "name" -- u2 ) \ gforth two-field-colon
+    \g Define an aligned double-cell-sized field
     aligned 2 cells +field ;
 
-: ffield: ( u1 "name" -- u2 ) \ X:structures
+: ffield: ( u1 "name" -- u2 ) \ floating-ext f-field-colon
+    \g Define a faligned float-sized field
     faligned 1 floats +field ;
 
-: sffield: ( u1 "name" -- u2 ) \ X:structures
+: sffield: ( u1 "name" -- u2 ) \ floating-ext s-f-field-colon
+    \g Define a sfaligned sfloat-sized field
     sfaligned 1 sfloats +field ;
 
-: dffield: ( u1 "name" -- u2 ) \ X:structures
+: dffield: ( u1 "name" -- u2 ) \ floating-ext d-f-field-colon
+    \g Define a dfaligned dfloat-sized field
     dfaligned 1 dfloats +field ;

@@ -85,6 +85,7 @@ struct
     cell% 2* field doc-wordset
     cell% 2* field doc-pronounciation
     cell% 2* field doc-description
+    cell%    field doc-count
 end-struct doc-entry
 
 create description-buffer 4096 chars allot
@@ -137,23 +138,32 @@ true  constant core,exception-ext
 true  constant core,file
 true  constant core,search
 true  constant core,tools-ext
+true  constant core,xchar-ext
 true  constant core-ext
 true  constant core-ext,block-ext
 true  constant core-ext,block-ext,file-ext
 true  constant core-ext,file
-true  constant core-ext,xchar
+true  constant core-ext,file-ext
+true  constant core-ext,xchar-ext
 false constant core-ext-obsolescent
 true  constant double
+true  constant double-ext
 true  constant exception
+true  constant exception-ext
 true  constant facility
 true  constant facility-ext
 true  constant file
-true  constant float
-true  constant float-ext
+true  constant file-ext
+true  constant floating
+true  constant floating-ext
 true  constant local
 true  constant local-ext
+true  constant memory
+true  constant memory-ext
 true  constant search
 true  constant search-ext
+true  constant string
+true  constant string-ext
 true  constant tools
 true  constant tools-ext
 true  constant xchar
@@ -166,7 +176,7 @@ true  constant environment
 true  constant gforth
 true  constant gforth-environment
 true  constant gforth-experimental
-true  constant gforth-internal
+false constant gforth-internal
 false constant gforth-obsolete
 
 \ libraries independent of Gforth
@@ -221,7 +231,8 @@ set-current
 	    2drop latest name>string skip-prefix
 	endif
 	2,
-	get-description save-mem 2,
+        get-description save-mem 2,
+        0 , \ doc-count
     set-current ;
 
 : emittexi ( c -- )
@@ -273,6 +284,7 @@ set-current
 : print-doc ( doc-entry -- )
     dup
     >r print-short
+    1 r@ doc-count +!
     r@ doc-description 2@ dup 0<>
     if
 	\ ." @iftex" cr ." @vskip-0ex" cr ." @end iftex" cr
@@ -344,13 +356,20 @@ create docline doclinelength chars allot
     \ check the documentaion of an ans word
     parse-name parse-name parse-name checkword ;
 
+: hyphenate ( c-addr u -- )
+    \ replace spaces with hyphens
+    bounds ?do
+        i c@ bl = if '-' i c! then
+    loop ;
+
 : input-stream-checkwords ( -- )
     \ the input stream consists of tab-separated records, one record per line
     begin
-        #tab parse {: D: section :}
-        #tab parse {: D: name :}
-        #tab parse dup if 1 /string 1- else name then {: D: pronounciation :}
-        #tab parse {: D: wordset :}
+        #tab parse save-mem {: D: section :}
+        #tab parse save-mem {: D: name :}
+        #tab parse dup if 1 /string 1- save-mem else name then
+           {: D: pronounciation :}
+        #tab parse save-mem 2dup hyphenate {: D: wordset :}
         name wordset pronounciation checkword
         \ cr ." answord " name type ." |" wordset type ." |" pronounciation type
     refill 0= until ;
@@ -359,3 +378,21 @@ create docline doclinelength chars allot
     \ check all the words in the file named c-addr u
     \ The file is tab-separated: section name "pronounciation" wordset
     r/o open-file throw ['] input-stream-checkwords execute-parsing-file ;
+
+: report-#use {: nt -- f :}
+    nt name>interpret >body {: doc :}
+    doc doc-count @ {: #use :}
+    doc doc-wordset 2@ wordsets find-name-in {: wordset-nt :}
+    wordset-nt if
+        wordset-nt name>interpret execute  #use 1 <> and if
+            #use . nt name>string type cr then then
+    true ;
+
+: report-#uses ( -- )
+    \ print all documented words with count!=1
+    ['] report-#use documentation traverse-wordlist ;
+
+: report-#uses-file ( c-addr u -- )
+    \ print all documented words with count!=1 in the file with the
+    \ name c-addr u
+    w/o create-file throw ['] report-#uses swap outfile-execute ;

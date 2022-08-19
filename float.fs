@@ -42,20 +42,20 @@
 \ : dfalign ( -- )  here dup dfaligned swap ?DO  bl c,  LOOP ;
 \ [THEN]
 
-: sfalign ( -- ) \ float-ext s-f-align
+: sfalign ( -- ) \ floating-ext s-f-align
     \G If the data-space pointer is not single-float-aligned, reserve
     \G enough space to align it.
     here dup sfaligned swap ?DO  bl c,  LOOP ;
-: dfalign ( -- ) \ float-ext d-f-align
+: dfalign ( -- ) \ floating-ext d-f-align
     \G If the data-space pointer is not double-float-aligned, reserve
     \G enough space to align it.
     here dup dfaligned swap ?DO  bl c,  LOOP ;
 
-(Field) sfloat+ ( sf-addr1 -- sf-addr2 ) \ float-ext s-float-plus
+(Field) sfloat+ ( sf-addr1 -- sf-addr2 ) \ floating-ext s-float-plus
 \G @code{1 sfloats +}.
     1 sfloats ,
 
-(Field) dfloat+ ( df-addr1 -- df-addr2 ) \ float-ext d-float-plus
+(Field) dfloat+ ( df-addr1 -- df-addr2 ) \ floating-ext d-float-plus
 \G @code{1 dfloats +}.
     1 dfloats ,
     
@@ -67,7 +67,7 @@
 : flit, ( r -- )
     here cell+ dup faligned <> IF  postpone noop  THEN
     postpone flit f, ;
-: FLiteral ( compilation r -- ; run-time -- r ) \ float f-literal
+: FLiteral ( compilation r -- ; run-time -- r ) \ floating f-literal
     \G Compile appropriate code such that, at run-time, @i{r} is placed
     \G on the (floating-point) stack. Interpretation semantics are undefined.
     flit, ;  immediate
@@ -76,7 +76,7 @@
 \ the following is worse, because fliteral is worse
 : opt-fcon ( xt -- )  >body f@ postpone FLiteral ;
 
-: fconstant  ( r "name" -- ) \ float f-constant
+: fconstant  ( r "name" -- ) \ floating f-constant
     Create f,
     ['] f@ set-does>
     ['] opt-fcon set-optimizer ;
@@ -89,18 +89,18 @@ Create f!-table ' f! , ' f+! ,
     >body f!-table to-!exec ;
 opt: drop postpone >body f!-table to-!, ;
 
-: fvalue ( r "name" -- ) \ float-ext f-value
+: fvalue ( r "name" -- ) \ floating-ext f-value
     fconstant ['] fvalue-to set-to ['] opt-fval set-optimizer ;
 
-: fdepth ( -- +n ) \ float f-depth
+: fdepth ( -- +n ) \ floating f-depth
     \G @i{+n} is the current number of (floating-point) values on the
     \G floating-point stack.
     fp0 @ fp@ - [ 1 floats ] Literal / ;
 
-&15 Value precision ( -- u ) \ float-ext
+&15 Value precision ( -- u ) \ floating-ext
 \G @i{u} is the number of significant digits currently used by
 \G @code{F.} @code{FE.} and @code{FS.} 
-: set-precision ( u -- ) \ float-ext
+: set-precision ( u -- ) \ floating-ext
     \G Set the number of significant digits currently used by
     \G @code{F.} @code{FE.} and @code{FS.} to @i{u}.
     to precision ;
@@ -119,7 +119,7 @@ opt: drop postpone >body f!-table to-!, ;
     IF  2drop  scratch -trailing type  rdrop  EXIT  THEN
     IF  '- emit  THEN ;
 
-: f.  ( r -- ) \ float-ext f-dot
+: f.  ( r -- ) \ floating-ext f-dot
 \G Display (the floating-point number) @i{r} without exponent,
 \G followed by a space.
   f$ dup >r 0<=
@@ -132,7 +132,7 @@ opt: drop postpone >body f!-table to-!, ;
 
 \ Why do you think so? ANS Forth appears ambiguous on this point. -anton.
 
-: fe. ( r -- ) \ float-ext f-e-dot
+: fe. ( r -- ) \ floating-ext f-e-dot
 \G Display @i{r} using engineering notation (with exponent dividable
 \G by 3), followed by a space.
   f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
@@ -140,7 +140,7 @@ opt: drop postpone >body f!-table to-!, ;
   '. emit scratch r> /string type
   'E emit r> . ;
 
-: fs. ( r -- ) \ float-ext f-s-dot
+: fs. ( r -- ) \ floating-ext f-s-dot
 \G Display @i{r} using scientific notation (with exponent), followed
 \G by a space.
   f$ 1-
@@ -178,7 +178,7 @@ si-prefixes count 2/ + Constant zero-exp
 	2drop false
     THEN  rdrop ;
 
-: fp. ( r -- ) \ float-ext f-e-dot
+: fp. ( r -- ) \ floating-ext f-e-dot
 \G Display @i{r} using SI prefix notation (with exponent dividable
 \G by 3, converted into SI prefixes if available), followed by a space.
     f$ 1- s>d 3 fm/mod 3 * >r 1+ >r
@@ -201,7 +201,7 @@ recognized: recognized-float
 
 ' rec-float forth-recognizer >back
 
-: fvariable ( "name" -- ) \ float f-variable
+: fvariable ( "name" -- ) \ floating f-variable
     Create 0.0E0 f, ;
     \ does> ( -- f-addr )
 
@@ -247,7 +247,7 @@ set-current
 	frot frot fover fabs fover fabs f+ frot frot
 	f- fabs frot frot f* f< ;
 
-: f~ ( r1 r2 r3 -- flag ) \ float-ext f-proximate
+: f~ ( r1 r2 r3 -- flag ) \ floating-ext f-proximate
     \G ANS Forth medley for comparing r1 and r2 for equality: r3>0:
     \G @code{f~abs}; r3=0: bitwise comparison; r3<0: @code{fnegate f~rel}.
     fdup f0=
@@ -282,7 +282,7 @@ fdrop
     \ modulus of r1/r2
     fover fover f/ floor f* f- ;
 
-: ftrunc ( r1 -- r2 ) \ X:ftrunc
+: ftrunc ( r1 -- r2 ) \ floating-ext f-trunc
     \ round towards 0
     fdup fabs floor fswap fcopysign ;
 

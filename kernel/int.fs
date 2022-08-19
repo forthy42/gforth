@@ -46,7 +46,7 @@ require kernel/version.fs \ version-string
     over - dup r@ IF 1+ THEN  >in +!
     2dup r> 0<> - input-lexeme! ;
 
-Defer parse ( xchar "ccc<xchar>" -- c-addr u ) \ core-ext,xchar
+Defer parse ( xchar "ccc<xchar>" -- c-addr u ) \ core-ext,xchar-ext
 \G Parse @i{ccc}, delimited by @i{xchar}, in the parse
 \G area. @i{c-addr u} specifies the parsed string within the
 \G parse area. If the parse area was empty, @i{u} is 0.
@@ -327,7 +327,7 @@ forth-wordlist current !
 : no.extensions  ( -- )
     -&13 throw ;
 
-' no.extensions dup dup recognized: notfound ( state -- ) \g gforth-experimental
+' no.extensions dup dup recognized: notfound ( state -- ) \ gforth-experimental
 \G If a recognizer fails, it returns @code{notfound}
 
 : find-name-in  ( c-addr u wid -- nt | 0 ) \ gforth
@@ -445,7 +445,7 @@ method (to) ( val xt -- ) \ gforth paren-int-to
 opt: ( xt-(to -- )
     ?fold-to (to), ;
 
-method defer@ ( xt-deferred -- xt ) \ gforth defer-fetch
+method defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
 \G @i{xt} represents the word currently associated with the deferred
 \G word @i{xt-deferred}.
 opt: ( xt-defer@ -- )
@@ -463,7 +463,7 @@ method name>int ( nt -- xt ) \ gforth name-to-int
 method name>comp ( nt -- w xt ) \ gforth name-to-comp
 \G @i{w xt} is the compilation token for the word @i{nt}.
 
-method name>string ( nt -- addr u ) \ gforth name-to-string
+method name>string ( nt -- addr u ) \ tools-ext name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
 method name>link ( nt1 -- nt2 / 0 ) \ gforth name-to-link
 
@@ -621,7 +621,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 Defer parser ( c-addr u -- ... )
 \G text-interpretation of @var{c-addr u}
 
-Defer parse-name ( "name" -- c-addr u ) \ gforth
+Defer parse-name ( "name" -- c-addr u ) \ core-ext
 \G Get the next word from the input buffer
 ' (name) IS parse-name
 
