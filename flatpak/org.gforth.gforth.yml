@@ -23,6 +23,9 @@ modules:
       - "ac_cv_header_glib_object_h=no"
       - "ac_cv_header_libavcodec_avcodec_h=no"
       - "ac_cv_header_wayland_egl_core_h=no"
+      - "ac_cv_header_va_va_h=no"
+      - "ac_cv_header_va_va_drm_h=no"
+      - "ac_cv_header_va_va_x11_h=no"
       - "--disable-lib"
       - "--with-lispdir=/app/share/emacs/site-lisp"
       - "--with-elispstartdir=/app/share/emacs/site-start.d"
@@ -30,4 +33,4 @@ modules:
     sources:
       - type: archive
         url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20220819/gforth-0.7.9_20220819.tar.xz
-        sha256: 87eabb72ae5dd543516e4a2f046ea437d97d8fae26dda4422d50c9bff5e47db5
+        sha256: 8f1f3f2a2a6184702fd5d8d76d2ff6f51fab6232c8dde8b60da05d24975bff22

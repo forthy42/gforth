@@ -1003,7 +1003,7 @@ $(buildccdir)/libgfpthread.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfserial.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfsocket.la: $(buildccdir)/libgflibc.la
 
-$(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_LIB_SRC) libforth
+$(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_LIB_SRC) $(LIBCC_GEN_SRC) libforth
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
 		-$(TOUCH) $@
 
