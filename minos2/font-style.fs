@@ -20,7 +20,7 @@
 
 \ font array
 
-require cstr.fs
+require unix/cstr.fs
 
 get-current >r also minos definitions
 
