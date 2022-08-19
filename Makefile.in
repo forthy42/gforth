@@ -638,8 +638,8 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	doc/words/README doc/gforth.1 doc/gforth.css doc/standard-words.awk   \
 	doc/2012-words doc/version.texi.in doc/vmgen.texi doc/fdl.texi	      \
 	doc/gpl.texi gforth.el $(ARCHS) siteinit.fs versions.bsh glosgen.glo  \
-	doc/glossaries.doc $(FORTH_SRC) $(LIBCC_DIST_SRC) $(LIBCC_GEN_SRC)    \
-	$(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) $(FREETYPE_GL_SRC) timings.sc      \
+	doc/glossaries.doc $(FORTH_SRC) $(LIBCC_DIST_SRC) $(COMPAT)	      \
+	$(VMGEN_EX) $(VMGEN_EX2) $(FREETYPE_GL_SRC) timings.sc		      \
 	test/coretest.out test/checkans.out test/gforth.out		      \
 	test/read-line.input test/read-line2.input test/read-line.out	      \
 	test/fp/fptest.out $(wildcard $(srcdir)/cache*.vmg) peeprules.vmg     \

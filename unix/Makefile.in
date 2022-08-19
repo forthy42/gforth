@@ -64,6 +64,10 @@ libs: build-libcc-named $(LIBRARY)
 	$(CC) -o $@x $<
 	./$@x -gforth | $(srcdir)/doexec $@ $(srcdir) > $@
 
+stat.fs: stat-fsi.c
+	$(CC) -o $@x $<
+	./$@x -gforth > $@
+
 # compile fsi-file
 #%.fsx: %-fsi.c
 #	$(CC) -o $@ $<

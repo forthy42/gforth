@@ -449,6 +449,7 @@ $100 buffer: font-bidi' \ 0: leave as guess, 4-7: set direction
 	dup 2/ { font# } 1 and 4 or { dir# } 2 /string
 	font# font#-load dup { font }
 	texture_font_activate_size ?ftgl-ior drop
+	\ font texture_font_t-hb_font @ hb_ft_font_changed
 	0 over hb_buffer_add_utf8
 	hb-buffer hb_buffer_guess_segment_properties
 	\ font# font-bidi' + c@ dir# over select to dir#
@@ -465,8 +466,8 @@ $100 buffer: font-bidi' \ 0: leave as guess, 4-7: set direction
 	hb-buffer hb_buffer_reset
     LOOP ;
 
-64e 64e f* 1/f FConstant pos*
-64e 1/f FConstant pos*icon
+64e 1/f FConstant pos*h
+64e 1/f FConstant pos*v
 
 Defer render-string ( addr u -- ) \ minos2
 \G Render a string
@@ -485,8 +486,8 @@ Defer get-glyphs
     $splits[] stack# 0 ?DO
 	I $splits[] $[]@ drop w@ 2/ font#-load { font }
 	font font->t.i0
-	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN
-	f-scale f* fdup #-64 fm* fswap x-scale f*  { f: ypos* f: xpos* }
+	pos*h f-scale f* x-scale f*
+	pos*v f-scale f* { f: xpos* f: ypos* }
 	case  I directions[] $[] @
 	    HB_DIRECTION_TTB  of  xy-rotright  endof
 	    xy-default
@@ -598,10 +599,10 @@ cell 4 = [IF]
     $splits[] stack# 0 ?DO
 	I $splits[] $[]@ drop w@ 2/ font#-load { font }
 	font font->t.i0
-	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN f-scale f*
-	pos*icon f-scale f* { f: xpos* f: ypos* }
+	pos*h f-scale f*
+	pos*v f-scale f* { f: xpos* f: ypos* }
 	0e  I positions[] $[]@ bounds ?DO
-	    I hb_glyph_position_t-x_advance l@ xpos* fm* f+
+	    I hb_glyph_position_t-x_advance sl@ xpos* fm* f+
 	hb_glyph_position_t +LOOP
 	I segment-lens[] $[] seg-len!
 	I positions[] $[]@ drop
@@ -645,8 +646,7 @@ cell 4 = [IF]
     $splits[] stack# 0 ?DO
 	I $splits[] $[]@ drop w@ 2/ font#-load { font }
 	font font->t.i0
-	t.i0 -2e f= IF  pos*  ELSE  pos*icon  THEN
-	f-scale f* x-scale f* { f: pos* }
+	pos*h f-scale f* x-scale f* { f: pos* }
 	I positions[] $[]@ drop
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
