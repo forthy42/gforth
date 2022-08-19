@@ -22,6 +22,7 @@ modules:
       - "ac_cv_header_vulkan_vulkan_h=no"
       - "ac_cv_header_glib_object_h=no"
       - "ac_cv_header_libavcodec_avcodec_h=no"
+      - "ac_cv_header_wayland_egl_core_h=no"
       - "--disable-lib"
       - "--with-lispdir=/app/share/emacs/site-lisp"
       - "--with-elispstartdir=/app/share/emacs/site-start.d"
@@ -29,4 +30,4 @@ modules:
     sources:
       - type: archive
         url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20220819/gforth-0.7.9_20220819.tar.xz
-        sha256: 6420ff48617b42c9aa04670c780861bf9cfe0a4dae0618a5a4b1f026e2ac7f20
+        sha256: 40ada0538a6b2cdfa72667e048e42bd1ca1ffa8818d0fc6e4a46b24b53dffbb1
