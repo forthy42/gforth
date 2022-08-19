@@ -21,7 +21,7 @@ extern struct _IO_FILE *stderr;
 #define EGLAPIENTRYP void *
 %apply SWIGTYPE * { EGLNativeDisplayType, EGLNativeWindowType, EGLNativePixmapType };
 #endif
-#if defined(host_os_linux_gnu) || defined(host_os_linux_gnueabi) || defined(host_os_linux_gnueabihf)
+#if defined(host_os_linux_gnu) || defined(host_os_linux_gnueabi) || defined(host_os_linux_gnueabihf) || defined(host_os_linux_gnux32)
 #define __unix__
 #define EGLAPI
 #define EGLAPIENTRY
