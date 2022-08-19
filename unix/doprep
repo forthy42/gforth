@@ -7,5 +7,5 @@ if [ -z "$execs" ]
 then
     cat $1
 else
-    eval $execs $1
+    cat $1 | eval $execs
 fi
