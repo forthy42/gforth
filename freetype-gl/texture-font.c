@@ -194,14 +194,14 @@ texture_font_generate_kerning( texture_font_t *self,
             if( kerning.x ) {
                 texture_font_index_kerning( glyph,
                                             prev_glyph->codepoint,
-                                            convert_F26Dot6_to_float(kerning.x) / HRESf );
+                                            convert_F26Dot6_to_float(kerning.x));
             }
             // also insert kerning with the current added element
             FT_Get_Kerning( *face, glyph_index, prev_index, FT_KERNING_UNFITTED, &kerning );
             if( kerning.x ) {
                 texture_font_index_kerning( prev_glyph,
                                             glyph->codepoint,
-                                            kerning.x / (float)(HRESf*HRESf) );
+                                            convert_F26Dot6_to_float(kerning.x));
             }
         }
         GLYPHS_ITERATOR_END
@@ -225,11 +225,6 @@ int
 texture_font_set_size ( texture_font_t *self, float size )
 {
     FT_Error error=0;
-    FT_Matrix matrix = {
-        (int)((1.0/HRES) * 0x10000L),
-        (int)((0.0)      * 0x10000L),
-        (int)((0.0)      * 0x10000L),
-        (int)((1.0)      * 0x10000L)};
 
     if( FT_HAS_FIXED_SIZES( self->face ) ) {
         /* Select best size */
@@ -264,7 +259,7 @@ texture_font_set_size ( texture_font_t *self, float size )
         self->scale = self->size / convert_F26Dot6_to_float(self->face->available_sizes[best_match].size);
     } else {
         /* Set char size */
-        error = FT_Set_Char_Size(self->face, convert_float_to_F26Dot6(size), 0, DPI * HRES, DPI);
+      error = FT_Set_Char_Size(self->face, convert_float_to_F26Dot6(size), 0, DPI, DPI);
         
         if(error) {
             freetype_error( error );
@@ -272,7 +267,7 @@ texture_font_set_size ( texture_font_t *self, float size )
         }
     }
     /* Set transform matrix */
-    FT_Set_Transform(self->face, &matrix, NULL);
+    FT_Set_Transform(self->face, NULL, NULL);
 
     return 1;
 }

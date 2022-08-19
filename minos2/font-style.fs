@@ -205,7 +205,8 @@ font-shapes# font-families# font-langs# * * Constant font[]# ( -- n )
 also freetype-gl also harfbuzz
 : referenced ( font -- font )
     dup texture_font_t-face @ hb_ft_font_create_referenced
-    over texture_font_t-hb_font ! ;
+    over texture_font_t-hb_font !
+    ( dup texture_font_t-hb_font @ hb_ft_font_changed ) ;
 previous previous
 
 s" No font specified" exception constant !!no-font!!
