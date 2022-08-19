@@ -1222,7 +1222,7 @@ AC_CHECK_LIB(ffi,ffi_call,LIBS="$LIBS")
 if test -n "$FFI_H_NAME" -a $ac_cv_lib_ffi_ffi_call = yes
 then
   LIBFFIFLAG="true"
-  LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC libffi.fs"
+  LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/libffi.fs"
 else
   LIBFFIFLAG="false"
 fi
@@ -1234,7 +1234,7 @@ AC_CHECK_LIB(avcall,__builtin_avcall,LIBS="$LIBS")
 #AC_CHECK_LIB(trampoline,alloc_trampoline)
 if test $ac_cv_lib_avcall___builtin_avcall = yes; then
   FFCALLFLAG="true"
-  LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC fflib.fs"
+  LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/fflib.fs"
 else
   FFCALLFLAG="false"
 fi
