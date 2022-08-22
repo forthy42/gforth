@@ -1460,7 +1460,9 @@ if swig -forth $srcdir/unix/test.i; then
     echo "Swig works in Forth mode"
     has_swig=yes
     MINOSFLAG=true
-    HAS_SWIG_FORTH=unix/has-swig-forth
+    HAS_SWIG_FORTH=has-swig-forth
+    mkdir -p
+    echo timestamp > unix/$HAS_SWIG_FORTH
 fi
 
 AC_SUBST(HAS_SWIG_FORTH)
@@ -1786,7 +1788,6 @@ chmod +x build-ec
 chmod +x preforth
 chmod +x libforth
 chmod +x gforthker
-test -z "$HAS_SWIG_FORTH" || echo timestamp > $HAS_SWIG_FORTH
 test -d kernel||mkdir kernel
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
 mkdir -p include/gforth/$PACKAGE_VERSION/$machine
