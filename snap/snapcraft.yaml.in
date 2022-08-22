@@ -2,7 +2,7 @@
 GFORTH=$(gforth --version 2>&1 | cut -f2 -d ' ')
 cat <<EOF >snapcraft.yaml
 name: gforth # you probably want to 'snapcraft register <name>'
-base: core20 # the base snap is the execution environment for this snap
+base: core22 # the base snap is the execution environment for this snap
 version: '$(echo $GFORTH | tr _ -)' # just for humans, typically '1.2+git' or '1.3.2'
 summary: gforth snap # 79 char long summary
 description: |
@@ -126,6 +126,7 @@ parts:
     autotools-configure-parameters:
       - ac_cv_header_va_va_h=no
       - ac_cv_header_vulkan_vulkan_h=no
+      - ac_cv_header_linux_v4l2_common_h=no
       - --prefix=/usr
       - --with-install=swig
       - --disable-lib
@@ -188,7 +189,7 @@ parts:
       - libva-glx2
       - gforth-noto-fonts
       - fonts-awesome
-      - libgps26
+      - libgps28
       - libdrm-intel1
       - libdrm-radeon1
       - libdrm-nouveau2

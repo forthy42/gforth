@@ -570,13 +570,13 @@ G_TYPE_RESERVED_GLIB_FIRST G_TYPE_FUNDAMENTAL_SHIFT G_PRIORITY_LOW
 G_PRIORITY_DEFAULT_IDLE G_PRIORITY_HIGH_IDLE G_PRIORITY_DEFAULT 
 G_PRIORITY_HIGH G_IEEE754_DOUBLE_BIAS G_IEEE754_FLOAT_BIAS G_PDP_ENDIAN 
 G_BIG_ENDIAN G_LITTLE_ENDIAN harfbuzz vulkan ubx2_to_prn datum_code_string 
-mag_var wgs84_separation earth_distance_and_bearings earth_distance mkgmtime 
-safe_atof gps_maskdump gps_enable_debug gps_merge_fix gps_clear_log 
-gps_clear_fix gps_clear_dop gps_clear_att libgps_trace json_oscillator_read 
-json_pps_read json_toff_read gps_errstr gps_data gps_mainloop gps_stream 
-gps_waiting gps_unpack gps_read gps_send gps_close gps_open 
-gps_data_t_devices-list gps_data_t_devices-ndevices gps_data_t_devices-time 
-gps_data_t_devices gps_data_t-pps gps_data_t-online 
+mag_var wgs84_separation earth_distance_and_bearings earth_distance 
+now_to_iso8601 mkgmtime safe_atof gps_maskdump gps_enable_debug gps_merge_fix 
+gps_clear_log gps_clear_fix gps_clear_dop gps_clear_att libgps_trace 
+json_oscillator_read json_pps_read json_toff_read gps_errstr gps_data 
+gps_mainloop gps_stream gps_waiting gps_unpack gps_read gps_send gps_close 
+gps_open gps_data_t_devices-list gps_data_t_devices-ndevices 
+gps_data_t_devices-time gps_data_t_devices gps_data_t-pps gps_data_t-online 
 gps_data_t-satellites_visible gps_data_t-error gps_data_t-imu 
 gps_data_t-privdata gps_data_t-fix gps_data_t-version 
 gps_data_t-satellites_used gps_data_t-dev gps_data_t-qErr_time gps_data_t-toff 
