@@ -1455,11 +1455,17 @@ has_swig=no
 GLXFLAG=false
 GLESFLAG=false
 MINOSFLAG=false
+HAS_SWIG_FORTH=
 if swig -forth $srcdir/unix/test.i; then
     echo "Swig works in Forth mode"
     has_swig=yes
     MINOSFLAG=true
+    mkdir unix
+    touch unix/has-swig-forth
+    HAS_SWIG_FORTH=unix/has-swig-forth
 fi
+
+AC_SUBST(HAS_SWIG_FORTH)
 
 if test x$has_swig = xyes; then
    > conftest.$ac_ext

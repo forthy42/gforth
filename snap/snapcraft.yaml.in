@@ -127,6 +127,8 @@ parts:
       - ac_cv_header_va_va_h=no
       - ac_cv_header_vulkan_vulkan_h=no
       - ac_cv_header_linux_v4l2_common_h=no
+      - ac_cv_header_wayland_egl_core_h=no
+      - ac_cv_header_glib_object_h=no
       - --prefix=/usr
       - --with-install=swig
       - --disable-lib
