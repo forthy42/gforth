@@ -18,7 +18,6 @@ modules:
     buildsystem: autotools
     config-opts:
       - "CPPFLAGS=-I/usr/lib/sdk/stb/include"
-      - "ac_cv_header_linux_v4l2_common_h=no"
       - "ac_cv_header_vulkan_vulkan_h=no"
       - "ac_cv_header_glib_object_h=no"
       - "ac_cv_header_libavcodec_avcodec_h=no"

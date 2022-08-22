@@ -125,6 +125,7 @@ parts:
     plugin: autotools
     autotools-configure-parameters:
       - ac_cv_header_va_va_h=no
+      - ac_cv_header_vulkan_vulkan_h=no
       - --prefix=/usr
       - --with-install=swig
       - --disable-lib

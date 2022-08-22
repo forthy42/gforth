@@ -351,6 +351,7 @@ GFORTH_FI_SRC = \
 
 SWIGMODULES = @SWIGMODULES@
 SWIGLIBS = @SWIGLIBS@
+SWIGDIST = @SWIGDIST@
 SWIG_WRAP = $(patsubst %.fs,unix/%-fsi.c,$(SWIGMODULES))
 
 LIBCC_SRC1 = unix/cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs	\
@@ -389,7 +390,7 @@ EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 MINOS_DOC = minos2/widgets.fs
 
 LIBCC_DIST_SRC = $(SWIG_SRC) unix/stat-fsi.c unix/test.i unix/Makefile.in \
-	unix/doexec unix/doprep
+	unix/doexec unix/doprep $(patsubst %, unix/%, $(SWIGDIST))
 
 LIBCC_FORTH_SRC = unix/libffi.fs unix/fflib.fs $(UNIXLIBS_SRC) $(LIBCC_SRC1)
 LIBCC_GEN_SRC = unix/stat.fs $(patsubst %, unix/%, $(SWIGMODULES))

@@ -21,7 +21,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20220820],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20220822],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
@@ -31,6 +31,9 @@ UPDATED="February 8, 2018"
 AC_SUBST(UPDATED)
 AC_CONFIG_HEADERS(engine/config.h)
 AC_USE_SYSTEM_EXTENSIONS
+
+# LTDL
+
 LT_INIT([disable-static])
 LT_CONFIG_LTDL_DIR([libltdl])
 LTDL_INIT
@@ -209,8 +212,20 @@ AC_ARG_WITH(ditc,
 fi])
 AC_SUBST(DITCENGINE)
 
+# Version string
+
 GFORTH_VERSION=$PACKAGE_VERSION
 AC_SUBST(GFORTH_VERSION)
+
+VERSION_MAJOR=`echo $PACKAGE_VERSION | cut -f1 -d '.'`
+VERSION_MINOR=`echo $PACKAGE_VERSION | cut -f2 -d '.'`
+VERSION_MICRO=`echo $PACKAGE_VERSION | cut -f3 -d '.' | cut -f1 -d '_'`
+VERSION_DATE=`echo $PACKAGE_VERSION | cut -f2 -d '_'`
+
+AC_SUBST(VERSION_MAJOR)
+AC_SUBST(VERSION_MINOR)
+AC_SUBST(VERSION_MICRO)
+AC_SUBST(VERSION_DATE)
 
 AC_ARG_ENABLE(version,
 	AS_HELP_STRING([--disable-version],[  disable multi-version install]),
@@ -1467,7 +1482,7 @@ if test x$has_swig = xyes || test -f $srcdir/unix/sdl-fsi.c; then
 fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/v4l2-fsi.c; then
-   AC_CHECK_HEADER(linux/v4l2-common.h, SWIGMODULES="$SWIGMODULES v4l2.fs", ,)
+   AC_CHECK_HEADER(linux/v4l2-common.h, SWIGMODULES="$SWIGMODULES v4l2.fs", SWIGDIST="$SWIGDIST v4l2.fs", ,)
 fi
 
 if test "$host_os" == "cygwin"
@@ -1713,6 +1728,7 @@ echo "SWIG includes: $SWIGINCLUDES"
 
 AC_SUBST(SWIGINCLUDES)
 AC_SUBST(SWIGLIBS)
+AC_SUBST(SWIGDIST)
 
 case "$CC"
 in
