@@ -124,11 +124,6 @@ parts:
     source: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/$GFORTH/gforth-$GFORTH.tar.xz
     plugin: autotools
     autotools-configure-parameters:
-      - ac_cv_header_va_va_h=no
-      - ac_cv_header_vulkan_vulkan_h=no
-      - ac_cv_header_linux_v4l2_common_h=no
-      - ac_cv_header_wayland_egl_core_h=no
-      - ac_cv_header_glib_object_h=no
       - --prefix=/usr
       - --with-install=swig
       - --disable-lib
@@ -161,7 +156,6 @@ parts:
       - libpcre3-dev
       - libboost-dev
       - libstb-dev
-      - freetype-gl
     stage-packages:
       - locales-all
       - locales
