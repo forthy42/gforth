@@ -73,7 +73,9 @@ stat.fs: stat-fsi.c
 #	$(CC) -o $@ $<
 
 # use swig to create the fsi file
-%-fsi.c: $(srcdir)/%.i
+# if swig -forth is available, do this even when there's a fsi file older
+# than the configure run
+%-fsi.c: $(srcdir)/%.i @HAS_SWIG_FORTH@
 	$(SWIG) $(OPTIONS) -o $@+ $(srcdir)/$(patsubst %-fsi.c,%.i,$@)
 	$(srcdir)/doprep $@+ $(srcdir) > $@
 

@@ -20,7 +20,7 @@
 
 \ font array
 
-require cstr.fs
+require unix/cstr.fs
 
 get-current >r also minos definitions
 
@@ -454,8 +454,8 @@ font-path+ ~/.fonts
 \mono
 \regular fonts= DejaVuSansMono|LiberationMono-Regular|NotoSansMono-Regular|DroidSansMono
 \bold fonts= DejaVuSansMono-Bold|LiberationMono-Bold|NotoSansMono-Bold|DroidSansMono
-\italic fonts= DejaVuSansMono-Oblique|LiberationMono-Italic|NotoSansMono-Regular|DroidSansMono
-\bold-italic fonts= DejaVuSansMono-BoldOblique|LiberationMono-BoldItalic|NotoSansMono-Bold|DroidSansMono
+\italic fonts= DejaVuSansMono-Oblique|LiberationMono-Italic|DejaVuSansMono|NotoSansMono-Regular|DroidSansMono
+\bold-italic fonts= DejaVuSansMono-BoldOblique|LiberationMono-BoldItalic|DejaVuSansMono-Bold|NotoSansMono-Bold|DroidSansMono
 
 120% to font-scaler
 [IFDEF] android

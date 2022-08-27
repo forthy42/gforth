@@ -28,6 +28,11 @@ extern "C" {
 #include <setjmp.h>
 #include <gforth/@PACKAGE_VERSION@/@machine@/config.h>
 
+#define GFORTH_VERSION_MAJOR @VERSION_MAJOR@
+#define GFORTH_VERSION_MINOR @VERSION_MINOR@
+#define GFORTH_VERSION_MICRO @VERSION_MICRO@
+#define GFORTH_VERSION_DATE @VERSION_DATE@
+
 typedef CELL_TYPE Cell;
 typedef unsigned CELL_TYPE UCell;
 typedef unsigned char Char;

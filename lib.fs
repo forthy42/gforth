@@ -19,10 +19,10 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 libffi-present [if]
-    require ./libffi.fs
+    require ./unix/libffi.fs
 [else]
     ffcall-present [if]
-	require ./fflib.fs
+	require ./unix/fflib.fs
     [else]
 	.( Neither libffi nor ffcall are configured ) cr
 	.( If you have installed one of them, you can use libffi.fs or fflib.fs directly ) cr

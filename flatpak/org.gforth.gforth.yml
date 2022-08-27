@@ -18,11 +18,18 @@ modules:
     buildsystem: autotools
     config-opts:
       - "CPPFLAGS=-I/usr/lib/sdk/stb/include"
+      - "ac_cv_header_vulkan_vulkan_h=no"
+      - "ac_cv_header_glib_object_h=no"
+      - "ac_cv_header_libavcodec_avcodec_h=no"
+      - "ac_cv_header_wayland_egl_core_h=no"
+      - "ac_cv_header_va_va_h=no"
+      - "ac_cv_header_va_va_drm_h=no"
+      - "ac_cv_header_va_va_x11_h=no"
       - "--disable-lib"
       - "--with-lispdir=/app/share/emacs/site-lisp"
       - "--with-elispstartdir=/app/share/emacs/site-start.d"
     no-autogen: true
     sources:
       - type: archive
-        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20220819/gforth-0.7.9_20220819.tar.xz
-        sha256: 9738a7c69b5ebf1b81bb2e05386e3b65cc186141c15070d3becfe38fa7921872
+        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20220826/gforth-0.7.9_20220826.tar.xz
+        sha256: ae713b41bc9f11bb785c3fc5018eb5aa5a8242e7460d7f89facbc52242692333

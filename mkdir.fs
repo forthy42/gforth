@@ -25,7 +25,7 @@
 	: =mkdir ( c-addr u mode -- ior )
 	    2drop drop 0 ;
     [ELSE]
-	require cstr.fs
+	require unix/cstr.fs
 	c-library mkdir
 	\c #include <sys/stat.h>
 	\c #include <sys/types.h>
@@ -35,7 +35,7 @@
 	c-function f>ior IOR n -- n ( f -- ior )
 	    
 	: =mkdir ( c-addr u mode -- ior )
-	>r tilde_cstr r> over >r mkdir r> free drop f>ior ;
+	    >r tilde_cstr r> over >r mkdir r> free drop f>ior ;
         end-c-library
     [THEN]
 [THEN]

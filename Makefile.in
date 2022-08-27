@@ -351,9 +351,10 @@ GFORTH_FI_SRC = \
 
 SWIGMODULES = @SWIGMODULES@
 SWIGLIBS = @SWIGLIBS@
+SWIGDIST = @SWIGDIST@
 SWIG_WRAP = $(patsubst %.fs,unix/%-fsi.c,$(SWIGMODULES))
 
-LIBCC_SRC1 = cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs	\
+LIBCC_SRC1 = unix/cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs	\
 	unix/serial.fs unix/filestat.fs unix/libc.fs unix/time.fs
 
 LIBCC_SRC = $(patsubst %,unix/%,$(SWIGLIBS))
@@ -388,10 +389,11 @@ EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
 
 MINOS_DOC = minos2/widgets.fs
 
-LIBCC_DIST_SRC = $(SWIG_SRC) unix/test.i unix/Makefile.in unix/doexec	\
-	unix/doprep
+LIBCC_DIST_SRC = $(SWIG_SRC) unix/stat-fsi.c unix/test.i unix/Makefile.in \
+	unix/doexec unix/doprep $(patsubst %, unix/%, $(SWIGDIST)	  \
+	@HAS_SWIG_FORTH@)
 
-LIBCC_FORTH_SRC = libffi.fs fflib.fs $(UNIXLIBS_SRC) $(LIBCC_SRC1)
+LIBCC_FORTH_SRC = unix/libffi.fs unix/fflib.fs $(UNIXLIBS_SRC) $(LIBCC_SRC1)
 LIBCC_GEN_SRC = unix/stat.fs $(patsubst %, unix/%, $(SWIGMODULES))
 LIBCC_LIB_SRC = $(patsubst %, unix/%, $(SWIGLIBS)) @LIBCC_BUILD_SRC@
 
@@ -1003,7 +1005,7 @@ $(buildccdir)/libgfpthread.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfserial.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfsocket.la: $(buildccdir)/libgflibc.la
 
-$(buildccdir)/libgf%.la: %.fs $(FORTH_GEN) $(GEN) $(LIBCC_LIB_SRC) libforth
+$(buildccdir)/libgf%.la: unix/%.fs $(FORTH_GEN) $(GEN) $(LIBCC_LIB_SRC) libforth
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
 		-$(TOUCH) $@
 

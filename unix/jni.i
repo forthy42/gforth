@@ -20,7 +20,7 @@ extern struct _IO_FILE *stderr;
 #define ANDROID
 #define __NDK_FPABI__
 #endif
-#if defined(host_os_linux_gnu) || defined(host_os_linux_gnueabi) || defined(host_os_linux_gnueabihf)
+#if defined(host_os_linux_gnu) || defined(host_os_linux_gnux32) || defined(host_os_linux_gnueabi) || defined(host_os_linux_gnueabihf)
 #define __GNUC__
 #define JNIEXPORT
 #define JNICALL
