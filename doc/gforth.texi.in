@@ -2573,7 +2573,7 @@ free throw
 The @code{throw}s deal with errors (e.g., out of memory).
 
 And there is also a
-@uref{http://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
+@uref{https://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
 garbage collector}, which eliminates the need to @code{free} memory
 explicitly.
 
@@ -2697,7 +2697,7 @@ Many properties (e.g., arithmetic laws) that reals have and that one
 expects of all kinds of numbers do not hold for FP numbers.  If you
 want to use FP computations, you should learn about their problems and
 how to avoid them; a good starting point is @cite{David Goldberg,
-@uref{http://docs.sun.com/source/806-3568/ncg_goldberg.html,What Every
+@uref{https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html,What Every
 Computer Scientist Should Know About Floating-Point Arithmetic}, ACM
 Computing Surveys 23(1):5@minus{}48, March 1991}.
 
@@ -2755,7 +2755,7 @@ v 1 floats  v 1 floats  3  v* f.
 @quotation Assignment
 Write a program to solve a quadratic equation.  Then read @cite{Henry
 G. Baker,
-@uref{http://home.pipeline.com/~hbaker1/sigplannotices/sigcol05.ps.gz,You
+@uref{https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.111.4448&rep=rep1&type=pdf,You
 Could Learn a Lot from a Quadratic}, ACM SIGPLAN Notices,
 33(1):30@minus{}39, January 1998}, and see if you can improve your
 program.  Finally, find a test case where the original and the
@@ -3062,7 +3062,7 @@ confused by the actual behaviour.  If you are, just remember that the
 Forth system just takes @code{'} as one unit and has no idea that it is
 a parsing word (attempts to convenience programmers in this issue have
 usually resulted in even worse pitfalls, see
-@uref{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,
+@uref{https://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,
 @code{State}-smartness---Why it is evil and How to Exorcise it}).
 
 Note that the state of the interpreter does not come into play when
@@ -3645,7 +3645,7 @@ lead to great productivity improvements.
 
 @c IMO this is too detailed and the pace is too slow for
 @c an introduction.  If you know German, take a look at
-@c http://www.complang.tuwien.ac.at/anton/lvas/skriptum-stack.html 
+@c https://www.complang.tuwien.ac.at/anton/lvas/skriptum-stack.html 
 @c to see how I do it - anton 
 
 @c nac-> Where I have accepted your comments 100% and modified the text
@@ -5171,7 +5171,7 @@ few for the wary. You should not use them unless you know what you are
 doing or you don't care that the results you get are totally bogus. If
 you want to learn about the problems of floating point numbers (and
 how to avoid them), you might start with @cite{David Goldberg,
-@uref{http://docs.sun.com/source/806-3568/ncg_goldberg.html,What Every
+@uref{https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html,What Every
 Computer Scientist Should Know About Floating-Point Arithmetic}, ACM
 Computing Surveys 23(1):5@minus{}48, March 1991}.
 
@@ -5400,7 +5400,7 @@ doc-lp!
 @end menu
 
 In addition to the standard Forth memory allocation words, there is also
-a @uref{http://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
+a @uref{https://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
 garbage collector}.
 
 @node Memory model, Dictionary allocation, Memory, Memory
@@ -7708,7 +7708,7 @@ state, the result will not be what you expected (i.e., it will not
 perform @code{foo bar}). State-smart words are a bad idea. Simply don't
 write them@footnote{For a more detailed discussion of this topic, see
 M. Anton Ertl,
-@cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,@code{State}-smartness---Why
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl98.ps.gz,@code{State}-smartness---Why
 it is Evil and How to Exorcise it}}, EuroForth '98.}!
 
 @c -------------------------------------------------------------
@@ -8994,7 +8994,7 @@ future.
 @cindex word lists - example
 
 The following example is from the
-@uref{http://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
+@uref{https://www.complang.tuwien.ac.at/forth/garbage-collection.zip,
 garbage collector} and uses wordlists to separate public words from
 helper words:
 
@@ -10301,7 +10301,7 @@ locals wordset, but also our own, more powerful locals wordset (we
 implemented the Standard Forth locals wordset through our locals wordset).
 
 The ideas in this section have also been published in M. Anton Ertl,
-@cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz,
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl94l.ps.gz,
 Automatic Scoping of Local Variables}}, EuroForth '94.
 
 @menu
@@ -10961,7 +10961,7 @@ version of the package implemented in Standard Forth is available in
 comp.lang.forth in 1989 (unfortunately I don't remember, by whom;
 possibly John Hayes). A version of this section has been published in
 M. Anton Ertl,
-@uref{http://www.complang.tuwien.ac.at/forth/objects/structs.html, Yet
+@uref{https://www.complang.tuwien.ac.at/forth/objects/structs.html, Yet
 Another Forth Structures Package}, Forth Dimensions 19(3), pages
 13--16. Marcel Hendrix provided helpful comments.
 
@@ -11435,7 +11435,7 @@ terminology: The derived class inherits from the base class.
 
 This section describes the @file{objects.fs} package. This material also
 has been published in M. Anton Ertl,
-@cite{@uref{http://www.complang.tuwien.ac.at/forth/objects/objects.html,
+@cite{@uref{https://www.complang.tuwien.ac.at/forth/objects/objects.html,
 Yet Another Forth Objects Package}}, Forth Dimensions 19(2), pages
 37--43.
 @c McKewan's and Zsoter's packages
@@ -14143,7 +14143,7 @@ data stack pointer in @code{di} and the address of the FP stack
 pointer in @code{si}, and return the data stack pointer in @code{ax}.
 The other caller-saved registers are: r10, r11, xmm8-xmm15.  This
 calling convention reportedly is also used in other non-Microsoft OSs.
-@c source: http://en.wikipedia.org/wiki/X86_calling_conventions#AMD64_ABI_convention
+@c source: https://en.wikipedia.org/wiki/X86_calling_conventions#AMD64_ABI_convention
 
 @c source: http://msdn.microsoft.com/en-us/library/9b372w95(v=VS.90).aspx
 Windows x64 passes the first four integer parameters in rcx, rdx, r8
@@ -16380,7 +16380,7 @@ the additional porting problems?
 In order to perform these considerations, you need to know what's
 standard and what's not.  This manual generally states if something is
 non-standard, but the authoritative source is the
-@uref{http://www.taygeta.com/forth/dpans.html,standard document}.
+@uref{https://forth-standard.org/standard/words,standard document}.
 Appendix A of the Standard (@var{Rationale}) provides a valuable insight
 into the thought processes of the technical committee.
 
@@ -17217,9 +17217,9 @@ may be helpful for finding your way in the Gforth sources.
 The ideas in this section have also been published in the following
 papers: Bernd Paysan, @cite{ANS fig/GNU/??? Forth} (in German),
 Forth-Tagung '93; M. Anton Ertl,
-@cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl93.ps.Z, A
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl93.ps.Z, A
 Portable Forth Engine}}, EuroForth '93; M. Anton Ertl,
-@cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl02.ps.gz,
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl02.ps.gz,
 Threaded code variations and optimizations (extended version)}},
 Forth-Tagung '02.
 
@@ -17836,14 +17836,14 @@ the current release on an i486DX2/66 are welcome).
 
 @cindex @file{Benchres}
 In
-@cite{@uref{http://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz,
+@cite{@uref{https://www.complang.tuwien.ac.at/papers/ertl&maierhofer95.ps.gz,
 Translating Forth to Efficient C}} by M. Anton Ertl and Martin
 Maierhofer (presented at EuroForth '95), an indirect threaded version of
 Gforth is compared with Win32Forth, NT Forth, PFE, ThisForth, and
 several native code systems; that version of Gforth is slower on a 486
 than the version used here. You can find a newer version of these
 measurements at
-@uref{http://www.complang.tuwien.ac.at/forth/performance.html}. You can
+@uref{https://www.complang.tuwien.ac.at/forth/performance.html}. You can
 find numbers for Gforth on various machines in @file{Benchres}.
 
 @c ******************************************************************
@@ -18211,13 +18211,13 @@ who discovered (as he puts it) Forth during the late 60s. The first full
 Forth existed in 1971.
 
 A part of the information in this section comes from
-@cite{@uref{http://www.forth.com/resources/evolution/index.html,The
+@cite{@uref{https://www.forth.com/resources/evolution/index.html,The
 Evolution of Forth}} by Elizabeth D. Rather, Donald R. Colburn and
 Charles H. Moore, presented at the HOPL-II conference and preprinted
 in SIGPLAN Notices 28(3), 1993.  You can find more historical and
 genealogical information about Forth there.  For a more general (and
 graphical) Forth family tree look see
-@cite{@uref{http://www.complang.tuwien.ac.at/forth/family-tree/},
+@cite{@uref{https://www.complang.tuwien.ac.at/forth/family-tree/},
 Forth Family Tree and Timeline}.
 
 @c ------------------------------------------------------------------
@@ -18232,13 +18232,13 @@ Forth Family Tree and Timeline}.
 @cindex frequently asked questions
 There is an active news group (comp.lang.forth) discussing Forth
 (including Gforth) and Forth-related issues. Its
-@uref{http://www.complang.tuwien.ac.at/forth/faq/faq-general-2.html,FAQs}
+@uref{https://www.complang.tuwien.ac.at/forth/faq/faq-general-2.html,FAQs}
 (frequently asked questions and their answers) contains a lot of
 information on Forth.  You should read it before posting to
 comp.lang.forth.
 
 The Forth standard is most usable in its
-@uref{http://forth-standard.org/, HTML form}.
+@uref{https://forth-standard.org/, HTML form}.
 
 @c ---------------------------------------------------
 @node  Licenses, Word Index, Forth-related information, Top
