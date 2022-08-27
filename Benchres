@@ -117,6 +117,7 @@ PowerPC:
 PowerPC64:
  0.311 0.389  0.213 0.502 0.7.0; PPC970 2GHz (PowerMac G5); gcc-3.4.6 (Debian 3.4.6-5)
  0.279 0.411  0.183 0.519 0.7.0; PPC970 2GHz (PowerMac G5); gcc-4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+ 0.358 0.334  0.130 0.514 0.7.3; Power9 3800MGz; gcc-4.8.5
 Alpha:
  0.710 1.392  1.118 1.159 0.7.0; Alpha 21264B 800MHz; gcc-2.95.4 20011002 (Debian prerelease)
  0.840 0.916  0.973 0.961 0.7.0; Alpha 21264B 800MHz; gcc-3.3.6 (Debian 1:3.3.6-15)
