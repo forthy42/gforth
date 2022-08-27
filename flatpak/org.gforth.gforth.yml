@@ -19,6 +19,7 @@ modules:
     config-opts:
       - "CPPFLAGS=-I/usr/lib/sdk/stb/include"
       - "ac_cv_header_vulkan_vulkan_h=no"
+      - "ac_cv_header_linux_v4l2_common_h=no"
       - "ac_cv_header_glib_object_h=no"
       - "ac_cv_header_libavcodec_avcodec_h=no"
       - "ac_cv_header_wayland_egl_core_h=no"
@@ -32,4 +33,4 @@ modules:
     sources:
       - type: archive
         url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20220826/gforth-0.7.9_20220826.tar.xz
-        sha256: ae713b41bc9f11bb785c3fc5018eb5aa5a8242e7460d7f89facbc52242692333
+        sha256: abad82ba33d7746959de24cc62edb1ee6a93aaafe416c2a25ae574a9b4802219
