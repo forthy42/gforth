@@ -710,7 +710,7 @@ use-shaper
 
 [IFDEF] android  also android [THEN]
 : ftgl-init ( -- )
-    init-atlas
+    atlas ?EXIT  init-atlas
     [IFDEF] texture_font_default_mode
 	MODE_FREE_CLOSE texture_font_default_mode
     [THEN]
