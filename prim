@@ -658,9 +658,10 @@ u2 = u1-n;
 :
  tuck - >r + r> dup 0< IF  - 0  THEN ;
 
-safe/string	( c_addr1 u1 n -- c_addr2 u2 )	string	safe_slash_string
+safe/string	( c_addr1 u1 n -- c_addr2 u2 )	gforth	safe_slash_string
 ""Adjust the string specified by @i{c-addr1, u1} to remove @i{n}
-characters from the start of the string.  Clamps on overflow""
+characters from the start of the string.  Unlike @code{/string},
+@code{safe/string} removes at least 0 and at most @i{u1} characters.""
 c_addr2 = c_addr1+n;
 u2 = u1-n;
 if(n>=0) {
@@ -673,7 +674,7 @@ if(n>=0) {
 
 \g arith
 
-lit	( #w -- w )		gforth
+lit	( #w -- w )		gforth-internal
 :
  r> dup @ swap cell+ >r ;
 
@@ -682,7 +683,7 @@ n = n1+n2;
 
 \ lit+ / lit_plus = lit +
 
-lit+	( n1 #n2 -- n )		new	lit_plus
+lit+	( n1 #n2 -- n )		gforth-internal	lit_plus
 #ifdef DEBUG
 debugp(stderr, "lit+ %08x\n", n2);
 #endif
@@ -1413,7 +1414,7 @@ f = FLAG($4>=$5);
 
 comparisons(0, n, zero_, n, 0, core, core-ext, core, core-ext)
 comparisons(, n1 n2, , n1, n2, core, core-ext, core, core)
-comparisons(u, u1 u2, u_, u1, u2, gforth, gforth, core, core-ext)
+comparisons(u, u1 u2, u_, u1, u2, gforth-internal, gforth-internal, core, core-ext)
 
 \ dcomparisons(prefix, args, prefix, arg1, arg2, wordsets...)
 define(dcomparisons,
@@ -1465,7 +1466,7 @@ f = FLAG($4>=$5);
 
 dcomparisons(d, d1 d2, d_, d1, d2, double, gforth, double, gforth)
 dcomparisons(d0, d, d_zero_, d, DZERO, double, gforth, double, gforth)
-dcomparisons(du, ud1 ud2, d_u_, ud1, ud2, gforth, gforth, double-ext, gforth)
+dcomparisons(du, ud1 ud2, d_u_, ud1, ud2, gforth-internal, gforth-internal, double-ext, gforth)
 
 \+
 
@@ -1483,10 +1484,10 @@ f = FLAG(u1-u2 < u3-u2);
 
 \g stack
 
-useraddr	( #u -- a_addr )	gforth
+useraddr	( #u -- a_addr )	gforth-internal
 a_addr = (Cell *)(((Address)up)+u);
 
-up!	( a_addr -- )	gforth	up_store
+up!	( a_addr -- )	gforth-internal	up_store
 gforth_UP=up=(user_area*)a_addr;
 :
  up ! ;
@@ -1633,10 +1634,10 @@ ALIVE_DEBUGGING(w1);
 :
  2swap 2over ;
 
-user@	( #u -- w )	gforth	user_fetch
+user@	( #u -- w )	gforth-internal	user_fetch
 w = *(Cell *)(((Address)up)+u);
 
-sps@	( -- w )   gforth sps_fetch
+sps@	( -- w )   gforth-internal sps_fetch
 w = (Cell)SPs;
 
 \ toggle is high-level: 0.11/0.42%
@@ -1755,11 +1756,6 @@ char+	( c_addr1 -- c_addr2 )	core	char_plus
 c_addr2 = c_addr1 + 1;
 :
  1+ ;
-
-(chars)	( n1 -- n2 )	gforth	paren_chars
-n2 = n1 * sizeof(Char);
-:
- ;
 
 count	( c_addr1 -- c_addr2 u )	core
 ""@i{c-addr2} is the first character and @i{u} the length of the

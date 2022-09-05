@@ -5631,6 +5631,7 @@ doc-string-prefix?
 doc-search
 doc--trailing
 doc-/string
+doc-safe/string
 doc-bounds
 doc-pad
 
