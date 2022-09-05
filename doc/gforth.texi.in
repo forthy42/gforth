@@ -6323,6 +6323,7 @@ If a word detects an error condition that it cannot handle, it can
 your program, and report an appropriate error.
 
 doc-throw
+doc-fast-throw
 
 @code{Throw} consumes a cell-sized error number on the stack. There are
 some predefined error numbers in Standard Forth (see @file{errors.fs}).  In
