@@ -295,7 +295,7 @@ VM_JUMP(EXEC1(EXTRA_CODEXT(a_cfa)));
 
 \+glocals
 
-branch-lp+!# ( #a_target #nlocals -- )	gforth	branch_lp_plus_store_number
+branch-lp+!# ( #a_target #nlocals -- )	gforth-internal	branch_lp_plus_store_number
 /* this will probably not be used */
 lp += nlocals;
 ALIVE_DEBUGGING(lp[-1]);
@@ -303,7 +303,7 @@ SET_IP((Xt *)a_target);
 
 \+
 
-branch	( #a_target -- )	gforth
+branch	( #a_target -- )	gforth-internal
 SET_IP((Xt *)a_target);
 :
  r> @ >r ;
@@ -311,7 +311,7 @@ SET_IP((Xt *)a_target);
 \ condbranch(forthname,stackeffect,restline,code1,code2,forthcode)
 \ this is non-syntactical: code must open a brace that is closed by the macro
 define(condbranch,
-$1 ( $7 `#'a_target $2 ) $3
+$1 ( $7 `#'a_target $2 ) gforth-internal $3
 $4 $5 SET_IP((Xt *)a_target);
 ifelse(condbranch_opt,`1',`INST_TAIL; NEXT_P2;',`/* condbranch_opt=0 */')
 }
@@ -320,7 +320,7 @@ $6
 
 \+glocals
 
-$1-lp+!`#' ( $7 `#'a_target `#'nlocals $2 ) $3_lp_plus_store_number
+$1-lp+!`#' ( $7 `#'a_target `#'nlocals $2 ) gforth-internal $3_lp_plus_store_number
 $4	$5	lp += nlocals;
 ALIVE_DEBUGGING(lp[-1]);
 SET_IP((Xt *)a_target);
@@ -331,7 +331,7 @@ ifelse(condbranch_opt,`1',`SUPER_CONTINUE;',`/* condbranch_opt=0 */')
 \+
 )
 
-condbranch(?branch,f --,f83	question_branch,
+condbranch(?branch,f --,question_branch,
 ,if (f==0) {
 ,:
  0= dup 0=          \ !f f
@@ -344,7 +344,7 @@ condbranch(?branch,f --,f83	question_branch,
 
 \+xconds
 
-?dup-?branch	( #a_target f -- S:... )	new	question_dupe_question_branch
+?dup-?branch ( #a_target f -- S:... ) gforth-internal question_dupe_question_branch
 ""The run-time procedure compiled by @code{?DUP-IF}.""
 if (f==0) {
   SET_IP((Xt *)a_target);
@@ -353,7 +353,7 @@ if (f==0) {
   sp[0]=f;
 }
 
-?dup-0=-?branch ( #a_target f -- S:... ) new	question_dupe_zero_equals_question_branch
+?dup-0=-?branch ( #a_target f -- S:... ) gforth-internal question_dupe_zero_equals_question_branch
 ""The run-time procedure compiled by @code{?DUP-0=-IF}.""
 if (f!=0) {
   sp--;
@@ -364,14 +364,14 @@ if (f!=0) {
 \+
 \fhas? skiploopprims 0= [IF]
 
-condbranch((next),R:n1 -- R:n2,cmFORTH	paren_next,
+condbranch((next),R:n1 -- R:n2,paren_next,
 n2=n1-1;
 ,if (n1) {
 ,:
  r> r> dup 1- >r
  IF @ >r ELSE cell+ >r THEN ;)
 
-condbranch((loop),R:nlimit R:n1 -- R:nlimit R:n2,gforth	paren_loop,
+condbranch((loop),R:nlimit R:n1 -- R:nlimit R:n2,paren_loop,
 n2=n1+1;
 ,if (n2 != nlimit) {
 ,:
@@ -379,7 +379,7 @@ n2=n1+1;
  IF >r 1- >r cell+ >r
  ELSE >r >r @ >r THEN ;)
 
-condbranch((+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth paren_plus_loop,
+condbranch((+loop),n R:nlimit R:n1 -- R:nlimit R:n2,paren_plus_loop,
 /* sign bit manipulation and test: (x^y)<0 is equivalent to (x<0) != (y<0) */
 /* dependent upon two's complement arithmetic */
 Cell olddiff = n1-nlimit;
@@ -397,18 +397,18 @@ n2=n1+n;
 
 \+xconds
 
-condbranch((-loop),u R:nlimit R:n1 -- R:nlimit R:n2,gforth paren_minus_loop,
+condbranch((-loop),u R:nlimit R:n1 -- R:nlimit R:n2,paren_minus_loop,
 UCell olddiff = n1-nlimit;
 n2=n1-u;
 ,if (olddiff>u) {
 ,)
 
-condbranch((/loop)`#',R:nlimit R:n1 -- R:nlimit R:n2,gforth-internal paren_slash_loop,
+condbranch((/loop)`#',R:nlimit R:n1 -- R:nlimit R:n2,paren_slash_loop,
 n2=n1+u;
 ,if (n2-nlimit>=u) {
 ,,`#'u)
 
-condbranch((s+loop),n R:nlimit R:n1 -- R:nlimit R:n2,gforth	paren_symmetric_plus_loop,
+condbranch((s+loop),n R:nlimit R:n1 -- R:nlimit R:n2,paren_symmetric_plus_loop,
 ""The run-time procedure compiled by S+LOOP. It loops until the index
 crosses the boundary between limit and limit-sign(n). I.e. a symmetric
 version of (+LOOP).""
@@ -425,17 +425,17 @@ n2=n1+n;
 
 \+
 
-(for)   ( ncount -- R:nlimit R:ncount )         cmFORTH         paren_for
+(for)   ( ncount -- R:nlimit R:ncount )      gforth-internal paren_for
 /* or (for) = >r -- collides with unloop! */
 nlimit=0;
 :
  r> swap 0 >r >r >r ;
 
-(do)    ( nlimit nstart -- R:nlimit R:nstart )  gforth          paren_do
+(do)    ( nlimit nstart -- R:nlimit R:nstart )  gforth-internal   paren_do
 :
  r> swap rot >r >r >r ;
 
-(?do) ( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	paren_question_do
+(?do) ( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth-internal paren_question_do
 if (nstart == nlimit) {
     SET_IP((Xt *)a_target);
 }
@@ -449,7 +449,7 @@ if (nstart == nlimit) {
 
 \+xconds
 
-(+do)	( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	paren_plus_do
+(+do) ( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth-internal paren_plus_do
 if (nstart >= nlimit) {
   SET_IP((Xt *)a_target);
 }
@@ -463,7 +463,7 @@ if (nstart >= nlimit) {
      cell+
  THEN  >r ;
 
-(u+do)	( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth	paren_u_plus_do
+(u+do) ( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth-internal paren_u_plus_do
 if (ustart >= ulimit) {
   SET_IP((Xt *)a_target);
 }
@@ -477,7 +477,7 @@ if (ustart >= ulimit) {
      cell+
  THEN  >r ;
 
-(-do)	( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth	paren_minus_do
+(-do) ( #a_target nlimit nstart -- R:nlimit R:nstart ) gforth-internal paren_minus_do
 if (nstart <= nlimit) {
 SET_IP((Xt *)a_target);
 }
@@ -491,7 +491,7 @@ SET_IP((Xt *)a_target);
      cell+
  THEN  >r ;
 
-(u-do)	( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth	paren_u_minus_do
+(u-do) ( #a_target ulimit ustart -- R:ulimit R:ustart ) gforth-internal paren_u_minus_do
 if (ustart <= ulimit) {
 SET_IP((Xt *)a_target);
 }
@@ -505,7 +505,7 @@ SET_IP((Xt *)a_target);
      cell+
  THEN  >r ;
 
-(try)	( ... #a_recovery -- R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler ) gforth paren_try
+(try) ( ... #a_recovery -- R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler ) gforth-internal paren_try
 a_oldhandler = SPs->handler;
 a_sp = sp;
 c_op = op;
@@ -514,10 +514,10 @@ c_lp = lp;
 SPs->handler = rp-6;
 SPs->first_throw = ~0;
 
-uncatch ( R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler -- ) gforth
+uncatch ( R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler -- ) gforth-experimental
 SPs->handler = a_oldhandler;
 
-fast-throw ( ... wball -- ... wball ) gforth fast_throw
+fast-throw ( ... wball -- ... wball ) gforth-experimental fast_throw
 ""Lightweight @code{throw} variant: only for non-zero balls, and
 does not store a backtrace or deal with missing @code{catch}.""
 rp = SPs->handler;
@@ -553,23 +553,28 @@ SET_IP((Xt *)rp[-1]);
 \ implement this in machine code if it should run quickly!
 
 i	( R:n -- R:n n )		core
+""@i{n} is the index of the innermost counted loop.""
 :
 \ rp@ cell+ @ ;
   r> r> tuck >r >r ;
 
 i'	( R:w R:w2 -- R:w R:w2 w )		gforth		i_tick
+""The limit of the innermost counted loop; can also be used to access
+the second item on the return stack""
 :
 \ rp@ cell+ cell+ @ ;
   r> r> r> dup itmp ! >r >r >r itmp @ ;
 variable itmp
 
-j	( R:w R:w1 R:w2 -- w R:w R:w1 R:w2 )	core
+j	( R:n R:w1 R:w2 -- n R:n R:w1 R:w2 )	core
+""@i{n} is the index of the next-to-innermost counted loop.""
 :
 \ rp@ cell+ cell+ cell+ @ ;
   r> r> r> r> dup itmp ! >r >r >r >r itmp @ ;
 [IFUNDEF] itmp variable itmp [THEN]
 
-k	( R:w R:w1 R:w2 R:w3 R:w4 -- w R:w R:w1 R:w2 R:w3 R:w4 )	gforth
+k	( R:n R:w1 R:w2 R:w3 R:w4 -- n R:n R:w1 R:w2 R:w3 R:w4 )	gforth
+""@i{n} is the index of the third-innermost counted loop.""
 :
 \ rp@ [ 5 cells ] Literal + @ ;
   r> r> r> r> r> r> dup itmp ! >r >r >r >r >r >r itmp @ ;
@@ -618,11 +623,10 @@ memset(c_addr,c,u);
  ?DO  dup I c!  LOOP  drop ;
 
 compare	( c_addr1 u1 c_addr2 u2 -- n )	string
-""Compare two strings lexicographically. If they are equal, @i{n} is 0; if
-the first string is smaller, @i{n} is -1; if the first string is larger, @i{n}
-is 1. Currently this is based on the machine's character
-comparison. In the future, this may change to consider the current
-locale and its collation order.""
+""Compare two strings lexicographically, based on the values of the
+bytes in the strings (i.e., case-sensitive and without locale-specific
+collation order orderings). If they are equal, @i{n} is 0; if the first string is
+smaller, @i{n} is -1; if the first string is larger, @i{n} is 1.""
 /* close ' to keep fontify happy */ 
 n = compare(c_addr1, u1, c_addr2, u2);
 :
@@ -657,11 +661,12 @@ c2 = toupper(c1);
  dup 'a' - [ char z char a - 1 + ] Literal u<  bl and - ;
 
 capscompare	( c_addr1 u1 c_addr2 u2 -- n )	gforth
-""Compare two strings lexicographically. If they are equal, @i{n} is 0; if
-the first string is smaller, @i{n} is -1; if the first string is larger, @i{n}
-is 1. Currently this is based on the machine's character
-comparison. In the future, this may change to consider the current
-locale and its collation order.""
+""Compare two strings lexicographically, based on the values of the
+bytes in the strings, but comparing ASCII characters
+case-insensitively, and non-ASCII characters case-sensitively and
+without locale-specific collation order. If they are equal, @i{n} is
+0; if the first string is smaller, @i{n} is -1; if the first string is
+larger, @i{n} is 1. ""
 /* close ' to keep fontify happy */ 
 n = capscompare(c_addr1, u1, c_addr2, u2);
 

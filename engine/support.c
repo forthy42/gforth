@@ -280,13 +280,20 @@ Cell compare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
   return n;
 }
 
+inline Char ascii_toupper(Char c)
+{
+  if (c>='a' && c<='z')
+    return c+('A'-'a');
+  return c;
+}
+
 Cell memcasecmp(const Char *s1, const Char *s2, Cell n)
 {
   Cell i;
 
   for (i=0; i<n; i++) {
-    Char c1=toupper(s1[i]);
-    Char c2=toupper(s2[i]);
+    Char c1=ascii_toupper(s1[i]);
+    Char c2=ascii_toupper(s2[i]);
     if (c1 != c2) {
       if (c1 < c2)
 	return -1;
