@@ -139,6 +139,35 @@ variable located-bottom \ last line to display with l
     THEN ;
 is throw
 
+0 [if]
+    \ primitives for wrap..end-wrap
+
+    \ removed from prim, because the benefits compared to
+    \ catch...throw are slim
+    \ <2017May30.172812@mips.complang.tuwien.ac.at>
+    
+pushwrap ( ... #a_recovery -- R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp
+    \ R:a_oldhandler ) gforth-internal
+a_oldhandler = SPs->wraphandler;
+a_sp = sp;
+c_op = op;
+f_fp = fp;
+c_lp = lp;
+SPs->wraphandler = rp;
+
+dropwrap ( R:a_recovery R:a_sp R:c_op R:f_fp R:c_lp R:a_oldhandler -- ) gforth-internal
+SPs->wraphandler = a_oldhandler;
+
+exit-wrap ( ... -- ... ) gforth-experimental exit_wrap
+rp = SPs->wraphandler;
+SPs->wraphandler = (Cell *)rp[-6];
+lp = (Address)rp[-5];
+fp = (Float *)rp[-4];
+op = (Char *)rp[-3];
+sp = (Cell *)rp[-2];
+SET_IP((Xt *)rp[-1]);
+[then]
+    
 [defined] pushwrap [if]
 \ usage: wrap ... end-wrap
 \ or:    wrap ... wrap-onexit ... then

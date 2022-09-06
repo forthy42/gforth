@@ -5624,12 +5624,14 @@ doc-cmove>
 doc-fill
 doc-blank
 doc-compare
+doc-capscompare
 doc-str=
 doc-str<
 doc-string-prefix?
 doc-search
 doc--trailing
 doc-/string
+doc-safe/string
 doc-bounds
 doc-pad
 
@@ -5834,11 +5836,10 @@ The index of the innermost loop can be accessed with @code{i}, the index
 of the next loop with @code{j}, and the index of the third loop with
 @code{k}.
 
-
 doc-i
 doc-j
 doc-k
-
+doc-i'
 
 The loop control data are kept on the return stack, so there are some
 restrictions on mixing return stack accesses and counted loop words. In
@@ -6323,6 +6324,7 @@ If a word detects an error condition that it cannot handle, it can
 your program, and report an appropriate error.
 
 doc-throw
+doc-fast-throw
 
 @code{Throw} consumes a cell-sized error number on the stack. There are
 some predefined error numbers in Standard Forth (see @file{errors.fs}).  In
@@ -7786,14 +7788,18 @@ execute
 
 An XT occupies one cell and can be manipulated like any other cell.
 
-@cindex code field address
-@cindex CFA
-In Standard Forth the XT is just an abstract data type (i.e., defined by the
-operations that produce or consume it).  For old hands: In Gforth, the
-XT is implemented as a code field address (CFA).
+In Standard Forth the XT is just an abstract data type (i.e., defined
+by the operations that produce or consume it).  The concrete
+implementation starting with Gforth 1.0 is the body address (for old
+hands: PFA) of the word; in Gforth 0.7 and earlier, the xt was
+implemented as code field addres (CFA, 2 cells before the PFA).
 
 doc-execute
 doc-perform
+
+@code{Noop} is sometimes used to have a placeholder execution token:
+
+doc-noop
 
 @node Compilation token, Name token, Execution token, Tokens for Words
 @subsection Compilation token
