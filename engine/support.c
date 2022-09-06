@@ -309,12 +309,13 @@ Cell capscompare(Char *c_addr1, UCell u1, Char *c_addr2, UCell u2)
   Cell n;
 
   n = memcasecmp(c_addr1, c_addr2, u1<u2 ? u1 : u2);
-  if (n==0)
+  if (n==0) {
     n = u1-u2;
-  if (n<0)
-    n = -1;
-  else if (n>0)
-    n = 1;
+    if (n<0)
+      n = -1;
+    else if (n>0)
+      n = 1;
+  }
   return n;
 }
 
