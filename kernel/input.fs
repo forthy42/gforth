@@ -22,8 +22,8 @@
 
 : input-lexeme! ( c-addr u -- )
     \ record that the current lexeme us c-addr u
-    input-lexeme
-    2! ;
+    input-lexeme 2!
+    current-sourceview 0 new-where 2! ;
 
 : input-start-line ( -- )
     >in off  source drop 0 input-lexeme! ;

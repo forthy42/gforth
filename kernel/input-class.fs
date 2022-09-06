@@ -57,6 +57,8 @@ cell uvar >in ( -- addr ) \ core to-in
     \G cells containing the string (in c-addr u form) parsed with
     \G @code{parse}, @code{parse-name} or @code{word}.  If you do your
     \G own parsing, you can set it with @code{input-lexeme!}.
+2 cells uvar new-where ( -- a-addr ) \ gforth-internal
+    \G keep the new where field
 cell uvar #tib ( -- addr ) \ core-ext-obsolescent number-t-i-b
     \G @code{uvar} variable -- @i{a-addr} is the address of a
     \G cell containing the number of characters in the terminal input
