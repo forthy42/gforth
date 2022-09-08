@@ -139,14 +139,22 @@ Variable rec-level
 : rec-sequence: ( x1 .. xn n "name" -- ) \ gforth-experimental
     ['] recognize do-stack: ;
 
-$Variable default-recognizer
-default-recognizer AValue forth-recognizer 
+$Variable default-recognize
+DOES> recognize ;
 
 ( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
-: default-recognize forth-recognizer recognize ;
 \G The system recognizer
-Defer forth-recognize ( c-addr u -- ... recognized ) \ gforth-experimental
+Defer forth-recognize ( c-addr u -- ... recognized ) \ recognizer
+\G The system recognizer
 ' default-recognize is forth-recognize
+: set-forth-recognize ( xt -- )
+    is forth-recognize ;
+:noname drop is forth-recognize ;
+: forth-recognizer ( -- xt )
+    ['] forth-recognize defer@ ;
+unlock
+set-to
+lock
 
 \ nested recognizer helper
 
