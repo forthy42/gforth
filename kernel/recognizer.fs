@@ -147,19 +147,14 @@ DOES> recognize ;
 Defer forth-recognize ( c-addr u -- ... recognized ) \ recognizer
 \G The system recognizer
 ' default-recognize is forth-recognize
-: set-forth-recognize ( xt -- )
+: set-forth-recognize ( xt -- ) \ recognizer
+    \G Change the system recognizer
     is forth-recognize ;
 :noname drop is forth-recognize ;
-: forth-recognizer ( -- xt )
+: forth-recognizer ( -- xt ) \ gforth-experimental
+    \G backward compatible to Matthias Trute recognizer API
     ['] forth-recognize defer@ ;
-unlock
-set-to
-lock
-
-\ nested recognizer helper
-
-\ : nest-recognizer ( addr u -- token table | notfound )
-\   xxx-recognizer recognize ;
+unlock set-to lock
 
 : forth-parser ( addr u -- ... )
     forth-recognize state @ swap execute-;s ;
