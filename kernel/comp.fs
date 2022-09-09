@@ -184,14 +184,14 @@ unlock tlastcfa @ lock >body AConstant lastnt
     default-i/c
     ['] named>string set-name>string
     ['] named>link set-name>link ;
-: ?noname-hm ( -- ) lastnt @ 0= IF  noname-hm  ELSE  named-hm  THEN ;
+: ?noname-hm ( -- ) last @ 0= IF  noname-hm  ELSE  named-hm  THEN ;
 
 : header, ( c-addr u -- ) \ gforth
     \G create a header for a named word
     hm, name, hmtemplate namehm, named-hm ;
 : noname, ( -- ) \ gforth
     \G create an empty header for an unnamed word
-    hm, 0name, hmtemplate namehm, noname-hm ;
+    hm, 0name, cell negate allot  hmtemplate namehm, noname-hm ;
 
 defer record-name ( -- )
 ' noop is record-name
@@ -211,8 +211,8 @@ defer header-extra ' noop is header-extra
     \G @code{immediate}, or @code{does>}.  You can use @code{noname}
     \G with @code{create-from}.
     hm, header-name,
-    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namehm 2@ [ [THEN] ] ,
-    lastnt @ 0= IF noname-hm THEN cfa,
+    [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namehm 2@ [ [THEN] ]
+    , cfa, last @ 0= IF  here hm-activate  THEN
     header-extra ;
 
 : noname-from ( xt -- ) \ gforth
