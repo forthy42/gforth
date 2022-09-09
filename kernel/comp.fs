@@ -212,7 +212,7 @@ defer header-extra ' noop is header-extra
     \G with @code{create-from}.
     hm, header-name,
     [ has? new-cfa [IF] ] >cfa 2@ swap [ [ELSE] ] >namehm 2@ [ [THEN] ]
-    , cfa, last @ 0= IF  here hm-activate  THEN
+    , cfa, last @ 0= IF  here hmcopy noname-hm  THEN
     header-extra ;
 
 : noname-from ( xt -- ) \ gforth

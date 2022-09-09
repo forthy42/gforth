@@ -102,7 +102,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     \ define a colon definition "name" containing w*uw r*ur as
     \ literals and a call to target.
     { uw ur target }
-    header docol: cfa, \ start colon def without stack junk
+    ['] on create-from \ start colon def without stack junk
     ur compile-fliterals uw compile-literals
     target compile, POSTPONE exit reveal ;
 
