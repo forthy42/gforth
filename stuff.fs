@@ -111,7 +111,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     \G  
     \G @var{name} execution: pushes @var{w*uw r*ur}, then performs the
     \G code following the @code{const-does>}.
-    here >r 0 POSTPONE literal
+    basic-block-end here >r 0 POSTPONE literal
     POSTPONE (const-does>)
     POSTPONE ;
     noname : POSTPONE rdrop

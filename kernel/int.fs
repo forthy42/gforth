@@ -201,12 +201,10 @@ Defer ?warn#  ' noop is ?warn#
     ')' parse 2drop ; immediate
 
 : \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
-\G Comment, usually till the next @code{)}: parse and discard all
-\G subsequent characters in the parse area until ")" is
-\G encountered. During interactive input, an end-of-line also acts as
-\G a comment terminator. For file input, it does not; if the
-\G end-of-file is encountered whilst parsing for the ")" delimiter,
-\G Gforth will generate a warning.
+\G Comment until the end of line: parse and discard all remaining
+\G characters in the parse area, except while @code{load}ing from a
+\G block: while @code{load}ing from a block, parse and discard all
+\G remaining characters in the 64-byte line.
     [ has? file [IF] ]
     blk @
     IF
