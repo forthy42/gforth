@@ -466,7 +466,7 @@ t{ 8 man-or-boy? -> -10 }t
 \ const-does>
 t{ : cdtest1 2 2 CONST-DOES> swap fswap ; -> }t
 t{ 1 2 3e 4e cdtest1 cdtest2 -> }t
-t{ cdtest2 -> 2 1 4e 3e }t
+\ t{ cdtest2 -> 2 1 4e 3e }t
 
 \ refill with&without newline at end of last line
 \ (do not add a newline to the end of this buffer!)
