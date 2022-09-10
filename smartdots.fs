@@ -40,7 +40,7 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
 
 : .addr. ( addr -- )
     dup xt? if
-        dup name>string dup if
+        dup name>string dup $40 u< if
             third >namehm @ >hm>int @ ['] noop <> if '`' emit then
             ." `" type space drop exit
 	else
@@ -50,7 +50,7 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
     dup which-section? ?dup-if
 	@ >body over [ 1 maxaligned negate ]L and U-DO
 	    I body> xt? if
-		I body> name>string dup if
+		I body> name>string dup $40 u< if
 		    '<' emit type I - ?dup-if
 			." +$" 0 ['] u.r $10 base-execute  then
 		    '>' emit space unloop  EXIT
