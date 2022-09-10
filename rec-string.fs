@@ -20,7 +20,7 @@
 
 : slit,  postpone sliteral ;
 
-' noop ' slit, dup >postponer
+' noop ' slit, :noname slit, postpone 2lit, ;
 recognized: recognized-string
 ' recognized-string Constant rectype-string
 
