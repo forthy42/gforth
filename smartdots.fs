@@ -40,7 +40,7 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
 
 : sanename? ( c-addr u -- f )
     \ does it look like a name; for now only a length check
-    nip 1 $40 within ;
+    dup 1 $40 within IF  string?  ELSE  2drop false  THEN ;
 
 : .addr. ( addr -- )
     dup xt? if
