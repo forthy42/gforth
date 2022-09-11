@@ -38,9 +38,13 @@ defstart , live-orig , dead-orig , dest , do-dest , scopestart ,
 does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
   cell +LOOP  drop false ;
 
+: sanename? ( c-addr u -- f )
+    \ does it look like a name; for now only a length check
+    nip 1 $40 within ;
+
 : .addr. ( addr -- )
     dup xt? if
-        dup name>string dup $40 u< if
+        dup name>string 2dup sanename? if
             third >namehm @ >hm>int @ ['] noop <> if '`' emit then
             ." `" type space drop exit
 	else
@@ -50,7 +54,7 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
     dup which-section? ?dup-if
 	@ >body over [ 1 maxaligned negate ]L and U-DO
 	    I body> xt? if
-		I body> name>string dup $40 u< if
+		I body> name>string 2dup sanename? if
 		    '<' emit type I - ?dup-if
 			." +$" 0 ['] u.r $10 base-execute  then
 		    '>' emit space unloop  EXIT
