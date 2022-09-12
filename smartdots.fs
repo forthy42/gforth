@@ -29,6 +29,7 @@ User smart.s-skip
 	ELSE  true  THEN   ENDTRY ;
 
 : string? ( addr u -- flag )
+    \ does it look like a string that we want to print with smart. ?
     TRY  dup #80 #1 within throw  bounds ?DO
 	    I xc@+ bl < IF  -1 throw  THEN
 	I - +LOOP
@@ -38,13 +39,9 @@ defstart , live-orig , dead-orig , dest , do-dest , scopestart ,
 does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
   cell +LOOP  drop false ;
 
-: sanename? ( c-addr u -- f )
-    \ does it look like a name; for now only a length check
-    dup 1 $40 within IF  string?  ELSE  2drop false  THEN ;
-
 : .addr. ( addr -- )
     dup xt? if
-        dup name>string 2dup sanename? if
+        dup name>string 2dup string? if
             third >namehm @ >hm>int @ ['] noop <> if '`' emit then
             ." `" type space drop exit
 	else
@@ -54,7 +51,7 @@ does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
     dup which-section? ?dup-if
 	@ >body over [ 1 maxaligned negate ]L and U-DO
 	    I body> xt? if
-		I body> name>string 2dup sanename? if
+		I body> name>string 2dup string? if
 		    '<' emit type I - ?dup-if
 			." +$" 0 ['] u.r $10 base-execute  then
 		    '>' emit space unloop  EXIT
