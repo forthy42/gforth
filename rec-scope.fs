@@ -18,24 +18,21 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: find-name?in ( addr u wid/0 -- nt/0 )
-    ?dup-IF  find-name-in  ELSE  find-name  THEN ;
-
 : nosplit? ( addr1 u1 addr2 u2 --  addr1 u1 addr2 u2 flag ) \ gforth-experimental
     \G is true if it didn't split
     dup 0= IF  over >r 2over + r> =  ELSE  false  THEN ;
 
-: scope-split ( addr u wid -- nt/0 )
+: scope-split ( addr u wid -- nt rectype-nt | notfound )
     BEGIN  >r
-	':' $split nosplit? IF  2drop r> find-name?in  EXIT  THEN
-	2swap r> find-name?in
-	dup WHILE
+	':' $split nosplit? IF  2drop r> execute  EXIT  THEN
+	2swap r> execute
+	['] notfound <> WHILE
 	    dup >does-code [ ' forth >does-code ]L = WHILE
-		>wordlist  REPEAT  THEN
-    drop 2drop 0 ;
+		>wordlist  REPEAT  drop  THEN
+    2drop ['] notfound ;
 
-: rec-scope ( addr u -- xt | rectype-null )
-    0 scope-split nt>rec ;
+: rec-scope ( addr u -- nt rectype-nt | notfound )
+    ['] search-order scope-split ;
 
 get-recognizers 1+ ' rec-scope -rot set-recognizers
 
@@ -52,14 +49,14 @@ get-recognizers 1+ ' rec-scope -rot set-recognizers
     ELSE   simple-search-prefix  THEN ;
 
 : scope-search-prefix ( addr1 len1 -- addr2 len2 )
-    0  BEGIN >r
+    ['] search-order  BEGIN >r
 	2dup ':' $split nosplit? IF
 	    2drop 2drop r> ?search-prefix  EXIT
 	THEN
-	2swap r> find-name?in
-	dup  WHILE
+	2swap r> execute
+	['] notfound <>  WHILE
 	    dup >does-code [ ' forth >does-code ]L =  WHILE
-		>wordlist >r 2nip r>  REPEAT  THEN
-    nip nip ?search-prefix ;
+		>wordlist >r 2nip r>  REPEAT  drop  THEN
+    2drop 0 ?search-prefix ;
 
 ' scope-search-prefix is search-prefix
