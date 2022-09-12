@@ -211,7 +211,7 @@ Create prefix-found  0 , 0 ,
 		>r
 	    THEN
 	THEN
-	r> >link @
+	r> name>link
     REPEAT
     drop r> ;
 
