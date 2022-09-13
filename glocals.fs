@@ -121,16 +121,6 @@ User locals-size \ this is the current size of the locals stack
     \g sets locals-size to n and generates an appropriate lp+!
     locals-size @ swap - compile-lp+! ;
 
-\ change EXIT's compilation action
-\ beware: because we need EXIT at the end of the definition, it can't
-\ be done with opt: ... ;
-:noname \ unlocal-state @ 1 = if
-	\ postpone (unlocal)
-    \ then
-    0 adjust-locals-size
-    peephole-compile, ;
-' exit make-latest set-optimizer
-
 \ the locals stack grows downwards (see primitives)
 \ of the local variables of a group (in braces) the leftmost is on top,
 \ i.e. by going onto the locals stack the order is reversed.
