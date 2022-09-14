@@ -26,6 +26,16 @@
 \ (word) should fold white spaces
 \ this is what (parse-white) does
 
+: place ( c-addr1 u c-addr2 ) \ gforth-obsolete place
+    \G create a counted string of length @var{u} at @var{c-addr2}
+    \G and copy the string @var{c-addr1 u} into that location.
+    2dup c! char+ swap move ;
+
+: +place ( c-addr1 u c-addr2 -- ) \ gforth-obsolete place
+    \G append the string @var{c-addr1 u} to counted string at @var{c-addr2}
+    \G and increase it's length by @var{u}.
+    2dup c@ dup >r  + over c!  r> char+ +  swap move ;
+
 : sword  ( char -- addr len ) \ gforth-obsolete s-word
 \G Parses like @code{word}, but the output is like @code{parse} output.
 \G @xref{core-idef}.

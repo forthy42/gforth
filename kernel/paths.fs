@@ -50,16 +50,6 @@
 
 include stringk.fs
 
-[IFUNDEF] +place
-: +place ( adr len adr -- )
-    2dup c@ dup >r  + over c!  r> char+ +  swap move ;
-[THEN]
-
-[IFUNDEF] place
-: place ( c-addr1 u c-addr2 )
-    2dup c! char+ swap move ;
-[THEN]
-
 Variable fpath ( -- path-addr ) \ gforth
 User ofile
 User tfile
