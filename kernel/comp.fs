@@ -302,6 +302,8 @@ Variable litstack
     litstack $@ bounds  litstack @ >r  litstack off
     ?DO  postpone lit  I @ ,  cell +LOOP
     r> free throw ;
+: clear-litstack ( -- )
+    0 litstack set-stack ;
 
 has? new-cfa [IF]
     : cfa,     ( code-address -- )  \ gforth	cfa-comma
@@ -754,7 +756,7 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
 
 \ \ : ;                                                  	24feb93py
 
-defer :-hook ( sys1 -- sys2 )
+defer :-hook ( sys1 -- sys2 ) ' clear-litstack is :-hook
 defer ;-hook ( sys2 -- sys1 )
 defer 0-adjust-locals-size ( -- )
 

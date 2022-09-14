@@ -326,6 +326,7 @@ is ?warning
 : clearstacks ( ... -- ) \ gforth clear-stacks
 \G empty data and FP stack
     clearstack
+    clear-litstack
 [ has? floating [IF] ]
     fp0 @ fp!
 [ [THEN] ]
