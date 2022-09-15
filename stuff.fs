@@ -155,16 +155,16 @@ UValue $? ( -- n ) \ gforth dollar-question
 
 : rectype ( int-xt comp-xt post-xt -- rectype )
     \G create a new unnamed recognizer token
-    noname recognized: latestxt ; 
+    noname translate: latestxt ; 
 
 : rectype: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table
     rectype Constant ;
 
 ' notfound AConstant rectype-null
-' recognized-nt AConstant rectype-nt
-' recognized-num AConstant rectype-num
-' recognized-dnum AConstant rectype-dnum
+' translate-nt AConstant rectype-nt
+' translate-num AConstant rectype-num
+' translate-dnum AConstant rectype-dnum
 
 : defers@ ( xt -- xt' )
     BEGIN  dup >namehm @ >hmdefer@ @ ['] no-defer@ <>  WHILE
@@ -188,12 +188,12 @@ UValue $? ( -- n ) \ gforth dollar-question
 
 ' noop ' noop
 :noname  ] forth-recognizer stack> drop ;
-recognized: recognized-[[
-' recognized-[[ Constant rectype-[[
+translate: translate-[[
+' translate-[[ Constant rectype-[[
 
 : rec-[[ ( addr u -- token ) \ gforth left-bracket-bracket
 \G switch from postpone state to compile state
-    s" [[" str=  ['] recognized-[[ ['] notfound rot select ;
+    s" [[" str=  ['] translate-[[ ['] notfound rot select ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
     \G switch into postpone state
@@ -539,8 +539,8 @@ s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 :noname drop execute ;
 :noname 0> IF execute ELSE compile, THEN ;
 ' 2lit, >postponer
-recognized: recognized-word
-' recognized-word Constant rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
+translate: translate-word
+' translate-word Constant rectype-word ( takes xt +/-1, i.e. result of find and search-wordlist )
 
 \ concat recognizers to another recognizer
 

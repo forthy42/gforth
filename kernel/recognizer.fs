@@ -35,8 +35,8 @@
 : lit, ( n -- ) postpone Literal ;
 : 2lit, ( n -- ) postpone 2literal ;
 
-: do-rec ( state rectype -- ) swap abs cells + @ execute-;s ;
-: recognized: ( int-xt comp-xt post-xt "name" -- )
+: do-rec ( rectype -- ) state @ abs cells + @ execute-;s ;
+: translate: ( int-xt comp-xt post-xt "name" -- )
     \G create a new recognizer table.  Items are in order of
     \G @var{STATE} value, which are 0 or negative.  Up to 7 slots
     \G are available for extensions.
@@ -44,7 +44,7 @@
     ['] do-rec set-does> ;
 
 : >postpone ( ... rectype -- )
-    -2 swap execute-;s ;
+    2 cells + @ execute-;s ;
 
 : name-compsem ( ... nt -- ... )
     \ perform compilation semantics of nt
@@ -56,23 +56,23 @@ forth-wordlist is rec-nt
 :noname name?int  execute-;s ;
 ' name-compsem
 :noname  lit, postpone name-compsem ;
-recognized: recognized-nt ( takes nt, i.e. result of find-name and find-name-in )
+translate: translate-nt ( takes nt, i.e. result of find-name and find-name-in )
 
 ' noop
 ' lit,
 :noname lit, postpone lit, ;
-recognized: recognized-num
+translate: translate-num
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
-recognized: recognized-dnum
+translate: translate-dnum
 
-: recognized-nt? ( token -- flag )
+: translate-nt? ( token -- flag )
     \G check if name token; postpone action may differ
-    >body 2@ ['] recognized-nt >body 2@ d= ;
-: nt>rec ( nt / 0 -- nt recognized-nt / notfound )
-    dup IF  dup where, ['] recognized-nt  ELSE  drop ['] notfound  THEN ;
+    >body 2@ ['] translate-nt >body 2@ d= ;
+: nt>rec ( nt / 0 -- nt translate-nt / notfound )
+    dup IF  dup where, ['] translate-nt  ELSE  drop ['] notfound  THEN ;
 
 \ snumber? should be implemented as recognizer stack
 
@@ -80,7 +80,7 @@ recognized: recognized-dnum
     \G converts a number to a single/double integer
     snumber?  dup
     IF
-	0> IF  ['] recognized-dnum  ELSE  ['] recognized-num  THEN  EXIT
+	0> IF  ['] translate-dnum  ELSE  ['] translate-num  THEN  EXIT
     THEN
     drop ['] notfound ;
 
@@ -136,7 +136,7 @@ Variable rec-level
     -1 rec-level +!
     2drop ['] notfound ;
 
-: rec-sequence: ( x1 .. xn n "name" -- ) \ gforth-experimental
+: recognizer-sequence: ( x1 .. xn n "name" -- ) \ gforth-experimental
     ['] recognize do-stack: ;
 
 $Variable default-recognize
@@ -144,7 +144,7 @@ DOES> recognize ;
 
 ( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
 \G The system recognizer
-Defer forth-recognize ( c-addr u -- ... recognized ) \ recognizer
+Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
 \G The system recognizer
 ' default-recognize is forth-recognize
 : set-forth-recognize ( xt -- ) \ recognizer
@@ -157,7 +157,7 @@ Defer forth-recognize ( c-addr u -- ... recognized ) \ recognizer
 unlock set-to lock
 
 : forth-parser ( addr u -- ... )
-    forth-recognize state @ swap execute-;s ;
+    forth-recognize execute-;s ;
 
 ' forth-parser IS parser
 

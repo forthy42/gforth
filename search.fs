@@ -20,7 +20,7 @@
 
 require struct.fs
 
-0 rec-sequence: search-order
+0 recognizer-sequence: search-order
 
 : >back ( x stack -- )
     \G push to bottom of stack

@@ -27,7 +27,7 @@ Vocabulary )bracket
     ['] xemit $tmp nextname Constant
     r> set-current ;
 
-: rec-brackets ( addr u type -- ) drop
+: rec-brackets ( addr u type -- )
     bounds xc@+ { open } xc@+ { close } 2drop
     close open ['] bracket( bracket:
     open close ['] )bracket bracket: ;
@@ -42,7 +42,7 @@ Vocabulary )bracket
 s" brackets.db" ' included ' brackets-recognizer recognize-execute
 s" quotation.db" ' included ' brackets-recognizer recognize-execute
 
-' bracket( >wordlist ' )bracket >wordlist 2 rec-sequence: brackets
+' bracket( >wordlist ' )bracket >wordlist 2 recognizer-sequence: brackets
 
 : ?notfound ( nt rectype-nt / notfound -- value )
     ['] notfound = IF  0  ELSE  execute  THEN ;

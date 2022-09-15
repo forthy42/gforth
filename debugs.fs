@@ -255,7 +255,7 @@ require string.fs
     \ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
     >r 2dup r> umin tuck type /string ;
 
-\ locate/view of recognized tokens show the recognizer, if not a word
+\ locate/view of translate tokens show the recognizer, if not a word
 \ Idea: Jenny Brian
 
 Variable rec'[]
@@ -272,7 +272,7 @@ Variable rec'[]
     sp@ 2 cells + fp@ 2>r  name-too-short?
     [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
     forth-recognize  0 to-style# !
-    dup recognized-nt? IF  drop rec'[] $free
+    dup translate-nt? IF  drop rec'[] $free
     ELSE  drop  rec'@  THEN
     2r> rot >r fp! sp! r>  r> is trace-recognizer
     dup ['] notfound = -#13 and throw ;

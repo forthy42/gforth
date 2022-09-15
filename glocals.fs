@@ -136,14 +136,14 @@ slowvoc !
 
 : no-post -48 throw ;
 
-' recognized-nt >body 2@ swap
+' translate-nt >body 2@ swap
 ' no-post
-recognized: recognized-locals ( takes nt, i.e. result of find-name and find-name-in )
+translate: translate-locals ( takes nt, i.e. result of find-name and find-name-in )
 
 : locals-rec [ ' locals >wordlist ] Literal execute
-    dup ['] recognized-nt = IF  drop ['] recognized-locals  THEN ;
+    dup ['] translate-nt = IF  drop ['] translate-locals  THEN ;
 
-' search-order ' locals-rec 2 rec-sequence: rec-locals
+' search-order ' locals-rec 2 recognizer-sequence: rec-locals
 
 : activate-locals   ['] rec-locals is rec-nt ;
 : deactivate-locals ['] search-order is rec-nt ;
@@ -406,7 +406,7 @@ w^ some-waddr 2drop
     ELSE  ['] default: defer@  THEN  nt>rec ;
 previous
 
-' new-locals-rec  ' locals-types >wordlist 2 rec-sequence: new-locals
+' new-locals-rec  ' locals-types >wordlist 2 recognizer-sequence: new-locals
 
 \ and now, finally, the user interface words
 : { ( -- hmaddr u latest latestnt wid 0 ) \ gforth open-brace
@@ -748,4 +748,4 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 	[ ' some-waddr   >does-code ] literal of no-post   endof
 	>r lit, postpone name-compsem r>
     endcase ;
-' recognized-locals >body 2 cells + ! \ replace stub
+' translate-locals >body 2 cells + ! \ replace stub

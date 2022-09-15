@@ -20,15 +20,15 @@
 
 : env$, ( addr u -- )  slit, postpone getenv ;
 
-' getenv ' env$, ' slit, >postponer recognized: recognized-env
-' recognized-env Constant rectype-env
+' getenv ' env$, ' slit, >postponer translate: translate-env
+' translate-env Constant rectype-env
 
 : rec-env ( addr u -- addr u rectype-env | rectype-null )
     \G words prefixed with @code{'$'} are passed to @code{getenv}
     \G to get the environment variable as string.
     \G Example: @code{$HOME} gives the home directory
     over c@ '$' <> IF  2drop  ['] notfound  EXIT  THEN
-    1 /string ['] recognized-env ;
+    1 /string ['] translate-env ;
 
 ' rec-env forth-recognizer >back
 

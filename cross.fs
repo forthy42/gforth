@@ -3623,7 +3623,7 @@ Build: ( xtint xtcomp xtpost --- )
     by Create
 
 ghost do-rec drop
-Builder recognized:
+Builder translate:
 Build: ( xtint xtcomp xtpost --- )
     T rot A, swap A, A, H 7 0 DO [T'] no.extensions X A, LOOP ;Build
 by: :dodoes3 ;DO
