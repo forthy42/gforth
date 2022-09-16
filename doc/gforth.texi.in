@@ -8738,8 +8738,13 @@ doc-rec-body
 doc-get-recognizers
 doc-set-recognizers
 doc-recognize
-doc-rec-sequence:
+doc-recognize-sequence:
 doc-forth-recognize
+doc-forth-recognizer
+doc-set-forth-recognize
+doc-translate:
+doc-translate-nt
+doc-translate-num
 
 @c -------------------------------------------------------------
 @node The Input Stream, Word Lists, The Text Interpreter, Words

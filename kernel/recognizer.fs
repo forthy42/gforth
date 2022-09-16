@@ -36,7 +36,7 @@
 : 2lit, ( n -- ) postpone 2literal ;
 
 : do-rec ( rectype -- ) state @ abs cells + @ execute-;s ;
-: translate: ( int-xt comp-xt post-xt "name" -- )
+: translate: ( int-xt comp-xt post-xt "name" -- ) \ gforth-experimental
     \G create a new recognizer table.  Items are in order of
     \G @var{STATE} value, which are 0 or negative.  Up to 7 slots
     \G are available for extensions.
@@ -56,17 +56,20 @@ forth-wordlist is rec-nt
 :noname name?int  execute-;s ;
 ' name-compsem
 :noname  lit, postpone name-compsem ;
-translate: translate-nt ( takes nt, i.e. result of find-name and find-name-in )
+translate: translate-nt ( i*x nt -- j*x ) \ gforth-experimental
+\G translate a name token
 
 ' noop
 ' lit,
 :noname lit, postpone lit, ;
-translate: translate-num
+translate: translate-num ( x -- | x ) \ gforth-experimental
+\G translate a number
 
 ' noop
 ' 2lit,
 :noname 2lit, postpone 2lit, ;
-translate: translate-dnum
+translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
+\G translate a double number
 
 : translate-nt? ( token -- flag )
     \G check if name token; postpone action may differ
