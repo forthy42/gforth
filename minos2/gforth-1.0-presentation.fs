@@ -56,7 +56,7 @@ tex: gforth-logo
     {{
 	glue*l }}glue \ ) $CCDDDD3F color, 4e }}frame dup .button1
 	l" Gforth 1.0" /title
-	l" Header & Recognizers" /subtitle
+	l" Header & Recognizers & IDE & SWIG & ΜΙΝΩΣ2" /subtitle
 	glue*2 }}glue
 	l" Bernd Paysan" /author
 	l" EuroForth 2022, Video–Konferenz" /location
@@ -116,6 +116,55 @@ tex: gforth-logo
 	    l" search order " l" is a rec-sequence:" b\\
 	    \skip
 	    l" translators " l" are executable, take ( data -- ... )" b\\
+	    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+	}}vt
+    }}v box[] >bdr
+}}z box[] /flip dup >slides
+
+\ page 7
+{{
+    $203000FF $EEFFCCFF pres-frame
+    {{
+	l" IDE" /title
+	l" Locate & Help & Where & Backtraces" /subsection
+	vt{{
+	    l" Locate " l" Browse the source code" b\\
+	    l" Help: " l" Browse the manual" b\\
+	    l" Where " l" Show where words are used: nw/bw+cursors" b\\
+	    l" Backtrace " l" Investigate a crash: bt/nt+cursors" b\\
+	    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+	}}vt
+    }}v box[] >bdr
+}}z box[] /flip dup >slides
+
+\ page 8
+{{
+    $302000FF $FFEECCFF pres-frame
+    {{
+	l" SWIG" /title
+	l" Generate C bindings automatically" /subsection
+	vt{{
+	    l" %.i file: " l" Helps SWIG find & understand C files" b\\
+	    l" %-fsi.c file: " l" Intermediate file, compiled with C" b\\
+	    l" %.fsx file: " l" Generates Forth bindings" b\\
+	    l" %.fs file: " l" Forth bindings, generate binding library" b\\
+	    \skip
+	    l" Outlook " l" Create complete binding libraries with reflections" b\\
+	    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
+	}}vt
+    }}v box[] >bdr
+}}z box[] /flip dup >slides
+
+\ page 9
+{{
+    $000000FF $FFFFFFF pres-frame
+    {{
+	l" ΜΙΝΩΣ2" /title
+	l" Lightweight GUI library" /subsection
+	vt{{
+	    l" Classes: " l" actors, widgets, boxes, viewports & animations" b\\
+	    l" Widgets: " l" glue, tile, frame, icon, image, text, edit, part-text canvas, (video)" b\\
+	    l" Boxes: " l" hbox, vbox, zbox, slider, parbox, (grid)" b\\
 	    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 	}}vt
     }}v box[] >bdr
