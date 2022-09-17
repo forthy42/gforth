@@ -111,11 +111,11 @@ tex: gforth-logo
 	l" Minimalistic Core & Sequences & Unification" /subsection
 	vt{{
 	    l" forth-recognize " l" Default–Recognizer as deferred Word" b\\
-	    l" rec-sequence: " l" Sequence of recognizers" b\\
+	    l" recognizer-sequence: " l" Sequence of recognizers" b\\
 	    l" wordlists " l" are executable and recognizers" b\\
 	    l" search order " l" is a rec-sequence:" b\\
 	    \skip
-	    l" Rectypes " l" are executable, take ( data state -- ... )" b\\
+	    l" translators " l" are executable, take ( data -- ... )" b\\
 	    glue*l }}glue \ ) $CCDDDD3F 4e }}frame dup .button1
 	}}vt
     }}v box[] >bdr
