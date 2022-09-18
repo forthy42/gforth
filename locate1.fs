@@ -484,7 +484,7 @@ Variable browse-results
     context @ wid>words[]
     where-results $free browse-results $free
     parse-name 0 { d: match wno }
-    words[] $@ bounds U+DO
+    words[] $@ bounds cell- swap cell- U-DO
 	i @ name>string match mword-match IF
 	    { | where[ where-struct ] }
 	    i @ where[ where-nt !
@@ -493,7 +493,7 @@ Variable browse-results
 	    where[ where-struct browse-results $+!
 	    1 +>wno
 	THEN
-    cell +LOOP
+    cell -LOOP
     words[] $free
     browse-results $@ bounds U+DO
 	i where-results >stack
