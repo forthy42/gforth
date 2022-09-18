@@ -49,14 +49,14 @@ get-recognizers 1+ ' rec-scope -rot set-recognizers
     ELSE   simple-search-prefix  THEN ;
 
 : scope-search-prefix ( addr1 len1 -- addr2 len2 )
-    ['] search-order  BEGIN >r
+    0  BEGIN >r
 	2dup ':' $split nosplit? IF
 	    2drop 2drop r> ?search-prefix  EXIT
 	THEN
-	2swap r> execute
+	2swap r> ?dup-0=-IF  ['] search-order  THEN  execute
 	['] notfound <>  WHILE
 	    dup >does-code [ ' forth >does-code ]L =  WHILE
 		>wordlist >r 2nip r>  REPEAT  drop  THEN
-    2drop 0 ?search-prefix ;
+    2drop simple-search-prefix ;
 
 ' scope-search-prefix is search-prefix
