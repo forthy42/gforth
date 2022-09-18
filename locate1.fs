@@ -404,8 +404,8 @@ variable code-locations 0 code-locations !
     0 { xt wno } wheres $@ bounds u+do
 	i where-nt @ xt execute if
 	    i where-loc @ cr wno .whereview1
-	    i { w^ ip } ip cell where-results $+!
-	    wno 1+ ->wno
+	    i where-results >stack
+	    1 +>wno
 	then
     where-struct +loop ;
 
@@ -475,6 +475,37 @@ short-where
     \G there is no current one.    If there is no current one, after
     \G @code{bw} the last one is the current one.
     where-</> where-index-- ww ;
+
+\ locate words by pattern
+
+Variable browse-results
+
+: (browse) ( "search" -- )
+    context @ wid>words[]
+    where-results $free browse-results $free
+    parse-name 0 { d: match wno }
+    words[] $@ bounds U+DO
+	i @ name>string match mword-match IF
+	    { | where[ where-struct ] }
+	    i @ where[ where-nt !
+	    i @ name>view where[ where-loc !
+	    where[ where-loc @ cr wno .whereview1
+	    where[ where-struct browse-results $+!
+	    1 +>wno
+	THEN
+    cell +LOOP
+    words[] $free
+    browse-results $@ bounds U+DO
+	i where-results >stack
+    where-struct +LOOP ;
+
+: browse ( "name" -- ) \ gforth
+    \g Show all places where @i{name} is used (text-interpreted).  You
+    \g can then use @code{ww}, @code{nw} or @code{bw} to inspect
+    \g specific occurences more closely.
+    ['] noop ['] filename>display
+    [: where-setup source-pos# source-line# 2>r
+	(browse) 2r> where-reset ;] wrap-xt ;
 
 \ count word usage
 
