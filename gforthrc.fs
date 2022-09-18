@@ -19,7 +19,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 Variable load-rc?
-:noname  defers 'cold load-rc? on ; is 'cold
+:noname  defers 'image load-rc? on ; is 'image
 
 get-current also options definitions
 : --no-rc ( -- )  load-rc? off ;

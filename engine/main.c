@@ -2296,7 +2296,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
       {"no-super", no_argument, &no_super, 1},
       {"no-dynamic", no_argument, &no_dynamic, 1},
-      {"no-rc0", no_argument, &no_rc0, 1},
+      {"no-0rc", no_argument, &no_rc0, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
       {"code-block-size", required_argument, NULL, opt_code_block_size},
       {"print-metrics", no_argument, &print_metrics, 1},
@@ -2371,7 +2371,7 @@ Engine Options:\n\
   --no-dynamic			    Use only statically compiled primitives\n\
   --no-offset-im		    Load image at normal position\n\
   --no-super			    No dynamically formed superinstructions\n\
-  --no-rc0			    do not load ~/.config/gforthrc0\n\
+  --no-0rc			    do not load ~/.config/gforthrc0\n\
   --offset-image		    Load image at a different position\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
