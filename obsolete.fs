@@ -29,12 +29,15 @@
 : place ( c-addr1 u c-addr2 ) \ gforth-obsolete place
     \G create a counted string of length @var{u} at @var{c-addr2}
     \G and copy the string @var{c-addr1 u} into that location.
-    2dup c! char+ swap move ;
+    over >r  rot over 1+  r> move c! ;
 
-: +place ( c-addr1 u c-addr2 -- ) \ gforth-obsolete place
+: +place {: c-addr1 u1 c-addr2 -- :} \ gforth-obsolete plus-place
     \G append the string @var{c-addr1 u} to counted string at @var{c-addr2}
     \G and increase it's length by @var{u}.
-    2dup c@ dup >r  + over c!  r> char+ +  swap move ;
+    c-addr2 count {: c-addr u2 :}
+    u2 u1 + $ff min {: u :}
+    c-addr1 c-addr u u2 /string move
+    u c-addr2 c! ;
 
 : sword  ( char -- addr len ) \ gforth-obsolete s-word
 \G Parses like @code{word}, but the output is like @code{parse} output.
