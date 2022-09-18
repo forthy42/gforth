@@ -694,6 +694,8 @@ interpret/compile: s` ( "eval-string" -- addr u )
 	ctrl l  of 0  append-locate-lines contof
 	'q'     of endof
 	#esc    of endof
+	#cr     of endof
+	#lf     of endof
 	ekey>xchar ?of  ['] xemit $tmp unkeys  endof
 	k-up    of 1 prepend-locate-lines contof
 	k-down  of 1  append-locate-lines contof
