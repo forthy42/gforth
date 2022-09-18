@@ -133,10 +133,8 @@ Defer in-dictionary? ( x -- f )
     \ stack element (not recommended).
     2 + cells sp@ + ! ;
 
-\ place bounds                                         13feb93py
+\ bounds                                         13feb93py
 
-: place  ( addr len to -- ) \ gforth
-    over >r  rot over 1+  r> move c! ;
 : bounds ( addr u -- addr+u addr ) \ gforth
     \G Given a memory block represented by starting address @i{addr}
     \G and length @i{u} in aus, produce the end address @i{addr+u} and
