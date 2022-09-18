@@ -76,6 +76,16 @@ H
 \ may be useful for assemblers
 0 Constant gforth-cross-indicator
 
+[IFUNDEF] +place
+: +place ( adr len adr )
+    2dup c@ dup >r  + over c!  r> char+ +  swap move ;
+[THEN]
+
+[IFUNDEF] place
+: place ( c-addr1 u c-addr2 )
+    2dup c! char+ swap move ;
+[THEN]
+
 \ find out whether we are compiling with gforth
 
 : bl-word ( -- addr )
@@ -434,16 +444,6 @@ Create NoFile ," #load-file#"
 \ the file is opened read-only; if the file is not found an error is generated
 
 \ questions to: wilke@jwdt.com
-
-[IFUNDEF] +place
-: +place ( adr len adr )
-    2dup c@ dup >r  + over c!  r> char+ +  swap move ;
-[THEN]
-
-[IFUNDEF] place
-: place ( c-addr1 u c-addr2 )
-    2dup c! char+ swap move ;
-[THEN]
 
 \ if we have path handling, use this and the setup of it
 [IFUNDEF] open-fpath-file

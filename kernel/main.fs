@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Create mach-file here over 1+ allot place
+[IFDEF] save-mem save-mem [THEN] 2Constant machine-file
 
 0 [IF]
 \ debugging: produce a relocation and a symbol table
