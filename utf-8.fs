@@ -268,6 +268,8 @@ here wc-table - Constant #wc-table
     3 cells +LOOP  1 ;
 [ELSE]
     ' wcwidth Alias xc-width ( xc -- n ) \ xchar-ext x-c-width
+    \g @var{xc} has a width of @var{n} times the width of a normal
+    \g fixed-width glyph.
 [THEN]
 
 : xc-width+ ( n xc -- n' )

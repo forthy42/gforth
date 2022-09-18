@@ -5206,6 +5206,11 @@ doc-f2*
 doc-f2/
 doc-1/f
 
+Vector arithmetics:
+
+doc-v*
+doc-faxpy
+
 @cindex angles in trigonometric operations
 @cindex trigonometric operations
 Angles in floating point operations are given in radians (a full circle
@@ -5335,6 +5340,7 @@ doc-ftuck
 doc-fswap
 doc-fpick
 doc-frot
+doc-f-rot
 
 
 @node Return stack, Locals stack, Floating point stack, Stack Manipulation
@@ -5586,12 +5592,15 @@ doc-aligned
 doc-floats
 doc-float+
 doc-float
+doc-float/
 doc-faligned
 doc-sfloats
 doc-sfloat+
+doc-sfloat/
 doc-sfaligned
 doc-dfloats
 doc-dfloat+
+doc-dfloat/
 doc-dfaligned
 doc-maxaligned
 doc-cfaligned
@@ -5629,6 +5638,8 @@ doc-str=
 doc-str<
 doc-string-prefix?
 doc-search
+doc-scan
+doc-skip
 doc--trailing
 doc-/string
 doc-safe/string
@@ -9224,6 +9235,7 @@ doc-read-file
 doc-read-line
 doc-key-file
 doc-key?-file
+doc-file-eof?
 doc-write-file
 doc-write-line
 doc-emit-file
@@ -9860,6 +9872,7 @@ doc-cr
 @cindex cursor control
 doc-s"
 doc-s\"
+doc-newline
 doc-c"
 doc-char
 doc-[char]
@@ -10240,6 +10253,7 @@ doc--trailing-garbage
 doc-x-width
 doc-xkey
 doc-xemit
+doc-xc-width
 
 There's a new environment query
 

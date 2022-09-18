@@ -1869,7 +1869,7 @@ longname2 = tablelfind(c_addr, u, a_addr);
 : sgn ( n -- -1/0/1 )
  dup 0= IF EXIT THEN  0< 2* 1+ ;
 
-(hashkey1)	( c_addr u ubits -- ukey )		gforth	paren_hashkey1
+(hashkey1)	( c_addr u ubits -- ukey )	gforth-internal	paren_hashkey1
 ""ukey is the hash key for the string c_addr u fitting in ubits bits""
 ukey = hashkey1(c_addr, u, ubits);
 :
@@ -1885,11 +1885,11 @@ Create rot-values
   7 c, 5 c, 5 c, 5 c, 5 c,  6 c, 5 c, 5 c, 5 c, 5 c,
   7 c, 5 c, 5 c,
 
-(hashkey2) ( c_addr u ubits -- ukey )		gforth	paren_hashkey2
+(hashkey2) ( c_addr u ubits -- ukey )	gforth-internal	paren_hashkey2
 ""A faster replacement for @code{(hashkey1)}""
 ukey = hashkey2a(c_addr,u) >> (8*sizeof(UCell) - ubits);
 
-hashkey2  ( c_addr u f a_addr -- )	gforth	hashkey2
+hashkey2  ( c_addr u f a_addr -- )	gforth-internal	hashkey2
 ""Compute a 128 bit hash key of the string c_addr u, starting with the
 key in a_addr.  If f is true, compute case insensitive.""
 hashkey2(c_addr, u, f ? 0x2020202020202020LL : 0LL, (hash128*)a_addr);
@@ -1898,7 +1898,7 @@ hashkey2(c_addr, u, f ? 0x2020202020202020LL : 0LL, (hash128*)a_addr);
 
 \+
 
-(parse-white)	( c_addr1 u1 -- c_addr2 u2 )	gforth	paren_parse_white
+(parse-white)	( c_addr1 u1 -- c_addr2 u2 )	gforth-internal	paren_parse_white
 struct Cellpair r=parse_white(c_addr1, u1);
 c_addr2 = (Char *)(r.n1);
 u2 = r.n2;
@@ -1909,7 +1909,9 @@ u2 = r.n2;
  REPEAT  THEN  nip - ;
 
 scan	 ( c_addr1 u1 c -- c_addr2 u2 )	gforth
-""Skip all characters not equal to c.  The result starts with c or is empty.""
+""Skip all characters not equal to c.  The result starts with c or is
+empty.  @code{Scan} is limited to single-byte (ASCII) characters.  Use
+@code{search} to search for multi-byte characters.""
 for (c_addr2=c_addr1; c_addr2!=c_addr1+u1 && *c_addr2 != c; c_addr2++)
   ;
 u2 = (c_addr1+u1)-c_addr2;
@@ -1931,7 +1933,8 @@ if (u2!=0 && c_addr3!=c_addr2)
 
 skip	( c_addr1 u1 c -- c_addr2 u2 )	gforth
 ""Skip all characters equal to c.  The result starts with the first
-non-c character, or it is empty.""
+non-c character, or it is empty.  @code{Scan} is limited to
+single-byte (ASCII) characters.""
 for (c_addr2=c_addr1; c_addr2!=c_addr1+u1 && *c_addr2 == c; c_addr2++)
   ;
 u2 = (c_addr1+u1)-c_addr2;
@@ -1975,7 +1978,7 @@ n=1;
 :
  1 ;
 
-debugging-method	( -- n )	gforth	debugging_method
+debugging-method	( -- n )	gforth-internal	debugging_method
 ""true if the engine supports debugging""
 #if defined(GFORTH_DEBUGGING)
 n=-1;
@@ -1989,7 +1992,7 @@ n=0;
 
 \g hostos
 
-(key-file)	( wfileid -- n )		gforth	paren_key_file
+(key-file)	( wfileid -- n )	gforth-internal	paren_key_file
 ""Read one character @i{n} from @i{wfileid}.  This word disables
 buffering for @i{wfileid}.  If you want to read characters from a
 terminal in non-canonical (raw) mode, you have to put the terminal in
@@ -2027,12 +2030,12 @@ stderr	( -- wfileid )	gforth
 ""The standard error output file of the Gforth process.""
 wfileid = (Cell)stderr;
 
-term-prep?	( -- f )	gforth	term_prep_q
+term-prep?	( -- f )	gforth-internal	term_prep_q
 f=FLAG(terminal_prepped);
 
 \+os
 
-(form)	( -- urows ucols )	gforth	paren_form
+(form)	( -- urows ucols )	gforth-internal	paren_form
 ""The number of lines and columns in the terminal. These numbers may
 change with the window size.  Note that it depends on the OS whether
 this reflects the actual size and changes with the window size
@@ -2045,11 +2048,11 @@ Gforth.""
 urows=rows;
 ucols=cols;
 
-isatty	( wfileid -- f )	gforth	isatty
+isatty	( wfileid -- f )	gforth-internal	isatty
 ""checks if fd is a (pseudo-)terminal""
 f = FLAG(isatty( fileno((FILE*)wfileid) ));
 
-isfg	 ( wfileid -- f )	gforth	isfg
+isfg	 ( wfileid -- f )	gforth-internal	isfg
 ""check if fd is controlled by us (we are the foreground process)""
 pid_t fg = tcgetpgrp( fileno((FILE*)wfileid) );
 if (fg == -1) {
@@ -2057,7 +2060,7 @@ if (fg == -1) {
 } else
    f=FLAG(fg == getpgrp());
 
-wcwidth	( u -- n )	gforth
+wcwidth	( u -- n )	gforth-internal
 ""The number of fixed-width characters per unicode character u""
 n = wcwidth(u);
 
@@ -2073,7 +2076,7 @@ your machine has a separate instruction cache. In such cases,
 cache.""
 FLUSH_ICACHE((caddr_t)c_addr,u);
 
-(bye)	( n -- )	gforth	paren_bye
+(bye)	( n -- )	gforth-internal	paren_bye
 SUPER_END;
 gforth_FP=fp;
 gforth_SP=sp;
@@ -2081,7 +2084,7 @@ gforth_RP=rp;
 gforth_LP=lp;
 return (Label *)n;
 
-(system)	( c_addr u -- wretval wior )	gforth	paren_system
+(system)	( c_addr u -- wretval wior )	gforth-internal	paren_system
 wretval = gforth_system(c_addr, u);  
 wior = IOR(wretval==-1 || (wretval==127 && errno != 0));
 
@@ -2134,11 +2137,11 @@ c_addrtz= 0;
 utz     = 0;
 #endif
 
-(ms)	( u -- )	facility-ext	paren_ms
+(ms)	( u -- )	gforth-internal	paren_ms
 ""Wait at least @i{n} milli-second.""
 gforth_ms(u);
 
-heap-allocate	( u -- a_addr wior )	gforth	heap_allocate
+heap-allocate	( u -- a_addr wior )	gforth-internal	heap_allocate
 ""Allocate @i{u} address units of contiguous data space. The initial
 contents of the data space is undefined. If the allocation is successful,
 @i{a-addr} is the start address of the allocated region and @i{wior}
@@ -2147,7 +2150,7 @@ is a non-zero I/O result code.""
 a_addr = (Cell *)malloc_l(u?u:1);
 wior = IOR(a_addr==NULL);
 
-heap-free	( a_addr -- wior )	gforth	heap_free
+heap-free	( a_addr -- wior )	gforth-internal	heap_free
 ""Return the region of data space starting at @i{a-addr} to the system.
 The region must originally have been obtained using @code{allocate} or
 @code{resize}. If the operational is successful, @i{wior} is 0.
@@ -2155,7 +2158,7 @@ If the operation fails, @i{wior} is a non-zero I/O result code.""
 free_l(a_addr);
 wior = 0;
 
-heap-resize	( a_addr1 u -- a_addr2 wior )	gforth	heap_resize
+heap-resize	( a_addr1 u -- a_addr2 wior )	gforth-internal	heap_resize
 ""Change the size of the allocated area at @i{a-addr1} to @i{u}
 address units, possibly moving the contents to a different
 area. @i{a-addr2} is the address of the resulting area.
@@ -2174,11 +2177,11 @@ wior = IOR(a_addr2==NULL);	/* !! Define a return code */
 if(wior)
   a_addr2 = a_addr1; /* in case of an error, keep a_addr1 */
 
-strerror	( n -- c_addr u )	gforth
+strerror	( n -- c_addr u )	gforth-internal
 c_addr = (Char *)strerror(n);
 u = strlen((char *)c_addr);
 
-strsignal	( n -- c_addr u )	gforth
+strsignal	( n -- c_addr u )	gforth-internal
 c_addr = (Char *)strsignal(n);
 u = strlen((char *)c_addr);
 
@@ -2195,7 +2198,7 @@ sp=x.spx;
 fp=x.fpx;
 IF_fpTOS(fpTOS=fp[0]);
 
-call-c#	( ... #a_addr -- ... )	gforth	call_c_direct
+call-c#	( ... #a_addr -- ... )	gforth-internal	call_c_direct
 ""Call the C function pointed to by the inline argument @i{w}. The C function
 has to access the stack itself. The stack pointers are exported into a ptrpair
 structure passed to the C function, and returned in that form.""
@@ -2208,10 +2211,10 @@ sp=x.spx;
 fp=x.fpx;
 IF_fpTOS(fpTOS=fp[0]);
 
-gforth-pointers ( -- a_addr )  gforth get_gforth_pointers
+gforth-pointers ( -- a_addr )  gforth-internal gforth_pointers
 a_addr = (Cell*)gforth_pointers;
 
-winch? ( -- a_addr )	gforth winch_query
+winch? ( -- a_addr )	gforth-internal winch_query
 #ifdef SIGWINCH
 a_addr = &winch_addr;
 #else
@@ -2279,7 +2282,7 @@ do {
     clearerr((FILE *)wfileid);
 } while(wior==TOIOR(EINTR));
 
-(read-line)	( c_addr u1 wfileid -- u2 flag u3 wior ) file	paren_read_line
+(read-line) ( c_addr u1 wfileid -- u2 flag u3 wior ) gforth-internal paren_read_line
 struct Cellquad r = read_line(c_addr, u1, (FILE *)wfileid);
 u2   = r.n1;
 flag = r.n2;
@@ -2323,6 +2326,7 @@ wfam = r.n1;
 wior = r.n2;
 
 file-eof?	( wfileid -- flag )	gforth	file_eof_query
+""@var{Flag} is true if the end-of-file indicator for @var{wfileid} is set.""
 flag = FLAG(feof((FILE *) wfileid));
 
 open-dir	( c_addr u -- wdirid wior )	gforth	open_dir
@@ -2456,7 +2460,7 @@ time1.tv_nsec = time2.tv_usec*1000;
 #endif
 dtime = timespec2ns(&time1);
 
-(ns)    ( uns nsec -- wior )	gforth	paren_ns
+(ns)    ( uns nsec -- wior )	gforth-internal	paren_ns
 ""Wait for usec+uns, values precomputed in Forth""
 if(nsec >= 0) {
 #if HAVE_PSELECT
@@ -2565,16 +2569,16 @@ CLOBBER_TOS_WORKAROUND_START;
 r3 = pow(r1,r2);
 CLOBBER_TOS_WORKAROUND_END;
 
-fm*	( r1 n -- r2 )	gforth	fm_star
+fm*	( r1 n -- r2 )	gforth-internal	fm_star
 r2 = r1*n;
 
-fm/	( r1 n -- r2 )	gforth	fm_slash
+fm/	( r1 n -- r2 )	gforth-internal	fm_slash
 r2 = r1/n;
 
-fm*/	( r1 n1 n2 -- r2 )	gforth	fm_star_slash
+fm*/	( r1 n1 n2 -- r2 )	gforth-internal	fm_star_slash
 r2 = (r1*n1)/n2;
 
-f**2	( r1 -- r2 )	gforth	fm_square
+f**2	( r1 -- r2 )	gforth-internal	fm_square
 r2 = r1*r1;
 
 fnegate	( r1 -- r2 )	floating	f_negate
@@ -2894,7 +2898,7 @@ n2 = n1 / sizeof(SFloat);
 
 f-rot	( r1 r2 r3 -- r3 r1 r2 )	floating	f_not_rote
 
-flit	( -- r1 )   gforth
+flit	( -- r1 )   gforth-internal
 r1 = *(Float*)ip;
 INC_IP(sizeof(Float)/sizeof(Cell));
 
@@ -2961,7 +2965,7 @@ lp+2	( -- )	new	lp_plus_two
 lp += 2*sizeof(Float);
 ALIVE_DEBUGGING(lp[-1]);
 
-lp!	( c_addr -- )	gforth	lp_store
+lp!	( c_addr -- )	gforth-internal	lp_store
 lp = (Address)c_addr;
 
 >l	( w -- )	gforth	to_l
@@ -2994,7 +2998,7 @@ ffourth	  ( r1 r2 r3 r4 -- r1 r2 r3 r4 r1 )	gforth
 open-lib	( c_addr1 u1 -- u2 )	gforth	open_lib
 u2 = gforth_dlopen(c_addr1, u1);
 
-open-lib2	( c_addr1 u1 -- u2 )	gforth	open_lib2
+open-lib2	( c_addr1 u1 -- u2 )	gforth-internal	open_lib2
 u2 = gforth_dlopen2(c_addr1, u1);
 
 lib-sym	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym
@@ -3013,10 +3017,10 @@ u3 = 0;
 #endif
 free_l(string);
 
-lib-sym2	( c_addr1 u1 u2 -- u3 )	gforth	lib_sym2
+lib-sym2	( c_addr1 u1 u2 -- u3 )	gforth-internal	lib_sym2
 u3 = gforth_dlsym2(c_addr1, u1, u2);
 
-wcall	( ... u -- ... )	gforth
+wcall	( ... u -- ... )	gforth-internal
 gforth_FP=fp;
 sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &gforth_FP);
 fp=gforth_FP;
