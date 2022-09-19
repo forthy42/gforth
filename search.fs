@@ -19,6 +19,7 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 require struct.fs
+require rec-sequence.fs
 
 0 recognizer-sequence: search-order
 
