@@ -1,7 +1,11 @@
 User-visible changes between 0.7.0 and 1.0:
 
-Special memory access words
-
+Words for accessing memory in 16-bit (w), 32-bit (l), and 64-bit (x, xd) units:
+  uw@ sw@ w! ul@ sl@ l! ux@ sx@ x! uxd@ sxd@ xd!
+ for dealing with different byte orders: wbe wle lbe lle xbe xle xdbe xdle
+ for sign-extending: c>s w>s l>s x>s xd>s
+ for allocating: w, l, x, xd,
+ for alignment: waligned walign laligned lalign xaligned xalign
 
 User-visible changes between 0.6.2 and 0.7.0:
 

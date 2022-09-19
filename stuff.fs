@@ -467,9 +467,11 @@ alias xd>s ( xd -- d ) \ gforth
 : l, ( l -- ) \ gforth l-comma
     here l!  4 allot ;
 [IFDEF] x!
-    : x, ( l -- ) \ gforth x-comma
+    : x, ( x -- ) \ gforth x-comma
         here x!  8 allot ;
 [THEN]
+: xd, ( xd -- ) \ gforth x-d-comma
+    here 8 allot xd! ;
 
 ' naligned alias *aligned ( addr n -- addr' )
 : *align ( n -- )

@@ -5481,6 +5481,7 @@ doc-2,
 doc-w,
 doc-l,
 doc-x,
+doc-xd,
 
 Memory accesses have to be aligned (@pxref{Address arithmetic}). So of
 course you should allocate memory in an aligned way, too. I.e., before
@@ -5621,7 +5622,7 @@ Overall, this leads to sequences like
 
 @example
 uw@@ wbe w>s \ 16-bit unaligned signed big-endian fetch
-lle w!      \ 32-bit unaligned little-endian store
+>r lle r> w!      \ 32-bit unaligned little-endian store
 @end example
 
 @node Address arithmetic, Memory Blocks, Special Memory Accesses, Memory
