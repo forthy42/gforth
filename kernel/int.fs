@@ -848,6 +848,8 @@ Defer .error-level ( n -- )
 defer reset-dpp
 :noname section-dp dpp ! ; is reset-dpp
 
+Variable rec-level
+
 : (DoError) ( throw-code -- )
     dup -1 = IF  drop EXIT  THEN \ -1 is abort, no error message!
     [ has? os [IF] ]

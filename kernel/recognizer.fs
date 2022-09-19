@@ -117,8 +117,6 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 : stack# ( stack -- elements )
     $@len cell/ ;
 
-Variable rec-level
-
 : minimal-recognize ( addr u -- ... translate-xt / notfound ) \ gforth-experimental
   2>r 2r@ rec-nt dup ['] notfound = IF  drop 2r@ rec-num  THEN  2rdrop ;
 
