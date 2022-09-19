@@ -279,6 +279,7 @@ Memory
 * Dictionary allocation::
 * Heap Allocation::
 * Memory Access::
+* Special Memory Accesses::
 * Address arithmetic::
 * Memory Blocks::
 
@@ -601,6 +602,11 @@ MINOS2, a GUI library
 
 * MINOS2 object framework::
 * MINOS2 tutorial::
+
+MINOS2 object framework
+
+* actor methods::
+* widget methods::
 
 Licenses
 
@@ -5401,6 +5407,7 @@ doc-lp!
 * Dictionary allocation::
 * Heap Allocation::
 * Memory Access::
+* Special Memory Accesses::
 * Address arithmetic::
 * Memory Blocks::
 @end menu
@@ -5471,6 +5478,9 @@ doc-c,
 doc-f,
 doc-,
 doc-2,
+doc-w,
+doc-l,
+doc-x,
 
 Memory accesses have to be aligned (@pxref{Address arithmetic}). So of
 course you should allocate memory in an aligned way, too. I.e., before
@@ -5513,7 +5523,7 @@ doc-free
 doc-resize
 
 
-@node Memory Access, Address arithmetic, Heap Allocation, Memory
+@node Memory Access, Special Memory Accesses, Heap Allocation, Memory
 @subsection Memory Access
 @cindex memory access words
 
@@ -5530,14 +5540,91 @@ doc-sf@
 doc-sf!
 doc-df@
 doc-df!
+
+@node Special Memory Accesses, Address arithmetic, Memory Access, Memory
+@subsection Special Memory Accesses
+@cindex byte order
+@cindex big-endian
+@cindex little-endian
+@cindex sign extension
+@cindex unaligned memory access
+
+This section is about memory accesses useful for communicating with
+other software or other computers.  This means that the accesses are
+of a certain bit width (independent of Gforth's cell width), are
+possibly not naturally aligned and typically have a certain byte order
+that may be different from the native byte order of the system that
+Gforth runs on.
+
+We use the following prefixes:
+
+@table @code
+@item c
+8 bits (character)
+@item w
+16 bits
+@item l
+32 bits
+@item x
+64 bits represented as one cell
+@item xd
+64 bits represented as two cells
+@end table
+
+The @code{x}-prefix words do not work properly on 32-bit systems, so
+for code that is intended to be portable to 32-bit systems you should
+use @code{xd}-prefix words.  Note that @code{xd}-prefix words work on
+64-bit systems: there the upper cell is just 0 (for unsigned values)
+or a sign extension of the lower cell.
+
+The memory-access words below all work with arbitrarily (un)aligned
+addresses (unlike @code{@@}, @code{!}, @code{f@@}, @code{f!}, which
+require alignment on some hardware).
+
 doc-sw@
 doc-uw@
 doc-w!
 doc-sl@
 doc-ul@
 doc-l!
+doc-sx@
+doc-ux@
+doc-x!
+doc-sxd@
+doc-uxd@
+doc-xd!
 
-@node Address arithmetic, Memory Blocks, Memory Access, Memory
+For accesses with a specific byte order, you have to perform
+byte-order adjustment immediately after a fetch (before the
+sign-extension), or immediately before the store.  The results of these
+byte-order adjustment words are always zero-extended.
+
+doc-wbe
+doc-wle
+doc-lbe
+doc-lle
+doc-xbe
+doc-xle
+doc-xdbe
+doc-xdle
+
+For signed fetches with a specific byte order, you have to perform a
+sign-extension word after an unsigned fetch and a byte-order correction:
+
+doc-c>s
+doc-w>s
+doc-l>s
+doc-x>s
+doc-xd>s
+
+Overall, this leads to sequences like
+
+@example
+uw@@ wbe w>s \ 16-bit unaligned signed big-endian fetch
+lle w!      \ 32-bit unaligned little-endian store
+@end example
+
+@node Address arithmetic, Memory Blocks, Special Memory Accesses, Memory
 @subsection Address arithmetic
 @cindex address arithmetic words
 
@@ -5604,9 +5691,18 @@ doc-dfloat/
 doc-dfaligned
 doc-maxaligned
 doc-cfaligned
+doc-naligned
+doc-waligned
+doc-laligned
+doc-xaligned
+
+The following environmental queries may be useful to those who want to
+write software portable to non-byte-addressed machines.
+
 doc-address-unit-bits
 doc-/w
 doc-/l
+doc-/x
 
 @node Memory Blocks,  , Address arithmetic, Memory
 @subsection Memory Blocks
@@ -18063,7 +18159,7 @@ doc-get
 doc-set
 doc-show-you
 
-@node widget methods, , actor methods, MINOS2 object framework
+@node widget methods,  , actor methods, MINOS2 object framework
 @subsection @code{widget} methods:
 
 doc-parent-w

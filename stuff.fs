@@ -373,6 +373,9 @@ environment-wordlist >order
 32 address-unit-bits / 1 max constant /l ( -- u ) \ gforth slash-l
 \G address units for a 32-bit value
 
+64 address-unit-bits / 1 max constant /x ( -- u ) \ gforth slash-x
+\G address units for a 64-bit value
+
 previous
 
 [ifdef] uw@ \ Open firmware names
@@ -388,42 +391,101 @@ previous
 [IFDEF] uxd@ ' uxd@ alias xd@ ( addr -- u )
 [ELSE] [IFDEF] xd@ ' xd@ alias uxd@ [THEN] [THEN]
 
+[IFUNDEF] xd><
+    1 cells 4 = [if]
+        : xd>< ( xd1 -- xd2 ) \ gforth
+            \g Convert 64-bit value in \code{xd1} from native byte
+            \g order to big-endian or from big-endian to native byte
+            \g order (the same operation)
+            l>< swap l>< ;
+    [else] 1 cells 8 = [if]
+            : xd>< ( xd1 -- xd2 ) \ gforth
+                \g Convert 64-bit value in \code{xd1} from native byte
+                \g order to big-endian or from big-endian to native byte
+                \g order (the same operation)
+                swap x>< swap ;
+        [else] error-no-xd><-for-this-cell-size
+        [then]
+    [then]
+[then]
+
 1 pad ! pad c@ 1 = [IF] \ little endian
-    [IFDEF] w>< synonym wbe w>< [THEN]
-    [IFDEF] l>< synonym lbe l>< [THEN]
-    [IFDEF] x>< synonym xbe x><
-	' noop alias xle immediate
-    [THEN]
-    [IFDEF] xd>< synonym xdbe xd><
-    [ELSE] : xdbe l>< swap l>< ; [THEN]
-    ' noop alias xdle immediate
-    ' noop alias wle immediate
-    ' noop alias lle immediate
-[ELSE]
-    [IFDEF] w>< synonym wle w>< [THEN]
-    [IFDEF] l>< synonym lle l>< [THEN]
-    [IFDEF] x>< synonym xle x><
-	' noop alias xbe immediate
-    [THEN]
-    [IFDEF] xd>< synonym xdle xd><
-    [ELSE] : xdle l>< swap l>< ; [THEN]
-    ' noop alias xdbe immediate
-    ' noop alias wbe immediate
-    ' noop alias lbe immediate
+    ' noop ' noop ' noop ' noop ' xd>< ' x><  ' l><  ' w><
+[else] \ big-endian
+    ' xd>< ' x><  ' l><  ' w><  ' noop ' noop ' noop ' noop
 [THEN]
 
-: w, ( w -- )  here w!  2 allot ;
-: l, ( l -- )  here l!  4 allot ;
-[IFDEF] x!  : x, ( l -- )  here x!  8 allot ;  [THEN]
+( 8 xts )
+alias wbe ( u1 -- u2 ) \ gforth
+\g Convert 16-bit value in @i{u1} from native byte order to
+\g big-endian or from big-endian to native byte order (the same
+\g operation)
+alias lbe ( u1 -- u2 ) \ gforth
+\g Convert 32-bit value in @i{u1} from native byte order to
+\g big-endian or from big-endian to native byte order (the same
+\g operation)
+alias xbe ( u1 -- u2 ) \ gforth
+\g Convert 64-bit value in @i{u1} from native byte order to
+\g big-endian or from big-endian to native byte order (the same
+\g operation)
+alias xdbe ( ud1 -- ud2 ) \ gforth
+\g Convert 64-bit value in @i{ud1} from native byte order to
+\g big-endian or from big-endian to native byte order (the same
+\g operation)
+alias wle ( u1 -- u2 ) \ gforth
+\g Convert 16-bit value in @i{u1} from native byte order to
+\g little-endian or from little-endian to native byte order (the same
+\g operation)
+alias lle ( u1 -- u2 ) \ gforth
+\g Convert 32-bit value in @i{u1} from native byte order to
+\g little-endian or from little-endian to native byte order (the same
+\g operation)
+alias xle ( u1 -- u2 ) \ gforth
+\g Convert 64-bit value in @i{u1} from native byte order to
+\g little-endian or from little-endian to native byte order (the same
+\g operation)
+alias xdle ( ud1 -- ud2 ) \ gforth
+\g Convert 64-bit value in @i{ud1} from native byte order to
+\g little-endian or from little-endian to native byte order (the same
+\g operation)
 
-: *aligned ( addr n -- addr' )  tuck 1- + swap negate and ;
-: *align ( n -- )  here swap *aligned ->here ;
-: walign ( -- )  2 *align ;
-: waligned ( addr -- addr' )  2 *aligned ;
-: lalign ( -- )  4 *align ;
-: laligned ( addr -- addr' )  4 *aligned ;
-: xalign ( -- )  8 *align ;
-: xaligned ( addr -- addr' )  8 *aligned ;
+' noop alias x>s ( x -- n ) \ gforth
+\g Sign-extend the 64-bit value in @i{x} to cell @i{n}.
+1 cells 4 = [if]
+    ' noop
+[else] 1 cells 8 = [if]
+        ' s>d
+    [else]
+        error-no-xd>s-for-this-cell-size
+    [then]
+[then]
+alias xd>s ( xd -- d ) \ gforth
+\g Sign-extend the 64-bit value in @var{xd} to double-ceel @var{d}.
+
+: w, ( w -- ) \ gforth w-comma
+    here w!  2 allot ;
+: l, ( l -- ) \ gforth l-comma
+    here l!  4 allot ;
+[IFDEF] x!
+    : x, ( l -- ) \ gforth x-comma
+        here x!  8 allot ;
+[THEN]
+
+' naligned alias *aligned ( addr n -- addr' )
+: *align ( n -- )
+    here swap naligned ->here ;
+: walign ( -- ) \ gforth
+    2 *align ;
+: waligned ( addr -- addr' ) \ gforth
+    2 *aligned ;
+: lalign ( -- ) \ gforth
+    4 *align ;
+: laligned ( addr -- addr' ) \ gforth
+    4 *aligned ;
+: xalign ( -- ) \ gforth
+    8 *align ;
+: xaligned ( addr -- addr' ) \ gforth
+    8 *aligned ;
 
 \ safe output redirection
 

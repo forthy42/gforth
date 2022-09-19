@@ -90,6 +90,7 @@
 \E s" Char"		single data-stack type-prefix c
 \E s" Cell"		single data-stack type-prefix n
 \E s" Cell"		single data-stack type-prefix w
+\E s" Cell"		single data-stack type-prefix x
 \E s" UCell"		single data-stack type-prefix u
 \E s" DCell"		double data-stack type-prefix d
 \E s" UDCell"		double data-stack type-prefix ud
@@ -3148,10 +3149,10 @@ u = tb;
 u = BSWAP32(tb);
 #endif
 
-close-lib ( u -- )   gforth close_lib
+close-lib ( u -- )   gforth-internal close_lib
 gforth_dlclose(u);
 
-close-lib2 ( u -- )   gforth close_lib2
+close-lib2 ( u -- )   gforth-internal close_lib2
 gforth_dlclose2(u);
 
 \+
@@ -3413,16 +3414,16 @@ ud=BSWAP64(ob);
 # endif
 #endif
 
-w>< ( u1 -- u2 )  gforth wordswap
+w>< ( u1 -- u2 )  gforth-internal wordswap
 u2=BSWAP16(u1);
 
-l>< ( u1 -- u2 )  gforth longswap
+l>< ( u1 -- u2 )  gforth-internal longswap
 u2=BSWAP32(u1);
 
-x>< ( u1 -- u2 )  gforth extralongswap
+x>< ( u1 -- u2 )  gforth-internal extralongswap
 u2=BSWAP64((uint64_t)u1);
 
-xd>< ( ud1 -- ud2 )  gforth extralongdswap
+xd>< ( ud1 -- ud2 )  gforth-internal extralongdswap
 #if SIZEOF_CHAR_P == 8
 D_IS(ud2, 0LL, BSWAP64(DLO(ud1)));
 #else
@@ -3433,14 +3434,17 @@ ud2=BSWAP64(ud1);
 # endif
 #endif
 
-c>s ( w1 -- n2 )  gforth char_sext
-n2=(signed char)w1;
+c>s ( x -- n )  gforth c_to_s
+""Sign-extend the 8-bit value in @i{x} to cell @i{n}.""
+n=(signed char)x;
 
-w>s ( w1 -- n2 )  gforth word_sext
-n2=(Wyde)w1;
+w>s ( x -- n )  gforth w_to_s
+""Sign-extend the 16-bit value in @i{x} to cell @i{n}.""
+n=(Wyde)x;
 
-l>s ( w1 -- n2 )  gforth long_sext
-n2=(Tetrabyte)w1;
+l>s ( x -- n )  gforth l_to_s
+""Sign-extend the 32-bit value in @i{x} to cell @i{n}.""
+n=(Tetrabyte)x;
 
 >pow2 ( u1 -- u2 )  gforth to_pow2
 #ifdef HAVE___BUILTIN_CLZL
