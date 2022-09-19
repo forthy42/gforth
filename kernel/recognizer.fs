@@ -30,7 +30,7 @@
 \ where the token is the result of the parsing action (can be more than
 \ one stack or live on other stacks, e.g. on the FP stack)
 \ and the table contains three actions (as array of three xts):
-\ interpret it, compile it, compile it as literal.
+\ interpret it, compile it, postpone it.
 
 : lit, ( n -- ) postpone Literal ;
 : 2lit, ( n -- ) postpone 2literal ;
@@ -117,39 +117,16 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 : stack# ( stack -- elements )
     $@len cell/ ;
 
-\ recognizer loop
-
-Defer trace-recognizer  ' drop is trace-recognizer
-
 Variable rec-level
 
-: recognize ( addr u rec-addr -- ... rectype ) \ gforth-experimental
-    \G apply a recognizer stack to a string, delivering a token
-    1 rec-level +!
-    $@ bounds cell- swap cell- U-DO
-	2dup I -rot 2>r  perform
-	dup ['] notfound <>  IF
-	    -1 rec-level +!
-	    2rdrop I @ trace-recognizer  UNLOOP  EXIT  THEN  drop
-	2r>
-	cell [ 2 cells ] Literal I cell- 2@ <> select \ skip double entries
-	\ note that we search first and then skip, because the first search
-	\ has a very likely hit.  So doubles will be skipped, tripples not
-    -loop
-    -1 rec-level +!
-    2drop ['] notfound ;
-
-: recognizer-sequence: ( x1 .. xn n "name" -- ) \ gforth-experimental
-    ['] recognize do-stack: ;
-
-$Variable default-recognize
-DOES> recognize ;
+: minimal-recognize ( addr u -- ... translate-xt / notfound ) \ gforth-experimental
+  2>r 2r@ rec-nt dup ['] notfound = IF  drop 2r@ rec-num  THEN  2rdrop ;
 
 ( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
 \G The system recognizer
 Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
 \G The system recognizer
-' default-recognize is forth-recognize
+' minimal-recognize is forth-recognize
 : set-forth-recognize ( xt -- ) \ recognizer
     \G Change the system recognizer
     is forth-recognize ;

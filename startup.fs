@@ -28,6 +28,7 @@ require except.fs \ included on command line
     ' throw>error Alias rethrow
 [THEN]
 warnings off
+require rec-sequence.fs
 require search.fs
 require options.fs
 require environ.fs

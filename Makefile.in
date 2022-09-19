@@ -290,6 +290,7 @@ GFORTH_FI_SRC2=\
 	obsolete.fs \
 	prelude.fs \
 	quotes.fs \
+	rec-sequence.fs \
 	rec-string.fs \
 	rec-to.fs \
 	rec-tick.fs \
