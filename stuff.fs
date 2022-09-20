@@ -378,19 +378,6 @@ environment-wordlist >order
 
 previous
 
-[ifdef] uw@ \ Open firmware names
-    ' uw@ alias w@ ( addr -- u )
-    ' ul@ alias l@ ( addr -- u )
-[ELSE] \ gforth names
-    ' w@ alias uw@ ( addr -- u )
-    ' l@ alias ul@ ( addr -- u )
-[THEN]
-
-[IFDEF] ux@ ' ux@ alias x@ ( addr -- u )
-[ELSE] [IFDEF] x@ ' x@ alias ux@ [THEN] [THEN]
-[IFDEF] uxd@ ' uxd@ alias xd@ ( addr -- u )
-[ELSE] [IFDEF] xd@ ' xd@ alias uxd@ [THEN] [THEN]
-
 [IFUNDEF] xd><
     1 cells 4 = [if]
         : xd>< ( xd1 -- xd2 ) \ gforth

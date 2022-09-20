@@ -5584,17 +5584,13 @@ The memory-access words below all work with arbitrarily (un)aligned
 addresses (unlike @code{@@}, @code{!}, @code{f@@}, @code{f!}, which
 require alignment on some hardware).
 
-doc-sw@
-doc-uw@
+doc-w@
 doc-w!
-doc-sl@
-doc-ul@
+doc-l@
 doc-l!
-doc-sx@
-doc-ux@
+doc-x@
 doc-x!
-doc-sxd@
-doc-uxd@
+doc-xd@
 doc-xd!
 
 For accesses with a specific byte order, you have to perform
@@ -5623,7 +5619,7 @@ doc-xd>s
 Overall, this leads to sequences like
 
 @example
-uw@@ wbe w>s \ 16-bit unaligned signed big-endian fetch
+w@@ wbe w>s   \ 16-bit unaligned signed big-endian fetch
 >r lle r> w! \ 32-bit unaligned little-endian store
 @end example
 

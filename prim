@@ -3026,34 +3026,22 @@ gforth_FP=fp;
 sp=(Cell*)(SYSCALL(Cell*(*)(Cell *, void *))u)(sp, &gforth_FP);
 fp=gforth_FP;
 
-uw@ ( c_addr -- u )	gforth u_w_fetch
+w@ ( c_addr -- u )	gforth w_fetch
 ""@i{u} is the zero-extended 16-bit value stored at @i{c_addr}.""
 UWyde wy;
 memmove((Char*)&wy, c_addr, 2);
 u = wy;
-
-sw@ ( c_addr -- n )	gforth s_w_fetch
-""@i{n} is the sign-extended 16-bit value stored at @i{c_addr}.""
-Wyde wy;
-memmove((Char*)&wy, c_addr, 2);
-n = wy;
 
 w! ( w c_addr -- )	gforth w_store
 ""Store the bottom 16 bits of @i{w} at @i{c_addr}.""
 UWyde wy=w;
 memmove(c_addr, (Char*)&wy, 2);
 
-ul@ ( c_addr -- u )	gforth u_l_fetch
+l@ ( c_addr -- u )	gforth l_fetch
 ""@i{u} is the zero-extended 32-bit value stored at @i{c_addr}.""
 UTetrabyte tb;
 memmove((Char*)&tb, c_addr, 4);
 u = tb;
-
-sl@ ( c_addr -- n )	gforth s_l_fetch
-""@i{n} is the sign-extended 32-bit value stored at @i{c_addr}.""
-Tetrabyte tb;
-memmove((Char*)&tb, c_addr, 4);
-n = tb;
 
 l! ( w c_addr -- )	gforth l_store
 ""Store the bottom 32 bits of @i{w} at @i{c_addr}.""
@@ -3090,24 +3078,18 @@ x! ( w c_addr -- )	gforth x_store
 UOctabyte ob=w;
 memmove(c_addr, (Char*)&ob, 8);
 
-ux@ ( c_addr -- u )	gforth u_x_fetch
+x@ ( c_addr -- u )	gforth x_fetch
 ""@i{u} is the zero-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
 UOctabyte ob;
 memmove((Char*)&ob, c_addr, 8);
 u = ob;
-
-sx@ ( c_addr -- n )	gforth s_x_fetch
-""@i{u} is the sign-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
-Octabyte ob;
-memmove((Char*)&ob, c_addr, 8);
-n = ob;
 
 
 \+
 
 \g memory
 
-xd! ( ud c_addr -- )	gforth xd_store
+xd! ( ud c_addr -- )	gforth x_d_store
 ""Store the bottom 64 bits of @i{ud} at 64-bit-aligned @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
@@ -3131,7 +3113,7 @@ UOctabyte ob=ud;
 memmove(c_addr, (Char*)&ob, 8);
 #endif
 
-uxd@ ( c_addr -- ud )	gforth u_xd_fetch
+xd@ ( c_addr -- ud )	gforth x_d_fetch
 ""@i{ud} is the zero-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
@@ -3151,28 +3133,6 @@ D_IS(ud, 0, ob);
 UOctabyte ob;
 memmove((Char*)&ob, c_addr, 8);
 ud = ob;
-#endif
-
-sxd@ ( c_addr -- d )	gforth s_xd_fetch
-""@i{d} is the sign-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
-#ifdef BUGGY_LL_SIZE
-# if (SIZEOF_CHAR_P == 4)
-UTetrabyte tb[2];
-memmove((Char*)tb, c_addr, 8);
-#  ifdef WORDS_BIGENDIAN
-D_IS(d, tb[0], tb[1]);
-#  else
-D_IS(d, tb[1], tb[0]);
-#  endif
-# else
-UOctabyte ob;
-memmove((Char*)&ob, c_addr, 8);
-D_IS(d, -(ob<0), ob);
-# endif
-#else
-UOctabyte ob;
-memmove((Char*)&ob, c_addr, 8);
-d = ob;
 #endif
 
 w>< ( u1 -- u2 )  gforth-internal wordswap

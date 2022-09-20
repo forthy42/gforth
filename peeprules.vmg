@@ -92,13 +92,13 @@ cb22 = within ?branch
 
 \ memory access combinations
 cscfetch = c@ c>s
-cswfetch = uw@ w>s
-cslfetch = ul@ l>s
-swapwfetch = uw@ w><
-swaplfetch = ul@ l><
-\ cswapxfatch = ux@ x>< \ only on 64 bits
-csswapwfetch = uw@ w>< w>s
-csswaplfetch = ul@ l>< l>s
+cswfetch = w@ w>s
+cslfetch = l@ l>s
+swapwfetch = w@ w><
+swaplfetch = l@ l><
+\ cswapxfatch = x@ x>< \ only on 64 bits
+csswapwfetch = w@ w>< w>s
+csswaplfetch = l@ l>< l>s
 
 \F 0 [if]
 

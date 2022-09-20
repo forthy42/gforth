@@ -98,6 +98,17 @@
 	rot drop
     then ;
 
+\ memory words with u or s prefix
+
+' w@  alias uw@  ( c-addr -- u  )
+' l@  alias ul@  ( c-addr -- u  )
+' x@  alias ux@  ( c-addr -- u  )
+' xd@ alias uxd@ ( c-addr -- ud )
+: sw@  ( c-addr -- n )  w@  w>s ;
+: sl@  ( c-addr -- n )  l@  l>s ;
+: sx@  ( c-addr -- n )  x@  x>s ;
+: sxd@ ( c-addr -- d ) xd@ xd>s ;
+
 \ various byte-order dependent memory words
 \ replacement: compose sequences like "uw@ wbe w>s"
 
@@ -109,11 +120,11 @@
 : le-l!  ( x c-addr -- )  >r lle  r> l! ;
 : le-x!  ( x c-addr -- )  >r xle  r> x! ;
 : le-xd! ( xd c-addr -- ) >r xdle r> xd! ;
-: be-uw@ ( c-addr -- u )   uw@  wbe ;
-: be-ul@ ( c-addr -- u )   ul@  lbe ;
-: be-ux@ ( c-addr -- u )   ux@  xbe ;
-: be-uxd@ ( c-addr -- ud ) uxd@ xdbe ;
-: le-uw@ ( c-addr -- u )   uw@  wle ;
-: le-ul@ ( c-addr -- u )   ul@  lle ;
-: le-ux@ ( c-addr -- u )   ux@  xle ;
-: le-uxd@ ( c-addr -- ud ) uxd@ xdle ;
+: be-uw@ ( c-addr -- u )   w@  wbe ;
+: be-ul@ ( c-addr -- u )   l@  lbe ;
+: be-ux@ ( c-addr -- u )   x@  xbe ;
+: be-uxd@ ( c-addr -- ud ) xd@ xdbe ;
+: le-uw@ ( c-addr -- u )   w@  wle ;
+: le-ul@ ( c-addr -- u )   l@  lle ;
+: le-ux@ ( c-addr -- u )   x@  xle ;
+: le-uxd@ ( c-addr -- ud ) xd@ xdle ;
