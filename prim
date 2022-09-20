@@ -3208,7 +3208,7 @@ l>s ( x -- n )  gforth l_to_s
 n=(Tetrabyte)x;
 
 >pow2 ( u1 -- u2 )  gforth to_pow2
-""@i{u2} is the lowest power-of-2 number with @i{u2>=u1}.
+""@i{u2} is the lowest power-of-2 number with @i{u2>=u1}.""
 #ifdef HAVE___BUILTIN_CLZL
 u2=(u1 == 1) ? u1 : // widely found bug for scanning 0
 (((UCell)-1)>>__builtin_clzl(u1-1))+1;
