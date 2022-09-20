@@ -6,6 +6,7 @@ Words for accessing memory in 16-bit (w), 32-bit (l), and 64-bit (x, xd) units:
  for sign-extending: c>s w>s l>s x>s xd>s
  for allocating: w, l, x, xd,
  for alignment: waligned walign laligned lalign xaligned xalign
+Bitwise operations: >pow2 log2
 
 User-visible changes between 0.6.2 and 0.7.0:
 
