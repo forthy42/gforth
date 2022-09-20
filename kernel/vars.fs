@@ -100,7 +100,7 @@ Create main-task  has? OS [IF] $100 [ELSE] $40 [THEN] cells dup allot
 main-task 
 UNLOCK swap region user-region user-region setup-region LOCK
 
-Variable udp ( -- a-addr ) \ gforth
+Variable udp ( -- a-addr ) \ gforth-internal
 \G user area size
 
 AUser next-task        main-task next-task !
@@ -169,7 +169,7 @@ User dpl ( -- a-addr ) \ gforth Decimal_PLace
 \G 0. After the conversion of 234123.9 it contains 1, and so forth.
 -1 dpl !
 
-User >num-state ( -- a-addr ) \ Gforth
+User >num-state ( -- a-addr ) \ gforth-internal
 \G Internal state of the number conversion
 0 >num-state !
 

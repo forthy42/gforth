@@ -45,8 +45,8 @@ umethod source-id ( -- 0 | -1 | fileid ) \ core-ext,file source-i-d
     \G input source is a string being processed by @code{evaluate}) or
     \G a @i{fileid} (the input source is the file specified by
     \G @i{fileid}).
-| umethod (save-input) ( -- x1 .. xn n ) \ gforth
-| umethod (restore-input) ( x1 .. xn n -- ) \ gforth
+| umethod (save-input) ( -- x1 .. xn n ) \ gforth-internal
+| umethod (restore-input) ( x1 .. xn n -- ) \ gforth-internal
 
 cell uvar >in ( -- addr ) \ core to-in
     \G @code{uvar} variable -- @i{a-addr} is the address of a
@@ -64,26 +64,26 @@ cell uvar #tib ( -- addr ) \ core-ext-obsolescent number-t-i-b
     \G cell containing the number of characters in the terminal input
     \G buffer. OBSOLESCENT: @code{source} superceeds the function of
     \G this word.
-cell uvar max#tib ( -- addr ) \ gforth max-number-t-i-b
+cell uvar max#tib ( -- addr ) \ gforth-internal max-number-t-i-b
     \G @code{uvar} variable -- This cell contains the maximum
     \G size of the current tib.
-cell uvar old-input ( -- addr ) \ gforth
+cell uvar old-input ( -- addr ) \ gforth-internal
     \G @code{uvar} variable -- This cell contains the pointer to
     \G the previous input buffer
-cell uvar loadline ( -- addr ) \ gforth
+cell uvar loadline ( -- addr ) \ gforth-internal
     \G @code{uvar} variable -- This cell contains the line that's
     \G currently loaded from
 has? file [IF]
-cell uvar loadfile ( -- addr ) \ gforth
+cell uvar loadfile ( -- addr ) \ gforth-internal
     \G @code{uvar} variable -- This cell contains the file the
     \G input buffer is associated with (0 if none)
 cell uvar blk ( -- addr ) \ block b-l-k
     \G @code{uvar} variable -- This cell contains the current
     \G block number (or 0 if the current input source is not a block).
-cell uvar #fill-bytes ( -- addr ) \ gforth
+cell uvar #fill-bytes ( -- addr ) \ gforth-internal
     \G @code{uvar} variable -- number of bytes read via
     \G (read-line) by the last refill
-cell uvar loadfilename# ( -- addr ) \ gforth
+cell uvar loadfilename# ( -- addr ) \ gforth-internal
     \G @code{uvar} variable -- n describes index of currently
     \G interpreted input into loaded filenames
 [THEN]
