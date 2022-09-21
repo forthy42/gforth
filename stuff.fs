@@ -717,10 +717,3 @@ end-struct buffer%
     evaluate \ execute entry code
     drop \ drop handle used by loader
 ;
-
-: inline ( -- ) \ gforth-experimental
-    \G Make a one-line word (excluding definition and stack commment)
-    \G inline by postponing everything up to the @code{;}.
-    source ';' $split 2drop 2>r
-    opt: postpone drop postpone ]] 2r> evaluate
-    translate-[[ execute postpone ; ;
