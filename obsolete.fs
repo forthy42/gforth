@@ -103,40 +103,41 @@
 ' w@  alias uw@  ( c-addr -- u  )
 ' l@  alias ul@  ( c-addr -- u  )
 [IFDEF] x@
-    ' x@  alias ux@  ( c-addr -- u  )
+' x@  alias ux@  ( c-addr -- u  )
 [THEN]
 ' xd@ alias uxd@ ( c-addr -- ud )
-: sw@  ( c-addr -- n )  w@  w>s ;
-: sl@  ( c-addr -- n )  l@  l>s ;
+inline: sw@  ( c-addr -- n ) ]]  w@  w>s [[ ;inline
+inline: sl@  ( c-addr -- n ) ]]  l@  l>s [[ ;inline
 [IFDEF] x@
-    : sx@  ( c-addr -- n )  x@  x>s ;
+inline: sx@  ( c-addr -- n ) ]]  x@  x>s [[ ;inline
 [THEN]
-: sxd@ ( c-addr -- d ) xd@ xd>s ;
+inline: sxd@ ( c-addr -- d ) ]] xd@ xd>s [[ ;inline
 
 \ various byte-order dependent memory words
 \ replacement: compose sequences like "uw@ wbe w>s"
 
-: be-w!  ( x c-addr -- )  >r wbe  r> w! ;
-: be-l!  ( x c-addr -- )  >r lbe  r> l! ;
+inline: be-w!  (  x c-addr -- )  ]] swap wbe  swap  w! [[ ;inline
+inline: be-l!  (  x c-addr -- )  ]] swap lbe  swap  l! [[ ;inline
 [IFDEF] x!
-    : be-x!  ( x c-addr -- )  >r xbe  r> x! ;
+inline: be-x!  (  x c-addr -- )  ]] swap xbe  swap  x! [[ ;inline
 [THEN]
-: be-xd! ( xd c-addr -- ) >r xdbe r> xd! ;
-: le-w!  ( x c-addr -- )  >r wle  r> w! ;
-: le-l!  ( x c-addr -- )  >r lle  r> l! ;
+inline: be-xd! ( xd c-addr -- )  ]] >r  xdbe  r>   xd! [[ ;inline
+inline: le-w!  (  x c-addr -- )  ]] swap wle  swap  w! [[ ;inline
+inline: le-l!  (  x c-addr -- )  ]] swap lle  swap  l! [[ ;inline
 [IFDEF] x!
-    : le-x!  ( x c-addr -- )  >r xle  r> x! ;
+inline: le-x!  (  x c-addr -- )  ]] swap xle  swap  x! [[ ;inline
 [THEN]
-: le-xd! ( xd c-addr -- ) >r xdle r> xd! ;
-: be-uw@ ( c-addr -- u )   w@  wbe ;
-: be-ul@ ( c-addr -- u )   l@  lbe ;
+inline: le-xd! ( xd c-addr -- )  ]] >r  xdle  r>   xd! [[ ;inline
+inline:  be-uw@ ( c-addr -- u )  ]]  w@  wbe [[ ;inline
+inline:  be-ul@ ( c-addr -- u )  ]]  l@  lbe [[ ;inline
 [IFDEF] x@
-    : be-ux@ ( c-addr -- u )   x@  xbe ;
+inline:  be-ux@ ( c-addr -- u )  ]]  x@  xbe [[ ;inline
 [THEN]
-: be-uxd@ ( c-addr -- ud ) xd@ xdbe ;
-: le-uw@ ( c-addr -- u )   w@  wle ;
-: le-ul@ ( c-addr -- u )   l@  lle ;
+inline: be-uxd@ ( c-addr -- ud ) ]] xd@ xdbe [[ ;inline
+inline:  le-uw@ ( c-addr -- u )  ]]  w@  wle [[ ;inline
+inline:  le-ul@ ( c-addr -- u )  ]]  l@  lle [[ ;inline
 [IFDEF] x@
-    : le-ux@ ( c-addr -- u )   x@  xle ;
+inline:  le-ux@ ( c-addr -- u )  ]]  x@  xle [[ ;inline
 [THEN]
-: le-uxd@ ( c-addr -- ud ) xd@ xdle ;
+inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline
+
