@@ -54,7 +54,7 @@ hex
 \    dup relon ! ;
 \ : A,    ( addr -- ) \ gforth
 \    here cell allot A! ;
-' ! alias A! ( addr1 addr2 -- ) \ gforth
+' ! alias A! ( addr1 addr2 -- ) \ gforth-internal
 
 \ dictionary
 
@@ -94,7 +94,7 @@ Defer in-dictionary? ( x -- f )
 
 \ here is used for pad calculation!
 
-: dpp   ( -- addr ) \ gforth
+: dpp   ( -- addr ) \ gforth-internal
     uaddr dp ;
 
 : here  ( -- addr ) \ core
@@ -102,6 +102,7 @@ Defer in-dictionary? ( x -- f )
     dp @ ;
 
 : ->here ( addr -- ) \ gforth to-here
+    \G Change the value of @code{here} to @i{addr}.
     dp ! ;
 
 \ on off                                               23feb93py
@@ -173,9 +174,14 @@ Defer in-dictionary? ( x -- f )
 
 \ digit?                                               17dec92py
 
-: digit?   ( char -- digit true/ false ) \ gforth
+: digit?   ( char -- digit true/ false ) \ gforth-internal digit-question
+    \g If @i{char} is a digit in the current @code{base}, return the
+    \g value of that digit and true, otherwise return false.
+    \ I declared this gforth-internal in case we want to change it to
+    \ something like what's discussed in the thread containing
+    \ <2022Jun19.085108@mips.complang.tuwien.ac.at>
   toupper '0' - dup 9 u> IF
-    [ char A char 9 1 + -  ] literal -
+    [ char A char 9 1 + - ] literal -
     dup 9 u<= IF
       drop false EXIT
     THEN

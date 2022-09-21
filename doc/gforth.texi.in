@@ -5476,6 +5476,7 @@ You can deallocate memory by using @code{allot} with a negative argument
 doc-here
 doc-unused
 doc-allot
+doc-->here
 doc-c,
 doc-f,
 doc-,
@@ -5732,6 +5733,7 @@ doc-capscompare
 doc-str=
 doc-str<
 doc-string-prefix?
+doc-string-suffix?
 doc-search
 doc-scan
 doc-skip
