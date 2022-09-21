@@ -99,6 +99,7 @@ swaplfetch = l@ l><
 \ cswapxfatch = x@ x>< \ only on 64 bits
 csswapwfetch = w@ w>< w>s
 csswaplfetch = l@ l>< l>s
+swapswap = swap swap
 
 \F 0 [if]
 
@@ -310,6 +311,13 @@ csswaplfetch = l@ l>< l>s
 \ \E prim-states (system)             \ 1
 \E S0 S0 state-prim abi-call
 \E S0 S0 state-prim ;abi-code-exec
+\E prim-states w!
+\E prim-states l!
+\ \E prim-states x!
+\E prim-states w><
+\E prim-states l><
+\ \E prim-states x><
+
 
 \E ' noop is output-nextp0
 \E ' noop is output-nextp1
