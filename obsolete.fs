@@ -102,11 +102,15 @@
 
 ' w@  alias uw@  ( c-addr -- u  )
 ' l@  alias ul@  ( c-addr -- u  )
+[IFDEF] x@
 ' x@  alias ux@  ( c-addr -- u  )
+[THEN]
 ' xd@ alias uxd@ ( c-addr -- ud )
 inline: sw@  ( c-addr -- n ) ]]  w@  w>s [[ ;inline
 inline: sl@  ( c-addr -- n ) ]]  l@  l>s [[ ;inline
+[IFDEF] x@
 inline: sx@  ( c-addr -- n ) ]]  x@  x>s [[ ;inline
+[THEN]
 inline: sxd@ ( c-addr -- d ) ]] xd@ xd>s [[ ;inline
 
 \ various byte-order dependent memory words
@@ -114,17 +118,26 @@ inline: sxd@ ( c-addr -- d ) ]] xd@ xd>s [[ ;inline
 
 inline: be-w!  (  x c-addr -- )  ]] swap wbe  swap  w! [[ ;inline
 inline: be-l!  (  x c-addr -- )  ]] swap lbe  swap  l! [[ ;inline
+[IFDEF] x!
 inline: be-x!  (  x c-addr -- )  ]] swap xbe  swap  x! [[ ;inline
+[THEN]
 inline: be-xd! ( xd c-addr -- )  ]] >r  xdbe  r>   xd! [[ ;inline
 inline: le-w!  (  x c-addr -- )  ]] swap wle  swap  w! [[ ;inline
 inline: le-l!  (  x c-addr -- )  ]] swap lle  swap  l! [[ ;inline
+[IFDEF] x!
 inline: le-x!  (  x c-addr -- )  ]] swap xle  swap  x! [[ ;inline
+[THEN]
 inline: le-xd! ( xd c-addr -- )  ]] >r  xdle  r>   xd! [[ ;inline
 inline:  be-uw@ ( c-addr -- u )  ]]  w@  wbe [[ ;inline
 inline:  be-ul@ ( c-addr -- u )  ]]  l@  lbe [[ ;inline
+[IFDEF] x@
 inline:  be-ux@ ( c-addr -- u )  ]]  x@  xbe [[ ;inline
+[THEN]
 inline: be-uxd@ ( c-addr -- ud ) ]] xd@ xdbe [[ ;inline
 inline:  le-uw@ ( c-addr -- u )  ]]  w@  wle [[ ;inline
 inline:  le-ul@ ( c-addr -- u )  ]]  l@  lle [[ ;inline
+[IFDEF] x@
 inline:  le-ux@ ( c-addr -- u )  ]]  x@  xle [[ ;inline
+[THEN]
 inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline
+
