@@ -396,10 +396,15 @@ previous
     [then]
 [then]
 
+: noop0 ( -- ) \ gforth-experimental
+    \g noop that compiles to nothing
+;
+' drop set-optimizer
+
 1 pad ! pad c@ 1 = [IF] \ little endian
-    ' noop ' noop ' noop ' noop ' xd>< ' x><  ' l><  ' w><
+    ' noop0 ' noop0 ' noop0 ' noop0 ' xd><  ' x><   ' l><   ' w><
 [else] \ big-endian
-    ' xd>< ' x><  ' l><  ' w><  ' noop ' noop ' noop ' noop
+    ' xd><  ' x><   ' l><   ' w><   ' noop0 ' noop0 ' noop0 ' noop0
 [THEN]
 
 ( 8 xts )
@@ -436,10 +441,10 @@ alias xdle ( ud1 -- ud2 ) \ gforth
 \g little-endian or from little-endian to native byte order (the same
 \g operation)
 
-' noop alias x>s ( x -- n ) \ gforth
+' noop0 alias x>s ( x -- n ) \ gforth
 \g Sign-extend the 64-bit value in @i{x} to cell @i{n}.
 1 cells 4 = [if]
-    ' noop
+    ' noop0
 [else] 1 cells 8 = [if]
         ' s>d
     [else]
