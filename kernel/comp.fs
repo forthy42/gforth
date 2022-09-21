@@ -308,7 +308,7 @@ Variable litstack
 has? new-cfa [IF]
     : cfa,     ( code-address -- )  \ gforth	cfa-comma
 	here  dup lastnt !
-	>cfa code-address! ;
+	code-address! ;
 [ELSE]
     : cfa,     ( code-address -- )  \ gforth	cfa-comma
 	here
@@ -653,7 +653,7 @@ Create hmtemplate
     \G @code{set-optimizer} afterwards if you want a more efficient
     \G implementation.
     ['] general-compile, set-optimizer
-    latestnt [ [IFDEF] >cfa ] >cfa [ [THEN] ] code-address! ;
+    latestnt code-address! ;
 : set-does> ( xt -- ) \ gforth
     \G Changes the current word such that it pushes its body address
     \G and then executes @i{xt}.  Also changes the \code{compile,}
@@ -661,7 +661,7 @@ Create hmtemplate
     \G afterwards if you want a more efficient implementation.
     ['] does, set-optimizer
     hmtemplate >hmextra !
-    dodoes: latestnt [ [IFDEF] >cfa ] >cfa [ [THEN] ] code-address! ;
+    dodoes: latestnt code-address! ;
 : set-to        ( to-xt -- ) ?hm hmtemplate >hmto ! ;
 : set-defer@    ( defer@-xt -- ) ?hm hmtemplate >hmdefer@ ! ;
 : set->int      ( xt -- ) ?hm hmtemplate >hm>int ! ;

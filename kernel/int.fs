@@ -571,13 +571,14 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 	drop 0
     then ;
 
-' ! alias code-address! ( c_addr xt -- ) \ gforth
-\G Create a code field with code address @i{c-addr} at @i{xt}.
+: code-address! ( c_addr xt -- ) \ gforth
+    \G Create a code field with code address @i{c-addr} at @i{xt}.
+    >cfa ! ;
 
 : any-code! ( a-addr cfa code-addr -- )
     \ for implementing DOES> and ;ABI-CODE, maybe :
     \ code-address is stored at cfa, a-addr at cfa+cell
-    over [ [IFDEF] >cfa ] >cfa [ [THEN] ] code-address!  >namehm @ >hmextra ! ;
+    over code-address!  >namehm @ >hmextra ! ;
 
 : does-code! ( xt1 xt2 -- ) \ gforth
 \G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;

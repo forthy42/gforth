@@ -38,7 +38,7 @@ vocabulary assembler ( -- ) \ tools-ext
     \G @code{code} definition with a dispatch to the next virtual
     \G machine instruction.
     header ['] noop hmcopy,
-    here latest >cfa code-address!
+    here latest code-address!
     defstart init-asm ;
 
 [ifdef] doabicode:
@@ -52,13 +52,13 @@ vocabulary assembler ( -- ) \ tools-ext
    \G memory location containing the FP stack pointer and is passed
    \G out by storing the changed FP stack pointer there (if necessary).
     header  ['] (abi-code-dummy) hmcopy,
-    doabicode: latest >cfa code-address!
+    doabicode: latest code-address!
     defstart init-asm ;
 [endif]
 
 : (;code) ( -- ) \ gforth
     \ execution semantics of @code{;code}
-    r> latestnt >cfa code-address! ;
+    r> latestnt code-address! ;
 
 [ifundef] ?colon-sys
 : ?colon-sys  ( ... xt tag -- )
@@ -66,7 +66,7 @@ vocabulary assembler ( -- ) \ tools-ext
 [then]
 
 :noname ( -- colon-sys )
-    align here latestnt >cfa code-address!
+    align here latestnt code-address!
     defstart init-asm ;
 :noname ( colon-sys1 -- colon-sys2 )	\ tools-ext	semicolon-code
     ( create the [;code] part of a low level defining word )

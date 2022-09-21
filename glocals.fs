@@ -722,7 +722,7 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
     over 1 and if
 	swap [ 1 invert ] literal and does-code!
     else
-	>cfa code-address!
+        code-address!
     then ;
 
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar
