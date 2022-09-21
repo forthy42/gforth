@@ -433,3 +433,19 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
     \g ends a quotation
     POSTPONE ; swap execute ( xt ) ; immediate
 
+\ inline: ;inline
+: inline: ( "name" -- inline:-sys ) \ gforth-experimental inline-colon
+    \G start inline definition.  The code inside the definition has to
+    \G compile (not perform) the code to be inlined.  This code is
+    \G performed when @i{name} is @code{compile,}d (you must not
+    \G @code{drop} the xt, @code{inline:} does that for you).
+    \G Correspondingly the execution semantics of @i{name} are to
+    \G perform the code compiled by the code inside the definition
+    \G (wrapped in a colon definition).
+    : wrap@ next-section :noname postpone drop ;
+
+: ;inline ( inline:-sys -- ) \ gforth-experimental inline-colon
+    \G end inline definition started with @code{inline:}
+    postpone ; >r hm, previous-section wrap!
+    0 r@ execute postpone ;
+    r> set-optimizer ; immediate compile-only
