@@ -15,18 +15,18 @@ s" gforth" environment? [if]
 [then]
 0= [if]
 
-: str= ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth
+: str= ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth str-equals
     compare 0= ;
 
-: string-prefix? ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth
+: string-prefix? ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth string-prefix-question
     \G Is @var{c-addr2 u2} a prefix of @var{c-addr1 u1}?
     tuck 2>r umin 2r> str= ;
 
-: string-suffix? ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth
+: string-suffix? ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth string-suffix-question
     \G Is @var{c-addr2 u2} a suffix of @var{c-addr1 u1}?
     2>r tuck + swap r@ umin tuck - swap 2r> str= ;
 
-: str< ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth
+: str< ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth str-less-than
     compare 0< ;
 
 [then]
