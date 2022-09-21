@@ -508,7 +508,7 @@ $00000000 $00000000 inst, unallocated
     BEGIN  2dup 2@ >r and r> <>  WHILE  3 cells +  REPEAT
     2 cells + perform ;
 
-: .code ( addr -- addr' ) dup l@ inst sfloat+ cr ;
+: .code ( addr -- addr' ) dup l@ inst sfloat+ ;
 
 Forth definitions
 
