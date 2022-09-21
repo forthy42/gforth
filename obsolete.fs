@@ -102,11 +102,15 @@
 
 ' w@  alias uw@  ( c-addr -- u  )
 ' l@  alias ul@  ( c-addr -- u  )
-' x@  alias ux@  ( c-addr -- u  )
+[IFDEF] x@
+    ' x@  alias ux@  ( c-addr -- u  )
+[THEN]
 ' xd@ alias uxd@ ( c-addr -- ud )
 : sw@  ( c-addr -- n )  w@  w>s ;
 : sl@  ( c-addr -- n )  l@  l>s ;
-: sx@  ( c-addr -- n )  x@  x>s ;
+[IFDEF] x@
+    : sx@  ( c-addr -- n )  x@  x>s ;
+[THEN]
 : sxd@ ( c-addr -- d ) xd@ xd>s ;
 
 \ various byte-order dependent memory words
@@ -114,17 +118,25 @@
 
 : be-w!  ( x c-addr -- )  >r wbe  r> w! ;
 : be-l!  ( x c-addr -- )  >r lbe  r> l! ;
-: be-x!  ( x c-addr -- )  >r xbe  r> x! ;
+[IFDEF] x!
+    : be-x!  ( x c-addr -- )  >r xbe  r> x! ;
+[THEN]
 : be-xd! ( xd c-addr -- ) >r xdbe r> xd! ;
 : le-w!  ( x c-addr -- )  >r wle  r> w! ;
 : le-l!  ( x c-addr -- )  >r lle  r> l! ;
-: le-x!  ( x c-addr -- )  >r xle  r> x! ;
+[IFDEF] x!
+    : le-x!  ( x c-addr -- )  >r xle  r> x! ;
+[THEN]
 : le-xd! ( xd c-addr -- ) >r xdle r> xd! ;
 : be-uw@ ( c-addr -- u )   w@  wbe ;
 : be-ul@ ( c-addr -- u )   l@  lbe ;
-: be-ux@ ( c-addr -- u )   x@  xbe ;
+[IFDEF] x@
+    : be-ux@ ( c-addr -- u )   x@  xbe ;
+[THEN]
 : be-uxd@ ( c-addr -- ud ) xd@ xdbe ;
 : le-uw@ ( c-addr -- u )   w@  wle ;
 : le-ul@ ( c-addr -- u )   l@  lle ;
-: le-ux@ ( c-addr -- u )   x@  xle ;
+[IFDEF] x@
+    : le-ux@ ( c-addr -- u )   x@  xle ;
+[THEN]
 : le-uxd@ ( c-addr -- ud ) xd@ xdle ;
