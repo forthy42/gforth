@@ -113,17 +113,11 @@ charclass any    0 $FF ..char #lf -char
 
 \ loop stack
 
-Variable loops  $40 cs-item-size * cells allot
-: cs-item@ ( cs-addr -- cs-item )
-    cs-item-size cells bounds DO  i @  cell +LOOP ;
-: cs-item! ( cs-item cs-addr -- )
-    cs-item-size cells bounds cell- swap cell- DO  i !  cell -LOOP ;
-: loops> ( -- addr )
-    cs-item-size negate loops +!
-    loops @+ swap cells + cs-item@ ;
+$10 stack: loops
+: loops> ( -- orig )
+    cs-item-size 0 ?DO loops stack> LOOP ;
 : >loops ( addr -- )
-    loops @+ swap cells + cs-item!
-    cs-item-size loops +! ;
+    cs-item-size 0 ?DO loops >stack LOOP ;
 : BEGIN, ( -- )  ]] BEGIN [[ >loops ;
 : DONE, ( -- )  loops @ IF  loops> ]] DONE [[ ELSE ." no done left!" cr THEN ;
 
