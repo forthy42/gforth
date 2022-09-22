@@ -8,6 +8,11 @@ Words for accessing memory in 16-bit (w), 32-bit (l), and 64-bit (x, xd) units:
  for alignment: waligned walign laligned lalign xaligned xalign
 Bitwise operations: >pow2 log2
 
+Gforth EC non-news:
+  We have not done Gforth EC work since Gforth 0.7.  We recommend using
+  Gforth 0.7 for Gforth EC, but welcome bug or success reports for
+  Gforth EC in our git head.
+
 User-visible changes between 0.6.2 and 0.7.0:
 
 Requirements:

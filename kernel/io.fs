@@ -23,11 +23,27 @@ require ./basics.fs
 \ Output                                               13feb93py
 
 UValue infile-id ( -- file-id ) \ gforth
+\G @i{File-id} is used by @code{key}, @code{?key}, and anything that
+\G refers to the "user input device".  By default @code{infile-id}
+\G produces the process's @code{stdin}, unless changed with
+\G @code{infile-execute}.
 UValue outfile-id ( -- file-id ) \ gforth
-UValue debug-fid ( -- file-id ) \ gforth
+\G @i{File-id} is used by @code{emit}, @code{type}, and any output
+\G word that does not take a file-id as input.  By default
+\G @code{outfile-id} produces the process's @code{stdout}, unless
+\G changed with @code{outfile-execute}.
+UValue debug-fid ( -- file-id ) \ gforth @i{File-id} is used by
+\G debygging words for output.  By default it is the process's
+\G @code{stderr}.
 
 User out ( -- addr ) \ gforth
-\g counts number of characters TYPEd or EMITed; CR resets it
+\g @code{Addr} contains a number that tries to give the position of
+\g the cursor within the current line on the user output device: It
+\g resets to 0 on @code{cr}, increases by the number of characters by
+\g @code{type} and @code{emit}, and decreases on @code{backspaces}.
+\g Unfortunately, it does not take into account tabs, multi-byte
+\g characters, or the existence of Unicode characters with with 0 and
+\g 2, so it only works for simple cases.
 
 : (type) ( c-addr u -- ) \ gforth
     dup out +!
@@ -223,7 +239,7 @@ Create spaces ( u -- ) \ core
 \G Display @var{n} spaces. 
 bl 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- ) spaces-loop ;
-Create backspaces
+Create backspaces \ gforth
 08 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- ) over 2* negate out +! spaces-loop ;
 hex

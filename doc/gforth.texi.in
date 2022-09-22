@@ -9376,7 +9376,9 @@ there is @code{infile-execute} for redirecting the input of @code{key}
 and its users (any input word that does not take a file explicitly).
 
 doc-outfile-execute
+doc-outfile-id
 doc-infile-execute
+doc-infile-id
 
 If you do not want to redirect the input or output to a file, you can
 also make use of the fact that @code{key}, @code{emit} and @code{type}
@@ -9966,6 +9968,7 @@ doc-.\"
 doc-type
 doc-typewhite
 doc-cr
+doc-out
 @cindex cursor control
 doc-s"
 doc-s\"

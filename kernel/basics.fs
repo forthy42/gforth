@@ -308,7 +308,7 @@ is ?warning
 
 \ ?stack                                               23feb93py
 
-: ?stack ( ?? -- ?? ) \ gforth
+: ?stack ( ?? -- ?? ) \ gforth-internal
     sp@ sp0 @ u> IF    -4 throw  THEN
 [ has? floating [IF] ]
     fp@ fp0 @ u> IF  -&45 throw  THEN
