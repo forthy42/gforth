@@ -58,8 +58,8 @@
 : +chars ( addr u -- ) \ regexp-cg
     \G add a string of chars to the current charclass
     bounds ?DO  I c@ +char  LOOP ;
-: or! ( n addr -- )  dup @ rot or swap ! ;
-: and! ( n addr -- )  dup @ rot and swap ! ;
+[IFUNDEF] or!  : or! ( n addr -- )  tuck @ or swap ! ;  [THEN]
+[IFUNDEF] and! : and! ( n addr -- )  tuck @ and swap ! ; [THEN]
 : +class ( class -- ) \ regexp-cg
     \G union of charclass @var{class} and the current charclass
     $100 0 ?DO  @+ swap
@@ -275,8 +275,6 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 9 \:s \1 \2 \3 \4 \5 \6 \7 \8 \9
 
 \ replacements, needs string.fs
-
-require string.fs
 
 0 Value >>ptr
 0 Value <<ptr
