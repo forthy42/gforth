@@ -51,32 +51,58 @@ vocabulary minos  also minos definitions
 
 0e FValue x-color
 : color> ( f -- ) f,  DOES> f@ to x-color ;
-: color: ( rgba "name" -- )
+: color: ( rgba "name" -- ) \ minos2
+    \G Create a (possibly shared) color index initialized with @var{rgba}
     Create color,                 color> ;
-: new-color: ( rgba "name" -- )
+: new-color: ( rgba "name" -- ) \ minos2
+    \G Create a unique color index initialized with @var{rgba}
     Create new-color,             color> ;
-: text-color: ( rgba "name" -- )
+: text-color: ( rgba "name" -- ) \ minos2
+    \G Create a unique text color index initialized with @var{rgba},
+    \G the corresponding emoji color is set to white.
     Create text-color,            color> ;
-: text-emoji-color: ( rgbatext rgbaemoji "name" -- )
+: text-emoji-color: ( rgbatext rgbaemoji "name" -- ) \ minos2
+    \G Create a unique text color index initialized with @var{rgbatext},
+    \G the corresponding emoji color is set to @var{rgbaemoji}.
     Create text-emoji-color,      color> ;
-: fade-color: ( rgba1 rgba2 "name" -- )
+: fade-color: ( rgba1 rgba2 "name" -- ) \ minos2
+    \G Create a unique pair of text color index initialized with @var{rgba1}
+    \G and @var{rgba2}, the corresponding emoji color is set to white. By
+    \G slowly shifting the index from one to the next index, the object will
+    \G shift its color using a linear interpolation when redrawn.
     Create fade-color,            color> ;
-: text-emoji-fade-color: ( rgbatext1 ~2 rgbaemoji1 ~2 "name" -- )
+: text-emoji-fade-color: ( rgbatext1 ~2 rgbaemoji1 ~2 "name" -- ) \ minos2
+    \G Create a unique pair of text color index initialized with
+    \G @var{rgbatext1} and @var{~2}, the corresponding emoji color pair is set
+    \G to @var{rgbaemoji1} to @var{~2}. By slowly shifting the index from one
+    \G to the next index, the object will shift its color using a linear
+    \G interpolation when redrawn.
     Create text-emoji-fade-color, color> ;
 
 : (re-color) ( "name" xt -- )
     color,# >r
     ' >body f@ floor f>s to color,#  execute fdrop
     r> to color,# ;
-: re-color ( rgba "name" -- )
+: re-color ( rgba "name" -- ) \ minos2
+    \G assign the named color index @var{"name"} in the current color scheme
+    \G with the value @var{rgba}.
     ['] new-color, (re-color) ;
-: re-text-color ( rgba "name" -- )
+: re-text-color ( rgba "name" -- ) \ minos2
+    \G assign the named text color index @var{"name"} in the current color
+    \G scheme with the value @var{rgba}.
     ['] text-color, (re-color) ;
-: re-emoji-color ( rgbatext rgbaemoji "name" -- )
-    ['] text-emoji-color, (re-color) ;
-: re-fade-color ( rgba1 rgba2 "name" -- )
+: re-emoji-color ( rgbatext rgbaemoji "name" -- ) \ minos2
+    \G assign the named text and emoji color index @var{"name"} in the current
+    \G color scheme with the value @var{rgbatext} and @var{rgbaemoji}.
+   ['] text-emoji-color, (re-color) ;
+: re-fade-color ( rgba1 rgba2 "name" -- ) \ minos2
+    \G assign the named color index pair @var{"name"} in the current color
+    \G scheme with the value @var{rgba1} and @var{rgba2}.
     ['] fade-color, (re-color) ;
-: re-text-emoji-fade-color ( rgbatext1 ~2 rgbaemoji1 ~2 "name" -- )
+: re-text-emoji-fade-color ( rgbatext1 ~2 rgbaemoji1 ~2 "name" -- ) \ minos2
+    \G assign the named color index pair @var{"name"} in the current color
+    \G scheme with the value @var{rgbatext1} and @var{~2}
+    \G resp. @var{rgbaemoji1} and @var{~2}.
     ['] text-emoji-fade-color, (re-color) ;
 
 vocabulary m2c \ minos2 config
@@ -1499,12 +1525,23 @@ vbox class
     field: vp-need
 end-class viewport
 
-: vp-top ( o:vp -- )    vp-h h f- fround to vp-y ;
-: vp-bottom ( o:vp -- )               0e to vp-y ;
-: vp-left ( o:vp -- )                 0e to vp-x ;
-: vp-right ( o:vp -- )  vp-w w f- fround to vp-x ;
+\ scroll viewport to extremes
 
-: vp-reslide ( o:vp -- )
+: vp-top ( o:vp -- ) \ minos2
+    \G scroll viewport to top
+    vp-h h f- fround to vp-y ;
+: vp-bottom ( o:vp -- ) \ minos2
+    \G scroll viewport to bottom
+    0e to vp-y ;
+: vp-left ( o:vp -- ) \ minos2
+    \G scroll viewport to left
+    0e to vp-x ;
+: vp-right ( o:vp -- ) \ minos2
+    \G scroll viewport to right
+    vp-w w f- fround to vp-x ;
+
+: vp-reslide ( o:vp -- ) \ minos2
+    \G Adjust the sliders of a viewport after scrolling
     vp-hslider ?dup-IF  .parent-w >o !size xywhd !resize o>  THEN
     vp-vslider ?dup-IF  .parent-w >o !size xywhd !resize o>  THEN ;
 

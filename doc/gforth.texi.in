@@ -18212,6 +18212,36 @@ transition between neighboring schemes can also be animated.
 
 doc->animate
 
+You can create named color indexes and assign them color values for the
+currently active color scheme.
+
+doc-color:
+doc-new-color:
+doc-text-color:
+doc-text-emoji-color:
+doc-fade-color:
+doc-text-emoji-fade-color:
+doc-re-color
+doc-re-text-color
+doc-re-emoji-color
+doc-re-fade-color
+doc-re-text-emoji-fade-color
+
+For a number of specific objects, there are early bound methods, that
+only work on these objects
+
+@itemize @bullet
+@item Viewport
+
+doc-vp-top
+doc-vp-bottom
+doc-vp-left
+doc-vp-right
+doc-vp-reslide
+doc-vp-needed
+
+@end itemize
+
 @node MINOS2 tutorial,  , MINOS2 object framework, MINOS2
 @section MINOS2 tutorial
 
