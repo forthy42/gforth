@@ -59,10 +59,13 @@ get-current also see-voc definitions
     cr addr1 begin { a }
         a simple-see-word
         a cell+ addr2 see-code-next-inline { b }
-        b addr2 u< while
-            a @ b @ over - discode
+        a @ b addr2 u< while
+            ( a @ ) b @ over - discode
             b
-    repeat ;
+    repeat
+    \ now disassemble the remaining a @; we derive the length from
+    \ it's primitive
+    dup decompile-prim dup next-prim swap - discode ;
 
 set-current
 
