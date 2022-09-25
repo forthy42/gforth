@@ -488,6 +488,14 @@ extern PER_THREAD stackpointers gforth_SPs;
 #define sr_proto , stackpointers *in_SPs
 #define sr_call  , &gforth_SPs
 
+typedef struct {
+  Label start;
+  uint16_t length;
+  uint16_t prim;
+  int8_t start_state;
+  int8_t end_state;
+} DynamicInfo; /* info about dynamically generated code */
+
 Label *gforth_engine(Xt *ip sr_proto);
 Label *gforth_engine2(Xt *ip sr_proto);
 Label *gforth_engine3(Xt *ip sr_proto);
