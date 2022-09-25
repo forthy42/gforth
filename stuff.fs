@@ -396,11 +396,10 @@ previous
     [then]
 [then]
 
-' noop alias noop0 ( -- ) \ gforth-experimental
+' noop create-from noop0 ( -- ) \ gforth-internal
 \g noop that compiles to nothing
-' default-name>comp set->comp \ make sure the compile, is not skipped
 ' drop set-optimizer
-' noop >cfa @ latestnt >cfa ! \ unnecessary?; cfa probably unused
+reveal
 
 1 pad ! pad c@ 1 = [IF] \ little endian
     ' noop0 ' noop0 ' noop0 ' noop0 ' xd><  ' x><   ' l><   ' w><
