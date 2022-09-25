@@ -99,7 +99,7 @@ swaplfetch = l@ l><
 \ cswapxfatch = x@ x>< \ only on 64 bits
 csswapwfetch = w@ w>< w>s
 csswaplfetch = l@ l>< l>s
-swapswap = swap swap
+torrfrom = >r r>
 
 \F 0 [if]
 

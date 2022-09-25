@@ -5621,7 +5621,7 @@ Overall, this leads to sequences like
 
 @example
 w@@ wbe w>s   \ 16-bit unaligned signed big-endian fetch
->r lle r> w! \ 32-bit unaligned little-endian store
+>r lle r> l! \ 32-bit unaligned little-endian store
 @end example
 
 @node Address arithmetic, Memory Blocks, Special Memory Accesses, Memory
