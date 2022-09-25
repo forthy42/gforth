@@ -1225,7 +1225,13 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
   ." &I_" prim prim-c-name 2@ type ." ," cr ;
 
 : output-forthname ( -- )
-  '" emit prim prim-name 2@ type '" emit ." ," cr ;
+  quote prim prim-name 2@ type quote ." ," cr ;
+
+: output-forthname-part ( p -- )
+    prim-name 2@ type space ;
+
+: output-forthname-combined ( -- )
+    quote ['] output-forthname-part map-combined quote ." ," cr ;
 
 \  : output-c-func ( -- )
 \  \ used for word libraries

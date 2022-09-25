@@ -1226,7 +1226,7 @@ engine/prim_grp.i:	prim.b prims2x.fs
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
 
 engine/prim_names.i:	prim.b prims2x.fs
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname dup process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname ' output-forthname-combined process-file bye" >$@
 
 engine/prim_superend.i:	prim.b prims2x.fs
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
@@ -1258,7 +1258,7 @@ engine/prim_grp-fast.i:	prim-fast.b prims2x.fs
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' noop dup process-file bye" >$@
 
 engine/prim_names-fast.i:	prim-fast.b prims2x.fs
-	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname dup process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-forthname  ' output-forthname-combined process-file bye" >$@
 
 engine/prim_superend-fast.i:	prim-fast.b prims2x.fs
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" "$<"\" ' output-superend dup process-file bye" >$@
