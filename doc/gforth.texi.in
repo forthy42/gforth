@@ -8854,6 +8854,13 @@ doc-translate:
 doc-translate-nt
 doc-translate-num
 
+The following extension is only avaiable if you load @code{recognizer-ext.fs}:
+
+doc-interpret-translator
+doc-compile-translator
+doc-postpone-translator
+doc-translator:
+
 @c -------------------------------------------------------------
 @node The Input Stream, Word Lists, The Text Interpreter, Words
 @section The Input Stream

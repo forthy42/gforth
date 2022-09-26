@@ -18,24 +18,25 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-0 Value translate-method-offset
-#10 cells constant translate-method-max-offset#
-"No more rec method slots free" exception constant translate-method-overflow
+0 Value translator-offset
+#10 cells constant translator-max-offset#
+"No more translator slots free" exception constant translator-overflow
 
-: is-translate-method ( xt rectype recmethod -- )
+: to-translator ( xt rectype translator -- )
     >body @ >body + ! ;
 to-opt: ( xt -- ) >body @ lit, ]] >body + ! [[ ;
-: translate-method-defer@ ( xt -- ) >body @ >body + @ ;
-defer@-opt: ( xt -- ) >body @ lit, ]] >body + @ [[ ;
 
-: translate-method: ( "name" -- )
-    translate-method-offset translate-method-max-offset# u>=
-    translate-method-overflow and throw
-    Create translate-method-offset ,  cell +to translate-method-offset
-    [: ( rec-type ) @ + >body @ execute-;s ;] set-does>
-    ['] is-translate-method set-to
-    ['] translate-method-defer@ set-defer@ ;
+: translator: ( "name" -- ) \ gforth-experimental
+    \G create a new translator, extending the translator table
+    translator-offset translator-max-offset# u>=
+    translator-overflow and throw
+    Create translator-offset ,  cell +to translator-offset
+    [: ( rec-type ) @ + >body @ ;] set-does>
+    ['] to-translator set-to ;
 
-translate-method: translate-int
-translate-method: translate-comp
-translate-method: translate-post
+translator: interpret-translator ( translator -- xt ) \ gforth-experimental
+\G obtain interpreter action from translator
+translator: compile-translator ( translator -- xt ) \ gforth-experimental
+\G obtain compile action from translator
+translator: postpone-translator ( translator -- xt ) \ gforth-experimental
+\G obtain postpone action from translator
