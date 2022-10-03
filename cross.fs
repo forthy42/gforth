@@ -2184,6 +2184,13 @@ variable ResolveFlag
 
 X has? f83headerstring bigendian or [IF] 0 [ELSE] tcell 1- [THEN]
 Constant flag+
+
+X has? f83headerstring [IF]
+: t>f+c    tcell + ;
+: t>flag   t>f+c flag+ + ; \ points to the flag byte
+: t>link   ;
+: cfa,     ( cfa -- ) T A, H ;
+[ELSE]
 X has? new-cfa [IF]
 : t>f+c    tcell 4 * - ;
 : t>flag   t>f+c flag+ + ; \ points to the flag byte
@@ -2195,6 +2202,7 @@ X has? new-cfa [IF]
 : t>flag   t>f+c flag+ + ; \ points to the flag byte
 : t>link   tcell 2* - ;
 : cfa,     ( cfa -- ) T A, H ;
+[THEN]
 [THEN]
 : t>namehm tcell - ;
 
@@ -2444,8 +2452,9 @@ Defer hm-noname
 	hm-noname
     ELSE
 	[ X has? f83headerstring ] [IF]
-	    T align H tlast @ T A, H
+	    T align H tlast @ there >r T A, H
 	    >in @ parse-name T name, H >in !
+        r> tlast !
 	[ELSE]
 	    >in @ parse-name dup T aligned cfalign# name, H >in !
 	    tlast @ T A, H
@@ -2457,8 +2466,8 @@ Defer hm-noname
 	    ELSE
 		0 T , H
 	    THEN
+        there tlast !
 	[THEN]
-	there tlast !
 	1 headers-named +!	\ Statistic
 	hm-named
     THEN
@@ -2678,7 +2687,9 @@ Defer (end-code)
   defempty?
   (THeader ( ghost )
   ['] prim-resolved over >comp !
+  dup >exec2 there swap !
   there resolve-noforwards
+
   
   [ T e? prims H 0= [IF] T e? ITC H [ELSE] true [THEN] ] [IF]
   doprim, 
@@ -2834,8 +2845,7 @@ ghost :noname drop
 : :noname ( -- xt colon-sys )
     switchrom hm, [g'] :noname gwhere,
     [ X has? f83headerstring 0= ] [IF]
-	[ X has? new-cfa ] [IF] T cfalign 0 A, H
-	[ELSE] T 0 cell+ cfalign# H [THEN]
+	[ X has? new-cfa ] [IF] T cfalign 0 A, H [ELSE] T 0 cell+ cfalign# H [THEN]
 	:-ghost >do:ghost @ >exec2 @ execute
     [ELSE]
 	X cfalign
@@ -3230,6 +3240,7 @@ ghost imm>comp
     [G'] imm>comp gset->comp
     ^imm @ @ dup <imm> = IF  drop  EXIT  THEN
     <res> <> ABORT" CROSS: Cannot immediate a unresolved word"
+    immediate-mask flag!
     <imm> ^imm @ ! ;
 
 ghost a>int drop
@@ -3251,7 +3262,7 @@ ghost ?fold-to drop
 : interpret/compile: ( xt1 xt2 "name" -- )
     (THeader <res> over >magic !  there swap >link !
     [G'] :dodefer (doer,)
-    swap T A, A, H [ T has? ec H ] [IF] alias-mask flag! [THEN]
+    swap T A, A, H 
     hm-populate
     [G'] no-to   gset-to
     [G'] no-defer@ gset-defer@
