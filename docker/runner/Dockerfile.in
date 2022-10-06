@@ -18,7 +18,7 @@ RUN adduser -D gforth \
     && rm /tmp/gforth.tar.xz \
     && cd /tmp/gforth-* \
     && cd /tmp/gforth-* \
-    && ./configure ac_cv_lib_wayland_egl_wl_egl_window_create=no ac_cv_header_glib_object_h=no --disable-lib --prefix=/usr --exec-prefix=/usr \
+    && ./configure --disable-lib --prefix=/usr --exec-prefix=/usr \
     && make  \
     && make install -i \
     && cd /tmp && rm -rf gforth-* \

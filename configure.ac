@@ -21,7 +21,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
-AC_INIT([gforth],[0.7.9_20221005],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
+AC_INIT([gforth],[0.7.9_20221006],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
 AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
@@ -1474,12 +1474,16 @@ fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/x-fsi.c; then
    AC_CHECK_HEADER(X11/X.h, SWIGMODULES="$SWIGMODULES x.fs"
-		   SWIGLIBS="$SWIGLIBS x.fs", MINOSFLAG=false,)
+		   SWIGLIBS="$SWIGLIBS x.fs"
+		   SWIGDISTFSI="$SWIGDISTFSI x.fs"
+		   , MINOSFLAG=false,)
 fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/xrandr-fsi.c; then
    AC_CHECK_HEADER(X11/extensions/Xrandr.h, SWIGMODULES="$SWIGMODULES xrandr.fs"
-		   SWIGLIBS="$SWIGLIBS xrandr.fs", MINOSFLAG=false,)
+		   SWIGLIBS="$SWIGLIBS xrandr.fs"
+		   SWIGDISTFSI="$SWIGDISTFSI xrandr.fs"
+		   , MINOSFLAG=false,)
 fi
 
 if test x$has_swig = xyes || test -f $srcdir/unix/sdl-fsi.c; then
@@ -1517,7 +1521,9 @@ then
       AC_CHECK_HEADER(GL/glext.h,
       AC_CHECK_LIB(GLX,glXCreateWindow,
       AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES gl.fs glx.fs"
-      SWIGLIBS="$SWIGLIBS gl.fs glx.fs" GLXFLAG=true, ,
+      SWIGLIBS="$SWIGLIBS gl.fs glx.fs"
+      SWIGDISTFSI="$SWIGDISTFSI gl.fs glx.fs"
+      GLXFLAG=true, ,
 ), ,), ,
 #include <GL/gl.h>
 ))
@@ -1528,7 +1534,9 @@ else
       AC_CHECK_HEADER(GL/glext.h,
       AC_CHECK_LIB(GLX,glXCreateWindow,
       AC_CHECK_HEADER(GL/glx.h, SWIGMODULES="$SWIGMODULES gl.fs glx.fs"
-      SWIGLIBS="$SWIGLIBS gl.fs glx.fs" GLXFLAG=true, ,
+      SWIGLIBS="$SWIGLIBS gl.fs glx.fs"
+      SWIGDISTFSI="$SWIGDISTFSI gl.fs glx.fs"
+      GLXFLAG=true, ,
 ), ,), ,
 #include <GL/gl.h>
 ))
@@ -1539,7 +1547,9 @@ if test x$has_swig = xyes || test -f $srcdir/unix/gles-fsi.c; then
    AC_CHECK_HEADER(GLES2/gl2.h,
    AC_CHECK_HEADER(GLES2/gl2ext.h, SWIGMODULES="$SWIGMODULES gles.fs"
    AC_CHECK_HEADER(EGL/egl.h, SWIGMODULES="$SWIGMODULES egl.fs"
-   SWIGLIBS="$SWIGLIBS gles.fs egl.fs" GLESFLAG=true, ,), ,
+   			      SWIGLIBS="$SWIGLIBS gles.fs egl.fs"
+   			      SWIGDISTFSI="$SWIGDISTFSI gles.fs egl.fs"
+			      GLESFLAG=true, ,), ,
 #include <GLES2/gl2.h>
 ) ,))
 fi
@@ -1547,20 +1557,28 @@ if test x$has_swig = xyes || test -f $srcdir/unix/gles3-fsi.c; then
    AC_CHECK_LIB(GLESv3,glClear,
    AC_CHECK_HEADER(GLES3/gl3.h,
    AC_CHECK_HEADER(GLES3/gl3ext.h, SWIGMODULES="$SWIGMODULES gles3.fs"
-   AC_CHECK_HEADER(EGL/egl.h, SWIGLIBS="$SWIGLIBS gles3.fs egl.fs" GLESFLAG=true, ,), ,
+   AC_CHECK_HEADER(EGL/egl.h, SWIGLIBS="$SWIGLIBS gles3.fs egl.fs"
+   			      SWIGDISTFSI="$SWIGDISTFSI gles3.fs egl.fs"
+   			      GLESFLAG=true, ,), ,
 #include <GLES3/gl3.h>
 ) ,))
 fi
 # iOS varaint
 if test x$has_swig = xyes || test -f $srcdir/unix/ios-gles-fsi.c; then
    AC_CHECK_HEADER(OpenGLES/ES2/gl.h,
-   AC_CHECK_HEADER(OpenGLES/ES2/glext.h, SWIGMODULES="$SWIGMODULES ios-gles.fs" SWIGLIBS="$SWIGLIBS ios-gles.fs" GLESFLAG=true, ,
+   AC_CHECK_HEADER(OpenGLES/ES2/glext.h, SWIGMODULES="$SWIGMODULES ios-gles.fs"
+   					 SWIGLIBS="$SWIGLIBS ios-gles.fs"
+   					 SWIGDISTFSI="$SWIGDISTFSI ios-gles.fs"
+					 GLESFLAG=true, ,
 #include <OpenGLES/ES2/gl.h>
 ) ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/ios-gles3-fsi.c; then
    AC_CHECK_HEADER(OpenGLES/ES3/gl.h,
-   AC_CHECK_HEADER(OpenGLES/ES3/glext.h, SWIGMODULES="$SWIGMODULES ios-gles3.fs" SWIGLIBS="$SWIGLIBS ios-gles3.fs" GLESFLAG=true, ,
+   AC_CHECK_HEADER(OpenGLES/ES3/glext.h, SWIGMODULES="$SWIGMODULES ios-gles3.fs"
+   					 SWIGLIBS="$SWIGLIBS ios-gles3.fs"
+   					 SWIGDISTFSI="$SWIGDISTFSI ios-gles3.fs"
+					 GLESFLAG=true, ,
 #include <OpenGLES/ES3/gl.h>
 ) ,)
 fi
@@ -1585,15 +1603,19 @@ if test x$has_swig = xyes || test -f $srcdir/unix/opensles-fsi.c; then
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/png16-fsi.c; then
     AC_CHECK_HEADER(libpng16/png.h, SWIGMODULES="$SWIGMODULES png16.fs"
-		    SWIGLIBS="$SWIGLIBS png16.fs", ,)
+		    SWIGLIBS="$SWIGLIBS png16.fs"
+		    SWIGDISTFSI="$SWIGDISTFSI png16.fs"
+		    , ,)
 fi
 AC_CHECK_HEADER(stb/stb_image.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image.fs", MINOSFLAG=false, )
 AC_CHECK_HEADER(stb/stb_image_write.h, LIBCC_BUILD_SRC="$LIBCC_BUILD_SRC unix/stb-image-write.fs", MINOSFLAG=false, )
 if test x$has_swig = xyes || test -f $srcdir/unix/i2c-fsi.c; then
-    AC_CHECK_HEADER(linux/i2c.h, SWIGMODULES="$SWIGMODULES i2c.fs", MINOSFLAG=false,)
+    AC_CHECK_HEADER(linux/i2c.h, SWIGMODULES="$SWIGMODULES i2c.fs"
+    				 SWIGDIST="$SWIGDIST i2c.fs", ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/spi-fsi.c; then
-    AC_CHECK_HEADER(linux/spi/spidev.h, SWIGMODULES="$SWIGMODULES spi.fs", ,)
+    AC_CHECK_HEADER(linux/spi/spidev.h, SWIGMODULES="$SWIGMODULES spi.fs"
+    					SWIGDIST="$SWIGDIST spi.fs", ,)
 fi
 #if test x$has_swig = xyes || test -f $srcdir/unix/soil2-fsi.c; then
 #    AC_CHECK_HEADER(SOIL2.h, SWIGMODULES="$SWIGMODULES soil2.fs"
@@ -1621,6 +1643,7 @@ if test x$has_swig = xyes || test -f $srcdir/unix/freetype_gl-fsi.c; then
    AC_CHECK_LIB(freetype,FT_Get_Char_Index,
    AC_CHECK_HEADER(freetype-gl.h, SWIGMODULES="$SWIGMODULES freetype_gl.fs"
 		    SWIGLIBS="$SWIGLIBS freetype_gl.fs"
+		    SWIGDISTFSI="$SWIGDISTFSI freetype_gl.fs"
 		    SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags freetype2 | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", MINOSFLAG=false,), MINOSFLAG=false,), MINOSFLAG=false,)
    if test x"$CPPFLAGS" != x"$CPPFLAGS_1"; then
       CPPFLAGS="$CPPFLAGS_2"
@@ -1637,7 +1660,9 @@ fi
 if test x$has_swig = xyes || test -f $srcdir/unix/gps-fsi.c; then
    AC_CHECK_LIB(gps,gps_open,
    AC_CHECK_HEADER(gps.h, SWIGMODULES="$SWIGMODULES gps.fs"
-		   SWIGLIBS="$SWIGLIBS gps.fs", ,))
+		   	  SWIGLIBS="$SWIGLIBS gps.fs"
+		   	  SWIGDISTFSI="$SWIGDISTFSI gps.fs"
+		   	  , ,))
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/vulkan-fsi.c; then
    AC_CHECK_LIB(vulkan,vkGetPhysicalDeviceFeatures,
@@ -1650,10 +1675,12 @@ if test x$has_swig = xyes || test -f $srcdir/unix/harfbuzz-fsi.c; then
    AC_CHECK_LIB(harfbuzz,hb_buffer_create,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
 		   SWIGLIBS="$SWIGLIBS harfbuzz.fs"
+		   SWIGDISTFSI="$SWIGDISTFSI harfbuzz.fs"
 		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags harfbuzz | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,),
    AC_CHECK_LIB(harfbuzz,hb_buffer_get_direction,
    AC_CHECK_HEADER(harfbuzz/hb.h, SWIGMODULES="$SWIGMODULES harfbuzz.fs"
 		   SWIGLIBS="$SWIGLIBS harfbuzz.fs"
+		   SWIGDISTFSI="$SWIGDISTFSI harfbuzz.fs"
 		   SWIGINCLUDES="$SWIGINCLUDES `pkg-config --cflags harfbuzz | tr ' ' '\n' | grep ^-I | tr '\n' ' '`", ,), ,-lpng12 -lfreetype)
 		   ,-lpng16 -lfreetype)
 fi
@@ -1674,12 +1701,16 @@ fi
 if test x$has_swig = xyes || test -f $srcdir/unix/pulse-fsi.c; then
    AC_CHECK_LIB(pulse,pa_context_new,
    AC_CHECK_HEADER(pulse/pulseaudio.h, SWIGMODULES="$SWIGMODULES pulse.fs"
-		   SWIGLIBS="$SWIGLIBS pulse.fs",), ,)
+		   SWIGLIBS="$SWIGLIBS pulse.fs"
+		   SWIGDISTFSI="$SWIGDISTFSI pulse.fs"
+		   ,), ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/opus-fsi.c; then
    AC_CHECK_LIB(opus,opus_encode,
    AC_CHECK_HEADER(opus/opus.h, SWIGMODULES="$SWIGMODULES opus.fs"
-		   SWIGLIBS="$SWIGLIBS opus.fs",), ,)
+		   SWIGLIBS="$SWIGLIBS opus.fs"
+		   SWIGDISTFSI="$SWIGDISTFSI opus.fs"
+		   ,), ,)
 fi
 if test x$has_swig = xyes || test -f $srcdir/unix/va-fsi.c; then
    AC_CHECK_LIB(va,vaCreateContext,
@@ -1736,6 +1767,7 @@ echo "SWIG includes: $SWIGINCLUDES"
 AC_SUBST(SWIGINCLUDES)
 AC_SUBST(SWIGLIBS)
 AC_SUBST(SWIGDIST)
+AC_SUBST(SWIGDISTFSI)
 
 case "$CC"
 in
