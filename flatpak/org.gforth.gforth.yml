@@ -7,11 +7,7 @@ branch: "22.08"
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.stb
-  - org.freedesktop.Sdk.Extension.texlive
 command: gforth
-append-path:
-  - /usr/lib/sdk/texlive/bin
-  - /usr/lib/sdk/texlive/bin/x86_64-linux
 
 modules:
   - name: gforth
