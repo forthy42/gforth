@@ -208,4 +208,4 @@ Variable warnings ( -- addr ) \ gforth
 \G @item -4
 \G turns warnings into errors (including beginner warnings)
 \G @end table
-G -2 warnings T ! \ default to -Won
+-2 warnings ! \ default to -Won
