@@ -202,7 +202,7 @@ Variable warnings ( -- addr ) \ gforth
 \G @item -1
 \G turns normal warnings on
 \G @item -2
-\G turns beginner warnngs on
+\G turns beginner warnings on
 \G @item -3
 \G pedantic warnings on
 \G @item -4
