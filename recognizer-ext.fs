@@ -27,7 +27,9 @@
 to-opt: ( xt -- ) >body @ lit, ]] >body + ! [[ ;
 
 : translator: ( "name" -- ) \ gforth-experimental
-    \G create a new translator, extending the translator table
+    \G create a new translator, extending the translator table.
+    \G You can assign an xt to an existing rectype by using
+    \G @var{xt rectype} @code{to} @var{translator}.
     translator-offset translator-max-offset# u>=
     translator-overflow and throw
     Create translator-offset ,  cell +to translator-offset

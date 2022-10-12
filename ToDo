@@ -12,7 +12,7 @@ A        [ ] Documentation review
 A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
-AB       [ ] Documentation in manual
+AB       [x] Documentation in manual
 ABGO [ ] Documentation for Undocumented features
  B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
 A        [d] Search changelogs for features

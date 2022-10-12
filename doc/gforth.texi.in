@@ -8820,19 +8820,22 @@ tokens: words in the dictionary, integer numbers, and floating point
 numbers.  Defining new types of tokens isn't yet standardized.  Gforth
 provides recognizers to make the text interpreter extensible as well.
 
-Recognizers take a string and return some data and a ``table'' for
-interpreting that data.  Gforth implements that table as xt (which means
-any xt is a valid result of a recognizer), but other Forth systems can
-implement it as actual table, with three xts inside.  The first xt is
-the interpretation/run-time xt, it performs the interpretation semantics
-on the data (usually, this means it just leaves the data on the stack).
+Recognizers take a string and return some data and a translator for
+interpreting that data.  Gforth implements that translator as xt
+(executing it will perform the appropriate action to handle the token in
+the current state), but other Forth systems may implement it as actual
+table, with three xts inside.  The first xt is the
+interpretation/run-time xt, it performs the interpretation semantics on
+the data (usually, this means it just leaves the data on the stack).
 The second xt performs the compilation semantics, it gets the data and
 the run-time semantics xt.  The third xt perfoms the postpone semantics,
 it also gets the data and the run-time semantics xt.  You can use
-@code{post,} to postpone the run-time xt.
+@code{>postpone} to postpone the run-time xt.
 
 Recognizers are organized as stack, so you can arrange the sequence of
-recognizers in the same way as the vocabulary stack.
+recognizers in the same way as the vocabulary stack.  Recognizer stacks
+are themselves recognizers, i.e. they are executable, take a string and
+return a translator.
 
 doc-notfound
 doc-rec-nt
@@ -8853,6 +8856,7 @@ doc-set-forth-recognize
 doc-translate:
 doc-translate-nt
 doc-translate-num
+doc-translate-float
 
 The following extension is only avaiable if you load @code{recognizer-ext.fs}:
 
