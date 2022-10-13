@@ -1021,11 +1021,11 @@ end-class box
 1fil 1/f fconstant 0g \ minimum glue, needs to be bigger than zero to avoid 0/0
 
 : .fil[l[l]] ( f -- )
-    fdup 0g 10e f* f< IF  0g f/ f. 'g' emit space  EXIT  THEN
-    fdup 1fil f< IF  f.  EXIT  THEN
-    1fil f/ fdup 1fil f< IF  f. ." fil" EXIT  THEN
-    1fil f/ fdup 1fil f< IF  f. ." fill" EXIT  THEN
-    1fil f/ f. ." filll" ;
+    fdup 0g 1e10 f* f< IF  0g f/ f. 'g' emit space  EXIT  THEN
+    fdup [ 1fil 1e10 f/ ] Fliteral f< IF  f.  EXIT  THEN
+    fdup [ 1fill 1e10 f/ ] Fliteral f< IF  1fil f/ f. ." fil" EXIT  THEN
+    fdup [ 1filll 1e10 f/ ] Fliteral f< IF  1fill f/ f. ." fill" EXIT  THEN
+    1filll f/ f. ." filll" ;
 
 : .glue { f: t f: s f: a -- }
     t f. s .fil[l[l]] space a .fil[l[l]] ;

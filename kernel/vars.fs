@@ -202,10 +202,10 @@ Variable warnings ( -- addr ) \ gforth
 \G @item -1
 \G turns normal warnings on
 \G @item -2
-\G turns beginner warnngs on
+\G turns beginner warnings on
 \G @item -3
 \G pedantic warnings on
 \G @item -4
 \G turns warnings into errors (including beginner warnings)
 \G @end table
-G -2 warnings T ! \ default to -Won
+-2 warnings ! \ default to -Won

@@ -193,6 +193,7 @@ si-prefixes count 2/ + Constant zero-exp
 
 ' noop ' fliteral ' fliteral >postponer
 translate: translate-float
+\G translate floating point numbers
 ' translate-float Constant rectype-float
 
 : rec-float ( addr u -- r translate-float | notfound ) \ gforth-experimental

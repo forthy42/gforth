@@ -353,6 +353,7 @@ GFORTH_FI_SRC = \
 SWIGMODULES = @SWIGMODULES@
 SWIGLIBS = @SWIGLIBS@
 SWIGDIST = @SWIGDIST@
+SWIGDISTFSI = @SWIGDISTFSI@
 SWIG_WRAP = $(patsubst %.fs,unix/%-fsi.c,$(SWIGMODULES))
 
 LIBCC_SRC1 = unix/cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs	\
@@ -648,8 +649,8 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	test/fp/fptest.out test/regexp.out $(wildcard $(srcdir)/cache*.vmg)   \
 	peeprules.vmg prim debian/rules debian/control.in debian/changelog.in \
 	debian/compat gforth.ico .travis.yml install-deps.sh install-swig.sh  \
-	install-freetype-gl.sh $(SWIG_WRAP) m4/ax_gcc_builtin.m4	      \
-	move-if-change $(DOCKER)
+	install-freetype-gl.sh $(patsubst %.fs,unix/%-fsi.c, $(SWIGDISTFSI))  \
+	m4/ax_gcc_builtin.m4 move-if-change $(DOCKER)
 
 CONFIG_GEN = Makefile Makedist gforthmi gforthmi.sh vmgen preforth	\
 	libforth gforthker engine/Makefile engine/gforth.h		\
@@ -1086,14 +1087,14 @@ checkgfd:
 		$(MAKE) checkone ENGINE="./gforth-fast$(EXT)" $(CHECK)
 		-@$(RM) $@.check
 
-checkone test: gforth.fi engine/prim-s.i
+checkone test: prim.b gforth.fi engine/prim-s.i
 		$(TIMEOUT) $(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
 		$(TIMEOUT) $(FORTH) test/other.fs -e bye
 		$(TIMEOUT) $(FORTHS) test/signals.fs -e bye
 		$(TIMEOUT) $(FORTHS) test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
 		$(TIMEOUT) $(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -u $(srcdir)/test/checkans.out -
 		$(TIMEOUT) $(FORTH) prims2x.fs -e \
-		  "c-flag on s\" prim.i\" out-filename 2! s\" prim.b\" ' output-c ' output-c-combined process-file bye"| \
+		  "c-flag on s\" prim.i\" out-filename 2! s\" $<\" ' output-c ' output-c-combined process-file bye"| \
 		  tr -d '\015' | grep -v '^#line '|diff -u engine/prim-s.i -
 		-$(TIMEOUT) $(FORTH) test/fp/runfptests.fth -e bye | diff -u $(srcdir)/test/fp/fptest.out - || echo "Floating point test failed"
 		$(TIMEOUT) $(FORTHS) test/read-line.fs -e bye | diff -u - $(srcdir)/test/read-line.out

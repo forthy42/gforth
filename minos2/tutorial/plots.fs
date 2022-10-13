@@ -47,8 +47,9 @@ Create plot-y-addr'
 1e f,
 here plot-y-addr' - Constant plot-xy-u
 
-: plot-x-test ( -- )
-    plot-x-addr plot-x-u plot-x-color plot-x ;
+: plot-x-test ( -- ) 9e opengl:glLineWidth
+    plot-x-addr plot-x-u plot-x-color plot-x
+    1e opengl:glLineWidth ;
 : plot-xy-test ( -- )
     plot-x-addr' plot-y-addr' plot-xy-u plot-x-color
     0e 4e 0e 5e plot-xy-minmax ;

@@ -2,35 +2,23 @@ app-id: org.gforth.gforth
 runtime: org.freedesktop.Platform
 platform-extensions:
   - org.freedesktop.Platform.GL.default
-runtime-version: "21.08"
-branch: "21.08"
+runtime-version: "22.08"
+branch: "22.08"
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.stb
-  - org.freedesktop.Sdk.Extension.texlive
 command: gforth
-append-path:
-  - /usr/lib/sdk/texlive/bin
-  - /usr/lib/sdk/texlive/bin/x86_64-linux
 
 modules:
   - name: gforth
     buildsystem: autotools
     config-opts:
       - "CPPFLAGS=-I/usr/lib/sdk/stb/include"
-      - "ac_cv_header_vulkan_vulkan_h=no"
-      - "ac_cv_header_linux_v4l2_common_h=no"
-      - "ac_cv_header_glib_object_h=no"
-      - "ac_cv_header_libavcodec_avcodec_h=no"
-      - "ac_cv_header_wayland_egl_core_h=no"
-      - "ac_cv_header_va_va_h=no"
-      - "ac_cv_header_va_va_drm_h=no"
-      - "ac_cv_header_va_va_x11_h=no"
       - "--disable-lib"
       - "--with-lispdir=/app/share/emacs/site-lisp"
       - "--with-elispstartdir=/app/share/emacs/site-start.d"
     no-autogen: true
     sources:
       - type: archive
-        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20220922/gforth-0.7.9_20220922.tar.xz
-        sha256: ab0148f53e963777122f68dbf7cc39b7728fb42ae08513c38c4fa8267905ed0f
+        url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20221006/gforth-0.7.9_20221006.tar.xz
+        sha256: 848fd41cb73e74fc88d8f1d477f8023c5f8f74334101a1fd4f5c32d6095138a1

@@ -1,9 +1,9 @@
 id: org.freedesktop.Sdk.Extension.stb
-branch: '21.08'
+branch: '22.08'
 runtime: org.freedesktop.Sdk
 sdk: org.freedesktop.Sdk
 build-extension: true
-runtime-version: '21.08'
+runtime-version: '22.08'
 separate-locales: false
 appstream-compose: false
 modules:
