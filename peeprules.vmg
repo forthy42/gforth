@@ -100,6 +100,8 @@ swaplfetch = l@ l><
 csswapwfetch = w@ w>< w>s
 csswaplfetch = l@ l>< l>s
 torrfrom = >r r>
+csswapwstore = >r w>< r> w!
+csswaplstore = >r l>< r> l!
 
 \F 0 [if]
 

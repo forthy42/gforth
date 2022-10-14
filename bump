@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#Usage ./bump major.minor.patch
+
+RELEASE=$1
+V="${RELEASE}_$(date +%Y%m%d)"
+U=$(env LANG=en_US.UTF-8 date +'%B %d, %Y')
+sed -e "s/AC_INIT(\([^ ,]*, *\[\)[0-9._\-]*/AC_INIT(\1$V/g" -e "s/UPDATED=\".*\"/UPDATED=\"$U\"/g" configure.ac >configure.ac+ && mv configure.ac+ configure.ac
+dvcs ci -m "Bump version number"
+dvcs tag add $V
+git remote | xargs -L 1 git push --follow-tags --all
+if [ -d build ]
+then
+    ./autogen.sh && ./configure
+fi
+make dist
+if [ -d build ]
+then
+    make distclean
+fi
+SHA256=$(sha256sum gforth-$V.tar.xz | cut -f1 -d' ')
+URL="https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/$V/gforth-$V.tar.xz"
+sed -e "s|url: \(.*\)|url: $URL|g" -e "s/sha256: \(.*\)/sha256: $SHA256/g" <flatpak/org.gforth.gforth.yml >flatpak/org.gforth.gforth.yml+
+mv flatpak/org.gforth.gforth.yml+ flatpak/org.gforth.gforth.yml
+gforth-up $(ls -tr1 *.tar.xz | tail -n 1)
+mv *.tar.xz* tarballs
+
