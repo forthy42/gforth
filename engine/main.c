@@ -1135,6 +1135,37 @@ static void check_prims(Label symbols1[])
 #endif
 }
 
+/* Dynamic info for decompilation */
+
+typedef struct {
+  Label start;
+  uint16_t length;
+  uint16_t prim;
+  int8_t start_state;
+  int8_t end_state;
+} DynamicInfo; /* info about dynamically generated code */
+
+DynamicInfo *dynamicinfos = NULL; /* 2^n-sized growable array */
+long ndynamicinfos=0; /* index of next dynamicinfos entry */
+
+#if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
+static DynamicInfo *add_dynamic_info()
+/* reserves space for a new Dynamicinfo, returning a pointer to it (for
+   filling out) */
+{
+  long old=ndynamicinfos;
+  long new=old+1;
+  ndynamicinfos=new;
+  if ((old&new)==0) { /* one too early for old>=1, but we can live with that */
+    dynamicinfos =
+      (DynamicInfo *)realloc(dynamicinfos,2*new*sizeof(DynamicInfo));
+    if (dynamicinfos==NULL)
+      perror(progname);
+  }
+  return &dynamicinfos[old];
+}
+#endif
+
 static void flush_to_here(void)
 {
 #ifndef NO_DYNAMIC
@@ -1167,6 +1198,7 @@ static void append_jump(void)
 {
   if (last_jump) {
     PrimInfo *pi = &priminfos[last_jump];
+    DynamicInfo *di = &dynamicinfos[ndynamicinfos-1];
     
     /* debugp(stderr, "Copy code %p<=%p+%x,%d\n", code_here, pi->start, pi->length, pi->restlength); */
     memmove(code_here, pi->start+pi->length, pi->restlength);
@@ -1174,6 +1206,7 @@ static void append_jump(void)
     /* debugp(stderr, "Copy goto %p<=%p,%d\n", code_here, goto_start, goto_len); */
     memmove(code_here, goto_start, goto_len);
     code_here += goto_len;
+    di->length = code_here - (Address)di->start;
     align_code();
     last_jump=0;
   }
@@ -1188,6 +1221,7 @@ needed. */
 
 struct code_block_list {
   struct code_block_list *next;
+  long dynamicinfos; /* index into dynamicinfos for first primitive in block */
   Address block;
   Cell size;
 } *code_block_list=NULL, **next_code_blockp=&code_block_list;
@@ -1289,6 +1323,8 @@ static long dyncodesize(void)
 #endif /* !defined(NO_DYNAMIC) */
   return 0;
 }
+
+
 
 Label decompile_code(Label _code)
 {
@@ -1511,8 +1547,8 @@ static struct tpa_state *make_termstate()
 struct tpa_entry {
   struct tpa_entry *next;
   PrimNum inst;
-  struct tpa_state *state_behind;  /* note: brack-to-front labeling */
-  struct tpa_state *state_infront; /* note: brack-to-front labeling */
+  struct tpa_state *state_behind;  /* note: back-to-front labeling */
+  struct tpa_state *state_infront; /* note: back-to-front labeling */
 } *tpa_table[TPA_SIZE];
 
 #if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
@@ -1686,6 +1722,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   /* now rewrite the instructions */
   reserve_code_super(origs,ninsts);
   old_code_area = code_area;
+  DynamicInfo *di = NULL;
   nextdyn=0;
   nextstate=CANONICAL_STATE;
   no_transition = ((!ts[0]->trans[nextstate].relocatable) 
@@ -1693,6 +1730,8 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   for (i=0; i<ninsts; i++) {
     Cell tc=0, tc2;
     if (i==nextdyn) {
+      di = add_dynamic_info();
+      di->start_state = nextstate;
       if (!no_transition) {
 	/* process trans */
 	PrimNum p = ts[i]->trans[nextstate].inst;
@@ -1711,6 +1750,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 #if defined(GFORTH_DEBUGGING)
 	assert(p == origs[i]);
 #endif
+        di->prim = p;
 	tc2 = compile_prim_dyn(p,instps[i]);
 	if (no_transition || !is_relocatable(p))
 	  /* !! actually what we care about is if and where
@@ -1720,6 +1760,9 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	nextstate = c->state_out;
 	nextdyn += c->length;
       }
+      di->start = (Label)tc;
+      di->length = code_here - (Address)tc;
+      di->end_state = nextstate;
     } else {
 #if defined(GFORTH_DEBUGGING)
       assert(0);
@@ -1739,6 +1782,10 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   }
   assert(nextstate==CANONICAL_STATE);
   assert(code_area==old_code_area); /* does reserve_code_super() work? */
+  if (di != NULL) {
+    di->length = code_here - (Address)(di->start);
+    di->end_state = nextstate;
+  }
 }
 #endif
 
