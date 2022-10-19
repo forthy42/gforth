@@ -1324,14 +1324,12 @@ static long dyncodesize(void)
   return 0;
 }
 
-
-
-Label decompile_code(Label _code)
+DynamicInfo *dynamic_info(Label code)
 {
-#ifdef NO_DYNAMIC
-  return _code;
-#else /* !defined(NO_DYNAMIC) */
-  Cell i;
+  DynamicInfo *di;
+#if 0
+  /* !! faster implementation: linear search for the block, then use
+        binary search within the block */
   struct code_block_list *p;
   Address code=_code;
 
@@ -1342,15 +1340,19 @@ Label decompile_code(Label _code)
     if (code >= p->block && code < p->block+p->size)
       break;
   }
-  /* reverse order because NOOP might match other prims */
-  for (i=npriminfos-1; i>DOER_MAX; i--) {
-    PrimInfo *pi=decomp_prims[i];
-    if (pi->start==code || (pi->start && memcmp(code,pi->start,pi->length)==0))
-      return vm_prims[super2[super_costs[pi-priminfos].offset]];
-    /* return pi->start;*/
-  }
-  return code;
-#endif /* !defined(NO_DYNAMIC) */
+#endif
+  for (di=dynamicinfos; di<&dynamicinfos[ndynamicinfos]; di++)
+    if (di->start == code)
+      return di;
+  return NULL;
+}
+
+Label decompile_code(Label _code)
+{
+  DynamicInfo *di = dynamic_info(_code);
+  if (di==NULL)
+    return _code;
+  return vm_prims[super2[super_costs[di->prim].offset]];
 }
 
 void finish_code(void)
