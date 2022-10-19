@@ -1148,6 +1148,29 @@ typedef struct {
 DynamicInfo *dynamicinfos = NULL; /* 2^n-sized growable array */
 long ndynamicinfos=0; /* index of next dynamicinfos entry */
 
+DynamicInfo *dynamic_info(Label code)
+{
+  DynamicInfo *di;
+#if 0
+  /* !! faster implementation: linear search for the block, then use
+        binary search within the block */
+  struct code_block_list *p;
+  Address code=_code;
+
+  /* first, check if we are in code at all */
+  for (p = code_block_list;; p = p->next) {
+    if (p == NULL)
+      return code;
+    if (code >= p->block && code < p->block+p->size)
+      break;
+  }
+#endif
+  for (di=dynamicinfos; di<&dynamicinfos[ndynamicinfos]; di++)
+    if (di->start == code)
+      return di;
+  return NULL;
+}
+
 #if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
 static DynamicInfo *add_dynamic_info()
 /* reserves space for a new Dynamicinfo, returning a pointer to it (for
@@ -1296,6 +1319,9 @@ int forget_dyncode(Address code)
 #else
   struct code_block_list *p, **pp;
 
+  DynamicInfo *di = dynamic_info((Label)code);
+  if (di != NULL)
+    ndynamicinfos = di-dynamicinfos;
   for (pp=&code_block_list, p=*pp; p!=NULL; pp=&(p->next), p=*pp) {
     if (code >= p->block && code < p->block+p->size) {
       next_code_blockp = &(p->next);
@@ -1322,29 +1348,6 @@ static long dyncodesize(void)
   }
 #endif /* !defined(NO_DYNAMIC) */
   return 0;
-}
-
-DynamicInfo *dynamic_info(Label code)
-{
-  DynamicInfo *di;
-#if 0
-  /* !! faster implementation: linear search for the block, then use
-        binary search within the block */
-  struct code_block_list *p;
-  Address code=_code;
-
-  /* first, check if we are in code at all */
-  for (p = code_block_list;; p = p->next) {
-    if (p == NULL)
-      return code;
-    if (code >= p->block && code < p->block+p->size)
-      break;
-  }
-#endif
-  for (di=dynamicinfos; di<&dynamicinfos[ndynamicinfos]; di++)
-    if (di->start == code)
-      return di;
-  return NULL;
 }
 
 Label decompile_code(Label _code)
