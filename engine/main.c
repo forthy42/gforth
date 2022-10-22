@@ -249,10 +249,6 @@ typedef struct {
 PrimInfo *priminfos;
 PrimInfo **decomp_prims;
 
-const char * const prim_names[]={
-#include PRIM_NAMES_I
-};
-
 void init_ss_cost(void);
 
 static int is_relocatable(int p)
@@ -265,6 +261,12 @@ static int is_relocatable(int p)
   return 0;
 }
 #endif /* defined(NO_DYNAMIC) */
+
+const char * const prim_names[]={
+#if !defined(NO_DYNAMIC)
+#include PRIM_NAMES_I
+#endif
+};
 
 #ifdef MEMCMP_AS_SUBROUTINE
 int gforth_memcmp(const char * s1, const char * s2, size_t n)
@@ -966,14 +968,14 @@ MAYBE_UNUSED static Label bsearch_next(Label key, Label *a, UCell n)
     return bsearch_next(key, a, mid+1);
 }
 
-#ifndef NO_DYNAMIC
-static int state_map(int state)
+int state_map(int state)
 {
   if (state==0) return STACK_CACHE_DEFAULT;
   if (state<=STACK_CACHE_DEFAULT) return state-1;
   return state;
 }
 
+#ifndef NO_DYNAMIC
 static void gforth_printprims()
 {
   unsigned i;
@@ -1136,15 +1138,6 @@ static void check_prims(Label symbols1[])
 }
 
 /* Dynamic info for decompilation */
-
-typedef struct {
-  Label start;
-  uint16_t length;
-  uint16_t prim;
-  int8_t start_state;
-  int8_t end_state;
-} DynamicInfo; /* info about dynamically generated code */
-
 DynamicInfo *dynamicinfos = NULL; /* 2^n-sized growable array */
 long ndynamicinfos=0; /* index of next dynamicinfos entry */
 
@@ -1356,6 +1349,16 @@ Label decompile_code(Label _code)
   if (di==NULL)
     return _code;
   return vm_prims[super2[super_costs[di->prim].offset]];
+}
+
+DynamicInfo *decompile_prim1(Label _code)
+{
+  DynamicInfo *di = dynamic_info(_code);
+  if (di==NULL) {
+    static DynamicInfo none = {NULL,-1,0,0,0};
+    di = &none;
+  }
+  return di;
 }
 
 void finish_code(void)

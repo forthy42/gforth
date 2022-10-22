@@ -34,14 +34,25 @@ get-current also see-voc definitions
     else
 	cr ." not a colon definition" dup \ ensure 0 iterations
     then ;
-	    
+
+: see-word.addr ( addr -- )
+    xpos off hex. ;
+
 : simple-see-word { addr -- }
-    xpos off addr hex. addr cell+ addr @ .word drop ;
+    addr see-word.addr addr cell+ addr @ .word drop ;
 
 : simple-see-range ( addr1 addr2 -- ) \ gforth
     swap u+do
 	cr i simple-see-word
     cell +loop ;
+
+: see-code-word { addr -- len }
+    addr see-word.addr addr @ decompile-prim1 dup >r -1 = if
+        2drop 2drop addr cell+ addr @ .word drop
+    else
+        type 4 spaces swap 0 .r ." ->" .
+    then
+    r> ;
 
 : see-code-next-inline { addr1 addr2 -- addr3 }
     \ decompile starting at addr1 until an inlined primitive is found,
@@ -54,10 +65,10 @@ get-current also see-voc definitions
                 addr cell+
         repeat then
     addr ;
-
+    
 : see-code-range { addr1 addr2 -- } \ gforth
     cr addr1 begin { a }
-        a simple-see-word
+        a see-code-word { restlen }
         a cell+ addr2 see-code-next-inline { b }
         a @ b addr2 u< while
             ( a @ ) b @ over - discode
@@ -65,7 +76,8 @@ get-current also see-voc definitions
     repeat
     \ now disassemble the remaining a @; we derive the length from
     \ it's primitive
-    dup decompile-prim dup next-prim swap - discode ;
+    restlen discode ;
+\    dup decompile-prim dup next-prim swap - discode ;
 
 set-current
 

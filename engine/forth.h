@@ -477,6 +477,14 @@ typedef struct {
   Cell *s_rp;
 } stackpointers;
 
+typedef struct {
+  Label start;
+  int16_t length;
+  uint16_t prim;
+  int8_t start_state;
+  int8_t end_state;
+} DynamicInfo; /* info about dynamically generated code */
+
 extern PER_THREAD stackpointers gforth_SPs;
 
 #define TOIOR(err)      (-512-(err))
@@ -607,6 +615,9 @@ void finish_code(void);
 void finish_code_barrier(void);
 int forget_dyncode(Address code);
 Label decompile_code(Label prim);
+extern const char * const prim_names[];
+extern DynamicInfo *decompile_prim1(Label _code);
+int state_map(int);
 
 extern int offset_image;
 extern int die_on_signal;

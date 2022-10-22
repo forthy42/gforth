@@ -3274,6 +3274,18 @@ decompile-prim ( a_code -- a_prim ) gforth-internal decompile_prim
 compile_prim1ed to a_code""
 a_prim = (Cell *)decompile_code((Label)a_code);
 
+decompile-prim1 ( a_code -- ustart uend c_addr u ulen ) gforth-internal decompile_prim1
+""a_code is the start of machine code of ulen bytes, corresponding to
+the primitive or primitive sequence with the name(s) c-addr1 u1, with
+start state ustart and end state uend, with the first primitive c-addr2 u2.""
+DynamicInfo *di = decompile_prim1((Label)a_code);
+const char *s = prim_names[di->prim];
+ustart = state_map(di->start_state);
+uend = state_map(di->end_state);
+c_addr = (Address)s;
+u = strlen(s);
+ulen = di->length;
+
 tag-offsets ( -- a_addr ) gforth-internal tag_offsets
 extern Cell groups[32];
 a_addr = groups;
