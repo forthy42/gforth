@@ -1775,7 +1775,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 #if defined(GFORTH_DEBUGGING)
       assert(0);
 #endif
-      tc= (Cell)vm_prims[ts[i]->inst[CANONICAL_STATE].inst];
+      tc= (Cell)vm_prims[super2[super_costs[ts[i]->inst[CANONICAL_STATE].inst].offset]];
     }
     *(instps[i]) = tc;
   }      
