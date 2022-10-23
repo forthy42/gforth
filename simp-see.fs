@@ -50,7 +50,10 @@ get-current also see-voc definitions
     addr see-word.addr addr @ decompile-prim1 dup >r -1 = if
         2drop 2drop addr cell+ addr @ .word drop
     else
-        type 4 spaces swap 0 .r ." ->" .
+        type 4 spaces swap r@ if
+            0 .r ." ->" .
+        else
+            2drop then
     then
     r> ;
 

@@ -198,6 +198,7 @@ static int print_metrics=0; /* if true, print metrics on exit */
 static int print_prims=0; /* if true, print primitives on exit */
 static int static_super_number = 10000; /* number of ss used if available */
 #define MAX_STATE 9 /* maximum number of states */
+#define CANONICAL_STATE 0
 static int maxstates = MAX_STATE; /* number of states for stack caching */
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
 static int tpa_noequiv = 0;     /* if true: no state equivalence checking */
@@ -1354,13 +1355,32 @@ Label decompile_code(Label _code)
   return vm_prims[super2[super_costs[di->prim].offset]];
 }
 
+static Cell prim_index(Label code)
+/* !! use binary search or hashing instead */
+{
+  long i;
+  for (i=0; vm_prims[i]!=NULL; i++)
+    if (vm_prims[i]==code)
+      return i;
+  return -1;
+}
+
 DynamicInfo *decompile_prim1(Label _code)
 {
   DynamicInfo *di = dynamic_info(_code);
   /* fprintf(stderr,"\n%p n=%ld\n",di,ndynamicinfos);*/
   if (di==NULL) {
-    static DynamicInfo none = {NULL,-1,0,0,0};
-    di = &none;
+    static DynamicInfo dyninfo; 
+    Cell p = prim_index(_code);
+    if (p<0)
+      dyninfo = (DynamicInfo){_code,-1,0,0,0};
+    else {
+      struct cost *c = &super_costs[p];
+      dyninfo = (DynamicInfo){_code,0,p,c->state_in,c->state_out};
+      assert(c->state_in  == CANONICAL_STATE);
+      assert(c->state_out == CANONICAL_STATE);
+    }
+    di = &dyninfo;
   }
   return di;
 }
@@ -1467,7 +1487,6 @@ void init_ss_cost(void) {
 
 #define MAX_BB 128 /* maximum number of instructions in BB */
 #define INF_COST 1000000 /* infinite cost */
-#define CANONICAL_STATE 0
 
 struct waypoint {
   int cost;     /* the cost from here to the end */
