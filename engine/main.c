@@ -1171,6 +1171,9 @@ static DynamicInfo *add_dynamic_info()
 {
   long old=ndynamicinfos;
   long new=old+1;
+  if (dynamicinfos!=NULL && dynamicinfos[old-1].length == 0) {
+    return &dynamicinfos[old-1];
+  }
   ndynamicinfos=new;
   if ((old&new)==0) { /* one too early for old>=1, but we can live with that */
     dynamicinfos =
@@ -1354,7 +1357,7 @@ Label decompile_code(Label _code)
 DynamicInfo *decompile_prim1(Label _code)
 {
   DynamicInfo *di = dynamic_info(_code);
-  /* fprintf(stderr,"\n%p\n",di); */
+  /* fprintf(stderr,"\n%p n=%ld\n",di,ndynamicinfos);*/
   if (di==NULL) {
     static DynamicInfo none = {NULL,-1,0,0,0};
     di = &none;
