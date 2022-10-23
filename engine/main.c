@@ -1191,20 +1191,26 @@ static void flush_to_here(void)
 #endif
 }
 
+static void MAYBE_UNUSED  append_code(Address code, size_t length)
+{
+  DynamicInfo *di = &dynamicinfos[ndynamicinfos-1];
+  memmove(code_here,code,length);
+  code_here += length;
+  di->length = code_here - (Address)di->start;
+}
+
 static void MAYBE_UNUSED align_code(void)
      /* align code_here on some platforms */
 {
 #ifndef NO_DYNAMIC
 #if defined(CODE_PADDING)
   Cell alignment = CODE_ALIGNMENT;
-  static char nops[] = CODE_PADDING;
+  static unsigned char nops[] = CODE_PADDING;
   UCell maxpadding=MAX_PADDING;
   UCell offset = ((UCell)code_here)&(alignment-1);
   UCell length = alignment-offset;
-  if (length <= maxpadding) {
-    memmove(code_here,nops+offset,length);
-    code_here += length;
-  }
+  if (length <= maxpadding)
+    append_code(nops+offset,length);
 #endif /* defined(CODE_PADDING) */
 #endif /* defined(NO_DYNAMIC */
 }  
@@ -1214,15 +1220,10 @@ static void append_jump(void)
 {
   if (last_jump) {
     PrimInfo *pi = &priminfos[last_jump];
-    DynamicInfo *di = &dynamicinfos[ndynamicinfos-1];
-    
     /* debugp(stderr, "Copy code %p<=%p+%x,%d\n", code_here, pi->start, pi->length, pi->restlength); */
-    memmove(code_here, pi->start+pi->length, pi->restlength);
-    code_here += pi->restlength;
+    append_code(pi->start+pi->length, pi->restlength);
     /* debugp(stderr, "Copy goto %p<=%p,%d\n", code_here, goto_start, goto_len); */
-    memmove(code_here, goto_start, goto_len);
-    code_here += goto_len;
-    di->length = code_here - (Address)di->start;
+    append_code(goto_start, goto_len);
     align_code();
     last_jump=0;
   }
@@ -1275,9 +1276,8 @@ static Address append_prim(Cell p)
   if(reserve_code_space(pi->length+pi->restlength+goto_len+CODE_ALIGNMENT-1))
     return NULL;
   /* debugp(stderr, "Copy code %p<=%p,%d\n", code_here, pi->start, pi->length); */
-  memmove(code_here, pi->start, pi->length);
   old_code_here = code_here;
-  code_here += pi->length;
+  append_code(pi->start, pi->length);
   return old_code_here;
 }
 
@@ -1354,6 +1354,7 @@ Label decompile_code(Label _code)
 DynamicInfo *decompile_prim1(Label _code)
 {
   DynamicInfo *di = dynamic_info(_code);
+  /* fprintf(stderr,"\n%p\n",di); */
   if (di==NULL) {
     static DynamicInfo none = {NULL,-1,0,0,0};
     di = &none;
@@ -1740,6 +1741,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     if (i==nextdyn) {
       di = add_dynamic_info();
       di->start_state = nextstate;
+      di->length = 0;
       if (!no_transition) {
 	/* process trans */
 	PrimNum p = ts[i]->trans[nextstate].inst;
@@ -1769,7 +1771,6 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	nextdyn += c->length;
       }
       di->start = (Label)tc;
-      di->length = code_here - (Address)tc;
       di->end_state = nextstate;
     } else {
 #if defined(GFORTH_DEBUGGING)
@@ -1791,7 +1792,6 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   assert(nextstate==CANONICAL_STATE);
   assert(code_area==old_code_area); /* does reserve_code_super() work? */
   if (di != NULL) {
-    di->length = code_here - (Address)(di->start);
     di->end_state = nextstate;
   }
 }
