@@ -1233,6 +1233,16 @@ static void append_jump(void)
   }
 }
 
+static void append_jump_previous(void)
+/* append a dispatch to the previous primitive */
+{
+  ndynamicinfos--;
+  append_jump();
+  ndynamicinfos++;
+  dynamicinfos[ndynamicinfos-1].start = code_here;
+  assert(dynamicinfos[ndynamicinfos-1].length == 0);
+}
+
 /* Gforth remembers all code blocks in this list.  On forgetting (by
 executing a marker) the code blocks are not freed (because Gforth does
 not remember how they were allocated; hmm, remembering that might be
@@ -1416,7 +1426,7 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
     return static_prim;
   priminfos[p].uses++;
   if (p>=npriminfos || !is_relocatable(p)) {
-    append_jump();
+    append_jump_previous();
     return static_prim;
   }
   old_code_here = append_prim(p);
@@ -1762,6 +1772,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     Cell tc=0, tc2;
     if (i==nextdyn) {
       di = add_dynamic_info();
+      di->start = code_here;
       di->start_state = nextstate;
       di->length = 0;
       if (!no_transition) {
@@ -1792,7 +1803,9 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	nextstate = c->state_out;
 	nextdyn += c->length;
       }
-      di->start = (Label)tc;
+      assert(di->length==0 || di->start == (Label)tc);
+      /* if (di->length!=0 && di->start != (Label)tc)
+         fprintf(stderr,"len=%d, start=%p, here=%p\n",di->length, di->start, code_here); */
       di->end_state = nextstate;
     } else {
 #if defined(GFORTH_DEBUGGING)
