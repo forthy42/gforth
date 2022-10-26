@@ -1807,8 +1807,10 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
       if (is_relocatable(p)) {
         di = add_dynamic_info();
         if (ndynamicinfos>1 &&
-            ((UCell)(((Address)tc)-code_area)) < (UCell)code_area_size)
+            ((UCell)(((Address)tc)-code_area)) < (UCell)code_area_size) {
           di[-1].length = ((Address)tc) - (Address)di[-1].start;
+          di[-1].end_state = startstate;
+        }
         di->prim = p;
         di->start = (Label)tc;
         di->length = code_here - (Address)di->start;
