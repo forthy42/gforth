@@ -46,41 +46,21 @@ get-current also see-voc definitions
 	cr i simple-see-word
     cell +loop ;
 
-: see-code-word { addr -- len }
-    addr see-word.addr addr @ decompile-prim1 dup >r -1 = if
-        2drop 2drop addr cell+ addr @ .word drop
-    else
-        type 4 spaces swap r@ if
-            0 .r ." ->" .
-        else
-            2drop then
-    then
-    r> ;
-
-: see-code-next-inline { addr1 addr2 -- addr3 }
-    \ decompile starting at addr1 until an inlined primitive is found,
-    \ or addr2 is reached; addr3 is addr2 or the next inlined
-    \ primitive
-    addr1 begin { addr }
-        addr addr2 u< while
-            addr @ dup decompile-prim = while
-                addr cr simple-see-word
-                addr cell+
-        repeat then
-    addr ;
-    
 : see-code-range { addr1 addr2 -- } \ gforth
-    cr addr1 begin { a }
-        a see-code-word { restlen }
-        a cell+ addr2 see-code-next-inline { b }
-        a @ b addr2 u< while
-            ( a @ ) b @ over - discode
-            b
-    repeat
-    \ now disassemble the remaining a @; we derive the length from
-    \ it's primitive
-    restlen discode ;
-\    dup decompile-prim dup next-prim swap - discode ;
+    addr1 0 0 0 ['] noop case { addr nseqlen d: codeblock xt: cr? }
+        addr addr2 u>= ?of endof
+        addr @ decompile-prim2 { ulen } ulen 0< ?of
+            drop 2drop 2drop
+            cr? addr simple-see-word
+            addr cell+ nseqlen codeblock ['] cr contof
+        nseqlen 0= if codeblock discode 0 0 to codeblock ['] noop to cr? then
+        cr? addr see-word.addr type { nseqlen1 ustart uend } ulen if
+            ustart 4 spaces 0 .r ." ->" uend .
+            assert( codeblock nip 0= )
+            addr @ ulen to codeblock then
+        addr cell+ nseqlen nseqlen1 max 1- codeblock ['] cr
+    next-case
+    codeblock discode ;
 
 set-current
 

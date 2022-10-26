@@ -1379,7 +1379,7 @@ DynamicInfo *decompile_prim1(Label _code)
     static DynamicInfo dyninfo; 
     Cell p = prim_index(_code);
     if (p<0)
-      dyninfo = (DynamicInfo){_code,-1,0,0,0};
+      dyninfo = (DynamicInfo){_code,-1,0,0,0,0};
     else {
       struct cost *c = &super_costs[p];
       dyninfo = (DynamicInfo){_code,0,p,c->state_in,c->state_out};
@@ -1812,6 +1812,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
           di[-1].end_state = startstate;
         }
         di->prim = p;
+        di->seqlen = super_costs[p].length;
         di->start = (Label)tc;
         di->length = code_here - (Address)di->start;
         di->start_state = startstate;

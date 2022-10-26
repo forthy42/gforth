@@ -481,6 +481,7 @@ typedef struct {
   Label start;
   int16_t length;
   uint16_t prim;
+  int8_t seqlen; /* number of basic primitives in (potential) super <prim> */
   int8_t start_state;
   int8_t end_state;
 } DynamicInfo; /* info about dynamically generated code */
