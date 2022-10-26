@@ -1197,10 +1197,8 @@ static void flush_to_here(void)
 
 static void MAYBE_UNUSED  append_code(Address code, size_t length)
 {
-  DynamicInfo *di = &dynamicinfos[ndynamicinfos-1];
   memmove(code_here,code,length);
   code_here += length;
-  di->length = code_here - (Address)di->start;
 }
 
 static void MAYBE_UNUSED align_code(void)
@@ -1236,11 +1234,7 @@ static void append_jump(void)
 static void append_jump_previous(void)
 /* append a dispatch to the previous primitive */
 {
-  ndynamicinfos--;
   append_jump();
-  ndynamicinfos++;
-  dynamicinfos[ndynamicinfos-1].start = code_here;
-  assert(dynamicinfos[ndynamicinfos-1].length == 0);
 }
 
 /* Gforth remembers all code blocks in this list.  On forgetting (by
@@ -1252,7 +1246,9 @@ needed. */
 
 struct code_block_list {
   struct code_block_list *next;
-  long dynamicinfos; /* index into dynamicinfos for first primitive in block */
+  /* long dynamicinfos; */
+     /* index into dynamicinfos for first primitive in block
+        intended for future faster implementation of dynamic_info() */
   Address block;
   Cell size;
 } *code_block_list=NULL, **next_code_blockp=&code_block_list;
@@ -1393,6 +1389,13 @@ DynamicInfo *decompile_prim1(Label _code)
     di = &dyninfo;
   }
   return di;
+}
+
+void update_dynamic_info()
+/* after appending something, include it in the last dynamicinfo */
+{
+  DynamicInfo *di = &dynamicinfos[ndynamicinfos-1];
+  di->length = code_here - (Address)di->start;
 }
 
 void finish_code(void)
@@ -1696,9 +1699,9 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 {
   int i,j;
   struct tpa_state *ts[ninsts+1];
-  int nextdyn, nextstate, no_transition;
+  int nextdyn, nextstate, startstate, no_transition;
   Address old_code_area;
-  
+  DynamicInfo *di = NULL;
   lb_basic_blocks++;
   ts[ninsts] = termstate;
 #ifndef NO_DYNAMIC
@@ -1763,50 +1766,55 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   /* now rewrite the instructions */
   reserve_code_super(origs,ninsts);
   old_code_area = code_area;
-  DynamicInfo *di = NULL;
   nextdyn=0;
   nextstate=CANONICAL_STATE;
   no_transition = ((!ts[0]->trans[nextstate].relocatable) 
 		   ||ts[0]->trans[nextstate].no_transition);
   for (i=0; i<ninsts; i++) {
     Cell tc=0, tc2;
+    startstate = nextstate;
     if (i==nextdyn) {
-      di = add_dynamic_info();
-      di->start = code_here;
-      di->start_state = nextstate;
-      di->length = 0;
+      PrimNum p;
       if (!no_transition) {
 	/* process trans */
-	PrimNum p = ts[i]->trans[nextstate].inst;
-	struct cost *c = super_costs+p;
+	PrimNum pt = ts[i]->trans[nextstate].inst;
+	struct cost *c = super_costs+pt;
 	assert(ts[i]->trans[nextstate].cost != INF_COST);
 	assert(c->state_in==nextstate);
-	tc = compile_prim_dyn(p,NULL);
+	tc = compile_prim_dyn(pt,NULL);
 	nextstate = c->state_out;
       }
+      p = ts[i]->inst[nextstate].inst;
       {
 	/* process inst */
-	PrimNum p = ts[i]->inst[nextstate].inst;
 	struct cost *c=super_costs+p;
 	assert(c->state_in==nextstate);
 	assert(ts[i]->inst[nextstate].cost != INF_COST);
 #if defined(GFORTH_DEBUGGING)
 	assert(p == origs[i]);
 #endif
-        di->prim = p;
 	tc2 = compile_prim_dyn(p,instps[i]);
-	if (no_transition || !is_relocatable(p))
+	if (no_transition || !is_relocatable(p)) {
 	  /* !! actually what we care about is if and where
 	   * compile_prim_dyn() puts NEXTs */
 	  tc=tc2;
+          startstate=nextstate;
+        }
 	no_transition = ts[i]->inst[nextstate].no_transition;
 	nextstate = c->state_out;
 	nextdyn += c->length;
       }
-      assert(di->length==0 || di->start == (Label)tc);
-      /* if (di->length!=0 && di->start != (Label)tc)
-         fprintf(stderr,"len=%d, start=%p, here=%p\n",di->length, di->start, code_here); */
-      di->end_state = nextstate;
+      if (is_relocatable(p)) {
+        di = add_dynamic_info();
+        if (ndynamicinfos>1 &&
+            ((UCell)(((Address)tc)-code_area)) < (UCell)code_area_size)
+          di[-1].length = ((Address)tc) - (Address)di[-1].start;
+        di->prim = p;
+        di->start = (Label)tc;
+        di->length = code_here - (Address)di->start;
+        di->start_state = startstate;
+        di->end_state = nextstate;
+      }
     } else {
 #if defined(GFORTH_DEBUGGING)
       assert(0);
@@ -1823,12 +1831,11 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     assert(i==nextdyn);
     (void)compile_prim_dyn(p,NULL);
     nextstate = c->state_out;
+    di->length = code_here - (Address)di->start;
+    di->end_state = nextstate;
   }
   assert(nextstate==CANONICAL_STATE);
   assert(code_area==old_code_area); /* does reserve_code_super() work? */
-  if (di != NULL) {
-    di->end_state = nextstate;
-  }
 }
 #endif
 
