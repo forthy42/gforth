@@ -47,19 +47,23 @@ get-current also see-voc definitions
     cell +loop ;
 
 : see-code-range { addr1 addr2 -- } \ gforth
-    addr1 0 0 0 ['] noop case { addr nseqlen d: codeblock xt: cr? }
-        addr addr2 u>= ?of endof
-        addr @ decompile-prim2 { ulen } ulen 0< ?of
-            drop 2drop 2drop
-            cr? addr simple-see-word
-            addr cell+ nseqlen codeblock ['] cr contof
-        nseqlen 0= if codeblock discode 0 0 to codeblock ['] noop to cr? then
-        cr? addr see-word.addr type { nseqlen1 ustart uend } ulen if
-            ustart 4 spaces 0 .r ." ->" uend .
-            assert( codeblock nip 0= )
-            addr @ ulen to codeblock then
-        addr cell+ nseqlen nseqlen1 max 1- codeblock ['] cr
-    next-case
+    0 addr1 0 0 ['] noop begin { nseqlen  addr d: codeblock xt: cr? }
+        addr addr2 u< while
+            addr @ decompile-prim2 { ulen } ulen 0< if
+                drop 2drop 2drop
+                cr? addr simple-see-word
+                nseqlen
+            else
+                nseqlen 0= if
+                    codeblock discode 0 0 to codeblock ['] noop to cr? then
+                cr? addr see-word.addr type { nseqlen1 ustart uend } ulen if
+                    ustart 4 spaces 0 .r ." ->" uend .
+                    assert( codeblock nip 0= )
+                    addr @ ulen to codeblock then
+                nseqlen nseqlen1 max 1-
+            then
+            ( nseqlen2 ) addr cell+ codeblock ['] cr
+    repeat
     codeblock discode ;
 
 set-current
