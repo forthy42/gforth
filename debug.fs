@@ -134,8 +134,8 @@ VARIABLE Body
     REPEAT ;
 
 : nestXT ( xt -- true | body false )
-\G return true if we are not able to debug this, 
-\G body and false otherwise
+\ return true if we are not able to debug this, 
+\ body and false otherwise
   nestXT-checkSpecial 
   \ scan code with xt-see
   DebugMode c-pass ! C-Output off

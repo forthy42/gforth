@@ -13009,7 +13009,7 @@ doc-bt
 @cindex compiled code examination
 
 And finally, @code{see} and friends show compiled code.  Some of the
-things in the native code are not present in the compiled code (e.g.,
+things in the source code are not present in the compiled code (e.g.,
 formatting and comments), but this is useful to see what threaded code
 or native code is produced by macros and Gforth's optimization
 features.
@@ -13017,8 +13017,10 @@ features.
 doc-see
 doc-xt-see
 doc-simple-see
+doc-xt-simple-see
 doc-simple-see-range
 doc-see-code
+doc-xt-see-code
 doc-see-code-range
 
 @node Examining data, Forgetting words, Examining compiled code, Programming Tools

@@ -41,12 +41,27 @@ get-current also see-voc definitions
 : simple-see-word { addr -- }
     addr see-word.addr addr cell+ addr @ .word drop ;
 
+set-current
+
 : simple-see-range ( addr1 addr2 -- ) \ gforth
+    \G Decompile code in [@i{addr1},@i{addr2}) like @code{simple-see}
     swap u+do
 	cr i simple-see-word
     cell +loop ;
 
+: xt-simple-see ( xt -- ) \ gforth
+    \G Decompile the colon definition @i{xt} like
+    \G @code{simple-see}
+    xt-range simple-see-range ;
+
+: simple-see ( "name" -- ) \ gforth
+    \G Decompile the colon definition @i{name}, showing a line for
+    \G each cell, and try to guess a meaning for the cell, and show
+    \G that.
+    ' xt-simple-see ;
+
 : see-code-range { addr1 addr2 -- } \ gforth
+    \G Decompile code in [@i{addr1},@i{addr2}) like @code{see-code}.
     0 addr1 0 0 ['] noop begin { nseqlen  addr d: codeblock xt: cr? }
         addr addr2 u< while
             addr @ decompile-prim2 { ulen } ulen 0< if
@@ -66,28 +81,19 @@ get-current also see-voc definitions
     repeat
     codeblock discode ;
 
-set-current
-
-: xt-simple-see ( xt -- ) \ gforth
-    \G a simple decompiler that's closer to @code{dump} than @code{see}.
-    \ !! at the moment NEXT-HEAD is a little too optimistic (see
-    \ comment in HEAD?)
-    xt-range simple-see-range ;
-
-: simple-see ( "name" -- ) \ gforth
-    \G a simple decompiler that's closer to @code{dump} than @code{see}.
-    \ !! at the moment NEXT-HEAD is a little too optimistic (see
-    \ comment in HEAD?)
-    ' xt-simple-see ;
-
 : xt-see-code ( xt -- ) \ gforth
-\G like @code{simple-see}, but also shows the dynamic native code for
-\G the inlined primitives (except for the last).
+    \G Decompile the colon definition @i{xt} like @code{see-code}.
     xt-range see-code-range ;
 
 : see-code ( "name" -- ) \ gforth
-\G like @code{simple-see}, but also shows the dynamic native code for
-\G the inlined primitives (except for the last).
+\G Like @code{simple-see}, but also shows the dynamic native code for
+\G the inlined primitives.  For static superinstructions, it shows the
+\G primitive sequence instead of the first primitive (the other
+\G primitives of the superinstruction are shown, too).  For primitives
+\G for which native code is generated, it shows the state transition
+\G (e.g., @code{1->1}).  For each primitive or superinstruction with
+\G native code, the inline arguments and component primitives are
+\G shown first, then the native code.
     ' xt-see-code ;
     
 previous
