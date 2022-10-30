@@ -13023,6 +13023,76 @@ doc-see-code
 doc-xt-see-code
 doc-see-code-range
 
+As an example, consider:
+
+@example
+: foo x f@@ fsin drop over ;
+@end example
+
+This is not particularly useful, but it demonstrates the various code
+generation differences.  Compiling this on @code{gforth-fast} on AMD64
+and then using @code{see-code foo} outputs:
+
+@example
+$7FD0CEE8C510 lit f@@     1->1 
+$7FD0CEE8C518 x
+$7FD0CEE8C520 f@@
+7FD0CEB51697:   movsd   [r12],xmm15
+7FD0CEB5169D:   mov     rax,$00[r13]
+7FD0CEB516A1:   sub     r12,$08
+7FD0CEB516A5:   add     r13,$18
+7FD0CEB516A9:   movsd   xmm15,[rax]
+7FD0CEB516AE:   mov     rcx,-$08[r13]
+7FD0CEB516B2:   jmp     ecx
+$7FD0CEE8C528 fsin
+$7FD0CEE8C530 drop    1->0 
+7FD0CEB516B4:   add     r13,$08
+$7FD0CEE8C538 over    0->1 
+7FD0CEB516B8:   mov     r8,$10[r15]
+7FD0CEB516BC:   add     r13,$08
+$7FD0CEE8C540 ;s    1->1 
+7FD0CEB516C0:   mov     r10,[rbx]
+7FD0CEB516C3:   add     rbx,$08
+7FD0CEB516C7:   lea     r13,$08[r10]
+7FD0CEB516CB:   mov     rcx,-$08[r13]
+7FD0CEB516CF:   jmp     ecx
+@end example
+
+First, you see a threaded-code cell for a static superinstruction with
+the components @code{lit} and @code{f@@}, starting and ending with one
+data stack item in a register (@code{1->1}); this is followed by the
+cell for the argument @code{x} of @code{lit}, and the cell for the
+@code{f@@} component of the superinstruction; the latter cell is not
+used, but is there for Gforth-internal reasons.
+
+Next, the dynamically generated native code for the superinstruction
+@code{lit f@@} is shown; note that this native code is not mixed with
+the threaded code in memory, as you can see by comparing the
+addresses.  The dynamic native code ends with a dispatch jump (aka
+NEXT), because the code for the next word @code{fsin} in the
+definition is not dynamically generated.
+
+Next, you see the threaded-code cell for @code{fsin}.  There is no
+dynamically-generated native code for this word, and @code{see-code}
+does not show the static native code for it (you can look at it with
+@code{see fsin}).  Like all words with static native code in
+@code{gforth-fast}, the effect on the data stack representation is
+@code{1->1} (for @code{gforth}, @code{0->0}), but this is not shown.
+
+Next, you see the threaded-code cell for @code{drop}; the native-code
+variant used here starts with one data stack item in registers, and
+ends with zero data stack items in registers (@code{1->0}).  This is
+followed by the native code for this variant of @code{drop}.  There is
+no NEXT here, because the native code falls through to the code for
+the next word.
+
+Next, you see the threaded-code cell for @code{over} followed by the
+dynamically-generated native code in the @code{0->1} variant.
+
+Finally, you see the threaded and native code for @code{;s} (the
+primitive compiled for @code{;} in @code{foo}).  @code{;s} performs
+control flow (it returns), so it has to end with a NEXT.
+
 @node Examining data, Forgetting words, Examining compiled code, Programming Tools
 @subsection Examining data and code
 @cindex examining data and code

@@ -90,10 +90,12 @@ set-current
 \G the inlined primitives.  For static superinstructions, it shows the
 \G primitive sequence instead of the first primitive (the other
 \G primitives of the superinstruction are shown, too).  For primitives
-\G for which native code is generated, it shows the state transition
-\G (e.g., @code{1->1}).  For each primitive or superinstruction with
-\G native code, the inline arguments and component primitives are
-\G shown first, then the native code.
+\G for which native code is generated, it shows the number of stack
+\G items in registers at the beginning and at the end (e.g.,
+\G @code{1->1} means 1 stack item is in a register at the start and at
+\G the end).  For each primitive or superinstruction with native code,
+\G the inline arguments and component primitives are shown first, then
+\G the native code.
     ' xt-see-code ;
     
 previous
