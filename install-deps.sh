@@ -68,6 +68,10 @@ install_linux() {
     install_debian
 }
 
+install_ubuntu() {
+    install_debian
+}
+
 install_osx() {
   which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   brew tap forthy42/homebrew-zsh
@@ -88,6 +92,10 @@ install_gforth_osx() {
 
 install_gforth_debian() {
     sudo apt-get -y install gforth gforth-lib gforth-common
+}
+
+install_gforth_ubuntu() {
+    install_gforth_debian
 }
 
 install_gforth_alpine() {
