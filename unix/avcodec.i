@@ -10,8 +10,6 @@
 
 #define attribute_deprecated
 
-%apply long long { AVRational }
-
 // exec: sed -e 's/add-lib/add-lib`s" ((struct AV:x.spx[arg0]" ptr-declare $+[]!/g' -e 's/^\(.*get_encode_buffer.*\)$/\\ \1/g' | tr '`' '\n'
 
 %include <libavcodec/avcodec.h>
