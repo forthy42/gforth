@@ -39,8 +39,8 @@ check-gdb-syntax #comma gdb-addr-sep-char (break") (break:) (debug) (_debug)
 D-KEY dbg-help end-debug# Unnest Nesting nestXT nestXT-checkSpecial Body 
 restore-bp set-bp DT BP breaker breaker-size DebugLoop jump get-next disp-step 
 Leave-D NoFine d.s .n scanword restore-see-flags save-see-flags see-code-range 
-see-code-next-inline simple-see-range simple-see-word xt-range c-extend1 
-c-lp+!# c-laddr# c-f@local# c-flit c-@local# c-branch-lp+!# c-?branch-lp+!# 
+simple-see-range simple-see-word see-word.addr xt-range c-extend1 c-lp+!# 
+c-laddr# c-f@local# c-flit c-@local# c-branch-lp+!# c-?branch-lp+!# 
 c-loop#-lp+!# c-loop-lp+!# umethod? seeumethod seefield seecol seedoes 
 see-threaded seedefer seevalue seecon seeuser seevar see;abicode seeabicode 
 seecode makepass c-init analyse BranchTo? DoTable c-extender C-Table c-user@ 
@@ -4848,39 +4848,39 @@ prev-task next-task udp main-task def#tib pad-minsize word-pno-size
 chars/block l/s c/l /line bl float cell false true 2Constant 2constant, UValue 
 (UValue) u-compile, uvalue-to */ */mod /mod mod / r@ forthstart image-header 
 u#+ u#exec x#exec o#exec o#+ o> >o lit-execute ;abi-code-exec abi-call 
-finish-code| tag-offsets decompile-prim forget-dyncode finish-code 
-compile-prim1 barrier ?!@ +!@ !@ log2 >pow2 l>s w>s c>s xd>< x>< l>< w>< xd@ 
-xd! x@ x! close-lib2 close-lib lib-error l! l@ w! w@ wcall lib-sym2 lib-sym 
-open-lib2 open-lib ffourth fthird fpick f>l >l lp! lp+2 lp+ lp- lp+!# laddr# 
-f@local1 f@local0 f@local# @local3 @local2 @local1 @local0 @local# flit f-rot 
-sfloat/ dfloat/ float/ >float1 faxpy v* dfaligned sfaligned dfloats sfloats 
-fatanh facosh fasinh ftanh fcosh fsinh ftan fsqrt fsincos fsin falog flog 
-flnp1 fln fexpm1 fexp fcos fatan2 fatan fasin facos fabs >float represent fmin 
-fmax fround floor floats float+ ftuck fnip frot fover fswap fdup fdrop fnegate 
-f**2 fm*/ fm/ fm* f** f/ f* f- f+ sf! sf@ df! df@ f@ f! f>s f>d d>f s>f f0>= 
-f0<= f0> f0< f0<> f0= f>= f<= f> f< f<> f= (ns) ntime cputime utime newline 
-=mkdir get-dir set-dir filename-match close-dir read-dir open-dir file-eof? 
-file-status flush-file emit-file write-file (read-line) read-file resize-file 
-file-size reposition-file file-position rename-file delete-file create-file 
-open-file close-file winch? gforth-pointers call-c# call-c strsignal strerror 
-heap-resize heap-free heap-allocate (ms) >time&date&tz close-pipe open-pipe 
-getenv (system) (bye) flush-icache wcwidth isfg isatty (form) term-prep? 
-stderr stdout stdin key?-file (key-file) debugging-method threading-method 
-faligned aligned skip scan (parse-white) hashkey2 (hashkey2) (hashkey1) 
-(tablelfind) (hashlfind) (listlfind) inc# cell- cell/ count char+ cells cell+ 
-2@ 2! c! c@ +! ! lit@ @ sps@ user@ 2tuck 2nip 2rot 2swap 2over 2dup 2drop 
-fourth third pick ?dup tuck nip -rot rot dup swap drop over 2rdrop 2r@ 2r> 2>r 
-rdrop r> >r fp! fp@ rp! rp@ sp! sp@ up! useraddr within du>= du<= du> du< du<> 
-du= d0>= d0<= d0> d0< d0<> d0= d>= d<= d> d< d<> d= u>= u<= u> u< u<> u= >= <= 
-> < <> = 0>= 0<= 0> 0< 0<> 0= darshift arshift u*/ u*/mod u/mod umod u/ du/mod 
-dror drol lror lrol wror wrol ror rol drshift dlshift select mux umin umax 
-lshift rshift invert xor or and d2/ d2* dnegate d- d+ m+ /modf-stage2m 
-modf-stage2m /f-stage2m u/mod-stage2m umod-stage2m u/-stage2m um/mod um* m* 
-sm/rem fm/mod 2/ 2* */s */mods /mods mods /s */f */modf /modf modf /f * abs 
-min max 1- 1+ negate - under+ lit+ + lit safe/string /string capscompare 
-toupper compare fill cmove> cmove move k j i' i fast-throw uncatch (try) 
-(u-do) (-do) (u+do) (+do) (?do) (do) (for) (s+loop)-lp+!# (s+loop) 
-(/loop)#-lp+!# (/loop)# (-loop)-lp+!# (-loop) (+loop)-lp+!# (+loop) 
-(loop)-lp+!# (loop) (next)-lp+!# (next) ?dup-0=-?branch ?dup-?branch 
-?branch-lp+!# ?branch branch branch-lp+!# does-xt lit-perform unloop 
-execute-;s ;s perform execute call noop 
+finish-code| tag-offsets decompile-prim2 decompile-prim forget-dyncode 
+finish-code compile-prim1 barrier ?!@ +!@ !@ log2 >pow2 l>s w>s c>s xd>< x>< 
+l>< w>< xd@ xd! x@ x! close-lib2 close-lib lib-error l! l@ w! w@ wcall 
+lib-sym2 lib-sym open-lib2 open-lib ffourth fthird fpick f>l >l lp! lp+2 lp+ 
+lp- lp+!# laddr# f@local1 f@local0 f@local# @local3 @local2 @local1 @local0 
+@local# flit f-rot sfloat/ dfloat/ float/ >float1 faxpy v* dfaligned sfaligned 
+dfloats sfloats fatanh facosh fasinh ftanh fcosh fsinh ftan fsqrt fsincos fsin 
+falog flog flnp1 fln fexpm1 fexp fcos fatan2 fatan fasin facos fabs >float 
+represent fmin fmax fround floor floats float+ ftuck fnip frot fover fswap 
+fdup fdrop fnegate f**2 fm*/ fm/ fm* f** f/ f* f- f+ sf! sf@ df! df@ f@ f! f>s 
+f>d d>f s>f f0>= f0<= f0> f0< f0<> f0= f>= f<= f> f< f<> f= (ns) ntime cputime 
+utime newline =mkdir get-dir set-dir filename-match close-dir read-dir 
+open-dir file-eof? file-status flush-file emit-file write-file (read-line) 
+read-file resize-file file-size reposition-file file-position rename-file 
+delete-file create-file open-file close-file winch? gforth-pointers call-c# 
+call-c strsignal strerror heap-resize heap-free heap-allocate (ms) 
+>time&date&tz close-pipe open-pipe getenv (system) (bye) flush-icache wcwidth 
+isfg isatty (form) term-prep? stderr stdout stdin key?-file (key-file) 
+debugging-method threading-method faligned aligned skip scan (parse-white) 
+hashkey2 (hashkey2) (hashkey1) (tablelfind) (hashlfind) (listlfind) inc# cell- 
+cell/ count char+ cells cell+ 2@ 2! c! c@ +! ! lit@ @ sps@ user@ 2tuck 2nip 
+2rot 2swap 2over 2dup 2drop fourth third pick ?dup tuck nip -rot rot dup swap 
+drop over 2rdrop 2r@ 2r> 2>r rdrop r> >r fp! fp@ rp! rp@ sp! sp@ up! useraddr 
+within du>= du<= du> du< du<> du= d0>= d0<= d0> d0< d0<> d0= d>= d<= d> d< d<> 
+d= u>= u<= u> u< u<> u= >= <= > < <> = 0>= 0<= 0> 0< 0<> 0= darshift arshift 
+u*/ u*/mod u/mod umod u/ du/mod dror drol lror lrol wror wrol ror rol drshift 
+dlshift select mux umin umax lshift rshift invert xor or and d2/ d2* dnegate 
+d- d+ m+ /modf-stage2m modf-stage2m /f-stage2m u/mod-stage2m umod-stage2m 
+u/-stage2m um/mod um* m* sm/rem fm/mod 2/ 2* */s */mods /mods mods /s */f 
+*/modf /modf modf /f * abs min max 1- 1+ negate - under+ lit+ + lit 
+safe/string /string capscompare toupper compare fill cmove> cmove move k j i' 
+i fast-throw uncatch (try) (u-do) (-do) (u+do) (+do) (?do) (do) (for) 
+(s+loop)-lp+!# (s+loop) (/loop)#-lp+!# (/loop)# (-loop)-lp+!# (-loop) 
+(+loop)-lp+!# (+loop) (loop)-lp+!# (loop) (next)-lp+!# (next) ?dup-0=-?branch 
+?dup-?branch ?branch-lp+!# ?branch branch branch-lp+!# does-xt lit-perform 
+unloop execute-;s ;s perform execute call noop 
