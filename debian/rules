@@ -31,6 +31,8 @@ ULIB = $(DB)$(LIB)
 %:
 	dh $@ --builddirectory=build
 
+override_dh_builddeb:
+        dh_builddeb -- -Zxz
 override_dh_auto_test:
 override_dh_shlibdeps:
 override_dh_auto_configure:
