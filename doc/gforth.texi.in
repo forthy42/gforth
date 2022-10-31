@@ -13068,8 +13068,19 @@ used, but is there for Gforth-internal reasons.
 Next, the dynamically generated native code for the superinstruction
 @code{lit f@@} is shown; note that this native code is not mixed with
 the threaded code in memory, as you can see by comparing the
-addresses.  The dynamic native code ends with a dispatch jump (aka
-NEXT), because the code for the next word @code{fsin} in the
+addresses.
+
+If you want to understand the native code shown here: the
+threaded-code instruction pointer is in @code{r13}, the data stack
+pointer in @code{r15}; the first data stack register is @code{r8}
+(i.e., the top of stack resides there if there is one data stack item
+in a register); the return stack pointer is in @code{rbx}, the FP
+stack pointer in @code{r12}, and the top of the floating-pont stack in
+@code{xmm15}.  Note that the register assignments vary between
+engines, so you may see a different register assignment for this code.
+
+The dynamic native code for @code{lit f@@} ends with a dispatch jump
+(aka NEXT), because the code for the next word @code{fsin} in the
 definition is not dynamically generated.
 
 Next, you see the threaded-code cell for @code{fsin}.  There is no
