@@ -20,7 +20,7 @@
 
 require unix/pthread.fs
 
-e? os-type s" darwin" string-prefix? [IF]  s" sysctl -n hw.ncpu"
+e? os-type 2dup s" darwin" string-prefix? -rot s" openbsd" string-prefix? or [IF]  s" sysctl -n hw.ncpu"
 [ELSE]  s" nproc"  [THEN]
 r/o open-pipe throw slurp-fid s>number drop 1 max Value cores
 

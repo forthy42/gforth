@@ -247,7 +247,7 @@ Defer thread-init
     r> swap >r  save-task r@ 's !
     1+ dup cells negate  sp0 r@ 's @ -rot  sp0 r@ 's +!
     sp0 r@ 's @ swap 0 ?DO  tuck ! cell+  LOOP  drop
-    pthread-id r@ 's 0 thread_start r> pthread_create drop ; compile-only
+    pthread-id r@ 's pthread_detach_attr thread_start r> pthread_create drop ; compile-only
 
 : pass ( x1 .. xn n task -- ) \ gforth-experimental
     \G activates task, and passes n parameters from the data stack

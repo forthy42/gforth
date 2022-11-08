@@ -474,9 +474,11 @@ Create crlf 2 c, 13 c, 10 c,
 : write-socket ( c-addr size socket -- ) fileno -rot 0 send 0< throw ;
 : close-socket ( socket -- ) close-file throw ;
 
+0 Value wait-flag \ can set to msg_waitall
+
 : (rs)  ( socket c-addr maxlen -- c-addr size ) 
     third dup >r false blocking-mode  rot fileno -rot
-    over >r msg_waitall recv
+    over >r wait-flag recv
     dup 0<  IF  0 max
 	errno dup 0<> swap ewouldblock <> and ?ior
     THEN
@@ -494,7 +496,7 @@ Create crlf 2 c, 13 c, 10 c,
 
 : (rs-from)  ( socket c-addr maxlen -- c-addr size ) 
     third dup  >r false blocking-mode  rot fileno -rot
-    over >r msg_waitall sockaddr-tmp alen  recvfrom
+    over >r wait-flag sockaddr-tmp alen  recvfrom
     dup 0<  IF  0 max
 	errno dup 0<> swap ewouldblock <> and ?ior
     THEN
