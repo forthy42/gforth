@@ -2,7 +2,7 @@
 
 require string.fs
 
-wordlist AConstant macros-wordlist
+cs-wordlist AConstant macros-wordlist
 
 : macro: ( addr u -- ) Create here 0 , $! ['] $@ set-does> ;
 
