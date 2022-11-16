@@ -26,127 +26,86 @@ require set-compsem.fs
 
 \ LSIDs
 
-Variable lsids
-0 Value lsid#
+$[]Variable lsids 0 ,
+: lsid# ( -- n )
+    lsids $[]# 1- ;
 
 : native@ ( lsid -- addr u )
     \G fetch native string from an @var{lsid}
-    cell+ cell+ dup cell+ swap @ ;
-: id#@ ( lsid -- n )  cell+ @ ;
+    lsids $[]@ ;
 
 : search-lsid ( addr u -- lsid )
-    lsids
-    BEGIN  @ dup  WHILE  >r 2dup r@ native@ str= r> swap  UNTIL  THEN
-    nip nip ;
-
-: append-list ( addr list -- )
-    BEGIN  dup @  WHILE  @  REPEAT  ! ;
+    lsid# 1+ 0 ?DO
+	2dup I lsids $[]@ str= IF  2drop I unloop  EXIT  THEN
+    LOOP  2drop -1 ;
 
 : $l, ( addr u -- )  dup , here swap dup allot move align ;
 : new-lsid ( addr u -- lsid )
-    align here dup >r lsids append-list 0 , lsid# dup , 1+ to lsid# $l, r> ;
-: [new-lsid] ( addr u -- addr )
-    2>r next-section 2r> align new-lsid >r
-    previous-section r> ;
+    lsids $+[]! lsid# ;
+: ?new-lsid ( addr u -- lsid )
+        2dup search-lsid dup 0>= IF
+        nip nip
+    ELSE
+	drop new-lsid
+    THEN ;
 
 : LLiteral ( addr u -- )
-    2dup search-lsid dup  IF
-        nip nip
-    ELSE  drop [new-lsid]  THEN
-    postpone Literal ; immediate
+    ?new-lsid postpone Literal ; immediate
 
 : L" ( "lsid<">" -- lsid )
     \G Parse a string and define a new lsid, if the string is uniquely new.
     \G Identical strings result in identical lsids, which allows to refer
     \G to the same lsid from multiple locations using the same string.
-    '"' parse 2dup search-lsid dup  IF
-	nip nip
-    ELSE  drop align new-lsid  THEN ;
+    '"' parse ?new-lsid ;
 compsem: '"' parse  postpone LLiteral ;
 
 \ deliberately unique string
 : LU" ( "lsid<">" -- lsid )
     \G Parse a string and always define a new lsid, even if the string is not
     \G unique.
-    '"' parse align new-lsid ;
-compsem: '"' parse [new-lsid] postpone Literal ; immediate
+    '"' parse new-lsid ;
+compsem: '"' parse new-lsid postpone Literal ; immediate
 
-: .lsids ( lsids -- )
-    \G print the native string for all lsids
-    BEGIN  @ dup  WHILE dup native@ type cr  REPEAT  drop ;
+: .lsids ( locale -- )
+    \G print the string for all lsids
+    $[]. ;
 
 \ locale@ stuff
 
-$3 Constant locale-depth \ lang country variances
-Variable locale-stack  locale-depth 1+ cells allot
-here 0 , locale-stack cell+ !
+$[]Variable default-locale lsids ,
+default-locale Value locale
 
-: >locale ( lsids -- )
-    locale-stack dup cell+ swap @ 1+ cells + !  1 locale-stack +!
-    locale-stack @ locale-depth u>= abort" locale stack full" ;
-: locale-drop ( -- )
-    -1 locale-stack +!
-    locale-stack @ locale-depth u>= abort" locale stack empty" ;
-: locale' ( -- addr )  locale-stack dup cell+ swap @ cells + @ ;
-
-: Locale ( "name" -- )
+: Language ( "name" -- )
     \G define a locale.
-    Create 0 , DOES>  locale-stack off >locale ;
+    $[]Variable default-locale ,
+  DOES> to locale ;
 : Country ( <lang> "name" -- )
     \G define a country for the current locale
-    Create 0 , locale-stack cell+ @ ,
-  DOES>  locale-stack off dup cell+ @ >locale >locale ;
-
-: set-language ( lang -- ior )  locale-stack off >locale 0 ;
-: set-country ( country -- ior )
-    dup cell+ @ set-language >locale 0 ;
-
-: search-lsid# ( id# lsids -- lsid )
-    BEGIN  @ dup  WHILE  >r dup r@ cell+ @ = r> swap  UNTIL  THEN
-    nip ;
-
-Variable last-namespace
+    $[]Variable locale ,
+  DOES> to locale ;
 
 : locale@ ( lsid -- addr u )
     \G fetch the localized string in the current language and country
-    last-namespace off dup >r id#@
-    locale-stack dup cell+ swap @ cells bounds swap DO
-	dup I @ search-lsid# dup IF
-	    I last-namespace !
-	    nip native@ unloop rdrop EXIT  THEN
-	drop
-    cell -LOOP  drop r>
-    native@ ;
-
-: lsid@ ( lsid -- addr u )
-    last-namespace @  IF
-	dup >r id#@
-	last-namespace @ locale-stack cell+  DO
-	    dup I @ search-lsid# dup IF
-		nip native@ unloop rdrop EXIT  THEN
-            drop
-	cell -LOOP  drop r>
-    THEN  native@ ;
+    locale
+    BEGIN  2dup $[]@ 2dup d0= WHILE
+	2drop cell+ @ dup 0= UNTIL  0 0  THEN
+    2nip ;
 
 : locale! ( addr u lsid -- )
     \G Store localized string @var{addr u} for the current locale and country
     \G in @var{lsid}.
-    >r 2dup r@ locale@ str= IF  rdrop 2drop  EXIT  THEN
-    r> id#@ here locale' append-list 0 , , $l, ;
+    locale $[]! ;
 
 : native-file ( fid -- )
-    { | w^ line }
-    >r BEGIN  r@ line $slurp-line  WHILE
-	    line $@ new-lsid drop  REPEAT
-    line $free
-    drop r> close-file throw ;
+    dup >r lsids $[]slurp
+    r> close-file throw ;
 
 : locale-file ( fid -- )
-    >r  lsids { | w^ line }
-    BEGIN  @ dup  WHILE  r@ line $slurp-line
-	WHILE  line $@ third locale!  REPEAT  THEN
-    line $free
-    drop r> close-file throw ;
+    dup >r locale $[]slurp
+    r> close-file throw
+    locale $[]# 0 DO
+	I locale $[]@ nip 0= IF  I locale $[] $free  THEN
+    LOOP ;
 
 : included-locale ( addr u -- )  open-fpath-file throw 2drop locale-file ;
 : included-native ( addr u -- )  open-fpath-file throw 2drop native-file ;
