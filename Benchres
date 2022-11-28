@@ -83,7 +83,7 @@ sieve bubble matrix fib   fft   release
 PowerPC:
  0.620 0.728  0.340 1.000 0.532 2017-03-20; PPC 7447a 1066MHz; gcc 4.3.2
 
-Results with Gforth 0.7.0 (for comparing CPUs and C compilers):
+Results with Gforth 0.7.0-0.7.3 (for comparing CPUs and C compilers):
 AMD64:
 sieve bubble matrix  fib
  0.160 0.236  0.072 0.248 0.7.0; Core 2 3GHz (Xeon 5160); gcc-3.4.6 (Debian 3.4.6-5)
@@ -134,6 +134,9 @@ MIPS32
  7.25  8.24   6.13  9.09  0.7.0-20100725; Ingenic XBurst Jz4720 336MHz; gcc-4.3.3 (OpenWrt-xburst Backfire 10.03)
  4.25  5.10   2.82  4.84  0.7.0-20100807--dynamic; Ingenic XBurst Jz4720 336MHz; gcc-4.3.3 (OpenWrt-xburst Backfire 10.03)
  3.71  4.51   2.65  4.49  0.7.0-20100918--dynamic; Ingenic XBurst Jz4720 336MHz; gcc-4.5.2-linaro (OpenWrt-xburst trunk)
+ARM64:
+ 0.138 0.118  0.071 0.121 0.7.3; Apple M1, Firestorm 3000MHz, MacOS, gcc-12.2.0
+ 0.254 0.240  0.167 0.272 0.7.3; Apple M1, Firestorm 3000MHz, MacOS, clang-14.0.0
 
 SPARC:
  2.133 2.855  1.536 1.970 0.7.0; UltraSparc T1 1GHz; gcc-3.4.3 (csl-sol210-3_4-branch+sol_rpath)
