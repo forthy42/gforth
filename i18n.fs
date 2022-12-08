@@ -30,7 +30,7 @@ $[]Variable lsids 0 ,
 : lsid# ( -- n )
     lsids $[]# 1- ;
 
-: native@ ( lsid -- addr u )
+: native@ ( lsid -- addr u ) \ gforth-experimental native-fetch
     \G fetch native string from an @var{lsid}
     lsids $[]@ ;
 
@@ -52,7 +52,7 @@ $[]Variable lsids 0 ,
 : LLiteral ( addr u -- )
     ?new-lsid postpone Literal ; immediate
 
-: L" ( "lsid<">" -- lsid )
+: L" ( "lsid<">" -- lsid ) \ gforth-experimental l-quote
     \G Parse a string and define a new lsid, if the string is uniquely new.
     \G Identical strings result in identical lsids, which allows to refer
     \G to the same lsid from multiple locations using the same string.
@@ -60,13 +60,13 @@ $[]Variable lsids 0 ,
 compsem: '"' parse  postpone LLiteral ;
 
 \ deliberately unique string
-: LU" ( "lsid<">" -- lsid )
+: LU" ( "lsid<">" -- lsid ) \ gforth-experimental l-unique-quote
     \G Parse a string and always define a new lsid, even if the string is not
     \G unique.
     '"' parse new-lsid ;
 compsem: '"' parse new-lsid postpone Literal ; immediate
 
-: .lsids ( locale -- )
+: .lsids ( locale -- ) \ gforth-experimental dot-lsids
     \G print the string for all lsids
     $[]. ;
 
@@ -75,23 +75,26 @@ compsem: '"' parse new-lsid postpone Literal ; immediate
 $[]Variable default-locale lsids ,
 default-locale Value locale
 
-: Language ( "name" -- )
-    \G define a locale.
+: Language ( "name" -- ) \ gforth-experimental
+    \G define a locale.  Executing that locale makes it the current locale.
     $[]Variable default-locale ,
   DOES> to locale ;
-: Country ( <lang> "name" -- )
-    \G define a country for the current locale
+: Country ( <lang> "name" -- ) \ gforth-experimental
+    \G define a variant (typical: country) for the current locale.  Executing
+    \G that locale makes it the current locale.  You can create variants of
+    \G variants (a country may have variants within, e.g. think of how many
+    \G words for rolls/buns there are in many languages).
     $[]Variable locale ,
   DOES> to locale ;
 
-: locale@ ( lsid -- addr u )
+: locale@ ( lsid -- addr u ) \ gforth-experimental locale-fetch
     \G fetch the localized string in the current language and country
     locale
     BEGIN  2dup $[]@ 2dup d0= WHILE
 	2drop cell+ @ dup 0= UNTIL  0 0  THEN
     2nip ;
 
-: locale! ( addr u lsid -- )
+: locale! ( addr u lsid -- ) \ gforth-experimental locale-store
     \G Store localized string @var{addr u} for the current locale and country
     \G in @var{lsid}.
     locale $[]! ;
