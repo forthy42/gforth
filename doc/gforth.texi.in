@@ -372,6 +372,7 @@ Other I/O
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
+* Substitute::                  Text macro substitution
 
 Locals
 
@@ -9705,6 +9706,7 @@ doc-block-included
 * Pipes::                       How to create your own pipes
 * Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
+* Substitute::                  Text macro substitution
 @end menu
 
 @node Simple numeric output, Formatted numeric output, Other I/O, Other I/O
@@ -10372,15 +10374,15 @@ There's a new environment query
 
 doc-xchar-encoding
 
-@node i18n and l10n, , Xchars and Unicode, Other I/O
+@node i18n and l10n, Substitute, Xchars and Unicode, Other I/O
 @subsection Internationalization and Localization
 
 Programs for end users require to address those in their native
 language.  There is a decades old proposal for such a facility that has
 been split from other proposals for international character sets like
-Xchars (@pxref{Xchars and Unicode}) and Substitute.  Messages displayed
-on the screen need to be translated from the native language of the
-developers to the local languages of the user.
+Xchars (@pxref{Xchars and Unicode}) and Substitute (@pxref{Substitute}).
+Messages displayed on the screen need to be translated from the native
+language of the developers to the local languages of the user.
 
 Strings subject to translation are declared with
 @code{L" }@var{string}@code{"}.  This returns a locale string identifier
@@ -10395,6 +10397,28 @@ doc-locale@
 doc-locale!
 doc-language
 doc-country
+doc-locale-file
+doc-included-locale
+doc-include-locale
+
+@node Substitute, , i18n and l10n, Other I/O
+@subsection Substitute
+
+This is a simple text macro replacement facility.  Texts in the form
+@code{"text %macro% text"} are processed, and the macro variables enclosed
+in @code{'%'} are replaced with their associated strings.  Two
+consecutive @code{%} are replaced by one @code{%}.  Macros are defined
+in a specific wordlist, and return a string upon execution; the standard
+defines only one way to declare macros, @code{replaces}, which creates a
+macro that just returns a string.
+
+doc-macros-wordlist
+doc-replaces
+doc-.substitute
+doc-$substitute
+doc-substitute
+doc-unescape
+doc-$unescape
 
 @node OS command line arguments, Locals, Other I/O, Words
 @section OS command line arguments

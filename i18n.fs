@@ -99,26 +99,20 @@ default-locale Value locale
     \G in @var{lsid}.
     locale $[]! ;
 
-: native-file ( fid -- )
-    dup >r lsids $[]slurp
-    r> close-file throw ;
-
-: locale-file ( fid -- )
+: locale-file ( fid -- ) \ gforth-experimental locale-file
+    \G read lines from @var{fid} into the current locale.
     dup >r locale $[]slurp
     r> close-file throw
     locale $[]# 0 DO
 	I locale $[]@ nip 0= IF  I locale $[] $free  THEN
     LOOP ;
 
-: included-locale ( addr u -- )  open-fpath-file throw 2drop locale-file ;
-: included-native ( addr u -- )  open-fpath-file throw 2drop native-file ;
-
-[defined] getpathspec 0= [IF]
-    : getpathspec ( "name" -- fd )  parse-name open-fpath-file throw 2drop ;
-[THEN]
-
-: include-locale ( "name" -- )  getpathspec locale-file ;
-: include-native ( "name" -- )  getpathspec native-file ;
+: included-locale ( addr u -- ) \ gforth-experimental included-locale
+    \G read lines from the file @var{addr u} into the current locale.
+    open-fpath-file throw 2drop locale-file ;
+: include-locale ( "name" -- ) \ gforth-experimental include-locale
+    \G read lines from the file @var{"name"} into the current locale.
+    ?parse-name included-locale ;
 
 \ easy use
 

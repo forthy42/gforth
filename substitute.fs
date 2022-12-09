@@ -1,8 +1,27 @@
 \ substitute stuff
 
+\ Authors: Bernd Paysan, Anton Ertl
+\ Copyright (C) 2012,2015,2016,2022 Free Software Foundation, Inc.
+
+\ This file is part of Gforth.
+
+\ Gforth is free software; you can redistribute it and/or
+\ modify it under the terms of the GNU General Public License
+\ as published by the Free Software Foundation, either version 3
+\ of the License, or (at your option) any later version.
+
+\ This program is distributed in the hope that it will be useful,
+\ but WITHOUT ANY WARRANTY; without even the implied warranty of
+\ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+\ GNU General Public License for more details.
+
+\ You should have received a copy of the GNU General Public License
+\ along with this program. If not, see http://www.gnu.org/licenses/.
+
 require string.fs
 
-cs-wordlist AConstant macros-wordlist
+cs-wordlist AConstant macros-wordlist \ gforth-experimental
+\G wordlist for string replacement macros
 
 : macro: ( addr u -- ) Create here 0 , $! ['] $@ set-does> ;
 
@@ -25,7 +44,7 @@ get-current macros-wordlist set-current
 set-current
 
 : .% ( -- ) '%' emit ;
-: .substitute ( addr1 len1 -- n / ior )
+: .substitute ( addr1 len1 -- n / ior ) \ gforth-experimental dot-substitute
     \G substitute all macros in text @var{addr1 len1} and print the
     \G result.  @var{n} is the number of substitutions or, if
     \G negative, a throwable @var{ior}.
@@ -55,7 +74,7 @@ set-current
 	    THEN
     REPEAT 2drop r> ;
 
-: $substitute ( addr1 len1 -- addr2 len2 n/ior )
+: $substitute ( addr1 len1 -- addr2 len2 n/ior ) \ gforth-experimental string-substitute
     \G substitute all macros in text @var{addr1 len1}.  @var{n} is the
     \G number of substitutions, if negative, it's a throwable @var{ior},
     \G @var{addr2 len2} the result.
@@ -80,7 +99,7 @@ set-current
 	I c@ dup '%' = IF  dup c,  THEN  c,
     LOOP  r> here over -  r> dp ! ;
 
-: $unescape ( addr1 u1 -- addr2 u2 )
+: $unescape ( addr1 u1 -- addr2 u2 ) \ gforth-experimental string-unescape
     [: bounds ?DO  I c@ dup emit '%' = IF '%' emit  THEN  LOOP ;] $tmp ;
 
 \ file name replacements in include and require
