@@ -20,14 +20,14 @@
 
 require string.fs
 
-cs-wordlist AConstant macros-wordlist \ gforth-experimental
+cs-wordlist AConstant macros-wordlist ( -- wid ) \ gforth-experimental
 \G wordlist for string replacement macros
 
 : macro: ( addr u -- ) Create here 0 , $! ['] $@ set-does> ;
 
 : replaces ( addr1 len1 addr2 len2 -- ) \ string-ext
     \G create a macro with name @var{addr2 len2} and content @var{addr1 len1}.
-    \G if the macro already exists, just change the content.
+    \G If the macro already exists, just change the content.
     2dup macros-wordlist search-wordlist
     IF
 	nip nip dup >does-code ['] $@ = IF  >body $!
@@ -100,6 +100,8 @@ set-current
     LOOP  r> here over -  r> dp ! ;
 
 : $unescape ( addr1 u1 -- addr2 u2 ) \ gforth-experimental string-unescape
+    \G same as @code{unescape}, but creates a temporary destination string with
+    \G @code{$tmp}.
     [: bounds ?DO  I c@ dup emit '%' = IF '%' emit  THEN  LOOP ;] $tmp ;
 
 \ file name replacements in include and require
