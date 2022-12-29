@@ -45,12 +45,15 @@
     BEGIN  next-csv cnt func
     1 +to cnt dup 0= UNTIL  2drop ;
 
-: csv-read-loop ( xt1 xt2 -- ) >r >r
+: csv-read-loop ( xt1 xt2 -- ) \ gforth-experimental
+    >r >r
     BEGIN  refill  WHILE
 	    source r> csv-line
 	    r@ >r
     REPEAT  2rdrop ;
 
-: read-csv ( addr u xt1 xt2 -- )
+: read-csv ( addr u xt1 xt2 -- ) \ gforth-experimental
+    \G read CVS file @var{addr u} and execute @var{xt1} for every item in the
+    \G title line and @var{xt2} for all other lines.
     [{: xt1 xt2 :}l xt1 xt2 csv-read-loop ;] >r
     r/o open-file throw r> execute-parsing-file ;
