@@ -266,7 +266,6 @@ GFORTH_FI_SRC1=\
 GFORTH_FI_SRC2=\
 	savesys.fs \
 	closures.fs \
-	csv.fs \
 	environ.fs \
 	errors.fs \
 	exboot.fs \
@@ -280,7 +279,6 @@ GFORTH_FI_SRC2=\
 	help.txt \
 	history.fs \
 	intcomp.fs \
-	i18n.fs \
 	iloops.fs \
 	libcc.fs \
 	locals.fs \
@@ -387,8 +385,8 @@ FREETYPE_GL_SRC = freetype-gl/ftgl-utils.c freetype-gl/platform.c	\
 	freetype-gl/utf8-utils.c freetype-gl/distance-field.c		\
 	freetype-gl/vector.c freetype-gl/edtaa3func.c $(FREETYPE_GL_INCLUDE)
 
-EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs \
-	@NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
+EXTRA_DOC = code.fs objects.fs oof.fs moofglos.fs regexp.fs fft.fs csv.fs \
+	i18n.fs @NO_CROSS@ mkdir.fs cilk.fs coverage.fs $(LIBCC_LIB_SRC)
 
 MINOS_DOC = minos2/widgets.fs
 
@@ -441,10 +439,10 @@ UNIX_SRC = terminal-server.fs jni-helper.fs jni-tools.fs jni-media.fs	\
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(F_SRC)	      \
 	$(LIBCC_FORTH_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) $(patsubst  \
 	%, minos2/%, $(MINOS2_BIN)) ans-report.fs ansi.fs answords.fs	      \
-	colorize.fs comp-i.fs complex.fs depth-changes.fs dosekey.fs	      \
+	colorize.fs comp-i.fs complex.fs csv.fs depth-changes.fs dosekey.fs   \
 	doskey.fs ds2texi.fs envos.dos envos.os2 etags.fs fft.fs filedump.fs  \
 	fi2c.fs forward.fs fsl-util.4th fsl-util.fs glosgen.fs gray.fs	      \
-	httpd.fs install-tags.fs make-app.fs doc/makedoc.fs locate.fs	      \
+	httpd.fs i18n.fs install-tags.fs make-app.fs doc/makedoc.fs locate.fs \
 	locate1.fs more.fs onebench.fs fft-bench.fs other.fs prims2x.fs	      \
 	prims2x0.6.2.fs proxy.fs random.fs regexp.fs sokoban.fs		      \
 	standard-words.fs string.fs table.fs tags.fs tt.fs unbuffer.fs	      \

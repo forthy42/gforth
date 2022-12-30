@@ -10403,7 +10403,7 @@ doc-locale-file
 doc-included-locale
 doc-include-locale
 
-@node Substitute, CSV reader, i18n and l10n, Other I/O
+@node Substitute, CSV Reader, i18n and l10n, Other I/O
 @subsection Substitute
 
 This is a simple text macro replacement facility.  Texts in the form
@@ -10422,7 +10422,7 @@ doc-substitute
 doc-unescape
 doc-$unescape
 
-@node CSV reader, , Substitute, Other I/O
+@node CSV Reader, , Substitute, Other I/O
 @subsection CSV Reader
 
 Comma-separated values (CSV) are a popular text format to interchange
