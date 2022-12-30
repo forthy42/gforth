@@ -266,6 +266,7 @@ GFORTH_FI_SRC1=\
 GFORTH_FI_SRC2=\
 	savesys.fs \
 	closures.fs \
+	csv.fs \
 	environ.fs \
 	errors.fs \
 	exboot.fs \
@@ -440,7 +441,7 @@ UNIX_SRC = terminal-server.fs jni-helper.fs jni-tools.fs jni-media.fs	\
 FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(F_SRC)	      \
 	$(LIBCC_FORTH_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) $(patsubst  \
 	%, minos2/%, $(MINOS2_BIN)) ans-report.fs ansi.fs answords.fs	      \
-	colorize.fs comp-i.fs complex.fs csv.fs depth-changes.fs dosekey.fs   \
+	colorize.fs comp-i.fs complex.fs depth-changes.fs dosekey.fs	      \
 	doskey.fs ds2texi.fs envos.dos envos.os2 etags.fs fft.fs filedump.fs  \
 	fi2c.fs forward.fs fsl-util.4th fsl-util.fs glosgen.fs gray.fs	      \
 	httpd.fs install-tags.fs make-app.fs doc/makedoc.fs locate.fs	      \

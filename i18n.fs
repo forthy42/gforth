@@ -23,6 +23,7 @@
 \ from native to local LSID.
 
 require set-compsem.fs
+require csv.fs
 
 \ LSIDs
 
@@ -113,6 +114,48 @@ default-locale Value locale
 : include-locale ( "name" -- ) \ gforth-experimental include-locale
     \G read lines from the file @var{"name"} into the current locale.
     ?parse-name included-locale ;
+
+\ CSV reader part
+
+cs-vocabulary lang \ languages go in here
+Variable lang[] \ array 
+
+: define-locale ( addr u -- xt ) \ gforth-experimental
+    \G Define a locale named @var{addr u} and return its @var{xt}.
+    get-current >r
+    [: [ ' lang >wordlist ]L set-current
+	dup 2 = IF
+	    nextname Language
+	ELSE
+	    over 2 get-current find-name-in
+	    ?dup-IF  name>interpret execute  THEN
+			nextname Country
+	THEN
+    ;] catch
+    r> set-current  default-locale to locale
+    throw  latestxt ;
+
+: insert-locale ( addr u col line -- ) \ gforth-experimental
+    \G insert a locale entry @var{addr u} from a table in column
+    \G @var{col} and line @var{line}.  Line 1 is special, it contains
+    \G the name of the corresponding locale.
+    1- dup >r 0= IF
+	rdrop >r
+	2dup s" default" str= IF
+	    2drop default-locale
+	ELSE
+	    dup 2 > IF  over 2 + c@ '_' =
+	    ELSE  dup 2 =  THEN
+	    IF    define-locale
+	    ELSE  2drop rdrop EXIT  THEN
+	THEN
+	r> lang[] $[] ! EXIT  THEN
+    lang[] $[] @ dup IF
+	r> swap $[]!
+    ELSE  rdrop drop 2drop  THEN ;
+
+: locale-csv ( "name" -- ) \ gforth-experimental locale-csv
+    lang[] $free  ?parse-name ['] insert-locale read-csv ;
 
 \ easy use
 

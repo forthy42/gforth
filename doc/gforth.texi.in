@@ -373,6 +373,7 @@ Other I/O
 * Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
 * Substitute::                  Text macro substitution
+* CSV Reader::                  Data import facility
 
 Locals
 
@@ -9707,6 +9708,7 @@ doc-block-included
 * Xchars and Unicode::          Non-ASCII characters
 * i18n and l10n::               Internationalization and Localization
 * Substitute::                  Text macro substitution
+* CSV Reader::                  Data import facility
 @end menu
 
 @node Simple numeric output, Formatted numeric output, Other I/O, Other I/O
@@ -10401,7 +10403,7 @@ doc-locale-file
 doc-included-locale
 doc-include-locale
 
-@node Substitute, , i18n and l10n, Other I/O
+@node Substitute, CSV reader, i18n and l10n, Other I/O
 @subsection Substitute
 
 This is a simple text macro replacement facility.  Texts in the form
@@ -10419,6 +10421,14 @@ doc-$substitute
 doc-substitute
 doc-unescape
 doc-$unescape
+
+@node CSV reader, , Substitute, Other I/O
+@subsection CSV Reader
+
+Comma-separated values (CSV) are a popular text format to interchange
+data.  Gforth provides an reader in @file{csv.fs}.
+
+doc-read-csv
 
 @node OS command line arguments, Locals, Other I/O, Words
 @section OS command line arguments

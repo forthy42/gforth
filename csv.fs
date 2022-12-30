@@ -18,42 +18,81 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+',' Value csv-separator
+'"' Value csv-quote
+
+true Value quote-state \ if true, a separator is visible
+
+: unquote-start ( addr u -- addr' u' )
+    dup IF
+	over c@ csv-quote = negate safe/string
+    THEN ;
+: unquote-end ( addr u -- addr u' )
+    dup IF
+	2dup + 1- c@ csv-separator = + dup IF
+	    2dup + 1- c@ csv-quote = +
+	THEN
+    THEN ;
+
 : unquote ( addr u -- addr' u' ) \ gforth-experimental
     \G remove surrounding quotes
-    dup 0= ?EXIT
-    2dup + 1- c@ ',' = + dup 0= ?EXIT
-    over c@ '"' = negate safe/string ?dup-IF  2dup + 1- c@ '"' = +  THEN ;
+    unquote-start unquote-end ;
 
 : un-dquote ( addr u -- ) \ gforth-experimental
     \G replace double quotes with single quotes
+    { | double-quote[ 2 ] }
+    csv-quote double-quote[ c!
+    csv-quote double-quote[ 1+ c!
     BEGIN
-	2dup "\"\"" search  WHILE
+	2dup double-quote[ 2 search  WHILE
 	    2dup 2 safe/string 2>r drop 1+ nip over - type
 	    2r>  REPEAT  2drop type ;
 
 : next-field ( addr u -- addr' u' ) \ gforth-experimental
-    2dup "\"" string-prefix? 0= IF  ',' scan 1 safe/string  EXIT  THEN
-    2dup "\"\"," string-prefix? IF  3 safe/string  EXIT  THEN
-    BEGIN  1 safe/string "\","  search  WHILE
-	over 1- c@ '"' <>  UNTIL  2 safe/string  THEN ;
+    dup quote-state and IF  over c@ csv-quote <>
+	IF  csv-separator scan 1 safe/string  EXIT  THEN
+    THEN
+    2dup bounds U+DO
+	I c@ csv-separator = quote-state and
+	IF  2drop I 1+ I' over -  unloop  EXIT  THEN
+	I c@ csv-quote = quote-state xor to quote-state
+    LOOP  + 0 ;
+
+$Variable $csv-item
 
 : next-csv ( addr u -- addr' u' addr1 u1 ) \ gforth-experimental
-    2dup next-field 2tuck drop nip over - unquote ['] un-dquote $tmp ;
+    $csv-item $free
+    2dup next-field
+    quote-state IF
+	2tuck drop nip over - unquote ['] un-dquote $csv-item $exec
+	$csv-item $@  EXIT
+    THEN
+    2drop unquote-start
+    BEGIN
+	['] un-dquote $csv-item $exec
+	#lf $csv-item c$+!
+	refill 0= IF  source drop 0  $csv-item $@  EXIT  THEN
+	source 2dup next-field
+	quote-state 0= WHILE
+	    2drop
+    REPEAT
+    2tuck drop nip over - unquote-end
+    ['] un-dquote $csv-item $exec
+    $csv-item $@ ;
 
 : csv-line ( addr u xt -- ) \ gforth-experimental
     { xt: func | cnt }
-    BEGIN  next-csv cnt func
+    BEGIN  next-csv cnt loadline @ func
     1 +to cnt dup 0= UNTIL  2drop ;
 
-: csv-read-loop ( xt1 xt2 -- ) \ gforth-experimental
-    >r >r
-    BEGIN  refill  WHILE
-	    source r> csv-line
-	    r@ >r
-    REPEAT  2rdrop ;
+: csv-read-loop ( xt -- ) \ gforth-experimental
+    true to quote-state
+    >r  BEGIN  refill  WHILE  source r@ csv-line  REPEAT  rdrop ;
 
-: read-csv ( addr u xt1 xt2 -- ) \ gforth-experimental
-    \G read CVS file @var{addr u} and execute @var{xt1} for every item in the
-    \G title line and @var{xt2} for all other lines.
-    [{: xt1 xt2 :}l xt1 xt2 csv-read-loop ;] >r
-    r/o open-file throw r> execute-parsing-file ;
+: read-csv ( addr u xt -- ) \ gforth-experimental
+    \G read CVS file @var{addr u} and execute @var{xt} for every item found.
+    \G @var{xt} takes @code{( addr u col line -- )}, i.e. the string, the
+    \G current column (starting with 0), and the current line (starting with
+    \G 1).
+    [n:l csv-read-loop ;] >r
+    open-fpath-file throw r> execute-parsing-named-file ;

@@ -193,7 +193,7 @@ no-</>
 : locate ( "name" -- ) \ gforth
     \g Show the source code of the word @i{name} and set the current
     \g location there.
-    view' .rec'-stack locate-name ;
+    view' .rec'-stack dup 0= #-13 and throw  locate-name ;
 
 ' locate alias view ( "name" -- ) \ gforth
 
