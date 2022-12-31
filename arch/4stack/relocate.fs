@@ -1,7 +1,7 @@
 \ relocate 4stack binary
 
 \ Authors: Bernd Paysan, Anton Ertl
-\ Copyright (C) 2000,2003,2007,2008,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2000,2003,2007,2008,2019,2022 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

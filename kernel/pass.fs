@@ -1,7 +1,7 @@
 \ pass.fs pass pointers from cross to target		20May99jaw
 
 \ Authors: Bernd Paysan, Anton Ertl, Jens Wilke, Neal Crook
-\ Copyright (C) 1999,2001,2003,2006,2007,2013,2016,2017,2018,2019,2020,2021 Free Software Foundation, Inc.
+\ Copyright (C) 1999,2001,2003,2006,2007,2013,2016,2017,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
