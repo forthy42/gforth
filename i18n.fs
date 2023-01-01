@@ -135,27 +135,46 @@ Variable lang[] \ array
     r> set-current  default-locale to locale
     throw  latestxt ;
 
+0 Value csv-lsid
+
 : insert-locale ( addr u col line -- ) \ gforth-experimental
     \G insert a locale entry @var{addr u} from a table in column
     \G @var{col} and line @var{line}.  Line 1 is special, it contains
     \G the name of the corresponding locale.
-    1- dup >r 0= IF
+    1- over 0= IF  dup to csv-lsid  THEN  drop
+    csv-lsid dup >r -1 = IF  rdrop 2drop  EXIT  THEN
+    r@ 0= IF
 	rdrop >r
-	2dup s" default" str= IF
-	    2drop default-locale
+	2dup s" program" str= IF
+	    2drop lsids
 	ELSE
-	    dup 2 > IF  over 2 + c@ '_' =
-	    ELSE  dup 2 =  THEN
-	    IF    define-locale
-	    ELSE  2drop rdrop EXIT  THEN
+	    2dup s" default" str= IF
+		2drop default-locale
+	    ELSE
+		dup 2 > IF  over 2 + c@ '_' =
+		ELSE  dup 2 =  THEN
+		IF    define-locale
+		ELSE  drop 2drop rdrop EXIT  THEN
+	    THEN
 	THEN
 	r> lang[] $[] ! EXIT  THEN
-    lang[] $[] @ dup IF
-	r> swap $[]!
+    lang[] $[] @ 2dup swap 0<> and IF
+	dup lsids = IF
+	    rdrop drop lsid# >r 2dup ?new-lsid to csv-lsid lsid# r> <>
+	    [: '"' emit 2dup type '"' emit ."  native string not found" ;]
+	    ?warning  2drop
+	ELSE
+	    r> swap $[]!
+	THEN
     ELSE  rdrop drop 2drop  THEN ;
 
 : locale-csv ( "name" -- ) \ gforth-experimental locale-csv
-    lang[] $free  ?parse-name ['] insert-locale read-csv ;
+    \G import comma-separated value table into locales.  first line contains
+    \G locale names, “program” and “default” are special entries; generic
+    \G languages must preceed translations for specific countries.  Entries
+    \G under “program” (must be leftmost) are used to search for the lsid; if
+    \G empty, the line number-1 is the lsid index.
+    lang[] $free ?parse-name ['] insert-locale read-csv ;
 
 \ easy use
 
