@@ -1,7 +1,7 @@
 \ MAIN.FS      Kernel main load file                   20may93jaw
 
 \ Authors: Bernd Paysan, Anton Ertl, Jens Wilke, David Kühling, Neal Crook
-\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2011,2012,2013,2016,2017,2018,2019,2020 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,2000,2003,2006,2007,2008,2011,2012,2013,2016,2017,2018,2019,2020,2022 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

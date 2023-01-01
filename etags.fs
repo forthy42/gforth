@@ -1,7 +1,7 @@
 \ Etags support for GNU Forth.
 
 \ Authors: Anton Ertl, Bernd Paysan, David Kühling
-\ Copyright (C) 1995,1998,2001,2003,2007,2008,2012,2019 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1998,2001,2003,2007,2008,2012,2019,2022 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

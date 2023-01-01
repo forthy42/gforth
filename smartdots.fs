@@ -1,7 +1,7 @@
 \ smart .s                                             09mar2012py
 
 \ Authors: Bernd Paysan, Anton Ertl, Gerald Wodni
-\ Copyright (C) 2012,2018,2019,2020,2021 Free Software Foundation, Inc.
+\ Copyright (C) 2012,2018,2019,2020,2021,2022 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 

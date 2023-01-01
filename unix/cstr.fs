@@ -1,7 +1,7 @@
 \ convert Forth strings to zero-terminated strings
 
 \ Authors: Anton Ertl, Bernd Paysan
-\ Copyright (C) 2008,2012,2019 Free Software Foundation, Inc.
+\ Copyright (C) 2008,2012,2019,2022 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
