@@ -1,7 +1,7 @@
 \ definitions needed for interpreter only
 
 \ Authors: Bernd Paysan, Anton Ertl, Neal Crook, Gerald Wodni, Jens Wilke
-\ Copyright (C) 1995-2000,2004,2005,2007,2009,2010,2012,2013,2014,2017,2018,2020 Free Software Foundation, Inc.
+\ Copyright (C) 1995,1996,1997,1998,1999,2000,2004,2005,2007,2009,2010,2012,2013,2014,2017,2018,2020,2021,2022 Free Software Foundation, Inc.
 
 \ This file is part of Gforth.
 
