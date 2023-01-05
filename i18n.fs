@@ -118,6 +118,13 @@ default-locale Value locale
 \ CSV reader part
 
 cs-vocabulary lang \ languages go in here
+
+get-current
+also lang definitions
+' lsids alias program
+' default-locale alias default
+previous set-current
+
 Variable lang[] \ array 
 
 : define-locale ( addr u -- xt ) \ gforth-experimental
@@ -175,6 +182,29 @@ Variable lang[] \ array
     \G under “program” (must be leftmost) are used to search for the lsid; if
     \G empty, the line number-1 is the lsid index.
     lang[] $free ?parse-name ['] insert-locale read-csv ;
+
+: .locale-csv ( -- ) \ gforth-experimental dot-locale-csv
+    \G write the locale database in CSV format to the terminal output.
+    [ ' lang >wordlist ]L wid>words[]    
+    false words[] $@ bounds cell- swap cell- U-DO
+	IF  csv-separator  emit  THEN
+	I @ name>string .quoted-csv
+	true
+    cell -LOOP  drop cr
+    lsid# 1+ 1 U+DO
+	false words[] $@ bounds cell- swap cell- U-DO
+	    IF  csv-separator  emit  THEN
+	    J I @ name>interpret $[]@ .quoted-csv
+	    true
+	cell -LOOP  drop cr
+    LOOP ;
+
+: locale-csv-out ( "name" -- ) \ gforth-experimental locale-csv
+    \G Create file @var{"name"} and write the locale database out to the file
+    \G @var{"name"} in CSV format.
+    ?parse-name r/w create-file throw >r
+    ['] .locale-csv r@ ['] outfile-execute catch
+    r> close-file swap throw throw ;
 
 \ easy use
 

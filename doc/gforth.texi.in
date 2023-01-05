@@ -10403,6 +10403,8 @@ doc-locale-file
 doc-included-locale
 doc-include-locale
 doc-locale-csv
+doc-.locale-csv
+doc-locale-csv-out
 
 @node Substitute, CSV Reader, i18n and l10n, Other I/O
 @subsection Substitute

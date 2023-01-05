@@ -96,3 +96,9 @@ $Variable $csv-item
     \G 1).
     [n:l csv-read-loop ;] >r
     open-fpath-file throw r> execute-parsing-named-file ;
+
+: .quoted-csv ( addr u -- ) \ gforth-experimental
+    \G print a quoted CSV entry
+    csv-quote emit bounds ?DO
+	I c@ dup csv-quote = IF  dup emit  THEN  emit
+    LOOP  csv-quote emit ;
