@@ -10117,6 +10117,7 @@ positioning of the cursor:
 @cindex cursor positioning
 
 doc-at-xy
+doc-at-deltaxy
 
 In order to know where to position the cursor, it is often helpful to
 know the size of the screen:
@@ -10140,8 +10141,9 @@ doc-error-color
 doc-warning-color
 doc-info-color
 doc-success-color
-
-doc-attr!
+@c !! Commented out, because it makes no sense to document attr! without
+@c    documenting how to produce an attr
+@c doc-attr!
 
 @subsubsection Color themes
 Depending on wether you prefer bright or dark background the foreground colors-theme can be changed by:
@@ -10159,6 +10161,7 @@ If you want to get a single printable character, you can use
 you can use @code{key?}.
 
 doc-key
+doc-key-ior
 doc-key?
 
 If you want to process a mix of printable and non-printable
