@@ -82,10 +82,5 @@ interpret/compile: s" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core,fi
 interpret/compile: ."  ( compilation 'ccc"' -- ; run-time -- )  \ core	dot-quote
   \G Compilation: Parse a string @i{ccc} delimited by a " (double
   \G quote). At run-time, display the string. Interpretation semantics
-  \G for this word are undefined in ANS Forth. Gforth's interpretation
-  \G semantics are to display the string. This is the simplest way to
-  \G display a string from within a definition; see examples below.
-\    '"' parse type ;
-\ has? compiler [IF]
-\     comp: drop '"' parse postpone sLiteral postpone type ;
-\ [THEN]
+  \G for this word are undefined in standard Forth. Gforth's interpretation
+  \G semantics are to display the string.

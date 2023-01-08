@@ -229,6 +229,7 @@ Forth Words
 * Arithmetic::
 * Stack Manipulation::
 * Memory::
+* Strings and Characters::
 * Control Structures::
 * Defining Words::
 * Interpretation and Compilation Semantics::
@@ -282,6 +283,15 @@ Memory
 * Special Memory Accesses::
 * Address arithmetic::
 * Memory Blocks::
+
+Strings and Characters
+
+* Characters::
+* String representations::
+* String and character literals::
+* String words::
+* $tring words::
+* Counted string words::
 
 Control Structures
 
@@ -363,9 +373,8 @@ Other I/O
 * Simple numeric output::       Predefined formats
 * Formatted numeric output::    Formatted (pictured) output
 * Floating-point output::
-* String Formats::              How Forth stores strings in memory
+* Miscellaneous output::
 * Displaying characters and strings::  Other stuff
-* String words::                Gforth's little string library
 * Terminal output::             Cursor positioning etc.
 * Single-key input::
 * Line input and conversion::
@@ -4525,6 +4534,7 @@ the exercises in a .fs file in the distribution.
 * Arithmetic::
 * Stack Manipulation::
 * Memory::
+* Strings and Characters::
 * Control Structures::
 * Defining Words::
 * Interpretation and Compilation Semantics::
@@ -5403,7 +5413,7 @@ doc-lp@
 doc-lp!
 
 
-@node Memory, Control Structures, Stack Manipulation, Words
+@node Memory, Strings and Characters, Stack Manipulation, Words
 @section Memory
 @cindex memory words
 
@@ -5713,7 +5723,7 @@ doc-/x
 @cindex character strings - moving and copying
 
 Memory blocks often represent character strings; For ways of storing
-character strings in memory see @ref{String Formats}.  For other
+character strings in memory see @ref{String representations}.  For other
 string-processing words see @ref{Displaying characters and strings}.
 
 A few of these words work on address unit blocks.  In that case, you
@@ -5732,6 +5742,148 @@ doc-cmove>
 doc-fill
 doc-blank
 doc-compare
+doc-bounds
+doc-pad
+
+@comment TODO examples
+
+@node Strings and Characters, Control Structures, Memory, Words
+@section Strings and Characters
+
+@menu
+* Characters::
+* String representations::
+* String and character literals::
+* String words::
+* $tring words::
+* Counted string words::
+@end menu
+
+@node Characters, String representations, Strings and Characters, Strings and Characters
+@subsection Characters
+@cindex Characters - chars/bytes vs. extended characters
+@cindex character encoding
+
+Forth supports chars (aka bytes), used by words such as @code{c@@};
+these can be used to represent an ASCII character.
+
+Forth also supports extended characters, which may be represented by a
+sequence of several bytes (i.e., several chars).  A common character
+encoding is the UTF-8 representation of Unicode.
+
+In general, most code does not have to worry about extended
+characters: In the string representation it does not matter whether a
+byte is a part of an extended character, or it is a character by
+itself, and words that consume chars (like @code{emit}) also work when
+the extended character is transferred as a sequence of chars.  Forth
+still provides words for dealing with extended characters
+(@pxref{Xchars and Unicode}).
+
+In Unicode terms, chars are @i{code units}, whereas extended
+characters are @i{code points}.  Note that an Unicode @i{abstract
+character} can consist of a sequence of code points, but Forth (like
+other programming languages) has no data type for individual abstract
+characters; of course, they can be represented as strings.
+
+You can use the usual integer words on chars and Xchars on the stack,
+but Gforth also has some words for dealing with chars on the stack:
+
+doc-toupper
+
+@node String representations, String and character literals, Characters, Strings and Characters
+@subsection String representations
+@cindex strings - see character strings
+@cindex character strings - representations
+@cindex counted strings
+
+Forth commonly represents strings as cell pair @i{c-addr u} on the
+stack; @i{u} is the length of the string in bytes (aka chars), and
+@i{c-addr} is the address of the first byte of the string.  Note that
+a code point may be represented by a sequence of several chars in the
+string (and a Unicode ``abstract character'' may consist of several
+code points).  @xref{String words}.
+
+Another string representation is associated with the string library of
+words containing @code{$}.  It represents the string on the stack
+through the address of a cell-sized string handle, which can be stored
+in, e.g., a variable.  @xref{$tring words}.
+
+A legacy string representation are @dfn{counted strings}, represented
+on the stack by @i{c-addr}. The char addressed by @i{c-addr} contains
+a character-count, @i{n}, of the string and the string occupies the
+subsequent @i{n} char addresses in memory.  Counted strings are
+limited to 255 bytes in length.  While counted strings may look
+attractive due to needing only one stack item, due to their
+limitations we recommend avoiding them, especially as input parameters
+of words.  @xref{Counted string words}.
+
+@node String and character literals, String words, String representations, Strings and Characters
+@subsection String and Character literals
+@cindex character literals
+@cindex string literals
+@cindex literals for characters and strings
+
+The nicest way to write a string literal is to write it as
+@code{"@i{STRING}"}.  You can use the same \-escapes inside as for
+@code{s\"}.  However, this way is non-standard, so you may want
+to use one of the following words for improved portability:
+
+doc-s\"
+doc-s"
+
+Likewise, You can get the code @i{xc} of a character
+@i{C} with @code{'@i{C}'}.  This way has been standardized since
+Forth-2012.  An older way to get it is to use one of the following
+words:
+
+doc-char
+doc-[char]
+
+You usually use @code{char} outside and @code{[char]} inside colon
+definitions, or you just use @code{'@i{C}'}.
+
+Note that, e.g.,
+
+@example
+"C" type
+@end example
+
+@noindent
+is (slightly) more efficient than
+
+@example
+'C' xemit
+@end example
+
+@noindent
+because the latter converts the code point into a sequence of bytes
+and indicidually @code{emit}s them.  Similarly, dealing with general
+characters is usually more efficient when representing them as strings
+rather than code points.
+
+There are the following words for producing commonly-used characters
+and strings that cannot be produced with @code{S"} or @code{'@i{C}'}:
+
+doc-newline
+doc-bl
+doc-#tab
+doc-#lf
+doc-#cr
+doc-#ff
+doc-#bs
+doc-#del
+doc-#bell
+doc-#esc
+doc-#eof
+
+@node String words, $tring words, String and character literals, Strings and Characters
+@subsection String words
+
+Words that are used for memory blocks are also useful for strings, so
+for words that move, copy, compare and search strings, see @ref{Memory
+Blocks}. For words that display characters and strings, see
+@ref{Displaying characters and strings}.
+
 doc-capscompare
 doc-str=
 doc-str<
@@ -5743,13 +5895,83 @@ doc-skip
 doc--trailing
 doc-/string
 doc-safe/string
-doc-bounds
-doc-pad
+doc-delete
+doc-insert
 
-@comment TODO examples
+@node $tring words, Counted string words, String words, Strings and Characters
+@subsection $tring words
+@cindex string words with $
+
+The following string library stores strings in ordinary cell-size
+variables (string handles).  These handles contain a pointer to a
+cell-counted string allocated from the heap.  The string library
+originates from bigFORTH.
+
+Because there is only one permanent reference to the contents (the one
+in the handle), the string can be relocated or deleted without
+worrying about dangling references; this requires that the programmer
+uses references produced by, e.g., @code{$@@} only for temporary
+purposes, i.e., these references are not passed out, e.g., as return
+values or stored in global memory, and words that may change the
+handle are not called while these references exist.
+
+This library is complemented by the cell-pair representation: You use
+the $tring words for variable strings which are cumbersome with the
+c-addr u representation.  You use the cell-pair representation for
+processing (e.g., inspecting) strings while they do not change.
+
+doc-$!
+doc-$@
+doc-$@len
+doc-$!len
+doc-$+!len
+doc-$del
+doc-$ins
+doc-$+!
+doc-c$+!
+doc-$free
+doc-$init
+doc-$split
+doc-$iter
+doc-$over
+doc-$exec
+doc-$tmp
+doc-$.
+doc-$slurp
+doc-$slurp-file
+doc-$[]
+doc-$[]!
+doc-$[]+!
+doc-$[]@
+doc-$[]#
+doc-$[]map
+doc-$[]slurp
+doc-$[]slurp-file
+doc-$[].
+doc-$[]free
+doc-$save
+doc-$[]save
+doc-$boot
+doc-$[]boot
+doc-$saved
+doc-$[]saved
+doc-$variable
+doc-$[]variable
 
 
-@node Control Structures, Defining Words, Memory, Words
+@node Counted string words,  , $tring words, Strings and Characters
+@subsection Counted string words
+
+doc-count
+
+The following word has no useful interpretation semantics (unlike
+@code{s"}) and no interpretive counterpart (unlike @code{[char]}), so
+you should use it only inside colon definitions (if at all):
+
+doc-c"
+
+
+@node Control Structures, Defining Words, Strings and Characters, Words
 @section Control Structures
 @cindex control structures
 
@@ -9698,9 +9920,8 @@ doc-block-included
 * Simple numeric output::       Predefined formats
 * Formatted numeric output::    Formatted (pictured) output
 * Floating-point output::
-* String Formats::              How Forth stores strings in memory
+* Miscellaneous output::
 * Displaying characters and strings::  Other stuff
-* String words::                Gforth's little string library
 * Terminal output::             Cursor positioning etc.
 * Single-key input::
 * Line input and conversion::
@@ -9863,7 +10084,7 @@ hex -1 my-u. decimal FFFFFFFF
 -456 account. (456)
 @end example
 
-@node Floating-point output, String Formats, Formatted numeric output, Other I/O
+@node Floating-point output, Miscellaneous output, Formatted numeric output, Other I/O
 @subsection Floating-point output
 @cindex numeric output, FP
 @cindex FP output
@@ -9926,74 +10147,21 @@ FP-to-string words:
 
 doc-represent
 
+@node Miscellaneous output, Displaying characters and strings, Floating-point output, Other I/O
+@subsection Miscellaneous output
 
 
-@node String Formats, Displaying characters and strings, Floating-point output, Other I/O
-@subsection String Formats
-@cindex strings - see character strings
-@cindex character strings - formats
-@cindex I/O - see character strings
-@cindex counted strings
-
-@c anton: this does not really belong here; maybe the memory section,
-@c  or the principles chapter
-
-Forth commonly uses two different methods for representing character
-strings:
-
-@itemize @bullet
-@item
-@cindex address of counted string
-@cindex counted string
-As a @dfn{counted string}, represented by a @i{c-addr}. The char
-addressed by @i{c-addr} contains a character-count, @i{n}, of the
-string and the string occupies the subsequent @i{n} char addresses in
-memory.
-@item
-As cell pair on the stack; @i{c-addr u}, where @i{u} is the length
-of the string in characters, and @i{c-addr} is the address of the
-first byte of the string.
-@end itemize
-
-Standard Forth encourages the use of the cell pair format when
-representing strings.
-
-
-doc-count
-
-
-For words that move, copy and search for strings see @ref{Memory
-Blocks}. For words that display characters and strings see
-@ref{Displaying characters and strings}.
-
-@node Displaying characters and strings, String words, String Formats, Other I/O
-@subsection Displaying characters and strings
-@cindex characters - compiling and displaying
-@cindex character strings - compiling and displaying
-
-This section starts with a glossary of Forth words and ends with a set
-of examples.
-
-doc-bl
+doc-cr
 doc-space
 doc-spaces
-doc-emit
-doc-toupper
+doc-out
+doc-.\"
 doc-."
 doc-.(
-doc-.\"
-doc-type
-doc-typewhite
-doc-cr
-doc-out
-@cindex cursor control
-doc-s"
-doc-s\"
-doc-newline
-doc-c"
-doc-char
-doc-[char]
 
+If you don't want to worry about wether to use @code{.( hello)} or
+@code{." hello"}, you can write @code{"hello" type}, which gives you
+what you usually want (but is less portable to other Forth systems).
 
 @noindent
 As an example, consider the following text, stored in a file @file{test.fs}:
@@ -10003,20 +10171,17 @@ As an example, consider the following text, stored in a file @file{test.fs}:
 : my-word
   ." text-2" cr
   .( text-3)
+  "text-4" type
 ;
 
-." text-4"
-
-: my-char
-  [char] ALPHABET emit
-  char emit
-;
+." text-5"
+"text-6" type
 @end example
 
 When you load this code into Gforth, the following output is generated:
 
 @example
-@kbd{include test.fs @key{RET}} text-1text-3text-4 ok
+@kbd{include test.fs @key{RET}} text-1text-3text-5text-6 ok
 @end example
 
 @itemize @bullet
@@ -10025,89 +10190,33 @@ Messages @code{text-1} and @code{text-3} are displayed because @code{.(}
 is an immediate word; it behaves in the same way whether it is used inside
 or outside a colon definition.
 @item
-Message @code{text-4} is displayed because of Gforth's added interpretation
+Message @code{text-5} is displayed because of Gforth's added interpretation
 semantics for @code{."}.
+@item
+Message @code{text-6} is displayed because @code{"text-6" type} is
+interpreted.
 @item
 Message @code{text-2} is @i{not} displayed, because the text interpreter
 performs the compilation semantics for @code{."} within the definition of
 @code{my-word}.
+@item
+Message @code{text-4} is @i{not} displayed, because @code{"text-4"
+type} is compiled into @code{my-word}.
 @end itemize
 
-Here are some examples of executing @code{my-word} and @code{my-char}:
 
-@example
-@kbd{my-word @key{RET}} text-2
- ok
-@kbd{my-char fred @key{RET}} Af ok
-@kbd{my-char jim @key{RET}} Aj ok
-@end example
+@node Displaying characters and strings, Terminal output, Miscellaneous output, Other I/O
+@subsection Displaying characters and strings
+@cindex characters - displaying
+@cindex character strings - displaying
 
-@itemize @bullet
-@item
-Message @code{text-2} is displayed because of the run-time behaviour of
-@code{."}.
-@item
-@code{[char]} compiles the ``A'' from ``ALPHABET'' and puts its display code
-on the stack at run-time. @code{emit} always displays the character
-when @code{my-char} is executed.
-@item
-@code{char} parses a string at run-time and the second @code{emit} displays
-the first character of the string.
-@item
-If you type @code{see my-char} you can see that @code{[char]} discarded
-the text ``LPHABET'' and only compiled the display code for ``A'' into the
-definition of @code{my-char}.
-@end itemize
+doc-type
+doc-xemit
+doc-emit
+doc-typewhite
 
-@node String words, Terminal output, Displaying characters and strings, Other I/O
-@subsection String words
-@cindex string words
 
-The following string library stores strings in ordinary variables,
-which then contain a pointer to a cell-counted string allocated from
-the heap.  The string library originates from bigFORTH.
-
-doc-delete
-doc-insert
-doc-$!
-doc-$@
-doc-$@len
-doc-$!len
-doc-$+!len
-doc-$del
-doc-$ins
-doc-$+!
-doc-c$+!
-doc-$free
-doc-$init
-doc-$split
-doc-$iter
-doc-$over
-doc-$exec
-doc-$tmp
-doc-$.
-doc-$slurp
-doc-$slurp-file
-doc-$[]
-doc-$[]!
-doc-$[]+!
-doc-$[]@
-doc-$[]#
-doc-$[]map
-doc-$[]slurp
-doc-$[]slurp-file
-doc-$[].
-doc-$[]free
-doc-$save
-doc-$[]save
-doc-$boot
-doc-$[]boot
-doc-$saved
-doc-$[]saved
-doc-$variable
-doc-$[]variable
-
-@node Terminal output, Single-key input, String words, Other I/O
+@node Terminal output, Single-key input, Displaying characters and strings, Other I/O
 @subsection Terminal output
 @cindex output to terminal
 @cindex terminal output
@@ -10262,7 +10371,8 @@ doc-simple-fkey-string
 @cindex convertin strings to numbers
 @cindex I/O - see input
 
-For ways of storing character strings in memory see @ref{String Formats}.
+For ways of storing character strings in memory see @ref{String
+representations}.
 
 @comment TODO examples for >number >float accept key key? pad parse word refill
 @comment then index them
@@ -10372,7 +10482,6 @@ doc-x\string-
 doc--trailing-garbage
 doc-x-width
 doc-xkey
-doc-xemit
 doc-xc-width
 
 There's a new environment query
@@ -10428,7 +10537,7 @@ doc-substitute
 doc-unescape
 doc-$unescape
 
-@node CSV Reader, , Substitute, Other I/O
+@node CSV Reader,  , Substitute, Other I/O
 @subsection CSV Reader
 
 Comma-separated values (CSV) are a popular text format to interchange

@@ -42,7 +42,7 @@ User out ( -- addr ) \ gforth
 \g resets to 0 on @code{cr}, increases by the number of characters by
 \g @code{type} and @code{emit}, and decreases on @code{backspaces}.
 \g Unfortunately, it does not take into account tabs, multi-byte
-\g characters, or the existence of Unicode characters with with 0 and
+\g characters, or the existence of Unicode characters with width 0 and
 \g 2, so it only works for simple cases.
 
 : (type) ( c-addr u -- )
@@ -92,7 +92,8 @@ umethod type ( c-addr u -- ) \ core
   \G If @var{u}>0, display @var{u} characters from a string starting
   \G with the character stored at @var{c-addr}.
 umethod emit ( c -- ) \ core
-  \G Display the character associated with character value c.
+  \G Send the byte @i{c} to the current output; for ASCII characters,
+  \G @code{emit} is equivalent to @code{xemit}.
 umethod cr ( -- ) \ core c-r
     \G Output a newline (of the favourite kind of the host OS).  Note
     \G that due to the way the Forth command line interpreter inserts
@@ -106,7 +107,8 @@ umethod page ( -- ) \ facility
 umethod at-xy ( x y -- ) \ facility at-x-y
 \G Put the curser at position @i{x y}
 umethod at-deltaxy ( dx dy -- ) \ gforth
-\g With the current position at @i{x y}, put the cursor at @i{x+dx y+dy}.
+\g With the current position at @i{x y}, put the cursor at @i{x+dx
+  \G y+dy}.
 umethod attr! ( attr -- )
 \G apply attribute to terminal (i.e. set color)
 umethod control-sequence ( n char -- )
@@ -185,16 +187,17 @@ default-in ip-vector !
 
 \ Input                                                13feb93py
 
-04 constant #eof ( -- c ) \ gforth
-07 constant #bell ( -- c ) \ gforth
-08 constant #bs ( -- c ) \ gforth
-09 constant #tab ( -- c ) \ gforth
-1B Constant #esc ( -- c ) \ gforth
-7F constant #del ( -- c ) \ gforth
-0D constant #cr   ( -- c ) \ gforth
+04 constant #eof ( -- c ) \ gforth number-e-o-f
+\G actually EOT (ASCII code 4 aka @code{^D})
+07 constant #bell ( -- c ) \ gforth number-bell
+08 constant #bs ( -- c ) \ gforth number-b-s
+09 constant #tab ( -- c ) \ gforth number-tab
+1B Constant #esc ( -- c ) \ gforth number-esc
+7F constant #del ( -- c ) \ gforth number-del
+0D constant #cr   ( -- c ) \ gforth number-c-r
 \ the newline key code
-0C constant #ff ( -- c ) \ gforth
-0A constant #lf ( -- c ) \ gforth
+0C constant #ff ( -- c ) \ gforth number-f-f
+0A constant #lf ( -- c ) \ gforth number-l-f
 
 : bell  #bell emit [ has? os [IF] ] outfile-id flush-file drop [ [THEN] ] ;
 
@@ -239,7 +242,7 @@ decimal
 : spaces-loop ( n addr -- )
     swap  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
 Create spaces ( u -- ) \ core
-\G Display @var{n} spaces. 
+\G Display @var{u} spaces. 
 bl 80 times \ times from target compiler! 11may93jaw
 DOES>   ( u -- ) spaces-loop ;
 Create backspaces \ gforth
