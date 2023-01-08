@@ -5803,10 +5803,10 @@ a code point may be represented by a sequence of several chars in the
 string (and a Unicode ``abstract character'' may consist of several
 code points).  @xref{String words}.
 
-Another string representation is associated with the string library of
-words containing @code{$}.  It represents the string on the stack
-through the address of a cell-sized string handle, which can be stored
-in, e.g., a variable.  @xref{$tring words}.
+Another string representation is used with the string library of words
+containing @code{$}.  It represents the string on the stack through
+the address of a cell-sized string handle, which can be located in,
+e.g., a variable.  @xref{$tring words}.
 
 A legacy string representation are @dfn{counted strings}, represented
 on the stack by @i{c-addr}. The char addressed by @i{c-addr} contains
@@ -10005,6 +10005,7 @@ doc-<<#
 doc-#
 doc-#s
 doc-hold
+doc-holds
 doc-sign
 doc-#>
 doc-#>>
@@ -10243,13 +10244,19 @@ Note that on non-terminals you should use @code{12 emit}, not
 @code{page}, to get a form feed.
 
 @subsubsection Color output
-The following words are used to create (semantic) colorful output:
+The following words are used to create (semantic) colorful output;
+further output is produced in the color and style given by the word;
+the actual color and style depends on the theme (see below).
 
 doc-default-color
 doc-error-color
+doc-error-hl-inv
+doc-error-hl-ul
 doc-warning-color
 doc-info-color
 doc-success-color
+doc-input-color
+doc-status-color
 @c !! Commented out, because it makes no sense to document attr! without
 @c    documenting how to produce an attr
 @c doc-attr!
@@ -15090,6 +15097,7 @@ doc-getenv
 @cindex time-related words
 
 doc-ms
+doc-ns
 doc-time&date
 doc->time&date&tz
 doc-utime
