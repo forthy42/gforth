@@ -635,9 +635,9 @@ n = compare(c_addr1, u1, c_addr2, u2);
 \  dup 0= IF EXIT THEN  0< 2* 1+ ;
 
 toupper	( c1 -- c2 )	gforth
-""If @i{c1} is a lower-case character (in the current locale), @i{c2}
-is the equivalent upper-case character. All other characters are unchanged.""
-c2 = toupper(c1);
+""If @i{c1} is a lower-case ASCII character, @i{c2}
+is the equivalent upper-case character, otherwise @i{c2} is @i{c1}.""
+c2 = ('a'<=c1 && c1<='z') ? c1+('A'-'a') : c1;
 :
  dup 'a' - [ char z char a - 1 + ] Literal u<  bl and - ;
 

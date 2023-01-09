@@ -358,7 +358,7 @@ Variable rec'[]
 	hex.
     then ;
 
-: .hm ( nt -- )
+: .hm ( nt -- ) \ gforth dot-h-m
     >namehm @ cr
     ." opt:    " dup >hmcompile, @ .name? cr
     ." to:     " dup >hmto       @ .name? cr

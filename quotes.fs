@@ -125,6 +125,10 @@ interpret/compile: s\" ( compilation 'ccc"' -- ; run-time -- c-addr u )	\ core-e
 \G E.g., if we use UTF-8 encoding and want to encode @"a (code point
 \G U+00E4), you can write the letter @"a itself, or write @code{\xc3\xa4}
 \G (the UTF-8 bytes for this code point), @code{\u00e4}, or @code{\U000000e4}.
+\G @*
+\G Note that, unlike in C, @code{\n} produces the preferred newline
+\G sequence for the host OS, which may consist of several chars.  I.e.,
+\G @code{"\n"} is equivalent to @code{newline}.
 
 :noname \"-parse type ;
 :noname postpone s\" postpone type ;
