@@ -19,7 +19,7 @@
 #along with this program. If not, see http://www.gnu.org/licenses/.
 
 srcdir = @srcdir@
-SRCINC = -I @srcdir@
+SRCINC = -I $(realpath @srcdir@)
 TEXI2DVI = @TEXI2DVI@ $(SRCINC)
 TEXI2PDF = @TEXI2DVI@ $(SRCINC) --pdf
 DVI2PS	= dvips -t letterSize -Z
@@ -33,7 +33,7 @@ RECODE_UTF  = @RECODE@ @RECODE_ARGS@
 
 VPATH = @srcdir@:.
 
-GFORTH_TEXI =  gforth.texi version.texi
+GFORTH_TEXI =  gforth.texi version.texi fdl.texi gpl.texi
 
 VMGEN_TEXI = vmgen.texi version.texi fdl.texi
 
