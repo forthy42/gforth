@@ -56,7 +56,7 @@ Defer parse ( xchar "ccc<xchar>" -- c-addr u ) \ core-ext,xchar-ext
 
 [IFUNDEF] (name) \ name might be a primitive
 
-: (name) ( -- c-addr count ) \ gforth
+: (name) ( -- c-addr count )
     source 2dup >r >r >in @ 2dup u< IF  -18 throw  THEN
     /string (parse-white)
     2dup input-lexeme!
@@ -425,7 +425,7 @@ method opt-compile, ( xt -- ) \ gforth-internal
 \g The intelligent @code{compile,} compiles each word as specified by
 \g @code{set-optimizer} for that word.
 
-method (to) ( val xt -- ) \ gforth paren-int-to
+method (to) ( val xt -- ) \ gforth paren-to
 \G @i{xt} is of a value like word @i{name}.  Stores @i{val} @code{to} @i{name}.
 opt: ( xt-(to -- )
     ?fold-to (to), ;
@@ -451,6 +451,8 @@ method name>comp ( nt -- w xt ) \ gforth name-to-comp
 method name>string ( nt -- addr u ) \ tools-ext name-to-string
     \g @i{addr count} is the name of the word represented by @i{nt}.
 method name>link ( nt1 -- nt2 / 0 ) \ gforth name-to-link
+\G For a word @i{nt1}, returns the previous word @i{nt2} in the same
+\G wordlist, or 0 if there is no previous word.
 
 drop Constant hmsize \ vtable size
 
@@ -464,14 +466,20 @@ defer compile, ( xt -- ) \ core-ext compile-comma
     \G Reserve data space for one cell and store @i{w} in the space.
     cell small-allot ! ;
 
-: immediate? ( nt -- flag )    name>comp nip ['] compile, <> ;
-: compile-only? ( nt -- flag )
+: immediate? ( nt -- flag ) \ gforth
+    \G true if the word @i{nt} has non-default compilation
+    \G semantics (that's not quite according to the definition of
+    \G immediacy, but many people mean that when they call a word
+    \G ``immediate'').
+    name>comp nip ['] compile, <> ;
+: compile-only? ( nt -- flag ) \ gforth
+    \G true if @i{nt} is marked as compile-only.
     dup name>string nip IF
 	>f+c @ restrict-mask and 0<>
-    ELSE  drop false  THEN ;
+    ELSE drop false THEN ;
 : ?compile-only ( nt -- nt )
     dup compile-only? IF
-	<<# s"  is compile-only" holds dup name>string holds #0. #>
+	<<# s" is compile-only" holds dup name>string holds #0. #>
 	hold 1- c(warning") #>>
     THEN ;
 
@@ -480,14 +488,14 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 \G compile-only
     ?compile-only name>int ;
 
-: named>string ( nt -- addr count ) \ gforth     named-to-string
+: named>string ( nt -- addr count ) \ gforth-internal     named-to-string
     >f+c dup @ lcount-mask and tuck - swap ;
-: named>link ( nt1 -- nt2 / 0 ) \ gforth	named-to-link
+: named>link ( nt1 -- nt2 / 0 ) \ gforth-internal	named-to-link
     >link @ ;
 
-: noname>string ( nt -- hm 0 ) \ gforth    noname-to-string
+: noname>string ( nt -- hm 0 ) \ gforth-internal    noname-to-string
     cell- 0 ;
-: noname>link ( nt -- 0 ) \ gforth    noname-to-link
+: noname>link ( nt -- 0 ) \ gforth-internal    noname-to-link
     drop 0 ;
 
 \ : name>view ( nt -- addr ) \ gforth   name-to-view

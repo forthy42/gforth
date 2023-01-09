@@ -250,7 +250,7 @@ Forth Words
 * Multitasker::
 * C Interface::
 * Assembler and Code Words::
-* Threading Words::
+* Carnal words::
 * Passing Commands to the OS::
 * Keeping track of Time::
 * Miscellaneous Words::
@@ -487,6 +487,12 @@ Assembler and Code Words
 * PowerPC assembler::           Deviations and special cases
 * ARM Assembler::               Deviations and special cases
 * Other assemblers::            How to write them
+
+Carnal words
+
+* Header fields::
+* Header methods::
+* Threading Words::
 
 Tools
 
@@ -4555,7 +4561,7 @@ the exercises in a .fs file in the distribution.
 * Multitasker::
 * C Interface::
 * Assembler and Code Words::
-* Threading Words::
+* Carnal words::
 * Passing Commands to the OS::
 * Keeping track of Time::
 * Miscellaneous Words::
@@ -14189,7 +14195,7 @@ If you have a program that uses these words outside
 instances of @code{add-lib}, however.
 
 @c -------------------------------------------------------------
-@node Assembler and Code Words, Threading Words, C Interface, Words
+@node Assembler and Code Words, Carnal words, C Interface, Words
 @section Assembler and Code Words
 @cindex assembler
 @cindex code words
@@ -15009,8 +15015,105 @@ how simple it can be.
 
 
 @c -------------------------------------------------------------
-@node Threading Words, Passing Commands to the OS, Assembler and Code Words, Words
-@section Threading Words
+@node Carnal words, Passing Commands to the OS, Assembler and Code Words, Words
+@section Carnal words
+
+These words deal with the mechanics of Gforth (in Forth circles called
+``carnal knowledge'' of a Forth system), but we consider them stable
+enough to document them.
+
+@menu
+* Header fields::
+* Header methods::
+* Threading Words::
+@end menu
+
+@node Header fields, Header methods, Carnal words, Carnal words
+@subsection Header fields
+@cindex header fields
+
+In Gforth 1.0 we switched to a new header layout.  For a detailed
+description, read: Bernd Paysan and M. Anton Ertl.
+@cite{@uref{http://www.euroforth.org/ef19/papers/paysan.pdf,The new
+Gforth header}}. In 35th EuroForth Conference, pages 5-20, 2019.
+Since this paper was published, xt and nt have been changed to point
+to the parameter field, like the body, but otherwise it is still
+up-to-date.
+
+This section explains just the data structure and the words used to
+access it.  A header has the following fields:
+
+@example
+name
+>f+c
+>link
+>cfa
+>namehm
+>body
+@end example
+
+Currently Gforth has the names shown above for
+getting from the xt/nt/body to the field, but apart from the standard
+@code{>body} they are not stable Gforth words.  Instead, we provide
+access words.  Note that the documented access words have survived the
+reorganization of the header layout.
+
+The name field is variable-length and is accessed with
+@code{name>string} (@pxref{Name token}).
+
+The @code{>f+c} field contains flags and the name length (count).  You
+read the count with @code{name>string}, and the flags with
+
+doc-compile-only?
+
+The @code{>link} field contains a link to the previous word in the
+same word list.  You can read it with
+
+doc-name>link
+
+The name, @code{>f+c} and @code{>link} fields are not present for
+@code{noname} words, but @code{name>string} and @code{name>link} work
+nevertheless, producing 0 0 and 0, respectively.
+
+The @code{>cfa} field (aka code field) contains the code address used
+for @code{execute}ing the word; you can read it with
+@code{>code-address} and write it with @code{code-address!}
+(@pxref{Threading Words}).
+
+The @code{>namehm} field contains the address of the header methods
+table, described below.  You access it by performing or accessing
+header methods, described below.
+
+The @code{>body} (aka parameter) field contains data or threaded code
+specific to the word type; its length depends on the word type.  E.g.,
+for a @code{constant} it contains a cell with the value of the
+constant.  You can access it through @code{>body}
+(@pxref{CREATE..DOES> details}), but this is only standard for words
+you defined with @code{create}.
+
+@node Header methods, Threading Words, Header fields, Carnal words
+@subsection Header methods
+@cindex header methods
+
+@example
+method        setter           field
+opt-compile,  set-optimizer    >hmcompile,
+(to)          set-to           >hmto
+defer@        set-defer@       >hmdefer@
+                               >hmextra
+name>int      set->int         >hm>int
+name>comp     set->comp        >hm>comp
+name>string   set-name>string  >hm>string
+name>link     set-name>link    >hm>link
+@end example
+
+doc-immediate?
+
+
+
+
+@node Threading Words,  , Header methods, Carnal words
+@subsection Threading Words
 @cindex threading words
 
 @cindex code address
@@ -15078,7 +15181,7 @@ doc->definer
 doc-definer!
 
 @c -------------------------------------------------------------
-@node Passing Commands to the OS, Keeping track of Time, Threading Words, Words
+@node Passing Commands to the OS, Keeping track of Time, Carnal words, Words
 @section Passing Commands to the Operating System
 @cindex operating system - passing commands
 @cindex shell commands
