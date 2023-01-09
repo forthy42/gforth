@@ -7880,10 +7880,11 @@ doc-.unresolved
 @node Aliases,  , Forward, Defining Words
 @subsection Aliases
 @cindex aliases
+@cindex synonyms
 
-The defining word @code{Alias} allows you to define a word by name that
-has the same behaviour as some other word. Here are two situation where
-this can be useful:
+The defining word @code{synonym} allows you to define
+a word by name that has the same behaviour as some other word. Here
+are two situation where this can be useful:
 
 @itemize @bullet
 @item
@@ -7893,29 +7894,31 @@ in the Gforth source).
 @item
 When you want to create a synonym; a definition that can be known by
 either of two names (for example, @code{THEN} and @code{ENDIF} are
-aliases).
+synonyms).
 @end itemize
 
-Like deferred words, an alias has default compilation and interpretation
-semantics at the beginning (not the modifications of the other word),
-but you can change them in the usual ways (@code{immediate},
-@code{compile-only}). For example:
+doc-synonym
+
+Gforth also offers the non-standard @code{alias}, that does not
+inherit the compilation semantics, @code{to}/@code{defer!} or
+@code{defer@@} semantics from its parent.  You can then change, e.g.,
+the compilation semantics with, e.g., @code{immediate}.
+
+doc-alias
+
+Example:
 
 @example
 : foo ... ; immediate
 
-' foo Alias bar \ bar is not an immediate word
-' foo Alias fooby immediate \ fooby is an immediate word
+' foo Alias bar1           \ bar1 is not an immediate word
+' foo Alias bar2 immediate \ bar2 is an immediate word
+synonym bar3 foo           \ bar3 is an immediate word
 @end example
 
-Words that are aliases have the same xt, different headers in the
-dictionary, and consequently different name tokens (@pxref{Tokens for
-Words}) and possibly different immediate flags.  An alias can only have
-default or immediate compilation semantics; you can define aliases for
-combined words with @code{interpret/compile:} -- see @ref{Combined words}.
-
-doc-alias
-
+Both synonyms and aliases have a different nt than the original, but
+ticking it (or using @code{name>interpret}) produces the same xt as
+the original (@pxref{Tokens for Words}).
 
 @node Interpretation and Compilation Semantics, Tokens for Words, Defining Words, Words
 @section Interpretation and Compilation Semantics
@@ -15032,7 +15035,7 @@ enough to document them.
 @subsection Header fields
 @cindex header fields
 
-In Gforth 1.0 we switched to a new header layout.  For a detailed
+In Gforth 1.0 we switched to a new word header layout.  For a detailed
 description, read: Bernd Paysan and M. Anton Ertl.
 @cite{@uref{http://www.euroforth.org/ef19/papers/paysan.pdf,The new
 Gforth header}}. In 35th EuroForth Conference, pages 5-20, 2019.
@@ -15058,6 +15061,23 @@ getting from the xt/nt/body to the field, but apart from the standard
 access words.  Note that the documented access words have survived the
 reorganization of the header layout.
 
+Some of the words expect an nt, some expect an xt.  Given that both nt
+and xt point to the body of a word, what is the difference?  For most
+words, the xt and nt use the same header, and with nt=xt, they point
+to the same place.  However, for a synonym (@pxref{Aliases}) there is
+a difference; consider the example
+
+@example
+create x
+synonym y x
+synonym z y
+@end example
+
+In this case the nt of @code{z} points to the body of @code{z}, while
+the xt of @code{z} points to the body of @code{x}.  Words defined with
+@code{alias} or @code{forward} (@pxref{Forward}) also have different
+nts and xts.
+
 The name field is variable-length and is accessed with
 @code{name>string} (@pxref{Name token}).
 
@@ -15082,7 +15102,7 @@ for @code{execute}ing the word; you can read it with
 
 The @code{>namehm} field contains the address of the header methods
 table, described below.  You access it by performing or accessing
-header methods, described below.
+header methods (@pxref{Header methods}).
 
 The @code{>body} (aka parameter) field contains data or threaded code
 specific to the word type; its length depends on the word type.  E.g.,
@@ -15095,17 +15115,128 @@ you defined with @code{create}.
 @subsection Header methods
 @cindex header methods
 
+The new Gforth word header is object-oriented and supports the
+following methods (method selectors):
+
 @example
-method        setter           field
-opt-compile,  set-optimizer    >hmcompile,
-(to)          set-to           >hmto
-defer@        set-defer@       >hmdefer@
-                               >hmextra
-name>int      set->int         >hm>int
-name>comp     set->comp        >hm>comp
-name>string   set-name>string  >hm>string
-name>link     set-name>link    >hm>link
+method          setter           field
+execute         set-execute      >cfa
+opt-compile,    set-optimizer    >hmcompile,
+defer!          set-to           >hmto
+defer@@          set-defer@@       >hmdefer@@
+                                 >hmextra
+name>interpret  set->int         >hm>int
+name>compile    set->comp        >hm>comp
+name>string     set-name>string  >hm>string
+name>link       set-name>link    >hm>link
 @end example
+
+Many of these words are not stable Gforth words, but Gforth has stable
+higher-level words that we mention below.
+
+Setter words change the most recent definition (which does not include
+completed quotations or closures).
+
+The @code{execute} method is actually stored in the @code{>cfa} field
+in the header rather than in the header-methods table for performance
+reasons; also it is implemented through a native-code address, while
+the other methods are implemented by calling an xt.  The high-level
+way to set this method is
+
+doc-set-execute
+
+To get a code address for use with @code{set-execute}, you can use
+words like @code{docol:} or @code{>code-address}, @xref{Threading
+Words}.
+
+There is also @code{set-does>} (@pxref{User-defined Defining Words}),
+which takes an xt.
+
+Moreover, there are the low-level @code{code-address!} and
+@code{definer!}, @xref{Threading Words}.
+
+The @code{opt-compile,} method is what @code{compile,} does on most
+Gforth engines (@code{gforth-itc} uses @code{,} instead).  You can
+define a more efficient implementation of @code{compile,} for the
+current word with @code{set-optimizer}.  Note that the end result must
+be equivalent to @code{postpone literal postpone execute}.
+
+doc-set-optimizer
+
+As an example of the use of @code{set-optimizer}, consider the
+following definition of @code{constant}:
+
+@example
+: constant ( n "name" -- ; name: -- n )
+  create ,
+  ['] @@ set-does>
+;
+
+5 constant five
+: foo five ; see foo
+@end example
+
+The Forth system does not know that the value of a constant must not
+be changed, and just sees a @code{create}d word (which can be changed
+with @code{>body}), and @code{foo} first pushes the body address of
+@code{five} and then fetches from there.  With @code{set-optimizer}
+the definition of @code{constant} can be optimized as follows:
+
+@example
+: constant ( n "name" -- ; name: -- n )
+  create ,
+  ['] @@ set-does>
+  [: >body @@ postpone literal ;] set-optimizer
+;
+@end example
+
+Now @code{foo} contains the literal 5 rather than a call to
+@code{five}.
+
+Note that @code{set-execute} and @code{set-does>} perform
+@code{set-optimizer} themselves in order to ensure that @code{execute}
+and @code{compile,} agree, so if you want to add your own optimizer,
+you should add it afterwards.
+
+The @code{defer!} (aka @code{(to)} method implements @code{defer!}
+for words defined with @code{defer} and similar words, but it is also
+the core of @code{to}.  The general stack effect of the
+@code{defer!}/@code{(to)} method is @code{( val xt -- )}, where
+@i{xt} identifies the word stored into, and @i{val} is the value (of
+appropriate type) stored there.
+
+doc-(to)
+doc-set-to
+
+E.g., one can implement @code{fvalue} as follows:
+
+@example
+: compile-fvalue-to ( xt-value-to -- )
+  drop ]] >body f! [[ ;
+  
+: fvalue-to ( r xt -- ) >body f! ;
+' compile-fvalue-to set-optimizer
+
+: fvalue ( r -- )
+  create f,
+  ['] f@@ set-does>
+  [: >body ]] literal f@@ [[ ;] set-optimizer
+  ['] fvalue-to set-to ;
+
+5e fvalue foo
+: bar foo 1e f+ to foo ;
+see bar
+@end example
+
+This example not just shows @code{set-to} at work, but also the two
+uses of @code{set-optimizer} that inline the code for @code{foo} and
+@code{to foo} (rather than compiling a call to @code{foo} and
+compiling @code{['] foo fvalue-to}).
+
+In practice Gforth has a few additional twists to implement, e.g.,
+@code{+TO}.
+
+
 
 doc-immediate?
 
@@ -15179,6 +15310,12 @@ The following two words generalize @code{>code-address},
 
 doc->definer
 doc-definer!
+
+Note that @code{code-address!}, @code{does-code!}, and @code{definer!}
+currently do not update the @code{opt-compile,} method, so the result
+is probably a word that has an incorrect @code{compile,}, and you need
+to use @code{set-optimizer} to fix this.  It is probably better to use
+the higher-level @code{set-execute} or @code{set-does>} instead.
 
 @c -------------------------------------------------------------
 @node Passing Commands to the OS, Keeping track of Time, Carnal words, Words

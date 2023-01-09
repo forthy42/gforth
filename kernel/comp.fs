@@ -454,7 +454,7 @@ opt: ( xt -- ) ?fold-to >body @ (to), ;
 opt: ( xt -- ) ?fold-to >body @ defer@, ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
-: synonym, ( xt int comp -- ) \ gforth
+: synonym, ( nt int comp -- ) \ gforth-internal
     set->comp set->int
     ['] s-to       set-to
     ['] s-defer@   set-defer@
@@ -462,15 +462,21 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     A, ;
 
 : Alias    ( xt "name" -- ) \ gforth
+    \G Define @i{name} as a word that performs @i{xt}.  Unlike for
+    \G deferred words, aliases don't have an indirection overhead when
+    \G compiled.
     ['] parser create-from ['] a>int ['] a>comp synonym, reveal ;
 
 : alias? ( nt -- flag )
     >namehm @ >hm>int 2@ ['] a>comp ['] a>int d= ;
 
 : Synonym ( "name" "oldname" -- ) \ tools-ext
+    \G Define @i{name} to behave the same way as @i{oldname}: Same
+    \G interpretation semantics, same compilation semantics, same
+    \G @code{to}/@code{defer!} and @code{defer@@} semantics.
     ['] parser create-from
     ?parse-name find-name dup 0= #-13 and throw
-    dup compile-only? IF  compile-only  THEN
+    dup compile-only? IF compile-only THEN
     ['] s>int ['] s>comp synonym, reveal ;
 
 : synonym? ( nt -- flag )
@@ -644,30 +650,36 @@ Create hmtemplate
 : general-compile, ( xt -- )
     postpone literal postpone execute ;
 
-: set-optimizer ( xt -- ) ?hm hmtemplate >hmcompile, ! ;
+: set-optimizer ( xt -- ) \ gforth
+    \G Changes the current word such that @code{compile,}ing it
+    \G executes @i{xt} (with the same stack contents as passed to
+    \G @code{compile,}.  Note that @code{compile,} must be consistent
+    \G with @code{execute}, so you must use @code{set-optimizer} only
+    \G to install a more efficient implementation of the same
+    \G behaviour.
+    ?hm hmtemplate >hmcompile, ! ;
 ' set-optimizer alias set-compiler
-: set-execute ( ca -- ) \ gforth
-    \G Changes the current word such that it jumps to the native code
-    \G at @i{ca}.  Also changes the \code{compile,} implementation to
-    \G the most general (and slowest) one.  Call
-    \G @code{set-optimizer} afterwards if you want a more efficient
-    \G implementation.
+: set-execute ( ca -- ) \ gforth Changes the current word such that it
+    \G jumps to the native code at @i{ca}.  Also changes the
+    \G @code{compile,} implementation to the most general (and
+    \G slowest) one.  Call @code{set-optimizer} afterwards if you want
+    \G a more efficient implementation.
     ['] general-compile, set-optimizer
     latestnt code-address! ;
-: set-does> ( xt -- ) \ gforth
-    \G Changes the current word such that it pushes its body address
-    \G and then executes @i{xt}.  Also changes the \code{compile,}
-    \G implementation accordingly.  Call @code{set-optimizer}
-    \G afterwards if you want a more efficient implementation.
+: set-does> ( xt -- ) \ gforth Changes the current word such that it
+    \G pushes its body address and then executes @i{xt}.  Also changes
+    \G the @code{compile,} implementation accordingly.  Call
+    \G @code{set-optimizer} afterwards if you want a more efficient
+    \G implementation.
     ['] does, set-optimizer
     hmtemplate >hmextra !
     dodoes: latestnt code-address! ;
-: set-to        ( to-xt -- ) ?hm hmtemplate >hmto ! ;
-: set-defer@    ( defer@-xt -- ) ?hm hmtemplate >hmdefer@ ! ;
-: set->int      ( xt -- ) ?hm hmtemplate >hm>int ! ;
-: set->comp     ( xt -- ) ?hm hmtemplate >hm>comp ! ;
+: set-to ( to-xt -- ) ?hm hmtemplate >hmto ! ;
+: set-defer@ ( defer@-xt -- ) ?hm hmtemplate >hmdefer@ ! ;
+: set->int ( xt -- ) ?hm hmtemplate >hm>int ! ;
+: set->comp ( xt -- ) ?hm hmtemplate >hm>comp ! ;
 : set-name>string ( xt -- ) ?hm hmtemplate >hm>string ! ;
-: set-name>link   ( xt -- ) ?hm hmtemplate >hm>link   ! ;
+: set-name>link ( xt -- ) ?hm hmtemplate >hm>link ! ;
 
 : int-opt; ( flag lastxt -- )
     nip >r hm, wrap! r> set-optimizer ;

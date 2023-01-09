@@ -359,6 +359,7 @@ Variable rec'[]
     then ;
 
 : .hm ( nt -- ) \ gforth dot-h-m
+    \G print the header methods of @i{nt}
     >namehm @ cr
     ." opt:    " dup >hmcompile, @ .name? cr
     ." to:     " dup >hmto       @ .name? cr
