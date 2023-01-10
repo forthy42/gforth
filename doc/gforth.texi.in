@@ -15119,7 +15119,7 @@ The new Gforth word header is object-oriented and supports the
 following methods (method selectors):
 
 @example
-method          setter           field
+method          overrider        field
 execute         set-execute      >cfa
 opt-compile,    set-optimizer    >hmcompile,
 defer!          set-to           >hmto
@@ -15211,6 +15211,21 @@ doc-set-to
 E.g., one can implement @code{fvalue} as follows:
 
 @example
+: fvalue-to ( r xt -- ) >body f! ;
+
+: fvalue ( r -- )
+  create f,
+  ['] f@@ set-does>
+  ['] fvalue-to set-to ;
+
+5e fvalue foo
+: bar foo 1e f+ to foo ;
+see bar
+@end example
+
+You can improve the generated code with @code{set-optimizer}:
+
+@example
 : compile-fvalue-to ( xt-value-to -- )
   drop ]] >body f! [[ ;
   
@@ -15228,13 +15243,25 @@ E.g., one can implement @code{fvalue} as follows:
 see bar
 @end example
 
-This example not just shows @code{set-to} at work, but also the two
-uses of @code{set-optimizer} that inline the code for @code{foo} and
-@code{to foo} (rather than compiling a call to @code{foo} and
-compiling @code{['] foo fvalue-to}).
-
 In practice Gforth has a few additional twists to implement, e.g.,
 @code{+TO}.
+
+@code{Set-defer@@} allows to implement variants of the @code{defer@@}
+(@pxref{Deferred Words}) method for @code{defer}-like words.
+
+doc-set-defer@
+
+The @code{>hmextra} field is used for cases where additional data
+needs to be stored in the header methods table.  In particular, it
+stores the xt passed to @code{set-does>} (and @code{does>} calls
+@code{set-does>}) and the code address behind @code{;abi-code}.
+
+The methods above all consume an xt, not an nt, but the override words
+work on the most recent definition.  This means that if you use, e.g.,
+@code{set-optimizer} on a synonym, the effect will probably not be
+what you intended: When @code{compile,}ing the xt of the word, the
+@code{opt-compile,} implementation of the original word will be used,
+not the freshly-set one of the synonym.
 
 
 

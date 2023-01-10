@@ -585,7 +585,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 : any-code! ( a-addr cfa code-addr -- )
     \ for implementing DOES> and ;ABI-CODE, maybe :
-    \ code-address is stored at cfa, a-addr at cfa+cell
+    \ code-address is stored at cfa, a-addr at >hmextra
     over code-address!  >namehm @ >hmextra ! ;
 
 : does-code! ( xt1 xt2 -- ) \ gforth
