@@ -15263,12 +15263,32 @@ what you intended: When @code{compile,}ing the xt of the word, the
 @code{opt-compile,} implementation of the original word will be used,
 not the freshly-set one of the synonym.
 
+The following methods consume an nt.
 
+The @code{name>interpret} method is implemented as noop for most
+words, except synonyms and similar words.
 
+doc-set->int
+
+The @code{name>compile} method produces the compilation semantics of
+the nt.  By changing it with @code{set->comp}, you can change the
+compilation semantics, but it's not as simple as just pushing the xt
+of the desired compilation semantics, because of the stack effect of
+@code{name>compile}.  Generally you should avoid changing the
+compilation semantics, and if you do, use a higher-level word like
+@code{immediate} or @code{interpret/compile:}, @xref{Combined words}.
+
+doc-set->comp
 doc-immediate?
 
+@code{Name>string} and @code{Name>link} are methods in order to make
+it possible to eliminate the name, @code{>f+c} and @code{link} fields
+from noname headers, but still produce meaningful results when using
+these words.  You will typically not change the implementations of
+these methods except with @code{noname}, but we still have
 
-
+doc-set-name>string
+doc-set-name>link
 
 @node Threading Words,  , Header methods, Carnal words
 @subsection Threading Words
