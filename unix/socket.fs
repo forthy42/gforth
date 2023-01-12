@@ -38,7 +38,7 @@ c-library socket
     c-function htons htons n -- n ( x -- x' )
     c-function ntohl ntohl n -- n ( x -- x' )
     \c #include <netdb.h>
-    c-function getaddrinfo getaddrinfo a a a a -- n ( node service hints res -- r )
+    c-function getaddrinfo getaddrinfo s s a a -- n ( node u1 service u2 hints res -- r )
     c-function freeaddrinfo freeaddrinfo a -- void ( res -- )
     c-function gai_strerror gai_strerror n -- a ( errcode -- addr )
     c-function setsockopt setsockopt n n n a n -- n ( sockfd level optname optval optlen -- r )
@@ -139,9 +139,6 @@ Create sockaddr-tmp
 sockaddr-tmp sockaddr_in dup allot erase
 Create hints
 hints addrinfo dup allot erase
-
-: c-string ( addr u -- addr' )
-    tuck pad swap move pad + 0 swap c! pad ;
 
      0 Constant PF_UNSPEC
      2 Constant PF_INET
@@ -358,11 +355,12 @@ s" sock read error"    exception Constant !!sockread!!
     hints ai_socktype l! ;
 
 : get-info ( addr u port -- info ) 0 { w^ addrres }
-    base @ >r  decimal  0 <<# 0 hold #s #>  r> base ! drop
-    >r c-string r> hints addrres getaddrinfo #>>
+    0 <<# ['] #s #10 base-execute #>
+    hints addrres getaddrinfo #>>
     ?dup IF
 	gai_strerror cstring>sstring
-	[: error-color type default-color ;] do-debug
+	[: error-color type default-color ;]
+	['] execute-theme-color do-debug
 	!!noaddr!! throw  THEN
     addrres @ ;
 
