@@ -742,10 +742,11 @@ Create callback-&style c-var c,
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     [: type type ;] $tmp ;
 
-: open-wrappers ( -- addr|0 )
+: lib-name ( -- addr u )
     [: lib-filename $@ dirname type lib-prefix type
-	lib-filename $@ basename type lib-suffix type ;] $tmp
-    2dup libcc-named-dir string-prefix? if ( c-addr u )
+	lib-filename $@ basename type lib-suffix type ;] $tmp ;
+: open-wrappers ( -- addr|0 )
+    lib-name 2dup libcc-named-dir string-prefix? if ( c-addr u )
 	\ see if we can open it in the path
 	libcc-named-dir nip /string
 	libcc-path open-path-file if
@@ -791,10 +792,10 @@ Create callback-&style c-var c,
     c-source-file-id @ assert( dup ) ;
 
 : .lib-error ( -- )
+    [: cr lib-name type ." :"
     [ifdef] lib-error
-        ['] cr stderr outfile-execute
-        lib-error ['] type stderr outfile-execute
-    [then] ;
+         cr lib-error type
+    [then] ;] do-debug ;
 
 \ hashing
 
