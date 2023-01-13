@@ -1436,12 +1436,12 @@ install.TAGS:	TAGS install-tags.fs preforth @kernel_fi@
 MINOS_ROOT =	@NO_CROSS@ minos2/widgets.fs
 
 gforth.TAGS:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_BUILD_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) prim.TAGS kernel.TAGS
-		includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) $(FORTHK) etags.fs except.fs startup.fs $(LIBCC_BUILD_NOEC) $(MINOS_ROOT) -e bye
+		env GFORTH_IGNLIB=true includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) $(FORTHK) etags.fs except.fs startup.fs $(LIBCC_BUILD_NOEC) $(MINOS_ROOT) -e bye
 		cat TAGS prim.TAGS kernel.TAGS >gforth.TAGS
 		rm TAGS
 
 gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) prim.tags kernel.tags
-		$(FORTHK) tags.fs except.fs startup.fs $(LIBCC_BUILD_NOEC) $(MINOS_ROOT) -e bye
+		env GFORTH_IGNLIB=true $(FORTHK) tags.fs except.fs startup.fs $(LIBCC_BUILD_NOEC) $(MINOS_ROOT) -e bye
 		cat tags prim.tags kernel.tags >gforth.tags
 		rm tags
 

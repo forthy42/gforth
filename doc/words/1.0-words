@@ -8,8 +8,8 @@ link-wrapper-function compile-wrapper-function1 link-cmd compile-cmd end-libs
 clear-libs lha, compile-wrapper-function check-c-hash hash-c-source .c-hash 
 .bytes .xx c-source-hash replace-hash .lib-error c-source-file lib-handle 
 c-tmp-library-name c-named-library-name c-library-name-create 
-c-library-name-setup open-path-lib open-wrappers prepend-dirname libcc-tmp-dir 
->libcc-named-dir libcc-named-dir lookup-c-array lookup-ip-array 
+c-library-name-setup open-path-lib open-wrappers lib-name prepend-dirname 
+libcc-tmp-dir >libcc-named-dir libcc-named-dir lookup-c-array lookup-ip-array 
 callback-thread-gen callback-gen callback-c-array callback-ip-array 
 callback-instantiate callback# callback-define callback-thread-define 
 callback-wrapper callback-return callback-wrapup gen-par-callback 
