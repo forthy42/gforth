@@ -895,7 +895,9 @@ tmp$ $execstr-ptr !
 	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
 	open-wrappers dup 0= if
 	    .lib-error
-	    host?  IF  !!openlib!! throw  THEN
+	    host?  IF  !!openlib!! throw  ELSE
+		drop lib-filename $free clear-libs EXIT
+	    THEN
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
