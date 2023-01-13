@@ -839,6 +839,10 @@ DEFER compile-wrapper-function ( -- )
     \ create an empty library handle
     align here 0 , lib-handle-addr @ , here $saved 0 , $10 allot  lib-handle-addr ! ;
 
+: free-libs ( -- ) \ gforth
+    ptr-declare off  c-libs off  c-flags off
+    libcc$ off  libcc-include ;
+
 : clear-libs ( -- ) \ gforth
 \G Clear the list of libs
     c-source-file-id @ if
@@ -850,9 +854,7 @@ DEFER compile-wrapper-function ( -- )
     0= if
 	lha,
     endif
-    ptr-declare off  c-libs off  c-flags off
-    libcc$ off  libcc-include
-;
+    free-libs ;
 : end-libs ( -- )
     ptr-declare $[]free
     vararg$ $free  c-flags $free  c-libs $free ;
@@ -896,7 +898,7 @@ tmp$ $execstr-ptr !
 	open-wrappers dup 0= if
 	    .lib-error
 	    host?  IF  !!openlib!! throw  ELSE
-		drop lib-filename $free clear-libs EXIT
+		drop lib-filename $free free-libs EXIT
 	    THEN
 	endif
 	( lib-handle ) lib-handle-addr @ !

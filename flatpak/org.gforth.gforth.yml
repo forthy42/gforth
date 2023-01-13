@@ -21,4 +21,4 @@ modules:
     sources:
       - type: archive
         url: https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/0.7.9_20230113/gforth-0.7.9_20230113.tar.xz
-        sha256: 772c46ef2fc59739893af60927e3d752c9287287c6d4dc395bce6773588897f6
+        sha256: 09d9ff6ac87d3e8571550f41abce19a2440e89b63091062a699dc255cd9a8ecb
