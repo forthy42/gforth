@@ -321,9 +321,12 @@ Defining Words
 
 User-defined Defining Words
 
+* User-defined defining words with colon definitions::
+* User-defined defining words using CREATE::
 * CREATE..DOES> applications::
 * CREATE..DOES> details::
 * Advanced does> usage example::
+* User-defined TO and DEFER@@::
 * Const-does>::
 
 Interpretation and Compilation Semantics
@@ -7268,6 +7271,25 @@ create foo
 @subsection User-defined Defining Words
 @cindex user-defined defining words
 @cindex defining words, user-defined
+@cindex defining defining words
+
+You can define new defining words in terms of any existing defining
+word, but @code{:} and @code{create}...@code{does>}/@code{set-does>}
+are particularly flexible, whereas the children of, e.g.,
+@code{constant} are all just constants.
+
+@menu
+* User-defined defining words with colon definitions::
+* User-defined defining words using CREATE::
+* CREATE..DOES> applications::
+* CREATE..DOES> details::
+* Advanced does> usage example::
+* User-defined TO and DEFER@@::
+* Const-does>::
+@end menu
+
+@node User-defined defining words with colon definitions, User-defined defining words using CREATE, User-defined Defining Words, User-defined Defining Words
+@subsubsection User-defined defining words with colon definitions
 
 You can create a new defining word by wrapping defining-time code around
 an existing defining word and putting the sequence in a colon
@@ -7337,17 +7359,17 @@ see bar
   + - ;
 see foo
 : foo
-  107645672 stats + - ;
-
-\ use ' foo . to show that 107645672 is the xt for foo
+  `foo stats + - ;
 @end example
 
-You can use techniques like this to make new defining words in terms of
-@i{any} existing defining word.
+@code{`foo} is another way of writing @code{['] foo}.
 
 
-@cindex defining defining words
+
+@node User-defined defining words using CREATE, CREATE..DOES> applications, User-defined defining words with colon definitions, User-defined Defining Words
+@subsubsection User-defined defining words using create
 @cindex @code{CREATE} ... @code{DOES>}
+
 If you want the words defined with your defining words to behave
 differently from words defined with standard defining words, you can
 write your defining word like this:
@@ -7364,7 +7386,7 @@ def-word name
 @cindex child words
 This fragment defines a @dfn{defining word} @code{def-word} and then
 executes it.  When @code{def-word} executes, it @code{CREATE}s a new
-word, @code{name}, and executes the code @i{code1}. The code @i{code2}
+word @code{name}, and executes the code @i{code1}. The code @i{code2}
 is not executed at this time. The word @code{name} is sometimes called a
 @dfn{child} of @code{def-word}.
 
@@ -7374,17 +7396,6 @@ of @code{name} is the address @code{HERE} returns immediately after the
 @code{CREATE}, i.e., the address a @code{create}d word returns by
 default).
 
-@c anton:
-@c www.dictionary.com says:
-@c at·a·vism: 1.The reappearance of a characteristic in an organism after
-@c several generations of absence, usually caused by the chance
-@c recombination of genes.  2.An individual or a part that exhibits
-@c atavism. Also called throwback.  3.The return of a trait or recurrence
-@c of previous behavior after a period of absence.
-@c
-@c Doesn't seem to fit.
-
-@c @cindex atavism in child words
 You can use @code{def-word} to define a set of child words that behave
 similarly; they all have a common run-time behaviour determined by
 @i{code2}. Typically, the @i{code1} sequence builds a data area in the
@@ -7423,7 +7434,22 @@ def-word1 name1
 @noindent
 Then using @code{name1 action1} is equivalent to using @code{name}.
 
-The classic example is that you can define @code{CONSTANT} in this way:
+@cindex @code{CREATE} ... @code{SET-DOES>}
+Another way of writing @code{def-word} is (@pxref{Quotations}):
+
+@example
+: def-word ( "name" -- ; name execution: ... -- ... )
+    create @i{code1}
+    [: @i{code2} ;] set-does> ;
+@end example
+
+Gforth actually compiles the code using @code{does>} into code
+equivalent to the latter code.  An advantage of the @code{set-does>}
+approach is that you can put other code behind it and you can use it
+inside control structures without needing workarounds.  A disadvantage
+is that it is Gforth-specific.
+
+A classic example is that you can define @code{CONSTANT} in this way:
 
 @example
 : CONSTANT ( w "name" -- )
@@ -7432,18 +7458,26 @@ DOES> ( -- w )
     @@ ;
 @end example
 
+@noindent
+or equivalently
+
+@example
+: CONSTANT ( w "name" -- ; name execution: -- w )
+    create ,
+    ['] @@ set-does> ;
+@end example
+
 @comment There is a beautiful description of how this works and what
 @comment it does in the Forthwrite 100th edition.. as well as an elegant
 @comment commentary on the Counting Fruits problem.
 
 When you create a constant with @code{5 CONSTANT five}, a set of
-define-time actions take place; first a new word @code{five} is created,
-then the value 5 is laid down in the body of @code{five} with
-@code{,}. When @code{five} is executed, the address of the body is put on
-the stack, and @code{@@} retrieves the value 5. The word @code{five} has
-no code of its own; it simply contains a data field and a pointer to the
-code that follows @code{DOES>} in its defining word. That makes words
-created in this way very compact.
+define-time actions take place; first a new word @code{five} is
+created, then the value 5 is laid down in the body of @code{five} with
+@code{,}. When @code{five} is executed, the address of the body is put
+on the stack, and @code{@@} retrieves the value 5. The word
+@code{five} has no code of its own; it simply contains a data field
+and the xt of the quotation or of @code{@@}.
 
 The final example in this section is intended to remind you that space
 reserved in @code{CREATE}d words is @i{data} space and therefore can be
@@ -7482,14 +7516,8 @@ the top of stack, which is not reflected in the stack comment). This is
 the convention that I use and recommend (it clashes a bit with using
 locals declarations for stack effect specification, though).
 
-@menu
-* CREATE..DOES> applications::
-* CREATE..DOES> details::
-* Advanced does> usage example::
-* Const-does>::
-@end menu
 
-@node CREATE..DOES> applications, CREATE..DOES> details, User-defined Defining Words, User-defined Defining Words
+@node CREATE..DOES> applications, CREATE..DOES> details, User-defined defining words using CREATE, User-defined Defining Words
 @subsubsection Applications of @code{CREATE..DOES>}
 @cindex @code{CREATE} ... @code{DOES>}, applications
 
@@ -7551,11 +7579,11 @@ definition. This allows us to, e.g., select among different @code{DOES>}-parts:
 @example
 : does1 
 DOES> ( ... -- ... )
-    ... ;
+    code1 ;
 
 : does2
 DOES> ( ... -- ... )
-    ... ;
+    code2 ;
 
 : def-word ( ... -- ... )
     create ...
@@ -7569,6 +7597,20 @@ DOES> ( ... -- ... )
 In this example, the selection of whether to use @code{does1} or
 @code{does2} is made at definition-time; at the time that the child word is
 @code{CREATE}d.
+
+Note that the property of @code{does>} to end the definition makes it
+necessary to introduce extra definitions @code{does1} and
+@code{does2}.  You can avoid that with @code{set-does>}:
+
+@example
+: def-word ( ... -- ... )
+    create ...
+    IF
+       [: code1 ;] set-does>
+    ELSE
+       [: code2 ;] set-does>
+    ENDIF ;
+@end example
 
 @cindex @code{DOES>} in interpretation state
 In a standard program you can apply a @code{DOES>}-part only if the last
@@ -7594,9 +7636,20 @@ CREATE name EXECUTE ( ... -- ... )
     @i{initialization}
 @end example
 
+Gforth also supports quotations in interpreted code, and quotations
+save and restore the current definition, so you can also write the
+example above also as:
+
+@example
+CREATE name ( ... -- ... )
+  @i{initialization}
+[: @i{code} ;] set-does>
+@end example
+
+doc-set-does>
 doc->body
 
-@node Advanced does> usage example, Const-does>, CREATE..DOES> details, User-defined Defining Words
+@node Advanced does> usage example, User-defined TO and DEFER@@, CREATE..DOES> details, User-defined Defining Words
 @subsubsection Advanced does> usage example
 
 The MIPS disassembler (@file{arch/mips/disasm.fs}) contains many words
@@ -7719,8 +7772,42 @@ have elected to use just a one-level defining word (with some repeating
 of parameters when using the defining word). So it is not necessary to
 understand this, but it may improve your understanding of Forth.
 
+@node User-defined TO and DEFER@@, Const-does>, Advanced does> usage example, User-defined Defining Words
+@subsubsection User-defined TO and DEFER@@
 
-@node Const-does>,  , Advanced does> usage example, User-defined Defining Words
+Gforth allows you to change the @code{(to)} action of a word.
+
+doc-(to)
+doc-set-to
+
+@code{(to)} is a word used inside @code{to}: it stores the value at
+run-time.  The general stack effect of @code{(to)} method is @code{(
+val xt -- )}, where @i{xt} identifies the word stored into, and
+@i{val} is the value (of appropriate type) stored there.
+
+E.g., one can implement @code{fvalue} as follows:
+
+@example
+: fvalue-to ( r xt -- ) >body f! ;
+
+: fvalue ( r -- )
+  create f,
+  ['] f@@ set-does>
+  ['] fvalue-to set-to ;
+
+5e fvalue foo
+: bar foo 1e f+ to foo ;
+see bar
+@end example
+
+@code{(To)} is also known as @code{defer!} (called by @code{is},
+@pxref{Deferred Words}), so you can use it to implement variations of
+deferred words.  You also need to change @code{defer@@} then, and you
+can do that, too:
+
+doc-set-defer@
+
+@node Const-does>,  , User-defined TO and DEFER@@, User-defined Defining Words
 @subsubsection @code{Const-does>}
 
 A frequent use of @code{create}...@code{does>} is for transferring some
