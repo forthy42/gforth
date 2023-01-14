@@ -279,6 +279,7 @@ Variable gl-emit-buf
 	gl-xy @ 1+ 0 swap gl-xy 2! THEN
     resize-screen  +sync  out off ;
 
+xc-vector @ set-encoding-utf-8
 : xchar>glascii ( xchar -- 0..7F )
     case
 	'▄' of $0 endof
@@ -300,6 +301,7 @@ Variable gl-emit-buf
 	ELSE  dup wcwidth 2 = IF  drop  13  ELSE  $7F umin  THEN
 	THEN
     0 endcase ;
+xc-vector !
 
 : (gl-atxy) ( x y -- )
     >r gl-wh @ 1- min 0 max r> gl-xy 2!
