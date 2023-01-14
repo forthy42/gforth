@@ -893,19 +893,20 @@ tmp$ $execstr-ptr !
 	c-library-name-create
 	libcc$ $@ c-source-file write-file throw  libcc$ $free
 	c-source-file close-file throw
+	c-source-file-id off
 	['] compile-cmd $tmp system $? 0<> !!libcompile!! and throw
 	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
 	open-wrappers dup 0= if
 	    .lib-error
 	    host?  IF  !!openlib!! throw  ELSE
-		drop lib-filename $free free-libs EXIT
+		drop lib-filename $free
+		free-libs EXIT
 	    THEN
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
     s" gforth_libcc_init" lib-handle lib-sym  ?dup-if
 	gforth-pointers swap call-c  endif
-    0 c-source-file-id !
     lib-filename $free clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
 
