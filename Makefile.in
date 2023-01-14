@@ -1442,7 +1442,6 @@ gforth.TAGS:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(LIBCC_BUILD_SRC) $(pats
 
 gforth.tags:	@kernel_fi@ gforth$(EXT) $(GFORTH_FI_SRC) $(patsubst %, minos2/%, $(MINOS2_SRC)) prim.tags kernel.tags
 		-env GFORTH_IGNLIB=true $(FORTHK) tags.fs exboot.fs startup.fs $(LIBCC_BUILD_NOEC) $(MINOS_ROOT) -e 'cr ." *** tags completed ***" cr bye'
-		-sleep 1 # need sort to complete!
 		cat tags prim.tags kernel.tags | sort >gforth.tags
 		rm tags
 
