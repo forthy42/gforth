@@ -327,6 +327,7 @@ User-defined Defining Words
 * CREATE..DOES> details::
 * Advanced does> usage example::
 * User-defined TO and DEFER@@::
+* User-defined compile-comma::
 * Const-does>::
 
 Interpretation and Compilation Semantics
@@ -7285,6 +7286,7 @@ are particularly flexible, whereas the children of, e.g.,
 * CREATE..DOES> details::
 * Advanced does> usage example::
 * User-defined TO and DEFER@@::
+* User-defined compile-comma::
 * Const-does>::
 @end menu
 
@@ -7307,7 +7309,8 @@ make a call to @code{stats}. You can define and use a new version of
 @code{:} like this:
 
 @example
-: stats ( xt -- ) DUP ." (Gathering statistics for " . ." )"
+: stats
+  ( xt -- ) DUP ." (Gathering statistics for " . ." )"
   ... ;  \ other code
 
 : my: : latestxt postpone literal ['] stats compile, ;
@@ -7772,7 +7775,9 @@ have elected to use just a one-level defining word (with some repeating
 of parameters when using the defining word). So it is not necessary to
 understand this, but it may improve your understanding of Forth.
 
-@node User-defined TO and DEFER@@, Const-does>, Advanced does> usage example, User-defined Defining Words
+
+
+@node User-defined TO and DEFER@@, User-defined compile-comma, Advanced does> usage example, User-defined Defining Words
 @subsubsection User-defined TO and DEFER@@
 
 Gforth allows you to change the @code{(to)} action of a word.
@@ -7788,9 +7793,10 @@ val xt -- )}, where @i{xt} identifies the word stored into, and
 E.g., one can implement @code{fvalue} as follows:
 
 @example
-: fvalue-to ( r xt -- ) >body f! ;
+: fvalue-to ( r xt -- )
+  >body f! ;
 
-: fvalue ( r -- )
+: fvalue ( r "name" -- )
   create f,
   ['] f@@ set-does>
   ['] fvalue-to set-to ;
@@ -7807,7 +7813,115 @@ can do that, too:
 
 doc-set-defer@
 
-@node Const-does>,  , User-defined TO and DEFER@@, User-defined Defining Words
+
+
+@node User-defined compile-comma, Const-does>, User-defined TO and DEFER@@, User-defined Defining Words
+@subsubsection User-defined @code{compile,}
+
+You can also change the implementation of @code{compile,} for a word,
+with
+
+doc-set-optimizer
+
+Note that the resulting @code{compile,} must still be equivalent to
+@code{postpone literal postpone execute}, so @code{set-optimizer} is
+useful for efficiency, not for changing the behaviour.  There is
+nothing that prevents you from shooting yourself in the foot, however.
+
+As an example of the use of @code{set-optimizer}, we can enhance one
+of the definitions of @code{CONSTANT} above as follows.
+
+@example
+: CONSTANT ( n "name" -- ; name: -- n )
+  create ,
+  ['] @@ set-does>
+  [: >body @@ postpone literal ;] set-optimizer
+;
+@end example
+
+The only change is the addition of the @code{set-optimizer} line.
+When you define a constant and compile it:
+
+@example
+5 constant five
+: foo five ;
+@end example
+
+the compiled @code{five} in @code{foo} is now compiled to the literal
+5 instead of a generic invocation of @code{five}.  The quotation has
+the same stack effect as @code{compile,}: @code{( xt -- )}.  The
+passed xt belongs to the @code{compile,}d word, i.e., @code{five} in
+the example.  In the example the xt is first converted to the body
+address, then the value 5 at that place is fetched, and that value is
+compiled with the @code{postpone literal} (@pxref{Literals}).
+
+This use of @code{set-optimizer} assumes that the user does not change
+the value of a constant with, e.g., @code{6 ' five >body !}.  While
+@code{five} has been defined with @code{create}, that is an
+implementation detail of @code{CONSTANT}, and if you don't document
+it, the user must not rely on it.  And if you use @code{set-optimizer}
+in a way that assumes that the body does not change (like is done
+here), you must not document that @code{create} is used; and
+conversely, if you document it, you have to write the @code{compile,}
+implementation such that it can deal with changing bodies.
+
+Another example is a better-optimized variant of the @code{fvalue}
+example above:
+
+@example
+: compile-fvalue-to ( xt-value-to -- )
+  drop ]] >body f! [[ ;
+  
+: fvalue-to ( r xt -- )
+  >body f! ;
+' compile-fvalue-to set-optimizer
+
+: fvalue ( r "name" -- )
+  create f,
+  ['] f@@ set-does>
+  [: >body ]] literal f@@ [[ ;] set-optimizer
+  ['] fvalue-to set-to ;
+
+5e fvalue foo
+: bar foo 1e f+ to foo ;
+see bar
+@end example
+
+Compare the code for @code{bar} with the one for the earlier
+definition.  Here we see the optimization of both the code for reading
+the fvalue (coming from the @code{set-optimizer} in @code{fvalue}) and
+for writing the fvalue (coming from the @code{set-optimizer} applied
+to @code{fvalue-to}.  Because an fvalue can change (unlike a
+constant), the reading part (inside @code{fvalue}) compiles the
+address and a @code{f@@} that is performed at run-time.
+
+For @code{fvalue-to}, the @code{compile,} implementation basically
+just compiles the code executed by @code{fvalue} inline.  The
+compilation semantics of @code{to} compiles the address as literal and
+then the @code{(to)} implementation (i.e., @code{fvalue-to}).  In this
+process the @code{>body} is optimized away.
+@c !! reference the appropriate sections that explain these
+@c optimizations
+
+In practice Gforth's @code{fvalue} includes a few additional twists,
+e.g., to support @code{+TO}.
+
+Note that the call to @code{set-optimizer} has to be performed after
+the call to @code{set-does>} (or @code{does>}, because
+@code{set-does>} overwrites the @code{compile,} implementation itself.
+
+As we can see in the @code{fvalue-to} example, we can also apply
+@code{set-optimizer} to individual words rather than inside a defining
+word like @code{constant} or @code{fvalue}.  In this case, the xt of
+the word passed to optimizer is usually unnecessary and is
+@code{drop}ped, as in @code{compile-fvalue-to}.
+
+The engine @code{gforth-itc} uses @code{,} for @code{compile,} and
+@code{set-optimizer} has no effect there.
+
+
+
+@node Const-does>,  , User-defined compile-comma, User-defined Defining Words
 @subsubsection @code{Const-does>}
 
 A frequent use of @code{create}...@code{does>} is for transferring some
