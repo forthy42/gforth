@@ -327,6 +327,7 @@ User-defined Defining Words
 * CREATE..DOES> details::
 * Advanced does> usage example::
 * User-defined TO and DEFER@@::
+* User-defined compile-comma::
 * Const-does>::
 
 Interpretation and Compilation Semantics
@@ -7285,6 +7286,7 @@ are particularly flexible, whereas the children of, e.g.,
 * CREATE..DOES> details::
 * Advanced does> usage example::
 * User-defined TO and DEFER@@::
+* User-defined compile-comma::
 * Const-does>::
 @end menu
 
@@ -7775,7 +7777,7 @@ understand this, but it may improve your understanding of Forth.
 
 
 
-@node User-defined TO and DEFER@@, Const-does>, Advanced does> usage example, User-defined Defining Words
+@node User-defined TO and DEFER@@, User-defined compile-comma, Advanced does> usage example, User-defined Defining Words
 @subsubsection User-defined TO and DEFER@@
 
 Gforth allows you to change the @code{(to)} action of a word.
@@ -7813,8 +7815,8 @@ doc-set-defer@
 
 
 
-@node User-defined COMPILE,
-@subsubsection User-defined COMPILE,
+@node User-defined compile-comma, Const-does>, User-defined TO and DEFER@@, User-defined Defining Words
+@subsubsection User-defined @code{compile,}
 
 You can also change the implementation of @code{compile,} for a word,
 with
@@ -7919,7 +7921,7 @@ The engine @code{gforth-itc} uses @code{,} for @code{compile,} and
 
 
 
-@node Const-does>,  , User-defined TO and DEFER@@, User-defined Defining Words
+@node Const-does>,  , User-defined compile-comma, User-defined Defining Words
 @subsubsection @code{Const-does>}
 
 A frequent use of @code{create}...@code{does>} is for transferring some
