@@ -72,7 +72,7 @@ gforth:		$(GFORTH_TEXI)
 		$(CP) $(srcdir)/$(GFORTH_CSS) gforth/
 
 vmgen:		$(VMGEN_TEXI)
-		$(MAKEINFO) --html $<
+		$(MAKEINFO) -o vmgen --html $<
 
 gforth.txt:	$(GFORTH_TEXI)
 		echo "Table of Contents" >gforth.txt

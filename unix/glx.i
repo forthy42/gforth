@@ -2,6 +2,7 @@
 %module glx
 %insert("include")
 %{
+#define GLX_GLXEXT_PROTOTYPES
 #include <GL/glx.h>
 %}
 %apply int { XID, Bool, GLsizei, Pixmap, Font, Window };

@@ -742,10 +742,11 @@ Create callback-&style c-var c,
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     [: type type ;] $tmp ;
 
-: open-wrappers ( -- addr|0 )
+: lib-name ( -- addr u )
     [: lib-filename $@ dirname type lib-prefix type
-	lib-filename $@ basename type lib-suffix type ;] $tmp
-    2dup libcc-named-dir string-prefix? if ( c-addr u )
+	lib-filename $@ basename type lib-suffix type ;] $tmp ;
+: open-wrappers ( -- addr|0 )
+    lib-name 2dup libcc-named-dir string-prefix? if ( c-addr u )
 	\ see if we can open it in the path
 	libcc-named-dir nip /string
 	libcc-path open-path-file if
@@ -791,10 +792,10 @@ Create callback-&style c-var c,
     c-source-file-id @ assert( dup ) ;
 
 : .lib-error ( -- )
+    [: cr lib-name type ." :"
     [ifdef] lib-error
-        ['] cr stderr outfile-execute
-        lib-error ['] type stderr outfile-execute
-    [then] ;
+         cr lib-error type
+    [then] ;] do-debug ;
 
 \ hashing
 
@@ -838,6 +839,10 @@ DEFER compile-wrapper-function ( -- )
     \ create an empty library handle
     align here 0 , lib-handle-addr @ , here $saved 0 , $10 allot  lib-handle-addr ! ;
 
+: free-libs ( -- ) \ gforth
+    ptr-declare off  c-libs off  c-flags off
+    libcc$ off  libcc-include ;
+
 : clear-libs ( -- ) \ gforth
 \G Clear the list of libs
     c-source-file-id @ if
@@ -849,9 +854,7 @@ DEFER compile-wrapper-function ( -- )
     0= if
 	lha,
     endif
-    ptr-declare off  c-libs off  c-flags off
-    libcc$ off  libcc-include
-;
+    free-libs ;
 : end-libs ( -- )
     ptr-declare $[]free
     vararg$ $free  c-flags $free  c-libs $free ;
@@ -890,17 +893,20 @@ tmp$ $execstr-ptr !
 	c-library-name-create
 	libcc$ $@ c-source-file write-file throw  libcc$ $free
 	c-source-file close-file throw
+	c-source-file-id off
 	['] compile-cmd $tmp system $? 0<> !!libcompile!! and throw
 	['] link-cmd    $tmp system $? 0<> !!liblink!! and throw
 	open-wrappers dup 0= if
 	    .lib-error
-	    host?  IF  !!openlib!! throw  THEN
+	    host?  IF  !!openlib!! throw  ELSE
+		drop lib-filename $free
+		free-libs EXIT
+	    THEN
 	endif
 	( lib-handle ) lib-handle-addr @ !
     endif
     s" gforth_libcc_init" lib-handle lib-sym  ?dup-if
 	gforth-pointers swap call-c  endif
-    0 c-source-file-id !
     lib-filename $free clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
 
