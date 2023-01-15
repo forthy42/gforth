@@ -883,7 +883,7 @@ install-txt:	txt
 install-md:
 		$(INSTALL_DATA) $(srcdir)/README.md $(datadir)/gforth/$(VERSION)/doc/README.md
 
-install-images: install-txt install-md
+install-images:	install-md @INSTALLTXT@
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
 		HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal --debug-mcheck -i $(kernel_fi) exboot.fs startup.fs" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi.install $(FORTHSIZES) $(STARTUP) fixfiles.fs
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
@@ -947,7 +947,7 @@ install-indep:	installdeps installdirs-indep install-sources install-man install
 
 install-arch:	installdeps installdirs-arch normal-install rm-install install-prog-bins install-gensources install-images install-include install-libcc install-tags @libinstall@ extra-install
 
-install-seq:	install-indep install-arch install-txt install-info
+install-seq:	install-indep install-arch @INSTALLTXT@ @INSTALLINFO@
 
 post-inst:
 		$(RM) TAGS gforth.TAGS install.TAGS prim.TAGS gforth.fi.install start-gforth.el*

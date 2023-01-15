@@ -145,7 +145,7 @@ fi])
 
 AC_ARG_WITH(siteinit,
 	AS_HELP_STRING([--with-siteinit=<string>],[  Add source code to siteinit.fs.]),
-[echo "${withval}" >$srcdir/siteinit.fs])			
+[echo "${withval}" >$srcdir/siteinit.fs])
 
 libbench='#'
 AC_ARG_ENABLE(lib,
@@ -351,11 +351,11 @@ case "$host_os" in
     *android*)
 	case "$host_cpu" in
 	    arm64*|aarch64*|mips64*)
-	    	AC_DEFINE(__ANDROID_API__,21,[Define if you use Android])
+		AC_DEFINE(__ANDROID_API__,21,[Define if you use Android])
 		ANDROID_EXTRA=-D__ANDROID_API__=21
 		;;
 	    *)
-	    	AC_DEFINE(__ANDROID_API__,21,[Define if you use Android])
+		AC_DEFINE(__ANDROID_API__,21,[Define if you use Android])
 		ANDROID_EXTRA=-D__ANDROID_API__=21
 		;;
 	esac
@@ -1119,21 +1119,43 @@ AC_DEFINE_UNQUOTED(NO_DYNAMIC_DEFAULT,$no_dynamic_default,default value for no_d
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 AC_PROG_INSTALL
-AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi)
-AC_CHECK_PROGS(RECODE,recode iconv)
+AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi,echo texi2dvi needed )
+AC_CHECK_PROGS(RECODE,recode iconv,echo recode needed)
+AC_CHECK_PROGS(MAKEINFO,makeinfo,echo makeinfo needed )
+case "$MAKEINFO"
+in
+    echo*)
+	INSTALLINFO=""
+	INSTALLTXT=""
+	;;
+    *)
+	INSTALLINFO="install-info"
+	INSTALLTXT="install-txt"
+	;;
+esac
+AC_SUBST(INSTALLINFO)
+AC_SUBST(INSTALLTXT)
+AC_CHECK_PROGS(TEXI2HTML,texi2html,echo texi2html needed )
 AC_CHECK_PROGS(TIMEOUT,timeout)
-eval `LANG=C makeinfo --help|grep css | sed -e 's/^ *//g' |cut -f1 -d' '| while read line
-do
-    case x$line
-    in
-	x--css-include=*)
-	    echo ac_cv_makeinfo_has_css_include=yes;
-	    ;;
-	x--css-ref=*)
-	    echo ac_cv_makeinfo_has_css_ref=yes;
-	    ;;
-    esac
-done`
+case "$MAKEINFO"
+in
+    echo*)
+	;;
+    *)
+	eval `LANG=C $MAKEINFO --help|grep css | sed -e 's/^ *//g' |cut -f1 -d' '| while read line
+	do
+	    case x$line
+            in
+		x--css-include=*)
+		    echo ac_cv_makeinfo_has_css_include=yes;
+		    ;;
+		x--css-ref=*)
+		    echo ac_cv_makeinfo_has_css_ref=yes;
+		    ;;
+	    esac
+	done`
+	;;
+esac
 
 if test x$ac_cv_makeinfo_has_css_ref == xyes
 then
@@ -1146,7 +1168,7 @@ else
 fi
 AC_SUBST(MAKEINFOREF)
 
-if test x$RECODE == xrecode; then
+if test "x$RECODE" == xrecode; then
    RECODE_ARGS=l1..
 else
    RECODE_ARGS="-f LATIN1"
@@ -1349,7 +1371,7 @@ else
     for prefix in /usr /usr/local
     do
 	lispdirtest=$(eval echo $(eval echo $(eval echo $lispdir)))
-    	test -d $lispdirtest && echo "\$(package)"$lispdirtest && exit
+	test -d $lispdirtest && echo "\$(package)"$lispdirtest && exit
     done)
     echo "lispdir=$lispdir"
 fi
