@@ -17,14 +17,14 @@
 
 
 Name:           gforth
-Version:        0.7.9_20210203
-Release:        77.1
+Version:        0.7.9_20230114
+Release:        1.1
 Summary:        GNU Forth
 License:        GFDL-1.2-only AND GPL-2.0-or-later AND GPL-3.0-or-later
 Group:          Development/Languages/Other
 Url:            http://www.gnu.org/software/gforth/
-Source0:        http://www.complang.tuwien.ac.at/forth/gforth/Snapshot/current/gforth.tar.xz
-Source1:        http://www.complang.tuwien.ac.at/forth/gforth/Snapshot/current/gforth.tar.xz.sig
+Source0:        http://www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/gforth.tar.xz
+Source1:        http://www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/gforth.tar.xz.sig
 Source2:        http://savannah.gnu.org/people/viewgpg.php?user_id=9629#/%{name}.keyring
 BuildRequires:  emacs-nox
 BuildRequires:  libffi-devel
@@ -33,22 +33,25 @@ BuildRequires:  libX11-devel
 BuildRequires:  libtool
 BuildRequires:  libtool-ltdl
 BuildRequires:  libtool-ltdl-devel
+BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
 %endif
 %if 0%{?centos_version}
 BuildRequires:  libtool
 BuildRequires:  libtool-ltdl
 BuildRequires:  libtool-ltdl-devel
+BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
 %endif
 %if 0%{?fedora}
 BuildRequires:  libtool
 BuildRequires:  libtool-ltdl
 BuildRequires:  libtool-ltdl-devel
+BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
 %endif
 BuildRequires:  m4
 %if 0%{?suse_version}
-BuildRequires:   libtool libltdl7 Mesa-libGL-devel vulkan-devel gpsd-devel
-BuildRequires:   Mesa-libGLESv2-devel libpng16-devel stb-devel freetype2-devel harfbuzz-devel
-BuildRequires:   libpulse-devel libopus-devel libva-devel libva-gl-devel
+BuildRequires:   libtool libltdl7 Mesa-libGL-devel Mesa-libglapi-devel glew-devel vulkan-devel gpsd-devel
+BuildRequires:   Mesa-libGLESv2-devel Mesa-libGLESv3-devel libpng16-devel stb-devel freetype2-devel harfbuzz-devel
+BuildRequires:   libpulse-devel libopus-devel libva-devel libva-gl-devel linux-glibc-devel
 BuildRequires:   makeinfo texinfo info
 Requires(post):  %{install_info_prereq}
 Requires(preun): %{install_info_prereq}
@@ -79,6 +82,7 @@ Gforth manual in PDF format
 
 %build
 %configure
+#%configure check_option=--no-debug-prim
 #make %{?_smp_mflags}
 make --jobs 1
 make doc pdf --jobs 1
@@ -93,12 +97,17 @@ rm -f `find %{buildroot}%{_libdir} -name '*.a' -or -name '*.so'`
 %if 0%{?centos_version}
 rm -f %{buildroot}%{_infodir}/dir
 %endif
+%if 0%{?fedora_version}
+rm -f %{buildroot}%{_infodir}/dir
+%endif
 
-%post
+%post -p /sbin/ldconfig
 %install_info --info-dir=%{_infodir} %{_infodir}/gforth.info.gz
 
 %preun
 %install_info_delete --info-dir=%{_infodir} %{_infodir}/gforth.info.gz
+
+%postun -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root)
