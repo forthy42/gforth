@@ -57,7 +57,7 @@ ARM64:
 
 s390x:
  sieve bubble matrix   fib   fft release; CPU; gcc
- 0.175  0.246  0.112 0.139 0.060 20230114; unknown (OBS); gcc-12.2.1
+ 0.175  0.246  0.112 0.139 0.060 20230114; LinuxONE III LT1 8561 5200MHz; gcc-12.2.1
 
 RV64GC:
  sieve bubble matrix fib   fft  release; CPU; gcc
@@ -86,8 +86,8 @@ sieve bubble matrix fib   fft   release
  2.671 3.125  2.515 4.054       2012-06-27; TI OMAP 3620 1.0GHz; gcc-4.4.3 (Android 2.3.4)
 PowerPC:
  sieve bubble matrix   fib   fft
- 0.141  0.179  0.082 0.177 0.067 20230114; unknown (OBS); gcc-12.2.1, big endian
- 0.237  0.189  0.104 0.218 0.097 20230114; unknown (OBS); gcc-12.2.1, little endian
+ 0.169  0.215  0.097 0.209 0.079 20230114; POWER9 2400MHz; gcc-12.2.1, big endian
+ 0.169  0.216  0.097 0.208 0.071 20230114; POWER9 2400MHz; gcc-12.2.1, little endian
  0.620 0.728  0.340 1.000 0.532 2017-03-20; PPC 7447a 1066MHz; gcc 4.3.2
 
 Results with Gforth 0.7.0-0.7.3 (for comparing CPUs and C compilers):
