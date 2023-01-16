@@ -55,6 +55,10 @@ ARM64:
  0.390 0.490  0.270 0.520 0.260 2016-04-27; Odroid C2 Cortex A53 1536MHz, gcc 5.3.1 (Ubuntu Mate 16.04 LTS)
  0.330 0.370  0.250 0.480 0.290 2016-05-27 (3 registers);  Odroid C2 Cortex A53 2.0GHz, gcc 5.3.1 (Ubuntu 16.04)
 
+s390x:
+ sieve bubble matrix   fib   fft release; CPU; gcc
+ 0.175  0.246  0.112 0.139 0.060 20230114; unknown (OBS); gcc-12.2.1
+
 RV64GC:
  sieve bubble matrix fib   fft  release; CPU; gcc
  0.597 0.796  0.633 0.798 0.622 20220217 (1 reg); 1GHz U74 (JH7100, Visionfive V1); gcc-10.3.1 (Fedora 33)
@@ -81,6 +85,9 @@ sieve bubble matrix fib   fft   release
  2.610 3.430  2.470 3.980       2012-06-27; Allwinner A10 1.0GHz; gcc-4.4.3 (Android 4.0.3)
  2.671 3.125  2.515 4.054       2012-06-27; TI OMAP 3620 1.0GHz; gcc-4.4.3 (Android 2.3.4)
 PowerPC:
+ sieve bubble matrix   fib   fft
+ 0.141  0.179  0.082 0.177 0.067 20230114; unknown (OBS); gcc-12.2.1, big endian
+ 0.237  0.189  0.104 0.218 0.097 20230114; unknown (OBS); gcc-12.2.1, little endian
  0.620 0.728  0.340 1.000 0.532 2017-03-20; PPC 7447a 1066MHz; gcc 4.3.2
 
 Results with Gforth 0.7.0-0.7.3 (for comparing CPUs and C compilers):
