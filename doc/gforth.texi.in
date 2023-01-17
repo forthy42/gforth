@@ -328,6 +328,11 @@ User-defined Defining Words
 * Advanced does> usage example::
 * User-defined TO and DEFER@@::
 * User-defined compile-comma::
+* Creating from a prototype::
+* Const-does>::
+
+Creating from a prototype
+
 * Const-does>::
 
 Interpretation and Compilation Semantics
@@ -7287,6 +7292,7 @@ are particularly flexible, whereas the children of, e.g.,
 * Advanced does> usage example::
 * User-defined TO and DEFER@@::
 * User-defined compile-comma::
+* Creating from a prototype::
 * Const-does>::
 @end menu
 
@@ -7796,7 +7802,7 @@ E.g., one can implement @code{fvalue} as follows:
 : fvalue-to ( r xt -- )
   >body f! ;
 
-: fvalue ( r "name" -- )
+: fvalue ( r "name" -- ; name: -- r )
   create f,
   ['] f@@ set-does>
   ['] fvalue-to set-to ;
@@ -7815,7 +7821,7 @@ doc-set-defer@
 
 
 
-@node User-defined compile-comma, Const-does>, User-defined TO and DEFER@@, User-defined Defining Words
+@node User-defined compile-comma, Creating from a prototype, User-defined TO and DEFER@@, User-defined Defining Words
 @subsubsection User-defined @code{compile,}
 
 You can also change the implementation of @code{compile,} for a word,
@@ -7876,7 +7882,7 @@ example above:
   >body f! ;
 ' compile-fvalue-to set-optimizer
 
-: fvalue ( r "name" -- )
+: fvalue ( r "name" -- ; name: -- r )
   create f,
   ['] f@@ set-does>
   [: >body ]] literal f@@ [[ ;] set-optimizer
@@ -7920,8 +7926,59 @@ The engine @code{gforth-itc} uses @code{,} for @code{compile,} and
 @code{set-optimizer} has no effect there.
 
 
+@node Creating from a prototype, Const-does>, User-defined compile-comma, User-defined Defining Words
+@subsubsection Creating from a prototype
 
-@node Const-does>,  , User-defined compile-comma, User-defined Defining Words
+In the above we show how to define a word by first using
+@code{create}, and then modifying it with @code{set-does>},
+@code{set-to}, @code{set-optimizer} etc.
+
+An alternative way is to create a prototype using these words, and
+then create a new word from that prototype.  This kind of copying does
+not cover the body, so that has to be allocated and initialized
+explicitly.  Taking @code{fvalue} above, we could instead define it
+as:
+
+@example
+create fvalue-prototype ( -- r )
+['] f@@ set-does>
+[: >body ]] literal f@@ [[ ;] set-optimizer
+['] fvalue-to set-to
+
+: fvalue ( r "name" -- ; name: -- r )
+  ``fvalue-prototype create-from f, ;
+@end example
+
+An advantage of this approach is that creating @code{fvalue} words is
+now faster, because it does not need to first duplicate the header
+methods of @code{create}, modify them, and eventually deduplicate
+them.  But this advantage is only relevant if the number of words
+created with this defining word is huge.
+
+doc-create-from
+
+The performance advantage does not extend to using @code{noname} with
+the defining word.  Therefore we also have
+
+doc-noname-from
+
+Here's a usage example:
+
+@example
+``fvalue-prototype noname create-from
+latestnt constant noname-fvalue-prototype
+
+: noname-fvalue ( r -- xt ; xt execution: -- r )
+  noname-fvalue-prototype noname-from f,
+  latestxt ;
+@end example
+
+
+@menu
+* Const-does>::
+@end menu
+
+@node Const-does>,  , Creating from a prototype, User-defined Defining Words
 @subsubsection @code{Const-does>}
 
 A frequent use of @code{create}...@code{does>} is for transferring some
