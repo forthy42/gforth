@@ -342,8 +342,8 @@ Interpretation and Compilation Semantics
 Tokens for Words
 
 * Execution token::             represents execution/interpretation semantics
-* Compilation token::           represents compilation semantics
 * Name token::                  represents named words
+* Compilation token::           represents compilation semantics
 
 Compiling words
 
@@ -4241,14 +4241,14 @@ properties:
 @cindex interpretation semantics
 Its @dfn{interpretation semantics} describe how it will behave when the
 text interpreter encounters it in @dfn{interpret} state. The
-interpretation semantics of a word are represented by an @dfn{execution
-token}.
+interpretation semantics of a word are represented by its @dfn{execution
+token} (@pxref{Execution token}).
 @item
 @cindex compilation semantics
 Its @dfn{compilation semantics} describe how it will behave when the
 text interpreter encounters it in @dfn{compile} state. The compilation
-semantics of a word are represented in an implementation-dependent way;
-Gforth uses a @dfn{compilation token}.
+semantics of a word are represented by its @dfn{compilation token}
+(@pxref{Compilation token}).
 @end itemize
 
 @noindent
@@ -7833,6 +7833,13 @@ Note that the resulting @code{compile,} must still be equivalent to
 @code{postpone literal postpone execute}, so @code{set-optimizer} is
 useful for efficiency, not for changing the behaviour.  There is
 nothing that prevents you from shooting yourself in the foot, however.
+You can check whether your uses of @code{set-optimizer} are correct by
+comparing the results when you use it with the results you get when
+you disable your uses by first defining
+
+@example
+: set-optimizer drop ;
+@end example
 
 As an example of the use of @code{set-optimizer}, we can enhance one
 of the definitions of @code{CONSTANT} above as follows.
@@ -8200,22 +8207,37 @@ appears in other contexts, e.g, @code{POSTPONE @i{word}}
 compiles@footnote{In standard terminology, ``appends to the current
 definition''.} the compilation semantics of @i{word}.
 
+Most words have default compilation semantics: compile the execution
+semantics (stack effect @code{( -- )}).  But a number of words have
+other compilation semantics, documented for the individual word
+(including its stack effect).
+
 @cindex execution semantics
-The standard also talks about @dfn{execution semantics}. They are used
-only for defining the interpretation and compilation semantics of many
-words. By default, the interpretation semantics of a word are to
-@code{execute} its execution semantics, and the compilation semantics of
-a word are to @code{compile,} its execution semantics.@footnote{In
-standard terminology: The default interpretation semantics are its
-execution semantics; the default compilation semantics are to append its
-execution semantics to the execution semantics of the current
-definition.}
+The standard also talks about @dfn{execution semantics}.  In the
+standard it never differs from the interpretation semantics if both
+are defined, but one or both of them may not be defined.  Gforth makes
+no difference between interpretation and execution semantics, so these
+terms are used interchangeably.
+
+In Gforth (since 1.0) all words have defined interpretation/execution
+semantics.  For many words that have no defined interpretation nor
+execution semantics in the standard (e.g., @code{if}), the
+interpretation/execution semantics in Gforth are to perform the
+compilation semantics.
+
+In the standard, execution semantics are used to define interpretation
+and compilation semantics by default: By default, the interpretation
+semantics of a word are to @code{execute} its execution semantics, and
+the compilation semantics of a word are to @code{compile,} its
+execution semantics.@footnote{In standard terminology: The default
+interpretation semantics are its execution semantics; the default
+compilation semantics are to append its execution semantics to the
+execution semantics of the current definition.}
 
 Unnamed words (@pxref{Anonymous Definitions}) cannot be encountered by
-the text interpreter, ticked, or @code{postpone}d, so they have no
-interpretation or compilation semantics.  Their behaviour is represented
-by their XT (@pxref{Tokens for Words}), and we call it execution
-semantics, too.
+the text interpreter, ticked, or @code{postpone}d.  Such a word is
+represented by its xt (@pxref{Tokens for Words}), and the behaviour
+when this xt is @code{execute}d is called its execution semantics.
 
 @comment TODO expand, make it co-operate with new sections on text interpreter.
 
@@ -8323,46 +8345,76 @@ words.
 
 @menu
 * Execution token::             represents execution/interpretation semantics
-* Compilation token::           represents compilation semantics
 * Name token::                  represents named words
+* Compilation token::           represents compilation semantics
 @end menu
 
-@node Execution token, Compilation token, Tokens for Words, Tokens for Words
+@node Execution token, Name token, Tokens for Words, Tokens for Words
 @subsection Execution token
 
 @cindex xt
 @cindex execution token
-An @dfn{execution token} (@i{XT}) represents some behaviour of a word.
-You can use @code{execute} to invoke this behaviour.
+An @dfn{execution token} (@emph{xt}) represents some behaviour of a word.
+You can use @code{execute} to invoke the behaviour represented by the
+xt and @code{compile,} (@pxref{Macros}) to compile it into the current
+definition.  Other uses include deferred words (@pxref{Deferred
+Words}).
+
+In particular, there is @emph{the} execution token of a word that
+represents its interpretation semantics aka execution
+semantics.@footnote{The Forth standard has words with undefined
+interpretation semantics (e.g., @code{r@@}) and words without defined
+execution semantics (e.g., @code{s"}) and words with neither (e.g.,
+@code{if}), but in cases where both interpretation and execution
+semantics are defined, they are the same; so we treat them as being
+the same.}
+
+@cindex prefix @code{`}
+@cindex @code{`} prefix
+For a named word @i{x}, you can use @code{`@i{x}} to get its execution
+token:
+
+@example
+5 `. ( n xt )
+execute ( )      \ execute the xt (i.e., ".")
+: foo `. execute ;
+5 foo
+@end example
 
 @cindex tick (')
-You can use @code{'} to get an execution token that represents the
-interpretation semantics of a named word:
+However, the @code{`} prefix is a Gforth extension, so you may prefer
+to use the standard Forth words:
+
+doc-'
+doc-[']
+
+These are parsing words (whereas @code{`@i{x}} is treated as a literal
+by a recognizer), and you may find the behaviour in interpreted and
+compiled code unintuitive:
 
 @example
 5 ' .   ( n xt ) 
-execute ( )      \ execute the xt (i.e., ".")
+execute ( )      \ execute the xt of .
+\ does not work as intended:
+\ : foo ' . ;
+\ 5 foo execute
+\ instead:
+: foo ['] . ;
+5 foo execute    \ execute the xt of .
+\ Usage of ' in colon definition:
+: bar ' execute ;
+5 bar .          \ execute the xt of .
 @end example
 
-doc-'
+@code{'} parses at run-time, so if you put it in a colon definition,
+as in @code{bar}, it does not consume the next word in the colon
+definition, but the next word at run-time (i.e., the @code{.} in the
+invocation of @code{bar}).  If you want to put a literal xt in a colon
+definition without writing @code{`@i{x}}, write @code{['] @i{x}}.
 
-@code{'} parses at run-time; there is also a word @code{[']} that parses
-when it is compiled, and compiles the resulting XT:
-
-@example
-: foo ['] . execute ;
-5 foo
-: bar ' execute ; \ by contrast,
-5 bar .           \ ' parses "." when bar executes
-@end example
-
-doc-[']
-
-If you want the execution token of @i{word}, write @code{['] @i{word}}
-in compiled code and @code{' @i{word}} in interpreted code.  Gforth's
-@code{'} and @code{[']} warns when you use them on compile-only words,
-because such usage may be non-portable between different Forth
-systems.  
+Gforth's @code{`@i{x}}, @code{'} and @code{[']} warn when you use them
+on compile-only words, because such usage may be non-portable between
+different Forth systems.
 
 You can avoid that warning as well as the portability problems by
 defining an immediate variant of the word, e.g.:
@@ -8375,22 +8427,21 @@ defining an immediate variant of the word, e.g.:
 The resulting execution token performs the compilation semantics of
 @code{if} when @code{execute}d.
 
-Another way to get an XT is @code{:noname} or @code{latestxt}
+Another way to get an xt is @code{:noname} or @code{latestxt}
 (@pxref{Anonymous Definitions}).  For anonymous words this gives an xt
-for the only behaviour the word has (the execution semantics).  For
-named words, @code{latestxt} produces an XT for the same behaviour it
-would produce if the word was defined anonymously.
+for the only behaviour the word has (the execution semantics), but you
+can also use it after defining a named word to get its xt.
 
 @example
 :noname ." hello" ;
 execute
 @end example
 
-An XT occupies one cell and can be manipulated like any other cell.
+An xt occupies one cell and can be manipulated like any other cell.
 
-In Standard Forth the XT is just an abstract data type (i.e., defined
+In Standard Forth the xt is just an abstract data type (i.e., defined
 by the operations that produce or consume it).  The concrete
-implementation starting with Gforth 1.0 is the body address (for old
+implementation (since Gforth 1.0) is the body address (for old
 hands: PFA) of the word; in Gforth 0.7 and earlier, the xt was
 implemented as code field addres (CFA, 2 cells before the PFA).
 
@@ -8401,17 +8452,75 @@ doc-perform
 
 doc-noop
 
-@node Compilation token, Name token, Execution token, Tokens for Words
+
+@node Name token, Compilation token, Execution token, Tokens for Words
+@subsection Name token
+
+@cindex name token
+@cindex nt (name token)
+Gforth represents named words by the @dfn{name token}, (@i{nt}).  The
+name token is a cell-sized abstract data type that occurs as argument
+or result of the words below.
+
+Since Gforth 1.0, for most words the concrete implementation of their
+nt is the same address as its xt (this is the primary nt for the xt).
+However, synonyms, aliases, and words defined with
+@code{interpret/compile:} get their xt from another word, but still
+have an nt of their own (that is different from the xt).  Therefore,
+you cannot use xts and nts interchangeably, even if you are prepared
+to write code specific to Gforth 1.0.  You do not get these alternate
+nts for the xt with @code{>name}.
+
+You get the nt of a word @i{x} with @code{``@i{x}} (since Gforth 1.0)
+or with
+
+doc-find-name
+doc-find-name-in
+doc-latest
+doc-latestnt
+doc->name
+
+You can use the nt to access the interpretation and compilation
+semantics of a word, its name, and the next word in the wordlist:
+
+doc-name>interpret
+doc-name>compile
+doc-name>string
+doc-id.
+doc-name>link
+
+A nameless word usually has no interpretation nor compilation
+semantics, no name, and it's not in a wordlist.  But in Gforth (since
+1.0) all words are equal, so even nameless words have an nt, you can
+get it with @code{latestnt}, and the words above that consume nts do
+something reasonable for these nts.
+
+@cindex name field address
+@cindex NFA
+The closest thing to the nt in older Forth systems is the name field
+address (NFA), but there are significant differences: in older Forth
+systems each word had a unique NFA, LFA, CFA and PFA (in this order,
+or LFA, NFA, CFA, PFA) and there were words for getting from one to
+the next.  In contrast, in Gforth several nts can get the same xt from
+@code{name>interpret} xt; there is a link field in the structure
+identified by the name token, but searching usually uses a hash table
+external to these structures; the name in Gforth has a cell-wide
+count-and-flags field, and the nt is not implemented as the address of
+that count field.
+
+
+@node Compilation token,  , Name token, Tokens for Words
 @subsection Compilation token
 
 @cindex compilation token
-@cindex CT (compilation token)
-Gforth represents the compilation semantics of a named word by a
-@dfn{compilation token} consisting of two cells: @i{w xt}. The top cell
-@i{xt} is an execution token. The compilation semantics represented by
-the compilation token can be performed with @code{execute}, which
-consumes the whole compilation token, with an additional stack effect
-determined by the represented compilation semantics.
+@cindex ct (compilation token)
+The compilation semantics of a named word is represented by a
+@dfn{compilation token} consisting of two cells: @i{w xt}. The top
+cell @i{xt} is an execution token. The compilation semantics
+represented by the compilation token can be performed with
+@code{execute}, which consumes the whole compilation token, with an
+additional stack effect determined by the represented compilation
+semantics.  
 
 At present, the @i{w} part of a compilation token is an execution token,
 and the @i{xt} part represents either @code{execute} or
@@ -8423,49 +8532,19 @@ knowledge, unless necessary; future versions of Gforth may introduce
 unusual compilation tokens (e.g., a compilation token that represents
 the compilation semantics of a literal).
 
-You can perform the compilation semantics represented by the compilation
-token with @code{execute}.  You can compile the compilation semantics
-with @code{postpone,}. I.e., @code{COMP' @i{word} postpone,} is
-equivalent to @code{postpone @i{word}}.
+You get the compilation token of, e.g., @code{if} in a standard way
+with @code{name>compile}, e.g., @code{`if name>compile}, but there are
+also parsing words to get the compilation token of a word:
 
 doc-[comp']
 doc-comp'
+
+You can perform the compilation semantics represented by the compilation
+token with @code{execute}.  You can compile the compilation semantics
+with @code{postpone,}. I.e., @code{``@i{x} name>compile postpone,} is
+equivalent to @code{postpone @i{x}}.
+
 doc-postpone,
-
-@node Name token,  , Compilation token, Tokens for Words
-@subsection Name token
-
-@cindex name token
-Gforth represents named words by the @dfn{name token}, (@i{nt}).  Name
-token is an abstract data type that occurs as argument or result of the
-words below.
-
-@c !! put this elswhere?
-@cindex name field address
-@cindex NFA
-The closest thing to the nt in older Forth systems is the name field
-address (NFA), but there are significant differences: in older Forth
-systems each word had a unique NFA, LFA, CFA and PFA (in this order, or
-LFA, NFA, CFA, PFA) and there were words for getting from one to the
-next.  In contrast, in Gforth 0@dots{}n nts correspond to one xt; there
-is a link field in the structure identified by the name token, but
-searching usually uses a hash table external to these structures; the
-name in Gforth has a cell-wide count-and-flags field, and the nt is not
-implemented as the address of that count field.
-
-doc-find-name
-doc-find-name-in
-doc-latest
-doc->name
-doc-name>interpret
-doc-name>compile
-doc-name>int
-doc-name?int
-doc-name>comp
-doc-name>string
-doc-id.
-doc-.name
-doc-.id
 
 @c ----------------------------------------------------------
 @node Compiling words, The Text Interpreter, Tokens for Words, Words

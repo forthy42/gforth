@@ -31,9 +31,9 @@
     \G words prefixed with @code{`} return their xt.
     \G Example: @code{`dup} gives the xt of dup
     over c@ '`' = if
-	1 /string ?rec-nt
-	if  name>interpret ['] translate-num exit  then  0
-    then
+        1 /string ?rec-nt if
+            ?compile-only name>interpret ['] translate-num exit  then
+        0 then
     2drop ['] notfound ;
 
 : rec-dtick ( addr u -- nt rectype-num | rectype-null ) \ gforth-experimental

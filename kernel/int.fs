@@ -479,7 +479,7 @@ defer compile, ( xt -- ) \ core-ext compile-comma
     ELSE drop false THEN ;
 : ?compile-only ( nt -- nt )
     dup compile-only? IF
-	<<# s" is compile-only" holds dup name>string holds #0. #>
+	<<# s"  is compile-only" holds dup name>string holds #0. #>
 	hold 1- c(warning") #>>
     THEN ;
 
