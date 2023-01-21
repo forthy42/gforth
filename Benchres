@@ -28,6 +28,7 @@ AMD64:
  0.132 0.136  0.056 0.124 0.048 2017-05-25; AMD Athlon X4 845 (Carrizo/Excavator) 3.5GHz; gcc-4.9
  0.192 0.224  0.104 0.284 0.152 2016-12-22; Celeron J3455 (Goldmont) 2300MHz; gcc-4.9.2 (Debian 8)
  0.152 0.180  0.080 0.148 0.068 2017-11-08; Celeron J4105 (Goldmont+) 2350MHz; gcc-6.3.0 (Debian 9)
+ 0.108 0.135  0.058 0.104 0.039 2023-01-14; Celeron N4500 (Tremont) 2800MHz; gcc 10.2.1 (Debian 11)
  0.076 0.104  0.040 0.076 0.032 2016-05-03; Intel Core i7-4790K 4.4GHz; gcc-4.9.2 (Debian 8)
  0.120 0.168  0.064 0.160 0.060 2016-05-03; AMD Phenom II X2 560 3.3GHz; gcc-4.9.2 (Debian 8)
  0.076 0.112  0.040 0.080 0.028 2015-12-26; Intel Core i7-6700K 4.0GHz; gcc-4.9.2 (Debian 8)
