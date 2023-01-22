@@ -43,12 +43,12 @@ variable  >string-len    \ actual string length
 
 ' >string-type ' >string-emit ' >string-cr ' >string-form output: >string-out
 
-: >string-execute ( ... xt -- ... addr u )
-    \G execute xt while the standard output (TYPE, EMIT, and everything
-    \G that uses them) is redirected to a string.  The resulting string
-    \G is addr u, which is in ALLOCATEd memory; it is the
-    \G responsibility of the caller of >STRING-EXECUTE to FREE this
-    \G string.
+: >string-execute ( ... xt -- ... addr u ) \ gforth
+    \G execute xt while the standard output (@code{type}, @code{emit},
+    \G and everything that uses them) is redirected to a string.  The
+    \G resulting string is addr u, which is in @code{allocate}d
+    \G memory; it is the responsibility of the caller of
+    \G @code{>string-execute} to @code{free} this string.
     >string-buffer 2@ >string-len @ op-vector @
     { d: oldbuf oldlen oldvector }
     try
