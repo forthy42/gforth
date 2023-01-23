@@ -308,13 +308,13 @@ Variable litstack
 has? new-cfa [IF]
     : cfa,     ( code-address -- )  \ gforth	cfa-comma
 	here  dup lastnt !
-	code-address! ;
+	only-code-address! ;
 [ELSE]
     : cfa,     ( code-address -- )  \ gforth	cfa-comma
 	here
 	dup lastnt !
 	0 A,
-	code-address! ;
+	only-code-address! ;
 [THEN]
 
 defer basic-block-end ( -- )
@@ -659,13 +659,36 @@ Create hmtemplate
     \G behaviour.
     ?hm hmtemplate >hmcompile, ! ;
 ' set-optimizer alias set-compiler
+
+: code-address! ( c_addr xt -- ) \ gforth
+    \G Change a code field with code address @i{c-addr} at @i{xt}.
+    dup xt>name make-latest
+    over case
+        docon:   of ['] constant, endof
+        docol:   of ['] :, endof
+        dovar:   of ['] variable, endof
+        douser:  of ['] user, endof
+        dodefer: of ['] defer, endof
+        dofield: of ['] field+, endof
+        drop ['] general-compile,
+    endcase
+    set-optimizer
+    only-code-address! ;
+
 : set-execute ( ca -- ) \ gforth Changes the current word such that it
     \G jumps to the native code at @i{ca}.  Also changes the
     \G @code{compile,} implementation to the most general (and
     \G slowest) one.  Call @code{set-optimizer} afterwards if you want
     \G a more efficient implementation.
     ['] general-compile, set-optimizer
-    latestnt code-address! ;
+    latestnt only-code-address! ;
+
+: does-code! ( xt1 xt2 -- ) \ gforth
+\G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;
+\G @i{xt1} is the execution token of the assigned Forth code.
+    dodoes: any-code!
+    ['] does, set-optimizer ;
+
 : set-does> ( xt -- ) \ gforth Changes the current word such that it
     \G pushes its body address and then executes @i{xt}.  Also changes
     \G the @code{compile,} implementation accordingly.  Call
@@ -673,7 +696,7 @@ Create hmtemplate
     \G implementation.
     ['] does, set-optimizer
     hmtemplate >hmextra !
-    dodoes: latestnt code-address! ;
+    dodoes: latestnt only-code-address! ;
 : set-to ( to-xt -- ) ?hm hmtemplate >hmto ! ;
 : set-defer@ ( defer@-xt -- ) ?hm hmtemplate >hmdefer@ ! ;
 : set->int ( xt -- ) ?hm hmtemplate >hm>int ! ;

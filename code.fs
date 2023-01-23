@@ -41,6 +41,11 @@ vocabulary assembler ( -- ) \ tools-ext
     here latest code-address!
     defstart init-asm ;
 
+[ifundef] only-code-address!
+    : only-code-address! ( c_addr xt -- )
+        >cfa ! ;
+[endif]
+
 [ifdef] doabicode:
 : abi-code ( "name" -- colon-sys )	\ gforth	abi-code
    \G Start a native code definition that is called using the platform's
@@ -52,7 +57,7 @@ vocabulary assembler ( -- ) \ tools-ext
    \G memory location containing the FP stack pointer and is passed
    \G out by storing the changed FP stack pointer there (if necessary).
     header  ['] (abi-code-dummy) hmcopy,
-    doabicode: latest code-address!
+    doabicode: latest only-code-address!
     defstart init-asm ;
 [endif]
 
@@ -81,7 +86,8 @@ interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	s
 
 [ifdef] do;abicode: 
 : !;abi-code ( addr -- )
-    latestnt do;abicode: any-code! ;
+    latestnt do;abicode: any-code!
+    ['] ;abi-code, set-optimizer ;
 
 : ;abi-code ( -- ) \ gforth semicolon-abi-code
     ['] !;abi-code does>-like postpone [ init-asm ; immediate
