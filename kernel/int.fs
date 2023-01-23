@@ -456,6 +456,9 @@ method name>link ( nt1 -- nt2 / 0 ) \ gforth name-to-link
 
 drop Constant hmsize \ vtable size
 
+: >extra ( nt -- addr )
+    >namehm @ >hmextra ;
+
 defer compile, ( xt -- ) \ core-ext compile-comma
 \G Append the semantics represented by @i{xt} to the current
 \G definition.  When the resulting code fragment is run, it behaves
@@ -579,7 +582,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 \G @i{a-addr} is the start of the Forth code after the @code{DOES>};
 \G Otherwise @i{a-addr} is 0.
     dup >code-address dodoes: = if
-	>namehm @ >hmextra @ >body
+	>extra @ >body
     else
 	drop 0
     then ;
@@ -589,10 +592,11 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
     >cfa ! ;
 
 : any-code! ( a-addr cfa code-addr -- )
-    \ for implementing DOES> and ;ABI-CODE, maybe :
-    \ code-address is stored at cfa, a-addr at >hmextra
+    \ for implementing DOES> and ;ABI-CODE, maybe : code-address is
+    \ stored at cfa, a-addr at >hmextra; set-optimizer is called in
+    \ the caller.
     dup xt>name make-latest
-    over only-code-address!  >namehm @ >hmextra ! ;
+    over only-code-address!  >extra ! ;
 
 \ ticks in interpreter
 

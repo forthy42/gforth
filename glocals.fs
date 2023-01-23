@@ -704,26 +704,32 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 	2drop
     endif ;
 
+[ifundef] >extra
+    : >extra ( nt -- addr )
+        >namehm @ >hmextra ;
+[endif]
+
 : >definer ( xt -- definer ) \ gforth
     \G @var{Definer} is a unique identifier for the way the @var{xt}
     \G was defined.  Words defined with different @code{does>}-codes
     \G have different definers.  The definer can be used for
     \G comparison and in @code{definer!}.
-    dup >does-code
-    ?dup-if
-	nip 1 or
-    else
-	>code-address
-    then ;
+    dup >code-address case
+        dodoes:     of >extra @ >body 1 or endof
+        do;abicode: of >extra @ >body 2 or endof
+        nip dup
+    endcase ;
 
 : definer! ( definer xt -- ) \ gforth
     \G The word represented by @var{xt} changes its behaviour to the
     \G behaviour associated with @var{definer}.
-    over 1 and if
-	swap [ 1 invert ] literal and does-code!
-    else
-        code-address!
-    then ;
+    over 3 and case
+        0 of code-address! endof
+        1 of swap 3 invert and swap does-code! endof
+        2 of swap 3 invert and swap
+            do;abicode: any-code! ['] ;abi-code, set-optimizer endof
+        -12 throw
+    endcase ;
 
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar
     \ don't use 'locals|'! use '{'! A portable and free '{'

@@ -108,7 +108,7 @@ locals-types definitions
 forth definitions
 
 : wrap-closure ( xt -- )
-    dup >namehm @ >hmextra !  ['] does, set-optimizer
+    dup >extra !  ['] does, set-optimizer
     finish-code  hm,  wrap!  hmtemplate off \ dead hmtemplate link
     previous-section  dead-code off ;
 
