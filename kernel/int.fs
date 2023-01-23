@@ -569,6 +569,11 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
     @ ;
 [THEN]
 
+0 0 0 0 field xt>name ( xt -- nt ) \ gforth xt-to-name
+\G Produces the primary nt for an xt.  If @i{xt} is not an xt, @i{nt}
+\G is not guaranteed to be an nt.
+    drop drop
+
 : >does-code ( xt -- a_addr ) \ gforth
 \G If @i{xt} is the execution token of a child of a @code{DOES>} word,
 \G @i{a-addr} is the start of the Forth code after the @code{DOES>};
@@ -579,19 +584,15 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 	drop 0
     then ;
 
-: code-address! ( c_addr xt -- ) \ gforth
-    \G Create a code field with code address @i{c-addr} at @i{xt}.
+: only-code-address! ( c_addr xt -- )
+    \ like code-address!, but does not change opt-compile,
     >cfa ! ;
 
 : any-code! ( a-addr cfa code-addr -- )
     \ for implementing DOES> and ;ABI-CODE, maybe :
     \ code-address is stored at cfa, a-addr at >hmextra
-    over code-address!  >namehm @ >hmextra ! ;
-
-: does-code! ( xt1 xt2 -- ) \ gforth
-\G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;
-\G @i{xt1} is the execution token of the assigned Forth code.
-    dodoes: any-code! ;
+    dup xt>name make-latest
+    over only-code-address!  >namehm @ >hmextra ! ;
 
 \ ticks in interpreter
 

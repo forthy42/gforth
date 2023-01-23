@@ -111,10 +111,6 @@ has? rom
     \G the same interpretation sematics xt.
     look and ;
 
-synonym xt>name noop ( xt -- nt ) \ gforth xt-to-name
-\G Produces the primary nt for an xt.  If @i{xt} is not an xt, @i{nt}
-\G is not guaranteed to be an nt.
-
 : threaded>name ( ca -- nt|0 )
     threaded>xt >name ;
 
