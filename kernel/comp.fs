@@ -660,7 +660,7 @@ Create hmtemplate
     ?hm hmtemplate >hmcompile, ! ;
 ' set-optimizer alias set-compiler
 
-: code-address! ( c_addr xt -- ) \ gforth
+: code-address! ( c_addr xt -- ) \ gforth-obsolete
     \G Change a code field with code address @i{c-addr} at @i{xt}.
     dup xt>name make-latest
     over case

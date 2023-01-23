@@ -720,7 +720,7 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
         nip dup
     endcase ;
 
-: definer! ( definer xt -- ) \ gforth
+: definer! ( definer xt -- ) \ gforth-obsolete
     \G The word represented by @var{xt} changes its behaviour to the
     \G behaviour associated with @var{definer}.
     over 3 and case
