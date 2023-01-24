@@ -1022,6 +1022,30 @@ printing the boot message, the user initialization file
 @file{~/.config/gforthrc} from your home directory is included, unless the
 option @code{--no-rc} is given.
 
+Warning levels can be set with
+
+@table @code
+@cindex -W, command-line option
+@item -W
+Turn off warnings
+
+@cindex -Won, command-line option
+@item -Won
+Turn on warnings (level 1)
+
+@cindex -Wall, command-line option
+@item -Wall
+Turn on beginner warnings (level 2)
+
+@cindex -Wpedantic, command-line option
+@item -Wpedantic
+Turn on pedantic warnings (level 3)
+
+@cindex -Werror, command-line option
+@item -Werror
+Turn warnings into errors (level 4)
+@end table
+
 @comment ----------------------------------------------
 @node Leaving Gforth, Help on Gforth, Invoking Gforth, Gforth Environment
 @section Leaving Gforth
