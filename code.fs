@@ -38,7 +38,7 @@ vocabulary assembler ( -- ) \ tools-ext
     \G @code{code} definition with a dispatch to the next virtual
     \G machine instruction.
     header ['] noop hmcopy,
-    here latest code-address!
+    here latest only-code-address!
     defstart init-asm ;
 
 [ifundef] only-code-address!

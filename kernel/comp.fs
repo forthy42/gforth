@@ -635,7 +635,8 @@ Create hmtemplate
     \G not change the behaviour of the word (only its implementation),
     \G otherwise you may get a surprising mix of behaviours that is
     \G not consistent between Gforth engines and versions.
-    hm, dup last ! lastnt ! ;
+    hm, dup lastnt !
+    dup name>string nip 0<> and last !  ;
 
 : ?hm ( -- )
     \G check if deduplicated, duplicate if necessary
@@ -662,7 +663,7 @@ Create hmtemplate
 
 : code-address! ( c_addr xt -- ) \ gforth-obsolete
     \G Change a code field with code address @i{c-addr} at @i{xt}.
-    dup xt>name make-latest
+    next-section latestnt >r dup xt>name make-latest
     over case
         docon:     of ['] constant, endof
         docol:     of ['] :,        endof
@@ -674,6 +675,7 @@ Create hmtemplate
         drop ['] general-compile,
     endcase
     set-optimizer
+    r> make-latest previous-section
     only-code-address! ;
 
 : set-execute ( ca -- ) \ gforth Changes the current word such that it
