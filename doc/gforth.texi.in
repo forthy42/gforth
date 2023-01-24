@@ -132,6 +132,7 @@ Software Foundation raise funds for GNU development.''
 * Gforth Environment::          Starting (and exiting) Gforth
 * Tutorial::                    Hands-on Forth Tutorial
 * Introduction::                An introduction to Standard Forth
+* Literals in source code::
 * Words::                       Forth words available in Gforth
 * Error messages::              How to interpret them
 * Tools::                       Programming tools
@@ -3622,7 +3623,7 @@ strong in debugging and reuse.
 Reference: @ref{Word Lists}.
 
 @c ******************************************************************
-@node Introduction, Words, Tutorial, Top
+@node Introduction, Literals in source code, Tutorial, Top
 @comment node-name,     next,           previous, up
 @chapter An Introduction to Standard Forth
 @cindex Forth - an introduction
@@ -4537,7 +4538,132 @@ the exercises in a .fs file in the distribution.
 
 
 @c ******************************************************************
-@node Words, Error messages, Introduction, Top
+@node Literals in source code, Words, Introduction, Top
+@chapter Literals in source code
+@cindex Literals (in source code)
+
+@cindex single-cell numbers, input format
+@cindex input format for single-cell numbers
+To push an integer number on the data stack, you write the number in
+source code, e.g., @code{123}.  You can prefix the digits with
+@code{-} to indicate a negative number, e.g. @code{-123}.  This works
+both inside colon definitions and outside.  The number is interpreted
+according to the value of @code{base} (@pxref{Number Conversion}).
+The digits are @code{0} to @code{9} and @code{a} (decimal 10) to
+@code{z} (decimal 35), but only digits smaller than the base are
+recognized.  The conversion is case-insensitive, so @code{A} and
+@code{a} are the same digit.
+
+@cindex &-prefix for decimal numbers
+@cindex #-prefix for decimal numbers
+@cindex %-prefix for binary numbers
+@cindex $-prefix for hexadecimal numbers
+@cindex 0x-prefix for hexadecimal numbers
+You can make the base explicit for the number by using a prefix:
+
+@itemize @bullet
+@item
+@code{#} -- decimal
+@item
+@code{%} -- binary
+@item
+@code{$} -- hexadecimal
+@item
+@code{&} -- decimal (non-standard)
+@item
+@code{0x} -- hexadecimal, if base<33 (non-standard).
+@end itemize
+
+For combinations including base-prefix and sign, the standard order is
+to have the base-prefix first (e.g., @code{#-123}); Gforth supports
+both orders.
+
+@cindex double-cell numbers, input format
+@cindex input format for double-cell numbers
+You can put a dot @code{.} at the end of a number (or, non-standardly,
+anywhere else except before a prefix) to get a double-cell integer
+(e.g., @code{#-123.} or @code{#-.123} (the same number)).  If users
+experienced in another programming language see or write such a number
+without base prefix (e.g., @code{-123.}), they may expect that the
+number represents a floating-point value.  To clear up the confusion
+early, Gforth warns of such usage; to avoid the warnings, the best
+approach is to always write double numbers with a base prefix (e.g.,
+@code{#-123.})
+
+@cindex '-prefix for character strings
+You can get the numeric value of a (character) code point by
+surrounding the character with @code{'} (e.g., @code{'a'}).  The
+trailing @code{'} is required by the standard, but you can leave it
+away in Gforth.  Note that this also works for non-ASCII characters.
+For many uses, it is more useful to have the character as a string
+rather than as a cell; see below for the string syntax.
+
+@cindex floating-point numbers, input format
+@cindex input format for floating-point numbers
+For floating-point numbers in Forth, you recognize them due to their
+exponent.  I.e. @code{1.} is a double-cell integer, and @code{1e0} is
+a floating-point number; the latter can be (and usually is) shortened
+to @code{1e}.  The standard syntax is @{+ -@}<decimal
+digit>@{.@}<decimal digit>*@{e E@}@{+ -@}<decimal digit><decimal
+digit>*.  Examples are: @code{1e 1e0 1.e 1.e0 +1e+0} (which all
+represent the same number) @code{+12.E-4}.
+
+@cindex String input format
+@cindex input format for strings
+You can input a string by surrounding it with @code{"}
+(e.g. @code{"abc"}, @code{"a b"}).  The result is the starting address
+and byte (=char) count of the string on the data stack.
+
+You have to escape any @code{"} inside the string with @code{\} (e.g.,
+@code{"double-quote->\"<-"}).  In addition, this string syntax
+supports all the ways to write control characters that are supported
+by @code{s\"} (@pxref{String and character literals}).  A disadvantage
+of this string syntax is that it is non-standard; for standard
+programs, use @code{s\"} instead.
+
+@cindex environment variable input format
+@cindex input format for environment variables
+You can input an environment variable by first loading
+@file{rec-env.fs} and then prefixing the environment variable with
+@code{$}, e.g., @code{$HOME}; the result is a string descriptor on the
+data stack in the format described above.  This is equivalent to
+@code{"HOME" getenv}, i.e., the environment variable is resolved at
+run-time.
+
+@cindex xt input format
+@cindex execution token input format
+@cindex input format for execution tokens
+@cindex @code{`} prefix of word
+You can input an execution token (xt) of a word by prefixing the name
+of the word with @code{`} (e.g., @code{`dup}).  An advantage over
+using @code{'} or @code{[']} is you do not need to switch between them
+when copying and pasting code from inside to outside a colon
+definition or vice versa.  A disadvantage is that this syntax is
+non-standard.
+
+@cindex nt input format
+@cindex nt token input format
+@cindex input format for name tokens
+@cindex @code{``} prefix of word
+You can input a name token (nt) of a word by prefixing the name of the
+word with @code{``} (e.g., @code{``dup}).  This syntax is also
+non-standard.
+
+@cindex body-relative address input format
+@cindex input format for body-relative addresses
+You can input a body address of a word by surrounding it with @code{<}
+and @code{>} (e.g., @code{<spaces>}).  You can also input an address
+that is at a positive offset from the body address (typically an
+address in that body), by putting @code{+} and a number (see syntax
+above) between the word name and the closing @code{>} (e.g.,
+@code{<spaces+$15>}, @code{spaces+-3}).  You will get the body address
+plus the number.  This non-standard feature exists to allow copying
+and pasting the output of @code{...} (@pxref{Examining data}).
+
+@c !! rec-scope rec-meta rec-to
+
+@c ******************************************************************
+@node Words, Error messages, Literals in source code, Top
 @chapter Forth Words
 @cindex words
 
@@ -9115,12 +9241,6 @@ doc-query
 @node Number Conversion, Interpret/Compile states, Input Sources, The Text Interpreter
 @subsection Number Conversion
 @cindex number conversion
-@cindex double-cell numbers, input format
-@cindex input format for double-cell numbers
-@cindex single-cell numbers, input format
-@cindex input format for single-cell numbers
-@cindex floating-point numbers, input format
-@cindex input format for floating-point numbers
 
 This section describes the rules that the text interpreter uses when it
 tries to convert a string into a number.
@@ -9180,12 +9300,6 @@ doc-hex
 doc-decimal
 doc-dpl
 
-@cindex '-prefix for character strings
-@cindex &-prefix for decimal numbers
-@cindex #-prefix for decimal numbers
-@cindex %-prefix for binary numbers
-@cindex $-prefix for hexadecimal numbers
-@cindex 0x-prefix for hexadecimal numbers
 Gforth allows you to override the value of @code{base} by using a
 prefix@footnote{Some Forth implementations provide a similar scheme by
 implementing @code{$} etc. as parsing words that process the subsequent
@@ -9197,13 +9311,13 @@ of an (integer) number. The following prefixes are supported:
 
 @itemize @bullet
 @item
-@code{&} -- decimal
-@item
 @code{#} -- decimal
 @item
 @code{%} -- binary
 @item
 @code{$} -- hexadecimal
+@item
+@code{&} -- decimal (non-standard)
 @item
 @code{0x} -- hexadecimal, if base<33.
 @item
@@ -9214,7 +9328,7 @@ optional @code{'} may be present after the character.
 Here are some examples, with the equivalent decimal number shown after
 in braces:
 
--$41 (-65), %1001101 (205), %1001.0001 (145 - a double-precision number),
+$-41 (-65), %1001101 (205), %1001.0001 (145 - a double-precision number),
 'A (65),
 -'a' (-97),
 &905 (905), $abc (2478), $ABC (2478).
