@@ -4580,17 +4580,24 @@ both orders.
 
 @cindex double-cell numbers, input format
 @cindex input format for double-cell numbers
-You can put a dot @code{.} at the end of a number (or, non-standardly,
-anywhere else except before a prefix) to get a double-cell integer
-(e.g., @code{#-123.} or @code{#-.123} (the same number)).  If users
-experienced in another programming language see or write such a number
-without base prefix (e.g., @code{-123.}), they may expect that the
-number represents a floating-point value.  To clear up the confusion
-early, Gforth warns of such usage; to avoid the warnings, the best
-approach is to always write double numbers with a base prefix (e.g.,
-@code{#-123.})
+You can put a decimal point @code{.} at the end of a number (or,
+non-standardly, anywhere else except before a prefix) to get a
+double-cell integer (e.g., @code{#-123.} or @code{#-.123} (the same
+number)).  If users experienced in another programming language see or
+write such a number without base prefix (e.g., @code{-123.}), they may
+expect that the number represents a floating-point value.  To clear up
+the confusion early, Gforth warns of such usage; to avoid the
+warnings, the best approach is to always write double numbers with a
+base prefix (e.g., @code{#-123.})
 
-@cindex '-prefix for character strings
+Here are some examples, with the equivalent decimal number shown after
+in braces:
+
+$-41 (-65), %1001101 (205), %1001.0001 (145 - a double-precision number),
+'A' (65), &905 (905), $abc (2478), $ABC (2478).
+
+@cindex '-prefix for characters/code points
+@cindex input format for characters/code points
 You can get the numeric value of a (character) code point by
 surrounding the character with @code{'} (e.g., @code{'a'}).  The
 trailing @code{'} is required by the standard, but you can leave it
@@ -4603,10 +4610,13 @@ rather than as a cell; see below for the string syntax.
 For floating-point numbers in Forth, you recognize them due to their
 exponent.  I.e. @code{1.} is a double-cell integer, and @code{1e0} is
 a floating-point number; the latter can be (and usually is) shortened
-to @code{1e}.  The standard syntax is @{+ -@}<decimal
-digit>@{.@}<decimal digit>*@{e E@}@{+ -@}<decimal digit><decimal
-digit>*.  Examples are: @code{1e 1e0 1.e 1.e0 +1e+0} (which all
-represent the same number) @code{+12.E-4}.
+to @code{1e}.  Both the significand (the part before the @code{e} or
+@code{E}) and the exponent may have signs (including @code{+}); the
+significand must contain at least one digit and may contain a decimal
+point, the exponent can be empty.  Floating-point numbers always use
+decimal base for both significand and exponent, and are only
+recognized when the base is decimal.  Examples are: @code{1e 1e0 1.e
+1.e0 +1e+0} (which all represent the same number) @code{+12.E-4}.
 
 @cindex String input format
 @cindex input format for strings
@@ -9242,49 +9252,9 @@ doc-query
 @subsection Number Conversion
 @cindex number conversion
 
-This section describes the rules that the text interpreter uses when it
-tries to convert a string into a number.
-
-Let <digit> represent any character that is a legal digit in the current
-number base@footnote{For example, 0-9 when the number base is decimal or
-0-9, A-F when the number base is hexadecimal.}.
-
-Let <decimal digit> represent any character in the range 0-9.
-
-Let @{@i{a b}@} represent the @i{optional} presence of any of the characters
-in the braces (@i{a} or @i{b} or neither).
-
-Let * represent any number of instances of the previous character
-(including none).
-
-Let any other character represent itself.
-
-@noindent
-Now, the conversion rules are:
-
-@itemize @bullet
-@item
-A string of the form <digit><digit>* is treated as a single-precision
-(cell-sized) positive integer. Examples are 0 123 6784532 32343212343456 42
-@item
-A string of the form -<digit><digit>* is treated as a single-precision
-(cell-sized) negative integer, and is represented using 2's-complement
-arithmetic. Examples are -45 -5681 -0
-@item
-A string of the form <digit><digit>*.<digit>* is treated as a double-precision
-(double-cell-sized) positive integer. Examples are 3465. 3.465 34.65
-(all three of these represent the same number).
-@item
-A string of the form -<digit><digit>*.<digit>* is treated as a
-double-precision (double-cell-sized) negative integer, and is
-represented using 2's-complement arithmetic. Examples are -3465. -3.465
--34.65 (all three of these represent the same number).
-@item
-A string of the form @{+ -@}<decimal digit>@{.@}<decimal digit>*@{e
-E@}@{+ -@}<decimal digit><decimal digit>* is treated as a floating-point
-number. Examples are 1e 1e0 1.e 1.e0 +1e+0 (which all represent the same
-number) +12.E-4
-@end itemize
+You get an overview of how the text interpreter converts its numeric
+input in @ref{Literals in source code}.  This section describes some
+related words.
 
 By default, the number base used for integer number conversion is
 given by the contents of the variable @code{base}.  Note that a lot of
@@ -9292,46 +9262,14 @@ confusion can result from unexpected values of @code{base}.  If you
 change @code{base} anywhere, make sure to save the old value and
 restore it afterwards; better yet, use @code{base-execute}, which does
 this for you.  In general I recommend keeping @code{base} decimal, and
-using the prefixes described below for the popular non-decimal bases.
+using the prefixes described in @ref{Literals in source code} for the
+popular non-decimal bases.
 
 doc-base-execute
 doc-base
 doc-hex
 doc-decimal
 doc-dpl
-
-Gforth allows you to override the value of @code{base} by using a
-prefix@footnote{Some Forth implementations provide a similar scheme by
-implementing @code{$} etc. as parsing words that process the subsequent
-number in the input stream and push it onto the stack. For example, see
-@cite{Number Conversion and Literals}, by Wil Baden; Forth Dimensions
-20(3) pages 26--27. In such implementations, unlike in Gforth, a space
-is required between the prefix and the number.} before the first digit
-of an (integer) number. The following prefixes are supported:
-
-@itemize @bullet
-@item
-@code{#} -- decimal
-@item
-@code{%} -- binary
-@item
-@code{$} -- hexadecimal
-@item
-@code{&} -- decimal (non-standard)
-@item
-@code{0x} -- hexadecimal, if base<33.
-@item
-@code{'} -- numeric value (e.g., ASCII code) of next character; an
-optional @code{'} may be present after the character.
-@end itemize
-
-Here are some examples, with the equivalent decimal number shown after
-in braces:
-
-$-41 (-65), %1001101 (205), %1001.0001 (145 - a double-precision number),
-'A (65),
--'a' (-97),
-&905 (905), $abc (2478), $ABC (2478).
 
 @cindex number conversion - traps for the unwary
 @noindent
@@ -9343,28 +9281,14 @@ You cannot determine the current number base using the code sequence
 @code{base @@ .} -- the number base is always 10 in the current number
 base. Instead, use something like @code{base @@ dec.}
 @item
-If the number base is set to a value greater than 14 (for example,
-hexadecimal), the number 123E4 is ambiguous; the conversion rules allow
-it to be intepreted as either a single-precision integer or a
-floating-point number (Gforth treats it as an integer). The ambiguity
-can be resolved by explicitly stating the sign of the mantissa and/or
-exponent: 123E+4 or +123E4 -- if the number base is decimal, no
-ambiguity arises; either representation will be treated as a
-floating-point number.
-@item
 There is a word @code{bin} but it does @i{not} set the number base!
-It is used to specify file types.
+(@pxref{General files}).
 @item
 Standard Forth requires the @code{.} of a double-precision number to be the
 final character in the string.  Gforth allows the @code{.} to be
-anywhere after the first digit.
+anywhere.
 @item
 The number conversion process does not check for overflow.
-@item
-In a Standard Forth program @code{base} is required to be decimal when
-converting floating-point numbers.  In Gforth, number conversion to
-floating-point numbers always uses base &10, irrespective of the value
-of @code{base}.
 @end itemize
 
 You can read numbers into your programs with the words described in
