@@ -30,6 +30,11 @@ vocabulary assembler ( -- ) \ tools-ext
 \g Pushes the assembler wordlist on the search order.
     also assembler ;
     
+[ifundef] only-code-address!
+    : only-code-address! ( c_addr xt -- )
+        >cfa ! ;
+[endif]
+
 : code ( "name" -- colon-sys )	\ tools-ext
     \G Start a native code definition that runs in the context of the
     \G Gforth virtual machine (engine).  Such a definition is not
@@ -40,11 +45,6 @@ vocabulary assembler ( -- ) \ tools-ext
     header ['] noop hmcopy,
     here latest only-code-address!
     defstart init-asm ;
-
-[ifundef] only-code-address!
-    : only-code-address! ( c_addr xt -- )
-        >cfa ! ;
-[endif]
 
 [ifdef] doabicode:
 : abi-code ( "name" -- colon-sys )	\ gforth	abi-code
