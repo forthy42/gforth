@@ -162,7 +162,7 @@ si-prefixes count 2/ + Constant zero-exp
 		    1 = IF  1- '.'  ELSE  I c@  THEN
 		    >float1
 		    dup IF  #10 s>f zero-exp I - s>f f** f*
-			warnings @ abs 2 > warning" use of engineering notation is non-standard"
+			warnings @ abs 3 >= warning" use of engineering notation is non-standard"
 		    THEN
 		    UNLOOP  rdrop EXIT  THEN  drop
 	    THEN
@@ -172,7 +172,7 @@ si-prefixes count 2/ + Constant zero-exp
     2dup '.' scan nip r@ or
     IF
 	'.' >float1
-	dup r@ 0= and warnings @ abs 2 > and
+	dup r@ 0= and warnings @ abs 2 >= and
 	warning" float without 'e' is non-standard"
     ELSE
 	2drop false
