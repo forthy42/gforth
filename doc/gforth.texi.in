@@ -4617,8 +4617,8 @@ base prefix (e.g., @code{#-123.})
 Here are some examples, with the equivalent decimal number shown after
 in braces:
 
-$-41 (-65), %1001101 (205), %1001.0001 (145 - a double-precision number),
-'A' (65), &905 (905), $abc (2478), $ABC (2478).
+@code{$-41} (-65), @code{%1001101} (205), @code{%1001.0001} (145 - a double-precision number),
+@code{#905} (905), @code{$abc} (2478), @code{$ABC} (2478).
 
 @cindex '-prefix for characters/code points
 @cindex input format for characters/code points
@@ -4641,6 +4641,67 @@ point, the exponent can be empty.  Floating-point numbers always use
 decimal base for both significand and exponent, and are only
 recognized when the base is decimal.  Examples are: @code{1e 1e0 1.e
 1.e0 +1e+0} (which all represent the same number) @code{+12.E-4}.
+
+A Gforth extension (since 1.0) is to write a floating-point number in
+scaled notation: It can optionally have a sign, then one or more
+digits, then use one of the mostly SI-defined scaling symbols (aka
+metric prefixes) or @code{%}, and then optionally more digits.  Here's
+the full list of scaling symbols that Gforth accepts:
+
+@itemize @bullet
+@item
+@code{Q} @code{e30}  quetta 
+@item                
+@code{R} @code{e27}  ronna  
+@item                
+@code{Y} @code{e24}  yotta  
+@item                
+@code{Z} @code{e21}  zetta  
+@item                
+@code{X} @code{e18}  exa    (not @code{E}) 
+@item                
+@code{P} @code{e15}  peta   
+@item                
+@code{T} @code{e12}  tera   
+@item                
+@code{G} @code{e9}   giga   
+@item                
+@code{M} @code{e6}   mega   
+@item                
+@code{k} @code{e3}   kilo   
+@item                
+@code{h} @code{e2}   hecto  
+@item                
+@code{d} @code{e-1}  deci   
+@item                
+@code{%} @code{e-2}  percent (not @code{c})
+@item                
+@code{m} @code{e-3}  milli  
+@item                
+@code{u} @code{e-6}  micro   (not @code{μ})
+@item                
+@code{n} @code{e-9}  nano   
+@item                
+@code{p} @code{e-12} pico   
+@item                
+@code{f} @code{e-15} femto  
+@item                
+@code{a} @code{e-18} atto   
+@item                
+@code{z} @code{e-21} zepto  
+@item                
+@code{y} @code{e-24} yocto  
+@item                
+@code{r} @code{e-27} ronto  
+@item                
+@code{q} @code{e-30} quecto 
+@end itemize
+
+Unlike most of the rest of Gforth, scaling symbols are treated
+case-sensitively.  Using the scaled notation is equivalent to using a
+decimal point instead of the scaling symbol and appending the
+exponential notation at the end.  Examples of scaled notation:
+@code{6k5} (6500e) @code{23%} (0.23e).
 
 @cindex String input format
 @cindex input format for strings

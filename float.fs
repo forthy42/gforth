@@ -149,7 +149,7 @@ opt: drop postpone >body f!-table to-!, ;
 
 : sfnumber ( c-addr u -- r true | false ) >float ;
 
-Create si-prefixes ," Y  Z  X  P  T  G  M  k    %m  u  n  p  f  a  z  y"
+Create si-prefixes ," Q  R  Y  Z  X  P  T  G  M  kh  d%m  u  n  p  f  a  z  y  r  q"
 si-prefixes count 2/ + Constant zero-exp
 
 : prefix-number ( c-addr u -- r true | false )

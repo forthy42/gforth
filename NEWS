@@ -7,6 +7,14 @@ Words for accessing memory in 16-bit (w), 32-bit (l), and 64-bit (x, xd) units:
  for allocating: w, l, x, xd,
  for alignment: waligned walign laligned lalign xaligned xalign
 Bitwise operations: >pow2 log2
+You can use scaled notation for FP numbers in source code, e.g. 6k5, 23%.
+"string"
+`word
+``word
+<word>
+<word+int>
+->value
+
 
 Gforth EC non-news:
   We have not done Gforth EC work since Gforth 0.7.  We recommend using
