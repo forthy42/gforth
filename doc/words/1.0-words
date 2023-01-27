@@ -278,43 +278,49 @@ G_BIG_ENDIAN G_LITTLE_ENDIAN harfbuzz vulkan ubx2_to_prn datum_code_string
 mag_var wgs84_separation earth_distance_and_bearings earth_distance 
 now_to_iso8601 mkgmtime safe_atof gps_maskdump gps_enable_debug gps_merge_fix 
 gps_clear_log gps_clear_fix gps_clear_dop gps_clear_att libgps_trace 
-json_oscillator_read json_pps_read json_toff_read gps_errstr gps_data 
-gps_mainloop gps_stream gps_waiting gps_unpack gps_read gps_send gps_close 
-gps_open gps_data_t_devices-list gps_data_t_devices-ndevices 
+gpsd_source_spec json_oscillator_read json_pps_read json_toff_read 
+gps_visibilize gps_errstr gps_data gps_mainloop gps_stream gps_waiting 
+gps_unpack gps_hexpack gps_hexdump gps_read gps_send gps_close gps_open 
+privdata_t-handler() gps_data_t_devices-list gps_data_t_devices-ndevices 
 gps_data_t_devices-time gps_data_t_devices gps_data_t-pps gps_data_t-online 
 gps_data_t-satellites_visible gps_data_t-error gps_data_t-imu 
 gps_data_t-privdata gps_data_t-fix gps_data_t-version 
-gps_data_t-satellites_used gps_data_t-dev gps_data_t-qErr_time gps_data_t-toff 
-gps_data_t-gst gps_data_t-subframe gps_data_t-policy gps_data_t-skyview 
-gps_data_t-osc gps_data_t-raw gps_data_t-log gps_data_t-leap_seconds 
-gps_data_t-qErr gps_data_t-skyview_time gps_data_t-ais gps_data_t-rtcm3 
-gps_data_t-devices gps_data_t-rtcm2 gps_data_t-gps_fd gps_data_t-attitude 
-gps_data_t-dop gps_data_t-set gps_data_t oscillator_t-disciplined 
-oscillator_t-delta oscillator_t-reference oscillator_t-running oscillator_t 
-timedelta_t-clock timedelta_t-real timedelta_t gps_policy_t-devpath 
-gps_policy_t-scaled gps_policy_t-pps gps_policy_t-split24 gps_policy_t-nmea 
-gps_policy_t-watcher gps_policy_t-json gps_policy_t-remote 
-gps_policy_t-loglevel gps_policy_t-timing gps_policy_t-raw gps_policy_t 
-devconfig_t-baudrate devconfig_t-subtype1 devconfig_t-path devconfig_t-flags 
-devconfig_t-subtype devconfig_t-driver_mode devconfig_t-mincycle 
-devconfig_t-cycle devconfig_t-hexdata devconfig_t-stopbits 
-devconfig_t-activated devconfig_t-driver devconfig_t-parity devconfig_t 
-version_t-proto_major version_t-release version_t-proto_minor version_t-rev 
-version_t-remote version_t meas_t-satstat meas_t-pseudorange meas_t-lli 
-meas_t-snr meas_t-carrierphase meas_t-sigid meas_t-gnssid meas_t-doppler 
-meas_t-freqid meas_t-l2c meas_t-locktime meas_t-c2c meas_t-deltarange 
-meas_t-svid meas_t-obs_code meas_t-codephase meas_t rawdata_t-mtime 
-rawdata_t-meas rawdata_t dop_t-vdop dop_t-hdop dop_t-gdop dop_t-tdop 
-dop_t-ydop dop_t-xdop dop_t-pdop dop_t attitude_t-temp attitude_t-gyro_z 
-attitude_t-acc_y attitude_t-acc_x attitude_t-gyro_temp attitude_t-gyro_y 
-attitude_t-acc_len attitude_t-mtime attitude_t-gyro_x attitude_t-mag_st 
-attitude_t-pitch attitude_t-dip attitude_t-yaw_st attitude_t-depth 
-attitude_t-heading attitude_t-mag_len attitude_t-timeTag attitude_t-pitch_st 
-attitude_t-mag_z attitude_t-msg attitude_t-base attitude_t-roll 
-attitude_t-mag_y attitude_t-yaw attitude_t-mag_x attitude_t-roll_st 
-attitude_t-acc_z attitude_t satellite_t-PRN satellite_t-gnssid 
-satellite_t-azimuth satellite_t-used satellite_t-sigid satellite_t-svid 
-satellite_t-elevation satellite_t-ss satellite_t-health satellite_t-freqid 
+gps_data_t-satellites_used gps_data_t-dev gps_data_t-source 
+gps_data_t-qErr_time gps_data_t-toff gps_data_t-gst gps_data_t-subframe 
+gps_data_t-policy gps_data_t-skyview gps_data_t-osc gps_data_t-raw 
+gps_data_t-log gps_data_t-leap_seconds gps_data_t-qErr gps_data_t-skyview_time 
+gps_data_t-ais gps_data_t-rtcm3 gps_data_t-devices gps_data_t-watch 
+gps_data_t-rtcm2 gps_data_t-gps_fd gps_data_t-attitude gps_data_t-dop 
+gps_data_t-set gps_data_t privdata_t-shmseg privdata_t-tick privdata_t-handler 
+privdata_t-waiting privdata_t-buffer privdata_t-waitcount privdata_t 
+fixsource_t-device fixsource_t-server_ip fixsource_t-port fixsource_t-server 
+fixsource_t-spec fixsource_t oscillator_t-disciplined oscillator_t-delta 
+oscillator_t-reference oscillator_t-running oscillator_t timedelta_t-clock 
+timedelta_t-real timedelta_t gps_policy_t-devpath gps_policy_t-scaled 
+gps_policy_t-pps gps_policy_t-split24 gps_policy_t-nmea gps_policy_t-watcher 
+gps_policy_t-json gps_policy_t-remote gps_policy_t-loglevel 
+gps_policy_t-timing gps_policy_t-raw gps_policy_t devconfig_t-baudrate 
+devconfig_t-subtype1 devconfig_t-path devconfig_t-flags devconfig_t-subtype 
+devconfig_t-driver_mode devconfig_t-mincycle devconfig_t-cycle 
+devconfig_t-hexdata devconfig_t-stopbits devconfig_t-activated 
+devconfig_t-driver devconfig_t-parity devconfig_t version_t-proto_major 
+version_t-release version_t-proto_minor version_t-rev version_t-remote 
+version_t meas_t-satstat meas_t-pseudorange meas_t-lli meas_t-snr 
+meas_t-carrierphase meas_t-sigid meas_t-gnssid meas_t-doppler meas_t-freqid 
+meas_t-l2c meas_t-locktime meas_t-c2c meas_t-deltarange meas_t-svid 
+meas_t-obs_code meas_t-codephase meas_t rawdata_t-mtime rawdata_t-meas 
+rawdata_t dop_t-vdop dop_t-hdop dop_t-gdop dop_t-tdop dop_t-ydop dop_t-xdop 
+dop_t-pdop dop_t attitude_t-temp attitude_t-gyro_z attitude_t-acc_y 
+attitude_t-acc_x attitude_t-gyro_temp attitude_t-gyro_y attitude_t-acc_len 
+attitude_t-mtime attitude_t-gyro_x attitude_t-mag_st attitude_t-pitch 
+attitude_t-dip attitude_t-yaw_st attitude_t-rot attitude_t-mheading 
+attitude_t-depth attitude_t-heading attitude_t-mag_len attitude_t-timeTag 
+attitude_t-pitch_st attitude_t-mag_z attitude_t-msg attitude_t-base 
+attitude_t-roll attitude_t-mag_y attitude_t-yaw attitude_t-mag_x 
+attitude_t-roll_st attitude_t-acc_z attitude_t satellite_t-prRes 
+satellite_t-PRN satellite_t-gnssid satellite_t-used satellite_t-azimuth 
+satellite_t-sigid satellite_t-svid satellite_t-elevation 
+satellite_t-qualityInd satellite_t-ss satellite_t-health satellite_t-freqid 
 satellite_t target_t-course target_t-lat target_t-speed target_t-idtype 
 target_t-second target_t-id target_t-lon target_t target_id-other 
 target_id-mmsi target_id-callsign target_id-imo target_id gauge_t-id 
@@ -518,11 +524,11 @@ gps_fix_t_NED-relPosD gps_fix_t_NED-velN gps_fix_t_NED-relPosH
 gps_fix_t_NED-velE gps_fix_t_NED-relPosN gps_fix_t_NED-velD 
 gps_fix_t_NED-relPosL gps_fix_t_NED-relPosE gps_fix_t_NED gps_fix_t-mode 
 gps_fix_t-wanglem gps_fix_t-eph gps_fix_t-latitude gps_fix_t-magnetic_track 
-gps_fix_t-epd gps_fix_t-wspeedt gps_fix_t-epc gps_fix_t-depth gps_fix_t-ecef 
-gps_fix_t-wspeedr gps_fix_t-base gps_fix_t-dgps_age gps_fix_t-speed 
-gps_fix_t-track gps_fix_t-epy gps_fix_t-dgps_station gps_fix_t-epx 
-gps_fix_t-climb gps_fix_t-epv gps_fix_t-ept gps_fix_t-NED gps_fix_t-eps 
-gps_fix_t-magnetic_var gps_fix_t-geoid_sep gps_fix_t-altitude 
+gps_fix_t-wspeedt gps_fix_t-epd gps_fix_t-epc gps_fix_t-depth gps_fix_t-ecef 
+gps_fix_t-wtemp gps_fix_t-wspeedr gps_fix_t-base gps_fix_t-dgps_age 
+gps_fix_t-speed gps_fix_t-track gps_fix_t-epy gps_fix_t-dgps_station 
+gps_fix_t-epx gps_fix_t-climb gps_fix_t-epv gps_fix_t-ept gps_fix_t-NED 
+gps_fix_t-eps gps_fix_t-magnetic_var gps_fix_t-geoid_sep gps_fix_t-altitude 
 gps_fix_t-wanglet gps_fix_t-altMSL gps_fix_t-longitude gps_fix_t-wangler 
 gps_fix_t-sep gps_fix_t-time gps_fix_t-altHAE gps_fix_t-datum gps_fix_t-status 
 gps_fix_t baseline_t-course baseline_t-up baseline_t-length baseline_t-north 
@@ -537,24 +543,23 @@ TR_UNKNOWN CLIGHT WGS84E2 WGS84E WGS84B WGS84F WGS84A GPS_LN2 DEG_2_RAD
 RAD_2_DEG GPS_PI MPS_TO_KNOTS MPS_TO_MPH MPS_TO_KPH KNOTS_TO_KPH KNOTS_TO_MPH 
 FATHOMS_TO_METERS METERS_TO_MILES MILES_TO_METERS METERS_TO_FEET 
 FEET_TO_METERS AIS_LATLON4_DIV AIS_LATLON3_DIV MESSAGE_INTERVAL_UNITS 
-GLONASS_AMBIGUITY_MODULUS GPS_AMBIGUITY_MODULUS UNION_SET IMU_SET LOG_SET 
-VNED_SET NED_SET RAW_SET MAGNETIC_TRACK_SET VECEF_SET ECEF_SET OSCILLATOR_SET 
-NAVDATA_SET PPS_SET TOFF_SET ERROR_SET LOGMESSAGE_SET POLICY_SET VERSION_SET 
-GST_SET SUBFRAME_SET PACKET_SET AIS_SET RTCM3_SET RTCM2_SET DEVICEID_SET 
-DEVICELIST_SET DEVICE_SET CLIMBERR_SET TRACKERR_SET SPEEDERR_SET SATELLITE_SET 
-ATTITUDE_SET VERR_SET HERR_SET DOP_SET MODE_SET STATUS_SET CLIMB_SET TRACK_SET 
-SPEED_SET ALTITUDE_SET LATLON_SET TIMERR_SET TIME_SET ONLINE_SET DBUS_FAILURE 
-SHM_NOATTACH SHM_NOSHARED NL_NOCONNECT NL_NOSOCKOPT NL_NOSOCK NL_NOPROTO 
-NL_NOHOST NL_NOSERVICE SET_HIGH_BIT WATCH_NEWSTYLE WATCH_PPS WATCH_SPLIT24 
-WATCH_DEVICE WATCH_TIMING WATCH_SCALED WATCH_RAW WATCH_RARE WATCH_NMEA 
-WATCH_JSON WATCH_DISABLE WATCH_ENABLE SEEN_AIS SEEN_RTCM3 SEEN_RTCM2 SEEN_GPS 
-HEXDATA_MAX SAT_FIX_USED SAT_EPHEMERIS SAT_FRAME_SYNC SAT_DATA_SYNC 
-SAT_CARR_TRACK SAT_CODE_TRACK SAT_ACQUIRED LOCKMAX SAT_HEALTH_BAD 
-SAT_HEALTH_OK SAT_HEALTH_UNK GNSSID_CNT GNSSID_IRNSS GNSSID_GLO GNSSID_QZSS 
-GNSSID_IMES GNSSID_BD GNSSID_GAL GNSSID_SBAS GNSSID_GPS 
-DAC1FID17_SPEED_NOT_AVAILABLE DAC1FID17_COURSE_NOT_AVAILABLE 
-DAC1FID17_IDTYPE_OTHER DAC1FID17_IDTYPE_CALLSIGN DAC1FID17_IDTYPE_IMO 
-DAC1FID17_IDTYPE_MMSI DAC1FID17_ID_LENGTH DAC200FID24_GAUGE_LEVEL_UNKNOWN 
+GLONASS_AMBIGUITY_MODULUS GPS_AMBIGUITY_MODULUS UNION_SET EOF_SET IMU_SET 
+LOG_SET VNED_SET NED_SET RAW_SET MAGNETIC_TRACK_SET VECEF_SET ECEF_SET 
+OSCILLATOR_SET NAVDATA_SET PPS_SET TOFF_SET ERROR_SET LOGMESSAGE_SET 
+POLICY_SET VERSION_SET GST_SET SUBFRAME_SET PACKET_SET AIS_SET RTCM3_SET 
+RTCM2_SET DEVICEID_SET DEVICELIST_SET DEVICE_SET CLIMBERR_SET TRACKERR_SET 
+SPEEDERR_SET SATELLITE_SET ATTITUDE_SET VERR_SET HERR_SET DOP_SET MODE_SET 
+STATUS_SET CLIMB_SET TRACK_SET SPEED_SET ALTITUDE_SET LATLON_SET TIMERR_SET 
+TIME_SET ONLINE_SET SHM_CALLOC FILE_FAIL DBUS_FAILURE SHM_NOATTACH 
+SHM_NOSHARED NL_NOCONNECT NL_NOSOCKOPT NL_NOSOCK NL_NOPROTO NL_NOHOST 
+NL_NOSERVICE SET_HIGH_BIT SEEN_AIS SEEN_RTCM3 SEEN_RTCM2 SEEN_GPS HEXDATA_MAX 
+SAT_FIX_USED SAT_EPHEMERIS SAT_FRAME_SYNC SAT_DATA_SYNC SAT_CARR_TRACK 
+SAT_CODE_TRACK SAT_ACQUIRED LOCKMAX SAT_HEALTH_BAD SAT_HEALTH_OK 
+SAT_HEALTH_UNK GNSSID_CNT GNSSID_IRNSS GNSSID_GLO GNSSID_QZSS GNSSID_IMES 
+GNSSID_BD GNSSID_GAL GNSSID_SBAS GNSSID_GPS DAC1FID17_SPEED_NOT_AVAILABLE 
+DAC1FID17_COURSE_NOT_AVAILABLE DAC1FID17_IDTYPE_OTHER 
+DAC1FID17_IDTYPE_CALLSIGN DAC1FID17_IDTYPE_IMO DAC1FID17_IDTYPE_MMSI 
+DAC1FID17_ID_LENGTH DAC200FID24_GAUGE_LEVEL_UNKNOWN 
 DAC200FID24_GAUGE_ID_UNKNOWN DAC1FID32_CSPEED_NOT_AVAILABLE 
 DAC1FID32_CDIR_NOT_AVAILABLE AIS_LAT4_NOT_AVAILABLE AIS_LON4_NOT_AVAILABLE 
 AIS_LAT3_NOT_AVAILABLE AIS_LON3_NOT_AVAILABLE SUBFRAME_ORBIT SUBFRAME_ALMANAC 
@@ -565,17 +570,17 @@ NAVSYSTEM_UNKNOWN NAVSYSTEM_GALILEO NAVSYSTEM_GLONASS NAVSYSTEM_GPS MAXHEALTH
 MAXSTATIONS MAXCORRECTIONS RTCM2_WORDS_MAX GLONASS_PRN_OFFSET STATUS_PPS_FIX 
 STATUS_SIM STATUS_TIME STATUS_GNSSDR STATUS_DR STATUS_RTK_FLT STATUS_RTK_FIX 
 STATUS_DGPS STATUS_GPS STATUS_UNK MODE_3D MODE_2D MODE_NO_FIX MODE_NOT_SEEN 
-GPS_PATH_MAX MAXUSERDEVS MAXCHANNELS GPSD_API_MINOR_VERSION 
-GPSD_API_MAJOR_VERSION wayland freetype-gl png_get_uint_31 png_get_libpng_ver 
-png_get_header_version png_get_header_ver png_get_copyright png_set_invalid 
-png_set_PLTE png_get_PLTE png_set_IHDR png_get_IHDR png_get_channels 
-png_get_rowbytes png_get_valid png_chunk_error png_error png_data_freer 
-png_free_data png_free png_malloc_warn png_calloc png_malloc 
-png_set_write_status_fn png_set_read_status_fn png_get_io_ptr png_set_read_fn 
-png_set_write_fn png_get_error_ptr png_set_error_fn png_set_crc_action 
-png_destroy_write_struct png_destroy_read_struct png_destroy_info_struct 
-png_write_end png_write_image png_write_rows png_write_row 
-png_read_update_info png_start_read_image png_write_info 
+GPS_JSON_RESPONSE_MAX GPS_JSON_COMMAND_MAX GPS_PATH_MAX MAXUSERDEVS 
+MAXCHANNELS GPSD_API_MINOR_VERSION GPSD_API_MAJOR_VERSION wayland freetype-gl 
+png_get_uint_31 png_get_libpng_ver png_get_header_version png_get_header_ver 
+png_get_copyright png_set_invalid png_set_PLTE png_get_PLTE png_set_IHDR 
+png_get_IHDR png_get_channels png_get_rowbytes png_get_valid png_chunk_error 
+png_error png_data_freer png_free_data png_free png_malloc_warn png_calloc 
+png_malloc png_set_write_status_fn png_set_read_status_fn png_get_io_ptr 
+png_set_read_fn png_set_write_fn png_get_error_ptr png_set_error_fn 
+png_set_crc_action png_destroy_write_struct png_destroy_read_struct 
+png_destroy_info_struct png_write_end png_write_image png_write_rows 
+png_write_row png_read_update_info png_start_read_image png_write_info 
 png_write_info_before_PLTE png_create_info_struct png_write_chunk_end 
 png_write_chunk_data png_write_chunk_start png_write_chunk png_write_sig 
 png_longjmp png_set_compression_buffer_size png_get_compression_buffer_size 
@@ -4362,7 +4367,7 @@ check-xy u8<< u8>> u8!+ u8@+ u8len max-single-byte UTF-8-err vt100-page
 vt100-at-deltaxy vt100-at-xy ESC[ ;pn pn #esc[ #n; #n WordInfo InfoTable 
 Com-color Str-color Ali-color Use-color Col-color Def-color Doe-color 
 Val-color Var-color Con-color Pri-color prim? xtprim? colon? defered? does? 
-user? value? con? var? .recs prim>name >head threaded>name xt>name >name look 
+user? value? con? var? .recs prim>name >head threaded>name >name look 
 PrimStart threaded>xt xt= [f:d [f:h [f:l [d:d [d:h [d:l [n:d [n:h [n:l [f: [d: 
 [n: [*:: :d :h :l (;]*) (;]l) (;*]) ;> <{: [{: end-dclosure closure> 
 closure-:-hook (closure-;]) wrap-closure dummy-local, pop-locals push-locals 
@@ -4487,18 +4492,18 @@ dummy-noname : colon-sys defstart colon-sys-xt-offset 0-adjust-locals-size
 ;-hook :-hook addr +TO [addr] [+TO] <addr> <+TO> IS TO [IS] <IS> value-to 
 reveal-method reveal! defer! defer@-opt: to-opt: ?fold-to (to), opt!-compile, 
 comp: opt: int-opt; set-name>link set-name>string set->comp set->int 
-set-defer@ set-to set-does> set-execute set-compiler set-optimizer 
-general-compile, !namehm ?hm make-latest hm, (hm,) hm= hmrestore hmsave 
-hmcopy, hmcopy hm-activate hmtemplate does>-like Defers defer-defer@ Defer 
-defer-default (Field) !!?addr!! to-!exec to-!, to-style# !-table AValue Value 
-AConstant Constant (Value) (Constant) AUser User uallot 2Variable AVariable 
-Variable buffer: Create synonym? Synonym alias? Alias synonym, s-compile, 
-s-defer@ s-to s>comp s>int a>comp a>int defer@, compile-only restrict 
-immediate imm>comp lastflags or! ," postpone ] [ forth-parser forth-recognizer 
-set-forth-recognize forth-recognize minimal-recognize stack# stack> >stack 
-stack do-stack: stack: set-stack get-stack rec-num nt>rec translate-nt? 
-translate-dnum translate-num translate-nt name-compsem >postpone translate: 
-do-rec 2lit, lit, postpone, [COMP'] COMP' ['] [(')] default-i/c 
+set-defer@ set-to set-does> does-code! set-execute code-address! set-compiler 
+set-optimizer general-compile, !namehm ?hm make-latest hm, (hm,) hm= hmrestore 
+hmsave hmcopy, hmcopy hm-activate hmtemplate does>-like Defers defer-defer@ 
+Defer defer-default (Field) !!?addr!! to-!exec to-!, to-style# !-table AValue 
+Value AConstant Constant (Value) (Constant) AUser User uallot 2Variable 
+AVariable Variable buffer: Create synonym? Synonym alias? Alias synonym, 
+s-compile, s-defer@ s-to s>comp s>int a>comp a>int defer@, compile-only 
+restrict immediate imm>comp lastflags or! ," postpone ] [ forth-parser 
+forth-recognizer set-forth-recognize forth-recognize minimal-recognize stack# 
+stack> >stack stack do-stack: stack: set-stack get-stack rec-num nt>rec 
+translate-nt? translate-dnum translate-num translate-nt name-compsem >postpone 
+translate: do-rec 2lit, lit, postpone, [COMP'] COMP' ['] [(')] default-i/c 
 default-name>comp peephole-compile, prim-check name>view addr>view 
 xt-location1 xt-location bt-pos-width basic-block-end cfa, clear-litstack 
 lits, lits# lits> >lits litstack ?parse-name ALiteral 2Literal Literal latest 
@@ -4517,42 +4522,42 @@ part-type mark-end mark-start .error-string dobacktrace DOERROR -trailing hex.
 dec.r dec. input-error-data >error error> error-stack /error (quit) (quit1) 
 (prompt) prompt .status 'quit extend-mem free-mem-var save-mem interpret2 
 bt-rp0-wrapper bt-rp0-catch interpret int-execute before-line before-word name 
-parse-word parse-name parser ' (') '-error does-code! any-code! code-address! 
->does-code >code-address body> >body >head-noprim xt? hm? ??? (name>intn) 
-default-name>int noname>link noname>string named>link named>string name?int 
-?compile-only compile-only? immediate? , compile, hmsize name>link name>string 
-name>comp name>int initwl defer@ (to) opt-compile, >namehm >cfa >link >f+c 
->hm>link >hm>string >hm>comp >hm>int >hmextra >hmdefer@ >hmto >hmcompile, 
->hmlink ((name>)) (x>int) compile-only-error ticking-compile-only-error 
-flag-sign lcount-mask restrict-mask find-name rec-nt search-wordlist 
-find-name-in notfound no.extensions (where,) where, where-struct where-loc 
-where-nt wheres context voclink current f83search forth-wordlist rec-f83 
-wordlist-struct wordlist-extend wordlist-link wordlist-id wordlist-map 
-wordlist-exec wordlist-start \G \ ( number (number?) snumber? s>number 
-s>number? s>unumber? ?warn# s'>unumber? ?dnegate sign? getbase bases 
-name-too-long? name-too-short? (name) parse (parse) version-string .error 
-error$ errlink>string do-debug >stderr >exec c(warning") .warning ErrRanges 
-ErrLink u. . ud. d. u.r .r ud.r d.r holds #s # sign #>> <<# #> <# hold +hold 
-pad ms ns kernel-deadline deadline backspaces spaces spaces-loop status-color 
-error-hl-inv error-hl-ul input-color success-color info-color warning-color 
-error-color default-color theme-color: theme-color# theme@ theme! space bell 
-#lf #ff #cr #del #esc #tab #bs #bell #eof output: input: default-in 
-debug-vector debug-out default-out key (cr) key? key-ior ip-vector 
-theme-color! control-sequence attr! at-deltaxy at-xy page form cr emit type 
-op-vector (key?) (key) key-file EBADF EINTR EOK (err-emit) (err-type) (emit) 
-(type) out debug-fid outfile-id infile-id hex decimal "lit clearstacks 
-clearstack depth ?stack abort ?warning (abort") c(abort") throw catch lp@ 
-ud/mod s>d >number_ >number accumulate digit? bounds stick roll dabs off on 
-->here here dpp in-dictionary1? in-dictionary? unused usable-dictionary-end 
-usable-dictionary-end1 dictionary-end section-desc locs[] section-name 
-section-dp section-size section-start current-section A! chars cfaligned 
-maxaligned NIL str< string-suffix? string-prefix? str= no-defer@ no-to >comp 
-tib+ tib loadfilename# #fill-bytes blk loadfile loadline old-input max#tib 
-#tib new-where input-lexeme >in (restore-input) (save-input) source-id refill 
-source current-input warnings Last dp state >num-state dpl base holdend 
-holdptr holdbuf-end holdbuf holdbufptr "error errorhandler backtrace-rp0 
-wraphandler first-throw handler throw-entry lp0 fp0 rp0 sp0 save-task 
-prev-task next-task udp main-task def#tib pad-minsize word-pno-size 
+parse-word parse-name parser ' (') '-error any-code! only-code-address! 
+>does-code xt>name >code-address body> >body >head-noprim xt? hm? ??? 
+(name>intn) default-name>int noname>link noname>string named>link named>string 
+name?int ?compile-only compile-only? immediate? , compile, >extra hmsize 
+name>link name>string name>comp name>int initwl defer@ (to) opt-compile, 
+>namehm >cfa >link >f+c >hm>link >hm>string >hm>comp >hm>int >hmextra 
+>hmdefer@ >hmto >hmcompile, >hmlink ((name>)) (x>int) compile-only-error 
+ticking-compile-only-error flag-sign lcount-mask restrict-mask find-name 
+rec-nt search-wordlist find-name-in notfound no.extensions (where,) where, 
+where-struct where-loc where-nt wheres context voclink current f83search 
+forth-wordlist rec-f83 wordlist-struct wordlist-extend wordlist-link 
+wordlist-id wordlist-map wordlist-exec wordlist-start \G \ ( number (number?) 
+snumber? s>number s>number? s>unumber? ?warn# s'>unumber? ?dnegate sign? 
+getbase bases name-too-long? name-too-short? (name) parse (parse) 
+version-string .error error$ errlink>string do-debug >stderr >exec c(warning") 
+.warning ErrRanges ErrLink u. . ud. d. u.r .r ud.r d.r holds #s # sign #>> <<# 
+#> <# hold +hold pad ms ns kernel-deadline deadline backspaces spaces 
+spaces-loop status-color error-hl-inv error-hl-ul input-color success-color 
+info-color warning-color error-color default-color theme-color: theme-color# 
+theme@ theme! space bell #lf #ff #cr #del #esc #tab #bs #bell #eof output: 
+input: default-in debug-vector debug-out default-out key (cr) key? key-ior 
+ip-vector theme-color! control-sequence attr! at-deltaxy at-xy page form cr 
+emit type op-vector (key?) (key) key-file EBADF EINTR EOK (err-emit) 
+(err-type) (emit) (type) out debug-fid outfile-id infile-id hex decimal "lit 
+clearstacks clearstack depth ?stack abort ?warning (abort") c(abort") throw 
+catch lp@ ud/mod s>d >number_ >number accumulate digit? bounds stick roll dabs 
+off on ->here here dpp in-dictionary1? in-dictionary? unused 
+usable-dictionary-end usable-dictionary-end1 dictionary-end section-desc 
+locs[] section-name section-dp section-size section-start current-section A! 
+chars cfaligned maxaligned NIL str< string-suffix? string-prefix? str= 
+no-defer@ no-to >comp tib+ tib loadfilename# #fill-bytes blk loadfile loadline 
+old-input max#tib #tib new-where input-lexeme >in (restore-input) (save-input) 
+source-id refill source current-input warnings Last dp state >num-state dpl 
+base holdend holdptr holdbuf-end holdbuf holdbufptr "error errorhandler 
+backtrace-rp0 wraphandler first-throw handler throw-entry lp0 fp0 rp0 sp0 
+save-task prev-task next-task udp main-task def#tib pad-minsize word-pno-size 
 chars/block l/s c/l /line bl float cell false true 2Constant 2constant, UValue 
 (UValue) u-compile, uvalue-to */ */mod /mod mod / r@ forthstart image-header 
 u#+ u#exec x#exec o#exec o#+ o> >o lit-execute ;abi-code-exec abi-call 
