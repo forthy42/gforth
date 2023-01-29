@@ -1,0 +1,31 @@
+#!/bin/sh
+# this file is in the public domain
+
+# This tries to compile a -fsi.c file from srcdir.
+# If it fails, the errounous lines will be commented out
+# and then it tries to compile again.
+
+CC=$1
+output=$2
+input=$3
+# We need the error output to be machine readable (not translated):
+export LANG=C
+export LC_ALL=C
+
+if $CC -o $output $input 2>${output}-err
+then
+    echo "Compiled on first attempt"
+    echo "--------------compilation output--------------"
+    cat ${output}-err
+    echo "------------compilation output end------------"
+else
+    echo "Failed on first attempt"
+    echo "--------------compilation output--------------"
+    cat ${output}-err
+    echo "------------compilation output end------------"
+    grep "^$input:[0-9][0-9]*:[0-9][0-9]*: error" ${output}-err |\
+    cut -f2 -d: |\
+    sed -e 's:\([0-9]*\):\1 s,\\(.*\\),// \\1,:g' >${output}.sed
+    sed -f ${output}.sed <$input >${input%.c}-fixed.c
+    $CC -o $output ${input%.c}-fixed.c
+fi

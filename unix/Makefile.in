@@ -61,7 +61,7 @@ libs: build-libcc-named $(LIBRARY)
 
 # execute compiled file
 %.fs: %-fsi.c
-	$(CC) -o $@x $<
+	$(srcdir)/trygcc "$(CC)" $@x $<
 	./$@x -gforth | $(srcdir)/doexec $@ $(srcdir) > $@
 
 stat.fs: stat-fsi.c
