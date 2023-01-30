@@ -13,7 +13,7 @@
 %apply SWIGTYPE * { VADisplay };
 
 // exec: sed -e 's/add-lib/add-lib`s" ((struct VAD:x.spx[arg0]" ptr-declare $+[]!/g' -e 's/^c-library/cs-vocabulary va``get-current also va definitions``c-library/g' -e 's/^end-c-library/end-c-library`previous set-current/g' | tr '`' '\n'
-// prep: sed -e 's,\(^ *[^} ].*_bit.*$\),// \1,g' -e 's,\(^ *[^} ].*_fields.*$\),// \1,g' -e 's,\(^ *[^} ].*_flags.*$\),// \1,g' -e 's,\(^ *[^} ].*_mb.*$\),// \1,g' -e 's,\(^ *[^} ].*_VAEncFEIMVPredictor.*_ref_idx.*$\),// \1,g' -e 's,\(^ *[^} ].*VADriverVTable.*$\),// \1,g'
+// prep: sed -e 's/swigFunctionPointer.*{((\([^*]*\)\*)ptr)->\([^}]*\)}.*/if(offsetof(\1, \2) >= 0) \0/g' -e 's,\(^ *[^} ].*_bit.*$\),// \1,g' -e 's,\(^ *[^} ].*_fields.*$\),// \1,g' -e 's,\(^ *[^} ].*_flags.*$\),// \1,g' -e 's,\(^ *[^} ].*_mb.*$\),// \1,g' -e 's,\(^ *[^} ].*_VAEncFEIMVPredictor.*_ref_idx.*$\),// \1,g' -e 's,\(^ *[^} ].*VADriverVTable.*$\),// \1,g'
 
 %include <va/va.h>
 %include <va/va_vpp.h>

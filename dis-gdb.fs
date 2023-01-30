@@ -59,9 +59,9 @@ set-current
         2drop ['] dump is discode
         addr u dump exit then
     [ e? os-type s" cygwin" str= ] [IF]
-	s\" \nset logging off\nquit\n\" >$file2 && gdb -nx -batch -p `ps -p $$ | grep -v PPID | cut -c 10-17` -x $file2 2>/dev/null >/dev/null && rm $file2 && grep -v \"of assembler\" $file && rm $file"
+	s\" \nset logging enabled off\nquit\n\" >$file2 && gdb -nx -batch -p `ps -p $$ | grep -v PPID | cut -c 10-17` -x $file2 2>/dev/null >/dev/null && rm $file2 && grep -v \"of assembler\" $file && rm $file"
     [ELSE]
-	s\" \nset logging off\nquit\n\" >$file2 && gdb -nx -batch -p `ps -p $$ -o ppid=` -x $file2 2>/dev/null >/dev/null && rm $file2 && grep -v \"of assembler\" $file && rm $file"
+	s\" \nset logging enabled off\nquit\n\" >$file2 && gdb -nx -batch -p `ps -p $$ -o ppid=` -x $file2 2>/dev/null >/dev/null && rm $file2 && grep -v \"of assembler\" $file && rm $file"
     [THEN]  append-extend-string
     2dup (system) 2swap drop free throw throw if
 	addr u dump
