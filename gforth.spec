@@ -17,7 +17,7 @@
 
 
 Name:           gforth
-Version:        0.7.9_20230114
+Version:        0.7.9_20230130
 Release:        1.1
 Summary:        GNU Forth
 License:        GFDL-1.2-only AND GPL-2.0-or-later AND GPL-3.0-or-later
@@ -30,21 +30,24 @@ BuildRequires:  emacs-nox
 BuildRequires:  libffi-devel
 BuildRequires:  libX11-devel
 %if 0%{?rhel_version}
-BuildRequires:  libtool
-BuildRequires:  libtool-ltdl
-BuildRequires:  libtool-ltdl-devel
-BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
+BuildRequires:  libtool mesa-libGL-devel mesa-libEGL-devel
+BuildRequires:  libpng-devel freetype-devel harfbuzz-devel
+BuildRequires:  pulseaudio-libs-devel glibc-devel
+BuildRequires:  libtool-ltdl libtool-ltdl-devel
+BuildRequires:  libXrandr-devel libXext-devel texinfo
 %endif
 %if 0%{?centos_version}
-BuildRequires:  libtool
-BuildRequires:  libtool-ltdl
-BuildRequires:  libtool-ltdl-devel
+BuildRequires:  libtool mesa-libGL-devel mesa-libEGL-devel glew-devel
+BuildRequires:  libpng-devel freetype-devel harfbuzz-devel
+BuildRequires:  pulseaudio-libs-devel opus-devel libva-devel glibc-devel
+BuildRequires:  libtool-ltdl libtool-ltdl-devel
 BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
 %endif
 %if 0%{?fedora}
-BuildRequires:  libtool
-BuildRequires:  libtool-ltdl
-BuildRequires:  libtool-ltdl-devel
+BuildRequires:  libtool mesa-libGL-devel mesa-libEGL-devel glew-devel vulkan-devel gpsd-devel
+BuildRequires:  libpng-devel stb-devel freetype-devel harfbuzz-devel
+BuildRequires:  pulseaudio-libs-devel opus-devel libva-devel glibc-devel
+BuildRequires:  libtool-ltdl libtool-ltdl-devel
 BuildRequires:  libXrandr-devel libXext-devel texinfo texinfo-tex texi2html
 %endif
 BuildRequires:  m4
@@ -83,13 +86,15 @@ Gforth manual in PDF format
 %build
 %configure
 #%configure check_option=--no-debug-prim
-#make %{?_smp_mflags}
-make --jobs 1
+make %{?_smp_mflags}
+#make --jobs 1
 make doc pdf --jobs 1
 
 %check
-#make check %{?_smp_mflags}
-make check --jobs 1
+make check %{?_smp_mflags}
+#make check --jobs 1
+cat /proc/cpuinfo
+make onebench
 
 %install
 make DESTDIR=%{buildroot} install install-html install-pdf --jobs 1
