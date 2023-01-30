@@ -58,7 +58,7 @@ ARM64:
 
 s390x:
  sieve bubble matrix   fib   fft release; CPU; gcc
- 0.175  0.246  0.112 0.139 0.060 20230114; LinuxONE III LT1 8561 5200MHz; gcc-12.2.1
+ 0.088  0.125  0.056 0.120 0.041 20230130; LinuxONE III LT1 8561 5200MHz; gcc-12.2.1
 
 RV64GC:
  sieve bubble matrix fib   fft  release; CPU; gcc
