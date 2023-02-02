@@ -54,6 +54,9 @@ ac_cv_func_dlopen=yes
 ac_cv_lib_ltdl_lt_dlinit=no
 ac_export_dynamic=no
 ac_cv_func_mcheck=no
+ac_cv_lib_freetype_FT_Get_Char_Index=yes
+ac_cv_lib_harfbuzz_hb_buffer_create=yes
+ac_cv_lib_harfbuzz_hb_buffer_get_direction=yes
 HOSTCC="gcc -m32 -D__ANDROID_API__=19"
 GNU_LIBTOOL="i686-linux-android-libtool"
 LIBTOOL="i686-linux-android-libtool"
