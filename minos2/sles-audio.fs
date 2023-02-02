@@ -110,10 +110,10 @@ previous
     sles-mix realize ;
 
 : destroy-mix ( -- )
-    sles-mix SLObjectITF-Destroy()  0 to sles-mix ;
+    sles-mix SLObjectItf-Destroy()  0 to sles-mix ;
 
 : destroy-engine ( -- )
-    sles-engine SLObjectITF-Destroy()  0 to sles-engine ;
+    sles-engine SLObjectItf-Destroy()  0 to sles-engine ;
 
 #48000 Value sample-rate
 #960 Value samples/frame
@@ -219,7 +219,7 @@ Variable stream-bufs<>
 
 : destroy-player ( player -- )
     ?dup-IF
-	SLObjectITF-Destroy()
+	SLObjectItf-Destroy()
     THEN ;
 
 : mono-srate! ( rate -- )
@@ -281,7 +281,7 @@ Variable stream-bufs<>
 
 : destroy-recorder ( -- )
     sles-recorder ?dup-IF
-	SLObjectITF-Destroy()
+	SLObjectItf-Destroy()
 	0 to sles-recorder
 	0 to sles-record
 	0 to sles-recorderq
