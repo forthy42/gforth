@@ -112,7 +112,7 @@ function gen_freetype {
     tar Jxvf ~/Downloads/$FREETYPE.tar.xz
     (cd $FREETYPE
      ./autogen.sh # get fresh libtool&co
-     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --with-png=yes --with-zlib=no --with-harfbuzz=no 
+     ./configure --host=$TARGET --prefix=$TOOLCHAIN/sysroot/usr/ --includedir=$TOOLCHAIN/sysroot/usr/include/harfbuzz --with-png=yes --with-zlib=no --with-harfbuzz=no 
      make -j$nprocs
      make install)
 }
