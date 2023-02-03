@@ -223,9 +223,9 @@ Variable stream-bufs<>
     THEN ;
 
 : mono-srate! ( rate -- )
-    mhz PCM-format-mono 2 sfloats + l! ;
+    mHz PCM-format-mono 2 sfloats + l! ;
 : stereo-srate! ( rate -- )
-    mhz PCM-format-stereo 2 sfloats + l! ;
+    mHz PCM-format-stereo 2 sfloats + l! ;
 
 : play-mono ( rate read-record read-init -- ) >r
     pause-play

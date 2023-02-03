@@ -1,4 +1,4 @@
-\ Value with ADDR capability
+\ Value with ADDR capability (Variable+Value=Varue)
 \
 \ Authors: Bernd Paysan
 \ Copyright (C) 2022 Free Software Foundation, Inc.
