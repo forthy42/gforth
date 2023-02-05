@@ -416,7 +416,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : (int-;]) ( some-sys lastxt -- ) >r hm, wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
-    ] postpone ENDSCOPE third locals-list ! postpone ENDSCOPE
+    ] third locals-list ! postpone ENDSCOPE
     finish-code  hm,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 
@@ -424,7 +424,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
     wrap@  next-section  finish-code|
-    postpone SCOPE locals-list off postpone SCOPE
+    postpone SCOPE locals-list off
     ['] (;])  :noname  ;
 ' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
 \G Starts a quotation
