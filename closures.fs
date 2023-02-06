@@ -173,7 +173,7 @@ forth definitions
 \ stack-based closures without name
 
 : (;*]) ( xt -- hm )
-    >r ] scope? drop set-locals-size-list drop
+    >r ] ]] UNREACHABLE ENDSCOPE [[
     r@ wrap-closure  r> >namehm @ ;
 
 : (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,
