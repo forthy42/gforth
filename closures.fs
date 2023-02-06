@@ -173,7 +173,7 @@ forth definitions
 \ stack-based closures without name
 
 : (;*]) ( xt -- hm )
-    >r ] postpone endscope third locals-list ! postpone endscope
+    >r ] scope? drop set-locals-size-list drop
     r@ wrap-closure  r> >namehm @ ;
 
 : (;]l) ( xt1 n xt2 -- ) (;*]) >r dummy-local,

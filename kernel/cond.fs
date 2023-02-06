@@ -397,6 +397,8 @@ Defer exit-like ( -- )
 : scope ( compilation  -- scope ; run-time  -- ) \ gforth
     cs-push-part scopestart ; immediate
 
+Defer set-locals-size-list
+:noname locals-list ! ; is set-locals-size-list
 defer adjust-locals-list ( wid -- )
 ' drop is adjust-locals-list
 
@@ -416,7 +418,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : (int-;]) ( some-sys lastxt -- ) >r hm, wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
-    ] postpone ENDSCOPE third locals-list ! postpone ENDSCOPE
+    ] scope? drop set-locals-size-list drop
     finish-code  hm,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 
@@ -424,7 +426,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
     wrap@ ['] (int-;]) :noname ;
 : comp-[: ( -- quotation-sys flag colon-sys )
     wrap@  next-section  finish-code|
-    postpone SCOPE locals-list off postpone SCOPE
+    postpone SCOPE locals-list off
     ['] (;])  :noname  ;
 ' int-[: ' comp-[: interpret/compile: [: ( compile-time: -- quotation-sys flag colon-sys ) \ gforth bracket-colon
 \G Starts a quotation
