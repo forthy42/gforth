@@ -397,8 +397,6 @@ Defer exit-like ( -- )
 : scope ( compilation  -- scope ; run-time  -- ) \ gforth
     cs-push-part scopestart ; immediate
 
-Defer set-locals-size-list
-:noname locals-list ! ; is set-locals-size-list
 defer adjust-locals-list ( wid -- )
 ' drop is adjust-locals-list
 
@@ -418,7 +416,7 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 : (int-;]) ( some-sys lastxt -- ) >r hm, wrap! r> ;
 : (;]) ( some-sys lastxt -- )
     >r
-    ] scope? drop set-locals-size-list drop
+    ] postpone UNREACHABLE postpone ENDSCOPE
     finish-code  hm,  previous-section  wrap!  dead-code off
     r> postpone Literal ;
 

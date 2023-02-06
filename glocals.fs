@@ -244,12 +244,9 @@ opt: drop postpone swap postpone >l postpone >l ;
 Defer locals-list!
 :noname locals-list ! ; is locals-list!
 
-[IFUNDEF] set-locals-size-list
-    Defer set-locals-size-list
-[THEN]
-:noname ( list -- )
+: set-locals-size-list ( list -- )
     dup locals-list!
-    list-size locals-size ! ; is set-locals-size-list
+    list-size locals-size ! ;
 
 : check-begin ( list -- )
 \ warn if list is not a sublist of locals-list
@@ -544,9 +541,13 @@ forth definitions
 \ explicit scoping
 
 :noname ( wid -- )
-    locals-list @ common-list
-    dup list-size adjust-locals-size
-    locals-list! ;
+    dead-code @ IF
+	set-locals-size-list
+    ELSE
+	locals-list @ common-list
+	dup list-size adjust-locals-size
+	locals-list!
+    THEN ;
 is adjust-locals-list
 
 \ adapt the hooks
