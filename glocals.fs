@@ -244,9 +244,12 @@ opt: drop postpone swap postpone >l postpone >l ;
 Defer locals-list!
 :noname locals-list ! ; is locals-list!
 
-: set-locals-size-list ( list -- )
+[IFUNDEF] set-locals-size-list
+    Defer set-locals-size-list
+[THEN]
+:noname ( list -- )
     dup locals-list!
-    list-size locals-size ! ;
+    list-size locals-size ! ; is set-locals-size-list
 
 : check-begin ( list -- )
 \ warn if list is not a sublist of locals-list
