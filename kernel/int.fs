@@ -441,11 +441,11 @@ opt: ( xt-defer@ -- )
 
 swap cell+ swap \ hmextra
 
-method name>int ( nt -- xt ) \ gforth name-to-int
+method name>int ( nt -- xt ) \ gforth-obsolete name-to-int
 \G @i{xt} represents the interpretation semantics of the word
 \G @i{nt}.
 
-method name>comp ( nt -- w xt ) \ gforth name-to-comp
+method name>comp ( nt -- w xt ) \ gforth-obsolete name-to-comp
 \G @i{w xt} is the compilation token for the word @i{nt}.
 
 method name>string ( nt -- addr u ) \ tools-ext name-to-string
