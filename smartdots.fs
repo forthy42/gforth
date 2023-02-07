@@ -39,27 +39,27 @@ defstart , live-orig , dead-orig , dest , do-dest , scopestart ,
 does> 6 cells bounds DO  dup I @ = if  drop true unloop  exit  then
   cell +LOOP  drop false ;
 
-: .addr. ( addr -- )
-    dup xt? if
-        dup name>string 2dup string? if
-            third >namehm @ >hm>int @ ['] noop <> if '`' emit then
-            ." `" type space drop exit
-	else
-	    2drop
-	then
-    then
-    dup which-section? ?dup-if
-	@ >body over [ 1 maxaligned negate ]L and U-DO
-	    I body> xt? if
-		I body> name>string 2dup string? if
-		    '<' emit type I - ?dup-if
-			." +$" 0 ['] u.r $10 base-execute  then
-		    '>' emit space unloop  EXIT
-		else  2drop  then
+: .addr. ( addr -- ) dup >r
+    [:  dup xt? if
+	    dup name>string 2dup string? if
+		third >namehm @ >hm>int @ ['] noop <> if '`' emit then
+		." `" type space drop exit
+	    else
+		2drop
 	    then
-	[ 1 maxaligned ]L -LOOP
-    then
-    hex. ;
+	then
+	dup which-section? ?dup-if
+	    @ >body over [ 1 maxaligned negate ]L and U-DO
+		I body> xt? if
+		    I body> name>string 2dup string? if
+			'<' emit type I - ?dup-if
+			    ." +$" 0 ['] u.r $10 base-execute  then
+			'>' emit space unloop  EXIT
+		    else  2drop  then
+		then
+	    [ 1 maxaligned ]L -LOOP
+	then
+	hex. ;] catch IF  drop r> hex. nothrow  ELSE  rdrop  THEN ;
 
 : .var. ( addr -- )
     dup body> >name dup IF  .name drop  ELSE  drop hex.  THEN ;

@@ -121,12 +121,17 @@ definitions
 
 : next-head ( addr1 -- addr2 ) \ gforth
     \G find the next header starting after addr1, up to here (unreliable).
-    [ cell body> ] Literal + here swap u+do
+    [ cell body> ] Literal +
+    dup which-section? ?dup-IF
+	['] section-dp swap section-execute @
+    ELSE
+	here
+    THEN tuck >r u+do
 	i xt? if
-	    i name>string drop cell negate and unloop exit
+	    i name>string drop cell negate and unloop rdrop exit
 	then
     cell +loop
-    here ;
+    r> ;
 
 : next-prim ( addr1 -- addr2 ) \ gforth
     \G find the next primitive after addr1 (unreliable)

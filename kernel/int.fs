@@ -496,8 +496,8 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 : named>link ( nt1 -- nt2 / 0 ) \ gforth-internal	named-to-link
     >link @ ;
 
-: noname>string ( nt -- hm 0 ) \ gforth-internal    noname-to-string
-    cell- 0 ;
+: noname>string ( nt -- cfa 0 ) \ gforth-internal    noname-to-string
+    cell- cell- 0 ;
 : noname>link ( nt -- 0 ) \ gforth-internal    noname-to-link
     drop 0 ;
 
