@@ -29,7 +29,7 @@ defer gdb-addr-sep-char ( -- c )
 
 ',' constant #comma
 
-: check-gdb-syntax ( -- c )
+: check-addr-sep-char ( -- c )
     \ gdb-7.0 and earlier do what we want with "disassemble addr1 addr2"
     \ gdb-7.1 and later only work with         "disaesemble addr1,addr2"
     \ try the old syntax to see if it works
@@ -43,7 +43,29 @@ defer gdb-addr-sep-char ( -- c )
     dup is gdb-addr-sep-char
     execute ;
 
-' check-gdb-syntax is gdb-addr-sep-char
+' check-addr-sep-char is gdb-addr-sep-char
+
+
+defer gdb-set-logging-syntax ( -- )
+\ prints "" or "enabled "
+
+: .enabled ." enabled " ;
+
+: check-set-logging-syntax ( -- )
+    \ checks gdb and then prints "" or "enabled"
+    \ gdb 7.11 and 8.2 do not understand "enabled", gdb-10.1 prefers it
+    s" gdb -ex 'set logging enabled on' -ex 'quit' 2>&1" r/o open-pipe throw
+    dup slurp-fid rot close-pipe throw drop
+    s" Undefined set logging command" search nip nip if
+        `noop
+    else
+        `.enabled
+    then
+    dup is gdb-set-logging-syntax
+    execute ;
+
+`check-set-logging-syntax is gdb-set-logging-syntax
+
 
 set-current
 
@@ -63,15 +85,16 @@ set-current
         .\" type gdb >/dev/null && "
         .\" file=`mktemp -t gforthdis.XXXXXXXXXX` && "
         .\" file2=`mktemp -t gforthdis.XXXXXXXXXX` && "
-        .\" echo \"set verbose off\nset logging file $file\nset logging on\n"
+        .\" echo \"set verbose off\nset logging file $file\n"
+        .\" set logging " gdb-set-logging-syntax .\" on\n"
         .\" disas " addr 0x. gdb-addr-sep-char emit addr u + 0x. cr
-        .\" set logging enabled off\nquit\n\" >$file2 && "
+        .\" set logging " gdb-set-logging-syntax .\" off\nquit\n\" >$file2 && "
         .\" gdb -nx -batch -p `ps -p $$ " ppid .\" ` -x $file2 2>/dev/null >/dev/null && "
         .\" rm $file2 && "
         .\" grep -v \"of assembler\" $file && "
         .\" rm $file"
     ;] >string-execute
-    cr 2dup type cr
+    \ cr 2dup type cr
     2dup (system) 2swap drop free throw throw if
 	addr u dump
     endif ;

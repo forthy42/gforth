@@ -71,9 +71,9 @@ require see-ext.fs
 require backtrac.fs
 require simp-see.fs
 require debug.fs
-require dis-gdb.fs
 require libcc.fs
 require str-exec.fs
+require dis-gdb.fs
 require gforthrc.fs
 require ansi.fs
 \ require colorize.fs
