@@ -90,8 +90,15 @@ set-current
         .\" disas " addr 0x. gdb-addr-sep-char emit addr u + 0x. cr
         .\" set logging " gdb-set-logging-syntax .\" off\nquit\n\" >$file2 && "
         .\" gdb -nx -batch -p `ps -p $$ " ppid .\" ` -x $file2 2>/dev/null >/dev/null && "
-        .\" rm $file2 && "
-        .\" grep -v \"of assembler\" $file && "
+        .\" rm $file2 &&\n"
+        .\" if grep -q 'Cannot access memory at address' $file; then\n"
+        .\"   echo 'gdb cannot not access gforth; on, e.g., Ubuntu this can be fixed with'\n"
+        .\"   echo '  sudo echo 0 >/proc/sys/kernel/yama/ptrace_scope'\n"
+        .\"   echo 'Alternatively, you can use DUMP instead of DISASM-GDB by setting'\n"
+        .\"   echo \"  ' dump is discode\"\n"
+        .\" else\n"
+        .\"   grep -v \"of assembler\" $file\n"
+        .\" fi\n"
         .\" rm $file"
     ;] >string-execute
     \ cr 2dup type cr
