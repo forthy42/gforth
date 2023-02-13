@@ -85,16 +85,15 @@ set-current
         .\" type mktemp >/dev/null && "
         .\" type gdb >/dev/null && "
         .\" file=`mktemp -t gforthdis.XXXXXXXXXX` && "
-        .\" file2=`mktemp -t gforthdis.XXXXXXXXXX` && "
+        .\" file2=`mktemp -t gforthdis.XXXXXXXXXX` && \n"
+        .\" trap \"rm $file $file2\" EXIT && "
         .\" echo \"set verbose off\nset logging file $file\n"
         .\" set logging " gdb-set-logging-syntax .\" on\n"
         .\" disas " addr 0x. gdb-addr-sep-char emit addr u + 0x. cr
         .\" set logging " gdb-set-logging-syntax .\" off\nquit\n\" >$file2 && "
         .\" gdb -nx -batch -p `ps -p $$ " ppid .\" ` -x $file2 2>/dev/null >/dev/null && "
-        .\" rm -f $file2 && "
         .\" ! grep -q 'Cannot access memory at address' $file && "
-        .\" grep -v \"of assembler\" $file &&"
-        .\" rm $file"
+        .\" grep -v \"of assembler\" $file"
     ;] >string-execute
     \ cr 2dup type cr
     2dup (system) 2swap drop free throw throw if
