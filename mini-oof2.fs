@@ -47,18 +47,31 @@ opt: drop @ postpone o#+ , ;
 \ core system
 
 -2 cells    field: >osize    field: >methods   drop
-: method ( m v size "name" -- m' v )
-  Header reveal method-xt hmcopy,  over , swap cell+ swap ;
-: var ( m v size "name" -- m v' )
-  Header reveal    var-xt hmcopy,  over , dup , ( for sizeof ) + ;
-: class ( class -- class methods vars )
-  dup >osize 2@ ['] var IS +field  ['] o+field, IS +field, ;
-: end-class  ( class methods vars "name" -- )
-  , dup , here >r 0 U+DO ['] default-method defer@ , cell +LOOP
-  dup r@ swap >methods @ move  r> Value ;
-: >vt ( class "name" -- addr )  ' >body @ + ;
-: :: ( class "name" -- ) >vt @ compile, ;
-0 cells , 0 cells ,  here Value object
+: method ( m v "name" -- m' v ) \ mini-oof2
+    \G Define a selector @var{name}; increments the number of selectors
+    \G @var{m} (in bytes).
+    Header reveal method-xt hmcopy,  over , swap cell+ swap ;
+: var ( m v size "name" -- m v' ) \ mini-oof2
+    \G define an instance variable with @var{size} bytes by the name
+    \G @var{name}, and increments the amount of storage per instance @var{m}
+    \G by @var{size}.
+    Header reveal    var-xt hmcopy,  over , dup , ( for sizeof ) + ;
+: class ( class -- class methods vars ) \ mini-oof2
+    \G start a class definition with superclass @var{class}, putting the size
+    \G of the methods table and instance variable space on the stack.
+    dup >osize 2@ ['] var IS +field ['] o+field, IS +field, ;
+: end-class ( class methods vars "name" -- ) \ mini-oof2
+    \G finishs a class definition and assigns a name @var{name} to the newly
+    \G created class. Inherited methods are copied from the superclass.
+    , dup , here >r 0 U+DO ['] default-method defer@ , cell +LOOP
+    dup r@ swap >methods @ move r> Value ;
+: >vt ( class "name" -- addr ) \ mini-oof2
+    ' >body @ + ;
+: :: ( class "name" -- ) \ mini-oof2
+    \G Compile the method for the selector @var{name} of the class
+    \G @var{class} (not immediate!).
+    >vt @ compile, ;
+0 cells , 0 cells , here Value object
 
 \ memory allocation
 
@@ -114,12 +127,14 @@ dynamic-a to allocater
 ' >oo> ' lit, >postponer translate: translate-moof2
 ' translate-moof2 Constant rectype-moof2
 
-: rec-moof2 ( addr u -- xt translate-moof2 | notfound )
+: rec-moof2 ( addr u -- xt translate-moof2 | notfound ) \ mini-oof2
+    \G Very simplistic dot-parser, transforms @code{.}@var{selector/ivar} to
+    \G @code{>o} @var{selector/ivar} @code{o>}.
     over c@ '.' = over 1 > and
-    IF  1 /string sp@ >r forth-recognize
-	translate-nt? IF  rdrop ['] translate-moof2
-	ELSE  r> sp!  2drop ['] notfound  THEN
-    ELSE  2drop ['] notfound  THEN ;
+    IF 1 /string sp@ >r forth-recognize
+	translate-nt? IF rdrop ['] translate-moof2
+	ELSE r> sp!  2drop ['] notfound THEN
+    ELSE 2drop ['] notfound THEN ;
 
 ' rec-moof2 get-recognizers 1+ set-recognizers
 

@@ -3334,10 +3334,12 @@ VM_JUMP(EXEC1((Xt)a_addr));
 \+objects
 
 >o ( c_addr -- r:c_old )	new	to_o
+""Set the current object to @var{c_addr}, the previous current object is pushed to the return stack""
 c_old = op;
 op = c_addr;
 
 o> ( r:c_addr -- )		new	o_restore
+""Restore the previous current object from the return stack""
 op = c_addr;
 
 o#+ ( #w -- c_addr )		new	o_lit_plus
