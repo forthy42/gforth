@@ -19243,6 +19243,7 @@ doc-!size
 doc-dispose-widget
 doc-.widget
 doc-par-split
+doc-resized
 
 Components are composed using a boxes&glue model similar to @LaTeX{},
 including paragraph breaking.  For the sake of simplicity and
