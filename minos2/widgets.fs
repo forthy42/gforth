@@ -393,10 +393,14 @@ object class
     \G debugging: Print informations about the widget
     method par-split ( rw -- ) \ minos2
     \G split a paragraph by width @var{rw}
+    method resized ( -- )
+    \G widget is resized
 end-class widget ( -- class ) \ minos2
 \G class for visual components
 
 0 Value w.indent#
+
+' noop widget is resized
 
 : inside? ( o:widget rx ry -- flag )
     y f- fdup d f< h fnegate f> and
@@ -1011,7 +1015,6 @@ glue class
     field: childs[] \ all children
     value: box-flags
     value: aidglue \ helper glue for tables
-    method resized
     method map
 end-class box
 
