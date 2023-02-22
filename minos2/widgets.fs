@@ -400,7 +400,11 @@ end-class widget ( -- class ) \ minos2
 
 0 Value w.indent#
 
-' noop widget is resized
+:noname ( -- )
+    parent-w ?dup-IF  .resized \ upwards
+    ELSE  !size xywhd !resize     \ downwards
+    THEN ;
+widget is resized
 
 : inside? ( o:widget rx ry -- flag )
     y f- fdup d f< h fnegate f> and
@@ -1113,13 +1117,6 @@ end-class box
 
 :noname ( -- ) ['] draw-init box-visible# ?do-childs ; box is draw-init
 :noname ( -- ) ['] draw      box-visible# ?do-childs ; box is draw
-
-:noname ( -- )
-    parent-w ?dup-IF  .resized \ upwards
-    ELSE  !size xywhd !resize     \ downwards
-    THEN ;
-dup widget is resized
-box is resized
 
 : +child ( o -- ) o over >o to parent-w resize-parents o> childs[] >back ;
 : child+ ( o -- ) o over >o to parent-w resize-parents o> childs[] >stack ;

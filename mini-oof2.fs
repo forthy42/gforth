@@ -26,9 +26,14 @@ Defer default-method ' noop IS default-method
 
 Create o 0 ,  DOES> @ o#+ [ 0 , ] + ;
 opt: ( xt -- ) >body @ postpone o#+ , ;
-: m-to ( xt -- ) >body @ + ! ;
-to-opt: ( xt -- ) >body @ postpone lit+ , postpone ! ;
-: m-defer@ ( xt -- ) >body @ + @ ;
+s" Invalid method for this class" exception Constant !!inv-method!!
+: ?valid-method ( offset class -- offset )
+    cell- @ over u<= !!inv-method!! and throw ;
+: m-to ( xt class xtsel -- )
+    >body @ over ?valid-method + ! ;
+to-opt: ( xt class xtsel -- ) >body @ postpone lit+ , postpone ! ;
+\ no validity check for compilation, normal usage is interpretative only
+: m-defer@ ( xt -- ) >body @ over ?valid-method + @ ;
 defer@-opt: ( xt -- ) >body @ postpone lit+ , postpone @ ;
 Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
 opt: ( xt -- ) >body @ cell/ postpone o#exec , ;
