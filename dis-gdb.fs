@@ -81,29 +81,27 @@ set-current
 
 : disasm-gdb { addr u -- }
     cr addr u [: { addr u }
+        \ .\" set -x\n"
         .\" type mktemp >/dev/null && "
         .\" type gdb >/dev/null && "
         .\" file=`mktemp -t gforthdis.XXXXXXXXXX` && "
-        .\" file2=`mktemp -t gforthdis.XXXXXXXXXX` && "
+        .\" file2=`mktemp -t gforthdis.XXXXXXXXXX` && \n"
+        .\" trap \"rm $file $file2\" EXIT && "
         .\" echo \"set verbose off\nset logging file $file\n"
         .\" set logging " gdb-set-logging-syntax .\" on\n"
         .\" disas " addr 0x. gdb-addr-sep-char emit addr u + 0x. cr
         .\" set logging " gdb-set-logging-syntax .\" off\nquit\n\" >$file2 && "
         .\" gdb -nx -batch -p `ps -p $$ " ppid .\" ` -x $file2 2>/dev/null >/dev/null && "
-        .\" rm $file2 &&\n"
-        .\" if grep -q 'Cannot access memory at address' $file; then\n"
-        .\"   echo 'gdb cannot not access gforth; on, e.g., Ubuntu this can be fixed with'\n"
-        .\"   echo '  sudo echo 0 >/proc/sys/kernel/yama/ptrace_scope'\n"
-        .\"   echo 'Alternatively, you can use DUMP instead of DISASM-GDB by setting'\n"
-        .\"   echo \"  ' dump is discode\"\n"
-        .\" else\n"
-        .\"   grep -v \"of assembler\" $file\n"
-        .\" fi\n"
-        .\" rm $file"
+        .\" ! grep -q 'Cannot access memory at address' $file && "
+        .\" grep -v \"of assembler\" $file"
     ;] >string-execute
     \ cr 2dup type cr
     2dup (system) 2swap drop free throw throw if
-	addr u dump
+        .\" gdb cannot not access gforth; on Linux this can be fixed with (in the shell)\n"
+        .\"   sudo echo 0 >/proc/sys/kernel/yama/ptrace_scope\n"
+        .\" and permanently by editing /etc/sysctl.d/10-ptrace.conf\n"
+        .\" Alternatively, you can use DUMP instead of DISASM-GDB by setting\n"
+        .\"     `dump is discode\n"
     endif ;
 
 ' disasm-gdb is discode

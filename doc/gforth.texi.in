@@ -423,6 +423,7 @@ Object-oriented Forth
 * Objects::
 * OOF::
 * Mini-OOF::
+* Mini-OOF2::
 * Comparison with other object models::
 
 The @file{objects.fs} model
@@ -12106,6 +12107,7 @@ in Standard Forth and can be used with any other Standard Forth.
 * Objects::
 * OOF::
 * Mini-OOF::
+* Mini-OOF2::
 * Comparison with other object models::
 @end menu
 
@@ -13220,7 +13222,7 @@ doc---oof-class;
 @cindex class implementation
 
 @c -------------------------------------------------------------
-@node Mini-OOF, Comparison with other object models, OOF, Object-oriented Forth
+@node Mini-OOF, Mini-OOF2, OOF, Object-oriented Forth
 @subsection The @file{mini-oof.fs} model
 @cindex mini-oof
 
@@ -13466,8 +13468,25 @@ s" fat bar" bar init
 bar draw
 @end example
 
+@node Mini-OOF2, Comparison with other object models, Mini-OOF, Object-oriented Forth
+@subsection Mini-OOF2
 
-@node Comparison with other object models,  , Mini-OOF, Object-oriented Forth
+Mini-OOF2 is very similar to Mini-OOF in many respects, but differs
+significantly in a few aspects.  In particular, Mini-OOF2 has a current
+object variable, and uses the primitives @code{>o} and @code{o>} to
+manipulate that object stack.  All method invocations and instance
+variable accesses refer to the current object.
+
+doc->o
+doc-o>
+
+To ease passing an object pointer to method invocation or instance
+variable accesses, the additional recognizer @code{rec-moof2} is
+activated.
+
+doc-rec-moof2
+
+@node Comparison with other object models,  , Mini-OOF2, Object-oriented Forth
 @subsection Comparison with other object models
 @cindex comparison of object models
 @cindex object models, comparison
@@ -19224,6 +19243,7 @@ doc-!size
 doc-dispose-widget
 doc-.widget
 doc-par-split
+doc-resized
 
 Components are composed using a boxes&glue model similar to @LaTeX{},
 including paragraph breaking.  For the sake of simplicity and

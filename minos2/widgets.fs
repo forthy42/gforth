@@ -393,10 +393,18 @@ object class
     \G debugging: Print informations about the widget
     method par-split ( rw -- ) \ minos2
     \G split a paragraph by width @var{rw}
+    method resized ( -- )
+    \G widget is resized
 end-class widget ( -- class ) \ minos2
 \G class for visual components
 
 0 Value w.indent#
+
+:noname ( -- )
+    parent-w ?dup-IF  .resized \ upwards
+    ELSE  !size xywhd !resize     \ downwards
+    THEN ;
+widget is resized
 
 : inside? ( o:widget rx ry -- flag )
     y f- fdup d f< h fnegate f> and
@@ -1011,7 +1019,6 @@ glue class
     field: childs[] \ all children
     value: box-flags
     value: aidglue \ helper glue for tables
-    method resized
     method map
 end-class box
 
@@ -1110,13 +1117,6 @@ end-class box
 
 :noname ( -- ) ['] draw-init box-visible# ?do-childs ; box is draw-init
 :noname ( -- ) ['] draw      box-visible# ?do-childs ; box is draw
-
-:noname ( -- )
-    parent-w ?dup-IF  .resized \ upwards
-    ELSE  !size xywhd !resize     \ downwards
-    THEN ;
-dup widget is resized
-box is resized
 
 : +child ( o -- ) o over >o to parent-w resize-parents o> childs[] >back ;
 : child+ ( o -- ) o over >o to parent-w resize-parents o> childs[] >stack ;
