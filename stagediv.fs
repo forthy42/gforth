@@ -145,10 +145,10 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     drop ;
 [then]
 
-: pow2? ( u -- f )
+: pow2? ( u -- f ) \ gforth
     dup dup 1- and 0= and 0<> ;
 
-: ctz ( x -- u )
+: ctz ( x -- u ) \ gforth
     \g count trailing zeros in binary representation of x
     dup if
 	dup negate and log2 exit then
