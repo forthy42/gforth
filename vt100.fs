@@ -23,12 +23,9 @@ decimal
 [IFUNDEF] #esc  27 Constant #esc  [THEN]
 
 : #n ( n -- )  [: 0 #s 2drop ;] #10 base-execute ;
-: #n; ( n -- )  [: 0 #s 2drop ';' hold ;] #10 base-execute ;
-: #esc[ ( -- ) '[' hold #esc hold ;
-
-: pn    base @ swap decimal 0 u.r base ! ;
-: ;pn   ';' emit pn ;
-: ESC[  #esc emit '[' emit ;
+: #n; ( n -- )  #n ';' hold ;
+\ : #esc[ ( -- ) '[' hold #esc hold ;
+: #esc[ ( -- ) s\" \e[" holds ;
 
 : vt100-at-xy ( u1 u2 -- ) \ facility at-x-y
   \G Position the cursor so that subsequent text output will take
