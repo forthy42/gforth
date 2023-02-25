@@ -145,10 +145,12 @@ constant staged/-size ( -- u ) \ gforth staged-slash-size
     drop ;
 [then]
 
-: pow2? ( u -- f ) \ gforth
+: pow2? ( u -- f ) \ gforth pow-two-query
+    \g @i{f} is true iff @i{u} is a power of two, i.e., there is
+    \g exactly one bit set in @i{u}.
     dup dup 1- and 0= and 0<> ;
 
-: ctz ( x -- u ) \ gforth
+: ctz ( x -- u ) \ gforth c-t-z
     \g count trailing zeros in binary representation of x
     dup if
 	dup negate and log2 exit then

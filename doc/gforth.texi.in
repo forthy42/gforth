@@ -5339,6 +5339,8 @@ doc-d2*
 doc-d2/
 doc->pow2
 doc-log2
+doc-pow2?
+doc-ctz
 
 Unlike most other operations, rotation of narrower units cannot easily
 be synthesized from rotation of wider units, so using cell-wide and
