@@ -23,6 +23,7 @@
 -77 Constant UTF-8-err
 
 $80 Constant max-single-byte
+$FFFD Constant invalid-char
 
 : u8len ( u8 -- n )
     dup      max-single-byte u< IF  drop 1  EXIT  THEN \ special case ASCII
@@ -32,11 +33,11 @@ $80 Constant max-single-byte
 
 : u8@+ ( u8addr -- u8addr' u )
     count  dup max-single-byte u< ?EXIT  \ special case ASCII
-    dup $C2 u< IF  UTF-8-err throw  THEN  \ malformed character
+    dup $C2 u< IF  drop invalid-char EXIT  THEN  \ malformed character
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r count
-	    dup $C0 and $80 <> IF   UTF-8-err throw  THEN
+	    dup $C0 and $80 <> IF  drop rdrop rdrop 1- invalid-char EXIT  THEN
 	    $3F and r> or
     REPEAT  rdrop ;
 
@@ -63,11 +64,11 @@ Defer check-xy  ' noop IS check-xy
 : u8key ( -- u )
     key dup max-single-byte u< ?EXIT  \ special case ASCII
     dup $FF = ?EXIT  \ special resize character
-    dup $C2 u< IF  UTF-8-err throw  THEN  \ malformed character
+    dup $C2 u< IF  drop invalid-char EXIT  THEN  \ malformed character
     $7F and  $40 >r
     BEGIN  dup r@ and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r key
-	    dup $C0 and $80 <> IF  UTF-8-err throw  THEN
+	    dup $C0 and $80 <> IF  drop rdrop invalid-char EXIT  THEN
 	    $3F and r> or
     REPEAT  rdrop ;
 
@@ -97,18 +98,23 @@ Defer check-xy  ' noop IS check-xy
 	>r u8!+ r> r> swap - true
     then ;
 
+: u8?valid ( addr u -- u )
+    tuck 1- bounds U+DO
+	i c@ $C0 and $80 <> IF  I' I - - unloop  EXIT  THEN
+    LOOP ;
 : u8addrlen ( u8-addr u -- u1 )
     \ length of UTF-8 char starting at u8-addr (accesses only u8-addr)
-    drop c@
-    dup $80 u< if drop 1 exit endif
-    dup $c0 u< if drop 1 exit ( UTF-8-err throw ) endif
-    dup $e0 u< if drop 2 exit endif
-    dup $f0 u< if drop 3 exit endif
-    dup $f8 u< if drop 4 exit endif
-    dup $fc u< if drop 5 exit endif
-    dup $fe u< if drop 6 exit endif
-    dup $ff u< if drop 7 exit endif
-    drop 8 ;
+    dup 0= IF  nip  EXIT  THEN
+    >r count
+    dup $80 u< if 2drop 1 r> umin EXIT endif
+    dup $c0 u< if 2drop 1 r> umin EXIT endif
+    dup $e0 u< if drop 2 r> umin u8?valid EXIT endif
+    dup $f0 u< if drop 3 r> umin u8?valid EXIT endif
+\    dup $f8 u< if drop 4 r> umin EXIT endif
+\    dup $fc u< if drop 5 r> umin EXIT endif
+\    dup $fe u< if drop 6 r> umin EXIT endif
+\    dup $ff u< if drop 7 r> umin EXIT endif
+    drop 4 r> umin u8?valid ;
 
 : -u8trailing-garbage ( addr u1 -- addr u2 )
     dup 0= ?EXIT
@@ -358,7 +364,7 @@ environment-wordlist set-current
     \G we prefer the alias ``ASCII''.
     xc-vector @ utf-8 = IF s" UTF-8" ELSE s" ISO-LATIN-1" THEN ;
 : max-xchar ( -- xchar )
-    xc-vector @ utf-8 = IF $7FFFFFFF  ELSE  $FF  THEN ;
+    xc-vector @ utf-8 = IF $1FFFFF  ELSE  $FF  THEN ;
 ' noop Alias X:xchar
 forth definitions
 
