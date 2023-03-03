@@ -48,7 +48,6 @@ require struct0x.fs
 threading-method 1 <> [IF] require stagediv.fs [THEN]
 require closures.fs
 require wordinfo.fs
-require vt100.fs
 \ require bufio.fs \ replaced by $exec
 require utf-8.fs
 require debugs.fs
@@ -60,6 +59,7 @@ require table.fs
 require ekey.fs
 require history.fs
 require quotes.fs
+require vt100.fs
 require rec-string.fs
 require rec-to.fs
 require rec-tick.fs
