@@ -47,6 +47,7 @@
 
 @macro progstyle {}
 Programming style note:
+
 @end macro
 
 @macro assignment {}
@@ -6850,16 +6851,14 @@ can use @code{recursive} to make the current definition visible, or
 doc-recursive
 doc-recurse
 
+@noindent For examples of using these words, @xref{Recursion Tutorial}.
 
-@comment TODO add example of the two recursion methods
-@quotation
 @progstyle
 I prefer using @code{recursive} to @code{recurse}, because calling the
 definition by name is more descriptive (if the name is well-chosen) than
 the somewhat cryptic @code{recurse}.  E.g., in a quicksort
 implementation, it is much better to read (and think) ``now sort the
 partitions'' than to read ``now do a recursive call''.
-@end quotation
 
 For mutual recursion, use @code{Defer}red words, like this:
 
