@@ -320,7 +320,9 @@ set-current
 [IFDEF] max-single-byte
     : read-xkey ( key -- flag )
 	ekey-buffer c$+!
-	ekey-buffer $@ x-size 1 +do
+	[ pad 3 $80 fill pad 3 ] SLiteral
+	ekey-buffer $+!
+	ekey-buffer $@ x-size  1 ekey-buffer $!len 1 +do
 	    key? 0= ?leave
 	    key ekey-buffer c$+!
 	loop
