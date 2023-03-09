@@ -126,7 +126,7 @@ DOES> ( len -- mask ) swap cells + @ ;
 
 : u8?invalid ( u8-addr u -- flag len )
     over c@ (u8addrlen) >r ( u8-addr u r:len )
-    r@ u< IF  drop rdrop true 1  EXIT  THEN
+    r@ u< IF  r> min true swap  EXIT  THEN
     l@ r@ (u8mask) and r@ (u8fit) <> r> ;
 
 : u8addrlen ( u8-addr u -- u1 )

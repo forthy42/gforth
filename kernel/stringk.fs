@@ -43,7 +43,7 @@
 [THEN]
 
 : $padding ( n -- n' ) \ gforth
-    [ 6 cells ] Literal +  >pow2  [ -4 cells ] Literal and ;
+    [ 6 cells 1- ] Literal + [ -4 cells ] Literal and >pow2 ;
 : $free ( $addr -- ) \ gforth string-free
     \G free the string pointed to by addr, and set addr to 0
     0 swap !@ ?dup-IF  free throw  THEN ;
