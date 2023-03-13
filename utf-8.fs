@@ -35,11 +35,11 @@ $FFFD Constant invalid-char
     count  dup max-single-byte u< ?EXIT  \ special case ASCII
     dup $C2 u< IF  drop invalid-char EXIT  THEN  \ malformed character
     $7F and  $40 >r
-    BEGIN  dup r@ and  WHILE  r@ xor
+    BEGIN  dup r@ and r@ $100000 u< and  WHILE  r@ xor
 	    6 lshift r> 5 lshift >r >r count
 	    dup $C0 and $80 <> IF  drop rdrop rdrop 1- invalid-char EXIT  THEN
 	    $3F and r> or
-    REPEAT  rdrop ;
+    REPEAT  rdrop dup $10FFFF u> IF  drop invalid-char  THEN ;
 
 : u8!+ ( u u8addr -- u8addr' )
     over max-single-byte u< IF  tuck c! 1+  EXIT  THEN \ special case ASCII
@@ -138,8 +138,9 @@ DOES> ( len -- mask ) swap cells + @ ;
 : -u8trailing-garbage ( addr u1 -- addr u2 )
     dup 0= ?EXIT
     2dup + dup u8<< ( addr u1 end1 end2 )
-    dup u8@+ invalid-char = IF  drop
-    ELSE  2dup u< IF  drop  ELSE  nip  THEN  THEN
+    dup u8@+ invalid-char = IF  drop nip  ELSE
+	swap >r 2dup u< IF  2drop r>  ELSE  rdrop nip  THEN
+    THEN
     nip over - 0 max ;
 
 [IFUNDEF] wcwidth

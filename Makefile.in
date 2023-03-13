@@ -431,7 +431,7 @@ TEST_SRC = tester.fs ttester.fs checkans.fs coretest.fs dbltest.fs float.fs \
 	fp/ak-fp-test.fth fp/fatan2-test.fs fp/fpio-test.4th		    \
 	fp/fpzero-test.4th fp/ieee-arith-test.fs fp/ieee-fprox-test.fs	    \
 	fp/paranoia.4th fp/readme-fp.txt fp/runfptests.fth		    \
-	fp/to-float-test.4th fp/ttester.fs
+	fp/to-float-test.4th fp/ttester.fs xchar.fs
 
 UNIX_SRC = terminal-server.fs jni-helper.fs jni-tools.fs jni-media.fs	\
 	jni-location.fs sensors.fs win32.fs wayland-interfaces.fs
@@ -1090,7 +1090,7 @@ checkone test: prim.b gforth.fi engine/prim-s.i
 		$(TIMEOUT) $(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
 		$(TIMEOUT) $(FORTH) test/other.fs -e bye
 		$(TIMEOUT) $(FORTHS) test/signals.fs -e bye
-		$(TIMEOUT) $(FORTHS) test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
+		$(TIMEOUT) $(FORTHS) test/coremore.fs test/gforth.fs test/xchar.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
 		$(TIMEOUT) $(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -u $(srcdir)/test/checkans.out -
 		$(TIMEOUT) $(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $<\" ' output-c ' output-c-combined process-file bye"| \
