@@ -1,6 +1,7 @@
 \ xchar word test suite - UTF-8 only
 
 base @ hex
+utf-8 set-encoding
 
 { 0 xc-size -> 1 }
 { 7f xc-size -> 1 }
