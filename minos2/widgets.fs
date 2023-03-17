@@ -832,7 +832,7 @@ edit class
     cvalue: pw-mode \ 0: hidden, 1: show last char, 2: reveal
 end-class pw-edit
 
-( '●' ) '•' Value pw-char
+e? max-xchar $FF = [IF] '*' [ELSE] '•' [THEN] Value pw-char
 
 Variable *ins-o
 

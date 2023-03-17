@@ -382,7 +382,7 @@ environment-wordlist set-current
     \G we prefer the alias ``ASCII''.
     xc-vector @ utf-8 = IF s" UTF-8" ELSE s" ISO-LATIN-1" THEN ;
 : max-xchar ( -- xchar )
-    xc-vector @ utf-8 = IF $1FFFFF  ELSE  $FF  THEN ;
+    xc-vector @ utf-8 = IF $10FFFF  ELSE  $FF  THEN ;
 ' noop Alias X:xchar
 forth definitions
 

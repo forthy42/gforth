@@ -101,6 +101,7 @@ TAR	= tar cf -
 MKDIR	= mkdir
 MKDIR_P = @MKDIR_P@
 TIMEOUT = @TIMEOUT@ @TIMEOUT_ARGS@
+UTF8    = env LC_ALL=C.UTF-8
 ACLOCAL_AMFLAGS = -I m4
 INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -1090,7 +1091,7 @@ checkone test: prim.b gforth.fi engine/prim-s.i
 		$(TIMEOUT) $(FORTH) test/tester.fs test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
 		$(TIMEOUT) $(FORTH) test/other.fs -e bye
 		$(TIMEOUT) $(FORTHS) test/signals.fs -e bye
-		$(TIMEOUT) $(FORTHS) test/coremore.fs test/gforth.fs test/xchar.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
+		$(TIMEOUT) $(UTF8) $(FORTHS) test/coremore.fs test/gforth.fs test/xchar.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
 		$(TIMEOUT) $(FORTH) code.fs test/checkans.fs -e bye | tr -d '\015' | diff -u $(srcdir)/test/checkans.out -
 		$(TIMEOUT) $(FORTH) prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $<\" ' output-c ' output-c-combined process-file bye"| \

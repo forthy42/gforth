@@ -222,6 +222,7 @@ s" No suitable font found" exception constant !!no-suitable-font!!
 : xc>font# ( xc-addr -- xc-addr font# )
     dup ['] xc@ catch IF  drop 0  EXIT  THEN
     case
+	$FFFD of  0  endof
 	dup bl/null? = swap range@ or
 	-1 of  last-font# @  endof
 	dup 2 4 within IF  -1  ELSE  bl  THEN  to bl/null?
