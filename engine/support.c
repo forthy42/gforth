@@ -1152,3 +1152,65 @@ DCell fmdiv (DCell num, Cell denom)
   return res;
 }
 #endif
+
+DCell utf8_fetch_plus(Char * c_addr, UCell len)
+/* Read utf8 and increment */
+{
+  uint8_t lens[16] = { 1, 1, 1, 1,
+		       1, 1, 1, 1,
+		       1, 1, 1, 1, /* Really all invalid */
+		       2, 2, 3, 4 };
+  UTetrabyte masks[5] = { 0,
+			  0x7F000000,
+			  0x1F3F0000,
+			  0x0F3F3F00,
+			  0x073F3F3F };
+  UTetrabyte vmasks[5] = { 0,
+			   0x80000000,
+			   0xE0C00000,
+			   0xF0C0C000,
+			   0xF8C0C0C0 };
+  UTetrabyte valids[5] = { 0,
+			   0x00000000,
+			   0xC0800000,
+			   0xE0808000,
+			   0xF0808080 };
+  UTetrabyte codepoint;
+  memmove((Char*)&codepoint, c_addr, 4);
+#ifndef WORDS_BIGENDIAN
+  codepoint=BSWAP32(codepoint);
+#endif
+  {
+    int cplen=lens[codepoint>>28];
+    int mask=masks[cplen];
+    int vmask=vmasks[cplen];
+    int valid=valids[cplen];
+    DCell result;
+    
+    if(cplen > len) {
+      codepoint = 0xFFFD;
+      switch(len) {
+      case 3: if((c_addr[2] & 0xC0) != 0x80) len = 2;
+      case 2: if((c_addr[1] & 0xC0) != 0x80) len = 1;
+      }
+      cplen = len;
+    } else if((codepoint & vmask) == valid) {
+      codepoint = (codepoint & mask) >> ((4-cplen) << 3);
+      codepoint =
+	((codepoint & 0x000000FF) >> 0) |
+	((codepoint & 0x0000FF00) >> 2) |
+	((codepoint & 0x00FF0000) >> 4) |
+	((codepoint & 0xFF000000) >> 6);
+      if(codepoint > 0x10FFFF) codepoint = 0xFFFD;
+    } else {
+      codepoint = 0xFFFD;
+      switch(cplen) {
+      case 4: if((c_addr[3] & 0xC0) != 0x80) cplen = 3;
+      case 3: if((c_addr[2] & 0xC0) != 0x80) cplen = 2;
+      case 2: if((c_addr[1] & 0xC0) != 0x80) cplen = 1;
+      }
+    }
+    vm_twoCell2d((Cell)(cplen),(Cell)codepoint,result);
+    return result;
+  }
+}

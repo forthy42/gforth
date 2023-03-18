@@ -607,6 +607,8 @@ UDCell dadd(UDCell x, UDCell y);
 
 Cell memcasecmp(const Char *s1, const Char *s2, Cell n);
 
+DCell utf8_fetch_plus(Char * c_addr, UCell len);
+
 void vm_print_profile(FILE *file);
 void vm_count_block(Xt *ip);
 
