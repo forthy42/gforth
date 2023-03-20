@@ -1176,7 +1176,13 @@ DCell utf8_fetch_plus(Char * c_addr, UCell len)
 			   0xE0808000,
 			   0xF0808080 };
   UTetrabyte codepoint;
-  memmove((Char*)&codepoint, c_addr, 4);
+  if(len<4) {
+    UTetrabyte tmp = 0;
+    memmove((Char*)&tmp, c_addr, len);
+    codepoint = tmp;
+  } else {
+    memmove((Char*)&codepoint, c_addr, 4);
+  }
 #ifndef WORDS_BIGENDIAN
   codepoint=BSWAP32(codepoint);
 #endif
@@ -1187,14 +1193,7 @@ DCell utf8_fetch_plus(Char * c_addr, UCell len)
     int valid=valids[cplen];
     DCell result;
     
-    if(cplen > len) {
-      codepoint = 0xFFFD;
-      switch(len) {
-      case 3: if((c_addr[2] & 0xC0) != 0x80) len = 2;
-      case 2: if((c_addr[1] & 0xC0) != 0x80) len = 1;
-      }
-      cplen = len;
-    } else if((codepoint & vmask) == valid) {
+    if((codepoint & vmask) == valid) {
       codepoint = (codepoint & mask) >> ((4-cplen) << 3);
       codepoint =
 	((codepoint & 0x000000FF) >> 0) |
@@ -1205,9 +1204,9 @@ DCell utf8_fetch_plus(Char * c_addr, UCell len)
     } else {
       codepoint = 0xFFFD;
       switch(cplen) {
-      case 4: if((c_addr[3] & 0xC0) != 0x80) cplen = 3;
-      case 3: if((c_addr[2] & 0xC0) != 0x80) cplen = 2;
-      case 2: if((c_addr[1] & 0xC0) != 0x80) cplen = 1;
+      case 4: if((codepoint &     0xC0) !=     0x80) cplen = 3;
+      case 3: if((codepoint &   0xC000) !=   0x8000) cplen = 2;
+      case 2: if((codepoint & 0xC00000) != 0x800000) cplen = 1;
       }
     }
     vm_twoCell2d((Cell)(cplen),(Cell)codepoint,result);
