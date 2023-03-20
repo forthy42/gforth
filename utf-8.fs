@@ -32,14 +32,18 @@ $FFFD Constant invalid-char
     2drop r> ;
 
 : u8@+ ( u8addr -- u8addr' u )
-    count  dup max-single-byte u< ?EXIT  \ special case ASCII
-    dup $C2 u< IF  drop invalid-char EXIT  THEN  \ malformed character
-    $7F and  $40 >r
-    BEGIN  dup r@ and r@ $100000 u< and  WHILE  r@ xor
-	    6 lshift r> 5 lshift >r >r count
-	    dup $C0 and $80 <> IF  drop rdrop rdrop 1- invalid-char EXIT  THEN
-	    $3F and r> or
-    REPEAT  rdrop dup $10FFFF u> IF  drop invalid-char  THEN ;
+    [IFDEF] u8@+?
+	4 u8@+? nip
+    [ELSE]
+	count  dup max-single-byte u< ?EXIT  \ special case ASCII
+	dup $C2 u< IF  drop invalid-char EXIT  THEN  \ malformed character
+	$7F and  $40 >r
+	BEGIN  dup r@ and r@ $100000 u< and  WHILE  r@ xor
+		6 lshift r> 5 lshift >r >r count
+		dup $C0 and $80 <> IF  drop rdrop rdrop 1- invalid-char EXIT  THEN
+		$3F and r> or
+	REPEAT  rdrop dup $10FFFF u> IF  drop invalid-char  THEN
+    [THEN] ;
 
 : u8!+ ( u u8addr -- u8addr' )
     over max-single-byte u< IF  tuck c! 1+  EXIT  THEN \ special case ASCII
@@ -98,42 +102,47 @@ Defer check-xy  ' noop IS check-xy
 	>r u8!+ r> r> swap - true
     then ;
 
-: u8?valid ( addr u -- u )
-    tuck 1- bounds U+DO
-       i c@ $C0 and $80 <> IF  I' I - - unloop  EXIT  THEN
-    LOOP ;
+[IFDEF] u8@+?
+    : u8addrlen ( u8-addr u -- u1 )
+	tuck u8@+? drop nip - ;
+[ELSE]
+    : u8?valid ( addr u -- u )
+	tuck 1- bounds U+DO
+	    i c@ $C0 and $80 <> IF  I' I - - unloop  EXIT  THEN
+	LOOP ;
+    
+    Create (u8addrlen)
+    1 c, 1 c, 1 c, 1 c,
+    1 c, 1 c, 1 c, 1 c,
+    1 c, 1 c, 1 c, 1 c,
+    2 c, 2 c, 3 c, 4 c,
+      DOES> ( pc1 -- len ) swap 4 rshift + c@ ;
+    Create (u8mask)
+    $0 ,
+    $80000000 lbe ,
+    $E0C00000 lbe ,
+    $F0C0C000 lbe ,
+    $F8C0C0C0 lbe ,
+      DOES> ( len -- mask ) swap cells + @ ;
+    Create (u8fit)
+    $0 ,
+    $00000000 lbe ,
+    $C0800000 lbe ,
+    $E0808000 lbe ,
+    $F0808080 lbe ,
+      DOES> ( len -- mask ) swap cells + @ ;
 
-Create (u8addrlen)
-1 c, 1 c, 1 c, 1 c,
-1 c, 1 c, 1 c, 1 c,
-1 c, 1 c, 1 c, 1 c,
-2 c, 2 c, 3 c, 4 c,
-DOES> ( pc1 -- len ) swap 4 rshift + c@ ;
-Create (u8mask)
-$0 ,
-$80000000 lbe ,
-$E0C00000 lbe ,
-$F0C0C000 lbe ,
-$F8C0C0C0 lbe ,
-DOES> ( len -- mask ) swap cells + @ ;
-Create (u8fit)
-$0 ,
-$00000000 lbe ,
-$C0800000 lbe ,
-$E0808000 lbe ,
-$F0808080 lbe ,
-DOES> ( len -- mask ) swap cells + @ ;
-
-: u8?invalid ( u8-addr u -- flag len )
-    over c@ (u8addrlen) >r ( u8-addr u r:len )
-    r@ u< IF  r> min true swap  EXIT  THEN
-    l@ r@ (u8mask) and r@ (u8fit) <> r> ;
-
-: u8addrlen ( u8-addr u -- u1 )
-    \ length of UTF-8 char starting at u8-addr (accesses only u8-addr)
-    dup 0= IF  nip  EXIT  THEN
-    2dup u8?invalid >r IF  rdrop over + >r dup u8@+ drop r> umin swap -
-    ELSE  2drop r>  THEN ;
+    : u8?invalid ( u8-addr u -- flag len )
+	over c@ (u8addrlen) >r ( u8-addr u r:len )
+	r@ u< IF  r> min true swap  EXIT  THEN
+	l@ r@ (u8mask) and r@ (u8fit) <> r> ;
+    
+    : u8addrlen ( u8-addr u -- u1 )
+	\ length of UTF-8 char starting at u8-addr (accesses only u8-addr)
+	dup 0= IF  nip  EXIT  THEN
+	2dup u8?invalid >r IF  rdrop over + >r dup u8@+ drop r> umin swap -
+	ELSE  2drop r>  THEN ;
+[THEN]
 
 : -u8trailing-garbage ( addr u1 -- addr u2 )
     dup 0= ?EXIT

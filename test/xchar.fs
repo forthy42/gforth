@@ -41,8 +41,8 @@ utf-8 set-encoding
 { test-string x\string- x\string- -> test-string 4 - }
 { test-string x-size -> 3 }
 
-{ broken-string string>xchars -> FFFD FFFD FFFD 40 FFFD FFFD FFFD 25 FFFD FFFD 30 FFFD FFFD 50 FFFD 31 FFFD FFFD FFFD FFFD FFFD FFFD FFFD }
-{ broken-string string>xsize -> 1 1 1 1 1 2 1 1 1 1 1 2 2 1 3 1 3 4 4 1 1 1 1 }
+{ broken-string string>xchars -> FFFD FFFD FFFD 40 FFFD FFFD FFFD FFFD 25 FFFD FFFD 30 FFFD FFFD FFFD FFFD 50 FFFD FFFD FFFD 31 FFFD FFFD FFFD FFFD FFFD FFFD FFFD FFFD FFFD FFFD FFFD FFFD }
+{ broken-string string>xsize -> 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 4 1 1 1 1 1 1 1 1 }
 { broken-string string>-garbage -> 0 0 1 2 4 4 5 5 7 9 9 0A 0C 0C 0C 0E 0E 11 11 11 11 15 15 15 15 18 18 18 18 1C 1C 1C 1C 1C 1C 1C }
 
 { 123. <# #s s" Test" holds #> s" Test123" compare -> 0 }
