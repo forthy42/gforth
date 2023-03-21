@@ -1202,12 +1202,12 @@ DCell utf8_fetch_plus(Char * c_addr, UCell len)
 	((codepoint & 0xFF000000) >> 6);
       if(codepoint > 0x10FFFF) codepoint = 0xFFFD;
     } else {
-      codepoint = 0xFFFD;
       switch(cplen) {
       case 4: if((codepoint &     0xC0) !=     0x80) cplen = 3;
       case 3: if((codepoint &   0xC000) !=   0x8000) cplen = 2;
       case 2: if((codepoint & 0xC00000) != 0x800000) cplen = 1;
       }
+      codepoint = 0xFFFD;
     }
     vm_twoCell2d((Cell)(cplen),(Cell)codepoint,result);
     return result;
