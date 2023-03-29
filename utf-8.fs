@@ -87,9 +87,9 @@ Defer check-xy  ' noop IS check-xy
 \ utf-8 stuff for xchars
 
 : +u8/string ( xc-addr1 u1 -- xc-addr2 u2 )
-    over dup u8>> swap - safe/string ;
+    u8@+? drop ;
 : u8\string- ( xcaddr u -- xcaddr u' )
-    over + u8<< over - 0 max ;
+    BEGIN  dup  WHILE  1- 2dup + c@ $C0 and $80 <>  UNTIL  THEN ;
 
 : u8@ ( c-addr -- u )
     u8@+ nip ;
@@ -146,11 +146,12 @@ Defer check-xy  ' noop IS check-xy
 
 : -u8trailing-garbage ( addr u1 -- addr u2 )
     dup 0= ?EXIT
-    2dup + dup u8<< ( addr u1 end1 end2 )
-    dup u8@+ invalid-char = IF  drop nip  ELSE
-	swap >r 2dup u< IF  2drop r>  ELSE  rdrop nip  THEN
-    THEN
-    nip over - 0 max ;
+    2dup u8\string- 2over 2over nip safe/string
+    u8@+? invalid-char = IF
+	2drop 2nip
+    ELSE
+	2nip + nip over -
+    THEN ;
 
 [IFUNDEF] wcwidth
 : wc,3 ( n low high -- )  1+ , , , ;

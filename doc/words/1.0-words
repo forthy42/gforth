@@ -4355,88 +4355,87 @@ loadfilename#>str prepend~~ expand~~ short~~ plain~~ source-pos# source-line#
 prepend-file expand-file shorten-file lastfile filename>display *terminal*# 
 utf-8-cold set-encoding-utf-8 utf-8 x-maxlines x-maxlines+rest x-lines 
 x-lines+rest +x-lines+rest xc-hw+ u8width xc-width+ xc-width 
--u8trailing-garbage u8addrlen u8?invalid (u8fit) (u8mask) (u8addrlen) u8?valid 
-u8!+? u8@ u8\string- +u8/string u8emit u8key check-xy u8<< u8>> u8!+ u8@+ 
-u8len invalid-char max-single-byte UTF-8-err WordInfo InfoTable Com-color 
-Str-color Ali-color Use-color Col-color Def-color Doe-color Val-color 
-Var-color Con-color Pri-color prim? xtprim? colon? defered? does? user? value? 
-con? var? .recs prim>name >head threaded>name >name look PrimStart threaded>xt 
-xt= [f:d [f:h [f:l [d:d [d:h [d:l [n:d [n:h [n:l [f: [d: [n: [*:: :d :h :l 
-(;]*) (;]l) (;*]) ;> <{: [{: end-dclosure closure> closure-:-hook (closure-;]) 
-wrap-closure dummy-local, pop-locals push-locals extra-locals lp> >lp allocd 
-alloch >addr endref, end-d locals-lists locals-sizes opt-u/mod opt-/modf 
-opt-umod opt-modf opt-u/ opt-/f lit/, /f-stage1m ctz pow2? u/-stage1m 
-staged/-size staged/-divisor staged/-inverse-hi staged/-shift staged/-inverse 
-dffield: sffield: ffield: 2field: field: xfield: lfield: wfield: cfield: 
-end-structure begin-structure extend-structure standard:field +field sizeof 
-[sizeof] (sizeof) standard+field .sections opt@ opt+- (+loop)-optimizer 
-replace-(+loop) fold4-4 fold4-2 fold4-1 fold3-3 fold3-2 fold3-1 fold2-3 
-fold2-2 fold2-1 fold2-0 fold1-2 fold1-1 fold1-0 folds optimizes fold-constants 
->4lits 4lits> >3lits 3lits> >2lits 2lits> open-warp time&date (xparse) 
-string-parse [char] char append s+ traverse-matched-dir traverse-dir 
-try-read-dir adjust-buffer init-buffer buffer% buffer-maxlength buffer-address 
-buffer-length buffer-descriptor rec-sequence rectype-word translate-word 
-basic-help 2Value (2to) name>compile name>interpret nr> n>r \\\ th dump hex.r 
-base-execute derived-output: derived-input: execute-theme-color theme-color 
-infile-execute outfile-execute xaligned xalign laligned lalign waligned walign 
-*align *aligned xd, x, l, w, xd>s x>s xdle xle lle wle xdbe xbe lbe wbe noop0 
-/x /l /w typewhite what's action-of interpret/compile: f.s f.s-precision f.rdp 
-f>str-rdp f>buf-rdp f>buf-rdp-try push-right ]] rec-[[ rectype-[[ translate-[[ 
-set-recognizers get-recognizers set-rec-sequence get-rec-sequence >rec-stack 
-defers@ rectype-dnum rectype-num rectype-nt rectype-null rectype: rectype 
-rectype>post rectype>comp rectype>int file>fpath file>path slurp-fid 
-slurp-file const-does> (const-does>) compile-fliterals compile-literals 
-in-return-stack? ]L sh system $? dmax dmin ?CSP !CSP CSP needs save-mem-dict 
-[WHILE] [AGAIN] [REPEAT] [UNTIL] [BEGIN] [I] [NEXT] [FOR] [LOOP] [+LOOP] [?DO] 
-[DO] input< input-drop >input loop-indices input-stack (i) $[]free $[]. $[]map 
-$[]slurp-file $[]slurp $slurp-line $slurp-file $+slurp-file $slurp $+slurp 
-$tmp $. $exec $-out $form $cr $emit $type $execstr-ptr tmp$ tmps# tmp$# tmp$[] 
-$+[]! $[]@ $[]# $[]+! $[]! $off $over locals| definer! >definer (local) 
-(exit-like) (until-like) (again-like) (begin-like) (then-like) locals-;-hook 
-locals-:-hook {: { new-locals new-locals-rec some-waddr some-xtlocal 
-some-wlocal some-flocal some-dlocal some-clocal locals-types val-part-off 
-defer@-xt: to-f: to-c: to-d: to-w: c!-table 2!-table 2+! c+! lp-offset, 
-lp-offset create-local locals-where, locals-headers create-local1 
-locals-name-size+ check-begin set-locals-size-list locals-list! list-size 
-sub-list? common-list /list list-length compile-pushlocal-[ 
-compile-pushlocal-c compile-pushlocal-d 2>l compile-pushlocal-f 
-compile-pushlocal-w locals, val-part alignlp-f alignlp-w deactivate-locals 
-activate-locals rec-locals locals-rec translate-locals no-post locals 
-adjust-locals-size compile-lp+! compile-f@local compile-@local locals-size 
-next-case endcase closecase contof endof of ?of case case-depth expect span 
-capssearch capsstring-prefix? search blank convert [compile] C" m*/ d>s .( 
-frem ftrunc fmod fcopysign fsign-offset f~ f~rel f~abs 1/f f2/ f2* pi 
-fvariable rec-float rectype-float translate-float >postponer fp. prefix-number 
-zero-exp si-prefixes sfnumber fs. fe. f. f$ -zeros zeros scratch set-precision 
-precision fdepth fvalue fvalue-to f!-table f+! fconstant opt-fcon opt-fval 
-FLiteral flit, f, dfloat+ sfloat+ dfalign sfalign dump-sections extra-section 
->extra-sections #>section section# lits<> new-section create-section 
-which-section? sections-execute section-execute set-section 
-extra-section-error first-section-error image-offset section-defaultsize 
-#extra-sections sections .words hash-cold make-hash hash-wordlist hashdouble 
-(rehash) rehashall clearhash addall inithash table-reveal hash-reveal (reveal 
-lastlink! hash-rec hash-find bucket NewFix DelFix hash-alloc hashsearch-map 
-HashTable HashPop HashIndex HashPointer revealed insRule hash erase Hashlen 
-hashbits reserve-mem never-happens warning-error broken-pipe-error exceptions 
-exception next-exception errstring linked minos? glx? gles? getrandom? 
-getentropy? include-ffi.h-string libffi-present ffcall-present libtool-flags 
-libtool-cc libtool-command machine lib-suffix has? $has? e? environment? 
-environment-wordlist environment version-string>internal (0s) 
-process-voc-option options image-options vocs map-vocs order .voc .name .id 
-id. seal set-order get-order Only Root Forth previous also >order >voc 
->wordlist Vocabulary wordlist mappedwordlist wordlist-class set-wordlist wl, 
-slowvoc definitions set-current back> >back search-order %alloc %allocate 
-%allot %align %size %alignment double% sfloat% dfloat% float% char% cell% 
-struct end-struct field create-field field, nalign naligned default-recognize 
-recognizer-sequence: recognize trace-recognizer set-current-view 
-set-located-view view>line view>filename# after-locate before-locate 
-located-slurped located-bottom located-top bn-view located-len located-view 
-kill-task catch-frame endtry-iferror endtry restore iferror try nothrow 
-stored-backtrace store-backtrace resize free allocate current-memory-words 
-heap-words do;abicode, doabicode, dodoes: dofield, dodefer, douser, dovar, 
-docol, dovalue, docon, do;abicode: (;abi-code-dummy) doabicode: 
-(abi-code-dummy) dodoes: (does-dummy) dofield: dodefer: douser: dovar: docol: 
-dovalue: docon: vlist words wordlist-words .word word-colorize 
+-u8trailing-garbage u8addrlen u8!+? u8@ u8\string- +u8/string u8emit u8key 
+check-xy u8<< u8>> u8!+ u8@+ u8len invalid-char max-single-byte UTF-8-err 
+WordInfo InfoTable Com-color Str-color Ali-color Use-color Col-color Def-color 
+Doe-color Val-color Var-color Con-color Pri-color prim? xtprim? colon? 
+defered? does? user? value? con? var? .recs prim>name >head threaded>name 
+>name look PrimStart threaded>xt xt= [f:d [f:h [f:l [d:d [d:h [d:l [n:d [n:h 
+[n:l [f: [d: [n: [*:: :d :h :l (;]*) (;]l) (;*]) ;> <{: [{: end-dclosure 
+closure> closure-:-hook (closure-;]) wrap-closure dummy-local, pop-locals 
+push-locals extra-locals lp> >lp allocd alloch >addr endref, end-d 
+locals-lists locals-sizes opt-u/mod opt-/modf opt-umod opt-modf opt-u/ opt-/f 
+lit/, /f-stage1m ctz pow2? u/-stage1m staged/-size staged/-divisor 
+staged/-inverse-hi staged/-shift staged/-inverse dffield: sffield: ffield: 
+2field: field: xfield: lfield: wfield: cfield: end-structure begin-structure 
+extend-structure standard:field +field sizeof [sizeof] (sizeof) standard+field 
+.sections opt@ opt+- (+loop)-optimizer replace-(+loop) fold4-4 fold4-2 fold4-1 
+fold3-3 fold3-2 fold3-1 fold2-3 fold2-2 fold2-1 fold2-0 fold1-2 fold1-1 
+fold1-0 folds optimizes fold-constants >4lits 4lits> >3lits 3lits> >2lits 
+2lits> open-warp time&date (xparse) string-parse [char] char append s+ 
+traverse-matched-dir traverse-dir try-read-dir adjust-buffer init-buffer 
+buffer% buffer-maxlength buffer-address buffer-length buffer-descriptor 
+rec-sequence rectype-word translate-word basic-help 2Value (2to) name>compile 
+name>interpret nr> n>r \\\ th dump hex.r base-execute derived-output: 
+derived-input: execute-theme-color theme-color infile-execute outfile-execute 
+xaligned xalign laligned lalign waligned walign *align *aligned xd, x, l, w, 
+xd>s x>s xdle xle lle wle xdbe xbe lbe wbe noop0 /x /l /w typewhite what's 
+action-of interpret/compile: f.s f.s-precision f.rdp f>str-rdp f>buf-rdp 
+f>buf-rdp-try push-right ]] rec-[[ rectype-[[ translate-[[ set-recognizers 
+get-recognizers set-rec-sequence get-rec-sequence >rec-stack defers@ 
+rectype-dnum rectype-num rectype-nt rectype-null rectype: rectype rectype>post 
+rectype>comp rectype>int file>fpath file>path slurp-fid slurp-file const-does> 
+(const-does>) compile-fliterals compile-literals in-return-stack? ]L sh system 
+$? dmax dmin ?CSP !CSP CSP needs save-mem-dict [WHILE] [AGAIN] [REPEAT] 
+[UNTIL] [BEGIN] [I] [NEXT] [FOR] [LOOP] [+LOOP] [?DO] [DO] input< input-drop 
+>input loop-indices input-stack (i) $[]free $[]. $[]map $[]slurp-file $[]slurp 
+$slurp-line $slurp-file $+slurp-file $slurp $+slurp $tmp $. $exec $-out $form 
+$cr $emit $type $execstr-ptr tmp$ tmps# tmp$# tmp$[] $+[]! $[]@ $[]# $[]+! 
+$[]! $off $over locals| definer! >definer (local) (exit-like) (until-like) 
+(again-like) (begin-like) (then-like) locals-;-hook locals-:-hook {: { 
+new-locals new-locals-rec some-waddr some-xtlocal some-wlocal some-flocal 
+some-dlocal some-clocal locals-types val-part-off defer@-xt: to-f: to-c: to-d: 
+to-w: c!-table 2!-table 2+! c+! lp-offset, lp-offset create-local 
+locals-where, locals-headers create-local1 locals-name-size+ check-begin 
+set-locals-size-list locals-list! list-size sub-list? common-list /list 
+list-length compile-pushlocal-[ compile-pushlocal-c compile-pushlocal-d 2>l 
+compile-pushlocal-f compile-pushlocal-w locals, val-part alignlp-f alignlp-w 
+deactivate-locals activate-locals rec-locals locals-rec translate-locals 
+no-post locals adjust-locals-size compile-lp+! compile-f@local compile-@local 
+locals-size next-case endcase closecase contof endof of ?of case case-depth 
+expect span capssearch capsstring-prefix? search blank convert [compile] C" 
+m*/ d>s .( frem ftrunc fmod fcopysign fsign-offset f~ f~rel f~abs 1/f f2/ f2* 
+pi fvariable rec-float rectype-float translate-float >postponer fp. 
+prefix-number zero-exp si-prefixes sfnumber fs. fe. f. f$ -zeros zeros scratch 
+set-precision precision fdepth fvalue fvalue-to f!-table f+! fconstant 
+opt-fcon opt-fval FLiteral flit, f, dfloat+ sfloat+ dfalign sfalign 
+dump-sections extra-section >extra-sections #>section section# lits<> 
+new-section create-section which-section? sections-execute section-execute 
+set-section extra-section-error first-section-error image-offset 
+section-defaultsize #extra-sections sections .words hash-cold make-hash 
+hash-wordlist hashdouble (rehash) rehashall clearhash addall inithash 
+table-reveal hash-reveal (reveal lastlink! hash-rec hash-find bucket NewFix 
+DelFix hash-alloc hashsearch-map HashTable HashPop HashIndex HashPointer 
+revealed insRule hash erase Hashlen hashbits reserve-mem never-happens 
+warning-error broken-pipe-error exceptions exception next-exception errstring 
+linked minos? glx? gles? getrandom? getentropy? include-ffi.h-string 
+libffi-present ffcall-present libtool-flags libtool-cc libtool-command machine 
+lib-suffix has? $has? e? environment? environment-wordlist environment 
+version-string>internal (0s) process-voc-option options image-options vocs 
+map-vocs order .voc .name .id id. seal set-order get-order Only Root Forth 
+previous also >order >voc >wordlist Vocabulary wordlist mappedwordlist 
+wordlist-class set-wordlist wl, slowvoc definitions set-current back> >back 
+search-order %alloc %allocate %allot %align %size %alignment double% sfloat% 
+dfloat% float% char% cell% struct end-struct field create-field field, nalign 
+naligned default-recognize recognizer-sequence: recognize trace-recognizer 
+set-current-view set-located-view view>line view>filename# after-locate 
+before-locate located-slurped located-bottom located-top bn-view located-len 
+located-view kill-task catch-frame endtry-iferror endtry restore iferror try 
+nothrow stored-backtrace store-backtrace resize free allocate 
+current-memory-words heap-words do;abicode, doabicode, dodoes: dofield, 
+dodefer, douser, dovar, docol, dovalue, docon, do;abicode: (;abi-code-dummy) 
+doabicode: (abi-code-dummy) dodoes: (does-dummy) dofield: dodefer: douser: 
+dovar: docol: dovalue: docon: vlist words wordlist-words .word word-colorize 
 traverse-wordlist map-wordlist cols rows ? dump .line .chars .4 /dump .s 
 maxdepth-.s .s. [ENDIF] [THEN] [ELSE] [IFUNDEF] [IFDEF] [IF] scanif 
 [undefined] defined [defined] scanning? ?if scanif-r [struct]-voc 
@@ -4555,8 +4554,8 @@ chars/block l/s c/l /line bl float cell false true 2Constant 2constant, UValue
 (UValue) u-compile, uvalue-to */ */mod /mod mod / r@ forthstart image-header 
 u#+ u#exec x#exec o#exec o#+ o> >o lit-execute ;abi-code-exec abi-call 
 finish-code| tag-offsets decompile-prim2 decompile-prim forget-dyncode 
-finish-code compile-prim1 barrier ?!@ +!@ !@ log2 >pow2 l>s w>s c>s xd>< x>< 
-l>< w>< xd@ xd! x@ x! close-lib2 close-lib lib-error l! l@ w! w@ wcall 
+finish-code compile-prim1 barrier ?!@ +!@ !@ u8@+? log2 >pow2 l>s w>s c>s xd>< 
+x>< l>< w>< xd@ xd! x@ x! close-lib2 close-lib lib-error l! l@ w! w@ wcall 
 lib-sym2 lib-sym open-lib2 open-lib ffourth fthird fpick f>l >l lp! lp+2 lp+ 
 lp- lp+!# laddr# f@local1 f@local0 f@local# @local3 @local2 @local1 @local0 
 @local# flit f-rot sfloat/ dfloat/ float/ >float1 faxpy v* dfaligned sfaligned 
