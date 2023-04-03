@@ -324,18 +324,18 @@ xc-vector !
     over #tab = IF  >r drop bl gl-xy cell+ @ dup 1+ dfaligned swap - 0
     ELSE
 	>r
-	dup $7F u<= IF \ fast path for ASCII
+	dup max-single-byte u< IF \ fast path for ASCII
 	    xchar>glascii 1
 	ELSE \ slow path for xchars
-	    gl-emit-buf c$+!  gl-emit-buf $@ tuck
-	    ['] x-size catch UTF-8-err = IF
-		2drop drop $7F 1
-	    ELSE  u< IF  rdrop  EXIT  THEN
-		gl-emit-buf $@ drop ['] xc@ catch UTF-8-err =
-		IF  drop $7F 1  ELSE  xchar>glascii
-		    gl-emit-buf $@ ['] x-width catch UTF-8-err =
-		    IF  2drop 1  THEN  abs
-		THEN
+	    gl-emit-buf c$+! "\x80\x80\x80" gl-emit-buf $+! \ pad up
+	    gl-emit-buf $@ u8@+? nip nip invalid-char = IF \ really invalid
+		$7F 1
+	    ELSE
+		gl-emit-buf $@len 3 - gl-emit-buf $!len \ unpad
+		gl-emit-buf $@ u8@+? dup invalid-char = \ incomplete
+		IF  drop 2drop rdrop  EXIT  THEN
+		nip nip xchar>glascii
+		gl-emit-buf $@ x-width abs
 	    THEN
 	    gl-emit-buf $free
 	THEN  $10

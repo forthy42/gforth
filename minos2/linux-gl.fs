@@ -575,7 +575,9 @@ previous previous
 	\ ntime timeout du>= ?LEAVE
 	dpy event XNextEvent drop
 	event 0 XFilterEvent IF
-	    gui( ." filtered " .!time event e.type . cr )
+	    [IFDEF] gui(
+		gui( ." filtered " .!time event e.type . cr )
+	    [THEN]
 	ELSE  handle-event  THEN
     LOOP o> ;
 
