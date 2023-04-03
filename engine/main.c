@@ -428,7 +428,7 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 	      case CF_NIL      : image[i]=0; break;
 #if !defined(DOUBLY_INDIRECT)
 	      case CF(DOER_MAX) ... CF(DOCOL):
-		// compile_prim1(0); /* flush primitive state whatever it is in */
+		compile_prim1(0); /* flush primitive state whatever it is in */
 		MAKE_CF(image+i,symbols[CF(token)]);
 		break;
 #endif /* !defined(DOUBLY_INDIRECT) */
