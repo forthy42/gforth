@@ -330,10 +330,10 @@ $Variable $trans
 Vocabulary translators
 get-current also translators definitions
 : tcify ( addr u -- addr' u' )
-    [: bounds ?DO  I xc@ >tc@ xemit  I I' over - x-size +LOOP ;]
+    [: BEGIN  dup  WHILE  xc@+? >tc@ xemit  REPEAT  2drop ;]
     $trans dup $free $exec  $trans $@ ;
 : scify ( addr u -- addr' u' )
-    [: bounds ?DO  I xc@ >sc@ xemit  I I' over - x-size +LOOP ;]
+    [: BEGIN  dup  WHILE  xc@+? >sc@ xemit  REPEAT  2drop ;]
     $trans dup $free $exec  $trans $@ ;
 previous set-current
 
