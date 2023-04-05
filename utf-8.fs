@@ -23,7 +23,9 @@
 -77 Constant UTF-8-err
 
 $80 Constant max-single-byte
+[IFUNDEF] invalid-char
 $FFFD Constant invalid-char
+[THEN]
 
 : u8len ( u8 -- n )
     dup      max-single-byte u< IF  drop 1  EXIT  THEN \ special case ASCII
@@ -366,6 +368,7 @@ here
 ' u8addrlen ,
 ' u8width ,
 ' -u8trailing-garbage ,
+' u8@+? ,
 , here Constant utf-8
 
 : set-encoding-utf-8 ( -- )

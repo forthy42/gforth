@@ -80,6 +80,9 @@ umethod -trailing-garbage ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext minus-trailin
 \G the encoding is correct and it repesents a full char, @var{u2}
 \G equals @var{u1}, otherwise, @var{u2} represents the string without
 \G the last (garbled) xchar.
+umethod xc@+? ( xc-addr1 u1 -- xc-addr2 u2 xc ) \ gforth-experimental x-c-fetch-plus-query
+\G Fetchs the first xchar @var{xc} of the string @var{xc-addr1
+\G u1}. @var{xc-addr2 u2} is the remaining string after @var{xc}.
 2drop
 
 \ derived words, faster implementations are probably possible
@@ -118,6 +121,12 @@ umethod -trailing-garbage ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext minus-trailin
 	r> r> 1 /string true
     then ;
 
+$FFFD Constant invalid-char
+
+: c@+? ( c-addr1 u1 -- c-addr2 u2 c )
+    dup 0= IF  1 /string invalid-char  EXIT  THEN
+    >r count r> 1- swap ;
+
 : c-size ( c -- 1 )
     drop 1 ;
 
@@ -139,6 +148,7 @@ here
 ' ca-size A,
 ' nip A,
 ' noop A,
+' c@+? A,
 A, here AConstant fixed-width
 
 : set-encoding ( addr -- ) xc-vector ! ;

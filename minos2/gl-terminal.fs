@@ -326,13 +326,13 @@ xc-vector !
 	>r
 	dup max-single-byte u< IF \ fast path for ASCII
 	    xchar>glascii 1
-	ELSE \ slow path for xchars
+	ELSE \ slow path for composed xchars
 	    gl-emit-buf c$+! "\x80\x80\x80" gl-emit-buf $+! \ pad up
-	    gl-emit-buf $@ u8@+? nip nip invalid-char = IF \ really invalid
+	    gl-emit-buf $@ xc@+? nip nip invalid-char = IF \ really invalid
 		$7F 1
 	    ELSE
 		gl-emit-buf $@len 3 - gl-emit-buf $!len \ unpad
-		gl-emit-buf $@ u8@+? dup invalid-char = \ incomplete
+		gl-emit-buf $@ xc@+? dup invalid-char = \ incomplete
 		IF  drop 2drop rdrop  EXIT  THEN
 		nip nip xchar>glascii
 		gl-emit-buf $@ x-width abs
