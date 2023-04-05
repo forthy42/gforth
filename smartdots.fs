@@ -31,7 +31,8 @@ User smart.s-skip
 : string? ( addr u -- flag )
     \ does it look like a string that we want to print with smart. ?
     TRY  dup #80 #1 within throw  bounds ?DO
-	    I xc@+ bl < IF  -1 throw  THEN
+	    I xc@+ dup invalid-char = IF  -1 throw  THEN
+	    bl < IF  -1 throw  THEN
 	I - +LOOP
 	IFERROR  2drop drop false nothrow ELSE  true  THEN  ENDTRY ;
 Create cs? ( addr -- flag )
