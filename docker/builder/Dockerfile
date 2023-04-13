@@ -4,7 +4,7 @@ FROM $ARCH/debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG C.UTF-8
 
-RUN apt-get -y install gpgv \
+RUN apt-get -y install gpgv && ln -fs /usr/bin/gpgv /usr/bin/gnupg2 \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138 0E98404D386FA1D9 \
   && apt-get -y update \
   && apt-get upgrade -y \
