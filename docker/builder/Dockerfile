@@ -4,9 +4,7 @@ FROM $ARCH/debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG C.UTF-8
 
-RUN apt-get -y install gpgv && ln -fs /usr/bin/gpgv /usr/bin/gnupg2 \
-  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138 0E98404D386FA1D9 \
-  && apt-get -y update \
+RUN apt-get -y update \
   && apt-get upgrade -y \
   && apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc automake texinfo texi2html texlive-base texlive-latex-base install-info dpkg-dev debhelper gforth gforth-lib gforth-common libtool-bin libltdl-dev autoconf-archive libx11-dev libx11-xcb-dev libxrandr-dev libgles2-mesa-dev libglew-dev libgl1-mesa-dev libwayland-dev libvulkan-dev libpng-dev libfreetype6-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev \
   && if [ `lsb_release -sc` = "buster" ]; then sudo apt-get -y install texlive-latex-base; fi \
