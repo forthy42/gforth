@@ -1282,7 +1282,7 @@ htab-glue is hglue!@
     rg fdup gp/a f*
     fdup rd f- xmin f+  fdup to w  rx f+ ;
 
-: box-resize? { f: x' f: y' f: w' f: h' f: d' -- flag )
+: box-resize? { f: x' f: y' f: w' f: h' f: d' -- flag }
     ?resizeall ?dup-0=-IF
 	x' x f<> y' y f<> w' w f<> h' h f<> d' d f<> or or or or
 	box-flags box-resize# and 0<> or  THEN
