@@ -251,8 +251,8 @@ AC_ARG_VAR(ac_cv_sizeof_int, [sizeof(int)])
 AC_ARG_VAR(ac_cv_sizeof_long, [sizeof(long)])
 AC_ARG_VAR(ac_cv_sizeof_long_long, [sizeof(long long)])
 AC_ARG_VAR(ac_cv_sizeof_intptr_t, [sizeof(intptr_t)])
-AC_ARG_VAR(ac_cv_sizeof_int128_t, [sizeof(int128_t)])
-AC_ARG_VAR(ac_cv_sizeof_uint128_t, [sizeof(uint128_t)])
+AC_ARG_VAR(ac_cv_sizeof___int128_t, [sizeof(__int128_t)])
+AC_ARG_VAR(ac_cv_sizeof___uint128_t, [sizeof(__uint128_t)])
 AC_ARG_VAR(ac_cv_c_bigendian, [Is the target big-endian ("yes" or "no")?])
 AC_ARG_VAR(no_dynamic_default, [run gforth with --dynamic (0) or --no-dynamic (1) by default])
 AC_ARG_VAR(condbranch_opt, [enable (1) or disable (0) using two dispatches for conditional branches])
@@ -627,8 +627,11 @@ AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(long long)
 AC_CHECK_SIZEOF(intptr_t)
-AC_CHECK_SIZEOF(int128_t)
-AC_CHECK_SIZEOF(uint128_t)
+#the following works since gcc-4.1 according to
+#https://stackoverflow.com/questions/16088282/is-there-a-128-bit-integer-in-gcc
+#and testing for int128_t does not work for gcc-10.2
+AC_CHECK_SIZEOF(__int128_t)
+AC_CHECK_SIZEOF(__uint128_t)
 
 AC_MSG_CHECKING([for a C type for cells])
 ac_cv_int_type_cell=none
@@ -748,8 +751,8 @@ case `expr 2 '*' "$ac_cv_sizeof_char_p"` in
   $ac_cv_sizeof_intptr_t)
     ac_cv_int_type_double_cell="intptr_t"
     ;;
-  $ac_cv_sizeof_int128_t)
-    ac_cv_int_type_double_cell="int128_t"
+  $ac_cv_sizeof___int128_t)
+    ac_cv_int_type_double_cell="__int128_t"
     ;;
 esac
 AC_MSG_RESULT($ac_cv_int_type_double_cell)
@@ -772,8 +775,8 @@ case `expr 2 '*' "$ac_cv_sizeof_char_p"` in
   $ac_cv_sizeof_intptr_t)
     ac_cv_int_type_double_ucell="unsigned intptr_t"
     ;;
-  $ac_cv_sizeof_uint128_t)
-    ac_cv_int_type_double_ucell="uint128_t"
+  $ac_cv_sizeof___uint128_t)
+    ac_cv_int_type_double_ucell="__uint128_t"
     ;;
 esac
 AC_MSG_RESULT($ac_cv_int_type_double_ucell)
