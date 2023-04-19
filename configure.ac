@@ -335,7 +335,7 @@ if test "$ac_export_dynamic" != no; then
     AC_MSG_CHECKING([whether the linker accepts -Wl,--export-dynamic])
     OLDLDFLAGS=$LDFLAGS
     LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
-    AC_RUN_IFELSE([AC_LANG_SOURCE([[main(){exit(0);}]])],[ac_export_dynamic=yes],[ac_export_dynamic=no],[ac_export_dynamic=no])
+    AC_RUN_IFELSE([AC_LANG_SOURCE([[int main(){return 0;}]])],[ac_export_dynamic=yes],[ac_export_dynamic=no],[ac_export_dynamic=no])
     LDFLAGS=$OLDLDFLAGS
   fi
 fi
@@ -1057,9 +1057,9 @@ elif test -z "$skipcode"; then
     for i in ".skip 16" ".block 16" ".org .+16" ".=.+16" ".space 16"
     do
 	AC_RUN_IFELSE([AC_LANG_SOURCE([[int foo(int,int,int);
-main()
+int main()
 {
-  exit(foo(0,0,0)<16);
+  return foo(0,0,0)<16;
 }
 int foo(int x, int y, int z)
 {
