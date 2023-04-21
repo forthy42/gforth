@@ -506,7 +506,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename);
 ImageHeader* gforth_loader(char* imagename, char* path);
 user_area* gforth_stacks(Cell dsize, Cell rsize, Cell fsize, Cell lsize);
 void gforth_free_stacks(user_area* t);
-void gforth_free();
+void gforth_free(void * ptr);
 Cell gforth_go(Xt* ip0);
 Cell gforth_boot(int argc, char** argv, char* path);
 void gforth_bootmessage();
@@ -524,7 +524,6 @@ Cell gforth_make_image(int debugflag);
 #ifdef HAVE_MCHECK
 void gforth_abortmcheck(enum mcheck_status reason);
 #endif
-void gforth_free(void * ptr);
 void gforth_sigset(sigset_t *set, ...);
 
 #if SIZEOF_CHAR_P == 4

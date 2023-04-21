@@ -97,6 +97,10 @@ opt: drop postpone >body f!-table to-!, ;
     \G floating-point stack.
     fp0 @ fp@ - [ 1 floats ] Literal / ;
 
+: fclearstack ( r0 .. rn -- ) \ gforth f-clearstack
+    \G clear the floating point stack
+    fp0 @ fp! ;
+
 &15 Value precision ( -- u ) \ floating-ext
 \G @i{u} is the number of significant digits currently used by
 \G @code{F.} @code{FE.} and @code{FS.} 

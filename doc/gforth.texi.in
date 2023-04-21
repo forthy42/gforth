@@ -13793,6 +13793,7 @@ It is used for formatted numeric output (@pxref{Simple numeric output}).
 doc-depth
 doc-fdepth
 doc-clearstack
+doc-fclearstack
 doc-clearstacks
 
 The following words inspect memory.
