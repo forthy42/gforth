@@ -13790,6 +13790,9 @@ doc-maxdepth-.s
 There is a word @code{.r} but it does @i{not} display the return stack!
 It is used for formatted numeric output (@pxref{Simple numeric output}).
 
+The following words work on the stack as a whole, either by determining
+the depth or by clearing them:
+
 doc-depth
 doc-fdepth
 doc-clearstack
