@@ -1007,13 +1007,15 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 ;
 
 has? os [IF]
-: bye ( -- ) \ tools-ext
+Defer bye
+: kernel-bye ( -- ) \ tools-ext
 [ has? file [IF] ]
     script? 0= IF  .unstatus cr  THEN
 [ [ELSE] ]
     cr
 [ [THEN] ]
     0 (bye) ;
+' kernel-bye is bye
 [THEN]
 
 \ **argv may be scanned by the C starter to get some important

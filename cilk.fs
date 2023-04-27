@@ -62,7 +62,9 @@ event: ->spawn ( xt task -- )
 
 s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
     0 warnings !@
-    : bye ( -- )
-	sync workers $@len cell/ 0 ?DO worker@ kill LOOP 1 ms bye ;
+    : cilk-bye ( -- )
+	sync workers $@len cell/ 0 ?DO [: 0 (bye) ;] spawn LOOP 1 ms ;
+    :noname ( -- )
+	 cilk-bye defers bye ; is bye
     warnings !
 [THEN]

@@ -667,9 +667,15 @@ interpret/compile: s` ( "eval-string" -- addr u )
     ;] over outfile-execute close-file throw
     `edit-file-cmd >string-execute 2dup system drop free throw ;
 
-: bye ( -- ) \ tools-ext
-    delete-whereg bye ;
-
+' bye defered? [IF]
+    :noname ( -- ) \ tools-ext
+	delete-whereg defers bye ; is bye
+[ELSE]
+    0 warnings !@
+    : bye ( -- ) delete-whereg bye ;
+    warnings !
+[THEN]
+    
     [THEN]
 [THEN]
 
