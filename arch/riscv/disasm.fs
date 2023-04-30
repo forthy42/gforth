@@ -94,14 +94,15 @@ disassembler also definitions
     dup 1 and 4 lshift r> or >r 2/
     1 and 11 lshift r> or
     dup $800 and negate or ;
-: offset' ( x -- )  2 rshift
-    \  offset[8|4:3] src' offset[7:6|2:1|5] op
-    dup 1 and 5 lshift >r 2/
-    dup 3 and 1 lshift r> or >r 2/ 2/
-    dup 3 and 6 lshift r> or >r 5 rshift
-    dup 3 and 3 lshift r> or >r
-    1 and 8 lshift r> or
-    dup $100 and negate or ;
+: offset' ( x -- )
+    \ for c.beqz c.bnez
+    \ bits 13:10 are [8|4:3], bits 6:2 are [7:6|2:1|5]
+    >r
+    $-100 0 r@ $1000 and select
+    r@ $0c00 and 7 rshift or
+    r@ $0060 and 1 lshift or
+    r@ $0018 and 2 rshift or
+    r> $0004 and 3 lshift or ;
 
 : c-addi4spn ( x -- ) .rd' ., 2 .reg ., $. imm-4spn 0 .r ;
 
