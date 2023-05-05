@@ -104,7 +104,7 @@ disassembler also definitions
     r@ $0018 and 2 rshift or
     r> $0004 and 3 lshift or ;
 
-: c-addi4spn ( x -- ) .rd' ., 2 .reg ., $. imm-4spn 0 .r ;
+: c-addi4spn ( x -- ) .rd' ., 2 .reg ., .$ imm-4spn 0 .r ;
 
 : c-ldw ( x -- ) .rd' ., .$ dup imm-2 2 imm-size 0 .r .( .rs1' .) drop ;
 : c-ldd ( x -- ) .rd' ., .$ dup imm-2 3 imm-size 0 .r .( .rs1' .) drop ;
@@ -147,7 +147,7 @@ disassembler also definitions
     1 and negate 9 lshift r> or 0 .r ;
 : c-j ( addr x -- addr ) offset over + 0 .r ;
 : c-beq ( addr x -- addr )
-    .rd' ., offset' over + 0 .r ;
+    .rs1' ., offset' over + 0 .r ;
 : c-ldsp ( x -- )
     .rd ., imm-1 3 imm-size 0 .r .( 2 .reg .) ;
 : c-lwsp ( x -- )
