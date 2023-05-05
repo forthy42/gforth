@@ -480,7 +480,7 @@ types definitions
 
 : : ( <methodname> -- ) \ oof- oof colon
     decl @ abort" HOW: missing! "
-    bl word findo 0= abort" not found"
+    bl word findo drop
     dup exec? over early? or over >body cell+ @ 0< or
     0= abort" not a method"
     m-name ! :noname ;
@@ -577,7 +577,7 @@ how:
     : self    ( -- obj )   ^ ;
     : init    ( -- )       ;
     
-    : '       ( -- xt )  bl word findo 0= abort" not found!"
+    : '       ( -- xt )  bl word findo drop
 	state @ IF  Fpostpone Literal  THEN ;
     : send    ( xt -- )  execute ;
     : postpone ( -- )  o@ add-order Fpostpone Fpostpone drop-order ;
