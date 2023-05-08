@@ -32,6 +32,8 @@ disassembler also definitions
     0 <# # # # # #> type ;
 : hex.8 ( inst -- )
     0 <# # # # # # # # # #> type ;
+: .imm ( n -- )
+    dup abs 9 > if .$ then 0 .r ;
 
 \ register names
 
@@ -104,11 +106,11 @@ disassembler also definitions
     r@ $0018 and 2 rshift or
     r> $0004 and 3 lshift or ;
 
-: c-addi4spn ( x -- ) .rd' ., 2 .reg ., .$ imm-4spn 0 .r ;
+: c-addi4spn ( x -- ) .rd' ., 2 .reg ., imm-4spn .imm ;
 
-: c-ldw ( x -- ) .rd' ., .$ dup imm-2 2 imm-size 0 .r .( .rs1' .) drop ;
-: c-ldd ( x -- ) .rd' ., .$ dup imm-2 3 imm-size 0 .r .( .rs1' .) drop ;
-: c-fldd ( x -- ) .rfd' ., .$ dup imm-2 3 imm-size 0 .r .( .rs1' .) drop ;
+: c-ldw ( x -- ) .rd' ., dup imm-2 2 imm-size .imm .( .rs1' .) drop ;
+: c-ldd ( x -- ) .rd' ., dup imm-2 3 imm-size .imm .( .rs1' .) drop ;
+: c-fldd ( x -- ) .rfd' ., dup imm-2 3 imm-size .imm .( .rs1' .) drop ;
 
 \ print registers from instructions, 32 bit ops
 
@@ -132,39 +134,39 @@ disassembler also definitions
     12 arshift -$80000 and
     r> r> r> or or or ;
 
-: c-addi ( x -- ) .rd ., .rd ., imm-1s 0 .r ;
-: c-sli ( x -- ) .rd ., .rd ., imm-1 0 .r ;
-: c-andi ( x -- ) .rd' ., .rd' ., imm-1s 0 .r ;
-: c-sri ( x -- ) .rd' ., .rd' ., imm-1 0 .r ;
+: c-addi ( x -- ) .rd ., .rd ., imm-1s .imm ;
+: c-sli ( x -- ) .rd ., .rd ., imm-1 .imm ;
+: c-andi ( x -- ) .rd' ., .rd' ., imm-1s .imm ;
+: c-sri ( x -- ) .rd' ., .rd' ., imm-1 .imm ;
 : c-and ( x -- ) .rd' ., .rs1' ., .rd' drop ;
-: c-li ( x -- ) .rd ., imm-1s 0 .r ;
-: c-lui ( x -- ) .rd ., imm-1s 12 lshift 0 .r ;
+: c-li ( x -- ) .rd ., imm-1s .imm ;
+: c-lui ( x -- ) .rd ., imm-1s 12 lshift .imm ;
 : c-addi16 ( x -- ) .rd ., imm-1s $3F and
     dup 1 and 5 lshift >r 2/
     dup 3 and 8 lshift r> or >r 2/ 2/
     dup 1 and 6 lshift r> or >r 2/
     dup 1 and 4 lshift r> or >r 6 rshift
-    1 and negate 9 lshift r> or 0 .r ;
-: c-j ( addr x -- addr ) offset over + 0 .r ;
+    1 and negate 9 lshift r> or .imm ;
+: c-j ( addr x -- addr ) offset over + .imm ;
 : c-beq ( addr x -- addr )
-    .rs1' ., offset' over + 0 .r ;
+    .rs1' ., offset' over + .imm ;
 : c-ldsp ( x -- )
-    .rd ., imm-1 3 imm-size 0 .r .( 2 .reg .) ;
+    .rd ., imm-1 3 imm-size .imm .( 2 .reg .) ;
 : c-lwsp ( x -- )
-    .rd ., imm-1 2 imm-size 0 .r .( 2 .reg .) ;
+    .rd ., imm-1 2 imm-size .imm .( 2 .reg .) ;
 : c-fldsp ( x -- )
-    .rfd ., imm-1 3 imm-size 0 .r .( 2 .reg .) ;
+    .rfd ., imm-1 3 imm-size .imm .( 2 .reg .) ;
 : c-flwsp ( x -- )
-    .rfd ., imm-1 2 imm-size 0 .r .( 2 .reg .) ;
+    .rfd ., imm-1 2 imm-size .imm .( 2 .reg .) ;
 
 : c-sdsp ( x -- )
-    .rs0 ., .$ imm-1 3 imm-size 0 .r .( 2 .reg .) ;
+    .rs0 ., imm-1 3 imm-size .imm .( 2 .reg .) ;
 : c-swsp ( x -- )
-    .rs0 ., .$ imm-1 2 imm-size 0 .r .( 2 .reg .) ;
+    .rs0 ., imm-1 2 imm-size .imm .( 2 .reg .) ;
 : c-fsdsp ( x -- )
-    .rfs0 ., .$ imm-1 3 imm-size 0 .r .( 2 .reg .) ;
+    .rfs0 ., imm-1 3 imm-size .imm .( 2 .reg .) ;
 : c-fswsp ( x -- )
-    .rfs0 ., .$ imm-1 2 imm-size 0 .r .( 2 .reg .) ;
+    .rfs0 ., imm-1 2 imm-size .imm .( 2 .reg .) ;
 
 : c-jr ( x -- ) .rd drop ;
 : c-mv ( x -- ) .rd ., .rs0 drop ;
@@ -178,18 +180,18 @@ disassembler also definitions
 : fri-type ( x -- ) .rd ., .rfs1 drop ;
 : fir-type ( x -- ) .rfd ., .rs1 drop ;
 : fr4-type ( x -- ) .rfd ., .rfs1 ., .rfs2 ., .rfs3 drop ;
-: sh-type ( x -- ) .rd ., .rs1 ., .$ 20 rshift $3F and 0 .r ;
-: i-type ( x -- ) .rd ., .rs1 ., .$ imm-i 0 .r drop ;
-: l-type ( x -- ) .rd ., .$ imm-i 0 .r .( .rs1 .) drop ;
-: fl-type ( x -- ) .rfd ., .$ imm-i 0 .r .( .rs1 .) drop ;
-: s-type ( x -- ) .rs2 ., .$ imm-s 0 .r .( .rs1 .) drop ;
-: fs-type ( x -- ) .rfs2 ., .$ imm-s 0 .r .( .rs1 .) drop ;
-: b-type ( x -- ) .rs1 ., .rs2 ., .$ imm-b nip over + 0 .r ;
-: u-type ( x -- ) .rd ., .$ imm-u 0 .r drop ;
-: u-type-pc ( addr x -- addr ) .rd ., .$ imm-u nip over + 0 .r ;
-: j-type ( addr x -- addr ) .rd ., .$ imm-j nip over + 0 .r ;
-: csr-type ( x -- ) .rd ., .rs1 ., .$ imm-i 0 .r drop ;
-: csri-type ( x -- ) .rd ., .$ dup 15 rshift $1F and 0 .r ., .$ imm-i 0 .r drop ;
+: sh-type ( x -- ) .rd ., .rs1 ., 20 rshift $3F and .imm ;
+: i-type ( x -- ) .rd ., .rs1 ., imm-i .imm drop ;
+: l-type ( x -- ) .rd ., imm-i .imm .( .rs1 .) drop ;
+: fl-type ( x -- ) .rfd ., imm-i .imm .( .rs1 .) drop ;
+: s-type ( x -- ) .rs2 ., imm-s .imm .( .rs1 .) drop ;
+: fs-type ( x -- ) .rfs2 ., imm-s .imm .( .rs1 .) drop ;
+: b-type ( x -- ) .rs1 ., .rs2 ., imm-b nip over + .imm ;
+: u-type ( x -- ) .rd ., imm-u .imm drop ;
+: u-type-pc ( addr x -- addr ) .rd ., imm-u nip over + .imm ;
+: j-type ( addr x -- addr ) .rd ., imm-j nip over + .imm ;
+: csr-type ( x -- ) .rd ., .rs1 ., imm-i .imm drop ;
+: csri-type ( x -- ) .rd ., dup 15 rshift $1F and .imm ., imm-i .imm drop ;
 : atom-type ( x -- ) .rd ., .rs2 ., .( .rs1 .) drop ;
 
 : .fence ( n -- )
