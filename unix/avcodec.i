@@ -10,7 +10,7 @@
 
 #define attribute_deprecated
 
-// exec: sed -e 's/add-lib/add-lib`s" ((struct AV:x.spx[arg0]" ptr-declare $+[]!/g' -e 's/^\(.*get_encode_buffer.*\)$/\\ \1/g' -e 's/\(.*\(av_codec_get_pkt_timebase|av_codec_set_pkt_timebase\|av_packet_rescale_ts\|avcodec_decode_audio4\|avcodec_decode_video2\|avcodec_encode_audio2\|avcodec_encode_video2\|avcodec_find_best_pix_fmt2\).*\)/\\ \1/g' | tr '`' '\n'
+// exec: sed -e 's/add-lib/add-lib`s" ((struct AV:x.spx[arg0]" ptr-declare $+[]!/g' -e 's/^\(.*get_encode_buffer.*\)$/\\ \1/g' -e 's/^\(.*\(av_codec_get_pkt_timebase|av_codec_set_pkt_timebase\|av_packet_rescale_ts\|avcodec_decode_audio4\|avcodec_decode_video2\|avcodec_encode_audio2\|avcodec_encode_video2\|avcodec_find_best_pix_fmt2\).*\)/\\ \1/g' | tr '`' '\n'
 
 %include <libavcodec/avcodec.h>
 %include <libavutil/pixfmt.h>
