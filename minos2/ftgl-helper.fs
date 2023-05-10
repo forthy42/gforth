@@ -451,18 +451,24 @@ $100 buffer: font-bidi' \ 0: leave as guess, 4-7: set direction
 	texture_font_activate_size ?ftgl-ior drop
 	\ font texture_font_t-hb_font @ hb_ft_font_changed
 	0 over hb_buffer_add_utf8
-	hb-buffer hb_buffer_guess_segment_properties
-	\ font# font-bidi' + c@ dir# over select to dir#
-	hb-buffer dir# hb_buffer_set_direction
-	hb-buffer setbuf
-	font texture_font_t-hb_font @ hb-buffer
-	0 userfeatures numfeatures hb_shape
-	dir# I directions[] $[] !
-	{ | w^ glyph-count }
-	hb-buffer glyph-count hb_buffer_get_glyph_infos
-	glyph-count l@ hb_glyph_info_t * I infos[] $[]!
-	hb-buffer glyph-count hb_buffer_get_glyph_positions
-	glyph-count l@ hb_glyph_position_t * I positions[] $[]!
+	hb-buffer hb_buffer_get_content_type HB_BUFFER_CONTENT_TYPE_UNICODE = IF
+	    hb-buffer hb_buffer_guess_segment_properties
+	    \ font# font-bidi' + c@ dir# over select to dir#
+	    hb-buffer dir# hb_buffer_set_direction
+	    hb-buffer setbuf
+	    font texture_font_t-hb_font @ hb-buffer
+	    0 userfeatures numfeatures hb_shape
+	    dir# I directions[] $[] !
+	    { | w^ glyph-count }
+	    hb-buffer glyph-count hb_buffer_get_glyph_infos
+	    glyph-count l@ hb_glyph_info_t * I infos[] $[]!
+	    hb-buffer glyph-count hb_buffer_get_glyph_positions
+	    glyph-count l@ hb_glyph_position_t * I positions[] $[]!
+	ELSE \ invalid buffer
+	    0 I directions[] $[] !
+	    s" " I infos[] $[]!
+	    s" " I positions[] $[]!
+	THEN
 	hb-buffer hb_buffer_reset
     LOOP ;
 
