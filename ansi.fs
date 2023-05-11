@@ -173,7 +173,7 @@ $Variable term-rgb$
     2 umin ['] s>number $10 base-execute drop >r
     2 umin ['] s>number $10 base-execute drop >r
     2 umin ['] s>number $10 base-execute drop
-    $10 lshift r> 8 lshift or r> or
+    8 lshift r> or 8 lshift r> or
     term-rgb$ $free ;
 
 : term-color? ( n -- rgb )
