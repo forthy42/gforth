@@ -165,7 +165,6 @@ $Variable term-rgb$
 
 : term-rgb@ ( -- rgb )
     \G read color value returned from terminal
-    key? drop \ set terminal into raw mode
     100 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 100 ms
     BEGIN  key?  WHILE  key #esc =  UNTIL  ELSE  0  EXIT  THEN
     BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
@@ -178,14 +177,18 @@ $Variable term-rgb$
     term-rgb$ $free ;
 
 : term-color? ( n -- rgb )
+    \G query terminal's colors by number
+    key? drop \ set terminal into raw mode
     s\" \e]4;" type 0 .r s\" ;?\e\\" type
     term-rgb@ ;
 : term-fg? ( -- rgb )
     \G query terminal's foreground color, return value in hex RRGGBB
+    key? drop \ set terminal into raw mode
     s\" \e]10;?\a" type \ avada kedavra, terminal!
     term-rgb@ ;
 : term-bg? ( -- rgb )
     \G query terminal's background color, return value in hex RRGGBB
+    key? drop \ set terminal into raw mode
     s\" \e]11;?\a" type \ avada kedavra, terminal!
     term-rgb@ ;
 
