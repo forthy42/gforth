@@ -93,6 +93,304 @@ ffi-ret-void ffi-ret-double1 ffi-ret-float1 ffi-ret-ptr1 ffi-ret-long1
 ffi-ret-dlong1 ffi-ret-longlong1 ffi-ret-int1 ffi-arg-double ffi-arg-float 
 ffi-arg-ptr ffi-arg-dlong ffi-arg-longlong ffi-arg-long ffi-arg-int ffi-2! 
 ffi-2@ ffi-prep-closure ffi-call ffi-prep-cif ffi-size ffi-type va opus pulse 
+av_cpb_properties_alloc avcodec_is_open av_xiphlacing av_fast_padded_mallocz 
+av_fast_padded_malloc av_get_audio_frame_duration2 av_get_audio_frame_duration 
+av_get_exact_bits_per_sample av_get_pcm_codec av_get_bits_per_sample 
+avcodec_flush_buffers avcodec_fill_audio_frame avcodec_default_execute2 
+avcodec_default_execute avcodec_profile_name av_get_profile_name 
+avcodec_string avcodec_default_get_format avcodec_find_best_pix_fmt_of_list 
+avcodec_pix_fmt_to_codec_tag avcodec_encode_subtitle av_parser_close 
+av_parser_parse2 av_parser_init av_parser_iterate 
+avcodec_get_hw_frames_parameters avcodec_receive_packet avcodec_send_frame 
+avcodec_receive_frame avcodec_send_packet avcodec_decode_subtitle2 
+avcodec_chroma_pos_to_enum avcodec_enum_to_chroma_pos 
+avcodec_align_dimensions2 avcodec_align_dimensions avcodec_default_get_buffer2 
+avsubtitle_free avcodec_close avcodec_open2 avcodec_parameters_to_context 
+avcodec_parameters_from_context avcodec_get_subtitle_rect_class 
+avcodec_get_class avcodec_free_context avcodec_alloc_context3 avcodec_license 
+avcodec_configuration avcodec_version AVCodecParser-split() 
+AVCodecParser-parser_close() AVCodecParser-parser_parse() 
+AVCodecParser-parser_init() AVHWAccel-frame_params() AVHWAccel-uninit() 
+AVHWAccel-init() AVHWAccel-decode_mb() AVHWAccel-end_frame() 
+AVHWAccel-decode_slice() AVHWAccel-decode_params() AVHWAccel-start_frame() 
+AVHWAccel-alloc_frame() AVCodecContext-execute2() AVCodecContext-execute() 
+AVCodecContext-get_buffer2() AVCodecContext-get_format() 
+AVCodecContext-draw_horiz_band() AVCodecParser-parser_close 
+AVCodecParser-parser_parse AVCodecParser-parser_init 
+AVCodecParser-priv_data_size AVCodecParser-codec_ids AVCodecParser-split 
+AVCodecParser AVCodecParserContext-offset 
+AVCodecParserContext-cur_frame_start_index AVCodecParserContext-cur_frame_pos 
+AVCodecParserContext-last_pts AVCodecParserContext-coded_width 
+AVCodecParserContext-repeat_pict AVCodecParserContext-key_frame 
+AVCodecParserContext-flags AVCodecParserContext-pos 
+AVCodecParserContext-last_dts AVCodecParserContext-cur_frame_offset 
+AVCodecParserContext-next_frame_offset AVCodecParserContext-cur_offset 
+AVCodecParserContext-frame_offset AVCodecParserContext-height 
+AVCodecParserContext-field_order AVCodecParserContext-dts_sync_point 
+AVCodecParserContext-last_pos AVCodecParserContext-parser 
+AVCodecParserContext-picture_structure AVCodecParserContext-coded_height 
+AVCodecParserContext-dts_ref_dts_delta AVCodecParserContext-pts_dts_delta 
+AVCodecParserContext-output_picture_number AVCodecParserContext-cur_frame_pts 
+AVCodecParserContext-priv_data AVCodecParserContext-duration 
+AVCodecParserContext-cur_frame_end AVCodecParserContext-fetch_timestamp 
+AVCodecParserContext-cur_frame_dts AVCodecParserContext-pts 
+AVCodecParserContext-width AVCodecParserContext-format 
+AVCodecParserContext-pict_type AVCodecParserContext-dts AVCodecParserContext 
+AVSubtitle-pts AVSubtitle-end_display_time AVSubtitle-start_display_time 
+AVSubtitle-format AVSubtitle-rects AVSubtitle-num_rects AVSubtitle 
+AVSubtitleRect-ass AVSubtitleRect-h AVSubtitleRect-flags AVSubtitleRect-text 
+AVSubtitleRect-type AVSubtitleRect-linesize AVSubtitleRect-y 
+AVSubtitleRect-data AVSubtitleRect-x AVSubtitleRect-nb_colors AVSubtitleRect-w 
+AVSubtitleRect AVHWAccel-init AVHWAccel-start_frame AVHWAccel-end_frame 
+AVHWAccel-uninit AVHWAccel-decode_mb AVHWAccel-type AVHWAccel-id 
+AVHWAccel-priv_data_size AVHWAccel-frame_priv_data_size 
+AVHWAccel-caps_internal AVHWAccel-frame_params AVHWAccel-decode_params 
+AVHWAccel-decode_slice AVHWAccel-capabilities AVHWAccel-name 
+AVHWAccel-alloc_frame AVHWAccel-pix_fmt AVHWAccel 
+AVCodecContext-b_quant_factor AVCodecContext-i_quant_factor 
+AVCodecContext-field_order AVCodecContext-rc_max_available_vbv_use 
+AVCodecContext-intra_dc_precision AVCodecContext-mb_decision 
+AVCodecContext-mb_lmax AVCodecContext-level AVCodecContext-av_class 
+AVCodecContext-skip_alpha AVCodecContext-time_base 
+AVCodecContext-channel_layout AVCodecContext-request_channel_layout 
+AVCodecContext-color_trc AVCodecContext-codec_id AVCodecContext-max_samples 
+AVCodecContext-execute2 AVCodecContext-coded_height AVCodecContext-properties 
+AVCodecContext-dct_algo AVCodecContext-idct_algo 
+AVCodecContext-discard_damaged_percentage AVCodecContext-trellis 
+AVCodecContext-bits_per_coded_sample AVCodecContext-bits_per_raw_sample 
+AVCodecContext-codec_type AVCodecContext-me_sub_cmp AVCodecContext-skip_top 
+AVCodecContext-cutoff AVCodecContext-rc_initial_buffer_occupancy 
+AVCodecContext-internal AVCodecContext-pts_correction_num_faulty_dts 
+AVCodecContext-ticks_per_frame AVCodecContext-skip_frame 
+AVCodecContext-framerate AVCodecContext-hw_device_ctx AVCodecContext-bit_rate 
+AVCodecContext-max_pixels AVCodecContext-flags AVCodecContext-refs 
+AVCodecContext-sample_rate AVCodecContext-opaque AVCodecContext-codec_tag 
+AVCodecContext-sub_charenc AVCodecContext-pts_correction_last_pts 
+AVCodecContext-slices AVCodecContext-dump_separator AVCodecContext-width 
+AVCodecContext-initial_padding AVCodecContext-trailing_padding 
+AVCodecContext-sample_aspect_ratio AVCodecContext-last_predictor_count 
+AVCodecContext-thread_count AVCodecContext-block_align 
+AVCodecContext-compression_level AVCodecContext-inter_matrix 
+AVCodecContext-intra_matrix AVCodecContext-chroma_intra_matrix 
+AVCodecContext-max_b_frames AVCodecContext-has_b_frames 
+AVCodecContext-extra_hw_frames AVCodecContext-me_pre_cmp AVCodecContext-mb_cmp 
+AVCodecContext-audio_service_type AVCodecContext-codec_whitelist 
+AVCodecContext-keyint_min AVCodecContext-extradata 
+AVCodecContext-error_concealment AVCodecContext-me_cmp 
+AVCodecContext-qcompress AVCodecContext-gop_size AVCodecContext-flags2 
+AVCodecContext-sub_charenc_mode AVCodecContext-reordered_opaque 
+AVCodecContext-apply_cropping AVCodecContext-extradata_size 
+AVCodecContext-skip_bottom AVCodecContext-draw_horiz_band AVCodecContext-delay 
+AVCodecContext-bidir_refine AVCodecContext-qmin AVCodecContext-debug 
+AVCodecContext-color_range AVCodecContext-slice_count 
+AVCodecContext-rc_override_count AVCodecContext-rc_override 
+AVCodecContext-err_recognition AVCodecContext-hwaccel_flags 
+AVCodecContext-hwaccel_context AVCodecContext-pix_fmt 
+AVCodecContext-sw_pix_fmt AVCodecContext-execute AVCodecContext-dark_masking 
+AVCodecContext-p_masking AVCodecContext-spatial_cplx_masking 
+AVCodecContext-temporal_cplx_masking AVCodecContext-lumi_masking 
+AVCodecContext-get_format AVCodecContext-sub_text_format 
+AVCodecContext-mb_lmin AVCodecContext-mv0_threshold AVCodecContext-skip_idct 
+AVCodecContext-slice_offset AVCodecContext-log_level_offset 
+AVCodecContext-b_quant_offset AVCodecContext-i_quant_offset 
+AVCodecContext-coded_width AVCodecContext-lowres AVCodecContext-pre_dia_size 
+AVCodecContext-dia_size AVCodecContext-seek_preroll AVCodecContext-rc_max_rate 
+AVCodecContext-rc_buffer_size AVCodecContext-subtitle_header_size 
+AVCodecContext-me_range AVCodecContext-slice_flags AVCodecContext-channels 
+AVCodecContext-me_subpel_quality AVCodecContext-global_quality 
+AVCodecContext-error AVCodecContext-hw_frames_ctx 
+AVCodecContext-pts_correction_last_dts AVCodecContext-hwaccel 
+AVCodecContext-coded_side_data AVCodecContext-nb_coded_side_data 
+AVCodecContext-export_side_data AVCodecContext-rc_min_rate 
+AVCodecContext-rc_min_vbv_overflow_use AVCodecContext-codec 
+AVCodecContext-strict_std_compliance AVCodecContext-get_buffer2 
+AVCodecContext-color_primaries AVCodecContext-thread_type 
+AVCodecContext-active_thread_type AVCodecContext-ildct_cmp 
+AVCodecContext-bit_rate_tolerance AVCodecContext-subtitle_header 
+AVCodecContext-pts_correction_num_faulty_pts AVCodecContext-colorspace 
+AVCodecContext-codec_descriptor AVCodecContext-frame_number 
+AVCodecContext-skip_loop_filter AVCodecContext-priv_data 
+AVCodecContext-chroma_sample_location AVCodecContext-profile 
+AVCodecContext-qblur AVCodecContext-pkt_timebase AVCodecContext-stats_in 
+AVCodecContext-frame_size AVCodecContext-sample_fmt 
+AVCodecContext-request_sample_fmt AVCodecContext-stats_out 
+AVCodecContext-nsse_weight AVCodecContext-max_qdiff AVCodecContext-qmax 
+AVCodecContext-height AVCodecContext-workaround_bugs AVCodecContext 
+AVProducerReferenceTime-flags AVProducerReferenceTime-wallclock 
+AVProducerReferenceTime AVCPBProperties-avg_bitrate 
+AVCPBProperties-min_bitrate AVCPBProperties-max_bitrate 
+AVCPBProperties-vbv_delay AVCPBProperties-buffer_size AVCPBProperties 
+AVPanScan-width AVPanScan-height AVPanScan-id AVPanScan-position AVPanScan 
+RcOverride-end_frame RcOverride-start_frame RcOverride-qscale 
+RcOverride-quality_factor RcOverride AVCHROMA_LOC_NB AVCHROMA_LOC_BOTTOM 
+AVCHROMA_LOC_BOTTOMLEFT AVCHROMA_LOC_TOP AVCHROMA_LOC_TOPLEFT 
+AVCHROMA_LOC_CENTER AVCHROMA_LOC_LEFT AVCHROMA_LOC_UNSPECIFIED AVCOL_RANGE_NB 
+AVCOL_RANGE_JPEG AVCOL_RANGE_MPEG AVCOL_RANGE_UNSPECIFIED AVCOL_SPC_NB 
+AVCOL_SPC_ICTCP AVCOL_SPC_CHROMA_DERIVED_CL AVCOL_SPC_CHROMA_DERIVED_NCL 
+AVCOL_SPC_SMPTE2085 AVCOL_SPC_BT2020_CL AVCOL_SPC_BT2020_NCL AVCOL_SPC_YCOCG 
+AVCOL_SPC_YCGCO AVCOL_SPC_SMPTE240M AVCOL_SPC_SMPTE170M AVCOL_SPC_BT470BG 
+AVCOL_SPC_FCC AVCOL_SPC_RESERVED AVCOL_SPC_UNSPECIFIED AVCOL_SPC_BT709 
+AVCOL_SPC_RGB AVCOL_TRC_NB AVCOL_TRC_ARIB_STD_B67 AVCOL_TRC_SMPTEST428_1 
+AVCOL_TRC_SMPTE428 AVCOL_TRC_SMPTEST2084 AVCOL_TRC_SMPTE2084 
+AVCOL_TRC_BT2020_12 AVCOL_TRC_BT2020_10 AVCOL_TRC_IEC61966_2_1 
+AVCOL_TRC_BT1361_ECG AVCOL_TRC_IEC61966_2_4 AVCOL_TRC_LOG_SQRT AVCOL_TRC_LOG 
+AVCOL_TRC_LINEAR AVCOL_TRC_SMPTE240M AVCOL_TRC_SMPTE170M AVCOL_TRC_GAMMA28 
+AVCOL_TRC_GAMMA22 AVCOL_TRC_RESERVED AVCOL_TRC_UNSPECIFIED AVCOL_TRC_BT709 
+AVCOL_TRC_RESERVED0 AVCOL_PRI_NB AVCOL_PRI_JEDEC_P22 AVCOL_PRI_EBU3213 
+AVCOL_PRI_SMPTE432 AVCOL_PRI_SMPTE431 AVCOL_PRI_SMPTEST428_1 
+AVCOL_PRI_SMPTE428 AVCOL_PRI_BT2020 AVCOL_PRI_FILM AVCOL_PRI_SMPTE240M 
+AVCOL_PRI_SMPTE170M AVCOL_PRI_BT470BG AVCOL_PRI_BT470M AVCOL_PRI_RESERVED 
+AVCOL_PRI_UNSPECIFIED AVCOL_PRI_BT709 AVCOL_PRI_RESERVED0 AV_PIX_FMT_NB 
+AV_PIX_FMT_X2RGB10BE AV_PIX_FMT_X2RGB10LE AV_PIX_FMT_Y210LE AV_PIX_FMT_Y210BE 
+AV_PIX_FMT_VULKAN AV_PIX_FMT_NV42 AV_PIX_FMT_NV24 AV_PIX_FMT_YUVA444P12LE 
+AV_PIX_FMT_YUVA444P12BE AV_PIX_FMT_YUVA422P12LE AV_PIX_FMT_YUVA422P12BE 
+AV_PIX_FMT_GRAYF32LE AV_PIX_FMT_GRAYF32BE AV_PIX_FMT_GRAY14LE 
+AV_PIX_FMT_GRAY14BE AV_PIX_FMT_OPENCL AV_PIX_FMT_DRM_PRIME 
+AV_PIX_FMT_GBRAPF32LE AV_PIX_FMT_GBRAPF32BE AV_PIX_FMT_GBRPF32LE 
+AV_PIX_FMT_GBRPF32BE AV_PIX_FMT_GRAY9LE AV_PIX_FMT_GRAY9BE AV_PIX_FMT_D3D11 
+AV_PIX_FMT_P016BE AV_PIX_FMT_P016LE AV_PIX_FMT_GRAY10LE AV_PIX_FMT_GRAY10BE 
+AV_PIX_FMT_GRAY12LE AV_PIX_FMT_GRAY12BE AV_PIX_FMT_MEDIACODEC 
+AV_PIX_FMT_GBRAP10LE AV_PIX_FMT_GBRAP10BE AV_PIX_FMT_GBRAP12LE 
+AV_PIX_FMT_GBRAP12BE AV_PIX_FMT_P010BE AV_PIX_FMT_P010LE 
+AV_PIX_FMT_VIDEOTOOLBOX AV_PIX_FMT_AYUV64BE AV_PIX_FMT_AYUV64LE 
+AV_PIX_FMT_YUV440P12BE AV_PIX_FMT_YUV440P12LE AV_PIX_FMT_YUV440P10BE 
+AV_PIX_FMT_YUV440P10LE AV_PIX_FMT_XVMC AV_PIX_FMT_BAYER_GRBG16BE 
+AV_PIX_FMT_BAYER_GRBG16LE AV_PIX_FMT_BAYER_GBRG16BE AV_PIX_FMT_BAYER_GBRG16LE 
+AV_PIX_FMT_BAYER_RGGB16BE AV_PIX_FMT_BAYER_RGGB16LE AV_PIX_FMT_BAYER_BGGR16BE 
+AV_PIX_FMT_BAYER_BGGR16LE AV_PIX_FMT_BAYER_GRBG8 AV_PIX_FMT_BAYER_GBRG8 
+AV_PIX_FMT_BAYER_RGGB8 AV_PIX_FMT_BAYER_BGGR8 AV_PIX_FMT_YUVJ411P 
+AV_PIX_FMT_GBRP14LE AV_PIX_FMT_GBRP14BE AV_PIX_FMT_GBRP12LE 
+AV_PIX_FMT_GBRP12BE AV_PIX_FMT_YUV444P14LE AV_PIX_FMT_YUV444P14BE 
+AV_PIX_FMT_YUV444P12LE AV_PIX_FMT_YUV444P12BE AV_PIX_FMT_YUV422P14LE 
+AV_PIX_FMT_YUV422P14BE AV_PIX_FMT_YUV422P12LE AV_PIX_FMT_YUV422P12BE 
+AV_PIX_FMT_YUV420P14LE AV_PIX_FMT_YUV420P14BE AV_PIX_FMT_YUV420P12LE 
+AV_PIX_FMT_YUV420P12BE AV_PIX_FMT_BGR0 AV_PIX_FMT_0BGR AV_PIX_FMT_RGB0 
+AV_PIX_FMT_0RGB AV_PIX_FMT_CUDA AV_PIX_FMT_D3D11VA_VLD AV_PIX_FMT_MMAL 
+AV_PIX_FMT_QSV AV_PIX_FMT_GBRAP16LE AV_PIX_FMT_GBRAP16BE AV_PIX_FMT_GBRAP 
+AV_PIX_FMT_YA16LE AV_PIX_FMT_YA16BE AV_PIX_FMT_YVYU422 AV_PIX_FMT_BGRA64LE 
+AV_PIX_FMT_BGRA64BE AV_PIX_FMT_RGBA64LE AV_PIX_FMT_RGBA64BE AV_PIX_FMT_NV20BE 
+AV_PIX_FMT_NV20LE AV_PIX_FMT_NV16 AV_PIX_FMT_XYZ12BE AV_PIX_FMT_XYZ12LE 
+AV_PIX_FMT_VDPAU AV_PIX_FMT_YUVA444P16LE AV_PIX_FMT_YUVA444P16BE 
+AV_PIX_FMT_YUVA422P16LE AV_PIX_FMT_YUVA422P16BE AV_PIX_FMT_YUVA420P16LE 
+AV_PIX_FMT_YUVA420P16BE AV_PIX_FMT_YUVA444P10LE AV_PIX_FMT_YUVA444P10BE 
+AV_PIX_FMT_YUVA422P10LE AV_PIX_FMT_YUVA422P10BE AV_PIX_FMT_YUVA420P10LE 
+AV_PIX_FMT_YUVA420P10BE AV_PIX_FMT_YUVA444P9LE AV_PIX_FMT_YUVA444P9BE 
+AV_PIX_FMT_YUVA422P9LE AV_PIX_FMT_YUVA422P9BE AV_PIX_FMT_YUVA420P9LE 
+AV_PIX_FMT_YUVA420P9BE AV_PIX_FMT_YUVA444P AV_PIX_FMT_YUVA422P 
+AV_PIX_FMT_GBRP16LE AV_PIX_FMT_GBRP16BE AV_PIX_FMT_GBRP10LE 
+AV_PIX_FMT_GBRP10BE AV_PIX_FMT_GBRP9LE AV_PIX_FMT_GBRP9BE AV_PIX_FMT_GBR24P 
+AV_PIX_FMT_GBRP AV_PIX_FMT_YUV422P9LE AV_PIX_FMT_YUV422P9BE 
+AV_PIX_FMT_YUV444P10LE AV_PIX_FMT_YUV444P10BE AV_PIX_FMT_YUV444P9LE 
+AV_PIX_FMT_YUV444P9BE AV_PIX_FMT_YUV422P10LE AV_PIX_FMT_YUV422P10BE 
+AV_PIX_FMT_YUV420P10LE AV_PIX_FMT_YUV420P10BE AV_PIX_FMT_YUV420P9LE 
+AV_PIX_FMT_YUV420P9BE AV_PIX_FMT_BGR48LE AV_PIX_FMT_BGR48BE AV_PIX_FMT_GRAY8A 
+AV_PIX_FMT_Y400A AV_PIX_FMT_YA8 AV_PIX_FMT_BGR444BE AV_PIX_FMT_BGR444LE 
+AV_PIX_FMT_RGB444BE AV_PIX_FMT_RGB444LE AV_PIX_FMT_DXVA2_VLD 
+AV_PIX_FMT_YUV444P16BE AV_PIX_FMT_YUV444P16LE AV_PIX_FMT_YUV422P16BE 
+AV_PIX_FMT_YUV422P16LE AV_PIX_FMT_YUV420P16BE AV_PIX_FMT_YUV420P16LE 
+AV_PIX_FMT_VAAPI AV_PIX_FMT_BGR555LE AV_PIX_FMT_BGR555BE AV_PIX_FMT_BGR565LE 
+AV_PIX_FMT_BGR565BE AV_PIX_FMT_RGB555LE AV_PIX_FMT_RGB555BE 
+AV_PIX_FMT_RGB565LE AV_PIX_FMT_RGB565BE AV_PIX_FMT_RGB48LE AV_PIX_FMT_RGB48BE 
+AV_PIX_FMT_YUVA420P AV_PIX_FMT_YUVJ440P AV_PIX_FMT_YUV440P AV_PIX_FMT_GRAY16LE 
+AV_PIX_FMT_GRAY16BE AV_PIX_FMT_BGRA AV_PIX_FMT_ABGR AV_PIX_FMT_RGBA 
+AV_PIX_FMT_ARGB AV_PIX_FMT_NV21 AV_PIX_FMT_NV12 AV_PIX_FMT_RGB4_BYTE 
+AV_PIX_FMT_RGB4 AV_PIX_FMT_RGB8 AV_PIX_FMT_BGR4_BYTE AV_PIX_FMT_BGR4 
+AV_PIX_FMT_BGR8 AV_PIX_FMT_UYYVYY411 AV_PIX_FMT_UYVY422 AV_PIX_FMT_YUVJ444P 
+AV_PIX_FMT_YUVJ422P AV_PIX_FMT_YUVJ420P AV_PIX_FMT_PAL8 AV_PIX_FMT_MONOBLACK 
+AV_PIX_FMT_MONOWHITE AV_PIX_FMT_GRAY8 AV_PIX_FMT_YUV411P AV_PIX_FMT_YUV410P 
+AV_PIX_FMT_YUV444P AV_PIX_FMT_YUV422P AV_PIX_FMT_BGR24 AV_PIX_FMT_RGB24 
+AV_PIX_FMT_YUYV422 AV_PIX_FMT_YUV420P AV_PIX_FMT_NONE 
+AV_PICTURE_STRUCTURE_FRAME AV_PICTURE_STRUCTURE_BOTTOM_FIELD 
+AV_PICTURE_STRUCTURE_TOP_FIELD AV_PICTURE_STRUCTURE_UNKNOWN SUBTITLE_ASS 
+SUBTITLE_TEXT SUBTITLE_BITMAP SUBTITLE_NONE AV_AUDIO_SERVICE_TYPE_NB 
+AV_AUDIO_SERVICE_TYPE_KARAOKE AV_AUDIO_SERVICE_TYPE_VOICE_OVER 
+AV_AUDIO_SERVICE_TYPE_EMERGENCY AV_AUDIO_SERVICE_TYPE_COMMENTARY 
+AV_AUDIO_SERVICE_TYPE_DIALOGUE AV_AUDIO_SERVICE_TYPE_HEARING_IMPAIRED 
+AV_AUDIO_SERVICE_TYPE_VISUALLY_IMPAIRED AV_AUDIO_SERVICE_TYPE_EFFECTS 
+AV_AUDIO_SERVICE_TYPE_MAIN AVDISCARD_ALL AVDISCARD_NONKEY AVDISCARD_NONINTRA 
+AVDISCARD_BIDIR AVDISCARD_NONREF AVDISCARD_DEFAULT AVDISCARD_NONE 
+AVPALETTE_COUNT AVPALETTE_SIZE PARSER_FLAG_USE_CODEC_TS 
+PARSER_FLAG_FETCHED_OFFSET PARSER_FLAG_ONCE PARSER_FLAG_COMPLETE_FRAMES 
+AV_PARSER_PTS_NB AV_SUBTITLE_FLAG_FORCED 
+AV_HWACCEL_FLAG_ALLOW_PROFILE_MISMATCH AV_HWACCEL_FLAG_ALLOW_HIGH_DEPTH 
+AV_HWACCEL_FLAG_IGNORE_LEVEL AV_HWACCEL_CODEC_CAP_EXPERIMENTAL 
+FF_SUB_TEXT_FMT_ASS FF_CODEC_PROPERTY_CLOSED_CAPTIONS 
+FF_CODEC_PROPERTY_LOSSLESS FF_SUB_CHARENC_MODE_IGNORE 
+FF_SUB_CHARENC_MODE_PRE_DECODER FF_SUB_CHARENC_MODE_AUTOMATIC 
+FF_SUB_CHARENC_MODE_DO_NOTHING FF_LEVEL_UNKNOWN FF_PROFILE_KLVA_ASYNC 
+FF_PROFILE_KLVA_SYNC FF_PROFILE_ARIB_PROFILE_C FF_PROFILE_ARIB_PROFILE_A 
+FF_PROFILE_PRORES_XQ FF_PROFILE_PRORES_4444 FF_PROFILE_PRORES_HQ 
+FF_PROFILE_PRORES_STANDARD FF_PROFILE_PRORES_LT FF_PROFILE_PRORES_PROXY 
+FF_PROFILE_SBC_MSBC FF_PROFILE_MJPEG_JPEG_LS FF_PROFILE_MJPEG_HUFFMAN_LOSSLESS 
+FF_PROFILE_MJPEG_HUFFMAN_PROGRESSIVE_DCT 
+FF_PROFILE_MJPEG_HUFFMAN_EXTENDED_SEQUENTIAL_DCT 
+FF_PROFILE_MJPEG_HUFFMAN_BASELINE_DCT FF_PROFILE_AV1_PROFESSIONAL 
+FF_PROFILE_AV1_HIGH FF_PROFILE_AV1_MAIN FF_PROFILE_VVC_MAIN_10_444 
+FF_PROFILE_VVC_MAIN_10 FF_PROFILE_HEVC_REXT FF_PROFILE_HEVC_MAIN_STILL_PICTURE 
+FF_PROFILE_HEVC_MAIN_10 FF_PROFILE_HEVC_MAIN FF_PROFILE_VP9_3 FF_PROFILE_VP9_2 
+FF_PROFILE_VP9_1 FF_PROFILE_VP9_0 FF_PROFILE_JPEG2000_DCINEMA_4K 
+FF_PROFILE_JPEG2000_DCINEMA_2K FF_PROFILE_JPEG2000_CSTREAM_NO_RESTRICTION 
+FF_PROFILE_JPEG2000_CSTREAM_RESTRICTION_1 
+FF_PROFILE_JPEG2000_CSTREAM_RESTRICTION_0 FF_PROFILE_MPEG4_ADVANCED_SIMPLE 
+FF_PROFILE_MPEG4_SIMPLE_STUDIO FF_PROFILE_MPEG4_ADVANCED_SCALABLE_TEXTURE 
+FF_PROFILE_MPEG4_ADVANCED_CORE FF_PROFILE_MPEG4_ADVANCED_CODING 
+FF_PROFILE_MPEG4_CORE_SCALABLE FF_PROFILE_MPEG4_ADVANCED_REAL_TIME 
+FF_PROFILE_MPEG4_HYBRID FF_PROFILE_MPEG4_BASIC_ANIMATED_TEXTURE 
+FF_PROFILE_MPEG4_SIMPLE_FACE_ANIMATION FF_PROFILE_MPEG4_SCALABLE_TEXTURE 
+FF_PROFILE_MPEG4_N_BIT FF_PROFILE_MPEG4_MAIN FF_PROFILE_MPEG4_CORE 
+FF_PROFILE_MPEG4_SIMPLE_SCALABLE FF_PROFILE_MPEG4_SIMPLE 
+FF_PROFILE_VC1_ADVANCED FF_PROFILE_VC1_COMPLEX FF_PROFILE_VC1_MAIN 
+FF_PROFILE_VC1_SIMPLE FF_PROFILE_H264_CAVLC_444 FF_PROFILE_H264_HIGH_444_INTRA 
+FF_PROFILE_H264_HIGH_444_PREDICTIVE FF_PROFILE_H264_HIGH_444 
+FF_PROFILE_H264_STEREO_HIGH FF_PROFILE_H264_HIGH_422_INTRA 
+FF_PROFILE_H264_HIGH_422 FF_PROFILE_H264_MULTIVIEW_HIGH 
+FF_PROFILE_H264_HIGH_10_INTRA FF_PROFILE_H264_HIGH_10 FF_PROFILE_H264_HIGH 
+FF_PROFILE_H264_EXTENDED FF_PROFILE_H264_MAIN 
+FF_PROFILE_H264_CONSTRAINED_BASELINE FF_PROFILE_H264_BASELINE 
+FF_PROFILE_H264_INTRA FF_PROFILE_H264_CONSTRAINED FF_PROFILE_MPEG2_SIMPLE 
+FF_PROFILE_MPEG2_MAIN FF_PROFILE_MPEG2_SNR_SCALABLE FF_PROFILE_MPEG2_SS 
+FF_PROFILE_MPEG2_HIGH FF_PROFILE_MPEG2_422 FF_PROFILE_DTS_EXPRESS 
+FF_PROFILE_DTS_HD_MA FF_PROFILE_DTS_HD_HRA FF_PROFILE_DTS_96_24 
+FF_PROFILE_DTS_ES FF_PROFILE_DTS FF_PROFILE_DNXHR_444 FF_PROFILE_DNXHR_HQX 
+FF_PROFILE_DNXHR_HQ FF_PROFILE_DNXHR_SQ FF_PROFILE_DNXHR_LB FF_PROFILE_DNXHD 
+FF_PROFILE_MPEG2_AAC_HE FF_PROFILE_MPEG2_AAC_LOW FF_PROFILE_AAC_ELD 
+FF_PROFILE_AAC_LD FF_PROFILE_AAC_HE_V2 FF_PROFILE_AAC_HE FF_PROFILE_AAC_LTP 
+FF_PROFILE_AAC_SSR FF_PROFILE_AAC_LOW FF_PROFILE_AAC_MAIN FF_PROFILE_RESERVED 
+FF_PROFILE_UNKNOWN FF_THREAD_SLICE FF_THREAD_FRAME FF_IDCT_SIMPLEAUTO 
+FF_IDCT_NONE FF_IDCT_SIMPLENEON FF_IDCT_FAAN FF_IDCT_SIMPLEARMV6 
+FF_IDCT_SIMPLEARMV5TE FF_IDCT_XVID FF_IDCT_SIMPLEARM FF_IDCT_ALTIVEC 
+FF_IDCT_ARM FF_IDCT_SIMPLEMMX FF_IDCT_SIMPLE FF_IDCT_INT FF_IDCT_AUTO 
+FF_DCT_FAAN FF_DCT_ALTIVEC FF_DCT_MMX FF_DCT_INT FF_DCT_FASTINT FF_DCT_AUTO 
+AV_EF_AGGRESSIVE AV_EF_COMPLIANT AV_EF_CAREFUL AV_EF_IGNORE_ERR AV_EF_EXPLODE 
+AV_EF_BUFFER AV_EF_BITSTREAM AV_EF_CRCCHECK FF_DEBUG_NOMC FF_DEBUG_GREEN_MD 
+FF_DEBUG_THREADS FF_DEBUG_BUFFERS FF_DEBUG_BUGS FF_DEBUG_MMCO FF_DEBUG_ER 
+FF_DEBUG_STARTCODE FF_DEBUG_SKIP FF_DEBUG_DCT_COEFF FF_DEBUG_QP 
+FF_DEBUG_MB_TYPE FF_DEBUG_BITSTREAM FF_DEBUG_RC FF_DEBUG_PICT_INFO 
+FF_EC_FAVOR_INTER FF_EC_DEBLOCK FF_EC_GUESS_MVS FF_COMPLIANCE_EXPERIMENTAL 
+FF_COMPLIANCE_UNOFFICIAL FF_COMPLIANCE_NORMAL FF_COMPLIANCE_STRICT 
+FF_COMPLIANCE_VERY_STRICT FF_BUG_IEDGE FF_BUG_TRUNCATED FF_BUG_MS 
+FF_BUG_DC_CLIP FF_BUG_HPEL_CHROMA FF_BUG_EDGE FF_BUG_DIRECT_BLOCKSIZE 
+FF_BUG_QPEL_CHROMA2 FF_BUG_STD_QPEL FF_BUG_QPEL_CHROMA FF_BUG_AMV 
+FF_BUG_NO_PADDING FF_BUG_UMP4 FF_BUG_XVID_ILACE FF_BUG_AUTODETECT 
+FF_MB_DECISION_RD FF_MB_DECISION_BITS FF_MB_DECISION_SIMPLE 
+SLICE_FLAG_ALLOW_PLANE SLICE_FLAG_ALLOW_FIELD SLICE_FLAG_CODED_ORDER 
+FF_CMP_CHROMA FF_CMP_MEDIAN_SAD FF_CMP_DCT264 FF_CMP_DCTMAX FF_CMP_W97 
+FF_CMP_W53 FF_CMP_NSSE FF_CMP_VSSE FF_CMP_VSAD FF_CMP_ZERO FF_CMP_RD 
+FF_CMP_BIT FF_CMP_PSNR FF_CMP_DCT FF_CMP_SATD FF_CMP_SSE FF_CMP_SAD 
+FF_COMPRESSION_DEFAULT AV_GET_ENCODE_BUFFER_FLAG_REF AV_GET_BUFFER_FLAG_REF 
+AV_CODEC_EXPORT_DATA_FILM_GRAIN AV_CODEC_EXPORT_DATA_VIDEO_ENC_PARAMS 
+AV_CODEC_EXPORT_DATA_PRFT AV_CODEC_EXPORT_DATA_MVS 
+AV_CODEC_FLAG2_RO_FLUSH_NOOP AV_CODEC_FLAG2_SKIP_MANUAL 
+AV_CODEC_FLAG2_EXPORT_MVS AV_CODEC_FLAG2_SHOW_ALL AV_CODEC_FLAG2_IGNORE_CROP 
+AV_CODEC_FLAG2_CHUNKS AV_CODEC_FLAG2_DROP_FRAME_TIMECODE 
+AV_CODEC_FLAG2_LOCAL_HEADER AV_CODEC_FLAG2_NO_OUTPUT AV_CODEC_FLAG2_FAST 
+AV_CODEC_FLAG_CLOSED_GOP AV_CODEC_FLAG_INTERLACED_ME AV_CODEC_FLAG_AC_PRED 
+AV_CODEC_FLAG_BITEXACT AV_CODEC_FLAG_GLOBAL_HEADER AV_CODEC_FLAG_LOW_DELAY 
+AV_CODEC_FLAG_INTERLACED_DCT AV_CODEC_FLAG_TRUNCATED AV_CODEC_FLAG_PSNR 
+AV_CODEC_FLAG_GRAY AV_CODEC_FLAG_LOOP_FILTER AV_CODEC_FLAG_PASS2 
+AV_CODEC_FLAG_PASS1 AV_CODEC_FLAG_DROPCHANGED AV_CODEC_FLAG_QPEL 
+AV_CODEC_FLAG_OUTPUT_CORRUPT AV_CODEC_FLAG_4MV AV_CODEC_FLAG_QSCALE 
+AV_CODEC_FLAG_UNALIGNED AV_INPUT_BUFFER_MIN_SIZE AV_INPUT_BUFFER_PADDING_SIZE 
 _g_signals_destroy g_signal_handlers_destroy g_signal_accumulator_first_wins 
 g_signal_accumulator_true_handled g_signal_chain_from_overridden_handler 
 g_signal_chain_from_overridden g_signal_override_class_handler 
@@ -4200,25 +4498,25 @@ GL_ARB_imaging GL_VERSION_1_3 GL_VERSION_1_2 GL_VERSION_1_1 SDL2 Xrandr X11
 load-cov save-cov cover-filename hash-cover cover-hash annotate-cov .coverage 
 covered? .cover-file ?del-cover bw-cover color-cover .paren-cov# .ansi-cov# 
 .cov# .cover-raw cov% ?cov+ cov+ cov+, dead-cov? cover-end! cover, cover-start 
-cover-end coverage bye spawn2 spawn1 spawn spawn-rest sync start-workers 
-worker-thread ->spawn +worker ->sync worker@ invoker workers sync# cores 
-thread-key prep-key keypollfds UDefer udefer@ event| kill sleep halt :>restart 
-wake restart :>sleep :>wake eflit, e$, elit, :>flit :>lit thread-deadline 
-pause event-loop stop-dns stop-ns stop ?events event? (stop) event: event-does 
-event-table event-crash event> <event event+ 'event event-start eventbuf# 
-event# !!ebuffull!! !!event!! execute-task stacksize4 stacksize 
->pagealign-stack c-section critical-section unlock lock cond sema semaphore 
-initiate pass (pass) activate (activate) task newtask newtask4 thread-init 's 
-up@ user' wake# epipew epiper pthread-id fork+exec fpid fork() getpid fd>file 
-int-errno-exec saved-errno ?ior ?errno-throw errno-throw fds[]! fds!+ 
-LC_IDENTIFICATION LC_MEASUREMENT LC_TELEPHONE LC_ADDRESS LC_NAME LC_PAPER 
-LC_ALL LC_MESSAGES LC_MONETARY LC_COLLATE LC_TIME LC_NUMERIC LC_CTYPE POLLOUT 
-POLLPRI POLLIN revents events fd pollfd pagesize environ unsetenv setenv 
-getrandom getentropy strlen getcwd mkstemp mknod rmdir readlink link symlink 
-exit() execvp (fork) (getpid) setlocale close write read open ioctl2 ioctl 
-fcntl freopen fdopen posix_spawnp epoll_wait epoll_ctl epoll_create ppoll poll 
-fileno getpagesize ->errno errno pthread_self stick-to-core wait_read 
-check_read create_pipe pthread_cond_timedwait pthread_cond_wait 
+cover-end coverage cilk-bye spawn2 spawn1 spawn spawn-rest cilk-init 
+start-workers sync worker-thread ->spawn +worker ->sync worker@ invoker 
+workers sync# cores thread-key prep-key keypollfds UDefer udefer@ event| kill 
+sleep halt :>restart wake restart :>sleep :>wake eflit, e$, elit, :>flit :>lit 
+thread-deadline pause event-loop stop-dns stop-ns stop ?events event? (stop) 
+event: event-does event-table event-crash event> <event event+ 'event 
+event-start eventbuf# event# !!ebuffull!! !!event!! execute-task stacksize4 
+stacksize >pagealign-stack c-section critical-section unlock lock cond sema 
+semaphore initiate pass (pass) activate (activate) task newtask newtask4 
+thread-init 's up@ user' wake# epipew epiper pthread-id fork+exec fpid fork() 
+getpid fd>file int-errno-exec saved-errno ?ior ?errno-throw errno-throw fds[]! 
+fds!+ LC_IDENTIFICATION LC_MEASUREMENT LC_TELEPHONE LC_ADDRESS LC_NAME 
+LC_PAPER LC_ALL LC_MESSAGES LC_MONETARY LC_COLLATE LC_TIME LC_NUMERIC LC_CTYPE 
+POLLOUT POLLPRI POLLIN revents events fd pollfd pagesize environ unsetenv 
+setenv getrandom getentropy strlen getcwd mkstemp mknod rmdir readlink link 
+symlink exit() execvp (fork) (getpid) setlocale close write read open ioctl2 
+ioctl fcntl freopen fdopen posix_spawnp epoll_wait epoll_ctl epoll_create 
+ppoll poll fileno getpagesize ->errno errno pthread_self stick-to-core 
+wait_read check_read create_pipe pthread_cond_timedwait pthread_cond_wait 
 pthread_cond_broadcast pthread_cond_signal pthread_detach_attr sched_yield 
 pthread-conds pthread-cond+ pthread-mutexes pthread-mutex+ 
 pthread_mutex_unlock pthread_mutex_lock pthread_mutex_destroy 
@@ -4260,7 +4558,7 @@ class-parent interface% interface-offset interface-map-offset interface-map
 object% object-map heap>dict disasm disline disassembler marker marker! 
 marker, sections-marker! sections-marker, included-files-mark .unresolved 
 auto-resolve is-forward? forward unfixed-forward unresolved-forward-error 
-forward-needs-: unresolved-forward fancy-after-l bye whereg delete-whereg 
+forward-needs-: unresolved-forward fancy-after-l whereg delete-whereg 
 whereg-filename s` sh-get sh$ plain-output plain-out plain-form help 
 help-section help-word open-doc set-help-view count-lfs doc-file# unused-words 
 unused-wordlist unused@ unmark-used unused-all -unused +unused .wids 
@@ -4331,7 +4629,7 @@ k-ctrl-mask k-alt-mask k-shift-mask mask-shift# keycode keycode-table
 keycode-limit keycode-start voctable cs-vocabulary cs-wordlist table 
 cs-wordlist-search-map tablesearch-map table-rec table-find savesystem dump-fi 
 preamble-start prepare-for-dump 'clean-maintask update-maintask 
-update-image-included-files repl-included-files del-included-files bye 
+update-image-included-files repl-included-files del-included-files 
 block-included --> +thru +load thru load block-input list updated? scr buffer 
 block get-buffer flush empty-buffers save-buffers empty-buffer save-buffer 
 update block-position get-block-fid use open-blocks flush-blocks block-cold 
@@ -4407,8 +4705,8 @@ expect span capssearch capsstring-prefix? search blank convert [compile] C"
 m*/ d>s .( frem ftrunc fmod fcopysign fsign-offset f~ f~rel f~abs 1/f f2/ f2* 
 pi fvariable rec-float rectype-float translate-float >postponer fp. 
 prefix-number zero-exp si-prefixes sfnumber fs. fe. f. f$ -zeros zeros scratch 
-set-precision precision fdepth fvalue fvalue-to f!-table f+! fconstant 
-opt-fcon opt-fval FLiteral flit, f, dfloat+ sfloat+ dfalign sfalign 
+set-precision precision fclearstack fdepth fvalue fvalue-to f!-table f+! 
+fconstant opt-fcon opt-fval FLiteral flit, f, dfloat+ sfloat+ dfalign sfalign 
 dump-sections extra-section >extra-sections #>section section# lits<> 
 new-section create-section which-section? sections-execute section-execute 
 set-section extra-section-error first-section-error image-offset 
@@ -4508,39 +4806,40 @@ encode-view current-sourcepos3 encode-pos get-current nlstring, longstring,
 string, mem, const A, cfalign maxalign falign align >align 2, c, small-allot 
 allot hm-list umethod-defer@ is-umethod (uv) uvar, umethod, does, ;abi-code, 
 abi-code, field+, defer, user, variable, :, constant, value, does-check 
-call-check bye boot xt, cold 'cold process-args bootmessage gforth (c) do-find 
-do-execute quit (DoError) rec-level reset-dpp .error-frame (.error-level) 
-.error-level .error-line part-type mark-end mark-start .error-string 
-dobacktrace DOERROR -trailing hex. dec.r dec. input-error-data >error error> 
-error-stack /error (quit) (quit1) (prompt) prompt .status 'quit extend-mem 
-free-mem-var save-mem interpret2 bt-rp0-wrapper bt-rp0-catch interpret 
-int-execute before-line before-word name parse-word parse-name parser ' (') 
-'-error any-code! only-code-address! >does-code xt>name >code-address body> 
->body >head-noprim xt? hm? ??? (name>intn) default-name>int noname>link 
-noname>string named>link named>string name?int ?compile-only compile-only? 
-immediate? , compile, >extra hmsize name>link name>string name>comp name>int 
-initwl defer@ (to) opt-compile, >namehm >cfa >link >f+c >hm>link >hm>string 
->hm>comp >hm>int >hmextra >hmdefer@ >hmto >hmcompile, >hmlink ((name>)) 
-(x>int) compile-only-error ticking-compile-only-error flag-sign lcount-mask 
-restrict-mask find-name rec-nt search-wordlist find-name-in notfound 
-no.extensions (where,) where, where-struct where-loc where-nt wheres context 
-voclink current f83search forth-wordlist rec-f83 wordlist-struct 
-wordlist-extend wordlist-link wordlist-id wordlist-map wordlist-exec 
-wordlist-start \G \ ( number (number?) snumber? s>number s>number? s>unumber? 
-?warn# s'>unumber? ?dnegate sign? getbase bases name-too-long? name-too-short? 
-(name) parse (parse) version-string .error error$ errlink>string do-debug 
->stderr >exec c(warning") .warning ErrRanges ErrLink u. . ud. d. u.r .r ud.r 
-d.r holds #s # sign #>> <<# #> <# hold +hold pad ms ns kernel-deadline 
-deadline backspaces spaces spaces-loop status-color error-hl-inv error-hl-ul 
-input-color success-color info-color warning-color error-color default-color 
-theme-color: theme-color# theme@ theme! space bell #lf #ff #cr #del #esc #tab 
-#bs #bell #eof output: input: default-in debug-vector debug-out default-out 
-key (cr) key? key-ior ip-vector theme-color! control-sequence attr! at-deltaxy 
-at-xy page form cr emit type op-vector (key?) (key) key-file EBADF EINTR EOK 
-(err-emit) (err-type) (emit) (type) out debug-fid outfile-id infile-id hex 
-decimal "lit clearstacks clearstack depth ?stack abort ?warning (abort") 
-c(abort") throw catch lp@ ud/mod s>d >number_ >number accumulate digit? bounds 
-stick roll dabs off on ->here here dpp in-dictionary1? in-dictionary? unused 
+call-check kernel-bye bye boot xt, cold 'cold process-args bootmessage gforth 
+(c) do-find do-execute quit (DoError) rec-level reset-dpp .error-frame 
+(.error-level) .error-level .error-line part-type mark-end mark-start 
+.error-string dobacktrace DOERROR -trailing hex. dec.r dec. input-error-data 
+>error error> error-stack /error (quit) (quit1) (prompt) prompt .status 'quit 
+extend-mem free-mem-var save-mem interpret2 bt-rp0-wrapper bt-rp0-catch 
+interpret int-execute before-line before-word name parse-word parse-name 
+parser ' (') '-error any-code! only-code-address! >does-code xt>name 
+>code-address body> >body >head-noprim xt? hm? ??? (name>intn) 
+default-name>int noname>link noname>string named>link named>string name?int 
+?compile-only compile-only? immediate? , compile, >extra hmsize name>link 
+name>string name>comp name>int initwl defer@ (to) opt-compile, >namehm >cfa 
+>link >f+c >hm>link >hm>string >hm>comp >hm>int >hmextra >hmdefer@ >hmto 
+>hmcompile, >hmlink ((name>)) (x>int) compile-only-error 
+ticking-compile-only-error flag-sign lcount-mask restrict-mask find-name 
+rec-nt search-wordlist find-name-in notfound no.extensions (where,) where, 
+where-struct where-loc where-nt wheres context voclink current f83search 
+forth-wordlist rec-f83 wordlist-struct wordlist-extend wordlist-link 
+wordlist-id wordlist-map wordlist-exec wordlist-start \G \ ( number (number?) 
+snumber? s>number s>number? s>unumber? ?warn# s'>unumber? ?dnegate sign? 
+getbase bases name-too-long? name-too-short? (name) parse (parse) 
+version-string .error error$ errlink>string do-debug >stderr >exec c(warning") 
+.warning ErrRanges ErrLink u. . ud. d. u.r .r ud.r d.r holds #s # sign #>> <<# 
+#> <# hold +hold pad ms ns kernel-deadline deadline backspaces spaces 
+spaces-loop status-color error-hl-inv error-hl-ul input-color success-color 
+info-color warning-color error-color default-color theme-color: theme-color# 
+theme@ theme! space bell #lf #ff #cr #del #esc #tab #bs #bell #eof output: 
+input: default-in debug-vector debug-out default-out key (cr) key? key-ior 
+ip-vector theme-color! control-sequence attr! at-deltaxy at-xy page form cr 
+emit type op-vector (key?) (key) key-file EBADF EINTR EOK (err-emit) 
+(err-type) (emit) (type) out debug-fid outfile-id infile-id hex decimal "lit 
+clearstacks clearstack depth ?stack abort ?warning (abort") c(abort") throw 
+catch lp@ ud/mod s>d >number_ >number accumulate digit? bounds stick roll dabs 
+off on ->here here dpp in-dictionary1? in-dictionary? unused 
 usable-dictionary-end usable-dictionary-end1 dictionary-end section-desc 
 locs[] section-name section-dp section-size section-start current-section A! 
 chars cfaligned maxaligned NIL str< string-suffix? string-prefix? str= 
