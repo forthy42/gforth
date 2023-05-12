@@ -27,7 +27,7 @@ PREFORTH = gforth
 FETCH = UnicodeData.txt VerticalOrientation.txt BidiBrackets.txt Blocks.txt \
 	BidiCharacterTest.txt Unihan.zip
 EXTRACT = Unihan_Variants.txt unihan.in test.in
-GEN = unihan.db brackets.db mirrors.fs bidis.fs verticals.fs
+GEN = unihan.db brackets.db punctation.db mirrors.fs bidis.fs verticals.fs
 SOURCES = mirror.fs bidi.fs vertical.fs testgen.fs
 
 all: $(GEN)
@@ -70,6 +70,9 @@ unihan.in: Unihan_Variants.txt
 unihan.db: unihan.in
 	$(PREFORTH) -e ': >sc 2drop ; : >tc space swap xemit xemit ; : >tc2 xemit ;' $< -e bye >$@
 
+punctation.db: UnicodeData.txt
+	$(PREFORTH) -e "$$(grep -e ';Po;\| MARK ORNAMENT;' UnicodeData.txt | cut -f1 -d';' | sed -e 's/^.*$$/$$\0 xemit/g')" -e bye >$@
+
 brackets.db: BidiBrackets.txt
 	grep '; o #' $< | cut -f1 -d'#' | tr ';' ' ' | \
 	$(PREFORTH) -e ": o swap xemit xemit space ; hex stdin ' read-loop execute-parsing-file bye" >$@
@@ -86,3 +89,4 @@ verticals.fs: vertical.fs VerticalOrientation.txt
 	echo "\ automatically generated from $^" >$@
 	$(PREFORTH) $^ -e bye >>$@
 
+punctation.db:
