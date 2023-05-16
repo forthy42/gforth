@@ -1117,25 +1117,25 @@ bench:		gforth-fast$(EXT) gforth.fi
 		time $(FORTH_FAST) fib.fs -e "main bye"
 		time $(FORTH_FAST) fft-bench.fs -e "main bye"
 
-onebench one-bench:
-	$(FORTH_FAST) onebench.fs
+onebench one-bench:	onebench.fs
+	$(FORTH_FAST) $<
 
-threebench 3-bench:
-	$(FORTH_FAST) onebench.fs -e "run-bench cr run-bench cr bye"
+threebench 3-bench:	onebench.fs
+	$(FORTH_FAST) $< -e "run-bench cr run-bench cr bye"
 
-all-bench allbench:
-	./gforth-fast$(EXT) --dynamic onebench.fs
-	@libbench@./libgforth-fast$(EXT) --dynamic onebench.fs
-	./gforth-fast$(EXT) --no-dynamic onebench.fs
-	@libbench@./libgforth-fast$(EXT) --no-dynamic onebench.fs
-	./gforth$(EXT) --dynamic onebench.fs
-	@libbench@./libgforth$(EXT) --dynamic onebench.fs
-	./gforth$(EXT) --no-dynamic onebench.fs
-	@libbench@./libgforth$(EXT) --no-dynamic onebench.fs
-	./gforth-itc$(EXT) onebench.fs
-	@libbench@./libgforth-itc$(EXT) onebench.fs
-	./gforth-ditc$(EXT) onebench.fs
-	@libbench@./libgforth-ditc$(EXT) onebench.fs
+all-bench allbench:	onebench.fs
+	./gforth-fast$(EXT) --dynamic $<
+	@libbench@./libgforth-fast$(EXT) --dynamic $<
+	./gforth-fast$(EXT) --no-dynamic $<
+	@libbench@./libgforth-fast$(EXT) --no-dynamic $<
+	./gforth$(EXT) --dynamic $<
+	@libbench@./libgforth$(EXT) --dynamic $<
+	./gforth$(EXT) --no-dynamic $<
+	@libbench@./libgforth$(EXT) --no-dynamic $<
+	./gforth-itc$(EXT) $<
+	@libbench@./libgforth-itc$(EXT) $<
+	./gforth-ditc$(EXT) $<
+	@libbench@./libgforth-ditc$(EXT) $<
 
 EXTRAVARS="GCC=$(GCC)" "CFLAGS=$(XCFLAGS)" "LIBTOOL=$(LIBTOOL)" "HOST=$(HOST)" "SRC=$(shell pwd)" "ENGINE=$(DITCENGINE) -i $(shell pwd)/gforth.fi" "LIBCCNAMED=$(shell pwd)/$(buildccdir)" "libccdir=$(libccdir)" "package=$(package)" "PREFIX=$(EXTRAPREFIX)" "prefix=$(EXTRAPREFIX)" "datadir=$(datadir)/gforth/$(VERSION)" "ARCH=" "FAST=$(FAST)" "GFVER=$(VERSION)"
 
