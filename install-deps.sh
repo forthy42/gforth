@@ -43,12 +43,11 @@ install_debian() {
 install_alpine() {
     sudo apk add libltdl libffi
     sudo apk add wget file xz tar
-    sudo apk add freetype-dev
-        build-base autoconf automake m4 libtool git \
+    sudo apk add freetype-dev build-base autoconf automake m4 libtool git \
         coreutils gcc libffi-dev mesa-dev glew-dev libx11-dev \
         libxrandr-dev glfw-dev harfbuzz-dev gstreamer-dev gst-plugins-base-dev \
 	opus-dev pulseaudio-dev unzip texinfo
-    (cd /tmp && git clone https://github.com/nothings/stb.git \
+    (cd /tmp && git clone https://github.com/nothings/stb.git && \
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
 }
 
@@ -60,7 +59,7 @@ install_fedora() {
         coreutils gcc libffi-devel mesa-devel glew-devel libx11-devel \
         libXrandr-devel glfw-devel harfbuzz-devel gstreamer-devel gst-plugins-base-devel \
 	opus-devel pulseaudio-devel unzip texinfo
-    (cd /tmp && git clone https://github.com/nothings/stb.git \
+    (cd /tmp && git clone https://github.com/nothings/stb.git && \
     sudo mkdir /usr/include/stb && sudo cp stb/*.h /usr/include/stb && rm -rf stb)
 }
 

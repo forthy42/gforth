@@ -4583,52 +4583,52 @@ be-x! be-l! be-w! sxd@ sx@ sl@ sw@ uxd@ ux@ ul@ uw@ find sfind word sword
 cursor-next-line erase-display insert-lines cursor-down cursor-up 
 control-sequence: restore-cursor-position save-cursor-position 
 (control-sequence) auto-color magenta-input dark-mode light-mode default-mode 
-default-bg rgb-split term-bg? is-xterm? is-color-terminal? is-terminal? 
-term-rgb$ <<<m m>>> mark-attr BlackSpace (theme-color!) white? theme-color@ 
-theme: current-theme (Attr!) Attr A> <A FG> BG> >FG >BG Dim Invisible Italic 
-Strikethrough Invers Blink Underline Bold defaultcolor White Cyan Magenta Blue 
-Yellow Green Red Black load-rc0 load-rc load-rc? disasm-gdb 0x. ppid 
-append-extend-string >string-execute >string-out >string-form >string-cr 
->string-emit >string-type >string-len >string-buffer >string-initial-buflen 
-end-c-library c-library reopen-libs .libs map-libs prefetch-lib c-lib host? 
-clear-libs add-lib c-function \c !!0.7-style!! basename dirname scan-back 
-break" break: break:, dbg dbg-ip see-code xt-see-code see-code-range 
-simple-see xt-simple-see simple-see-range .backtrace-view .sourceview-width 
-.bt print-backtrace print-bt-entry .backtrace-pos >bt-entry 
-backtrace-return-stack extra-backtrace# see name-see (.compile-only) 
-(.immediate) (xt-see-xt) xt-see discode see-voc end-code ;abi-code !;abi-code 
-;code (;code) abi-code code init-asm assembler subst>filename $unescape 
-unescape substitute $substitute .substitute .% replaces macro: macros-wordlist 
-rec-body rec-dtick rec-tick ?rec-nt rec-to rectype-to translate-to post-to, 
-rec-string rectype-string translate-string slit, vt100-page vt100-at-deltaxy 
-vt100-at-xy #esc[ #n; #n .\" s\" \"-parse \-escape, \-escape-table parse-num 
-parse-num-x char/ history-cold get-history xchar-history xins xchar-edit-ctrl 
-std-ekeys xchar-ctrlkeys xdelw xchar-altkey altbindkey xchar-altkeys xreformat 
-setsel setcur xchars>chars xback-chars setsel# setcur# xtranspose xpaste 
-xpaste@ xtab-expand (xtab-expand) xkill-expand xeof' (xenter) xins-string 
-xclear-first xclear-rest xpaste! xend-pos xfirst-pos xeof <xdel> ?xdel xdel 
-(xdel) xforw xback (xins) xgrow-tib xhide xedit-update .rest .all-rest .all 
-.resizeline get-width+all get-width+ hw>width get-hw xedit-startpos 
-setstring-color kill-prefix tib-full? simple-search-prefix search-prefix 
-prefix-string prefix-off search-voc word-lex alphabetic-tab prefix-found 
-extract-word (enter) write-history lastline<> thisline# lastline# prev-line 
-find-prev-line next-line get-line hist-setpos hist-pos xretype clear-line 
-edit-curpos-off history-file force-open -scan vt100-modifier end^ backward^ 
-forward^ history ctrl ctrl-i ebindkey bindkey >edit-rest edit-terminal-c 
-edit-terminal paste$ setstring$ screenw edit-curpos ekeys edit-error grow-tib 
-paste@ paste! mkdir-parents file-exist# EEXIST uclass uvar umethod uval-o 
-user-o class-o ekey? ekey>fkey ekey>xchar ekey>char ekey xkey? get-xkey 
-read-xkey esc-sequence esc-prefix clear-ekey-buffer esc-mask ekey-buffer 
-esc-sequences buf-key? inskeys inskey unkeys unkey buf-key inskey@ 
-char-append-buffer key-buffer s-k12 s-k11 s-k10 s-k9 s-k8 s-k7 s-k6 s-k5 s-k4 
-s-k3 s-k2 s-k1 k12 k11 k10 k9 k8 k7 k6 k5 k4 k3 k2 k1 k-eof k-sel k-tab 
-k-backspace k-voldown k-volup k-mute k-pause k-winch k-f12 k-f11 k-f10 k-f9 
-k-f8 k-f7 k-f6 k-f5 k-f4 k-f3 k-f2 k-f1 k-enter k-delete k-insert k-next 
-k-prior k-end k-home k-down k-up k-right k-left fkey. simple-fkey-string 
-k-ctrl-mask k-alt-mask k-shift-mask mask-shift# keycode keycode-table 
-keycode-limit keycode-start voctable cs-vocabulary cs-wordlist table 
-cs-wordlist-search-map tablesearch-map table-rec table-find savesystem dump-fi 
-preamble-start prepare-for-dump 'clean-maintask update-maintask 
+default-bg rgb-split term-bg? term-fg? term-color? term-rgb@ is-xterm? 
+is-color-terminal? is-terminal? term-rgb$ <<<m m>>> mark-attr BlackSpace 
+(theme-color!) white? theme-color@ theme: current-theme (Attr!) Attr A> <A FG> 
+BG> >FG >BG Dim Invisible Italic Strikethrough Invers Blink Underline Bold 
+defaultcolor White Cyan Magenta Blue Yellow Green Red Black load-rc0 load-rc 
+load-rc? disasm-gdb 0x. ppid append-extend-string >string-execute >string-out 
+>string-form >string-cr >string-emit >string-type >string-len >string-buffer 
+>string-initial-buflen end-c-library c-library reopen-libs .libs map-libs 
+prefetch-lib c-lib host? clear-libs add-lib c-function \c !!0.7-style!! 
+basename dirname scan-back break" break: break:, dbg dbg-ip see-code 
+xt-see-code see-code-range simple-see xt-simple-see simple-see-range 
+.backtrace-view .sourceview-width .bt print-backtrace print-bt-entry 
+.backtrace-pos >bt-entry backtrace-return-stack extra-backtrace# see name-see 
+(.compile-only) (.immediate) (xt-see-xt) xt-see discode see-voc end-code 
+;abi-code !;abi-code ;code (;code) abi-code code init-asm assembler 
+subst>filename $unescape unescape substitute $substitute .substitute .% 
+replaces macro: macros-wordlist rec-body rec-dtick rec-tick ?rec-nt rec-to 
+rectype-to translate-to post-to, rec-string rectype-string translate-string 
+slit, vt100-page vt100-at-deltaxy vt100-at-xy #esc[ #n; #n .\" s\" \"-parse 
+\-escape, \-escape-table parse-num parse-num-x char/ history-cold get-history 
+xchar-history xins xchar-edit-ctrl std-ekeys xchar-ctrlkeys xdelw xchar-altkey 
+altbindkey xchar-altkeys xreformat setsel setcur xchars>chars xback-chars 
+setsel# setcur# xtranspose xpaste xpaste@ xtab-expand (xtab-expand) 
+xkill-expand xeof' (xenter) xins-string xclear-first xclear-rest xpaste! 
+xend-pos xfirst-pos xeof <xdel> ?xdel xdel (xdel) xforw xback (xins) xgrow-tib 
+xhide xedit-update .rest .all-rest .all .resizeline get-width+all get-width+ 
+hw>width get-hw xedit-startpos setstring-color kill-prefix tib-full? 
+simple-search-prefix search-prefix prefix-string prefix-off search-voc 
+word-lex alphabetic-tab prefix-found extract-word (enter) write-history 
+lastline<> thisline# lastline# prev-line find-prev-line next-line get-line 
+hist-setpos hist-pos xretype clear-line edit-curpos-off history-file 
+force-open -scan vt100-modifier end^ backward^ forward^ history ctrl ctrl-i 
+ebindkey bindkey >edit-rest edit-terminal-c edit-terminal paste$ setstring$ 
+screenw edit-curpos ekeys edit-error grow-tib paste@ paste! mkdir-parents 
+file-exist# EEXIST uclass uvar umethod uval-o user-o class-o ekey? ekey>fkey 
+ekey>xchar ekey>char ekey xkey? get-xkey read-xkey esc-sequence esc-prefix 
+clear-ekey-buffer esc-mask ekey-buffer esc-sequences buf-key? inskeys inskey 
+unkeys unkey buf-key inskey@ char-append-buffer key-buffer s-k12 s-k11 s-k10 
+s-k9 s-k8 s-k7 s-k6 s-k5 s-k4 s-k3 s-k2 s-k1 k12 k11 k10 k9 k8 k7 k6 k5 k4 k3 
+k2 k1 k-eof k-sel k-tab k-backspace k-voldown k-volup k-mute k-pause k-winch 
+k-f12 k-f11 k-f10 k-f9 k-f8 k-f7 k-f6 k-f5 k-f4 k-f3 k-f2 k-f1 k-enter 
+k-delete k-insert k-next k-prior k-end k-home k-down k-up k-right k-left fkey. 
+simple-fkey-string k-ctrl-mask k-alt-mask k-shift-mask mask-shift# keycode 
+keycode-table keycode-limit keycode-start voctable cs-vocabulary cs-wordlist 
+table cs-wordlist-search-map tablesearch-map table-rec table-find savesystem 
+dump-fi preamble-start prepare-for-dump 'clean-maintask update-maintask 
 update-image-included-files repl-included-files del-included-files 
 block-included --> +thru +load thru load block-input list updated? scr buffer 
 block get-buffer flush empty-buffers save-buffers empty-buffer save-buffer 
