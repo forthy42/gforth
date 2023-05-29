@@ -43,10 +43,10 @@ event: ->spawn ( xt task -- )
     stacksize4 newtask4 activate [ up@ ]l invoker !
     BEGIN  invoker @ +worker stop  AGAIN ;
 
-: sync ( -- )
+: cilk-sync ( -- )
     \G wait for all spawned tasks to complete
     BEGIN  sync# @  0> WHILE  stop  REPEAT ;
-: start-workers cores 1 max 0 ?DO worker-thread 1 sync# +! LOOP sync ;
+: start-workers cores 1 max 0 ?DO worker-thread 1 sync# +! LOOP cilk-sync ;
 : cilk-init workers @ 0= IF  start-workers  THEN ;
 
 : spawn-rest ( xt -- )
@@ -62,7 +62,7 @@ event: ->spawn ( xt task -- )
     <event >r swap elit, elit, r> spawn-rest ;
 
 : cilk-bye ( -- )
-    sync workers $@len cell/ 0 ?DO [: 0 (bye) ;] spawn LOOP
+    cilk-sync workers $@len cell/ 0 ?DO [: 0 (bye) ;] spawn LOOP
     #10000. ns workers $free  sync# off ;
 
 s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
