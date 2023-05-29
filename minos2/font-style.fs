@@ -441,10 +441,10 @@ font-path+ ~/.fonts
 \ default font selection
 
 \sans
-\regular fonts= NotoSans-Regular|DroidSans|Roboto-Medium|DejaVuSans|LiberationSans-Regular
-\italic fonts= NotoSans-Italic|Roboto-Italic|DejaVuSans-Oblique|LiberationSans-Italic
-\bold fonts= NotoSans-Bold|Roboto-Bold|DejaVuSans-Bold|LiberationSans-Bold
-\bold-italic fonts= NotoSans-BoldItalic|Roboto-BoldItalic|DejaVuSans-BoldOblique|LiberationSans-BoldItalic
+\regular fonts= NotoSans-Regular|SourceSansPro-Regular|DroidSans|Roboto-Medium|DejaVuSans|LiberationSans-Regular
+\italic fonts= NotoSans-Italic|SourceSansPro-Italic|Roboto-Italic|DejaVuSans-Oblique|LiberationSans-Italic
+\bold fonts= NotoSans-Bold|SourceSansPro-Bold|Roboto-Bold|DejaVuSans-Bold|LiberationSans-Bold
+\bold-italic fonts= NotoSans-BoldItalic|SourceSansPro-BoldItalic|Roboto-BoldItalic|DejaVuSans-BoldOblique|LiberationSans-BoldItalic
 
 \serif
 \regular fonts= NotoSerif-Regular|DejaVuSerif|LiberationSerif-Regular
