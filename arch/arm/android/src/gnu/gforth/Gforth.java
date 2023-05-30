@@ -678,6 +678,9 @@ public class Gforth
 		Environment.getExternalStorageDirectory().toString(),
 		getExternalFilesDir(null).toString(),
 		getFilesDir().toString() };
+	    for(int i=0; i<filedirs.length; i++) {
+		Log.v(TAG, "filedirs["+i+"]="+filedirs[i]);
+	    }
 	    startForth(getApplicationInfo().nativeLibraryDir,
 		       Locale.getDefault().toString() + ".UTF-8",
 		       startfile, filedirs);
@@ -888,15 +891,35 @@ public class Gforth
 	Manifest.permission.READ_EXTERNAL_STORAGE,
 	Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
+    public static String[] REQUEST_STRING_NEW = {
+	Manifest.permission.READ_MEDIA_IMAGES,
+	Manifest.permission.READ_MEDIA_VIDEO,
+    };
     public boolean verifyStoragePermissions(Activity activity) {
 	// Check if we have write permission
-	if (Build.VERSION.SDK_INT >= 23) { // reliably works with Android 6+
-	    int permission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+	if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT < 30) {
+	    // reliably works with Android 6+
+	    // completely useless with Android 30+
+	    int permission = PackageManager.PERMISSION_GRANTED;
+	    for(int i=0; i < REQUEST_STRING.length; i++) {
+		int new_perm = checkSelfPermission(REQUEST_STRING[i]);
+		if (new_perm != PackageManager.PERMISSION_GRANTED) {
+		    permission = new_perm;
+		}
+	    }
 
 	    if (permission != PackageManager.PERMISSION_GRANTED) {
 		// We don't have permission so prompt the user
+		Log.v(TAG, "Request External Storage Permission");
+		for(int i=0; i < REQUEST_STRING.length; i++) {
+		    if(shouldShowRequestPermissionRationale(REQUEST_STRING[i])) {
+			Log.v(TAG, "Requires Permission Rationale for " + REQUEST_STRING[i]);
+		    }
+		}
 		requestPermissions(REQUEST_STRING, REQUEST_EXTERNAL_STORAGE);
 		return false;
+	    } else {
+		Log.v(TAG, "Has External Storage Permission");
 	    }
 	}
 	return true;
@@ -906,8 +929,11 @@ public class Gforth
     public void onRequestPermissionsResult (int requestCode, 
 					    String[] permissions, 
 					    int[] grantResults) {
+	for(int i = 0; i < permissions.length; i++) {
+	    Log.v(TAG, (grantResults[i] != PackageManager.PERMISSION_GRANTED ? "Denied " : "Granted ") + permissions[i]);
+	}
 	if(requestCode != REQUEST_EXTERNAL_STORAGE) {
-	    for(int i = 0; i <= grantResults.length - 1; i++) {
+	    for(int i = 0; i < grantResults.length; i++) {
 		if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
 		    onEventNative(26, permissions[i]);
 		}
@@ -915,7 +941,7 @@ public class Gforth
 	    onEventNative(25, requestCode);
 	    return;
 	}
-	for(int i = 0; i <= grantResults.length - 1; i++) {
+	for(int i = 0; i < grantResults.length; i++) {
 	    if(grantResults[i] != PackageManager.PERMISSION_GRANTED) return;
 	}
 	doStart();

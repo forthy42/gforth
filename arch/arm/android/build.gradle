@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.3'
+        classpath 'com.android.tools.build:gradle:8.0.0'
     }
 }
 allprojects {
@@ -22,13 +22,21 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    buildToolsVersion "31.0.0"
+    buildToolsVersion "33.0.0"
 
     compileSdkVersion 33
 
     ndkVersion "23.1.7779620"
 //    ndkVersion "17.2.4988734"
 
+
+    namespace 'gnu.gforth'
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 33
