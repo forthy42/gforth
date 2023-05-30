@@ -193,7 +193,7 @@ SDK_INT 11 >= [IF]
 jni-class: android/app/NotificationManager
 jni-method: notify notify (ILandroid/app/Notification;)V
 SDK_INT 24 >= [IF] \ query if notifications are enabled
-jni-method: areNotificationsEnabled areNotificationsEnabled ()B
+jni-method: areNotificationsEnabled areNotificationsEnabled ()Z
 [THEN]
 SDK_INT 26 >= [IF] \ need channels
     jni-method: createNotificationChannel createNotificationChannel (Landroid/app/NotificationChannel;)V
