@@ -4499,7 +4499,7 @@ load-cov save-cov cover-filename hash-cover cover-hash annotate-cov .coverage
 covered? .cover-file ?del-cover bw-cover color-cover .paren-cov# .ansi-cov# 
 .cov# .cover-raw cov% ?cov+ cov+ cov+, dead-cov? cover-end! cover, cover-start 
 cover-end coverage cilk-bye spawn2 spawn1 spawn spawn-rest cilk-init 
-start-workers sync worker-thread ->spawn +worker ->sync worker@ invoker 
+start-workers cilk-sync worker-thread ->spawn +worker ->sync worker@ invoker 
 workers sync# cores thread-key prep-key keypollfds UDefer udefer@ event| kill 
 sleep halt :>restart wake restart :>sleep :>wake eflit, e$, elit, :>flit :>lit 
 thread-deadline pause event-loop stop-dns stop-ns stop ?events event? (stop) 

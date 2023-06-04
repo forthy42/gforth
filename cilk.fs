@@ -39,29 +39,30 @@ event: ->sync ( task -- )
 
 event: ->spawn ( xt task -- )
     invoker ! execute clearstack ;
-: worker-thread ( -- )
+: worker-thread ( -- ) \ gforth-cilk
     stacksize4 newtask4 activate [ up@ ]l invoker !
     BEGIN  invoker @ +worker stop  AGAIN ;
 
-: cilk-sync ( -- )
-    \ wait for all spawned tasks to complete
+: cilk-sync ( -- ) \ gforth-cilk
+    \G wait for all spawned tasks to complete
     BEGIN  sync# @  0> WHILE  stop  REPEAT ;
 : start-workers cores 1 max 0 ?DO worker-thread 1 sync# +! LOOP cilk-sync ;
 : cilk-init workers @ 0= IF  start-workers  THEN ;
 
 : spawn-rest ( xt -- )
     elit, up@ elit, ->spawn worker@ event> 1 sync# +! ;
-: spawn ( xt -- )
-    \ wait for a worker to become free, and spawn xt there
+: spawn ( xt -- ) \ gforth-cilk
+    \G wait for a worker to become free, and spawn xt there
     <event spawn-rest  ;
-: spawn1 ( n xt -- )
-    \ wait for a worker to become free, and spawn xt there, with one argument
+: spawn1 ( n xt -- ) \ gforth-cilk
+    \G wait for a worker to become free, and spawn xt there, with one argument
     <event swap elit, spawn-rest ;
-: spawn2 ( n1 n2 xt -- )
-    \ wait for a worker to become free, and spawn xt there, with two arguments
+: spawn2 ( n1 n2 xt -- ) \ gforth-cilk
+    \G wait for a worker to become free, and spawn xt there, with two arguments
     <event >r swap elit, elit, r> spawn-rest ;
 
-: cilk-bye ( -- )
+: cilk-bye ( -- ) \ gforth-cilk
+    \G kill all workers
     cilk-sync workers $@len cell/ 0 ?DO [: 0 (bye) ;] spawn LOOP
     #10000. ns workers $free  sync# off ;
 

@@ -160,22 +160,22 @@ Vocabulary c-decl
 Vocabulary cb-decl
 
 : @lib ( lib -- )
-    \G obtains library handle
+    \ obtains library handle
     cell+ dup 2 cells + count open-lib
     dup 0= abort" Library not found" swap ! ;
 
 : @proc ( lib addr -- )
-    \G obtains symbol address
+    \ obtains symbol address
     cell+ tuck cell+ @ count rot cell+ @
     lib-sym  dup 0= abort" Proc not found!" swap ! ;
 
 : proc, ( lib -- )
-\G allocates and initializes proc stub
-\G stub format:
-\G    linked list in library
-\G    address of proc
-\G    ptr to OS name of symbol as counted string
-\G    threaded code for invocation
+\ allocates and initializes proc stub
+\ stub format:
+\    linked list in library
+\    address of proc
+\    ptr to OS name of symbol as counted string
+\    threaded code for invocation
     here dup thisproc !
     swap 2 cells + dup @ A, !
     0 , 0 A, ;
@@ -183,7 +183,7 @@ Vocabulary cb-decl
 Defer legacy-proc  ' noop IS legacy-proc
 
 : proc:  ( lib "name" -- )
-\G Creates a named proc stub
+\ Creates a named proc stub
     Create proc, 0 also c-decl
     legacy @ IF  legacy-proc  THEN
 DOES> ( x1 .. xn -- r )
@@ -195,12 +195,12 @@ Variable ind-call ind-call off
     DOES>  3 cells + >r ;
 
 : library ( "name" "file" -- )
-\G loads library "file" and creates a proc defining word "name"
-\G library format:
-\G    linked list of libraries
-\G    library handle
-\G    linked list of library's procs
-\G    OS name of library as counted string
+\ loads library "file" and creates a proc defining word "name"
+\ library format:
+\    linked list of libraries
+\    library handle
+\    linked list of library's procs
+\    OS name of library as counted string
     Create  here libs @ A, dup libs !
     0 , 0 A, parse-name string, @lib
 DOES> ( -- )  dup thislib ! proc: ;
@@ -300,7 +300,7 @@ previous
 \ callback stuff
 
 Variable callbacks
-\G link between callbacks
+\ link between callbacks
 
 : callback ( -- )
     Create  0 ] postpone >r also cb-decl
