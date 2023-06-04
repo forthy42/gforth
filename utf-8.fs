@@ -329,14 +329,14 @@ here wc-table - Constant #wc-table
 	I xc@+ swap >r cols xc-hw+
     r> I I' over - [ #cr pad c!  #lf pad 1+ c!  pad 2 ] SLiteral string-prefix? -
     I - +LOOP ;
-: x-lines+rest ( c-addr u cols -- lines chars )
+: x-lines+rest ( c-addr u cols -- lines chars ) \ gforth-internal
     \G calculate how many lines an xchar string @var{c-addr u} needs with
     \G @var{cols} characters per line, plus how many chars the last line needs
     >r 0 0 2swap r> +x-lines+rest ;
 : x-lines ( c-addr u cols -- lines )
     x-lines+rest drop ;
 
-: x-maxlines+rest ( c-addr u lines cols -- c-addr u' rest )
+: x-maxlines+rest ( c-addr u lines cols -- c-addr u' rest ) \ gforth-internal
     \G limit an xchar string @var{c-addr u} to take up at most @var{lines}
     \G with @var{cols} characters per line
     2over {: cols start len :}
@@ -348,7 +348,7 @@ here wc-table - Constant #wc-table
     r> I I' over - [ #cr pad c!  #lf pad 1+ c!  pad 2 ] SLiteral string-prefix? -
     I - +LOOP
     >r drop start len cols r> - ;
-: x-maxlines ( c-addr u lines cols -- c-addr u' )
+: x-maxlines ( c-addr u lines cols -- c-addr u' ) \ gforth-internal
     \G limit an xchar string @var{c-addr u} to take up at most @var{lines}
     \G with @var{cols} characters per line
     x-maxlines+rest drop ;

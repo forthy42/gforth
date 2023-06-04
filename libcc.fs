@@ -1083,7 +1083,7 @@ init-libcc
 set-current
 
 Defer prefetch-lib ( addr u -- )
-\G load lib if the OS needs it
+\ load lib if the OS needs it
 ' 2drop is prefetch-lib
 
 : map-libs { xt -- }

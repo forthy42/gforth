@@ -77,7 +77,7 @@ decimal
 User Attr   0 Attr !
 
 : (Attr!) ( attr -- )
-    \G set attribute
+    \ set attribute
     dup Attr @ = IF drop EXIT THEN
     dup $6600 = Attr @ 0= and IF drop EXIT THEN
     dup Attr !
@@ -164,7 +164,7 @@ $Variable term-rgb$
     is-terminal? and ;
 
 : term-rgb@ ( -- rgb )
-    \G read color value returned from terminal
+    \ read color value returned from terminal
     100 0 ?DO  key? ?LEAVE  1 ms  LOOP \ wait a maximum of 100 ms
     BEGIN  key?  WHILE  key #esc =  UNTIL  ELSE  0  EXIT  THEN
     BEGIN  key?  WHILE  key term-rgb$ c$+!  REPEAT
@@ -177,17 +177,17 @@ $Variable term-rgb$
     term-rgb$ $free ;
 
 : term-color? ( n -- rgb )
-    \G query terminal's colors by number
+    \ query terminal's colors by number
     key? drop \ set terminal into raw mode
     s\" \e]4;" type 0 .r s\" ;?\e\\" type
     term-rgb@ ;
 : term-fg? ( -- rgb )
-    \G query terminal's foreground color, return value in hex RRGGBB
+    \ query terminal's foreground color, return value in hex RRGGBB
     key? drop \ set terminal into raw mode
     s\" \e]10;?\a" type \ avada kedavra, terminal!
     term-rgb@ ;
 : term-bg? ( -- rgb )
-    \G query terminal's background color, return value in hex RRGGBB
+    \ query terminal's background color, return value in hex RRGGBB
     key? drop \ set terminal into raw mode
     s\" \e]11;?\a" type \ avada kedavra, terminal!
     term-rgb@ ;
@@ -293,7 +293,7 @@ default-mode
 'B' control-sequence: cursor-down ( u -- )
 'L' control-sequence: insert-lines ( u -- )
 'J' control-sequence: erase-display ( u -- )
-\g 0: erase cursor and below; 1: erase above cursor; 2: erase screen
+\ 0: erase cursor and below; 1: erase above cursor; 2: erase screen
 
 'E' control-sequence: cursor-next-line ( u -- )
 'F' control-sequence: cursor-previous-line ( u -- )

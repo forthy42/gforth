@@ -299,16 +299,16 @@ Variable >>string
 : >>next ( -- addr u ) <<ptr end$ over - ;
 : >>rest ( -- ) >>next >>string $+! ;
 : s// ( addr u -- ptr )
-    \G start search/replace loop
+    \ start search/replace loop
     ]] >>string0 (( // s>> [[ ; immediate
 : >> ( addr -- addr )
     ]] <<ptr >>ptr u> ?LEAVE ?end [[ ; immediate
 : //s ( ptr -- )
-    \G search end
+    \ search end
     ]] )) drop >>rest >>string@ [[ ; immediate
 : //o ( ptr addr u -- addr' u' )
-    \G end search/replace single loop
+    \ end search/replace single loop
     ]] << //s [[ ; immediate
 : //g ( ptr addr u -- addr' u' )
-    \G end search/replace all loop
+    \ end search/replace all loop
     ]] << LEAVE //s [[ ; immediate

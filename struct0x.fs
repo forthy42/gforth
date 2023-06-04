@@ -36,7 +36,7 @@ Defer +field ( noffset1 nsize "name" -- noffset2 ) \ facility-ext plus-field
 \ exactly field-like behavior.  Objects, locals, etc.
 \ Allow them to plug into +field.
 
-defer standard:field ( -- )
+defer standard:field ( -- ) \ gforth-internal
 \g set +field to standard behavior
 :noname  ['] standard+field IS +field ; is standard:field
 

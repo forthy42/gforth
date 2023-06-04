@@ -44,7 +44,7 @@ event: ->spawn ( xt task -- )
     BEGIN  invoker @ +worker stop  AGAIN ;
 
 : cilk-sync ( -- )
-    \G wait for all spawned tasks to complete
+    \ wait for all spawned tasks to complete
     BEGIN  sync# @  0> WHILE  stop  REPEAT ;
 : start-workers cores 1 max 0 ?DO worker-thread 1 sync# +! LOOP cilk-sync ;
 : cilk-init workers @ 0= IF  start-workers  THEN ;
@@ -52,13 +52,13 @@ event: ->spawn ( xt task -- )
 : spawn-rest ( xt -- )
     elit, up@ elit, ->spawn worker@ event> 1 sync# +! ;
 : spawn ( xt -- )
-    \G wait for a worker to become free, and spawn xt there
+    \ wait for a worker to become free, and spawn xt there
     <event spawn-rest  ;
 : spawn1 ( n xt -- )
-    \G wait for a worker to become free, and spawn xt there, with one argument
+    \ wait for a worker to become free, and spawn xt there, with one argument
     <event swap elit, spawn-rest ;
 : spawn2 ( n1 n2 xt -- )
-    \G wait for a worker to become free, and spawn xt there, with two arguments
+    \ wait for a worker to become free, and spawn xt there, with two arguments
     <event >r swap elit, elit, r> spawn-rest ;
 
 : cilk-bye ( -- )

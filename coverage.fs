@@ -84,7 +84,7 @@ Defer .cov#
 color-cover
 
 : ?del-cover ( addr u -- n )
-    \G Remove coverage comment.
+    \ Remove coverage comment.
     2dup s"  ( " string-prefix?  IF
 	3 dup >r /string
 	BEGIN  over c@ digit?  WHILE  drop 1 /string r> 1+ >r  REPEAT

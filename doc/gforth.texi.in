@@ -8702,6 +8702,7 @@ doc-find-name-in
 doc-latest
 doc-latestnt
 doc->name
+doc-xt>name
 
 You can use the nt to access the interpretation and compilation
 semantics of a word, its name, and the next word in the wordlist:

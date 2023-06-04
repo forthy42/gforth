@@ -103,7 +103,7 @@ Variable locate-lines#
 : current-location? ( -- )
     ]] current-location?1 ?exit [[ ; immediate
 
-: view>filename ( view -- c-addr u )
+: view>filename ( view -- c-addr u ) \ gforth-internal
     \G filename of view (obtained by @code{name>view})
     view>filename# loadfilename#>str ;
 
@@ -211,7 +211,7 @@ no-</>
     located-top @ dup located-bottom ! rows 2/ - 0 max located-top !
     set-bn-view l1 ;
 
-: extern-g ( -- )
+: extern-g ( -- ) \ gforth-internal
     \g Enter the external editor at the place of the latest error,
     \g @code{locate}, @code{n} or @code{b}.
     current-location?
@@ -366,13 +366,13 @@ variable code-locations 0 code-locations !
     over - 0 max ;
 
 : type-notabs ( c-addr u -- )
-    \G like type, but type a space for each tab
+    \ like type, but type a space for each tab
     bounds ?do
         i c@ dup #tab = if drop bl then emit loop ;
 
 : width-type ( c-addr u uwidth -- uwidth1 )
-    \g type the part of the string that fits in uwidth; uwidth1 is the
-    \g remaining width; replaces tabs with spaces
+    \ type the part of the string that fits in uwidth; uwidth1 is the
+    \ remaining width; replaces tabs with spaces
     1 swap x-maxlines+rest >r type r> ;
 
 : .wheretype1 ( c-addr u view urest -- )
@@ -416,13 +416,13 @@ variable code-locations 0 code-locations !
 Defer where-setup
 : where-reset ( n1 n2 -- ) to source-line#  to source-pos# ;
 
-: short-where ( -- )
+: short-where ( -- ) \ gforth
     \G where uses a short file format (default)
     ['] short~~ is where-setup ;
-: expand-where ( -- )
+: expand-where ( -- ) \ gforth
     \G where uses a fully expanded file format (to pass to e.g. editors)
     ['] expand~~ is where-setup ;
-: prepend-where ( -- )
+: prepend-where ( -- ) \ gforth
     \G where prepends the file to a list of locations in that file (like
     \G SwiftForth)
     ['] prepend~~ is where-setup ;
@@ -509,7 +509,7 @@ Variable browse-results
 
 \ count word usage
 
-: usage# ( nt -- n )
+: usage# ( nt -- n ) \ gforth-internal
     \G count usage of the word @var{nt}
     0 wheres $@ bounds U+DO
 	over i where-nt @ = -
@@ -538,7 +538,7 @@ lcount-mask 1+ Constant unused-mask
     rot traverse-wordlist ;
 : unused-wordlist ( wid -- )
     dup unused-all unmark-used unused@ .wids ;
-: unused-words ( -- )
+: unused-words ( -- ) \ gforth
     \G list all words without usage
     context @ unused-wordlist ;
 
@@ -633,8 +633,10 @@ s" os-type" environment? [IF]
     s" linux-android" string-prefix? 0= [IF]
 
 User sh$  cell uallot drop
-: sh-get ( addr u -- addr' u' )
-    \G open command addr u, and read in the result
+: sh-get ( addr u -- addr2 u2 ) \ gforth
+    \G open command addr u; addr2 u2 is the output of the command.
+    \G The exit code is in \code{$?}, the output also in @code{sh$
+    \G 2@}.
     sh$ free-mem-var
     r/o open-pipe throw dup >r slurp-fid
     r> close-pipe throw to $? 2dup sh$ 2! ;

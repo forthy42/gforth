@@ -98,9 +98,9 @@ debug: .string.(
 	drop smart.
     THEN ;
 
-: wrap-xt {: xt1 xt2 xt: xt3 -- ... :}
-    \G set deferred word xt2 to xt1 and execute xt3
-    \G restore afterwards
+: wrap-xt {: xt1 xt2 xt: xt3 -- ... :} \ gforth
+    \G Set deferred word xt2 to xt1 and execute xt3.
+    \G Restore afterwards.
     xt2 defer@ {: old-xt2 :} try
 	xt1 xt2 defer! xt3 0
     restore

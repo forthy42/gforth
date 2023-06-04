@@ -23,12 +23,12 @@ require rec-sequence.fs
 
 0 recognizer-sequence: search-order
 
-: >back ( x stack -- )
+: >back ( x stack -- ) \ gforth-internal
     \G push to bottom of stack
     dup >r $@len cell+ r@ $!len
     r@ $@ cell- over cell+ swap move
     r> $@ drop ! ;
-: back> ( stack -- x )
+: back> ( stack -- x ) \ gforth-internal
     \G pop from bottom of stack
     dup >r $@ IF  @ r@ 0 cell $del  ELSE  drop 0  THEN
     rdrop ;
@@ -178,8 +178,8 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
 [THEN]
 
 : .voc ( wid -- ) \ gforth  dot-voc
-\G print the name of the wordlist represented by @var{wid}.  Can
-\G only print names defined with @code{vocabulary} or
+    \G print the name of the wordlist represented by @var{wid}.  Can
+    \G only print names defined with @code{vocabulary} or
     \G @code{wordlist constant}, otherwise prints @samp{address}.
     dup >voc xt?  IF  >voc id.  EXIT  THEN
     #10 cells 2 cells DO
@@ -229,9 +229,10 @@ Root definitions
 \G of the search order.
 ' Forth Alias Forth \ alias- search-ext
 ' forth-wordlist alias forth-wordlist ( -- wid ) \ search
-  \G @code{Constant} -- @i{wid} identifies the word list that includes all of the standard words
-  \G provided by Gforth. When Gforth is invoked, this word list is the compilation word
-  \G list and is at the top of the search order.
+  \G @code{Constant} -- @i{wid} identifies the word list that includes
+  \G all of the standard words provided by Gforth. When Gforth is
+  \G invoked, this word list is the compilation word list and is at
+  \G the top of the search order.
 ' set-order alias set-order ( wid1 ... widu u -- ) \ alias- search
 ' order alias order ( -- ) \ alias- search-ext
 

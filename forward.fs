@@ -55,7 +55,7 @@ s" forward must be resolved with :" exception constant forward-needs-:
     drop false ;
 
 : auto-resolve ( addr u wid -- )
-    \G auto-resolve the forward reference in check-shadow
+    \ auto-resolve the forward reference in check-shadow
     dup 2over rot find-name-in dup if
 	dup is-forward? if
 	    latestxt >code-address docol: <> forward-needs-: and throw

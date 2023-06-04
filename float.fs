@@ -110,7 +110,7 @@ opt: drop postpone >body f!-table to-!, ;
     to precision ;
 
 : scratch ( -- addr len )
-    \G scratchpad for floating point - use space at the end of the user area
+    \ scratchpad for floating point - use space at the end of the user area
     next-task udp @ + precision ;
 
 : zeros ( n -- )   0 max 0 ?DO  '0 emit  LOOP ;
@@ -197,7 +197,7 @@ si-prefixes count 2/ + Constant zero-exp
 
 ' noop ' fliteral ' fliteral >postponer
 translate: translate-float
-\G translate floating point numbers
+\ translate floating point numbers
 ' translate-float Constant rectype-float
 
 : rec-float ( addr u -- r translate-float | notfound ) \ gforth-experimental

@@ -27,17 +27,11 @@ decimal
 \ : #esc[ ( -- ) '[' hold #esc hold ;
 : #esc[ ( -- ) s\" \e[" holds ;
 
-: vt100-at-xy ( u1 u2 -- ) \ facility at-x-y
-  \G Position the cursor so that subsequent text output will take
-  \G place at column @var{u1}, row @var{u2} of the display. (column 0,
-  \G row 0 is the top left-hand corner of the display).
+: vt100-at-xy ( u1 u2 -- )
   1+ swap 1+ <<# 'H' hold #n; #n #esc[ #0. #> type #>> ;
 
 [IFUNDEF] at-deltaxy  Defer at-deltaxy [THEN]
 : vt100-at-deltaxy ( x y -- )
-    \G position the cursor relative to the current cursor position
-    \G by adding @var{x} to the column and @var{y} to the row, negative
-    \G numbers move up and left, positive down and right.
     \ over 0< over 0= and IF  drop abs backspaces  EXIT  THEN
     [: <<#
       ?dup-IF
@@ -47,9 +41,7 @@ decimal
 	  dup 0< 'D' 'C' rot select  hold abs 0 #s 2drop #esc[
       THEN #0. #> type #>> ;] #10 base-execute ;
 
-: vt100-page ( -- ) \ facility
-  \G Clear the display and set the cursor to the top left-hand
-  \G corner.
+: vt100-page ( -- )
   <<# s" [2J" holds #esc hold #0. #> type #>> 0 0 at-xy ;
 
 ' vt100-at-xy IS at-xy

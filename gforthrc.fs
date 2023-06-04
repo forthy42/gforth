@@ -29,14 +29,14 @@ previous set-current
     ."   --no-rc			    don't load ~/.config/gforthrc" cr
 ; is image-options
 
-: load-rc ( -- )
+: load-rc ( -- ) \ gforth-internal
     \G if available, load @file{~/.config/gforthrc} after processing args
     \G disable by setting @var{load-rc?} to 0 (see option @code{--no-rc}).
     load-rc? @ IF
 	s" ~/.config/gforthrc" open-fpath-file
 	0= IF  included1  ELSE  drop  THEN
     THEN ;
-: load-rc0 ( -- )
+: load-rc0 ( -- ) \ gforth-internal
     \G if available, load @file{~/.config/gforthrc0} or whatever is in the
     \G environment variable @code{GFORTH_ENV} before processing args.
     \G disable loading by setting @code{GFORTH_ENV} to @file{off}.

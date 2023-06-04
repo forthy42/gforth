@@ -37,7 +37,7 @@ Defer mword-match
     cell -LOOP  2drop ;
 
 : wordlist-mwords ( addr u wid -- )  wid>words[] .mwords[] words[] $free ;
-: mwords ( ["pattern"] -- )
+: mwords ( ["pattern"] -- ) \ gforth
     \G list all words matching the optional parameter @var{pattern}; if none,
     \G all words match.  Words are listed old to new.  Pattern match like
     \G @code{search} (default), possible to switch to @code{filename-match}.

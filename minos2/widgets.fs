@@ -393,7 +393,7 @@ object class
     \G debugging: Print informations about the widget
     method par-split ( rw -- ) \ minos2
     \G split a paragraph by width @var{rw}
-    method resized ( -- )
+    method resized ( -- ) \ minos2
     \G widget is resized
 end-class widget ( -- class ) \ minos2
 \G class for visual components
@@ -1273,10 +1273,10 @@ htab-glue is hglue!@
 \ add glues up for hboxes
 
 : hglue-step { f: gp/a f: rg f: rd f: rx -- gp/a rg' rd' rx' }
-    \g gp/a: total additonal pixels to stretch into divided by total glue
-    \g rg: running glue
-    \g rd: running remaining pixels
-    \g rx: running x
+    \ gp/a: total additonal pixels to stretch into divided by total glue
+    \ rg: running glue
+    \ rd: running remaining pixels
+    \ rx: running x
     gp/a  rx to x
     hglue@ gp/a f0> ?g3>2 +to rg { f: xmin }
     rg fdup gp/a f*
@@ -1354,12 +1354,12 @@ htab-glue is hglue!@
 \ add glues up for vboxes
 
 : vglue-step-h { f: gp/a f: rg f: rd f: ry f: od flag -- gp/a rg' rd' ry' }
-    \g gp/a: total additonal pixels to stretch into
-    \g       by total glue to stretch into (so you can multiply with it)
-    \g rg: running glue
-    \g rd: running remaining pixels
-    \g ry: running y
-    \g od: previous descender
+    \ gp/a: total additonal pixels to stretch into
+    \       by total glue to stretch into (so you can multiply with it)
+    \ rg: running glue
+    \ rd: running remaining pixels
+    \ ry: running y
+    \ od: previous descender
     gp/a
     vglue@ gp/a f0> ?g3>2 +to rg { f: ymin }
     rg fdup gp/a f* \ rd'
@@ -1367,12 +1367,12 @@ htab-glue is hglue!@
     flag IF  gap f+ baseline od f- fmax  THEN  ry f+ fdup to y ;
 
 : vglue-step-d { f: gp/a f: rg f: rd f: ry -- gp/a rg' rd' ry' d' }
-    \g gp/a: total additonal pixels to stretch into
-    \g       by total glue to stretch into (so you can multiply with it)
-    \g rd: running remaining pixels
-    \g rg: running glue
-    \g rx: running y
-    \g d': this descender
+    \ gp/a: total additonal pixels to stretch into
+    \       by total glue to stretch into (so you can multiply with it)
+    \ rd: running remaining pixels
+    \ rg: running glue
+    \ rx: running y
+    \ d': this descender
     gp/a
     dglue@ gp/a f0> ?g3>2  +to rg { f: ymin }
     rg fdup gp/a f*

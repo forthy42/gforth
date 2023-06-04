@@ -49,7 +49,7 @@ is dispose-check
 $10 stack: vp'<>
 
 : vp-need-or ( -- )
-    \G converge needs between viewport and main need mask
+    \ converge needs between viewport and main need mask
     vp-need @ need-mask @ over $FF and over $FF and or >r
     $-100 and swap $-100 and max r> or need-mask ! ;
 : vp-needed<>| ( xt -- )
@@ -723,8 +723,8 @@ edit-terminal edit-out !
 \ edit things
 
 : edit-xt ( ... xt o:actor -- )
-    \G pass xt to the editor
-    \G xt has ( ... addr u curpos cursize -- addr u curpos cursize ) as stack effect
+    \ pass xt to the editor
+    \ xt has ( ... addr u curpos cursize -- addr u curpos cursize ) as stack effect
     *ins-o off
     history >r  >r  0 to history
     edit-w .text$ to prev-text$ \ backup of previous text

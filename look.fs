@@ -34,14 +34,14 @@ decimal
 \ look                                                  17may93jaw
 
 : xt= ( ca xt -- flag )
-    \G compare threaded-code cell with the primitive xt
+    \ compare threaded-code cell with the primitive xt
     first-throw @ >r first-throw off
     >code-address swap threading-method IF
 	['] >code-address catch drop
     THEN  =
     r> first-throw ! ;
 
-: threaded>xt ( ca -- xt|0 )
+: threaded>xt ( ca -- xt|0 ) \ gforth-internal
     \G For the code address ca of a primitive, find the xt (or 0).
     [IFDEF] decompile-prim
 	decompile-prim
@@ -116,7 +116,6 @@ has? rom
 
 ' >name ALIAS >head \ gforth to-head
 ' >name Alias prim>name
-\G another name of @code{>name}
 
 \ print recognizer stack
 

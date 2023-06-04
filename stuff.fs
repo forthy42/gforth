@@ -153,11 +153,11 @@ UValue $? ( -- n ) \ gforth dollar-question
 : rectype>comp ( rectype -- xt ) cell >body + @ ;
 : rectype>post ( rectype -- xt ) 2 cells >body + @ ;
 
-: rectype ( int-xt comp-xt post-xt -- rectype )
+: rectype ( int-xt comp-xt post-xt -- rectype ) \ gforth-obsolete
     \G create a new unnamed recognizer token
     noname translate: latestxt ; 
 
-: rectype: ( int-xt comp-xt post-xt "name" -- )
+: rectype: ( int-xt comp-xt post-xt "name" -- ) \ gforth-obsolete
     \G create a new recognizer table
     rectype Constant ;
 
@@ -319,7 +319,7 @@ translate: translate-[[
     loop ;
 [then]
 
-14 Value f.s-precision
+14 Value f.s-precision ( -- u ) \ gforth
 \G the field width for f.s output. Other precision details are derived
 \G from that value.
 
@@ -508,7 +508,7 @@ alias xd>s ( xd -- d ) \ gforth
     throw ;
 
 User theme-color  0 theme-color !
-: execute-theme-color ( xt -- )
+: execute-theme-color ( xt -- ) \ gforth-internal
     \G execute a theme-color changing xt and return to the previous theme
     \G color
     theme-color @ >r catch r> theme-color! throw ;
@@ -587,8 +587,9 @@ to-opt: ( xt -- ) >body postpone literal 2!-table to-!, ;
     ['] (2to) set-to ;
 
 s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
-2>r : basic-help ( -- ) [ 2r> ] 2literal type ;
-\G Print some help for the first steps
+2>r : basic-help ( -- ) \ gforth-internal
+    \G Print some help for the first steps
+    [ 2r> ] 2literal type ;
 
 \ rectype-word and rectype-name
 
@@ -600,7 +601,7 @@ translate: translate-word
 
 \ concat recognizers to another recognizer
 
-: rec-sequence ( xt1 .. xtn n "name" -- )
+: rec-sequence ( xt1 .. xtn n "name" -- ) \ gforth
     \G concatenate a stack of recognizers to one recognizer with the
     \G name @var{"name"}.  @var{xtn} is tried first, @{xt1} last, just
     \G like on the recognizer stack
@@ -618,12 +619,13 @@ struct
     cell% field buffer-maxlength \ >=length
 end-struct buffer%
 
-: init-buffer ( addr -- )
+: init-buffer ( addr -- ) \ gforth-experimental
+    \ Initialize a buffer% at addr to empty
     buffer% %size erase ;
 
-: adjust-buffer ( u addr -- )
-    \G adjust buffer% at addr to length u
-    \ this may grow the allocated area, but never shrinks it
+: adjust-buffer ( u addr -- ) \ gforth-experimental
+    \G Adjust buffer% at addr to length u.
+    \G This may grow the allocated area, but never shrinks it
     dup >r buffer-maxlength @ over < if ( u )
 	r@ buffer-address @ over resize throw r@ buffer-address !
 	dup r@ buffer-maxlength ! then
@@ -683,7 +685,7 @@ end-struct buffer%
 
 \ xchar version of parse
 
-: string-parse ( c-addr1 u1 "ccc<string>" -- c-addr2 u2 )
+: string-parse ( c-addr1 u1 "ccc<string>" -- c-addr2 u2 ) \ gforth
 \G Parse @i{ccc}, delimited by the string @i{c-addr1 u1}, in the parse
 \G area. @i{c-addr2 u2} specifies the parsed string within the
 \G parse area. If the parse area was empty, @i{u2} is 0.
@@ -696,7 +698,7 @@ end-struct buffer%
     over + >in +!
     2dup input-lexeme! ;
 
-: (xparse)    ( xchar "ccc<char>" -- c-addr u )
+: (xparse)    ( xchar "ccc<char>" -- c-addr u ) \ gforth-internal
 \G Parse @i{ccc}, delimited by @i{xchar}, in the parse
 \G area. @i{c-addr u} specifies the parsed string within the
 \G parse area. If the parse area was empty, @i{u} is 0.

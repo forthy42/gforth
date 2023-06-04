@@ -50,7 +50,7 @@ blue >bg white >fg or bold or Value status-attr
     wide? IF  ."  order: " ELSE  ." o:" THEN  order ;
 
 10 stack: status-xts
-\G status line prints a stack of status words
+\ status line prints a stack of status words
 ' .base ' .stacks ' .order 3 status-xts set-stack
 
 : .status-line ( -- ) { | w^ status$ }

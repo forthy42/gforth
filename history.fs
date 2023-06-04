@@ -47,7 +47,7 @@ edit-terminal edit-out !
 \ command line editing                                  16oct94py
 
 : >edit-rest  ( span addr pos1 -- span addr pos1 addr2 len )
-    \G get rest of the string
+    \ get rest of the string
     over fourth third chars /string ;
 
 : bindkey ( xt key -- )
@@ -284,7 +284,7 @@ synonym setstring-color info-color
 	2dup get-width+ edit-curpos !  EXIT  THEN
     .all-rest ;
 : xedit-update ( span addr pos1 -- span addr pos1 )
-    \G word to update the editor display
+    \ word to update the editor display
     .resizeline .all
     edit-linew @ 1+ screenw @ / 0> IF
 	2>r 2>r .status 2r> 2r> .all-rest

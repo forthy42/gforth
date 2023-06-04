@@ -105,10 +105,13 @@ umethod cr ( -- ) \ core c-r
 umethod page ( -- ) \ facility
 \G Clear the screen
 umethod at-xy ( x y -- ) \ facility at-x-y
-\G Put the curser at position @i{x y}
+\G Put the curser at position @i{x y}.  The top left-hand corner of
+\G the display is at 0 0.
+
 umethod at-deltaxy ( dx dy -- ) \ gforth
-\g With the current position at @i{x y}, put the cursor at @i{x+dx
-  \G y+dy}.
+\G With the current position at @i{x y}, put the cursor at @i{x+dx
+\G y+dy}.
+
 umethod attr! ( attr -- )
 \G apply attribute to terminal (i.e. set color)
 umethod control-sequence ( n char -- )

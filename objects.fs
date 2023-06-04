@@ -384,7 +384,7 @@ variable public-wordlist
 \     thisp ! ;
 
 : enterm ( -- ; run-time: object -- )
-    \g method prologue; @var{object} becomes new @code{this}.
+    \ method prologue; @var{object} becomes new @code{this}.
     POSTPONE this
     POSTPONE >r
     POSTPONE to-this ;

@@ -65,17 +65,17 @@ Variable lastfile
 0 Value source-pos#
 
 : plain~~ ( -- )
-    \G uses the file as is (default)
+    \ uses the file as is (default)
     ['] noop is filename>display
     0 to source-line# 0 to source-pos# ;
 : short~~ ( -- )
-    \G uses a short file format (default)
+    \ uses a short file format (default)
     plain~~ ['] shorten-file is filename>display ;
 : expand~~ ( -- )
-    \G uses a fully expanded file format (to pass to e.g. editors)
+    \ uses a fully expanded file format (to pass to e.g. editors)
     plain~~ ['] expand-file is filename>display ;
 : prepend~~ ( -- )
-    \G prepends the file to a list of locations in that file (like SwiftForth)
+    \ prepends the file to a list of locations in that file (like SwiftForth)
     ['] prepend-file is filename>display
     3 to source-line# 2 to source-pos# ;
 plain~~
@@ -123,9 +123,9 @@ plain~~
 	nip nip
     then ;
 
-: #line ( "u" "["file"]" -- )
-    \g Set the line number to @i{u} and (if present) the file name to @i{file}.  Consumes the rest of the line.
-    \g 
+: #line ( "u" "["file"]" -- ) \ gforth
+    \g Set the line number to @i{u} and (if present) the file name to
+    \g @i{file}.  Consumes the rest of the line.
     parse-name ['] evaluate 10 base-execute 1- loadline !
     '"' parse 2drop '"' parse dup if
 	save-source-filename# loadfilename# !

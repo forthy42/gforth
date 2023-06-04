@@ -26,7 +26,7 @@ Vocabulary config
 ' config >wordlist Value config-wl
 
 ' rec-string ' rec-num ' rec-float 3 recognizer-sequence: config-recognize
-\G The config recognizer
+\ The config recognizer
 
 s" Config error" exception Value config-throw
 \ if you don't want an exception, set config-throw to 0

@@ -504,8 +504,8 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 \ : name>view ( nt -- addr ) \ gforth   name-to-view
 \     name>string drop cell negate and cell- ;
 
-\ DEFAULT-NAME>INT is never used, delete?
-: default-name>int ( nt -- xt ) \ gforth default-name-to-int
+\ !! DEFAULT-NAME>INT is never used, delete?
+: default-name>int ( nt -- xt ) \ gforth-internal default-name-to-int
     \G Default @code{name>interpret} implementation.  For words where nt=xt.
 ;
 
@@ -543,7 +543,7 @@ const Create ???
     THEN
     drop false ;
 
-: >head-noprim ( xt -- nt ) \ gforth  to-head-noprim
+: >head-noprim ( xt -- nt ) \ gforth-internal  to-head-noprim
     dup xt? 0= IF  drop ['] ???  THEN ;
 
 has? new-cfa [IF]

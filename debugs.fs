@@ -74,14 +74,14 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 
 \ code coverage helpers that are always present
 
-0 Value coverage? ( -- f )
+0 Value coverage? ( -- f ) \ gforth-internal
 \G Value: Coverage check on/off
 $10 stack: cov-stack
 
-: nocov[ ( -- )
+: nocov[ ( -- ) \ gforth
     \G turn coverage off temporarily
     coverage? cov-stack >stack  false to coverage? ; immediate
-: ]nocov ( -- )
+: ]nocov ( -- ) \ gforth
     \G end of temporary turned off coverage
     cov-stack stack> to coverage? ; immediate
 
@@ -170,7 +170,7 @@ is ?warning
 
 ' check-shadow >code-address dodefer: = [if]
 :noname  ( addr count wid -- )
-    \G prints a warning if the string is already present in the wordlist
+    \ prints a warning if the string is already present in the wordlist
     warnings @ 0= IF  drop 2drop  EXIT  THEN
     >r 2dup r> find-name-in dup
     ['] shadow-warning ?warning IF  2drop  EXIT  THEN
@@ -219,8 +219,9 @@ is ?warning
 
 \ trace lines
 
-: line-tracer ( -- )  ['] ~~ execute ;
-\G print source position and stack on every source line start
+: line-tracer ( -- )
+    \ print source position and stack on every source line start
+    ['] ~~ execute ;
 : +ltrace ( -- ) \ gforth
     \G turn on line tracing
     ['] line-tracer is before-line ;
@@ -277,7 +278,7 @@ Variable rec'[]
     2r> rot >r fp! sp! r>  r> is trace-recognizer
     dup ['] notfound = -#13 and throw ;
 
-: view' ( "name" -- xt )
+: view' ( "name" -- xt ) \ gforth-internal
     \G @var{xt} is either the word to view if it is a word
     \G or the recognizer that successfully parsed @var{"name"}
     parse-name (view') ;
@@ -289,7 +290,17 @@ Variable rec'[]
 : emacs-l:c ( line pos -- )
     ." +" swap 0 .r ." :" . ;
 : vi-l:c ( line pos -- )  ." +" drop . ;
-: editor-cmd ( souceview -- )
+: editor-cmd ( souceview -- ) \ gforth
+    \G tell the editor to go to the source of a word
+    \G uses $EDITOR, and adjusts goto line command depending
+    \G on vi- (default), kate-, or emacs-style
+    \G @example
+    \G EDITOR=emacsclient      #if you like emacs, M-x server-start in emacs
+    \G EDITOR=vi|vim|gvim      #if you like vi variants
+    \G EDITOR=kate             #if you like kate
+    \G EDITOR=gedit            #if you like gedit
+    \G EDITOR=joe|mcedit|nano  #if you like other simple editors
+    \G @end example
     s" EDITOR" getenv dup 0= IF
 	2drop s" vi" \ if you don't set EDITOR, use vi as default
     THEN
@@ -303,16 +314,6 @@ Variable rec'[]
     THEN
     ''' emit loadfilename#>str esc'type ''' emit  2rdrop ;
 
-\G tell the editor to go to the source of a word
-\G uses $EDITOR, and adjusts goto line command depending
-\G on vi- (default), kate-, or emacs-style
-\G @example
-\G EDITOR=emacsclient      #if you like emacs, M-x server-start in emacs
-\G EDITOR=vi|vim|gvim      #if you like vi variants
-\G EDITOR=kate             #if you like kate
-\G EDITOR=gedit            #if you like gedit
-\G EDITOR=joe|mcedit|nano  #if you like other simple editors
-\G @end example
 
 : edit-file-cmd ( c-addr u -- )
     \ prints the editor command for editing the file with the name c-addr u

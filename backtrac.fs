@@ -21,7 +21,7 @@
 
 \ backtrace stuff
 
-0 Value extra-backtrace#
+0 Value extra-backtrace# ( - n ) \ gforth-internal
 \G add further cells to backtrace stack for non-debugging engine exceptions
 
 : backtrace-return-stack ( -- addr u )
@@ -71,7 +71,7 @@ defer .backtrace-pos ( addr -- )
 : print-bt-entry ( return-stack-item -- )
     >bt-entry ?dup-IF  .name  THEN ;
 
-: print-backtrace ( addr1 addr2 -- )
+: print-backtrace ( addr1 addr2 -- ) \ gforth-internal
     \G print a backtrace for the return stack addr1..addr2
     2dup u< IF  cr ." Backtrace:"  THEN
     0 swap rot u+do
@@ -81,7 +81,7 @@ defer .backtrace-pos ( addr -- )
     +loop
     drop ;
 
-: .bt ( -- )
+: .bt ( -- ) \ gforth-internal
     \G backtrace for interactive use
     backtrace-rp0 @ #10 cells + dup 3 cells - @ cell- print-backtrace ;
 comp: drop ]] store-backtrace dobacktrace [[ ;

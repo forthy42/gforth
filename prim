@@ -3206,7 +3206,7 @@ s = (u>0x3)        ?  2 : 0; n |= s; u >>= s;
 s = (u>0x1)        ?  1 : 0; n |= s;
 #endif /* !defined(HAVE___BUILTIN_CLZL) */
 
-u8@+?  ( c_addr u -- c_addr1 urest utfcp ) gforth	u8_fetch_plus_query
+u8@+?  ( c_addr u -- c_addr1 urest utfcp ) gforth-internal u8_fetch_plus_query
 ""@i{utfcp} is the decoded UTF-8 codepoint (@code{$FFFD} if invalid); @i{c_addr1 urest} is the rest of the string.""
 DCell d1=utf8_fetch_plus(c_addr, u);
 UCell u1 = DLO(d1);

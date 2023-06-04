@@ -100,11 +100,11 @@ variable located-bottom \ last line to display with l
 12 value after-locate ( -- u ) \ gforth
 \G number of lines shown after current location (default 12).
 
-: view>filename# ( view -- u )
+: view>filename# ( view -- u ) \ gforth-internal
     \G filename-number of view (obtained by @code{name>view}) see @code{filename#>str}
     23 rshift ;
 
-: view>line ( view -- u )
+: view>line ( view -- u ) \ gforth-internal
     \G line number in file of view (obtained by @code{name>view})
     8 rshift $7fff and ;
 
