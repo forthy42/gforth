@@ -359,6 +359,7 @@ The Text Interpreter
 * Interpret/Compile states::
 * Interpreter Directives::
 * Recognizers::
+* Text Interpreter Hooks::
 
 Word Lists
 
@@ -5780,6 +5781,14 @@ doc-allocate
 doc-free
 doc-resize
 
+The following words are useful for dealing with memory blocks:
+
+doc-save-mem
+doc-free-mem-var
+doc-extend-mem
+
+The $tring words can also be used for dealing with memory blocks,
+@xref{$tring words}.
 
 @node Memory Access, Special Memory Accesses, Heap Allocation, Memory
 @subsection Memory Access
@@ -9293,6 +9302,7 @@ doc-source
 doc-tib
 doc-#tib
 
+doc-interpret
 
 @menu
 * Input Sources::
@@ -9300,6 +9310,7 @@ doc-#tib
 * Interpret/Compile states::
 * Interpreter Directives::
 * Recognizers::
+* Text Interpreter Hooks::
 @end menu
 
 @node Input Sources, Number Conversion, The Text Interpreter, The Text Interpreter
@@ -9509,7 +9520,7 @@ doc-[AGAIN]
 doc-[WHILE]
 doc-[REPEAT]
 
-@node Recognizers,  , Interpreter Directives, The Text Interpreter
+@node Recognizers, Text Interpreter Hooks, Interpreter Directives, The Text Interpreter
 @subsection Recognizers
 @cindex recongizers
 
@@ -9562,6 +9573,13 @@ doc-interpret-translator
 doc-compile-translator
 doc-postpone-translator
 doc-translator:
+
+@node Text Interpreter Hooks,  , Recognizers, The Text Interpreter
+@subsection Text Interpreter Hooks
+@cindex hooks in the text interpreter
+
+doc-before-line
+doc-before-word
 
 @c -------------------------------------------------------------
 @node The Input Stream, Word Lists, The Text Interpreter, Words
@@ -10419,6 +10437,7 @@ doc-hex.
 doc-u.
 doc-.r
 doc-u.r
+doc-dec.r
 doc-d.
 doc-ud.
 doc-d.r
