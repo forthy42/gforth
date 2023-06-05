@@ -6217,6 +6217,13 @@ doc-$[]variable
 @node Counted string words,  , $tring words, Strings and Characters
 @subsection Counted string words
 
+Counted strings store the length as byte at the address pointed to,
+followed by the bytes of the string.  Their possible length is
+severely limited, and you cannot create a substring in-place without
+destroying the input string.  Therefore we recommend against using
+counted strings.  Nevertheless, if you have to deal with counted
+strings, here are some words for that:
+
 doc-count
 
 The following word has no useful interpretation semantics (unlike
@@ -6225,6 +6232,7 @@ you should use it only inside colon definitions (if at all):
 
 doc-c"
 
+doc-place
 doc-string,
 
 @node Control Structures, Defining Words, Strings and Characters, Words
