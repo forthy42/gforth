@@ -5740,6 +5740,9 @@ doc-w,
 doc-l,
 doc-x,
 doc-xd,
+doc-a,
+doc-mem,
+doc-save-mem-dict
 
 Memory accesses have to be aligned (@pxref{Address arithmetic}). So of
 course you should allocate memory in an aligned way, too. I.e., before
@@ -5758,6 +5761,8 @@ doc-sfalign
 doc-dfalign
 doc-maxalign
 doc-cfalign
+
+
 
 
 @node Heap Allocation, Memory Access, Dictionary allocation, Memory
@@ -6220,6 +6225,7 @@ you should use it only inside colon definitions (if at all):
 
 doc-c"
 
+doc-string,
 
 @node Control Structures, Defining Words, Strings and Characters, Words
 @section Control Structures

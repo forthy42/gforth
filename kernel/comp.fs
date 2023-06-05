@@ -61,7 +61,7 @@
 \ : aligned ( addr -- addr' ) \ core
 \     [ cell 1- ] Literal + [ -1 cells ] Literal and ;
 
-: >align ( addr a-addr -- ) \ gforth
+: >align ( addr a-addr -- ) \ gforth-internal
     \G add enough spaces to reach a-addr
     swap ?DO  bl c,  LOOP ;
 
@@ -87,6 +87,10 @@
 \G that the corresponding body is maxaligned).
 
 ' , alias A, ( addr -- ) \ gforth
+\g Reserve data space for one cell, and store @i{addr} there.  For our
+\g cross-compiler this provides the type information necessary for a
+\g relocatable image; normally, though, this is equivalent to
+\g @code{,}.
 
 ' NOOP ALIAS const
 

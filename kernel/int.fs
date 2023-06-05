@@ -943,7 +943,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 \G OS command-line arguments.  Normally does some initializations that
 \G you also want to perform.
 
-: cold ( -- ) \ gforth
+: cold ( -- ) \ gforth-internal
 [ has? backtrace [IF] ]
     rp@ backtrace-rp0 !
 [ [THEN] ]
@@ -1008,7 +1008,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 
 has? os [IF]
 Defer bye
-: kernel-bye ( -- ) \ tools-ext
+: kernel-bye ( -- ) \ gforth-internal
 [ has? file [IF] ]
     script? 0= IF  .unstatus cr  THEN
 [ [ELSE] ]
