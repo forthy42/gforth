@@ -473,6 +473,7 @@ Programming Tools
 Multitasker
 
 * Pthreads::                    Native Unix multitasker
+* Cilk::                        Implements Cilk-like spawn+sync
 
 C Interface
 
@@ -14096,6 +14097,7 @@ doc-cov+
 
 @menu
 * Pthreads::                    Native Unix multitasker
+* Cilk::                        Implements Cilk-like spawn+sync
 @end menu
 
 Gforth offers two multitaskers: a traditional, cooperative round-robin
@@ -14105,7 +14107,7 @@ marked as experimental feature, as standardization of Forth
 multitaskers will likely change the names of words without changing
 their semantics.
 
-@node Pthreads,  , Multitasker, Multitasker
+@node Pthreads, Cilk, Multitasker, Multitasker
 @subsection Ptheads
 @cindex pthread
 
@@ -14210,6 +14212,21 @@ doc-pthread_cond_signal
 doc-pthread_cond_broadcast
 doc-pthread_cond_wait
 doc-pthread_cond_timedwait
+
+@node Cilk,  , Pthreads, Multitasker
+@subsection Cilk
+
+Cilk is an extension to C-like languages, and centers around the
+functions @code{spawn} and @code{sync}.  @file{cilk.fs} extends Forth in
+such a way, using workers and queues to implement this.
+
+doc-cilk-sync
+doc-spawn
+doc-spawn1
+doc-spawn2
+doc-spawn-closure
+doc-cilk-init
+doc-cilk-bye
 
 @c ------------------------------------------------------------
 @node C Interface, Assembler and Code Words, Multitasker, Words

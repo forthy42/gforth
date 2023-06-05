@@ -39,29 +39,36 @@ event: ->sync ( task -- )
 
 event: ->spawn ( xt task -- )
     invoker ! execute clearstack ;
-: worker-thread ( -- ) \ gforth-cilk
+: worker-thread ( -- ) \ cilk
     stacksize4 newtask4 activate [ up@ ]l invoker !
     BEGIN  invoker @ +worker stop  AGAIN ;
 
-: cilk-sync ( -- ) \ gforth-cilk
+: cilk-sync ( -- ) \ cilk
     \G wait for all spawned tasks to complete
     BEGIN  sync# @  0> WHILE  stop  REPEAT ;
 : start-workers cores 1 max 0 ?DO worker-thread 1 sync# +! LOOP cilk-sync ;
-: cilk-init workers @ 0= IF  start-workers  THEN ;
+: cilk-init ( -- ) \ cilk
+    \G Start the workers if not already done
+    workers @ 0= IF  start-workers  THEN ;
 
 : spawn-rest ( xt -- )
     elit, up@ elit, ->spawn worker@ event> 1 sync# +! ;
-: spawn ( xt -- ) \ gforth-cilk
+: spawn ( xt -- ) \ cilk
     \G wait for a worker to become free, and spawn xt there
     <event spawn-rest  ;
-: spawn1 ( n xt -- ) \ gforth-cilk
+: spawn1 ( n xt -- ) \ cilk
     \G wait for a worker to become free, and spawn xt there, with one argument
     <event swap elit, spawn-rest ;
-: spawn2 ( n1 n2 xt -- ) \ gforth-cilk
+: spawn2 ( n1 n2 xt -- ) \ cilk
     \G wait for a worker to become free, and spawn xt there, with two arguments
     <event >r swap elit, elit, r> spawn-rest ;
+: spawn-closure ( xt -- ) \ cilk
+    \G for passing a heap closure: execute and free it.  This allows to pass
+    \G all sorts of arguments to code.
+    \G Usage @code{[@{: vars :@}h code ;] spawn-closure ;}
+    [: dup >r execute r> >addr free throw ;] spawn1 ;
 
-: cilk-bye ( -- ) \ gforth-cilk
+: cilk-bye ( -- ) \ cilk
     \G kill all workers
     cilk-sync workers $@len cell/ 0 ?DO [: 0 (bye) ;] spawn LOOP
     #10000. ns workers $free  sync# off ;

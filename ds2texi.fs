@@ -188,6 +188,7 @@ true  constant oof
 true  constant regexp-cg
 true  constant regexp-pattern
 true  constant regexp-replace
+true  constant cilk
 set-current
 
 : check-wordset ( c-addr u -- )
