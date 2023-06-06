@@ -61,7 +61,7 @@
 \ : aligned ( addr -- addr' ) \ core
 \     [ cell 1- ] Literal + [ -1 cells ] Literal and ;
 
-: >align ( addr a-addr -- ) \ gforth
+: >align ( addr a-addr -- ) \ gforth-internal
     \G add enough spaces to reach a-addr
     swap ?DO  bl c,  LOOP ;
 
@@ -87,6 +87,10 @@
 \G that the corresponding body is maxaligned).
 
 ' , alias A, ( addr -- ) \ gforth
+\g Reserve data space for one cell, and store @i{addr} there.  For our
+\g cross-compiler this provides the type information necessary for a
+\g relocatable image; normally, though, this is equivalent to
+\g @code{,}.
 
 ' NOOP ALIAS const
 
@@ -104,13 +108,9 @@
     \G puts down string as cstring
     dup c, mem, ;
 
-: longstring, ( c-addr u -- ) \ gforth
+: longstring, ( c-addr u -- ) \ gforth-obsolete
     \G puts down string as longcstring
     dup , mem, ;
-
-: nlstring, ( c-addr u -- ) \ gforth
-    \G puts down string as longcstring
-    tuck mem, , ;
 
 
 [IFDEF] prelude-mask
@@ -156,11 +156,11 @@ unlock tlastcfa @ lock >body AConstant lastnt
 \ it won't work in a flash/rom environment, therefore for Gforth EC
 \ we stick to the traditional implementation
 
-: name, ( c-addr u -- ) \ gforth
+: name, ( c-addr u -- ) \ gforth-internal
     \G compile the named part of a header
     name-too-long?
     dup here + dup cfaligned >align
-    nlstring,
+    tuck mem, ,
     get-current 1 or A,
     here xt-location drop
     \ link field; before revealing, it contains the
@@ -186,10 +186,10 @@ unlock tlastcfa @ lock >body AConstant lastnt
     ['] named>link set-name>link ;
 : ?noname-hm ( -- ) last @ 0= IF  noname-hm  ELSE  named-hm  THEN ;
 
-: header, ( c-addr u -- ) \ gforth
+: header, ( c-addr u -- ) \ gforth-obsolete
     \G create a header for a named word
     hm, name, hmtemplate namehm, named-hm ;
-: noname, ( -- ) \ gforth
+: noname, ( -- ) \ gforth-internal
     \G create an empty header for an unnamed word
     hm, 0name, cell negate allot  hmtemplate namehm, noname-hm ;
 
@@ -198,7 +198,7 @@ defer record-name ( -- )
 \ record next name in tags file
 defer header-name,
 defer header-extra ' noop is header-extra
-: header ( -- ) \ gforth
+: header ( -- ) \ gforth-internal
     \G create a header for a word
     hm, header-name, hmtemplate namehm, ?noname-hm header-extra ;
 
@@ -285,6 +285,8 @@ immediate restrict
     swap postpone Literal  postpone Literal ; immediate restrict
 
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
+    \g Works like @code{literal}, but (when used in cross-compiled
+    \g code) tells the cross-compiler that the literal is an address.
     postpone Literal ; immediate restrict
 
 : ?parse-name ( -- addr u )
@@ -306,11 +308,11 @@ Variable litstack
     0 litstack set-stack ;
 
 has? new-cfa [IF]
-    : cfa,     ( code-address -- )  \ gforth	cfa-comma
+    : cfa,     ( code-address -- )  \ gforth-internal	cfa-comma
 	here  dup lastnt !
 	only-code-address! ;
 [ELSE]
-    : cfa,     ( code-address -- )  \ gforth	cfa-comma
+    : cfa,     ( code-address -- )  \ gforth-internal	cfa-comma
 	here
 	dup lastnt !
 	0 A,
@@ -363,13 +365,13 @@ has? primcentric [IF]
 
 \ \ ticks
 
-' compile, AConstant default-name>comp ( nt -- w xt ) \ gforth default-name-to-comp
-    \G @i{w xt} is the compilation token for the word @i{nt}.
+' compile, AConstant default-name>comp ( nt -- w xt ) \ gforth-internal default-name-to-comp
+
 : default-i/c ( -- )
     ['] noop set->int
     ['] default-name>comp set->comp ;
 
-: [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth bracket-paren-tick
+: [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth-obsolete bracket-paren-tick
     (') postpone Literal ; immediate restrict
 
 : [']  ( compilation. "name" -- ; run-time. -- xt ) \ core      bracket-tick
@@ -486,24 +488,35 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     ['] udp create-from reveal ;
 
 : buffer: ( u "name" -- ) \ core-ext buffer-colon
+    \g Define @i{name} and reserve @i{u} bytes starting at @i{addr}.
+    \g @i{name} run-time: @code{( -- addr )}.  Gforth initializes the
+    \g reserved bytes to 0, but the standard does not guarantee this.
     Create here over 0 fill allot ;
 
 : Variable ( "name" -- ) \ core
+    \g Define @i{name} and reserve a cell starting at @i{addr}.
+    \g @i{name} run-time: @code{( -- addr )}.
     Create 0 , ;
 
 : AVariable ( "name" -- ) \ gforth
+    \g Works like @code{variable}, but (when used in cross-compiled
+    \g code) tells the cross-compiler that the cell stored in the
+    \g variable is an address.
     Create 0 A, ;
 
 : 2Variable ( "name" -- ) \ double two-variable
     Create 0 , 0 , ;
 
 : uallot ( n -- n' ) \ gforth
+    \g Reserve @i{n} bytes in every user space.
     udp @ swap udp +! ;
 
 : User ( "name" -- ) \ gforth
     ['] sp0 create-from reveal cell uallot , ;
 
 : AUser ( "name" -- ) \ gforth
+    \g Define a user variable for containing an addres (this only
+    \g makes a difference in the cross-compiler).
     User ;
 
 : (Constant) ['] bl create-from reveal ;
@@ -517,12 +530,20 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     (Constant) , ;
 
 : AConstant ( addr "name" -- ) \ gforth
+    \G Like @code{constant}, but defines a constant for an address
+    \G (this only makes a difference in the cross-compiler).
     (Constant) A, ;
 
 : Value ( w "name" -- ) \ core-ext
+    \g Define @i{name} with the initial value @i{w}; this value can be
+    \g changed with @code{to @i{name}} or @code{->@i{name}}.
+    \g  
+    \g @i{name} execution: @i{-- w2}
     (Value) , ;
 
-: AValue ( w "name" -- ) \ core-ext
+: AValue ( w "name" -- ) \ gforth
+    \G Like @code{value}, but defines a value for an address
+    \G (this only makes a difference in the cross-compiler).
     (Value) A, ;
 
 Create !-table ' ! A, ' +! A,

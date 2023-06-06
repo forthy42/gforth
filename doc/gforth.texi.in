@@ -359,6 +359,7 @@ The Text Interpreter
 * Interpret/Compile states::
 * Interpreter Directives::
 * Recognizers::
+* Text Interpreter Hooks::
 
 Word Lists
 
@@ -5739,6 +5740,9 @@ doc-w,
 doc-l,
 doc-x,
 doc-xd,
+doc-a,
+doc-mem,
+doc-save-mem-dict
 
 Memory accesses have to be aligned (@pxref{Address arithmetic}). So of
 course you should allocate memory in an aligned way, too. I.e., before
@@ -5757,6 +5761,8 @@ doc-sfalign
 doc-dfalign
 doc-maxalign
 doc-cfalign
+
+
 
 
 @node Heap Allocation, Memory Access, Dictionary allocation, Memory
@@ -5780,6 +5786,14 @@ doc-allocate
 doc-free
 doc-resize
 
+The following words are useful for dealing with memory blocks:
+
+doc-save-mem
+doc-free-mem-var
+doc-extend-mem
+
+The $tring words can also be used for dealing with memory blocks,
+@xref{$tring words}.
 
 @node Memory Access, Special Memory Accesses, Heap Allocation, Memory
 @subsection Memory Access
@@ -6203,6 +6217,13 @@ doc-$[]variable
 @node Counted string words,  , $tring words, Strings and Characters
 @subsection Counted string words
 
+Counted strings store the length as byte at the address pointed to,
+followed by the bytes of the string.  Their possible length is
+severely limited, and you cannot create a substring in-place without
+destroying the input string.  Therefore we recommend against using
+counted strings.  Nevertheless, if you have to deal with counted
+strings, here are some words for that:
+
 doc-count
 
 The following word has no useful interpretation semantics (unlike
@@ -6211,6 +6232,8 @@ you should use it only inside colon definitions (if at all):
 
 doc-c"
 
+doc-place
+doc-string,
 
 @node Control Structures, Defining Words, Strings and Characters, Words
 @section Control Structures
@@ -7224,19 +7247,25 @@ store a boolean, you can use @code{on} and @code{off} to toggle its
 state.
 
 doc-variable
+doc-avariable
 doc-2variable
 doc-fvariable
 
+Finally, for buffers of arbitrary length there is
+
+doc-buffer:
+
 @cindex user variables
 @cindex user space
-The defining word @code{User} behaves in the same way as @code{Variable}.
-The difference is that it reserves space in @i{user (data) space} rather
-than normal data space. In a Forth system that has a multi-tasker, each
-task has its own set of user variables.
+The defining word @code{User} behaves in the same way as
+@code{Variable}.  The difference is that it reserves space in the
+@i{user (data) space} of each task rather than normal data space. Each
+task has its own instance of the user space.
 
 doc-user
+doc-auser
 @c doc-udp
-@c doc-uallot
+doc-uallot
 
 @comment TODO is that stuff about user variables strictly correct? Is it
 @comment just terminal tasks that have user variables?
@@ -7270,6 +7299,7 @@ Forth also provides @code{2Constant} and @code{fconstant} for defining
 double and floating-point constants, respectively.
 
 doc-constant
+doc-aconstant
 doc-2constant
 doc-fconstant
 
@@ -7351,6 +7381,7 @@ APPLES              \ puts 35 on the top of the stack.
 @end example
 
 doc-value
+doc-avalue
 doc-to
 doc-+to
 doc-addr
@@ -8831,6 +8862,7 @@ You can also optimize the @code{2* cells} into @code{[ 2 cells ] literal
 doc-[
 doc-]
 doc-literal
+doc-aliteral
 doc-]L
 
 There are also words for compiling other data types than single cells as
@@ -9293,6 +9325,7 @@ doc-source
 doc-tib
 doc-#tib
 
+doc-interpret
 
 @menu
 * Input Sources::
@@ -9300,6 +9333,7 @@ doc-#tib
 * Interpret/Compile states::
 * Interpreter Directives::
 * Recognizers::
+* Text Interpreter Hooks::
 @end menu
 
 @node Input Sources, Number Conversion, The Text Interpreter, The Text Interpreter
@@ -9509,7 +9543,7 @@ doc-[AGAIN]
 doc-[WHILE]
 doc-[REPEAT]
 
-@node Recognizers,  , Interpreter Directives, The Text Interpreter
+@node Recognizers, Text Interpreter Hooks, Interpreter Directives, The Text Interpreter
 @subsection Recognizers
 @cindex recongizers
 
@@ -9554,6 +9588,7 @@ doc-set-forth-recognize
 doc-translate:
 doc-translate-nt
 doc-translate-num
+doc-translate-dnum
 doc-translate-float
 
 The following extension is only avaiable if you load @code{recognizer-ext.fs}:
@@ -9562,6 +9597,13 @@ doc-interpret-translator
 doc-compile-translator
 doc-postpone-translator
 doc-translator:
+
+@node Text Interpreter Hooks,  , Recognizers, The Text Interpreter
+@subsection Text Interpreter Hooks
+@cindex hooks in the text interpreter
+
+doc-before-line
+doc-before-word
 
 @c -------------------------------------------------------------
 @node The Input Stream, Word Lists, The Text Interpreter, Words
@@ -10419,6 +10461,7 @@ doc-hex.
 doc-u.
 doc-.r
 doc-u.r
+doc-dec.r
 doc-d.
 doc-ud.
 doc-d.r

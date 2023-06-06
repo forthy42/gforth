@@ -604,7 +604,7 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
     dup ['] notfound = #-13 and throw
     translate-nt? 0= #-2053 and throw ;
 
-: (') ( "name" -- nt ) \ gforth
+: (') ( "name" -- nt ) \ gforth-internal
     parse-name name-too-short? forth-recognize '-error ;
 
 : '    ( "name" -- xt ) \ core	tick
@@ -632,11 +632,11 @@ Defer parse-name ( "name" -- c-addr u ) \ core-ext
 \G old name for @code{parse-name}
     
 Defer before-word ( -- ) \ gforth
-\ called before the text interpreter parses the next word
+\G Deferred word called before the text interpreter parses the next word
 ' noop IS before-word
 
 Defer before-line ( -- ) \ gforth
-\ called before the text interpreter parses the next line
+\G Deferred word called before the text interpreter parses the next line
 ' noop IS before-line
 
 defer int-execute ( ... xt -- ... )
@@ -679,14 +679,14 @@ defer int-execute ( ... xt -- ... )
 \ save-mem extend-mem
 
 : save-mem	( addr1 u -- addr2 u ) \ gforth
-    \g copy a memory block into a newly allocated region in the heap
+    \g Copy a memory block into a newly allocated region in the heap.
     swap >r
     dup dfaligned allocate throw
     swap 2dup r> -rot move ;
 
-: free-mem-var ( addr -- )
-    \ addr is the address of a 2variable containing address and size
-    \ of a memory range; frees memory and clears the 2variable.
+: free-mem-var ( addr -- ) \ gforth-experimental
+    \g Addr is the address of a 2variable containing address and size
+    \g of a memory range; frees memory and clears the 2variable.
     dup 2@ drop dup
     if ( addr mem-start )
 	free throw
@@ -695,9 +695,9 @@ defer int-execute ( ... xt -- ... )
 	2drop
     then ;
 
-: extend-mem	( addr1 u1 u -- addr addr2 u2 )
-    \ extend memory block allocated from the heap by u aus
-    \ the (possibly reallocated) piece is addr2 u2, the extension is at addr
+: extend-mem	( addr1 u1 u -- addr addr2 u2 ) \ gforth-experimental
+    \g Extend memory block addr1 u1 allocated from the heap by u aus.
+    \g The (possibly reallocated) piece is addr2 u2, the extension is at addr.
     over >r + dup >r resize throw
     r> over r> + -rot ;
 
@@ -906,7 +906,7 @@ Variable rec-level
     [ [ELSE] ] r> >tib !
     [ [THEN] ] ;
 
-: do-execute ( xt -- ) \ Gforth
+: do-execute ( xt -- ) \ gforth-internal
     \G C calling us
     execute ( catch dup IF  DoError cr  THEN ) 0 (bye) ;
 
@@ -943,7 +943,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 \G OS command-line arguments.  Normally does some initializations that
 \G you also want to perform.
 
-: cold ( -- ) \ gforth
+: cold ( -- ) \ gforth-internal
 [ has? backtrace [IF] ]
     rp@ backtrace-rp0 !
 [ [THEN] ]
@@ -1008,7 +1008,7 @@ Defer 'cold ( -- ) \ gforth  tick-cold
 
 has? os [IF]
 Defer bye
-: kernel-bye ( -- ) \ tools-ext
+: kernel-bye ( -- ) \ gforth-internal
 [ has? file [IF] ]
     script? 0= IF  .unstatus cr  THEN
 [ [ELSE] ]
