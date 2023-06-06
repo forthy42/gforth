@@ -20,9 +20,16 @@
 
 require unix/pthread.fs
 
-e? os-type 2dup s" darwin" string-prefix? -rot s" openbsd" string-prefix? or [IF]  s" sysctl -n hw.ncpu"
-[ELSE]  s" nproc"  [THEN]
-r/o open-pipe throw slurp-fid s>number drop 1 max Value cores
+e? os-type 2dup s" darwin" string-prefix? -rot s" openbsd" string-prefix? or [IF]
+    s" sysctl -n hw.ncpu" r/o open-pipe throw slurp-fid s>number drop
+[ELSE] e? os-type s" linux" search nip nip [IF]
+	s" /sys/devices/system/cpu/present" slurp-file over >r
+	#lf -scan '-' $split 2nip s>number drop 1+ r> free throw
+    [ELSE]
+	1 \ we don't know
+    [THEN]
+[THEN]
+1 max Value cores
 
 Variable sync#
 Variable workers

@@ -98,7 +98,8 @@ tmp$ $execstr-ptr !
 : $+slurp ( fid addr -- ) 
     \ slurp a file @var{fid} into a string @var{addr2}, append mode
     swap dup >r file-size throw r@ file-position throw d- drop
-    dup rot $+!len swap r> read-file throw drop ;
+    dup rot r> over >r >r $+!len swap r> over >r read-file throw
+    r> - dup 0< IF  r> $+!len drop  ELSE  drop rdrop  THEN ;
 : $slurp ( fid addr -- ) \ gforth string-slurp
     \G slurp a file @var{fid} into a string @var{addr2}
     dup $free $+slurp ;

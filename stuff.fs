@@ -124,7 +124,9 @@ UValue $? ( -- n ) \ gforth dollar-question
     r/o bin open-file throw dup
     >r file-size throw abort" file too large"
     dup allocate throw swap
-    2dup r@ read-file throw over <> abort" could not read whole file"
+    2dup r@ read-file throw 2dup <> IF
+	nip tuck resize throw swap
+    ELSE  nip  THEN
     r> close-file throw ;
 
 : slurp-fid ( fid -- addr u ) \ gforth
