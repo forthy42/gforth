@@ -7247,19 +7247,25 @@ store a boolean, you can use @code{on} and @code{off} to toggle its
 state.
 
 doc-variable
+doc-avariable
 doc-2variable
 doc-fvariable
 
+Finally, for buffers of arbitrary length there is
+
+doc-buffer:
+
 @cindex user variables
 @cindex user space
-The defining word @code{User} behaves in the same way as @code{Variable}.
-The difference is that it reserves space in @i{user (data) space} rather
-than normal data space. In a Forth system that has a multi-tasker, each
-task has its own set of user variables.
+The defining word @code{User} behaves in the same way as
+@code{Variable}.  The difference is that it reserves space in the
+@i{user (data) space} of each task rather than normal data space. Each
+task has its own instance of the user space.
 
 doc-user
+doc-auser
 @c doc-udp
-@c doc-uallot
+doc-uallot
 
 @comment TODO is that stuff about user variables strictly correct? Is it
 @comment just terminal tasks that have user variables?
@@ -7293,6 +7299,7 @@ Forth also provides @code{2Constant} and @code{fconstant} for defining
 double and floating-point constants, respectively.
 
 doc-constant
+doc-aconstant
 doc-2constant
 doc-fconstant
 
@@ -7374,6 +7381,7 @@ APPLES              \ puts 35 on the top of the stack.
 @end example
 
 doc-value
+doc-avalue
 doc-to
 doc-+to
 doc-addr
@@ -9580,6 +9588,7 @@ doc-set-forth-recognize
 doc-translate:
 doc-translate-nt
 doc-translate-num
+doc-translate-dnum
 doc-translate-float
 
 The following extension is only avaiable if you load @code{recognizer-ext.fs}:

@@ -117,8 +117,9 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
 : stack# ( stack -- elements )
     $@len cell/ ;
 
-: minimal-recognize ( addr u -- ... translate-xt / notfound ) \ gforth-experimental
-  2>r 2r@ rec-nt dup ['] notfound = IF  drop 2r@ rec-num  THEN  2rdrop ;
+: minimal-recognize ( addr u -- ... translate-xt / notfound ) \ gforth-internal
+    \g Sequence of @code{rec-nt} and @code{rec-num}
+    2>r 2r@ rec-nt dup ['] notfound = IF  drop 2r@ rec-num  THEN  2rdrop ;
 
 ( ' rec-num ' rec-nt 2 combined-recognizer: default-recognize ) \ see pass.fs
 \G The system recognizer

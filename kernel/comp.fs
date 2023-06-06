@@ -488,24 +488,35 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     ['] udp create-from reveal ;
 
 : buffer: ( u "name" -- ) \ core-ext buffer-colon
+    \g Define @i{name} and reserve @i{u} bytes starting at @i{addr}.
+    \g @i{name} run-time: @code{( -- addr )}.  Gforth initializes the
+    \g reserved bytes to 0, but the standard does not guarantee this.
     Create here over 0 fill allot ;
 
 : Variable ( "name" -- ) \ core
+    \g Define @i{name} and reserve a cell starting at @i{addr}.
+    \g @i{name} run-time: @code{( -- addr )}.
     Create 0 , ;
 
 : AVariable ( "name" -- ) \ gforth
+    \g Works like @code{variable}, but (when used in cross-compiled
+    \g code) tells the cross-compiler that the cell stored in the
+    \g variable is an address.
     Create 0 A, ;
 
 : 2Variable ( "name" -- ) \ double two-variable
     Create 0 , 0 , ;
 
 : uallot ( n -- n' ) \ gforth
+    \g Reserve @i{n} bytes in every user space.
     udp @ swap udp +! ;
 
 : User ( "name" -- ) \ gforth
     ['] sp0 create-from reveal cell uallot , ;
 
 : AUser ( "name" -- ) \ gforth
+    \g Define a user variable for containing an addres (this only
+    \g makes a difference in the cross-compiler).
     User ;
 
 : (Constant) ['] bl create-from reveal ;
@@ -519,12 +530,20 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     (Constant) , ;
 
 : AConstant ( addr "name" -- ) \ gforth
+    \G Like @code{constant}, but defines a constant for an address
+    \G (this only makes a difference in the cross-compiler).
     (Constant) A, ;
 
 : Value ( w "name" -- ) \ core-ext
+    \g Define @i{name} with the initial value @i{w}; this value can be
+    \g changed with @code{to @i{name}} or @code{->@i{name}}.
+    \g  
+    \g @i{name} execution: @i{-- w2}
     (Value) , ;
 
-: AValue ( w "name" -- ) \ core-ext
+: AValue ( w "name" -- ) \ gforth
+    \G Like @code{value}, but defines a value for an address
+    \G (this only makes a difference in the cross-compiler).
     (Value) A, ;
 
 Create !-table ' ! A, ' +! A,
