@@ -8854,6 +8854,7 @@ You can also optimize the @code{2* cells} into @code{[ 2 cells ] literal
 doc-[
 doc-]
 doc-literal
+doc-aliteral
 doc-]L
 
 There are also words for compiling other data types than single cells as

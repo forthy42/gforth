@@ -108,13 +108,9 @@
     \G puts down string as cstring
     dup c, mem, ;
 
-: longstring, ( c-addr u -- ) \ gforth
+: longstring, ( c-addr u -- ) \ gforth-obsolete
     \G puts down string as longcstring
     dup , mem, ;
-
-: nlstring, ( c-addr u -- ) \ gforth
-    \G puts down string as longcstring
-    tuck mem, , ;
 
 
 [IFDEF] prelude-mask
@@ -160,11 +156,11 @@ unlock tlastcfa @ lock >body AConstant lastnt
 \ it won't work in a flash/rom environment, therefore for Gforth EC
 \ we stick to the traditional implementation
 
-: name, ( c-addr u -- ) \ gforth
+: name, ( c-addr u -- ) \ gforth-internal
     \G compile the named part of a header
     name-too-long?
     dup here + dup cfaligned >align
-    nlstring,
+    tuck mem, ,
     get-current 1 or A,
     here xt-location drop
     \ link field; before revealing, it contains the
@@ -190,10 +186,10 @@ unlock tlastcfa @ lock >body AConstant lastnt
     ['] named>link set-name>link ;
 : ?noname-hm ( -- ) last @ 0= IF  noname-hm  ELSE  named-hm  THEN ;
 
-: header, ( c-addr u -- ) \ gforth
+: header, ( c-addr u -- ) \ gforth-obsolete
     \G create a header for a named word
     hm, name, hmtemplate namehm, named-hm ;
-: noname, ( -- ) \ gforth
+: noname, ( -- ) \ gforth-internal
     \G create an empty header for an unnamed word
     hm, 0name, cell negate allot  hmtemplate namehm, noname-hm ;
 
@@ -202,7 +198,7 @@ defer record-name ( -- )
 \ record next name in tags file
 defer header-name,
 defer header-extra ' noop is header-extra
-: header ( -- ) \ gforth
+: header ( -- ) \ gforth-internal
     \G create a header for a word
     hm, header-name, hmtemplate namehm, ?noname-hm header-extra ;
 
@@ -289,6 +285,8 @@ immediate restrict
     swap postpone Literal  postpone Literal ; immediate restrict
 
 : ALiteral ( compilation addr -- ; run-time -- addr ) \ gforth
+    \g Works like @code{literal}, but (when used in cross-compiled
+    \g code) tells the cross-compiler that the literal is an address.
     postpone Literal ; immediate restrict
 
 : ?parse-name ( -- addr u )
@@ -310,11 +308,11 @@ Variable litstack
     0 litstack set-stack ;
 
 has? new-cfa [IF]
-    : cfa,     ( code-address -- )  \ gforth	cfa-comma
+    : cfa,     ( code-address -- )  \ gforth-internal	cfa-comma
 	here  dup lastnt !
 	only-code-address! ;
 [ELSE]
-    : cfa,     ( code-address -- )  \ gforth	cfa-comma
+    : cfa,     ( code-address -- )  \ gforth-internal	cfa-comma
 	here
 	dup lastnt !
 	0 A,
@@ -367,13 +365,13 @@ has? primcentric [IF]
 
 \ \ ticks
 
-' compile, AConstant default-name>comp ( nt -- w xt ) \ gforth default-name-to-comp
-    \G @i{w xt} is the compilation token for the word @i{nt}.
+' compile, AConstant default-name>comp ( nt -- w xt ) \ gforth-internal default-name-to-comp
+
 : default-i/c ( -- )
     ['] noop set->int
     ['] default-name>comp set->comp ;
 
-: [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth bracket-paren-tick
+: [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth-obsolete bracket-paren-tick
     (') postpone Literal ; immediate restrict
 
 : [']  ( compilation. "name" -- ; run-time. -- xt ) \ core      bracket-tick
