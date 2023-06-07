@@ -676,7 +676,7 @@ Create hmtemplate
 : set-optimizer ( xt -- ) \ gforth
     \G Changes the current word such that @code{compile,}ing it
     \G executes @i{xt} (with the same stack contents as passed to
-    \G @code{compile,}.  Note that @code{compile,} must be consistent
+    \G @code{compile,}).  Note that @code{compile,} must be consistent
     \G with @code{execute}, so you must use @code{set-optimizer} only
     \G to install a more efficient implementation of the same
     \G behaviour.
