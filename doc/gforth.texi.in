@@ -331,10 +331,7 @@ User-defined Defining Words
 * User-defined TO and DEFER@@::
 * User-defined compile-comma::
 * Creating from a prototype::
-* Const-does>::
-
-Creating from a prototype
-
+* Making a word current::
 * Const-does>::
 
 Interpretation and Compilation Semantics
@@ -7548,6 +7545,7 @@ are particularly flexible, whereas the children of, e.g.,
 * User-defined TO and DEFER@@::
 * User-defined compile-comma::
 * Creating from a prototype::
+* Making a word current::
 * Const-does>::
 @end menu
 
@@ -8188,7 +8186,7 @@ The engine @code{gforth-itc} uses @code{,} for @code{compile,} and
 @code{set-optimizer} has no effect there.
 
 
-@node Creating from a prototype, Const-does>, User-defined compile-comma, User-defined Defining Words
+@node Creating from a prototype, Making a word current, User-defined compile-comma, User-defined Defining Words
 @subsubsection Creating from a prototype
 
 In the above we show how to define a word by first using
@@ -8236,11 +8234,19 @@ latestnt constant noname-fvalue-prototype
 @end example
 
 
-@menu
-* Const-does>::
-@end menu
+@node Making a word current, Const-does>, Creating from a prototype, User-defined Defining Words
+@subsubsection Making a word current
+@cindex Modifying a word defined earlier
 
-@node Const-does>,  , Creating from a prototype, User-defined Defining Words
+Many words mentioned above, such as @code{immediate} or
+@code{set-optimizer} change the ``current'' or ``most recently
+defined'' word.  Sometimes you want to change an earlier word.  You
+can do this with
+
+doc-make-latest
+
+
+@node Const-does>,  , Making a word current, User-defined Defining Words
 @subsubsection @code{Const-does>}
 
 A frequent use of @code{create}...@code{does>} is for transferring some
@@ -15633,9 +15639,8 @@ read the count with @code{name>string}, and the flags with
 doc-compile-only?
 
 The @code{>link} field contains a link to the previous word in the
-same word list.  You can read it with
-
-doc-name>link
+same word list.  You can read it with @code{name>link} (@pxref{Name
+token}).
 
 The name, @code{>f+c} and @code{>link} fields are not present for
 @code{noname} words, but @code{name>string} and @code{name>link} work
@@ -15704,10 +15709,9 @@ Moreover, there are the low-level @code{code-address!} and
 The @code{opt-compile,} method is what @code{compile,} does on most
 Gforth engines (@code{gforth-itc} uses @code{,} instead).  You can
 define a more efficient implementation of @code{compile,} for the
-current word with @code{set-optimizer}.  Note that the end result must
-be equivalent to @code{postpone literal postpone execute}.
-
-doc-set-optimizer
+current word with @code{set-optimizer} (@pxref{User-defined
+compile-comma}).  Note that the end result must be equivalent to
+@code{postpone literal postpone execute}.
 
 As an example of the use of @code{set-optimizer}, consider the
 following definition of @code{constant}:
@@ -15744,15 +15748,12 @@ Note that @code{set-execute} and @code{set-does>} perform
 and @code{compile,} agree, so if you want to add your own optimizer,
 you should add it afterwards.
 
-The @code{defer!} (aka @code{(to)} method implements @code{defer!}
-for words defined with @code{defer} and similar words, but it is also
-the core of @code{to}.  The general stack effect of the
-@code{defer!}/@code{(to)} method is @code{( val xt -- )}, where
-@i{xt} identifies the word stored into, and @i{val} is the value (of
-appropriate type) stored there.
-
-doc-(to)
-doc-set-to
+The @code{defer!} (aka @code{(to)} method (@pxref{User-defined TO and
+DEFER@@}) implements @code{defer!}  for words defined with
+@code{defer} and similar words, but it is also the core of @code{to}.
+The general stack effect of the @code{defer!}/@code{(to)} method is
+@code{( val xt -- )}, where @i{xt} identifies the word stored into,
+and @i{val} is the value (of appropriate type) stored there.
 
 E.g., one can implement @code{fvalue} as follows:
 
@@ -15792,10 +15793,9 @@ see bar
 In practice Gforth has a few additional twists to implement, e.g.,
 @code{+TO}.
 
-@code{Set-defer@@} allows to implement variants of the @code{defer@@}
-(@pxref{Deferred Words}) method for @code{defer}-like words.
-
-doc-set-defer@
+@code{Set-defer@@} (@pxref{User-defined TO and DEFER@@}) allows to
+implement variants of the @code{defer@@} (@pxref{Deferred Words})
+method for @code{defer}-like words.
 
 The @code{>hmextra} field is used for cases where additional data
 needs to be stored in the header methods table.  In particular, it

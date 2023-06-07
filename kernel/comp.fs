@@ -651,7 +651,7 @@ Create hmtemplate
 
 : make-latest ( nt -- ) \ gforth
     \G Make @i{nt} the latest definition, which can be manipulated by
-    \G @{immediate} and @code{set-*} operations.  If you have used
+    \G @code{immediate} and @code{set-*} operations.  If you have used
     \G (especially compiled) the word referred to by nt already, do
     \G not change the behaviour of the word (only its implementation),
     \G otherwise you may get a surprising mix of behaviours that is

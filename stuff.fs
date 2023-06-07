@@ -106,7 +106,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     ur compile-fliterals uw compile-literals
     target compile, POSTPONE exit reveal ;
 
-: const-does> ( run-time: w*uw r*ur uw ur "name" -- ) \ gforth
+: const-does> ( run-time: w*uw r*ur uw ur "name" -- ) \ gforth-obsolete const-does
     \G Defines @var{name} and returns.
     \G  
     \G @var{name} execution: pushes @var{w*uw r*ur}, then performs the
