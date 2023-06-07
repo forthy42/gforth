@@ -619,18 +619,18 @@ Create hmtemplate
 
 : hm-activate ( xt -- )
     >namehm hmtemplate over ! hmtemplate ! ;
-: hmcopy ( xt -- ) \ gforth hmcopy
+: hmcopy ( xt -- ) \ gforth-internal
     >namehm @ hmtemplate 0 >hm>int move
     here hm-activate ;
 
-: hmcopy,     ( xt -- )  \ gforth	hmcopy-comma
+: hmcopy,     ( xt -- )  \ gforth-internal hmcopy-comma
     dup hmcopy here >r dup >code-address cfa, cell+ @ r> cell+ ! ;
 
-: hmsave ( -- addr u ) \ gforth
+: hmsave ( -- addr u ) \ gforth-internal
     \g save hmtemplate for nested definitions
     hmtemplate hmsize save-mem  hmtemplate off ;
 
-: hmrestore ( addr u -- ) \ gforth
+: hmrestore ( addr u -- ) \ gforth-internal
     \g restore hmtemplate
     over >r hmtemplate swap move r> free throw ;
 
@@ -649,7 +649,7 @@ Create hmtemplate
 	    dup hmtemplate hm= IF  hmtemplate @ !  hmtemplate off  EXIT  THEN
     REPEAT  drop (hm,) ;
 
-: make-latest ( nt -- )
+: make-latest ( nt -- ) \ gforth
     \G Make @i{nt} the latest definition, which can be manipulated by
     \G @{immediate} and @code{set-*} operations.  If you have used
     \G (especially compiled) the word referred to by nt already, do
@@ -660,7 +660,7 @@ Create hmtemplate
     dup name>string nip 0<> and last !  ;
 
 : ?hm ( -- )
-    \G check if deduplicated, duplicate if necessary
+    \ check if deduplicated, duplicate if necessary
     lastnt @ >namehm @ hmtemplate <> IF
 	lastnt @
 	dup >namehm @ hmtemplate hmsize move
@@ -670,6 +670,7 @@ Create hmtemplate
 : !namehm ( addr -- )  latestnt >namehm ! ;
 
 : general-compile, ( xt -- )
+    \ a (slow) implementation of @code{compile,} that works for every word
     postpone literal postpone execute ;
 
 : set-optimizer ( xt -- ) \ gforth
@@ -699,11 +700,12 @@ Create hmtemplate
     r> make-latest previous-section
     only-code-address! ;
 
-: set-execute ( ca -- ) \ gforth Changes the current word such that it
-    \G jumps to the native code at @i{ca}.  Also changes the
-    \G @code{compile,} implementation to the most general (and
-    \G slowest) one.  Call @code{set-optimizer} afterwards if you want
-    \G a more efficient implementation.
+: set-execute ( ca -- ) \ gforth
+    \G Changes the current word such that it jumps to the native code
+    \G at @i{ca}.  Also changes the @code{compile,} implementation to
+    \G the most general (and slowest) one.  Call @code{set-optimizer}
+    \G afterwards if you want a more efficient @code{compile,}
+    \G implementation.
     ['] general-compile, set-optimizer
     latestnt only-code-address! ;
 
@@ -713,20 +715,38 @@ Create hmtemplate
     dodoes: any-code!
     ['] does, set-optimizer ;
 
-: set-does> ( xt -- ) \ gforth Changes the current word such that it
-    \G pushes its body address and then executes @i{xt}.  Also changes
-    \G the @code{compile,} implementation accordingly.  Call
-    \G @code{set-optimizer} afterwards if you want a more efficient
-    \G implementation.
+: set-does> ( xt -- ) \ gforth
+    \G Changes the current word such that it pushes its body address
+    \G and then executes @i{xt}.  Also changes the @code{compile,}
+    \G implementation accordingly.  Call @code{set-optimizer}
+    \G afterwards if you want a more efficient implementation.
     ['] does, set-optimizer
     hmtemplate >hmextra !
     dodoes: latestnt only-code-address! ;
-: set-to ( to-xt -- ) ?hm hmtemplate >hmto ! ;
-: set-defer@ ( defer@-xt -- ) ?hm hmtemplate >hmdefer@ ! ;
-: set->int ( xt -- ) ?hm hmtemplate >hm>int ! ;
-: set->comp ( xt -- ) ?hm hmtemplate >hm>comp ! ;
-: set-name>string ( xt -- ) ?hm hmtemplate >hm>string ! ;
-: set-name>link ( xt -- ) ?hm hmtemplate >hm>link ! ;
+: set-to ( to-xt -- ) \ gforth
+    \G Sets the implementation of the @code{(to) ( val xt -- )} method
+    \G of the current word to @i{to-xt}.
+    ?hm hmtemplate >hmto ! ;
+: set-defer@ ( defer@-xt -- ) \ gforth set-defer-fetch
+    \G Sets the implementation of the @code{defer@@ ( xt-deferred -- xt )}
+    \G method of the current word to @i{defer@@-xt}.
+    ?hm hmtemplate >hmdefer@ ! ;
+: set->int ( xt -- ) \ gforth set-to-int
+    \G Sets the implementation of the @code{name>interpret ( nt -- xt2 )}
+    \G method of the current word to @i{xt}.
+    ?hm hmtemplate >hm>int ! ;
+: set->comp ( xt -- ) \ gforth set-to-comp
+    \G Sets the implementation of the @code{name>compile ( nt -- w xt2 )}
+    \G method of the current word to @i{xt}.
+    ?hm hmtemplate >hm>comp ! ;
+: set-name>string ( xt -- ) \ gforth set-name-to-string
+    \G Sets the implementation of the @code{name>string ( nt -- addr u )}
+    \G method of the current word to @i{xt}.
+    ?hm hmtemplate >hm>string ! ;
+: set-name>link ( xt -- ) \ gforth set-name-to-link
+    \G Sets the implementation of the @code{name>link ( nt1 -- nt2|0 )}
+    \G method of the current word to @i{xt}.
+ ?hm hmtemplate >hm>link ! ;
 
 : int-opt; ( flag lastxt -- )
     nip >r hm, wrap! r> set-optimizer ;
@@ -736,7 +756,7 @@ Create hmtemplate
 ' opt: alias comp:
 ( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
 
-: opt!-compile, ( xt -- )
+: opt!-compile, ( xt -- ) \ gforth-internal
     \G force optimizing compile,
     ['] compile, defer@ >r ['] opt-compile, is compile,
     ['] compile, catch
