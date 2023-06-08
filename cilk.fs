@@ -21,10 +21,14 @@
 require unix/pthread.fs
 
 e? os-type 2dup s" darwin" string-prefix? -rot s" openbsd" string-prefix? or [IF]
-    s" sysctl -n hw.ncpu" r/o open-pipe throw slurp-fid s>number drop
+    s" sysctl -n hw.ncpu" r/o open-pipe throw slurp-fid over >r
+    s>number drop
+    r> free throw
 [ELSE] e? os-type s" linux" search nip nip [IF]
-	s" /sys/devices/system/cpu/present" slurp-file
-	#lf -scan '-' $split 2nip s>number drop 1+
+	s" /sys/devices/system/cpu/present" slurp-file over >r
+	#lf -scan '-' $split 2nip
+	s>number drop 1+
+	r> free throw
     [ELSE]
 	1 \ we don't know
     [THEN]
