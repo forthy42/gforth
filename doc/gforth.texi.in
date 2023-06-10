@@ -10198,6 +10198,8 @@ the working directory, as if the file had been specified with @file{./}.
 Use @file{~+} to refer to the current working directory (as in the
 @code{bash}).
 
+doc-absolute-file?
+
 @c anton: fold the following subsubsections into this subsection?
 
 @menu
@@ -10215,9 +10217,9 @@ Gforth}). You can display it and change it using @code{fpath} in
 combination with the general path handling words.
 
 doc-fpath
+doc-.fpath
 @c the functionality of the following words is easily available through
 @c   fpath and the general path words.  The may go away.
-@c doc-.fpath
 @c doc-fpath+
 @c doc-fpath=
 @c doc-open-fpath-file

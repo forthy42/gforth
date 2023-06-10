@@ -113,8 +113,8 @@ User tfile
     \G Display the contents of the Forth search path.
     fpath .path ;
 
-: absolut-path? ( addr u -- flag ) \ gforth
-    \G A path is absolute if it starts with a / or a ~ (~ expansion),
+: absolute-file? ( addr u -- flag ) \ gforth
+    \G A filename is absolute if it starts with a / or a ~ (~ expansion),
     \G or if it is in the form ./*, extended regexp: ^[/~]|./, or if
     \G it has a colon as second character ("C:...").  Paths simply
     \G containing a / are not absolute!
@@ -210,9 +210,9 @@ User tfile
     \G opens the file whose name is in ofile
     ofile $@ r/o open-file ;
 
-: execute-path-file ( addr1 u1 xt path-addr -- wfileid addr2 u2 0 | ior ) \ gforth
+: execute-path-file ( addr1 u1 xt path-addr -- wfileid addr2 u2 0 | ior ) \ gforth-internal
     2>r
-    2dup absolut-path? IF
+    2dup absolute-file? IF
         rdrop
 	ofile $! expandtopic reworkdir r> execute
         dup 0= IF
@@ -239,7 +239,7 @@ User tfile
     \G current implementation).
     ['] open-ofile swap execute-path-file ;
 
-: open-fpath-file ( addr1 u1 -- wfileid addr2 u2 0 | ior ) \ gforth
+: open-fpath-file ( addr1 u1 -- wfileid addr2 u2 0 | ior ) \ gforth-internal
     \G Look in the Forth search path for the file specified by @var{addr1 u1}.
     \G If found, the resulting path and an open file descriptor
     \G are returned. If the file is not found, @var{ior} is non-zero.
