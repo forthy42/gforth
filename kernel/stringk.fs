@@ -42,13 +42,15 @@
 	[ [THEN] ] 1+ ;
 [THEN]
 
-: $padding ( n -- n' ) \ gforth
+: $padding ( n -- n' ) \ gforth-internal
+    \ Round up string length to next power of 2 for
+    \ @code{allocate}/@code{resize}.
     [ 6 cells 1- ] Literal + [ -4 cells ] Literal and >pow2 ;
 : $free ( $addr -- ) \ gforth string-free
     \G free the string pointed to by addr, and set addr to 0
     0 swap !@ ?dup-IF  free throw  THEN ;
 
-: $!buf ( $buf $addr -- ) \ gforth string-store-buf
+: $!buf ( $buf $addr -- ) \ gforth-internal string-store-buf
     \G stores a buffer in a string variable and frees the previous buffer
     !@ ?dup-IF  free throw  THEN ;
 : $make ( addr1 u -- $buf )
