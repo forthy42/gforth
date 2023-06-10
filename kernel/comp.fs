@@ -798,9 +798,10 @@ Create hmtemplate
 \g -- xt1 ), where xt1 is the result of xt @code{defer@}.
 
 ' (to) Alias defer! ( xt xt-deferred -- ) \ core-ext  defer-store
-' (to) Alias reveal! ( xt wid -- ) \ gforth reveal!
-' >hmto Alias reveal-method ( wid -- field ) \ gforth reveal-method
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
+
+' (to) Alias reveal! ( xt wid -- )
+' >hmto Alias reveal-method ( wid -- addr )
 
 : value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
@@ -808,11 +809,11 @@ Create hmtemplate
 opt: ( value-xt -- ) \ run-time: ( n -- )
     drop !!?addr!! postpone >body !-table to-!, ;
 
-: <IS> ( "name" xt -- ) \ gforth
+: <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
     record-name (') (to) ;
 
-: [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth bracket-is
+: [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth-internal bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
     record-name (') (to), ; immediate restrict
@@ -910,6 +911,8 @@ interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
     (nocheck-reveal) ;
 
 : reveal ( -- ) \ gforth
+    \G Put the current word in the wordlist current at the time of the
+    \G header definition.
     latest ?dup-if \ the last word has a header
 	dup >link @ 1 and
 	if \ it is still hidden
