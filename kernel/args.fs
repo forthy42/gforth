@@ -20,7 +20,9 @@
 
 require ./io.fs
 
-: cstring>sstring  ( cstring -- addr n ) \ gforth	cstring-to-sstring
+: cstring>sstring  ( c-addr -- c-addr u ) \ gforth	cstring-to-sstring
+    \g @i{C-addr} is the start address of a zero-terminated string,
+    \g @i{u} is its length.
     -1 0 scan 0 swap 1+ /string ;
 
 : arg ( u -- addr count ) \ gforth
@@ -84,12 +86,12 @@ Variable argc ( -- addr ) \ gforth
 : args-required1 ( addr u -- )
     2dup input-lexeme! required ;
 
-: args-required ( i*x addr u -- i*x ) \ gforth
+: args-required ( i*x addr u -- i*x ) \ gforth-internal
     2dup ['] args-required1 os-execute-parsing ;
 
 : interpret2 ['] interpret bt-rp0-wrapper ;
 
-: args-evaluate ( i*x addr u -- j*x ) \ gforth
+: args-evaluate ( i*x addr u -- j*x ) \ gforth-internal
     ['] interpret2 os-execute-parsing ;
 
 \ main words

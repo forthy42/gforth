@@ -6110,7 +6110,7 @@ is (slightly) more efficient than
 
 @noindent
 because the latter converts the code point into a sequence of bytes
-and indicidually @code{emit}s them.  Similarly, dealing with general
+and individually @code{emit}s them.  Similarly, dealing with general
 characters is usually more efficient when representing them as strings
 rather than code points.
 
@@ -6150,6 +6150,7 @@ doc-/string
 doc-safe/string
 doc-delete
 doc-insert
+doc-cstring>sstring
 
 @node $tring words, Counted string words, String words, Strings and Characters
 @subsection $tring words
