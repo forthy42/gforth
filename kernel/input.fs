@@ -103,7 +103,7 @@ terminal-input @       \ source -> terminal-input::source
 
 \ push-file, pop-file
 
-: new-tib ( method n -- ) \ gforth
+: new-tib ( method n -- ) \ gforth-internal
     \G Create a new entry of the tib stack, size @i{n}, method table
     \G @i{method}.
     dup >r tib+ + dup cell+ allocate throw tuck swap 0 fill
@@ -114,11 +114,11 @@ terminal-input @       \ source -> terminal-input::source
     current-input @ cell- swap cell+ resize throw cell+ current-input !
     max#tib ! tib max#tib @ #tib @ /string 0 fill ;
 
-: push-file  ( -- ) \ gforth
+: push-file  ( -- ) \ gforth-internal
     \G Create a new file input buffer
     file-input def#tib new-tib ;
 
-: pop-file ( throw-code -- throw-code ) \ gforth
+: pop-file ( throw-code -- throw-code ) \ gforth-internal
     \G pop and free the current top input buffer
     dup IF
 	input-error-data >error
@@ -179,7 +179,7 @@ terminal-input @       \ source -> terminal-input::source
 
 \ clear tibstack
 
-: clear-tibstack ( -- ) \ gforth
+: clear-tibstack ( -- ) \ gforth-internal
     \G clears the tibstack; if there is none, create the bottom entry:
     \G the terminal input buffer.
     current-input @ 0= IF  create-input  THEN
@@ -201,16 +201,16 @@ defer line-end-hook ( -- ) \ gforth
 : read-loop1 ( i*x -- j*x )
     BEGIN  refill  WHILE  interpret line-end-hook REPEAT ;
 
-: read-loop ( i*x -- j*x ) \ gforth
+: read-loop ( i*x -- j*x ) \ gforth-internal
     \G refill and interpret a file until EOF
     ['] read-loop1 bt-rp0-wrapper
     state @ warning" EOF reached while compiling" ;
 
-: get-input ( -- flag ) \ gforth
+: get-input ( -- flag ) \ gforth-internal
     \G read a line of input
     ['] refill catch dup -56 = IF  bye  THEN  throw ;
 
-: get-input-colored ( -- flag ) \ gforth
+: get-input-colored ( -- flag ) \ gforth-internal
     \G perform get-input colored with input-color
     input-color ['] refill catch default-color
     dup -56 = IF  bye  THEN  throw ;

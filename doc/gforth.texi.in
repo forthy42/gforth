@@ -9611,6 +9611,7 @@ doc-translator:
 
 doc-before-line
 doc-before-word
+doc-line-end-hook
 
 @c -------------------------------------------------------------
 @node The Input Stream, Word Lists, The Text Interpreter, Words
