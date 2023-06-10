@@ -5935,6 +5935,7 @@ arithmetic.
 
 doc-chars
 doc-char+
+doc-char-
 doc-cells
 doc-cell+
 doc-cell-
@@ -11004,9 +11005,11 @@ encoding used. An xchar may use a variable number of chars in memory.
 
 doc-xc-size
 doc-x-size
+doc-xc@
 doc-xc@+
 doc-xc@+?
 doc-xc!+?
+doc-xc!+
 doc-xchar+
 doc-xchar-
 doc-+x/string
@@ -11015,6 +11018,8 @@ doc--trailing-garbage
 doc-x-width
 doc-xkey
 doc-xc-width
+doc-xhold
+doc-xc,
 
 There's a new environment query
 

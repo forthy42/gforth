@@ -51,8 +51,11 @@ umethod x\string- ( xc-addr u1 -- xc-addr u2 ) \ xchar-ext x-backslash-string-mi
 umethod xc@ ( xc-addr -- xc ) \ xchar-ext	xc-fetch
 \G Fetchs the xchar @var{xc} at @var{xc-addr1}.
 umethod xc!+ ( xc xc-addr1 -- xc-addr2 ) \ xchar	x-c-store
-\G Stores the xchar @var{xc} at @var{xc-addr1}. @var{xc-addr2} is the next
-\G unused address in the buffer.
+\G Stores the xchar @var{xc} at @var{xc-addr1}. @var{xc-addr2} is the
+\G next unused address in the buffer.  Note that this writes up to 4
+\G bytes, so you need at least 3 bytes of padding after the end of the
+\G buffer to avoid overwriting useful data if you only check the
+\G address against the end of the buffer.
 umethod xc!+? ( xc xc-addr1 u1 -- xc-addr2 u2 f ) \ xchar x-c-store-plus-query
 \G Stores the xchar @var{xc} into the buffer starting at address
 \G @var{xc-addr1}, @var{u1} chars large. @var{xc-addr2} points to the
@@ -102,8 +105,7 @@ umethod xc@+? ( xc-addr1 u1 -- xc-addr2 u2 xc ) \ gforth-experimental x-c-fetch-
 
 \ fixed-size versions of these words
 
-: char- ( c-addr1 -- c-addr2 )
-    [ 1 chars ] literal - ;
+' 1- alias char- ( c-addr1 -- c-addr2 ) \ gforth char-minus
 
 : +string ( c-addr1 u1 -- c-addr2 u2 )
     1 /string ;
