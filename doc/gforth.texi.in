@@ -10052,6 +10052,7 @@ doc-include
 doc-required
 doc-require
 doc-needs
+doc-.included
 @c doc-init-included-files @c internal
 doc-sourcefilename
 doc-sourceline#
