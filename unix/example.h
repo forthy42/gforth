@@ -6,3 +6,5 @@
 
 extern double fadd(double, double);
 extern int iadd(int, int);
+typedef struct { int a; int b; } twoint;
+extern twoint tadd(twoint, twoint);

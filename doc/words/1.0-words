@@ -4498,28 +4498,28 @@ GL_ARB_imaging GL_VERSION_1_3 GL_VERSION_1_2 GL_VERSION_1_1 SDL2 Xrandr X11
 load-cov save-cov cover-filename hash-cover cover-hash annotate-cov .coverage 
 covered? .cover-file ?del-cover bw-cover color-cover .paren-cov# .ansi-cov# 
 .cov# .cover-raw cov% ?cov+ cov+ cov+, dead-cov? cover-end! cover, cover-start 
-cover-end coverage cilk-bye spawn2 spawn1 spawn spawn-rest cilk-init 
-start-workers cilk-sync worker-thread ->spawn +worker ->sync worker@ invoker 
-workers sync# cores thread-key prep-key keypollfds UDefer udefer@ event| kill 
-sleep halt :>restart wake restart :>sleep :>wake eflit, e$, elit, :>flit :>lit 
-thread-deadline pause event-loop stop-dns stop-ns stop ?events event? (stop) 
-event: event-does event-table event-crash event> <event event+ 'event 
-event-start eventbuf# event# !!ebuffull!! !!event!! execute-task stacksize4 
-stacksize >pagealign-stack c-section critical-section unlock lock cond sema 
-semaphore initiate pass (pass) activate (activate) task newtask newtask4 
-thread-init 's up@ user' wake# epipew epiper pthread-id fork+exec fpid fork() 
-getpid fd>file int-errno-exec saved-errno ?ior ?errno-throw errno-throw fds[]! 
-fds!+ LC_IDENTIFICATION LC_MEASUREMENT LC_TELEPHONE LC_ADDRESS LC_NAME 
-LC_PAPER LC_ALL LC_MESSAGES LC_MONETARY LC_COLLATE LC_TIME LC_NUMERIC LC_CTYPE 
-POLLOUT POLLPRI POLLIN revents events fd pollfd pagesize environ unsetenv 
-setenv getrandom getentropy strlen getcwd mkstemp mknod rmdir readlink link 
-symlink exit() execvp (fork) (getpid) setlocale close write read open ioctl2 
-ioctl fcntl freopen fdopen posix_spawnp epoll_wait epoll_ctl epoll_create 
-ppoll poll fileno getpagesize ->errno errno pthread_self stick-to-core 
-wait_read check_read create_pipe pthread_cond_timedwait pthread_cond_wait 
-pthread_cond_broadcast pthread_cond_signal pthread_detach_attr sched_yield 
-pthread-conds pthread-cond+ pthread-mutexes pthread-mutex+ 
-pthread_mutex_unlock pthread_mutex_lock pthread_mutex_destroy 
+cover-end coverage cilk-bye spawn-closure spawn2 spawn1 spawn spawn-rest 
+cilk-init start-workers cilk-sync worker-thread ->spawn +worker ->sync worker@ 
+invoker workers sync# cores thread-key prep-key keypollfds UDefer udefer@ 
+event| kill sleep halt :>restart wake restart :>sleep :>wake eflit, e$, elit, 
+:>flit :>lit thread-deadline pause event-loop stop-dns stop-ns stop ?events 
+event? (stop) event: event-does event-table event-crash event> <event event+ 
+'event event-start eventbuf# event# !!ebuffull!! !!event!! execute-task 
+stacksize4 stacksize >pagealign-stack c-section critical-section unlock lock 
+cond sema semaphore initiate pass (pass) activate (activate) task newtask 
+newtask4 thread-init 's up@ user' wake# epipew epiper pthread-id fork+exec 
+fpid fork() getpid fd>file int-errno-exec saved-errno ?ior ?errno-throw 
+errno-throw fds[]! fds!+ LC_IDENTIFICATION LC_MEASUREMENT LC_TELEPHONE 
+LC_ADDRESS LC_NAME LC_PAPER LC_ALL LC_MESSAGES LC_MONETARY LC_COLLATE LC_TIME 
+LC_NUMERIC LC_CTYPE POLLOUT POLLPRI POLLIN revents events fd pollfd pagesize 
+environ unsetenv setenv getrandom getentropy strlen getcwd mkstemp mknod rmdir 
+readlink link symlink exit() execvp (fork) (getpid) setlocale close write read 
+open ioctl2 ioctl fcntl freopen fdopen posix_spawnp epoll_wait epoll_ctl 
+epoll_create ppoll poll fileno getpagesize ->errno errno pthread_self 
+stick-to-core wait_read check_read create_pipe pthread_cond_timedwait 
+pthread_cond_wait pthread_cond_broadcast pthread_cond_signal 
+pthread_detach_attr sched_yield pthread-conds pthread-cond+ pthread-mutexes 
+pthread-mutex+ pthread_mutex_unlock pthread_mutex_lock pthread_mutex_destroy 
 pthread_mutex_init pthread_cancel pthread_kill pthread_exit pthread_create 
 gforth_create_thread thread_start pthreads pthread+ forth-lx x" locale-csv-out 
 .locale-csv locale-csv insert-locale csv-lsid define-locale lang[] lang 
@@ -4802,44 +4802,43 @@ noname-header nextname nextname-header nextname$ input-stream
 input-stream-header noname-from create-from header header-extra header-name, 
 record-name noname, header, ?noname-hm named-hm noname-hm namehm, 0name, name, 
 lastnt recurse check-shadow current-view current-sourceview replace-sourceview 
-encode-view current-sourcepos3 encode-pos get-current nlstring, longstring, 
-string, mem, const A, cfalign maxalign falign align >align 2, c, small-allot 
-allot hm-list umethod-defer@ is-umethod (uv) uvar, umethod, does, ;abi-code, 
-abi-code, field+, defer, user, variable, :, constant, value, does-check 
-call-check kernel-bye bye boot xt, cold 'cold process-args bootmessage gforth 
-(c) do-find do-execute quit (DoError) rec-level reset-dpp .error-frame 
-(.error-level) .error-level .error-line part-type mark-end mark-start 
-.error-string dobacktrace DOERROR -trailing hex. dec.r dec. input-error-data 
->error error> error-stack /error (quit) (quit1) (prompt) prompt .status 'quit 
-extend-mem free-mem-var save-mem interpret2 bt-rp0-wrapper bt-rp0-catch 
-interpret int-execute before-line before-word name parse-word parse-name 
-parser ' (') '-error any-code! only-code-address! >does-code xt>name 
->code-address body> >body >head-noprim xt? hm? ??? (name>intn) 
-default-name>int noname>link noname>string named>link named>string name?int 
-?compile-only compile-only? immediate? , compile, >extra hmsize name>link 
-name>string name>comp name>int initwl defer@ (to) opt-compile, >namehm >cfa 
->link >f+c >hm>link >hm>string >hm>comp >hm>int >hmextra >hmdefer@ >hmto 
->hmcompile, >hmlink ((name>)) (x>int) compile-only-error 
-ticking-compile-only-error flag-sign lcount-mask restrict-mask find-name 
-rec-nt search-wordlist find-name-in notfound no.extensions (where,) where, 
-where-struct where-loc where-nt wheres context voclink current f83search 
-forth-wordlist rec-f83 wordlist-struct wordlist-extend wordlist-link 
-wordlist-id wordlist-map wordlist-exec wordlist-start \G \ ( number (number?) 
-snumber? s>number s>number? s>unumber? ?warn# s'>unumber? ?dnegate sign? 
-getbase bases name-too-long? name-too-short? (name) parse (parse) 
-version-string .error error$ errlink>string do-debug >stderr >exec c(warning") 
-.warning ErrRanges ErrLink u. . ud. d. u.r .r ud.r d.r holds #s # sign #>> <<# 
-#> <# hold +hold pad ms ns kernel-deadline deadline backspaces spaces 
-spaces-loop status-color error-hl-inv error-hl-ul input-color success-color 
-info-color warning-color error-color default-color theme-color: theme-color# 
-theme@ theme! space bell #lf #ff #cr #del #esc #tab #bs #bell #eof output: 
-input: default-in debug-vector debug-out default-out key (cr) key? key-ior 
-ip-vector theme-color! control-sequence attr! at-deltaxy at-xy page form cr 
-emit type op-vector (key?) (key) key-file EBADF EINTR EOK (err-emit) 
-(err-type) (emit) (type) out debug-fid outfile-id infile-id hex decimal "lit 
-clearstacks clearstack depth ?stack abort ?warning (abort") c(abort") throw 
-catch lp@ ud/mod s>d >number_ >number accumulate digit? bounds stick roll dabs 
-off on ->here here dpp in-dictionary1? in-dictionary? unused 
+encode-view current-sourcepos3 encode-pos get-current longstring, string, mem, 
+const A, cfalign maxalign falign align >align 2, c, small-allot allot hm-list 
+umethod-defer@ is-umethod (uv) uvar, umethod, does, ;abi-code, abi-code, 
+field+, defer, user, variable, :, constant, value, does-check call-check 
+kernel-bye bye boot xt, cold 'cold process-args bootmessage gforth (c) do-find 
+do-execute quit (DoError) rec-level reset-dpp .error-frame (.error-level) 
+.error-level .error-line part-type mark-end mark-start .error-string 
+dobacktrace DOERROR -trailing hex. dec.r dec. input-error-data >error error> 
+error-stack /error (quit) (quit1) (prompt) prompt .status 'quit extend-mem 
+free-mem-var save-mem interpret2 bt-rp0-wrapper bt-rp0-catch interpret 
+int-execute before-line before-word name parse-word parse-name parser ' (') 
+'-error any-code! only-code-address! >does-code xt>name >code-address body> 
+>body >head-noprim xt? hm? ??? (name>intn) default-name>int noname>link 
+noname>string named>link named>string name?int ?compile-only compile-only? 
+immediate? , compile, >extra hmsize name>link name>string name>comp name>int 
+initwl defer@ (to) opt-compile, >namehm >cfa >link >f+c >hm>link >hm>string 
+>hm>comp >hm>int >hmextra >hmdefer@ >hmto >hmcompile, >hmlink ((name>)) 
+(x>int) compile-only-error ticking-compile-only-error flag-sign lcount-mask 
+restrict-mask find-name rec-nt search-wordlist find-name-in notfound 
+no.extensions (where,) where, where-struct where-loc where-nt wheres context 
+voclink current f83search forth-wordlist rec-f83 wordlist-struct 
+wordlist-extend wordlist-link wordlist-id wordlist-map wordlist-exec 
+wordlist-start \G \ ( number (number?) snumber? s>number s>number? s>unumber? 
+?warn# s'>unumber? ?dnegate sign? getbase bases name-too-long? name-too-short? 
+(name) parse (parse) version-string .error error$ errlink>string do-debug 
+>stderr >exec c(warning") .warning ErrRanges ErrLink u. . ud. d. u.r .r ud.r 
+d.r holds #s # sign #>> <<# #> <# hold +hold pad ms ns kernel-deadline 
+deadline backspaces spaces spaces-loop status-color error-hl-inv error-hl-ul 
+input-color success-color info-color warning-color error-color default-color 
+theme-color: theme-color# theme@ theme! space bell #lf #ff #cr #del #esc #tab 
+#bs #bell #eof output: input: default-in debug-vector debug-out default-out 
+key (cr) key? key-ior ip-vector theme-color! control-sequence attr! at-deltaxy 
+at-xy page form cr emit type op-vector (key?) (key) key-file EBADF EINTR EOK 
+(err-emit) (err-type) (emit) (type) out debug-fid outfile-id infile-id hex 
+decimal "lit clearstacks clearstack depth ?stack abort ?warning (abort") 
+c(abort") throw catch lp@ ud/mod s>d >number_ >number accumulate digit? bounds 
+stick roll dabs off on ->here here dpp in-dictionary1? in-dictionary? unused 
 usable-dictionary-end usable-dictionary-end1 dictionary-end section-desc 
 locs[] section-name section-dp section-size section-start current-section A! 
 chars cfaligned maxaligned NIL str< string-suffix? string-prefix? str= 

@@ -295,6 +295,7 @@ const+ func \ C function pointer
 const+ void \ no return value
 const+ s \ string
 const+ ws \ wide string
+const+ t \ tuple
 const+ 0 \ NULL pointer (sentinel)
 const+ ... \ varargs (programmable)
 drop
@@ -400,6 +401,9 @@ drop
 : count-stacks-ws ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
     2 + ;
 
+: count-stacks-t ( fp-change1 sp-change1 -- fp-change2 sp-change2 )
+    1+ ;
+
 create count-stacks-types
 ' count-stacks-n ,
 ' count-stacks-u ,
@@ -411,6 +415,7 @@ create count-stacks-types
 ' count-stacks-void ,
 ' count-stacks-s ,
 ' count-stacks-ws ,
+' count-stacks-t ,
 ' noop ,
 
 : count-stacks ( pars -- fp-change sp-change )
@@ -425,6 +430,9 @@ create count-stacks-types
 
 : gen-par-sp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     ." x.spx[" .gen ." ]" ;
+
+: *gen-par-sp++ ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
+    ." *(x.spx[" 1+ .gen ." ])" ;
 
 : gen-par-sp+ ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     ." x.spx+" .gen ;
@@ -470,6 +478,11 @@ create count-stacks-types
 : gen-par-0 ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
     ?return ." NULL" ;
 
+: gen-par-t ( fp-depth1 sp-depth1 cast-addr u -- fp-depth2 sp-depth2 )
+    dup 0= IF  2drop ." (void *)"  ELSE
+	." *(" type ." *)"
+    THEN s" (" gen-par-n ." )" ;
+
 create gen-par-types
 ' gen-par-n ,
 ' gen-par-u ,
@@ -481,6 +494,7 @@ create gen-par-types
 ' gen-par-void ,
 ' gen-par-s ,
 ' gen-par-ws ,
+' gen-par-t ,
 ' gen-par-0 ,
 
 : gen-par ( fp-depth1 sp-depth1 cast-addr u partype -- fp-depth2 sp-depth2 )
@@ -544,6 +558,9 @@ create gen-call-types
 : gen-wrapped-func ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
     gen-wrapped-a ;
 
+: gen-wrapped-t ( pars c-name fp-change1 sp-change1 -- fp-change sp-change )
+    2dup *gen-par-sp++ 2>r ." =" gen-wrapped-call 2r> ;
+
 create gen-wrapped-types
 ' gen-wrapped-n ,
 ' gen-wrapped-u ,
@@ -555,6 +572,7 @@ create gen-wrapped-types
 ' gen-wrapped-void ,
 ' gen-wrapped-s ,
 ' gen-wrapped-a ,
+' gen-wrapped-t ,
 ' gen-wrapped-void ,
 
 : gen-wrapped-stmt ( pars c-name fp-change1 sp-change1 ret -- fp-change sp-change )
