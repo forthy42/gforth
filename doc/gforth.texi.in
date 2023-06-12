@@ -6902,6 +6902,7 @@ The current definition returns control to the calling definition when
 the end of the definition is reached or @code{EXIT} is encountered.
 
 doc-exit
+doc-?exit
 doc-;s
 
 
@@ -7405,6 +7406,50 @@ Compilation Semantics}.
 
 doc-:
 doc-;
+
+We plan to to perform automatic inlining eventually, but for now you
+can perform inlining with
+
+doc-inline:
+doc-;inline
+
+As an example, you can define an inlined word and use it with
+
+@example
+inline: my2dup ]] over over [[ ;inline
+
+#1. my2dup d. d.
+: foo my2dup ;
+#1. foo d. d.
+see foo
+@end example
+
+Inline words are related to macros (@pxref{Macros}); the difference is
+that a macro has immediate compilation semantics while an
+@code{inline:}-defined word has default compilation semantics; this
+means that you normally use a macro only inside a colon definition,
+while you can use an @code{inline:} word also interpretively.  But
+that also means that you can do some things with macros that you
+cannot do as an @code{inline:} word.  E.g.,
+
+@example
+\ Doesn't work:
+\   inline: endif ]] then [[ ;inline
+\ Instead, write a macro:
+: endif ]] then [[ ; immediate
+@end example
+
+Conversely, for words that would be fine as non-immediate colon
+definitions, define them as non-immediate colon definitions or (if
+utmost performance is required) as @code{inline:} words; don't define
+them as macros, because then you cannot properly use them
+interpretively:
+
+@example
+: another2dup ]] over over [[ ; immediate
+\ Doesn't work:
+\   #1. another2dup d. d.
+@end example
 
 
 @node Anonymous Definitions, Quotations, Colon Definitions, Defining Words
@@ -8710,6 +8755,7 @@ hands: PFA) of the word; in Gforth 0.7 and earlier, the xt was
 implemented as code field addres (CFA, 2 cells before the PFA).
 
 doc-execute
+doc-execute-exit
 doc-perform
 
 @code{Noop} is sometimes used to have a placeholder execution token:
