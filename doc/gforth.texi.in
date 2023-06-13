@@ -7416,7 +7416,8 @@ doc-;inline
 As an example, you can define an inlined word and use it with
 
 @example
-inline: my2dup ]] over over [[ ;inline
+inline: my2dup ( a b -- a b a b )
+    ]] over over [[ ;inline
 
 #1. my2dup d. d.
 : foo my2dup ;
@@ -7451,6 +7452,21 @@ interpretively:
 \   #1. another2dup d. d.
 @end example
 
+You may wonder why you have to write compiling code between
+@code{inline:} and @code{;inline}.  That's because the implementation
+of an inline word like @code{my2dup} above works similar to:
+
+@example
+: compile-my2dup ( xt -- )
+    drop ]] over over [[ ;
+
+: my2dup [ 0 compile-my2dup ] ;
+' compile-my2dup set-optimizer
+@end example
+
+The @code{DROP} and @code{0} are there because @code{compile-my2dup}
+is the implementation of @code{compile,} for @code{my2dup}, and
+@code{compile,} expects an xt (@pxref{User-Defined Compile-Comma}).
 
 @node Anonymous Definitions, Quotations, Colon Definitions, Defining Words
 @subsection Anonymous Definitions
