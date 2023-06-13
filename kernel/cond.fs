@@ -229,7 +229,7 @@ IS until-like
 
 \ not clear if this should really go into Gforth's kernel...
 
-: CONTINUE ( dest-sys j*sys -- dest-sys j*sys ) \ gforth
+: CONTINUE ( dest-sys j*sys -- dest-sys j*sys ) \ gforth-obsolete
     \g jump to the next outer BEGIN
     depth 0 ?DO  I pick dest = IF
 	    I cs-item-size / cs-pick postpone AGAIN
@@ -381,6 +381,7 @@ Defer exit-like ( -- )
     POSTPONE unreachable ; immediate compile-only
 
 : ?EXIT ( -- ) ( compilation -- ; run-time nest-sys f -- | nest-sys ) \ gforth
+    \G Return to the calling definition if @i{f} is true.
     POSTPONE if POSTPONE exit POSTPONE then ; immediate restrict
 
 : execute-exit ( compilation -- ; run-time xt nest-sys -- ) \ gforth
@@ -435,16 +436,16 @@ Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
 
 \ inline: ;inline
 : inline: ( "name" -- inline:-sys ) \ gforth-experimental inline-colon
-    \G start inline definition.  The code inside the definition has to
-    \G compile (not perform) the code to be inlined.  This code is
-    \G performed when @i{name} is @code{compile,}d (you must not
-    \G @code{drop} the xt, @code{inline:} does that for you).
-    \G Correspondingly the execution semantics of @i{name} are to
-    \G perform the code compiled by the code inside the definition
-    \G (wrapped in a colon definition).
+    \G Start inline colon definition.  The code between @code{inline:}
+    \G and @code{;inline} has to compile (not perform) the code to be
+    \G inlined, but the resulting definition @i{name} is a colon
+    \G definition that performs the inlined code.  Note that the
+    \G compiling code must have the stack effect @code{( -- )},
+    \G otherwise you will get an error when Gforth tries to create the
+    \G colon definition for @i{name}.
     : wrap@ next-section :noname postpone drop ;
 
-: ;inline ( inline:-sys -- ) \ gforth-experimental inline-colon
+: ;inline ( inline:-sys -- ) \ gforth-experimental semi-inline
     \G end inline definition started with @code{inline:}
     postpone ; >r hm, previous-section wrap!
     0 r@ execute postpone ;

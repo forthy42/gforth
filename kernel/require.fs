@@ -29,7 +29,8 @@ $[]Variable included-files
     \G result is undefined.  In Gforth, the result is valid during the
     \G whole session (but not across @code{savesystem} etc.).
     loadfilename# @ included-filename[] ;
-: included-filename[] ( index -- c-addr u ) \ gforth
+
+: included-filename[] ( index -- c-addr u ) \ gforth-internal
     \G convert a file name index to a file name
     dup -3 = IF  drop s" *a block*"           EXIT  THEN
     dup -2 = IF  drop s" *evaluated string*"  EXIT  THEN
@@ -63,11 +64,11 @@ $[]Variable included-files
     \G @file{./foo.fs}
     str>loadfilename# 0>= ;
 
-: add-included-file ( c-addr u -- ) \ gforth
+: add-included-file ( c-addr u -- ) \ gforth-internal
     \G add name c-addr u to included-files
     $make included-files >stack ;
 
-: included1 ( i*x file-id c-addr u -- j*x ) \ gforth
+: included1 ( i*x file-id c-addr u -- j*x ) \ gforth-internal
 \G Include the file file-id with the name given by @var{c-addr u}.
     add-included-file  included-files $@ + cell-
     $@ ['] read-loop execute-parsing-named-file ;
@@ -141,14 +142,14 @@ variable include-auto-extension-filename
 \   REPEAT
 \   drop ;
 
-: .strings ( addr u -- ) \ gforth
+: .strings ( addr u -- ) \ gforth-obsolete
     \G list the strings from an array of string descriptors at addr
     \G with u entries, one per line.
     2* cells bounds ?DO
 	cr I 2@ type 2 cells +LOOP ;
 
 : .included ( -- ) \ gforth
-    \G list the names of the files that have been @code{included}
+    \G List the names of the files that have been @code{included}.
     included-files $@ bounds ?DO
 	cr I $@ type
     cell +LOOP ;
