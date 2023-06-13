@@ -25,7 +25,8 @@ decimal
 : #n ( n -- )  [: 0 #s 2drop ;] #10 base-execute ;
 : #n; ( n -- )  #n ';' hold ;
 \ : #esc[ ( -- ) '[' hold #esc hold ;
-: #esc[ ( -- ) s\" \e[" holds ;
+: #esc[ ( -- )
+    s\" \e[" holds ;
 
 : vt100-at-xy ( u1 u2 -- )
   1+ swap 1+ <<# 'H' hold #n; #n #esc[ #0. #> type #>> ;

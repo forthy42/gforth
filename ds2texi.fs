@@ -168,6 +168,7 @@ true  constant tools
 true  constant tools-ext
 true  constant xchar
 true  constant xchar-ext
+true  constant recognizer
 
 \ environment query names
 true  constant environment
@@ -181,6 +182,7 @@ false constant gforth-obsolete
 
 \ libraries independent of Gforth
 true  constant mini-oof
+true  constant mini-oof2
 true  constant minos2
 true  constant minos2-bidi
 true  constant objects
