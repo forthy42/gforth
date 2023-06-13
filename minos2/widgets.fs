@@ -956,7 +956,7 @@ also freetype-gl
     w @ h @ ;
 : rgba>style { memimg w h atlas | ar[ atlas-region ] -- ivec4-addr }
     BEGIN
-	atlas w 1+ h 1+ ar[ texture_atlas_get_region
+	ar[ atlas w 1+ h 1+ texture_atlas_get_region
 	ar[ i.x ar[ i.y -1 -1 d= WHILE
 	    atlas dup atlas@wh*2
 	    texture_atlas_enlarge_texture

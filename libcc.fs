@@ -353,21 +353,21 @@ drop
     c-func c, here
     dup 2 chars allot here function-types,
     here swap - over char+ c!
-    parse-return-type swap c! ;
+    parse-return-type swap c! libcc-cast, ;
 
 : parse-value-type ( "{--}" "libcc-type" -- addr )
     c-val c, here
     parse-libcc-type  dup 0< if drop parse-return-type then
-    c,  0 c, ( terminator ) ;
+    c, libcc-cast, 0 c, ( terminator ) ;
 
 : parse-variable-type ( -- addr )
     c-var c, here
-    s" a" libcc-type c,  0 c, ;
+    s" a" libcc-type c, 0 c, 0 c, ;
 
 0 Value is-funptr?
 
 : type-letter ( n -- c )
-    chars s" nuadUrfvsS" drop + c@ ;
+    chars s" nuadUrfvsSt" drop + c@ ;
 
 \ count-stacks
 
@@ -431,8 +431,10 @@ create count-stacks-types
 : gen-par-sp ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     ." x.spx[" .gen ." ]" ;
 
+0. 2Value r-cast
+
 : *gen-par-sp++ ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
-    ." *(x.spx[" 1+ .gen ." ])" ;
+    r-cast type ." (x.spx[" 1+ .gen ." ])" 1+ ;
 
 : gen-par-sp+ ( fp-depth1 sp-depth1 -- fp-depth2 sp-depth2 )
     ." x.spx+" .gen ;
@@ -591,7 +593,7 @@ create gen-wrapped-types
     \ addr points to the return type index of a c-function descriptor
     [: ." gforth_c_"
     count { r-type } count { d: pars }
-    pars + count type '_' emit
+    pars + count + count type '_' emit
     pars bounds u+do
 	i c@ type-letter emit
     i 1+ c@ 2 + +loop
@@ -612,7 +614,10 @@ create gen-wrapped-types
 : gen-wrapper-function ( addr -- )
     \ addr points to the return type index of a c-function descriptor
     dup { descriptor }
-    count { ret } count 2dup { d: pars } chars + count { d: c-name }
+    count { ret }
+    count 2dup { d: pars }
+    + count 2dup to r-cast
+    + count { d: c-name }
     ." gforth_stackpointers " .prefix
     descriptor wrapper-function-name type
     .\" (GFORTH_ARGS)\n{\n"
@@ -655,7 +660,7 @@ create gen-types
 : print-type ( n -- ) cells gen-types + perform ;
 
 : callback-header ( descriptor -- )
-    count { ret } count 2dup { d: pars } chars + count { d: c-name }
+    count { ret } count 2dup { d: pars } chars + count + count { d: c-name }
     ." #define CALLBACK_" c-name type ." (I) \" cr
     ret print-type space .prefix ." gforth_cb_" c-name type ." _##I ("
     0 pars bounds u+do
@@ -686,7 +691,7 @@ Create callback-&style c-var c,
     ?dup-if  ."   x.fpx+=" .nb ." ; \" cr  then ;
 
 : callback-call ( descriptor -- )
-    1+ count + count \ callback C name
+    1+ count + count + count \ callback C name
     ."   gforth_engine(" .prefix ." gforth_cbips_" type
     ." [I], &x); \" cr ;
 
@@ -732,11 +737,11 @@ Create callback-&style c-var c,
     ." };" cr 2drop ;
 
 : callback-gen ( descriptor -- )
-    dup callback-define  1+ count + count \ c-name u
+    dup callback-define  1+ count + count + count \ c-name u
     2dup callback-ip-array 2dup callback-instantiate callback-c-array ;
 
 : callback-thread-gen ( descriptor -- )
-    dup callback-thread-define  1+ count + count \ c-name u
+    dup callback-thread-define  1+ count + count + count \ c-name u
     2dup callback-ip-array 2dup callback-instantiate callback-c-array ;
 
 : lookup-ip-array ( addr u lib -- addr )
