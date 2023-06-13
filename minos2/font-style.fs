@@ -267,7 +267,7 @@ font-ext$ $!
 also freetype-gl
 : font-path+ ( "font" -- )
     parse-name
-    2dup absolut-path? 0= IF
+    2dup absolute-file? 0= IF
 	font-prefix open-path-file  ?EXIT  rot close-file throw  THEN
     2dup open-dir 0= IF
 	close-dir throw font-path also-path
