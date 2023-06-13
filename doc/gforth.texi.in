@@ -7466,7 +7466,7 @@ of an inline word like @code{my2dup} above works similar to:
 
 The @code{DROP} and @code{0} are there because @code{compile-my2dup}
 is the implementation of @code{compile,} for @code{my2dup}, and
-@code{compile,} expects an xt (@pxref{User-Defined Compile-Comma}).
+@code{compile,} expects an xt (@pxref{User-defined compile-comma}).
 
 @node Anonymous Definitions, Quotations, Colon Definitions, Defining Words
 @subsection Anonymous Definitions
