@@ -8807,6 +8807,10 @@ doc-latestnt
 doc->name
 doc-xt>name
 
+You can get all the nts in a wordlist with
+
+doc-traverse-wordlist
+
 You can use the nt to access the interpretation and compilation
 semantics of a word, its name, and the next word in the wordlist:
 
@@ -8818,9 +8822,29 @@ doc-name>link
 
 A nameless word usually has no interpretation nor compilation
 semantics, no name, and it's not in a wordlist.  But in Gforth (since
-1.0) all words are equal, so even nameless words have an nt, you can
-get it with @code{latestnt}, and the words above that consume nts do
-something reasonable for these nts.
+1.0) all words are equal, so even nameless words have an nt (but they
+are in no wordlist).  You can get that nt with @code{latestnt}, and
+the words above that consume nts do something reasonable for these
+nts.
+
+As a usage example, the following code lists all the words in
+@code{forth-wordlist} with non-default compilation semantics:
+
+@example
+: ndcs-words ( wid -- )
+  [: dup name>compile ['] compile, <> if over id. then 2drop true ;]
+  swap traverse-wordlist ;
+
+forth-wordlist ndcs-words
+@end example
+
+This code assumes that a word has default compilation semantics if the
+xt part of its compilation token is the xt of @code{compile,}.
+@c which
+@c holds for Gforth.  There are a few standard ways for a Forth system to
+@c deviate from this assumption (although it's more likely that a system
+@c that deviates gets it wrong and is non-standard).
+
 
 @cindex name field address
 @cindex NFA
@@ -9571,26 +9595,16 @@ which parts of a source file are processed by the text
 interpreter. There are only a few Standard Forth Standard words, but Gforth
 supplements these with a rich set of immediate control structure words
 to compensate for the fact that the non-immediate versions can only be
-used in compile state (@pxref{Control Structures}). Typical usages:
+used in compile state (@pxref{Control Structures}). Typical usage:
 
 @example
-FALSE Constant HAVE-ASSEMBLER
-.
-.
-HAVE-ASSEMBLER [IF]
-: ASSEMBLER-FEATURE
-  ...
-;
-[ENDIF]
-.
-.
-: SEE
-  ... \ general-purpose SEE code
-  [ HAVE-ASSEMBLER [IF] ]
-  ... \ assembler-specific SEE code
-  [ [ENDIF] ]
-;
+[undefined] \G [if]
+  : \G ... ; immediate
+[endif]
 @end example
+
+So if the system does not define @code{\G}, compile some replacement
+code (with possibly reduced functionality).
 
 
 doc-[IF]
@@ -9598,14 +9612,17 @@ doc-[ELSE]
 doc-[THEN]
 doc-[ENDIF]
 
+doc-[DEFINED]
+doc-[UNDEFINED]
+
 doc-[IFDEF]
 doc-[IFUNDEF]
 
 doc-[?DO]
 doc-[DO]
-doc-[FOR]
 doc-[LOOP]
 doc-[+LOOP]
+doc-[FOR]
 doc-[NEXT]
 
 doc-[BEGIN]
@@ -9794,6 +9811,7 @@ doc-search-wordlist
 
 doc-words
 doc-vlist
+doc-wordlist-words
 @c doc-words-deferred
 
 @c doc-mappedwordlist @c map-structure undefined, implemantation-specific
