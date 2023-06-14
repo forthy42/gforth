@@ -4,7 +4,7 @@ FROM $ARCH/debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG C.UTF-8
 
-RUN apt-get -y install gnupg \
+RUN apt-get -y update; apt-get -y install gnupg \
   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 6ED0E7B82643E131 \
   && apt-get -y update \
   && apt-get upgrade -y \
