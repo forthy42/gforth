@@ -15931,26 +15931,50 @@ doc-set-name>link
 @subsection Threading Words
 @cindex threading words
 
+@cindex code field
+@cindex CFA
 @cindex code address
-These words provide access to code addresses and other threading stuff
-in Gforth (and, possibly, other interpretive Forths). It more or less
-abstracts away the differences between direct and indirect threading
-(and, for direct threading, the machine dependences). However, at
-present this wordset is still incomplete. It is also pretty low-level;
-some day it will hopefully be made unnecessary by an internals wordset
-that abstracts implementation details away completely.
-
 The terminology used here stems from indirect threaded Forth systems; in
 such a system, the XT of a word is represented by the CFA (code field
 address) of a word; the CFA points to a cell that contains the code
 address.  The code address is the address of some machine code that
 performs the run-time action of invoking the word (e.g., the
 @code{dovar:} routine pushes the address of the body of the word (a
-variable) on the stack
-).
+variable) on the stack).
 
-@cindex code address
-@cindex code field address
+These words provide access to code fields, code addresses and other
+threading stuff in Gforth. It more or less abstracts away the
+differences between direct and indirect threading.
+
+Up to and including Gforth 0.7, the code address (plus, for
+@code{does>}-defined words, the address returned by @code{>does-code})
+was sufficient to know the type of the word.  However, since
+Gforth-1.0 the behaviour or at least implementation of words like
+@code{compile,} and @code{name>compile} can be determined
+independently as described in @ref{Header methods}.
+
+The following words for create a code field and at the same time
+initialize the header methods:
+
+doc-hmcopy,
+doc-docol,
+doc-docon,
+doc-dovar,
+doc-douser,
+doc-dodefer,
+doc-dofield,
+doc-dovalue,
+doc-doabicode,
+
+For @code{does>}-defined words, use @code{hmcopy,}.
+
+Or you use a higher-level word like @code{create-from}
+(@pxref{Creating from a prototype}).
+
+The following words were designed before the introduction of header
+methods, and are therefore not the best (and recommended) way to deal
+with different word types in Gforth.
+
 In an indirect threaded Forth, you can get the code address of @i{name}
 with @code{' @i{name} @@}; in Gforth you can get it with @code{' @i{name}
 >code-address}, independent of the threading method.
@@ -15958,25 +15982,6 @@ with @code{' @i{name} @@}; in Gforth you can get it with @code{' @i{name}
 doc-threading-method
 doc->code-address
 doc-code-address!
-
-@cindex @code{does>}-handler
-@cindex @code{does>}-code
-For a word defined with @code{DOES>}, the code address usually points to
-a jump instruction (the @dfn{does-handler}) that jumps to the dodoes
-routine (in Gforth on some platforms, it can also point to the dodoes
-routine itself).  What you are typically interested in, though, is
-whether a word is a @code{DOES>}-defined word, and what Forth code it
-executes; @code{>does-code} tells you that.
-
-doc->does-code
-
-To create a @code{DOES>}-defined word with the following basic words,
-you have to set up a @code{DOES>}-handler with @code{does-handler!};
-@code{/does-handler} aus behind you have to place your executable Forth
-code.  Finally you have to create a word and modify its behaviour with
-@code{does-handler!}.
-
-doc-does-code!
 
 The code addresses produced by various defining words are produced by
 the following words:
@@ -15987,6 +15992,27 @@ doc-dovar:
 doc-douser:
 doc-dodefer:
 doc-dofield:
+doc-dovalue:
+doc-dodoes:
+doc-doabicode:
+
+@cindex @code{does>}-code
+For a word @i{X} defined with @code{set-does>}, the code address
+points to @code{dodoes:}, and the @code{>hmextra} field of the header
+methods contains the xt of the word that is called after pushing the
+body addres of @i{X}.
+
+If you want to know whether a word is a @code{DOES>}-defined word, and
+what Forth code it executes, @code{>does-code} tells you that:
+
+doc->does-code
+
+You can use the resulting @i{xt2} with @code{set-does>} (preferred) to
+change the latest word or with
+
+doc-does-code!
+
+to change an arbitrary word.
 
 @cindex definer
 The following two words generalize @code{>code-address},
@@ -15995,11 +16021,11 @@ The following two words generalize @code{>code-address},
 doc->definer
 doc-definer!
 
-Note that @code{code-address!}, @code{does-code!}, and @code{definer!}
-currently do not update the @code{opt-compile,} method, so the result
-is probably a word that has an incorrect @code{compile,}, and you need
-to use @code{set-optimizer} to fix this.  It is probably better to use
-the higher-level @code{set-execute} or @code{set-does>} instead.
+@code{Code-address!}, @code{does-code!}, and @code{definer!} update
+the @code{opt-compile,} method to a somewhat generic compiler for that
+word type (in particular, primitives get the slow
+@code{general-compile,} method rather than the primitive-specific
+@code{peephole-compile,}).
 
 @c -------------------------------------------------------------
 @node Passing Commands to the OS, Keeping track of Time, Carnal words, Words

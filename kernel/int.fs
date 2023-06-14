@@ -577,12 +577,15 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 \G is not guaranteed to be an nt.
     drop drop
 
-: >does-code ( xt -- a_addr ) \ gforth
-\G If @i{xt} is the execution token of a child of a @code{DOES>} word,
-\G @i{a-addr} is the start of the Forth code after the @code{DOES>};
-\G Otherwise @i{a-addr} is 0.
+: >does-code ( xt1 -- xt2 ) \ gforth
+    \G If @i{xt1} is the execution token of a child of a
+    \G @code{set-does>}-defined word, @i{xt2} is the xt passed to
+    \G @code{set-does>}, i.e, the xt of the word that is executed when
+    \G executing @i{xt1} (but first the body address of @i{xt1} is
+    \G pushed).  If @i{xt1} does not belong to a
+    \G @code{set-does>}-defined word, @i{xt2} is 0.
     dup >code-address dodoes: = if
-	>extra @ >body
+	>extra @
     else
 	drop 0
     then ;
@@ -591,9 +594,9 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
     \ like code-address!, but does not change opt-compile,
     >cfa ! ;
 
-: any-code! ( a-addr cfa code-addr -- )
-    \ for implementing DOES> and ;ABI-CODE, maybe : code-address is
-    \ stored at cfa, a-addr at >hmextra; set-optimizer is called in
+: any-code! ( xt2 xt1 code-addr -- )
+    \ for implementing DOES> and ;ABI-CODE: code-address is
+    \ stored at cfa of xt1, xt2 at >hmextra; set-optimizer is called in
     \ the caller.
     dup xt>name make-latest
     over only-code-address!  >extra ! ;

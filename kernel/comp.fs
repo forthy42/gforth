@@ -623,7 +623,10 @@ Create hmtemplate
     >namehm @ hmtemplate 0 >hm>int move
     here hm-activate ;
 
-: hmcopy,     ( xt -- )  \ gforth-internal hmcopy-comma
+: hmcopy,     ( xt -- )  \ gforth-experimental hmcopy-comma
+    \g While constructing a header, allocate the code field, and use
+    \g @i{xt} as prototype for setting the code field and the header
+    \g methods.
     dup hmcopy here >r dup >code-address cfa, cell+ @ r> cell+ ! ;
 
 : hmsave ( -- addr u ) \ gforth-internal
@@ -709,9 +712,8 @@ Create hmtemplate
     ['] general-compile, set-optimizer
     latestnt only-code-address! ;
 
-: does-code! ( xt1 xt2 -- ) \ gforth
-\G Create a code field at @i{xt2} for a child of a @code{DOES>}-word;
-\G @i{xt1} is the execution token of the assigned Forth code.
+: does-code! ( xt2 xt1 -- ) \ gforth
+    \G Change @i{xt1} to be a @code{@i{xt2} set-does>}-defined word.
     dodoes: any-code!
     ['] does, set-optimizer ;
 
