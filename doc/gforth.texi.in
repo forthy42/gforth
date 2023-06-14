@@ -12191,7 +12191,6 @@ doc-double%
 doc-end-struct
 doc-field
 doc-float%
-doc-naligned
 doc-sfloat%
 doc-%size
 doc-struct
