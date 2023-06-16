@@ -833,8 +833,6 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
 
 ' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- ) \ gforth
 \g increments the value of @var{name} by @var{value}
-' <addr> ' [addr] interpret/compile: addr ( "name" -- addr ) \ gforth
-\g provides the address @var{addr} of the value stored in @var{name}
 
 \ \ : ;                                                  	24feb93py
 

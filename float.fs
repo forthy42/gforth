@@ -73,7 +73,6 @@
     flit, ;  immediate
 
 : opt-fval ( xt -- )  >body postpone Literal postpone f@ ;
-\ the following is worse, because fliteral is worse
 : opt-fcon ( xt -- )  >body f@ postpone FLiteral ;
 
 : fconstant  ( r "name" -- ) \ floating f-constant
@@ -85,11 +84,14 @@
 
 Create f!-table ' f! , ' f+! ,
 
-: fvalue-to ( r xt-fvalue -- ) \ gforth
+: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
     >body f!-table to-!exec ;
 opt: drop postpone >body f!-table to-!, ;
 
 : fvalue ( r "name" -- ) \ floating-ext f-value
+    \g Define @i{name} @code{( -- r1 )} where @i{r1} initially is
+    \g @i{r}; this value can be changed with @code{to @i{name}} or
+    \g @code{->@i{name}}.
     fconstant ['] fvalue-to set-to ['] opt-fval set-optimizer ;
 
 : fdepth ( -- +n ) \ floating f-depth

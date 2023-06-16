@@ -27,9 +27,11 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
 0 Value dummy-varue
 ' varue-to set-to
 
-: Varue  ( n -- ) ['] dummy-varue create-from reveal , ;
+: Varue  ( w "name" -- ) \ gforth
+    \G Like @code{value}, but you can also use @code{addr @i{name}};
+    \G in the future, varues may be less efficient than values.
+    ['] dummy-varue create-from reveal , ;
 
-synonym &of addr \ for SwiftForth compatibility
 
 \ Locals with addrs
 
@@ -43,11 +45,22 @@ to-opt:  POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
 to-opt:  POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
 get-current also locals-types definitions
-: wa:  w:  ['] to-wa: set-to ;
-: da:  d:  ['] to-wa: set-to ;
-: ca:  c:  ['] to-wa: set-to ;
-: fa:  f:  ['] to-wa: set-to ;
-: xta: xt: ['] to-wa: set-to ;
+: wa: ( "name" -- ) \ gforth
+    \g Define a cell-sized local on which @code{addr} can be used.
+    w:  ['] to-wa: set-to ;
+: da: ( "name" -- ) \ gforth
+    \g Define a double-sized local on which @code{addr} can be used.
+    d:  ['] to-wa: set-to ;
+: ca: ( "name" -- ) \ gforth
+    \g Define a char-sized local on which @code{addr} can be used.
+    c:  ['] to-wa: set-to ;
+: fa: ( "name" -- ) \ gforth
+    \g Define a float-sized local on which @code{addr} can be used.
+    f:  ['] to-wa: set-to ;
+: xta: ( "name" -- ) \ gforth
+    \g Define a defer-flavoured local on which @code{addr} can be
+    \g used.
+    xt: ['] to-wa: set-to ;
 
 ca: some-calocal 2drop
 da: some-dalocal 2drop
@@ -61,3 +74,9 @@ also locals-types
 : default-wa: ['] wa: is default: ;
 : default-w:  ['] w:  is default: ;
 previous
+
+' <addr> ' [addr] interpret/compile: addr ( "name" -- addr ) \ gforth
+\g provides the address @var{addr} of the varue @var{name} or a local
+\g @i{name} defined with one of @code{wa: ca: da: fa: xta:}.
+
+synonym &of addr \ for SwiftForth compatibility

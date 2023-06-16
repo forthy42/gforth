@@ -312,6 +312,7 @@ Defining Words
 * Variables::                   Variables and user variables
 * Constants::
 * Values::                      Initialised variables
+* Varues::
 * Colon Definitions::
 * Anonymous Definitions::       Definitions without names
 * Quotations::
@@ -7163,6 +7164,7 @@ Defining words are used to extend Forth by creating new entries in the dictionar
 * Variables::                   Variables and user variables
 * Constants::
 * Values::                      Initialised variables
+* Varues::
 * Colon Definitions::
 * Anonymous Definitions::       Definitions without names
 * Quotations::
@@ -7384,7 +7386,7 @@ dictionary can be deleted later in order to recover memory
 space. However, there is no standard way of doing this.
 
 
-@node Values, Colon Definitions, Constants, Defining Words
+@node Values, Varues, Constants, Defining Words
 @subsection Values
 @cindex values
 
@@ -7407,9 +7409,19 @@ doc-value
 doc-avalue
 doc-to
 doc-+to
+
+@node Varues, Colon Definitions, Values, Defining Words
+@subsection Varues
+@cindex varues
+
+Sometimes you want to take the address of a value-like word.  Because
+this has some disadvantages, Gforth asks you to be explicit about it,
+and use @code{varue} to declare the name.
+
+doc-varue
 doc-addr
 
-@node Colon Definitions, Anonymous Definitions, Values, Defining Words
+@node Colon Definitions, Anonymous Definitions, Varues, Defining Words
 @subsection Colon Definitions
 @cindex colon definitions
 
