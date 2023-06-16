@@ -6938,11 +6938,37 @@ s" my error" exception throw \ user defined
 
 doc---exception-exception
 
-A common idiom to @code{THROW} a specific error if a flag is true is
-this:
+There are also cases where you have a word (typically modeled after
+POSIX' @code{strerror}) for converting an error number into a string.
+You can use the following word to get these strings into Gforth's
+error handling:
+
+doc-exceptions
+
+As an example, if the @code{errno} errors (and the conversion using
+@code{strerror}) was not already directly supported by Gforth, you
+could tie @code{strerror} in as follows:
 
 @example
-@code{( flag ) 0<> @i{errno} and throw}
+' strerror 1536 exceptions constant errno-base
+: errno-ior ( -- n )
+\ n is the Gforth ior corresponding to the value in errno, so
+\ we have to convert between the ranges here.
+\ ERRNO is not a Gforth word, so you  would have to use the
+\ C interface to access it.
+  errno errno-base over - swap 0<> and ;
+@end example
+
+When you call a C function (with the C interface) and its return value
+indictes that an error happened, you can then perform @code{errno-ior
+throw} to produce an exception with the proper error message (such as
+``Permission denied'').
+
+A common idiom to @code{THROW} a specific @i{err#} if a
+flag is true is this:
+
+@example
+@code{( flag ) 0<> @i{err#} and throw}
 @end example
 
 Your program can provide exception handlers to catch exceptions.  An

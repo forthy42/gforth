@@ -120,9 +120,13 @@ variable next-exception -2048 next-exception !
     next-exception @
     -1 next-exception +! ;
 
-: exceptions ( xt num -- n ) \ gforth
-    \G Use @var{xt} to convert errors into strings. The error starting with
-    \G @var{n} and lower are converted to [0..num[ when calling @var{xt}
+: exceptions ( xt n1 -- n2 ) \ gforth
+    \G @i{Xt} @code{( +n -- c-addr u )} converts an error number in
+    \G the range 0<=@i{n}<@i{n1} into an error message.
+    \G @code{Exceptions} reserves @i{n1} error codes in the range
+    \G n2-n1<n3<=n2.  When (at some later point in time) the Gforth
+    \G error code @i{n3} in that range is thrown, it pushes @i{n2-n3}
+    \G and then executes @i{xt} to produce the error message.
     align ErrRanges @ here ErrRanges ! ,
     negate tuck next-exception @ 1+ dup , + , ,
     next-exception +!@ ;
