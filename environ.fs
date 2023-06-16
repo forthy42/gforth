@@ -32,12 +32,12 @@
     IF '_' c, mem, ELSE 2drop THEN ;
 
 vocabulary environment ( -- ) \ gforth
-\g A vocabulary for @code{environment-wordlist} (Win32Forth
-\g compatibility word)
+\g A vocabulary for @code{environment-wordlist} (present in Win32Forth
+\g and VFX).
 
 ' environment >wordlist constant environment-wordlist ( -- wid ) \ gforth
   \G @i{wid} identifies the word list that is searched by environmental
-  \G queries.
+  \G queries (present in SwiftForth and VFX).
 
 
 : environment? ( c-addr u -- false / ... true ) \ core environment-query
