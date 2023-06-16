@@ -32,7 +32,8 @@
     IF '_' c, mem, ELSE 2drop THEN ;
 
 vocabulary environment ( -- ) \ gforth
-\ for win32forth compatibility
+\g A vocabulary for @code{environment-wordlist} (Win32Forth
+\g compatibility word)
 
 ' environment >wordlist constant environment-wordlist ( -- wid ) \ gforth
   \G @i{wid} identifies the word list that is searched by environmental
@@ -69,13 +70,13 @@ get-order environment-wordlist swap 1+ set-order
 1 ADDRESS-UNIT-BITS chars lshift 1- constant MAX-CHAR ( -- u ) \ environment
 \G Maximum value of any character in the character set
 
-MAX-CHAR constant /COUNTED-STRING ( -- n ) \ environment
+MAX-CHAR constant /COUNTED-STRING ( -- n ) \ environment slash-counted-string
 \G Maximum size of a counted string, in characters.
 
-ADDRESS-UNIT-BITS cells 2* 2 + constant /HOLD ( -- n ) \ environment
+ADDRESS-UNIT-BITS cells 2* 2 + constant /HOLD ( -- n ) \ environment slash-hold
 \G Size of the pictured numeric string output buffer, in characters.
 
-&84 constant /PAD ( -- n ) \ environment
+&84 constant /PAD ( -- n ) \ environment slash-pad
 \G Size of the scratch area pointed to by @code{PAD}, in characters.
 
 true constant CORE ( -- f ) \ environment
@@ -119,9 +120,20 @@ here version-string>internal here over -
     [ forthstart 6 cells + ] literal @
     [IFDEF] float/  float/  [ELSE]  [ 1 floats ] Literal / [THEN] ;
 
-16 constant #locals
-    \ One local can take up to 64 bytes, the size of locals-buffer is 1000
-$400 constant wordlists
+100 constant #locals ( -- n ) \ environment number-locals
+\g The maximum number of locals in a definition
+\ empirically determined with:
+\ : foo 0 do i . s" hdfkjsdfhkshdfkshfksjf" (local) loop ; immediate
+\ : bar [ 100000 ] foo
+\ which had a dictionary overflow at local 239
+
+$400 constant wordlists ( -- n ) \ environment
+\g the maximum number of wordlists usable in the search order
+\ The limit is between 4000 and 5000
+\ : foo 1000 0 do i . forth-wordlist >order loop ;
+\ foo foo foo foo
+\ foo
+
 
 forth definitions
 previous

@@ -227,7 +227,9 @@ translate: translate-float
     1.0e0 fswap f/ ;
 
 get-current environment-wordlist set-current
-1.7976931348623157e308 FConstant max-float
+1.7976931348623157e308 FConstant max-float ( -- r ) \ environment
+\g The largest usable floating-point number (implemented as largest
+\g finite number in Gforth)
 set-current
 
 \ We now have primitives for these, so we need not define them

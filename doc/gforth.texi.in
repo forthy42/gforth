@@ -5196,10 +5196,9 @@ the words above.
 doc-ud/mod
 doc-m*/
 
-You can use the following environmental query to learn whether @code{/
-mod /mod */ */mod m*/} use floored or symmetric division.
-
-doc-floored
+You can use the following environmental query @code{floored}
+(@pxref{Environmental Queries}) to learn whether @code{/ mod /mod */
+*/mod m*/} use floored or symmetric division.
 
 @cindex Floating-point unidentified fault (on integer division)
 @cindex Division by zero
@@ -5588,8 +5587,6 @@ doc-2rot
 @cindex floating-point stack manipulation words
 @cindex stack manipulation words, floating-point stack
 
-doc-floating-stack
-
 doc-fdrop
 doc-fnip
 doc-fdup
@@ -5962,10 +5959,10 @@ doc-waligned
 doc-laligned
 doc-xaligned
 
-The following environmental queries may be useful to those who want to
+The environmental query @code{address-unit-bits} (@pxref{Environmental
+Queries}) and the following words may be useful to those who want to
 write software portable to non-byte-addressed machines.
 
-doc-address-unit-bits
 doc-/w
 doc-/l
 doc-/x
@@ -9979,33 +9976,138 @@ previous \ restore original search order (helper words become invisible)
 Forth-94 introduced the idea of ``environmental queries'' as a way
 for a program running on a system to determine certain characteristics
 of the system.  The Standard specifies a number of strings that might
-be recognised by a system.
+be recognised by a system, and a way of querying them:
+
+doc-environment?
+
+Note that, whilst the documentation for (e.g.)
+@code{ADDRESS-UNIT-BITS} shows it returning one cell on the stack,
+querying it using @code{environment?}  will return an additional item;
+the @code{true} flag that shows that the string was recognised; so for
+querying @code{ADDRESS-UNIT-BITS} the stack effect of
+@code{environment?} is @code{( c-addr u -- n true )}.
+
+@c Get all the words in environment-wordlist:
+@c gforth -e "environment-wordlist wordlist-words cr bye"|sed 's/[ ]/\n/g'|sed '/^$/d'|tac
+
+Several environmental queries deal with the system's limits:
+
+doc-ADDRESS-UNIT-BITS
+doc-MAX-CHAR
+doc-/COUNTED-STRING
+doc-/HOLD
+doc-/PAD
+doc-CORE
+doc-CORE-EXT
+doc-FLOORED
+doc-MAX-N
+doc-MAX-U
+doc-MAX-D
+doc-MAX-UD
+doc-return-stack-cells
+doc-stack-cells
+doc-floating-stack
+doc-#locals
+doc-wordlists
+doc-max-float
+doc-xchar-encoding
+doc-max-xchar
+doc-xchar-maxmem
+
+Several environemtal queries are there for determining the presence of
+the Forth-94 version of a wordset; they all have the stack effect
+@code{( -- f )} if the string is present (so the @code{environment?}
+stack effect for these queries is @code{( c-addr u -- false / f true
+)}.
+
+@code{block
+block-ext
+double
+double-ext
+exception
+exception-ext
+facility
+facility-ext
+file
+file-ext
+floating
+floating-ext
+locals
+locals-ext
+memory-alloc
+memory-alloc-ext
+tools
+tools-ext
+search-order
+search-order-ext
+string
+string-ext}
+
+These wordset queries were rarely used and implemented, so Forth-2012
+did not introduce a way to query for the Forth-2012 variants of the
+wordsets.  Instead, the idea is that you use @code{[defined]}
+(@pxref{Interpreter Directives}) instead.
+
+Forth-200x (a group that works on the next standard; the documents
+that they produce are also called Forth-200x) defines extension
+queries for the extension proposals once they finish changing (CfV
+stage), so programs using these proposals can check whether a system
+has them, and maybe load the reference implementation (if one exists).
+If @code{environment?} finds such a query, then the corresponding
+proposal on @url{www.forth200x.org} is implemented on the system (but
+the absence tells you nothing, as usual with @code{environment?}).
+These queries have the stack effect @code{( -- )}, which means that
+for them @code{environment?} has the stack effect @code{( c-addr u --
+false / true )}, which is more convenient than that of wordset
+queries.  A number of these proposals have been incorporated into
+Forth-2012.  The extension queries are also not particularly popular
+among Forth system implementors, so going for @code{[defined]} may be
+the better approach.  Anyway, Gforth implements the following
+extension queries:
+
+@code{X:2value
+X:buffer
+X:deferred
+X:defined
+X:ekeys
+X:escaped-strings
+X:extension-query
+X:fp-stack
+X:ftrunc
+X:fvalue
+X:locals
+X:n-to-r
+X:number-prefixes
+X:parse-name
+X:required
+X:s-escape-quote
+X:s-to-f
+X:structures
+X:synonym
+X:text-substitution
+X:throw-iors
+X:traverse-wordlist
+X:xchar}
+
+In addition, Gforth implements the following Gforth-specific queries:
+
+doc-gforth
+doc-os-class
+doc-os-type
 
 The Standard requires that the header space used for environmental queries
 be distinct from the header space used for definitions.
 
-Typically, environmental queries are supported by creating a set of
-definitions in a word list that is @i{only} used during environmental
-queries; that is what Gforth does. There is no Standard way of adding
-definitions to the set of recognised environmental queries, but any
-implementation that supports the loading of optional word sets must have
-some mechanism for doing this (after loading the word set, the
-associated environmental query string must return @code{true}). In
-Gforth, the word list used to honour environmental queries can be
+Typically, a Forth system supports environmental queries by creating a
+set of definitions in a wordlist that is @i{only} used for
+environmental queries; that is what Gforth does. There is no Standard
+way of adding definitions to the set of recognised environmental
+queries, but in Gforth and other systems that use the wordlist
+mechanism, the wordlist used to honour environmental queries can be
 manipulated just like any other word list.
 
-
-doc-environment?
 doc-environment-wordlist
-
-doc-gforth
-doc-os-class
-
-
-Note that, whilst the documentation for (e.g.) @code{gforth} shows it
-returning two items on the stack, querying it using @code{environment?}
-will return an additional item; the @code{true} flag that shows that the
-string was recognised.
+doc-environment
 
 @comment TODO Document the standard strings or note where they are documented herein
 
@@ -10058,7 +10160,7 @@ set-current
 You can see what definitions are in the environment word list like this:
 
 @example
-environment-wordlist >order words previous
+environment-wordlist wordlist-words
 @end example
 
 

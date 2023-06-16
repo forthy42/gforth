@@ -387,16 +387,25 @@ here
     IF  utf-8  ELSE  fixed-width  THEN  set-encoding ;
 
 environment-wordlist set-current
-: xchar-encoding ( -- addr u ) \ xchar-ext
+
+: XCHAR-ENCODING ( -- addr u ) \ environment
     \G Returns a printable ASCII string that reperesents the encoding,
     \G and use the preferred MIME name (if any) or the name in
     \G @url{http://www.iana.org/assignments/character-sets} like
     \G ``ISO-LATIN-1'' or ``UTF-8'', with the exception of ``ASCII'', where
     \G we prefer the alias ``ASCII''.
     xc-vector @ utf-8 = IF s" UTF-8" ELSE s" ISO-LATIN-1" THEN ;
-: max-xchar ( -- xchar )
+
+: MAX-XCHAR ( -- xchar ) \ environment
+    \G Maximal value for xchar.  This depends on the encoding.
     xc-vector @ utf-8 = IF $10FFFF  ELSE  $FF  THEN ;
+
+: XCHAR-MAXMEM ( -- u ) \ environment
+    \G Maximal memory consumed by an xchar in address units
+    xc-vector @ utf-8 = IF  4  ELSE  1  THEN ;
+
 ' noop Alias X:xchar
+
 forth definitions
 
 :noname ( -- )
