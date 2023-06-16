@@ -224,17 +224,11 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
 
 Root definitions
 
-' words Alias words  ( -- ) \ tools
-\G Display a list of all of the definitions in the word list at the top
-\G of the search order.
-' Forth Alias Forth \ alias- search-ext
-' forth-wordlist alias forth-wordlist ( -- wid ) \ search
-  \G @code{Constant} -- @i{wid} identifies the word list that includes
-  \G all of the standard words provided by Gforth. When Gforth is
-  \G invoked, this word list is the compilation word list and is at
-  \G the top of the search order.
-' set-order alias set-order ( wid1 ... widu u -- ) \ alias- search
-' order alias order ( -- ) \ alias- search-ext
+' words Alias words  ( -- )
+' Forth Alias Forth ( -- )
+' forth-wordlist alias forth-wordlist ( -- wid )
+' set-order alias set-order ( wid1 ... widu u -- )
+' order alias order ( -- )
 
 Forth definitions
 

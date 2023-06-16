@@ -271,6 +271,10 @@ ghost drop gset-defer@
 ghost does, gset-optimizer
 lock
 AValue forth-wordlist ( -- wid ) \ search
+  \G @code{Constant} -- @i{wid} identifies the word list that includes
+  \G all of the standard words provided by Gforth. When Gforth is
+  \G invoked, this word list is the compilation word list and is at
+  \G the top of the search order.
 \ variable, will be redefined by search.fs
 forth-wordlist 1 cells - @ AConstant f83search
 

@@ -121,9 +121,8 @@ Defer word-colorize ' noop is word-colorize
     0 swap cr ['] .word map-wordlist drop ;
 
 : words ( -- ) \ tools
-    \G ** this will not get annotated. See other defn in search.fs .. **
-    \G It does not work to use "wordset-" prefix since this file is glossed
-    \G by cross.fs which doesn't have the same functionalty as makedoc.fs
+    \G Display a list of all of the definitions in the word list at the top
+    \G of the search order.
     context @ wordlist-words ;
 
 ' words alias vlist ( -- ) \ gforth
