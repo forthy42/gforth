@@ -64,7 +64,7 @@ Variable slowvoc   0 slowvoc !
     set-wordlist  r@ initwl r>  hm,
     r> make-latest 2r> hmrestore ;
 
-: mappedwordlist ( map-struct -- wid )	\ gforth
+: mappedwordlist ( map-struct -- wid )	\ gforth-internal
 \G Create a wordlist with a special map-structure.
     cfalign
     [ 0 >body ] [IF] A, here dodoes: A, [ELSE] dodoes: A, A, here [THEN]
@@ -208,8 +208,8 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
     4 spaces get-current .voc ;
 
 : map-vocs ( ... xt -- ... ) \ gforth
-    \G xt: ( ... wid -- ... ) free to use the stack underneath
-    \G run as long as f is true
+    \G Perform xt ( ... wid -- ... ) for all wordlists (including
+    \G tables and cs-wordlists) in the system.
     >r voclink
     BEGIN
 	@ dup

@@ -8818,6 +8818,7 @@ doc-name>interpret
 doc-name>compile
 doc-name>string
 doc-id.
+doc-.id
 doc-name>link
 
 A nameless word usually has no interpretation nor compilation
@@ -9669,7 +9670,7 @@ doc-rec-body
 doc-get-recognizers
 doc-set-recognizers
 doc-recognize
-doc-recognize-sequence:
+doc-recognizer-sequence:
 doc-forth-recognize
 doc-forth-recognizer
 doc-set-forth-recognize
@@ -9805,6 +9806,7 @@ doc-also
 doc-forth
 doc-only
 doc-order
+doc-.voc
 
 doc-find
 doc-search-wordlist
@@ -9822,6 +9824,7 @@ doc-vocs
 doc-current
 doc-context
 
+doc-map-vocs
 
 @menu
 * Vocabularies::
