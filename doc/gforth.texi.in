@@ -7407,6 +7407,8 @@ APPLES              \ puts 35 on the top of the stack.
 
 doc-value
 doc-avalue
+doc-2value
+doc-fvalue
 doc-to
 doc-+to
 
@@ -7420,6 +7422,8 @@ and use @code{varue} (named that way because it combines
 characteristics of a variable and a value) to declare the name.
 
 doc-varue
+doc-2varue
+doc-fvarue
 doc-addr
 
 @node Colon Definitions, Anonymous Definitions, Varues, Defining Words

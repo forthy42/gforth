@@ -97,7 +97,8 @@ also locals-types
 previous
 
 ' <addr> ' [addr] interpret/compile: addr ( "name" -- addr ) \ gforth
-\g provides the address @var{addr} of the varue @var{name} or a local
-\g @i{name} defined with one of @code{wa: ca: da: fa: xta:}.
+\g provides the address @var{addr} of the varue, 2varue, or fvarue
+\g @var{name} or a local @i{name} defined with one of @code{wa: ca:
+\g da: fa: xta:}.
 
 synonym &of addr \ for SwiftForth compatibility
