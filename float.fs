@@ -84,15 +84,26 @@
 
 Create f!-table ' f! , ' f+! ,
 
-: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
+: fvarue-to-exec ( r xt-fvalue -- )
     >body f!-table to-!exec ;
-opt: drop postpone >body f!-table to-!, ;
+
+: fvarue-to-compile, ( <to>-xt -- )
+    drop postpone >body f!-table to-!, ;
+
+: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
+    !!?addr!! fvarue-to-exec ;
+opt: !!?addr!! fvarue-to-compile, ;
+
+create dummy-fvalue
+' f@ set-does>
+' fvalue-to set-to
+' opt-fval set-optimizer
 
 : fvalue ( r "name" -- ) \ floating-ext f-value
     \g Define @i{name} @code{( -- r1 )} where @i{r1} initially is
     \g @i{r}; this value can be changed with @code{to @i{name}} or
     \g @code{->@i{name}}.
-    fconstant ['] fvalue-to set-to ['] opt-fval set-optimizer ;
+    ['] dummy-fvalue create-from reveal f, ;
 
 : fdepth ( -- +n ) \ floating f-depth
     \G @i{+n} is the current number of (floating-point) values on the

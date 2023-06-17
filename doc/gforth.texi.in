@@ -7416,7 +7416,8 @@ doc-+to
 
 Sometimes you want to take the address of a value-like word.  Because
 this has some disadvantages, Gforth asks you to be explicit about it,
-and use @code{varue} to declare the name.
+and use @code{varue} (named that way because it combines
+characteristics of a variable and a value) to declare the name.
 
 doc-varue
 doc-addr

@@ -32,6 +32,27 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
     \G in the future, varues may be less efficient than values.
     ['] dummy-varue create-from reveal , ;
 
+' 2varue-to-exec alias 2varue-to ( d xt-2varue -- )
+    ' 2varue-to-compile, set-optimizer
+
+0 0 2value dummy-2varue
+    ' 2varue-to set-to
+
+: 2varue ( x1 x2 "name" -- ) \ gforth
+    \G Like @code{2value}, but you can also use @code{addr @i{name}};
+    \G in the future, 2varues may be less efficient than 2values.
+    ['] dummy-2varue create-from reveal 2, ;
+
+' fvarue-to-exec alias fvarue-to ( r xt-fvalue -- )
+    ' fvarue-to-compile, set-optimizer
+
+0e fvalue dummy-fvarue
+    ' fvarue-to set-to
+
+: fvarue ( r "name" -- ) \ gforth
+    \G Like @code{fvalue}, but you can also use @code{addr @i{name}};
+    \G in the future, fvarues may be less efficient than fvalues.
+    ['] dummy-fvarue create-from reveal f, ;
 
 \ Locals with addrs
 

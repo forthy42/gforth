@@ -579,14 +579,20 @@ User theme-color  0 theme-color !
 
 \ 2value
 
-: (2to) ( addr -- ) >body 2!-table to-!exec ;
-to-opt: ( xt -- ) >body postpone literal 2!-table to-!, ;
+: 2value-compile, ( xt -- )  >body postpone Literal postpone 2@ ;
+: 2varue-to-exec  ( addr -- ) >body 2!-table to-!exec ;
+: 2varue-to-compile, ( xt -- ) drop postpone  >body 2!-table to-!, ;
+
+: 2value-to ( addr -- ) !!?addr!! 2varue-to-exec ;
+opt: ( xt -- ) !!?addr!! 2varue-to-compile, ;
+
+create dummy-2value
+' 2@ set-does>
+' 2value-compile, set-optimizer
+' 2value-to set-to
 
 : 2Value ( d "name" -- ) \ double-ext two-value
-    Create 2,
-    ['] 2@ set-does>
-    [: >body postpone Literal postpone 2@ ;] set-optimizer
-    ['] (2to) set-to ;
+    ['] dummy-2value create-from reveal 2, ;
 
 s" help.txt" open-fpath-file throw 2drop slurp-fid save-mem-dict
 2>r : basic-help ( -- ) \ gforth-internal
