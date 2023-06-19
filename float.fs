@@ -303,7 +303,7 @@ fdrop
     fover fover f/ floor f* f- ;
 
 : ftrunc ( r1 -- r2 ) \ floating-ext f-trunc
-    \ round towards 0
+    \G round towards 0
     fdup fabs floor fswap fcopysign ;
 
 : frem ( r1 r2 -- r )

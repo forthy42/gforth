@@ -90,7 +90,7 @@ require sections.fs
 User locals-size \ this is the current size of the locals stack
 		 \ frame of the current word
 
-: compile-@local ( n -- ) \ gforth compile-fetch-local
+: compile-@local ( n -- ) \ gforth-internal compile-fetch-local
  case
     0       of postpone @local0 endof
     1 cells of postpone @local1 endof
@@ -99,7 +99,7 @@ User locals-size \ this is the current size of the locals stack
    ( otherwise ) dup postpone @local# ,
  endcase ;
 
-: compile-f@local ( n -- ) \ gforth compile-f-fetch-local
+: compile-f@local ( n -- ) \ gforth-internal compile-f-fetch-local
  case
     0        of postpone f@local0 endof
     1 floats of postpone f@local1 endof
@@ -117,7 +117,7 @@ User locals-size \ this is the current size of the locals stack
     else postpone lp+!# dup ,
     then then then then drop ;
 
-: adjust-locals-size ( n -- ) \ gforth
+: adjust-locals-size ( n -- ) \ gforth-internal
     \g sets locals-size to n and generates an appropriate lp+!
     locals-size @ swap - compile-lp+! ;
 
@@ -366,13 +366,15 @@ Defer default: ' W: is default:
 :noname ( c-addr u1 "name" -- a-addr xt ) \ gforth <local>bracket (unnamed)
     W^ drop ['] compile-pushlocal-[ ;
 
-: | val-part on ['] val-part-off ;
+: | ( -- ) \ gforth bar
+    \G Locals defined behind @code{|} are not initialized from the stack.
+    val-part on ['] val-part-off ;
 
 \ you may want to make comments in a locals definitions group:
-synonym \ \ ( compilation 'ccc<newline>' -- ; run-time -- ) \ core-ext,block-ext backslash
+synonym \ \ ( compilation 'ccc<newline>' -- ; run-time -- )
 \ The actual documentation is in kernel/int.fs
 
-synonym ( ( ( compilation 'ccc<close-paren>' -- ; run-time -- ) \ core,file	paren
+synonym ( ( ( compilation 'ccc<close-paren>' -- ; run-time -- )
 \ The actual documentation is in kernel/int.fs
 
 forth definitions
@@ -410,6 +412,8 @@ previous
 
 \ and now, finally, the user interface words
 : { ( -- hmaddr u latest latestnt wid 0 ) \ gforth open-brace
+    \G Start locals definition.  The Forth-2012 standard name for this
+    \G word is @code{@{:}.
     ( >docolloc ) hmsave \ as locals will mess with their own hmtemplate
     latest latestnt get-current
     ['] new-locals forth-recognizer >stack
@@ -417,14 +421,14 @@ previous
     val-part off
     0 postpone [ ; immediate
 
-synonym {: { ( -- hmaddr u latest latestnt wid 0 ) \ local-ext brace-colon
-\G Start standard locals declaration.  All Gforth locals extensions are
-\G supported by Gforth, though the standard only supports the subset of cells.
+synonym {: { ( -- hmaddr u latest latestnt wid 0 ) \ local-ext open-brace-colon
+\G Start locals definition.
 
 locals-types definitions
 
 : } ( hmaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
-    \ ends locals definitions
+    \ Ends locals definition.  The Forth-2012 standard name for this
+    \ word is @code{:@}}.
     ]
     forth-recognizer stack> drop
     begin
@@ -438,9 +442,14 @@ locals-types definitions
     hmrestore
     activate-locals ;
 
-synonym :} }
+synonym :} } ( hmaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth colon-close-brace
+\g Ends locals definition
 
-: -- ( hmaddr u latest latestnt wid 0 ... -- ) \ gforth dash-dash
+: -- ( hmaddr u latest latestnt wid 0 ... -- ) \ locals- gforth dash-dash
+    \G Everything in a locals definition from @code{--} to @code{:@}}
+    \G is ignored.  This is typically used when you want to make a
+    \G locals definition serve double duty as a stack effect
+    \G description.
     }
     BEGIN  '}' parse dup WHILE
         + 1- c@ dup bl = swap ':' = or  UNTIL

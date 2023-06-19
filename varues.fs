@@ -92,8 +92,17 @@ xta: some-xtalocal 2drop
 previous set-current
 
 also locals-types
-: default-wa: ['] wa: is default: ;
-: default-w:  ['] w:  is default: ;
+: default-wa: ( -- ) \ gforth-experimental
+    \G Allow @code{addr} on locals defined without a type specifyer.
+    \G On other words, define locals without a type specifyer using
+    \G @code{wa:}.
+    ['] wa: is default: ;
+
+: default-w: ( -- ) \ gforth-experimental
+    \G Forbid @code{addr} on locals defined without a type specifyer.
+    \G On other words, define locals without a type specifyer using
+    \G @code{w:}.
+    ['] w:  is default: ;
 previous
 
 ' <addr> ' [addr] interpret/compile: addr ( "name" -- addr ) \ gforth

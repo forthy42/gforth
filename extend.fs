@@ -69,6 +69,12 @@ decimal
 \ [COMPILE]                                             17may93jaw
 
 : [compile] ( compilation "name" -- ; run-time ? -- ? ) \ core-ext bracket-compile
+    \g Legacy word.  Use @code{postpone} instead.  Works like
+    \g @code{postpone} if @i{name} has non-default compilation
+    \g semantics.  If @i{name} has default compilation semantics
+    \g (i.e., is a normal word), compiling @code{[compile] @i{name}}
+    \g is equivalent to compiling @i{name} (i.e. @code{[compile]} is
+    \g redundant in this case.
     comp' drop
     dup [ comp' exit drop ] literal = if
 	execute \ EXIT has default compilation semantics, perform them
@@ -108,12 +114,14 @@ decimal
     2drop 2r> 2drop false ;
 
 : capsstring-prefix? ( c-addr1 u1 c-addr2 u2 -- f ) \ gforth
-    \G Is @var{c-addr2 u2} a case-oblivious prefix of @var{c-addr1 u1}?
+    \G Like @code{string-prefix?}, but case-insensitive for ASCII
+    \G characters: Is @var{c-addr2 u2} a prefix of @var{c-addr1 u1}?
     tuck 2>r umin 2r> capscompare 0= ;
 
 : capssearch ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag ) \ gforth
-    \G Like \code{search}, but case-insensitive for ASCII characters:
-    \G Search for c-addr2 u2 in c-addr1 u1; flag is true if found.
+    \G Like @code{search}, but case-insensitive for ASCII characters:
+    \G Search for @i{c-addr2 u2} in @i{c-addr1 u1}; @i{flag} is true
+    \G if found.
     2>r 2dup begin ( c-addr1 u1 c-addr4 u4 )
         dup r@ u>= while
 	    2dup 2r@ capsstring-prefix? if
