@@ -313,7 +313,8 @@ defer@-opt: ( xt -- ) POSTPONE laddr# >body @ lp-offset, postpone @ ;
 vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
 
-: W: ( "name" -- a-addr xt ) \ gforth w-colon
+: W: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-colon
+    \G Define value-flavoured cell local @i{name}.
     create-local ['] to-w: set-to
     \ xt produces the appropriate locals pushing code when executed
     ['] compile-pushlocal-w
@@ -427,8 +428,8 @@ synonym {: { ( -- hmaddr u latest latestnt wid 0 ) \ local-ext open-brace-colon
 locals-types definitions
 
 : } ( hmaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
-    \ Ends locals definition.  The Forth-2012 standard name for this
-    \ word is @code{:@}}.
+    \G Ends locals definition.  The Forth-2012 standard name for this
+    \G word is @code{:@}}.
     ]
     forth-recognizer stack> drop
     begin

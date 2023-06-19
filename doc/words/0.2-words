@@ -154,3 +154,4 @@ compare  fill  cmove>  cmove  move  form  key?  (key)  j  i  (u-do)  (-do)
 (-loop)-lp+!#  (-loop)  (+loop)-lp+!#  (+loop)  (loop)-lp+!#  (loop)  
 (next)-lp+!#  (next)  ?dup-0=-?branch  ?dup-?branch  ?branch-lp+!#  ?branch  
 branch  branch-lp+!#  perform  execute  lit  noop  forthstart  
+--  }  (  \  C^  C:  D^  D:  F^  F:  W^  W:  

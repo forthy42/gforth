@@ -158,3 +158,4 @@ min  max  1-  1+  negate  -  under+  +  /string  -trailing  capscomp  toupper
 (-loop)  (+loop)-lp+!#  (+loop)  (loop)-lp+!#  (loop)  (next)-lp+!#  (next)  
 ?dup-0=-?branch  ?dup-?branch  ?branch-lp+!#  ?branch  branch  branch-lp+!#  
 perform  execute  lit  noop  
+--  }  (  \  C^  C:  D^  D:  F^  F:  W^  W:  

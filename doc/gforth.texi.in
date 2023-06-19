@@ -401,6 +401,7 @@ Locals
 
 Gforth locals
 
+* Locals definition words::
 * Where are locals visible by name?::
 * How long do locals live?::
 * Locals programming style::
@@ -11457,7 +11458,7 @@ The name of the local may be preceded by a type specifier, e.g.,
 @cindex variable-flavoured locals
 Gforth currently supports cells (@code{W:}, @code{WA:}, @code{W^}),
 doubles (@code{D:}, @code{DA:}, @code{D^}), floats (@code{F:},
-@code{FA:}, @code{F^}) and characters (@code{C:}, @code{CA:},
+@code{FA:}, @code{F^}), characters (@code{C:}, @code{CA:},
 @code{C^}), and xts (@code{xt:}, @code{xta:}) in several flavours:
 
 @table @dfn
@@ -11547,6 +11548,7 @@ Gforth allows defining locals everywhere in a colon definition. This
 poses the following questions:
 
 @menu
+* Locals definition words::
 * Where are locals visible by name?::
 * How long do locals live?::
 * Locals programming style::
@@ -11554,7 +11556,13 @@ poses the following questions:
 * Closures::
 @end menu
 
-The individual documentation of various words for defining locals:
+@node Locals definition words, Where are locals visible by name?, Gforth locals, Gforth locals
+@subsubsection Locals definitions words
+
+This section documents the words used for defining locals.  Note that
+the run-times for the words (like @code{W:}) that define a local are
+performed from the rightmost defined local to the leftmost defined
+local, such that the rightmost local gets the top of stack.
 
 doc-{:
 doc---locals---
@@ -11580,9 +11588,9 @@ doc-xta:
 Note that @code{|}, @code{--}, @code{:@}} and @code{@}} are not
 normally in the search order (they are in the vocabulary
 @code{locals-types}), and they are not necessarily words in all Forth
-systems.
+systems; therefore they are documented as Gforth words.
 
-@node Where are locals visible by name?, How long do locals live?, Gforth locals, Gforth locals
+@node Where are locals visible by name?, How long do locals live?, Locals definition words, Gforth locals
 @subsubsection Where are locals visible by name?
 @cindex locals visibility
 @cindex visibility of locals

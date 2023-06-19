@@ -222,3 +222,4 @@ toupper compare fill cmove> cmove move k j i' i (u-do) (-do)
 (-loop) (+loop)-lp+!# (+loop) (loop)-lp+!# (loop) (next)-lp+!# (next) 
 ?dup-0=-?branch ?dup-?branch ?branch-lp+!# ?branch branch branch-lp+!# 
 does-exec lit-perform unloop ;s perform execute call noop 
+-- } ( \ C^ C: D^ D: F^ F: W^ W: 
