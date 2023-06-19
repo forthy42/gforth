@@ -66,21 +66,23 @@ to-opt:  POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
 to-opt:  POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
 
 get-current also locals-types definitions
-: wa: ( "name" -- ) \ gforth
-    \g Define a cell-sized local on which @code{addr} can be used.
+: WA: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-a-colon
+    \G Define varue-flavoured cell local @i{name} @code{( -- x1 )}
     w:  ['] to-wa: set-to ;
-: da: ( "name" -- ) \ gforth
-    \g Define a double-sized local on which @code{addr} can be used.
+: DA: ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth w-a-colon
+    \G Define varue-flavoured double local @i{name} @code{( -- x3 x4 )}
     d:  ['] to-wa: set-to ;
-: ca: ( "name" -- ) \ gforth
+: CA: ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-a-colon
+    \G Define varue-flavoured char local @i{name} @code{( -- c1 )}
     \g Define a char-sized local on which @code{addr} can be used.
     c:  ['] to-wa: set-to ;
-: fa: ( "name" -- ) \ gforth
+: FA: ( compilation "name" -- a-addr xt; run-time f -- ) \ gforth f-a-colon
+    \G Define varue-flavoured float local @i{name} @code{( -- r1 )}
     \g Define a float-sized local on which @code{addr} can be used.
     f:  ['] to-wa: set-to ;
-: xta: ( "name" -- ) \ gforth
-    \g Define a defer-flavoured local on which @code{addr} can be
-    \g used.
+: XTA: ( compilation "name" -- a-addr xt; run-time ... -- ... ) \ gforth x-t-a-colon
+    \g Define a defer-flavoured local @i{name} on which @code{addr}
+    \g can be used.
     xt: ['] to-wa: set-to ;
 
 ca: some-calocal 2drop

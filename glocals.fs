@@ -314,7 +314,7 @@ vocabulary locals-types \ this contains all the type specifyers, -- and }
 locals-types definitions
 
 : W: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-colon
-    \G Define value-flavoured cell local @i{name}.
+    \G Define value-flavoured cell local @i{name} @code{( -- x1 )}
     create-local ['] to-w: set-to
     \ xt produces the appropriate locals pushing code when executed
     ['] compile-pushlocal-w
@@ -322,44 +322,51 @@ locals-types definitions
     \ compiles a local variable access
     @ lp-offset compile-@local ;
 
-: W^ ( "name" -- a-addr xt ) \ gforth w-caret
+: W^ ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-caret
+    \G Define variable-flavoured cell local @i{name} @code{( -- a-addr )}
     create-local
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: -- w )
     postpone laddr# @ lp-offset, ;
 
-: F: ( "name" -- a-addr xt ) \ gforth f-colon
+: F: ( compilation "name" -- a-addr xt; run-time r -- ) \ gforth f-colon
+    \G Define value-flavoured float local @i{name} @code{( -- r1 )}
     create-local ['] to-f: set-to
     ['] compile-pushlocal-f
-  does> ( Compilation: -- ) ( Run-time: -- w )
+  does> ( Compilation: -- ) ( Run-time: -- r1 )
     @ lp-offset compile-f@local ;
 
-: F^ ( "name" -- a-addr xt ) \ gforth f-caret
+: F^ ( compilation "name" -- a-addr xt; run-time r -- ) \ gforth f-caret
+    \G Define variable-flavoured float local @i{name} @code{( -- f-addr )}
     W^ drop ['] compile-pushlocal-f ;
 
-: D: ( "name" -- a-addr xt ) \ gforth d-colon
+: D: ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth d-colon
+    \G Define value-flavoured double local @i{name} @code{( -- x3 x4 )}
     create-local ['] to-d: set-to
     ['] compile-pushlocal-d
-  does> ( Compilation: -- ) ( Run-time: -- w )
+  does> ( Compilation: -- ) ( Run-time: -- x3 x4 )
     postpone laddr# @ lp-offset, postpone 2@ ;
 
-: D^ ( "name" -- a-addr xt ) \ gforth d-caret
+: D^ ( compilation "name" -- a-addr xt; run-time x1 x2 -- ) \ gforth d-caret
+    \G Define variable-flavoured double local @i{name} @code{( -- a-addr )}
     W^ drop ['] compile-pushlocal-d ;
 
-: C: ( "name" -- a-addr xt ) \ gforth c-colon
+: C: ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-colon
+    \G Define value-flavoured char local @i{name} @code{( -- c1 )}
     create-local ['] to-c: set-to
     ['] compile-pushlocal-c
-  does> ( Compilation: -- ) ( Run-time: -- w )
+  does> ( Compilation: -- ) ( Run-time: -- c1 )
     postpone laddr# @ lp-offset, postpone c@ ;
 
-: C^ ( "name" -- a-addr xt ) \ gforth c-caret
+: C^ ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-caret
+    \G Define variable-flavoured char local @i{name} @code{( -- c-addr )}
     W^ drop ['] compile-pushlocal-c ;
 
-: XT: ( "name" -- a-addr xt ) \ gforth x-t-colon
+: XT: ( compilation "name" -- a-addr xt; run-time xt1 -- ) \ gforth x-t-colon
+    \G Define defer-flavoured cell local @i{name} @code{( ... -- ... )}
     create-local  ['] to-w: set-to  ['] defer@-xt: set-defer@
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: .. -- .. )
-    \ compiles a local variable access
     @ lp-offset compile-@local postpone execute ;
 
 Defer default: ' W: is default:
@@ -368,7 +375,9 @@ Defer default: ' W: is default:
     W^ drop ['] compile-pushlocal-[ ;
 
 : | ( -- ) \ gforth bar
-    \G Locals defined behind @code{|} are not initialized from the stack.
+    \G Locals defined behind @code{|} are not initialized from the
+    \G stack; so the run-time of words like @code{W:} changes to
+    \G @code{( -- )}.
     val-part on ['] val-part-off ;
 
 \ you may want to make comments in a locals definitions group:
