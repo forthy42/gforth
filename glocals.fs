@@ -422,7 +422,7 @@ previous
 
 \ and now, finally, the user interface words
 : { ( -- hmaddr u latest latestnt wid 0 ) \ gforth open-brace
-    \G Start locals definition.  The Forth-2012 standard name for this
+    \G Start locals definitions.  The Forth-2012 standard name for this
     \G word is @code{@{:}.
     ( >docolloc ) hmsave \ as locals will mess with their own hmtemplate
     latest latestnt get-current
@@ -432,12 +432,12 @@ previous
     0 postpone [ ; immediate
 
 synonym {: { ( -- hmaddr u latest latestnt wid 0 ) \ local-ext open-brace-colon
-\G Start locals definition.
+\G Start locals definitions.
 
 locals-types definitions
 
 : } ( hmaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth close-brace
-    \G Ends locals definition.  The Forth-2012 standard name for this
+    \G Ends locals definitions.  The Forth-2012 standard name for this
     \G word is @code{:@}}.
     ]
     forth-recognizer stack> drop
@@ -453,17 +453,17 @@ locals-types definitions
     activate-locals ;
 
 synonym :} } ( hmaddr u latest latestnt wid 0 xt1 ... xtn -- ) \ gforth colon-close-brace
-\g Ends locals definition
+\g Ends locals definitions.
 
 : -- ( hmaddr u latest latestnt wid 0 ... -- ) \ locals- gforth dash-dash
-    \G Everything in a locals definition from @code{--} to @code{:@}}
-    \G is ignored.  This is typically used when you want to make a
-    \G locals definition serve double duty as a stack effect
+    \G During locals definitions everything from @code{--} to
+    \G @code{:@}} is ignored.  This is typically used when you want to
+    \G make a locals definition serve double duty as a stack effect
     \G description.
     }
-    BEGIN  '}' parse dup WHILE
-        + 1- c@ dup bl = swap ':' = or  UNTIL
-    ELSE  2drop  THEN ;
+    BEGIN '}' parse dup WHILE
+        + 1- c@ dup bl = swap ':' = or UNTIL
+    ELSE 2drop THEN ;
 
 forth definitions
 

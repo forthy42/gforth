@@ -74,15 +74,13 @@ get-current also locals-types definitions
     d:  ['] to-wa: set-to ;
 : CA: ( compilation "name" -- a-addr xt; run-time c -- ) \ gforth c-a-colon
     \G Define varue-flavoured char local @i{name} @code{( -- c1 )}
-    \g Define a char-sized local on which @code{addr} can be used.
     c:  ['] to-wa: set-to ;
 : FA: ( compilation "name" -- a-addr xt; run-time f -- ) \ gforth f-a-colon
     \G Define varue-flavoured float local @i{name} @code{( -- r1 )}
-    \g Define a float-sized local on which @code{addr} can be used.
     f:  ['] to-wa: set-to ;
 : XTA: ( compilation "name" -- a-addr xt; run-time ... -- ... ) \ gforth x-t-a-colon
-    \g Define a defer-flavoured local @i{name} on which @code{addr}
-    \g can be used.
+    \G Define a defer-flavoured local @i{name} on which @code{addr}
+    \G can be used.
     xt: ['] to-wa: set-to ;
 
 ca: some-calocal 2drop
