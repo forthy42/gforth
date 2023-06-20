@@ -51,7 +51,7 @@ Variable extra-locals ( additional hidden locals size )
 
 locals-types definitions
 
-: :}* ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... xt -- ) \ gforth close-brace-dictionary
+: :}* ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... xt -- ) \ gforth-internal colon-close-brace-star
     0 lit, lits, here cell- >r
     compile, ]] >lp [[
     :}
@@ -60,19 +60,19 @@ locals-types definitions
     ['] execute is end-d  ['] noop is endref,
     extra-locals off activate-locals ;
 
-: :}xt ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-xt
+: :}xt ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-x-t
     \G end a closure's locals declaration.  The closure will be allocated by
     \G the xt on the stack, so the closure's run-time stack effect is @code{(
-    \G xt-alloc -- xt-closure}.
+    \G xt-alloc -- xt-closure )}.
     \ run-time: ( xt size -- ... )
     [: swap execute ;] :}* ;
 
-: :}d ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-dictionary
+: :}d ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-d
     \G end a closure's locals declaration.  The closure will be allocated in
     \G the dictionary.
     ['] allocd :}* ;
 
-: :}h ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth close-brace-heap
+: :}h ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-h
     \G end a closure's locals declaration.  The closure will be allocated on
     \G the heap.
     ['] alloch :}* ;
@@ -124,7 +124,7 @@ forth definitions
     dead-code off
     defstart ;
 
-: closure> ( hmaddr -- addr ) \ gforth-experimental closure-end
+: closure> ( hmaddr -- addr ) \ gforth-internal closure-end
     \G create trampoline head
     [ 0 >body ] [IF] dodoes: >l >l lp@ cell+
     [ELSE] >l dodoes: >l lp@ cell+ cell+ [THEN] ;

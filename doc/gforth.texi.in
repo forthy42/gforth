@@ -9718,6 +9718,15 @@ doc-[AGAIN]
 doc-[WHILE]
 doc-[REPEAT]
 
+You can use @code{#line} to change Gforth's idea about the current
+source line number and source file.  This is useful in cases where the
+Forth file is generated from some other source code file, and you want
+to get, e.g. error messages etc. that refer to the original source
+code; then the Forth-code generator needs to insert @code{#line} lines
+in the Forth code wherever appropriate.
+
+doc-#line
+
 @node Recognizers, Text Interpreter Hooks, Interpreter Directives, The Text Interpreter
 @subsection Recognizers
 @cindex recongizers
@@ -11303,10 +11312,6 @@ doc-xc-width
 doc-xhold
 doc-xc,
 
-There's a new environment query
-
-doc-xchar-encoding
-
 @node i18n and l10n, Substitute, Xchars and Unicode, Other I/O
 @subsection Internationalization and Localization
 
@@ -12045,6 +12050,7 @@ doc-[{:
 doc-:}l
 doc-:}d
 doc-:}h
+doc-:}xt
 doc->addr
 
 @example
