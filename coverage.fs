@@ -39,10 +39,16 @@ cover-end Constant cover-start
     false to dead-cov? ;
 
 : cov+ ( -- ) \ gforth-experimental
-    \G Add a coverage tag here.
+    \G (Immediate) Place a coverage counter here.
     dead-cov? 0= state @ and  IF  cov+,  THEN
     false to dead-cov? ; immediate compile-only
+
 : ?cov+ ( flag -- flag ) \ gforth-experimental
+    \G (Immediate) A coverage counter for a flag; in the coverage
+    \G output you see three numbers behind @code{?cov}: The first is
+    \G the number of executions where the top-of-stack was non-zero;
+    \G the second is the number of executions where it was zero; the
+    \G third is the total number of executions.
     ]] dup IF ELSE THEN [[ ; immediate compile-only
 
 :noname defers :-hook                     cov+, ; is :-hook
@@ -54,7 +60,7 @@ cover-end Constant cover-start
 :noname true to dead-cov?
     defers then-like  postpone cov+ ; is then-like
 
-: cov% ( -- ) \ gforth-experimental
+: cov% ( -- ) \ gforth-experimental cov-percent
     \G Print the percentage of basic blocks loaded after
     \G @file{coverage.fs} that are executed at least once.
     0 cover-end cover-start U+DO

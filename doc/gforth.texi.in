@@ -14483,6 +14483,11 @@ time that code is run, it increments the counter for that basic block.
 Later you can show the source file with the counts inserted in these
 basic blocks.
 
+doc-nocov[
+doc-]nocov
+doc-coverage?
+doc-cov+
+doc-?cov+
 doc-.coverage
 doc-annotate-cov
 doc-cov%
@@ -14504,11 +14509,6 @@ aggregate coverage counters across several test runs.
 
 doc-save-cov
 doc-load-cov
-doc-cov+
-@c commented out because these words have no effect (yet?)
-@c doc-coverage?
-@c doc-nocov[
-@c doc-]nocov
 
 @c -------------------------------------------------------------
 @node Multitasker, C Interface, Programming Tools, Words

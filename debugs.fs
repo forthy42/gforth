@@ -78,11 +78,11 @@ interpret/compile: ~~ ( -- ) \ gforth tilde-tilde
 \G Value: Coverage check on/off
 $10 stack: cov-stack
 
-: nocov[ ( -- ) \ gforth
-    \G turn coverage off temporarily
+: nocov[ ( -- ) \ gforth nocov-bracket
+    \G (Immediate) Turn coverage off temporarily.
     coverage? cov-stack >stack  false to coverage? ; immediate
-: ]nocov ( -- ) \ gforth
-    \G end of temporary turned off coverage
+: ]nocov ( -- ) \ gforth bracket-nocov
+    \G (Immediate) End of temporary turned off coverage.
     cov-stack stack> to coverage? ; immediate
 
 \ print a no-overhead backtrace
