@@ -9679,6 +9679,7 @@ doc-[+LOOP]
 doc-[FOR]
 doc-[NEXT]
 doc-[I]
+doc-INT-[I]
 
 doc-[BEGIN]
 doc-[UNTIL]

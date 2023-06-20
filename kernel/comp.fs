@@ -684,7 +684,7 @@ Create hmtemplate
     \G to install a more efficient implementation of the same
     \G behaviour.
     ?hm hmtemplate >hmcompile, ! ;
-' set-optimizer alias set-compiler
+' set-optimizer alias set-compiler ( xt -- ) \ gforth-obsolete
 
 : code-address! ( c_addr xt -- ) \ gforth-obsolete
     \G Change a code field with code address @i{c-addr} at @i{xt}.
@@ -752,11 +752,16 @@ Create hmtemplate
 
 : int-opt; ( flag lastxt -- )
     nip >r hm, wrap! r> set-optimizer ;
-: opt: ( -- colon-sys )
+
+: opt: ( compilation -- colon-sys2 ; run-time -- nest-sys ) \ gforth
+    \G Starts a nameless colon definition; when it is complete, this
+    \G colon definition will become the @code{compile,} implementation
+    \G of the latest word (before the @code{opt:}).
     int-[:
-    ['] int-opt; colon-sys-xt-offset stick ; \ replace noop with :does>;
-' opt: alias comp:
-( compilation colon-sys1 -- colon-sys2 ; run-time nest-sys -- ) \ gforth
+    ['] int-opt; colon-sys-xt-offset stick ;
+
+' opt: alias comp: ( compilation -- colon-sys2 ; run-time -- nest-sys ) \ gforth-obsolete
+\G Use @code{opt:} instead.
 
 : opt!-compile, ( xt -- ) \ gforth-internal
     \G force optimizing compile,
