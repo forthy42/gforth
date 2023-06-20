@@ -8227,6 +8227,7 @@ You can also change the implementation of @code{compile,} for a word,
 with
 
 doc-set-optimizer
+doc-opt:
 
 Note that the resulting @code{compile,} must still be equivalent to
 @code{postpone literal postpone execute}, so @code{set-optimizer} is
@@ -12453,7 +12454,7 @@ doc-struct
 The Forth 2012 standard defines a slightly less convenient form of
 structures.  In general (when using @code{field+}, you have to perform
 the alignment yourself, but there are a number of convenience words
-(e.g., @code{field:} that perform the alignment for you.
+(e.g., @code{field:}) that include alignment.
 
 A typical usage example is:
 
@@ -12473,7 +12474,27 @@ begin-structure s-struct
 end-structure
 @end example
 
+You can define a structure that has the same fields and additional
+fields as follows:
+
+@example
+s-struct
+  cfield: t-c
+  cfield: t-d
+constant t-struct
+@end example
+
+or alternatively
+
+@example
+s-struct extend-structure t-struct
+  cfield: t-c
+  cfield: t-d
+end-structure
+@end example
+
 doc-begin-structure
+doc-extend-structure
 doc-end-structure
 doc-+field
 doc-cfield:
@@ -12482,6 +12503,9 @@ doc-2field:
 doc-ffield:
 doc-sffield:
 doc-dffield:
+doc-wfield:
+doc-lfield:
+doc-xfield:
 
 @c -------------------------------------------------------------
 @node Object-oriented Forth, Programming Tools, Structures, Words

@@ -42,8 +42,9 @@ defer standard:field ( -- ) \ gforth-internal
 
 standard:field
 
-: extend-structure ( n "name" -- struct-sys n ) \ Gforth
-    \g extend an existing structure
+: extend-structure ( n "name" -- struct-sys n ) \ gforth
+    \g Start a new structure @i{name} as extension of an existing
+    \g structure with size @i{n}.
     standard:field >r 0 value latestnt >body r> ;
 
 : begin-structure ( "name" -- struct-sys 0 ) \ facility-ext
