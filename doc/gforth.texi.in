@@ -6201,6 +6201,8 @@ doc-$tmp
 doc-$.
 doc-$slurp
 doc-$slurp-file
+doc-$+slurp
+doc-$+slurp-file
 doc-$[]
 doc-$[]!
 doc-$[]+!
@@ -9676,6 +9678,7 @@ doc-[LOOP]
 doc-[+LOOP]
 doc-[FOR]
 doc-[NEXT]
+doc-[I]
 
 doc-[BEGIN]
 doc-[UNTIL]

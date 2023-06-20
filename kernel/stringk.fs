@@ -128,7 +128,7 @@
     - dup r> $+!len swap 0 fill ;
 
 : $[] ( u $[]addr -- addr' ) \ gforth string-array
-    \G @i{Addr'} is the address of the $i{u}th element of the string
+    \G @i{Addr'} is the address of the @i{u}th element of the string
     \G array @i{$[]addr}.  The array is resized if needed.
     >r cells dup cell+ r@ $room r> $@ drop + ;
 

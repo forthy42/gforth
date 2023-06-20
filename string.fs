@@ -101,19 +101,26 @@ tmp$ $execstr-ptr !
 
 \ slurp in lines and files into strings and string-arrays
 
-: $+slurp ( fid addr -- ) 
-    \ slurp a file @var{fid} into a string @var{addr2}, append mode
+: $+slurp ( fid addr -- ) \ gforth string-plus-slurp
+    \G Read the file @i{fid} until the end (without closing it) and
+    \G append the read data to the string at @i{addr}.
     swap dup >r file-size throw r@ file-position throw d- drop
     dup rot r> over >r >r $+!len swap r> over >r read-file throw
     r> - dup 0< IF  r> $+!len drop  ELSE  drop rdrop  THEN ;
+
 : $slurp ( fid addr -- ) \ gforth string-slurp
-    \G slurp a file @var{fid} into a string @var{addr2}
+    \G Read the file @i{fid} until the end (without closing it) and put
+    \G the read data into the string at @i{addr}.
     dup $free $+slurp ;
-: $+slurp-file ( addr1 u1 addr2 -- ) \ gforth string-slurp-file
-    \G slurp a named file @var{addr1 u1} into a string @var{addr2}, append mode
+
+: $+slurp-file ( c-addr u addr -- ) \ gforth string-plus+slurp-file
+    \G Append all the data in the file named @i{c-addr u} to the
+    \G string at @i{addr}.
     >r r/o open-file throw dup r> $+slurp close-file throw ;
-: $slurp-file ( addr1 u1 addr2 -- ) \ gforth string-slurp-file
-    \G slurp a named file @var{addr1 u1} into a string @var{addr2}
+
+: $slurp-file ( c-addr u addr -- ) \ gforth string-slurp-file
+    \G Put all the data in the file named @i{c-addr u} into the string
+    \G at @i{addr}.
     dup $free $+slurp-file ;
 
 : $slurp-line { fid addr -- flag }  addr $free
