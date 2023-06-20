@@ -38,8 +38,17 @@ Defer trace-recognizer  ' drop is trace-recognizer
     -1 rec-level +!
     2drop ['] notfound ;
 
-: recognizer-sequence: ( x1 .. xn n "name" -- ) \ gforth-experimental
+: recognizer-sequence: ( xt1 .. xtn n "name" -- ) \ gforth-experimental
+    \G concatenate a stack of recognizers to one recognizer with the
+    \G name @i{"name"}.  @i{xtn} is tried first, @i{xt1} last, just
+    \G like on the recognizer stack
     ['] recognize do-stack: ;
+
+\ : rec-sequence ( xt1 .. xtn n "name" -- ) \ gforth
+\     n>r : nr> ]] 2>r [[ 0 ?DO
+\ 	]] 2r@ [[ compile,
+\ 	]] dup ['] notfound <> IF 2rdrop EXIT THEN drop [[
+\     LOOP ]] 2rdrop ; [[ ;
 
 ' rec-num ' rec-nt 2 recognizer-sequence: default-recognize
 ' default-recognize is forth-recognize

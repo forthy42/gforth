@@ -5626,7 +5626,8 @@ doc-2>r
 doc-2r>
 doc-2r@
 doc-2rdrop
-
+doc-n>r
+doc-nr>
 
 @node Locals stack, Stack pointer manipulation, Return stack, Stack Manipulation
 @subsection Locals stack
@@ -5790,8 +5791,33 @@ doc-save-mem
 doc-free-mem-var
 doc-extend-mem
 
+
 The $tring words can also be used for dealing with memory blocks,
 @xref{$tring words}.
+
+For growable memory buffers you can use $trings, or the following
+words.  Because the allocated memory of a buffer managed with
+@code{adjust-buffer} does not shrink, there is no heap-management
+overhead when adjusting the buffer for a size smaller than the largest
+one seen yet.
+
+doc-buffer%
+doc-init-buffer
+doc-adjust-buffer
+
+You can get the current address and length of such a buffer with
+@code{2@@}.
+
+Typical usage:
+
+@example
+create mybuf  buffer% %size allot  mybuf init-buffer
+s" frobnicate" mybuf adjust-buffer  mybuf 2@@ move
+mybuf 2@@ type
+s" foo"        mybuf adjust-buffer  mybuf 2@@ move
+mybuf 2@@ type
+@end example
+
 
 @node Memory Access, Special Memory Accesses, Heap Allocation, Memory
 @subsection Memory Access
@@ -5958,10 +5984,14 @@ doc-dfloat/
 doc-dfaligned
 doc-maxaligned
 doc-cfaligned
-doc-naligned
+doc-*aligned
+doc-*align
 doc-waligned
+doc-walign
 doc-laligned
+doc-lalign
 doc-xaligned
+doc-xalign
 
 The environmental query @code{address-unit-bits} (@pxref{Environmental
 Queries}) and the following words may be useful to those who want to
@@ -9776,6 +9806,7 @@ To implement the parsing word on top if it, you can use the following
 words:
 
 doc-parse
+doc-string-parse
 doc-parse-name
 doc-parse-word
 doc-name
@@ -10295,6 +10326,7 @@ doc-include
 doc-required
 doc-require
 doc-needs
+doc-\\\
 doc-.included
 @c doc-init-included-files @c internal
 doc-sourcefilename
@@ -10462,6 +10494,7 @@ combination with the general path handling words.
 
 doc-fpath
 doc-.fpath
+doc-file>fpath
 @c the functionality of the following words is easily available through
 @c   fpath and the general path words.  The may go away.
 @c doc-fpath+
@@ -10488,6 +10521,7 @@ and use your own search paths, by providing generic equivalents of the
 Forth search path words:
 
 doc-open-path-file
+doc-file>path
 doc-clear-path
 doc-also-path
 doc-.path
@@ -14142,6 +14176,7 @@ The following words inspect the stack non-destructively:
 doc-...
 doc-.s
 doc-f.s
+doc-f.s-precision
 doc-maxdepth-.s
 
 There is a word @code{.r} but it does @i{not} display the return stack!

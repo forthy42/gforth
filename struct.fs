@@ -18,9 +18,9 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: naligned ( addr1 n -- addr2 ) \ gforth
-\g @var{addr2} is the aligned version of @var{addr1} with respect to the
-\g alignment @var{n}.
+: naligned ( addr1 n -- addr2 ) \ gforth-internal
+\g @var{Addr2} is the aligned version of @var{addr1} with respect to the
+\g alignment @var{n}.  Another name for this word is @code{*aligned}.
  1- tuck +  swap invert and ;
 
 ' naligned alias nalign \ old name, obsolete

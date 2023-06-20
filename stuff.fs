@@ -143,10 +143,18 @@ UValue $? ( -- n ) \ gforth dollar-question
 
 \ file>path
 
-: file>path ( addr1 u1 path-addr -- addr2 u2 ) \ gforth
+: file>path ( c-addr1 u1 path-addr -- c-addr2 u2 ) \ gforth
+    \G Searches for a file with the name @i{c-addr1 u1} in path stored
+    \G in @i{path-addr}.  If successful, @i{c-addr u2} is the absolute
+    \G file name or the file name relative to the current working
+    \G directory.  Throws an exception if the file cannot be opened.
     open-path-file throw rot close-file throw ;
 
 : file>fpath ( addr1 u1 -- addr2 u2 ) \ gforth
+    \G Searches for a file with the name @i{c-addr1 u1} in the
+    \G @code{fpath}.  If successful, @i{c-addr u2} is the absolute
+    \G file name or the file name relative to the current working
+    \G directory.  Throws an exception if the file cannot be opened.
     fpath file>path ;
 
 \ legacy rectype stuff
@@ -193,12 +201,14 @@ UValue $? ( -- n ) \ gforth dollar-question
 translate: translate-[[
 ' translate-[[ Constant rectype-[[
 
-: rec-[[ ( addr u -- token ) \ gforth left-bracket-bracket
-\G switch from postpone state to compile state
+: rec-[[ ( addr u -- token ) \ gforth-internal rec-left-bracket-bracket
+    \ recognizer for "[["; when it is recognized, postpone state ends.
     s" [[" str=  ['] translate-[[ ['] notfound rot select ;
 
 : ]] ( -- ) \ gforth right-bracket-bracket
-    \G switch into postpone state
+    \G Switch into postpone state: All words and recognizers are
+    \G processed as if they were preceded by @code{postpone}.
+    \G Postpone state ends when @code{[[} is recognized.
     ['] rec-[[ forth-recognizer >stack
     -2 state ! ; immediate restrict
 
@@ -322,8 +332,8 @@ translate: translate-[[
 [then]
 
 14 Value f.s-precision ( -- u ) \ gforth
-\G the field width for f.s output. Other precision details are derived
-\G from that value.
+\G A @code{value}.  @i{U} is the field width for f.s output. Other
+\G precision details are derived from that value.
 
 : f.s ( -- ) \ gforth f-dot-s
 \G Display the number of items on the floating-point stack, followed
@@ -467,20 +477,29 @@ alias xd>s ( xd -- d ) \ gforth
 : xd, ( xd -- ) \ gforth x-d-comma
     here 8 allot xd! ;
 
-' naligned alias *aligned ( addr n -- addr' )
-: *align ( n -- )
+' naligned alias *aligned ( addr1 n -- addr2 ) \ gforth
+\g @var{addr2} is the aligned version of @var{addr1} with respect to the
+\g alignment @var{n}.
+: *align ( n -- ) \ gforth
+    \G Align @code{here} with respect to the alignment @var{n}.
     here swap naligned ->here ;
 : walign ( -- ) \ gforth
+    \G Align @code{here} to even.
     2 *align ;
 : waligned ( addr -- addr' ) \ gforth
+    \G @i{Addr'} is the next even address >= @i{addr}.
     2 *aligned ;
 : lalign ( -- ) \ gforth
+    \G Align @code{here} to be divisible by 4.
     4 *align ;
 : laligned ( addr -- addr' ) \ gforth
+    \G @i{Addr'} is the next address >= @i{addr} divisible by 4.
     4 *aligned ;
 : xalign ( -- ) \ gforth
+    \G Align @code{here} to be divisible by 8.
     8 *align ;
 : xaligned ( addr -- addr' ) \ gforth
+    \G @i{Addr'} is the next address >= @i{addr} divisible by 8.
     8 *aligned ;
 
 \ safe output redirection
@@ -609,15 +628,6 @@ translate: translate-word
 
 \ concat recognizers to another recognizer
 
-: rec-sequence ( xt1 .. xtn n "name" -- ) \ gforth
-    \G concatenate a stack of recognizers to one recognizer with the
-    \G name @var{"name"}.  @var{xtn} is tried first, @{xt1} last, just
-    \G like on the recognizer stack
-    n>r : nr> ]] 2>r [[ 0 ?DO
-	]] 2r@ [[ compile,
-	]] dup ['] notfound <> IF 2rdrop EXIT THEN drop [[
-    LOOP ]] 2rdrop ; [[ ;
-
 \ growing buffers that need not be full
 
 struct
@@ -625,15 +635,16 @@ struct
     cell% field buffer-length
     cell% field buffer-address
     cell% field buffer-maxlength \ >=length
-end-struct buffer%
+end-struct buffer% ( u1 u2 -- ) \ gforth-experimental
+\g @i{u1} is the alignment and @i{u2} is the size of a buffer descriptor.
 
 : init-buffer ( addr -- ) \ gforth-experimental
-    \ Initialize a buffer% at addr to empty
+    \ Initialize a buffer% at addr to empty.
     buffer% %size erase ;
 
 : adjust-buffer ( u addr -- ) \ gforth-experimental
     \G Adjust buffer% at addr to length u.
-    \G This may grow the allocated area, but never shrinks it
+    \G This may grow the allocated area, but never shrinks it.
     dup >r buffer-maxlength @ over < if ( u )
 	r@ buffer-address @ over resize throw r@ buffer-address !
 	dup r@ buffer-maxlength ! then
