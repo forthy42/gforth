@@ -6204,6 +6204,7 @@ doc-$slurp-file
 doc-$[]
 doc-$[]!
 doc-$[]+!
+doc-$+[]!
 doc-$[]@
 doc-$[]#
 doc-$[]map

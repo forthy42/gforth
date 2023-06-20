@@ -35,12 +35,17 @@ synonym $off $free \ legacy, don't use
 
 \ string array words
 
-: $[]! ( addr u n $[]addr -- ) \ gforth string-array-store
-    \G store a string into an array at index @i{n}
+: $[]! ( c-addr u n $[]addr -- ) \ gforth string-array-store
+    \G Store string @i{c-addr y} into the string array @i{$[]addr} at
+    \G index @i{n}.  The array is resized if needed.
     $[] $! ;
-: $[]+! ( addr u n $[]addr -- ) \ gforth string-array-plus-store
-    \G add a string to the string at index @i{n}
+
+: $[]+! ( c-addr u n $[]addr -- ) \ gforth string-array-plus-store
+    \G Append the string @i{c-addr u} to the string at index @i{n}.
+    \G The array is resized if needed.  Don't confuse this with
+    \G @code{$+[]!}.
     $[] $+! ;
+
 : $[]# ( addr -- len ) \ gforth string-array-num
 \G return the number of elements in an array
     $@len cell/ ;
@@ -48,8 +53,9 @@ synonym $off $free \ legacy, don't use
 \G fetch a string from array index @i{n} --- return the zero string if
 \G empty, and don't accidentally grow the array.
     2dup $[]# u< IF $[] $@ ELSE 2drop 0. THEN ;
-: $+[]! ( addr u $[]addr -- ) \ gforth string-append-array
-\G add a string at the end of the array
+: $+[]! ( c-addr u $[]addr -- ) \ gforth string-append-array
+    \G Store the string @i{c-addr u} as the new last element of string
+    \G array @i{$[]addr}.  The array is resized if needed.
     dup $[]# swap $[]! ;
 
 User tmp$[] \ temporary string buffers
