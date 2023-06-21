@@ -6174,6 +6174,7 @@ doc-string-prefix?
 doc-string-suffix?
 doc-search
 doc-scan
+doc-scan-back
 doc-skip
 doc--trailing
 doc-/string
@@ -10442,7 +10443,14 @@ this way, you have to redirect both @code{emit} and @code{type}.
 @subsection Directories
 @cindex Directories
 
-You can open and read directories similar to files.  Reading gives you one directory entry at a time; you can match that to a filename (with wildcards).
+You can split a file name into a directory and base component:
+
+doc-basename
+doc-dirname
+
+You can open and read directories similar to files.  Reading gives you
+one directory entry at a time; you can match that to a filename (with
+wildcards).
 
 doc-open-dir
 doc-read-dir
@@ -15000,6 +15008,7 @@ necessary, and you usually want to put @code{add-lib} calls inside
 doc-clear-libs
 doc-add-lib
 doc-add-libpath
+doc-add-framework
 doc-add-incdir
 doc-add-cflags
 doc-add-ldflags

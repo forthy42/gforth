@@ -119,7 +119,7 @@ Defer discode ( addr u -- ) \ gforth
 
 definitions
 
-: next-head ( addr1 -- addr2 ) \ gforth
+: next-head ( addr1 -- addr2 ) \ gforth-internal
     \G find the next header starting after addr1, up to here (unreliable).
     [ cell body> ] Literal +
     dup which-section? ?dup-IF
@@ -133,7 +133,7 @@ definitions
     cell +loop
     r> ;
 
-: next-prim ( addr1 -- addr2 ) \ gforth
+: next-prim ( addr1 -- addr2 ) \ gforth-internal
     \G find the next primitive after addr1 (unreliable)
     1+ >r -1 primstart
     begin ( umin head R: boundary )

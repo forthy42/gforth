@@ -144,12 +144,15 @@ require string.fs
     1 -loop
     c-addr 0 ;
 
-: dirname ( c-addr1 u1 -- c-addr2 u2 ) \ gforth
-    \ directory name of the file name c-addr1 u1, including the final "/".
+: dirname ( c-addr1 u1 -- c-addr1 u2 ) \ gforth
+    \G @i{C-addr1 u2} is the directory name of the file name
+    \G @i{c-addr1 u1}, including the final @code{/}.  If @i{caddr1 u1}
+    \G does not contain a @code{/}, @i{u2}=0.
     '/ scan-back ;
 
 : basename ( c-addr1 u1 -- c-addr2 u2 ) \ gforth
-    \ file name without directory component
+    \G Given a file name @i{c-addr1 u1}, @i{c-addr2 u2} is the part of
+    \G it with any leading directory components removed.
     2dup dirname nip /string ;
 
 \ stubs for 0.7-style usage without C-LIBRARY
@@ -862,7 +865,7 @@ DEFER compile-wrapper-function ( -- )
     \ create an empty library handle
     align here 0 , lib-handle-addr @ , here $saved 0 , $10 allot  lib-handle-addr ! ;
 
-: free-libs ( -- ) \ gforth
+: free-libs ( -- ) \ gforth-internal
     ptr-declare off  c-libs off  c-flags off
     libcc$ off  libcc-include ;
 
