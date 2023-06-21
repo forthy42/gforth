@@ -229,28 +229,12 @@ is ?warning
     \G turn off line tracing
     ['] noop is before-line ;
 
-\ view/locate
-
-require string.fs
+\ locate factors
 
 : esc'type ( addr u -- )
     bounds ?DO
 	I c@ ''' = IF  ''' emit '"' emit ''' emit '"' emit ''' emit
 	ELSE  I c@ emit  THEN  LOOP ;
-
-: esc'"type ( addr u -- )
-    bounds ?DO
-	I c@ ''' = IF  ''' emit '"' emit ''' emit '"' emit ''' emit
-	ELSE  I c@ '"' = IF  '\' emit '"' emit
-	    ELSE  I c@ emit  THEN  THEN  LOOP ;
-
-: view-emacs ( "name" -- ) \ gforth-obsolete
-    [: ." emacsclient -e '(forth-find-tag " '"' emit
-      parse-name esc'"type
-      '"' emit ." )'" ;] $tmp system ;
-
-: view-vi ( "name" -- ) \ gforth-obsolete
-    [: ." vi -t '" parse-name esc'type ." '" ;] $tmp system ;
 
 : type-prefix ( c-addr1 u1 u -- c-addr2 u2 )
     \ type the u-len prefix of c-addr1 u1, c-addr2 u2 is the rest
