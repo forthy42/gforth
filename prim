@@ -3074,12 +3074,12 @@ gforth_dlclose2(u);
 \+64bit
 
 x! ( w c_addr -- )	gforth x_store
-""Store the bottom 64 bits of @i{w} at 64-bit-aligned @i{c_addr}.""
+""Store the bottom 64 bits of @i{w} at @i{c_addr}.""
 UOctabyte ob=w;
 memmove(c_addr, (Char*)&ob, 8);
 
 x@ ( c_addr -- u )	gforth x_fetch
-""@i{u} is the zero-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
+""@i{u} is the zero-extended 64-bit value stored at @i{c_addr}.""
 UOctabyte ob;
 memmove((Char*)&ob, c_addr, 8);
 u = ob;
@@ -3090,7 +3090,7 @@ u = ob;
 \g memory
 
 xd! ( ud c_addr -- )	gforth x_d_store
-""Store the bottom 64 bits of @i{ud} at 64-bit-aligned @i{c_addr}.""
+""Store the bottom 64 bits of @i{ud} at @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 #  ifdef WORDS_BIGENDIAN
@@ -3114,7 +3114,7 @@ memmove(c_addr, (Char*)&ob, 8);
 #endif
 
 xd@ ( c_addr -- ud )	gforth x_d_fetch
-""@i{ud} is the zero-extended 64-bit value stored at 64-bit-aligned @i{c_addr}.""
+""@i{ud} is the zero-extended 64-bit value stored at @i{c_addr}.""
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 UTetrabyte tb[2];

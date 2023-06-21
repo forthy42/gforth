@@ -15029,6 +15029,7 @@ Then you need to generate a callback as described below:
 You can generate C callbacks from Forth code with @code{c-callback}.
 
 doc-c-callback
+doc-c-callback-thread
 
 This precompiles a number of callback functions (up to the value
 @code{callback#}).  The prototype of the C function is deduced from

@@ -1034,7 +1034,7 @@ latestnt to rt-vtable
     r@ ccb-cfuns @ r@ ccb-num @ cells + @
     -1 r> ccb-num +! ;
 
-: (c-callback) ( xt "forth-name" "@{type@}" "---" "type" -- ) \ gforth
+: (c-callback) ( xt "forth-name" "@{type@}" "---" "type" -- ) \ gforth-internal
     \G Define a callback instantiator with the given signature.  The
     \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
     \G an @var{xt}, and returns the @var{addr}ess of the C function
@@ -1058,7 +1058,7 @@ latestnt to rt-vtable
     \G Define a callback instantiator with the given signature.  The
     \G callback instantiator @i{forth-name} @code{( xt -- addr )} takes
     \G an @var{xt}, and returns the @var{addr}ess of the C function
-    \G handling that callback.  This callback is save when called from
+    \G handling that callback.  This callback is safe when called from
     \G another thread
     ['] callback-thread-gen (c-callback) ;
 
