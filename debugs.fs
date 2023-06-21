@@ -244,12 +244,12 @@ require string.fs
 	ELSE  I c@ '"' = IF  '\' emit '"' emit
 	    ELSE  I c@ emit  THEN  THEN  LOOP ;
 
-: view-emacs ( "name" -- ) \ gforth
+: view-emacs ( "name" -- ) \ gforth-obsolete
     [: ." emacsclient -e '(forth-find-tag " '"' emit
       parse-name esc'"type
       '"' emit ." )'" ;] $tmp system ;
 
-: view-vi ( "name" -- ) \ gforth
+: view-vi ( "name" -- ) \ gforth-obsolete
     [: ." vi -t '" parse-name esc'type ." '" ;] $tmp system ;
 
 : type-prefix ( c-addr1 u1 u -- c-addr2 u2 )
@@ -290,7 +290,8 @@ Variable rec'[]
 : emacs-l:c ( line pos -- )
     ." +" swap 0 .r ." :" . ;
 : vi-l:c ( line pos -- )  ." +" drop . ;
-: editor-cmd ( souceview -- ) \ gforth
+
+: editor-cmd ( sourceview -- ) \ gforth-internal
     \G tell the editor to go to the source of a word
     \G uses $EDITOR, and adjusts goto line command depending
     \G on vi- (default), kate-, or emacs-style
@@ -362,11 +363,11 @@ Variable rec'[]
 : .hm ( nt -- ) \ gforth dot-h-m
     \G print the header methods of @i{nt}
     >namehm @ cr
-    ." opt:    " dup >hmcompile, @ .name? cr
-    ." to:     " dup >hmto       @ .name? cr
-    ." >int:   " dup >hm>int     @ .name? cr
-    ." >comp:  " dup >hm>comp    @ .name? cr
-    ." defer@: " dup >hmdefer@   @ .name? cr
-    ." extra:  " dup >hmextra    @ .name? cr
-    ." >string " dup >hm>string  @ .name? cr
-    ." >link   "     >hm>link    @ .name? ;
+    ." opt:     " dup >hmcompile, @ .name? cr
+    ." to:      " dup >hmto       @ .name? cr
+    ." >int:    " dup >hm>int     @ .name? cr
+    ." >comp:   " dup >hm>comp    @ .name? cr
+    ." defer@:  " dup >hmdefer@   @ .name? cr
+    ." extra:   " dup >hmextra    @ .name? cr
+    ." >string: " dup >hm>string  @ .name? cr
+    ." >link:   "     >hm>link    @ .name? ;

@@ -74,7 +74,7 @@ User block-offset ( -- addr ) \ gforth
 
 block-cold
 
-Defer flush-blocks ( -- ) \ gforth
+Defer flush-blocks ( -- ) \ gforth-internal
 
 : open-blocks ( c-addr u -- ) \ gforth
 \g Use the file, whose name is given by @i{c-addr u}, as the blocks file.
@@ -152,7 +152,7 @@ Defer flush-blocks ( -- ) \ gforth
 
 ' flush IS flush-blocks
 
-: get-buffer ( u -- a-addr ) \ gforth
+: get-buffer ( u -- a-addr ) \ gforth-internal
     0 buffers um/mod drop buffer-struct %size * block-buffers @ + ;
 
 : block ( u -- a-addr ) \ block

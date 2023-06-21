@@ -8533,12 +8533,15 @@ doc-is
 doc-defer@
 doc-action-of
 @comment TODO document these: what's defers [is]
-doc-defers
 
 @c Use @code{words-deferred} to see a list of deferred words.
 
-Definitions of these words (except @code{defers}) in Standard Forth are
-provided in @file{compat/defer.fs}.
+Definitions of these Forth-2012 words in Forth-94 are provided in
+@file{compat/defer.fs}.  In addition, Gforth provides:
+
+doc-defers
+doc-wrap-xt
+
 
 @node Forward, Aliases, Deferred Words, Defining Words
 @subsection Forward
@@ -11095,6 +11098,7 @@ you can use @code{key?}.
 doc-key
 doc-key-ior
 doc-key?
+doc-xkey?
 
 If you want to process a mix of printable and non-printable
 characters, you can do that with @code{ekey} and friends.  @code{Ekey}
@@ -11104,7 +11108,7 @@ with @code{ekey>char} or into a key identifier with @code{ekey>fkey}.
 Typical code for using EKEY looks like this:
 
 @example
-ekey ekey>char if ( c )
+ekey ekey>xchar if ( xc )
   ... \ do something with the character
 else ekey>fkey if ( key-id )
   case
@@ -11119,6 +11123,7 @@ then then
 @end example
 
 doc-ekey
+doc-ekey>xchar
 doc-ekey>char
 doc-ekey>fkey
 doc-ekey?
@@ -11158,6 +11163,24 @@ You can combine these key identifiers with masks for various shift keys:
 doc-k-shift-mask
 doc-k-ctrl-mask
 doc-k-alt-mask
+
+There are a number of keys that have ASCII values, and therefore are
+unlikely to be reported as special keys, but the combination of these
+keys with shift keys may be reported as a special key:
+
+doc-k-enter
+doc-k-backspace
+doc-k-tab
+
+Moreover, there the following key codes for keys and other events:
+
+doc-k-winch
+doc-k-pause
+doc-k-mute
+doc-k-volup
+doc-k-voldown
+doc-k-sel
+doc-k-eof
 
 Note that, even if a Forth system has @code{ekey>fkey} and the key
 identifier words, the keys are not necessarily available or it may not
@@ -15171,6 +15194,7 @@ architecture/OS combination, sometimes crossing OS boundaries).
 doc-assembler
 doc-init-asm
 doc-abi-code
+doc-;abi-code
 doc-end-code
 doc-code
 doc-;code
@@ -16041,23 +16065,34 @@ The new Gforth word header is object-oriented and supports the
 following methods (method selectors):
 
 @example
-method          overrider        field
-execute         set-execute      >cfa
-opt-compile,    set-optimizer    >hmcompile,
-defer!          set-to           >hmto
-defer@@          set-defer@@       >hmdefer@@
-                                 >hmextra
-name>interpret  set->int         >hm>int
-name>compile    set->comp        >hm>comp
-name>string     set-name>string  >hm>string
-name>link       set-name>link    >hm>link
+.hm label method          overrider        field
+          execute         set-execute      >cfa
+opt:      opt-compile,    set-optimizer    >hmcompile,
+to:       defer!          set-to           >hmto
+defer@@:   defer@@          set-defer@@       >hmdefer@@
+extra:                                     >hmextra
+>int:     name>interpret  set->int         >hm>int
+>comp:    name>compile    set->comp        >hm>comp
+>string:  name>string     set-name>string  >hm>string
+>link:    name>link       set-name>link    >hm>link
 @end example
 
 Many of these words are not stable Gforth words, but Gforth has stable
 higher-level words that we mention below.
 
-Setter words change the most recent definition (which does not include
-completed quotations or closures).
+You can look at the header methods of a word with
+
+doc-.hm
+
+Overrider (setter) words change the method implementation for the most
+recent definition.  Quotations or closures restore the previous most
+recent definition when they are completed, so they are not considered
+most recent, and you can do things like:
+
+@example
+: my2dup over over ;
+[: drop ]] over over [[ ;] set-optimizer
+@end example
 
 The @code{execute} method is actually stored in the @code{>cfa} field
 in the header rather than in the header-methods table for performance
@@ -16071,11 +16106,12 @@ To get a code address for use with @code{set-execute}, you can use
 words like @code{docol:} or @code{>code-address}, @xref{Threading
 Words}.
 
-There is also @code{set-does>} (@pxref{User-defined Defining Words}),
-which takes an xt.
+As an alternative to @code{set-execute}, there is also
+@code{set-does>} (@pxref{User-defined Defining Words}), which takes an
+xt.
 
 Moreover, there are the low-level @code{code-address!} and
-@code{definer!}, @xref{Threading Words}.
+@code{definer!} (@pxref{Threading Words}).
 
 The @code{opt-compile,} method is what @code{compile,} does on most
 Gforth engines (@code{gforth-itc} uses @code{,} instead).  You can

@@ -84,7 +84,7 @@ keycode k-next   ( -- u ) \ facility-ext
 \G aka PgDn    
 keycode k-insert ( -- u ) \ facility-ext
 keycode k-delete ( -- u ) \ facility-ext
-\ the DEL key on my xterm, not backspace
+\G the @key{DEL} key on my xterm, not backspace
 keycode k-enter  ( -- u ) \ gforth
 \ only useful in combinations, but it is keycode+#lf
 
@@ -103,6 +103,7 @@ keycode k-f11 ( -- u ) \ facility-ext k-f-11
 keycode k-f12 ( -- u ) \ facility-ext k-f-12
 
 keycode k-winch ( -- u ) \ gforth
+\G A key code that may be generated when the user changes the window size.
 keycode k-pause ( -- u ) \ gforth
 keycode k-mute  ( -- u ) \ gforth
 keycode k-volup ( -- u ) \ gforth
@@ -110,7 +111,7 @@ keycode k-voldown ( -- u ) \ gforth
 keycode k-backspace ( -- u ) \ gforth
 keycode k-tab ( -- u ) \ gforth
 keycode k-sel ( -- u ) \ gforth
-\ keycode for Android selections
+\G keycode for Android selections
 keycode k-eof ( -- u ) \ gforth
 \ always the last gforth-specific keycode
 drop
@@ -361,10 +362,14 @@ set-current
 
 [IFDEF] max-single-byte
 : ekey>char ( u -- u false | c true ) \ facility-ext e-key-to-char
-    \G Convert keyboard event @var{u} into character @code{c} if possible.
+    \G Convert keyboard event @var{u} into character @code{c} if
+    \G possible.  Note that non-ASCII characters produce @code{false}
+    \G from both @code{ekey>char} and @code{ekey>fkey}.  Instead of
+    \G @code{ekey>char}, use @code{ekey>xchar} if available.
     dup max-single-byte u< ; \ k-left must be first!
 : ekey>xchar ( u -- u false | xc true ) \ xchar-ext e-key-to-x-char
-    \G Convert keyboard event @var{u} into xchar @code{xc} if possible.
+    \G Convert keyboard event @var{u} into xchar @code{xc} if
+    \G possible.
     dup k-left u< ; \ k-left must be first!
 : ekey>fkey ( u1 -- u2 f ) \ facility-ext e-key-to-f-key
 \G If u1 is a keyboard event in the special key set, convert

@@ -61,7 +61,7 @@ vocabulary assembler ( -- ) \ tools-ext
     defstart init-asm ;
 [endif]
 
-: (;code) ( -- ) \ gforth
+: (;code) ( -- ) \ gforth-internal
     \ execution semantics of @code{;code}
     r> latestnt code-address! ;
 
@@ -90,6 +90,17 @@ interpret/compile: ;code ( compilation. colon-sys1 -- colon-sys2 )	\ tools-ext	s
     ['] ;abi-code, set-optimizer ;
 
 : ;abi-code ( -- ) \ gforth semicolon-abi-code
+    \G Ends the colon definition, but at run-time also changes the
+    \G last defined word @i{X} (which must be a @code{create}d word) to call
+    \G the following native code using the platform's ABI convention
+    \G corresponding to the C prototype:
+    \G @example
+    \G  Cell *function(Cell *sp, Float **fpp, Address body);
+    \G @end example
+    \G The FP stack pointer is passed in by providing a reference to a
+    \G memory location containing the FP stack pointer and is passed
+    \G out by storing the changed FP stack pointer there (if necessary).
+    \G The parameter @i{body} is the body of @i{X}.
     ['] !;abi-code does>-like postpone [ init-asm ; immediate
 [then]
     

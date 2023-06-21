@@ -37,7 +37,7 @@ variable assert-level ( -- a-addr ) \ gforth
 
 6 Constant assert-canary
 
-: assertn ( n -- ) \ gforth assert-n
+: assertn ( n -- ) \ gforth-internal assert-n
     \ this is internal (it is not immediate)
     assert-level @ >
     if
