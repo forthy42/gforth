@@ -674,17 +674,23 @@ end-struct buffer% ( u1 u2 -- ) \ gforth-experimental
 	    IF  xt execute  THEN  REPEAT
     buf $free  handle close-dir throw ;
 
-: s+ { addr1 u1 addr2 u2 -- addr u }
-    u1 u2 + allocate throw { addr }
-    addr1 addr u1 move
-    addr2 addr u1 + u2 move
-    addr u1 u2 +
-;
+: s+ { c-addr1 u1 c-addr2 u2 -- c-addr u } \ gforth s-plus
+    \G @i{c-addr u} is a newly @code{allocate}d string that contains
+    \G the concatenation of @i{c-addr1 u1} (first) and @i{c-addr2 u2}
+    \G (second).
+    u1 u2 + allocate throw { c-addr }
+    c-addr1 c-addr u1 move
+    c-addr2 c-addr u1 + u2 move
+    c-addr u1 u2 + ;
 
-: append { addr1 u1 addr2 u2 -- addr u }
-    addr1 u1 u2 + dup { u } resize throw { addr }
-    addr2 addr u1 + u2 move
-    addr u ;
+: append { c-addr1 u1 c-addr2 u2 -- c-addr u } \ gforth
+    \G @i{C-addr u} is the concatenation of @i{c-addr1 u1} (first) and
+    \G @i{c-addr2 u2} (second).  @i{c-addr1 u1} is an @code{allocate}d
+    \G string, and @code{append} @code{resize}s it (possibly moving it
+    \G to a new address) to accomodate @i{u} characters.
+    c-addr1 u1 u2 + dup { u } resize throw { c-addr }
+    c-addr2 c-addr u1 + u2 move
+    c-addr u ;
 
 \ char/[char]
 

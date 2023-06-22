@@ -6168,6 +6168,8 @@ for words that move, copy, compare and search strings, see @ref{Memory
 Blocks}. For words that display characters and strings, see
 @ref{Displaying characters and strings}.
 
+The following words work on previously existing strings:
+
 doc-str=
 doc-str<
 doc-string-prefix?
@@ -6179,8 +6181,6 @@ doc-skip
 doc--trailing
 doc-/string
 doc-safe/string
-doc-delete
-doc-insert
 doc-cstring>sstring
 
 The following words compare case-insensitively for ASCII characters,
@@ -6190,6 +6190,28 @@ wordlists).
 doc-capscompare
 doc-capsstring-prefix?
 doc-capssearch
+
+The following words create or extend strings on the heap:
+
+doc-s+
+doc-append
+doc->string-execute
+
+One could define @code{s+} using @code{>string-execute}, as follows:
+
+: s+ ( c-addr1 u1 c-addr2 u2 -- c-addr u )
+  [: 2swap type type ;] >string-execute ;
+
+For concatenating just two strings @code{>string-execute} is
+inefficient, but for concatenating many strings @code{>string-execute}
+can be more efficient.
+
+@c !! move this in a separate section?
+Some words work on buffers:
+
+doc-delete
+doc-insert
+
 
 @node $tring words, Counted string words, String words, Strings and Characters
 @subsection $tring words
