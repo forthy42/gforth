@@ -16,13 +16,14 @@ callback-wrapper callback-return callback-wrapup gen-par-callback
 callback-call callback-pushs callback-&style callback-style callback-header 
 print-type gen-types gen-void gen-func gen-r gen-ud gen-d gen-a gen-u gen-n 
 gen-wrapper-function >ptr-declare .prefix wrapper-function-name sanitize 
-gen-wrapped-stmt gen-wrapped-types gen-wrapped-func gen-wrapped-r 
-gen-wrapped-ud gen-wrapped-d gen-wrapped-s gen-wrapped-a gen-wrapped-u 
-gen-wrapped-n gen-wrapped-void gen-wrapped-call gen-call-types gen-wrapped-var 
-gen-wrapped-const gen-wrapped-func gen-par gen-par-types gen-par-0 gen-par-ws 
-gen-par-s gen-par-void gen-par-func gen-par-r gen-par-ud gen-par-d ?return 
-gen-par-a gen-par-u gen-par-n gen-par-fp gen-par-sp+ gen-par-sp .gen 
-count-stacks count-stacks-types count-stacks-ws count-stacks-s 
+gen-wrapped-stmt gen-wrapped-types gen-wrapped-t gen-wrapped-func 
+gen-wrapped-r gen-wrapped-ud gen-wrapped-d gen-wrapped-s gen-wrapped-a 
+gen-wrapped-u gen-wrapped-n gen-wrapped-void gen-wrapped-call gen-call-types 
+gen-wrapped-var gen-wrapped-const gen-wrapped-func gen-par gen-par-types 
+gen-par-t gen-par-0 gen-par-ws gen-par-s gen-par-void gen-par-func gen-par-r 
+gen-par-ud gen-par-d ?return gen-par-a gen-par-u gen-par-n gen-par-fp 
+gen-par-sp+ *gen-par-sp++ r-cast gen-par-sp .gen count-stacks 
+count-stacks-types count-stacks-t count-stacks-ws count-stacks-s 
 count-stacks-void count-stacks-func count-stacks-r count-stacks-ud 
 count-stacks-d count-stacks-a count-stacks-u count-stacks-n type-letter 
 is-funptr? parse-variable-type parse-value-type parse-function-types 
@@ -4755,7 +4756,7 @@ required included >include-auto-extension include-auto-extension-filename
 sourceline# included-filename[] sourcefilename included-files open-fpath-file 
 open-path-file execute-path-file open-ofile reworkdir compact-filename 
 skip-..-prefixes preserve-root del-./s del-string expandtopic remove~+ 
-extractpath need/ pathsep? absolut-path? .fpath .path next-path path>string 
+extractpath need/ pathsep? absolute-file? .fpath .path next-path path>string 
 fpath= path= substc fpath+ path+ only-path clear-path also-path os-cold 
 clear-paths tfile ofile fpath 'image save-strings boot-strings $[]Variable 
 $Variable $[]saved $saved boot[][] boot$[] $[]save $[]boot $save $boot $[] 

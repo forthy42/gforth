@@ -1015,7 +1015,7 @@ latestnt to rt-vtable
     false to is-funptr? ;
 
 : setup-callback ( addr -- ) dup
-    >r ccb% + 2 + count + count 2dup
+    >r ccb% + 2 + count + count + count 2dup
     r@ ccb-lha @ @ lookup-ip-array r@ ccb-ips !
     r@ ccb-lha @ @ lookup-c-array r> ccb-cfuns ! ;
 
