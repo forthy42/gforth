@@ -503,11 +503,12 @@ Variable browse-results
 	i where-results >stack
     where-struct +LOOP ;
 
-: browse ( "pattern" -- ) \ gforth
-    \g Show all places where a word with a name that matches
-    \g @i{pattern} is defined (@code{mwords}-like).  You can then use
-    \g @code{ww}, @code{nw} or @code{bw} (@pxref{Locating uses of a
-    \g word}) to inspect specific occurences more closely.
+: browse ( "subname" -- ) \ gforth
+    \g Show all places where a word with a name that contains
+    \g @i{subname} is defined (@code{mwords}-like, @pxref{Word
+    \g Lists}).  You can then use @code{ww}, @code{nw} or @code{bw}
+    \g (@pxref{Locating uses of a word}) to inspect specific
+    \g occurences more closely.
     ['] noop ['] filename>display
     [: where-setup source-pos# source-line# 2>r
 	(browse) 2r> where-reset ;] wrap-xt ;
