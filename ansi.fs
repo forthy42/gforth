@@ -199,10 +199,10 @@ $Variable term-rgb$
 
 $0 Value default-bg
 
-theme: default-mode ( -- ) \ gforth
-\G use the default color
+theme: uncolored-mode ( -- ) \ gforth
+\G This mode does not set colors, but uses the default ones.
 
-default-mode
+uncolored-mode
 
 false to white?
 <a defaultcolor >fg defaultcolor >bg a> to default-color
@@ -245,7 +245,7 @@ false to white?
 <a red >fg defaultcolor >bg invers bold a> to error-hl-inv
 <a white >fg blue >bg bold a> to status-color
 
-default-mode
+uncolored-mode
 
 : magenta-input ( -- ) \ gforth
     \G make input color easily recognizable (useful in presentations)
@@ -254,7 +254,7 @@ default-mode
 : auto-color ( -- )
     is-terminal? is-color-terminal? and 0= if
         \ TODO: no terminal - switch to other output class
-	default-mode  EXIT
+	uncolored-mode  EXIT
     then
     is-xterm? if term-bg? else default-bg then
     rgb-split + + $17F u> IF

@@ -6016,15 +6016,17 @@ character strings.  Most words work on character blocks, and expect a
 char-aligned address.
 
 When copying characters between overlapping memory regions, use
-@code{chars move} or choose carefully between @code{cmove} and
-@code{cmove>}.
+@code{move}.  @code{Cmove} and @code{cmove>} tend to be slower than a
+well-implemented @code{move}.
 
 doc-move
-doc-erase
 doc-cmove
 doc-cmove>
 doc-fill
+doc-erase
 doc-blank
+doc-insert
+doc-delete
 doc-compare
 doc-bounds
 doc-pad
@@ -6205,13 +6207,6 @@ One could define @code{s+} using @code{>string-execute}, as follows:
 For concatenating just two strings @code{>string-execute} is
 inefficient, but for concatenating many strings @code{>string-execute}
 can be more efficient.
-
-@c !! move this in a separate section?
-Some words work on buffers:
-
-doc-delete
-doc-insert
-
 
 @node $tring words, Counted string words, String words, Strings and Characters
 @subsection $tring words
@@ -9936,6 +9931,7 @@ doc-search-wordlist
 doc-words
 doc-vlist
 doc-wordlist-words
+doc-mwords
 @c doc-words-deferred
 
 @c doc-mappedwordlist @c map-structure undefined, implemantation-specific
@@ -11111,10 +11107,13 @@ doc-status-color
 @c doc-attr!
 
 @subsubsection Color themes
-Depending on wether you prefer bright or dark background the foreground colors-theme can be changed by:
+Depending on wether you prefer bright or dark background the
+foreground colors-theme can be changed by:
 
 doc-light-mode
 doc-dark-mode
+doc-uncolored-mode
+doc-magenta-input
 
 @node Single-key input, Line input and conversion, Terminal output, Other I/O
 @subsection Single-key input
@@ -14116,6 +14115,10 @@ editor with
 
 doc-edit
 
+You can see the definitions of similarly-named words with
+
+doc-browse
+
 
 @node Locating documentation, Locating uses of a word, Locating source code definitions, Programming Tools
 @subsection Locating documentation
@@ -14139,6 +14142,14 @@ doc-bw
 doc-gg
 doc-ll
 doc-whereg
+doc-short-where
+doc-expand-where
+doc-prepend-where
+
+The data we have on word usage also allows us to show which words have
+no uses:
+
+doc-unused-words
 
 @node Locating exception source, Examining compiled code, Locating uses of a word, Programming Tools
 @subsection Locating exception source
@@ -14368,9 +14379,6 @@ doc-~~Variable
 doc-~~Value
 doc-+ltrace
 doc--ltrace
-doc-view
-doc-locate
-doc-edit
 doc-#loc
 
 @node Assertions, Singlestep Debugger, Debugging, Programming Tools

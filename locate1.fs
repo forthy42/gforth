@@ -195,7 +195,7 @@ no-</>
     \g location there.
     view' .rec'-stack dup 0= #-13 and throw  locate-name ;
 
-' locate alias view ( "name" -- ) \ gforth
+' locate alias view ( "name" -- )
 
 : n ( -- ) \ gforth
     \g Display lines behind the current location, or behind the last
@@ -417,21 +417,25 @@ Defer where-setup
 : where-reset ( n1 n2 -- ) to source-line#  to source-pos# ;
 
 : short-where ( -- ) \ gforth
-    \G where uses a short file format (default)
+    \G Set up @code{where} to use a short file format (default).
     ['] short~~ is where-setup ;
 : expand-where ( -- ) \ gforth
-    \G where uses a fully expanded file format (to pass to e.g. editors)
+    \G Set up @code{where} to use a fully expanded file format (to
+    \G pass to e.g. editors).
     ['] expand~~ is where-setup ;
 : prepend-where ( -- ) \ gforth
-    \G where prepends the file to a list of locations in that file (like
-    \G SwiftForth)
+    \G Set up @code{where} to show the file on a separate line,
+    \G followed by @code{where} lines without file names (like
+    \G SwiftForth).
     ['] prepend~~ is where-setup ;
 short-where
 
 : where ( "name" -- ) \ gforth
     \g Show all places where @i{name} is used (text-interpreted).  You
     \g can then use @code{ww}, @code{nw} or @code{bw} to inspect
-    \g specific occurences more closely.
+    \g specific occurences more closely.  Gforth's @code{where} does
+    \g not show the definition of @i{name}; use @code{locate} for
+    \g that.
     ['] noop ['] filename>display
     [: where-setup source-pos# source-line# 2>r
 	(where) 2r> where-reset ;] wrap-xt ;
@@ -499,10 +503,11 @@ Variable browse-results
 	i where-results >stack
     where-struct +LOOP ;
 
-: browse ( "name" -- ) \ gforth
-    \g Show all places where @i{name} is used (text-interpreted).  You
-    \g can then use @code{ww}, @code{nw} or @code{bw} to inspect
-    \g specific occurences more closely.
+: browse ( "pattern" -- ) \ gforth
+    \g Show all places where a word with a name that matches
+    \g @i{pattern} is defined (@code{mwords}-like).  You can then use
+    \g @code{ww}, @code{nw} or @code{bw} (@pxref{Locating uses of a
+    \g word}) to inspect specific occurences more closely.
     ['] noop ['] filename>display
     [: where-setup source-pos# source-line# 2>r
 	(browse) 2r> where-reset ;] wrap-xt ;
