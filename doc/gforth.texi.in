@@ -459,7 +459,6 @@ The @file{mini-oof.fs} model
 Programming Tools
 
 * Locating source code definitions::  and editing
-* Locating documentation::      @code{help}.
 * Locating uses of a word::     @code{where}.
 * Locating exception source::   Examining backtraces.
 * Examining compiled code::     @code{see} and friends.
@@ -14051,7 +14050,6 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 
 @menu
 * Locating source code definitions::  and editing
-* Locating documentation::      @code{help}.
 * Locating uses of a word::     @code{where}.
 * Locating exception source::   Examining backtraces.
 * Examining compiled code::     @code{see} and friends.
@@ -14063,7 +14061,7 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 * Code Coverage::               Measure execution frequency.
 @end menu
 
-@node Locating source code definitions, Locating documentation, Programming Tools, Programming Tools
+@node Locating source code definitions, Locating uses of a word, Programming Tools, Programming Tools
 @subsection Locating source code definitions
 @cindex source code of a word
 @cindex @code{view} (called @code{locate} in Gforth)
@@ -14120,18 +14118,7 @@ You can see the definitions of similarly-named words with
 doc-browse
 
 
-@node Locating documentation, Locating uses of a word, Locating source code definitions, Programming Tools
-@subsection Locating documentation
-@cindex documentation for a word
-
-doc-help
-
-@code{Help} sets the current location, so you can use @code{n} and
-@code{b} to show more of the text, or @code{g} to visit the
-documentation in an editor (@pxref{Locating source code definitions}).
-
-
-@node Locating uses of a word, Locating exception source, Locating documentation, Programming Tools
+@node Locating uses of a word, Locating exception source, Locating source code definitions, Programming Tools
 @subsection Locating uses of a word
 @cindex Uses of a word
 
@@ -16394,6 +16381,7 @@ system shell (if such a thing exists) for execution.
 
 doc-sh
 doc-system
+doc-sh-get
 doc-$?
 doc-getenv
 

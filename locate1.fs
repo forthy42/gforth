@@ -617,7 +617,10 @@ included-files $[]# 1- constant doc-file#
     \G name is given followed by "::", show the start of the node.  If
     \G the name of a word is given, show the documentation of the word
     \G if it exists, or its source code if not.  Use @code{g} to enter
-    \G the editor at the point shown by @code{help}.
+    \G the editor at the point shown by @code{help}.  @code{Help} sets
+    \G the current location, so you can use @code{n} and @code{b} to
+    \G show more of the text, or @code{g} to visit the documentation
+    \G in an editor (@pxref{Locating source code definitions}).
     >in @ >r parse-name dup 0= if
         rdrop 2drop basic-help exit then
     drop 0 parse + over - -trailing 2dup s" ::" string-suffix? if
@@ -639,10 +642,10 @@ s" os-type" environment? [IF]
     s" linux-android" string-prefix? 0= [IF]
 
 User sh$  cell uallot drop
-: sh-get ( addr u -- addr2 u2 ) \ gforth
-    \G open command addr u; addr2 u2 is the output of the command.
-    \G The exit code is in \code{$?}, the output also in @code{sh$
-    \G 2@}.
+: sh-get ( c-addr u -- c-addr2 u2 ) \ gforth
+    \G Run the shell command @i{addr u}; @i{c-addr2 u2} is the output
+    \G of the command.  The exit code is in @code{$?}, the output also
+    \G in @code{sh$ 2@@}.
     sh$ free-mem-var
     r/o open-pipe throw dup >r slurp-fid
     r> close-pipe throw to $? 2dup sh$ 2! ;
