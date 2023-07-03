@@ -4587,7 +4587,7 @@ sx@ sl@ sw@ uxd@ ux@ ul@ uw@ find sfind word sword +place place (word)
 scroll-down scroll-up cursor-previous-line cursor-next-line erase-display 
 insert-lines cursor-down cursor-up control-sequence: restore-cursor-position 
 save-cursor-position (control-sequence) auto-color magenta-input dark-mode 
-light-mode default-mode default-bg rgb-split term-bg? term-fg? term-color? 
+light-mode uncolored-mode default-bg rgb-split term-bg? term-fg? term-color? 
 term-rgb@ is-xterm? is-color-terminal? is-terminal? term-rgb$ <<<m m>>> 
 mark-attr BlackSpace (theme-color!) white? theme-color@ theme: current-theme 
 (Attr!) Attr A> <A FG> BG> >FG >BG Dim Invisible Italic Strikethrough Invers 
