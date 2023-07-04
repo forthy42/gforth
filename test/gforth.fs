@@ -151,8 +151,10 @@ t{ 7 x1 -> 7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1 }t
 
 T{ 4 STACK constant RS -> }T
 
+0 warnings !@ \ rectype: is obsolete, will warn
 T{ :noname 1 ;  :noname 2 ;  :noname 3  ; rectype: rectype-1 -> }T
 T{ :noname 10 ; :noname 20 ; :noname 30 ; rectype: rectype-2 -> }T
+warnings !
 
 \ really stupid: 1 character length or 2 characters
 T{ : rec-1 NIP 1 = IF rectype-1 ELSE RECTYPE-NULL THEN ; -> }T

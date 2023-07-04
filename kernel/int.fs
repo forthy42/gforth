@@ -212,7 +212,8 @@ Defer ?warn#  ' noop is ?warn#
 	EXIT
     THEN
     [ [THEN] ]
-    source >in ! drop ; immediate
+    source >in @ over >in ! safe/string
+    15 umin s" gforth-obsolete" compare 0= IF  obsolete  THEN ; immediate
 
 : \G ( compilation 'ccc<newline>' -- ; run-time -- ) \ gforth backslash-gee
     \G Equivalent to @code{\} but used as a tag to annotate definition
@@ -353,22 +354,15 @@ Defer rec-nt ( addr u -- nt translate-nt | notfound ) \ gforth-experimental
 \ 32-bit systems cannot generate large 64-bit constant in the
 \ cross-compiler, so we kludge it by generating a constant and then
 \ storing the proper value into it (and that's another kludge).
-\ $80000000 constant alias-mask
-\ 1 bits/char 1 - lshift
-\ -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
-\                           [ELSE] 0 1 cells 1- times c, [THEN]
-\ $80000000 constant immediate-mask
-\ 1 bits/char 1 - lshift
-\ -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
-\                           [ELSE] 0 1 cells 1- times c, [THEN]
+\ alias- and immediate-masks are no longer used
 $40000000 constant restrict-mask
 1 bits/char 2 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
                           [ELSE] 0 1 cells 1- times c, [THEN]
-\ $20000000 constant prelude-mask
-\ 1 bits/char 3 - lshift
-\ -1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
-\                           [ELSE] 0 1 cells 1- times c, [THEN]
+$20000000 constant obsolete-mask
+1 bits/char 3 - lshift
+-1 cells allot  bigendian [IF]   c, 0 1 cells 1- times
+                          [ELSE] 0 1 cells 1- times c, [THEN]
 \ $01000000 constant unused-mask \ defined in locate1.fs, used only temporarily
 \ reserve 8 bits for all possible flags in total
 $00ffffff constant lcount-mask
@@ -489,11 +483,21 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 	<<# s"  is compile-only" holds dup name>string holds #0. #>
 	hold 1- c(warning") #>>
     THEN ;
+: obsolete? ( nt -- flag ) \ gforth
+    \G true if @i{nt} is marked as obsolete.
+    dup name>string nip IF
+	>f+c @ obsolete-mask and 0<>
+    ELSE drop false THEN ;
+: ?obsolete ( nt -- nt )
+    dup obsolete? IF
+	<<# s"  is obsolete" holds dup name>string holds #0. #>
+	hold 1- c(warning") #>>
+    THEN ;
 
 : name?int ( nt -- xt ) \ gforth-obsolete name-question-int
 \G Like @code{name>int}, but warns when encountering a word marked
 \G compile-only
-    ?compile-only name>int ;
+    ?compile-only ?obsolete name>int ;
 
 : named>string ( nt -- addr count ) \ gforth-internal     named-to-string
     >f+c dup @ lcount-mask and tuck - swap ;

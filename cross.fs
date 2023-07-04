@@ -2215,11 +2215,13 @@ $80 X has? f83headerstring [IF]
     dup Constant alias-mask 2/
 [THEN]
 dup constant immediate-mask 2/
-constant restrict-mask
+dup constant restrict-mask 2/
+constant obsolete-mask
 
 >TARGET
 : restrict      restrict-mask flag! ;
 : compile-only  restrict-mask flag! ;
+: obsolete      obsolete-mask flag! ;
 
 : isdoer	
 \G define a forth word as doer, this makes obviously only sense on

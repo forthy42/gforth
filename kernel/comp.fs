@@ -365,7 +365,8 @@ has? primcentric [IF]
 
 \ \ ticks
 
-' compile, AConstant default-name>comp ( nt -- w xt ) \ gforth-internal default-name-to-comp
+: default-name>comp ( nt -- w xt ) \ gforth-internal default-name-to-comp
+    ?obsolete ['] compile, ;
 
 : default-i/c ( -- )
     ['] noop set->int
@@ -434,6 +435,10 @@ include ./recognizer.fs
 ' restrict alias compile-only ( -- ) \ gforth
 \G Mark the last definition as compile-only; as a result, the text
 \G interpreter and @code{'} will warn when they encounter such a word.
+
+: obsolete ( -- ) \ gforth
+    \G Mark the last word as obsolete
+    obsolete-mask lastflags or! ;
 
 \ !!FIXME!! new flagless versions:
 \ : compile-only [: drop ['] compile-only-error ;] set->int ;
