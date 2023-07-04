@@ -139,7 +139,7 @@ definitions
     begin ( umin head R: boundary )
 	>link @ dup
     while
-	tuck name>int >code-address ( head1 umin ca R: boundary )
+	tuck name>interpret >code-address ( head1 umin ca R: boundary )
 	r@ - umin
 	swap
     repeat
@@ -656,7 +656,7 @@ ACONSTANT MaxTable
 [IFDEF] u#exec
     Variable u#what \ global variable to specify what to search for
     : search-u#gen ( 0 offset1 offset2 nt -- xt/0 offset1 offset2 flag )
-	name>int dup >code-address docol: = IF
+	name>interpret dup >code-address docol: = IF
 	    dup >body @ decompile-prim u#what @ xt=
 	    over >body 3 cells + @ decompile-prim ['] ;S xt= and
 	    IF  >r 2dup r@ >body cell+ 2@ d=
@@ -692,7 +692,7 @@ ACONSTANT MaxTable
 	IF  2dup >body @ = IF  -rot nip false  EXIT
 	    THEN  THEN  drop true ;
     : search-uservar ( offset nt -- offset flag )
-	name>int dup >code-address douser: = ?type-found ;
+	name>interpret dup >code-address douser: = ?type-found ;
     : c-searcharg ( addr xt addr u -- addr' ) 2>r >r
 	display? IF
 	    0 over @
@@ -710,7 +710,7 @@ ACONSTANT MaxTable
 [THEN]
 [IFDEF] user@
     : search-userval ( offset nt -- offset flag )
-	name>int dup >does-code ['] infile-id >does-code = ?type-found ;
+	name>interpret dup >does-code ['] infile-id >does-code = ?type-found ;
     : c-user@ ( addr -- addr' )
 	[: ['] search-userval swap traverse-wordlist ;]
 	s" user@ " c-searcharg ;
@@ -974,14 +974,14 @@ set-current
 	THEN
     THEN
     dup >r
-    dup name>comp 
-    over r@ name>int =
+    dup name>compile 
+    over r@ name>interpret =
     if \ normal or immediate word
 	swap xt-see (.immediate)
 	r@ (.compile-only)
     else
 	\ interpret/compile word
-	r@ name>int xt-see-xt cr
+	r@ name>interpret xt-see-xt cr
 	swap xt-see-xt cr
 	." interpret/compile: " r@ .name drop
     then

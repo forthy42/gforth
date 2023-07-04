@@ -24,7 +24,7 @@
 
 \ \ input stream primitives                       	23feb93py
 
-: >comp  ( xt -- ) name>comp execute ;
+: >comp  ( xt -- ) name>compile execute ;
 : no-to ( xt -- )
     \ default to action: report an error ASAP (even right when COMPILE,ing)
     #-12 throw ;
@@ -440,11 +440,11 @@ opt: ( xt-defer@ -- )
 
 swap cell+ swap \ hmextra
 
-method name>int ( nt -- xt ) \ gforth-obsolete name-to-int
+method name>interpret ( nt -- xt ) \ tools-ext name-to-interpret
 \G @i{xt} represents the interpretation semantics of the word
 \G @i{nt}.
 
-method name>comp ( nt -- w xt ) \ gforth-obsolete name-to-comp
+method name>compile ( nt -- w xt ) \ tools-ext name-to-compile
 \G @i{w xt} is the compilation token for the word @i{nt}.
 
 method name>string ( nt -- addr u ) \ tools-ext name-to-string
@@ -473,7 +473,7 @@ defer compile, ( xt -- ) \ core-ext compile-comma
     \G semantics (that's not quite according to the definition of
     \G immediacy, but many people mean that when they call a word
     \G ``immediate'').
-    name>comp nip ['] compile, <> ;
+    name>compile nip ['] compile, <> ;
 : compile-only? ( nt -- flag ) \ gforth
     \G true if @i{nt} is marked as compile-only.
     dup name>string nip IF
@@ -496,9 +496,9 @@ defer compile, ( xt -- ) \ core-ext compile-comma
     THEN ;
 
 : name?int ( nt -- xt ) \ gforth-obsolete name-question-int
-\G Like @code{name>int}, but warns when encountering a word marked
+\G Like @code{name>interpret}, but warns when encountering a word marked
 \G compile-only
-    ?compile-only ?obsolete name>int ;
+    ?compile-only ?obsolete name>interpret ;
 
 : named>string ( nt -- addr count ) \ gforth-internal     named-to-string
     >f+c dup @ lcount-mask and tuck - swap ;
@@ -513,13 +513,8 @@ defer compile, ( xt -- ) \ core-ext compile-comma
 \ : name>view ( nt -- addr ) \ gforth   name-to-view
 \     name>string drop cell negate and cell- ;
 
-\ !! DEFAULT-NAME>INT is never used, delete?
-: default-name>int ( nt -- xt ) \ gforth-internal default-name-to-int
-    \G Default @code{name>interpret} implementation.  For words where nt=xt.
-;
-
 : (name>intn) ( nfa -- xt +-1 )
-    dup name>int swap name>comp nip ['] execute = flag-sign ;
+    dup name>interpret swap name>compile nip ['] execute = flag-sign ;
 
 [IFDEF] prelude-mask
 : name>prelude ( nt -- xt )
@@ -916,7 +911,7 @@ Variable rec-level
     execute ( catch dup IF  DoError cr  THEN ) 0 (bye) ;
 
 : do-find ( addr u -- )
-    find-name dup IF  name>int  THEN  (bye) ;
+    find-name dup IF  name>interpret  THEN  (bye) ;
 
 \ \ Cold Boot                                    	13feb93py
 

@@ -20,6 +20,10 @@
 
 require struct.fs
 require rec-sequence.fs
+[IFUNDEF] name>interpret
+    ' name>int alias name>interpret
+    ' name>comp alias name>compile
+[THEN]
 
 0 recognizer-sequence: search-order
 
@@ -186,7 +190,7 @@ Forth-wordlist wordlist-id @ ' Forth >wordlist wordlist-id !
 	dup wordlist-struct %size + I + xt?
 	true = if ( wid nt )
 	    dup wordlist-struct %size + I + swap >r
-	    dup name>int dup >code-address docon: = swap >body @ r> = and if
+	    dup name>interpret dup >code-address docon: = swap >body @ r> = and if
 		id. unloop exit
 	    endif
 	endif

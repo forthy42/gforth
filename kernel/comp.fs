@@ -252,7 +252,7 @@ variable nextname$
 : latestxt ( -- xt ) \ gforth
     \G @i{xt} is the execution token of the last word defined.
     \ The main purpose of this word is to get the xt of words defined using noname
-    lastnt @ name>int ;
+    lastnt @ name>interpret ;
 
 : latest ( -- nt ) \ gforth
 \G @var{nt} is the name token of the last word defined; it is 0 if the
@@ -369,7 +369,7 @@ has? primcentric [IF]
 
 : COMP'    ( "name" -- w xt ) \ gforth  comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
-    ?parse-name forth-recognize '-error name>comp ;
+    ?parse-name forth-recognize '-error name>compile ;
 
 : [COMP']  ( compilation "name" -- ; run-time -- w xt ) \ gforth bracket-comp-tick
     \g Compilation token @i{w xt} represents @i{name}'s compilation semantics.
@@ -408,7 +408,7 @@ include ./recognizer.fs
     latest dup 0= abort" last word was nameless"
     >f+c ;
 
-: imm>comp  name>int ['] execute ;
+: imm>comp  name>interpret ['] execute ;
 : immediate ( -- ) \ core
     \G Make the compilation semantics of a word be to @code{execute}
     \G the execution semantics.
@@ -435,10 +435,10 @@ include ./recognizer.fs
     dup lit, >namehm @ >hmdefer@ @ opt!-compile, ;
 
 : a>int ( nt -- )  >body @ ;
-: a>comp ( nt -- xt1 xt2 )  name>int ['] compile, ;
+: a>comp ( nt -- xt1 xt2 )  name>interpret ['] compile, ;
 
-: s>int ( nt -- xt )  >body @ name>int ;
-: s>comp ( nt -- xt1 xt2 )  >body @ name>comp ;
+: s>int ( nt -- xt )  >body @ name>interpret ;
+: s>comp ( nt -- xt1 xt2 )  >body @ name>compile ;
 : s-to ( val nt -- )
     >body @ (to) ;
 opt: ( xt -- ) ?fold-to >body @ (to), ;
@@ -601,7 +601,7 @@ Create hmtemplate
 ' no-to A,             \ to field
 ' no-defer@ A,         \ defer@
 0 A,                   \ extra field
-' noop A,  \ name>int field
+' noop A,  \ name>interpret field
 ' default-name>comp A, \ name>comp field
 ' named>string A,      \ name>string field
 ' named>link A,        \ name>link field

@@ -48,7 +48,7 @@ previous forth definitions
 
 : process-voc-option ( addr u -- true / addr u false )
     2dup [ ' options >wordlist ] Literal find-name-in dup if
-	nip nip name>int execute true then ;
+	nip nip name>interpret execute true then ;
 
 
 

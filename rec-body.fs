@@ -34,7 +34,7 @@
     if 2drop ['] notfound exit then
     1 /string 1- '+' $split 2>r ?rec-nt
     0= if  drop 2rdrop ['] notfound exit then
-    name>int >body
+    name>interpret >body
     2r> dup 0= if  2drop ['] translate-num  exit  then
     case  rec-num
     ['] translate-dnum of  drop + ['] translate-num   endof

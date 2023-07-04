@@ -757,7 +757,7 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 \ POSTPONEing locals
 
 :noname ( locals-nt -- )
-    dup name>int >does-code case
+    dup name>interpret >does-code case
 	[ ' some-clocal  >does-code ] literal of name-compsem postpone lit, endof
 	[ ' some-dlocal  >does-code ] literal of name-compsem postpone 2lit, endof
 	[ ' some-flocal  >does-code ] literal of name-compsem postpone flit, endof

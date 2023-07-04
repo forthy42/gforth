@@ -355,7 +355,7 @@ translate: translate-[[
 \ defer stuff
 
 :noname ' defer@ ;
-:noname (') name>int defer@, ;
+:noname (') name>interpret defer@, ;
 interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
@@ -589,11 +589,11 @@ User theme-color  0 theme-color !
 
 \ x:traverse-wordlist words
 
-' name>int alias name>interpret ( nt -- xt|0 ) \ tools-ext name-to-interpret
+' name>interpret alias name>int ( nt -- xt|0 ) \ gforth-obsolete name-to-int
     \G @i{xt} represents the interpretation semantics @i{nt}; returns
     \G 0 if @i{nt} has no interpretation semantics
 
-' name>comp alias name>compile ( nt -- w xt ) \ tools-ext name-to-compile
+' name>compile alias name>comp ( nt -- w xt ) \ gforth-obsolete name-to-comp
 \G @i{w xt} is the compilation token for the word @i{nt}.
 
 \ 2value
