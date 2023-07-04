@@ -52,7 +52,7 @@ Variable read-opus
 
 : >amplitude ( addr u -- avgamp )
     0 -rot bounds ?DO
-	I sw@ abs max
+	I w@ w>s abs max
     2 +LOOP ;
 
 \ index file for fast seeking:
@@ -73,8 +73,8 @@ sample-rate samples/frame / 2* $10 + Constant /idx-block
 : write-idx ( -- )
     idx$ $@ /idx-block umin rec-idx write-file throw
     idx$ $free ;
-: w$+! ( value addr -- )  2 swap $+!len le-w! ;
-: xd$+! ( dvalue addr -- ) 8 swap $+!len le-xd! ;
+: w$+! ( value addr -- )  2 swap $+!len >r wle r> w! ;
+: xd$+! ( dvalue addr -- ) 8 swap $+!len >r xdle r> xd! ;
 : >idx-frame ( dpos -- )
     "Opus"   idx$ $!
     channels idx$ c$+!
@@ -133,7 +133,7 @@ Variable opus-out
     idx-block $@ rot safe/string ;
 : >idx-pos ( block -- )
     in-idx-block $10 u>= IF
-	idx-pos le-uxd@ 
+	idx-pos xd@ xdle 
 	play-file IF
 	    play-file reposition-file throw
 	ELSE
@@ -146,7 +146,7 @@ Variable opus-out
     r> 2* idx-head + *
     over 0= IF  dup >idx-pos  THEN
     swap 2* + idx-head +
-    in-idx-block 2 u>= IF  le-uw@  ELSE  drop 0  THEN
+    in-idx-block 2 u>= IF  w@ wle  ELSE  drop 0  THEN
     1 +to idx-pos# ;
 : read-opus-block ( frame-size -- )
     $3FF and  play-file IF
@@ -158,7 +158,7 @@ Variable opus-out
     THEN ;
 : /frame ( -- u )
     idx-block $@ $10 u>= IF
-	dup idx-channels c@ swap idx-samples le-uw@ * 2*
+	dup idx-channels c@ swap idx-samples w@ wle * 2*
     ELSE  drop 0  THEN ;
 : /sample ( -- u ) idx-block $@ $10 u>= IF
 	idx-channels c@ 2*  ELSE  drop 0  THEN ;

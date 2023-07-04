@@ -466,7 +466,9 @@ t{ 7 man-or-boy? -> -1 }t
 t{ 8 man-or-boy? -> -10 }t
 
 \ const-does>
+0 warnings !@
 t{ : cdtest1 2 2 CONST-DOES> swap fswap ; -> }t
+warnings !
 t{ 1 2 3e 4e cdtest1 cdtest2 -> }t
 t{ : cdtest3 cdtest2 ; -> }t
 t{ cdtest2 -> 2 1 4e 3e }t

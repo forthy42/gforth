@@ -48,7 +48,7 @@
 
 : name-compsem ( ... nt -- ... )
     \ perform compilation semantics of nt
-    name>compile execute-;s ;
+    ?obsolete name>compile execute-;s ;
 
 forth-wordlist is rec-nt
 :noname ['] rec-nt >body ; is context

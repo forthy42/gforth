@@ -26,8 +26,12 @@
 	cr 0 [: dup >f+c @ obsolete-mask and
 	    IF  .word  ELSE  drop  THEN  true ;]
 	context @ traverse-wordlist  drop ;
+    : unobsolete ( -- ) \ gforth
+	\G Mark the last word as not obsolete, especially for synonmys
+	obsolete-mask invert lastflags tuck @ and swap ! ;
 [ELSE]
     : obsolete ;
+    : unobsolete ;
 [THEN]
 \ from kernel
 

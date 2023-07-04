@@ -331,7 +331,7 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     \G If the event @code{name} is received, the Forth definition
     \G that follows the event declaration is executed.
     Create event# @ ,  event-does
-    here 0 , >r  noname : lastxt dup event# @ cells event-table + !
+    here 0 , >r  noname : latestxt dup event# @ cells event-table + !
     r> ! 1 event# +! ;
 : (stop) ( -- )  epiper @ key-file
     dup 0>= IF  cells event-table + perform  ELSE  drop  THEN ;

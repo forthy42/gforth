@@ -26,9 +26,9 @@ Variable scope<>
 : }scope ( scope:addr -- )
     previous scope<> stack> set-current ;
 : scope: ( "vocabulary" -- scope:addr )
-    vocabulary lastxt >scope ;
+    vocabulary latestxt >scope ;
 : cs-scope: ( "vocabulary" -- scope:addr )
-    cs-vocabulary lastxt >scope ;
+    cs-vocabulary latestxt >scope ;
 
 : struct{ ( "scope" -- vars )
     cs-scope: s" sizeof" nextname begin-structure ;

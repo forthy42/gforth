@@ -354,8 +354,7 @@ has? primcentric [IF]
 
 \ \ ticks
 
-: default-name>comp ( nt -- w xt ) \ gforth-internal default-name-to-comp
-    ?obsolete ['] compile, ;
+' compile, AConstant default-name>comp ( nt -- w xt ) \ gforth-internal default-name-to-comp
 
 : default-i/c ( -- )
     ['] noop set->int
@@ -470,6 +469,7 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
     ['] parser create-from
     ?parse-name find-name dup 0= #-13 and throw
     dup compile-only? IF compile-only THEN
+    dup obsolete? IF obsolete THEN
     ['] s>int ['] s>comp synonym, reveal ;
 
 : synonym? ( nt -- flag )
