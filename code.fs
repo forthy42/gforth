@@ -61,6 +61,23 @@ vocabulary assembler ( -- ) \ tools-ext
     defstart init-asm ;
 [endif]
 
+: code-address! ( c_addr xt -- ) \ gforth-obsolete
+    \G Change a code field with code address @i{c-addr} at @i{xt}.
+    next-section latestnt >r dup xt>name make-latest
+    over case
+        docon:     of ['] constant, endof
+        docol:     of ['] :,        endof
+        dovar:     of ['] variable, endof
+        douser:    of ['] user,     endof
+        dodefer:   of ['] defer,    endof
+        dofield:   of ['] field+,   endof
+        doabicode: of ['] abi-code, endof
+        drop ['] general-compile,
+    endcase
+    set-optimizer
+    r> make-latest previous-section
+    only-code-address! ;
+
 : (;code) ( -- ) \ gforth-internal
     \ execution semantics of @code{;code}
     r> latestnt code-address! ;

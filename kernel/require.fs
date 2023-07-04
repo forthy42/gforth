@@ -142,12 +142,6 @@ variable include-auto-extension-filename
 \   REPEAT
 \   drop ;
 
-: .strings ( addr u -- ) \ gforth-obsolete
-    \G list the strings from an array of string descriptors at addr
-    \G with u entries, one per line.
-    2* cells bounds ?DO
-	cr I 2@ type 2 cells +LOOP ;
-
 : .included ( -- ) \ gforth
     \G List the names of the files that have been @code{included}.
     included-files $@ bounds ?DO

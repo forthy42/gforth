@@ -208,10 +208,10 @@ is ?warning
 \ watching variables and values
 
 : watch-does> ( -- ) DOES> dup @ ~~ drop ;
-: watch-comp: ( xt -- ) comp: >body ]] Literal dup @ ~~ drop [[ ; 
+: watch-opt: ( xt -- ) opt: >body ]] Literal dup @ ~~ drop [[ ; 
 : ~~Variable ( "name" -- ) \ gforth
     \G Variable that will be watched on every access
-  Create 0 , watch-does> watch-comp: ;
+  Create 0 , watch-does> watch-opt: ;
 
 : ~~Value ( n "name" -- ) \ gforth
     \G Value that will be watched on every access

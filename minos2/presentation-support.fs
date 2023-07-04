@@ -179,15 +179,15 @@ end-class slide-actor
 	k-next    of  next-slide  endof
 	k-volup   of  prev-slide  endof
 	k-voldown of  next-slide  endof
-	s-k3 k-ctrl-mask or      of  1e ambient% sf!
+	k-f3 k-shift-mask or k-ctrl-mask or      of  1e ambient% sf!
 	    Ambient 1 ambient% opengl:glUniform1fv  +sync endof
-	s-k3      of  ambient% sf@ 0.1e f+ 1e fmin  ambient% sf!
+	k-f3 k-shift-mask or     of  ambient% sf@ 0.1e f+ 1e fmin  ambient% sf!
 	    Ambient 1 ambient% opengl:glUniform1fv  +sync endof
 	k-f3      of  ambient% sf@ 0.1e f- 0e fmax  ambient% sf!
 	    Ambient 1 ambient% opengl:glUniform1fv  +sync endof
-	s-k4 k-ctrl-mask or     of  1e saturate% sf!
+	k-f4 k-shift-mask or k-ctrl-mask or     of  1e saturate% sf!
 	    Saturate 1 saturate% opengl:glUniform1fv  +sync endof
-	s-k4      of  saturate% sf@ 0.1e f+ 3e fmin saturate% sf!
+	k-f4 k-shift-mask or      of  saturate% sf@ 0.1e f+ 3e fmin saturate% sf!
 	    Saturate 1 saturate% opengl:glUniform1fv  +sync endof
 	k-f4      of  saturate% sf@ 0.1e f- 0e fmax saturate% sf!
 	    Saturate 1 saturate% opengl:glUniform1fv  +sync endof

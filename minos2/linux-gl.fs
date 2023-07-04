@@ -233,7 +233,7 @@ Variable ?sync-update
 : xsv! ( ud addr -- )
     >r 2dup #32 drshift drop r@ l! drop r> 4 + l! ;
 : xsv@ ( addr -- ud )
-    dup >r 4 + l@ 0 r> sl@ s>d #32 dlshift d+ ;
+    dup >r 4 + l@ 0 r> l@ l>s s>d #32 dlshift d+ ;
 
 : sync-counter-update ( -- )
     wm_sync_counter l@ IF
@@ -363,8 +363,6 @@ Variable primary$
 
 Variable exposed
 
-: $, ( addr u -- )  here over 1+ allot place ;
-
 also x11
 
 : xmeta@ ( state -- meta ) \ minos2
@@ -385,41 +383,41 @@ also x11
     r> r> emit emit ;] $tmp ;
 
 Create x-key>ekey \ very minimal set for a start
-XK_BackSpace , "\x7F" $,
-XK_Tab       , "\t" $,
-XK_Linefeed  , "\n" $,
-XK_Return    , "\r" $,
-XK_Home      , "\e[H" $,
-XK_Left      , "\e[D" $,
-XK_Up        , "\e[A" $,
-XK_Right     , "\e[C" $,
-XK_Down      , "\e[B" $,
-XK_Insert    , "\e[2~" $,
-XK_Delete    , "\e[3~" $,
-XK_Prior     , "\e[5~" $,
-XK_Next      , "\e[6~" $,
-XK_KP_Enter  , "\r" $,
-XK_KP_Home   , "\e[H" $,
-XK_KP_Left   , "\e[D" $,
-XK_KP_Up     , "\e[A" $,
-XK_KP_Right  , "\e[C" $,
-XK_KP_Down   , "\e[B" $,
-XK_KP_Insert , "\e[2~" $,
-XK_KP_Delete , "\e[3~" $,
-XK_KP_Prior  , "\e[5~" $,
-XK_KP_Next   , "\e[6~" $,
-XK_F1        , "\eOP" $,
-XK_F2        , "\eOQ" $,
-XK_F3        , "\eOR" $,
-XK_F4        , "\eOS" $,
-XK_F5        , "\e[15~" $,
-XK_F6        , "\e[17~" $,
-XK_F7        , "\e[18~" $,
-XK_F8        , "\e[19~" $,
-XK_F9        , "\e[20~" $,
-XK_F10       , "\e[21~" $,
-XK_F12       , "\e[22~" $,
-XK_F12       , "\e[23~" $,
+XK_BackSpace , "\x7F" string,
+XK_Tab       , "\t" string,
+XK_Linefeed  , "\n" string,
+XK_Return    , "\r" string,
+XK_Home      , "\e[H" string,
+XK_Left      , "\e[D" string,
+XK_Up        , "\e[A" string,
+XK_Right     , "\e[C" string,
+XK_Down      , "\e[B" string,
+XK_Insert    , "\e[2~" string,
+XK_Delete    , "\e[3~" string,
+XK_Prior     , "\e[5~" string,
+XK_Next      , "\e[6~" string,
+XK_KP_Enter  , "\r" string,
+XK_KP_Home   , "\e[H" string,
+XK_KP_Left   , "\e[D" string,
+XK_KP_Up     , "\e[A" string,
+XK_KP_Right  , "\e[C" string,
+XK_KP_Down   , "\e[B" string,
+XK_KP_Insert , "\e[2~" string,
+XK_KP_Delete , "\e[3~" string,
+XK_KP_Prior  , "\e[5~" string,
+XK_KP_Next   , "\e[6~" string,
+XK_F1        , "\eOP" string,
+XK_F2        , "\eOQ" string,
+XK_F3        , "\eOR" string,
+XK_F4        , "\eOS" string,
+XK_F5        , "\e[15~" string,
+XK_F6        , "\e[17~" string,
+XK_F7        , "\e[18~" string,
+XK_F8        , "\e[19~" string,
+XK_F9        , "\e[20~" string,
+XK_F10       , "\e[21~" string,
+XK_F12       , "\e[22~" string,
+XK_F12       , "\e[23~" string,
 0 , 0 c,
 DOES> ( x-key -- addr u )
   swap >r

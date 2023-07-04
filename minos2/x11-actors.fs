@@ -133,7 +133,7 @@ Variable xy$
     event-handler @ >o
     Xtime lasttime @ - twoclicks >= IF
 	flags #pending -bit@ IF
-	    buttonmask le-ul@ send-clicks
+	    buttonmask l@ lle send-clicks
 	THEN
 	flags #clearme -bit@ IF
 	    0 to clicks
@@ -142,7 +142,7 @@ Variable xy$
     o> ; x11-handler is ?looper-timeouts
 :noname ( -- )
     buttonmask e.button 1- +bit
-    top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchdown  THEN
+    top-act IF  e.x e.y 1 >xy$ buttonmask l@ lle top-act .touchdown  THEN
     e.kbm.time lasttime !  ?samepos
     flags #lastdown +bit  flags #pending +bit
 ; x11-handler to DoButtonPress
@@ -150,20 +150,20 @@ Variable xy$
     ?samepos  e.kbm.time lasttime !
     flags #lastdown -bit@  IF
 	1 +to clicks  flags #clearme +bit
-	buttonmask le-ul@
+	buttonmask l@ lle
 	buttonmask e.button 1- -bit
 	send-clicks  THEN
     buttonmask e.button 1- -bit
-    top-act IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act .touchup  THEN
+    top-act IF  e.x e.y 1 >xy$ buttonmask l@ lle top-act .touchup  THEN
 ; x11-handler to DoButtonRelease
 :noname ( -- )
     flags #pending bit@  e.x e.y samepos? 0= and IF
-	buttonmask le-ul@ send-clicks  0 to clicks
+	buttonmask l@ lle send-clicks  0 to clicks
     THEN
-    grab-move? IF  e.x e.y 1 >xy$ >dxy buttonmask le-ul@
+    grab-move? IF  e.x e.y 1 >xy$ >dxy buttonmask l@ lle
 	[: grab-move? .touchmove ;] vp-needed<>|  EXIT
     THEN
-    top-act    IF  e.x e.y 1 >xy$ buttonmask le-ul@ top-act    .touchmove  THEN
+    top-act    IF  e.x e.y 1 >xy$ buttonmask l@ lle top-act    .touchmove  THEN
 ; x11-handler to DoMotionNotify
 :noname ; x11-handler to DoEnterNotify
 :noname ; x11-handler to DoLeaveNotify

@@ -108,11 +108,6 @@
     \G puts down string as cstring
     dup c, mem, ;
 
-: longstring, ( c-addr u -- ) \ gforth-obsolete
-    \G puts down string as longcstring
-    dup , mem, ;
-
-
 [IFDEF] prelude-mask
 variable next-prelude
 
@@ -186,9 +181,6 @@ unlock tlastcfa @ lock >body AConstant lastnt
     ['] named>link set-name>link ;
 : ?noname-hm ( -- ) last @ 0= IF  noname-hm  ELSE  named-hm  THEN ;
 
-: header, ( c-addr u -- ) \ gforth-obsolete
-    \G create a header for a named word
-    hm, name, hmtemplate namehm, named-hm ;
 : noname, ( -- ) \ gforth-internal
     \G create an empty header for an unnamed word
     hm, 0name, cell negate allot  hmtemplate namehm, noname-hm ;
@@ -261,9 +253,6 @@ variable nextname$
     \G @i{xt} is the execution token of the last word defined.
     \ The main purpose of this word is to get the xt of words defined using noname
     lastnt @ name>int ;
-
-' latestxt alias lastxt \ gforth-obsolete
-\G old name for @code{latestxt}.
 
 : latest ( -- nt ) \ gforth
 \G @var{nt} is the name token of the last word defined; it is 0 if the
@@ -371,9 +360,6 @@ has? primcentric [IF]
 : default-i/c ( -- )
     ['] noop set->int
     ['] default-name>comp set->comp ;
-
-: [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth-obsolete bracket-paren-tick
-    (') postpone Literal ; immediate restrict
 
 : [']  ( compilation. "name" -- ; run-time. -- xt ) \ core      bracket-tick
     \g @i{xt} represents @i{name}'s interpretation
@@ -689,24 +675,6 @@ Create hmtemplate
     \G to install a more efficient implementation of the same
     \G behaviour.
     ?hm hmtemplate >hmcompile, ! ;
-' set-optimizer alias set-compiler ( xt -- ) \ gforth-obsolete
-
-: code-address! ( c_addr xt -- ) \ gforth-obsolete
-    \G Change a code field with code address @i{c-addr} at @i{xt}.
-    next-section latestnt >r dup xt>name make-latest
-    over case
-        docon:     of ['] constant, endof
-        docol:     of ['] :,        endof
-        dovar:     of ['] variable, endof
-        douser:    of ['] user,     endof
-        dodefer:   of ['] defer,    endof
-        dofield:   of ['] field+,   endof
-        doabicode: of ['] abi-code, endof
-        drop ['] general-compile,
-    endcase
-    set-optimizer
-    r> make-latest previous-section
-    only-code-address! ;
 
 : set-execute ( ca -- ) \ gforth
     \G Changes the current word such that it jumps to the native code
@@ -764,9 +732,6 @@ Create hmtemplate
     \G of the latest word (before the @code{opt:}).
     int-[:
     ['] int-opt; colon-sys-xt-offset stick ;
-
-' opt: alias comp: ( compilation -- colon-sys2 ; run-time -- nest-sys ) \ gforth-obsolete
-\G Use @code{opt:} instead.
 
 : opt!-compile, ( xt -- ) \ gforth-internal
     \G force optimizing compile,

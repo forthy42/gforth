@@ -993,6 +993,6 @@ set-current
     \G the definition, the formatting is mechanised and some source
     \G information (comments, interpreted sequences within definitions
     \G etc.) is lost.
-    name name-too-short? find-name dup 0= -&13 and throw name-see ;
+    parse-name name-too-short? find-name dup 0= -&13 and throw name-see ;
 
 previous

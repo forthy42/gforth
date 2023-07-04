@@ -84,7 +84,7 @@ defer .backtrace-pos ( addr -- )
 : .bt ( -- ) \ gforth-internal
     \G backtrace for interactive use
     backtrace-rp0 @ #10 cells + dup 3 cells - @ cell- print-backtrace ;
-comp: drop ]] store-backtrace dobacktrace [[ ;
+opt: drop ]] store-backtrace dobacktrace [[ ;
 
 :noname ( -- )
     stored-backtrace $@ over + print-backtrace  nothrow ;

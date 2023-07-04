@@ -743,22 +743,11 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
         nip dup
     endcase ;
 
-: definer! ( definer xt -- ) \ gforth-obsolete
-    \G The word represented by @var{xt} changes its behaviour to the
-    \G behaviour associated with @var{definer}.
-    over 3 and case
-        0 of code-address! endof
-        1 of swap 3 invert and swap does-code! endof
-        2 of swap 3 invert and swap
-            do;abicode: any-code! ['] ;abi-code, set-optimizer endof
-        -12 throw
-    endcase ;
-
 : locals| ( ... "name ..." -- ) \ local-ext locals-bar
     \ don't use 'locals|'! use '{'! A portable and free '{'
     \ implementation is compat/anslocals.fs
     BEGIN
-	name 2dup s" |" str= 0=
+	parse-name 2dup s" |" str= 0=
     WHILE
 	(local)
     REPEAT

@@ -83,11 +83,13 @@ Create $[]-!-table ' $[]-! , ' $[]-+! ,
 
 cell      ' aligned   ' @   !-table   wrap+value: value:   ( u1 "name" -- u2 )
 1         ' noop      ' c@  c!-table  wrap+value: cvalue:  ( u1 "name" -- u2 )
-1         ' noop      ' sc@ c!-table  wrap+value: scvalue:  ( u1 "name" -- u2 )
 2         ' waligned  ' w@  w!-table  wrap+value: wvalue:  ( u1 "name" -- u2 )
-2         ' waligned  ' sw@ w!-table  wrap+value: swvalue: ( u1 "name" -- u2 )
 4         ' laligned  ' l@  l!-table  wrap+value: lvalue:  ( u1 "name" -- u2 )
+0 warnings !@
+1         ' noop      ' sc@ c!-table  wrap+value: scvalue:  ( u1 "name" -- u2 )
+2         ' waligned  ' sw@ w!-table  wrap+value: swvalue: ( u1 "name" -- u2 )
 4         ' laligned  ' sl@ l!-table  wrap+value: slvalue: ( u1 "name" -- u2 )
+warnings ! \ yes, these are obsolete, but they are good that way
 2 cells   ' aligned   ' 2@  2!-table  wrap+value: 2value:  ( u1 "name" -- u2 )
 1 floats  ' faligned  ' f@  f!-table  wrap+value: fvalue:  ( u1 "name" -- u2 )
 1 sfloats ' sfaligned ' sf@ sf!-table wrap+value: sfvalue: ( u1 "name" -- u2 )

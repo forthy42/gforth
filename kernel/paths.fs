@@ -79,7 +79,7 @@ User tfile
 
 : path+ ( path-addr  "dir" -- ) \ gforth
     \G Add the directory @var{dir} to the search path @var{path-addr}.
-    name rot also-path ;
+    parse-name rot also-path ;
 
 : fpath+ ( "dir" ) \ gforth
     \G Add directory @var{dir} to the Forth search path.

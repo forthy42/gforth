@@ -69,5 +69,5 @@ is 'clean-maintask
     r@ dump-sections
     r> close-file throw ;
 
-: savesystem ( "name" -- ) \ gforth
-    name dump-fi bye ;
+: savesystem ( "image" -- ) \ gforth
+    parse-name dump-fi bye ;

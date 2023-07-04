@@ -399,7 +399,7 @@ defer get-socket-options ( socket -- socket ) \ gforth-experimental
 : port+family ( port# family -- )
     sockaddr-tmp sockaddr_in erase
     sockaddr-tmp family w!
-    sockaddr-tmp port be-w! ;
+    wbe sockaddr-tmp port w! ;
 
 : create-server  ( port# -- server )
     AF_INET port+family

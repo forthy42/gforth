@@ -867,7 +867,7 @@ tex: palette-tex
 0.5e FConstant 1/2
 
 : cpal! ( rgba -- )
-    color-pal color,# color-w color-theme * + sfloats + be-l! ;
+    lbe color-pal color,# color-w color-theme * + sfloats + l! ;
 : (col,) ( rgba -- rindex )
     cpal!  color,# s>f 1/2 f+  1 +to color,# ;
 
@@ -884,7 +884,7 @@ $00000000 (col,) FConstant transp#
 : search-color ( rgba -- rindex t / rgba f )
     color-pal color-w color-theme * sfloats + { cpal }
     cpal color,# sfloats bounds ?DO
-	dup I be-ul@ = IF
+	dup I l@ lbe = IF
 	    drop I cpal - 2/ 2/
 	    s>f 1/2 f+ true  UNLOOP  EXIT  THEN
     4 +LOOP  false ;

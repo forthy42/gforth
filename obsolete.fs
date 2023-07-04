@@ -18,10 +18,64 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+\ list obsolete words
+
+[IFDEF] obsolete-mask
+    : obsoletes ( -- ) \ gforth
+	\G show all obsolete words
+	cr 0 [: dup >f+c @ obsolete-mask and
+	    IF  .word  ELSE  drop  THEN  true ;]
+	context @ traverse-wordlist  drop ;
+[ELSE]
+    : obsolete ;
+[THEN]
+\ from kernel
+
+: header, ( c-addr u -- ) \ gforth-obsolete
+    \G create a header for a named word
+    hm, name, hmtemplate namehm, named-hm ;
+
+: longstring, ( c-addr u -- ) \ gforth-obsolete
+    \G puts down string as longcstring
+    dup , mem, ;
+
+' latestxt alias lastxt \ gforth-obsolete
+\G old name for @code{latestxt}.
+
+: [(')]  ( compilation "name" -- ; run-time -- nt ) \ gforth-obsolete bracket-paren-tick
+    (') postpone Literal ; immediate restrict
+
+: definer! ( definer xt -- ) \ gforth-obsolete
+    \G The word represented by @var{xt} changes its behaviour to the
+    \G behaviour associated with @var{definer}.
+    over 3 and case
+        0 of code-address! endof
+        1 of swap 3 invert and swap does-code! endof
+        2 of swap 3 invert and swap
+            do;abicode: any-code! ['] ;abi-code, set-optimizer endof
+        -12 throw
+    endcase ;
+
+' opt: alias comp: ( compilation -- colon-sys2 ; run-time -- nest-sys ) \ gforth-obsolete
+\G Use @code{opt:} instead.
+
+' parse-name alias parse-word ( -- c-addr u ) \ gforth-obsolete
+\G old name for @code{parse-name}; this word has a conflicting
+\G behaviour in some other systems.
+
+' parse-name alias name ( -- c-addr u ) \ gforth-obsolete
+\G old name for @code{parse-name}
+    
+: .strings ( addr u -- ) \ gforth-obsolete
+    \G list the strings from an array of string descriptors at addr
+    \G with u entries, one per line.
+    2* cells bounds ?DO
+	cr I 2@ type 2 cells +LOOP ;
+
 \ WORD SWORD
 
 : (word) ( addr1 n1 char -- addr2 n2 )
-  dup >r skip 2dup r> scan  nip - ;
+  dup >r skip 2dup r> scan  nip - ; obsolete
 
 \ (word) should fold white spaces
 \ this is what (parse-white) does
@@ -66,7 +120,7 @@
     \G the counted string. OBSOLESCENT: the counted string has a
     \G trailing space that is not included in its length.
     sword dup word-pno-size u>= IF  -18 throw  THEN
-    here place  bl here count + c!  here ;
+    here place  bl here count + c!  here ; obsolete
 
 \ these transformations are used for legacy words like find
 
@@ -96,48 +150,48 @@
     dup count sfind dup
     if
 	rot drop
-    then ;
+    then ; obsolete
 
 \ memory words with u or s prefix
 
-' w@  alias uw@  ( c-addr -- u  )
-' l@  alias ul@  ( c-addr -- u  )
+' w@  alias uw@  ( c-addr -- u  ) obsolete
+' l@  alias ul@  ( c-addr -- u  ) obsolete
 [IFDEF] x@
-' x@  alias ux@  ( c-addr -- u  )
+' x@  alias ux@  ( c-addr -- u  ) obsolete
 [THEN]
-' xd@ alias uxd@ ( c-addr -- ud )
-inline: sw@  ( c-addr -- n ) ]]  w@  w>s [[ ;inline
-inline: sl@  ( c-addr -- n ) ]]  l@  l>s [[ ;inline
+' xd@ alias uxd@ ( c-addr -- ud ) obsolete
+inline: sw@  ( c-addr -- n ) ]]  w@  w>s [[ ;inline obsolete
+inline: sl@  ( c-addr -- n ) ]]  l@  l>s [[ ;inline obsolete
 [IFDEF] x@
-inline: sx@  ( c-addr -- n ) ]]  x@  x>s [[ ;inline
+inline: sx@  ( c-addr -- n ) ]]  x@  x>s [[ ;inline obsolete
 [THEN]
-inline: sxd@ ( c-addr -- d ) ]] xd@ xd>s [[ ;inline
+inline: sxd@ ( c-addr -- d ) ]] xd@ xd>s [[ ;inline obsolete
 
 \ various byte-order dependent memory words
 \ replacement: compose sequences like "uw@ wbe w>s"
 
-inline: be-w!  (  x c-addr -- )  ]] >r wbe  r>  w! [[ ;inline
-inline: be-l!  (  x c-addr -- )  ]] >r lbe  r>  l! [[ ;inline
+inline: be-w!  (  x c-addr -- )  ]] >r wbe  r>  w! [[ ;inline obsolete
+inline: be-l!  (  x c-addr -- )  ]] >r lbe  r>  l! [[ ;inline obsolete
 [IFDEF] x!
-inline: be-x!  (  x c-addr -- )  ]] >r xbe  r>  x! [[ ;inline
+inline: be-x!  (  x c-addr -- )  ]] >r xbe  r>  x! [[ ;inline obsolete
 [THEN]
-inline: be-xd! ( xd c-addr -- )  ]] >r xdbe r> xd! [[ ;inline
-inline: le-w!  (  x c-addr -- )  ]] >r wle  r>  w! [[ ;inline
-inline: le-l!  (  x c-addr -- )  ]] >r lle  r>  l! [[ ;inline
+inline: be-xd! ( xd c-addr -- )  ]] >r xdbe r> xd! [[ ;inline obsolete
+inline: le-w!  (  x c-addr -- )  ]] >r wle  r>  w! [[ ;inline obsolete
+inline: le-l!  (  x c-addr -- )  ]] >r lle  r>  l! [[ ;inline obsolete
 [IFDEF] x!
-inline: le-x!  (  x c-addr -- )  ]] >r xle  r>  x! [[ ;inline
+inline: le-x!  (  x c-addr -- )  ]] >r xle  r>  x! [[ ;inline obsolete
 [THEN]
-inline: le-xd! ( xd c-addr -- )  ]] >r  xdle  r>   xd! [[ ;inline
-inline:  be-uw@ ( c-addr -- u )  ]]  w@  wbe [[ ;inline
-inline:  be-ul@ ( c-addr -- u )  ]]  l@  lbe [[ ;inline
+inline: le-xd! ( xd c-addr -- )  ]] >r  xdle  r>   xd! [[ ;inline obsolete
+inline:  be-uw@ ( c-addr -- u )  ]]  w@  wbe [[ ;inline obsolete
+inline:  be-ul@ ( c-addr -- u )  ]]  l@  lbe [[ ;inline obsolete
 [IFDEF] x@
-inline:  be-ux@ ( c-addr -- u )  ]]  x@  xbe [[ ;inline
+inline:  be-ux@ ( c-addr -- u )  ]]  x@  xbe [[ ;inline obsolete
 [THEN]
-inline: be-uxd@ ( c-addr -- ud ) ]] xd@ xdbe [[ ;inline
-inline:  le-uw@ ( c-addr -- u )  ]]  w@  wle [[ ;inline
-inline:  le-ul@ ( c-addr -- u )  ]]  l@  lle [[ ;inline
+inline: be-uxd@ ( c-addr -- ud ) ]] xd@ xdbe [[ ;inline obsolete
+inline:  le-uw@ ( c-addr -- u )  ]]  w@  wle [[ ;inline obsolete
+inline:  le-ul@ ( c-addr -- u )  ]]  l@  lle [[ ;inline obsolete
 [IFDEF] x@
-inline:  le-ux@ ( c-addr -- u )  ]]  x@  xle [[ ;inline
+inline:  le-ux@ ( c-addr -- u )  ]]  x@  xle [[ ;inline obsolete
 [THEN]
-inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline
+inline: le-uxd@ ( c-addr -- ud ) ]] xd@ xdle [[ ;inline obsolete
 

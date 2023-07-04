@@ -51,11 +51,11 @@ vocabulary environment ( -- ) \ gforth
 	false
     endif ;
 
-: e? name environment? 0= ABORT" environmental dependency not existing" ;
+: e? parse-name environment? 0= ABORT" environmental dependency not existing" ;
 
 : $has? environment? 0= IF false THEN ;
 
-: has? name $has? ;
+: has? parse-name $has? ;
 
 environment-wordlist set-current
 get-order environment-wordlist swap 1+ set-order

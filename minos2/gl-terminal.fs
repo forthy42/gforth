@@ -104,7 +104,7 @@ tex: color-tex
 
 \ Variables and constants
 
-: le-l, ( n -- )  here 4 allot le-l! ;
+: le-l, ( n -- )  lle here 4 allot l! ;
 
 Create color-matrix \ vt100 colors
 \ RGBA, but this is little endian, so write ABGR ,
@@ -232,7 +232,7 @@ $40 Value minpow2#
 
 : gl-mem-erase ( addr u -- )
     color-index @ -rot bounds U+DO
-	dup I le-l!
+	dup lle I l!
     [ 1 sfloats ]L +LOOP drop ;
 : resize-screen ( -- )
     gl-xy @ 1+ actualrows max to actualrows
@@ -345,7 +345,7 @@ xc-vector !
     resize-screen  +sync
     dup $70 and 5 lshift or $F0F and 4 lshift r> $FFFF0000 and or
     n 0 ?DO
-	dup gl-char' le-l!
+	dup lle gl-char' l!
 	gl-xy 2@ >r 1+ dup cols u>= dup gl-lineend !
 	IF  drop 0 r> 1+ gl-xy 2! resize-screen
 	ELSE  r> gl-xy 2!  THEN  m +
@@ -430,9 +430,9 @@ s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
     std-bg @ bg>clear clear
     terminal-program glUseProgram
     unit-matrix MVPMatrix set-matrix
-    gl-char' 2 + dup be-uw@ swap le-w!
+    gl-char' 2 + dup w@ w>< swap w!
     draw-now
-    gl-char' 2 + dup be-uw@ swap le-w!
+    gl-char' 2 + dup w@ w>< swap w!
     sync ;
 
 : show-cursor ( -- )  ?show 0= ?EXIT

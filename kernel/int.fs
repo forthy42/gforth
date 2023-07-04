@@ -213,7 +213,8 @@ Defer ?warn#  ' noop is ?warn#
     THEN
     [ [THEN] ]
     source >in @ over >in ! safe/string
-    15 umin s" gforth-obsolete" compare 0= IF  obsolete  THEN ; immediate
+    $10 umin s" gforth-obsolete " third $0F = +
+    compare 0= IF  obsolete  THEN ; immediate
 
 : \G ( compilation 'ccc<newline>' -- ; run-time -- ) \ gforth backslash-gee
     \G Equivalent to @code{\} but used as a tag to annotate definition
@@ -635,13 +636,6 @@ Defer parse-name ( "name" -- c-addr u ) \ core-ext
 \G Get the next word from the input buffer
 ' (name) IS parse-name
 
-' parse-name alias parse-word ( -- c-addr u ) \ gforth-obsolete
-\G old name for @code{parse-name}; this word has a conflicting
-\G behaviour in some other systems.
-
-' parse-name alias name ( -- c-addr u ) \ gforth-obsolete
-\G old name for @code{parse-name}
-    
 Defer before-word ( -- ) \ gforth
 \G Deferred word called before the text interpreter parses the next word
 ' noop IS before-word

@@ -121,8 +121,8 @@ Defer xy+
     \ glyph texture_glyph_t-codepoint l@
     x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
-    glyph texture_glyph_t-offset_x sl@ xs fm*
-    glyph texture_glyph_t-offset_y sl@ ys fm* { f: xo f: yo }
+    glyph texture_glyph_t-offset_x l@ l>s xs fm*
+    glyph texture_glyph_t-offset_y l@ l>s ys fm* { f: xo f: yo }
     glyph texture_glyph_t-width  2@ xs fm* ys fm* { f: w f: h }
     xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f- { f: x0 f: y0 }
     x0 w f+                 y0 h f+                { f: x1 f: y1 }
@@ -141,8 +141,8 @@ Defer xy+
     \ glyph texture_glyph_t-codepoint l@
     x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
-    glyph texture_glyph_t-offset_x sl@ xs fm*
-    glyph texture_glyph_t-offset_y sl@ ys fm* { f: xo f: yo }
+    glyph texture_glyph_t-offset_x l@ l>s xs fm*
+    glyph texture_glyph_t-offset_y l@ l>s ys fm* { f: xo f: yo }
     glyph texture_glyph_t-width  2@ xs fm* ys fm* { f: w f: h }
     xp xo f+ fround 1/2 f-  yp yo f- fround 1/2 f- { f: x0 f: y0 }
     x0 w f+                 y0 h f+                { f: x1 f: y1 }
@@ -161,8 +161,8 @@ Defer xy+
     \ glyph texture_glyph_t-codepoint l@
     x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
-    glyph texture_glyph_t-offset_x sl@ xs fm*
-    glyph texture_glyph_t-offset_y sl@ ys fm* { f: yo f: xo }
+    glyph texture_glyph_t-offset_x l@ l>s xs fm*
+    glyph texture_glyph_t-offset_y l@ l>s ys fm* { f: yo f: xo }
     glyph texture_glyph_t-width  2@ xs fm* ys fm* { f: h f: w }
     xp w xo f- f- fround 1/2 f-  yp yo f+ fround 1/2 f- { f: x0 f: y0 }
     x0 w f+                      y0 h f+                { f: x1 f: y1 }
@@ -181,8 +181,8 @@ Defer xy+
     \ glyph texture_glyph_t-codepoint l@
     x-scale f-scale f* y-scale f-scale f* { f: xs f: ys }
     penxy sf@ penxy sfloat+ sf@ { f: xp f: yp }
-    glyph texture_glyph_t-offset_x sl@ xs fm*
-    glyph texture_glyph_t-offset_y sl@ ys fm* { f: yo f: xo }
+    glyph texture_glyph_t-offset_x l@ l>s xs fm*
+    glyph texture_glyph_t-offset_y l@ l>s ys fm* { f: yo f: xo }
     glyph texture_glyph_t-width  2@ xs fm* ys fm* { f: h f: w }
     xp xo f- fround 1/2 f-       yp yo f- h f- fround 1/2 f- { f: x0 f: y0 }
     x0 w f+                      y0 h f+                { f: x1 f: y1 }
@@ -430,7 +430,7 @@ Create userfeatures maxfeatures hb_feature_t * allot
 DOES> swap hb_feature_t * + ;
 
 : hb-tag ( addr u -- tag )
-    4 <> abort" hb-tags are 4 characters each" be-ul@ ;
+    4 <> abort" hb-tags are 4 characters each" l@ lbe ;
 : hb-feature! ( feature value addr -- ) dup
     >r hb_feature_t-tag l!
     r@ hb_feature_t-value l!
@@ -502,13 +502,13 @@ Defer get-glyphs
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
 	    6 ?flush-tris
-	    pos I + hb_glyph_position_t-x_offset sl@ xpos* fm*
-	    pos I + hb_glyph_position_t-y_offset sl@ ypos* fm* { f: xo f: yo }
+	    pos I + hb_glyph_position_t-x_offset l@ l>s xpos* fm*
+	    pos I + hb_glyph_position_t-y_offset l@ l>s ypos* fm* { f: xo f: yo }
 	    xo yo xy+
 	    font infos I + hb_glyph_info_t-codepoint l@ glyph-gi@
 	    glyph,  fdrop fdrop
-	    pos I + hb_glyph_position_t-x_advance sl@ xpos* fm* xo f-
-	    pos I + hb_glyph_position_t-y_advance sl@ ypos* fm* yo f- xy+
+	    pos I + hb_glyph_position_t-x_advance l@ l>s xpos* fm* xo f-
+	    pos I + hb_glyph_position_t-y_advance l@ l>s ypos* fm* yo f- xy+
 	hb_glyph_info_t +LOOP
     LOOP ;
 
@@ -545,8 +545,8 @@ previous
     sfloat+ sf@ fround 1/2 f+ { f: x1 f: y }
     "g–" get-glyphs { gg g- }
     y
-    gg texture_glyph_t-height   sl@
-    gg texture_glyph_t-offset_y sl@ - 20% fm*
+    gg texture_glyph_t-height   l@ l>s
+    gg texture_glyph_t-offset_y l@ l>s - 20% fm*
     f+ fround 1/2 f- { f: y0 }
     g- texture_glyph_t-height @ s>f { f: y1 }
     8 1 DO
@@ -561,11 +561,11 @@ previous
 	THEN
 	case I  y
 	    1 of
-		gg texture_glyph_t-height   sl@
-		gg texture_glyph_t-offset_y sl@ - -80% fm*
+		gg texture_glyph_t-height   l@ l>s
+		gg texture_glyph_t-offset_y l@ l>s - -80% fm*
 	    endof
 	    2 of
-		g- texture_glyph_t-offset_y sl@ s>f
+		g- texture_glyph_t-offset_y l@ l>s s>f
 	    endof
 	    0e
 	endcase  f- fround 1/2 f- to y0
@@ -579,7 +579,7 @@ previous
 	r@ swap texture_glyph_get_kerning f-scale f* f+
     ELSE  drop  THEN
     r@ texture_glyph_t-advance_x sf@ f-scale f* f+
-    r@ texture_glyph_t-offset_y sl@ f-scale fm*
+    r@ texture_glyph_t-offset_y l@ l>s f-scale fm*
     r> texture_glyph_t-height @ f-scale fm*
     fover f- fd fmax fswap fh fmax ;
 
@@ -608,28 +608,28 @@ cell 4 = [IF]
 	pos*h f-scale f*
 	pos*v f-scale f* { f: xpos* f: ypos* }
 	0e  I positions[] $[]@ bounds ?DO
-	    I hb_glyph_position_t-x_advance sl@ xpos* fm* f+
+	    I hb_glyph_position_t-x_advance l@ l>s xpos* fm* f+
 	hb_glyph_position_t +LOOP
 	I segment-lens[] $[] seg-len!
 	I positions[] $[]@ drop
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
-	    pos I + hb_glyph_position_t-y_offset sl@ ypos* fm* { f: yo }
+	    pos I + hb_glyph_position_t-y_offset l@ l>s ypos* fm* { f: yo }
 	    [ false ] [IF] \ don't render glyph
 		font infos I + hb_glyph_info_t-codepoint l@
 		glyph-gi@ dup
-		>r texture_glyph_t-offset_y sl@ f-scale fm* yo f+
+		>r texture_glyph_t-offset_y l@ l>s f-scale fm* yo f+
 		r> texture_glyph_t-height @ f-scale fm*
 	    [ELSE]
 		{ | ge[ hb_glyph_extents_t ] }
 		font texture_font_t-hb_font @
 		infos I + hb_glyph_info_t-codepoint l@
 		ge[ hb_font_get_glyph_extents drop
-		ge[ hb_glyph_extents_t-y_bearing sl@ ypos* fm* yo f+
-		ge[ hb_glyph_extents_t-height sl@ ypos* fm* fnegate
+		ge[ hb_glyph_extents_t-y_bearing l@ l>s ypos* fm* yo f+
+		ge[ hb_glyph_extents_t-height l@ l>s ypos* fm* fnegate
 	    [THEN]
 	    fover f- fd fmax to fd fh fmax to fh
-	    pos I + hb_glyph_position_t-x_advance sl@ xpos* fm* +to fw
+	    pos I + hb_glyph_position_t-x_advance l@ l>s xpos* fm* +to fw
 	hb_glyph_info_t +LOOP
     LOOP
     fw fd fh ;
@@ -656,7 +656,7 @@ cell 4 = [IF]
 	I positions[] $[]@ drop
 	I infos[] $[]@ { pos infos len }
 	len 0 ?DO
-	    pos I + hb_glyph_position_t-x_advance sl@ pos* fm*
+	    pos I + hb_glyph_position_t-x_advance l@ l>s pos* fm*
 	    fover fover f2/ f< IF
 		infos I + hb_glyph_info_t-cluster l@ offset +
 		fdrop fdrop  unloop unloop  EXIT

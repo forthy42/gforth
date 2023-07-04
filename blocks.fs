@@ -93,7 +93,7 @@ Defer flush-blocks ( -- ) \ gforth-internal
 
 : use ( "file" -- ) \ gforth
     \g Use @i{file} as the blocks file.
-    name name-too-short? open-blocks ;
+    parse-name name-too-short? open-blocks ;
 
 \ the file is opened as binary file, since it either will contain text
 \ without newlines or binary data
