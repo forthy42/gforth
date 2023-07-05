@@ -215,8 +215,8 @@ is ?warning
 
 : ~~Value ( n "name" -- ) \ gforth
     \G Value that will be watched on every access
-    Value [: >body 0 to-style# !@ >r ~~ r> to-style# ! !-table to-!exec ;
-    to-opt: >body ]] Literal ~~ [[ !-table to-!, ;] set-to ;
+    Value [: >body 0 to-style# !@ ~~ to-style# ! !-table to-!exec ;
+    to-opt: >body to-style# @ swap ]] Literal Literal ~~ [[ !-table to-!, ;] set-to ;
 
 \ trace lines
 
