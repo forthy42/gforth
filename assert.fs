@@ -111,14 +111,14 @@ debug: profile(
     ntime 2dup last-tick dup 2@ 2>r 2! 2r> d- rot 2+! ;
 
 Variable timer-list
-: timer: Create 0. , , here timer-list !@ ,
+: timer: Create #0. , , here timer-list !@ ,
   DOES> profile( +t )else( drop ) ;
 : map-timer { xt -- }
     timer-list BEGIN  @ dup  WHILE dup >r
 	    cell- cell- xt execute r> REPEAT drop ;
 
 : init-timer ( -- )
-    ntime last-tick 2! [: 0. rot 2! ;] map-timer ;
+    ntime last-tick 2! [: #0. rot 2! ;] map-timer ;
 
 : .times ( -- )
     [: dup body> >name name>string 1 /string

@@ -129,7 +129,7 @@ Variable vt100-modifier \ shift, ctrl, alt
 
 : find-prev-line ( max addr -- max span addr pos2 )
   backward^ 2@ forward^ 2!
-  over 2 + negate s>d backward^ 2@ d+ 0. dmax 2dup hist-setpos
+  over 2 + negate s>d backward^ 2@ d+ #0. dmax 2dup hist-setpos
   BEGIN
       backward^ 2!   2dup get-line  WHILE
       hist-pos 2dup forward^ 2@ d<  WHILE

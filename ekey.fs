@@ -194,13 +194,13 @@ Variable ekey-buffer
 
 : esc-mask ( addr u -- addr' u' mask )
     ';' $split dup IF
-	0. 2swap >number  2swap drop 1- 0 max >r
+	#0. 2swap >number  2swap drop 1- 0 max >r
 	[: 2swap 2dup 1 safe/string s" 1" str= + type type ;] $tmp
 	r> 7 and mask-shift# lshift
 	EXIT
     ELSE  2drop over c@ 'O' = IF
 	    1 /string
-	    0. 2swap >number  2swap drop 1- 0 max >r
+	    #0. 2swap >number  2swap drop 1- 0 max >r
 	    [: 'O' emit type ;] $tmp
 	    r> 7 and mask-shift# lshift
 	EXIT  THEN
@@ -270,26 +270,26 @@ Variable ekey-buffer
     k-enter  k-alt-mask or k-shift-mask or s" eOM" over #esc swap c! esc-sequence
     k-backspace k-alt-mask or   s" D" over #del swap c! esc-sequence
 
-    k1      s" OP"  esc-sequence
-    k2      s" OQ"  esc-sequence
-    k3      s" OR"  esc-sequence
-    k4      s" OS"  esc-sequence
-    k5      s" [15~" esc-sequence
-    k6      s" [17~" esc-sequence
-    k7      s" [18~" esc-sequence
-    k8      s" [19~" esc-sequence
-    k9      s" [20~" esc-sequence
-    k10     s" [21~" esc-sequence
-    k11     s" [23~" esc-sequence
-    k12     s" [24~" esc-sequence
+    k-f1      s" OP"  esc-sequence
+    k-f2      s" OQ"  esc-sequence
+    k-f3      s" OR"  esc-sequence
+    k-f4      s" OS"  esc-sequence
+    k-f5      s" [15~" esc-sequence
+    k-f6      s" [17~" esc-sequence
+    k-f7      s" [18~" esc-sequence
+    k-f8      s" [19~" esc-sequence
+    k-f9      s" [20~" esc-sequence
+    k-f10     s" [21~" esc-sequence
+    k-f11     s" [23~" esc-sequence
+    k-f12     s" [24~" esc-sequence
 
     \ esc sequences from Linux console:
 
-    k1       s" [[A" esc-sequence
-    k2       s" [[B" esc-sequence
-    k3       s" [[C" esc-sequence
-    k4       s" [[D" esc-sequence
-    k5       s" [[E" esc-sequence
+    k-f1       s" [[A" esc-sequence
+    k-f2       s" [[B" esc-sequence
+    k-f3       s" [[C" esc-sequence
+    k-f4       s" [[D" esc-sequence
+    k-f5       s" [[E" esc-sequence
     \ k-delete s" [3~" esc-sequence \ duplicate from above
     k-home   s" [1~" esc-sequence
     k-end    s" [4~" esc-sequence

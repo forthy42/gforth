@@ -30,7 +30,7 @@
 : char/ ; immediate
 
 : parse-num-x  ( c-addr1 umax -- c-addr2 c )
-    >r 0. rot source chars + over - char/ r> umin >number
+    >r #0. rot source chars + over - char/ r> umin >number
     drop rot rot drop ;
 
 : parse-num ( c-addr1 umax base -- c-addr2 c )
