@@ -176,16 +176,16 @@ drop
     check-sections ;
 
 : comp-image ( "image-file1" "image-file2" "new-image" -- )
-    name slurp-file { file1 fsize1 }
+    parse-name slurp-file { file1 fsize1 }
     file1 fsize1 s" Gforth6" search 0= abort" not a Gforth image"
     drop 8 + file1 - { header-offset }
     file1 fsize1 header-offset /string to size1 to image1
     size1 aligned size1 <> abort" unaligned image size"
-    name slurp-file header-offset /string to size2 to image2
+    parse-name slurp-file header-offset /string to size2 to image2
     size1 size2 <> abort" image sizes differ"
     set-image-offsets
     prepare-sections
-    name ( "new-image" ) w/o bin create-file throw { outfile }
+    parse-name ( "new-image" ) w/o bin create-file throw { outfile }
     file1 header-offset outfile write-file throw
     ." compare warnings (add section start to offset):" cr
     outfile ['] compare-sections $10 base-execute
