@@ -2213,8 +2213,8 @@ VARIABLE ^imm
 \ !! should be target wordsize specific
 $80 X has? f83headerstring [IF]
     dup Constant alias-mask 2/
+    dup constant immediate-mask 2/
 [THEN]
-dup constant immediate-mask 2/
 dup constant restrict-mask 2/
 constant obsolete-mask
 
@@ -4486,7 +4486,7 @@ previous
 : ." '"' parse type ;
 : cr cr ;
 
-: times 0 ?DO dup X c, LOOP drop ; \ used for space table creation
+: c,s 0 ?DO dup X c, LOOP drop ; \ used for space table creation
 
 : set-optimizer set-optimizer ;
 

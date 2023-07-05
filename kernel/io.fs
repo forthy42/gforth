@@ -246,10 +246,10 @@ decimal
     swap  0 max 0 ?DO  I' I - &80 min 2dup type  +LOOP  drop ;
 Create spaces ( u -- ) \ core
 \G Display @var{u} spaces. 
-bl 80 times \ times from target compiler! 11may93jaw
+bl 80 c,s \ c,s from target compiler! 11may93jaw
 DOES>   ( u -- ) spaces-loop ;
 Create backspaces \ gforth
-08 80 times \ times from target compiler! 11may93jaw
+08 80 c,s \ c,s from target compiler! 11may93jaw
 DOES>   ( u -- ) over 2* negate out +! spaces-loop ;
 hex
 

@@ -462,14 +462,17 @@ opt: ( xt -- ) ?fold-to >body @ defer@, ;
 : alias? ( nt -- flag )
     >namehm @ >hm>int 2@ ['] a>comp ['] a>int d= ;
 
+$BF000000 Value synonym-mask \ do not copy obsolete flag
+$BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
+                          [ELSE] 0 1 cells 1- c,s c, [THEN]
+
 : Synonym ( "name" "oldname" -- ) \ tools-ext
     \G Define @i{name} to behave the same way as @i{oldname}: Same
     \G interpretation semantics, same compilation semantics, same
     \G @code{to}/@code{defer!} and @code{defer@@} semantics.
     ['] parser create-from
     ?parse-name find-name dup 0= #-13 and throw
-    dup compile-only? IF compile-only THEN
-    dup obsolete? IF obsolete THEN
+    dup >f+c @ synonym-mask and latest >f+c +!
     ['] s>int ['] s>comp synonym, reveal ;
 
 : synonym? ( nt -- flag )

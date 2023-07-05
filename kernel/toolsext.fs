@@ -19,7 +19,7 @@
 Warnings off
 
 Variable countif
-Variable endif?  -1 cells allot -1 1 cells times
+Variable endif?  -1 cells allot -1 1 cells c,s
 
 : dummy ;  immediate
 : scan-rec  @ (listlfind)  dup 0=  IF  drop ['] dummy  THEN  ['] translate-nt ;
