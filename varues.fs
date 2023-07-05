@@ -18,11 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: varue-to ( n value-xt -- ) \ gforth-internal
-    \g this is the TO-method for normal values
-    >body !-table to-!exec ;
-opt: ( value-xt -- ) \ run-time: ( n -- )
-    drop postpone >body !-table to-!, ;
+' >body !-table to+addr: varue-to ( n value-xt -- ) \ gforth-internal
 
 0 Value dummy-varue
 ' varue-to set-to
@@ -32,8 +28,7 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
     \G in the future, varues may be less efficient than values.
     ['] dummy-varue create-from reveal , ;
 
-' 2varue-to-exec alias 2varue-to ( d xt-2varue -- )
-    ' 2varue-to-compile, set-optimizer
+' >body 2!-table to+addr: 2varue-to ( addr -- ) \ gforth-internal
 
 0 0 2value dummy-2varue
     ' 2varue-to set-to
@@ -43,8 +38,7 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
     \G in the future, 2varues may be less efficient than 2values.
     ['] dummy-2varue create-from reveal 2, ;
 
-' fvarue-to-exec alias fvarue-to ( r xt-fvalue -- )
-    ' fvarue-to-compile, set-optimizer
+' >body f!-table to+addr: fvarue-to ( r xt-fvalue -- ) \ gforth-internal
 
 0e fvalue dummy-fvarue
     ' fvarue-to set-to
@@ -56,14 +50,10 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
 
 \ Locals with addrs
 
-: to-wa: ( -- ) -14 throw ;
-to-opt:  POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
-: to-da: ( -- ) -14 throw ;
-to-opt:  POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
-: to-ca: ( -- ) -14 throw ;
-to-opt:  POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
-: to-fa: ( -- ) -14 throw ;
-to-opt:  POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
+' laddr, !-table to+addr: to-wa:
+' laddr, 2!-table to+addr: to-da:
+' laddr, c!-table to+addr: to-ca:
+' laddr, f!-table to+addr: to-fa:
 
 get-current also locals-types definitions
 : WA: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-a-colon

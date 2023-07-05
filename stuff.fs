@@ -599,11 +599,8 @@ User theme-color  0 theme-color !
 \ 2value
 
 : 2value-compile, ( xt -- )  >body postpone Literal postpone 2@ ;
-: 2varue-to-exec  ( addr -- ) >body 2!-table to-!exec ;
-: 2varue-to-compile, ( xt -- ) drop postpone  >body 2!-table to-!, ;
 
-: 2value-to ( addr -- ) !!?addr!! 2varue-to-exec ;
-opt: ( xt -- ) !!?addr!! 2varue-to-compile, ;
+' >body 2!-table to: 2value-to ( addr -- ) \ gforth-internal
 
 create dummy-2value
 ' 2@ set-does>

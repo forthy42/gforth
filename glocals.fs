@@ -296,17 +296,16 @@ Defer locals-list!
 
 Create 2!-table ' 2! , ' 2+! ,
 Create c!-table ' c! , ' c+! ,
-: to-w: ( -- ) -14 throw ;
-to-opt: !!?addr!! POSTPONE laddr# >body @ lp-offset, !-table to-!, ;
-: to-d: ( -- ) -14 throw ;
-to-opt: !!?addr!! POSTPONE laddr# >body @ lp-offset, 2!-table to-!, ;
-: to-c: ( -- ) -14 throw ;
-to-opt: !!?addr!! POSTPONE laddr# >body @ lp-offset, c!-table to-!, ;
-: to-f: ( -- ) -14 throw ;
-to-opt: !!?addr!! POSTPONE laddr# >body @ lp-offset, f!-table to-!, ;
+: laddr, ( lit:xt -- ) -14 throw ;
+opt: ( lit:xt xt -- ) ?fold-to postpone laddr# >body @ lp-offset, ;
+
+' laddr, !-table to: to-w:
+' laddr, 2!-table to: to-d:
+' laddr, c!-table to: to-c:
+' laddr, f!-table to: to-f:
 
 : defer@-xt: ( -- ) -14 throw ;
-defer@-opt: ( xt -- ) POSTPONE laddr# >body @ lp-offset, postpone @ ;
+opt: ( lit:xt xt -- ) drop postpone laddr, postpone @ ;
 
 : val-part-off ( -- ) val-part off ;
 

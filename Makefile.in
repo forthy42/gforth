@@ -314,6 +314,7 @@ GFORTH_FI_SRC2=\
 	substitute.fs \
 	tasker.fs \
 	table.fs \
+	to.fs \
 	user-object.fs \
 	utf-8.fs \
 	vt100.fs \

@@ -84,15 +84,7 @@
 
 Create f!-table ' f! , ' f+! ,
 
-: fvarue-to-exec ( r xt-fvalue -- )
-    >body f!-table to-!exec ;
-
-: fvarue-to-compile, ( <to>-xt -- )
-    drop postpone >body f!-table to-!, ;
-
-: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
-    !!?addr!! fvarue-to-exec ;
-opt: !!?addr!! fvarue-to-compile, ;
+' >body f!-table to: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
 
 create dummy-fvalue
 ' f@ set-does>
