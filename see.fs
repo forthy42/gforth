@@ -105,7 +105,7 @@ Defer xt-see-xt ( xt -- )
 : .defname ( xt c-addr u -- )
     rot look
     if ( c-addr u nfa )
-	-rot type space .name
+	-rot type space id.
     else
 	drop ." noname " type
     then
@@ -414,7 +414,7 @@ ACONSTANT MaxTable
     then
     cell+ ;
 
-: .name-without ( addr -- addr )
+: id.-without ( addr -- addr )
     \ !! the stack effect cannot be correct
     \ prints a name without () and without -LP+!#, e.g. a (+LOOP) or (s")
     dup cell- @ threaded>name dup IF
@@ -429,7 +429,7 @@ ACONSTANT MaxTable
 	drop THEN ;
 
 : c-c"
-	Display? IF nl .name-without THEN
+	Display? IF nl id.-without THEN
         count 2dup + aligned -rot
         Display?
         IF      bl cemit ['] default-color .string
@@ -594,7 +594,7 @@ ACONSTANT MaxTable
     scan? IF
 	dup @ Branch!  LoopCode Type! THEN
     Display? IF
-	level- nl .name-without nl bl cemit THEN
+	level- nl id.-without nl bl cemit THEN
     DebugBranch cell+  Scan? IF
 	dup BranchAddr? BEGIN ( addr1 addr2 f )
 	WHILE ( addr1 addr2 )
@@ -611,7 +611,7 @@ ACONSTANT MaxTable
     Display? IF
 	dup BranchAddr? IF ( addr addr1 )
 	    cell+ dup @ LoopCode = IF ( addr addr2 )
-		Disable swap !	nl .name-without level+
+		Disable swap !	nl id.-without level+
 	    ELSE
 		drop ." 2>r "  THEN ( addr )
 	ELSE ( addr ) \ perverse stack effect of ?BranchAddr
@@ -620,7 +620,7 @@ ACONSTANT MaxTable
 
 : c-?do ( addr1 -- addr2 )
     Display? IF
-	nl .name-without level+
+	nl id.-without level+
 	dup cell+ BranchAddr?  IF  Disable swap !  THEN
     THEN
     DebugBranch cell+ ;
@@ -869,7 +869,7 @@ c-extender !
     dup >body @ xt-see-xt cr
     dup s" Defer" .defname cr
     >name ?dup-if
-	." IS " .name cr
+	." IS " id. cr
     else
 	." latestxt >body !"
     then ;
@@ -896,7 +896,7 @@ c-extender !
     dup s" umethod" .defname cr
     dup defer@ xt-see-xt cr
     >name ?dup-if
-	." IS " .name cr
+	." IS " id. cr
     else
 	." latestxt >body !"
     then ;
@@ -963,14 +963,14 @@ set-current
 
 : name-see ( nfa -- )
     dup synonym? IF
-	." Synonym " dup .name dup >body @ .name
+	." Synonym " dup id. dup >body @ id.
     ELSE
 	dup alias? IF
 	    dup >body @ name>string nip 0= IF
 		dup >body @ hex.
 	    ELSE
-		." ' " dup >body @ .name
-	    THEN ." Alias " dup .name
+		." ' " dup >body @ id.
+	    THEN ." Alias " dup id.
 	THEN
     THEN
     dup >r
@@ -983,7 +983,7 @@ set-current
 	\ interpret/compile word
 	r@ name>interpret xt-see-xt cr
 	swap xt-see-xt cr
-	." interpret/compile: " r@ .name drop
+	." interpret/compile: " r@ id. drop
     then
     rdrop drop ;
 

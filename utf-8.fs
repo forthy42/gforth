@@ -404,7 +404,7 @@ environment-wordlist set-current
     \G Maximal memory consumed by an xchar in address units
     xc-vector @ utf-8 = IF  4  ELSE  1  THEN ;
 
-' noop Alias X:xchar
+\ ' noop Alias X:xchar
 
 forth definitions
 
