@@ -82,7 +82,7 @@
 
 : f+! ( r addr -- ) dup f@ f+ f! ;
 
-Create f!-table ' f! , ' f+! ,
+to-table: f!-table f! f+!
 
 ' >body f!-table to: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
 

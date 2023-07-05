@@ -294,8 +294,8 @@ Defer locals-list!
 : c+! ( c addr -- ) dup >r c@ + r> c! ;
 : 2+! ( d addr -- ) dup >r 2@ d+ r> 2! ;
 
-Create 2!-table ' 2! , ' 2+! ,
-Create c!-table ' c! , ' c+! ,
+to-table: 2!-table 2! 2+!
+to-table: c!-table c! c+!
 : laddr, ( lit:xt -- ) -14 throw ;
 opt: ( lit:xt xt -- ) ?fold-to postpone laddr# >body @ lp-offset, ;
 

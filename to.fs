@@ -20,20 +20,24 @@
 
 s" TO without arg" exception Constant to-error
 
-: to+addr: ( xt table "name" -- ) \ gforth
+: to+addr: ( xt table "name" -- ) \ gforth-experimental
     \G create a to-method with ADDR enabled, where
     \G @var{xt} creates the address to access the field,
     \G and @var{table} contains the operators to store to it.
     Create , ,
     [: >r r@ cell+ perform r> @ to-!exec ;] set-does>
     [: >r lits# 0= IF  to-error throw  THEN
-    r@ cell+ @ compile, r> @ to-!, ;] set-optimizer ;
+    r@ cell+ @ opt-compile, r> @ to-!, ;] set-optimizer ;
 
-: to: ( xt table "name" -- ) \ gforth
+: to: ( xt table "name" -- ) \ gforth-experimental
     \G create a to-method with ADDR disabled, where
     \G @var{xt} creates the address to access the field,
     \G and @var{table} contains the operators to store to it.
     Create , ,
     [: !!?addr!! >r r@ cell+ perform r> @ to-!exec ;] set-does>
     [: !!?addr!! >r lits# 0= IF  to-error throw  THEN
-    r@ cell+ @ compile, r> @ to-!, ;] set-optimizer ;
+    r@ cell+ @ opt-compile, r> @ to-!, ;] set-optimizer ;
+
+: to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental
+    \G create a table with entries for @code{TO} and @code{+TO}
+    Create  BEGIN  parse-name  dup WHILE  forth-recognize '-error ,  REPEAT ;

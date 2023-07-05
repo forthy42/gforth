@@ -34,6 +34,8 @@ standard:field
 
 : vfield-int, ( addr body -- addr+offset ) dup cell+ @ execute ;
 : vfield-comp, ( body -- ) dup cell+ @ opt-compile, ;
+\ : vfield, ( addr body -- addr+offset ) dup cell+ @ execute ;
+\ opt: drop dup cell+ @ opt-compile, ;
 
 : create+value ( n1 addr "name" -- n3 )
     dup >r cell+ cell+ 2@ r> 2@
@@ -48,7 +50,7 @@ standard:field
 : vfield-to: ( xt! -- )
     Create ,
     [: ( xt body -- ) >r >body vfield-int, r> @ to-!exec ;] set-does>
-    [: ( xt -- ) >r lits# 0= IF  r> does,  EXIT  THEN
+    [: ( xt -- ) >r lits# 0= IF  to-error throw  THEN
 	lits> >body vfield-comp, r> >body @ to-!, ;] set-optimizer ;
 
 : wrapper-xts ( xt@ !-table -- xt-does xt-opt xt-to ) { xt@ xt! }
@@ -73,13 +75,13 @@ opt: drop ]] c@ c>s [[ ;
 : $[]-! ( n addr -- x ) $[] ! ;
 : $[]-+! ( n addr -- x ) $[] +! ;
 
-Create w!-table  ' w!  , ' w+!  ,
-Create l!-table  ' l!  , ' l+!  ,
-Create sf!-table ' sf! , ' sf+! ,
-Create df!-table ' df! , ' df+! ,
-Create $!-table  ' $!  , ' $+!  ,
-Create $[]!-table ' $[]! , ' $[]+! ,
-Create $[]-!-table ' $[]-! , ' $[]-+! ,
+to-table: w!-table  w! w+!
+to-table: l!-table  l! l+!
+to-table: sf!-table sf! sf+!
+to-table: df!-table df! df+!
+to-table: $!-table  $! $+!
+to-table: $[]!-table $[]! $[]+!
+to-table: $[]-!-table $[]-! $[]-+!
 
 cell      ' aligned   ' @   !-table   wrap+value: value:   ( u1 "name" -- u2 )
 1         ' noop      ' c@  c!-table  wrap+value: cvalue:  ( u1 "name" -- u2 )
