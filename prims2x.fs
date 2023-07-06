@@ -216,12 +216,14 @@ create stacks max-stacks cells allot \ array of stacks
 create registers max-registers cells allot \ array of registers
 variable nregisters 0 nregisters ! \ number of registers
 variable next-state-number 0 next-state-number ! \ next state number
+0 value ip-offset \ length of a primitive/combined in cells
+                  \  for offsetting on immediate accesses
 
 : stack-in-index ( in-size item -- in-index )
     item-offset @ - 1- ;
 
 : inst-in-index ( in-size item -- in-index )
-    nip dup item-offset @ swap item-type @ type-size @ + 1- ;
+    nip dup item-offset @ swap item-type @ type-size @ + ip-offset - ;
 
 : make-stack ( addr-ptr u1 type "stack-name" -- )
     next-stack-number @ max-stacks < s" too many stacks" ?print-error
@@ -445,7 +447,7 @@ defer inst-stream-f ( -- stack )
     stack stack-depth n + ( ndepth )
     stack stack-number @ part-num @ s-c-max-depth @
 \    max-depth stack stack-number @ th @ ( ndepth nmaxdepth )
-    over <= if ( ndepth ) \ load from memory
+    over <= stack inst-stream-f = or if ( ndepth ) \ load from memory
 	stack state-in normal-stack-access
     else
 	drop n stack part-stack-access
@@ -912,10 +914,10 @@ stack inst-stream IP Cell
 
 : update-stack-pointer { stack n -- }
     n if \ this check is not necessary, gcc would do this for us
-	stack inst-stream = if
-	    ." INC_IP(" n 0 .r ." );" cr
-	else
-	    stack stack-pointer 2@ type ."  += "
+        stack inst-stream = if
+            ." ip += " n 0 .r ." ;" cr
+        else
+            stack stack-pointer 2@ type ."  += "
 	    n stack stack-update-transform 0 .r ." ;" cr
 	endif
     endif ;
@@ -938,8 +940,13 @@ stack inst-stream IP Cell
 	stack stack-moves
     endif ;
 
+: ip-update ( -- )
+    ." ip++; " \ skip the cell of the instruction itself
+    inst-stream stack-pointer-update \ skip the other cells
+    inst-stream stack-diff 1+ to ip-offset ;
+
 : stack-pointer-updates ( -- )
-    ['] stack-pointer-update map-stacks ;
+    ['] stack-pointer-update map-stacks1 ;
 
 : stack-pointer-update2 { stack -- }
 \    ." /* stack pointer update2 " stack stack-pointer 2@ type ."  */" cr
@@ -951,7 +958,7 @@ stack inst-stream IP Cell
 
 : stack-pointer-updates2 ( -- )
     \ update stack pointers after C code, where necessary
-    ['] stack-pointer-update2 map-stacks ;
+    ['] stack-pointer-update2 map-stacks1 ;
 
 : store ( item -- )
 \ f is true if the item should be stored
@@ -1096,6 +1103,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     state-in .state ." -- " state-out .state ."  */" cr
     ." /* " prim prim-doc 2@ type ."  */" cr
     ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
+    ip-update
     ." {" cr
     ." DEF_CA" cr
     print-declarations
@@ -1598,7 +1606,7 @@ variable reprocessed-num 0 reprocessed-num !
     r> in-part ! ;
 
 : part-stack-pointer-updates ( -- )
-    next-stack-number @ 0 +do
+    next-stack-number @ 1 +do
 	i part-num @ 1+ s-c-max-depth @ dup
 	i num-combined @ s-c-max-depth @ =    \ final depth
 	swap i part-num @ s-c-max-depth @ <> \ just reached now
@@ -1634,6 +1642,7 @@ variable reprocessed-num 0 reprocessed-num !
 : output-c-combined ( -- )
     print-entry cr
     \ debugging messages just in parts
+    ip-update
     ." {" cr
     ." DEF_CA" cr
     print-declarations-combined

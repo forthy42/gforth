@@ -150,7 +150,7 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
 #  define NEXT_P1	do {\
   if (DEBUG_DITC && (cfa<=vm_prims+DOER_MAX || cfa>=vm_prims+npriminfos)) \
     fprintf(stderr,"NEXT encountered prim %p at ip=%p\n", cfa, ip); \
-  ip++;} while(0)
+  } while(0)
 #  define NEXT_P1_5	do {ca=*CODE_ADDRESS(cfa); GOTO(ca);} while(0)
 #  define EXEC1(XT)	({DEF_CA cfa=(XT);\
   if (DEBUG_DITC && (cfa>vm_prims+DOER_MAX && cfa<vm_prims+npriminfos)) \
@@ -190,8 +190,8 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
 #  define NEXT_INST	(*IP)
 #  define INC_IP(const_inc)	do { ip+=(const_inc);} while(0)
 #  define DEF_CA
-#  define NEXT_P1	(ip++)
-#  define NEXT_P1_5	do {KILLS GOTO(*(ip-1));} while(0)
+#  define NEXT_P1
+#  define NEXT_P1_5	do {KILLS GOTO(*ip);} while(0)
 #  define EXEC1(XT)	({cfa=(XT); CODE_ADDRESS(cfa);})
 
 /* direct threaded */
@@ -207,7 +207,7 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
 #  define INC_IP(const_inc)	do {ip+=(const_inc);} while(0)
 #  define DEF_CA
 #  define NEXT_P1
-#  define NEXT_P1_5	do {cfa=*ip++; GOTO(CODE_ADDRESS(cfa));} while(0)
+#  define NEXT_P1_5	do {cfa=*ip; GOTO(CODE_ADDRESS(cfa));} while(0)
 #  define EXEC1(XT)	({cfa=(XT); CODE_ADDRESS(cfa);})
 
 /* indirect threaded */
