@@ -40,4 +40,6 @@ s" TO without arg" exception Constant to-error
 
 : to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental
     \G create a table with entries for @code{TO} and @code{+TO}
-    Create  BEGIN  parse-name  dup WHILE  forth-recognize '-error ,  REPEAT ;
+    Create  BEGIN  parse-name  dup WHILE
+	    forth-recognize '-error ,
+    REPEAT  2drop ;

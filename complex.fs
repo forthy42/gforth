@@ -44,10 +44,10 @@
 
 \ locals                                               10jan15py
 
-Create z!-table ' z! , ' z+! ,
+to-table: z!-table z! z+!
 
-: to-z: ( -- ) -14 throw ;
-to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, z!-table to-!, ;
+' laddr, z!-table to: to-z:
+' laddr, z!-table to+addr: to-za:
 : compile-pushlocal-z ( a-addr -- ) ( run-time: z -- )
     locals-size @ alignlp-f float+ float+ dup locals-size !
     swap !
@@ -60,9 +60,13 @@ to-opt: ( !!?addr!! ) POSTPONE laddr# >body @ lp-offset, z!-table to-!, ;
     endcase ;
 
 also locals-types definitions
-: z: ( "name" -- a-addr xt )
+: z: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth w-colon
+    \G Define value-flavoured complex local @i{name} @code{( -- z1 )}
     create-local  ['] to-z: set-to ['] compile-pushlocal-z
-does> @ lp-offset compile-z@local ;
+  does> @ lp-offset compile-z@local ;
+: za: ( compilation "name" -- a-addr xt; run-time z -- ) \ gforth z-a-colon
+    \G Define varue-flavoured complex local @i{name} @code{( -- z1 )}
+    z:  ['] to-za: set-to ;
 : z^ ( "name" -- a-addr xt )
     w^ drop  ['] compile-pushlocal-z ;
 previous definitions
@@ -70,6 +74,7 @@ previous definitions
 also locals-types
 
 z: some-zlocal 2drop
+za: some-zalocal 2drop
 
 previous
 
@@ -164,3 +169,20 @@ Defer fc.       ' f. IS fc.
            fc. 1 backspaces ." i " ;
 : z.s ( z1 .. zn -- z1 .. zn )
 	   zdepth 0 ?DO  i zpick zswap z>r z. zr>  LOOP ;
+
+\ recognizer
+
+: zliteral ( z -- ) fswap ]] fliteral fliteral [[ ; immediate
+' noop ' zliteral ' zliteral >postponer
+translate: translate-complex
+
+: rec-complex ( addr u -- z translate-complex | notfound ) \ complex
+    \G Complex numbers are always in the format a+bi, where a and b are
+    \G floating point numbers including their signs
+    2dup + 1- c@ 'i' = IF
+	1- '+' $split 2swap prefix-number >r prefix-number r>
+	2dup <> IF  fdrop  THEN  and
+	['] translate-complex ['] notfound rot select
+    ELSE  2drop ['] notfound  THEN ;
+
+' rec-complex forth-recognizer >back
