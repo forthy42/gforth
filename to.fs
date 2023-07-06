@@ -38,8 +38,14 @@ s" TO without arg" exception Constant to-error
     [: !!?addr!! >r lits# 0= IF  to-error throw  THEN
     r@ cell+ @ opt-compile, r> @ to-!, ;] set-optimizer ;
 
+[IFUNDEF] -/-
+    : -/- #-21 throw ; ' execute set-optimizer
+[THEN]
+
 : to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental
     \G create a table with entries for @code{TO} and @code{+TO}
-    Create  BEGIN  parse-name  dup WHILE
-	    forth-recognize '-error ,
-    REPEAT  2drop ;
+    Create  0  BEGIN  parse-name  dup WHILE
+	    forth-recognize '-error , 1+
+    REPEAT  2drop
+    \ here goes the number of methods supported
+    4 swap U+DO ['] -/- , LOOP ;

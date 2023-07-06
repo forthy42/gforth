@@ -540,7 +540,13 @@ $BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
     \G (this only makes a difference in the cross-compiler).
     (Value) A, ;
 
-Create !-table ' ! A, ' +! A,
+: -/- ( -- ) \ gforth-experimental not-available
+    \G this word can be ticked, but throws an exception on interpretation
+    \G and compilation
+    #-21 throw ;
+' execute set-optimizer
+
+Create !-table ' ! A, ' +! A, ' -/- A, ' -/- A,
 Variable to-style# 0 to-style# !
 
 : to-!, ( table -- )
