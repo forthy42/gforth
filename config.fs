@@ -32,7 +32,8 @@ s" Config error" exception Value config-throw
 \ if you don't want an exception, set config-throw to 0
 
 : .config-err ( -- )
-    ." can't parse config line " sourceline# 0 .r ." : '" source type ." '" cr
+    current-sourceview .sourceview
+    ." : can't parse config line: '" source type ." '" cr
     config-throw throw ;
 : exec-config ( .. addr u char xt1 xt2 -- ) >r >r
     [: >r type r> emit ;] $tmp config-wl find-name-in
@@ -52,6 +53,7 @@ s" Config error" exception Value config-throw
 ' .config-err ' notfound to config-translator
 
 : config-line ( -- )
+\    current-sourceview .sourceview ." : config line='" source type ." '" cr
     source nip 0= ?EXIT
     '=' parse -trailing 2>r
     parse-name config-recognize 2r> eval-config
@@ -61,7 +63,9 @@ s" Config error" exception Value config-throw
     BEGIN  refill  WHILE  config-line  REPEAT ;
 
 : read-config ( addr u wid -- )  to config-wl
-    >included throw ['] read-config-loop execute-parsing-named-file ;
+    >included throw add-included-file  included-files $@ + cell-
+    $@ ['] read-config-loop execute-parsing-named-file
+    included-files stack> { w^ file } file $free ;
 
 : write-config ( addr u wid -- )  to config-wl
     force-open >r
