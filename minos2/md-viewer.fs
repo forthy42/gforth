@@ -175,7 +175,7 @@ also [IFDEF] android android [THEN]
     md-frame .act >o 0 to active-w o>
     default-sd to slide-deck
     [IFDEF] aback  [ action-of aback ]L is aback  [THEN]
-    >normalscreen +sync +resize ;
+    >normalscreen +sync +resize +resizeall ;
 previous
 
 $000000E0 new-color, FValue album-bg-col#
@@ -255,7 +255,7 @@ also [IFDEF] android android [THEN]
     album-viewer md-frame .childs[] >stack
     [IFDEF] aback  [: #esc rdrop ;] is aback [THEN]
     album-viewer engage
-    +sync +resize ;
+    +sync +resize +resizeall ;
 previous
 
 \ image/thumb loader
