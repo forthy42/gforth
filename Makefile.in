@@ -1105,7 +1105,7 @@ check-nofast: gforth.fi
 		$(TIMEOUT) $(FORTHS) test/gforth-nofast.fs -e bye
 
 test/primtest.fi: test/primtest.fs mach64l.fs cross.fs
-		$(TIMEOUT) $(FORTHS) -e 's" mach64l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
+		$(TIMEOUT) $(PREFORTH) -e 's" mach64l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 primtest:	gforth test/primtest.fi FORCE
 		(echo rs|ENVVAR=bla ./gforth -i test/primtest.fi); echo $$?

@@ -59,7 +59,7 @@
 \     sword dup word-pno-size u>= IF  -18 throw  THEN
 \     here place  bl here count + c!  here ; obsolete
 
-Create mach-file here over 1+ allot place
+[IFDEF] save-mem save-mem [THEN] 2Constant machine-file
 
 0 [IF]
 \ debugging: produce a relocation and a symbol table
@@ -111,7 +111,7 @@ has? kernel-size
 
 doc-off
 has? prims [IF]
-    include ./../kernel/aliases.fs             \ primitive aliases
+    include kernel/aliases.fs             \ primitive aliases
 [ELSE]
     prims-include
     undef-words
