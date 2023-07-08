@@ -1847,6 +1847,7 @@ chmod +x preforth
 chmod +x libforth
 chmod +x gforthker
 test -d kernel||mkdir kernel
+test -d test||mkdir test
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
 mkdir -p include/gforth/$PACKAGE_VERSION/$machine
 mkdir -p arch/$machine
