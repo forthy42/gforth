@@ -18,6 +18,47 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+\ : $has? environment? 0= IF false THEN ;
+
+\ : has? parse-name $has? ;
+
+\ : (word) ( addr1 n1 char -- addr2 n2 )
+\   dup >r skip 2dup r> scan  nip - ; obsolete
+
+\ : sword  ( char -- addr len ) \ gforth-obsolete s-word
+\ \G Parses like @code{word}, but the output is like @code{parse} output.
+\ \G @xref{core-idef}.
+\     \ this word was called PARSE-WORD until 0.3.0, but Open Firmware and
+\     \ dpANS6 A.6.2.2008 have a word with that name that behaves
+\     \ differently (like NAME).
+\     source 2dup >r >r >in @ over min /string
+\     rot dup bl = IF
+\         drop (parse-white)
+\     ELSE
+\         (word)
+\     THEN
+\ [ has? new-input [IF] ]
+\     2dup input-lexeme!
+\ [ [THEN] ]
+\     2dup + r> - 1+ r> min >in ! ;
+
+\ : place ( c-addr1 u c-addr2 ) \ gforth-obsolete place
+\     \G create a counted string of length @var{u} at @var{c-addr2}
+\     \G and copy the string @var{c-addr1 u} into that location.
+\     over >r  rot over 1+  r> move c! ;
+
+\ : word   ( char "<chars>ccc<char>-- c-addr ) \ core
+\     \G Skip leading delimiters. Parse @i{ccc}, delimited by
+\     \G @i{char}, in the parse area. @i{c-addr} is the address of a
+\     \G transient region containing the parsed string in
+\     \G counted-string format. If the parse area was empty or
+\     \G contained no characters other than delimiters, the resulting
+\     \G string has zero length. A program may replace characters within
+\     \G the counted string. OBSOLESCENT: the counted string has a
+\     \G trailing space that is not included in its length.
+\     sword dup word-pno-size u>= IF  -18 throw  THEN
+\     here place  bl here count + c!  here ; obsolete
+
 Create mach-file here over 1+ allot place
 
 0 [IF]
@@ -199,9 +240,9 @@ does> @ ;
     'g 'e min emit
     'e -1 abs + emit
     'a 2 3 * + emit
-    'a 700 99 / + emit
-    'g 8 3 mod + emit
-    8 3 /mod + 'f + emit
+    'a 700 99 /f + emit
+    'g 8 3 modf + emit
+    8 3 /modf + 'f + emit
     'a 5 2* + emit
     'n -3 2/ + emit
     7. -3 fm/mod drop 'o + emit
@@ -303,7 +344,6 @@ does> @ ;
     9 cellbuf cell+ ! cellbuf 2@ 9 2 d= 'i + emit
     cellbuf 3 cells + @ 8 = 'j + emit
     s" ijk" drop char+ c@ emit
-    s" ijk" drop 2 (chars) + c@ emit
     c" ijkl" count 3 /string type
     \ s" abc" 0 (f83find) 0= 'm + emit \ not in gforth-0.6.2
     s" abc" 0 (listlfind) 0= 'n + emit
@@ -315,21 +355,22 @@ does> @ ;
     1 faligned 0 float+ = 'q + emit
     threading-method 2 u< 'r + emit
     \ stdin key-file emit
-    stdin key-file emit
+    stdin (key-file) emit
     stdin key?-file 't + emit
     stderr drop 't emit
-    form 2drop 'u emit
+    (form) 2drop 'u emit
     cbuf 20 flush-icache
     \ (bye)
     s" true" (system) 0 0 d= 'w + emit
     s" ENVVAR" getenv s" bla" compare 'w + emit
     s" grep -q bla" w/o open-pipe 0= 'y + emit >r
     s" blabla" i write-file 0= 'z + emit r> close-pipe d0= 'B + emit
-    777 time&date 2drop 2drop 2drop 777 = 'C + emit
-    1 ms 'C emit
-    100 allocate 0= 'E + emit ( addr)
-    200 resize 0= 'F + emit  ( addr2)
-    free 0= 'G + emit
+    777 utime 2drop 777 = 'C + emit
+    \ !! >time&date&tz
+    1 0 (ns) drop 'C emit
+    100 heap-allocate 0= 'E + emit ( addr)
+    200 heap-resize 0= 'F + emit  ( addr2)
+    heap-free 0= 'G + emit
     1 strerror 2drop 'G emit
     1 strsignal 2drop 'H emit
     \ call-c
