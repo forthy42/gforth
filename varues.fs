@@ -18,7 +18,15 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-' >body !-table to+addr: varue-to ( n value-xt -- ) \ gforth-internal
+[IFUNDEF] !a-table
+    !-table >to+addr-table: !a-table
+    defer-table >to+addr-table: defera-table
+    2!-table >to+addr-table: 2!a-table
+    c!-table >to+addr-table: c!a-table
+    f!-table >to+addr-table: f!a-table
+[THEN]
+
+' >body !a-table to: varue-to ( n value-xt -- ) \ gforth-internal
 
 0 Value dummy-varue
 ' varue-to set-to
@@ -28,7 +36,7 @@
     \G in the future, varues may be less efficient than values.
     ['] dummy-varue create-from reveal , ;
 
-' >body 2!-table to+addr: 2varue-to ( addr -- ) \ gforth-internal
+' >body 2!a-table to: 2varue-to ( addr -- ) \ gforth-internal
 
 0 0 2value dummy-2varue
     ' 2varue-to set-to
@@ -38,7 +46,7 @@
     \G in the future, 2varues may be less efficient than 2values.
     ['] dummy-2varue create-from reveal 2, ;
 
-' >body f!-table to+addr: fvarue-to ( r xt-fvalue -- ) \ gforth-internal
+' >body f!a-table to: fvarue-to ( r xt-fvalue -- ) \ gforth-internal
 
 0e fvalue dummy-fvarue
     ' fvarue-to set-to
@@ -50,11 +58,11 @@
 
 \ Locals with addrs
 
-' laddr, !-table to+addr: to-wa:
-' laddr, defer-table to+addr: to-xta:
-' laddr, 2!-table to+addr: to-da:
-' laddr, c!-table to+addr: to-ca:
-' laddr, f!-table to+addr: to-fa:
+' laddr, !a-table to: to-wa:
+' laddr, defera-table to: to-xta:
+' laddr, 2!a-table to: to-da:
+' laddr, c!a-table to: to-ca:
+' laddr, f!a-table to: to-fa:
 
 get-current also locals-types definitions
 : WA: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-a-colon
@@ -96,8 +104,8 @@ also locals-types
     ['] w:  is default: ;
 previous
 
-: <addr>  -1 to-style# ! <IS> ;
-: [addr]  -1 to-style# ! postpone [IS] ; immediate restrict
+: <addr>  2 to-style# ! <IS> ;
+: [addr]  2 to-style# ! postpone [IS] ; immediate restrict
 
 ' <addr> ' [addr] interpret/compile: addr ( "name" -- addr ) \ gforth
 \g provides the address @var{addr} of the varue, 2varue, or fvarue

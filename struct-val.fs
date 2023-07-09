@@ -75,31 +75,39 @@ opt: drop ]] c@ c>s [[ ;
 : $[]-! ( n addr -- x ) $[] ! ;
 : $[]-+! ( n addr -- x ) $[] +! ;
 
-to-table: w!-table  w! w+!
-to-table: l!-table  l! l+!
-to-table: sf!-table sf! sf+!
-to-table: df!-table df! df+!
-to-table: $!-table  $! $+!
-to-table: $[]!-table $[]! $[]+!
-to-table: $[]-!-table $[]-! $[]-+!
+to-table: w!a-table  w! w+! >body -/-
+to-table: l!a-table  l! l+! >body -/-
+to-table: sf!a-table sf! sf+! >body -/-
+to-table: df!a-table df! df+! >body -/-
+to-table: $!a-table  $! $+! >body -/-
+to-table: $[]!a-table $[]! $[]+! >body -/-
+to-table: $[]-!a-table $[]-! $[]-+! >body -/-
 
-cell      ' aligned   ' @   !-table   wrap+value: value:   ( u1 "name" -- u2 )
-1         ' noop      ' c@  c!-table  wrap+value: cvalue:  ( u1 "name" -- u2 )
-2         ' waligned  ' w@  w!-table  wrap+value: wvalue:  ( u1 "name" -- u2 )
-4         ' laligned  ' l@  l!-table  wrap+value: lvalue:  ( u1 "name" -- u2 )
+[IFUNDEF] !a-table
+    !-table >to+addr-table: !a-table
+    defer-table >to+addr-table: defera-table
+    2!-table >to+addr-table: 2!a-table
+    c!-table >to+addr-table: c!a-table
+    f!-table >to+addr-table: f!a-table
+[THEN]
+
+cell      ' aligned   ' @   !a-table   wrap+value: value:   ( u1 "name" -- u2 )
+1         ' noop      ' c@  c!a-table  wrap+value: cvalue:  ( u1 "name" -- u2 )
+2         ' waligned  ' w@  w!a-table  wrap+value: wvalue:  ( u1 "name" -- u2 )
+4         ' laligned  ' l@  l!a-table  wrap+value: lvalue:  ( u1 "name" -- u2 )
 0 warnings !@
-1         ' noop      ' sc@ c!-table  wrap+value: scvalue:  ( u1 "name" -- u2 )
-2         ' waligned  ' sw@ w!-table  wrap+value: swvalue: ( u1 "name" -- u2 )
-4         ' laligned  ' sl@ l!-table  wrap+value: slvalue: ( u1 "name" -- u2 )
+1         ' noop      ' sc@ c!a-table  wrap+value: scvalue:  ( u1 "name" -- u2 )
+2         ' waligned  ' sw@ w!a-table  wrap+value: swvalue: ( u1 "name" -- u2 )
+4         ' laligned  ' sl@ l!a-table  wrap+value: slvalue: ( u1 "name" -- u2 )
 warnings ! \ yes, these are obsolete, but they are good that way
-2 cells   ' aligned   ' 2@  2!-table  wrap+value: 2value:  ( u1 "name" -- u2 )
-1 floats  ' faligned  ' f@  f!-table  wrap+value: fvalue:  ( u1 "name" -- u2 )
-1 sfloats ' sfaligned ' sf@ sf!-table wrap+value: sfvalue: ( u1 "name" -- u2 )
-1 dfloats ' dfaligned ' df@ df!-table wrap+value: dfvalue: ( u1 "name" -- u2 )
-cell      ' aligned   ' $@  $!-table  wrap+value: $value:  ( u1 "name" -- u2 )
-cell      ' aligned   ' perform defer-table wrap+defer: defer: ( u1 "name" -- u2 )
-cell      ' aligned   ' $[]-@ $[]-!-table wrap+value: value[]: ( u1 "name" -- u2 )
-cell      ' aligned   ' $[]@ $[]!-table wrap+value: $value[]: ( u1 "name" -- u2 )
+2 cells   ' aligned   ' 2@  2!a-table  wrap+value: 2value:  ( u1 "name" -- u2 )
+1 floats  ' faligned  ' f@  f!a-table  wrap+value: fvalue:  ( u1 "name" -- u2 )
+1 sfloats ' sfaligned ' sf@ sf!a-table wrap+value: sfvalue: ( u1 "name" -- u2 )
+1 dfloats ' dfaligned ' df@ df!a-table wrap+value: dfvalue: ( u1 "name" -- u2 )
+cell      ' aligned   ' $@  $!a-table  wrap+value: $value:  ( u1 "name" -- u2 )
+cell      ' aligned   ' perform defera-table wrap+defer: defer: ( u1 "name" -- u2 )
+cell      ' aligned   ' $[]-@ $[]-!a-table wrap+value: value[]: ( u1 "name" -- u2 )
+cell      ' aligned   ' $[]@ $[]!a-table wrap+value: $value[]: ( u1 "name" -- u2 )
 
 0 [IF] \ test
     begin-structure foo

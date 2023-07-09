@@ -268,7 +268,7 @@ here has? new-cfa [IF] [ELSE] ' :dodoes A, [THEN]
 NIL A, NIL A, NIL A,
 unlock
 ghost rec-f83 gset-extra
-ghost (reveal) gset-to
+ghost voc-to gset-to
 ghost drop gset-defer@
 ghost does, gset-optimizer
 lock
@@ -435,9 +435,6 @@ method defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
 opt: ( xt-defer@ -- )
     ?fold-to defer@, ;
 
-' defer@ alias initwl \ gforth init-voc
-\G initialises a vocabulary. Mapped to defer@
-
 swap cell+ swap \ hmextra
 
 method name>interpret ( nt -- xt ) \ tools-ext name-to-interpret
@@ -454,6 +451,15 @@ method name>link ( nt1 -- nt2 / 0 ) \ gforth name-to-link
 \G wordlist, or 0 if there is no previous word.
 
 drop Constant hmsize \ vtable size
+
+: new-defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
+    \G @i{xt} represents the word currently associated with the deferred
+    \G word @i{xt-deferred}.
+    3 to-style# ! (to) ;
+opt: ?fold-to 3 to-style# ! (to), ;
+
+' new-defer@ alias initwl \ gforth init-voc
+\G initialises a vocabulary. Mapped to defer@
 
 : >extra ( nt -- addr )
     >namehm @ >hmextra ;

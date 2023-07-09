@@ -20,8 +20,8 @@
 
 s" TO without arg" exception Constant to-error
 
-: to+addr: ( xt table "name" -- ) \ gforth-experimental
-    \G create a to-method with ADDR enabled, where
+: to: ( xt table "name" -- ) \ gforth-experimental
+    \G create a to-method with ADDR disabled, where
     \G @var{xt} creates the address to access the field,
     \G and @var{table} contains the operators to store to it.
     Create , ,
@@ -29,23 +29,21 @@ s" TO without arg" exception Constant to-error
     [: >r lits# 0= IF  to-error throw  THEN
     r@ cell+ @ opt-compile, r> @ to-!, ;] set-optimizer ;
 
-: to: ( xt table "name" -- ) \ gforth-experimental
-    \G create a to-method with ADDR disabled, where
-    \G @var{xt} creates the address to access the field,
-    \G and @var{table} contains the operators to store to it.
-    Create , ,
-    [: !!?addr!! >r r@ cell+ perform r> @ to-!exec ;] set-does>
-    [: !!?addr!! >r lits# 0= IF  to-error throw  THEN
-    r@ cell+ @ opt-compile, r> @ to-!, ;] set-optimizer ;
-
 [IFUNDEF] -/-
     : -/- #-21 throw ; ' execute set-optimizer
 [THEN]
 
 : to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental
-    \G create a table with entries for @code{TO} and @code{+TO}
+    \G create a table with entries for @code{TO}, @code{+TO},
+    \G @code{DEFER@}, and @code{ADDR}
     Create  0  BEGIN  parse-name  dup WHILE
 	    forth-recognize '-error , 1+
     REPEAT  2drop
     \ here goes the number of methods supported
-    4 swap U+DO ['] -/- , LOOP ;
+    to-table-size# swap U+DO ['] -/- , LOOP ;
+
+: >to+addr-table: ( table-addr "name" -- ) \ gforth-experimental
+    \G copy a table and set the @code{ADDR}-method to allow it
+    create here to-table-size# cells move
+    \ >body does nothing and compiles nothing
+    ['] >body here 2 cells + !  to-table-size# cells allot ;

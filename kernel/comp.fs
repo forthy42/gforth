@@ -550,20 +550,12 @@ Create !-table ' ! A, ' +! A, ' -/- A, ' -/- A,
 Create defer-table ' ! A, ' -/- A, ' -/- A, ' @ A,
 Variable to-style# 0 to-style# !
 
+4 Constant to-table-size#
+
 : to-!, ( table -- )
-    0 to-style# !@ dup 4 u< IF  cells + @ compile,  ELSE  2drop  THEN ;
+    0 to-style# !@ dup to-table-size# u< IF  cells + @ compile,  ELSE  2drop  THEN ;
 : to-!exec ( table -- )
-    0 to-style# !@ dup 4 u< IF  cells + perform  ELSE  2drop  THEN ;
-
-: !!?addr!! ( -- ) to-style# @ -1 = IF
-	to-style# off  -2056 throw
-    THEN ;
-
-: new-defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
-    \G @i{xt} represents the word currently associated with the deferred
-    \G word @i{xt-deferred}.
-    3 to-style# ! (to) ;
-opt: ?fold-to 3 to-style# ! (to), ;
+    0 to-style# !@ dup to-table-size# u< IF  cells + perform  ELSE  2drop  THEN ;
 
 : (Field)  ['] wordlist-map create-from reveal ;
 
@@ -798,15 +790,15 @@ Create hmtemplate
 
 : value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
-    !!?addr!! >body !-table to-!exec ;
+    >body !-table to-!exec ;
 opt: ( value-xt -- ) \ run-time: ( n -- )
-    drop !!?addr!! postpone >body !-table to-!, ;
+    drop postpone >body !-table to-!, ;
 
 : defer-is ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for deferred words
-    !!?addr!! >body defer-table to-!exec ;
+    >body defer-table to-!exec ;
 opt: ( value-xt -- ) \ run-time: ( n -- )
-    drop !!?addr!! postpone >body defer-table to-!, ;
+    drop postpone >body defer-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -916,6 +908,12 @@ interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
 	    drop
 	then
     then ;
+
+Create voc-table ' (reveal) A, ' -/- A, ' -/- A, ' drop A,
+
+: voc-to ( n voc-xt -- ) \ gforth-internal
+    \g this is the TO-method for normal values
+    >body voc-table to-!exec ;
 
 ' reveal alias recursive ( compilation -- ; run-time -- ) \ gforth
 \g Make the current definition visible, enabling it to call itself

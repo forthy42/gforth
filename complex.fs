@@ -45,9 +45,11 @@
 \ locals                                               10jan15py
 
 to-table: z!-table z! z+!
+z!-table >to+addr-table: z!a-table
 
 ' laddr, z!-table to: to-z:
-' laddr, z!-table to+addr: to-za:
+' laddr, z!a-table to: to-za:
+
 : compile-pushlocal-z ( a-addr -- ) ( run-time: z -- )
     locals-size @ alignlp-f float+ float+ dup locals-size !
     swap !
