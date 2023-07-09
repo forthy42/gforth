@@ -743,7 +743,8 @@ Create hmtemplate
 
 : opt!-compile, ( xt -- ) \ gforth-internal
     \G force optimizing compile,
-    ['] compile, defer@ >r ['] opt-compile, is compile,
+    ['] compile, @ >r \ we optimize defer@ here directly
+    ['] opt-compile, is compile,
     ['] compile, catch
     r> is compile,  throw ;
 

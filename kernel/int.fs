@@ -429,7 +429,7 @@ method (to) ( val xt -- ) \ gforth paren-to
 opt: ( xt-(to -- )
     ?fold-to (to), ;
 
-method defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
+method old-defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
 \G @i{xt} represents the word currently associated with the deferred
 \G word @i{xt-deferred}.
 opt: ( xt-defer@ -- )
@@ -452,13 +452,13 @@ method name>link ( nt1 -- nt2 / 0 ) \ gforth name-to-link
 
 drop Constant hmsize \ vtable size
 
-: new-defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
+: defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
     \G @i{xt} represents the word currently associated with the deferred
     \G word @i{xt-deferred}.
     3 to-style# ! (to) ;
 opt: ?fold-to 3 to-style# ! (to), ;
 
-' new-defer@ alias initwl \ gforth init-voc
+' defer@ alias initwl \ gforth init-voc
 \G initialises a vocabulary. Mapped to defer@
 
 : >extra ( nt -- addr )
