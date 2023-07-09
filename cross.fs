@@ -3123,6 +3123,7 @@ ghost noname>string
 ghost noname>link
 2drop
 ghost value-to
+ghost defer-is
 ghost umethod,
 2drop
 ghost is-umethod
@@ -3512,7 +3513,7 @@ T has? rom H [IF]
 [THEN]
 hm:
 [G'] defer, gset-optimizer
-[G'] value-to gset-to
+[G'] defer-is gset-to
 [G'] defer-defer@ gset-defer@ ;hm
 
 \ Sturctures                                           23feb95py

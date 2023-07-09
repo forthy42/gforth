@@ -51,6 +51,7 @@
 \ Locals with addrs
 
 ' laddr, !-table to+addr: to-wa:
+' laddr, defer-table to+addr: to-xta:
 ' laddr, 2!-table to+addr: to-da:
 ' laddr, c!-table to+addr: to-ca:
 ' laddr, f!-table to+addr: to-fa:
@@ -71,7 +72,7 @@ get-current also locals-types definitions
 : XTA: ( compilation "name" -- a-addr xt; run-time ... -- ... ) \ gforth x-t-a-colon
     \G Define a defer-flavoured local @i{name} on which @code{addr}
     \G can be used.
-    xt: ['] to-wa: set-to ;
+    xt: ['] to-xta: set-to ;
 
 ca: some-calocal 2drop
 da: some-dalocal 2drop
@@ -94,6 +95,9 @@ also locals-types
     \G @code{w:}.
     ['] w:  is default: ;
 previous
+
+: <addr>  -1 to-style# ! <IS> ;
+: [addr]  -1 to-style# ! postpone [IS] ; immediate restrict
 
 ' <addr> ' [addr] interpret/compile: addr ( "name" -- addr ) \ gforth
 \g provides the address @var{addr} of the varue, 2varue, or fvarue

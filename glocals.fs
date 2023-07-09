@@ -300,6 +300,7 @@ to-table: c!-table c! c+!
 opt: ( lit:xt xt -- ) ?fold-to postpone laddr# >body @ lp-offset, ;
 
 ' laddr, !-table to: to-w:
+' laddr, defer-table to: to-xt:
 ' laddr, 2!-table to: to-d:
 ' laddr, c!-table to: to-c:
 ' laddr, f!-table to: to-f:
@@ -363,7 +364,7 @@ locals-types definitions
 
 : XT: ( compilation "name" -- a-addr xt; run-time xt1 -- ) \ gforth x-t-colon
     \G Define defer-flavoured cell local @i{name} @code{( ... -- ... )}
-    create-local  ['] to-w: set-to  ['] defer@-xt: set-defer@
+    create-local  ['] to-xt: set-to  ['] defer@-xt: set-defer@
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: .. -- .. )
     @ lp-offset compile-@local postpone execute ;

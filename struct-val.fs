@@ -97,7 +97,7 @@ warnings ! \ yes, these are obsolete, but they are good that way
 1 sfloats ' sfaligned ' sf@ sf!-table wrap+value: sfvalue: ( u1 "name" -- u2 )
 1 dfloats ' dfaligned ' df@ df!-table wrap+value: dfvalue: ( u1 "name" -- u2 )
 cell      ' aligned   ' $@  $!-table  wrap+value: $value:  ( u1 "name" -- u2 )
-cell      ' aligned   ' perform !-table wrap+defer: defer: ( u1 "name" -- u2 )
+cell      ' aligned   ' perform defer-table wrap+defer: defer: ( u1 "name" -- u2 )
 cell      ' aligned   ' $[]-@ $[]-!-table wrap+value: value[]: ( u1 "name" -- u2 )
 cell      ' aligned   ' $[]@ $[]!-table wrap+value: $value[]: ( u1 "name" -- u2 )
 

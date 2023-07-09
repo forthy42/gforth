@@ -547,12 +547,13 @@ $BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
 ' execute set-optimizer
 
 Create !-table ' ! A, ' +! A, ' -/- A, ' -/- A,
+Create defer-table ' ! A, ' -/- A, ' -/- A, ' @ A,
 Variable to-style# 0 to-style# !
 
 : to-!, ( table -- )
-    0 to-style# !@ dup 2 u< IF  cells + @ compile,  ELSE  2drop  THEN ;
+    0 to-style# !@ dup 4 u< IF  cells + @ compile,  ELSE  2drop  THEN ;
 : to-!exec ( table -- )
-    0 to-style# !@ dup 2 u< IF  cells + perform  ELSE  2drop  THEN ;
+    0 to-style# !@ dup 4 u< IF  cells + perform  ELSE  2drop  THEN ;
 
 : !!?addr!! ( -- ) to-style# @ -1 = IF
 	to-style# off  -2056 throw
@@ -795,6 +796,12 @@ Create hmtemplate
 opt: ( value-xt -- ) \ run-time: ( n -- )
     drop !!?addr!! postpone >body !-table to-!, ;
 
+: defer-is ( n value-xt -- ) \ gforth-internal
+    \g this is the TO-method for deferred words
+    !!?addr!! >body defer-table to-!exec ;
+opt: ( value-xt -- ) \ run-time: ( n -- )
+    drop !!?addr!! postpone >body defer-table to-!, ;
+
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
     record-name (') (to) ;
@@ -810,10 +817,7 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
 \g changes the @code{defer}red word @var{name} to execute @var{value}
 
 : <+TO>  1 to-style# ! <IS> ;
-: <addr>  -1 to-style# ! <IS> ;
-
 : [+TO]  1 to-style# ! postpone [IS] ; immediate restrict
-: [addr]  -1 to-style# ! postpone [IS] ; immediate restrict
 
 ' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- ) \ gforth
 \g increments the value of @var{name} by @var{value}
