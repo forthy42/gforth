@@ -559,6 +559,12 @@ Variable to-style# 0 to-style# !
 	to-style# off  -2056 throw
     THEN ;
 
+: new-defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
+    \G @i{xt} represents the word currently associated with the deferred
+    \G word @i{xt-deferred}.
+    3 to-style# ! (to) ;
+opt: ?fold-to 3 to-style# ! (to), ;
+
 : (Field)  ['] wordlist-map create-from reveal ;
 
 \ IS Defer What's Defers TO                            24feb93py
