@@ -178,7 +178,7 @@ Defer fc.       ' f. IS fc.
 ' noop ' zliteral ' zliteral >postponer
 translate: translate-complex
 
-: rec-complex ( addr u -- z translate-complex | notfound ) \ complex
+: rec-complex ( addr u -- z translate-complex | notfound ) \ gforth
     \G Complex numbers are always in the format a+bi, where a and b are
     \G floating point numbers including their signs
     2dup + 1- c@ 'i' = IF

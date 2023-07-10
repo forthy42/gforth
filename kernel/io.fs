@@ -192,7 +192,7 @@ default-in ip-vector !
 
 : output: ( type-xt emit-xt cr-xt form-xt -- )
     Create here cell+ , swap 2swap swap , , , ,
-    ['] noop , ['] 2drop , ['] 2drop , ['] drop , ['] 2drop , ['] drop ,
+    ['] -/- , ['] -/- , ['] -/- , ['] -/- , ['] -/- , ['] drop ,
   DOES> cell+ op-vector ! ;
 
 \ Input                                                13feb93py
