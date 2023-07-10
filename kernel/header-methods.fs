@@ -41,9 +41,4 @@ defer does-check ( xt -- xt ) ' noop is does-check
 opt: ( method-xt -- )
     ?fold-to >body cell+ lit, postpone (uv) defer-table to-!, ;
 
-: umethod-defer@ ( method-xt -- xt )
-    >body cell+ (uv) @ ;
-opt: ( method-xt -- )
-    ?fold-to >body cell+ lit, postpone (uv) postpone @ ;
-
 AVariable hm-list

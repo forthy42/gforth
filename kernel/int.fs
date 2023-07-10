@@ -29,8 +29,6 @@
     \ default to action: report an error ASAP (even right when COMPILE,ing)
     #-12 throw ;
 ' execute set-optimizer
-: no-defer@ ( xt -- ) #-2055 throw ;
-' execute set-optimizer
 
 require ./basics.fs 	\ bounds decimal hex ...
 require ./io.fs		\ type ...

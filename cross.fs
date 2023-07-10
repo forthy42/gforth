@@ -3113,9 +3113,7 @@ ghost i/c>int
 ghost i/c>comp
 2drop
 ghost no-to
-ghost no-defer@
-2drop
-\ ghost defer-defer@ drop
+drop
 ghost named>string
 ghost named>link
 2drop
@@ -3127,8 +3125,7 @@ ghost defer-is
 ghost umethod,
 2drop
 ghost is-umethod
-ghost umethod-defer@
-2drop
+drop
 ghost u#exec
 ghost u#+
 ghost uvar,
@@ -3144,7 +3141,6 @@ Create hmtemplate
 0 ,
 findghost :, ,
 findghost no-to ,
-\ findghost no-defer@ ,
 0 ,
 findghost noop ,
 findghost default-name>comp ,
@@ -3156,7 +3152,6 @@ Struct
     cell% field g>hmlink
     cell% field g>hmcompile,
     cell% field g>hmto
-\    cell% field g>hmdefer@
     cell% field g>hmextra
     cell% field g>hm>int
     cell% field g>hm>comp
@@ -3204,20 +3199,17 @@ End-Struct vtable-struct
 : hm-populate ( -- )
     [G'] :,                hmtemplate g>hmcompile, !
     [G'] no-to             hmtemplate g>hmto !
-\    [G'] no-defer@         hmtemplate g>hmdefer@ !
     TNIL                   hmtemplate g>hmextra !
     hm-named ;
 
 :noname ( ghost -- )  hmtemplate g>hmcompile, ! ; IS gset-optimizer
 : gset-to ( ghost -- )        hmtemplate g>hmto ! ;
-\ : gset-defer@   ( ghost -- )  hmtemplate g>hmdefer@ ! ;
 : gset->int ( ghost -- )      hmtemplate g>hm>int ! ;
 : gset->comp ( ghost -- )     hmtemplate g>hm>comp ! ;
 :noname ( ghost -- )     hmtemplate g>hmextra ! ; is gset-extra
 
 : set-optimizer ( xt -- ) xt>ghost gset-optimizer ;
 : set-to       ( xt -- )  xt>ghost gset-to ;
-\ : set-defer@   ( xt -- )  xt>ghost gset-defer@ ;
 : set->int     ( xt -- )  xt>ghost gset->int ;
 : set->comp    ( xt -- )  xt>ghost gset->comp ;
 : set-extra    ( xt -- )  xt>ghost gset-extra ;
@@ -3258,7 +3250,6 @@ ghost ?fold-to drop
     swap T A, A, H [ T has? ec H ] [IF] alias-mask flag! [THEN]
     hm-populate
     [G'] no-to   gset-to
-\    [G'] no-defer@ gset-defer@
     [G'] a>int   gset->int
     [G'] i/c>comp hmtemplate g>hm>comp ! ;
 
@@ -3266,7 +3257,6 @@ ghost ?fold-to drop
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
 
 : to-opt: T opt: H compile ?fold-to ;
-\ : defer@-opt: T opt: H compile ?fold-to ;
 
 variable cross-boot$[]
 variable cross-boot[][]
@@ -3417,7 +3407,6 @@ DO: ;DO
 compile: g>xt compile does-xt T a, H ;compile
 hm: [G'] does, gset-optimizer
     [G'] theme-to gset-to
-\    [G'] theme@ gset-defer@
 ;hm
 
 \ User variables                                       04may94py
@@ -3514,8 +3503,7 @@ T has? rom H [IF]
 [THEN]
 hm:
 [G'] defer, gset-optimizer
-[G'] defer-is gset-to
-( [G'] defer-defer@ gset-defer@ ) ;hm
+[G'] defer-is gset-to ;hm
 
 \ Sturctures                                           23feb95py
 

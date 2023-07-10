@@ -305,9 +305,6 @@ opt: ( lit:xt xt -- ) ?fold-to postpone laddr# >body @ lp-offset, ;
 ' laddr, c!-table to: to-c:
 ' laddr, f!-table to: to-f:
 
-: defer@-xt: ( -- ) -14 throw ;
-opt: ( lit:xt xt -- ) drop postpone laddr, postpone @ ;
-
 : val-part-off ( -- ) val-part off ;
 
 vocabulary locals-types \ this contains all the type specifyers, -- and }
@@ -364,7 +361,7 @@ locals-types definitions
 
 : XT: ( compilation "name" -- a-addr xt; run-time xt1 -- ) \ gforth x-t-colon
     \G Define defer-flavoured cell local @i{name} @code{( ... -- ... )}
-    create-local  ['] to-xt: set-to \ ['] defer@-xt: set-defer@
+    create-local  ['] to-xt: set-to
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: .. -- .. )
     @ lp-offset compile-@local postpone execute ;
