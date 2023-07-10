@@ -24,9 +24,9 @@ hex \ everything now hex!                               11may93jaw
 
 : uvalue-to ( n uvalue-xt -- )
     \g uvalue-to is the to-method for uvalues
-    !!?addr!! >body @ next-task +  !-table to-!exec ;
+    >body @ next-task +  !-table to-!exec ;
 opt: ( uvalue-xt to-xt -- )
-    ?fold-to !!?addr!! >body @ postpone useraddr , !-table to-!, ;
+    ?fold-to >body @ postpone useraddr , !-table to-!, ;
 : u-compile, ( xt -- )  >body @ postpone user@ , ;
 
 : (UValue) ( "name" -- )

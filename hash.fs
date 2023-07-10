@@ -84,7 +84,8 @@ Defer hash-alloc ( addr -- addr )
 : hash-find ( addr len wordlist -- nfa / false )
     >r 2dup r> bucket @ (hashlfind) ;
 : hash-rec ( addr len wordlist-id -- nfa rectype-nt / rectype-null )
-    0 wordlist-id - hash-find nt>rec ;
+    ( 0 wordlist-id - ) \ this cancels out, optimizer is not available yet
+    hash-find nt>rec ;
 
 \ hash vocabularies                                    16jul94py
 
@@ -107,6 +108,16 @@ Defer hash-alloc ( addr -- addr )
 : table-reveal ( nfa wid -- )
     2dup (nocheck-reveal) (reveal ;
 
+Create hashvoc-table ' hash-reveal , ' -/- , ' -/- , ' noop ,
+Create tablevoc-table ' table-reveal , ' -/- , ' -/- , ' noop ,
+
+: hashvoc-to ( n voc-xt -- ) \ gforth-internal
+    \g this is the TO-method for normal values
+    >body hashvoc-table to-!exec ;
+: tablevoc-to ( n voc-xt -- ) \ gforth-internal
+    \g this is the TO-method for normal values
+    >body tablevoc-table to-!exec ;
+
 [IFUNDEF] >link ' noop Alias >link [THEN]
 
 : inithash ( wid -- )
@@ -120,8 +131,9 @@ Defer hash-alloc ( addr -- addr )
     HashPop off voclink
     BEGIN  @ dup WHILE
 	    dup 0 wordlist-link -
-	    dup wordlist-map @ reveal-method @
-	    dup ['] hash-reveal = swap ['] table-reveal = or
+	    dup wordlist-map @ reveal-method @ >r
+	    r@ ['] hashvoc-to = r@ ['] tablevoc-to = or
+	    r@ ['] hash-reveal = or r> ['] table-reveal = or
 	    IF  inithash ELSE drop THEN
     REPEAT  drop ;
 
@@ -158,6 +170,9 @@ Defer hash-alloc ( addr -- addr )
   IF   inithash
   ELSE rehashall THEN ;
 
+' (rehash) hashvoc-table 3 cells + !
+' (rehash) tablevoc-table 3 cells + !
+
 : hashdouble ( -- )
     HashTable >r clearhash
     1 hashbits 1+ dup  to hashbits  lshift  to hashlen
@@ -167,10 +182,10 @@ Defer hash-alloc ( addr -- addr )
 \ Create a wordlist by example
 
 forth-wordlist noname-from
-' hash-reveal set-to
+' hashvoc-to set-to
 ' (rehash) set-defer@
 ' hash-rec set-does>
-hm, latestxt cell- @ to hashsearch-map
+hm, latestxt >namehm @ to hashsearch-map
 
 \ hash allocate and vocabulary initialization          10oct94py
 

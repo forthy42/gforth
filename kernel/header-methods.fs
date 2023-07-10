@@ -37,9 +37,9 @@ defer does-check ( xt -- xt ) ' noop is does-check
 
 : (uv) ( ip -- xt-addr ) 2@ next-task + @ cell- @ swap cells + ;
 : is-umethod ( method-xt -- )
-    >body cell+ (uv) ! ;
+    >body cell+ (uv) defer-table to-!exec ;
 opt: ( method-xt -- )
-    ?fold-to >body cell+ lit, postpone (uv) postpone ! ;
+    ?fold-to >body cell+ lit, postpone (uv) defer-table to-!, ;
 
 : umethod-defer@ ( method-xt -- xt )
     >body cell+ (uv) @ ;

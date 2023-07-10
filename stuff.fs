@@ -354,9 +354,10 @@ translate: translate-[[
 
 \ defer stuff
 
-:noname ' defer@ ;
-:noname (') name>interpret defer@, ;
-interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
+: <action-of>  3 to-style# ! <IS> ;
+: [action-of]  3 to-style# ! postpone [IS] ; immediate restrict
+
+' <action-of> ' [action-of] interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
 synonym what's action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete

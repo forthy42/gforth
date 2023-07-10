@@ -59,7 +59,7 @@
 \     sword dup word-pno-size u>= IF  -18 throw  THEN
 \     here place  bl here count + c!  here ; obsolete
 
-Create mach-file here over 1+ allot place
+[IFDEF] save-mem save-mem [THEN] 2Constant machine-file
 
 0 [IF]
 \ debugging: produce a relocation and a symbol table
@@ -91,27 +91,27 @@ has? kernel-start has? kernel-size makekernel
 has? header [IF]
 here 1802 over 
     A,                  \ base address
-    0 ,                 \ checksum
-    0 ,                 \ image size (without tags)
-has? kernel-size
-    ,                   \ dict size
+    has? kernel-size ,  \ dict size
+    0 A,                \ image dp (without tags)
+    0 A,                \ section name
+    0 A,                \ locs[]
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
     has? lstack-size ,  \ locals stack size
-    0 A,                \ code entry point
+    0 A,                \ boot entry point
     0 A,                \ throw entry point
-    has? stack-size ,   \ unused (possibly tib stack size)
-    0 ,                 \ unused
-    0 ,                 \ data stack base
-    0 ,                 \ fp stack base
-    0 ,                 \ return stack base
-    0 ,                 \ locals stack base
+    0 A,                \ quit entry point
+    0 A,                \ execute entry point
+    0 A,                \ find entry point
+    0 ,                 \ checksum
+    0 ,                 \ base of DOUBLE_INDIRECT xts[], for comp-i.fs
+    0 ,                 \ base of DOUBLE_INDIRECT labels[], for comp-i.fs
 [THEN]
 
 doc-off
 has? prims [IF]
-    include ./../kernel/aliases.fs             \ primitive aliases
+    include kernel/aliases.fs             \ primitive aliases
 [ELSE]
     prims-include
     undef-words
@@ -137,13 +137,59 @@ AConstant image-header
 : cr ( -- )
     newline type ;
 
+\ helper words the cross compiler needs to resolve
+
+1 cells -4 cells \ mini-oof class declaration with methods
+\ the offsets are a bit odd to keep the xt as point of reference
+cell var >f+c
+cell var >link
+cell var >cfa
+cell var >namehm
+2drop
+$00ffffff constant lcount-mask
+0 -1 cells allot  bigendian [IF]   c, -1 1 cells 1- c,s
+                          [ELSE] -1 1 cells 1- c,s c, [THEN]
+[THEN]
+cell% 2* 0 0 field >body
+
+: named>string ( nt -- addr count ) \ gforth-internal     named-to-string
+    >f+c dup @ lcount-mask and tuck - swap ;
+: named>link ( nt1 -- nt2 / 0 ) \ gforth-internal	named-to-link
+    >link @ ;
+: noname>string ( nt -- cfa 0 ) \ gforth-internal    noname-to-string
+    cell- cell- 0 ;
+: noname>link ( nt -- 0 ) \ gforth-internal    noname-to-link
+    drop 0 ;
+: value-to ( n value-xt -- ) \ gforth-internal
+    \g this is the TO-method for normal values
+    >body ! ;
+opt: ( value-xt -- ) \ run-time: ( n -- )
+    drop postpone >body postpone ! ;
+: defer-defer@ ( xt -- )
+    \ The defer@ implementation of children of DEFER
+    >body @ ;
+opt: ( xt -- )
+    drop postpone >body postpone @ ;
+: no-defer@ ( xt -- ) ;
+0 AConstant default-name>comp ( nt -- w xt ) \ gforth-internal default-name-to-comp
+: field+, ;
+: defer, ;
+: variable, ;
+: constant, ;
+: peephole-compile, ;
+: :, ;
+: does, ;
+: compile, ;
+: no-to ;
+
+\ end helper words
+
 char j constant char-j
 
 variable var-k
 char k var-k !
 defer my-emit
 ' emit is my-emit
-cell% 2* 0 0 field >body
 
 create cbuf 100 allot
 

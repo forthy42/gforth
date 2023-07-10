@@ -30,8 +30,8 @@ s" Invalid method for this class" exception Constant !!inv-method!!
 : ?valid-method ( offset class -- offset )
     cell- @ over u<= !!inv-method!! and throw ;
 : m-to ( xt class xtsel -- )
-    >body @ over ?valid-method + ! ;
-to-opt: ( xt class xtsel -- ) >body @ postpone lit+ , postpone ! ;
+    >body @ over ?valid-method + defer-table to-!exec ;
+to-opt: ( xt class xtsel -- ) >body @ postpone lit+ , defer-table to-!, ;
 \ no validity check for compilation, normal usage is interpretative only
 : m-defer@ ( class xt -- ) >body @ over ?valid-method + @ ;
 defer@-opt: ( xt -- ) >body @ postpone lit+ , postpone @ ;

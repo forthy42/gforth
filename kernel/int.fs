@@ -28,9 +28,9 @@
 : no-to ( xt -- )
     \ default to action: report an error ASAP (even right when COMPILE,ing)
     #-12 throw ;
-opt: #-12 throw ; \ 
+' execute set-optimizer
 : no-defer@ ( xt -- ) #-2055 throw ;
-opt: #-2055 throw ;
+' execute set-optimizer
 
 require ./basics.fs 	\ bounds decimal hex ...
 require ./io.fs		\ type ...
@@ -268,7 +268,7 @@ here has? new-cfa [IF] [ELSE] ' :dodoes A, [THEN]
 NIL A, NIL A, NIL A,
 unlock
 ghost rec-f83 gset-extra
-ghost (reveal) gset-to
+ghost voc-to gset-to
 ghost drop gset-defer@
 ghost does, gset-optimizer
 lock
@@ -429,14 +429,11 @@ method (to) ( val xt -- ) \ gforth paren-to
 opt: ( xt-(to -- )
     ?fold-to (to), ;
 
-method defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
+method old-defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
 \G @i{xt} represents the word currently associated with the deferred
 \G word @i{xt-deferred}.
 opt: ( xt-defer@ -- )
     ?fold-to defer@, ;
-
-' defer@ alias initwl \ gforth init-voc
-\G initialises a vocabulary. Mapped to defer@
 
 swap cell+ swap \ hmextra
 
@@ -454,6 +451,15 @@ method name>link ( nt1 -- nt2 / 0 ) \ gforth name-to-link
 \G wordlist, or 0 if there is no previous word.
 
 drop Constant hmsize \ vtable size
+
+: defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
+    \G @i{xt} represents the word currently associated with the deferred
+    \G word @i{xt-deferred}.
+    3 to-style# ! (to) ;
+opt: ?fold-to 3 to-style# ! (to), ;
+
+' defer@ alias initwl \ gforth init-voc
+\G initialises a vocabulary. Mapped to defer@
 
 : >extra ( nt -- addr )
     >namehm @ >hmextra ;

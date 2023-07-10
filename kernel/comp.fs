@@ -547,16 +547,15 @@ $BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
 ' execute set-optimizer
 
 Create !-table ' ! A, ' +! A, ' -/- A, ' -/- A,
+Create defer-table ' ! A, ' -/- A, ' -/- A, ' @ A,
 Variable to-style# 0 to-style# !
 
-: to-!, ( table -- )
-    0 to-style# !@ dup 2 u< IF  cells + @ compile,  ELSE  2drop  THEN ;
-: to-!exec ( table -- )
-    0 to-style# !@ dup 2 u< IF  cells + perform  ELSE  2drop  THEN ;
+4 Constant to-table-size#
 
-: !!?addr!! ( -- ) to-style# @ -1 = IF
-	to-style# off  -2056 throw
-    THEN ;
+: to-!, ( table -- )
+    0 to-style# !@ dup to-table-size# u< IF  cells + @ compile,  ELSE  2drop  THEN ;
+: to-!exec ( table -- )
+    0 to-style# !@ dup to-table-size# u< IF  cells + perform  ELSE  2drop  THEN ;
 
 : (Field)  ['] wordlist-map create-from reveal ;
 
@@ -744,7 +743,8 @@ Create hmtemplate
 
 : opt!-compile, ( xt -- ) \ gforth-internal
     \G force optimizing compile,
-    ['] compile, defer@ >r ['] opt-compile, is compile,
+    ['] compile, @ >r \ we optimize defer@ here directly
+    ['] opt-compile, is compile,
     ['] compile, catch
     r> is compile,  throw ;
 
@@ -791,9 +791,15 @@ Create hmtemplate
 
 : value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
-    !!?addr!! >body !-table to-!exec ;
+    >body !-table to-!exec ;
 opt: ( value-xt -- ) \ run-time: ( n -- )
-    drop !!?addr!! postpone >body !-table to-!, ;
+    drop postpone >body !-table to-!, ;
+
+: defer-is ( n value-xt -- ) \ gforth-internal
+    \g this is the TO-method for deferred words
+    >body defer-table to-!exec ;
+opt: ( value-xt -- ) \ run-time: ( n -- )
+    drop postpone >body defer-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -810,10 +816,7 @@ opt: ( value-xt -- ) \ run-time: ( n -- )
 \g changes the @code{defer}red word @var{name} to execute @var{value}
 
 : <+TO>  1 to-style# ! <IS> ;
-: <addr>  -1 to-style# ! <IS> ;
-
 : [+TO]  1 to-style# ! postpone [IS] ; immediate restrict
-: [addr]  -1 to-style# ! postpone [IS] ; immediate restrict
 
 ' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- ) \ gforth
 \g increments the value of @var{name} by @var{value}
@@ -906,6 +909,12 @@ interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
 	    drop
 	then
     then ;
+
+Create voc-table ' (reveal) A, ' -/- A, ' -/- A, ' drop A,
+
+: voc-to ( n voc-xt -- ) \ gforth-internal
+    \g this is the TO-method for normal values
+    >body voc-table to-!exec ;
 
 ' reveal alias recursive ( compilation -- ; run-time -- ) \ gforth
 \g Make the current definition visible, enabling it to call itself

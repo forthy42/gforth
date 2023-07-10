@@ -27,9 +27,9 @@ require hash.fs
 : table-rec ( addr len wordlist-id -- nfa rectype-nt / rectype-null )
     0 wordlist-id - table-find nt>rec ;
 
-' table-reveal  ' (rehash)  ' table-rec wordlist-class
+' tablevoc-to  ' (rehash)  ' table-rec wordlist-class
 >namehm @ Constant tablesearch-map
-' hash-reveal  ' (rehash)  ' table-rec wordlist-class
+' hashvoc-to  ' (rehash)  ' table-rec wordlist-class
 >namehm @ Constant cs-wordlist-search-map
 
 voclink @ @ @ voclink !

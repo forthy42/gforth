@@ -24,12 +24,9 @@ Variable endif?  -1 cells allot -1 1 cells c,s
 : dummy ;  immediate
 : scan-rec  @ (listlfind)  dup 0=  IF  drop ['] dummy  THEN  ['] translate-nt ;
 
-Create [struct]-search    0 , 0 ,  ' (reveal) A,  ' drop A, ' scan-rec A,
-has? new-cfa [IF]
-    ' :dodoes A, [struct]-search A,  here  NIL A,  NIL A,
-[ELSE]
-    [struct]-search A,  here  ' :dodoes A, NIL A,  NIL A,
-[THEN]
+Create [struct]-search    0 , ' drop A,  ' voc-to A,  ' drop A, ' scan-rec A,
+' noop A, ' default-name>comp A, ' noname>string A, ' noname>link A,
+' :dodoes A, [struct]-search A,  here  NIL A,  NIL A,
 AConstant [struct]-voc
 
 : scanif-r ( addr u -- xt )
