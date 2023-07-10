@@ -29,9 +29,10 @@ opt: ( xt -- ) >body @ postpone o#+ , ;
 s" Invalid method for this class" exception Constant !!inv-method!!
 : ?valid-method ( offset class -- offset )
     cell- @ over u<= !!inv-method!! and throw ;
-: m-to ( xt class xtsel -- )
-    >body @ over ?valid-method + defer-table to-!exec ;
-to-opt: ( xt class xtsel -- ) >body @ postpone lit+ , defer-table to-!, ;
+: m>body ( xt class xtsel -- )
+    >body @ over ?valid-method + ;
+to-opt: ( xt class xtsel -- ) >body @ postpone lit+ , ;
+' m>body defer-table to: m-to
 \ no validity check for compilation, normal usage is interpretative only
 Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
 opt: ( xt -- ) >body @ cell/ postpone o#exec , ;

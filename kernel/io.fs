@@ -141,16 +141,23 @@ umethod key? ( -- flag ) \ facility key-question
     BEGIN  key-ior dup EINTR =  WHILE  drop winch? off  REPEAT
     dup 0< IF  throw  THEN ;
 
+: -/- ( -- ) \ gforth-experimental not-available
+    \G this word can be ticked, but throws an ``Operation not supported''
+    \G exception on interpretation and compilation.  Use this for methods
+    \G and alike that aren't supported.
+    #-21 throw ;
+' execute set-optimizer
+
 here
 ' (type) A,
 ' (emit) A,
 ' (cr) A,
 [IFDEF] (form) ' (form) A, [THEN]
-' noop A, \ page
-' 2drop A, \ at-xy
-' 2drop A, \ at-deltaxy
-' drop A, \ attr!
-' 2drop A, \ control-sequence
+' -/- A, \ page
+' -/- A, \ at-xy
+' -/- A, \ at-deltaxy
+' -/- A, \ attr!
+' -/- A, \ control-sequence
 ' drop A, \ theme-color!
 A, here AConstant default-out
 
@@ -159,11 +166,11 @@ here
 ' (err-emit) A,
 ' (cr) A,
 [IFDEF] (form) ' (form) A, [THEN]
-' noop A, \ page
-' 2drop A, \ at-xy
-' 2drop A, \ at-deltaxy
-' drop A, \ attr!
-' 2drop A, \ control-sequence
+' -/- A, \ page
+' -/- A, \ at-xy
+' -/- A, \ at-deltaxy
+' -/- A, \ attr!
+' -/- A, \ control-sequence
 ' drop A, \ theme-color!
 A, here AConstant debug-out
 
@@ -212,12 +219,6 @@ default-in ip-vector !
 
 Defer theme!  ' 2drop is theme!
 Defer theme@  ' noop is theme@
-
-: -/- ( -- ) \ gforth-experimental not-available
-    \G this word can be ticked, but throws an exception on interpretation
-    \G and compilation
-    #-21 throw ;
-' execute set-optimizer
 
 Create theme-table ' theme! A, ' -/- A, ' -/- A, ' theme@ A,
 
