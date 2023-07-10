@@ -2928,7 +2928,7 @@ T :noname H
     r> ?dup IF  swap resolve  ELSE  drop  THEN
 ;Cond
 
-X has? new-cfa [IF] #11 [ELSE] #10 [THEN] Constant does-xt-off
+X has? new-cfa [IF] #10 [ELSE] #10 [THEN] Constant does-xt-off
 : DOES>
     ['] does-resolved created >comp !
     T here does-xt-off cells H + T cfaligned H \ includes noname header+vtable
@@ -3079,10 +3079,10 @@ Variable ghm-list
 Ghost docol-hm drop
 
 >TARGET
-9 T cells H Constant hmsize
+8 T cells H Constant hmsize
 >CROSS
 
-9 cells Constant ghmsize \ ghost header method vtables for comparison
+8 cells Constant ghmsize \ ghost header method vtables for comparison
 
 ghost :,
 ghost peephole-compile,
@@ -3144,9 +3144,10 @@ Create hmtemplate
 0 ,
 findghost :, ,
 findghost no-to ,
+\ findghost no-defer@ ,
+0 ,
 findghost noop ,
 findghost default-name>comp ,
-findghost no-defer@ ,
 findghost named>string ,
 findghost named>link ,
 0 ,
@@ -3155,7 +3156,7 @@ Struct
     cell% field g>hmlink
     cell% field g>hmcompile,
     cell% field g>hmto
-    cell% field g>hmdefer@
+\    cell% field g>hmdefer@
     cell% field g>hmextra
     cell% field g>hm>int
     cell% field g>hm>comp
@@ -3265,7 +3266,7 @@ ghost ?fold-to drop
 : comp: ( -- colon-sys )  gstart-xt set-optimizer ;
 
 : to-opt: T opt: H compile ?fold-to ;
-: defer@-opt: T opt: H compile ?fold-to ;
+\ : defer@-opt: T opt: H compile ?fold-to ;
 
 variable cross-boot$[]
 variable cross-boot[][]

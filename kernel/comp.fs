@@ -430,8 +430,8 @@ include ./recognizer.fs
 
 \ \ Create Variable User Constant                        	17mar93py
 
-: defer@, ( xt -- )
-    dup lit, >namehm @ >hmdefer@ @ opt!-compile, ;
+\ : defer@, ( xt -- )
+\     dup lit, >namehm @ >hmdefer@ @ opt!-compile, ;
 
 : a>int ( nt -- )  >body @ ;
 : a>comp ( nt -- xt1 xt2 )  name>interpret ['] compile, ;
@@ -591,7 +591,7 @@ Create hmtemplate
 0 A,                   \ link field
 ' peephole-compile, A, \ compile, field
 ' no-to A,             \ to field
-' no-defer@ A,         \ defer@
+\ ' no-defer@ A,         \ defer@
 0 A,                   \ extra field
 ' noop A,  \ name>interpret field
 ' default-name>comp A, \ name>comp field

@@ -177,8 +177,7 @@ UValue $? ( -- n ) \ gforth dollar-question
 ' translate-dnum AConstant rectype-dnum
 
 : defers@ ( xt -- xt' )
-    BEGIN  dup >namehm @ >hmdefer@ @ ['] no-defer@ <>  WHILE
-	    defer@  REPEAT ;
+    dup BEGIN  ['] defer@ catch 0= WHILE  nip  REPEAT  drop ;
 : >rec-stack ( xt -- stack )
     dup >code-address docol: =
     IF  >body cell+ @ @  ELSE  >body  THEN ;

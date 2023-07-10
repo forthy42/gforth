@@ -350,9 +350,8 @@ Variable rec'[]
     >namehm @ cr
     ." opt:     " dup >hmcompile, @ .name? cr
     ." to:      " dup >hmto       @ .name? cr
+    ." extra:   " dup >hmextra    @ .name? cr
     ." >int:    " dup >hm>int     @ .name? cr
     ." >comp:   " dup >hm>comp    @ .name? cr
-    ." defer@:  " dup >hmdefer@   @ .name? cr
-    ." extra:   " dup >hmextra    @ .name? cr
     ." >string: " dup >hm>string  @ .name? cr
     ." >link:   "     >hm>link    @ .name? ;

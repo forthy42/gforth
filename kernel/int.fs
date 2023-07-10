@@ -396,7 +396,7 @@ struct
     cell% field >hmlink
     cell% field >hmcompile,
     cell% field >hmto
-    cell% field >hmdefer@
+\    cell% field >hmdefer@
     cell% field >hmextra
     cell% field >hm>int
     cell% field >hm>comp
@@ -429,11 +429,11 @@ method (to) ( val xt -- ) \ gforth paren-to
 opt: ( xt-(to -- )
     ?fold-to (to), ;
 
-method old-defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
-\G @i{xt} represents the word currently associated with the deferred
-\G word @i{xt-deferred}.
-opt: ( xt-defer@ -- )
-    ?fold-to defer@, ;
+\ method old-defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
+\ \G @i{xt} represents the word currently associated with the deferred
+\ \G word @i{xt-deferred}.
+\ opt: ( xt-defer@ -- )
+\      ?fold-to defer@, ;
 
 swap cell+ swap \ hmextra
 
