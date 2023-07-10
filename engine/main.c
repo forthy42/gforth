@@ -357,7 +357,7 @@ static unsigned char *branch_targets(Cell *image, const unsigned char *bitstring
   for(k=0; k<steps; k++) {
     for(j=0, bits=bitstring[k]; j<RELINFOBITS; j++, i++, bits<<=1) {
       if(bits & (1U << (RELINFOBITS-1))) {
-	assert(i*sizeof(Cell) < size);
+	assert(i < steps*RELINFOBITS);
         token=image[i];
 	if ((token>=base) &&
 	    (SECTION(token) == sect)) { /* relocatable address */
@@ -419,7 +419,7 @@ void gforth_relocate(Address sections[], Char *bitstrings[],
 	/*      fprintf(stderr,"relocate: image[%d]\n", i);*/
 	if(bits & (1U << (RELINFOBITS-1))) {
 	  // debugp(stderr,"relocate: image[%d]=%d of %d\n", i, image[i], size/sizeof(Cell));
-	  assert(i*sizeof(Cell) < size);
+	  assert(i < steps*RELINFOBITS);
 	  token=image[i];
 	  if(SECTION(token)==0xFF) {
 	    int group = (-token & 0x3E00) >> 9;

@@ -428,9 +428,9 @@ MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png     \
 
 TEST_SRC = tester.fs ttester.fs checkans.fs coretest.fs dbltest.fs float.fs \
 	gforth.fs forward.fs other.fs postpone.fs read-line.fs search.fs    \
-	signals.fs stagediv.fs string.fs primtest.fs coreext.fs deferred.fs \
-	coremore.fs gforth-nofast.fs libcc.fs macros.fs regexp-test.fs	    \
-	fp/ak-fp-test.fth fp/fatan2-test.fs fp/fpio-test.4th		    \
+	signals.fs stagediv.fs string.fs primtest.fs primmin.fs coreext.fs  \
+	deferred.fs coremore.fs gforth-nofast.fs libcc.fs macros.fs	    \
+	regexp-test.fs fp/ak-fp-test.fth fp/fatan2-test.fs fp/fpio-test.4th \
 	fp/fpzero-test.4th fp/ieee-arith-test.fs fp/ieee-fprox-test.fs	    \
 	fp/paranoia.4th fp/readme-fp.txt fp/runfptests.fth		    \
 	fp/to-float-test.4th fp/ttester.fs xchar.fs
@@ -1104,8 +1104,9 @@ checkone test: prim.b gforth.fi engine/prim-s.i
 check-nofast: gforth.fi
 		$(TIMEOUT) $(FORTHS) test/gforth-nofast.fs -e bye
 
-test/primtest.fi: test/primtest.fs mach64l.fs cross.fs
-		$(TIMEOUT) $(PREFORTH) -e 's" mach64l.fs"' $(srcdir)/test/primtest.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
+# pattern to allow different filenames for different purposes
+test/prim%.fi: test/prim%.fs mach64l.fs cross.fs
+		$(TIMEOUT) $(PREFORTH) -e 's" mach64l.fs"' $< -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
 
 test/primtesta.fi: test/primtesta.fs mach64l.fs cross.fs
 		$(TIMEOUT) gforth-0.7.3 --die-on-signal -m 4M -p ".:~+:." -i /usr/lib/x86_64-linux-gnu/gforth/0.7.3/gforth.fi -e 'fpath= .|~+|.' -e 's" mach64l.fs"' ./test/primtesta.fs -e "save-cross $@ $(bindir)/gforth-$(VERSION) bye"
