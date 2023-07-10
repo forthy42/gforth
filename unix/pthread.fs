@@ -419,11 +419,17 @@ synonym sleep halt ( task -- )
     >body @ up@ + @ ;
 defer@-opt: ( xt -- ) >body @ postpone useraddr , postpone @ ;
 
+: >uvalue ( xt -- addr )
+    >body @ next-task + ;
+to-opt: >body @ postpone useraddr , ;
+
+' >uvalue defer-table to: udefer-to
+
 : UDefer ( "name" -- ) \ gforth-experimental
     \G Define a per-thread deferred word
     Create cell uallot ,
     [: @ up@ + perform ;] set-does>
-    ['] uvalue-to set-to
+    ['] udefer-to set-to
     ['] udefer@ set-defer@
     [: >body @ postpone useraddr , postpone perform ;] set-optimizer ;
 
