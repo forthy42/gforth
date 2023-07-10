@@ -42,11 +42,6 @@ standard:field
     2>r >r Create over , + action-of +field, ,
     r> set-does> 2r> set-to set-optimizer ;
 
-: create+defer ( n1 addr "name" -- n3 )
-    create+value
-    [: ( addr -- xt ) >body vfield-int, @ ;
-    defer@-opt: ( xt -- ) >body vfield-comp, postpone @ ;] set-defer@ ;
-
 : vfield-to: ( xt! -- )
     Create ,
     [: ( xt body -- ) >r >body vfield-int, r> @ to-!exec ;] set-does>
@@ -60,9 +55,6 @@ standard:field
 
 : wrap+value: ( n2 xt-align xt@ !-table "name" -- ) rot { xt-align }
     wrapper-xts :noname ]] >r [[ xt-align compile, ]] r> create+value ; [[
-    Create set-does> , , , , ;
-: wrap+defer: ( n2 xt-align xt@ !-table "name" -- ) rot { xt-align }
-    wrapper-xts :noname ]] >r [[ xt-align compile, ]] r> create+defer ; [[
     Create set-does> , , , , ;
 
 : w+! ( w addr -- ) dup >r w@ + r> w! ;
@@ -105,7 +97,7 @@ warnings ! \ yes, these are obsolete, but they are good that way
 1 sfloats ' sfaligned ' sf@ sf!a-table wrap+value: sfvalue: ( u1 "name" -- u2 )
 1 dfloats ' dfaligned ' df@ df!a-table wrap+value: dfvalue: ( u1 "name" -- u2 )
 cell      ' aligned   ' $@  $!a-table  wrap+value: $value:  ( u1 "name" -- u2 )
-cell      ' aligned   ' perform defera-table wrap+defer: defer: ( u1 "name" -- u2 )
+cell      ' aligned   ' perform defera-table wrap+value: defer: ( u1 "name" -- u2 )
 cell      ' aligned   ' $[]-@ $[]-!a-table wrap+value: value[]: ( u1 "name" -- u2 )
 cell      ' aligned   ' $[]@ $[]!a-table wrap+value: $value[]: ( u1 "name" -- u2 )
 

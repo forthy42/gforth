@@ -110,8 +110,7 @@ User Attr   0 Attr !
 
 Create white? 0 ,
 DOES> @ theme-color@ ;
-' theme! set-to
-' theme@ set-defer@
+' theme-to set-to
 
 : (theme-color!) ( u -- )
     dup theme-color ! theme-color@ attr! ;

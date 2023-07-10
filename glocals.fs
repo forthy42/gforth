@@ -364,7 +364,7 @@ locals-types definitions
 
 : XT: ( compilation "name" -- a-addr xt; run-time xt1 -- ) \ gforth x-t-colon
     \G Define defer-flavoured cell local @i{name} @code{( ... -- ... )}
-    create-local  ['] to-xt: set-to  ['] defer@-xt: set-defer@
+    create-local  ['] to-xt: set-to \ ['] defer@-xt: set-defer@
     ['] compile-pushlocal-w
   does> ( Compilation: -- ) ( Run-time: .. -- .. )
     @ lp-offset compile-@local postpone execute ;

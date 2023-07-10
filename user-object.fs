@@ -13,7 +13,6 @@ Variable class-o
     cell under+
     ['] umethod, set-optimizer
     ['] is-umethod set-to
-    ['] umethod-defer@ set-defer@
     postpone ]nocov ;
 
 : uvar ( m v size -- m v' )

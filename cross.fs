@@ -3114,8 +3114,8 @@ ghost i/c>comp
 2drop
 ghost no-to
 ghost no-defer@
-ghost defer-defer@
-2drop drop
+2drop
+\ ghost defer-defer@ drop
 ghost named>string
 ghost named>link
 2drop
@@ -3203,20 +3203,20 @@ End-Struct vtable-struct
 : hm-populate ( -- )
     [G'] :,                hmtemplate g>hmcompile, !
     [G'] no-to             hmtemplate g>hmto !
-    [G'] no-defer@         hmtemplate g>hmdefer@ !
+\    [G'] no-defer@         hmtemplate g>hmdefer@ !
     TNIL                   hmtemplate g>hmextra !
     hm-named ;
 
 :noname ( ghost -- )  hmtemplate g>hmcompile, ! ; IS gset-optimizer
 : gset-to ( ghost -- )        hmtemplate g>hmto ! ;
-: gset-defer@   ( ghost -- )  hmtemplate g>hmdefer@ ! ;
+\ : gset-defer@   ( ghost -- )  hmtemplate g>hmdefer@ ! ;
 : gset->int ( ghost -- )      hmtemplate g>hm>int ! ;
 : gset->comp ( ghost -- )     hmtemplate g>hm>comp ! ;
 :noname ( ghost -- )     hmtemplate g>hmextra ! ; is gset-extra
 
 : set-optimizer ( xt -- ) xt>ghost gset-optimizer ;
 : set-to       ( xt -- )  xt>ghost gset-to ;
-: set-defer@   ( xt -- )  xt>ghost gset-defer@ ;
+\ : set-defer@   ( xt -- )  xt>ghost gset-defer@ ;
 : set->int     ( xt -- )  xt>ghost gset->int ;
 : set->comp    ( xt -- )  xt>ghost gset->comp ;
 : set-extra    ( xt -- )  xt>ghost gset-extra ;
@@ -3257,7 +3257,7 @@ ghost ?fold-to drop
     swap T A, A, H [ T has? ec H ] [IF] alias-mask flag! [THEN]
     hm-populate
     [G'] no-to   gset-to
-    [G'] no-defer@ gset-defer@
+\    [G'] no-defer@ gset-defer@
     [G'] a>int   gset->int
     [G'] i/c>comp hmtemplate g>hm>comp ! ;
 
@@ -3408,15 +3408,15 @@ by Create
 
 Variable t-theme-color#  1 t-theme-color# !
 
-ghost theme!  ghost theme@  2drop
+ghost theme-to drop
 
 Builder theme-color:
 Build: t-theme-color# @ T , H  1 t-theme-color# +! ;Build
 DO: ;DO
 compile: g>xt compile does-xt T a, H ;compile
 hm: [G'] does, gset-optimizer
-    [G'] theme! gset-to
-    [G'] theme@ gset-defer@
+    [G'] theme-to gset-to
+\    [G'] theme@ gset-defer@
 ;hm
 
 \ User variables                                       04may94py
@@ -3514,7 +3514,7 @@ T has? rom H [IF]
 hm:
 [G'] defer, gset-optimizer
 [G'] defer-is gset-to
-[G'] defer-defer@ gset-defer@ ;hm
+( [G'] defer-defer@ gset-defer@ ) ;hm
 
 \ Sturctures                                           23feb95py
 
@@ -3589,7 +3589,8 @@ by (UValue)
     r> tcell / T , (;) swap cell+ swap H
     [G'] umethod, gset-optimizer
     [G'] is-umethod gset-to
-    [G'] umethod-defer@ gset-defer@ ;
+\    [G'] umethod-defer@ gset-defer@
+;
 
 : uvar ( m v size -- m v' )
     over >r no-loop on T : H compile u#+ class-o @ T , H

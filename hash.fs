@@ -183,7 +183,6 @@ Create tablevoc-table ' table-reveal , ' -/- , ' -/- , ' noop ,
 
 forth-wordlist noname-from
 ' hashvoc-to set-to
-' (rehash) set-defer@
 ' hash-rec set-does>
 hm, latestxt >namehm @ to hashsearch-map
 

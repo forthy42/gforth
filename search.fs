@@ -59,10 +59,10 @@ Variable slowvoc   0 slowvoc !
 : wl, ( -- )
     0 A, here voclink @ A, voclink ! 0 A, ;
 
-: set-wordlist ( reveal-xt init-xt rec-xt -- )
-    noname-hm  set-does>  set-defer@  set-to ;
+: set-wordlist ( reveal-xt rec-xt -- )
+    noname-hm  set-does>  set-to ;
 
-: wordlist-class ( reveal-xt init-xt rec-xt -- wid )
+: wordlist-class ( reveal-xt rec-xt -- wid )
     hmsave 2>r last @ >r
     forth-wordlist noname-from here body> >r wl,
     set-wordlist  r@ initwl r>  hm,

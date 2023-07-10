@@ -33,12 +33,9 @@ s" Invalid method for this class" exception Constant !!inv-method!!
     >body @ over ?valid-method + defer-table to-!exec ;
 to-opt: ( xt class xtsel -- ) >body @ postpone lit+ , defer-table to-!, ;
 \ no validity check for compilation, normal usage is interpretative only
-: m-defer@ ( class xt -- ) >body @ over ?valid-method + @ ;
-defer@-opt: ( xt -- ) >body @ postpone lit+ , postpone @ ;
 Create m 0 ,  DOES> @ o#+ [ -1 cells , ] @ + perform ;
 opt: ( xt -- ) >body @ cell/ postpone o#exec , ;
 ' m-to set-to
-' m-defer@ set-defer@
 ' o Value var-xt
 ' m Value method-xt
 : current-o  ['] o to var-xt  ['] m to method-xt ;

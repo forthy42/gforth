@@ -213,11 +213,24 @@ default-in ip-vector !
 Defer theme!  ' 2drop is theme!
 Defer theme@  ' noop is theme@
 
+: -/- ( -- ) \ gforth-experimental not-available
+    \G this word can be ticked, but throws an exception on interpretation
+    \G and compilation
+    #-21 throw ;
+' execute set-optimizer
+
+Create theme-table ' theme! A, ' -/- A, ' -/- A, ' theme@ A,
+
+: theme-to ( n value-xt -- ) \ gforth-internal
+    \g this is the TO-method for normal values
+    ( >body ) theme-table to-!exec ;
+opt: ( value-xt -- ) \ run-time: ( n -- )
+    drop ( postpone >body ) theme-table to-!, ;
+
 Variable theme-color#
 : theme-color: ( "name" -- )
     Create 1 theme-color# +!@ ,
-    ['] theme! set-to
-    ['] theme@ set-defer@
+    ['] theme-to set-to
   DOES> @ theme-color! ;
 
 theme-color: default-color ( -- ) \ gforth

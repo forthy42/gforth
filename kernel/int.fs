@@ -269,7 +269,7 @@ NIL A, NIL A, NIL A,
 unlock
 ghost rec-f83 gset-extra
 ghost voc-to gset-to
-ghost drop gset-defer@
+\ ghost drop gset-defer@
 ghost does, gset-optimizer
 lock
 AValue forth-wordlist ( -- wid ) \ search

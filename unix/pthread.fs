@@ -415,10 +415,6 @@ synonym sleep halt ( task -- )
 
 \ User deferred words, user values
 
-: udefer@ ( xt -- )
-    >body @ up@ + @ ;
-defer@-opt: ( xt -- ) >body @ postpone useraddr , postpone @ ;
-
 : >uvalue ( xt -- addr )
     >body @ next-task + ;
 to-opt: >body @ postpone useraddr , ;
@@ -430,7 +426,6 @@ to-opt: >body @ postpone useraddr , ;
     Create cell uallot ,
     [: @ up@ + perform ;] set-does>
     ['] udefer-to set-to
-    ['] udefer@ set-defer@
     [: >body @ postpone useraddr , postpone perform ;] set-optimizer ;
 
 false [IF] \ event test - send to myself

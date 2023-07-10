@@ -441,15 +441,11 @@ include ./recognizer.fs
 : s-to ( val nt -- )
     >body @ (to) ;
 opt: ( xt -- ) ?fold-to >body @ (to), ;
-: s-defer@ ( xt1 -- xt2 )
-    >body @ defer@ ;
-opt: ( xt -- ) ?fold-to >body @ defer@, ;
 : s-compile, ( xt -- )  >body @ compile, ;
 
 : synonym, ( nt int comp -- ) \ gforth-internal
     set->comp set->int
     ['] s-to       set-to
-    ['] s-defer@   set-defer@
     ['] s-compile, set-optimizer
     A, ;
 
@@ -540,12 +536,6 @@ $BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
     \G (this only makes a difference in the cross-compiler).
     (Value) A, ;
 
-: -/- ( -- ) \ gforth-experimental not-available
-    \G this word can be ticked, but throws an exception on interpretation
-    \G and compilation
-    #-21 throw ;
-' execute set-optimizer
-
 Create !-table ' ! A, ' +! A, ' -/- A, ' -/- A,
 Create defer-table ' ! A, ' -/- A, ' -/- A, ' @ A,
 Variable to-style# 0 to-style# !
@@ -571,12 +561,6 @@ defer defer-default ( -- )
 \G executing @i{name}.
     ['] parser create-from reveal
     ['] defer-default A, ;
-
-: defer-defer@ ( xt -- )
-    \ The defer@ implementation of children of DEFER
-    >body @ ;
-opt: ( xt -- )
-    ?fold-to >body lit, postpone @ ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth
     \G Compiles the present contents of the deferred word @i{name}
@@ -710,10 +694,6 @@ Create hmtemplate
     \G Sets the implementation of the @code{(to) ( val xt -- )} method
     \G of the current word to @i{to-xt}.
     ?hm hmtemplate >hmto ! ;
-: set-defer@ ( defer@-xt -- ) \ gforth set-defer-fetch
-    \G Sets the implementation of the @code{defer@@ ( xt-deferred -- xt )}
-    \G method of the current word to @i{defer@@-xt}.
-    ?hm hmtemplate >hmdefer@ ! ;
 : set->int ( xt -- ) \ gforth set-to-int
     \G Sets the implementation of the @code{name>interpret ( nt -- xt2 )}
     \G method of the current word to @i{xt}.
@@ -776,12 +756,6 @@ Create hmtemplate
     opt: postpone ?fold-to ;
 
 \ defer and friends
-
-' to-opt: alias defer@-opt: ( -- colon-sys ) \ gforth-internal
-\g Optimized code generation for compiled @code{action-of @i{name}}.
-\g The stack effect of the following code must be ( xt -- ), where xt
-\g represents @i{name}; this word generates code with stack effect (
-\g -- xt1 ), where xt1 is the result of xt @code{defer@}.
 
 ' (to) Alias defer! ( xt xt-deferred -- ) \ core-ext  defer-store
 \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.

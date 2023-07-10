@@ -349,8 +349,7 @@ translate: translate-[[
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     swap alias ,
     ['] i/c>comp set->comp
-    ['] no-to set-to
-    ['] no-defer@ set-defer@ ;
+    ['] no-to set-to ;
 
 \ defer stuff
 
