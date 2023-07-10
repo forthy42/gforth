@@ -92,22 +92,22 @@ has? kernel-start has? kernel-size makekernel
 has? header [IF]
 here 1802 over 
     A,                  \ base address
-    0 ,                 \ checksum
-    0 ,                 \ image size (without tags)
-has? kernel-size
-    ,                   \ dict size
+    has? kernel-size ,  \ dict size
+    0 A,                \ image dp (without tags)
+    0 A,                \ section name
+    0 A,                \ locs[]
     has? stack-size ,   \ data stack size
     has? fstack-size ,  \ FP stack size
     has? rstack-size ,  \ return stack size
     has? lstack-size ,  \ locals stack size
-    0 A,                \ code entry point
+    0 A,                \ boot entry point
     0 A,                \ throw entry point
-    has? stack-size ,   \ unused (possibly tib stack size)
-    0 ,                 \ unused
-    0 ,                 \ data stack base
-    0 ,                 \ fp stack base
-    0 ,                 \ return stack base
-    0 ,                 \ locals stack base
+    0 A,                \ quit entry point
+    0 A,                \ execute entry point
+    0 A,                \ find entry point
+    0 ,                 \ checksum
+    0 ,                 \ base of DOUBLE_INDIRECT xts[], for comp-i.fs
+    0 ,                 \ base of DOUBLE_INDIRECT labels[], for comp-i.fs
 [THEN]
 
 doc-off
