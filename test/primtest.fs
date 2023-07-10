@@ -82,7 +82,8 @@ bl word vocabulary find nip 0= [IF]
 
 \ include etags.fs
 
-include ./../cross.fs              \ cross-compiler
+\ include ./../cross.fs              \ cross-compiler
+include ./../cross-0.7.3.fs
 
 decimal
 
@@ -161,8 +162,8 @@ variable s0
 \    does> ( -- n )
 \      @ ;
 \  char m myconst char-m
-create myconst char m ,
-does> @ ;
+\ create myconst char m ,
+\ does> @ ;
 
 : unloop-test ( -- )
     0 >r 0 >r unloop ;
@@ -191,14 +192,14 @@ does> @ ;
     \ !!douser
     [char] l ['] my-emit execute
     [char] l ['] my-emit ['] >body execute perform
-    ['] myconst execute emit
+    \ ['] myconst execute emit
     noop
     [char] m ['] my-emit ['] execute dup execute
     [char] m ['] 1+ execute emit
     [char] o ['] my-emit >body perform
     unloop-test ." p"
     [char] q my-emit
-    myconst emit
+    \ myconst emit
     \ !! branch-lp+!#
     ahead ." wrong" then ." r"
     0 if ." wrong" else ." s" then
