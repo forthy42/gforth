@@ -940,10 +940,13 @@ stack inst-stream IP Cell
 	stack stack-moves
     endif ;
 
-: ip-update ( -- )
+
+defer ip-update ( -- )
+: ip-update1 ( -- )
     ." ip++; " \ skip the cell of the instruction itself
     inst-stream stack-pointer-update \ skip the other cells
     inst-stream stack-diff 1+ to ip-offset ;
+' ip-update1 is ip-update
 
 : stack-pointer-updates ( -- )
     ['] stack-pointer-update map-stacks1 ;
