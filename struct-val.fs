@@ -32,30 +32,31 @@ opt: drop @ ?dup-IF
 
 standard:field
 
+\ The xt to create the actual code with is at the second cell
 : vfield-int, ( addr body -- addr+offset ) dup cell+ @ execute ;
 : vfield-comp, ( body -- ) dup cell+ @ opt-compile, ;
-\ : vfield, ( addr body -- addr+offset ) dup cell+ @ execute ;
-\ opt: drop dup cell+ @ opt-compile, ;
+: vfield, ( body -- addr )
+    vfield-int, ;
+to-opt: vfield-comp, ;
 
 : create+value ( n1 addr "name" -- n3 )
     dup >r cell+ cell+ 2@ r> 2@
     2>r >r Create over , + action-of +field, ,
     r> set-does> 2r> set-to set-optimizer ;
 
-: vfield-to: ( xt! -- )
-    Create ,
-    [: ( xt body -- ) >r >body vfield-int, r> @ to-!exec ;] set-does>
-    [: ( xt -- ) >r lits# 0= IF  to-error throw  THEN
-	lits> >body vfield-comp, r> >body @ to-!, ;] set-optimizer ;
+: vfield-to: ( xt! "name" -- )
+    ['] vfield, swap to: ;
 
 : wrapper-xts ( xt@ !-table -- xt-does xt-opt xt-to ) { xt@ xt! }
     :noname ]] vfield-int, [[ xt@ compile, postpone ; \ xt-does
-    :noname ]] >body vfield-comp, [[ xt@ lit, ]] compile, ; [[ \ xt-comp,
-    xt! noname vfield-to: latestxt ;
+    :noname ]] vfield-comp, [[ xt@ lit, ]] compile, ; [[ \ xt-comp,
+    xt! noname vfield-to: latestxt \ xt-to
+;
 
-: wrap+value: ( n2 xt-align xt@ !-table "name" -- ) rot { xt-align }
-    wrapper-xts :noname ]] >r [[ xt-align compile, ]] r> create+value ; [[
-    Create set-does> , , , , ;
+: wrap+value: ( n2 xt-align xt@ !-table "name" -- ) rot >r
+    wrapper-xts
+    Create , , , , r> ,
+    DOES> >r r@ 4 cells + perform r> create+value ;
 
 : w+! ( w addr -- ) dup >r w@ + r> w! ;
 : l+! ( w addr -- ) dup >r l@ + r> l! ;
