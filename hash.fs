@@ -113,10 +113,16 @@ Create tablevoc-table ' table-reveal , ' -/- , ' -/- , ' noop ,
 
 : hashvoc-to ( n voc-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
-    >body hashvoc-table to-!exec ;
+    ( >body ) hashvoc-table to-!exec ;
+opt: ( voc-xt -- ) \ run-time: ( n -- )
+    drop ( postpone >body ) hashvoc-table to-!, ;
+
 : tablevoc-to ( n voc-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
-    >body tablevoc-table to-!exec ;
+    ( >body ) tablevoc-table to-!exec ;
+opt: ( voc-xt -- ) \ run-time: ( n -- )
+    drop ( postpone >body ) tablevoc-table to-!, ;
+
 
 [IFUNDEF] >link ' noop Alias >link [THEN]
 
