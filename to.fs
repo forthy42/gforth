@@ -19,9 +19,8 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 : to: ( xt table "name" -- ) \ gforth-experimental
-    \G create a to-method with ADDR disabled, where
-    \G @var{xt} creates the address to access the field,
-    \G and @var{table} contains the operators to store to it.
+    \G create a to-method, where @var{xt} computes the address to access the
+    \G field, and @var{table} contains the operators to store to it.
     Create 2,
     [: 2@ >r execute r> to-!exec ;] set-does>
     [: 2@ >r compile, r> to-!, ;] set-optimizer ;
