@@ -193,6 +193,7 @@ Cell last_jump=0; /* if the last prim was compiled without jump, this
 static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
 					     dynamically */
+static int no_dynamic_image=0; /* disable dynamic while loading the image */
 static int no_rc0=0;  /* true if don't load ~/.config/gforthrc0 */
 static int print_metrics=0; /* if true, print metrics on exit */
 static int print_prims=0; /* if true, print primitives on exit */
@@ -2107,6 +2108,7 @@ ImageHeader* gforth_loader(char* imagename, char* path)
   Cell data_offset = offset_image ? 56*sizeof(Cell) : 0;
   UCell check_sum;
   FILE* imagefile=open_image_file(imagename, path);
+  int no_dynamic_orig = no_dynamic;
 
   if(imagefile == NULL) return NULL;
   if(gforth_init()) return NULL;
@@ -2191,7 +2193,9 @@ ImageHeader* gforth_loader(char* imagename, char* path)
     debugp(stderr, "section base=%p, dp=%p, size=%lx\n", section.base, section.dp, section.size);
     if(fread(sections[i], 1, sizes[i], imagefile) != sizes[i]) break;
   }
+  no_dynamic |= no_dynamic_image;
   gforth_relocate(sections, reloc_bits, sizes, bases, vm_prims);
+  no_dynamic = no_dynamic_orig;
 #if 0
   { /* let's see what the relocator did */
     FILE *snapshot=fopen("snapshot.fi","wb");
@@ -2397,6 +2401,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"ignore-async-signals", no_argument, &ignore_async_signals, 1},
       {"no-super", no_argument, &no_super, 1},
       {"no-dynamic", no_argument, &no_dynamic, 1},
+      {"no-dynamic-image", no_argument, &no_dynamic_image, 1},
       {"no-0rc", no_argument, &no_rc0, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
       {"code-block-size", required_argument, NULL, opt_code_block_size},
@@ -2470,6 +2475,7 @@ Engine Options:\n\
   -m SIZE, --dictionary-size=SIZE   Specify Forth dictionary size\n\
   --map-32bit			    Try to put the dictionary in the first 2GB\n\
   --no-dynamic			    Use only statically compiled primitives\n\
+  --no-dynamic-image		    Use statically compiled primitives in image\n\
   --no-offset-im		    Load image at normal position\n\
   --no-super			    No dynamically formed superinstructions\n\
   --no-0rc			    do not load ~/.config/gforthrc0\n\
