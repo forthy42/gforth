@@ -26,8 +26,7 @@ s" TO without arg" exception Constant to-error
     \G and @var{table} contains the operators to store to it.
     Create , ,
     [: >r r@ cell+ perform r> @ to-!exec ;] set-does>
-    [: >r lits# 0= IF  to-error throw  THEN
-    r@ cell+ @ opt-compile, r> @ to-!, ;] set-optimizer ;
+    [: >r r@ cell+ @ opt-compile, r> @ to-!, ;] set-optimizer ;
 
 [IFUNDEF] -/-
     : -/- #-21 throw ; ' execute set-optimizer
