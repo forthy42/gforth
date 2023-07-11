@@ -31,7 +31,7 @@
 
 : to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental
     \G create a table with entries for @code{TO}, @code{+TO},
-    \G @code{DEFER@}, and @code{ADDR}
+    \G @code{ADDR}, and @code{DEFER@}
     Create  0  BEGIN  parse-name  dup WHILE
 	    forth-recognize '-error , 1+
     REPEAT  2drop
