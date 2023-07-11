@@ -33,6 +33,8 @@ opt: drop @ ?dup-IF
 standard:field
 
 \ The xt to create the actual code with is at the second cell
+\ The actual offset in the first cell, which will be used by that code
+\ in the second cell...
 : vfield-int, ( addr body -- addr+offset ) dup cell+ @ execute ;
 : vfield-comp, ( body -- ) dup cell+ @ opt-compile, ;
 : vfield, ( body -- addr )
@@ -40,23 +42,26 @@ standard:field
 to-opt: vfield-comp, ;
 
 : create+value ( n1 addr "name" -- n3 )
-    dup >r cell+ cell+ 2@ r> 2@
-    2>r >r Create over , + action-of +field, ,
-    r> set-does> 2r> set-to set-optimizer ;
+    >r r@ 2 cells + perform
+    r> 2@ create-from reveal over , + action-of +field, , ;
 
 : vfield-to: ( xt! "name" -- )
     ['] vfield, swap to: ;
 
-: wrapper-xts ( xt@ !-table -- xt-does xt-opt xt-to ) { xt@ xt! }
-    :noname ]] vfield-int, [[ xt@ compile, postpone ; \ xt-does
-    :noname ]] vfield-comp, [[ xt@ lit, ]] compile, ; [[ \ xt-comp,
-    xt! noname vfield-to: latestxt \ xt-to
+: wrapper-xts ( xt@ !-table "name" -- dummy-xt ) { xt@ xt! }
+    :noname ]] vfield-int, [[ xt@ compile, postpone ; >r \ xt-does
+    :noname ]] vfield-comp, [[ xt@ lit, ]] compile, ; [[ >r \ xt-comp,
+    xt! noname vfield-to: latestxt >r \ xt-to
+    \ create a dummy word with these methods
+    >in @ >r parse-name r> >in ! 2dup + 1- c@ ':' = +
+    [: type ." -dummy" ;] $tmp
+    nextname Create r> r> r> set-does> set-optimizer set-to latestxt
 ;
 
-: wrap+value: ( n2 xt-align xt@ !-table "name" -- ) rot >r
+: wrap+value: ( n2 xt-align xt@ !-table "name" -- )
     wrapper-xts
-    Create , , , , r> ,
-    DOES> >r r@ 4 cells + perform r> create+value ;
+    Create , swap , ,
+    DOES> create+value ;
 
 : w+! ( w addr -- ) dup >r w@ + r> w! ;
 : l+! ( w addr -- ) dup >r l@ + r> l! ;
