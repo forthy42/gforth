@@ -24,9 +24,9 @@ s" TO without arg" exception Constant to-error
     \G create a to-method with ADDR disabled, where
     \G @var{xt} creates the address to access the field,
     \G and @var{table} contains the operators to store to it.
-    Create , ,
-    [: >r r@ cell+ perform r> @ to-!exec ;] set-does>
-    [: >r r@ cell+ @ opt-compile, r> @ to-!, ;] set-optimizer ;
+    Create 2,
+    [: 2@ >r execute r> to-!exec ;] set-does>
+    [: 2@ >r opt-compile, r> to-!, ;] set-optimizer ;
 
 [IFUNDEF] -/-
     : -/- #-21 throw ; ' execute set-optimizer
