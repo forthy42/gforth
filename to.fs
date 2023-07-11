@@ -18,8 +18,6 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-s" TO without arg" exception Constant to-error
-
 : to: ( xt table "name" -- ) \ gforth-experimental
     \G create a to-method with ADDR disabled, where
     \G @var{xt} creates the address to access the field,
