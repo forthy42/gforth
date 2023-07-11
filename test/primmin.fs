@@ -72,27 +72,12 @@ AConstant image-header
 
 \ helper words the cross compiler needs to resolve (but not use)
 
-1 cells -4 cells \ mini-oof class declaration with methods
-\ the offsets are a bit odd to keep the xt as point of reference
-cell var >f+c
-cell var >link
-cell var >cfa
-cell var >namehm
-2drop
-$00ffffff constant lcount-mask
-0 -1 cells allot  bigendian [IF]   c, -1 1 cells 1- c,s
-                          [ELSE] -1 1 cells 1- c,s c, [THEN]
-[THEN]
-cell% 2* 0 0 field >body
-
 : named>string ( nt -- addr count ) ;
 : named>link ( nt1 -- nt2 / 0 ) ;
 : noname>string ( nt -- cfa 0 ) ;
 : noname>link ( nt -- 0 ) ;
 : value-to ( n value-xt -- ) ;
-: defer-defer@ ( xt -- ) ;
-: no-defer@ ( xt -- ) ;
-0 AConstant default-name>comp ( nt -- w xt ) \ gforth-internal default-name-to-comp
+: default-name>comp ( nt -- w xt ) ;
 : field+, ;
 : defer, ;
 : variable, ;
