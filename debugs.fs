@@ -214,7 +214,7 @@ is ?warning
   Create 0 , watch-does> watch-opt: ;
 
 : ~~>body ( addr -- body ) >body 0 to-style# !@ ~~ to-style# ! ;
-to-opt: >body to-style# @ swap ]] Literal Literal ~~ [[ ;
+to-opt: >body to-style# @ swap ]] Literal Literal ~~ drop [[ ;
 ' ~~>body !-table to: ~~value-to
 
 : ~~Value ( n "name" -- ) \ gforth
