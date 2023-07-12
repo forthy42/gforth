@@ -536,8 +536,6 @@ $BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
     \G (this only makes a difference in the cross-compiler).
     (Value) A, ;
 
-Create !-table ' ! A, ' +! A, ' -/- A, ' -/- A,
-Create defer-table ' ! A, ' -/- A, ' -/- A, ' @ A,
 Variable to-style# 0 to-style# !
 
 4 Constant to-table-size#
@@ -763,11 +761,8 @@ Create hmtemplate
 ' (to) Alias reveal! ( xt wid -- )
 ' >hmto Alias reveal-method ( wid -- addr )
 
-: value-to ( n value-xt -- ) \ gforth-internal
+' [noop] !-table to: value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
-    ( >body ) !-table to-!exec ;
-opt: ( value-xt -- ) \ run-time: ( n -- )
-    drop ( postpone >body ) !-table to-!, ;
 
 : defer-is ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for deferred words

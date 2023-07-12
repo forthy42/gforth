@@ -22,11 +22,28 @@ hex \ everything now hex!                               11may93jaw
 
 \ important definers
 
-: uvalue-to ( n uvalue-xt -- )
-    \g uvalue-to is the to-method for uvalues
-    >body @ next-task +  !-table to-!exec ;
-opt: ( uvalue-xt to-xt -- )
-    ?fold-to >body @ postpone useraddr , !-table to-!, ;
+: -/- ( -- ) \ gforth-experimental not-available
+    \G this word can be ticked, but throws an ``Operation not supported''
+    \G exception on interpretation and compilation.  Use this for methods
+    \G and alike that aren't supported.
+    #-21 throw ;
+' execute set-optimizer
+
+' noop alias [noop]
+' execute set-optimizer
+
+Create !-table ' ! A, ' +! A, ' -/- A, ' -/- A,
+Create defer-table ' ! A, ' -/- A, ' -/- A, ' @ A,
+
+: >uvalue ( xt -- addr )
+    >body @ next-task + ;
+opt: ?fold-to >body @ postpone useraddr , ;
+
+: to:,    2@ >r compile, r> to-!, ;
+: to:exec 2@ >r execute r> to-!exec ;
+
+' >uvalue !-table to: uvalue-to
+
 : u-compile, ( xt -- )  >body @ postpone user@ , ;
 
 : (UValue) ( "name" -- )

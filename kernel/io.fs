@@ -141,13 +141,6 @@ umethod key? ( -- flag ) \ facility key-question
     BEGIN  key-ior dup EINTR =  WHILE  drop winch? off  REPEAT
     dup 0< IF  throw  THEN ;
 
-: -/- ( -- ) \ gforth-experimental not-available
-    \G this word can be ticked, but throws an ``Operation not supported''
-    \G exception on interpretation and compilation.  Use this for methods
-    \G and alike that aren't supported.
-    #-21 throw ;
-' execute set-optimizer
-
 here
 ' (type) A,
 ' (emit) A,
@@ -222,11 +215,7 @@ Defer theme@  ' noop is theme@
 
 Create theme-table ' theme! A, ' -/- A, ' -/- A, ' theme@ A,
 
-: theme-to ( n value-xt -- ) \ gforth-internal
-    \g this is the TO-method for normal values
-    ( >body ) theme-table to-!exec ;
-opt: ( value-xt -- ) \ run-time: ( n -- )
-    drop ( postpone >body ) theme-table to-!, ;
+' [noop] theme-table to: theme-to ( n value-xt -- ) \ gforth-internal
 
 Variable theme-color#
 : theme-color: ( "name" -- )

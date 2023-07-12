@@ -2888,8 +2888,10 @@ Ghost !does drop
 
 Defer gset-optimizer
 
+: kill-dovar ( -- )
+    tlastcfa @ [G'] :dovar killref ;
 : !does ( does-action -- )
-    tlastcfa @ [G'] :dovar killref
+    kill-dovar
     [G'] does, gset-optimizer
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
@@ -3288,7 +3290,7 @@ variable cross-boot[][]
 \ instantiate deferred extra, now
 
 :noname ( doesxt -- )
-    tlastcfa @ [G'] :dovar killref
+    kill-dovar
     [G'] does, gset-optimizer
     >space here >r ghostheader space>
     ['] colon-resolved r@ >comp !
@@ -3329,6 +3331,17 @@ Build: ;Build
 by: :dodoes ;DO
 hm: [G'] does, gset-optimizer
     [G'] noop  gset-extra  ;hm
+\ hmghost: dodoes-hm
+
+Ghost to:,
+Ghost to:exec
+2drop
+
+Builder to:
+Build: T A, A, H ;Build
+by: :dodoes ;DO
+hm: [G'] to:, gset-optimizer
+    [G'] to:exec  gset-extra  ;hm
 \ hmghost: dodoes-hm
 
 \ Variables and Constants                              05dec92py
