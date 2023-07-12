@@ -21,9 +21,7 @@
 : to: ( xt table "name" -- ) \ gforth-experimental
     \G create a to-method, where @var{xt} computes the address to access the
     \G field, and @var{table} contains the operators to store to it.
-    Create 2,
-    [: 2@ >r execute r> to-!exec ;] set-does>
-    [: 2@ >r compile, r> to-!, ;] set-optimizer ;
+    ['] value-to Create-from reveal 2, ;
 
 [IFUNDEF] -/-
     : -/- #-21 throw ; ' execute set-optimizer
