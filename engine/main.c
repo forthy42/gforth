@@ -998,7 +998,10 @@ static void check_prims(Label symbols1[])
 {
   int i;
 #ifndef NO_DYNAMIC
-  Label *symbols2, *ends1, *ends1j, *ends1jsorted, *goto_p;
+  Label *symbols2, *goto_p;
+  Label *startb;                /* L labels (LABEL1 right behind ip update)*/
+  Label *ends1;                 /* K labels (LABEL2 right before NEXT_P1_5) */
+  Label *ends1j, *ends1jsorted; /* J labels (LABEL3 right before DO_GOTO) */
   int nends1j;
 #endif
 
@@ -1018,7 +1021,8 @@ static void check_prims(Label symbols1[])
   if (no_dynamic)
     return;
   symbols2=gforth_engine2(0 sr_call);
-  ends1 = symbols1+i+1;
+  startb = symbols1+i+1;
+  ends1  = startb+i;
   ends1j =   ends1+i;
   goto_p = ends1j+i+1; /* goto_p[0]==before; ...[1]==after;*/
   nends1j = i+1;

@@ -1094,6 +1094,9 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 : print-entry ( -- )
     ." LABEL(" prim prim-c-name 2@ type ." )" ;
 
+: print-label1 ( -- )
+    ." LABEL1(" prim prim-c-name 2@ type ." )" cr ;
+
 : prim-type ( addr u -- )
     \ print out a primitive, but avoid "*/"
     2dup s" */" search  nip nip  IF
@@ -1107,6 +1110,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     ." /* " prim prim-doc 2@ type ."  */" cr
     ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
     ip-update
+    print-label1
     ." {" cr
     ." DEF_CA" cr
     print-declarations
@@ -1646,6 +1650,7 @@ variable reprocessed-num 0 reprocessed-num !
     print-entry cr
     \ debugging messages just in parts
     ip-update
+    print-label1
     ." {" cr
     ." DEF_CA" cr
     print-declarations-combined
