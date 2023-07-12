@@ -764,11 +764,8 @@ Create hmtemplate
 ' [noop] !-table to: value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
 
-: defer-is ( n value-xt -- ) \ gforth-internal
+' [noop] defer-table to: defer-is ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for deferred words
-    ( >body ) defer-table to-!exec ;
-opt: ( value-xt -- ) \ run-time: ( n -- )
-    drop ( postpone >body ) defer-table to-!, ;
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
@@ -881,11 +878,8 @@ interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
 
 Create voc-table ' (reveal) A, ' -/- A, ' -/- A, ' drop A,
 
-: voc-to ( n voc-xt -- ) \ gforth-internal
+' [noop] voc-table to: voc-to ( n voc-xt -- ) \ gforth-internal
     \g this is the TO-method for wordlists
-    ( >body ) voc-table to-!exec ;
-opt: ( voc-xt -- ) \ run-time: ( n -- )
-    drop ( postpone >body ) voc-table to-!, ;
 
 ' reveal alias recursive ( compilation -- ; run-time -- ) \ gforth
 \g Make the current definition visible, enabling it to call itself

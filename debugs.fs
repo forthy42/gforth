@@ -213,10 +213,13 @@ is ?warning
     \G Variable that will be watched on every access
   Create 0 , watch-does> watch-opt: ;
 
+: ~~>body ( addr -- body ) >body 0 to-style# !@ ~~ to-style# ! ;
+to-opt: >body to-style# @ swap ]] Literal Literal ~~ [[ ;
+' ~~>body !-table to: ~~value-to
+
 : ~~Value ( n "name" -- ) \ gforth
     \G Value that will be watched on every access
-    Value [: >body 0 to-style# !@ ~~ to-style# ! !-table to-!exec ;
-    to-opt: >body to-style# @ swap ]] Literal Literal ~~ [[ !-table to-!, ;] set-to ;
+    Value ['] ~~value-to set-to ;
 
 \ trace lines
 

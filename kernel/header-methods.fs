@@ -36,9 +36,8 @@ defer does-check ( xt -- xt ) ' noop is does-check
 \ : :loc, >body ['] call-loc peephole-compile, , ;
 
 : (uv) ( ip -- xt-addr ) 2@ next-task + @ cell- @ swap cells + ;
-: is-umethod ( method-xt -- )
-    >body cell+ (uv) defer-table to-!exec ;
-opt: ( method-xt -- )
-    ?fold-to >body cell+ lit, postpone (uv) defer-table to-!, ;
+:noname cell+ (uv) ;
+opt: ?fold-to cell+ lit, postpone (uv) ;
+defer-table to: is-umethod ( method-xt -- ) \ gforth-internal
 
 AVariable hm-list
