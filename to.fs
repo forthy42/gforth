@@ -29,7 +29,7 @@
 
 : to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental
     \G create a table with entries for @code{TO}, @code{+TO},
-    \G @code{ADDR}, and @code{DEFER@}
+    \G @code{ADDR}, and @code{ACTION-OF}
     Create  0  BEGIN  parse-name  dup WHILE
 	    forth-recognize '-error , 1+
     REPEAT  2drop
@@ -41,3 +41,21 @@
     create here to-table-size# cells move
     \ >body does nothing and compiles nothing
     ['] >body here 2 cells + !  to-table-size# cells allot ;
+
+\ new interpret/compile:
+
+: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
+    swap alias ,
+    ['] i/c>comp set->comp
+    ['] no-to set-to ;
+
+\ Create TO variants by number
+
+: to#: ( u "name" -- ) \ gforth-experimental
+    \G create a new TO variant with the table position number @var{u}
+    >r
+    :noname postpone record-name r@ postpone Literal
+    postpone (') ['] (to) :, postpone ;
+    :noname postpone record-name r> postpone Literal
+    postpone (') postpone (to), postpone ;
+    interpret/compile: ;

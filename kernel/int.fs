@@ -425,7 +425,7 @@ method opt-compile, ( xt -- ) \ gforth-internal
 method (to) ( val index xt -- ) \ gforth paren-to
 \G @i{xt} is of a value like word @i{name}.  Stores @i{val} @code{to} @i{name}.
 opt: ( index xt-(to -- )
-    lits# 0= IF  swap lit, :, EXIT THEN  (to), ;
+    lits# 0= IF  swap lit, postpone swap :, EXIT THEN  (to), ;
 
 \ method old-defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
 \ \G @i{xt} represents the word currently associated with the deferred

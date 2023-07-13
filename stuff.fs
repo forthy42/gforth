@@ -343,19 +343,9 @@ translate: translate-[[
 	f.s-precision 7 max dup 0 f.rdp space LOOP
     drop ; 
 
-\ new interpret/compile:
-
-: interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
-    swap alias ,
-    ['] i/c>comp set->comp
-    ['] no-to set-to ;
-
 \ defer stuff
 
-: <action-of>  record-name 3 (') [ ' (to) :, ] ;
-: [action-of]  record-name 3 (') (to), ; immediate restrict
-
-' <action-of> ' [action-of] interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
+3 to#: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
 synonym what's action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
