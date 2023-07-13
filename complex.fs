@@ -84,7 +84,7 @@ previous
 
 : ZVariable ( -- )  Create 0e f, 0e f, ;
 
-' [noop] z!-table to-method: z-to
+' >body z!-table to-method: z-to
 : ZValue ( complex -- )
     Create 1 complex' small-allot z!
     ['] z@ set-does>
@@ -92,7 +92,7 @@ previous
     ['] z-to set-to ;
 
 z!-table >to+addr-table: z!a-table
-' [noop] z!a-table to-method: za-to
+' >body z!a-table to-method: za-to
 : ZVarue ( complex -- )
     ZValue ['] za-to set-to ;
 
