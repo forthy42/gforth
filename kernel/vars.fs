@@ -29,7 +29,8 @@ hex \ everything now hex!                               11may93jaw
     #-21 throw ;
 ' execute set-optimizer
 
-' noop alias [noop]
+: [noop] ; \ gforth-experimental bracket-noop
+\G Word that neither does something on execute nor on compilation
 ' execute set-optimizer
 
 Create !-table ' ! A, ' +! A, ' -/- A, ' -/- A,

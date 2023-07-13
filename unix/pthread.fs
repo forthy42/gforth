@@ -419,7 +419,7 @@ synonym sleep halt ( task -- )
     >body @ next-task + ;
 to-opt: >body @ postpone useraddr , ;
 
-' >uvalue defer-table to: udefer-to
+' >uvalue defer-table to-method: udefer-to
 
 : UDefer ( "name" -- ) \ gforth-experimental
     \G Define a per-thread deferred word

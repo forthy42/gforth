@@ -23,13 +23,10 @@
     \G field, and @var{table} contains the operators to store to it.
     ['] value-to Create-from reveal 2, ;
 
-[IFUNDEF] -/-
-    : -/- #-21 throw ; ' execute set-optimizer
-[THEN]
-
 : to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental to-table-colon
     \G create a table with entries for @code{TO}, @code{+TO},
-    \G @code{ADDR}, and @code{ACTION-OF}
+    \G @code{ADDR}, and @code{ACTION-OF}.  Use @code{-/-} to mark
+    \G unsupported operations.
     Create  0  BEGIN  parse-name  dup WHILE
 	    forth-recognize '-error , 1+
     REPEAT  2drop
@@ -39,8 +36,7 @@
 : >to+addr-table: ( table-addr "name" -- ) \ gforth-experimental
     \G copy a table and set the @code{ADDR}-method to allow it
     create here to-table-size# cells move
-    \ >body does nothing and compiles nothing
-    ['] >body here 2 cells + !  to-table-size# cells allot ;
+    ['] [noop] here 2 cells + !  to-table-size# cells allot ;
 
 \ new interpret/compile:, we need it already here
 
@@ -53,7 +49,7 @@
 
 : to: ( u "name" -- ) \ gforth-experimental to-colon
     \G create a new TO variant with the table position number @var{u}
-    >r
+    >r r@ to-table-size# u>= abort" Too many TO operators"
     :noname postpone record-name r@ postpone Literal
     postpone (') ['] (to) :, postpone ;
     :noname postpone record-name r> postpone Literal
