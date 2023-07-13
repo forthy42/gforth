@@ -755,10 +755,10 @@ opt: ?fold-to 0 swap (to), ;
 ' defer! Alias reveal! ( xt wid -- )
 ' >hmto Alias reveal-method ( wid -- addr )
 
-' [noop] !-table to: value-to ( n value-xt -- ) \ gforth-internal
+' [noop] !-table to-method: value-to ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for normal values
 
-' [noop] defer-table to: defer-is ( n value-xt -- ) \ gforth-internal
+' [noop] defer-table to-method: defer-is ( n value-xt -- ) \ gforth-internal
     \g this is the TO-method for deferred words
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
@@ -872,7 +872,7 @@ interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
 
 Create voc-table ' (reveal) A, ' -/- A, ' -/- A, ' drop A,
 
-' [noop] voc-table to: voc-to ( n voc-xt -- ) \ gforth-internal
+' [noop] voc-table to-method: voc-to ( n voc-xt -- ) \ gforth-internal
     \g this is the TO-method for wordlists
 
 ' reveal alias recursive ( compilation -- ; run-time -- ) \ gforth

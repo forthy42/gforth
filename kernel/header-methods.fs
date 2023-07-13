@@ -38,6 +38,6 @@ defer does-check ( xt -- xt ) ' noop is does-check
 : (uv) ( ip -- xt-addr ) 2@ next-task + @ cell- @ swap cells + ;
 :noname cell+ (uv) ;
 opt: ?fold-to cell+ lit, postpone (uv) ;
-defer-table to: is-umethod ( method-xt -- ) \ gforth-internal
+defer-table to-method: is-umethod ( method-xt -- ) \ gforth-internal
 
 AVariable hm-list

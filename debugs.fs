@@ -215,7 +215,7 @@ is ?warning
 
 : ~~>body ( addr -- body ) ~~ ;
 to-opt: lit, ]] ~~ [[ ;
-' ~~>body !-table to: ~~value-to
+' ~~>body !-table to-method: ~~value-to
 
 : ~~Value ( n "name" -- ) \ gforth
     \G Value that will be watched on every access

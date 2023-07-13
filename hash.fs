@@ -111,8 +111,8 @@ Defer hash-alloc ( addr -- addr )
 Create hashvoc-table ' hash-reveal , ' -/- , ' -/- , ' noop ,
 Create tablevoc-table ' table-reveal , ' -/- , ' -/- , ' noop ,
 
-' [noop] hashvoc-table to: hashvoc-to
-' [noop] tablevoc-table to: tablevoc-to
+' [noop] hashvoc-table to-method: hashvoc-to
+' [noop] tablevoc-table to-method: tablevoc-to
 
 [IFUNDEF] >link ' noop Alias >link [THEN]
 

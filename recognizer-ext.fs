@@ -26,7 +26,7 @@
     >body @ >body + ;
 to-opt: ( xt -- ) >body @ lit, ]] >body + [[ ;
 
-' >translator !-table to: translator-to
+' >translator !-table to-method: translator-to
 
 : translator: ( "name" -- ) \ gforth-experimental
     \G create a new translator, extending the translator table.

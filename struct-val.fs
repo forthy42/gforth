@@ -48,7 +48,7 @@ to-opt: vfield-comp, ;
 : wrapper-xts ( xt@ !-table "name" -- dummy-xt ) { xt@ xt! }
     :noname ]] vfield-int, [[ xt@ compile, postpone ; >r \ xt-does
     :noname ]] vfield-comp, [[ xt@ lit, ]] compile, ; [[ >r \ xt-comp,
-    ['] vfield, xt! noname to: latestxt >r \ xt-to
+    ['] vfield, xt! noname to-method: latestxt >r \ xt-to
     \ create a dummy word with these methods
     >in @ >r parse-name r> >in ! 2dup + 1- c@ ':' = +
     [: type ." -dummy" ;] $tmp

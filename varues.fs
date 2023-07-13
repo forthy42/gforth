@@ -26,7 +26,7 @@
     f!-table >to+addr-table: f!a-table
 [THEN]
 
-' >body !a-table to: varue-to ( n value-xt -- ) \ gforth-internal
+' >body !a-table to-method: varue-to ( n value-xt -- ) \ gforth-internal
 
 0 Value dummy-varue
 ' varue-to set-to
@@ -36,7 +36,7 @@
     \G in the future, varues may be less efficient than values.
     ['] dummy-varue create-from reveal , ;
 
-' >body 2!a-table to: 2varue-to ( addr -- ) \ gforth-internal
+' >body 2!a-table to-method: 2varue-to ( addr -- ) \ gforth-internal
 
 0 0 2value dummy-2varue
     ' 2varue-to set-to
@@ -46,7 +46,7 @@
     \G in the future, 2varues may be less efficient than 2values.
     ['] dummy-2varue create-from reveal 2, ;
 
-' >body f!a-table to: fvarue-to ( r xt-fvalue -- ) \ gforth-internal
+' >body f!a-table to-method: fvarue-to ( r xt-fvalue -- ) \ gforth-internal
 
 0e fvalue dummy-fvarue
     ' fvarue-to set-to
@@ -58,11 +58,11 @@
 
 \ Locals with addrs
 
-' laddr, !a-table to: to-wa:
-' laddr, defera-table to: to-xta:
-' laddr, 2!a-table to: to-da:
-' laddr, c!a-table to: to-ca:
-' laddr, f!a-table to: to-fa:
+' laddr, !a-table to-method: to-wa:
+' laddr, defera-table to-method: to-xta:
+' laddr, 2!a-table to-method: to-da:
+' laddr, c!a-table to-method: to-ca:
+' laddr, f!a-table to-method: to-fa:
 
 get-current also locals-types definitions
 : WA: ( compilation "name" -- a-addr xt; run-time x -- ) \ gforth w-a-colon
@@ -104,7 +104,7 @@ also locals-types
     ['] w:  is default: ;
 previous
 
-2 to#: addr ( "name" -- addr ) \ gforth
+2 to: addr ( "name" -- addr ) \ gforth
 \g provides the address @var{addr} of the varue, 2varue, or fvarue
 \g @var{name} or a local @i{name} defined with one of @code{wa: ca:
 \g da: fa: xta:}.

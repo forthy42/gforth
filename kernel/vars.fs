@@ -42,7 +42,7 @@ opt: ?fold-to >body @ postpone useraddr , ;
 : to:exec ( .. u xt1 xt2 -- .. ) rot >r 2@ r> cells + >r execute r> perform ;
 : to:,    ( u xt2 -- ) 2@ rot cells + >r compile, r> @ compile, ;
 
-' >uvalue !-table to: uvalue-to
+' >uvalue !-table to-method: uvalue-to
 
 : u-compile, ( xt -- )  >body @ postpone user@ , ;
 

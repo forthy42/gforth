@@ -299,11 +299,11 @@ to-table: c!-table c! c+!
 : laddr, ( lit:xt -- ) -14 throw ;
 opt: ( lit:xt xt -- ) ?fold-to postpone laddr# >body @ lp-offset, ;
 
-' laddr, !-table to: to-w:
-' laddr, defer-table to: to-xt:
-' laddr, 2!-table to: to-d:
-' laddr, c!-table to: to-c:
-' laddr, f!-table to: to-f:
+' laddr, !-table to-method: to-w:
+' laddr, defer-table to-method: to-xt:
+' laddr, 2!-table to-method: to-d:
+' laddr, c!-table to-method: to-c:
+' laddr, f!-table to-method: to-f:
 
 : val-part-off ( -- ) val-part off ;
 

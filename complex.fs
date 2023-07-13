@@ -47,8 +47,8 @@
 to-table: z!-table z! z+!
 z!-table >to+addr-table: z!a-table
 
-' laddr, z!-table to: to-z:
-' laddr, z!a-table to: to-za:
+' laddr, z!-table to-method: to-z:
+' laddr, z!a-table to-method: to-za:
 
 : compile-pushlocal-z ( a-addr -- ) ( run-time: z -- )
     locals-size @ alignlp-f float+ float+ dup locals-size !
@@ -79,6 +79,22 @@ z: some-zlocal 2drop
 za: some-zalocal 2drop
 
 previous
+
+\ Variables and values
+
+: ZVariable ( -- )  Create 0e f, 0e f, ;
+
+' [noop] z!-table to-method: z-to
+: ZValue ( complex -- )
+    Create 1 complex' small-allot z!
+    ['] z@ set-does>
+    [: lit, postpone z@ ;] set-optimizer
+    ['] z-to set-to ;
+
+z!-table >to+addr-table: z!a-table
+' [noop] z!a-table to-method: za-to
+: ZVarue ( complex -- )
+    ZValue ['] za-to set-to ;
 
 \ simple operations                                    02mar05py
 : z+       ( z1 z2 -- z1+z2 ) frot f+ f>l f+ fl> ;

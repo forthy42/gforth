@@ -345,7 +345,7 @@ translate: translate-[[
 
 \ defer stuff
 
-3 to#: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
+3 to: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
 synonym what's action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ gforth-obsolete
@@ -589,7 +589,7 @@ User theme-color  0 theme-color !
 
 : 2value-compile, ( xt -- )  >body postpone Literal postpone 2@ ;
 
-' >body 2!-table to: 2value-to ( addr -- ) \ gforth-internal
+' >body 2!-table to-method: 2value-to ( addr -- ) \ gforth-internal
 
 create dummy-2value
 ' 2@ set-does>

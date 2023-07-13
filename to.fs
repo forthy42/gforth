@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: to: ( xt table "name" -- ) \ gforth-experimental
+: to-method: ( xt table "name" -- ) \ gforth-experimental to-method-colon
     \G create a to-method, where @var{xt} computes the address to access the
     \G field, and @var{table} contains the operators to store to it.
     ['] value-to Create-from reveal 2, ;
@@ -27,7 +27,7 @@
     : -/- #-21 throw ; ' execute set-optimizer
 [THEN]
 
-: to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental
+: to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental to-table-colon
     \G create a table with entries for @code{TO}, @code{+TO},
     \G @code{ADDR}, and @code{ACTION-OF}
     Create  0  BEGIN  parse-name  dup WHILE
@@ -42,7 +42,7 @@
     \ >body does nothing and compiles nothing
     ['] >body here 2 cells + !  to-table-size# cells allot ;
 
-\ new interpret/compile:
+\ new interpret/compile:, we need it already here
 
 : interpret/compile: ( interp-xt comp-xt "name" -- ) \ gforth
     swap alias ,
@@ -51,7 +51,7 @@
 
 \ Create TO variants by number
 
-: to#: ( u "name" -- ) \ gforth-experimental
+: to: ( u "name" -- ) \ gforth-experimental to-colon
     \G create a new TO variant with the table position number @var{u}
     >r
     :noname postpone record-name r@ postpone Literal

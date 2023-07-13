@@ -215,7 +215,7 @@ Defer theme@  ' noop is theme@
 
 Create theme-table ' theme! A, ' -/- A, ' -/- A, ' theme@ A,
 
-' [noop] theme-table to: theme-to ( n value-xt -- ) \ gforth-internal
+' [noop] theme-table to-method: theme-to ( n value-xt -- ) \ gforth-internal
 
 Variable theme-color#
 : theme-color: ( "name" -- )

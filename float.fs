@@ -84,7 +84,7 @@
 
 to-table: f!-table f! f+!
 
-' >body f!-table to: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
+' >body f!-table to-method: fvalue-to ( r xt-fvalue -- ) \ gforth-internal
 
 create dummy-fvalue
 ' f@ set-does>
