@@ -111,18 +111,8 @@ Defer hash-alloc ( addr -- addr )
 Create hashvoc-table ' hash-reveal , ' -/- , ' -/- , ' noop ,
 Create tablevoc-table ' table-reveal , ' -/- , ' -/- , ' noop ,
 
-: hashvoc-to ( n voc-xt -- ) \ gforth-internal
-    \g this is the TO-method for normal values
-    ( >body ) hashvoc-table to-!exec ;
-opt: ( voc-xt -- ) \ run-time: ( n -- )
-    drop ( postpone >body ) hashvoc-table to-!, ;
-
-: tablevoc-to ( n voc-xt -- ) \ gforth-internal
-    \g this is the TO-method for normal values
-    ( >body ) tablevoc-table to-!exec ;
-opt: ( voc-xt -- ) \ run-time: ( n -- )
-    drop ( postpone >body ) tablevoc-table to-!, ;
-
+' [noop] hashvoc-table to: hashvoc-to
+' [noop] tablevoc-table to: tablevoc-to
 
 [IFUNDEF] >link ' noop Alias >link [THEN]
 

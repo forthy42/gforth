@@ -422,10 +422,10 @@ method opt-compile, ( xt -- ) \ gforth-internal
 \g The intelligent @code{compile,} compiles each word as specified by
 \g @code{set-optimizer} for that word.
 
-method (to) ( val xt -- ) \ gforth paren-to
+method (to) ( val index xt -- ) \ gforth paren-to
 \G @i{xt} is of a value like word @i{name}.  Stores @i{val} @code{to} @i{name}.
-opt: ( xt-(to -- )
-    ?fold-to (to), ;
+opt: ( index xt-(to -- )
+    lits# 0= IF  swap lit, :, EXIT THEN  (to), ;
 
 \ method old-defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch
 \ \G @i{xt} represents the word currently associated with the deferred
@@ -453,8 +453,8 @@ drop Constant hmsize \ vtable size
 : defer@ ( xt-deferred -- xt ) \ core-ext new-defer-fetch
     \G @i{xt} represents the word currently associated with the deferred
     \G word @i{xt-deferred}.
-    3 to-style# ! (to) ;
-opt: ?fold-to 3 to-style# ! (to), ;
+    3 swap (to) ;
+opt: ?fold-to 3 swap (to), ;
 
 ' defer@ alias initwl \ gforth init-voc
 \G initialises a vocabulary. Mapped to defer@

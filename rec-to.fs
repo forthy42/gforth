@@ -18,8 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-: post-to, ( nt -- )
-    to-style# @ ?dup-IF  lit, ]] to-style# ! [[  THEN  lit, ;
+: post-to, ( nt -- )  swap lit, lit, ;
 
 ' (to) ' (to), ' post-to, >postponer translate: translate-to
 ' translate-to Constant rectype-to
@@ -31,13 +30,13 @@
     dup 3 u< IF  2drop ['] notfound  EXIT  THEN
     over 1+ c@ '>' <> IF  2drop ['] notfound  EXIT  THEN
     case  over c@
-	'-' of   0 to-style# !  endof
-	'+' of   1 to-style# !  endof
-	''' of  -1 to-style# !  endof
+	'-' of  0  endof
+	'+' of  1  endof
+	''' of  2  endof
 	drop 2drop ['] notfound  EXIT
-    endcase
+    endcase  -rot
     2 /string forth-recognize
-    translate-nt? 0= IF  to-style# off  ['] notfound EXIT  THEN
+    translate-nt? 0= IF  drop ['] notfound EXIT  THEN
     name?int ['] translate-to ;
 
 ' rec-to forth-recognizer >back

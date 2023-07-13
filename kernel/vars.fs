@@ -39,8 +39,8 @@ Create defer-table ' ! A, ' -/- A, ' -/- A, ' @ A,
     >body @ next-task + ;
 opt: ?fold-to >body @ postpone useraddr , ;
 
-: to:,    2@ >r compile, r> to-!, ;
-: to:exec 2@ >r execute r> to-!exec ;
+: to:exec ( .. u xt1 xt2 -- .. ) rot >r 2@ r> cells + >r execute r> perform ;
+: to:,    ( u xt2 -- ) 2@ rot cells + >r compile, r> @ compile, ;
 
 ' >uvalue !-table to: uvalue-to
 

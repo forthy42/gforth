@@ -352,8 +352,8 @@ translate: translate-[[
 
 \ defer stuff
 
-: <action-of>  3 to-style# ! <IS> ;
-: [action-of]  3 to-style# ! postpone [IS] ; immediate restrict
+: <action-of>  record-name 3 (') [ ' (to) :, ] ;
+: [action-of]  record-name 3 (') (to), ; immediate restrict
 
 ' <action-of> ' [action-of] interpret/compile: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
 \G @i{Xt} is the XT that is currently assigned to @i{name}.

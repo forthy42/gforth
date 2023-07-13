@@ -536,14 +536,7 @@ $BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
     \G (this only makes a difference in the cross-compiler).
     (Value) A, ;
 
-Variable to-style# 0 to-style# !
-
 4 Constant to-table-size#
-
-: to-!, ( table -- )
-    0 to-style# !@ dup to-table-size# u< IF  cells + @ compile,  ELSE  2drop  THEN ;
-: to-!exec ( table -- )
-    0 to-style# !@ dup to-table-size# u< IF  cells + perform  ELSE  2drop  THEN ;
 
 : (Field)  ['] wordlist-map create-from reveal ;
 
@@ -755,10 +748,11 @@ Create hmtemplate
 
 \ defer and friends
 
-' (to) Alias defer! ( xt xt-deferred -- ) \ core-ext  defer-store
-\G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
-
-' (to) Alias reveal! ( xt wid -- )
+: defer! ( xt xt-deferred -- ) \ core-ext  defer-store
+    \G Changes the @code{defer}red word @var{xt-deferred} to execute @var{xt}.
+    0 swap (to) ;
+opt: ?fold-to 0 swap (to), ;
+' defer! Alias reveal! ( xt wid -- )
 ' >hmto Alias reveal-method ( wid -- addr )
 
 ' [noop] !-table to: value-to ( n value-xt -- ) \ gforth-internal
@@ -769,20 +763,20 @@ Create hmtemplate
 
 : <IS> ( "name" xt -- ) \ gforth-internal angle-is
     \g Changes the @code{defer}red word @var{name} to execute @var{xt}.
-    record-name (') (to) ;
+    record-name 0 (') (to) ;
 
 : [IS] ( compilation "name" -- ; run-time xt -- ) \ gforth-internal bracket-is
     \g At run-time, changes the @code{defer}red word @var{name} to
     \g execute @var{xt}.
-    record-name (') (to), ; immediate restrict
+    record-name 0 (') (to), ; immediate restrict
 
 ' <IS> ' [IS] interpret/compile: TO ( value "name" -- ) \ core-ext
 \g changes the value of @var{name} to @var{value}
 ' <IS> ' [IS] interpret/compile: IS ( value "name" -- ) \ core-ext
 \g changes the @code{defer}red word @var{name} to execute @var{value}
 
-: <+TO>  1 to-style# ! <IS> ;
-: [+TO]  1 to-style# ! postpone [IS] ; immediate restrict
+: <+TO>  record-name 1 (') (to) ;
+: [+TO]  record-name 1 (') (to), ; immediate restrict
 
 ' <+TO> ' [+TO] interpret/compile: +TO ( value "name" -- ) \ gforth
 \g increments the value of @var{name} by @var{value}

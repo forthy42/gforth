@@ -213,8 +213,8 @@ is ?warning
     \G Variable that will be watched on every access
   Create 0 , watch-does> watch-opt: ;
 
-: ~~>body ( addr -- body ) >body 0 to-style# !@ ~~ to-style# ! ;
-to-opt: >body to-style# @ swap ]] Literal Literal ~~ drop [[ ;
+: ~~>body ( addr -- body ) ~~ ;
+to-opt: lit, ]] ~~ [[ ;
 ' ~~>body !-table to: ~~value-to
 
 : ~~Value ( n "name" -- ) \ gforth
@@ -260,7 +260,7 @@ Variable rec'[]
     rec'[] $free  what's trace-recognizer >r
     sp@ 2 cells + fp@ 2>r  name-too-short?
     [: rec-level @ rec'[] $[] ! ;] is trace-recognizer
-    forth-recognize  0 to-style# !
+    forth-recognize
     dup translate-nt? IF  drop rec'[] $free
     ELSE  drop  rec'@  THEN
     2r> rot >r fp! sp! r>  r> is trace-recognizer

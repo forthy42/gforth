@@ -22,9 +22,11 @@
 #10 cells constant translator-max-offset#
 "No more translator slots free" exception constant translator-overflow
 
-: to-translator ( xt rectype translator -- )
-    >body @ >body + ! ;
-to-opt: ( xt -- ) >body @ lit, ]] >body + ! [[ ;
+: >translator ( xt rectype translator -- )
+    >body @ >body + ;
+to-opt: ( xt -- ) >body @ lit, ]] >body + [[ ;
+
+' >translator !-table to: translator-to
 
 : translator: ( "name" -- ) \ gforth-experimental
     \G create a new translator, extending the translator table.
@@ -34,7 +36,7 @@ to-opt: ( xt -- ) >body @ lit, ]] >body + ! [[ ;
     translator-overflow and throw
     Create translator-offset ,  cell +to translator-offset
     [: ( rec-type ) @ + >body @ ;] set-does>
-    ['] to-translator set-to ;
+    ['] translator-to set-to ;
 
 translator: interpret-translator ( translator -- xt ) \ gforth-experimental
 \G obtain interpreter action from translator

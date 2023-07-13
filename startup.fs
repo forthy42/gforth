@@ -20,6 +20,7 @@
 
 \ don't require except.fs, because except.fs is not in included-files
 \ (see exboot.fs)
+
 [IFUNDEF] try
 require except.fs \ included on command line
 [THEN]
@@ -34,10 +35,10 @@ require options.fs
 require environ.fs
 require ~+/envos.fs
 require errors.fs
+require to.fs
 require hash.fs
 require compat/strcomp.fs
 require sections.fs
-require to.fs
 require float.fs
 require extend.fs
 require glocals.fs

@@ -104,8 +104,8 @@ also locals-types
     ['] w:  is default: ;
 previous
 
-: <addr>  2 to-style# ! <IS> ;
-: [addr]  2 to-style# ! postpone [IS] ; immediate restrict
+: <addr>  record-name 2 (') [ ' (to) :, ] ;
+: [addr]  record-name 2 (') (to), ; immediate restrict
 
 ' <addr> ' [addr] interpret/compile: addr ( "name" -- addr ) \ gforth
 \g provides the address @var{addr} of the varue, 2varue, or fvarue
