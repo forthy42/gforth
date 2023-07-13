@@ -62,8 +62,8 @@ to-opt: vfield-comp, ;
 
 : w+! ( w addr -- ) dup >r w@ + r> w! ;
 : l+! ( w addr -- ) dup >r l@ + r> l! ;
-: sf+! ( w addr -- ) dup >r sf@ f+ r> sf! ;
-: df+! ( w addr -- ) dup >r df@ f+ r> df! ;
+: sf+! ( w addr -- ) dup sf@ f+ sf! ;
+: df+! ( w addr -- ) dup df@ f+ df! ;
 : sc@ ( addr -- c ) c@ c>s ;
 opt: drop ]] c@ c>s [[ ;
 : $[]-@ ( n addr -- x ) $[] @ ;
