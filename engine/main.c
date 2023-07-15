@@ -187,8 +187,12 @@ Address code_area=0;
 Cell code_area_size = CODE_BLOCK_SIZE;
 Address code_here; /* does for code-area what HERE does for the dictionary */
 Address start_flush=NULL; /* start of unflushed code */
-Cell last_jump=0; /* if the last prim was compiled without jump, this
-                     is it's number, otherwise this contains 0 */
+PrimNum last_jump=0; /* if the last prim was compiled without jump, this
+                        is it's PrimNum, otherwise this contains 0 */
+Cell ip_at=0; /* ip currently points to the prim at ip_at */
+Cell inst_index; /* current instruction */
+Label **ginstps; /* array of threaded code locations for
+                           primitives being optimize_rewrite()d */
 
 static int no_super=0;   /* true if compile_prim should not fuse prims */
 static int no_dynamic=NO_DYNAMIC_DEFAULT; /* if true, no code is generated
@@ -201,6 +205,13 @@ static int static_super_number = 10000; /* number of ss used if available */
 #define MAX_STATE 9 /* maximum number of states */
 #define CANONICAL_STATE 0
 static int maxstates = MAX_STATE; /* number of states for stack caching */
+static int opt_ip_updates =  /* 0=disable, 1=simple, >=2=also optimize ;s */
+#ifdef GFORTH_DEBUGGING
+  0
+#else
+  100
+#endif
+  ;
 static int ss_greedy = 0; /* if true: use greedy, not optimal ss selection */
 static int tpa_noequiv = 0;     /* if true: no state equivalence checking */
 static int tpa_noautomaton = 0; /* if true: no tree parsing automaton */
@@ -236,7 +247,8 @@ Label *labels; /* labels, as pointed to by vm_prims */
 
 typedef struct {
   Label start; /* NULL if not relocatable */
-  Cell length; /* only includes the jump iff superend is true*/
+  Cell len1;   /* the length of the ip update */
+  Cell length; /* includes len1; only includes the jump iff superend is true*/
   Cell restlength; /* length of the rest (i.e., the jump or (on superend) 0) */
   unsigned uses; /* number of uses */
   char superend; /* true if primitive ends superinstruction, i.e.,
@@ -986,10 +998,10 @@ static void gforth_printprims()
   for (i=0; i<npriminfos; i++) {
     PrimInfo *pi=&priminfos[i];
     struct cost *sc=&super_costs[i];
-    fprintf(stderr,"%-15s %d-%d %4d %4d %12p len=%3ld rest=%2ld send=%1d\n",
+    fprintf(stderr,"%-15s %d-%d %4d %4d %12p len=%2ld+%3ld+%2ld send=%1d\n",
 	    prim_names[i], state_map(sc->state_in), state_map(sc->state_out),
-	    i, pi->uses, pi->start, (long)(pi->length), (long)(pi->restlength),
-	    pi->superend);
+	    i, pi->uses, pi->start, (long)(pi->len1),
+            (long)(pi->length - pi->len1), (long)(pi->restlength), pi->superend);
   }
 }
 #endif
@@ -1055,6 +1067,7 @@ static void check_prims(Label symbols1[])
     Label endlabel = bsearch_next(symbols1[i]+1,ends1jsorted,nends1j);
 
     pi->start = s1;
+    pi->len1 = ((char *)startb[i])-s1;
     pi->superend = superend[i]|no_super;
     pi->length = prim_len;
     pi->restlength = endlabel - symbols1[i] - pi->length;
@@ -1070,10 +1083,10 @@ static void check_prims(Label symbols1[])
 	debugp(stderr, "S%d: op%d(S%d) = %d (%d);", sc->state_in, p, sc->state_out, i+1, pi->length);
     }
 #else
-    debugp(stderr, "%-15s %d-%d %4d %p %p len=%3ld rest=%2ld send=%1d",
+    debugp(stderr, "%-15s %d-%d %4d %p %p len=%2ld+%3ld+%2ld send=%1d",
 	   prim_names[i], state_map(sc->state_in), state_map(sc->state_out),
-	   i, s1, s2, (long)(pi->length), (long)(pi->restlength),
-	   pi->superend);
+	   i, s1, s2, (long)(pi->len1),
+           (long)(pi->length - pi->len1), (long)(pi->restlength), pi->superend);
 #endif
     if (endlabel == NULL) {
       pi->start = NULL; /* not relocatable */
@@ -1225,11 +1238,28 @@ static void MAYBE_UNUSED align_code(void)
 }  
 
 #ifndef NO_DYNAMIC
+static void append_ip_update()
+/* compile an ip update for updating the ip from ip_at to
+   inst_index+1, where both are indexes into ginstps */
+{
+  /* assert(ip_at <= inst_index+1); */
+  if (ip_at < inst_index+1) {
+    Cell cellsdiff = ginstps[inst_index+1]-ginstps[ip_at];
+    PrimNum p = N_noop-1+cellsdiff;
+    PrimInfo *pi = &priminfos[p];
+    assert(opt_ip_updates > 0);
+    append_code(pi->start, pi->len1);
+    ip_at = inst_index+1;
+  }
+}
+
 static void append_jump(void)
 {
   if (last_jump) {
     PrimInfo *pi = &priminfos[last_jump];
     /* debugp(stderr, "Copy code %p<=%p+%x,%d\n", code_here, pi->start, pi->length, pi->restlength); */
+    assert(ip_at > inst_index || !priminfos[last_jump].superend);
+    append_ip_update();
     append_code(pi->start+pi->length, pi->restlength);
     /* debugp(stderr, "Copy goto %p<=%p,%d\n", code_here, goto_start, goto_len); */
     append_code(goto_start, goto_len);
@@ -1241,7 +1271,9 @@ static void append_jump(void)
 static void append_jump_previous(void)
 /* append a dispatch to the previous primitive */
 {
+  inst_index--;
   append_jump();
+  inst_index++;
 }
 
 /* Gforth remembers all code blocks in this list.  On forgetting (by
@@ -1286,15 +1318,26 @@ static int reserve_code_space(UCell size)
   return 0;
 }
 
-static Address append_prim(Cell p)
+static Address append_prim(PrimNum p)
 {
   PrimInfo *pi = &priminfos[p];
+  struct cost *ci = &super_costs[p];
   Address old_code_here;
   if(reserve_code_space(pi->length+pi->restlength+goto_len+CODE_ALIGNMENT-1))
     return NULL;
-  /* debugp(stderr, "Copy code %p<=%p,%d\n", code_here, pi->start, pi->length); */
+  /* debugp(stderr, "Copy code %p<=%p,%d\n", code_here, pi->start, pi->length);*/
   old_code_here = code_here;
-  append_code(pi->start, pi->length);
+  if (opt_ip_updates>0) {
+    if (ci->imm_ops>0 || pi->superend) {
+      inst_index += ci->length-1; /* -1 to correct for the +1 in: */
+      append_ip_update();
+    }
+    append_code(pi->start+pi->len1, pi->length-pi->len1);
+  } else {
+    append_code(pi->start, pi->length);
+    ip_at = inst_index + ci->length;
+  }
+  last_jump = (pi->restlength == 0) ? 0 : p;
   return old_code_here;
 }
 
@@ -1421,7 +1464,7 @@ void finish_code_barrier(void)
 }
 
 #if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
-static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
+static Cell compile_prim_dyn(PrimNum p)
      /* compile prim #p dynamically (mod flags etc.) and return start
         address of generated code for putting it into the threaded code */
 {
@@ -1437,6 +1480,7 @@ static Cell compile_prim_dyn(PrimNum p, Cell *tcp)
   priminfos[p].uses++;
   if (p>=npriminfos || !is_relocatable(p)) {
     append_jump_previous();
+    ip_at = inst_index+1; /* advance to behind the non-relocatable inst */
     return static_prim;
   }
   old_code_here = append_prim(p);
@@ -1708,7 +1752,13 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   struct tpa_state *ts[ninsts+1];
   int nextdyn, nextstate, startstate, no_transition;
   Address old_code_area;
+  ginstps = (Label **)instps;
   DynamicInfo *di = NULL;
+  Cell last=origs[ninsts-1];
+  struct cost *cl=&super_costs[last];
+  if (ninsts == 0)
+    return;
+  instps[ninsts] = instps[ninsts-1]+cl->imm_ops+cl->length;
   lb_basic_blocks++;
   ts[ninsts] = termstate;
 #ifndef NO_DYNAMIC
@@ -1775,10 +1825,12 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   old_code_area = code_area;
   nextdyn=0;
   nextstate=CANONICAL_STATE;
+  ip_at = 0;
   no_transition = ((!ts[0]->trans[nextstate].relocatable) 
 		   ||ts[0]->trans[nextstate].no_transition);
   for (i=0; i<ninsts; i++) {
     Cell tc=0, tc2;
+    inst_index=i;
     startstate = nextstate;
     if (i==nextdyn) {
       PrimNum p;
@@ -1788,7 +1840,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	struct cost *c = super_costs+pt;
 	assert(ts[i]->trans[nextstate].cost != INF_COST);
 	assert(c->state_in==nextstate);
-	tc = compile_prim_dyn(pt,NULL);
+	tc = compile_prim_dyn(pt);
 	nextstate = c->state_out;
       }
       p = ts[i]->inst[nextstate].inst;
@@ -1800,7 +1852,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 #if defined(GFORTH_DEBUGGING)
 	assert(p == origs[i]);
 #endif
-	tc2 = compile_prim_dyn(p,instps[i]);
+	tc2 = compile_prim_dyn(p);
 	if (no_transition || !is_relocatable(p)) {
 	  /* !! actually what we care about is if and where
 	   * compile_prim_dyn() puts NEXTs */
@@ -1832,14 +1884,16 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
       tc= (Cell)vm_prims[super2[super_costs[ts[i]->inst[CANONICAL_STATE].inst].offset]];
     }
     *(instps[i]) = tc;
-  }      
+  }
+  assert(inst_index == i-1);
+  append_ip_update();
   if (!no_transition) {
     PrimNum p = ts[i]->trans[nextstate].inst;
     struct cost *c = super_costs+p;
     assert(c->state_in==nextstate);
     assert(ts[i]->trans[nextstate].cost != INF_COST);
     assert(i==nextdyn);
-    (void)compile_prim_dyn(p,NULL);
+    (void)compile_prim_dyn(p);
     nextstate = c->state_out;
     di->length = code_here - (Address)di->start;
     di->end_state = nextstate;
@@ -1870,8 +1924,8 @@ void compile_prim1(Cell *start)
 #elif defined(INDIRECT_THREADED)
   return;
 #else /* !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED)) */
-  static Cell *instps[MAX_BB];
-  static PrimNum origs[MAX_BB];
+  static Cell *instps[MAX_BB+1];
+  static PrimNum origs[MAX_BB+1];
   static int ninsts=0;
   PrimNum prim_num;
 
@@ -2290,6 +2344,7 @@ enum {
   ss_min_lsu,
   ss_min_nexts,
   opt_code_block_size,
+  opt_opt_ip_updates,
 };
 
 static void print_diag()
@@ -2409,6 +2464,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
       {"no-0rc", no_argument, &no_rc0, 1},
       {"dynamic", no_argument, &no_dynamic, 0},
       {"code-block-size", required_argument, NULL, opt_code_block_size},
+      {"opt-ip-updates", required_argument, NULL, opt_opt_ip_updates},
       {"print-metrics", no_argument, &print_metrics, 1},
       {"print-prims", no_argument, &print_prims, 1},
       {"print-sequences", no_argument, &print_sequences, 1},
@@ -2449,6 +2505,7 @@ int gforth_args(int argc, char ** argv, char ** path, char ** imagename)
     case 'D': print_diag(); break;
     case 'v': fputs(PACKAGE_STRING" "ARCH"\n", stderr); exit(0);
     case opt_code_block_size: if((code_area_size = convsize(optarg,sizeof(Char)))==-1L) return 1; break;
+    case opt_opt_ip_updates: opt_ip_updates = atoi(optarg); break;
     case ss_number: static_super_number = atoi(optarg); break;
     case ss_states: maxstates = max(min(atoi(optarg),MAX_STATE),1); break;
 #ifndef NO_DYNAMIC
@@ -2484,6 +2541,7 @@ Engine Options:\n\
   --no-super			    No dynamically formed superinstructions\n\
   --no-0rc			    do not load ~/.config/gforthrc0\n\
   --offset-image		    Load image at a different position\n\
+  --opt-ip-updates=n                ip-update optimization (0=disabled)\n\
   -p PATH, --path=PATH		    Search path for finding image and sources\n\
   --print-metrics		    Print some code generation metrics on exit\n\
   --print-prims			    Print primitives with usage counts on exit\n\

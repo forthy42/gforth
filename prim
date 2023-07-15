@@ -226,6 +226,38 @@ noop	( -- )		gforth
 :
  ;
 
+\ the following words are used for their ip updates
+
+noop2  ( #w2 -- ) gforth-internal
+
+noop3  ( #w2 #w3 -- ) gforth-internal
+
+noop4  ( #w2 #w3 #w4 -- ) gforth-internal
+
+noop5  ( #w2 #w3 #w4 #w5 -- ) gforth-internal
+
+noop6  ( #w2 #w3 #w4 #w5 #w6 -- ) gforth-internal
+
+noop7  ( #w2 #w3 #w4 #w5 #w6 #w7 -- ) gforth-internal
+
+noop8  ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 -- ) gforth-internal
+
+noop9  ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 -- ) gforth-internal
+
+noop10 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa -- ) gforth-internal
+
+noop11 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb -- ) gforth-internal
+
+noop12 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc -- ) gforth-internal
+
+noop13 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd -- ) gforth-internal
+
+noop14 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we -- ) gforth-internal
+
+noop15 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf -- ) gforth-internal
+
+noop16 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg -- ) gforth-internal
+
 call	( #a_callee -- R:a_retaddr )	new
 ""Call callee (a variant of docol with inline argument).""
 #ifdef DEBUG
@@ -2899,9 +2931,10 @@ n2 = n1 / sizeof(SFloat);
 
 f-rot	( r1 r2 r3 -- r3 r1 r2 )	floating	f_not_rote
 
-flit	( -- r1 )   gforth-internal
-r1 = *(Float*)ip;
-INC_IP(sizeof(Float)/sizeof(Cell));
+flit	( #wdummy -- r )   gforth-internal
+/* wdummy is there to mark this as a word with immediate arguments */
+r = *(Float*)(ip-1);
+INC_IP(sizeof(Float)/sizeof(Cell)-1);
 
 \+
 
