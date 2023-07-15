@@ -33,7 +33,7 @@
     \ here goes the number of methods supported
     to-table-size# swap U+DO ['] -/- , LOOP ;
 
-: >to+addr-table: ( table-addr "name" -- ) \ gforth-experimental
+: >to+addr-table: ( table-addr "name" -- ) \ gforth-experimental to-to-plus-addr-table-colon
     \G copy a table and set the @code{ADDR}-method to allow it
     create here to-table-size# cells move
     ['] [noop] here 2 cells + !  to-table-size# cells allot ;
