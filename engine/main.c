@@ -1318,6 +1318,9 @@ static int reserve_code_space(UCell size)
   return 0;
 }
 
+/* primitives, where ip is dead at the start, so no ip update is needed */
+static PrimNum ip_dead[] = {N_semis, N_execute_semis, N_fast_throw};
+
 static Address append_prim(PrimNum p)
 {
   PrimInfo *pi = &priminfos[p];
@@ -1330,6 +1333,14 @@ static Address append_prim(PrimNum p)
   if (opt_ip_updates>0) {
     if (ci->imm_ops>0 || pi->superend) {
       inst_index += ci->length-1; /* -1 to correct for the +1 in: */
+      if (opt_ip_updates>1) {
+        long i;
+        for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
+          if (p==ip_dead[i]) {
+            ip_at = inst_index+1; /* suppress the ip update if ip is dead */
+            break;
+          }
+      }
       append_ip_update();
     }
     append_code(pi->start+pi->len1, pi->length-pi->len1);
