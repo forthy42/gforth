@@ -1886,7 +1886,8 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     *(instps[i]) = tc;
   }
   assert(inst_index == i-1);
-  append_ip_update();
+  if (!no_dynamic)
+    append_ip_update();
   if (!no_transition) {
     PrimNum p = ts[i]->trans[nextstate].inst;
     struct cost *c = super_costs+p;
