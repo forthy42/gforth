@@ -1000,7 +1000,7 @@ static void gforth_printprims()
   for (i=0; i<npriminfos; i++) {
     PrimInfo *pi=&priminfos[i];
     struct cost *sc=&super_costs[i];
-    fprintf(stderr,"%-15s %d-%d %4d %4d %12p len=%2ld+%3ld+%2ld send=%1d\n",
+    fprintf(stderr,"%-17s %d-%d %4d %4d %14p len=%2ld+%3ld+%2ld send=%1d\n",
 	    prim_names[i], state_map(sc->state_in), state_map(sc->state_out),
 	    i, pi->uses, pi->start, (long)(pi->len1),
             (long)(pi->length - pi->len1), (long)(pi->restlength), pi->superend);
@@ -1239,7 +1239,21 @@ static void MAYBE_UNUSED align_code(void)
 #endif /* defined(NO_DYNAMIC */
 }  
 
+static Cell *ip_update_metrics = NULL;
+static Cell nip_update_metrics=0;
+
 #ifndef NO_DYNAMIC
+static void record_ip_update(Cell n)
+{
+  if (n>=nip_update_metrics) {
+    ip_update_metrics = realloc(ip_update_metrics, (n+1)*sizeof(Cell));
+    memset(ip_update_metrics+nip_update_metrics,0,
+           (n+1-nip_update_metrics)*sizeof(Cell));
+    nip_update_metrics=n+1;
+  }
+  ip_update_metrics[n]++;
+}
+
 static void append_ip_update()
 /* compile an ip update for updating the ip from ip_at to
    inst_index+1, where both are indexes into ginstps */
@@ -1248,6 +1262,8 @@ static void append_ip_update()
   if (ip_at < inst_index+1) {
     Cell cellsdiff = ginstps[inst_index+1]-ginstps[ip_at];
     assert(opt_ip_updates > 0);
+    if (print_metrics)
+      record_ip_update(cellsdiff);
     do {
       Cell cellsdiff1 = cellsdiff;
       if (cellsdiff1 > MAX_IP_UPDATE)
@@ -1355,6 +1371,8 @@ static Address append_prim(PrimNum p)
     }
     append_code(pi->start+pi->len1, pi->length-pi->len1);
   } else {
+    if (print_metrics)
+      record_ip_update(ci->imm_ops+1);
     append_code(pi->start, pi->length);
     ip_at = inst_index + ci->length;
   }
@@ -1783,7 +1801,8 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   struct cost *cl=&super_costs[last];
   if (ninsts == 0)
     return;
-  instps[ninsts] = instps[ninsts-1]+cl->imm_ops+cl->length;
+  instps[ninsts] = instps[ninsts-1]+cl->imm_ops+1;
+  /* !! better provide this info through the interface */
   lb_basic_blocks++;
   ts[ninsts] = termstate;
 #ifndef NO_DYNAMIC
@@ -2644,6 +2663,11 @@ void gforth_printmetrics()
     fprintf(stderr,"lb_newstate_new = %ld\n", lb_newstate_new);
     fprintf(stderr,"lb_applicable_base_rules = %ld\n", lb_applicable_base_rules);
     fprintf(stderr,"lb_applicable_chain_rules = %ld\n", lb_applicable_chain_rules);
+    if (ip_update_metrics==NULL)
+      fprintf(stderr, "no ip update metrics recorded\n");
+    else
+      for (i=1; i<nip_update_metrics; i++)
+        fprintf(stderr,"%5ld ip update by %2d cells\n",ip_update_metrics[i],i);
   }
   if (tpa_trace) {
     fprintf(stderr, "%ld %ld lb_states\n", lb_labeler_steps, lb_newstate_new);
