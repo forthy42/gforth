@@ -68,12 +68,6 @@ opt: drop @ postpone o#+ , ;
     \G created class. Inherited methods are copied from the superclass.
     , dup , here >r 0 U+DO ['] default-method defer@ , cell +LOOP
     dup r@ swap >methods @ move r> Value ;
-: >vt ( class "name" -- addr ) \ mini-oof2
-    ' >body @ + ;
-: :: ( class "name" -- ) \ mini-oof2
-    \G Compile the method for the selector @var{name} of the class
-    \G @var{class} (not immediate!).
-    >vt @ compile, ;
 0 cells , 0 cells , here Value object
 
 \ memory allocation

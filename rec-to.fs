@@ -25,8 +25,8 @@
 
 : rec-to ( addr u -- xt r:to | rectype-null ) \ gforth-experimental
     \G words prefixed with @code{->} are treated as if preceeded by
-    \G @code{TO} or @code{IS}, with @code{+>} as @code{+TO} and with
-    \G @code{'>} as @code{ADDR}.
+    \G @code{TO} or @code{IS}, with @code{+>} as @code{+TO}, with
+    \G @code{'>} as @code{ADDR}, and with @code{@@>} as @code{ACTION-OF}.
     dup 3 u< IF  2drop ['] notfound  EXIT  THEN
     over 1+ c@ '>' <> IF  2drop ['] notfound  EXIT  THEN
     case  over c@

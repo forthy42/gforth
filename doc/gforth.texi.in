@@ -13960,6 +13960,11 @@ activated.
 
 doc-rec-moof2
 
+To assign methods to selectors, use @var{xt class} @code{is}
+@var{selector}, so no @code{defines} necessary.  For early binding of
+methods, @code{[} @var{class} @code{] defers} @var{selector} is used, no
+need for @code{::}.
+
 @node Comparison with other object models,  , Mini-OOF2, Object-oriented Forth
 @subsection Comparison with other object models
 @cindex comparison of object models

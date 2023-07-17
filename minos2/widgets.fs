@@ -709,7 +709,7 @@ end-class text
     text-w text-shrink% f* text-w text-grow% f* ; text is hglue
 :noname h raise f- 0e fdup ; text is vglue
 :noname d raise f+ 0e fdup ; text is dglue
-:noname addr text$ $free [ widget :: dispose-widget ] ; text is dispose-widget
+:noname addr text$ $free [ widget ] defers dispose-widget ; text is dispose-widget
 : i18n-text-init
     l-text ?lang and IF
 	l-text locale@ to text$
@@ -1100,7 +1100,7 @@ end-class box
 ' b.widget box is .widget
 
 :noname ( -- )
-    dispose-childs [ widget :: dispose-widget ] ; box is dispose-widget
+    dispose-childs [ widget ] defers dispose-widget ; box is dispose-widget
 
 : resize-me ( -- )
     \ make sure you get resized
@@ -1648,9 +1648,9 @@ $10 stack: vp<>
 : vp-!size ( -- )
     vp-need @ [ ' +resize >body @ ]L and IF
 	['] !size do-childs
-	[ vbox :: hglue ] hglue-c glue!
-	[ vbox :: dglue ] dglue-c glue!
-	[ vbox :: vglue ] vglue-c glue!
+	[ vbox ] defers hglue hglue-c glue!
+	[ vbox ] defers dglue dglue-c glue!
+	[ vbox ] defers vglue vglue-c glue!
 	w hglue-c df@ fmax fround
 	fdup vp-w f<> to vp-w vp-w usetexsize# s>f fmin to vt-w
 	h d f+ dglue-c df@ vglue-c df@ f+ fmax fround
@@ -1662,7 +1662,7 @@ $10 stack: vp<>
     THEN ;
 ' vp-!size viewport is !size
 :noname ( -- )
-    ['] +sync vp-needed [ box :: resized ] ; viewport is resized
+    ['] +sync vp-needed [ box ] defers resized ; viewport is resized
 
 :noname { f: x f: y f: w f: h f: d -- }
     x y w h d box-resize? 0= ?EXIT
@@ -1680,27 +1680,27 @@ $10 stack: vp<>
     vp-need @ [ ' +resize >body @ ]L invert and vp-need !
 ; viewport is !resize
 :noname ( -- glue )
-    box-flags vp-hfix# and IF  [ vbox :: hglue ]
+    box-flags vp-hfix# and IF  [ vbox ] defers hglue
     ELSE  vp-glue .hglue >hglue!@  THEN
     resize( ." vp.hglue: " gdup .glue cr ) ; viewport is hglue
 :noname ( -- glue )
-    box-flags vp-dfix# and IF  [ vbox :: dglue ]
+    box-flags vp-dfix# and IF  [ vbox ] defers dglue
     ELSE  vp-glue .dglue >dglue!@  THEN
     resize( ." vp.dglue: " gdup .glue cr ) ; viewport is dglue
 :noname ( -- glue )
-    box-flags vp-vfix# and IF  [ vbox :: vglue ]
+    box-flags vp-vfix# and IF  [ vbox ] defers vglue
     ELSE  vp-glue .vglue >vglue!@  THEN
     resize( ." vp.vglue: " gdup .glue cr ) ; viewport is vglue
 :noname ( -- glue )
-    box-flags vp-hfix# and IF  [ vbox :: hglue@ ]
+    box-flags vp-hfix# and IF  [ vbox ] defers hglue@
     ELSE  vp-glue .hglue@ THEN
     resize( ." vp.hglue@: " gdup .glue cr ) ; viewport is hglue@
 :noname ( -- glue )
-    box-flags vp-dfix# and IF  [ vbox :: dglue@ ]
+    box-flags vp-dfix# and IF  [ vbox ] defers dglue@
     ELSE  vp-glue .dglue@  THEN
     resize( ." vp.dglue@: " gdup .glue cr ) ; viewport is dglue@
 :noname ( -- glue )
-    box-flags vp-vfix# and IF  [ vbox :: vglue@ ]
+    box-flags vp-vfix# and IF  [ vbox ] defers vglue@
     ELSE   vp-glue .vglue@  THEN
     resize( ." vp.vglue@: " gdup .glue cr ) ; viewport is vglue@
 : }}vp ( b:n1 .. b:nm glue vp-tex -- viewport ) { g t }

@@ -170,7 +170,7 @@ end-class slide-actor
 	    fdup 0.1e f< IF  fdrop  2drop fdrop fdrop  prev-slide  EXIT
 	    ELSE  0.9e f> IF  2drop fdrop fdrop  next-slide  EXIT  THEN  THEN
 	THEN  THEN
-    [ box-actor :: clicked ] +sync +resize ; slide-actor is clicked
+    [ box-actor ] defers clicked +sync +resize ; slide-actor is clicked
 :noname ( ekey -- )
     case
 	k-up      of  prev-slide  endof
@@ -198,9 +198,9 @@ end-class slide-actor
 		[:             fdup f>s to color-theme 1/2 f+ ColorMode! +sync +vpsync ;]
 		>animate  THEN   endof
 	k-f1      of  top-widget ..widget  endof
-	[ box-actor :: ekeyed ]  EXIT
+	[ box-actor ] defers ekeyed  EXIT
     endcase +sync +resize ; slide-actor to ekeyed
-:noname ( $xy b -- ) 2dup [ box-actor :: touchmove ] drop
+:noname ( $xy b -- ) 2dup [ box-actor ] defers touchmove drop
     xy@ dpy-h @ s>f fswap f- dpy-h @ 2/ fm/ lightpos-xyz sfloat+ sf!
     dpy-w @ s>f f- dpy-w @ 2/ fm/ lightpos-xyz sf!
     3.0e lightpos-xyz 2 sfloats + sf!

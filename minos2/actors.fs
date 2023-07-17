@@ -197,7 +197,7 @@ end-class box-actor
     box-touched# do-childs-act? ;
 
 :noname ( rx ry -- act )
-    fover fover [ actor :: ?inside ] 0= IF  fdrop fdrop 0  EXIT  THEN
+    fover fover [ actor ] defers ?inside 0= IF  fdrop fdrop 0  EXIT  THEN
     box-?inside ; box-actor is ?inside
 
 :noname ( rx ry b n -- )
@@ -256,7 +256,7 @@ end-class scroll-actor
 	    r>
 	THEN  drop
     ELSE
-	[ box-actor :: clicked ]
+	[ box-actor ] defers clicked
     THEN
 ; scroll-actor is clicked
 :noname ( ukeyaddr u -- )
@@ -266,12 +266,12 @@ end-class scroll-actor
 		ctrl N of   1 sr-action  endof
 	    endcase
 	LOOP
-    ELSE  [ box-actor :: ukeyed ]  THEN ; scroll-actor is ukeyed
+    ELSE  [ box-actor ] defers ukeyed  THEN ; scroll-actor is ukeyed
 :noname ( ekey -- )
     case
 	k-left  of  -1 sr-action  endof
 	k-right of   1 sr-action  endof
-	[ box-actor :: ekeyed ] 0
+	[ box-actor ] defers ekeyed 0
     endcase
 ; scroll-actor is ekeyed
 
@@ -377,7 +377,7 @@ forward >animate
     ?inside-mode
     click( ." vp-inside: " fover f. fdup f. dup . )
     IF    box-?inside
-    ELSE  [ actor :: ?inside ]
+    ELSE  [ actor ] defers ?inside
     THEN
     click( dup hex. cr )
 ; vp-actor is ?inside
@@ -424,31 +424,31 @@ forward >animate
 	0.333e o ['] vp-scroll >animate
 	EXIT  THEN
     [: caller-w >o  >txy  tx
-	[: act >o [ box-actor :: clicked ] o> ;] vp-needed|
+	[: act >o [ box-actor ] defers clicked o> ;] vp-needed|
 	txy> o> ;] 1-?inside
 ; vp-actor is clicked
 :noname ( $rxy*n bmask -- )
     [: caller-w >o  >txy  >r tx$ r>
-	[: act >o [ box-actor :: touchdown ] o> ;] vp-needed|
+	[: act >o [ box-actor ] defers touchdown o> ;] vp-needed|
 	txy> o> ;] 1-?inside ; vp-actor is touchdown
 :noname ( $rxy*n bmask -- )
     [: caller-w >o  >txy  >r tx$ r>
-	[: act >o [ box-actor :: touchup ] o> ;] vp-needed|
+	[: act >o [ box-actor ] defers touchup o> ;] vp-needed|
 	txy> o> ;] 1-?inside ; vp-actor is touchup
 :noname ( $rxy*n bmask -- )
     dup 2 or 2 = grab-move? o = and IF
 	drop xy@ vpxy!
     ELSE
 	[: caller-w >o  >txy  >r tx$ r>
-	    [: act >o [ box-actor :: touchmove ] o> ;] vp-needed|
+	    [: act >o [ box-actor ] defers touchmove o> ;] vp-needed|
 	    txy> o> ;] 1-?inside
     THEN ; vp-actor is touchmove
 :noname ( ekey -- )
     caller-w >o
-    [: act >o [ box-actor :: ekeyed ] o> ;] vp-needed| o> ; vp-actor is ekeyed
+    [: act >o [ box-actor ] defers ekeyed o> ;] vp-needed| o> ; vp-actor is ekeyed
 :noname ( ekey -- )
     caller-w >o
-    [: act >o [ box-actor :: ukeyed ] o> ;] vp-needed| o> ; vp-actor is ukeyed
+    [: act >o [ box-actor ] defers ukeyed o> ;] vp-needed| o> ; vp-actor is ukeyed
 
 : vp[] ( o -- o )
     >o vp-actor new !act o o> ;
