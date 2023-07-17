@@ -190,6 +190,7 @@ Address start_flush=NULL; /* start of unflushed code */
 PrimNum last_jump=0; /* if the last prim was compiled without jump, this
                         is it's PrimNum, otherwise this contains 0 */
 Cell ip_at=0; /* ip currently points to the prim at ip_at */
+#define MAX_IP_UPDATE 16
 Cell inst_index; /* current instruction */
 Label **ginstps; /* array of threaded code locations for
                            primitives being optimize_rewrite()d */
@@ -825,7 +826,8 @@ struct cost { /* super_info might be a more accurate name */
   char branch;	    /* is it a branch (SET_IP) */
   unsigned char state_in;    /* state on entry */
   unsigned char state_out;   /* state on exit */
-  unsigned char imm_ops;     /* number of immediate operands */
+  unsigned char imm_ops;     /* number of additional threaded-code slots
+                                (immediate arguments+number of components-1) */
   short offset;     /* offset into super2 table */
   unsigned char length;      /* number of components */
 };
@@ -1245,10 +1247,18 @@ static void append_ip_update()
   /* assert(ip_at <= inst_index+1); */
   if (ip_at < inst_index+1) {
     Cell cellsdiff = ginstps[inst_index+1]-ginstps[ip_at];
-    PrimNum p = N_noop-1+cellsdiff;
-    PrimInfo *pi = &priminfos[p];
     assert(opt_ip_updates > 0);
-    append_code(pi->start, pi->len1);
+    do {
+      Cell cellsdiff1 = cellsdiff;
+      if (cellsdiff1 > MAX_IP_UPDATE)
+        cellsdiff1 = MAX_IP_UPDATE;
+      {
+        PrimNum p = N_noop-1+cellsdiff1;
+        PrimInfo *pi = &priminfos[p];
+        append_code(pi->start, pi->len1);
+      }
+      cellsdiff -= cellsdiff1;
+    } while (cellsdiff>0);
     ip_at = inst_index+1;
   }
 }
@@ -1331,7 +1341,7 @@ static Address append_prim(PrimNum p)
   /* debugp(stderr, "Copy code %p<=%p,%d\n", code_here, pi->start, pi->length);*/
   old_code_here = code_here;
   if (opt_ip_updates>0) {
-    if (ci->imm_ops>0 || pi->superend) {
+    if (ci->imm_ops+1>ci->length || pi->superend) {
       inst_index += ci->length-1; /* -1 to correct for the +1 in: */
       if (opt_ip_updates>1) {
         long i;
@@ -1506,7 +1516,11 @@ static Cell compile_prim_dyn(PrimNum p)
 #ifndef NO_DYNAMIC
 static int cost_codesize(int prim)
 {
-  return priminfos[prim].length;
+  PrimInfo *pi = &priminfos[prim];
+  int cost =  pi->length;
+  if (opt_ip_updates>0)
+    cost -= pi->len1;
+  return cost;
 }
 #endif
 
