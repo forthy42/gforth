@@ -33,6 +33,7 @@
 	'-' of  0  endof
 	'+' of  1  endof
 	''' of  2  endof
+	'@' of  3  endof
 	drop 2drop ['] notfound  EXIT
     endcase  -rot
     2 /string forth-recognize
