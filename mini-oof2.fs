@@ -53,12 +53,12 @@ opt: drop @ postpone o#+ , ;
 : method ( m v "name" -- m' v ) \ mini-oof2
     \G Define a selector @var{name}; increments the number of selectors
     \G @var{m} (in bytes).
-    Header reveal method-xt hmcopy,  over , swap cell+ swap ;
+    method-xt create-from reveal  over , swap cell+ swap ;
 : var ( m v size "name" -- m v' ) \ mini-oof2
     \G define an instance variable with @var{size} bytes by the name
     \G @var{name}, and increments the amount of storage per instance @var{m}
     \G by @var{size}.
-    Header reveal    var-xt hmcopy,  over , dup , ( for sizeof ) + ;
+    var-xt    create-from reveal  over , dup , ( for sizeof ) + ;
 : class ( class -- class methods vars ) \ mini-oof2
     \G start a class definition with superclass @var{class}, putting the size
     \G of the methods table and instance variable space on the stack.
