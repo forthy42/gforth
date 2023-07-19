@@ -81,7 +81,7 @@ install_osx() {
   brew install --cask xquartz mactex
   export PATH="/Library/TeX/texbin:$PATH"
   brew link --overwrite gcc
-  export CC=gcc-11
+  for i in 11 12 13 14 15 16 17 18 19 20; do if type gcc-$i >/dev/null 2>/dev/null; then export CC=gcc-$i; fi; done
 #  (cd /usr/local/Cellar/gcc/8.2.0/lib/gcc/8/gcc/x86_64-apple-darwin17.7.0/8.2.0/include-fixed && mv stdio.h stdio.h.botched)
 }
 
@@ -125,7 +125,8 @@ case $BUILD_FROM in
 	;;
     *)
 	install_gforth
-	./install-swig.sh
+	./install-swig.sh "--prefix=$PWD/local"
+	export PATH="$PATH:$PWD/local/bin"
 	;;
 esac
 
