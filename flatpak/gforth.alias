@@ -6,3 +6,4 @@ alias gforth-itc.fp-gui="flatpak run --socket=x11 --device=dri --socket=pulseaud
 alias gforth-itc.fp-tui="flatpak run --filesystem=$PWD --command=gforth-itc org.gforth.gforth"
 alias gforth-ditc.fp-gui="flatpak run --socket=x11 --device=dri --socket=pulseaudio --filesystem=$PWD --command=gforth-ditc org.gforth.gforth"
 alias gforth-ditc.fp-tui="flatpak run --filesystem=$PWD --command=gforth-ditc org.gforth.gforth"
+alias swig.forth="flatpak run --filesystem=host --command=swig org.gforth.swig"

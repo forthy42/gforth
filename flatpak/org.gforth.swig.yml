@@ -9,4 +9,4 @@ modules:
     buildsystem: autotools
     sources:
       - type: git
-        url: https://github.com/GeraldWodni/swig.git
+        url: https://github.com/forthy42/swig.git
