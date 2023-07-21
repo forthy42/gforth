@@ -480,6 +480,17 @@ void throw(int code)
 #define LABEL2(name) K_##name: asm(ASMCOMMENT "K " #name);
 #define LABEL2_UU(name) K_##name: MAYBE_UNUSED asm(ASMCOMMENT "K " #name);
 
+#define LABEL1(name) L_##name:  MAYBE_UNUSED { \
+    asm(ASMCOMMENT "L " #name);  \
+    asm(ASMCOMMENT "L " #name);  \
+    asm(ASMCOMMENT "L " #name);  \
+    asm(ASMCOMMENT "L " #name);  \
+    asm(ASMCOMMENT "L " #name);  \
+    asm(ASMCOMMENT "L " #name);  \
+    asm(ASMCOMMENT "L " #name);  \
+    asm(ASMCOMMENT "L " #name);  \
+  }
+
 Label *gforth_engine(Xt *ip0 sr_proto)
 /* executes code at ip, if ip!=NULL
    returns array of machine code labels (for use in a loader), if ip==NULL
@@ -548,6 +559,9 @@ Label *gforth_engine(Xt *ip0 sr_proto)
 #include PRIM_LAB_I
 #undef INST_ADDR
     (Label)0,
+#define INST_ADDR(name) ((Label)&&L_##name)
+#include PRIM_LAB_I
+#undef INST_ADDR
 #define INST_ADDR(name) ((Label)&&K_##name)
 #include PRIM_LAB_I
 #undef INST_ADDR

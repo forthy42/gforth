@@ -36,27 +36,27 @@ super6 = lit !
 \ super8 = dup lit
 \ super9 = ! lit
 \ super10 = lit ! lit
-super11 = ! ;s
+\ super11 = ! ;s
 \ super12 = lit + @
 \ super14 = dup call
 super15 = useraddr @
-super16 = + @
+\ super16 = + @
 \ super17 = lit @ ?branch
-super18 = lit ! ;s
+\ super18 = lit ! ;s
 super19 = lit@ and
 \ super21 = lit lit !
 \ super22 = @ ?branch
 super23 = useraddr !
 \ super24 = dup ?branch
-super25 = @ ;s
+\ super25 = @ ;s
 super26 = lit@ +
-super27 = dup @
+\ super27 = dup @
 \ super28 = lit execute \ currently not supported
 super29 = o#+ @
 super30 = o#+ !
 super31 = lit f@
 super32 = lit f!
-super33 = noop flit
+\ super33 = noop flit
 super34 = lit+ @
 super35 = f@ f*
 super36 = f@ f+
@@ -321,6 +321,7 @@ csswaplstore = >r l>< r> l!
 \ \E prim-states x><
 
 
+\E ' noop is ip-update
 \E ' noop is output-nextp0
 \E ' noop is output-nextp1
 
