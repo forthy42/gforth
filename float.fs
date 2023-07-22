@@ -65,8 +65,13 @@
     1 floats small-allot f! ;
 
 : flit, ( r -- )
-    here cell+ dup faligned <> IF  postpone noop  THEN
-    postpone flit f, ;
+    [ cell 4 = ] [IF]
+	here cell+ dup faligned <>
+	IF  postpone flit1 0 ,  ELSE  postpone flit0  THEN
+    [ELSE]
+	postpone flit
+    [THEN]
+	f, ;
 : FLiteral ( compilation r -- ; run-time -- r ) \ floating f-literal
     \G Compile appropriate code such that, at run-time, @i{r} is placed
     \G on the (floating-point) stack. Interpretation semantics are undefined.

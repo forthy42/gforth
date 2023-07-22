@@ -46,6 +46,12 @@ get-current also see-voc definitions
 	THEN THEN
     float+ ;
 
+: c-flit0
+    c-flit ;
+
+: c-flit1
+    cell+ c-flit ;
+
 : c-f@local#
     Display? IF
 	S" f@local" ['] pri-color .string
@@ -70,6 +76,8 @@ get-current also see-voc definitions
 create c-extend1
 	' @local# A,        ' c-@local# A,
 [ifdef] flit ' flit A,      ' c-flit A, [then]
+[ifdef] flit0 ' flit0 A,    ' c-flit0 A, [then]
+[ifdef] flit1 ' flit1 A,    ' c-flit1 A, [then]
 	' f@local# A,       ' c-f@local# A,
 	' laddr# A,         ' c-laddr# A,
 	' lp+!# A,          ' c-lp+!# A,

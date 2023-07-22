@@ -2931,10 +2931,25 @@ n2 = n1 / sizeof(SFloat);
 
 f-rot	( r1 r2 r3 -- r3 r1 r2 )	floating	f_not_rote
 
-flit	( #wdummy -- r )   gforth-internal
-/* wdummy is there to mark this as a word with immediate arguments */
-r = *(Float*)(ip-1);
-INC_IP(sizeof(Float)/sizeof(Cell)-1);
+flit	( #w -- r )   gforth-internal
+/* For 64 bit systems: a float is just one word */
+union { Cell u; Float r; } cv;
+cv.u=w;
+r = cv.r;
+
+flit0	( #w0 #w1 -- r )   gforth-internal
+/* For 32 bit systems: a float is two words */
+union { struct { Cell a, b;} d; Float r; } cv;
+cv.d.a=w0;
+cv.d.b=w1;
+r=cv.r;
+
+flit1	( #wpadding #w0 #w1 -- r )   gforth-internal
+/* For 32 bit systems: a float is two words, padded for alignment */
+union { struct { Cell a, b;} d; Float r; } cv;
+cv.d.a=w0;
+cv.d.b=w1;
+r=cv.r;
 
 \+
 
