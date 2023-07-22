@@ -3134,6 +3134,7 @@ gforth_dlclose2(u);
 x! ( w c_addr -- )	gforth x_store
 ""Store the bottom 64 bits of @i{w} at @i{c_addr}.""
 union { Char c[8]; UOctabyte ob; } xstore;
+xstore.ob = w;
 c_addr[0] = xstore.c[0];
 c_addr[1] = xstore.c[1];
 c_addr[2] = xstore.c[2];
