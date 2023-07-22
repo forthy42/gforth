@@ -170,10 +170,10 @@ comp: drop ]] o ]wgref o> [[ ;
 comp: drop ]] o ]xref o> [[ ;
 
 : xref! ( xref addr -- )  dup @ ?dup-IF  ]xref  THEN ! ;
-: jvalue! ( xref xt -- )  >body xref! ;
-to-opt: >body postpone ALiteral postpone xref! ;
+to-table: xref!-table xref!
+' >body xref!-table to-method: j-to
 
-: JValue ( "name" -- ) 0 Value ['] jvalue! set-to ;
+: JValue ( "name" -- ) 0 Value ['] j-to set-to ;
 
 Variable cstring1
 
