@@ -165,5 +165,6 @@ e? os-type s" linux-musl" string-prefix? or [IF]
     getpagesize to pagesize
     (getpid) to getpid ; is 'cold
 
-:noname drop ->errno ; opt: drop ]] drop ->errno [[ ;
-' errno make-latest set-to hm,
+to-table: errno-table ->errno
+' drop errno-table to-method: to-errno
+' errno make-latest ' to-errno set-to hm,
