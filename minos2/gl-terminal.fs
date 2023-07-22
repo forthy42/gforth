@@ -425,14 +425,18 @@ s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
     >scroll-pos fdup 1e f= IF  scroll-dest f@ scroll-source f!  THEN
     fdup scroll-dest f@ f* 1e frot f- scroll-source f@ f* f+ screen-scroll ;
 
+: col>< ( addr -- )
+    dup w@ w>< swap w! ;
+
 : screen->gl ( -- )
     videomem 0= IF  resize-screen  THEN
     std-bg @ bg>clear clear
     terminal-program glUseProgram
     unit-matrix MVPMatrix set-matrix
-    gl-char' 2 + dup w@ w>< swap w!
+    gl-char' 2 + { cursor-addr }
+    cursor-addr col><
     draw-now
-    gl-char' 2 + dup w@ w>< swap w!
+    cursor-addr col><
     sync ;
 
 : show-cursor ( -- )  ?show 0= ?EXIT
