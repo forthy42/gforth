@@ -257,7 +257,7 @@ previous
     ['] edit-commit       is android-commit
     ['] edit-context-menu is android-context-menu ;
 : preserve ( "name" -- )
-    ' dup defer@ lit, (to), ; immediate
+    ' dup defer@ lit, 0 swap (to), ; immediate
 : leave-minos ( -- )
     edit-terminal edit-out !
     preserve android-touch
