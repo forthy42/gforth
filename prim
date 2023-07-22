@@ -3076,25 +3076,35 @@ fp=gforth_FP;
 
 w@ ( c_addr -- u )	gforth w_fetch
 ""@i{u} is the zero-extended 16-bit value stored at @i{c_addr}.""
-UWyde wy;
-memmove((Char*)&wy, c_addr, 2);
-u = wy;
+union { Char c[2]; UWyde wy; } wfetch;
+wfetch.c[0] = c_addr[0];
+wfetch.c[1] = c_addr[1];
+u = wfetch.wy;
 
 w! ( w c_addr -- )	gforth w_store
 ""Store the bottom 16 bits of @i{w} at @i{c_addr}.""
-UWyde wy=w;
-memmove(c_addr, (Char*)&wy, 2);
+union { Char c[2]; UWyde wy; } wstore;
+wstore.wy = w;
+c_addr[0] = wstore.c[0];
+c_addr[1] = wstore.c[1];
 
 l@ ( c_addr -- u )	gforth l_fetch
 ""@i{u} is the zero-extended 32-bit value stored at @i{c_addr}.""
-UTetrabyte tb;
-memmove((Char*)&tb, c_addr, 4);
-u = tb;
+union { Char c[4]; UTetrabyte tb; } lfetch;
+lfetch.c[0] = c_addr[0];
+lfetch.c[1] = c_addr[1];
+lfetch.c[2] = c_addr[2];
+lfetch.c[3] = c_addr[3];
+u = lfetch.tb;
 
 l! ( w c_addr -- )	gforth l_store
 ""Store the bottom 32 bits of @i{w} at @i{c_addr}.""
-UTetrabyte tb=w;
-memmove(c_addr, (Char*)&tb, 4);
+union { Char c[4]; UTetrabyte tb; } lstore;
+lstore.tb = w;
+c_addr[0] = lstore.c[0];
+c_addr[1] = lstore.c[1];
+c_addr[2] = lstore.c[2];
+c_addr[3] = lstore.c[3];
 
 lib-error ( -- c_addr u )       gforth  lib_error
 ""Error message for last failed @code{open-lib} or @code{lib-sym}.""
@@ -3123,15 +3133,28 @@ gforth_dlclose2(u);
 
 x! ( w c_addr -- )	gforth x_store
 ""Store the bottom 64 bits of @i{w} at @i{c_addr}.""
-UOctabyte ob=w;
-memmove(c_addr, (Char*)&ob, 8);
+union { Char c[8]; UOctabyte ob; } xstore;
+c_addr[0] = xstore.c[0];
+c_addr[1] = xstore.c[1];
+c_addr[2] = xstore.c[2];
+c_addr[3] = xstore.c[3];
+c_addr[4] = xstore.c[4];
+c_addr[5] = xstore.c[5];
+c_addr[6] = xstore.c[6];
+c_addr[7] = xstore.c[7];
 
 x@ ( c_addr -- u )	gforth x_fetch
 ""@i{u} is the zero-extended 64-bit value stored at @i{c_addr}.""
-UOctabyte ob;
-memmove((Char*)&ob, c_addr, 8);
-u = ob;
-
+union { Char c[8]; UOctabyte ob; } xfetch;
+xfetch.c[0] = c_addr[0];
+xfetch.c[1] = c_addr[1];
+xfetch.c[2] = c_addr[2];
+xfetch.c[3] = c_addr[3];
+xfetch.c[4] = c_addr[4];
+xfetch.c[5] = c_addr[5];
+xfetch.c[6] = c_addr[6];
+xfetch.c[7] = c_addr[7];
+u = xfetch.ob;
 
 \+
 
