@@ -433,6 +433,9 @@ void install_signal_handlers(void)
 #ifdef SIGTRAP
     SIGTRAP,
 #endif
+#ifdef SIGABRT
+    SIGABRT,
+#endif
   };
 
   static short sigs_to_quit [] = {
@@ -441,9 +444,6 @@ void install_signal_handlers(void)
 #endif
 #ifdef SIGHUP
     SIGHUP,
-#endif
-#ifdef SIGABRT
-    SIGABRT,
 #endif
 #ifdef SIGTERM
     SIGTERM,
@@ -504,6 +504,9 @@ void install_signal_handlers(void)
 #endif
 #ifdef SIGTRAP
   install_signal_handler(SIGTRAP, sigaction_throw);
+#endif
+#ifdef SIGABRT
+  install_signal_handler(SIGABRT, sigaction_throw);
 #endif
 #endif /* defined(SA_SIGINFO) */
 #ifdef SIGCONT
