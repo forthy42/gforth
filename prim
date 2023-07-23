@@ -3076,35 +3076,25 @@ fp=gforth_FP;
 
 w@ ( c_addr -- u )	gforth w_fetch
 ""@i{u} is the zero-extended 16-bit value stored at @i{c_addr}.""
-union { Char c[2]; UWyde wy; } wfetch;
-wfetch.c[0] = c_addr[0];
-wfetch.c[1] = c_addr[1];
-u = wfetch.wy;
+UWyde wy;
+memcpy((Char*)&wy, c_addr, 2);
+u = wy;
 
 w! ( w c_addr -- )	gforth w_store
 ""Store the bottom 16 bits of @i{w} at @i{c_addr}.""
-union { Char c[2]; UWyde wy; } wstore;
-wstore.wy = w;
-c_addr[0] = wstore.c[0];
-c_addr[1] = wstore.c[1];
+UWyde wy = w;
+memcpy(c_addr, (Char*)&wy, 2);
 
 l@ ( c_addr -- u )	gforth l_fetch
 ""@i{u} is the zero-extended 32-bit value stored at @i{c_addr}.""
-union { Char c[4]; UTetrabyte tb; } lfetch;
-lfetch.c[0] = c_addr[0];
-lfetch.c[1] = c_addr[1];
-lfetch.c[2] = c_addr[2];
-lfetch.c[3] = c_addr[3];
-u = lfetch.tb;
+UTetrabyte tb;
+memcpy((Char*)&tb, c_addr, 4);
+u = tb;
 
 l! ( w c_addr -- )	gforth l_store
 ""Store the bottom 32 bits of @i{w} at @i{c_addr}.""
-union { struct { Char a, b, c, d; } c4; UTetrabyte tb; } lstore;
-lstore.tb = w;
-c_addr[0] = lstore.c4.a;
-c_addr[1] = lstore.c4.b;
-c_addr[2] = lstore.c4.c;
-c_addr[3] = lstore.c4.d;
+UTetrabyte tb = w;
+memcpy(c_addr, (Char*)&tb, 4);
 
 lib-error ( -- c_addr u )       gforth  lib_error
 ""Error message for last failed @code{open-lib} or @code{lib-sym}.""
@@ -3133,29 +3123,14 @@ gforth_dlclose2(u);
 
 x! ( w c_addr -- )	gforth x_store
 ""Store the bottom 64 bits of @i{w} at @i{c_addr}.""
-union { Char c[8]; UOctabyte ob; } xstore;
-xstore.ob = w;
-c_addr[0] = xstore.c[0];
-c_addr[1] = xstore.c[1];
-c_addr[2] = xstore.c[2];
-c_addr[3] = xstore.c[3];
-c_addr[4] = xstore.c[4];
-c_addr[5] = xstore.c[5];
-c_addr[6] = xstore.c[6];
-c_addr[7] = xstore.c[7];
+UOctabyte ob = w;
+memcpy(c_addr, (Char*)&ob, 8);
 
 x@ ( c_addr -- u )	gforth x_fetch
 ""@i{u} is the zero-extended 64-bit value stored at @i{c_addr}.""
-union { Char c[8]; UOctabyte ob; } xfetch;
-xfetch.c[0] = c_addr[0];
-xfetch.c[1] = c_addr[1];
-xfetch.c[2] = c_addr[2];
-xfetch.c[3] = c_addr[3];
-xfetch.c[4] = c_addr[4];
-xfetch.c[5] = c_addr[5];
-xfetch.c[6] = c_addr[6];
-xfetch.c[7] = c_addr[7];
-u = xfetch.ob;
+UOctabyte ob;
+memcpy((Char*)&ob, c_addr, 8);
+u = ob;
 
 \+
 
@@ -3169,20 +3144,20 @@ xd! ( ud c_addr -- )	gforth x_d_store
 UTetrabyte tb[2];
 tb[0]=DHI(ud);
 tb[1]=DLO(ud);
-memmove(c_addr, (Char*)tb, 8);
+memcpy(c_addr, (Char*)tb, 8);
 #  else
 UTetrabyte tb[2];
 tb[1]=DHI(ud);
 tb[0]=DLO(ud);
-memmove(c_addr, (Char*)tb, 8);
+memcpy(c_addr, (Char*)tb, 8);
 #  endif
 # else
 UOctabyte ob=DLO(ud);
-memmove(c_addr, (Char*)&ob, 8);
+memcpy(c_addr, (Char*)&ob, 8);
 # endif
 #else
 UOctabyte ob=ud;
-memmove(c_addr, (Char*)&ob, 8);
+memcpy(c_addr, (Char*)&ob, 8);
 #endif
 
 xd@ ( c_addr -- ud )	gforth x_d_fetch
@@ -3190,7 +3165,7 @@ xd@ ( c_addr -- ud )	gforth x_d_fetch
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 UTetrabyte tb[2];
-memmove((Char*)tb, c_addr, 8);
+memcpy((Char*)tb, c_addr, 8);
 #  ifdef WORDS_BIGENDIAN
 D_IS(ud, tb[0], tb[1]);
 #  else
@@ -3198,12 +3173,12 @@ D_IS(ud, tb[1], tb[0]);
 #  endif
 # else
 UOctabyte ob;
-memmove((Char*)&ob, c_addr, 8);
+memcpy((Char*)&ob, c_addr, 8);
 D_IS(ud, 0, ob);
 # endif
 #else
 UOctabyte ob;
-memmove((Char*)&ob, c_addr, 8);
+memcpy((Char*)&ob, c_addr, 8);
 ud = ob;
 #endif
 
