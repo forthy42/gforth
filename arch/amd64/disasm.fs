@@ -86,6 +86,7 @@ Variable vvvv
 
 \ Strings                                              07feb93py
 Create "regs  ," axcxdxbxspbpsidi8 9 101112131415"
+Create "wregs  ," ax cx dx bx sp bp si di r8 r9 r10r11r12r13r14r15"
 Create "breg  ," al  cl  dl  bl  ah  ch  dh  bh  r8l r9l r10lr11lr12lr13lr14lr15l"
 Create "breg2 ," al  cl  dl  bl  spl bpl sil dil r8l r9l r10lr11lr12lr13lr14lr15l"
 Create "16ri ," bx+sibx+dibp+sibp+disi   di   bp   bx   "
@@ -98,7 +99,7 @@ Create grp3 ," testtestnot neg mul imuldiv idiv"
 Create grp4 ," inc  dec  call callfjmp  jmpf push g4?? "
 Create grp6  ," sldtstr lldtltr verrverwg6??g6??sgdtsidtlgdtlidtsmswg7??lmswg7??"
 Create grp8 ," ???? src"
-2 "regs c!      5 "16ri c!      5 "ptrs c!      2 "idx  c!
+2 "regs c!      3 "wregs c!     5 "16ri c!      5 "ptrs c!      2 "idx  c!
 2 "seg  c!      2 "seg1 c!      2 "jmp  c!      3 grp1  c!
 4 grp3  c!      5 grp4  c!      4 grp6  c!      1 grp8  c!
 4 "breg c!      4 "breg2 c!
@@ -124,7 +125,7 @@ Create grp8 ," ???? src"
     dup 7 <= IF  'r' 'e' w? select emit  ELSE  'r' emit  THEN  ;
 : .(reg ( n l -- )
     dup >r 0= IF  .regsize "regs ( " )  ELSE  r@ 2 = IF
-	    "breg2 "breg p? select  ELSE  "regs ( " ) THEN  THEN
+	    "breg2 "breg p? select  ELSE  "wregs ( " ) THEN  THEN
     over >r *." r> 7 > IF  case r@
 	    0 of  w? 0= IF 'd' emit  THEN  endof
 	    1 of  'w' emit                 endof
