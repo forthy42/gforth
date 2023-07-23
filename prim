@@ -3099,12 +3099,12 @@ u = lfetch.tb;
 
 l! ( w c_addr -- )	gforth l_store
 ""Store the bottom 32 bits of @i{w} at @i{c_addr}.""
-union { Char c[4]; UTetrabyte tb; } lstore;
+union { struct { Char a, b, c, d; } c4; UTetrabyte tb; } lstore;
 lstore.tb = w;
-c_addr[0] = lstore.c[0];
-c_addr[1] = lstore.c[1];
-c_addr[2] = lstore.c[2];
-c_addr[3] = lstore.c[3];
+c_addr[0] = lstore.c4.a;
+c_addr[1] = lstore.c4.b;
+c_addr[2] = lstore.c4.c;
+c_addr[3] = lstore.c4.d;
 
 lib-error ( -- c_addr u )       gforth  lib_error
 ""Error message for last failed @code{open-lib} or @code{lib-sym}.""
