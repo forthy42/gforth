@@ -22,7 +22,7 @@ dnl Process this file with autoconf to produce a configure script.
 #We use some automake macros here,
 #but don't use automake for creating Makefile.in
 AC_INIT([gforth],[0.7.9_20230720],[https://savannah.gnu.org/bugs/?func=addbug&group=gforth])
-AC_PREREQ([2.71])
+AC_PREREQ([2.69])
 AC_CONFIG_MACRO_DIR([m4])
 #snapshots have numbers major.minor.release_YYYYMMDD
 #note that lexicographic ordering must be heeded.
@@ -1292,14 +1292,7 @@ then
 fi
 # We need to keep this, as the warning for obsolescence requires to use
 # a too new autoconf for building on older systems
-m4_warn([obsolete],
-[The preprocessor macro `STDC_HEADERS' is obsolete.
-  Except in unusual embedded environments, you can safely include all
-  ISO C90 headers unconditionally.])dnl
-# Autoupdate added the next two lines to ensure that your configure
-# script's behavior did not change.  They are probably safe to remove.
-AC_CHECK_INCLUDES_DEFAULT
-AC_PROG_EGREP
+AC_HEADER_STDC
 
 # Replace this by
 #AC_CHECK_INCLUDES_DEFAULT
