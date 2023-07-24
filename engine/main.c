@@ -1923,7 +1923,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
       }
     } else {
 #if defined(GFORTH_DEBUGGING)
-      // assert(0);
+      assert(0);
 #endif
       tc= (Cell)vm_prims[super2[super_costs[ts[i]->inst[CANONICAL_STATE].inst].offset]];
     }
