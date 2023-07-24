@@ -156,6 +156,8 @@ signal_throw(int sig)
     sigprocmask(SIG_SETMASK, &emptyset, NULL);
   }
 #endif
+  if(*throw_jmp_handler == NULL)
+    graceful_exit(0x80|sig);
   throw(code);
 }
 
