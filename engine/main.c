@@ -1793,7 +1793,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 {
   int i,j;
   struct tpa_state *ts[ninsts+1];
-  int nextdyn, nextstate, startstate, no_transition;
+  int nextdyn, nextstate, startstate, no_transition, no_relocatable=0;
   Address old_code_area;
   ginstps = (Label **)instps;
   DynamicInfo *di = NULL;
@@ -1897,7 +1897,8 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	assert(p == origs[i]);
 #endif
 	tc2 = compile_prim_dyn(p);
-	if (no_transition || !is_relocatable(p)) {
+	no_relocatable = !is_relocatable(p);
+	if (no_transition || no_relocatable) {
 	  /* !! actually what we care about is if and where
 	   * compile_prim_dyn() puts NEXTs */
 	  tc=tc2;
@@ -1906,6 +1907,10 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	no_transition = ts[i]->inst[nextstate].no_transition;
 	nextstate = c->state_out;
 	nextdyn += c->length;
+	/* if the starter of a i<nextdyn sequence was non-relocatable,
+	 * the rest of the sequence needs to keep up ip_at */
+	if(no_relocatable)
+	  ip_at = nextdyn;
       }
       if (is_relocatable(p)) {
         di = add_dynamic_info();
