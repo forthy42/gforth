@@ -2864,14 +2864,16 @@ Xt gforth_find(Char * name)
 
 Cell winch_addr=0;
 
-void gforth_bootmessage()
+Cell gforth_bootmessage()
 {
+  Cell retval = -13;
   Xt bootmessage=gforth_find((Char*)"bootmessage");
   if(bootmessage != 0) {
-    gforth_execute(bootmessage);
+    retval = gforth_execute(bootmessage);
   } else {
     debugp(stderr, "Can't print bootmessage\n");
   }
+  return retval;
 }
 
 Cell gforth_start(int argc, char ** argv)
@@ -2899,8 +2901,9 @@ Cell gforth_main(int argc, char **argv, char **env)
   debugp(stderr, "Start returned %ld\n", retvalue);
 
   while(retvalue == -56) { /* throw-code for quit */
-    gforth_bootmessage();
-    retvalue = gforth_quit();
+    retvalue = gforth_bootmessage();
+    if(retvalue == -56)
+      retvalue = gforth_quit();
   }
   gforth_cleanup();
   gforth_printmetrics();

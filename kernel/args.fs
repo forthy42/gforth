@@ -40,8 +40,9 @@ require ./io.fs
     endif ;
 
 : #! ( -- ) \ gforth   hash-bang
-    \g An alias for @code{\}
-    postpone \ ;  immediate
+    \g An alias for @code{\}, which also changes @code{bootmessage} to
+    \g @code{bye} in script mode, which is useful for a non-interactive script.
+    script? IF  ['] bye is bootmessage  THEN  postpone \ ; immediate
 
 Create pathstring 2 cells allot \ string
 Create pathdirs   2 cells allot \ dir string array, pointer and count

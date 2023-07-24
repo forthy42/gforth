@@ -912,7 +912,7 @@ Variable rec-level
 
 : do-execute ( xt -- ) \ gforth-internal
     \G C calling us
-    execute ( catch dup IF  DoError cr  THEN ) 0 (bye) ;
+    execute ( catch dup IF  DoError cr  THEN ) -56 (bye) ;
 
 : do-find ( addr u -- )
     find-name dup IF  name>interpret  THEN  (bye) ;
