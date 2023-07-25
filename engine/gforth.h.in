@@ -116,7 +116,6 @@ extern Xt gforth_find(Char * name);
 extern Cell gforth_execute(Xt xt);
 extern void gforth_cleanup();
 extern void gforth_printmetrics();
-extern void gforth_setwinch();
 extern void gforth_setstacks(user_area * t);
 
 #ifdef __cplusplus

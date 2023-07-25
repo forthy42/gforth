@@ -515,7 +515,6 @@ Xt gforth_find(Char * name);
 Cell gforth_execute(Xt xt);
 void gforth_cleanup();
 void gforth_printmetrics();
-void gforth_setwinch();
 void gforth_setstacks(user_area * t);
 #if defined(DOUBLY_INDIRECT)
 Cell gforth_make_image(int debugflag);

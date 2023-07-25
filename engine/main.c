@@ -2900,7 +2900,7 @@ Cell gforth_main(int argc, char **argv, char **env)
   Cell retvalue=gforth_start(argc, argv);
   debugp(stderr, "Start returned %ld\n", retvalue);
 
-  while(retvalue == -56) { /* throw-code for quit */
+  if(retvalue == -56) { /* throw-code for quit */
     retvalue = gforth_bootmessage();
     if(retvalue == -56)
       retvalue = gforth_quit();
