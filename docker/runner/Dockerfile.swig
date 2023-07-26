@@ -4,7 +4,7 @@ ENV LANG C.UTF-8
 
 RUN apk add --no-cache pcre libstdc++ && apk add --no-cache --virtual \
     .build-deps build-base autoconf automake git coreutils gcc bison pcre-dev \
-    && git clone https://github.com/forthy42/swig.git && cd swig && \
+    && git clone https://github.com/GeraldWodni/swig.git && cd swig && \
     ./autogen.sh && ./configure --prefix=/usr --exec-prefix=/usr \
     --without-allegrocl --without-chicken --without-clisp --without-cffi \
     --without-csharp --without-d --without-go --without-guile --without-java \

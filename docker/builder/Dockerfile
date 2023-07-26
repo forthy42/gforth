@@ -11,7 +11,7 @@ RUN apt-get -y update \
   && apt-get clean
 RUN cd /tmp/ \
     && apt-get install -y yodl bison libpcre3-dev libboost-dev git g++ \
-    && git clone https://github.com/forthy42/swig.git \
+    && git clone https://github.com/GeraldWodni/swig.git \
     && cd swig \
     && ./autogen.sh \
     && ./configure --prefix=/usr --exec-prefix=/usr \

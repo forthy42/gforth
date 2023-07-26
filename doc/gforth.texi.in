@@ -18880,7 +18880,7 @@ and does nothing else.
 @cindex image file, turnkey applications
 So, if you want to make a turnkey image (i.e., an image for an
 application instead of an extended Forth system), you can do this in
-two ways:
+several ways:
 
 @itemize @bullet
 
@@ -18894,7 +18894,16 @@ options.  You can then do your own command-line processing with
 
 @item
 If you want to have the normal Gforth processing of OS command-line
-arguments, hook into @code{bootmessage}.
+arguments, but specify your own command-line options, hook into
+@code{process-option}.
+
+@item
+If you want to have more options in addition to the ones that come with
+Gforth, define words into the @code{options} vocabulary.
+
+@item
+If you want to display your own boot message, hook into
+@code{bootmessage}.
 
 @end itemize
 
@@ -18905,6 +18914,8 @@ present the Forth command line to the user.
 
 doc-'cold
 doc-bootmessage
+doc-'quit
+doc-process-option
 
 @c ******************************************************************
 @node Engine, Cross Compiler, Image Files, Top

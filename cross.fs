@@ -3349,6 +3349,13 @@ hm: [G'] to:, gset-optimizer
 Builder (Constant)
 Build:  ( n -- ) ;Build
 by: :docon ( target-body-addr -- n ) T @ H ;DO
+compile: g>body compile lit T @ , H ;compile
+hm: [G'] constant, gset-optimizer ;hm
+
+Builder (AConstant)
+Build:  ( n -- ) ;Build
+by: :doacon ( target-body-addr -- n ) T @ H ;DO
+compile: g>body compile lit T @ A, H ;compile
 hm: [G'] constant, gset-optimizer ;hm
 
 Builder Constant
@@ -3357,7 +3364,7 @@ by (Constant)
 
 Builder AConstant
 Build:  ( n -- ) T A, H ;Build
-by (Constant)
+by (AConstant)
 
 Builder 2Constant
 Build:  ( d -- ) T , , H ;Build
@@ -3674,9 +3681,6 @@ T has? ec H [IF]
 \ and constant!!
 \ Builder (Constant)
 \ compile: g>body X @ lit, ;compile
-
-Builder (Constant)
-compile: g>body compile lit@ T a, H ;compile
 
 Builder (Value)
 compile: g>body compile lit@ T a, H ;compile

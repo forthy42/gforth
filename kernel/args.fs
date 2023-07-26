@@ -40,9 +40,8 @@ require ./io.fs
     endif ;
 
 : #! ( -- ) \ gforth   hash-bang
-    \g An alias for @code{\}, which also changes @code{bootmessage} to
-    \g @code{bye} in script mode, which is useful for a non-interactive script.
-    script? IF  ['] bye is bootmessage  THEN  postpone \ ; immediate
+    \g An alias for @code{\}
+    postpone \ ; immediate
 
 Create pathstring 2 cells allot \ string
 Create pathdirs   2 cells allot \ dir string array, pointer and count
@@ -104,7 +103,9 @@ Variable argc ( -- addr ) \ gforth
 	2drop next-arg args-evaluate  true  exit endif
     false ;
 
-Defer process-option
+Defer process-option ( addr u -- true / addr u false ) \ gforth
+\G Process an option @var{addr u}, return true, if the option is
+\G processed; unprocessed options are loaded as files throu @code{required}.
 ' (process-option) IS process-option
 
 : (process-args) ( -- )
