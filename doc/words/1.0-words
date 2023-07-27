@@ -43,22 +43,23 @@ check-set-logging-syntax .enabled gdb-set-logging-syntax check-addr-sep-char
 end-debug# Unnest Nesting nestXT nestXT-checkSpecial Body restore-bp set-bp DT 
 BP breaker breaker-size DebugLoop jump get-next disp-step Leave-D NoFine d.s 
 .n scanword restore-see-flags save-see-flags simple-see-word see-word.addr 
-xt-range c-extend1 c-lp+!# c-laddr# c-f@local# c-flit c-@local# c-branch-lp+!# 
-c-?branch-lp+!# c-loop#-lp+!# c-loop-lp+!# umethod? seeumethod seefield seecol 
-seedoes see-threaded seedefer seevalue seecon seeuser seevar see;abicode 
-seeabicode seecode makepass c-init analyse BranchTo? DoTable c-extender 
-C-Table c-user@ search-userval c-useraddr c-searcharg search-uservar 
-?type-found c-call-c# c-u#+ c-u#exec c-u#gen search-u#gen u#what c-abort" 
-c-exit c-?do c-do c-loop# c-loop c-for c-?dup-?branch c-?branch DebugBranch 
-c-branch RepeatCheck Forward? c-string? c-c" id.-without c-lit@ c-lit+ c-lit 
-c>lit c-. c># c-callxt c-call .word back? Branch! Type! ,Branch CheckWhile 
-MyBranch CheckEnd MoreBranchAddr? BranchAddr? (BranchAddr?) FirstBranch 
-MaxTable BranchTable SearchPointer BranchPointer Branches C-Stop LeaveCode 
-Disable WhileCode2 AheadCode ElseCode LoopCode UntilCode AgainCode RepeatCode 
-.struc struct-pre c-lits ?.string Debug? Display? Scan? DebugMode DisplayMode 
-ScanMode C-Pass NoOutput c-\type c-\emit (.string) .string next-prim next-head 
-.defname xt-see-xt cemit ctype warp? (nl) nl nlcount uppercase nlflag level- 
-level+ Format Level YPos XPos C-Clearline C-Highlight C-Formated C-Output 
+xt-range c-extend1 c-lp+!# c-laddr# c-f@local# c-flit1 c-flit0 c-flit 
+c-@local# c-branch-lp+!# c-?branch-lp+!# c-loop#-lp+!# c-loop-lp+!# umethod? 
+seeumethod seefield seecol seedoes see-threaded seedefer seevalue seecon 
+seeuser seevar see;abicode seeabicode seecode makepass c-init analyse 
+BranchTo? DoTable c-extender C-Table c-user@ search-userval c-useraddr 
+c-searcharg search-uservar ?type-found c-call-c# c-u#+ c-u#exec c-u#gen 
+search-u#gen u#what c-abort" c-exit c-?do c-do c-loop# c-loop c-for 
+c-?dup-?branch c-?branch DebugBranch c-branch RepeatCheck Forward? c-string? 
+c-c" id.-without c-lit@ c-lit+ c-lit c>lit c-. c># c-callxt c-call .word back? 
+Branch! Type! ,Branch CheckWhile MyBranch CheckEnd MoreBranchAddr? BranchAddr? 
+(BranchAddr?) FirstBranch MaxTable BranchTable SearchPointer BranchPointer 
+Branches C-Stop LeaveCode Disable WhileCode2 AheadCode ElseCode LoopCode 
+UntilCode AgainCode RepeatCode .struc struct-pre c-lits ?.string Debug? 
+Display? Scan? DebugMode DisplayMode ScanMode C-Pass NoOutput c-\type c-\emit 
+(.string) .string next-prim next-head .defname xt-see-xt cemit ctype warp? 
+(nl) nl nlcount uppercase nlflag level- level+ Format Level YPos XPos 
+C-Clearline C-Highlight C-Formated C-Output 
 X:xchar X:traverse-wordlist X:throw-iors X:text-substitution X:synonym 
 X:structures X:s-to-f X:s-escape-quote X:required X:parse-name 
 X:number-prefixes X:n-to-r X:locals X:fvalue X:ftrunc X:fp-stack 
@@ -4510,68 +4511,69 @@ e$, elit, :>flit :>lit thread-deadline pause event-loop stop-dns stop-ns stop
 event+ 'event event-start eventbuf# event# !!ebuffull!! !!event!! execute-task 
 stacksize4 stacksize >pagealign-stack c-section critical-section unlock lock 
 cond sema semaphore initiate pass (pass) activate (activate) task newtask 
-newtask4 thread-init 's up@ user' wake# epipew epiper pthread-id fork+exec 
-fpid fork() getpid fd>file int-errno-exec saved-errno ?ior ?errno-throw 
-errno-throw fds[]! fds!+ LC_IDENTIFICATION LC_MEASUREMENT LC_TELEPHONE 
-LC_ADDRESS LC_NAME LC_PAPER LC_ALL LC_MESSAGES LC_MONETARY LC_COLLATE LC_TIME 
-LC_NUMERIC LC_CTYPE POLLOUT POLLPRI POLLIN revents events fd pollfd pagesize 
-environ unsetenv setenv getrandom getentropy strlen getcwd mkstemp mknod rmdir 
-readlink link symlink exit() execvp (fork) (getpid) setlocale close write read 
-open ioctl2 ioctl fcntl freopen fdopen posix_spawnp epoll_wait epoll_ctl 
-epoll_create ppoll poll fileno getpagesize ->errno errno pthread_self 
-stick-to-core wait_read check_read create_pipe pthread_cond_timedwait 
-pthread_cond_wait pthread_cond_broadcast pthread_cond_signal 
-pthread_detach_attr sched_yield pthread-conds pthread-cond+ pthread-mutexes 
-pthread-mutex+ pthread_mutex_unlock pthread_mutex_lock pthread_mutex_destroy 
-pthread_mutex_init pthread_cancel pthread_kill pthread_exit pthread_create 
-gforth_create_thread thread_start pthreads pthread+ forth-lx x" locale-csv-out 
-.locale-csv locale-csv insert-locale csv-lsid define-locale lang[] lang 
-include-locale included-locale locale-file locale! locale@ Country Language 
-locale default-locale .lsids LU" L" LLiteral ?new-lsid new-lsid $l, 
-search-lsid native@ lsid# lsids compsem: intsem: set-compsem .quoted-csv 
-read-csv csv-read-loop csv-line next-csv $csv-item next-field un-dquote 
-unquote unquote-end unquote-start quote-state csv-quote csv-separator hamming 
-rfft fft normalize fftscale (fft fft-step butterflies butterfly z2dup+ 
-.rvalues .expix .values points realloc #points reverse r+ expix values Carray 
-rec-complex translate-complex zliteral z.s z. fc. zacot zatan zacos zasin pi/2 
-zacoth zatanh zacosh zasinh Im Re Imag Real ztan zcos zsin ztanh zcosh zsinh 
-zfib phi z** zsqrt z0= zln pln zexp polar> >polar z2* z2/ zabs |z| z/ 1/z 
-zsqabs z/i z*i zconj znegate zscale z* x- x+ zr- z- z+ ZVarue za-to z!a-table 
-ZValue z-to ZVariable some-zalocal some-zlocal compile-z@local 
-compile-pushlocal-z to-za: to-z: z!a-table z!-table z+! z! z@ z-rot zrot 
-zdepth zpick zswap zr> z>r zover zdrop zdup fl> complex+ complex' //g //o //s 
->> s// >>rest >>next >>string0 >>string@ <<" << s>> >>string <<ptr >>ptr \9 \8 
-\7 \6 \5 \4 \3 \2 \1 \:s \: \0 \) \( }} || {{ THENs // +} *} {* {+ ++} **} {++ 
-{** drops )) (( =" ,=" str=? (str=?) \$ \^ >last rest$ ?end start-rex? 
-end-rex? !end start$ last$ end$ greed' greed-counts var> >var varsmax varstack 
-vars DONE, BEGIN, >loops loops> loops -` `? ` -\s -\d .? \s \d any letter 
-blanks digit -c? c? char? -class +class and! +chars ..char -char +char 
-charclass cur-class @+ -bit +bit JOIN FORK object :: new defines end-class 
-class var method interface interface-does> object bind static dynamic o[] o> 
->o o@ ^ ostack Objects 8aligned define? heap-new dict-new xt-new init-object 
-object equal print construct [parent] [current] current' [bind] bind bind' 
-<bind> [to-inst] <to-inst> inst-value do-inst-value inst-var do-inst-var 
-inst-something catch ;m exitm :m m: enterm to-this this implementation 
-front-extend-mem end-class end-class-noname end-methods drop-order 
-class-previous remove-class-order class methods push-order class>order 
-add-class-order public protected public-wordlist end-interface 
-end-interface-noname interface last-interface-offset overrides class-override! 
-unique-interface-map class->map interface-override! selector method 
-do-interface-method do-class-method no-method current-interface selector% 
-selector-interface selector-offset class% class-inst-size class-wordlist 
-class-parent interface% interface-offset interface-map-offset interface-map 
-object% object-map heap>dict disasm disline disassembler &of addr default-w: 
-default-wa: to-fa: to-ca: to-da: to-xta: to-wa: fvarue dummy-fvarue fvarue-to 
-2varue dummy-2varue 2varue-to Varue dummy-varue varue-to f!a-table c!a-table 
-2!a-table defera-table !a-table marker marker! marker, sections-marker! 
-sections-marker, included-files-mark .unresolved auto-resolve is-forward? 
-forward unfixed-forward unresolved-forward-error forward-needs-: 
-unresolved-forward fancy-after-l whereg delete-whereg whereg-filename s` 
-sh-get sh$ plain-output plain-out plain-form help help-section help-word 
-open-doc set-help-view count-lfs doc-file# unused-words unused-wordlist 
-unused@ unmark-used unused-all -unused +unused .wids unused-mask usage# browse 
-(browse) browse-results bw nw ww where-</> where-index-- where-index++ (ww) 
-where prepend-where expand-where short-where where-reset where-setup (where) 
+newtask4 thread-init 's up@ user' wake# epipew epiper pthread-id to-errno 
+errno-table fork+exec fpid fork() getpid fd>file int-errno-exec saved-errno 
+?ior ?errno-throw errno-throw fds[]! fds!+ LC_IDENTIFICATION LC_MEASUREMENT 
+LC_TELEPHONE LC_ADDRESS LC_NAME LC_PAPER LC_ALL LC_MESSAGES LC_MONETARY 
+LC_COLLATE LC_TIME LC_NUMERIC LC_CTYPE POLLOUT POLLPRI POLLIN revents events 
+fd pollfd pagesize environ unsetenv setenv getrandom getentropy strlen getcwd 
+mkstemp mknod rmdir readlink link symlink exit() execvp (fork) (getpid) 
+setlocale close write read open ioctl2 ioctl fcntl freopen fdopen posix_spawnp 
+epoll_wait epoll_ctl epoll_create ppoll poll fileno getpagesize ->errno errno 
+pthread_self stick-to-core wait_read check_read create_pipe 
+pthread_cond_timedwait pthread_cond_wait pthread_cond_broadcast 
+pthread_cond_signal pthread_detach_attr sched_yield pthread-conds 
+pthread-cond+ pthread-mutexes pthread-mutex+ pthread_mutex_unlock 
+pthread_mutex_lock pthread_mutex_destroy pthread_mutex_init pthread_cancel 
+pthread_kill pthread_exit pthread_create gforth_create_thread thread_start 
+pthreads pthread+ forth-lx x" locale-csv-out .locale-csv locale-csv 
+insert-locale csv-lsid define-locale lang[] lang include-locale 
+included-locale locale-file locale! locale@ Country Language locale 
+default-locale .lsids LU" L" LLiteral ?new-lsid new-lsid $l, search-lsid 
+native@ lsid# lsids compsem: intsem: set-compsem .quoted-csv read-csv 
+csv-read-loop csv-line next-csv $csv-item next-field un-dquote unquote 
+unquote-end unquote-start quote-state csv-quote csv-separator hamming rfft fft 
+normalize fftscale (fft fft-step butterflies butterfly z2dup+ .rvalues .expix 
+.values points realloc #points reverse r+ expix values Carray rec-complex 
+translate-complex zliteral z.s z. fc. zacot zatan zacos zasin pi/2 zacoth 
+zatanh zacosh zasinh Im Re Imag Real ztan zcos zsin ztanh zcosh zsinh zfib phi 
+z** zsqrt z0= zln pln zexp polar> >polar z2* z2/ zabs |z| z/ 1/z zsqabs z/i 
+z*i zconj znegate zscale z* x- x+ zr- z- z+ ZVarue za-to z!a-table ZValue z-to 
+ZVariable some-zalocal some-zlocal compile-z@local compile-pushlocal-z to-za: 
+to-z: z!a-table z!-table z+! z! z@ z-rot zrot zdepth zpick zswap zr> z>r zover 
+zdrop zdup fl> complex+ complex' //g //o //s >> s// >>rest >>next >>string0 
+>>string@ <<" << s>> >>string <<ptr >>ptr \9 \8 \7 \6 \5 \4 \3 \2 \1 \:s \: \0 
+\) \( }} || {{ THENs // +} *} {* {+ ++} **} {++ {** drops )) (( =" ,=" str=? 
+(str=?) \$ \^ >last rest$ ?end start-rex? end-rex? !end start$ last$ end$ 
+greed' greed-counts var> >var varsmax varstack vars DONE, BEGIN, >loops loops> 
+loops -` `? ` -\s -\d .? \s \d any letter blanks digit -c? c? char? -class 
++class and! +chars ..char -char +char charclass cur-class @+ -bit +bit JOIN 
+FORK object :: new defines end-class class var method interface 
+interface-does> object bind static dynamic o[] o> >o o@ ^ ostack Objects 
+8aligned define? heap-new dict-new xt-new init-object object equal print 
+construct [parent] [current] current' [bind] bind bind' <bind> [to-inst] 
+<to-inst> inst-value do-inst-value inst-var do-inst-var inst-something catch 
+;m exitm :m m: enterm to-this this implementation front-extend-mem end-class 
+end-class-noname end-methods drop-order class-previous remove-class-order 
+class methods push-order class>order add-class-order public protected 
+public-wordlist end-interface end-interface-noname interface 
+last-interface-offset overrides class-override! unique-interface-map 
+class->map interface-override! selector method do-interface-method 
+do-class-method no-method current-interface selector% selector-interface 
+selector-offset class% class-inst-size class-wordlist class-parent interface% 
+interface-offset interface-map-offset interface-map object% object-map 
+heap>dict disasm disline disassembler &of addr default-w: default-wa: to-fa: 
+to-ca: to-da: to-xta: to-wa: fvarue dummy-fvarue fvarue-to 2varue dummy-2varue 
+2varue-to Varue dummy-varue varue-to f!a-table c!a-table 2!a-table 
+defera-table !a-table marker marker! marker, sections-marker! sections-marker, 
+included-files-mark .unresolved auto-resolve is-forward? forward 
+unfixed-forward unresolved-forward-error forward-needs-: unresolved-forward 
+fancy-after-l whereg delete-whereg whereg-filename s` sh-get sh$ plain-output 
+plain-out plain-form help help-section help-word open-doc set-help-view 
+count-lfs doc-file# unused-words unused-wordlist unused@ unmark-used 
+unused-all -unused +unused .wids unused-mask usage# browse (browse) 
+browse-results bw nw ww where-</> where-index-- where-index++ (ww) where 
+prepend-where expand-where short-where where-reset where-setup (where) 
 forwheres .whereview1 .whereline .wheretype1 width-type type-notabs unbounds 
 bt nt tt bt-</> backtrace-- backtrace++ backtrace# bt-location gg g-once ll 
 l-once next-l|g l|g edit g extern-g b n view locate .rec'-stack locate-name 
@@ -4866,35 +4868,36 @@ decompile-prim2 decompile-prim forget-dyncode finish-code compile-prim1
 barrier ?!@ +!@ !@ u8@+? log2 >pow2 l>s w>s c>s xd>< x>< l>< w>< xd@ xd! x@ x! 
 close-lib2 close-lib lib-error l! l@ w! w@ wcall lib-sym2 lib-sym open-lib2 
 open-lib ffourth fthird fpick f>l >l lp! lp+2 lp+ lp- lp+!# laddr# f@local1 
-f@local0 f@local# @local3 @local2 @local1 @local0 @local# flit f-rot sfloat/ 
-dfloat/ float/ >float1 faxpy v* dfaligned sfaligned dfloats sfloats fatanh 
-facosh fasinh ftanh fcosh fsinh ftan fsqrt fsincos fsin falog flog flnp1 fln 
-fexpm1 fexp fcos fatan2 fatan fasin facos fabs >float represent fmin fmax 
-fround floor floats float+ ftuck fnip frot fover fswap fdup fdrop fnegate f**2 
-fm*/ fm/ fm* f** f/ f* f- f+ sf! sf@ df! df@ f@ f! f>s f>d d>f s>f f0>= f0<= 
-f0> f0< f0<> f0= f>= f<= f> f< f<> f= (ns) ntime cputime utime newline =mkdir 
-get-dir set-dir filename-match close-dir read-dir open-dir file-eof? 
-file-status flush-file emit-file write-file (read-line) read-file resize-file 
-file-size reposition-file file-position rename-file delete-file create-file 
-open-file close-file winch? gforth-pointers call-c# call-c strsignal strerror 
-heap-resize heap-free heap-allocate (ms) >time&date&tz close-pipe open-pipe 
-getenv (system) (bye) flush-icache wcwidth isfg isatty (form) term-prep? 
-stderr stdout stdin key?-file (key-file) debugging-method threading-method 
-faligned aligned skip scan (parse-white) hashkey2 (hashkey2) (hashkey1) 
-(tablelfind) (hashlfind) (listlfind) inc# cell- cell/ count char+ cells cell+ 
-2@ 2! c! c@ +! ! lit@ @ sps@ user@ 2tuck 2nip 2rot 2swap 2over 2dup 2drop 
-fourth third pick ?dup tuck nip -rot rot dup swap drop over 2rdrop 2r@ 2r> 2>r 
-rdrop r> >r fp! fp@ rp! rp@ sp! sp@ up! useraddr within du>= du<= du> du< du<> 
-du= d0>= d0<= d0> d0< d0<> d0= d>= d<= d> d< d<> d= u>= u<= u> u< u<> u= >= <= 
-> < <> = 0>= 0<= 0> 0< 0<> 0= darshift arshift u*/ u*/mod u/mod umod u/ du/mod 
-dror drol lror lrol wror wrol ror rol drshift dlshift select mux umin umax 
-lshift rshift invert xor or and d2/ d2* dnegate d- d+ m+ /modf-stage2m 
-modf-stage2m /f-stage2m u/mod-stage2m umod-stage2m u/-stage2m um/mod um* m* 
-sm/rem fm/mod 2/ 2* */s */mods /mods mods /s */f */modf /modf modf /f * abs 
-min max 1- 1+ negate - under+ lit+ + lit safe/string /string capscompare 
-toupper compare fill cmove> cmove move k j i' i fast-throw uncatch (try) 
-(u-do) (-do) (u+do) (+do) (?do) (do) (for) (s+loop)-lp+!# (s+loop) 
+f@local0 f@local# @local3 @local2 @local1 @local0 @local# flit1 flit0 flit 
+f-rot sfloat/ dfloat/ float/ >float1 faxpy v* dfaligned sfaligned dfloats 
+sfloats fatanh facosh fasinh ftanh fcosh fsinh ftan fsqrt fsincos fsin falog 
+flog flnp1 fln fexpm1 fexp fcos fatan2 fatan fasin facos fabs >float represent 
+fmin fmax fround floor floats float+ ftuck fnip frot fover fswap fdup fdrop 
+fnegate f**2 fm*/ fm/ fm* f** f/ f* f- f+ sf! sf@ df! df@ f@ f! f>s f>d d>f 
+s>f f0>= f0<= f0> f0< f0<> f0= f>= f<= f> f< f<> f= (ns) ntime cputime utime 
+newline =mkdir get-dir set-dir filename-match close-dir read-dir open-dir 
+file-eof? file-status flush-file emit-file write-file (read-line) read-file 
+resize-file file-size reposition-file file-position rename-file delete-file 
+create-file open-file close-file winch? gforth-pointers call-c# call-c 
+strsignal strerror heap-resize heap-free heap-allocate (ms) >time&date&tz 
+close-pipe open-pipe getenv (system) (bye) flush-icache wcwidth isfg isatty 
+(form) term-prep? stderr stdout stdin key?-file (key-file) debugging-method 
+threading-method faligned aligned skip scan (parse-white) hashkey2 (hashkey2) 
+(hashkey1) (tablelfind) (hashlfind) (listlfind) inc# cell- cell/ count char+ 
+cells cell+ 2@ 2! c! c@ +! ! lit@ @ sps@ user@ 2tuck 2nip 2rot 2swap 2over 
+2dup 2drop fourth third pick ?dup tuck nip -rot rot dup swap drop over 2rdrop 
+2r@ 2r> 2>r rdrop r> >r fp! fp@ rp! rp@ sp! sp@ up! useraddr within du>= du<= 
+du> du< du<> du= d0>= d0<= d0> d0< d0<> d0= d>= d<= d> d< d<> d= u>= u<= u> u< 
+u<> u= >= <= > < <> = 0>= 0<= 0> 0< 0<> 0= darshift arshift u*/ u*/mod u/mod 
+umod u/ du/mod dror drol lror lrol wror wrol ror rol drshift dlshift select 
+mux umin umax lshift rshift invert xor or and d2/ d2* dnegate d- d+ m+ 
+/modf-stage2m modf-stage2m /f-stage2m u/mod-stage2m umod-stage2m u/-stage2m 
+um/mod um* m* sm/rem fm/mod 2/ 2* */s */mods /mods mods /s */f */modf /modf 
+modf /f * abs min max 1- 1+ negate - under+ lit+ + lit safe/string /string 
+capscompare toupper compare fill cmove> cmove move k j i' i fast-throw uncatch 
+(try) (u-do) (-do) (u+do) (+do) (?do) (do) (for) (s+loop)-lp+!# (s+loop) 
 (/loop)#-lp+!# (/loop)# (-loop)-lp+!# (-loop) (+loop)-lp+!# (+loop) 
 (loop)-lp+!# (loop) (next)-lp+!# (next) ?dup-0=-?branch ?dup-?branch 
 ?branch-lp+!# ?branch branch branch-lp+!# does-xt lit-perform unloop 
-execute-;s ;s perform execute call noop 
+execute-;s ;s perform execute call noop16 noop15 noop14 noop13 noop12 noop11 
+noop10 noop9 noop8 noop7 noop6 noop5 noop4 noop3 noop2 noop 

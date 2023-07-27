@@ -47,8 +47,8 @@ ARM64:
  0.091 0.088  0.053 0.080 0.040 20220707; Apple M1 Firestorm 3000MHz; gcc-11.3.0
  0.126 0.179  0.079 0.118 0.052 20230622; Rock 5B RK3588 A76 2231MHz; gcc-6.3.0 (Debian 9)
  0.136 0.155  0.081 0.147 0.081 20220707; Apple M1 Icestorm 2064MHz; gcc-11.3.0
- 0.144 0.176  0.080 0.148 0.076 2017-11-08; Samsung Exynos 8859, M1 core, 2,31GHz, gcc 4.9 (Android 7.1.1) 
- 0.152 0.176  0.084 0.164 0.080 20210422; Odroid N2+ (2400MHz Cortex-A73), gcc-9.3.0
+ 0.128 0.176  0.060 0.116 0.076 20130726; Samsung Exynos 8859, M1 core, 2,31GHz, gcc 4.9 (Android 9)
+ 0.152 0.168  0.064 0.152 0.068 20230726; Odroid N2+ (2400MHz Cortex-A73), gcc-11.3.0
  0.180 0.224  0.108 0.208 0.100 20190124; Odroid N2 (1800MHz Cortex-A73), gcc-6.3.0
  0.204 0.232  0.108 0.212 0.100 20190124; RockPro64 (1800MHz Cortex-A72), gcc-6.3.0 (Debian 9)
  0.241 0.262  0.163 0.320 0.173 20230622; Rock 5B RK3588 A55 1800MHz; gcc-6.3.0 (Debian 9)
@@ -76,6 +76,7 @@ ARM Cortex-A9:
  sieve bubble matrix fib   fft  release; CPU; gcc
  0.410 0.520  0.260 0.635 0.280 2016-01-13; Exynos 4 Quad 1.6GHz; gcc-4.8.x (Android 4.4.2)
  0.405 0.525  0.275 0.560 0.295 2014-10-31; Exynos 4 Quad 1.6GHz; gcc-4.8.x (Android 4.4.2)
+ 0.570 0.570  0.380 0.690 0.380 20130726; Freescale i.MX6 Quad/DualLite 1.2GHz; gcc-4.9.2 -marm (Debian)
  0.560 0.640  0.340 0.860 0.410 2016-01-13; Freescale i.MX6 Quad/DualLite 1.2GHz; gcc-4.9.2 -mthumb (Debian)
  0.520 0.680  0.390 0.780 0.410 2014-10-31; Freescale i.MX6 Quad/DualLite 1.2GHz; gcc-4.9.1 -mthumb (Debian)
  0.480 0.670  0.390 0.730 0.390 2014-10-31; Freescale i.MX6 Quad/DualLite 1.2GHz; gcc-4.9.1 -marm (Debian)
