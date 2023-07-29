@@ -117,12 +117,17 @@ forth definitions
     r> >namehm @ swap !
     pop-locals ;
 
+[IFUNDEF] :level
+    Variable :level
+[THEN]
+
 : closure-:-hook ( sys -- sys addr xt n )
     \ addr is the nfa of the defined word, xt its xt
     ['] here locals-headers latest latestnt
     clear-leave-stack
     dead-code off
-    defstart ;
+    defstart
+    1 :level +! ;
 
 : closure> ( hmaddr -- addr ) \ gforth-internal closure-end
     \G create trampoline head

@@ -415,9 +415,11 @@ synonym sleep halt ( task -- )
 
 \ User deferred words, user values
 
-: >uvalue ( xt -- addr )
-    >body @ next-task + ;
-to-opt: >body @ postpone useraddr , ;
+[IFUNDEF] >uvalue
+    : >uvalue ( xt -- addr )
+	>body @ next-task + ;
+    to-opt: >body @ postpone useraddr , ;
+[THEN]
 
 ' >uvalue defer-table to-method: udefer-to
 

@@ -358,3 +358,16 @@ Variable rec'[]
     ." >comp:   " dup >hm>comp    @ .name? cr
     ." >string: " dup >hm>string  @ .name? cr
     ." >link:   "     >hm>link    @ .name? ;
+
+\ warn on compiling into space outside colon definitions
+
+[IFUNDEF] :level
+    Variable :level
+[THEN]
+
+:noname defers :-hook 1 :level +! ; is :-hook
+:noname defers ;-hook2 -1 :level +! ; is ;-hook2
+:noname defers reset-dpp :level off ; is reset-dpp
+: level-check defers prim-check
+    :level @ 0<= warning" Compiling outside a definition" ;
+' level-check is prim-check

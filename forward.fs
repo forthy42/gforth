@@ -45,8 +45,10 @@ s" forward must be resolved with :" exception constant forward-needs-:
     \g resolves the forward references.  Use @code{.unresolved} to
     \g check whether any forwards are unresolved.
     defer ['] unresolved-forward-error lastxt defer!
+    1 :level +!
     ['] branch peephole-compile, ['] unfixed-forward >body ,
-    [: ['] call peephole-compile, >body cell+ , ;] set-optimizer ;
+    [: ['] call peephole-compile, >body cell+ , ;] set-optimizer
+    -1 :level +! ;
 
 : is-forward? ( xt -- f )
     \ f is true if xt is an unresolved forward definition

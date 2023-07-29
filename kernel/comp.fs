@@ -785,6 +785,7 @@ opt: ?fold-to 0 swap (to), ;
 
 defer :-hook ( sys1 -- sys2 ) ' clear-litstack is :-hook
 defer ;-hook ( sys2 -- sys1 )
+defer ;-hook2 ( sys2 -- sys1 )
 defer 0-adjust-locals-size ( -- )
 
 1 value colon-sys-xt-offset
@@ -811,7 +812,7 @@ Create defstart
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
     ;-hook [compile] exit ?colon-sys
     [ has? peephole [IF] ] finish-code [ [THEN] ]
-    reveal postpone [ ; immediate restrict
+    reveal postpone [ ;-hook2 ; immediate restrict
 
 : concat ( xt1 xt2 -- xt )
     \ concat two xts into one

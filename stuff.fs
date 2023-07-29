@@ -98,13 +98,19 @@ UValue $? ( -- n ) \ gforth dollar-question
 	r POSTPONE fliteral
     endif ;
 
+[IFUNDEF] :level
+    Variable :level
+[THEN]
+
 : (const-does>) ( w*uw r*ur uw ur target "name" -- )
     \ define a colon definition "name" containing w*uw r*ur as
     \ literals and a call to target.
     { uw ur target }
     ['] on create-from \ start colon def without stack junk
+    1 :level +!
     ur compile-fliterals uw compile-literals
-    target compile, POSTPONE exit reveal ;
+    target compile, POSTPONE exit reveal
+    -1 :level +! ;
 
 : const-does> ( run-time: w*uw r*ur uw ur "name" -- ) \ gforth-obsolete const-does
     \G Defines @var{name} and returns.
