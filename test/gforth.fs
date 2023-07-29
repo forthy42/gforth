@@ -477,6 +477,11 @@ t{ cdtest3 -> 2 1 4e 3e }t
 \ litstack clear when starting colon definition?
 t{ : foo 1 [ : bar ; clearstack bar -> }t
 
+\ compile, state clear when starting colon definition?
+t{ ' drop compile, : csc1 80 ; csc1 -> 80 }t
+t{ ' drop compile, :noname 80 ; execute -> 80 }t
+t{ ' drop compile, [: 80 ;] execute -> 80 }t
+
 \ refill with&without newline at end of last line
 \ (do not add a newline to the end of this buffer!)
 

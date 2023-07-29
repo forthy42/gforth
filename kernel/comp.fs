@@ -783,7 +783,11 @@ opt: ?fold-to 0 swap (to), ;
 
 \ \ : ;                                                  	24feb93py
 
-defer :-hook ( sys1 -- sys2 ) ' clear-litstack is :-hook
+: flush-compile,-state ( -- )
+    \ flush all unfinished business of compile,
+    clear-litstack basic-block-end ;
+
+defer :-hook ( sys1 -- sys2 ) ' flush-compile,-state is :-hook
 defer ;-hook ( sys2 -- sys1 )
 defer ;-hook2 ( sys2 -- sys1 )
 defer 0-adjust-locals-size ( -- )
