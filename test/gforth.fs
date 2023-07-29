@@ -475,7 +475,9 @@ t{ cdtest2 -> 2 1 4e 3e }t
 t{ cdtest3 -> 2 1 4e 3e }t
 
 \ litstack clear when starting colon definition?
+0 warnings !@ >r
 t{ : foo 1 [ : bar ; clearstack bar -> }t
+r> warnings !
 
 \ compile, state clear when starting colon definition?
 t{ ' drop compile, : csc1 80 ; csc1 -> 80 }t
