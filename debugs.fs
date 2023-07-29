@@ -365,7 +365,9 @@ Variable rec'[]
     Variable :level
 [THEN]
 
-:noname defers :-hook 1 :level +! ; is :-hook
+:noname
+    :level @ 0<= lits# 0> and warning" litstack not empty outside a definition"
+    defers :-hook 1 :level +! ; is :-hook
 :noname defers ;-hook2 -1 :level +! ; is ;-hook2
 :noname defers reset-dpp :level off ; is reset-dpp
 : level-check defers prim-check
