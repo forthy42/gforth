@@ -46,7 +46,7 @@ s" forward must be resolved with :" exception constant forward-needs-:
     \g check whether any forwards are unresolved.
     defer ['] unresolved-forward-error lastxt defer!
     1 :level +!
-    ['] branch peephole-compile, ['] unfixed-forward >body ,
+    ['] branch peephole-compile, ['] unfixed-forward >body , finish-code
     [: ['] call peephole-compile, >body cell+ , ;] set-optimizer
     -1 :level +! ;
 
