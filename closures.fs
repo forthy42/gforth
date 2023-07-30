@@ -118,7 +118,7 @@ forth definitions
     pop-locals ;
 
 [IFUNDEF] :level
-    Variable :level
+    0 Value :level
 [THEN]
 
 : closure-:-hook ( sys -- sys addr xt n )
@@ -127,7 +127,7 @@ forth definitions
     clear-leave-stack
     dead-code off
     defstart
-    1 :level +! ;
+    1 +to :level ;
 
 : closure> ( hmaddr -- addr ) \ gforth-internal closure-end
     \G create trampoline head

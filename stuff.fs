@@ -99,7 +99,7 @@ UValue $? ( -- n ) \ gforth dollar-question
     endif ;
 
 [IFUNDEF] :level
-    Variable :level
+    0 Value :level
 [THEN]
 
 : (const-does>) ( w*uw r*ur uw ur target "name" -- )
@@ -107,10 +107,10 @@ UValue $? ( -- n ) \ gforth dollar-question
     \ literals and a call to target.
     { uw ur target }
     ['] on create-from \ start colon def without stack junk
-    1 :level +!
+    1 +to :level
     ur compile-fliterals uw compile-literals
     target compile, POSTPONE exit reveal
-    -1 :level +! ;
+    -1 +to :level ;
 
 : const-does> ( run-time: w*uw r*ur uw ur "name" -- ) \ gforth-obsolete const-does
     \G Defines @var{name} and returns.

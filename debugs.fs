@@ -362,12 +362,12 @@ Variable rec'[]
 \ warn on compiling into space outside colon definitions
 
 [IFUNDEF] :level
-    Variable :level
+    0 Value :level
 [THEN]
 
-:noname defers :-hook   1 :level +! ; is :-hook
-:noname defers ;-hook2 -1 :level +! ; is ;-hook2
-:noname defers reset-dpp :level off ; is reset-dpp
+:noname defers :-hook   1 +to :level ; is :-hook
+:noname defers ;-hook2 -1 +to :level ; is ;-hook2
+:noname defers reset-dpp 0 to :level ; is reset-dpp
 : level-check defers prim-check
-    :level @ 0<= warning" Compiling outside a definition" ;
+    :level 0<= warning" Compiling outside a definition" ;
 ' level-check is prim-check
