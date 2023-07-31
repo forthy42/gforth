@@ -361,13 +361,14 @@ Variable rec'[]
 
 \ warn on compiling into space outside colon definitions
 
-[IFUNDEF] :level
-    0 Value :level
+[IFUNDEF] in-colon-def?
+    0 Value in-colon-def?
 [THEN]
 
-:noname defers :-hook   1 +to :level ; is :-hook
-:noname defers ;-hook2 -1 +to :level ; is ;-hook2
-:noname defers reset-dpp 0 to :level ; is reset-dpp
+:noname defers wrap!   true  to in-colon-def? ; is wrap!
+:noname defers :-hook  true  to in-colon-def? ; is :-hook
+:noname defers ;-hook2 false to in-colon-def? ; is ;-hook2
+:noname defers reset-dpp false to in-colon-def? ; is reset-dpp
 : level-check defers prim-check
-    :level 0<= warning" Compiling outside a definition" ;
+    in-colon-def? 0= warning" Compiling outside a definition" ;
 ' level-check is prim-check

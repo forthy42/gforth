@@ -810,9 +810,9 @@ Create defstart
     latestnt colon-sys ] :-hook ;
 
 : ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
-    ;-hook [compile] exit ?colon-sys
+    ;-hook [compile] exit ;-hook2 ?colon-sys
     [ has? peephole [IF] ] finish-code [ [THEN] ]
-    reveal postpone [ ;-hook2 ; immediate restrict
+    reveal postpone [ ; immediate restrict
 
 : concat ( xt1 xt2 -- xt )
     \ concat two xts into one

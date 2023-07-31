@@ -117,8 +117,8 @@ forth definitions
     r> >namehm @ swap !
     pop-locals ;
 
-[IFUNDEF] :level
-    0 Value :level
+[IFUNDEF] in-colon-def?
+    0 Value in-colon-def?
 [THEN]
 
 : closure-:-hook ( sys -- sys addr xt n )
@@ -127,7 +127,7 @@ forth definitions
     clear-leave-stack
     dead-code off
     defstart
-    1 +to :level ;
+    true to in-colon-def? ;
 
 : closure> ( hmaddr -- addr ) \ gforth-internal closure-end
     \G create trampoline head

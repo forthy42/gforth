@@ -24,6 +24,10 @@
 \ note that there are related words with the same name here and in
 \ forward1.fs, but they behave differently.
 
+[IFUNDEF] in-colon-def?
+    0 Value in-colon-def?
+[THEN]
+
 s" unresolved forward definition" exception constant unresolved-forward
 s" forward must be resolved with :" exception constant forward-needs-:
 
@@ -46,10 +50,10 @@ s" forward must be resolved with :" exception constant forward-needs-:
     \g check whether any forwards are unresolved.
     basic-block-end
     defer ['] unresolved-forward-error lastxt defer!
-    1 +to :level
+    true to in-colon-def?
     ['] branch peephole-compile, ['] unfixed-forward >body , finish-code
     [: ['] call peephole-compile, >body cell+ , ;] set-optimizer
-    -1 +to :level ;
+    false to in-colon-def? ;
 
 : is-forward? ( xt -- f )
     \ f is true if xt is an unresolved forward definition
