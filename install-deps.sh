@@ -126,7 +126,7 @@ case $BUILD_FROM in
 	;;
     *)
 	install_gforth
-	./install-swig.sh "--prefix=$PWD/local"
+	./install-swig.sh --nosudo "--prefix=$PWD/local"
 	export PATH="$PATH:$PWD/local/bin"
 	;;
 esac
