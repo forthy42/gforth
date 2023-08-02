@@ -184,9 +184,7 @@ UValue $? ( -- n ) \ gforth dollar-question
 
 : defers@ ( xt -- xt' )
     BEGIN  dup ['] defer@ catch 0= WHILE  nip  REPEAT  drop ;
-: >rec-stack ( xt -- stack )
-    dup >code-address docol: =
-    IF  >body cell+ @ @  ELSE  >body  THEN ;
+synonym >rec-stack >body ( xt -- stack )
 : get-rec-sequence ( recs-xt -- x1 .. xtn n )
     defers@ >rec-stack get-stack ;
 : set-rec-sequence ( x1 .. xtn n recs-xt -- )
