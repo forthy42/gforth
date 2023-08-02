@@ -214,7 +214,7 @@ translate: translate-float
     \G recognize floating point numbers
     prefix-number ['] translate-float ['] notfound rot select ;
 
-' rec-float forth-recognizer >back
+' rec-float ' forth-recognize defer@ >back
 
 : fvariable ( "name" -- ) \ floating f-variable
     Create 0.0E0 f, ;

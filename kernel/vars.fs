@@ -22,6 +22,11 @@ hex \ everything now hex!                               11may93jaw
 
 \ important definers
 
+[IFUNDEF] cell 
+1 cells Constant cell ( -- u ) \ gforth
+\G @code{Constant} -- @code{1 cells}
+[THEN]
+
 : -/- ( -- ) \ gforth-experimental not-available
     \G this word can be ticked, but throws an ``Operation not supported''
     \G exception on interpretation and compilation.  Use this for methods
@@ -75,11 +80,6 @@ opt: ?fold-to >body @ postpone useraddr , ;
 
   0 Constant false ( -- f ) \ core-ext
 \G @code{Constant} -- @i{f} is a cell with all bits clear.
-
-[IFUNDEF] cell 
-1 cells Constant cell ( -- u ) \ gforth
-\G @code{Constant} -- @code{1 cells}
-[THEN]
 
 has? floating [IF]
 1 floats Constant float ( -- u ) \ gforth

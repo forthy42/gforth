@@ -408,9 +408,9 @@ w^ some-waddr 2drop
 \ !! do the whole thing without nextname
     2dup nextname
     + 1- c@ '[' = IF
-	forth-recognizer stack> >r
+	['] forth-recognize defer@ stack> >r
 	']' parse evaluate
-	r> forth-recognizer >stack
+	r> ['] forth-recognize defer@ >stack
 	[ r> ] Literal
     ELSE  ['] default: defer@  THEN  nt>rec ;
 previous
@@ -423,7 +423,7 @@ previous
     \G word is @code{@{:}.
     ( >docolloc ) hmsave \ as locals will mess with their own hmtemplate
     latest latestnt get-current
-    ['] new-locals forth-recognizer >stack
+    ['] new-locals ['] forth-recognize defer@ >stack
     ['] locals >wordlist set-current
     val-part off
     0 postpone [ ; immediate
@@ -437,7 +437,7 @@ locals-types definitions
     \G Ends locals definitions.  The Forth-2012 standard name for this
     \G word is @code{:@}}.
     ]
-    forth-recognizer stack> drop
+    ['] forth-recognize defer@ stack> drop
     begin
 	dup
     while

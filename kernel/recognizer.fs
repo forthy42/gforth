@@ -129,11 +129,6 @@ Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
 : set-forth-recognize ( xt -- ) \ recognizer
     \G Change the system recognizer
     is forth-recognize ;
-:noname drop is forth-recognize ;
-: forth-recognizer ( -- xt ) \ gforth-experimental
-    \G backward compatible to Matthias Trute recognizer API
-    ['] forth-recognize defer@ ;
-unlock set-to lock
 
 : forth-parser ( addr u -- ... )
     forth-recognize execute-;s ;

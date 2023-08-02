@@ -192,6 +192,14 @@ UValue $? ( -- n ) \ gforth dollar-question
 : set-rec-sequence ( x1 .. xtn n recs-xt -- )
     defers@ >rec-stack set-stack ;
 
+:noname drop ['] forth-recognize [ ' (to) :, ] ;
+opt: ?fold-to drop ['] forth-recognize (to), ;
+: forth-recognizer ( -- xt ) \ gforth-experimental
+    \G backward compatible to Matthias Trute recognizer API
+    ['] forth-recognize defer@ ;
+set-to
+opt: drop 3 ['] forth-recognize (to), ;
+
 : get-recognizers ( -- xt1 .. xtn n ) \ gforth-experimental
     \G push the content on the recognizer stack
     forth-recognizer get-stack ;
