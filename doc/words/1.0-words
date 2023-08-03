@@ -4505,10 +4505,10 @@ covered? .cover-file ?del-cover bw-cover color-cover .paren-cov# .ansi-cov#
 cover-end coverage cilk-bye spawn-closure spawn2 spawn1 spawn spawn-rest 
 cilk-init start-workers cilk-sync worker-thread ->spawn +worker ->sync worker@ 
 invoker workers sync# cores thread-key prep-key keypollfds UDefer udefer-to 
->uvalue event| kill sleep halt :>restart wake restart :>sleep :>wake eflit, 
-e$, elit, :>flit :>lit thread-deadline pause event-loop stop-dns stop-ns stop 
-?events event? (stop) event: event-does event-table event-crash event> <event 
-event+ 'event event-start eventbuf# event# !!ebuffull!! !!event!! execute-task 
+event| kill sleep halt :>restart wake restart :>sleep :>wake eflit, e$, elit, 
+:>flit :>lit thread-deadline pause event-loop stop-dns stop-ns stop ?events 
+event? (stop) event: event-does event-table event-crash event> <event event+ 
+'event event-start eventbuf# event# !!ebuffull!! !!event!! execute-task 
 stacksize4 stacksize >pagealign-stack c-section critical-section unlock lock 
 cond sema semaphore initiate pass (pass) activate (activate) task newtask 
 newtask4 thread-init 's up@ user' wake# epipew epiper pthread-id to-errno 
@@ -4651,61 +4651,62 @@ buffer-struct next-buffer block-buffer buffer-dirty buffer-fid buffer-block
 @time !time .times init-timer map-timer timer: timer-list +t last-tick 
 timer-tick profile( +debug set-debug +-? debug-eval ~db -db +db )else( debug: 
 debug-does> assert( assert3( assert2( assert1( assert0( ) assertn 
-assert-canary assert) (end-assert) assert-level .hm .name? color-prompt 
-prompt-text prompt-ok #loc edit-file-cmd editor-cmd vi-l:c emacs-l:c kate-l:c 
-view' (view') rec'@ rec'[] type-prefix esc'type -ltrace +ltrace line-tracer 
-~~Value ~~value-to ~~>body ~~Variable watch-opt: watch-does> replace-word 
->prim-code >colon-body ?warn-dp warning-recs shadow-num-warning shadow-warning 
-!!FIXME!! FIXME# WTF?? dbg-shell ??? ???-loop ~~1bt ~~bt once ]nocov nocov[ 
-cov-stack coverage? ~~ .debugline-directed (.debugline) .debugline 
-printdebugdata #line save-source-filename# .sourcepos compile-sourcepos 
-.sourceview .sourcepos3 view>char decode-view decode-pos loadfilename#>str 
-prepend~~ expand~~ short~~ plain~~ source-pos# source-line# prepend-file 
-expand-file shorten-file lastfile filename>display *terminal*# utf-8-cold 
-set-encoding-utf-8 utf-8 x-maxlines x-maxlines+rest x-lines x-lines+rest 
-+x-lines+rest xc-hw+ u8width xc-width+ xc-width -u8trailing-garbage u8addrlen 
-u8!+? u8@ u8\string- +u8/string u8emit u8key check-xy u8<< u8>> u8!+ u8@+ 
-u8len max-single-byte UTF-8-err WordInfo InfoTable Com-color Str-color 
-Ali-color Use-color Col-color Def-color Doe-color Val-color Var-color 
-Con-color Pri-color prim? xtprim? colon? defered? does? user? value? con? var? 
-.recs prim>name >head threaded>name >name look PrimStart threaded>xt xt= [f:d 
-[f:h [f:l [d:d [d:h [d:l [n:d [n:h [n:l [f: [d: [n: [*:: :d :h :l (;]*) (;]l) 
-(;*]) ;> <{: [{: end-dclosure closure> closure-:-hook (closure-;]) 
-wrap-closure dummy-local, pop-locals push-locals extra-locals lp> >lp allocd 
-alloch >addr endref, end-d locals-lists locals-sizes opt-u/mod opt-/modf 
-opt-umod opt-modf opt-u/ opt-/f lit/, /f-stage1m ctz pow2? u/-stage1m 
-staged/-size staged/-divisor staged/-inverse-hi staged/-shift staged/-inverse 
-dffield: sffield: ffield: 2field: field: xfield: lfield: wfield: cfield: 
-end-structure begin-structure extend-structure standard:field +field sizeof 
-[sizeof] (sizeof) standard+field .sections opt@ opt+- (+loop)-optimizer 
-replace-(+loop) fold4-4 fold4-2 fold4-1 fold3-3 fold3-2 fold3-1 fold2-3 
-fold2-2 fold2-1 fold2-0 fold1-2 fold1-1 fold1-0 folds optimizes fold-constants 
->4lits 4lits> >3lits 3lits> >2lits 2lits> [WHILE] [AGAIN] [REPEAT] [UNTIL] 
-[BEGIN] [I] comp-[i] INT-[I] [NEXT] [FOR] [LOOP] [+LOOP] [?DO] [DO] input< 
-input-drop >input loop-indices input-stack (i) $[]free $[]. $[]map 
-$[]slurp-file $[]slurp $slurp-line $slurp-file $+slurp-file $slurp $+slurp 
-$tmp $. $exec $-out $form $cr $emit $type $execstr-ptr tmp$ tmps# tmp$# tmp$[] 
-$+[]! $[]@ $[]# $[]+! $[]! $off $over open-warp time&date (xparse) 
-string-parse [char] char append s+ traverse-matched-dir traverse-dir 
-try-read-dir adjust-buffer init-buffer buffer% buffer-maxlength buffer-address 
-buffer-length buffer-descriptor rectype-word translate-word basic-help 2Value 
-dummy-2value 2value-to 2value-compile, name>comp name>int nr> n>r \\\ th dump 
-hex.r base-execute derived-output: derived-input: execute-theme-color 
-theme-color infile-execute outfile-execute xaligned xalign laligned lalign 
-waligned walign *align *aligned xd, x, l, w, xd>s x>s xdle xle lle wle xdbe 
-xbe lbe wbe noop0 /x /l /w typewhite what's action-of f.s f.s-precision f.rdp 
-f>str-rdp f>buf-rdp f>buf-rdp-try push-right ]] rec-[[ rectype-[[ translate-[[ 
-set-recognizers get-recognizers set-rec-sequence get-rec-sequence >rec-stack 
+assert-canary assert) (end-assert) assert-level level-check .hm .name? 
+color-prompt prompt-text prompt-ok #loc edit-file-cmd editor-cmd vi-l:c 
+emacs-l:c kate-l:c view' (view') rec'@ rec'[] type-prefix esc'type -ltrace 
++ltrace line-tracer ~~Value ~~value-to ~~>body ~~Variable watch-opt: 
+watch-does> replace-word >prim-code >colon-body ?warn-dp warning-recs 
+shadow-num-warning shadow-warning !!FIXME!! FIXME# WTF?? dbg-shell ??? 
+???-loop ~~1bt ~~bt once ]nocov nocov[ cov-stack coverage? ~~ 
+.debugline-directed (.debugline) .debugline printdebugdata #line 
+save-source-filename# .sourcepos compile-sourcepos .sourceview .sourcepos3 
+view>char decode-view decode-pos loadfilename#>str prepend~~ expand~~ short~~ 
+plain~~ source-pos# source-line# prepend-file expand-file shorten-file 
+lastfile filename>display *terminal*# utf-8-cold set-encoding-utf-8 utf-8 
+x-maxlines x-maxlines+rest x-lines x-lines+rest +x-lines+rest xc-hw+ u8width 
+xc-width+ xc-width -u8trailing-garbage u8addrlen u8!+? u8@ u8\string- 
++u8/string u8emit u8key check-xy u8<< u8>> u8!+ u8@+ u8len max-single-byte 
+UTF-8-err WordInfo InfoTable Com-color Str-color Ali-color Use-color Col-color 
+Def-color Doe-color Val-color Var-color Con-color Pri-color prim? xtprim? 
+colon? defered? does? user? value? con? var? .recs prim>name >head 
+threaded>name >name look PrimStart threaded>xt xt= [f:d [f:h [f:l [d:d [d:h 
+[d:l [n:d [n:h [n:l [f: [d: [n: [*:: :d :h :l (;]*) (;]l) (;*]) ;> <{: [{: 
+end-dclosure closure> closure-:-hook (closure-;]) wrap-closure dummy-local, 
+pop-locals push-locals extra-locals lp> >lp allocd alloch >addr endref, end-d 
+locals-lists locals-sizes opt-u/mod opt-/modf opt-umod opt-modf opt-u/ opt-/f 
+lit/, /f-stage1m ctz pow2? u/-stage1m staged/-size staged/-divisor 
+staged/-inverse-hi staged/-shift staged/-inverse dffield: sffield: ffield: 
+2field: field: xfield: lfield: wfield: cfield: end-structure begin-structure 
+extend-structure standard:field +field sizeof [sizeof] (sizeof) standard+field 
+.sections opt@ opt+- (+loop)-optimizer replace-(+loop) fold4-4 fold4-2 fold4-1 
+fold3-3 fold3-2 fold3-1 fold2-3 fold2-2 fold2-1 fold2-0 fold1-2 fold1-1 
+fold1-0 folds optimizes fold-constants >4lits 4lits> >3lits 3lits> >2lits 
+2lits> [WHILE] [AGAIN] [REPEAT] [UNTIL] [BEGIN] [I] comp-[i] INT-[I] [NEXT] 
+[FOR] [LOOP] [+LOOP] [?DO] [DO] input< input-drop >input loop-indices 
+input-stack (i) $[]free $[]. $[]map $[]slurp-file $[]slurp $slurp-line 
+$slurp-file $+slurp-file $slurp $+slurp $tmp $. $exec $-out $form $cr $emit 
+$type $execstr-ptr tmp$ tmps# tmp$# tmp$[] $+[]! $[]@ $[]# $[]+! $[]! $off 
+$over open-warp time&date (xparse) string-parse [char] char append s+ 
+traverse-matched-dir traverse-dir try-read-dir adjust-buffer init-buffer 
+buffer% buffer-maxlength buffer-address buffer-length buffer-descriptor 
+rectype-word translate-word basic-help 2Value dummy-2value 2value-to 
+2value-compile, name>comp name>int nr> n>r \\\ th dump hex.r base-execute 
+derived-output: derived-input: execute-theme-color theme-color infile-execute 
+outfile-execute xaligned xalign laligned lalign waligned walign *align 
+*aligned xd, x, l, w, xd>s x>s xdle xle lle wle xdbe xbe lbe wbe noop0 /x /l 
+/w typewhite what's action-of f.s f.s-precision f.rdp f>str-rdp f>buf-rdp 
+f>buf-rdp-try push-right ]] rec-[[ rectype-[[ translate-[[ set-recognizers 
+get-recognizers forth-recognizer set-rec-sequence get-rec-sequence >rec-stack 
 defers@ rectype-dnum rectype-num rectype-nt rectype-null rectype: rectype 
 rectype>post rectype>comp rectype>int file>fpath file>path slurp-fid 
-slurp-file const-does> (const-does>) compile-fliterals compile-literals 
-in-return-stack? ]L sh system $? dmax dmin ?CSP !CSP CSP needs save-mem-dict 
-locals| >definer (local) (exit-like) (until-like) (again-like) (begin-like) 
-(then-like) locals-;-hook locals-:-hook {: { new-locals new-locals-rec 
-some-waddr some-xtlocal some-wlocal some-flocal some-dlocal some-clocal 
-locals-types val-part-off to-f: to-c: to-d: to-xt: to-w: laddr, c!-table 
-2!-table 2+! c+! lp-offset, lp-offset create-local locals-where, 
-locals-headers create-local1 locals-name-size+ check-begin 
+slurp-file const-does> (const-does>) in-colon-def? compile-fliterals 
+compile-literals in-return-stack? ]L sh system $? dmax dmin ?CSP !CSP CSP 
+needs save-mem-dict locals| >definer (local) (exit-like) (until-like) 
+(again-like) (begin-like) (then-like) locals-;-hook locals-:-hook {: { 
+new-locals new-locals-rec some-waddr some-xtlocal some-wlocal some-flocal 
+some-dlocal some-clocal locals-types val-part-off to-f: to-c: to-d: to-xt: 
+to-w: laddr, c!-table 2!-table 2+! c+! lp-offset, lp-offset create-local 
+locals-where, locals-headers create-local1 locals-name-size+ check-begin 
 set-locals-size-list locals-list! list-size sub-list? common-list /list 
 list-length compile-pushlocal-[ compile-pushlocal-c compile-pushlocal-d 2>l 
 compile-pushlocal-f compile-pushlocal-w locals, val-part alignlp-f alignlp-w 
@@ -4792,45 +4793,44 @@ input-lexeme! accept edit-line edit-key decode >control kernel-editor
 edit-control insert-string insert-char edit-out recursive voc-to voc-table 
 reveal (reveal) (nocheck-reveal) i/c>comp does> int-does> int-does>; 
 comp-does> comp-does>; concat ; :noname dummy-noname : colon-sys defstart 
-colon-sys-xt-offset 0-adjust-locals-size ;-hook :-hook +TO [+TO] <+TO> IS TO 
-[IS] <IS> defer-is value-to reveal-method reveal! defer! to-opt: ?fold-to 
-(to), opt!-compile, opt: int-opt; set-name>link set-name>string set->comp 
-set->int set-to set-does> does-code! set-execute set-optimizer 
+colon-sys-xt-offset 0-adjust-locals-size ;-hook2 ;-hook :-hook +TO [+TO] <+TO> 
+IS TO [IS] <IS> defer-is value-to reveal-method reveal! defer! to-opt: 
+?fold-to (to), opt!-compile, opt: int-opt; set-name>link set-name>string 
+set->comp set->int set-to set-does> does-code! set-execute set-optimizer 
 general-compile, !namehm ?hm make-latest hm, (hm,) hm= hmrestore hmsave 
 hmcopy, hmcopy hm-activate hmtemplate does>-like Defers Defer defer-default 
 (Field) to-table-size# AValue Value AConstant Constant (Value) (Constant) 
 AUser User uallot 2Variable AVariable Variable buffer: Create synonym? Synonym 
 synonym-mask alias? Alias synonym, s-compile, s-to s>comp s>int a>comp a>int 
 obsolete compile-only restrict immediate imm>comp lastflags or! ," postpone ] 
-[ forth-parser forth-recognizer set-forth-recognize forth-recognize 
-minimal-recognize stack# stack> >stack stack do-stack: stack: set-stack 
-get-stack rec-num nt>rec translate-nt? translate-dnum translate-num 
-translate-nt name-compsem >postpone translate: do-rec 2lit, lit, postpone, 
-[COMP'] COMP' ['] default-i/c default-name>comp peephole-compile, prim-check 
-name>view addr>view xt-location1 xt-location bt-pos-width basic-block-end cfa, 
-clear-litstack lits, lits# lits> >lits litstack ?parse-name ALiteral 2Literal 
-Literal latest latestxt latestnt noname noname-header nextname nextname-header 
-nextname$ input-stream input-stream-header noname-from create-from header 
-header-extra header-name, record-name noname, ?noname-hm named-hm noname-hm 
-namehm, 0name, name, lastnt recurse check-shadow current-view 
-current-sourceview replace-sourceview encode-view current-sourcepos3 
-encode-pos get-current string, mem, const A, cfalign maxalign falign align 
->align 2, c, small-allot allot hm-list is-umethod (uv) uvar, umethod, does, 
-;abi-code, abi-code, field+, defer, user, variable, :, constant, value, 
-does-check call-check kernel-bye bye boot xt, cold 'cold process-args 
-bootmessage gforth (c) do-find do-execute quit (DoError) rec-level reset-dpp 
-.error-frame (.error-level) .error-level .error-line part-type mark-end 
-mark-start .error-string dobacktrace DOERROR -trailing hex. dec.r dec. 
-input-error-data >error error> error-stack /error (quit) (quit1) (prompt) 
-prompt .status 'quit extend-mem free-mem-var save-mem interpret2 
-bt-rp0-wrapper bt-rp0-catch interpret int-execute before-line before-word 
-parse-name parser ' (') '-error any-code! only-code-address! >does-code 
-xt>name >code-address body> >body >head-noprim xt? hm? ??? (name>intn) 
-noname>link noname>string named>link named>string name?int ?obsolete obsolete? 
-?compile-only compile-only? immediate? , compile, >extra initwl defer@ hmsize 
-name>link name>string name>compile name>interpret (to) opt-compile, >namehm 
->cfa >link >f+c >hm>link >hm>string >hm>comp >hm>int >hmextra >hmto 
->hmcompile, >hmlink ((name>)) (x>int) compile-only-error 
+[ forth-parser set-forth-recognize forth-recognize minimal-recognize stack# 
+stack> >stack stack do-stack: stack: set-stack get-stack rec-num nt>rec 
+translate-nt? translate-dnum translate-num translate-nt name-compsem >postpone 
+translate: do-rec 2lit, lit, postpone, [COMP'] COMP' ['] default-i/c 
+default-name>comp peephole-compile, prim-check name>view addr>view 
+xt-location1 xt-location bt-pos-width basic-block-end cfa, clear-litstack 
+lits, lits# lits> >lits litstack ?parse-name ALiteral 2Literal Literal latest 
+latestxt latestnt noname noname-header nextname nextname-header nextname$ 
+input-stream input-stream-header noname-from create-from header header-extra 
+header-name, record-name noname, ?noname-hm named-hm noname-hm namehm, 0name, 
+name, lastnt recurse check-shadow current-view current-sourceview 
+replace-sourceview encode-view current-sourcepos3 encode-pos get-current 
+string, mem, const A, cfalign maxalign falign align >align 2, c, small-allot 
+allot hm-list is-umethod (uv) uvar, umethod, does, ;abi-code, abi-code, 
+field+, defer, user, variable, :, constant, value, does-check call-check 
+kernel-bye bye boot xt, cold 'cold process-args bootmessage gforth (c) do-find 
+do-execute quit (DoError) rec-level reset-dpp .error-frame (.error-level) 
+.error-level .error-line part-type mark-end mark-start .error-string 
+dobacktrace DOERROR -trailing hex. dec.r dec. input-error-data >error error> 
+error-stack /error (quit) (quit1) (prompt) prompt .status 'quit extend-mem 
+free-mem-var save-mem interpret2 bt-rp0-wrapper bt-rp0-catch interpret 
+int-execute before-line before-word parse-name parser ' (') '-error any-code! 
+only-code-address! >does-code xt>name >code-address body> >body >head-noprim 
+xt? hm? ??? (name>intn) noname>link noname>string named>link named>string 
+name?int ?obsolete obsolete? ?compile-only compile-only? immediate? , compile, 
+>extra initwl defer@ hmsize name>link name>string name>compile name>interpret 
+(to) opt-compile, >namehm >cfa >link >f+c >hm>link >hm>string >hm>comp >hm>int 
+>hmextra >hmto >hmcompile, >hmlink ((name>)) (x>int) compile-only-error 
 ticking-compile-only-error flag-sign lcount-mask obsolete-mask restrict-mask 
 find-name rec-nt search-wordlist find-name-in notfound no.extensions (where,) 
 where, where-struct where-loc where-nt wheres context voclink current 
@@ -4860,10 +4860,10 @@ refill source current-input warnings Last dp state >num-state dpl base holdend
 holdptr holdbuf-end holdbuf holdbufptr "error errorhandler backtrace-rp0 
 wraphandler first-throw handler throw-entry lp0 fp0 rp0 sp0 save-task 
 prev-task next-task udp main-task def#tib pad-minsize word-pno-size 
-chars/block l/s c/l /line bl float cell false true 2Constant 2constant, UValue 
+chars/block l/s c/l /line bl float false true 2Constant 2constant, UValue 
 (UValue) u-compile, uvalue-to to:, to:exec >uvalue defer-table !-table [noop] 
--/- */ */mod /mod mod / r@ forthstart image-header u#+ u#exec x#exec o#exec 
-o#+ o> >o lit-execute ;abi-code-exec abi-call finish-code| tag-offsets 
+-/- cell */ */mod /mod mod / r@ forthstart image-header u#+ u#exec x#exec 
+o#exec o#+ o> >o lit-execute ;abi-code-exec abi-call finish-code| tag-offsets 
 decompile-prim2 decompile-prim forget-dyncode finish-code compile-prim1 
 barrier ?!@ +!@ !@ u8@+? log2 >pow2 l>s w>s c>s xd>< x>< l>< w>< xd@ xd! x@ x! 
 close-lib2 close-lib lib-error l! l@ w! w@ wcall lib-sym2 lib-sym open-lib2 
