@@ -208,7 +208,7 @@ opt: @ 3 swap (to), ;
 \ ]] ... [[
 
 ' noop ' noop
-:noname  ] forth-recognizer stack> drop ;
+:noname  ] ['] forth-recognize defers@ stack> drop ;
 translate: translate-[[
 ' translate-[[ Constant rectype-[[
 
@@ -220,7 +220,7 @@ translate: translate-[[
     \G Switch into postpone state: All words and recognizers are
     \G processed as if they were preceded by @code{postpone}.
     \G Postpone state ends when @code{[[} is recognized.
-    ['] rec-[[ forth-recognizer >stack
+    ['] rec-[[ ['] forth-recognize defers@ >stack
     -2 state ! ; immediate restrict
 
 \ f.rdp
