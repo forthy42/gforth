@@ -13,7 +13,7 @@ A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
 AB       [x] Documentation in manual
-  G      [ ] Modify env-recognizer to use ${HOME} instead of $HOME to avoid collision with hex-numbers like $BEEF
+  G      [x] Modify env-recognizer to use ${HOME} instead of $HOME to avoid collision with hex-numbers like $BEEF
 ABGO [ ]*Documentation for Undocumented features
  B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
 A        [d] Search changelogs for features
