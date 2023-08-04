@@ -24,11 +24,13 @@
 ' translate-env Constant rectype-env
 
 : rec-env ( addr u -- addr u rectype-env | rectype-null )
-    \G words prefixed with @code{'$'} are passed to @code{getenv}
-    \G to get the environment variable as string.
-    \G Example: @code{$HOME} gives the home directory
-    over c@ '$' <> IF  2drop  ['] notfound  EXIT  THEN
-    1 /string ['] translate-env ;
+    \G words enclosed by @code{$@{} and @code{@}} are passed to @code{getenv}
+    \G to get the OS-environment variable as string.
+    \G Example: @code{$@{HOME@}} gives the home directory.
+    2dup s" ${" string-prefix? 0= >r
+    2dup + 1- c@ '}' <> r> or
+    IF  2drop  ['] notfound  EXIT  THEN
+    2 /string 1- ['] translate-env ;
 
 ' rec-env forth-recognizer >back
 
