@@ -508,42 +508,42 @@ Create object  immediate  0 (class \ do not create as subclass
          static    size         \ number of variables (bytes)
 	 static    newlink      \ ptr to allocated space
 	 static    ilist        \ interface list
-	 method    init ( ... -- ) \ object- oof
-         method    dispose ( -- ) \ object- oof
+	 method    init ( ... -- ) \ oof-object- oof
+         method    dispose ( -- ) \ oof-object- oof
 
-         early     class ( "name" -- ) \ object- oof
-	 early     new ( -- o ) \ object- oof
+         early     class ( "name" -- ) \ oof-object- oof
+	 early     new ( -- o ) \ oof-object- oof
 	 			immediate
-	 early     new[] ( n -- o ) \ object- oof new-array
+	 early     new[] ( n -- o ) \ oof-object- oof new-array
 				immediate
-         early     : ( "name" -- ) \ object- oof define
-         early     ptr ( "name" -- ) \ object- oof
-         early     asptr ( o "name" -- ) \ object- oof
-         early     [] ( n "name" -- ) \ object- oof array
-	 early     ::  ( "name" -- ) \ object- oof scope
+         early     : ( "name" -- ) \ oof-object- oof define
+         early     ptr ( "name" -- ) \ oof-object- oof
+         early     asptr ( o "name" -- ) \ oof-object- oof
+         early     [] ( n "name" -- ) \ oof-object- oof array
+	 early     ::  ( "name" -- ) \ oof-object- oof scope
 	 			immediate
-         early     class? ( o -- flag ) \ object- oof class-query
-	 early     super  ( "name" -- ) \ object- oof
+         early     class? ( o -- flag ) \ oof-object- oof class-query
+	 early     super  ( "name" -- ) \ oof-object- oof
 				immediate
-         early     self ( -- o ) \ object- oof
-	 early     bind ( o "name" -- ) \ object- oof
+         early     self ( -- o ) \ oof-object- oof
+	 early     bind ( o "name" -- ) \ oof-object- oof
 				immediate
-         early     bound ( class addr "name" -- ) \ object- oof
-	 early     link ( "name" -- class addr ) \ object- oof
+         early     bound ( class addr "name" -- ) \ oof-object- oof
+	 early     link ( "name" -- class addr ) \ oof-object- oof
 				immediate
-	 early     is  ( xt "name" -- ) \ object- oof
+	 early     is  ( xt "name" -- ) \ oof-object- oof
 				immediate
-	 early     send ( xt -- ) \ object- oof
+	 early     send ( xt -- ) \ oof-object- oof
 				immediate
-	 early     with ( o -- ) \ object- oof
+	 early     with ( o -- ) \ oof-object- oof
 				immediate
-	 early     endwith ( -- ) \ object- oof
+	 early     endwith ( -- ) \ oof-object- oof
 				immediate
-	 early     ' ( "name" -- xt ) \ object- oof tick
+	 early     ' ( "name" -- xt ) \ oof-object- oof tick
 				immediate
-	 early     postpone ( "name" -- ) \ object- oof
+	 early     postpone ( "name" -- ) \ oof-object- oof
 				immediate
-	 early     definitions ( -- ) \ object- oof
+	 early     definitions ( -- ) \ oof-object- oof
 	 
 \ base object class implementation part                23mar95py
 
