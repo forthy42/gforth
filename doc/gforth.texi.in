@@ -248,6 +248,7 @@ Forth Words
 * Locals::
 * Structures::
 * Object-oriented Forth::
+* Regular Expressions::
 * Programming Tools::
 * Multitasker::
 * C Interface::
@@ -455,6 +456,8 @@ The @file{mini-oof.fs} model
 * Basic Mini-OOF Usage::
 * Mini-OOF Example::
 * Mini-OOF Implementation::
+
+Regular Expressions
 
 Programming Tools
 
@@ -4789,6 +4792,7 @@ and pasting the output of @code{...} (@pxref{Examining data}).
 * Locals::
 * Structures::
 * Object-oriented Forth::
+* Regular Expressions::
 * Programming Tools::
 * Multitasker::
 * C Interface::
@@ -12565,7 +12569,7 @@ doc-lfield:
 doc-xfield:
 
 @c -------------------------------------------------------------
-@node Object-oriented Forth, Programming Tools, Structures, Words
+@node Object-oriented Forth, Regular Expressions, Structures, Words
 @section Object-oriented Forth
 
 Gforth comes with three packages for object-oriented programming:
@@ -13570,9 +13574,9 @@ selectors of the class @code{object}.
 later on, and @code{class?} to get type informations (is the class a
 subclass of the class passed on the stack?).
 
-doc---object-class
-doc---object-definitions
-doc---object-class?
+doc---oof-object-class
+doc---oof-object-definitions
+doc---oof-object-class?
 
 
 @item
@@ -13582,8 +13586,8 @@ while @code{dispose} also handles deallocation. Thus if you redefine
 @code{dispose}, you have to call the parent's dispose with @code{super
 dispose}, too.
 
-doc---object-init
-doc---object-dispose
+doc---oof-object-init
+doc---oof-object-dispose
 
 
 @item
@@ -13591,12 +13595,12 @@ doc---object-dispose
 @code{[]} to create named and unnamed objects and object arrays or
 object pointers.
 
-doc---object-new
-doc---object-new[]
-doc---object-:
-doc---object-ptr
-doc---object-asptr
-doc---object-[]
+doc---oof-object-new
+doc---oof-object-new[]
+doc---oof-object-:
+doc---oof-object-ptr
+doc---oof-object-asptr
+doc---oof-object-[]
 
 
 @item
@@ -13604,32 +13608,32 @@ doc---object-[]
 scoping only for super classes or classes with the same set of instance
 variables. Explicitly-scoped selectors use early binding.
 
-doc---object-::
-doc---object-super
+doc---oof-object-::
+doc---oof-object-super
 
 
 @item
 @code{self} to get the address of the object
 
-doc---object-self
+doc---oof-object-self
 
 
 @item
 @code{bind}, @code{bound}, @code{link}, and @code{is} to assign object
 pointers and instance defers.
 
-doc---object-bind
-doc---object-bound
-doc---object-link
-doc---object-is
+doc---oof-object-bind
+doc---oof-object-bound
+doc---oof-object-link
+doc---oof-object-is
 
 
 @item
 @code{'} to obtain selector tokens, @code{send} to invocate selectors
 form the stack, and @code{postpone} to generate selector invocation code.
 
-doc---object-'
-doc---object-postpone
+doc---oof-object-'
+doc---oof-object-postpone
 
 
 @item
@@ -13638,8 +13642,8 @@ stack, and enable its scope. Using @code{with} and @code{endwith}
 also allows you to create code using selector @code{postpone} without being
 trapped by the state-smart objects.
 
-doc---object-with
-doc---object-endwith
+doc---oof-object-with
+doc---oof-object-endwith
 
 
 @end itemize
@@ -14045,9 +14049,16 @@ The @file{mini-oof.fs} model is quite similar to a very stripped-down
 version of the @file{objects.fs} model, but syntactically it is a
 mixture of the @file{objects.fs} and @file{oof.fs} models.
 
+@c -------------------------------------------------------------
+@node Regular Expressions, Programming Tools, Object-oriented Forth, Words
+@section Regular Expressions
+@cindex regexps
+
+Regular expressions are pattern matching algorithms for strings found in
+many contemporary languages.
 
 @c -------------------------------------------------------------
-@node Programming Tools, Multitasker, Object-oriented Forth, Words
+@node Programming Tools, Multitasker, Regular Expressions, Words
 @section Programming Tools
 @cindex programming tools
 
