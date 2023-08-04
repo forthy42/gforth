@@ -195,28 +195,28 @@ $20 0 [DO] ' noop , [LOOP]
     current-char $bidi-buffer $@ drop - /string
     IF  c!  ELSE  2drop  THEN ;
 
-: x2 ( -- ) \ minos2-bidi
+: x2 ( -- ) \ bidi-internal
     \G match on RLE
     stack# @ next-odd dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	drop overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  neutral stack-top c!  THEN ;
 ' x2 bind RLE
-: x3 ( -- ) \ minos2-bidi
+: x3 ( -- ) \ bidi-internal
     \G match on LRE
     stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  neutral stack-top c!  THEN ;
 ' x3 bind LRE
-: x4 ( -- ) \ minos2-bidi
+: x4 ( -- ) \ bidi-internal
     \G match on RLO
     stack# @ next-odd dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	drop overflow-isolate# @ 0= negate  overflow-embedded# +!
     ELSE  dup >level  stack# !  rtl stack-top c!  THEN ;
 ' x4 bind RLO
-: x5 ( -- )  \ minos2-bidi
+: x5 ( -- )  \ bidi-internal
     \G match on LRO
     stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
@@ -226,14 +226,14 @@ $20 0 [DO] ' noop , [LOOP]
 
 : x6 ( -- )
     stack# @ >level  change-current-char ;
-: x5a ( -- ) \ minos2-bidi
+: x5a ( -- ) \ bidi-internal
     \G match on RLI
     x6 stack# @ next-odd dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
 	1 overflow-isolate# +! drop
     ELSE  stack# !  rtl dis or stack-top c!  1 isolate# +!  THEN ;
 ' x5a bind RLI
-: x5b ( -- ) \ minos2-bidi
+: x5b ( -- ) \ bidi-internal
     \G match on LRI
     x6 stack# @ next-even dup max-depth# u>
     overflow-isolate# @ overflow-embedded# @ or or IF
