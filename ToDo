@@ -2,7 +2,7 @@
 ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done, d = dropped
  B   [x] Multithreading API
  B       [x] Documentation
-A        [ ] Documentation review
+A        [x] Documentation review
   G      [ ] Examples
  B   [x] Save images that contain C bindings
   G      [x] Interface files for .h-files; build on install Port typical C-Libraries like stdio
@@ -13,7 +13,7 @@ A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
 AB       [x] Documentation in manual
-ABGO [ ] Documentation for Undocumented features
+ABGO [ ]*Documentation for Undocumented features
  B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
 A        [d] Search changelogs for features
 A        [x] Document what is stable and what is not
@@ -40,6 +40,10 @@ A    [ ] update this ToDo file
  BG  [x]*implement smart .s "..."
 AB   [x]*~~ uses ... and prints floating stack
  B   [x] compare-image warnings überprüfen
+ABG  [ ] fix warnings during compilation
+ABG  [ ] defaults
+         [ ] which recognizers should be included by default
+         [ ] which files should be in image
 
 -*- RoadMap for gforth post 1.0 -*-
  B   [d] (Dropped) Multithreading: Use sections to allow compilation in every threading
@@ -63,6 +67,8 @@ A    [ ] stack depth checker
 A        [ ] formalize stack effect of words
 AB   [x] "IDE" locate, view, where & edit
 A        [ ]*backtrace os-commandline - saving backtraces
+     [ ] autocomplete `foobar (equals to ' foobar)
+     [ ] allow tick of recogized words e.g.: ' foo:bar recognizer: wordlist foo, word bar
 
 -*- outline -*-
 
