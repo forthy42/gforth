@@ -2,7 +2,7 @@
 ABGO Anton, Bernd, Gerald, Others welcome! * = work in progress, x = done, d = dropped
  B   [x] Multithreading API
  B       [x] Documentation
-A        [x] Documentation review
+A        [ ]*Documentation review
   G      [ ] Examples
  B   [x] Save images that contain C bindings
   G      [x] Interface files for .h-files; build on install Port typical C-Libraries like stdio
@@ -13,6 +13,7 @@ A    [ ] Recognizer Documentation & Examples
 A        [x] simplify API
  B       [x] examples
 AB       [x] Documentation in manual
+  G      [ ] Modify env-recognizer to use ${HOME} instead of $HOME to avoid collision with hex-numbers like $BEEF
 ABGO [ ]*Documentation for Undocumented features
  B       [ ]*Document so far, that other programmers can understand the code and complete the documentation
 A        [d] Search changelogs for features
@@ -38,12 +39,16 @@ A    [ ] changelog
 A    [ ] news-file
 A    [ ] update this ToDo file
  BG  [x]*implement smart .s "..."
-AB   [x]*~~ uses ... and prints floating stack
+ B   [ ] Extensible ... : Allow a stack of recognizer-like scanners
+ B   [ ] Configurable ... : Allow different outputs (think about notation)
+AB   [x] ~~ uses ... and prints floating stack
  B   [x] compare-image warnings überprüfen
-ABG  [ ] fix warnings during compilation
+ABG  [ ]*fix warnings during compilation
 ABG  [ ] defaults
          [ ] which recognizers should be included by default
          [ ] which files should be in image
+         [ ] documented words which are not included by default should state how they are included
+A    [ ] make file for all obsolete words
 
 -*- RoadMap for gforth post 1.0 -*-
  B   [d] (Dropped) Multithreading: Use sections to allow compilation in every threading
@@ -68,7 +73,7 @@ A        [ ] formalize stack effect of words
 AB   [x] "IDE" locate, view, where & edit
 A        [ ]*backtrace os-commandline - saving backtraces
      [ ] autocomplete `foobar (equals to ' foobar)
-     [ ] allow tick of recogized words e.g.: ' foo:bar recognizer: wordlist foo, word bar
+     [x] allow tick of recogized words e.g.: ' foo:bar recognizer: wordlist foo, word bar
 
 -*- outline -*-
 
