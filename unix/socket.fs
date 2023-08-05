@@ -51,19 +51,9 @@ c-library socket
 end-c-library
 
 require ./libc.fs
+require ./os-name.fs
 
 ' close alias closesocket
-
-e? os-type s" darwin" string-prefix? [IF] [IFUNDEF] darwin : darwin ; [THEN] [THEN]
-e? os-type s" bsd" search nip nip [IF] [IFUNDEF] darwin : darwin ; [THEN]
-    [IFUNDEF] bsd : bsd ; [THEN] [THEN]
-e? os-type s" linux-android" string-prefix? [IF] [IFUNDEF] android : android ; [THEN] [THEN]
-e? os-type s" cygwin" string-prefix? [IF] [IFUNDEF] cygwin : cygwin ; [THEN] [THEN]
-e? os-type s" linux-gnu" string-prefix?
-e? os-type s" linux-musl" string-prefix? or [IF]
-    [IFUNDEF] linux : linux ; [THEN]
-    s" /proc/partitions" file-status nip 0< [IF] : mslinux ; [THEN]
-[THEN]
 
 begin-structure hostent
     field: h_name
