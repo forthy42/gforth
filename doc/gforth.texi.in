@@ -14847,17 +14847,36 @@ There is also:
 
 doc-pause
 
-@subsubsection Special User Variables
+@subsubsection Task-local data
+@cindex user variables
+@cindex user space
+@cindex task-local data
+
+In Forth every task has essentially the same task-local data, called
+``user'' data (early Forth systems were multi-user systems and there
+often was one user per task).  Each task gets the user data defined by
+the system.  You can define additional user date with:
 
 Aside from the user variables that are already defined in the kernel,
 tasks may want to have user values and user defers, optain the offset
 of a user variable, or the address of those related to another task to
 initialize that task's user area.
 
+doc-user
+doc-auser
+doc-uallot
 doc-uvalue
 doc-udefer
 doc-user'
 doc-'s
+
+
+The defining word @code{User} behaves in the same way as
+@code{Variable}.  The difference is that it reserves space in the
+@i{user (data) space} of each task rather than normal data space. Each
+task has its own instance of the user space.
+
+@c doc-udp
 
 @subsubsection Semaphores
 
