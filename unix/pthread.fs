@@ -256,6 +256,9 @@ Defer thread-init
 : initiate ( xt task -- ) \ gforth-experimental
     \G pass an @var{xt} to a task (VFX compatible)
     1 swap pass execute ;
+: initiate-closure ( xt task -- ) \ gforth-experimental
+    \G pass a heap-allocated closure @var{xt} to a task and free it after use
+    1 swap pass dup >r execute r> >addr free throw ;
 
 : semaphore ( "name" -- ) \ gforth-experimental
     \G create a named semaphore @var{"name"} \\

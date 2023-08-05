@@ -86,7 +86,10 @@ User stored-backtrace ( addr -- )
     then endtry ;
 is catch
 
-Defer kill-task ' noop IS kill-task
+Defer kill-task ( -- ) \ gforth-experimental
+\G kill the current task, deferred word set when loading the multitasker
+' noop IS kill-task
+
 Variable located-view
 Variable located-len
 variable bn-view      \ first contains located-view, but is updated by B and N
