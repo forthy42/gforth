@@ -120,7 +120,9 @@ has? rom
 \ print recognizer stack
 
 [IFDEF] forth-recognizer
-    : .recs ( -- )
+    : .recognizers ( -- ) \ gforth-experimental dot-recognizers
+        \G Print the current recognizer order, with the first-searched
+        \G recognizer leftmost (unlike .order).
 	get-recognizers 0 ?DO
 	    >name .name
 	LOOP ;
