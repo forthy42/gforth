@@ -71,6 +71,10 @@ install_ubuntu() {
     install_debian
 }
 
+install_linuxmint() {
+    install_debian
+}
+
 install_osx() {
   which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   brew tap forthy42/homebrew-zsh
@@ -95,6 +99,10 @@ install_gforth_debian() {
 }
 
 install_gforth_ubuntu() {
+    install_gforth_debian
+}
+
+install_gforth_linuxmint() {
     install_gforth_debian
 }
 

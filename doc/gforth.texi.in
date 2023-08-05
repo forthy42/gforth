@@ -5536,6 +5536,13 @@ doc-f0=
 doc-f0>
 doc-f0>=
 
+@cindex floating-point constants
+Special values in IEEE754 can be derived by for example dividing by zero.
+The most common ones are defined as floating point constants for easy usage.
+
+doc-infinity
+doc--infinity
+doc-nan
 
 @node Stack Manipulation, Memory, Arithmetic, Words
 @section Stack Manipulation

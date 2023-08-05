@@ -2674,13 +2674,14 @@ number in Gforth).""
 char sig[0x40];
 size_t siglen;
 int flag;
-int decpt;
-if (isnan(r)) {
-  flag=0;
-  decpt=0;
-  strncpy(sig, "nan", 0x3f); /* normalize nan output */
-} else {
-  ecvt_r(r, u, &decpt, &flag, sig, 0x3f);
+int decpt=0;
+switch (fpclassify(r)) {
+ case FP_INFINITE:  strncpy(sig, "infinite", 0x3f);  break;
+ case FP_NAN:       strncpy(sig, "NaN", 0x3f); break;
+ case FP_ZERO:
+ case FP_SUBNORMAL:
+ case FP_NORMAL:
+   ecvt_r(r, u, &decpt, &flag, sig, 0x3f);
 }
 n=(r==0. ? 1 : decpt);
 flag=signbit(r); /* not all ecvt()s do this as desired */

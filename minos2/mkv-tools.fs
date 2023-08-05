@@ -589,7 +589,7 @@ event: :>read-mkv ( addr u -- )  queue-buf 2! ;
     u queue-buf @ - ;
 : pull-queue ( addr u -- u )
     dup queue-io cell+ +!
-    dup >r <event e$, :>read-mkv cue-task event>
+    dup >r <event estring, :>read-mkv cue-task event>
     r> wait-for-read ;
 
 : fill-mts-buf ( -- )
@@ -615,6 +615,6 @@ event: :>cue-cont ( -- ) true to cue-cont? ;
 
 : convert-mkv ( addr u addrmts umts -- )  r/w create-file throw to mts-fd
     cue-converter
-    <event e$, :>open-mkv 0 elit, :>cues cue-task event>
+    <event estring, :>open-mkv 0 elit, :>cues cue-task event>
     BEGIN  pad /packet 128 * pull-queue pad over mts-fd write-file throw
     0= UNTIL ;

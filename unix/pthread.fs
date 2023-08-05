@@ -167,8 +167,7 @@ c-library pthread
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n n -- n ( pipefd timeoutns timeouts -- n )
     c-function stick-to-core stick_to_core n -- n ( core -- n )
-    \c #define get_pthread_id(addr) *(pthread_t*)(addr) = pthread_self()
-    c-function pthread_self get_pthread_id a -- void ( pthread-id -- )
+    c-function pthread_self pthread_self -- t{*(pthread_t*)} ( pthread-id -- )
 end-c-library
 
 require ./libc.fs
@@ -397,7 +396,7 @@ event: :>flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
 : elit,  ( x -- ) \ gforth-experimental
 \G sends a literal
     :>lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
-: e$, ( addr u -- ) \ gforth-experimental
+: estring, ( addr u -- ) \ gforth-experimental
 \G sends a string (actually only the address and the count, because it's
 \G shared memory
     swap elit, elit, ;
@@ -448,7 +447,7 @@ synonym sleep halt ( task -- )
 
 ' >uvalue defer-table to-method: udefer-to
 
-: UDefer ( "name" -- ) \ gforth-experimental
+: UDefer ( "name" -- ) \ gforth
     \G @i{Name} is a task-local deferred word.@*
     \G @i{Name} execution: ( ... -- ... )
     Create cell uallot ,
