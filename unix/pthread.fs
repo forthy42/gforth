@@ -167,8 +167,7 @@ c-library pthread
     c-function check_read check_read a -- n ( pipefd -- n )
     c-function wait_read wait_read a n n -- n ( pipefd timeoutns timeouts -- n )
     c-function stick-to-core stick_to_core n -- n ( core -- n )
-    \c #define get_pthread_id(addr) *(pthread_t*)(addr) = pthread_self()
-    c-function pthread_self get_pthread_id a -- void ( pthread-id -- )
+    c-function pthread_self pthread_self -- t{*(pthread_t*)} ( pthread-id -- )
 end-c-library
 
 require ./libc.fs
