@@ -3300,7 +3300,8 @@ if(*a_addr == uold) *a_addr = unew;
 #endif
 
 barrier ( -- ) gforth-experimental
-""Insert a full memory barrier""
+""All memory operations before the barrier are performed
+before any memory operation after the barrier.""
 #ifdef HAS_ATOMIC
 __atomic_thread_fence(__ATOMIC_RELEASE);
 #elif defined(HAS_SYNC)

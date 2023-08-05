@@ -280,8 +280,8 @@ Defer thread-init
     1 swap pass dup >r execute r> >addr free throw ;
 
 : semaphore ( "name" -- ) \ gforth-experimental
-    \G create a named semaphore @var{"name"} \\
-    \G "name"-execution: @var{( -- semaphore )}
+    \G create a named semaphore @i{name}@*
+    \G @i{name} execution: ( -- @i{semaphore} )
     Create here 1 pthread-mutexes allot 0 pthread_mutex_init drop ;
 synonym sema semaphore
 
