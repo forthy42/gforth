@@ -426,7 +426,7 @@ synonym sleep halt ( task -- )
 
 ' >uvalue defer-table to-method: udefer-to
 
-: UDefer ( "name" -- ) \ gforth-experimental
+: UDefer ( "name" -- ) \ gforth
     \G Define a per-thread deferred word
     Create cell uallot ,
     [: @ up@ + perform ;] set-does>
