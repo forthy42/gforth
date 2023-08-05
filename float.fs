@@ -236,6 +236,19 @@ translate: translate-float
     \G Divide 1.0e0 by @i{r1}.
     1.0e0 fswap f/ ;
 
+0.e0 1/f fconstant infinity ( -- r ) \ gforth
+\G floating point infinity
+synonym inf infinity ( -- r ) \ gforth
+\G synonym for copy-paste from @code{...}, @xref{Examining data and code}.
+
+infinity fnegate fconstant -infinity ( -- r ) \ gforth
+\G floating point -infinity
+synonym -inf -infinity
+\G synonym for copy-paste from @code{...}, @xref{Examining data and code}.
+
+0.e0 0.e0 fconstant NaN ( -- r ) \ gforth
+\G floating point Not a Number
+
 get-current environment-wordlist set-current
 1.7976931348623157e308 FConstant max-float ( -- r ) \ environment
 \g The largest usable floating-point number (implemented as largest
