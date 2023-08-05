@@ -162,7 +162,9 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 
 : (str=?) ( addr1 addr u -- addr2 )
     dup >r 2>r rest$ r@ umin 2r> compare IF rdrop true ELSE r> + false THEN ;
-: str=? ( addr1 addr u -- addr2 ) ]] (str=?) ?LEAVE [[ ; immediate
+: str=? ( addr1 addr u -- addr2 ) \ regexp-pattern
+    \G check for a computed string on the stack (possibly a backreference)
+    ]] (str=?) ?LEAVE [[ ; immediate
 : ,=" ( addr u -- ) tuck dup ]] rest$ Literal umin SLiteral compare ?LEAVE Literal + [[ ;
 : =" ( <string>" -- ) \ regexp-pattern
     \G check for string
@@ -189,21 +191,21 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 
 : drops ( n -- ) 1+ cells sp@ + sp! ;
 
-: {** ( addr -- addr addr ) \ regexp-pattern
+: {** ( addr -- addr addr ) \ regexp-pattern begin-greedy-star
     \G greedy zero-or-more pattern
     ]] false >r BEGIN  dup  FORK  BUT  WHILE  last$ r> 1+ >r  REPEAT [[
     ]] r>  AHEAD  BUT  JOIN [[
     BEGIN, ; immediate
-' {** Alias {++ ( addr -- addr addr ) \ regexp-pattern
+' {** Alias {++ ( addr -- addr addr ) \ regexp-pattern begin-greedy-plus
     \G greedy one-or-more pattern
     immediate
-: **} ( sys -- ) \ regexp-pattern
+: **} ( sys -- ) \ regexp-pattern end-greedy-star
     \G end of greedy zero-or-more pattern
     ]] >last  ;S [[ DONE, ]] drop false ;S  THEN [[
     ]] 1+ false  U+DO  FORK BUT [[
     ]] IF  I' I - 1- drops UNLOOP  true ;S  THEN  LOOP [[
     ]] false ;S JOIN [[ ; immediate
-: ++} ( sys -- ) \ regexp-pattern
+: ++} ( sys -- ) \ regexp-pattern end-greedy-plus
     \G end of greedy one-or-more pattern
     ]] >last  ;S [[ DONE, ]] drop false ;S  THEN [[
     ]] false  U+DO  FORK BUT [[
@@ -215,17 +217,17 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 \ Idea: Try to match rest of the regexp, and if that fails, try match
 \ first expr and then try again rest of regexp.
 
-: {+ ( addr -- addr addr ) \ regexp-pattern
+: {+ ( addr -- addr addr ) \ regexp-pattern begin-non-greedy-plus
     \G non-greedy one-or-more pattern
     ]] BEGIN  [[ BEGIN, ; immediate
-: {* ( addr -- addr addr ) \ regexp-pattern
+: {* ( addr -- addr addr ) \ regexp-pattern begin-non-greedy-star
     \G non-greedy zero-or-more pattern
     ]] {+ dup FORK BUT  IF  drop true  ;S THEN [[ ; immediate
-: *} ( addr addr' -- addr' ) \ regexp-pattern
+: *} ( addr addr' -- addr' ) \ regexp-pattern end-non-greedy-star
     \G end of non-greedy zero-or-more pattern
     ]] dup end$ u>  UNTIL [[
     DONE, ]] drop false  ;S  JOIN [[ ; immediate
-: +} ( addr addr' -- addr' ) \ regexp-pattern
+: +} ( addr addr' -- addr' ) \ regexp-pattern end-non-greedy-plus
     \G end of non-greedy one-or-more pattern
     ]] dup FORK BUT  IF  drop true  ;S [[
     DONE, ]] drop false  ;S [[ BEGIN, ]] THEN *} [[ ; immediate
@@ -241,15 +243,15 @@ Variable greed-counts  9 cells allot \ no more than 9 nested greedy loops
 
 : THENs ( sys -- )  BEGIN  dup  WHILE  ]] THEN [[  REPEAT  drop ;
 
-: {{ ( addr -- addr addr ) \ regexp-pattern
+: {{ ( addr -- addr addr ) \ regexp-pattern begin-alternatives
     \G Start of alternatives
     0 ]] dup FORK  IF  drop true ;S  BUT  JOIN [[ vars @ ; immediate
-: || ( addr addr -- addr addr ) \ regexp-pattern
+: || ( addr addr -- addr addr ) \ regexp-pattern next-alternative
     \G separator between alternatives
     vars @ varsmax @ max varsmax !  vars !
     ]] AHEAD  BUT  THEN  [[
     ]] dup FORK  IF  drop true ;S  BUT  JOIN [[ vars @ ; immediate
-: }} ( addr addr -- addr ) \ regexp-pattern
+: }} ( addr addr -- addr ) \ regexp-pattern end-alternatives
     \G end of alternatives
     vars @ varsmax @ max vars !  drop
     ]] AHEAD  BUT  THEN  drop false ;S [[  THENs ; immediate
@@ -298,17 +300,19 @@ Variable >>string
     0 to >>ptr  over to <<ptr ;
 : >>next ( -- addr u ) <<ptr end$ over - ;
 : >>rest ( -- ) >>next >>string $+! ;
-: s// ( addr u -- ptr )
-    \ start search/replace loop
+: s// ( addr u -- ptr ) \ regexp-replace
+    \g start search/replace loop
     ]] >>string0 (( // s>> [[ ; immediate
-: >> ( addr -- addr )
+: >> ( addr -- addr ) \ regexp-replace
+    \G Start arbitrary replacement code, the code shall compute a string
+    \G on the stack and pass it to @code{<<}
     ]] <<ptr >>ptr u> ?LEAVE ?end [[ ; immediate
-: //s ( ptr -- )
-    \ search end
+: //s ( ptr -- ) \ regexp-replace
+    \g search end
     ]] )) drop >>rest >>string@ [[ ; immediate
-: //o ( ptr addr u -- addr' u' )
-    \ end search/replace single loop
+: //o ( ptr addr u -- addr' u' ) \ regexp-replace
+    \g end search/replace single loop
     ]] << //s [[ ; immediate
-: //g ( ptr addr u -- addr' u' )
-    \ end search/replace all loop
+: //g ( ptr addr u -- addr' u' ) \ regexp-replace
+    \g end search/replace all loop
     ]] << LEAVE //s [[ ; immediate

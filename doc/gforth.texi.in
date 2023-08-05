@@ -14055,7 +14055,105 @@ mixture of the @file{objects.fs} and @file{oof.fs} models.
 @cindex regexps
 
 Regular expressions are pattern matching algorithms for strings found in
-many contemporary languages.
+many contemporary languages.  You can add regular expression
+functionality to Gforth with @code{require regexp.fs}.
+
+The classical implementation for this pattern matching is a backtracking
+algorithm, which is also necessary if you want to have features like
+backreferencing.  Gforth implements regular expressions by providing a
+language to define backtracking programs for pattern matching.  Basic
+element is the control structure @code{FORK} @dots{} @code{JOIN}, which
+is a forward call within a word, and therefore allows to code a
+lightweight try and fail control structure.
+
+doc-FORK
+doc-JOIN
+
+You can program any sort of arbitrary checks yourself by computing a
+flag and @code{?LEAVE} when the check fails.  Your regular expression
+code is enclosed in @code{((} and @code{))}.
+
+doc-((
+doc-))
+
+Pattern matching in regular expressions have character sets as elements,
+so a number of functions allow you to create and modify character sets
+(called @code{charclass}).  All characters here are bytes, so this
+doesn't extend to unicode characters.
+
+doc-charclass
+doc-+char
+doc--char
+doc-..char
+doc-+chars
+doc-+class
+doc--class
+
+There are predefined charclasses and tests for them, and generic checks.
+If a check fails, the next possible alternative of the regular
+expression is tried, or a loop is terminated.
+
+doc-c?
+doc--c?
+doc-\d
+doc-\s
+doc-.?
+doc--\d
+doc--\s
+doc-`
+doc-`?
+doc--`
+
+You can certainly also check for start and end of the string, and for
+whole string constants.
+
+doc-\^
+doc-\$
+doc-str=?
+doc-=''
+
+Loops that check for repeated character sets can be greedy or
+non-greedy.
+
+doc-{**
+doc-**}
+doc-{++
+doc-++}
+doc-{*
+doc-*}
+doc-{+
+doc-+}
+
+Example: Searching for a substring really is a non-greedy match of
+anything in front of it.
+
+doc-//
+
+Alternatives are written with
+
+doc-{{
+doc-||
+doc-}}
+
+You can use up to 9 variables named @code{\1} to @code{\9} to refer to
+matched substrings
+
+doc-\(
+doc-\)
+doc-\0
+
+Certainly, you can also write code to replace patterns you found.
+
+doc-s>>
+doc->>
+doc-<<
+doc-<<"
+doc-s//
+doc-//s
+doc-//o
+doc-//g
+
+Examples can be found in @code{test/regexp-test.fs}.
 
 @c -------------------------------------------------------------
 @node Programming Tools, Multitasker, Regular Expressions, Words
