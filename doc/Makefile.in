@@ -26,6 +26,7 @@ DVI2PS	= dvips -t letterSize -Z
 #you can get texi2html from http://wwwcn.cern.ch/dci/texi2html/
 MAKEINFO = @MAKEINFO@ $(SRCINC)
 GFORTH_CSS = gforth.css
+GFORTH_JS = gforth.js
 TEXI2HTML = @TEXI2HTML@ $(SRCINC)
 CP	= cp -p
 RECODE = sed -e "s/‘/'/g" -e "s/’/'/g" -e 's/“/"/g' -e 's/”/"/g' -e 's/•/*/g' -e 's/–/--/g' -e 's/—/---/g' -e 's/−/-/g'
@@ -70,6 +71,7 @@ vmgen.info:	$(VMGEN_TEXI)
 gforth:		$(GFORTH_TEXI)
 		$(MAKEINFO) @MAKEINFOREF@ -o gforth --html $<
 		$(CP) $(srcdir)/$(GFORTH_CSS) gforth/
+		$(CP) $(srcdir)/$(GFORTH_JS) gforth/
 
 vmgen:		$(VMGEN_TEXI)
 		$(MAKEINFO) -o vmgen --html $<
