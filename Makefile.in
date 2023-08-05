@@ -358,15 +358,15 @@ SWIGDISTFSI = @SWIGDISTFSI@
 SWIG_WRAP = $(patsubst %.fs,unix/%-fsi.c,$(SWIGMODULES))
 
 LIBCC_SRC1 = unix/cstr.fs unix/socket.fs unix/pthread.fs unix/mmap.fs	\
-	unix/serial.fs unix/filestat.fs unix/libc.fs unix/time.fs	\
-	unix/os-name.fs
+	unix/serial.fs unix/filestat.fs unix/libc.fs unix/time.fs
 
 LIBCC_SRC = $(patsubst %,unix/%,$(SWIGLIBS))
 
 UNIXLIBS_SRC = unix/opengl.fs unix/opengles.fs unix/opengles3.fs	      \
 	unix/jnilib.fs unix/soillib.fs unix/soil2lib.fs unix/android.fs	      \
 	unix/openmax.fs unix/cpu.fs unix/png.fs unix/gpslib.fs unix/gstlib.fs \
-	unix/stb-image.fs unix/stb-image-write.fs
+	unix/stb-image.fs unix/stb-image-write.fs unix/os-name.fs	      \
+	unix/open-url.fs
 
 SWIG_SRC = unix/androidlib.i unix/egl.i unix/gles.i unix/gles3.i unix/gl.i    \
 	unix/glx.i unix/jni.i unix/omxal.i unix/openvg.i unix/png16.i	      \
@@ -421,8 +421,8 @@ MINOS2_SRC = gl-helper.fs gl-terminal.fs jpeg-exif.fs linux-gl.fs	   \
 	android-recorder.fs animation.fs need-x.fs font-style.fs	   \
 	text-style.fs gst-helper.fs plot.fs md-viewer.fs md-test.fs	   \
 	mem-texture.fs pulse-audio.fs sles-audio.fs opus-codec.fs va.fs	   \
-	v4l2.fs open-url.fs $(patsubst %, unicode/%, $(UNICODE_SRC))	   \
-	$(patsubst %, tutorial/%, $(MINOS2_TUTORIAL))
+	v4l2.fs $(patsubst %, unicode/%, $(UNICODE_SRC)) $(patsubst %,	   \
+	tutorial/%, $(MINOS2_TUTORIAL))
 
 MINOS2_BIN = ascii.png button.png button2.png button3.png bad-gateway.png     \
 	net2o-minos2.png lbubble.png rbubble.png white.png thumb.png logo.png

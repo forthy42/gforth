@@ -18,8 +18,8 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-require unix/libc.fs
-require unix/os-name.fs
+require ./libc.fs
+require ./os-name.fs
 
 : file>abspath ( file u path -- addr u )
     ['] file>path catch IF
