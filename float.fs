@@ -246,7 +246,7 @@ infinity fnegate fconstant -infinity ( -- r ) \ gforth
 synonym -inf -infinity
 \G synonym for copy-paste from @code{...}, @xref{Examining data and code}.
 
-0.e0 0.e0 fconstant NaN ( -- r ) \ gforth
+0.e0 0.e0 f/ fconstant NaN ( -- r ) \ gforth
 \G floating point Not a Number
 
 get-current environment-wordlist set-current
