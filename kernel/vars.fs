@@ -56,7 +56,10 @@ opt: ?fold-to >body @ postpone useraddr , ;
     \G Define a per-thread value
     Create cell uallot ,
   DOES> @ next-task + @ ;
+
 : UValue ( "name" -- ) \ gforth
+    \G @i{Name} is a user value.@*
+    \G @i{Name} execution:  ( -- @i{x} )
     (UValue)
     ['] uvalue-to set-to
     ['] u-compile, set-optimizer ;

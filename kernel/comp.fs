@@ -497,15 +497,19 @@ $BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
 : 2Variable ( "name" -- ) \ double two-variable
     Create 0 , 0 , ;
 
-: uallot ( n -- n' ) \ gforth
-    \g Reserve @i{n} bytes in every user space.
+: uallot ( n1 -- n2 ) \ gforth
+    \g Reserve @i{n1} bytes of user data.  @i{n2} is the offset of the
+    \g start of the reserved area within the user area.
     udp @ swap udp +! ;
 
 : User ( "name" -- ) \ gforth
+    \G @i{Name} is a user variable (1 cell).@*
+    \G @i{Name} execution: ( -- @i{addr} )@*
+    \G @i{Addr} is the address of the user variable in the current task.
     ['] sp0 create-from reveal cell uallot , ;
 
 : AUser ( "name" -- ) \ gforth
-    \g Define a user variable for containing an addres (this only
+    \G @i{Name} is a user variable containing an address (this only
     \g makes a difference in the cross-compiler).
     User ;
 
@@ -809,7 +813,7 @@ Create defstart
     basic-block-end dummy-noname noname-from
     latestnt colon-sys ] :-hook ;
 
-: ; ( compilation colon-sys -- ; run-time nest-sys ) \ core	semicolon
+: ; ( compilation colon-sys -- ; run-time nest-sys -- ) \ core	semicolon
     ;-hook [compile] exit ;-hook2 ?colon-sys
     [ has? peephole [IF] ] finish-code [ [THEN] ]
     reveal postpone [ ; immediate restrict

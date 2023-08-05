@@ -185,17 +185,22 @@ User epiper
 User epipew
 User wake#
 
-: user' ( 'user' -- n ) \ gforth-experimental
-    \G USER' computes the task offset of a user variable
+: user' ( "name" -- u ) \ gforth-experimental
+    \G @i{U} is the offset of the user variable @i{name} in the user
+    \G area of each task.
     ' >body @ ;
 compsem: ' >body @ postpone Literal ;
 
 ' next-task alias up@ ( -- addr ) \ gforth-experimental
-\G the current user pointer
+\G @i{Addr} is the start of the user area of the current task
+\G (@i{addr} also serves as the @i{task} identifier of the current
+\G task).
 
 0 warnings !@
-: 's ( user task -- user' ) \ gforth-experimental
-\G get the tasks's address of our user variable
+: 's ( addr1 task -- addr2 ) \ gforth-experimental
+\G With @i{addr1} being an address in the user data of the current
+\G task, @i{addr2} is the corresponding address in @i{task}'s user
+\G data.
     + up@ - ;
 warnings !
 
@@ -215,22 +220,27 @@ Defer thread-init
     [IFDEF] sh$ #0. sh$ 2! [THEN]
     current-input off create-input ; IS thread-init
 
-: newtask4 ( dsize rsize fsize lsize -- task ) \ gforth-experimental
-    \G creates a task, each stack individually sized
+: newtask4 ( u-data u-return u-fp u-locals -- task ) \ gforth-experimental
+    \G creates @i{task} with data stack size @i{u-data}, return stack
+    \G size @i{u-return}, FP stack size @i{u-fp} and locals stack size
+    \G @i{u-locals}.
     gforth_create_thread >r
     throw-entry r@ udp @ throw-entry up@ - /string move
     word-pno-size chars r@ pagesize + over - dup holdbufptr r@ 's !
     + dup holdptr r@ 's !  holdend r@ 's !
     epiper r@ 's create_pipe
-    action-of kill-task >body  rp0 r@ 's @ 1 cells - dup rp0 r@ 's ! !
+    action-of kill-task >body rp0 r@ 's @ 1 cells - dup rp0 r@ 's ! !
     r> ;
 
 : newtask ( stacksize -- task ) \ gforth-experimental
-\G creates a task, uses stacksize for stack, rstack, fpstack, locals
+    \G creates @i{task}; each stack (data, return, FP, locals) has size
+    \G @i{stacksize}.
     dup 2dup newtask4 ;
 
-: task ( stacksize "name" -- ) \ gforth-experimental
-    \G create a named task with stacksize @var{stacksize}
+: task ( ustacksize "name" -- ) \ gforth-experimental
+    \G creates a task @i{name}; each stack (data, return, FP, locals)
+    \G has size @i{ustacksize}.@*
+    \G @i{name} execution: ( -- @i{task} )
     newtask constant ;
 
 : (activate) ( task -- ) \ gforth-experimental
@@ -238,9 +248,11 @@ Defer thread-init
     r> swap >r  save-task r@ 's !
     pthread-id r@ 's pthread_detach_attr thread_start r> pthread_create drop ; compile-only
 
-: activate ( task -- ) \ gforth-experimental
-    \G activates a task. The remaining part of the word calling
-    \G @code{activate} will be executed in the context of the task.
+: activate ( run-time nest-sys1 task -- ) \ gforth-experimental
+    \G Let @i{task} perform the code behind @code{activate}, and
+    \G return to the caller of the word containing @code{activate}.
+    \G When the task returns from the code behind @code{activate}, it
+    \G terminates itself.
     ]] (activate) up! thread-init [[ ; immediate compile-only
 
 : (pass) ( x1 .. xn n task -- ) \ gforth-experimental
@@ -250,14 +262,22 @@ Defer thread-init
     pthread-id r@ 's pthread_detach_attr thread_start r> pthread_create drop ; compile-only
 
 : pass ( x1 .. xn n task -- ) \ gforth-experimental
-    \G activates task, and passes n parameters from the data stack
+    \G Pull @i{x1 .. xn n} from the current task's data stack and push
+    \G @i{x1 .. xn} on @i{task}'s data stack.  Let @i{task} perform
+    \G the code behind @code{pass}, and return to the caller of the
+    \G word containing @code{pass}.  When the task returns from the
+    \G code behind @code{pass}, it terminates itself.
     ]] (pass) up! sp0 ! thread-init [[ ; immediate compile-only
 
 : initiate ( xt task -- ) \ gforth-experimental
-    \G pass an @var{xt} to a task (VFX compatible)
+    \G Let @i{task} execute @i{xt}.  Upon return from the @i{xt}, the
+    \G task terminates itself (VFX compatible).
     1 swap pass execute ;
+
 : initiate-closure ( xt task -- ) \ gforth-experimental
-    \G pass a heap-allocated closure @var{xt} to a task and free it after use
+    \G Let @i{task} execute @i{xt}, a heap-allocated closure, and free
+    \G @code{xt}.  Upon return from the @i{xt}, the task is
+    \G terminated.
     1 swap pass dup >r execute r> >addr free throw ;
 
 : semaphore ( "name" -- ) \ gforth-experimental
@@ -285,16 +305,18 @@ synonym c-section critical-section
 
 : >pagealign-stack ( n addr -- n' ) \ gforth-experimental
     -1 under+ 1- pagesize negate mux 1+ ;
-: stacksize ( -- n ) \ gforth-experimental
-    \G stacksize for data stack
+: stacksize ( -- u ) \ gforth-experimental
+    \G @i{u} is the data stack size of the main task.
     forthstart 5 cells + @ ;
-: stacksize4 ( -- dsize fsize rsize lsize ) \ gforth-experimental
-    \G This gives you the system stack sizes
+: stacksize4 ( -- u-data u-return u-fp u-locals ) \ gforth-experimental
+    \G Pushes the data, return, FP, and locals stack sizes of the main task.
     forthstart 5 cells + 4 cells bounds DO  I @  cell +LOOP
     2>r >r  sp0 @ >pagealign-stack r> fp0 @ >pagealign-stack 2r> ;
 
 : execute-task ( xt -- task ) \ gforth-experimental
-    \G create a new task @var{task} and initiate it with @var{xt}
+    \G Create a new task @var{task} with the same stack sizes as the
+    \G main task. Let @i{task} execute @i{xt}.  Upon return from the
+    \G @i{xt}, the task terminates itself.
     stacksize4 newtask4 tuck initiate ;
 
 \ event handling
@@ -399,7 +421,7 @@ event: :>restart ( wake# task -- ) <event swap elit, :>wake event> ;
 synonym sleep halt ( task -- )
 
 : kill ( task -- ) \ gforth-experimental
-    \G Kill a task
+    \G Terminate @i{task}.
     user' pthread-id +
     [IFDEF] pthread_cancel
 	pthread_cancel drop
@@ -427,7 +449,8 @@ synonym sleep halt ( task -- )
 ' >uvalue defer-table to-method: udefer-to
 
 : UDefer ( "name" -- ) \ gforth-experimental
-    \G Define a per-thread deferred word
+    \G @i{Name} is a task-local deferred word.@*
+    \G @i{Name} execution: ( ... -- ... )
     Create cell uallot ,
     [: @ up@ + perform ;] set-does>
     ['] udefer-to set-to

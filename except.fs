@@ -87,7 +87,7 @@ User stored-backtrace ( addr -- )
 is catch
 
 Defer kill-task ( -- ) \ gforth-experimental
-\G kill the current task, deferred word set when loading the multitasker
+\G Terminate the current task.
 ' noop IS kill-task
 
 Variable located-view

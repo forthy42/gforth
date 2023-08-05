@@ -480,6 +480,15 @@ Multitasker
 * Pthreads::                    Native Unix multitasker
 * Cilk::                        Implements Cilk-like spawn+sync
 
+Pthreads
+
+* Basic multi-tasking::
+* Task-local data::
+* Semaphores::
+* Atomic operations::
+* Message queues::
+* Conditions::
+
 C Interface
 
 * Calling C Functions::
@@ -14801,6 +14810,24 @@ their semantics.
 @subsection Pthreads
 @cindex pthread
 
+You need to include @file{unix/pthread.fs} to use the following words.
+
+Posix threads can run in parallel on several cores, or with
+pre-emptive multitasking on onecore.  However, many of the following
+words are the same as in the traditional cooperative multi-tasker.
+
+@menu
+* Basic multi-tasking::
+* Task-local data::
+* Semaphores::
+* Atomic operations::
+* Message queues::
+* Conditions::
+@end menu
+
+@node Basic multi-tasking, Task-local data, Pthreads, Pthreads
+@subsubsection Basic multi-tasking
+
 Tasks can be created with @code{newtask} or @code{newtask4} with a
 given amount of stack space (either all the same or each stack's size
 specified).
@@ -14810,15 +14837,25 @@ doc-task
 doc-newtask4
 
 If you don't know which stack sizes to use for the task, you can use
-the size(s) of the current task:
+the size(s) of the main task:
 
 doc-stacksize
 doc-stacksize4
 
-A tasks is created in an inactive state.  To let it run, you have to
+A task is created in an inactive state.  To let it run, you have to
 activate it with one of the following words:
 
 doc-initiate
+doc-initiate-closure
+
+The following legacy words provide the same functionality as
+@code{initiate} and @code{initiate-closure}, but with a different
+interface: Like @code{does>}, they split their containing colon
+definition in two parts: The part before @code{activate}/@code{pass}
+runs in the activating task, and returns to its caller after
+activating the task.  The part behind @code{activate}/@code{pass} is
+executed in the activated target task.
+
 doc-activate
 doc-pass
 
@@ -14826,13 +14863,14 @@ You can also do creation and activation in one step:
 
 doc-execute-task
 
-The task can terminate itself with @code{kill-task} or other tasks can
-terminate it with @code{kill}.
+Apart from terminating by running to the end, a task can terminate
+itself with @code{kill-task}.  Other tasks can terminate it with
+@code{kill}.
 
 doc-kill-task
 doc-kill
 
-Tasks can also stop themselves temporarily or be stopped:
+Tasks can also temporarily stop themselves or be stopped:
 
 doc-halt
 doc-stop
@@ -14847,37 +14885,34 @@ There is also:
 
 doc-pause
 
+@node Task-local data, Semaphores, Basic multi-tasking, Pthreads
 @subsubsection Task-local data
 @cindex user variables
 @cindex user space
 @cindex task-local data
 
 In Forth every task has essentially the same task-local data, called
-``user'' data (early Forth systems were multi-user systems and there
-often was one user per task).  Each task gets the user data defined by
-the system.  You can define additional user date with:
-
-Aside from the user variables that are already defined in the kernel,
-tasks may want to have user values and user defers, optain the offset
-of a user variable, or the address of those related to another task to
-initialize that task's user area.
+``user'' area (early Forth systems were multi-user systems and there
+often was one user per task).  The @i{task} result of,
+e.g. @code{newtask} is the start address of its user area.  Each task
+gets the user data defined by the system (e.g., @code{base}).  You can
+define additional user data with:
 
 doc-user
 doc-auser
 doc-uallot
 doc-uvalue
 doc-udefer
+
+There are also the following words for dealing with user data.
+
+doc-up@
 doc-user'
 doc-'s
 
-
-The defining word @code{User} behaves in the same way as
-@code{Variable}.  The difference is that it reserves space in the
-@i{user (data) space} of each task rather than normal data space. Each
-task has its own instance of the user space.
-
 @c doc-udp
 
+@node Semaphores, Atomic operations, Task-local data, Pthreads
 @subsubsection Semaphores
 
 A cooperative multitasker can ensure that there is no other task
@@ -14901,6 +14936,7 @@ exclusive.
 
 doc-critical-section
 
+@node Atomic operations, Message queues, Semaphores, Pthreads
 @subsubsection Atomic operations
 
 Atomic operations can be used to synchronize tasks without using slow
@@ -14911,7 +14947,8 @@ doc-+!@
 doc-?!@
 doc-barrier
 
-@subsubsection Message Queues
+@node Message queues, Conditions, Atomic operations, Pthreads
+@subsubsection Message queues
 
 Gforth implements executable message queues for event driven programs:
 you send instructions to other tasks, enclosed in @code{<event} and
@@ -14936,6 +14973,7 @@ doc-eflit,
 
 The naming conventions for events is @code{:>}@var{name}.
 
+@node Conditions,  , Message queues, Pthreads
 @subsubsection Conditions
 
 The pthreads library also provides conditional variables, which allow to
