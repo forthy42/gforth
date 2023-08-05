@@ -49,6 +49,7 @@ ABG  [ ] defaults
          [ ] which files should be in image
          [ ] documented words which are not included by default should state how they are included
 A    [ ] make file for all obsolete words
+A    [ ] see-code should work properly with zero-length primitives
 
 -*- RoadMap for gforth post 1.0 -*-
  B   [d] (Dropped) Multithreading: Use sections to allow compilation in every threading
@@ -74,6 +75,7 @@ AB   [x] "IDE" locate, view, where & edit
 A        [ ]*backtrace os-commandline - saving backtraces
      [ ] autocomplete `foobar (equals to ' foobar)
      [x] allow tick of recogized words e.g.: ' foo:bar recognizer: wordlist foo, word bar
+     [ ] List all user data words.
 
 -*- outline -*-
 

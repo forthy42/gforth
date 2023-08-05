@@ -7347,18 +7347,6 @@ Finally, for buffers of arbitrary length there is
 
 doc-buffer:
 
-@cindex user variables
-@cindex user space
-The defining word @code{User} behaves in the same way as
-@code{Variable}.  The difference is that it reserves space in the
-@i{user (data) space} of each task rather than normal data space. Each
-task has its own instance of the user space.
-
-doc-user
-doc-auser
-@c doc-udp
-doc-uallot
-
 @comment TODO is that stuff about user variables strictly correct? Is it
 @comment just terminal tasks that have user variables?
 @comment should document tasker.fs (with some examples) elsewhere
@@ -14810,49 +14798,93 @@ multitaskers will likely change the names of words without changing
 their semantics.
 
 @node Pthreads, Cilk, Multitasker, Multitasker
-@subsection Ptheads
+@subsection Pthreads
 @cindex pthread
 
 Tasks can be created with @code{newtask} or @code{newtask4} with a
 given amount of stack space (either all the same or each stack's size
-specified); these tasks neet to be @code{activate}d or send an
-@var{xt} through @code{initiate}.  Tasks can @code{stop} themselves
-when they are done or wait for new instructions.
+specified).
 
 doc-newtask
 doc-task
-doc-execute-task
-doc-stacksize
 doc-newtask4
+
+If you don't know which stack sizes to use for the task, you can use
+the size(s) of the current task:
+
+doc-stacksize
 doc-stacksize4
+
+A tasks is created in an inactive state.  To let it run, you have to
+activate it with one of the following words:
+
+doc-initiate
 doc-activate
 doc-pass
-doc-initiate
-doc-pause
-doc-restart
+
+You can also do creation and activation in one step:
+
+doc-execute-task
+
+The task can terminate itself with @code{kill-task} or other tasks can
+terminate it with @code{kill}.
+
+doc-kill-task
+doc-kill
+
+Tasks can also stop themselves temporarily or be stopped:
+
 doc-halt
 doc-stop
 doc-stop-ns
 
-A cooperative multitasker can ensure that there is no other task
-interacting between two invocations of @code{pause}.  Pthreads however
-are really concurrent tasks (at least on a multi-core CPU), and
-therefore, several techniques to avoid conflicts when accessing the same
-resources.
+A task restarts when the timeout is over or when another task wakes it
+with:
 
-@subsubsection Special User Variables
+doc-restart
+
+There is also:
+
+doc-pause
+
+@subsubsection Task-local data
+@cindex user variables
+@cindex user space
+@cindex task-local data
+
+In Forth every task has essentially the same task-local data, called
+``user'' data (early Forth systems were multi-user systems and there
+often was one user per task).  Each task gets the user data defined by
+the system.  You can define additional user date with:
 
 Aside from the user variables that are already defined in the kernel,
 tasks may want to have user values and user defers, optain the offset
 of a user variable, or the address of those related to another task to
 initialize that task's user area.
 
+doc-user
+doc-auser
+doc-uallot
 doc-uvalue
 doc-udefer
 doc-user'
 doc-'s
 
+
+The defining word @code{User} behaves in the same way as
+@code{Variable}.  The difference is that it reserves space in the
+@i{user (data) space} of each task rather than normal data space. Each
+task has its own instance of the user space.
+
+@c doc-udp
+
 @subsubsection Semaphores
+
+A cooperative multitasker can ensure that there is no other task
+interacting between two invocations of @code{pause}.  Pthreads however
+are really concurrent tasks (at least on a multi-core CPU), and
+therefore, several techniques to avoid conflicts when accessing the same
+resources.
 
 Semaphores can only be aquired by one thread, all other threads have to
 wait until the semapohre is released.
