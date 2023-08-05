@@ -9755,10 +9755,84 @@ doc-#line
 @subsection Recognizers
 @cindex recongizers
 
-The standard Forth text interpreter recognizes the following types of
-tokens: words in the dictionary, integer numbers, and floating point
-numbers.  Defining new types of tokens isn't yet standardized.  Gforth
-provides recognizers to make the text interpreter extensible as well.
+The standard Forth text interpreter recognizes words in the search
+order, integer numbers, and floating point numbers.  By default Gforth
+also recognizes syntaxes for
+
+@itemize @bullet
+
+@item
+strings, e.g., @code{"mystring"}
+
+@item
+complex numbers, e.g., @code{0e+1ei}
+
+@item
+storing a value, e.g., @code{->myvalue}
+
+@item
+the xt representing the interpretation semantics of a word, e.g., @code{`dup}
+
+@item
+the nt of a word, e.g., @code{``mysynonym}
+
+@item
+an address in the body of a word, e.g., @code{<myarray+8>}
+
+@item
+an access to an environment variable of the operating system, e.g.,
+@code{$@{HOME@}}
+
+@item
+a word in a vocabulary, e.g., @code{myvoc1:myvoc2:myword}
+
+@item
+using a specific recognizer to recognize something, e.g., @code{float?1.}
+
+@end itemize
+
+Recognizers are typically designed to avoid matchin the same strings
+as other recognizers.  E.g., @code{rec-env} (the environment variable
+recognizer) requires braces to avoid a conflict with the number
+recognizer for strings like @code{$ADD}.  There are a few exceptions
+to this policy, however:
+
+@itemize @bullet
+
+@item
+Word names can be anything, so they can conflict with any other
+recognizer (and the search order is searched before other
+recognizers).
+
+However, they tend not to start with @code{0} (and if they do, they
+contain special characters), so if your base is @code{hex}, it is a
+good practice to let your numbers start with @code{0}.
+
+In the code bases we have looked at, starting words with @code{'}
+(quote aka tick) is much more common than starting them with @code{`}
+(backquote aka backtick), so the recognizers for the xt and the nt use
+@code{`} to reduce the number of conflicts.
+
+@item
+Both the integer recognizer @code{rec-num} and the floating-point
+recognizer @code{rec-float} recognize, e.g., @code{1.}.  Because
+@code{rec-num} is (by default) first, @code{1.} is recognized as a
+double-cell integer.  If you change the recognizer order to use
+@code{rec-float} first, @code{1.} is recognized as a floating-point
+number, but loading code written in standard Forth may behave in a
+non-standard way.
+
+In any case, it's a good practice to avoid that conflict in your own
+code as follows: Always write double-cell integers with a number
+prefix, e.g., @code{#1.}; and always write floating-point numbers with
+an @code{e}, e.g., @code{1e}.
+
+@item
+We have seen a few word names that start with @code{->}.  You can
+avoid a conflict by using @code{to myvalue} or @code{to?->myvalue}
+(the latter works with @code{postpone}).
+
+@end itemize
 
 Recognizers take a string and return some data and a translator for
 interpreting that data.  Gforth implements that translator as xt
