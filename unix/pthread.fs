@@ -375,7 +375,7 @@ event: :>flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
 : elit,  ( x -- ) \ gforth-experimental
 \G sends a literal
     :>lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
-: e$, ( addr u -- ) \ gforth-experimental
+: estring, ( addr u -- ) \ gforth-experimental
 \G sends a string (actually only the address and the count, because it's
 \G shared memory
     swap elit, elit, ;

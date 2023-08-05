@@ -370,7 +370,7 @@ previous
     open-mts start-file play-loop ;
 : set-mkv ( addr u -- )
     ['] pull-queue is read-ts
-    <event e$, :>open-mkv 0 elit, :>cues cue-task event> ;
+    <event estring, :>open-mkv 0 elit, :>cues cue-task event> ;
 : play-mkv ( addr u -- )
     set-mkv start-file play-loop stop-player ;
 : replay% ( r -- )  >pos  true init-enqueue play-loop ;
