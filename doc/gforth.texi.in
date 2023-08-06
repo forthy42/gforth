@@ -8560,7 +8560,6 @@ doc-defer!
 doc-is
 doc-defer@
 doc-action-of
-@comment TODO document these: what's defers [is]
 
 @c Use @code{words-deferred} to see a list of deferred words.
 
@@ -8569,6 +8568,7 @@ Definitions of these Forth-2012 words in Forth-94 are provided in
 
 doc-defers
 doc-wrap-xt
+doc-preserve
 
 
 @node Forward, Aliases, Deferred Words, Defining Words
