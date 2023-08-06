@@ -88,7 +88,7 @@ require marker.fs
 require varues.fs
 require complex.fs
 require rec-env.fs
-\ require rec-scope.fs
+require rec-scope.fs
 require rec-meta.fs
 \ require unix/pthread.fs
 
