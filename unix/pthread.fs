@@ -301,8 +301,9 @@ synonym sema semaphore
     pthread_mutex_unlock drop ;
 
 : critical-section ( xt semaphore -- )  \ gforth-experimental
-    \G implement a critical section that will unlock the semaphore
-    \G even in case there's an exception within.
+    \G Execute @i{xt} while locking @i{semaphore}.  After leaving
+    \G @i{xt}, @i{semaphore} is unlocked even if an exception is
+    \G thrown.
     { sema } try sema lock execute 0 restore sema unlock endtry throw ;
 synonym c-section critical-section
 
@@ -336,11 +337,14 @@ User event-start
 : event+ ( n -- addr )
     dup eventbuf# @ + $100 u>= !!ebuffull!! and throw
     'event swap eventbuf# +! ;
-: <event ( -- ) \ gforth-experimental
-    \G starts a sequence of events.
+: <event ( -- ) \ gforth-experimental open-angle-event
+    \G Starts an event sequence (a message).
     eventbuf# @ IF  event-start @ 1 event+ c! eventbuf# @ event-start !  THEN ;
-: event> ( task -- ) \ gforth-experimental
-    \G ends a sequence and sends it to the mentioned task
+: event> ( task -- ) \ gforth-experimental event-close-angle
+    \G Finishes the event sequence (message) and sends it to @i{task}.
+    \G If @i{task}'s message queue is full, this operation blocks
+    \G until there is enough room.  Currently message queues are
+    \G implemented as pipes and can typically buffer 4096 bytes.
     eventbuf# @ event-start @ u> IF
 	>r eventbuf# cell+ eventbuf# @ event-start @
 	?dup-if  /string  event-start @ 1- eventbuf# !  'event c@ event-start !
@@ -353,20 +357,23 @@ User event-start
 Create event-table $100 0 [DO] ' event-crash , [LOOP]
 
 : event-does ( -- )  DOES>  @ 1 event+ c! ;
-: event: ( "name" -- ) \ gforth-experimental
-    \G defines an event and the reaction to it as Forth code.
-    \G If @code{name} is invoked, the event gets assembled to the event buffer.
-    \G If the event @code{name} is received, the Forth definition
-    \G that follows the event declaration is executed.
+: event: ( "name" -- colon-sys ) \ gforth-experimental "event-colon"
+    \G Defines an event @i{name} and starts a colon definition.@*
+    \G @i{name} execution: ( -- )@* Add the colon definition to the
+    \G current event sequence.  Eventually the task receiving the
+    \G event sequence will run the colon definition.
     Create event# @ ,  event-does
     here 0 , >r  noname : latestxt dup event# @ cells event-table + !
     r> ! 1 event# +! ;
 : (stop) ( -- )  epiper @ key-file
     dup 0>= IF  cells event-table + perform  ELSE  drop  THEN ;
 : event? ( -- flag )  epiper @ check_read 0> ;
-: ?events ( -- ) \ gforth-experimental
-\G checks for events and executes them
+
+: ?events ( -- ) \ gforth-experimental question-events
+    \G Perform all event sequences in the current task's message
+    \G queue, one event sequence at a time.
     BEGIN  event?  WHILE  (stop)  REPEAT ;
+
 : stop ( -- ) \ gforth-experimental
 \G stops the current task, and waits for events (which may restart it)
     (stop) ?events ;
@@ -376,10 +383,13 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 : stop-dns ( dtimeout -- ) \ gforth-experimental
     epiper @ -rot 1000000000 um/mod wait_read 0> IF  stop  THEN ;
 \G Stop with dtimeout (in nanoseconds), better replacement for ms
+
 : event-loop ( -- ) \ gforth-experimental
-\G Tasks that are controlled by sending events to them should
-\G go into an event-loop
+    \G Wait for event sequences, and execute any event sequences when
+    \G they arrive.  Return to waiting if no event sequences are in
+    \G the queue.  This word never returns.
     BEGIN  stop  AGAIN ;
+
 : pause ( -- ) \ gforth-experimental
     \G voluntarily switch to the next waiting task (@code{pause} is
     \G the traditional cooperative task switcher; in the pthread
@@ -397,15 +407,22 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
 event: :>lit  0 { w^ n } n cell epiper @ read-file throw drop n @ ;
 event: :>flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
 
-: elit,  ( x -- ) \ gforth-experimental
-\G sends a literal
+: elit,  ( x -- ) \ gforth-experimental e-lit-comma
+    \G Put @i{x} in the current event sequence.  The receiving task
+    \G will push @i{x}.
     :>lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
-: estring, ( addr u -- ) \ gforth-experimental
-\G sends a string (actually only the address and the count, because it's
-\G shared memory
+
+: estring, ( c-addr u -- ) \ gforth-experimental e-string-comma
+    \G Put the string @i{c-addr u} in the current event sequence.  The
+    \G receiving task will push a string @i{c-addr2 u}, with the same
+    \G contents, but possibly a different address.  Do not change the
+    \G contents of the string after sending the event sequence,
+    \G because the receiving task may or may not see the change (or
+    \G worse, some in-between state).
     swap elit, elit, ;
-: eflit, ( x -- ) \ gforth-experimental
-\G sends a float
+: eflit, ( r -- ) \ gforth-experimental e-f-lit-comma
+    \G Put @i{r} in the current event sequence.  The receiving task
+    \G will push @i{r} on the floating-point stack.
     :>flit { f^ r } r float event+ float move ;
 
 event: :>wake ( wake# -- )  wake# ! ;

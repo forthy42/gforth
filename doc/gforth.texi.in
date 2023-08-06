@@ -485,7 +485,7 @@ Pthreads
 * Basic multi-tasking::
 * Task-local data::
 * Semaphores::
-* Atomic operations::
+* Hardware operations for multi-tasking::
 * Message queues::
 * Conditions::
 
@@ -14823,11 +14823,18 @@ Posix threads can run in parallel on several cores, or with
 pre-emptive multitasking on onecore.  However, many of the following
 words are the same as in the traditional cooperative multi-tasker.
 
+In addition, there are words that allow you to make sure that only one
+task at a time changes something, and for communicating between tasks.
+These words are necessary for pre-emptive and multi-core
+multi-tasking, because the cooperative-multitasking way of performing
+transactions between calls to @code{pause} does not work in this
+environment.
+
 @menu
 * Basic multi-tasking::
 * Task-local data::
 * Semaphores::
-* Atomic operations::
+* Hardware operations for multi-tasking::
 * Message queues::
 * Conditions::
 @end menu
@@ -14919,7 +14926,7 @@ doc-'s
 
 @c doc-udp
 
-@node Semaphores, Atomic operations, Task-local data, Pthreads
+@node Semaphores, Hardware operations for multi-tasking, Task-local data, Pthreads
 @subsubsection Semaphores
 
 A cooperative multitasker can ensure that there is no other task
@@ -14943,15 +14950,15 @@ exclusive.
 
 doc-critical-section
 
-@node Atomic operations, Message queues, Semaphores, Pthreads
-@subsubsection Atomic operations
+@node Hardware operations for multi-tasking, Message queues, Semaphores, Pthreads
+@subsubsection Hardware operations for multi-tasking
 
 Atomic hardware operations perform the whole operation, without any
 other task seeing an intermediate state.  These operations can be used
 to synchronize tasks without using slow OS primitives, but compared to
 the non-atomic sequences of operations they tend to be slow.  Atomic
-operations really only work correctly on aligned addresses, evan on
-hardware that otherwise does not require alignment.
+operations only work correctly on aligned addresses, even on hardware
+that otherwise does not require alignment.
 
 doc-!@
 doc-+!@
@@ -14959,36 +14966,57 @@ doc-?!@
 
 Another hardware operation is the memory barrier.  Unfortunately
 modern hardware often can reorder memory operations relative to other
-memory operations, and the memory barrier suppresses this reordering
-for one point in execution.
+memory operations (as seen by a different core), and the memory
+barrier suppresses this reordering for one point in the execution of
+the task.
 
 doc-barrier
 
-@node Message queues, Conditions, Atomic operations, Pthreads
+@node Message queues, Conditions, Hardware operations for multi-tasking, Pthreads
 @subsubsection Message queues
 
-Gforth implements executable message queues for event driven programs:
-you send instructions to other tasks, enclosed in @code{<event} and
-@code{event>}; the entire event sequence is executed atomically.  You
-can pass integers, floats, and strings (only the addresses, so treat
-the string as read-only after you have send it to another task).  The
-messages you send are defined with @code{event:} @var{name}, which,
-when invoked, will add the code for its execution to the message
-queue, and when recieved, will execute the code following.  The
-message queue is queried when you @code{stop} a task, or when you
-check for events with @code{?events}.  You can define a maximum of 256
-different events.
+Gforth's message queues are a variant of the actor model.
+
+An event is a kind of colon definition; the sending task tells the
+receiving task to run an event (actually an event sequence), and the
+receiving task performs one event sequence (or more) from its message
+queue when it is ready.
+
+doc-event:
+
+You can define a maximum of 256 different events.  The naming
+convention for events is @code{:>}@var{name}.  You can assemble
+several events into an event sequence (a message):
 
 doc-<event
 doc-event>
-doc-event:
-doc-?events
-doc-event-loop
+
+In addition to events, you can add integers, floating-point numbers,
+and strings to event sequences.  The receiving task will push them on
+the appropriate stack.  In this way you can also send events with
+parameters: You put these parameters in the event sequence, and then
+put an event colon definition there that consumes these parameters.
+
 doc-elit,
-doc-e$,
+doc-estring,
 doc-eflit,
 
-The naming conventions for events is @code{:>}@var{name}.
+Each event sequence is currently limited to 256 bytes; On 64-bit
+systems an event currently takes 1 byte, a cell 9 bytes, a string 17
+bytes, and a float 9 bytes.
+
+When several tasks send event sequences to one task, the event
+sequences may arrive in any order, but the receiving task processes
+each event sequence as one unit, without interleaving it with other
+events or other work.  In order to receive events, you put one of the
+following words in the receiving task:
+
+doc-?events
+doc-event-loop
+
+Alternatively, when a task is @code{stop}ped, it is also ready for
+receiving event sequences, and receiving an event sequence will wake
+it up.
 
 @node Conditions,  , Message queues, Pthreads
 @subsubsection Conditions
