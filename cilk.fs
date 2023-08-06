@@ -33,7 +33,11 @@ e? os-type 2dup s" darwin" string-prefix? -rot s" openbsd" string-prefix? or [IF
 	1 \ we don't know
     [THEN]
 [THEN]
-1 max Value cores
+1 max Value cores ( -- u ) \ cilk
+\G A value containing the number of worker tasks to use.  By default
+\G this is the number of hardware threads (with SMT/HT), if we can
+\G determine that, otherwise 1.  If you want to use a different
+\G number, change @code{cores} before calling @code{cilk-init}.
 
 Variable sync#
 Variable workers
@@ -55,32 +59,34 @@ event: ->spawn ( xt task -- )
     BEGIN  invoker @ +worker stop  AGAIN ;
 
 : cilk-sync ( -- ) \ cilk
-    \G wait for all spawned tasks to complete
+    \G Wait for all subproblems to complete.
     BEGIN  sync# @  0> WHILE  stop  REPEAT ;
 : start-workers cores 1 max 0 ?DO worker-thread 1 sync# +! LOOP cilk-sync ;
 : cilk-init ( -- ) \ cilk
-    \G Start the workers if not already done
+    \G Start the worker tasks if not already done.
     workers @ 0= IF  start-workers  THEN ;
 
 : spawn-rest ( xt -- )
     elit, up@ elit, ->spawn worker@ event> 1 sync# +! ;
 : spawn ( xt -- ) \ cilk
-    \G wait for a worker to become free, and spawn xt there
+    \G Execute @i{xt} ( -- ) in a worker task.
     <event spawn-rest  ;
-: spawn1 ( n xt -- ) \ cilk
-    \G wait for a worker to become free, and spawn xt there, with one argument
+: spawn1 ( x xt -- ) \ cilk
+    \G Execute @i{xt} ( x -- ) in a worker task.
     <event swap elit, spawn-rest ;
-: spawn2 ( n1 n2 xt -- ) \ cilk
-    \G wait for a worker to become free, and spawn xt there, with two arguments
+: spawn2 ( x1 x2 xt -- ) \ cilk
+    \G Execute @i{xt} ( x1 x2 -- ) in a worker task.
     <event >r swap elit, elit, r> spawn-rest ;
 : spawn-closure ( xt -- ) \ cilk
-    \G for passing a heap closure: execute and free it.  This allows to pass
-    \G all sorts of arguments to code.
-    \G Usage @code{[@{: vars :@}h code ;] spawn-closure ;}
+    \G Execute @i{xt} ( -- ) in a worker task, the @code{free} @i{xt}.
+    \G Use @code{spawn-closure} to pass heap-allocated closures,
+    \G allowing to pass arbitrary data from the spawner to the code
+    \G running in the worker.@*
+    \G E.g.: @code{( n r ) [@{: n f: r :@}h code ;] spawn-closure}
     [: dup >r execute r> >addr free throw ;] spawn1 ;
 
 : cilk-bye ( -- ) \ cilk
-    \G kill all workers
+    \G Terminate all workers.
     cilk-sync workers $@len cell/ 0 ?DO [: 0 (bye) ;] spawn LOOP
     #10000. ns workers $free  sync# off ;
 
