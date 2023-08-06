@@ -365,7 +365,7 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     dup 0>= IF  cells event-table + perform  ELSE  drop  THEN ;
 : event? ( -- flag )  epiper @ check_read 0> ;
 
-: ?events ( -- ) \ gforth-experimental
+: ?events ( -- ) \ gforth-experimental question-events
     \G Perform all event sequences in the current task's message
     \G queue, one event sequence at a time.
     BEGIN  event?  WHILE  (stop)  REPEAT ;
