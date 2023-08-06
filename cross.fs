@@ -3349,7 +3349,7 @@ hm: [G'] to:, gset-optimizer
 Builder (Constant)
 Build:  ( n -- ) ;Build
 by: :docon ( target-body-addr -- n ) T @ H ;DO
-compile: g>body compile lit T @ , H ;compile
+compile: g>body compile lit T @ V, H ;compile
 hm: [G'] constant, gset-optimizer ;hm
 
 Builder (AConstant)

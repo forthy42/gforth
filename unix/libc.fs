@@ -160,7 +160,7 @@ e? os-type s" linux-musl" string-prefix? or [IF]
     ELSE  fpid ! drop 2drop  THEN ;
 [THEN]
 
-:noname ['] execute is int-execute defers 'image ; is 'image
+:noname ['] execute is int-execute 0 to getpid defers 'image ; is 'image
 
 :noname
     defers 'cold

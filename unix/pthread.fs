@@ -484,6 +484,16 @@ false [IF] \ event test - send to myself
 
 User keypollfds pollfd 2* cell- uallot drop
 
+:noname defers 'image
+    keypollfds pollfd 2* erase
+    event-start off
+    eventbuf# $100 erase
+    pthread-id [ 0 pthread+ ]L erase
+    epiper off
+    epipew off
+    wake# off
+; is 'image
+
 : prep-key ( -- )
     keypollfds >r
     stdin fileno    POLLIN r> fds!+ >r

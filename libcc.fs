@@ -802,17 +802,17 @@ Create callback-&style c-var c,
     \ set up filenames for a (possibly new) library; c-addr u is the
     \ basename of the library
     libcc-named-dir prepend-dirname c-library-name-setup
-    open-wrappers lib-handle-addr @ ! ;
+    open-wrappers lib-handle-addr @ lha-id ! ;
 
 : c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
     \ the library
     libcc-tmp-dir 2dup $1ff mkdir-parents drop
     prepend-dirname c-library-name-setup
-    open-wrappers lib-handle-addr @ ! ;
+    open-wrappers lib-handle-addr @ lha-id ! ;
 
 : lib-handle ( -- addr )
-    lib-handle-addr @ @ ;
+    lib-handle-addr @ lha-id @ ;
 
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
@@ -854,7 +854,7 @@ Create callback-&style c-var c,
     [: ." gflibcc_hash_" lib-modulename $. ;] $tmp
     lib-handle lib-sym
     ?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
-    IF  lib-handle close-lib  lib-handle-addr @ off false
+    IF  lib-handle close-lib  lib-handle-addr @ lha-id off false
     ELSE  true  THEN ;
 
 \ clear library
@@ -875,7 +875,7 @@ DEFER compile-wrapper-function ( -- )
 	compile-wrapper-function
     endif
     lib-handle-addr @ dup if
-	@ 0=
+	lha-id @ 0=
     endif
     0= if
 	lha,
@@ -929,7 +929,7 @@ tmp$ $execstr-ptr !
 		free-libs EXIT
 	    THEN
 	endif
-	( lib-handle ) lib-handle-addr @ !
+	( lib-handle ) lib-handle-addr @ lha-id !
     endif
     s" gforth_libcc_init" lib-handle lib-sym  ?dup-if
 	gforth-pointers swap call-c  endif
@@ -1105,6 +1105,15 @@ init-libcc
 		THEN
 	    THEN  drop
 	    true ;] swap traverse-wordlist ;] map-vocs ;
+: unbind-libcc ( -- )
+    [: [: dup >does-code [ ' rt-does> >body ]L = IF
+		dup >body off
+		\ ." relink: " over body> .name dup hex. cr
+	    ELSE  dup >does-code [ ' callback-does> >body ]L = IF
+		    dup >body off
+		THEN
+	    THEN  drop
+	    true ;] swap traverse-wordlist ;] map-vocs ;
 
 set-current
 
@@ -1123,9 +1132,10 @@ Defer prefetch-lib ( addr u -- )
 	libcc-named-dir 2dup  $1ff mkdir-parents drop
 	prepend-dirname lib-filename $!
 	open-wrappers dup IF
-	    r@ !
+	    \ ." link " r@ lha-name $. ."  to " dup hex. cr
+	    r@ lha-id !
 	    r@ lha-name [: ." gflibcc_hash_" $. ;] $tmp
-	    r@ @ lib-sym r> lha-hash $10 tuck str= ?EXIT
+	    r@ lha-id @ lib-sym r> lha-hash $10 tuck str= ?EXIT
 	THEN
 	.lib-error !!openlib!! throw
     ;] map-libs ;
@@ -1136,7 +1146,7 @@ Defer prefetch-lib ( addr u -- )
 is 'cold
 
 :noname ( -- )
-    defers 'image
+    defers 'image  unbind-libcc  ['] on map-libs
     libcc$ off  libcc-named-dir$ off  libcc-path off ;
 is 'image
 

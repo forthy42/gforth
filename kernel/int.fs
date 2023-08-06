@@ -354,17 +354,20 @@ Defer rec-nt ( addr u -- nt translate-nt | notfound ) \ gforth-experimental
 \ cross-compiler, so we kludge it by generating a constant and then
 \ storing the proper value into it (and that's another kludge).
 \ alias- and immediate-masks are no longer used
-$80000000 constant restrict-mask
+1 cells 8 = [IF] $8000000000000000 [ELSE] $80000000 [THEN]
+constant restrict-mask
 1 bits/char 1 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
                           [ELSE] 0 1 cells 1- c,s c, [THEN]
-$40000000 constant obsolete-mask
+1 cells 8 = [IF] $4000000000000000 [ELSE] $40000000 [THEN]
+constant obsolete-mask
 1 bits/char 2 - lshift
 -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
                           [ELSE] 0 1 cells 1- c,s c, [THEN]
 \ $01000000 constant unused-mask \ defined in locate1.fs, used only temporarily
 \ reserve 8 bits for all possible flags in total
-$00ffffff constant lcount-mask
+1 cells 8 = [IF] $00ffffffffffffff [ELSE] $00ffffff [THEN]
+constant lcount-mask
 0 -1 cells allot  bigendian [IF]   c, -1 1 cells 1- c,s
                           [ELSE] -1 1 cells 1- c,s c, [THEN]
 [THEN]
