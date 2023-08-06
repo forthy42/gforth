@@ -448,18 +448,20 @@ FORTH_SRC = $(KERN_SRC) $(GFORTH_FI_DIST_SRC) $(EC_SRC) $(F_SRC)	      \
 	fi2c.fs forward.fs fsl-util.4th fsl-util.fs glosgen.fs gray.fs	      \
 	httpd.fs i18n.fs install-tags.fs make-app.fs doc/makedoc.fs locate.fs \
 	locate1.fs more.fs onebench.fs fft-bench.fs other.fs prims2x.fs	      \
-	prims2x0.6.2.fs proxy.fs random.fs regexp.fs sokoban.fs		      \
-	standard-words.fs string.fs table.fs tags.fs tt.fs unbuffer.fs	      \
-	wordsets.fs 2012words.fs $(patsubst %, test/%, $(TEST_SRC)) bubble.fs \
-	siev.fs matrix.fs fib.fs oof.fs oofsampl.fs objects.fs objexamp.fs    \
-	mini-oof.fs moof-exm.fs moofglos.fs fixpath.fs mini-oof2.fs	      \
-	moof2-example.fs scope.fs varues.fs callable.fs add.fs lib.fs	      \
-	oldlib.fs sieve.fs list.fs endtry-iferror.fs recover-endtry.fs	      \
-	$(patsubst %, unix/%, $(UNIX_SRC)) date.fs i18n-date.fs script.fs     \
-	wf.fs traceall.fs rec-scope.fs rec-env.fs rec-meta.fs notfound.fs     \
-	utf16.fs archive.fs cilk.fs fixfiles.fs bits.fs reverse-words.fs      \
-	config.fs set-compsem.fs coverage.fs tokenize.fs startup-libcc.fs     \
-	status-line.fs unix/opensles-vals.fs recognizer-ext.fs
+	prims2x0.6.2.fs proxy.fs random.fs regexp.fs sokoban.fs string.fs     \
+	table.fs tags.fs tt.fs unbuffer.fs wordsets.fs 2012words.fs	      \
+	$(patsubst %, test/%, $(TEST_SRC)) bubble.fs siev.fs matrix.fs fib.fs \
+	oof.fs oofsampl.fs objects.fs objexamp.fs mini-oof.fs moof-exm.fs     \
+	moofglos.fs fixpath.fs mini-oof2.fs moof2-example.fs scope.fs	      \
+	varues.fs callable.fs add.fs lib.fs oldlib.fs sieve.fs list.fs	      \
+	endtry-iferror.fs recover-endtry.fs $(patsubst %, unix/%,	      \
+	$(UNIX_SRC)) date.fs i18n-date.fs script.fs wf.fs traceall.fs	      \
+	rec-scope.fs rec-env.fs rec-meta.fs notfound.fs utf16.fs archive.fs   \
+	cilk.fs fixfiles.fs bits.fs reverse-words.fs config.fs set-compsem.fs \
+	coverage.fs tokenize.fs startup-libcc.fs status-line.fs		      \
+	unix/opensles-vals.fs recognizer-ext.fs
+
+GEN_SRC = standard-words.fs
 
 COMPAT = compat/README \
 	compat/anslocal.fs \
@@ -645,8 +647,8 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in   \
 	doc/words/README doc/gforth.1 doc/gforth.css doc/standard-words.awk   \
 	doc/2012-words doc/version.texi.in doc/vmgen.texi doc/fdl.texi	      \
 	doc/gpl.texi gforth.el $(ARCHS) siteinit.fs versions.bsh glosgen.glo  \
-	doc/glossaries.doc $(FORTH_SRC) $(LIBCC_DIST_SRC) $(COMPAT)	      \
-	$(VMGEN_EX) $(VMGEN_EX2) $(FREETYPE_GL_SRC) timings.sc		      \
+	doc/glossaries.doc $(FORTH_SRC) $(GEN_SRC) $(LIBCC_DIST_SRC)	      \
+	$(COMPAT) $(VMGEN_EX) $(VMGEN_EX2) $(FREETYPE_GL_SRC) timings.sc      \
 	test/coretest.out test/checkans.out test/gforth.out		      \
 	test/read-line.input test/read-line2.input test/read-line.out	      \
 	test/fp/fptest.out test/regexp.out $(wildcard $(srcdir)/cache*.vmg)   \
@@ -888,7 +890,7 @@ install-txt:	txt
 install-md:
 		$(INSTALL_DATA) $(srcdir)/README.md $(datadir)/gforth/$(VERSION)/doc/README.md
 
-install-images:	install-md install-libcc @INSTALLTXT@
+install-images:	install-md @INSTALLTXT@
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
 		env HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal --debug-mcheck -i $(kernel_fi) exboot.fs startup.fs" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi.install $(FORTHSIZES) $(STARTUP_FULL) fixfiles.fs
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
@@ -950,7 +952,7 @@ installdeps:	gforth$(EXT) $(FORTH_SRC) $(kernel_fi) gforthmi vmgen doc/gforth.1 
 
 install-indep:	installdeps installdirs-indep install-sources install-man install-elc
 
-install-arch:	installdeps installdirs-arch normal-install rm-install install-prog-bins install-gensources install-images install-include install-libcc install-tags @libinstall@ extra-install
+install-arch:	installdeps installdirs-arch normal-install rm-install install-prog-bins install-gensources install-libcc install-images install-include install-tags @libinstall@ extra-install
 
 install-seq:	install-indep install-arch @INSTALLTXT@ @INSTALLINFO@
 
