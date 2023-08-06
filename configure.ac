@@ -1482,7 +1482,7 @@ GLXFLAG=false
 GLESFLAG=false
 MINOSFLAG=false
 HAS_SWIG_FORTH=
-if swig -forth $srcdir/unix/test.i; then
+if $SWIG -forth $srcdir/unix/test.i; then
     echo "Swig works in Forth mode"
     has_swig=yes
     MINOSFLAG=true

@@ -34,7 +34,8 @@
 : rec-scope ( addr u -- nt rectype-nt | notfound )
     ['] search-order scope-split ;
 
-get-recognizers 1+ ' rec-scope -rot set-recognizers
+' forth-recognize defer@ get-stack 1+ ' rec-scope -rot
+' forth-recognize defer@ set-stack
 
 : in ( "voc" "defining-word" -- ) \ gforth-experimental
     \G execute @var{defining-word} with @var{voc} as one-shot current
