@@ -54,14 +54,14 @@ event: ->sync ( task -- )
 
 event: ->spawn ( xt task -- )
     invoker ! execute clearstack ;
-: worker-thread ( -- ) \ cilk
-    stacksize4 newtask4 activate [ up@ ]l invoker !
+: worker-thread ( invoker -- ) \ cilk
+    1 stacksize4 newtask4 pass invoker !
     BEGIN  invoker @ +worker stop  AGAIN ;
 
 : cilk-sync ( -- ) \ cilk
     \G Wait for all subproblems to complete.
     BEGIN  sync# @  0> WHILE  stop  REPEAT ;
-: start-workers cores 1 max 0 ?DO worker-thread 1 sync# +! LOOP cilk-sync ;
+: start-workers cores 1 max 0 ?DO up@ worker-thread 1 sync# +! LOOP cilk-sync ;
 : cilk-init ( -- ) \ cilk
     \G Start the worker tasks if not already done.
     workers @ 0= IF  start-workers  THEN ;
@@ -92,5 +92,5 @@ event: ->spawn ( xt task -- )
 
 s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
     :noname ( -- )
-	 cilk-bye defers bye ; is bye
+	cilk-bye defers bye ; is bye
 [THEN]

@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Variable cpuflags
+$Variable cpuflags
 
 e? os-type s" linux" string-prefix?
 e? os-type s" cygwin" string-prefix? or [IF]
@@ -27,7 +27,7 @@ e? os-type s" cygwin" string-prefix? or [IF]
 	    machine s" mips" str= [IF] s" isa" [ELSE]
 		machine s" mipsel" str= [IF] s" cpu model" [ELSE]
 		    s" cpu" [THEN] [THEN] [THEN] [THEN]
-    2constant cpu-string
+    here >r string, r> count 2constant cpu-string
     : parse-cpuline ( addr u -- )
 	':' parse BEGIN dup WHILE 1- 2dup + c@ bl > UNTIL  1+  THEN
 	[ cpu-string ] SLiteral str= IF
@@ -48,7 +48,8 @@ e? os-type s" cygwin" string-prefix? or [IF]
     
     get-cpuflags
     
-    :noname defers 'cold cpuflags off get-cpuflags ; is 'cold
+    :noname defers 'cold get-cpuflags ; is 'cold
+    :noname defers 'image cpuflags off ; is 'image
     
     \ fastlib check
     

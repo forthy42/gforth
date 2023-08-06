@@ -18,7 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-Variable scope<>
+$Variable scope<>
 : >scope ( xt -- )
     get-current scope<> >stack also execute definitions ;
 : scope{ ( "vocabulary" -- scope:addr )

@@ -53,7 +53,7 @@ object uclass exif-o
     umethod >exif-open ( addr u -- )
 end-class exif-class
 
-exif-class new dup constant file-exif-o exif-o !
+exif-class ' new static-a with-allocater dup constant file-exif-o exif-o !
 
 \ file variant
 
@@ -86,7 +86,7 @@ exif-class uclass exif-o
     cell uvar exif-pos
 end-class exif-mem-class
 
-exif-mem-class new dup Constant exif-mem-o exif-o !
+exif-mem-class new exif-o !
 
 : mem-exif/ ( -- addr u )  exif-mem 2@ exif-pos @ safe/string ;
 : mem-exb ( -- c )

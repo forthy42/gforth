@@ -246,37 +246,29 @@ IS until-like
 \ special stack.
 
 \ !! remove the fixed size limit. 'Tis not hard.
-40 constant leave-stack-size
-create leave-stack  leave-stack-size cs-item-size * cells allot
-Avariable leave-sp  leave-stack cs-item-size cells + leave-sp !
+Variable leave-stack
 
 : clear-leave-stack ( -- )
-    leave-stack leave-sp ! ;
+    leave-stack $free ;
 
 \ : leave-empty? ( -- f )
 \  leave-sp @ leave-stack = ;
 
 : >leave ( orig -- )
     \ push on leave-stack
-    leave-sp @
-    dup [ leave-stack leave-stack-size cs-item-size * cells + ] Aliteral
-    >= abort" leave-stack full"
-    tuck ! cell+
-    tuck ! cell+
-    tuck ! cell+
-    tuck ! cell+
-    leave-sp ! ;
+    leave-stack >stack
+    leave-stack >stack
+    leave-stack >stack
+    leave-stack >stack ;
 
 : leave> ( -- orig )
     \ pop from leave-stack
-    leave-sp @
-    dup leave-stack <= IF
-       drop 0 0 0 0  EXIT  THEN
-    cell- dup @ swap
-    cell- dup @ swap
-    cell- dup @ swap
-    cell- dup @ swap
-    leave-sp ! ;
+    leave-stack stack# 0= IF
+       0 0 0 0  EXIT  THEN
+   leave-stack stack>
+   leave-stack stack>
+   leave-stack stack>
+   leave-stack stack> ;
 
 : DONE ( compilation orig -- ; run-time -- ) \ gforth
     \g resolves all LEAVEs up to the compilaton orig (from a BEGIN)
@@ -407,9 +399,9 @@ defer adjust-locals-list ( wid -- )
 
 \ quotations
 : wrap@-kernel ( -- wrap-sys )
-    hmsave latest latestnt leave-sp @ ( unlocal-state @ ) ;
+    hmsave latest latestnt 0 leave-stack !@ ( unlocal-state @ ) ;
 : wrap!-kernel ( wrap-sys -- )
-    ( unlocal-state ! ) leave-sp ! lastnt ! last ! hmrestore ;
+    ( unlocal-state ! ) leave-stack ! lastnt ! last ! hmrestore ;
 
 Defer wrap@ ( -- wrap-sys ) ' wrap@-kernel is wrap@
 Defer wrap! ( wrap-sys -- ) ' wrap!-kernel is wrap!
