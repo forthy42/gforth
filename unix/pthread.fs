@@ -175,7 +175,7 @@ c-library pthread
 end-c-library
 
 require ./libc.fs
-require ../set-compsem.fs
+require set-compsem.fs
 
 User pthread-id
 s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
