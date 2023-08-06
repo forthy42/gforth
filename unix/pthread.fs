@@ -178,7 +178,7 @@ require ./libc.fs
 require set-compsem.fs
 
 User pthread-id
-s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
+host? [IF]
     -1 cells pthread+ uallot drop
 
     pthread-id pthread_self
@@ -488,7 +488,7 @@ User keypollfds pollfd 2* cell- uallot drop
     keypollfds pollfd 2* erase
     event-start off
     eventbuf# $100 erase
-    pthread-id [ 0 pthread+ ]L erase
+    pthread-id [ host? [IF] 0 pthread+ [ELSE] cell [THEN] ]L erase
     epiper off
     epipew off
     wake# off

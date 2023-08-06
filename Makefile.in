@@ -142,6 +142,7 @@ FORTHK	= ./gforthker -p ".$(PATHSEP)~+$(PATHSEP)$(srcdir)"
 #the "-2 image-included-files +!" undoes the change to image-included-files
 # in exboot.fs
 STARTUP	= exboot.fs startup.fs @asm_fs@ @disasm_fs@
+STARTUP_FULL = $(STARTUP) unix/pthread.fs
 STRIP	= strip
 DOSTRIP = true
 
@@ -686,6 +687,7 @@ FORTH_GEN_PRIMB = $(FORTH_GEN_ENGINE) kernel/aliases.fs kernel/prim.fs\
 	kernel/authors.fs
 FORTH_GEN0 = prim.b $(FORTH_GEN_PRIMB)
 FORTH_GEN_FAST = prim-fast.b $(FORTH_GEN_ENGINE_FAST)
+FORTH_GEN_LIGHT =  $(FORTH_GEN0) @GKERNEL@ gforth-light.fi
 FORTH_GEN =  $(FORTH_GEN0) @GKERNEL@ gforth.fi
 # this is used for antidependences,
 FORTH_GEN1 = $(FORTH_GEN0) @kernel_fi@ build-ec
@@ -753,7 +755,7 @@ more:	$(ENGINES) $(FORTH_GEN) $(GEN) @libengines@ @build_libcc_named@
 # `realclean' also deletes everything that could be regenerated automatically."
 
 mostlyclean:	FORCE
-		-$(RMTREE) engine/*.s gforth.fi *.fi~ *.fi- kernel/version.fs \
+		-$(RMTREE) engine/*.s gforth.fi gforth-light.fi *.fi~ *.fi- kernel/version.fs \
 		kernel/authors.fs *TAGS gforth~ \
 		doc/crossdoc.fd doc/doc.fd doc/gforth.texi doc/gforth.fns \
 		doc/gforth.aux doc/gforth.cp doc/gforth.cps \
@@ -888,7 +890,7 @@ install-md:
 
 install-images:	install-md @INSTALLTXT@
 		$(INSTALL_DATA) $(kernel_fi) $(libdir)/gforth/$(VERSION)
-		HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal --debug-mcheck -i $(kernel_fi) exboot.fs startup.fs" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi.install $(FORTHSIZES) $(STARTUP) fixfiles.fs
+		env HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) -i $(kernel_fi)" GFORTH="$(DITCENGINE)$(EXT) -p $(siteforthdir)$(PATHSEP)$(siteforthdir)$(PATHSEP)$(datadir)/gforth/$(VERSION)$(PATHSEP)$(libdir)/gforth/$(VERSION) --die-on-signal --debug-mcheck -i $(kernel_fi) exboot.fs startup.fs" includedir=$(subst $(package),,$(includedir)) bindir=$(subst $(package),,$(bindir)) libccdir=$(libccdir) GFORTHPATH=.:"$$GFORTHPATH" GFORTHDESTDIR="$(package)" ./gforthmi gforth.fi.install $(FORTHSIZES) $(STARTUP_FULL) fixfiles.fs
 		$(INSTALL_DATA) gforth.fi.install $(libdir)/gforth/$(VERSION)/gforth.fi
 
 install-include:
@@ -1008,8 +1010,9 @@ $(buildccdir)/libgfmmap.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfpthread.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfserial.la: $(buildccdir)/libgflibc.la
 $(buildccdir)/libgfsocket.la: $(buildccdir)/libgflibc.la
+gforth.fi: $(buildccdir)/libgfpthread.la
 
-$(buildccdir)/libgf%.la: unix/%.fs $(FORTH_GEN) $(GEN) $(LIBCC_LIB_SRC) libforth
+$(buildccdir)/libgf%.la: unix/%.fs $(FORTH_GEN_LIGHT) $(GEN) $(LIBCC_LIB_SRC) libforth
 		@NO_FAIL@-./libforth $(package)$(libccdir) $< -e bye
 		-$(TOUCH) $@
 
@@ -1209,7 +1212,12 @@ kernl%$(EC).fi:	kernl%$(EC).fi-
 #arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
 
 gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
-		HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)~+$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal --debug-mcheck -p .$(PATHSEP)~+$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) bindir=`pwd` libccdir=`pwd`/$(buildccdir) ./gforthmi gforth.fi $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
+		env HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)~+$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal --debug-mcheck -p .$(PATHSEP)~+$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) bindir=`pwd` libccdir=`pwd`/$(buildccdir) ./gforthmi $@ $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP_FULL)
+
+# This image may not contain C bindings, as it is used to generate the
+# C libraries itself
+gforth-light.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
+		env HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)~+$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal --debug-mcheck -p .$(PATHSEP)~+$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) bindir=`pwd` libccdir=`pwd`/$(buildccdir) ./gforthmi $@ $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP)
 
 # -------------	Make c-engine
 

@@ -894,12 +894,14 @@ tmp$ $execstr-ptr !
 : compile-cmd ( -- )
     [ libtool-command tmp$ $! s"  --silent --tag=CC --mode=compile " $type
       s" CROSS_PREFIX" getenv $type
-      libtool-cc $type s"  -I '" $type
+      libtool-cc $type s"  '-I" $type
       s" includedir" getenv tuck $type 0= [IF]
 	  pad $100 get-dir $type s" /" $type version-string $type
 	  s" /include" $type  [THEN]
       s" '" $type s" extrastuff" getenv $type
-      tmp$ $@ ] sliteral type c-flags $. c-flags $free
+      tmp$ $@
+      \ cr ." Libcc command: " 2dup type cr
+      ] sliteral type c-flags $. c-flags $free
     ."  -O -c " lib-filename $. ." .c -o "
     lib-filename $. ." .lo" ;
 
