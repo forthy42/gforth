@@ -160,10 +160,15 @@ e? os-type s" linux-musl" string-prefix? or [IF]
     ELSE  fpid ! drop 2drop  THEN ;
 [THEN]
 
-:noname defers 'cold
-    ['] int-errno-exec is int-execute
-    getpagesize to pagesize
-    (getpid) to getpid ; is 'cold
+:noname ['] execute is int-execute defers 'image ; is 'image
+
+:noname
+    defers 'cold
+    host? IF
+	['] int-errno-exec is int-execute
+	getpagesize to pagesize
+	(getpid) to getpid
+    THEN ; is 'cold
 
 to-table: errno-table ->errno
 ' drop errno-table to-method: to-errno

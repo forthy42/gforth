@@ -18,6 +18,10 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
+:noname defers 'image
+    preserve key-ior  preserve deadline
+; is 'image
+
 c-library pthread
     \c #include <pthread.h>
     \c #include <limits.h>
@@ -476,8 +480,11 @@ User keypollfds pollfd 2* cell- uallot drop
 
 ' thread-key is key-ior
 
-:noname defers 'cold epiper create_pipe ; is 'cold
-
+:noname defers 'cold
+    host? IF
+	pthread-id pthread_self epiper create_pipe
+	preserve key-ior  preserve deadline
+    THEN ; is 'cold
 
 \ a simple test (not commented in)
 

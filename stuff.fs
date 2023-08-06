@@ -358,6 +358,11 @@ translate: translate-[[
 
 \ defer stuff
 
+: preserve ( "name" -- ) \ gforth
+    \G emit code that reverts a deferred word to the state at
+    \G compilation
+    ' dup defer@ lit, 0 swap (to), ; immediate
+
 3 to: action-of ( interpretation "name" -- xt; compilation "name" -- ; run-time -- xt ) \ core-ext
 \G @i{Xt} is the XT that is currently assigned to @i{name}.
 
