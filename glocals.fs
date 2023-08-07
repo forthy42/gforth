@@ -750,7 +750,6 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
     REPEAT
     drop 0 (local) ; immediate restrict
 
-
 \ POSTPONEing locals
 
 :noname ( locals-nt -- )
@@ -760,7 +759,6 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 	[ ' some-flocal  >does-code ] literal of name-compsem postpone flit, endof
 	[ ' some-wlocal  >does-code ] literal of name-compsem postpone lit, endof
 	[ ' some-xtlocal >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
-	[ ' some-waddr   >does-code ] literal of no-post   endof
-	>r lit, postpone name-compsem r>
+	no-post
     endcase ;
 ' translate-locals >body 2 cells + ! \ replace stub
