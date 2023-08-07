@@ -364,6 +364,7 @@ Recognizers
 
 * Default Recognizers::
 * Dealing with existing Recognizers::
+* Defining Recognizers::
 
 Word Lists
 
@@ -9761,9 +9762,21 @@ doc-#line
 @subsection Recognizers
 @cindex recongizers
 
+When the text interpreter processes source code, it divides the code
+into blank-delimited strings, and then calls recognizers to identify
+them as words, numbers, etc., until one recognizer identifies
+(recognizes) the string; if the string is not recognized, the text
+interpreter reports an error (@code{undefined word}).
+
+The usual way to deal with recognizers is to just write code that one
+of them identifies (@pxref{Default Recognizers}); however, you can
+also manipulate them (@pxref{Dealing with existing Recognizers}) or
+even define new ones (@pxref{Defining recognizers}).
+
 @menu
 * Default Recognizers::
 * Dealing with existing Recognizers::
+* Defining Recognizers::
 @end menu
 
 @node Default Recognizers, Dealing with existing Recognizers, Recognizers, Recognizers
@@ -9810,7 +9823,7 @@ using a specific recognizer to recognize something, e.g., @code{float?1.}, , wit
 
 @end itemize
 
-You can use @code{locate} (@pxref{Locating source code definitions} to
+You can use @code{locate} (@pxref{Locating source code definitions}) to
 determine which recognizer recognizes a piece of source code.  E.g.:
 
 @example
@@ -9826,15 +9839,11 @@ You can see which recognizers are used and the order of recognizers with
 
 doc-.recognizers
 
-The usual way to deal with recognizers is to just write code that one
-of them recogizes, but if you want to manipulate them, @ref{Dealing
-with existing Recognizers}.
-
 Recognizers are typically designed to avoid matching the same strings
 as other recognizers.  E.g., @code{rec-env} (the environment variable
 recognizer) requires braces to avoid a conflict with the number
-recognizer for strings like @code{$ADD}.  There are a few exceptions
-to this policy, however:
+recognizer for input strings like @code{$ADD}.  There are a few
+exceptions to this policy, however:
 
 @itemize @bullet
 
@@ -9873,15 +9882,19 @@ avoid a conflict by using @code{to myvalue} or @code{to?->myvalue}
 
 @end itemize
 
-@node Dealing with existing Recognizers,  , Default Recognizers, Recognizers
+@node Dealing with existing Recognizers, Defining Recognizers, Default Recognizers, Recognizers
 @subsubsection Dealing with existing Recognizers
 @cindex Recognizers, dealing with
 
 A recognizer is a word to which you pass a string.  If the recognizer
 recognizes the string, it typically returns some data and the xt of a
-word for processing the data; this word is called the translator.
+word for processing the data; this word is called the translator.  If
+the recognizer does not recognize the string, it returns the xt of
+@code{notfound}.
 
-All recognizers have the stack effect ( c-addr u -- ... xt )
+All recognizers have the stack effect ( c-addr u -- ... xt ).
+
+
 
 Recognizers take a string and return some data and a translator for
 interpreting that data.  Gforth implements that translator as xt
@@ -9928,6 +9941,11 @@ doc-interpret-translator
 doc-compile-translator
 doc-postpone-translator
 doc-translator:
+
+@node Defining Recognizers,  , Dealing with existing Recognizers, Recognizers
+@subsubsection Defining Recognizers
+
+
 
 @node Text Interpreter Hooks,  , Recognizers, The Text Interpreter
 @subsection Text Interpreter Hooks
