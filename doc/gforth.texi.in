@@ -14816,7 +14816,7 @@ their semantics.
 @subsection Pthreads
 @cindex pthread
 
-You need to include @file{unix/pthread.fs} to use the following words.
+@c You need to include @file{unix/pthread.fs} to use the following words.
 
 Posix threads can run in parallel on several cores, or with
 pre-emptive multitasking on onecore.  However, many of the following
@@ -15033,18 +15033,22 @@ it up.
 
 Gforth's Cilk is a framework for dividing work between multiple tasks
 running on several cores, inspired by the programming language of the
-same name.  User @code{require cilk.fs} if you want to use Cilk. 
+same name.  Use @code{require cilk.fs} if you want to use Cilk.
 
 The idea is that you identify subproblems that can be solved in
 parallel, and the framework assigns worker tasks to these subproblems.
 In particular, you use one of the @code{spawn} words for each subtask.
-Eventually you need to wait for the subproblems to be solved; for now
-we only provide @code{cilk-sync} to wait for solutions to all
-subproblems.  Do not divide the subproblems too finely, in order to
-avoid overhead; how fine is too fine depends on how uniform the
-run-time for the subproblems is, but for problems with substantial
-run-time, having 5*@code{cores} subproblems is probably a good
-starting point.
+Eventually you need to wait with @code{cilk-sync} for the subproblems
+to be solved.
+
+Currently all the spawning has to happen from one task, and
+@code{cilk-sync} waits for all subproblems to complete, so using the
+current Gforth Cilk for recursive algorithms is not straightforward.
+
+Do not divide the subproblems too finely, in order to avoid overhead;
+how fine is too fine depends on how uniform the run-time for the
+subproblems is, but for problems with substantial run-time, having
+5*@code{cores} subproblems is probably a good starting point.
 
 doc-cores
 doc-cilk-init
