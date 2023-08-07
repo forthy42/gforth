@@ -1801,6 +1801,9 @@ in
 		HOSTPREFIX=${CC%% *}
 		HOSTPREFIX=${HOSTPREFIX%-*}
 		;;
+	*' '*)
+		HOSTPREFIX=""
+		;;
 	*-*)
 		HOSTPREFIX=${CC%-*}
 		;;

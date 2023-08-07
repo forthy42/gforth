@@ -1214,7 +1214,7 @@ kernl%$(EC).fi:	kernl%$(EC).fi-
 #arch/%/mach.fs:	arch/%/prim.fs arch/%/asm.fs
 
 gforth.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i.fs
-		env HOSTPREFIX="$(HOST)" GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)~+$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal --debug-mcheck -p .$(PATHSEP)~+$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) bindir=`pwd` libccdir=`pwd`/$(buildccdir) ./gforthmi $@ $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP_FULL)
+		env HOSTPREFIX="$(HOST)" GFORTH_IGNLIB=true GFORTHD="$(DITCENGINE)$(EXT) -p .$(PATHSEP)~+$(PATHSEP)$(srcdir)" GFORTH="$(DITCENGINE)$(EXT) --die-on-signal --debug-mcheck -p .$(PATHSEP)~+$(PATHSEP)$(srcdir) -i $(kernel_fi) $(STARTUP)" includedir=`pwd`/include extrastuff=' -I'`pwd`/include/gforth/$(VERSION)/$(machine) bindir=`pwd` libccdir=`pwd`/$(buildccdir) ./gforthmi $@ $(FORTHSIZES) $(FORTHKFLAGS) $(STARTUP_FULL)
 
 # This image may not contain C bindings, as it is used to generate the
 # C libraries itself
