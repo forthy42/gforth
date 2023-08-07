@@ -197,9 +197,8 @@ translate: translate-complex
 :noname ( locals-nt -- )
     dup name>interpret >does-code [ ' some-zlocal >does-code ]L =
     IF    name-compsem ['] zliteral compile,
-    ELSE  [ ' translate-locals >body 2 cells + @ compile, ]
-    THEN ;
-' translate-locals >body 2 cells + ! \ replace stub
+    ELSE  defers locals-post,
+    THEN ; is locals-post,
 
 : rec-complex ( addr u -- z translate-complex | notfound ) \ gforth
     \G Complex numbers are always in the format a+bi, where a and b are

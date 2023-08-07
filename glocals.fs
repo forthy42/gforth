@@ -752,6 +752,7 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 
 \ POSTPONEing locals
 
+Defer locals-post,
 :noname ( locals-nt -- )
     dup name>interpret >does-code case
 	[ ' some-clocal  >does-code ] literal of name-compsem postpone lit, endof
@@ -760,5 +761,5 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 	[ ' some-wlocal  >does-code ] literal of name-compsem postpone lit, endof
 	[ ' some-xtlocal >does-code ] literal of >body @ lp-offset compile-@local postpone compile, endof
 	no-post
-    endcase ;
-' translate-locals >body 2 cells + ! \ replace stub
+    endcase ; is locals-post,
+' locals-post, ' translate-locals >body 2 cells + ! \ replace stub
