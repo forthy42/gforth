@@ -115,6 +115,7 @@ Software Foundation raise funds for GNU development.''
 @author David Kuehling
 @author Bernd Paysan
 @author Jens Wilke
+@author Gerald Wodni
 @page
 @vskip 0pt plus 1filll
 @insertcopying
@@ -819,6 +820,7 @@ gforth[-fast] [engine options] [image options]
 The engine options must come before the rest of the command
 line. They are:
 
+@c !! vollstaendig?
 @table @code
 @cindex -i, command-line option
 @cindex --image-file, command-line option
@@ -1102,10 +1104,13 @@ previous) session(s). The full list of command-line editing facilities is:
 @itemize @bullet
 @item
 @kbd{Ctrl-p} (``previous'') (or up-arrow) to recall successively older
-commands from the history buffer.
+lines from the history buffer.
 @item
-@kbd{Ctrl-n} (``next'') (or down-arrow) to recall successively newer commands
-from the history buffer.
+@kbd{Ctrl-n} (``next'') (or down-arrow) to recall successively newer
+lines from the history buffer.  If you moved to an older line earlier
+and gave it to Gforth for text-interpretation, asking for the next
+line as the first editing command gives you the next line after the
+one you selected last time.
 @item
 @kbd{Ctrl-f} (or right-arrow) to move the cursor right, non-destructively.
 @item
@@ -1139,9 +1144,10 @@ cursor position; the line is always in ``insert'' (as opposed to
 
 @cindex history file
 @cindex @file{.gforth-history}
-On Unix systems, the history file is @file{~/.local/share/gforth/history} by
-default@footnote{i.e. it is stored in the user's home directory.}. You
-can find out the name and location of your history file using:
+On Unix systems, the history file is
+@file{$HOME/.local/share/gforth/history} by default@footnote{i.e. it
+is stored in the user's home directory.}. You can find out the name
+and location of your history file using:
 
 @example 
 history-file type \ Unix-class systems
@@ -1174,14 +1180,14 @@ Gforth uses these environment variables:
 @cindex @code{GFORTHHIST} -- environment variable
 @code{GFORTHHIST} -- (Unix systems only) specifies the path for the
 history file @file{.gforth-history}. Default:
-@code{$HOME/.gforth-history}.
+@code{$HOME/.local/share/gforth/history}.
 
 @item
 @cindex @code{GFORTHPATH} -- environment variable
 @code{GFORTHPATH} -- specifies the path used when searching for the
 gforth image file and for Forth source-code files (usually @samp{.}, the
 current working directory).  Path separator is @samp{:}, a typical path
-would be @file{/usr/local/share/gforth/0.8.0:.}.
+would be @file{/usr/local/share/gforth/1.0:.}.
 
 @item
 @cindex @code{LANG} -- environment variable
@@ -1202,12 +1208,11 @@ that is unset, in @code{LANG}.
 
 @item
 @cindex @code{GFORTHSYSTEMPREFIX} -- environment variable
-
 @code{GFORTHSYSTEMPREFIX} -- specifies what to prepend to the argument
 of @code{system} before passing it to C's @code{system()}.  Default:
-@code{"./$COMSPEC /c "} on Windows, @code{""} on other OSs.  The prefix
-and the command are directly concatenated, so if a space between them is
-necessary, append it to the prefix.
+@code{"./$COMSPEC /c "} on Windows, @code{""} on other OSs.  The
+prefix and the command are directly concatenated, so if a space
+between them is necessary, append it to the prefix.
 
 @item
 @cindex @code{GFORTH} -- environment variable
@@ -1348,6 +1353,7 @@ makes startup speed a little faster: @code{gforth-fast --ss-number=0
 --ss-states=1 --no-dynamic -e bye} consumes about 2.6ms user and 1.2ms
 system time.
 
+@c !! check
 The next step to improve startup speed is to use a data-relocatable
 image (@pxref{Data-Relocatable Image Files}).  This avoids the
 relocation cost for the code in the image (but not for the data).
@@ -8211,7 +8217,7 @@ understand this, but it may improve your understanding of Forth.
 
 
 @node User-defined TO and DEFER@@, User-defined compile-comma, Advanced does> usage example, User-defined Defining Words
-@subsubsection User-defined TO and DEFER@@
+@subsubsection User-defined @code{to} and @code{defer@@}
 
 Gforth allows you to change the @code{(to)} action of a word.
 
@@ -9771,7 +9777,7 @@ interpreter reports an error (@code{undefined word}).
 The usual way to deal with recognizers is to just write code that one
 of them identifies (@pxref{Default Recognizers}); however, you can
 also manipulate them (@pxref{Dealing with existing Recognizers}) or
-even define new ones (@pxref{Defining recognizers}).
+even define new ones (@pxref{Defining Recognizers}).
 
 @menu
 * Default Recognizers::
@@ -16343,6 +16349,9 @@ abi-code my+ ( n1 n2 --  n3 )
    pc  lr             mov,     \ return to caller, new SP in r0
 end-code
 @end example
+
+@c !! ARM64
+@c !! RISC-V
 
 @node Other assemblers,  , ARM Assembler, Assembler and Code Words
 @subsection Other assemblers
