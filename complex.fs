@@ -193,6 +193,8 @@ Defer fc.       ' f. IS fc.
 : zliteral ( z -- ) fswap ]] fliteral fliteral [[ ; immediate
 ' noop ' zliteral ' zliteral >postponer
 translate: translate-complex
+\ alternative:
+\ : translate-complex ( z -- ) fswap translate-float translate-float ;
 
 :noname ( locals-nt -- )
     dup name>interpret >does-code [ ' some-zlocal >does-code ]L =
