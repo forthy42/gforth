@@ -185,9 +185,9 @@ UValue $? ( -- n ) \ gforth dollar-question
 : defers@ ( xt -- xt' )
     BEGIN  dup ['] defer@ catch 0= WHILE  nip  REPEAT  drop ;
 synonym >rec-stack >body ( xt -- stack )
-: get-rec-sequence ( recs-xt -- x1 .. xtn n )
+: get-recognizer-sequence ( recs-xt -- x1 .. xtn n )
     defers@ >rec-stack get-stack ;
-: set-rec-sequence ( x1 .. xtn n recs-xt -- )
+: set-recognizer-sequence ( x1 .. xtn n recs-xt -- )
     defers@ >rec-stack set-stack ;
 
 Create forth-recognizer ( -- xt ) \ gforth-experimental
@@ -200,10 +200,10 @@ opt: @ 3 swap (to), ;
 
 : get-recognizers ( -- xt1 .. xtn n ) \ gforth-experimental
     \G push the content on the recognizer stack
-    ['] forth-recognize get-rec-sequence ;
+    ['] forth-recognize get-recognizer-sequence ;
 : set-recognizers ( xt1 .. xtn n -- ) \ gforth-experimental
     \G set the recognizer stack from content on the stack
-    ['] forth-recognize set-rec-sequence ;
+    ['] forth-recognize set-recognizer-sequence ;
 
 \ ]] ... [[
 
