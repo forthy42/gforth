@@ -783,9 +783,12 @@ Create callback-&style c-var c,
     endif
     open-lib ;
 
+: open-olib ( addr u -- file-id ior )
+    ofile $@ open-lib dup 0= #-514 and ;
+
 : open-path-lib ( addr u -- addr/0 )
-    libcc-path open-path-file IF  0
-    ELSE  rot close-file throw open-lib  THEN ;
+    ['] open-olib libcc-path execute-path-file
+    IF  0  ELSE  2drop  THEN ;
 
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )

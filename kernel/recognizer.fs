@@ -89,7 +89,8 @@ translate: translate-dnum ( dx -- | dx ) \ gforth-experimental
     THEN
     drop ['] notfound ;
 
-\ generic stack get/set
+\ generic stack get/set; actually, we don't need this for
+\ the recognizer any more, but other parts of the kernel use it.
 
 : get-stack ( stack -- x1 .. xn n )
     \G fetch everything from the generic stack to the data stack
