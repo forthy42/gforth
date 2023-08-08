@@ -768,27 +768,22 @@ Create callback-&style c-var c,
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     [: type type ;] $tmp ;
 
-: lib-name ( -- addr u )
-    [: lib-filename $@ dirname type lib-prefix type
-	lib-filename $@ basename type lib-suffix type ;] $tmp ;
-: open-wrappers ( -- addr|0 )
-    lib-name 2dup libcc-named-dir string-prefix? if ( c-addr u )
-	\ see if we can open it in the path
-	libcc-named-dir nip /string
-	libcc-path open-path-file if
-\	    ." Failed to find library '" lib-filename $. ." ' in '"
-\	    libcc-path .path ." ', need compiling" cr
-	    0 exit endif
-	( wfile-id c-addr2 u2 ) rot close-file throw ( c-addr2 u2 )
-    endif
-    open-lib ;
-
 : open-olib ( addr u -- file-id ior )
     ofile $@ open-lib dup 0= #-514 and ;
 
 : open-path-lib ( addr u -- addr/0 )
     ['] open-olib libcc-path execute-path-file
     IF  0  ELSE  2drop  THEN ;
+
+: lib-name ( -- addr u )
+    [: lib-filename $@ dirname type lib-prefix type
+	lib-filename $@ basename type lib-suffix type ;] $tmp ;
+: open-wrappers ( -- addr|0 )
+    lib-name 2dup libcc-named-dir string-prefix? if ( c-addr u )
+	\ see if we can open it in the path
+	libcc-named-dir nip /string open-path-lib EXIT
+    endif
+    open-lib ;
 
 : c-library-name-setup ( c-addr u -- )
     assert( c-source-file-id @ 0= )
