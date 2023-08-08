@@ -39,16 +39,20 @@ e? os-type 2dup s" darwin" string-prefix? -rot s" openbsd" string-prefix? or [IF
 \G determine that, otherwise 1.  If you want to use a different
 \G number, change @code{cores} before calling @code{cilk-init}.
 
-Variable sync#
+User sync#
 Variable workers
 User invoker
+semaphore workers-sema
 
 : worker@ ( -- worker )
-    BEGIN  workers $@ IF @ workers 0 cell $del ELSE drop 0 THEN
+    BEGIN
+	[: workers $@ IF @ workers 0 cell $del ELSE drop 0 THEN ;]
+	workers-sema c-section
     dup 0= WHILE drop stop REPEAT ;
 
 event: ->sync ( task -- )
-    { w^ task } task cell workers $+! -1 sync# +! ;
+    { w^ task } task cell [: workers $+! ;] workers-sema c-section
+    -1 sync# +! ;
 : +worker ( task -- )
     <event up@ elit, ->sync event> ;
 
