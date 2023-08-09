@@ -414,7 +414,8 @@ variable code-locations 0 code-locations !
     drop -1 where-index ! ;
 
 Defer where-setup
-: where-reset ( n1 n2 -- ) to source-line#  to source-pos# ;
+: where-reset ( n1 n2 -- ) to source-line#  to source-pos#
+    lastfile off ;
 
 : short-where ( -- ) \ gforth
     \G Set up @code{where} to use a short file format (default).

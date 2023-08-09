@@ -832,12 +832,13 @@ Create callback-&style c-var c,
     lib-handle-addr @ lha-hash ;
 
 : .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
+: .hashxx ( addr u -- ) bounds DO  I c@ .xx  LOOP ;
 : .bytes ( addr u -- )
     bounds ?DO  ." \x" I c@ .xx  LOOP ;
 : .c-hash ( -- )
     lib-filename @ 0= IF
 	true warning" Generate anonymous C binding"
-	[: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] $tmp
+	[: c-source-hash 16 .hashxx ;] $tmp
 	c-tmp-library-name
 	lib-modulename $@ replace-hash
     THEN
@@ -852,9 +853,15 @@ Create callback-&style c-var c,
 : check-c-hash ( -- flag )
     [: ." gflibcc_hash_" lib-modulename $. ;] $tmp
     lib-handle lib-sym
-    ?dup-IF  c-source-hash 16 tuck compare  ELSE  true  THEN
-    IF  lib-handle close-lib  lib-handle-addr @ lha-id off false
-    ELSE  true  THEN ;
+    ?dup-IF  c-source-hash 2dup 16 tuck compare  ELSE  0 0 true  THEN
+    IF
+	2dup d0= IF  2drop
+	ELSE  [: ." libcc hash mismatch in module '"
+		lib-modulename $. ." ': expected " 16 .hashxx
+		."  got " 16 .hashxx cr ;] do-debug
+	THEN
+	lib-handle close-lib  lib-handle-addr @ lha-id off false
+    ELSE  2drop true  THEN ;
 
 \ clear library
 
