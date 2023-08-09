@@ -165,8 +165,9 @@ synonym c-function \c
 synonym add-lib \c
 synonym clear-libs \c
 
-: host? ( -- flag )  s" HOSTPREFIX" getenv nip 0=
+: get-host? ( -- flag )  s" HOSTPREFIX" getenv nip 0=
     s" GFORTH_IGNLIB" getenv s" true" str= 0= and ;
+get-host? Value host?
 
 Vocabulary c-lib
 
@@ -1153,7 +1154,7 @@ Defer prefetch-lib ( addr u -- )
     ;] map-libs ;
 
 :noname ( -- )
-    defers 'cold
+    defers 'cold  get-host? to host?
     init-libcc reopen-libs rebind-libcc lib-filename $free ;
 is 'cold
 
