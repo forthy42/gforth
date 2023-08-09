@@ -828,6 +828,8 @@ struct cost { /* super_info might be a more accurate name */
   unsigned char state_out;   /* state on exit */
   unsigned char imm_ops;     /* number of additional threaded-code slots
                                 (immediate arguments+number of components-1) */
+  unsigned char ip_offset;   /* 0 if ip points to the end of the instruction,
+                                1 if it points 1 cell earlier ... */
   short offset;     /* offset into super2 table */
   unsigned char length;      /* number of components */
 };

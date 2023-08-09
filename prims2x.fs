@@ -216,14 +216,19 @@ create stacks max-stacks cells allot \ array of stacks
 create registers max-registers cells allot \ array of registers
 variable nregisters 0 nregisters ! \ number of registers
 variable next-state-number 0 next-state-number ! \ next state number
-0 value ip-offset \ length of a primitive/combined in cells
-                  \  for offsetting on immediate accesses
+0 value ip-offset1 \ length of a primitive/combined in cells
+                   \  for offsetting on immediate accesses
+0 value ip-offset \ number of cells between the last ip update and the
+                  \ current primitive, for primitive variants that
+                  \ are to be compiled with a lagging ip.
+24 value max-ip-offset
 
 : stack-in-index ( in-size item -- in-index )
     item-offset @ - 1- ;
 
 : inst-in-index ( in-size item -- in-index )
-    nip dup item-offset @ swap item-type @ type-size @ + ip-offset - ;
+    nip dup item-offset @ swap item-type @ type-size @ +
+    ip-offset1 - ip-offset + ;
 
 : make-stack ( addr-ptr u1 type "stack-name" -- )
     next-stack-number @ max-stacks < s" too many stacks" ?print-error
@@ -945,7 +950,7 @@ defer ip-update ( -- )
 : ip-update1 ( -- )
     ." ip++; " \ skip the cell of the instruction itself
     inst-stream stack-pointer-update \ skip the other cells
-    inst-stream stack-diff 1+ to ip-offset ;
+    inst-stream stack-diff 1+ to ip-offset1 ;
 ' ip-update1 is ip-update
 
 : stack-pointer-updates ( -- )
@@ -1520,6 +1525,9 @@ variable reprocessed-num 0 reprocessed-num !
     new-name prim prim-c-name 2!
     output @ execute ;
 
+defer reprocess-prim
+' reprocess-simple is reprocess-prim
+
 : lookup-prim ( c-addr u -- prim )
     primitives search-wordlist 0= -13 and throw execute ;
 
@@ -1528,7 +1536,7 @@ variable reprocessed-num 0 reprocessed-num !
     in-state state-enabled? out-state state-enabled? and 0= ?EXIT
     in-state  to state-in
     out-state to state-out
-    prim reprocess-simple ;
+    prim reprocess-prim ;
 
 : state-prim ( in-state out-state "name" -- )
     parse-word lookup-prim state-prim1 ;
@@ -1560,6 +1568,25 @@ variable reprocessed-num 0 reprocessed-num !
 
 : prim-states ( "name" -- )
     parse-word lookup-prim gen-prim-states ;
+
+: ip-offset-prim { noffset prim -- }
+    noffset to ip-offset
+    prim reprocess-simple
+    0 to ip-offset ;
+
+: gen-prim-offsets { prim -- }
+    max-ip-offset 0 ?do
+        i prim ip-offset-prim
+    loop ;
+
+: gen-prim-states-offsets { prim -- }
+    ['] reprocess-prim defer@
+    ['] gen-prim-offsets is reprocess-prim
+    prim gen-prim-states
+    ['] reprocess-prim defer! ;
+
+: prim-states-offsets ( "name" -- )
+    parse-word lookup-prim gen-prim-states-offsets ;    
 
 : gen-branch-states ( prim -- )
     \ generate versions that produce state-default; useful for branches
@@ -1746,6 +1773,7 @@ variable offset-super2  0 offset-super2 ! \ offset into the super2 table
     state-in  state-number @ 2 .r ." ,"
     state-out state-number @ 2 .r ." ,"
     inst-stream stack-in @ 1 .r ." ,"
+    ip-offset 2 .r ." ,"
 ;
 
 : output-costs-gforth-simple ( -- )
