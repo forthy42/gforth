@@ -296,8 +296,8 @@ synonym sema semaphore
 : cond ( "name" -- ) \ gforth-experimental
     \G create a named condition
     Create host? IF
-	1 pthread-conds allocate throw dup ,
-	1 pthread-conds erase
+	1 pthread-conds dup allocate throw dup ,
+	swap erase
     ELSE  0 ,  THEN
     ['] @ set-does> ;
 
