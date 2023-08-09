@@ -973,7 +973,9 @@ tmp$ $execstr-ptr !
 
 : cfun, ( xt -- )
     dup >does-code [ '  rt-does> >body ]L <>
-    IF  >body ?compile-wrapper ?link-wrapper  ELSE  >body  THEN
+    IF  >body host? IF  ?compile-wrapper ?link-wrapper
+	ELSE  dup body> make-rt  THEN
+    ELSE  >body  THEN
     postpone call-c# , ;
 
 cfalign 0 , 0 , noname Create
