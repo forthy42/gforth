@@ -286,12 +286,20 @@ Defer thread-init
 : semaphore ( "name" -- ) \ gforth-experimental
     \G create a named semaphore @i{name}@*
     \G @i{name} execution: ( -- @i{semaphore} )
-    Create here 1 pthread-mutexes allot 0 pthread_mutex_init drop ;
+    Create host? IF
+	1 pthread-mutexes allocate throw dup ,
+	0 pthread_mutex_init drop
+    ELSE  0 ,  THEN
+    ['] @ set-does> ;
 synonym sema semaphore
 
 : cond ( "name" -- ) \ gforth-experimental
     \G create a named condition
-    Create here 1 pthread-conds dup allot erase ;
+    Create host? IF
+	1 pthread-conds allocate throw dup ,
+	1 pthread-conds erase
+    ELSE  0 ,  THEN
+    ['] @ set-does> ;
 
 : lock ( semaphore -- ) \ gforth-experimental
 \G lock the semaphore

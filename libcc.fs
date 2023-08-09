@@ -836,6 +836,7 @@ Create callback-&style c-var c,
     bounds ?DO  ." \x" I c@ .xx  LOOP ;
 : .c-hash ( -- )
     lib-filename @ 0= IF
+	true warning" Generate anonymous C binding"
 	[: c-source-hash 16 bounds DO  I c@ .xx  LOOP ;] $tmp
 	c-tmp-library-name
 	lib-modulename $@ replace-hash
@@ -865,7 +866,7 @@ DEFER compile-wrapper-function ( -- )
 
 : free-libs ( -- ) \ gforth-internal
     ptr-declare off  c-libs off  c-flags off
-    libcc$ off  libcc-include ;
+    libcc$ $free  libcc-include ;
 
 : clear-libs ( -- ) \ gforth
 \G Clear the list of libs
