@@ -469,8 +469,19 @@ Dynamic NC generation disabled."
 			CFLAGS="$CFLAGS -march=athlon64"
 			;;
 		    *)
-		    	machine=amd64
-			CFLAGS="$CFLAGS -fomit-frame-pointer"
+		        case $build_os
+			in
+			    *gnux32)
+			    	machine=386
+				CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
+				CFLAGS_1="$CFLAGS"
+				CFLAGS="$CFLAGS -march=athlon64"
+			        ;;
+			    *)
+		    		machine=amd64
+				CFLAGS="$CFLAGS -fomit-frame-pointer"
+				;;
+			esac
 			;;
 		esac
 		;;
