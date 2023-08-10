@@ -60,6 +60,7 @@
 #define CODE_PADDING {0x66, 0x66, 0x66, 0x90, 0x66, 0x66, 0x66, 0x90, \
                       0x66, 0x66, 0x66, 0x90, 0x66, 0x66, 0x66, 0x90}
 #define MAX_PADDING 4
+#define UNALIGNED_MEM
 /* results for various maxpaddings:
    3GHz Xeon 5160                     2.2GHz Athlon 64 X2
    sieve bubble matrix  fib  padding sieve bubble matrix  fib 
@@ -93,8 +94,7 @@
 #    define TOSREG asm("%ecx")
 /* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
 #   else /* !(gcc-2.95 or gcc-3.x) */
-#    if (__GNUC__>=12)
-#    elif (__GNUC__>4 || (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2))
+#    if (__GNUC__>4 || (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2))
 #     if defined(PIC)
 #      warning "386 lib registers"
 #      define SPREG asm("%esi")
@@ -139,10 +139,7 @@
 #     define IPREG asm("%ebx")
 #    endif
 #   else /* !(gcc-2.95 or later) */
-#    if (__GNUC__>=12)
-#    else
-#     define SPREG asm("%ebx")
-#    endif
+#    define SPREG asm("%ebx")
 #   endif  /* !(gcc-2.95 or later) */
 #  endif /* !defined(USE_TOS) || defined(CFA_NEXT) */
 # endif /* !gcc-2.5.x */

@@ -3077,25 +3077,41 @@ fp=gforth_FP;
 
 w@ ( c_addr -- u )	gforth w_fetch
 ""@i{u} is the zero-extended 16-bit value stored at @i{c_addr}.""
+#ifdef UNALIGNED_MEM
+u = *(UWyde*)c_addr;
+#else
 UWyde wy;
 memcpy((Char*)&wy, c_addr, 2);
 u = wy;
+#endif
 
 w! ( w c_addr -- )	gforth w_store
 ""Store the bottom 16 bits of @i{w} at @i{c_addr}.""
+#ifdef UNALIGNED_MEM
+*(UWyde*)c_addr = w;
+#else
 UWyde wy = w;
 memcpy(c_addr, (Char*)&wy, 2);
+#endif
 
 l@ ( c_addr -- u )	gforth l_fetch
 ""@i{u} is the zero-extended 32-bit value stored at @i{c_addr}.""
+#ifdef UNALIGNED_MEM
+u = *(UTetrabyte*)c_addr;
+#else
 UTetrabyte tb;
 memcpy((Char*)&tb, c_addr, 4);
 u = tb;
+#endif
 
 l! ( w c_addr -- )	gforth l_store
 ""Store the bottom 32 bits of @i{w} at @i{c_addr}.""
+#ifdef UNALIGNED_MEM
+*(UTetrabyte*)c_addr = w;
+#else
 UTetrabyte tb = w;
 memcpy(c_addr, (Char*)&tb, 4);
+#endif
 
 lib-error ( -- c_addr u )       gforth  lib_error
 ""Error message for last failed @code{open-lib} or @code{lib-sym}.""
@@ -3124,14 +3140,22 @@ gforth_dlclose2(u);
 
 x! ( w c_addr -- )	gforth x_store
 ""Store the bottom 64 bits of @i{w} at @i{c_addr}.""
+#ifdef UNALIGNED_MEM
+*(UOctabyte*)c_addr = w;
+#else
 UOctabyte ob = w;
 memcpy(c_addr, (Char*)&ob, 8);
+#endif
 
 x@ ( c_addr -- u )	gforth x_fetch
 ""@i{u} is the zero-extended 64-bit value stored at @i{c_addr}.""
+#ifdef UNALIGNED_MEM
+u = *(UOctabyte*)c_addr;
+#else
 UOctabyte ob;
 memcpy((Char*)&ob, c_addr, 8);
 u = ob;
+#endif
 
 \+
 
@@ -3139,30 +3163,58 @@ u = ob;
 
 xd! ( ud c_addr -- )	gforth x_d_store
 ""Store the bottom 64 bits of @i{ud} at @i{c_addr}.""
-#ifdef BUGGY_LL_SIZE
-# if (SIZEOF_CHAR_P == 4)
+#ifdef UNALIGNED_MEM
+# if defined(BUGGY_LL_SIZE) && (SIZEOF_CHAR_P == 4)
 #  ifdef WORDS_BIGENDIAN
+((UTetrabyte*)c_addr)[0]=DHI(ud);
+((UTetrabyte*)c_addr)[1]=DLO(ud);
+#  else
+((UTetrabyte*)c_addr)[1]=DHI(ud);
+((UTetrabyte*)c_addr)[0]=DLO(ud);
+#  endif
+# else
+*(UOctabyte*)c_addr = ud;
+# endif
+#else
+# ifdef BUGGY_LL_SIZE
+#  if (SIZEOF_CHAR_P == 4)
+#   ifdef WORDS_BIGENDIAN
 UTetrabyte tb[2];
 tb[0]=DHI(ud);
 tb[1]=DLO(ud);
 memcpy(c_addr, (Char*)tb, 8);
-#  else
+#   else
 UTetrabyte tb[2];
 tb[1]=DHI(ud);
 tb[0]=DLO(ud);
 memcpy(c_addr, (Char*)tb, 8);
-#  endif
-# else
+#   endif
+#  else
 UOctabyte ob=DLO(ud);
 memcpy(c_addr, (Char*)&ob, 8);
-# endif
-#else
+#  endif
+# else
 UOctabyte ob=ud;
 memcpy(c_addr, (Char*)&ob, 8);
+# endif
 #endif
 
 xd@ ( c_addr -- ud )	gforth x_d_fetch
 ""@i{ud} is the zero-extended 64-bit value stored at @i{c_addr}.""
+#ifdef UNALIGNED_MEM
+# if defined(BUGGY_LL_SIZE) && (SIZEOF_CHAR_P == 4)
+UTetrabyte tb[2];
+tb[0] = ((UTetrabyte*)c_addr)[0];
+tb[1] = ((UTetrabyte*)c_addr)[1];
+#  ifdef WORDS_BIGENDIAN
+D_IS(ud, tb[0], tb[1]);
+#  else
+D_IS(ud, tb[1], tb[0]);
+#  endif
+# else
+ud = *(UOctabyte*)c_addr;
+# endif
+#else
 #ifdef BUGGY_LL_SIZE
 # if (SIZEOF_CHAR_P == 4)
 UTetrabyte tb[2];
@@ -3181,6 +3233,7 @@ D_IS(ud, 0, ob);
 UOctabyte ob;
 memcpy((Char*)&ob, c_addr, 8);
 ud = ob;
+#endif
 #endif
 
 w>< ( u1 -- u2 )  gforth-internal wordswap
