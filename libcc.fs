@@ -922,6 +922,9 @@ tmp$ $execstr-ptr !
     lib-filename $@ basename type ." .la"
     c-libs $.  c-libs $free ;
 
+: init-lib ( handle -- )
+    s" gforth_libcc_init" rot lib-sym  ?dup-if
+	gforth-pointers swap call-c  endif ;
 : compile-wrapper-function1 ( -- )
     hash-c-source check-c-hash
     0= if
@@ -943,9 +946,7 @@ tmp$ $execstr-ptr !
 	endif
 	( lib-handle ) lib-handle-addr @ lha-id !
     endif
-    host? IF
-	s" gforth_libcc_init" lib-handle lib-sym  ?dup-if
-	    gforth-pointers swap call-c  endif
+    host? IF  lib-handle init-lib
     THEN
     lib-filename $free clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
@@ -1155,7 +1156,9 @@ Defer prefetch-lib ( addr u -- )
 	    \ ." link " r@ lha-name $. ."  to " dup hex. cr
 	    r@ lha-id !
 	    r@ lha-name [: ." gflibcc_hash_" $. ;] $tmp
-	    r@ lha-id @ lib-sym r> lha-hash $10 tuck str= ?EXIT
+	    r@ lha-id @ lib-sym r@ lha-hash $10 tuck str= IF
+		r> lha-id @ init-lib  EXIT
+	    THEN
 	THEN
 	.lib-error !!openlib!! throw
     ;] map-libs ;
