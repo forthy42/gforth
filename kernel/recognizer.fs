@@ -44,9 +44,9 @@
     ['] do-rec set-does> ;
 
 : >postpone ( ... rectype -- )
-\   2 cells + @ execute-;s ;
+    2 cells + @ execute-;s ;
 \ for combined translators better use:
-    -2 state !@ >r execute r> state ! ;
+\   -2 state !@ >r execute r> state ! ;
 
 : name-compsem ( ... nt -- ... )
     \ perform compilation semantics of nt

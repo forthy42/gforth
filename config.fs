@@ -20,7 +20,7 @@ require rec-scope.fs
 require recognizer-ext.fs
 require mkdir.fs
 
-translator: config-translator
+translator: >config
 
 Vocabulary config
 ' config >wordlist Value config-wl
@@ -40,27 +40,27 @@ s" Config error" exception Value config-throw
     ?dup-IF  execute r> execute rdrop
     ELSE rdrop r> execute .config-err THEN ;
 
-: eval-config ( .. rec addr u -- )  rot config-translator execute ;
-
 :noname '$' ['] $! [: drop free throw ;] exec-config ;
-' translate-string to config-translator
+' translate-string to >config
 :noname '#' ['] !  ['] drop exec-config ;
-' translate-num    to config-translator
+' translate-num    to >config
 :noname '&' ['] 2! ['] 2drop exec-config ;
-' translate-dnum   to config-translator
+' translate-dnum   to >config
 :noname '%' ['] f! ['] fdrop exec-config ;
-' translate-float  to config-translator
-' .config-err ' notfound to config-translator
+' translate-float  to >config
+' .config-err ' notfound to >config
 
 : config-line ( -- )
 \    current-sourceview .sourceview ." : config line='" source type ." '" cr
     source nip 0= ?EXIT
     '=' parse -trailing 2>r
-    parse-name config-recognize 2r> eval-config
+    parse-name config-recognize 2r> rot execute
     postpone \ ;
 
 : read-config-loop ( -- )
-    BEGIN  refill  WHILE  config-line  REPEAT ;
+    ['] >config translate>state
+    BEGIN  refill  WHILE  config-line  REPEAT
+    postpone [ ;
 
 : read-config ( addr u wid -- )  to config-wl
     >included throw add-included-file  included-files $@ + cell-

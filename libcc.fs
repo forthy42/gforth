@@ -938,12 +938,16 @@ tmp$ $execstr-ptr !
 	    host?  IF  !!openlib!! throw  ELSE
 		drop lib-filename $free
 		free-libs EXIT
+	    ELSE
+		drop -1 \ fake lha ID
 	    THEN
 	endif
 	( lib-handle ) lib-handle-addr @ lha-id !
     endif
-    s" gforth_libcc_init" lib-handle lib-sym  ?dup-if
-	gforth-pointers swap call-c  endif
+    host? IF
+	s" gforth_libcc_init" lib-handle lib-sym  ?dup-if
+	    gforth-pointers swap call-c  endif
+    THEN
     lib-filename $free clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
 
@@ -981,8 +985,12 @@ tmp$ $execstr-ptr !
 
 : cfun, ( xt -- )
     dup >does-code [ '  rt-does> >body ]L <>
-    IF  >body host? IF  ?compile-wrapper ?link-wrapper
-	ELSE  dup body> make-rt  THEN
+    IF  >body host? IF
+	    ?compile-wrapper ?link-wrapper
+	ELSE
+	    dup body> make-rt
+	    dup cff-lha @ lha-id on \ fake that the library is in use
+	THEN
     ELSE  >body  THEN
     postpone call-c# , ;
 

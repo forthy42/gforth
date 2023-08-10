@@ -26,7 +26,7 @@
     >body @ >body + ;
 to-opt: ( xt -- ) >body @ lit, ]] >body + [[ ;
 
-' >translator !-table to-method: translator-to
+' >translator defer-table to-method: translator-to
 
 : translator: ( "name" -- ) \ gforth-experimental
     \G create a new translator, extending the translator table.
@@ -35,12 +35,21 @@ to-opt: ( xt -- ) >body @ lit, ]] >body + [[ ;
     translator-offset translator-max-offset# u>=
     translator-overflow and throw
     Create translator-offset ,  cell +to translator-offset
-    [: ( rec-type ) @ + >body @ ;] set-does>
+    [: @ + @ execute-;s ;] set-does>
+    [:  lits# 0= IF  does,  EXIT  THEN
+	lits> dup >does-code ['] do-rec = IF
+	    swap @ + @ compile,
+	ELSE  >lits does,  THEN ;] set-optimizer
     ['] translator-to set-to ;
 
-translator: interpret-translator ( translator -- xt ) \ gforth-experimental
-\G obtain interpreter action from translator
-translator: compile-translator ( translator -- xt ) \ gforth-experimental
-\G obtain compile action from translator
-translator: postpone-translator ( translator -- xt ) \ gforth-experimental
-\G obtain postpone action from translator
+translator: >interpret ( translator -- ) \ gforth-experimental
+\G perform interpreter action of translator
+translator: >compile ( translator -- ) \ gforth-experimental
+\G perform compile action of translator
+0 warnings !@ \ we already have this, but this version is better
+translator: >postpone ( translator -- ) \ gforth-experimental
+\G perform postpone action of translator
+warnings !
+
+: translate>state ( xt -- )
+    >body @ cell/ negate state ! ;
