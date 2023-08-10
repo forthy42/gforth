@@ -54,13 +54,11 @@ s" Config error" exception Value config-throw
 \    current-sourceview .sourceview ." : config line='" source type ." '" cr
     source nip 0= ?EXIT
     '=' parse -trailing 2>r
-    parse-name config-recognize 2r> rot execute
+    parse-name config-recognize 2r> rot >config
     postpone \ ;
 
 : read-config-loop ( -- )
-    ['] >config translate>state
-    BEGIN  refill  WHILE  config-line  REPEAT
-    postpone [ ;
+    BEGIN  refill  WHILE  config-line  REPEAT ;
 
 : read-config ( addr u wid -- )  to config-wl
     >included throw add-included-file  included-files $@ + cell-

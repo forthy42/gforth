@@ -936,10 +936,9 @@ tmp$ $execstr-ptr !
 	open-wrappers dup 0= if
 	    .lib-error
 	    host?  IF  !!openlib!! throw  ELSE
+                -1 lib-handle-addr @ lha-id ! \ fake lha ID
 		drop lib-filename $free
 		free-libs EXIT
-	    ELSE
-		drop -1 \ fake lha ID
 	    THEN
 	endif
 	( lib-handle ) lib-handle-addr @ lha-id !
