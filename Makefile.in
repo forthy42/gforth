@@ -1222,11 +1222,13 @@ gforth-light.fi:	$(kernel_fi) gforthmi gforth-ditc$(EXT) $(GFORTH_FI_SRC) comp-i
 # -------------	Make c-engine
 
 prim.b:		prim cache0.vmg Makefile.in preforth.in
-		(cd $(srcdir) && $(M4) -Dcondbranch_opt=0 prim) >$@
+		(cd $(srcdir) && $(M4) -Dcondbranch_opt=0 prim) >$@+
+		mv $@+ $@
 #		sleep 1 #should make hpux-workaround unnecessary
 
 prim-fast.b:	prim cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg cache-regs$(STACK_CACHE_REGS).vmg peeprules.vmg Makefile.in preforth.in gforth$(EXT)
-		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@
+		(cd $(srcdir) && $(M4) -Dcondbranch_opt=@condbranch_opt@ -DSTACK_CACHE_FILE=cache-fast$(STACK_CACHE_DEFAULT_FAST).vmg -DSTACK_CACHE_REGS=cache-regs$(STACK_CACHE_REGS).vmg prim) >$@+
+		mv $@+ $@
 #		sleep 1 #should make hpux-workaround unnecessary
 
 engine/prim.i:	prim.b prims2x.fs
