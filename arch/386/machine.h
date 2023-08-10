@@ -93,7 +93,8 @@
 #    define TOSREG asm("%ecx")
 /* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
 #   else /* !(gcc-2.95 or gcc-3.x) */
-#    if (__GNUC__>4 || (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2))
+#    if (__GNUC__>=12)
+#    elif (__GNUC__>4 || (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2))
 #     if defined(PIC)
 #      warning "386 lib registers"
 #      define SPREG asm("%esi")
@@ -138,7 +139,10 @@
 #     define IPREG asm("%ebx")
 #    endif
 #   else /* !(gcc-2.95 or later) */
-#    define SPREG asm("%ebx")
+#    if (__GNUC__>=12)
+#    else
+#     define SPREG asm("%ebx")
+#    endif
 #   endif  /* !(gcc-2.95 or later) */
 #  endif /* !defined(USE_TOS) || defined(CFA_NEXT) */
 # endif /* !gcc-2.5.x */
