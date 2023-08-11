@@ -1325,7 +1325,7 @@ $(GFORTHOBJECTS) $(GFORTHLIBOBJECTS):
 
 gforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN0) engine/config.h $(kernel_anti_dependence) $(GFORTHOBJECTS)
 
-gforth$(OPT)$(EXT): $(GFORTHOBJECTS)
+gforth$(OPT)$(EXT): $(GFORTHOBJECTS) arch/$(machine)/machine.h
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(RM) gforth$${i}$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth OPT=$$i && $(CP) gforth$${i}$(EXT) $@ && break; done; \
 	else \
@@ -1344,7 +1344,7 @@ optgforth: $(GFORTHOBJECTS)
 
 gforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_FAST) engine/config.h $(GFORTHOBJECTS)
 
-gforth-fast$(OPT)$(EXT): $(GFORTHOBJECTS)
+gforth-fast$(OPT)$(EXT): $(GFORTHOBJECTS) arch/$(machine)/machine.h
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(RM) gforth-fast$${i}$(EXT); $(MAKE) DOSTRIP=$(DOSTRIP) optgforth-fast OPT=$$i && $(CP) gforth-fast$${i}$(EXT) $@ && break; done; \
 	else \
@@ -1380,7 +1380,7 @@ gforths: $(GFORTHOBJECTS) $(ENGINES) $(ENGINES_FAST)
 
 libgforth$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/config.h $(kernel_anti_dependence) $(GFORTHLIBOBJECTS)
 
-libgforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS)
+libgforth$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS) arch/$(machine)/machine.h
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth OPT=$$i && $(MAKE) optlibgforth2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
@@ -1396,7 +1396,7 @@ optlibgforth2: $(GFORTHLIBOBJECTS)
 
 libgforth-fast$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE_FAST) engine/config.h $(GFORTHLIBOBJECTS)
 
-libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS)
+libgforth-fast$(OPT)$(EXT): $(ENGINE_SOURCES) $(GFORTHLIBOBJECTS) arch/$(machine)/machine.h
 	if test -z "$(OPT)"; then \
 		for i in $(OPTS); do $(MAKE) DOSTRIP=$(DOSTRIP) optlibgforth-fast OPT=$$i && $(MAKE) optlibgforth-fast2 OPT=$$i && $(LN_S) engine/$@ $@ && break; done; \
 	else \
