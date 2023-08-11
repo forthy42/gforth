@@ -215,7 +215,7 @@ defer header-extra ' noop is header-extra
     , cfa, ;
 
 : input-stream-header ( "name" -- )
-    parse-name name-too-short? name, ;
+    ?parse-name name, ;
 
 : input-stream ( -- )  \ gforth-internal
     \G switches back to getting the name from the input stream ;
@@ -453,7 +453,7 @@ opt: ( xt -- ) ?fold-to >body @ (to), ;
     \G Define @i{name} as a word that performs @i{xt}.  Unlike for
     \G deferred words, aliases don't have an indirection overhead when
     \G compiled.
-    ['] parser create-from ['] a>int ['] a>comp synonym, reveal ;
+    ['] parse-name create-from ['] a>int ['] a>comp synonym, reveal ;
 
 : alias? ( nt -- flag )
     >namehm @ >hm>int 2@ ['] a>comp ['] a>int d= ;
@@ -466,7 +466,7 @@ $BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
     \G Define @i{name} to behave the same way as @i{oldname}: Same
     \G interpretation semantics, same compilation semantics, same
     \G @code{to}/@code{defer!} and @code{defer@@} semantics.
-    ['] parser create-from
+    ['] parse-name create-from
     ?parse-name find-name dup 0= #-13 and throw
     dup >f+c @ synonym-mask and latest >f+c +!
     ['] s>int ['] s>comp synonym, reveal ;
@@ -554,7 +554,7 @@ defer defer-default ( -- )
 \G Define a deferred word @i{name}; its execution semantics can be
 \G set with @code{defer!} or @code{is} (and they have to, before first
 \G executing @i{name}.
-    ['] parser create-from reveal
+    ['] parse-name create-from reveal
     ['] defer-default A, ;
 
 : Defers ( compilation "name" -- ; run-time ... -- ... ) \ gforth

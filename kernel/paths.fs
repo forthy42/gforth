@@ -79,7 +79,7 @@ User tfile
 
 : path+ ( path-addr  "dir" -- ) \ gforth
     \G Add the directory @var{dir} to the search path @var{path-addr}.
-    parse-name rot also-path ;
+    ?parse-name rot also-path ;
 
 : fpath+ ( "dir" ) \ gforth
     \G Add directory @var{dir} to the Forth search path.
@@ -90,7 +90,7 @@ User tfile
 
 : path= ( path-addr "dir1|dir2|dir3" -- ) \ gforth path-equals
     \G Make a complete new search path; the path separator is |.
-    parse-name '|' 0 substc rot only-path ;
+    ?parse-name '|' 0 substc rot only-path ;
 
 : fpath= ( "dir1|dir2|dir3" ) \ gforth f-path-equals
     \G Make a complete new Forth search path; the path separator is |.

@@ -51,7 +51,7 @@ doer? :douser [IF]
 doer? :dodefer [IF]
 : dodefer, ( -- )	\ gforth
     \G The code address of a @code{defer}ed word.
-    ['] parser hmcopy, ;
+    ['] parse-name hmcopy, ;
 [THEN]
 
 doer? :dofield [IF]
