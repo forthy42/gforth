@@ -147,7 +147,6 @@
 #   else /* !(gcc-2.95 or later) */
 #    if (__GNUC__>=13)
 #     define IPREG asm("%ebx")
-#     define SPSREG asm("%edi")
 #    elif (__GNUC__>=9)
 #    else
 #     define SPREG asm("%ebx")
