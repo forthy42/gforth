@@ -96,6 +96,9 @@
 #   else /* !(gcc-2.95 or gcc-3.x) */
 #    if (__GNUC__>=13)
 #     define IPREG asm("%ebx")
+#     define SPREG asm("%esi")
+#     define RPREG asm("%edi")
+#     define TOSREG asm("%ebp")
 #    elif (__GNUC__>=9)
 #    elif (__GNUC__>4 || (__GNUC__==4 && defined(__GNUC_MINOR__) && __GNUC_MINOR__>=2))
 #     if defined(PIC)
