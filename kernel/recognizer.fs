@@ -133,11 +133,6 @@ Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
     \G Change the system recognizer
     is forth-recognize ;
 
-: forth-parser ( addr u -- ... )
-    forth-recognize execute-;s ;
-
-' forth-parser IS parser
-
 : [ ( -- ) \  core	left-bracket
     \G Enter interpretation state. Immediate word.
     state off ; immediate

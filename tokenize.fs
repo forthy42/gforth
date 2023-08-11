@@ -237,7 +237,7 @@ Create token-actions
 
 : token-int ( -- )
     BEGIN  ?stack token-pos# tokens$ $@ + u< WHILE
-	    token@ 0 parser
+	    token@ 0 forth-recognize execute
     REPEAT ;
 
 set-current

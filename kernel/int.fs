@@ -631,9 +631,6 @@ cell% -1 * 0 0 field body> ( xt -- a_addr )
 
 \ interpret                                            10mar92py
 
-Defer parser ( c-addr u -- ... )
-\G text-interpretation of @var{c-addr u}
-
 Defer parse-name ( "name" -- c-addr u ) \ core-ext
 \G Get the next word from the input buffer
 ' (name) IS parse-name
@@ -658,7 +655,7 @@ defer int-execute ( ... xt -- ... )
     BEGIN
 	?stack [ has? EC 0= [IF] ] before-word [ [THEN] ] parse-name dup
     WHILE
-	parser
+	forth-recognize execute
     REPEAT
     2drop @local0 >r lp+ ;
 

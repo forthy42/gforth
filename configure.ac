@@ -462,7 +462,7 @@ Dynamic NC generation disabled."
 	x86_64)
 		case $CC
 		in
-		    *-m32*)
+		    *-m32*|*-mx32*)
 		    	machine=386
 			CFLAGS="$CFLAGS -fomit-frame-pointer -fforce-addr"
 			CFLAGS_1="$CFLAGS"
