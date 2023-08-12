@@ -144,7 +144,7 @@
 #     define IPREG asm("%ebx")
 #    endif
 #   else /* !(gcc-2.95 or later) */
-#    if (__GNUC__>=13)
+#    if (__GNUC__>=12)
 #     define IPREG asm("%ebx")
 #    elif (__GNUC__>=9)
 #    else
