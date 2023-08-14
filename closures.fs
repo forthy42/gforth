@@ -30,6 +30,7 @@ Defer end-d ( ... xt -- ... )
 Defer endref, ( -- )
 \ pushes a reference to the location
 ' noop is endref,
+false Value 1t-closure?
 
 -2 cells field: >addr ( xt -- addr ) \ gforth-experimental to-addr
     \G convert the xt of a closure on the heap to the @var{addr} with can be
@@ -76,6 +77,11 @@ locals-types definitions
     \G end a closure's locals declaration.  The closure will be allocated on
     \G the heap.
     ['] alloch :}* ;
+
+: :}h1 ( hmaddr u latest latestnt wid 0 a-addr1 u1 ... -- ) \ gforth colon-close-brace-h
+    \G end a closure's locals declaration.  The closure will be allocated on
+    \G the heap.
+    true to 1t-closure? ['] alloch :}* ;
 
 forth definitions
 
@@ -129,6 +135,9 @@ forth definitions
     defstart
     true to in-colon-def? ;
 
+: free-closure ( xt -- ) \ gforth-internal
+    \G free a closure
+    >addr free throw ;
 : closure> ( hmaddr -- addr ) \ gforth-internal closure-end
     \G create trampoline head
     [ 0 >body ] [IF] dodoes: >l >l lp@ cell+
@@ -141,11 +150,14 @@ forth definitions
     action-of :-hook >r  ['] closure-:-hook is :-hook
     :noname
     r> is :-hook
+    1t-closure? IF  ]] dup [[ THEN
     case locals-size @ \ special optimizations for few locals
 	cell    of ]] @ >l   [[ endof
 	2 cells of ]] 2@ 2>l [[ endof
 	]] lp+!# [[ dup negate , ]] laddr# [[ 0 , dup ]] literal move [[
     endcase
+    1t-closure? IF  ]] free-closure [[ THEN
+    false to 1t-closure?
     ['] (closure-;]) colon-sys-xt-offset stick ;
 
 : [{: ( -- hmaddr u latest latestnt wid 0 ) \ gforth-experimental start-closure
@@ -203,16 +215,16 @@ cell 4 = [IF]  :noname ( n -- xt )  false >l >l ;  [ELSE]  ' >l  [THEN]
 \ combined names (used in existing code)
 
 : [n:l ( -- colon-sys ) ]] :l [n: [[ ; immediate restrict
-: [n:h ( -- colon-sys ) ]] :h [n: [[ ; immediate restrict
-: [n:d ( -- colon-sys ) ]] :d [n: [[ ; immediate restrict
-
 : [d:l ( -- colon-sys ) ]] :l [d: [[ ; immediate restrict
-: [d:h ( -- colon-sys ) ]] :h [d: [[ ; immediate restrict
-: [d:d ( -- colon-sys ) ]] :d [d: [[ ; immediate restrict
-
 : [f:l ( -- colon-sys ) ]] :l [f: [[ ; immediate restrict
-: [f:h ( -- colon-sys ) ]] :h [f: [[ ; immediate restrict
+
+: [n:d ( -- colon-sys ) ]] :d [n: [[ ; immediate restrict
+: [d:d ( -- colon-sys ) ]] :d [d: [[ ; immediate restrict
 : [f:d ( -- colon-sys ) ]] :d [f: [[ ; immediate restrict
+
+: [n:h ( -- colon-sys ) ]] :h [n: [[ ; immediate restrict
+: [d:h ( -- colon-sys ) ]] :h [d: [[ ; immediate restrict
+: [f:h ( -- colon-sys ) ]] :h [f: [[ ; immediate restrict
 
 [IFDEF] test-it
     : foo [{: a f: b d: c xt: d :}d a . b f. c d. d ;] ;
