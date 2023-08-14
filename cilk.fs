@@ -74,6 +74,10 @@ event: ->spawn ( xt task -- )
     elit, up@ elit, ->spawn worker@ event> 1 sync# +! ;
 : spawn ( xt -- ) \ cilk
     \G Execute @i{xt} ( -- ) in a worker task.
+    \G Use one-time executable closures to pass heap-allocated closures,
+    \G allowing to pass arbitrary data from the spawner to the code
+    \G running in the worker.@*
+    \G E.g.: @code{( n r ) [@{: n f: r :@}h1 code ;] spawn}
     <event spawn-rest  ;
 : spawn1 ( x xt -- ) \ cilk
     \G Execute @i{xt} ( x -- ) in a worker task.
@@ -81,13 +85,6 @@ event: ->spawn ( xt task -- )
 : spawn2 ( x1 x2 xt -- ) \ cilk
     \G Execute @i{xt} ( x1 x2 -- ) in a worker task.
     <event >r swap elit, elit, r> spawn-rest ;
-: spawn-closure ( xt -- ) \ cilk
-    \G Execute @i{xt} ( -- ) in a worker task, the @code{free} @i{xt}.
-    \G Use @code{spawn-closure} to pass heap-allocated closures,
-    \G allowing to pass arbitrary data from the spawner to the code
-    \G running in the worker.@*
-    \G E.g.: @code{( n r ) [@{: n f: r :@}h code ;] spawn-closure}
-    [: dup >r execute r> >addr free throw ;] spawn1 ;
 
 : cilk-bye ( -- ) \ cilk
     \G Terminate all workers.

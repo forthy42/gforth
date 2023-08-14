@@ -136,7 +136,7 @@ forth definitions
     true to in-colon-def? ;
 
 : free-closure ( xt -- ) \ gforth-internal
-    \G free a closure
+    \G free a heap-allocated closure
     >addr free throw ;
 : closure> ( hmaddr -- addr ) \ gforth-internal closure-end
     \G create trampoline head

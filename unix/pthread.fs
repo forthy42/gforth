@@ -273,15 +273,10 @@ Defer thread-init
     ]] (pass) up! sp0 ! thread-init [[ ; immediate compile-only
 
 : initiate ( xt task -- ) \ gforth-experimental
-    \G Let @i{task} execute @i{xt}.  Upon return from the @i{xt}, the
-    \G task terminates itself (VFX compatible).
+    \G Let @i{task} execute @i{xt}.  Upon return from the @i{xt}, the task
+    \G terminates itself (VFX compatible).  Use one-time executable closures
+    \G to pass arbitrary paramenters to a task.
     1 swap pass execute ;
-
-: initiate-closure ( xt task -- ) \ gforth-experimental
-    \G Let @i{task} execute @i{xt}, a heap-allocated closure, and free
-    \G @code{xt}.  Upon return from the @i{xt}, the task is
-    \G terminated.
-    1 swap pass dup >r execute r> >addr free throw ;
 
 : semaphore ( "name" -- ) \ gforth-experimental
     \G create a named semaphore @i{name}@*

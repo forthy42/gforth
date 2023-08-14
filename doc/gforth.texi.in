@@ -12252,8 +12252,10 @@ doc-[{:
 doc-:}l
 doc-:}d
 doc-:}h
+doc-:}h1
 doc-:}xt
 doc->addr
+doc-free-closure
 
 @example
 : foo [@{: a f: b d: c xt: d :@}d a . b f. c d. d ;] ;
@@ -12285,7 +12287,7 @@ the outer procedure; especially closures allocated in the dictionary
 or on the heap are designed to outlive their parent procedure.
 
 For those, we have home locations, which are allocated like closures,
-but their code is directly executed at run-time and should provide us
+but their code is directly executed at creation and should provide us
 with the addresses of the home locations.
 
 @example
@@ -14882,15 +14884,13 @@ A task is created in an inactive state.  To let it run, you have to
 activate it with one of the following words:
 
 doc-initiate
-doc-initiate-closure
 
 The following legacy words provide the same functionality as
-@code{initiate} and @code{initiate-closure}, but with a different
-interface: Like @code{does>}, they split their containing colon
-definition in two parts: The part before @code{activate}/@code{pass}
-runs in the activating task, and returns to its caller after
-activating the task.  The part behind @code{activate}/@code{pass} is
-executed in the activated target task.
+@code{initiate}, but with a different interface: Like @code{does>}, they
+split their containing colon definition in two parts: The part before
+@code{activate}/@code{pass} runs in the activating task, and returns to
+its caller after activating the task.  The part behind
+@code{activate}/@code{pass} is executed in the activated target task.
 
 doc-activate
 doc-pass
@@ -15079,7 +15079,6 @@ doc-cilk-init
 doc-spawn
 doc-spawn1
 doc-spawn2
-doc-spawn-closure
 doc-cilk-sync
 doc-cilk-bye
 
