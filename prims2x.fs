@@ -1108,10 +1108,15 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
 	bounds ?DO  I c@ dup '* = IF  drop 'x  THEN  emit  LOOP
     ELSE  type  THEN ;
 
+: .ip-offset ( -- )
+    ip-offset if
+        ."  ip-offset=" ip-offset .
+    then ;
+
 : output-c ( -- )
     print-entry ."  /* " prim prim-name 2@ prim-type
     ."  ( " prim prim-stack-string 2@ type ." ) "
-    state-in .state ." -- " state-out .state ."  */" cr
+    state-in .state ." -- " state-out .state .ip-offset ."  */" cr
     ." /* " prim prim-doc 2@ type ."  */" cr
     ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
     ip-update
