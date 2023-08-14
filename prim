@@ -258,6 +258,20 @@ noop15 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf -- ) gforth-int
 
 noop16 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg -- ) gforth-internal
 
+noop17 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh -- ) gforth-internal
+
+noop18 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi -- ) gforth-internal
+
+noop19 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi #wj -- ) gforth-internal
+
+noop20 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi #wj #wk -- ) gforth-internal
+
+noop21 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi #wj #wk #wl -- ) gforth-internal
+
+noop22 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi #wj #wk #wl #wm -- ) gforth-internal
+
+noop23 ( #w2 #w3 #w4 #w5 #w6 #w7 #w8 #w9 #wa #wb #wc #wd #we #wf #wg #wh #wi #wj #wk #wl #wm #wn -- ) gforth-internal
+
 call	( #a_callee -- R:a_retaddr )	new
 ""Call callee (a variant of docol with inline argument).""
 #ifdef DEBUG

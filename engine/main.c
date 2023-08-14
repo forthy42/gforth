@@ -190,7 +190,7 @@ Address start_flush=NULL; /* start of unflushed code */
 PrimNum last_jump=0; /* if the last prim was compiled without jump, this
                         is it's PrimNum, otherwise this contains 0 */
 Cell ip_at=0; /* ip currently points to the prim at ip_at */
-#define MAX_IP_UPDATE 16
+#define MAX_IP_UPDATE 23
 Cell inst_index; /* current instruction */
 Label **ginstps; /* array of threaded code locations for
                            primitives being optimize_rewrite()d */
@@ -894,31 +894,33 @@ static void prepare_super_table()
     if ((c->length < 2 || nsupers < static_super_number) &&
 	c->state_in < maxstates && c->state_out < maxstates) {
       struct super_state **ss_listp= lookup_super(super2+c->offset, c->length);
-      struct super_state *ss = malloc_l(sizeof(struct super_state));
-      ss->super= i;
-      if (c->offset==N_noop && i != N_noop) {
-	if (is_relocatable(i)) {
-	  ss->next = state_transitions;
-	  state_transitions = ss;
-	}
-      } else if (ss_listp != NULL) {
-	ss->next = *ss_listp;
-	*ss_listp = ss;
-      } else {
-	int hash = hash_super(super2+c->offset, c->length);
-	struct super_table_entry **p = &super_table[hash];
-	struct super_table_entry *e = malloc_l(sizeof(struct super_table_entry));
-	ss->next = NULL;
-	e->next = *p;
-	e->start = super2 + c->offset;
-	e->length = c->length;
-	e->ss_list = ss;
-	*p = e;
+      if (c->ip_offset == 0) { /* don't enter ip_offset variants */
+        struct super_state *ss = malloc_l(sizeof(struct super_state));
+        ss->super= i;
+        if (c->offset==N_noop && i != N_noop) { /* stack caching transition */
+          if (is_relocatable(i)) {
+            ss->next = state_transitions;
+            state_transitions = ss;
+          }
+        } else if (ss_listp != NULL) { /* static superinstruction */
+          ss->next = *ss_listp;
+          *ss_listp = ss;
+        } else { /* primitive, including stack-caching variants */
+          int hash = hash_super(super2+c->offset, c->length);
+          struct super_table_entry **p = &super_table[hash];
+          struct super_table_entry *e = malloc_l(sizeof(struct super_table_entry));
+          ss->next = NULL;
+          e->next = *p;
+          e->start = super2 + c->offset;
+          e->length = c->length;
+          e->ss_list = ss;
+          *p = e;
+        }
+        if (c->length > max_super)
+          max_super = c->length;
+        if (c->length >= 2)
+          nsupers++;
       }
-      if (c->length > max_super)
-	max_super = c->length;
-      if (c->length >= 2)
-	nsupers++;
     }
   }
   debugp(stderr, "Using %d static superinsts\n", nsupers);

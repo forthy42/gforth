@@ -106,7 +106,8 @@ csswaplstore = >r l>< r> l!
 \F 0 [if]
 
 \ \E prim-states ;s                   \ 2950159
-\E prim-states lit                  \ 2802835
+\ \E prim-states lit                  \ 2802835
+\E prim-states-offsets lit          \ 2802835
 \ \E prim-states call                 \ 2558373
 \E prim-states @                    \ 2244351
 \E branch-states ?branch              \ 1134432
