@@ -216,9 +216,7 @@ Variable playstate
     volitf swap XAVolumeItf-SetVolumeLevel() ?omx ;
 
 : queue-flush ( -- )
-    cues>mts-run? IF
-	<event :>cue-abort cue-task event>
-    THEN  clear-queue ;
+    cues>mts-run? IF  cue-abort  THEN  clear-queue ;
 
 : setup-player ( -- )  player IF
 	destroy-player
@@ -317,8 +315,8 @@ true value show-mcursor
 : >pos ( r -- )
     ts-fd IF  >rai  ELSE
 	0e first-timestamp f!
-	mkv-file-o >o >cue o>
-	<event elit, :>cues cue-task event>  THEN ;
+	mkv-file-o >o >cue o> cues
+    THEN ;
 
 : check-input ( -- )
     >looper
@@ -370,13 +368,13 @@ previous
     open-mts start-file play-loop ;
 : set-mkv ( addr u -- )
     ['] pull-queue is read-ts
-    <event estring, :>open-mkv 0 elit, :>cues cue-task event> ;
+    open-mkv 0 cues ;
 : play-mkv ( addr u -- )
     set-mkv start-file play-loop stop-player ;
 : replay% ( r -- )  >pos  true init-enqueue play-loop ;
 : replay ( -- )
     cue-task IF
-	<event 0 elit, :>cues cue-task event>
+	0 cues
     ELSE
 	#0. ts-fd reposition-file throw
     THEN

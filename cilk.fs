@@ -50,14 +50,11 @@ semaphore workers-sema
 	workers-sema c-section
     dup 0= WHILE drop stop REPEAT ;
 
-event: ->sync ( task -- )
-    { w^ task } task cell [: workers $+! ;] workers-sema c-section
-    -1 sync# +! ;
 : +worker ( task -- )
-    <event up@ elit, ->sync event> ;
+    up@ [{: w^ task :}h1
+	task cell [: workers $+! ;] workers-sema c-section
+	-1 sync# +! ;] swap send-event ;
 
-event: ->spawn ( xt task -- )
-    invoker ! execute clearstack ;
 : worker-thread ( invoker -- ) \ cilk
     1 stacksize4 newtask4 pass invoker !
     BEGIN  invoker @ +worker stop  AGAIN ;
@@ -70,21 +67,20 @@ event: ->spawn ( xt task -- )
     \G Start the worker tasks if not already done.
     workers @ 0= IF  start-workers  THEN ;
 
-: spawn-rest ( xt -- )
-    elit, up@ elit, ->spawn worker@ event> 1 sync# +! ;
 : spawn ( xt -- ) \ cilk
     \G Execute @i{xt} ( -- ) in a worker task.
     \G Use one-time executable closures to pass heap-allocated closures,
     \G allowing to pass arbitrary data from the spawner to the code
     \G running in the worker.@*
     \G E.g.: @code{( n r ) [@{: n f: r :@}h1 code ;] spawn}
-    <event spawn-rest  ;
+    up@ [{: xt: xt task :}h1 task invoker ! xt ;]
+    worker@ send-event 1 sync# +! ;
 : spawn1 ( x xt -- ) \ cilk
     \G Execute @i{xt} ( x -- ) in a worker task.
-    <event swap elit, spawn-rest ;
+    [{: x xt: xt :}h1 x xt ;] spawn ;
 : spawn2 ( x1 x2 xt -- ) \ cilk
     \G Execute @i{xt} ( x1 x2 -- ) in a worker task.
-    <event >r swap elit, elit, r> spawn-rest ;
+    [{: d: x xt: xt :}h1 x xt ;] spawn ;
 
 : cilk-bye ( -- ) \ cilk
     \G Terminate all workers.

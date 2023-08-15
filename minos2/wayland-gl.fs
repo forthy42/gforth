@@ -114,11 +114,19 @@ Defer b-button ' 3drop is b-button
 Defer b-motion ' 3drop is b-motion
 Defer b-enter  ' 2drop is b-enter
 Defer b-leave  ' noop  is b-leave
-event: :>scroll ( time axis val -- ) b-scroll ;
-event: :>button ( time b mask -- )   b-button ; 
-event: :>motion ( time x y -- )      b-motion ; 
-event: :>enter  ( x y -- )           b-enter ; 
-event: :>leave  ( -- )               b-leave ; 
+
+up@ Value main-task
+
+: wl-scroll ( time axis val -- )
+    [{: time axis val :}h1 time axis val b-scroll ;] main-task send-event ;
+: wl-button ( time b mask -- )
+    [{: time b mask :}h1 time b mask b-button ;] main-task send-event ;
+: wl-motion ( time x y -- )
+    [{: time x y :}h1 time x y b-motion ;] main-task send-event ;
+: wl-enter  ( x y -- )
+    [{: x y :}h1 x y b-enter ;] main-task send-event ;
+: wl-leave  ( -- )
+    ['] b-leave main-task send-event ; 
 
 \ pointer listener
 
@@ -128,20 +136,20 @@ event: :>leave  ( -- )               b-leave ;
 :noname { data p source -- } ; wl_pointer_listener-axis_source:
 :noname { data p -- } ; wl_pointer_listener-frame:
 :noname { data p time axis val -- }  time XTime!
-    <event time elit, axis elit, val elit, :>scroll [ up@ ]L event>
+    time axis val wl-scroll
 ; wl_pointer_listener-axis:
 :noname { data p ser time b mask -- }  time XTime!
-    <event time elit, b elit, mask elit, :>button [ up@ ]L event>
+    time b mask wl-button
 ; wl_pointer_listener-button:
 :noname { data p time x y -- }  time XTime!
-    <event time elit, x elit, y elit, :>motion [ up@ ]L event>
+    time x y wl-motion
 ; wl_pointer_listener-motion:
 :noname { data p s -- }
-    <event :>leave [ up@ ]L event>
+    wl-leave
 ; wl_pointer_listener-leave:
 :noname { data p s x y -- }
     s set-cursor \ on enter, we set the cursor
-    <event x elit, y elit, :>enter [ up@ ]L event>
+    x y wl-enter
 ; wl_pointer_listener-enter:
 Create wl-pointer-listener  , , , , , , , , ,
 

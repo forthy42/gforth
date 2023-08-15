@@ -326,50 +326,14 @@ synonym c-section critical-section
     \G @i{xt}, the task terminates itself.
     stacksize4 newtask4 tuck initiate ;
 
-\ event handling
-
-s" Undefined event"   exception Constant !!event!!
-s" Event buffer full" exception Constant !!ebuffull!!
-
-Variable event#  1 event# !
-
-User eventbuf# $100 uallot drop \ 256 bytes buffer for atomic event squences
-User event-start
-
-: 'event ( -- addr )  eventbuf# dup @ + cell+ ;
-: event+ ( n -- addr )
-    dup eventbuf# @ + $100 u>= !!ebuffull!! and throw
-    'event swap eventbuf# +! ;
-: <event ( -- ) \ gforth-experimental open-angle-event
-    \G Starts an event sequence (a message).
-    eventbuf# @ IF  event-start @ 1 event+ c! eventbuf# @ event-start !  THEN ;
-: event> ( task -- ) \ gforth-experimental event-close-angle
-    \G Finishes the event sequence (message) and sends it to @i{task}.
-    \G If @i{task}'s message queue is full, this operation blocks
-    \G until there is enough room.  Currently message queues are
-    \G implemented as pipes and can typically buffer 4096 bytes.
-    eventbuf# @ event-start @ u> IF
-	>r eventbuf# cell+ eventbuf# @ event-start @
-	?dup-if  /string  event-start @ 1- eventbuf# !  'event c@ event-start !
-	else  eventbuf# off  then
-	epipew r> 's @ write-file throw
-    ELSE  drop  THEN ;
-
-: event-crash  !!event!! throw ;
-
-Create event-table $100 0 [DO] ' event-crash , [LOOP]
-
-: event-does ( -- )  DOES>  @ 1 event+ c! ;
-: event: ( "name" -- colon-sys ) \ gforth-experimental "event-colon"
-    \G Defines an event @i{name} and starts a colon definition.@*
-    \G @i{name} execution: ( -- )@* Add the colon definition to the
-    \G current event sequence.  Eventually the task receiving the
-    \G event sequence will run the colon definition.
-    Create event# @ ,  event-does
-    here 0 , >r  noname : latestxt dup event# @ cells event-table + !
-    r> ! 1 event# +! ;
-: (stop) ( -- )  epiper @ key-file
-    dup 0>= IF  cells event-table + perform  ELSE  drop  THEN ;
+: (stop) ( -- )
+    {: | w^ xt :} xt cell epiper @ read-file throw cell = IF
+	xt perform
+    THEN ;
+: send-event ( xt task -- ) \ gforth-experimental
+    \G Task IPC: send @var{xt} to @var{task}.  The xt is executed
+    \G there.  Use a one-shot closure to pass parameters with the xt.
+    >r {: w^ xt :} xt cell epipew r> 's @ write-file throw ;
 : event? ( -- flag )  epiper @ check_read 0> ;
 
 : ?events ( -- ) \ gforth-experimental question-events
@@ -407,41 +371,27 @@ Create event-table $100 0 [DO] ' event-crash , [LOOP]
     2drop 2drop ;
 ' thread-deadline is deadline
 
-event: :>lit  0 { w^ n } n cell epiper @ read-file throw drop n @ ;
-event: :>flit 0e { f^ r } r float epiper @ read-file throw drop r f@ ;
-
-: elit,  ( x -- ) \ gforth-experimental e-lit-comma
-    \G Put @i{x} in the current event sequence.  The receiving task
-    \G will push @i{x}.
-    :>lit cell event+ [ cell 8 = ] [IF] x! [ELSE] l! [THEN] ;
-
-: estring, ( c-addr u -- ) \ gforth-experimental e-string-comma
-    \G Put the string @i{c-addr u} in the current event sequence.  The
-    \G receiving task will push a string @i{c-addr2 u}, with the same
-    \G contents, but possibly a different address.  Do not change the
-    \G contents of the string after sending the event sequence,
-    \G because the receiving task may or may not see the change (or
-    \G worse, some in-between state).
-    swap elit, elit, ;
-: eflit, ( r -- ) \ gforth-experimental e-f-lit-comma
-    \G Put @i{r} in the current event sequence.  The receiving task
-    \G will push @i{r} on the floating-point stack.
-    :>flit { f^ r } r float event+ float move ;
-
-event: :>wake ( wake# -- )  wake# ! ;
-event: :>sleep  stop ;
-
+: (restart) ( task wake# -- )
+    [{: n :}h1 n wake# ! ;] swap send-event ;
 : restart ( task -- ) \ gforth-experimental
     \G Wake a task
-    <event 0 elit, :>wake event> ;
+    0 (restart) ;
 synonym wake restart ( task -- ) \ gforth-experimental
-
-event: :>restart ( wake# task -- ) <event swap elit, :>wake event> ;
 
 : halt ( task -- ) \ gforth-experimental
     \G Stop a task
-    <event :>sleep event> ;
-synonym sleep halt ( task -- )
+    ['] stop swap send-event ;
+synonym sleep halt ( task -- ) \ gforth-experimental
+
+: event-block ( task -- ) \ gforth-experimental
+    \G send an event and wait for the answer
+    dup up@ = IF \ don't block, just eval what we sent to ourselves
+	?events
+    ELSE
+	wake# @ 1+ dup >r up@ [{: wake task :}h1
+	    task wake (restart) ;] swap send-event
+	BEGIN  stop  wake# @ r@ =  UNTIL  rdrop
+    THEN ;
 
 : kill ( task -- ) \ gforth-experimental
     \G Terminate @i{task}.
@@ -451,15 +401,6 @@ synonym sleep halt ( task -- )
     [ELSE]
 	15 pthread_kill drop
     [THEN] ;
-
-: event| ( task -- ) \ gforth-experimental
-    \G send an event and block
-    dup up@ = IF \ don't block, just eval what we sent to ourselves
-	event> ?events
-    ELSE
-	wake# @ 1+ dup >r elit, up@ elit, :>restart event>
-	BEGIN  stop  wake# @ r@ =  UNTIL  rdrop
-    THEN ;
 
 \ User deferred words, user values
 
@@ -479,18 +420,12 @@ synonym sleep halt ( task -- )
     ['] udefer-to set-to
     [: >body @ postpone useraddr , postpone perform ;] set-optimizer ;
 
-false [IF] \ event test - send to myself
-    <event 1234 elit, up@ event> ?event 1234 = [IF] ." event ok" cr [THEN]
-[THEN]
-
 \ key for pthreads
 
 User keypollfds pollfd 2* cell- uallot drop
 
 :noname defers 'image
     keypollfds pollfd 2* erase
-    event-start off
-    eventbuf# $100 erase
     pthread-id [ host? [IF] 0 pthread+ [ELSE] cell [THEN] ]L erase
     epiper off
     epipew off

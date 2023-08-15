@@ -175,18 +175,12 @@ Variable def-output$
 	    ?requests
 	AGAIN ;] catch ?dup-IF  DoError  THEN ;
 
-event: :>exec ( xt -- ) execute ;
-event: :>execq ( xt -- ) dup >r execute r> >addr free throw ;
-: pa-event> ( -- ) pa-task event>
+: pulse-exec ( xt -- ) pa-task send-event
     pa-ml pa_mainloop_wakeup ;
-: pulse-exec ( xt -- ) { xt }
-    <event xt elit, :>exec pa-event>  ;
-: pulse-exec# ( lit xt -- ) { xt }
-    <event elit, xt elit, :>exec  pa-event> ;
-: pulse-exec## ( lit lit xt -- ) { xt }
-    <event swap elit, elit, xt elit, :>exec  pa-event> ;
-: pulse-execq ( xt -- ) { xt }
-    <event xt elit, :>execq pa-event> ;
+: pulse-exec# ( lit xt -- )
+    [{: n xt: xt :}h1 n xt ;] pulse-exec ;
+: pulse-exec## ( lit lit xt -- )
+    [{: d: d xt: xt :}h1 d xt ;] pulse-exec ;
 
 : pa-sample! ( rate channels ss -- ) { ss }
     ss pa_sample_spec-channels c!
@@ -291,7 +285,7 @@ Defer write-record
     pulse( ss[ pa_sample_spec dump  cm[ pa_channel_map dump )
     pa_stream_new dup to stereo-play  ba[ read-record play-rest ;
 
-event: :>kill-pulse ( -- )
+: kill-pulse ( -- )
     mono-play   ?dup-IF  pa_stream_disconnect ?pa-ior  0 to mono-play    THEN
     stereo-play ?dup-IF  pa_stream_disconnect ?pa-ior  0 to stereo-play  THEN
     mono-rec    ?dup-IF  pa_stream_disconnect ?pa-ior  0 to mono-rec     THEN
@@ -301,7 +295,7 @@ event: :>kill-pulse ( -- )
 
 : kill-pulse ( -- )
     pa-task IF
-	<event :>kill-pulse pa-task event>
+	['] kill-pulse pa-task send-event
 	5 0 DO  pa-task 0= ?LEAVE  1 ms  LOOP
     THEN ;
 

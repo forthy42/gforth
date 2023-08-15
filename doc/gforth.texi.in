@@ -14999,46 +14999,22 @@ doc-barrier
 
 Gforth's message queues are a variant of the actor model.
 
-An event is a kind of colon definition; the sending task tells the
-receiving task to run an event (actually an event sequence), and the
-receiving task performs one event sequence (or more) from its message
-queue when it is ready.
+An event is an xt; the sending task tells the receiving task to run an
+event, and the receiving task performs one event from its message queue
+when it is ready.  Execute-once closures can be used for events that
+pass parameters.
 
-doc-event:
+doc-send-event
 
-You can define a maximum of 256 different events.  The naming
-convention for events is @code{:>}@var{name}.  You can assemble
-several events into an event sequence (a message):
-
-doc-<event
-doc-event>
-
-In addition to events, you can add integers, floating-point numbers,
-and strings to event sequences.  The receiving task will push them on
-the appropriate stack.  In this way you can also send events with
-parameters: You put these parameters in the event sequence, and then
-put an event colon definition there that consumes these parameters.
-
-doc-elit,
-doc-estring,
-doc-eflit,
-
-Each event sequence is currently limited to 256 bytes; On 64-bit
-systems an event currently takes 1 byte, a cell 9 bytes, a string 17
-bytes, and a float 9 bytes.
-
-When several tasks send event sequences to one task, the event
-sequences may arrive in any order, but the receiving task processes
-each event sequence as one unit, without interleaving it with other
-events or other work.  In order to receive events, you put one of the
-following words in the receiving task:
+When several tasks send event to one task, the events may arrive in any
+order.  In order to receive events, you put one of the following words
+in the receiving task:
 
 doc-?events
 doc-event-loop
 
 Alternatively, when a task is @code{stop}ped, it is also ready for
-receiving event sequences, and receiving an event sequence will wake
-it up.
+receiving event, and receiving an event will wake it up.
 
 @c @node Conditions,  , Message queues, Pthreads
 @c @subsubsection Conditions
