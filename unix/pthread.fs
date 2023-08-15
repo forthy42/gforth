@@ -386,7 +386,7 @@ synonym sleep halt ( task -- ) \ gforth-experimental
 : event-block ( task -- ) \ gforth-experimental
     \G send an event and wait for the answer
     dup up@ = IF \ don't block, just eval what we sent to ourselves
-	?events
+	drop ?events
     ELSE
 	wake# @ 1+ dup >r up@ [{: wake task :}h1
 	    task wake (restart) ;] swap send-event
