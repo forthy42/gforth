@@ -216,7 +216,7 @@ PARSED-TYPE specifies what kind of text is parsed. It should be
 	(("warning\"") compile-only (font-lock-keyword-face . 1)
 	 "[\"\n]" nil string (font-lock-string-face . 1))
 	(("{" "{:" "[{:") compile-only (font-lock-variable-name-face . 1)
-	 "[\n}]" nil name (font-lock-variable-name-face . 1))
+	 "[\n}][hld]?1?" nil name (font-lock-variable-name-face . 1))
 	((".(" "(") immediate (font-lock-comment-face . 1)
 	  ")" nil comment (font-lock-comment-face . 1))
 	(("\\" "\\G") immediate (font-lock-comment-face . 1)

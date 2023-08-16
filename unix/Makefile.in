@@ -68,6 +68,10 @@ stat.fs: stat-fsi.c
 	$(CC) -o $@x $<
 	./$@x -gforth > $@
 
+pthread-types.fs: pthread-types-fsi.c
+	$(CC) -o $@x $<
+	./$@x -gforth > $@
+
 # compile fsi-file
 #%.fsx: %-fsi.c
 #	$(CC) -o $@ $<

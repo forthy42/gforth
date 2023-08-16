@@ -67,34 +67,6 @@ c-library pthread
     \c   pthread_cleanup_pop(1);
     \c   pthread_exit((void*)x);
     \c }
-    \c static inline void *gforth_thread_p()
-    \c {
-    \c   return (void*)&gforth_thread;
-    \c }
-    \c static inline void *pthread_plus(void * thread)
-    \c {
-    \c   return thread+sizeof(pthread_t);
-    \c }
-    \c static inline Cell pthreads(Cell thread)
-    \c {
-    \c   return thread*(int)sizeof(pthread_t);
-    \c }
-    \c static inline void *pthread_mutex_plus(void * thread)
-    \c {
-    \c   return thread+sizeof(pthread_mutex_t);
-    \c }
-    \c static inline Cell pthread_mutexes(Cell thread)
-    \c {
-    \c   return thread*(int)sizeof(pthread_mutex_t);
-    \c }
-    \c static inline void *pthread_cond_plus(void * thread)
-    \c {
-    \c   return thread+sizeof(pthread_cond_t);
-    \c }
-    \c static inline Cell pthread_conds(Cell thread)
-    \c {
-    \c   return thread*(int)sizeof(pthread_cond_t);
-    \c }
     \c pthread_attr_t * pthread_detach_attr(void)
     \c {
     \c   static pthread_attr_t attr;
@@ -143,9 +115,7 @@ c-library pthread
     \ if there's no such function, don't do anything
     \c }
 
-    c-function pthread+ pthread_plus a -- a ( addr -- addr' )
-    c-function pthreads pthreads n -- n ( n -- n' )
-    c-function thread_start gforth_thread_p -- a ( -- addr )
+    c-variable thread_start gforth_thread ( -- addr )
     c-function gforth_create_thread gforth_stacks n n n n -- a ( dsize fsize rsize lsize -- task )
     c-function pthread_create pthread_create a{(pthread_t*)} a a a -- n ( thread attr start arg )
     c-function pthread_exit pthread_exit a -- void ( retaddr -- )
@@ -157,12 +127,10 @@ c-library pthread
     c-function pthread_mutex_destroy pthread_mutex_destroy a -- n ( mutex -- r )
     c-function pthread_mutex_lock pthread_mutex_lock a -- n ( mutex -- r )
     c-function pthread_mutex_unlock pthread_mutex_unlock a -- n ( mutex -- r )
-    c-function pthread-mutex+ pthread_mutex_plus a -- a ( mutex -- mutex' )
-    c-function pthread-mutexes pthread_mutexes n -- n ( n -- n' )
-    c-function pthread-cond+ pthread_cond_plus a -- a ( cond -- cond' )
-    c-function pthread-conds pthread_conds n -- n ( n -- n' )
     c-function sched_yield sched_yield -- void ( -- )
     c-function pthread_detach_attr pthread_detach_attr -- a ( -- addr )
+    c-function pthread_cond_init pthread_cond_init a a -- n ( cond attr -- r )
+    c-function pthread_cond_destroy pthread_cond_destroy a -- n ( cond -- r )
     c-function pthread_cond_signal pthread_cond_signal a -- n ( cond -- r ) \ gforth-experimental
     c-function pthread_cond_broadcast pthread_cond_broadcast a -- n ( cond -- r ) \ gforth-experimental
     c-function pthread_cond_wait pthread_cond_wait a a -- n ( cond mutex -- r ) \ gforth-experimental
@@ -174,13 +142,24 @@ c-library pthread
     c-function pthread_self pthread_self -- t{*(pthread_t*)} ( pthread-id -- )
 end-c-library
 
+require unix/pthread-types.fs
+0 pthread_t cfield: pthread+ drop
+0 pthread_mutex_t cfield: pthread-mutex+ drop
+0 pthread_cond_t cfield: pthread-cond+ drop
+
+Create pthreads 0 pthread+ ,
+DOES> @ * ;
+opt: @ ]] literal * [[ ;
+' pthreads create-from pthread-mutexes reveal 0 pthread-mutex+ ,
+' pthreads create-from pthread-conds   reveal 0 pthread-cond+ ,
+
 require ./libc.fs
 require set-compsem.fs
 
 User pthread-id
-host? [IF]
-    -1 cells pthread+ uallot drop
+-1 cells pthread+ uallot drop
 
+host? [IF]
     pthread-id pthread_self
 [THEN]
 
@@ -281,20 +260,18 @@ Defer thread-init
 : semaphore ( "name" -- ) \ gforth-experimental
     \G create a named semaphore @i{name}@*
     \G @i{name} execution: ( -- @i{semaphore} )
-    Create host? IF
-	1 pthread-mutexes allocate throw dup ,
+    Create  here 1 pthread-mutexes allot
+    host? IF
 	0 pthread_mutex_init drop
-    ELSE  0 ,  THEN
-    ['] @ set-does> ;
+    ELSE  drop  THEN ;
 synonym sema semaphore
 
 : cond ( "name" -- ) \ gforth-experimental
     \G create a named condition
-    Create host? IF
-	1 pthread-conds dup allocate throw dup ,
-	swap erase
-    ELSE  0 ,  THEN
-    ['] @ set-does> ;
+    Create  here 1 pthread-conds allot
+    host? IF
+	0 pthread_cond_init drop
+    ELSE  drop  THEN ;
 
 : lock ( semaphore -- ) \ gforth-experimental
 \G lock the semaphore
@@ -426,7 +403,7 @@ User keypollfds pollfd 2* cell- uallot drop
 
 :noname defers 'image
     keypollfds pollfd 2* erase
-    pthread-id [ host? [IF] 0 pthread+ [ELSE] cell [THEN] ]L erase
+    pthread-id pthread_t erase
     epiper off
     epipew off
     wake# off
