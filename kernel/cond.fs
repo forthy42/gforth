@@ -245,41 +245,34 @@ IS until-like
 \ This is solved by storing the information about the leavings in a
 \ special stack.
 
-\ !! remove the fixed size limit. 'Tis not hard.
 Variable leave-stack
 
 : clear-leave-stack ( -- )
     leave-stack $free ;
 
-\ : leave-empty? ( -- f )
-\  leave-sp @ leave-stack = ;
+: leave-empty? ( -- f )
+    leave-stack stack# 0= ;
 
 : >leave ( orig -- )
     \ push on leave-stack
-    leave-stack >stack
-    leave-stack >stack
-    leave-stack >stack
-    leave-stack >stack ;
+    cs-item-size 0 ?DO  leave-stack >stack  LOOP ;
 
 : leave> ( -- orig )
     \ pop from leave-stack
-    leave-stack stack# 0= IF
-       0 0 0 0  EXIT  THEN
-   leave-stack stack>
-   leave-stack stack>
-   leave-stack stack>
-   leave-stack stack> ;
+    cs-item-size 0 ?DO  leave-stack stack>  LOOP ;
 
 : DONE ( compilation orig -- ; run-time -- ) \ gforth
     \g resolves all LEAVEs up to the compilaton orig (from a BEGIN)
     drop >r 2drop
     begin
+	leave-empty? 0=
+    while
 	leave>
 	over r@ u>=
     while
 	POSTPONE then
-    repeat
-    >leave rdrop ; immediate restrict
+    repeat  >leave  then
+    rdrop ; immediate restrict
 
 : LEAVE ( compilation -- ; run-time loop-sys -- ) \ core
     \G @xref{Counted Loops}.
