@@ -1,5 +1,7 @@
 \ xchar word test suite - UTF-8 only
 
+require ./tester.fs
+
 base @ hex
 utf-8 set-encoding
 

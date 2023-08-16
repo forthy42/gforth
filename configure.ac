@@ -1831,6 +1831,27 @@ AC_SUBST(EXTRAPREFIX)
 DEBVERSION=`echo $PACKAGE_VERSION | tr '_' '-'`
 AC_SUBST(DEBVERSION)
 
+# Check for utf8-style environment
+
+AC_MSG_CHECKING([for utf8 locale])
+
+UTF8LANG=`locale -a | grep -i 'utf-\?8$' | head -1`
+NO_UTF8=""
+
+case "$UTF8LANG"
+in
+	*utf8 | *UTF8 | *utf-8 | *UTF-8)
+		AC_MSG_RESULT([$UTF8LANG])
+		;;
+	*)
+		AC_MSG_RESULT([no suitable locale found])
+		NO_UTF8='#'
+		;;
+esac
+
+AC_SUBST(UTF8LANG)
+AC_SUBST(NO_UTF8)
+
 # finally create config files
 
 AC_CONFIG_FILES([

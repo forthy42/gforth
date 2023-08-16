@@ -101,7 +101,7 @@ TAR	= tar cf -
 MKDIR	= mkdir
 MKDIR_P = @MKDIR_P@
 TIMEOUT = @TIMEOUT@ @TIMEOUT_ARGS@
-UTF8    = env LC_ALL=C.UTF-8
+UTF8    = env LC_ALL=@UTF8LANG@
 ACLOCAL_AMFLAGS = -I m4
 INSTALL	= @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -1096,7 +1096,8 @@ checkone test: prim.b gforth-light.fi engine/prim-s.i
 		$(TIMEOUT) $(FORTH) -i gforth-light.fi test/tester.fs -e 'warnings off' test/coretest.fs test/postpone.fs test/dbltest.fs test/string.fs test/float.fs test/deferred.fs test/coreext.fs test/search.fs -e bye 2>/dev/null | tr -d '\015' | diff -r -u - $(srcdir)/test/coretest.out
 		$(TIMEOUT) $(FORTH) -i gforth-light.fi test/other.fs -e bye
 		$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/signals.fs -e bye
-		$(TIMEOUT) $(UTF8) $(FORTHS) -i gforth-light.fi test/coremore.fs test/gforth.fs test/xchar.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
+		$(TIMEOUT) $(FORTHS) -i gforth-light.fi test/coremore.fs test/gforth.fs test/macros.fs -e bye 2>&1 | tr -d '\015' | diff -u $(srcdir)/test/gforth.out -
+		@NO_UTF8@$(TIMEOUT) $(UTF8) $(FORTHS) -i gforth-light.fi test/xchar.fs -e bye
 		$(TIMEOUT) $(FORTH) -i gforth-light.fi code.fs test/checkans.fs -e bye | tr -d '\015' | diff -u $(srcdir)/test/checkans.out -
 		$(TIMEOUT) $(FORTH) -i gforth-light.fi prims2x.fs -e \
 		  "c-flag on s\" prim.i\" out-filename 2! s\" $<\" ' output-c ' output-c-combined process-file bye"| \
