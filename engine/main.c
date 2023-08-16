@@ -189,7 +189,10 @@ Address code_here; /* does for code-area what HERE does for the dictionary */
 Address start_flush=NULL; /* start of unflushed code */
 PrimNum last_jump=0; /* if the last prim was compiled without jump, this
                         is it's PrimNum, otherwise this contains 0 */
-Cell ip_at=0; /* ip currently points to the prim at ip_at */
+Label *ip_at=0; /* during execution of the currently compiled code ip
+                    points to ip_at, which may be somewhere behind
+                    the position where it would be without ip_update
+                    optimization */
 #define MAX_IP_UPDATE 23
 Cell inst_index; /* current instruction */
 Label **ginstps; /* array of threaded code locations for
@@ -1275,15 +1278,15 @@ static void record_ip_update(Cell n)
 }
 
 static Cell append_ip_update(Cell n)
-/* compile an ip update for updating the ip from ip_at to (0,n) cells
-   before inst_index+1, where both are indexes into ginstps; returns
-   the offset in cells between the updated ip_at and inst_index+1 */
+/* compile an ip update for updating the ip from ip_at to [0,n] cells
+   before ginstps[inst_index+1] (where it points without ip-update
+   optimization; returns the remaining difference (in the range [0,n]) */
 {
-  if (ip_at < inst_index+1) {
-    Cell cellsdiff = ginstps[inst_index+1]-ginstps[ip_at];
+  Cell cellsdiff = ginstps[inst_index+1]-ip_at;
+  assert(cellsdiff>=0);
+  if (cellsdiff>n) {
+    Label *old_ip_at;
     assert(opt_ip_updates > 0);
-    if (print_metrics)
-      record_ip_update(cellsdiff);
     do {
       Cell cellsdiff1 = cellsdiff;
       if (cellsdiff1 > MAX_IP_UPDATE)
@@ -1294,8 +1297,10 @@ static Cell append_ip_update(Cell n)
         append_code(pi->start, pi->len1);
       }
       cellsdiff -= cellsdiff1;
-    } while (cellsdiff>0);
-    ip_at = inst_index+1;
+      ip_at += cellsdiff1;
+    } while (cellsdiff>n);
+    if (print_metrics)
+      record_ip_update(ip_at-old_ip_at);
   }
 }
 
@@ -1304,7 +1309,7 @@ static void append_jump(void)
   if (last_jump) {
     PrimInfo *pi = &priminfos[last_jump];
     /* debugp(stderr, "Copy code %p<=%p+%x,%d\n", code_here, pi->start, pi->length, pi->restlength); */
-    assert(ip_at > inst_index || !priminfos[last_jump].superend);
+    assert(ip_at > ginstps[inst_index] || !priminfos[last_jump].superend);
     append_ip_update(0);
     append_code(pi->start+pi->length, pi->restlength);
     /* debugp(stderr, "Copy goto %p<=%p,%d\n", code_here, goto_start, goto_len); */
@@ -1383,7 +1388,7 @@ static Address append_prim(PrimNum p)
         long i;
         for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
           if (p==ip_dead[i]) {
-            ip_at = inst_index+1; /* suppress the ip update if ip is dead */
+            ip_at = ginstps[inst_index+1]; /* suppress the ip update if ip is dead */
             break;
           }
       }
@@ -1395,7 +1400,7 @@ static Address append_prim(PrimNum p)
     if (print_metrics)
       record_ip_update(ci->imm_ops+1);
     append_code(pi->start, pi->length);
-    ip_at = inst_index + ci->length;
+    ip_at = ginstps[inst_index + ci->length];
   }
   last_jump = (pi->restlength == 0) ? 0 : p;
   return old_code_here;
@@ -1540,7 +1545,7 @@ static Cell compile_prim_dyn(PrimNum p)
   priminfos[p].uses++;
   if (p>=npriminfos || !is_relocatable(p)) {
     append_jump_previous();
-    ip_at = inst_index+1; /* advance to behind the non-relocatable inst */
+    ip_at = ginstps[inst_index+1]; /* advance to behind the non-relocatable inst */
     return static_prim;
   }
   old_code_here = append_prim(p);
@@ -1890,7 +1895,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
   old_code_area = code_area;
   nextdyn=0;
   nextstate=CANONICAL_STATE;
-  ip_at = 0;
+  ip_at = ginstps[0];
   no_transition = ((!ts[0]->trans[nextstate].relocatable) 
 		   ||ts[0]->trans[nextstate].no_transition);
   for (i=0; i<ninsts; i++) {
@@ -1931,7 +1936,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
 	/* if the starter of a i<nextdyn sequence was non-relocatable,
 	 * the rest of the sequence needs to keep up ip_at */
 	if(no_relocatable)
-	  ip_at = nextdyn;
+	  ip_at = ginstps[nextdyn];
       }
       if (is_relocatable(p)) {
         di = add_dynamic_info();
