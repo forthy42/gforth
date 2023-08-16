@@ -1835,12 +1835,12 @@ AC_SUBST(DEBVERSION)
 
 AC_MSG_CHECKING([for utf8 locale])
 
-UTF8LANG=`locale -a | grep -i 'utf-\?8$' | head -1`
+UTF8LANG=`locale -a | grep -i '[.]utf-*8$' | head -1`
 NO_UTF8=""
 
 case "$UTF8LANG"
 in
-	*utf8 | *UTF8 | *utf-8 | *UTF-8)
+	*.utf8 | *.UTF8 | *.utf-8 | *.UTF-8)
 		AC_MSG_RESULT([$UTF8LANG])
 		;;
 	*)
