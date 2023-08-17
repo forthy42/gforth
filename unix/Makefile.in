@@ -45,8 +45,9 @@ LIBTOOL = @LIBTOOL@
 GCC	= @CC@
 HOSTCC	= @HOSTCC@
 CC	= $(HOSTCC) $(INCLUDES) -I.
+HELPERS = stat.fs pthread-types.fs
 
-all: $(GENWRAPPERS) $(TARGETS) stat.fs pthread-types.fs
+all: $(GENWRAPPERS) $(TARGETS) $(HELPERS)
 
 wrappers: $(WRAPPERS)
 
@@ -89,9 +90,9 @@ run: $(DEMO)
 .PHONY: clean
 
 clean:
-	rm -f $(TARGETS) stat.fs
+	rm -f $(TARGETS) $(HELPERS)
 	rm -f $(GENWRAPPERS) $(GENWRAPPERS_PLUS)
-	rm -f $(WRAPPERS) stat.fsx
+	rm -f $(WRAPPERS) $(patsub %,%x,$(HELPERS))
 	rm -f example.o example example-fast example.fs
 
 # Example for C program that wraps Gforth

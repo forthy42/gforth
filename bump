@@ -13,7 +13,7 @@ if [ -d build ]
 then
     ./autogen.sh && ./configure
 fi
-make dist
+make -j`nproc` dist
 if [ -d build ]
 then
     make distclean
