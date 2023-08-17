@@ -46,7 +46,7 @@ GCC	= @CC@
 HOSTCC	= @HOSTCC@
 CC	= $(HOSTCC) $(INCLUDES) -I.
 
-all: $(GENWRAPPERS) $(TARGETS) stat.fs
+all: $(GENWRAPPERS) $(TARGETS) stat.fs pthread-types.fs
 
 wrappers: $(WRAPPERS)
 
