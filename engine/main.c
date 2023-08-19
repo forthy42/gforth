@@ -1407,6 +1407,7 @@ static Address append_prim(PrimNum p)
                                         sure that it isn't generated
                                         behind it */
     append_code(pi->start+pi->len1, pi->length-pi->len1);
+    pi->uses++;
     assert((!superend) || ip_at == ginstps[inst_index+1]);
   } else {
     if (print_metrics)
@@ -1554,10 +1555,10 @@ static Cell compile_prim_dyn(PrimNum p)
 
   if (no_dynamic)
     return static_prim;
-  priminfos[p].uses++;
   if (p>=npriminfos || !is_relocatable(p)) {
     append_jump_previous();
     ip_at = ginstps[inst_index+1]; /* advance to behind the non-relocatable inst */
+    priminfos[p].uses++;
     return static_prim;
   }
   old_code_here = append_prim(p);
