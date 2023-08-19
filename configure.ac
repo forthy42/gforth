@@ -1498,7 +1498,7 @@ if $SWIG -forth $srcdir/unix/test.i; then
     has_swig=yes
     MINOSFLAG=true
     HAS_SWIG_FORTH=has-swig-forth
-    mkdir -p
+    mkdir -p unix
     echo timestamp > unix/$HAS_SWIG_FORTH
 fi
 
