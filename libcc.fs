@@ -803,6 +803,10 @@ Create callback-&style c-var c,
     THEN  #-514 ;
 
 : open-path-lib ( addr u -- addr/0 )
+    \ This assumes that there's a current valid lib-handle-addr and the
+    \ c source hash is computed.  Only libraries with the correct hash
+    \ will be opened, other libraries will be skipped and the next in path
+    \ is searched.
     ['] open-olib libcc-path execute-path-file
     IF  0  ELSE  2drop  THEN ;
 
