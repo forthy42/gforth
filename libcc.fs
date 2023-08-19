@@ -215,6 +215,9 @@ variable lib-handle-addr \ points to the library handle of the current batch.
                          \ batch is not yet compiled.
 Variable lib-filename   \ filename without extension
 : lib-modulename ( -- addr ) lib-handle-addr @ lha-name ;
+: lib-handle ( -- addr )     lib-handle-addr @ lha-id @ ;
+: lib-handle! ( addr -- )    lib-handle-addr @ lha-id ! ;
+: c-source-hash ( -- addr )  lib-handle-addr @ lha-hash ;
 \ basename of the file without extension
 variable libcc-named-dir$ \ directory for named libcc wrapper libraries
 Variable libcc-path      \ pointer to path of library directories
@@ -769,8 +772,35 @@ Create callback-&style c-var c,
 : prepend-dirname ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 )
     [: type type ;] $tmp ;
 
+: c-hash-ok? ( -- addr1 addr2 flag )
+    [: ." gflibcc_hash_" lib-modulename $. ;] $tmp
+    lib-handle lib-sym
+    ?dup-IF  c-source-hash 2dup $10 tuck str=  ELSE  0 0 false  THEN ;
+
+: .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
+: .hashxx ( addr u -- ) bounds DO  I c@ .xx  LOOP ;
+: .bytes ( addr u -- )
+    bounds ?DO  ." \x" I c@ .xx  LOOP ;
+
+: check-c-hash ( -- flag )
+    c-hash-ok?
+    IF  2drop true
+    ELSE
+	2dup d0= IF
+	    [: ." libcc module " lib-modulename $. ."  doesn't have a hash value" cr ;]
+	ELSE  [: ." libcc hash mismatch in module '"
+		lib-modulename $. ." ': expected " 16 .hashxx
+		."  got " 16 .hashxx cr ;]
+	THEN  do-debug
+	lib-handle close-lib  0 lib-handle!  false
+  THEN ;
+
 : open-olib ( addr u -- file-id ior )
-    ofile $@ open-lib dup 0= #-514 and ;
+    ofile $@ open-lib dup IF
+	lib-handle!
+	c-hash-ok? IF  2drop lib-handle 0  EXIT  THEN  2drop
+	lib-handle close-lib  0 lib-handle!  0
+    THEN  #-514 ;
 
 : open-path-lib ( addr u -- addr/0 )
     ['] open-olib libcc-path execute-path-file
@@ -800,18 +830,14 @@ Create callback-&style c-var c,
 : c-named-library-name ( c-addr u -- )
     \ set up filenames for a (possibly new) library; c-addr u is the
     \ basename of the library
-    libcc-named-dir prepend-dirname c-library-name-setup
-    open-wrappers lib-handle-addr @ lha-id ! ;
+    libcc-named-dir prepend-dirname c-library-name-setup ;
 
 : c-tmp-library-name ( c-addr u -- )
     \ set up filenames for a new library; c-addr u is the basename of
     \ the library
     libcc-tmp-dir 2dup $1ff mkdir-parents drop
     prepend-dirname c-library-name-setup
-    open-wrappers lib-handle-addr @ lha-id ! ;
-
-: lib-handle ( -- addr )
-    lib-handle-addr @ lha-id @ ;
+    open-wrappers lib-handle! ;
 
 : c-source-file ( -- file-id )
     c-source-file-id @ assert( dup ) ;
@@ -829,13 +855,6 @@ Create callback-&style c-var c,
 	    addr third u move $20 /string  REPEAT
     2drop ;
 
-: c-source-hash ( -- addr )
-    lib-handle-addr @ lha-hash ;
-
-: .xx ( n -- ) 0 [: <<# # # #> type #>> ;] $10 base-execute ;
-: .hashxx ( addr u -- ) bounds DO  I c@ .xx  LOOP ;
-: .bytes ( addr u -- )
-    bounds ?DO  ." \x" I c@ .xx  LOOP ;
 : .c-hash ( -- )
     lib-filename @ 0= IF
 	true warning" Generate anonymous C binding"
@@ -850,21 +869,6 @@ Create callback-&style c-var c,
     c-source-hash 16 erase
     libcc$ $@ false c-source-hash hashkey2
     ['] .c-hash c-source-file-execute ;
-
-: check-c-hash ( -- flag )
-    [: ." gflibcc_hash_" lib-modulename $. ;] $tmp
-    lib-handle lib-sym
-    ?dup-IF  c-source-hash 2dup 16 tuck compare  ELSE  0 0 true  THEN
-    IF
-	2dup d0= IF  2drop
-	ELSE  [: ." libcc hash mismatch in module '"
-		lib-modulename $. ." ': expected " 16 .hashxx
-		."  got " 16 .hashxx cr ;] do-debug
-	THEN
-	lib-handle close-lib  lib-handle-addr @ lha-id off false
-    ELSE  2drop true  THEN ;
-
-\ clear library
 
 DEFER compile-wrapper-function ( -- )
 
@@ -926,7 +930,7 @@ tmp$ $execstr-ptr !
     s" gforth_libcc_init" rot lib-sym  ?dup-if
 	gforth-pointers swap call-c  endif ;
 : compile-wrapper-function1 ( -- )
-    hash-c-source check-c-hash
+    hash-c-source open-wrappers dup lib-handle!
     0= if
 	c-library-name-create
 	libcc$ $@ c-source-file write-file throw  libcc$ $free
@@ -939,15 +943,14 @@ tmp$ $execstr-ptr !
 	open-wrappers dup 0= if
 	    .lib-error
 	    host?  IF  !!openlib!! throw  ELSE
-                -1 lib-handle-addr @ lha-id ! \ fake lha ID
+                -1 lib-handle! \ fake lha ID
 		drop lib-filename $free
 		free-libs EXIT
 	    THEN
 	endif
-	( lib-handle ) lib-handle-addr @ lha-id !
+	( lib-handle ) lib-handle!
     endif
-    host? IF  lib-handle init-lib
-    THEN
+    host? IF  lib-handle init-lib  THEN
     lib-filename $free clear-libs ;
 ' compile-wrapper-function1 IS compile-wrapper-function
 
@@ -1148,17 +1151,15 @@ Defer prefetch-lib ( addr u -- )
     lha-next @ dup 0= UNTIL  drop ;
 
 : .libs ( -- ) [: lha-name $. space ;] map-libs ;
+
 : reopen-libs ( -- )
-    [: dup >r lha-name $@
+    [:  lib-handle-addr !
+	lib-modulename $@
 	libcc-named-dir 2dup  $1ff mkdir-parents drop
 	prepend-dirname lib-filename $!
 	open-wrappers dup IF
 	    \ ." link " r@ lha-name $. ."  to " dup hex. cr
-	    r@ lha-id !
-	    r@ lha-name [: ." gflibcc_hash_" $. ;] $tmp
-	    r@ lha-id @ lib-sym r@ lha-hash $10 tuck str= IF
-		r> lha-id @ init-lib  EXIT
-	    THEN
+	    dup lib-handle!  init-lib  EXIT
 	THEN
 	.lib-error !!openlib!! throw
     ;] map-libs ;
