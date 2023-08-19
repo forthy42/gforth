@@ -1166,7 +1166,7 @@ static void check_prims(Label symbols1[])
       j++;
     }
     debugp(stderr,"\n");
-    if (sc->ip_offset>0) { /* ip-updates info */
+    if (opt_ip_updates>2 && sc->ip_offset>0) { /* ip-updates info */
       unsigned char o=sc->ip_offset;
       assert(strcmp(prim_names[i],prim_names[i-o])==0);
       /* add this primitive only if all the ip_update variants up to
@@ -1285,7 +1285,7 @@ static Cell append_ip_update(Cell n)
   Cell cellsdiff = ginstps[inst_index+1]-ip_at;
   assert(cellsdiff>=0);
   if (cellsdiff>n) {
-    Label *old_ip_at;
+    Label *old_ip_at=ip_at;
     assert(opt_ip_updates > 0);
     do {
       Cell cellsdiff1 = cellsdiff;
@@ -1302,6 +1302,7 @@ static Cell append_ip_update(Cell n)
     if (print_metrics)
       record_ip_update(ip_at-old_ip_at);
   }
+  return cellsdiff;
 }
 
 static void append_jump(void)
@@ -1382,20 +1383,31 @@ static Address append_prim(PrimNum p)
   /* debugp(stderr, "Copy code %p<=%p,%d\n", code_here, pi->start, pi->length);*/
   old_code_here = code_here;
   if (opt_ip_updates>0) {
-    if (ci->imm_ops+1>ci->length || pi->superend) {
-      inst_index += ci->length-1; /* -1 to correct for the +1 in: */
-      if (opt_ip_updates>1) {
-        long i;
-        for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
-          if (p==ip_dead[i]) {
-            ip_at = ginstps[inst_index+1]; /* suppress the ip update if ip is dead */
-            break;
-          }
-      }
-      append_ip_update(0);
-      /* else if (opt_ip_updates>2 && pi->max_ip_offset>0) {*/
-    }        
+    int has_imm = ci->imm_ops+1>ci->length;
+    int superend = pi->superend;
+    int dead = 0;
+    if (opt_ip_updates>1 && superend && !has_imm) {
+      long i;
+      for (i=0; i<sizeof(ip_dead)/sizeof(ip_dead[0]); i++)
+        if (p==ip_dead[i]) {
+          dead = 1;
+          break;
+        }
+    }
+    if (has_imm || (superend && !dead)) {
+      inst_index += ci->length-1; /* -1 to correct for the +1 in other places */
+      p += append_ip_update(pi->max_ip_offset);
+      pi = &priminfos[p];
+      ci = &super_costs[p];
+      dead = superend;
+    }
+    if (dead)
+      ip_at = ginstps[inst_index+1]; /* no (additional) ip update needed
+                                        before the primitive, make
+                                        sure that it isn't generated
+                                        behind it */
     append_code(pi->start+pi->len1, pi->length-pi->len1);
+    assert((!superend) || ip_at == ginstps[inst_index+1]);
   } else {
     if (print_metrics)
       record_ip_update(ci->imm_ops+1);
