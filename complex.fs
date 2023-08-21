@@ -91,7 +91,6 @@ previous
     [: lit, postpone z@ ;] set-optimizer
     ['] z-to set-to ;
 
-z!-table >to+addr-table: z!a-table
 ' >body z!a-table to-method: za-to
 : ZVarue ( complex -- )
     ZValue ['] za-to set-to ;

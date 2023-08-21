@@ -18,14 +18,9 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-CS-Vocabulary opengl
-get-current also opengl definitions
-
 e? os-type s" ios" str= [IF]
     include unix/ios-gles.fs
 [ELSE]
     include unix/gles.fs
     include unix/egl.fs
 [THEN]
-
-previous set-current

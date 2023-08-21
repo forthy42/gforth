@@ -18,12 +18,7 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-CS-Vocabulary opengl
-get-current also opengl definitions
-
 include unix/gl.fs
 e? os-type s" cygwin" str= 0= [IF]
     include unix/glx.fs
 [THEN]
-
-previous set-current

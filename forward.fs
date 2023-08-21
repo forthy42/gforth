@@ -49,7 +49,7 @@ s" forward must be resolved with :" exception constant forward-needs-:
     \g resolves the forward references.  Use @code{.unresolved} to
     \g check whether any forwards are unresolved.
     basic-block-end
-    defer ['] unresolved-forward-error lastxt defer!
+    defer ['] unresolved-forward-error latestxt defer!
     true to in-colon-def?
     ['] branch peephole-compile, ['] unfixed-forward >body , finish-code
     [: ['] call peephole-compile, >body cell+ , ;] set-optimizer
@@ -74,7 +74,7 @@ s" forward must be resolved with :" exception constant forward-needs-:
 : .unresolved ( -- ) \ gforth
     \G print all unresolved forward references
     [: [:   replace-sourceview >r dup name>view to replace-sourceview
-	    dup is-forward? [: dup .name ." is unresolved" cr ;] ?warning
+	    dup is-forward? [: dup id. ." is unresolved" cr ;] ?warning
 	    r> to replace-sourceview
             drop true ;] swap traverse-wordlist ;] map-vocs ;
 
