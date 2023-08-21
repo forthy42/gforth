@@ -242,7 +242,6 @@ Label *xts; /* same content as vm_prims, but should only be used for xts */
 Label *labels; /* labels, as pointed to by vm_prims */
 #endif
 
-#ifndef NO_DYNAMIC
 #ifndef CODE_ALIGNMENT
 #define CODE_ALIGNMENT 0
 #endif
@@ -274,6 +273,7 @@ typedef struct {
 PrimInfo *priminfos;
 PrimInfo **decomp_prims;
 
+#ifndef NO_DYNAMIC
 void init_ss_cost(void);
 
 static int is_relocatable(int p)
@@ -885,7 +885,6 @@ static struct super_state **lookup_super(PrimNum *start, int length)
   int hash=hash_super(start,length);
   struct super_table_entry *p = super_table[hash];
 
-  /* assert(length >= 2); */
   for (; p!=NULL; p = p->next) {
     if (length == p->length &&
 	memcmp((char *)p->start, (char *)start, length*sizeof(PrimNum))==0)
@@ -912,10 +911,26 @@ static void prepare_super_table()
             ss->next = state_transitions;
             state_transitions = ss;
           }
-        } else if (ss_listp != NULL) { /* static superinstruction */
-          ss->next = *ss_listp;
-          *ss_listp = ss;
-        } else { /* primitive, including stack-caching variants */
+        } else if (ss_listp != NULL) { /* already registered */
+          if (c->state_in==CANONICAL_STATE && c->state_out==CANONICAL_STATE &&
+              priminfos != NULL && priminfos[i].max_ip_offset>0) {
+            /* ip-update variation header for prim that has its
+               original already in the table: replace the original
+               with this one so that ip-update variants can be used */
+            free(ss);
+            ss = *ss_listp;
+            assert(c->length == 1);
+            for (; ss != NULL; ss = ss->next)
+              if (ss->super == c->offset) {
+                ss->super = i;
+                break;
+              }
+            assert(ss != NULL);
+          } else { /* just add another state combination for the primitive */
+            ss->next = *ss_listp;
+            *ss_listp = ss;
+          }
+        } else { /* new entry */
           int hash = hash_super(super2+c->offset, c->length);
           struct super_table_entry **p = &super_table[hash];
           struct super_table_entry *e = malloc_l(sizeof(struct super_table_entry));
