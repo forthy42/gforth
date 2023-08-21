@@ -110,7 +110,8 @@ csswaplstore = >r l>< r> l!
 \E prim-states-offsets lit          \ 2802835
 \ \E prim-states call                 \ 2558373
 \E prim-states @                    \ 2244351
-\E branch-states ?branch              \ 1134432
+\E S2 S1 state-offset-prim ?branch  \ 1134432
+\E S2 state-enabled? 0= [if] S1 S1 state-offset-prim ?branch [then] \ 1134432
 \E prim-states lit@                 \ 1051813
 \E prim-states swap                 \ 737988
 \E S0 S2 state-prim swap

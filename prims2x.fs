@@ -293,6 +293,7 @@ struct%
     cell% max-stacks * field prim-stacks-in  \ number of in items per stack
     cell% max-stacks * field prim-stacks-out \ number of out items per stack
     cell% max-stacks * field prim-stacks-sync \ sync flag per stack
+    \ cell%    field prim-superend \ primitive ends a dynamic superinstruction
 end-struct prim%
 
 : make-prim ( -- prim )
@@ -1536,15 +1537,36 @@ defer reprocess-prim
 : lookup-prim ( c-addr u -- prim )
     primitives search-wordlist 0= -13 and throw execute ;
 
-: state-prim1 { in-state out-state prim -- }
-    in-state out-state state-default dup d= ?EXIT
+: ip-offset-prim { noffset prim -- }
+    noffset to ip-offset
+    prim reprocess-simple
+    0 to ip-offset ;
+
+: gen-prim-offsets { prim -- }
+    max-ip-offset 0 ?do
+        i prim ip-offset-prim
+    loop ;
+
+: state-prim2 { in-state out-state prim -- }
     in-state state-enabled? out-state state-enabled? and 0= ?EXIT
     in-state  to state-in
     out-state to state-out
     prim reprocess-prim ;
 
+: state-prim1 { in-state out-state prim -- }
+    in-state out-state state-default dup d= ?EXIT
+    in-state out-state prim state-prim2 ;
+
 : state-prim ( in-state out-state "name" -- )
     parse-word lookup-prim state-prim1 ;
+
+: state-offset-prim { in-state out-state --  }
+    \ also consumes "name"
+    parse-word lookup-prim { prim }
+    ['] reprocess-prim defer@
+    ['] gen-prim-offsets is reprocess-prim
+    in-state out-state prim state-prim2
+    ['] reprocess-prim defer! ;
 
 \ reprocessing with default states
 
@@ -1573,16 +1595,6 @@ defer reprocess-prim
 
 : prim-states ( "name" -- )
     parse-word lookup-prim gen-prim-states ;
-
-: ip-offset-prim { noffset prim -- }
-    noffset to ip-offset
-    prim reprocess-simple
-    0 to ip-offset ;
-
-: gen-prim-offsets { prim -- }
-    max-ip-offset 0 ?do
-        i prim ip-offset-prim
-    loop ;
 
 : gen-prim-states-offsets { prim -- }
     ['] reprocess-prim defer@
