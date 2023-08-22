@@ -72,4 +72,5 @@ void gforth_cacheflush(void *p, size_t size);
 #define RPREG asm("x22")
 #define FPREG asm("x19")
 #define LPREG asm("x23")
+#define FTOSREG asm("d8")
 #endif
