@@ -1364,7 +1364,7 @@ static int reserve_code_space(UCell size)
   if(((Cell)size)<0) size=100;
   if (code_area+code_area_size < code_here+size) {
     struct code_block_list *p;
-    append_jump();
+    append_jump_previous();
     debugp(stderr,"Did not use %ld bytes in code block\n",
            (long)(code_area+code_area_size-code_here));
     flush_to_here();
@@ -1919,6 +1919,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     }
   }
   /* now rewrite the instructions */
+  inst_index=0;
   reserve_code_super(origs,ninsts);
   old_code_area = code_area;
   nextdyn=0;
