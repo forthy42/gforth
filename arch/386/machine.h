@@ -95,7 +95,7 @@
 /* ecx works only for TOS, and eax, edx don't work for anything (gcc-3.0) */
 #   else /* !(gcc-2.95 or gcc-3.x) */
 #    if (__GNUC__>=12)
-#     define IPREG asm("%ebx")
+#     define IPREG asm("%ebp")
 #     define SPREG asm("%esi")
 #     define RPREG asm("%edi")
 #    elif (__GNUC__>=9)
