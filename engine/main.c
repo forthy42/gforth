@@ -1301,7 +1301,7 @@ static Cell append_ip_update(Cell n)
   assert(cellsdiff>=0);
   if (cellsdiff>n) {
     Label *old_ip_at=ip_at;
-    // assert(opt_ip_updates > 0);
+    assert(opt_ip_updates > 0);
     do {
       Cell cellsdiff1 = cellsdiff;
       if (cellsdiff1 > MAX_IP_UPDATE)
