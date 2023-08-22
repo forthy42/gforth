@@ -293,7 +293,7 @@ struct%
     cell% max-stacks * field prim-stacks-in  \ number of in items per stack
     cell% max-stacks * field prim-stacks-out \ number of out items per stack
     cell% max-stacks * field prim-stacks-sync \ sync flag per stack
-    \ cell%    field prim-superend \ primitive ends a dynamic superinstruction
+    cell%    field prim-superend \ this prim ends a dynamic superinstruction
 end-struct prim%
 
 : make-prim ( -- prim )
@@ -810,6 +810,16 @@ stack inst-stream IP Cell
     prim prim-effect-out prim prim-effect-out-end @ ['] compute-offset-out map-items
     inst-stream stack-out @ 0= s" # can only be on the input side" ?print-error ;
 
+: prim-branch? { prim -- f }
+    \ true if prim is a branch or super-end
+    prim prim-c-code 2@  s" SET_IP" search nip nip 0<> ;
+
+: compute-superend ( -- )
+    prim prim-branch?
+    prim prim-c-code 2@  s" SUPER_END" search nip nip 0<> or
+    prim prim-c-code 2@  s" SUPER_CONTINUE" search nip nip 0= and
+    prim prim-superend ! ;
+
 : init-simple { prim -- }
     \ much of the initialization is elsewhere
     ['] clear-prim-stacks-sync map-stacks ;
@@ -817,7 +827,7 @@ stack inst-stream IP Cell
 : process-simple ( -- )
     prim prim { W^ key } key cell
     combinations ['] constant insert-wordlist
-    declarations compute-offsets
+    compute-superend declarations compute-offsets
     output @ execute ;
 
 : stack-state-items ( stack state -- n )
@@ -919,12 +929,15 @@ stack inst-stream IP Cell
     0 r> execute - ;
 
 : update-stack-pointer { stack n -- }
-    n if \ this check is not necessary, gcc would do this for us
+    n stack inst-stream = if
+        1+ then \ the cell of the instruction itself
+    { n1 }
+    n1 if \ this check is not necessary, gcc would do this for us
         stack inst-stream = if
-            ." ip += " n 0 .r ." ;" cr
+            ." ip += " n1 0 .r ." ;" cr
         else
             stack stack-pointer 2@ type ."  += "
-	    n stack stack-update-transform 0 .r ." ;" cr
+	    n1 stack stack-update-transform 0 .r ." ;" cr
 	endif
     endif ;
 
@@ -947,14 +960,25 @@ stack inst-stream IP Cell
     endif ;
 
 
-defer ip-update ( -- )
 : ip-update1 ( -- )
-    ." ip++; " \ skip the cell of the instruction itself
     inst-stream stack-pointer-update \ skip the other cells
     inst-stream stack-diff 1+ to ip-offset1 ;
+
+defer ip-update
 ' ip-update1 is ip-update
 
+: ip-update-early ( -- )
+    \ ip-update at the start of a prim (possibly not copied into a superinst)
+    ip-update ;
+
+: ip-update-middle ( -- )
+    \ ip update in the middle of a prim (by ip-offset)
+    prim prim-superend @ ip-offset 0<> and if
+        ." ip += " ip-offset 0 .r ." ;" cr
+    then ;
+
 : stack-pointer-updates ( -- )
+    ip-update-middle
     ['] stack-pointer-update map-stacks1 ;
 
 : stack-pointer-update2 { stack -- }
@@ -1120,7 +1144,7 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     state-in .state ." -- " state-out .state .ip-offset ."  */" cr
     ." /* " prim prim-doc 2@ type ."  */" cr
     ." NAME(" quote prim prim-name 2@ type quote ." )" cr \ debugging
-    ip-update
+    ip-update-early
     print-label1
     ." {" cr
     ." DEF_CA" cr
@@ -1206,16 +1230,10 @@ variable tail-nextp2 \ xt to execute for printing NEXT_P2 in INST_TAIL
     endif
     ." }" cr ;
 
-: prim-branch? { prim -- f }
-    \ true if prim is a branch or super-end
-    prim prim-c-code 2@  s" SET_IP" search nip nip 0<> ;
-
 : output-superend ( -- )
     \ output flag specifying whether the current word ends a dynamic superinst
-    prim prim-branch?
-    prim prim-c-code 2@  s" SUPER_END" search nip nip 0<> or
-    prim prim-c-code 2@  s" SUPER_CONTINUE" search nip nip 0= and
-    negate 0 .r ." , /* " prim prim-name 2@ prim-type ."  */" cr ;
+    prim prim-superend @ negate 0 .r
+    ." , /* " prim prim-name 2@ prim-type ."  */" cr ;
 
 : gen-arg-parm { item -- }
     item item-stack @ inst-stream = if
@@ -1693,7 +1711,7 @@ defer reprocess-prim
 : output-c-combined ( -- )
     print-entry cr
     \ debugging messages just in parts
-    ip-update
+    ip-update-early
     print-label1
     ." {" cr
     ." DEF_CA" cr

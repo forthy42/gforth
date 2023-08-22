@@ -108,11 +108,11 @@ csswaplstore = >r l>< r> l!
 \ \E prim-states ;s                   \ 2950159
 \ \E prim-states lit                  \ 2802835
 \E prim-states-offsets lit          \ 2802835
-\ \E prim-states call                 \ 2558373
+\E S1 S1 state-offset-prim call     \ 2558373
 \E prim-states @                    \ 2244351
 \E S2 S1 state-offset-prim ?branch  \ 1134432
 \E S2 state-enabled? 0= [if] S1 S1 state-offset-prim ?branch [then] \ 1134432
-\E prim-states lit@                 \ 1051813
+\E prim-states-offsets lit@                 \ 1051813
 \E prim-states swap                 \ 737988
 \E S0 S2 state-prim swap
 \E S1 S2 state-prim swap
@@ -132,8 +132,8 @@ csswaplstore = >r l>< r> l!
 \E S1 S0 state-prim under+
 \E prim-states i                    \ 502908
 \E prim-states +!                   \ 448925
-\ \E prim-states branch               \ 409561
-\ \E prim-states (loop)               \ 379646
+\E S1 S1 state-offset-prim branch   \ 409561
+\E S1 S1 state-offset-prim (loop)   \ 379646
 \ \E prim-states lp!                  \ 326743
 \E prim-states and                  \ 309427
 \E prim-states useraddr             \ 303254
@@ -160,10 +160,11 @@ csswaplstore = >r l>< r> l!
 \E S3 S1 state-prim 2dup
 \E S4 S4 state-prim 2dup
 \E S4 S2 state-prim 2dup
-\ \E branch-states lit-perform          \ 188331
+\E S1 S1 state-offset-prim lit-perform \ 188331
 \E prim-states <>                   \ 179502
 \E prim-states c!                   \ 179332
-\E prim-states lit+                 \ 179156
+\E S1 S1 state-offset-prim lit+     \ 179156
+\E prim-states-offsets lit+         \ 179156
 \E prim-states drop                 \ 173995
 \E S0 S0 state-prim drop
 \E prim-states lshift               \ 164671
@@ -171,7 +172,7 @@ csswaplstore = >r l>< r> l!
 \ \E prim-states /mods
 \E prim-states >r                   \ 145247
 \E prim-states r>                   \ 133792
-\ \E branch-states does-exec            \ 120944
+\E S1 S1 state-offset-prim does-xt  \ 120944 
 \E prim-states cell+                \ 116183
 \E prim-states lp+!#                \ 106697 \ --
 \E prim-states -                    \ 106245
