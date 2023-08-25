@@ -66,6 +66,9 @@ void gforth_cacheflush(void *p, size_t size);
    significant bits.  Unlike AArch32 S1 is not packed into D0,
    etc.  */
 
+#if (__GNUC__<10)
+/* Current GCCs do a perfect job at selecting the registers themselves
+   and don't want to be disturbed by explicit declarations */
 #define TOSREG asm("x27")
 #define SPREG asm("x25")
 #define IPREG asm("x26")
@@ -73,4 +76,5 @@ void gforth_cacheflush(void *p, size_t size);
 #define FPREG asm("x19")
 #define LPREG asm("x23")
 #define FTOSREG asm("d8")
+#endif
 #endif
