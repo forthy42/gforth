@@ -1429,8 +1429,8 @@ then
     (cd / && "$GFORTH" -e bye >/dev/null 2>/dev/null) || GFORTH=""
 fi
 if test -z "$GFORTH"; then
-  PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" && false'
-  GFORTHKER='echo "You need to configure with a gforth in \$PATH to build this part" && false'
+  PREFORTH='echo "You need to configure with a gforth in \$PATH to build this part" >&2 && false'
+  GFORTHKER='echo "You need to configure with a gforth in \$PATH to build this part" >&2 && false'
   kernel_anti_dependence=''
   if test ! -f ${srcdir}/kernl32l.fi
   then
