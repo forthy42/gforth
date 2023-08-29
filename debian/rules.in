@@ -40,7 +40,7 @@ override_dh_auto_configure:
 override_dh_auto_install:
 	mkdir -p $(DB)/usr/lib/gforth/site-forth
 	touch $(DB)/usr/lib/gforth/site-forth/site-init.fs
-	dh_auto_install -- install-html install-pdf DESTDIR=$(DB)
+	dh_auto_install -- @INSTALLHTML@ @INSTALLPDF@ DESTDIR=$(DB)
 	chmod 755 $(USHARE)/filedump.fs $(USHARE)/httpd.fs $(USHARE)/sieve.fs \
 	$(ULIB)/kernl*.fi $(ULIB)/gforth.fi
 	mkdir -p $(DC)/usr $(DC)/usr/bin $(DL)/usr/lib $(DV)/usr/include
@@ -88,12 +88,12 @@ override_dh_auto_install:
 	rm -f $(DI)/usr/share/info/dir.gz
 	mkdir -p $(DH)/usr/share/doc/gforth
 	mkdir -p $(DH)/usr/share/doc/vmgen
-	mv $(DC)/usr/share/doc/gforth/html $(DH)/usr/share/doc/gforth
-	mv $(DC)/usr/share/doc/vmgen/html $(DH)/usr/share/doc/vmgen
+	@DOHTML@mv $(DC)/usr/share/doc/gforth/html $(DH)/usr/share/doc/gforth
+	@DOHTML@mv $(DC)/usr/share/doc/vmgen/html $(DH)/usr/share/doc/vmgen
 	mkdir -p $(DP)/usr/share/doc/gforth
 	mkdir -p $(DP)/usr/share/doc/vmgen
-	mv $(DC)/usr/share/doc/gforth/*.pdf $(DP)/usr/share/doc/gforth
-	mv $(DC)/usr/share/doc/vmgen/*.pdf $(DP)/usr/share/doc/vmgen
+	@DOPDF@mv $(DC)/usr/share/doc/gforth/*.pdf $(DP)/usr/share/doc/gforth
+	@DOPDF@mv $(DC)/usr/share/doc/vmgen/*.pdf $(DP)/usr/share/doc/vmgen
 
 override_dh_installchangelogs:
 	git log --date=format:%Y-%m-%d --pretty=format:'%cd  %cN  <%cE>%n%n%x09* %s%n' | gzip >$(DC)/usr/share/doc/gforth-common/changelog.gz

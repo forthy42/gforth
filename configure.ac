@@ -1133,9 +1133,15 @@ AC_DEFINE_UNQUOTED(NO_DYNAMIC_DEFAULT,$no_dynamic_default,default value for no_d
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 AC_PROG_INSTALL
-AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi,echo texi2dvi needed )
-AC_CHECK_PROGS(RECODE,recode iconv,echo recode needed)
-AC_CHECK_PROGS(MAKEINFO,makeinfo,echo makeinfo needed )
+INSTALLPDF="install-pdf"
+INSTALLHTML="install-html"
+DOPDF=""
+DOHTML=""
+AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi,[echo texi2dvi needed
+INSTALLPDF=""
+DOPDF="#"])
+AC_CHECK_PROGS(RECODE,recode iconv,[echo recode needed])
+AC_CHECK_PROGS(MAKEINFO,makeinfo,[echo makeinfo needed])
 case "$MAKEINFO"
 in
     echo*)
@@ -1147,9 +1153,15 @@ in
 	INSTALLTXT="install-txt"
 	;;
 esac
+AC_CHECK_PROGS(TEXI2HTML,texi2html,[echo texi2html needed
+INSTALLHTML=""
+DOHTML="#"])
 AC_SUBST(INSTALLINFO)
 AC_SUBST(INSTALLTXT)
-AC_CHECK_PROGS(TEXI2HTML,texi2html,echo texi2html needed )
+AC_SUBST(INSTALLHTML)
+AC_SUBST(INSTALLPDF)
+AC_SUBST(DOHTML)
+AC_SUBST(DOPDF)
 AC_CHECK_PROGS(TIMEOUT,timeout)
 case "$MAKEINFO"
 in
@@ -1873,6 +1885,7 @@ doc/Makefile
 unix/Makefile
 debian/changelog
 debian/control
+debian/rules
 docker/runner/Dockerfile
 build-ec ])
 AC_CONFIG_COMMANDS([stamp-h],[[echo timestamp > stamp-h
