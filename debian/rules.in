@@ -15,8 +15,8 @@ DLX11 = $(CURDIR)/debian/gforth-libcc-x11
 DLM2 = $(CURDIR)/debian/gforth-libcc-minos2
 DLA = $(CURDIR)/debian/gforth-libcc-audio
 DB = $(CURDIR)/debian/gforth-bin
-DH = $(CURDIR)/debian/gforth-html
-DP = $(CURDIR)/debian/gforth-pdf
+@DOHTML@DH = $(CURDIR)/debian/gforth-html
+@DOPDF@DP = $(CURDIR)/debian/gforth-pdf
 DV = $(CURDIR)/debian/gforth-dev
 DM = $(CURDIR)/debian/gforth-minos2
 DMT = $(CURDIR)/debian/gforth-minos2tools
@@ -86,12 +86,12 @@ override_dh_auto_install:
 	mkdir -p $(DI)/usr/share
 	mv $(DC)/usr/share/info $(DI)/usr/share
 	rm -f $(DI)/usr/share/info/dir.gz
-	mkdir -p $(DH)/usr/share/doc/gforth
-	mkdir -p $(DH)/usr/share/doc/vmgen
+	@DOHTML@mkdir -p $(DH)/usr/share/doc/gforth
+	@DOHTML@mkdir -p $(DH)/usr/share/doc/vmgen
 	@DOHTML@mv $(DC)/usr/share/doc/gforth/html $(DH)/usr/share/doc/gforth
 	@DOHTML@mv $(DC)/usr/share/doc/vmgen/html $(DH)/usr/share/doc/vmgen
-	mkdir -p $(DP)/usr/share/doc/gforth
-	mkdir -p $(DP)/usr/share/doc/vmgen
+	@DOPDF@mkdir -p $(DP)/usr/share/doc/gforth
+	@DOPDF@mkdir -p $(DP)/usr/share/doc/vmgen
 	@DOPDF@mv $(DC)/usr/share/doc/gforth/*.pdf $(DP)/usr/share/doc/gforth
 	@DOPDF@mv $(DC)/usr/share/doc/vmgen/*.pdf $(DP)/usr/share/doc/vmgen
 
@@ -101,5 +101,5 @@ override_dh_installchangelogs:
 	rm -rf $(DL)/usr/share/doc
 	rm -rf $(DB)/usr/share/doc
 	rm -rf $(DV)/usr/share/doc
-	rm -rf $(DP)/usr/share/doc/gforth-pdf
-	rm -rf $(DH)/usr/share/doc/gforth-html
+	@DOPDF@rm -rf $(DP)/usr/share/doc/gforth-pdf
+	@DOHTML@rm -rf $(DH)/usr/share/doc/gforth-html

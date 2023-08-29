@@ -44,31 +44,31 @@ Description: GNU Forth
  .
  This is the documentation in info format
 
-Package: gforth-html
-Version: @DEBVERSION@
-Architecture: all
-Multi-Arch: foreign
-Provides: gforth-doc
-Priority: extra
-License: GFDL 1.3
-Description: GNU Forth
- Gforth is the Forth implementation of the GNU project, providing all
- features of the ANS Forth (Forth-94) and the Forth-2012 standards.
- .
- This is the documentation in html format
+@DOHTML@Package: gforth-html
+@DOHTML@Version: @DEBVERSION@
+@DOHTML@Architecture: all
+@DOHTML@Multi-Arch: foreign
+@DOHTML@Provides: gforth-doc
+@DOHTML@Priority: extra
+@DOHTML@License: GFDL 1.3
+@DOHTML@Description: GNU Forth
+@DOHTML@ Gforth is the Forth implementation of the GNU project, providing all
+@DOHTML@ features of the ANS Forth (Forth-94) and the Forth-2012 standards.
+@DOHTML@ .
+@DOHTML@ This is the documentation in html format
 
-Package: gforth-pdf
-Version: @DEBVERSION@
-Architecture: all
-Multi-Arch: foreign
-Provides: gforth-doc
-Priority: extra
-License: GFDL 1.3
-Description: GNU Forth
- Gforth is the Forth implementation of the GNU project, providing all
- features of the ANS Forth (Forth-94) and the Forth-2012 standards.
- .
- This is the documentation in PDF format
+@DOPDF@Package: gforth-pdf
+@DOPDF@Version: @DEBVERSION@
+@DOPDF@Architecture: all
+@DOPDF@Multi-Arch: foreign
+@DOPDF@Provides: gforth-doc
+@DOPDF@Priority: extra
+@DOPDF@License: GFDL 1.3
+@DOPDF@Description: GNU Forth
+@DOPDF@ Gforth is the Forth implementation of the GNU project, providing all
+@DOPDF@ features of the ANS Forth (Forth-94) and the Forth-2012 standards.
+@DOPDF@ .
+@DOPDF@ This is the documentation in PDF format
 
 Package: gforth-lib
 Version: @DEBVERSION@
