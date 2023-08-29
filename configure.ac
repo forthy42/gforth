@@ -1137,14 +1137,24 @@ INSTALLPDF="install-pdf"
 INSTALLHTML="install-html"
 DOPDF=""
 DOHTML=""
-AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi,[echo texi2dvi needed
-INSTALLPDF=""
-DOPDF="#"])
-AC_CHECK_PROGS(TEX,tex,[echo tex needed for texi2dvi
-INSTALLPDF=""
-DOPDF="#"])
-AC_CHECK_PROGS(RECODE,recode iconv,[echo recode needed])
-AC_CHECK_PROGS(MAKEINFO,makeinfo,[echo makeinfo needed])
+AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi,echo texi2dvi needed )
+case "$TEXI2DVI"
+in
+    echo*)
+	INSTALLPDF=""
+	DOPDF="#"
+	;;
+esac
+AC_CHECK_PROGS(TEX,tex,echo tex needed for texi2dvi )
+case "$TEX"
+in
+    echo*)
+	INSTALLPDF=""
+	DOPDF="#"
+	;;
+esac
+AC_CHECK_PROGS(RECODE,recode iconv,echo recode needed )
+AC_CHECK_PROGS(MAKEINFO,makeinfo,echo makeinfo needed )
 case "$MAKEINFO"
 in
     echo*)
@@ -1156,9 +1166,14 @@ in
 	INSTALLTXT="install-txt"
 	;;
 esac
-AC_CHECK_PROGS(TEXI2HTML,texi2html,[echo texi2html needed
-INSTALLHTML=""
-DOHTML="#"])
+AC_CHECK_PROGS(TEXI2HTML,texi2html,echo texi2html needed )
+case "$TEXI2HTML"
+in
+    echo*)
+	INSTALLHTML=""
+	DOHTML="#"
+	;;
+esac
 AC_SUBST(INSTALLINFO)
 AC_SUBST(INSTALLTXT)
 AC_SUBST(INSTALLHTML)
