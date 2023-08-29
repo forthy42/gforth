@@ -1,13 +1,12 @@
 ARG VERSION=unstable
-ARG ARCH=amd64
-FROM $ARCH/debian:$VERSION
+FROM debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG C.UTF-8
 
 RUN apt-get -y update \
   && apt-get upgrade -y \
-  && apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc automake texinfo texi2html install-info dpkg-dev debhelper gforth gforth-lib gforth-common libtool-bin libltdl-dev autoconf-archive libx11-dev libx11-xcb-dev libxrandr-dev libgles2-mesa-dev libglew-dev libgl1-mesa-dev libwayland-dev libvulkan-dev libpng-dev libfreetype6-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
-  && if [ "`lsb_release -sc`" = "trixie" -a "`uname -m`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
+  && apt-get -y install libffi-dev libltdl7 libsoil-dev libtool make gcc automake texinfo texi2html install-info dpkg-dev debhelper gforth gforth-lib gforth-common libtool-bin libltdl-dev autoconf-archive libx11-dev libx11-xcb-dev libxrandr-dev libgles2-mesa-dev libglew-dev libgl1-mesa-dev libwayland-dev libvulkan-dev libpng-dev libfreetype-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libopus-dev libva-dev libavcodec-dev libavutil-dev libstb-dev lsb-release \
+  && if [ "`lsb_release -sc`" = "trixie" -a "`gcc -v 2>&1 | tr ' ' '\n' | grep -- --host | cut -f2 -d= | cut -f1 -d-`" = "x86_64" ]; then apt-get -y install texlive-base texlive-latex-base; fi \
   && apt-get clean
 RUN cd /tmp/ \
     && apt-get install -y yodl bison libpcre3-dev libboost-dev git g++ \
