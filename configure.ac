@@ -1140,6 +1140,9 @@ DOHTML=""
 AC_CHECK_PROGS(TEXI2DVI,texi2dvi4a2ps texi2dvi,[echo texi2dvi needed
 INSTALLPDF=""
 DOPDF="#"])
+AC_CHECK_PROGS(TEX,tex,[echo tex needed for texi2dvi
+INSTALLPDF=""
+DOPDF="#"])
 AC_CHECK_PROGS(RECODE,recode iconv,[echo recode needed])
 AC_CHECK_PROGS(MAKEINFO,makeinfo,[echo makeinfo needed])
 case "$MAKEINFO"
@@ -1895,6 +1898,7 @@ chmod +x build-ec
 chmod +x preforth
 chmod +x libforth
 chmod +x gforthker
+chmod +x debian/rules
 test -d kernel||mkdir kernel
 test -d test||mkdir test
 if test $srcdir != "."; then ln -sf $srcdir/gforth.el .; fi
