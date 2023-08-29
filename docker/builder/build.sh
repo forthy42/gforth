@@ -7,7 +7,7 @@ in
 	ARCHS=${ARCHS-"amd64 i386"}
 	;;
     aarch64)
-	ARCHS=${ARCHS-"arm64 armhf"}
+	ARCHS=${ARCHS-"arm64v8 armhfbuild"}
 	;;
 esac
 
