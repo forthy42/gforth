@@ -1,7 +1,15 @@
 #!/bin/bash
 
 VERSIONS=${VERSIONS-"stable oldstable unstable"}
-ARCHS=${ARCHS-"amd64 i386"}
+case `uname -m`
+in
+    x86_64)
+	ARCHS=${ARCHS-"amd64 i386"}
+	;;
+    aarch64)
+	ARCHS=${ARCHS-"arm64 armhf"}
+	;;
+esac
 
 #docker login -u forthy42 <token
 
