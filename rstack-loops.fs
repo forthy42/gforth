@@ -1,5 +1,7 @@
 \ proof of concept for loops with the target address on the return stack
 
+warnings off
+
 : DO ( compilation -- do-sys ; run-time w1 w2 -- loop-sys ) \ core
     \G @xref{Counted Loops}.
     POSTPONE (do)-rstack
@@ -13,12 +15,14 @@
     assert( 0 ) ;
 ' error! set-optimizer
 
+: unloop postpone unloop postpone rdrop ; immediate
+
 : until-like ( stack-state list addr xt1 xt2 -- )
     drop compile, drop drop pop-stack-state ;
 
 : loop-like ( do-sys xt1 xt2 -- )
     >r >r 0 cs-pick swap cell- swap 1 cs-roll r> r> rot do-dest?
-    until-like  POSTPONE done  POSTPONE unloop postpone rdrop ;
+    until-like  POSTPONE done  POSTPONE unloop ;
 
 : LOOP ( compilation do-sys -- ; run-time loop-sys1 -- | loop-sys2 )    \ core
     \G @xref{Counted Loops}.
