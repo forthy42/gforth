@@ -432,7 +432,7 @@ nlimit=0;
 :
  r> swap 0 >r >r >r ;
 
-(do)    ( nlimit nstart -- R:nlimit R:nstart )  gforth-internal   paren_do
+(do)    ( nlimit nstart -- R:nlimit R:nstart )  gforth-internal   paren_do_rstack
 :
  r> swap rot >r >r >r ;
 
@@ -447,6 +447,33 @@ if (nstart == nlimit) {
   ELSE r> swap rot >r >r
        cell+ >r
   THEN ;				\ --> CORE-EXT
+
+(do)-rstack    ( nlimit nstart -- R:a_doaddr R:nlimit R:nstart )  gforth-internal   paren_do
+a_doaddr = (Cell *)IP;
+
+(?do)-rstack ( #a_target nlimit nstart -- R:a_doaddr R:nlimit R:nstart ) gforth-internal paren_question_do_rstack
+a_doaddr = (Cell *)IP;
+if (nstart == nlimit) {
+    SET_IP((Xt *)a_target);
+}
+
+(loop)-rstack ( R:a_doaddr R:nlimit R:n1 -- R:a_doaddr R:nlimit R:n2 ) gforth-internal paren_loop_rstack
+n2=n1+1;
+if (n2 != nlimit) {
+  asm("");
+  SET_IP((Xt *)a_doaddr);
+}
+
+(+loop)-rstack ( n R:a_doaddr R:nlimit R:n1 -- R:a_doaddr R:nlimit R:n2 ) gforth-internal paren_plus_loop_rstack
+Cell olddiff = n1-nlimit;
+n2=n1+n;	
+if (((olddiff^(olddiff+n))    /* the limit is not crossed */
+     &(olddiff^n))	       /* OR it is a wrap-around effect */
+    >=0) { /* & is used to avoid having two branches for gforth-native */
+  asm("");
+  SET_IP((Xt *)a_doaddr);
+}
+
 
 \+xconds
 
