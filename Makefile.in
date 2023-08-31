@@ -651,7 +651,7 @@ SOURCES = $(ENGINE_SOURCES) compat Makefile.in Makedist.in unix/Makefile.in  \
 	$(FREETYPE_GL_SRC) timings.sc test/coretest.out test/checkans.out    \
 	test/gforth.out test/read-line.input test/read-line2.input	     \
 	test/read-line.out test/fp/fptest.out test/regexp.out $(wildcard     \
-	$(srcdir)/cache*.vmg) peeprules.vmg prim debian/rules		     \
+	$(srcdir)/cache*.vmg) peeprules.vmg prim debian/rules.in	     \
 	debian/control.in debian/changelog.in debian/compat gforth.ico	     \
 	.travis.yml install-deps.sh install-swig.sh install-freetype-gl.sh   \
 	$(patsubst %.fs,unix/%-fsi.c, $(SWIGDISTFSI)) m4/ax_gcc_builtin.m4   \
