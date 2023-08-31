@@ -1146,6 +1146,8 @@ in
     echo*)
 	INSTALLPDF=""
 	DOPDF="#"
+	config_warns="$config_warns
+texi2dvi not found, PDF document won't be built."
 	;;
 esac
 AC_CHECK_PROGS(TEX,tex,echo tex needed for texi2dvi )
@@ -1154,6 +1156,8 @@ in
     echo*)
 	INSTALLPDF=""
 	DOPDF="#"
+	config_warns="$config_warns
+TeX not found, PDF document won't be built."
 	;;
 esac
 AC_CHECK_PROGS(RECODE,recode iconv,echo recode needed )
@@ -1163,6 +1167,8 @@ in
     echo*)
 	INSTALLINFO=""
 	INSTALLTXT=""
+	config_warns="$config_warns
+makeinfo not found, INFO and TXT document won't be built."
 	;;
     *)
 	INSTALLINFO="install-info"
@@ -1175,6 +1181,8 @@ in
     echo*)
 	INSTALLHTML=""
 	DOHTML="#"
+	config_warns="$config_warns
+texi2html not found, HTML document won't be built."
 	;;
 esac
 AC_SUBST(INSTALLINFO)
