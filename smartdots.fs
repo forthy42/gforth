@@ -94,14 +94,14 @@ debug: .string.( ( -- ) \ dot-string-dot-paren
 : .s.skip ( n depth -- t / n f )
     drop smart.s-skip @ dup 1- 0 max smart.s-skip !
     0<> dup IF  nip  THEN ;
-: .s.cs ( n depth -- t / n f ) >r
-    r@ cs-item-size 1- < IF  rdrop false EXIT  ELSE
-	r> cs-item-size 2 - - pick dup cs?  THEN
+: .s.cs ( n depth -- t / n f )
+    dup cs-item-size 1- < IF  drop false EXIT  THEN
+    cs-item-size 2 - - pick dup cs?
     IF  .cs.  cs-item-size 1- smart.s-skip !  true  EXIT  THEN
     drop false ;
 : .s.string ( addr depth -- t / addr f )
-    >r r@ 2 < IF  rdrop false  EXIT  THEN
-    r> pick  2dup string?
+    dup 2 < IF  drop false  EXIT  THEN
+    pick  2dup string?
     IF  .string. 1 smart.s-skip ! true EXIT THEN
     drop false ;
 : .s.smart ( n depth -- t )
