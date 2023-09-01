@@ -112,7 +112,7 @@ debug: .string.( ( -- ) \ dot-string-dot-paren
 
 ' .s.skip ' .s.cs ' .s.string ' .s.smart 4 smart<> set-stack
 
-: smart.s. ( total n -- )
+: smart.s. ( total n -- total )
     over i' - { dpth }
     smart<> $@ bounds U+DO
 	dpth I perform ?LEAVE
