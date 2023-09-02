@@ -22,14 +22,14 @@
 #10 cells constant translator-max-offset#
 "No more translator slots free" exception constant translator-overflow
 
-: >translator ( xt rectype translator -- )
+: >translate-method ( xt rectype translate-method -- )
     >body @ >body + ;
 to-opt: ( xt -- ) >body @ lit, ]] >body + [[ ;
 
-' >translator defer-table to-method: translator-to
+' >translate-method defer-table to-method: translate-method-to
 
-: translator: ( "name" -- ) \ gforth-experimental
-    \G create a new translator, extending the translator table.
+: translate-method: ( "name" -- ) \ gforth-experimental
+    \G create a new translate method, extending the translator table.
     \G You can assign an xt to an existing rectype by using
     \G @var{xt rectype} @code{to} @var{translator}.
     translator-offset translator-max-offset# u>=
@@ -40,16 +40,16 @@ to-opt: ( xt -- ) >body @ lit, ]] >body + [[ ;
 	lits> dup >does-code ['] do-rec = IF
 	    swap @ + @ compile,
 	ELSE  >lits does,  THEN ;] set-optimizer
-    ['] translator-to set-to ;
+    ['] translate-method-to set-to ;
 
-translator: >interpret ( translator -- ) \ gforth-experimental
+translate-method: >interpret ( translator -- ) \ gforth-experimental
 \G perform interpreter action of translator
-translator: >compile ( translator -- ) \ gforth-experimental
+translate-method: >compile ( translator -- ) \ gforth-experimental
 \G perform compile action of translator
 0 warnings !@ \ we already have this, but this version is better
-translator: >postpone ( translator -- ) \ gforth-experimental
+translate-method: >postpone ( translator -- ) \ gforth-experimental
 \G perform postpone action of translator
 warnings !
 
-: translate>state ( xt -- )
+: translate-state ( xt -- )
     >body @ cell/ negate state ! ;

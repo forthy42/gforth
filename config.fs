@@ -20,7 +20,7 @@ require rec-scope.fs
 require recognizer-ext.fs
 require mkdir.fs
 
-translator: >config
+translate-method: >config
 
 Vocabulary config
 ' config >wordlist Value config-wl

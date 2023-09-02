@@ -90,6 +90,7 @@ require complex.fs
 require rec-env.fs
 require rec-scope.fs
 require rec-meta.fs
+require recognizer-ext.fs
 \ require unix/pthread.fs
 
 \ define the environmental queries for all the loaded wordsets

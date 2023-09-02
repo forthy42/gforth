@@ -113,7 +113,7 @@ Variable blacklisted
 	dup I @ = IF  drop I cell+ @  UNLOOP  EXIT  THEN
     2 cells +LOOP  drop false ;
 
-translator: >tokenize
+translate-method: >tokenize
 
 :noname ( xt -- xt )
     dup ?blacklist dup IF

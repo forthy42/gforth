@@ -39,8 +39,8 @@ A    [ ] changelog
 A    [ ] news-file
 A    [ ] update this ToDo file
  BG  [x]*implement smart .s "..."
- B   [ ] Extensible ... : Allow a stack of recognizer-like scanners
- B   [ ] Configurable ... : Allow different outputs (think about notation)
+ B   [x] Extensible ... : Allow a stack of recognizer-like scanners
+ B   [ ]*Configurable ... : Allow different outputs (think about notation)
 AB   [x] ~~ uses ... and prints floating stack
  B   [x] compare-image warnings überprüfen
 ABG  [ ]*fix warnings during compilation
