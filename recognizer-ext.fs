@@ -45,6 +45,7 @@ translate-method: >interpret ( translator -- ) \ gforth-experimental
 translate-method: >compile ( translator -- ) \ gforth-experimental
 \G perform compile action of translator
 0 warnings !@ \ we already have this, but this version is better
+\ we already have defined this in the kernel
 \ translate-method: >postpone ( translator -- ) \ gforth-experimental
 \ \G perform postpone action of translator
 cell +to translator-offset
