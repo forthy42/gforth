@@ -28,27 +28,26 @@ to-opt: ( xt -- ) >body @ lit, ]] >body + [[ ;
 
 ' >translate-method defer-table to-method: translate-method-to
 
+' >postpone make-latest
+' translate-method-to set-to
+
 : translate-method: ( "name" -- ) \ gforth-experimental
     \G create a new translate method, extending the translator table.
     \G You can assign an xt to an existing rectype by using
     \G @var{xt rectype} @code{to} @var{translator}.
     translator-offset translator-max-offset# u>=
     translator-overflow and throw
-    Create translator-offset ,  cell +to translator-offset
-    [: @ + @ execute-;s ;] set-does>
-    [:  lits# 0= IF  does,  EXIT  THEN
-	lits> dup >does-code ['] do-rec = IF
-	    swap @ + @ compile,
-	ELSE  >lits does,  THEN ;] set-optimizer
-    ['] translate-method-to set-to ;
+    ['] >postpone create-from reveal
+    translator-offset ,  cell +to translator-offset ;
 
 translate-method: >interpret ( translator -- ) \ gforth-experimental
 \G perform interpreter action of translator
 translate-method: >compile ( translator -- ) \ gforth-experimental
 \G perform compile action of translator
 0 warnings !@ \ we already have this, but this version is better
-translate-method: >postpone ( translator -- ) \ gforth-experimental
-\G perform postpone action of translator
+\ translate-method: >postpone ( translator -- ) \ gforth-experimental
+\ \G perform postpone action of translator
+cell +to translator-offset
 warnings !
 
 : translate-state ( xt -- )

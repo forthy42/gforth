@@ -43,8 +43,11 @@
     Create swap rot , , , 7 0 DO  ['] no.extensions ,  LOOP
     ['] do-rec set-does> ;
 
-: >postpone ( ... rectype -- )
-    2 cells + @ execute-;s ;
+Create >postpone ( translator -- ) \ gforth-experimental
+\G perform postpone action of translator
+2 cells ,
+DOES> @ + @ execute-;s ;
+
 \ for combined translators better use:
 \   -2 state !@ >r execute r> state ! ;
 
