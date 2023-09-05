@@ -135,10 +135,12 @@ vocabulary locals \ this contains the local variables
 slowvoc !
 
 : no-post -48 throw ;
+Defer locals-post,
 
 ' translate-nt >body 2@ swap
-' no-post
-translate: translate-locals ( takes nt, i.e. result of find-name and find-name-in )
+' locals-post,
+translate: translate-locals
+\G translate locals, which postpone to their value as literal
 
 : locals-rec [ ' locals >wordlist ] Literal execute
     dup ['] translate-nt = IF  drop ['] translate-locals  THEN ;
@@ -752,7 +754,6 @@ colon-sys-xt-offset 4 + to colon-sys-xt-offset
 
 \ POSTPONEing locals
 
-Defer locals-post,
 :noname ( locals-nt -- )
     dup name>interpret >does-code case
 	[ ' some-clocal  >does-code ] literal of name-compsem postpone lit, endof

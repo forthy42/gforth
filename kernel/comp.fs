@@ -875,7 +875,7 @@ interpret/compile: does> ( compilation colon-sys1 -- colon-sys2 ) \ core does
 	then
     then ;
 
-Create voc-table ' (reveal) A, ' -/- A, ' -/- A, ' drop A,
+Create voc-table ' (reveal) A, ' n/a A, ' n/a A, ' drop A,
 
 ' [noop] voc-table to-method: voc-to ( n voc-xt -- ) \ gforth-internal
     \g this is the TO-method for wordlists

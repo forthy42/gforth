@@ -146,11 +146,11 @@ here
 ' (emit) A,
 ' (cr) A,
 [IFDEF] (form) ' (form) A, [THEN]
-' -/- A, \ page
-' -/- A, \ at-xy
-' -/- A, \ at-deltaxy
-' -/- A, \ attr!
-' -/- A, \ control-sequence
+' n/a A, \ page
+' n/a A, \ at-xy
+' n/a A, \ at-deltaxy
+' n/a A, \ attr!
+' n/a A, \ control-sequence
 ' drop A, \ theme-color!
 A, here AConstant default-out
 
@@ -159,11 +159,11 @@ here
 ' (err-emit) A,
 ' (cr) A,
 [IFDEF] (form) ' (form) A, [THEN]
-' -/- A, \ page
-' -/- A, \ at-xy
-' -/- A, \ at-deltaxy
-' -/- A, \ attr!
-' -/- A, \ control-sequence
+' n/a A, \ page
+' n/a A, \ at-xy
+' n/a A, \ at-deltaxy
+' n/a A, \ attr!
+' n/a A, \ control-sequence
 ' drop A, \ theme-color!
 A, here AConstant debug-out
 
@@ -185,7 +185,7 @@ default-in ip-vector !
 
 : output: ( type-xt emit-xt cr-xt form-xt -- )
     Create here cell+ , swap 2swap swap , , , ,
-    ['] -/- , ['] -/- , ['] -/- , ['] -/- , ['] -/- , ['] drop ,
+    ['] n/a , ['] n/a , ['] n/a , ['] n/a , ['] n/a , ['] drop ,
   DOES> cell+ op-vector ! ;
 
 \ Input                                                13feb93py
@@ -213,7 +213,7 @@ default-in ip-vector !
 Defer theme!  ' 2drop is theme!
 Defer theme@  ' noop is theme@
 
-Create theme-table ' theme! A, ' -/- A, ' -/- A, ' theme@ A,
+Create theme-table ' theme! A, ' n/a A, ' n/a A, ' theme@ A,
 
 ' [noop] theme-table to-method: theme-to ( n value-xt -- ) \ gforth-internal
 

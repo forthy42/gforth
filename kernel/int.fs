@@ -425,9 +425,11 @@ method opt-compile, ( xt -- ) \ gforth-internal
 \g The intelligent @code{compile,} compiles each word as specified by
 \g @code{set-optimizer} for that word.
 
-method (to) ( val index xt -- ) \ gforth paren-to
-\G @i{xt} is of a value like word @i{name}.  Stores @i{val} @code{to} @i{name}.
-opt: ( index xt-(to -- )
+method (to) ( val operation xt -- ) \ gforth paren-to
+\G @i{xt} is of a value like word @i{name}.  Stores @i{val} @code{to}
+\G @i{name}.  @i{operation} selects between @code{to}, @code{+to},
+\G @code{addr}, and @code{action-of}.
+opt: ( operation xt-(to -- )
     lits# 0= IF  swap lit, postpone swap :, EXIT THEN  (to), ;
 
 \ method old-defer@ ( xt-deferred -- xt ) \ core-ext defer-fetch

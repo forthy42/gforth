@@ -25,13 +25,13 @@
 
 : to-table: ( "name" "xt1" .. "xtn" -- ) \ gforth-experimental to-table-colon
     \G create a table with entries for @code{TO}, @code{+TO},
-    \G @code{ADDR}, and @code{ACTION-OF}.  Use @code{-/-} to mark
+    \G @code{ADDR}, and @code{ACTION-OF}.  Use @code{n/a} to mark
     \G unsupported operations.
     Create  0  BEGIN  parse-name  dup WHILE
 	    forth-recognize '-error , 1+
     REPEAT  2drop
     \ here goes the number of methods supported
-    to-table-size# swap U+DO ['] -/- , LOOP ;
+    to-table-size# swap U+DO ['] n/a , LOOP ;
 
 : >to+addr-table: ( table-addr "name" -- ) \ gforth-experimental to-to-plus-addr-table-colon
     \G copy a table and set the @code{ADDR}-method to allow it

@@ -27,7 +27,7 @@ hex \ everything now hex!                               11may93jaw
 \G @code{Constant} -- @code{1 cells}
 [THEN]
 
-: -/- ( -- ) \ gforth-experimental not-available
+: n/a ( -- ) \ gforth-experimental not-available
     \G this word can be ticked, but throws an ``Operation not supported''
     \G exception on interpretation and compilation.  Use this for methods
     \G and alike that aren't supported.
@@ -38,8 +38,8 @@ hex \ everything now hex!                               11may93jaw
 \G Word that neither does something on execute nor on compilation
 ' execute set-optimizer
 
-Create !-table ' ! A, ' +! A, ' -/- A, ' -/- A,
-Create defer-table ' ! A, ' -/- A, ' -/- A, ' @ A,
+Create !-table ' ! A, ' +! A, ' n/a A, ' n/a A,
+Create defer-table ' ! A, ' n/a A, ' n/a A, ' @ A,
 
 : >uvalue ( xt -- addr )
     >body @ next-task + ;

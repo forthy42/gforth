@@ -8219,21 +8219,38 @@ understand this, but it may improve your understanding of Forth.
 @node User-defined TO and DEFER@@, User-defined compile-comma, Advanced does> usage example, User-defined Defining Words
 @subsubsection User-defined @code{to} and @code{defer@@}
 
+Gforth's values have several operators: @code{to} (to which @code{is} is
+an alias, and @code{defer!} takes an xt instead of a name in the input
+stream), @code{+to}, @code{addr}, and @code{action-of} (where
+@code{defer\@} takes an xt instead of a name in the input stream).
+
 Gforth allows you to change the @code{(to)} action of a word.
 
 doc-(to)
+doc-to-table:
+doc-to-method:
 doc-set-to
+doc-n/a
 
 @code{(to)} is a word used inside @code{to}: it stores the value at
 run-time.  The general stack effect of @code{(to)} method is @code{(
-val xt -- )}, where @i{xt} identifies the word stored into, and
+val operation xt -- )}, where @i{xt} identifies the word stored into,
+@i{operation} the actual variant of @code{to}-like operations, and
 @i{val} is the value (of appropriate type) stored there.
+
+You shall implement the @code{to}-method using @code{to-table:} to
+create a type-specific table of operations (not specified slots at the
+end of the table are filled up with @code{n/a}), and using
+@code{to-method:} together with the operation to get from the @i{xt} of
+the value to its data field (usually @code{>body} for values in the
+dictionary, but value-style data can also reside in structures or user
+areas).
 
 E.g., one can implement @code{fvalue} as follows:
 
 @example
-: fvalue-to ( r xt -- )
-  >body f! ;
+to-table: f!-table f! f+!
+' >body f!-table to-method: fvalue-to
 
 : fvalue ( r "name" -- ; name: -- r )
   create f,
@@ -8244,15 +8261,6 @@ E.g., one can implement @code{fvalue} as follows:
 : bar foo 1e f+ to foo ;
 see bar
 @end example
-
-@code{(To)} is also known as @code{defer!} (called by @code{is},
-@pxref{Deferred Words}), so you can use it to implement variations of
-deferred words.  You also need to change @code{defer@@} then, and you
-can do that, too:
-
-doc-set-defer@
-
-
 
 @node User-defined compile-comma, Creating from a prototype, User-defined TO and DEFER@@, User-defined Defining Words
 @subsubsection User-defined @code{compile,}
