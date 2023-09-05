@@ -8222,7 +8222,7 @@ understand this, but it may improve your understanding of Forth.
 Gforth's values have several operators: @code{to} (to which @code{is} is
 an alias, and @code{defer!} takes an xt instead of a name in the input
 stream), @code{+to}, @code{addr}, and @code{action-of} (where
-@code{defer\@} takes an xt instead of a name in the input stream).
+@code{defer@@} takes an xt instead of a name in the input stream).
 
 Gforth allows you to change the @code{(to)} action of a word.
 
