@@ -989,7 +989,9 @@ pthread_cond_timedwait pthread_cond_wait pthread_cond_broadcast
 pthread_cond_signal pthread_cond_destroy pthread_cond_init pthread_detach_attr 
 sched_yield pthread_mutex_unlock pthread_mutex_lock pthread_mutex_destroy 
 pthread_mutex_init pthread_cancel pthread_kill pthread_exit pthread_create 
-gforth_create_thread thread_start disasm disline disassembler rec-meta 
+gforth_create_thread thread_start disasm disline disassembler translate-state 
+>compile >interpret translate-method: translate-method-to >translate-method 
+translator-overflow translator-max-offset# translator-offset rec-meta 
 scope-search-prefix ?search-prefix in rec-scope scope-split nosplit? rec-env 
 rectype-env translate-env env$, rec-complex translate-complex zliteral z.s z. 
 fc. zacot zatan zacos zasin pi/2 zacoth zatanh zacosh zasinh Im Re Imag Real 
@@ -1081,18 +1083,19 @@ load block-input list updated? scr buffer block get-buffer flush empty-buffers
 save-buffers empty-buffer save-buffer update block-position get-block-fid use 
 open-blocks flush-blocks block-cold offset block-offset block-fid block-limit 
 buffers last-block block-buffers buffer-struct next-buffer block-buffer 
-buffer-dirty buffer-fid buffer-block ... wrap-xt smart.s. .string. .string.( 
-smart. .cs. .var. .addr. cs? string? .var? addr? smart.s-skip .elapsed 
-timer-reset .!time !@time .time (.time) @time !time .times init-timer 
-map-timer timer: timer-list +t last-tick timer-tick profile( +debug set-debug 
-+-? debug-eval ~db -db +db )else( debug: debug-does> assert( assert3( assert2( 
-assert1( assert0( ) assertn assert-canary assert) (end-assert) assert-level 
-level-check .hm .name? color-prompt prompt-text prompt-ok #loc edit-file-cmd 
-editor-cmd vi-l:c emacs-l:c kate-l:c view' (view') rec'@ rec'[] type-prefix 
-esc'type -ltrace +ltrace line-tracer ~~Value ~~value-to ~~>body ~~Variable 
-watch-opt: watch-does> replace-word >prim-code >colon-body ?warn-dp 
-warning-recs shadow-num-warning shadow-warning !!FIXME!! FIXME# WTF?? 
-dbg-shell ??? ???-loop ~~1bt ~~bt once ]nocov nocov[ cov-stack coverage? ~~ 
+buffer-dirty buffer-fid buffer-block ... wrap-xt smart.s. smart<> .s.smart 
+.s.string .s.cs .s.skip .string. .string.( smart. .cs. .var. .addr. cs? 
+string? .var? addr? smart.s-skip .elapsed timer-reset .!time !@time .time 
+(.time) @time !time .times init-timer map-timer timer: timer-list +t last-tick 
+timer-tick profile( +debug set-debug +-? debug-eval ~db -db +db )else( debug: 
+debug-does> assert( assert3( assert2( assert1( assert0( ) assertn 
+assert-canary assert) (end-assert) assert-level level-check .hm .name? 
+color-prompt prompt-text prompt-ok #loc edit-file-cmd editor-cmd vi-l:c 
+emacs-l:c kate-l:c view' (view') rec'@ rec'[] type-prefix esc'type -ltrace 
++ltrace line-tracer ~~Value ~~value-to ~~>body ~~Variable watch-opt: 
+watch-does> replace-word >prim-code >colon-body ?warn-dp warning-recs 
+shadow-num-warning shadow-warning !!FIXME!! FIXME# WTF?? dbg-shell ??? 
+???-loop ~~1bt ~~bt once ]nocov nocov[ cov-stack coverage? ~~ 
 .debugline-directed (.debugline) .debugline printdebugdata #line 
 save-source-filename# .sourcepos compile-sourcepos .sourceview .sourcepos3 
 view>char decode-view decode-pos loadfilename#>str prepend~~ expand~~ short~~ 
@@ -1137,38 +1140,38 @@ rectype-dnum rectype-num rectype-nt rectype-null rectype: rectype rectype>post
 rectype>comp rectype>int file>fpath file>path slurp-fid slurp-file const-does> 
 (const-does>) in-colon-def? compile-fliterals compile-literals 
 in-return-stack? ]L sh system $? dmax dmin ?CSP !CSP CSP needs save-mem-dict 
-locals-post, locals| >definer (local) (exit-like) (until-like) (again-like) 
-(begin-like) (then-like) locals-;-hook locals-:-hook {: { new-locals 
-new-locals-rec some-waddr some-xtlocal some-wlocal some-flocal some-dlocal 
-some-clocal locals-types val-part-off to-f: to-c: to-d: to-xt: to-w: laddr, 
-c!-table 2!-table 2+! c+! lp-offset, lp-offset create-local locals-where, 
+locals| >definer (local) (exit-like) (until-like) (again-like) (begin-like) 
+(then-like) locals-;-hook locals-:-hook {: { new-locals new-locals-rec 
+some-waddr some-xtlocal some-wlocal some-flocal some-dlocal some-clocal 
+locals-types val-part-off to-f: to-c: to-d: to-xt: to-w: laddr, c!-table 
+2!-table 2+! c+! lp-offset, lp-offset create-local locals-where, 
 locals-headers create-local1 locals-name-size+ check-begin 
 set-locals-size-list locals-list! list-size sub-list? common-list /list 
 list-length compile-pushlocal-[ compile-pushlocal-c compile-pushlocal-d 2>l 
 compile-pushlocal-f compile-pushlocal-w locals, val-part alignlp-f alignlp-w 
 deactivate-locals activate-locals rec-locals locals-rec translate-locals 
-no-post locals adjust-locals-size compile-lp+! compile-f@local compile-@local 
-locals-size next-case endcase closecase contof endof of ?of case case-depth 
-expect span capssearch capsstring-prefix? search blank convert [compile] C" 
-m*/ d>s .( frem ftrunc fmod fcopysign fsign-offset f~ f~rel f~abs NaN -inf 
--infinity inf infinity 1/f f2/ f2* pi fvariable rec-float rectype-float 
-translate-float >postponer fp. prefix-number zero-exp si-prefixes sfnumber fs. 
-fe. f. f$ -zeros zeros scratch set-precision precision fclearstack fdepth 
-fvalue dummy-fvalue fvalue-to f!-table f+! fconstant opt-fcon opt-fval 
-FLiteral flit, f, dfloat+ sfloat+ dfalign sfalign dump-sections extra-section 
->extra-sections #>section section# lits<> new-section create-section 
-which-section? sections-execute section-execute set-section 
-extra-section-error first-section-error image-offset section-defaultsize 
-#extra-sections sections .words hash-cold make-hash hash-wordlist hashdouble 
-(rehash) rehashall clearhash addall inithash tablevoc-to hashvoc-to 
-tablevoc-table hashvoc-table table-reveal hash-reveal (reveal lastlink! 
-hash-rec hash-find bucket NewFix DelFix hash-alloc hashsearch-map HashTable 
-HashPop HashIndex HashPointer revealed insRule hash erase Hashlen hashbits 
-reserve-mem to: interpret/compile: >to+addr-table: to-table: to-method: 
-never-happens warning-error broken-pipe-error exceptions exception 
-next-exception errstring linked minos? glx? gles? getrandom? getentropy? 
-include-ffi.h-string libffi-present ffcall-present libtool-flags libtool-cc 
-libtool-command machine lib-suffix has? $has? e? environment? 
+locals-post, no-post locals adjust-locals-size compile-lp+! compile-f@local 
+compile-@local locals-size next-case endcase closecase contof endof of ?of 
+case case-depth expect span capssearch capsstring-prefix? search blank convert 
+[compile] C" m*/ d>s .( frem ftrunc fmod fcopysign fsign-offset f~ f~rel f~abs 
+NaN -inf -infinity inf infinity 1/f f2/ f2* pi fvariable rec-float 
+rectype-float translate-float >postponer fp. prefix-number zero-exp 
+si-prefixes sfnumber fs. fe. f. f$ -zeros zeros scratch set-precision 
+precision fclearstack fdepth fvalue dummy-fvalue fvalue-to f!-table f+! 
+fconstant opt-fcon opt-fval FLiteral flit, f, dfloat+ sfloat+ dfalign sfalign 
+dump-sections extra-section >extra-sections #>section section# lits<> 
+new-section create-section which-section? sections-execute section-execute 
+set-section extra-section-error first-section-error image-offset 
+section-defaultsize #extra-sections sections .words hash-cold make-hash 
+hash-wordlist hashdouble (rehash) rehashall clearhash addall inithash 
+tablevoc-to hashvoc-to tablevoc-table hashvoc-table table-reveal hash-reveal 
+(reveal lastlink! hash-rec hash-find bucket NewFix DelFix hash-alloc 
+hashsearch-map HashTable HashPop HashIndex HashPointer revealed insRule hash 
+erase Hashlen hashbits reserve-mem to: interpret/compile: >to+addr-table: 
+to-table: to-method: never-happens warning-error broken-pipe-error exceptions 
+exception next-exception errstring linked minos? glx? gles? getrandom? 
+getentropy? include-ffi.h-string libffi-present ffcall-present libtool-flags 
+libtool-cc libtool-command machine lib-suffix has? $has? e? environment? 
 environment-wordlist environment version-string>internal (0s) 
 process-voc-option options image-options vocs map-vocs order .voc .name .id 
 id. seal set-order get-order Only Root Forth previous also >order >voc 
@@ -1298,7 +1301,7 @@ wraphandler first-throw handler throw-entry lp0 fp0 rp0 sp0 save-task
 prev-task next-task udp main-task def#tib pad-minsize word-pno-size 
 chars/block l/s c/l /line bl float false true 2Constant 2constant, UValue 
 (UValue) u-compile, uvalue-to to:, to:exec >uvalue defer-table !-table [noop] 
--/- cell */ */mod /mod mod / r@ forthstart image-header u#+ u#exec x#exec 
+n/a cell */ */mod /mod mod / r@ forthstart image-header u#+ u#exec x#exec 
 o#exec o#+ o> >o lit-execute ;abi-code-exec abi-call finish-code| tag-offsets 
 decompile-prim2 decompile-prim forget-dyncode finish-code compile-prim1 
 barrier ?!@ +!@ !@ u8@+? log2 >pow2 l>s w>s c>s xd>< x>< l>< w>< xd@ xd! x@ x! 
