@@ -34,7 +34,7 @@ $20 stack: loop-indices
     input-stack stack> ?dup-IF  { w^ in } in $free  THEN ;
 : input< ( -- )
     input-stack $[]# ?dup-IF
-	1- input-stack $[] get-stack restore-input  throw
+	1- input-stack $[] get-stack restore-input -12 and throw
     THEN ;
 
 : [DO]  ( n-limit n-index -- ) \ gforth bracket-do

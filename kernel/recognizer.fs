@@ -147,4 +147,6 @@ Defer forth-recognize ( c-addr u -- ... translate-xt ) \ recognizer
 : postpone ( "name" -- ) \ core
     \g Compiles the compilation semantics of @i{name}.
     parse-name forth-recognize >postpone
+    \ -2 state !@ >r parse-name forth-recognize execute
+    \ r> state !
 ; immediate restrict
