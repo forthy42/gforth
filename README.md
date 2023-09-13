@@ -68,7 +68,9 @@ To start the system, just say `gforth` (after installing it).
 ## Download
 
 You can find new versions of Gforth at\
-[gforth.org/gforth](https://gforth.org/gforth)\
+[www.complang.tuwien.ac.at/forth/gforth/](https://www.complang.tuwien.ac.at/forth/gforth/)\
+and current snapshots on\
+[www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/](https://www.complang.tuwien.ac.at/forth/gforth/Snapshots/current/)\
 or at\
 [ftp://ftp.gnu.org/gnu/gforth/](ftp://ftp.gnu.org/gnu/gforth/)
 
