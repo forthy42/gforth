@@ -23,7 +23,7 @@
 ' (to) ' (to), ' post-to, >postponer translate: translate-to
 ' translate-to Constant rectype-to
 
-: rec-to ( addr u -- xt r:to | rectype-null ) \ gforth-experimental
+: rec-to ( addr u -- xt n r:to | rectype-null ) \ gforth-experimental
     \G words prefixed with @code{->} are treated as if preceeded by
     \G @code{TO} or @code{IS}, with @code{+>} as @code{+TO}, with
     \G @code{'>} as @code{ADDR}, and with @code{@@>} as @code{ACTION-OF}.
@@ -38,6 +38,7 @@
     endcase  -rot
     2 /string forth-recognize
     translate-nt? 0= IF  drop ['] notfound EXIT  THEN
+    dup >namehm @ >hmto @ ['] no-to = IF  2drop ['] notfound EXIT  THEN
     name?int ['] translate-to ;
 
 ' rec-to forth-recognizer >back

@@ -41,8 +41,15 @@
     \G execute @var{defining-word} with @var{voc} as one-shot current
     \G directory. Example: @code{in gui : init-gl ... ;} will define
     \G @code{init-gl} in the @code{gui} vocabulary.
-    get-current >r also ' execute definitions previous ' execute
-    r> set-current ;
+    get-current >r also ' execute definitions previous ' catch
+    r> set-current throw ;
+
+: in-wordlist ( wordlist "defining-word" -- ) \ gforth-experimental
+    \G execute @var{defining-word} with @var{wordlist} as one-shot current
+    \G directory. Example: @code{gui-wordlist in-wordlist : init-gl ... ;}
+    \G will define @code{init-gl} in the @code{gui-wordlist} wordlist.
+    get-current >r set-current ' catch
+    r> set-current throw ;
 
 : ?search-prefix ( addr len wid/0 -- addr' len' )
     ?dup-IF

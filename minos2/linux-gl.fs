@@ -59,10 +59,10 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
 
 : best-im ( -- im )
     XSupportsLocale IF
-	"XMODIFIERS" getenv dup IF
+	${XMODIFIERS} dup IF
 	    XSetLocaleModifiers 0= IF
 		." Warning: Cannot set locale modifiers to '"
-		"XMODIFIERS" getenv type  ." '" cr THEN
+		${XMODIFIERS} type  ." '" cr THEN
 	ELSE  2drop  THEN
     THEN
     dpy 0 0 0 XOpenIM dup to xim
@@ -85,7 +85,7 @@ XIMPreeditNothing or XIMPreeditNone or Constant XIMPreedit
     misslist @ XFreeStringList ;
 
 : get-display ( -- w h )
-    "DISPLAY" getenv XOpenDisplay to dpy
+    ${DISPLAY} XOpenDisplay to dpy
     dpy 0= abort" Can't open display!"
     dpy XDefaultScreenOfDisplay to screen-struct
     dpy XDefaultScreen to screen

@@ -351,7 +351,7 @@ xc-vector !
 	ELSE  r> gl-xy 2!  THEN  m +
     LOOP  drop ;
 
-s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
+${GFORTH_IGNLIB} s" true" str= 0= [IF]
     Sema gl-sema
 [ELSE]
     Create gl-sema

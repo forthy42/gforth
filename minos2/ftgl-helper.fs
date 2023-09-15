@@ -417,7 +417,7 @@ Variable positions[]
 Variable directions[]
 Variable segment-lens[]
 
-s" GFORTH_IGNLIB" getenv s" true" str= 0= [IF]
+${GFORTH_IGNLIB} s" true" str= 0= [IF]
     hb_buffer_create Value hb-buffer
     hb-buffer hb_language_get_default hb_buffer_set_language
 [ELSE]

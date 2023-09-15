@@ -42,7 +42,7 @@ s" os-type" environment? [IF]
     [ELSE]
 	2dup s" darwin" str= >r s" linux-" string-prefix? r> or [IF]
 	    [IFDEF] use-wl
-		s" XDG_SESSION_TYPE" getenv s" wayland" str=
+		${XDG_SESSION_TYPE} s" wayland" str=
 	    [ELSE] false [THEN] \ wayland is experimental, default to x11
 	    [IF]
 		require wayland-gl.fs
@@ -52,7 +52,7 @@ s" os-type" environment? [IF]
 		[IFUNDEF] use-wl synonym use-wl noop [THEN]
 	    [ELSE] \ it's probably "x11" or undefined
 		[DEFINED] use-glx glx? and gles? 0= or
-		s" GFORTH_GL" getenv s" glx" str= or
+		${GFORTH_GL} s" glx" str= or
 		[DEFINED] use-egl gles? and 0= and [IF]
 		    require ../unix/opengl.fs
 		    [IFUNDEF] use-glx synonym use-glx noop [THEN]

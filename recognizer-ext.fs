@@ -20,11 +20,11 @@
 
 0 Value translator-offset
 #10 cells constant translator-max-offset#
-"No more translator slots free" exception constant translator-overflow
+s" No more translator slots free" exception constant translator-overflow
 
 : >translate-method ( xt rectype translate-method -- )
     >body @ >body + ;
-to-opt: ( xt -- ) >body @ lit, ]] >body + [[ ;
+to-opt: ( xt -- ) >body @ lit, postpone >body postpone + ;
 
 ' >translate-method defer-table to-method: translate-method-to
 
@@ -52,4 +52,5 @@ cell +to translator-offset
 warnings !
 
 : translate-state ( xt -- )
+    dup >does-code [ ' >postpone >does-code ] Literal <> #-12 and throw
     >body @ cell/ negate state ! ;

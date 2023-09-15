@@ -162,7 +162,7 @@ Variable def-output$
     [:  pa_mainloop_new to pa-ml
 	pa-ml pa_mainloop_get_api to pa-api
 	pa-api app-name $@ pa_context_new to pa-ctx
-	pa-ctx s" PULSE_SERVER" getenv
+	pa-ctx ${PULSE_SERVER}
 	dup IF  save-mem compact-filename  THEN
 	PA_CONTEXT_NOAUTOSPAWN 0 pa_context_connect ?pa-ior
 	pa-ctx pa-context-notify-cb ['] pa-notify-state

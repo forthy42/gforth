@@ -221,7 +221,7 @@ translate: translate-[[
     \G processed as if they were preceded by @code{postpone}.
     \G Postpone state ends when @code{[[} is recognized.
     ['] rec-[[ forth-recognizer >stack
-    -2 state ! ; immediate restrict
+    ['] >postpone translate-state ; immediate restrict
 
 \ f.rdp
 
