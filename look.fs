@@ -120,14 +120,22 @@ has? rom
 \ print recognizer stack
 
 [IFDEF] forth-recognizer
+    : .recognizer-sequence ( recognizer -- )
+	get-recognizer-sequence 0 ?DO
+	    dup defers@ >does-code ['] recognize =
+	    IF  dup >r  ELSE  0 >r  THEN
+	    dup >voc >does-code [ ' forth >does-code ] Literal = IF
+		>voc
+	    THEN
+	    name>string 2dup s" rec-" string-prefix? IF
+		4 /string  9 attr! ." ~"  0 attr!
+	    THEN  type space
+	    r> ?dup-IF
+		." ( " recurse ." ) "
+	    THEN
+	LOOP ;
     : .recognizers ( -- ) \ gforth-experimental dot-recognizers
         \G Print the current recognizer order, with the first-searched
 	\G recognizer leftmost (unlike .order).
-	." all bold recognizers start with 'rec-'" cr
-	get-recognizers 0 ?DO
-	    name>string 2dup s" rec-" string-prefix? IF
-		4 /string  1 attr! type 0 attr!
-	    ELSE  type  THEN
-	    space
-	LOOP ;
+	['] forth-recognize .recognizer-sequence ;
 [THEN]
