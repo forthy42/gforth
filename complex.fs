@@ -210,4 +210,4 @@ translate: translate-complex
 	['] translate-complex ['] notfound rot select
     ELSE  2drop ['] notfound  THEN ;
 
-' rec-complex forth-recognizer >back
+' rec-complex ' rec-float forth-recognizer +after

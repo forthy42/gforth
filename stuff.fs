@@ -205,6 +205,17 @@ opt: @ 3 swap (to), ;
     \G set the recognizer stack from content on the stack
     ['] forth-recognize set-recognizer-sequence ;
 
+: -stack { x stack -- } \ gforth-experimental
+    \G delete x from a stack
+    stack get-stack  0 stack set-stack 0 ?DO
+	dup x <> IF  stack >back  ELSE  drop  THEN
+    LOOP ;
+: +after { y x stack -- } \ gforth-experimental
+    \G add @var{y} after @var{x} in stack
+    stack get-stack  0 stack set-stack 0 ?DO
+	dup stack >back x = IF  y stack >back  THEN
+    LOOP ;
+
 \ ]] ... [[
 
 ' noop ' noop
