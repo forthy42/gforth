@@ -20,11 +20,8 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 [IFUNDEF] ?rec-nt
-    : ?rec-nt ( addr u -- nt true / something 0 )
-	sp@ fp@ 2>r >in @ >r
-	forth-recognize ['] translate-nt = dup 0=
-	if    r> >in ! 2r> fp! sp! 2drop #0.
-	else  rdrop 2rdrop  then ;
+    : ?rec-nt ( addr u -- nt true / 0 )
+	[: ['] translate-nt = ;] try-recognize ;
 [THEN]
 
 : rec-tick ( addr u -- xt rectype-num | rectype-null ) \ gforth-experimental
@@ -33,7 +30,7 @@
     over c@ '`' = if
         1 /string ?rec-nt if
             ?compile-only name>interpret ['] translate-num exit  then
-        0 then
+        ['] notfound exit  then
     2drop ['] notfound ;
 
 : rec-dtick ( addr u -- nt rectype-num | rectype-null ) \ gforth-experimental
@@ -41,7 +38,7 @@
     \G Example: @code{``S"} gives the nt of @code{S"}
     2dup "``" string-prefix? if
 	2 /string ?rec-nt if  ['] translate-num exit then  0
-	then
+        ['] notfound exit  then
     2drop ['] notfound ;
 
 ' rec-dtick forth-recognizer >back

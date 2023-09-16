@@ -21,10 +21,7 @@
 
 [IFUNDEF] ?rec-nt
     : ?rec-nt ( addr u -- nt true / something 0 )
-	sp@ fp@ 2>r >in @ >r
-	forth-recognize ['] translate-nt = dup 0=
-	if    r> >in ! 2r> fp! sp! 2drop #0.
-	else  rdrop 2rdrop  then ;
+	[: ['] translate-nt = ;] try-recognize ;
 [THEN]
 
 : rec-body ( addr u -- xt translate-tick | translate-null ) \ gforth-experimental
@@ -33,7 +30,7 @@
     over c@ '<' <> >r  2dup + 1- c@ '>' <> r> or
     if 2drop ['] notfound exit then
     1 /string 1- '+' $split 2>r ?rec-nt
-    0= if  drop 2rdrop ['] notfound exit then
+    0= if  2rdrop ['] notfound exit then
     name>interpret >body
     2r> dup 0= if  2drop ['] translate-num  exit  then
     case  rec-num

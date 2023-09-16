@@ -216,6 +216,15 @@ opt: @ 3 swap (to), ;
 	dup stack >back x = IF  y stack >back  THEN
     LOOP ;
 
+: try-recognize ( addr u xt -- results true | false ) \ gforth-experimental
+    \G For nested recognizers: try to recognize @var{addr u}, and run
+    \G @var{xt} to check if the result is desired.  If @var{xt} returns false,
+    \G clean up all side effects of the recognizer, and return false.
+    { xt: xt } sp@ fp@ 2>r >in @ >r
+    forth-recognize xt dup
+    if    rdrop 2rdrop
+    else  r> >in ! 2r> fp! sp! 2drop false  then ;
+
 \ ]] ... [[
 
 ' noop ' noop

@@ -51,6 +51,8 @@ translate-method: >compile ( translator -- ) \ gforth-experimental
 cell +to translator-offset
 warnings !
 
-: translate-state ( xt -- )
+: translate-state ( xt -- ) \ gforth-experimental
+    \G change the current state of the system so that executing
+    \G a translator matches the translate-method passsed as @var{xt}
     dup >does-code [ ' >postpone >does-code ] Literal <> #-12 and throw
     >body @ cell/ negate state ! ;

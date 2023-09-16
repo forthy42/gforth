@@ -9948,13 +9948,12 @@ doc-translate-nt
 doc-translate-num
 doc-translate-dnum
 doc-translate-float
-
-The following extension is only avaiable if you load @code{recognizer-ext.fs}:
-
-doc-interpret-translator
-doc-compile-translator
-doc-postpone-translator
-doc-translator:
+doc-try-recognize
+doc->interpret
+doc->compile
+doc->postpone
+doc-translate-method:
+doc-translate-state
 
 @node Defining Recognizers,  , Dealing with existing Recognizers, Recognizers
 @subsubsection Defining Recognizers
