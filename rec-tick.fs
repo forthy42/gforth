@@ -21,10 +21,10 @@
 
 [IFUNDEF] ?rec-nt
     : ?rec-nt ( addr u -- xt true / something 0 )
-	sp@ >in @ 2>r
-	forth-recognize ['] translate-nt = dup
-	if  2r> 2over  else  2r> #0.  then  2>r >in ! sp!
-	2drop 2r> ;
+	sp@ fp@ 2>r >in @ >r
+	forth-recognize ['] translate-nt = dup 0=
+	if  #0.  then {: nt flag :}
+	r> >in ! 2r> fp! sp! 2drop nt flag ;
 [THEN]
 
 : rec-tick ( addr u -- xt rectype-num | rectype-null ) \ gforth-experimental
