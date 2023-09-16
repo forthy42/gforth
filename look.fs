@@ -136,6 +136,8 @@ has? rom
 	LOOP ;
     : .recognizers ( -- ) \ gforth-experimental dot-recognizers
         \G Print the current recognizer order, with the first-searched
-	\G recognizer leftmost (unlike .order).
+	\G recognizer leftmost (unlike .order).  The inverted @code{~} is
+	\G displayed instead of @code{rec-}, which is the common prefix
+	\G of all recognizers.
 	['] forth-recognize .recognizer-sequence ;
 [THEN]

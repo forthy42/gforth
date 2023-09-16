@@ -20,11 +20,11 @@
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
 [IFUNDEF] ?rec-nt
-    : ?rec-nt ( addr u -- xt true / something 0 )
-	sp@ >in @ 2>r
-	forth-recognize ['] translate-nt = dup
-	if  2r> 2over  else  2r> #0.  then  2>r >in ! sp!
-	2drop 2r> ;
+    : ?rec-nt ( addr u -- nt true / something 0 )
+	sp@ fp@ 2>r >in @ >r
+	forth-recognize ['] translate-nt = dup 0=
+	if    r> >in ! 2r> fp! sp! 2drop #0.
+	else  rdrop 2rdrop  then ;
 [THEN]
 
 : rec-body ( addr u -- xt translate-tick | translate-null ) \ gforth-experimental
