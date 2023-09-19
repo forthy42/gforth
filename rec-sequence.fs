@@ -24,19 +24,18 @@ Defer trace-recognizer  ' drop is trace-recognizer
 
 : recognize ( addr u rec-addr -- ... rectype ) \ gforth-experimental
     \G apply a recognizer stack to a string, delivering a token
-    1 rec-level +!
+    1 rec-level +!  -rot >l >l
     $@ bounds cell- swap cell- U-DO
-	2dup I -rot 2>r  perform
+	@local0 @local1 I perform
 	dup ['] notfound <>  IF
 	    -1 rec-level +!
-	    2rdrop I @ trace-recognizer  UNLOOP  EXIT  THEN  drop
-	2r>
+	    I @ trace-recognizer  UNLOOP  lp+2 EXIT  THEN  drop
 	cell [ 2 cells ] Literal I cell- 2@ <> select \ skip double entries
 	\ note that we search first and then skip, because the first search
 	\ has a very likely hit.  So doubles will be skipped, tripples not
     -loop
     -1 rec-level +!
-    2drop ['] notfound ;
+    ['] notfound lp+2 ;
 
 : recognizer-sequence: ( xt1 .. xtn n "name" -- ) \ gforth-experimental
     \G concatenate a stack of recognizers to one recognizer with the
