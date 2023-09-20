@@ -57,8 +57,15 @@ t{ -1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }t
 
 \ safe/string
 
-t{ s" bla bla" 3 /string -3 safe/string s"  bla" str= -> true }t
+TESTING safe/string
+
+[IFUNDEF] s1
+    T{ :  s1 S" abcdefghijklmnopqrstuvwxyz" ; -> }T
+[THEN]
 t{ s" bla bla" 2dup 9 safe/string 2swap + 0 d= -> true }t
+T{ s1  5 safe/string -> s1 SWAP 5 + SWAP 5 - }T
+T{ s1 10 safe/string -4 safe/string -> s1 10 safe/string }T
+T{ s1  0 safe/string -> s1 }T
 
 \ TRY and friends
 
