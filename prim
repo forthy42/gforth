@@ -703,21 +703,22 @@ characters from the start of the string.""
 c_addr2 = c_addr1+n;
 u2 = u1-n;
 :
- tuck - >r + r> dup 0< IF  - 0  THEN ;
+ tuck - >r + r> ;
 
 safe/string	( c_addr1 u1 n -- c_addr2 u2 )	gforth	safe_slash_string
 ""Adjust the string specified by @i{c-addr1, u1} to remove @i{n}
 characters from the start of the string.  Unlike @code{/string},
 @code{safe/string} removes at least 0 and at most @i{u1} characters.""
+if(n<0) {
+  n=0;
+}
+if(((UCell)n)>u1) {
+  n=u1;
+}
 c_addr2 = c_addr1+n;
 u2 = u1-n;
-if(n>=0) {
-  if(u2>u1) { c_addr2 += u2; u2 = 0; }
-} else {
-  if(u2<u1) { c_addr2 += u2+1; u2 = -1; }
-}
 :
- tuck - >r + r> dup 0< IF  - 0  THEN ;
+ 0 max over umin /string ;
 
 \g arith
 

@@ -28,32 +28,37 @@ T{ 3e x 1 cells 'a' fill -> 3e }T
 
 \ f>str-rdp (then f.rdp and f>buf-rdb should also be ok)
 
-{  12.3456789e 7 3 1 f>str-rdp s"  12.346" str= -> true }
-{  12.3456789e 7 4 1 f>str-rdp s" 12.3457" str= -> true }
-{ -12.3456789e 7 4 1 f>str-rdp s" -1.23E1" str= -> true }
-{      0.0996e 7 3 1 f>str-rdp s"   0.100" str= -> true }
-{      0.0996e 7 3 3 f>str-rdp s" 9.96E-2" str= -> true }
-{    999.9994e 7 3 1 f>str-rdp s" 999.999" str= -> true }
-{    999.9996e 7 3 1 f>str-rdp s" 1.000E3" str= -> true }
-{       -1e-20 5 2 1 f>str-rdp s" *****"   str= -> true }
+t{  12.3456789e 7 3 1 f>str-rdp s"  12.346" str= -> true }t
+t{  12.3456789e 7 4 1 f>str-rdp s" 12.3457" str= -> true }t
+t{ -12.3456789e 7 4 1 f>str-rdp s" -1.23E1" str= -> true }t
+t{      0.0996e 7 3 1 f>str-rdp s"   0.100" str= -> true }t
+t{      0.0996e 7 3 3 f>str-rdp s" 9.96E-2" str= -> true }t
+t{    999.9994e 7 3 1 f>str-rdp s" 999.999" str= -> true }t
+t{    999.9996e 7 3 1 f>str-rdp s" 1.000E3" str= -> true }t
+t{       -1e-20 5 2 1 f>str-rdp s" *****"   str= -> true }t
 
 \ 0x hex number conversion, or not
 
 decimal
-{ 0x10 -> 16 }
-{ 0X10 -> 16 }
+t{ 0x10 -> 16 }t
+t{ 0X10 -> 16 }t
 36 base !
-{ 0x10 -> x10 }
+t{ 0x10 -> x10 }t
 decimal
-{ 'a' -> 97 }
-{ 'A  -> 65 }
-{ 1. '1 -> 1. 49 }
+t{ 'a' -> 97 }t
+t{ 'A  -> 65 }t
+t{ 1. '1 -> 1. 49 }t
 
 \ REPRESENT has no trailing 0s even for inf and nan
 
-{  1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
-{  0e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
-{ -1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }
+t{  1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }t
+t{  0e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }t
+t{ -1e 0e f/ pad 16 represent drop 2drop pad 15 + c@ '0 = -> false }t
+
+\ safe/string
+
+t{ s" bla bla" 3 /string -3 safe/string s"  bla" str= -> true }t
+t{ s" bla bla" 2dup 9 safe/string 2swap + 0 d= -> true }t
 
 \ TRY and friends
 
@@ -69,8 +74,8 @@ decimal
         1+
     endtry ;
 
-{ -5 try-test1 -> 26 }
-{ 5  try-test1 ->  6 }
+t{ -5 try-test1 -> 26 }t
+t{ 5  try-test1 ->  6 }t
 
 : try-test2 ( n1 -- n2 )
     try
@@ -79,8 +84,8 @@ decimal
         drop 1+ dup 0<-throw
     endtry ;
 
-{ -5 try-test2 -> 0 }
-{  5 try-test2 -> 6 }
+t{ -5 try-test2 -> 0 }t
+t{  5 try-test2 -> 6 }t
 
 : try-test3 ( n1 -- n2 )
     try
@@ -91,8 +96,8 @@ decimal
         1+
     then ;
 
-{ -5 try-test3 -> 10 }
-{  5 try-test3 ->  6 }
+t{ -5 try-test3 -> 10 }t
+t{  5 try-test3 ->  6 }t
 
 \ fcopysign
 
@@ -111,9 +116,9 @@ t{ -5e -1e fcopysign -> -5e }t
 	dup
     endcase ;
 
-t{  5 mysgn ->  1 }
-t{ -3 mysgn -> -1 }
-t{  0 mysgn ->  0 }
+t{  5 mysgn ->  1 }t
+t{ -3 mysgn -> -1 }t
+t{  0 mysgn ->  0 }t
 
 : myscan ( addr1 n1 char -- addr2 n2 )
     >r case
@@ -123,8 +128,8 @@ t{  0 mysgn ->  0 }
         next-case
     rdrop ;
 
-t{ s" dhfa;jfsdk" 2dup ';' myscan 2swap 4 /string d= -> true }
-t{ s" abcdef" 2dup 'g' myscan 2swap 6 /string d= -> true }
+t{ s" dhfa;jfsdk" 2dup ';' myscan 2swap 4 /string d= -> true }t
+t{ s" abcdef" 2dup 'g' myscan 2swap 6 /string d= -> true }t
 
 
 : gcd ( n1 n2 -- n )
@@ -133,8 +138,8 @@ t{ s" abcdef" 2dup 'g' myscan 2swap 6 /string d= -> true }
 	2dup < ?of over - contof
     endcase ;
 
-t{ 48 42 gcd -> 6 }
-t{ 42 48 gcd -> 6 }
+t{ 48 42 gcd -> 6 }t
+t{ 42 48 gcd -> 6 }t
 
 
 : x1 ( u -- u u1 ... un )
