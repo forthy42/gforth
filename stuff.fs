@@ -222,8 +222,8 @@ opt: @ 3 swap (to), ;
     \G For nested recognizers: try to recognize @var{addr u}, and execute
     \G @var{xt} to check if the result is desired.  If @var{xt} returns false,
     \G clean up all side effects of the recognizer, and return false.
-    \G Otherwise return the results of the call to @{xt}, of which the topmost
-    \G is non-zero.
+    \G Otherwise return the results of the call to @var{xt}, of which the
+    \G topmost is non-zero.
     { xt: xt }  0 to try-free  sp@ fp@ 2>r >in @ >r
     forth-recognize xt dup
     if    rdrop 2rdrop
