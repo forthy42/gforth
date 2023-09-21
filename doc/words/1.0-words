@@ -989,47 +989,45 @@ pthread_cond_timedwait pthread_cond_wait pthread_cond_broadcast
 pthread_cond_signal pthread_cond_destroy pthread_cond_init pthread_detach_attr 
 sched_yield pthread_mutex_unlock pthread_mutex_lock pthread_mutex_destroy 
 pthread_mutex_init pthread_cancel pthread_kill pthread_exit pthread_create 
-gforth_create_thread thread_start disasm disline disassembler translate-state 
->compile >interpret translate-method: translate-method-to >translate-method 
-translator-overflow translator-max-offset# translator-offset rec-meta 
-scope-search-prefix ?search-prefix in rec-scope scope-split nosplit? rec-env 
-rectype-env translate-env env$, rec-complex translate-complex zliteral z.s z. 
-fc. zacot zatan zacos zasin pi/2 zacoth zatanh zacosh zasinh Im Re Imag Real 
-ztan zcos zsin ztanh zcosh zsinh zfib phi z** zsqrt z0= zln pln zexp polar> 
->polar z2* z2/ zabs |z| z/ 1/z zsqabs z/i z*i zconj znegate zscale z* x- x+ 
-zr- z- z+ ZVarue za-to ZValue z-to ZVariable some-zalocal some-zlocal 
-compile-z@local compile-pushlocal-z to-za: to-z: z!a-table z!-table z+! z! z@ 
-z-rot zrot zdepth zpick zswap zr> z>r zover zdrop zdup fl> complex+ complex' 
-&of addr default-w: default-wa: to-fa: to-ca: to-da: to-xta: to-wa: fvarue 
-dummy-fvarue fvarue-to 2varue dummy-2varue 2varue-to Varue dummy-varue 
-varue-to f!a-table c!a-table 2!a-table defera-table !a-table marker marker! 
-marker, sections-marker! sections-marker, included-files-mark .unresolved 
-auto-resolve is-forward? forward unfixed-forward unresolved-forward-error 
-forward-needs-: unresolved-forward fancy-after-l whereg delete-whereg 
-whereg-filename s` sh-get sh$ plain-output plain-out plain-form help 
-help-section help-word open-doc set-help-view count-lfs doc-file# unused-words 
-unused-wordlist unused@ unmark-used unused-all -unused +unused .wids 
-unused-mask usage# browse (browse) browse-results bw nw ww where-</> 
-where-index-- where-index++ (ww) where prepend-where expand-where short-where 
-where-reset where-setup (where) forwheres .whereview1 .whereline .wheretype1 
-width-type type-notabs unbounds bt nt tt bt-</> backtrace-- backtrace++ 
-backtrace# bt-location gg g-once ll l-once next-l|g l|g edit g extern-g b n 
-view locate .rec'-stack locate-name name-set-located-view l l1 no-</> index-- 
-index++ after-l append-locate-lines prepend-locate-lines display-locate-lines 
-located-erase l2 print-locate-header view>filename current-location? 
-current-location?1 located-buffer locate-print-line locate-type located-diff 
-locate-lines+ locate-lines# type-prefix locate-next-line locate-line 
-set-bn-view view>buffer included-buffer included-file-buffers backtrace-index 
-where-index where-results -status +status .status-line status-xts .order 
-.stacks .base wide? replace-char .unstatus-line redraw-status status-attr 
-status-offset mwords wordlist-mwords .mwords[] wid>words[] 
-mword-filename-match mword-search-match mword-match words[] le-uxd@ le-ux@ 
-le-ul@ le-uw@ be-uxd@ be-ux@ be-ul@ be-uw@ le-xd! le-x! le-l! le-w! be-xd! 
-be-x! be-l! be-w! sxd@ sx@ sl@ sw@ uxd@ ux@ ul@ uw@ find sfind word sword 
-+place place (word) .strings name parse-word comp: definer! [(')] lastxt 
-longstring, header, obsoletes scroll-down scroll-up cursor-previous-line 
-cursor-next-line erase-display insert-lines cursor-down cursor-up 
-control-sequence: restore-cursor-position save-cursor-position 
+gforth_create_thread thread_start disasm disline disassembler rec-meta 
+scope-search-prefix ?search-prefix in-wordlist in rec-scope scope-split 
+nosplit? rec-env rectype-env translate-env env$, rec-complex translate-complex 
+zliteral z.s z. fc. zacot zatan zacos zasin pi/2 zacoth zatanh zacosh zasinh 
+Im Re Imag Real ztan zcos zsin ztanh zcosh zsinh zfib phi z** zsqrt z0= zln 
+pln zexp polar> >polar z2* z2/ zabs |z| z/ 1/z zsqabs z/i z*i zconj znegate 
+zscale z* x- x+ zr- z- z+ ZVarue za-to ZValue z-to ZVariable some-zalocal 
+some-zlocal compile-z@local compile-pushlocal-z to-za: to-z: z!a-table 
+z!-table z+! z! z@ z-rot zrot zdepth zpick zswap zr> z>r zover zdrop zdup fl> 
+complex+ complex' &of addr default-w: default-wa: to-fa: to-ca: to-da: to-xta: 
+to-wa: fvarue dummy-fvarue fvarue-to 2varue dummy-2varue 2varue-to Varue 
+dummy-varue varue-to f!a-table c!a-table 2!a-table defera-table !a-table 
+marker marker! marker, sections-marker! sections-marker, included-files-mark 
+.unresolved auto-resolve is-forward? forward unfixed-forward 
+unresolved-forward-error forward-needs-: unresolved-forward fancy-after-l 
+whereg delete-whereg whereg-filename s` sh-get sh$ plain-output plain-out 
+plain-form help help-section help-word open-doc set-help-view count-lfs 
+doc-file# unused-words unused-wordlist unused@ unmark-used unused-all -unused 
++unused .wids unused-mask usage# browse (browse) browse-results bw nw ww 
+where-</> where-index-- where-index++ (ww) where prepend-where expand-where 
+short-where where-reset where-setup (where) forwheres .whereview1 .whereline 
+.wheretype1 width-type type-notabs unbounds bt nt tt bt-</> backtrace-- 
+backtrace++ backtrace# bt-location gg g-once ll l-once next-l|g l|g edit g 
+extern-g b n view locate .rec'-stack locate-name name-set-located-view l l1 
+no-</> index-- index++ after-l append-locate-lines prepend-locate-lines 
+display-locate-lines located-erase l2 print-locate-header view>filename 
+current-location? current-location?1 located-buffer locate-print-line 
+locate-type located-diff locate-lines+ locate-lines# type-prefix 
+locate-next-line locate-line set-bn-view view>buffer included-buffer 
+included-file-buffers backtrace-index where-index where-results -status 
++status .status-line status-xts .order .stacks .base wide? replace-char 
+.unstatus-line redraw-status status-attr status-offset mwords wordlist-mwords 
+.mwords[] wid>words[] mword-filename-match mword-search-match mword-match 
+words[] le-uxd@ le-ux@ le-ul@ le-uw@ be-uxd@ be-ux@ be-ul@ be-uw@ le-xd! le-x! 
+le-l! le-w! be-xd! be-x! be-l! be-w! sxd@ sx@ sl@ sw@ uxd@ ux@ ul@ uw@ find 
+sfind word sword +place place (word) .strings name parse-word comp: definer! 
+[(')] lastxt longstring, header, obsoletes scroll-down scroll-up 
+cursor-previous-line cursor-next-line erase-display insert-lines cursor-down 
+cursor-up control-sequence: restore-cursor-position save-cursor-position 
 (control-sequence) auto-color magenta-input dark-mode light-mode 
 uncolored-mode default-bg rgb-split term-bg? term-fg? term-color? term-rgb@ 
 is-xterm? is-color-terminal? is-terminal? term-rgb$ <<<m m>>> mark-attr 
@@ -1106,46 +1104,49 @@ xc-width+ xc-width -u8trailing-garbage u8addrlen u8!+? u8@ u8\string-
 +u8/string u8emit u8key check-xy u8<< u8>> u8!+ u8@+ u8len max-single-byte 
 UTF-8-err WordInfo InfoTable Com-color Str-color Ali-color Use-color Col-color 
 Def-color Doe-color Val-color Var-color Con-color Pri-color prim? xtprim? 
-colon? defered? does? user? value? con? var? .recognizers prim>name >head 
-threaded>name >name look PrimStart threaded>xt xt= [f:h [d:h [n:h [f:d [d:d 
-[n:d [f:l [d:l [n:l [f: [d: [n: [*:: :d :h :l (;]*) (;]l) (;*]) ;> <{: [{: 
-end-dclosure closure> free-closure closure-:-hook (closure-;]) wrap-closure 
-dummy-local, pop-locals push-locals extra-locals lp> >lp allocd alloch >addr 
-1t-closure? endref, end-d locals-lists locals-sizes opt-u/mod opt-/modf 
-opt-umod opt-modf opt-u/ opt-/f lit/, /f-stage1m ctz pow2? u/-stage1m 
-staged/-size staged/-divisor staged/-inverse-hi staged/-shift staged/-inverse 
-dffield: sffield: ffield: 2field: field: xfield: lfield: wfield: cfield: 
-end-structure begin-structure extend-structure standard:field +field sizeof 
-[sizeof] (sizeof) standard+field .sections opt@ opt+- (+loop)-optimizer 
-replace-(+loop) fold4-4 fold4-2 fold4-1 fold3-3 fold3-2 fold3-1 fold2-3 
-fold2-2 fold2-1 fold2-0 fold1-2 fold1-1 fold1-0 folds optimizes fold-constants 
->4lits 4lits> >3lits 3lits> >2lits 2lits> [WHILE] [AGAIN] [REPEAT] [UNTIL] 
-[BEGIN] [I] comp-[i] INT-[I] [NEXT] [FOR] [LOOP] [+LOOP] [?DO] [DO] input< 
-input-drop >input loop-indices input-stack (i) $[]free $[]. $[]map 
-$[]slurp-file $[]slurp $slurp-line $slurp-file $+slurp-file $slurp $+slurp 
-$tmp $. $exec $-out $form $cr $emit $type $execstr-ptr tmp$ tmps# tmp$# tmp$[] 
-$+[]! $[]@ $[]# $[]+! $[]! $off $over open-warp time&date (xparse) 
-string-parse [char] char append s+ traverse-matched-dir traverse-dir 
-try-read-dir adjust-buffer init-buffer buffer% buffer-maxlength buffer-address 
-buffer-length buffer-descriptor rectype-word translate-word basic-help 2Value 
-dummy-2value 2value-to 2value-compile, name>comp name>int nr> n>r \\\ th dump 
-hex.r base-execute derived-output: derived-input: execute-theme-color 
-theme-color infile-execute outfile-execute xaligned xalign laligned lalign 
-waligned walign *align *aligned xd, x, l, w, xd>s x>s xdle xle lle wle xdbe 
-xbe lbe wbe noop0 /x /l /w typewhite what's action-of preserve f.s 
-f.s-precision f.rdp f>str-rdp f>buf-rdp f>buf-rdp-try push-right ]] rec-[[ 
-rectype-[[ translate-[[ set-recognizers get-recognizers forth-recognizer 
-set-recognizer-sequence get-recognizer-sequence >rec-stack defers@ 
-rectype-dnum rectype-num rectype-nt rectype-null rectype: rectype rectype>post 
-rectype>comp rectype>int file>fpath file>path slurp-fid slurp-file const-does> 
-(const-does>) in-colon-def? compile-fliterals compile-literals 
-in-return-stack? ]L sh system $? dmax dmin ?CSP !CSP CSP needs save-mem-dict 
-locals| >definer (local) (exit-like) (until-like) (again-like) (begin-like) 
-(then-like) locals-;-hook locals-:-hook {: { new-locals new-locals-rec 
-some-waddr some-xtlocal some-wlocal some-flocal some-dlocal some-clocal 
-locals-types val-part-off to-f: to-c: to-d: to-xt: to-w: laddr, c!-table 
-2!-table 2+! c+! lp-offset, lp-offset create-local locals-where, 
-locals-headers create-local1 locals-name-size+ check-begin 
+colon? defered? does? user? value? con? var? .recognizers .recognizer-sequence 
+prim>name >head threaded>name >name look PrimStart threaded>xt xt= [f:h [d:h 
+[n:h [f:d [d:d [n:d [f:l [d:l [n:l [f: [d: [n: [*:: :d :h :l (;]*) (;]l) (;*]) 
+;> <{: [{: end-dclosure closure> free-closure closure-:-hook (closure-;]) 
+wrap-closure dummy-local, pop-locals push-locals extra-locals lp> >lp allocd 
+alloch >addr 1t-closure? endref, end-d locals-lists locals-sizes opt-u/mod 
+opt-/modf opt-umod opt-modf opt-u/ opt-/f lit/, /f-stage1m ctz pow2? 
+u/-stage1m staged/-size staged/-divisor staged/-inverse-hi staged/-shift 
+staged/-inverse dffield: sffield: ffield: 2field: field: xfield: lfield: 
+wfield: cfield: end-structure begin-structure extend-structure standard:field 
++field sizeof [sizeof] (sizeof) standard+field .sections opt@ opt+- 
+(+loop)-optimizer replace-(+loop) fold4-4 fold4-2 fold4-1 fold3-3 fold3-2 
+fold3-1 fold2-3 fold2-2 fold2-1 fold2-0 fold1-2 fold1-1 fold1-0 folds 
+optimizes fold-constants >4lits 4lits> >3lits 3lits> >2lits 2lits> [WHILE] 
+[AGAIN] [REPEAT] [UNTIL] [BEGIN] [I] comp-[i] INT-[I] [NEXT] [FOR] [LOOP] 
+[+LOOP] [?DO] [DO] input< input-drop >input loop-indices input-stack (i) 
+$[]free $[]. $[]map $[]slurp-file $[]slurp $slurp-line $slurp-file 
+$+slurp-file $slurp $+slurp $tmp $. $exec $-out $form $cr $emit $type 
+$execstr-ptr tmp$ tmps# tmp$# tmp$[] $+[]! $[]@ $[]# $[]+! $[]! $off $over 
+open-warp time&date (xparse) string-parse [char] char append s+ 
+traverse-matched-dir traverse-dir try-read-dir adjust-buffer init-buffer 
+buffer% buffer-maxlength buffer-address buffer-length buffer-descriptor 
+rectype-word translate-word basic-help 2Value dummy-2value 2value-to 
+2value-compile, name>comp name>int nr> n>r \\\ th dump hex.r base-execute 
+derived-output: derived-input: execute-theme-color theme-color infile-execute 
+outfile-execute xaligned xalign laligned lalign waligned walign *align 
+*aligned xd, x, l, w, xd>s x>s xdle xle lle wle xdbe xbe lbe wbe noop0 /x /l 
+/w typewhite what's action-of preserve f.s f.s-precision f.rdp f>str-rdp 
+f>buf-rdp f>buf-rdp-try push-right ]] rec-[[ rectype-[[ translate-[[ 
+try-recognize try-free +after -stack set-recognizers get-recognizers 
+forth-recognizer set-recognizer-sequence get-recognizer-sequence >rec-stack 
+defers@ rectype-dnum rectype-num rectype-nt rectype-null rectype: rectype 
+rectype>post rectype>comp rectype>int file>fpath file>path slurp-fid 
+slurp-file const-does> (const-does>) in-colon-def? compile-fliterals 
+compile-literals in-return-stack? ]L sh system $? dmax dmin ?CSP !CSP CSP 
+needs save-mem-dict translate-state >compile >interpret translate-method: 
+translate-method-to >translate-method translator-overflow 
+translator-max-offset# translator-offset locals| >definer (local) (exit-like) 
+(until-like) (again-like) (begin-like) (then-like) locals-;-hook locals-:-hook 
+{: { new-locals new-locals-rec some-waddr some-xtlocal some-wlocal some-flocal 
+some-dlocal some-clocal locals-types val-part-off to-f: to-c: to-d: to-xt: 
+to-w: laddr, c!-table 2!-table 2+! c+! lp-offset, lp-offset create-local 
+locals-where, locals-headers create-local1 locals-name-size+ check-begin 
 set-locals-size-list locals-list! list-size sub-list? common-list /list 
 list-length compile-pushlocal-[ compile-pushlocal-c compile-pushlocal-d 2>l 
 compile-pushlocal-f compile-pushlocal-w locals, val-part alignlp-f alignlp-w 

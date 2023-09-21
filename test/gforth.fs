@@ -62,10 +62,11 @@ TESTING safe/string
 [IFUNDEF] s1
     T{ :  s1 S" abcdefghijklmnopqrstuvwxyz" ; -> }T
 [THEN]
-t{ s1 2dup 29 safe/string 2swap + 0 d= -> true }t
+t{ s1 29 safe/string -> s1 + 0 }t
 T{ s1  5 safe/string -> s1 SWAP 5 + SWAP 5 - }T
 T{ s1 10 safe/string -4 safe/string -> s1 10 safe/string }T
 T{ s1  0 safe/string -> s1 }T
+T{ s1 -5 safe/string -> s1 }T
 
 \ TRY and friends
 
