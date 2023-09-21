@@ -29,13 +29,13 @@ Defer trace-recognizer  ' drop is trace-recognizer
 	@local0 @local1 I perform
 	dup ['] notfound <>  IF
 	    -1 rec-level +!
-	    I @ trace-recognizer  UNLOOP  lp+2 EXIT  THEN  drop
+	    I @ trace-recognizer  UNLOOP  [ cell 8 = ] [IF] lp+2 [ELSE] lp+ [THEN] EXIT  THEN  drop
 	cell [ 2 cells ] Literal I cell- 2@ <> select \ skip double entries
 	\ note that we search first and then skip, because the first search
 	\ has a very likely hit.  So doubles will be skipped, tripples not
     -loop
     -1 rec-level +!
-    ['] notfound lp+2 ;
+    ['] notfound [ cell 8 = ] [IF] lp+2 [ELSE] lp+ [THEN] ;
 
 : recognizer-sequence: ( xt1 .. xtn n "name" -- ) \ gforth-experimental
     \G concatenate a stack of recognizers to one recognizer with the
