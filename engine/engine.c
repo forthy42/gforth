@@ -208,6 +208,12 @@ static inline Cell slashfstage2(Cell n1, stagediv_t *stage1)
 #define ALIVE_DEBUGGING(x) ((void)0)
 #endif
 
+/* KILL is used just before NEXT (ideally just before the goto) to
+   make var dead in the preceding code; used for stack-cache registers
+   and cfa, to avoid having them appear alive during calls; this mean
+   that gcc can use caller-saved registers for them */
+#define KILL(var) asm("":"=X"(var))
+
 /* conversion on fetch */
 
 #define vm_Cell2f(_cell,_x)		((_x)=(Bool)(_cell))
