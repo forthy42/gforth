@@ -481,7 +481,7 @@ Dynamic NC generation disabled."
 		    		machine=amd64
 				CFLAGS="$CFLAGS -fomit-frame-pointer"
 				CCVER=`$CC -v 2>&1 | grep ' version ' | cut -f3 -d' '`
-				test ${CCVER%.*.*} -ge 7 && test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=2
+				test ${CCVER%.*.*} -ge 7 && test x$STACK_CACHE_REGS = x && STACK_CACHE_REGS=3
 				unset CCVER
 				;;
 			esac

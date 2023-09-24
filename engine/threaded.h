@@ -181,7 +181,7 @@ before_goto: asm(ASMCOMMENT "before_goto"); goto *real_ca; after_goto: asm(ASMCO
 
    and lose just a little performance.
 */
-#define KILLS asm("":"=X"(cfa));
+#define KILLS KILL(cfa);
 
 /* #warning direct threading scheme 8: cfa dead, i386 hack */
 #  define NEXT_P0
