@@ -18,7 +18,6 @@
 \ You should have received a copy of the GNU General Public License
 \ along with this program. If not, see http://www.gnu.org/licenses/.
 
-\E register IPTOS Cell
 \E register spTOS Cell
 \E register spb Cell
 \E register spc Cell
@@ -27,6 +26,8 @@
 \E register spf Cell
 \E register spg Cell
 \E register sph Cell
+
+\E register IPTOS Cell
 
 \E register fpTOS Float
 
