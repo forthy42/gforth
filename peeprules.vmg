@@ -27,7 +27,7 @@
 \E ' noop is output-c-prim-num
 
 \ super1 = lit +
-super2 = lit call
+\ super2 = lit call
 \ super3 = lit @
 \ super4 = lit @ call
 \ super5 = @ call
