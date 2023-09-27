@@ -1250,7 +1250,7 @@ prim_effects.fs: prim.b prims2x.fs
 # fast prim rules...
 
 engine/prim-fast.i:	prim-fast.b prims2x.fs
-	$(PREFORTH) prims2x.fs -e $(STACK_CACHE_REGS)" is stack-cache-regs c-flag on s\" prim-fast.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
+	$(PREFORTH) prims2x.fs -e "get-current prim-killregs set-current" $(srcdir)/nonreloc-canon -e "set-current "$(STACK_CACHE_REGS)" is stack-cache-regs c-flag on s\" prim-fast.i\" save-mem out-filename 2! s\" "$<"\" ' output-c ' output-c-combined process-file bye" >$@
 
 engine/prim_lab-fast.i:	prim-fast.b prims2x.fs
 	$(PREFORTH) prims2x.fs -e "c-flag on s\" prim-fast.b\" ' output-label dup process-file bye" >$@
@@ -1288,7 +1288,6 @@ kernel/prim.fs:	prim.b prims2x.fs kernel/prim0.fs preforth.in
 		$(CP) $(srcdir)/kernel/prim0.fs kernel/prim.fs-
 		$(PREFORTH) prims2x.fs -e "forth-flag on s\" prim.b\" ' output-forth ' output-forth-combined process-file bye" >>$@-
 		$(MV) $@- $@
-
 
 OPTS = @OPTS@
 
@@ -1411,6 +1410,9 @@ libgforth-prof$(EXT): $(ENGINE_SOURCES) $(FORTH_GEN_ENGINE) engine/Makefile engi
 
 .PHONY: libgforths
 libgforths:	$(GFORTHLIBOBJECTS) $(LIBENGINES) $(LIBENGINES_FAST)
+
+nonreloc-actual: gforth
+	./gforth --print-nonreloc -e bye >$@
 
 # ------------- additional C primitives
 

@@ -98,6 +98,7 @@ variable out-nls \ newlines in output (for output sync lines)
 0 out-nls !
 variable store-optimization \ use store optimization?
 store-optimization off
+wordlist constant prim-killregs \ only kill the regs for these primitives
 
 variable include-skipped-insts
 \ does the threaded code for a combined instruction include the cells
@@ -871,9 +872,11 @@ stack inst-stream IP Cell
     \ alive in the primitive after the primitive last reads them;
     \ particularly relevant for primitives with calls.  !! specific to
     \ the simple stack-cache organization with only the data stack.
-    stack-cache-regs state-out state-sss data-stack# th @ ss-offset @ 1+ +do
-        ." KILL(" registers i th @ register-name 2@ type ." );" cr
-    loop ;
+    prim prim-name 2@ prim-killregs search-wordlist if
+        stack-cache-regs state-out state-sss data-stack# th @ ss-offset @ 1+ +do
+            ." KILL(" registers i th @ register-name 2@ type ." );" cr
+        loop
+    then ;
 
 : fill-stack-items { stack -- u }
     \ there are u items to fill in stack
