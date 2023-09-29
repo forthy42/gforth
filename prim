@@ -3191,7 +3191,7 @@ xd! ( ud c_addr -- )	gforth x_d_store
 *(UOctabyte*)c_addr = ud;
 # endif
 #else
-# ifdef BUGGY_LL_SIZE
+# if defined(BUGGY_LL_SIZE) || (SIZEOF_CHAR_P == 4)
 #  if (SIZEOF_CHAR_P == 4)
 #   ifdef WORDS_BIGENDIAN
 UTetrabyte tb[2];
@@ -3230,25 +3230,25 @@ D_IS(ud, tb[1], tb[0]);
 ud = *(UOctabyte*)c_addr;
 # endif
 #else
-#ifdef BUGGY_LL_SIZE
-# if (SIZEOF_CHAR_P == 4)
+# if defined(BUGGY_LL_SIZE) || (SIZEOF_CHAR_P == 4)
+#  if (SIZEOF_CHAR_P == 4)
 UTetrabyte tb[2];
 memcpy((Char*)tb, c_addr, 8);
-#  ifdef WORDS_BIGENDIAN
+#   ifdef WORDS_BIGENDIAN
 D_IS(ud, tb[0], tb[1]);
-#  else
+#   else
 D_IS(ud, tb[1], tb[0]);
+#   endif
+#  else
+UOctabyte ob;
+memcpy((Char*)&ob, c_addr, 8);
+D_IS(ud, 0, ob);
 #  endif
 # else
 UOctabyte ob;
 memcpy((Char*)&ob, c_addr, 8);
-D_IS(ud, 0, ob);
-# endif
-#else
-UOctabyte ob;
-memcpy((Char*)&ob, c_addr, 8);
 ud = ob;
-#endif
+# endif
 #endif
 
 w>< ( u1 -- u2 )  gforth-internal wordswap
