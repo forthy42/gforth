@@ -1770,7 +1770,6 @@ c!	( c c_addr -- )		core	c_store
 2!	( w1 w2 a_addr -- )		core	two_store
 ""Store @i{w2} into the cell at @i{c-addr} and @i{w1} into the next cell.""
 a_addr[0] = w2;
-WORKAROUND_AMD64_2STORE
 a_addr[1] = w1;
 :
  tuck ! cell+ ! ;

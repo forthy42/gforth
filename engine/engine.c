@@ -247,9 +247,6 @@ static inline Cell slashfstage2(Cell n1, stagediv_t *stage1)
 
 #define IMM_ARG(access,value)		(access)
 
-#ifndef WORKAROUND_AMD64_2STORE
-#define WORKAROUND_AMD64_2STORE
-#endif
 /* if machine.h has not defined explicit registers, define them as implicit */
 #ifndef IPREG
 #define IPREG
