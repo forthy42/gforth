@@ -167,3 +167,6 @@ actually compiles the call to memcpy into a call to memcpy.
 #endif
 
 #define GOTO_ALIGN asm(".p2align 4,,7");
+/* GCC 12 and further combine 2! into one move through an xmm register
+   which defeats the store-to-load facility of modern amd64 processors.
+   I.e. it looks nice on paper, but actually is a lot slower. */
