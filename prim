@@ -3179,7 +3179,7 @@ u = ob;
 xd! ( ud c_addr -- )	gforth x_d_store
 ""Store the bottom 64 bits of @i{ud} at @i{c_addr}.""
 #ifdef UNALIGNED_MEM
-# if defined(BUGGY_LL_SIZE) && (SIZEOF_CHAR_P == 4)
+# if defined(BUGGY_LL_SIZE) || (SIZEOF_CHAR_P == 4)
 #  ifdef WORDS_BIGENDIAN
 ((UTetrabyte*)c_addr)[0]=DHI(ud);
 ((UTetrabyte*)c_addr)[1]=DLO(ud);
@@ -3217,7 +3217,7 @@ memcpy(c_addr, (Char*)&ob, 8);
 xd@ ( c_addr -- ud )	gforth x_d_fetch
 ""@i{ud} is the zero-extended 64-bit value stored at @i{c_addr}.""
 #ifdef UNALIGNED_MEM
-# if defined(BUGGY_LL_SIZE) && (SIZEOF_CHAR_P == 4)
+# if defined(BUGGY_LL_SIZE) || (SIZEOF_CHAR_P == 4)
 UTetrabyte tb[2];
 tb[0] = ((UTetrabyte*)c_addr)[0];
 tb[1] = ((UTetrabyte*)c_addr)[1];
