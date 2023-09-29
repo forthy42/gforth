@@ -170,4 +170,3 @@ actually compiles the call to memcpy into a call to memcpy.
 /* GCC 12 and further combine 2! into one move through an xmm register
    which defeats the store-to-load facility of modern amd64 processors.
    I.e. it looks nice on paper, but actually is a lot slower. */
-#define WORKAROUND_AMD64_2STORE asm("");
