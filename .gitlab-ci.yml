@@ -13,7 +13,7 @@ build-amd64:
   image: forthy42/gforth-builder-linux-amd64:unstable
   script:
     - ./autogen.sh
-    - ./configure
+    - ./configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu
     - make distclean
     - dpkg-buildpackage -uc -us -d -b
     - rm -f debian/*.deb
@@ -48,7 +48,7 @@ build-amd64-stable:
   image: forthy42/gforth-builder-linux-amd64:stable
   script:
     - ./autogen.sh
-    - ./configure
+    - ./configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu
     - make distclean
     - dpkg-buildpackage -uc -us -d -b
     - mkdir -p debian/stable
@@ -84,7 +84,7 @@ build-amd64-oldstable:
   image: forthy42/gforth-builder-linux-amd64:oldstable
   script:
     - ./autogen.sh
-    - ./configure
+    - ./configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu
     - make distclean
     - dpkg-buildpackage -uc -us -d -b
     - mkdir -p debian/oldstable

@@ -1,5 +1,6 @@
 ARG VERSION=unstable
-FROM debian:$VERSION
+ARG ARCH=amd64
+FROM $ARCH/debian:$VERSION
 LABEL maintainer="Bernd Paysan <bernd@net2o.de>"
 ENV LANG C.UTF-8
 
