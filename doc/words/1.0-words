@@ -459,8 +459,8 @@ g_type_next_base g_type_depth g_type_parent g_type_from_name g_type_qname
 g_type_name g_type_init_with_debug_flags g_type_init g_steal_fd 
 g_main_context_invoke g_main_context_invoke_full g_idle_remove_by_data 
 g_idle_add_once g_idle_add_full g_idle_add g_child_watch_add 
-g_child_watch_add_full g_timeout_add_seconds g_timeout_add_seconds_full 
-g_timeout_add_once g_timeout_add g_timeout_add_full 
+g_child_watch_add_full g_timeout_add_seconds_once g_timeout_add_seconds 
+g_timeout_add_seconds_full g_timeout_add_once g_timeout_add g_timeout_add_full 
 g_source_remove_by_funcs_user_data g_source_remove_by_user_data 
 g_source_remove g_get_real_time g_get_monotonic_time g_get_current_time 
 g_timeout_source_new_seconds g_timeout_source_new g_child_watch_source_new 
@@ -504,7 +504,9 @@ g_quark_from_static_string g_quark_try_string _GLIB_CHECKED_MUL_SIZE
 _GLIB_CHECKED_ADD_SIZE _GLIB_CHECKED_MUL_UINT64 _GLIB_CHECKED_ADD_UINT64 
 _GLIB_CHECKED_MUL_UINT _GLIB_CHECKED_ADD_UINT GSignalAccumulator: 
 GSignalEmissionHook: GToggleNotify: GWeakNotify: GObjectFinalizeFunc: 
-GObjectSetPropertyFunc: GObjectGetPropertyFunc: GTypeInterfaceCheckFunc: 
+GObjectSetPropertyFunc: GObjectGetPropertyFunc: GTypeValueLCopyFunc: 
+GTypeValueCollectFunc: GTypeValuePeekPointerFunc: GTypeValueCopyFunc: 
+GTypeValueFreeFunc: GTypeValueInitFunc: GTypeInterfaceCheckFunc: 
 GTypeClassCacheFunc: GInterfaceFinalizeFunc: GInterfaceInitFunc: 
 GInstanceInitFunc: GClassFinalizeFunc: GClassInitFunc: GBaseFinalizeFunc: 
 GBaseInitFunc: GClearHandleFunc: GSourceDummyMarshal: GSourceDisposeFunc: 
@@ -515,9 +517,6 @@ _GObjectClass-constructed() _GObjectClass-notify()
 _GObjectClass-dispatch_properties_changed() _GObjectClass-finalize() 
 _GObjectClass-dispose() _GObjectClass-get_property() 
 _GObjectClass-set_property() _GObjectClass-constructor() 
-_GTypeValueTable-lcopy_value() _GTypeValueTable-collect_value() 
-_GTypeValueTable-value_peek_pointer() _GTypeValueTable-value_copy() 
-_GTypeValueTable-value_free() _GTypeValueTable-value_init() 
 _GSourceFuncs-finalize() _GSourceFuncs-dispatch() _GSourceFuncs-check() 
 _GSourceFuncs-prepare() _GSourceCallbackFuncs-get() 
 _GSourceCallbackFuncs-unref() _GSourceCallbackFuncs-ref() 
