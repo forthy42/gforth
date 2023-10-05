@@ -3,7 +3,7 @@
 # Simple debian/rules that uses debhelper.
 # Created by Bernd Paysan, in the public domain
 
-GFORTH_VER = @DEBVERSION@
+GFORTH_VER = @PACKAGE_VERSION@
 GFORTH_ARCH = @machine@
 D = $(CURDIR)/debian/gforth
 DC = $(CURDIR)/debian/gforth-common
