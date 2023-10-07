@@ -792,7 +792,8 @@ Cell gforth_go(Xt* ip0)
 	(saved_rp < NEXTPAGE(gforth_UP->rp0))) {
       /* no rstack overflow or underflow */
       gforth_RP = saved_rp;
-      *--gforth_RP = (Cell)saved_ip;
+      /* return addresses point behind the call, so also do it here: */
+      *--gforth_RP = (Cell)(saved_ip+1);
     } else {
       gforth_RP = signal_return_stack+16;
     }
