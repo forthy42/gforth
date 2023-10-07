@@ -324,10 +324,12 @@ variable code-locations 0 code-locations !
 : bt-location ( u -- f )
     \ locate-setup backtrace entry with index u; returns true iff successful
     cells >r stored-backtrace $@ r@ u> if ( addr1 r: offset )
-	r> + @ addr>view dup if ( view )
-	    1 set-located-view true exit then
+        r> + @ dup addr>view dup if ( x view )
+            swap >bt-entry dup if
+                name>string nip then
+	    1 max set-located-view true exit then
     else
-        rdrop then
+        drop rdrop then
     drop ." no location for this backtrace index" false ;
 
 : backtrace# ( -- n ) stored-backtrace $@len cell/ ;
