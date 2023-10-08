@@ -38,8 +38,17 @@ get-current also see-voc definitions
 : see-word.addr ( addr -- )
     xpos off hex. ;
 
+: simp.word {: addr -- :}
+    addr decompile-prim3 {: nseqlen ustart uend c-addr u nlen :} nlen 0< if
+        addr @ .word
+    else
+        c-addr u type
+        nseqlen if
+            ustart 4 spaces 0 .r ." ->" uend . then
+    then ;
+
 : simple-see-word { addr -- }
-    addr see-word.addr addr cell+ addr @ .word drop ;
+    addr see-word.addr addr cell+ addr simp.word drop ;
 
 set-current
 
@@ -64,14 +73,14 @@ set-current
     \G Decompile code in [@i{addr1},@i{addr2}) like @code{see-code}.
     0 addr1 0 0 ['] noop begin { nseqlen  addr d: codeblock xt: cr? }
         addr addr2 u< while
-            addr @ decompile-prim2 { ulen } ulen 0< if
+            addr decompile-prim3 { ulen } ulen 0< if
                 drop 2drop 2drop
                 cr? addr simple-see-word
                 nseqlen
             else
                 nseqlen 0= if
                     codeblock discode 0 0 to codeblock ['] noop to cr? then
-                cr? addr see-word.addr type { nseqlen1 ustart uend } ulen if
+                cr? addr see-word.addr type { nseqlen1 ustart uend } nseqlen1 if
                     ustart 4 spaces 0 .r ." ->" uend .
                     assert( codeblock nip 0= )
                     addr @ ulen to codeblock then

@@ -3413,6 +3413,22 @@ c_addr = (Address)s;
 u = strlen(s);
 ulen = di->length;
 
+decompile-prim3 ( a_tc -- useqlen ustart uend c_addr u nlen ) gforth-internal decompile_prim3
+""a_tc is a threaded-code address; the contents of the cell at a_tc is
+the code address of machine code of nlen bytes, corresponding to
+the primitive or primitive sequence with the name(s) c_addr u, with
+start state ustart and end state uend, and useqlen basic primitives in
+the sequence.  If a_tc does not point to a dynamically-compiled primitive,
+nseqlen is 0.  If there is no primitive for a_tc, nlen is negative.""
+DynamicInfo *di = decompile_prim3((Label *)a_tc);
+const char *s = prim_names[di->prim];
+useqlen = di->seqlen;
+ustart = state_map(di->start_state);
+uend = state_map(di->end_state);
+c_addr = (Address)s;
+u = strlen(s);
+nlen = di->length;
+
 tag-offsets ( -- a_addr ) gforth-internal tag_offsets
 extern Cell groups[32];
 a_addr = groups;

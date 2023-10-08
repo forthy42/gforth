@@ -1237,6 +1237,15 @@ DynamicInfo *dynamic_info(Label code)
   return NULL;
 }
 
+DynamicInfo *dynamic_info3(Label *tcp)
+{
+  DynamicInfo *di;
+  for (di=dynamicinfos; di<&dynamicinfos[ndynamicinfos]; di++)
+    if (di->tcp == tcp)
+      return di;
+  return NULL;
+}
+
 #if !(defined(DOUBLY_INDIRECT) || defined(INDIRECT_THREADED))
 static DynamicInfo *add_dynamic_info()
 /* reserves space for a new Dynamicinfo, returning a pointer to it (for
@@ -1244,9 +1253,9 @@ static DynamicInfo *add_dynamic_info()
 {
   long old=ndynamicinfos;
   long new=old+1;
-  if (dynamicinfos!=NULL && dynamicinfos[old-1].length == 0) {
+  /* if (dynamicinfos!=NULL && dynamicinfos[old-1].length == 0) {
     return &dynamicinfos[old-1];
-  }
+    } */
   ndynamicinfos=new;
   if ((old&new)==0) { /* one too early for old>=1, but we can live with that */
     dynamicinfos =
@@ -1364,9 +1373,6 @@ needed. */
 
 struct code_block_list {
   struct code_block_list *next;
-  /* long dynamicinfos; */
-     /* index into dynamicinfos for first primitive in block
-        intended for future faster implementation of dynamic_info() */
   Address block;
   Cell size;
 } *code_block_list=NULL, **next_code_blockp=&code_block_list;
@@ -1534,10 +1540,31 @@ DynamicInfo *decompile_prim1(Label _code)
     static DynamicInfo dyninfo; 
     Cell p = prim_index(_code);
     if (p<0)
-      dyninfo = (DynamicInfo){_code,-1,0,0,0,0};
+      dyninfo = (DynamicInfo){0,_code,-1,0,0,0,0};
     else {
       struct cost *c = &super_costs[p];
-      dyninfo = (DynamicInfo){_code,0,p,c->state_in,c->state_out};
+      dyninfo = (DynamicInfo){0,_code,0,p,c->state_in,c->state_out};
+      assert(c->state_in  == CANONICAL_STATE);
+      assert(c->state_out == CANONICAL_STATE);
+    }
+    di = &dyninfo;
+  }
+  return di;
+}
+
+DynamicInfo *decompile_prim3(Label *tcp)
+{
+  DynamicInfo *di = dynamic_info3(tcp);
+  /* fprintf(stderr,"\n%p n=%ld\n",di,ndynamicinfos);*/
+  if (di==NULL) {
+    static DynamicInfo dyninfo;
+    Label _code = *tcp;
+    Cell p = prim_index(_code);
+    if (p<0)
+      dyninfo = (DynamicInfo){tcp,_code,-1,0,0,0,0};
+    else {
+      struct cost *c = &super_costs[p];
+      dyninfo = (DynamicInfo){tcp,_code,0,p,c->state_in,c->state_out};
       assert(c->state_in  == CANONICAL_STATE);
       assert(c->state_out == CANONICAL_STATE);
     }
@@ -1989,6 +2016,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
         di->prim = p;
         di->seqlen = super_costs[p].length;
         di->start = (Label)tc;
+        di->tcp = (Label *)(instps[i]);
         di->length = code_here - (Address)di->start;
         di->start_state = startstate;
         di->end_state = nextstate;
