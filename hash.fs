@@ -128,8 +128,7 @@ Create tablevoc-table ' table-reveal , ' drop , ' n/a , ' n/a ,
     BEGIN  @ dup WHILE
 	    dup 0 wordlist-link -
 	    dup wordlist-map @ reveal-method @ >r
-	    r@ ['] hashvoc-to = r@ ['] tablevoc-to = or
-	    r@ ['] hash-reveal = or r> ['] table-reveal = or
+	    r@ ['] hashvoc-to = r> ['] tablevoc-to = or
 	    IF  inithash ELSE drop THEN
     REPEAT  drop ;
 

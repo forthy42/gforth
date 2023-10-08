@@ -329,7 +329,7 @@ Defer xt-location
 Defer addr>view
 :noname ( ip-addr -- view / 0 )
     \G give @i{view} information for instruction address @i{ip-addr}
-    dup cell- section-start @ section-dp @ within
+    dup section-start @ section-dp @ 1+ within
     section-start @ and ?dup-IF
 	- cell/ 1- locs[] $[] @  EXIT
     THEN  drop 0 ; is addr>view
