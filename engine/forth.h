@@ -478,7 +478,6 @@ typedef struct {
 
 typedef struct {
   Label *tcp; /* points to the threaded-code cell */
-  Label start;
   int16_t length; /* native-code length of code at *tcp */
   uint16_t prim;
   int8_t seqlen; /* number of basic primitives in (potential) super <prim> */
@@ -614,10 +613,9 @@ void vm_count_block(Xt *ip);
 void compile_prim1(Cell *start);
 void finish_code(void);
 void finish_code_barrier(void);
-int forget_dyncode(Address code);
+int forget_dyncode3(Label *tc);
 Label decompile_code(Label prim);
 extern const char * const prim_names[];
-extern DynamicInfo *decompile_prim1(Label _code);
 extern DynamicInfo *decompile_prim3(Label *tcp);
 int state_map(int);
 

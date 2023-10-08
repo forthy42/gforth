@@ -3391,27 +3391,13 @@ flushing).""
    to save spTOS (gforth-fast --enable-force-reg) */
 finish_code();
 
-forget-dyncode ( c_code -- f ) gforth-internal forget_dyncode
-f = forget_dyncode(c_code);
+forget-dyncode3 ( a_tc -- f ) gforth-internal forget_dyncode3
+f = forget_dyncode3((Label *)a_tc);
 
 decompile-prim ( a_code -- a_prim ) gforth-internal decompile_prim
 ""a_prim is the code address of the primitive that has been
 compile_prim1ed to a_code""
 a_prim = (Cell *)decompile_code((Label)a_code);
-
-decompile-prim2 ( a_code -- useqlen ustart uend c_addr u ulen ) gforth-internal decompile_prim2
-""a_code is the start of machine code of ulen bytes, corresponding to
-the primitive or primitive sequence with the name(s) c-addr u, with
-start state ustart and end state uend, and useqlen basic primitives in
-the sequence""
-DynamicInfo *di = decompile_prim1((Label)a_code);
-const char *s = prim_names[di->prim];
-useqlen = di->seqlen;
-ustart = state_map(di->start_state);
-uend = state_map(di->end_state);
-c_addr = (Address)s;
-u = strlen(s);
-ulen = di->length;
 
 decompile-prim3 ( a_tc -- useqlen ustart uend c_addr u nlen ) gforth-internal decompile_prim3
 ""a_tc is a threaded-code address; the contents of the cell at a_tc is

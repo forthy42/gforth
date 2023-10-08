@@ -38,13 +38,16 @@ get-current also see-voc definitions
 : see-word.addr ( addr -- )
     xpos off hex. ;
 
+: .transition ( ustart uend -- )
+    swap 4 spaces 0 .r ." ->" . ;
+
 : simp.word {: addr -- :}
     addr decompile-prim3 {: nseqlen ustart uend c-addr u nlen :} nlen 0< if
         addr @ .word
     else
         c-addr u type
         nseqlen if
-            ustart 4 spaces 0 .r ." ->" uend . then
+            ustart uend .transition then
     then ;
 
 : simple-see-word { addr -- }
@@ -81,7 +84,7 @@ set-current
                 nseqlen 0= if
                     codeblock discode 0 0 to codeblock ['] noop to cr? then
                 cr? addr see-word.addr type { nseqlen1 ustart uend } nseqlen1 if
-                    ustart 4 spaces 0 .r ." ->" uend .
+                    ustart uend .transition
                     assert( codeblock nip 0= )
                     addr @ ulen to codeblock then
                 nseqlen nseqlen1 max 1-

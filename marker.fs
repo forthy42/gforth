@@ -106,7 +106,7 @@
     \ restore udp and dp
     dup @ udp !
     cell+ dup @ hm-list !
-    cell+ [IFDEF] forget-dyncode dup @ forget-dyncode drop [then]
+    cell+ [IFDEF] forget-dyncode dup forget-dyncode3 drop [then]
     cell+ sections-marker!
     drop
     ->here

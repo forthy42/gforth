@@ -1214,25 +1214,12 @@ static void check_prims(Label symbols1[])
 DynamicInfo *dynamicinfos = NULL; /* 2^n-sized growable array */
 long ndynamicinfos=0; /* index of next dynamicinfos entry */
 
-DynamicInfo *dynamic_info(Label code)
+
+DynamicInfo *dynamic_info(Label _code)
 {
   DynamicInfo *di;
-#if 0
-  /* !! faster implementation: linear search for the block, then use
-        binary search within the block */
-  struct code_block_list *p;
-  Address code=_code;
-
-  /* first, check if we are in code at all */
-  for (p = code_block_list;; p = p->next) {
-    if (p == NULL)
-      return code;
-    if (code >= p->block && code < p->block+p->size)
-      break;
-  }
-#endif
   for (di=dynamicinfos; di<&dynamicinfos[ndynamicinfos]; di++)
-    if (di->start == code)
+    if (*(di->tcp) == _code)
       return di;
   return NULL;
 }
@@ -1476,14 +1463,15 @@ static void reserve_code_super(PrimNum origs[], int ninsts)
 }
 #endif
 
-int forget_dyncode(Address code)
+int forget_dyncode3(Label *tc)
 {
 #ifdef NO_DYNAMIC
   return -1;
 #else
   struct code_block_list *p, **pp;
+  Address code = *tc;
 
-  DynamicInfo *di = dynamic_info((Label)code);
+  DynamicInfo *di = dynamic_info3(tc);
   if (di != NULL)
     ndynamicinfos = di-dynamicinfos;
   for (pp=&code_block_list, p=*pp; p!=NULL; pp=&(p->next), p=*pp) {
@@ -1532,26 +1520,6 @@ static Cell prim_index(Label code)
   return -1;
 }
 
-DynamicInfo *decompile_prim1(Label _code)
-{
-  DynamicInfo *di = dynamic_info(_code);
-  /* fprintf(stderr,"\n%p n=%ld\n",di,ndynamicinfos);*/
-  if (di==NULL) {
-    static DynamicInfo dyninfo; 
-    Cell p = prim_index(_code);
-    if (p<0)
-      dyninfo = (DynamicInfo){0,_code,-1,0,0,0,0};
-    else {
-      struct cost *c = &super_costs[p];
-      dyninfo = (DynamicInfo){0,_code,0,p,c->state_in,c->state_out};
-      assert(c->state_in  == CANONICAL_STATE);
-      assert(c->state_out == CANONICAL_STATE);
-    }
-    di = &dyninfo;
-  }
-  return di;
-}
-
 DynamicInfo *decompile_prim3(Label *tcp)
 {
   DynamicInfo *di = dynamic_info3(tcp);
@@ -1561,23 +1529,16 @@ DynamicInfo *decompile_prim3(Label *tcp)
     Label _code = *tcp;
     Cell p = prim_index(_code);
     if (p<0)
-      dyninfo = (DynamicInfo){tcp,_code,-1,0,0,0,0};
+      dyninfo = (DynamicInfo){tcp,-1,0,0,0,0};
     else {
       struct cost *c = &super_costs[p];
-      dyninfo = (DynamicInfo){tcp,_code,0,p,c->state_in,c->state_out};
+      dyninfo = (DynamicInfo){tcp,0,p,c->state_in,c->state_out};
       assert(c->state_in  == CANONICAL_STATE);
       assert(c->state_out == CANONICAL_STATE);
     }
     di = &dyninfo;
   }
   return di;
-}
-
-void update_dynamic_info()
-/* after appending something, include it in the last dynamicinfo */
-{
-  DynamicInfo *di = &dynamicinfos[ndynamicinfos-1];
-  di->length = code_here - (Address)di->start;
 }
 
 void finish_code(void)
@@ -2010,14 +1971,13 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
         di = add_dynamic_info();
         if (ndynamicinfos>1 &&
             ((UCell)(((Address)tc)-code_area)) < (UCell)code_area_size) {
-          di[-1].length = ((Address)tc) - (Address)di[-1].start;
+          di[-1].length = ((Address)tc) - (Address)*(di[-1].tcp);
           di[-1].end_state = startstate;
         }
         di->prim = p;
         di->seqlen = super_costs[p].length;
-        di->start = (Label)tc;
         di->tcp = (Label *)(instps[i]);
-        di->length = code_here - (Address)di->start;
+        di->length = code_here - (Address)tc;
         di->start_state = startstate;
         di->end_state = nextstate;
       }
@@ -2040,7 +2000,7 @@ static void optimize_rewrite(Cell *instps[], PrimNum origs[], int ninsts)
     assert(i==nextdyn);
     (void)compile_prim_dyn(p);
     nextstate = c->state_out;
-    di->length = code_here - (Address)di->start;
+    di->length = code_here - (Address)*(di->tcp);
     di->end_state = nextstate;
   }
   assert(nextstate==CANONICAL_STATE);

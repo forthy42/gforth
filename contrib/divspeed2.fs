@@ -33,13 +33,13 @@ DIVIDEND negate s>d 2constant D_DIVIDEND
 64 constant aligns
 n aligns / constant NA
 
-: align-code { u -- }
-    ]] cputime [[ -1 cells allot \ a non-relocatable primitive to force
-                                 \ a dispatch after the previous code
-    finish-code
-    here ]] noop [[ finish-code @ ( addr ) \ get the current native-code-here
-    64 naligned u + forget-dyncode 0= abort" forget-dyncode failed"
-    -1 cells allot ;
+\ : align-code { u -- }
+\     ]] cputime [[ -1 cells allot \ a non-relocatable primitive to force
+\                                  \ a dispatch after the previous code
+\     finish-code
+\     here ]] noop [[ finish-code @ ( addr ) \ get the current native-code-here
+\     64 naligned u + forget-dyncode 0= abort" forget-dyncode failed"
+\     -1 cells allot ;
     
 \ Some helpful macros
 variable xt
@@ -49,7 +49,7 @@ s" :noname [ xt @ >name name>string ] 2literal type ms@" 2constant s1
     :noname
     ]] noop [[ prelude evaluate
     aligns 0 do
-	]] na 1 do [[ i align-code kernel evaluate ]] loop [[
+	]] na 1 do [[ ( i align-code ) kernel evaluate ]] loop [[
     loop
     postlude evaluate ]] ; [[
     \ [ also see-voc ] dup >body here see-code-range [ previous ]
