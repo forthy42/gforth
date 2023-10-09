@@ -458,9 +458,7 @@ opt: ( xt -- ) ?fold-to >body @ (to), ;
 : alias? ( nt -- flag )
     >namehm @ >hm>int 2@ ['] a>comp ['] a>int d= ;
 
-$BF000000 Value synonym-mask \ do not copy obsolete flag
-$BF -1 cells allot  bigendian [IF]   c, 0 1 cells 1- c,s
-                          [ELSE] 0 1 cells 1- c,s c, [THEN]
+$BF000000. 1 cells 8 = [IF] #32 dlshift [THEN] dValue synonym-mask \ do not copy obsolete flag
 
 : Synonym ( "name" "oldname" -- ) \ tools-ext
     \G Define @i{name} to behave the same way as @i{oldname}: Same

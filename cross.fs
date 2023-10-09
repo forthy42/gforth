@@ -3367,6 +3367,10 @@ Builder Constant
 Build:  ( n -- ) T , H ;Build
 by (Constant)
 
+Builder dConstant
+Build:  ( d -- ) T d, H ;Build
+by (Constant)
+
 Builder AConstant
 Build:  ( n -- ) T A, H ;Build
 by (AConstant)
@@ -3504,6 +3508,10 @@ T has? rom H [IF]
 
     Builder Value
     BuildSmart: T , H ;Build
+    by (Value)
+    
+    Builder dValue
+    BuildSmart: T d, H ;Build
     by (Value)
     
     Builder AValue
@@ -4448,10 +4456,12 @@ previous
 
 : s" '"' parse s-buffer place s-buffer count ; \ for environment?
 : + + ;
+: - - ;
+: d+ d+ ;
+: d- d- ;
 : 1+ 1 + ;
 : 2+ 2 + ;
 : 1- 1- ;
-: - - ;
 : and and ;
 : or or ;
 : xor xor ;
@@ -4469,6 +4479,7 @@ previous
 : <>  <> ;
 : 0=   0= ;
 : lshift lshift ;
+: dlshift dlshift ;
 : 2/ 2/ ;
 : hex. base @ $10 base ! swap . base ! ;
 : invert invert ;
