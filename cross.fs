@@ -1835,7 +1835,9 @@ T has? relocate H
     dup cfalign+ + ;
 
 : @  ( taddr -- w )     >image S@ ;
+: d@  ( taddr -- d )    >image DS@ ;
 : !  ( w taddr -- )     >ramimage S! ;
+: d!  ( d taddr -- )    >ramimage DS! ;
 : c@ ( taddr -- char )  >image Sc@ ;
 : c! ( char taddr -- )  >ramimage Sc! ;
 : 2@ ( taddr -- x1 x2 ) T dup cell+ @ swap @ H ;
@@ -1847,6 +1849,7 @@ T has? relocate H
 : here  ( -- there )    there ;
 : allot ( n -- )        tdp +! ;
 : ,     ( w -- )        T here H tcell T allot  ! H ;
+: d,    ( d -- )        T here H tcell T allot d! H ;
 : c,    ( char -- )     T here H tchar T allot c! H ;
 : >align ( n -- )       0 ?DO  bl T c, H tchar +LOOP ;
 : align ( -- )          T here H align+ T >align H ;
@@ -1858,6 +1861,8 @@ T has? relocate H
 : A!                    swap >address swap dup relon T ! H ;
 : A,    ( w -- )        >address T here H relon T , H ;
 : V,    ( w -- )        >address T here H reloff T , H ;
+: dA,   ( d -- )        >address T here H relon T d, H ;
+: dV,   ( d -- )        >address T here H reloff T d, H ;
 
 \ high-level ghosts
 
@@ -3349,13 +3354,13 @@ hm: [G'] to:, gset-optimizer
 Builder (Constant)
 Build:  ( n -- ) ;Build
 by: :docon ( target-body-addr -- n ) T @ H ;DO
-compile: g>body compile lit T @ V, H ;compile
+compile: g>body compile lit T d@ dV, H ;compile
 hm: [G'] constant, gset-optimizer ;hm
 
 Builder (AConstant)
 Build:  ( n -- ) ;Build
 by: :doacon ( target-body-addr -- n ) T @ H ;DO
-compile: g>body compile lit T @ A, H ;compile
+compile: g>body compile lit T d@ dA, H ;compile
 hm: [G'] constant, gset-optimizer ;hm
 
 Builder Constant
