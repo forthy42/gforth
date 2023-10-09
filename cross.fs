@@ -4479,7 +4479,11 @@ previous
 : <>  <> ;
 : 0=   0= ;
 : lshift lshift ;
-: dlshift dlshift ;
+[IFDEF] dlshift
+    : dlshift dlshift ;
+[ELSE]
+    : dlshift 0 ?DO 2dup d+ LOOP ;
+[THEN]
 : 2/ 2/ ;
 : hex. base @ $10 base ! swap . base ! ;
 : invert invert ;
