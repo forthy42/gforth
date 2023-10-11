@@ -43,7 +43,7 @@ get-current also see-voc definitions
 
 : simp.word {: addr -- :}
     addr decompile-prim3 {: nseqlen ustart uend c-addr u nlen :} nlen 0< if
-        addr @ .word
+        addr @ .word1
     else
         c-addr u type
         nseqlen if

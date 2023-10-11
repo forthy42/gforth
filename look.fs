@@ -41,10 +41,13 @@ decimal
     THEN  =
     r> first-throw ! ;
 
-: threaded>xt ( ca -- xt|0 ) \ gforth-internal
-    \G For the code address ca of a primitive, find the xt (or 0).
-    [IFDEF] decompile-prim
-	decompile-prim
+: @threaded>xt ( a-addr -- xt|0 ) \ gforth-internal
+    \G Given a threaded-code address a-addr, xt is the xt of the
+    \G primitive there.  Return 0 if there is no primitive there.
+    [IFDEF] @decompile-prim
+        @decompile-prim
+    [ELSE]
+        @
     [THEN]
     \ walk through the array of primitive CAs
     >r ['] image-header >link @ begin
@@ -111,8 +114,8 @@ has? rom
     \G the same interpretation sematics xt.
     look and ;
 
-: threaded>name ( ca -- nt|0 )
-    threaded>xt >name ;
+: @threaded>name ( a-addr -- nt|0 )
+    @threaded>xt >name ;
 
 ' >name ALIAS >head \ gforth to-head
 ' >name Alias prim>name

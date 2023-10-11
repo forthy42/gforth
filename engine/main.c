@@ -272,7 +272,6 @@ typedef struct {
 } PrimInfo;
 
 PrimInfo *priminfos;
-PrimInfo **decomp_prims;
 
 #ifndef NO_DYNAMIC
 void init_ss_cost(void);
@@ -964,22 +963,6 @@ static void prepare_super_table()
 }
 
 /* dynamic replication/superinstruction stuff */
-
-#ifndef NO_DYNAMIC
-static int compare_priminfo_length(const void *_a, const void *_b)
-{
-  PrimInfo **a = (PrimInfo **)_a;
-  PrimInfo **b = (PrimInfo **)_b;
-  Cell diff = (*a)->length - (*b)->length;
-  if (diff)
-    return diff;
-  else /* break ties by start address; thus the decompiler produces
-          the earliest primitive with the same code (e.g. noop instead
-          of (char) and @ instead of >code-address */
-    return (*b)->start - (*a)->start;
-}
-#endif /* !defined(NO_DYNAMIC) */
-
 static char MAYBE_UNUSED superend[]={
 #include PRIM_SUPEREND_I
 };
@@ -1202,11 +1185,6 @@ static void check_prims(Label symbols1[])
         priminfos[i-o].max_ip_offset = o;
     }
   }
-  decomp_prims = calloc(i,sizeof(PrimInfo *));
-  for (i=DOER_MAX+1; i<npriminfos; i++)
-    decomp_prims[i] = &(priminfos[i]);
-  qsort(decomp_prims+DOER_MAX+1, npriminfos-DOER_MAX-1, sizeof(PrimInfo *),
-	compare_priminfo_length);
 #endif
 }
 
@@ -1539,6 +1517,22 @@ DynamicInfo *decompile_prim3(Label *tcp)
     di = &dyninfo;
   }
   return di;
+}
+
+Cell fetch_decompile_prim(Cell *a_addr)
+/* see documentation for @decompile-prim */
+{
+  DynamicInfo *di = dynamic_info3((Label *)a_addr);
+  PrimNum p;
+  struct cost *c;
+  if (di==NULL)
+    return *a_addr;
+  p = di->prim;
+  c = &super_costs[p];
+  p = c->offset;
+  if (c->length > 1)
+    p = super2[p];
+  return (Cell)(vm_prims[p]);
 }
 
 void finish_code(void)

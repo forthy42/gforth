@@ -47,7 +47,7 @@ IS store-backtrace
 : >bt-entry ( return-stack-item -- nt )
     cell- dup in-dictionary? over dup aligned = and
     if
-	@ dup threaded>name dup if
+	dup @ swap @threaded>name dup if
 	    nip EXIT
 	else
 	    drop dup look if

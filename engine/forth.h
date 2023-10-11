@@ -617,6 +617,7 @@ int forget_dyncode3(Label *tc);
 Label decompile_code(Label prim);
 extern const char * const prim_names[];
 extern DynamicInfo *decompile_prim3(Label *tcp);
+extern Cell fetch_decompile_prim(Cell *a_addr);
 int state_map(int);
 
 extern int offset_image;
