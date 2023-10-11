@@ -291,6 +291,7 @@ const char * const prim_names[]={
 #if !defined(NO_DYNAMIC)
 #include PRIM_NAMES_I
 #endif
+  ""
 };
 
 #ifdef MEMCMP_AS_SUBROUTINE
@@ -1195,9 +1196,11 @@ long ndynamicinfos=0; /* index of next dynamicinfos entry */
 DynamicInfo *dynamic_info3(Label *tcp)
 {
   DynamicInfo *di;
-  for (di=dynamicinfos; di<&dynamicinfos[ndynamicinfos]; di++)
-    if (di->tcp == tcp)
-      return di;
+  if (dynamicinfos != NULL) {
+    for (di=dynamicinfos; di<&dynamicinfos[ndynamicinfos]; di++)
+      if (di->tcp == tcp)
+        return di;
+  }
   return NULL;
 }
 
