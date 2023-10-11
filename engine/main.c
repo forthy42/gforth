@@ -1192,16 +1192,6 @@ static void check_prims(Label symbols1[])
 DynamicInfo *dynamicinfos = NULL; /* 2^n-sized growable array */
 long ndynamicinfos=0; /* index of next dynamicinfos entry */
 
-
-DynamicInfo *dynamic_info(Label _code)
-{
-  DynamicInfo *di;
-  for (di=dynamicinfos; di<&dynamicinfos[ndynamicinfos]; di++)
-    if (*(di->tcp) == _code)
-      return di;
-  return NULL;
-}
-
 DynamicInfo *dynamic_info3(Label *tcp)
 {
   DynamicInfo *di;
@@ -1478,14 +1468,6 @@ static long dyncodesize(void)
   }
 #endif /* !defined(NO_DYNAMIC) */
   return 0;
-}
-
-Label decompile_code(Label _code)
-{
-  DynamicInfo *di = dynamic_info(_code);
-  if (di==NULL)
-    return _code;
-  return vm_prims[super2[super_costs[di->prim].offset]];
 }
 
 static Cell prim_index(Label code)

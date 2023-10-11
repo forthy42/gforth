@@ -3394,11 +3394,6 @@ finish_code();
 forget-dyncode3 ( a_tc -- f ) gforth-internal forget_dyncode3
 f = forget_dyncode3((Label *)a_tc);
 
-decompile-prim ( a_code -- a_prim ) gforth-internal decompile_prim
-""a_prim is the code address of the primitive that has been
-compile_prim1ed to a_code""
-a_prim = (Cell *)decompile_code((Label)a_code);
-
 decompile-prim3 ( a_tc -- useqlen ustart uend c_addr u nlen ) gforth-internal decompile_prim3
 ""a_tc is a threaded-code address; the contents of the cell at a_tc is
 the code address of machine code of nlen bytes, corresponding to
