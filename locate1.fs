@@ -202,16 +202,14 @@ no-</>
     \g @code{n} or @code{b} output (whichever was later).
     current-location?
     located-bottom @ dup located-top ! rows 2/ + located-bottom !
-    locate-lines# off
-    set-bn-view l1 ;
+    set-bn-view cr print-locate-header l1 ;
 
 : b ( -- ) \ gforth
     \g Display lines before the current location, or before the last
     \g @code{n} or @code{b} output (whichever was later).
     current-location?
     located-top @ dup located-bottom ! rows 2/ - 0 max located-top !
-    locate-lines# off
-    set-bn-view l1 ;
+    set-bn-view cr print-locate-header l1 ;
 
 : extern-g ( -- ) \ gforth-internal
     \g Enter the external editor at the place of the latest error,
